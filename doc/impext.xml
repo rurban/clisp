@@ -4808,13 +4808,13 @@ Compiled, it will have inlined the library function calls.
  executable programs, which can be started as quickly as executables
  written in other languages.</para>
 
+<section id="quickstart-summary"><title>Summary</title>
 <variablelist>
  <varlistentry><term>&unix;</term>
   <listitem><simpara>&clisp; can act as a script interpreter.
   </simpara></listitem></varlistentry>
- <varlistentry><term>Desktop environments such as
-   <ulink url="http://www.kde.org">KDE</ulink>,
-   <ulink url="http://www.gnome.org">GNOME</ulink>, or Windows.</term>
+ <varlistentry><term>Desktop environments such as &kde;, &gnome;,
+   &macosx; or &win32;.</term>
   <listitem><simpara>Files created with &clisp; can be associated with
    the &clisp; executable so that clicking on them would make &clisp;
    execute the appropriate code.</simpara></listitem></varlistentry>
@@ -4830,18 +4830,21 @@ Compiled, it will have inlined the library function calls.
  If your application is made up of several &lisp-file; or &fasl-file; files,
  you can simply concatenate them (using &cat;) into one file;
  the techniques then apply to that concatenated file.</para>
+</section>
 
-<variablelist>
 <!-- #ifdef UNIX -->
-<varlistentry id="quickstart-unix">
- <term>Platform dependent: &unix; platforms only.</term>
-<listitem><para>On &unix;, a text file (&fasl-file; or &lisp-file;) can
+<section id="quickstart-unix"><title>Scripting with &clisp;</title>
+ <subtitle>Platform dependent: &unix; platforms only, including
+  &cygwin;.</subtitle>
+
+<para>On &unix;, a text file (&fasl-file; or &lisp-file;) can
  be made executable by adding a first line of the form
  <screen>#!&interp-r; [&interp-args;]</screen>
- and using &chmod-u; to make the script executable.
- &clisp; can be used as a script interpreter under the following
- circumstances:</para>
+ and using &chmod-u; to make the script executable.</para>
 
+<formalpara><title>OS Requirements</title>
+ <para>&clisp; can be used as a script interpreter under the following
+ conditions:
 <itemizedlist>
 <listitem><simpara>The &interp-r; must be the full pathname of &clisp;.
  The recommended path is <filename>/usr/local/bin/clisp</filename>,
@@ -4874,7 +4877,7 @@ Compiled, it will have inlined the library function calls.
  spaces</ulink> instead of normal spaces.  (But the separator between
  &interp-r; and &interp-args; must still be a normal space!) &clisp;
  will split the &interp-args; both at no-break spaces and at normal spaces.
-</simpara></listitem></itemizedlist>
+</simpara></listitem></itemizedlist></para></formalpara>
 
 <formalpara id="script-exec"><title>Script execution</title>
 <para><itemizedlist><listitem><simpara>The script should contain Lisp
@@ -4917,16 +4920,22 @@ EOF
 The problem with this approach is that the return values of each form
 will be printed to the standard output.  Another problem is that no user
 input will be available.</para></formalpara>
-</listitem></varlistentry>
+</section>
 <!-- #endif -->
 
 <!-- #ifdef WIN32 -->
-<varlistentry id="quickstart-win32">
- <term>Platform dependent: &win32; platforms only.</term>
-<listitem><simpara>There are two different ways to make &clisp;
- "executables" for Windows platforms.</simpara>
+<section id="quickstart-desktop"><title>Desktop Environments</title>
+ <subtitle>Platform dependent: &win32;, &gnome;, &kde;, &macosx; desktop
+  platforms only.</subtitle>
 
-<itemizedlist>
+<note id="quickstart-desktop-win32"><title>Notations</title>
+<para>Although we use &win32;-specific notation, these techniques work
+ on other desktop environments as well.</para></note>
+
+<para>There are two different ways to make &clisp;
+ "executables" on Windows platforms.</para>
+
+<orderedlist>
  <listitem><simpara>Associate the &mem-file; extension with
    <command>c:\clisp\lisp.exe -B c:\clisp -M %s</command>.
   </simpara></listitem>
@@ -4938,7 +4947,7 @@ input will be available.</para></formalpara>
     the &fasl-file; extension with <command>c:\clisp\lisp.exe -B
     c:\clisp -M c:\clisp\lispinit.mem -i %s -x (main)</command>.
   </simpara></listitem>
-</itemizedlist>
+</orderedlist>
 
 <para>Then clicking on the compiled lisp file (with &fasl-file;
  extension) will load the file (thus executing all the code in the
@@ -4950,13 +4959,14 @@ input will be available.</para></formalpara>
  <filename>clisp.lnk</filename> on your desktop and also associates
  &fasl-file;, &lisp-file;, and &mem-file; files with &clisp;.</para>
 
-</listitem></varlistentry>
+</section>
 <!-- #endif -->
 
-<varlistentry id="quickstart-linux">
- <term>Platform dependent: &linux; platforms only.</term>
+<section id="quickstart-linux">
+ <title>Associating extensions with &clisp; via kernel</title>
+ <subtitle>Platform dependent: &linux; platforms only.</subtitle>
 
-<listitem><para>You have to build your kernel with
+<para>You have to build your kernel with
  <option>CONFIG_BINFMT_MISC=y</option> and
  <option>CONFIG_PROC_FS=y</option>.  Then you will have a
  <filename>/proc/sys/fs/binfmt_misc/</filename> directory and you will
@@ -4989,8 +4999,7 @@ bash$
 <para>Please read
  <filename>/usr/src/linux/Documentation/binfmt_misc.txt</filename> for
  details.</para>
-</listitem></varlistentry>
-</variablelist>
+</section>
 
 </section>
 
