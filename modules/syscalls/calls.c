@@ -1202,10 +1202,10 @@ static void copy_file_low (object source, object dest,
     /* stack layout: 0 - dest-stream; 1 - source-stream */
     Handle fd_in = stream_lend_handle(STACK_1,true,NULL);
     Handle fd_ou = stream_lend_handle(STACK_0,false,NULL);
-    while ((bytes_read = read_helper(fd_in,buffer,strm_buffered_bufflen,
-                                     false))) {
+    while ((bytes_read = fd_read(fd_in,buffer,strm_buffered_bufflen,
+                                 persev_full))) {
       total_count += bytes_read;
-      write_helper(fd_ou,buffer,bytes_read,false);
+      fd_write(fd_ou,buffer,bytes_read,persev_full);
     }
   }
   if (!preserve_p) {
