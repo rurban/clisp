@@ -894,7 +894,7 @@ LISPFUN(socket_accept,1,0,norest,key,3,\
 LISPFUN(socket_wait,1,2,norest,nokey,0,NIL)
 LISPFUN(socket_connect,1,1,norest,key,3,\
         (kw(element_type),kw(external_format),kw(buffered)) )
-LISPFUNN(socket_service_port,1)
+LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 LISPFUNN(socket_stream_port,1)
 LISPFUNN(socket_stream_host,1)
 LISPFUNN(socket_stream_peer,1)
@@ -905,7 +905,7 @@ LISPFUNN(socket_stream_handle,1)
 #endif
 #ifdef EXPORT_SYSCALLS
 #ifdef HAVE_GETHOSTBYNAME
-LISPFUNN(resolve_host_ipaddr,1)
+LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
 #endif # HAVE_GETHOSTBYNAME
 #ifdef UNIX
 LISPFUN(file_stat,1,1,norest,nokey,0,NIL)

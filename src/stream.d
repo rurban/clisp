@@ -62,7 +62,7 @@
   # siehe in LISPBIBL.D und bei den einzelnen Stream-Typen.
 
 
-# ==============================================================================
+# =============================================================================
 #                           S T R E A M S
 
 # Da MAKE-TWO-WAY-STREAM eventuell einen Stream liefern kann, der z.B.
@@ -15042,26 +15042,6 @@ LISPFUN(socket_connect,1,1,norest,key,3,\
     mv_count = 1;
   }
 
-extern int resolve_service (const char* name_or_number, const char* *name);
-
-LISPFUNN(socket_service_port,1)
-# (SOCKET-SERVICE-PORT service-name)
-  {
-    var const char* service_name;
-    var int port;
-
-    if (stringp(STACK_0))
-      service_name = TheAsciz(string_to_asciz(STACK_0,Symbol_value(S(ascii))));
-    else
-      fehler_string(STACK_0);
-    begin_system_call();
-    port = resolve_service(service_name,&service_name);
-    end_system_call();
-    value1 = (port >= 0 ? L_to_I(port) : NIL);
-    skipSTACK(1);
-    mv_count=1;
-  }
-
 local object test_socket_stream (object obj, boolean check_open);
 local object test_socket_stream(obj,check_open)
   var object obj;
@@ -17222,7 +17202,7 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
     mv_count=1;
   }
 
-# ==============================================================================
+# =============================================================================
 
 # Binärkompatibilität zwischen .mem-Files mit und ohne NEXTAPP erreichen:
   #ifdef MAYBE_NEXTAPP
@@ -17259,7 +17239,7 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
       #undef PSEUDOFUN
     };
 
-# ==============================================================================
+# =============================================================================
 
 #ifdef EMUNIX_PORTABEL
 
@@ -17270,7 +17250,7 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
 
 #endif
 
-# ==============================================================================
+# =============================================================================
 
 # filestatus/if_file_exists, file_datetime durch break_sem_4 schützen??
 # Signalbehandlung bei EXECUTE, SHELL, MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM, MAKE-PIPE-IO-STREAM ??
@@ -17279,3 +17259,16 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
 # implement FILE-POSITION for unbuffered file-streams (regular handle, direction != 5)
 # LISTEN on unbuffered (non-regular) file and socket streams can cause the process to block
 
+#ifdef EXPORT_SYSCALLS
+#ifdef UNIX
+
+global object stream_fd (object stream);
+global object stream_fd (stream)
+  var object stream;
+{
+  return (TheStream(stream)->strmflags & strmflags_rd_B ?
+          TheStream(stream)->strm_ichannel : TheStream(stream)->strm_ochannel);
+}
+
+#endif # UNIX
+#endif # EXPORT_SYSCALLS

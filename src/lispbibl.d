@@ -11394,6 +11394,9 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   nonreturning_function(extern, fehler_string, (object obj));
 # wird verwendet von CHARSTRG, FOREIGN
 
+# signal a "string or integer" error
+nonreturning_function(extern, fehler_string_int, (object obj));
+
 # Fehlermeldung, falls ein Argument kein Simple-String ist:
 # fehler_sstring(obj);
 # > obj: Das fehlerhafte Argument
