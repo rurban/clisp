@@ -1,3 +1,15 @@
+2002-02-17  Arseny Slobodjuck <ampy@ich.dvo.ru>
+
+	smooth Ctrl-C, Ctrl-Break handling not depending on whether
+	interrupted thread is alive when temp_interrupt_handler executes
+	* win32aux.d: (interruptible_abort_code): new variable holds
+	1+CtrlType after temp_interrupt_handler works, zero while
+	temp_interrupt_handler is not called.
+	(temp_interrupt_handler): check whether thread is alive before
+	terminating it. Save result in new variable instead of use of
+	thread exit code.
+	(DoInterruptible): use interruptible_abort_code.
+
 2002-02-18  Sam Steingold  <sds@gnu.org>
 
 	* bindings/linuxlibc6/wrap.lisp: require "linux" to avoid warnings
