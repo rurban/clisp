@@ -57,7 +57,6 @@
   # strm_wr_ch_array   pseudofunction for WRITE-CHAR-SEQUENCE
   # strm_wr_ch_lpos    line-position in the current line after last WRITE-CHAR,
   #                    a fixnum >=0
-  # strm_wr_ss         pseudofunction for WRITE-SIMPLE-STRING
 # weitere (typspezifische) Komponenten:
   # siehe in LISPBIBL.D und bei den einzelnen Stream-Typen.
 
@@ -154,16 +153,6 @@
   # > uintL start: start index of character sequence to be written
   # > uintL len: length of character sequence to be written, >0
     typedef void (* wr_ch_array_Pseudofun) (const object* stream_, const object* chararray_, uintL start, uintL len);
-  #
-  # Spezifikation für WRITE-SIMPLE-STRING - Pseudofunktion:
-  # fun(&stream,string,start,len)
-  # > string: Simple-String
-  # > start: Startindex
-  # > len: Anzahl der auszugebenden Zeichen
-  # > stream: Stream
-  # < stream: Stream
-  # kann GC auslösen
-    typedef void (* wr_ss_Pseudofun) (const object* stream_, object string, uintL start, uintL len);
 
 # Pseudofunktionen aus einem Stream herausgreifen:
   #define rd_by(strm)  (*(rd_by_Pseudofun)(ThePseudofun(TheStream(strm)->strm_rd_by)))
@@ -175,7 +164,6 @@
   #define rd_ch_array(strm)  (*(rd_ch_array_Pseudofun)(ThePseudofun(TheStream(strm)->strm_rd_ch_array)))
   #define wr_ch(strm)  (*(wr_ch_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_ch)))
   #define wr_ch_array(strm)  (*(wr_ch_array_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_ch_array)))
-  #define wr_ss(strm)  (*(wr_ss_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_ss)))
 
 #  Mögliche Typen von Streams              Zusatzkomponenten
 #  --------------------------              -----------------
@@ -358,47 +346,7 @@
         }
         );
     }
-  local void wr_ss_dummy (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_dummy(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { if (len==0) return;
-     {var uintL index = start;
-      pushSTACK(string); # Simple-String retten
-      SstringDispatch(string,
-        { dotimespL(len,len,
-            { write_char(stream_,code_char(TheSstring(STACK_0)->data[index]));
-              index++;
-            });
-        },
-        { dotimespL(len,len,
-            { write_char(stream_,code_char(as_chart(TheSmallSstring(STACK_0)->data[index])));
-              index++;
-            });
-        }
-        );
-      skipSTACK(1);
-    }}
-  # Dasselbe, wenn write_char auf diesem Stream keine GC auslösen kann:
-  local void wr_ss_dummy_nogc (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_dummy_nogc(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { if (len==0) return;
-      SstringDispatch(string,
-        { var const chart* ptr = &TheSstring(string)->data[start];
-          dotimespL(len,len, { write_char(stream_,code_char(*ptr++)); } );
-        },
-        { var const scint* ptr = &TheSmallSstring(string)->data[start];
-          dotimespL(len,len, { write_char(stream_,code_char(as_chart(*ptr++))); } );
-        }
-        );
-    }
-  # Am Ende eines wr_ss die Line-Position aktualisieren:
+  # Am Ende eines wr_ch_array die Line-Position aktualisieren:
   # wr_ss_lpos(stream,ptr,len);
   # > stream: Stream, nicht der Terminal-Stream
   # > ptr: Pointer ans Ende(!) der bereits auf den Stream ausgegebenen Zeichen
@@ -697,7 +645,6 @@
       TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
       TheStream(stream)->strm_wr_ch = P(wr_ch_error);
       TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
-      TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
       TheStream(stream)->strmflags &= ~(strmflags_open_B|strmflags_unread_B); # Fähigkeiten-Flags löschen
     }
 
@@ -1011,21 +958,6 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       # No need to update wr_ch_lpos here. (See get_line_position.)
     }
 
-# WRITE-SIMPLE-STRING - Pseudofunktion für Synonym-Streams:
-  local void wr_ss_synonym (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_synonym(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { check_SP(); check_STACK();
-     {var object symbol = TheStream(*stream_)->strm_synonym_symbol;
-      pushSTACK(get_synonym_stream(symbol));
-      wr_ss(STACK_0)(&STACK_0,string,start,len);
-      skipSTACK(1);
-      # Line-Position aktualisieren kann hier entfallen.
-    }}
-
 # Schließt einen Synonym-Stream.
 # close_synonym(stream);
 # > stream : Synonym-Stream
@@ -1129,7 +1061,6 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       TheStream(stream)->strm_wr_ch = P(wr_ch_synonym);
       TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_synonym);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_synonym);
       TheStream(stream)->strm_synonym_symbol = popSTACK();
       return stream;
     }}
@@ -1239,36 +1170,14 @@ LISPFUNN(synonym_stream_symbol,1)
     { var object streamlist;
       check_SP(); check_STACK();
       pushSTACK(TheStream(*stream_)->strm_broad_list); # list of streams
-      while (streamlist = STACK_0, consp(streamlist))
-        { STACK_0 = Cdr(streamlist);
-          pushSTACK(Car(streamlist));
-          write_char_array(&STACK_0,chararray_,start,len);
-          skipSTACK(1);
-        }
-      skipSTACK(1);
-      # No need to update wr_ch_lpos here. (See get_line_position.)
-    }
-
-# WRITE-SIMPLE-STRING - Pseudofunktion für Broadcast-Streams:
-  local void wr_ss_broad (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_broad(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { check_SP(); check_STACK();
-      pushSTACK(string);
       pushSTACK(NIL); # dummy
-      pushSTACK(TheStream(*stream_)->strm_broad_list); # Liste von Streams
-      # string auf jeden Stream aus der Liste ausgeben:
-      while (mconsp(STACK_0))
-        { # Stackaufbau: string, dummy, streamlistr.
-          STACK_1 = Car(STACK_0); # ein Stream aus der Liste
-          wr_ss(STACK_1)(&STACK_1,STACK_2,start,len); # string-Stück ausgeben
-          STACK_0 = Cdr(STACK_0);
+      while (streamlist = STACK_1, consp(streamlist))
+        { STACK_1 = Cdr(streamlist);
+          STACK_0 = Car(streamlist);
+          write_char_array(&STACK_0,chararray_,start,len);
         }
-      skipSTACK(3);
-      # Line-Position aktualisieren kann hier entfallen.
+      skipSTACK(2);
+      # No need to update wr_ch_lpos here. (See get_line_position.)
     }
 
 # UP: Bringt den wartenden Output eines Broadcast-Stream ans Ziel.
@@ -1346,7 +1255,6 @@ LISPFUNN(synonym_stream_symbol,1)
       TheStream(stream)->strm_wr_ch = P(wr_ch_broad);
       TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_broad);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_broad);
       TheStream(stream)->strm_broad_list = list;
       return stream;
     }}
@@ -1596,7 +1504,6 @@ LISPFUNN(broadcast_stream_streams,1)
       TheStream(stream)->strm_wr_ch = P(wr_ch_error);
       TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
       TheStream(stream)->strm_concat_list =
       TheStream(stream)->strm_concat_totallist = popSTACK();
       return stream;
@@ -1685,20 +1592,6 @@ LISPFUNN(concatenated_stream_streams,1)
       write_char_array(&STACK_0,chararray_,start,len);
       skipSTACK(1);
       # No need to update wr_ch_lpos here. (See get_line_position.)
-    }
-
-# WRITE-SIMPLE-STRING - Pseudofunktion für Two-Way- und Echo-Streams:
-  local void wr_ss_twoway (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_twoway(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { check_SP(); check_STACK();
-      pushSTACK(TheStream(*stream_)->strm_twoway_output);
-      wr_ss(STACK_0)(&STACK_0,string,start,len);
-      skipSTACK(1);
-      # Line-Position aktualisieren kann hier entfallen.
     }
 
 # Stellt fest, ob ein Two-Way- oder Echo-Stream ein Zeichen verfügbar hat.
@@ -1850,7 +1743,6 @@ LISPFUNN(concatenated_stream_streams,1)
       TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_twoway);
       output_stream = popSTACK(); input_stream = popSTACK(); # Streams zurück
       TheStream(stream)->strm_wr_ch_lpos = TheStream(output_stream)->strm_wr_ch_lpos;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_twoway);
       TheStream(stream)->strm_twoway_input = input_stream;
       TheStream(stream)->strm_twoway_output = output_stream;
       return stream;
@@ -1992,7 +1884,6 @@ LISPFUNN(two_way_stream_output_stream,1)
       TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_twoway);
       output_stream = popSTACK(); input_stream = popSTACK(); # Streams zurück
       TheStream(stream)->strm_wr_ch_lpos = TheStream(output_stream)->strm_wr_ch_lpos;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_twoway);
       TheStream(stream)->strm_twoway_input = input_stream;
       TheStream(stream)->strm_twoway_output = output_stream;
       return stream;
@@ -2165,7 +2056,6 @@ LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL)
       TheStream(stream)->strm_wr_ch = P(wr_ch_error);
       TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
       TheStream(stream)->strm_str_in_string = popSTACK();
       TheStream(stream)->strm_str_in_index = start_arg; # Index := start-Argument
       TheStream(stream)->strm_str_in_endindex = end_arg; # Endindex := end-Argument
@@ -2222,19 +2112,6 @@ LISPFUNN(string_input_stream_index,1)
       wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len); # Line-Position aktualisieren
     }
 
-# WRITE-SIMPLE-STRING - Pseudofunktion für String-Output-Streams:
-  local void wr_ss_str_out (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_str_out(stream_,srcstring,start,len)
-    var const object* stream_;
-    var object srcstring;
-    var uintL start;
-    var uintL len;
-    { if (len==0) return;
-     {var object ssstring = TheStream(*stream_)->strm_str_out_string; # Semi-Simple-String
-      ssstring = ssstring_append_extend(ssstring,srcstring,start,len);
-      wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len); # Line-Position aktualisieren
-    }}
-
 # Liefert einen String-Output-Stream.
 # make_string_output_stream()
 # can trigger GC
@@ -2255,7 +2132,6 @@ LISPFUNN(string_input_stream_index,1)
       TheStream(stream)->strm_wr_ch = P(wr_ch_str_out);
       TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_str_out);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_str_out);
       TheStream(stream)->strm_str_out_string = popSTACK(); # String eintragen
       return stream;
     }}
@@ -2367,7 +2243,6 @@ LISPFUNN(make_string_push_stream,1)
      TheStream(stream)->strm_wr_ch = P(wr_ch_str_push);
      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-     TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
      TheStream(stream)->strm_str_push_string = popSTACK(); # String eintragen
      value1 = stream; mv_count=1; # stream als Wert
   } }
@@ -2429,20 +2304,6 @@ LISPFUNN(string_stream_p,1)
         { TheStream(*stream_)->strm_pphelp_modus = T; } # Nach NL: Modus := Mehrzeiler
     }
 
-# WRITE-SIMPLE-STRING - Pseudofunktion für Pretty-Printer-Hilfs-Streams:
-  local void wr_ss_pphelp (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_pphelp(stream_,srcstring,start,len)
-    var const object* stream_;
-    var object srcstring;
-    var uintL start;
-    var uintL len;
-    { if (len==0) return;
-     {var object ssstring = Car(TheStream(*stream_)->strm_pphelp_strings); # Semi-Simple-String
-      ssstring = ssstring_append_extend(ssstring,srcstring,start,len);
-      if (wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len)) # Line-Position aktualisieren
-        { TheStream(*stream_)->strm_pphelp_modus = T; } # Nach NL: Modus := Mehrzeiler
-    }}
-
 # UP: Liefert einen Pretty-Printer-Hilfs-Stream.
 # make_pphelp_stream()
 # can trigger GC
@@ -2468,7 +2329,6 @@ LISPFUNN(string_stream_p,1)
       TheStream(stream)->strm_wr_ch = P(wr_ch_pphelp);
       TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_pphelp);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_pphelp);
       TheStream(stream)->strm_pphelp_strings = popSTACK(); # String-Liste eintragen
       TheStream(stream)->strm_pphelp_modus = NIL; # Modus := Einzeiler
       return stream;
@@ -2635,7 +2495,6 @@ LISPFUNN(make_buffered_input_stream,2)
     TheStream(stream)->strm_wr_ch = P(wr_ch_error);
     TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
     TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-    TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
     TheStream(stream)->strm_buff_in_mode = popSTACK();
     TheStream(stream)->strm_buff_in_fun = popSTACK();
     TheStream(stream)->strm_buff_in_string = O(leer_string); # String := ""
@@ -2766,7 +2625,6 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
     TheStream(stream)->strm_rd_ch_last = NIL;
     TheStream(stream)->strm_wr_ch = P(wr_ch_buff_out);
     TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
-    TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
     TheStream(stream)->strm_buff_out_string = popSTACK(); # String eintragen
     TheStream(stream)->strm_wr_ch_lpos = popSTACK(); # Line Position eintragen
     TheStream(stream)->strm_buff_out_fun = popSTACK(); # Funktion eintragen
@@ -2866,22 +2724,20 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
       pushSTACK(value1); pushSTACK(ch); funcall(S(generic_stream_wrch),2);
     }
 
-  # (WRITE-SIMPLE-STRING s string start len) ==
+  # (WRITE-CHAR-ARRAY s string start len) ==
   # (GENERIC-STREAM-WRITE-STRING c string start len)
-  local void wr_ss_generic (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_generic(stream_,string,start,len)
+  local void wr_ch_array_generic (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_generic(stream_,chararray_,start,len)
     var const object* stream_;
-    var object string;
+    var const object* chararray_;
     var uintL start;
     var uintL len;
-    { pushSTACK(string); # save string
-      pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); pushSTACK(STACK_(0+1));
+    { pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
+      pushSTACK(value1); pushSTACK(*chararray_);
       pushSTACK(UL_to_I(start)); pushSTACK(UL_to_I(len));
       funcall(S(generic_stream_wrss),4);
-      string = popSTACK();
      {var const chart* charptr;
-      unpack_sstring_alloca(string,len,start, charptr=);
+      unpack_sstring_alloca(*chararray_,len,start, charptr=);
       wr_ss_lpos(*stream_,&charptr[len],len);
     }}
 
@@ -2969,9 +2825,8 @@ LISPFUNN(make_generic_stream,1)
     TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_dummy);
     TheStream(stream)->strm_rd_ch_last = NIL;
     TheStream(stream)->strm_wr_ch = P(wr_ch_generic);
-    TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
+    TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_generic);
     TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-    TheStream(stream)->strm_wr_ss = P(wr_ss_generic);
     TheStream(stream)->strm_controller_object = popSTACK();
     value1 = stream; mv_count=1; # stream als Wert
   }
@@ -5385,19 +5240,6 @@ global object iconv_range(encoding,start,end)
       wr_ss_lpos(stream,endptr,len); # Line-Position aktualisieren
     }}
 
-# WRITE-SIMPLE-STRING - Pseudofunktion für Unbuffered-Channel-Streams:
-  local void wr_ss_unbuffered_unix (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_unbuffered_unix(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { if (len==0) return;
-      pushSTACK(string);
-      wr_ch_array_unbuffered_unix(stream_,&STACK_0,start,len);
-      skipSTACK(1);
-    }
-
 # WRITE-CHAR - Pseudofunktion für Unbuffered-Channel-Streams:
   local void wr_ch_unbuffered_mac (const object* stream_, object ch);
   local void wr_ch_unbuffered_mac(stream_,ch)
@@ -5466,19 +5308,6 @@ global object iconv_range(encoding,start,end)
       #undef tmpbufsize
       wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
     }}
-
-# WRITE-SIMPLE-STRING - Pseudofunktion für Unbuffered-Channel-Streams:
-  local void wr_ss_unbuffered_mac (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_unbuffered_mac(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { if (len==0) return;
-      pushSTACK(string);
-      wr_ch_array_unbuffered_mac(stream_,&STACK_0,start,len);
-      skipSTACK(1);
-    }
 
 # WRITE-CHAR - Pseudofunktion für Unbuffered-Channel-Streams:
   local void wr_ch_unbuffered_dos (const object* stream_, object ch);
@@ -5556,19 +5385,6 @@ global object iconv_range(encoding,start,end)
       #undef tmpbufsize
       wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
     }}
-
-# WRITE-SIMPLE-STRING - Pseudofunktion für Unbuffered-Channel-Streams:
-  local void wr_ss_unbuffered_dos (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_unbuffered_dos(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { if (len==0) return;
-      pushSTACK(string);
-      wr_ch_array_unbuffered_dos(stream_,&STACK_0,start,len);
-      skipSTACK(1);
-    }
 
 # UP: Bringt den wartenden Output eines Unbuffered-Channel-Stream ans Ziel.
 # finish_output_unbuffered(stream);
@@ -5688,17 +5504,14 @@ global object iconv_range(encoding,start,end)
               if (eq(eol,S(Kunix)))
                 { TheStream(stream)->strm_wr_ch = P(wr_ch_unbuffered_unix);
                   TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_unbuffered_unix);
-                  TheStream(stream)->strm_wr_ss = P(wr_ss_unbuffered_unix);
                 }
               elif (eq(eol,S(Kmac)))
                 { TheStream(stream)->strm_wr_ch = P(wr_ch_unbuffered_mac);
                   TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_unbuffered_mac);
-                  TheStream(stream)->strm_wr_ss = P(wr_ss_unbuffered_mac);
                 }
               elif (eq(eol,S(Kdos)))
                 { TheStream(stream)->strm_wr_ch = P(wr_ch_unbuffered_dos);
                   TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_unbuffered_dos);
-                  TheStream(stream)->strm_wr_ss = P(wr_ss_unbuffered_dos);
                 }
               else
                 { NOTREACHED; }
@@ -5719,14 +5532,12 @@ global object iconv_range(encoding,start,end)
                 );
               TheStream(stream)->strm_wr_ch = P(wr_ch_error);
               TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
-              TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
         }   }
         else
         { TheStream(stream)->strm_wr_by = P(wr_by_error);
           TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
           TheStream(stream)->strm_wr_ch = P(wr_ch_error);
           TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
-          TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
         }
     }
 
@@ -6687,19 +6498,6 @@ typedef struct strm_i_buffered_extrafields_struct {
       wr_ss_lpos(stream,endptr,len); # Line-Position aktualisieren
     }}
 
-# WRITE-SIMPLE-STRING - Pseudofunktion für File-Streams für Characters
-  local void wr_ss_buffered_unix (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_buffered_unix(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { if (len==0) return;
-      pushSTACK(string);
-      wr_ch_array_buffered_unix(stream_,&STACK_0,start,len);
-      skipSTACK(1);
-    }
-
 # WRITE-CHAR - Pseudofunktion für File-Streams für Characters
   local void wr_ch_buffered_mac (const object* stream_, object obj);
   local void wr_ch_buffered_mac(stream_,obj)
@@ -6779,19 +6577,6 @@ typedef struct strm_i_buffered_extrafields_struct {
       #endif
       wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
     }}
-
-# WRITE-SIMPLE-STRING - Pseudofunktion für File-Streams für Characters
-  local void wr_ss_buffered_mac (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_buffered_mac(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { if (len==0) return;
-      pushSTACK(string);
-      wr_ch_array_buffered_mac(stream_,&STACK_0,start,len);
-      skipSTACK(1);
-    }
 
 # WRITE-CHAR - Pseudofunktion für File-Streams für Characters
   local void wr_ch_buffered_dos (const object* stream_, object obj);
@@ -6882,19 +6667,6 @@ typedef struct strm_i_buffered_extrafields_struct {
       #endif
       wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
     }}
-
-# WRITE-SIMPLE-STRING - Pseudofunktion für File-Streams für Characters
-  local void wr_ss_buffered_dos (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_buffered_dos(stream_,string,start,len)
-    var const object* stream_;
-    var object string;
-    var uintL start;
-    var uintL len;
-    { if (len==0) return;
-      pushSTACK(string);
-      wr_ch_array_buffered_dos(stream_,&STACK_0,start,len);
-      skipSTACK(1);
-    }
 
 # File-Stream, Bit-basiert
 # ========================
@@ -7494,17 +7266,14 @@ typedef struct strm_i_buffered_extrafields_struct {
               if (eq(eol,S(Kunix)))
                 { TheStream(stream)->strm_wr_ch = P(wr_ch_buffered_unix);
                   TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_buffered_unix);
-                  TheStream(stream)->strm_wr_ss = P(wr_ss_buffered_unix);
                 }
               elif (eq(eol,S(Kmac)))
                 { TheStream(stream)->strm_wr_ch = P(wr_ch_buffered_mac);
                   TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_buffered_mac);
-                  TheStream(stream)->strm_wr_ss = P(wr_ss_buffered_mac);
                 }
               elif (eq(eol,S(Kdos)))
                 { TheStream(stream)->strm_wr_ch = P(wr_ch_buffered_dos);
                   TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_buffered_dos);
-                  TheStream(stream)->strm_wr_ss = P(wr_ss_buffered_dos);
                 }
               else
                 { NOTREACHED; }
@@ -7568,7 +7337,6 @@ typedef struct strm_i_buffered_extrafields_struct {
       if ((flags & strmflags_wr_ch_B)==0)
         { TheStream(stream)->strm_wr_ch = P(wr_ch_error);
           TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
-          TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
         }
     }
 
@@ -9224,7 +8992,6 @@ local object make_key_event(event)
         s->strm_wr_ch = P(wr_ch_error); # WRITE-CHAR unmöglich
         s->strm_wr_ch_array = P(wr_ch_array_error); # WRITE-CHAR unmöglich
         s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-        s->strm_wr_ss = P(wr_ss_dummy);
         #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
         # Flag isatty = (stdin_tty ? T : NIL) bestimmen:
         begin_system_call();
@@ -9403,7 +9170,6 @@ LISPFUNN(make_keyboard_stream,0)
         s->strm_wr_ch = P(wr_ch_terminal); # WRITE-CHAR-Pseudofunktion
         s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
         s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-        s->strm_wr_ss = P(wr_ss_dummy_nogc);
       return stream;
     }
 
@@ -9623,12 +9389,12 @@ LISPFUNN(make_keyboard_stream,0)
  #endif
 
 # UP: Mehrere Zeichen auf einen Terminal-Stream ausgeben.
-# wr_ss_terminal1(&stream,string,start,len);
+# wr_ch_array_terminal1(&stream,&chararray,start,len);
 # > stream: Terminal-Stream
-# > string: Simple-String
+# > chararray: Simple-String
 # > start: Startindex
 # > len: Anzahl der auszugebenden Zeichen
-  #define wr_ss_terminal1  wr_ss_unbuffered_unix
+  #define wr_ch_array_terminal1  wr_ch_array_unbuffered_unix
 
 # UP: Löscht den wartenden Output eines Terminal-Stream.
 # clear_output_terminal1(stream);
@@ -9735,12 +9501,12 @@ LISPFUNN(make_keyboard_stream,0)
   #define wr_ch_terminal2  wr_ch_unbuffered
 
 # UP: Mehrere Zeichen auf einen Terminal-Stream ausgeben.
-# wr_ss_terminal2(&stream,string,start,len);
+# wr_ch_array_terminal2(&stream,&chararray,start,len);
 # > stream: Terminal-Stream
-# > string: Simple-String
+# > chararray: Simple-String
 # > start: Startindex
 # > len: Anzahl der auszugebenden Zeichen
-  #define wr_ss_terminal2  wr_ss_unbuffered
+  #define wr_ch_array_terminal2  wr_ch_array_unbuffered
 
 # UP: Löscht den wartenden Output eines Terminal-Stream.
 # clear_output_terminal2(stream);
@@ -9957,21 +9723,21 @@ LISPFUNN(make_keyboard_stream,0)
     }
 
 # UP: Mehrere Zeichen auf einen Terminal-Stream ausgeben.
-# wr_ss_terminal3(&stream,string,start,len);
+# wr_ch_array_terminal3(&stream,&chararray,start,len);
 # > stream: Terminal-Stream
-# > string: Simple-String
+# > chararray: Simple-String
 # > start: Startindex
 # > len: Anzahl der auszugebenden Zeichen
-  local void wr_ss_terminal3 (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_terminal3(stream_,string,start,len)
+  local void wr_ch_array_terminal3 (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local void wr_ch_array_terminal3(stream_,chararray_,start,len)
     var const object* stream_;
-    var object string;
+    var const object* chararray_;
     var uintL start;
     var uintL len;
-    { if (len==0) return;
-      wr_ss_unbuffered_unix(stream_,string,start,len);
+    { wr_ch_array_unbuffered_unix(stream_,chararray_,start,len);
       #if TERMINAL_OUTBUFFERED
-      {var const chart* ptr;
+      {var object string = *chararray_;
+       var const chart* ptr;
        unpack_sstring_alloca(string,len,start, ptr =);
        # Zeichen seit dem letzten NL in den Buffer:
        { var uintL pos = 0; # zähle die Zahl der Zeichen seit dem letzten NL
@@ -9987,13 +9753,11 @@ LISPFUNN(make_keyboard_stream,0)
            { SstringDispatch(string,
                { # ptr points into the string, not GC-safe.
                  var uintL index = start + len - pos;
-                 pushSTACK(string);
                  dotimespL(count,pos,
                    { ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
-                                          TheSstring(STACK_0)->data[index]);
+                                          TheSstring(*chararray_)->data[index]);
                      index++;
                    });
-                 string = popSTACK();
                },
                { # ptr points into the stack, not the string, so it's GC-safe.
                  dotimespL(count,pos,
@@ -10059,9 +9823,8 @@ LISPFUNN(make_keyboard_stream,0)
           s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
           s->strm_rd_ch_last = NIL; # Lastchar := NIL
           s->strm_wr_ch = P(wr_ch_terminal1); # WRITE-CHAR-Pseudofunktion
-          s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
+          s->strm_wr_ch_array = P(wr_ch_array_terminal1); # WRITE-CHAR-SEQUENCE-Pseudofunktion
           s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-          s->strm_wr_ss = P(wr_ss_terminal1);
           begin_system_call();
           s->strm_terminal_isatty =
             (IsInteractive(stdin_handle)
@@ -10156,9 +9919,8 @@ LISPFUNN(make_keyboard_stream,0)
               s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
               s->strm_rd_ch_last = NIL; # Lastchar := NIL
               s->strm_wr_ch = P(wr_ch_terminal3); # WRITE-CHAR-Pseudofunktion
-              s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
+              s->strm_wr_ch_array = P(wr_ch_array_terminal3); # WRITE-CHAR-SEQUENCE-Pseudofunktion
               s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-              s->strm_wr_ss = P(wr_ss_terminal3);
               s->strm_terminal_isatty = S(equal); # stdout=stdin
               s->strm_terminal_ihandle = popSTACK(); # Handle für listen_unbuffered()
               s->strm_terminal_ohandle = popSTACK(); # Handle für Output
@@ -10200,9 +9962,8 @@ LISPFUNN(make_keyboard_stream,0)
               s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
               s->strm_rd_ch_last = NIL; # Lastchar := NIL
               s->strm_wr_ch = P(wr_ch_terminal2); # WRITE-CHAR-Pseudofunktion
-              s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
+              s->strm_wr_ch_array = P(wr_ch_array_terminal2); # WRITE-CHAR-SEQUENCE-Pseudofunktion
               s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-              s->strm_wr_ss = P(wr_ss_terminal2);
               s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
               s->strm_terminal_ihandle = popSTACK(); # Handle für listen_unbuffered()
               s->strm_terminal_ohandle = popSTACK(); # Handle für Output
@@ -10238,9 +9999,8 @@ LISPFUNN(make_keyboard_stream,0)
             s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
             s->strm_rd_ch_last = NIL; # Lastchar := NIL
             s->strm_wr_ch = P(wr_ch_terminal1); # WRITE-CHAR-Pseudofunktion
-            s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
+            s->strm_wr_ch_array = P(wr_ch_array_terminal1); # WRITE-CHAR-SEQUENCE-Pseudofunktion
             s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-            s->strm_wr_ss = P(wr_ss_terminal1);
             s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
             s->strm_terminal_ihandle = popSTACK(); # Handle für listen_unbuffered()
             s->strm_terminal_ohandle = popSTACK(); # Handle für Output
@@ -11083,7 +10843,6 @@ LISPFUNN(make_window,0)
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
       s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-      s->strm_wr_ss = P(wr_ss_dummy_nogc);
     LINES = v_rows(); COLS = v_cols();
     screenattr = 0; attr = attr_table[screentype][screenattr];
     v_cs();
@@ -11254,7 +11013,6 @@ LISPFUNN(make_window,0)
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
       s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-      s->strm_wr_ss = P(wr_ss_dummy_nogc);
     v_init(); # Initialisieren
     #if 1
     screentype = (v_hardware()==V_MONOCHROME ? 0 : 1); # Bildschirmtyp abfragen
@@ -13064,7 +12822,6 @@ LISPFUNN(make_window,0)
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
       s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-      s->strm_wr_ss = P(wr_ss_dummy_nogc);
     # Initialisieren:
     begin_system_call();
     {var const char * ergebnis = init_term();
@@ -13287,7 +13044,6 @@ LISPFUNN(make_window,0)
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
       s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-      s->strm_wr_ss = P(wr_ss_dummy_nogc);
     begin_system_call();
     initscr(); # Curses initialisieren # Was ist, wenn das abstürzt?? newterm() benutzen??
     cbreak(); noecho(); # Input nicht zeilengebuffert, ohne Echo
@@ -13471,7 +13227,6 @@ LISPFUNN(make_window,0)
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
       s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-      s->strm_wr_ss = P(wr_ss_dummy_nogc);
     # size: aWSR? aWBR??
     # Wrap off ?? ASM? AWM?
     WR_WINDOW({CSI,'0',0x6D}); # Set Graphics Rendition Normal
@@ -13644,7 +13399,6 @@ LISPFUNN(window_cursor_off,1)
       TheStream(stream)->strm_wr_ch = P(wr_ch_printer);
       TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_dummy_nogc);
       TheStream(stream)->strm_printer_handle = popSTACK();
       # Liste der offenen Streams um stream erweitern:
       {var object new_cons = popSTACK();
@@ -14873,7 +14627,6 @@ local object make_socket_stream(handle,eltype,buffered,host,port)
         TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
         TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_twoway);
         TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-        TheStream(stream)->strm_wr_ss = P(wr_ss_twoway);
         TheStream(stream)->strm_twoway_socket_input = STACK_1;
         TheStream(stream)->strm_twoway_socket_output = STACK_0;
         skipSTACK(6);
@@ -17235,12 +16988,12 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
     #else
       #define wr_ch_terminal1  wr_ch_error
       #define rd_ch_terminal1  rd_ch_error
-      #define wr_ss_terminal1  wr_ss_dummy_nogc
+      #define wr_ch_array_terminal1  wr_ch_array_dummy
     #endif
     #ifndef GNU_READLINE
       #define wr_ch_terminal3  wr_ch_error
       #define rd_ch_terminal3  rd_ch_error
-      #define wr_ss_terminal3  wr_ss_dummy_nogc
+      #define wr_ch_array_terminal3  wr_ch_array_dummy
     #endif
     #ifdef NEXTAPP
       #define wr_ch_window  wr_ch_error
