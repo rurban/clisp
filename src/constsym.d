@@ -609,6 +609,8 @@ LISPSYM(lib_directory,"LIB-DIRECTORY",system)
 LISPSYM(user_data_,"USER-DATA-INTERNAL",posix)
 LISPSYM(file_stat_,"FILE-STAT-INTERNAL",posix)
 LISPSYM(sysinfo_,"SYSINFO-INTERNAL",posix)
+LISPSYM(bogomips,"BOGOMIPS",posix)
+LISPSYM(resource_usage_limits_,"RESOURCE-USAGE-LIMITS-INTERNAL",posix)
 #endif
 #endif
 # ---------- PREDTYPE ----------

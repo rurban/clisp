@@ -670,6 +670,8 @@ LISPFUNN(lib_directory,0)
 LISPFUNN(user_data_,1)
 LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
 LISPFUNN(sysinfo_,0)
+LISPFUNN(bogomips,0)
+LISPFUNN(resource_usage_limits_,0)
 #endif
 #endif
 # ---------- PREDTYPE ----------

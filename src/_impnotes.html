@@ -9008,40 +9008,39 @@ lisp, in package <code>POSIX</code>.
 <dl>
  <dt><code>(<strong>posix:resolve-host-ipaddr </strong>
             &amp;optional <var>host</var>)</code>
- <dd>Returns the hostent struct as multiple values (name, list of
-     aliases, list of IP addresses as dotted quads (for IPv4) or coloned
-     octets (for IPv6), address type - IPv4 or IPv6).  When
-     <code>host</code> is omitted or <code>:default</code>, return the
-     data for the current host.  When <code>host</code> is given and is
-     <a href="CLHSROOT/Body/convar_nil.html">
+ <dd>Returns the hostent struct (name, list of aliases, list of IP
+     addresses as dotted quads (for IPv4) or coloned octets (for IPv6),
+     address type - IPv4 or IPv6).
+     When <code>host</code> is omitted or <code>:default</code>, return
+     the data for the current host.  When <code>host</code> is given and
+     is <a href="CLHSROOT/Body/convar_nil.html">
      <code>nil</code></a>, all the host database is returned as a list of
      vectors of length 4 (this would be the contents of the
      <var>/etc/hosts</var> file on a UNIX system or
      <var>${windir}/system32/etc/hosts</var> on a Win32 system).
  <dt><code>(<strong>posix:file-stat</strong>
             <var>file</var> &amp;optional <var>link-p</var>)</code>
- <dd>Return the stat struct as multiple values.  <code>file</code> can
+ <dd>Return the stat struct.  <code>file</code> can
      be a stream, a pathname, a string or a number (on a UNIX system,
-     meaning file descriptor).  The first value returned is the string
-     or the number on which <code>stat</code>(2)/<code>fstat</code>(2)
-     /<code>lstat</code>(2) was called.  The other 13 values are
-     numbers, members of the stat struct: device, inode, protection,
-     number of hard links, owner's UID, owner's GID, device type, total
-     size (bytes), blocksize for filesystem I/O, number of blocks
-     allocated, atime, mtime, ctime (as number of seconds since
-     1900-01-01).  If the system does not support a particular field
-     (e.g., Win32 does not have hard links),
+     meaning file descriptor).  The first slot of the struct returned is
+     the string or the number on which
+     <code>stat</code>(2)/<code>fstat</code>(2)/<code>lstat</code>(2)
+     was called.  The other 13 slots are numbers, members of the stat
+     struct: device, inode, protection, number of hard links, owner's
+     UID, owner's GID, device type, total size (bytes), blocksize for
+     filesystem I/O, number of blocks allocated, atime, mtime, ctime (as
+     number of seconds since 1900-01-01).  If the system does not
+     support a particular field (e.g., Win32 does not have hard links),
      <a href="CLHSROOT/Body/convar_nil.html">
-     <code>nil</code></a> (or the default, like 1 for the number of
-     hard links for Win32 or DOS) is returned.
+     <code>nil</code></a> (or the default, like 1 for the number of hard
+     links for Win32 or DOS) is returned.
      <br>[UNIX systems only at this time, patches are welcome.]
  <dt><code>(<strong>posix:user-data</strong>
              &amp;optional <var>user</var>)</code>
- <dd>Return the passwd struct as multiple values (name, encoded
-     password, UID, GID, full name, home directory, shell).  When
-     <code>user</code> is <a href="CLHSROOT/Body/convar_nil.html">
-     <code>nil</code></a>, return all users as a list
-     of vectors of length 7.  When <code>user</code> is
+ <dd>Return the passwd struct (name, encoded password, UID, GID, full
+     name, home directory, shell).  When <code>user</code> is <a
+     href="CLHSROOT/Body/convar_nil.html">
+     <code>nil</code></a>, return all users.  When <code>user</code> is
      <code>:default</code> or not supplied, return the information
      about the current user.  If the system does not support a particular
      field (e.g., Win32 does not have a concept of a shell),
@@ -9049,6 +9048,12 @@ lisp, in package <code>POSIX</code>.
      <code>nil</code></a> (or the default, like <var>c:\command.com</var>
      for DOS) is returned.
      <br>[UNIX systems only at this time, patches are welcome.]
+ <dd><code>(<strong>posix:sysinfo</strong>)</code>
+ <dd>Return a struct describing the OS, derived from
+     <code>uname(2)</code> and <code>sysconf(3)</code>.
+ <dd><code>(<strong>posix:resource-usage-limits</strong>)</code>
+ <dd>Return 3 structs describing the resources usage and limits, derived
+     from <code>getrlimit(2)</code> and <code>getrusage(3)</code>.
  <dt><code>(<strong>posix:erf</strong> <var>real</var>)<code><br>
      <code>(<strong>posix:erfc</strong> <var>real</var>)<code><br>
      <code>(<strong>posix:j0</strong> <var>real</var>)<code><br>

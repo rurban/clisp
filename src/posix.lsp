@@ -3,7 +3,8 @@
 
 (in-package "POSIX" :use '("LISP"))
 
-(export '(resolve-host-ipaddr hostent user-data file-stat sysinfo
+(export '(resolve-host-ipaddr hostent user-data file-stat sysinfo bogomips
+          resource-usage-limits
           erf erfc j0 j1 jn y0 y1 yn gamma lgamma))
 
 ;;; ============================================================
@@ -71,6 +72,7 @@
   (ctime   0 :type (integer 0)))
 
 (defun file-stat (file &optional link-p)
+  "return an instance of the FILE-STAT structure for the object specified"
   (multiple-value-bind (file dev ino mode nlink uid gid rdev size
                         blksize blocks atime mtime ctime)
       (file-stat-internal file link-p)
@@ -80,42 +82,105 @@
 
 ;;; ============================================================
 (defstruct sysinfo
-  "see sysinfo(2) and sysconf(3c) for details"
-  ;; from sysinfo
+  "see uname(2) and sysconf(3c) for details"
+  ;; from uname
   (sysname      "" :type simple-string)
-  (hostname     "" :type simple-string)
+  (nodename     "" :type simple-string)
   (release      "" :type simple-string)
   (version      "" :type simple-string)
   (machine      "" :type simple-string)
-  (architecture "" :type simple-string)
-  (platform     "" :type simple-string)
-  (hw-provider  "" :type simple-string)
-  (hw-serial    "" :type simple-string)
-  (srpc-domain  "" :type simple-string)
   ;; from sysconf
-  (page-size       0 :type (unsigned-byte 32))
-  (physical-pages  0 :type (unsigned-byte 32))
-  (physical-pages-available 0 :type (unsigned-byte 32))
-  (num-processor-conf   0 :type (unsigned-byte 32))
-  (num-processor-online 0 :type (unsigned-byte 32))
-  ;; from linux kernel
-  (bogomips    0.0 :type double-float))
+  (page-size       nil :type (or null (unsigned-byte 32)))
+  (physical-pages  nil :type (or null (unsigned-byte 32)))
+  (physical-pages-available nil :type (or null (unsigned-byte 32)))
+  (num-processor-conf   nil :type (or null (unsigned-byte 32)))
+  (num-processor-online nil :type (or null (unsigned-byte 32))))
 
 (defun sysinfo ()
-  "Return an instance of the sysinfo structure, see sysinfo(2)."
+  "Return an instance of the SYSINFO structure."
   (multiple-value-bind
-        (sysname hostname release version machine architecture
-         platform hw-provider hw-serial srpc-domain
+        (sysname nodename release version machine
          page-size physical-pages physical-pages-available
-         num-processor-conf num-processor-online
-         bogomips)
+         num-processor-conf num-processor-online)
       (sysinfo-internal)
-    (make-sysinfo :sysname sysname :hostname hostname :release release
-                  :version version :machine machine :architecture architecture
-                  :platform platform :hw-provider hw-provider
-                  :hw-serial hw-serial :srpc-domain srpc-domain
+    (make-sysinfo :sysname sysname :nodename nodename :release release
+                  :version version :machine machine
                   :page-size page-size :physical-pages physical-pages
                   :physical-pages-available physical-pages-available
                   :num-processor-conf num-processor-conf
-                  :num-processor-online num-processor-online
-                  :bogomips bogomips)))
+                  :num-processor-online num-processor-online)))
+
+;;; ============================================================
+(defstruct rlimit
+  "see getrlimit(2) for details"
+  (soft 0 :type (unsigned-byte 32))
+  (hard 0 :type (unsigned-byte 32)))
+
+(defstruct limits
+  "see getrlimit(2) for details"
+  (core nil :type (or null rlimit))
+  (cpu  nil :type (or null rlimit))
+  (heap nil :type (or null rlimit))
+  (file-size nil :type (or null rlimit))
+  (num-files nil :type (or null rlimit))
+  (stack nil :type (or null rlimit))
+  (virt-mem nil :type (or null rlimit))
+  (rss nil :type (or null rlimit))
+  (memlock nil :type (or null rlimit)))
+
+(defstruct usage
+  "see getrusage(3) for details"
+  (user-time 0.0d0 :type double-float)
+  (system-time 0.0d0 :type double-float)
+  (max-rss 0 :type (signed-byte 32))
+  (int-rss 0 :type (signed-byte 32))
+  (minor-page-faults 0 :type (signed-byte 32))
+  (major-page-faults 0 :type (signed-byte 32))
+  (num-swaps 0 :type (signed-byte 32))
+  (blocks-input 0 :type (signed-byte 32))
+  (blocks-output 0 :type (signed-byte 32))
+  (messages-sent 0 :type (signed-byte 32))
+  (messages-received 0 :type (signed-byte 32))
+  (signals 0 :type (signed-byte 32))
+  (context-switches-voluntary 0 :type (signed-byte 32))
+  (context-switches-involuntary 0 :type (signed-byte 32)))
+
+(defun resource-usage-limits ()
+  "return 3 values - 2 USAGE structures, for this process
+and for the children, and a LIMITS structure.
+see getrusage(3) and getrlimit(2) for details"
+  (multiple-value-bind
+        (u11 u11a u12 u12a u13 u14 u15 u16 u17 u18 u19 u110 u111 u112 u113 u114
+         u21 u21a u22 u22a u23 u24 u25 u26 u27 u28 u29 u210 u211 u212 u213 u214
+         lim11 lim12 lim21 lim22 lim31 lim32 lim41 lim42 lim51 lim52
+         lim61 lim62 lim71 lim72 lim81 lim82 lim91 lim92)
+      (resource-usage-limits-internal)
+    (values
+     (make-usage :user-time (+ 0.0d0 u11 (* 0.000001d0 u11a))
+                 :system-time (+ 0.0d0 u12 (* 0.000001d0 u12a))
+                 :max-rss u13 :int-rss u14
+                 :minor-page-faults u15 :major-page-faults u16
+                 :num-swaps u17
+                 :blocks-input u18 :blocks-output u19
+                 :messages-sent u110 :messages-received u111
+                 :signals u112 :context-switches-voluntary u113
+                 :context-switches-involuntary u114)
+     (make-usage :user-time (+ 0.0d0 u21 (* 0.000001d0 u21a))
+                 :system-time (+ 0.0d0 u22 (* 0.000001d0 u22a))
+                 :max-rss u23 :int-rss u24
+                 :minor-page-faults u25 :major-page-faults u26
+                 :num-swaps u27
+                 :blocks-input u28 :blocks-output u29
+                 :messages-sent u210 :messages-received u211
+                 :signals u212 :context-switches-voluntary u213
+                 :context-switches-involuntary u214)
+     (make-limits
+      :core      (if lim11 (make-rlimit :soft lim11 :hard lim12))
+      :cpu       (if lim21 (make-rlimit :soft lim21 :hard lim22))
+      :heap      (if lim31 (make-rlimit :soft lim31 :hard lim32))
+      :file-size (if lim41 (make-rlimit :soft lim41 :hard lim42))
+      :num-files (if lim51 (make-rlimit :soft lim51 :hard lim52))
+      :stack     (if lim61 (make-rlimit :soft lim61 :hard lim62))
+      :virt-mem  (if lim71 (make-rlimit :soft lim71 :hard lim72))
+      :rss       (if lim81 (make-rlimit :soft lim81 :hard lim82))
+      :memlock   (if lim91 (make-rlimit :soft lim91 :hard lim92))))))
