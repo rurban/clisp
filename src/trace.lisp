@@ -232,39 +232,34 @@ This will not work with closures that use lexical variables!"
                                (trace-post-output))
                              (values-list *trace-values*)))))))
             (setf (get newname 'sys::untraced-name) (tracer-symb trr))
-            (cond (macro-flag
-                   (make-macro
-                    (fdefinition
-                     (compile newname
-                      `(lambda (&rest *trace-args*
-                                &aux (*trace-form* (car *trace-args*))
-                                     (*trace-function*
-                                      (macro-expander
-                                       (get-traced-definition
-                                   ',(tracer-symb trr)))))
-                        ,@body)))))
-                  ((tracer-local-p trr)
-                   (fdefinition
-                    (compile newname
-                     `(lambda ,sig
-                        (let* ((*trace-args* (list ,@sig))
-                               (*trace-form*
-                                (make-apply-form ',(tracer-name trr)
-                                                 *trace-args*))
-                               (*trace-function*
-                                (get-traced-definition
-                                 ',(tracer-symb trr))))
-                          ,@body)))))
-                  (t (fdefinition
-                      (compile newname
-                       `(lambda (&rest *trace-args*
-                                 &aux (*trace-form*
-                                       (make-apply-form ',(tracer-name trr)
-                                                        *trace-args*))
-                                 (*trace-function*
-                                  (get-traced-definition
-                                   ',(tracer-symb trr))))
-                         ,@body)))))))
+            (macrolet ((f (def) `(fdefinition (compile newname ,def))))
+              (cond (macro-flag
+                     (make-macro
+                      (f `(lambda (&rest *trace-args*
+                                   &aux (*trace-form* (car *trace-args*))
+                                   (*trace-function*
+                                    (macro-expander
+                                     (get-traced-definition
+                                      ',(tracer-symb trr)))))
+                            ,@body))))
+                    ((tracer-local-p trr)
+                     (f `(lambda ,sig
+                           (let* ((*trace-args* (list ,@sig))
+                                  (*trace-form*
+                                   (make-apply-form ',(tracer-name trr)
+                                                    *trace-args*))
+                                  (*trace-function*
+                                   (get-traced-definition
+                                    ',(tracer-symb trr))))
+                             ,@body))))
+                  (t (f `(lambda (&rest *trace-args*
+                                  &aux (*trace-form*
+                                        (make-apply-form ',(tracer-name trr)
+                                                         *trace-args*))
+                                  (*trace-function*
+                                   (get-traced-definition
+                                    ',(tracer-symb trr))))
+                           ,@body)))))))
     ;; install the new definition
     (tracer-set-fdef trr (get (tracer-symb trr) 'sys::tracing-definition))
     ;; return the name
