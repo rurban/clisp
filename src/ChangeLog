@@ -1,3 +1,7 @@
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
+	* win32.d: Test __MINGW32__, not __mingw32__.
+
 2001-08-18  Sam Steingold  <sds@gnu.org>
 
 	* loadform.lisp (make-load-form-saving-slots): compute the slot
