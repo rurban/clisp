@@ -8986,26 +8986,24 @@ LISPFUNN(print_structure,2)
       # falls Stream geschlossen, "CLOSED " ausgeben:
       if ((TheStream(*obj_)->strmflags & strmflags_open_B) == 0)
         { write_sstring_case(stream_,O(printstring_closed)); }
+      # if a file stream, print "BUFFERED " or "UNBUFFERED ":
+      {var uintL type = TheStream(*obj_)->strmtype;
+       if (type == strmtype_file)
+         { write_sstring_case(stream_,
+                              stream_isbuffered(*obj_)
+                              ? O(printstring_buffered)
+                              : O(printstring_unbuffered)
+                             );
+         }
       # Streamtyp ausgeben:
-      { var uintL type = TheStream(*obj_)->strmtype;
-       {var const object* stringtable = &O(printstring_closed) + 1;
+       {var const object* stringtable = &O(printstring_strmtype_synonym);
         write_sstring_case(stream_,stringtable[type]); # String aus Tabelle holen
        }
       # "-STREAM" ausgeben:
         write_sstring_case(stream_,O(printstring_stream));
       # Streamspezifische Zusatzinformation:
         switch (type)
-          { case strmtype_file:
-            case strmtype_handle:
-              # File-Stream
-              JUSTIFY_SPACE;
-              prin_object(stream_,TheStream(*obj_)->strm_eltype); # Stream-Element-Type
-              if (!nullp(TheStream(*obj_)->strm_file_name))
-                { JUSTIFY_SPACE;
-                  prin_object(stream_,TheStream(*obj_)->strm_file_name); # Filename ausgeben
-                }
-              break;
-            case strmtype_synonym:
+          { case strmtype_synonym:
               # Synonym-Stream
               JUSTIFY_SPACE;
               prin_object(stream_,TheStream(*obj_)->strm_synonym_symbol); # Symbol ausgeben
@@ -9035,6 +9033,15 @@ LISPFUNN(print_structure,2)
               prin_object(stream_,TheStream(*obj_)->strm_controller_object); # Controller ausgeben
               break;
             #endif
+            case strmtype_file:
+              # File-Stream
+              JUSTIFY_SPACE;
+              prin_object(stream_,TheStream(*obj_)->strm_eltype); # Stream-Element-Type
+              if (!nullp(TheStream(*obj_)->strm_file_name))
+                { JUSTIFY_SPACE;
+                  prin_object(stream_,TheStream(*obj_)->strm_file_name); # Filename ausgeben
+                }
+              break;
             #ifdef PIPES
             case strmtype_pipe_in:
             case strmtype_pipe_out:

@@ -1,5 +1,32 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Merge handle streams and file streams. Add line number information to
+        unbuffered file streams as well.
+        * lispbibl.d (strmtype_handle): Remove enum value.
+          (if_strm_file_p): Remove macro.
+          (stream_isbuffered): New declaration.
+        * stream.d (strm_handle_extrafields_struct): New field lineno.
+          (HandleStream_lineno): New macro.
+          (rd_ch_handle, listen_handle, rd_ch_array_handle): When reading a
+          newline, increment lineno.
+          (make_unbuffered_file_stream): Change the stream type from
+          strmtype_handle to strmtype_file. Initialize lineno.
+          (strm_ch_file_extrafields_struct): Remove structure.
+          (FileStream_lineno): Remove macro.
+          (rd_ch_ch_file, rd_ch_array_ch_file, make_file_stream): Update.
+          (SYS::FILE-STREAM-P): Update.
+          (SYS::TERMINAL-RAW) [AMIGAOS]: Update.
+          (STREAM-ELEMENT-TYPE, interactive_stream_p, stream_close,
+           stream_listen, clear_input, finish_output, force_output,
+           clear_output): Update.
+          (FILE-POSITION): For unbuffered streams, return NIL, no error.
+          (FILE-LENGTH): Likewise.
+          (stream_isbuffered): New function.
+          (stream_line_number): Update.
+        * io.d (pr_stream): Update.
+        * pathname.d (as_file_stream, openp): Update.
+        * predtype.d (TYPE-OF, CLOS:CLASS-OF, heap_statistics_mapper): Update.
+
         Start merging handle-streams and file-streams.
         * lispbibl.d (strm_eltype, strm_file_handle): Change.
         * stream.d (strm_eltype, strm_isatty, strm_ihandle, strm_ohandle):

@@ -2453,9 +2453,9 @@ function <CODE>probe-directory</CODE> or the function <CODE>directory</CODE> for
 <DL>
 <DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM></DT>
 <DD>
-<CODE>file-position</CODE> works on any file stream. When a Newline is output to resp.
-input from a file stream, its file position is increased by 2 since Newline
-is encoded as CR/LF in the file.
+<CODE>file-position</CODE> works on any buffered file stream. When a Newline is output to
+resp. input from a file stream, its file position is increased by 2 since
+Newline is encoded as CR/LF in the file.
 </DD>
 </DL>
 <!-- #endif -->

@@ -842,9 +842,9 @@
   LISPOBJ_S(printstring_addon_subr,"ADD-ON-SYSTEM-FUNCTION")
   LISPOBJ_S(printstring_fsubr,"SPECIAL-FORM")
   LISPOBJ_S(printstring_closed,"CLOSED ")
+  LISPOBJ_S(printstring_buffered,"BUFFERED ")
+  LISPOBJ_S(printstring_unbuffered,"UNBUFFERED ")
     # Namensstring zu jedem Streamtyp, adressiert durch Streamtyp:
-    LISPOBJ_S(printstring_strmtype_file,"BUFFERED FILE")
-    LISPOBJ_S(printstring_strmtype_handle,"UNBUFFERED FILE")
     LISPOBJ_S(printstring_strmtype_synonym,"SYNONYM")
     LISPOBJ_S(printstring_strmtype_broad,"BROADCAST")
     LISPOBJ_S(printstring_strmtype_concat,"CONCATENATED")
@@ -859,6 +859,7 @@
     #ifdef GENERIC_STREAMS
     LISPOBJ_S(printstring_strmtype_generic,"GENERIC")
     #endif
+    LISPOBJ_S(printstring_strmtype_file,"FILE")
     #ifdef KEYBOARD
     LISPOBJ_S(printstring_strmtype_keyboard,"KEYBOARD")
     #endif
