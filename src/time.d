@@ -414,6 +414,7 @@ global maygc object convert_time_to_universal (const time_t* time)
      we can assume that the OS's timezone and CLISP's timezone agree. */
   return UL_to_I(UNIX_LISP_TIME_DIFF + (uintL)(*time));
 }
+/* the inverse of convert_time_to_universal() */
 global void convert_time_from_universal (object universal, time_t* time)
 {
   *time = I_to_UL(universal) - UNIX_LISP_TIME_DIFF;
@@ -447,6 +448,7 @@ global maygc object convert_time_to_universal (const FILETIME* time) {
                  real_time=,);
   return UL_to_I(real_time);
 }
+/* the inverse of convert_time_to_universal() */
 global void convert_time_from_universal (object universal, FILETIME* time) {
   var uint64 ut = (I_to_uint64(universal) + (uint64)109207 * (uint64)86400)
                   * (uint64)ticks_per_second;
