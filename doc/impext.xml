@@ -3754,6 +3754,14 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
  </simpara></listitem></varlistentry>
  <varlistentry><term>
+   <literal role="sexp">(<function>POSIX:COPY-FILE</function>
+    <replaceable>source-path</replaceable>
+    <replaceable>destination-path</replaceable>
+    &key-amp; :link :preserve :if-exists :if-does-not-exist)</literal></term>
+  <listitem><simpara>This is an interface to the &symlink;, &link;, and
+    &rename; system calls.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term>
    <literal role="sexp">(<function>POSIX:DUPLICATE-HANDLE</function>
     <replaceable>fd1</replaceable>
     &optional-amp; <replaceable>fd2</replaceable>)</literal></term>

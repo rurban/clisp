@@ -454,6 +454,9 @@
   LISPOBJ(type_if_does_not_exist,"(MEMBER :ERROR :CREATE NIL)")
   LISPOBJ(type_external_format,"(OR (MEMBER :DEFAULT) EXT::ENCODING (MEMBER :UNIX :MAC :DOS))")
   LISPOBJ(type_pathname_field_key,"(MEMBER :HOST :DEVICE :DIRECTORY :NAME :TYPE :VERSION NIL)")
+ #ifdef EXPORT_SYSCALLS
+  LISPOBJ(type_link_arg, "(MEMBER :HARD :SYMBOLIC :RENAME NIL)")
+ #endif
  #ifdef LOGICAL_PATHNAMES
   LISPOBJ(type_logical_pathname,"(OR LOGICAL-PATHNAME STRING STREAM SYMBOL)")
  #endif
