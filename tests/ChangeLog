@@ -1,5 +1,10 @@
 2004-09-28  Sam Steingold  <sds@gnu.org>
 
+	* streams.tst: bind *PRINT-PRETTY* in the FILL-STREAM test so that
+	S-expression output respects *PRINT-RIGHT-MARGIN*
+
+2004-09-28  Sam Steingold  <sds@gnu.org>
+
 	* excepsit.tst (loop): check that (loop 42) is parsed as extended loop
 
 2004-09-28  Bruno Haible  <bruno@clisp.org>
