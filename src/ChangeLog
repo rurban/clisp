@@ -1,5 +1,12 @@
 2003-03-14  Sam Steingold  <sds@gnu.org>
 
+	function (SETF FFI:VALIDP) invalidates foreign objects
+	* foreign.d (SET-VALIDP): implemented
+	* foreign1.lisp (validp): added a defsetf
+	* subr.d, constsym.d (set_validp): added
+
+2003-03-14  Sam Steingold  <sds@gnu.org>
+
 	extract and modify the FOREIGN-POINTER anchor
 	* foreign.d (foreign_pointer_strict): new function
 	(FOREIGN-POINTER, SET-FOREIGN-POINTER): implemented

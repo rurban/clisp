@@ -2267,12 +2267,17 @@ containing:</para>
 
 <varlistentry id="validp">
   <term><literal role="sexp">(&validp; &f-ent;)</literal></term>
+  <term><literal role="sexp">(&setf; (&validp; &f-ent;)
+    &value-r)</literal></term>
 <listitem><simpara>This predicate returns &nil; if the &f-ent;
   (e.g. the Lisp equivalent of a &c-pointer;) refers to a pointer
   which is invalid because it comes from a previous Lisp session.
   It returns &t; if &f-ent; can be used within the current Lisp process
-  (thus it returns &t; for all non-foreign arguments).
- </simpara></listitem></varlistentry>
+  (thus it returns &t; for all non-foreign arguments).</simpara>
+ <simpara>You can invalidate a foreign object using
+  <literal role="sexp">(&setf; &validp;)</literal>.
+  You cannot resurrect a zombie, nor can you kill a non-foreign
+  object.</simpara></listitem></varlistentry>
 
 <varlistentry id="fa-null">
   <term><literal role="sexp">(&foreign-address-null; &f-ent;)</literal></term>
