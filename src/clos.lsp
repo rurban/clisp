@@ -1420,7 +1420,7 @@
       (setq size (class-instance-size (first direct-superclasses)))
   ) )
   (setf (class-slot-location-table class)
-        (make-hash-table :test #'eq 
+        (make-hash-table :test #'eq
           :initial-contents
             (mapcar #'(lambda (slot)
                         (cons (slotdef-name slot) (slotdef-location slot))
@@ -4074,3 +4074,5 @@
   new-class-object
 )
 
+(defun slot-names (object)
+  (mapcar #'slotdef-name (class-slots (class-of object))))

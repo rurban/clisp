@@ -4,8 +4,10 @@
 
 2000-03-02  Sam Steingold  <sds@gnu.org>
 
-	* describe.lsp (list-length-dotted): new function.
-	(describe-slotted-object): use it.
+	* clos.lsp (slot-names): new function.
+	* describe.lsp (describe-slotted-object): use it.
+	(list-length-dotted): new function.
+	(describe-object): use it.
 
 2000-03-01  Sam Steingold  <sds@gnu.org>
 
