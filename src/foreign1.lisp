@@ -555,7 +555,11 @@
 ; Convert a Lisp name to a C name.
 ; (Doesn't really matter how. This must just be a deterministic function.)
 (defun to-c-name (name)
-  (setq name (string name))
+  (setq name (if (and (symbolp name)
+                      (symbol-package name)
+                      (package-case-inverted-p (symbol-package name)))
+               (cs-cl:string name)
+               (string name)))
   (unless (some #'lower-case-p name) (setq name (string-downcase name)))
   (if (c-ident-p name)
     name
