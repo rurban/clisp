@@ -36,7 +36,7 @@
         ((sys::subr-info obj)
          (values nil nil (sys::subr-info obj)))
         ((sys::%compiled-function-p obj) ; compiled closure?
-         (let* ((name (sys::%record-ref obj 0))
+         (let* ((name (sys::closure-name obj))
                 (def (get name 'sys::definition)))
            (values (when def (cons 'LAMBDA (cddar def))) t name)))
         ((sys::closurep obj) ; interpreted closure?
@@ -47,7 +47,7 @@
                          (sys::%record-ref obj 6) ; benv
                          (sys::%record-ref obj 7) ; genv
                          (sys::%record-ref obj 8)); denv
-                 (sys::%record-ref obj 0))))) ; name
+                 (sys::closure-name obj))))) ; name
 
 (defun function-name (obj)
   ;; Equivalent to (nth-value 2 (function-lambda-expression obj))
@@ -57,6 +57,6 @@
          (sys::%record-ref obj 0))
         ((sys::subr-info obj))
         ((sys::%compiled-function-p obj) ; compiled closure?
-         (sys::%record-ref obj 0))
+         (sys::closure-name obj))
         ((sys::closurep obj) ; interpreted closure?
-         (sys::%record-ref obj 0))))
+         (sys::closure-name obj))))

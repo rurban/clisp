@@ -1,3 +1,23 @@
+2004-06-12  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (Closure, Cclosure): Rename field clos_name to
+	clos_name_or_class_version.
+	(Closure_name): New macro.
+	* spvw_circ.d (get_circ_mark, get_circ_unmark): Use it.
+	* spvw_debug.d (nobject_out1): Likewise.
+	* eval.d (trace_call, match_cclosure_key, eval_closure): Likewise.
+	(interpret_bytecode_): Likewise.
+	* io.d (pr_cclosure, pr_cclosure_lang): Likewise.
+	* record.d (SYS::CLOSURE-NAME): Likewise.
+	(SYS::%MAKE-CLOSURE, SYS::CONSTANT-INITFUNCTION-P,
+	CLOS::%SHARED-INITIALIZE, do_initialize_instance, CLOS::%MAKE-INSTANCE):
+	Likewise.
+	* functions.lisp (function-lambda-expression, function-name): Use
+	sys::closure-name.
+	* clos-genfun2.lisp (need-gf-already-called-warning-p): Likewise.
+	* disassem.lisp (disassemble): Likewise.
+	* edit.lisp (ed, uncompile): Likewise.
+
 2004-08-02  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c (object_handle): renamed to ...
