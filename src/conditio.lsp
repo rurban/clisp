@@ -1218,9 +1218,9 @@ muffle-cerrors appease-cerrors exit-on-error
           ((do ((ii 1 (1+ ii)) res)
                ((> ii nn) (nreverse res))
              (format *query-io*
-                     (DEUTSCH "~%Neues `~S' [Wert ~D of ~D]: "
-                      ENGLISH "~%New `~S' [value ~D of ~D]: "
-                      FRANCAIS "~%Nouveau `~S' [valeur ~D de ~D]: ")
+                     (DEUTSCH "~%Neues ~S [Wert ~D von ~D]: "
+                      ENGLISH "~%New ~S [value ~D of ~D]: "
+                      FRANCAIS "~%Nouveau ~S [valeur ~D de ~D]: ")
                      place ii nn)
              (push (read *query-io*) res))))))
 
@@ -1284,16 +1284,23 @@ muffle-cerrors appease-cerrors exit-on-error
                     )
            :INTERACTIVE
              (LAMBDA ()
-               (nconc
+               (APPEND
                 ,@(mapcar #'(lambda (place) `(PROMPT-FOR-NEW-VALUE ',place))
-                          place-list)))
-             ,@(do ((pl place-list (cdr pl)) r0 r1)
-                   ((endp pl) (cons (nreverse r0) (nreverse r1)))
-                 (multiple-value-bind (te va st sf af)
-                     (get-setf-expansion (car pl))
-                   (declare (ignore af))
-                   (push `(let* ,(mapcar #'list te va) ,sf) r1)
-                   (setq r0 (nreconc st r0))))))
+                          place-list
+                  )
+             ) )
+           ,@(do ((pl place-list (cdr pl))
+                  (all-setter-vars '())
+                  (all-setter-forms '()))
+                 ((endp pl)
+                  (cons (nreverse all-setter-vars) (nreverse all-setter-forms)))
+               (multiple-value-bind (vr vl sv se ge)
+                   (get-setf-expansion (car pl))
+                 (declare (ignore ge))
+                 (setq all-setter-vars (revappend sv all-setter-vars))
+                 (push `(LET* ,(mapcar #'list vr vl) ,se) all-setter-forms)
+             ) )
+       ) )
        (GO ,tag1)
        ,tag2
      )
