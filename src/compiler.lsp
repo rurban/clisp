@@ -12970,9 +12970,11 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                   ) )
                 )
                 (c-comment "~%")
-                (setq compilation-successful
-                  (zerop *error-count*) ; Wert T, falls Compilation erfolgreich
-            ) ) )
+                (setq compilation-successful (zerop *error-count*))
+                (values (if compilation-successful output-file nil)
+                        (if (zerop *warning-count*) nil *warning-count*)
+                        (if (zerop *error-count*) nil *error-count*))
+            ) )
             (when new-output-stream
               (terpri *fasoutput-stream*) (close *fasoutput-stream*)
               (close *liboutput-stream*)
