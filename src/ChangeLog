@@ -1,3 +1,10 @@
+2004-03-10  Bruno Haible  <bruno@clisp.org>
+
+	* m4/filecharset.m4 (CL_FILECHARSET): Workaround a problem with NFS
+	on Solaris 7, where unlink()ed files reappear immediately under a
+	different name and disappear only after 1. the process doing readdir()
+	has exited and 2. waiting a second or two.
+
 2004-03-10  Sam Steingold  <sds@gnu.org>
 
 	* eval.d (get_closure): removed a spurious backslash which broke
