@@ -23,6 +23,7 @@
 	* m4/stdint_h.m4, m4/uintmax_t.m4, m4/ulonglong.m4, m4/wchar_t.m4:
 	* m4/wint_t.m4, m4/xsize.m4:
 	Upgrade to gettext-0.14.3.
+	* configure.in: Use gt_LC_MESSAGES instead of AM_LC_MESSAGES.
 
 2005-03-14  Sam Steingold  <sds@gnu.org>
 
