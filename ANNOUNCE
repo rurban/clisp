@@ -1,15 +1,12 @@
 This is GNU CLISP, an ANSI Common Lisp implementation.
 
-CLISP is mostly ANSI CL compliant, including a CLOS implementation.
-
 
 Availability
 ============
 
 GNU CLISP is available via anonymous ftp (sources and selected binaries) from
-  <ftp://cvs2.cons.org/pub/lisp/clisp/>,
   <ftp://ftp.gnu.org/pub/gnu/clisp/>
-and their mirrors.
+and its mirrors.
 More information at
   <http://clisp.cons.org/>,
   <http://www.clisp.org/>,
@@ -43,10 +40,11 @@ Common Lisp programs are
     (there is a standard for the language and the library functions)
 
 Our Common Lisp CLISP
-  * needs only 2 MB of memory
-  * implements most of the ANSI standard, as well as some extensions
+  * needs only 4 MB of memory
+  * implements most of the ANSI standard (including CLOS),
+    as well as many extensions (including MOP)
   * can call your preferred editor
-  * is freely distributable
+  * is freely redistributable
 
 Common Lisp provides
   * clear syntax, carefully designed semantics
