@@ -74,6 +74,22 @@
     var object x;
     { return (R_minusp(x) ? F_minus_F(x) : x); } # x<0 -> (- x), x>=0 -> x
 
+# SF_square_SF(x) liefert (* x x), wo x ein SF ist.
+  #define SF_square_SF(x)  SF_SF_mal_SF(x,x)
+
+# FF_square_FF(x) liefert (* x x), wo x ein FF ist.
+# kann GC auslösen
+  #define FF_square_FF(x)  FF_FF_mal_FF(x,x)
+
+# DF_square_DF(x) liefert (* x x), wo x ein DF ist.
+# kann GC auslösen
+  #define DF_square_DF(x)  DF_DF_mal_DF(x,x)
+
+# F_square_F(x) liefert (* x x), wo x ein Float ist.
+# kann GC auslösen
+  local object F_square_F (object x);
+  GEN_F_op1(square)
+
 # SF_durch_SF(x) liefert (/ x), wo x ein SF ist.
   #define SF_durch_SF(x)  SF_SF_durch_SF(SF_1,x)
 

@@ -743,7 +743,10 @@ LISPFUN(mal,0,0,rest,nokey,0,NIL)
     # x:=Arg[0], for i:=1 to n do ( x := x*Arg[i] ), return(x).
     { var object* arg_i_ptr = rest_args_pointer;
       var object x = NEXT(arg_i_ptr); # bisheriges Produkt
-      dotimesC(argcount,argcount, { x = N_N_mal_N(x,NEXT(arg_i_ptr)); } );
+      dotimesC(argcount,argcount,
+        { var object arg = NEXT(arg_i_ptr);
+          x = (eq(x,arg) ? N_square_N(x) : N_N_mal_N(x,arg));
+        });
       value1 = x; mv_count=1; set_args_end_pointer(rest_args_pointer);
   } }
 

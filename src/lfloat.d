@@ -874,6 +874,95 @@
         #endif
     }
 
+# Liefert zu einem Long-Float x : (* x x), ein LF.
+# LF_square_LF(x)
+# kann GC auslösen
+  local object LF_square_LF (object x);
+# Methode:
+# Falls x=0.0 -> Ergebnis 0.0
+# Sonst: Ergebnis-Vorzeichen = positiv.
+#        Ergebnis-Exponent = 2 * Exponent von x.
+#        Quadrat der Mantissen bilden (2n Digits).
+#        Falls das führende Bit =0 ist: Mantissenprodukt um 1 Bit nach links
+#          schieben (die vorderen n+1 Digits genügen)
+#          und Exponent decrementieren.
+#        Runden auf n Digits liefert die Ergebnis-Mantisse.
+  local object LF_square_LF(x)
+    var object x;
+    { var uintL uexp = TheLfloat(x)->expo;
+      if (uexp==0) { return x; } # x=0.0 -> Ergebnis 0.0
+      # Exponenten addieren:
+      # (uexp-LF_exp_mid) + (uexp-LF_exp_mid) = (2*uexp-LF_exp_mid)-LF_exp_mid
+      if ((sintL)uexp >= 0)
+        # kein Carry
+        { uexp = 2*uexp;
+          if (uexp < LF_exp_mid+LF_exp_low)
+            { if (underflow_allowed())
+                { fehler_underflow(); }
+                else
+                { encode_LF0(Lfloat_length(x), return); } # Ergebnis 0.0
+        }   }
+        else
+        # Carry
+        { uexp = 2*uexp;
+          if (uexp > (uintL)(LF_exp_mid+LF_exp_high+1)) { fehler_overflow(); }
+        }
+      uexp = uexp - LF_exp_mid;
+      # Nun ist LF_exp_low <= uexp <= LF_exp_high+1.
+      # neues Long-Float allozieren:
+      pushSTACK(x);
+      {var uintC len = Lfloat_length(x); # Länge n von x
+       var object y = allocate_lfloat(len,uexp,0);
+       x = popSTACK();
+       # Produkt bilden:
+       {var uintD* MSDptr;
+        {SAVE_NUM_STACK # num_stack retten
+         begin_arith_call();
+         UDS_square_UDS(len,&TheLfloat(x)->data[(uintP)len],
+                        MSDptr=,_EMA_,);
+         RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
+        }
+        {var uintD* midptr = &MSDptr[(uintP)len]; # Pointer in die Mitte der 2n Digits
+         if ((sintD)MSDptr[0] >= 0) # führendes Bit abtesten
+           { # erste n+1 Digits um 1 Bit nach links schieben:
+             shift1left_loop_down(&midptr[1],len+1);
+             # Exponenten decrementieren:
+             if ((TheLfloat(y)->expo)-- == LF_exp_low-1)
+               { end_arith_call();
+                 if (underflow_allowed())
+                   { fehler_underflow(); }
+                   else
+                   { encode_LF0(len, return); } # Ergebnis 0.0
+               }
+           }
+         end_arith_call();
+         # erste Hälfte des Mantissenprodukts übertragen:
+         {var uintD* y_mantMSDptr = &TheLfloat(y)->data[0];
+          var uintD* y_mantLSDptr =
+            copy_loop_up(MSDptr,y_mantMSDptr,len);
+          # Runden:
+          if ( ((sintD)midptr[0] >= 0) # nächstes Bit =0 -> abrunden
+               || ( ((midptr[0] & ((uintD)bit(intDsize-1)-1)) ==0) # Bit =1, weitere Bits >0 -> aufrunden
+                    && !test_loop_up(&midptr[1],len-1)
+                    # round-to-even
+                    && ((midptr[-1] & bit(0)) ==0)
+             )    )
+            # abrunden
+            {}
+            else
+            # aufrunden
+            { if ( inc_loop_down(y_mantLSDptr,len) )
+                { # Übertrag durchs Aufrunden (kann nur auftreten,
+                  # wenn vorhin um 1 Bit nach links geschoben wurde)
+                  y_mantMSDptr[0] = bit(intDsize-1); # Mantisse := 10...0
+                  (TheLfloat(y)->expo)++; # Exponent wieder zurück-erhöhen
+            }   }
+          # LF_exp_low <= exp <= LF_exp_high sicherstellen:
+          if (TheLfloat(y)->expo == LF_exp_high+1) { fehler_overflow(); }
+       }}}
+       return y;
+    } }
+
 # Liefert zu zwei gleichlangen Long-Float x und y : (* x y), ein LF.
 # LF_LF_mal_LF(x,y)
 # kann GC auslösen

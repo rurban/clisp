@@ -171,14 +171,14 @@
       pushSTACK(y);
       # Stackaufbau: a, b.
       while (!I_oddp(y))
-        { var object a = STACK_1; STACK_1 = N_N_mal_N(a,a); # a:=a*a
+        { STACK_1 = N_square_N(STACK_1); # a:=a*a
           STACK_0 = y = I_I_ash_I(STACK_0,Fixnum_minus1); # b := (ash b -1)
         }
       pushSTACK(STACK_1); # c:=a
       # Stackaufbau: a, b, c.
       until (eq(y=STACK_1,Fixnum_1)) # Solange b/=1
         { STACK_1 = I_I_ash_I(y,Fixnum_minus1); # b := (ash b -1)
-         {var object a = STACK_2; STACK_2 = a = N_N_mal_N(a,a); # a:=a*a
+         {var object a = STACK_2 = N_square_N(STACK_2); # a:=a*a
           if (I_oddp(STACK_1)) { STACK_0 = N_N_mal_N(a,STACK_0); } # evtl. c:=a*c
         }}
       x = STACK_0; skipSTACK(3);
@@ -624,8 +624,8 @@
         }
         else
         { if (R_rationalp(STACK_2)) { STACK_2 = RA_F_float_F(STACK_2,STACK_3); } }
-      {var object temp = STACK_2; pushSTACK(R_R_mal_R(temp,temp)); } # y^2
-      {var object temp = STACK_4; temp = R_R_mal_R(temp,temp); # x^2
+      pushSTACK(R_square_R(STACK_2)); # y^2
+      {var object temp = R_square_R(STACK_4); # x^2
        pushSTACK(R_R_plus_R(Fixnum_1,R_R_plus_R(temp,STACK_0))); # 1+x^2+y^2
       }
       # Stackaufbau: x, y, 1+x, 1-x, y^2, 1+x^2+y^2.
@@ -638,9 +638,9 @@
            temp = F_I_scale_float_F(temp,Fixnum_minus1); # .../2 =: u
          }
          else
-         { temp = STACK_3; temp = R_R_mal_R(temp,temp); # (1+x)^2
+         { temp = R_square_R(STACK_3); # (1+x)^2
            STACK_0 = R_R_plus_R(temp,STACK_1); # (1+x)^2+y^2, ein Float >=0
-           temp = STACK_2; temp = R_R_mal_R(temp,temp); # (1-x)^2
+           temp = R_square_R(STACK_2); # (1-x)^2
            temp = R_R_plus_R(temp,STACK_1); # (1-x)^2+y^2, ein Float >=0
            temp = F_F_durch_F(STACK_0,temp); # ((1+x)^2+y^2)/((1-x)^2+y^2), ein Float >=0
            if (R_zerop(temp)) { divide_0(); } # sollte >0 sein
@@ -783,7 +783,7 @@
              )
             { return; } # u=0, v=y bereits im Stack
           # Stackaufbau: 0, y.
-          {var object temp = R_R_minus_R(Fixnum_1,F_F_mal_F(y,y)); # 1-y*y
+          {var object temp = R_R_minus_R(Fixnum_1,F_square_F(y)); # 1-y*y
            if (!R_minusp(temp))
              # 1-y*y>=0, also |y|<=1
              { temp = F_sqrt_F(temp); # sqrt(1-y*y)
@@ -812,7 +812,7 @@
           pushSTACK(x); pushSTACK(Fixnum_0); # x retten, v = 0
           if (R_zerop(x)) { return; } # x=0.0 -> u=x, v=0.
           {var object temp = # sqrt(1+x^2)
-             F_sqrt_F(R_R_plus_R(Fixnum_1,F_F_mal_F(x,x)));
+             F_sqrt_F(R_R_plus_R(Fixnum_1,F_square_F(x)));
            x = STACK_1;
            if (F_exponent_L(x) < 0) # Exponent e (von x/=0) <0 ?
              # |x|<1/2
@@ -830,7 +830,7 @@
         } }
      {var object z = R_R_complex_C(x,y); # z=x+iy
       pushSTACK(z);
-      z = N_1_plus_N(N_sqrt_N(N_1_plus_N(N_N_mal_N(z,z)))); # 1+sqrt(1+z^2)
+      z = N_1_plus_N(N_sqrt_N(N_1_plus_N(N_square_N(z)))); # 1+sqrt(1+z^2)
       z = N_N_durch_N(popSTACK(),z); # z/(1+sqrt(1+z^2))
       # Da z=x+iy weder reell noch rein imaginär ist, ist auch
       # w := z/(1+sqrt(1+z^2)) weder reell noch rein imaginär.
@@ -920,7 +920,7 @@
           pushSTACK(z);
           if (R_R_comp(Fixnum_1,z)<0) # 1<z ?
             { var object temp = STACK_0; # z
-              temp = R_R_minus_R(F_F_mal_F(temp,temp),Fixnum_1); # z^2-1, ein Float >=0
+              temp = R_R_minus_R(F_square_F(temp),Fixnum_1); # z^2-1, ein Float >=0
               temp = F_sqrt_F(temp); # sqrt(z^2-1), ein Float >=0
               temp = F_F_plus_F(popSTACK(),temp); # z+sqrt(z^2-1), ein Float >1
               temp = R_ln_R(temp); # ln(z+sqrt(z^2-1)), ein Float >=0
@@ -990,7 +990,7 @@
             { z = STACK_0;
               if (R_rationalp(z)) { STACK_0 = z = RA_float_F(z); }
               # z Float <= -1
-              z = F_sqrt_F(R_R_minus_R(F_F_mal_F(z,z),Fixnum_1)); # sqrt(z^2-1), ein Float >=0
+              z = F_sqrt_F(R_R_minus_R(F_square_F(z),Fixnum_1)); # sqrt(z^2-1), ein Float >=0
               STACK_0 = R_ln_R(F_F_minus_F(z,STACK_0)); # log(sqrt(z^2-1)-z), ein Float >=0
               z = pi(); # und Imaginärteil pi
               return R_R_complex_C(popSTACK(),z);

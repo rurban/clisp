@@ -375,6 +375,13 @@
         GEN_R_op21(x,y,minus,return)
     }
 
+# R_square_R(x) liefert (* x x), wo x eine reelle Zahl ist.
+# kann GC auslösen
+  local object R_square_R (object x);
+  local object R_square_R(x)
+    var object x;
+    { return (R_rationalp(x) ? RA_square_RA(x) : F_square_F(x)); }
+
 # R_R_mal_R(x,y) liefert (* x y), wo x und y reelle Zahlen sind.
 # kann GC auslösen
   local object R_R_mal_R (object x, object y);
@@ -1073,14 +1080,14 @@
         { pushSTACK(y);
           # Stackaufbau: a, b.
           while (!I_oddp(y))
-            { var object a = STACK_1; STACK_1 = R_R_mal_R(a,a); # a:=a*a
+            { STACK_1 = R_square_R(STACK_1); # a:=a*a
               STACK_0 = y = I_I_ash_I(STACK_0,Fixnum_minus1); # b := (ash b -1)
             }
           pushSTACK(STACK_1); # c:=a
           # Stackaufbau: a, b, c.
           until (eq(y=STACK_1,Fixnum_1)) # Solange b/=1
             { STACK_1 = I_I_ash_I(y,Fixnum_minus1); # b := (ash b -1)
-             {var object a = STACK_2; STACK_2 = a = R_R_mal_R(a,a); # a:=a*a
+             {var object a = STACK_2 = R_square_R(STACK_2); # a:=a*a
               if (I_oddp(STACK_1)) { STACK_0 = R_R_mal_R(a,STACK_0); } # evtl. c:=a*c
             }}
           x = STACK_0; skipSTACK(3);
