@@ -1,3 +1,11 @@
+2003-04-18  Sam Steingold  <sds@gnu.org>
+
+	* reploop.lisp (make-xterm-io-stream) [UNIX]: new function
+	* clos.lisp (need-gf-already-called-warning-p): new function
+	(warn-if-gf-already-called): use it
+	(std-remove-method): use it and not warn on removing methods when
+	*WARN-IF-GF-ALREADY-CALLED* is NIL
+
 2003-04-17  Sam Steingold  <sds@gnu.org>
 
 	implemented feature request #[ 723360 ]: restart keyword

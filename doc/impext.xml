@@ -4588,10 +4588,10 @@ are returned in an &alist;.</para>
  &string-r;) <replaceable>new-value</replaceable>)</literal>.</para>
 </section>
 
-<!-- #ifdef AMIGAOS -->
-<section id="other"><title>Extensions-2.13. Other</title>
+<section id="separate-io"><title>Extensions-2.13. Other</title>
 
 <variablelist>
+<!-- #ifdef AMIGAOS -->
 <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
 <listitem><para>To have &debug-io-var; and &error-output-var; point
  to separate console windows (thus keeping your standard console window
@@ -4601,11 +4601,21 @@ are returned in an &alist;.</para>
     (&setq; &debug-io-var;
       (&open; "CON:0/0/500/300/CLISP-Debugger/AUTO/CLOSE"
             &direction-k; &io-k;)))
-</programlisting>
-at startup.
-</para></listitem></varlistentry></variablelist>
-</section>
+</programlisting></para></listitem></varlistentry>
 <!-- #endif -->
+<!-- #ifdef UNIX -->
+<varlistentry><term>Platform dependent: &unix; platforms only.</term>
+<listitem><para>When running under the &X;, you can create
+  a &bidi-s; using the function <emphasis
+  role="strong"><function>EXT:MAKE-XTERM-IO-STREAM</function></emphasis>:
+<programlisting>
+  (&setq; &error-output-var;
+    (&setq; &debug-io-var;
+      (ext:make-xterm-io-stream)))
+</programlisting></para></listitem></varlistentry>
+<!-- #endif -->
+</variablelist>
+</section>
 
 </chapter>
 <!-- #endif -->

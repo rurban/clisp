@@ -2022,10 +2022,12 @@
       update-instance-for-redefined-class
       slot-unbound make-load-form))
   (defvar *warn-if-gf-already-called* t)
+  (defun need-gf-already-called-warning-p (gf)
+    (and *warn-if-gf-already-called* (not (gf-never-called-p gf))
+         (not (memq (sys::%record-ref gf 0)
+                    *dynamically-modifiable-generic-function-names*))))
   (defun warn-if-gf-already-called (gf)
-    (when (and *warn-if-gf-already-called* (not (gf-never-called-p gf))
-               (not (memq (sys::%record-ref gf 0)
-                          *dynamically-modifiable-generic-function-names*)))
+    (when (need-gf-already-called-warning-p gf)
       (warn (TEXT "The generic function ~S is being modified, but has already been called.")
             gf)))
 ) ; let
@@ -2604,8 +2606,8 @@
                           :key #'std-method-initfunction)))
     (when old-method
       (warn-if-gf-already-called gf)
-      (warn (TEXT "Removing method ~S in ~S")
-            old-method gf)
+      (when (need-gf-already-called-warning-p gf)
+        (warn (TEXT "Removing method ~S in ~S") old-method gf))
       (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
             ((eq gf |#'initialize-instance|) (note-ii-change method))
             ((eq gf |#'reinitialize-instance|) (note-ri-change method))
@@ -3082,7 +3084,7 @@
 
 (defgeneric find-method (gf qualifiers specializers &optional errorp)
   (:method ((gf standard-generic-function) qualifiers specializers &optional (errorp t))
-     (std-find-method gf qualifiers specializers errorp)))
+    (std-find-method gf qualifiers specializers errorp)))
 
 (defgeneric add-method (gf method)
   (:method ((gf standard-generic-function) (method standard-method))
