@@ -622,6 +622,23 @@ local /*maygc*/ void make_variable_frame
   }
 }
 
+/* activate the bindings created by make_variable_frame()
+ > frame_pointer, count: values returned from make_variable_frame()
+ count must be positive */
+local void activate_bindings (gcv_object_t* frame_pointer, uintC count) {
+  do {
+    frame_pointer skipSTACKop -varframe_binding_size;
+    var gcv_object_t* markptr = &Before(frame_pointer);
+    if (as_oint(*markptr) & wbit(dynam_bit_o)) { /* binding dynamic? */
+      var object symbol = *(markptr STACKop varframe_binding_sym); /* variable */
+      var object newval = *(markptr STACKop varframe_binding_value); /* new value */
+      *(markptr STACKop varframe_binding_value) = TheSymbolflagged(symbol)->symvalue; /* save old value in frame */
+      TheSymbolflagged(symbol)->symvalue = newval; /* new value */
+    }
+    *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */
+  } while (--count);
+}
+
 LISPSPECFORM(let, 1,0,body)
 { /* (LET ({varspec}) {decl} {form}), CLTL p. 110 */
   /* separate {decl} {form}: */
@@ -645,21 +662,7 @@ LISPSPECFORM(let, 1,0,body)
           frame_pointer skipSTACKop -(varframe_binding_size-1);
         } while (--count);
       }
-      { /* Then, activate the bindings: */
-        var gcv_object_t* frame_pointer = bind_ptr;
-        var uintC count = bind_count;
-        do {
-          frame_pointer skipSTACKop -varframe_binding_size;
-          var gcv_object_t* markptr = &Before(frame_pointer);
-          if (as_oint(*markptr) & wbit(dynam_bit_o)) { /* binding dynamic? */
-            var object symbol = *(markptr STACKop varframe_binding_sym); /* variable */
-            var object newval = *(markptr STACKop varframe_binding_value); /* new value */
-            *(markptr STACKop varframe_binding_value) = TheSymbolflagged(symbol)->symvalue; /* save old value in frame */
-            TheSymbolflagged(symbol)->symvalue = newval; /* new value */
-          }
-          *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */
-        } while (--count);
-      }
+      activate_bindings(bind_ptr,bind_count);
     }
     /* interpret body: */
     implicit_progn(popSTACK(),NIL);
@@ -722,6 +725,7 @@ LISPSPECFORM(locally, 0,0,body)
     var gcv_object_t* bind_ptr;
     var uintC bind_count;
     make_variable_frame(S(locally),NIL,&bind_ptr,&bind_count);
+    if (bind_count) activate_bindings(bind_ptr,bind_count);
     /* interpret body: */
     implicit_progn(popSTACK(),NIL);
     /* unwind frames: */
