@@ -1,3 +1,7 @@
+2001-06-19  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (test): strip gensyms before cmp(1)
+
 2001-06-17  Sam Steingold  <sds@gnu.org>
 
 	some symbols appeared in wrong packages - fix this

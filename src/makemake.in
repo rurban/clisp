@@ -2842,15 +2842,20 @@ if [ $CROSS = false ] ; then
 
   echol "test : lispinit.mem ${TESTDIR} \$(TESTLISPFILES) \$(TESTFASFILES)"
   if [ $HOS = unix ] ; then
+    # replave GENSYMs with a string
+    SEDRE='s/\(#Y([-a-zA-Z:]\{1,\}\)[0-9]\{2,\}\(-*[0-9]*\)/\1<GENSYM>\2/g';
     for f in $LPARTS ; do
-      echotab "cmp -s ${f}.fas ${TESTDIR}/${f}.fas"' || (echo "Test failed." ; exit 1)'
+      echotab "sed '${SEDRE}' ${f}.fas > ${f}.fas1"; 
+      echotab "sed '${SEDRE}' ${TESTDIR}/${f}.fas > ${TESTDIR}/${f}.fas1"; 
+      echotab "cmp -s ${f}.fas1 ${TESTDIR}/${f}.fas1"' || (echo "Test failed." ; exit 1)'
+      echotab "${RM} ${f}.fas1 ${TESTDIR}/${f}.fas1";
     done
     echotab 'echo "Test passed."'
     echol
   else
     if [ $HOS = os2 -o $HOS = win32 ] ; then
       echotab "comp *.fas ${TESTDIR}"
-      echotab "REM The test passed if no differences were found."
+      echotab "REM The test passed if only GENSYM differences were found."
       echol
     else
       echotab 'echo "Compare the .fas files by hand."'
@@ -2877,8 +2882,11 @@ if [ $CROSS = false ] ; then
   # FLET locals, whose names are written to the FAS files
   TESTIMAGE="${TESTDIR}${NEXT_M}testinit.mem";
   echol "${TESTIMAGE}: lispinit.mem";
-  echotab "\$(RUN) -M lispinit.mem -x \"(setq *gensym-counter* (- \`\$(RUN) -q -M ${halfcompiled}.mem -x '*gensym-counter*'\` 16)) (sys::%saveinitmem) (exit)\"";
-  echotab "\$(MV) lispimag.mem ${TESTIMAGE}";
+  # this does not help, unfortunately, since the number of GENSYM calls 
+  # depends on which files went into halfcompiled.mem as FAS files
+  #  echotab "\$(RUN) -M lispinit.mem -x \"(setq *gensym-counter* (- \`\$(RUN) -q -M ${halfcompiled}.mem -x '*gensym-counter*'\` 16)) (sys::%saveinitmem) (exit)\"";
+  #  echotab "\$(MV) lispimag.mem ${TESTIMAGE}";
+  echotab "\$(CP) lispinit.mem ${TESTIMAGE}";
   echol;
 
   for f in $LPARTS ; do
