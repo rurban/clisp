@@ -831,12 +831,6 @@ global object check_char (object obj) {
 
 /* error-message, if an argument is not a String:
  > obj: the erroneous argument */
-nonreturning_function(global, fehler_string, (object obj)) {
-  pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(string)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(S(string)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ is not a ~"));
-}
 global object check_string (object obj) {
   while (!stringp(obj)) {
     pushSTACK(NIL); /* no PLACE */

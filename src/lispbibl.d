@@ -12140,11 +12140,12 @@ extern object check_char (object obj);
 # is used by CHARSTRG
 
 # Error message, if an argument isn't a string:
-# fehler_string(obj);
-# > obj: the faulty argument
+# checj_string(obj);
+# > obj: the possibly faulty argument
+# < a string
 nonreturning_function(extern, fehler_string, (object obj));
 extern object check_string (object obj);
-# is used by CHARSTRG, FOREIGN
+# is used by CHARSTRG, FOREIGN, MISC, PATHNAME, STREAM, SOCKET, I18N, DIRKEY
 
 # Error message, if an argument isn't a Simple-String:
 # fehler_sstring(obj);
