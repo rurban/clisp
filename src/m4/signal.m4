@@ -1,3 +1,4 @@
+dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
@@ -140,17 +141,17 @@ RETSIGTYPE sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
 #ifdef __cplusplus
 #ifdef SIGTYPE_DOTS
-typedef RETSIGTYPE (*signal_handler) (...);
+typedef RETSIGTYPE (*signal_handler_t) (...);
 #else
-typedef RETSIGTYPE (*signal_handler) (int);
+typedef RETSIGTYPE (*signal_handler_t) (int);
 #endif
 #else
-typedef RETSIGTYPE (*signal_handler) ();
+typedef RETSIGTYPE (*signal_handler_t) ();
 #endif
 int main() { /* returns 0 if they need not to be reinstalled */
-  signal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
-  exit(!( (signal_handler)signal(SIGALRM,(signal_handler)sigalrm_handler)
-          == (signal_handler)sigalrm_handler
+  signal(SIGALRM,(signal_handler_t)sigalrm_handler); alarm(1); while (!got_sig());
+  exit(!( (signal_handler_t)signal(SIGALRM,(signal_handler_t)sigalrm_handler)
+          == (signal_handler_t)sigalrm_handler
       ) );
 }], cl_cv_func_signal_reinstall=no, cl_cv_func_signal_reinstall=yes,
 dnl When cross-compiling, don't assume anything.
@@ -185,17 +186,17 @@ volatile int gotsig=0;
 volatile int wasblocked=0;
 #ifdef __cplusplus
 #ifdef SIGTYPE_DOTS
-typedef RETSIGTYPE (*signal_handler) (...);
+typedef RETSIGTYPE (*signal_handler_t) (...);
 #else
-typedef RETSIGTYPE (*signal_handler) (int);
+typedef RETSIGTYPE (*signal_handler_t) (int);
 #endif
 #else
-typedef RETSIGTYPE (*signal_handler) ();
+typedef RETSIGTYPE (*signal_handler_t) ();
 #endif
 RETSIGTYPE sigalrm_handler()
 { gotsig=1;
 #ifdef SIGNAL_NEED_REINSTALL
-  signal(SIGALRM,(signal_handler)sigalrm_handler);
+  signal(SIGALRM,(signal_handler_t)sigalrm_handler);
 #endif
 #ifdef SIGNALBLOCK_POSIX
   { sigset_t blocked;
@@ -208,7 +209,7 @@ RETSIGTYPE sigalrm_handler()
 }
 int got_sig () { return gotsig; }
 int main() { /* returns 0 if they need not to be unblocked */
-  signal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
+  signal(SIGALRM,(signal_handler_t)sigalrm_handler); alarm(1); while (!got_sig());
   exit(wasblocked);
 }], cl_cv_func_signal_blocked=no, cl_cv_func_signal_blocked=yes,
 dnl When cross-compiling, assume the worst case.
@@ -246,17 +247,17 @@ volatile int gotsig=0;
 volatile int somewereblocked=0;
 #ifdef __cplusplus
 #ifdef SIGTYPE_DOTS
-typedef RETSIGTYPE (*signal_handler) (...);
+typedef RETSIGTYPE (*signal_handler_t) (...);
 #else
-typedef RETSIGTYPE (*signal_handler) (int);
+typedef RETSIGTYPE (*signal_handler_t) (int);
 #endif
 #else
-typedef RETSIGTYPE (*signal_handler) ();
+typedef RETSIGTYPE (*signal_handler_t) ();
 #endif
 RETSIGTYPE sigalrm_handler()
 { gotsig=1;
 #ifdef SIGNAL_NEED_REINSTALL
-  signal(SIGALRM,(signal_handler)sigalrm_handler);
+  signal(SIGALRM,(signal_handler_t)sigalrm_handler);
 #endif
 #ifdef SIGNALBLOCK_POSIX
   { sigset_t blocked;
@@ -272,7 +273,7 @@ RETSIGTYPE sigalrm_handler()
 }
 int got_sig () { return gotsig; }
 int main() { /* returns 0 if they need not to be unblocked */
-  signal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
+  signal(SIGALRM,(signal_handler_t)sigalrm_handler); alarm(1); while (!got_sig());
   exit(somewereblocked);
 }], cl_cv_func_signal_blocked_others=no, cl_cv_func_signal_blocked_others=yes,
 dnl When cross-compiling, assume the worst case.
@@ -314,26 +315,26 @@ AC_TRY_RUN([
 #endif
 #ifdef __cplusplus
 #ifdef SIGTYPE_DOTS
-typedef RETSIGTYPE (*signal_handler) (...);
+typedef RETSIGTYPE (*signal_handler_t) (...);
 #else
-typedef RETSIGTYPE (*signal_handler) (int);
+typedef RETSIGTYPE (*signal_handler_t) (int);
 #endif
 #else
-typedef RETSIGTYPE (*signal_handler) ();
+typedef RETSIGTYPE (*signal_handler_t) ();
 #endif
 #if defined(__STDC__) || defined(__cplusplus)
-signal_handler mysignal (int sig, signal_handler handler)
+signal_handler_t mysignal (int sig, signal_handler_t handler)
 #else
-signal_handler mysignal (sig, handler)
+signal_handler_t mysignal (sig, handler)
      int sig;
-     signal_handler handler;
+     signal_handler_t handler;
 #endif
 { struct sigaction old_sa;
   struct sigaction new_sa;
   memset(&new_sa,0,sizeof(new_sa));
   new_sa.sa_handler = handler;
-  if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler)SIG_IGN; }
-  return (signal_handler)old_sa.sa_handler;
+  if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler_t)SIG_IGN; }
+  return (signal_handler_t)old_sa.sa_handler;
 }
 #if !defined(__STDC__) || __STDC__ != 1
 #define volatile
@@ -342,9 +343,9 @@ volatile int gotsig=0;
 RETSIGTYPE sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
 int main() { /* returns 0 if they need not to be reinstalled */
-  mysignal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
-  exit(!( mysignal(SIGALRM,(signal_handler)sigalrm_handler)
-          == (signal_handler)sigalrm_handler
+  mysignal(SIGALRM,(signal_handler_t)sigalrm_handler); alarm(1); while (!got_sig());
+  exit(!( mysignal(SIGALRM,(signal_handler_t)sigalrm_handler)
+          == (signal_handler_t)sigalrm_handler
       ) );
 }], cl_cv_func_sigaction_reinstall=no, cl_cv_func_sigaction_reinstall=yes,
 dnl When cross-compiling, don't assume anything.
@@ -383,33 +384,33 @@ AC_TRY_RUN([
 #endif
 #ifdef __cplusplus
 #ifdef SIGTYPE_DOTS
-typedef RETSIGTYPE (*signal_handler) (...);
+typedef RETSIGTYPE (*signal_handler_t) (...);
 #else
-typedef RETSIGTYPE (*signal_handler) (int);
+typedef RETSIGTYPE (*signal_handler_t) (int);
 #endif
 #else
-typedef RETSIGTYPE (*signal_handler) ();
+typedef RETSIGTYPE (*signal_handler_t) ();
 #endif
 #if defined(__STDC__) || defined(__cplusplus)
-signal_handler mysignal (int sig, signal_handler handler)
+signal_handler_t mysignal (int sig, signal_handler_t handler)
 #else
-signal_handler mysignal (sig, handler)
+signal_handler_t mysignal (sig, handler)
      int sig;
-     signal_handler handler;
+     signal_handler_t handler;
 #endif
 { struct sigaction old_sa;
   struct sigaction new_sa;
   memset(&new_sa,0,sizeof(new_sa));
   new_sa.sa_handler = handler;
-  if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler)SIG_IGN; }
-  return (signal_handler)old_sa.sa_handler;
+  if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler_t)SIG_IGN; }
+  return (signal_handler_t)old_sa.sa_handler;
 }
 volatile int gotsig=0;
 volatile int wasblocked=0;
 RETSIGTYPE sigalrm_handler()
 { gotsig=1;
 #ifdef SIGNAL_NEED_REINSTALL
-  mysignal(SIGALRM,(signal_handler)sigalrm_handler);
+  mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);
 #endif
 #ifdef SIGNALBLOCK_POSIX
   { sigset_t blocked;
@@ -422,7 +423,7 @@ RETSIGTYPE sigalrm_handler()
 }
 int got_sig () { return gotsig; }
 int main() { /* returns 0 if they need not to be unblocked */
-  mysignal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
+  mysignal(SIGALRM,(signal_handler_t)sigalrm_handler); alarm(1); while (!got_sig());
   exit(wasblocked);
 }], cl_cv_func_sigaction_blocked=no, cl_cv_func_sigaction_blocked=yes,
 dnl When cross-compiling, assume the worst case.

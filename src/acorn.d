@@ -52,8 +52,8 @@
 # Signalbehandlung
   #include <signal.h>
   # Ein Signal-Handler ist eine Funktion ohne Ergebnis.
-  typedef void (*signal_handler) ();
-  extern_C signal_handler signal (int sig, signal_handler handler); # siehe SIGNAL(3V)
+  typedef void (*signal_handler_t) ();
+  extern_C signal_handler_t signal (int sig, signal_handler_t handler); # siehe SIGNAL(3V)
   extern void prepare_signal_handler_exit (int sig); # siehe ACORNSIG.D
   #if 1
     #define SIGNAL_NEED_REINSTALL

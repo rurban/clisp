@@ -424,52 +424,49 @@ global RETRWTYPE read_helper (int fd, RW_BUF_T bufarea, RW_SIZE_T nbyte,
 
 #if defined(UNIX)
 
-# This is like the signal() function, except that
-# - It uses sigaction() if needed in order to not block other signals,
-# - It calls siginterrupt(sig,0) so that these signals avoid to interrupt
-#   system calls.
-  global signal_handler install_signal_handler (int sig, signal_handler handler);
-  global signal_handler install_signal_handler(sig,handler)
-    var int sig;
-    var signal_handler handler;
-    {
-      var signal_handler old_handler;
-      #if defined(USE_SIGACTION)
-        var struct sigaction old_sa;
-        var struct sigaction new_sa;
-        memset(&new_sa,0,sizeof(new_sa));
-        new_sa.sa_handler = handler;
-        # Do not block other signals, except possibly SIGINT and SIGALRM
-        # (because our SIGINT/SIGALRM handlers expects the STACK_register
-        # to be valid).
-        sigemptyset(&new_sa.sa_mask);
-        #ifdef HAVE_SAVED_STACK
-        if (!(sig == SIGINT || sig == SIGALRM)) {
-          sigaddset(&new_sa.sa_mask,SIGINT);
-          sigaddset(&new_sa.sa_mask,SIGALRM);
-        }
-        #endif
-        # new_sa.sa_mask = 0; # Do not block other signals.
-        #ifdef EINTR
-        #ifdef SA_RESTART
-        new_sa.sa_flags |= SA_RESTART; # system calls will be restarted
-        #endif
-        #endif
-        if (sigaction(sig,&new_sa,&old_sa)<0)
-          old_handler = (signal_handler)SIG_IGN;
-        else
-          old_handler = (signal_handler)old_sa.sa_handler;
-      #else
-        old_handler = signal(sig,handler);
-        #ifdef EINTR
-        siginterrupt(sig,0);
-        #endif
-      #endif
-      return old_handler;
-    }
+/* This is like the signal() function, except that
+ - It uses sigaction() if needed in order to not block other signals,
+ - It calls siginterrupt(sig,0) so that these signals avoid to interrupt
+   system calls. */
+global signal_handler_t install_signal_handler (int sig,
+                                                signal_handler_t handler) {
+  var signal_handler_t old_handler;
+ #if defined(USE_SIGACTION)
+  var struct sigaction old_sa;
+  var struct sigaction new_sa;
+  memset(&new_sa,0,sizeof(new_sa));
+  new_sa.sa_handler = handler;
+  /* Do not block other signals, except possibly SIGINT and SIGALRM
+     (because our SIGINT/SIGALRM handlers expects the STACK_register
+     to be valid). */
+  sigemptyset(&new_sa.sa_mask);
+ #ifdef HAVE_SAVED_STACK
+  if (!(sig == SIGINT || sig == SIGALRM)) {
+    sigaddset(&new_sa.sa_mask,SIGINT);
+    sigaddset(&new_sa.sa_mask,SIGALRM);
+  }
+ #endif
+  /* new_sa.sa_mask = 0; / * Do not block other signals. */
+ #ifdef EINTR
+  #ifdef SA_RESTART
+  new_sa.sa_flags |= SA_RESTART; /* system calls will be restarted */
+  #endif
+ #endif
+  if (sigaction(sig,&new_sa,&old_sa)<0)
+    old_handler = (signal_handler_t)SIG_IGN;
+  else
+    old_handler = (signal_handler_t)old_sa.sa_handler;
+ #else
+  old_handler = signal(sig,handler);
+  #ifdef EINTR
+  siginterrupt(sig,0);
+  #endif
+ #endif
+  return old_handler;
+}
 #endif
 
-# =============================================================================
+/* ======================================================================= */
 
 #if defined(UNIX_CYGWIN32)
 
