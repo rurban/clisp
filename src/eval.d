@@ -569,7 +569,6 @@ global void progv (object symlist, object vallist) {
 # can trigger GC
 # then jumps to the frame, which was found.
 nonreturning_function(global, unwind_upto, (gcv_object_t* upto_frame)) {
-  unwind_back_trace(back_trace,upto_frame); /* _WHY_ is this necessary?!!! */
   unwind_protect_to_save.fun        = &unwind_upto;
   unwind_protect_to_save.upto_frame = upto_frame;
   until (STACK == upto_frame) { # arrived at target-frame?
