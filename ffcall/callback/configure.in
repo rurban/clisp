@@ -1,5 +1,5 @@
 dnl  AUTOCONF configuration for CALLBACK
-dnl  Bruno Haible 25.10.1995
+dnl  Bruno Haible 28.5.1999
 dnl
 AC_INIT(trampoline_r/trampoline_r.h.in)
 AC_PROG_CC
@@ -12,6 +12,9 @@ CL_PROG_INSTALL
 AC_PROG_LN_S
 CL_CANONICAL_HOST(../autoconf)
 CL_CANONICAL_HOST_CPU_FOR_FFCALL
+PACKAGE=callback
+AM_DISABLE_SHARED
+AM_PROG_LIBTOOL
 dnl This piece of sed script replaces every line containing '@subdir@'
 dnl by several consecutive lines, each referencing one subdir.
 extrasub="$extrasub"'

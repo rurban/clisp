@@ -16,6 +16,8 @@ exec_prefix = $(prefix)
 libdir = $(exec_prefix)/lib
 includedir = $(prefix)/include
 mandir = $(exec_prefix)/man
+datadir = $(prefix)/share
+htmldir = $(datadir)/html
 
 # Programs used by "make":
 CC = @CC@
@@ -23,6 +25,11 @@ CFLAGS = @CFLAGS@
 CPP = @CPP@
 INCLUDES = -I. -I$(srcdir)
 ASPFLAGS = `if test @AS_UNDERSCORE@ = true; then echo '-DASM_UNDERSCORE'; fi`
+LIBTOOL = @LIBTOOL@
+LIBTOOL_COMPILE = $(LIBTOOL) --mode=compile
+LIBTOOL_LINK = $(LIBTOOL) --mode=link
+LIBTOOL_INSTALL = $(LIBTOOL) --mode=install
+LIBTOOL_UNINSTALL = $(LIBTOOL) --mode=uninstall
 AR = ar
 AR_FLAGS = rc
 RANLIB = @RANLIB@
@@ -40,90 +47,119 @@ INSTALL_DATA = @INSTALL_DATA@
 
 SHELL = /bin/sh
 
-OBJECTS = vacall.o misc.o structcpy.o
+# Needed by $(LIBTOOL).
+top_builddir = .
 
-all : $(OBJECTS) libvacall.a vacall_r.h
+OBJECTS = vacall.lo misc.lo structcpy.lo
 
-vacall.o : vacall-$(CPU).o
-	$(RM) vacall.o
-	$(LN) vacall-$(CPU).o vacall.o
+all : $(OBJECTS) libvacall.la vacall_r.h
 
-vacall-i386.o : vacall-i386.s
-	$(CC) @GCC_X_NONE@ -c vacall-i386.s
+vacall.lo : vacall-$(CPU).lo
+	$(RM) vacall.lo vacall.o
+	$(LN) vacall-$(CPU).lo vacall.lo
+	if test -f vacall-$(CPU).o; then $(LN) vacall-$(CPU).o vacall.o; fi
+
+vacall-i386.lo : vacall-i386.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c vacall-i386.s
 
 vacall-i386.s : $(srcdir)/vacall-i386.S
-	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-i386.S | grep -v '^ *#line' | grep -v '^#ident' | grep -v '^#' | sed -e 's,% ,%,g' > vacall-i386.s
+	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-i386.S | grep -v '^ *#line' | grep -v '^#ident' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,% ,%,g' > vacall-i386.s
 
-vacall-sparc.o : vacall-sparc.s
-	$(CC) @GCC_X_NONE@ -c vacall-sparc.s
+vacall-sparc.lo : vacall-sparc.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c vacall-sparc.s
 
 vacall-sparc.s : $(srcdir)/vacall-sparc.S
-	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-sparc.S > vacall-sparc.s
+	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-sparc.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' -e 's,\$$,#,g' > vacall-sparc.s
 
-vacall-m68k.o : $(srcdir)/vacall-m68k.mit.s $(srcdir)/vacall-m68k.mot.s
-	if test @AS_UNDERSCORE@ = true; then syntax=mit; else syntax=mot; fi; $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-m68k.$${syntax}.s ; mv vacall-m68k.$${syntax}.o vacall-m68k.o
+vacall-m68k.lo : vacall-m68k.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c vacall-m68k.s
 
-vacall-mips.o : $(srcdir)/vacall-mips.s
-	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-mips.s
+vacall-m68k.s : $(srcdir)/vacall-m68k.mit.S $(srcdir)/vacall-m68k.mot.s
+	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-m68k.mit.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' | if test @AS_UNDERSCORE@ = true; then sed -e 's/\$$//g'; else sed -e 's/\$$/%/g'; fi > vacall-m68k.s
 
-vacall-mipsn32.o : $(srcdir)/vacall-mipsn32.s
-	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-mipsn32.s
+vacall-mips.lo : vacall-mips.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c vacall-mips.s
 
-vacall-mips64.o : $(srcdir)/vacall-mips64.s
-	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-mips64.s
+vacall-mips.s : $(srcdir)/vacall-mips.S
+	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-mips.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' > vacall-mips.s
 
-vacall-alpha.o : $(srcdir)/vacall-alpha.s
-	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-alpha.s
+vacall-mipsn32.lo : vacall-mipsn32.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c vacall-mipsn32.s
 
-vacall-hppa.o : $(srcdir)/vacall-hppa.s
-	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-hppa.s
+vacall-mipsn32.s : $(srcdir)/vacall-mipsn32.S
+	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-mipsn32.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' > vacall-mipsn32.s
 
-vacall-arm.o : $(srcdir)/vacall-arm.s
-	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-arm.s
+vacall-mips64.lo : vacall-mips64.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c vacall-mips64.s
 
-vacall-rs6000.o : $(srcdir)/vacall-rs6000-aix.old.s $(srcdir)/vacall-rs6000-aix.new.s $(srcdir)/vacall-rs6000-sysv4.s
-	case "$(OS)" in aix3*) syntax=aix.old;; aix*) syntax=aix.new;; *) syntax=sysv4;; esac; $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-rs6000-$${syntax}.s ; mv vacall-rs6000-$${syntax}.o vacall-rs6000.o
+vacall-mips64.s : $(srcdir)/vacall-mips64.S
+	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-mips64.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' > vacall-mips64.s
 
-vacall-m88k.o : $(srcdir)/vacall-m88k.s
-	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-m88k.s
+vacall-alpha.lo : $(srcdir)/vacall-alpha.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-alpha.s
 
-vacall-convex.o : $(srcdir)/vacall-convex.s
-	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-convex.s
+vacall-hppa.lo : $(srcdir)/vacall-hppa.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-hppa.s
 
-misc.o : $(srcdir)/misc.c vacall_r.h config.h
-	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/misc.c
+vacall-arm.lo : vacall-arm.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c vacall-arm.s
 
-structcpy.o : $(srcdir)/structcpy.c
-	$(CC) $(CFLAGS) -c $(srcdir)/structcpy.c
+vacall-arm.s : $(srcdir)/vacall-arm.S
+	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-arm.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//,@,g' -e 's,\$$,#,g' > vacall-arm.s
 
-libvacall.a : $(OBJECTS)
-	$(RM) libvacall.a
-	$(AR) $(AR_FLAGS) libvacall.a $(OBJECTS)
-	$(RANLIB) libvacall.a
+vacall-rs6000.lo : $(srcdir)/vacall-rs6000-aix.old.s $(srcdir)/vacall-rs6000-aix.new.s $(srcdir)/vacall-rs6000-sysv4.s
+	case "$(OS)" in aix3*) syntax=aix.old;; aix*) syntax=aix.new;; *) syntax=sysv4;; esac; $(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-rs6000-$${syntax}.s ; cp vacall-rs6000-$${syntax}.lo vacall-rs6000.lo ; rm -f vacall-rs6000-$${syntax}.lo ; if test -f vacall-rs6000-$${syntax}.o; then mv vacall-rs6000-$${syntax}.o vacall-rs6000.o; fi
+
+vacall-m88k.lo : $(srcdir)/vacall-m88k.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-m88k.s
+
+vacall-convex.lo : $(srcdir)/vacall-convex.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-convex.s
+
+misc.lo : $(srcdir)/misc.c vacall_r.h config.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/misc.c
+
+structcpy.lo : $(srcdir)/structcpy.c
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS) -c $(srcdir)/structcpy.c
+
+libvacall.la : $(OBJECTS)
+	$(LIBTOOL_LINK) $(CC) -o libvacall.la -rpath $(libdir) $(OBJECTS)
+
+# Installs the library and include files only. Typically called with only
+# $(libdir) and $(includedir) - don't use $(prefix) and $(exec_prefix) here.
+install-lib : all force
+	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
+	$(INSTALL_DATA) vacall_r.h $(includedir)/vacall_r.h
 
 install : all force
+	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
+#	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
 #	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
-#	$(INSTALL_DATA) libvacall.a $(libdir)/libvacall.a
+#	$(LIBTOOL_INSTALL) $(INSTALL_DATA) libvacall.la $(libdir)/libvacall.la
 	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
 	$(INSTALL_DATA) vacall_r.h $(includedir)/vacall_r.h
 #	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
 #	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
 #	$(INSTALL_DATA) $(srcdir)/vacall_r.3 $(mandir)/man3/vacall_r.3
-#	if [ ! -d $(mandir)/html ] ; then mkdir $(mandir)/html ; fi
-#	$(INSTALL_DATA) $(srcdir)/vacall_r.html $(mandir)/html/vacall_r.html
+#	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
+#	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
+#	$(INSTALL_DATA) $(srcdir)/vacall_r.html $(htmldir)/vacall_r.html
 
 installdirs : force
+	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
+#	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
 #	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
 	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
 #	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
 #	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
-#	if [ ! -d $(mandir)/html ] ; then mkdir $(mandir)/html ; fi
+#	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
+#	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
 
 uninstall : force
-#	$(RM) $(libdir)/libvacall.a
+#	$(LIBTOOL_UNINSTALL) $(RM) $(libdir)/libvacall.la
 	$(RM) $(includedir)/vacall_r.h
 #	$(RM) $(mandir)/man3/vacall_r.3
-#	$(RM) $(mandir)/html/vacall_r.html
+#	$(RM) $(htmldir)/vacall_r.html
 
 minicheck : all
 
@@ -132,11 +168,12 @@ check : all
 mostlyclean : clean
 
 clean : force
-	$(RM) *.o *.a core
-	$(RM) vacall-i386.s vacall-sparc.s
+	$(RM) *.o *.lo *.a libvacall.* core
+	$(RM) vacall-i386.s vacall-sparc.s vacall-m68k.s vacall-mips.s vacall-mipsn32.s vacall-mips64.s vacall-arm.s
+	$(RM) -r .libs _libs
 
 distclean : clean
-	$(RM) config.status config.log config.cache Makefile vacall_r.h config.h
+	$(RM) config.status config.log config.cache Makefile vacall_r.h config.h libtool
 
 maintainer-clean : distclean
 
