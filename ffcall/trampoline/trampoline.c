@@ -532,25 +532,25 @@ __TR_function alloc_trampoline (address, variable, data)
   */
   /* What about big endian / little endian ?? */
   *(unsigned short *) (function + 0) = 0x180D;
-  *(unsigned int *) (function + 2) = 0xA7D50008;
-  *(unsigned int *) (function + 6) = (unsigned int) variable;
-  *(unsigned int *) (function +10) = (unsigned int) data;
-  *(unsigned int *) (function +14) = (unsigned int) address;
-  *(unsigned int *) (function +18) = 0x5810D000;
-  *(unsigned int *) (function +22) = 0xd2031000;
+  *(unsigned int *)   (function + 2) = 0xA7D50008;
+  *(unsigned int *)   (function + 6) = (unsigned int) variable;
+  *(unsigned int *)   (function +10) = (unsigned int) data;
+  *(unsigned int *)   (function +14) = (unsigned int) address;
+  *(unsigned int *)   (function +18) = 0x5810D000;
+  *(unsigned int *)   (function +22) = 0xD2031000;
   *(unsigned short *) (function +26) = 0xD004;
-  *(unsigned int *) (function +28) = 0x5810D008;
+  *(unsigned int *)   (function +28) = 0x5810D008;
   *(unsigned short *) (function +32) = 0x18D0;
   *(unsigned short *) (function +34) = 0x07f1;
 #define is_tramp(function)  \
-  *(unsigned short *)   (function + 0) == 0x180D && \
-  *(unsigned int *)     (function + 2) == 0xA7D50008 && \
-  *(unsigned int *)     (function +18) == 0x5810D000 && \
-  *(unsigned int *)     (function +22) == 0xd2031000 && \
-  *(unsigned short *)   (function +26) == 0xD004 && \
-  *(unsigned int *)     (function +28) == 0x5810D008 && \
-  *(unsigned short *)   (function +32) == 0x18D0 && \
-  *(unsigned short *)   (function +34) == 0x07f1
+  *(short *)          (function + 0) == 0x180D && \
+  *(int *)            (function + 2) == 0xA7D50008 && \
+  *(int *)            (function +18) == 0x5810D000 && \
+  *(int *)            (function +22) == 0xD2031000 && \
+  *(short *)          (function +26) == 0xD004 && \
+  *(int *)            (function +28) == 0x5810D008 && \
+  *(short *)          (function +32) == 0x18D0 && \
+  *(short *)          (function +34) == 0x07f1
 #define tramp_address(function)  \
   *(unsigned int *) (function +14)
 #define tramp_variable(function)  \
