@@ -4,6 +4,9 @@
 ;;; (autoload 'd-mode "/usr/local/src/clisp/emacs/d-mode")
 
 (require 'c-mode)
+(require 'cc-langs)             ; `c-C-specifier-kwds'
+(require 'compile)              ; `compile-command'
+(require 'cl)                   ; `subst'
 
 (defvar d-font-lock-extra-types
   '(nconc (list "object" "chart" "signean" "u?int[LB0-9]*")
@@ -57,6 +60,21 @@ if that value is non-nil.
 If you are using Emacs 20.2 or earlier (including XEmacs) and want to
 use fontifications, you have to (require 'font-lock) first.  Sorry.
 Beware - this will modify the original C-mode too!"
+  (set (make-local-variable 'compile-command)
+       (let* ((target (if (eq window-system 'w32) "lisp.exe" "lisp.run"))
+              (make (if (eq window-system 'w32) "nmake" "make"))
+              (makefile
+               (cond ((file-readable-p "Makefile") "Makefile")
+                     ((file-readable-p "makefile") "makefile")
+                     ((file-readable-p "makefile-msvc") "makefile-msvc")
+                     ((file-readable-p "makefile.msvc") "makefile.msvc")
+                     ((file-readable-p "makefile.msvc5") "makefile.msvc5")
+                     ((file-readable-p "Makefile.msvc5") "Makefile.msvc5")
+                     ((file-readable-p "makefile-msvs") "makefile-msvs")
+                     ((file-readable-p "makefile-gcc")
+                      (setq make "make") "makefile-gcc")
+                     (t (error "no makefile")))))
+         (concat make " -f " makefile " " target)))
   (when (<= 21 emacs-major-version)
     (set (make-local-variable 'font-lock-defaults)
          d-mode-font-lock-defaults)))
