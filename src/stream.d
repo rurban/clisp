@@ -2328,18 +2328,60 @@ local void wr_ch_pphelp (const object* stream_, object ch) {
   if (chareq(c,ascii(NL))) {
     TheStream(stream)->strm_pphelp_modus = T;
     cons_ssstring(stream_,NIL);
+  } else if ((chareq(c,ascii(' ')) || chareq(c,ascii('\t'))) &&
+             !nullp(Symbol_value(S(print_pretty_fill)))) {
+    var object list = TheStream(stream)->strm_pphelp_strings;
+    if (!(vector_length(Car(list)) == 0 && mconsp(Cdr(list)) &&
+          mconsp(Car(Cdr(list))) && eq(S(Kfill),Car(Car(Cdr(list)))))) {
+      ssstring_push_extend(Car(list),c);
+      # spaces right after a :FILL newline or multiple spaces are ignored
+      cons_ssstring(stream_,S(Kfill));
+    }
   } else
     # Character in den ersten String schieben:
     ssstring_push_extend(Car(TheStream(stream)->strm_pphelp_strings),c);
 }
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Pretty-Printer-Hilfs-Streams:
-local void wr_ch_array_pphelp (const object* stream_, const object* chararray_,
+local void wr_ch_array_pphel_ (const object* stream_, const object* chararray_,
                                uintL start, uintL len) {
   var object ssstring = Car(TheStream(*stream_)->strm_pphelp_strings); # Semi-Simple-String
   ssstring = ssstring_append_extend(ssstring,*chararray_,start,len);
   if (wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len)) # Line-Position aktualisieren
     TheStream(*stream_)->strm_pphelp_modus = T; # Nach NL: Modus := Mehrzeiler
+}
+local void wr_ch_array_pphelp (const object* stream_, const object* chararray_,
+                               uintL start, uintL len) {
+  var bool filling = !nullp(Symbol_value(S(print_pretty_fill)));
+  var uintL beg = start;
+  # if (start) sstring_printf(*chararray_,start+len,0);
+  # sstring_printf(*chararray_,start+len,start);
+  loop {
+    var uintL end = beg;
+    var object nl_type = NIL;
+    # printf(" [%d/",beg);
+    while (end < start+len) {
+      var chart ch;
+      SstringDispatch(*chararray_,
+        { ch = TheSstring(*chararray_)->data[end]; },
+        { ch = as_chart(TheSmallSstring(*chararray_)->data[end]); });
+      if (chareq(ch,ascii(NL))) { /*printf("%d=NL",end);*/break; }
+      if (filling && (chareq(ch,ascii(' ')) || chareq(ch,ascii('\t')))) {
+        # printf("%d=SPC",end);
+        end++; # include the space
+        nl_type = S(Kfill) ; break;
+      }
+      end++;
+    }
+    # printf("/%d]",end);
+    if (beg != end) wr_ch_array_pphel_(stream_,chararray_,beg,end-beg);
+    if (end == start+len) break;
+    if (nullp(nl_type)) TheStream(*stream_)->strm_pphelp_modus = T;
+    cons_ssstring(stream_,nl_type);
+    beg = end;
+    if (nullp(nl_type)) beg++; # skip the newline
+  }
+  # printf("\n");
 }
 
 # UP: Liefert einen Pretty-Printer-Hilfs-Stream.
