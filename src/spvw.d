@@ -1413,6 +1413,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         define_variable(S(prin_l1),unbound);            # SYS::*PRIN-L1*
         define_variable(S(prin_lm),unbound);            # SYS::*PRIN-LM*
         define_variable(S(prin_rpar),unbound);          # SYS::*PRIN-RPAR*
+        define_variable(S(prin_traillength),unbound);   # SYS::*PRIN-TRAILLENGTH*
+        define_variable(S(prin_prev_traillength),unbound); # SYS::*PRIN-PREV-TRAILLENGTH*
         define_variable(S(prin_jblocks),unbound);       # SYS::*PRIN-JBLOCKS*
         define_variable(S(prin_jbstrings),unbound);     # SYS::*PRIN-JBSTRINGS*
         define_variable(S(prin_jbmodus),unbound);       # SYS::*PRIN-JBMODUS*

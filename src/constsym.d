@@ -1389,6 +1389,8 @@ LISPSYM(prin_linelength,"*PRIN-LINELENGTH*",system) # als Variable in IO
 LISPSYM(prin_l1,"*PRIN-L1*",system) # als Variable in IO
 LISPSYM(prin_lm,"*PRIN-LM*",system) # als Variable in IO
 LISPSYM(prin_rpar,"*PRIN-RPAR*",system) # als Variable in IO
+LISPSYM(prin_traillength,"*PRIN-TRAILLENGTH*",system) # als Variable in IO
+LISPSYM(prin_prev_traillength,"*PRIN-PREV-TRAILLENGTH*",system) # als Variable in IO
 LISPSYM(prin_jblocks,"*PRIN-JBLOCKS*",system) # als Variable in IO
 LISPSYM(prin_jbstrings,"*PRIN-JBSTRINGS*",system) # als Variable in IO
 LISPSYM(prin_jbmodus,"*PRIN-JBMODUS*",system) # als Variable in IO
