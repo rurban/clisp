@@ -522,7 +522,9 @@ DEFUN(POSIX::USAGE,)
   tmp = ru.ru_stime.tv_sec + 0.000001 * ru.ru_stime.tv_usec;    \
   pushSTACK(c_double_to_DF((dfloatjanus*)&tmp));                \
   pushSTACK(L_to_I(ru.ru_maxrss));                              \
+  pushSTACK(L_to_I(ru.ru_ixrss));                               \
   pushSTACK(L_to_I(ru.ru_idrss));                               \
+  pushSTACK(L_to_I(ru.ru_isrss));                               \
   pushSTACK(L_to_I(ru.ru_minflt));                              \
   pushSTACK(L_to_I(ru.ru_majflt));                              \
   pushSTACK(L_to_I(ru.ru_nswap));                               \
@@ -539,9 +541,9 @@ DEFUN(POSIX::USAGE,)
   pushSTACK(NIL);               /* to save the children data */
   GETRU(RUSAGE_SELF);
   GETRU(RUSAGE_CHILDREN);
-  funcall(`POSIX::MAKE-USAGE`,14); /* children */
+  funcall(`POSIX::MAKE-USAGE`,16); /* children */
   STACK_(14) = value1;
-  funcall(`POSIX::MAKE-USAGE`,14); /* self */
+  funcall(`POSIX::MAKE-USAGE`,16); /* self */
   value2 = popSTACK();
   mv_count = 2;
 #undef GETRU

@@ -1,3 +1,10 @@
+2004-07-29  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (POSIX::USAGE):
+	return all 16 slots of struct rusage
+	* modules/syscalls/posix.lisp (POSIX::USAGE): slots SHARED-MEMORY,
+	DATA-MEMORY, and STACK-MEMORY replace slot INT-RSS
+
 2004-07-29  Bruno Haible  <bruno@clisp.org>
 
 	* clos-slotdef1.lisp (slot-definition, direct-slot-definition)

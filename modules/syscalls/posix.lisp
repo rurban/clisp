@@ -181,7 +181,8 @@ NIL - no such key; T - the parameter is not set.")
  '(rlimit rlimit-soft rlimit-hard
    limits limits-core limits-cpu limits-heap limits-file-size limits-num-files
    limits-stack limits-virt-mem limits-rss limits-memlock
-   usage usage-user-time usage-system-time usage-max-rss usage-int-rss
+   usage usage-user-time usage-system-time usage-max-rss
+   usage-shared-memory usage-data-memory usage-stack-memory
    usage-minor-page-faults usage-major-page-faults usage-num-swaps
    usage-blocks-input usage-blocks-output usage-messages-sent
    usage-messages-received usage-signals usage-context-switches-voluntary
@@ -206,7 +207,8 @@ NIL - no such key; T - the parameter is not set.")
   (memlock nil :type (or null rlimit) :read-only t))
 
 (defstruct (usage (:constructor
-                   make-usage (user-time system-time max-rss int-rss
+                   make-usage (user-time system-time max-rss
+                               shared-memory data-memory stack-memory
                                minor-page-faults major-page-faults num-swaps
                                blocks-input blocks-output
                                messages-sent messages-received signals
@@ -216,7 +218,9 @@ NIL - no such key; T - the parameter is not set.")
   (user-time 0.0d0 :type double-float :read-only t)
   (system-time 0.0d0 :type double-float :read-only t)
   (max-rss 0 :type (signed-byte 32) :read-only t)
-  (int-rss 0 :type (signed-byte 32) :read-only t)
+  (shared-memory 0 :type (signed-byte 32) :read-only t) ; kB-sec
+  (data-memory 0 :type (signed-byte 32) :read-only t) ; kB-sec
+  (stack-memory 0 :type (signed-byte 32) :read-only t) ; kB-sec
   (minor-page-faults 0 :type (signed-byte 32) :read-only t)
   (major-page-faults 0 :type (signed-byte 32) :read-only t)
   (num-swaps 0 :type (signed-byte 32) :read-only t)
