@@ -1,3 +1,22 @@
+2004-05-03  Sam Steingold  <sds@gnu.org>
+
+	* disassem.lisp (disassemble): return when cannot disassemble
+
+2004-04-21  Sam Steingold  <sds@gnu.org>
+
+	* disassem.lisp (disassemble): do not signal an error when cannot
+	disassemble a built-in C function
+
+2004-04-21  Bruno Haible  <bruno@clisp.org>
+
+	* disassem.lisp (disassemble-machine-code): Add the function object as
+	argument. Give a nice message when gdb is not found.
+
+2004-04-16  Bruno Haible  <bruno@clisp.org>
+
+	* disassem.lisp (disassemble-machine-code): On Cygwin, don't use the
+	live process.
+
 2004-05-16  Bruno Haible  <bruno@clisp.org>
 
 	Fix (SIGNUM negative-single-float) on 64-bit machines.
