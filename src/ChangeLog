@@ -1,3 +1,10 @@
+2000-04-03  Martin Atzmueller  <marty@cs.utexas.edu>
+
+	* _impnotes.html: documented the (abbreviated) keyword-commands
+	for the debugger.
+
+	* reploop.lisp (commands1): fixed a typo
+
 2000-04-03  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (addressbus_mask) [UNIX_OSF]: Define to
