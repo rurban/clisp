@@ -71,7 +71,8 @@ RSXDIR = /c:/rsx
 TEMPDIR = /tmp/clispdos
 
 
-all : makefiles check-configures potfiles src/FILES src/VERSION src/version.h \
+all : makefiles check-configures update-ansi-tests potfiles                 \
+	src/FILES src/VERSION src/version.h                                 \
 	src/uninames.h src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c \
 	ffcall/avcall/avcall.h.msvc ffcall/vacall/config.h.msvc             \
 	ffcall/vacall/vacall.h.msvc ffcall/trampoline/config.h.msvc         \
@@ -186,6 +187,19 @@ libcharset/configure : libcharset/configure.in libcharset/autoconf/aclocal.m4 $(
 check-configures : $(CONFIGURES) $(CONFIG_H_IN)
 	set -e; for f in $(CONFIGURES); do bash -x -n $$f; done
 	rm -rf `find . -name $(AUTOCONF_CACHE)`;
+
+
+ANSITESTS_CVS_ROOT = :ext:anoncvs@savannah.gnu.org:/cvsroot/gcl
+ANSITESTS_CVS_REPOSITORY = gcl/ansi-tests
+update-ansi-tests:
+	if test -d ansi-tests; then \
+	  cd ansi-tests && \
+	  cvs -d "$(ANSITESTS_CVS_ROOT)" update -d -P; \
+	else \
+	  cvs -d "$(ANSITESTS_CVS_ROOT)" checkout $(ANSITESTS_CVS_REPOSITORY); \
+	  mv $(ANSITESTS_CVS_REPOSITORY) ansi-tests; \
+	  rm -rf `echo $(ANSITESTS_CVS_REPOSITORY) | sed -e 's,/.*,,'`; \
+	fi
 
 
 CLISP=$(CURDIR)/build/clisp
