@@ -3137,19 +3137,19 @@ for-value   NIL or T
     (when *compiling-from-file*
       (let ((kf (assoc symbol *known-functions* :test #'equal)))
         (when (and kf (eq type 'defun))
-          ;; the check (eq type 'defun) cuts off
-          ;; `defmethod' forms, which can appear many times in the
-          ;; same file.  we could have made a special effort, like this:
+          ;; The check (eq type 'defun) cuts off
+          ;; defmethod forms, which can appear many times in the
+          ;; same file.  We could have made a special effort, like this:
           ;;  (let ((def (and (fboundp symbol) (fdefinition symbol))))
-          ;;    (if (clos::generic-function-p def)
-          ;;        (clos::check-signature-congruence
-          ;;         def symbol (clos::std-gf-signature def) signature)))
+          ;;    (when (typep def clos::<standard-generic-function>)
+          ;;      (clos::check-signature-congruence
+          ;;        def symbol (clos::std-gf-signature def) signature)))
           ;; but it would be a waste of time since the signature
           ;; congruence check will be done at load time anyway and
           ;; - the above check catches only separate `defmethod' forms,
-          ;;   but misses `:method's in `defgeneric' forms
+          ;;   but misses `:method's in `defgeneric' forms,
           ;; - the above check works only for already defined generic
-          ;;   functions but not for generic functions defined in this file
+          ;;   functions but not for generic functions defined in this file.
           (c-warn (TEXT "Function ~s~% was already defined~a~:[~% with the signature~%~a~% it is being re-defined with a new signature~%~a~;~2*~]")
                   symbol (c-source-point-location (second kf))
                   (equalp signature (third kf))

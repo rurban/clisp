@@ -278,7 +278,6 @@
 (def-atomic-type FIXNUM fixnump)
 (def-atomic-type FLOAT floatp)
 (def-atomic-type FUNCTION functionp)
-(def-atomic-type CLOS:GENERIC-FUNCTION clos::generic-function-p)
 (def-atomic-type HASH-TABLE hash-table-p)
 (def-atomic-type INTEGER integerp)
 (def-atomic-type KEYWORD keywordp)
@@ -315,7 +314,6 @@
 (def-atomic-type SINGLE-FLOAT single-float-p)
 (defun %standard-char-p (x) (and (characterp x) (standard-char-p x)))
 (def-atomic-type STANDARD-CHAR %standard-char-p)
-(def-atomic-type CLOS:STANDARD-GENERIC-FUNCTION clos::generic-function-p)
 (def-atomic-type CLOS:STANDARD-OBJECT clos::std-instance-p)
 (def-atomic-type STREAM streamp)
 (def-atomic-type FILE-STREAM file-stream-p)
@@ -1010,5 +1008,5 @@ Henry Baker:
 
 ;; ============================================================================
 
-(unless (clos::generic-function-p #'clos::class-name)
+(unless (clos::funcallable-instance-p #'clos::class-name)
   (fmakunbound 'clos::class-name))

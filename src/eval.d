@@ -103,17 +103,16 @@ local const Subr FUNTAB[] = {
   _(delete_file), _(rename_file), _(open), _(directory), _(cd),
   _(make_dir), _(delete_dir), _(file_write_date), _(file_author),
   _(savemem),
-  /* PREDTYPE : 46-3 SUBRs */
+  /* PREDTYPE : 44-3 SUBRs */
   /* _(eq), */ _(eql), _(equal), _(equalp), _(consp), _(atom), _(symbolp),
   _(stringp), _(numberp), _(compiled_function_p), /* _(null), _(not), */
   _(closurep), _(listp), _(integerp), _(fixnump), _(rationalp), _(floatp),
   _(short_float_p), _(single_float_p), _(double_float_p), _(long_float_p),
   _(realp), _(complexp), _(streamp), _(random_state_p), _(readtablep),
   _(hash_table_p), _(pathnamep), _(logical_pathname_p), _(characterp),
-  _(functionp), _(generic_function_p), _(packagep), _(arrayp),
-  _(simple_array_p), _(bit_vector_p), _(vectorp), _(simple_vector_p),
-  _(simple_string_p), _(simple_bit_vector_p), _(type_of),
-  _(class_of), _(find_class), _(coerce),
+  _(functionp), _(packagep), _(arrayp), _(simple_array_p), _(bit_vector_p),
+  _(vectorp), _(simple_vector_p), _(simple_string_p), _(simple_bit_vector_p),
+  _(type_of), _(class_of), _(find_class), _(coerce),
   /* RECORD : 23 SUBRs */
   _(record_ref), _(record_store), _(record_length), _(structure_ref),
   _(structure_store), _(make_structure), _(copy_structure),
