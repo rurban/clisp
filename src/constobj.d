@@ -311,11 +311,46 @@
   /* The date of the last change of the bytecode interpreter
      or the arglist of any built-in function in FUNTAB */
   LISPOBJ(version,"(20040222)")
-  #ifdef MACHINE_KNOWN
-    LISPOBJ(machine_type_string,"NIL")
-    LISPOBJ(machine_version_string,"NIL")
-    LISPOBJ(machine_instance_string,"NIL")
-  #endif
+#ifdef MACHINE_KNOWN
+  LISPOBJ(machine_type_string,"NIL")
+  LISPOBJ(machine_version_string,"NIL")
+  LISPOBJ(machine_instance_string,"NIL")
+#endif
+  LISPOBJ_S(software_type,"(SAFETY=" STRINGIFY(SAFETY)
+           #ifdef TYPECODES
+            " TYPECODES"
+           #endif
+           #ifdef WIDE
+            " WIDE"
+           #endif
+           #ifdef GENERATIONAL_GC
+            " GENERATIONAL_GC"
+           #endif
+           #ifdef SPVW_BLOCKS
+            " SPVW_BLOCKS"
+           #endif
+           #ifdef SPVW_PAGES
+            " SPVW_PAGES"
+           #endif
+           #ifdef SPVW_MIXED
+            " SPVW_MIXED"
+           #endif
+           #ifdef SPVW_PURE
+            " SPVW_PURE"
+           #endif
+           #ifdef MULTIMAP_MEMORY
+            " MULTIMAP_MEMORY"
+           #endif
+           #ifdef SINGLEMAP_MEMORY
+            " SINGLEMAP_MEMORY"
+           #endif
+           #ifdef TRIVIALMAP_MEMORY
+            " TRIVIALMAP_MEMORY"
+           #endif
+           #ifdef VIRTUAL_MEMORY
+            " VIRTUAL_MEMORY"
+           #endif
+            ")")
  #if defined(GNU)
   LISPOBJ_S(c_compiler_version,__VERSION__)
  #endif

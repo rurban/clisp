@@ -494,7 +494,7 @@ LISPFUNN(registry,2)
 
 LISPFUN(software_type,seclass_no_se,0,0,norest,nokey,0,NIL)
 { /* (SOFTWARE-TYPE), CLTL p. 448 */
-  VALUES1(CLSTEXT("ANSI C program"));
+  VALUES1(O(software_type));
 }
 
 LISPFUN(software_version,seclass_no_se,0,0,norest,nokey,0,NIL)

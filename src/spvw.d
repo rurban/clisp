@@ -2062,21 +2062,7 @@ global int main (argc_t argc, char* argv[]) {
                 "(PRINC (LISP-IMPLEMENTATION-VERSION)) (TERPRI)"
                 "(PRINC \"Software: \") (PRINC (SOFTWARE-VERSION))"
                 "(PRINC \" \") (PRINC (SOFTWARE-TYPE)) (TERPRI)"
-                "(PRINC \"Features"
-               #ifdef DEBUG_SPVW
-                " [SAFETY=" STRINGIFY(SAFETY)
-                #ifdef TYPECODES
-                " TYPECODES"
-                #endif
-                #ifdef WIDE
-                " WIDE"
-                #endif
-                #ifdef GENERATIONAL_GC
-                " GENERATIONAL_GC"
-                #endif
-                "]"
-               #endif
-                ": \") (PRINC *FEATURES*) (TERPRI)"
+                "(PRINC \"Features: \") (PRINC *FEATURES*) (TERPRI)"
                 "(PRINC \"Installation directory: \")"
                 "(PRINC (SYS::LIB-DIRECTORY)) (TERPRI)"
                 "(PRINC \"User language: \")"
