@@ -152,6 +152,7 @@
 <!ENTITY cont-err "<ulink url='&clhs;/Body/glo_c.html#continuable'>continuable</ulink> &error-t;">
 <!ENTITY funname "<ulink url='&clhs;/Body/glo_f.html#function_name'>function name</ulink>">
 <!ENTITY ext-obj "<ulink url='&clhs;/Body/sec_3-2-4-1.html'>externalizable object</ulink>">
+<!ENTITY spelalist "<ulink url='&clhs;/Body/sec_3-4-3.html'>specialized lambda list</ulink>">
 
 <!-- *** packages *** -->
 <!ENTITY cl-pac "<ulink url='&clhs;/Body/sec_11-1-2-1.html'><quote role='package'>COMMON-LISP</quote></ulink>">

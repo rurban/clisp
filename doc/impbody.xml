@@ -801,6 +801,18 @@ is the same as
  It is &not-e; a good idea to set this variable to &t;.
 </para></formalpara>
 
+<formalpara id="defun-accept-spelalist">
+ <title>Variable &defun-accept-spelalist;</title>
+<para>When <firstterm>&defun-accept-spelalist;</firstterm> is
+non-&nil;, &defun; accepts &spelalist;s, converting type-parameter
+associations to type declarations:
+<programlisting>(defun f ((x list) (y integer)) ...)</programlisting>
+is equivalent to
+<programlisting>(defun f (x y) (declare (type list x) (type integer y)) ...)</programlisting>
+This extension is disabled by &ansi-opt; and by setting &ansi; to &t;,
+but can be re-enabled by setting &defun-accept-spelalist; explicitly.
+</para></formalpara>
+
 </section>
 
 </section>
