@@ -2017,14 +2017,16 @@ are simple characters.</para>
  Suppose we open it with
  <literal role="sexp">(&open; "foo" &extfmt; &dos-k;)</literal>.
  What should &read-line; return?
- Right now, it returns <literal>"foo"</literal> (the second &read-line;
- returns <literal>"bar"</literal> and reaches &eos;).
+ Right now, it returns <literal role="data">"foo"</literal>
+ (the second &read-line; returns <literal role="data">"bar"</literal>
+ and reaches &eos;).
  If our i/o were "faithful", &read-line; would have returned the string
  <literal role="sexp">(&concatenate; 'string "foo" (string &lf-s;)
   "bar")</literal>, i.e., a string with an embedded &nl-s;
- between <literal>"foo"</literal> and <literal>"bar"</literal> (because
- a single &lf-s; is not a &nl-s; in the specified &extfmt;, it will not
- make &read-line; return, but it &is-e; a &clisp; &nl-s;!)
+ between <literal role="data">"foo"</literal>
+ and <literal role="data">"bar"</literal>
+ (because a single &lf-s; is not a &nl-s; in the specified &extfmt;,
+ it will not make &read-line; return, but it &is-e; a &clisp; &nl-s;!)
  Even though the specification for &read-line; does not explicitly
  forbids newlines inside the returned string, such behavior would be
  quite surprising, to say the least.
