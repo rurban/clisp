@@ -1294,7 +1294,7 @@ local void init_object_tab (void) {
     var const char * features_initstring =
       "(:CLISP :ANSI-CL :COMMON-LISP :LISP=CL :INTERPRETER"
      #ifdef DEBUG_SPVW
-      " :DEBUG"
+      " :CLISP-DEBUG"
      #endif
      #ifdef MULTITHREAD
       " :MT"
