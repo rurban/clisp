@@ -104,7 +104,8 @@
             (*print-pretty* nil))
         (setq error-count (funcall tester s log ignore-errors)))))
   (when (zerop error-count) (delete-file logname))
-  (format t "~&~s: finished ~s (~:d errors)~%" 'run-test testname error-count)
+  (format t "~&~s: finished ~s (~:d error~:p)~%"
+          'run-test testname error-count)
   error-count)
 
 (defun run-all-tests ()
