@@ -1,3 +1,10 @@
+2000-09-02  Bruno Haible  <haible@clisp.cons.org>
+
+        * modules/clx/new-clx/configure.in: When checking for Xpm and XShape,
+          temporarily add $X_CFLAGS to the CFLAGS. Needed on FreeBSD, which
+          has X_CFLAGS=-I/usr/X11R6/include.
+          Reported by Valeriy E. Ushakov <uwe@ptc.spbu.ru>.
+
 2000-09-01  Bruno Haible  <haible@clisp.cons.org>
 
         Fix line numbers in generated C code.
