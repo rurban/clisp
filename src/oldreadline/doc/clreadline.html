@@ -39,15 +39,11 @@
 
 <HR>
 
-<A NAME="Name">
-<H2>Name</H2>
-</A>
+<H2><A NAME="Name">Name</A></H2>
 
 readline - get a line from a user with editing
 
-<A NAME="Notation">
-<H2>Notation</H2>
-</A>
+<H2><A NAME="Notation">Notation</A></H2>
 
 An  emacs-style  notation  is  used  to denote keystrokes.
 Control keys are denoted by <SAMP>C-</SAMP><VAR>key</VAR>,
@@ -77,9 +73,7 @@ kills  cause  the  text  to  be accumulated into one unit,
 which can be yanked all at once.  Commands  which  do  not
 kill text separate the chunks of text on the kill-ring.
 
-<A NAME="Initialization File">
-<H2>Initialization File</H2>
-</A>
+<H2><A NAME="Initialization File">Initialization File</A></H2>
 
 Readline  is customized by putting commands in an initialization file.
 The name of this file  is  taken  from  the
@@ -116,9 +110,7 @@ command names, readline allows  keys  to  be  bound  to  a
 string that is inserted when the key is pressed (a <i>macro</i>).
 <P>
 
-<A NAME="Key Bindings">
-<H3>Key Bindings</H3>
-</A>
+<H3><A NAME="Key Bindings">Key Bindings</A></H3>
 
 The syntax for controlling key bindings in the  <A HREF="#~/.inputrc"><CODE>~/.inputrc</CODE></A>
 file  is  simple.  All that is required is the name of the
@@ -187,9 +179,7 @@ programs using this library  provide  similar  mechanisms.
 The  <VAR>inputrc</VAR> file  may be edited and re-read if a program
 does not provide any other means to incorporate new  bindings.
 
-<A NAME="Variables">
-<H3>Variables</H3>
-</A>
+<H3><A NAME="Variables">Variables</A></H3>
 
 Readline  has  variables  that can be used to further customize its
 behavior.  A variable may be set in the <VAR>inputrc</VAR>
@@ -270,9 +260,7 @@ be listed immediately instead of ringing the  bell.
 readline attempts word completion.
 </DL>
 
-<A NAME="Conditional Constructs">
-<H3>Conditional Constructs</H3>
-</A>
+<H3><A NAME="Conditional Constructs">Conditional Constructs</A></H3>
 
 Readline implements a facility similar in  spirit  to  the
 conditional  compilation  features  of  the C preprocessor
@@ -338,16 +326,12 @@ executed if the test fails.
 
 </DL>
 
-<A NAME="Editing Commands">
-<H2>Editing Commands</H2>
-</A>
+<H2><A NAME="Editing Commands">Editing Commands</A></H2>
 
 The  following  is a list of the names of the commands and
 the default key sequences to which they are bound.
 
-<A NAME="Commands for Moving">
-<H3>Commands for Moving</H3>
-</A>
+<H3><A NAME="Commands for Moving">Commands for Moving</A></H3>
 
 <DL>
 <DT> <A NAME="beginning-of-line"><CODE>beginning-of-line</CODE></A> (<SAMP>C-a</SAMP>)
@@ -374,9 +358,7 @@ current line without clearing the screen.
 unbound.
 </DL>
 
-<A NAME="Commands for Manipulating the History">
-<H3>Commands for Manipulating the History</H3>
-</A>
+<H3><A NAME="Commands for Manipulating the History">Commands for Manipulating the History</A></H3>
 
 <DL>
 <DT> <A NAME="accept-line"><CODE>accept-line</CODE></A> (<SAMP>Newline</SAMP>, <SAMP>Return</SAMP>)
@@ -431,9 +413,7 @@ with word 0).  A negative argument inserts the  <VAR>n</VAR> th
 word from the end of the previous command.
 </DL>
 
-<A NAME="Commands for Changing Text">
-<H3>Commands for Changing Text</H3>
-</A>
+<H3><A NAME="Commands for Changing Text">Commands for Changing Text</A></H3>
 
 <DL>
 <DT> <A NAME="delete-char"><CODE>delete-char</CODE></A> (<SAMP>C-d</SAMP>)
@@ -476,9 +456,7 @@ negative argument, do the previous word, but do not
 move point.
 </DL>
 
-<A NAME="Killing and Yanking">
-<H3>Killing and Yanking</H3>
-</A>
+<H3><A NAME="Killing and Yanking">Killing and Yanking</A></H3>
 
 <DL>
 <DT> <A NAME="kill-line"><CODE>kill-line</CODE></A> (<SAMP>C-k</SAMP>)
@@ -515,9 +493,7 @@ the cursor.
 works following <A HREF="#yank"><CODE>yank</CODE></A> or <A HREF="#yank-pop"><CODE>yank-pop</CODE></A>.
 </DL>
 
-<A NAME="Numeric Arguments">
-<H3>Numeric Arguments</H3>
-</A>
+<H3><A NAME="Numeric Arguments">Numeric Arguments</A></H3>
 
 <DL>
 <DT> <A NAME="digit-argument"><CODE>digit-argument</CODE></A> (<SAMP>M-0</SAMP>, <SAMP>M-1</SAMP>, ..., <SAMP>M--</SAMP>)
@@ -532,9 +508,7 @@ time makes the argument count  four.   By  default,
 this is not bound to a key.
 </DL>
 
-<A NAME="Completing">
-<H3>Completing</H3>
-</A>
+<H3><A NAME="Completing">Completing</A></H3>
 
 <DL>
 <DT> <A NAME="complete"><CODE>complete</CODE></A> (<SAMP>TAB</SAMP>)
@@ -563,9 +537,7 @@ By default, this is not bound  to
 a key.
 </DL>
 
-<A NAME="Keyboard Macros">
-<H3>Keyboard Macros</H3>
-</A>
+<H3><A NAME="Keyboard Macros">Keyboard Macros</A></H3>
 
 <DL>
 <DT> <A NAME="start-kbd-macro"><CODE>start-kbd-macro</CODE></A> (<SAMP>C-x (</SAMP>)
@@ -579,9 +551,7 @@ keyboard macro and save the definition.
 at the keyboard.
 </DL>
 
-<A NAME="Miscellaneous">
-<H3>Miscellaneous</H3>
-</A>
+<H3><A NAME="Miscellaneous">Miscellaneous</A></H3>
 
 <DL>
 <DT> <A NAME="re-read-init-file"><CODE>re-read-init-file</CODE></A> (<SAMP>C-x C-r</SAMP>)
@@ -617,9 +587,7 @@ way that it can be made part of an <i>inputrc</i>
 <CODE>vi</CODE> editing mode.
 </DL>
 
-<A NAME="Default Key Bindings">
-<H2>Default Key Bindings</H2>
-</A>
+<H2><A NAME="Default Key Bindings">Default Key Bindings</A></H2>
 
 The  following is a list of the default emacs and vi bindings.  Characters with the 8th  bit  set  are  written  as
 <SAMP>M-</SAMP><VAR>character</VAR>, and are referred to as <i>metafied</i>
@@ -636,9 +604,7 @@ same function in the emacs mode meta keymap.  The  remaining
 characters are unbound, which causes readline to ring
 the bell (subject to the setting of the  <A HREF="#bell-style"><CODE>bell-style</CODE></A>  variable).
 
-<A NAME="Key Bindings in Emacs Mode">
-<H3>Emacs Mode</H3>
-</A>
+<H3><A NAME="Key Bindings in Emacs Mode">Emacs Mode</A></H3>
 
 <DL>
 <DT> Emacs Standard bindings
@@ -722,9 +688,7 @@ the bell (subject to the setting of the  <A HREF="#bell-style"><CODE>bell-style<
 </PRE>
 </DL>
 
-<A NAME="Key Bindings in VI Mode">
-<H3>VI Mode bindings</H3>
-</A>
+<H3><A NAME="Key Bindings in VI Mode">VI Mode bindings</A></H3>
 
 <DL>
 <DT> VI Insert Mode functions
@@ -831,9 +795,7 @@ the bell (subject to the setting of the  <A HREF="#bell-style"><CODE>bell-style<
 </PRE>
 </DL>
 
-<A NAME="See also">
-<H2>See also</H2>
-</A>
+<H2><A NAME="See also">See also</A></H2>
 
 <UL>
 <LI> <EM>The Gnu Readline Library</EM>, Brian Fox
@@ -841,18 +803,14 @@ the bell (subject to the setting of the  <A HREF="#bell-style"><CODE>bell-style<
 <LI> <A HREF="bash(1)"><CODE><B>bash</B></CODE></A>(1)
 </UL>
 
-<A NAME="Files">
-<H2>Files</H2>
-</A>
+<H2><A NAME="Files">Files</A></H2>
 
 <DL>
 <DT> <A NAME="~/.inputrc"><CODE>~/.inputrc</CODE></A>
 <DD> Individual readline initialization file
 </DL>
 
-<A NAME="Authors">
-<H2>Authors</H2>
-</A>
+<H2><A NAME="Authors">Authors</A></H2>
 
 <UL>
 <LI> Brian   Fox,   Free  Software  Foundation  (primary
@@ -864,16 +822,12 @@ author)<BR>
 <TT>haible@clisp.cons.org</TT>
 </UL>
 
-<A NAME="Bug Reports">
-<H2>Bug Reports</H2>
-</A>
+<H2><A NAME="Bug Reports">Bug Reports</A></H2>
 
 If you find a bug in readline, you should report it.  Send
 mail to <TT>haible@clisp.cons.org</TT>.
 
-<A NAME="Bugs">
-<H2>Bugs</H2>
-</A>
+<H2><A NAME="Bugs">Bugs</A></H2>
 
 It's too big and too slow.
 <P>
