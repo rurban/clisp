@@ -1000,6 +1000,11 @@
 # Asserting an arithmetic expression: ASSERT(expr);
 #define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)
 
+# Ensure the Linux headers define nonstandard symbols like IPC_INFO.
+#ifdef UNIX_LINUX
+  #define _GNU_SOURCE 1
+#endif
+
 # alloca()
 #ifdef GNU
   #define alloca  __builtin_alloca
