@@ -3,6 +3,7 @@
 *.mem
 *.run
 *.exe
+*.ilk
 *.i.c
 *.i
 *.opt
