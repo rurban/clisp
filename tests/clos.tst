@@ -3721,3 +3721,39 @@ DEF-USER-METHOD
   (set-funcallable-instance-function f #'test-funcallable-01)
   (funcall f 'a 'b))
 (A . B)
+
+
+;; Check that changing the class of a generic function works.
+
+(progn
+  (defclass my-gf-class (standard-generic-function)
+    ((myslot :initform 17 :accessor my-myslot))
+    (:metaclass funcallable-standard-class))
+  t)
+T
+
+(progn
+  (defgeneric foo110 (x))
+  (defmethod foo110 ((x integer)) (* x x))
+  (defgeneric foo110 (x) (:generic-function-class my-gf-class))
+  (defmethod foo110 ((x float)) (* x x x))
+  (list (foo110 10) (foo110 3.0) (my-myslot #'foo110)))
+(100 27.0 17)
+
+(progn
+  (defgeneric foo111 (x))
+  (defmethod foo111 ((x integer)) (* x x))
+  (defgeneric foo111 (x) (:generic-function-class my-gf-class))
+  (gc)
+  (defmethod foo111 ((x float)) (* x x x))
+  (list (foo111 10) (foo111 3.0) (my-myslot #'foo111)))
+(100 27.0 17)
+
+(progn
+  (defgeneric foo112 (x))
+  (defmethod foo112 ((x integer)) (* x x))
+  (defgeneric foo112 (x) (:generic-function-class my-gf-class))
+  (defmethod foo112 ((x float)) (* x x x))
+  (gc)
+  (list (foo112 10) (foo112 3.0) (my-myslot #'foo112)))
+(100 27.0 17)

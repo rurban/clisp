@@ -9,3 +9,6 @@
 ;; Make creation of <standard-generic-function> instances customizable.
 (setf (fdefinition 'initialize-instance-<standard-generic-function>) #'initialize-instance)
 (setf (fdefinition 'make-instance-<standard-generic-function>) #'make-instance)
+
+;; Make creation of generic-function instances customizable.
+(setf (fdefinition 'make-generic-function-instance) #'make-instance)

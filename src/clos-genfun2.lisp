@@ -199,6 +199,11 @@
   (let ((gf (%allocate-instance <standard-generic-function>)))
     (apply #'initialize-instance-<standard-generic-function> gf args)))
 
+(defun make-generic-function-instance (class &rest args
+                                       &key &allow-other-keys)
+  ;; During bootstrapping, only <standard-generic-function> instances are used.
+  (apply #'make-instance-<standard-generic-function> class args))
+
 ;; ======================= Installing the Dispatch Code =======================
 
 ;; The dispatch-code for generic functions is formed with
@@ -224,15 +229,15 @@
 ;;   )        )
 
 ;; Returns a generic function without dispatch-code. Not callable!!
-(defun %make-gf (name lambda-list argument-precedence-order method-class)
-  (make-instance-<standard-generic-function> <standard-generic-function>
+(defun %make-gf (generic-function-class name lambda-list argument-precedence-order method-class)
+  (make-generic-function-instance generic-function-class
     :name name
     :lambda-list lambda-list
     :argument-precedence-order argument-precedence-order
     :method-class method-class))
 
 #||
- (defun make-gf (name lambdabody signature argorder methods)
+ (defun make-gf (generic-function-class name lambdabody signature argorder methods)
   (let ((preliminary
          (eval `(LET ()
                   (DECLARE (COMPILE))
@@ -247,8 +252,8 @@
 
 #|| ;; Generic functions with primitive dispatch:
 
- (defun make-slow-gf (name lambda-list argument-precedence-order method-class methods)
-  (let* ((final (%make-gf name lambda-list argument-precedence-order method-class))
+ (defun make-slow-gf (generic-function-class name lambda-list argument-precedence-order method-class methods)
+  (let* ((final (%make-gf generic-function-class name lambda-list argument-precedence-order method-class))
          (preliminary
            (eval `(LET ((GF ',final))
                     (DECLARE (COMPILE))
@@ -358,8 +363,8 @@
 
 ;; Generic functions with optimized dispatch:
 
-(defun make-fast-gf (name lambda-list argument-precedence-order method-class)
-  (let ((gf (%make-gf name lambda-list argument-precedence-order method-class)))
+(defun make-fast-gf (generic-function-class name lambda-list argument-precedence-order method-class)
+  (let ((gf (%make-gf generic-function-class name lambda-list argument-precedence-order method-class)))
     (finalize-fast-gf gf)
     gf))
 
