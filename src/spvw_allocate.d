@@ -23,38 +23,34 @@
 # ------------------------------ Implementation --------------------------------
 
 # Fehlermeldung wegen vollen Speichers
-  nonreturning_function(local, fehler_speicher_voll, (void));
-  local void fehler_speicher_voll()
-    {
-      dynamic_bind(S(use_clcs),NIL); # SYS::*USE-CLCS* an NIL binden
-      if (posfixnump(Symbol_value(S(gc_statistics_stern)))) {
-        dynamic_bind(S(gc_statistics_stern),Fixnum_0); # SYS::*GC-STATISTICS* an 0 binden
-      }
-      fehler(storage_condition,
-             GETTEXT("No more room for LISP objects")
-            );
+  nonreturning_function(local, fehler_speicher_voll, (void)) {
+    dynamic_bind(S(use_clcs),NIL); # SYS::*USE-CLCS* an NIL binden
+    if (posfixnump(Symbol_value(S(gc_statistics_stern)))) {
+      dynamic_bind(S(gc_statistics_stern),Fixnum_0); # SYS::*GC-STATISTICS* an 0 binden
     }
+    fehler(storage_condition,
+           GETTEXT("No more room for LISP objects")
+          );
+  }
 
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && RESERVE
 
 # Notmaßnahme, wenn Speicher voll: Anzapfen der Reserve und Fehlermeldung.
-  nonreturning_function(local, error_speicher_voll, (void));
-  local void error_speicher_voll()
-    {
-      # Abhilfe: Reservespeicher wird halbiert.
-      var uintL reserve = mem.MEMTOP - mem.MEMRES; # noch freie Reserve
-      if (reserve>=8) { # Reservespeicher auch voll?
-        # nein -> Reservespeicher anzapfen und Fehlermeldung ausgeben
-        # halbe Reserve
-        move_conses(round_down(floor(reserve,2),varobject_alignment));
-        # halbierte Reserve, aligned: um soviel die Conses nach oben schieben
-        fehler_speicher_voll();
-      } else {
-        # ja -> harte Fehlermeldung
-        asciz_out(GETTEXTL(NLstring "*** - " "No more room for LISP objects: RESET"));
-        reset(); # und zum letzten Driver-Frame zurück
-      }
+  nonreturning_function(local, error_speicher_voll, (void)) {
+    # Abhilfe: Reservespeicher wird halbiert.
+    var uintL reserve = mem.MEMTOP - mem.MEMRES; # noch freie Reserve
+    if (reserve>=8) { # Reservespeicher auch voll?
+      # nein -> Reservespeicher anzapfen und Fehlermeldung ausgeben
+      # halbe Reserve
+      move_conses(round_down(floor(reserve,2),varobject_alignment));
+      # halbierte Reserve, aligned: um soviel die Conses nach oben schieben
+      fehler_speicher_voll();
+    } else {
+      # ja -> harte Fehlermeldung
+      asciz_out(GETTEXTL(NLstring "*** - " "No more room for LISP objects: RESET"));
+      reset(); # und zum letzten Driver-Frame zurück
     }
+  }
 
 # Bei entspannter Situation: Reserve wieder auffüllen.
 # Invariante: (mem.conses.heap_start-mem.varobjects.heap_end >= need).

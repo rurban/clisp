@@ -331,33 +331,27 @@
 #ifdef LISPARIT
 
 # Fehlermeldung wegen Division durch Null
-  nonreturning_function(local, divide_0, (void));
-  local void divide_0()
-    {
-      fehler(division_by_zero,
-             GETTEXT("division by zero")
-            );
-    }
+  nonreturning_function(local, divide_0, (void)) {
+    fehler(division_by_zero,
+           GETTEXT("division by zero")
+          );
+  }
 
 # Fehlermeldung wegen Floating-Point-Überlauf
 # fehler_overflow();
-  nonreturning_function(local, fehler_overflow, (void));
-  local void fehler_overflow()
-    {
-      fehler(floating_point_overflow,
-             GETTEXT("floating point overflow")
-            );
-    }
+  nonreturning_function(local, fehler_overflow, (void)) {
+    fehler(floating_point_overflow,
+           GETTEXT("floating point overflow")
+          );
+  }
 
 # Fehlermeldung wegen Floating-Point-Unterlauf
 # fehler_underflow();
-  nonreturning_function(local, fehler_underflow, (void));
-  local void fehler_underflow()
-    {
-      fehler(floating_point_underflow,
-             GETTEXT("floating point underflow")
-            );
-    }
+  nonreturning_function(local, fehler_underflow, (void)) {
+    fehler(floating_point_underflow,
+           GETTEXT("floating point underflow")
+          );
+  }
 
 # Stellt fest, ob Floating-Point-Unterlauf erlaubt ist
 # underflow_allowed()

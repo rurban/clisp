@@ -1436,13 +1436,11 @@
     }
 
 # Bignum-Überlauf melden:
-  nonreturning_function(local, BN_ueberlauf, (void));
-  local void BN_ueberlauf()
-    {
-      fehler(arithmetic_error,
-             GETTEXT("bignum overflow")
-            );
-    }
+  nonreturning_function(local, BN_ueberlauf, (void)) {
+    fehler(arithmetic_error,
+           GETTEXT("bignum overflow")
+          );
+  }
 
 # Normalized Unsigned Digit Sequence to Integer
 # NUDS_to_I(MSDptr,len)

@@ -1,5 +1,5 @@
 # Funktionen betr. Symbole für CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 
 #include "lispbibl.c"
 
@@ -38,16 +38,13 @@
 # Fehlermeldung, wenn ein Symbol eine Property-Liste ungerader Länge hat.
 # fehler_plist_odd(symbol);
 # > symbol: Symbol
-  nonreturning_function(local, fehler_plist_odd, (object symbol));
-  local void fehler_plist_odd(symbol)
-    var object symbol;
-    {
-      pushSTACK(symbol);
-      pushSTACK(S(get));
-      fehler(error,
-             GETTEXT("~: the property list of ~ has an odd length")
-            );
-    }
+  nonreturning_function(local, fehler_plist_odd, (object symbol)) {
+    pushSTACK(symbol);
+    pushSTACK(S(get));
+    fehler(error,
+           GETTEXT("~: the property list of ~ has an odd length")
+          );
+  }
 
 # UP: Holt eine Property aus der Property-Liste eines Symbols.
 # get(symbol,key)

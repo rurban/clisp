@@ -1,3 +1,41 @@
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
+	* lispbibl.d (nonreturning_function): Define in a way that works also
+	for function definitions.
+	* genclisph.d (main): Update accordingly.
+	* affi.d: Merge nonreturning_function declarations with definition.
+	* amigaaux.d: Likewise.
+	* aridecl.d: Likewise.
+	* array.d: Likewise.
+	* charstrg.d: Likewise.
+	* control.d: Likewise.
+	* debug.d: Likewise.
+	* encoding.d: Likewise.
+	* erramiga.d: Likewise.
+	* error.d: Likewise.
+	* errunix.d: Likewise.
+	* errwin32.d: Likewise.
+	* eval.d: Likewise.
+	* flo_konv.d: Likewise.
+	* foreign.d: Likewise.
+	* hashtabl.d: Likewise.
+	* intbyte.d: Likewise.
+	* intdiv.d: Likewise.
+	* intelem.d: Likewise.
+	* intmal.d: Likewise.
+	* io.d: Likewise.
+	* lfloat.d: Likewise.
+	* lisparit.d: Likewise.
+	* list.d: Likewise.
+	* pathname.d: Likewise.
+	* record.d: Likewise.
+	* rexx.d: Likewise.
+	* sequence.d: Likewise.
+	* spvw.d: Likewise.
+	* spvw_allocate.d: Likewise.
+	* stream.d: Likewise.
+	* symbol.d: Likewise.
+
 2001-08-22  Sam Steingold  <sds@gnu.org>
 
 	* pprint.lisp (pprint-logical-block): set indentation with

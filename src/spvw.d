@@ -473,16 +473,14 @@
 #endif
 
 # Bei Überlauf eines der Stacks:
-  nonreturning_function(global, SP_ueber, (void));
-  global void SP_ueber()
-    { asciz_out(GETTEXTL(NLstring "*** - " "Program stack overflow. RESET"));
-      reset();
-    }
-  nonreturning_function(global, STACK_ueber, (void));
-  global void STACK_ueber()
-    { asciz_out(GETTEXTL(NLstring "*** - " "Lisp stack overflow. RESET"));
-      reset();
-    }
+  nonreturning_function(global, SP_ueber, (void)) {
+    asciz_out(GETTEXTL(NLstring "*** - " "Program stack overflow. RESET"));
+    reset();
+  }
+  nonreturning_function(global, STACK_ueber, (void)) {
+    asciz_out(GETTEXTL(NLstring "*** - " "Lisp stack overflow. RESET"));
+    reset();
+  }
 
 # ----------------------------------------------------------------------------
 #                       GC-Statistik
@@ -609,18 +607,15 @@
 # fehler_notreached(file,line);
 # > file: Filename (mit Anführungszeichen) als konstanter ASCIZ-String
 # > line: Zeilennummer
-  nonreturning_function(global, fehler_notreached, (const char * file, uintL line));
-  global void fehler_notreached(file,line)
-    var const char * file;
-    var uintL line;
-    { end_system_call(); # just in case
-      pushSTACK(fixnum(line));
-      pushSTACK(ascii_to_string(file));
-      fehler(serious_condition,
-             GETTEXT("internal error: statement in file ~, line ~ has been reached!!" NLstring
-                     "Please send the authors of the program a description how you produced this error!")
-            );
-    }
+  nonreturning_function(global, fehler_notreached, (const char* file, uintL line)) {
+    end_system_call(); # just in case
+    pushSTACK(fixnum(line));
+    pushSTACK(ascii_to_string(file));
+    fehler(serious_condition,
+           GETTEXT("internal error: statement in file ~, line ~ has been reached!!" NLstring
+                   "Please send the authors of the program a description how you produced this error!")
+          );
+  }
 
 #include "spvw_ctype.c"
 
@@ -802,15 +797,12 @@
   #define verify_code_alignment(ptr,symbol)  \
     if ((uintP)(void*)(ptr) & (C_CODE_ALIGNMENT-1))     \
       fehler_code_alignment((uintP)(void*)(ptr),symbol)
-  nonreturning_function(local, fehler_code_alignment, (uintP address, object symbol));
-  local void fehler_code_alignment(address,symbol)
-    var uintP address;
-    var object symbol;
-    { asciz_out("C_CODE_ALIGNMENT is wrong. ");
-      asciz_out_s("&%s",TheAsciz(string_to_asciz(Symbol_name(symbol),O(terminal_encoding))));
-      asciz_out_1(" = 0x%x." NLstring,address);
-      abort();
-    }
+  nonreturning_function(local, fehler_code_alignment, (uintP address, object symbol)) {
+    asciz_out("C_CODE_ALIGNMENT is wrong. ");
+    asciz_out_s("&%s",TheAsciz(string_to_asciz(Symbol_name(symbol),O(terminal_encoding))));
+    asciz_out_1(" = 0x%x." NLstring,address);
+    abort();
+  }
 #endif
 
 # Initialisierungs-Routinen für die Tabellen
@@ -1492,9 +1484,7 @@
       }
 
 # print usage and exit
-nonreturning_function (local, usage, (int exit_code));
-local void usage (int exit_code)
-{
+nonreturning_function (local, usage, (int exit_code)) {
   asciz_out(GETTEXTL("GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp." NLstring
                      "Usage:  "));
   asciz_out(program_name);
@@ -1543,9 +1533,8 @@ local void usage (int exit_code)
 }
 
 # print license and exit
-nonreturning_function (local, print_license, (void));
-local void print_license (void)
-{ local const char * const license [] = {
+nonreturning_function (local, print_license, (void)) {
+  local const char * const license [] = {
     "This program is free software; you can redistribute it and/or modify" NLstring,
     "it under the terms of the GNU General Public License as published by" NLstring,
     "the Free Software Foundation; either version 2, or (at your option)"  NLstring,
@@ -2895,54 +2884,54 @@ local void print_banner ()
     }}
 
 # LISP-Interpreter verlassen
+# quit();
 # > final_exitcode: 0 bei normalem Ende, 1 bei Abbruch
-  nonreturning_function(global, quit, (void));
   global bool final_exitcode = 0;
   local int quit_retry = 0;
-  global void quit()
-    { # Erst den STACK bis STACK-Ende "unwinden":
-      value1 = NIL; mv_count=0; # Bei UNWIND-PROTECT-Frames keine Werte retten
-      unwind_protect_to_save.fun = (restart)&quit;
-      loop
-        { # Hört der STACK hier auf?
-          if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) break;
-          if (framecode(STACK_0) & bit(frame_bit_t))
-            # Bei STACK_0 beginnt ein Frame
-            { unwind(); } # Frame auflösen
-            else
-            # STACK_0 enthält ein normales LISP-Objekt
-            { skipSTACK(1); }
-        }
-      # Dann eine Abschiedsmeldung:
-      if (quit_retry==0)
-        { quit_retry++; # If this fails, don't retry it. For robustness.
-          funcall(L(fresh_line),0); # (FRESH-LINE [*standard-output*])
-          if (!argv_quiet)
-            { # (WRITE-LINE "Bye." [*standard-output*]) :
-              pushSTACK(OLS(bye_string)); funcall(L(write_line),1);
-            }
-          pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B)); # Stream *ERROR-OUTPUT*
-          funcall(L(fresh_line),1); # (FRESH-LINE *error-output*)
-        }
-      # Then wait for a keypress:
-      if (argv_wait_keypress)
-        { argv_wait_keypress = false; # If this fails, don't retry it. For robustness.
-          # (WRITE-LINE "Press a key." [*standard-output*]) :
-          pushSTACK(OLS(keypress_string)); funcall(L(write_line),1);
-          funcall(S(wait_keypress),0); # (SYS::WAIT-KEYPRESS)
-        }
-      close_all_files(); # alle Files schließen
-      #ifdef DYNAMIC_FFI
-      exit_ffi(); # FFI herunterfahren
-      #endif
-      #ifdef REXX
-      close_rexx(); # Rexx-Kommunikation herunterfahren
-      #endif
-      #ifdef NEXTAPP
-      nxterminal_exit(); # Terminal-Stream-Kommunikation herunterfahren
-      #endif
-      quit_sofort(final_exitcode); # Programm verlassen
-    }
+  nonreturning_function(global, quit, (void)) {
+    # Erst den STACK bis STACK-Ende "unwinden":
+    value1 = NIL; mv_count=0; # Bei UNWIND-PROTECT-Frames keine Werte retten
+    unwind_protect_to_save.fun = (restart)&quit;
+    loop
+      { # Hört der STACK hier auf?
+        if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) break;
+        if (framecode(STACK_0) & bit(frame_bit_t))
+          # Bei STACK_0 beginnt ein Frame
+          { unwind(); } # Frame auflösen
+          else
+          # STACK_0 enthält ein normales LISP-Objekt
+          { skipSTACK(1); }
+      }
+    # Dann eine Abschiedsmeldung:
+    if (quit_retry==0)
+      { quit_retry++; # If this fails, don't retry it. For robustness.
+        funcall(L(fresh_line),0); # (FRESH-LINE [*standard-output*])
+        if (!argv_quiet)
+          { # (WRITE-LINE "Bye." [*standard-output*]) :
+            pushSTACK(OLS(bye_string)); funcall(L(write_line),1);
+          }
+        pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B)); # Stream *ERROR-OUTPUT*
+        funcall(L(fresh_line),1); # (FRESH-LINE *error-output*)
+      }
+    # Then wait for a keypress:
+    if (argv_wait_keypress)
+      { argv_wait_keypress = false; # If this fails, don't retry it. For robustness.
+        # (WRITE-LINE "Press a key." [*standard-output*]) :
+        pushSTACK(OLS(keypress_string)); funcall(L(write_line),1);
+        funcall(S(wait_keypress),0); # (SYS::WAIT-KEYPRESS)
+      }
+    close_all_files(); # alle Files schließen
+    #ifdef DYNAMIC_FFI
+    exit_ffi(); # FFI herunterfahren
+    #endif
+    #ifdef REXX
+    close_rexx(); # Rexx-Kommunikation herunterfahren
+    #endif
+    #ifdef NEXTAPP
+    nxterminal_exit(); # Terminal-Stream-Kommunikation herunterfahren
+    #endif
+    quit_sofort(final_exitcode); # Programm verlassen
+  }
 
 # -----------------------------------------------------------------------------
 #                  Speichern und Laden von MEM-Files
@@ -2957,19 +2946,15 @@ local void print_banner ()
 # Attaches a shared library to this process' memory, and attempts to load
 # a number of clisp modules from it.
   global void dynload_modules (const char * library, uintC modcount, const char * const * modnames);
-  nonreturning_function(local, fehler_dlerror, (const char * func, const char * symbol, const char * errstring));
-  local void fehler_dlerror(func,symbol,errstring)
-    var const char * func;
-    var const char * symbol;
-    var const char * errstring;
-    { end_system_call();
-      if (errstring == NULL) { errstring = "Unknown error"; }
-      pushSTACK(asciz_to_string(errstring,O(misc_encoding)));
-      if (!(symbol == NULL)) { pushSTACK(asciz_to_string(symbol,O(internal_encoding))); }
-      pushSTACK(asciz_to_string(func,O(internal_encoding)));
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error, (symbol == NULL ? "~: ~ -> ~" : "~: ~(~) -> ~"));
-    }
+  nonreturning_function(local, fehler_dlerror, (const char* func, const char* symbol, const char* errstring)) {
+    end_system_call();
+    if (errstring == NULL) { errstring = "Unknown error"; }
+    pushSTACK(asciz_to_string(errstring,O(misc_encoding)));
+    if (!(symbol == NULL)) { pushSTACK(asciz_to_string(symbol,O(internal_encoding))); }
+    pushSTACK(asciz_to_string(func,O(internal_encoding)));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error, (symbol == NULL ? "~: ~ -> ~" : "~: ~(~) -> ~"));
+  }
   global void dynload_modules(library,modcount,modnames)
     var const char * library;
     var uintC modcount;

@@ -211,8 +211,7 @@
 # fehler_illegal_streamop(caller,stream);
 # > caller: Aufrufer (ein Symbol)
 # > stream: Stream
-  nonreturning_function(global, fehler_illegal_streamop, (object caller, object stream));
-global void fehler_illegal_streamop (object caller, object stream) {
+nonreturning_function(global, fehler_illegal_streamop, (object caller, object stream)) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(stream);
   pushSTACK(caller);
@@ -784,8 +783,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
   }
 
 # Fehler, wenn aus einem obskuren Grunde ein WRITE nicht gehen sollte:
-nonreturning_function(local,fehler_unwritable,(object caller, object stream));
-local void fehler_unwritable (object caller, object stream) {
+nonreturning_function(local, fehler_unwritable, (object caller, object stream)) {
   pushSTACK(stream); # FILE-ERROR slot PATHNAME
   pushSTACK(stream);
   pushSTACK(caller);
@@ -794,8 +792,7 @@ local void fehler_unwritable (object caller, object stream) {
 
 # Fehler, wenn ein Objekt kein Character ist:
 # fehler_wr_char(stream,obj);
-nonreturning_function(local, fehler_wr_char, (object stream, object obj));
-local void fehler_wr_char (object stream, object obj) {
+nonreturning_function(local, fehler_wr_char, (object stream, object obj)) {
   pushSTACK(obj);          # TYPE-ERROR slot DATUM
   pushSTACK(S(character)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(stream);
@@ -805,8 +802,7 @@ local void fehler_wr_char (object stream, object obj) {
 
 # Fehler, wenn ein Objekt kein Integer ist:
 # fehler_wr_integer(stream,obj);
-nonreturning_function(local, fehler_wr_integer, (object stream, object obj));
-local void fehler_wr_integer (object stream, object obj) {
+nonreturning_function(local, fehler_wr_integer, (object stream, object obj)) {
   pushSTACK(obj);        # TYPE-ERROR slot DATUM
   pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(stream);
@@ -816,8 +812,7 @@ local void fehler_wr_integer (object stream, object obj) {
 
 # Fehler, wenn ein Integer nicht im passenden Bereich ist:
 # fehler_bad_integer(stream,obj);
-nonreturning_function(local, fehler_bad_integer, (object stream, object obj));
-local void fehler_bad_integer (object stream, object obj) {
+nonreturning_function(local, fehler_bad_integer, (object stream, object obj)) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(stream);
   pushSTACK(obj);
@@ -861,8 +856,7 @@ local inline bool output_stream_p (object stream) {
 # > subr_self: Aufrufer (ein SUBR)
 #define test_input_stream(stream)  \
     if (!input_stream_p(stream)) fehler_input_stream(stream);
-nonreturning_function(local, fehler_input_stream, (object stream));
-local void fehler_input_stream (object stream) {
+nonreturning_function(local, fehler_input_stream, (object stream)) {
   pushSTACK(stream);               # TYPE-ERROR slot DATUM
   pushSTACK(O(type_input_stream)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
@@ -875,8 +869,7 @@ local void fehler_input_stream (object stream) {
 # > subr_self: Aufrufer (ein SUBR)
 #define test_output_stream(stream)  \
     if (!output_stream_p(stream)) fehler_output_stream(stream);
-nonreturning_function(local, fehler_output_stream, (object stream));
-local void fehler_output_stream (object stream) {
+nonreturning_function(local, fehler_output_stream, (object stream)) {
   pushSTACK(stream);                # TYPE-ERROR slot DATUM
   pushSTACK(O(type_output_stream)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
@@ -2026,8 +2019,7 @@ LISPFUNN(echo_stream_output_stream,1)
 # Fehlermeldung, wenn index >= length(string):
 # fehler_str_in_adjusted(stream);
 # > stream: problematischer String-Input-Stream
-nonreturning_function(local, fehler_str_in_adjusted, (object stream));
-local void fehler_str_in_adjusted (object stream) {
+nonreturning_function(local, fehler_str_in_adjusted, (object stream)) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(TheStream(stream)->strm_str_in_string);
   pushSTACK(stream);
@@ -3508,8 +3500,7 @@ typedef struct strm_unbuffered_extrafields_struct {
 # Error message after user interrupt.
 # fehler_interrupt();
 # > subr_self: calling function
-nonreturning_function(local, fehler_interrupt, (void));
-local void fehler_interrupt() {
+nonreturning_function(local, fehler_interrupt, (void)) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(interrupt_condition,GETTEXT("~: Ctrl-C: User break"));
 }
@@ -3556,8 +3547,7 @@ global void iconv_wcstombs (object encoding, object stream, const chart* *srcp, 
 global object iconv_range (object encoding, uintL start, uintL end);
 
 # fehler_iconv_invalid_charset(encoding);
-nonreturning_function(local, fehler_iconv_invalid_charset, (object encoding));
-local void fehler_iconv_invalid_charset (object encoding) {
+nonreturning_function(local, fehler_iconv_invalid_charset, (object encoding)) {
   pushSTACK(TheEncoding(encoding)->enc_charset);
   fehler(error,GETTEXT("unknown character set ~"));
 }
@@ -6221,8 +6211,7 @@ local void buffered_writebyte (object stream, uintB b) {
 
 # Fehler wegen Positionierung hinter EOF.
 # fehler_position_beyond_EOF(stream);
-nonreturning_function(local, fehler_position_beyond_EOF, (object stream));
-local void fehler_position_beyond_EOF (object stream) {
+nonreturning_function(local, fehler_position_beyond_EOF, (object stream)) {
   pushSTACK(Truename_or_Self(stream)); # FILE-ERROR slot PATHNAME
   pushSTACK(stream);
   fehler(file_error,GETTEXT("cannot position ~ beyond EOF"));
@@ -10329,15 +10318,12 @@ local char * strip_white (char *string) {
 #ifdef AMIGAOS
 
 # Fehler, wenn TERMINAL-RAW nicht geht.
-  nonreturning_function(local, fehler_terminal_raw, (object stream));
-  local void fehler_terminal_raw(stream)
-    var object stream;
-    {
-      pushSTACK(stream);
-      fehler(error,
-             GETTEXT("RAW mode not supported on ~")
-            );
-    }
+  nonreturning_function(local, fehler_terminal_raw, (object stream)) {
+    pushSTACK(stream);
+    fehler(error,
+           GETTEXT("RAW mode not supported on ~")
+          );
+  }
 
 #endif
 
@@ -13377,14 +13363,12 @@ LISPFUNN(window_cursor_off,1)
 # Alles unimplementiert.
 
 # Fehlermeldung.
-  nonreturning_function(local, fehler_screen, (void));
-  local void fehler_screen()
-    {
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             GETTEXT("~: package SCREEN is not implemented")
-            );
-    }
+  nonreturning_function(local, fehler_screen, (void)) {
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,
+           GETTEXT("~: package SCREEN is not implemented")
+          );
+  }
 
 LISPFUNN(make_window,0)
   {
@@ -15858,8 +15842,7 @@ local void fehler_value_stream (object sym) {
 
 # Auxiliary functions for the GNU ReadLine Library:
 
-nonreturning_function(local, rl_memory_abort, (void));
-local void rl_memory_abort() {
+nonreturning_function(local, rl_memory_abort, (void)) {
   # when there is no more memory for the ReadLine
   # drop it and replace the *TERMINAL-IO* with another
   # terminal-stream without ReadLine
