@@ -36,7 +36,7 @@ local void debug_printf (const char* label,object obj,const int pos) {
            eq(obj,T) ? "T" : stringp(obj) ? "string" :
            logpathnamep(obj) ? "logical pathname" : pathnamep(obj) ? "path" :
            eq(obj,S(Knewest)) ? ":NEWEST" : symbolp(obj) ? "a symbol" :
-           "???"));
+           consp(obj) ? "a list" : numberp(obj) ? "a number" : "???"));
 }
 # define DOUT(l,o) printf("[%d] %s %s\n",__LINE__,l,#o);gar_col()
 #define DOUT0(label,object) debug_output(label #object,object,__LINE__)
@@ -3085,6 +3085,7 @@ local uintC directory_namestring_parts (object pathname) {
       pushSTACK(O(colon_string)); stringcount++; # ":"
     }
    #endif
+    if (!mconsp(directory)) return stringcount; # just in case
     # Ist das erste subdir = :ABSOLUTE oder = :RELATIVE ?
     if (eq(Car(directory),S(Kabsolute))) {
      #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
@@ -3411,13 +3412,23 @@ local object defaults_pathname (void) {
 }
 
 # merge two directories
+# > p_directory: pathname directory list
+# > d_directory: defaults directory list
+# > p_log: flag, whether pathname is logical
+# > wildp: flag, from MERGE-PATHNAMES
+# > called_from_make_pathname: flag, from MERGE-PATHNAMES
+# < result: merges directory list
 # can trigger GC
 local object merge_dirs (object p_directory, object d_directory, bool p_log,
                          bool wildp, bool called_from_make_pathname) {
   var object new_subdirs = p_directory;
+  printf("merge_dirs: log: %d; wild: %d; cfmp: %d\n",p_log,wildp,
+         called_from_make_pathname);
+  SDOUT("merge_dirs",p_directory);
+  SDOUT("merge_dirs",d_directory);
   if (called_from_make_pathname) {
     if (eq(p_directory,unbound)) # pathname-subdirs not given?
-      new_subdirs = d_directory; # use defaults-subdirs:
+      new_subdirs = d_directory; # use defaults-subdirs
   } else if (!wildp) {
     # is pathname-subdirs trivial?
     if (eq(Car(p_directory),p_log ? S(Kabsolute) : S(Krelative)) &&
@@ -3604,12 +3615,10 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
           goto lmatch_directories;
         }
       }
-      # Directories nicht matchen:
-      {
-        # new-directory := pathname-directory :
+      # directories do not match: new-directory := pathname-directory
+      { var object dir = xpathname_directory(p_log,p);
         TheLogpathname(newp)->pathname_directory =
-          eq(unbound,xpathname_directory(p_log,p)) ?
-          xpathname_directory(d_log,d) : xpathname_directory(p_log,p);
+          (eq(unbound,dir) ? xpathname_directory(d_log,d) : dir);
         goto ldirectories_OK;
       }
      lmatch_directories:
@@ -3698,11 +3707,11 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
       ThePathname(newp)->pathname_device = ThePathname(p)->pathname_device;
     }
     #endif
-    # Directories nicht matchen:
    notmatch_directories:
-    {
-      # new-directory := pathname-directory :
-      ThePathname(newp)->pathname_directory = ThePathname(p)->pathname_directory;
+    # directories do not match: new-directory := pathname-directory
+    { var object dir = xpathname_directory(p_log,p);
+      ThePathname(newp)->pathname_directory =
+        (eq(unbound,dir) ? xpathname_directory(d_log,d) : dir);
     }
    directories_OK:
     # the directories are OK now
