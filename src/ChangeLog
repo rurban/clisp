@@ -1,5 +1,11 @@
 2002-09-20  Sam Steingold  <sds@gnu.org>
 
+	fix the OBSOLETE-ACTION patch
+	* init.lisp (warn): the preliminary definition must return NIL
+	(open-for-load): use SYS::BUILT-IN-STREAM-CLOSE instead of CLOSE
+
+2002-09-20  Sam Steingold  <sds@gnu.org>
+
 	error reporting clean-up
 	* charstrg.d (coerce_ss, coerce_imm_ss, coerce_normal_ss)
 	(coerce_imm_normal_ss): use fehler_string() instead of explicit
