@@ -286,7 +286,7 @@ compiles the specified lisp files to a platform-independent
  &load-print-var; and &compile-print-var; to &nil;, as per &ansi-cl;.
  The first <option>-q</option> removes the banner and the good-bye message,
  the second sets variables &load-verbose-var; and &compile-verbose-var; to
- &nil;.  <option>-v</option> sets variables &err-pr-bt, &load-print-var; and
+ &nil;.  <option>-v</option> sets variables &err-pr-bt;, &load-print-var; and
  &compile-print-var; to &t;.  These settings affect the output produced by
  <option><link linkend="opt-init">-i</link></option> and
  &opt-c; options.
