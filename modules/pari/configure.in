@@ -25,8 +25,7 @@ then AC_MSG_ERROR([cannot find PARI headers])
 fi
 
 AC_MSG_NOTICE([ * PARI (Functions):])
-# <FIXME>: -L/usr/local/lib should not be necessary
-LIBS="$LIBS -L/usr/local/lib $LTLIBPARI"
+LIBS="$LIBS $LTLIBPARI"
 AC_SEARCH_LIBS(pari_kernel_init)
 if test "$ac_cv_search_pari_kernel_init" = "no";
 then AC_MSG_ERROR([cannot find PARI library])
