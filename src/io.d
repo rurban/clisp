@@ -6751,14 +6751,6 @@ local void pr_symbol (const gcv_object_t* stream_, object sym) {
       pushSTACK(sym); # save symbol
       write_ascii_char(stream_,':');
       sym = popSTACK(); # move sym back
-    } else if (accessiblep(sym,curr_pack)
-        # When *PRINT-READABLY*, print PACK::SYMBOL even when the symbol is
-        # accessible. This is to satisfy the contract of *PRINT-READABLY*,
-        # but is also useful when writing .fas files.
-        && nullpSv(print_readably)) {
-      # if symbol is accessible and not shadowed,
-      # print no package-name and no package-markers.
-      case_sensitive = pack_casesensitivep(curr_pack);
     } else {
       pushSTACK(sym); # save symbol
       var object home = Symbol_package(sym); # home-package of the symbol
@@ -6769,19 +6761,30 @@ local void pr_symbol (const gcv_object_t* stream_, object sym) {
           write_ascii_char(stream_,'#'); goto one_marker;
         }
         # else print without prefix
-      } else { # print symbol with package-name and 1 or 2 package-markers
-        pushSTACK(home); # save home-package
-        pr_symbol_part(stream_,ThePackage(home)->pack_name,false); # print package-name
-        home = popSTACK(); # move home-package back
-        case_sensitive = pack_casesensitivep(home);
-        if (externalp(STACK_0,home)
+      } else {
+        if (accessiblep(sym,curr_pack)
             # When *PRINT-READABLY*, print PACK::SYMBOL even when the symbol is
-            # external. It may not be external when the output is read later.
-            && nullpSv(print_readably))
-          goto one_marker; # yes -> 1 package-marker
-        write_ascii_char(stream_,':'); # else 2 package-marker
-      one_marker:
-        write_ascii_char(stream_,':');
+            # accessible. This is to satisfy the contract of *PRINT-READABLY*,
+            # but is also useful when writing .fas files.
+            && nullpSv(print_readably)) {
+          # if symbol is accessible and not shadowed,
+          # print no package-name and no package-markers.
+          case_sensitive = pack_casesensitivep(curr_pack);
+        } else {
+          # print symbol with package-name and 1 or 2 package-markers
+          pushSTACK(home); # save home-package
+          pr_symbol_part(stream_,ThePackage(home)->pack_name,false); # print package-name
+          home = popSTACK(); # move home-package back
+          case_sensitive = pack_casesensitivep(home);
+          if (externalp(STACK_0,home)
+              # When *PRINT-READABLY*, print PACK::SYMBOL even when the symbol is
+              # external. It may not be external when the output is read later.
+              && nullpSv(print_readably))
+            goto one_marker; # yes -> 1 package-marker
+          write_ascii_char(stream_,':'); # else 2 package-marker
+        one_marker:
+          write_ascii_char(stream_,':');
+        }
       }
       sym = popSTACK(); # move sym back
     }
