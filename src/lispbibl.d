@@ -11481,10 +11481,11 @@ extern bool equal (object obj1, object obj2);
 extern bool equalp (object obj1, object obj2);
 # is used by PATHNAME, HASHTABL
 
-# UP: expand all DEFTYPE definitions in the type spec (recursively)
+# UP: expand all DEFTYPE definitions in the type spec
+# (recursively, unless once_p is true)
 # > type_spec: Lisp object
 # < result: the expansion (when not a deftyped type, returns the argument)
-extern object expand_deftype (object type_spec);
+extern object expand_deftype (object type_spec, bool once_p);
 # used by predtype.d, sequence.d
 
 # UP: Makes a statistic about the action of a GC.

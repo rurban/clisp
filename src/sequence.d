@@ -139,7 +139,7 @@ local object valid_type1 (object name) {
   # - ([SIMPLE-]BASE-STRING [size]), [SIMPLE-]BASE-STRING ergeben STRING.
   # - ([SIMPLE-]BIT-VECTOR [size]), [SIMPLE-]BIT-VECTOR ergeben BIT-VECTOR.
   # - Zusätzlich (nicht sehr schön): [SIMPLE-]ARRAY ergibt VECTOR.
-  name = expand_deftype(name);
+  name = expand_deftype(name,false);
   if (symbolp(name)) {
     if (eq(name,S(list))) { goto expanded_unconstrained; }
     if (eq(name,S(null)) || eq(name,S(cons)))
