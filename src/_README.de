@@ -93,11 +93,8 @@ oder
 #ifdef AMIGAOS
       lisp.run         Hauptprogramm
 #endif
-#ifdef MSDOS
+#ifdef OS2
       lisp.exe         Hauptprogramm
-#ifndef OS2
-      lisp_1mb.exe     Hauptprogramm, für Leute mit nur 1 oder 2 MB RAM
-#endif
 #endif
 #ifdef RISCOS
       lisp             Hauptprogramm
@@ -113,7 +110,7 @@ oder
       clisp.man        Benutzungshinweise
 #endif
       clisp.html       Benutzungshinweise im HTML-Format
-#ifdef MSDOS
+#ifdef OS2
       clisp.dvi        Benutzungshinweise im DVI-Format
 #endif
       impnotes.html    Dokumentation von Implementierungsdetails
@@ -121,7 +118,7 @@ oder
       clreadline.3     Eingabezeilen-Benutzungshinweise im man-Format von Unix
       clreadline.man   Eingabezeilen-Benutzungshinweise
       clreadline.html  Eingabezeilen-Benutzungshinweise im HTML-Format
-#ifdef MSDOS
+#ifdef OS2
       clreadline.dvi   Eingabezeilen-Benutzungshinweise im DVI-Format
 #endif
 #endif
@@ -132,17 +129,9 @@ oder
       emx.exe          DOS-Extender zum Betrieb unter DOS oder OS/2
       emx-user.doc     Benutzungshinweise für EMX-Anwendungen
       emx-faq.doc      Frage-/Antwort-Katalog für EMX-Anwendungen
-#ifdef EMUNIX_PORTABEL
       emx.dll          EMX als dynamische OS/2-Bibliothek
       emxlibc.dll      die EMX-libc als dynamische OS/2-Bibliothek
-#endif
       termcap.dat      Datenbank von Terminal-Beschreibungen
-#endif
-#if defined(MSDOS) && !defined(OS2)
-      rsx.exe          DOS-Extender zum Betrieb unter Windows
-      rsx-read.txt     allgemeine Beschreibung von RSX
-      rsx.hlp          allgemeine Dokumentation von RSX
-      delay.exe        Hilfsprogramm zum Betrieb unter Windows
 #endif
 #ifdef RISCOS
       !Run             Startdatei für CLISP
@@ -165,23 +154,18 @@ oder
 und - als Zugabe, für den Fall, daß Sie Quellen lesen möchten -
 
       *.lsp            die Quellen zu lispinit.mem
-#if !defined(MSDOS)
+#if !defined(OS2)
       *.fas            dieselben Dateien in compilierter Form
 #endif
 #endif
 
-#ifdef MSDOS
+#ifdef OS2
 
 Hardware-Voraussetzungen:
 -------------------------
 
-#ifndef OS2
-Diese DOS-Version von CLISP setzt als CPU einen 80386 (SX oder DX) oder einen
-80486 sowie mindestens 1 MB RAM voraus.
-#else
 Diese OS/2-Version von CLISP setzt als CPU einen 80386 (SX oder DX) oder einen
 80486 voraus, die OS/2 2.0 fährt.
-#endif
 Sie läuft auch auf einem Pentium; die Ergebnisse, die CLISP produziert, sind
 vom Divisionsfehler des Intel Pentium nicht betroffen.
 
@@ -292,7 +276,7 @@ Vielleicht möchten Sie auch die Zeitzonendefinition am Ende von timezone.lsp
 #endif
 Starten Sie dann
 
-#if defined(MSDOS) || defined(WIN32_NATIVE)
+#if defined(OS2) || defined(WIN32_NATIVE)
          lisp.exe -M lispinit.mem
 #endif
 #ifdef AMIGAOS
@@ -363,7 +347,7 @@ Ich schlage hierfür /usr/local/lib/lisp vor:
    mv base/lisp.run /usr/local/lib/lisp
    mv base/lispinit.mem /usr/local/lib/lisp
 #endif
-#if defined(MSDOS) || defined(WIN32_NATIVE)
+#if defined(OS2) || defined(WIN32_NATIVE)
 Angenommen, Sie wählen dafür D:\LIB\LISP :
 
    mkdir d:\lib\lisp
@@ -411,67 +395,6 @@ and probieren Sie
    man clisp
 #endif
 
-#if defined(MSDOS) && !defined(OS2)
-
-Installation unter Microsoft Windows:
--------------------------------------
-
-CLISP läuft auch in der DOS-Box von Microsoft Windows 3.1.
-Dazu sind folgende zusätzliche Schritte notwendig:
-
-1. Besorgen Sie sich
-     ftp://clisp.cons.org/pub/lisp/clisp/binaries/dos/clisp.zip
-   und installieren Sie es, wie oben angegeben.
-
-2. Sollte rsx.exe nicht schon in clisp.zip vorhanden sein,
-   besorgen Sie sich RSX
-     ftp://ftp.uni-bielefeld.de/pub/systems/msdos/misc/rsx510b.zip
-   und installieren Sie es, z.B. in c:\rsx.
-
-3. Rufen Sie den PIF-Editor auf und tragen Sie dort ein:
-
-   Programmdateiname:      c:\rsx\bin\rsx.exe
-   Programmtitel:          COMMON LISP
-   Programmparameter:      -Ra c:\lib\lisp\lisp.exe -M c:\lib\lisp\lispinit.mem -B c:\lib\lisp\
-                           (evtl. außer -Ra auch -Rs1024)
-   Anfangsverzeichnis:     e:\lisp
-   Bildschirmspeicher:     Text
-   Speicherbedarf:         benötigt:  500      gewünscht:  640
-   EMS-Speicher:           benötigt:    0      gewünscht:    0
-   XMS-Speicher:           benötigt: 1024      gewünscht:   -1
-   Anzeige:                        [nach Belieben]
-   Fenster_schließen_bei_Beenden:  [nach Belieben]
-   Ausführung:                     [nach Belieben]
-   weitere_Optionen:               [nach Belieben]
-
-   (Als Anfangsverzeichnis, hier e:\lisp, sollten Sie zweckmäßigerweise
-   das Verzeichnis wählen, in dem Ihre Lisp-Programme sitzen.)
-
-   Das Ganze speichern Sie unter dem Namen WINCLISP.PIF ab.
-
-4. Im Programm-Manager in einer geeigneten Gruppe:
-
-   Menü "Datei" -> "Neu" -> "Programm", Fenster "Programmeigenschaften".
-   Tragen Sie dort ein:
-
-   Beschreibung:           COMMON LISP
-   Befehlszeile:           winclisp.pif
-   Anfangsverzeichnis:     e:\lisp
-   Tastenkombination:      Ctrl+Alt+Shift+L      [nach Belieben]
-
-Mausclick auf das so erzeugte Pictogramm bzw. die o.a. Tastenkombination
-im Programm-Manager starten nun CLISP.
-
-Bemerkungen:
-
-* Cut & Paste in DOS-Boxen (via Menü "Bearbeiten" -> "Markieren" bzw.
-  Menü "Bearbeiten" -> "Einfügen") hat den Nachteil, daß beim Einfügen ein
-  <Enter> angefügt wird. Man kann die Zeile daher nicht nach-editieren.
-
-* Die in CLISP.MAN und READLINE.DVI erwähnten Editiermechanismen funktionieren
-  jedoch.
-
-#endif
 #ifdef AMIGAOS
 
 Anmerkung:
@@ -563,17 +486,6 @@ Abonnier-Informationen und Archive auf der Homepage http://clisp.cons.org/.
 Dank:
 -----
 
-#ifdef MSDOS
-Wenn Sie CLISP schnell und fehlerfrei finden und damit arbeiten mögen, wären
-wir über ein Geschenk von z.B. 40 DM (der Betrag steht Ihnen frei) dankbar.
-Die meisten DOS-Programme kosten etwas; Sie sind das Bezahlen deswegen
-vermutlich schon gewöhnt.
-
-Wenn nicht, scheuen Sie sich nicht, uns Verbesserungsvorschläge zu schicken.
-Oder holen Sie sich die Quellen von CLISP, verbessern Sie es selber und
-schicken uns Ihre Modifikationen.
-
-#endif
 Wir schulden Dank
   * Guy L. Steele und vielen anderen für die Spezifikation von Common Lisp.
 #ifdef UNIX
