@@ -150,7 +150,8 @@ that can be executed more efficiently.</para>
 <!-- #ifdef UNIX -->
 <varlistentry id="opt-link-set"><term><option>-K</option>
   <replaceable>linking-set</replaceable></term>
- <listitem><simpara>Specifies the linking set to be run.
+ <listitem><simpara>Specifies the <olink targetdoc="impnotes"
+   targetptr="linkset">linking set</olink> to be run.
    This is a directory (relative to the
    <link linkend="opt-libdir">&lld;</link>)
    containing at least a main executable (&rt;) and an initial &mem-img;.
@@ -165,8 +166,7 @@ that can be executed more efficiently.</para>
    <function>EXT:SAVEINITMEM</function> function by
    this <command>clisp</command> &rt;.
 <!-- #ifdef UNIX -->
-   It may have been compressed using &gnu;
-   <ulink url="http://www.gzip.org/">gzip</ulink>.
+   It may have been compressed using &gnu; &gzip;.
 <!-- #endif -->
 </simpara></listitem></varlistentry>
 
