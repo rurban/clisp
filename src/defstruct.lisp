@@ -73,6 +73,13 @@
 (defconstant *defstruct-description-boa-constructors-location* 4)
 (defconstant *defstruct-description-copier-location* 5)
 (defconstant *defstruct-description-predicate-location* 6)
+(proclaim '(constant-inline *defstruct-description-type-location*
+            *defstruct-description-size-location*
+            *defstruct-description-kconstructor-location*
+            *defstruct-description-slots-location*
+            *defstruct-description-boa-constructors-location*
+            *defstruct-description-copier-location*
+            *defstruct-description-predicate-location*))
 
 (defun make-ds-slot (name initargs offset initer type readonly)
   (clos::make-instance-<structure-effective-slot-definition>

@@ -4,6 +4,14 @@
 	* defstruct.lisp (*defstruct-description-type-location*): fixed value
 	(defstruct): set PREDICATE-OPTION to NIL before saving it into
 	DEFSTRUCT-DESCRIPTION; fixed the creation of DEFSTRUCT-DESCRIPTION
+	(*defstruct-description-type-location*)
+	(*defstruct-description-size-location*)
+	(*defstruct-description-kconstructor-location*)
+	(*defstruct-description-slots-location*)
+	(*defstruct-description-boa-constructors-location*)
+	(*defstruct-description-copier-location*)
+	(*defstruct-description-predicate-location*): PROCLAIM
+	CONSTANT-INLINE to pass "make check-recompile"
 
 2005-01-04  Sam Steingold  <sds@gnu.org>
 
