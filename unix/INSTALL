@@ -25,8 +25,10 @@ some platforms can be found in file unix/PLATFORMS.
 
 2. (Recommended)
    Install a few libraries on which CLISP relies:
+   - GNU libsigsegv (highly recommended for C stack overflow detection),
    - GNU libiconv (not needed on systems with glibc 2.2 or newer),
-   - GNU libsigsegv
+   - GNU readline (if you want terminal command line editing),
+   - GNU gettext (if you want to use i18n).
 
 3. Choose the name of a directory in which to build CLISP.
    (This allows you to build CLISP with different compilers on the same
