@@ -1,3 +1,11 @@
+2000-06-16  Thomas Klausner  <wiz@danbala.ifoer.tuwien.ac.at>
+            Bruno Haible  <haible@clisp.cons.org>
+
+        * makemake.in (fsstnd): New variant netbsd.
+          (install, installdirs, uninstall): For fsstnd=netbsd, install the
+          html files in $(lispdocdir), not $(htmldir), and the extra
+          documentation in $(lispdocdir), not $(lispdocdir)/doc.
+
 2000-06-12  Bruno Haible  <haible@clisp.cons.org>
 
         * makemake.in (LIBGCC): Set to empty on BeOS.
