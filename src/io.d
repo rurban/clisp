@@ -5539,8 +5539,22 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # Unterprogramme:
 # ===============
 
-# Sie arbeiten auf dem Stream und sind korrekt zu schachteln,
-# da sie den STACK verändern können.
+# These work on the stream and must be undone in the right order,
+# because they can modify the STACK.
+
+# Return (or *print-right-margin* sys::*prin-linelength*)
+  local object right_margin ();
+  local object right_margin()
+  { var object prm = Symbol_value(S(print_right_margin));
+    if (nullp(prm)) return Symbol_value(S(prin_linelength));
+    else if (posfixnump(prm)) return prm;
+    else if (posbignump(prm)) return fixnum(bit(oint_data_len)-1);
+    else { pushSTACK(prm); pushSTACK(S(print_right_margin));
+           fehler(error,
+                  DEUTSCH ? "~: ~" :
+                  ENGLISH ? "~: must be a positive integer or NIL, not ~" :
+                  FRANCAIS ? "~: ~" : "");
+  }}
 
 # UP: Fängt in PPHELP-Stream A5 eine neue Zeile an.
 # pphelp_newline(&stream);
@@ -5658,9 +5672,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               # Ausnahme: Wenn Line-Position = SYS::*PRIN-LINELENGTH* ist,
               #           würde über die Zeile hinausgeschrieben;
               #           stattdessen wird eine neue Zeile angefangen.
-              if (eq(Symbol_value(S(prin_linelength)), # Wert von SYS::*PRIN-LINELENGTH*
-                     TheStream(stream)->strm_pphelp_lpos # = Line-Position ?
-                 )  )
+              # Max Right Margin == Line-Position ?
+              if (eq(right_margin(),TheStream(stream)->strm_pphelp_lpos))
                 { new_line: # neue Zeile anfangen
                   pphelp_newline(stream_); spaces(stream_,pos);
                 }
@@ -5842,7 +5855,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                     # Es ist ein Einzeiler.
                     # Paßt er noch auf dieselbe Zeile,
                     # d.h. ist  Line-Position + 1 + length(Einzeiler) <= L ?
-                    { var object linelength = Symbol_value(S(prin_linelength)); # L = SYS::*PRIN-LINELENGTH*
+                    { var object linelength = right_margin();
                       if (nullp(linelength) # =NIL -> paßt
                           || (posfixnum_to_L(TheStream(*stream_)->strm_pphelp_lpos) # Line-Position
                               + TheIarray(block)->dims[1] # Länge = Fill-Pointer des Einzeilers
@@ -5909,7 +5922,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           # (jeder Block Einzeiler) zusammen einen Einzeiler ergeben können:
           # Ist L=NIL (keine Randbeschränkung) oder
           # L1 + (Gesamtlänge der Blöcke) + (Anzahl der Blöcke-1) <= L ?
-          { var object linelength = Symbol_value(S(prin_linelength)); # L = SYS::*PRIN-LINELENGTH*
+          { var object linelength = right_margin();
             if (nullp(linelength)) goto gesamt_einzeiler; # =NIL -> Einzeiler
            {var uintL totalneed = posfixnum_to_L(Symbol_value(S(prin_l1))); # Summe := L1 = SYS::*PRIN-L1*
             var object blocks = Symbol_value(S(prin_jblocks)); # SYS::*PRIN-JBLOCKS*
@@ -6097,10 +6110,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  local void pr_level (object* stream_);
-  local void pr_level(stream_)
-    var object* stream_;
-    { write_schar(stream_,'#'); }
+  #define pr_level(stream_)     write_schar(stream_,'#')
 
 # UP: Testet, ob SYS::*PRIN-LEVEL* den Wert von *PRINT-LEVEL* erreicht hat.
 # Wenn ja, nur '#' ausgeben und Rücksprung aus dem aufrufenden UP (!).
@@ -9268,11 +9278,12 @@ LISPFUNN(print_structure,2)
 #   *PRINT-CIRCLE*     |
 #   *PRINT-PRETTY*     |
 #   *PRINT-CLOSURE*    |
-#   *PRINT-READABLY* --+
+#   *PRINT-READABLY*      |
+#   *PRINT-RIGHT-MARGIN* -+
 # erste Print-Variable:
   #define first_print_var  S(print_case)
 # Anzahl der Print-Variablen:
-  #define print_vars_anz  12
+  #define print_vars_anz  13
 
 # UP für WRITE und WRITE-TO-STRING
 # > STACK_(print_vars_anz+1): Objekt
@@ -9300,13 +9311,13 @@ LISPFUNN(print_structure,2)
       dotimesC(bindcount,bindcount, { dynamic_unbind(); } );
     }
 
-LISPFUN(write,1,0,norest,key,13,\
+LISPFUN(write,1,0,norest,key,14,\
         (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),\
          kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),\
-         kw(stream)) )
+         kw(right_margin),kw(stream)))
 # (WRITE object [:stream] [:escape] [:radix] [:base] [:circle] [:pretty]
 #               [:level] [:length] [:case] [:gensym] [:array] [:closure]
-#               [:readably]),
+#               [:readably] [:right-margin]),
 # CLTL S. 382
   { # Stackaufbau: object, Print-Variablen-Argumente, Stream-Argument.
     test_ostream(); # Output-Stream überprüfen
@@ -9418,16 +9429,18 @@ LISPFUN(princ,1,1,norest,nokey,0,NIL)
 
 # (defun write-to-string (object &rest args
 #                                &key escape radix base circle pretty level
-#                                     length case gensym array closure readably)
+#                                     length case gensym array closure
+#                                     readably right-margin)
 #   (with-output-to-string (stream)
 #     (apply #'write object :stream stream args)
 # ) )
-LISPFUN(write_to_string,1,0,norest,key,12,\
+LISPFUN(write_to_string,1,0,norest,key,13,\
         (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),\
-         kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably)) )
+         kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),\
+         kw(right_margin)))
 # (WRITE-TO-STRING object [:escape] [:radix] [:base] [:circle] [:pretty]
 #                         [:level] [:length] [:case] [:gensym] [:array]
-#                         [:closure] [:readably]),
+#                         [:closure] [:readably] [:right_margin]),
 # CLTL S. 383
   { pushSTACK(make_string_output_stream()); # String-Output-Stream
     write_up(); # WRITE durchführen

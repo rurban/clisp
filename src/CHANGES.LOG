@@ -23,6 +23,10 @@ User visible changes
 
 * New format directives ~! and ~/.
 
+* ANSI CL variable *PRINT-RIGHT-MARGIN* is implemented.
+
+* The functions WRITE and WRITE-TO-STRING take the :RIGHT-MARGIN key argument.
+
 * X3J13 writeup <TYPE-BOOLEAN> is implemented: New type BOOLEAN.
   Suggested by Sam Steingold.
 

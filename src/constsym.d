@@ -999,6 +999,7 @@ LISPSYM(Kcircle,"CIRCLE",keyword)
 LISPSYM(Kpretty,"PRETTY",keyword)
 LISPSYM(Kclosure,"CLOSURE",keyword)
 LISPSYM(Kreadably,"READABLY",keyword)
+LISPSYM(Kright_margin,"RIGHT-MARGIN",keyword)
 LISPSYM(Kstream,"STREAM",keyword)
 LISPSYM(Kidentity,"IDENTITY",keyword)
 LISPSYM(Ktest,"TEST",keyword)
@@ -1196,18 +1197,20 @@ LISPSYM(make_byte,"MAKE-BYTE",system) # als Funktion für IO
 LISPSYM(Kupcase,"UPCASE",keyword) # als *PRINT-CASE* - Wert in IO
 LISPSYM(Kdowncase,"DOWNCASE",keyword) # als *PRINT-CASE* - Wert in IO
 LISPSYM(Kcapitalize,"CAPITALIZE",keyword) # als *PRINT-CASE* - Wert in IO
-LISPSYM(print_case,"*PRINT-CASE*",lisp) # als Variable in IO         --+
+                                        # Must be in the same order as in io.d!
+LISPSYM(print_case,"*PRINT-CASE*",lisp) # als Variable in IO ----------+
 LISPSYM(print_level,"*PRINT-LEVEL*",lisp) # als Variable in IO         |
 LISPSYM(print_length,"*PRINT-LENGTH*",lisp) # als Variable in IO       |
 LISPSYM(print_gensym,"*PRINT-GENSYM*",lisp) # als Variable in IO       |
 LISPSYM(print_escape,"*PRINT-ESCAPE*",lisp) # als Variable in IO       |
-LISPSYM(print_radix,"*PRINT-RADIX*",lisp) # als Variable in IO         | Reihenfolge
-LISPSYM(print_base,"*PRINT-BASE*",lisp) # als Variable in IO           | mit IO.D abgestimmt!
+LISPSYM(print_radix,"*PRINT-RADIX*",lisp) # als Variable in IO         |
+LISPSYM(print_base,"*PRINT-BASE*",lisp) # als Variable in IO           |
 LISPSYM(print_array,"*PRINT-ARRAY*",lisp) # als Variable in IO         |
 LISPSYM(print_circle,"*PRINT-CIRCLE*",lisp) # als Variable in IO       |
 LISPSYM(print_pretty,"*PRINT-PRETTY*",lisp) # als Variable in IO       |
 LISPSYM(print_closure,"*PRINT-CLOSURE*",lisp) # als Variable in IO     |
-LISPSYM(print_readably,"*PRINT-READABLY*",lisp) # als Variable in IO --+
+LISPSYM(print_readably,"*PRINT-READABLY*",lisp) # als Variable in IO   |
+LISPSYM(print_right_margin,"*PRINT-RIGHT-MARGIN*",lisp) # -------------+
 LISPSYM(print_rpars,"*PRINT-RPARS*",lisp) # als Variable in IO
 LISPSYM(print_indent_lists,"*PRINT-INDENT-LISTS*",lisp) # als Variable in IO
 LISPSYM(print_circle_table,"*PRINT-CIRCLE-TABLE*",system) # als Variable in IO

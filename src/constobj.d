@@ -642,7 +642,7 @@
   #endif
   LISPOBJ_S(lisp_implementation_version_year_string,VERSION_YYYY_STRING)
   LISPOBJ(lisp_implementation_version_string,"NIL") # ein Cache
-  LISPOBJ(version,"(12041998)") # Datum der letzten Änderung des Bytecode-Interpreters
+  LISPOBJ(version,"(19980715)") # Datum der letzten Änderung des Bytecode-Interpreters
   #ifdef MACHINE_KNOWN
     LISPOBJ(machine_type_string,"NIL")
     LISPOBJ(machine_version_string,"NIL")

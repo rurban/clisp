@@ -49,12 +49,13 @@ v(3, (kw(preserve_whitespace),kw(start),kw(end)) )
 s(read_from_string)
 v(4, (kw(start),kw(end),kw(radix),kw(junk_allowed)) )
 s(parse_integer)
+v(14, (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
+       kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),
+       kw(right_margin),kw(stream)))
+s(write)
 v(13, (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
        kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),
-       kw(stream)) )
-s(write)
-v(12, (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
-       kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably)) )
+       kw(right_margin)))
 s(write_to_string)
 v(2, (kw(type),kw(identity)) )
 s(write_unreadable)

@@ -1,3 +1,19 @@
+1998-07-16  Sam Steingold  <sds@goems.com>
+ 
+        * spvw.d, constsym.d: new symbol print_right_margin
+          (ANSI CL's *print-right-margin*).
+        * io.d (right_margin): New function.
+          (klammer_zu, justify_end_eng, justify_end_weit): Use it.
+          (pr_level): Turn into a macro.
+          (write, write_to_string): added :right-margin.
+        * subr.d (write, write_to_string): added :right-margin.
+        * subrkw.d (write, write_to_string): added :right-margin.
+        * constobj.d (version): bumped to 19980715.
+        * compiler.lsp (subr-info): added :right-margin to write and
+          write_to_string;
+          (c-eval-when-compile, compile-toplevel-form, finalize-coutput-file):
+          added `:right-margin 79' to the `write' calls.
+
 1998-07-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * eval.d (get_closure): Don't call augment_decl_env with argument NIL.
