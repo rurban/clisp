@@ -1,5 +1,12 @@
 2005-01-06  Sam Steingold  <sds@gnu.org>
 
+	* time.d (convert_time_from_universal): new function
+	* genclisph.d (convert_time_from_universal): declare
+	* modules/syscalls/calls.c (LispToPropVariant): use it
+	(PropVariantToLisp): use convert_time_to_universal()
+
+2005-01-06  Sam Steingold  <sds@gnu.org>
+
 	* socket.d (string_to_addr): new function
 	* genclisph.d (string_to_addr): declare
 	* modules/rawsock/rawsock.c (CONVERT-ADDRESS): implement

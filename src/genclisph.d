@@ -2098,6 +2098,7 @@ int main(int argc, char* argv[])
 #endif
 #if defined(WIN32_NATIVE)
   printf("extern object convert_time_to_universal (const FILETIME* time);\n");
+  printf("extern void convert_time_from_universal (object universal, FILETIME* time);\n");
 #endif
   printf("#define UNIX_LISP_TIME_DIFF 2208988800UL\n");
   printf("extern Handle handle_dup (Handle old_handle, Handle new_handle);\n");
