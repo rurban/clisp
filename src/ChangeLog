@@ -1,5 +1,9 @@
 1999-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * configure: Don't tell the user to do "cd .".
+
+1999-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * graph.d (GRAPHICS_X, GRAPHICS_SUN): Remove unfinished code.
         * makemake.in: Don't link with ${X_LIBS}, but keep the Makefile
           variable for possible future use.
