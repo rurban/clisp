@@ -1,5 +1,10 @@
 2004-03-16  Bruno Haible  <bruno@clisp.org>
 
+	* m4/install.m4 (CL_PROG_INSTALL): Don't use installbsd at all.
+	Needed on AIX 4 and AIX 5.
+
+2004-03-16  Bruno Haible  <bruno@clisp.org>
+
 	* utils/modprep.lisp (print-tables-2): Use sizeof, not pointer
 	subtraction, to compute the size of the subr table.
 	* utils/modpreptest.out: Update.
