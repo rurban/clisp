@@ -1,8 +1,5 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* Define to 1 if you have the <crypt.h> header file. */
-#undef HAVE_CRYPT_H
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -11,6 +8,9 @@
 
 /* Define to 1 if you have the <postgres_ext.h> header file. */
 #undef HAVE_POSTGRES_EXT_H
+
+/* Define to 1 if you have the `PQserverVersion' function. */
+#undef HAVE_PQSERVERVERSION
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
