@@ -1739,8 +1739,13 @@ local Values bit_up (bit_op_fun_t* op)
       /* store dimensions: */
       if (rank > 0) {
         var uintC count;
-        var uintL* dimptr1 = dimptr;
+        /* dimptr1 is the same as dimptr, but we have to re-init it
+           becase of the GC-safety issues: the above allocations
+           might have invalidated dimptr */
+        var uintL* dimptr1 = &TheIarray(STACK_2)->dims[0];
         var uintL* dimptr2 = &TheIarray(array3)->dims[0];
+        if (iarray_flags(TheIarray(STACK_2)) & bit(arrayflags_dispoffset_bit))
+          dimptr1++;
         dotimespC(count,rank, { *dimptr2++ = *dimptr1++;});
       }
       STACK_0 = array3; /* store new array */
