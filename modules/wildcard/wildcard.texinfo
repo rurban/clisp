@@ -1,10 +1,11 @@
 \input texinfo
 @setfilename wildcard.info
-@newindex {fn}
+@comment @newindex {fn}
 
 @chapter The Wildcard Module
 
-Wildcards, also called ``Shell Filename Patterns'', describe sets of file names.
+Wildcards, also called ``Shell Filename Patterns'', describe sets of
+file names.
 
 The @code{wildcard} package exports the following symbol:
 

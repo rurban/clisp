@@ -1,6 +1,6 @@
 \input texinfo
 @setfilename regexp.info
-@newindex {fn}
+@comment @newindex {fn}
 
 
 @comment From the `ed' documentation.
@@ -170,7 +170,7 @@ Matches any character not in a word.
 @comment RE_CHAR_CLASSES     ->  character classes are supported
 @comment RE_DOT_NEWLINE      ->  . matches newline
 @comment RE_DOT_NOT_NULL     ->  . doesn't match NUL
-@comment RE_INTERVALS        ->  
+@comment RE_INTERVALS        ->
 @comment RE_NO_EMPTY_RANGES  ->  [z-a] is invalid
 @comment RE_BK_PLUS_QM       ->  + and ? are operators, \+ and \? are literals
 
@@ -186,7 +186,7 @@ regexps; the following section says how to search for them.
 
 @menu
 * Syntax of Regexps::       Rules for writing regular expressions.
-* Regexp Example::          Illustrates regular expression syntax.
+* Regexp Examples::         Illustrates regular expression syntax.
 @end menu
 
 @node Syntax of Regexps
@@ -312,7 +312,7 @@ to match anything.  Thus, @samp{^foo} matches a @samp{foo} which occurs
 at the beginning of a line.
 
 When matching a string, @samp{^} matches at the beginning of the string
-or after a newline character @samp{\n}. 
+or after a newline character @samp{\n}.
 
 @item $
 @cindex @samp{$} in regexp
@@ -483,7 +483,7 @@ an @code{invalid-regexp} error is signaled.
 
   Here is a complicated regexp, used by Emacs to recognize the end of a
 sentence together with any whitespace that follows.  It is the value of
-the variable @code{sentence-end}.  
+the variable @code{sentence-end}.
 
   First, we show the regexp as a string in C syntax to distinguish
 spaces from tab characters.  The string constant begins and ends with a
@@ -502,7 +502,7 @@ the following:
 @group
 sentence-end
 @result{}
-"[.?!][]\"')@}]*\\($\\| $\\|  \\|  \\)[       
+"[.?!][]\"')@}]*\\($\\| $\\|  \\|  \\)[
 ]*"
 @end group
 @end example
