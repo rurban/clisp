@@ -1171,11 +1171,11 @@ typedef signed int  signean;
 # Determine the offset of a component 'ident' in a struct of the type 'type':
 # See 0 as pointer to 'type', put a struct 'type' there and determine the
 # address of its component 'ident' and return it as number:
-#if !(defined(HAVE_OFFSETOF) || defined(__MINGW32__) || (defined(BORLAND) && defined(WIN32)) || defined(MICROSOFT))
+#if defined(HAVE_OFFSETOF) || defined(__MINGW32__) || (defined(BORLAND) && defined(WIN32)) || defined(MICROSOFT)
+  #include <stddef.h>
+#else
   #undef offsetof
   #define offsetof(type,ident)  ((ULONG)&(((type*)0)->ident))
-#else
-  #include <stddef.h>
 #endif
 # Determine the offset of an array 'ident' in a truct of the type 'type':
 #define offsetofa(type,ident)  offsetof(type,ident[0])
@@ -1207,14 +1207,14 @@ typedef signed int  signean;
 
 # Pointer arithmetics: add a given offset (measured in bytes)
 # to a pointer.
-#if !(defined(GNU) || (pointer_bitsize > 32))
+#if defined(GNU) || (pointer_bitsize > 32)
+ /* Essential for GNU-C for initialization of static-variables
+   (must be a bug in 'c-typeck.c' in 'initializer_constant_valid_p'):
+   The only correct way, if sizeof(ULONG) < sizeof(void*): */
+  #define pointerplus(pointer,offset)  ((UBYTE*)(pointer)+(offset))
+#else
   # Cheap way:
   #define pointerplus(pointer,offset)  ((void*)((ULONG)(pointer)+(offset)))
-#else
-  # Essential for GNU-C for initialization of static-variables
-  # (must be a bug in 'c-typeck.c' in 'initializer_constant_valid_p'):
-  # The only correct way, if sizeof(ULONG) < sizeof(void*):
-  #define pointerplus(pointer,offset)  ((UBYTE*)(pointer)+(offset))
 #endif
 
 # Bit number n (0<=n<32)
@@ -2871,16 +2871,16 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 
 # Bit operations on sizes of type oint:
 # ...wbit... instead of ...bit..., "w" = "wide".
-#if !(defined(WIDE_SOFT) || defined(WIDE_AUXI))
-  #define wbit  bit
-  #define wbitm  bitm
-  #define wbit_test  bit_test
-  #define minus_wbit  minus_bit
-#else
+#if defined(WIDE_SOFT) || defined(WIDE_AUXI)
   #define wbit(n)  (1LL<<(n))
   #define wbitm(n)  (2LL<<((n)-1))
   #define wbit_test(x,n)  ((x) & wbit(n))
   #define minus_wbit(n)  (-1LL<<(n))
+#else
+  #define wbit  bit
+  #define wbitm  bitm
+  #define wbit_test  bit_test
+  #define minus_wbit  minus_bit
 #endif
 
 #ifdef TYPECODES
@@ -3137,7 +3137,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define varobject_alignment  1
 #endif
 #if defined(MC680X0)
-  #if !(addr_shift==0)
+  #if addr_shift!=0
     #define varobject_alignment  bit(addr_shift)  # because of the condensed distribution of typecodes
   #else
     #define varobject_alignment  2
