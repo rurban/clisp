@@ -12,13 +12,14 @@
     &optional-amp; (&filename-r; "lispinit.mem")
     &key-amp; :quiet :init-function :locked-packages)</literal>
 saves the running &clisp;'s memory to the file &filename-r;;
-extension &mem-file; is recommended.
+extension &mem-file; is recommended.  When &filename-r; does not have an
+extension, &mem-file; extension is automatically used.
 If the <constant>:quiet</constant> argument is not &nil;, the startup
 banner and the good-bye message will be suppressed.
 The <constant>:init-function</constant> argument specifies a function
-that will be executed at startup of the saved image.
-When &filename-r; does not have an extension,
-&mem-file; extension is automatically used.
+that will be executed at startup of the saved image, before entering
+the standard &repl;, thus, if you want to avoid it, you have to call
+<link linkend="quit"><function>EXT:EXIT</function></link>.
 The <constant>:locked-packages</constant> argument specifies the
 packages to lock before saving the image; this is convenient for
 application delivery, when you do not want your user to mess up your
