@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 # Ausgabe von Strings mit eingebetteten Zahlen, wie printf().
-# Nur daß die Zahlen auch vom Typ `unsigned long long' sein können.
+# Nur dass die Zahlen auch vom Typ `unsigned long long' sein können.
 # Wir vermeiden es, <stdarg.h> oder <varargs.h> vorauszusetzen.
 
 typedef struct { char base; # 'd' für dezimal, 'x' für hexadezimal

@@ -233,7 +233,7 @@
 # NAME          NIL oder :WILD oder Simple-String mit max. 8 Zeichen
 # TYPE          NIL oder :WILD oder Simple-String mit max. 3 Zeichen
 # VERSION       stets NIL (auch :WILD oder :NEWEST bei Eingabe)
-# Wenn ein Pathname vollständig spezifiziert sein muß (keine Wildcards),
+# Wenn ein Pathname vollständig spezifiziert sein muss (keine Wildcards),
 # ist :WILD, :WILD-INFERIORS nicht erlaubt, bei NAME evtl. auch nicht NIL.
 # Externe Notation:       A:\sub1.typ\sub2.typ\name.typ
 # mit Defaults:             \sub1.typ\sub2.typ\name.typ
@@ -267,7 +267,7 @@
 #   falls '.' im Filename: Name = alles vor, Typ = alles nach dem letzten '.' .
 # Groß-/Klein-Schreibung innerhalb der Strings wird bei Vergleichen ignoriert,
 # aber ansonsten findet keine Groß/Klein-Umwandlung statt.
-# Wenn ein Pathname vollständig spezifiziert sein muß (keine Wildcards),
+# Wenn ein Pathname vollständig spezifiziert sein muss (keine Wildcards),
 # ist :WILD, :WILD-INFERIORS nicht erlaubt, keine Wildcard-Zeichen in den
 # Strings, bei NAME evtl. auch nicht NIL.
 # Externe Notation:  device:sub1.typ/sub2.typ/name.typ
@@ -299,7 +299,7 @@
 #   ''            current, device                    NIL (:RELATIVE)
 # An einen Pathstring, der nichtleer ist und der nicht mit ':' oder '/'
 # endet, kann ein '/' angehängt werden, ohne seine Semantik zu verändern.
-# Dieser '/' muß angehängt werden, bevor man eine weitere nichtleere
+# Dieser '/' muss angehängt werden, bevor man eine weitere nichtleere
 # Komponente anhängen kann.
 # An einen Pathstring, der leer ist oder mit ':' oder '/' endet, ein '/'
 # anzuhängen, bedeutet aber, zum Parent Directory aufzusteigen!
@@ -326,7 +326,7 @@
 # Ein UNIX-Filename wird folgendermaßen in Name und Typ aufgespalten:
 #   falls kein '.' im Filename: Name = alles, Typ = NIL,
 #   falls '.' im Filename: Name = alles vor, Typ = alles nach dem letzten '.' .
-# Wenn ein Pathname vollständig spezifiziert sein muß (keine Wildcards),
+# Wenn ein Pathname vollständig spezifiziert sein muss (keine Wildcards),
 # ist :WILD, :WILD-INFERIORS nicht erlaubt, keine Wildcard-Zeichen in den
 # Strings, bei NAME evtl. auch nicht NIL.
 # Externe Notation:  server:/sub1.typ/sub2.typ/name.typ
@@ -355,7 +355,7 @@
 # Ein OS/2-Filename wird folgendermaßen in Name und Typ aufgespalten:
 #   falls kein '.' im Filename: Name = alles, Typ = NIL,
 #   falls '.' im Filename: Name = alles vor, Typ = alles nach dem letzten '.' .
-# Wenn ein Pathname vollständig spezifiziert sein muß (keine Wildcards),
+# Wenn ein Pathname vollständig spezifiziert sein muss (keine Wildcards),
 # ist :WILD, :WILD-INFERIORS nicht erlaubt, keine Wildcard-Zeichen in den
 # Strings, bei NAME evtl. auch nicht NIL.
 # Externe Notation:       A:\sub1.typ\sub2.typ\name.typ
@@ -769,14 +769,14 @@ local boolean legal_logical_word_char(ch)
     var boolean convert;
     { if (eq(host,unbound)) { return NIL; } # nicht angegeben -> NIL
       if (nullp(host)) goto OK; # NIL ist OK
-      # Sonst muß host ein String sein, dessen Zeichen alphanumerisch sind:
+      # Sonst muss host ein String sein, dessen Zeichen alphanumerisch sind:
       if (!stringp(host))
         { pushSTACK(host); # Wert für Slot DATUM von TYPE-ERROR
           pushSTACK(O(type_host)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(host);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Host muß NIL oder ein String sein, nicht ~" :
+                 DEUTSCH ? "~: Host muss NIL oder ein String sein, nicht ~" :
                  ENGLISH ? "~: host should be NIL or a string, not ~" :
                  FRANCAIS ? "~ : Le nom de machine hôte doit être NIL ou de type STRING et non ~" :
                  ""
@@ -819,14 +819,14 @@ local boolean legal_logical_word_char(ch)
     var object host;
     { if (eq(host,unbound)) { return NIL; } # nicht angegeben -> NIL
       if (nullp(host)) goto OK; # NIL ist OK
-      # Sonst muß host ein String sein, dessen Zeichen alphanumerisch sind:
+      # Sonst muss host ein String sein, dessen Zeichen alphanumerisch sind:
       if (!stringp(host))
         { pushSTACK(host); # Wert für Slot DATUM von TYPE-ERROR
           pushSTACK(O(type_host)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(host);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Host muß NIL oder ein String sein, nicht ~" :
+                 DEUTSCH ? "~: Host muss NIL oder ein String sein, nicht ~" :
                  ENGLISH ? "~: host should be NIL or a string, not ~" :
                  FRANCAIS ? "~ : Le nom de machine hôte doit être NIL ou de type STRING et non ~" :
                  ""
@@ -870,7 +870,7 @@ local boolean legal_logical_word_char(ch)
               pushSTACK(host);
               pushSTACK(TheSubr(subr_self)->name);
               fehler(type_error,
-                     DEUTSCH ? "~: Host muß NIL sein, nicht ~" :
+                     DEUTSCH ? "~: Host muss NIL sein, nicht ~" :
                      ENGLISH ? "~: host should be NIL, not ~" :
                      FRANCAIS ? "~ : Le nom de machine hôte doit être NIL et non ~" :
                      ""
@@ -987,7 +987,7 @@ local boolean legal_logical_word_char(ch)
       pushSTACK(thing);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muß ein String, Symbol, File-Stream oder Pathname sein, nicht ~" :
+             DEUTSCH ? "~: Argument muss ein String, Symbol, File-Stream oder Pathname sein, nicht ~" :
              ENGLISH ? "~: argument should be a string, symbol, file stream or pathname, not ~" :
              FRANCAIS ? "~ : L'argument doit être une chaîne, un symbole, un «stream» de fichier ou un «pathname» et non ~" :
              ""
@@ -1442,7 +1442,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
     #else
     { test_optional_host(STACK_3); }
     #endif
-    # 4. thing muß ein String sein:
+    # 4. thing muss ein String sein:
     { var object thing = STACK_4;
       if (xpathnamep(thing)) # Pathname?
         { value1 = thing; # 1. Wert thing
@@ -1566,7 +1566,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                   { var uintL envval_len = Sstring_length(STACK_1);
                     var object new_thing = string_concat(2);
                     STACK_(4+1) = STACK_0 = new_thing;
-                    # Der 2. Wert FNindex muß nachher noch modifiziert werden.
+                    # Der 2. Wert FNindex muss nachher noch modifiziert werden.
                     FNindex_limit = fixnum(envval_len);
                     FNindex_offset = (sintL)posfixnum_to_L(z.FNindex) - (sintL)envval_len;
                     z.index = 0; z.count = Sstring_length(new_thing); z.FNindex = Fixnum_0;
@@ -2941,7 +2941,7 @@ LISPFUNN(host_namestring,1)
           pushSTACK(version);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: :VERSION-Argument muß NIL oder ein Fixnum >0 oder :WILD oder :NEWEST sein, nicht ~" :
+                 DEUTSCH ? "~: :VERSION-Argument muss NIL oder ein Fixnum >0 oder :WILD oder :NEWEST sein, nicht ~" :
                  ENGLISH ? "~: :VERSION-argument should be NIL or a positive fixnum or :WILD or :NEWEST, not ~" :
                  FRANCAIS ? "~ : L'argument pour :VERSION doit être NIL, un petit nombre entier positif, :WILD ou :NEWEST mais non ~" :
                  ""
@@ -2970,7 +2970,7 @@ LISPFUNN(host_namestring,1)
           pushSTACK(version);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: :VERSION-Argument muß NIL oder :WILD oder :NEWEST sein, nicht ~" :
+                 DEUTSCH ? "~: :VERSION-Argument muss NIL oder :WILD oder :NEWEST sein, nicht ~" :
                  ENGLISH ? "~: :VERSION-argument should be NIL or :WILD or :NEWEST, not ~" :
                  FRANCAIS ? "~ : L'argument pour :VERSION doit être NIL, :WILD ou :NEWEST mais non ~" :
                  ""
@@ -3006,7 +3006,7 @@ LISPFUNN(host_namestring,1)
 #ifdef UNIX
 
 # Das Betriebssystem verwaltet ein Default-Directory ("working directory")
-# für diesen Prozeß. Es kann mit chdir verändert und mit getwd abgefragt
+# für diesen Prozess. Es kann mit chdir verändert und mit getwd abgefragt
 # werden. Siehe CHDIR(2) und GETWD(3).
 
 #endif
@@ -3014,7 +3014,7 @@ LISPFUNN(host_namestring,1)
 #ifdef AMIGAOS
 
 # Das Betriebssystem verwaltet ein Default-Directory ("current directory")
-# für diesen Prozeß. Es kann mit CurrentDir verändert und mit einer
+# für diesen Prozess. Es kann mit CurrentDir verändert und mit einer
 # Kombination aus Examine und ParentDir abgefragt werden.
 
 #endif
@@ -3861,7 +3861,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       pushSTACK(STACK_3); pushSTACK(S(Kdirectory)); goto fehler_arg;
       directory_ok: ;
       #ifdef PATHNAME_AMIGAOS
-      # Bei device /= NIL muß directory mit :ABSOLUTE anfangen:
+      # Bei device /= NIL muss directory mit :ABSOLUTE anfangen:
       if (!nullp(STACK_4) && !eq(Car(STACK_3),S(Kabsolute))) goto directory_bad;
       #endif
     }
@@ -3996,7 +3996,7 @@ LISPFUN(make_logical_pathname,0,0,norest,key,8,\
         (kw(defaults),kw(case),kw(host),kw(device),kw(directory),kw(name),kw(type),kw(version)) )
 # (MAKE-LOGICAL-PATHNAME [:host] [:device] [:directory] [:name] [:type] [:version]
 #                        [:defaults] [:case]),
-# wie MAKE-PATHNAME, nur daß ein Logical Pathname gebildet wird.
+# wie MAKE-PATHNAME, nur dass ein Logical Pathname gebildet wird.
   { # Ein logischer Pathname als :HOST-Argument zu MAKE-PATHNAME
     # erzwingt einen logischen Pathname als Ergebnis.
     var object obj = allocate_logpathname();
@@ -4366,11 +4366,11 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
           m_count--;
           c = *m_ptr++; # nächstes Match-Zeichen
           if (c=='?') # Wildcard '?'
-            { if (b_count==0) return FALSE; # mindestens ein Zeichen muß noch kommen
+            { if (b_count==0) return FALSE; # mindestens ein Zeichen muss noch kommen
               b_count--; b_ptr++; # es wird ignoriert
             }
           elif (c=='*') break; # Wildcard '*' später
-          else # alles andere muß genau matchen:
+          else # alles andere muss genau matchen:
             { if (b_count==0) return FALSE;
               b_count--; if (!equal_pathchar(*b_ptr++,c)) return FALSE;
             }
@@ -4617,7 +4617,7 @@ LISPFUNN(pathname_match_p,2)
 #    Substitution aufheben, in Form von Textstücken (:WILD -> "*").
 # 2. In muster2 die Textstücke einsetzen, bis muster2 voll ist oder die
 #    Textstücke aufgebraucht sind.
-# 3. Zum Schluß (MERGE-PATHNAMES modifiziertes_muster2 beispiel).
+# 3. Zum Schluss (MERGE-PATHNAMES modifiziertes_muster2 beispiel).
 
   # UP: Vergleicht einen Wildcard-String ("Muster") mit einem "Beispiel".
   # wildcard_diff(muster,beispiel,previous,solutions);
@@ -5004,8 +5004,8 @@ LISPFUNN(pathname_match_p,2)
 
 # Jede Substitution ist eine Liste von Simple-Strings oder Listen.
 # (Die Listen entstehen bei :WILD-INFERIORS in directory_diff().)
-# Ein Simple-String paßt nur auf '?' oder '*' oder :WILD,
-# eine Liste paßt nur auf :WILD-INFERIORS.
+# Ein Simple-String passt nur auf '?' oder '*' oder :WILD,
+# eine Liste passt nur auf :WILD-INFERIORS.
 
 #ifdef LOGICAL_PATHNAMES
 
@@ -5343,7 +5343,7 @@ LISPFUNN(pathname_match_p,2)
 LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # (TRANSLATE-PATHNAME beispiel muster1 muster2 [:all] [:merge]), CLtL2 S. 624
 # :all = T --> liefere eine Liste aller passenden Pathnames
-# :all = NIL --> Error, falls mehr als ein Pathname paßt
+# :all = NIL --> Error, falls mehr als ein Pathname passt
 # :merge = NIL --> letzten MERGE-PATHNAMES Schritt überspringen
   { # Stackaufbau: beispiel, muster1, muster2, all, merge.
     var boolean logical = FALSE; # Flag, ob beispiel und muster logische Pathnames sind
@@ -5521,7 +5521,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # namestring_asciz(dir_namestring)
 # > STACK_0: nicht-Logical Pathname
 # > dir_namestring: Directory-Namestring (für DOS)
-# < ergebnis: Namestring (für DOS, mit Nullbyte am Schluß)
+# < ergebnis: Namestring (für DOS, mit Nullbyte am Schluss)
 # kann GC auslösen
   local object namestring_asciz (object dir_namestring);
   local object namestring_asciz(dir_namestring)
@@ -5763,7 +5763,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             if (!result) { end_system_call(); OS_file_error(pathname); }
           }
         end_system_call();
-        # evtl. noch ein '\' am Schluß anfügen:
+        # evtl. noch ein '\' am Schluss anfügen:
         { var char* path_end = &path_buffer[asciz_length(path_buffer)];
           if (!(path_end[-1]=='\\')) { path_end[0] = '\\'; path_end[1] = '\0'; }
         }
@@ -5881,7 +5881,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       return pathname;
     }
 
-# UP: Stellt sicher, daß das Directory eines Pathname existiert.
+# UP: Stellt sicher, dass das Directory eines Pathname existiert.
 # Sonst Fehlermeldung.
 # assure_dir_exists(links_resolved,tolerantp)
 # > STACK_0: absoluter Pathname ohne Wildcards im Directory
@@ -5890,7 +5890,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # > tolerantp: Flag, ob ein Fehler vermieden werden soll
 # < ergebnis:
 #     falls Name=NIL: Directory-Namestring (für DOS)
-#     falls Name/=NIL: Namestring (für DOS, mit Nullbyte am Schluß)
+#     falls Name/=NIL: Namestring (für DOS, mit Nullbyte am Schluss)
 #     falls tolerantp evtl.: nullobj
 # kann GC auslösen
   local object assure_dir_exists (boolean links_resolved, boolean tolerantp);
@@ -5903,7 +5903,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         { # Existenztest:
           #ifdef MSDOS
             # 1. Subdir-List leer -> OK
-            #    (Muß abgefangen werden, denn stat() auf Rootdir liefert Fehler.)
+            #    (Muss abgefangen werden, denn stat() auf Rootdir liefert Fehler.)
             # 2. OS/2: Subdir-List = ("PIPE") -> OK
             #    (Dieses Spezialverzeichnis "\\PIPE\\" ist in Wirklichkeit keines.)
             # 3. Sonst stat() probieren.
@@ -5913,7 +5913,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                   #endif
                ) )
               { var uintB* endptr = &TheSstring(dir_namestring)->data[Sstring_length(dir_namestring)-1];
-                *endptr = '\0'; # '\' am Schluß durch Nullbyte ersetzen
+                *endptr = '\0'; # '\' am Schluss durch Nullbyte ersetzen
                {var struct stat statbuf;
                 begin_system_call();
                 if (stat(TheAsciz(dir_namestring),&statbuf) < 0)
@@ -5930,7 +5930,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           #ifdef WIN32_NATIVE
             with_string_0(dir_namestring,path,
             { if (!nullp(Cdr(ThePathname(STACK_0)->pathname_directory)))
-                { path[Sstring_length(dir_namestring)-1] = '\0'; } # '\' am Schluß durch Nullbyte ersetzen
+                { path[Sstring_length(dir_namestring)-1] = '\0'; } # '\' am Schluss durch Nullbyte ersetzen
               begin_system_call();
              {var DWORD fileattr = GetFileAttributes(path);
               if (fileattr == 0xFFFFFFFF)
@@ -5953,12 +5953,12 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     }
 
 # UP: Liefert den Directory-Namestring eines Pathname unter der Annahme,
-#     daß das Directory dieses Pathname existiert.
+#     dass das Directory dieses Pathname existiert.
 # assume_dir_exists()
 # > STACK_0: absoluter Pathname ohne Wildcards im Directory
 # < ergebnis:
 #     falls Name=NIL: Directory-Namestring (für DOS)
-#     falls Name/=NIL: Namestring (für DOS, mit Nullbyte am Schluß)
+#     falls Name/=NIL: Namestring (für DOS, mit Nullbyte am Schluss)
 # kann GC auslösen
   global object assume_dir_exists (void);
   global object assume_dir_exists()
@@ -6086,7 +6086,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # UP: Macht aus einem Directory-Namestring einen, der für AMIGAOS geeignet ist.
 # OSnamestring(namestring)
 # > namestring: neu erzeugter Directory-Namestring, mit '/' oder ':' am
-#               Schluß, ein Simple-String
+#               Schluss, ein Simple-String
 # < ergebnis: Namestring zu diesem Directory, im AmigaOS-Format: letzter '/'
 #             gestrichen, falls überflüssig, ASCIZ-String
 # kann GC auslösen
@@ -6096,12 +6096,12 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     { var uintL len = Sstring_length(namestring);
       if (len==0) goto ok; # Leerstring -> nichts streichen
      {var uintB ch = TheSstring(namestring)->data[len-1];
-      if (!(ch=='/')) goto ok; # kein '/' am Schluß -> nichts streichen
+      if (!(ch=='/')) goto ok; # kein '/' am Schluss -> nichts streichen
       if (len==1) goto ok; # "/" bedeutet Parent -> nicht streichen
       ch = TheSstring(namestring)->data[len-2];
       if ((ch=='/') || (ch==':')) # davor ein '/' oder ':'
         goto ok; # -> bedeutet Parent -> nicht streichen
-      # '/' am Schluß streichen, dann string_to_asciz:
+      # '/' am Schluss streichen, dann string_to_asciz:
         namestring = copy_string(namestring); # Länge bleibt dabei gleich!
         TheSstring(namestring)->data[len-1] = '\0';
         return namestring;
@@ -6109,7 +6109,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         return string_to_asciz(namestring);
     }}
 
-# UP: Stellt sicher, daß das Directory eines Pathname existiert.
+# UP: Stellt sicher, dass das Directory eines Pathname existiert.
 # assure_dir_exists(tolerantp)
 # > STACK_0: nicht-Logical Pathname, bei dem Directory kein :RELATIVE enthält.
 # > links_resolved: Flag, ob im Directory des Pathname schon alle Links
@@ -6118,8 +6118,8 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # > subr_self: Aufrufer (ein SUBR)
 # < STACK_0: (evtl. derselbe) Pathname, aber aufgelöst.
 # < ergebnis:
-#     falls Name=NIL: Directory-Namestring (für AMIGAOS, mit '/' am Schluß)
-#     falls Name/=NIL: Namestring (für AMIGAOS, mit Nullbyte am Schluß)
+#     falls Name=NIL: Directory-Namestring (für AMIGAOS, mit '/' am Schluss)
+#     falls Name/=NIL: Namestring (für AMIGAOS, mit Nullbyte am Schluss)
 #     falls tolerantp evtl.: nullobj
 # < filestatus: Falls Name/=NIL: NULL falls das File nicht existiert,
 #                                sonst ein Pointer auf eine STAT-Information.
@@ -6137,7 +6137,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
            dir_namestring = string_concat(stringcount);
           }
           pushSTACK(dir_namestring);
-          dir_namestring = OSnamestring(dir_namestring); # ohne überflüssigen '/' am Schluß
+          dir_namestring = OSnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
           # Lock für dieses Directory holen:
           set_break_sem_4(); # Unterbrechungen währenddessen verhindern
           begin_system_call();
@@ -6152,10 +6152,10 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                     fehler_dir_not_exists(STACK_0);
                   case ERROR_ACTION_NOT_KNOWN:
                     # Ein Device, bei dem man keine Locks für Subdirectories holen
-                    # kann! Hierbei muß es sich wohl um ein spezielles Device handeln
+                    # kann! Hierbei muss es sich wohl um ein spezielles Device handeln
                     # (PIPE, CON, AUX, etc.).
                     # Wir stoppen die Subdirectory-Überprüfungen. Nicht einmal mehr
-                    # Examine() rufen wir auf. Wir gehen im Gegenteil davon aus, daß
+                    # Examine() rufen wir auf. Wir gehen im Gegenteil davon aus, dass
                     # das File im gewöhnlichen Sinne (noch) nicht existiert.
                     clr_break_sem_4(); # Unterbrechungen zulassen, da wir nun doch kein Lock belegt haben
                     if (namenullp(STACK_(0+1))) # kein File angesprochen?
@@ -6259,7 +6259,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
      }}}}}
     }
 
-# Dasselbe unter der Annahme, daß das Directory bereits existiert.
+# Dasselbe unter der Annahme, dass das Directory bereits existiert.
 # (Keine Vereinfachung, da wir ja den Truename bestimmen müssen.??)
   global object assume_dir_exists (void);
   global object assume_dir_exists()
@@ -6290,7 +6290,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                 );
         }
       end_system_call();
-      # Es muß mit '/' anfangen:
+      # Es muss mit '/' anfangen:
       if (!(path_buffer[0] == '/'))
         { pushSTACK(O(punkt_string)); # Wert für Slot PATHNAME von FILE-ERROR
           pushSTACK(asciz_to_string(&path_buffer[0]));
@@ -6337,7 +6337,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       return pathname;
     }
 
-# UP: Stellt sicher, daß das Directory eines Pathname existiert, und löst
+# UP: Stellt sicher, dass das Directory eines Pathname existiert, und löst
 # dabei symbolische Links auf.
 # assure_dir_exists(tolerantp)
 # > STACK_0: nicht-Logical Pathname, bei dem Directory kein :RELATIVE enthält.
@@ -6348,8 +6348,8 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # < STACK_0: (evtl. derselbe) Pathname, wobei weder fürs Directory noch
 #            für den Filenamen ein symbolisches Link zu verfolgen ist.
 # < ergebnis:
-#     falls Name=NIL: Directory-Namestring (für UNIX, mit '/' am Schluß)
-#     falls Name/=NIL: Namestring (für UNIX, mit Nullbyte am Schluß)
+#     falls Name=NIL: Directory-Namestring (für UNIX, mit '/' am Schluss)
+#     falls Name/=NIL: Namestring (für UNIX, mit Nullbyte am Schluss)
 #     falls tolerantp evtl.: nullobj
 # < filestatus: Falls Name/=NIL: NULL falls das File nicht existiert,
 #                                sonst ein Pointer auf eine STAT-Information.
@@ -6378,7 +6378,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                 }
               end_system_call();
             }}
-            # Neuer Directory-Path muß mit '/' anfangen:
+            # Neuer Directory-Path muss mit '/' anfangen:
             if (!(path_buffer[0] == '/'))
               { # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
                 pushSTACK(asciz_to_string(&path_buffer[0]));
@@ -6389,7 +6389,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                        ""
                       );
               }
-            # Am Schluß evtl. ein '/' anfügen:
+            # Am Schluss evtl. ein '/' anfügen:
             {var char* pathptr = &path_buffer[0];
              var uintL len = 0; # Stringlänge
              until (*pathptr == 0) { pathptr++; len++; } # ASCIZ-Stringende suchen
@@ -6478,9 +6478,9 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           }}
     }   }
 
-# Dasselbe unter der Annahme, daß das Directory bereits existiert.
+# Dasselbe unter der Annahme, dass das Directory bereits existiert.
 # (Nur wenig Vereinfachung, da das File ein symbolisches Link in ein anderes
-# Directory sein kann, und dieses muß dann als existent überprüft werden.)
+# Directory sein kann, und dieses muss dann als existent überprüft werden.)
   global object assume_dir_exists (void);
   global object assume_dir_exists()
     { subr_self = L(open); return assure_dir_exists(TRUE,FALSE); }
@@ -6545,7 +6545,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       }   }
       pushSTACK(dirname);
       {var object dir_string = string_concat(stringcount+1);
-       # Punkt am Schluß durch Nullbyte ersetzen:
+       # Punkt am Schluss durch Nullbyte ersetzen:
        TheSstring(dir_string)->data[Sstring_length(dir_string)-1] = '\0';
        # absolut machen:
        { var char path_buffer[MAXPATHLEN];
@@ -6572,7 +6572,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       # erst den Pathname kopieren:
       pathname = copy_pathname(pathname);
      {var object subdirs = ThePathname(pathname)->pathname_directory;
-      # Ist das Device angegeben, so muß das Directory mit (:ABSOLUTE :ROOT ...)
+      # Ist das Device angegeben, so muss das Directory mit (:ABSOLUTE :ROOT ...)
       # anfangen (oder mit (:RELATIVE ...) - das wird ersetzt).
       if (!nullp(ThePathname(pathname)->pathname_device))
         { if (eq(Car(subdirs),S(Krelative)))
@@ -6591,7 +6591,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
               pushSTACK(O(root_string));
               pushSTACK(TheSubr(subr_self)->name);
               fehler(file_error,
-                     DEUTSCH ? "~: Ist ein Device angegeben, muß das Directory mit ~ anfangen: ~" :
+                     DEUTSCH ? "~: Ist ein Device angegeben, muss das Directory mit ~ anfangen: ~" :
                      ENGLISH ? "~: If a device is specified, the directory must begin with ~: ~" :
                      FRANCAIS ? "~ : Quand un composant DEVICE est spécifié, le répertoire doit commencer par ~: ~" :
                      ""
@@ -6642,12 +6642,12 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
        defaults = reverse(defaults); subdirs = nreconc(defaults,popSTACK());
        pathname = popSTACK();
        ThePathname(pathname)->pathname_directory = subdirs;
-       # Es könnte sein, daß auch jetzt noch nicht alles aufgelöst ist.
+       # Es könnte sein, dass auch jetzt noch nicht alles aufgelöst ist.
        goto retry;
      }}
      resolved: # Stackaufbau: pathname, subdir-oldlist.
       # Liste durchgehen und dabei neu aufconsen, dabei "^." verarbeiten.
-      # (Sonst müßte dies assure_dir_exists() machen.)
+      # (Sonst müsste dies assure_dir_exists() machen.)
       pushSTACK(S(Kroot)); pushSTACK(S(Kabsolute));
       { var object newlist = listof(2); pushSTACK(newlist); }
       # Stackaufbau: pathname, subdir-oldlist, subdir-newlist.
@@ -6690,7 +6690,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # namestring_asciz(dir_namestring)
 # > STACK_0: nicht-Logical Pathname
 # > dir_namestring: Directory-Namestring
-# < ergebnis: Namestring (für RISCOS, mit Name/Type vertauscht, mit Nullbyte am Schluß)
+# < ergebnis: Namestring (für RISCOS, mit Name/Type vertauscht, mit Nullbyte am Schluss)
 # kann GC auslösen
   local object namestring_asciz (object dir_namestring);
   local object namestring_asciz(dir_namestring)
@@ -6712,7 +6712,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       return string_concat(1+stringcount+1); # zusammenhängen
     }
 
-# UP: Stellt sicher, daß das Directory eines Pathname existiert.
+# UP: Stellt sicher, dass das Directory eines Pathname existiert.
 # Sonst Fehlermeldung.
 # assure_dir_exists(links_resolved,tolerantp)
 # assure_dir_exists_(links_resolved,tolerantp,allowdir)
@@ -6722,8 +6722,8 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # > tolerantp: Flag, ob ein Fehler vermieden werden soll
 # > allowdir: Flag, ob bei Name/=NIL ein Directory statt eines File erlaubt ist
 # < ergebnis:
-#     falls Name=NIL: Directory-Namestring (für RISCOS, mit '.' am Schluß)
-#     falls Name/=NIL: Namestring (für RISCOS, mit Nullbyte am Schluß)
+#     falls Name=NIL: Directory-Namestring (für RISCOS, mit '.' am Schluss)
+#     falls Name/=NIL: Namestring (für RISCOS, mit Nullbyte am Schluss)
 #     falls tolerantp evtl.: nullobj
 # < filestatus: Falls Name/=NIL: NULL falls das File nicht existiert,
 #                                sonst ein Pointer auf eine STAT-Information.
@@ -6745,7 +6745,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           var struct stat statbuf;
           var uintL len = Sstring_length(dir_namestring);
           ASSERT((len > 0) && (TheSstring(dir_namestring)->data[len-1]=='.'));
-          TheSstring(dir_namestring)->data[len-1] = '\0'; # '.' am Schluß durch Nullbyte ersetzen
+          TheSstring(dir_namestring)->data[len-1] = '\0'; # '.' am Schluss durch Nullbyte ersetzen
           begin_system_call();
           if (stat(TheAsciz(dir_namestring),&statbuf) < 0)
             { if (tolerantp && (errno==ENOENT)) { end_system_call(); return nullobj; }
@@ -6789,7 +6789,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             { filestatus = &status; return namestring; }
     }}  }
 
-# Dasselbe unter der Annahme, daß das Directory bereits existiert.
+# Dasselbe unter der Annahme, dass das Directory bereits existiert.
 # (Keine Vereinfachung, da wir ja den Truename bestimmen müssen.??)
   global object assume_dir_exists (void);
   global object assume_dir_exists()
@@ -6797,7 +6797,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 
 # Ein File "name.type" wird dem RISCOS als "type.name" vermittelt, dabei ist
 # "type" der Name eines Unterverzeichnisses! Soll ein File "name.type" angelegt
-# werden, muß daher zuerst das Unterverzeichnis "type" erzeugt werden.
+# werden, muss daher zuerst das Unterverzeichnis "type" erzeugt werden.
 # prepare_create(pathname);
 # > pathname: ein Pathname
 # kann GC auslösen
@@ -6827,7 +6827,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 #if 0 # unbenutzt
 # UP: Macht aus einem Directory-Namestring einen, der für DOS geeignet ist.
 # OSnamestring(namestring)
-# > namestring: neu erzeugter Directory-Namestring, mit '\' am Schluß,
+# > namestring: neu erzeugter Directory-Namestring, mit '\' am Schluss,
 #               ein Simple-String
 # < ergebnis: Namestring zu diesem Directory, im DOS-Format: letzter '\'
 #             gestrichen, falls überflüssig, ASCIZ-String
@@ -6838,12 +6838,12 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     { var uintL len = Sstring_length(namestring);
       if (len==0) goto ok; # Leerstring -> nichts streichen
      {var uintB ch = TheSstring(namestring)->data[len-1];
-      if (!(ch=='\\')) goto ok; # kein '\' am Schluß -> nichts streichen
+      if (!(ch=='\\')) goto ok; # kein '\' am Schluss -> nichts streichen
       if (len==1) goto ok; # "\" bedeutet Root -> nicht streichen
       ch = TheSstring(namestring)->data[len-2];
       if ((ch=='\\') || (ch==':')) # davor ein '\' oder ':'
         goto ok; # -> bedeutet Parent -> nicht streichen
-      # '\' am Schluß streichen, dann string_to_asciz:
+      # '\' am Schluss streichen, dann string_to_asciz:
         namestring = copy_string(namestring); # Länge bleibt dabei gleich!
         TheSstring(namestring)->data[len-1] = '\0';
         return namestring;
@@ -6862,7 +6862,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       { var object pathname = STACK_0;
         var uintC stringcount =
           directory_namestring_parts(pathname); # Strings fürs Directory
-        # ohne überflüssiges '\' am Schluß, aber mit Nullbyte am Schluß
+        # ohne überflüssiges '\' am Schluss, aber mit Nullbyte am Schluss
         if (mconsp(Cdr(ThePathname(pathname)->pathname_directory)))
           { STACK_0 = O(null_string); }
           else
@@ -6899,7 +6899,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     { var uintC stringcount =
         directory_namestring_parts(STACK_0); # Strings fürs Directory
       var object dir_namestring = string_concat(stringcount);
-      dir_namestring = OSnamestring(dir_namestring); # Asciz, ohne überflüssigen '/' am Schluß
+      dir_namestring = OSnamestring(dir_namestring); # Asciz, ohne überflüssigen '/' am Schluss
       # Default-Directory ändern:
       set_break_sem_4();
       begin_system_call();
@@ -6947,7 +6947,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
      {var object dir_namestring = string_concat(stringcount); # zusammenhängen
       var uintL len = Sstring_length(dir_namestring);
       ASSERT((len > 0) && (TheSstring(dir_namestring)->data[len-1]=='.'));
-      TheSstring(dir_namestring)->data[len-1] = '\0'; # '.' am Schluß durch Nullbyte ersetzen
+      TheSstring(dir_namestring)->data[len-1] = '\0'; # '.' am Schluss durch Nullbyte ersetzen
       begin_system_call();
       if (!( chdir(TheAsciz(dir_namestring)) ==0)) { end_system_call(); OS_file_error(STACK_0); }
       end_system_call();
@@ -6985,7 +6985,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
     { pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
       pushSTACK(pathname);
       fehler(file_error,
-             DEUTSCH ? "Dateiname muß angegeben werden: ~" :
+             DEUTSCH ? "Dateiname muss angegeben werden: ~" :
              ENGLISH ? "no file name given: ~" :
              FRANCAIS ? "Un nom de fichier doit être fourni : ~" :
              ""
@@ -7071,7 +7071,7 @@ LISPFUNN(truename,1)
   { var object pathname = popSTACK(); # pathname-Argument
     if (streamp(pathname))
       # Stream -> extra behandeln:
-      { # muß File-Stream sein:
+      { # muss File-Stream sein:
         pathname = as_file_stream(pathname);
         test_file_stream_named(pathname);
         # Streamtyp File-Stream
@@ -7082,7 +7082,7 @@ LISPFUNN(truename,1)
         check_no_wildcards(pathname); # mit Wildcards -> Fehler
         pathname = use_default_dir(pathname); # Default-Directory einfügen
         pushSTACK(pathname);
-       {# Directory muß existieren:
+       {# Directory muss existieren:
         var object namestring = assure_dir_exists(FALSE,FALSE); # Filename als ASCIZ-String
         if (namenullp(STACK_0))
           # Kein Name angegeben
@@ -7115,7 +7115,7 @@ LISPFUNN(probe_file,1)
   { var object pathname = popSTACK(); # pathname-Argument
     if (streamp(pathname))
       # Stream -> extra behandeln:
-      { # muß File-Stream sein:
+      { # muss File-Stream sein:
         pathname = as_file_stream(pathname);
         test_file_stream_named(pathname);
         # Streamtyp File-Stream -> Truename nehmen:
@@ -7134,7 +7134,7 @@ LISPFUNN(probe_file,1)
     if (namenullp(pathname)) { fehler_noname(pathname); } # Kein Name angegeben -> Fehler
     # Name angegeben.
     pushSTACK(pathname);
-   {# Directory muß existieren:
+   {# Directory muss existieren:
     var object namestring = assure_dir_exists(FALSE,TRUE); # Filename als ASCIZ-String
     if (eq(namestring,nullobj))
       # Pfad zur Datei existiert nicht -> NIL als Wert:
@@ -7166,7 +7166,7 @@ LISPFUNN(probe_file,1)
               #endif
            ) )
           { var uintB* endptr = &TheSstring(dir_namestring)->data[Sstring_length(dir_namestring)-1];
-            *endptr = '\0'; # '\' am Schluß durch Nullbyte ersetzen
+            *endptr = '\0'; # '\' am Schluss durch Nullbyte ersetzen
            {var struct stat statbuf;
             begin_system_call();
             if (stat(TheAsciz(dir_namestring),&statbuf) < 0)
@@ -7183,7 +7183,7 @@ LISPFUNN(probe_file,1)
       #ifdef WIN32_NATIVE
         with_string_0(dir_namestring,path,
         { if (!nullp(Cdr(ThePathname(STACK_0)->pathname_directory)))
-            { path[Sstring_length(dir_namestring)-1] = '\0'; } # '\' am Schluß durch Nullbyte ersetzen
+            { path[Sstring_length(dir_namestring)-1] = '\0'; } # '\' am Schluss durch Nullbyte ersetzen
           begin_system_call();
          {var DWORD fileattr = GetFileAttributes(path);
           if (fileattr == 0xFFFFFFFF)
@@ -7200,7 +7200,7 @@ LISPFUNN(probe_file,1)
         );
       #endif
       #ifdef PATHNAME_AMIGAOS
-        dir_namestring = OSnamestring(dir_namestring); # ohne überflüssigen '/' am Schluß
+        dir_namestring = OSnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
         # Lock für dieses Directory holen:
         set_break_sem_4(); # Unterbrechungen währenddessen verhindern
         begin_system_call();
@@ -7249,7 +7249,7 @@ LISPFUNN(probe_file,1)
        {var struct stat statbuf;
         var uintL len = Sstring_length(dir_namestring);
         ASSERT((len > 0) && (TheSstring(dir_namestring)->data[len-1]=='.'));
-        TheSstring(dir_namestring)->data[len-1] = '\0'; # '.' am Schluß durch Nullbyte ersetzen
+        TheSstring(dir_namestring)->data[len-1] = '\0'; # '.' am Schluss durch Nullbyte ersetzen
         begin_system_call();
         if (stat(TheAsciz(dir_namestring),&statbuf) < 0)
           { if (!(errno==ENOENT)) { end_system_call(); OS_error(STACK_0); }
@@ -7330,7 +7330,7 @@ LISPFUNN(delete_file,1)
   { var object pathname = popSTACK(); # pathname-Argument
     if (streamp(pathname))
       # Stream -> extra behandeln:
-      { var object stream = as_file_stream(pathname); # muß File-Stream sein
+      { var object stream = as_file_stream(pathname); # muss File-Stream sein
         test_file_stream_named(stream);
         # Streamtyp File-Stream.
         # Falls Datei geöffnet, erst Datei schließen:
@@ -7347,7 +7347,7 @@ LISPFUNN(delete_file,1)
     if (namenullp(pathname)) { fehler_noname(pathname); } # Kein Name angegeben -> Fehler
     # Name angegeben.
     pushSTACK(pathname);
-   {# Directory muß existieren:
+   {# Directory muss existieren:
     var object namestring = assure_dir_exists(FALSE,TRUE); # Filename als ASCIZ-String
     if (eq(namestring,nullobj))
       # Pfad zur Datei existiert nicht -> Wert NIL
@@ -7412,7 +7412,7 @@ LISPFUNN(delete_file,1)
         if (namenullp(oldpathname)) { fehler_noname(oldpathname); } # Kein Name angegeben -> Fehler
         # Name angegeben.
         pushSTACK(oldpathname);
-       {# Directory muß existieren:
+       {# Directory muss existieren:
         var object old_namestring = assure_dir_exists(FALSE,FALSE); # Filename als ASCIZ-String
         if (openp(STACK_0)) { fehler_rename_open(STACK_0); } # Keine offenen Dateien umbenennen!
         pushSTACK(old_namestring);
@@ -7426,7 +7426,7 @@ LISPFUNN(delete_file,1)
         if (namenullp(newpathname)) { fehler_noname(newpathname); } # Kein Name angegeben -> Fehler
         # Name angegeben.
         pushSTACK(newpathname);
-       {# Directory muß existieren:
+       {# Directory muss existieren:
         var object new_namestring = assure_dir_exists(FALSE,FALSE); # Filename als ASCIZ-String
         pushSTACK(new_namestring);
       }}
@@ -7474,7 +7474,7 @@ LISPFUNN(rename_file,2)
   { var object filename = STACK_1; # filename-Argument
     if (streamp(filename))
       # Stream -> extra behandeln:
-      { # muß File-Stream sein:
+      { # muss File-Stream sein:
         filename = as_file_stream(filename);
         test_file_stream_named(filename);
         # Streamtyp File-Stream -> Truename verwenden:
@@ -7532,7 +7532,7 @@ LISPFUNN(rename_file,2)
       if (namenullp(filename)) { fehler_noname(filename); } # Kein Name angegeben -> Fehler
       pushSTACK(filename); # absPathname retten
       # Stackaufbau: Pathname, absPathname.
-      { # Directory muß existieren:
+      { # Directory muss existieren:
         var object namestring = # Filename als ASCIZ-String
           assure_dir_exists(FALSE,(direction == 0) && ((if_not_exists % 2) == 0)); # tolerant nur bei :PROBE und if_not_exists = 0 oder 2
         # Stackaufbau: Pathname, Truename.
@@ -7710,7 +7710,7 @@ LISPFUNN(rename_file,2)
                 if (if_exists==0) { if_exists = 5; }
                 #if defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM)
                 # Bei if_exists=5 und if_not_exists=3 kann man sofort
-                # CREAT ansteuern, sonst muß man vorher OPEN versuchen:
+                # CREAT ansteuern, sonst muss man vorher OPEN versuchen:
                 if (!((if_exists==5) && (if_not_exists==3)))
                   { begin_system_call();
                    {var sintW ergebnis = # Datei zu öffnen versuchen
@@ -7744,7 +7744,7 @@ LISPFUNN(rename_file,2)
                                 goto ergebnis_NIL;
                               }
                             case 6: # :APPEND
-                              append_flag = TRUE; # am Schluß ans Ende positionieren
+                              append_flag = TRUE; # am Schluss ans Ende positionieren
                             case 7: # :OVERWRITE -> bestehende Datei benutzen
                               setmode(ergebnis,O_BINARY);
                               end_system_call();
@@ -7907,7 +7907,7 @@ LISPFUNN(rename_file,2)
                           #endif
                           break;
                         case 6: # :APPEND
-                          append_flag = TRUE; # am Schluß ans Ende positionieren
+                          append_flag = TRUE; # am Schluss ans Ende positionieren
                         default: ;
                           # :OVERWRITE -> bestehende Datei benutzen
                           # :NEW-VERSION, :SUPERSEDE -> Datei auf Länge 0 kürzen.
@@ -7997,7 +7997,7 @@ LISPFUN(open,1,0,norest,key,5,\
 # (OPEN filename :direction :element-type :if-exists :if-does-not-exist :external-format)
   { var object filename = STACK_5; # filename
     if (streamp(filename))
-      { # muß File-Stream sein:
+      { # muss File-Stream sein:
         filename = as_file_stream(filename);
         test_file_stream_named(filename);
         # Streamtyp File-Stream -> Truename verwenden:
@@ -8044,7 +8044,7 @@ LISPFUN(open,1,0,norest,key,5,\
           if (eq(h,S(mod))) # (MOD n)
             { type = strmtype_iu_file;
               h = Car(Cdr(arg)); # n
-              # muß ein Integer >0 sein:
+              # muss ein Integer >0 sein:
               if (!(integerp(h) && positivep(h) && !eq(h,Fixnum_0)))
                 goto bad_eltype;
               # eltype_size := (integer-length (1- n)) bilden:
@@ -8226,7 +8226,7 @@ LISPFUN(open,1,0,norest,key,5,\
   #endif
   #
   # UP: Extrahiert Name und Typ aus dem DTA-Buffer.
-  # Es wird angenommen, daß Name und Typ aus zulässigen Großbuchstaben
+  # Es wird angenommen, dass Name und Typ aus zulässigen Großbuchstaben
   # bestehen und eine Länge <= 8 bzw. 3 haben.
   # > asciz: Adresse des ASCIZ-Strings im DTA-Buffer
   # > def: Default-Typ
@@ -8390,7 +8390,7 @@ LISPFUN(open,1,0,norest,key,5,\
       while
         # Stackaufbau: pathname, subdir-list, pathname-list.
         # Dabei enthalten die Pathnames aus pathname-list das Directory
-        # nur so tief, daß es danach mit (cdr subdir-list) weitergeht.
+        # nur so tief, dass es danach mit (cdr subdir-list) weitergeht.
         # Nächste subdir-Ebene abarbeiten:
         (consp (STACK_1 = Cdr(STACK_1))) # subdir-list verkürzen
         { # pathname-list durchgehen und dabei neue Liste aufbauen:
@@ -8672,7 +8672,7 @@ LISPFUN(open,1,0,norest,key,5,\
         # name&type = NIL oder Simple-String, gegen den die Filenamen zu matchen sind.
         # pathname-list = Liste der noch abzuarbeitenden Directories.
         # Dabei enthalten die Pathnames aus pathname-list das Directory
-        # nur so tief, daß es danach mit (cdr subdir-list) weitergeht.
+        # nur so tief, dass es danach mit (cdr subdir-list) weitergeht.
         { # Nächste subdir-Ebene abarbeiten:
           STACK_1 = Cdr(STACK_1); # subdir-list verkürzen
          {var signean next_task; # Was mit den Dirs aus pathname-list zu tun ist:
@@ -8954,7 +8954,7 @@ LISPFUN(open,1,0,norest,key,5,\
                  #ifdef RISCOS
                  var object wildcard_mask;
                  namestring = copy_string(STACK_0); # Directory-Name
-                 TheSstring(namestring)->data[Sstring_length(namestring)-1] = '\0'; # mit Nullbyte statt '.' am Schluß
+                 TheSstring(namestring)->data[Sstring_length(namestring)-1] = '\0'; # mit Nullbyte statt '.' am Schluss
                  # Statt wildcard_match() selber aufzurufen, überlassen wir das dem Betriebssystem:
                  pushSTACK(namestring); # retten
                  wildcard_mask = string_to_asciz(next_task<0 ? Car(STACK_(1+(1+H+2)+3)) : STACK_(2+(1+H+2)+3));
@@ -9515,7 +9515,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
     check_no_wildcards(pathname); # mit Wildcards -> Fehler
     pathname = use_default_dir(pathname); # absoluten Pathname draus machen
     pushSTACK(pathname);
-    assure_dir_exists(FALSE,FALSE); # Directory muß existieren
+    assure_dir_exists(FALSE,FALSE); # Directory muss existieren
     change_default(); # Default-Drive, Default-Directory setzen
     value1 = popSTACK(); mv_count=1; # neuer pathname als Wert
   }
@@ -9527,13 +9527,13 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
 # > resolve_links : Flag, ob Links aufgelöst werden müssen (normalerweise ja)
 # < -(STACK) : absoluter Pathname
 #if defined(MSDOS) || defined(WIN32_NATIVE)
-# < ergebnis: Directory-Namestring (fürs OS, ASCIZ, ohne '\' am Schluß)
+# < ergebnis: Directory-Namestring (fürs OS, ASCIZ, ohne '\' am Schluss)
 #endif
 #if defined(UNIX) || defined(AMIGAOS)
-# < ergebnis: Directory-Namestring (fürs OS, ASCIZ, ohne '/' am Schluß)
+# < ergebnis: Directory-Namestring (fürs OS, ASCIZ, ohne '/' am Schluss)
 #endif
 #if defined(RISCOS)
-# < ergebnis: Directory-Namestring (fürs OS, ASCIZ, ohne '.' am Schluß)
+# < ergebnis: Directory-Namestring (fürs OS, ASCIZ, ohne '.' am Schluss)
 #endif
 # Erniedrigt STACK um 1.
 # kann GC auslösen
@@ -9565,7 +9565,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
          }
        subdirs = reverse(subdirs); # Liste kopieren und dabei umdrehen
        #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_RISCOS)
-       if (eq(Car(subdirs),S(Kparent))) # letztes Subdir muß /= :PARENT sein
+       if (eq(Car(subdirs),S(Kparent))) # letztes Subdir muss /= :PARENT sein
          goto baddir;
        #endif
        pushSTACK(subdirs); # Cons mit letztem Subdir als CAR retten
@@ -9573,7 +9573,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
        subdirs = nreverse(subdirs); # wieder in die richtige Reihenfolge bringen
        pathname = STACK_1;
        ThePathname(pathname)->pathname_directory = subdirs; # und in den Pathname setzen
-       # Dieses Directory muß existieren:
+       # Dieses Directory muss existieren:
        pushSTACK(pathname);
        # Stackaufbau: pathname, subdircons, pathname.
        {var object dir_namestring =
@@ -9582,8 +9582,8 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
         STACK_0 = dir_namestring; # bisheriger Directory-Namestring als 1. String
         {var uintC stringcount =
            subdir_namestring_parts(STACK_1); # und Strings zum letzten Subdir
-         # und kein '\' am Schluß (fürs OS)
-         # und kein '/' am Schluß (fürs OS)
+         # und kein '\' am Schluss (fürs OS)
+         # und kein '/' am Schluss (fürs OS)
          pushSTACK(O(null_string)); # und Nullbyte als letzten String
          {var object dirstring = string_concat(1+stringcount+1); # zusammenhängen
           skipSTACK(1);
@@ -9920,7 +9920,7 @@ LISPFUNN(file_write_date,1)
     var object pathname = popSTACK(); # pathname-Argument
     if (streamp(pathname))
       # Stream -> extra behandeln:
-      { # muß File-Stream sein:
+      { # muss File-Stream sein:
         pathname = as_file_stream(pathname);
         # Streamtyp File-Stream
        #if !defined(AMIGAOS)
@@ -9977,7 +9977,7 @@ LISPFUNN(file_write_date,1)
         if (namenullp(pathname)) { fehler_noname(pathname); } # Kein Name angegeben -> Fehler
         # Name angegeben.
         pushSTACK(pathname);
-       {# Directory muß existieren:
+       {# Directory muss existieren:
         var object namestring = assure_dir_exists(FALSE,FALSE); # Filename als ASCIZ-String
         #ifdef MSDOS
          #if defined(DJUNIX) || defined(WATCOM)
@@ -9999,17 +9999,17 @@ LISPFUNN(file_write_date,1)
             if (stat(TheAsciz(namestring),&statbuf) < 0)
               { end_system_call(); OS_file_error(STACK_0); }
             end_system_call();
-            if (!S_ISREG(statbuf.st_mode)) { fehler_file_not_exists(); } # Datei muß existieren
+            if (!S_ISREG(statbuf.st_mode)) { fehler_file_not_exists(); } # Datei muss existieren
             file_datetime = statbuf.st_mtime;
           }
          #endif
         #endif
         #ifdef AMIGAOS
-        if (!file_exists(namestring)) { fehler_file_not_exists(); } # Datei muß existieren
+        if (!file_exists(namestring)) { fehler_file_not_exists(); } # Datei muss existieren
         file_datetime = filestatus->fib_Date;
         #endif
         #if defined(UNIX) || defined(RISCOS)
-        if (!file_exists(namestring)) { fehler_file_not_exists(); } # Datei muß existieren
+        if (!file_exists(namestring)) { fehler_file_not_exists(); } # Datei muss existieren
         file_datetime = filestatus->st_mtime;
         #endif
         #ifdef WIN32_NATIVE
@@ -10059,7 +10059,7 @@ LISPFUNN(file_author,1)
   { var object pathname = popSTACK(); # pathname-Argument
     if (streamp(pathname))
       # Stream -> extra behandeln:
-      { # muß File-Stream sein:
+      { # muss File-Stream sein:
         pathname = as_file_stream(pathname);
         # Streamtyp File-Stream
         if (TheStream(pathname)->strmflags & strmflags_open_B)
@@ -10081,7 +10081,7 @@ LISPFUNN(file_author,1)
         if (namenullp(pathname)) { fehler_noname(pathname); } # Kein Name angegeben -> Fehler
         # Name angegeben.
         pushSTACK(pathname);
-       {# Directory muß existieren:
+       {# Directory muss existieren:
         var object namestring = assure_dir_exists(FALSE,FALSE); # Filename als ASCIZ-String
         #ifdef MSDOS
          #if 1
@@ -10102,12 +10102,12 @@ LISPFUNN(file_author,1)
             if (stat(TheAsciz(namestring),&statbuf) < 0)
               { end_system_call(); OS_file_error(STACK_0); }
             end_system_call();
-            if (!S_ISREG(statbuf.st_mode)) { fehler_file_not_exists(); } # Datei muß existieren
+            if (!S_ISREG(statbuf.st_mode)) { fehler_file_not_exists(); } # Datei muss existieren
           }
          #endif
         #endif
         #if defined(UNIX) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
-        if (!file_exists(namestring)) { fehler_file_not_exists(); } # Datei muß existieren
+        if (!file_exists(namestring)) { fehler_file_not_exists(); } # Datei muss existieren
         #endif
         skipSTACK(1);
       }}
@@ -10130,7 +10130,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
       if (namenullp(pathname)) { fehler_noname(pathname); } # Kein Name angegeben -> Fehler
       # Name angegeben.
       pushSTACK(pathname);
-     {# Directory muß existieren:
+     {# Directory muss existieren:
       var object namestring = assure_dir_exists(FALSE,FALSE); # Filename als ASCIZ-String
       # Überprüfe, ob die Datei existiert:
       if (!file_exists(namestring)) { fehler_file_not_exists(); }
@@ -10221,21 +10221,21 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
          });
        *argvptr = NULL; # und mit Nullpointer abschließen
      }
-     # einen neuen Prozeß starten:
+     # einen neuen Prozess starten:
      { var int child;
        begin_system_call();
        begin_want_sigcld();
        if ((child = vfork()) ==0)
-         # Dieses Programmstück wird vom Child-Prozeß ausgeführt:
+         # Dieses Programmstück wird vom Child-Prozess ausgeführt:
          { execv(argv[0],argv); # Programm aufrufen
-           _exit(-1); # sollte dies mißlingen, Child-Prozeß beenden
+           _exit(-1); # sollte dies misslingen, Child-Prozess beenden
          }
        # Dieses Programmstück wird wieder vom Aufrufer ausgeführt:
        if (child==-1)
-         # Etwas ist mißlungen, entweder beim vfork oder beim execv.
+         # Etwas ist misslungen, entweder beim vfork oder beim execv.
          # In beiden Fällen wurde errno gesetzt.
          { end_want_sigcld(); OS_error(); }
-       # Warten, bis der Child-Prozeß beendet wird:
+       # Warten, bis der Child-Prozess beendet wird:
       {var int status = wait2(child);
        # vgl. WAIT(2V) und #include <sys/wait.h> :
        #   WIFSTOPPED(status)  ==  ((status & 0xFF) == 0177)
@@ -10244,7 +10244,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
        end_system_call();
        # Fertig.
        set_args_end_pointer(args_pointer); # STACK aufräumen
-       value1 = (((status & 0xFF) == 0000) # Prozeß normal beendet (ohne Signal, ohne Core-Dump) ?
+       value1 = (((status & 0xFF) == 0000) # Prozess normal beendet (ohne Signal, ohne Core-Dump) ?
                  ? # ja -> Exit-Status als Wert:
                    fixnum( (status & 0xFF00) >> 8)
                  : NIL # nein -> NIL als Wert
@@ -10271,7 +10271,7 @@ LISPFUN(execute,1,0,norest,nokey,0,NIL)
 #ifdef HAVE_SHELL
 
 # (SHELL) ruft eine Shell auf.
-# (SHELL command) ruft eine Shell auf und läßt sie ein Kommando ausführen.
+# (SHELL command) ruft eine Shell auf und lässt sie ein Kommando ausführen.
 
 #if defined(AMIGAOS)
 #include <dos/dostags.h>         # für SystemTags()
@@ -10314,7 +10314,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
             pushSTACK(command);
             pushSTACK(TheSubr(subr_self)->name);
             fehler(type_error,
-                   DEUTSCH ? "~: Befehl muß ein String sein, nicht ~." :
+                   DEUTSCH ? "~: Befehl muss ein String sein, nicht ~." :
                    ENGLISH ? "~: the command should be a string, not ~" :
                    FRANCAIS ? "~ : La commande doit être de type STRING et non ~." :
                    ""
@@ -10360,7 +10360,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
         pushSTACK(command);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Befehl muß ein String sein, nicht ~." :
+               DEUTSCH ? "~: Befehl muss ein String sein, nicht ~." :
                ENGLISH ? "~: the command should be a string, not ~" :
                FRANCAIS ? "~ : La commande doit être de type STRING et non ~." :
                ""
@@ -10414,7 +10414,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
       }
       else
       #if defined(MSDOS) || defined(RISCOS)
-      # Dem DOS-Kommandointerpreter muß man das Kommando bereits entlang
+      # Dem DOS-Kommandointerpreter muss man das Kommando bereits entlang
       # der Leerstellen in einzelne Teile zerlegt übergeben. Die Funktion
       # system() erledigt uns das zum Glück.
       { if (!stringp(command))
@@ -10423,7 +10423,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
             pushSTACK(command);
             pushSTACK(TheSubr(subr_self)->name);
             fehler(type_error,
-                   DEUTSCH ? "~: Befehl muß ein String sein, nicht ~." :
+                   DEUTSCH ? "~: Befehl muss ein String sein, nicht ~." :
                    ENGLISH ? "~: the command should be a string, not ~" :
                    FRANCAIS ? "~ : La commande doit être de type STRING et non ~." :
                    ""
@@ -10491,7 +10491,7 @@ LISPFUNN(savemem,1)
     funcall(L(open),3);
     #endif
     # Speicherabbild in die Datei schreiben:
-    # (Den Stream muß die Funktion savemem() schließen, auch im Fehlerfalle.)
+    # (Den Stream muss die Funktion savemem() schließen, auch im Fehlerfalle.)
     savemem(value1);
     value1 = T; mv_count=1; # 1 Wert T
   }

@@ -157,7 +157,7 @@
 (defun do/do*-expand (varclauselist exitclause body env do let psetq)
   (when (atom exitclause)
     (error-of-type 'source-program-error
-      (DEUTSCH "Exitclause in ~S muﬂ Liste sein."
+      (DEUTSCH "Exitclause in ~S muss Liste sein."
        ENGLISH "exit clause in ~S must be a list"
        FRANCAIS "La clause de sortie dans ~S doit Ítre une liste.")
       do
@@ -345,7 +345,7 @@
                        `(,(cond ((or (eq keys 'T) (eq keys 'OTHERWISE))
                                  (if remaining-clauses
                                    (error-of-type 'source-program-error
-                                     (DEUTSCH "~S: Die ~S-Klausel muﬂ die letzte sein."
+                                     (DEUTSCH "~S: Die ~S-Klausel muss die letzte sein."
                                       ENGLISH "~S: the ~S clause must be the last one"
                                       FRANCAIS "~S : La clause ~S doit Ítre la derniËre.")
                                      'case keys

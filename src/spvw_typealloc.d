@@ -431,8 +431,8 @@
 
 # UP, erzeugt Bruch
 # make_ratio(num,den)
-# > object num: Zähler (muß Integer /= 0 sein, relativ prim zu den)
-# > object den: Nenner (muß Integer > 1 sein)
+# > object num: Zähler (muss Integer /= 0 sein, relativ prim zu den)
+# > object den: Nenner (muss Integer > 1 sein)
 # < ergebnis: Bruch
 # kann GC auslösen
   global object make_ratio (object num, object den);
@@ -478,8 +478,8 @@
 
 # UP, erzeugt komplexe Zahl
 # make_complex(real,imag)
-# > real: Realteil (muß reelle Zahl sein)
-# > imag: Imaginärteil (muß reelle Zahl /= Fixnum 0 sein)
+# > real: Realteil (muss reelle Zahl sein)
+# > imag: Imaginärteil (muss reelle Zahl /= Fixnum 0 sein)
 # < ergebnis: komplexe Zahl
 # kann GC auslösen
   global object make_complex (object real, object imag);

@@ -358,7 +358,7 @@
                   }
               }
             elif (uexp == DF_exp_mid+1) # e=1 ?
-              # Wie bei 1 < e <= 52, nur daﬂ Bit 53-e stets gesetzt ist.
+              # Wie bei 1 < e <= 52, nur dass Bit 53-e stets gesetzt ist.
               { if ((x_ & bit(DF_mant_len-1)) ==0) # Bit 52-e =0 -> abrunden
                   # abrunden
                   { return allocate_dfloat( x_ & ~(bit(DF_mant_len)-1) ); }
@@ -371,7 +371,7 @@
                   }
               }
             else # e=0 ?
-              # Wie bei 1 < e <= 52, nur daﬂ Bit 52-e stets gesetzt
+              # Wie bei 1 < e <= 52, nur dass Bit 52-e stets gesetzt
               # und Bit 53-e stets gelˆscht ist.
               { if ((x_ & (bit(DF_mant_len)-1)) ==0)
                   # abrunden von +-0.5 zu 0.0
@@ -446,7 +446,7 @@
                   }
               }
             elif (uexp == DF_exp_mid+1) # e=1 ?
-              # Wie bei 1 < e <= 20, nur daﬂ Bit 53-e stets gesetzt ist.
+              # Wie bei 1 < e <= 20, nur dass Bit 53-e stets gesetzt ist.
               { if ((semhi & bit(DF_mant_len-32-1)) ==0) # Bit 52-e =0 -> abrunden
                   # abrunden
                   { return allocate_dfloat( semhi & ~(bit(DF_mant_len-32)-1) , 0 ); }
@@ -460,7 +460,7 @@
                   }
               }
             else # e=0 ?
-              # Wie bei 1 < e <= 20, nur daﬂ Bit 52-e stets gesetzt
+              # Wie bei 1 < e <= 20, nur dass Bit 52-e stets gesetzt
               # und Bit 53-e stets gelˆscht ist.
               { if ((mlo==0) && ((semhi & (bit(DF_mant_len-32)-1)) ==0))
                   # abrunden von +-0.5 zu 0.0
@@ -1549,7 +1549,7 @@
 # Methode:
 # x ganz -> klar.
 # x = +/- a/b mit Integers a,b>0:
-#   Seien n,m so gew‰hlt, daﬂ
+#   Seien n,m so gew‰hlt, dass
 #     2^(n-1) <= a < 2^n, 2^(m-1) <= b < 2^m.
 #   Dann ist 2^(n-m-1) < a/b < 2^(n-m+1).
 #   Berechne n=(integer-length a) und m=(integer-length b) und

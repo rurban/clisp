@@ -255,14 +255,14 @@
 ;-------------------------------------------------------------------------------
 (defun typecase-error-string (keyform typelist)
   (format nil
-    (DEUTSCH "Der Wert von ~S muß einem der Typen ~{~S~^, ~} angehören."
+    (DEUTSCH "Der Wert von ~S muss einem der Typen ~{~S~^, ~} angehören."
      ENGLISH "The value of ~S must be of one of the types ~{~S~^, ~}"
      FRANCAIS "La valeur de ~S doit appartenir à l'un des types ~{~S~^, ~}.")
     keyform typelist
 ) )
 (defun case-error-string (keyform caselist)
   (format nil
-    (DEUTSCH "Der Wert von ~S muß einer der folgenden sein: ~{~S~^, ~}"
+    (DEUTSCH "Der Wert von ~S muss einer der folgenden sein: ~{~S~^, ~}"
      ENGLISH "The value of ~S must be one of ~{~S~^, ~}"
      FRANCAIS "La valeur de ~S doit être l'une des suivantes : ~{~S~^, ~}")
     keyform caselist
@@ -368,7 +368,7 @@
 (defmacro deftype (name lambdalist &body body &environment env)
   (unless (symbolp name)
     (error-of-type 'source-program-error
-      (DEUTSCH "Typname muß ein Symbol sein, nicht ~S"
+      (DEUTSCH "Typname muss ein Symbol sein, nicht ~S"
        ENGLISH "type name should be a symbol, not ~S"
        FRANCAIS "Le type doit être un symbole et non ~S")
       name

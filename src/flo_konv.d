@@ -483,7 +483,7 @@
             { fehler_overflow(); } # Infinity, Overflow
         }
       else
-        { # Der Exponent muß um FF_exp_mid-126 erhöht werden.
+        { # Der Exponent muss um FF_exp_mid-126 erhöht werden.
           if ((FF_exp_mid>126) && (exp > FF_exp_high-FF_exp_mid+126))
             { fehler_overflow(); } # Overflow
           val += (FF_exp_mid - 126) << FF_mant_len;
@@ -497,7 +497,7 @@
     var object obj;
     var ffloatjanus* val_;
     { var ffloat val = ffloat_value(obj);
-      # Der Exponent muß um FF_exp_mid-126 erniedrigt werden.
+      # Der Exponent muss um FF_exp_mid-126 erniedrigt werden.
       if (FF_exp_mid>126)
         { var uintBWL exp = (val >> FF_mant_len) & (bit(FF_exp_len)-1); # e
           if (exp < FF_exp_mid-126+1)
@@ -548,7 +548,7 @@
             { fehler_overflow(); } # Infinity, Overflow
         }
       else
-        { # Der Exponent muß um DF_exp_mid-1022 erhöht werden.
+        { # Der Exponent muss um DF_exp_mid-1022 erhöht werden.
           if ((DF_exp_mid>1022) && (exp > DF_exp_high-DF_exp_mid+1022))
             { fehler_overflow(); } # Overflow
           val += (sint64)(DF_exp_mid - 1022) << DF_mant_len;
@@ -570,7 +570,7 @@
             { fehler_overflow(); } # Infinity, Overflow
         }
       else
-        { # Der Exponent muß um DF_exp_mid-1022 erhöht werden.
+        { # Der Exponent muss um DF_exp_mid-1022 erhöht werden.
           if ((DF_exp_mid>1022) && (exp > DF_exp_high-DF_exp_mid+1022))
             { fehler_overflow(); } # Overflow
           val.semhi += (sint32)(DF_exp_mid - 1022) << (DF_mant_len-32);
@@ -586,7 +586,7 @@
     var object obj;
     var dfloatjanus* val_;
     { var dfloat val; val = TheDfloat(obj)->float_value;
-      # Der Exponent muß um DF_exp_mid-1022 erniedrigt werden.
+      # Der Exponent muss um DF_exp_mid-1022 erniedrigt werden.
       if (DF_exp_mid>1022)
         #ifdef intQsize
         { var uintWL exp = (val >> DF_mant_len) & (bit(DF_exp_len)-1); # e

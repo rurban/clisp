@@ -89,7 +89,7 @@
 # UP: Bestimmt die Länge einer Liste
 # llength(obj)
 # > obj: Objekt
-# < uintL ergebnis: Länge von obj, als Liste aufgefaßt
+# < uintL ergebnis: Länge von obj, als Liste aufgefasst
 # Testet nicht auf zyklische Listen.
   global uintL llength (object obj);
   global uintL llength(list)
@@ -505,7 +505,7 @@ LISPFUNN(list_length,1) # (LIST-LENGTH list), CLTL S. 265
 
 LISPFUNN(nth,2) # (NTH integer list), CLTL S. 265
   { var object list = popSTACK();
-    if (posfixnump(STACK_0)) # integer muß ein Fixnum >=0 sein
+    if (posfixnump(STACK_0)) # integer muss ein Fixnum >=0 sein
       { var uintL count = posfixnum_to_L(popSTACK()); # Wert des Fixnum
         # count mal den CDR von list nehmen:
         dotimesL(count,count, { list = cdr(list); } );
@@ -551,7 +551,7 @@ LISPFUNN(rest,1) # (REST list), CLTL S. 266
 
 LISPFUNN(nthcdr,2) # (NTHCDR integer list), CLTL S. 267
   { var object list = popSTACK();
-    if (posfixnump(STACK_0)) # integer muß ein Fixnum >=0 sein
+    if (posfixnump(STACK_0)) # integer muss ein Fixnum >=0 sein
       { var uintL count = posfixnum_to_L(popSTACK()); # Wert des Fixnum
         # count mal den CDR von list nehmen:
         dotimesL(count,count, { list = cdr(list); } );
@@ -712,7 +712,7 @@ LISPFUN(append,0,0,rest,nokey,0,NIL) # (APPEND {list}), CLTL S. 268
             list1 = STACK_0; # vorne anzuhängendes Argument
             STACK_0 = list2; # bisherige Gesamtliste wieder stacken
            }
-            # list1 muß Liste sein:
+            # list1 muss Liste sein:
             if (atomp(list1))
               if (nullp(list1))
                 ; # falls list1=NIL: (append nil x) = x, nichts tun
@@ -1308,7 +1308,7 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
     }
 
 # UP: Ersetzt im Baum tree alle x durch ihr ALIST-Abbild (mittels ASSOC):
-# x wird durch das erste v ersetzt, so daß (u . v) in ALIST vorkommt und
+# x wird durch das erste v ersetzt, so dass (u . v) in ALIST vorkommt und
 # (KEY x) und u der TESTFUNktion genügen. Konstruktiv.
 # sublis(tree,stackptr)
 # > tree: Baum
@@ -1374,7 +1374,7 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   }}  }
 
 # UP: Ersetzt im Baum tree alle x durch ihr ALIST-Abbild (mittels ASSOC):
-# x wird durch das erste v ersetzt, so daß (u . v) in ALIST vorkommt und
+# x wird durch das erste v ersetzt, so dass (u . v) in ALIST vorkommt und
 # (KEY x) und u der TESTFUNktion genügen. Destruktiv.
 # nsublis(tree,stackptr)
 # > tree: Baum
@@ -1539,7 +1539,7 @@ LISPFUN(adjoin,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     pushSTACK(L(adjoin)); # Aufrufer
     # Stackaufbau: (key item), list, test, test-not, key, item, #'adjoin.
     if (nullp(member(STACK_5,&STACK_3,up_fun))) # Suche durchführen
-      # item noch nicht in list gefunden: muß consen
+      # item noch nicht in list gefunden: muss consen
       { var object new_cons = allocate_cons();
         Cdr(new_cons) = STACK_5; # = list
         Car(new_cons) = STACK_1; # = item

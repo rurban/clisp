@@ -88,7 +88,7 @@ LISPFUNN(putd,2)
   { var object symbol = STACK_1;
     if (!symbolp(symbol)) { fehler_symbol(symbol); }
    {var object fun = STACK_0;
-    # fun muﬂ SUBR, FSUBR, Closure oder (SYS::MACRO . Closure) sein,
+    # fun muss SUBR, FSUBR, Closure oder (SYS::MACRO . Closure) sein,
     # Lambda-Ausdruck wird sofort in eine Closure umgewandelt:
     if (subrp(fun) || closurep(fun) || fsubrp(fun)) goto ok;
     elif (consp(fun)) # ein Cons?

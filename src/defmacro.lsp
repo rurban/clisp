@@ -548,7 +548,7 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
                 (cadr listr)
             ) )
             (error-of-type 'source-program-error
-              (DEUTSCH "In der Lambdaliste des Macros ~S muß nach &ENVIRONMENT ein Symbol (nicht NIL) folgen: ~S"
+              (DEUTSCH "In der Lambdaliste des Macros ~S muss nach &ENVIRONMENT ein Symbol (nicht NIL) folgen: ~S"
                ENGLISH "In the lambda list of macro ~S, &ENVIRONMENT must be followed by a non-NIL symbol: ~S"
                FRANCAIS "Dans la lambda-liste du macro ~S, &ENVIRONMENT doit être suivi par un symbole autre que NIL : ~S")
               name lambdalist
@@ -579,7 +579,7 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
       ) )
       (unless (symbolp (car macrodef))
         (error-of-type 'source-program-error
-          (DEUTSCH "Der Name eines Macros muß ein Symbol sein, nicht: ~S"
+          (DEUTSCH "Der Name eines Macros muss ein Symbol sein, nicht: ~S"
            ENGLISH "The name of a macro must be a symbol, not ~S"
            FRANCAIS "Le nom d'un macro doit être un symbole et non ~S")
           (car macrodef)

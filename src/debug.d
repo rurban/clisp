@@ -174,7 +174,7 @@
     eof: # bei EOF angelangt
     pushSTACK(STACK_3); pushSTACK(STACK_(0+1)); funcall(L(terminal_raw),2);
     # (clear-input istream) ausführen (um bei interaktivem Stream das EOF zu
-    # schlucken: das fortzusetzende Programm könnte das EOF mißverstehen):
+    # schlucken: das fortzusetzende Programm könnte das EOF missverstehen):
     clear_input(STACK_3);
     value1 = value2 = T; mv_count=2; # T, T als Werte
     skipSTACK(3); return;
@@ -182,7 +182,7 @@
 
 # (SYS::READ-FORM prompt [commandlist])
 # liest eine Form (interaktiv) von *standard-input*.
-# prompt muß ein String sein.
+# prompt muss ein String sein.
 # Statt einer Form kann auch eine Sondertaste aus commandlist (eine frische
 # Aliste) oder SYS::*KEY-BINDINGS* eingegeben werden.
 # Werte: form, NIL oder (bei EOF) T, T
@@ -191,7 +191,7 @@ LISPFUN(read_form,1,1,norest,nokey,0,NIL)
 
 # (SYS::READ-EVAL-PRINT prompt [commandlist])
 # liest eine Form, wertet sie aus und gibt die Werte aus.
-# prompt muß ein String sein.
+# prompt muss ein String sein.
 # Statt einer Form kann auch eine Sondertaste aus commandlist (eine frische
 # Aliste) oder SYS::*KEY-BINDINGS* eingegeben werden.
 # Werte: NIL oder (bei Sondertaste oder EOF) T

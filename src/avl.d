@@ -35,7 +35,7 @@
 # Dann ist avl.c zu includen.
 # Dann kann ein eigener struct-Typ NODE definiert werden:
 #   typedef struct NODE { ...; NODEDATA nodedata; ...; } NODE;
-#   #define HAVE_NODE  # nur zum Anzeigen, daß NODE definiert wurde
+#   #define HAVE_NODE  # nur zum Anzeigen, dass NODE definiert wurde
 # Dann ist avl.c abermals zu includen.
 # Werden einige der Macros NO_AVL_MEMBER, NO_AVL_INSERT[1], NO_AVL_DELETE[1],
 # NO_AVL_LEAST, NO_AVL_MOVE, NO_AVL_SORT definiert, so werden die
@@ -106,8 +106,8 @@
 #    forall x in node.right : COMPARE(KEYOF(x.value),KEYOF(node.value)) >= 0.
 # Ein AVL-Baum der Höhe h hat also mindestens F_(h+2) [Fibonacci-Zahl] und
 # höchstens 2^h - 1 Elemente. Also h<=41 (denn ein Baum mit Höhe h>=42 hätte
-# mindestens F_44 Elemente, und wegen sizeof(NODE) * F_44 > 2^32 paßt das
-# in keinen 32-Bit-Adreßraum.) Daher reicht auch ein uintB für HEIGHT.
+# mindestens F_44 Elemente, und wegen sizeof(NODE) * F_44 > 2^32 passt das
+# in keinen 32-Bit-Adressraum.) Daher reicht auch ein uintB für HEIGHT.
 
 # Stellt fest, ob in einem Baum ein Element mit einem gegebenen Key vorkommt.
 #ifndef NO_AVL_MEMBER0
@@ -130,7 +130,7 @@
 #endif
 
 # Stellt fest, ob in einem Baum ein Element vorkommt.
-# Setzt voraus, daß keine zwei Elemente mit demselben Key im Baum vorkommen.
+# Setzt voraus, dass keine zwei Elemente mit demselben Key im Baum vorkommen.
 #ifndef NO_AVL_MEMBER
   local NODE* AVL(AVLID,member) (ELEMENT element, NODE * tree);
   local NODE* AVL(AVLID,member) (element,tree)
@@ -306,7 +306,7 @@
 #endif
 
 # Entfernt ein Element aus einem AVL-Baum und liefert den neuen AVL-Baum.
-# Setzt voraus, daß keine zwei Elemente mit demselben Key im Baum vorkommen.
+# Setzt voraus, dass keine zwei Elemente mit demselben Key im Baum vorkommen.
 #ifndef NO_AVL_DELETE
   local NODE* AVL(AVLID,delete) (ELEMENT value, NODE* tree);
   local NODE* AVL(AVLID,delete) (value,tree)

@@ -2477,15 +2477,15 @@ else
           # echotab "strip lisp"
           # emx-Option -p h‰lt das untere Megabyte frei, damit EXECUTE geht.
           #   Bei lisp_1mb.exe nutzen wir dagegen soviel RAM wie mˆglich.
-          # emx-Option -C0 bewirkt, daﬂ malloc() bei fehlendem Speicher und
+          # emx-Option -C0 bewirkt, dass malloc() bei fehlendem Speicher und
           #   Plattenplatz NULL liefert, statt es sp‰ter auf einen Programm-Ausstieg
           #   wegen "Out of swap space" ankommen zu lassen.
-          # emx-Option -aim bewirkt, daﬂ der Zugriff auf die Grafikkarte und
+          # emx-Option -aim bewirkt, dass der Zugriff auf die Grafikkarte und
           #   den Bildschirmspeicher funktioniert.
           echotab "emxbind -q \$(EMX) lisp lisp${LEXE} -p -C0 -aim"
           echotab "emxbind -q \$(EMX) lisp lisp_1mb${LEXE} -C0 -aim"
         else
-          # emx-Option -acmi bewirkt, daﬂ unter DOS der Zugriff auf den Bildschirm-
+          # emx-Option -acmi bewirkt, dass unter DOS der Zugriff auf den Bildschirm-
           #   speicher und die Grafikkarten-Ports funktioniert.
           echotab "emxbind -q \$(EMX) lisp lisp${LEXE} -p -acmi"
           # Strippen darf man wegen -lvideo erst hinterher.

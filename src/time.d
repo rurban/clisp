@@ -176,7 +176,7 @@
       run_flag = FALSE; # Run-Time-Stoppuhr steht
     }
 
-# UP: Läßt die Run-Time-Stoppuhr weiterlaufen
+# UP: Lässt die Run-Time-Stoppuhr weiterlaufen
 # run_time_restart();
   global void run_time_restart (void);
   global void run_time_restart()
@@ -472,7 +472,7 @@
     var decoded_time* timepoint;
     { begin_system_call();
      {var struct tm * tm = localtime(time); # decodieren
-      # (Das Zeitformat des Systems muß auch das System auseinandernehmen.)
+      # (Das Zeitformat des Systems muss auch das System auseinandernehmen.)
       end_system_call();
       if (!(tm==NULL))
         # localtime war erfolgreich
@@ -789,7 +789,7 @@ LISPFUN(default_time_zone,0,1,norest,nokey,0,NIL)
       now_gm = *(gmtime(&now));
       end_system_call();
       # secondswest = mktime(now_gm) - mktime(now_local); wäre schön.
-      # mktime() ist allerdings nicht weit verbreitet. Unter SunOS4 müßte man
+      # mktime() ist allerdings nicht weit verbreitet. Unter SunOS4 müsste man
       # timegm() nehmen. Daher tun wir's selber:
      {var sintL dayswest = # Tage-Differenz, kann als 0,1,-1 angenommen werden
         (now_gm.tm_year < now_local.tm_year ? -1 :
@@ -877,7 +877,7 @@ LISPFUNN(get_internal_real_time,0)
 LISPFUNN(sleep,1)
 #if defined(TIME_MSDOS) || defined(RISCOS)
 # (SYSTEM::%SLEEP delay) wartet delay/200 bzw. delay/100 Sekunden.
-# Argument delay muß ein Integer >=0, <2^32 (TIME_MSDOS: sogar <2^31) sein.
+# Argument delay muss ein Integer >=0, <2^32 (TIME_MSDOS: sogar <2^31) sein.
   { var uintL delay = I_to_UL(popSTACK()); # Pausenlänge
     #ifdef EMUNIX_PORTABEL
     if (TRUE)
@@ -914,7 +914,7 @@ LISPFUNN(sleep,1)
 #endif
 #ifdef TIME_AMIGAOS
 # (SYSTEM::%SLEEP delay) wartet delay/50 Sekunden.
-# Argument delay muß ein Integer >=0, <2^32 sein.
+# Argument delay muss ein Integer >=0, <2^32 sein.
   { var uintL delay = I_to_UL(popSTACK()); # Pausenlänge
     if (delay>0) { begin_system_call(); Delay(delay); end_system_call(); }
     value1 = NIL; mv_count=1; # 1 Wert NIL
@@ -942,8 +942,8 @@ LISPFUNN(sleep,2)
 #if defined(TIME_UNIX) || defined(TIME_UNIX_TIMES)
 # (SYSTEM::%SLEEP delay-seconds delay-useconds) wartet
 # delay-seconds Sekunden und delay-useconds Mikrosekunden.
-# Argument delay-seconds muß ein Fixnum >=0, <=16700000 sein,
-# Argument delay-useconds muß ein Fixnum >=0, <=1000000 sein.
+# Argument delay-seconds muss ein Fixnum >=0, <=16700000 sein,
+# Argument delay-useconds muss ein Fixnum >=0, <=1000000 sein.
   { var uintL useconds = posfixnum_to_L(popSTACK());
     var uintL seconds = posfixnum_to_L(popSTACK());
     begin_system_call();
@@ -999,8 +999,8 @@ LISPFUNN(sleep,2)
 #ifdef TIME_WIN32
 # (SYSTEM::%SLEEP delay-seconds delay-mseconds) wartet
 # delay-seconds Sekunden und delay-mseconds Millisekunden.
-# Argument delay-seconds muß ein Fixnum >=0, <=4290000 sein,
-# Argument delay-useconds muß ein Fixnum >=0, <=1000 sein.
+# Argument delay-seconds muss ein Fixnum >=0, <=4290000 sein,
+# Argument delay-useconds muss ein Fixnum >=0, <=1000 sein.
   { var uintL mseconds = posfixnum_to_L(popSTACK());
     var uintL seconds = posfixnum_to_L(popSTACK());
     begin_system_call();

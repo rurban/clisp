@@ -37,7 +37,7 @@ LISPFUN(version,0,1,norest,nokey,0,NIL)
           { value1 = NIL; mv_count=0; }
           else
           { fehler(error,
-                   DEUTSCH ? "Dieses File stammt von einer anderen Lisp-Version, muß neu compiliert werden." :
+                   DEUTSCH ? "Dieses File stammt von einer anderen Lisp-Version, muss neu compiliert werden." :
                    ENGLISH ? "This file was produced by another lisp version, must be recompiled." :
                    FRANCAIS ? "Ce fichier provient d'une autre version de LISP et doit être recompilé." :
                    ""
@@ -209,7 +209,7 @@ LISPFUNN(machine_instance,0)
                   pushSTACK(value1);
                   pushSTACK(asciz_to_string(".")); # und ein Punkt als Trennung
                   );
-                STACK_0 = asciz_to_string("]"); # kein Punkt am Schluß
+                STACK_0 = asciz_to_string("]"); # kein Punkt am Schluss
                 stringcount += (2*h->h_length + 1);
               }}
             # Strings zusammenhängen:

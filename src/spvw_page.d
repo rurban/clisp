@@ -106,7 +106,7 @@ typedef NODE Page;
   #else
     #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX))
       # Alle Adressen liegen zwischen 1*2^32 und 2*2^32. Also faktisch doch
-      # nur ein Adreﬂraum von 2^32.
+      # nur ein Adressraum von 2^32.
       #define oint_addr_relevant_len  32
     #endif
   #endif

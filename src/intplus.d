@@ -1,7 +1,7 @@
 # Addition/Subtraktion von Integers
 
 # Macro: In der DS MSDptr/len/LSDptr wird eine 1 unterhalb des Pointers ptr
-# addiert. Unterhalb von MSDptr muﬂ 1 Digit Platz sein.
+# addiert. Unterhalb von MSDptr muss 1 Digit Platz sein.
 # Dabei ist  ptr - MSDptr = count  und  0 < count <= len .
 # Eventuell wird MSDptr erniedrigt und len erhˆht.
   #define DS_1_plus(ptr,count)  \
@@ -12,7 +12,7 @@
                 *(--ptr_from_DS_1_plus) += 1;                       \
                 # jetzt ist ptr_from_DS_1_plus = MSDptr             \
                 if (*ptr_from_DS_1_plus == bit(intDsize-1))         \
-                  { # 7FFF + 1 muﬂ zu 00008000 werden:              \
+                  { # 7FFF + 1 muss zu 00008000 werden:             \
                     *--MSDptr = 0;                                  \
                     len++; if (uintWCoverflow(len)) BN_ueberlauf(); \
                   }                                                 \
@@ -23,7 +23,7 @@
     }     }
 
 # Macro: In der DS MSDptr/len/LSDptr wird eine 1 unterhalb des Pointers ptr
-# subtrahiert. Unterhalb von MSDptr muﬂ 1 Digit Platz sein.
+# subtrahiert. Unterhalb von MSDptr muss 1 Digit Platz sein.
 # Dabei ist  ptr - MSDptr = count  und  0 < count <= len .
 # Eventuell wird MSDptr erniedrigt und len erhˆht.
   #define DS_minus1_plus(ptr,count)  \
@@ -34,7 +34,7 @@
                 *(--ptr_from_DS_minus1_plus) -= 1;                   \
                 # jetzt ist ptr_from_DS_minus1_plus = MSDptr         \
                 if (*ptr_from_DS_minus1_plus == (uintD)bit(intDsize-1)-1) \
-                  { # 8000 - 1 muﬂ zu FFFF7FFF werden:               \
+                  { # 8000 - 1 muss zu FFFF7FFF werden:              \
                     *--MSDptr = (uintD)(-1);                         \
                     len++; if (uintWCoverflow(len)) BN_ueberlauf();  \
                   }                                                  \

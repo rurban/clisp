@@ -835,8 +835,8 @@
       # Da z=x+iy weder reell noch rein imaginär ist, ist auch
       # w := z/(1+sqrt(1+z^2)) weder reell noch rein imaginär.
       # (Beweis: Sollte sqrt(1+z^2) rationalen Real- und Imaginärteil haben,
-      # so auch z, also auch w, und die Formel z = 2w/(1-w^2) zeigt, daß dann
-      # z reell oder rein imaginär sein müßte. Also hat sqrt(1+z^2) ein
+      # so auch z, also auch w, und die Formel z = 2w/(1-w^2) zeigt, dass dann
+      # z reell oder rein imaginär sein müsste. Also hat sqrt(1+z^2) ein
       # Float als Real- oder Imaginärteil, das Betragsquadrat des Nenners
       # ist also ein Float, und da Real- und Imaginärteil von z /=0 sind,
       # sind Real- und Imaginärteil von w Floats.)

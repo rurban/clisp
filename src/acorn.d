@@ -105,7 +105,7 @@
   #elif defined(SIGWINCH) # Ensure we know how to block signals if SIGWINCH defined
     #error "Wie blockiert man Signale?"
   #endif
-  # Das Signal, das man bekommt, wenn ein Tochterprozeﬂ beendet wird: SIGCLD
+  # Das Signal, das man bekommt, wenn ein Tochterprozess beendet wird: SIGCLD
   #if defined(SIGCHLD) && !defined(SIGCLD)
     #define SIGCLD  SIGCHLD
   #endif

@@ -40,7 +40,7 @@ typedef Page Pages;
 # um auf diese Seite nicht zugreifen zu müssen, welche Pointer auf Objekte
 # der neuen Generation diese enthält.
 # Solange man auf die Seite nicht schreibend zugreift, bleibt diese Information
-# aktuell. Nachdem man auf die Seite aber schreibend zugegriffen hat, muß man
+# aktuell. Nachdem man auf die Seite aber schreibend zugegriffen hat, muss man
 # diese Information bei der nächsten GC neu erstellen. Dies sollte man aber
 # machen, ohne auf die Seite davor oder danach zugreifen zu müssen.
 typedef struct { object* p; # Adresse des Pointers, innerhalb eines alten Objekts

@@ -141,7 +141,7 @@
                 ))
         )) )
         (t (error-of-type 'source-program-error
-             (DEUTSCH "Das Argument muß eine 'SETF-place' sein, ist aber keine: ~S"
+             (DEUTSCH "Das Argument muss eine 'SETF-place' sein, ist aber keine: ~S"
               ENGLISH "Argument ~S is not a SETF place."
               FRANCAIS "L'argument ~S doit représenter une place modifiable.")
              form
@@ -230,7 +230,7 @@
                                 &environment env)
   (unless (symbolp accessfn)
     (error-of-type 'source-program-error
-      (DEUTSCH "Der Name der Access-Function muß ein Symbol sein und nicht ~S."
+      (DEUTSCH "Der Name der Access-Function muss ein Symbol sein und nicht ~S."
        ENGLISH "The name of the access function must be a symbol, not ~S"
        FRANCAIS "Le nom de la fonction d'accès doit être un symbole et non ~S.")
       accessfn
@@ -308,7 +308,7 @@
                        (cdr args)
                      )
                      (error-of-type 'source-program-error
-                       (DEUTSCH "Der Dok.-String zu DEFSETF muß ein String sein: ~S"
+                       (DEUTSCH "Der Dok.-String zu DEFSETF muss ein String sein: ~S"
                         ENGLISH "The doc string to DEFSETF must be a string: ~S"
                         FRANCAIS "La documentation pour DEFSETF doit être un chaîne : ~S")
                        (second args)
@@ -320,7 +320,7 @@
         ((and (consp args) (listp (first args)) (consp (cdr args)) (listp (second args)))
          (when (null (second args))
            (error-of-type 'source-program-error
-             (DEUTSCH "Bei DEFSETF muß mindestens eine 'Store-Variable' angegeben werden."
+             (DEUTSCH "Bei DEFSETF muss mindestens eine 'Store-Variable' angegeben werden."
               ENGLISH "Missing store variable in DEFSETF."
               FRANCAIS "Une variable de résultat doit être précisée dans DEFSETF.")))
          (multiple-value-bind (body-rest declarations docstring)
@@ -945,7 +945,7 @@
       (get-setf-expansion (cons fun args) env)
     (unless (eq (car (last args)) (car (last SM2)))
       (error-of-type 'source-program-error
-        (DEUTSCH "APPLY von ~S kann nicht als 'SETF-Place' aufgefaßt werden."
+        (DEUTSCH "APPLY von ~S kann nicht als 'SETF-Place' aufgefasst werden."
          ENGLISH "APPLY on ~S is not a SETF place."
          FRANCAIS "APPLY de ~S ne peux pas être considéré comme une place modifiable.")
         fun

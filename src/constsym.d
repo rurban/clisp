@@ -25,7 +25,7 @@
   #define LISPSYM_C(name,printname,package)  printname,
   #define LISPSYM_D(name,printname,package)  (uintB)enum_##package##_index,
 
-# Welcher Expander benutzt wird, muß vom Hauptfile aus eingestellt werden.
+# Welcher Expander benutzt wird, muss vom Hauptfile aus eingestellt werden.
 
 
 LISPSYM(nil,"NIL",lisp)
@@ -1117,7 +1117,7 @@ LISPSYM(coerce_to_condition,"COERCE-TO-CONDITION",system) # als Funktion für ERR
 LISPSYM(cerror,"CERROR",lisp) # als Funktion für ERROR
 LISPSYM(break_on_signals,"*BREAK-ON-SIGNALS*",lisp) # als Variable für ERROR
 LISPSYM(safe_typep,"SAFE-TYPEP",system) # als Funktion für ERROR
-LISPSYM(completion,"COMPLETION",system) # als Funktion in STREAM, für den Fall, daß GNU_READLINE benutzt wird
+LISPSYM(completion,"COMPLETION",system) # als Funktion in STREAM, für den Fall, dass GNU_READLINE benutzt wird
 #ifdef KEYBOARD
 LISPSYM(Kchar,"CHAR",keyword) # als make-input-character-Argument für STREAM
 LISPSYM(Kbits,"BITS",keyword) # als make-input-character-Argument für STREAM

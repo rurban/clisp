@@ -387,7 +387,7 @@ LISPFUNN(subr_info,1)
                     # DRIVER_FRAME liegt vor
                     {
                       #ifdef HAVE_NUM_STACK
-                      # NUM_STACK_normal muﬂ wieder den Wert bekommen, den es vor
+                      # NUM_STACK_normal muss wieder den Wert bekommen, den es vor
                       # Aufbau des Driver-Frames hatte:
                       NUM_STACK =
                       NUM_STACK_normal =
@@ -746,7 +746,7 @@ LISPFUNN(subr_info,1)
            && eq(*(bindingsptr STACKop 0),fixnum(bit(active_bit))) # und aktiv und statisch? \
           )
       #else
-      var object cmp = as_object(as_oint(sym) | wbit(active_bit_o)); # zum Vergleich: Bindung muﬂ aktiv sein
+      var object cmp = as_object(as_oint(sym) | wbit(active_bit_o)); # zum Vergleich: Bindung muss aktiv sein
         #define binds_sym_p(bindptr) # Bindet die Bindung bei bindptr das Symbol sym? \
           (eq(*(bindingsptr STACKop 0),cmp)) # richtiges Symbol und aktiv und statisch?
       #endif
@@ -826,7 +826,7 @@ LISPFUNN(subr_info,1)
            && eq(*(bindingsptr STACKop 0),fixnum(bit(active_bit))) # und aktiv und statisch? \
           )
       #else
-      var object cmp = as_object(as_oint(sym) | wbit(active_bit_o)); # zum Vergleich: Bindung muﬂ aktiv sein
+      var object cmp = as_object(as_oint(sym) | wbit(active_bit_o)); # zum Vergleich: Bindung muss aktiv sein
         #define binds_sym_p(bindptr) # Bindet die Bindung bei bindptr das Symbol sym? \
           (eq(*(bindingsptr STACKop 0),cmp)) # richtiges Symbol und aktiv und statisch?
       #endif
@@ -1367,7 +1367,7 @@ LISPFUNN(subr_info,1)
                   }   }
                 elif (symbolp(fdef))
                   # fdef ein Symbol
-                  { # Muﬂ zu (SYS::%FUNCALL fdef ...) expandieren:
+                  { # Muss zu (SYS::%FUNCALL fdef ...) expandieren:
                     pushSTACK(Cdr(form)); # (cdr form)
                     pushSTACK(fdef); # Symbol
                    {var object new_cons = allocate_cons();
@@ -1470,7 +1470,7 @@ LISPFUNN(subr_info,1)
                # Das war einmal eine schˆne Optimierung, die zweimaliges
                # Macroexpandieren vermied. Leider ist sie nicht mehr sicher,
                # denn bei (FUNCTION (LAMBDA ...)), LET, LET*, MULTIPLE-VALUE-BIND
-               # wird das ‰uﬂere(!) Variablen-Environment ¸bergeben, so daﬂ in
+               # wird das ‰uﬂere(!) Variablen-Environment ¸bergeben, so dass in
                # (SYMBOL-MACROLET ((X Y)) (LET ((X (FOO))) (SETF X ...) ...))
                # der SETF-Macro ein verkehrtes venv ¸bergeben bek‰me und zu
                # (SETQ Y ...) expandieren w¸rde.
@@ -1624,7 +1624,7 @@ LISPFUNN(subr_info,1)
     var object name;
     var boolean blockp;
     var environment* env;
-    { # Lambdabody muﬂ ein Cons sein:
+    { # Lambdabody muss ein Cons sein:
       if (atomp(lambdabody))
         { pushSTACK(name);
           fehler(source_program_error,
@@ -1634,13 +1634,13 @@ LISPFUNN(subr_info,1)
                  ""
                 );
         }
-      # und der CAR muﬂ eine Liste sein:
+      # und der CAR muss eine Liste sein:
       {var object lambdalist = Car(lambdabody);
        if (!listp(lambdalist))
          { pushSTACK(lambdalist);
            pushSTACK(name);
            fehler(source_program_error,
-                  DEUTSCH ? "FUNCTION: Lambda-Liste f¸r ~ muﬂ eine Liste sein, nicht ~" :
+                  DEUTSCH ? "FUNCTION: Lambda-Liste f¸r ~ muss eine Liste sein, nicht ~" :
                   ENGLISH ? "FUNCTION: lambda-list for ~ should be a list, not ~" :
                   FRANCAIS ? "FUNCTION: La lambda-liste pour ~ doit Ítre une liste et non ~" :
                   ""
@@ -1746,7 +1746,7 @@ LISPFUNN(subr_info,1)
         # Deklarationen ver‰ndern das Deklarations-Environment der Closure.
         while (consp(declarations)) # alle decl-specs abgearbeitet?
           { var object declspec = Car(declarations);
-            # declspec muﬂ Liste sein:
+            # declspec muss Liste sein:
             if (atomp(declspec))
               { pushSTACK(declspec);
                 fehler(source_program_error,
@@ -1881,7 +1881,7 @@ LISPFUNN(subr_info,1)
         { NEXT_ITEM(badLLkey,badLLkey,key,badLLkey,aux,ende);
           pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
           fehler(source_program_error,
-                 DEUTSCH ? "FUNCTION: Nach &REST var muﬂ &KEY oder &AUX oder Listenende folgen: ~" :
+                 DEUTSCH ? "FUNCTION: Nach &REST var muss &KEY oder &AUX oder Listenende folgen: ~" :
                  ENGLISH ? "FUNCTION: &REST var must be followed by &KEY or &AUX or end of list: ~" :
                  FRANCAIS ? "FUNCTION: &KEY, &AUX ou fin de liste doit suivre une variable &REST : ~." :
                  ""
@@ -1890,7 +1890,7 @@ LISPFUNN(subr_info,1)
         badrest:
           pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
           fehler(source_program_error,
-                 DEUTSCH ? "FUNCTION: Nach &REST muﬂ Variable folgen: ~" :
+                 DEUTSCH ? "FUNCTION: Nach &REST muss Variable folgen: ~" :
                  ENGLISH ? "FUNCTION: &REST must be followed by a variable: ~" :
                  FRANCAIS ? "FUNCTION: Une variable doit suivre &REST : ~" :
                  ""
@@ -2003,7 +2003,7 @@ LISPFUNN(subr_info,1)
           NEXT_ITEM(badLLkey,badLLkey,badLLkey,badLLkey,aux,ende);
           pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
           fehler(source_program_error,
-                 DEUTSCH ? "FUNCTION: Auf &ALLOW-OTHER-KEYS muﬂ &AUX oder Listenende folgen: ~" :
+                 DEUTSCH ? "FUNCTION: Auf &ALLOW-OTHER-KEYS muss &AUX oder Listenende folgen: ~" :
                  ENGLISH ? "FUNCTION: &ALLOW-OTHER-KEYS must be followed by &AUX or end of list: ~" :
                  FRANCAIS ? "FUNCTION: &AUX ou fin de liste doit suivre &ALLOW-OTHER-KEYS : ~" :
                  ""
@@ -2406,7 +2406,7 @@ LISPFUNN(subr_info,1)
 # > boolean allow_flag: Flag, ob &ALLOW-OTHER-KEYS angegeben war
 # > for_every_keyword: Macro, der alle Keywords durchl‰uft und an 'keyword'
 #                      zuweist.
-# > fehler_statement: Statement, das meldet, daﬂ bad_keyword illegal ist.
+# > fehler_statement: Statement, das meldet, dass bad_keyword illegal ist.
   #define check_for_illegal_keywords(allow_flag_expr,fehler_statement)  \
     { var object* argptr = rest_args_pointer; # Pointer in die Argumente    \
       var object bad_keyword = nullobj; # erstes unerlaubtes Keyword oder nullobj \
@@ -2417,7 +2417,7 @@ LISPFUNN(subr_info,1)
       dotimesC(check_count,argcount,                                        \
         { var object kw = NEXT(argptr); # n‰chstes Argument                 \
           var object val = NEXT(argptr); # und Wert dazu                    \
-          # muﬂ ein Symbol, sollte ein Keyword sein:                        \
+          # muss ein Symbol, sollte ein Keyword sein:                       \
           if (!symbolp(kw))                                                 \
             { fehler_key_notkw(kw); }                                       \
           if (!allow_flag) # andere Keywords erlaubt? ja -> ok              \
@@ -2426,7 +2426,7 @@ LISPFUNN(subr_info,1)
                 else                                                        \
                 # bis hierher war nicht :ALLOW-OTHER-KEYS da, und NOALLOW   \
                 { if (eq(bad_keyword,nullobj)) # bisher alle Keywords ok?   \
-                    # muﬂ testen, ob das Keyword kw erlaubt ist.            \
+                    # muss testen, ob das Keyword kw erlaubt ist.           \
                     { for_every_keyword(                                    \
                         { if (eq(keyword,kw)) goto kw_ok; }                 \
                         );                                                  \
@@ -2556,7 +2556,7 @@ LISPFUNN(subr_info,1)
       { check_SP();
         # Macro zum Binden von Variablen im Variablenframe:
         # Bindet die n‰chste Variable an value, erniedrigt frame_pointer um 2 bzw. 3.
-        # (Benutzt, daﬂ varframe_binding_mark = 0 !)
+        # (Benutzt, dass varframe_binding_mark = 0 !)
         #define bind_next_var(value,markptr_zuweisung)  \
           { frame_pointer skipSTACKop -varframe_binding_size;                                  \
            {var object* markptr = markptr_zuweisung &Before(frame_pointer);                    \
@@ -2722,7 +2722,7 @@ LISPFUNN(subr_info,1)
                       var object svar_value;
                       # Zu diesem Keyword das Paar Key.Wert suchen:
                       find_keyword_value(
-                        # nicht gefunden, muﬂ den Init auswerten:
+                        # nicht gefunden, muss den Init auswerten:
                         { pushSTACK(keywords); pushSTACK(key_inits);
                           var_value = (eval(Car(key_inits)),value1);
                           key_inits = popSTACK(); keywords = popSTACK();
@@ -2911,7 +2911,7 @@ LISPFUNN(subr_info,1)
         # Closure mit Keywords und &REST-Flag:
         { var object* rest_arg_ = &BEFORE(key_args_pointer); # Pointer auf den REST-Parameter
           if (eq(*rest_arg_,unbound))
-            # muﬂ noch gef¸llt werden: Liste basteln
+            # muss noch gef¸llt werden: Liste basteln
             { *rest_arg_ = closure; # Closure retten
              {var object rest_arg = NIL;
               until (args_end_pointer == rest_args_pointer)
@@ -3039,7 +3039,7 @@ LISPFUNN(subr_info,1)
 # UP: Wertet eine Form im aktuellen Environment aus.
 # Nimmt dabei auf *EVALHOOK* keine R¸cksicht, und erwartet den Wert von
 # *APPLYHOOK*.
-# Der EVAL-Frame muﬂ bereits aufgebaut sein; er wird dann abgebaut.
+# Der EVAL-Frame muss bereits aufgebaut sein; er wird dann abgebaut.
 # eval1(form);
 # > form: Form
 # > STACK_3..STACK_1: EVAL-Frame, mit Form in STACK_3
@@ -3252,7 +3252,7 @@ LISPFUNN(subr_info,1)
                      ""
                     );
             }
-          fehler_zuviel: # Argumentliste args ist am Schluﬂ nicht NIL
+          fehler_zuviel: # Argumentliste args ist am Schluss nicht NIL
             if (atomp(args)) goto fehler_dotted;
             # STACK bis zum aufrufenden EVAL-Frame aufr‰umen:
             until (framecode(STACK_0) & bit(frame_bit_t)) { skipSTACK(1); }
@@ -3596,7 +3596,7 @@ LISPFUNN(subr_info,1)
       if (TheSubr(fun)->key_flag == subr_nokey)
         # SUBR ohne KEY
         { if (TheSubr(fun)->rest_flag == subr_norest)
-            # SUBR ohne REST oder KEY -> Argumentliste m¸ﬂte zu Ende sein
+            # SUBR ohne REST oder KEY -> Argumentliste m¸sste zu Ende sein
             { goto fehler_zuviel; }
             else
             # SUBR mit nur REST, ohne KEY: Behandlung der restlichen Argumente
@@ -3640,7 +3640,7 @@ LISPFUNN(subr_info,1)
           match_subr_key(fun,argcount,key_args_pointer,rest_args_pointer);
         }
       los: # Funktion anspringen
-      # restliche Argumentliste muﬂ =NIL sein:
+      # restliche Argumentliste muss =NIL sein:
       if (!nullp(args)) goto fehler_dotted;
       if (TheSubr(fun)->rest_flag == subr_norest)
         # SUBR ohne &REST-Flag:
@@ -3666,7 +3666,7 @@ LISPFUNN(subr_info,1)
         if (!nullp(args)) goto fehler_dotted;
         set_args_end_pointer(args_pointer); # STACK aufr‰umen
         fehler_eval_zuwenig(TheSubr(fun)->name);
-      fehler_zuviel: # Argumentliste args ist am Schluﬂ nicht NIL
+      fehler_zuviel: # Argumentliste args ist am Schluss nicht NIL
         if (atomp(args)) goto fehler_dotted;
         set_args_end_pointer(args_pointer); # STACK aufr‰umen
         fehler_eval_zuviel(TheSubr(fun)->name);
@@ -3934,7 +3934,7 @@ LISPFUNN(subr_info,1)
             # args = restliche Argumentliste (noch nicht zu Ende)
             closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
             if (flags == 0)
-              # Closure ohne REST oder KEY -> Argumentliste m¸ﬂte zu Ende sein
+              # Closure ohne REST oder KEY -> Argumentliste m¸sste zu Ende sein
               { goto fehler_zuviel; }
             elif (flags & bit(7)) # Key-Flag?
               # Closure mit Keywords.
@@ -4020,7 +4020,7 @@ LISPFUNN(subr_info,1)
             setSTACK(STACK = STACKbefore); # STACK aufr‰umen
             closure = popSTACK();
             fehler_eval_zuwenig(TheCclosure(closure)->clos_name);
-          fehler_zuviel: # Argumentliste args ist am Schluﬂ nicht NIL
+          fehler_zuviel: # Argumentliste args ist am Schluss nicht NIL
             if (atomp(args)) goto fehler_dotted;
             setSTACK(STACK = STACKbefore); # STACK aufr‰umen
             closure = popSTACK();
@@ -4106,7 +4106,7 @@ LISPFUNN(subr_info,1)
     var object fun;
     var uintC args_on_stack;
     var object other_args;
-    { # fun muﬂ ein SUBR oder eine Closure oder ein Cons (LAMBDA ...) sein:
+    { # fun muss ein SUBR oder eine Closure oder ein Cons (LAMBDA ...) sein:
       if (subrp(fun)) # SUBR ?
         { return_Values apply_subr(fun,args_on_stack,other_args); }
       elif (closurep(fun)) # Closure ?
@@ -4131,7 +4131,7 @@ LISPFUNN(subr_info,1)
             { fehler_macro(S(apply),fun); }
           else
             # wenn kein SUBR, keine Closure, kein FSUBR, kein Cons:
-            # Symbol_function(fun) muﬂ #<UNBOUND> sein.
+            # Symbol_function(fun) muss #<UNBOUND> sein.
             undef:
             { fehler_undefined(S(apply),fun); }
         }
@@ -4853,7 +4853,7 @@ LISPFUNN(subr_info,1)
                # Rest- und Keyword-Parameter behandeln.
                # args = restliche Argumentliste (noch nicht zu Ende)
                if (flags == 0)
-                 # Closure ohne REST oder KEY -> Argumentliste m¸ﬂte zu Ende sein
+                 # Closure ohne REST oder KEY -> Argumentliste m¸sste zu Ende sein
                  { goto fehler_zuviel; }
                # evtl. den Rest-Parameter f¸llen:
                if (flags & bit(0))
@@ -4953,9 +4953,9 @@ LISPFUNN(subr_info,1)
          }
           apply_cclosure_rest_nokey:
             # Closure mit nur REST, ohne KEY:
-            { # muﬂ noch args_on_stack Argumente aus dem Stack auf args consen:
+            { # muss noch args_on_stack Argumente aus dem Stack auf args consen:
               pushSTACK(args);
-              pushSTACK(closure); # Closure muﬂ gerettet werden
+              pushSTACK(closure); # Closure muss gerettet werden
               dotimesC(args_on_stack,args_on_stack,
                 { var object new_cons = allocate_cons();
                   Cdr(new_cons) = STACK_1;
@@ -5012,7 +5012,7 @@ LISPFUNN(subr_info,1)
   global Values funcall(fun,args_on_stack)
     var object fun;
     var uintC args_on_stack;
-    { # fun muﬂ ein SUBR oder eine Closure oder ein Cons (LAMBDA ...) sein:
+    { # fun muss ein SUBR oder eine Closure oder ein Cons (LAMBDA ...) sein:
       if (subrp(fun)) # SUBR ?
         { return_Values funcall_subr(fun,args_on_stack); }
       elif (closurep(fun)) # Closure ?
@@ -5037,7 +5037,7 @@ LISPFUNN(subr_info,1)
             { fehler_macro(S(funcall),fun); }
           else
             # wenn kein SUBR, keine Closure, kein FSUBR, kein Cons:
-            # Symbol_function(fun) muﬂ #<UNBOUND> sein.
+            # Symbol_function(fun) muss #<UNBOUND> sein.
             undef:
             { fehler_undefined(S(funcall),fun); }
         }
@@ -5813,9 +5813,9 @@ LISPFUNN(subr_info,1)
          }
           apply_cclosure_rest_nokey:
             # Closure mit nur REST, ohne KEY:
-            { # muﬂ noch args_on_stack Argumente aus dem Stack zusammenconsen:
+            { # muss noch args_on_stack Argumente aus dem Stack zusammenconsen:
               pushSTACK(NIL);
-              pushSTACK(closure); # Closure muﬂ gerettet werden
+              pushSTACK(closure); # Closure muss gerettet werden
               dotimesC(args_on_stack,args_on_stack,
                 { var object new_cons = allocate_cons();
                   Cdr(new_cons) = STACK_1;
@@ -5915,7 +5915,7 @@ LISPFUNN(subr_info,1)
       #define byteptr_register  "$14"
     #endif
     #ifdef WIDE_SOFT
-      # Ein `object' paﬂt nicht in ein einzelnes Register, GCC ist ¸berfordert.
+      # Ein `object' passt nicht in ein einzelnes Register, GCC ist ¸berfordert.
       #undef closure_register
     #endif
   #endif
@@ -5946,7 +5946,7 @@ LISPFUNN(subr_info,1)
       {# Closure im STACK unterbringen, unter die Argumente:
        var object* closureptr = (pushSTACK(closure), &STACK_0);
        #ifndef FAST_SP
-         # Hat man keinen schnellen SP-Zugriff, muﬂ man einen extra Pointer
+         # Hat man keinen schnellen SP-Zugriff, muss man einen extra Pointer
          # einf¸hren:
          var uintL private_SP_length =
            (uintL)(((Codevec)codeptr)->ccv_spdepth_1)
@@ -5967,7 +5967,7 @@ LISPFUNN(subr_info,1)
        # var JMPBUF_on_SP(name);  alloziert einen jmp_buf im SP.
        # FREE_JMPBUF_on_SP();  dealloziert ihn wieder.
        # finish_entry_frame_1(frametype,returner,reentry_statement);  ist wie
-       # finish_entry_frame(frametype,returner,,reentry_statement);  nur daﬂ
+       # finish_entry_frame(frametype,returner,,reentry_statement);  nur dass
        # auch private_SP gerettet wird.
        #ifndef FAST_SP
          #define JMPBUF_on_SP(name)  \
@@ -6092,7 +6092,7 @@ LISPFUNN(subr_info,1)
                 }
             #endif
             #if defined(GNU) && defined(I80386) && !defined(NO_ASM)
-              # Bei manchen Assemblern muﬂ das Ergebnis in %eax liegen:
+              # Bei manchen Assemblern muss das Ergebnis in %eax liegen:
               #if !defined(SUN386) && !defined(UHC) && !defined(UNIX_SINIX)
                 # GNU-Assembler: in beliebigem Register.
                 # "testb %edx,%edx" wird als "testb %dl,%dl" assembliert.
@@ -6385,7 +6385,7 @@ LISPFUNN(subr_info,1)
             # codeptr = Pointer auf ihren Codevektor,
             # byteptr = Pointer auf das n‰chste Byte im Code.
             # (byteptr ist kein LISP-Objekt, aber dennoch GC-gef‰hrdet! Um es
-            #  GC-invariant zu machen, muﬂ man CODEPTR
+            #  GC-invariant zu machen, muss man CODEPTR
             #  davon subtrahieren. Addiert man dann Fixnum_0 dazu,
             #  so hat man die Bytenummer als Fixnum.)
             #if 0
@@ -6395,7 +6395,7 @@ LISPFUNN(subr_info,1)
             #endif
             #
             # Kontextinformation aufbewahren:
-            # Wird etwas aufgerufen, das eine GC auslˆsen kann, so muﬂ dies in ein
+            # Wird etwas aufgerufen, das eine GC auslˆsen kann, so muss dies in ein
             # with_saved_context( ... ) eingebaut werden.
               #define with_saved_context(statement)  \
                 { var uintL index = byteptr - CODEPTR;                       \
@@ -6593,7 +6593,7 @@ LISPFUNN(subr_info,1)
               { var uintL n;
                 U_operand(n);
                {var object symbol = TheCclosure(closure)->clos_consts[n];
-                # Der Compiler hat schon ¸berpr¸ft, daﬂ es ein Symbol ist.
+                # Der Compiler hat schon ¸berpr¸ft, dass es ein Symbol ist.
                 if (eq(Symbol_value(symbol),unbound))
                   { pushSTACK(symbol); # Wert f¸r Slot NAME von CELL-ERROR
                     pushSTACK(symbol);
@@ -6611,7 +6611,7 @@ LISPFUNN(subr_info,1)
               { var uintL n;
                 U_operand(n);
                {var object symbol = TheCclosure(closure)->clos_consts[n];
-                # Der Compiler hat schon ¸berpr¸ft, daﬂ es ein Symbol ist.
+                # Der Compiler hat schon ¸berpr¸ft, dass es ein Symbol ist.
                 if (eq(Symbol_value(symbol),unbound))
                   { pushSTACK(symbol); # Wert f¸r Slot NAME von CELL-ERROR
                     pushSTACK(symbol);
@@ -6629,7 +6629,7 @@ LISPFUNN(subr_info,1)
               { var uintL n;
                 U_operand(n);
                {var object symbol = TheCclosure(closure)->clos_consts[n];
-                # Der Compiler hat schon ¸berpr¸ft, daﬂ es ein Symbol ist.
+                # Der Compiler hat schon ¸berpr¸ft, dass es ein Symbol ist.
                 if (constantp(TheSymbol(symbol)))
                   { pushSTACK(symbol);
                     fehler(error,
@@ -6733,7 +6733,7 @@ LISPFUNN(subr_info,1)
                 skipSP(k1+jmpbufsize*k2);
               }
               goto next_byte;
-            # ------------------- (5) Programmfluﬂ und Spr¸nge -----------------------
+            # ------------------- (5) Programmfluss und Spr¸nge -----------------------
             CASE cod_skip_ret:               # (SKIP&RET n)
               { var uintL n;
                 U_operand(n);
@@ -7478,14 +7478,14 @@ LISPFUNN(subr_info,1)
               }}
               goto next_byte; # am Label weiterinterpretieren
             CASE cod_catch_close:            # (CATCH-CLOSE)
-              # Es muﬂ ein CATCH-Frame kommen:
+              # Es muss ein CATCH-Frame kommen:
               #if STACKCHECKC
               if (!(framecode(STACK_0) == CATCH_frame_info))
                 goto fehler_STACK_putt;
               #endif
               FREE_JMPBUF_on_SP();
               #if STACKCHECKC
-              if (!(closureptr == (object*)SP_(0))) # dort stehender Closureptr muﬂ der jetzige sein
+              if (!(closureptr == (object*)SP_(0))) # dort stehender Closureptr muss der jetzige sein
                 goto fehler_STACK_putt;
               #endif
               skipSP(2); skipSTACK(3); # CATCH-Frame auflˆsen
@@ -7517,7 +7517,7 @@ LISPFUNN(subr_info,1)
               goto next_byte;
               throw_save: # Hierher wird gesprungen, wenn der oben aufgebaute
                           # Unwind-Protect-Frame einen Throw aufgehalten hat.
-              # unwind_protect_to_save ist zu retten und am Schluﬂ anzuspringen.
+              # unwind_protect_to_save ist zu retten und am Schluss anzuspringen.
               #if STACKCHECKC
               if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
                 { fehler(serious_condition,
@@ -7551,7 +7551,7 @@ LISPFUNN(subr_info,1)
               #if STACKCHECKC
               if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
                 goto fehler_STACK_putt;
-              if (!(closureptr == (object*)SP_(jmpbufsize+0))) # dort stehender Closureptr muﬂ der jetzige sein
+              if (!(closureptr == (object*)SP_(jmpbufsize+0))) # dort stehender Closureptr muss der jetzige sein
                 goto fehler_STACK_putt;
               #endif
               # Frame auflˆsen:
@@ -7601,7 +7601,7 @@ LISPFUNN(subr_info,1)
               #if STACKCHECKC
               if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
                 goto fehler_STACK_putt;
-              if (!(closureptr == (object*)SP_(jmpbufsize+0))) # dort stehender Closureptr muﬂ der jetzige sein
+              if (!(closureptr == (object*)SP_(jmpbufsize+0))) # dort stehender Closureptr muss der jetzige sein
                 goto fehler_STACK_putt;
               #endif
               # closure bleibt, byteptr:=label_byteptr :
@@ -7805,11 +7805,11 @@ LISPFUNN(subr_info,1)
             }
             {var object vec; var object index;
             CASE cod_svref:                  # (SVREF)
-              # STACK_0 muﬂ ein Simple-Vector sein:
+              # STACK_0 muss ein Simple-Vector sein:
               if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
               vec = popSTACK(); # Simple-Vector
               index = value1;
-              # und der Index muﬂ ein Fixnum >=0, <L‰nge(vec) sein:
+              # und der Index muss ein Fixnum >=0, <L‰nge(vec) sein:
               {var uintL i;
                if (!(posfixnump(index) &&
                      ((i = posfixnum_to_L(index)) < Svector_length(vec))
@@ -7820,11 +7820,11 @@ LISPFUNN(subr_info,1)
               }
               goto next_byte;
             CASE cod_svset:                  # (SVSET)
-              # STACK_0 muﬂ ein Simple-Vector sein:
+              # STACK_0 muss ein Simple-Vector sein:
               if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
               vec = popSTACK(); # Simple-Vector
               index = value1;
-              # und der Index muﬂ ein Fixnum >=0, <L‰nge(vec) sein:
+              # und der Index muss ein Fixnum >=0, <L‰nge(vec) sein:
               {var uintL i;
                if (!(posfixnump(index) &&
                      ((i = posfixnum_to_L(index)) < Svector_length(vec))

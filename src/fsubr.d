@@ -4,7 +4,7 @@
 # Eine Special-Form wird definiert durch eine Deklaration
 #   LISPSPECFORM(name,req_anz,opt_anz,body_flag)
 # in diesem File.
-# Zus‰tzlich muﬂ in CONTROL.D dieselbe Deklaration samt C-Body stehen.
+# Zus‰tzlich muss in CONTROL.D dieselbe Deklaration samt C-Body stehen.
 
 # name ist der Funktionsname (ein C-Identifier), req_anz die Anzahl der
 # required-Parameter (eine Zahl), opt_anz die Anzahl der optional-Parameter
@@ -41,7 +41,7 @@
       (uintW)fsubr_##body_flag, \
     },
 
-# Welcher Expander benutzt wird, muﬂ vom Hauptfile aus eingestellt werden.
+# Welcher Expander benutzt wird, muss vom Hauptfile aus eingestellt werden.
 # Default ist   #define LISPSPECFORM LISPSPECFORM_B
 
 # ---------- CONTROL ----------

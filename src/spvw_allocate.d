@@ -106,7 +106,7 @@
       addr = malloc(need);
       end_system_call();
       if (addr==NULL) return NULL;
-      # Intervall [addr,addr+need-1] muﬂ in [0..2^oint_addr_len-1] liegen:
+      # Intervall [addr,addr+need-1] muss in [0..2^oint_addr_len-1] liegen:
       { var aint a = (aint)addr; # a = untere Intervallgrenze
         if (pointable_usable_test(a))
           { a = round_down(a + need-1,bit(addr_shift)); # a = obere Intervallgrenze
@@ -124,7 +124,7 @@
           addr = allocmem(need,retry_allocmemflag);
           end_system_call();
           if (addr==NULL) return NULL;
-          # Intervall [addr,addr+need-1] muﬂ in [0..2^oint_addr_len-1] liegen:
+          # Intervall [addr,addr+need-1] muss in [0..2^oint_addr_len-1] liegen:
           { var aint a = (aint)addr; # a = untere Intervallgrenze
             if (pointable_usable_test(a))
               { a = round_down(a + need-1,bit(addr_shift)); # a = obere Intervallgrenze

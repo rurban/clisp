@@ -426,7 +426,7 @@
                        arg ; Keyword-Constructor
                        (if (not (listp (third option)))
                          (error-of-type 'source-program-error
-                           (DEUTSCH "~S ~S: Argumentliste muß eine Liste sein: ~S"
+                           (DEUTSCH "~S ~S: Argumentliste muss eine Liste sein: ~S"
                             ENGLISH "~S ~S: argument list should be a list: ~S"
                             FRANCAIS "~S ~S : La liste d'arguments doit être une liste: ~S")
                            'defstruct name (third option)
@@ -552,7 +552,7 @@
     ; type-option ist entweder T oder LIST oder VECTOR oder (VECTOR ...)
     (unless (and (integerp initial-offset-option) (>= initial-offset-option 0))
       (error-of-type 'source-program-error
-        (DEUTSCH "~S ~S: Der :INITIAL-OFFSET muß ein Integer >=0 sein, nicht ~S"
+        (DEUTSCH "~S ~S: Der :INITIAL-OFFSET muss ein Integer >=0 sein, nicht ~S"
          ENGLISH "~S ~S: The :INITIAL-OFFSET must be a nonnegative integer, not ~S"
          FRANCAIS "~S ~S : :INITIAL-OFFSET doit être un entier positif ou zéro et non ~S")
         'defstruct name initial-offset-option
@@ -594,7 +594,7 @@
         )     ) )
         (unless (equalp (svref incl-desc 1) type-option)
           (error-of-type 'source-program-error
-            (DEUTSCH "~S ~S: Teilstruktur ~S muß vom selben Typ ~S sein."
+            (DEUTSCH "~S ~S: Teilstruktur ~S muss vom selben Typ ~S sein."
              ENGLISH "~S ~S: included structure ~S must be of the same type ~S."
              FRANCAIS "~S ~S : La structure incluse ~S doit être du même type ~S.")
             'defstruct name subname type-option
@@ -652,7 +652,7 @@
                              (setf (ds-slot-readonly slot) t)
                              (if (ds-slot-readonly slot)
                                (error-of-type 'source-program-error
-                                 (DEUTSCH "~S ~S: Der READ-ONLY-Slot ~S von Teilstruktur ~S muß auch in ~S READ-ONLY bleiben."
+                                 (DEUTSCH "~S ~S: Der READ-ONLY-Slot ~S von Teilstruktur ~S muss auch in ~S READ-ONLY bleiben."
                                   ENGLISH "~S ~S: The READ-ONLY slot ~S of the included structure ~S must remain READ-ONLY in ~S."
                                   FRANCAIS "~S ~S : Le composant READ-ONLY ~S de la structure incluse ~S doit rester READ-ONLY dans ~S.")
                                  'defstruct name slotname subname name
@@ -664,7 +664,7 @@
                                              (type-for-discrimination (ds-slot-type slot))
                                    )
                              (error-of-type 'source-program-error
-                               (DEUTSCH "~S ~S: Der Typ ~S von Slot ~S muß ein Untertyp des in Teilstruktur ~S definierten Typs ~S sein."
+                               (DEUTSCH "~S ~S: Der Typ ~S von Slot ~S muss ein Untertyp des in Teilstruktur ~S definierten Typs ~S sein."
                                 ENGLISH "~S ~S: The type ~S of slot ~S should be a subtype of the type defined for the included strucure ~S, namely ~S."
                                 FRANCAIS "~S ~S : Le type ~S du composant ~S doit être un sous-type du type défini dans la structure incluse ~S, c'est-à-dire ~S.")
                                'defstruct name slot-key-value slotname subname (ds-slot-type slot)
@@ -702,7 +702,7 @@
     ; Accessoren zu ignorieren sind.
     (when (and named-option ; benannte Structure
                (consp type-option) ; vom Typ (VECTOR ...)
-               ; muß den/die Namen enthalten können:
+               ; muss den/die Namen enthalten können:
                (not (typep names (type-for-discrimination (second type-option))))
           )
       (error-of-type 'source-program-error

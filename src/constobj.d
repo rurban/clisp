@@ -20,7 +20,7 @@
   #define LISPOBJ_C(name,initstring)  \
     initstring,
 
-# Welcher Expander benutzt wird, muß vom Hauptfile aus eingestellt werden.
+# Welcher Expander benutzt wird, muss vom Hauptfile aus eingestellt werden.
 
 # Der Macro LISPOBJ_S deklariert einen LISP-String.
 # > name: Objekt ist als object_tab.name oder als O(name) ansprechbar
@@ -387,7 +387,7 @@
     /* ENGLISH */ "You may choose how to proceed.",
     /* FRANCAIS */ "Vous pouvez décider de la démarche à suivre.")
   LISPOBJ_LS(export_string2,
-    /* DEUTSCH */ "Symbol ~S müßte erst in ~S importiert werden, bevor es exportiert werden kann.",
+    /* DEUTSCH */ "Symbol ~S müsste erst in ~S importiert werden, bevor es exportiert werden kann.",
     /* ENGLISH */ "symbol ~S should be imported into ~S before being exported.",
     /* FRANCAIS */ "Le symbole ~S devrait d'abord être importé avant de pouvoir être exporté.")
   LISPOBJ_L(export_list1,

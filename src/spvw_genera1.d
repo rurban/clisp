@@ -317,7 +317,7 @@ local uintC generation;
               if (!(heap->physpages==NULL))
                 {
                   #if defined(SELFMADE_MMAP) && !defined(SPVW_PURE_BLOCKS)
-                  # Spätestens jetzt muß man den Speicherinhalt vom mem-File holen.
+                  # Spätestens jetzt muss man den Speicherinhalt vom mem-File holen.
                   # (Die Conses könnte man noch weiter verzögern, aber bringt das viel?)
                   { var uintL pageno;
                     for (pageno = 0; pageno < heap->memfile_numpages; pageno++)
@@ -817,7 +817,7 @@ local uintC generation;
                      /* xfree(heap->physpages); heap->physpages = NULL; */
                   } }
                 # Dann die Lücke zwischen der alten und der neuen Generation so
-                # füllen, daß die Kompaktierungs-Algorithmen funktionieren:
+                # füllen, dass die Kompaktierungs-Algorithmen funktionieren:
                 if (is_cons_heap(heapnr))
                   { var object* ptr;
                     var uintL count;

@@ -58,12 +58,12 @@
 ; (FORMAT-PARSE-CS control-string startindex csdl stop-at)
 ; parst einen Kontrollstring (genauer: (subseq control-string startindex))
 ; und legt die sich ergebende Control-String-Directive-Liste in (cdr csdl) ab.
-; Das Parsen muﬂ mit der Direktive stop-at enden (ein Character, oder NIL
+; Das Parsen muss mit der Direktive stop-at enden (ein Character, oder NIL
 ; f¸r Stringende).
 ; Falls stop-at /= NIL, ist in (csd-clause-chain (car csdl)) ein Pointer auf
 ; die Teilliste ab dem n‰chsten Separator einzutragen. Diese Pointer bilden
 ; eine einfach verkettete Liste innerhalb csdl: von einem Separator zum
-; n‰chsten, zum Schluﬂ zum Ende der Clause.
+; n‰chsten, zum Schluss zum Ende der Clause.
 (defun format-parse-cs (control-string startindex csdl stop-at)
   (declare (fixnum startindex))
   (macrolet ((errorstring ()
@@ -136,7 +136,7 @@
           )
           (unless intparam
             (format-error control-string index
-                          (DEUTSCH "~A muﬂ eine Zahl einleiten."
+                          (DEUTSCH "~A muss eine Zahl einleiten."
                            ENGLISH "~A must introduce a number."
                            FRANCAIS "~A doit introduire un nombre.")
                           ch
@@ -279,7 +279,7 @@
              ) )
              (unless (eql ch stop-at)
                (format-error control-string index
-                 (DEUTSCH "Schlieﬂende Klammer '~A' paﬂt nicht; sollte '~A' lauten."
+                 (DEUTSCH "Schlieﬂende Klammer '~A' passt nicht; sollte '~A' lauten."
                   ENGLISH "The closing directive '~A' does not match the corresponding opening one. It should read '~A'."
                   FRANCAIS "La parenthËse fermante '~A' ne correspond pas ‡ celle ouvrante. Il devrait y avoir '~A'.")
                  ch stop-at
@@ -444,7 +444,7 @@
 (defun format-cs-error (control-string)
   (error-of-type 'type-error
     :datum control-string :expected-type '(or string function)
-    (DEUTSCH "~S: Kontrollstring muﬂ ein String sein, nicht ~S"
+    (DEUTSCH "~S: Kontrollstring muss ein String sein, nicht ~S"
      ENGLISH "~S: The control-string must be a string, not ~S"
      FRANCAIS "~S : La chaÓne de contrÙle doit Ítre une chaÓne et non ~S")
     'format control-string
@@ -708,7 +708,7 @@
 
 ; gibt auf den Stream stream aus:
 ; den String str, eventuell aufgef¸llt mit Padding characters padchar.
-; Und zwar so, daﬂ die Breite mindestens mincol ist. Um das zu erreichen,
+; Und zwar so, dass die Breite mindestens mincol ist. Um das zu erreichen,
 ; werden mindestens minpad Zeichen eingef¸gt, eventuelle weitere dann in
 ; Blˆcken ‡ colinc Zeichen. Falls padleftflag, werden sie links eingef¸gt,
 ; sonst rechts vom String.
@@ -727,7 +727,7 @@
 ; gibt den Integer arg auf den Stream aus:
 ; in Zahlenbasis base, mit Vorzeichen (+ nur falls >0 und positive-sign-flag),
 ; bei commaflag alle drei Stellen unterbrochen durch ein Zeichen commachar.
-; Das Ganze links aufgef¸llt mit padchar's, so daﬂ die Gesamtbreite mindestens
+; Das Ganze links aufgef¸llt mit padchar's, so dass die Gesamtbreite mindestens
 ; mincol ist.
 (defun format-integer (base
                        mincol
@@ -1004,7 +1004,7 @@
                 )
               )
               ; dezimal-einh = Um wieviel numerator erhˆht bzw. erniedigt werden
-              ; m¸ﬂte, damit sich die Dezimaldarstellung um genau 1 an der
+              ; m¸sste, damit sich die Dezimaldarstellung um genau 1 an der
               ; Position letzte-stelle ver‰ndert.
               (setq abrund-einh (max dezimal-einh abrund-einh))
               (setq aufrund-einh (max dezimal-einh aufrund-einh))
@@ -1152,7 +1152,7 @@
            ; Exponenten nˆtig sind.
            (mantd (if d (if (> k 0) (1+ (- d k)) d) nil))
            ; mantd = Anzahl der Mantissenstellen hinter dem Punkt
-           (dmin (if (minusp k) (- 1 k) nil)) ; nachher: fordere, daﬂ
+           (dmin (if (minusp k) (- 1 k) nil)) ; nachher: fordere, dass
            ; nicht in die ersten (+ 1 (abs k)) Stellen hineingerundet wird.
            (mantwidth (if w (- w 2 expdigitsneed) nil))
            ; mantwidth = Anzahl der f¸r die Mantisse (inkl. Vorzeichen, Punkt)
@@ -1235,7 +1235,7 @@
 ; auch nachher, falls justify-right) werden mindestens minpad padding-characters
 ; eingef¸gt. Dann werden nochmals weitere padding-characters dazugenommen,
 ; damit die Gesamtbreite >= mincol wird. Ist die Breite > mincol, werden weitere
-; padding-characters dazugenommen, so daﬂ die Breite von der Form
+; padding-characters dazugenommen, so dass die Breite von der Form
 ; mincol + k * colinc wird. Diese padding-characters werden auf die einzelnen
 ; Stellen gleichm‰ﬂig verteilt.
 ; 1. Wert: Ein Vektor, der zu jeder Stelle angibt, wieviele padding-characters
@@ -1690,7 +1690,7 @@
       (let ((index (or prefix (next-arg))))
         (unless (integerp index)
           (format-error *FORMAT-CS* nil
-            (DEUTSCH "Argument f¸r ~~[ muﬂ ein Integer sein, nicht ~S"
+            (DEUTSCH "Argument f¸r ~~[ muss ein Integer sein, nicht ~S"
              ENGLISH "The ~~[ parameter must be an integer, not ~S"
              FRANCAIS "L'argument pour ~~[ doit Ítre un entier et non ~S")
             index
@@ -1739,7 +1739,7 @@
                             (let ((arg (next-arg)))
                               (unless (listp arg)
                                 (format-error *FORMAT-CS* nil
-                                  (DEUTSCH "Das Argument zu ~~{ muﬂ eine Liste sein, nicht ~S"
+                                  (DEUTSCH "Das Argument zu ~~{ muss eine Liste sein, nicht ~S"
                                    ENGLISH "The ~~{ directive requires a list argument, not ~S"
                                    FRANCAIS "L'argument de ~~{ doit Ítre une liste et non ~S")
                                   arg
@@ -1776,8 +1776,8 @@
             (if atsign-modifier
               (let* (; CLtL2 S. 598: "When within a ~{ construct, the "goto" is
                      ; relative to the list of arguments being processed by the
-                     ; iteration." Soll das heiﬂen, daﬂ man bei ~@{ zu Beginn
-                     ; jeder Iteration *FORMAT-ARG-LIST* neu binden muﬂ ??
+                     ; iteration." Soll das heiﬂen, dass man bei ~@{ zu Beginn
+                     ; jeder Iteration *FORMAT-ARG-LIST* neu binden muss ??
                      ; (*FORMAT-ARG-LIST* *FORMAT-NEXT-ARG*) ??
                      (*FORMAT-CS* inner-cs)
                      (*FORMAT-CSDL* inner-csdl)
@@ -1946,9 +1946,9 @@
 ) )
 
 (flet ((mark-used (blockname)
-         ; Markiere den Block, so daﬂ er nicht wegoptimiert wird.
+         ; Markiere den Block, so dass er nicht wegoptimiert wird.
          (setf (get blockname 'used) t)
-         ; Markiere alle ¸bersprungenen UNWIND-PROTECTs, so daﬂ sie nicht
+         ; Markiere alle ¸bersprungenen UNWIND-PROTECTs, so dass sie nicht
          ; wegoptimiert werden.
          (do ((L1 *format-uwps* (cdr L1))
               (L2 (get blockname 'uwps)))
@@ -2124,7 +2124,7 @@
 )
 
 ; Holt eine Form f¸r das n‰chste Argument.
-; Diese Form muﬂ nachher mit SUBST ersetzt werden.
+; Diese Form muss nachher mit SUBST ersetzt werden.
 (defun formatter-next-arg ()
   (if *formatter-linear-args*
     (prog1
@@ -2137,7 +2137,7 @@
 ) )
 
 ; Holt eine Form, die ein nthcdr der ganzen Argumentliste liefert.
-; Diese Form muﬂ nachher mit SUBST ersetzt werden.
+; Diese Form muss nachher mit SUBST ersetzt werden.
 (defun formatter-whole-args (n)
   (formatter-stop-linear)
   (setq *formatter-whole-args* t)
@@ -2554,8 +2554,8 @@
                                       (let ((*iterargs* nil))
                                         ; CLtL2 S. 598: "When within a ~{ construct, the "goto" is
                                         ; relative to the list of arguments being processed by the
-                                        ; iteration." Soll das heiﬂen, daﬂ man bei ~@{ zu Beginn
-                                        ; jeder Iteration WHOLE-ARGS neu an ARGS binden muﬂ ??
+                                        ; iteration." Soll das heiﬂen, dass man bei ~@{ zu Beginn
+                                        ; jeder Iteration WHOLE-ARGS neu an ARGS binden muss ??
                                         ; (if atsign-p
                                         ;   (progn (formatter-stop-linear)
                                         ;     `((LET ((WHOLE-ARGS ,*args*)) ,@(compute-innermost)))
@@ -2772,7 +2772,7 @@
   (unless (stringp control-string)
     (error-of-type 'type-error
       :datum control-string :expected-type 'string
-      (DEUTSCH "Kontrollstring muﬂ ein String sein, nicht ~S"
+      (DEUTSCH "Kontrollstring muss ein String sein, nicht ~S"
        ENGLISH "The control-string must be a string, not ~S"
        FRANCAIS "La chaÓne de contrÙle doit Ítre une chaÓne et non ~S")
       control-string

@@ -17,7 +17,7 @@
 
 # Öffnet eine 'shared library'.
 # OpenLibrary(name,version)
-# > name: Name als ASCIZ-String, mit .library am Schluß
+# > name: Name als ASCIZ-String, mit .library am Schluss
 # > version: kleinste erwünschte Versionsnummer, 0 bedeutet "egal"
 # < struct Library * ergebnis: Library base Zeiger oder NULL
   extern struct Library * OpenLibrary (CONST UBYTE* name, unsigned long version); # siehe exec.library/OpenLibrary
@@ -38,7 +38,7 @@
 # FindPort(name)
 # > name: Name des Ports
 # < ergebnis: Port-Pointer oder NULL falls es keinen gibt
-# Muß von Forbid()/Permit() umrahmt sein.
+# Muss von Forbid()/Permit() umrahmt sein.
   extern struct MsgPort * FindPort (CONST UBYTE* name); # siehe exec.library/FindPort
 # wird verwendet von REXX
 

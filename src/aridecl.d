@@ -262,7 +262,7 @@
 # LSDptr) in high_addr ab. Jedes von beiden ist optional.
 
 # num_stack_need_1(need, low_addr = , high_addr = );
-# wie num_stack_need, nur daß unterhalb von low_addr noch ein Digit Platz
+# wie num_stack_need, nur dass unterhalb von low_addr noch ein Digit Platz
 # zusätzlich belegt wird.
 
 # Deklarationen für SPVW:
@@ -296,7 +296,7 @@
     # Funktioniert aber nicht, da der bereitgestellte Speicherplatz
     # sofort wieder freigegeben wird!
   #else
-    # Fast identisch, nur daß der belegte Platz erst bei Beendigung
+    # Fast identisch, nur dass der belegte Platz erst bei Beendigung
     # der C-Funktion freigegeben wird:
     #define SAVE_NUM_STACK
     #define RESTORE_NUM_STACK  ;
