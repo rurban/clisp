@@ -475,6 +475,10 @@ extern void disable_sigpipe(void);
  *  General purpose utilities
  * ------------------------------------------------------------------------- */
 
+/* sugar for funcall (used in macros, so not a macro) */
+static inline object funcall1 (object fun, object arg)
+{ pushSTACK(arg); funcall(fun,1); return value1; }
+
 nonreturning_function(static,my_type_error,(object type, object datum))
 {
   pushSTACK(datum);             /* TYPE-ERROR slot DATUM */
@@ -1490,19 +1494,14 @@ static Time get_timestamp (object obj)
 
 static sint32 get_angle (object ang)
 { /* translates the CLX angle representation in radian to X represent
-   in sixty-fourth of degree */
-  sint16 xang;
-  /* calcuate (round (* (/ ang pi) (* 180 64))) */
+   in sixty-fourth of degree: (round (* (/ ang pi) (* 180 64))) */
   pushSTACK(ang);
   pushSTACK(GLO(FF_pi));
   funcall (L(durch), 2);
   pushSTACK(value1);
   pushSTACK(fixnum(180*64));
   funcall (L(mal), 2);
-  pushSTACK(value1);
-  funcall (L(round), 1);
-  xang = get_sint32 (value1);
-  return xang;
+  return get_sint32(funcall1(L(round),value1));
 }
 
 static object make_key_vector (char key_vector[32])
@@ -1547,9 +1546,7 @@ static unsigned short get_rgb_val (object value)
   pushSTACK(value);
   pushSTACK(fixnum(0xFFFF));
   funcall (L(mal), 2);
-  pushSTACK(value1);
-  funcall (L(round), 1);
-  return get_uint16 (value1);
+  return get_uint16(funcall1(L(round),value1));
 }
 
 static void get_color (Display *dpy, object color, XColor *result)
@@ -2025,9 +2022,7 @@ DEFUN(XLIB:SET-DISPLAY-AFTER-FUNCTION, arg1 arg2) /* OK */
 { /* TODO - check for function type [Not very important since the
    xlib_after_function should get this error.] */
   object display = STACK_1;
-  Display *dpy;
-  pushSTACK(display);
-  dpy = pop_display ();
+  Display *dpy = (pushSTACK(display),pop_display());
   TheStructure (display)->recdata[slot_DISPLAY_AFTER_FUNCTION] = STACK_0;
   if (nullp (STACK_0)) {
     X_CALL(XSetAfterFunction (dpy, NULL)); /* Q: Is that right?! */
@@ -2096,9 +2091,7 @@ DEFUN(XLIB:SET-DISPLAY-PLIST, plist display) /* OK */
 
 DEFUN(XLIB:DISPLAY-DEFAULT-SCREEN, display) /* NIM / OK */
 {
-  Display *dpy;
-
-  pushSTACK(STACK_0); dpy = pop_display ();
+  Display *dpy = (pushSTACK(STACK_0),pop_display());
   VALUES1(make_screen(STACK_0,DefaultScreenOfDisplay(dpy)));
   skipSTACK(1);
 }
@@ -2273,11 +2266,9 @@ DEFUN(XLIB:SCREEN-ROOT, screen) /* OK */
 DEFUN(XLIB:VISUAL-INFO, display visual-id)      /* NIM / OK */
 {
   VisualID vid;
-  Display *dpy;
+  Display *dpy = (pushSTACK(STACK_1),pop_display());
   Visual *visual;
 
-  pushSTACK(STACK_1);
-  dpy = pop_display ();
   vid = get_uint29 (STACK_0);
   visual = XVisualIDToVisual (dpy, vid);
 
@@ -3096,12 +3087,8 @@ DEFUN(XLIB:SET-GCONTEXT-DASHES, dashes gcontext) /* FIXME: reversed args?! */
     pushSTACK(`XLIB::%DASHES`);                         /* slot */
     pushSTACK(make_uint8 ((uint8)values.dashes));       /* value */
     funcall (L(set_slot_value), 3);
-  } else {
-    uintC n;
-    /* Now STACK_0 is required to be a non-empty sequence */
-    pushSTACK(STACK_0);
-    funcall (L(length), 1);
-    n = get_fixnum(value1);
+  } else { /* Now STACK_0 is required to be a non-empty sequence */
+    uintC n = get_fixnum(funcall1(L(length),STACK_0));
     if (n < 1) {
       pushSTACK(TheSubr(subr_self)->name);
       fehler (error, "~: The dash list should be non-empty.");
@@ -3171,15 +3158,8 @@ DEFUN(XLIB:SET-GCONTEXT-CLIP-MASK, clip-mask gcontext &optional ordering)
             in the gcontext.
             We should think about the portability of using a halfword-vector
             and then beam the data directly into the rectangles vector. */
-    int ordering, n;
-    if (missingp(STACK_0))
-      ordering = Unsorted;
-    else
-      ordering = get_ordering (STACK_0);
-
-    pushSTACK(STACK_2);
-    funcall (L(length), 1);
-    n = get_sint32 (value1);
+    int ordering = (missingp(STACK_0) ? Unsorted : get_ordering (STACK_0));
+    int n = get_sint32(funcall1(L(length),STACK_2));
 
     /* See if length is a multiple of 4? */
     if (n%4) {
@@ -3224,10 +3204,7 @@ DEFUN(XLIB:SET-GCONTEXT-CLIP-MASK, clip-mask gcontext &optional ordering)
 
       /* ok. now copy the value given by user, so if he messes around with
        what he gave as argument, it will not affect the saved value. */
-
-      pushSTACK(STACK_2);
-      funcall (L(copy_seq), 1);
-      STACK_2 = value1;
+      STACK_2 = funcall1(L(copy_seq),STACK_2);
 
       FREE_DYNAMIC_ARRAY (rectangles);
     }
@@ -3535,32 +3512,26 @@ DEFUN(XLIB:DRAW-POINTS, drawable gcontext points &optional relative-p)
   Drawable    da = get_drawable_and_display (STACK_3, &dpy);
   GC          gc = get_gcontext (STACK_2);
   int relative_p = !missingp(STACK_0);
-  int npts, i;
+  int npts = get_uint32(funcall1(L(length),STACK_1)), i;
+  DYNAMIC_ARRAY (pts, XPoint, npts);
 
-  /* Find number of points */
-  pushSTACK(STACK_1); funcall (L(length), 1); npts = get_uint32 (value1);
+  for (i = 0; i < npts; i++) {
+    pushSTACK(STACK_1);       /* points argument */
+    pushSTACK(fixnum(i));     /* index */
+    funcall (L(elt), 2);
+    pushSTACK(value1);        /* save element */
 
-  {
-    DYNAMIC_ARRAY (pts, XPoint, npts);
+    pushSTACK(STACK_0); pushSTACK(fixnum(0)); funcall (L(elt), 2);
+    pts[i].x = get_sint16(value1);
 
-    for (i = 0; i < npts; i++) {
-      pushSTACK(STACK_1);       /* points argument */
-      pushSTACK(fixnum(i));     /* index */
-      funcall (L(elt), 2);
-      pushSTACK(value1);        /* save element */
-
-      pushSTACK(STACK_0); pushSTACK(fixnum(0)); funcall (L(elt), 2);
-      pts[i].x = get_sint16(value1);
-
-      pushSTACK(fixnum(1)); funcall (L(elt), 2);
-      pts[i].y = get_sint16(value1);
-    }
-
-    X_CALL(XDrawPoints (dpy, da, gc, pts, npts,
-                        relative_p ? CoordModePrevious : CoordModeOrigin));
-
-    FREE_DYNAMIC_ARRAY (pts);
+    pushSTACK(fixnum(1)); funcall (L(elt), 2);
+    pts[i].y = get_sint16(value1);
   }
+
+  X_CALL(XDrawPoints (dpy, da, gc, pts, npts,
+                      relative_p ? CoordModePrevious : CoordModeOrigin));
+
+  FREE_DYNAMIC_ARRAY (pts);
 
   VALUES1(NIL);
   skipSTACK(4);
@@ -3601,34 +3572,27 @@ DEFUN(XLIB:DRAW-LINES, drawable gcontext points &key RELATIVE-P FILL-P SHAPE)
   int relative_p = !missingp(STACK_2);
   int     fill_p = !missingp(STACK_1);
   int      shape = (boundp(STACK_0) ? get_shape(STACK_0) : Complex);
-  int npoints,i;
+  int npoints = get_uint32(funcall1(L(length),STACK_3))/2 , i;
+  DYNAMIC_ARRAY (points, XPoint, npoints);
 
-  /* Find number of points */
-  pushSTACK(STACK_3); funcall (L(length), 1);
-  npoints = get_uint32 (value1) /2;
+  for (i = 0; i < npoints; i++) {
+    pushSTACK(STACK_3); pushSTACK(fixnum(2*i + 0)); funcall (L(elt), 2);
+    points[i].x = get_sint16(value1);
 
-  {
-    DYNAMIC_ARRAY (points, XPoint, npoints);
-
-    for (i = 0; i < npoints; i++) {
-      pushSTACK(STACK_3); pushSTACK(fixnum(2*i + 0)); funcall (L(elt), 2);
-      points[i].x = get_sint16(value1);
-
-      pushSTACK(STACK_3); pushSTACK(fixnum(2*i + 1)); funcall (L(elt), 2);
-      points[i].y = get_sint16(value1);
-    }
-
-    begin_x_call();
-    if (fill_p)
-      XFillPolygon (dpy, da, gc, points, npoints, shape,
-                    relative_p ? CoordModePrevious : CoordModeOrigin);
-    else
-      XDrawLines (dpy, da, gc, points, npoints,
-                  relative_p ? CoordModePrevious : CoordModeOrigin);
-    end_x_call();
-
-    FREE_DYNAMIC_ARRAY (points);
+    pushSTACK(STACK_3); pushSTACK(fixnum(2*i + 1)); funcall (L(elt), 2);
+    points[i].y = get_sint16(value1);
   }
+
+  begin_x_call();
+  if (fill_p)
+    XFillPolygon (dpy, da, gc, points, npoints, shape,
+                  relative_p ? CoordModePrevious : CoordModeOrigin);
+  else
+    XDrawLines (dpy, da, gc, points, npoints,
+                relative_p ? CoordModePrevious : CoordModeOrigin);
+  end_x_call();
+
+  FREE_DYNAMIC_ARRAY (points);
 
   VALUES1(NIL);
   skipSTACK(6);
@@ -3639,33 +3603,26 @@ DEFUN(XLIB:DRAW-SEGMENTS, drawable gcontext segments)
   Display *dpy;
   Drawable da  = get_drawable_and_display (STACK_2, &dpy);
   GC gc        = get_gcontext (STACK_1);
-  int nsegments,i;
+  int nsegments = get_uint32(funcall1(L(length),STACK_0))/4 , i;
+  DYNAMIC_ARRAY (segments, XSegment, nsegments);
 
-  /* Find number of segments */
-  pushSTACK(STACK_0); funcall (L(length), 1);
-  nsegments = get_uint32 (value1)/4;
+  for (i = 0; i < nsegments; i++) {
+    pushSTACK(STACK_0); pushSTACK(fixnum(4*i + 0)); funcall (L(elt), 2);
+    segments[i].x1 = get_sint16(value1);
 
-  {
-    DYNAMIC_ARRAY (segments, XSegment, nsegments);
+    pushSTACK(STACK_0); pushSTACK(fixnum(4*i + 1)); funcall (L(elt), 2);
+    segments[i].y1 = get_sint16(value1);
 
-    for (i = 0; i < nsegments; i++) {
-      pushSTACK(STACK_0); pushSTACK(fixnum(4*i + 0)); funcall (L(elt), 2);
-      segments[i].x1 = get_sint16(value1);
+    pushSTACK(STACK_0); pushSTACK(fixnum(4*i + 2)); funcall (L(elt), 2);
+    segments[i].x2 = get_sint16(value1);
 
-      pushSTACK(STACK_0); pushSTACK(fixnum(4*i + 1)); funcall (L(elt), 2);
-      segments[i].y1 = get_sint16(value1);
-
-      pushSTACK(STACK_0); pushSTACK(fixnum(4*i + 2)); funcall (L(elt), 2);
-      segments[i].x2 = get_sint16(value1);
-
-      pushSTACK(STACK_0); pushSTACK(fixnum(4*i + 3)); funcall (L(elt), 2);
-      segments[i].y2 = get_sint16(value1);
-    }
-
-    X_CALL(XDrawSegments (dpy, da, gc, segments, nsegments));
-
-    FREE_DYNAMIC_ARRAY (segments);
+    pushSTACK(STACK_0); pushSTACK(fixnum(4*i + 3)); funcall (L(elt), 2);
+    segments[i].y2 = get_sint16(value1);
   }
+
+  X_CALL(XDrawSegments (dpy, da, gc, segments, nsegments));
+
+  FREE_DYNAMIC_ARRAY (segments);
 
   VALUES1(NIL);
   skipSTACK(3);
@@ -3695,11 +3652,7 @@ DEFUN(XLIB:DRAW-RECTANGLES, drawable gcontext rectangles &optional fill-p)
   Drawable da  = get_drawable_and_display (STACK_3, &dpy);
   GC gc        = get_gcontext (STACK_2);
   int fill_p   = missingp(STACK_0);
-  int nrectangles,i;
-
-  /* Find number of rectangles */
-  pushSTACK(STACK_1); funcall (L(length), 1);
-  nrectangles = get_uint32 (value1) /4;
+  int nrectangles = get_uint32(funcall1(L(length),STACK_1))/4 , i;
 
   {
     DYNAMIC_ARRAY (rectangles, XRectangle, nrectangles);
@@ -3760,38 +3713,32 @@ DEFUN(XLIB:DRAW-ARCS, drawable gcontext arcs &optional fill-p)
   Drawable da  = get_drawable_and_display (STACK_3, &dpy);
   GC gc        = get_gcontext (STACK_2);
   int fill_p   = missingp(STACK_0);
-  int narcs,i;
+  int narcs = get_uint32(funcall1(L(length),STACK_1)) / 6 , i;
+  DYNAMIC_ARRAY (arcs, XArc, narcs);
 
-  /* Find number of arcs */
-  pushSTACK(STACK_1); funcall (L(length), 1); narcs = get_uint32 (value1) /6;
+  for (i = 0; i < narcs; i++) {
+    pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 0)); funcall (L(elt), 2);
+    arcs[i].x = get_sint16(value1);
 
-  {
-    DYNAMIC_ARRAY (arcs, XArc, narcs);
+    pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 1)); funcall (L(elt), 2);
+    arcs[i].y = get_sint16(value1);
 
-    for (i = 0; i < narcs; i++) {
-      pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 0)); funcall (L(elt), 2);
-      arcs[i].x = get_sint16(value1);
+    pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 2)); funcall (L(elt), 2);
+    arcs[i].width = get_sint16(value1);
 
-      pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 1)); funcall (L(elt), 2);
-      arcs[i].y = get_sint16(value1);
+    pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 3)); funcall (L(elt), 2);
+    arcs[i].height = get_sint16(value1);
 
-      pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 2)); funcall (L(elt), 2);
-      arcs[i].width = get_sint16(value1);
+    pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 4)); funcall (L(elt), 2);
+    arcs[i].angle1 = get_angle(value1);
 
-      pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 3)); funcall (L(elt), 2);
-      arcs[i].height = get_sint16(value1);
-
-      pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 4)); funcall (L(elt), 2);
-      arcs[i].angle1 = get_angle(value1);
-
-      pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 5)); funcall (L(elt), 2);
-      arcs[i].angle2 = get_angle(value1);
-      }
-
-    X_CALL((fill_p ? XFillArcs : XDrawArcs) (dpy, da, gc, arcs, narcs));
-
-    FREE_DYNAMIC_ARRAY (arcs);
+    pushSTACK(STACK_1); pushSTACK(fixnum(i*6 + 5)); funcall (L(elt), 2);
+    arcs[i].angle2 = get_angle(value1);
   }
+
+  X_CALL((fill_p ? XFillArcs : XDrawArcs) (dpy, da, gc, arcs, narcs));
+
+  FREE_DYNAMIC_ARRAY (arcs);
 
   VALUES1(NIL);
   skipSTACK(4);
@@ -4247,28 +4194,20 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
     XImage im;
 
     /* Now fill in the XImage structure from the slots */
-    pushSTACK(STACK_7); funcall (`XLIB::IMAGE-DEPTH`, 1);
-    im.depth            = get_uint8 (value1);
-    pushSTACK(STACK_7); funcall (`XLIB::IMAGE-WIDTH`, 1);
-    im.width            = get_uint16 (value1);
-    pushSTACK(STACK_7); funcall (`XLIB::IMAGE-HEIGHT`, 1);
-    im.height           = get_uint16 (value1);
-    pushSTACK(STACK_7); funcall (`XLIB::IMAGE-X-FORMAT`, 1);
-    im.format           = get_image_format (value1);
-    pushSTACK(STACK_7); funcall (`XLIB::IMAGE-X-BYTES-PER-LINE`, 1);
-    im.bytes_per_line   = get_uint16 (value1);
-    pushSTACK(STACK_7); funcall (`XLIB::IMAGE-X-PAD`, 1);
-    im.bitmap_pad       = get_uint8 (value1);
-    pushSTACK(STACK_7); funcall (`XLIB::IMAGE-X-BITS-PER-PIXEL`, 1);
-    im.bits_per_pixel   = get_uint8 (value1);
-    pushSTACK(STACK_7); funcall (`XLIB::IMAGE-X-BIT-LSB-FIRST-P`, 1);
-    im.bitmap_bit_order = eq(value1,NIL) ? MSBFirst : LSBFirst;
-    pushSTACK(STACK_7); funcall (`XLIB::IMAGE-X-BYTE-LSB-FIRST-P`, 1);
-    im.byte_order       = eq(value1,NIL) ? MSBFirst : LSBFirst;
-    pushSTACK(STACK_7); funcall (`XLIB::IMAGE-X-UNIT`, 1);
-    im.bitmap_unit      = get_uint8 (value1);
-    pushSTACK(STACK_7); funcall (`XLIB::IMAGE-X-LEFT-PAD`, 1);
-    im.xoffset          = get_uint8 (value1);
+    im.depth     = get_uint8(funcall1(`XLIB::IMAGE-DEPTH`,STACK_7));
+    im.width     = get_uint16(funcall1(`XLIB::IMAGE-WIDTH`,STACK_7));
+    im.height    = get_uint16(funcall1(`XLIB::IMAGE-HEIGHT`,STACK_7));
+    im.format    = get_image_format(funcall1(`XLIB::IMAGE-X-FORMAT`,STACK_7));
+    im.bytes_per_line = get_uint16(funcall1(`XLIB::IMAGE-X-BYTES-PER-LINE`,STACK_7));
+    im.bitmap_pad     = get_uint8(funcall1(`XLIB::IMAGE-X-PAD`,STACK_7));
+    im.bits_per_pixel = get_uint8(funcall1(`XLIB::IMAGE-X-BITS-PER-PIXEL`,
+                                           STACK_7));
+    im.bitmap_bit_order = nullp(funcall1(`XLIB::IMAGE-X-BIT-LSB-FIRST-P`,
+                                         STACK_7)) ? MSBFirst : LSBFirst;
+    im.byte_order       = nullp(funcall1(`XLIB::IMAGE-X-BYTE-LSB-FIRST-P`,
+                                         STACK_7)) ? MSBFirst : LSBFirst;
+    im.bitmap_unit    = get_uint8(funcall1(`XLIB::IMAGE-X-UNIT`,STACK_7));
+    im.xoffset        = get_uint8(funcall1(`XLIB::IMAGE-X-LEFT-PAD`,STACK_7));
 
     if (bitmap_p && im.depth == 1)
       im.format = XYBitmap;
@@ -4300,12 +4239,9 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
     int width, height, depth, format;
     unsigned long fg,bg;
 
-    pushSTACK(STACK_7); funcall(`XLIB::IMAGE-WIDTH`,1);
-    width = get_sint32 (value1);
-    pushSTACK(STACK_7); funcall(`XLIB::IMAGE-HEIGHT`,1);
-    height = get_sint32 (value1);
-    pushSTACK(STACK_7); funcall(`XLIB::IMAGE-DEPTH`,1);
-    depth = get_sint32 (value1);
+    width  = get_sint32(funcall1(`XLIB::IMAGE-WIDTH`,STACK_7));
+    height = get_sint32(funcall1(`XLIB::IMAGE-HEIGHT`,STACK_7));
+    depth  = get_sint32(funcall1(`XLIB::IMAGE-DEPTH`,STACK_7));
 
     {
       XGCValues vals;
@@ -4405,11 +4341,8 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
 /* 8.2  Opening Fonts */
 DEFUN(XLIB:OPEN-FONT, display font)
 {
-  Display *dpy;
+  Display *dpy = (pushSTACK(STACK_1),pop_display());
   Font font;
-
-  pushSTACK(STACK_1);                   /* display argument */
-  dpy = pop_display ();
 
   /* XXX Maybe a symbol should be o.k. here too? */
 
@@ -4466,12 +4399,10 @@ DEFUN(XLIB:DISCARD-FONT-INFO, font)
 /* 8.3  Listing Fonts */
 DEFUN(XLIB:FONT-PATH, display &key RESULT-TYPE) /* [OK] */
 {
-  Display *dpy;
+  Display *dpy = (pushSTACK(STACK_1), pop_display());
   int npathen, i;
   char **pathen;
   gcv_object_t *res_type = &STACK_0;
-
-  pushSTACK(STACK_1); dpy = pop_display ();
 
   X_CALL(pathen = XGetFontPath (dpy, &npathen));
 
@@ -4492,39 +4423,29 @@ DEFUN(XLIB:FONT-PATH, display &key RESULT-TYPE) /* [OK] */
           entirely different architecture than the client. */
 DEFUN(XLIB:SET-FONT-PATH, arg1 arg2)
 {
-  Display *dpy;
-  int npathen,i;
+  Display *dpy = (pushSTACK(STACK_1), pop_display());
+  int npathen = get_uint32(funcall1(L(length),STACK_0)) , i;
+  DYNAMIC_ARRAY (pathen, char*, npathen);
 
-  pushSTACK(STACK_1); dpy = pop_display ();
-
-  /* Find number of pathen */
-  pushSTACK(STACK_0);
-  funcall (L(length), 1);
-  npathen = get_uint32 (value1);
-
-  {
-    DYNAMIC_ARRAY (pathen, char*, npathen);
-
-    for (i = 0; i < npathen; i++) {
-      pushSTACK(STACK_0);       /* pathen */
-      pushSTACK(fixnum(i));     /* index */
-      funcall (L(elt), 2);
-      if (stringp (value1)) {
-        with_string_0 (value1, GLO(misc_encoding), frob, {
-          uintL j = asciz_length (frob)+1; /* das ist bloed, denn laenge ist ja schon bekannt 8-( */
-          pathen [i] = malloc (j); /* warum eigendlich kein begin/end_call hier? 8-? */
-          while (j--) pathen[i][j] = frob[j];
-        });
-      } else my_type_error(S(string),value1);
-    }
-
-    begin_x_call();
-    XSetFontPath (dpy, pathen, npathen);
-    for (i = 0; i < npathen; i++) free (pathen [i]);
-    end_x_call();
-
-    FREE_DYNAMIC_ARRAY (pathen);
+  for (i = 0; i < npathen; i++) {
+    pushSTACK(STACK_0);       /* pathen */
+    pushSTACK(fixnum(i));     /* index */
+    funcall (L(elt), 2);
+    if (stringp (value1)) {
+      with_string_0 (value1, GLO(misc_encoding), frob, {
+        uintL j = asciz_length (frob)+1; /* das ist bloed, denn laenge ist ja schon bekannt 8-( */
+        pathen [i] = malloc (j); /* warum eigendlich kein begin/end_call hier? 8-? */
+        while (j--) pathen[i][j] = frob[j];
+      });
+    } else my_type_error(S(string),value1);
   }
+
+  begin_x_call();
+  XSetFontPath (dpy, pathen, npathen);
+  for (i = 0; i < npathen; i++) free (pathen [i]);
+  end_x_call();
+
+  FREE_DYNAMIC_ARRAY (pathen);
 
   VALUES1(STACK_0);
   skipSTACK(2);
@@ -5124,26 +5045,20 @@ DEFUN(XLIB:FREE-COLORS, colormap pixels &optional plane-mask)
   Display *dpy;
   Colormap  cm = get_colormap_and_display (STACK_2, &dpy);
   unsigned long plane_mask = (boundp(STACK_0) ? get_pixel (STACK_0) : 0);
-  unsigned int npixels, i;
+  unsigned int npixels = get_uint32(funcall1(L(length),STACK_1)) , i;
+  DYNAMIC_ARRAY (pixels, unsigned long, npixels);
 
-  pushSTACK(STACK_1);
-  funcall (L(length), 1);
-  npixels = get_uint32 (value1);
-
-  {
-    DYNAMIC_ARRAY (pixels, unsigned long, npixels);
-
-    for (i = 0; i < npixels; i++) {
-      pushSTACK(STACK_1);       /* pixels */
-      pushSTACK(fixnum(i));     /* index */
-      funcall (L(elt), 2);
-      pixels[i] = get_pixel (value1);
-    }
-
-    X_CALL(XFreeColors (dpy, cm, pixels, npixels, plane_mask));
-
-    FREE_DYNAMIC_ARRAY (pixels);
+  for (i = 0; i < npixels; i++) {
+    pushSTACK(STACK_1);       /* pixels */
+    pushSTACK(fixnum(i));     /* index */
+    funcall (L(elt), 2);
+    pixels[i] = get_pixel (value1);
   }
+
+  X_CALL(XFreeColors (dpy, cm, pixels, npixels, plane_mask));
+
+  FREE_DYNAMIC_ARRAY (pixels);
+
   VALUES1(NIL);
   skipSTACK(3);
 }
@@ -5177,30 +5092,25 @@ DEFUN(XLIB:QUERY-COLORS, colormap pixels &key RESULT-TYPE)
 { /* returns: colors -- Type sequence of color. */
   Display *dpy;
   Colormap cm = get_colormap_and_display (STACK_2, &dpy);
-  int ncolors, i;
   gcv_object_t *res_type = &STACK_0;
+  int ncolors = get_uint32(funcall1(L(length),STACK_1)), i;
+  DYNAMIC_ARRAY (colors, XColor, ncolors);
 
-  pushSTACK(STACK_1); funcall (L(length), 1); ncolors = get_uint32 (value1);
-
-  {
-    DYNAMIC_ARRAY (colors, XColor, ncolors);
-
-    for (i = 0; i < ncolors; i++) {
-      pushSTACK(STACK_1);             /* the colors arguments */
-      pushSTACK(fixnum(i));           /* the index */
-      funcall (L(elt), 2);            /* fetch it */
-      get_color (dpy, value1, &(colors[i])); /* and convert */
-    }
-
-    X_CALL(XQueryColors (dpy, cm, colors, ncolors));
-    /* FIXME - find what to do with the DoRed, DoGreen, and DoBlue flags?! */
-
-    for (i = 0; i < ncolors; i++)
-      pushSTACK(make_color (&(colors[i])));
-    VALUES1(coerce_result_type(ncolors,res_type));
-
-    FREE_DYNAMIC_ARRAY (colors);
+  for (i = 0; i < ncolors; i++) {
+    pushSTACK(STACK_1);             /* the colors arguments */
+    pushSTACK(fixnum(i));           /* the index */
+    funcall (L(elt), 2);            /* fetch it */
+    get_color (dpy, value1, &(colors[i])); /* and convert */
   }
+
+  X_CALL(XQueryColors (dpy, cm, colors, ncolors));
+  /* FIXME - find what to do with the DoRed, DoGreen, and DoBlue flags?! */
+
+  for (i = 0; i < ncolors; i++)
+    pushSTACK(make_color (&(colors[i])));
+  VALUES1(coerce_result_type(ncolors,res_type));
+
+  FREE_DYNAMIC_ARRAY (colors);
   skipSTACK(3);                 /* all done */
 }
 
@@ -5231,13 +5141,11 @@ DEFUN(XLIB:STORE-COLORS, colormap pixel-colors &key RED-P GREEN-P BLUE-P)
 {
   Display *dpy;
   Colormap cm = get_colormap_and_display (STACK_4, &dpy);
-  int ncolors;
+  int ncolors = get_uint32(funcall1(L(length),STACK_3));
   char flags =
     (!nullp (STACK_2) ? DoRed : 0)   |
     (!nullp (STACK_1) ? DoGreen : 0) |
     (!nullp (STACK_0) ? DoBlue : 0);
-
-  pushSTACK(STACK_3); funcall (L(length), 1); ncolors = get_uint32 (value1);
 
   if (ncolors%2) {
     pushSTACK(STACK_3);
@@ -5429,9 +5337,8 @@ DEFUN(XLIB:RECOLOR-CURSOR, arg1 arg2 arg3)
 /* 11.1  Atoms */
 DEFUN(XLIB:ATOM-NAME, display atom) /* OK */
 {
-  Display *dpy;
   Atom atom = get_uint29 (popSTACK());
-  dpy = pop_display ();
+  Display *dpy = pop_display ();
 
   VALUES1(make_xatom(dpy,atom));
 }
@@ -5481,11 +5388,9 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
     mode = get_enum(3);
   }
 
-  if (missingp(STACK_1)) {
-    pushSTACK(STACK_6); /* data argument */
-    funcall (L(length), 1);
-    end = get_uint32 (value1);
-  } else
+  if (missingp(STACK_1)) /* data argument */
+    end = get_uint32(funcall1(L(length),STACK_6));
+  else
     end = get_uint32 (STACK_1);
 
   len = (end-start) * (format/8);
@@ -5661,26 +5566,19 @@ DEFUN(XLIB:ROTATE-PROPERTIES, window properties &optional delta)
   Display *dpy;
   Window win   = get_window_and_display (STACK_2, &dpy);
   int delta    = (boundp(STACK_0) ? get_sint32 (STACK_0) : 1);
-  int num_props, i;
+  int num_props = get_uint32(funcall1(L(length),STACK_1)), i;
+  DYNAMIC_ARRAY (props, Atom, num_props);
 
-  pushSTACK(STACK_1);
-  funcall (L(length), 1);
-  num_props = get_uint32 (value1);
-
-  {
-    DYNAMIC_ARRAY (props, Atom, num_props);
-
-    for (i = 0; i < num_props; i++) {
-      pushSTACK(STACK_1);
-      pushSTACK(fixnum(i));
-      funcall (L(elt), 2);
-      props[i] = get_xatom (dpy, value1);
-    }
-
-    X_CALL(XRotateWindowProperties (dpy, win, props, num_props, delta));
-
-    FREE_DYNAMIC_ARRAY (props);
+  for (i = 0; i < num_props; i++) {
+    pushSTACK(STACK_1);
+    pushSTACK(fixnum(i));
+    funcall (L(elt), 2);
+    props[i] = get_xatom (dpy, value1);
   }
+
+  X_CALL(XRotateWindowProperties (dpy, win, props, num_props, delta));
+
+  FREE_DYNAMIC_ARRAY (props);
 
   VALUES1(NIL);
   skipSTACK(3);         /* all done */
@@ -5956,7 +5854,7 @@ DEFUN(XLIB:SET-SELECTION-OWNER, owner display selection &optional time)
     ESLOT4(`:TARGET`,           xatom,                  target)         \
     ESLOT4(`:PROPERTY`,         xatom,                  property)       \
     ESLOT (`:TIME`,             uint32,                 time)           \
-
+  /* vacuous comment to signify the end of the #define */
 
 static int disassemble_event_on_stack (XEvent *ev, gcv_object_t *dpy_objf)
 /* Disassembles an X event onto the stack and returns the number of elements
@@ -6113,20 +6011,10 @@ static void get_timeout (object o, struct timeval *tv)
 DEFUN(XLIB:PROCESS-EVENT, display &key HANDLER TIMEOUT PEEK-P DISCARD-P \
       FORCE-OUTPUT-P)
 {
-  int force_output_p, discard_p, peek_p;
-  int timeout;
-  Display *dpy;
-
-  /* Fetch the arguments */
-  pushSTACK(STACK_5); dpy = pop_display ();
-
-  force_output_p = (boundp(STACK_0) ? get_bool(STACK_0) : 1);
-  discard_p      = !missingp(STACK_1);
-  peek_p         = !missingp(STACK_2);
-
-  timeout = -1;
-  if (integerp(STACK_3))
-    timeout = get_uint32 (STACK_3);
+  Display *dpy = (pushSTACK(STACK_5), pop_display());
+  int force_output_p = (boundp(STACK_0) ? get_bool(STACK_0) : 1);
+  int discard_p = !missingp(STACK_1), peek_p = !missingp(STACK_2);
+  int timeout = integerp(STACK_3) ? get_uint32(STACK_3) : -1;
 
   if (!boundp(STACK_4))
     NOTIMPLEMENTED;
@@ -6255,12 +6143,10 @@ DEFUN(XLIB:DISCARD-CURRENT-EVENT, display)
   event-listen will not return until an event arrives. */
 DEFUN(XLIB:EVENT-LISTEN, display &optional timeout)
 {
-  Display *dpy;
+  Display *dpy = (pushSTACK(STACK_1), pop_display());
   struct timeval timeout;
   int r;
   XEvent trashcan;
-
-  pushSTACK(STACK_1); dpy = pop_display ();
 
   if (nullp(STACK_0)) {
     /* Block */
@@ -6381,7 +6267,7 @@ DEFUN(XLIB:QUERY-POINTER, window)
       [3] root */
 DEFUN(XLIB:GLOBAL-POINTER-POSITION, display)
 {
-  Display *dpy;
+  Display *dpy = (pushSTACK(STACK_0), pop_display());
   Window   win;
 
   Window root, child;
@@ -6390,7 +6276,6 @@ DEFUN(XLIB:GLOBAL-POINTER-POSITION, display)
   unsigned int mask;
   Bool same_screen_p;
 
-  pushSTACK(STACK_0); dpy = pop_display ();
   X_CALL(same_screen_p = XQueryPointer
          (dpy, DefaultRootWindow (dpy), &root, &child, &root_x, &root_y,
           &win_x, &win_y, &mask));
@@ -6533,12 +6418,9 @@ DEFUN(XLIB:SET-INPUT-FOCUS , dpy focus revert-to &optional time1)
  the libX11 function just returns a state ?! */
 DEFUN(XLIB:INPUT-FOCUS, display)
 {
-  Display *dpy;
+  Display *dpy = (pushSTACK(STACK_0), pop_display());
   Window focus;
   int revert;
-
-  pushSTACK(STACK_0);
-  dpy = pop_display ();
 
   X_CALL(XGetInputFocus (dpy, &focus, &revert));
 
@@ -6571,7 +6453,7 @@ static void ungrab_X (int (*X)(Display *dpy, Time time))
   skipSTACK(2);
 }
 
-inline static object grab_to_object (int gr) {
+static inline object grab_to_object (int gr) {
   switch (gr) {
     case AlreadyGrabbed:  return `:ALREADY-GRABBED`;
     case GrabFrozen:      return `:FROZEN`;
@@ -6898,8 +6780,7 @@ DEFUN(XLIB:POINTER-MAPPING, display &key RESULT-TYPE)
      pointing devices with more than five buttons? */
   unsigned char map [5];
   unsigned int nmap, i;
-  Display *dpy;
-  pushSTACK(STACK_1); dpy = pop_display ();
+  Display *dpy = (pushSTACK(STACK_1), pop_display());
   gcv_object_t *res_type = &STACK_0;
 
   X_CALL(nmap = XGetPointerMapping (dpy, map, sizeof (map)/sizeof (map[0])));
@@ -6914,26 +6795,21 @@ DEFUN(XLIB:POINTER-MAPPING, display &key RESULT-TYPE)
  == (XLIB:SET-POINTER-MAPPING display mapping) */
 DEFUN(XLIB:SET-POINTER-MAPPING, arg1 arg2)
 {
-  Display *dpy;
-  int nmap, i;
+  Display *dpy = (pushSTACK(STACK_1), pop_display());
+  int nmap = get_uint32(funcall1(L(length),STACK_0)), i;
   int result;
+  DYNAMIC_ARRAY (map, unsigned char, nmap);
 
-  pushSTACK(STACK_1); dpy = pop_display ();
-  pushSTACK(STACK_0); funcall (L(length), 1); nmap = get_uint32 (value1);
+  for (i = 0; i < nmap; i++) {
+    pushSTACK(STACK_0);       /* mapping argument */
+    pushSTACK(fixnum(i));     /* index */
+    funcall (L(elt), 2);
+    map [i] = get_uint8 (value1);
+  }
 
-  {
-    DYNAMIC_ARRAY (map, unsigned char, nmap);
+  X_CALL(result = XSetPointerMapping (dpy, map, nmap));
 
-    for (i = 0; i < nmap; i++) {
-      pushSTACK(STACK_0);       /* mapping argument */
-      pushSTACK(fixnum(i));     /* index */
-      funcall (L(elt), 2);
-      map [i] = get_uint8 (value1);
-    }
-
-    X_CALL(result = XSetPointerMapping (dpy, map, nmap));
-
-    /* From XSetPointerMapping(3X11):
+  /* From XSetPointerMapping(3X11):
 
      If any of  the buttons to be altered  are logically in the down
      state, XSetPointerMapping  returns MappingBusy, and the mapping
@@ -6941,8 +6817,7 @@ DEFUN(XLIB:SET-POINTER-MAPPING, arg1 arg2)
 
      What should we do with that?! */
 
-    FREE_DYNAMIC_ARRAY (map);
-  }
+  FREE_DYNAMIC_ARRAY (map);
 
   VALUES1(STACK_0);
   skipSTACK(2);                /* all done */
@@ -7025,9 +6900,7 @@ DEFUN(XLIB:MODIFIER-MAPPING, display)
    The manual does not specify the optional argument. */
 DEFUN(XLIB:QUERY-KEYMAP, display &optional bit-vector)
 {
-  Display *dpy;
-
-  pushSTACK(STACK_1); dpy = pop_display ();
+  Display *dpy = (pushSTACK(STACK_1), pop_display());
 
   if (boundp(STACK_0)) {
     if (!(simple_bit_vector_p (Atype_Bit, STACK_0)
@@ -7283,13 +7156,10 @@ DEFUN(XLIB:SCREEN-SAVER, display)
 
 DEFUN(XLIB:SET-SCREEN-SAVER, display timeout period blanking exposures)
 {
-  int exposures, blanking, period, timeout;
-  Display *dpy;
-
-  pushSTACK(STACK_4); dpy = pop_display ();
-
-  timeout = eq (STACK_3, `:DEFAULT`) ? -1 : get_sint32 (STACK_3);
-  period = get_uint32 (STACK_2);
+  int exposures, blanking;
+  Display *dpy = (pushSTACK(STACK_4), pop_display());
+  int timeout = eq (STACK_3, `:DEFAULT`) ? -1 : get_sint32 (STACK_3);
+  int period = get_uint32 (STACK_2);
 
   pushSTACK(STACK_1);
   pushSTACK(`:NO`);
@@ -7319,10 +7189,8 @@ DEFUN(XLIB:LIST-EXTENSIONS, display &key RESULT-TYPE)
 {
   int n = 0;
   char **extlist;
-  Display *dpy;
+  Display *dpy = (pushSTACK(STACK_1), pop_display());
   gcv_object_t *res_type = &STACK_0;
-
-  pushSTACK(STACK_1); dpy = pop_display ();
 
   X_CALL(extlist = XListExtensions (dpy, &n));
 
@@ -7340,10 +7208,8 @@ DEFUN(XLIB:LIST-EXTENSIONS, display &key RESULT-TYPE)
 DEFUN(XLIB:QUERY-EXTENSION, arg1 arg2)
 {
   int opcode, event, error;
-  Display *dpy;
+  Display *dpy = (pushSTACK(STACK_1), pop_display());
   Status r;
-
-  pushSTACK(STACK_1); dpy = pop_display ();
 
   with_stringable_0_tc (STACK_0, GLO(misc_encoding), name, {
       X_CALL(r = XQueryExtension (dpy, name, &opcode, &event, &error));
@@ -7517,9 +7383,8 @@ static Bool ensure_shape_extension (Display *dpy, object dpy_obj, int error_p)
       minor */
 DEFUN(XLIB:SHAPE-VERSION, display)
 {
-  Display *dpy;
+  Display *dpy = (pushSTACK(STACK_0), pop_display());
   int major_version, minor_version;
-  pushSTACK(STACK_0); dpy = pop_display ();
   if (ensure_shape_extension (dpy, STACK_0, 0)) { /* Is it there? */
     if (XShapeQueryVersion (dpy, &major_version, &minor_version)) {
       VALUES2(make_uint16(major_version),make_uint16(minor_version));
@@ -7566,40 +7431,33 @@ DEFUN(XLIB:SHAPE-COMBINE, destination source \
     Pixmap src = get_window (STACK_5);
     XShapeCombineShape(dpy,dest,kind,x_off,y_off,src,kind/*src_kind*/,op);
   } else if (listp (STACK_5) || vectorp (STACK_5)) {
-    int i, nrectangles;
+    int i, nrectangles = get_uint32(funcall1(L(length),STACK_5));
+    DYNAMIC_ARRAY (rectangles, XRectangle, nrectangles);
 
-    /* Find number of rectangles */
-    pushSTACK(STACK_5); funcall (L(length), 1);
-    nrectangles = get_uint32 (value1);
+    for (i = 0; i < nrectangles; i++) {
+      pushSTACK(STACK_5);     /* rectangles */
+      pushSTACK(fixnum(i));   /* index */
+      funcall (L(elt), 2);
+      pushSTACK(value1);      /* save element */
 
-    {
-      DYNAMIC_ARRAY (rectangles, XRectangle, nrectangles);
+      pushSTACK(STACK_0); pushSTACK(fixnum(0)); funcall (L(elt), 2);
+      rectangles[i].x = get_sint16(value1);
 
-      for (i = 0; i < nrectangles; i++) {
-        pushSTACK(STACK_5);     /* rectangles */
-        pushSTACK(fixnum(i));   /* index */
-        funcall (L(elt), 2);
-        pushSTACK(value1);      /* save element */
+      pushSTACK(STACK_0); pushSTACK(fixnum(1)); funcall (L(elt), 2);
+      rectangles[i].y = get_sint16(value1);
 
-        pushSTACK(STACK_0); pushSTACK(fixnum(0)); funcall (L(elt), 2);
-        rectangles[i].x = get_sint16(value1);
+      pushSTACK(STACK_0); pushSTACK(fixnum(2)); funcall (L(elt), 2);
+      rectangles[i].width = get_sint16(value1);
 
-        pushSTACK(STACK_0); pushSTACK(fixnum(1)); funcall (L(elt), 2);
-        rectangles[i].y = get_sint16(value1);
-
-        pushSTACK(STACK_0); pushSTACK(fixnum(2)); funcall (L(elt), 2);
-        rectangles[i].width = get_sint16(value1);
-
-        pushSTACK(fixnum(3)); funcall (L(elt), 2);
-        rectangles[i].height = get_sint16(value1);
-      }
-
-      XShapeCombineRectangles (dpy, dest, kind, x_off, y_off,
-                               rectangles, nrectangles,
-                               op, ordering);
-
-      FREE_DYNAMIC_ARRAY (rectangles);
+      pushSTACK(fixnum(3)); funcall (L(elt), 2);
+      rectangles[i].height = get_sint16(value1);
     }
+
+    XShapeCombineRectangles (dpy, dest, kind, x_off, y_off,
+                             rectangles, nrectangles,
+                             op, ordering);
+
+    FREE_DYNAMIC_ARRAY (rectangles);
   }
 
   VALUES1(NIL);
@@ -7876,9 +7734,7 @@ DEFUN(XPM:READ-FILE-TO-PIXMAP, drawable filename &key SHAPE-MASK-P PIXMAP-P)
 
   pushSTACK(get_display_obj (STACK_3));
 
-  pushSTACK(STACK_3);
-  funcall (L(namestring), 1);
-  STACK_3 = value1;
+  STACK_3 = funcall1(L(namestring),STACK_3);
 
   with_string_0 (STACK_3, GLO(pathname_encoding), filename, {
       X_CALL(r = XpmReadFileToPixmap (dpy, da, filename,
