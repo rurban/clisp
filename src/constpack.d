@@ -19,9 +19,6 @@
 
 LISPPACK(clos,"CLOS")
 LISPPACK(user,"USER")
-#ifdef UNICODE
-LISPPACK(charset,"CHARSET")
-#endif
 #ifdef SCREEN
 LISPPACK(screen,"SCREEN")
 #endif

@@ -1195,6 +1195,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                enum_lisp_index,
                enum_system_index,
                enum_keyword_index,
+               enum_charset_index,
                #define LISPPACK  LISPPACK_A
                #include "constpack.c"
                #undef LISPPACK
@@ -1209,7 +1210,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           };
         {var object list = O(all_packages); # Liste der Packages
          # kurz nach der Initialisierung:
-         # (#<PACKAGE LISP> #<PACKAGE SYSTEM> #<PACKAGE KEYWORD> ...)
+         # (#<PACKAGE LISP> #<PACKAGE SYSTEM> #<PACKAGE KEYWORD> #<PACKAGE CHARSET> ...)
          var uintC count;
          dotimespC(count,package_anz, { pushSTACK(Car(list)); list = Cdr(list); });
         }
@@ -1223,9 +1224,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
              pushSTACK(symbol_tab_ptr_as_object(ptr)); # Symbol
              import(&STACK_0,package_); # erst normal importieren
              if (index == (uintB)enum_lisp_index # in #<PACKAGE LISP> ?
-                 #ifdef UNICODE
                  || index == (uintB)enum_charset_index # in #<PACKAGE CHARSET> ?
-                 #endif
                 )
                { export(&STACK_0,package_); } # ja -> auch exportieren
              Symbol_package(popSTACK()) = *package_; # und die Home-Package setzen
