@@ -1,5 +1,12 @@
 2004-04-16  Sam Steingold  <sds@gnu.org>
 
+	* io.d (test_ostream): accept a gcv_object_t* argument instead of
+	using STACK_0; updated all callers, including...
+	(FORMAT-TABULATE): do not juggle STACK to ensure that the stream
+	is in STACK_0
+
+2004-04-16  Sam Steingold  <sds@gnu.org>
+
 	* utils/clispload.lsp (disassemble-machine-code) [CYGWIN, WIN32]:
 	redefine because debugging kills the process on woe32
 
