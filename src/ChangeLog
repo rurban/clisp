@@ -7,6 +7,7 @@
 	* m4/codeset.m4, m4/gettext.m4, m4/glibc21.m4, m4/isc-posix.m4,
 	m4/lcmessage.m4, m4/lib-ld.m4, m4/lib-link.m4, m4/lib-prefix.m4,
 	m4/progtest.m4: New files, from GNU gettext 0.11.2.
+	* autoconf/config.rpath: New file, from GNU gettext 0.11.2.
 	* makemake.in: Pay attention to CPPFLAGS. New variable XCPPFLAGS.
 	(USE_LIBICONV, XCL_ICONVLIB): Remove variables.
 	(USE_LIBCHARSET, XCL_CHARSETLIB): New variables.
