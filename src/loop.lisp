@@ -632,7 +632,7 @@
                                                      step-function-form)))
                                        (unless (and funform (symbolp funform))
                                          (setq step-function-var (gensym)))))
-                                   (let ((var (if (and (symbolp pattern)
+                                   (let ((var (if (and pattern (symbolp pattern)
                                                        (eq preposition 'ON))
                                                   pattern (gensym))))
                                      (push `(,var ,start-form) bindings)

@@ -868,6 +868,9 @@ nil
 (LET ((I 0)) (LOOP FOR NIL FROM 10 BELOW 15 COLLECT (INCF I)))
 (1 2 3 4 5)
 
+(LOOP FOR NIL ON NIL DO (RETURN T))
+NIL
+
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
 ;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
