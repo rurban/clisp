@@ -1,5 +1,24 @@
 2001-08-15  Sam Steingold  <sds@gnu.org>
 
+	* utils/gcc-cccp/Makefile.* (clean): new target
+	* utils/gcc-cccp/Makefile (clean): new target
+	adapted for CYGWIN/MINGW compilation
+	* utils/gcc-cccp/cccp.c: made compilable under CYGWIN/MINGW:
+	(stdlib.h, string.h, errno.h): include
+	(max): define only if not yet defined
+	(sys_nerr, sys_errlist): do not use on CYGWIN/MINGW, use strerror()
+	code clean-up: added prototypes, fixed warnings and...
+	(fancy_abort): removed (unused)
+	(pipe_closed): ifndef _WIN32
+	(fancy_abort): turned into a macro
+	(grow_outbuf): void
+	(expand_to_temp_buffer): do not return a local var
+	fixed a show-stopper bug:
+	(rescan): `obufp_before_macroname' is on the top level now
+	(RECACHE): update `obufp_before_macroname'
+
+2001-08-15  Sam Steingold  <sds@gnu.org>
+
 	MT-safety: remove a static variable
 	* io.d (circle_p): return a boolean and take a circle_info_t* arg
 	(pr_circle): info is not a pointer now; pass it to circle_p()
