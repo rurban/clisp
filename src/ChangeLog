@@ -1,3 +1,7 @@
+2002-05-27  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (NLS_INCLUDES): removed nls_cp1255 and nls_cp1258
+
 2002-05-26  Bruno Haible  <bruno@clisp.org>
 
 	* utils/unicode/Makefile (ALL): Remove nls_cp1255.c, nls_cp1258.c.
