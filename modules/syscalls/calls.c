@@ -63,9 +63,7 @@
 #if defined(HAVE_WCHAR_H)
 # include <wchar.h>
 #endif
-#if defined(HAVE_LIMITS_H)
-# include <limits.h>
-#endif
+#include <limits.h>
 #if defined(HAVE_SYSLOG_H)
 # include <syslog.h>
 #endif
@@ -304,7 +302,7 @@ DEFUNF(POSIX::J1,x) { VAL_D(j1); mv_count=1; }
 DEFUNF(POSIX::JN,i x) { VAL_ID(jn); mv_count=1; }
 DEFUNF(POSIX::Y0,x) { VAL_D(y0); mv_count=1; }
 DEFUNF(POSIX::Y1,x) { VAL_D(y1); mv_count=1; }
-DEFUNF(POSIX::YN,i y){ VAL_ID(yn); mv_count=1; }
+DEFUNF(POSIX::YN,i y) { VAL_ID(yn); mv_count=1; }
 
 #if defined(HAVE_LGAMMA) || HAVE_DECL_LGAMMA_R
 DEFUNF(POSIX::LGAMMA,x) {
