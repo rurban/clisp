@@ -1837,37 +1837,45 @@ global object get_current_package (void) {
  < result: argument turned into a package
  can trigger GC */
 local object test_package_arg (object obj) {
+ restart_package_arg:
   if (packagep(obj)) { /* package -> mostly OK */
     if (!pack_deletedp(obj))
       return obj;
+    pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* PACKAGE-ERROR slot PACKAGE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    fehler(package_error,GETTEXT("~: Package ~ has been deleted."));
+    check_value(package_error,GETTEXT("~: Package ~ has been deleted."));
+    obj = value1;
+    goto restart_package_arg;
   }
   if (stringp(obj))
   string: { /* string -> search package with name obj: */
     var object pack = find_package(obj);
     if (!nullp(pack))
       return pack;
+    pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* PACKAGE-ERROR slot PACKAGE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    fehler(package_error,GETTEXT("~: There is no package with name ~"));
+    check_value(package_error,GETTEXT("~: There is no package with name ~"));
+    obj = value1;
+    goto restart_package_arg;
   }
-  if (symbolp(obj)) { /* symbol -> */
+  if (symbolp(obj)) { /* symbol -> string */
     obj = Symbol_name(obj); goto string; /* use print name */
   }
-  if (charp(obj)) { /* character -> */
-    pushSTACK(obj);
-    { var object new_string = allocate_string(1);
-      TheSstring(new_string)->data[0] = char_code(STACK_0);
-      obj = new_string; }
-    skipSTACK(1); goto string;
+  if (charp(obj)) { /* character -> string */
+    var object new_string = allocate_string(1);
+    TheSstring(new_string)->data[0] = char_code(obj);
+    obj = new_string;
+    goto string;
   }
+  pushSTACK(NIL); /* no PLACE */
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_packname)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,
-         GETTEXT("~: argument should be a package or a package name, not ~"));
+  check_value(type_error,GETTEXT("~: argument should be a package or a package name, not ~"));
+  obj = value1;
+  goto restart_package_arg;
 }
 
 LISPFUNNR(make_symbol,1) { /* (MAKE-SYMBOL printname), CLTL p. 168 */
@@ -1970,7 +1978,7 @@ LISPFUN(rename_package,seclass_default,2,1,norest,nokey,0,NIL) {
     var object name = STACK_1;
     var object nicknamelistr = STACK_0;
     /* name loops over the names and all nicknames */
-    loop { /* search package with this name: */
+    loop { /* find package with this name: */
       var object found = find_package(name);
       if (!(nullp(found) || eq(found,pack))) {
         /* found, but another one than the given package: */
@@ -2319,7 +2327,7 @@ local object correct_packname (object name) {
     pushSTACK(S(package_error)); /* PACKAGE-ERROR */
     pushSTACK(S(Kpackage)); /* :PACKAGE */
     pushSTACK(name); /* package-name */
-    pushSTACK(NIL); /* "A package with the name ~S exists already." */
+    pushSTACK(NIL); /* "A package with the name ~S already exists." */
     pushSTACK(name);
     STACK_1 = CLSTEXT("a package with name ~S already exists.");
     /* (SYS::CERROR-OF-TYPE "You may ..." 'PACKAGE-ERROR :PACKAGE name
@@ -2399,7 +2407,7 @@ LISPFUN(pin_package,seclass_default,1,0,norest,key,3,
   /* check name and turn into string: */
   var object name = test_stringsymchar_arg(STACK_3);
   STACK_3 = name;
-  /* search package with this name: */
+  /* find package with this name: */
   var object pack = find_package(name);
   if (nullp(pack)) { /* package not found, must create a new one */
     in_make_package();
@@ -2466,7 +2474,7 @@ LISPFUNN(delete_package,1) {
       VALUES1(NIL); return; /* already deleted -> 1 value NIL */
     }
   } else if (stringp(pack))
-  string: { /* string -> search package with this name: */
+  string: { /* string -> find package with this name: */
     var object found = find_package(pack);
     if (nullp(found)) {
       /* raise Continuable Error: */
@@ -2486,17 +2494,15 @@ LISPFUNN(delete_package,1) {
       return;
     }
     pack = found;
-  } else if (symbolp(pack)) { /* symbol -> */
+  } else if (symbolp(pack)) { /* symbol -> string */
     pack = Symbol_name(pack); goto string; /* use printname */
-  } else if (charp(pack)) { /* character -> */
-    pushSTACK(pack);
-    { var object new_string = allocate_string(1);
-      TheSstring(new_string)->data[0] = char_code(STACK_0);
-      pack = new_string; }
-    skipSTACK(1); goto string;
-  } else {
+  } else if (charp(pack)) { /* character -> string */
+    var object new_string = allocate_string(1);
+    TheSstring(new_string)->data[0] = char_code(STACK_0);
+    pack = new_string;
+    goto string;
+  } else
     pack = test_package_arg(pack); /* report error */
-  }
   pushSTACK(pack);
   if (!nullp(ThePackage(pack)->pack_used_by_list)) {
     /* raise Continuable Error: */
