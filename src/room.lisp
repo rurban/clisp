@@ -56,9 +56,11 @@
           )
     ) ) )
     (unless (eq kind 'nil)
-      (format t (TEXT "~%Bytes permanently allocated:   ~9D~%Bytes currently in use:        ~9D~%Bytes available until next GC: ~9D~%")
-                static used room
-    ) )
+      (terpri)
+      (format t (TEXT "Bytes permanently allocated:   ~9D~%Bytes currently in use:        ~9D~%Bytes available until next GC: ~9D")
+                static used room)
+      (terpri)
+    )
     (values used room)
 ) )
 

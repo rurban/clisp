@@ -157,8 +157,9 @@
                      )
          == (void*)(-1)
        ) {
-      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x .\n"),
+      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x ."),
               map_addr);
+      fputs("\n",stderr);
       errno_out(errno);
       return -1; # error
     }
@@ -213,8 +214,10 @@
           var uintL available = (uintL)(statbuf.f_bsize) * (uintL)(statbuf.f_bavail);
           if (available < map_len) {
             # there is likely too few disk space
-            fprintf(stderr,GETTEXTL("** WARNING: ** Too little free disk space for <%s>." NLstring),tempfilename);
-            fprintf(stderr,GETTEXTL("Please restart LISP with less memory (option -m)." NLstring));
+            fprintf(stderr,GETTEXTL("** WARNING: ** Too little free disk space for <%s>."),tempfilename);
+            fputs("\n",stderr);
+            fprintf(stderr,GETTEXTL("Please restart LISP with less memory (option -m)."));
+            fputs("\n",stderr);
           }
         }
     }
@@ -321,7 +324,8 @@
       var struct shminfo shminfo;
       if ( shmctl(0,IPC_INFO,(struct shmid_ds *)&shminfo) <0)
         if (errno==ENOSYS) {
-          fprintf(stderr,GETTEXTL("Recompile your operating system with SYSV IPC support." NLstring));
+          fprintf(stderr,GETTEXTL("Recompile your operating system with SYSV IPC support."));
+          fputs("\n",stderr);
           return -1; # error
         }
     }

@@ -176,9 +176,11 @@ be a string, which must be the name of a known library."
                     arg-types))))
     (unless (equalp old new)
       (when old
+        (fresh-line *error-output*)
         (format *error-output*
-                (TEXT "~&;; redefining foreign library function ~S~%;;  from ~S to ~S~%")
-                name old new))
+                (TEXT ";; redefining foreign library function ~S~%;;  from ~S to ~S")
+                name old new)
+        (terpri *error-output*))
       ;; TODO check types
       (setf (gethash name *library-functions*) new)))
   name)

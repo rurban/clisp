@@ -484,7 +484,8 @@ global bool near_SP_overflow (void) {
 nonreturning_function(global, SP_ueber, (void)) {
   var bool interactive_p = interactive_stream_p(Symbol_value(S(debug_io)));
   begin_system_call();
-  fputs(GETTEXTL("\n*** - " "Program stack overflow. RESET"),stderr);
+  fputs("\n",stderr);
+  fputs(GETTEXTL("*** - " "Program stack overflow. RESET"),stderr);
   if (!interactive_p) fputs("\n",stderr);
   fflush(stderr);
   end_system_call();
@@ -495,7 +496,8 @@ nonreturning_function(global, SP_ueber, (void)) {
 nonreturning_function(global, STACK_ueber, (void)) {
   var bool interactive_p = interactive_stream_p(Symbol_value(S(debug_io)));
   begin_system_call();
-  fputs(GETTEXTL("\n*** - " "Lisp stack overflow. RESET"),stderr);
+  fputs("\n",stderr);
+  fputs(GETTEXTL("*** - " "Lisp stack overflow. RESET"),stderr);
   if (!interactive_p) fputs("\n",stderr);
   fflush(stderr);
   end_system_call();
@@ -1871,12 +1873,13 @@ global int main (argc_t argc, char* argv[]) {
                     arg++; break;                                          \
                 }                                                          \
                 if (*arg != '\0') { # argument finished?                   \
-                  fprintf(stderr,GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB\n"), docstring); \
+                  fprintf(stderr,GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB"), docstring); \
+                  fputs("\n",stderr);                                      \
                   usage (1);                                               \
                 }                                                          \
                 if (!((val >= limit_low) && (val <= limit_high))) {        \
-                  fprintf(stderr,GETTEXTL("%s out of range\n"),  \
-                          docstring);                                   \
+                  fprintf(stderr,GETTEXTL("%s out of range"), docstring);  \
+                  fputs("\n",stderr);                                      \
                   usage (1);                                               \
                 }                                                          \
                 # For multiple -m resp. -s arguments, only the last counts.\
@@ -2025,7 +2028,8 @@ global int main (argc_t argc, char* argv[]) {
               argv_ansi = 1; # ANSI
             else if (arg[2] != '\0') usage (1);
             else {
-              fprintf(stderr,GETTEXTL("CLISP: -a is deprecated, use -ansi\n"));
+              fprintf(stderr,GETTEXTL("CLISP: -a is deprecated, use -ansi"));
+              fputs("\n",stderr);
               argv_ansi = 1; # ANSI
             }
             break;
@@ -2271,13 +2275,15 @@ global int main (argc_t argc, char* argv[]) {
       begin_system_call();
       memblock = (aint)malloc(1);
       end_system_call();
-      fprintf(stderr,GETTEXTL("Return value of malloc() = %x is not compatible with type code distribution.\n"),
+      fprintf(stderr,GETTEXTL("Return value of malloc() = %x is not compatible with type code distribution."),
               memblock);
+      fputs("\n",stderr);
       goto no_mem;
     }
     if (memneed < MINIMUM_SPACE+RESERVE) { # but with less than MINIMUM_SPACE
       # we will not be satisfied:
-      fprintf(stderr,GETTEXTL("Only %d bytes available.\n"),memneed);
+      fprintf(stderr,GETTEXTL("Only %d bytes available."),memneed);
+      fputs("\n",stderr);
       goto no_mem;
     }
    #endif
@@ -2520,7 +2526,8 @@ global int main (argc_t argc, char* argv[]) {
             # page is 0x32000-0x32FFF, hence we can set SP_bound = 0x34000.
             { var MEMORY_BASIC_INFORMATION info;
               if (!(VirtualQuery((void*)SP(),&info,sizeof(info)) == sizeof(info))) {
-                fprintf(stderr,GETTEXTL("Could not determine the end of the SP stack!\n"));
+                fprintf(stderr,GETTEXTL("Could not determine the end of the SP stack!"));
+                fputs("\n",stderr);
                 SP_bound = 0;
               } else { # 0x4000 might be enough, but 0x8000 will be better.
                 SP_bound = (void*)((aint)info.AllocationBase + 0x8000);
@@ -2753,7 +2760,9 @@ global int main (argc_t argc, char* argv[]) {
   if ((argv_memfile == NULL) && (argv_expr_count == 0)) {
     # warning for beginners
     pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
-    write_sstring(&STACK_0,CLSTEXT("\nWARNING: No initialization file specified.\n"));
+    terpri(&STACK_0);
+    write_sstring(&STACK_0,CLSTEXT("WARNING: No initialization file specified."));
+    terpri(&STACK_0);
     write_sstring(&STACK_0,CLSTEXT("Please try: "));
     write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
     write_string(&STACK_0,ascii_to_string(" -M lispinit.mem\n"));
@@ -2763,7 +2772,9 @@ global int main (argc_t argc, char* argv[]) {
     if (nullp(O(lib_dir))) {
       # warning for beginners and careless developers
       pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # on *STANDARD-OUTPUT*
-      write_sstring(&STACK_0,CLSTEXT("\nWARNING: No installation directory specified.\n"));
+      terpri(&STACK_0);
+      write_sstring(&STACK_0,CLSTEXT("WARNING: No installation directory specified."));
+      terpri(&STACK_0);
       write_sstring(&STACK_0,CLSTEXT("Please try: "));
       write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
       write_string(&STACK_0,ascii_to_string(" -B /usr/local/lib/clisp\n"));
@@ -2915,7 +2926,8 @@ global int main (argc_t argc, char* argv[]) {
       Symbol_value(S(packagestern)) = package;
     } else {
       pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
-      write_sstring(&STACK_0,CLSTEXT("\nWARNING: no such package: "));
+      terpri(&STACK_0);
+      write_sstring(&STACK_0,CLSTEXT("WARNING: no such package: "));
       write_sstring(&STACK_0,packname);
       terpri(&STACK_0);
       skipSTACK(1);
@@ -2995,7 +3007,8 @@ global int main (argc_t argc, char* argv[]) {
  } # end var bt
   # if the memory does not suffice:
   no_mem:
-  fprintf(stderr,GETTEXTL("%s: Not enough memory for Lisp.\n"),program_name);
+  fprintf(stderr,GETTEXTL("%s: Not enough memory for Lisp."),program_name);
+  fputs("\n",stderr);
   quit_sofort(1);
   /*NOTREACHED*/
   # termination of program via quit_sofort() (engl. quit_instantly() ):

@@ -30,7 +30,7 @@
 (defun report-one-new-value-string-instead ()
   (TEXT "You may input a value to be used instead~@[ of ~S~]."))
 (defun prompt-for-new-value-string ()
-  (TEXT "~%New ~S: "))
+  (concatenate 'string "~%" (TEXT "New ~S: ")))
 (defmacro check-type (place typespec &optional (string nil))
   (let ((tag1 (gensym))
         (tag2 (gensym)))

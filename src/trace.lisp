@@ -193,7 +193,8 @@ This will not work with closures that use lexical variables!"
       (setf (get (tracer-symb trr) 'sys::traced-definition)
             (tracer-cur-def trr))
       (pushnew (tracer-name trr) *traced-functions* :test #'equal))
-    (format t (TEXT "~&;; Tracing ~:[function~;macro~] ~S.")
+    (fresh-line)
+    (format t (TEXT ";; Tracing ~:[function~;macro~] ~S.")
             macro-flag (tracer-name trr))
     (setf (get (tracer-symb trr) 'sys::tracing-definition)
           ;; new function, that replaces the original one:

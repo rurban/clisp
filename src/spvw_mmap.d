@@ -63,8 +63,9 @@
   {
     if (vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, false)
         != KERN_SUCCESS) {
-      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x .\n"),
+      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x ."),
               map_addr);
+      fputs("\n",stderr);
       return -1; /* error */
     }
     return 0;
@@ -193,8 +194,9 @@
   {
     if (!VirtualAlloc(map_addr,map_len,MEM_COMMIT,PAGE_READWRITE)) {
       var DWORD errcode = GetLastError();
-      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x .\n"),
+      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x ."),
               map_addr);
+      fputs("\n",stderr);
       errno_out(errcode);
       return -1; /* error */
     }
@@ -235,8 +237,9 @@
       return (void*)(-1);
     }
     if (resultaddr != map_addr) {
-      fprintf(stderr,GETTEXTL("MapViewOfFileEx() returned 0x%x instead of 0x%x." NLstring),
+      fprintf(stderr,GETTEXTL("MapViewOfFileEx() returned 0x%x instead of 0x%x."),
               resultaddr,map_addr);
+      fputs("\n",stderr);
       UnmapViewOfFile(resultaddr);
       return (void*)(-1);
     }
@@ -352,8 +355,9 @@
                       map_flags | MAP_FIXED, /* exactly at this address! */
                       mmap_zero_fd, 0) /* put empty pages */
          == (void*)(-1)) {
-      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x .\n"),
+      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x ."),
               map_addr);
+      fputs("\n",stderr);
       errno_out(errno);
       return -1; /* error */
     }

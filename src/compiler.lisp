@@ -1740,7 +1740,7 @@ for-value   NIL or T
 (defun c-warn (cstring &rest args)
   (incf *warning-count*)
   (apply #'c-comment
-         (concatenate 'string (TEXT "~%WARNING~@[ in ~A~]~A :~%") cstring)
+         (concatenate 'string "~%" (TEXT "WARNING~@[ in ~A~]~A :") "~%" cstring)
          (current-function) (c-source-location)
          args))
 
@@ -1760,7 +1760,8 @@ for-value   NIL or T
     (when in-function
       (when *compiling-from-file*
         (pushnew in-function *functions-with-errors*)))
-    (format *c-error-output* (TEXT "~%ERROR~@[ in ~S~]~A :~%~?")
+    (format *c-error-output*
+            (concatenate 'string "~%" (TEXT "ERROR~@[ in ~S~]~A :") "~%~?")
             in-function (c-source-location) cstring args))
   (throw 'c-error
     (make-anode :source NIL
@@ -2503,9 +2504,7 @@ for-value   NIL or T
   (let ((n (length args))
         (reqopt (+ req opt)))
     (unless (and (or applyargs (<= req n)) (or rest-p key-p (<= n reqopt)))
-      (c-warn (TEXT "~S was called with ~S~:[~; or more~] arguments, ~
-                     but it requires ~:[~:[from ~S to ~S~;~S~]~;~
-                     at least ~*~S~] argument~:p.")
+      (c-warn (TEXT "~S was called with ~S~:[~; or more~] arguments, but it requires ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] argument~:p.")
               fun n applyargs
               (or rest-p key-p) (eql req reqopt) req reqopt)
       (return-from test-argument-syntax 'NIL))
@@ -5628,7 +5627,8 @@ for-value   NIL or T
           (push-specials)
           (dolist (symbol symbols)
             (if (or (constantp symbol) (proclaimed-special-p symbol))
-                (c-error-c (TEXT "~S: symbol ~S is declared special and must not be declared a macro") 'symbol-macrolet symbol)
+                (c-error-c (TEXT "~S: symbol ~S is declared special and must not be declared a macro")
+                           'symbol-macrolet symbol)
                 (when (memq symbol *specials*)
                   (c-error-c (TEXT "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
                              'symbol-macrolet symbol))))
@@ -10221,20 +10221,22 @@ The function make-closure is required.
                                         (sig-keywords known-sig)
                                         (sig-allow-p  known-sig))
                   (null (c-source-point-file (second kf))))
-        (c-comment (TEXT "~%[~s was defined~a]")
+        (c-comment (concatenate 'string "~%" (TEXT "[~s was defined~a]"))
                    (car kf) (c-source-point-location (second kf))))
       t)))
 
 ;; report the compilation problems accumulated so far and reset them
 (defun c-report-problems ()
   (when *functions-with-errors*
-    (c-comment (TEXT "~%There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}")
+    (c-comment (concatenate 'string "~%"
+                 (TEXT "There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}"))
                (nreverse *functions-with-errors*)))
   (setq *unknown-functions*
         (nset-difference *unknown-functions* *known-functions*
                          :test #'match-known-unknown-functions))
   (when *unknown-functions*
-    (c-comment (TEXT "~%The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}")
+    (c-comment (concatenate 'string "~%"
+                 (TEXT "The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}"))
                (delete-duplicates
                 (mapcar #'car (nreverse *unknown-functions*)))))
   (let ((unknown-vars (set-difference *unknown-free-vars*
@@ -10242,17 +10244,21 @@ The function make-closure is required.
         (too-late-vars (intersection *unknown-free-vars*
                                      *known-special-vars*)))
     (when unknown-vars
-      (c-comment (TEXT "~%The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}")
+      (c-comment (concatenate 'string "~%"
+                   (TEXT "The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}"))
                  (nreverse unknown-vars)))
     (when too-late-vars
-      (c-comment (TEXT "~%The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}")
+      (c-comment (concatenate 'string "~%"
+                   (TEXT "The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}"))
                  (nreverse too-late-vars))))
   (when *deprecated-functions*
-    (c-comment (TEXT "~%The following functions were used but are deprecated:~%~:{~<~%~:; ~S~@[ (use ~S instead)~]~>~^~}")
+    (c-comment (concatenate 'string "~%"
+                 (TEXT "The following functions were used but are deprecated:~%~:{~<~%~:; ~S~@[ (use ~S instead)~]~>~^~}"))
                (mapcar (lambda (f) (list f (get f 'deprecated)))
                        (nreverse *deprecated-functions*))))
   (when (boundp '*error-count*) ; then `*warning-count*' is bound too
-    (c-comment (TEXT "~%~D error~:P, ~D warning~:P")
+    (c-comment (concatenate 'string "~%"
+                 (TEXT "~D error~:P, ~D warning~:P"))
                *error-count* *warning-count*)
     (c-comment "~%"))
   ;; clean-up for the next compilation unit
@@ -10395,8 +10401,9 @@ The function make-closure is required.
           (unwind-protect
             (with-compilation-unit ()
               (when listing-stream
+                (fresh-line listing-stream)
                 (format listing-stream
-                  (TEXT "~&Listing of compilation of file ~A~%on ~@? by ~A, version ~A")
+                  (TEXT "Listing of compilation of file ~A~%on ~@? by ~A, version ~A")
                   file
                   (date-format)
                   (multiple-value-list (get-decoded-time))
@@ -10423,7 +10430,8 @@ The function make-closure is required.
                     (*toplevel-for-value* t)
                     (eof-value "EOF")
                     (form-count 0))
-                (c-comment (TEXT "~%Compiling file ~A ...") file)
+                (c-comment (concatenate 'string "~%" (TEXT "Compiling file ~A ..."))
+                           file)
                 (when *fasoutput-stream*
                   (let ((*package* *keyword-package*))
                     (write `(SYSTEM::VERSION ',(version))
@@ -10466,17 +10474,20 @@ The function make-closure is required.
                 (finalize-coutput-file)
                 (setq compilation-successful (zerop *error-count*))
                 (cond (compilation-successful
-                       (c-comment (TEXT "~&~%Wrote file ~A") output-file)
+                       (c-comment (concatenate 'string "~&~%" (TEXT "Wrote file ~A"))
+                                  output-file)
                        (when *coutput-stream*
-                         (c-comment (TEXT "~%Wrote file ~A")
+                         (c-comment (concatenate 'string "~%" (TEXT "Wrote file ~A"))
                                     *coutput-file*)))
                       (new-output-stream
-                       (c-comment (TEXT "~&~%Deleted file ~A") output-file)
+                       (c-comment (concatenate 'string "~&~%" (TEXT "Deleted file ~A"))
+                                  output-file)
                        (when *coutput-stream*
-                         (c-comment (TEXT "~%Deleted file ~A")
+                         (c-comment (concatenate 'string "~%" (TEXT "Deleted file ~A"))
                                     *coutput-file*))))
                 (when new-listing-stream
-                  (c-comment (TEXT "~%Wrote file ~A") listing))
+                  (c-comment (concatenate 'string "~%" (TEXT "Wrote file ~A"))
+                             listing))
                 (values (if compilation-successful output-file nil)
                         (compile-warnings-p)
                         (compile-failure-p))))
@@ -10522,14 +10533,18 @@ The function make-closure is required.
          (i 0 (1+ i)))
         ((null L))
       (format stream "~%(CONST ~S) = ~S" i (car L)))
-    (format stream (TEXT "~%~S required argument~:P") req-anz)
-    (format stream (TEXT "~%~S optional argument~:P~%") opt-anz)
+    (terpri stream)
+    (format stream (TEXT "~S required argument~:P") req-anz)
+    (terpri stream)
+    (format stream (TEXT "~S optional argument~:P") opt-anz)
+    (terpri stream)
     (if rest-p
       (write-string (TEXT "Rest parameter") stream)
       (write-string (TEXT "No rest parameter") stream))
     (if key-p
       (let ((kw-count (length keyword-list)))
-        (format stream (TEXT "~%~S keyword parameter~:P: ") kw-count)
+        (terpri stream)
+        (format stream (TEXT "~S keyword parameter~:P: ") kw-count)
         (do ((L keyword-list))
             ((endp L))
           (prin1 (pop L) stream)
@@ -10554,12 +10569,15 @@ The function make-closure is required.
             ((SETVALUE)
              (pushnew (nth (caddr L) const-list) special-vars-write)))))
       (when special-vars-read
-        (format stream (TEXT "~%reads special variable~P: ~{~S~^ ~}")
+        (terpri stream)
+        (format stream (TEXT "reads special variable~P: ~{~S~^ ~}")
                 (length special-vars-read) special-vars-read))
       (when special-vars-write
-        (format stream (TEXT "~%writes special variable~P: ~{~S~^ ~}")
+        (terpri stream)
+        (format stream (TEXT "writes special variable~P: ~{~S~^ ~}")
                 (length special-vars-write) special-vars-write))
-      (format stream (TEXT "~%~S byte-code instruction~:P:") (length lap-list))
+      (terpri stream)
+      (format stream (TEXT "~S byte-code instruction~:P:") (length lap-list))
       (dolist (L lap-list)
         (let ((PC (car L)) (instr (cdr L)))
           (terpri stream)
