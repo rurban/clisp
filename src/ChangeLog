@@ -1,3 +1,13 @@
+2002-03-31  Sam Steingold  <sds@gnu.org>
+
+	* reploop.lisp (commands4): `Continue' was mentioned twice
+	From Arseny Slobodjuck <ampy@ich.dvo.ru>
+	(commands): new function to combine COMMANDS[1-4]; do not
+	COPY-LIST the return values thereof since they are already
+	freshly consed lists
+	(break-loop, step-hook-fn): use it
+	(main-loop): do not COPY-LIST the return value of COMMANDS0
+
 2002-03-30  Stefan Kain  <stefan.kain@freenet.de>
 
 	* spvw_fault.d, spvw_global.d, spvw_mmap.d, spvw_multimap.d:
