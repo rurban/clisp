@@ -1829,13 +1829,15 @@ returns two values:
  &c-lang;, for example).  It is invoked through
  <command>clisp-link</command>.</para>
 
-<para>A module is a piece of external code which defines extra Lisp
- objects, symbols and functions.  A module name must consist of the
- characters <filename>A</filename>-<filename>Z</filename>,
+<para>A <firstterm>module<indexterm id="module" significance="preferred">
+   <primary id="module-i">module</primary></indexterm></firstterm> is a
+ piece of external code which defines extra Lisp objects, symbols and
+ functions.  A module name must consist of the characters
+ <filename>A</filename>-<filename>Z</filename>,
  <filename>a</filename>-<filename>z</filename>, <filename>_</filename>,
- <filename>0</filename>-<filename>9</filename>.  The module name
- <quote>clisp</quote> is reserved.  Normally a module name is derived
- from the corresponding file name.</para>
+ <filename>0</filename>-<filename>9</filename>.
+ The module name <quote>clisp</quote> is reserved.
+ Normally a module name is derived from the corresponding file name.</para>
 
 <para><command>clisp-link</command> needs a directory containing:
 <itemizedlist>
@@ -1848,11 +1850,12 @@ subdirectory <filename>linkkit/</filename> of the current directory.
 This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <para><command>clisp-link</command> operates on &clisp; &linkset;s and
- on module sets.</para>
+ on &modset;s.</para>
 
-<para>A <emphasis role="strong">&linkset;</emphasis> is a directory
- containing:</para>
-
+<formalpara id="linkset"><title>&linkset;</title>
+ <para>A <firstterm>&linkset;<indexterm id="linkseti" significance="preferred">
+    <primary id="linkset-i">linking set</primary></indexterm></firstterm>
+   is a directory containing:
 <variablelist>
 <varlistentry><term><filename>makevars</filename></term>
  <listitem><para>some &sh; commands, setting the variables
@@ -1891,16 +1894,17 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
        <listitem><simpara>the executable</simpara></listitem></varlistentry>
  <varlistentry><term>&lispinit;</term>
      <listitem><simpara>the &mem-image;</simpara></listitem></varlistentry>
-</variablelist>
+</variablelist></para></formalpara>
 
 <para>To run a &clisp; contained in some &linkset;
  <filename>dir</filename>, call
  <command><replaceable>dir</replaceable>/lisp.run -M
  <replaceable>dir</replaceable>/lispinit.mem</command></para>
 
-<para>A <emphasis role="strong">module set</emphasis> is a directory
-containing:</para>
-
+<formalpara id="modset"><title>&modset;</title>
+ <para>A <firstterm>&modset;<indexterm id="modseti" significance="preferred">
+    <primary id="modset-i">module set</primary></indexterm></firstterm>
+   is a directory containing:
 <variablelist>
 <varlistentry><term><command>link.sh</command></term>
  <listitem><simpara>some &sh; commands, which prepare the directory
@@ -1910,15 +1914,15 @@ containing:</para>
 <varlistentry><term>and any other files</term>
  <listitem><simpara>needed by <command>link.sh</command>
  </simpara></listitem></varlistentry>
-</variablelist>
+</variablelist></para></formalpara>
 
-<para>Note that in <command>link.sh</command> the module set directory
+<para>Note that in <command>link.sh</command> the &modset; directory
  is referred to as <varname>$modulename/</varname>.</para>
 
 <variablelist>
 <varlistentry><term><envar>NEW_FILES</envar></term>
  <listitem><simpara>the space-separated list of files that
-  belong to the module set and will belong to every new &linkset;.
+  belong to the &modset; and will belong to every new &linkset;.
  </simpara></listitem></varlistentry>
 <varlistentry><term><envar>NEW_LIBS</envar></term>
  <listitem><simpara>the space-separated list of files or
@@ -1927,8 +1931,8 @@ containing:</para>
  </simpara></listitem></varlistentry>
 <varlistentry><term><envar>NEW_MODULES</envar></term>
  <listitem><simpara>the space-separated list of the module names
-  belonging to the module set.  Normally, every &c-file; file in the
-  module set defines a module of its own.  The module name is derived
+  belonging to the &modset;.  Normally, every &c-file; file in the
+  &modset; defines a module of its own.  The module name is derived
   from the file name.</simpara></listitem></varlistentry>
 <varlistentry><term><envar>TO_LOAD</envar></term>
  <listitem><simpara>the space-separated list of Lisp files to load
@@ -1947,7 +1951,7 @@ containing:</para>
 
 <para>The command <command>clisp-link create-module-set
  <replaceable>module-dir</replaceable>
- <replaceable>file1.c</replaceable> ...</command> creates a module set
+ <replaceable>file1.c</replaceable> ...</command> creates a &modset;
  in <replaceable>module-dir</replaceable> which refers (via symbolic
  links) to <replaceable>file1.c</replaceable> etc.  The files are
  expected to be modules of their own.</para>
@@ -2023,7 +2027,7 @@ containing:</para>
  executed in this order.)</para>
 
 <orderedlist numeration="arabic">
-<listitem><para>Create a new module set:
+<listitem><para>Create a new &modset;:
 
 <programlisting>$ clisp-link create-module-set linux /<replaceable>somewhere</replaceable>/bindings/linux.c</programlisting>
 
@@ -3123,7 +3127,7 @@ It is possible to call this function from Lisp using the file
         '#(0 1 2 3 4 5 6 7 8 9)))
 </programlisting>
 
-Use the module facility:
+Use the &module; facility:
 
 <programlisting>
 $ clisp-link create-module-set cfun callcfun.c
@@ -4389,10 +4393,10 @@ bash$
   which make up the &mem-image;, and a &make-file; for rebuilding the
   &mem-image;.</simpara></listitem>
  <listitem><simpara>If you need to distribute a modified &clisp;
-  executable (for example, incorporating additional modules written in
-  &c-lang;), you must distribute its full source under &gnu; &gpl;.
+  executable (for example, incorporating additional &module;s written
+  in &c-lang;), you must distribute its full source under &gnu; &gpl;.
   If you are not satisfied with this, you can instead put the additional
-  modules into a separate (non-&clisp;) program, with which your Lisp
+  &module;s into a separate (non-&clisp;) program, with which your Lisp
   program will communicate via &socket-stream;s.</simpara></listitem>
 </itemizedlist></para>
 
