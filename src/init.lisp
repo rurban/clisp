@@ -1624,6 +1624,7 @@
     (if (atom funname)
       funname
       (get-setf-symbol (second funname))))))
+
 (sys::%putd 'defun
   (sys::make-macro
     (function defun (lambda (form env)
@@ -1731,6 +1732,7 @@
 (LOAD "format")                 ; FORMAT
 
 ;; from now on FORMATTER is working.
+
 (LOAD "international")          ; internationalization
 
 (in-package "SYSTEM")
@@ -1845,19 +1847,6 @@
           (initial-break-driver t))
         (apply #'format *debug-io* continue-format-string args)))))
 
-;; this should come before `compiler'
-#+syscalls
-(use-package '("COMMON-LISP") "POSIX")
-#+syscalls
-(in-package "POSIX")
-#+syscalls
-(let ((posix-math '(erf erfc j0 j1 jn y0 y1 yn gamma lgamma)))
-  (export posix-math "POSIX")
-  (import posix-math "EXT")
-  (export posix-math "EXT"))
-#+syscalls
-(in-package "SYSTEM")
-
 (LOAD "functions")              ; function objects
 
 (LOAD "trace")                  ; TRACE
@@ -1951,10 +1940,6 @@
 #+AFFI
 (when (find-symbol "%LIBCALL" "SYSTEM")
   (LOAD "affi1"))               ; simple FFI, optional
-
-;; POSIX/SUSV2 system calls and library functions, optional
-;; http://www.UNIX-systems.org/online.html
-#+syscalls (load "posix")
 
 #+GETTEXT (LOAD "german")       ; German messages
 #+(and GETTEXT UNICODE) (LOAD "french") ; French messages
