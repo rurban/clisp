@@ -845,7 +845,7 @@ LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL)
 LISPFUN(preinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL)
 LISPFUN(pinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL)
 LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL)
-LISPFUNN(pchange_class,3)
+LISPFUNN(pchange_class,2)
 /* ---------- SEQUENCE ---------- */
 LISPFUNNR(sequencep,1)
 LISPFUNN(defseq,1)
