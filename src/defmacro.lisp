@@ -132,6 +132,15 @@ the actual object #<MACRO expander> for the FENV.
         name (caddr item)))
     (third item)))
 
+;; this should be a macro...
+(defun kwd-arg-form (restvar kw svar default &aux (dummy '#.(cons nil nil)))
+  ;; the default value should not be evaluated unless it is actually used
+  (let ((arg (gensym "KWD-ARG-")))
+    `(let ((,arg (GETF ,restvar ,kw ',dummy)))
+       (if (eq ,arg ',dummy)
+           (progn ,@(when svar `((setq ,svar nil))) ,default)
+           ,arg))))
+
 (defun analyze-key (lambdalistr restvar name
                     &aux (otherkeysforbidden t) (kwlist nil))
   (do ((listr lambdalistr (cdr listr))
@@ -173,11 +182,7 @@ the actual object #<MACRO expander> for the FENV.
                     (setq %let-list (cons `(,svar t) %let-list)))
                   (setq %let-list
                         (cons `(,(car next)
-                                 ;; the default value should not be
-                                 ;; evaluated unless it is actually used
-                                 (or (GETF ,restvar ,kw)
-                                     ,@(when svar `((setq ,svar nil)))
-                                     ,(cadr next)))
+                                 ,(kwd-arg-form restvar kw svar (cadr next)))
                               %let-list))
                   (setq kwlist (cons kw kwlist)))
                  ((not (and (consp (car next)) (symbolp (caar next)) (consp (cdar next))))
@@ -190,9 +195,7 @@ the actual object #<MACRO expander> for the FENV.
                     (setq %let-list (cons `(,svar t) %let-list)))
                   (setq %let-list
                         (cons `(,(cadar next)
-                                 (or (GETF ,restvar ,kw)
-                                     ,@(when svar `((setq ,svar nil)))
-                                     ,(cadr next)))
+                                 ,(kwd-arg-form restvar kw svar (cadr next)))
                               %let-list))
                   (setq kwlist (cons kw kwlist)))
                  (t ; subform
@@ -206,9 +209,7 @@ the actual object #<MACRO expander> for the FENV.
                   (when svar
                     (setq %let-list (cons `(,svar t) %let-list)))
                   (setq %let-list
-                        (cons `(,g (or (GETF ,restvar ,kw)
-                                       ,@(when svar `((setq ,svar nil)))
-                                       ,(cadr next)))
+                        (cons `(,g ,(kwd-arg-form restvar kw svar (cadr next)))
                               %let-list))
                   (setq kwlist (cons kw kwlist))
                   (let ((%min-args 0) (%arg-count 0) (%restp nil)
