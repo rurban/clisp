@@ -198,19 +198,20 @@ local Values read_form(void)
    #if !defined(TERMINAL_USES_KEYBOARD)
     if (terminal_read_stream_bound) {
       var object old_trs = Symbol_value(S(terminal_read_stream));
-      var object strm_list;
-      if (streamp(old_trs))
-        strm_list = TheStream(old_trs)->strm_concat_list;
       dynamic_unbind(S(terminal_read_stream));
-      pushSTACK(old_trs); /* save before PEEK-CHAR */
-      Symbol_value(S(terminal_read_stream)) =
-        (consp(strm_list) && !nullp(Cdr(strm_list))
-         /* some input on the first line was not processed ? */
-         && (pushSTACK(T), pushSTACK(Car(strm_list)),
-             pushSTACK(NIL), pushSTACK(eof_value),
-             funcall(L(peek_char),4), !eq(value1,eof_value)))
-        ? STACK_0 : (gcv_object_t)unbound;
-      skipSTACK(1); /* drop old_trs */
+      if (streamp(old_trs)) {
+        /* maybe need to process something from the first line? */
+        var object strm_list = TheStream(old_trs)->strm_concat_list;
+        pushSTACK(old_trs); /* save before PEEK-CHAR */
+        Symbol_value(S(terminal_read_stream)) =
+          (consp(strm_list) && !nullp(Cdr(strm_list))
+           /* some input on the first line was not processed ? */
+           && (pushSTACK(T), pushSTACK(Car(strm_list)),
+               pushSTACK(NIL), pushSTACK(eof_value),
+               funcall(L(peek_char),4), !eq(value1,eof_value)))
+          ? STACK_0 : (gcv_object_t)unbound;
+        skipSTACK(1); /* drop old_trs */
+      }
     }
    #endif
     dynamic_unbind(S(key_bindings));
