@@ -1,5 +1,10 @@
 2004-12-19  Bruno Haible  <bruno@clisp.org>
 
+	* format.lisp (format-goto-arg): If the argument is nil, use 0 or 1
+	instead.
+
+2004-12-19  Bruno Haible  <bruno@clisp.org>
+
 	Make calls to EXT:SPECIAL-VARIABLE-P compilable and usable in macro-
 	expanders.
 	* eval.d (EXT:SPECIAL-VARIABLE-P): Don't accept T and venv vectors as
