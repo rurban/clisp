@@ -1,5 +1,13 @@
 2004-06-05  Bruno Haible  <bruno@clisp.org>
 
+	* clos-method1.lisp (standard-method): Add documentation slot.
+	(initialize-instance-<standard-method>): Accept :documentation
+	argument.
+	* documentation.lisp (documentation@<standard-method>@t): Access the
+	doc string in the standard-method object, not in the hash table.
+
+2004-06-05  Bruno Haible  <bruno@clisp.org>
+
 	* clos-method1.lisp (print-object-<standard-method>): Don't signal an
 	error if the method is not yet initialized.
 
