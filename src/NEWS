@@ -14,7 +14,7 @@ User visible changes
   + New class METAOBJECT.
   + Classes:
     New classes
-      STANDARD-READER-METHOD, STANDARD-WRITER-METHOD.
+      STANDARD-READER-METHOD, STANDARD-WRITER-METHOD, FORWARD-REFERENCED-CLASS.
     New functions
       ENSURE-CLASS.
     New generic functions
