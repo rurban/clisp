@@ -1335,25 +1335,27 @@ static const char jamo_final_short_name[28][3] = {
         while (*q != '\0') { *ptr++ = *q++; }
         return n_char_to_string(buf,ptr-buf,Symbol_value(S(ascii)));
       } else {
-        var const uint16* words;
+        var const uint16* words = NULL;
         {
           # Binary search in unicode_code_to_name.
           var uintL i1 = 0;
-          var uintL i2 = sizeof(unicode_code_to_name)/sizeof(unicode_code_to_name[0]);
+          var uintL i2 =
+            sizeof(unicode_code_to_name)/sizeof(unicode_code_to_name[0]);
           loop {
             var uintL i = (i1+i2)>>1;
-            if (unicode_code_to_name[i].code == c) {
+            var uint16 code = unicode_code_to_name[i].code;
+            if (code == c) {
               words = &unicode_names[unicode_code_to_name[i].name];
               break;
-            } else if (unicode_code_to_name[i].code < c) {
-              if (i1 == i) {
-                words = NULL;
+            } else if (code < c) {
+              if (i1 == i)
                 break;
-              }
               # Note here: i1 < i < i2.
               i1 = i;
-            } else if (unicode_code_to_name[i].code > c) {
-              # Note here: i1 <= i < i2.
+            } else if (code > c) {
+              if (i2 == i)
+                break;
+              # Note here: i1 < i < i2.
               i2 = i;
             }
           }
@@ -2108,7 +2110,8 @@ LISPFUNN(code_char,1)
     # codeobj ist jetzt ein Integer.
     var uintL code;
     # Teste, ob  0 <= code < char_code_limit :
-    if (posfixnump(codeobj) && ((code = posfixnum_to_L(codeobj)) < char_code_limit)) {
+    if (posfixnump(codeobj) &&
+        ((code = posfixnum_to_L(codeobj)) < char_code_limit)) {
       value1 = code_char(as_chart(code)); mv_count=1; # Character basteln
     } else {
       value1 = NIL; mv_count=1; # sonst Wert NIL

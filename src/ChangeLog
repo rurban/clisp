@@ -1,3 +1,7 @@
+2001-08-17  Sam Steingold  <sds@gnu.org>
+
+	* charstrg.d (char_name): fix the binary search to always terminate
+
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
 	* constsym.d (S(re_export)): Renamed from S(reexport).
