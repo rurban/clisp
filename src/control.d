@@ -2393,6 +2393,24 @@ LISPSPECFORM(or, 0,0,body)
   }
 }
 
+LISPFUN(xor,0,0,rest,nokey,0,NIL)
+{ /* (XOR {form}) returns either 2 values: the unique non-NIL value
+     and its index in the argument list; or NIL */
+  VALUES1(NIL); /* for the case of all NILs*/
+  while (argcount) {
+    var object arg = popSTACK();
+    if (!nullp(arg)) {
+      if (!nullp(value1)) {
+        VALUES1(NIL);
+        skipSTACK(--argcount);
+        return;
+      } else
+        VALUES2(arg,fixnum(argcount));
+    }
+    argcount--;
+  }
+}
+
 /* From now on, the table macro has a different use: */
 #undef LISPSPECFORM
 

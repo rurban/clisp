@@ -88,6 +88,9 @@ User visible changes
 * The code walker has now a public interface: EXT:EXPAND-FORM.
   See <http://clisp.cons.org/impnotes.html#code-walk> for details.
 
+* New function EXT:XOR checks that exactly one of its arguments is non-NIL.
+  See <http://clisp.cons.org/impnotes.html#xor> for details.
+
 * Fixed a bug in PEEK-CHAR with non-NIL peek-type on ECHO-STREAMS.
 
 * Fixed a bug in FILE-POSITION after UNREAD-CHAR (or PEEK-CHAR).
