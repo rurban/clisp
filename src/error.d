@@ -193,7 +193,6 @@ local gcv_object_t* write_errorstring (const char* errorstring)
     write_errorasciz_substring((const uintB*)errorstring,(const uintB*)ptr);
     errorstring = ptr;
   }
-  elastic_newline(&STACK_0);
   return argptr;
 }
 
@@ -213,6 +212,7 @@ nonreturning_function(local, signal_and_debug, (object condition)) {
  (when start_driver_p is true)
  can trigger GC */
 local maygc void end_error (gcv_object_t* stackptr, bool start_driver_p) {
+  elastic_newline(&STACK_0);
   if (nullp(STACK_1)) {
     /* *ERROR-HANDER* = NIL, SYS::*USE-CLCS* = NIL */
     skipSTACK(4); /* error message has already been printed */
