@@ -1,3 +1,7 @@
+1998-05-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * defs3.lsp: Don't export COMMONP and COMPILER-LET.
+
 1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * defs1.lsp (char-int-limit): New constant.
