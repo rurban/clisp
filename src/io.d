@@ -7861,7 +7861,7 @@ local void pr_array_elt_string (const object* stream_, object obj,
 typedef struct {
   const object* stream_;
   const object* obj_;
-  const array_dim_size* dims_sizes;
+  const array_dim_size_t* dims_sizes;
   pr_array_elt_routine_t* pr_one_elt;
   pr_array_info_t info;
   uintL length_limit;
@@ -7924,7 +7924,7 @@ local void pr_array (const object* stream_, object obj) {
     LEVEL_CHECK;
     { # determine rank and fetch dimensions and sub-product:
       var uintL r = (uintL)Iarray_rank(obj); # rank
-      var DYNAMIC_ARRAY(dims_sizes,array_dim_size,r); # dynamically allocated array
+      var DYNAMIC_ARRAY(dims_sizes,array_dim_size_t,r); # dynamically allocated array
       iarray_dims_sizes(obj,dims_sizes); # fill
       var uintL depth = r; # depth of recursion
       var pr_array_locals_t locals; # local variables

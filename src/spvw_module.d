@@ -20,36 +20,36 @@
   local void init_modules_0 (void);
 
 # The main module, called "clisp".
-  extern module_ main_module;
+  extern module_t main_module;
 
 # Iterate through the modules.
 # for_modules(which,statement);
 # which = either `all_modules'
 #         or     `all_other_modules' (means all except main_module).
-# A variable `module' of type module_* must be declared; it will be used
+# A variable `module' of type module_t* must be declared; it will be used
 # as the iteration variable and can use within statement.
 
 #ifdef DYNAMIC_MODULES
 # Register a new module.
-  global void add_module (module_ * new_module);
+  global void add_module (module_t * new_module);
 #endif
 
 # ------------------------------ Implementation --------------------------------
 
 # These are defined in modules.d (which is re-compiled for every linking set).
   extern uintC module_count;
-  extern module_ modules[];
+  extern module_t modules[];
 
 #define main_module  modules[0]
 
 #ifdef DYNAMIC_MODULES
 
   # A pointer to the last element of the module list.
-  local module_ ** last_module;
+  local module_t ** last_module;
 
   local void init_modules_0()
     {
-      var module_* module = &modules[0];
+      var module_t* module = &modules[0];
       until (module[1].name==NULL) {
         module->next = module+1; module++;
       }
@@ -57,7 +57,7 @@
     }
 
   global void add_module(module)
-    var module_ * module;
+    var module_t * module;
     {
       *last_module = module; last_module = &module->next;
       module_count++;

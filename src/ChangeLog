@@ -1,5 +1,23 @@
 2002-06-14  Sam Steingold  <sds@gnu.org>
 
+	grand type renaming continues
+	array_dim_size --> array_dim_size_t
+	environment --> environment_t
+	gc_function --> gc_function_t
+	map_sequence_function --> map_sequence_function_t
+	module_ --> module_t
+	stack_range --> stack_range_t
+	thread_ --> thread_t
+	unwind_protect_caller --> unwind_protect_caller_t
+	* modules/clx/new-clx/clx.f, modules/clx/new-clx/e2d.c:
+	* affi.d, array.d, control.d, debug.d, eval.d, foreign1.lisp:
+	* fsubr.d, genclisph.d, io.d, lispbibl.d, modules.d, predtype.d:
+	* sequence.d, spvw.d, spvw_memfile.d, spvw_module.d:
+	* spvw_space.d, spvw_walk.d, spvwtabf.d, subr.d:
+	* utils/modprep.d, utils/modpreptest.out: replaced
+
+2002-06-14  Sam Steingold  <sds@gnu.org>
+
 	* spvw_genera1.d (rebuild_old_generation_cache): fixed last
 	patch: FREE_DYNAMIC_ARRAY should be on the same block level as
 	DYNAMIC_ARRAY

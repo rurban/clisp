@@ -36,7 +36,7 @@
 
 # Expander für die Deklaration der SUBR-Tabelle:
   #define LISPFUN_C(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
-    subr_ D_##name;
+    subr_t D_##name;
 
 # Expander für die Initialisierung der SUBR-Tabelle:
   #define LISPFUN_D(name_,req_anz_,opt_anz_,rest_flag_,key_flag_,key_anz_,keywords_)  \

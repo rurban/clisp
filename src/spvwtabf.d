@@ -20,5 +20,5 @@ global struct subr_tab_ subr_tab_data
       }
     #endif
     ;
-global uintC subr_tab_data_size = sizeof(subr_tab_data)/sizeof(subr_);
+global uintC subr_tab_data_size = sizeof(subr_tab_data)/sizeof(subr_t);
 
