@@ -1,7 +1,7 @@
-/* Instruction cache flushing for rs6000 */
+/* Instruction cache flushing for rs6000, not on AIX */
 
 /*
- * Copyright 1997 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1997-1999 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -11,8 +11,15 @@
 
 void __TR_clear_cache (char* first_addr)
 {
-  /* Taken from gforth-0.3.0. */
-#if 0 /* This is not accepted by the AIX assembler in PWR or COM mode. */
-  asm volatile ("icbi (%0); isync" : : "b" (first_addr));
-#endif
+  /* Taken from egcs-1.1.2/gcc/config/rs6000/tramp.asm. */
+  asm volatile ("icbi 0,%0; dcbf 0,%0" : : "r" (first_addr));
+  asm volatile ("icbi 0,%0; dcbf 0,%0" : : "r" (first_addr+4));
+  asm volatile ("icbi 0,%0; dcbf 0,%0" : : "r" (first_addr+8));
+  asm volatile ("icbi 0,%0; dcbf 0,%0" : : "r" (first_addr+12));
+  asm volatile ("icbi 0,%0; dcbf 0,%0" : : "r" (first_addr+16));
+  asm volatile ("icbi 0,%0; dcbf 0,%0" : : "r" (first_addr+20));
+  asm volatile ("icbi 0,%0; dcbf 0,%0" : : "r" (first_addr+24));
+  asm volatile ("icbi 0,%0; dcbf 0,%0" : : "r" (first_addr+28));
+  asm volatile ("icbi 0,%0; dcbf 0,%0" : : "r" (first_addr+32));
+  asm volatile ("sync; isync");
 }

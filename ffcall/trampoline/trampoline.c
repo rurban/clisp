@@ -20,6 +20,13 @@
 #define __hppanew__  /* New trampoline, just a closure. */
 #endif
 #endif
+#if defined(__rs6000__)
+#if !defined(_AIX)
+#define __rs6000sysv4__  /* SysV.4 ABI, real machine code. */
+#else
+#define __rs6000aix__  /* AIX ABI, just a closure. */
+#endif
+#endif
 #if defined(__hppanew__)
 /*
  * A function pointer is a biased pointer to a data area whose first word
@@ -33,7 +40,7 @@ extern void tramp (); /* trampoline prototype */
 #define CODE_EXECUTABLE
 #endif
 #endif
-#if defined(__rs6000__)
+#if defined(__rs6000aix__)
 /*
  * A function pointer is a pointer to a data area whose first word contains
  * the actual address of the function.
@@ -247,7 +254,7 @@ extern int shmctl ();
 #include <sys/syslocal.h>
 #endif
 /* Inline assembly function for instruction cache flush. */
-#if defined(__sparc__) || defined(__alpha__) || defined(__hppa__) || defined(__rs6000) || defined(__convex__)
+#if defined(__sparc__) || defined(__alpha__) || defined(__hppaold__) || defined(__rs6000sysv4__) || defined(__convex__)
 #ifdef __GNUC__
 extern inline
 #ifdef __sparc__
@@ -316,7 +323,11 @@ extern void __TR_clear_cache();
 #define TRAMP_LENGTH 44
 #define TRAMP_ALIGN 4
 #endif
-#ifdef __rs6000__
+#ifdef __rs6000sysv4__
+#define TRAMP_LENGTH 36
+#define TRAMP_ALIGN 4
+#endif
+#ifdef __rs6000aix__
 #define TRAMP_LENGTH 24
 #define TRAMP_ALIGN 4
 #endif
@@ -862,8 +873,53 @@ __TR_function alloc_trampoline (address, variable, data)
     ((long *) function)[10] = (long) address;
   }
 #endif
-#ifdef __rs6000__
-#if 1
+#ifdef __rs6000sysv4__
+  /* function:
+   *    {liu|lis} 11,hi16(<variable>)		3D 60 hi16(<variable>)
+   *    {oril|ori} 11,11,lo16(<variable>)	61 6B lo16(<variable>)
+   *    {liu|lis} 12,hi16(<data>)		3D 80 hi16(<data>)
+   *    {oril|ori} 12,12,lo16(<data>)		61 8C lo16(<data>)
+   *    {st|stw} 12,0(11)			91 8B 00 00
+   *    {liu|lis} 0,hi16(<address>)		3C 00 hi16(<address>)
+   *    {oril|ori} 0,0,lo16(<address>)		60 00 lo16(<address>)
+   *    mtctr 0					7C 09 03 A6
+   *    bctr					4E 80 04 20
+   */
+  *(short *) (function + 0) = 0x3D60;
+  *(short *) (function + 2) = (unsigned long) variable >> 16;
+  *(short *) (function + 4) = 0x616B;
+  *(short *) (function + 6) = (unsigned long) variable & 0xffff;
+  *(short *) (function + 8) = 0x3D80;
+  *(short *) (function +10) = (unsigned long) data >> 16;
+  *(short *) (function +12) = 0x618C;
+  *(short *) (function +14) = (unsigned long) data & 0xffff;
+  *(long *)  (function +16) = 0x918B0000;
+  *(short *) (function +20) = 0x3C00;
+  *(short *) (function +22) = (unsigned long) address >> 16;
+  *(short *) (function +24) = 0x6000;
+  *(short *) (function +26) = (unsigned long) address & 0xffff;
+  *(long *)  (function +28) = 0x7C0903A6;
+  *(long *)  (function +32) = 0x4E800420;
+#define is_tramp(function)  \
+  *(unsigned short *) (function + 0) == 0x3D60 && \
+  *(unsigned short *) (function + 4) == 0x616B && \
+  *(unsigned short *) (function + 8) == 0x3D80 && \
+  *(unsigned short *) (function +12) == 0x618C && \
+  *(unsigned long *)  (function +16) == 0x918B0000 && \
+  *(unsigned short *) (function +20) == 0x3C00 && \
+  *(unsigned short *) (function +24) == 0x6000 && \
+  *(unsigned long *)  (function +28) == 0x7C0903A6 && \
+  *(unsigned long *)  (function +32) == 0x4E800420
+#define hilo(hiword,loword)  \
+  (((unsigned long) (hiword) << 16) | (unsigned long) (loword))
+#define tramp_address(function)  \
+  hilo(*(unsigned short *) (function +22), *(unsigned short *) (function +26))
+#define tramp_variable(function)  \
+  hilo(*(unsigned short *) (function + 2), *(unsigned short *) (function + 6))
+#define tramp_data(function)  \
+  hilo(*(unsigned short *) (function +10), *(unsigned short *) (function +14))
+#endif
+#ifdef __rs6000aix__
   /* function:
    *    .long .tramp
    *    .long .mytoc
@@ -887,71 +943,6 @@ __TR_function alloc_trampoline (address, variable, data)
   ((long *) function)[3]
 #define tramp_data(function)  \
   ((long *) function)[4]
-#else /* old try */
-  /* function:
-   *    .long .function			<.function>
-   *    .long 0				00 00 00 00
-   *    .long 0				00 00 00 00
-   * .function:
-   *    liu 11,hi16(<variable>)		3D 60 hi16(<variable>)
-   *    oril 11,11,lo16(<variable>)	61 6B lo16(<variable>)
-   *    liu 10,hi16(<data>)		3D 40 hi16(<data>)
-   *    oril 10,10,lo16(<data>)		61 4A lo16(<data>)
-   *    st 10,0(11)			91 4B 00 00
-   *    liu 10,hi16(<address>)		3D 40 hi16(<address>)
-   *    oril 10,10,lo16(<address>)	61 4A lo16(<address>)
-   *    l 11,8(10)			81 6A 00 08
-   *    l 2,4(10)			80 4A 00 04
-   *    l 0,0(10)			80 0A 00 00
-   *    mtctr 0				7C 09 03 A6
-   *    bctr				4E 80 04 20
-   */
-  *(long *)  (function + 0) = (long) (function + 12);
-  *(long *)  (function + 4) = 0;
-  *(long *)  (function + 8) = 0;
-  *(short *) (function +12) = 0x3D60;
-  *(short *) (function +14) = (unsigned long) variable >> 16;
-  *(short *) (function +16) = 0x616B;
-  *(short *) (function +18) = (unsigned long) variable & 0xffff;
-  *(short *) (function +20) = 0x3D40;
-  *(short *) (function +22) = (unsigned long) data >> 16;
-  *(short *) (function +24) = 0x614A;
-  *(short *) (function +26) = (unsigned long) data & 0xffff;
-  *(long *)  (function +28) = 0x914B0000;
-  *(short *) (function +32) = 0x3D40;
-  *(short *) (function +34) = (unsigned long) address >> 16;
-  *(short *) (function +36) = 0x614A;
-  *(short *) (function +38) = (unsigned long) address & 0xffff;
-  *(long *)  (function +40) = 0x816A0008;
-  *(long *)  (function +44) = 0x804A0004;
-  *(long *)  (function +48) = 0x800A0000;
-  *(long *)  (function +52) = 0x7C0903A6;
-  *(long *)  (function +56) = 0x4E800420;
-#define is_tramp(function)  \
-  *(unsigned long *)  (function + 0) == (long) (function + 12) && \
-  *(unsigned long *)  (function + 4) == 0 && \
-  *(unsigned long *)  (function + 8) == 0 && \
-  *(unsigned short *) (function +12) == 0x3D60 && \
-  *(unsigned short *) (function +16) == 0x616B && \
-  *(unsigned short *) (function +20) == 0x3D40 && \
-  *(unsigned short *) (function +24) == 0x614A && \
-  *(unsigned long *)  (function +28) == 0x914B0000 && \
-  *(unsigned short *) (function +32) == 0x3D40 && \
-  *(unsigned short *) (function +36) == 0x614A && \
-  *(unsigned long *)  (function +40) == 0x816A0008 && \
-  *(unsigned long *)  (function +44) == 0x804A0004 && \
-  *(unsigned long *)  (function +48) == 0x800A0000 && \
-  *(unsigned long *)  (function +52) == 0x7C0903A6 && \
-  *(unsigned long *)  (function +56) == 0x4E800420
-#define hilo(hiword,loword)  \
-  (((unsigned long) (hiword) << 16) | (unsigned long) (loword))
-#define tramp_address(function)  \
-  hilo(*(unsigned short *) (function +34), *(unsigned short *) (function +38))
-#define tramp_variable(function)  \
-  hilo(*(unsigned short *) (function +14), *(unsigned short *) (function +18))
-#define tramp_data(function)  \
-  hilo(*(unsigned short *) (function +22), *(unsigned short *) (function +26))
-#endif
 #endif
 #ifdef __m88k__
   /* function:
@@ -1056,7 +1047,7 @@ __TR_function alloc_trampoline (address, variable, data)
    * cache. The freshly built trampoline is visible to the data cache, but not
    * maybe not to the instruction cache. This is hairy.
    */
-#if !(defined(__hppanew__) || defined(__rs6000__))
+#if !(defined(__hppanew__) || defined(__rs6000aix__))
   /* Only needed if we really set up machine instructions. */
 #ifdef __i386__
 #if defined(_WIN32)

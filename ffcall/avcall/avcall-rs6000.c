@@ -26,6 +26,20 @@
   pointed to by its first argument, and all other arguments are shifted
   down by one.
 
+  Differences between AIX and SysV.4 argument passing conventions:
+  - AIX: the first 13 doubles and floats are passed in FP registers,
+         and when they do, there is still room allocated for them in the
+         argument sequence (integer regs or stack).
+    SysV.4: the first 8 doubles and floats are passed in FP registers,
+         and no room is allocated for them in the argument sequence.
+  - AIX: Structures are passed in the argument sequence.
+    SysV.4: Structures are passed by reference: only a pointer appears in
+         the argument sequence.
+  - AIX: Long longs are only word aligned.
+    SysV.4: Long longs are two-word aligned, both when passed in registers
+         (pairs: 3/4, 5/6, 7/8, 9/10) and when passed on the stack. (Recall
+         that the stack is always 8-byte aligned).
+
   Compile this routine with gcc -O (or -O2 -fno-omit-frame-pointer or -g -O)
   to get the right register variables. For other compilers use the
   pre-compiled assembler version.
