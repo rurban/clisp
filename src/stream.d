@@ -15855,31 +15855,38 @@ LISPFUN(socket_accept,1,0,norest,key,3,\
     skipSTACK(4);
   }
 
+local struct timeval * sec_usec (object sec, object usec, struct timeval *tv);
+local struct timeval * sec_usec(sec,usec,tv)
+  object sec,usec;
+  struct timeval *tv;
+{
+  if (eq(sec,unbound)) {
+    return NULL;
+  } else {
+    if (!posfixnump(sec))
+      fehler_posfixnum(sec);
+    tv->tv_sec = posfixnum_to_L(sec);
+    if (eq(usec,unbound)) {
+      tv->tv_usec = 0;
+    } else {
+      if (!posfixnump(usec))
+        fehler_posfixnum(usec);
+      tv->tv_usec = posfixnum_to_L(usec);
+    }
+    return tv;
+  }
+}
+
 LISPFUN(socket_wait,1,2,norest,nokey,0,NIL)
 # (SOCKET-WAIT socket-server [seconds [microseconds]])
   {
     #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
     var SOCKET handle;
     var struct timeval timeout;
-    var struct timeval * timeout_ptr;
+    var struct timeval * timeout_ptr = sec_usec(STACK_1,STACK_0,&timeout);
     test_socket_server(STACK_2,TRUE);
     handle = TheSocket(TheSocketServer(STACK_2)->socket_handle);
    restart_select:
-    if (eq(STACK_1,unbound)) {
-      timeout_ptr = NULL;
-    } else {
-      if (!posfixnump(STACK_1))
-        fehler_posfixnum(STACK_1);
-      timeout.tv_sec = posfixnum_to_L(STACK_1);
-      if (eq(STACK_0,unbound)) {
-        timeout.tv_usec = 0;
-      } else {
-        if (!posfixnump(STACK_0))
-          fehler_posfixnum(STACK_0);
-        timeout.tv_usec = posfixnum_to_L(STACK_0);
-      }
-      timeout_ptr = &timeout;
-    }
     begin_system_call();
     {
       var int ret;
@@ -15976,6 +15983,65 @@ local object test_socket_stream(obj,check_open)
     fehler(type_error,
            GETTEXT("~: argument ~ is not a SOCKET-STREAM")
           );
+  }
+
+LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
+# (SOCKET-STATUS stream-list [seconds [microseconds]])
+  {
+    #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
+    var struct timeval timeout;
+    var struct timeval * timeout_ptr = sec_usec(STACK_1,STACK_0,&timeout);
+
+   restart_select:
+    begin_system_call();
+    { var int ret, index;
+      var fd_set readfds, writefds, exceptfds;
+      var object all = STACK_2;
+      FD_ZERO(&readfds); FD_ZERO(&writefds); FD_ZERO(&exceptfds);
+      { object list = all;
+        for(index = 0; !nullp(list); list = Cdr(list)) {
+          if (!listp(list)) fehler_list(list);
+          var object obj = Car(list);
+          test_socket_stream(obj,TRUE);
+          var SOCKET handle = TheSocket(TheStream(obj)->strm_ichannel);
+          FD_SET(handle,&exceptfds);
+          if (input_stream_p(obj)) FD_SET(handle,&readfds);
+          if (output_stream_p(obj)) FD_SET(handle,&writefds);
+          if (++index > FD_SETSIZE) {
+            pushSTACK(fixnum(FD_SETSIZE));
+            pushSTACK(all);
+            pushSTACK(S(socket_status));
+            fehler(error,
+                   GETTEXT("~: list ~ too long (~ maximum)")
+                   );
+        }}}
+      ret = select(FD_SETSIZE,&readfds,&writefds,&exceptfds,timeout_ptr);
+      if (ret < 0) {
+        if (sock_errno_is(EINTR)) {
+          end_system_call(); goto restart_select;
+        }
+        SOCK_error();
+      }
+      { object list = all;
+        for(; !nullp(list); list = Cdr(list)) {
+          var SOCKET handle = TheSocket(TheStream(Car(list))->strm_ichannel);
+          if (FD_ISSET(handle,&exceptfds)) pushSTACK(S(Kerror));
+          else {
+            boolean rd = FD_ISSET(handle,&readfds),
+              wr = FD_ISSET(handle,&writefds);
+            if (rd && !wr) pushSTACK(S(Kinput));
+            elif (!rd && wr) pushSTACK(S(Koutput));
+            elif (rd && wr) pushSTACK(S(Kio));
+            else pushSTACK(NIL);
+       }}}
+      end_system_call();
+      value1 = listof(index);
+    }
+    #else
+    value1 = NIL;
+    #endif
+    mv_count = 1;
+    skipSTACK(3);
   }
 
 LISPFUNN(socket_stream_port,1)
@@ -17172,14 +17238,14 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
             #ifdef SOCKET_STREAMS
             case strmtype_socket:
             #endif
-              if (TheStream(stream)->strmflags & strmflags_rd_ch_B) {
+             # if (TheStream(stream)->strmflags & strmflags_rd_ch_B) {
                 if (ChannelStream_buffered(stream))
                   return listen_buffered(stream);
                 else
                   return listen_unbuffered(stream);
-              } else {
-                return ls_eof; # kein READ-CHAR
-              }
+             # } else {
+             #   return ls_eof; # kein READ-CHAR
+             # }
             #ifdef KEYBOARD
             case strmtype_keyboard: return listen_keyboard(stream);
             #endif
