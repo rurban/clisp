@@ -2018,7 +2018,7 @@
 
 2003-01-24  Sam Steingold  <sds@gnu.org>
 
-	READ-BYTE-ARRAY now accepts :NO-HANG keyword argument
+	READ-BYTE-SEQUENCE now accepts :NO-HANG keyword argument
 	* stream.d (rd_by_array_Pseudofun, rd_by_array_error)
 	(rd_by_array_dummy, read_byte_array, rd_by_array_synonym)
 	(rd_by_array_concat, rd_by_array_twoway, rd_by_array_echo)
@@ -2027,7 +2027,7 @@
 	(strm_buffered_extrafields_t/low_fill, low_fill_buffered_handle)
 	(buffered_nextbyte, read_byte_array_buffered)
 	(rd_by_array_iau8_buffered, low_read_array_unbuffered_socket)
-	(low_fill_buffered_socket, ): accept no_hang
+	(low_fill_buffered_socket): accept no_hang
 	(listen_handle): extracted from low_listen_unbuffered_handle()
 	(low_listen_unbuffered_handle): use listen_handle()
 	(rd_by_aux_iax_unbuffered, rd_ch_array_unbuffered): pass
