@@ -3,6 +3,7 @@
 
 (in-package "LISP")
 (export '(generic-stream-read-char
+          generic-stream-peek-char
           generic-stream-listen
           generic-stream-clear-input
           generic-stream-write-char
@@ -21,6 +22,7 @@
 (clos:defclass generic-stream-controller () ())
 
 (clos:defgeneric generic-stream-read-char (controller))
+(clos:defgeneric generic-stream-peek-char (controller))
 (clos:defgeneric generic-stream-listen (controller))
 (clos:defgeneric generic-stream-clear-input (controller))
 (clos:defgeneric generic-stream-write-char (controller ch))
@@ -34,6 +36,10 @@
 
 (clos:defmethod generic-stream-read-char ((controller generic-stream-controller))
   (declare (ignore controller))
+)
+
+(clos:defmethod generic-stream-peek-char ((controller generic-stream-controller))
+  (values (generic-stream-read-char controller) t)
 )
 
 (clos:defmethod generic-stream-listen ((controller generic-stream-controller))
@@ -89,6 +95,10 @@
 (defmethod generic-stream-read-char ((controller alias-controller))
   (with-slots (orig-stream) controller
     (read-char orig-stream nil nil)
+) )
+(defmethod generic-stream-peek-char ((controller alias-controller))
+  (with-slots (orig-stream) controller
+    (values (peek-char nil orig-stream nil nil) nil)
 ) )
 (defmethod generic-stream-listen ((controller alias-controller))
   (with-slots (orig-stream) controller

@@ -154,7 +154,7 @@
 ; <135>  pathname: syntax error time         yes             pathname.d
 ; <136>  pathname: unspecific component      no              pathname.d
 ; <137>  pathname: :WILD                     yes             pathname.d
-; <138>  PEEK-CHAR, READ-CHAR & echo         no              io.d, stream.d
+; <138>  PEEK-CHAR, READ-CHAR & echo         yes             io.d, stream.d
 ; <139>  pretty-print interface              no              xp.lsp
 ; <140>  PRINC character                     yes             io.d
 ; <141>  *PRINT-CASE* / *PRINT-ESCAPE* interaction

@@ -48,6 +48,7 @@
   # strm_rd_by       Pseudofunktion für READ-BYTE
   # strm_wr_by       Pseudofunktion für WRITE-BYTE
   # strm_rd_ch       Pseudofunktion für READ-CHAR
+  # strm_pk_ch       Pseudofunktion für PEEK-CHAR
   # strm_rd_ch_last  letztes von READ-CHAR gelesenes Zeichen
   #                  (bzw. als Fixnum nach UNREAD-CHAR bzw. NIL sonst)
   # strm_wr_ch       Pseudofunktion für WRITE-CHAR
@@ -122,6 +123,16 @@
   # kann GC auslösen
     typedef object (* rd_ch_Pseudofun) (object* stream_);
   #
+  # Spezifikation für PEEK-CHAR - Pseudofunktion:
+  # fun(&stream)
+  # Wie READ-CHAR mit nachfolgendem UNREAD-CHAR, nur dass Seiteneffekte bis
+  # zum nächsten wirklichen READ-CHAR hinausgezögert werden (soweit möglich).
+  # > stream: Stream (mit strm_rd_ch_last kein Fixnum)
+  # < stream: Stream
+  # < ergebnis: gelesenes Character (eof_value bei EOF)
+  # kann GC auslösen
+    typedef object (* pk_ch_Pseudofun) (object* stream_);
+  #
   # Spezifikation für WRITE-CHAR - Pseudofunktion:
   # fun(&stream,obj)
   # > stream: Stream
@@ -146,6 +157,7 @@
   #define rd_by(strm)  (*(rd_by_Pseudofun)(ThePseudofun(TheStream(strm)->strm_rd_by)))
   #define wr_by(strm)  (*(wr_by_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_by)))
   #define rd_ch(strm)  (*(rd_ch_Pseudofun)(ThePseudofun(TheStream(strm)->strm_rd_ch)))
+  #define pk_ch(strm)  (*(pk_ch_Pseudofun)(ThePseudofun(TheStream(strm)->strm_pk_ch)))
   #define wr_ch(strm)  (*(wr_ch_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_ch)))
   #ifdef STRM_WR_SS
   #define wr_ss(strm)  (*(wr_ss_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_ss)))
@@ -231,6 +243,14 @@
   local object rd_ch_dummy(stream_)
     var object* stream_;
     { fehler_illegal_streamop(S(read_char),*stream_); }
+  local object pk_ch_dummy (object* stream_);
+  local object pk_ch_dummy(stream_)
+    var object* stream_;
+    { var object newch = rd_ch(*stream_)(stream_);
+      TheStream(*stream_)->strm_rd_ch_last =
+        (eq(newch,eof_value) ? newch : char_to_fixnum(newch));
+      return newch;
+    }
   local void wr_ch_dummy (object* stream_, object obj);
   local void wr_ch_dummy(stream_,obj)
     var object* stream_;
@@ -407,12 +427,7 @@
     { var object stream = *stream_;
       if (!posfixnump(TheStream(stream)->strm_rd_ch_last)) # Char nach UNREAD ?
         # nein -> neues Zeichen holen:
-        { var object newch = rd_ch(stream)(stream_);
-          # und abspeichern:
-          TheStream(*stream_)->strm_rd_ch_last =
-            (eq(newch,eof_value) ? newch : char_to_fixnum(newch));
-          return newch;
-        }
+        { return pk_ch(stream)(stream_); }
         else
         # ja -> letztes Zeichen holen:
         { return fixnum_to_char(TheStream(stream)->strm_rd_ch_last); }
@@ -476,6 +491,7 @@
     { TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
       TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
       TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
       #ifdef STRM_WR_SS
@@ -1645,6 +1661,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
         { TheStream(stream)->strm_rd_by = P(rd_by_dummy);
           TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
         }
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
       if (direction & bit(2))
         { TheStream(stream)->strm_wr_by = P(wr_by_handle);
           TheStream(stream)->strm_wr_ch = P(wr_ch_handle_x);
@@ -2748,6 +2765,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
         s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
         s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
         s->strm_rd_ch = P(rd_ch_keyboard); # READ-CHAR-Pseudofunktion
+        s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
         s->strm_rd_ch_last = NIL; # Lastchar := NIL
         s->strm_wr_ch = P(wr_ch_dummy); # WRITE-CHAR unmöglich
         s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
@@ -2914,6 +2932,7 @@ LISPFUNN(make_keyboard_stream,0)
         s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
         s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
         s->strm_rd_ch = P(rd_ch_terminal); # READ-CHAR-Pseudofunktion
+        s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
         s->strm_rd_ch_last = NIL; # Lastchar := NIL
         s->strm_wr_ch = P(wr_ch_terminal); # WRITE-CHAR-Pseudofunktion
         s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
@@ -3609,6 +3628,7 @@ LISPFUNN(make_keyboard_stream,0)
           s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
           s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
           s->strm_rd_ch = P(rd_ch_terminal1); # READ-CHAR-Pseudofunktion
+          s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
           s->strm_rd_ch_last = NIL; # Lastchar := NIL
           s->strm_wr_ch = P(wr_ch_terminal1); # WRITE-CHAR-Pseudofunktion
           s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
@@ -3694,6 +3714,7 @@ LISPFUNN(make_keyboard_stream,0)
               s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
               s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
               s->strm_rd_ch = P(rd_ch_terminal3); # READ-CHAR-Pseudofunktion
+              s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
               s->strm_rd_ch_last = NIL; # Lastchar := NIL
               s->strm_wr_ch = P(wr_ch_terminal3); # WRITE-CHAR-Pseudofunktion
               s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
@@ -3726,6 +3747,7 @@ LISPFUNN(make_keyboard_stream,0)
               s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
               s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
               s->strm_rd_ch = P(rd_ch_terminal2); # READ-CHAR-Pseudofunktion
+              s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
               s->strm_rd_ch_last = NIL; # Lastchar := NIL
               s->strm_wr_ch = P(wr_ch_terminal2); # WRITE-CHAR-Pseudofunktion
               s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
@@ -3752,6 +3774,7 @@ LISPFUNN(make_keyboard_stream,0)
             s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
             s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
             s->strm_rd_ch = P(rd_ch_terminal1); # READ-CHAR-Pseudofunktion
+            s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
             s->strm_rd_ch_last = NIL; # Lastchar := NIL
             s->strm_wr_ch = P(wr_ch_terminal1); # WRITE-CHAR-Pseudofunktion
             s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
@@ -4593,6 +4616,7 @@ LISPFUNN(make_window,0)
       s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
       s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
       s->strm_rd_ch = P(rd_ch_dummy); # READ-CHAR unmöglich
+      s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
       s->strm_rd_ch_last = NIL; # Lastchar := NIL
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
@@ -4761,6 +4785,7 @@ LISPFUNN(make_window,0)
       s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
       s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
       s->strm_rd_ch = P(rd_ch_dummy); # READ-CHAR unmöglich
+      s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
       s->strm_rd_ch_last = NIL; # Lastchar := NIL
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
@@ -6601,6 +6626,7 @@ LISPFUNN(make_window,0)
       s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
       s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
       s->strm_rd_ch = P(rd_ch_dummy); # READ-CHAR unmöglich
+      s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
       s->strm_rd_ch_last = NIL; # Lastchar := NIL
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
@@ -6824,6 +6850,7 @@ LISPFUNN(make_window,0)
       s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
       s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
       s->strm_rd_ch = P(rd_ch_dummy); # READ-CHAR unmöglich
+      s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
       s->strm_rd_ch_last = NIL; # Lastchar := NIL
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
@@ -7005,6 +7032,7 @@ LISPFUNN(make_window,0)
       s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
       s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
       s->strm_rd_ch = P(rd_ch_dummy); # READ-CHAR unmöglich
+      s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
       s->strm_rd_ch_last = NIL; # Lastchar := NIL
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
       s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
@@ -8825,6 +8853,7 @@ LISPFUNN(window_cursor_off,1)
        switch (type)
          { case strmtype_sch_file:
              TheStream(stream)->strm_rd_ch = P(rd_ch_sch_file);
+             TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
              TheStream(stream)->strm_wr_ch = P(wr_ch_sch_file);
              #ifdef STRM_WR_SS
              TheStream(stream)->strm_wr_ss = P(wr_ss_sch_file);
@@ -8832,6 +8861,7 @@ LISPFUNN(window_cursor_off,1)
              break;
            case strmtype_ch_file:
              TheStream(stream)->strm_rd_ch = P(rd_ch_ch_file);
+             TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
              TheStream(stream)->strm_wr_ch = P(wr_ch_ch_file);
              #ifdef STRM_WR_SS
              TheStream(stream)->strm_wr_ss = P(wr_ss_dummy_nogc);
@@ -8871,7 +8901,9 @@ LISPFUNN(window_cursor_off,1)
          { TheStream(stream)->strm_wr_by = P(wr_by_dummy); }
        # Default für READ-CHAR-Pseudofunktion:
        if ((flags & strmflags_rd_ch_B)==0)
-         { TheStream(stream)->strm_rd_ch = P(rd_ch_dummy); }
+         { TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+           TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+         }
        TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
        # Default für WRITE-CHAR-Pseudofunktion:
        if ((flags & strmflags_wr_ch_B)==0)
@@ -9212,6 +9244,19 @@ LISPFUNN(file_stream_p,1)
        return ergebnis;
     }}}
 
+# PEEK-CHAR - Pseudofunktion für Synonym-Streams:
+  local object pk_ch_synonym (object* stream_);
+  local object pk_ch_synonym(stream_)
+    var object* stream_;
+    {  check_SP(); check_STACK();
+     { var object stream = *stream_;
+       var object symbol = TheStream(stream)->strm_synonym_symbol;
+       pushSTACK(get_synonym_stream(symbol));
+      {var object ergebnis = peek_char(&STACK_0);
+       skipSTACK(1);
+       return ergebnis;
+    }}}
+
 # WRITE-CHAR - Pseudofunktion für Synonym-Streams:
   local void wr_ch_synonym (object* stream_, object obj);
   local void wr_ch_synonym(stream_,obj)
@@ -9337,6 +9382,7 @@ LISPFUNN(file_stream_p,1)
       TheStream(stream)->strm_rd_by = P(rd_by_synonym);
       TheStream(stream)->strm_wr_by = P(wr_by_synonym);
       TheStream(stream)->strm_rd_ch = P(rd_ch_synonym);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_synonym);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_synonym);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -9516,6 +9562,7 @@ LISPFUNN(synonym_stream_symbol,1)
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_broad);
       TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_broad);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -9634,6 +9681,30 @@ LISPFUNN(broadcast_stream_streams,1)
       return eof_value;
     }}
 
+# PEEK-CHAR - Pseudofunktion für Concatenated-Streams:
+  local object pk_ch_concat (object* stream_);
+  local object pk_ch_concat(stream_)
+    var object* stream_;
+    { check_SP(); check_STACK();
+     {var object streamlist = TheStream(*stream_)->strm_concat_list; # Liste von Streams
+      while (consp(streamlist))
+        { pushSTACK(Car(streamlist));
+         {var object ergebnis = peek_char(&STACK_0); # Character lesen
+          skipSTACK(1);
+          if (!eq(ergebnis,eof_value)) { return ergebnis; }
+          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen
+          # und in die zweite Liste stecken:
+          {var object stream = *stream_;
+           var object first_cons = TheStream(stream)->strm_concat_list;
+           streamlist = Cdr(first_cons);
+           Cdr(first_cons) = TheStream(stream)->strm_concat_list2;
+           TheStream(stream)->strm_concat_list2 = first_cons;
+           TheStream(stream)->strm_concat_list = streamlist;
+        }}}
+      # alle Streams verbraucht -> liefere EOF:
+      return eof_value;
+    }}
+
 # Stellt fest, ob ein Concatenated-Stream ein Zeichen verfügbar hat.
 # listen_concat(stream)
 # > stream : Concatenated-Stream
@@ -9701,6 +9772,7 @@ LISPFUNN(broadcast_stream_streams,1)
       TheStream(stream)->strm_rd_by = P(rd_by_concat);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_concat);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_concat);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -9872,6 +9944,17 @@ LISPFUNN(concatenated_stream_streams,1)
       return ergebnis;
     }}
 
+# PEEK-CHAR - Pseudofunktion für Two-Way-Streams:
+  local object pk_ch_twoway (object* stream_);
+  local object pk_ch_twoway(stream_)
+    var object* stream_;
+    { check_SP(); check_STACK();
+      pushSTACK(TheStream(*stream_)->strm_twoway_input);
+     {var object ergebnis = peek_char(&STACK_0);
+      skipSTACK(1);
+      return ergebnis;
+    }}
+
 # Liefert einen Two-Way-Stream zu einem Input-Stream und einem Output-Stream.
 # make_twoway_stream(input_stream,output_stream)
 # > input_stream : Input-Stream
@@ -9888,6 +9971,7 @@ LISPFUNN(concatenated_stream_streams,1)
       TheStream(stream)->strm_rd_by = P(rd_by_twoway);
       TheStream(stream)->strm_wr_by = P(wr_by_twoway);
       TheStream(stream)->strm_rd_ch = P(rd_ch_twoway);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
       output_stream = popSTACK(); input_stream = popSTACK(); # Streams zurück
@@ -9998,6 +10082,7 @@ LISPFUNN(two_way_stream_output_stream,1)
       TheStream(stream)->strm_rd_by = P(rd_by_echo);
       TheStream(stream)->strm_wr_by = P(wr_by_twoway);
       TheStream(stream)->strm_rd_ch = P(rd_ch_echo);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
       output_stream = popSTACK(); input_stream = popSTACK(); # Streams zurück
@@ -10140,6 +10225,7 @@ LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL)
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_str_in);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -10233,6 +10319,7 @@ LISPFUNN(string_input_stream_index,1)
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_str_out);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -10332,6 +10419,7 @@ LISPFUNN(make_string_push_stream,1)
      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+     TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
      TheStream(stream)->strm_rd_ch_last = NIL;
      TheStream(stream)->strm_wr_ch = P(wr_ch_str_push);
      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -10432,6 +10520,7 @@ LISPFUNN(string_stream_p,1)
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_pphelp);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -10597,6 +10686,7 @@ LISPFUNN(make_buffered_input_stream,2)
     TheStream(stream)->strm_rd_by = P(rd_by_dummy);
     TheStream(stream)->strm_wr_by = P(wr_by_dummy);
     TheStream(stream)->strm_rd_ch = P(rd_ch_buff_in);
+    TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
     TheStream(stream)->strm_rd_ch_last = NIL;
     TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
     TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -10729,6 +10819,7 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
     TheStream(stream)->strm_rd_by = P(rd_by_dummy);
     TheStream(stream)->strm_wr_by = P(wr_by_dummy);
     TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+    TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
     TheStream(stream)->strm_rd_ch_last = NIL;
     TheStream(stream)->strm_wr_ch = P(wr_ch_buff_out);
     #ifdef STRM_WR_SS
@@ -10795,6 +10886,7 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_printer);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -10995,6 +11087,7 @@ LISPFUNN(make_pipe_input_stream,1)
       TheStream(stream)->strm_rd_by = P(rd_by_pipe_in);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_pipe_in);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -11175,6 +11268,7 @@ LISPFUNN(make_pipe_output_stream,1)
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_pipe_out);
       TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_pipe_out);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -11346,6 +11440,7 @@ LISPFUNN(make_pipe_io_stream,1)
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_pipe_in);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -11363,6 +11458,7 @@ LISPFUNN(make_pipe_io_stream,1)
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
+      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_pipe_out);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -11685,6 +11781,7 @@ LISPFUNN(make_x11socket_stream,2)
      TheStream(stream)->strm_rd_by = P(rd_by_x11socket);
      TheStream(stream)->strm_wr_by = P(wr_by_x11socket);
      TheStream(stream)->strm_rd_ch = P(rd_ch_x11socket);
+     TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
      TheStream(stream)->strm_rd_ch_last = NIL;
      TheStream(stream)->strm_wr_ch = P(wr_ch_x11socket);
      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -11838,6 +11935,7 @@ local object make_socket_stream(handle,host,port)
     TheStream(stream)->strm_rd_by = P(rd_by_socket);
     TheStream(stream)->strm_wr_by = P(wr_by_socket);
     TheStream(stream)->strm_rd_ch = P(rd_ch_socket);
+    TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
     TheStream(stream)->strm_rd_ch_last = NIL;
     TheStream(stream)->strm_wr_ch = P(wr_ch_socket);
     TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
@@ -12109,6 +12207,7 @@ LISPFUNN(socket_stream_handle,1)
   # object c associated with the stream s.
 
   #   (GENERIC-STREAM-READ-CHAR c)                      --> character or NIL
+  #   (GENERIC-STREAM-PEEK-CHAR c)                      --> character or NIL
   #   (GENERIC-STREAM-LISTEN c)                         --> {0,1,-1}
   #   (GENERIC-STREAM-CLEAR-INPUT c)                    --> {T,NIL}
   #   (GENERIC-STREAM-WRITE-CHAR c ch)                  -->
@@ -12127,6 +12226,25 @@ LISPFUNN(socket_stream_handle,1)
     var object* stream_;
     { pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
       pushSTACK(value1); funcall(S(generic_stream_rdch),1);
+      return nullp(value1) ? eof_value : value1;
+    }
+
+  # (PEEK-CHAR s) ==
+  # (GENERIC-STREAM-PEEK-CHAR c)
+  local object pk_ch_generic (object* stream_);
+  local object pk_ch_generic(stream_)
+    var object* stream_;
+    { pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
+      pushSTACK(value1); funcall(S(generic_stream_pkch),1);
+      if ((mv_count >= 2) && !nullp(value2))
+        { # READ-CHAR schon ausgeführt -> muss ein implizites UNREAD-CHAR
+          # ausführen (d.h. das Ergebnis für das nächste READ-CHAR/PEEK-CHAR
+          # aufheben).
+          if (!(nullp(value1) || charp(value1)))
+            { subr_self = L(unread_char); fehler_char(value1); }
+          TheStream(*stream_)->strm_rd_ch_last =
+            (nullp(value1) ? eof_value : char_to_fixnum(value1));
+        }
       return nullp(value1) ? eof_value : value1;
     }
 
@@ -12280,6 +12398,7 @@ LISPFUNN(make_generic_stream,1)
     TheStream(stream)->strm_rd_by = P(rd_by_generic);
     TheStream(stream)->strm_wr_by = P(wr_by_generic);
     TheStream(stream)->strm_rd_ch = P(rd_ch_generic);
+    TheStream(stream)->strm_pk_ch = P(pk_ch_generic);
     TheStream(stream)->strm_rd_ch_last = NIL;
     TheStream(stream)->strm_wr_ch = P(wr_ch_generic);
     TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
