@@ -50,6 +50,10 @@ if device and directory are unspecified:")
 ;; understand CYGWIN pathnames
 (setq *device-prefix* "cygdrive")
 
+;; This perhaps makes pathname parsing more intuitive:
+;;  ".clisprc" --> #S(pathname :name ".clisprc" :type nil)
+(setq *parse-namestring-dot-file* :name)
+
 ;; Common Lisp HyperSpec access
 (defvar *clhs-root-default*)
 (defun clhs-root ()

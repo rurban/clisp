@@ -1,3 +1,17 @@
+User visible changes
+--------------------
+
+* New user variables CUSTOM:*PARSE-NAMESTRING-DOT-FILE* while controls
+  how the file names starting with a dot are parsed.
+  By default, it is set to :NAME, so #P".clisprc" is now
+  #S(PATHNAME :NAME ".clisprc"); to get the old result of
+  #S(PATHNAME :TYPE "clisprc"), set the variable to :TYPE.
+  This is an incompatible change.
+  See <http://clisp.cons.org/impnotes.html#name-type-split> for details.
+
+* CUSTOM:*SOURCE-FILE-TYPES* and CUSTOM:*COMPILED-FILE-TYPES*
+  now contain strings, not pathnames.
+
 2.28 (2002-03-03)
 =================
 

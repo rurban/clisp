@@ -28,6 +28,10 @@
 ;; This makes screen output prettier:
 (setq *print-pretty* t)
 
+;; This perhaps makes pathname parsing more intuitive:
+;;  ".clisprc" --> #S(pathname :name ".clisprc" :type nil)
+(setq *parse-namestring-dot-file* :name)
+
 ;; Common Lisp HyperSpec access
 (defvar *clhs-root-default*)
 (defun clhs-root ()

@@ -178,7 +178,7 @@
       (setq extensions ; execute Case-conversions on the Extensions
         (mapcar #'pathname-type extensions)))
     ;; merge in defaults:
-    (setq filename (merge-pathnames filename '#".*"))
+    (setq filename (merge-pathnames filename #.(make-pathname :type :wild)))
     ;; search:
     (let ((already-searched nil))
       (dolist (dir (cons '#"" '()))
@@ -4302,14 +4302,12 @@ for-value   NIL or T
                                           :defaults *compile-file-truename*)
                            *load-paths*))
                     (present-files
-                     (search-file file (append *source-file-types*
-                                               '(#".lib"))))
+                     (search-file file (append *source-file-types* '("lib"))))
                     (newest-file (first present-files)))
                ;; if the libfile occurs among the found Files
                ;; and if it is the newest:
                (if (and (consp present-files)
-                        (string= (pathname-type newest-file)
-                                 '#,(pathname-type '#".lib")))
+                        (string= (pathname-type newest-file) "lib"))
                  (load newest-file :verbose nil :print nil :echo nil) ; load libfile
                  (compile-file (or newest-file file)))))) ; compile file
       (if (atom pathname) (load-lib pathname) (mapcar #'load-lib pathname)))))
@@ -11268,6 +11266,9 @@ The function make-closure is required.
          (when *c-top-call*
            (c-report-problems))))))
 
+;; return a path with the specified type and the rest as in the path argument
+(defun merge-extension (type path) (make-pathname :type type :defaults path))
+
 ;; Common part of COMPILE-FILE and COMPILE-FILE-PATHNAME.
 ;; Returns two values:
 ;; 1. the output file (pathname or stream or NIL),
@@ -11276,11 +11277,11 @@ The function make-closure is required.
   (let ((input-file
          (or (and (not (logical-pathname-p (pathname file)))
                   (first (search-file file *source-file-types*)))
-             (merge-pathnames file (merge-pathnames '#".lisp")))))
+             (merge-pathnames file (merge-extension "lisp" nil)))))
     (values
       (if (or (null output-file) (streamp output-file))
         output-file
-        (let ((tmp (merge-pathnames ".fas" input-file)))
+        (let ((tmp (merge-extension "fas" input-file)))
           (if (eq output-file 'T)
             tmp
             ;; Not (merge-pathnames output-file tmp) because that doesn't
@@ -11335,12 +11336,12 @@ The function make-closure is required.
   (multiple-value-setq (output-file file)
     (compile-file-pathname-helper file output-file))
   (when (and output-file (not (streamp output-file)))
-    (setq liboutput-file (merge-pathnames '#".lib" output-file))
-    (setq *coutput-file* (merge-pathnames '#".c" output-file))
+    (setq liboutput-file (merge-extension "lib" output-file))
+    (setq *coutput-file* (merge-extension "c" output-file))
     (setq new-output-stream t))
   (when (and listing (not (streamp listing)))
     (setq listing (if (eq listing 'T)
-                    (merge-pathnames '#".lis" file)
+                    (merge-extension "lis" file)
                     (merge-pathnames listing)))
     (setq new-listing-stream t))
   (with-open-file (istream file :direction :input-immutable)

@@ -45,6 +45,10 @@ if device and directory are unspecified.")
 ;; This makes screen output prettier:
 (setq *print-pretty* t)
 
+;; This perhaps makes pathname parsing more intuitive:
+;;  ".clisprc" --> #S(pathname :name ".clisprc" :type nil)
+(setq *parse-namestring-dot-file* :name)
+
 ;; Also set the variable *default-time-zone* in TIMEZONE.LISP according
 ;; to your time zone.
 ;; (setq *default-time-zone* 0)
