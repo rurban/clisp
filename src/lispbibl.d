@@ -7329,6 +7329,7 @@ nonreturning_function(extern, fehler_not_R, (object obj));
   #endif
 #endif
 # a message which is made a Lisp Object
+# can trigger GC
 #define OGETTEXT(asciz) asciz_to_string(GETTEXT(asciz),Symbol_value(S(utf_8)))
 # used by all modules
 
