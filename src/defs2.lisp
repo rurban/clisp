@@ -40,28 +40,27 @@
 
 ;; X3J13 vote <88>
 
-;; Interpretierte Funktion in Lambda-Ausdruck umwandeln, CLtL2 S. 682
+;; function --> lambda expression, CLtL2 p. 682
 (defun function-lambda-expression (obj)
-  (cond ((compiled-function-p obj) ; SUBR oder compilierte Closure?
-         (values nil t nil)
-        )
-        ((sys::closurep obj) ; interpretierte Closure?
-         (values (cons 'LAMBDA (sys::%record-ref obj 1)) ; Lambda-Ausdruck ohne Docstring
-                 (vector ; Environment
+  (setq obj (coerce obj 'function))
+  (cond #+FFI
+        ((eq (type-of obj) 'FFI::FOREIGN-FUNCTION)
+         (values nil nil (sys::%record-ref obj 0)))
+        ((sys::subr-info obj)
+         (values nil nil (sys::subr-info obj)))
+        ((compiled-function-p obj) ; compiled closure?
+         (let* ((name (sys::%record-ref obj 0))
+                (def (get name 'sys::definition)))
+           (values (when def (cons 'LAMBDA (cddar def))) t name)))
+        ((sys::closurep obj) ; interpreted closure?
+         (values (cons 'LAMBDA (sys::%record-ref obj 1)) ; lambda-expression without docstring
+                 (vector ; environment
                          (sys::%record-ref obj 4) ; venv
                          (sys::%record-ref obj 5) ; fenv
                          (sys::%record-ref obj 6) ; benv
                          (sys::%record-ref obj 7) ; genv
-                         (sys::%record-ref obj 8) ; denv
-                 )
-                 (sys::%record-ref obj 0) ; Name
-        ))
-        (t
-         (error-of-type 'type-error
-           :datum obj :expected-type 'function
-           (TEXT "~S: ~S is not a function")
-           'function-lambda-expression obj
-) )     ))
+                         (sys::%record-ref obj 8)); denv
+                 (sys::%record-ref obj 0))))) ; name
 
 ;; ----------------------------------------------------------------------------
 
