@@ -1,3 +1,22 @@
+2004-06-19  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp: Export compute-applicable-methods-using-classes.
+	* clos-package.lisp: Likewise.
+	* clos-methcomb2.lisp (sort-applicable-methods): Accept the classes of
+	the required arguments, not the required arguments themselves.
+	(compute-effective-method-as-function-form): Bootstrapping hack for
+	compute-applicable-methods-using-classes.
+	* clos-genfun2.lisp (compute-applicable-methods-using-classes,
+	compute-applicable-methods-using-classes-<standard-generic-function>):
+	New functions.
+	(check-method-only-standard-specializers): Add caller argument.
+	(compute-applicable-methods-effective-method): Call
+	compute-applicable-methods-using-classes before calling
+	compute-applicable-methods.
+	(compute-applicable-methods-<standard-generic-function>): Update.
+	* clos-genfun5.lisp (compute-applicable-methods-using-classes): New
+	generic function.
+
 2004-08-18  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (PC386): Define also on Cygwin.
