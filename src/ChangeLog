@@ -4,6 +4,7 @@
 	* charstrg.d (test_radix_arg, test_char_args)
 	(test_char_args_upcase, test_stringsymchar_arg): recoverable
 	avoid dotimes*() macro throughout the file
+	* package.d (test_package_arg): recoverable
 
 2003-05-24  Sam Steingold  <sds@gnu.org>
 
