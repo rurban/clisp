@@ -93,18 +93,37 @@
 
 ;;; <HS>/Body/mac_with-package-iterator.html
 (defmacro with-package-iterator ((name pack-list &rest types) &body body)
-  (let ((packs (gensym "WPI")) (iters (gensym "WPI")) (itf (gensym "WPI")))
-    `(let* ((,packs ,pack-list)
-            (,iters (mapcar (lambda (pa) (sys::package-iterator pa ',types))
-                            (if (listp ,packs) ,packs (list ,packs)))))
-      (labels ((,itf ()
-                 (when ,iters
-                   (multiple-value-bind (more symb acc)
-                       (sys::package-iterate (car ,iters))
-                     (if more (values more symb acc (svref (car ,iters) 4))
-                         (progn (pop ,iters) (,itf)))))))
-        (macrolet ((,name () '(,itf)))
-          ,@body)))))
+  (unless types
+    (error-of-type 'source-program-error
+      (DEUTSCH "Fehlende Symbol-Typen (~S/~S/~S) in ~S"
+       ENGLISH "missing symbol types (~S/~S/~S) in ~S"
+       FRANCAIS "types de symboles manquants dans ~S")
+      ':internal ':external ':inherited 'with-package-iterator
+  ) )
+  (let ((iterfun (gensym "WPI")))
+    `(let ((,iterfun (package-iterator-function ,pack-list ',types)))
+       (macrolet ((,name () '(funcall ,iterfun)))
+         ,@body
+     ) )
+) )
+(defun package-iterator-function (pack-list symbol-types)
+  (let ((iterstates
+          (mapcar #'(lambda (pack) (sys::package-iterator pack symbol-types))
+                  (if (listp pack-list) pack-list (list pack-list))
+       )) )
+    ; The iterstates list is cdr'ed down during the iteration.
+    #'(lambda ()
+        (loop
+          (if iterstates
+            (multiple-value-bind (more symb acc)
+                (sys::package-iterate (car iterstates))
+              (if more
+                (return (values more symb acc (svref (car iterstates) 4)))
+                (pop iterstates)
+            ) )
+            (return nil)
+      ) ) )
+) )
 
 ;;; Modulverwaltung (Kapitel 11.8), CLTL S. 188
 

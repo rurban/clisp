@@ -1,5 +1,11 @@
 1999-03-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * defs1.lsp (package-iterator-function): New function, taken out of
+          with-package-iterator.
+          (with-package-iterator): Adjust, add error message.
+
+1999-03-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * encoding.d (nls_mbstowcs, nls_asciiext_mbstowcs, nls_wcstombs,
            nls_asciiext_wcstombs, nls_range): Use TheMachine, not ThePseudofun.
           Vital for hppa.
