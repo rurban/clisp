@@ -1627,7 +1627,7 @@ is approximately equivalent to
 </para></formalpara>
 
 <formalpara id="with-collect">
-     <title><function>ext:with-collect</function></title>
+     <title><function>EXT:WITH-COLLECT</function></title>
 <para>Similar to the &loop;'s <constant>collect</constant> instruction,
  except that it is more "Lispy" in appearance and can appear arbitrarily
  deep.  It defines local macros (with &macrolet;) which collect objects
@@ -1649,7 +1649,7 @@ returns two lists <literal role="sexp">(1 3 5 7 9)</literal> and
 
 <para>The user-customizable variables are located in the package
  &custom-pac; and thus can be listed using
-   <literal role="sexp">(&apropos; "" "CUSTOM")</literal>
+   <literal role="sexp">(&apropos; "" "CUSTOM")</literal>.
 </para>
 
 </section>
