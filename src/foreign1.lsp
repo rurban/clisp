@@ -879,7 +879,7 @@ void module__~A__init_function_2(module)
 ;; ============================ named C functions ============================
 
 (defmacro DEF-C-CALL-OUT (name &rest options)
-  `(DEF-CALL-OUT ,name ,@options (:LANGUAGE :C))
+  `(DEF-CALL-OUT ,name ,@options (:LANGUAGE :STDC))
 )
 
 (defmacro DEF-CALL-OUT (&whole whole name &rest options)
@@ -926,7 +926,7 @@ void module__~A__init_function_2(module)
 ) )
 
 (defmacro DEF-C-CALL-IN (name &rest options)
-  `(DEF-CALL-IN ,name ,@options (:LANGUAGE :C))
+  `(DEF-CALL-IN ,name ,@options (:LANGUAGE :STDC))
 )
 
 (defmacro DEF-CALL-IN (&whole whole name &rest options)
