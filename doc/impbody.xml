@@ -899,13 +899,12 @@ is the same as
 <itemizedlist>
  <listitem><simpara>The value of &print-escape-var; must be
   respected.</simpara></listitem>
- <listitem><simpara>The value of &print-pretty-var; should not and
-  cannot be respected, since the pretty-print mechanism is not
-  accessible from outside.</simpara></listitem>
+ <listitem><simpara>The treatment of &print-pretty-var; is up to you.
+ </simpara></listitem>
  <listitem><simpara>The value of &print-circle-var; need not be
   respected.  This is managed by the system.  (But the print-circle
-  mechanism handles only those objects that are (direct or indirect)
-  components of structure.)</simpara></listitem>
+  mechanism handles only those objects that are direct or indirect
+  components of the structure.)</simpara></listitem>
  <listitem><simpara>The value of &print-level-var; is respected by
   &write;, &prin1;, &princ;, &print;, &pprint;, &format; instructions
   &format-a;, &format-s;, &format-w;, and &format; instructions
@@ -918,7 +917,7 @@ is the same as
   many times it was called recursively.)</simpara></listitem>
  <listitem><simpara>The value of &print-length-var; must be respected,
   especially if you are outputting an arbitrary number of components.
-  </simpara></listitem>
+ </simpara></listitem>
  <listitem><simpara>The value of &print-readably-var; must be
   respected. Remember that the values of &print-escape-var;,
   &print-level-var;, &print-length-var; are ignored if
@@ -937,7 +936,8 @@ is the same as
 </itemizedlist>
 
 <para>The &inherit-k; option is exactly like &include-k; except that it
- does not create new accessors for the inherited slots.</para>
+ does not create new accessors for the inherited slots (this is a
+ &clisp; extension).</para>
 
 </chapter>
 
