@@ -523,14 +523,35 @@ executes a compiled version of form.</para>
 <section><title>The Data and Control Flow Dictionary
    <ulink url="&clhs;/Body/sec_the_data__w_dictionary.html">[CLHS-5.3]</ulink></title>
 
+<formalpara><title>&destructuring-bind;</title>
+<para>does not perform full error checking.</para></formalpara>
+
 <formalpara><title>&prog1;, &prog2;, &and;, &or;, &psetq;, &when;,
  &unless;, &cond;, &case;, &multiple-value-list;, &multiple-value-bind;,
  &multiple-value-setq;</title>
 <para>are implemented as special operators and, as
  such, are rather efficient.</para></formalpara>
 
-<formalpara><title>&destructuring-bind;</title>
-<para>does not perform full error checking.</para></formalpara>
+<section><title>Macro <function>ext:fcase</function></title>
+
+<para>This macro allows specifying the test for &case;, e.g.,
+<programlisting>
+(fcase string= (subseq foo 0 (position #\Space foo))
+  ("first" 1)
+  (("second" "two") 2)
+  (("true" "yes") t)
+  (otherwise nil))
+</programlisting>
+is the same as
+<programlisting>
+(let ((var (subseq foo 0 (position #\Space foo))))
+  (cond ((string= var "first") 1)
+        ((and (string= var "second") (string= var "two")) 2)
+        ((and (string= var "true") (string= var "yes")) t)
+        (t nil)))
+</programlisting>
+</para>
+</section>
 
 <section><title>Function &eq;</title>
 
