@@ -867,6 +867,7 @@ LISPFUNN(make_pipe_io_stream,1)
 #endif
 #ifdef X11SOCKETS
 LISPFUNN(make_x11socket_stream,2)
+LISPFUNN(listen_byte,1)
 LISPFUNN(read_n_bytes,4)
 LISPFUNN(write_n_bytes,4)
 #endif
