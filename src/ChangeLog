@@ -1,5 +1,12 @@
 2004-10-13  Bruno Haible  <bruno@clisp.org>
 
+	* clos-genfun2b.lisp (compute-discriminating-function-<generic-function>):
+	Renamed from compute-discriminating-function-<standard-generic-function>.
+	* clos-genfun4.lisp (compute-discriminating-function): Generalize
+	method from <standard-generic-function> to <generic-function>.
+
+2004-10-13  Bruno Haible  <bruno@clisp.org>
+
 	Reorganize some CLOS code.
 	* clos-genfun1.lisp (|#'compute-discriminating-function| etc.,
 	safe-gf-*): Move to clos-genfun2a.lisp.

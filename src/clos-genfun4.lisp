@@ -196,8 +196,8 @@
 ;; MOP p. 40
 (fmakunbound 'compute-discriminating-function)
 (defgeneric compute-discriminating-function (gf)
-  (:method ((gf standard-generic-function))
-    (compute-discriminating-function-<standard-generic-function> gf)))
+  (:method ((gf generic-function))
+    (compute-discriminating-function-<generic-function> gf)))
 (setq |#'compute-discriminating-function| #'compute-discriminating-function)
 
 ;; MOP p. 35
