@@ -4891,6 +4891,7 @@ typedef struct {
   gcv_object_t pack_used_by_list      _attribute_aligned_object_;
   gcv_object_t pack_name              _attribute_aligned_object_;
   gcv_object_t pack_nicknames         _attribute_aligned_object_;
+  gcv_object_t pack_docstring         _attribute_aligned_object_;
 } *  Package;
 #define package_length  ((sizeof(*(Package)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 # Some packages are case-sensitive.
@@ -12799,7 +12800,7 @@ static inline object check_char (object obj) {
 # > obj: the possibly faulty argument
 # < a string
 nonreturning_function(extern, fehler_string, (object obj));
-/* used by */
+/* used by PACKAGE */
 
 /* check_string(obj)
  > obj: an object

@@ -1,5 +1,15 @@
 2004-06-22  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (Package): Add pack_docstring field.
+	* genclisph.d (main): Update.
+	* package.d (make_package): Initialize pack_docstring to NIL.
+	(SYS::PACKAGE-DOCUMENTATION, (SETF SYS::PACKAGE-DOCUMENTATION)): New
+	functions.
+	* error.d (fehler_string): Revived function.
+	* places.lisp (PACKAGE-DOCUMENTATION): New setter definition.
+
+2004-06-22  Bruno Haible  <bruno@clisp.org>
+
 	* clos-method1.lisp (<method>): New variable.
 
 2004-06-06  Bruno Haible  <bruno@clisp.org>
