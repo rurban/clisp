@@ -1150,9 +1150,9 @@ if [ "$cpu" = i386 -o $TSYS = sun4 ] && [ $CROSS = false ] ; then
       fi
       BINARY_DISTRIB=1
     ;;
-    hpux11*)
-      # Newer versions of HP-UX (HP-UX 11) ship with no ANSI C compiler, only
-      # with K&R "cc" whose only use may be to bootstrap gcc.
+    hpux*)
+      # Newer versions of HP-UX (HP-UX 10.20 and HP-UX 11) ship with no ANSI C
+      # compiler, only with K&R "cc" whose only use may be to bootstrap gcc.
       BINARY_DISTRIB=1
     ;;
   esac

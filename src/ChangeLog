@@ -1,3 +1,7 @@
+1999-07-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * makemake.in (BINARY_DISTRIB): Also define on HP-UX 10.
+
 1999-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * pathname.d (init_pathnames) [WIN32_NATIVE]: Follow documented
