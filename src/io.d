@@ -145,7 +145,7 @@
     local uintB syntax_table_get_notinline(table,c)
       var object table;
       var chart c;
-      { var object val = gethash(Cdr(table),code_char(c));
+      { var object val = gethash(code_char(c),Cdr(table));
         if (!eq(val,nullobj))
           return posfixnum_to_L(val);
         else

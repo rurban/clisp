@@ -1,5 +1,9 @@
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * io.d (syntax_table_get_notinline): Swap arguments to gethash().
+
+1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * compiler.lsp (compile-file): Create the .fas and .lib files in UTF-8.
 
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
