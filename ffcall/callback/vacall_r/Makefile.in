@@ -62,8 +62,8 @@ vacall.lo : vacall-$(CPU).lo
 vacall-i386.lo : vacall-i386.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c vacall-i386.s
 
-vacall-i386.s : $(srcdir)/vacall-i386.S
-	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-i386.S | grep -v '^ *#line' | grep -v '^#ident' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,% ,%,g' -e 's,\. ,.,g' > vacall-i386.s
+vacall-i386.s : $(srcdir)/vacall-i386-macro.S
+	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-i386-macro.S | grep -v '^ *#line' | grep -v '^#ident' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,% ,%,g' -e 's,\. ,.,g' > vacall-i386.s
 
 vacall-sparc.lo : vacall-sparc.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c vacall-sparc.s

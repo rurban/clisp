@@ -7,15 +7,15 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : avcall-i386.S avcall-i386-msvc.c avcall.h.msvc avcall-m68k.mit.S avcall-m68k.mot.s avcall-m68k-amiga.s avcall-mips.S avcall-mipsn32.S avcall-mips64.S avcall-sparc.S avcall-sparc64.S avcall-alpha.s avcall-hppa.s avcall-arm.S avcall-rs6000-aix.old.s avcall-rs6000-aix.new.s avcall-rs6000-sysv4.s avcall-m88k.s avcall-convex.s avcall-ia64.s avcall.man
+all : avcall-i386-macro.S avcall-i386-msvc.c avcall.h.msvc avcall-m68k.mit.S avcall-m68k.mot.s avcall-m68k-amiga.s avcall-mips.S avcall-mipsn32.S avcall-mips64.S avcall-sparc.S avcall-sparc64.S avcall-alpha.s avcall-hppa.s avcall-arm.S avcall-rs6000-aix.old.s avcall-rs6000-aix.new.s avcall-rs6000-sysv4.s avcall-m88k.s avcall-convex.s avcall-ia64.s avcall.man
 
-avcall-i386.S : avcall-i386.c avcall.h.in asmi386.sh
+avcall-i386-macro.S : avcall-i386.c avcall.h.in asmi386.sh
 	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -D__i386__ -fno-omit-frame-pointer -S avcall-i386.c -o avcall-i386.s
-	(echo '#include "asmi386.h"' ; sed -e '/\.align.*,0x90$$/d' < avcall-i386.s | ./asmi386.sh) > avcall-i386.S
+	(echo '#include "asmi386.h"' ; sed -e '/\.align.*,0x90$$/d' < avcall-i386.s | ./asmi386.sh) > avcall-i386-macro.S
 	$(RM) avcall-i386.s
 
-avcall-i386-msvc.c : avcall-i386.S
-	cp -p avcall-i386.S avcall-i386-msvc.c
+avcall-i386-msvc.c : avcall-i386-macro.S
+	cp -p avcall-i386-macro.S avcall-i386-msvc.c
 
 avcall.h.msvc : avcall.h.in
 	sed -e 's,^#undef __i386__$$,#define __i386__ 1,' -e 's,^#undef __SMALL_STRUCT_RETURN__$$,#define __SMALL_STRUCT_RETURN__ 1,' < avcall.h.in > avcall.h.msvc
