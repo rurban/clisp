@@ -1,5 +1,9 @@
 2004-04-21  Bruno Haible  <bruno@clisp.org>
 
+	* utils/clispload.lsp: Set *warn-on-floating-point...contagion* to nil.
+
+2004-04-21  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (XCC_GCC_VERSION): Invoke gcc -v in the C locale.
 
 2004-04-12  Bruno Haible  <bruno@clisp.org>
