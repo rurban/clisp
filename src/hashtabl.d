@@ -903,6 +903,31 @@ local uintL hashcode (object ht, object obj) {
   return hashcode_cook(hashcode_raw(ht,obj),size);
 }
 
+/* UP: Calculates the hashcode of an object with reference to a hashtable.
+ hashcode_builtin(ht,obj)
+ > ht: hash-table with built-in test
+ > obj: object
+ < result: index into the index-vector */
+local inline uintL hashcode_builtin (object ht, object obj) {
+  var uintL size = TheHashtable(ht)->ht_size;
+  var uintB flags = record_flags(TheHashtable(ht));
+  var uint32 coderaw = (flags & bit(0) ? hashcode1(obj) : /* EQ-hashcode */
+                        hashcodefn(ht)(obj));
+  return hashcode_cook(coderaw,size);
+}
+
+/* UP: Calculates the hashcode of an object with reference to a hashtable.
+ hashcode_user(ht,obj)
+ > ht: hash-table with user-defined test
+ > obj: object
+ < result: index into the index-vector
+ can trigger GC */
+local uintL hashcode_user (object ht, object obj) {
+  var uintL size = TheHashtable(ht)->ht_size;
+  var uint32 coderaw = hashcode5(TheHashtable(ht)->ht_hash,obj);
+  return hashcode_cook(coderaw,size);
+}
+
 /* UP: Reorganizes a hash-table, after the hashcodes of the keys
  have been modified by a GC.
  rehash(ht);
@@ -982,7 +1007,7 @@ global bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_,
   #endif
   ASSERT(ht_validp(TheHashtable(ht)));
   var uintB flags = record_flags(TheHashtable(ht));
-  var uintL hashindex = hashcode(ht,obj); /* calculate hashcode */
+  var uintL hashindex = hashcode_builtin(ht,obj); /* calculate hashcode */
   var object kvtable = TheHashtable(ht)->ht_kvtable;
   var gcv_object_t* Nptr =      /* pointer to the current entry */
     &TheSvector(TheHashedAlist(kvtable)->hal_itable)->data[hashindex];
@@ -1031,7 +1056,7 @@ global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
   if (!ht_validp(TheHashtable(ht))) /* hash-table must be reorganized */
     ht = rehash(ht);
   obj = STACK_0; /* rehash could trigger GC */
-  var uintL hashindex = hashcode(ht,obj); /* calculate hashcode */
+  var uintL hashindex = hashcode_user(ht,obj); /* calculate hashcode */
   obj = popSTACK(); ht = popSTACK();
   var object kvtable = TheHashtable(ht)->ht_kvtable;
   var gcv_object_t* Nptr =      /* pointer to the current entry */
