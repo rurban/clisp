@@ -1,7 +1,7 @@
 # Pathnames for CLISP
 # Bruno Haible 1990-2001
 # Logical Pathnames: Marcus Daniels 16.9.1994
-# ANSI compliance, bugs: Sam Steingold 1999-2001
+# ANSI compliance, bugs: Sam Steingold 1998-2001
 
 #include "lispbibl.c"
 
