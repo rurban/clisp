@@ -72,7 +72,8 @@ User visible changes
     - checking for duplicate variables in iteration clauses;
   + DOCUMENTATION is now a generic function;
   + implemented CHANGE-CLASS, UPDATE-INSTANCE-FOR-DIFFERENT-CLASS,
-    MAKE-INSTANCES-OBSOLETE and UPDATE-INSTANCE-FOR-REDEFINED-CLASS;
+    MAKE-INSTANCES-OBSOLETE, UPDATE-INSTANCE-FOR-REDEFINED-CLASS, and
+    ENSURE-GENERIC-FUNCTION;
   + sequence functions (MAP, LENGTH and such) no longer accept dotted lists
     and treat NULL as LIST of length 0 and CONS as LIST of positive length;
   + COERCE accepts CLOS class object as a type-spec (second argument) and

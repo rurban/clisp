@@ -505,3 +505,46 @@ x-y-position
         (position-rho i) (position-theta i)))
 (X-Y-POSITION 1.0000000000000002d0 1.0d0
               1.4142135623730951d0 0.7853981633974483d0)
+
+;;; ensure-generic-function
+;;; <http://www.lisp.org/HyperSpec/Body/fun_ensure-ge_ric-function.html>
+(ensure-generic-function 'car) error
+(ensure-generic-function 'defclass) error
+(ensure-generic-function 'tagbody) error
+
+(let ((f 'egf-fun))
+  (when (fboundp f) (fmakunbound f))
+  (list
+   (fboundp f)
+   (typep (ensure-generic-function f) 'generic-function)
+   (typep (ensure-generic-function f) 'generic-function)
+   (typep (symbol-function f) 'generic-function)))
+(nil t t t)
+
+(let ((f 'egf-fun))
+  (when (fboundp f) (fmakunbound f))
+  (list
+   (fboundp f)
+   (typep (ensure-generic-function f :lambda-list '(a b c))
+          'generic-function)
+   ;; Test of incongruent generic function lambda list when no
+   ;; methods exist
+   (typep (ensure-generic-function f :lambda-list '(x y))
+          'generic-function)
+   (typep (symbol-function f) 'generic-function)))
+(nil t t t)
+
+(let ((f 'egf-fun))
+  (when (fboundp f) (fmakunbound f))
+  (list
+   (fboundp f)
+   (typep (ensure-generic-function f :lambda-list '(a b c))
+          'generic-function)
+   (typep (eval `(defmethod ,f ((a t)(b t)(c t)) (list a b c)))
+          'standard-method)))
+(nil t t)
+
+;; Test of incongruent generic function lambda list when
+;; some methods do exist
+(ensure-generic-function egf-fun :lambda-list '(x y))
+error
