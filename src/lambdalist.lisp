@@ -36,8 +36,8 @@
                 (setq L (cdr L)))))
 
 ;;; Analyzes a lambda-list of a function (CLtL2 p. 76, ANSI CL 3.4.1.).
-;;; Reports errors through errfunc (a function taking an error format string
-;;; and format string arguments).
+;;; Reports errors through errfunc (a function taking a detail object, an
+;;; error format string and format string arguments).
 ;; Returns 13 values:
 ;; 1. list of required parameters
 ;; 2. list of optional parameters
@@ -112,7 +112,8 @@
       (when (and (consp L) (eq (car L) '&rest))
         (setq L (cdr L))
         (macrolet ((err-norest ()
-                     `(funcall errfunc lambdalist (TEXT "Missing &REST parameter in lambda list ~S")
+                     `(funcall errfunc lambdalist
+                               (TEXT "Missing &REST parameter in lambda list ~S")
                                lambdalist)))
           (if (atom L)
             (err-norest)
@@ -197,7 +198,8 @@
           (setq L (cdr L))))
       ;; Now (atom L).
       (if L
-        (funcall errfunc lambdalist (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
+        (funcall errfunc lambdalist
+                 (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
                  lambdalist))
       (values
         (nreverse reqvar)
@@ -209,8 +211,8 @@
         (nreverse auxvar) (nreverse auxinit))))
 
 ;;; Analyzes a lambda-list of a generic function (ANSI CL 3.4.2.).
-;;; Reports errors through errfunc (a function taking an error format string
-;;; and format string arguments).
+;;; Reports errors through errfunc (a function taking a detail object, an
+;;; error format string and format string arguments).
 ;; Returns 7 values:
 ;; 1. list of required parameters
 ;; 2. list of optional parameters
@@ -257,7 +259,8 @@
               (if (and (consp item) (symbolp (car item)))
                 (if (null (cdr item))
                   (push (car item) optvar)
-                  (funcall errfunc item (TEXT "Invalid lambda list element ~S. Optional parameters cannot have default value forms in generic function lambda lists.")
+                  (funcall errfunc item
+                           (TEXT "Invalid lambda list element ~S. Optional parameters cannot have default value forms in generic function lambda lists.")
                            item))
                 (err-invalid item))))
           (setq L (cdr L))))
@@ -266,7 +269,8 @@
       (when (and (consp L) (eq (car L) '&rest))
         (setq L (cdr L))
         (macrolet ((err-norest ()
-                     `(funcall errfunc lambdalist (TEXT "Missing &REST parameter in lambda list ~S")
+                     `(funcall errfunc lambdalist
+                               (TEXT "Missing &REST parameter in lambda list ~S")
                                lambdalist)))
           (if (atom L)
             (err-norest)
@@ -309,7 +313,8 @@
                       (push (intern (symbol-name (car item)) *keyword-package*)
                             keyword)
                       (push (car item) keyvar)))
-                  (funcall errfunc item (TEXT "Invalid lambda list element ~S. Keyword parameters cannot have default value forms in generic function lambda lists.")
+                  (funcall errfunc item
+                           (TEXT "Invalid lambda list element ~S. Keyword parameters cannot have default value forms in generic function lambda lists.")
                            item))
                 (err-invalid item))))
           (setq L (cdr L)))
@@ -321,7 +326,8 @@
           (skip-L &allow-other-keys '())))
       ;; Now (atom L).
       (if L
-        (funcall errfunc lambdalist (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
+        (funcall errfunc lambdalist
+                 (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
                  lambdalist))
       (values
         (nreverse reqvar)
@@ -332,8 +338,8 @@
         allow-other-keys)))
 
 ;;; Analyzes a defsetf lambda-list (ANSI CL 3.4.7.).
-;;; Reports errors through errfunc (a function taking an error format string
-;;; and format string arguments).
+;;; Reports errors through errfunc (a function taking a detail object, an
+;;; error format string and format string arguments).
 ;; Returns 12 values:
 ;; 1. list of required parameters
 ;; 2. list of optional parameters
@@ -406,7 +412,8 @@
       (when (and (consp L) (eq (car L) '&rest))
         (setq L (cdr L))
         (macrolet ((err-norest ()
-                     `(funcall errfunc lambdalist (TEXT "Missing &REST parameter in lambda list ~S")
+                     `(funcall errfunc lambdalist
+                               (TEXT "Missing &REST parameter in lambda list ~S")
                                lambdalist)))
           (if (atom L)
             (err-norest)
@@ -475,7 +482,8 @@
       (when (and (consp L) (eq (car L) '&environment))
         (setq L (cdr L))
         (macrolet ((err-noenvironment ()
-                     `(funcall errfunc lambdalist (TEXT "Missing &ENVIRONMENT parameter in lambda list ~S")
+                     `(funcall errfunc lambdalist
+                               (TEXT "Missing &ENVIRONMENT parameter in lambda list ~S")
                                lambdalist)))
           (if (atom L)
             (err-noenvironment)
@@ -490,7 +498,8 @@
         (skip-L &environment '()))
       ;; Now (atom L).
       (if L
-        (funcall errfunc lambdalist (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
+        (funcall errfunc lambdalist
+                 (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
                  lambdalist))
       (values
         (nreverse reqvar)
@@ -502,8 +511,8 @@
         env)))
 
 ;;; Analyzes a define-modify-macro lambda-list (ANSI CL 3.4.9.).
-;;; Reports errors through errfunc (a function taking an error format string
-;;; and format string arguments).
+;;; Reports errors through errfunc (a function taking a detail object, an
+;;; error format string and format string arguments).
 ;; Returns 5 values:
 ;; 1. list of required parameters
 ;; 2. list of optional parameters
@@ -562,7 +571,8 @@
       (when (and (consp L) (eq (car L) '&rest))
         (setq L (cdr L))
         (macrolet ((err-norest ()
-                     `(funcall errfunc lambdalist (TEXT "Missing &REST parameter in lambda list ~S")
+                     `(funcall errfunc lambdalist
+                               (TEXT "Missing &REST parameter in lambda list ~S")
                                lambdalist)))
           (if (atom L)
             (err-norest)
@@ -577,7 +587,8 @@
         (skip-L &rest '()))
       ;; Now (atom L).
       (if L
-        (funcall errfunc lambdalist (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
+        (funcall errfunc lambdalist
+                 (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
                  lambdalist))
       (values
         (nreverse reqvar)
@@ -585,8 +596,8 @@
         rest)))
 
 ;;; Analyzes a define-method-combination lambda-list (ANSI CL 3.4.10.).
-;;; Reports errors through errfunc (a function taking an error format string
-;;; and format string arguments).
+;;; Reports errors through errfunc (a function taking a detail object, an
+;;; error format string and format string arguments).
 ;; Returns 14 values:
 ;; 1. &whole parameter or 0
 ;; 2. list of required parameters
@@ -610,7 +621,8 @@
       (when (and (consp L) (eq (car L) '&whole))
         (setq L (cdr L))
         (macrolet ((err-nowhole ()
-                     `(funcall errfunc lambdalist (TEXT "Missing &WHOLE parameter in lambda list ~S")
+                     `(funcall errfunc lambdalist
+                               (TEXT "Missing &WHOLE parameter in lambda list ~S")
                                lambdalist)))
           (if (atom L)
             (err-nowhole)
