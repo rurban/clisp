@@ -1,3 +1,7 @@
+2004-09-20  Bruno Haible  <bruno@clisp.org>
+
+	* mop.tst: Add many new protocol tests.
+
 2004-09-28  Sam Steingold  <sds@gnu.org>
 
 	* pack11.tst: package locking should not interfere with SETQ
