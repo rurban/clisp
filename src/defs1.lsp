@@ -736,6 +736,31 @@
       (intern str)
 ) ) )
 
+; Liefert den Typ eines Symbols sym mit (fboundp sym).
+(defun fbound-string (sym)
+  (cond ((special-operator-p sym)
+         (DEUTSCH "Spezialform"
+          ENGLISH "special form"
+          FRANCAIS "forme spéciale")
+        )
+        ((functionp (symbol-function sym))
+         (DEUTSCH "Funktion"
+          ENGLISH "function"
+          FRANCAIS "fonction")
+        )
+        (t (DEUTSCH "Macro"
+            ENGLISH "macro"
+            FRANCAIS "macro")
+) )     )
+
+; *ERROR-HANDLER* should be NIL or a function which accepts the following
+; arguments:
+; - NIL (in case of ERROR) or a continue-format-string (in case of CERROR),
+; - error-format-string,
+; - more argument list for these two format strings,
+; and which may return only if the first argument is /= NIL.
+(defvar *error-handler* nil)
+
 ;; Backward compatibility
 
 (sys::%putd 'special-form-p #'special-operator-p)

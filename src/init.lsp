@@ -1794,52 +1794,111 @@ interpreter compiler
     ) ) )
 ) )
 
-(LOAD "user1")    ;; User-Interface, Teil 1: Break-Loop, Stepper
+(LOAD "room")     ;; room, space
 
-(LOAD "user2")    ;; User-Interface, Teil 2: Apropos Describe Room Dribble Ed
+(LOAD "savemem")  ;; saveinitmem
 
-(LOAD "trace")    ;; User-Interface, Teil 3: TRACE
+;; At this point saveinitmem works.
 
-;(LOAD "macros3")  ;; weitere Macros, optional
+; preliminary definition of CERROR, CLtL2 p. 887
+(defun cerror (continue-format-string error-format-string &rest args)
+  (if *error-handler*
+    (apply *error-handler*
+           (or continue-format-string t) error-format-string args
+    )
+    (progn
+      (terpri *error-output*)
+      (write-string "** - Continuable Error" *error-output*)
+      (terpri *error-output*)
+      (apply #'format *error-output* error-format-string args)
+      (terpri *debug-io*)
+      (if (interactive-stream-p *debug-io*)
+        (progn
+          (write-string (DEUTSCH "Wenn Sie (mit Continue) fortfahren: "
+                         ENGLISH "If you continue (by typing 'continue'): "
+                         FRANCAIS "Si vous continuez (en tapant «continue»): ")
+                        *debug-io*
+          )
+          (apply #'format *debug-io* continue-format-string args)
+          (funcall *break-driver* t)
+        )
+        (apply #'format *debug-io* continue-format-string args)
+    ) )
+) )
 
-(LOAD "config")   ;; Konfigurations-Parameter
+(LOAD "trace")     ;; TRACE
 
-(LOAD "compiler") ;; Compiler
+(LOAD "compiler")  ;; Compiler
 
-(LOAD "disassem") ;; Disassembler
+(LOAD "disassem")  ;; Disassembler
 
-(LOAD "defs2")    ;; CLtL2-Definitionen, optional
+(LOAD "defs2")     ;; CLtL2-Definitionen, optional
 
-(LOAD "loop")     ;; CLtL2/ANSI-CL-LOOP, optional
+(LOAD "loop")      ;; CLtL2/ANSI-CL-LOOP, optional
 
-(LOAD "clos")     ;; CLOS
+(LOAD "clos")      ;; CLOS
 
-(LOAD "conditio") ;; Conditions, optional
+(LOAD "conditio")  ;; Conditions
 
-(LOAD "defs3")    ;; CLtL2-Definitionen, optional
+;; At this point the core Common Lisp is complete.
 
-(LOAD "gstream")  ;; generic streams, optional
 
-(LOAD "xcharin")  ;; extended character input, optional
+;; Fancy streams:
+
+(LOAD "gstream")   ;; generic streams, optional
+
+(LOAD "xcharin")   ;; extended character input, optional
+
+(LOAD "keyboard")  ;; keyboard stream, optional
+
+(when (or #+AMIGA t (find-package "SCREEN"))
+  (LOAD "screen")  ;; Screen-Paket, optional
+)
+
+
+;; Environmental facilities:
 
 #+AMIGA
-(LOAD "amigasock")  ;; Sockets, optional
+(LOAD "amigasock") ;; sockets, optional
+
+(LOAD "runprog")   ;; run-program and friends, optional
+
+
+;; User interface:
+
+(LOAD "query")     ;; querying the user
+
+(LOAD "reploop")   ;; prompt, debugger, stepper
+
+(LOAD "dribble")   ;; dribble
+
+(LOAD "complete")  ;; completion
+
+(LOAD "describe")  ;; apropos, describe
+
+(LOAD "edit")      ;; edit-file, ed, uncompile
+
+
+;; Random extensions:
+
+;(LOAD "macros3")  ;; more macros, optional
 
 #+FFI ; when (find-package "FFI")
-(LOAD "foreign1") ;; foreign function interface, optional
+(LOAD "foreign1")  ;; foreign function interface, optional
 
 #+AMIGA
 (when (find-symbol "%LIBCALL" "SYSTEM")
-  (LOAD "affi1")  ;; einfaches FFI, optional
-)
-
-(when (or #+AMIGA t (find-package "SCREEN"))
-  (LOAD "screen") ;; Screen-Paket, optional
+  (LOAD "affi1")   ;; simple FFI, optional
 )
 
 #+AMIGA (LOAD "rexx1") ;; Rexx-Schnittstelle, optional
 
+(LOAD "defs3")     ;; the COMMON-LISP package
+
 #+GETTEXT (LOAD "spanish") ;; Spanische Meldungen
 
-(in-package "USER") ;; Default-Package aktuell machen
+(LOAD "config")    ;; configuration parameters to be adjusted by the user
+
+
+(in-package "USER") ;; make the default package the current one
 

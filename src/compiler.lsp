@@ -51,7 +51,7 @@
 ; #-CROSS impliziert #+CLISP.
 
 #-CROSS (in-package "LISP")
-#-CROSS (export '(compile compile-file disassemble))
+#-CROSS (export '(eval-env compile compile-file disassemble))
 #-CROSS (pushnew ':compiler *features*)
 
 #-CROSS (in-package "COMPILER")
@@ -71,7 +71,6 @@
                   sys::%funtabref sys::inlinable sys::constant-inlinable
                   sys::*compiling* sys::*compiling-from-file* sys::*inline-functions*
                   sys::*venv* sys::*fenv* sys::*benv* sys::*genv* sys::*denv*
-                  sys::*toplevel-denv*
                   COMPILER::C-PROCLAIM COMPILER::C-PROCLAIM-CONSTANT
                   COMPILER::C-DEFUN COMPILER::C-PROVIDE COMPILER::C-REQUIRE
         )        )
@@ -12083,6 +12082,17 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                     `(() ,form)
                     %venv% %fenv% %benv% %genv% %denv%
   ) )
+)
+
+#+CLISP
+(progn
+  ; Das Toplevel-Environment
+  (defparameter *toplevel-environment* (eval '(the-environment)))
+  (defparameter *toplevel-denv* (svref *toplevel-environment* 4))
+  ; Evaluiert eine Form in einem Environment
+  (defun eval-env (form &optional (env *toplevel-environment*))
+    (evalhook form nil nil env)
+  )
 )
 
 ; Common-Lisp-Funktion COMPILE
