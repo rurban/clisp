@@ -1,5 +1,10 @@
 2002-12-06  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check-sources): check that there are no variables
+	of type gcv_object_t - only pointers to it (see lispbibl.d)
+
+2002-12-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/demos/sokoban.lisp: provide "sokoban"
 	(sokoban): check that *display* is alive
 	* modules/clx/new-clx/demos/qix.lisp: provide "qix"
