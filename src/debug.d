@@ -123,7 +123,7 @@ local Values read_form(void)
    #endif
    #if !defined(TERMINAL_USES_KEYBOARD) /*  Atari - function keys */
     var bool terminal_read_stream_bound = false;
-    if (!ls_avail_p(status) /* only for interactive input streams */
+    if (interactive_stream_p(*(inputstream_ STACKop 3)) /* only for interactive input streams */
         && !boundp(Symbol_value(S(terminal_read_stream)))) {
       /* look for commands, not forms:
        (multiple-value-bind (line flag) (read-line istream)
