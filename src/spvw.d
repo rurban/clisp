@@ -238,8 +238,8 @@ local int exitcode;
 #include "spvw_singlemap.c"
 
 #if defined(SINGLEMAP_MEMORY) && defined(HAVE_WIN32_VM)
-  # Despite of SINGLEMAP_MEMORY, a relocation may be necessary
-  # at loadmem() time.
+  /* Despite SINGLEMAP_MEMORY, a relocation may be necessary
+   at loadmem() time. */
   #define SINGLEMAP_MEMORY_RELOCATE
 #endif
 
@@ -399,7 +399,7 @@ local void delete_thread (thread_t* thread) {
   # > value: the default value in all threads
   # < returns: the index in the every thread's _symvalues[] array
 local uintL make_symvalue_perthread (object value) {
-  var uintL index;
+  var uintL symbol_index;
   xmutex_lock(&allthreads_lock);
   if (num_symvalues == maxnum_symvalues) {
     for_all_threads({
@@ -408,10 +408,10 @@ local uintL make_symvalue_perthread (object value) {
     });
     maxnum_symvalues += mmap_pagesize/sizeof(gcv_object_t);
   }
-  index = num_symvalues++;
-  for_all_threads({ thread->_symvalues[index] = value; });
+  symbol_index = num_symvalues++;
+  for_all_threads({ thread->_symvalues[symbol_index] = value; });
   xmutex_unlock(&allthreads_lock);
-  return index;
+  return symbol_index;
  failed:
   xmutex_unlock(&allthreads_lock);
   fehler(error,GETTEXT("could not make symbol value per-thread"));
