@@ -740,18 +740,12 @@
                             (cons initform (make-constant-initfunction (eval initform))))
                       (setf (clos::structure-effective-slot-definition-initff slot)
                             `(MAKE-CONSTANT-INITFUNCTION ,initform)))
-                    (let ((variable (gensym)))
-                      (push
-                        `(FUNCTION ,(concat-pnames "DEFAULT-" slotname)
-                           (LAMBDA () ,initform))
-                        slotdefaultfuns)
-                      (push variable slotdefaultvars)
-                      (push slot slotdefaultslots)
-                      (push nil slotdefaultdirectslots)
+                    (progn
                       (setf (clos::slot-definition-inheritable-initer slot)
                             (cons initform nil)) ; FIXME
                       (setf (clos::structure-effective-slot-definition-initff slot)
-                            variable))))
+                            `(FUNCTION ,(concat-pnames "DEFAULT-" slotname)
+                               (LAMBDA () ,initform))))))
                 ;; process the slot-options of this Slot-Specifier:
                 (do ((slot-arglistr (cddr slotarg) (cddr slot-arglistr)))
                     ((endp slot-arglistr))
@@ -784,6 +778,16 @@
                                :detail slot-keyword
                                (TEXT "~S ~S: ~S is not a slot option.")
                                'defstruct name slot-keyword)))))))))
+        (dolist (slot slotlist)
+          (unless (constant-initfunction-p (clos:slot-definition-initfunction slot))
+            (let ((variable (gensym)))
+              (push (clos::structure-effective-slot-definition-initff slot)
+                    slotdefaultfuns)
+              (push variable slotdefaultvars)
+              (push slot slotdefaultslots)
+              (push nil slotdefaultdirectslots)
+              (setf (clos::structure-effective-slot-definition-initff slot)
+                    variable))))
         (when (eq (first include-option) ':INHERIT)
           (setq inherited-slot-count (length slotlist))))
       (if (eq name 'STRUCTURE-OBJECT)
