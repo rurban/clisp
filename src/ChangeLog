@@ -5,6 +5,7 @@
 	(BDB:DB-CREATE): permit NIL environment, call MKDB correctly
 	(BDB:DB-FD): fixed STACK handling
 	(BDB:DB-OPEN): default mode to 0644
+	(BDB:DB-PUT): fixed flag handling
 
 2004-06-06  Bruno Haible  <bruno@clisp.org>
 
