@@ -280,15 +280,17 @@
 (def-atomic-type CLOS:STRUCTURE-OBJECT clos::structure-object-p)
 (def-atomic-type SYMBOL symbolp)
 (def-atomic-type T (lambda (x) (declare (ignore x)) t))
+;; foreign1.lisp is loaded after this file,
+;; so these symbols are not external yet
 #+ffi
-(def-atomic-type ffi:foreign-function
-  (lambda (x) (eq 'ffi:foreign-function (type-of x))))
+(def-atomic-type ffi::foreign-function
+  (lambda (x) (eq 'ffi::foreign-function (type-of x))))
 #+ffi
-(def-atomic-type ffi:foreign-variable
-  (lambda (x) (eq 'ffi:foreign-variable (type-of x))))
+(def-atomic-type ffi::foreign-variable
+  (lambda (x) (eq 'ffi::foreign-variable (type-of x))))
 #+ffi
-(def-atomic-type ffi:foreign-address
-  (lambda (x) (eq 'ffi:foreign-address (type-of x))))
+(def-atomic-type ffi::foreign-address
+  (lambda (x) (eq 'ffi::foreign-address (type-of x))))
 ;; see lispbibl.d (#define FOREIGN) and predtype.d (TYPE-OF):
 #+(or unix ffi amiga dir-key)
 (def-atomic-type foreign-pointer
