@@ -235,7 +235,8 @@
         # entry ist ein einzelnes Symbol
         # erster String und Printname des gefundenen Symbols gleich ?
         if (string_gleich(string,Symbol_name(entry))) {
-          *sym_ = entry; return true;
+          if (sym_) { *sym_ = entry; }
+          return true;
         } else {
           return false;
         }
@@ -249,7 +250,8 @@
         }
         return false; # nicht gefunden
        found: # gefunden als CAR von entry
-        *sym_ = Car(entry); return true;
+        if (sym_) { *sym_ = Car(entry); }
+        return true;
       }
     }
 
@@ -385,6 +387,29 @@
             );
     }
 
+# check whether the symbol is inherited
+# inherited_lookup(string,pack,symb)
+# return true iff string is found in (package-use-list pack)
+local bool inherited_lookup(object string,object pack,object* sym_) {
+  var object packlistr = ThePackage(pack)->pack_use_list;
+  while (consp(packlistr)) {
+    var object usedpack = Car(packlistr);
+    if (symtab_lookup(string,ThePackage(usedpack)->pack_external_symbols,sym_))
+      return true;
+    packlistr = Cdr(packlistr);
+  }
+  return false;
+}
+local bool inherited_find(object symbol,object pack) {
+  var object list = ThePackage(pack)->pack_use_list;
+  while (consp(list)) {
+    if (symtab_find(symbol,ThePackage(Car(list))->pack_external_symbols))
+      return true;
+    list = Cdr(list);
+  }
+  return false;
+}
+
 # Datenstruktur der Package siehe LISPBIBL.D.
 # Komponenten:
 # pack_external_symbols   Symboltabelle der extern präsenten Symbole
@@ -395,26 +420,25 @@
 # pack_name               der Name, ein immutable Simple-String
 # pack_nicknames          die Nicknames, eine Liste von immutablen Simple-Strings
 
-# Konsistenzregeln:
-# 1. Alle Packages sind genau einmal in ALL_PACKAGES aufgeführt.
-# 2. Die Vereinigung über ALL_PACKAGES von {Name} U Nicknames ist disjunkt.
-# 3. Für je zwei Packages p,q gilt:
+# consistency rules:
+# 1. all packages are specified into ALL_PACKAGES exactly once
+# 2. the union over ALL_PACKAGES of { name } U nicknames is disjunctive
+# 3. for any two packages p,q:
 #    p in use_list(q) <==> q in used_by_list(q)
-# 4. p sei eine Package.
+# 4. p is a Package.
 #    accessible(p) = ISymbols(p) U ESymbols(p) U
-#                    U {ESymbols(q) | q in use_list(p)}
-# 5. Für jede Package p ist
-#    shadowing_symbols(p)  eine Teilmenge von  ISymbols(p) U ESymbols(p)
-#    und damit auch eine Teilmenge von  accessible(p).
-# 6. s sei ein String, p eine Package.
-#    Ist die Menge der Symbole in accessible(p) mit dem Printnamen = s
-#    mehr als einelementig,
-#    so liegt genau eines dieser Symbole in shadowing_symbols(p).
-# 7. s sei ein String, p eine Package.
-#    Es gibt höchstens ein Symbol mit dem Printnamen = s
-#    in  ISymbols(p) U ESymbols(p)  .
-# 8. Ist s ein Symbol mit der Home-Package p /= NIL,
-#    so ist s in  ISymbols(p) U ESymbols(p)  enthalten.
+#                    U { ESymbols(q) | q in use_list(p) }
+# 5. For each Package p
+#    shadowing_symbols(p) is a subset of ISymbols(p) U ESymbols(p)
+#                        and a subset of accessible(p).
+# 6. s is a string, p is a package.
+#    if more than one element of accessible(p) has print name = s, then
+#    exactly one of these symbols is in shadowing_symbols(p).
+# 7. s is a string, p is a package.
+#    the most one symbol with the print name = s
+#    is in ISymbols(p) U ESymbols(p).
+# 8. S is a symbol with the Home Package p / = NIL,
+#    then S is in ISymbols(p) U ESymbols(p).
 
 # UP: Erzeugt eine neue Package, ohne auf Namenskonflikte zu testen.
 # make_package(name,nicknames,case_sensitive_p)
@@ -480,7 +504,8 @@
       }
       return false; # nicht gefunden
      found: # gefunden
-      *sym_ = Car(list); return true;
+      if (sym_) { *sym_ = Car(list); }
+      return true;
     }
 
 # UP: Sucht ein gegebenes Symbol in der Shadowing-Liste einer Package.
@@ -585,22 +610,14 @@
         # Kein Symbol gleichen Namens in der Shadowing-Liste
         # Suche unter den internen Symbolen:
         if (symtab_find(sym,ThePackage(pack)->pack_internal_symbols))
-          goto found;
+          return true;
         # Suche unter den externen Symbolen:
         if (symtab_find(sym,ThePackage(pack)->pack_external_symbols))
-          goto found;
+          return true;
         # Suche unter den externen Symbolen der Packages aus der Use-List:
-        {
-          var object list = ThePackage(pack)->pack_use_list;
-          while (consp(list)) {
-            if (symtab_find(sym,ThePackage(Car(list))->pack_external_symbols))
-              goto found;
-            list = Cdr(list);
-          }
-          return false; # nicht gefunden
-        }
-       found: # gefunden
-        return true;
+        if (inherited_find(sym,pack))
+          return true;
+        return false;
       }
     }
 
@@ -789,17 +806,8 @@
         if (symtab_lookup(string,ThePackage(pack)->pack_external_symbols,&(*sym_)))
           return 1; # unter den externen Symbolen gefunden
         # Suche unter den externen Packages aus der Use-List:
-        {
-          var object packlistr = ThePackage(pack)->pack_use_list;
-          while (consp(packlistr)) {
-            var object usedpack = Car(packlistr);
-            if (symtab_lookup(string,ThePackage(usedpack)->pack_external_symbols,&(*sym_)))
-              return 2; # unter den vererbten Symbolen gefunden
-            # (nur einmal vererbt, sonst wäre was in der
-            #  Shadowing-Liste gewesen)
-            packlistr = Cdr(packlistr);
-          }
-        }
+        if (inherited_lookup(string,pack,sym_))
+          return 2; # unter den vererbten Symbolen gefunden
         # nicht gefunden
         *sym_ = NIL; return 0;
       }
@@ -1134,19 +1142,7 @@
         pushSTACK(othersym);
         pushSTACK(othersymtab);
         # erst Inherited-Flag berechnen:
-        var bool inheritedp = false;
-        {
-          var object packlistr = ThePackage(pack)->pack_use_list; # Use-List wird abgesucht
-          while (mconsp(packlistr)) {
-            var object otherusedsym;
-            var object usedpack = Car(packlistr);
-            packlistr = Cdr(packlistr);
-            # Symbol gleichen Namens in usedpack suchen:
-            if (symtab_lookup(string,ThePackage(usedpack)->pack_external_symbols,&otherusedsym)) {
-              inheritedp = true; break; # gefunden -> inherited-Flag := true
-            }
-          } # sonst ist am Schluss inherited-Flag = false
-        }
+        var bool inheritedp = inherited_lookup(string,pack,NULL);
         # Stackaufbau: Symbol-Name, othersym, othersymtab.
         # Continuable Error melden:
           pushSTACK(OLS(import_string1)); # "Sie dürfen über das weitere Vorgehen entscheiden."
@@ -1194,24 +1190,14 @@
         # Suche ein Symbol desselben Namens, das vererbt ist (es gibt
         # nach den Konsistenzregeln 6 und 5 höchstens ein solches):
         var object otherusedsym;
-        {
-          var object packlistr = ThePackage(pack)->pack_use_list; # Use-List wird abgesucht
-          while (mconsp(packlistr)) {
-            var object usedpack = Car(packlistr);
-            packlistr = Cdr(packlistr);
-            # Symbol gleichen Namens in usedpack suchen:
-            if (symtab_lookup(string,ThePackage(usedpack)->pack_external_symbols,&otherusedsym))
-              goto inherited_found;
-          }
-          # Kein Symbol desselben Namens war accessible.
-          # sym kann daher gefahrlos importiert werden.
-          goto import_sym;
-        }
-       inherited_found: # gefunden.
-        # Wurde genau das gegebene Symbol gefunden?
-        if (eq(otherusedsym,sym))
-          goto import_sym; # ja -> importieren
-        # nein -> Continuable Error melden und Benutzer fragen:
+        if (!inherited_lookup(string,pack,&otherusedsym)
+            || eq(otherusedsym,sym)) {
+          # sym einfach in pack einfügen:
+          set_break_sem_2();
+          make_present(sym,pack);
+          clr_break_sem_2();
+        } else {
+          # nein -> Continuable Error melden und Benutzer fragen:
           pushSTACK(NIL); # "Sie dürfen über das weitere Vorgehen entscheiden."
           pushSTACK(S(package_error)); # PACKAGE-ERROR
           pushSTACK(S(Kpackage)); # :PACKAGE
@@ -1223,23 +1209,19 @@
           STACK_7 = OLS(import_string1);
           STACK_3 = OLS(import_string2);
           funcall(L(cerror_of_type),8); # (SYS::CERROR-OF-TYPE String1 'PACKAGE-ERROR :PACKAGE pack String2 sym pack otherusedsym)
-        {
-          var object antwort = query_user(OL(import_list3));
-          if (nullp(Car(Cdr(Cdr(antwort))))) # NIL-Möglichkeit angewählt?
-            return; # ja -> nicht importieren, fertig
+          {
+            var object antwort = query_user(OL(import_list3));
+            if (nullp(Car(Cdr(Cdr(antwort))))) # NIL-Möglichkeit angewählt?
+              return; # ja -> nicht importieren, fertig
+          }
+          # Importieren:
+          set_break_sem_2();
+          # sym in pack einfügen:
+          make_present(*sym_,*pack_);
+          # sym in pack zum Shadowing-Symbol machen:
+          shadowing_insert(&(*sym_),&(*pack_));
+          clr_break_sem_2();
         }
-        # Importieren:
-        set_break_sem_2();
-        # sym in pack einfügen:
-        make_present(*sym_,*pack_);
-        # sym in pack zum Shadowing-Symbol machen:
-        shadowing_insert(&(*sym_),&(*pack_));
-        clr_break_sem_2(); return;
-       import_sym:
-        # sym einfach in pack einfügen:
-        set_break_sem_2();
-        make_present(sym,pack);
-        clr_break_sem_2(); return;
       }
     }
 
@@ -1275,24 +1257,16 @@
         # Suchen, ob das Symbol überhaupt accessible ist.
         # Suche unter den internen Symbolen:
         if (symtab_find(sym,ThePackage(pack)->pack_internal_symbols))
-          goto found;
+          return;
         # Suche unter den externen Symbolen der Packages aus der Use-List:
-        {
-          var object list = ThePackage(pack)->pack_use_list;
-          while (consp(list)) {
-            if (symtab_find(sym,ThePackage(Car(list))->pack_external_symbols))
-              goto found;
-            list = Cdr(list);
-          }
-        }
+        if (inherited_find(sym,pack))
+          return;
         # nicht gefunden unter den accessiblen Symbolen
         pushSTACK(pack); # Wert für Slot PACKAGE von PACKAGE-ERROR
         pushSTACK(pack); pushSTACK(sym);
         fehler(package_error,
                GETTEXT("UNEXPORT works only on accessible symbols, not on ~ in ~")
               );
-       found: # gefunden unter den nicht-externen accessiblen Symbolen
-        return; # nichts zu tun
       }
     }
 
@@ -1338,14 +1312,8 @@
         # Symbol sym ist nicht präsent in Package pack
         import_it = true;
         # Suche, ob es wenigstens accessible ist:
-        {
-          var object list = ThePackage(pack)->pack_use_list;
-          while (consp(list)) {
-            if (symtab_find(sym,ThePackage(Car(list))->pack_external_symbols))
-              goto found;
-            list = Cdr(list);
-          }
-        }
+        if (inherited_find(sym,pack))
+          goto found;
         # Symbol sym ist nicht einmal accessible in der Package pack
         # Continuable Error melden:
           pushSTACK(NIL); # "Sie dürfen über das weitere Vorgehen entscheiden."
