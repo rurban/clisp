@@ -2630,7 +2630,7 @@ several sources, e.g. both a console and ARexx, at the same time.
 99.7 Socket Streams
 -------------------
 
-(SOCKET-SERVER [port-or-sock])
+(SOCKET-SERVER [port-or-socket])
   
 This function creates a socket, and binds a port the socket, and then
 listens for connect attempts.  The server exists to watch for client
