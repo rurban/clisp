@@ -34,19 +34,19 @@
 	(generic-function-undeterminedp): New preliminary function.
 	(|#'generic-function-undeterminedp|): New variable.
 	(safe-gf-undeterminedp): New function.
-	* clos-genfun2.lisp (std-add-method, std-find-method, finalize-fast-gf,
-	gf-never-called-p, compute-dispatch,
-	compute-applicable-methods-effective-method,
-	compute-applicable-methods-<standard-generic-function>,
-	compute-applicable-methods-using-classes-<standard-generic-function>,
-	compute-applicable-methods-effective-method-for-set,
-	compute-applicable-methods-for-set): Call safe-gf-undeterminedp
+	* clos-genfun2.lisp (std-add-method, std-find-method, finalize-fast-gf)
+	(gf-never-called-p, compute-dispatch)
+	(compute-applicable-methods-effective-method)
+	(compute-applicable-methods-<standard-generic-function>)
+	(compute-applicable-methods-using-classes-<standard-generic-function>)
+	(compute-applicable-methods-effective-method-for-set)
+	(compute-applicable-methods-for-set): Call safe-gf-undeterminedp
 	instead of std-gf-signature.
 	(shared-initialize-<standard-generic-function>): Call
 	safe-gf-undeterminedp to protect safe-gf-signature call.
 	* clos-method2.lisp (analyze-method-description): Likewise.
-	* clos-genfun4.lisp (no-applicable-method, missing-required-method,
-	no-primary-method): Likewise.
+	* clos-genfun4.lisp (no-applicable-method, missing-required-method)
+	(no-primary-method): Likewise.
 	(generic-function-undeterminedp): New generic function.
 	* describe.lisp (describe-object@generic-function): Call
 	safe-gf-undeterminedp instead of std-gf-signature.
@@ -56,7 +56,8 @@
 	function.
 	(|#'generic-function-declarations|): New variable.
 	(safe-gf-declspecs): New function.
-	* clos-genfun2.lisp (compute-discriminating-function-<standard-generic-function>):
+	* clos-genfun2.lisp
+	(compute-discriminating-function-<standard-generic-function>):
 	Call safe-gf-declspecs instead of std-gf-declspecs.
 	* clos-genfun4.lisp (generic-function-declarations): Redefine smoothly.
 	Initialize |#'generic-function-declarations|.
@@ -68,12 +69,12 @@
 	(|#'generic-function-argorder|): New variable.
 	(safe-gf-argorder): New function.
 	* clos-genfun2.lisp
-	(generic-function-argument-precedence-order-to-argorder): New function,
-	extracted from check-gf-lambdalist+argorder.
+	(generic-function-argument-precedence-order-to-argorder): New
+	function, extracted from check-gf-lambdalist+argorder.
 	(check-gf-lambdalist+argorder): Use it.
-	(compute-dispatch, compute-applicable-methods,
-	compute-applicable-methods-using-classes-<standard-generic-function>,
-	compute-applicable-methods-for-set): Call safe-gf-argorder instead of
+	(compute-dispatch, compute-applicable-methods)
+	(compute-applicable-methods-using-classes-<standard-generic-function>)
+	(compute-applicable-methods-for-set): Call safe-gf-argorder instead of
 	std-gf-argorder.
 	* clos-genfun4.lisp (generic-function-argorder): New generic function.
 	Initialize |#'generic-function-argorder|.
@@ -85,11 +86,11 @@
 	(safe-gf-method-combination): New function.
 	* clos-methcomb2.lisp (call-method-duplicates-error): Call
 	safe-gf-method-combination instead of std-gf-method-combination.
-	* clos-genfun2.lisp (check-method-qualifiers,
-	invalid-method-qualifiers-error,
-	shared-initialize-<standard-generic-function>,
-	compute-applicable-methods-effective-method,
-	compute-applicable-methods-effective-method-for-set): Call
+	* clos-genfun2.lisp (check-method-qualifiers)
+	(invalid-method-qualifiers-error)
+	(shared-initialize-<standard-generic-function>)
+	(compute-applicable-methods-effective-method)
+	(compute-applicable-methods-effective-method-for-set): Call
 	safe-gf-method-combination instead of std-gf-method-combination.
 	* clos-genfun4.lisp (no-next-method): Likewise.
 	(generic-function-method-combination): Redefine smoothly. Initialize
@@ -103,21 +104,21 @@
 	function.
 	(|#'generic-function-signature|): New variable.
 	(safe-gf-signature): New function.
-	* clos-methcomb2.lisp (effective-method-code-bricks,
-	build-effective-method-function-form): Call safe-gf-signature instead
+	* clos-methcomb2.lisp (effective-method-code-bricks)
+	(build-effective-method-function-form): Call safe-gf-signature instead
 	of std-gf-signature.
 	* clos-genfun2.lisp (generic-function-lambda-list-to-signature): New
 	function, extracted from check-gf-lambdalist+argorder.
 	(check-gf-lambdalist+argorder): Use it.
-	(check-signature-congruence,
-	shared-initialize-<standard-generic-function>, std-find-method,
-	finalize-fast-gf, gf-never-called-p, compute-dispatch,
-	compute-applicable-methods-effective-method,
-	compute-applicable-methods-<standard-generic-function>,
-	compute-applicable-methods-using-classes-<standard-generic-function>,
-	compute-applicable-methods-effective-method-for-set,
-	compute-applicable-methods-for-set): Call safe-gf-signature instead of
-	std-gf-signature.
+	(check-signature-congruence)
+	(shared-initialize-<standard-generic-function>, std-find-method)
+	(finalize-fast-gf, gf-never-called-p, compute-dispatch)
+	(compute-applicable-methods-effective-method)
+	(compute-applicable-methods-<standard-generic-function>)
+	(compute-applicable-methods-using-classes-<standard-generic-function>)
+	(compute-applicable-methods-effective-method-for-set)
+	(compute-applicable-methods-for-set): Call safe-gf-signature
+	instead of std-gf-signature.
 	* clos-method2.lisp (analyze-method-description): Likewise.
 	* clos-genfun4.lisp (no-applicable-method, missing-required-method,
 	no-next-method): Likewise.
@@ -126,15 +127,15 @@
 
 2004-10-11  Bruno Haible  <bruno@clisp.org>
 
-	* clos-genfun4.lisp (generic-function-lambda-list,
-	generic-function-argument-precedence-order): Signal an error if the
-	lambda-list is not yet initialized.
+	* clos-genfun4.lisp (generic-function-lambda-list)
+	(generic-function-argument-precedence-order): Signal an error if
+	the lambda-list is not yet initialized.
 
 2004-10-11  Bruno Haible  <bruno@clisp.org>
 
 	* describe.lisp (describe-object@generic-function, arglist): For
-	generic functions, use the lambda-list stored in it, instead of a list
-	with artificially constructed variable names.
+	generic functions, use the lambda-list stored in it, instead of a
+	list with artificially constructed variable names.
 
 2004-10-11  Bruno Haible  <bruno@clisp.org>
 
@@ -154,21 +155,21 @@
 	function.
 	(|#'generic-function-methods|): New variable.
 	(safe-gf-methods): New function.
-	* clos-genfun2.lisp (shared-initialize-<standard-generic-function>,
-	std-add-method, std-remove-method, std-find-method,
-	reinitialize-instance-<generic-function>, compute-dispatch,
-	compute-applicable-methods-<standard-generic-function>,
-	compute-applicable-methods-using-classes-<standard-generic-function>,
-	compute-applicable-methods-for-set): Call safe-gf-methods instead of
-	std-gf-methods.
-	* clos-genfun4.lisp (no-applicable-method, missing-required-method,
-	no-primary-method): Likewise.
+	* clos-genfun2.lisp (shared-initialize-<standard-generic-function>)
+	(std-add-method, std-remove-method, std-find-method)
+	(reinitialize-instance-<generic-function>, compute-dispatch)
+	(compute-applicable-methods-<standard-generic-function>)
+	(compute-applicable-methods-using-classes-<standard-generic-function>)
+	(compute-applicable-methods-for-set): Call safe-gf-methods instead
+	of std-gf-methods.
+	* clos-genfun4.lisp (no-applicable-method, missing-required-method)
+	(no-primary-method): Likewise.
 	(generic-function-methods): Redefine smoothly. Initialize
 	|#'generic-function-methods|.
-	* clos-class5.lisp (valid-make-instance-keywords,
-	valid-reinitialize-instance-keywords,
-	valid-update-instance-for-redefined-class-keywords,
-	valid-update-instance-for-different-class-keywords): Call
+	* clos-class5.lisp (valid-make-instance-keywords)
+	(valid-reinitialize-instance-keywords)
+	(valid-update-instance-for-redefined-class-keywords)
+	(valid-update-instance-for-different-class-keywords): Call
 	generic-function-methods instead of std-gf-methods.
 	* describe.lisp (describe-object@generic-function): Likewise.
 
