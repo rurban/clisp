@@ -277,9 +277,9 @@
 
 (defun physical-memory ()
   "Return 2 values: TOTAL and AVAILABLE physical memory."
-  #+unix (let ((page-size (sysconf :_SC_PAGESIZE)))
-           (values (* page-size (sysconf :_SC_PHYS_PAGES))
-                   (* page-size (sysconf :_SC_AVPHYS_PAGES))))
+  #+unix (let ((page-size (sysconf :PAGESIZE)))
+           (values (* page-size (sysconf :PHYS-PAGES))
+                   (* page-size (sysconf :AVPHYS-PAGES))))
   #+win32 (let ((mem-stat (memory-status)))
             (values (memstat-total-physical mem-stat)
                     (memstat-avail-physical mem-stat))))
