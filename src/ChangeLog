@@ -1,3 +1,8 @@
+2004-07-31  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/bdb.c (BDB:LOG-FILE): use BUFSIZ instead of
+	non-existent MAX_PATH
+
 2004-07-30  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (POSIX:SYSCONF, POSIX:CONFSTR)
