@@ -6,6 +6,7 @@
 SHELL = /bin/sh
 MAKE = make
 COMMENT5 = comment5
+PERL = perl
 
 # Choose one of the packers:
 
@@ -83,10 +84,10 @@ win32bc/makefile : makemake
 	./makemake win32bc bcc32i > win32bc/makefile
 
 acorn/makefile.cc : makemake src/VERSION
-	./makemake acorn ansi | acorn/swap-ext.pl > acorn/makefile.cc
+	./makemake acorn ansi | $(PERL) acorn/swap-ext.pl > acorn/makefile.cc
 
 acorn/makefile.gcc : makemake src/VERSION
-	./makemake acorn gcc | acorn/swap-ext.pl > acorn/makefile.gcc
+	./makemake acorn gcc | $(PERL) acorn/swap-ext.pl > acorn/makefile.gcc
 
 makemake : src/makemake.in
 	(echo "#!/bin/sh" ; cat src/makemake.in) > makemake
