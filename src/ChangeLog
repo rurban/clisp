@@ -1,5 +1,6 @@
 2003-10-10  Sam Steingold  <sds@gnu.org>
 
+	* reploop.lisp (break-loop): bind *FASOUTPUT-STREAM* to NIL
 	* compiler.lisp (c-EVAL-WHEN): bind *FASOUTPUT-STREAM* to NIL
 	around evaluation of COMPILE-P FORM
 	This ensures that when the compiler is called from the break loop
