@@ -1,4 +1,4 @@
-# generated automatically by aclocal 1.9 -*- Autoconf -*-
+# generated automatically by aclocal 1.9.2 -*- Autoconf -*-
 
 # Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
 # Free Software Foundation, Inc.
@@ -616,7 +616,9 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 AC_PREREQ(2.13)
 
 AC_DEFUN([CL_CONNECT],
-[CL_PROTO([connect], [
+[AC_CHECK_FUNCS(connect)
+if test $ac_cv_func_connect = yes; then
+CL_PROTO([connect], [
 for x in '' 'const'; do
 for y in 'struct sockaddr *' 'void*'; do
 for z in 'int' 'size_t' 'socklen_t'; do
@@ -646,7 +648,7 @@ fi
 AC_DEFINE_UNQUOTED(CONNECT_CONST,$cl_cv_proto_connect_arg2a,[does declaration of connect() need const?])
 AC_DEFINE_UNQUOTED(CONNECT_NAME_T,$cl_cv_proto_connect_arg2b,[type of `name' in connect() declaration])
 AC_DEFINE_UNQUOTED(CONNECT_ADDRLEN_T,$cl_cv_proto_connect_arg3,[type of `addrlen' in connect() declaration])
-])
+fi])
 
 dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
@@ -11968,8 +11970,9 @@ CL_COMPILE_CHECK([IPv6 sockets in linux/in6.h], cl_cv_socket_ipv6_linux,
 AC_DEFINE(IPV6_NEED_LINUX_IN6_H,,[need <linux/in6.h> for the in6_addr and sockaddr_in6 types])
 AC_DEFINE(HAVE_IPV6))
 fi
-AC_CHECK_FUNCS(inet_pton inet_ntop)
+AC_CHECK_FUNCS(inet_pton inet_ntop inet_addr setsockopt)
 AC_CHECK_HEADERS(netinet/in.h arpa/inet.h)dnl
+if test $ac_cv_func_inet_addr = yes; then
 CL_PROTO([inet_addr], [
 for x in '' 'const'; do
 for y in 'struct in_addr' 'unsigned long' 'unsigned int'; do
@@ -12008,12 +12011,14 @@ AC_DEFINE(INET_ADDR_SUFFIX,[.s_addr],[Define as .s_addr if the return type of in
 else
 AC_DEFINE(INET_ADDR_SUFFIX,[])
 fi
+fi
 AC_CHECK_HEADERS(netinet/tcp.h,,,
 dnl AIX 4 requires <netinet/in.h> to be included before <netinet/tcp.h>.
 [#if HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
 ])
+if test $ac_cv_func_setsockopt = yes; then
 CL_PROTO([setsockopt], [
 for z in 'int' 'unsigned int' 'size_t'; do
 for y in 'char*' 'void*'; do
@@ -12041,6 +12046,7 @@ fi
 AC_DEFINE_UNQUOTED(SETSOCKOPT_CONST,$cl_cv_proto_setsockopt_const,[declaration of setsockopt() needs const])
 AC_DEFINE_UNQUOTED(SETSOCKOPT_ARG_T,$cl_cv_proto_setsockopt_arg_t,[type of `optval' in setsockopt() declaration])
 AC_DEFINE_UNQUOTED(SETSOCKOPT_OPTLEN_T,$cl_cv_proto_setsockopt_optlen_t,[type of `optlen' in setsockopt() declaration])
+fi
 ])
 
 dnl -*- Autoconf -*-
