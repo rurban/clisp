@@ -1,3 +1,8 @@
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
+	* number2.tst: Add a comparison which used to trigger overflow or a
+	GC-safety bug.
+
 2004-11-26  Sam Steingold  <sds@gnu.org>
 
 	* macro8.tst: check that run-time errors are not turned into

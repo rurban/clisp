@@ -42,6 +42,9 @@ t
 (> most-positive-short-float 1.0)
 t
 
+(<= 2.83674s36 10801894066935227181020469351465354205855744/17827)
+t
+
 ;; transcendental functions
 
 (expt -5s0 2s0) #c(25s0 0s0)
