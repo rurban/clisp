@@ -1,5 +1,16 @@
 2001-06-09  Sam Steingold  <sds@gnu.org>
 
+	* constpack.d: create THREADS package when MULTITHREAD
+	* spvw.d: put :MT into *FEATURES* when MULTITHREAD
+	* threads.lisp: new file
+	* init.lisp: load it when #+MT
+	* makemake.in (LPARTS): add it
+	* xthread.d (xthread_init): [win32]: noop
+	(xmutex_init, xmutex_destroy, xmutex_lock, xmutex_unlock):
+	[win32]: use GetLastError() to get the error status
+
+2001-06-09  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (OS_error): [macro]: use asciz_out_1()
 
 2001-06-09  Sam Steingold  <sds@gnu.org>

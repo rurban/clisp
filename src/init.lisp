@@ -1951,6 +1951,7 @@ space safety compilation-speed debug declaration dynamic-extent compile
 
 ;; At this point the core Common Lisp is complete.
 
+#+mt (load "threads")           ; Multi-Threading
 
 ;; Fancy streams:
 

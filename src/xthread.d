@@ -244,7 +244,7 @@ typedef struct _xcondition xcondition_t;
 typedef CRITICAL_SECTION   xmutex_t;
 typedef DWORD              xthread_key_t;
 
-#define xthread_init()  _Xthread_init()??
+#define xthread_init()
 #define xthread_self()  GetCurrentThreadId()
 #define xthread_create(thread,startroutine,arg)  \
   CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)startroutine,(LPVOID)arg,0,thread)
@@ -284,10 +284,10 @@ typedef DWORD              xthread_key_t;
     LeaveCriticalSection(&(c)->cs);                                 \
   }
 
-#define xmutex_init(m)  InitializeCriticalSection(m)
-#define xmutex_destroy(m)  DeleteCriticalSection(m)
-#define xmutex_lock(m)  EnterCriticalSection(m)
-#define xmutex_unlock(m)  LeaveCriticalSection(m)
+#define xmutex_init(m) (InitializeCriticalSection(m),GetLastError())
+#define xmutex_destroy(m)  (DeleteCriticalSection(m),GetLastError())
+#define xmutex_lock(m)      (EnterCriticalSection(m),GetLastError())
+#define xmutex_unlock(m)    (LeaveCriticalSection(m),GetLastError())
 
 #define xthread_key_create(key)  (*(key) = TlsAlloc())
 #define xthread_key_delete(key)  TlsFree(key)
