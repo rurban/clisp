@@ -1,5 +1,3 @@
-;;;; File: reploop.lsp
-;;;;
 ;;;; Debugger, Stepper, Errors
 
 (in-package "LISP")
@@ -9,25 +7,22 @@
 ;;;--------------------------------------------------------------------------
 ;;;                                 Debugger
 
-(defvar *break-count* 0)                
 ;; Number of active break-loops (Fixnum >=0)
+(defvar *break-count* 0)                
 
-(defvar *debug-print-frame-limit* nil)  
 ;; Defines how many frames will be displayed.
 ;; Initially nil, this means all frames will be printed.
-
+(defvar *debug-print-frame-limit* nil)  
 
                                         
-(defvar *recurse-count-error-output* 0) 
 ;; Counter to avoid infinite recursion due to*error-output
+(defvar *recurse-count-error-output* 0) 
 
-
-(defvar *recurse-count-debug-io* 0)     
 ;; Counter to avoid infinite recursion due to *debug-io*
+(defvar *recurse-count-debug-io* 0)     
 
 
-
-;; Return the shortest (nick)name of the package.
+;; Returns the shortest (nick)name of the package.
 (defun package-short-name (pkg)
   (declare (type package pkg))
   (let ((name (reduce (lambda (st0 st1)
@@ -41,10 +36,13 @@
       (:capitalize (string-capitalize name))
       (t name))))
 
-(defvar *command-index* 0)              ; The number of commands received so far.
-(defvar *home-package* nil)             ; The starting package of this session.
+; The number of commands received so far.
+(defvar *command-index* 0)
 
-;; Return the current package or NIL if it never changed.
+; The starting package of this session.
+(defvar *home-package* nil)
+
+;; Returns the current package or NIL if it never changed.
 (defun prompt-new-package ()
   (unless *home-package* (setq *home-package* *package*))
   (unless (eq *home-package* *package*) *package*))
@@ -68,9 +66,10 @@ If anything else, printed.")
 
 ;; Prompt - second part:
 (defun prompt-string2 ()
-  (princ-to-string (if (functionp *prompt*)
-                     (lisp::ignore-errors (funcall *prompt*))
-                     *prompt*)))
+  (princ-to-string
+    (if (functionp *prompt*)
+      (lisp::ignore-errors (funcall *prompt*))
+      *prompt*)))
 ;; Prompt: last part
 (defun prompt-string3 () "> ")
 
@@ -83,8 +82,10 @@ If anything else, printed.")
 ;; Components of the Break-Loop:
 (defvar *debug-frame*)
 (defvar *debug-mode*)
-(defvar *frame-limit1* nil)             ; lower bound for frame-down/frame-down-1
-(defvar *frame-limit2* nil)             ; upper bound for frame-up and frame-up-1
+; lower bound for frame-down/frame-down-1
+(defvar *frame-limit1* nil)
+; upper bound for frame-up and frame-up-1
+(defvar *frame-limit2* nil)
 
 (defun frame-limit1 (frames-to-skip)
   (let ((frame (the-frame)))
@@ -347,10 +348,11 @@ Continue       :c      switch off single step mode, continue evaluation
    #'(lambda ()
        (catch 'debug                    ; catch the (throw 'debug ...)
          (if                            ; read-eval-print INPUT-line
-             (read-eval-print (string-concat (prompt-string1)
-                                             (prompt-string2)
-                                             (prompt-string3))
-                              (copy-list (commands0)))
+             (read-eval-print
+               (string-concat (prompt-string1)
+                              (prompt-string2)
+                              (prompt-string3))
+               (copy-list (commands0)))
                                         ; T -> #<EOF>
            (exit)
                                         ; NIL -> form is already evaluated
@@ -368,8 +370,8 @@ Continue       :c      switch off single step mode, continue evaluation
                    (commandsr '()))
   (when (and print-it (typep condition (clos:find-class 'condition)))
     (symbol-stream '*error-output* :output)
+
     ;; print something on *error-output* but catch infinite recursion.
-    
     (let ((*recurse-count-error-output* (1+ *recurse-count-error-output*)))
       (when (> *recurse-count-error-output* 3)
         (setq *recurse-count-error-output* 0)
@@ -381,7 +383,7 @@ Continue       :c      switch off single step mode, continue evaluation
             (symbol-stream '*debug-io* :io))
           (symbol-stream '*error-output* :output)))
       (terpri *error-output*))
-    
+
     (if may-continue
       (progn
         (write-string "** - Continuable Error:" *error-output*)
@@ -396,8 +398,8 @@ Continue       :c      switch off single step mode, continue evaluation
           (write-string (ENGLISH "Unprintable error message.")
                         *error-output*))
         (sys::print-condition condition *error-output*)))
-    
     (symbol-stream '*debug-io* :io)
+
     (when may-continue
       (if continuable
         (when interactive-p
@@ -410,16 +412,17 @@ Continue       :c      switch off single step mode, continue evaluation
             (write-string (ENGLISH "If you continue (by typing 'continue'): ")
                           *debug-io*))
           (princ may-continue *debug-io*)))))
-  
+
   (when condition
     (let ((restarts (remove may-continue (compute-restarts condition))))
       (when restarts
         (when interactive-p
           (terpri *debug-io*)
-          (write-string (if may-continue
-                          (ENGLISH "The following restarts are available, too:")
-                          (ENGLISH "The following restarts are available:"))
-                        *debug-io*))
+          (write-string
+            (if may-continue
+              (ENGLISH "The following restarts are available, too:")
+              (ENGLISH "The following restarts are available:"))
+            *debug-io*))
         (let ((counter 0))
           (dolist (restart restarts)
             (let* ((command 
@@ -431,63 +434,70 @@ Continue       :c      switch off single step mode, continue evaluation
                 (write-string helpstring *debug-io*))
               (push helpstring commandsr)
               ;; put it into the  commandsr list.
-              (push (cons command
-                          (let ((restart restart))
-                            #'(lambda ()
-                                (invoke-restart-interactively restart))))
-                    commandsr)))
+              (push
+                (cons command
+                      (let ((restart restart))
+                        #'(lambda ()
+                            (invoke-restart-interactively restart))))
+                commandsr)))
           (terpri *debug-io*)
           (setq commandsr (nreverse commandsr))))))
   (force-output *debug-io*)
-  
+
   (tagbody
-     (clear-input *debug-io*)             ; because the user didn't expect a break loop
-   (let* ((*break-count* (1+ *break-count*))
-          (stream (make-synonym-stream '*debug-io*))
-          (*standard-input* stream)
-          (*standard-output* stream)
-          (prompt (with-output-to-string (s)
-                                         (write-string (prompt-string1) s)
-                                         (write *break-count* :stream s)
-                                         (write-string ". Break " s)
-                                         (write-string (prompt-string2) s)
-                                         (write-string (prompt-string3) s)))
-          (*frame-limit1* (frame-limit1 13))
-          (*frame-limit2* (frame-limit2))
-          (*debug-mode* 4)
-          (*debug-frame*
-           (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*) *debug-mode*)))
-     (driver
-      ;; build driver frame and repeat #'lambda (infinitely; ...)
-      #'(lambda ()
-          (case
-              (catch 'debug             ; catch (throw 'debug ...) and analyse
-                
-                ;; build environment *debug-frame* that is valid/equal for/to *debug-frame* 
-                (same-env-as *debug-frame*                             
-                             #'(lambda ()
-                                 (if    ; read-eval-print INPUT-line
-                                     (read-eval-print prompt
-                                                      (nconc (copy-list (commands1))
-                                                             (when (eval-frame-p *debug-frame*) (copy-list (commands2)))
-                                                             (when may-continue (copy-list (commands3)))
-                                                             commandsr))
+    (clear-input *debug-io*)             ; because the user didn't expect a break loop
+    (let* ((*break-count* (1+ *break-count*))
+           (stream (make-synonym-stream '*debug-io*))
+           (*standard-input* stream)
+           (*standard-output* stream)
+           (prompt
+             (with-output-to-string (s)
+               (write-string (prompt-string1) s)
+               (write *break-count* :stream s)
+               (write-string ". Break " s)
+               (write-string (prompt-string2) s)
+               (write-string (prompt-string3) s)))
+           (*frame-limit1* (frame-limit1 13))
+           (*frame-limit2* (frame-limit2))
+           (*debug-mode* 4)
+           (*debug-frame*
+             (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*) *debug-mode*)))
+      (driver
+        ;; build driver frame and repeat #'lambda (infinitely; ...)
+        #'(lambda ()
+            (case
+                (catch 'debug             ; catch (throw 'debug ...) and analyse
+
+                  ;; build environment *debug-frame* that is valid/equal for/to *debug-frame* 
+                  (same-env-as *debug-frame*                             
+                    #'(lambda ()
+                        (if    ; read-eval-print INPUT-line
+                            (read-eval-print
+                              prompt
+                              (nconc (copy-list (commands1))
+                                     (when (eval-frame-p *debug-frame*)
+                                       (copy-list (commands2)))
+                                     (when may-continue
+                                       (copy-list (commands3)))
+                                     commandsr))
                                         ; T -> #<EOF>
-                                   (throw 'debug (if may-continue 'quit 'unwind))
-                                   ;; NIL -> form is already evaluated; result has been printed
-                                   ))))
-            (print-error (print-error condition)) ; print the recent error-message
-            (unwind (go unwind))
-            (quit                       ; reached only, if may-continue is T
-             (if continuable
-               (go quit)
-               (invoke-restart-interactively may-continue)))
-            (t )                        ; other cases, especially continue
-            ))))
-   unwind (unwind-to-driver)
-   quit))
+                          (throw 'debug (if may-continue 'quit 'unwind))
+                          ;; NIL -> form is already evaluated; result has been printed
+                          ))))
+              (print-error (print-error condition)) ; print the recent error-message
+              (unwind (go unwind))
+              (quit                       ; reached only, if may-continue is T
+                (if continuable
+                  (go quit)
+                  (invoke-restart-interactively may-continue)))
+              (t )                        ; other cases, especially continue
+              ))))
+    unwind (unwind-to-driver)
+    quit))
 
 (setq *break-driver* #'break-loop)
+
+
 ;;;--------------------------------------------------------------------------
 ;;;        convenient Stepper. (runs only if compiled!)
 
@@ -514,8 +524,7 @@ Continue       :c      switch off single step mode, continue evaluation
     (case (length values)
       (0 (write-string (ENGLISH "no values") #|*debug-io*|#))
       (1 (write-string (ENGLISH "value: ") #|*debug-io*|#)
-         (write (car values) #|:stream *debug-io*|#)
-	 )
+         (write (car values) #|:stream *debug-io*|#))
       (t (write (length values) #|:stream *debug-io*|#)
          (write-string (ENGLISH " values: ") #|*debug-io*|#)
          (do ((L values))
@@ -533,81 +542,85 @@ Continue       :c      switch off single step mode, continue evaluation
           (evalhook form nil nil env)	; (e.g. it simply evaluates the Form)
 	  )))
     (tagbody
-       (let* ((stream (make-synonym-stream '*debug-io*))
-              (*standard-input* stream)
-              (*standard-output* stream)
-              (prompt (with-output-to-string (s)
-                                             (write-string (prompt-string1) s)
-                                             (write-string "Step " s)
-                                             (write *step-level* :stream s)
-                                             (write-char #\Space s)
-                                             (write-string (prompt-string2) s)
-                                             (write-string (prompt-string3) s)))
-              (*frame-limit1* (frame-limit1 11))
-              (*frame-limit2* (frame-limit2))
-              (*debug-mode* 4)
-              (*debug-frame* (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*) *debug-mode*)))
-         (fresh-line #|*debug-io*|#)
-         (write-string (ENGLISH "step ") #|*debug-io*|#)
-         (write *step-level* #|:stream *debug-io*|#)
-         (write-string " --> " #|*debug-io*|#)
-         (write form #|:stream *debug-io*|# :length 4 :level 3)
-         (loop
+      (let* ((stream (make-synonym-stream '*debug-io*))
+             (*standard-input* stream)
+             (*standard-output* stream)
+             (prompt (with-output-to-string (s)
+                       (write-string (prompt-string1) s)
+                       (write-string "Step " s)
+                       (write *step-level* :stream s)
+                       (write-char #\Space s)
+                       (write-string (prompt-string2) s)
+                       (write-string (prompt-string3) s)))
+             (*frame-limit1* (frame-limit1 11))
+             (*frame-limit2* (frame-limit2))
+             (*debug-mode* 4)
+             (*debug-frame* (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*) *debug-mode*)))
+        (fresh-line #|*debug-io*|#)
+        (write-string (ENGLISH "step ") #|*debug-io*|#)
+        (write *step-level* #|:stream *debug-io*|#)
+        (write-string " --> " #|*debug-io*|#)
+        (write form #|:stream *debug-io*|# :length 4 :level 3)
+        (loop
           (multiple-value-bind (what watchp)
               (catch 'stepper		
                 ;; catch the (throw 'stepper ...) and analyse ...
                 (driver			
-                 ;;  build driver frame and repeat #'lambda (infinitely ...)
-                 #'(lambda ()
-                     (case
-                         (catch 'debug	
-                           ;; catch the (throw 'debug ...) and analyse
-                           (same-env-as *debug-frame*
-                                        ;; build environment *debug-frame* that
-                                        ;; is valid/equal for/to *debug-frame*
-                                        #'(lambda ()
-                                            (if ; get/read INPUT-line
-                                                (read-eval-print prompt
-                                                 (nconc (copy-list (commands1))
-                                                        (when (eval-frame-p *debug-frame*) (copy-list (commands2)))
-                                                        (copy-list (commands4))
-                                                        ))
+                  ;;  build driver frame and repeat #'lambda (infinitely ...)
+                  #'(lambda ()
+                      (case
+                          (catch 'debug	
+                            ;; catch the (throw 'debug ...) and analyse
+                            (same-env-as *debug-frame*
+                              ;; build environment *debug-frame* that
+                              ;; is valid/equal for/to *debug-frame*
+                              #'(lambda ()
+                                  (if ; get/read INPUT-line
+                                      (read-eval-print
+                                        prompt
+                                        (nconc (copy-list (commands1))
+                                               (when (eval-frame-p *debug-frame*)
+                                                 (copy-list (commands2)))
+                                               (copy-list (commands4))
+                                               ))
 					; T -> #<EOF>
-					      (go continue)
+                                    (go continue)
 					; NIL -> form is already evaluated; result has been printed
-                                              #|(throw 'debug 'continue)|#
-                                              ))))
-                       (unwind (go unwind))
-                       (t )		; other cases, especially continue
-                       ))))
+                                    #|(throw 'debug 'continue)|#
+                                    ))))
+                        (unwind (go unwind))
+                        (t )		; other cases, especially continue
+                        ))))
             (when watchp
               (let ((form (read-form (ENGLISH "condition when to stop: "))))
                 (setq *step-watch*	
-                      ;; Funktion, that evaluates 'form' in/with *debug-frame*
-                      (eval-at *debug-frame* `(function (lambda () ,form))))))
+                        ;; Funktion, that evaluates 'form' in/with *debug-frame*
+                        (eval-at *debug-frame*
+                                 `(function (lambda () ,form))))))
             (case what
               (into (go into))
               (over (go over))
               (over-this-level (go over-this-level))
               (continue (go continue))))))
-     unwind
-       (unwind-to-driver)
-     into
-       (return-from step-hook-fn
-         (step-values
-          (multiple-value-list (evalhook form #'step-hook-fn nil env))))
-     over-this-level
-       (setq *step-quit* *step-level*)	; keep the Stepper sleeping
-     over
-       (return-from step-hook-fn
-         (step-values
-          (multiple-value-list (evalhook form nil nil env))))
-     continue
-       (setq *step-quit* 0)
-       (go over))))
+      unwind
+        (unwind-to-driver)
+      into
+        (return-from step-hook-fn
+          (step-values
+            (multiple-value-list (evalhook form #'step-hook-fn nil env))))
+      over-this-level
+        (setq *step-quit* *step-level*)	; keep the Stepper sleeping
+      over
+        (return-from step-hook-fn
+          (step-values
+            (multiple-value-list (evalhook form nil nil env))))
+      continue
+        (setq *step-quit* 0)
+        (go over))))
 
 ;;;--------------------------------------------------------------------------
 
 ;; Now that conditio.lsp is loaded and *break-driver* has a value:
 ;; Activate the Condition System.
 (setq *use-clcs* t)
+
