@@ -220,7 +220,7 @@ libcharset/configure : libcharset/configure.in libcharset/autoconf/aclocal.m4 $(
 
 
 # syntax check
-check-configures : $(CONFIGURES)
+check-configures : $(CONFIGURES) $(CONFIG_H_IN)
 	set -e; for f in $(CONFIGURES); do bash -x -n $$f; done
 	rm -rf `find . -name $(AUTOCONF_CACHE)`;
 
