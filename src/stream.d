@@ -3204,15 +3204,81 @@ LISPFUNN(generic_stream_p,1)
 # Handle-Streams
 # ==============
 
-# sind ein gemeinsamer Rahmen für Streams, deren Input/Output ungebuffert
-# über ein Handle des Betriebssystems abgewickelt wird. Umfasst:
+# Handle streams are a common framework which perform their input/output
+# via a handle from the operating system. Encompasses:
 # Input: Terminal-Stream, File-Handle-Stream, Pipe-Input-Stream, Socket-Stream.
 # Output: File-Handle-Stream, Pipe-Output-Stream, Socket-Stream.
 
-#define strm_isatty   strm_other[0]  # Flag, ob das Input-Handle ein TTY ist
-#define strm_ihandle  strm_other[1]  # Input-Handle immer als zweite Komponente
-#define strm_ohandle  strm_other[2]  # Output-Handle immer als dritte Komponente
-# define strm_eltype  strm_other[3]  # CHARACTER or ([UN]SIGNED-BYTE n)
+# Because the input side has some non-GCed fields, all handle streams must
+# have the same number of GCed fields.
+
+# Fields used for both the input side and the output side:
+
+  # define strm_eltype  strm_other[0]  # CHARACTER or ([UN]SIGNED-BYTE n)
+
+  #define strm_buffer   strm_other[1]  # (used by buffered streams only)
+
+# Fields used for the input side only:
+
+  #define strm_isatty   strm_other[1]  # T or NIL, depending whether the input
+                                       # handle is a tty and therefore needs
+                                       # special treatment in the pollstatus
+                                       # function on some OSes
+                                       # (used by unbuffered streams only)
+  #define strm_ihandle  strm_other[2]  # the input handle,
+                                       # an encapsulated file descriptor, or, on
+                                       # WIN32_NATIVE, an encapsulated SOCKET
+
+# Fields used for the output side only:
+
+  #define strm_ohandle  strm_other[3]  # the output handle,
+                                       # an encapsulated file descriptor, or, on
+                                       # WIN32_NATIVE, an encapsulated SOCKET
+
+# Fields reserved for the specialized stream:
+
+  #define strm_field1   strm_other[4]
+  #define strm_field2   strm_other[5]
+  #define strm_field3   strm_other[6]
+
+# Binary fields start here.
+  #define strm_handle_extrafields  strm_other[7]
+#define strm_handle_len  (strm_len+7)
+
+# Additional binary (not GCed) fields:
+typedef struct strm_handle_extrafields_struct {
+  boolean buffered;                    # FALSE for unbuffered streams,
+                                       # TRUE for buffered streams
+} strm_handle_extrafields_struct;
+
+# Additional binary (not GCed) fields, used by unbuffered streams only:
+typedef struct strm_u_file_extrafields_struct {
+  strm_handle_extrafields_struct _parent;
+  # Fields used for the input side only:
+  sintL status;                        # -1 means EOF reached
+                                       # 0 means unknown, last_byte invalid
+                                       # 1 means last_byte valid, to be consumed
+  uintB lastbyte;                      # the last byte read but not yet consumed
+  #ifdef AMIGAOS
+  LONG rawp;                           # current mode: 0 = CON, 1 = RAW
+  #endif
+  # Fields used for the output side only: none
+} strm_u_file_extrafields_struct;
+
+# Accessors.
+#define HandleStream_eltype(stream)  TheStream(stream)->strm_eltype
+#define HandleStream_isatty(stream)  TheStream(stream)->strm_isatty
+#define HandleStream_ihandle(stream)  TheStream(stream)->strm_ihandle
+#define HandleStream_ohandle(stream)  TheStream(stream)->strm_ohandle
+#define HandleStream_buffered(stream)   ((strm_handle_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->buffered
+#define FileStream_status(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->status
+#define FileStream_lastbyte(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->lastbyte
+#ifdef AMIGAOS
+#define FileStream_rawp(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->rawp
+#endif
+
+# Handle-Streams, Input side
+# ==========================
 
 # Dass beim Input EOF erreicht ist, erkennt man an
 # TheStream(stream)->strm_rd_ch_last = eof_value.
@@ -3757,6 +3823,26 @@ LISPFUNN(generic_stream_p,1)
       return byteptr;
     }}
 
+# Schließt einen Handle-Stream.
+# close_ihandle(stream);
+# > stream : Handle-Stream
+  local void close_ihandle (object stream);
+  local void close_ihandle(stream)
+    var object stream;
+    { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
+      begin_system_call();
+      #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
+      if (!( CLOSE(handle) ==0)) { OS_error(); }
+      #endif
+      #ifdef WIN32_NATIVE
+      if (!CloseHandle(handle)) { OS_error(); }
+      #endif
+      end_system_call();
+    }
+
+# Handle-Streams, Output side
+# ===========================
+
 # WRITE-CHAR - Pseudofunktion für Handle-Streams:
   local void wr_ch_handle (const object* stream_, object ch);
   local void wr_ch_handle(stream_,ch)
@@ -3924,23 +4010,9 @@ LISPFUNN(generic_stream_p,1)
     }
 
 # Schließt einen Handle-Stream.
-# close_ihandle(stream);
 # close_ohandle(stream);
 # > stream : Handle-Stream
-  local void close_ihandle (object stream);
   local void close_ohandle (object stream);
-  local void close_ihandle(stream)
-    var object stream;
-    { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
-      begin_system_call();
-      #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
-      if (!( CLOSE(handle) ==0)) { OS_error(); }
-      #endif
-      #ifdef WIN32_NATIVE
-      if (!CloseHandle(handle)) { OS_error(); }
-      #endif
-      end_system_call();
-    }
   local void close_ohandle(stream)
     var object stream;
     { var Handle handle = TheHandle(TheStream(stream)->strm_ohandle);
@@ -3954,17 +4026,12 @@ LISPFUNN(generic_stream_p,1)
       end_system_call();
     }
 
-#define close_handle  close_ihandle
 
-#ifdef AMIGAOS
-  #define strm_handle_rawp strm_other[6]  # Flag, ob im Raw-Modus oder nicht
-  #define strm_handle_len  (strm_len+7)
-#else
-  #define strm_handle_len  (strm_len+6)
-#endif
+# Unbuffered File-Stream
+# ======================
 
 # UP: erzeugt ein File-Handle-Stream
-# make_handle_stream(handle,direction)
+# make_unbuffered_file_stream(handle,direction)
 # > handle: Handle des geöffneten Files
 # > STACK_2: Element-Type
 # > STACK_1: Filename, ein Pathname
@@ -3973,8 +4040,8 @@ LISPFUNN(generic_stream_p,1)
 # < ergebnis: File-Handle-Stream
 # < STACK: aufgeräumt
 # kann GC auslösen
-  local object make_handle_stream (object handle, uintB direction);
-  local object make_handle_stream(handle,direction)
+  local object make_unbuffered_file_stream (object handle, uintB direction);
+  local object make_unbuffered_file_stream(handle,direction)
     var object handle;
     var uintB direction;
     { # Flags:
@@ -3986,7 +4053,7 @@ LISPFUNN(generic_stream_p,1)
       pushSTACK(handle); # Handle retten
       #endif
      {# Stream allozieren:
-      var object stream = allocate_stream(flags,strmtype_handle,strm_handle_len,0);
+      var object stream = allocate_stream(flags,strmtype_handle,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
       # und füllen:
       if (direction & bit(0))
         { TheStream(stream)->strm_rd_by = P(rd_by_handle);
@@ -4031,8 +4098,10 @@ LISPFUNN(generic_stream_p,1)
       TheStream(stream)->strm_file_truename = popSTACK(); # Truename eintragen
       TheStream(stream)->strm_file_name = popSTACK(); # Filename eintragen
       TheStream(stream)->strm_eltype = popSTACK();
+      HandleStream_buffered(stream) = FALSE;
+      FileStream_status(stream) = 0;
       #ifdef AMIGAOS
-      TheStream(stream)->strm_handle_rawp = NIL;
+      FileStream_rawp(stream) = 0;
       #endif
       # Liste der offenen Streams um stream erweitern:
       pushSTACK(stream);
@@ -4054,17 +4123,16 @@ LISPFUNN(generic_stream_p,1)
 # eine Beschleunigung um einen Faktor 2.7 von 500 sec auf 180 sec.)
 
 # Additional fields:
-  # define strm_file_name       strm_other[4] # Filename, a pathname or NIL
-  # define strm_file_truename   strm_other[5] # Truename, ein non-logical pathname or NIL
-  # define strm_file_handle     strm_other[2] # a wrapped Handle
+  # define strm_file_name       strm_field1   # Filename, a pathname or NIL
+  # define strm_file_truename   strm_field2   # Truename, ein non-logical pathname or NIL
+  # define strm_file_handle     strm_ohandle  # a wrapped Handle
   #define strm_file_bufflen     4096          # buffer length, a power of 2, <2^16
-  #define strm_file_buffer      strm_other[0] # our own buffer, a simple-bit-vector
+  #define strm_file_buffer      strm_buffer   # our own buffer, a simple-bit-vector
                                               # with strm_file_bufflen bytes
-  #define strm_file_extrafields strm_other[6] # here some binary fields begin
-#define strm_file_length  (strm_len+6)
 
 # Additional binary (not GCed) fields:
 typedef struct strm_file_extrafields_struct {
+  strm_handle_extrafields_struct _parent;
   uintL buffstart;              # start position of buffer
   sintL eofindex;               # index up to which the data is valid
                                 # (for recognizing EOF)
@@ -4101,7 +4169,7 @@ typedef struct strm_ch_file_extrafields_struct {
 typedef struct strm_i_file_extrafields_struct {
   strm_file_extrafields_struct _parent;
   uintL bitsize;                # number of bits, >0, <intDsize*uintWC_max
-  #define strm_file_bitbuffer   strm_other[1] # buffer, a simple-bit-vector
+  #define strm_file_bitbuffer   strm_field3   # buffer, a simple-bit-vector
                                               # with ceiling(bitsize/8)*8 bits
   # If bitsize is not a multiple of 8:
   uintL bitindex;               # index in the current byte, >=0, <=8
@@ -4120,23 +4188,23 @@ typedef struct strm_i_file_extrafields_struct {
 #define FileStream_handle(stream)  TheStream(stream)->strm_file_handle
 #define FileStream_buffer(stream)  TheStream(stream)->strm_file_buffer
 #define FileStream_buffstart(stream)  \
-  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->buffstart
+  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->buffstart
 #define FileStream_eofindex(stream)  \
-  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->eofindex
+  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->eofindex
 #define FileStream_index(stream)  \
-  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->index
+  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->index
 #define FileStream_modified(stream)  \
-  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->modified
+  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->modified
 #define FileStream_position(stream)  \
-  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->position
+  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->position
 #define FileStream_lineno(stream)  \
-  ((strm_ch_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->lineno
+  ((strm_ch_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->lineno
 #define FileStream_bitsize(stream)  \
-  ((strm_i_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->bitsize
+  ((strm_i_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->bitsize
 #define FileStream_bitindex(stream)  \
-  ((strm_i_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->bitindex
+  ((strm_i_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->bitindex
 #define FileStream_eofposition(stream)  \
-  ((strm_i_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->eofposition
+  ((strm_i_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->eofposition
 
 # File-Stream allgemein
 # =====================
@@ -5787,7 +5855,7 @@ typedef struct strm_i_file_extrafields_struct {
                   )
                   && !append_flag
                  )
-                { return make_handle_stream(handle,direction); }
+                { return make_unbuffered_file_stream(handle,direction); }
                 else
                 { pushSTACK(STACK_0); # Truename, Wert für Slot PATHNAME von FILE-ERROR
                   pushSTACK(STACK_0);
@@ -5833,7 +5901,7 @@ typedef struct strm_i_file_extrafields_struct {
         pushSTACK(handle); # Handle retten
         #endif
        {# Stream allozieren:
-        var object stream = allocate_stream(flags,strmtype_file,strm_file_length,xlen);
+        var object stream = allocate_stream(flags,strmtype_file,strm_handle_len,xlen);
         # und füllen:
         # Komponenten aller Streams:
         switch (type)
@@ -5914,6 +5982,7 @@ typedef struct strm_i_file_extrafields_struct {
         TheStream(stream)->strm_file_truename = popSTACK(); # Truename eintragen
         TheStream(stream)->strm_file_name = popSTACK(); # Filename eintragen
         TheStream(stream)->strm_eltype = popSTACK(); # Element-Type eintragen
+        HandleStream_buffered(stream) = TRUE;
         if (!nullp(handle)) # Handle=NIL -> Rest bereits mit NIL initialisiert, fertig
           { TheStream(stream)->strm_file_handle = handle; # Handle eintragen
             FileStream_buffstart(stream) = 0; # buffstart := 0
@@ -6234,18 +6303,21 @@ LISPFUNN(file_stream_p,1)
   # Zusätzliche Komponenten:
   #define strm_keyboard_isatty  strm_isatty   # Flag, ob stdin ein Terminal ist
   #define strm_keyboard_handle  strm_ihandle  # Handle für listen_handle()
-  #define strm_keyboard_buffer  strm_other[2] # Liste der noch zu liefernden Zeichen
-  #define strm_keyboard_keytab  strm_other[3] # Liste aller Tastenzuordnungen
+  #define strm_keyboard_buffer  strm_field1   # Liste der noch zu liefernden Zeichen
+  #define strm_keyboard_keytab  strm_field2   # Liste aller Tastenzuordnungen
                                               # jeweils (char1 ... charn . result)
-  #define strm_keyboard_len  4
+  #define strm_keyboard_len  strm_handle_len
+  #define strm_keyboard_xlen  sizeof(strm_u_file_extrafields_struct)
 #elif defined(WIN32_NATIVE)
   # Zusätzliche Komponenten:
   #define strm_keyboard_isatty  strm_isatty   # Flag, ob stdin ein Terminal ist
   #define strm_keyboard_handle  strm_ihandle  # Handle für listen_handle()
-  #define strm_keyboard_len  2
+  #define strm_keyboard_len  strm_handle_len
+  #define strm_keyboard_xlen  sizeof(strm_u_file_extrafields_struct)
 #else
   # Keine zusätzlichen Komponenten.
   #define strm_keyboard_len  0
+  #define strm_keyboard_xlen  0
 #endif
 
 # The keyboard events are instances of INPUT-CHARACTER. We create them by
@@ -7363,7 +7435,7 @@ local object make_key_event(event)
      #endif
      {# neuen Stream allozieren:
       var object stream =
-        allocate_stream(strmflags_rd_ch_B,strmtype_keyboard,strm_len+strm_keyboard_len,0);
+        allocate_stream(strmflags_rd_ch_B,strmtype_keyboard,strm_len+strm_keyboard_len,strm_keyboard_xlen);
         # Flags: nur READ-CHAR erlaubt
       # und füllen:
       var Stream s = TheStream(stream);
@@ -7387,10 +7459,14 @@ local object make_key_event(event)
         s->strm_keyboard_handle = popSTACK();
         s->strm_keyboard_buffer = NIL;
         s->strm_keyboard_keytab = popSTACK();
+        HandleStream_buffered(stream) = FALSE;
+        FileStream_status(stream) = 0;
         #endif
         #ifdef WIN32_NATIVE
         s->strm_keyboard_isatty = T;
         s->strm_keyboard_handle = popSTACK();
+        HandleStream_buffered(stream) = FALSE;
+        FileStream_status(stream) = 0;
         #endif
       return stream;
     }}
@@ -7612,38 +7688,36 @@ LISPFUNN(make_keyboard_stream,0)
 #if defined(HAVE_TERMINAL2) || defined(HAVE_TERMINAL3)
   # Komponenten wegen TERMINAL_LINEBUFFERED:
   # INBUFF : Eingabebuffer, ein Semi-Simple-String
-  #define strm_terminal_inbuff  strm_other[3]
+  #define strm_terminal_inbuff  strm_field1
   # COUNT = sein Fill-Pointer : Anzahl der Zeichen im Eingabebuffer
   # INDEX : Anzahl der bereits verbrauchten Zeichen
-  #define strm_terminal_index   strm_other[4]
+  #define strm_terminal_index   strm_field2
 #endif
 #ifdef HAVE_TERMINAL3
   # Komponenten wegen TERMINAL_OUTBUFFERED:
   # OUTBUFF : Ausgabebuffer, ein Semi-Simple-String
-  #define strm_terminal_outbuff strm_other[5]
+  #define strm_terminal_outbuff strm_field3
 #endif
-
-# Längen der unterschiedlichen Terminal-Streams:
-  #define strm_terminal1_len  (strm_len+3)
-  #define strm_terminal2_len  (strm_len+5)
-  #define strm_terminal3_len  (strm_len+6)
+#define strm_terminal_len  strm_handle_len
 
 # Unterscheidung nach Art des Terminal-Streams:
 # terminalcase(stream, statement1,statement2,statement3);
   #if defined(HAVE_TERMINAL2) && defined(HAVE_TERMINAL3)
     #define terminalcase(stream,statement1,statement2,statement3)  \
-      switch (Stream_length(stream))                 \
-        { case strm_terminal1_len: statement1 break; \
-          case strm_terminal2_len: statement2 break; \
-          case strm_terminal3_len: statement3 break; \
-          default: NOTREACHED                        \
-        }
+      if (nullp(TheStream(stream)->strm_field3))     \
+        { if (nullp(TheStream(stream)->strm_field2)) \
+            { statement1 }                           \
+            else                                     \
+            { statement2 }                           \
+        }                                            \
+        else                                         \
+        { statement3 }
   #elif defined(HAVE_TERMINAL2)
     #define terminalcase(stream,statement1,statement2,statement3)  \
-      if (Stream_length(stream) == strm_terminal2_len) { statement2 } else { statement1 }
+      if (nullp(TheStream(stream)->strm_field2)) { statement1 } else { statement2 }
   #elif defined(HAVE_TERMINAL3)
     #define terminalcase(stream,statement1,statement2,statement3)  \
-      if (Stream_length(stream) == strm_terminal3_len) { statement3 } else { statement1 }
+      if (nullp(TheStream(stream)->strm_field3)) { statement1 } else { statement3 }
   #else
     #define terminalcase(stream,statement1,statement2,statement3)  \
       statement1
@@ -8228,7 +8302,7 @@ LISPFUNN(make_keyboard_stream,0)
       { pushSTACK(allocate_handle(stdout_handle));
         pushSTACK(allocate_handle(stdin_handle));
        {var object stream =
-          allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal1_len,0);
+          allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_u_file_extrafields_struct));
         # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
         # und füllen:
         var Stream s = TheStream(stream);
@@ -8256,6 +8330,9 @@ LISPFUNN(make_keyboard_stream,0)
           end_system_call();
           s->strm_terminal_ihandle = popSTACK();
           s->strm_terminal_ohandle = popSTACK();
+        HandleStream_buffered(stream) = FALSE;
+        FileStream_status(stream) = 0;
+        FileStream_rawp(stream) = 0;
         return stream;
       }}
      #else
@@ -8318,7 +8395,7 @@ LISPFUNN(make_keyboard_stream,0)
             pushSTACK(allocate_handle(stdin_handle));
             # neuen Stream allozieren:
            {var object stream =
-              allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal3_len,0);
+              allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_u_file_extrafields_struct));
               # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
             # und füllen:
             var Stream s = TheStream(stream);
@@ -8344,6 +8421,8 @@ LISPFUNN(make_keyboard_stream,0)
               #if 1 # TERMINAL_OUTBUFFERED
               s->strm_terminal_outbuff = popSTACK(); # Zeilenbuffer eintragen
               #endif
+            HandleStream_buffered(stream) = FALSE;
+            FileStream_status(stream) = 0;
             return stream;
           }}
         #endif
@@ -8355,7 +8434,7 @@ LISPFUNN(make_keyboard_stream,0)
             pushSTACK(allocate_handle(stdin_handle));
             # neuen Stream allozieren:
            {var object stream =
-              allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal2_len,0);
+              allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_u_file_extrafields_struct));
               # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
             # und füllen:
             var Stream s = TheStream(stream);
@@ -8378,6 +8457,8 @@ LISPFUNN(make_keyboard_stream,0)
               s->strm_terminal_inbuff = popSTACK(); # Zeilenbuffer eintragen, count := 0
               s->strm_terminal_index = Fixnum_0; # index := 0
               #endif
+            HandleStream_buffered(stream) = FALSE;
+            FileStream_status(stream) = 0;
             return stream;
           }}
         #endif
@@ -8386,7 +8467,7 @@ LISPFUNN(make_keyboard_stream,0)
           pushSTACK(allocate_handle(stdin_handle));
           # neuen Stream allozieren:
          {var object stream =
-            allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal1_len,0);
+            allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_u_file_extrafields_struct));
             # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
           # und füllen:
           var Stream s = TheStream(stream);
@@ -8405,6 +8486,8 @@ LISPFUNN(make_keyboard_stream,0)
             s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
             s->strm_terminal_ihandle = popSTACK(); # Handle für listen_handle()
             s->strm_terminal_ohandle = popSTACK(); # Handle für Output
+          HandleStream_buffered(stream) = FALSE;
+          FileStream_status(stream) = 0;
           return stream;
         }}
       }
@@ -8681,14 +8764,14 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
               }   }
               else
               # Handle-Stream
-              { value1 = TheStream(stream)->strm_handle_rawp;
-                if (new_mode == (nullp(TheStream(stream)->strm_handle_rawp) ? 0 : 1))
+              { value1 = (FileStream_rawp(stream) ? T : NIL);
+                if (new_mode == FileStream_rawp(stream))
                   { success = TRUE; }
                   else
                   { begin_system_call();
                     success = SetMode(TheHandle(TheStream(stream)->strm_ihandle),new_mode);
                     end_system_call();
-                    TheStream(stream)->strm_handle_rawp = (new_mode ? T : NIL);
+                    FileStream_rawp(stream) = new_mode;
               }   }
           }
           else
@@ -11866,7 +11949,7 @@ LISPFUNN(make_printer_stream,0)
 # =================
 
 # Zusätzliche Komponenten:
-  # define strm_pipe_pid       strm_other[4] # Prozess-Id, ein Fixnum >=0
+  # define strm_pipe_pid       strm_field1   # Prozess-Id, ein Fixnum >=0
   #define strm_pipe_in_handle  strm_ihandle  # Handle für Input
   #if defined(EMUNIX) && defined(PIPES2)
   #define strm_pipe_in_other   strm_ohandle  # Pipe-Stream in Gegenrichtung
@@ -12033,7 +12116,7 @@ LISPFUNN(make_pipe_input_stream,1)
     pushSTACK(UL_to_I(child));
     # Stream allozieren:
     { var object stream = # neuer Stream, nur READ-CHAR und READ-BYTE erlaubt
-        allocate_stream(strmflags_rd_B,strmtype_pipe_in,strm_len+5,0);
+        allocate_stream(strmflags_rd_B,strmtype_pipe_in,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
       TheStream(stream)->strm_rd_by = P(rd_by_pipe_in);
       TheStream(stream)->strm_rd_by_array = P(rd_by_array_pipe_in);
       TheStream(stream)->strm_wr_by = P(wr_by_error);
@@ -12049,6 +12132,11 @@ LISPFUNN(make_pipe_input_stream,1)
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
       TheStream(stream)->strm_pipe_in_handle = popSTACK(); # Read-Handle
       TheStream(stream)->strm_isatty = NIL;
+      HandleStream_buffered(stream) = FALSE;
+      FileStream_status(stream) = 0;
+      #ifdef AMIGAOS
+      FileStream_rawp(stream) = 0;
+      #endif
       value1 = stream; mv_count=1; # stream als Wert
   }}}
 
@@ -12057,7 +12145,7 @@ LISPFUNN(make_pipe_input_stream,1)
 # ==================
 
 # Zusätzliche Komponenten:
-  # define strm_pipe_pid          strm_other[4] # Prozess-Id, ein Fixnum >=0
+  # define strm_pipe_pid          strm_field1   # Prozess-Id, ein Fixnum >=0
   #define strm_pipe_out_handle    strm_ohandle  # Handle für Output
   #if defined(EMUNIX) && defined(PIPES2)
   # define strm_pipe_out_other    strm_ihandle  # Pipe-Stream in Gegenrichtung
@@ -12216,7 +12304,7 @@ LISPFUNN(make_pipe_output_stream,1)
     pushSTACK(UL_to_I(child));
     # Stream allozieren:
     { var object stream = # neuer Stream, nur WRITE-CHAR und WRITE-BYTE erlaubt
-        allocate_stream(strmflags_wr_B,strmtype_pipe_out,strm_len+5,0);
+        allocate_stream(strmflags_wr_B,strmtype_pipe_out,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
       TheStream(stream)->strm_rd_by = P(rd_by_error);
       TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
       TheStream(stream)->strm_wr_by = P(wr_by_pipe_out);
@@ -12231,6 +12319,11 @@ LISPFUNN(make_pipe_output_stream,1)
       TheStream(stream)->strm_wr_ss = P(wr_ss_pipe_out);
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
       TheStream(stream)->strm_pipe_out_handle = popSTACK(); # Write-Handle
+      HandleStream_buffered(stream) = FALSE;
+      FileStream_status(stream) = 0;
+      #ifdef AMIGAOS
+      FileStream_rawp(stream) = 0;
+      #endif
       value1 = stream; mv_count=1; # stream als Wert
   }}}
 
@@ -12390,7 +12483,7 @@ LISPFUNN(make_pipe_io_stream,1)
     pushSTACK(allocate_handle(out_handles[1]));
     # Input-Stream allozieren:
     { var object stream = # neuer Stream, nur READ-CHAR erlaubt
-        allocate_stream(strmflags_rd_ch_B,strmtype_pipe_in,strm_len+5,0);
+        allocate_stream(strmflags_rd_ch_B,strmtype_pipe_in,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
       TheStream(stream)->strm_rd_by = P(rd_by_error);
       TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
       TheStream(stream)->strm_wr_by = P(wr_by_error);
@@ -12406,11 +12499,16 @@ LISPFUNN(make_pipe_io_stream,1)
       TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
       TheStream(stream)->strm_pipe_in_handle = STACK_1; # Read-Handle
       TheStream(stream)->strm_isatty = NIL;
+      HandleStream_buffered(stream) = FALSE;
+      FileStream_status(stream) = 0;
+      #ifdef AMIGAOS
+      FileStream_rawp(stream) = 0;
+      #endif
       STACK_1 = stream;
     }
     # Output-Stream allozieren:
     { var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-        allocate_stream(strmflags_wr_ch_B,strmtype_pipe_out,strm_len+5,0);
+        allocate_stream(strmflags_wr_ch_B,strmtype_pipe_out,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
       TheStream(stream)->strm_rd_by = P(rd_by_error);
       TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
       TheStream(stream)->strm_wr_by = P(wr_by_error);
@@ -12425,6 +12523,11 @@ LISPFUNN(make_pipe_io_stream,1)
       TheStream(stream)->strm_wr_ss = P(wr_ss_pipe_out);
       TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
       TheStream(stream)->strm_pipe_out_handle = STACK_0; # Write-Handle
+      HandleStream_buffered(stream) = FALSE;
+      FileStream_status(stream) = 0;
+      #ifdef AMIGAOS
+      FileStream_rawp(stream) = 0;
+      #endif
       STACK_0 = stream;
     }
     #ifdef EMUNIX
@@ -12776,7 +12879,7 @@ LISPFUNN(make_pipe_io_stream,1)
 # Verwendung: für X-Windows.
 
 # Zusätzliche Komponenten:
-  # define strm_x11socket_connect strm_other[4] # Liste (host display)
+  # define strm_x11socket_connect strm_field1 # Liste (host display)
 
 #define rd_ch_x11socket  rd_ch_socket
 #define listen_x11socket  listen_socket
@@ -12828,7 +12931,7 @@ LISPFUNN(make_x11socket_stream,2)
     pushSTACK(allocate_socket(handle));
     # Stream allozieren:
     {var object stream = # neuer Stream, alles erlaubt
-       allocate_stream(strmflags_open_B,strmtype_x11socket,strm_len+5,0);
+       allocate_stream(strmflags_open_B,strmtype_x11socket,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
      TheStream(stream)->strm_rd_by = P(rd_by_x11socket);
      TheStream(stream)->strm_rd_by_array = P(rd_by_array_x11socket);
      TheStream(stream)->strm_wr_by = P(wr_by_x11socket);
@@ -12845,6 +12948,11 @@ LISPFUNN(make_x11socket_stream,2)
      TheStream(stream)->strm_ohandle = popSTACK(); # Handle eintragen
      TheStream(stream)->strm_x11socket_connect = popSTACK(); # zweielementige Liste
      TheStream(stream)->strm_isatty = NIL;
+     HandleStream_buffered(stream) = FALSE;
+     FileStream_status(stream) = 0;
+     #ifdef AMIGAOS
+     FileStream_rawp(stream) = 0;
+     #endif
      value1 = stream; mv_count=1; # stream als Wert
   }}}
 
@@ -12972,8 +13080,8 @@ LISPFUNN(write_n_bytes,4)
 # Socket-Streams
 # ==============
 
-  # define strm_socket_port strm_other[4] # port, a fixnum >=0
-  # define strm_socket_host strm_other[5] # host, NIL or a string
+  # define strm_socket_port strm_field1 # port, a fixnum >=0
+  # define strm_socket_host strm_field2 # host, NIL or a string
 
 # Creates a socket stream.
 local object make_socket_stream (SOCKET handle, object host, object port);
@@ -12984,7 +13092,7 @@ local object make_socket_stream(handle,host,port)
   { pushSTACK(allocate_socket(handle));
     # Stream allozieren:
    {var object stream = # neuer Stream, alles erlaubt
-      allocate_stream(strmflags_open_B,strmtype_socket,strm_len+6,0);
+      allocate_stream(strmflags_open_B,strmtype_socket,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
     TheStream(stream)->strm_rd_by = P(rd_by_socket);
     TheStream(stream)->strm_rd_by_array = P(rd_by_array_socket);
     TheStream(stream)->strm_wr_by = P(wr_by_socket);
@@ -13002,6 +13110,11 @@ local object make_socket_stream(handle,host,port)
     TheStream(stream)->strm_ihandle =
     TheStream(stream)->strm_ohandle = popSTACK(); # Handle eintragen
     TheStream(stream)->strm_isatty = NIL;
+    HandleStream_buffered(stream) = FALSE;
+    FileStream_status(stream) = 0;
+    #ifdef AMIGAOS
+    FileStream_rawp(stream) = 0;
+    #endif
     return stream;
   }}
 
@@ -13406,7 +13519,7 @@ LISPFUNN(socket_stream_handle,1)
           # Filenamen kommt es nicht an, /dev/fd/2 existiert auch nicht überall.
           pushSTACK(asciz_to_string("/dev/fd/2")); funcall(L(pathname),1);
           pushSTACK(S(character)); pushSTACK(value1); pushSTACK(value1);
-          stream = make_handle_stream(allocate_handle(2),4);
+          stream = make_unbuffered_file_stream(allocate_handle(2),4);
         }
       #endif
       define_variable(S(error_output),stream);     # *ERROR-OUTPUT*
@@ -13790,7 +13903,11 @@ LISPFUNN(interactive_stream_p,1)
             close_printer(stream); break;
           #endif
           case strmtype_handle:
-            close_handle(stream); break;
+            if (TheStream(stream)->strmflags & strmflags_wr_B)
+              close_ohandle(stream);
+            else
+              close_ihandle(stream);
+            break;
           #ifdef PIPES
           case strmtype_pipe_in:
             close_pipe_in(stream); break;
