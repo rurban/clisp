@@ -238,10 +238,6 @@ GC/Memory Management:
    or the whole current heap.
 
 
-CLISP ffcall on mac os X: works just fine, but the build process is screwed up
-<http://article.gmane.org/gmane.lisp.clisp.devel:13397>
-
-
 local function (LABEL/FLET) calls waste heap (COPY-CLOSURE).
  use STACK instead?
 
