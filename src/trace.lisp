@@ -11,6 +11,7 @@
 ;;  or a List made of a Symbol and a few Keyword-Arguments (pair-wise!)
 ;;   (symbol
 ;;    [:suppress-if form]   ; no Trace-Output, as long as form is true
+;;    [:max-depth form]     ; no trace output, as long as (> *trace-level* form)
 ;;    [:step-if form]       ; Trace moves into the Stepper, if form is true
 ;;    [:pre form]           ; executes form before function call
 ;;    [:post form]          ; executes form after  function call
@@ -127,7 +128,7 @@ This will not work with closures that use lexical variables!"
 
 (defstruct (tracer (:type vector))
   name symb cur-def local-p
-  suppress-if step-if pre post pre-break-if post-break-if
+  suppress-if max-depth step-if pre post pre-break-if post-break-if
   pre-print post-print print)
 
 ;; install the new function definition
@@ -195,7 +196,9 @@ This will not work with closures that use lexical variables!"
                  `((declare (inline car cdr cons apply values-list))
                    (let ((*trace-level* (1+ *trace-level*)))
                      (block nil
-                       (unless ,(tracer-suppress-if trr) (trace-pre-output))
+                       (unless (or ,(tracer-suppress-if trr)
+                                   ,(if (tracer-max-depth trr) `(> *trace-level* ,(tracer-max-depth trr)) 'nil))
+                         (trace-pre-output))
                        ,@(when (tracer-pre-print trr)
                            `((trace-print (multiple-value-list
                                            ,(tracer-pre-print trr)))))
@@ -223,7 +226,8 @@ This will not work with closures that use lexical variables!"
                          ,@(when (tracer-post-print trr)
                                 `((trace-print (multiple-value-list
                                              ,(tracer-post-print trr)))))
-                         (unless ,(tracer-suppress-if trr)
+                         (unless (or ,(tracer-suppress-if trr)
+                                     ,(if (tracer-max-depth trr) `(> *trace-level* ,(tracer-max-depth trr)) 'nil))
                                (trace-post-output))
                              (values-list *trace-values*)))))))
             (setf (get newname 'sys::untraced-name) (tracer-symb trr))
