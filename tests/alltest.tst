@@ -61,7 +61,7 @@ lambda-list-keywords
 
 (let ((s (prin1-to-string LAMBDA-PARAMETERS-LIMIT )))
   (or #+XCL (equal s "128")
-      #+CLISP (equal s "65536") #+CLISP (equal s "4294967296")
+      #+CLISP (equal s "65536") #+CLISP (equal s "4294967296") #+CLISP (equal s "4096")
       #+AKCL (equal s "64")
       #+ALLEGRO (equal s "16384")
       #+CMU (equal s "536870911")
