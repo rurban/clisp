@@ -86,6 +86,8 @@ User visible changes
 * FUNCTION-LAMBDA-EXPRESSION now always returns the correct function name.
   See <http://clisp.cons.org/impnotes.html#fle> for details.
 
+* CONSTANTP now detects many more constant forms.
+
 * The code walker has now a public interface: EXT:EXPAND-FORM.
   See <http://clisp.cons.org/impnotes.html#code-walk> for details.
 

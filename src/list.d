@@ -243,163 +243,164 @@ local object cdr (object obj) {
     fehler_list(obj);
 }
 
-LISPFUNN(car,1) # (CAR list), CLTL S. 262
-  {
-    VALUES1(car(popSTACK()));
-  }
+LISPFUNNR(car,1)
+{ /* (CAR list), CLTL p. 262 */
+  VALUES1(car(popSTACK()));
+}
 
-LISPFUNN(cdr,1) # (CDR list), CLTL S. 262
-  {
-    VALUES1(cdr(popSTACK()));
-  }
+LISPFUNNR(cdr,1)
+{ /* (CDR list), CLTL p. 262 */
+  VALUES1(cdr(popSTACK()));
+}
 
-LISPFUNN(caar,1) # (CAAR list), CLTL S. 263
-  {
-    VALUES1(car(car(popSTACK())));
-  }
+LISPFUNNR(caar,1)
+{ /* (CAAR list), CLTL p. 263 */
+  VALUES1(car(car(popSTACK())));
+}
 
-LISPFUNN(cadr,1) # (CADR list), CLTL S. 263
-  {
-    VALUES1(car(cdr(popSTACK())));
-  }
+LISPFUNNR(cadr,1)
+{ /* (CADR list), CLTL p. 263 */
+  VALUES1(car(cdr(popSTACK())));
+}
 
-LISPFUNN(cdar,1) # (CDAR list), CLTL S. 263
-  {
-    VALUES1(cdr(car(popSTACK())));
-  }
+LISPFUNNR(cdar,1)
+{ /* (CDAR list), CLTL p. 263 */
+  VALUES1(cdr(car(popSTACK())));
+}
 
-LISPFUNN(cddr,1) # (CDDR list), CLTL S. 263
-  {
-    VALUES1(cdr(cdr(popSTACK())));
-  }
+LISPFUNNR(cddr,1)
+{ /* (CDDR list), CLTL p. 263 */
+  VALUES1(cdr(cdr(popSTACK())));
+}
 
-LISPFUNN(caaar,1) # (CAAAR list), CLTL S. 263
-  {
-    VALUES1(car(car(car(popSTACK()))));
-  }
+LISPFUNNR(caaar,1)
+{ /* (CAAAR list), CLTL p. 263 */
+  VALUES1(car(car(car(popSTACK()))));
+}
 
-LISPFUNN(caadr,1) # (CAADR list), CLTL S. 263
-  {
-    VALUES1(car(car(cdr(popSTACK()))));
-  }
+LISPFUNNR(caadr,1)
+{ /* (CAADR list), CLTL p. 263 */
+  VALUES1(car(car(cdr(popSTACK()))));
+}
 
-LISPFUNN(cadar,1) # (CADAR list), CLTL S. 263
-  {
-    VALUES1(car(cdr(car(popSTACK()))));
-  }
+LISPFUNNR(cadar,1)
+{ /* (CADAR list), CLTL p. 263 */
+  VALUES1(car(cdr(car(popSTACK()))));
+}
 
-LISPFUNN(caddr,1) # (CADDR list), CLTL S. 263
-  {
-    VALUES1(car(cdr(cdr(popSTACK()))));
-  }
+LISPFUNNR(caddr,1)
+{ /* (CADDR list), CLTL p. 263 */
+  VALUES1(car(cdr(cdr(popSTACK()))));
+}
 
-LISPFUNN(cdaar,1) # (CDAAR list), CLTL S. 263
-  {
-    VALUES1(cdr(car(car(popSTACK()))));
-  }
+LISPFUNNR(cdaar,1)
+{ /* (CDAAR list), CLTL p. 263 */
+  VALUES1(cdr(car(car(popSTACK()))));
+}
 
-LISPFUNN(cdadr,1) # (CDADR list), CLTL S. 263
-  {
-    VALUES1(cdr(car(cdr(popSTACK()))));
-  }
+LISPFUNNR(cdadr,1)
+{ /* (CDADR list), CLTL p. 263 */
+  VALUES1(cdr(car(cdr(popSTACK()))));
+}
 
-LISPFUNN(cddar,1) # (CDDAR list), CLTL S. 263
-  {
-    VALUES1(cdr(cdr(car(popSTACK()))));
-  }
+LISPFUNNR(cddar,1)
+{ /* (CDDAR list), CLTL p. 263 */
+  VALUES1(cdr(cdr(car(popSTACK()))));
+}
 
-LISPFUNN(cdddr,1) # (CDDDR list), CLTL S. 263
-  {
-    VALUES1(cdr(cdr(cdr(popSTACK()))));
-  }
+LISPFUNNR(cdddr,1)
+{ /* (CDDDR list), CLTL p. 263 */
+  VALUES1(cdr(cdr(cdr(popSTACK()))));
+}
 
-LISPFUNN(caaaar,1) # (CAAAAR list), CLTL S. 263
-  {
-    VALUES1(car(car(car(car(popSTACK())))));
-  }
+LISPFUNNR(caaaar,1)
+{ /* (CAAAAR list), CLTL p. 263 */
+  VALUES1(car(car(car(car(popSTACK())))));
+}
 
-LISPFUNN(caaadr,1) # (CAAADR list), CLTL S. 263
-  {
-    VALUES1(car(car(car(cdr(popSTACK())))));
-  }
+LISPFUNNR(caaadr,1)
+{ /* (CAAADR list), CLTL p. 263 */
+  VALUES1(car(car(car(cdr(popSTACK())))));
+}
 
-LISPFUNN(caadar,1) # (CAADAR list), CLTL S. 263
-  {
-    VALUES1(car(car(cdr(car(popSTACK())))));
-  }
+LISPFUNNR(caadar,1)
+{ /* (CAADAR list), CLTL p. 263 */
+  VALUES1(car(car(cdr(car(popSTACK())))));
+}
 
-LISPFUNN(caaddr,1) # (CAADDR list), CLTL S. 263
-  {
-    VALUES1(car(car(cdr(cdr(popSTACK())))));
-  }
+LISPFUNNR(caaddr,1)
+{ /* (CAADDR list), CLTL p. 263 */
+  VALUES1(car(car(cdr(cdr(popSTACK())))));
+}
 
-LISPFUNN(cadaar,1) # (CADAAR list), CLTL S. 263
-  {
-    VALUES1(car(cdr(car(car(popSTACK())))));
-  }
+LISPFUNNR(cadaar,1)
+{ /* (CADAAR list), CLTL p. 263 */
+  VALUES1(car(cdr(car(car(popSTACK())))));
+}
 
-LISPFUNN(cadadr,1) # (CADADR list), CLTL S. 263
-  {
-    VALUES1(car(cdr(car(cdr(popSTACK())))));
-  }
+LISPFUNNR(cadadr,1)
+{ /* (CADADR list), CLTL p. 263 */
+  VALUES1(car(cdr(car(cdr(popSTACK())))));
+}
 
-LISPFUNN(caddar,1) # (CADDAR list), CLTL S. 263
-  {
-    VALUES1(car(cdr(cdr(car(popSTACK())))));
-  }
+LISPFUNNR(caddar,1)
+{ /* (CADDAR list), CLTL p. 263 */
+  VALUES1(car(cdr(cdr(car(popSTACK())))));
+}
 
-LISPFUNN(cadddr,1) # (CADDDR list), CLTL S. 263
-  {
-    VALUES1(car(cdr(cdr(cdr(popSTACK())))));
-  }
+LISPFUNNR(cadddr,1)
+{ /* (CADDDR list), CLTL p. 263 */
+  VALUES1(car(cdr(cdr(cdr(popSTACK())))));
+}
 
-LISPFUNN(cdaaar,1) # (CDAAAR list), CLTL S. 263
-  {
-    VALUES1(cdr(car(car(car(popSTACK())))));
-  }
+LISPFUNNR(cdaaar,1)
+{ /* (CDAAAR list), CLTL p. 263 */
+  VALUES1(cdr(car(car(car(popSTACK())))));
+}
 
-LISPFUNN(cdaadr,1) # (CDAADR list), CLTL S. 263
-  {
-    VALUES1(cdr(car(car(cdr(popSTACK())))));
-  }
+LISPFUNNR(cdaadr,1)
+{ /* (CDAADR list), CLTL p. 263 */
+  VALUES1(cdr(car(car(cdr(popSTACK())))));
+}
 
-LISPFUNN(cdadar,1) # (CDADAR list), CLTL S. 263
-  {
-    VALUES1(cdr(car(cdr(car(popSTACK())))));
-  }
+LISPFUNNR(cdadar,1)
+{ /* (CDADAR list), CLTL p. 263 */
+  VALUES1(cdr(car(cdr(car(popSTACK())))));
+}
 
-LISPFUNN(cdaddr,1) # (CDADDR list), CLTL S. 263
-  {
-    VALUES1(cdr(car(cdr(cdr(popSTACK())))));
-  }
+LISPFUNNR(cdaddr,1)
+{ /* (CDADDR list), CLTL p. 263 */
+  VALUES1(cdr(car(cdr(cdr(popSTACK())))));
+}
 
-LISPFUNN(cddaar,1) # (CDDAAR list), CLTL S. 263
-  {
-    VALUES1(cdr(cdr(car(car(popSTACK())))));
-  }
+LISPFUNNR(cddaar,1)
+{ /* (CDDAAR list), CLTL p. 263 */
+  VALUES1(cdr(cdr(car(car(popSTACK())))));
+}
 
-LISPFUNN(cddadr,1) # (CDDADR list), CLTL S. 263
-  {
-    VALUES1(cdr(cdr(car(cdr(popSTACK())))));
-  }
+LISPFUNNR(cddadr,1)
+{ /* (CDDADR list), CLTL p. 263 */
+  VALUES1(cdr(cdr(car(cdr(popSTACK())))));
+}
 
-LISPFUNN(cdddar,1) # (CDDDAR list), CLTL S. 263
-  {
-    VALUES1(cdr(cdr(cdr(car(popSTACK())))));
-  }
+LISPFUNNR(cdddar,1)
+{ /* (CDDDAR list), CLTL p. 263 */
+  VALUES1(cdr(cdr(cdr(car(popSTACK())))));
+}
 
-LISPFUNN(cddddr,1) # (CDDDDR list), CLTL S. 263
-  {
-    VALUES1(cdr(cdr(cdr(cdr(popSTACK())))));
-  }
+LISPFUNNR(cddddr,1)
+{ /* (CDDDDR list), CLTL p. 263 */
+  VALUES1(cdr(cdr(cdr(cdr(popSTACK())))));
+}
 
-LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
-  {
-    var object new_cons = allocate_cons();
-    Cdr(new_cons) = popSTACK();
-    Car(new_cons) = popSTACK();
-    VALUES1(new_cons);
-  }
+LISPFUN(cons,seclass_no_se,2,0,norest,nokey,0,NIL)
+{ /* (CONS obj1 obj2), CLTL p. 264 */
+  var object new_cons = allocate_cons();
+  Cdr(new_cons) = popSTACK();
+  Car(new_cons) = popSTACK();
+  VALUES1(new_cons);
+}
+
 
 # Unterprogramm zum Ausführen des Tests :TEST
 # up2_test(stackptr,arg1,arg2)
@@ -507,7 +508,7 @@ local bool tree_equal (const gcv_object_t* stackptr, up2_function_t up2_fun,
     }
 }
 
-LISPFUN(tree_equal,2,0,norest,key,2, (kw(test),kw(test_not)) )
+LISPFUN(tree_equal,seclass_default,2,0,norest,key,2, (kw(test),kw(test_not)) )
 { /* (TREE-EQUAL x y :test :test-not), CLTL p. 264 */
   var gcv_object_t* stackptr = &STACK_0;
   /* check :TEST/:TEST-NOT arguments: */
@@ -531,7 +532,7 @@ global bool endp (object obj) {
     fehler_proper_list(TheSubr(subr_self)->name,obj);
 }
 
-LISPFUNN(endp,1)
+LISPFUNNF(endp,1)
 { /* (ENDP object), CLTL p. 264 */
   VALUES_IF(endp(popSTACK()));
 }
@@ -565,7 +566,7 @@ local inline object list_length (object list, object *dottedp) {
   return fixnum(n);
 }
 
-LISPFUNN(list_length,1)
+LISPFUNNR(list_length,1)
 { /* (LIST-LENGTH list), CLTL p. 265 */
   var object tail = NIL;
   var object len = list_length(popSTACK(),&tail);
@@ -573,7 +574,7 @@ LISPFUNN(list_length,1)
   else fehler_proper_list(S(list_length),tail);
 }
 
-LISPFUNN(list_length_dotted,1)
+LISPFUNNR(list_length_dotted,1)
 { /* traverses the list just once, otherwise equivalent to
    (defun list-length-dotted (l)
      (let ((ll (list-length l)))
@@ -596,85 +597,85 @@ nonreturning_function(local, fehler_nth, (void)) {
          GETTEXT("~: ~ is not a nonnegative fixnum and therefore not a valid index"));
 }
 
-LISPFUNN(nth,2) # (NTH integer list), CLTL S. 265
-  {
-    var object list = popSTACK();
-    if (posfixnump(STACK_0)) { # integer muss ein Fixnum >=0 sein
-      var uintL count = posfixnum_to_L(popSTACK()); # Wert des Fixnum
-      # count mal den CDR von list nehmen:
-      dotimesL(count,count, { list = cdr(list); } );
-      # 1 mal den CAR nehmen:
-      VALUES1(car(list));
-    } else
-      fehler_nth();
-  }
+LISPFUNNR(nth,2)
+{ /* (NTH integer list), CLTL p. 265 */
+  var object list = popSTACK();
+  if (posfixnump(STACK_0)) { # integer muss ein Fixnum >=0 sein
+    var uintL count = posfixnum_to_L(popSTACK()); # Wert des Fixnum
+    # count mal den CDR von list nehmen:
+    dotimesL(count,count, { list = cdr(list); } );
+    # 1 mal den CAR nehmen:
+    VALUES1(car(list));
+  } else
+    fehler_nth();
+}
 
-LISPFUNN(first,1) # (FIRST list), CLTL S. 266
-  {
-    VALUES1(car(popSTACK()));
-  }
+LISPFUNNR(first,1)
+{ /* (FIRST list), CLTL p. 266 */
+  VALUES1(car(popSTACK()));
+}
 
-LISPFUNN(second,1) # (SECOND list), CLTL S. 266
-  {
-    VALUES1(car(cdr(popSTACK())));
-  }
+LISPFUNNR(second,1)
+{ /* (SECOND list), CLTL p. 266 */
+  VALUES1(car(cdr(popSTACK())));
+}
 
-LISPFUNN(third,1) # (THIRD list), CLTL S. 266
-  {
-    VALUES1(car(cdr(cdr(popSTACK()))));
-  }
+LISPFUNNR(third,1)
+{ /* (THIRD list), CLTL p. 266 */
+  VALUES1(car(cdr(cdr(popSTACK()))));
+}
 
-LISPFUNN(fourth,1) # (FOURTH list), CLTL S. 266
-  {
-    VALUES1(car(cdr(cdr(cdr(popSTACK())))));
-  }
+LISPFUNNR(fourth,1)
+{ /* (FOURTH list), CLTL p. 266 */
+  VALUES1(car(cdr(cdr(cdr(popSTACK())))));
+}
 
-LISPFUNN(fifth,1) # (FIFTH list), CLTL S. 266
-  {
-    VALUES1(car(cdr(cdr(cdr(cdr(popSTACK()))))));
-  }
+LISPFUNNR(fifth,1)
+{ /* (FIFTH list), CLTL p. 266 */
+  VALUES1(car(cdr(cdr(cdr(cdr(popSTACK()))))));
+}
 
-LISPFUNN(sixth,1) # (SIXTH list), CLTL S. 266
-  {
-    VALUES1(car(cdr(cdr(cdr(cdr(cdr(popSTACK())))))));
-  }
+LISPFUNNR(sixth,1)
+{ /* (SIXTH list), CLTL p. 266 */
+  VALUES1(car(cdr(cdr(cdr(cdr(cdr(popSTACK())))))));
+}
 
-LISPFUNN(seventh,1) # (SEVENTH list), CLTL S. 266
-  {
-    VALUES1(car(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK()))))))));
-  }
+LISPFUNNR(seventh,1)
+{ /* (SEVENTH list), CLTL p. 266 */
+  VALUES1(car(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK()))))))));
+}
 
-LISPFUNN(eighth,1) # (EIGHTH list), CLTL S. 266
-  {
-    VALUES1(car(cdr(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK())))))))));
-  }
+LISPFUNNR(eighth,1)
+{ /* (EIGHTH list), CLTL p. 266 */
+  VALUES1(car(cdr(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK())))))))));
+}
 
-LISPFUNN(ninth,1) # (NINTH list), CLTL S. 266
-  {
-    VALUES1(car(cdr(cdr(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK()))))))))));
-  }
+LISPFUNNR(ninth,1)
+{ /* (NINTH list), CLTL p. 266 */
+  VALUES1(car(cdr(cdr(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK()))))))))));
+}
 
-LISPFUNN(tenth,1) # (TENTH list), CLTL S. 266
-  {
-    VALUES1(car(cdr(cdr(cdr(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK())))))))))));
-  }
+LISPFUNNR(tenth,1)
+{ /* (TENTH list), CLTL p. 266 */
+  VALUES1(car(cdr(cdr(cdr(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK())))))))))));
+}
 
-LISPFUNN(rest,1) # (REST list), CLTL S. 266
-  {
-    VALUES1(cdr(popSTACK()));
-  }
+LISPFUNNR(rest,1)
+{ /* (REST list), CLTL p. 266 */
+  VALUES1(cdr(popSTACK()));
+}
 
-LISPFUNN(nthcdr,2) # (NTHCDR integer list), CLTL S. 267
-  {
-    var object list = popSTACK();
-    if (posfixnump(STACK_0)) { # integer muss ein Fixnum >=0 sein
-      var uintL count = posfixnum_to_L(popSTACK()); # Wert des Fixnum
-      # count mal den CDR von list nehmen:
-      dotimesL(count,count, { list = cdr(list); } );
-      VALUES1(list);
-    } else
-      fehler_nth();
-  }
+LISPFUNNR(nthcdr,2)
+{ /* (NTHCDR integer list), CLTL p. 267 */
+  var object list = popSTACK();
+  if (posfixnump(STACK_0)) { /* must be an integer and fixnum >=0 */
+    var uintL count = posfixnum_to_L(popSTACK()); /* fixnum value */
+    /* count mal den CDR von list nehmen: */
+    dotimesL(count,count, { list = cdr(list); } );
+    VALUES1(list);
+  } else
+    fehler_nth();
+}
 
 # Fehlermeldung für LAST, BUTLAST und NBUTLAST
 # fehler_butlast(badindex)
@@ -687,61 +688,58 @@ nonreturning_function(local, fehler_butlast, (object badindex)) {
          GETTEXT("~: ~ is not a nonnegative integer and therefore not a valid argument"));
 }
 
-LISPFUN(last,1,1,norest,nokey,0,NIL) # (LAST list [n]), CLtL2 S. 416-417, dpANS p. 14-34
-  # (defun last (list &optional (n 1))
-  #   (check-type n (integer 0 *))
-  #   (do ((l list (cdr l))
-  #        (r list)
-  #        (i 0 (+ i 1)))
-  #       ((atom l) r)
-  #     (when (>= i n) (pop r))
-  # ) )
-  {
-    var object intarg = popSTACK();
-    # optionales Integer-Argument überprüfen:
-    var uintL count; # Anzahl der zu kopierenden Elemente
-    if (!boundp(intarg)) {
-      count = 1;
-    } else {
-      if (!(integerp(intarg) && positivep(intarg)))
-        fehler_butlast(intarg);
-      count = (posfixnump(intarg) ? posfixnum_to_L(intarg) : ~(uintL)0);
-    }
-    var object list = popSTACK();
-    # Optimierung der beiden häufigsten Fälle count=1 und count=0:
-    switch (count) {
-      case 0:
-        while (consp(list)) { list = Cdr(list); }
-        break;
-      case 1:
-        {
-          var object list2;
-          if (consp(list)) {
-            loop {
-              # Hier ist list ein Cons.
-              list2 = Cdr(list);
-              if (atomp(list2))
-                break;
-              list = list2;
-            }
-          }
-        }
-        break;
-      default:
-        {
-          var object list2 = list;
-          dotimespL(count,count, {
-            if (atomp(list2))
-              goto done;
-            list2 = Cdr(list2);
-          });
-          while (consp(list2)) { list2 = Cdr(list2); list = Cdr(list); }
-         done: ;
-        }
-        break;
-    }
-    VALUES1(list);
+LISPFUN(last,seclass_read,1,1,norest,nokey,0,NIL)
+{ /* (LAST list [n]), CLtL2 p. 416-417, dpANS p. 14-34
+ (defun last (list &optional (n 1))
+   (check-type n (integer 0 *))
+   (do ((l list (cdr l))
+        (r list)
+        (i 0 (+ i 1)))
+       ((atom l) r)
+     (when (>= i n) (pop r)))) */
+  var object intarg = popSTACK();
+  # optionales Integer-Argument überprüfen:
+  var uintL count; # Anzahl der zu kopierenden Elemente
+  if (!boundp(intarg)) {
+    count = 1;
+  } else {
+    if (!(integerp(intarg) && positivep(intarg)))
+      fehler_butlast(intarg);
+    count = (posfixnump(intarg) ? posfixnum_to_L(intarg) : ~(uintL)0);
   }
+  var object list = popSTACK();
+  # Optimierung der beiden häufigsten Fälle count=1 und count=0:
+  switch (count) {
+    case 0:
+      while (consp(list)) { list = Cdr(list); }
+      break;
+    case 1: {
+      var object list2;
+      if (consp(list)) {
+        loop {
+          # Hier ist list ein Cons.
+          list2 = Cdr(list);
+          if (atomp(list2))
+            break;
+          list = list2;
+        }
+      }
+    }
+      break;
+    default: {
+      var object list2 = list;
+      dotimespL(count,count, {
+        if (atomp(list2))
+          goto done;
+        list2 = Cdr(list2);
+      });
+      while (consp(list2)) { list2 = Cdr(list2); list = Cdr(list); }
+       done: ;
+    }
+      break;
+  }
+  VALUES1(list);
+}
 
 # UP: Bildet eine Liste mit gegebenen Elementen.
 # listof(len)
@@ -762,57 +760,53 @@ global object listof (uintC len) {
   return popSTACK();
 }
 
-LISPFUN(list,0,0,rest,nokey,0,NIL)
-  # (LIST {object}), CLTL S. 267
-  {
-    pushSTACK(NIL); # bisherige Gesamtliste
-    # die argcount Argumente vor diese Liste consen:
-    dotimesC(argcount,argcount, {
-      var object new_cons = allocate_cons();
-      Cdr(new_cons) = popSTACK(); # nächstes Argument davor
-      Car(new_cons) = STACK_0;
-      STACK_0 = new_cons;
-    });
-    VALUES1(popSTACK());
-  }
+LISPFUN(list,seclass_no_se,0,0,rest,nokey,0,NIL)
+{ /* (LIST {object}), CLTL p. 267 */
+  pushSTACK(NIL); /* bisherige Gesamtliste */
+  /* die argcount Argumente vor diese Liste consen: */
+  dotimesC(argcount,argcount, {
+    var object new_cons = allocate_cons();
+    Cdr(new_cons) = popSTACK(); /* nächstes Argument davor */
+    Car(new_cons) = STACK_0;
+    STACK_0 = new_cons;
+  });
+  VALUES1(popSTACK());
+}
 
-LISPFUN(liststern,1,0,rest,nokey,0,NIL)
-  # (LIST* obj1 {object}), CLTL S. 267
-  {
-    # bisherige Gesamtliste bereits im Stack
-    # die argcount restlichen Argumente vor diese Liste consen:
-    dotimesC(argcount,argcount, {
-      var object new_cons = allocate_cons();
-      Cdr(new_cons) = popSTACK(); # nächstes Argument davor
-      Car(new_cons) = STACK_0;
-      STACK_0 = new_cons;
-    });
-    VALUES1(popSTACK());
-  }
+LISPFUN(liststern,seclass_no_se,1,0,rest,nokey,0,NIL)
+{ /* (LIST* obj1 {object}), CLTL p. 267 */
+  /* bisherige Gesamtliste bereits im Stack */
+  /* die argcount restlichen Argumente vor diese Liste consen: */
+  dotimesC(argcount,argcount, {
+    var object new_cons = allocate_cons();
+    Cdr(new_cons) = popSTACK(); /* nächstes Argument davor */
+    Car(new_cons) = STACK_0;
+    STACK_0 = new_cons;
+  });
+  VALUES1(popSTACK());
+}
 
-LISPFUN(make_list,1,0,norest,key,1, (kw(initial_element)) )
-  # (MAKE-LIST size :initial-element), CLTL S. 268
-  {
-    # :initial-element überprüfen:
-    if (!boundp(STACK_0))
-      STACK_0 = NIL; # Default-Initialisierung für initial-element
-    # :size überprüfen:
-    if (posfixnump(STACK_1)) {
-      VALUES1(make_list(posfixnum_to_L(STACK_1)));
-      skipSTACK(2);
-    } else {
-      # size in STACK_1
-      pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(STACK_(1+2)); # size
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not a nonnegative fixnum and therefore not a valid list length"));
-    }
+LISPFUN(make_list,seclass_no_se,1,0,norest,key,1, (kw(initial_element)) )
+{ /* (MAKE-LIST size :initial-element), CLTL p. 268 */
+  /* check :initial-element: */
+  if (!boundp(STACK_0))
+    STACK_0 = NIL; /* Default-Initialisierung für initial-element */
+  /* checl :size: */
+  if (posfixnump(STACK_1)) {
+    VALUES1(make_list(posfixnum_to_L(STACK_1)));
+    skipSTACK(2);
+  } else { /* size in STACK_1 */
+    pushSTACK(STACK_1); /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(STACK_(1+2)); /* size */
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not a nonnegative fixnum and therefore not a valid list length"));
   }
+}
 
-LISPFUN(append,0,0,rest,nokey,0,NIL) # (APPEND {list}), CLTL S. 268
-  {
+LISPFUN(append,seclass_read,0,0,rest,nokey,0,NIL)
+{ /* (APPEND {list}), CLTL p. 268 */
     if (argcount==0) {
       VALUES1(NIL); # keine Argumente -> NIL als Ergebnis
     } else {
@@ -865,16 +859,16 @@ LISPFUN(append,0,0,rest,nokey,0,NIL) # (APPEND {list}), CLTL S. 268
       });
       VALUES1(popSTACK()); # Gesamtliste als Wert
     }
-  }
+}
 
-LISPFUNN(copy_list,1) # (COPY-LIST list), CLTL S. 268
-  {
-    var object list = popSTACK();
-    if (listp(list)) {
-      VALUES1(copy_list(list));
-    } else
-      fehler_list(list);
-  }
+LISPFUNNR(copy_list,1)
+{ /* (COPY-LIST list), CLTL p. 268 */
+  var object list = popSTACK();
+  if (listp(list)) {
+    VALUES1(copy_list(list));
+  } else
+    fehler_list(list);
+}
 
 # UP: Kopiert eine Aliste
 # copy_alist(alist)
@@ -906,8 +900,8 @@ local object copy_alist (object alist) {
   return popSTACK();
 }
 
-LISPFUNN(copy_alist,1) # (COPY-ALIST alist), CLTL S. 268
-  { VALUES1(copy_alist(popSTACK())); }
+LISPFUNNR(copy_alist,1) /* (COPY-ALIST alist), CLTL p. 268 */
+{ VALUES1(copy_alist(popSTACK())); }
 
 # UP: Kopiert einen Baum.
 local object copy_tree (object tree) {
@@ -931,24 +925,22 @@ local object copy_tree (object tree) {
   }
 }
 
-LISPFUNN(copy_tree,1) # (COPY-TREE tree), CLTL S. 269
-  {
-    VALUES1(copy_tree(popSTACK()));
-  }
+LISPFUNNR(copy_tree,1) /* (COPY-TREE tree), CLTL p. 269 */
+{ VALUES1(copy_tree(popSTACK())); }
 
-LISPFUNN(revappend,2) # (REVAPPEND list object), CLTL S. 269
-  {
-    until (matomp(STACK_1)) {
-      var object new_cons = allocate_cons(); # neues Cons
-      Car(new_cons) = Car(STACK_1); Cdr(new_cons) = STACK_0; # (cons (car list) object)
-      STACK_0 = new_cons; # das ist das neue, verlängerte object
-      STACK_1 = Cdr(STACK_1); # list verkürzen
-    }
-    VALUES1(popSTACK());
-    skipSTACK(1);
+LISPFUNNR(revappend,2)
+{ /* (REVAPPEND list object), CLTL p. 269 */
+  while (!matomp(STACK_1)) {
+    var object new_cons = allocate_cons(); # neues Cons
+    Car(new_cons) = Car(STACK_1); Cdr(new_cons) = STACK_0; # (cons (car list) object)
+    STACK_0 = new_cons; # das ist das neue, verlängerte object
+    STACK_1 = Cdr(STACK_1); # list verkürzen
   }
+  VALUES1(popSTACK());
+  skipSTACK(1);
+}
 
-LISPFUN(nconc,0,0,rest,nokey,0,NIL) # (NCONC {list}), CLTL S. 269
+LISPFUN(nconc,seclass_default,0,0,rest,nokey,0,NIL) # (NCONC {list}), CLTL S. 269
   {
     if (argcount==0) {
       VALUES1(NIL); # keine Argumente -> NIL als Ergebnis
@@ -998,9 +990,8 @@ LISPFUNN(list_nreverse,1) # (SYS::LIST-NREVERSE list)
     VALUES1(nreverse(popSTACK()));
   }
 
-LISPFUN(butlast,1,1,norest,nokey,0,NIL)
-  # (BUTLAST list [integer]), CLTL S. 271
-  {
+LISPFUN(butlast,seclass_read,1,1,norest,nokey,0,NIL)
+{ /* (BUTLAST list [integer]), CLTL S. 271 */
     var object intarg = popSTACK();
     # optionales Integer-Argument überprüfen:
     var uintL count; # Anzahl der zu entfernenden Elemente
@@ -1032,11 +1023,10 @@ LISPFUN(butlast,1,1,norest,nokey,0,NIL)
       } until (atomp(new_lauf));
       VALUES1(new_list);
     }
-  }
+}
 
-LISPFUN(nbutlast,1,1,norest,nokey,0,NIL)
-  # (NBUTLAST list [integer]), CLTL S. 271
-  {
+LISPFUN(nbutlast,seclass_default,1,1,norest,nokey,0,NIL)
+{ /* (NBUTLAST list [integer]), CLTL p. 271 */
     var object intarg = popSTACK();
     # optionales Integer-Argument überprüfen:
     var uintL count; # Anzahl der zu entfernenden Elemente
@@ -1063,10 +1053,10 @@ LISPFUN(nbutlast,1,1,norest,nokey,0,NIL)
       Cdr(lauf) = NIL;
       VALUES1(popSTACK()); /* return list */
     }
-  }
+}
 
-LISPFUNN(ldiff,2) # (LDIFF list sublist), CLTL S. 272
-  {
+LISPFUNNR(ldiff,2)
+{ /* (LDIFF list sublist), CLTL p. 272 */
     var object sublist = popSTACK();
     # Suche, wo sublist in list beginnt:
     var uintL new_len = 0;
@@ -1100,7 +1090,7 @@ LISPFUNN(ldiff,2) # (LDIFF list sublist), CLTL S. 272
       old_lauf = Cdr(old_lauf); new_lauf = Cdr(new_lauf);
     }
     VALUES1(new_list);
-  }
+}
 
 # Fehlermeldung für RPLACA und RPLACD u.ä.
 # fehler_cons(badobject)
@@ -1344,36 +1334,34 @@ local object subst (object tree, gcv_object_t* stackptr, up_function_t up_fun) {
     }
 }
 
-LISPFUN(subst,3,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
-  # (SUBST new old tree :test :test-not :key), CLTL S. 273
-  {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
-    { var object newobj = STACK_5; pushSTACK(newobj); }
-    # Stackaufbau: new, old, tree, test, test_not, key, new.
-    VALUES1(subst(STACK_4,&STACK_2,up_fun)); /* do the substitution */
-    skipSTACK(7);
-  }
+LISPFUN(subst,seclass_default,3,0,norest,key,3,
+        (kw(test),kw(test_not),kw(key)) )
+{ /* (SUBST new old tree :test :test-not :key), CLTL p. 273 */
+  test_key_arg(); /* :KEY-Argument in STACK_0 */
+  var up_function_t up_fun = test_test_args(); /* :TEST/:TEST-NOT-Arguments in STACK_2,STACK_1 */
+  { var object newobj = STACK_5; pushSTACK(newobj); }
+  /* stack layout: new, old, tree, test, test_not, key, new. */
+  VALUES1(subst(STACK_4,&STACK_2,up_fun)); /* do the substitution */
+  skipSTACK(7);
+}
 
-LISPFUN(subst_if,3,0,norest,key,1, (kw(key)) )
-  # (SUBST-IF new pred tree :key), CLTL S. 273
-  {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    { var object newobj = STACK_3; pushSTACK(newobj); }
-    # Stackaufbau: new, pred, tree, key, new.
-    VALUES1(subst(STACK_2,&STACK_2,&up_if)); /* do the substitution */
-    skipSTACK(5);
-  }
+LISPFUN(subst_if,seclass_default,3,0,norest,key,1, (kw(key)) )
+{ /* (SUBST-IF new pred tree :key), CLTL p. 273 */
+  test_key_arg(); /* :KEY-Argument in STACK_0 */
+  { var object newobj = STACK_3; pushSTACK(newobj); }
+  /* stack layout: new, pred, tree, key, new. */
+  VALUES1(subst(STACK_2,&STACK_2,&up_if)); /* do the substitution */
+  skipSTACK(5);
+}
 
-LISPFUN(subst_if_not,3,0,norest,key,1, (kw(key)) )
-  # (SUBST-IF-NOT new pred tree :key), CLTL S. 273
-  {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    { var object newobj = STACK_3; pushSTACK(newobj); }
-    # Stackaufbau: new, pred, tree, key, new.
-    VALUES1(subst(STACK_2,&STACK_2,&up_if_not)); /* do the substitution */
-    skipSTACK(5);
-  }
+LISPFUN(subst_if_not,seclass_default,3,0,norest,key,1, (kw(key)) )
+{ /* (SUBST-IF-NOT new pred tree :key), CLTL S. 273 */
+  test_key_arg(); /* :KEY-Argument in STACK_0 */
+  { var object newobj = STACK_3; pushSTACK(newobj); }
+  /* stack layout: new, pred, tree, key, new. */
+  VALUES1(subst(STACK_2,&STACK_2,&up_if_not)); /* do the substitution */
+  skipSTACK(5);
+}
 
 # UP: Ersetzt im Baum tree alle x, deren KEY der TESTFUNktion genügen,
 # durch NEW. Destruktiv.
@@ -1412,36 +1400,34 @@ local object nsubst (object tree, gcv_object_t* stackptr, up_function_t up_fun) 
   }
 }
 
-LISPFUN(nsubst,3,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
-  # (NSUBST new old tree :test :test-not :key), CLTL S. 274
-  {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
-    { var object newobj = STACK_5; pushSTACK(newobj); }
-    # Stackaufbau: new, old, tree, test, test_not, key, new.
-    VALUES1(nsubst(STACK_4,&STACK_2,up_fun)); /* do the substitution */
-    skipSTACK(7);
-  }
+LISPFUN(nsubst,seclass_default,3,0,norest,key,3,
+        (kw(test),kw(test_not),kw(key)) )
+{ /* (NSUBST new old tree :test :test-not :key), CLTL p. 274 */
+  test_key_arg(); /* :KEY-Argument in STACK_0 */
+  var up_function_t up_fun = test_test_args(); /* :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1 */
+  { var object newobj = STACK_5; pushSTACK(newobj); }
+  /* stack layout: new, old, tree, test, test_not, key, new. */
+  VALUES1(nsubst(STACK_4,&STACK_2,up_fun)); /* do the substitution */
+  skipSTACK(7);
+}
 
-LISPFUN(nsubst_if,3,0,norest,key,1, (kw(key)) )
-  # (NSUBST-IF new pred tree :key), CLTL S. 274
-  {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    { var object newobj = STACK_3; pushSTACK(newobj); }
-    # Stackaufbau: new, pred, tree, key, new.
-    VALUES1(nsubst(STACK_2,&STACK_2,&up_if)); /* do the substitution */
-    skipSTACK(5);
-  }
+LISPFUN(nsubst_if,seclass_default,3,0,norest,key,1, (kw(key)) )
+{ /* (NSUBST-IF new pred tree :key), CLTL p. 274 */
+  test_key_arg(); /* :KEY-Argument in STACK_0 */
+  { var object newobj = STACK_3; pushSTACK(newobj); }
+  /* stack layout: new, pred, tree, key, new. */
+  VALUES1(nsubst(STACK_2,&STACK_2,&up_if)); /* do the substitution */
+  skipSTACK(5);
+}
 
-LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
-  # (NSUBST-IF-NOT new pred tree :key), CLTL S. 274
-  {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    { var object newobj = STACK_3; pushSTACK(newobj); }
-    # Stackaufbau: new, pred, tree, key, new.
-    VALUES1(nsubst(STACK_2,&STACK_2,&up_if_not)); /* do the substitution */
-    skipSTACK(5);
-  }
+LISPFUN(nsubst_if_not,seclass_default,3,0,norest,key,1, (kw(key)) )
+{ /* (NSUBST-IF-NOT new pred tree :key), CLTL p. 274 */
+  test_key_arg(); /* :KEY-Argument in STACK_0 */
+  { var object newobj = STACK_3; pushSTACK(newobj); }
+  /* stack layout: new, pred, tree, key, new. */
+  VALUES1(nsubst(STACK_2,&STACK_2,&up_if_not)); /* do the substitution */
+  skipSTACK(5);
+}
 
 /* UP: return the first list element, whose CAR passed the TESTFUNction.
  sublis_assoc(stackptr)
@@ -1533,7 +1519,8 @@ local object sublis (object tree, gcv_object_t* stackptr) {
     }
 }
 
-LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
+LISPFUN(sublis,seclass_default,2,0,norest,key,3,
+        (kw(test),kw(test_not),kw(key)) )
   # (SUBLIS alist tree :test :test-not :key), CLTL S. 274
   {
     test_key_arg(); # :KEY-Argument in STACK_0
@@ -1547,7 +1534,7 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     } else {
       pushSTACK(NIL); # Dummy
       pushSTACK(make_machine_code(up2_fun)); # Testfunktion, wegen Typinfo=machine_type GC-sicher!
-      # Stackaufbau: alist, tree, test, test_not, key, dummy, up2_fun.
+      # stack layout: alist, tree, test, test_not, key, dummy, up2_fun.
       VALUES1(sublis(STACK_5,stackptr)); /* do the substitution */
       skipSTACK(7);
     }
@@ -1591,7 +1578,8 @@ local object nsublis (object tree, gcv_object_t* stackptr) {
   }
 }
 
-LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
+LISPFUN(nsublis,seclass_default,2,0,norest,key,3,
+        (kw(test),kw(test_not),kw(key)) )
   # (NSUBLIS alist tree :test :test-not :key), CLTL S. 275
   {
     test_key_arg(); # :KEY-Argument in STACK_0
@@ -1659,7 +1647,8 @@ local object member (object list, gcv_object_t* stackptr, up_function_t up_fun) 
   return list; # NIL als Ergebnis
 }
 
-LISPFUN(member,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
+LISPFUN(member,seclass_default,2,0,norest,key,3,
+        (kw(test),kw(test_not),kw(key)) )
   # (MEMBER item list :test :test-not :key), CLTL S. 275
   {
     test_key_arg(); # :KEY-Argument in STACK_0
@@ -1668,7 +1657,7 @@ LISPFUN(member,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     skipSTACK(5);
   }
 
-LISPFUN(member_if,2,0,norest,key,1, (kw(key)) )
+LISPFUN(member_if,seclass_default,2,0,norest,key,1, (kw(key)) )
   # (MEMBER-IF pred list :key), CLTL S. 275
   {
     test_key_arg(); # :KEY-Argument in STACK_0
@@ -1676,7 +1665,7 @@ LISPFUN(member_if,2,0,norest,key,1, (kw(key)) )
     skipSTACK(3);
   }
 
-LISPFUN(member_if_not,2,0,norest,key,1, (kw(key)) )
+LISPFUN(member_if_not,seclass_default,2,0,norest,key,1, (kw(key)) )
   # (MEMBER-IF-NOT pred list :key), CLTL S. 275
   {
     test_key_arg(); # :KEY-Argument in STACK_0
@@ -1684,7 +1673,7 @@ LISPFUN(member_if_not,2,0,norest,key,1, (kw(key)) )
     skipSTACK(3);
   }
 
-LISPFUNN(tailp,2) # (TAILP sublist list), CLTL S. 275
+LISPFUNNR(tailp,2) # (TAILP sublist list), CLTL S. 275
   #ifndef X3J13_175
   # (defun tailp (sublist list)
   #   (do ((l list (rest l)))
@@ -1724,7 +1713,8 @@ LISPFUNN(tailp,2) # (TAILP sublist list), CLTL S. 275
     VALUES1(T); return; # T als Wert
   }
 
-LISPFUN(adjoin,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
+LISPFUN(adjoin,seclass_default,2,0,norest,key,3,
+        (kw(test),kw(test_not),kw(key)) )
   # (ADJOIN item list :test :test-not :key), CLTL S. 276
   {
     # erst Test auf (MEMBER (key item) list :test :test-not :key):
@@ -1748,27 +1738,25 @@ LISPFUN(adjoin,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     skipSTACK(6); return;
   }
 
-LISPFUNN(acons,3)
-  # (ACONS key val alist) = (CONS (CONS key val) alist), CLTL S. 279
+LISPFUN(acons,seclass_no_se,3,0,norest,nokey,0,NIL)
+{ /* (ACONS key val alist) = (CONS (CONS key val) alist), CLTL p. 279 */
   {
-    {
-      var object new_cons = allocate_cons();
-      Car(new_cons) = STACK_2; # key
-      Cdr(new_cons) = STACK_1; # value
-      STACK_1 = new_cons;
-    }
-    {
-      var object new_cons = allocate_cons();
-      Cdr(new_cons) = popSTACK(); # alist
-      Car(new_cons) = popSTACK(); # (key . val)
-      VALUES1(new_cons);
-      skipSTACK(1);
-    }
+    var object new_cons = allocate_cons();
+    Car(new_cons) = STACK_2; /* key */
+    Cdr(new_cons) = STACK_1; /* value */
+    STACK_1 = new_cons;
   }
-
-LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
-  # (PAIRLIS keys data [alist]), CLTL S. 280
   {
+    var object new_cons = allocate_cons();
+    Cdr(new_cons) = popSTACK(); /* alist */
+    Car(new_cons) = popSTACK(); /* (key . val) */
+    VALUES1(new_cons);
+    skipSTACK(1);
+  }
+}
+
+LISPFUN(pairlis,seclass_read,2,1,norest,nokey,0,NIL)
+{ /* (PAIRLIS keys data [alist]), CLTL S. 280 */
     if (!boundp(STACK_0))
       STACK_0=NIL; # NIL als Default für alist
 
@@ -1812,7 +1800,7 @@ LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
     }
    end:
     VALUES1(STACK_2); skipSTACK(5); # alist als Wert
-  }
+}
 
 # UP: Liefert das erste Listenelement, dessen CAR der TESTFUNktion genügt.
 # assoc(alist,stackptr)
@@ -1844,7 +1832,8 @@ local object assoc (object alist, gcv_object_t* stackptr, up_function_t up_fun) 
   }
 }
 
-LISPFUN(assoc,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
+LISPFUN(assoc,seclass_default,2,0,norest,key,3,
+        (kw(test),kw(test_not),kw(key)) )
   # (ASSOC item alist :test :test-not :key), CLTL S. 280
   {
     test_key_arg(); # :KEY-Argument in STACK_0
@@ -1853,7 +1842,7 @@ LISPFUN(assoc,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     skipSTACK(5);
   }
 
-LISPFUN(assoc_if,2,0,norest,key,1, (kw(key)) )
+LISPFUN(assoc_if,seclass_default,2,0,norest,key,1, (kw(key)) )
   # (ASSOC-IF pred alist :key), CLTL S. 280
   {
     test_key_arg(); # :KEY-Argument in STACK_0
@@ -1861,7 +1850,7 @@ LISPFUN(assoc_if,2,0,norest,key,1, (kw(key)) )
     skipSTACK(3);
   }
 
-LISPFUN(assoc_if_not,2,0,norest,key,1, (kw(key)) )
+LISPFUN(assoc_if_not,seclass_default,2,0,norest,key,1, (kw(key)) )
   # (ASSOC-IF-NOT pred alist :key), CLTL S. 280
   {
     test_key_arg(); # :KEY-Argument in STACK_0
@@ -1899,7 +1888,8 @@ local object rassoc (object alist, gcv_object_t* stackptr, up_function_t up_fun)
   }
 }
 
-LISPFUN(rassoc,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
+LISPFUN(rassoc,seclass_default,2,0,norest,key,3,
+        (kw(test),kw(test_not),kw(key)) )
   # (RASSOC item alist :test :test-not :key), CLTL S. 281
   {
     test_key_arg(); # :KEY-Argument in STACK_0
@@ -1908,7 +1898,7 @@ LISPFUN(rassoc,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     skipSTACK(5);
   }
 
-LISPFUN(rassoc_if,2,0,norest,key,1, (kw(key)) )
+LISPFUN(rassoc_if,seclass_default,2,0,norest,key,1, (kw(key)) )
   # (RASSOC-IF pred alist :key), CLTL S. 281
   {
     test_key_arg(); # :KEY-Argument in STACK_0
@@ -1916,7 +1906,7 @@ LISPFUN(rassoc_if,2,0,norest,key,1, (kw(key)) )
     skipSTACK(3);
   }
 
-LISPFUN(rassoc_if_not,2,0,norest,key,1, (kw(key)) )
+LISPFUN(rassoc_if_not,seclass_default,2,0,norest,key,1, (kw(key)) )
   # (RASSOC-IF-NOT pred alist :key), CLTL S. 281
   {
     test_key_arg(); # :KEY-Argument in STACK_0

@@ -1867,13 +1867,13 @@ local object test_package_arg (object obj) {
          GETTEXT("~: argument should be a package or a package name, not ~"));
 }
 
-LISPFUNN(make_symbol,1) { /* (MAKE-SYMBOL printname), CLTL p. 168 */
+LISPFUNNR(make_symbol,1) { /* (MAKE-SYMBOL printname), CLTL p. 168 */
   var object arg = popSTACK();
   if (!stringp(arg)) fehler_string(arg);
   VALUES1(make_symbol(coerce_imm_ss(arg)));
 }
 
-LISPFUNN(find_package,1) { /* (FIND-PACKAGE name), CLTL p. 183 */
+LISPFUNNR(find_package,1) { /* (FIND-PACKAGE name), CLTL p. 183 */
   var object pack = popSTACK();
   if (packagep(pack)) VALUES1(pack);
   else {
@@ -1886,7 +1886,7 @@ LISPFUNN(pfind_package,1) { /* (SYSTEM::%FIND-PACKAGE name) */
   VALUES1(test_package_arg(popSTACK())); /* argument as package */
 }
 
-LISPFUNN(package_name,1) { /* (PACKAGE-NAME package), CLTL p. 184 */
+LISPFUNNR(package_name,1) { /* (PACKAGE-NAME package), CLTL p. 184 */
   var object pack = popSTACK();
   if (packagep(pack) && pack_deletedp(pack)) {
     VALUES1(NIL);
@@ -1896,7 +1896,8 @@ LISPFUNN(package_name,1) { /* (PACKAGE-NAME package), CLTL p. 184 */
   }
 }
 
-LISPFUNN(package_nicknames,1) { /* (PACKAGE-NICKNAMES package), CLTL p. 184 */
+LISPFUNNR(package_nicknames,1)
+{ /* (PACKAGE-NICKNAMES package), CLTL p. 184 */
   var object pack = popSTACK();
   if (packagep(pack) && pack_deletedp(pack)) {
     VALUES1(NIL);
@@ -1954,7 +1955,7 @@ local void test_names_args (void) {
 }
 
 /* (RENAME-PACKAGE pack name [nicknames]), CLTL p. 184 */
-LISPFUN(rename_package,2,1,norest,nokey,0,NIL) {
+LISPFUN(rename_package,seclass_default,2,1,norest,nokey,0,NIL) {
   /* Test, if pack is a package: */
   STACK_2 = test_package_arg(STACK_2);
   check_pack_lock(S(rename_package),STACK_2,STACK_1);
@@ -1992,28 +1993,28 @@ LISPFUN(rename_package,2,1,norest,nokey,0,NIL) {
   VALUES1(pack); /* pack as value */
 }
 
-LISPFUNN(package_use_list,1) { /* (PACKAGE-USE-LIST package), CLTL p. 184 */
+LISPFUNNR(package_use_list,1) { /* (PACKAGE-USE-LIST package), CLTL p. 184 */
   var object pack = test_package_arg(popSTACK()); /* argument as package */
   /* copy use-list for safety reasons */
   VALUES1(copy_list(ThePackage(pack)->pack_use_list));
 }
 
-/* (PACKAGE-USED-BY-LIST package), CLTL p. 184 */
-LISPFUNN(package_used_by_list,1) {
+LISPFUNNR(package_used_by_list,1)
+{ /* (PACKAGE-USED-BY-LIST package), CLTL p. 184 */
   var object pack = test_package_arg(popSTACK()); /* argument as package */
   /* copy used-by-list for safety reasons */
   VALUES1(copy_list(ThePackage(pack)->pack_used_by_list));
 }
 
-/* (PACKAGE-SHADOWING-SYMBOLS package), CLTL p. 184 */
-LISPFUNN(package_shadowing_symbols,1) {
+LISPFUNNR(package_shadowing_symbols,1)
+{ /* (PACKAGE-SHADOWING-SYMBOLS package), CLTL p. 184 */
   var object pack = test_package_arg(popSTACK()); /* argument as package */
   /* copy shadowing-list for safety reasons */
   VALUES1(copy_list(ThePackage(pack)->pack_shadowing_symbols));
 }
 
-/* (EXT:PACKAGE-LOCK package) */
-LISPFUNN(package_lock,1) {
+LISPFUNNR(package_lock,1)
+{ /* (EXT:PACKAGE-LOCK package) */
   var object pack = test_package_arg(popSTACK());
   VALUES_IF(pack_locked_p(pack));
 }
@@ -2079,8 +2080,8 @@ LISPFUNN(check_package_lock,3) {
   mv_count = 0;
 }
 
-/* (LIST-ALL-PACKAGES) returns a list of all packages, CLTL p. 184 */
-LISPFUNN(list_all_packages,0) {
+LISPFUNNR(list_all_packages,0)
+{ /* (LIST-ALL-PACKAGES) returns a list of all packages, CLTL p. 184 */
   VALUES1(reverse(O(all_packages))); /* (copy of the list, as a precaution) */
 }
 
@@ -2125,7 +2126,7 @@ local object intern_result (uintBWL code) {
 }
 
 /* (INTERN string [package]), CLTL p. 184 */
-LISPFUN(intern,1,1,norest,nokey,0,NIL) {
+LISPFUN(intern,seclass_default,1,1,norest,nokey,0,NIL) {
   test_intern_args(); /* test arguments */
   var object pack = popSTACK();
   var object string = popSTACK();
@@ -2139,8 +2140,8 @@ LISPFUN(intern,1,1,norest,nokey,0,NIL) {
   value2 = intern_result(code); mv_count=2; /* two values */
 }
 
-/* (FIND-SYMBOL string [package]), CLTL p. 185 */
-LISPFUN(find_symbol,1,1,norest,nokey,0,NIL) {
+LISPFUN(find_symbol,seclass_read,1,1,norest,nokey,0,NIL)
+{ /* (FIND-SYMBOL string [package]), CLTL p. 185 */
   test_intern_args(); /* test arguments */
   var object pack = popSTACK();
   var object string = popSTACK();
@@ -2155,7 +2156,7 @@ LISPFUN(find_symbol,1,1,norest,nokey,0,NIL) {
 }
 
 /* (UNINTERN symbol [package]), CLTL p. 185 */
-LISPFUN(unintern,1,1,norest,nokey,0,NIL) {
+LISPFUN(unintern,seclass_default,1,1,norest,nokey,0,NIL) {
   /* test symbol: */
   if (!symbolp(STACK_1)) fehler_symbol(STACK_1);
   /* test package: */
@@ -2232,27 +2233,27 @@ local Values apply_symbols (sym_pack_function_t* fun) {
 }
 
 /* (EXPORT symbols [package]), CLTL p. 186 */
-LISPFUN(export,1,1,norest,nokey,0,NIL) {
+LISPFUN(export,seclass_default,1,1,norest,nokey,0,NIL) {
   return_Values apply_symbols(&export);
 }
 
 /* (UNEXPORT symbols [package]), CLTL p. 186 */
-LISPFUN(unexport,1,1,norest,nokey,0,NIL) {
+LISPFUN(unexport,seclass_default,1,1,norest,nokey,0,NIL) {
   return_Values apply_symbols(&unexport);
 }
 
 /* (IMPORT symbols [package]), CLTL p. 186 */
-LISPFUN(import,1,1,norest,nokey,0,NIL) {
+LISPFUN(import,seclass_default,1,1,norest,nokey,0,NIL) {
   return_Values apply_symbols(&import);
 }
 
 /* (SHADOWING-IMPORT symbols [package]), CLTL p. 186 */
-LISPFUN(shadowing_import,1,1,norest,nokey,0,NIL) {
+LISPFUN(shadowing_import,seclass_default,1,1,norest,nokey,0,NIL) {
   return_Values apply_symbols(&shadowing_import);
 }
 
 /* (SHADOW symbols [package]), CLTL p. 186 */
-LISPFUN(shadow,1,1,norest,nokey,0,NIL) {
+LISPFUN(shadow,seclass_default,1,1,norest,nokey,0,NIL) {
   return_Values apply_symbols(&shadow);
 }
 
@@ -2289,7 +2290,7 @@ local void prepare_use_package (void) {
 }
 
 /* (USE-PACKAGE packs-to-use [package]), CLTL p. 187 */
-LISPFUN(use_package,1,1,norest,nokey,0,NIL) {
+LISPFUN(use_package,seclass_default,1,1,norest,nokey,0,NIL) {
   prepare_use_package();
   var object pack = popSTACK();
   var object packlist = popSTACK();
@@ -2298,7 +2299,7 @@ LISPFUN(use_package,1,1,norest,nokey,0,NIL) {
 }
 
 /* (UNUSE-PACKAGE packs-to-use [package]), CLTL p. 187 */
-LISPFUN(unuse_package,1,1,norest,nokey,0,NIL) {
+LISPFUN(unuse_package,seclass_default,1,1,norest,nokey,0,NIL) {
   prepare_use_package();
   var object pack = popSTACK();
   var object packlist = popSTACK();
@@ -2385,7 +2386,7 @@ local void in_make_package (void) {
 /* (MAKE-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]
                       [:CASE-SENSITIVE sensitivep]),
  CLTL p. 183 */
-LISPFUN(make_package,1,0,norest,key,3,
+LISPFUN(make_package,seclass_default,1,0,norest,key,3,
         (kw(nicknames),kw(use),kw(case_sensitive)) ) {
   in_make_package();
 }
@@ -2394,7 +2395,7 @@ LISPFUN(make_package,1,0,norest,key,3,
                              [:CASE-SENSITIVE sensitivep])
  is like (IN-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]), CLTL p. 183,
  except that *PACKAGE* is not modified. */
-LISPFUN(pin_package,1,0,norest,key,3,
+LISPFUN(pin_package,seclass_default,1,0,norest,key,3,
         (kw(nicknames),kw(use),kw(case_sensitive)) ) {
   /* check name and turn into string: */
   var object name = test_stringsymchar_arg(STACK_3);
@@ -2544,8 +2545,8 @@ local void delete_package_aux (void* data, object sym) {
   pushSTACK(sym); unintern(&STACK_0,localptr); skipSTACK(1);
 }
 
-/* (FIND-ALL-SYMBOLS name), CLTL p. 187 */
-LISPFUNN(find_all_symbols,1) {
+LISPFUNNR(find_all_symbols,1)
+{ /* (FIND-ALL-SYMBOLS name), CLTL p. 187 */
   STACK_0 = test_stringsymchar_arg(STACK_0); /* name as string */
   pushSTACK(NIL); /* (so far empty) symbol-list */
   pushSTACK(O(all_packages)); /* traverse list of all packages */

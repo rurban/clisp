@@ -856,7 +856,7 @@ local void servent_to_stack (struct servent * se) {
   pushSTACK(asciz_to_string(se->s_proto,O(misc_encoding)));
 }
 
-LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
+LISPFUN(socket_service_port,seclass_read,0,2,norest,nokey,0,NIL)
 /* (SOCKET:SOCKET-SERVICE-PORT &optional service-name protocol)
  NB: Previous versions of this functions
   - accepted a string containing a number, e.g. "80",

@@ -1,3 +1,24 @@
+2003-02-24  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-DIRECT-FUNCTION-CALL): use
+	FUNCTION-SIDE-EFFECT instead of an explicit table
+	* control.d (form_constant_p): new function
+	(CONSTANTP): use it; all self-eval forms are constants (ANSI)
+	(FUNCTION-SIDE-EFFECT): implemented
+	* constsym.d, subr.d (function_side_effect): added
+	* lispbibl.d (subr_t): new slot `seclass' (instead of the
+	dummy padding)
+	(seclass_foldable, seclass_read, seclass_write, seclass_default)
+	(seclass_no_se): new macros
+	* subr.d (LISPFUN): accept 8 arguments (added seclass);
+	updated all declarations
+	* genclisph.d (LISPFUN): ditto
+	* affi.d, array.d, charstrg.d, control.d, debug.d, dirkey.d,
+	* encoding.d, error.d, eval.d, foreign.d, i18n.d, io.d,
+	* lisparit.d, list.d, misc.d, package.d, pathname.d, posixmath.d,
+	* predtype.d, record.d, rexx.d, sequence.d, socket.d, stream.d,
+	* symbol.d, time.d, zthread.d: updated all LISPFUN headers
+
 2003-02-23  Sam Steingold  <sds@gnu.org>
 
 	* check-lispfun.lisp (get-lisp-def): return the name of the form

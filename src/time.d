@@ -384,33 +384,29 @@
     }
 #endif
 
-LISPFUNN(get_internal_real_time,0)
-# (GET-INTERNAL-REAL-TIME), CLTL S. 446
-#ifdef TIME_1
-  {
-    VALUES1(UL_to_I(get_real_time())); /* get real time since start of session */
-  }
-#endif
-#ifdef TIME_2
-  {
-    var internal_time_t tp; # absolute real time
-    get_real_time(&tp);
-    VALUES1(internal_time_to_I(&tp)); /* convert to integer */
-  }
-#endif
+LISPFUNNR(get_internal_real_time,0)
+{ /* (GET-INTERNAL-REAL-TIME), CLTL p. 446 */
+ #ifdef TIME_1
+  VALUES1(UL_to_I(get_real_time())); /* get real time since start of session */
+ #endif
+ #ifdef TIME_2
+  var internal_time_t tp; # absolute real time
+  get_real_time(&tp);
+  VALUES1(internal_time_to_I(&tp)); /* convert to integer */
+ #endif
+}
 
-LISPFUNN(get_internal_run_time,0)
-# (GET-INTERNAL-RUN-TIME), CLTL S. 446
-  {
-    var timescore_t tm;
-    get_running_times(&tm); # get run time since start of session
-   #ifdef TIME_1
-    VALUES1(UL_to_I(tm.runtime)); /* convert to integer */
-   #endif
-   #ifdef TIME_2
-    VALUES1(internal_time_to_I(&tm.runtime)); /* convert to integer */
-   #endif
-  }
+LISPFUNNR(get_internal_run_time,0)
+{ /* (GET-INTERNAL-RUN-TIME), CLTL p. 446 */
+  var timescore_t tm;
+  get_running_times(&tm); /* get run time since start of session */
+ #ifdef TIME_1
+  VALUES1(UL_to_I(tm.runtime)); /* convert to integer */
+ #endif
+ #ifdef TIME_2
+  VALUES1(internal_time_to_I(&tm.runtime)); /* convert to integer */
+ #endif
+}
 
 # -----------------------------------------------------------------------------
 #                    Converting the system time format
@@ -764,11 +760,10 @@ global object convert_time_to_universal (const FILETIME* time) {
     #define universal_time_sec() real_time_sec()
   #endif
 
-LISPFUNN(get_universal_time,0)
-# (get-universal-time), CLTL S. 445
-  {
-    VALUES1(UL_to_I(universal_time_sec()));
-  }
+LISPFUNNR(get_universal_time,0)
+{ /* (get-universal-time), CLTL p. 445 */
+  VALUES1(UL_to_I(universal_time_sec()));
+}
 
 # UP: Initialisiert die Zeitvariablen beim LISP-System-Start.
 # init_time();
@@ -828,7 +823,7 @@ LISPFUNN(get_universal_time,0)
 #                        Other time related functions
 
 #if defined(UNIX) || defined(WIN32)
-LISPFUN(default_time_zone,0,1,norest,nokey,0,NIL)
+LISPFUN(default_time_zone,seclass_default,0,1,norest,nokey,0,NIL)
 # (sys::default-time-zone) liefert die aktuelle Zeitzone.
 # (sys::default-time-zone UTstunde) liefert die aktuelle Zeitzone zu einem
 # bestimmten Zeitpunkt.
@@ -1047,7 +1042,7 @@ LISPFUNN(sleep,2)
 #endif
 #endif
 
-LISPFUNN(time,0)
+LISPFUNNR(time,0)
 # (SYSTEM::%%TIME) liefert den bisherigen Time/Space-Verbrauch, ohne selbst
 # Platz anzufordern (und damit eventuell selbst eine GC zu verursachen).
 # 9 Werte:
@@ -1138,7 +1133,7 @@ LISPFUNN(time,0)
 # (- (+ (ash n1 shift) n2) (+ (ash o1 shift) o2))
 # the difference must be positive
 # all numbers must be fixnums; the result is (UNSIGNED-BYTE 64)
-LISPFUNN(delta4,5) {
+LISPFUNNF(delta4,5) {
   if (!posfixnump(STACK_0)) fehler_posfixnum(STACK_0);
   var uintL shift = posfixnum_to_L(STACK_0);
   if (!posfixnump(STACK_1)) fehler_posfixnum(STACK_1);

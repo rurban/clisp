@@ -470,7 +470,7 @@ local void affi_call_argsa(address, ffinfo, args, count)
 
 # (SYSTEM::%LIBCALL base ff-description &rest args)
 # can trigger GC (after the call)
-LISPFUN(affi_libcall,2,0,rest,nokey,0,NIL)
+LISPFUN(affi_libcall,seclass_default,2,0,rest,nokey,0,NIL)
   {
     var object ffinfo = Before(rest_args_pointer); # #((offset . mask) return-type . arg-types*))
     var aint address = convert_address(Before(rest_args_pointer STACKop 1),unbound);
@@ -512,7 +512,7 @@ local void bytecopy(to,from,length,size)
 
 # (SYSTEM::MEM-READ address into [offset]) reads from address[+offset].
 # can trigger GC
-LISPFUN(mem_read,2,1,norest,nokey,0,NIL)
+LISPFUN(mem_read,seclass_default,2,1,norest,nokey,0,NIL)
   {
     var aint address = convert_address(STACK_2,STACK_0);
     # TODO? address could be a LISP string or vector. Better not
@@ -608,7 +608,7 @@ LISPFUN(mem_read,2,1,norest,nokey,0,NIL)
 
 
 # (SYSTEM::MEM-WRITE address type value [offset]) writes to address[+offset].
-LISPFUN(mem_write,3,1,norest,nokey,0,NIL)
+LISPFUN(mem_write,seclass_default,3,1,norest,nokey,0,NIL)
   {
     var aint address = convert_address(STACK_3,STACK_0);
     var object wert = STACK_1;
@@ -667,7 +667,7 @@ LISPFUN(mem_write,3,1,norest,nokey,0,NIL)
   }
 
 # (SYSTEM::MEM-WRITE-VECTOR address vector [offset]) writes string to address.
-LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
+LISPFUN(mem_write_vector,seclass_default,2,1,norest,nokey,0,NIL)
   {
     var aint address = convert_address(STACK_2,STACK_0);
     var object from = STACK_1;
@@ -713,7 +713,7 @@ LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
   }
 
 # (SYSTEM::NZERO-POINTER-P pointer) returns NIL for either NIL, 0 or NULL fpointer
-LISPFUN(affi_nonzerop,1,0,norest,nokey,0,NIL)
+LISPFUN(affi_nonzerop,seclass_default,1,0,norest,nokey,0,NIL)
   {
     var object arg = popSTACK();
    #if 0
@@ -787,11 +787,11 @@ object_initdata_t module__affi__object_tab_initdata[1];
 uintC module__affi__subr_tab_size = subr_anz;
 
 subr_ module__affi__subr_tab[subr_anz] = {
-  LISPFUN(affi_libcall,2,0,rest,nokey,0,NIL)
-  LISPFUN(mem_read,2,1,norest,nokey,0,NIL)
-  LISPFUN(mem_write,3,1,norest,nokey,0,NIL)
-  LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
-  LISPFUN(affi_nonzerop,1,0,norest,nokey,0,NIL)
+  LISPFUN(affi_libcall,seclass_default,2,0,rest,nokey,0,NIL)
+  LISPFUN(mem_read,seclass_default,2,1,norest,nokey,0,NIL)
+  LISPFUN(mem_write,seclass_default,3,1,norest,nokey,0,NIL)
+  LISPFUN(mem_write_vector,seclass_default,2,1,norest,nokey,0,NIL)
+  LISPFUN(affi_nonzerop,seclass_default,1,0,norest,nokey,0,NIL)
 };
 
 subr_initdata_t module__affi__subr_tab_initdata[subr_anz] = {

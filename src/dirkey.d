@@ -157,28 +157,28 @@ local object registry_value_to_object (DWORD type, DWORD size,
 
 # (LDAP:DIR-KEY-TYPE dkey)
 # return the type of the key (:win32 or :gnome or :ldap)
-LISPFUNN(dir_key_type,1) {
+LISPFUNNR(dir_key_type,1) {
   var object dkey = test_dir_key(popSTACK(),false);
   VALUES1(TheDirKey(dkey)->type);
 }
 
 # (LDAP:DIR-KEY-PATH dkey)
 # return the path of the key (a string)
-LISPFUNN(dir_key_path,1) {
+LISPFUNNR(dir_key_path,1) {
   var object dkey = test_dir_key(popSTACK(),false);
   VALUES1(TheDirKey(dkey)->path);
 }
 
 # (LDAP:DIR-KEY-DIRECTION dkey)
 # return the direction of this key - :input :output or :io
-LISPFUNN(dir_key_direction,1) {
+LISPFUNNR(dir_key_direction,1) {
   var object dkey = test_dir_key(popSTACK(),true);
   VALUES1(TheDirKey(dkey)->direction);
 }
 
 # (LDAP:DIR-KEY-OPEN-P dkey)
 # return T if the key is open
-LISPFUNN(dir_key_open_p,1) {
+LISPFUNNR(dir_key_open_p,1) {
   var object dkey = test_dir_key(popSTACK(),false);
   VALUES_IF(!TheDirKey(dkey)->closed_p);
 }
@@ -348,7 +348,8 @@ nonreturning_function(local, fehler_ldap,
 # KEY can be either a DIR-KEY or a (MEMBER :win32 :gnome :ldap),
 # in which case PATH must be absolute.
 # :direction and :if-does-not-exist has the same meaning as for OPEN.
-LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist))) {
+LISPFUN(dir_key_open,seclass_default,2,0,norest,key,2,
+        (kw(direction),kw(if_does_not_exist))) {
   var object if_not_exists_arg = STACK_0;
   var object direction_arg = STACK_1;
   var object path = STACK_2;
@@ -785,7 +786,7 @@ LISPFUNN(dkey_search_next_att,1) {
 # KEY must be an open DIR-KEY, NAME - a string
 # if the name does not exists, return the DEFAULT (or signal an error)
 # setf-able
-LISPFUN(dir_key_value,2,1,norest,nokey,0,NIL) {
+LISPFUN(dir_key_value,seclass_default,2,1,norest,nokey,0,NIL) {
   var object default_value = popSTACK();
   var object name = popSTACK();
   var object dkey = test_dir_key(popSTACK(),true);

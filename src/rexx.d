@@ -72,7 +72,7 @@
 # Signalnummer, mit der wir auf Ereignisse an diesem Port warten können:
   local ULONG rexxPortBit = 0UL;
 
-LISPFUN(rexx_put,1,0,norest,key,5,
+LISPFUN(rexx_put,seclass_default,1,0,norest,key,5,
         (kw(result),kw(string),kw(token),kw(host),kw(io)) )
   { # Stackaufbau: string/array, resultp, stringp, tokenp, host, iop.
     # > string/array: String für Kommando inklusive Argumente oder
