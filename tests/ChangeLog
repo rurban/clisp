@@ -1,3 +1,7 @@
+2001-12-04  Sam Steingold  <sds@gnu.org>
+
+	* array.tst, strings.tst: added REVERSE & NREVERSE tests
+
 2001-11-28  Sam Steingold  <sds@gnu.org>
 
 	* path.tst (foo): :case in MAKE-PATHNAME
