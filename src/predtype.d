@@ -1281,8 +1281,10 @@ LISPFUNNF(complexp,1)
   VALUES_IF(complexp(STACK_0)); skipSTACK(1);
 }
 
-LISPFUNNF(streamp,1)
-{ /* (STREAMP object), CLTL p. 332 */
+/* (STREAMP object), CLTL p. 332 */
+/* Not seclass_foldable, because of Gray streams and CHANGE-CLASS. */
+LISPFUNNR(streamp,1)
+{
   VALUES_IF(streamp(STACK_0)); skipSTACK(1);
 }
 
