@@ -1,5 +1,10 @@
 2002-11-02  Sam Steingold  <sds@gnu.org>
 
+	* package.d (unintern): do not put the same symbol into the
+	options list twice
+
+2002-11-02  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (directory_search_scandir): when returning from
 	inside with_sstring_0, call FREE_DYNAMIC_ARRAY
 

@@ -939,8 +939,14 @@ local object unintern (const object* sym_, const object* pack_) {
         STACK_0 = Cdr(STACK_0);
         /* search inherited symbol of the same name: */
         if (package_lookup_ext(Symbol_name(*sym_),pack,&othersym)) {
+          /* check that othersym is not in the option-list yet */
+          var object temp = STACK_1;
+          while (mconsp(temp)) {
+            if (eq(Car(Cdr(Cdr(Car(temp)))),othersym))
+              goto next_package;
+            temp = Cdr(temp);
+          }
           /* othersym is a symbol of the same name, inherited from pack */
-          var object temp;
           pushSTACK(temp=ThePackage(pack)->pack_name); /* name of pack */
           pushSTACK(othersym); /* symbol */
           pushSTACK(NIL);
@@ -969,6 +975,7 @@ local object unintern (const object* sym_, const object* pack_) {
           Car(temp) = popSTACK(); Cdr(temp) = STACK_1;
           STACK_1 = temp;
         }
+       next_package:;
       }
       skipSTACK(1);
       /* option-list build-up finished. */
