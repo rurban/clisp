@@ -43,18 +43,21 @@
 
 (defmacro defclass (name superclass-specs slot-specs &rest options)
   (unless (symbolp name)
-    (error-of-type 'sys::source-program-error
+    (error-of-type 'ext:source-program-error
+      :form name
       (TEXT "~S: class name ~S should be a symbol")
       'defclass name))
   (let* ((superclass-forms
            (progn
              (unless (listp superclass-specs)
-               (error-of-type 'sys::source-program-error
+               (error-of-type 'ext:source-program-error
+                 :form superclass-specs
                  (TEXT "~S ~S: expecting list of superclasses instead of ~S")
                  'defclass name superclass-specs))
              (mapcar #'(lambda (superclass)
                          (unless (symbolp superclass)
-                           (error-of-type 'sys::source-program-error
+                           (error-of-type 'ext:source-program-error
+                             :form superclass
                              (TEXT "~S ~S: superclass name ~S should be a symbol")
                              'defclass name superclass))
                          `',superclass)
@@ -65,7 +68,8 @@
          (slot-forms
            (let ((slot-names '()))
              (unless (listp slot-specs)
-               (error-of-type 'sys::source-program-error
+               (error-of-type 'ext:source-program-error
+                 :form slot-specs
                  (TEXT "~S ~S: expecting list of slot specifications instead of ~S")
                  'defclass name slot-specs))
              (mapcar #'(lambda (slot-spec)
@@ -74,11 +78,13 @@
                              (setq slot-name (car slot-spec)
                                    slot-options (cdr slot-spec)))
                            (unless (symbolp slot-name)
-                             (error-of-type 'sys::source-program-error
+                             (error-of-type 'ext:source-program-error
+                               :form slot-name
                                (TEXT "~S ~S: slot name ~S should be a symbol")
                                'defclass name slot-name))
                            (if (memq slot-name slot-names)
-                             (error-of-type 'sys::source-program-error
+                             (error-of-type 'ext:source-program-error
+                               :form slot-name
                                (TEXT "~S ~S: There may be only one direct slot with the name ~S.")
                                'defclass name slot-name)
                              (push slot-name slot-names))
@@ -90,7 +96,8 @@
                                  (types '())
                                  (documentation nil))
                              (when (oddp (length slot-options))
-                               (error-of-type 'sys::source-program-error
+                               (error-of-type 'ext:source-program-error
+                                 :form slot-options
                                  (TEXT "~S ~S: slot options for slot ~S must come in pairs")
                                  'defclass name slot-name))
                              (do ((optionsr slot-options (cddr optionsr)))
@@ -100,7 +107,8 @@
                                  (case optionkey
                                    ((:READER :WRITER)
                                     (unless (function-name-p argument)
-                                      (error-of-type 'sys::source-program-error
+                                      (error-of-type 'ext:source-program-error
+                                        :form argument
                                         (TEXT "~S ~S, slot option for slot ~S: ~S is not a function name")
                                         'defclass name slot-name argument))
                                     (case optionkey
@@ -108,52 +116,61 @@
                                       (:WRITER (push argument writers))))
                                    (:ACCESSOR
                                     (unless (symbolp argument)
-                                      (error-of-type 'sys::source-program-error
+                                      (error-of-type 'ext:source-program-error
+                                        :form argument
                                         (TEXT "~S ~S, slot option for slot ~S: ~S is not a symbol")
                                         'defclass name slot-name argument))
                                     (push argument readers)
                                     (push `(SETF ,argument) writers))
                                    (:ALLOCATION
                                     (when allocation
-                                      (error-of-type 'sys::source-program-error
+                                      (error-of-type 'ext:source-program-error
+                                        :form argument
                                         (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
                                         'defclass name ':allocation slot-name))
                                     (case argument
                                       ((:INSTANCE :CLASS) (setq allocation argument))
-                                      (t (error-of-type 'sys::source-program-error
+                                      (t (error-of-type 'ext:source-program-error
+                                           :form argument
                                            (TEXT "~S ~S, slot option for slot ~S must have the value ~S or ~S, not ~S")
                                            'defclass name slot-name ':instance ':class argument))))
                                    (:INITARG
                                     (unless (symbolp argument)
-                                      (error-of-type 'sys::source-program-error
+                                      (error-of-type 'ext:source-program-error
+                                        :form argument
                                         (TEXT "~S ~S, slot option for slot ~S: ~S is not a symbol")
                                         'defclass name slot-name argument))
                                     (push argument initargs))
                                    (:INITFORM
                                     (when initform
-                                      (error-of-type 'sys::source-program-error
+                                      (error-of-type 'ext:source-program-error
+                                        :form argument
                                         (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
                                         'defclass name ':initform slot-name))
                                     (setq initform `(QUOTE ,argument)
                                           initfunction (make-initfunction-form argument slot-name)))
                                    (:TYPE
                                     (when types
-                                      (error-of-type 'sys::source-program-error
+                                      (error-of-type 'ext:source-program-error
+                                        :form argument
                                         (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
                                         'defclass name ':type slot-name))
                                     (setq types (list argument)))
                                    (:DOCUMENTATION
                                     (when documentation
-                                      (error-of-type 'sys::source-program-error
+                                      (error-of-type 'ext:source-program-error
+                                        :form argument
                                         (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
                                         'defclass name ':documentation slot-name))
                                     (unless (stringp argument)
-                                      (error-of-type 'sys::source-program-error
+                                      (error-of-type 'ext:source-program-error
+                                        :form argument
                                         (TEXT "~S ~S, slot option for slot ~S: ~S is not a string")
                                         'defclass name slot-name argument))
                                     (setq documentation argument))
                                    (t
-                                     (error-of-type 'sys::source-program-error
+                                     (error-of-type 'ext:source-program-error
+                                       :form optionkey
                                        (TEXT "~S ~S, slot option for slot ~S: ~S is not a valid slot option")
                                        'defclass name slot-name optionkey)))))
                              (setq readers (nreverse readers))
@@ -201,7 +218,8 @@
                                (:METACLASS metaclass)
                                (:DEFAULT-INITARGS direct-default-initargs)
                                (:DOCUMENTATION documentation))
-                         (error-of-type 'sys::source-program-error
+                         (error-of-type 'ext:source-program-error
+                           :form (second option)
                            (TEXT "~S ~S, option ~S may only be given once")
                            'defclass name optionkey))
                        (case optionkey
@@ -209,7 +227,8 @@
                           (when (eql (length option) 2)
                             (let ((argument (second option)))
                               (unless (symbolp argument)
-                                (error-of-type 'sys::source-program-error
+                                (error-of-type 'ext:source-program-error
+                                  :form argument
                                   (TEXT "~S ~S, option ~S: ~S is not a symbol")
                                   'defclass name option argument))
                               (setq metaclass `(:METACLASS (FIND-CLASS ',argument))))
@@ -221,7 +240,8 @@
                               (warn (TEXT "~S ~S: option ~S should be written ~S")
                                     'defclass name option (cons ':DEFAULT-INITARGS list)))
                             (when (oddp (length list))
-                              (error-of-type 'sys::source-program-error
+                              (error-of-type 'ext:source-program-error
+                                :form list
                                 (TEXT "~S ~S, option ~S: arguments must come in pairs")
                                 'defclass name option))
                             (setq direct-default-initargs
@@ -231,11 +251,13 @@
                                          (do ((list list (cddr list)))
                                              ((atom list))
                                            (unless (symbolp (first list))
-                                             (error-of-type 'sys::source-program-error
+                                             (error-of-type 'ext:source-program-error
+                                               :form (first list)
                                                (TEXT "~S ~S, option ~S: ~S is not a symbol")
                                                'defclass name option (first list)))
                                            (when (member (first list) arglist)
-                                             (error-of-type 'sys::source-program-error
+                                             (error-of-type 'ext:source-program-error
+                                               :form (second list)
                                                (TEXT "~S ~S, option ~S: ~S may only be given once")
                                                'defclass name option (first list)))
                                            (push (first list) arglist)
@@ -248,7 +270,8 @@
                           (when (eql (length option) 2)
                             (let ((argument (second option)))
                               (unless (stringp argument)
-                                (error-of-type 'sys::source-program-error
+                                (error-of-type 'ext:source-program-error
+                                  :form argument
                                   (TEXT "~S ~S, option ~S: ~S is not a string")
                                   'defclass name option argument))
                               (setq documentation
@@ -262,7 +285,8 @@
                          (:FIXED-SLOT-LOCATIONS
                           (setq fixed-slot-locations `(:FIXED-SLOT-LOCATIONS 'T))
                           (return)))))
-                   (error-of-type 'sys::source-program-error
+                   (error-of-type 'ext:source-program-error
+                     :form option
                      (TEXT "~S ~S: invalid option ~S")
                      'defclass name option)))
                `(,@metaclass
@@ -1559,7 +1583,8 @@
         ;; of BUILT-IN-CLASS and STRUCTURE-CLASS are already finalized when
         ;; they are constructed.
         (when (memq class finalizing-now)
-          (error-of-type 'sys::source-program-error
+          (error-of-type 'ext:source-program-error
+            :form class
             (TEXT "~S: class definition circularity: ~S depends on itself")
             'defclass class))
         (let ((finalizing-now (cons class finalizing-now)))

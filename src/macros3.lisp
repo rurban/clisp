@@ -59,6 +59,7 @@
   (if (atom bindlist)
     (if bindlist
       (error-of-type 'source-program-error
+        :form bindlist
         (TEXT "LETF* code contains a dotted list, ending with ~S")
         bindlist
       )
@@ -78,6 +79,7 @@
                 (return)
           ) ) )
           (error-of-type 'source-program-error
+            :form bind
             (TEXT "illegal syntax in LETF* binding: ~S")
             bind
       ) ) )
@@ -221,6 +223,7 @@
   (if (atom bindlist)
     (if bindlist
       (error-of-type 'source-program-error
+        :form bindlist
         (TEXT "LETF code contains a dotted list, ending with ~S")
         bindlist
       )
@@ -240,6 +243,7 @@
                 (return)
           ) ) )
           (error-of-type 'source-program-error
+            :form bind
             (TEXT "illegal syntax in LETF binding: ~S")
             bind
       ) ) )

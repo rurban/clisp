@@ -7,13 +7,15 @@
 (macrolet ((push (element-form list-var)
              `(setq ,list-var (cons ,element-form ,list-var)))
            (err-misplaced (item)
-             `(funcall errfunc (TEXT "Lambda list marker ~S not allowed here.")
-                               ,item))
+             `(funcall errfunc ,item
+                       (TEXT "Lambda list marker ~S not allowed here.")
+                       ,item))
            (err-invalid (item)
-             `(funcall errfunc (if (or (symbolp ,item) (listp ,item))
-                                 (TEXT "Invalid lambda list element ~S")
-                                 (TEXT "Invalid lambda list element ~S. A lambda list may only contain symbols and lists."))
-                               ,item))
+             `(funcall errfunc ,item
+                       (if (or (symbolp ,item) (listp ,item))
+                           (TEXT "Invalid lambda list element ~S")
+                           (TEXT "Invalid lambda list element ~S. A lambda list may only contain symbols and lists."))
+                       ,item))
            (check-item (item permissible)
              `(if (memq ,item ,permissible)
                 (return)
@@ -24,12 +26,13 @@
                 (let ((item (car L)))
                   (if (memq item lambda-list-keywords)
                     (check-item item ,items)
-                    (funcall errfunc ,(case lastseen
-                                        (&REST '(TEXT "Lambda list element ~S is superfluous. Only one variable is allowed after &REST."))
-                                        (&ALLOW-OTHER-KEYS '(TEXT "Lambda list element ~S is superfluous. No variable is allowed right after &ALLOW-OTHER-KEYS."))
-                                        (&ENVIRONMENT '(TEXT "Lambda list element ~S is superfluous. Only one variable is allowed after &ENVIRONMENT."))
-                                        (t '(TEXT "Lambda list element ~S is superfluous.")))
-                                     item)))
+                    (funcall errfunc item
+                             ,(case lastseen
+                                (&REST '(TEXT "Lambda list element ~S is superfluous. Only one variable is allowed after &REST."))
+                                (&ALLOW-OTHER-KEYS '(TEXT "Lambda list element ~S is superfluous. No variable is allowed right after &ALLOW-OTHER-KEYS."))
+                                (&ENVIRONMENT '(TEXT "Lambda list element ~S is superfluous. Only one variable is allowed after &ENVIRONMENT."))
+                                (t '(TEXT "Lambda list element ~S is superfluous.")))
+                             item)))
                 (setq L (cdr L)))))
 
 ;;; Analyzes a lambda-list of a function (CLtL2 p. 76, ANSI CL 3.4.1.).
@@ -109,8 +112,8 @@
       (when (and (consp L) (eq (car L) '&rest))
         (setq L (cdr L))
         (macrolet ((err-norest ()
-                     `(funcall errfunc (TEXT "Missing &REST parameter in lambda list ~S")
-                                       lambdalist)))
+                     `(funcall errfunc lambdalist (TEXT "Missing &REST parameter in lambda list ~S")
+                               lambdalist)))
           (if (atom L)
             (err-norest)
             (prog ((item (car L)))
@@ -194,8 +197,8 @@
           (setq L (cdr L))))
       ;; Now (atom L).
       (if L
-        (funcall errfunc (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
-                         lambdalist))
+        (funcall errfunc lambdalist (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
+                 lambdalist))
       (values
         (nreverse reqvar)
         (nreverse optvar) (nreverse optinit) (nreverse optsvar)
@@ -216,7 +219,7 @@
 ;; 5. list of keywords
 ;; 6. list of keyword parameters
 ;; 7. flag, if other keywords are allowed
-(defun analyze-generic-function-lambdalist (lambdalist errfunc)
+  (defun analyze-generic-function-lambdalist (lambdalist errfunc)
     (let ((L lambdalist) ; rest of the lambda-list
           (reqvar nil)
           (optvar nil)
@@ -236,7 +239,7 @@
               ;; Need to check for duplicates here because otherwise the
               ;; :arguments-precedence-order makes no sense.
               (if (memq item reqvar)
-                (funcall errfunc (TEXT "Duplicate variable name ~S") item)
+                (funcall errfunc item (TEXT "Duplicate variable name ~S") item)
                 (push item reqvar)))
             (err-invalid item)))
         (setq L (cdr L)))
@@ -254,8 +257,8 @@
               (if (and (consp item) (symbolp (car item)))
                 (if (null (cdr item))
                   (push (car item) optvar)
-                  (funcall errfunc (TEXT "Invalid lambda list element ~S. Optional parameters cannot have default value forms in generic function lambda lists.")
-                                   item))
+                  (funcall errfunc item (TEXT "Invalid lambda list element ~S. Optional parameters cannot have default value forms in generic function lambda lists.")
+                           item))
                 (err-invalid item))))
           (setq L (cdr L))))
       ;; Now (or (atom L) (member (car L) '(&rest &key))).
@@ -263,8 +266,8 @@
       (when (and (consp L) (eq (car L) '&rest))
         (setq L (cdr L))
         (macrolet ((err-norest ()
-                     `(funcall errfunc (TEXT "Missing &REST parameter in lambda list ~S")
-                                       lambdalist)))
+                     `(funcall errfunc lambdalist (TEXT "Missing &REST parameter in lambda list ~S")
+                               lambdalist)))
           (if (atom L)
             (err-norest)
             (prog ((item (car L)))
@@ -306,8 +309,8 @@
                       (push (intern (symbol-name (car item)) *keyword-package*)
                             keyword)
                       (push (car item) keyvar)))
-                  (funcall errfunc (TEXT "Invalid lambda list element ~S. Keyword parameters cannot have default value forms in generic function lambda lists.")
-                                   item))
+                  (funcall errfunc item (TEXT "Invalid lambda list element ~S. Keyword parameters cannot have default value forms in generic function lambda lists.")
+                           item))
                 (err-invalid item))))
           (setq L (cdr L)))
         ;; Now (or (atom L) (member (car L) '(&allow-other-keys))).
@@ -318,8 +321,8 @@
           (skip-L &allow-other-keys '())))
       ;; Now (atom L).
       (if L
-        (funcall errfunc (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
-                         lambdalist))
+        (funcall errfunc lambdalist (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
+                 lambdalist))
       (values
         (nreverse reqvar)
         (nreverse optvar)
@@ -403,8 +406,8 @@
       (when (and (consp L) (eq (car L) '&rest))
         (setq L (cdr L))
         (macrolet ((err-norest ()
-                     `(funcall errfunc (TEXT "Missing &REST parameter in lambda list ~S")
-                                       lambdalist)))
+                     `(funcall errfunc lambdalist (TEXT "Missing &REST parameter in lambda list ~S")
+                               lambdalist)))
           (if (atom L)
             (err-norest)
             (prog ((item (car L)))
@@ -472,8 +475,8 @@
       (when (and (consp L) (eq (car L) '&environment))
         (setq L (cdr L))
         (macrolet ((err-noenvironment ()
-                     `(funcall errfunc (TEXT "Missing &ENVIRONMENT parameter in lambda list ~S")
-                                       lambdalist)))
+                     `(funcall errfunc lambdalist (TEXT "Missing &ENVIRONMENT parameter in lambda list ~S")
+                               lambdalist)))
           (if (atom L)
             (err-noenvironment)
             (prog ((item (car L)))
@@ -487,8 +490,8 @@
         (skip-L &environment '()))
       ;; Now (atom L).
       (if L
-        (funcall errfunc (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
-                         lambdalist))
+        (funcall errfunc lambdalist (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
+                 lambdalist))
       (values
         (nreverse reqvar)
         (nreverse optvar) (nreverse optinit) (nreverse optsvar)
@@ -559,8 +562,8 @@
       (when (and (consp L) (eq (car L) '&rest))
         (setq L (cdr L))
         (macrolet ((err-norest ()
-                     `(funcall errfunc (TEXT "Missing &REST parameter in lambda list ~S")
-                                       lambdalist)))
+                     `(funcall errfunc lambdalist (TEXT "Missing &REST parameter in lambda list ~S")
+                               lambdalist)))
           (if (atom L)
             (err-norest)
             (prog ((item (car L)))
@@ -574,8 +577,8 @@
         (skip-L &rest '()))
       ;; Now (atom L).
       (if L
-        (funcall errfunc (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
-                         lambdalist))
+        (funcall errfunc lambdalist (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
+                 lambdalist))
       (values
         (nreverse reqvar)
         (nreverse optvar) (nreverse optinit) (nreverse optsvar)
@@ -607,8 +610,8 @@
       (when (and (consp L) (eq (car L) '&whole))
         (setq L (cdr L))
         (macrolet ((err-nowhole ()
-                     `(funcall errfunc (TEXT "Missing &WHOLE parameter in lambda list ~S")
-                                       lambdalist)))
+                     `(funcall errfunc lambdalist (TEXT "Missing &WHOLE parameter in lambda list ~S")
+                               lambdalist)))
           (if (atom L)
             (err-nowhole)
             (prog ((item (car L)))

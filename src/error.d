@@ -298,6 +298,11 @@ local void end_error (gcv_object_t* stackptr, bool start_driver_p) {
         pushSTACK(S(Kpathname)); pushSTACK(BEFORE(stackptr)); /* :pathname ... */
         argcount += 2;
       }
+      /* source-program-error --> complete :form */
+      if (eq(type,S(simple_source_program_error))) {
+        pushSTACK(S(Kform)); pushSTACK(BEFORE(stackptr)); /* :form ... */
+        argcount += 2;
+      }
       funcall(S(coerce_to_condition),argcount); /* SYS::COERCE-TO-CONDITION */
       set_args_end_pointer(stackptr);
       if (start_driver_p)
@@ -863,8 +868,8 @@ global object check_symbol_non_constant_replacement (object obj, object caller)
     obj = check_symbol(obj);
     if (constantp(TheSymbol(obj))) {
       pushSTACK(NIL); /* no PLACE */
-      pushSTACK(obj);
-      pushSTACK(caller);
+      pushSTACK(obj); /* SOURCE-PROGRAM-ERROR slot FORM */
+      pushSTACK(obj); pushSTACK(caller);
       check_value(source_program_error,
                   GETTEXT("~S: ~S is a constant, may not be used as a variable"));
       obj = value1;
@@ -882,6 +887,7 @@ global object check_symbol_special (object obj, object caller)
   while (!symbolp(obj)) {
     pushSTACK(caller);
     pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj); /* SOURCE-PROGRAM-ERROR slot FORM */
     pushSTACK(S(special)); pushSTACK(obj); pushSTACK(caller);
     check_value(source_program_error,
                 GETTEXT("~S: ~S is not a symbol, cannot be declared ~S"));
@@ -1317,7 +1323,9 @@ global object check_funname_replacement (condition_t errtype, object caller, obj
         pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
         pushSTACK(O(type_designator_function)); /* slot EXPECTED-TYPE */
         break;
-      case source_program_error: break;
+      case source_program_error:
+        pushSTACK(obj);         /* SOURCE-PROGRAM-ERROR slot FORM */
+        break;
       default: NOTREACHED;
     }
     pushSTACK(obj); pushSTACK(caller);
