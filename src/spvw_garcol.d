@@ -1598,7 +1598,7 @@ local void gc_unmarkcheck (void) {
                                            heap->heap_gen0_start);
                 gc_sweep1_varobject_page(heapnr,
                                          heap->heap_gen1_start,heap->heap_end,
-                                         (gcv_object_t*)gen0_end,
+                                         (gcv_object_t*)heap->heap_gen0_end,
                                          tmp);
               } else {
                 # no gap
