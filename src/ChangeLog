@@ -1,3 +1,10 @@
+1999-06-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * describe.lsp (describe-slotted-object, describe-object, describe,
+           describe-signature): Fix amount of indentation white space.
+          (describe): Bind *describe-nesting* instead of setting it. This
+          ensures it goes back to 0 after describe signalled an error.
+
 1999-06-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * io.d (READ-CHAR-STATUS): Remove function.
