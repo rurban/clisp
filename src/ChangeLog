@@ -1,5 +1,13 @@
 2004-08-07  Bruno Haible  <bruno@clisp.org>
 
+	For invalid condition designators, signal a TYPE-ERROR.
+	* condition.lisp (try-coerce-to-condition): Renamed from
+	coerce-to-condition.
+	(valid-condition-designator-p): New function.
+	(coerce-to-condition): New function.
+
+2004-08-07  Bruno Haible  <bruno@clisp.org>
+
 	* package.d (apply_symbols): Interpret an argument of nil as an empty
 	list, not as a single symbol.
 	* defpackage.lisp (shadowing-import-cerror, import-cerror): Handle

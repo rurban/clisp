@@ -141,6 +141,8 @@ User visible changes
   + SETF of VALUES now uses only the first value of each subform.
   + (EXPORT NIL), (UNEXPORT NIL), (IMPORT NIL), (SHADOWING-IMPORT NIL),
     (SHADOW NIL) are now nops.
+  + An attempt to create a condition from an invalid condition designator now
+    always results in a TYPE-ERROR being signalled.
   Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance
   suite, which helped detect some of these deficiencies.
   Thanks to Yuji Minejima <ggb01164@nifty.ne.jp> and his ANSI compliance
