@@ -1,3 +1,16 @@
+2003-01-16  Sam Steingold  <sds@gnu.org>
+
+	do not bind slot names (which may be special variables) in keyword
+	constructors
+	* defstruct.lisp: DS-SLOT vector now has a new slot - VAR
+	(make-ds-slot): init VAR
+	(ds-slot-var): new function
+	(ds-make-constructor-body): accept a GET-VAR argument
+	(ds-make-boa-constructor): pass #'DS-SLOT-NAME to
+	ds-make-constructor-body
+	(ds-make-keyword-constructor): pass #'DS-SLOT-VAR to
+	ds-make-constructor-body
+
 2003-01-14  Stefan Kain  <stefan.kain@freenet.de>
 
 	* defstruct.lisp: translated all comments

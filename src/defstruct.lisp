@@ -26,7 +26,7 @@
 
    slotlist is a packed description of the slots of a structure:
    slotlist = ({slot}*)
-   slot = #(name initargs offset initer default type readonly)
+   slot = #(name initargs offset initer default type readonly var)
    with name being the slotname,
               (NIL for the slot, that contains the structure-name)
          default is the default value:
@@ -44,8 +44,9 @@
 |#
 
 (defun make-ds-slot (name initargs offset initer default type readonly)
-  (vector name initargs offset initer default type readonly))
-(proclaim '(inline ds-slot-name))
+  (vector name initargs offset initer default type readonly
+          (and name (make-symbol (symbol-name name)))))
+(proclaim '(inline ds-slot-name ds-slot-var))
 (defun ds-slot-name (slot) (svref slot 0))
 ;(defun ds-slot-initargs (slot) (svref slot 1)) ; only used in clos.lisp
 (defmacro ds-slot-offset (slot) `(svref ,slot 2))
@@ -53,6 +54,7 @@
 (defmacro ds-slot-default (slot) `(svref ,slot 4))
 (defmacro ds-slot-type (slot) `(svref ,slot 5))
 (defmacro ds-slot-readonly (slot) `(svref ,slot 6))
+(defun ds-slot-var (slot) (svref slot 7))
 (defun copy-ds-slot (slot) (sys::%copy-simple-vector slot))
 
 #| auxiliary function for both constructors:
@@ -69,11 +71,11 @@
         `(,arg (FUNCALL ,default)))))
 
 #| auxiliary function for both constructors:
-   (ds-make-constructor-body type name names size slotlist)
+   (ds-make-constructor-body type name names size slotlist get-var)
    returns the expression, that creates and fills a structure
    of given type.
 |#
-(defun ds-make-constructor-body (type name names size slotlist)
+(defun ds-make-constructor-body (type name names size slotlist get-var)
   (if (and (or (eq type 'VECTOR) (eq type 'LIST))
            (do ((slotlistr slotlist (cdr slotlistr))
                 (index 0 (1+ index)))
@@ -83,7 +85,7 @@
     ;; optimize the simple case
     `(,type ,@(mapcar #'(lambda (slot)
                           (if (ds-slot-name slot)
-                            `(THE ,(ds-slot-type slot) ,(ds-slot-name slot))
+                            `(THE ,(ds-slot-type slot) ,(funcall get-var slot))
                             `(QUOTE ,(ds-slot-default slot))))
                        slotlist))
     `(LET ((OBJECT
@@ -103,7 +105,7 @@
                         `(SVREF OBJECT ,offset) )
                        (t `(AREF OBJECT ,offset) ))
                 ,(if (ds-slot-name slot)
-                   `(THE ,(ds-slot-type slot) ,(ds-slot-name slot))
+                   `(THE ,(ds-slot-type slot) ,(funcall get-var slot))
                    `(QUOTE ,(ds-slot-default slot)))))
            slotlist)
        OBJECT)))
@@ -200,7 +202,8 @@
                               slotinitlist))))
                   (nreverse slotinitlist)))))
       `(DEFUN ,constructorname ,new-arglist
-         ,(ds-make-constructor-body type name names size slotlist)))))
+         ,(ds-make-constructor-body type name names size slotlist
+                                    #'ds-slot-name)))))
 
 #| (ds-make-keyword-constructor descriptor type name names size slotlist)
    returns the form, that defines the keyword-constructor. |#
@@ -210,10 +213,10 @@
       ,@(mapcap
           #'(lambda (slot)
               (if (ds-slot-name slot)
-                (list (ds-arg-default (ds-slot-name slot) slot))
+                (list (ds-arg-default (ds-slot-var slot) slot))
                 '()))
           slotlist))
-     ,(ds-make-constructor-body type name names size slotlist)))
+     ,(ds-make-constructor-body type name names size slotlist #'ds-slot-var)))
 
 #| (ds-make-pred predname type name name-offset)
    returns the form, that creates the type-test-predicate for
@@ -463,9 +466,9 @@
     (when (eq conc-name-option 'T)
       (setq conc-name-option (string-concat (string name) "-")))
     ;; conc-name-option is the name prefix.
-    (if (null constructor-option-list)
-      (setq constructor-option-list (list (concat-pnames "MAKE-" name)))
-      (setq constructor-option-list (remove 'NIL constructor-option-list)))
+    (if constructor-option-list
+      (setq constructor-option-list (remove 'NIL constructor-option-list))
+      (setq constructor-option-list (list (concat-pnames "MAKE-" name))))
     ;; constructor-option-list is a list of all constructors that have to be
     ;; created, each in the form  symbol  or  (symbol arglist . ...).
     (if (eq copier-option 'T)
@@ -618,7 +621,7 @@
                         'SYMBOL ; type = symbol
                         T) ; read-only
           slotlist)
-        (setq initial-offset (1+ initial-offset))))
+        (incf initial-offset)))
     ;; the slots are situated behind initial-offset.
     ;; If type/=T (i.e vector or list) and named-option, the name is situated
     ;;   in Slot number  initial-offset-option = (1- initial-offset).
