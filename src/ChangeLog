@@ -1,3 +1,12 @@
+2004-08-31  Bruno Haible  <bruno@clisp.org>
+
+	Remove support for MiNT.
+	* lispbibl.d (UNIX_MINT): Remove macro.
+	* pathname.d (realpath): Remove MiNT support.
+	* stream.d (clear_tty_input): Assume FREAD is defined when TIOCFLUSH is
+	defined.
+	(clear_tty_output): Assume FWRITE is defined when TIOCFLUSH is defined.
+
 2004-08-30  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (program_name): Change type to 'const char *'.

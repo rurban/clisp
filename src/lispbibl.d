@@ -301,9 +301,6 @@
   #ifdef AMIX
     #define UNIX_AMIX  # Amiga UNIX
   #endif
-  #ifdef __MINT__
-    #define UNIX_MINT  # MiNT (UNIXlike on Atari)
-  #endif
   #ifdef __CYGWIN32__
     #define UNIX_CYGWIN32  # Cygwin32 (UNIXlike on WinNT/Win95)
   #endif
@@ -8170,7 +8167,7 @@ typedef const struct backtrace_t* p_backtrace_t;
   #define end_arith_call()
 #endif
 
-#if (defined(UNIX) && !defined(UNIX_MINT)) || defined(WIN32)
+#if defined(UNIX) || defined(WIN32)
   # Under Unix the memory space for the SP is provided by the OS,
   # thus no malloc() has to be done.
   # The same holds for EMX (except for RSXW32 with its Mini-60KB-stack).
