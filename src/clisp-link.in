@@ -114,7 +114,6 @@ case "$1" in
     modulename=`echo "$moduledir" | sed -e 's,^.*/,,'`
     files_c=''
     files_o=''
-    wfiles_o=''
     for file in $files; do
       file=`echo "$file" | sed -e 's,\.c$,,'`.c
       filename=`echo "$file" | sed -e 's,^.*/,,'`
@@ -128,12 +127,10 @@ case "$1" in
       ln -s "$relative_file" "$moduledir"/"$filename" || ln "$file" "$moduledir"/"$filename"
       files_c="$files_c"' '"$filename"
       files_o="$files_o"' '`echo "$filename" | sed -e 's,\.c$,,'`.o
-      wfiles_o="$wfiles_o"' 'w`echo "$filename" | sed -e 's,\.c$,,'`.o
     done
     if false; then
       # No Makefile
       (echo "file_list=''"
-       echo "wfile_list=''"
        for fc in $files_c; do
          fo=`echo "$fc" | sed -e 's,\.c$,,'`.o
          echo 'if test -r '"$fc"'; then'
@@ -169,7 +166,6 @@ case "$1" in
        echo
       ) > "$moduledir"/Makefile
       (echo "file_list=''"
-       echo "wfile_list=''"
        echo "mod_list=''"
        for fc in $files_c; do
          fo=`echo "$fc" | sed -e 's,\.c$,,'`.o
@@ -177,7 +173,6 @@ case "$1" in
          # The last sed command must agree with foreign1.lsp:to-module-name.
          echo 'if test -r '"$fc"'; then'
          echo '  file_list="$file_list"'"' $fo'"
-         echo '  wfile_list="$wfile_list"'"' w$fo'"
          echo '  mod_list="$mod_list"'"' $mod'"
          echo 'fi'
        done
