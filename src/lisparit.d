@@ -977,13 +977,12 @@ LISPFUN(lcm,0,0,rest,nokey,0,NIL)
     set_args_end_pointer(rest_args_pointer);
   }
 
-LISPFUNN(exp,1)
 # (EXP number), CLTL S. 203
-  {
-    var object x = popSTACK();
-    check_number(x);
-    VALUES1(N_exp_N(x));
-  }
+LISPFUNN(exp,1) {
+  check_number(STACK_0);
+  VALUES1(N_exp_N(STACK_0,true,&STACK_0));
+  skipSTACK(1);
+}
 
 LISPFUNN(expt,2)
 # (EXPT number number), CLTL S. 203
@@ -997,17 +996,19 @@ LISPFUNN(expt,2)
 LISPFUN(log,1,1,norest,nokey,0,NIL)
 # (LOG number [base-number]), CLTL S. 204
   {
-    var object base = popSTACK();
-    var object arg = popSTACK();
+    var object base = STACK_0;
+    var object arg = STACK_1;
     check_number(arg);
     if (!boundp(base)) {
       # LOG mit einem Argument
-      VALUES1(N_log_N(arg));
+      value1 = N_log_N(arg,true,&STACK_1);
+      VALUES1(N_log_N(arg,true,&STACK_1));
     } else {
       # LOG mit zwei Argumenten
       check_number(base);
       VALUES1(N_N_log_N(arg,base));
     }
+    skipSTACK(2);
   }
 
 LISPFUNN(sqrt,1)
@@ -2066,7 +2067,7 @@ LISPFUNN(set_long_float_digits,1)
         # > 1 wachsen lassen, damit es nicht zu häufig nachberechnet wird:
         oldlen += floor(oldlen,2); # oldlen * 3/2
         var uintC newlen = (d < oldlen ? oldlen : d);
-        ln_x = *objptr = R_ln_R(I_to_LF(x,newlen)); # (ln x) als LF mit newlen Digits berechnen
+        ln_x = *objptr = R_ln_R(I_to_LF(x,newlen),true,objptr); # (ln x) als LF mit newlen Digits berechnen
         return (d < newlen ? LF_shorten_LF(ln_x,d) : ln_x);
       } else {
         # ein Double-Float reicht
