@@ -1,3 +1,15 @@
+2004-03-04  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	Make syscalls module available on win95/98/me (dynamic DLL loading)
+	* modules/calls.c (CreateHardLinkFuncType, BackupWriteFuncType)
+	[WIN32_NATIVE]: new types.
+	(CreateHardLinkFunc, BackupWriteFunc, kernel32)	[WIN32_NATIVE]:
+	new static variables.
+	(OldHardLinkGuard, OldHardLink,	MkHardLink) [WIN32_NATIVE]: new
+	functions.
+	(module__syscalls__init_function_2): new function.
+	(POSIX:STREAM-LOCK): Use GetFileSize instead of GetFileSizeEx.
+
 2004-03-05  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (DEVPREFIX): needed on both "win32gcc" and "cygwin"
