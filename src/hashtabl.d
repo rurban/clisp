@@ -927,7 +927,7 @@ local bool hash_lookup (object ht, object obj, object** KVptr_,
     var object* KVptr = # pointer to entries in key-value-vector
       kvt_data + 2*index;
     var object key = KVptr[0];
-    if (eq(key,unbound)) { # weak HT - obsolete key and value
+    if (!boundp(key)) { /* weak HT - obsolete key and value */
       set_break_sem_2(); # protect from breaks
       TheHashtable(ht)->ht_freelist = *Iptr;
       *Iptr = *Nptr; # shorten "list"
@@ -1154,7 +1154,7 @@ LISPFUN(make_hash_table,0,0,norest,key,6,
   # check test-argument:
   {
     var object test = STACK_3;
-    if (eq(test,unbound))
+    if (!boundp(test))
       flags = bit(1); # EQL as Default
     else if (eq(test,S(eq)) || eq(test,L(eq)))
       flags = bit(0); # EQ
@@ -1176,7 +1176,7 @@ LISPFUN(make_hash_table,0,0,norest,key,6,
   # check size-argument:
   {
     var object size = STACK_2;
-    if (eq(size,unbound)) {
+    if (!boundp(size)) {
       STACK_2 = Fixnum_1; # 1 as default
     } else {
       if (!posfixnump(size)) {
@@ -1195,7 +1195,7 @@ LISPFUN(make_hash_table,0,0,norest,key,6,
   # size is now a fixnum >0.
   # check rehash-size:
   {
-    if (eq(STACK_1,unbound)) {
+    if (!boundp(STACK_1)) {
       # default-rehash-size = 1.5s0
       STACK_1 = make_SF(0,SF_exp_mid+1,(bit(SF_mant_len)*3)/2);
     } else {
@@ -1243,7 +1243,7 @@ LISPFUN(make_hash_table,0,0,norest,key,6,
   # check rehash-threshold: should be a float >=0, <=1
   {
     var object rehash_threshold = STACK_0;
-    if (!eq(rehash_threshold,unbound)) { # not specified -> OK
+    if (boundp(rehash_threshold)) { /* not specified -> OK */
       if (!floatp(rehash_threshold)) {
       fehler_rehash_threshold:
         # Argument already in STACK_0, TYPE-ERROR slot DATUM
@@ -1266,7 +1266,7 @@ LISPFUN(make_hash_table,0,0,norest,key,6,
   # the initial-contents are written, the table needs not be enlarged:
   {
     var object initial_contents = STACK_4;
-    if (!eq(initial_contents,unbound)) { # specified ?
+    if (boundp(initial_contents)) { /* specified ? */
       var uintL initial_length = llength(initial_contents); # length of the alist
       if (initial_length > posfixnum_to_L(STACK_2)) # > size ?
         STACK_2 = fixnum(initial_length); # yes -> enlarge size
@@ -1286,7 +1286,7 @@ LISPFUN(make_hash_table,0,0,norest,key,6,
   # stack-layout:
   #   weak, initial-contents, test, size, rehash-size, mincount-threshold
   # provide vectors etc., with size as MAXCOUNT: [STACK_5 == weak]
-  prepare_resize(STACK_2,STACK_0,!eq(STACK_5,NIL) && !eq(STACK_5,unbound));
+  prepare_resize(STACK_2,STACK_0,!missingp(STACK_5));
   var object ht = allocate_hash_table(); # new hash-tabelle
   # fill:
   TheHashtable(ht)->ht_kvtable = popSTACK(); # key-value-vector
@@ -1335,7 +1335,7 @@ LISPFUN(make_hash_table,0,0,norest,key,6,
     }
   }
   skipSTACK(1); # drop WEAK
-  value1 = ht; mv_count=1; # hash-table as value
+  VALUES1(ht); /* hash-table as value */
 }
 
 # UP: Searches an object in a hash-table.
@@ -1375,12 +1375,12 @@ LISPFUN(gethash,2,1,norest,nokey,0,NIL) {
   var object* Iptr;
   # search key STACK_2 in the hash-table:
   if (hash_lookup(ht,STACK_2,&KVptr,&Nptr,&Iptr)) { # found -> Value as value:
-    value1 = KVptr[1]; value2 = T; mv_count=2; # and T as the 2nd value
+    VALUES2(KVptr[1], T); /* and T as the 2nd value */
     skipSTACK(3);
   } else { # not found -> default or NIL as value
     var object def = popSTACK(); # default
-    value1 = (eq(def,unbound) ? NIL : def);
-    value2 = NIL; mv_count=2; # NIL as the 2nd value
+    VALUES2(!boundp(def) ? NIL : def,
+            NIL); /* NIL as the 2nd value */
     skipSTACK(2);
   }
 }
@@ -1395,12 +1395,12 @@ LISPFUNN(puthash,3) {
   var object* Iptr;
   # search key STACK_2 in the hash-table:
   if (hash_lookup(ht,STACK_2,&KVptr,&Nptr,&Iptr)) { # found -> replace value:
-    value1 = KVptr[1] = popSTACK(); mv_count=1; skipSTACK(2);
+    VALUES1(KVptr[1] = popSTACK()); skipSTACK(2);
   } else { # not found -> make new entry:
     var object freelist;
     hash_prepare_store(STACK_2);
     hash_store(STACK_2,STACK_0); # make entry
-    value1 = popSTACK(); mv_count=1; # value as value
+    VALUES1(popSTACK()); /* value as value */
     skipSTACK(2);
   }
 }
@@ -1470,9 +1470,9 @@ LISPFUNN(remhash,2) {
         maxcount = Fixnum_1; # turn 0 into 1
       resize(popSTACK(),maxcount); # shrink table
     }
-    value1 = T; mv_count=1; # T as value
+    VALUES1(T);
   } else { # not found
-    value1 = NIL; mv_count=1; # NIL as value
+    VALUES1(NIL);
   }
 }
 
@@ -1497,7 +1497,7 @@ LISPFUNN(maphash,2) {
     }
   }
   skipSTACK(2);
-  value1 = NIL; mv_count=1; # NIL as value
+  VALUES1(NIL);
 }
 
 # (CLRHASH hashtable), CLTL p. 285
@@ -1508,21 +1508,21 @@ LISPFUNN(clrhash,1) {
   # Shrink the hash-table when MINCOUNT > 0 :
   if (!eq(TheHashtable(ht)->ht_mincount,Fixnum_0))
     ht = resize(ht,Fixnum_1); # shrink to MAXCOUNT:=1 , so that MINCOUNT:=0
-  value1 = ht; mv_count=1; # hash-table as value
+  VALUES1(ht); /* hash-table as value */
 }
 
 # (HASH-TABLE-COUNT hashtable), CLTL p. 285, CLtL2 p. 439
 LISPFUNN(hash_table_count,1) {
   var object ht = popSTACK(); # hashtable-argument
   check_hashtable(ht);
-  value1 = TheHashtable(ht)->ht_count; mv_count=1; # fixnum COUNT as value
+  VALUES1(TheHashtable(ht)->ht_count); /* fixnum COUNT as value */
 }
 
 # (HASH-TABLE-REHASH-SIZE hashtable), CLtL2 p. 441, dpANS p. 18-7
 LISPFUNN(hash_table_rehash_size,1) {
   var object ht = popSTACK(); # hashtable-argument
   check_hashtable(ht);
-  value1 = TheHashtable(ht)->ht_rehash_size; mv_count=1; # short-float REHASH-SIZE as value
+  VALUES1(TheHashtable(ht)->ht_rehash_size); /* short-float REHASH-SIZE as value */
 }
 
 # (HASH-TABLE-REHASH-THRESHOLD hashtable), CLtL2 p. 441, dpANS p. 18-8
@@ -1531,14 +1531,14 @@ LISPFUNN(hash_table_rehash_threshold,1) {
   check_hashtable(ht);
   # As MAKE-HASH-TABLE ignores the :REHASH-THRESHOLD argument, the value
   # is irrelevant here and arbitrary.
-  value1 = make_SF(0,SF_exp_mid+0,(bit(SF_mant_len)/2)*3); mv_count=1; # 0.75s0 as value
+  VALUES1(make_SF(0,SF_exp_mid+0,(bit(SF_mant_len)/2)*3)); /* 0.75s0 as value */
 }
 
 # (HASH-TABLE-SIZE hashtable), CLtL2 p. 441, dpANS p. 18-9
 LISPFUNN(hash_table_size,1) {
   var object ht = popSTACK(); # hashtable-argument
   check_hashtable(ht);
-  value1 = TheHashtable(ht)->ht_maxcount; mv_count=1; # Fixnum MAXCOUNT
+  VALUES1(TheHashtable(ht)->ht_maxcount); /* Fixnum MAXCOUNT */
 }
 
 # (HASH-TABLE-TEST hashtable), CLtL2 p. 441, dpANS p. 18-9
@@ -1546,8 +1546,7 @@ LISPFUNN(hash_table_test,1) {
   var object ht = popSTACK(); # hashtable-argument
   check_hashtable(ht);
   var uintB flags = record_flags(TheHashtable(ht));
-  value1 = hashtable_test(flags);
-  mv_count=1; # symbol as value
+  VALUES1(hashtable_test(flags)); /* symbol as value */
 }
 
 # auxiliary functions for WITH-HASH-TABLE-ITERATOR, CLTL2 p. 439:
@@ -1566,7 +1565,7 @@ LISPFUNN(hash_table_iterator,1) {
   var object state = allocate_cons();
   Car(state) = popSTACK(); # key-value-vector as car
   Cdr(state) = maxcount; # maxcount as cdr
-  value1 = state; mv_count=1; # state as value
+  VALUES1(state); /* state as value */
 }
 
 LISPFUNN(hash_table_iterate,1) {
@@ -1580,21 +1579,21 @@ LISPFUNN(hash_table_iterate,1) {
       Cdr(state) = fixnum_inc(Cdr(state),-1); # decrement index
       var object* KVptr = kvtable_data(table) + 2*index-2;
       if (!eq(KVptr[0],leer)) { # Key /= "leer" ?
-        value2 = KVptr[0]; # key as the 2nd value
-        value3 = KVptr[1]; # value as the 3rd value
-        value1 = T; mv_count=3; return;
+        VALUES3(T,
+                KVptr[0], /* key as the 2nd value */
+                KVptr[1]); /* value as the 3rd value */
+        return;
       }
     }
   }
-  value1 = NIL; mv_count=1; return; # 1 value NIL
+  VALUES1(NIL); return; /* 1 value NIL */
 }
 
 # (EXT:HASH-TABLE-WEAK-P ht)
 LISPFUNN(hash_table_weak_p,1) {
   var object ht = popSTACK(); # hashtable-argument
   check_hashtable(ht);
-  value1 = (ht_weak_p(ht) ? T : NIL);
-  mv_count = 1;
+  VALUES_IF(ht_weak_p(ht));
 }
 
 # (SYS::%SET-HASH-TABLE-WEAK-P ht val) == (SETF (HASH-TABLE-WEAK-P ht) val)
@@ -1615,8 +1614,7 @@ LISPFUNN(set_hash_table_weak_p,2) {
                TheSvector(TheHashtable(STACK_0)->ht_kvtable)->data,len);
     TheHashtable(STACK_0)->ht_kvtable = wkvt;
   }
-  value1 = (ht_weak_p(STACK_0) ? T : NIL); skipSTACK(1);
-  mv_count = 1;
+  VALUES_IF(ht_weak_p(STACK_0)); skipSTACK(1);
 }
 
 # (CLOS::CLASS-GETHASH ht object) is like (GETHASH (CLASS-OF object) ht).
@@ -1629,9 +1627,9 @@ LISPFUNN(class_gethash,2) {
   var object* Iptr;
   # search key value1 in the hash-table:
   if (hash_lookup(ht,value1,&KVptr,&Nptr,&Iptr)) { # found -> Value as value:
-    value1 = KVptr[1]; value2 = T; mv_count=2; # and T as the 2nd value
+    VALUES2(KVptr[1], T); /* and T as the 2nd value */
   } else { # not found -> NIL as value
-    value1 = NIL; value2 = NIL; mv_count=2; # NIL as the 2nd value
+    VALUES2(NIL, NIL); /* NIL as the 2nd value */
   }
   skipSTACK(1);
 }
@@ -1762,14 +1760,13 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL) {
         ht_kvt_data(ht)+2*index;
       if (equal_tuple(KVptr[0],argcount,rest_args_pointer)) { # compare key
         # found
-        value1 = KVptr[1]; goto fertig; # Value as value
+        VALUES1(KVptr[1]); goto fertig; # Value as value
       }
     }
   }
   # not found
-  value1 = NIL;
+  VALUES1(NIL);
  fertig:
-  mv_count=1;
   set_args_end_pointer(rest_args_pointer STACKop 1); # clean up STACK
 }
 
@@ -2025,10 +2022,9 @@ LISPFUNN(sxhash,1) {
   # are the same implementations)
   #if oint_data_len >= 24
     sx = sx % 0xFFFFFF;
-    value1 = fixnum(sx);
+    VALUES1(fixnum(sx));
   #else
     #error "sxhash results do not fit in a fixnum"
   #endif
-  mv_count=1;
 }
 

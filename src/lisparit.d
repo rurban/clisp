@@ -307,7 +307,7 @@
     {
       # Falls SYS::WRITE-FLOAT-DECIMAL definiert ist, (SYS::WRITE-FLOAT-DECIMAL stream z) aufrufen:
       var object fun = Symbol_function(S(write_float_decimal));
-      if (!eq(fun,unbound)) {
+      if (boundp(fun)) {
         # Funktion aufrufen
         pushSTACK(*stream_); pushSTACK(z); funcall(fun,2);
       } else {
@@ -478,7 +478,7 @@ LISPFUNN(decimal_string,1)
   {
     var object x = popSTACK();
     check_integer(x);
-    value1 = decimal_string(x); mv_count=1;
+    VALUES1(decimal_string(x));
   }
 
 LISPFUNN(zerop,1)
@@ -486,7 +486,7 @@ LISPFUNN(zerop,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = (N_zerop(x) ? T : NIL); mv_count=1;
+    VALUES_IF(N_zerop(x));
   }
 
 LISPFUNN(plusp,1)
@@ -494,7 +494,7 @@ LISPFUNN(plusp,1)
   {
     var object x = popSTACK();
     check_real(x);
-    value1 = (R_plusp(x) ? T : NIL); mv_count=1;
+    VALUES_IF(R_plusp(x));
   }
 
 LISPFUNN(minusp,1)
@@ -502,7 +502,7 @@ LISPFUNN(minusp,1)
   {
     var object x = popSTACK();
     check_real(x);
-    value1 = (R_minusp(x) ? T : NIL); mv_count=1;
+    VALUES_IF(R_minusp(x));
   }
 
 LISPFUNN(oddp,1)
@@ -510,7 +510,7 @@ LISPFUNN(oddp,1)
   {
     var object x = popSTACK();
     check_integer(x);
-    value1 = (I_oddp(x) ? T : NIL); mv_count=1;
+    VALUES_IF(I_oddp(x));
   }
 
 LISPFUNN(evenp,1)
@@ -518,7 +518,7 @@ LISPFUNN(evenp,1)
   {
     var object x = popSTACK();
     check_integer(x);
-    value1 = (I_oddp(x) ? NIL : T); mv_count=1;
+    VALUES_IF(! I_oddp(x));
   }
 
 # UP: Testet, ob alle argcount+1 Argumente unterhalb von args_pointer
@@ -725,7 +725,7 @@ LISPFUN(max,1,0,rest,nokey,0,NIL)
     var object* arg_i_ptr = args_pointer;
     var object x = NEXT(arg_i_ptr); # bisheriges Maximum
     dotimesC(argcount,argcount, { x = R_R_max_R(x,NEXT(arg_i_ptr)); } );
-    value1 = x; mv_count=1; set_args_end_pointer(args_pointer);
+    VALUES1(x); set_args_end_pointer(args_pointer);
   }
 
 LISPFUN(min,1,0,rest,nokey,0,NIL)
@@ -741,7 +741,7 @@ LISPFUN(min,1,0,rest,nokey,0,NIL)
     var object* arg_i_ptr = args_pointer;
     var object x = NEXT(arg_i_ptr); # bisheriges Minimum
     dotimesC(argcount,argcount, { x = R_R_min_R(x,NEXT(arg_i_ptr)); } );
-    value1 = x; mv_count=1; set_args_end_pointer(args_pointer);
+    VALUES1(x); set_args_end_pointer(args_pointer);
   }
 
 LISPFUN(plus,0,0,rest,nokey,0,NIL)
@@ -751,7 +751,7 @@ LISPFUN(plus,0,0,rest,nokey,0,NIL)
 # (+ x1 x2 x3 ... xn) = (+ ...(+ (+ x1 x2) x3)... xn)
   {
     if (argcount==0) {
-      value1 = Fixnum_0; mv_count=1; return;
+      VALUES1(Fixnum_0); return;
     }
     argcount--;
     test_number_args(argcount,rest_args_pointer); # Alle Argumente Zahlen?
@@ -761,7 +761,7 @@ LISPFUN(plus,0,0,rest,nokey,0,NIL)
     var object* arg_i_ptr = rest_args_pointer;
     var object x = NEXT(arg_i_ptr); # bisherige Summe
     dotimesC(argcount,argcount, { x = N_N_plus_N(x,NEXT(arg_i_ptr)); } );
-    value1 = x; mv_count=1; set_args_end_pointer(rest_args_pointer);
+    VALUES1(x); set_args_end_pointer(rest_args_pointer);
   }
 
 LISPFUN(minus,1,0,rest,nokey,0,NIL)
@@ -794,7 +794,7 @@ LISPFUN(mal,0,0,rest,nokey,0,NIL)
 # (* x1 x2 x3 ... xn) = (* ...(* (* x1 x2) x3)... xn)
   {
     if (argcount==0) {
-      value1 = Fixnum_1; mv_count=1; return;
+      VALUES1(Fixnum_1); return;
     }
     argcount--;
     test_number_args(argcount,rest_args_pointer); # Alle Argumente Zahlen?
@@ -807,7 +807,7 @@ LISPFUN(mal,0,0,rest,nokey,0,NIL)
       var object arg = NEXT(arg_i_ptr);
       x = (eq(x,arg) ? N_square_N(x) : N_N_mal_N(x,arg));
     });
-    value1 = x; mv_count=1; set_args_end_pointer(rest_args_pointer);
+    VALUES1(x); set_args_end_pointer(rest_args_pointer);
   }
 
 LISPFUN(durch,1,0,rest,nokey,0,NIL)
@@ -838,7 +838,7 @@ LISPFUNN(einsplus,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_1_plus_N(x); mv_count=1;
+    VALUES1(N_1_plus_N(x));
   }
 
 LISPFUNN(einsminus,1)
@@ -846,7 +846,7 @@ LISPFUNN(einsminus,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_minus1_plus_N(x); mv_count=1;
+    VALUES1(N_minus1_plus_N(x));
   }
 
 LISPFUNN(conjugate,1)
@@ -854,7 +854,7 @@ LISPFUNN(conjugate,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_conjugate_N(x); mv_count=1;
+    VALUES1(N_conjugate_N(x));
   }
 
 LISPFUN(gcd,0,0,rest,nokey,0,NIL)
@@ -865,12 +865,12 @@ LISPFUN(gcd,0,0,rest,nokey,0,NIL)
 # (gcd x1 x2 x3 ... xn) = (gcd ...(gcd (gcd x1 x2) x3)... xn)
   {
     if (argcount==0) {
-      value1 = Fixnum_0; mv_count=1; return;
+      VALUES1(Fixnum_0); return;
     }
     argcount--;
     test_integer_args(argcount,rest_args_pointer); # Alle Argumente ganze Zahlen?
     if (argcount==0) {
-      value1 = I_abs_I(Next(rest_args_pointer));
+      VALUES1(I_abs_I(Next(rest_args_pointer)));
     } else {
       # Methode:
       # n+1 Argumente Arg[0..n].
@@ -878,9 +878,9 @@ LISPFUN(gcd,0,0,rest,nokey,0,NIL)
       var object* arg_i_ptr = rest_args_pointer;
       var object x = NEXT(arg_i_ptr); # bisheriger ggT
       dotimespC(argcount,argcount, { x = I_I_gcd_I(x,NEXT(arg_i_ptr)); } );
-      value1 = x;
+      VALUES1(x);
     }
-    mv_count=1; set_args_end_pointer(rest_args_pointer);
+    set_args_end_pointer(rest_args_pointer);
   }
 
 LISPFUN(xgcd,0,0,rest,nokey,0,NIL)
@@ -897,18 +897,17 @@ LISPFUN(xgcd,0,0,rest,nokey,0,NIL)
 #     (g,u[1],...,u[i]) := (g',u*u[1],...,u*u[i-1],v).
   {
     if (argcount==0) {
-      value1 = Fixnum_0; mv_count=1; return;
+      VALUES1(Fixnum_0); return;
     }
     argcount--;
     test_integer_args(argcount,rest_args_pointer); # Alle Argumente ganze Zahlen?
     if (argcount==0) {
       var object arg = Next(rest_args_pointer);
       if (R_minusp(arg)) {
-        value1 = arg; value2 = Fixnum_minus1;
+        VALUES2(arg, Fixnum_minus1);
       } else {
-        value1 = I_minus_I(arg); value2 = Fixnum_1;
+        VALUES2(I_minus_I(arg), Fixnum_1);
       }
-      mv_count=2;
     } else {
       # Methode:
       # n+1 Argumente Arg[0..n].
@@ -960,12 +959,12 @@ LISPFUN(lcm,0,0,rest,nokey,0,NIL)
 # (lcm x1 x2 x3 ... xn) = (lcm ...(lcm (lcm x1 x2) x3)... xn)
   {
     if (argcount==0) {
-      value1 = Fixnum_1; mv_count=1; return;
+      VALUES1(Fixnum_1); return;
     }
     argcount--;
     test_integer_args(argcount,rest_args_pointer); # Alle Argumente ganze Zahlen?
     if (argcount==0) {
-      value1 = I_abs_I(Next(rest_args_pointer));
+      VALUES1(I_abs_I(Next(rest_args_pointer)));
     } else {
       # Methode:
       # n+1 Argumente Arg[0..n].
@@ -973,9 +972,9 @@ LISPFUN(lcm,0,0,rest,nokey,0,NIL)
       var object* arg_i_ptr = rest_args_pointer;
       var object x = NEXT(arg_i_ptr); # bisheriges kgV
       dotimespC(argcount,argcount, { x = I_I_lcm_I(x,NEXT(arg_i_ptr)); } );
-      value1 = x;
+      VALUES1(x);
     }
-    mv_count=1; set_args_end_pointer(rest_args_pointer);
+    set_args_end_pointer(rest_args_pointer);
   }
 
 LISPFUNN(exp,1)
@@ -983,7 +982,7 @@ LISPFUNN(exp,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_exp_N(x); mv_count=1;
+    VALUES1(N_exp_N(x));
   }
 
 LISPFUNN(expt,2)
@@ -992,7 +991,7 @@ LISPFUNN(expt,2)
     var object x = STACK_1;
     var object y = STACK_0;
     check_number(x); check_number(y); skipSTACK(2);
-    value1 = N_N_expt_N(x,y); mv_count=1;
+    VALUES1(N_N_expt_N(x,y));
   }
 
 LISPFUN(log,1,1,norest,nokey,0,NIL)
@@ -1001,15 +1000,14 @@ LISPFUN(log,1,1,norest,nokey,0,NIL)
     var object base = popSTACK();
     var object arg = popSTACK();
     check_number(arg);
-    if (eq(base,unbound)) {
+    if (!boundp(base)) {
       # LOG mit einem Argument
-      value1 = N_log_N(arg);
+      VALUES1(N_log_N(arg));
     } else {
       # LOG mit zwei Argumenten
       check_number(base);
-      value1 = N_N_log_N(arg,base);
+      VALUES1(N_N_log_N(arg,base));
     }
-    mv_count=1;
   }
 
 LISPFUNN(sqrt,1)
@@ -1017,7 +1015,7 @@ LISPFUNN(sqrt,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_sqrt_N(x); mv_count=1;
+    VALUES1(N_sqrt_N(x));
   }
 
 LISPFUNN(isqrt,1)
@@ -1025,7 +1023,7 @@ LISPFUNN(isqrt,1)
   {
     var object x = popSTACK();
     check_integer(x);
-    value1 = (I_isqrt_I(x), popSTACK()); mv_count=1;
+    VALUES1((I_isqrt_I(x), popSTACK()));
   }
 
 LISPFUNN(abs,1)
@@ -1033,7 +1031,7 @@ LISPFUNN(abs,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_abs_R(x); mv_count=1;
+    VALUES1(N_abs_R(x));
   }
 
 LISPFUNN(phase,1)
@@ -1041,7 +1039,7 @@ LISPFUNN(phase,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_phase_R(x); mv_count=1;
+    VALUES1(N_phase_R(x));
   }
 
 LISPFUNN(signum,1)
@@ -1049,7 +1047,7 @@ LISPFUNN(signum,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_signum_N(x); mv_count=1;
+    VALUES1(N_signum_N(x));
   }
 
 LISPFUNN(sin,1)
@@ -1057,7 +1055,7 @@ LISPFUNN(sin,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_sin_N(x); mv_count=1;
+    VALUES1(N_sin_N(x));
   }
 
 LISPFUNN(cos,1)
@@ -1065,7 +1063,7 @@ LISPFUNN(cos,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_cos_N(x); mv_count=1;
+    VALUES1(N_cos_N(x));
   }
 
 LISPFUNN(tan,1)
@@ -1073,7 +1071,7 @@ LISPFUNN(tan,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_tan_N(x); mv_count=1;
+    VALUES1(N_tan_N(x));
   }
 
 LISPFUNN(cis,1)
@@ -1081,7 +1079,7 @@ LISPFUNN(cis,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_cis_N(x); mv_count=1;
+    VALUES1(N_cis_N(x));
   }
 
 LISPFUNN(asin,1)
@@ -1089,7 +1087,7 @@ LISPFUNN(asin,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_asin_N(x); mv_count=1;
+    VALUES1(N_asin_N(x));
   }
 
 LISPFUNN(acos,1)
@@ -1097,7 +1095,7 @@ LISPFUNN(acos,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_acos_N(x); mv_count=1;
+    VALUES1(N_acos_N(x));
   }
 
 LISPFUN(atan,1,1,norest,nokey,0,NIL)
@@ -1105,16 +1103,15 @@ LISPFUN(atan,1,1,norest,nokey,0,NIL)
   {
     var object arg2 = popSTACK();
     var object arg1 = popSTACK();
-    if (eq(arg2,unbound)) {
+    if (!boundp(arg2)) {
       # 1 Argument
       check_number(arg1);
-      value1 = N_atan_N(arg1);
+      VALUES1(N_atan_N(arg1));
     } else {
       # 2 Argumente
       check_real(arg1); check_real(arg2);
-      value1 = R_R_atan_R(arg2,arg1); # atan(X=arg2,Y=arg1)
+      VALUES1(R_R_atan_R(arg2,arg1)); # atan(X=arg2,Y=arg1)
     }
-    mv_count=1;
   }
 
 LISPFUNN(sinh,1)
@@ -1122,7 +1119,7 @@ LISPFUNN(sinh,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_sinh_N(x); mv_count=1;
+    VALUES1(N_sinh_N(x));
   }
 
 LISPFUNN(cosh,1)
@@ -1130,7 +1127,7 @@ LISPFUNN(cosh,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_cosh_N(x); mv_count=1;
+    VALUES1(N_cosh_N(x));
   }
 
 LISPFUNN(tanh,1)
@@ -1138,7 +1135,7 @@ LISPFUNN(tanh,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_tanh_N(x); mv_count=1;
+    VALUES1(N_tanh_N(x));
   }
 
 LISPFUNN(asinh,1)
@@ -1146,7 +1143,7 @@ LISPFUNN(asinh,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_asinh_N(x); mv_count=1;
+    VALUES1(N_asinh_N(x));
   }
 
 LISPFUNN(acosh,1)
@@ -1154,7 +1151,7 @@ LISPFUNN(acosh,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_acosh_N(x); mv_count=1;
+    VALUES1(N_acosh_N(x));
   }
 
 LISPFUNN(atanh,1)
@@ -1162,7 +1159,7 @@ LISPFUNN(atanh,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_atanh_N(x); mv_count=1;
+    VALUES1(N_atanh_N(x));
   }
 
 LISPFUN(float,1,1,norest,nokey,0,NIL)
@@ -1171,14 +1168,14 @@ LISPFUN(float,1,1,norest,nokey,0,NIL)
     var object arg2 = popSTACK();
     var object arg1 = popSTACK();
     check_real(arg1);
-    if (eq(arg2,unbound)) {
+    if (!boundp(arg2)) {
       # 1 Argument
-      value1 = R_float_F(arg1);
+      VALUES1(R_float_F(arg1));
     } else {
       # 2 Argumente
-      check_float(arg2); value1 = R_F_float_F(arg1,arg2);
+      check_float(arg2);
+      VALUES1(R_F_float_F(arg1,arg2));
     }
-    mv_count=1;
   }
 
 # UP: Wandelt ein Objekt in ein Float von gegebenem Typ um.
@@ -1212,7 +1209,7 @@ LISPFUNN(rational,1)
   {
     var object x = popSTACK();
     check_real(x);
-    value1 = R_rational_RA(x); mv_count=1;
+    VALUES1(R_rational_RA(x));
   }
 
 LISPFUNN(rationalize,1)
@@ -1220,7 +1217,7 @@ LISPFUNN(rationalize,1)
   {
     var object x = popSTACK();
     check_real(x);
-    value1 = R_rationalize_RA(x); mv_count=1;
+    VALUES1(R_rationalize_RA(x));
   }
 
 LISPFUNN(numerator,1)
@@ -1228,7 +1225,7 @@ LISPFUNN(numerator,1)
   {
     var object x = popSTACK();
     check_rational(x);
-    value1 = (RA_integerp(x) ? x : TheRatio(x)->rt_num); mv_count=1;
+    VALUES1(RA_integerp(x) ? x : TheRatio(x)->rt_num);
   }
 
 LISPFUNN(denominator,1)
@@ -1236,7 +1233,7 @@ LISPFUNN(denominator,1)
   {
     var object x = popSTACK();
     check_rational(x);
-    value1 = (RA_integerp(x) ? Fixnum_1 : TheRatio(x)->rt_den); mv_count=1;
+    VALUES1(RA_integerp(x) ? Fixnum_1 : TheRatio(x)->rt_den);
   }
 
 LISPFUN(floor,1,1,norest,nokey,0,NIL)
@@ -1245,7 +1242,7 @@ LISPFUN(floor,1,1,norest,nokey,0,NIL)
     var object y = popSTACK();
     var object x = popSTACK();
     check_real(x);
-    if (eq(y,unbound) || eq(y,Fixnum_1)) {
+    if (!boundp(y) || eq(y,Fixnum_1)) {
       # 1 Argument oder 2. Argument =1
       R_floor_I_R(x);
     } else {
@@ -1254,7 +1251,8 @@ LISPFUN(floor,1,1,norest,nokey,0,NIL)
       R_R_floor_I_R(x,y);
     }
     # Stackaufbau: q, r.
-    value1 = STACK_1; value2 = STACK_0; skipSTACK(2); mv_count=2;
+    VALUES2(STACK_1, STACK_0);
+    skipSTACK(2);
   }
 
 LISPFUN(ceiling,1,1,norest,nokey,0,NIL)
@@ -1263,7 +1261,7 @@ LISPFUN(ceiling,1,1,norest,nokey,0,NIL)
     var object y = popSTACK();
     var object x = popSTACK();
     check_real(x);
-    if (eq(y,unbound) || eq(y,Fixnum_1)) {
+    if (!boundp(y) || eq(y,Fixnum_1)) {
       # 1 Argument oder 2. Argument =1
       R_ceiling_I_R(x);
     } else {
@@ -1272,7 +1270,7 @@ LISPFUN(ceiling,1,1,norest,nokey,0,NIL)
       R_R_ceiling_I_R(x,y);
     }
     # Stackaufbau: q, r.
-    value1 = STACK_1; value2 = STACK_0; skipSTACK(2); mv_count=2;
+    VALUES2(STACK_1, STACK_0); skipSTACK(2);
   }
 
 LISPFUN(truncate,1,1,norest,nokey,0,NIL)
@@ -1281,7 +1279,7 @@ LISPFUN(truncate,1,1,norest,nokey,0,NIL)
     var object y = popSTACK();
     var object x = popSTACK();
     check_real(x);
-    if (eq(y,unbound) || eq(y,Fixnum_1)) {
+    if (!boundp(y) || eq(y,Fixnum_1)) {
       # 1 Argument oder 2. Argument =1
       R_truncate_I_R(x);
     } else {
@@ -1290,7 +1288,7 @@ LISPFUN(truncate,1,1,norest,nokey,0,NIL)
       R_R_truncate_I_R(x,y);
     }
     # Stackaufbau: q, r.
-    value1 = STACK_1; value2 = STACK_0; skipSTACK(2); mv_count=2;
+    VALUES2(STACK_1, STACK_0); skipSTACK(2);
   }
 
 LISPFUN(round,1,1,norest,nokey,0,NIL)
@@ -1299,7 +1297,7 @@ LISPFUN(round,1,1,norest,nokey,0,NIL)
     var object y = popSTACK();
     var object x = popSTACK();
     check_real(x);
-    if (eq(y,unbound) || eq(y,Fixnum_1)) {
+    if (!boundp(y) || eq(y,Fixnum_1)) {
       # 1 Argument oder 2. Argument =1
       R_round_I_R(x);
     } else {
@@ -1308,7 +1306,7 @@ LISPFUN(round,1,1,norest,nokey,0,NIL)
       R_R_round_I_R(x,y);
     }
     # Stackaufbau: q, r.
-    value1 = STACK_1; value2 = STACK_0; skipSTACK(2); mv_count=2;
+    VALUES2(STACK_1, STACK_0); skipSTACK(2);
   }
 
 LISPFUNN(mod,2)
@@ -1318,7 +1316,7 @@ LISPFUNN(mod,2)
     var object x = popSTACK();
     check_real(x);
     check_real(y);
-    value1 = R_R_mod_R(x,y); mv_count=1;
+    VALUES1(R_R_mod_R(x,y));
   }
 
 LISPFUNN(rem,2)
@@ -1328,7 +1326,7 @@ LISPFUNN(rem,2)
     var object x = popSTACK();
     check_real(x);
     check_real(y);
-    value1 = R_R_rem_R(x,y); mv_count=1;
+    VALUES1(R_R_rem_R(x,y));
   }
 
 LISPFUN(ffloor,1,1,norest,nokey,0,NIL)
@@ -1337,7 +1335,7 @@ LISPFUN(ffloor,1,1,norest,nokey,0,NIL)
     var object y = popSTACK();
     var object x = popSTACK();
     check_real(x);
-    if (eq(y,unbound) || eq(y,Fixnum_1)) {
+    if (!boundp(y) || eq(y,Fixnum_1)) {
       # 1 Argument oder 2. Argument =1
       R_ffloor_F_R(x);
     } else {
@@ -1346,7 +1344,7 @@ LISPFUN(ffloor,1,1,norest,nokey,0,NIL)
       R_R_ffloor_F_R(x,y);
     }
     # Stackaufbau: q, r.
-    value1 = STACK_1; value2 = STACK_0; skipSTACK(2); mv_count=2;
+    VALUES2(STACK_1, STACK_0); skipSTACK(2);
   }
 
 LISPFUN(fceiling,1,1,norest,nokey,0,NIL)
@@ -1355,7 +1353,7 @@ LISPFUN(fceiling,1,1,norest,nokey,0,NIL)
     var object y = popSTACK();
     var object x = popSTACK();
     check_real(x);
-    if (eq(y,unbound) || eq(y,Fixnum_1)) {
+    if (!boundp(y) || eq(y,Fixnum_1)) {
       # 1 Argument oder 2. Argument =1
       R_fceiling_F_R(x);
     } else {
@@ -1364,7 +1362,7 @@ LISPFUN(fceiling,1,1,norest,nokey,0,NIL)
       R_R_fceiling_F_R(x,y);
     }
     # Stackaufbau: q, r.
-    value1 = STACK_1; value2 = STACK_0; skipSTACK(2); mv_count=2;
+    VALUES2(STACK_1, STACK_0); skipSTACK(2);
   }
 
 LISPFUN(ftruncate,1,1,norest,nokey,0,NIL)
@@ -1373,7 +1371,7 @@ LISPFUN(ftruncate,1,1,norest,nokey,0,NIL)
     var object y = popSTACK();
     var object x = popSTACK();
     check_real(x);
-    if (eq(y,unbound) || eq(y,Fixnum_1)) {
+    if (!boundp(y) || eq(y,Fixnum_1)) {
       # 1 Argument oder 2. Argument =1
       R_ftruncate_F_R(x);
     } else {
@@ -1382,7 +1380,7 @@ LISPFUN(ftruncate,1,1,norest,nokey,0,NIL)
       R_R_ftruncate_F_R(x,y);
     }
     # Stackaufbau: q, r.
-    value1 = STACK_1; value2 = STACK_0; skipSTACK(2); mv_count=2;
+    VALUES2(STACK_1, STACK_0); skipSTACK(2);
   }
 
 LISPFUN(fround,1,1,norest,nokey,0,NIL)
@@ -1391,7 +1389,7 @@ LISPFUN(fround,1,1,norest,nokey,0,NIL)
     var object y = popSTACK();
     var object x = popSTACK();
     check_real(x);
-    if (eq(y,unbound) || eq(y,Fixnum_1)) {
+    if (!boundp(y) || eq(y,Fixnum_1)) {
       # 1 Argument oder 2. Argument =1
       R_fround_F_R(x);
     } else {
@@ -1400,7 +1398,7 @@ LISPFUN(fround,1,1,norest,nokey,0,NIL)
       R_R_fround_F_R(x,y);
     }
     # Stackaufbau: q, r.
-    value1 = STACK_1; value2 = STACK_0; skipSTACK(2); mv_count=2;
+    VALUES2(STACK_1, STACK_0); skipSTACK(2);
   }
 
 LISPFUNN(decode_float,1)
@@ -1409,8 +1407,7 @@ LISPFUNN(decode_float,1)
     var object f = popSTACK();
     check_float(f);
     F_decode_float_F_I_F(f);
-    value1 = STACK_2; value2 = STACK_1; value3 = STACK_0; skipSTACK(3);
-    mv_count=3;
+    VALUES3(STACK_2, STACK_1, STACK_0); skipSTACK(3);
   }
 
 LISPFUNN(scale_float,2)
@@ -1419,7 +1416,7 @@ LISPFUNN(scale_float,2)
     var object f = STACK_1;
     var object i = STACK_0;
     check_float(f); check_integer(i); skipSTACK(2);
-    value1 = F_I_scale_float_F(f,i); mv_count=1;
+    VALUES1(F_I_scale_float_F(f,i));
   }
 
 LISPFUNN(float_radix,1)
@@ -1427,7 +1424,7 @@ LISPFUNN(float_radix,1)
   {
     var object f = popSTACK();
     check_float(f);
-    value1 = F_float_radix_I(f); mv_count=1;
+    VALUES1(F_float_radix_I(f));
   }
 
 LISPFUN(float_sign,1,1,norest,nokey,0,NIL)
@@ -1436,13 +1433,13 @@ LISPFUN(float_sign,1,1,norest,nokey,0,NIL)
     var object arg2 = popSTACK();
     var object arg1 = popSTACK();
     check_float(arg1);
-    if (eq(arg2,unbound)) {
+    if (!boundp(arg2)) {
       # 1 Argument
-      value1 = F_float_sign_F(arg1);
+      VALUES1(F_float_sign_F(arg1));
     } else {
       # 2 Argumente
       check_float(arg2);
-      value1 = F_F_float_sign_F(arg1,arg2);
+      VALUES1(F_F_float_sign_F(arg1,arg2));
     }
   }
 
@@ -1451,10 +1448,10 @@ LISPFUN(float_digits,1,1,norest,nokey,0,NIL)
   {
     var object arg2 = popSTACK();
     var object arg1 = popSTACK();
-    if (eq(arg2,unbound)) {
+    if (!boundp(arg2)) {
       # 1 Argument: (FLOAT-DIGITS float)
       check_float(arg1);
-      value1 = F_float_digits_I(arg1);
+      VALUES1(F_float_digits_I(arg1));
     } else {
       # 2 Argumente: (FLOAT-DIGITS number digits)
       if (!posfixnump(arg2)) # nicht notwendig Fixnum!??
@@ -1469,23 +1466,22 @@ LISPFUN(float_digits,1,1,norest,nokey,0,NIL)
         d = ceiling(d,intDsize);
         if ((intWCsize<32) && (d > (bitc(intWCsize)-1)))
           fehler_LF_toolong();
-        value1 = R_to_LF(arg1,d);
+        VALUES1(R_to_LF(arg1,d));
       } else {
         # ein Double-Float reicht
         if (d > FF_mant_len+1)
           # -> Double-Float
-          value1 = R_to_DF(arg1);
+          VALUES1(R_to_DF(arg1));
         else
           # ein Single-Float reicht
           if (d > SF_mant_len+1)
             # -> Single-Float
-            value1 = R_to_FF(arg1);
+            VALUES1(R_to_FF(arg1));
           else
             # ein Short-Float reicht
-            value1 = R_to_SF(arg1);
+            VALUES1(R_to_SF(arg1));
       }
     }
-    mv_count=1;
   }
 
 LISPFUNN(float_precision,1)
@@ -1493,7 +1489,7 @@ LISPFUNN(float_precision,1)
   {
     var object f = popSTACK();
     check_float(f);
-    value1 = F_float_precision_I(f); mv_count=1;
+    VALUES1(F_float_precision_I(f));
   }
 
 LISPFUNN(integer_decode_float,1)
@@ -1502,8 +1498,7 @@ LISPFUNN(integer_decode_float,1)
     var object f = popSTACK();
     check_float(f);
     F_integer_decode_float_I_I_I(f);
-    value1 = STACK_2; value2 = STACK_1; value3 = STACK_0; skipSTACK(3);
-    mv_count=3;
+    VALUES3(STACK_2, STACK_1, STACK_0); skipSTACK(3);
   }
 
 LISPFUN(complex,1,1,norest,nokey,0,NIL)
@@ -1518,15 +1513,14 @@ LISPFUN(complex,1,1,norest,nokey,0,NIL)
     var object arg2 = popSTACK();
     var object arg1 = popSTACK();
     check_real(arg1);
-    if (eq(arg2,unbound)) {
+    if (!boundp(arg2)) {
       # 1 Argument
-      value1 = arg1;
+      VALUES1(arg1);
     } else {
       # 2 Argumente
       check_real(arg2);
-      value1 = R_R_complex_N(arg1,arg2);
+      VALUES1(R_R_complex_N(arg1,arg2));
     }
-    mv_count=1;
   }
 
 LISPFUNN(realpart,1)
@@ -1534,7 +1528,7 @@ LISPFUNN(realpart,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_realpart_R(x); mv_count=1;
+    VALUES1(N_realpart_R(x));
   }
 
 LISPFUNN(imagpart,1)
@@ -1542,7 +1536,7 @@ LISPFUNN(imagpart,1)
   {
     var object x = popSTACK();
     check_number(x);
-    value1 = N_imagpart_R(x); mv_count=1;
+    VALUES1(N_imagpart_R(x));
   }
 
 LISPFUN(logior,0,0,rest,nokey,0,NIL)
@@ -1552,7 +1546,7 @@ LISPFUN(logior,0,0,rest,nokey,0,NIL)
 # (logior x1 x2 x3 ... xn) = (logior ...(logior (logior x1 x2) x3)... xn)
   {
     if (argcount==0) {
-      value1 = Fixnum_0; mv_count=1; return;
+      VALUES1(Fixnum_0); return;
     }
     argcount--;
     test_integer_args(argcount,rest_args_pointer); # Alle Argumente ganze Zahlen?
@@ -1562,7 +1556,7 @@ LISPFUN(logior,0,0,rest,nokey,0,NIL)
     var object* arg_i_ptr = rest_args_pointer;
     var object x = NEXT(arg_i_ptr); # bisheriges Oder
     dotimesC(argcount,argcount, { x = I_I_logior_I(x,NEXT(arg_i_ptr)); } );
-    value1 = x; mv_count=1; set_args_end_pointer(rest_args_pointer);
+    VALUES1(x); set_args_end_pointer(rest_args_pointer);
   }
 
 LISPFUN(logxor,0,0,rest,nokey,0,NIL)
@@ -1572,7 +1566,7 @@ LISPFUN(logxor,0,0,rest,nokey,0,NIL)
 # (logxor x1 x2 x3 ... xn) = (logxor ...(logxor (logxor x1 x2) x3)... xn)
   {
     if (argcount==0) {
-      value1 = Fixnum_0; mv_count=1; return;
+      VALUES1(Fixnum_0); return;
     }
     argcount--;
     test_integer_args(argcount,rest_args_pointer); # Alle Argumente ganze Zahlen?
@@ -1582,7 +1576,7 @@ LISPFUN(logxor,0,0,rest,nokey,0,NIL)
     var object* arg_i_ptr = rest_args_pointer;
     var object x = NEXT(arg_i_ptr); # bisheriges Xor
     dotimesC(argcount,argcount, { x = I_I_logxor_I(x,NEXT(arg_i_ptr)); } );
-    value1 = x; mv_count=1; set_args_end_pointer(rest_args_pointer);
+    VALUES1(x); set_args_end_pointer(rest_args_pointer);
   }
 
 LISPFUN(logand,0,0,rest,nokey,0,NIL)
@@ -1592,7 +1586,7 @@ LISPFUN(logand,0,0,rest,nokey,0,NIL)
 # (logand x1 x2 x3 ... xn) = (logand ...(logand (logand x1 x2) x3)... xn)
   {
     if (argcount==0) {
-      value1 = Fixnum_minus1; mv_count=1; return;
+      VALUES1(Fixnum_minus1); return;
     }
     argcount--;
     test_integer_args(argcount,rest_args_pointer); # Alle Argumente ganze Zahlen?
@@ -1602,7 +1596,7 @@ LISPFUN(logand,0,0,rest,nokey,0,NIL)
     var object* arg_i_ptr = rest_args_pointer;
     var object x = NEXT(arg_i_ptr); # bisheriges And
     dotimesC(argcount,argcount, { x = I_I_logand_I(x,NEXT(arg_i_ptr)); } );
-    value1 = x; mv_count=1; set_args_end_pointer(rest_args_pointer);
+    VALUES1(x); set_args_end_pointer(rest_args_pointer);
   }
 
 LISPFUN(logeqv,0,0,rest,nokey,0,NIL)
@@ -1612,7 +1606,7 @@ LISPFUN(logeqv,0,0,rest,nokey,0,NIL)
 # (logeqv x1 x2 x3 ... xn) = (logeqv ...(logeqv (logeqv x1 x2) x3)... xn)
   {
     if (argcount==0) {
-      value1 = Fixnum_minus1; mv_count=1; return;
+      VALUES1(Fixnum_minus1); return;
     }
     argcount--;
     test_integer_args(argcount,rest_args_pointer); # Alle Argumente ganze Zahlen?
@@ -1622,7 +1616,7 @@ LISPFUN(logeqv,0,0,rest,nokey,0,NIL)
     var object* arg_i_ptr = rest_args_pointer;
     var object x = NEXT(arg_i_ptr); # bisheriges Zwischen-EQV
     dotimesC(argcount,argcount, { x = I_I_logeqv_I(x,NEXT(arg_i_ptr)); } );
-    value1 = x; mv_count=1; set_args_end_pointer(rest_args_pointer);
+    VALUES1(x); set_args_end_pointer(rest_args_pointer);
   }
 
 LISPFUNN(lognand,2)
@@ -1631,7 +1625,7 @@ LISPFUNN(lognand,2)
     var object x = STACK_1;
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(2);
-    value1 = I_I_lognand_I(x,y); mv_count=1;
+    VALUES1(I_I_lognand_I(x,y));
   }
 
 LISPFUNN(lognor,2)
@@ -1640,7 +1634,7 @@ LISPFUNN(lognor,2)
     var object x = STACK_1;
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(2);
-    value1 = I_I_lognor_I(x,y); mv_count=1;
+    VALUES1(I_I_lognor_I(x,y));
   }
 
 LISPFUNN(logandc1,2)
@@ -1649,7 +1643,7 @@ LISPFUNN(logandc1,2)
     var object x = STACK_1;
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(2);
-    value1 = I_I_logandc1_I(x,y); mv_count=1;
+    VALUES1(I_I_logandc1_I(x,y));
   }
 
 LISPFUNN(logandc2,2)
@@ -1658,7 +1652,7 @@ LISPFUNN(logandc2,2)
     var object x = STACK_1;
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(2);
-    value1 = I_I_logandc2_I(x,y); mv_count=1;
+    VALUES1(I_I_logandc2_I(x,y));
   }
 
 LISPFUNN(logorc1,2)
@@ -1667,7 +1661,7 @@ LISPFUNN(logorc1,2)
     var object x = STACK_1;
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(2);
-    value1 = I_I_logorc1_I(x,y); mv_count=1;
+    VALUES1(I_I_logorc1_I(x,y));
   }
 
 LISPFUNN(logorc2,2)
@@ -1676,7 +1670,7 @@ LISPFUNN(logorc2,2)
     var object x = STACK_1;
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(2);
-    value1 = I_I_logorc2_I(x,y); mv_count=1;
+    VALUES1(I_I_logorc2_I(x,y));
   }
 
 LISPFUNN(boole,3)
@@ -1686,7 +1680,7 @@ LISPFUNN(boole,3)
     var object x = STACK_1;
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(3);
-    value1 = OP_I_I_boole_I(op,x,y); mv_count=1;
+    VALUES1(OP_I_I_boole_I(op,x,y));
   }
 
 LISPFUNN(lognot,1)
@@ -1694,7 +1688,7 @@ LISPFUNN(lognot,1)
   {
     var object x = popSTACK();
     check_integer(x);
-    value1 = I_lognot_I(x); mv_count=1;
+    VALUES1(I_lognot_I(x));
   }
 
 LISPFUNN(logtest,2)
@@ -1703,7 +1697,7 @@ LISPFUNN(logtest,2)
     var object x = STACK_1;
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(2);
-    value1 = (I_I_logtest(x,y) ? T : NIL); mv_count=1;
+    VALUES_IF(I_I_logtest(x,y));
   }
 
 LISPFUNN(logbitp,2)
@@ -1712,7 +1706,7 @@ LISPFUNN(logbitp,2)
     var object x = STACK_1;
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(2);
-    value1 = (I_I_logbitp(x,y) ? T : NIL); mv_count=1;
+    VALUES_IF(I_I_logbitp(x,y));
   }
 
 LISPFUNN(ash,2)
@@ -1721,7 +1715,7 @@ LISPFUNN(ash,2)
     var object x = STACK_1;
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(2);
-    value1 = I_I_ash_I(x,y); mv_count=1;
+    VALUES1(I_I_ash_I(x,y));
   }
 
 LISPFUNN(logcount,1)
@@ -1729,7 +1723,7 @@ LISPFUNN(logcount,1)
   {
     var object x = popSTACK();
     check_integer(x);
-    value1 = I_logcount_I(x); mv_count=1;
+    VALUES1(I_logcount_I(x));
   }
 
 LISPFUNN(integer_length,1)
@@ -1737,7 +1731,7 @@ LISPFUNN(integer_length,1)
   {
     var object x = popSTACK();
     check_integer(x);
-    value1 = I_integer_length_I(x); mv_count=1;
+    VALUES1(I_integer_length_I(x));
   }
 
 LISPFUNN(byte,2)
@@ -1746,21 +1740,21 @@ LISPFUNN(byte,2)
     var object s = STACK_1;
     var object p = STACK_0;
     skipSTACK(2);
-    value1 = I_I_Byte(s,p); mv_count=1; # Typprüfungen dort. Wieso Fixnums??
+    VALUES1(I_I_Byte(s,p)); # Typprüfungen dort. Wieso Fixnums??
   }
 
 LISPFUNN(bytesize,1)
 # (BYTE-SIZE bytespec), CLTL S. 226
   {
     var object b = popSTACK();
-    value1 = Byte_size(b); mv_count=1; # Typprüfung dort
+    VALUES1(Byte_size(b)); # Typprüfung dort
   }
 
 LISPFUNN(byteposition,1)
 # (BYTE-POSITION bytespec), CLTL S. 226
   {
     var object b = popSTACK();
-    value1 = Byte_position(b); mv_count=1; # Typprüfung dort
+    VALUES1(Byte_position(b)); # Typprüfung dort
   }
 
 LISPFUNN(ldb,2)
@@ -1769,7 +1763,7 @@ LISPFUNN(ldb,2)
     var object b = STACK_1; # Typprüfung erfolgt später
     var object x = STACK_0;
     check_integer(x); skipSTACK(2);
-    value1 = I_Byte_ldb_I(x,b); mv_count=1;
+    VALUES1(I_Byte_ldb_I(x,b));
   }
 
 LISPFUNN(ldb_test,2)
@@ -1778,7 +1772,7 @@ LISPFUNN(ldb_test,2)
     var object b = STACK_1; # Typprüfung erfolgt später
     var object x = STACK_0;
     check_integer(x); skipSTACK(2);
-    value1 = (I_Byte_ldb_test(x,b) ? T : NIL); mv_count=1;
+    VALUES_IF(I_Byte_ldb_test(x,b));
   }
 
 LISPFUNN(mask_field,2)
@@ -1787,7 +1781,7 @@ LISPFUNN(mask_field,2)
     var object b = STACK_1; # Typprüfung erfolgt später
     var object x = STACK_0;
     check_integer(x); skipSTACK(2);
-    value1 = I_Byte_mask_field_I(x,b); mv_count=1;
+    VALUES1(I_Byte_mask_field_I(x,b));
   }
 
 LISPFUNN(dpb,3)
@@ -1797,7 +1791,7 @@ LISPFUNN(dpb,3)
     var object b = STACK_1; # Typprüfung erfolgt später
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(3);
-    value1 = I_I_Byte_dpb_I(x,y,b); mv_count=1;
+    VALUES1(I_I_Byte_dpb_I(x,y,b));
   }
 
 LISPFUNN(deposit_field,3)
@@ -1807,7 +1801,7 @@ LISPFUNN(deposit_field,3)
     var object b = STACK_1; # Typprüfung erfolgt später
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(3);
-    value1 = I_I_Byte_deposit_field_I(x,y,b); mv_count=1;
+    VALUES1(I_I_Byte_deposit_field_I(x,y,b));
   }
 
 # Überprüft ein optionales Random-State-Argument obj.
@@ -1819,7 +1813,7 @@ LISPFUNN(deposit_field,3)
   local object check_random_state(obj)
     var object obj;
     {
-      if (!eq(obj,unbound)) {
+      if (boundp(obj)) {
         # angegeben -> muss Random-State sein:
         if (random_state_p(obj)) {
           return obj;
@@ -1859,10 +1853,11 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
     check_real(x); # x muss eine reelle Zahl sein, >0 und Float oder Integer
     if (R_plusp(x)) {
       if (R_floatp(x)) {
-        value1 = F_random_F(r,x); mv_count=1; return;
+        VALUES1(F_random_F(r,x));
       } elif (RA_integerp(x)) {
-        value1 = I_random_I(r,x); mv_count=1; return;
+        VALUES1(I_random_I(r,x));
       }
+      return;
     }
     pushSTACK(x); # TYPE-ERROR slot DATUM
     pushSTACK(O(type_random_arg)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -1917,7 +1912,7 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
         #endif
       } else {
         # Random-State überprüfen:
-        r = check_random_state( (eq(r,NIL) ? unbound : r) );
+        r = check_random_state( (nullp(r) ? unbound : r) );
         # dessen Zustand herausholen:
         var object seed = The_Random_state(r)->random_state_seed;
         var uintD* seedMSDptr = (uintD*)(&TheSbvector(seed)->data[0]);
@@ -1940,7 +1935,7 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
 LISPFUN(make_random_state,0,1,norest,nokey,0,NIL)
 # (MAKE-RANDOM-STATE [state]), CLTL S. 230
   {
-    value1 = make_random_state(popSTACK()); mv_count=1;
+    VALUES1(make_random_state(popSTACK()));
   }
 
 LISPFUNN(fakultaet,1)
@@ -1950,7 +1945,7 @@ LISPFUNN(fakultaet,1)
     check_integer(x);
     if (!posfixnump(x)) fehler_posfixnum(x);
     # x ist ein Fixnum >=0.
-    value1 = FN_fak_I(x); mv_count=1;
+    VALUES1(FN_fak_I(x));
   }
 
 LISPFUNN(exquo,2)
@@ -1961,13 +1956,13 @@ LISPFUNN(exquo,2)
     var object x = STACK_1;
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(2);
-    value1 = I_I_exquo_I(x,y); mv_count=1;
+    VALUES1(I_I_exquo_I(x,y));
   }
 
 LISPFUNN(long_float_digits,0)
 # (EXT:LONG-FLOAT-DIGITS) returns the default bitsize of long-floats
   {
-    value1 = UL_to_I(intDsize * I_to_UL(O(LF_digits))); mv_count=1;
+    VALUES1(UL_to_I(intDsize * I_to_UL(O(LF_digits))));
   }
 
 # Setzt die Default-Long-Float-Länge auf den Wert len (>= LF_minlen).
@@ -2036,7 +2031,7 @@ LISPFUNN(set_long_float_digits,1)
     if (d < LF_minlen)
       d = LF_minlen; # d>=LF_minlen erzwingen
     set_lf_digits(d);
-    value1 = popSTACK(); mv_count=1; # digits als Wert
+    VALUES1(popSTACK()); # digits als Wert
   }
 
 # UP für LOG2 und LOG10: Logarithmus des Fixnums x mit mindestens digits
@@ -2092,15 +2087,13 @@ LISPFUNN(set_long_float_digits,1)
 LISPFUNN(log2,1)
 # (SYS::LOG2 digits) liefert ln(2) mit mindestens digits Bits.
   {
-    value1 = log_digits(fixnum(2),popSTACK(),&O(LF_ln2));
-    mv_count=1;
+    VALUES1(log_digits(fixnum(2),popSTACK(),&O(LF_ln2)));
   }
 
 LISPFUNN(log10,1)
 # (SYS::LOG10 digits) liefert ln(10) mit mindestens digits Bits.
   {
-    value1 = log_digits(fixnum(10),popSTACK(),&O(LF_ln10));
-    mv_count=1;
+    VALUES1(log_digits(fixnum(10),popSTACK(),&O(LF_ln10)));
   }
 
 

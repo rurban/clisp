@@ -50,7 +50,7 @@ LISPFUNN(validp,1)
           break;
       }
     }
-    value1 = (valid ? T : NIL); mv_count=1;
+    VALUES_IF(valid);
   }
 
 # Allocate a foreign address.
@@ -1610,7 +1610,7 @@ local void convert_to_foreign(fvd,obj,data)
         return;
       elif (eq(fvd,S(boolean))) {
         var int* pdata = (int*)data;
-        if (eq(obj,NIL))
+        if (nullp(obj))
           *pdata = 0;
         elif (eq(obj,T))
           *pdata = 1;
@@ -2116,7 +2116,7 @@ LISPFUNN(lookup_foreign_variable,2)
       TheFvariable(new_fvar)->fv_type    = popSTACK();
       fvar = new_fvar;
     }
-    value1 = fvar; mv_count=1;
+    VALUES1(fvar);
   }
 
 # (FFI:UNSIGNED-FOREIGN-ADDRESS integer)
@@ -2186,7 +2186,7 @@ LISPFUNN(set_foreign_value,2)
       # Put in new value, reusing the old value's storage:
       convert_to_foreign_nomalloc(fvd,STACK_0,address);
     }
-    value1 = STACK_0; mv_count=1;
+    VALUES1(STACK_0);
     skipSTACK(2);
   }
 
@@ -2209,7 +2209,7 @@ LISPFUNN(foreign_size,1)
       fehler_foreign_variable(fvar);
     if (nullp(TheFvariable(fvar)->fv_type))
       fehler_variable_no_fvd(fvar);
-    value1 = TheFvariable(fvar)->fv_size; mv_count=1;
+    VALUES1(TheFvariable(fvar)->fv_size);
   }
 
 # (FFI::%ELEMENT foreign-array-variable {index}*)
@@ -2286,7 +2286,7 @@ LISPFUN(element,1,0,rest,nokey,0,NIL)
     TheFvariable(new_fvar)->fv_address = popSTACK();
     TheFvariable(new_fvar)->fv_size    = fixnum(size);
     TheFvariable(new_fvar)->fv_type    = popSTACK();
-    value1 = new_fvar; mv_count=1;
+    VALUES1(new_fvar);
     skipSTACK(1);
   }
 
@@ -2319,7 +2319,7 @@ LISPFUNN(deref,1)
     var void* address = *(void**)Faddress_value(TheFvariable(fvar)->fv_address);
     if (address == NULL) {
       # Don't mess with NULL pointers, return NIL instead.
-      value1 = NIL; mv_count=1; skipSTACK(2);
+      VALUES1(NIL); skipSTACK(2);
     } else {
       pushSTACK(make_faddress(O(fp_zero),(uintP)address));
       var object new_fvar = allocate_fvariable();
@@ -2329,7 +2329,7 @@ LISPFUNN(deref,1)
       TheFvariable(new_fvar)->fv_address = popSTACK();
       TheFvariable(new_fvar)->fv_size    = fixnum(size);
       TheFvariable(new_fvar)->fv_type    = popSTACK();
-      value1 = new_fvar; mv_count=1;
+      VALUES1(new_fvar);
       skipSTACK(1);
     }
   }
@@ -2378,7 +2378,7 @@ LISPFUNN(slot,2)
         TheFvariable(new_fvar)->fv_address = popSTACK();
         TheFvariable(new_fvar)->fv_size    = fixnum(size);
         TheFvariable(new_fvar)->fv_type    = popSTACK();
-        value1 = new_fvar; mv_count=1;
+        VALUES1(new_fvar);
         skipSTACK(2);
         return;
       }
@@ -2402,7 +2402,7 @@ LISPFUNN(slot,2)
         TheFvariable(new_fvar)->fv_address = TheFvariable(fvar)->fv_address;
         TheFvariable(new_fvar)->fv_size    = (foreign_layout(fvd), fixnum(data_size));
         TheFvariable(new_fvar)->fv_type    = fvd;
-        value1 = new_fvar; mv_count=1;
+        VALUES1(new_fvar);
         skipSTACK(2);
         return;
       }
@@ -2444,7 +2444,7 @@ LISPFUNN(cast,2)
     TheFvariable(new_fvar)->fv_address = TheFvariable(fvar)->fv_address;
     TheFvariable(new_fvar)->fv_size    = TheFvariable(fvar)->fv_size;
     TheFvariable(new_fvar)->fv_type    = STACK_0;
-    value1 = new_fvar; mv_count=1;
+    VALUES1(new_fvar);
     skipSTACK(2);
   }
 
@@ -2489,7 +2489,7 @@ LISPFUNN(offset,3) {
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
   }
-  value1 = new_fvar; mv_count=1;
+  VALUES1(new_fvar);
   skipSTACK(3+1);
 }
 
@@ -2502,7 +2502,7 @@ LISPFUNN(offset,3) {
 # stack. Without one, all it does is like a single calloc(1,sizeof(fvd))!
 LISPFUN(exec_on_stack,2,1,norest,nokey,0,NIL) {
   if (!functionp(STACK_2)) { fehler_function(STACK_2); }
-  var bool init = !eq(STACK_0,unbound); # Passing NIL is also an initialization
+  var bool init = boundp(STACK_0); # Passing NIL is also an initialization
   var object fvd = STACK_1;
   foreign_layout(fvd);
   # Room for top-level structure:
@@ -2597,7 +2597,7 @@ LISPFUNN(lookup_foreign_function,2)
     TheFfunction(ffun)->ff_resulttype = TheSvector(fvd)->data[1];
     TheFfunction(ffun)->ff_argtypes = TheSvector(fvd)->data[2];
     TheFfunction(ffun)->ff_flags = TheSvector(fvd)->data[3];
-    value1 = ffun; mv_count=1;
+    VALUES1(ffun);
   }
 
 # Here is the point where we use the AVCALL package.
@@ -3494,7 +3494,7 @@ LISPFUN(foreign_library,1,1,norest,nokey,0,NIL)
     var uintL v;
     {
       var object version = STACK_0;
-      if (eq(STACK_0,unbound)) {
+      if (!boundp(STACK_0)) {
         v = 0;
       } else {
         check_uint32(version); v = I_to_uint32(version);
@@ -3601,7 +3601,7 @@ LISPFUNN(foreign_library_variable,4)
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
     }
-    value1 = fvar; mv_count=1; skipSTACK(4+1);
+    VALUES1(fvar); skipSTACK(4+1);
   }
 
 # (FFI::FOREIGN-LIBRARY-FUNCTION name library offset c-function-type)
@@ -3634,7 +3634,7 @@ LISPFUNN(foreign_library_function,4)
     TheFfunction(ffun)->ff_resulttype = TheSvector(fvd)->data[1];
     TheFfunction(ffun)->ff_argtypes = TheSvector(fvd)->data[2];
     TheFfunction(ffun)->ff_flags = TheSvector(fvd)->data[3];
-    value1 = ffun; mv_count=1; skipSTACK(4+1);
+    VALUES1(ffun); skipSTACK(4+1);
   }
 
 #else # UNIX

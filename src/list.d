@@ -253,152 +253,152 @@ local object cdr (object obj) {
 
 LISPFUNN(car,1) # (CAR list), CLTL S. 262
   {
-    value1 = car(popSTACK()); mv_count=1;
+    VALUES1(car(popSTACK()));
   }
 
 LISPFUNN(cdr,1) # (CDR list), CLTL S. 262
   {
-    value1 = cdr(popSTACK()); mv_count=1;
+    VALUES1(cdr(popSTACK()));
   }
 
 LISPFUNN(caar,1) # (CAAR list), CLTL S. 263
   {
-    value1 = car(car(popSTACK())); mv_count=1;
+    VALUES1(car(car(popSTACK())));
   }
 
 LISPFUNN(cadr,1) # (CADR list), CLTL S. 263
   {
-    value1 = car(cdr(popSTACK())); mv_count=1;
+    VALUES1(car(cdr(popSTACK())));
   }
 
 LISPFUNN(cdar,1) # (CDAR list), CLTL S. 263
   {
-    value1 = cdr(car(popSTACK())); mv_count=1;
+    VALUES1(cdr(car(popSTACK())));
   }
 
 LISPFUNN(cddr,1) # (CDDR list), CLTL S. 263
   {
-    value1 = cdr(cdr(popSTACK())); mv_count=1;
+    VALUES1(cdr(cdr(popSTACK())));
   }
 
 LISPFUNN(caaar,1) # (CAAAR list), CLTL S. 263
   {
-    value1 = car(car(car(popSTACK()))); mv_count=1;
+    VALUES1(car(car(car(popSTACK()))));
   }
 
 LISPFUNN(caadr,1) # (CAADR list), CLTL S. 263
   {
-    value1 = car(car(cdr(popSTACK()))); mv_count=1;
+    VALUES1(car(car(cdr(popSTACK()))));
   }
 
 LISPFUNN(cadar,1) # (CADAR list), CLTL S. 263
   {
-    value1 = car(cdr(car(popSTACK()))); mv_count=1;
+    VALUES1(car(cdr(car(popSTACK()))));
   }
 
 LISPFUNN(caddr,1) # (CADDR list), CLTL S. 263
   {
-    value1 = car(cdr(cdr(popSTACK()))); mv_count=1;
+    VALUES1(car(cdr(cdr(popSTACK()))));
   }
 
 LISPFUNN(cdaar,1) # (CDAAR list), CLTL S. 263
   {
-    value1 = cdr(car(car(popSTACK()))); mv_count=1;
+    VALUES1(cdr(car(car(popSTACK()))));
   }
 
 LISPFUNN(cdadr,1) # (CDADR list), CLTL S. 263
   {
-    value1 = cdr(car(cdr(popSTACK()))); mv_count=1;
+    VALUES1(cdr(car(cdr(popSTACK()))));
   }
 
 LISPFUNN(cddar,1) # (CDDAR list), CLTL S. 263
   {
-    value1 = cdr(cdr(car(popSTACK()))); mv_count=1;
+    VALUES1(cdr(cdr(car(popSTACK()))));
   }
 
 LISPFUNN(cdddr,1) # (CDDDR list), CLTL S. 263
   {
-    value1 = cdr(cdr(cdr(popSTACK()))); mv_count=1;
+    VALUES1(cdr(cdr(cdr(popSTACK()))));
   }
 
 LISPFUNN(caaaar,1) # (CAAAAR list), CLTL S. 263
   {
-    value1 = car(car(car(car(popSTACK())))); mv_count=1;
+    VALUES1(car(car(car(car(popSTACK())))));
   }
 
 LISPFUNN(caaadr,1) # (CAAADR list), CLTL S. 263
   {
-    value1 = car(car(car(cdr(popSTACK())))); mv_count=1;
+    VALUES1(car(car(car(cdr(popSTACK())))));
   }
 
 LISPFUNN(caadar,1) # (CAADAR list), CLTL S. 263
   {
-    value1 = car(car(cdr(car(popSTACK())))); mv_count=1;
+    VALUES1(car(car(cdr(car(popSTACK())))));
   }
 
 LISPFUNN(caaddr,1) # (CAADDR list), CLTL S. 263
   {
-    value1 = car(car(cdr(cdr(popSTACK())))); mv_count=1;
+    VALUES1(car(car(cdr(cdr(popSTACK())))));
   }
 
 LISPFUNN(cadaar,1) # (CADAAR list), CLTL S. 263
   {
-    value1 = car(cdr(car(car(popSTACK())))); mv_count=1;
+    VALUES1(car(cdr(car(car(popSTACK())))));
   }
 
 LISPFUNN(cadadr,1) # (CADADR list), CLTL S. 263
   {
-    value1 = car(cdr(car(cdr(popSTACK())))); mv_count=1;
+    VALUES1(car(cdr(car(cdr(popSTACK())))));
   }
 
 LISPFUNN(caddar,1) # (CADDAR list), CLTL S. 263
   {
-    value1 = car(cdr(cdr(car(popSTACK())))); mv_count=1;
+    VALUES1(car(cdr(cdr(car(popSTACK())))));
   }
 
 LISPFUNN(cadddr,1) # (CADDDR list), CLTL S. 263
   {
-    value1 = car(cdr(cdr(cdr(popSTACK())))); mv_count=1;
+    VALUES1(car(cdr(cdr(cdr(popSTACK())))));
   }
 
 LISPFUNN(cdaaar,1) # (CDAAAR list), CLTL S. 263
   {
-    value1 = cdr(car(car(car(popSTACK())))); mv_count=1;
+    VALUES1(cdr(car(car(car(popSTACK())))));
   }
 
 LISPFUNN(cdaadr,1) # (CDAADR list), CLTL S. 263
   {
-    value1 = cdr(car(car(cdr(popSTACK())))); mv_count=1;
+    VALUES1(cdr(car(car(cdr(popSTACK())))));
   }
 
 LISPFUNN(cdadar,1) # (CDADAR list), CLTL S. 263
   {
-    value1 = cdr(car(cdr(car(popSTACK())))); mv_count=1;
+    VALUES1(cdr(car(cdr(car(popSTACK())))));
   }
 
 LISPFUNN(cdaddr,1) # (CDADDR list), CLTL S. 263
   {
-    value1 = cdr(car(cdr(cdr(popSTACK())))); mv_count=1;
+    VALUES1(cdr(car(cdr(cdr(popSTACK())))));
   }
 
 LISPFUNN(cddaar,1) # (CDDAAR list), CLTL S. 263
   {
-    value1 = cdr(cdr(car(car(popSTACK())))); mv_count=1;
+    VALUES1(cdr(cdr(car(car(popSTACK())))));
   }
 
 LISPFUNN(cddadr,1) # (CDDADR list), CLTL S. 263
   {
-    value1 = cdr(cdr(car(cdr(popSTACK())))); mv_count=1;
+    VALUES1(cdr(cdr(car(cdr(popSTACK())))));
   }
 
 LISPFUNN(cdddar,1) # (CDDDAR list), CLTL S. 263
   {
-    value1 = cdr(cdr(cdr(car(popSTACK())))); mv_count=1;
+    VALUES1(cdr(cdr(cdr(car(popSTACK())))));
   }
 
 LISPFUNN(cddddr,1) # (CDDDDR list), CLTL S. 263
   {
-    value1 = cdr(cdr(cdr(cdr(popSTACK())))); mv_count=1;
+    VALUES1(cdr(cdr(cdr(cdr(popSTACK())))));
   }
 
 LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
@@ -406,7 +406,7 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
     var object new_cons = allocate_cons();
     Cdr(new_cons) = popSTACK();
     Car(new_cons) = popSTACK();
-    value1 = new_cons; mv_count=1;
+    VALUES1(new_cons);
   }
 
 # Unterprogramm zum Ausführen des Tests :TEST
@@ -461,11 +461,11 @@ typedef bool (*up2_function_t) (const object* stackptr,
                                 object arg1, object arg2);
 local up2_function_t test_test2_args (object* stackptr) {
   var object test_arg = *(stackptr STACKop 1);
-  if (eq(test_arg,unbound))
+  if (!boundp(test_arg))
     test_arg=NIL;
   # test_arg ist das :TEST-Argument
   var object test_not_arg = *(stackptr STACKop 0);
-  if (eq(test_not_arg,unbound))
+  if (!boundp(test_not_arg))
     test_not_arg=NIL;
   # test_not_arg ist das :TEST-NOT-Argument
   if (nullp(test_not_arg)) {
@@ -521,8 +521,7 @@ LISPFUN(tree_equal,2,0,norest,key,2, (kw(test),kw(test_not)) )
   {
     var object* stackptr = &STACK_0;
     var up2_function_t up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente überprüfen
-    value1 = tree_equal(stackptr,up2_fun,STACK_3,STACK_2) ? T : NIL;
-    mv_count=1;
+    VALUES_IF(tree_equal(stackptr,up2_fun,STACK_3,STACK_2));
     skipSTACK(4);
   }
 
@@ -543,8 +542,7 @@ local bool endp (object obj) {
 
 LISPFUNN(endp,1) # (ENDP object), CLTL S. 264
   {
-    value1 = endp(popSTACK()) ? T : NIL;
-    mv_count=1;
+    VALUES_IF(endp(popSTACK()));
   }
 
 LISPFUNN(list_length,1) # (LIST-LENGTH list), CLTL S. 265
@@ -569,13 +567,12 @@ LISPFUNN(list_length,1) # (LIST-LENGTH list), CLTL S. 265
       if (endp(fast))
         break;
       if (eq(fast,slow)) { # (eq (cdr fast) slow)
-        value1=NIL; mv_count=1; return;
+        VALUES1(NIL); return;
       }
       fast = Cdr(fast); n++;
       slow = Cdr(slow);
     }
-    value1 = fixnum(n); # n als Fixnum
-    mv_count=1;
+    VALUES1(fixnum(n)); # n als Fixnum
   }
 
 # Fehlermeldung für NTH und NTHCDR
@@ -599,64 +596,64 @@ LISPFUNN(nth,2) # (NTH integer list), CLTL S. 265
       # count mal den CDR von list nehmen:
       dotimesL(count,count, { list = cdr(list); } );
       # 1 mal den CAR nehmen:
-      value1 = car(list); mv_count=1;
+      VALUES1(car(list));
     } else
       fehler_nth();
   }
 
 LISPFUNN(first,1) # (FIRST list), CLTL S. 266
   {
-    value1 = car(popSTACK()); mv_count=1;
+    VALUES1(car(popSTACK()));
   }
 
 LISPFUNN(second,1) # (SECOND list), CLTL S. 266
   {
-    value1 = car(cdr(popSTACK())); mv_count=1;
+    VALUES1(car(cdr(popSTACK())));
   }
 
 LISPFUNN(third,1) # (THIRD list), CLTL S. 266
   {
-    value1 = car(cdr(cdr(popSTACK()))); mv_count=1;
+    VALUES1(car(cdr(cdr(popSTACK()))));
   }
 
 LISPFUNN(fourth,1) # (FOURTH list), CLTL S. 266
   {
-    value1 = car(cdr(cdr(cdr(popSTACK())))); mv_count=1;
+    VALUES1(car(cdr(cdr(cdr(popSTACK())))));
   }
 
 LISPFUNN(fifth,1) # (FIFTH list), CLTL S. 266
   {
-    value1 = car(cdr(cdr(cdr(cdr(popSTACK()))))); mv_count=1;
+    VALUES1(car(cdr(cdr(cdr(cdr(popSTACK()))))));
   }
 
 LISPFUNN(sixth,1) # (SIXTH list), CLTL S. 266
   {
-    value1 = car(cdr(cdr(cdr(cdr(cdr(popSTACK())))))); mv_count=1;
+    VALUES1(car(cdr(cdr(cdr(cdr(cdr(popSTACK())))))));
   }
 
 LISPFUNN(seventh,1) # (SEVENTH list), CLTL S. 266
   {
-    value1 = car(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK()))))))); mv_count=1;
+    VALUES1(car(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK()))))))));
   }
 
 LISPFUNN(eighth,1) # (EIGHTH list), CLTL S. 266
   {
-    value1 = car(cdr(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK())))))))); mv_count=1;
+    VALUES1(car(cdr(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK())))))))));
   }
 
 LISPFUNN(ninth,1) # (NINTH list), CLTL S. 266
   {
-    value1 = car(cdr(cdr(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK()))))))))); mv_count=1;
+    VALUES1(car(cdr(cdr(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK()))))))))));
   }
 
 LISPFUNN(tenth,1) # (TENTH list), CLTL S. 266
   {
-    value1 = car(cdr(cdr(cdr(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK())))))))))); mv_count=1;
+    VALUES1(car(cdr(cdr(cdr(cdr(cdr(cdr(cdr(cdr(cdr(popSTACK())))))))))));
   }
 
 LISPFUNN(rest,1) # (REST list), CLTL S. 266
   {
-    value1 = cdr(popSTACK()); mv_count=1;
+    VALUES1(cdr(popSTACK()));
   }
 
 LISPFUNN(nthcdr,2) # (NTHCDR integer list), CLTL S. 267
@@ -666,7 +663,7 @@ LISPFUNN(nthcdr,2) # (NTHCDR integer list), CLTL S. 267
       var uintL count = posfixnum_to_L(popSTACK()); # Wert des Fixnum
       # count mal den CDR von list nehmen:
       dotimesL(count,count, { list = cdr(list); } );
-      value1 = list; mv_count=1;
+      VALUES1(list);
     } else
       fehler_nth();
   }
@@ -696,7 +693,7 @@ LISPFUN(last,1,1,norest,nokey,0,NIL) # (LAST list [n]), CLtL2 S. 416-417, dpANS 
     var object intarg = popSTACK();
     # optionales Integer-Argument überprüfen:
     var uintL count; # Anzahl der zu kopierenden Elemente
-    if (eq(intarg,unbound)) {
+    if (!boundp(intarg)) {
       count = 1;
     } else {
       if (!(integerp(intarg) && positivep(intarg)))
@@ -736,7 +733,7 @@ LISPFUN(last,1,1,norest,nokey,0,NIL) # (LAST list [n]), CLtL2 S. 416-417, dpANS 
         }
         break;
     }
-    value1 = list; mv_count=1;
+    VALUES1(list);
   }
 
 # UP: Bildet eine Liste mit gegebenen Elementen.
@@ -769,7 +766,7 @@ LISPFUN(list,0,0,rest,nokey,0,NIL)
       Car(new_cons) = STACK_0;
       STACK_0 = new_cons;
     });
-    value1 = popSTACK(); mv_count=1;
+    VALUES1(popSTACK());
   }
 
 LISPFUN(liststern,1,0,rest,nokey,0,NIL)
@@ -783,18 +780,18 @@ LISPFUN(liststern,1,0,rest,nokey,0,NIL)
       Car(new_cons) = STACK_0;
       STACK_0 = new_cons;
     });
-    value1 = popSTACK(); mv_count=1;
+    VALUES1(popSTACK());
   }
 
 LISPFUN(make_list,1,0,norest,key,1, (kw(initial_element)) )
   # (MAKE-LIST size :initial-element), CLTL S. 268
   {
     # :initial-element überprüfen:
-    if (eq(STACK_0,unbound))
+    if (!boundp(STACK_0))
       STACK_0 = NIL; # Default-Initialisierung für initial-element
     # :size überprüfen:
     if (posfixnump(STACK_1)) {
-      value1 = make_list(posfixnum_to_L(STACK_1)); mv_count=1;
+      VALUES1(make_list(posfixnum_to_L(STACK_1)));
       skipSTACK(2);
     } else {
       # size in STACK_1
@@ -810,7 +807,7 @@ LISPFUN(make_list,1,0,norest,key,1, (kw(initial_element)) )
 LISPFUN(append,0,0,rest,nokey,0,NIL) # (APPEND {list}), CLTL S. 268
   {
     if (argcount==0) {
-      value1=NIL; mv_count=1; # keine Argumente -> NIL als Ergebnis
+      VALUES1(NIL); # keine Argumente -> NIL als Ergebnis
     } else {
       # Argumente aneinanderhängen. Dazu Schleife argcount-1 mal durchlaufen:
       dotimesC(argcount,argcount-1, {
@@ -859,7 +856,7 @@ LISPFUN(append,0,0,rest,nokey,0,NIL) # (APPEND {list}), CLTL S. 268
           STACK_0 = list1; # und die Kopie ist die neue Gesamtliste
         }
       });
-      value1 = popSTACK(); mv_count=1; # Gesamtliste als Wert
+      VALUES1(popSTACK()); # Gesamtliste als Wert
     }
   }
 
@@ -867,7 +864,7 @@ LISPFUNN(copy_list,1) # (COPY-LIST list), CLTL S. 268
   {
     var object list = popSTACK();
     if (listp(list)) {
-      value1 = copy_list(list); mv_count=1;
+      VALUES1(copy_list(list));
     } else
       fehler_list(list);
   }
@@ -903,7 +900,7 @@ local object copy_alist (object alist) {
 }
 
 LISPFUNN(copy_alist,1) # (COPY-ALIST alist), CLTL S. 268
-  { value1 = copy_alist(popSTACK()); mv_count=1; }
+  { VALUES1(copy_alist(popSTACK())); }
 
 # UP: Kopiert einen Baum.
 local object copy_tree (object tree) {
@@ -929,7 +926,7 @@ local object copy_tree (object tree) {
 
 LISPFUNN(copy_tree,1) # (COPY-TREE tree), CLTL S. 269
   {
-    value1 = copy_tree(popSTACK()); mv_count=1;
+    VALUES1(copy_tree(popSTACK()));
   }
 
 LISPFUNN(revappend,2) # (REVAPPEND list object), CLTL S. 269
@@ -940,14 +937,14 @@ LISPFUNN(revappend,2) # (REVAPPEND list object), CLTL S. 269
       STACK_0 = new_cons; # das ist das neue, verlängerte object
       STACK_1 = Cdr(STACK_1); # list verkürzen
     }
-    value1 = popSTACK(); mv_count=1;
+    VALUES1(popSTACK());
     skipSTACK(1);
   }
 
 LISPFUN(nconc,0,0,rest,nokey,0,NIL) # (NCONC {list}), CLTL S. 269
   {
     if (argcount==0) {
-      value1=NIL; mv_count=1; # keine Argumente -> NIL als Ergebnis
+      VALUES1(NIL); # keine Argumente -> NIL als Ergebnis
     } else {
       # Argumente aneinanderhängen. Dazu Schleife argcount-1 mal durchlaufen:
       dotimesC(argcount,argcount-1, {
@@ -974,7 +971,7 @@ LISPFUN(nconc,0,0,rest,nokey,0,NIL) # (NCONC {list}), CLTL S. 269
           # STACK_0 = neue Gesamtliste
         }
       });
-      value1 = popSTACK(); mv_count=1;
+      VALUES1(popSTACK());
     }
   }
 
@@ -983,7 +980,7 @@ LISPFUNN(nreconc,2) # (NRECONC list1 list2), CLTL S. 269
     var object list2 = popSTACK();
     var object list1 = popSTACK();
     if (listp(list1)) {
-      value1 = nreconc(list1,list2); mv_count=1;
+      VALUES1(nreconc(list1,list2));
     } else
       fehler_list(list1);
   }
@@ -991,7 +988,7 @@ LISPFUNN(nreconc,2) # (NRECONC list1 list2), CLTL S. 269
 LISPFUNN(list_nreverse,1) # (SYS::LIST-NREVERSE list)
 # wie (NREVERSE list), wenn list eine Liste ist.
   {
-    value1 = nreverse(popSTACK()); mv_count=1;
+    VALUES1(nreverse(popSTACK()));
   }
 
 LISPFUN(butlast,1,1,norest,nokey,0,NIL)
@@ -1000,7 +997,7 @@ LISPFUN(butlast,1,1,norest,nokey,0,NIL)
     var object intarg = popSTACK();
     # optionales Integer-Argument überprüfen:
     var uintL count; # Anzahl der zu entfernenden Elemente
-    if (eq(intarg,unbound)) {
+    if (!boundp(intarg)) {
       count = 1;
     } else {
       if (!(integerp(intarg) && positivep(intarg)))
@@ -1014,7 +1011,7 @@ LISPFUN(butlast,1,1,norest,nokey,0,NIL)
     if (len==0 && !nullp(STACK_0))
       fehler_list(STACK_0);
     if (len<=count) {
-      value1=NIL; mv_count=1; skipSTACK(1); # Länge(list)<=count -> NIL als Wert
+      VALUES1(NIL); skipSTACK(1); /* length(list)<=count -> return NIL */
     } else {
       var uintL new_len = len - count; # >0
       # Liefere eine Kopie der ersten new_len Conses der Liste STACK_0:
@@ -1026,7 +1023,7 @@ LISPFUN(butlast,1,1,norest,nokey,0,NIL)
         Car(new_lauf) = Car(old_lauf);
         old_lauf = Cdr(old_lauf); new_lauf = Cdr(new_lauf);
       } until (atomp(new_lauf));
-      value1 = new_list; mv_count=1;
+      VALUES1(new_list);
     }
   }
 
@@ -1036,7 +1033,7 @@ LISPFUN(nbutlast,1,1,norest,nokey,0,NIL)
     var object intarg = popSTACK();
     # optionales Integer-Argument überprüfen:
     var uintL count; # Anzahl der zu entfernenden Elemente
-    if (eq(intarg,unbound)) {
+    if (!boundp(intarg)) {
       count = 1;
     } else {
       if (!(integerp(intarg) && positivep(intarg)))
@@ -1050,14 +1047,14 @@ LISPFUN(nbutlast,1,1,norest,nokey,0,NIL)
     if (len==0 && !nullp(STACK_0))
       fehler_list(STACK_0);
     if (len<=count) {
-      value1=NIL; mv_count=1; skipSTACK(1); # Länge(list)<=count -> NIL als Wert
+      VALUES1(NIL); skipSTACK(1); /* length(list)<=count -> return NIL */
     } else {
       var uintL new_len = len - count; # >0
       var object lauf = STACK_0; # läuft durch die Liste
       # new_len-1 mal den CDR nehmen und dann den CDR auf NIL setzen:
       dotimesL(new_len,new_len-1, { lauf = Cdr(lauf); } );
       Cdr(lauf) = NIL;
-      value1 = popSTACK(); mv_count=1; # Liste als Wert
+      VALUES1(popSTACK()); /* return list */
     }
   }
 
@@ -1095,7 +1092,7 @@ LISPFUNN(ldiff,2) # (LDIFF list sublist), CLTL S. 272
       }
       old_lauf = Cdr(old_lauf); new_lauf = Cdr(new_lauf);
     }
-    value1 = new_list; mv_count=1;
+    VALUES1(new_list);
   }
 
 # Fehlermeldung für RPLACA und RPLACD u.ä.
@@ -1117,7 +1114,7 @@ LISPFUNN(rplaca,2) # (RPLACA cons object), CLTL S. 272
       var object arg2 = popSTACK();
       var object arg1 = popSTACK();
       Car(arg1) = arg2;
-      value1 = arg1; mv_count=1;
+      VALUES1(arg1);
     }
   }
 
@@ -1130,7 +1127,7 @@ LISPFUNN(prplaca,2) # (SYS::%RPLACA cons object)
       var object arg2 = popSTACK();
       var object arg1 = popSTACK();
       Car(arg1) = arg2;
-      value1 = arg2; mv_count=1;
+      VALUES1(arg2);
     }
   }
 
@@ -1142,7 +1139,7 @@ LISPFUNN(rplacd,2) # (RPLACD cons object), CLTL S. 272
       var object arg2 = popSTACK();
       var object arg1 = popSTACK();
       Cdr(arg1) = arg2;
-      value1 = arg1; mv_count=1;
+      VALUES1(arg1);
     }
   }
 
@@ -1155,7 +1152,7 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
       var object arg2 = popSTACK();
       var object arg1 = popSTACK();
       Cdr(arg1) = arg2;
-      value1 = arg2; mv_count=1;
+      VALUES1(arg2);
     }
   }
 
@@ -1240,7 +1237,7 @@ local bool up_if_not (const object* stackptr, object x) {
 # < STACK_0: korrekte KEY-Funktion
 local void test_key_arg (void) {
   var object key_arg = STACK_0;
-  if (eq(key_arg,unbound) || nullp(key_arg))
+  if (missingp(key_arg))
     STACK_0 = L(identity); # #'IDENTITY als Default für :KEY
 }
 
@@ -1278,11 +1275,11 @@ local void test_key_arg (void) {
 typedef bool (*up_function_t) (const object* stackptr, object x);
 local up_function_t test_test_args (void) {
   var object test_arg = STACK_2;
-  if (eq(test_arg,unbound))
+  if (!boundp(test_arg))
     test_arg=NIL;
   # test_arg ist das :TEST-Argument
   var object test_not_arg = STACK_1;
-  if (eq(test_not_arg,unbound))
+  if (!boundp(test_not_arg))
     test_not_arg=NIL;
   # test_not_arg ist das :TEST-NOT-Argument
   if (nullp(test_not_arg)) {
@@ -1349,8 +1346,7 @@ LISPFUN(subst,3,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     { var object newobj = STACK_5; pushSTACK(newobj); }
     # Stackaufbau: new, old, tree, test, test_not, key, new.
-    value1 = subst(STACK_4,&STACK_2,up_fun); # Ersetzung durchführen
-    mv_count=1;
+    VALUES1(subst(STACK_4,&STACK_2,up_fun)); /* do the substitution */
     skipSTACK(7);
   }
 
@@ -1360,8 +1356,7 @@ LISPFUN(subst_if,3,0,norest,key,1, (kw(key)) )
     test_key_arg(); # :KEY-Argument in STACK_0
     { var object newobj = STACK_3; pushSTACK(newobj); }
     # Stackaufbau: new, pred, tree, key, new.
-    value1 = subst(STACK_2,&STACK_2,&up_if); # Ersetzung durchführen
-    mv_count=1;
+    VALUES1(subst(STACK_2,&STACK_2,&up_if)); /* do the substitution */
     skipSTACK(5);
   }
 
@@ -1371,8 +1366,7 @@ LISPFUN(subst_if_not,3,0,norest,key,1, (kw(key)) )
     test_key_arg(); # :KEY-Argument in STACK_0
     { var object newobj = STACK_3; pushSTACK(newobj); }
     # Stackaufbau: new, pred, tree, key, new.
-    value1 = subst(STACK_2,&STACK_2,&up_if_not); # Ersetzung durchführen
-    mv_count=1;
+    VALUES1(subst(STACK_2,&STACK_2,&up_if_not)); /* do the substitution */
     skipSTACK(5);
   }
 
@@ -1420,8 +1414,7 @@ LISPFUN(nsubst,3,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     { var object newobj = STACK_5; pushSTACK(newobj); }
     # Stackaufbau: new, old, tree, test, test_not, key, new.
-    value1 = nsubst(STACK_4,&STACK_2,up_fun); # Ersetzung durchführen
-    mv_count=1;
+    VALUES1(nsubst(STACK_4,&STACK_2,up_fun)); /* do the substitution */
     skipSTACK(7);
   }
 
@@ -1431,8 +1424,7 @@ LISPFUN(nsubst_if,3,0,norest,key,1, (kw(key)) )
     test_key_arg(); # :KEY-Argument in STACK_0
     { var object newobj = STACK_3; pushSTACK(newobj); }
     # Stackaufbau: new, pred, tree, key, new.
-    value1 = nsubst(STACK_2,&STACK_2,&up_if); # Ersetzung durchführen
-    mv_count=1;
+    VALUES1(nsubst(STACK_2,&STACK_2,&up_if)); /* do the substitution */
     skipSTACK(5);
   }
 
@@ -1442,8 +1434,7 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
     test_key_arg(); # :KEY-Argument in STACK_0
     { var object newobj = STACK_3; pushSTACK(newobj); }
     # Stackaufbau: new, pred, tree, key, new.
-    value1 = nsubst(STACK_2,&STACK_2,&up_if_not); # Ersetzung durchführen
-    mv_count=1;
+    VALUES1(nsubst(STACK_2,&STACK_2,&up_if_not)); /* do the substitution */
     skipSTACK(5);
   }
 
@@ -1546,14 +1537,13 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     # up2_fun = Testfunktion, wird mit stackptr und (KEY x) und u als
     # Argumenten angesprungen. Sie liefert true, falls der Test erfüllt ist.
     if (nullp(STACK_4)) { # shortcut: nothing to do if alist = ()
-      value1 = STACK_3; mv_count=1;
+      VALUES1(STACK_3);
       skipSTACK(5);
     } else {
       pushSTACK(NIL); # Dummy
       pushSTACK(make_machine_code(up2_fun)); # Testfunktion, wegen Typinfo=machine_type GC-sicher!
       # Stackaufbau: alist, tree, test, test_not, key, dummy, up2_fun.
-      value1 = sublis(STACK_5,stackptr); # Ersetzung durchführen
-      mv_count=1;
+      VALUES1(sublis(STACK_5,stackptr)); /* do the substitution */
       skipSTACK(7);
     }
   }
@@ -1605,14 +1595,13 @@ LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     # up2_fun = Testfunktion, wird mit stackptr und (KEY x) und u als
     # Argumenten angesprungen. Sie liefert true, falls der Test erfüllt ist.
     if (nullp(STACK_4)) { # shortcut: nothing to do if alist = ()
-      value1 = STACK_3; mv_count=1;
+      VALUES1(STACK_3);
       skipSTACK(5);
     } else {
       pushSTACK(NIL); # Dummy
       pushSTACK(make_machine_code(up2_fun)); # Testfunktion, wegen Typinfo=machine_type GC-sicher!
       # Stackaufbau: alist, tree, test, test_not, key, dummy, up2_fun.
-      value1 = nsublis(STACK_5,stackptr); # Ersetzung durchführen
-      mv_count=1;
+      VALUES1(nsublis(STACK_5,stackptr)); /* do the substitution */
       skipSTACK(7);
     }
   }
@@ -1636,8 +1625,7 @@ global object memq (const object obj, const object lis) {
 LISPFUNN(memq,2) {
   var object lis = popSTACK();
   var object obj = popSTACK();
-  value1 = memq1(obj,lis,true);
-  mv_count = 1;
+  VALUES1(memq1(obj,lis,true));
 }
 
 # UP: Liefert den Listenrest ab dem Listenelement, das der TESTFUNktion
@@ -1676,8 +1664,7 @@ LISPFUN(member,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     test_key_arg(); # :KEY-Argument in STACK_0
     var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     pushSTACK(L(member)); # Aufrufer
-    value1 = member(STACK_4,&STACK_2,up_fun); # Suche durchführen
-    mv_count=1;
+    VALUES1(member(STACK_4,&STACK_2,up_fun)); /* do the search */
     skipSTACK(6);
   }
 
@@ -1686,8 +1673,7 @@ LISPFUN(member_if,2,0,norest,key,1, (kw(key)) )
   {
     test_key_arg(); # :KEY-Argument in STACK_0
     pushSTACK(L(member_if)); # Aufrufer
-    value1 = member(STACK_2,&STACK_2,&up_if); # Suche durchführen
-    mv_count=1;
+    VALUES1(member(STACK_2,&STACK_2,&up_if)); /* do the search */
     skipSTACK(4);
   }
 
@@ -1696,8 +1682,7 @@ LISPFUN(member_if_not,2,0,norest,key,1, (kw(key)) )
   {
     test_key_arg(); # :KEY-Argument in STACK_0
     pushSTACK(L(member_if_not)); # Aufrufer
-    value1 = member(STACK_2,&STACK_2,&up_if_not); # Suche durchführen
-    mv_count=1;
+    VALUES1(member(STACK_2,&STACK_2,&up_if_not)); /* do the search */
     skipSTACK(4);
   }
 
@@ -1738,9 +1723,9 @@ LISPFUNN(tailp,2) # (TAILP sublist list), CLTL S. 275
       list = Cdr(list);
     }
     #endif
-    value1 = NIL; mv_count=1; return; # NIL als Wert
+    VALUES1(NIL); return; # NIL als Wert
    yes:
-    value1 = T; mv_count=1; return; # T als Wert
+    VALUES1(T); return; # T als Wert
   }
 
 LISPFUN(adjoin,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
@@ -1761,11 +1746,11 @@ LISPFUN(adjoin,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
       var object new_cons = allocate_cons();
       Cdr(new_cons) = STACK_5; # = list
       Car(new_cons) = STACK_1; # = item
-      value1 = new_cons;
+      VALUES1(new_cons);
     } else {
-      value1 = STACK_5; # list als Wert
+      VALUES1(STACK_5); # list als Wert
     }
-    mv_count=1; skipSTACK(7); return;
+    skipSTACK(7); return;
   }
 
 LISPFUNN(acons,3)
@@ -1781,7 +1766,7 @@ LISPFUNN(acons,3)
       var object new_cons = allocate_cons();
       Cdr(new_cons) = popSTACK(); # alist
       Car(new_cons) = popSTACK(); # (key . val)
-      value1 = new_cons; mv_count=1;
+      VALUES1(new_cons);
       skipSTACK(1);
     }
   }
@@ -1789,7 +1774,7 @@ LISPFUNN(acons,3)
 LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
   # (PAIRLIS keys data [alist]), CLTL S. 280
   {
-    if (eq(STACK_0,unbound))
+    if (!boundp(STACK_0))
       STACK_0=NIL; # NIL als Default für alist
 
     {
@@ -1831,7 +1816,7 @@ LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
       fehler(error,GETTEXT("~: lists ~ and ~ are not of same length"));
     }
    end:
-    value1 = STACK_2; mv_count=1; skipSTACK(5); # alist als Wert
+    VALUES1(STACK_2); skipSTACK(5); # alist als Wert
   }
 
 # UP: Liefert das erste Listenelement, dessen CAR der TESTFUNktion genügt.
@@ -1869,8 +1854,7 @@ LISPFUN(assoc,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   {
     test_key_arg(); # :KEY-Argument in STACK_0
     var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
-    value1 = assoc(STACK_3,&STACK_1,up_fun); # Suche durchführen
-    mv_count=1;
+    VALUES1(assoc(STACK_3,&STACK_1,up_fun)); /* do the search */
     skipSTACK(5);
   }
 
@@ -1878,8 +1862,7 @@ LISPFUN(assoc_if,2,0,norest,key,1, (kw(key)) )
   # (ASSOC-IF pred alist :key), CLTL S. 280
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    value1 = assoc(STACK_1,&STACK_1,&up_if); # Suche durchführen
-    mv_count=1;
+    VALUES1(assoc(STACK_1,&STACK_1,&up_if)); /* do the search */
     skipSTACK(3);
   }
 
@@ -1887,8 +1870,7 @@ LISPFUN(assoc_if_not,2,0,norest,key,1, (kw(key)) )
   # (ASSOC-IF-NOT pred alist :key), CLTL S. 280
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    value1 = assoc(STACK_1,&STACK_1,&up_if_not); # Suche durchführen
-    mv_count=1;
+    VALUES1(assoc(STACK_1,&STACK_1,&up_if_not)); /* do the search */
     skipSTACK(3);
   }
 
@@ -1927,8 +1909,7 @@ LISPFUN(rassoc,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   {
     test_key_arg(); # :KEY-Argument in STACK_0
     var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
-    value1 = rassoc(STACK_3,&STACK_1,up_fun); # Suche durchführen
-    mv_count=1;
+    VALUES1(rassoc(STACK_3,&STACK_1,up_fun)); /* do the search */
     skipSTACK(5);
   }
 
@@ -1936,8 +1917,7 @@ LISPFUN(rassoc_if,2,0,norest,key,1, (kw(key)) )
   # (RASSOC-IF pred alist :key), CLTL S. 281
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    value1 = rassoc(STACK_1,&STACK_1,&up_if); # Suche durchführen
-    mv_count=1;
+    VALUES1(rassoc(STACK_1,&STACK_1,&up_if)); /* do the search */
     skipSTACK(3);
   }
 
@@ -1945,8 +1925,7 @@ LISPFUN(rassoc_if_not,2,0,norest,key,1, (kw(key)) )
   # (RASSOC-IF-NOT pred alist :key), CLTL S. 281
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    value1 = rassoc(STACK_1,&STACK_1,&up_if_not); # Suche durchführen
-    mv_count=1;
+    VALUES1(rassoc(STACK_1,&STACK_1,&up_if_not)); /* do the search */
     skipSTACK(3);
   }
 
@@ -1955,13 +1934,13 @@ LISPFUN(rassoc_if_not,2,0,norest,key,1, (kw(key)) )
 LISPFUNN(list_upd,2)
   # #'(lambda (seq pointer) (cdr pointer))
   {
-    value1 = cdr(popSTACK()); mv_count=1; skipSTACK(1);
+    VALUES1(cdr(popSTACK())); skipSTACK(1);
   }
 
 LISPFUNN(list_endtest,2)
   # #'(lambda (seq pointer) (atom pointer))
   {
-    value1 = (matomp(STACK_0) ? T : NIL); mv_count=1; skipSTACK(2);
+    VALUES_IF(matomp(STACK_0)); skipSTACK(2);
   }
 
 LISPFUNN(list_fe_init,1)
@@ -1976,7 +1955,7 @@ LISPFUNN(list_access,2)
     var object pointer = popSTACK();
     if (atomp(pointer))
       fehler_cons(pointer);
-    value1 = Car(pointer); mv_count=1;
+    VALUES1(Car(pointer));
     skipSTACK(1);
   }
 
@@ -1988,14 +1967,14 @@ LISPFUNN(list_access_set,3)
     var object value = popSTACK();
     var object pointer = popSTACK();
     Car(pointer) = value;
-    value1 = value; mv_count=1;
+    VALUES1(value);
     skipSTACK(1);
   }
 
 LISPFUNN(list_llength,1)
   # #'(lambda (seq) (do ((L seq (cdr L)) (N 0 (1+ N))) ((atom L) N)))
   {
-    value1 = fixnum(llength(popSTACK())); mv_count=1;
+    VALUES1(fixnum(llength(popSTACK())));
   }
 
 # UP: Läuft bis zum Element index in einer Liste.
@@ -2039,7 +2018,7 @@ LISPFUNN(list_elt,2)
   {
     var object index = popSTACK();
     var object seq = popSTACK();
-    value1 = Car(elt_up(seq,index)); mv_count=1;
+    VALUES1(Car(elt_up(seq,index)));
   }
 
 LISPFUNN(list_set_elt,3)
@@ -2051,7 +2030,7 @@ LISPFUNN(list_set_elt,3)
   #   ) )
   {
     var object nthcdr = elt_up(STACK_2,STACK_1);
-    value1 = Car(nthcdr) = popSTACK(); mv_count=1;
+    VALUES1(Car(nthcdr) = popSTACK());
     skipSTACK(2);
   }
 
@@ -2074,7 +2053,7 @@ LISPFUNN(list_init_start,2)
       l = Cdr(l);
       n = fixnum_inc(n,1);
     }
-    value1 = l; mv_count=1; return;
+    VALUES1(l); return;
    index_too_large:
     pushSTACK(seq);
     pushSTACK(index); # TYPE-ERROR slot DATUM
@@ -2131,7 +2110,7 @@ LISPFUNN(list_fe_init_end,2)
     pushSTACK(S(list_fe_init_end));
     fehler(type_error,GETTEXT("~: end index ~ too large for ~"));
    end:
-    value1 = STACK_2; mv_count=1; # L1 als Wert
+    VALUES1(STACK_2); /* return L1 */
     skipSTACK(5);
   }
 

@@ -7,8 +7,8 @@
 # (SYSTEM::%EXIT [errorp]) verlässt das System
 LISPFUN(exit,0,1,norest,nokey,0,NIL) {
   var object errorp = STACK_0;
-  final_exitcode = ((eq(errorp,unbound) || nullp(errorp)) ? 0 :
-                    (posfixnump(errorp) ? posfixnum_to_L(errorp) : 1));
+  final_exitcode = missingp(errorp) ? 0 :
+                   (posfixnump(errorp) ? posfixnum_to_L(errorp) : 1);
   quit();
 }
 
@@ -33,7 +33,7 @@ LISPSPECFORM(eval_when, 1,0,body)
       situations = Cdr(situations);
     }
     # Symbol EVAL nicht gefunden
-    value1 = NIL; mv_count=1; # Wert NIL
+    VALUES1(NIL);
     skipSTACK(2);
     return;
    found: # Symbol EVAL gefunden
@@ -46,7 +46,7 @@ LISPSPECFORM(eval_when, 1,0,body)
 LISPSPECFORM(quote, 1,0,nobody)
 # (QUOTE object) == 'object, CLTL S. 86
   {
-    value1 = popSTACK(); mv_count=1; # Argument als Wert
+    VALUES1(popSTACK()); /* argument as value */
   }
 
 # Fehlermeldung bei FUNCTION/FLET/LABELS, wenn kein Funktionssymbol vorliegt.
@@ -68,7 +68,7 @@ LISPSPECFORM(function, 1,1,nobody)
   {
     var object funname; # Funktionsname (Symbol oder Lambdabody)
     var object name; # Name (Symbol)
-    if (eq(STACK_0,unbound)) {
+    if (!boundp(STACK_0)) {
       # 1 Argument
       funname = STACK_1;
       if (funnamep(funname)) {
@@ -88,7 +88,7 @@ LISPSPECFORM(function, 1,1,nobody)
                   );
           }
         }
-        value1 = fun; mv_count=1; skipSTACK(2); return;
+        VALUES1(fun); skipSTACK(2); return;
       }
       name = S(Klambda); # :LAMBDA als Default-Name
     } else {
@@ -102,7 +102,7 @@ LISPSPECFORM(function, 1,1,nobody)
       fehler_funname_source(S(function),funname);
     # Lambdaausdruck
     # im aktuellen Environment in eine Closure umwandeln:
-    value1 = get_closure(Cdr(funname),name,false,&aktenv); mv_count=1;
+    VALUES1(get_closure(Cdr(funname),name,false,&aktenv));
     skipSTACK(2); return;
   }
 
@@ -125,9 +125,9 @@ LISPFUNN(psymbol_value,1)
     if (!symbolp(symbol))
       fehler_symbol(symbol);
     var object val = Symbol_value(symbol);
-    if (eq(val,unbound))
+    if (!boundp(val))
       fehler_no_value(symbol);
-    value1 = val; mv_count=1;
+    VALUES1(val);
   }
 
 LISPFUNN(symbol_value,1)
@@ -137,14 +137,13 @@ LISPFUNN(symbol_value,1)
     if (!symbolp(symbol))
       fehler_symbol(symbol);
     var object val = Symbol_value(symbol);
-    if (eq(val,unbound))
+    if (!boundp(val))
       fehler_no_value(symbol);
     if (symbolmacrop(val)) { # Symbol-Macro?
       # ja -> expandieren und evaluieren:
       eval_noenv(TheSymbolmacro(val)->symbolmacro_expansion); mv_count=1;
-    } else {
-      value1 = val; mv_count=1;
-    }
+    } else 
+      VALUES1(val);
   }
 
 # Fehlermeldung wegen undefinierter Funktion.
@@ -167,27 +166,27 @@ LISPFUNN(symbol_function,1)
     if (!symbolp(symbol))
       fehler_symbol(symbol);
     var object val = Symbol_function(symbol);
-    if (eq(val,unbound))
+    if (!boundp(val))
       fehler_undef_function(S(symbol_function),symbol);
-    value1 = val; mv_count=1;
+    VALUES1(val);
   }
 
 LISPFUNN(fdefinition,1)
 # (FDEFINITION funname), CLTL2 S. 120
-  {
+{
   var object funname = popSTACK();
-    var object symbol = funname;
-    if (!funnamep(symbol))
-      fehler_symbol(symbol);
-    if (!symbolp(symbol)) {
-      symbol = get(Car(Cdr(symbol)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
-      if (!symbolp(symbol)) # sollte (uninterniertes) Symbol sein
-        fehler_undef_function(S(fdefinition),funname); # sonst undefiniert
+  var object symbol = funname;
+  if (!funnamep(symbol))
+    fehler_symbol(symbol);
+  if (!symbolp(symbol)) {
+    symbol = get(Car(Cdr(symbol)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
+    if (!symbolp(symbol)) # sollte (uninterniertes) Symbol sein
+      fehler_undef_function(S(fdefinition),funname); # sonst undefiniert
   }
-    var object val = Symbol_function(symbol);
-    if (eq(val,unbound))
+  var object val = Symbol_function(symbol);
+  if (!boundp(val))
     fehler_undef_function(S(fdefinition),funname);
-    value1 = val; mv_count=1;
+  VALUES1(val);
 }
 
 LISPFUNN(boundp,1)
@@ -196,28 +195,26 @@ LISPFUNN(boundp,1)
     var object symbol = popSTACK();
     if (!symbolp(symbol))
       fehler_symbol(symbol);
-    value1 = (eq(Symbol_value(symbol),unbound) ? NIL : T); mv_count=1;
+    VALUES_IF(boundp(Symbol_value(symbol)));
   }
 
 LISPFUNN(fboundp,1)
 # (FBOUNDP symbol), CLTL S. 90, CLTL2 S. 120
-  {
-    var object symbol = popSTACK();
-    if (!funnamep(symbol))
-      fehler_symbol(symbol);
-    if (!symbolp(symbol)) {
-      symbol = get(Car(Cdr(symbol)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
-      if (!symbolp(symbol)) # sollte (uninterniertes) Symbol sein
-        goto undef; # sonst undefiniert
-    }
-    if (eq(Symbol_function(symbol),unbound)) {
-     undef:
-      value1 = NIL;
-    } else {
-      value1 = T;
-    }
-    mv_count=1;
+{
+  var object symbol = popSTACK();
+  if (!funnamep(symbol))
+    fehler_symbol(symbol);
+  if (!symbolp(symbol)) {
+    symbol = get(Car(Cdr(symbol)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
+    if (!symbolp(symbol)) # sollte (uninterniertes) Symbol sein
+      goto undef; # sonst undefiniert
   }
+  if (!boundp(Symbol_function(symbol))) {
+   undef:
+    VALUES1(NIL);
+  } else 
+    VALUES1(T);
+}
 
 LISPFUNN(special_operator_p,1)
 # (SPECIAL-OPERATOR-P symbol), was (SPECIAL-FORM-P symbol), CLTL S. 91
@@ -226,7 +223,7 @@ LISPFUNN(special_operator_p,1)
     if (!symbolp(symbol))
       fehler_symbol(symbol);
     var object obj = Symbol_function(symbol);
-    value1 = (fsubrp(obj) ? T : NIL); mv_count=1;
+    VALUES_IF(fsubrp(obj));
   }
 
 # Fehlermeldung bei Zuweisung, wenn ein Symbol eine Konstante ist.
@@ -342,7 +339,7 @@ LISPSPECFORM(psetq, 0,0,body)
           });
         }
       }
-      value1 = NIL; mv_count=1; # Wert NIL
+      VALUES1(NIL);
     }
   }
 
@@ -361,7 +358,7 @@ LISPFUNN(set,2)
       pushSTACK(S(quote)); pushSTACK(STACK_(0+3)); pushSTACK(listof(2));
       eval_noenv(listof(3)); mv_count=1;
     } else {
-      value1 = Symbol_value(symbol) = STACK_0; mv_count=1;
+      VALUES1(Symbol_value(symbol) = STACK_0);
     }
     skipSTACK(2);
   }
@@ -380,7 +377,7 @@ LISPFUNN(makunbound,1)
             );
     }
     Symbol_value(symbol) = unbound;
-    value1 = symbol; mv_count=1;
+    VALUES1(symbol);
   }
 
 LISPFUNN(fmakunbound,1)
@@ -407,7 +404,7 @@ LISPFUNN(fmakunbound,1)
     }
     Symbol_function(symbol) = unbound;
    undef:
-    value1 = funname; mv_count=1;
+    VALUES1(funname);
   }
 
 LISPFUN(apply,2,0,rest,nokey,0,NIL)
@@ -458,7 +455,7 @@ LISPSPECFORM(prog1, 1,0,body)
   {
     STACK_1 = (eval(STACK_1),value1); # form1 evaluieren, Wert retten
     implicit_prog();
-    value1 = popSTACK(); mv_count=1; # geretteten Wert zurückgeben
+    VALUES1(popSTACK()); /* return saved value */
   }
 
 LISPSPECFORM(prog2, 2,0,body)
@@ -468,7 +465,7 @@ LISPSPECFORM(prog2, 2,0,body)
     eval(STACK_1); STACK_2 = value1; # form2 evaluieren, Wert retten
     STACK_1 = STACK_0; skipSTACK(1);
     implicit_prog();
-    value1 = popSTACK(); mv_count=1; # geretteten Wert zurückgeben
+    VALUES1(popSTACK()); /* return saved value */
   }
 
 # Fehlermeldung wegen nicht erlaubter Docstrings
@@ -740,7 +737,7 @@ LISPSPECFORM(let, 1,0,body)
           dotimespC(count,bind_count, {
             var object* initptr = &NEXT(frame_pointer);
             var object init = *initptr; # nächstes Init
-            *initptr = (eq(init,unbound) ? NIL : (eval(init),value1)); # auswerten, NIL als Default
+            *initptr = (!boundp(init) ? NIL : (eval(init),value1)); /* evaluate, NIL as default */
             frame_pointer skipSTACKop -(varframe_binding_size-1);
           });
         }
@@ -797,7 +794,7 @@ LISPSPECFORM(letstern, 1,0,body)
           frame_pointer skipSTACKop -varframe_binding_size;
           var object* markptr = &Before(frame_pointer);
           var object init = *initptr; # nächstes Init
-          var object newval = (eq(init,unbound) ? NIL : (eval(init),value1)); # auswerten, NIL als Default
+          var object newval = (!boundp(init) ? NIL : (eval(init),value1)); /* evaluate, NIL as default */
           if (as_oint(*markptr) & wbit(dynam_bit_o)) { # Bindung dynamisch?
             var object symbol = *(markptr STACKop varframe_binding_sym); # Variable
             *initptr = TheSymbolflagged(symbol)->symvalue; # alten Wert im Frame sichern
@@ -1262,8 +1259,8 @@ LISPSPECFORM(if, 2,1,nobody)
       form = STACK_1; skipSTACK(3); # form1 auswerten
     } else {
       form = STACK_0; skipSTACK(3); # form2 auswerten
-      if (eq(form,unbound)) {
-        value1 = NIL; mv_count=1; return; # keine angegeben -> NIL
+      if (!boundp(form)) {
+        VALUES1(NIL); return; /* not supplied -> NIL */
       }
     }
     eval(form);
@@ -1279,7 +1276,7 @@ LISPSPECFORM(when, 1,0,body)
       implicit_progn(body,NIL);
     } else {
       skipSTACK(2);
-      value1 = NIL; mv_count=1;
+      VALUES1(NIL);
     }
   }
 
@@ -1293,7 +1290,7 @@ LISPSPECFORM(unless, 1,0,body)
       implicit_progn(body,NIL);
     } else {
       skipSTACK(2);
-      value1 = NIL; mv_count=1;
+      VALUES1(NIL);
     }
   }
 
@@ -1318,7 +1315,7 @@ LISPSPECFORM(cond, 0,0,body)
       skipSTACK(1); # nächste probieren
     }
     # keine Bedingung war erfüllt.
-    skipSTACK(1); value1 = NIL; mv_count=1; return;
+    VALUES1(NIL); skipSTACK(1); return;
     # erfüllte Bedingung gefunden:
    eval_clause:
     var object clause_rest = popSTACK(); # Klausel-Rest
@@ -1367,7 +1364,7 @@ LISPSPECFORM(case, 1,0,body)
       }
     }
     # keine Bedingung war erfüllt.
-    value1 = NIL; mv_count=1; return;
+    VALUES1(NIL); return;
     # erfüllte Bedingung gefunden:
    eval_clause:
     var object clause_rest = Cdr(clause); # Klausel-Rest
@@ -1459,10 +1456,10 @@ LISPSPECFORM(return_from, 1,1,nobody)
     # Werte produzieren, mit denen der Block verlassen werden soll:
     var object result = popSTACK();
     skipSTACK(1);
-    if (!eq(result,unbound)) { # result angegeben?
+    if (boundp(result)) { /* result supplied? */
       eval(result);
     } else {
-      value1 = NIL; mv_count=1;
+      VALUES1(NIL);
     }
     # Zum gefundenen Block-Frame springen und ihn auflösen:
     unwind_upto(FRAME);
@@ -1476,168 +1473,168 @@ LISPSPECFORM(return_from, 1,1,nobody)
 #ifdef MAP_REVERSES
 
 # Macro für MAPCAR und MAPLIST
-  #define MAPCAR_MAPLIST_BODY(listaccess)  \
-    { var object* args_pointer = rest_args_pointer STACKop 2;                   \
-      argcount++; # argcount := Anzahl der Listen auf dem Stack                 \
-      # Platz für die Funktionsaufruf-Argumente reservieren:                    \
-      get_space_on_STACK(sizeof(object)*(uintL)argcount);                       \
-      pushSTACK(NIL); # Anfang der Ergebnisliste                                \
-     {var object* ergptr = &STACK_0; # Pointer darauf                           \
-      # alle Listen parallel durchlaufen:                                       \
-      loop                                                                      \
-        { var object* argptr = args_pointer;                                    \
-          var object fun = NEXT(argptr);                                        \
-          var uintC count;                                                      \
-          dotimespC(count,argcount,                                             \
-            { var object* next_list_ = &NEXT(argptr);                           \
-              var object next_list = *next_list_;                               \
+#define MAPCAR_MAPLIST_BODY(listaccess)                                 \
+    { var object* args_pointer = rest_args_pointer STACKop 2;           \
+      argcount++; # argcount := Anzahl der Listen auf dem Stack         \
+      # Platz für die Funktionsaufruf-Argumente reservieren:            \
+      get_space_on_STACK(sizeof(object)*(uintL)argcount);               \
+      pushSTACK(NIL); # Anfang der Ergebnisliste                        \
+     {var object* ergptr = &STACK_0; # Pointer darauf                   \
+      # alle Listen parallel durchlaufen:                               \
+      loop                                                              \
+        { var object* argptr = args_pointer;                            \
+          var object fun = NEXT(argptr);                                \
+          var uintC count;                                              \
+          dotimespC(count,argcount,                                     \
+            { var object* next_list_ = &NEXT(argptr);                   \
+              var object next_list = *next_list_;                       \
               if (atomp(next_list)) goto fertig; # eine Liste zu Ende -> fertig \
-              pushSTACK(listaccess(next_list)); # als Argument auf den Stack    \
-              *next_list_ = Cdr(next_list); # Liste verkürzen                   \
-            });                                                                 \
-          funcall(fun,argcount); # Funktion aufrufen                            \
-          pushSTACK(value1);                                                    \
-         {var object new_cons = allocate_cons(); # neues Cons                   \
-          Car(new_cons) = popSTACK(); Cdr(new_cons) = STACK_0;                  \
-          STACK_0 = new_cons; # verlängert die Ergebnisliste                    \
-        }}                                                                      \
-      fertig:                                                                   \
-      value1 = nreverse(*ergptr); mv_count=1; # Ergebnisliste umdrehen          \
-      set_args_end_pointer(args_pointer); # STACK aufräumen                     \
+              pushSTACK(listaccess(next_list)); # als Argument auf den Stack \
+              *next_list_ = Cdr(next_list); # Liste verkürzen           \
+            });                                                         \
+          funcall(fun,argcount); # Funktion aufrufen                    \
+          pushSTACK(value1);                                            \
+         {var object new_cons = allocate_cons(); # neues Cons           \
+          Car(new_cons) = popSTACK(); Cdr(new_cons) = STACK_0;          \
+          STACK_0 = new_cons; # verlängert die Ergebnisliste            \
+        }}                                                              \
+      fertig:                                                           \
+      VALUES1(nreverse(*ergptr)); # Ergebnisliste umdrehen              \
+      set_args_end_pointer(args_pointer); # STACK aufräumen             \
     }}
 
 #else
 
 # Macro für MAPCAR und MAPLIST
-  #define MAPCAR_MAPLIST_BODY(listaccess)  \
-    { var object* args_pointer = rest_args_pointer STACKop 2;                   \
-      argcount++; # argcount := Anzahl der Listen auf dem Stack                 \
-      # Platz für die Funktionsaufruf-Argumente reservieren:                    \
-      get_space_on_STACK(sizeof(object)*(uintL)argcount);                       \
-      # Gesamtliste anfangen:                                                   \
-      {var object new_cons = allocate_cons(); # (CONS NIL NIL)                  \
-       pushSTACK(new_cons); # Gesamtliste                                       \
-       pushSTACK(new_cons); # (last Gesamtliste)                                \
-      }                                                                         \
-     {var object* ergptr = &STACK_1; # Pointer darauf                           \
-      # alle Listen parallel durchlaufen:                                       \
-      loop                                                                      \
-        { var object* argptr = args_pointer;                                    \
-          var object fun = NEXT(argptr);                                        \
-          var uintC count;                                                      \
-          dotimespC(count,argcount,                                             \
-            { var object* next_list_ = &NEXT(argptr);                           \
-              var object next_list = *next_list_;                               \
+#define MAPCAR_MAPLIST_BODY(listaccess)                                 \
+    { var object* args_pointer = rest_args_pointer STACKop 2;           \
+      argcount++; # argcount := Anzahl der Listen auf dem Stack         \
+      # Platz für die Funktionsaufruf-Argumente reservieren:            \
+      get_space_on_STACK(sizeof(object)*(uintL)argcount);               \
+      # Gesamtliste anfangen:                                           \
+      {var object new_cons = allocate_cons(); # (CONS NIL NIL)          \
+       pushSTACK(new_cons); # Gesamtliste                               \
+       pushSTACK(new_cons); # (last Gesamtliste)                        \
+      }                                                                 \
+     {var object* ergptr = &STACK_1; # Pointer darauf                   \
+      # alle Listen parallel durchlaufen:                               \
+      loop                                                              \
+        { var object* argptr = args_pointer;                            \
+          var object fun = NEXT(argptr);                                \
+          var uintC count;                                              \
+          dotimespC(count,argcount,                                     \
+            { var object* next_list_ = &NEXT(argptr);                   \
+              var object next_list = *next_list_;                       \
               if (atomp(next_list)) goto fertig; # eine Liste zu Ende -> fertig \
-              pushSTACK(listaccess(next_list)); # als Argument auf den Stack    \
-              *next_list_ = Cdr(next_list); # Liste verkürzen                   \
-            });                                                                 \
-          funcall(fun,argcount); # Funktion aufrufen                            \
-          pushSTACK(value1);                                                    \
-         {var object new_cons = allocate_cons(); # neues Cons                   \
-          Car(new_cons) = popSTACK(); # new_cons = (LIST (FUNCALL ...))         \
+              pushSTACK(listaccess(next_list)); # als Argument auf den Stack \
+              *next_list_ = Cdr(next_list); # Liste verkürzen           \
+            });                                                         \
+          funcall(fun,argcount); # Funktion aufrufen                    \
+          pushSTACK(value1);                                            \
+         {var object new_cons = allocate_cons(); # neues Cons           \
+          Car(new_cons) = popSTACK(); # new_cons = (LIST (FUNCALL ...)) \
           Cdr(STACK_0) = new_cons; STACK_0 = new_cons; # verlängert Gesamtliste \
-        }}                                                                      \
-      fertig:                                                                   \
-      value1 = Cdr(*ergptr); mv_count=1; # Ergebnisliste ohne Header-Cons       \
-      set_args_end_pointer(args_pointer); # STACK aufräumen                     \
+        }}                                                              \
+      fertig:                                                           \
+      VALUES1(Cdr(*ergptr)); # Ergebnisliste ohne Header-Cons           \
+      set_args_end_pointer(args_pointer); # STACK aufräumen             \
     }}
 
 #endif
 
 # Macro für MAPC und MAPL
-  #define MAPC_MAPL_BODY(listaccess)  \
-    { var object* args_pointer = rest_args_pointer STACKop 2;                   \
-      argcount++; # argcount := Anzahl der Listen auf dem Stack                 \
-      # Platz für die Funktionsaufruf-Argumente reservieren:                    \
-      get_space_on_STACK(sizeof(object)*(uintL)argcount);                       \
-      pushSTACK(BEFORE(rest_args_pointer)); # erstes Listenargument retten      \
-     {var object* ergptr = &STACK_0; # Pointer darauf                           \
-      # alle Listen parallel durchlaufen:                                       \
-      loop                                                                      \
-        { var object* argptr = args_pointer;                                    \
-          var object fun = NEXT(argptr);                                        \
-          var uintC count;                                                      \
-          dotimespC(count,argcount,                                             \
-            { var object* next_list_ = &NEXT(argptr);                           \
-              var object next_list = *next_list_;                               \
+#define MAPC_MAPL_BODY(listaccess)                                      \
+    { var object* args_pointer = rest_args_pointer STACKop 2;           \
+      argcount++; # argcount := Anzahl der Listen auf dem Stack         \
+      # Platz für die Funktionsaufruf-Argumente reservieren:            \
+      get_space_on_STACK(sizeof(object)*(uintL)argcount);               \
+      pushSTACK(BEFORE(rest_args_pointer)); # erstes Listenargument retten \
+     {var object* ergptr = &STACK_0; # Pointer darauf                   \
+      # alle Listen parallel durchlaufen:                               \
+      loop                                                              \
+        { var object* argptr = args_pointer;                            \
+          var object fun = NEXT(argptr);                                \
+          var uintC count;                                              \
+          dotimespC(count,argcount,                                     \
+            { var object* next_list_ = &NEXT(argptr);                   \
+              var object next_list = *next_list_;                       \
               if (atomp(next_list)) goto fertig; # eine Liste zu Ende -> fertig \
-              pushSTACK(listaccess(next_list)); # als Argument auf den Stack    \
-              *next_list_ = Cdr(next_list); # Liste verkürzen                   \
-            });                                                                 \
-          funcall(fun,argcount); # Funktion aufrufen                            \
-        }                                                                       \
-      fertig:                                                                   \
-      value1 = *ergptr; mv_count=1; # 1. Liste als Wert                         \
-      set_args_end_pointer(args_pointer); # STACK aufräumen                     \
+              pushSTACK(listaccess(next_list)); # als Argument auf den Stack \
+              *next_list_ = Cdr(next_list); # Liste verkürzen           \
+            });                                                         \
+          funcall(fun,argcount); # Funktion aufrufen                    \
+        }                                                               \
+      fertig:                                                           \
+      VALUES1(*ergptr); # 1. Liste als Wert                             \
+      set_args_end_pointer(args_pointer); # STACK aufräumen             \
     }}
 
 #ifdef MAP_REVERSES
 
 # Macro für MAPCAN und MAPCON
-  #define MAPCAN_MAPCON_BODY(listaccess)  \
-    { var object* args_pointer = rest_args_pointer STACKop 2;                   \
-      argcount++; # argcount := Anzahl der Listen auf dem Stack                 \
-      # Platz für die Funktionsaufruf-Argumente reservieren:                    \
-      get_space_on_STACK(sizeof(object)*(uintL)argcount);                       \
-      pushSTACK(NIL); # Anfang der Ergebnisliste                                \
-     {var object* ergptr = &STACK_0; # Pointer darauf                           \
-      # alle Listen parallel durchlaufen:                                       \
-      loop                                                                      \
-        { var object* argptr = args_pointer;                                    \
-          var object fun = NEXT(argptr);                                        \
-          var uintC count;                                                      \
-          dotimespC(count,argcount,                                             \
-            { var object* next_list_ = &NEXT(argptr);                           \
-              var object next_list = *next_list_;                               \
+#define MAPCAN_MAPCON_BODY(listaccess)                                  \
+    { var object* args_pointer = rest_args_pointer STACKop 2;           \
+      argcount++; # argcount := Anzahl der Listen auf dem Stack         \
+      # Platz für die Funktionsaufruf-Argumente reservieren:            \
+      get_space_on_STACK(sizeof(object)*(uintL)argcount);               \
+      pushSTACK(NIL); # Anfang der Ergebnisliste                        \
+     {var object* ergptr = &STACK_0; # Pointer darauf                   \
+      # alle Listen parallel durchlaufen:                               \
+      loop                                                              \
+        { var object* argptr = args_pointer;                            \
+          var object fun = NEXT(argptr);                                \
+          var uintC count;                                              \
+          dotimespC(count,argcount,                                     \
+            { var object* next_list_ = &NEXT(argptr);                   \
+              var object next_list = *next_list_;                       \
               if (atomp(next_list)) goto fertig; # eine Liste zu Ende -> fertig \
-              pushSTACK(listaccess(next_list)); # als Argument auf den Stack    \
-              *next_list_ = Cdr(next_list); # Liste verkürzen                   \
-            });                                                                 \
-          funcall(fun,argcount); # Funktion aufrufen                            \
-          STACK_0 = nreconc(value1,STACK_0); # Ergebnis anhängen                \
-        }                                                                       \
-      fertig:                                                                   \
-      value1 = nreconc(*ergptr,NIL); mv_count=1; # Ergebnisliste umdrehen       \
-      set_args_end_pointer(args_pointer); # STACK aufräumen                     \
+              pushSTACK(listaccess(next_list)); # als Argument auf den Stack \
+              *next_list_ = Cdr(next_list); # Liste verkürzen           \
+            });                                                         \
+          funcall(fun,argcount); # Funktion aufrufen                    \
+          STACK_0 = nreconc(value1,STACK_0); # Ergebnis anhängen        \
+        }                                                               \
+      fertig:                                                           \
+      VALUES1(nreconc(*ergptr,NIL)); # Ergebnisliste umdrehen           \
+      set_args_end_pointer(args_pointer); # STACK aufräumen             \
     }}
 
 #else
 
 # Macro für MAPCAN und MAPCON
-  #define MAPCAN_MAPCON_BODY(listaccess)  \
-    { var object* args_pointer = rest_args_pointer STACKop 2;                   \
-      argcount++; # argcount := Anzahl der Listen auf dem Stack                 \
-      # Platz für die Funktionsaufruf-Argumente reservieren:                    \
-      get_space_on_STACK(sizeof(object)*(uintL)argcount);                       \
-      # Gesamtliste anfangen:                                                   \
-      {var object new_cons = allocate_cons(); # (CONS NIL NIL)                  \
-       pushSTACK(new_cons); # Gesamtliste                                       \
-       pushSTACK(new_cons); # (last Gesamtliste)                                \
-      }                                                                         \
-     {var object* ergptr = &STACK_1; # Pointer darauf                           \
-      # alle Listen parallel durchlaufen:                                       \
-      loop                                                                      \
-        { var object* argptr = args_pointer;                                    \
-          var object fun = NEXT(argptr);                                        \
-          var uintC count;                                                      \
-          dotimespC(count,argcount,                                             \
-            { var object* next_list_ = &NEXT(argptr);                           \
-              var object next_list = *next_list_;                               \
+#define MAPCAN_MAPCON_BODY(listaccess)                                  \
+    { var object* args_pointer = rest_args_pointer STACKop 2;           \
+      argcount++; # argcount := Anzahl der Listen auf dem Stack         \
+      # Platz für die Funktionsaufruf-Argumente reservieren:            \
+      get_space_on_STACK(sizeof(object)*(uintL)argcount);               \
+      # Gesamtliste anfangen:                                           \
+      {var object new_cons = allocate_cons(); # (CONS NIL NIL)          \
+       pushSTACK(new_cons); # Gesamtliste                               \
+       pushSTACK(new_cons); # (last Gesamtliste)                        \
+      }                                                                 \
+     {var object* ergptr = &STACK_1; # Pointer darauf                   \
+      # alle Listen parallel durchlaufen:                               \
+      loop                                                              \
+        { var object* argptr = args_pointer;                            \
+          var object fun = NEXT(argptr);                                \
+          var uintC count;                                              \
+          dotimespC(count,argcount,                                     \
+            { var object* next_list_ = &NEXT(argptr);                   \
+              var object next_list = *next_list_;                       \
               if (atomp(next_list)) goto fertig; # eine Liste zu Ende -> fertig \
-              pushSTACK(listaccess(next_list)); # als Argument auf den Stack    \
-              *next_list_ = Cdr(next_list); # Liste verkürzen                   \
-            });                                                                 \
-          funcall(fun,argcount); # Funktion aufrufen                            \
-         {var object list = value1; # anzuhängende Liste                        \
-          if (consp(list))                                                      \
-            { Cdr(STACK_0) = list; # als (cdr (last Gesamtliste)) einhängen     \
-              while (mconsp(Cdr(list))) { list = Cdr(list); }                   \
-              STACK_0 = list; # und (last Gesamtliste) := (last list)           \
-        }}  }                                                                   \
-      fertig:                                                                   \
-      value1 = Cdr(*ergptr); mv_count=1; # Ergebnisliste ohne Header-Cons       \
-      set_args_end_pointer(args_pointer); # STACK aufräumen                     \
+              pushSTACK(listaccess(next_list)); # als Argument auf den Stack \
+              *next_list_ = Cdr(next_list); # Liste verkürzen           \
+            });                                                         \
+          funcall(fun,argcount); # Funktion aufrufen                    \
+         {var object list = value1; # anzuhängende Liste                \
+          if (consp(list))                                              \
+            { Cdr(STACK_0) = list; # als (cdr (last Gesamtliste)) einhängen \
+              while (mconsp(Cdr(list))) { list = Cdr(list); }           \
+              STACK_0 = list; # und (last Gesamtliste) := (last list)   \
+        }}  }                                                           \
+      fertig:                                                           \
+      VALUES1(Cdr(*ergptr)); # Ergebnisliste ohne Header-Cons           \
+      set_args_end_pointer(args_pointer); # STACK aufräumen             \
     }}
 
 #endif
@@ -1735,7 +1732,7 @@ LISPSPECFORM(tagbody, 0,0,body)
       skipSTACK(2); # GENV-Frame wieder auflösen, GENV ist unverändert
       pushSTACK(body); implicit_prog();
     }
-    value1 = NIL; mv_count=1; # Wert NIL
+    VALUES1(NIL);
   }
 
 LISPSPECFORM(go, 1,0,nobody)
@@ -1839,7 +1836,7 @@ LISPSPECFORM(multiple_value_list, 1,0,nobody)
   {
     eval(popSTACK()); # form auswerten
     mv_to_list(); # Werte in Liste packen
-    value1 = popSTACK(); mv_count=1; # Liste als Wert
+    VALUES1(popSTACK()); /* return list */
   }
 
 LISPSPECFORM(multiple_value_call, 1,0,body)
@@ -2130,7 +2127,7 @@ LISPFUNN(unwind_to_top,0) {
   local void test_env()
     {
       var object arg = STACK_0;
-      if (eq(arg,unbound)
+      if (!boundp(arg)
           || nullp(arg) # required by ANSI CL sections 3.1.1.3.1, 3.1.1.4
          ) {
         STACK_0 = allocate_vector(2); # Vektor #(nil nil) als Default
@@ -2156,10 +2153,10 @@ LISPFUN(macro_function,1,1,norest,nokey,0,NIL)
     if (fsubrp(fundef)) {
       # ein FSUBR -> Propertyliste absuchen: (GET symbol 'SYS::MACRO)
       var object got = get(symbol,S(macro)); # suchen
-      if (eq(got,unbound)) # nichts gefunden?
+      if (!bound(got)) /* not found? */
         goto nil;
       value1 = got;
-    } elif (macrop(fundef)) { # #<MACRO expander> ?
+    } else if (macrop(fundef)) { # #<MACRO expander> ?
       value1 = TheMacro(fundef)->macro_expander;
     } else { # SUBR/Closure/FunctionMacro/#<UNBOUND> -> keine Macrodefinition
      nil:
@@ -2298,7 +2295,7 @@ LISPFUNN(proclaim,1)
       skipSTACK(1);
     }
     # Alles restliche wird ignoriert.
-    value1 = NIL; mv_count=1;
+    VALUES1(NIL);
   }
 
 LISPFUNN(eval,1)
@@ -2326,7 +2323,7 @@ LISPSPECFORM(load_time_value, 1,1,nobody)
     var environment_t* env5;
     {
       var object env = popSTACK(); # env-Argument
-      if (eq(env,unbound)) { # nicht angegeben -> leeres Environment
+      if (!boundp(env)) { /* not supplied -> void environment */
         env5->var_env   = NIL;
         env5->fun_env   = NIL;
         env5->block_env = NIL;
@@ -2451,15 +2448,15 @@ LISPFUN(constantp,1,1,norest,nokey,0,NIL)
         default:
           goto nein;
       }
-   ja: value1 = T; mv_count=1; return;
-   nein: value1 = NIL; mv_count=1; return;
+   ja: VALUES1(T); return;
+  nein: VALUES1(NIL); return;
   }
 
 LISPFUNN(function_name_p,1)
 # (SYS::FUNCTION-NAME-P expr) erkennt Funktionsnamen
   {
     var object arg = popSTACK();
-    value1 = (funnamep(arg) ? T : NIL); mv_count=1;
+    VALUES_IF(funnamep(arg));
   }
 
 LISPFUN(parse_body,1,2,norest,nokey,0,NIL)
@@ -2472,7 +2469,7 @@ LISPFUN(parse_body,1,2,norest,nokey,0,NIL)
 #  env sollte ein Function-Environment sein.)
   {
     test_env();
-    var bool docstring_allowed = (!eq(STACK_1,unbound) && !nullp(STACK_1)); # Docstrings erlaubt?
+    var bool docstring_allowed = !missingp(STACK_1);
     var object body = STACK_2; # body = ({decl|doc} {form})
     STACK_1 = NIL; # Noch war kein Doc-String da
     pushSTACK(NIL); # Anfang decl-spec-Liste
@@ -2537,12 +2534,12 @@ LISPFUN(parse_body,1,2,norest,nokey,0,NIL)
         break;
       }
     }
-    value1 = body;
-    value2 = nreverse(popSTACK()); # decl-spec-Liste
-    skipSTACK(1);
-    value3 = popSTACK(); # Doc-String
-    skipSTACK(1);
-    mv_count=3; # 3 Werte: ({form}), declspecs, doc
+
+    /* 3 values: ({form}), declspecs, doc */
+    VALUES3(body,
+            nreverse(STACK_0), /* decl-spec-list */
+            STACK_2); # Doc-String
+    skipSTACK(4);
   }
 
 LISPFUNN(keyword_test,2)
@@ -2599,7 +2596,7 @@ LISPFUNN(keyword_test,2)
     }
     fertig:
     skipSTACK(2);
-    value1 = NIL; mv_count=0; # keine Werte
+    VALUES1(NIL);
   }
 
 LISPSPECFORM(and, 0,0,body)
@@ -2607,7 +2604,7 @@ LISPSPECFORM(and, 0,0,body)
   {
     var object body = popSTACK();
     if (atomp(body)) {
-      value1 = T; mv_count=1; # (AND) -> T
+      VALUES1(T); /* (AND) -> T */
     } else {
       loop {
         pushSTACK(Cdr(body));
@@ -2627,7 +2624,7 @@ LISPSPECFORM(or, 0,0,body)
   {
     var object body = popSTACK();
     if (atomp(body)) {
-      value1 = NIL; mv_count=1; # (OR) -> NIL
+      VALUES1(NIL); /* (OR) -> NIL */
     } else {
       loop {
         pushSTACK(Cdr(body));

@@ -388,15 +388,14 @@ LISPFUNN(get_internal_real_time,0)
 # (GET-INTERNAL-REAL-TIME), CLTL S. 446
 #ifdef TIME_1
   {
-    value1 = UL_to_I(get_real_time()); # get real time since start of session
-    mv_count=1;
+    VALUES1(UL_to_I(get_real_time())); /* get real time since start of session */
   }
 #endif
 #ifdef TIME_2
   {
     var internal_time_t tp; # absolute real time
     get_real_time(&tp);
-    value1 = internal_time_to_I(&tp); mv_count=1; # convert to integer
+    VALUES1(internal_time_to_I(&tp)); /* convert to integer */
   }
 #endif
 
@@ -406,10 +405,10 @@ LISPFUNN(get_internal_run_time,0)
     var timescore_t tm;
     get_running_times(&tm); # get run time since start of session
    #ifdef TIME_1
-    value1 = UL_to_I(tm.runtime); mv_count=1; # convert to integer
+    VALUES1(UL_to_I(tm.runtime)); /* convert to integer */
    #endif
    #ifdef TIME_2
-    value1 = internal_time_to_I(&tm.runtime); mv_count=1; # convert to integer
+    VALUES1(internal_time_to_I(&tm.runtime)); /* convert to integer */
    #endif
   }
 
@@ -729,7 +728,7 @@ global object convert_time_to_universal (const FILETIME* time) {
       # Start-Zeit merken:
       realstart_datetime = *timepoint;
       # und, wenn möglich, gleich in Universal Time umwandeln:
-      if (!eq(Symbol_function(S(encode_universal_time)),unbound)) {
+      if (boundp(Symbol_function(S(encode_universal_time)))) {
         # Ist ENCODE-UNIVERSAL-TIME definiert -> sofort in UT umwandeln:
         O(start_UT) = encode_universal_time(timepoint);
       }
@@ -768,7 +767,7 @@ global object convert_time_to_universal (const FILETIME* time) {
 LISPFUNN(get_universal_time,0)
 # (get-universal-time), CLTL S. 445
   {
-    value1 = UL_to_I(universal_time_sec()); mv_count=1;
+    VALUES1(UL_to_I(universal_time_sec()));
   }
 
 # UP: Initialisiert die Zeitvariablen beim LISP-System-Start.
@@ -893,8 +892,7 @@ LISPFUN(default_time_zone,0,1,norest,nokey,0,NIL)
     funcall(L(durch),2);
     # Sommerzeit-p entnehmen:
     # tm_isdst < 0 bedeutet "unbekannt"; wir nehmen an, keine Sommerzeit.
-    value2 = (now_local.tm_isdst > 0 ? T : NIL);
-    mv_count=2;
+    VALUES2(value1, now_local.tm_isdst > 0 ? T : NIL);
   }
 #endif # UNIX || WIN32
 
@@ -937,7 +935,7 @@ LISPFUNN(sleep,1)
       # (Attention: the MSDOS clock always advances 5 or 6 ticks at a time!)
       do {} until ((sintL)(get_real_time()-endtime) >= 0);
     }
-    value1 = NIL; mv_count=1; # 1 Wert NIL
+    VALUES1(NIL); # 1 Wert NIL
   }
 #endif
 #ifdef TIME_AMIGAOS
@@ -946,7 +944,7 @@ LISPFUNN(sleep,1)
   {
     var uintL delay = I_to_UL(popSTACK()); # Pausenlänge
     if (delay>0) { begin_system_call(); Delay(delay); end_system_call(); }
-    value1 = NIL; mv_count=1; # 1 Wert NIL
+    VALUES1(NIL); # 1 Wert NIL
   }
 #endif
 #endif
@@ -1026,7 +1024,7 @@ LISPFUNN(sleep,2)
       #endif
     }
     end_system_call();
-    value1 = NIL; mv_count=1; # 1 Wert NIL
+    VALUES1(NIL);
   }
 #endif
 #ifdef TIME_WIN32
@@ -1044,7 +1042,7 @@ LISPFUNN(sleep,2)
     } else {
       end_system_call();
     }
-    value1 = NIL; mv_count=1; # 1 Wert NIL
+    VALUES1(NIL);
   }
 #endif
 #endif
@@ -1162,9 +1160,9 @@ LISPFUNN(delta4,5) {
     fehler(arithmetic_error,GETTEXT("~: too large shift amount ~"));
   }
  #ifdef intQsize
-  value1 = UQ_to_I((del << shift) + n2 - o2);
+  VALUES1(UQ_to_I((del << shift) + n2 - o2));
  #else
-  value1 = UL2_to_I(del >> 32-shift,(del << shift) + n2 - o2);
+  VALUES1(UL2_to_I(del >> 32-shift,(del << shift) + n2 - o2));
  #endif
-  mv_count = 1; skipSTACK(5);
+  skipSTACK(5);
 }

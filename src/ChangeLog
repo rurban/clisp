@@ -1,3 +1,15 @@
+2002-09-11  Marco Baringer  <empb@bese.it>
+	    Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (VALUES_IF, VALUES0, VALUES1, VALUES2, VALUES3)
+	(boundp, nullpSv, missingp): new macros
+	* affi.d, aridecl.d, array.d, charstrg.d, control.d, debug.d:
+	* dirkey.d, encoding.d, error.d, eval.d, flo_rest.d, foreign.d:
+	* hashtabl.d, i18n.d, io.d, lisparit.d, lispbibl.d, list.d, misc.d:
+	* package.d, pathname.d, predtype.d, realelem.d, record.d, rexx.d:
+	* sequence.d, socket.d, spvw.d, spvw_garcol.d, stream.d, symbol.d:
+	* time.d: use them
+
 2002-09-08  Sam Steingold  <sds@gnu.org>
 
 	* acorn.d, msdos.d, unix.d, unixaux.d, m4/signal.m4, unix/sigsegv.c:

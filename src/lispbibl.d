@@ -886,6 +886,20 @@
   #define RESTORE_REGISTERS(inner_statement)
 #endif
 
+#define VALUES_IF(cond) \
+  do { value1 = (cond) ? T : NIL; mv_count = 1; } while (0)
+
+#define VALUES0                                 \
+  do { value1 = NIL; mv_count = 0; } while (0)
+
+#define VALUES1(A)                               \
+  do { value1 = (A); mv_count = 1; } while (0)
+
+#define VALUES2(A,B)                            \
+  do { value1 = (A); value2 = (B); mv_count = 2; } while (0)
+
+#define VALUES3(A,B,C)                          \
+  do { value1 = (A); value2 = (B); value3 = (C); mv_count = 3; } while (0)
 
 # ###################### Macros for C ##################### #
 
@@ -4717,7 +4731,7 @@ typedef struct {
 # When the weak-pointer becomes inactive, both fields are turned to unbound.
 #define weakpointer_length  0
 #define weakpointer_xlength  (sizeof(*(Weakpointer)0)-offsetofa(record_,recdata)-weakpointer_length*sizeof(object))
-#define weakpointer_broken_p(wp) eq(TheWeakpointer(wp)->wp_cdr,unbound)
+#define weakpointer_broken_p(wp) (!boundp(TheWeakpointer(wp)->wp_cdr))
 
 # weak key-value table for weak hashtables
 typedef struct {
@@ -5522,6 +5536,12 @@ typedef struct {
 
 # Test for NIL
 #define nullp(obj)  (eq(obj,NIL))
+
+#define boundp(obj) (! eq(obj, unbound))
+
+#define nullpSv(obj) (nullp(Symbol_value(S(obj))))
+
+#define missingp(obj) (!boundp(obj) || nullp(obj))
 
 # Test for Cons
 #ifdef TYPECODES
@@ -8584,8 +8604,8 @@ If there are at least two values     : value2 = second value.
 If there are at least three values   : value3 = third value .
 All values are in mv_space .
 Recommended commands for returning of values to the caller:
-  0 values:   value1=NIL; mv_count=0;
-  1 value :     value1=...; mv_count=1;
+  0 values:   VALUES0;
+  1 value :     VALUES1(...);
   2 values:   value1=...; value2=...; mv_count=2;
   3 values:   value1=...; value2=...; value3=...; mv_count=3;
   more than 3 values:
@@ -10171,7 +10191,7 @@ extern object coerce_function (object obj);
 # can trigger GC
 #define implicit_progn(body,default)                                      \
   do { var object rest = (body);                                          \
-    if atomp(rest) { value1 = (default); mv_count=1; } # default as value \
+    if atomp(rest) { VALUES1(default); } # default as value \
     else                                                                  \
       do { pushSTACK(Cdr(rest)); eval(Car(rest)); rest=popSTACK(); }      \
       while (consp(rest));                                                \
@@ -11247,37 +11267,37 @@ extern object shifthash (object ht, object obj, object value);
 # > ht: Hash-Tabelle
 # Calls 'statement', where key and value are a pair from the table.
 # The first form is necessary, if the statement can trigger GC.
-#define map_hashtable(ht,key,value,statement)  \
-  do { var object ht_from_map_hashtable = (ht);                           \
-    var uintL index_from_map_hashtable =                                  \
+#define map_hashtable(ht,key,value,statement)                           \
+  do { var object ht_from_map_hashtable = (ht);                         \
+    var uintL index_from_map_hashtable =                                \
       2*posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
-    pushSTACK(TheHashtable(ht_from_map_hashtable)->ht_kvtable);           \
-    loop {                                                                \
-      if (index_from_map_hashtable==0) break;                             \
-        index_from_map_hashtable -= 2;                                    \
-      {var object* KVptr_from_map_hashtable =                             \
-         kvtable_data(STACK_0)+index_from_map_hashtable;                  \
-          var object key = KVptr_from_map_hashtable[0];                   \
-       if (!eq(key,unbound)) {                                            \
-         var object value = KVptr_from_map_hashtable[1];                  \
-              statement;                                                  \
-      } }   }                                                             \
-    skipSTACK(1);                                                         \
+    pushSTACK(TheHashtable(ht_from_map_hashtable)->ht_kvtable);         \
+    loop {                                                              \
+      if (index_from_map_hashtable==0) break;                           \
+        index_from_map_hashtable -= 2;                                  \
+      {var object* KVptr_from_map_hashtable =                           \
+         kvtable_data(STACK_0)+index_from_map_hashtable;                \
+          var object key = KVptr_from_map_hashtable[0];                 \
+       if (boundp(key)) {                                               \
+         var object value = KVptr_from_map_hashtable[1];                \
+              statement;                                                \
+      } }  }                                                            \
+    skipSTACK(1);                                                       \
   } while(0)
-#define map_hashtable_nogc(ht,key,value,statement)  \
-  do { var object ht_from_map_hashtable = (ht);                           \
-    var uintL index_from_map_hashtable =                                  \
-      posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount);   \
-    var object* KVptr_from_map_hashtable =                                \
+#define map_hashtable_nogc(ht,key,value,statement)                      \
+  do { var object ht_from_map_hashtable = (ht);                         \
+    var uintL index_from_map_hashtable =                                \
+      posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
+    var object* KVptr_from_map_hashtable =                              \
       ht_kvt_data(ht_from_map_hashtable) + 2*index_from_map_hashtable;  \
     loop {                                                              \
       if (index_from_map_hashtable==0) break;                           \
-        index_from_map_hashtable--; KVptr_from_map_hashtable -= 2;        \
-        { var object key = KVptr_from_map_hashtable[0];                   \
-       if (!eq(key,unbound)) {                                          \
+        index_from_map_hashtable--; KVptr_from_map_hashtable -= 2;      \
+        { var object key = KVptr_from_map_hashtable[0];                 \
+       if (boundp(key)) {                                               \
          var object value = KVptr_from_map_hashtable[1];                \
-              statement;                                                  \
-      } }   }                                                             \
+              statement;                                                \
+      } }   }                                                           \
   } while(0)
 # is used by IO
 

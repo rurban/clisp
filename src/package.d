@@ -1860,7 +1860,7 @@ local object test_package_arg (object obj) {
 LISPFUNN(make_symbol,1) { # (MAKE-SYMBOL printname), CLTL p. 168
   var object arg = popSTACK();
   if (!stringp(arg)) fehler_string(arg);
-  value1 = make_symbol(coerce_imm_ss(arg)); mv_count=1;
+  VALUES1(make_symbol(coerce_imm_ss(arg)));
 }
 
 # UP: checks a string/symbol-argument
@@ -1880,36 +1880,32 @@ local object test_stringsym_arg (object obj) {
 
 LISPFUNN(find_package,1) { # (FIND-PACKAGE name), CLTL p. 183
   var object name = test_stringsym_arg(popSTACK()); # argument as string
-  value1 = find_package(name); # search package
-  mv_count=1;
+  VALUES1(find_package(name)); /* search package */
 }
 
 LISPFUNN(pfind_package,1) { # (SYSTEM::%FIND-PACKAGE name)
-  value1 = test_package_arg(popSTACK()); # argument as package
-  mv_count=1;
+  VALUES1(test_package_arg(popSTACK())); /* argument as package */
 }
 
 LISPFUNN(package_name,1) { # (PACKAGE-NAME package), CLTL p. 184
   var object pack = popSTACK();
   if (packagep(pack) && pack_deletedp(pack)) {
-    value1 = NIL;
+    VALUES1(NIL);
   } else {
     pack = test_package_arg(pack); # argument as package
-    value1 = ThePackage(pack)->pack_name; # the name
+    VALUES1(ThePackage(pack)->pack_name); /* the name */
   }
-  mv_count=1;
 }
 
 LISPFUNN(package_nicknames,1) { # (PACKAGE-NICKNAMES package), CLTL p. 184
   var object pack = popSTACK();
   if (packagep(pack) && pack_deletedp(pack)) {
-    value1 = NIL;
+    VALUES1(NIL);
   } else {
     pack = test_package_arg(pack); # argument as package
     # copy nicknamelist for safety reasons
-    value1 = copy_list(ThePackage(pack)->pack_nicknames);
+    VALUES1(copy_list(ThePackage(pack)->pack_nicknames));
   }
-  mv_count=1;
 }
 
 # UP: checks name and nicknames -
@@ -1924,7 +1920,7 @@ local void test_names_args (void) {
   STACK_3 = coerce_imm_ss(test_stringsym_arg(STACK_3));
   { # convert nickname-argument into a list:
     var object nicknames = STACK_2;
-    if (eq(nicknames,unbound)) {
+    if (!boundp(nicknames)) {
       STACK_2 = NIL; # no nicknames specified -> default NIL
     } else {
       if (!listp(nicknames)) {
@@ -1994,37 +1990,33 @@ LISPFUN(rename_package,2,1,norest,nokey,0,NIL) {
   ThePackage(pack)->pack_nicknames = STACK_0;
   clr_break_sem_2();
   skipSTACK(3);
-  value1 = pack; mv_count=1; # pack as value
+  VALUES1(pack); # pack as value
 }
 
 LISPFUNN(package_use_list,1) { # (PACKAGE-USE-LIST package), CLTL p. 184
   var object pack = test_package_arg(popSTACK()); # argument as package
   # copy use-list for safety reasons
-  value1 = copy_list(ThePackage(pack)->pack_use_list);
-  mv_count=1;
+  VALUES1(copy_list(ThePackage(pack)->pack_use_list));
 }
 
 # (PACKAGE-USED-BY-LIST package), CLTL p. 184
 LISPFUNN(package_used_by_list,1) {
   var object pack = test_package_arg(popSTACK()); # argument as package
   # copy used-by-list for safety reasons
-  value1 = copy_list(ThePackage(pack)->pack_used_by_list);
-  mv_count=1;
+  VALUES1(copy_list(ThePackage(pack)->pack_used_by_list));
 }
 
 # (PACKAGE-SHADOWING-SYMBOLS package), CLTL p. 184
 LISPFUNN(package_shadowing_symbols,1) {
   var object pack = test_package_arg(popSTACK()); # argument as package
   # copy shadowing-list for safety reasons
-  value1 = copy_list(ThePackage(pack)->pack_shadowing_symbols);
-  mv_count=1;
+  VALUES1(copy_list(ThePackage(pack)->pack_shadowing_symbols));
 }
 
 # (EXT:PACKAGE-LOCK package)
 LISPFUNN(package_lock,1) {
   var object pack = test_package_arg(popSTACK());
-  value1 = (pack_locked_p(pack) ? T : NIL);
-  mv_count = 1;
+  VALUES_IF(pack_locked_p(pack));
 }
 
 # (SYSTEM::%SET-PACKAGE-LOCK package lock)
@@ -2034,16 +2026,16 @@ LISPFUNN(set_package_lock,2) {
   if (mconsp(pack)) {
     while (mconsp(pack)) {
       var object pa = test_package_arg(Car(pack)); pack = Cdr(pack);
-      if (eq(lock_p,NIL)) mark_pack_unlocked(pa);
+      if (nullp(lock_p)) mark_pack_unlocked(pa);
       else                mark_pack_locked(pa);
     }
   } else if (nullp(pack)) { # do nothing - package list was empty
   } else {
     pack = test_package_arg(pack);
-    if (eq(lock_p,NIL)) mark_pack_unlocked(pack);
+    if (nullp(lock_p)) mark_pack_unlocked(pack);
     else                mark_pack_locked(pack);
   }
-  value1 = (eq(lock_p,NIL) ? NIL : T); mv_count = 1;
+  VALUES_IF(! nullp(lock_p));
 }
 
 /* barf when SYMBOL is an unaccessible special variable
@@ -2063,8 +2055,7 @@ global void symbol_value_check_lock (object caller, object symbol) {
 LISPFUNN(symbol_value_lock,1) {
   var object symb = popSTACK();
   var object pack = Symbol_package(symb);
-  value1 = SYM_VAL_LOCK(symb,pack) ? T : NIL;
-  mv_count = 1;
+  VALUES_IF(SYM_VAL_LOCK(symb,pack));
 }
 
 /* (SYSTEM::CHECK-PACKAGE-LOCK caller package symbol)
@@ -2090,8 +2081,7 @@ LISPFUNN(check_package_lock,3) {
 
 # (LIST-ALL-PACKAGES) returns a list of all packages, CLTL p. 184
 LISPFUNN(list_all_packages,0) {
-  value1 = reverse(O(all_packages)); # (copy of the list, as a precaution)
-  mv_count=1;
+  VALUES1(reverse(O(all_packages))); /* (copy of the list, as a precaution) */
 }
 
 # UP: check the last argument &optional (pack *package*) of
@@ -2102,7 +2092,7 @@ LISPFUNN(list_all_packages,0) {
 # < STACK_0: argument transformed into a package
 local void test_optional_package_arg (void) {
   var object pack = STACK_0;
-  if (eq(pack,unbound)) {
+  if (!boundp(pack)) {
     STACK_0 = get_current_package(); # default is the value of *PACKAGE*
   } else {
     STACK_0 = test_package_arg(pack);
@@ -2171,7 +2161,7 @@ LISPFUN(unintern,1,1,norest,nokey,0,NIL) {
   # test package:
   test_optional_package_arg();
   # unintern:
-  value1 = unintern(&STACK_1,&STACK_0); mv_count=1;
+  VALUES1(unintern(&STACK_1,&STACK_0));
   skipSTACK(2);
 }
 
@@ -2237,7 +2227,7 @@ local Values apply_symbols (sym_pack_function_t* fun) {
     skipSTACK(3);
   }
   # finish:
-  value1 = T; mv_count=1;
+  VALUES1(T);
 }
 
 # (EXPORT symbols [package]), CLTL p. 186
@@ -2304,7 +2294,7 @@ LISPFUN(use_package,1,1,norest,nokey,0,NIL) {
   var object pack = popSTACK();
   var object packlist = popSTACK();
   use_package(packlist,pack);
-  value1 = T; mv_count=1;
+  VALUES1(T);
 }
 
 # (UNUSE-PACKAGE packs-to-use [package]), CLTL p. 187
@@ -2313,7 +2303,7 @@ LISPFUN(unuse_package,1,1,norest,nokey,0,NIL) {
   var object pack = popSTACK();
   var object packlist = popSTACK();
   unuse_package(packlist,pack);
-  value1 = T; mv_count=1;
+  VALUES1(T);
 }
 
 # UP: Corrects a package(nick)name.
@@ -2378,13 +2368,12 @@ local void in_make_package (void) {
   }
   { # create package:
     var object pack = make_package(STACK_3,STACK_2,
-                                   (eq(STACK_0,unbound) || nullp(STACK_0)
-                                    ? false : true));
+                                   !missingp(STACK_0));
     STACK_3 = pack; # and save
     # stack-layout: pack, nicknames, uselist-argument,
     # case-sensitive-argument.
     # use default value for use-argument:
-    if (eq(STACK_1,unbound))
+    if (!boundp(STACK_1))
       STACK_1 = O(use_default);
     # execute (USE-PACKAGE uselist newpackage) :
     pushSTACK(STACK_1); # uselist
@@ -2392,7 +2381,7 @@ local void in_make_package (void) {
     funcall(L(use_package),2);
   }
   skipSTACK(3);
-  value1 = popSTACK(); mv_count=1; # package as value
+  VALUES1(popSTACK()); /* package as value */
 }
 
 # (MAKE-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]
@@ -2420,7 +2409,7 @@ LISPFUN(pin_package,1,0,norest,key,3,
     STACK_3 = pack; # save pack
     # stack-layout: pack, nicknames, uselist, case-sensitive.
     # check the case-sensitivity:
-    if (!eq(STACK_0,unbound)) {
+    if (boundp(STACK_0)) {
       if (!(pack_casesensitivep(pack) == !nullp(STACK_0))) {
         pushSTACK(pack); # PACKAGE-ERROR slot PACKAGE
         pushSTACK(pack);
@@ -2429,7 +2418,7 @@ LISPFUN(pin_package,1,0,norest,key,3,
       }
     }
     # adjust the nicknames:
-    if (!eq(STACK_2,unbound)) {
+    if (boundp(STACK_2)) {
       # install nicknames with RENAME-PACKAGE:
       pushSTACK(pack); # pack
       pushSTACK(ThePackage(pack)->pack_name); # (package-name pack)
@@ -2438,7 +2427,7 @@ LISPFUN(pin_package,1,0,norest,key,3,
       funcall(L(rename_package),3);
     }
     # adjust the use-list:
-    if (!eq(STACK_1,unbound)) {
+    if (boundp(STACK_1)) {
       # extend use-list with USE-PACKAGE
       # and shorten with UNUSE-PACKAGE:
       STACK_0 = STACK_3; # pack as 2. argument for USE-PACKAGE
@@ -2469,7 +2458,7 @@ LISPFUN(pin_package,1,0,norest,key,3,
     }
     # the use-list is adjusted correctly.
     skipSTACK(3); # forget uselist, nicknames etc.
-    value1 = popSTACK(); mv_count=1;
+    VALUES1(popSTACK());
   }
 }
 
@@ -2479,7 +2468,7 @@ LISPFUNN(delete_package,1) {
   var object pack = popSTACK();
   if (packagep(pack)) {
     if (pack_deletedp(pack)) {
-      value1 = NIL; mv_count=1; return; # already deleted -> 1 value NIL
+      VALUES1(NIL); return; /* already deleted -> 1 value NIL */
     }
   } else if (stringp(pack)) {
   string: # string -> search package with this name:
@@ -2498,7 +2487,7 @@ LISPFUNN(delete_package,1) {
       # (SYS::CERROR-OF-TYPE "..." 'PACKAGE-ERROR :PACKAGE pack "..."
       # 'DELETE-PACKAGE pack)
       funcall(L(cerror_of_type),7);
-      value1 = NIL; mv_count=1; # One value NIL
+      VALUES1(NIL);
       return;
     }
     pack = found;
@@ -2544,7 +2533,7 @@ LISPFUNN(delete_package,1) {
   O(all_packages) = deleteq(O(all_packages),pack);
   mark_pack_deleted(pack);
   clr_break_sem_2();
-  value1 = T; mv_count=1; # one value T
+  VALUES1(T);
 }
 
 # Auxiliary function for DELETE-PACKAGE:
@@ -2581,7 +2570,7 @@ LISPFUNN(find_all_symbols,1) {
     STACK_0 = Cdr(STACK_0);
   }
   skipSTACK(1);
-  value1 = popSTACK(); mv_count=1; # symbol-list as value
+  VALUES1(popSTACK()); /* symbol-list as value */
   skipSTACK(1);
 }
 
@@ -2604,7 +2593,7 @@ LISPFUNN(map_symbols,2) {
                  ThePackage(usedpack)->pack_external_symbols);
   }
   skipSTACK(3);
-  value1 = NIL; mv_count=1; # NIL as value
+  VALUES1(NIL);
 }
 
 # Auxiliary function for map_symbols:
@@ -2636,7 +2625,7 @@ LISPFUNN(map_external_symbols,2) {
   var object pack = test_package_arg(popSTACK());
   # apply fun to all external symbols:
   map_symtab(popSTACK(),ThePackage(pack)->pack_external_symbols);
-  value1 = NIL; mv_count=1; # NIL as value
+  VALUES1(NIL);
 }
 
 # (SYSTEM::MAP-ALL-SYMBOLS fun)
@@ -2654,7 +2643,7 @@ LISPFUNN(map_all_symbols,1) {
     map_symtab(STACK_1,ThePackage(pack)->pack_external_symbols);
   }
   skipSTACK(2);
-  value1 = NIL; mv_count=1; # NIL as value
+  VALUES1(NIL);
 }
 
 # Subroutine for EXT:RE-EXPORT.
@@ -2682,8 +2671,7 @@ LISPFUNN(re_export,2) {
   }
   map_symtab_c(&export_symbol_from,&STACK_0,
                ThePackage(STACK_1)->pack_external_symbols);
-  value1 = NIL;
-  mv_count = 1;
+  VALUES1(NIL);
   skipSTACK(2);
 }
 
@@ -2709,7 +2697,7 @@ LISPFUNN(package_iterator,2) {
   TheSvector(state)->data[3] = ThePackage(STACK_1)->pack_use_list;
   TheSvector(state)->data[4] = STACK_1;
   TheSvector(state)->data[5] = STACK_0;
-  value1 = state; mv_count=1; skipSTACK(2); # state as value
+  VALUES1(state); skipSTACK(2); /* state as value */
 }
 
 LISPFUNN(package_iterate,1) {
@@ -2813,7 +2801,7 @@ LISPFUNN(package_iterate,1) {
       goto search5; # skip invalid flag
     }
   }
-  value1 = NIL; mv_count=1; return; # 1 value NIL
+  VALUES1(NIL); return;
 }
 
 # UP: initialize the package list

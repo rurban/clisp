@@ -138,13 +138,13 @@
                               })
                  );
       warn_x:
-        if (!nullp(Symbol_value(S(warn_on_floating_point_contagion))))
+        if (!nullpSv(warn_on_floating_point_contagion))
           { pushSTACK(x); warn_floating_point_contagion(); x = popSTACK(); }
-        return nullp(Symbol_value(S(floating_point_contagion_ansi))) ? x : y;
+        return nullpSv(floating_point_contagion_ansi) ? x : y;
       warn_y:
-        if (!nullp(Symbol_value(S(warn_on_floating_point_contagion))))
+        if (!nullpSv(warn_on_floating_point_contagion))
           { pushSTACK(y); warn_floating_point_contagion(); y = popSTACK(); }
-        return nullp(Symbol_value(S(floating_point_contagion_ansi))) ? y : x;
+        return nullpSv(floating_point_contagion_ansi) ? y : x;
       #undef WY
       #undef WX
       #undef Y

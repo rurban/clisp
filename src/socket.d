@@ -230,7 +230,7 @@ LISPFUNN(machine_instance,0)
       # Das Ergebnis merken wir uns für's nächste Mal:
       O(machine_instance_string) = result;
     }
-    value1 = result; mv_count=1;
+    VALUES1(result);
   }
 
 #endif # MACHINE_KNOWN
@@ -880,14 +880,14 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
   var struct servent * se;
   var const char * proto;
 
-  if (eq(protocol,unbound) || nullp(protocol))
+  if (missingp(protocol))
     proto = "tcp";
   else if (stringp(protocol))
     proto = TheAsciz(string_to_asciz(protocol,Symbol_value(S(ascii))));
   else
     fehler_string(protocol);
 
-  if (eq(serv,unbound) || eq(serv,S(Kdefault)) || nullp(serv)) {
+  if (missingp(serv) || eq(serv,S(Kdefault))) {
     var uintL count = 0;
     #if !defined(WIN32) && !defined(UNIX_CYGWIN32)
     begin_system_call();
@@ -913,7 +913,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
     }
     end_system_call();
     #endif
-    value1 = listof(count); mv_count = 1;
+    VALUES1(listof(count));
   } else if (stringp(serv)) {
     with_string_0(serv,Symbol_value(S(ascii)),serv_asciz, {
       begin_system_call();
@@ -1020,7 +1020,7 @@ LISPFUNN(resolve_host_ipaddr_,1)
 
   if (nullp(arg)) {
    #if defined(WIN32_NATIVE) || !defined(HAVE_GETHOSTENT)
-    value1 = NIL;
+    VALUES1(NIL);
    #else
     int count = 0;
     begin_system_call();
@@ -1031,9 +1031,8 @@ LISPFUNN(resolve_host_ipaddr_,1)
     }
     endhostent();
     end_system_call();
-    value1 = listof(count);
+    VALUES1(listof(count));
    #endif
-    mv_count = 1;
     return;
   }
 

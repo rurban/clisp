@@ -1239,8 +1239,7 @@ LISPFUNN(string_info,1) {
         # ab ptr kommen len Characters
         if (len==1)
           return code_char(schar(string,offset));
-      } elif (nullp(Symbol_value(S(coerce_fixnum_char_ansi)))
-              && posfixnump(obj)) {
+      } else if (nullpSv(coerce_fixnum_char_ansi) && posfixnump(obj)) {
         var uintL code = posfixnum_to_L(obj);
         if (code < char_code_limit)
           # obj ist ein Fixnum >=0, < char_code_limit
@@ -1513,9 +1512,9 @@ LISPFUNN(standard_char_p,1) # (STANDARD-CHAR-P char), CLTL S. 234
     var chart ch = char_code(arg);
     var cint c = as_cint(ch);
     if ((('~' >= c) && (c >= ' ')) || (c == NL)) {
-      value1 = T; mv_count=1;
+      VALUES1(T);
     } else {
-      value1 = NIL; mv_count=1;
+      VALUES1(NIL);
     }
   }
 
@@ -1528,8 +1527,8 @@ LISPFUNN(graphic_char_p,1) # (GRAPHIC-CHAR-P char), CLTL S. 234
       goto yes;
     else
       goto no;
-   yes: value1 = T; mv_count=1; return;
-   no: value1 = NIL; mv_count=1; return;
+   yes: VALUES1(T); return;
+   no: VALUES1(NIL); return;
   }
 
 LISPFUNN(char_width,1) # (CHAR-WIDTH char)
@@ -1537,7 +1536,7 @@ LISPFUNN(char_width,1) # (CHAR-WIDTH char)
     var object arg = popSTACK(); # Argument
     if (!charp(arg)) # muss ein Character sein
       fehler_char(arg);
-    value1 = fixnum(char_width(char_code(arg))); mv_count=1;
+    VALUES1(fixnum(char_width(char_code(arg))));
   }
 
 LISPFUNN(string_char_p,1) # (STRING-CHAR-P char), CLTL S. 235
@@ -1546,7 +1545,7 @@ LISPFUNN(string_char_p,1) # (STRING-CHAR-P char), CLTL S. 235
     var object arg = popSTACK(); # Argument
     if (!charp(arg)) # muss ein Character sein
       fehler_char(arg);
-   yes: value1 = T; mv_count=1; return;
+   yes: VALUES1(T); return;
   }
 
 #if (base_char_code_limit < char_code_limit)
@@ -1559,8 +1558,8 @@ LISPFUNN(base_char_p,1) # (SYSTEM::BASE-CHAR-P char)
       goto no;
     else
       goto yes;
-   no: value1 = NIL; mv_count=1; return;
-   yes: value1 = T; mv_count=1; return;
+   no: VALUES1(NIL); return;
+   yes: VALUES1(T); return;
   }
 #endif
 
@@ -1574,8 +1573,8 @@ LISPFUNN(alpha_char_p,1) # (ALPHA-CHAR-P char), CLTL S. 235
       goto yes;
     else
       goto no;
-   yes: value1 = T; mv_count=1; return;
-   no: value1 = NIL; mv_count=1; return;
+   yes: VALUES1(T); return;
+   no: VALUES1(NIL); return;
   }
 
 LISPFUNN(upper_case_p,1) # (UPPER-CASE-P char), CLTL S. 235
@@ -1590,8 +1589,8 @@ LISPFUNN(upper_case_p,1) # (UPPER-CASE-P char), CLTL S. 235
       goto yes;
     else
       goto no;
-   yes: value1 = T; mv_count=1; return;
-   no: value1 = NIL; mv_count=1; return;
+   yes: VALUES1(T); return;
+   no: VALUES1(NIL); return;
   }
 
 LISPFUNN(lower_case_p,1) # (LOWER-CASE-P char), CLTL S. 235
@@ -1606,8 +1605,8 @@ LISPFUNN(lower_case_p,1) # (LOWER-CASE-P char), CLTL S. 235
       goto yes;
     else
       goto no;
-   yes: value1 = T; mv_count=1; return;
-   no: value1 = NIL; mv_count=1; return;
+   yes: VALUES1(T); return;
+   no: VALUES1(NIL); return;
   }
 
 LISPFUNN(both_case_p,1) # (BOTH-CASE-P char), CLTL S. 235
@@ -1623,8 +1622,8 @@ LISPFUNN(both_case_p,1) # (BOTH-CASE-P char), CLTL S. 235
       goto yes;
     else
       goto no;
-   yes: value1 = T; mv_count=1; return;
-   no: value1 = NIL; mv_count=1; return;
+   yes: VALUES1(T); return;
+   no: VALUES1(NIL); return;
   }
 
 # UP: Uberprüft ein optionales Radix-Argument
@@ -1637,7 +1636,7 @@ LISPFUNN(both_case_p,1) # (BOTH-CASE-P char), CLTL S. 235
   local uintWL test_radix_arg()
     {
       var object arg = popSTACK(); # Argument
-      if (eq(arg,unbound))
+      if (!boundp(arg))
         return 10;
       if (posfixnump(arg)) {
         var uintL radix = posfixnum_to_L(arg);
@@ -1724,8 +1723,8 @@ LISPFUN(digit_char_p,1,1,norest,nokey,0,NIL)
     # Nun ist c der Zahlwert der Ziffer, >=0, <=41.
     if (c >= radix) goto no; # nur gültig, falls 0 <= c < radix.
     # Wert als Fixnum zurück:
-    value1 = fixnum(c); mv_count=1; return;
-   no: value1 = NIL; mv_count=1; return;
+    VALUES1(fixnum(c)); return;
+   no: VALUES1(NIL); return;
   }
 
 LISPFUNN(alphanumericp,1) # (ALPHANUMERICP char), CLTL S. 236
@@ -1739,8 +1738,8 @@ LISPFUNN(alphanumericp,1) # (ALPHANUMERICP char), CLTL S. 236
       goto yes;
     else
       goto no;
-   yes: value1 = T; mv_count=1; return;
-   no: value1 = NIL; mv_count=1; return;
+   yes: VALUES1(T); return;
+   no: VALUES1(NIL); return;
   }
 
 # Zeichenvergleichsfunktionen:
@@ -1787,37 +1786,33 @@ LISPFUNN(alphanumericp,1) # (ALPHANUMERICP char), CLTL S. 236
     }
 
 # UP: (CHAR= char {char}) bei überprüften Argumenten
-  local Values char_gleich (uintC argcount, object* args_pointer);
-  local Values char_gleich (argcount,args_pointer)
-    var uintC argcount;
-    var object* args_pointer;
-    # Methode:
-    # n+1 Argumente Arg[0..n].
-    # x:=Arg[n].
-    # for i:=n-1 to 0 step -1 do ( if Arg[i]/=x then return(NIL) ), return(T).
-    {
-      var object x = popSTACK(); # letztes Argument nehmen
-      dotimesC(argcount,argcount, {
-        if (!eq(popSTACK(),x))
-          goto no;
-      });
-     yes: value1 = T; goto ok;
-     no: value1 = NIL; goto ok;
-     ok: mv_count=1; set_args_end_pointer(args_pointer);
+local Values char_gleich (uintC argcount, object* args_pointer) {
+  # Methode:
+  # n+1 Argumente Arg[0..n].
+  # x:=Arg[n].
+  # for i:=n-1 to 0 step -1 do ( if Arg[i]/=x then return(NIL) ), return(T).
+  var object x = popSTACK(); # letztes Argument nehmen
+  dotimesC(argcount,argcount, {
+    if (!eq(popSTACK(),x)) {
+      goto no;
     }
+  });
+ yes:
+  VALUES1(T); goto ok;
+ no: 
+  VALUES1(NIL); goto ok;
+ ok:
+  set_args_end_pointer(args_pointer);
+}
 
 # UP: (CHAR/= char {char}) bei überprüften Argumenten
-  local Values char_ungleich (uintC argcount, object* args_pointer);
-  local Values char_ungleich (argcount,args_pointer)
-    var uintC argcount;
-    var object* args_pointer;
-    # Methode:
-    # n+1 Argumente Arg[0..n].
-    # for j:=n-1 to 0 step -1 do
-    #   x:=Arg[j+1], for i:=j to 0 step -1 do
-    #                   if Arg[i]=x then return(NIL),
+local Values char_ungleich (uintC argcount, object* args_pointer) {
+  # Methode:
+  # n+1 Argumente Arg[0..n].
+  # for j:=n-1 to 0 step -1 do
+  #   x:=Arg[j+1], for i:=j to 0 step -1 do
+  #                   if Arg[i]=x then return(NIL),
     # return(T).
-    {
       var object* arg_j_ptr = args_end_pointer;
       var uintC j = argcount;
       until (j==0) {
@@ -1831,31 +1826,27 @@ LISPFUNN(alphanumericp,1) # (ALPHANUMERICP char), CLTL S. 236
         });
         j--;
       }
-     yes: value1 = T; goto ok;
-     no: value1 = NIL; goto ok;
-     ok: mv_count=1; set_args_end_pointer(args_pointer);
+     yes: VALUES1(T); goto ok;
+     no: VALUES1(NIL); goto ok;
+     ok: set_args_end_pointer(args_pointer);
     }
 
 # UP: (CHAR< char {char}) bei überprüften Argumenten
-  local Values char_kleiner (uintC argcount, object* args_pointer);
-  local Values char_kleiner (argcount,args_pointer)
-    var uintC argcount;
-    var object* args_pointer;
-    # Methode:
-    # n+1 Argumente Arg[0..n].
-    # for i:=n to 1 step -1 do
-    #    x:=Arg[i], if x char<= Arg[i-1] then return(NIL),
-    # return(T).
-    {
-      dotimesC(argcount,argcount, {
-        var object x = popSTACK();
-        if (as_oint(x) <= as_oint(STACK_0))
-          goto no;
-      });
-     yes: value1 = T; goto ok;
-     no: value1 = NIL; goto ok;
-     ok: mv_count=1; set_args_end_pointer(args_pointer);
-    }
+local Values char_kleiner (uintC argcount, object* args_pointer) {
+  /* Method:
+     n+1 Arguments Arg[0..n].
+     for i:=n to 1 step -1 do
+       x:=Arg[i], if x char<= Arg[i-1] then return(NIL),
+     return(T). */
+  dotimesC(argcount,argcount, {
+    var object x = popSTACK();
+    if (as_oint(x) <= as_oint(STACK_0))
+      goto no;
+  });
+ yes: VALUES1(T); goto ok;
+ no: VALUES1(NIL); goto ok;
+ ok: set_args_end_pointer(args_pointer);
+}
 
 # UP: (CHAR> char {char}) bei überprüften Argumenten
   local Values char_groesser (uintC argcount, object* args_pointer);
@@ -1873,9 +1864,9 @@ LISPFUNN(alphanumericp,1) # (ALPHANUMERICP char), CLTL S. 236
         if (as_oint(x) >= as_oint(STACK_0))
           goto no;
       });
-     yes: value1 = T; goto ok;
-     no: value1 = NIL; goto ok;
-     ok: mv_count=1; set_args_end_pointer(args_pointer);
+     yes: VALUES1(T); goto ok;
+     no: VALUES1(NIL); goto ok;
+     ok: set_args_end_pointer(args_pointer);
     }
 
 # UP: (CHAR<= char {char}) bei überprüften Argumenten
@@ -1894,9 +1885,9 @@ LISPFUNN(alphanumericp,1) # (ALPHANUMERICP char), CLTL S. 236
         if (as_oint(x) < as_oint(STACK_0))
           goto no;
       });
-     yes: value1 = T; goto ok;
-     no: value1 = NIL; goto ok;
-     ok: mv_count=1; set_args_end_pointer(args_pointer);
+     yes: VALUES1(T); goto ok;
+     no: VALUES1(NIL); goto ok;
+     ok: set_args_end_pointer(args_pointer);
     }
 
 # UP: (CHAR>= char {char}) bei überprüften Argumenten
@@ -1915,9 +1906,9 @@ LISPFUNN(alphanumericp,1) # (ALPHANUMERICP char), CLTL S. 236
         if (as_oint(x) > as_oint(STACK_0))
           goto no;
       });
-     yes: value1 = T; goto ok;
-     no: value1 = NIL; goto ok;
-     ok: mv_count=1; set_args_end_pointer(args_pointer);
+     yes: VALUES1(T); goto ok;
+     no: VALUES1(NIL); goto ok;
+     ok: set_args_end_pointer(args_pointer);
     }
 
 LISPFUN(char_gleich,1,0,rest,nokey,0,NIL) # (CHAR= char {char}), CLTL S. 237
@@ -2009,8 +2000,7 @@ LISPFUNN(char_code,1) # (CHAR-CODE char), CLTL S. 239
     var object arg = popSTACK(); # Argument
     if (!charp(arg)) # muss ein Character sein
       fehler_char(arg);
-    value1 = fixnum(as_cint(char_code(arg))); # Ascii-Code als Fixnum
-    mv_count=1;
+    VALUES1(fixnum(as_cint(char_code(arg)))); # Ascii-Code als Fixnum
   }
 
 LISPFUNN(code_char,1)
@@ -2031,9 +2021,9 @@ LISPFUNN(code_char,1)
     # Teste, ob  0 <= code < char_code_limit :
     if (posfixnump(codeobj) &&
         ((code = posfixnum_to_L(codeobj)) < char_code_limit)) {
-      value1 = code_char(as_chart(code)); mv_count=1; # Character basteln
+      VALUES1(code_char(as_chart(code))); # Character basteln
     } else {
-      value1 = NIL; mv_count=1; # sonst Wert NIL
+      VALUES1(NIL); # sonst Wert NIL
     }
   }
 
@@ -2049,7 +2039,7 @@ LISPFUNN(character,1) # (CHARACTER object), CLTL S. 241
              GETTEXT("~: cannot coerce ~ to a character")
             );
     } else {
-      value1 = trial; mv_count=1; skipSTACK(1);
+      VALUES1(trial); skipSTACK(1);
     }
   }
 
@@ -2058,18 +2048,16 @@ LISPFUNN(char_upcase,1) # (CHAR-UPCASE char), CLTL S. 241
     var object arg = popSTACK(); # char-Argument
     if (!charp(arg)) # muss ein Character sein
       fehler_char(arg);
-    value1 = code_char(up_case(char_code(arg))); # in Großbuchstaben umwandeln
-    mv_count=1;
+    VALUES1(code_char(up_case(char_code(arg)))); # in Großbuchstaben umwandeln
   }
 
 LISPFUNN(char_downcase,1) # (CHAR-DOWNCASE char), CLTL S. 241
-  {
-    var object arg = popSTACK(); # char-Argument
-    if (!charp(arg)) # muss ein Character sein
-      fehler_char(arg);
-    value1 = code_char(down_case(char_code(arg))); # in Kleinbuchstaben umwandeln
-    mv_count=1;
-  }
+{
+  var object arg = popSTACK(); # char-Argument
+  if (!charp(arg)) # muss ein Character sein
+    fehler_char(arg);
+  VALUES1(code_char(down_case(char_code(arg)))); # in Kleinbuchstaben umwandeln
+}
 
 LISPFUN(digit_char,1,1,norest,nokey,0,NIL)
 # (DIGIT-CHAR weight [radix]), CLTL2 S. 384
@@ -2078,7 +2066,7 @@ LISPFUN(digit_char,1,1,norest,nokey,0,NIL)
   # Falls 0 <= weight < radix, konstruiere
   #     ein Character aus '0',...,'9','A',...,'Z' mit Wert weight.
   # Sonst Wert NIL.
-  {
+{
     var uintWL radix = test_radix_arg(); # radix-Argument, >=2, <=36
     var object weightobj = popSTACK(); # weight-Argument
     if (!integerp(weightobj)) {
@@ -2097,10 +2085,9 @@ LISPFUN(digit_char,1,1,norest,nokey,0,NIL)
       weight = weight + '0'; # in Ziffer umwandeln
       if (weight > '9')
         weight += 'A'-'0'-10; # oder Buchstaben draus machen
-      value1 = ascii_char(weight); # Character basteln
-      mv_count=1;
+      VALUES1(ascii_char(weight)); # Character basteln
     } else {
-      value1 = NIL; mv_count=1;
+      VALUES1(NIL);
     }
   }
 
@@ -2109,7 +2096,7 @@ LISPFUNN(char_int,1) # (CHAR-INT char), CLTL S. 242
     var object arg = popSTACK(); # char-Argument
     if (!charp(arg)) # muss ein Character sein
       fehler_char(arg);
-    value1 = fixnum(as_cint(char_code(arg))); mv_count=1;
+    VALUES1(fixnum(as_cint(char_code(arg))));
   }
 
 LISPFUNN(int_char,1) # (INT-CHAR integer), CLTL S. 242
@@ -2119,9 +2106,9 @@ LISPFUNN(int_char,1) # (INT-CHAR integer), CLTL S. 242
       # bei 0 <= arg < char_code_limit in Character umwandeln, sonst NIL
       var uintL i;
       if ((posfixnump(arg)) && ((i = posfixnum_to_L(arg)) < char_code_limit)) {
-        value1 = code_char(as_chart(i)); mv_count=1;
+        VALUES1(code_char(as_chart(i)));
       } else {
-        value1 = NIL; mv_count=1;
+        VALUES1(NIL);
       }
     } else {
       # arg kein Integer -> Fehler:
@@ -2139,8 +2126,7 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
     var object arg = popSTACK(); # char-Argument
     if (!charp(arg)) # muss ein Character sein
       fehler_char(arg);
-    value1 = char_name(char_code(arg));
-    mv_count=1;
+    VALUES1(char_name(char_code(arg)));
   }
 
 
@@ -2259,7 +2245,7 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
 # kw : Keyword, das den Index identifiziert, oder nullobj
   #define test_index(woher,wohin_zuweisung,def,default,vergleich,grenze,kw)  \
     { var object index = woher; # Index-Argument                                \
-      if (def && ((eq(index,unbound)) || ((def==2) && (eq(index,NIL)))))        \
+      if (def && (!boundp(index) || (def == 2 && nullp(index))))        \
         { wohin_zuweisung default; }                                            \
         else                                                                    \
         { # muss ein Integer sein:                                              \
@@ -2313,7 +2299,7 @@ LISPFUNN(char,2) # (CHAR string index), CLTL S. 300
       string = iarray_displace_check(string,len,&offset);
     }
     var uintL index = test_index_arg(len);
-    value1 = code_char(schar(string,offset+index)); mv_count=1;
+    VALUES1(code_char(schar(string,offset+index)));
     skipSTACK(2);
   }
 
@@ -2324,7 +2310,7 @@ LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
       fehler_sstring(string);
     simple_array_to_storage(string);
     var uintL index = test_index_arg(Sstring_length(string));
-    value1 = code_char(schar(string,index)); mv_count=1;
+    VALUES1(code_char(schar(string,index)));
     skipSTACK(2);
   }
 
@@ -2371,7 +2357,7 @@ LISPFUNN(store_char,3) # (SYSTEM::STORE-CHAR string index newchar)
     check_sstring_mutable(string);
     offset += test_index_arg(len); # go to the element addressed by index
     sstring_store(string,offset,char_code(newchar)); # put in the character
-    value1 = newchar; mv_count=1;
+    VALUES1(newchar);
     skipSTACK(2);
   }
 
@@ -2386,7 +2372,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
     check_sstring_mutable(string);
     var uintL offset = test_index_arg(Sstring_length(string)); # go to the element addressed by index
     sstring_store(string,offset,char_code(newchar)); # put in the character
-    value1 = newchar; mv_count=1;
+    VALUES1(newchar);
     skipSTACK(2);
   }
 
@@ -2555,103 +2541,92 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
 # < stringarg arg1: description of argument1
 # < stringarg arg2: description of argument2
 # erhöht STACK um 6
-  local void test_2_stringsym_limits (stringarg* arg1, stringarg* arg2);
-  local void test_2_stringsym_limits(arg1,arg2)
-    var stringarg* arg1;
-    var stringarg* arg2;
-    {
-      var uintL len1;
-      var uintL len2;
-      {
-        # String/Symbol-Argument1 überprüfen:
-        var object string1 = test_stringsymchar_arg(STACK_5);
-        pushSTACK(string1); # string1 retten
-        # String/Symbol-Argument2 überprüfen:
-        var object string2 = test_stringsymchar_arg(STACK_(4+1));
-        arg2->string = unpack_string_ro(string2,&len2,&arg2->offset);
-        # Nun ist len2 die Länge (<2^oint_data_len) von string2.
-        string1 = popSTACK(); # string1 zurück
-        arg1->string = unpack_string_ro(string1,&len1,&arg1->offset);
-        # Nun ist len1 die Länge (<2^oint_data_len) von string1.
-      }
-      # :START1 und :END1 überprüfen:
-      {
-        var uintL start1;
-        var uintL end1;
-        # :START1-Argument überprüfen:
-          # start1 := Index STACK_3, Defaultwert 0, muss <=len1 sein:
-          test_index(STACK_3,start1=,1,0,<=,len1,S(Kstart1));
-        # start1 ist jetzt der Wert des :START1-Arguments.
-        # :END1-Argument überprüfen:
-          # end1 := Index STACK_2, Defaultwert len1, muss <=len1 sein:
-          test_index(STACK_2,end1=,2,len1,<=,len1,S(Kend1));
-        # end1 ist jetzt der Wert des :END1-Arguments.
-        # Vergleiche :START1 und :END1 Argumente:
-        if (!(start1 <= end1)) {
-          pushSTACK(STACK_2); # :END1-Index
-          pushSTACK(STACK_4); # :START1-Index
-          pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,
-                 GETTEXT("~: :start1-index ~ must not be greater than :end1-index ~")
-                );
-        }
-        # Ergebnisse zu string1 herausgeben:
-        arg1->index = start1; arg1->len = end1-start1;
-      }
-      # :START2 und :END2 überprüfen:
-      {
-        var uintL start2;
-        var uintL end2;
-        # :START2-Argument überprüfen:
-          # start2 := Index STACK_1, Defaultwert 0, muss <=len2 sein:
-          test_index(STACK_1,start2=,1,0,<=,len2,S(Kstart2));
-        # start2 ist jetzt der Wert des :START2-Arguments.
-        # :END2-Argument überprüfen:
-          # end2 := Index STACK_0, Defaultwert len2, muss <=len2 sein:
-          test_index(STACK_0,end2=,2,len2,<=,len2,S(Kend2));
-        # end2 ist jetzt der Wert des :END2-Arguments.
-        # Vergleiche :START2 und :END2 Argumente:
-        if (!(start2 <= end2)) {
-          pushSTACK(STACK_0); # :END2-Index
-          pushSTACK(STACK_2); # :START2-Index
-          pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,
-                 GETTEXT("~: :start2-index ~ must not be greater than :end2-index ~")
-                );
-        }
-        # Ergebnisse zu string2 herausgeben:
-        arg2->index = start2; arg2->len = end2-start2;
-        # Fertig.
-        skipSTACK(6);
-      }
+local void test_2_stringsym_limits (stringarg* arg1, stringarg* arg2) {
+  var uintL len1;
+  var uintL len2;
+  {
+    # String/Symbol-Argument1 überprüfen:
+    var object string1 = test_stringsymchar_arg(STACK_5);
+    pushSTACK(string1); # string1 retten
+    # String/Symbol-Argument2 überprüfen:
+    var object string2 = test_stringsymchar_arg(STACK_(4+1));
+    arg2->string = unpack_string_ro(string2,&len2,&arg2->offset);
+    # Nun ist len2 die Länge (<2^oint_data_len) von string2.
+    string1 = popSTACK(); # string1 zurück
+    arg1->string = unpack_string_ro(string1,&len1,&arg1->offset);
+    # Nun ist len1 die Länge (<2^oint_data_len) von string1.
+  }
+  # :START1 und :END1 überprüfen:
+  {
+    var uintL start1;
+    var uintL end1;
+    # :START1-Argument überprüfen:
+    # start1 := Index STACK_3, Defaultwert 0, muss <=len1 sein:
+    test_index(STACK_3,start1=,1,0,<=,len1,S(Kstart1));
+    # start1 ist jetzt der Wert des :START1-Arguments.
+    # :END1-Argument überprüfen:
+    # end1 := Index STACK_2, Defaultwert len1, muss <=len1 sein:
+    test_index(STACK_2,end1=,2,len1,<=,len1,S(Kend1));
+    # end1 ist jetzt der Wert des :END1-Arguments.
+    # Vergleiche :START1 und :END1 Argumente:
+    if (!(start1 <= end1)) {
+      pushSTACK(STACK_2); # :END1-Index
+      pushSTACK(STACK_4); # :START1-Index
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,
+             GETTEXT("~: :start1-index ~ must not be greater than :end1-index ~")
+             );
     }
+    # Ergebnisse zu string1 herausgeben:
+    arg1->index = start1; arg1->len = end1-start1;
+  }
+  # :START2 und :END2 überprüfen:
+  {
+    var uintL start2;
+    var uintL end2;
+    # :START2-Argument überprüfen:
+    # start2 := Index STACK_1, Defaultwert 0, muss <=len2 sein:
+    test_index(STACK_1,start2=,1,0,<=,len2,S(Kstart2));
+    # start2 ist jetzt der Wert des :START2-Arguments.
+    # :END2-Argument überprüfen:
+    # end2 := Index STACK_0, Defaultwert len2, muss <=len2 sein:
+    test_index(STACK_0,end2=,2,len2,<=,len2,S(Kend2));
+    # end2 ist jetzt der Wert des :END2-Arguments.
+    # Vergleiche :START2 und :END2 Argumente:
+    if (!(start2 <= end2)) {
+      pushSTACK(STACK_0); # :END2-Index
+      pushSTACK(STACK_2); # :START2-Index
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,
+             GETTEXT("~: :start2-index ~ must not be greater than :end2-index ~")
+             );
+    }
+    # Ergebnisse zu string2 herausgeben:
+    arg2->index = start2; arg2->len = end2-start2;
+    # Fertig.
+    skipSTACK(6);
+  }
+}
 
 # UP: vergleicht zwei gleichlange Strings auf Gleichheit
 # > string1,offset1: Ab hier kommen die angesprochenen Characters im String1
 # > string2,offset2: Ab hier kommen die angesprochenen Characters im String2
 # > len: Anzahl der angesprochenen Characters in String1 und in String2, > 0
 # < ergebnis: true falls gleich, false sonst.
-  global bool string_eqcomp (object string1, uintL offset1, object string2, uintL offset2, uintL len);
-  global bool string_eqcomp(string1,offset1,string2,offset2,len)
-    var object string1;
-    var uintL offset1;
-    var object string2;
-    var uintL offset2;
-    var uintL len;
-    {
-      SstringDispatch(string1,X1, {
-        var const cintX1* charptr1 = &((SstringX1)TheVarobject(string1))->data[offset1];
-        SstringDispatch(string2,X2, {
-          var const cintX2* charptr2 = &((SstringX2)TheVarobject(string2))->data[offset2];
-          dotimespL(len,len, {
-            if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++)))
-              goto no;
-          });
-        });
+global bool string_eqcomp (object string1, uintL offset1, object string2, uintL offset2, uintL len) {
+  SstringDispatch(string1,X1, {
+    var const cintX1* charptr1 = &((SstringX1)TheVarobject(string1))->data[offset1];
+    SstringDispatch(string2,X2, {
+      var const cintX2* charptr2 = &((SstringX2)TheVarobject(string2))->data[offset2];
+      dotimespL(len,len, {
+        if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++)))
+          goto no;
       });
-      return true;
-     no: return false;
-    }
+    });
+  });
+  return true;
+ no: return false;
+}
 
 # UP: vergleicht zwei Strings
 # > arg1: Ab hier kommen die angesprochenen Characters im String1
@@ -2660,106 +2635,101 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
 # < ergebnis: 0 falls gleich,
 #             -1 falls String1 echt vor String2 kommt,
 #             +1 falls String1 echt nach String2 kommt.
-  local signean string_comp (stringarg* arg1, const stringarg* arg2);
-  local signean string_comp(arg1,arg2)
-    var stringarg* arg1;
-    var const stringarg* arg2;
-    {
-      var uintL len1 = arg1->len;
-      var uintL len2 = arg2->len;
-      SstringCase(arg1->string,
-        { var const cint8* charptr1_0 = &TheS8string(arg1->string)->data[arg1->offset];
-          var const cint8* charptr1 = &charptr1_0[arg1->index];
-          SstringDispatch(arg2->string,X2, {
-            var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
-            loop {
-              # einer der Strings zu Ende ?
-              if (len1==0) goto A_string1_end;
-              if (len2==0) goto A_string2_end;
-              # nächste Characters vergleichen:
-              if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) break;
-              # beide Zähler erniedrigen:
-              len1--; len2--;
-            }
-            # zwei verschiedene Characters gefunden
-            arg1->index = --charptr1 - charptr1_0;
-            if (charlt(as_chart(*charptr1),as_chart(*--charptr2)))
-              return signean_minus; # String1 < String2
-            else
-              return signean_plus; # String1 > String2
-          });
-         A_string1_end: # String1 zu Ende
-          arg1->index = charptr1 - charptr1_0;
-          if (len2==0)
-            return signean_null; # String1 = String2
-          else
-            return signean_minus; # String1 ist echtes Anfangsstück von String2
-         A_string2_end: # String2 zu Ende, String1 noch nicht
-          arg1->index = charptr1 - charptr1_0;
-          return signean_plus; # String2 ist echtes Anfangsstück von String1
-        },
-        { var const cint16* charptr1_0 = &TheS16string(arg1->string)->data[arg1->offset];
-          var const cint16* charptr1 = &charptr1_0[arg1->index];
-          SstringDispatch(arg2->string,X2, {
-            var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
-            loop {
-              # einer der Strings zu Ende ?
-              if (len1==0) goto B_string1_end;
-              if (len2==0) goto B_string2_end;
-              # nächste Characters vergleichen:
-              if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) break;
-              # beide Zähler erniedrigen:
-              len1--; len2--;
-            }
-            # zwei verschiedene Characters gefunden
-            arg1->index = --charptr1 - charptr1_0;
-            if (charlt(as_chart(*charptr1),as_chart(*--charptr2)))
-              return signean_minus; # String1 < String2
-            else
-              return signean_plus; # String1 > String2
-          });
-         B_string1_end: # String1 zu Ende
-          arg1->index = charptr1 - charptr1_0;
-          if (len2==0)
-            return signean_null; # String1 = String2
-          else
-            return signean_minus; # String1 ist echtes Anfangsstück von String2
-         B_string2_end: # String2 zu Ende, String1 noch nicht
-          arg1->index = charptr1 - charptr1_0;
-          return signean_plus; # String2 ist echtes Anfangsstück von String1
-        },
-        { var const cint32* charptr1_0 = &TheS32string(arg1->string)->data[arg1->offset];
-          var const cint32* charptr1 = &charptr1_0[arg1->index];
-          SstringDispatch(arg2->string,X2, {
-            var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
-            loop {
-              # einer der Strings zu Ende ?
-              if (len1==0) goto C_string1_end;
-              if (len2==0) goto C_string2_end;
-              # nächste Characters vergleichen:
-              if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) break;
-              # beide Zähler erniedrigen:
-              len1--; len2--;
-            }
-            # zwei verschiedene Characters gefunden
-            arg1->index = --charptr1 - charptr1_0;
-            if (charlt(as_chart(*charptr1),as_chart(*--charptr2)))
-              return signean_minus; # String1 < String2
-            else
-              return signean_plus; # String1 > String2
-          });
-         C_string1_end: # String1 zu Ende
-          arg1->index = charptr1 - charptr1_0;
-          if (len2==0)
-            return signean_null; # String1 = String2
-          else
-            return signean_minus; # String1 ist echtes Anfangsstück von String2
-         C_string2_end: # String2 zu Ende, String1 noch nicht
-          arg1->index = charptr1 - charptr1_0;
-          return signean_plus; # String2 ist echtes Anfangsstück von String1
-        }
-        );
-    }
+local signean string_comp (stringarg* arg1, const stringarg* arg2){
+  var uintL len1 = arg1->len;
+  var uintL len2 = arg2->len;
+  SstringCase(arg1->string, { 
+    var const cint8* charptr1_0 = &TheS8string(arg1->string)->data[arg1->offset];
+    var const cint8* charptr1 = &charptr1_0[arg1->index];
+    SstringDispatch(arg2->string,X2, {
+      var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
+      loop {
+        # einer der Strings zu Ende ?
+        if (len1==0) goto A_string1_end;
+        if (len2==0) goto A_string2_end;
+        # nächste Characters vergleichen:
+        if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) break;
+        # beide Zähler erniedrigen:
+        len1--; len2--;
+      }
+      # zwei verschiedene Characters gefunden
+      arg1->index = --charptr1 - charptr1_0;
+      if (charlt(as_chart(*charptr1),as_chart(*--charptr2)))
+        return signean_minus; # String1 < String2
+      else
+        return signean_plus; # String1 > String2
+    });
+  A_string1_end: # String1 zu Ende
+    arg1->index = charptr1 - charptr1_0;
+    if (len2==0)
+      return signean_null; # String1 = String2
+    else
+      return signean_minus; # String1 ist echtes Anfangsstück von String2
+  A_string2_end: # String2 zu Ende, String1 noch nicht
+    arg1->index = charptr1 - charptr1_0;
+    return signean_plus; # String2 ist echtes Anfangsstück von String1
+  }, { 
+    var const cint16* charptr1_0 = &TheS16string(arg1->string)->data[arg1->offset];
+    var const cint16* charptr1 = &charptr1_0[arg1->index];
+    SstringDispatch(arg2->string,X2, {
+      var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
+      loop {
+        # einer der Strings zu Ende ?
+        if (len1==0) goto B_string1_end;
+        if (len2==0) goto B_string2_end;
+        # nächste Characters vergleichen:
+        if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) break;
+        # beide Zähler erniedrigen:
+        len1--; len2--;
+      }
+      # zwei verschiedene Characters gefunden
+      arg1->index = --charptr1 - charptr1_0;
+      if (charlt(as_chart(*charptr1),as_chart(*--charptr2)))
+        return signean_minus; # String1 < String2
+      else
+        return signean_plus; # String1 > String2
+    });
+  B_string1_end: # String1 zu Ende
+    arg1->index = charptr1 - charptr1_0;
+    if (len2==0)
+      return signean_null; # String1 = String2
+    else
+      return signean_minus; # String1 ist echtes Anfangsstück von String2
+  B_string2_end: # String2 zu Ende, String1 noch nicht
+    arg1->index = charptr1 - charptr1_0;
+    return signean_plus; # String2 ist echtes Anfangsstück von String1
+  }, {
+    var const cint32* charptr1_0 = &TheS32string(arg1->string)->data[arg1->offset];
+    var const cint32* charptr1 = &charptr1_0[arg1->index];
+    SstringDispatch(arg2->string,X2, {
+      var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
+      loop {
+        # einer der Strings zu Ende ?
+        if (len1==0) goto C_string1_end;
+        if (len2==0) goto C_string2_end;
+        # nächste Characters vergleichen:
+        if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) break;
+        # beide Zähler erniedrigen:
+        len1--; len2--;
+      }
+      # zwei verschiedene Characters gefunden
+      arg1->index = --charptr1 - charptr1_0;
+      if (charlt(as_chart(*charptr1),as_chart(*--charptr2)))
+        return signean_minus; # String1 < String2
+      else
+        return signean_plus; # String1 > String2
+    });
+  C_string1_end: # String1 zu Ende
+    arg1->index = charptr1 - charptr1_0;
+    if (len2==0)
+      return signean_null; # String1 = String2
+    else
+      return signean_minus; # String1 ist echtes Anfangsstück von String2
+  C_string2_end: # String2 zu Ende, String1 noch nicht
+    arg1->index = charptr1 - charptr1_0;
+    return signean_plus; # String2 ist echtes Anfangsstück von String1
+  });
+}
 
 LISPFUN(string_gleich,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
@@ -2770,15 +2740,13 @@ LISPFUN(string_gleich,2,0,norest,key,4,
     # Argumente überprüfen:
     test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (((arg1.len==arg2.len)
-               && ((arg1.len==0)
-                   || string_eqcomp(arg1.string,arg1.offset+arg1.index,
-                                    arg2.string,arg2.offset+arg2.index,
-                                    arg1.len
-                                   )
-              )   )
-              ? T : NIL);
-    mv_count=1;
+    VALUES_IF((arg1.len==arg2.len)
+              && ((arg1.len==0)
+                  || string_eqcomp(arg1.string,arg1.offset+arg1.index,
+                                   arg2.string,arg2.offset+arg2.index,
+                                   arg1.len
+                                  )
+             )   );
   }
 
 LISPFUN(string_ungleich,2,0,norest,key,4,
@@ -2790,8 +2758,7 @@ LISPFUN(string_ungleich,2,0,norest,key,4,
     # Argumente überprüfen:
     test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp(&arg1,&arg2)==0 ? NIL : fixnum(arg1.index));
-    mv_count=1;
+    VALUES1(string_comp(&arg1,&arg2)==0 ? NIL : fixnum(arg1.index));
   }
 
 LISPFUN(string_kleiner,2,0,norest,key,4,
@@ -2803,8 +2770,7 @@ LISPFUN(string_kleiner,2,0,norest,key,4,
     # Argumente überprüfen:
     test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp(&arg1,&arg2)<0 ? fixnum(arg1.index) : NIL);
-    mv_count=1;
+    VALUES1(string_comp(&arg1,&arg2)<0 ? fixnum(arg1.index) : NIL);
   }
 
 LISPFUN(string_groesser,2,0,norest,key,4,
@@ -2816,8 +2782,7 @@ LISPFUN(string_groesser,2,0,norest,key,4,
     # Argumente überprüfen:
     test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp(&arg1,&arg2)>0 ? fixnum(arg1.index) : NIL);
-    mv_count=1;
+    VALUES1(string_comp(&arg1,&arg2)>0 ? fixnum(arg1.index) : NIL);
   }
 
 LISPFUN(string_klgleich,2,0,norest,key,4,
@@ -2829,8 +2794,7 @@ LISPFUN(string_klgleich,2,0,norest,key,4,
     # Argumente überprüfen:
     test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp(&arg1,&arg2)<=0 ? fixnum(arg1.index) : NIL);
-    mv_count=1;
+    VALUES1(string_comp(&arg1,&arg2)<=0 ? fixnum(arg1.index) : NIL);
   }
 
 LISPFUN(string_grgleich,2,0,norest,key,4,
@@ -2842,8 +2806,7 @@ LISPFUN(string_grgleich,2,0,norest,key,4,
     # Argumente überprüfen:
     test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp(&arg1,&arg2)>=0 ? fixnum(arg1.index) : NIL);
-    mv_count=1;
+    VALUES1(string_comp(&arg1,&arg2)>=0 ? fixnum(arg1.index) : NIL);
   }
 
 # UP: vergleicht zwei gleichlange Strings auf Gleichheit, case-insensitive
@@ -2996,15 +2959,13 @@ LISPFUN(string_equal,2,0,norest,key,4,
     # Argumente überprüfen:
     test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (((arg1.len==arg2.len)
-               && ((arg1.len==0)
-                   || string_eqcomp_ci(arg1.string,arg1.offset+arg1.index,
-                                       arg2.string,arg2.offset+arg2.index,
-                                       arg1.len
-                                      )
-              )   )
-              ? T : NIL);
-    mv_count=1;
+    VALUES_IF((arg1.len==arg2.len)
+              && ((arg1.len==0)
+                  || string_eqcomp_ci(arg1.string,arg1.offset+arg1.index,
+                                      arg2.string,arg2.offset+arg2.index,
+                                      arg1.len
+                                     )
+             )   );
   }
 
 LISPFUN(string_not_equal,2,0,norest,key,4,
@@ -3016,8 +2977,7 @@ LISPFUN(string_not_equal,2,0,norest,key,4,
     # Argumente überprüfen:
     test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp_ci(&arg1,&arg2)==0 ? NIL : fixnum(arg1.index));
-    mv_count=1;
+    VALUES1(string_comp_ci(&arg1,&arg2)==0 ? NIL : fixnum(arg1.index));
   }
 
 LISPFUN(string_lessp,2,0,norest,key,4,
@@ -3029,8 +2989,7 @@ LISPFUN(string_lessp,2,0,norest,key,4,
     # Argumente überprüfen:
     test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp_ci(&arg1,&arg2)<0 ? fixnum(arg1.index) : NIL);
-    mv_count=1;
+    VALUES1(string_comp_ci(&arg1,&arg2)<0 ? fixnum(arg1.index) : NIL);
   }
 
 LISPFUN(string_greaterp,2,0,norest,key,4,
@@ -3042,8 +3001,7 @@ LISPFUN(string_greaterp,2,0,norest,key,4,
     # Argumente überprüfen:
     test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp_ci(&arg1,&arg2)>0 ? fixnum(arg1.index) : NIL);
-    mv_count=1;
+    VALUES1(string_comp_ci(&arg1,&arg2)>0 ? fixnum(arg1.index) : NIL);
   }
 
 LISPFUN(string_not_greaterp,2,0,norest,key,4,
@@ -3055,8 +3013,7 @@ LISPFUN(string_not_greaterp,2,0,norest,key,4,
     # Argumente überprüfen:
     test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp_ci(&arg1,&arg2)<=0 ? fixnum(arg1.index) : NIL);
-    mv_count=1;
+    VALUES1(string_comp_ci(&arg1,&arg2)<=0 ? fixnum(arg1.index) : NIL);
   }
 
 LISPFUN(string_not_lessp,2,0,norest,key,4,
@@ -3068,8 +3025,7 @@ LISPFUN(string_not_lessp,2,0,norest,key,4,
     # Argumente überprüfen:
     test_2_stringsym_limits(&arg1,&arg2);
     # vergleichen:
-    value1 = (string_comp_ci(&arg1,&arg2)>=0 ? fixnum(arg1.index) : NIL);
-    mv_count=1;
+    VALUES1(string_comp_ci(&arg1,&arg2)>=0 ? fixnum(arg1.index) : NIL);
   }
 
 # UP: sucht einen String String1 in einem anderen String String2
@@ -3121,8 +3077,7 @@ LISPFUN(search_string_gleich,2,0,norest,key,4,
     # Argumente überprüfen:
     test_2_stringsym_limits(&arg1,&arg2);
     # String1 in String2 suchen:
-    value1 = string_search(&arg1,&arg2,&string_eqcomp);
-    mv_count=1;
+    VALUES1(string_search(&arg1,&arg2,&string_eqcomp));
   }
 
 LISPFUN(search_string_equal,2,0,norest,key,4,
@@ -3135,8 +3090,7 @@ LISPFUN(search_string_equal,2,0,norest,key,4,
     # Argumente überprüfen:
     test_2_stringsym_limits(&arg1,&arg2);
     # String1 in String2 suchen:
-    value1 = string_search(&arg1,&arg2,&string_eqcomp_ci);
-    mv_count=1;
+    VALUES1(string_search(&arg1,&arg2,&string_eqcomp_ci));
   }
 
 LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
@@ -3153,7 +3107,7 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
     }
     size = posfixnum_to_L(STACK_2);
     # element-type überprüfen:
-    if (!eq(STACK_0,unbound)) {
+    if (boundp(STACK_0)) {
       var object eltype = STACK_0;
       if (!eq(eltype,S(character))) {
         # Verify (SUBTYPEP eltype 'CHARACTER):
@@ -3170,7 +3124,7 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
     var object new_string;
     # maybe fill with initial-element:
     var object initial_element = STACK_1;
-    if (eq(initial_element,unbound)) {
+    if (!boundp(initial_element)) {
       new_string = allocate_string(size);
     } else {
       if (!charp(initial_element)) { # must be a character
@@ -3211,7 +3165,7 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
        #endif
       }
     }
-    value1 = new_string; mv_count=1; skipSTACK(3);
+    VALUES1(new_string); skipSTACK(3);
   }
 
 LISPFUNN(string_both_trim,3)
@@ -3290,7 +3244,7 @@ LISPFUN(string_width,1,0,norest,key,2, (kw(start),kw(end)) )
       });
     }
     # width <= 2*arg.len.
-    value1 = UL_to_I(width); mv_count=1;
+    VALUES1(UL_to_I(width));
   }
 
 # UP: wandelt die Characters eines Stringstücks in Großbuchstaben
@@ -3354,7 +3308,7 @@ LISPFUN(nstring_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
     var object string = test_string_limits_rw(&arg);
     pushSTACK(string);
     nstring_upcase(arg.string,arg.offset+arg.index,arg.len);
-    value1 = popSTACK(); mv_count=1;
+    VALUES1(popSTACK());
   }
 
 LISPFUN(string_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
@@ -3368,7 +3322,7 @@ LISPFUN(string_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
     nstring_upcase(string,offset,len);
     string = popSTACK();
     simple_array_to_storage(string);
-    value1 = string; mv_count=1;
+    VALUES1(string);
   }
 
 # UP: wandelt die Characters eines Stringstücks in Kleinbuchstaben
@@ -3413,10 +3367,7 @@ global void nstring_downcase (object dv, uintL offset, uintL len) {
 # > string: String
 # < ergebnis: neuer Normal-Simple-String, in Kleinbuchstaben
 # can trigger GC
-  global object string_downcase (object string);
-  global object string_downcase(string)
-    var object string;
-    {
+  global object string_downcase (object string) {
       string = copy_string(string); # kopieren und dabei zum Normal-Simple-String machen
       pushSTACK(string);
       nstring_downcase(string,0,Sstring_length(string)); # umwandeln
@@ -3432,7 +3383,7 @@ LISPFUN(nstring_downcase,1,0,norest,key,2, (kw(start),kw(end)) )
     var object string = test_string_limits_rw(&arg);
     pushSTACK(string);
     nstring_downcase(arg.string,arg.offset+arg.index,arg.len);
-    value1 = popSTACK(); mv_count=1;
+    VALUES1(popSTACK());
   }
 
 LISPFUN(string_downcase,1,0,norest,key,2, (kw(start),kw(end)) )
@@ -3446,7 +3397,7 @@ LISPFUN(string_downcase,1,0,norest,key,2, (kw(start),kw(end)) )
     nstring_downcase(string,offset,len);
     string = popSTACK();
     simple_array_to_storage(string);
-    value1 = string; mv_count=1;
+    VALUES1(string);
   }
 
 # UP: wandelt die Worte eines Stringstücks in solche, die
@@ -3560,7 +3511,7 @@ LISPFUN(nstring_capitalize,1,0,norest,key,2, (kw(start),kw(end)) )
     var object string = test_string_limits_rw(&arg);
     pushSTACK(string);
     nstring_capitalize(arg.string,arg.offset+arg.index,arg.len);
-    value1 = popSTACK(); mv_count=1;
+    VALUES1(popSTACK());
   }
 
 LISPFUN(string_capitalize,1,0,norest,key,2, (kw(start),kw(end)) )
@@ -3574,19 +3525,18 @@ LISPFUN(string_capitalize,1,0,norest,key,2, (kw(start),kw(end)) )
     nstring_capitalize(string,offset,len);
     string = popSTACK();
     simple_array_to_storage(string);
-    value1 = string; mv_count=1;
+    VALUES1(string);
   }
 
 LISPFUNN(string,1) # (STRING object), CLTL S. 304
   {
-    value1 = test_stringsymchar_arg(popSTACK()); mv_count=1;
+    VALUES1(test_stringsymchar_arg(popSTACK()));
   }
 
 LISPFUNN(name_char,1) # (NAME-CHAR name), CLTL S. 243
   {
     # Argument in einen String umwandeln, Character mit diesem Namen suchen:
-    value1 = name_char(test_stringsymchar_arg(popSTACK()));
-    mv_count=1;
+    VALUES1(name_char(test_stringsymchar_arg(popSTACK())));
   }
 
 # Returns a substring of a simple-string.
@@ -3596,12 +3546,7 @@ LISPFUNN(name_char,1) # (NAME-CHAR name), CLTL S. 243
 # > uintL end: end index
 # with 0 <= start <= end <= Sstring_length(string)
 # < object result: (subseq string start end), a freshly created normal-simple-string
-  global object subsstring (object string, uintL start, uintL end);
-  global object subsstring(string,start,end)
-    var object string;
-    var uintL start;
-    var uintL end;
-    {
+  global object subsstring (object string, uintL start, uintL end) {
       var uintL count = end - start;
       pushSTACK(string);
       var object new_string = allocate_string(count);
@@ -3666,7 +3611,7 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
       copy_8bit_8bit(&TheSstring(string)->data[offset+start],&TheSstring(new_string)->data[0],count);
       #endif
     }
-    value1 = new_string; mv_count=1;
+    VALUES1(new_string);
   }
 
 # UP: bildet einen aus mehreren Strings zusammengehängten String.
@@ -3677,10 +3622,7 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
 # < ergebnis: Gesamtstring, neu erzeugt
 # < STACK: aufgeräumt
 # can trigger GC
-  global object string_concat (uintC argcount);
-  global object string_concat(argcount)
-    var uintC argcount;
-    {
+  global object string_concat (uintC argcount) {
       var object* args_pointer = (args_end_pointer STACKop argcount);
       # args_pointer = Pointer über die Argumente
       # Überprüfe, ob es alles Strings sind, und addiere die Längen:
@@ -3727,6 +3669,6 @@ LISPFUN(string_concat,0,0,rest,nokey,0,NIL)
 # (STRING-CONCAT {string})
 # bildet einen aus den Argumenten zusammengehängten String
   {
-    value1 = string_concat(argcount); mv_count=1;
+    VALUES1(string_concat(argcount));
   }
 

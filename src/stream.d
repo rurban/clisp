@@ -814,13 +814,12 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL) {
   var object symbol = popSTACK();
   if (!symbolp(symbol))
     fehler_symbol(symbol);
-  value1 = var_stream(symbol,(uintB)(
-                      eq(direction,S(Kinput)) ? strmflags_rd_ch_B : # :INPUT
-                      eq(direction,S(Koutput)) ? strmflags_wr_ch_B : # :OUTPUT
-                      eq(direction,S(Kio)) ?
-                      strmflags_rd_ch_B | strmflags_wr_ch_B : # :IO
-                      0)); # :PROBE or not given
-  mv_count=1;
+  VALUES1(var_stream(symbol,(uintB)(
+                    eq(direction,S(Kinput)) ? strmflags_rd_ch_B : /* :INPUT */
+                    eq(direction,S(Koutput)) ? strmflags_wr_ch_B : /* :OUTPUT */
+                    eq(direction,S(Kio)) ?
+                    strmflags_rd_ch_B | strmflags_wr_ch_B : # :IO
+                    0))); /* :PROBE or not given */
 }
 
 # signal an error if for some obscure reason a WRITE should not work:
@@ -1215,16 +1214,14 @@ LISPFUNN(make_synonym_stream,1) {
     pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,GETTEXT("~: argument should be a symbol, not ~"));
   }
-  value1 = make_synonym_stream(arg); mv_count=1;
+  VALUES1(make_synonym_stream(arg));
 }
 
 # (SYS::SYNONYM-STREAM-P stream) == (TYPEP stream 'SYNONYM-STREAM)
 LISPFUNN(synonym_stream_p,1) {
   var object arg = popSTACK();
-  value1 = (builtin_stream_p(arg)
-            && (TheStream(arg)->strmtype == strmtype_synonym)
-            ? T : NIL);
-  mv_count=1;
+  VALUES_IF(builtin_stream_p(arg)
+            && (TheStream(arg)->strmtype == strmtype_synonym));
 }
 
 # (SYNONYM-STREAM-SYMBOL stream), CLtL2 p. 507
@@ -1234,7 +1231,7 @@ LISPFUNN(synonym_stream_symbol,1) {
         && (TheStream(stream)->strmtype == strmtype_synonym))) {
     check_streamtype(stream,S(synonym_stream));
   }
-  value1 = TheStream(stream)->strm_synonym_symbol; mv_count=1;
+  VALUES1(TheStream(stream)->strm_synonym_symbol);
 }
 
 
@@ -1396,17 +1393,14 @@ LISPFUN(make_broadcast_stream,0,0,rest,nokey,0,NIL) {
   # collect to one List:
   var object list = listof(argcount);
   # build Stream:
-  value1 = make_broadcast_stream(list); mv_count=1;
+  VALUES1(make_broadcast_stream(list));
 }
 
 # (SYS::BROADCAST-STREAM-P stream) == (TYPEP stream 'BROADCAST-STREAM)
 LISPFUNN(broadcast_stream_p,1) {
   var object arg = popSTACK();
-  value1 = (builtin_stream_p(arg)
-            && (TheStream(arg)->strmtype == strmtype_broad)
-            ? T
-            : NIL);
-  mv_count=1;
+  VALUES_IF(builtin_stream_p(arg)
+            && (TheStream(arg)->strmtype == strmtype_broad));
 }
 
 # (BROADCAST-STREAM-STREAMS stream), CLtL2 p. 507
@@ -1417,7 +1411,7 @@ LISPFUNN(broadcast_stream_streams,1) {
     check_streamtype(stream,S(broadcast_stream));
   }
   # copy List of Streams as a precaution
-  value1 = copy_list(TheStream(stream)->strm_broad_list); mv_count=1;
+  VALUES1(copy_list(TheStream(stream)->strm_broad_list));
 }
 
 
@@ -1640,17 +1634,14 @@ LISPFUN(make_concatenated_stream,0,0,rest,nokey,0,NIL) {
   # collect to one List:
   var object list = listof(argcount);
   # build Stream:
-  value1 = make_concatenated_stream(list); mv_count=1;
+  VALUES1(make_concatenated_stream(list));
 }
 
 # (SYS::CONCATENATED-STREAM-P stream) == (TYPEP stream 'CONCATENATED-STREAM)
 LISPFUNN(concatenated_stream_p,1) {
   var object arg = popSTACK();
-  value1 = (builtin_stream_p(arg)
-            && (TheStream(arg)->strmtype == strmtype_concat)
-            ? T
-            : NIL);
-  mv_count=1;
+  VALUES_IF(builtin_stream_p(arg)
+            && (TheStream(arg)->strmtype == strmtype_concat));
 }
 
 # (CONCATENATED-STREAM-STREAMS stream), CLtL2 p. 507
@@ -1661,7 +1652,7 @@ LISPFUNN(concatenated_stream_streams,1) {
     check_streamtype(stream,S(concatenated_stream));
   }
   # copy List of Streams as a precaution
-  value1 = copy_list(TheStream(stream)->strm_concat_list); mv_count=1;
+  VALUES1(copy_list(TheStream(stream)->strm_concat_list));
 }
 
 
@@ -1870,7 +1861,7 @@ LISPFUNN(make_two_way_stream,2) {
   test_input_stream(input_stream);
   test_output_stream(output_stream);
   # build Stream:
-  value1 = make_twoway_stream(input_stream,output_stream); mv_count=1;
+  VALUES1(make_twoway_stream(input_stream,output_stream));
 }
 
 # check whether the stream S is a two-way-stream
@@ -1880,8 +1871,7 @@ LISPFUNN(make_two_way_stream,2) {
 # (SYS::TWO-WAY-STREAM-P stream) == (TYPEP stream 'TWO-WAY-STREAM)
 LISPFUNN(two_way_stream_p,1) {
   var object arg = popSTACK();
-  value1 = (stream_twoway_p(arg) ? T : NIL);
-  mv_count=1;
+  VALUES_IF(stream_twoway_p(arg));
 }
 
 # (TWO-WAY-STREAM-INPUT-STREAM stream), CLtL2 p. 507
@@ -1889,7 +1879,7 @@ LISPFUNN(two_way_stream_input_stream,1) {
   var object stream = popSTACK();
   if (!stream_twoway_p(stream))
     check_streamtype(stream,S(two_way_stream));
-  value1 = TheStream(stream)->strm_twoway_input; mv_count=1;
+  VALUES1(TheStream(stream)->strm_twoway_input);
 }
 
 # (TWO-WAY-STREAM-OUTPUT-STREAM stream), CLtL2 p. 507
@@ -1897,7 +1887,7 @@ LISPFUNN(two_way_stream_output_stream,1) {
   var object stream = popSTACK();
   if (!stream_twoway_p(stream))
     check_streamtype(stream,S(two_way_stream));
-  value1 = TheStream(stream)->strm_twoway_output; mv_count=1;
+  VALUES1(TheStream(stream)->strm_twoway_output);
 }
 
 
@@ -1996,7 +1986,7 @@ LISPFUNN(make_echo_stream,2) {
   test_input_stream(input_stream);
   test_output_stream(output_stream);
   # build Stream:
-  value1 = make_echo_stream(input_stream,output_stream); mv_count=1;
+  VALUES1(make_echo_stream(input_stream,output_stream));
 }
 
 # check whether the stream S is a two-way-stream
@@ -2006,8 +1996,7 @@ LISPFUNN(make_echo_stream,2) {
 # (SYS::ECHO-STREAM-P stream) == (TYPEP stream 'ECHO-STREAM)
 LISPFUNN(echo_stream_p,1) {
   var object arg = popSTACK();
-  value1 = (stream_echo_p(arg) ? T : NIL);
-  mv_count=1;
+  VALUES_IF(stream_echo_p(arg));
 }
 
 # (ECHO-STREAM-INPUT-STREAM stream), CLtL2 p. 507
@@ -2015,7 +2004,7 @@ LISPFUNN(echo_stream_input_stream,1) {
   var object stream = popSTACK();
   if (!stream_echo_p(stream))
     check_streamtype(stream,S(echo_stream));
-  value1 = TheStream(stream)->strm_twoway_input; mv_count=1;
+  VALUES1(TheStream(stream)->strm_twoway_input);
 }
 
 # (ECHO-STREAM-OUTPUT-STREAM stream), CLtL2 p. 507
@@ -2023,7 +2012,7 @@ LISPFUNN(echo_stream_output_stream,1) {
   var object stream = popSTACK();
   if (!stream_echo_p(stream))
     check_streamtype(stream,S(echo_stream));
-  value1 = TheStream(stream)->strm_twoway_output; mv_count=1;
+  VALUES1(TheStream(stream)->strm_twoway_output);
 }
 
 
@@ -2133,7 +2122,7 @@ LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL) {
   TheStream(stream)->strm_str_in_string = popSTACK();
   TheStream(stream)->strm_str_in_index = start_arg; # Index := start-Argument
   TheStream(stream)->strm_str_in_endindex = end_arg; # Endindex := end-Argument
-  value1 = stream; mv_count=1; # stream as value
+  VALUES1(stream); # stream as value
 }
 
 # (SYSTEM::STRING-INPUT-STREAM-INDEX string-input-stream) returns the Index
@@ -2151,7 +2140,7 @@ LISPFUNN(string_input_stream_index,1) {
   # use (1- index), a Fixnum >=0, as value:
   if (TheStream(stream)->strmflags & strmflags_unread_B)
     index = fixnum_inc(index,-1);
-  value1 = index; mv_count=1;
+  VALUES1(index);
 }
 
 
@@ -2197,14 +2186,14 @@ global object make_string_output_stream (void) {
 LISPFUN(make_string_output_stream,0,0,norest,key,2,
         (kw(element_type),kw(line_position))) {
   # check line-position:
-  if (eq(STACK_0,unbound) || nullp(STACK_0)) {
+  if (missingp(STACK_0)) {
     STACK_0 = Fixnum_0; # Default value 0
   } else { # line-position specified, should be a Fixnum >=0 :
     if (!posfixnump(STACK_0))
       fehler_posfixnum(STACK_0);
   }
   # check element-type:
-  if (!eq(STACK_1,unbound)) {
+  if (boundp(STACK_1)) {
     var object eltype = STACK_1;
     if (!eq(eltype,S(character))) {
       # Verify (SUBTYPEP eltype 'CHARACTER):
@@ -2220,7 +2209,7 @@ LISPFUN(make_string_output_stream,0,0,norest,key,2,
   }
   var object stream = make_string_output_stream(); # String-Output-Stream
   TheStream(stream)->strm_wr_ch_lpos = popSTACK(); # Line Position eintragen
-  value1 = stream; mv_count=1; # stream as value
+  VALUES1(stream); /* return stream */
   skipSTACK(1);
 }
 
@@ -2249,7 +2238,7 @@ LISPFUNN(get_output_stream_string,1) {
     fehler(error,GETTEXT("~: ~ is not a string output stream"));
   }
   # the collected stuff is the value
-  value1 = get_output_stream_string(&STACK_0); mv_count=1;
+  VALUES1(get_output_stream_string(&STACK_0));
   skipSTACK(1);
 }
 
@@ -2291,7 +2280,7 @@ LISPFUNN(make_string_push_stream,1) {
   TheStream(stream)->strm_wr_ch = P(wr_ch_str_push);
   TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
   TheStream(stream)->strm_str_push_string = popSTACK(); # enter String
-  value1 = stream; mv_count=1; # stream as value
+  VALUES1(stream); /* return stream */
 }
 
 
@@ -2306,13 +2295,12 @@ LISPFUNN(string_stream_p,1) {
       case strmtype_str_in:   # String-Input-Stream
       case strmtype_str_out:  # String-Output-Stream
       case strmtype_str_push: # String-Push-Stream
-        value1 = T; break;
+        VALUES1(T); break;
       default:
-        value1 = NIL; break;
+        VALUES1(NIL); break;
     }
   } else
-    value1 = NIL;
-  mv_count=1;
+    VALUES1(NIL);
 }
 
 
@@ -2334,7 +2322,7 @@ local void wr_ch_pphelp (const object* stream_, object ch) {
     TheStream(stream)->strm_pphelp_modus = T;
     cons_ssstring(stream_,NIL);
   } else if ((chareq(c,ascii(' ')) || chareq(c,ascii('\t')))
-             && !nullp(Symbol_value(S(print_pretty_fill)))) {
+             && !nullpSv(print_pretty_fill)) {
     var object list = TheStream(stream)->strm_pphelp_strings;
     if (!(vector_length(Car(list)) == 0 && mconsp(Cdr(list))
           && mconsp(Car(Cdr(list))) && eq(S(Kfill),Car(Car(Cdr(list)))))) {
@@ -2350,7 +2338,7 @@ local void wr_ch_pphelp (const object* stream_, object ch) {
 # WRITE-CHAR-ARRAY - Pseudo-Function for Pretty-Printer-Auxiliary-Streams:
 local void wr_ch_array_pphelp (const object* stream_, const object* chararray_,
                                uintL start, uintL len) {
-  var bool filling = !nullp(Symbol_value(S(print_pretty_fill)));
+  var bool filling = !nullpSv(print_pretty_fill);
   var uintL beg = start;
   # if (start) sstring_printf(*chararray_,start+len,0);
   # sstring_printf(*chararray_,start+len,start);
@@ -2552,7 +2540,7 @@ LISPFUNN(make_buffered_input_stream,2) {
   TheStream(stream)->strm_buff_in_string = O(empty_string); # String := ""
   TheStream(stream)->strm_buff_in_index = Fixnum_0; # Index := 0
   TheStream(stream)->strm_buff_in_endindex = Fixnum_0; # Endindex := 0
-  value1 = stream; mv_count=1; # stream as value
+  VALUES1(stream); /* return stream */
 }
 
 # (SYS::BUFFERED-INPUT-STREAM-INDEX buffered-input-stream) returns the Index
@@ -2570,7 +2558,7 @@ LISPFUNN(buffered_input_stream_index,1) {
   # use (1- index), a Fixnum >=0, as value:
   if (TheStream(stream)->strmflags & strmflags_unread_B)
     index = fixnum_inc(index,-1);
-  value1 = index; mv_count=1;
+  VALUES1(index);
 }
 
 
@@ -2648,7 +2636,7 @@ local void close_buff_out (object stream) {
 # (MAKE-BUFFERED-OUTPUT-STREAM fun [line-position])
 LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL) {
   # check line-position:
-  if (eq(STACK_0,unbound)) {
+  if (!boundp(STACK_0)) {
     STACK_0 = Fixnum_0; # default value 0
   } else { # line-position specified, should be a Fixnum >=0 :
     if (!posfixnump(STACK_0))
@@ -2664,7 +2652,7 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL) {
   TheStream(stream)->strm_buff_out_string = popSTACK(); # enter String
   TheStream(stream)->strm_wr_ch_lpos = popSTACK(); # enter Line Position
   TheStream(stream)->strm_buff_out_fun = popSTACK(); # enter Function
-  value1 = stream; mv_count=1; # stream as value
+  VALUES1(stream); /* return stream */
 }
 
 
@@ -2827,8 +2815,7 @@ LISPFUNN(generic_stream_controller,1) {
       fehler(error,GETTEXT("~: stream must be a generic-stream, not ~"));
     }
   }
-  value1=TheStream(stream)->strm_controller_object;
-  mv_count=1;
+  VALUES1(TheStream(stream)->strm_controller_object);
 }
 
 LISPFUNN(make_generic_stream,1) {
@@ -2846,7 +2833,7 @@ LISPFUNN(make_generic_stream,1) {
   TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_generic);
   TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
   TheStream(stream)->strm_controller_object = popSTACK();
-  value1 = stream; mv_count=1; # stream as value
+  VALUES1(stream); /* return stream */
 }
 
 LISPFUNN(generic_stream_p,1) {
@@ -2855,9 +2842,9 @@ LISPFUNN(generic_stream_p,1) {
   if (builtin_stream_p(stream)
       && eq(TheStream(stream)->strm_rd_by,P(rd_by_generic))
       && eq(TheStream(stream)->strm_wr_by,P(wr_by_generic)))
-    { value1 = T; mv_count=1; }
+    { VALUES1(T); }
   else
-    { value1 = NIL; mv_count=1; }
+    { VALUES1(NIL); }
 }
 
 #endif
@@ -2901,9 +2888,9 @@ LISPFUNN(generic_stream_p,1) {
 # > subr_self: calling function
 # < signean buffered: +1 for T, -1 for NIL, 0 for :DEFAULT
 local signean test_buffered_arg (object arg) {
-  if (eq(arg,unbound) || eq(arg,S(Kdefault)))
+  if (!boundp(arg) || eq(arg,S(Kdefault)))
     return 0;
-  if (eq(arg,NIL))
+  if (nullp(arg))
     return -1;
   if (eq(arg,T))
     return 1;
@@ -2936,7 +2923,7 @@ typedef struct {
 # can trigger GC
 local void test_eltype_arg (object* eltype_, decoded_el_t* decoded) {
   var object arg = *eltype_;
-  if (eq(arg,unbound) || eq(arg,S(character)) || eq(arg,S(string_char))
+  if (!boundp(arg) || eq(arg,S(character)) || eq(arg,S(string_char))
       || eq(arg,S(Kdefault))) { # CHARACTER, STRING-CHAR, :DEFAULT
     decoded->kind = eltype_ch; decoded->size = 0; return;
   }
@@ -3061,7 +3048,7 @@ local object canon_eltype (const decoded_el_t* decoded) {
 # < result: an encoding
 # can trigger GC
 local object test_external_format_arg (object arg) {
-  if (eq(arg,unbound) || eq(arg,S(Kdefault)))
+  if (!boundp(arg) || eq(arg,S(Kdefault)))
     return O(default_file_encoding);
   if (encodingp(arg))
     return arg;
@@ -7903,11 +7890,7 @@ local void close_buffered (object stream) {
 # (SYS::FILE-STREAM-P stream) == (TYPEP stream 'FILE-STREAM)
 LISPFUNN(file_stream_p,1) {
   var object arg = popSTACK();
-  if (builtin_stream_p(arg) && (TheStream(arg)->strmtype == strmtype_file))
-    value1 = T;
-  else
-    value1 = NIL;
-  mv_count=1;
+  VALUES_IF(builtin_stream_p(arg) && (TheStream(arg)->strmtype == strmtype_file));
 }
 
 
@@ -9148,7 +9131,7 @@ local object make_keyboard_stream (void) {
 # (SYSTEM::MAKE-KEYBOARD-STREAM) creates a new keyboard stream.
 # Should be called once only, and the result assigned to *KEYBOARD-INPUT*.
 LISPFUNN(make_keyboard_stream,0) {
-  value1 = make_keyboard_stream(); mv_count=1;
+  VALUES1(make_keyboard_stream());
 }
 
 #endif # KEYBOARD
@@ -9162,7 +9145,7 @@ LISPFUNN(make_keyboard_stream,0) {
 local void lisp_completion_ignore (void* sp, object* frame, object label,
                                    object condition) {
   # (THROW 'SYS::CONVERSION-FAILURE NIL):
-  value1 = NIL; mv_count=1;
+  VALUES1(NIL);
   throw_to(S(conversion_failure));
 }
 # Completion of Lisp-Symbols
@@ -9809,7 +9792,7 @@ local object rd_ch_terminal3 (const object* stream_) {
       if (line[0] != '\0') {
         HIST_ENTRY *prev = previous_history();
         if ((prev==NULL)
-            || eq(Symbol_value(S(terminal_read_open_object)),unbound)) {
+            || !boundp(Symbol_value(S(terminal_read_open_object)))) {
           begin_system_call(); add_history((char*)line); end_system_call();
         } else { # append this line to the previous history entry
           begin_system_call();
@@ -10449,7 +10432,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL) {
   if (!(builtin_stream_p(stream)
         && (TheStream(stream)->strmflags & strmflags_open_B))) # Stream closed?
     fehler_illegal_streamop(S(terminal_raw),stream);
-  value1 = NIL;
+  VALUES1(NIL);
   var LONG new_mode = (nullp(flag) ? 0 : 1);
   var LONG success;
   if (builtin_stream_p(stream)
@@ -10458,7 +10441,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL) {
               && !ChannelStream_buffered(stream)))) {
     if (!nullp(TheStream(stream)->strm_isatty)) {
       if (TheStream(stream)->strmtype == strmtype_terminal) { # Terminal
-        value1 = (terminal_mode ? T : NIL);
+        VALUES_IF(terminal_mode);
         if (new_mode == terminal_mode) {
           success = true;
         } else {
@@ -10468,7 +10451,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL) {
           terminal_mode = new_mode;
         }
       } else { # unbuffered File-Stream
-        value1 = (UnbufferedStream_rawp(stream) ? T : NIL);
+        VALUES_IF(UnbufferedStream_rawp(stream));
         if (new_mode == UnbufferedStream_rawp(stream)) {
           success = true;
         } else {
@@ -10484,9 +10467,8 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL) {
   } else {
     success = false;
   }
-  if (!success && (!eq(errorp,unbound) && !nullp(errorp)))
+  if (!success && !missingp(errorp))
     fehler_terminal_raw(stream);
-  mv_count=1;
 }
 
 #endif # AMIGAOS
@@ -10498,7 +10480,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL) {
 #if !((defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS) || defined(RISCOS))
 
 LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL) {
-  value1 = NIL; mv_count=1; skipSTACK(3); # do nothing
+  VALUES1(NIL); skipSTACK(3); /* do nothing */
 }
 
 #endif
@@ -10654,7 +10636,7 @@ LISPFUNN(make_window,0) {
   v_getctype(&cursor_scanlines_start,&cursor_scanlines_end); # query cursor-shape
   v_attrib(attr_table[screentype][0]); # Highlight off
   v_ctype(cursor_scanlines_end-1,cursor_scanlines_end); # cursor small
-  value1 = stream; mv_count=1;
+  VALUES1(stream);
 }
 
 # Closes a Window-Stream.
@@ -10667,9 +10649,8 @@ local void close_window (object stream) {
 
 LISPFUNN(window_size,1) {
   check_window_stream(popSTACK());
-  value1 = fixnum((uintW)LINES);
-  value2 = fixnum((uintW)COLS);
-  mv_count=2;
+  VALUES2(fixnum((uintW)LINES),
+          fixnum((uintW)COLS));
 }
 
 LISPFUNN(window_cursor_position,1) {
@@ -10677,9 +10658,8 @@ LISPFUNN(window_cursor_position,1) {
   var int current_x;
   var int current_y;
   v_getxy(&current_x,&current_y); # get current cursor position
-  value1 = fixnum((uintW)current_y);
-  value2 = fixnum((uintW)current_x);
-  mv_count=2;
+  VALUES2(fixnum((uintW)current_y),
+          fixnum((uintW)current_x));
 }
 
 LISPFUNN(set_window_cursor_position,3) {
@@ -10688,14 +10668,14 @@ LISPFUNN(set_window_cursor_position,3) {
   var uintL column = posfixnum_to_L(STACK_0);
   if ((line < (uintL)LINES) && (column < (uintL)COLS))
     v_gotoxy((int)column,(int)line);
-  value1 = STACK_1; value2 = STACK_0; mv_count=2; skipSTACK(3);
+  VALUES2(STACK_1,STACK_0); skipSTACK(3);
 }
 
 LISPFUNN(clear_window,1) {
   check_window_stream(popSTACK());
   v_gotoxy(0,0);
   v_clear();
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(clear_window_to_eot,1) {
@@ -10704,51 +10684,51 @@ LISPFUNN(clear_window_to_eot,1) {
   var int current_y;
   v_getxy(&current_x,&current_y); # get current cursor position
   v_putn(' ',COLS*(LINES-current_y)-current_x);
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(clear_window_to_eol,1) {
   check_window_stream(popSTACK());
   v_clreol();
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(delete_window_line,1) {
   check_window_stream(popSTACK());
   v_delline(1);
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(insert_window_line,1) {
   check_window_stream(popSTACK());
   v_insline(1);
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(highlight_on,1) {
   check_window_stream(popSTACK());
   v_attrib(attr_table[screentype][1]);
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(highlight_off,1) {
   check_window_stream(popSTACK());
   v_attrib(attr_table[screentype][0]);
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(window_cursor_on,1) {
   check_window_stream(popSTACK());
   # cursor big: set begin scan to end scan - 4
   v_ctype(cursor_scanlines_end-4,cursor_scanlines_end);
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(window_cursor_off,1) {
   check_window_stream(popSTACK());
   # cursor small: set begin scan to end scan - 1
   v_ctype(cursor_scanlines_end-1,cursor_scanlines_end);
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 #endif # EMUNIX
@@ -11107,7 +11087,7 @@ LISPFUNN(make_window,0) {
   v_move(handle,0,0);
   v_cl(handle,&console_pos,console_size,attr_table[0]);
   v_cs(handle);
-  value1 = stream; mv_count=1;
+  VALUES1(stream);
 }
 
 # close a window stream.
@@ -11118,17 +11098,15 @@ local void close_window (object stream) {
 LISPFUNN(window_size,1) {
   var object stream = check_window_stream(popSTACK());
   var COORD  sz     = ConsoleData(stream)->console_size;
-  value1 = fixnum(sz.Y);
-  value2 = fixnum(sz.X);
-  mv_count=2;
+  VALUES2(fixnum(sz.Y),
+          fixnum(sz.X));
 }
 
 LISPFUNN(window_cursor_position,1) {
   var object stream = check_window_stream(popSTACK());
   var COORD  pos    = ConsoleData(stream)->cursor_position;
-  value1 = fixnum(pos.Y);
-  value2 = fixnum(pos.X);
-  mv_count=2;
+  VALUES2(fixnum(pos.Y),
+          fixnum(pos.X));
 }
 
 LISPFUNN(set_window_cursor_position,3) {
@@ -11143,7 +11121,7 @@ LISPFUNN(set_window_cursor_position,3) {
     v_move(handle,pos.Y,pos.X);
     ConsoleData(stream)->cursor_position = pos;
   }
-  value1 = STACK_1; value2 = STACK_0; mv_count=2; skipSTACK(3);
+  VALUES2(STACK_1, STACK_0); skipSTACK(3);
 }
 
 LISPFUNN(clear_window,1) {
@@ -11154,7 +11132,7 @@ LISPFUNN(clear_window,1) {
   var uintW  attr   = attr_table[ConsoleData(stream)->attribute];
   v_cl(handle,&pos,sz,attr);
   ConsoleData(stream)->cursor_position = pos;
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(clear_window_to_eot,1) {
@@ -11164,7 +11142,7 @@ LISPFUNN(clear_window_to_eot,1) {
   var COORD  sz     = ConsoleData(stream)->console_size;
   var uintW  attr   = attr_table[ConsoleData(stream)->attribute];
   v_cd(handle,&pos,sz,attr);
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(clear_window_to_eol,1) {
@@ -11174,7 +11152,7 @@ LISPFUNN(clear_window_to_eol,1) {
   var COORD  sz     = ConsoleData(stream)->console_size;
   var uintW  attr   = attr_table[ConsoleData(stream)->attribute];
   v_ce(handle,&pos,sz,attr);
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(delete_window_line,1) {
@@ -11184,7 +11162,7 @@ LISPFUNN(delete_window_line,1) {
   var COORD  sz     = ConsoleData(stream)->console_size;
   var uintW  attr   = attr_table[ConsoleData(stream)->attribute];
   v_dl(handle,&pos,sz,attr);
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(insert_window_line,1) {
@@ -11194,31 +11172,31 @@ LISPFUNN(insert_window_line,1) {
   var COORD  sz     = ConsoleData(stream)->console_size;
   var uintW  attr   = attr_table[ConsoleData(stream)->attribute];
   v_al(handle,&pos,sz,attr);
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(highlight_on,1) {
   var object stream = check_window_stream(popSTACK());
   ConsoleData(stream)->attribute = 1;
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(highlight_off,1) {
   var object stream = check_window_stream(popSTACK());
   ConsoleData(stream)->attribute = 0;
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(window_cursor_on,1) {
   var object stream = check_window_stream(popSTACK());
   v_cb(ConsoleHandleR(stream));
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(window_cursor_off,1) {
   var object stream = check_window_stream(popSTACK());
   v_cs(ConsoleHandleR(stream));
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 
@@ -12882,7 +12860,7 @@ LISPFUNN(make_window,0) {
   start_term();
   init_curr();
   end_system_call();
-  value1 = stream; mv_count=1;
+  VALUES1(stream);
 }
 
 # Closes a Window-Stream.
@@ -12894,16 +12872,14 @@ local void close_window (object stream) {
 
 LISPFUNN(window_size,1) {
   check_window_stream(popSTACK());
-  value1 = fixnum(rows); # query Variables rows,cols
-  value2 = fixnum(cols);
-  mv_count=2;
+  VALUES2(fixnum(rows), # query Variables rows,cols
+          fixnum(cols));
 }
 
 LISPFUNN(window_cursor_position,1) {
   check_window_stream(popSTACK());
-  value1 = fixnum(curr->y);
-  value2 = fixnum(curr->x);
-  mv_count=2;
+  VALUES2(fixnum(curr->y),
+          fixnum(curr->x));
 }
 
 LISPFUNN(set_window_cursor_position,3) {
@@ -12916,7 +12892,7 @@ LISPFUNN(set_window_cursor_position,3) {
     curr->y = line; curr->x = column;
     end_system_call();
   }
-  value1 = STACK_1; value2 = STACK_0; mv_count=2; skipSTACK(3);
+  VALUES2(STACK_1, STACK_0); skipSTACK(3);
 }
 
 LISPFUNN(clear_window,1) {
@@ -12924,7 +12900,7 @@ LISPFUNN(clear_window,1) {
   begin_system_call();
   clear_screen();
   end_system_call();
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(clear_window_to_eot,1) {
@@ -12932,7 +12908,7 @@ LISPFUNN(clear_window_to_eot,1) {
   begin_system_call();
   clear_to_EOS();
   end_system_call();
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(clear_window_to_eol,1) {
@@ -12940,7 +12916,7 @@ LISPFUNN(clear_window_to_eol,1) {
   begin_system_call();
   clear_to_EOL();
   end_system_call();
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(delete_window_line,1) {
@@ -12948,7 +12924,7 @@ LISPFUNN(delete_window_line,1) {
   begin_system_call();
   delete_line(1);
   end_system_call();
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(insert_window_line,1) {
@@ -12956,7 +12932,7 @@ LISPFUNN(insert_window_line,1) {
   begin_system_call();
   insert_line(1);
   end_system_call();
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(highlight_on,1) {
@@ -12964,7 +12940,7 @@ LISPFUNN(highlight_on,1) {
   begin_system_call();
   change_attr(curr->curr_attr |= A_US);
   end_system_call();
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(highlight_off,1) {
@@ -12972,19 +12948,19 @@ LISPFUNN(highlight_off,1) {
   begin_system_call();
   change_attr(curr->curr_attr &= ~A_US);
   end_system_call();
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(window_cursor_on,1) {
   check_window_stream(popSTACK());
   # Cursor is permanently activated!
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(window_cursor_off,1) {
   check_window_stream(popSTACK());
   # not possible, because Cursor is activated permanently!
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 #endif # (UNIX && !NEXTAPP) || RISCOS
@@ -13101,7 +13077,7 @@ LISPFUNN(make_window,0) {
   keypad(stdscr,true); # activate Function-Key-Detection
  #endif
   end_system_call();
-  value1 = stream; mv_count=1;
+  VALUES1(stream);
 }
 
 # Closes a Window-Stream.
@@ -13117,9 +13093,8 @@ local void close_window (object stream) {
 
 LISPFUNN(window_size,1) {
   check_window_stream(popSTACK());
-  value1 = fixnum(LINES); # query Curses-Variables LINES, COLS
-  value2 = fixnum(COLS);
-  mv_count=2;
+  VALUES2(fixnum(LINES), /* query Curses-Variables LINES, COLS */
+          fixnum(COLS));
 }
 
 LISPFUNN(window_cursor_position,1) {
@@ -13129,9 +13104,8 @@ LISPFUNN(window_cursor_position,1) {
   begin_system_call();
   getyx(stdscr,y,x); # (y,x) := cursor position
   end_system_call();
-  value1 = fixnum(y);
-  value2 = fixnum(x);
-  mv_count=2;
+  VALUES2(fixnum(y),
+          fixnum(x));
 }
 
 LISPFUNN(set_window_cursor_position,3) {
@@ -13143,7 +13117,7 @@ LISPFUNN(set_window_cursor_position,3) {
     move(line,column); refresh(); # position Cursor
     end_system_call();
   }
-  value1 = STACK_1; value2 = STACK_0; mv_count=2; skipSTACK(3);
+  VALUES2(STACK_1, STACK_0); skipSTACK(3);
 }
 
 LISPFUNN(clear_window,1) {
@@ -13151,7 +13125,7 @@ LISPFUNN(clear_window,1) {
   begin_system_call();
   clear(); refresh();
   end_system_call();
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(clear_window_to_eot,1) {
@@ -13159,7 +13133,7 @@ LISPFUNN(clear_window_to_eot,1) {
   begin_system_call();
   clrtobot(); refresh();
   end_system_call();
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(clear_window_to_eol,1) {
@@ -13167,7 +13141,7 @@ LISPFUNN(clear_window_to_eol,1) {
   begin_system_call();
   clrtoeol(); refresh();
   end_system_call();
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(delete_window_line,1) {
@@ -13175,7 +13149,7 @@ LISPFUNN(delete_window_line,1) {
   begin_system_call();
   deleteln(); refresh();
   end_system_call();
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(insert_window_line,1) {
@@ -13183,7 +13157,7 @@ LISPFUNN(insert_window_line,1) {
   begin_system_call();
   insertln(); refresh();
   end_system_call();
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(highlight_on,1) {
@@ -13193,7 +13167,7 @@ LISPFUNN(highlight_on,1) {
   attron(A_STANDOUT); # add Attribut A_STANDOUT with OR at addch()
   end_system_call();
 #endif
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(highlight_off,1) {
@@ -13203,19 +13177,19 @@ LISPFUNN(highlight_off,1) {
   attroff(A_STANDOUT); # don't add Attribute with OR at addch()
   end_system_call();
  #endif
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(window_cursor_on,1) {
   check_window_stream(popSTACK());
   # Cursor is permanently activated!
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(window_cursor_off,1) {
   check_window_stream(popSTACK());
   # not possible, because Cursor is activated permanently!
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 #endif # UNIX
@@ -13264,7 +13238,7 @@ LISPFUNN(make_window,0) {
   # size: aWSR? aWBR??
   # Wrap off ?? ASM? AWM?
   WR_WINDOW({CSI,'0',0x6D}); # Set Graphics Rendition Normal
-  value1 = stream; mv_count=1;
+  VALUES1(stream);
 }
 
 # Closes a Window-Stream.
@@ -13307,61 +13281,61 @@ LISPFUNN(set_window_cursor_position,3) {
     count++; *--ptr = CSI;
     wr_window(ptr,count);
   }
-  value1 = STACK_1; value2 = STACK_0; mv_count=2; skipSTACK(3);
+  VALUES2(STACK_1, STACK_0); skipSTACK(3);
 }
 
 LISPFUNN(clear_window,1) {
   check_window_stream(popSTACK());
   WR_WINDOW({CSI,'0',';','0','H',CSI,'J'});
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(clear_window_to_eot,1) {
   check_window_stream(popSTACK());
   WR_WINDOW({CSI,'J'});
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(clear_window_to_eol,1) {
   check_window_stream(popSTACK());
   WR_WINDOW({CSI,'K'});
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(delete_window_line,1) {
   check_window_stream(popSTACK());
   WR_WINDOW({CSI,'M'});
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(insert_window_line,1) {
   check_window_stream(popSTACK());
   WR_WINDOW({CSI,'L'});
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(highlight_on,1) {
   check_window_stream(popSTACK());
   WR_WINDOW({CSI,'1',0x6D}); # Set Graphics Rendition Bold
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(highlight_off,1) {
   check_window_stream(popSTACK());
   WR_WINDOW({CSI,'0',0x6D}); # Set Graphics Rendition Normal
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(window_cursor_on,1) {
   check_window_stream(popSTACK());
   # aSCR ??
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 LISPFUNN(window_cursor_off,1) {
   check_window_stream(popSTACK());
   # aSCR ??
-  value1 = NIL; mv_count=0;
+  VALUES0;
 }
 
 #endif # AMIGAOS
@@ -13429,7 +13403,7 @@ local object make_printer_stream (void) {
 # (SYSTEM::MAKE-PRINTER-STREAM) returns a Printer-Stream.
 # For the Escape-Sequences that are understood see PRINTER.DOC.
 LISPFUNN(make_printer_stream,0) {
-  value1 = make_printer_stream(); mv_count=1; return;
+  VALUES1(make_printer_stream()); return;
 }
 
 #endif # PRINTER_AMIGAOS
@@ -13654,7 +13628,7 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,
   ChannelStreamLow_close(stream) = &low_close_pipe;
   TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
   skipSTACK(4);
-  value1 = add_to_open_streams(stream); mv_count=1; # stream as value
+  VALUES1(add_to_open_streams(stream)); /* return stream */
 }
 
 
@@ -13865,7 +13839,7 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,
   ChannelStreamLow_close(stream) = &low_close_pipe;
   TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
   skipSTACK(4);
-  value1 = add_to_open_streams(stream); mv_count=1; # stream as value
+  VALUES1(add_to_open_streams(stream)); /* return stream */
 }
 
 #ifdef PIPES2
@@ -14336,7 +14310,7 @@ LISPFUNN(make_x11socket_stream,2) {
   UnbufferedSocketStream_output_init(stream);
   ChannelStreamLow_close(stream) = &low_close_socket;
   TheStream(stream)->strm_x11socket_connect = popSTACK(); # two-element list
-  value1 = add_to_open_streams(stream); mv_count=1; # stream as value
+  VALUES1(add_to_open_streams(stream)); /* return stream */
 }
 
 # The two following functions should
@@ -14416,7 +14390,7 @@ LISPFUNN(read_n_bytes,4) {
     }
   }
   skipSTACK(2);
-  value1 = T; mv_count=1;
+  VALUES1(T);
 }
 
 LISPFUNN(write_n_bytes,4) {
@@ -14427,7 +14401,7 @@ LISPFUNN(write_n_bytes,4) {
     write_byte_array(&STACK_1,&STACK_0,startindex,totalcount);
   }
   skipSTACK(2);
-  value1 = T; mv_count=1;
+  VALUES1(T);
 }
 
 #endif # X11SOCKETS
@@ -14608,7 +14582,7 @@ LISPFUNN(socket_server_close,1) {
     end_system_call();
     TheSocketServer(ss)->socket_handle = NIL;
   }
-  value1 = NIL; mv_count=1;
+  VALUES1(NIL);
 }
 
 extern SOCKET create_server_socket (host_data_t *hd, SOCKET sock,
@@ -14619,7 +14593,7 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL) {
   var SOCKET sock;        # a hint for create_server_socket
   var unsigned int port;  # another hint for create_server_socket
 
-  if (eq(STACK_0,unbound) || eq(STACK_0,NIL)) {
+  if (missingp(STACK_0)) {
     sock = INVALID_SOCKET; port = 0; goto doit;
   }
   if (posfixnump(STACK_0)) {
@@ -14666,24 +14640,21 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL) {
   pushSTACK(STACK_0);
   pushSTACK(L(socket_server_close));
   funcall(L(finalize),2); # (FINALIZE socket-server #'socket-server-close)
-  value1 = popSTACK();
-  mv_count = 1;
+  VALUES1(popSTACK());
   skipSTACK(2);
 }
 
 # (SOCKET-SERVER-PORT socket-server)
 LISPFUNN(socket_server_port,1) {
   test_socket_server(STACK_0,false);
-  value1 = TheSocketServer(STACK_0)->port;
-  mv_count = 1;
+  VALUES1(TheSocketServer(STACK_0)->port);
   skipSTACK(1);
 }
 
 # (SOCKET-SERVER-HOST socket-server)
 LISPFUNN(socket_server_host,1) {
   test_socket_server(STACK_0,false);
-  value1 = TheSocketServer(STACK_0)->host;
-  mv_count = 1;
+  VALUES1(TheSocketServer(STACK_0)->host);
   skipSTACK(1);
 }
 
@@ -14693,16 +14664,16 @@ LISPFUNN(socket_server_host,1) {
 # usec = posfixnum or nil/unbound
 # can trigger GC
 local struct timeval * sec_usec (object sec, object usec, struct timeval *tv) {
-  if (eq(sec,unbound) || eq(sec,NIL)) {
+  if (missingp(sec)) {
     return NULL;
   } else if (consp(sec)) {
-    if (!nullp(Cdr(sec)) && eq(usec,unbound))
+    if (!nullp(Cdr(sec)) && !boundp(usec))
       usec = (consp(Cdr(sec)) ? Car(Cdr(sec)) : Cdr(sec));
     sec = Car(sec);
   } else if (floatp(sec) || ratiop(sec)) { # sec = sec mod 1
     pushSTACK(sec); funcall(L(floor),1);
     sec = value1;
-    if (eq(usec,unbound)) { # usec = round(sec*1000000)
+    if (!boundp(usec)) { /* usec = round(sec*1000000) */
       pushSTACK(subr_self); # save subr_self
       pushSTACK(value2); pushSTACK(fixnum(1000000)); funcall(L(mal),2);
       pushSTACK(value1); funcall(L(round),1);
@@ -14713,7 +14684,7 @@ local struct timeval * sec_usec (object sec, object usec, struct timeval *tv) {
   if (!posfixnump(sec))
     fehler_posfixnum(sec);
   tv->tv_sec = posfixnum_to_L(sec);
-  if (eq(usec,unbound) || eq(usec,NIL)) {
+  if (missingp(usec)) {
     tv->tv_usec = 0;
   } else {
     if (!posfixnump(usec))
@@ -14789,8 +14760,7 @@ LISPFUN(socket_accept,1,0,norest,key,4,
   value1 = make_socket_stream(handle,&eltype,buffered,
                               TheSocketServer(STACK_3)->host,
                               TheSocketServer(STACK_3)->port);
-  value1 = add_to_open_streams(value1);
-  mv_count = 1;
+  VALUES1(add_to_open_streams(value1));
   skipSTACK(4);
 }
 
@@ -14800,11 +14770,10 @@ LISPFUN(socket_wait,1,2,norest,nokey,0,NIL) {
  #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
   var struct timeval timeout;
   var struct timeval * timeout_ptr = sec_usec(STACK_1,STACK_0,&timeout);
-  value1 = socket_server_wait(STACK_2,timeout_ptr) ? T : NIL;
+  VALUES_IF(socket_server_wait(STACK_2,timeout_ptr));
  #else
-  value1 = NIL;
+  VALUES1(NIL);
  #endif
-  mv_count = 1;
   skipSTACK(3);
 }
 
@@ -14836,7 +14805,7 @@ LISPFUN(socket_connect,1,1,norest,key,4,
   # Check and canonicalize the :EXTERNAL-FORMAT argument:
   STACK_1 = test_external_format_arg(STACK_1);
 
-  if (eq(STACK_3,unbound) || eq(STACK_3,NIL))
+  if (missingp(STACK_3))
     hostname = "localhost";
   else if (stringp(STACK_3))
     hostname = TheAsciz(string_to_asciz(STACK_3,O(misc_encoding)));
@@ -14850,8 +14819,7 @@ LISPFUN(socket_connect,1,1,norest,key,4,
   value1 = make_socket_stream(handle,&eltype,buffered,
                               asciz_to_string(hostname,O(misc_encoding)),
                               STACK_4);
-  mv_count = 1;
-  value1 = add_to_open_streams(value1);
+  VALUES1(add_to_open_streams(value1));
   skipSTACK(5);
 }
 
@@ -15052,60 +15020,56 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL) {
         list = Cdr(STACK_0); # (POP list)
         STACK_0 = tmp;
       }
-      value1 = listof(index);
+      VALUES1(listof(index));
     } else
-        value1 = handle_isset(all,&readfds,&writefds,&errorfds);
+      VALUES1(handle_isset(all,&readfds,&writefds,&errorfds));
     end_system_call();
   }
  #else
-  value1 = NIL;
+  VALUES1(NIL);
  #endif
-  mv_count = 1;
   skipSTACK(3);
 }
 
 # (SOCKET-STREAM-PORT socket-stream)
 LISPFUNN(socket_stream_port,1) {
   var object stream = test_socket_stream(STACK_0,false);
-  value1 = TheStream(stream)->strm_socket_port;
+  VALUES1(TheStream(stream)->strm_socket_port);
   skipSTACK(1);
-  mv_count=1;
 }
 
 # (SOCKET-STREAM-HOST socket-stream)
 LISPFUNN(socket_stream_host,1) {
   var object stream = test_socket_stream(STACK_0,false);
-  value1 = TheStream(stream)->strm_socket_host;
+  VALUES1(TheStream(stream)->strm_socket_host);
   skipSTACK(1);
-  mv_count=1;
 }
 
 typedef host_data_t * host_data_fetcher_t (SOCKET, host_data_t *, bool);
 extern host_data_fetcher_t socket_getpeername, socket_getlocalname;
 
 local void publish_host_data (host_data_fetcher_t* func) {
-  var bool resolve_p = (eq(NIL,STACK_0) || eq(unbound,STACK_0));
+  var bool resolve_p = missingp(STACK_0);
   skipSTACK(1);
   var object stream = test_socket_stream(popSTACK(),true);
   var SOCKET sk = SocketChannel(stream);
   var host_data_t hd;
-
+  var object hostname;
     begin_system_call();
     if ((*func)(sk,&hd,resolve_p) == NULL) { SOCK_error(); }
     end_system_call();
     if (hd.truename[0] == '\0') {
-      value1 = asciz_to_string(hd.hostname,O(misc_encoding));
+      hostname = asciz_to_string(hd.hostname,O(misc_encoding));
     } else {
       var DYNAMIC_ARRAY(tmp_str,char,strlen(hd.truename)+2+strlen(hd.hostname)+1+1);
       strcpy(tmp_str, hd.hostname);
       strcat(tmp_str, " (");
       strcat(tmp_str, hd.truename);
       strcat(tmp_str, ")");
-      value1 = asciz_to_string(tmp_str,O(misc_encoding));
+      hostname = asciz_to_string(tmp_str,O(misc_encoding));
       FREE_DYNAMIC_ARRAY(tmp_str);
     }
-    value2 = fixnum (hd.port);
-    mv_count=2;
+    VALUES2(hostname, fixnum(hd.port));
   }
 
 # (SOCKET-STREAM-PEER socket-stream [do-not-resolve-p])
@@ -15123,9 +15087,8 @@ LISPFUN(socket_stream_local,1,1,norest,nokey,0,NIL) {
 # (SOCKET-STREAM-HANDLE socket-stream)
 LISPFUNN(socket_stream_handle,1) {
   var object stream = test_socket_stream(STACK_0,true);
-  value1 = fixnum(SocketChannel(stream));
+  VALUES1(fixnum(SocketChannel(stream)));
   skipSTACK(1);
-  mv_count=1;
 }
 
 #endif
@@ -15470,9 +15433,9 @@ LISPFUNN(built_in_stream_open_p,1) {
   var object stream = popSTACK();
   check_builtin_stream(stream);
   if (TheStream(stream)->strmflags & strmflags_open_B) { # Stream open?
-    value1 = T; mv_count=1; # value T
+    VALUES1(T);
   } else {
-    value1 = NIL; mv_count=1; # value NIL
+    VALUES1(NIL);
   }
 }
 
@@ -15481,9 +15444,9 @@ LISPFUNN(input_stream_p,1) {
   var object stream = popSTACK();
   check_stream(stream);
   if (input_stream_p(stream)) {
-    value1 = T; mv_count=1; # value T
+    VALUES1(T);
   } else {
-    value1 = NIL; mv_count=1; # value NIL
+    VALUES1(NIL);
   }
 }
 
@@ -15492,9 +15455,9 @@ LISPFUNN(output_stream_p,1) {
   var object stream = popSTACK();
   check_stream(stream);
   if (output_stream_p(stream)) {
-    value1 = T; mv_count=1; # value T
+    VALUES1(T);
   } else {
-    value1 = NIL; mv_count=1; # value NIL
+    VALUES1(NIL);
   }
 }
 
@@ -15516,9 +15479,9 @@ LISPFUNN(stream_element_type_eq,2) {
           && (eq(Car(t0),S(unsigned_byte)) || eq(Car(t0),S(signed_byte)))
           && consp(Cdr(t0)) && consp(Cdr(t1))
           && eql(Car(Cdr(t0)),Car(Cdr(t1))))) {
-    value1 = T; mv_count = 1;
+    VALUES1(T);
   } else {
-    value1 = NIL; mv_count = 1;
+    VALUES1(NIL);
   }
 }
 
@@ -15651,7 +15614,7 @@ LISPFUNN(built_in_stream_element_type,1) {
     }
       break;
   }
-  value1 = eltype; mv_count=1;
+  VALUES1(eltype);
 }
 
 # UP: reset the stream for the eltype and flush out the missing LF.
@@ -15801,7 +15764,7 @@ LISPFUNN(built_in_stream_set_element_type,2) {
     default:
       fehler_illegal_streamop(O(setf_stream_element_type),stream);
   }
-  value1 = STACK_1; mv_count=1;
+  VALUES1(STACK_1);
   skipSTACK(3);
 }
 
@@ -15826,13 +15789,12 @@ LISPFUNN(stream_external_format,1) {
      #ifdef SOCKET_STREAMS
       case strmtype_socket:
      #endif
-        value1 = TheStream(stream)->strm_encoding; break;
+        VALUES1(TheStream(stream)->strm_encoding); break;
       default:
-        value1 = S(Kdefault); break;
+        VALUES1(S(Kdefault)); break;
     }
   else
-    value1 = S(Kdefault);
-  mv_count=1;
+    VALUES1(S(Kdefault));
 }
 
 # (SYSTEM::SET-STREAM-EXTERNAL-FORMAT stream external-format [direction])
@@ -15950,7 +15912,7 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL) {
         if (!eq(encoding,S(Kdefault)))
           fehler_illegal_streamop(S(set_stream_external_format),stream);
     done:
-        value1 = encoding; break;
+        VALUES1(encoding); break;
     }
   else {
     if (eq(direction,S(Kinput)))
@@ -15962,9 +15924,8 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL) {
     if (!eq(encoding,S(Kdefault)))
       fehler_illegal_streamop(S(set_stream_external_format),stream);
   done2:
-    value1 = encoding;
+    VALUES1(encoding);
   }
-  mv_count=1;
   skipSTACK(3);
 }
 
@@ -16088,7 +16049,7 @@ global bool interactive_stream_p (object stream) {
 LISPFUNN(interactive_stream_p,1) {
   var object arg = popSTACK();
   check_stream(arg);
-  value1 = (interactive_stream_p(arg) ? T : NIL); mv_count=1;
+  VALUES_IF(interactive_stream_p(arg));
 }
 
 # UP: Closes a Stream.
@@ -16214,7 +16175,7 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) ) {
   check_builtin_stream(stream); # must be a Stream
   builtin_stream_close(&STACK_0);
   skipSTACK(1);
-  value1 = T; mv_count=1; # T as result
+  VALUES1(T); # T as result
 }
 
 # Reads a line of characters from a stream.
@@ -16853,7 +16814,7 @@ local uintL check_float_eltype (object* eltype_) {
 # > subr_self: calling function
 # < bool result: endianness (BIG = true, LITTLE = false)
 local bool test_endianness_arg (object arg) {
-  if (eq(arg,unbound) || eq(arg,S(Klittle)) || eq(arg,S(Kdefault)))
+  if (!boundp(arg) || eq(arg,S(Klittle)) || eq(arg,S(Kdefault)))
     return false;
   if (eq(arg,S(Kbig)))
     return true;
@@ -16877,12 +16838,12 @@ LISPFUN(read_byte,1,2,norest,nokey,0,NIL) {
       fehler(end_of_file,GETTEXT("~: input stream ~ has reached its end"));
     } else { # handle EOF:
       var object eofval = STACK_0;
-      if (eq(eofval,unbound))
+      if (!boundp(eofval))
         eofval = NIL; # Default is NIL
-      value1 = eofval; mv_count=1; skipSTACK(3); # eofval as value
+      VALUES1(eofval); skipSTACK(3); /* return eofval */
     }
   } else {
-    value1 = obj; mv_count=1; skipSTACK(3); # obj as value
+    VALUES1(obj); skipSTACK(3); /* return obj */
   }
 }
 
@@ -16907,8 +16868,7 @@ LISPFUNN(read_byte_will_hang_p,1) {
   check_stream(stream);
   # Query the status:
   var signean status = listen_byte(stream);
-  value1 = (ls_wait_p(status) ? T : NIL);
-  mv_count=1;
+  VALUES_IF(ls_wait_p(status));
 }
 
 # (READ-BYTE-NO-HANG stream [eof-error-p [eof-value]])
@@ -16918,14 +16878,14 @@ LISPFUN(read_byte_no_hang,1,2,norest,nokey,0,NIL) {
   var signean status = listen_byte(stream);
   if (ls_wait_p(status)) {
     # Return NIL.
-    value1 = NIL; mv_count=1; skipSTACK(3);
+    VALUES1(NIL); skipSTACK(3);
     return;
   } else if (!ls_eof_p(status)) {
     # Read a byte:
     var object obj = read_byte(stream);
     if (!eq(obj,eof_value)) {
       # Return the read integer.
-      value1 = obj; mv_count=1; skipSTACK(3);
+      VALUES1(obj); skipSTACK(3);
       return;
     }
   }
@@ -16939,9 +16899,9 @@ LISPFUN(read_byte_no_hang,1,2,norest,nokey,0,NIL) {
   } else {
     # handle EOF:
     var object eofval = STACK_0;
-    if (eq(eofval,unbound))
+    if (!boundp(eofval))
       eofval = NIL; # Default is NIL
-    value1 = eofval; mv_count=1; skipSTACK(3); # eofval as value
+    VALUES1(eofval); skipSTACK(3); /* return eofval */
   }
 }
 
@@ -16978,7 +16938,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL) {
       default: NOTREACHED;
     }
     FREE_DYNAMIC_BIT_VECTOR(STACK_0);
-    value1 = result; mv_count=1;
+    VALUES1(result);
     skipSTACK(6);
     return;
   }
@@ -16992,9 +16952,9 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL) {
     fehler(end_of_file,GETTEXT("~: input stream ~ has reached its end"));
   } else { # handle EOF:
     var object eofval = STACK_1;
-    if (eq(eofval,unbound))
+    if (!boundp(eofval))
       eofval = NIL; # Default is NIL
-    value1 = eofval; mv_count=1; skipSTACK(6); # eofval as value
+    VALUES1(eofval); skipSTACK(6); /* return eofval */
   }
 }
 
@@ -17054,9 +17014,9 @@ LISPFUN(read_float,2,3,norest,nokey,0,NIL) {
   } else {
     # handle EOF:
     var object eofval = STACK_1;
-    if (eq(eofval,unbound))
+    if (!boundp(eofval))
       eofval = NIL; # Default is NIL
-    value1 = eofval; mv_count=1; skipSTACK(6); # eofval as value
+    VALUES1(eofval); skipSTACK(6); /* return eofval */
   }
 }
 
@@ -17066,7 +17026,7 @@ LISPFUNN(write_byte,2) {
   var object obj = check_wr_int(stream,STACK_1);
   # write Integer:
   write_byte(stream,obj);
-  value1 = STACK_1; mv_count=1; skipSTACK(2); # obj as value
+  VALUES1(STACK_1); skipSTACK(2); /* return obj */
 }
 
 # (WRITE-INTEGER integer stream element-type [endianness])
@@ -17103,7 +17063,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL) {
   # Write the data.
   write_byte_array(&STACK_3,&STACK_0,0,bytesize);
   FREE_DYNAMIC_BIT_VECTOR(STACK_0);
-  value1 = STACK_4; mv_count=1; # obj as value
+  VALUES1(STACK_4); /* return obj */
   skipSTACK(5);
 }
 
@@ -17174,7 +17134,7 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL) {
   # Write the data.
   write_byte_array(&STACK_3,&STACK_0,0,bytesize);
   FREE_DYNAMIC_BIT_VECTOR(STACK_0);
-  value1 = STACK_4; mv_count=1; # obj as value
+  VALUES1(STACK_4); /* return obj */
   skipSTACK(5);
 }
 
@@ -17210,11 +17170,11 @@ LISPFUN(file_position,1,1,norest,nokey,0,NIL) {
   stream = check_open_file_stream(stream); # check stream
   if (!ChannelStream_buffered(stream)) {
     # Don't know how to deal with the file position on unbuffered streams.
-    value1 = NIL; mv_count=1;
+    VALUES1(NIL);
   } else {
-    if (eq(position,unbound)) {
+    if (!boundp(position)) {
       # position not specified -> Position as value:
-      value1 = UL_to_I(BufferedStream_position(stream)); mv_count=1;
+      VALUES1(UL_to_I(BufferedStream_position(stream)));
     } else {
       if (eq(position,S(Kstart))) {
         # :START -> set position to start:
@@ -17233,7 +17193,7 @@ LISPFUN(file_position,1,1,norest,nokey,0,NIL) {
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,GETTEXT("~: position argument should be ~ or ~ or a nonnegative integer, not ~"));
       }
-      value1 = T; mv_count=1; # value T
+      VALUES1(T);
     }
   }
 }
@@ -17244,7 +17204,7 @@ LISPFUNN(file_length,1) {
   stream = check_open_file_stream(stream); # check stream
   if (!ChannelStream_buffered(stream)) {
     # Don't know how to deal with the file position on unbuffered streams.
-    value1 = NIL; mv_count=1;
+    VALUES1(NIL);
   } else {
     # memorize Position:
     var uintL position = BufferedStream_position(stream);
@@ -17254,7 +17214,7 @@ LISPFUNN(file_length,1) {
     var uintL endposition = BufferedStream_position(stream);
     # set back to old position:
     logical_position_file(stream,position);
-    value1 = UL_to_I(endposition); mv_count=1; # End-Position as value
+    VALUES1(UL_to_I(endposition)); /* return End-Position */
   }
 }
 
@@ -17271,9 +17231,9 @@ LISPFUNN(file_string_length,2) {
     # iconv-based encodings have state. Since we cannot duplicate an iconv_t
     # we have no way to know for sure how many bytes the string will span.
     if (stringp(obj)) {
-      value1 = (vector_length(obj) == 0 ? Fixnum_0 : NIL); mv_count=1;
+      VALUES1(vector_length(obj) == 0 ? Fixnum_0 : NIL);
     } else if (charp(obj)) {
-      value1 = NIL; mv_count=1;
+      VALUES1(NIL);
     } else {
       fehler_wr_char(stream,obj);
     }
@@ -17299,7 +17259,7 @@ LISPFUNN(file_string_length,2) {
     if (eq(TheEncoding(encoding)->enc_eol,S(Kunix))) {
       # Treat all the characters all at once.
       var uintL result = cslen(encoding,charptr,len);
-      value1 = UL_to_I(result); mv_count=1; return;
+      VALUES1(UL_to_I(result)); return;
     } else {
       # Treat line-by-line.
       var const chart* eol_charptr;
@@ -17334,7 +17294,7 @@ LISPFUNN(file_string_length,2) {
           charptr++;
         }
       }
-      value1 = UL_to_I(result); mv_count=1; return;
+      VALUES1(UL_to_I(result)); return;
     }
   }
   # Now the easy case: a fixed number of bytes per character.
@@ -17346,9 +17306,9 @@ LISPFUNN(file_string_length,2) {
       || eq(TheEncoding(encoding)->enc_eol,S(Kmac))) {
     if (stringp(obj)) {
       var uintL result = vector_length(obj);
-      value1 = UL_to_I(result*bytes_per_char); mv_count=1; return;
+      VALUES1(UL_to_I(result*bytes_per_char)); return;
     } else if (charp(obj)) {
-      value1 = fixnum(bytes_per_char); mv_count=1; return;
+      VALUES1(fixnum(bytes_per_char)); return;
     } else {
       fehler_wr_char(stream,obj);
     }
@@ -17370,12 +17330,12 @@ LISPFUNN(file_string_length,2) {
           });
         });
       }
-      value1 = UL_to_I(result*bytes_per_char); mv_count=1; return;
+      VALUES1(UL_to_I(result*bytes_per_char)); return;
     } else if (charp(obj)) {
       var uintL result = 1;
       if (chareq(char_code(obj),ascii(NL)))
         result++;
-      value1 = fixnum(result*bytes_per_char); mv_count=1; return;
+      VALUES1(fixnum(result*bytes_per_char)); return;
     } else {
       fehler_wr_char(stream,obj);
     }
@@ -17429,7 +17389,7 @@ global object stream_line_number (object stream) {
 LISPFUNN(line_number,1) {
   var object stream = popSTACK();
   check_stream(stream);
-  value1 = stream_line_number(stream); mv_count=1;
+  VALUES1(stream_line_number(stream));
 }
 
 # Function: Returns true if a stream allows read-eval.
@@ -17489,7 +17449,7 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL) {
 LISPFUNN(defgray,1) {
   copy_mem_o(&O(class_fundamental_stream),&TheSvector(STACK_0)->data[0],
              Svector_length(STACK_0));
-  value1 = NIL; mv_count=0; skipSTACK(1);
+  VALUES0; skipSTACK(1);
 }
 
 # =============================================================================
@@ -17530,8 +17490,7 @@ LISPFUN(stream_lock,2,0,norest,key,2, (kw(shared),kw(block)) ) {
     else OS_filestream_error(stream);
   }
   skipSTACK(4);
-  value1 = (lock_p ? T : NIL);
-  mv_count = 1;
+  VALUES_IF(lock_p);
 }
 
 #endif

@@ -144,7 +144,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,
     # :HOST-Argument umsetzen:
     {
       var object host = Before(fargs_pointer STACKop (1+1));
-      if (eq(host,unbound) || nullp(host))
+      if (missingp(host))
         portname = RXSDIR;
       elif (eq(host,T))
         portname = RXADIR;
@@ -211,7 +211,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,
           # vorerst immer noch erfolgreich
           rexxmsg->rm_Action = (functionp ? (RXFUNC | (fargs-1)) : RXCOMM);
           # Keyword-Argumente verarbeiten:
-          #define is_set(obj)  (!(eq(obj,unbound) || nullp(obj)))
+          #define is_set(obj)  (!missingp(obj))
           # :RESULT-Argument:
           if (is_set(STACK_(4+1)))
             rexxmsg->rm_Action |= RXFF_RESULT;
@@ -307,9 +307,9 @@ LISPFUNN(rexx_wait_input,0)
   {
     if (!(rexxPort == NULL))
       if (rexx_wait()) {
-        value1 = T; mv_count=1; return;
+        VALUES1(T); return;
       }
-    value1 = NIL; mv_count=1;
+    VALUES1(NIL);
   }
 
 # Flag, ob sich das ARexx-Interface gerade in der Endphase befindet und
@@ -424,7 +424,7 @@ LISPFUNN(rexx_get,0)
   {
     if (rexxPort == NULL)
       fehler_norexx();
-    value1 = rexx_getmsg(); mv_count=1;
+    VALUES1(rexx_getmsg());
   }
 
 # Antwortet auf eine eingegangene Nachricht.
@@ -496,7 +496,7 @@ LISPFUNN(rexx_reply,3)
       }
     }
     skipSTACK(3);
-    value1 = NIL; mv_count=0;
+    VALUES0;
   }
 
 # Initialisiert das REXX-Interface.
