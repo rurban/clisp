@@ -1,10 +1,9 @@
-# File: <clisp.spec - 1999-2-2 Tue 17:53:48 EST sds@eho.eaglets.com>
 # $Id$
 # Copyright (C) 1998, 1999 by Sam Steingold
 # GNU General Public License v.2 (GPL2) is applicable:
 # No warranty; you may copy/modify/redistribute under the same
 # conditions with the source code. See <URL:http://www.gnu.org>
-# for details and precise copyright document.
+# for the details and the precise copyright document.
 
 # The purpose of this file is creation of source/binary RPMs, **NOT**
 # building/installing CLISP.  If you read the comments below, you will
@@ -19,6 +18,7 @@
 
 # don't you just love that you have to fit the macro into one line?
 # this automatically upgrades `release' with each build.
+# don't forget to remove the file `.release' when changing `version'.
 %define release %(test -f .release || echo 0 >> .release; echo "1 + " `cat .release` | bc > ,.release; mv ,.release .release; cat .release)
 
 Summary:      Common Lisp (ANSI CL) implementation
@@ -37,8 +37,7 @@ Distribution: Red Hat Contrib|Net
 Common Lisp is a high-level, all-purpose programming language.
 CLISP is a Common Lisp implementation by Bruno Haible of Karlsruhe
 University and Michael Stoll of Munich University, both in Germany.
-It mostly supports the Lisp described in "Common LISP: The Language
-(2nd edition)" and the ANSI Common Lisp standard.
+It mostly supports Common Lisp as described in the ANSI CL standard.
 It runs on microcomputers (DOS, OS/2, Windows NT, Windows 95, Amiga
 500-4000, Acorn RISC PC) as well as on Unix workstations (Linux, SVR4,
 Sun4, DEC Alpha OSF, HP-UX, NeXTstep, SGI, AIX, Sun3 and others) and
@@ -71,14 +70,14 @@ The package was created by Sam Steingold <sds@goems.com>.
 # the doubly commented lines - they are maintainer-only commands).
 # Additionally, RPM barfs on rpmrc created with `rpm --showrc > /etc/rpmrc`
 # which is an unspeakable abomination.
-# I reported all these as bugs.  No reply.
+# I reported all these as bugs and was told "it's a feature, not a bug".
 
 %prep
 cat <<EOF
 This will build RPMs for CLISP: %{name}-%{version}-%{release}.
 We assume that you are in the top level source directory already.
 No unpacking or patching is done - we go straight to build and
-creating the RPMs.
+creating the RPMs.  See 'clisp.spec' for more information.
 EOF
 %setup -T -D -n /usr/src/%{name}
 %build
@@ -89,10 +88,11 @@ EOF
 ## make -f Makefile.devel check-configures
 ./configure --prefix=/usr --fsstnd=redhat --with-module=wildcard \
     --with-module=regexp --with-module=bindings/linuxlibc6 \
-    --with-module=clx/new-clx --build %{clisp_build}
+    --with-module=clx/new-clx --with-module=postgresql \
+    --export-syscalls --build %{clisp_build} # --with-unicode=no
 %install
 cd %{clisp_build}
-make install
+# make install
 test -d doc || mkdir doc
 cp CLOS-guide.txt clisp.html cltl2.txt readline.dvi \
     LISP-tutorial.txt clreadline.3 editors.txt clisp.1 clreadline.dvi \
@@ -105,12 +105,15 @@ cd ..
 # package file itself, not on disk!) but I also cannot work with the
 # sources afterwards!
 # Allright, I can set `fixperms' in /etc/rpmrc, but how do I avoid chown?!
-cd /usr/src/%{name}
-chgrp -R src .
+# Unfortunately, the following screws up the docs: they are installed
+# root.src, not root.root, and RPM on the target machine will complain.
+#cd /usr/src/%{name}
+#chgrp -R src .
 #chmod -R g+wX .
 
 # create the source tar, necessary for source RPMs
 cd /usr/src/%{name}
+# remove the junk created by CVS
 find . -name ".#*" | xargs rm -f
 cd ..
 mv clisp clisp-%{version}
@@ -120,30 +123,32 @@ gzip -9v redhat/SOURCES/clispsrc.tar
 mv clisp-%{version} clisp
 cd clisp
 
+# BuildRoot: /tmp/build-%{name}-%{version}
+
 %files
+%defattr(644,root,root)
 %dir /usr/lib/clisp/
+%dir /usr/lib/clisp/full/
 %docdir /usr/doc/%{name}-%{version}
 %doc build/ANNOUNCE
 %doc build/GNU-GPL
 %doc build/MAGIC.add
 %doc build/README
-%doc build/README.en
 %doc build/SUMMARY
 %doc build/COPYRIGHT
 %doc build/NEWS
+%doc build/README.en
 %doc build/README.de
 %doc build/README.es
 %doc build/doc
 /usr/man/man3/clreadline.3
 /usr/man/man1/clisp.1
-/usr/bin/clisp
-/usr/lib/clisp/lisp.run
+%attr(755,root,root) /usr/bin/clisp
+%attr(755,root,root) /usr/lib/clisp/lisp.run
+%attr(755,root,root) /usr/lib/clisp/full/lisp.run
 /usr/lib/clisp/lispinit.mem
-/usr/lib/clisp/full/lisp.run
 /usr/lib/clisp/full/lispinit.mem
 /usr/share/locale/de/LC_MESSAGES/clisp.mo
 /usr/share/locale/en/LC_MESSAGES/clisp.mo
 /usr/share/locale/es/LC_MESSAGES/clisp.mo
 /usr/share/locale/fr/LC_MESSAGES/clisp.mo
-
-
