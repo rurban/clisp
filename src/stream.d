@@ -6210,7 +6210,7 @@ local void position_file_buffered (object stream, uintL position) {
 }
 
 # UP: flushes pending write (if any), moves OS file pointer so
-# that there's no more preread data in the buffer. Why ? To use the handle.
+# that there's no more preread data in the buffer to use the handle.
 # sync_file_buffered(stream,position);
 # > stream : (open) Byte-based File-Stream.
 # changed in stream: index, endvalid, buffstart
@@ -10979,7 +10979,7 @@ local void wr_ch_window (const gcv_object_t* stream_, object ch) {
  #else
   CharToOemBuff((char *)&c,(char *)&c,1);
  #endif
-  v_put(handle,as_cint(c),&pos,sz,attr);
+  v_put(handle,(uintW)as_cint(c),&pos,sz,attr);
   SetConsoleCursorPosition(handle,pos);
   ConsoleData(*stream_)->cursor_position = pos;
 }
@@ -17104,7 +17104,9 @@ local bool test_endianness_arg (object arg) {
  can trigger GC */
 global Handle stream_lend_handle (object stream, bool inputp, int * handletype)
 {
+  var int errkind;
  restart_stream_lend_handle:
+  errkind = 0;
   /* TODO: use finish-output ? */
   if (builtin_stream_p(stream)) {
     switch (TheStream(stream)->strmtype) {
@@ -17124,6 +17126,9 @@ global Handle stream_lend_handle (object stream, bool inputp, int * handletype)
             return TheHandle(TheStream(stream)->strm_buffered_channel);
           }
           return TheHandle(TheStream(stream)->strm_ochannel);
+        } else {
+          errkind = 2; /* wrong direction */
+          goto show_error;
         }
       case strmtype_twoway:
       case strmtype_echo:
@@ -17138,6 +17143,9 @@ global Handle stream_lend_handle (object stream, bool inputp, int * handletype)
         if (inputp) {
           if (handletype) *handletype = 1;
           return TheHandle(TheStream(stream)->strm_keyboard_handle);
+        } else {
+          errkind = 2; /* wrong direction */
+          goto show_error;
         }
        #endif
         break;
@@ -17147,16 +17155,50 @@ global Handle stream_lend_handle (object stream, bool inputp, int * handletype)
         if (handletype) *handletype = 1;
         return TheHandle(inputp?TheStream(stream)->strm_terminal_ihandle:
                          TheStream(stream)->strm_terminal_ohandle);
+      case strmtype_pipe_in:
+        if (inputp) {
+          if (ChannelStream_buffered(stream)) {
+            /* pipes doesn't support OS level repositioning so I see no way how
+            to make interleaved input and lend to work correctly */
+            errkind = 1; /* buffered pipe-input-stream is unsupported */
+            goto show_error;
+          } else {
+            if (handletype) *handletype = 1;
+            return TheHandle(TheStream(stream)->strm_ichannel);
+          }
+        } else {
+          errkind = 2; /* wrong direction */
+          goto show_error;
+        }
+        break;
+      case strmtype_pipe_out:
+        if (!inputp) {
+          if (handletype) *handletype = 1;
+          if (ChannelStream_buffered(stream)) {
+            if (BufferedStream_modified(stream))
+              buffered_flush(stream);
+            return TheHandle(TheStream(stream)->strm_buffered_channel);
+          } else
+            return TheHandle(TheStream(stream)->strm_ochannel);
+        } else {
+          errkind = 2; /* wrong direction */
+          goto show_error;
+        }
+        break;
       default:
         break;
     }
   }
+ show_error:
   pushSTACK(NIL);                      /* no PLACE */
   pushSTACK(stream);                   /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_open_file_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(stream);
   pushSTACK(TheSubr(subr_self)->name);
-  check_value(type_error,GETTEXT("~: argument ~ does not contain a valid OS stream handle"));
+  check_value(type_error,
+    (errkind==0)?GETTEXT("~: argument ~ does not contain a valid OS stream handle")
+    :(errkind==1)?GETTEXT("~: ~: buffered pipe-input-streams are not supported")
+    :GETTEXT("~: ~: stream of wrong direction"));
   stream = value1;
   goto restart_stream_lend_handle;
 }
