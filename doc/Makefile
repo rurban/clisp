@@ -18,7 +18,6 @@ XMLSOC=/usr/share/OpenSP/xml.soc
 JAVAXML=c:/java
 JAVA=/cygdrive/c/java/bin/java.exe
 SEP=;
-DTD=/usr/share/docbook-xml$(DTDVER)/docbookx.dtd
 else
 # XMLSOC=/usr/local/src/sp/pubtext/xml.soc
 # XMLSOC=/usr/share/sgml/xml.soc
@@ -28,8 +27,8 @@ XMLSOC := $(shell find /usr/share/sgml -name xml.soc -print | head -1)
 JAVAXML=/usr/local/src/xml
 JAVA=java
 SEP=:
-DTD=/usr/share/sgml/docbook/xml-dtd-$(DTDVER)/docbookx.dtd
 endif
+DTD=../utils/docbook/docbookx.dtd
 NSGMLS=onsgmls
 
 XALAN=$(JAVAXML)/xalan-j_2_0_0
@@ -48,7 +47,7 @@ DIST=podval:~/public_html/clisp
 # e.g., (open)jade, you can use this definition,
 # otherwise you have to stick with the local DTDs
 #DTD=http://www.oasis-open.org/docbook/xml/$(DTDVER)/docbookx.dtd
-DTD=http://www.docbook.org/xml/$(DTDVER)/docbookx.dtd
+#DTD=http://www.docbook.org/xml/$(DTDVER)/docbookx.dtd
 
 # to generate HTML, you will need:
 # http://xml.apache.org/xalan-j
