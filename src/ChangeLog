@@ -1,5 +1,11 @@
 2003-06-13  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (make_file_stream): do not push :PROBE streams onto
+	O(open_files) because that would prevent deleting this file and
+	:PROBE streams do not have to be closed anyway
+
+2003-06-13  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in [win32gcc]: build lisp.a on mingw and do stage
 	comparison (make check) unix-style, not dos-style
 	* configure [cygwin/mingw]: work around the _WinMain@16 libcharset
