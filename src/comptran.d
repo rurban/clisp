@@ -69,19 +69,23 @@ local object N_log_N (object x, bool start_p, object *end_p)
   if (start_p) { /* increase precision */
     if (floatp(STACK_1))
       STACK_1 = F_extend2_F(STACK_1);
-    else if (complexp(STACK_1)) {
+    else if (complexp(STACK_1) &&
+             (floatp(TheComplex(STACK_1)->c_real) ||
+              floatp(TheComplex(STACK_1)->c_imag))) {
+      STACK_1 = R_R_complex_C(TheComplex(STACK_1)->c_real,
+                              TheComplex(STACK_1)->c_imag);
       if (floatp(TheComplex(STACK_1)->c_real))
         TheComplex(STACK_1)->c_real =
           F_extend2_F(TheComplex(STACK_1)->c_real);
       if (floatp(TheComplex(STACK_1)->c_imag))
         TheComplex(STACK_1)->c_imag =
           F_extend2_F(TheComplex(STACK_1)->c_imag);
-    };
+    }
   }
   STACK_1 = N_phase_R(STACK_1); /* (phase x) */
   if (end_p != NULL && floatp(STACK_1))
     STACK_1 = F_R_float_F(STACK_1,*end_p);
-  {  /* (complex (log (abs x)) (phase x)) */
+  { /* (complex (log (abs x)) (phase x)) */
     var object ret = R_R_complex_N(STACK_0,STACK_1);
     skipSTACK(2); return ret;
   }
@@ -392,7 +396,7 @@ local object N_log_N (object x, bool start_p, object *end_p)
       pushSTACK(x);
       pushSTACK(N_N_contagion_R(x,y));
       STACK_1 = N_log_N(x,true,NULL); /* (log x) */
-      STACK_2 = N_N_float_N(&STACK_2,STACK_1);
+      STACK_2 = N_N_float_N(STACK_2,STACK_1);
       x = N_N_mal_N(STACK_2,STACK_1); /* (* (log x) y) */
       x = N_exp_N(x,false,&STACK_0); /* exp */
       skipSTACK(3); return x;
@@ -477,16 +481,15 @@ local object N_tan_N (object x)
     R_cos_sin_R_R(STACK_3,true,NULL); /* cos(a), sin(a) */
     /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a). */
     STACK_5 = R_R_contagion_R(STACK_5,STACK_4);
-    { var object temp;
-      STACK_4 = R_R_mal_R(STACK_0,STACK_3); /* sin(a)*cosh(b) */
-      temp = R_R_mal_R(STACK_1,STACK_2); /* cos(a)*sinh(b) /= Fixnum 0 */
+    STACK_4 = R_R_mal_R(STACK_0,STACK_3); /* sin(a)*cosh(b) */
+    { var object temp = R_R_mal_R(STACK_1,STACK_2); /* cos(a)*sinh(b) /= 0 */
       STACK_4 = R_R_complex_C(STACK_4,temp); /* numerator */
       /* stack layout: contag, numerator, cosh(b), sinh(b), cos(a), sin(a). */
       STACK_3 = R_R_mal_R(STACK_1,STACK_3); /* cos(a)*cosh(b) */
       temp = R_minus_R(R_R_mal_R(STACK_0,STACK_2)); /* -sin(a)*sinh(b) */
       temp = R_R_complex_N(STACK_3,temp); /* denominator */
       STACK_4 = N_N_durch_N(STACK_4,temp); /* numerator/denominator */
-      temp = C_R_float_C(&STACK_4,STACK_5);
+      temp = C_R_float_C(STACK_4,STACK_5);
       skipSTACK(6); return temp;
     }
   }
@@ -609,7 +612,7 @@ local object N_tanh_N (object x)
       temp = R_R_mal_R(STACK_0,STACK_2); /* sinh(a)*sin(b) */
       temp = R_R_complex_N(STACK_3,temp); /* denominator */
       STACK_4 = N_N_durch_N(STACK_4,temp); /* numerator/denominator */
-      temp = C_R_float_C(&STACK_4,STACK_5);
+      temp = C_R_float_C(STACK_4,STACK_5);
       skipSTACK(6); return temp;
     }
   }
