@@ -1,8 +1,7 @@
 ;; -*- Lisp -*-
-;; testen abschitt 20
+;; CLtL2 20; ANSI CL 3.1
 
-
-; eval
+;; eval
 
 (eval (list 'cdr (car '((quote (a . b)) c))))
 b
@@ -31,7 +30,7 @@ ERROR
   nil)
 nil
 
-;constantp
+;; constantp
 
 (constantp 2)
 T
@@ -59,4 +58,3 @@ T
 
 (constantp '(quote foo))
 T
-
