@@ -4299,13 +4299,8 @@ typedef sbvector_ *  Sbvector;
 # A "normal simple string" is one of maximum-width element type.
 # It cannot be reallocated. Only strings with smaller element type
 # (called "small simple strings") can be reallocated.
-#ifdef UNICODE
-typedef s32string_ sstring_;
-typedef S32string Sstring;
-#else
-typedef s8string_ sstring_;
-typedef S8string Sstring;
-#endif
+typedef STRUCT_SSTRING(chart)  sstring_;
+typedef sstring_ *  Sstring;
 # These accessors work on any simple string, except reallocated simple-strings.
 #define sstring_length(ptr)  sarray_length(ptr)
 #define Sstring_length(obj)  sstring_length(TheSstring(obj))
@@ -10936,10 +10931,10 @@ extern void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len);
       if ((len) > 0) {                                                         \
         if (Record_type(string) == Rectype_S16string                           \
             || Record_type(string) == Rectype_Imm_S16string)                   \
-          copy_16bit_32bit(&TheS16string(string)->data[offset],_unpacked_,len);\
+          copy_16bit_32bit(&TheS16string(string)->data[offset],(cint32*)_unpacked_,len);\
         elif (Record_type(string) == Rectype_S8string                          \
               || Record_type(string) == Rectype_Imm_S8string)                  \
-          copy_8bit_32bit(&TheS8string(string)->data[offset],_unpacked_,len);  \
+          copy_8bit_32bit(&TheS8string(string)->data[offset],(cint32*)_unpacked_,len);\
         else                                                                   \
           NOTREACHED;                                                          \
       }                                                                        \

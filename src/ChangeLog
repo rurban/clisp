@@ -1,3 +1,16 @@
+2002-06-20  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (sstring_): Define using chart.
+	(Sstring): Likewise.
+	* array.d (elt_copy_T_Char, ssstring_extend_low): Make it compile with
+	CHART_STRUCT.
+	* charstrg.d (copy_string, subsstring, SUBSTRING, string_concat):
+	LIkewise.
+	* io.d (write_sstring_case): LIkewise.
+	* lisparit.d (decimal_string): Likewise.
+	* pathname.d (Z_AT_SLASH): Fix for changed return type of schar.
+	(wildcard_diff_ab): Likewise.
+
 2002-06-20  Sam Steingold  <sds@gnu.org>
 
 	* record.d (COPY-STRUCTURE): use memcpy() instead of dotimespC

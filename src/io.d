@@ -5194,7 +5194,7 @@ local void write_sstring_case (const object* stream_, object string) {
           pushSTACK(string); # save simple-string
           SstringDispatch(string,X, {
             dotimespL(count,count, {
-              write_code_char(stream_,down_case(((SstringX)TheVarobject(STACK_0))->data[index]));
+              write_code_char(stream_,down_case(as_chart(((SstringX)TheVarobject(STACK_0))->data[index])));
               index++;
             });
           });
