@@ -281,16 +281,17 @@ This will not work with closures that use lexical variables!"
                 args)))
 ;; Output before call, uses *trace-level* and *trace-form*
 (defun trace-pre-output ()
-  (terpri *trace-output*)
+  (fresh-line *trace-output*)
   (when *trace-indent*
     (write-spaces *trace-level* *trace-output*))
   (write *trace-level* :stream *trace-output* :base 10 :radix t)
   (write-string " Trace: " *trace-output*)
-  (prin1 *trace-form* *trace-output*))
+  (prin1 *trace-form* *trace-output*)
+  (elastic-newline *trace-output*))
 ;; Output after call, uses *trace-level*, *trace-form* and *trace-values*
 (defun trace-post-output ()
   (declare (inline car cdr consp atom))
-  (terpri *trace-output*)
+  (fresh-line *trace-output*)
   (when *trace-indent*
     (write-spaces *trace-level* *trace-output*))
   (write *trace-level* :stream *trace-output* :base 10 :radix t)
@@ -300,12 +301,13 @@ This will not work with closures that use lexical variables!"
   (trace-print *trace-values* nil))
 ;; Output of a list of values:
 (defun trace-print (vals &optional (nl-flag t))
-  (when nl-flag (terpri *trace-output*))
+  (when nl-flag (fresh-line *trace-output*))
   (when (consp vals)
     (loop
       (prin1 (pop vals) *trace-output*)
       (when (atom vals) (return))
-      (write-string ", " *trace-output*))))
+      (write-string ", " *trace-output*)))
+  (elastic-newline *trace-output*))
 
 (defmacro untrace (&rest funs)
   `(MAPCAN #'UNTRACE1
