@@ -1,3 +1,8 @@
+2001-08-16  Sam Steingold  <sds@gnu.org>
+
+	* install.lisp (bat-file): use registry to get the "Common
+	Desktop" location
+
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
 	* autoconf/acgeneral.m4 (AC_MSG_RESULTPROTO): Remove macro.
