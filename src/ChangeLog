@@ -1,3 +1,7 @@
+1999-02-01  Sam Steingold  <sds@goems.com>
+
+	* defs2.lsp (with-standard-io-syntax): set `*print-right-margin*'.
+
 1999-01-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Split user1.lsp and user2.lsp into pieces.
