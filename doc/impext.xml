@@ -298,8 +298,7 @@ she will get the output
  <firstterm>&curr-lang;<indexterm id="curr-lang" significance="preferred">
    <primary id="curr-lang-i"><varname>*CURRENT-LANGUAGE*</varname>
  </primary></indexterm></firstterm>,
- which can be set at run time as well as using <olink targetdoc="man"
- targetptr="opt-lang"><option>-L</option></olink> start-up option.
+ which can be set at run time as well as using the &opt-L; start-up option.
  If you wish to change the
  <olink targetdoc="man" targetptr="opt-locale">locale directory</olink>
  at run time too, you can do that by setting &curr-lang; to a &cons-t;
@@ -2237,10 +2236,8 @@ here <function>WITH-FOO</function> does not receive the
  Alternatively, after building &clisp;, or if you are using a binary
  distribution of &clisp;, you can modify &config-file;, compile and load
  it, and then save the &mem-image;.
- Finally, you can create an <quote>RC</quote> (run control) file which
- is loaded whenever &clisp; is started (see the documentation for option
- <olink targetdoc="man" targetptr="opt-norc"><option>-norc</option></olink>
- in your platform-specific copy of the manual page).</para>
+ Finally, you can create an &RC-file; which is loaded whenever &clisp;
+ is started.</para>
 
 </section>
 
