@@ -1,5 +1,9 @@
 2001-05-14  Sam Steingold  <sds@gnu.org>
 
+	* constobj.d (current_language): use the package prefix I18N
+
+2001-05-14  Sam Steingold  <sds@gnu.org>
+
 	* defs2.lisp (with-standard-io-syntax): finish the 2000-12-12
 	patch - bind *PRINT-RPARS* and *PRINT-INDENT-LISTS* appropriately
 

@@ -491,7 +491,7 @@
  #endif
  #ifdef GNU_GETTEXT
   LISPOBJ_L(current_language,
-    /* ENGLISH */ "ENGLISH")
+    /* ENGLISH */ "I18N::ENGLISH")
   LISPOBJ(current_language_cache,"NIL")
  #endif
   LISPOBJ(ansi,"NIL")
