@@ -1,4 +1,4 @@
-(in-package "LISP")
+(in-package "EXT")
 (export '(ethe letf letf* with-collect))
 (in-package "SYSTEM")
 ;;; ---------------------------------------------------------------------------

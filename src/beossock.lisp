@@ -1,9 +1,5 @@
 ;;; Auxiliary socket related functions for BeOS
 
-(in-package "LISP")
-
-(export '(socket-service-port))
-
 (in-package "SYSTEM")
 
 (defstruct (servent (:type vector))  ;; see getservent(3)

@@ -1,6 +1,6 @@
 ;;;; Running external programs
 
-(in-package "LISP")
+(in-package "EXT")
 #+WIN32 (export '(execute))
 #+(or UNIX OS/2 WIN32) (export '(run-shell-command run-program))
 (in-package "SYSTEM")

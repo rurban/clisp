@@ -2,6 +2,7 @@
 ;;; CLISP-spezifisch: string-concat, %rplaca, %rplacd, store, %setelt, ...
 
 (in-package "SYSTEM")
+
 ;;;----------------------------------------------------------------------------
 ;;; Funktionen zur Definition und zum Ausnutzen von places:
 ;;;----------------------------------------------------------------------------
@@ -141,9 +142,8 @@
              form
   )     )  )
 )
-(defun get-setf-method-multiple-value (&rest args) ; backward compatibility
-  (apply #'get-setf-expansion args)
-)
+;; backward compatibility
+(sys::%putd 'get-setf-method-multiple-value #'get-setf-expansion)
 ;;;----------------------------------------------------------------------------
 (defun get-setf-method (form &optional (env (vector nil nil)))
   (multiple-value-bind (vars vals stores store-form access-form)
@@ -1091,14 +1091,14 @@
 (defsetf sys::ansi sys::set-ansi)
 (system::%set-documentation '*ansi* 'variable
  "This symbol-macro modifies some variables for maximum ANSI CL compliance.
-Variables affected: `lisp:*floating-point-contagion-ansi*',
- `lisp:*merge-pathnames-ansi*', `lisp:*print-pathnames-ansi*',
- `lisp:*parse-namestring-ansi*',
- `lisp:*sequence-count-ansi*', `lisp:*coerce-fixnum-char-ansi*'.
-Also, `:ansi-cl' is added to (or removed from) `*features*'.
+Variables affected: `custom:*floating-point-contagion-ansi*',
+ `custom:*merge-pathnames-ansi*', `custom:*print-pathnames-ansi*',
+ `custom:*parse-namestring-ansi*',
+ `custom:*sequence-count-ansi*', `custom:*coerce-fixnum-char-ansi*'.
 Invoking CLISP with `-a' sets this to T.")
 
-(define-symbol-macro *default-file-encoding* (system::default-file-encoding))
+(define-symbol-macro *default-file-encoding*
+  (system::default-file-encoding))
 (defsetf system::default-file-encoding system::set-default-file-encoding)
 #+UNICODE
 (progn
@@ -1109,9 +1109,3 @@ Invoking CLISP with `-a' sets this to T.")
   (define-symbol-macro *misc-encoding* (system::misc-encoding))
   (defsetf system::misc-encoding system::set-misc-encoding)
 )
-#+dir-key ;; just like gethash
-(defsetf dir-key-value (key name &optional default) (value)
-  (let ((storeform `(sys::set-dkey-value ,key ,name ,value)))
-    (if default
-        `(progn ,default ,storeform)
-        `,storeform)))

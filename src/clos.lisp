@@ -3,15 +3,13 @@
 
 ; Zur Benutzung reicht ein einfaches (USE-PACKAGE "CLOS").
 
-
-(in-package "LISP")
+(in-package "COMMON-LISP")
 (pushnew ':clos *features*)
-
 
 (in-package "SYSTEM") ; Trotz DEFPACKAGE nötig!
 
 (defpackage "CLOS"
-
+(:import-from "EXT" ext:mapcap)
 (:import-from "SYSTEM"
   ;; Import:
   sys::error-of-type                                 ; in error.d definiert
@@ -56,6 +54,8 @@
 ) ; defpackage
 
 (in-package "CLOS")
+;; for the `ENGLISH' macro
+(eval-when (compile load eval) (use-package '("I18N") "CLOS"))
 
 ;;; Exportierungen: ** auch in init.lisp ** !
 (export '(
@@ -78,7 +78,6 @@
   ;; andere Symbole:
   standard ; Methoden-Kombination
 ))
-
 
 ;;; Vorbemerkungen:
 
@@ -4132,3 +4131,4 @@
 (defun slot-names (object)
   (mapcar #'slotdef-name (class-slots (class-of object))))
 
+(eval-when (compile load eval) (unuse-package '("I18N") "CLOS"))

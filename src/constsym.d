@@ -43,10 +43,13 @@ LISPSYM(prog2,"PROG2",lisp)
 LISPSYM(let,"LET",lisp)
 LISPSYM(letstern,"LET*",lisp)
 LISPSYM(locally,"LOCALLY",lisp)
-LISPSYM(compiler_let,"COMPILER-LET",lisp)
+LISPSYM(compiler_let,"COMPILER-LET",ext)
 LISPSYM(progv,"PROGV",lisp)
+LISPSYM(pflet,"%FLET",system)
 LISPSYM(flet,"FLET",lisp)
+LISPSYM(plabels,"%LABELS",system)
 LISPSYM(labels,"LABELS",lisp)
+LISPSYM(pmacrolet,"%MACROLET",system)
 LISPSYM(macrolet,"MACROLET",lisp)
 LISPSYM(function_macro_let,"FUNCTION-MACRO-LET",system)
 LISPSYM(symbol_macrolet,"SYMBOL-MACROLET",lisp)
@@ -132,8 +135,8 @@ LISPSYM(make_bit_vector,"MAKE-BIT-VECTOR",system)
 # ---------- CHARSTRG ----------
 LISPSYM(standard_char_p,"STANDARD-CHAR-P",lisp)
 LISPSYM(graphic_char_p,"GRAPHIC-CHAR-P",lisp)
-LISPSYM(char_width,"CHAR-WIDTH",lisp)
-LISPSYM(string_char_p,"STRING-CHAR-P",lisp)
+LISPSYM(char_width,"CHAR-WIDTH",ext)
+LISPSYM(string_char_p,"STRING-CHAR-P",ext)
 #if (base_char_code_limit < char_code_limit)
 LISPSYM(base_char_p,"BASE-CHAR-P",system)
 #endif
@@ -162,7 +165,7 @@ LISPSYM(char_upcase,"CHAR-UPCASE",lisp)
 LISPSYM(char_downcase,"CHAR-DOWNCASE",lisp)
 LISPSYM(digit_char,"DIGIT-CHAR",lisp)
 LISPSYM(char_int,"CHAR-INT",lisp)
-LISPSYM(int_char,"INT-CHAR",lisp)
+LISPSYM(int_char,"INT-CHAR",ext)
 LISPSYM(char_name,"CHAR-NAME",lisp)
 LISPSYM(char,"CHAR",lisp)
 LISPSYM(schar,"SCHAR",lisp)
@@ -184,7 +187,7 @@ LISPSYM(search_string_gleich,"SEARCH-STRING=",system)
 LISPSYM(search_string_equal,"SEARCH-STRING-EQUAL",system)
 LISPSYM(make_string,"MAKE-STRING",lisp)
 LISPSYM(string_both_trim,"STRING-BOTH-TRIM",system)
-LISPSYM(string_width,"STRING-WIDTH",lisp)
+LISPSYM(string_width,"STRING-WIDTH",ext)
 LISPSYM(nstring_upcase,"NSTRING-UPCASE",lisp)
 LISPSYM(string_upcase,"STRING-UPCASE",lisp)
 LISPSYM(nstring_downcase,"NSTRING-DOWNCASE",lisp)
@@ -193,8 +196,8 @@ LISPSYM(nstring_capitalize,"NSTRING-CAPITALIZE",lisp)
 LISPSYM(string_capitalize,"STRING-CAPITALIZE",lisp)
 LISPSYM(string,"STRING",lisp)
 LISPSYM(name_char,"NAME-CHAR",lisp)
-LISPSYM(substring,"SUBSTRING",lisp)
-LISPSYM(string_concat,"STRING-CONCAT",lisp)
+LISPSYM(substring,"SUBSTRING",ext)
+LISPSYM(string_concat,"STRING-CONCAT",ext)
 # ---------- CONTROL ----------
 LISPSYM(exit,"%EXIT",system)
 LISPSYM(psymbol_value,"%SYMBOL-VALUE",system)
@@ -225,8 +228,8 @@ LISPSYM(macroexpand,"MACROEXPAND",lisp)
 LISPSYM(macroexpand_1,"MACROEXPAND-1",lisp)
 LISPSYM(proclaim,"PROCLAIM",lisp)
 LISPSYM(eval,"EVAL",lisp)
-LISPSYM(evalhook,"EVALHOOK",lisp)
-LISPSYM(applyhook,"APPLYHOOK",lisp)
+LISPSYM(evalhook,"EVALHOOK",ext)
+LISPSYM(applyhook,"APPLYHOOK",ext)
 LISPSYM(constantp,"CONSTANTP",lisp)
 LISPSYM(function_name_p,"FUNCTION-NAME-P",system)
 LISPSYM(parse_body,"PARSE-BODY",system)
@@ -248,12 +251,12 @@ LISPSYM(trap_eval_frame,"TRAP-EVAL-FRAME",system)
 LISPSYM(redo_eval_frame,"REDO-EVAL-FRAME",system)
 LISPSYM(return_from_eval_frame,"RETURN-FROM-EVAL-FRAME",system)
 LISPSYM(describe_frame,"DESCRIBE-FRAME",system)
-LISPSYM(show_stack,"SHOW-STACK",lisp)
+LISPSYM(show_stack,"SHOW-STACK",ext)
 LISPSYM(debug,"DEBUG",system)
 LISPSYM(proom,"%ROOM",system)
-LISPSYM(gc,"GC",lisp)
+LISPSYM(gc,"GC",ext)
 # ---------- ENCODING ----------
-LISPSYM(make_encoding,"MAKE-ENCODING",lisp)
+LISPSYM(make_encoding,"MAKE-ENCODING",ext)
 LISPSYM(encodingp,"ENCODINGP",system)
 LISPSYM(charset_typep,"CHARSET-TYPEP",system)
 #ifdef UNICODE
@@ -273,8 +276,8 @@ LISPSYM(set_foreign_encoding,"SET-FOREIGN-ENCODING",system)
 LISPSYM(misc_encoding,"MISC-ENCODING",system)
 LISPSYM(set_misc_encoding,"SET-MISC-ENCODING",system)
 #endif
-LISPSYM(convert_string_from_bytes,"CONVERT-STRING-FROM-BYTES",lisp)
-LISPSYM(convert_string_to_bytes,"CONVERT-STRING-TO-BYTES",lisp)
+LISPSYM(convert_string_from_bytes,"CONVERT-STRING-FROM-BYTES",ext)
+LISPSYM(convert_string_to_bytes,"CONVERT-STRING-TO-BYTES",ext)
 # ---------- ERROR ----------
 LISPSYM(error,"ERROR",lisp)
 LISPSYM(defclcs,"%DEFCLCS",system)
@@ -350,7 +353,7 @@ LISPSYM(read_char,"READ-CHAR",lisp)
 LISPSYM(unread_char,"UNREAD-CHAR",lisp)
 LISPSYM(peek_char,"PEEK-CHAR",lisp)
 LISPSYM(listen,"LISTEN",lisp)
-LISPSYM(read_char_will_hang_p,"READ-CHAR-WILL-HANG-P",lisp)
+LISPSYM(read_char_will_hang_p,"READ-CHAR-WILL-HANG-P",ext)
 LISPSYM(read_char_no_hang,"READ-CHAR-NO-HANG",lisp)
 LISPSYM(clear_input,"CLEAR-INPUT",lisp)
 LISPSYM(read_from_string,"READ-FROM-STRING",lisp)
@@ -481,7 +484,7 @@ LISPSYM(machinetype,"MACHINE-TYPE",lisp)
 LISPSYM(machine_version,"MACHINE-VERSION",lisp)
 #endif
 #ifdef HAVE_ENVIRONMENT
-LISPSYM(get_env,"GETENV",system)
+LISPSYM(get_env,"GETENV",ext)
 #endif
 #ifdef WIN32_NATIVE
 LISPSYM(registry,"REGISTRY",system)
@@ -504,7 +507,7 @@ LISPSYM(machine_instance,"MACHINE-INSTANCE",lisp)
 #endif
 #ifdef HAVE_GETHOSTBYNAME
 #ifndef UNIX_BEOS
-LISPSYM(socket_service_port,"SOCKET-SERVICE-PORT",lisp)
+LISPSYM(socket_service_port,"SOCKET-SERVICE-PORT",socket)
 #endif
 #ifdef EXPORT_SYSCALLS
 LISPSYM(resolve_host_ipaddr_,"RESOLVE-HOST-IPADDR-INTERNAL",posix)
@@ -535,6 +538,7 @@ LISPSYM(find_symbol,"FIND-SYMBOL",lisp)
 LISPSYM(unintern,"UNINTERN",lisp)
 LISPSYM(export,"EXPORT",lisp)
 LISPSYM(unexport,"UNEXPORT",lisp)
+LISPSYM(reexport,"RE-EXPORT",ext)
 LISPSYM(import,"IMPORT",lisp)
 LISPSYM(shadowing_import,"SHADOWING-IMPORT",lisp)
 LISPSYM(shadow,"SHADOW",lisp)
@@ -542,7 +546,7 @@ LISPSYM(use_package,"USE-PACKAGE",lisp)
 LISPSYM(unuse_package,"UNUSE-PACKAGE",lisp)
 LISPSYM(make_package,"MAKE-PACKAGE",lisp)
 LISPSYM(pin_package,"%IN-PACKAGE",system)
-LISPSYM(in_package,"IN-PACKAGE",lisp)
+# LISPSYM(in_package,"IN-PACKAGE",lisp)
 LISPSYM(delete_package,"DELETE-PACKAGE",lisp)
 LISPSYM(find_all_symbols,"FIND-ALL-SYMBOLS",lisp)
 LISPSYM(map_symbols,"MAP-SYMBOLS",system)
@@ -581,14 +585,14 @@ LISPSYM(translate_pathname,"TRANSLATE-PATHNAME",lisp)
 LISPSYM(namestring,"NAMESTRING",lisp)
 LISPSYM(truename,"TRUENAME",lisp)
 LISPSYM(probe_file,"PROBE-FILE",lisp)
-LISPSYM(probe_directory,"PROBE-DIRECTORY",lisp)
+LISPSYM(probe_directory,"PROBE-DIRECTORY",ext)
 LISPSYM(delete_file,"DELETE-FILE",lisp)
 LISPSYM(rename_file,"RENAME-FILE",lisp)
 LISPSYM(open,"OPEN",lisp)
 LISPSYM(directory,"DIRECTORY",lisp)
-LISPSYM(cd,"CD",lisp)
-LISPSYM(make_dir,"MAKE-DIR",lisp)
-LISPSYM(delete_dir,"DELETE-DIR",lisp)
+LISPSYM(cd,"CD",ext)
+LISPSYM(make_dir,"MAKE-DIR",ext)
+LISPSYM(delete_dir,"DELETE-DIR",ext)
 LISPSYM(ensure_directories_exist,"ENSURE-DIRECTORIES-EXIST",lisp)
 LISPSYM(file_write_date,"FILE-WRITE-DATE",lisp)
 LISPSYM(file_author,"FILE-AUTHOR",lisp)
@@ -599,9 +603,9 @@ LISPSYM(execute,"EXECUTE",lisp)
 #ifdef WIN32_NATIVE
 LISPSYM(shell_name,"SHELL-NAME",system)
 #endif
-LISPSYM(shell,"SHELL",lisp)
+LISPSYM(shell,"SHELL",ext)
 #endif
-LISPSYM(savemem,"SAVEMEM",lisp)
+LISPSYM(savemem,"SAVEMEM",system)
 #ifdef DYNAMIC_MODULES
 LISPSYM(dynload_modules,"DYNLOAD-MODULES",system)
 #endif
@@ -667,7 +671,7 @@ LISPSYM(class_p,"CLASS-P",clos)
 LISPSYM(class_of,"CLASS-OF",clos)
 LISPSYM(find_class,"FIND-CLASS",clos)
 LISPSYM(coerce,"COERCE",lisp)
-LISPSYM(coerce_fixnum_char_ansi,"*COERCE-FIXNUM-CHAR-ANSI*",lisp)
+LISPSYM(coerce_fixnum_char_ansi,"*COERCE-FIXNUM-CHAR-ANSI*",custom)
 LISPSYM(note_new_structure_class,"NOTE-NEW-STRUCTURE-CLASS",system)
 LISPSYM(note_new_standard_class,"NOTE-NEW-STANDARD-CLASS",system)
 LISPSYM(heap_statistics,"HEAP-STATISTICS",system)
@@ -695,7 +699,7 @@ LISPSYM(generic_function_effective_method_function,"GENERIC-FUNCTION-EFFECTIVE-M
 LISPSYM(make_load_time_eval,"MAKE-LOAD-TIME-EVAL",system)
 LISPSYM(make_symbol_macro,"MAKE-SYMBOL-MACRO",system)
 LISPSYM(symbol_macro_p,"SYMBOL-MACRO-P",system)
-LISPSYM(symbol_macro_expand,"SYMBOL-MACRO-EXPAND",lisp)
+LISPSYM(symbol_macro_expand,"SYMBOL-MACRO-EXPAND",ext)
 LISPSYM(make_macro,"MAKE-MACRO",system)
 LISPSYM(macrop,"MACROP",system)
 LISPSYM(macro_expander,"MACRO-EXPANDER",system)
@@ -703,10 +707,10 @@ LISPSYM(make_function_macro,"MAKE-FUNCTION-MACRO",system)
 LISPSYM(function_macro_p,"FUNCTION-MACRO-P",system)
 LISPSYM(function_macro_function,"FUNCTION-MACRO-FUNCTION",system)
 LISPSYM(function_macro_expander,"FUNCTION-MACRO-EXPANDER",system)
-LISPSYM(make_weak_pointer,"MAKE-WEAK-POINTER",lisp)
-LISPSYM(weak_pointer_p,"WEAK-POINTER-P",lisp)
-LISPSYM(weak_pointer_value,"WEAK-POINTER-VALUE",lisp)
-LISPSYM(finalize,"FINALIZE",lisp)
+LISPSYM(make_weak_pointer,"MAKE-WEAK-POINTER",ext)
+LISPSYM(weak_pointer_p,"WEAK-POINTER-P",ext)
+LISPSYM(weak_pointer_value,"WEAK-POINTER-VALUE",ext)
+LISPSYM(finalize,"FINALIZE",ext)
 LISPSYM(structure_object_p,"STRUCTURE-OBJECT-P",clos)
 LISPSYM(std_instance_p,"STD-INSTANCE-P",clos)
 LISPSYM(allocate_std_instance,"ALLOCATE-STD-INSTANCE",clos)
@@ -770,11 +774,11 @@ LISPSYM(search,"SEARCH",lisp)
 LISPSYM(sort,"SORT",lisp)
 LISPSYM(stable_sort,"STABLE-SORT",lisp)
 LISPSYM(merge,"MERGE",lisp)
-LISPSYM(read_char_sequence,"READ-CHAR-SEQUENCE",lisp)
-LISPSYM(write_char_sequence,"WRITE-CHAR-SEQUENCE",lisp)
-LISPSYM(read_byte_sequence,"READ-BYTE-SEQUENCE",lisp)
-LISPSYM(write_byte_sequence,"WRITE-BYTE-SEQUENCE",lisp)
-LISPSYM(sequence_count_ansi,"*SEQUENCE-COUNT-ANSI*",lisp)
+LISPSYM(read_char_sequence,"READ-CHAR-SEQUENCE",ext)
+LISPSYM(write_char_sequence,"WRITE-CHAR-SEQUENCE",ext)
+LISPSYM(read_byte_sequence,"READ-BYTE-SEQUENCE",ext)
+LISPSYM(write_byte_sequence,"WRITE-BYTE-SEQUENCE",ext)
+LISPSYM(sequence_count_ansi,"*SEQUENCE-COUNT-ANSI*",custom)
 # ---------- STREAM ----------
 LISPSYM(symbol_stream,"SYMBOL-STREAM",system)
 LISPSYM(make_synonym_stream,"MAKE-SYNONYM-STREAM",lisp)
@@ -800,14 +804,9 @@ LISPSYM(make_string_output_stream,"MAKE-STRING-OUTPUT-STREAM",lisp)
 LISPSYM(get_output_stream_string,"GET-OUTPUT-STREAM-STRING",lisp)
 LISPSYM(make_string_push_stream,"MAKE-STRING-PUSH-STREAM",system)
 LISPSYM(string_stream_p,"STRING-STREAM-P",system)
-LISPSYM(make_buffered_input_stream,"MAKE-BUFFERED-INPUT-STREAM",lisp)
+LISPSYM(make_buffered_input_stream,"MAKE-BUFFERED-INPUT-STREAM",ext)
 LISPSYM(buffered_input_stream_index,"BUFFERED-INPUT-STREAM-INDEX",system)
-LISPSYM(make_buffered_output_stream,"MAKE-BUFFERED-OUTPUT-STREAM",lisp)
-#ifdef GENERIC_STREAMS
-LISPSYM(generic_stream_controller,"GENERIC-STREAM-CONTROLLER",lisp)
-LISPSYM(make_generic_stream,"MAKE-GENERIC-STREAM",lisp)
-LISPSYM(generic_stream_p,"GENERIC-STREAM-P",lisp)
-#endif
+LISPSYM(make_buffered_output_stream,"MAKE-BUFFERED-OUTPUT-STREAM",ext)
 #ifdef KEYBOARD
 LISPSYM(make_keyboard_stream,"MAKE-KEYBOARD-STREAM",system)
 #endif
@@ -832,10 +831,10 @@ LISPSYM(file_stream_p,"FILE-STREAM-P",system)
 LISPSYM(make_printer_stream,"MAKE-PRINTER-STREAM",system)
 #endif
 #ifdef PIPES
-LISPSYM(make_pipe_input_stream,"MAKE-PIPE-INPUT-STREAM",lisp)
-LISPSYM(make_pipe_output_stream,"MAKE-PIPE-OUTPUT-STREAM",lisp)
+LISPSYM(make_pipe_input_stream,"MAKE-PIPE-INPUT-STREAM",ext)
+LISPSYM(make_pipe_output_stream,"MAKE-PIPE-OUTPUT-STREAM",ext)
 #ifdef PIPES2
-LISPSYM(make_pipe_io_stream,"MAKE-PIPE-IO-STREAM",lisp)
+LISPSYM(make_pipe_io_stream,"MAKE-PIPE-IO-STREAM",ext)
 #endif
 #endif
 #ifdef X11SOCKETS
@@ -844,20 +843,20 @@ LISPSYM(read_n_bytes,"READ-N-BYTES",system)
 LISPSYM(write_n_bytes,"WRITE-N-BYTES",system)
 #endif
 #ifdef SOCKET_STREAMS
-LISPSYM(socket_server,"SOCKET-SERVER",lisp)
-LISPSYM(socket_server_close,"SOCKET-SERVER-CLOSE",lisp)
-LISPSYM(socket_server_port,"SOCKET-SERVER-PORT",lisp)
-LISPSYM(socket_server_host,"SOCKET-SERVER-HOST",lisp)
-LISPSYM(socket_accept,"SOCKET-ACCEPT",lisp)
-LISPSYM(socket_wait,"SOCKET-WAIT",lisp)
-LISPSYM(socket_status,"SOCKET-STATUS",lisp)
-LISPSYM(socket_connect,"SOCKET-CONNECT",lisp)
-LISPSYM(socket_stream_port,"SOCKET-STREAM-PORT",lisp)
-LISPSYM(socket_stream_host,"SOCKET-STREAM-HOST",lisp)
-LISPSYM(socket_stream_peer,"SOCKET-STREAM-PEER",lisp)
-LISPSYM(socket_stream_local,"SOCKET-STREAM-LOCAL",lisp)
+LISPSYM(socket_server,"SOCKET-SERVER",socket)
+LISPSYM(socket_server_close,"SOCKET-SERVER-CLOSE",socket)
+LISPSYM(socket_server_port,"SOCKET-SERVER-PORT",socket)
+LISPSYM(socket_server_host,"SOCKET-SERVER-HOST",socket)
+LISPSYM(socket_accept,"SOCKET-ACCEPT",socket)
+LISPSYM(socket_wait,"SOCKET-WAIT",socket)
+LISPSYM(socket_status,"SOCKET-STATUS",socket)
+LISPSYM(socket_connect,"SOCKET-CONNECT",socket)
+LISPSYM(socket_stream_port,"SOCKET-STREAM-PORT",socket)
+LISPSYM(socket_stream_host,"SOCKET-STREAM-HOST",socket)
+LISPSYM(socket_stream_peer,"SOCKET-STREAM-PEER",socket)
+LISPSYM(socket_stream_local,"SOCKET-STREAM-LOCAL",socket)
 #ifndef WIN32_NATIVE
-LISPSYM(socket_stream_handle,"SOCKET-STREAM-HANDLE",lisp)
+LISPSYM(socket_stream_handle,"SOCKET-STREAM-HANDLE",socket)
 #endif
 #endif
 LISPSYM(built_in_stream_open_p,"BUILT-IN-STREAM-OPEN-P",system)
@@ -871,14 +870,14 @@ LISPSYM(set_stream_external_format,"SET-STREAM-EXTERNAL-FORMAT",system)
 LISPSYM(interactive_stream_p,"INTERACTIVE-STREAM-P",lisp)
 LISPSYM(built_in_stream_close,"BUILT-IN-STREAM-CLOSE",system)
 LISPSYM(read_byte,"READ-BYTE",lisp)
-LISPSYM(read_byte_lookahead,"READ-BYTE-LOOKAHEAD",lisp)
-LISPSYM(read_byte_will_hang_p,"READ-BYTE-WILL-HANG-P",lisp)
-LISPSYM(read_byte_no_hang,"READ-BYTE-NO-HANG",lisp)
-LISPSYM(read_integer,"READ-INTEGER",lisp)
-LISPSYM(read_float,"READ-FLOAT",lisp)
+LISPSYM(read_byte_lookahead,"READ-BYTE-LOOKAHEAD",ext)
+LISPSYM(read_byte_will_hang_p,"READ-BYTE-WILL-HANG-P",ext)
+LISPSYM(read_byte_no_hang,"READ-BYTE-NO-HANG",ext)
+LISPSYM(read_integer,"READ-INTEGER",ext)
+LISPSYM(read_float,"READ-FLOAT",ext)
 LISPSYM(write_byte,"WRITE-BYTE",lisp)
-LISPSYM(write_integer,"WRITE-INTEGER",lisp)
-LISPSYM(write_float,"WRITE-FLOAT",lisp)
+LISPSYM(write_integer,"WRITE-INTEGER",ext)
+LISPSYM(write_float,"WRITE-FLOAT",ext)
 LISPSYM(file_position,"FILE-POSITION",lisp)
 LISPSYM(file_length,"FILE-LENGTH",lisp)
 LISPSYM(file_string_length,"FILE-STRING-LENGTH",lisp)
@@ -899,7 +898,7 @@ LISPSYM(symbol_package,"SYMBOL-PACKAGE",lisp)
 LISPSYM(symbol_plist,"SYMBOL-PLIST",lisp)
 LISPSYM(symbol_name,"SYMBOL-NAME",lisp)
 LISPSYM(keywordp,"KEYWORDP",lisp)
-LISPSYM(special_variable_p,"SPECIAL-VARIABLE-P",system)
+LISPSYM(special_variable_p,"SPECIAL-VARIABLE-P",ext)
 LISPSYM(gensym,"GENSYM",lisp)
 # ---------- LISPARIT ----------
 LISPSYM(decimal_string,"DECIMAL-STRING",system)
@@ -924,7 +923,7 @@ LISPSYM(einsplus,"1+",lisp)
 LISPSYM(einsminus,"1-",lisp)
 LISPSYM(conjugate,"CONJUGATE",lisp)
 LISPSYM(gcd,"GCD",lisp)
-LISPSYM(xgcd,"XGCD",lisp)
+LISPSYM(xgcd,"XGCD",ext)
 LISPSYM(lcm,"LCM",lisp)
 LISPSYM(exp,"EXP",lisp)
 LISPSYM(expt,"EXPT",lisp)
@@ -999,9 +998,9 @@ LISPSYM(dpb,"DPB",lisp)
 LISPSYM(deposit_field,"DEPOSIT-FIELD",lisp)
 LISPSYM(random,"RANDOM",lisp)
 LISPSYM(make_random_state,"MAKE-RANDOM-STATE",lisp)
-LISPSYM(fakultaet,"!",lisp)
-LISPSYM(exquo,"EXQUO",lisp)
-LISPSYM(long_float_digits,"LONG-FLOAT-DIGITS",lisp)
+LISPSYM(fakultaet,"!",ext)
+LISPSYM(exquo,"EXQUO",ext)
+LISPSYM(long_float_digits,"LONG-FLOAT-DIGITS",ext)
 LISPSYM(set_long_float_digits,"%SET-LONG-FLOAT-DIGITS",system)
 LISPSYM(log2,"LOG2",system)
 LISPSYM(log10,"LOG10",system)
@@ -1054,22 +1053,23 @@ LISPSYM(foreign_library_function,"FOREIGN-LIBRARY-FUNCTION",ffi)
 #endif
 # ---------- DIRKEY ----------
 #ifdef DIR_KEY
-LISPSYM(dir_key_type,"DIR-KEY-TYPE",lisp)
-LISPSYM(dir_key_path,"DIR-KEY-PATH",lisp)
-LISPSYM(dir_key_direction,"DIR-KEY-DIRECTION",lisp)
-LISPSYM(dir_key_open_p,"DIR-KEY-OPEN-P",lisp)
-LISPSYM(dir_key_close,"DIR-KEY-CLOSE",lisp)
-LISPSYM(dir_key_open,"DIR-KEY-OPEN",lisp)
-LISPSYM(dir_key_subkeys,"DIR-KEY-SUBKEYS",lisp)
-LISPSYM(dir_key_attributes,"DIR-KEY-ATTRIBUTES",lisp)
-LISPSYM(dkey_search_iterator,"DKEY-SEARCH-ITERATOR",system)
-LISPSYM(dkey_search_next_key,"DKEY-SEARCH-NEXT-KEY",system)
-LISPSYM(dkey_search_next_att,"DKEY-SEARCH-NEXT-ATT",system)
-LISPSYM(dir_key_value,"DIR-KEY-VALUE",lisp)
-LISPSYM(set_dkey_value,"SET-DKEY-VALUE",system)
-LISPSYM(dir_key_subkey_delete,"DIR-KEY-SUBKEY-DELETE",lisp)
-LISPSYM(dir_key_value_delete,"DIR-KEY-VALUE-DELETE",lisp)
-LISPSYM(dkey_info,"DKEY-INFO",system)
+LISPSYM(dir_key_type,"DIR-KEY-TYPE",ldap)
+LISPSYM(dir_key_path,"DIR-KEY-PATH",ldap)
+LISPSYM(dir_key_direction,"DIR-KEY-DIRECTION",ldap)
+LISPSYM(dir_key_open_p,"DIR-KEY-OPEN-P",ldap)
+LISPSYM(dir_key_close,"DIR-KEY-CLOSE",ldap)
+LISPSYM(dir_key_open,"DIR-KEY-OPEN",ldap)
+LISPSYM(dir_key_subkeys,"DIR-KEY-SUBKEYS",ldap)
+LISPSYM(dir_key_attributes,"DIR-KEY-ATTRIBUTES",ldap)
+LISPSYM(dkey_search_iterator,"DKEY-SEARCH-ITERATOR",ldap)
+LISPSYM(dkey_search_next_key,"DKEY-SEARCH-NEXT-KEY",ldap)
+LISPSYM(dkey_search_next_att,"DKEY-SEARCH-NEXT-ATT",ldap)
+LISPSYM(dir_key_value,"DIR-KEY-VALUE",ldap)
+LISPSYM(set_dkey_value,"SET-DKEY-VALUE",ldap)
+LISPSYM(dir_key_subkey_delete,"DIR-KEY-SUBKEY-DELETE",ldap)
+LISPSYM(dir_key_value_delete,"DIR-KEY-VALUE-DELETE",ldap)
+LISPSYM(dkey_info,"DKEY-INFO",ldap)
+LISPSYM(dir_key,"DIR-KEY",ldap)
 #endif
 
 # Keywords:
@@ -1159,27 +1159,27 @@ LISPSYM(Ktoken,"TOKEN",keyword)
 #endif
 #ifdef WIN32_NATIVE
 LISPSYM(Kwin32,"WIN32",keyword)
-LISPSYM(Kldap,"LDAP",keyword)
 #endif
 #ifdef DIR_KEY
+LISPSYM(Kldap,"LDAP",keyword)
 LISPSYM(Kscope,"SCOPE",keyword)
 LISPSYM(Kself,"SELF",keyword)
 LISPSYM(Ktree,"TREE",keyword)
 #endif
 
 # sonstige Symbole:
-LISPSYM(string_char,"STRING-CHAR",lisp) # als Typ in PREDTYPE
+LISPSYM(string_char,"STRING-CHAR",ext) # als Typ in PREDTYPE
 LISPSYM(base_char,"BASE-CHAR",lisp) # als Typ in PREDTYPE
 LISPSYM(array_rank_limit,"ARRAY-RANK-LIMIT",lisp) # als Konstante in ARRAY
 LISPSYM(array_dimension_limit,"ARRAY-DIMENSION-LIMIT",lisp) # als Konstante in ARRAY
 LISPSYM(array_total_size_limit,"ARRAY-TOTAL-SIZE-LIMIT",lisp) # als Konstante in ARRAY
 LISPSYM(subtype_integer,"SUBTYPE-INTEGER",system) # als Funktion für ARRAY
 LISPSYM(char_cod_limit,"CHAR-CODE-LIMIT",lisp) # als Konstante in CHARSTRG
-LISPSYM(base_char_cod_limit,"BASE-CHAR-CODE-LIMIT",lisp) # als Konstante in CHARSTRG
+LISPSYM(base_char_cod_limit,"BASE-CHAR-CODE-LIMIT",ext) # als Konstante in CHARSTRG
 #if defined(UNICODE) && defined(AWFULLY_SLOW)
 LISPSYM(unicode_attributes_line,"UNICODE-ATTRIBUTES-LINE",system) # als Funktion in CHARSTRG
 #endif
-LISPSYM(designator,"DESIGNATOR",lisp) # als Typ für CHARSTRG
+LISPSYM(designator,"DESIGNATOR",ext) # als Typ für CHARSTRG
 LISPSYM(class_slots,"CLASS-SLOTS",clos) # als Funktion für RECORD
 LISPSYM(slotdef_location,"SLOTDEF-LOCATION",clos) # als Funktion für RECORD
 LISPSYM(slotdef_name,"SLOTDEF-NAME",clos) # als Funktion für RECORD
@@ -1213,7 +1213,7 @@ LISPSYM(internal_time_units_per_second,"INTERNAL-TIME-UNITS-PER-SECOND",lisp) # 
 LISPSYM(encode_universal_time,"ENCODE-UNIVERSAL-TIME",lisp) # als Funktion in TIME
 LISPSYM(use_clcs,"*USE-CLCS*",system) # als Variable in ERROR
 LISPSYM(recursive_error_count,"*RECURSIVE-ERROR-COUNT*",system) # als Variable in ERROR
-LISPSYM(error_handler,"*ERROR-HANDLER*",lisp) # als Variable in ERROR
+LISPSYM(error_handler,"*ERROR-HANDLER*",custom) # als Variable in ERROR
 LISPSYM(simple_condition,"SIMPLE-CONDITION",lisp) # als Typ für ERROR                                 --+
 LISPSYM(simple_serious_condition,"SIMPLE-SERIOUS-CONDITION",system) # als Typ für ERROR                 |
 LISPSYM(simple_error,"SIMPLE-ERROR",lisp) # als Typ für ERROR                                           |
@@ -1230,7 +1230,7 @@ LISPSYM(simple_undefined_function,"SIMPLE-UNDEFINED-FUNCTION",system) # als Typ 
 LISPSYM(simple_unbound_slot,"SIMPLE-UNBOUND-SLOT",system) # als Typ für ERROR                           |
 LISPSYM(simple_type_error,"SIMPLE-TYPE-ERROR",lisp) # als Typ für ERROR                                 |
 LISPSYM(simple_keyword_error,"SIMPLE-KEYWORD-ERROR",system) # als Typ für ERROR                         |
-LISPSYM(simple_charset_type_error,"SIMPLE-CHARSET-TYPE-ERROR",lisp) # als Typ für ERROR                 |
+LISPSYM(simple_charset_type_error,"SIMPLE-CHARSET-TYPE-ERROR",ext) # als Typ für ERROR                 |
 LISPSYM(simple_package_error,"SIMPLE-PACKAGE-ERROR",system) # als Typ für ERROR                         |
 LISPSYM(simple_print_not_readable,"SIMPLE-PRINT-NOT-READABLE",system) # als Typ für ERROR               |
 LISPSYM(simple_parse_error,"SIMPLE-PARSE-ERROR",system) # als Typ für ERROR                             |
@@ -1254,44 +1254,47 @@ LISPSYM(coerce_to_condition,"COERCE-TO-CONDITION",system) # als Funktion für ER
 LISPSYM(cerror,"CERROR",lisp) # als Funktion für ERROR
 LISPSYM(break_on_signals,"*BREAK-ON-SIGNALS*",lisp) # als Variable für ERROR
 LISPSYM(safe_typep,"SAFE-TYPEP",system) # als Funktion für ERROR
-LISPSYM(stream_read_byte,"STREAM-READ-BYTE",lisp) # als Funktion für STREAM
-LISPSYM(stream_read_byte_lookahead,"STREAM-READ-BYTE-LOOKAHEAD",lisp) # als Funktion für STREAM
-LISPSYM(stream_read_byte_sequence,"STREAM-READ-BYTE-SEQUENCE",lisp) # als Funktion für STREAM
-LISPSYM(stream_write_byte,"STREAM-WRITE-BYTE",lisp) # als Funktion für STREAM
-LISPSYM(stream_write_byte_sequence,"STREAM-WRITE-BYTE-SEQUENCE",lisp) # als Funktion für STREAM
-LISPSYM(stream_read_char,"STREAM-READ-CHAR",lisp) # als Funktion für STREAM
-LISPSYM(stream_unread_char,"STREAM-UNREAD-CHAR",lisp) # als Funktion für STREAM
-LISPSYM(stream_peek_char,"STREAM-PEEK-CHAR",lisp) # als Funktion für STREAM
-LISPSYM(stream_read_char_sequence,"STREAM-READ-CHAR-SEQUENCE",lisp) # als Funktion für STREAM
-LISPSYM(stream_write_char,"STREAM-WRITE-CHAR",lisp) # als Funktion für STREAM
-LISPSYM(stream_write_char_sequence,"STREAM-WRITE-CHAR-SEQUENCE",lisp) # als Funktion für STREAM
-LISPSYM(stream_read_line,"STREAM-READ-LINE",lisp) # als Funktion für STREAM
-LISPSYM(stream_read_char_will_hang_p,"STREAM-READ-CHAR-WILL-HANG-P",lisp) # als Funktion für STREAM
-LISPSYM(stream_clear_input,"STREAM-CLEAR-INPUT",lisp) # als Funktion für STREAM
-LISPSYM(stream_finish_output,"STREAM-FINISH-OUTPUT",lisp) # als Funktion für STREAM
-LISPSYM(stream_force_output,"STREAM-FORCE-OUTPUT",lisp) # als Funktion für STREAM
-LISPSYM(stream_clear_output,"STREAM-CLEAR-OUTPUT",lisp) # als Funktion für STREAM
-LISPSYM(stream_line_column,"STREAM-LINE-COLUMN",lisp) # als Funktion für STREAM
+LISPSYM(stream_read_byte,"STREAM-READ-BYTE",gray)
+LISPSYM(stream_read_byte_lookahead,"STREAM-READ-BYTE-LOOKAHEAD",gray)
+LISPSYM(stream_read_byte_sequence,"STREAM-READ-BYTE-SEQUENCE",gray)
+LISPSYM(stream_write_byte,"STREAM-WRITE-BYTE",gray)
+LISPSYM(stream_write_byte_sequence,"STREAM-WRITE-BYTE-SEQUENCE",gray)
+LISPSYM(stream_read_char,"STREAM-READ-CHAR",gray)
+LISPSYM(stream_unread_char,"STREAM-UNREAD-CHAR",gray)
+LISPSYM(stream_peek_char,"STREAM-PEEK-CHAR",gray)
+LISPSYM(stream_read_char_sequence,"STREAM-READ-CHAR-SEQUENCE",gray)
+LISPSYM(stream_write_char,"STREAM-WRITE-CHAR",gray)
+LISPSYM(stream_write_char_sequence,"STREAM-WRITE-CHAR-SEQUENCE",gray)
+LISPSYM(stream_read_line,"STREAM-READ-LINE",gray)
+LISPSYM(stream_read_char_will_hang_p,"STREAM-READ-CHAR-WILL-HANG-P",gray)
+LISPSYM(stream_clear_input,"STREAM-CLEAR-INPUT",gray)
+LISPSYM(stream_finish_output,"STREAM-FINISH-OUTPUT",gray)
+LISPSYM(stream_force_output,"STREAM-FORCE-OUTPUT",gray)
+LISPSYM(stream_clear_output,"STREAM-CLEAR-OUTPUT",gray)
+LISPSYM(stream_line_column,"STREAM-LINE-COLUMN",gray)
 #ifdef GENERIC_STREAMS
-LISPSYM(generic_stream_rdch,"GENERIC-STREAM-READ-CHAR",lisp) # als Funktion für STREAM
-LISPSYM(generic_stream_pkch,"GENERIC-STREAM-PEEK-CHAR",lisp) # als Funktion für STREAM
-LISPSYM(generic_stream_read_char_will_hang_p,"GENERIC-STREAM-READ-CHAR-WILL-HANG-P",lisp) # als Funktion für STREAM
-LISPSYM(generic_stream_clear_input,"GENERIC-STREAM-CLEAR-INPUT",lisp) # als Funktion für STREAM
-LISPSYM(generic_stream_wrch,"GENERIC-STREAM-WRITE-CHAR",lisp) # als Funktion für STREAM
-LISPSYM(generic_stream_wrss,"GENERIC-STREAM-WRITE-STRING",lisp) # als Funktion für STREAM
-LISPSYM(generic_stream_finish_output,"GENERIC-STREAM-FINISH-OUTPUT",lisp) # als Funktion für STREAM
-LISPSYM(generic_stream_force_output,"GENERIC-STREAM-FORCE-OUTPUT",lisp) # als Funktion für STREAM
-LISPSYM(generic_stream_clear_output,"GENERIC-STREAM-CLEAR-OUTPUT",lisp) # als Funktion für STREAM
-LISPSYM(generic_stream_rdby,"GENERIC-STREAM-READ-BYTE",lisp) # als Funktion für STREAM
-LISPSYM(generic_stream_wrby,"GENERIC-STREAM-WRITE-BYTE",lisp) # als Funktion für STREAM
-LISPSYM(generic_stream_close,"GENERIC-STREAM-CLOSE",lisp) # als Funktion für STREAM
+LISPSYM(generic_stream_controller,"GENERIC-STREAM-CONTROLLER",gstream)
+LISPSYM(make_generic_stream,"MAKE-GENERIC-STREAM",gstream)
+LISPSYM(generic_stream_p,"GENERIC-STREAM-P",gstream)
+LISPSYM(generic_stream_rdch,"GENERIC-STREAM-READ-CHAR",gstream)
+LISPSYM(generic_stream_pkch,"GENERIC-STREAM-PEEK-CHAR",gstream)
+LISPSYM(generic_stream_read_char_will_hang_p,"GENERIC-STREAM-READ-CHAR-WILL-HANG-P",gstream)
+LISPSYM(generic_stream_clear_input,"GENERIC-STREAM-CLEAR-INPUT",gstream)
+LISPSYM(generic_stream_wrch,"GENERIC-STREAM-WRITE-CHAR",gstream)
+LISPSYM(generic_stream_wrss,"GENERIC-STREAM-WRITE-STRING",gstream)
+LISPSYM(generic_stream_finish_output,"GENERIC-STREAM-FINISH-OUTPUT",gstream)
+LISPSYM(generic_stream_force_output,"GENERIC-STREAM-FORCE-OUTPUT",gstream)
+LISPSYM(generic_stream_clear_output,"GENERIC-STREAM-CLEAR-OUTPUT",gstream)
+LISPSYM(generic_stream_rdby,"GENERIC-STREAM-READ-BYTE",gstream)
+LISPSYM(generic_stream_wrby,"GENERIC-STREAM-WRITE-BYTE",gstream)
+LISPSYM(generic_stream_close,"GENERIC-STREAM-CLOSE",gstream)
 #endif
 #ifdef KEYBOARD
 LISPSYM(Kchar,"CHAR",keyword) # als make-input-character-Argument für STREAM
 LISPSYM(Kbits,"BITS",keyword) # als make-input-character-Argument für STREAM
 LISPSYM(make_input_character,"MAKE-INPUT-CHARACTER",system) # als Funktion für STREAM
-LISPSYM(make_char,"MAKE-CHAR",lisp) # als Funktion für STREAM
-LISPSYM(keyboard_input,"*KEYBOARD-INPUT*",lisp) # als Variable in STREAM
+LISPSYM(make_char,"MAKE-CHAR",ext) # als Funktion für STREAM
+LISPSYM(keyboard_input,"*KEYBOARD-INPUT*",ext) # als Variable in STREAM
 #endif
 LISPSYM(completion,"COMPLETION",system) # als Funktion in STREAM, für den Fall, dass GNU_READLINE benutzt wird
 #if defined(GNU_READLINE) || defined(NEXTAPP)
@@ -1308,9 +1311,9 @@ LISPSYM(trace_output,"*TRACE-OUTPUT*",lisp) # als Variable in STREAM
 LISPSYM(stream_element_type,"STREAM-ELEMENT-TYPE",lisp) # als Funktion in STREAM
 LISPSYM(reval,"$REVAL",system) # als Slotname in STREAM
 LISPSYM(default_pathname_defaults,"*DEFAULT-PATHNAME-DEFAULTS*",lisp) # als Variable in PATHNAME
-LISPSYM(merge_pathnames_ansi,"*MERGE-PATHNAMES-ANSI*",lisp) # als Variable in PATHNAME
-LISPSYM(print_pathnames_ansi,"*PRINT-PATHNAMES-ANSI*",lisp) # als Variable in PATHNAME
-LISPSYM(parse_namestring_ansi,"*PARSE-NAMESTRING-ANSI*",lisp) # als Variable in PATHNAME
+LISPSYM(merge_pathnames_ansi,"*MERGE-PATHNAMES-ANSI*",custom) # als Variable in PATHNAME
+LISPSYM(print_pathnames_ansi,"*PRINT-PATHNAMES-ANSI*",custom) # als Variable in PATHNAME
+LISPSYM(parse_namestring_ansi,"*PARSE-NAMESTRING-ANSI*",custom) # als Variable in PATHNAME
 #ifdef LOGICAL_PATHNAMES
 LISPSYM(logpathname_translations,"*LOGICAL-PATHNAME-TRANSLATIONS*",system) # als Variable in PATHNAME
 #endif
@@ -1384,11 +1387,11 @@ LISPSYM(print_base,"*PRINT-BASE*",lisp) # als Variable in IO           |
 LISPSYM(print_array,"*PRINT-ARRAY*",lisp) # als Variable in IO         |
 LISPSYM(print_circle,"*PRINT-CIRCLE*",lisp) # als Variable in IO       |
 LISPSYM(print_pretty,"*PRINT-PRETTY*",lisp) # als Variable in IO       |
-LISPSYM(print_closure,"*PRINT-CLOSURE*",lisp) # als Variable in IO     |
+LISPSYM(print_closure,"*PRINT-CLOSURE*",custom) # als Variable in IO   |
 LISPSYM(print_readably,"*PRINT-READABLY*",lisp) # als Variable in IO   |
 LISPSYM(print_right_margin,"*PRINT-RIGHT-MARGIN*",lisp) # -------------+
-LISPSYM(print_rpars,"*PRINT-RPARS*",lisp) # als Variable in IO
-LISPSYM(print_indent_lists,"*PRINT-INDENT-LISTS*",lisp) # als Variable in IO
+LISPSYM(print_rpars,"*PRINT-RPARS*",custom) # als Variable in IO
+LISPSYM(print_indent_lists,"*PRINT-INDENT-LISTS*",custom) # als Variable in IO
 LISPSYM(print_circle_table,"*PRINT-CIRCLE-TABLE*",system) # als Variable in IO
 LISPSYM(prin_level,"*PRIN-LEVEL*",system) # als Variable in IO
 LISPSYM(prin_bqlevel,"*PRIN-BQLEVEL*",system) # als Variable in IO
@@ -1410,7 +1413,7 @@ LISPSYM(unquote,"UNQUOTE",system) # als Marker in IO
 LISPSYM(structure_print,"STRUCTURE-PRINT",system) # als Property in IO
 LISPSYM(defstruct_description,"DEFSTRUCT-DESCRIPTION",system) # als Property in IO
 LISPSYM(print_object,"PRINT-OBJECT",clos) # als Funktion für IO
-LISPSYM(trace_values,"*TRACE-VALUES*",lisp) # als Variable in EVAL
+LISPSYM(trace_values,"*TRACE-VALUES*",ext) # als Variable in EVAL
 LISPSYM(setf_function,"SETF-FUNCTION",system) # als Property in EVAL
 LISPSYM(lambda,"LAMBDA",lisp) # als Marker in EVAL
 LISPSYM(LLoptional,"&OPTIONAL",lisp) # als Lambdalisten-Marker in EVAL
@@ -1430,8 +1433,8 @@ LISPSYM(compile,"COMPILE",lisp) # als Declaration-Specifier und Funktion für EV
 #ifdef DEBUG_EVAL
 LISPSYM(funcall_trace_output,"*FUNCALL-TRACE-OUTPUT*",system) # als Variable in EVAL
 #endif
-LISPSYM(evalhookstern,"*EVALHOOK*",lisp) # als Variable in EVAL
-LISPSYM(applyhookstern,"*APPLYHOOK*",lisp) # als Variable in EVAL
+LISPSYM(evalhookstern,"*EVALHOOK*",custom) # als Variable in EVAL
+LISPSYM(applyhookstern,"*APPLYHOOK*",custom) # als Variable in EVAL
 LISPSYM(macroexpand_hook,"*MACROEXPAND-HOOK*",lisp) # als Variable in EVAL
 LISPSYM(lambda_parameters_limit,"LAMBDA-PARAMETERS-LIMIT",lisp) # als Konstante in EVAL
 LISPSYM(call_arguments_limit,"CALL-ARGUMENTS-LIMIT",lisp) # als Konstante in EVAL
@@ -1446,8 +1449,8 @@ LISPSYM(mal2,"**",lisp) # als Variable in DEBUG
 LISPSYM(mal3,"***",lisp) # als Variable in DEBUG
 LISPSYM(durch2,"//",lisp) # als Variable in DEBUG
 LISPSYM(durch3,"///",lisp) # als Variable in DEBUG
-LISPSYM(driverstern,"*DRIVER*",lisp) # als Variable in DEBUG
-LISPSYM(break_driver,"*BREAK-DRIVER*",lisp) # als Variable in DEBUG
+LISPSYM(driverstern,"*DRIVER*",ext) # als Variable in DEBUG
+LISPSYM(break_driver,"*BREAK-DRIVER*",ext) # als Variable in DEBUG
 LISPSYM(break_count,"*BREAK-COUNT*",system) # als Variable in DEBUG
 LISPSYM(recurse_count_standard_output,"*RECURSE-COUNT-STANDARD-OUTPUT*",system) # als Variable in DEBUG
 LISPSYM(recurse_count_debug_io,"*RECURSE-COUNT-DEBUG-IO*",system) # als Variable in DEBUG
@@ -1465,12 +1468,12 @@ LISPSYM(inline,"INLINE",lisp) # als Declaration-Specifier in CONTROL
 LISPSYM(notinline,"NOTINLINE",lisp) # als Declaration-Specifier in CONTROL
 LISPSYM(get_funname_symbol,"GET-FUNNAME-SYMBOL",system) # als Funktion für CONTROL
 LISPSYM(inlinable,"INLINABLE",system) # als Property in CONTROL
-LISPSYM(constant_inline,"CONSTANT-INLINE",lisp) # als Declaration-Specifier in CONTROL
-LISPSYM(constant_notinline,"CONSTANT-NOTINLINE",lisp) # als Declaration-Specifier in CONTROL
+LISPSYM(constant_inline,"CONSTANT-INLINE",ext) # als Declaration-Specifier in CONTROL
+LISPSYM(constant_notinline,"CONSTANT-NOTINLINE",ext) # als Declaration-Specifier in CONTROL
 LISPSYM(constant_inlinable,"CONSTANT-INLINABLE",system) # als Property in CONTROL
 LISPSYM(boolean,"BOOLEAN",lisp) # als Typ in PREDTYPE
 LISPSYM(symbol,"SYMBOL",lisp) # als Typ in PREDTYPE
-LISPSYM(address,"ADDRESS",lisp) # als Typ in PREDTYPE
+LISPSYM(address,"ADDRESS",ext) # als Typ in PREDTYPE
 LISPSYM(file_stream,"FILE-STREAM",lisp) # als Typ in PREDTYPE
 LISPSYM(synonym_stream,"SYNONYM-STREAM",lisp) # als Typ in PREDTYPE
 LISPSYM(broadcast_stream,"BROADCAST-STREAM",lisp) # als Typ in PREDTYPE
@@ -1481,28 +1484,28 @@ LISPSYM(string_stream,"STRING-STREAM",lisp) # als Typ in PREDTYPE
 LISPSYM(stream,"STREAM",lisp) # als Typ in PREDTYPE
 LISPSYM(package,"PACKAGE",lisp) # als Typ in PREDTYPE
 LISPSYM(readtable,"READTABLE",lisp) # als Typ in PREDTYPE
-LISPSYM(special_operator,"SPECIAL-OPERATOR",lisp) # als Typ in PREDTYPE
-LISPSYM(load_time_eval,"LOAD-TIME-EVAL",lisp) # als Typ in PREDTYPE
-LISPSYM(symbol_macro,"SYMBOL-MACRO",lisp) # als Typ in PREDTYPE
-LISPSYM(function_macro,"FUNCTION-MACRO",lisp) # als Typ in PREDTYPE
-LISPSYM(encoding,"ENCODING",lisp) # als Typ in PREDTYPE
+LISPSYM(special_operator,"SPECIAL-OPERATOR",ext) # als Typ in PREDTYPE
+LISPSYM(load_time_eval,"LOAD-TIME-EVAL",ext) # als Typ in PREDTYPE
+LISPSYM(symbol_macro,"SYMBOL-MACRO",ext) # als Typ in PREDTYPE
+LISPSYM(function_macro,"FUNCTION-MACRO",ext) # als Typ in PREDTYPE
+LISPSYM(encoding,"ENCODING",ext) # als Typ in PREDTYPE
 #ifdef FOREIGN
-LISPSYM(foreign_pointer,"FOREIGN-POINTER",lisp) # als Typ in PREDTYPE
+LISPSYM(foreign_pointer,"FOREIGN-POINTER",ext) # als Typ in PREDTYPE
 #endif
 #ifdef DYNAMIC_FFI
-LISPSYM(foreign_address,"FOREIGN-ADDRESS",lisp) # als Typ in PREDTYPE
-LISPSYM(foreign_variable,"FOREIGN-VARIABLE",lisp) # als Typ in PREDTYPE
-LISPSYM(foreign_function,"FOREIGN-FUNCTION",lisp) # als Typ in PREDTYPE
+LISPSYM(foreign_address,"FOREIGN-ADDRESS",ffi) # als Typ in PREDTYPE
+LISPSYM(foreign_variable,"FOREIGN-VARIABLE",ffi) # als Typ in PREDTYPE
+LISPSYM(foreign_function,"FOREIGN-FUNCTION",ffi) # als Typ in PREDTYPE
 #endif
-LISPSYM(weak_pointer,"WEAK-POINTER",lisp) # als Typ in PREDTYPE
-LISPSYM(finalizer,"FINALIZER",lisp) # als Typ in PREDTYPE
+LISPSYM(weak_pointer,"WEAK-POINTER",ext) # als Typ in PREDTYPE
+LISPSYM(finalizer,"FINALIZER",ext) # als Typ in PREDTYPE
 #ifdef YET_ANOTHER_RECORD
-LISPSYM(yet_another,"YET-ANOTHER",lisp) # als Typ in PREDTYPE
+LISPSYM(yet_another,"YET-ANOTHER",ext) # als Typ in PREDTYPE
 #endif
 LISPSYM(compiled_function,"COMPILED-FUNCTION",lisp) # als Typ in PREDTYPE
-LISPSYM(frame_pointer,"FRAME-POINTER",lisp) # als Typ in PREDTYPE
-LISPSYM(read_label,"READ-LABEL",lisp) # als Typ in PREDTYPE
-LISPSYM(system_internal,"SYSTEM-INTERNAL",lisp) # als Typ in PREDTYPE
+LISPSYM(frame_pointer,"FRAME-POINTER",system) # als Typ in PREDTYPE
+LISPSYM(read_label,"READ-LABEL",system) # als Typ in PREDTYPE
+LISPSYM(system_internal,"SYSTEM-INTERNAL",system) # als Typ in PREDTYPE
 LISPSYM(fixnum,"FIXNUM",lisp) # als Typ in PREDTYPE
 LISPSYM(bignum,"BIGNUM",lisp) # als Typ in PREDTYPE
 LISPSYM(ratio,"RATIO",lisp) # als Typ in PREDTYPE
@@ -1518,11 +1521,11 @@ LISPSYM(gc_statistics_stern,"*GC-STATISTICS*",system) # als Variable für PREDTY
 LISPSYM(recurse_count_gc_statistics,"*RECURSE-COUNT-GC-STATISTICS*",system) # als Variable in PREDTYPE
 LISPSYM(traced_definition,"TRACED-DEFINITION",system) # als Property in SYMBOL
 LISPSYM(gensym_counter,"*GENSYM-COUNTER*",lisp) # als Variable in SYMBOL
-LISPSYM(pprint_first_newline,"*PPRINT-FIRST-NEWLINE*",lisp) # io.d:pr_enter_1()
-LISPSYM(print_symbols_long,"*PRINT-SYMBOLS-LONG*",lisp) # io.d:pr_symbol()
+LISPSYM(pprint_first_newline,"*PPRINT-FIRST-NEWLINE*",custom) # io.d:pr_enter_1()
+LISPSYM(print_symbols_long,"*PRINT-SYMBOLS-LONG*",custom) # io.d:pr_symbol()
 LISPSYM(inhibit_floating_point_underflow,"*INHIBIT-FLOATING-POINT-UNDERFLOW*",system) # als Variable in LISPARIT
-LISPSYM(warn_on_floating_point_contagion,"*WARN-ON-FLOATING-POINT-CONTAGION*",lisp)
-LISPSYM(floating_point_contagion_ansi,"*FLOATING-POINT-CONTAGION-ANSI*",lisp)
+LISPSYM(warn_on_floating_point_contagion,"*WARN-ON-FLOATING-POINT-CONTAGION*",custom)
+LISPSYM(floating_point_contagion_ansi,"*FLOATING-POINT-CONTAGION-ANSI*",custom)
 LISPSYM(pi,"PI",lisp) # als Variable in LISPARIT
 LISPSYM(number,"NUMBER",lisp) # als Typ für LISPARIT
 LISPSYM(real,"REAL",lisp) # als Typ für LISPARIT
@@ -1554,7 +1557,7 @@ LISPSYM(short_float_negative_epsilon,"SHORT-FLOAT-NEGATIVE-EPSILON",lisp) # als 
 LISPSYM(single_float_negative_epsilon,"SINGLE-FLOAT-NEGATIVE-EPSILON",lisp) # als Konstante in LISPARIT
 LISPSYM(double_float_negative_epsilon,"DOUBLE-FLOAT-NEGATIVE-EPSILON",lisp) # als Konstante in LISPARIT
 LISPSYM(long_float_negative_epsilon,"LONG-FLOAT-NEGATIVE-EPSILON",lisp) # als Variable in LISPARIT
-LISPSYM(default_float_format,"*DEFAULT-FLOAT-FORMAT*",lisp) # als Variable in LISPARIT
+LISPSYM(default_float_format,"*DEFAULT-FLOAT-FORMAT*",custom) # als Variable in LISPARIT
 LISPSYM(read_default_float_format,"*READ-DEFAULT-FLOAT-FORMAT*",lisp) # als Variable in LISPARIT
 LISPSYM(write_float_decimal,"WRITE-FLOAT-DECIMAL",system) # als Funktion für LISPARIT
 LISPSYM(random_state_stern,"*RANDOM-STATE*",lisp) # als Variable in LISPARIT
@@ -1695,15 +1698,15 @@ LISPSYM(utf_16,"UTF-16",charset) #                          |
 LISPSYM(utf_7,"UTF-7",charset) # ---------------------------+
 #endif
 #endif
-LISPSYM(english,"ENGLISH",lisp) # als Language für MISC
+LISPSYM(english,"ENGLISH",i18n) # als Language für MISC
 LISPSYM(init_hooks,"*INIT-HOOKS*",system) # als Variable für SPVW
 LISPSYM(quiet,"*QUIET*",system) # als Variable für SPVW
 LISPSYM(Klisting,"LISTING",keyword) # als Argument für SPVW
 LISPSYM(Koutput_file,"OUTPUT-FILE",keyword) # als Argument für SPVW
 LISPSYM(compile_file,"COMPILE-FILE",lisp) # als Funktion für SPVW
-LISPSYM(load_compiling,"*LOAD-COMPILING*",lisp) # als Variable für SPVW
+LISPSYM(load_compiling,"*LOAD-COMPILING*",custom) # als Variable für SPVW
 LISPSYM(load_verbose,"*LOAD-VERBOSE*",lisp) # als Variable für SPVW
-LISPSYM(args,"*ARGS*",lisp) # als Variable in SPVW
+LISPSYM(args,"*ARGS*",ext) # als Variable in SPVW
 LISPSYM(batchmode_errors,"BATCHMODE-ERRORS",system) # als Macro für SPVW
 LISPSYM(wait_keypress,"WAIT-KEYPRESS",system) # als Funktion für SPVW
 # ---------- FFI ----------
@@ -1755,8 +1758,4 @@ LISPSYM(mem_read,"MEM-READ",system)
 LISPSYM(mem_write,"MEM-WRITE",system)
 LISPSYM(mem_write_vector,"MEM-WRITE-VECTOR",system)
 LISPSYM(affi_nonzerop,"NZERO-POINTER-P",system)
-#endif
-# ---------- DIRKEY ----------
-#ifdef DIR_KEY
-LISPSYM(dir_key,"DIR-KEY",lisp)
 #endif

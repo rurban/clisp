@@ -1,18 +1,11 @@
 ;;; handle the posix functions
 ;;; Sam Steingold 1999
 
-(in-package "POSIX" :use '("LISP" "CLOS"))
+(in-package "POSIX")
 
 (export
- '(resolve-host-ipaddr
+ '(resolve-host-ipaddr bogomips
    hostent hostent-name hostent-aliases hostent-addr-list hostent-addrtype
-   user-data user-data-login-id user-data-passwd user-data-uid user-data-gid
-   user-data-full-name user-data-shell
-   file-stat file-stat-file file-stat-dev file-stat-ino file-stat-mode
-   file-stat-nlink file-stat-uid file-stat-gid file-stat-rdev
-   file-stat-size file-stat-blksize file-stat-blocks file-stat-atime
-   file-stat-mtime file-stat-ctime
-   bogomips
    erf erfc j0 j1 jn y0 y1 yn gamma lgamma))
 
 ;;; ============================================================
@@ -37,6 +30,11 @@
                   li))))
 
 ;;; ============================================================
+#+unix (progn
+(export
+ '(user-data user-data-login-id user-data-passwd user-data-uid user-data-gid
+   user-data-full-name user-data-shell))
+
 (defstruct user-data
   "see stat(2) for details"
   (login-id  "" :type simple-string)
@@ -68,8 +66,15 @@
                         :full-name (svref ud 4) :home-dir (svref ud 5)
                         :shell (svref ud 6)))
                   li))))
-
+)
 ;;; ============================================================
+#+unix (progn
+(export
+ '(file-stat file-stat-file file-stat-dev file-stat-ino file-stat-mode
+   file-stat-nlink file-stat-uid file-stat-gid file-stat-rdev
+   file-stat-size file-stat-blksize file-stat-blocks file-stat-atime
+   file-stat-mtime file-stat-ctime))
+
 (defstruct file-stat
   file
   (dev     0 :type (unsigned-byte 32))
@@ -94,6 +99,7 @@
     (make-file-stat :file file :dev dev :ino ino :mode mode :nlink nlink
                     :uid uid :gid gid :rdev rdev :size size :blksize blksize
                     :blocks blocks :atime atime :mtime mtime :ctime ctime)))
+)
 
 ;;; ============================================================
 #+unix (progn
@@ -224,3 +230,6 @@ see getrusage(3) and getrlimit(2) for details"
                     :virt-mem (mk lim71 lim72) :rss (mk lim81 lim82)
                     :memlock (mk lim91 lim92))))))
 )
+
+(use-package '("POSIX") "EXT")
+(ext:re-export "POSIX" "EXT")

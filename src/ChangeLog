@@ -1,5 +1,78 @@
 2001-04-06  Sam Steingold  <sds@gnu.org>
 
+	The grand repackaging: USER+CL-USER; LISP+CL
+	* amigasock.lisp, beossock.lisp: no export (done in init.lisp)
+	* cfgacorn.lisp, cfgamiga.lisp, cfgdos.lisp, cfgsunux.lisp,
+	cfgunix.lisp, cfgwin32.lisp, clhs.lisp: (in-package "EXT")
+	* clos.lisp: use I18N temporarily (for ENGLISH)
+	* compiler.lisp (c-form-table): treat sys::%flet and friends just
+	like cl:flet and friends
+	* condition.lisp: moved CLISP extensions, like `muffle-cerrors',
+	to the EXT package
+	* constobj.d (use_default): set to COMMON-LISP
+	* constpack.d: added EXT, I18N, GRAY and CUSTOM,
+	and, conditionally, LDAP, SOCKET and GSTREAM
+	* constsym.d: moved CLISP extensions to EXT or a more specific
+	package, if appropriate
+	* control.d, fsubr.d:
+	renamed flet->%flet; labels->%labels; macrolet->%macrolet
+	* defs1.lisp (doseq, dohash): export from EXT
+	(fbound-string): moved to init.lisp
+	* defs2.lisp (use-default): COMMON-LISP now
+	* defs3.lisp: removed everything except for flet and friends
+	* dirkey.d, lisparit.d: fixed comments
+	* dirkey.lisp: export everything from LDAP and re-export from EXT
+	* dutch.lisp, french.lisp, german.lisp, spanish.lisp: moved to I18N
+	* edit.lisp, runprog.lisp, savemem.lisp: export from EXT, not LISP
+	* eval.d (FUNTAB): removed `in_package',
+	added `pfind_package' and `reexport'
+	* foreign1.lisp: use COMMON-LISP and EXT in FFI
+	* gray.lisp: extracted from gstream.lisp
+	* gstream.lisp: moved to GSTREAM package
+	* init.lisp: separated LISP exported symbols into COMMON-LISP and
+	EXT (and friends);
+	(in-package): define here
+	(flet, labels, macrolet): added temporary definitions
+	* inspect.lisp: export use variables from CUSTOM
+	* keyboard.lisp (with-keyboard, *keyboard-input*): export from EXT
+	* loop.lisp: in COMMON-LISP
+	* macros1.lisp (mapcap, maplap): export from EXT
+	* macros2.lisp (without-floating-point-underflow, space,
+	with-output-to-printer): export from EXT
+	(deflanguage, definternational, deflocalized, localized):
+	 export from I18N
+	* macros3.lisp (ethe, letf, letf*, with-collect): export from EXT
+	* makemake.in (LPARTS): added gray
+	* misc.d (set_ansi): do not bother with *features*
+	* package.d (in_package): removed
+	(reexport): new function
+	(init_packages): COMMON-LISP (= LISP, CL); COMMON-LISP-USER (=
+	USER, CL-USER)
+	* places.lisp (*ansi*): updated the doc string
+	(dir-key-value): moved here from dirkey.lisp
+	* posix.lisp: re-export from EXT exported symbols
+	* reploop.lisp (*prompt*): export from CUSTOM
+	(*command-index*, prompt-new-package, package-short-name): export
+	from EXT
+	* rexx1.lisp: defpackage REXX and export everything from it
+	* screen.lisp: use COMMON-LISP and EXT in SCREEN
+	* spvw.d (init_symbol_tab_2): added `enum_user_index' to the enum,
+	export everything in SOCKET and CUSTOM
+	(*features*): replaced :cltl2 with :ansi-cl;
+	add :generic-streams when GENERIC_STREAMS is defined
+	and :sockets when SOCKET_STREAMS is defined
+	(main): -p: is the package does not exist, do not create it;
+	-a: do not call `in-package'
+	* subr.d (reexport): added
+	(in_package): removed
+	* subrkw.d (in_package): removed
+	* trace.lisp (*trace-function*, *trace-args*, *trace-form*,
+	 *trace-values*): export from EXT, not LISP
+	* type.lisp (type-expand-1, type-expand): export from EXT, not LISP
+	* xcharin.lisp: export from EXT, not LISP
+
+2001-04-06  Sam Steingold  <sds@gnu.org>
+
 	Symbols in FAS files remember their home packages and do not
 	depend as much on the special treatment of the package tasks,
 	which is now optional.

@@ -2,11 +2,6 @@
 ;;; This is not a complete implementation of the socket interface
 ;;; documented in impnotes.html, but sufficient for a simple HTTP server.
 
-(in-package "LISP")
-(export '(socket-server socket-server-close socket-server-port
-          socket-accept socket-connect socket-stream-host socket-stream-port
-          socket-service-port
-)        )
 ; Not yet implemented: socket-wait socket-stream-peer-host
 ; Difference w.r.t. Unix: On Unix, (socket-server port) already allows
 ; remote clients to connect and send us some data _before_ we do a

@@ -1018,8 +1018,8 @@ LISPSPECFORM(progv, 2,0,body)
       unwind(); # Funktionsbindungsframe auflösen
     }
 
-LISPSPECFORM(flet, 1,0,body)
-# (FLET ({funspec}) {form}), CLTL S. 113
+LISPSPECFORM(pflet, 1,0,body)
+# (SYS::%FLET ({funspec}) {form}), CLTL S. 113
   {
     var object body = popSTACK(); # ({form})
     var object funspecs = popSTACK(); # ({funspec})
@@ -1053,8 +1053,8 @@ LISPSPECFORM(flet, 1,0,body)
     return_Values finish_flet(top_of_frame,body);
   }
 
-LISPSPECFORM(labels, 1,0,body)
-# (LABELS ({funspec}) {form}), CLTL S. 113
+LISPSPECFORM(plabels, 1,0,body)
+# (SYS::%LABELS ({funspec}) {form}), CLTL S. 113
   {
     # Auf den Aufbau eines Funktionsbindungs-Frames kann hier verzichtet werden,
     # weil bei der Bildung der ersten Closure sowieso das Environment genestet
@@ -1126,8 +1126,8 @@ LISPSPECFORM(labels, 1,0,body)
     unwind(); # FENV-Bindungsframe auflösen
   }
 
-LISPSPECFORM(macrolet, 1,0,body)
-# (MACROLET ({macrodef}) {form}), CLTL S. 113
+LISPSPECFORM(pmacrolet, 1,0,body)
+# (SYS::%MACROLET ({macrodef}) {form}), CLTL S. 113
   {
     var object body = popSTACK(); # ({form})
     var object macrodefs = popSTACK(); # ({macrodef})

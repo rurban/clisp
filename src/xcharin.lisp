@@ -3,19 +3,18 @@
 ;; This file provides the data type used by the keyboard stream,
 ;; and CLtL1 compatible character functions operating on font and bits.
 
-(in-package "LISP")
+(in-package "EXT")
 (export '(char-bits char-font char-font-limit char-bits-limit
           char-control-bit char-meta-bit char-super-bit char-hyper-bit
-          make-char char-bit set-char-bit
-)        )
+          make-char char-bit set-char-bit))
 
 (in-package "SYSTEM")
 
 (defconstant char-font-limit 16) ; for backward compatibility only
 (defconstant char-bits-limit 16)
                    ;; CLtL1, p. 233, 234
-(defconstant char-int-limit (* char-code-limit char-font-limit char-bits-limit))
-                   ;; CLISP specific
+(defconstant char-int-limit     ; CLISP specific
+  (* char-code-limit char-font-limit char-bits-limit))
 
 (defstruct input-character
   (char nil :type (or null character))

@@ -4,7 +4,7 @@
 ;;   16.6.1996
 ;; Sam Steingold 1999-03-11, 2000-02-24
 
-(in-package "LISP")
+(in-package "COMMON-LISP")
 (export '(loop loop-finish))
 (pushnew ':loop *features*)
 
@@ -1000,7 +1000,6 @@
                        ,@(nreverse finally-code)))))))))))
 
 ;; Der eigentliche Macro:
-
 (defmacro loop (&whole whole &body body)
   (if (some #'loop-keywordp body)
     ;; "extended" loop form

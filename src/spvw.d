@@ -1193,6 +1193,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         # Tabelle der Packages:
         enum { # Die Werte dieser Aufzählung sind der Reihe nach 0,1,2,...
                enum_lisp_index,
+               enum_user_index,
                enum_system_index,
                enum_keyword_index,
                enum_charset_index,
@@ -1223,9 +1224,10 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
              var object* package_ = &STACK_(package_anz-1) STACKop -(uintP)index; # Pointer auf Package
              pushSTACK(symbol_tab_ptr_as_object(ptr)); # Symbol
              import(&STACK_0,package_); # erst normal importieren
-             if (index == (uintB)enum_lisp_index # in #<PACKAGE LISP> ?
-                 || index == (uintB)enum_charset_index # in #<PACKAGE CHARSET> ?
-                )
+             if (index == (uintB)enum_lisp_index # in #<PACKAGE LISP>?
+                 || index == (uintB)enum_charset_index # in #<PACKAGE CHARSET>?
+                 || index == (uintB)enum_socket_index
+                 || index == (uintB)enum_custom_index)
                { export(&STACK_0,package_); } # ja -> auch exportieren
              Symbol_package(popSTACK()) = *package_; # und die Home-Package setzen
              ptr++;
@@ -1421,10 +1423,10 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         define_variable(S(prin_jbstrings),unbound);     # SYS::*PRIN-JBSTRINGS*
         define_variable(S(prin_jbmodus),unbound);       # SYS::*PRIN-JBMODUS*
         define_variable(S(prin_jblpos),unbound);        # SYS::*PRIN-JBLPOS*
-        define_variable(S(pprint_first_newline),T);     # LISP::*PPRINT-FIRST-NEWLINE*
-        define_variable(S(print_symbols_long),NIL);     # LISP::*PRINT-SYMBOLS-LONG*
-        define_variable(S(print_pathnames_ansi),NIL);   # LISP:*PRINT-PATHNAMES-ANSI*
-        define_variable(S(parse_namestring_ansi),NIL);  # LISP:*PARSE-NAMESTRING-ANSI*
+        define_variable(S(pprint_first_newline),T);     # CUSTOM:*PPRINT-FIRST-NEWLINE*
+        define_variable(S(print_symbols_long),NIL);     # CUSTOM:*PRINT-SYMBOLS-LONG*
+        define_variable(S(print_pathnames_ansi),NIL);   # CUSTOM:*PRINT-PATHNAMES-ANSI*
+        define_variable(S(parse_namestring_ansi),NIL);  # CUSTOM:*PARSE-NAMESTRING-ANSI*
         # zu EVAL:
         define_variable(S(evalhookstern),NIL);          # *EVALHOOK* := NIL
         define_variable(S(applyhookstern),NIL);         # *APPLYHOOK* := NIL
@@ -1477,7 +1479,13 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             };
         # *FEATURES* initialisieren:
         { var const char * features_initstring =
-            "(:CLISP :CLTL2 :COMMON-LISP :INTERPRETER"
+            "(:CLISP :ANSI-CL :COMMON-LISP :INTERPRETER"
+            #ifdef SOCKET_STREAMS
+              " :SOCKETS"
+            #endif
+            #ifdef GENERIC_STREAMS
+              " :GENERIC-STREAMS"
+            #endif
             #ifdef LOGICAL_PATHNAMES
               " :LOGICAL-PATHNAMES"
             #endif
@@ -2814,14 +2822,21 @@ local void print_banner ()
       if (argv_ansi) {
         # Maximum ANSI CL compliance, even where it hurts.
         pushSTACK(T); funcall(L(set_ansi),1);
-        # (IN-PACKAGE "COMMON-LISP-USER")
-        pushSTACK(O(ansi_user_package_name)); funcall(L(in_package),1);
       }
-      if (!(argv_package == NULL))
-        # (IN-PACKAGE packagename) ausführen:
-        { var object packname = asciz_to_string(argv_package,O(misc_encoding));
-          pushSTACK(packname); funcall(L(in_package),1);
+      if (argv_package != NULL) {
+        # (IN-PACKAGE packagename)
+        var object packname = asciz_to_string(argv_package,O(misc_encoding));
+        var object package = find_package(packname);
+        if (!nullp(package)) {
+          Symbol_value(S(packagestern)) = package;
+        } else {
+          pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
+          write_sstring(&STACK_0,asciz_to_string(GETTEXT(NLstring "WARNING: no such package: "),O(internal_encoding)));
+          write_sstring(&STACK_0,packname);
+          write_sstring(&STACK_0,asciz_to_string(NLstring,O(internal_encoding)));
+          skipSTACK(1);
         }
+      }
       if (argv_load_compiling)
         # (SETQ *LOAD-COMPILING* T) ausführen:
         { Symbol_value(S(load_compiling)) = T; }

@@ -2,11 +2,19 @@
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
-(in-package "LISP")
+(use-package '("COMMON-LISP" "EXT") "LDAP")
+(in-package "LDAP")
+
 (export
- '(dir-key-single-value with-dir-key-open dir-key-copy
+ '(dir-key-type dir-key-path dir-key-direction dir-key-open-p dir-key-open
+   dir-key-close dir-key-subkeys dir-key-attributes dir-key-value
+   dir-key-subkey-delete dir-key-value-delete
+   dir-key-single-value with-dir-key-open dir-key-copy
    with-dir-key-search dir-key-children dir-key-values dir-key-dump-tree
    dir-key-info))
+
+(use-package '("LDAP") "EXT")
+(ext:re-export "LDAP" "EXT")
 
 ;;; utilities
 
@@ -107,3 +115,10 @@ If collect is non-nil, collect all the keys into an a-list."
      :n-values n-values :max-value-name-len max-value-name-len
      :max-value-data-len max-value-data-len
      :security security :write-time write-time)))
+
+(defsetf dir-key-value (key name &optional default) (value)
+  ;; just like gethash
+  (let ((storeform `(ldap::set-dkey-value ,key ,name ,value)))
+    (if default
+        `(progn ,default ,storeform)
+        `,storeform)))
