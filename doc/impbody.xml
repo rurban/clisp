@@ -1,4 +1,4 @@
- <?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <chapter id="intro"><title>Introduction
   <ulink url="&clhs;/Body/chap-1.html">[CLHS-1]</ulink></title>
@@ -3967,8 +3967,7 @@ functions are provided:</para>
  <constant>:DIRECTION</constant> (like &open;), which defaults to
  &io-k; (i.e., full close).
 This is mostly for the benefit of Internet protocol implementors who
-need to <function>shutdown(2)</function> a socket to signal the end of
-a request:
+need to &shutdown; a socket to signal the end of a request:
 <informalexample><programlisting>
    (&close; &sost-r; :DIRECTION &input-k;)
  = shutdown(fd,SHUT_RD)
@@ -5029,9 +5028,9 @@ exhaust the available line length.</para></formalpara>
 <!-- #endif -->
 
 <para>The <ulink url="&clhs;/Body/glo_t.html#time_zone">time
- zone</ulink> in a decoded time must not necessarily be an integer,
- but (as float or rational number) it should be a multiple of
- <literal>1/3600</literal>.</para>
+ zone</ulink> in a decoded time must not necessarily be an
+ &integer-class;, but (as &float-class; or &rational-class; number)
+ it should be a multiple of <literal>1/3600</literal>.</para>
 
 <table id="internal-time-units-table" frame="all">
  <title>Platform dependent</title>

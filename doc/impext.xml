@@ -2785,11 +2785,10 @@ pointer to static data.</para></example>
 
 <example><title>call-in</title>
 
-<para>To sort an array of double-floats using the Lisp function
- <function>sort</function> instead of the &c-lang; library function
- <function>qsort()</function>, one can use the following interface code
- <filename>sort1.c</filename>.  The main problem is to pass a
- variable-sized array.
+<para>To sort an array of double-floats using the Lisp function &sort;
+ instead of the &c-lang; library function &qsort;, one can use the
+ following interface code <filename>sort1.c</filename>.
+ The main problem is to pass a variable-sized array.
 
 <programlisting>
 extern void lispsort_begin (int);
@@ -3061,7 +3060,7 @@ classes.</para>
 allocated and filled from the address returned (unless &c-NULL;).
 Functions with &io-k; parameters are passed the address of the Lisp
 string or unsigned byte vector. These are not &c-NULL;-terminated!
-This is useful for functions like like <function>read()</function> which
+This is useful for functions like like &read; which
 do not need an array at a constant address longer than the dynamic
 extent of the call (it is dangerous to define callback functions with
 &io-k; (or &string-class;) type parameters).
@@ -3422,8 +3421,8 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
                  &timeout-arg;)</literal></term>
   <listitem><simpara>Checks whether it is possible to read from or write
    to a &socket-stream; or whether a connection is available on a
-   &socket-server; without blocking.  (For the cognoscenti:
-   this is the interface to <function>select(2)</function>).
+   &socket-server; without blocking.
+   (For the cognoscenti: this is the interface to &select;).
    This is similar to &listen;, which checks only one stream and only for
    input, and &so-wait;, which works only with &socket-server;s.</simpara>
    <variablelist><title>Possible values of
@@ -3504,9 +3503,9 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    basically return the arguments given to the function which created
    the &socket-stream;.</simpara></listitem></varlistentry>
 </variablelist>
-<para>If you need to <function>shutdown(2)</function> the socket stream
-in just one direction, you can use the <constant>:DIRECTION</constant>
-argument to <link linkend="close"><function>CLOSE</function></link>.</para>
+<para>If you need to &shutdown; the socket stream in just one direction,
+you can use the <constant>:DIRECTION</constant> argument to
+<link linkend="close"><function>CLOSE</function></link>.</para>
 <!-- #endif -->
 </section>
 
@@ -3526,7 +3525,7 @@ argument to <link linkend="close"><function>CLOSE</function></link>.</para>
    When &host-r; is omitted or &default-k;, return the data for the
    current host. When &host-r; is given and is &nil;, all the
    host database is returned as a list (this would be the contents of the
-   <filename>/etc/hosts</filename> file on a UNIX system or
+   <filename>/etc/hosts</filename> file on a &unix; system or
    <filename>${windir}/system32/etc/hosts</filename> on a Win32 system).
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
@@ -3536,7 +3535,7 @@ argument to <link linkend="close"><function>CLOSE</function></link>.</para>
    be a &stream-class;, a &pathname-class;, a &string-class; or a
    &number-class; (on a &unix; system, meaning file descriptor).  The
    first slot of the struct returned is the string or the number on which
-   <function>stat(2)</function>/<function>fstat(2)</function>/<function>lstat(2)</function>
+   &stat;/&fstat;/&lstat;
    was called.  The other 13 slots are numbers, members of the stat
    struct: device, inode, protection, number of hard links, owner's UID,
    owner's GID, device type, total size (bytes), blocksize for
@@ -3545,7 +3544,7 @@ argument to <link linkend="close"><function>CLOSE</function></link>.</para>
    support a particular field (e.g., Win32 does not have hard links),
    &nil; (or the default, like 1 for the number of hard links for Win32
    or DOS) is returned.
-   </simpara><simpara>[UNIX systems only at this time, patches are welcome.]
+   </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>posix:user-data</function>
@@ -3558,7 +3557,7 @@ argument to <link linkend="close"><function>CLOSE</function></link>.</para>
    system does not support a particular field (e.g., Win32 does not have
    a concept of a shell), &nil; (or the default, like
    <filename>c:\command.com</filename> for DOS) is returned.
-   </simpara><simpara>[UNIX systems only at this time, patches are welcome.]
+   </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
    role="sexp">(<function>posix:sysinfo</function>)</literal></term>
@@ -3569,8 +3568,7 @@ argument to <link linkend="close"><function>CLOSE</function></link>.</para>
    role="sexp">(<function>posix:resource-usage-limits</function>)</literal>
    </term>
   <listitem><simpara>Return 3 structs describing the resources usage and
-    limits, derived from <function>getrlimit(2)</function> and
-    <function>getrusage(3)</function>.
+    limits, derived from &getrlimit; and &getrusage;.
   </simpara></listitem></varlistentry>
  <varlistentry><term>
    <literal role="sexp">(<function>posix:erf</function> &real-r;)</literal>
@@ -3591,14 +3589,13 @@ argument to <link linkend="close"><function>CLOSE</function></link>.</para>
    be available in libm.so.  Please note that these functions do not
    provide lisp-style error handling and precision, and do all the
    computations at the double float level.
-  </simpara><simpara>[UNIX systems only at this time, patches are welcome.]
+  </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
  </simpara></listitem></varlistentry>
  <varlistentry><term>
    <literal role="sexp">(<function>POSIX:STREAM-LOCK</function> &stream-r;
             <replaceable>lock-p</replaceable>
             &key-amp; (:block &t;) (:shared &nil;))</literal></term>
-  <listitem><simpara>This is an interface to the
-   <function>flock(2)</function> system call.
+  <listitem><simpara>This is an interface to the &flock; system call.
    It sets or removes a discretionary file lock for the file associated
    with &stream-r;, depending on <replaceable>lock-p</replaceable>.
    When <replaceable>block</replaceable> is &nil;, the call is non-blocking,
@@ -3608,7 +3605,7 @@ argument to <link linkend="close"><function>CLOSE</function></link>.</para>
    Several processes can set a <replaceable>shared</replaceable> lock,
    but only one can set an <emphasis>exclusive</emphasis> (i.e.,
    non-<replaceable>shared</replaceable>) lock.
-  </simpara><simpara>[UNIX systems only at this time, patches are welcome.]
+  </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
  </simpara></listitem></varlistentry>
 </variablelist>
 
@@ -3623,7 +3620,7 @@ argument to <link linkend="close"><function>CLOSE</function></link>.</para>
  written in other languages.</para>
 
 <variablelist>
- <varlistentry><term>UNIX</term>
+ <varlistentry><term>&unix;</term>
   <listitem><simpara>&clisp; can act as a script interpreter.
   </simpara></listitem></varlistentry>
  <varlistentry><term>Desktop environments such as <ulink
