@@ -10309,7 +10309,9 @@ The function make-closure is required.
                 (close *coutput-stream*))
               (unless compilation-successful
                 (delete-file output-file) (delete-file liboutput-file)))))
-        (when new-listing-stream (close listing-stream))))))
+        (when new-listing-stream
+          (fresh-line listing-stream)
+          (close listing-stream))))))
 
 ;; This must be consistent with compile-file (see above)!
 (defun compile-file-pathname (file &key (output-file 'T) &allow-other-keys)
