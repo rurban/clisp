@@ -2069,16 +2069,17 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <variablelist>
  <varlistentry><term>bindings</term>
-  <listitem><para>Call the operating system functions from &clisp;.  The
-   following platforms are supported:
+  <listitem><para>Call the operating system functions from &clisp;.
+    The following platforms are supported:
    <itemizedlist>
     <listitem><simpara>&amiga;</simpara></listitem>
-    <listitem><simpara>&linux;/libc5</simpara></listitem>
-    <listitem><simpara>&linux;/libc6 (&glibc;)</simpara></listitem>
+    <listitem><simpara>&linux;/&glibc;</simpara></listitem>
+    <listitem><simpara>&win32;</simpara></listitem>
    </itemizedlist></para></listitem></varlistentry>
- <varlistentry><term>CLX</term>
-  <listitem><para>Call Xlib functions from &clisp;.  Two
-   implementations are supplied:
+ <varlistentry><term>&clx;</term>
+  <listitem><para>Call
+    <ulink url="http://www.the-labs.com/X11/XLib-Manual/">Xlib</ulink>
+    functions from &clisp;.  Two implementations are supplied:
    <itemizedlist>
     <listitem><simpara>mit-clx, from MIT
      <ulink url="ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z"
@@ -2098,7 +2099,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
      <address><otheraddr><ulink url="http://www.alma.com/staff/hin"/>
      </otheraddr></address><email>hin@alma.com</email></author>.
   </simpara></listitem></varlistentry>
- <varlistentry><term>postgresql632, postgresql642</term>
+ <varlistentry><term>postgresql</term>
   <listitem><simpara>Access
     <ulink url="http://www.PostgreSQL.org/">PostgreSQL</ulink> from &clisp;.
   </simpara></listitem></varlistentry>
