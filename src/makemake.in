@@ -16,6 +16,7 @@ options:
     The following general options are recognized:
        --help                  print this message and exit
        --version               print the CLISP version and exit
+       --verbose               print some config information to the stderr
     The following options set installation parameters:
        --srcdir=SRCDIR         sets the source directory to SRCDIR
        --prefix=PREFIX         sets the installation directory prefix to PREFIX
@@ -178,9 +179,15 @@ else
   tolower="tr A-Z a-z"
 fi
 
+verbose=${CLISP_MAKEMAKE_VERBOSE:-false};
 # Handle --with-... arguments
 while test -z "$endofargs"; do
   case "$1" in
+    -verb* | --verb* )
+      verbose=`echol "$1"|sed 's/-*v[^=]*=*//'`;
+      test -n "${verbose}" || verbose=true;
+      shift
+      ;;
     -with-module=* | --with-module=*)
       MODULES="$MODULES "`echol "$1"|sed 's/-*with-module=//'`
       shift
@@ -804,6 +811,22 @@ esac
 # esac
 if [ "$TSYS" = acorn ] ; then
   cpu=arm
+fi
+
+if [ "${verbose}" = true -o "${verbose}" = yes ]; then
+  cat <<EOF >&2
+# host system:
+ hostname = "${hostname}"
+     HSYS = "${HSYS}"
+   HSYSOS = "${HSYSOS}"
+      HOS = "${HOS}"
+ host_cpu = "${host_cpu}"
+      cpu = "${cpu}"
+# target system:
+     TSYS = "${TSYS}"
+   TSYSOS = "${TSYSOS}"
+      TOS = "${TOS}"
+EOF
 fi
 
 # Main compiler dependencies:

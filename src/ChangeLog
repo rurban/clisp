@@ -1,6 +1,7 @@
 2002-06-11  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (XCFLAGS) [darwin]: add `--traditional-cpp'
+	(--verbose): new option
 
 2002-06-11  Sam Steingold  <sds@gnu.org>
 
