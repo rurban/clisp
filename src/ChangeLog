@@ -1,3 +1,8 @@
+1999-01-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * Makefile.devel (win32msvc/makefile.msvc4, win32msvc/makefile.msvc5,
+          acorn/makefile.cc, acorn/makefile.gcc): Fix rule.
+
 1999-01-29  Sam Steingold  <sds@goems.com>
 
 	* spvw.d (print_banner): do not cut the copyright on narrow
@@ -91,6 +96,7 @@
 1999-01-26  Sam Steingold  <sds@goems.com>
 
 	* Makefile.devel: do not use `utils/move-if-change'.
+        * utils/move-if-change: Remove file.
 
 1999-01-26  Sam Steingold  <sds@goems.com>
 
