@@ -1601,14 +1601,14 @@ N. Gray to X3J13.</para>
 
 <section id="ansi"><title>Extensions-1.9. Maximum ANSI CL compliance</title>
 
-<para>A few &ansi-cl; features are turned off by default, because they
- would hurt in every-day use.  They can be switched on, all at once by
- setting the &symbol-macro; &ansi; to &t;, or they can be switched on
- individually.  Setting &ansi; to &t; implies the following:</para>
+<para>Some &ansi-cl; features are turned off by default for backwards
+ compatibility.
+ They can be switched on, all at once by setting the &symbol-macro;
+ &ansi; to &t;, or they can be switched on individually.
+ Setting &ansi; to &t; implies the following:</para>
 
 <itemizedlist>
- <listitem><simpara>Setting &pathprint; to &t; for &ansi-cl; compliant
-  &pathname-class; printing.</simpara></listitem>
+ <listitem><simpara>Setting &pathprint; to &t;.</simpara></listitem>
  <listitem><simpara>Setting <emphasis
   role="strong"><varname>custom:*coerce-fixnum-char-ansi*</varname></emphasis>
   to &t; so that &fixnum-type;s cannot be &coerce;d to
@@ -1634,8 +1634,7 @@ N. Gray to X3J13.</para>
  reversing the above settings, i.e.,</para>
 
 <itemizedlist>
- <listitem><simpara>Setting &pathprint; to &nil; for readable
-  &pathname-class; printing.</simpara></listitem>
+ <listitem><simpara>Setting &pathprint; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting <emphasis
   role="strong"><varname>custom:*coerce-fixnum-char-ansi*</varname></emphasis>
   to &nil; so that &fixnum-type;s <emphasis>can</emphasis> be &coerce;d
