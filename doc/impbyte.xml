@@ -204,7 +204,8 @@ There are no small objects in pages belonging to a big object.</para>
 <para>The following combinations of memory model and mmap tricks are
 possible:</para>
 
-<table frame="all"><title>With TYPECODES (the number indicates the order
+<table id="mem-models-comb-typecodes" frame="all">
+ <title>With TYPECODES (the number indicates the order
   in which the respective models have been developed:</title>
 <tgroup cols="6" colsep="1" rowsep="1" align="center">
 <thead><row><entry/><entry>no MAP_MEMORY</entry>
@@ -222,7 +223,8 @@ possible:</para>
      <entry>4</entry><entry/><entry/><entry/><entry/></row>
 </tbody></tgroup></table>
 
-<table frame="all"><title>With no TYPECODES</title>
+<table id="mem-models-comb-no-typecodes" frame="all">
+ <title>With no TYPECODES</title>
 <tgroup cols="4" colsep="1" rowsep="1" align="center">
 <thead><row><entry/><entry>no MAP_MEMORY</entry>
  <entry>TRIVIALMAP_MEMORY</entry><entry>GENERATIONAL_GC</entry></row></thead>
@@ -576,7 +578,8 @@ letters:
 <section id="intr-set"><title>The instruction set</title>
 
 <section id="instr-const"><title>Instructions for constants</title>
-<table frame="all"><title>Instructions for constants</title>
+<table id="instr-const-tab" frame="all">
+ <title>Instructions for constants</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(&nil;)</literal></entry>
@@ -597,7 +600,8 @@ letters:
 </section>
 
 <section id="instr-lex-var"><title>Instructions for lexical variables</title>
-<table frame="all"><title>Instructions for lexical variables</title>
+<table id="instr-lex-var-tab" frame="all">
+ <title>Instructions for lexical variables</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(LOAD &n-r;)</literal></entry>
@@ -661,7 +665,8 @@ letters:
 </section>
 
 <section id="instr-dyn-var"><title>Instructions for dynamic variables</title>
-<table frame="all"><title>Instructions for dynamic variables</title>
+<table id="instr-dyn-var-tab" frame="all">
+ <title>Instructions for dynamic variables</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(GETVALUE
@@ -703,7 +708,8 @@ letters:
 </section>
 
 <section id="instr-stack"><title>Instructions for stack operations</title>
-<table frame="all"><title>Instructions for stack operations</title>
+<table id="instr-stack-tab" frame="all">
+ <title>Instructions for stack operations</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(PUSH)</literal></entry>
@@ -731,7 +737,8 @@ letters:
 </section>
 
 <section id="instr-jump"><title>Instructions for control flow, jumps</title>
-<table frame="all"><title>Instructions for control flow, jumps</title>
+<table id="instr-jump-tab" frame="all">
+ <title>Instructions for control flow, jumps</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(SKIP&amp;RET &n-r;)</literal></entry>
@@ -837,8 +844,8 @@ letters:
 
 <section id="instr-env"><title>Instructions for lexical environment,
    creation of closures</title>
-<table frame="all"><title>Instructions for lexical environment,
-   creation of closures</title>
+<table id="instr-env-tab" frame="all">
+ <title>Instructions for lexical environment, creation of closures</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(VENV)</literal></entry>
@@ -864,7 +871,8 @@ letters:
 </section>
 
 <section id="instr-funcall"><title>Instructions for function calls</title>
-<table frame="all"><title>Instructions for function calls</title>
+<table id="instr-funcall-tab" frame="all">
+ <title>Instructions for function calls</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(CALL &k-r; &n-r;)</literal></entry>
@@ -944,8 +952,8 @@ letters:
 
 <section id="instr-optkey"><title>Instructions for optional
   and keyword parameters</title>
-<table frame="all"><title>Instructions for optional
-  and keyword parameters</title>
+<table id="instr-optkey-tab" frame="all">
+ <title>Instructions for optional and keyword parameters</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(PUSH-UNBOUND &n-r;)</literal></entry>
@@ -992,7 +1000,8 @@ letters:
 </section>
 
 <section id="instr-mulval"><title>Instructions for multiple values</title>
-<table frame="all"><title>Instructions for multiple values</title>
+<table id="instr-mulval-tab" frame="all">
+ <title>Instructions for multiple values</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(VALUES0)</literal></entry>
@@ -1041,7 +1050,8 @@ letters:
 
 <section id="instr-block"><title>Instructions for
    &block; and &return-from;</title>
-<table frame="all"><title>Instructions for &block; and &return-from;</title>
+<table id="instr-block-tab" frame="all">
+ <title>Instructions for &block; and &return-from;</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(BLOCK-OPEN &n-r; &lab-r;)</literal></entry>
@@ -1073,7 +1083,8 @@ letters:
 </section>
 
 <section id="instr-tagbody"><title>Instructions for &tagbody; and &go;</title>
-<table frame="all"><title>Instructions for &tagbody; and &go;</title>
+<table id="instr-tagbody-tab" frame="all">
+ <title>Instructions for &tagbody; and &go;</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(TAGBODY-OPEN &n-r;
@@ -1119,7 +1130,8 @@ letters:
 </section>
 
 <section id="instr-catch"><title>Instructions for &catch; and &throw;</title>
-<table frame="all"><title>Instructions for &catch; and &throw;</title>
+<table id="instr-catch-tab" frame="all">
+ <title>Instructions for &catch; and &throw;</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(CATCH-OPEN &lab-r;)</literal></entry>
@@ -1142,7 +1154,8 @@ letters:
 </section>
 
 <section id="instr-unwind"><title>Instructions for &unwind-protect;</title>
-<table frame="all"><title>Instructions for &unwind-protect;</title>
+<table id="instr-unwind-tab" frame="all">
+ <title>Instructions for &unwind-protect;</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(UNWIND-PROTECT-OPEN
@@ -1184,7 +1197,8 @@ letters:
 </section>
 
 <section id="instr-handler"><title>Instructions for &handler-bind;</title>
-<table frame="all"><title>Instructions for &handler-bind;</title>
+<table id="instr-handler-tab" frame="all">
+ <title>Instructions for &handler-bind;</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(HANDLER-OPEN &n-r;)</literal></entry>
@@ -1204,7 +1218,8 @@ letters:
 
 <section id="instr-inline"><title>Instructions for some inlined
   functions</title>
-<table frame="all"><title>Instructions for some inlined functions</title>
+<table id="instr-inline-tab" frame="all">
+ <title>Instructions for some inlined functions</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(NOT)</literal></entry>
@@ -1260,7 +1275,8 @@ speed optimization. The only exception is
 <literal role="sexp">FUNCALL&amp;SKIP&amp;RETGF</literal>, which is needed for
 generic functions.</para>
 
-<table frame="all"><title>Combined instructions</title>
+<table id="instr-combo-tab" frame="all">
+ <title>Combined instructions</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
  <thead><row><entry>mnemonic</entry><entry>equivalent</entry></row></thead>
 <tbody>
@@ -1447,7 +1463,8 @@ generic functions.</para>
 <para>There are special one-byte instructions (without explicit
 operands) for the following frequent instructions:</para>
 
-<table frame="all"><title>Shortcut instructions</title>
+<table id="instr-shortcut-tab" frame="all">
+ <title>Shortcut instructions</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
  <thead><row><entry>mnemonic</entry><entry>operand range</entry></row></thead>
 <tbody>
