@@ -303,8 +303,7 @@
       "~S: ~S already belongs to ~S, cannot also add it to ~S"
       'std-add-method method (std-method-generic-function method) gf))
   (check-method-qualifiers gf method)
-  (setf (std-method-fast-function method) nil
-        (std-method-generic-function method) gf)
+  (setf (std-method-fast-function method) nil)
   ;; Determine function from initfunction:
   (when (and (null (std-method-function method))
              (null (std-method-fast-function method)))
@@ -315,23 +314,39 @@
   ;; The method is finished. Now add it:
   (warn-if-gf-already-called gf)
   (let ((old-method (find method (std-gf-methods gf) :test #'methods-agree-p)))
-    (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
-          ((eq gf |#'initialize-instance|) (note-ii-change method))
-          ((eq gf |#'reinitialize-instance|) (note-ri-change method))
-          ((eq gf |#'update-instance-for-redefined-class|) (note-uirc-change method))
-          ((eq gf |#'update-instance-for-different-class|) (note-uidc-change method))
-          ((eq gf |#'shared-initialize|) (note-si-change method)))
-    (setf (std-gf-methods gf)
-          (cons method
-                (if old-method
-                  (progn
-                    (when *gf-warn-on-replacing-method*
-                      (warn (TEXT "Replacing method ~S in ~S")
-                            old-method gf))
-                    (remove old-method (std-gf-methods gf)))
-                  (std-gf-methods gf))))
-    (setf (std-gf-effective-method-cache gf) '())
-    (finalize-fast-gf gf))
+    (when old-method
+      (when *gf-warn-on-replacing-method*
+        (warn (TEXT "Replacing method ~S in ~S")
+              old-method gf))
+      ;; Call remove-method without warnings.
+      (let ((*dynamically-modifiable-generic-function-names*
+              (cons (sys::closure-name gf) *dynamically-modifiable-generic-function-names*)))
+        (remove-method gf old-method))
+      ;; Ensure that remove-method really has removed the method.
+      (when (memq method (std-gf-methods gf))
+        (error (TEXT "Wrong ~S behaviour: ~S has not been removed from ~S")
+               'remove-method old-method gf))))
+  (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
+        ((eq gf |#'initialize-instance|) (note-ii-change method))
+        ((eq gf |#'reinitialize-instance|) (note-ri-change method))
+        ((eq gf |#'update-instance-for-redefined-class|) (note-uirc-change method))
+        ((eq gf |#'update-instance-for-different-class|) (note-uidc-change method))
+        ((eq gf |#'shared-initialize|) (note-si-change method)))
+  ;; Step 1: Add method to the set.
+  (setf (std-gf-methods gf) (cons method (std-gf-methods gf))
+        (std-method-generic-function method) gf)
+  ;; Step 2: Call add-direct-method for each specializer.
+  (dolist (specializer (std-method-specializers method))
+    (add-direct-method specializer method))
+  ;; Step 3: Clear the effective method cache and the discriminating function.
+  (setf (std-gf-effective-method-cache gf) '())
+  (finalize-fast-gf gf)
+  ;; Step 4: Update the dependents.
+  #|
+  (map-dependents gf
+    #'(lambda (dependent)
+        (update-dependent gf dependent 'add-method method)))
+  |#
   ;; It's not worth updating the seclass of a generic function, since 1. in
   ;; most cases, it can signal a NO-APPLICABLE-METHOD error and thus has
   ;; *seclass-dirty*, 2. the compiler must assume that the seclass doesn't
@@ -354,11 +369,22 @@
             ((eq gf |#'update-instance-for-redefined-class|) (note-uirc-change method))
             ((eq gf |#'update-instance-for-different-class|) (note-uidc-change method))
             ((eq gf |#'shared-initialize|) (note-si-change method)))
+      ;; Step 1: Remove method from the set.
       (setf (std-gf-methods gf) (remove old-method (std-gf-methods gf))
             (std-method-generic-function old-method) nil
             (std-method-from-defgeneric old-method) nil)
+      ;; Step 2: Call remove-direct-method for each specializer.
+      (dolist (specializer (std-method-specializers method))
+        (remove-direct-method specializer method))
+      ;; Step 3: Clear the effective method cache and the discriminating function.
       (setf (std-gf-effective-method-cache gf) '())
-      (finalize-fast-gf gf)))
+      (finalize-fast-gf gf)
+      ;; Step 4: Update the dependents.
+      #|
+      (map-dependents gf
+         #'(lambda (dependent)
+             (update-dependent gf dependent 'remove-method method)))
+      |#))
   gf)
 
 ;; Find a method in a generic function.

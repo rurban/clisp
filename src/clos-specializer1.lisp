@@ -130,9 +130,15 @@
 (defun list-direct-methods (specializer) ...)
 |#
 (def-weak-set-accessors specializer-direct-methods-table method
-  add-direct-method
-  remove-direct-method
+  add-direct-method-internal
+  remove-direct-method-internal
   list-direct-methods)
+
+;; Preliminary.
+(defun add-direct-method (specializer method)
+  (add-direct-method-internal specializer method))
+(defun remove-direct-method (specializer method)
+  (remove-direct-method-internal specializer method))
 
 ;; MOP p. 103
 (defun specializer-direct-methods (specializer)

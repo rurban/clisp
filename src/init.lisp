@@ -468,6 +468,7 @@
           ensure-class ensure-class-using-class
           ;; MOP for specializers
           specializer-direct-generic-functions specializer-direct-methods
+          add-direct-method remove-direct-method
           eql-specializer-object intern-eql-specializer
           ;; MOP for methods
           method standard-method

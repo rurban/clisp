@@ -1,3 +1,20 @@
+2004-07-11  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp: Export add-direct-method, remove-direct-method.
+	* clos-package.lisp: Likewise.
+	* clos-specializer1.lisp (add-direct-method-internal): Renamed from
+	add-direct-method.
+	(remove-direct-method-internal): Renamed from remove-direct-method.
+	(add-direct-method, remove-direct-method): New functions.
+	* clos-specializer3.lisp (add-direct-method, remove-direct-method): New
+	generic functions.
+	* clos-method1.lisp (method): Inherit from standard-stablehash.
+	(initialize-instance-<standard-method>): Invoke
+	shared-initialize-<standard-stablehash>.
+	* clos-genfun2.lisp (std-add-method): Use remove-method, as specified
+	by the MOP. Call add-direct-method for each specializer.
+	(std-remove-method): Call remove-direct-method for each specializer.
+
 2004-08-31  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (parse_options): Don't do destructive side effects on argv[].

@@ -9,7 +9,7 @@
 ;;; ---------------------------------------------------------------------------
 
 (defparameter <method>
-  (defclass method (metaobject)
+  (defclass method (standard-stablehash metaobject)
     ()))
 
 ;;; ---------------------------------------------------------------------------
@@ -95,8 +95,10 @@
                                                    ((gf gf) nil)
                                                    ((from-defgeneric from-defgeneric) nil)
                                               &allow-other-keys)
-  (when *classes-finished*
-    (apply #'%initialize-instance method args)) ; == (call-next-method)
+  (if *classes-finished*
+    (apply #'%initialize-instance method args) ; == (call-next-method)
+    ; Bootstrapping: Simulate the effect of #'%initialize-instance.
+    (apply #'shared-initialize-<standard-stablehash> method 't args))
   ; Check the qualifiers.
   (unless (proper-list-p qualifiers)
     (error (TEXT "(~S ~S): The ~S argument should be a proper list, not ~S")
