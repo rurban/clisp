@@ -68,8 +68,8 @@ Some problem I had, or I could think of:
   Then you need to edit clx-1997-06-12/link.sh and remove '-lXext' from the
   NEW_LIBS variable.
 
-- Usage of comment5 and ansidecl is hard coded in the Makefile, because I do
-  not know how to do it the right way. I want to fix this soon.
+- Usage of comment5 is hard coded in the Makefile, because I do not know how
+  to do it the right way. I want to fix this soon.
 
 - Be expected to do some things of the built process by hand. The whole
   module stuff seems to be somewhat fragile, that was whoever my

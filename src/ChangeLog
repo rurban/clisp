@@ -1,5 +1,10 @@
 2003-10-26  Bruno Haible  <bruno@clisp.org>
 
+	* utils/ansidecl.d: Remove file.
+	* makemake.in: Remove all uses of ansidecl and ANSIDECL.
+
+2003-10-26  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d: Drop &!.
 	* spvw.d: Drop &!.
 	* spvw_module.d (module_names_to_stack): Use 'global'.
