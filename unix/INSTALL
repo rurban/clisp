@@ -33,16 +33,16 @@ some platforms can be found in file unix/PLATFORMS.
    * GNU libiconv
       + Not needed on systems with glibc 2.2 or newer, or MacOS X 10.3 or
         newer, but recommended on all other systems.
-      <ftp://ftp.gnu.org:/pub/gnu/libiconv/>
+      <ftp://ftp.gnu.org/pub/gnu/libiconv/>
       <http://sourceforge.net/projects/libiconv/>
    * GNU readline
       + Recommended: needed if you want terminal command line editing.
-      <ftp://ftp.gnu.org:/pub/gnu/readline/>
+      <ftp://ftp.gnu.org/pub/gnu/readline/>
       <http://cnswww.cns.cwru.edu/~chet/readline/rltop.html>
    * GNU gettext
       + Not needed on systems with glibc 2.2 or newer, but recommended on all
         other systems: needed if you want clisp with native language support.
-      <ftp://ftp.gnu.org:/pub/gnu/gettext/>
+      <ftp://ftp.gnu.org/pub/gnu/gettext/>
       <http://www.gnu.org/software/gettext/>
 
 3. Choose the name of a directory in which to build CLISP.
