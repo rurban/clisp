@@ -1,3 +1,8 @@
+2002-09-19  Sam Steingold  <sds@gnu.org>
+
+	* lisparit.d (log_digits): fixed last patch: make sure
+	that the saved value is not more precise than it is accurate
+
 2002-09-18  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: treat floatparam.[ch] just like intparam.[ch]
