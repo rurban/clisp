@@ -251,9 +251,9 @@ LISPFUNN(machine_version,0)
 # (EXT:GETENV string) return the string associated with the given string
 # in the OS Environment or NIL if no value
 # if STRING is NIL, return all the environment as an alist
-LISPFUNN(get_env,1) {
+LISPFUN(get_env,0,1,norest,nokey,0,NIL) {
   var object arg = popSTACK();
-  if (nullp(arg)) {    /* return all the environment variables at once */
+  if (nullp(arg) || eq(unbound,arg)) { /* return all the environment at once */
     extern char** environ;
     var char** epp;
     var char* ep;

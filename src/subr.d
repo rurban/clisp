@@ -543,7 +543,7 @@ LISPFUNN(machinetype,0)
 LISPFUNN(machine_version,0)
 #endif
 #ifdef HAVE_ENVIRONMENT
-LISPFUNN(get_env,1)
+LISPFUN(get_env,0,1,norest,nokey,0,NIL)
 LISPFUNN(set_env,2)
 #endif
 #ifdef WIN32_NATIVE
