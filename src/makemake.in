@@ -3023,7 +3023,8 @@ done
 echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
 echol
 echol "full : modular base \$(MODULES)"
-echotab "test -d full || CLISP_LINKKIT=. ${HERE}clisp-link add-module-sets base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
+echotab "\$(RMRF) full"
+echotab "CLISP_LINKKIT=. ${HERE}clisp-link add-module-sets base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
 echol
 OBSOLETE=$OBSOLETE" genclisph${HEXE}"
 

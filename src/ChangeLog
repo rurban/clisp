@@ -1,5 +1,10 @@
 2003-04-29  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (full): no longer require "rm -rf full"
+	for full to be remade
+
+2003-04-29  Sam Steingold  <sds@gnu.org>
+
 	fixed --without-unicode build
 	* spvw_debug.d (string_out) [!UNICODE]: implemented
 	* stream.d (rd_ch_array_unbuffered, wr_ch_array_unbuffered_unix)
