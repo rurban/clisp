@@ -25,4 +25,4 @@ TRIGGER
       (list (typeof (ffi::foreign-value v))
             (slot (ffi::foreign-value v) 'i))
     (foreign-free v)))
-((C-STRUCT NIL (I INT)) 42)
+((C-STRUCT TRIV NIL (I INT)) 42)
