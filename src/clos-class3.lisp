@@ -292,6 +292,8 @@
                                           (documentation nil)
                                           (fixed-slot-locations nil)
                                      &allow-other-keys)
+  (declare (ignore direct-slots direct-default-initargs documentation
+                   fixed-slot-locations))
   ;; Argument checks.
   (unless (symbolp name)
     (error (TEXT "~S: class name ~S should be a symbol")
@@ -356,115 +358,11 @@
                   direct-superclasses))
     (if class
       ;; Modify the class and return the modified class.
-      (progn
-        (if (and (%class-precedence-list class) ; already finalized?
-                 (subclassp class <metaobject>))
-          ;; Things would go awry when we try to redefine <class> and similar.
-          (warn (TEXT "Redefining metaobject class ~S has no effect.")
-                class)
-          (progn
-            ;; Normalize the (class-direct-superclasses class) in the same way as
-            ;; the direct-superclasses argument, so that we can compare the two
-            ;; lists using EQUAL.
-            (when (and a-standard-class-p (null (%class-precedence-list class)))
-              (do ((l (class-direct-superclasses class) (cdr l)))
-                  ((atom l))
-                (let ((c (car l)))
-                  (unless (class-p c)
-                    (let ((new-c (or (find-class c nil) c)))
-                      (unless (symbolp new-c)
-                        (check-allowed-superclass class new-c))
-                      (setf (car l) new-c)
-                      (when (class-p new-c) ; changed from symbol to class
-                        (add-direct-subclass new-c class)))))))
-            ;; Convert the direct-slots to <direct-slot-definition> instances.
-            (setq direct-slots (convert-direct-slots class direct-slots))
-            ;; Trivial changes (that can occur when loading the same code twice)
-            ;; do not require updating the instances:
-            ;; changed slot-options :initform, :documentation,
-            ;; changed class-options :default-initargs, :documentation.
-            (if (and (equal (or direct-superclasses (default-direct-superclasses class))
-                            (class-direct-superclasses class))
-                     (equal-direct-slots direct-slots (class-direct-slots class))
-                     (equal-default-initargs direct-default-initargs
-                                             (class-direct-default-initargs class))
-                     (eq fixed-slot-locations (class-fixed-slot-locations class)))
-              (progn
-                ;; Store new slot-inits:
-                (do ((l-old (class-direct-slots class) (cdr l-old))
-                     (l-new direct-slots (cdr l-new)))
-                    ((null l-new))
-                  (let ((old (car l-old))
-                        (new (car l-new)))
-                    (setf (slot-definition-initform old) (slot-definition-initform new))
-                    (setf (slot-definition-initfunction old) (slot-definition-initfunction new))
-                    (setf (slot-definition-documentation old) (slot-definition-documentation new))))
-                ;; Store new default-initargs:
-                (do ((l-old (class-direct-default-initargs class) (cdr l-old))
-                     (l-new direct-default-initargs (cdr l-new)))
-                    ((null l-new))
-                  (let ((old (cdar l-old))
-                        (new (cdar l-new)))
-                    ;; Move initform and initfunction from new destructively into
-                    ;; the old one:
-                    (setf (car old) (car new))
-                    (setf (cadr old) (cadr new))))
-                ;; Store new documentation:
-                (setf (class-documentation class) documentation)
-                ;; NB: These modifications are automatically inherited by the
-                ;; subclasses of class! Due to <inheritable-slot-definition-initer>
-                ;; and <inheritable-slot-definition-doc>.
-              )
-              ;; Instances have to be updated:
-              (let* ((was-finalized (%class-precedence-list class))
-                     (must-be-finalized
-                       (and was-finalized
-                            (some #'class-instantiated (list-all-finalized-subclasses class))))
-                     (old-direct-superclasses (class-direct-superclasses class))
-                     (old-direct-accessors (class-direct-accessors class))
-                     old-class)
-                ;; ANSI CL 4.3.6. Remove accessor methods created by old DEFCLASS.
-                (remove-accessor-methods old-direct-accessors)
-                (setf (class-direct-accessors class) '())
-                ;; Clear the cached prototype.
-                (setf (class-prototype class) nil)
-                ;; Declare all instances as obsolete, and backup the class object.
-                (let ((old-version (class-current-version class))
-                      (*make-instances-obsolete-caller* 'defclass))
-                  (make-instances-obsolete class)
-                  (setq old-class (cv-class old-version)))
-                (locally (declare (compile))
-                  (sys::%handler-bind
-                      ;; If an error occurs during the class redefinition, switch back
-                      ;; to the old definition, so that existing instances can continue
-                      ;; to be used.
-                      ((ERROR #'(lambda (condition)
-                                  (declare (ignore condition))
-                                  ;; Restore the class using the backup copy.
-                                  (let ((new-version (class-current-version class)))
-                                    (dotimes (i (sys::%record-length class))
-                                      (setf (sys::%record-ref class i) (sys::%record-ref old-class i)))
-                                    (setf (class-current-version class) new-version))
-                                  ;; Restore the accessor methods.
-                                  (add-accessor-methods old-direct-accessors)
-                                  (setf (class-direct-accessors class) old-direct-accessors))))
-                    (apply (cond ((eq metaclass <standard-class>)
-                                  #'shared-initialize-<standard-class>)
-                                 ((eq metaclass <built-in-class>)
-                                  #'shared-initialize-<built-in-class>)
-                                 ((eq metaclass <structure-class>)
-                                  #'shared-initialize-<structure-class>)
-                                 (t #'shared-initialize))
-                           class
-                           nil
-                           :name name
-                           :direct-superclasses direct-superclasses
-                           'direct-slots direct-slots
-                           all-keys)
-                    ;; FIXME: Need to handle changes of shared slots here?
-                    (update-subclasses-for-redefined-class class
-                      was-finalized must-be-finalized old-direct-superclasses)))))))
-        (install-class-direct-accessors class))
+      (apply #'reinitialize-instance ; => #'reinitialize-instance-<class>
+             class
+             :name name
+             :direct-superclasses direct-superclasses
+             all-keys)
       (setf (find-class name)
             (setq class
               (apply (cond ((eq metaclass <standard-class>)
@@ -479,16 +377,6 @@
                      :direct-superclasses direct-superclasses
                      all-keys))))
     class))
-(defun equal-direct-slots (slots1 slots2)
-  (or (and (null slots1) (null slots2))
-      (and (consp slots1) (consp slots2)
-           (equal-direct-slot (first slots1) (first slots2))
-           (equal-direct-slots (rest slots1) (rest slots2)))))
-(defun equal-default-initargs (initargs1 initargs2)
-  (or (and (null initargs1) (null initargs2))
-      (and (consp initargs1) (consp initargs2)
-           (eq (car (first initargs1)) (car (first initargs2)))
-           (equal-default-initargs (cdr initargs1) (cdr initargs2)))))
 
 ;; Preliminary.
 (defun ensure-class-using-class (class name &rest args
@@ -533,6 +421,141 @@
 (defun writer-method-class (class direct-slot &rest initargs)
   (declare (ignore class direct-slot initargs))
   <standard-writer-method>)
+
+;; ---------------------------- Class redefinition ----------------------------
+
+(defun reinitialize-instance-<class> (class &rest all-keys
+                                      &key (direct-superclasses '() direct-superclasses-p)
+                                           (direct-slots '() direct-slots-p)
+                                           (direct-default-initargs '() direct-default-initargs-p)
+                                           (documentation nil documentation-p)
+                                           (fixed-slot-locations nil fixed-slot-locations-p)
+                                      &allow-other-keys
+                                      &aux (metaclass (class-of class)))
+  (if (and (%class-precedence-list class) ; already finalized?
+           (subclassp class <metaobject>))
+    ;; Things would go awry when we try to redefine <class> and similar.
+    (warn (TEXT "Redefining metaobject class ~S has no effect.")
+          class)
+    (progn
+      (when direct-superclasses-p
+        ;; Normalize the (class-direct-superclasses class) in the same way as
+        ;; the direct-superclasses argument, so that we can compare the two
+        ;; lists using EQUAL.
+        (when (and (subclassp metaclass <standard-class>)
+                   (null (%class-precedence-list class)))
+          (do ((l (class-direct-superclasses class) (cdr l)))
+              ((atom l))
+            (let ((c (car l)))
+              (unless (class-p c)
+                (let ((new-c (or (find-class c nil) c)))
+                  (unless (symbolp new-c)
+                    (check-allowed-superclass class new-c))
+                  (setf (car l) new-c)
+                  (when (class-p new-c) ; changed from symbol to class
+                    (add-direct-subclass new-c class))))))))
+      (when direct-slots-p
+        ;; Convert the direct-slots to <direct-slot-definition> instances.
+        (setq direct-slots (convert-direct-slots class direct-slots)))
+      ;; Trivial changes (that can occur when loading the same code twice)
+      ;; do not require updating the instances:
+      ;; changed slot-options :initform, :documentation,
+      ;; changed class-options :default-initargs, :documentation.
+      (if (or (and direct-superclasses-p
+                   (not (equal (or direct-superclasses (default-direct-superclasses class))
+                               (class-direct-superclasses class))))
+              (and direct-slots-p
+                   (not (equal-direct-slots direct-slots (class-direct-slots class))))
+              (and direct-default-initargs-p
+                   (not (equal-default-initargs direct-default-initargs
+                                                (class-direct-default-initargs class))))
+              (and fixed-slot-locations-p
+                   (not (eq fixed-slot-locations (class-fixed-slot-locations class)))))
+        ;; Instances have to be updated:
+        (let* ((was-finalized (%class-precedence-list class))
+               (must-be-finalized
+                 (and was-finalized
+                      (some #'class-instantiated (list-all-finalized-subclasses class))))
+               (old-direct-superclasses (class-direct-superclasses class))
+               (old-direct-accessors (class-direct-accessors class))
+               old-class)
+          ;; ANSI CL 4.3.6. Remove accessor methods created by old DEFCLASS.
+          (remove-accessor-methods old-direct-accessors)
+          (setf (class-direct-accessors class) '())
+          ;; Clear the cached prototype.
+          (setf (class-prototype class) nil)
+          ;; Declare all instances as obsolete, and backup the class object.
+          (let ((old-version (class-current-version class))
+                (*make-instances-obsolete-caller* 'defclass))
+            (make-instances-obsolete class)
+            (setq old-class (cv-class old-version)))
+          (locally (declare (compile))
+            (sys::%handler-bind
+                ;; If an error occurs during the class redefinition, switch back
+                ;; to the old definition, so that existing instances can continue
+                ;; to be used.
+                ((ERROR #'(lambda (condition)
+                            (declare (ignore condition))
+                            ;; Restore the class using the backup copy.
+                            (let ((new-version (class-current-version class)))
+                              (dotimes (i (sys::%record-length class))
+                                (setf (sys::%record-ref class i) (sys::%record-ref old-class i)))
+                              (setf (class-current-version class) new-version))
+                            ;; Restore the accessor methods.
+                            (add-accessor-methods old-direct-accessors)
+                            (setf (class-direct-accessors class) old-direct-accessors))))
+              (apply #'shared-initialize ; => #'shared-initialize-<built-in-class>
+                                         ;    #'shared-initialize-<standard-class>
+                                         ;    #'shared-initialize-<structure-class>
+                     class
+                     nil
+                     `(,@(if direct-slots-p (list 'direct-slots direct-slots) '())
+                       ,@all-keys))
+              (update-subclasses-for-redefined-class class
+                was-finalized must-be-finalized old-direct-superclasses))))
+        ;; Instances don't need to be updated:
+        (progn
+          (when direct-slots-p
+            ;; Store new slot-inits:
+            (do ((l-old (class-direct-slots class) (cdr l-old))
+                 (l-new direct-slots (cdr l-new)))
+                ((null l-new))
+              (let ((old (car l-old))
+                    (new (car l-new)))
+                (setf (slot-definition-initform old) (slot-definition-initform new))
+                (setf (slot-definition-initfunction old) (slot-definition-initfunction new))
+                (setf (slot-definition-documentation old) (slot-definition-documentation new)))))
+          (when direct-default-initargs-p
+            ;; Store new default-initargs:
+            (do ((l-old (class-direct-default-initargs class) (cdr l-old))
+                 (l-new direct-default-initargs (cdr l-new)))
+                ((null l-new))
+              (let ((old (cdar l-old))
+                    (new (cdar l-new)))
+                ;; Move initform and initfunction from new destructively into
+                ;; the old one:
+                (setf (car old) (car new))
+                (setf (cadr old) (cadr new)))))
+          (when documentation-p
+            ;; Store new documentation:
+            (setf (class-documentation class) documentation))
+          ;; NB: These modifications are automatically inherited by the
+          ;; subclasses of class! Due to <inheritable-slot-definition-initer>
+          ;; and <inheritable-slot-definition-doc>.
+  ) ) ) )
+  (install-class-direct-accessors class)
+  class)
+
+(defun equal-direct-slots (slots1 slots2)
+  (or (and (null slots1) (null slots2))
+      (and (consp slots1) (consp slots2)
+           (equal-direct-slot (first slots1) (first slots2))
+           (equal-direct-slots (rest slots1) (rest slots2)))))
+(defun equal-default-initargs (initargs1 initargs2)
+  (or (and (null initargs1) (null initargs2))
+      (and (consp initargs1) (consp initargs2)
+           (eq (car (first initargs1)) (car (first initargs2)))
+           (equal-default-initargs (cdr initargs1) (cdr initargs2)))))
 
 ;; ----------------------- General routines for <class> -----------------------
 

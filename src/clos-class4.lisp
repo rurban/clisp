@@ -17,6 +17,10 @@
                    direct-default-initargs documentation))
   (apply #'shared-initialize-<class> class situation args))
 
+(defmethod reinitialize-instance ((class class) &rest args
+                                  &key &allow-other-keys)
+  (apply #'reinitialize-instance-<class> class args))
+
 ;;; ===========================================================================
 
 (defmethod shared-initialize ((class built-in-class) situation &rest args
