@@ -1,5 +1,13 @@
 2004-02-16  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (nil_vector_p, nil_vector_0_p): new macros
+	* error.d (check_string): use them
+	* predtype.d (equal, equalp): handle nilvector properly:
+	since NIL is a subtype of both BIT and CHARACTER, (VECTOR NIL)
+	is both a STRING and a BIT-VECTOR
+
+2004-02-16  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (MAKE-STRING-OUTPUT-STREAM): :ELEMENT-TYPE NIL means
 	make a stream based on (VECTOR NIL)
 	(get_output_stream_string): check that string is not (VECTOR NIL)
