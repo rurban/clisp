@@ -1,3 +1,9 @@
+2002-05-26  Bruno Haible  <bruno@clisp.org>
+
+	* display.c (_rl_update_final): Fix a typo that caused a crash when
+	pressing Return after entering a character in the last column of an
+	xterm.
+
 2002-04-24  Sam Steingold  <sds@gnu.org>
 
 	upgrade to readline-4.2a
