@@ -54,6 +54,9 @@
 #ifndef __rs6000__
 #undef __rs6000__
 #endif
+#ifndef __s390__
+#undef __s390__
+#endif
 #ifndef __m88k__
 #undef __m88k__
 #endif
@@ -314,7 +317,7 @@ enum __AV_alist_flags
 #endif
 
   /* These are for internal use only */
-#if defined(__i386__) || defined(__m68k__) || defined(__mipsn32__) || defined(__mips64__) || defined(__sparc64__) || defined(__alpha__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__) || defined(__ia64__)
+#if defined(__i386__) || defined(__m68k__) || defined(__mipsn32__) || defined(__mips64__) || defined(__sparc64__) || defined(__alpha__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__) || defined(__ia64__) || defined(__s390__)
   __AV_REGISTER_STRUCT_RETURN	= 1<<9,
 #endif
 #if defined(__mips__) && !defined(__mipsn32__)
@@ -337,7 +340,7 @@ typedef struct
   unsigned long		rsize;
   /* current pointer into the args[] array */
   __avword*		aptr;
-#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__) || (defined(__rs6000__) && !defined(_AIX))
+#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__) || (defined(__rs6000__) && !defined(_AIX)) || defined(__s390__)
   /* limit pointer into the args[] array */
   __avword*		eptr;
 #endif
@@ -346,7 +349,7 @@ typedef struct
   /* is odd (because on MSVC, alignof(double) = 8, normally = 4).            */
   __avword		filler1;
 #endif
-#if defined(__i386__) || defined(__m68k__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__hppa__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__)
+#if defined(__i386__) || defined(__m68k__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__hppa__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__) || defined(__s390__)
   /* temporary storage, used to split doubles into two words */
   union {
     double	_double;
@@ -385,6 +388,18 @@ typedef struct
   double*		faptr;
   double		fargs[13];
 #endif
+#if defined(__s390__)
+  /* store the floating-point arguments in an extra array */
+  int   		fargwords;
+  float*		faptr;
+  float 		fargs[2];
+  int*			fargsusedptr;
+  int			fargsused[2];
+  double*		daptr;
+  double		dargs[2];
+  int*			dargsusedptr;
+  int			dargsused[2];
+#endif
 #if defined(AMIGA)
   /* store the arguments passed in registers in an extra array */
   __avword		regargs[8+7];
@@ -392,7 +407,7 @@ typedef struct
 } av_alist;
 
 /* The limit for the pointer into the args[] array. */
-#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__) || (defined(__rs6000__) && !defined(_AIX))
+#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__) || (defined(__rs6000__) && !defined(_AIX)) || defined(__s390)
 #define __av_eptr(LIST)	((LIST).eptr)
 #else
 #define __av_eptr(LIST)	(&(LIST).args[__AV_ALIST_WORDS])
@@ -458,6 +473,16 @@ typedef struct
    (LIST).faptr = &(LIST).fargs[0],                                     \
    (LIST).eptr = &(LIST).args[__AV_ALIST_WORDS],
 #endif
+#endif
+#if defined(__s390__)
+#define __av_start1(LIST)						\
+   (LIST).aptr = &(LIST).args[0],					\
+   (LIST).fargwords = 0,						\
+   (LIST).faptr = &(LIST).fargs[0],                                     \
+   (LIST).daptr = &(LIST).dargs[0],                                     \
+   (LIST).fargsusedptr = &(LIST).fargsused[0],                          \
+   (LIST).dargsusedptr = &(LIST).dargsused[0],                          \
+   (LIST).eptr = &(LIST).args[__AV_ALIST_WORDS],
 #endif
 #if defined(__ia64__)
 #define __av_start1(LIST)						\
@@ -526,7 +551,7 @@ typedef struct
 #define __av_start_struct3(LIST)  \
   ((LIST).flags |= __AV_REGISTER_STRUCT_RETURN, 0)
 #endif
-#if (defined(__i386__) && !defined(_WIN32)) || defined(__m68k__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__)
+#if (defined(__i386__) && !defined(_WIN32)) || defined(__m68k__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__) || defined(__s390__)
 #define __av_reg_struct_return(LIST,TYPE_SIZE,TYPE_SPLITTABLE)  \
   ((TYPE_SIZE) == 1 || (TYPE_SIZE) == 2 || (TYPE_SIZE) == 4		\
    || ((TYPE_SIZE) == 8 && (TYPE_SPLITTABLE)				\
@@ -603,7 +628,7 @@ typedef struct
 #endif
 /* Return structure pointer is passed as first arg.
  */
-#if defined(__alpha__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__)
+#if defined(__alpha__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__) || defined(__s390__)
 #define __av_start_struct4(LIST,TYPE_SIZE)				\
    (*(LIST).aptr++ = (__avword)((LIST).raddr), 0)
 #endif
@@ -625,7 +650,7 @@ typedef struct
  * scalar argument types
  */
 
-#if defined(__i386__) || defined(__m68k__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__alpha__) || defined(__arm__) || defined(__rs6000__) || defined(__m88k__) || defined(__convex__) || defined(__ia64__)
+#if defined(__i386__) || defined(__m68k__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__alpha__) || defined(__arm__) || defined(__rs6000__) || defined(__m88k__) || defined(__convex__) || defined(__ia64__) || defined(__s390__)
 /* Floats and all integer types are passed as words,
  * doubles as two words.
  */
@@ -682,7 +707,7 @@ typedef struct
 /* `long long' fits in __avword. */
 #define av_longlong		__av_word
 #define av_ulonglong(LIST,VAL)	__av_word(LIST,(unsigned long long)(VAL))
-#elif defined(__i386__) || defined(__m68k__) || defined(__mips__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__hppa__) || defined(__arm__) || defined(__rs6000__) || defined(__m88k__) || defined(__convex__)
+#elif defined(__i386__) || defined(__m68k__) || defined(__mips__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__hppa__) || defined(__arm__) || defined(__rs6000__) || defined(__m88k__) || defined(__convex__) || defined(__s390__)
 /* `long long's are passed embedded on the arg stack. */
 #define av_longlong(LIST,VAL)	__av_longlong(LIST,long long,VAL)
 #define av_ulonglong(LIST,VAL)	__av_longlong(LIST,unsigned long long,VAL)
@@ -692,7 +717,7 @@ typedef struct
   (((LIST).aptr += sizeof(TYPE)/sizeof(__avword)) > __av_eptr(LIST)	\
    ? -1 : (((TYPE*)(LIST).aptr)[-1] = (TYPE)(VAL), 0))
 #endif
-#if defined(__mips__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__hppa__) || (defined(__rs6000__) && !defined(_AIX)) || defined(__m88k__)
+#if defined(__mips__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__hppa__) || (defined(__rs6000__) && !defined(_AIX)) || defined(__m88k__) || defined(__s390__)
 /* `long long's have alignment 8. */
 #if defined(__mips__)
 #define __av_longlong(LIST,TYPE,VAL)					\
@@ -719,6 +744,13 @@ typedef struct
 #define __av_longlong(LIST,TYPE,VAL)					\
   (((LIST).aptr = (__avword*)(((__avword)(LIST).aptr+sizeof(TYPE)+__AV_alignof(TYPE)-1) & -(long)__AV_alignof(TYPE))) > __av_eptr(LIST) \
    ? -1 : (((TYPE*)(LIST).aptr)[-1] = (TYPE)(VAL), 0))
+#endif
+#if defined(__s390__)
+#define __av_longlong(LIST,TYPE,VAL)					\
+  (((LIST).aptr = (__avword*)(((__avword)(LIST).aptr+sizeof(TYPE)+__AV_alignof(TYPE)-1) & -(long)__AV_alignof(TYPE))) > __av_eptr(LIST) \
+   ? -1 :						\
+   (((LIST).aptr - (LIST).args - (LIST).fargwords == 4 ? ++(LIST).aptr,0 : 0), \
+    (((TYPE*)(LIST).aptr)[-1] = (TYPE)(VAL), 0)))
 #endif
 #endif
 #endif
@@ -913,6 +945,30 @@ typedef struct
 
 #endif
 
+#if defined(__s390__)
+
+/* Up to 2 float or double non-varargs args can be passed in
+ * float registers, without occupying space in the general registers.
+ */
+
+#define __av_float(LIST,VAL)						\
+  ((LIST).faptr < &(LIST).fargs[2]					\
+   ? (LIST).daptr++, *(LIST).fargsusedptr++ = 1, *(LIST).dargsusedptr++ = 0, ((*(LIST).faptr++ = (float)(VAL)), 0)		\
+   : (++(LIST).aptr > __av_eptr(LIST)					\
+      ? -1 : ((LIST).fargwords++, ((float*)(LIST).aptr)[-1] = (float)(VAL), 0)))
+
+#define av_double(LIST,VAL)						\
+  ((LIST).daptr < &(LIST).dargs[2]					\
+   ? (LIST).faptr++, *(LIST).dargsusedptr++ = 1, *(LIST).fargsusedptr++ = 0, ((*(LIST).daptr++ = (double)(VAL)), 0)		\
+   : (((LIST).aptr += 2) > __av_eptr(LIST)				\
+      ? -1 :								\
+      ((LIST).fargwords+=2, (LIST).tmp._double = (double)(VAL),			\
+       (LIST).aptr[-2] = (LIST).tmp.words[0],				\
+       (LIST).aptr[-1] = (LIST).tmp.words[1],				\
+       0)))
+
+#endif
+
 #if defined(__m88k__)
 
 #define __av_float(LIST,VAL)						\
@@ -975,7 +1031,7 @@ typedef struct
 #define __av_struct_alignment(TYPE_ALIGN)  \
   (TYPE_ALIGN)
 #endif
-#if defined(__i386__) || defined(__mips__) || defined(__mipsn32__) || defined(__mips64__) || defined(__alpha__) || (defined(__rs6000__) && defined(_AIX)) || defined(__m88k__) || defined(__ia64__)
+#if defined(__i386__) || defined(__mips__) || defined(__mipsn32__) || defined(__mips64__) || defined(__alpha__) || (defined(__rs6000__) && defined(_AIX)) || defined(__m88k__) || defined(__ia64__) || defined(__s390__)
 /* Structures are passed as fully aligned structures on the arg stack.
  * We align the aptr, store the structure, then fill to word alignment.
  * Single-small-integer structures are NOT promoted to integers and have
@@ -1086,6 +1142,25 @@ typedef struct
      __av_struct_leftadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL) \
    : /* gcc passes small structures right-adjusted. */			\
      __av_struct_rightadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL))
+#endif
+#if defined(__s390__)
+#define __av_struct_rightadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL)\
+  (((LIST).aptr =							\
+    (__avword*)(((((__avword)(LIST).aptr+(TYPE_SIZE)+(TYPE_ALIGN)-1) & -(long)(TYPE_ALIGN))\
+		 +sizeof(__avword)-1) & -(long)sizeof(__avword)))	\
+   > __av_eptr(LIST)							\
+   ? -1 : (ASSIGN(TYPE,TYPE_SIZE,TYPE_ALIGN,(void*)((__avword)(LIST).aptr-(TYPE_SIZE)),VAL),\
+	   0))
+#define __av_struct(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL)		\
+((TYPE_SIZE) != 1 && (TYPE_SIZE) != 2 && (TYPE_SIZE) != 4 && (TYPE_SIZE) != 8 \
+ ? (++(LIST).aptr							\
+    > ((LIST).eptr = (__avword*)((long)(LIST).eptr - (((TYPE_SIZE)+7)&-8)))\
+    ? -1 :								\
+    (ASSIGN(TYPE,TYPE_SIZE,TYPE_ALIGN,(void*)(LIST).eptr,VAL),		\
+     (LIST).aptr[-1] = (__avword)(LIST).eptr,				\
+     0))								\
+ : (((TYPE_SIZE) == 8 && (LIST).aptr - (LIST).args - (LIST).fargwords == 4 ? ++(LIST).aptr,0 : 0), \
+    __av_struct_rightadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL)))
 #endif
 /* big endian -> small structures < 1 word are adjusted to the right */
 #if defined(__m88k__)

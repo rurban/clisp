@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host loiso.podval.org as the output of the command:
+# This file was created on host glip.premonitia.com as the output of the command:
 # ./makemake os2 gcc
 
 # -------------- Start of configurable section --------------------
@@ -9,6 +9,7 @@
 prefix = 
 exec_prefix = $(prefix)
 bindir  = $(exec_prefix)\bin
+shared  = $(prefix)\share
 mandir  = $(prefix)\share\man
 htmldir = $(prefix)\share\html
 dvidir  = $(prefix)\share\dvi
@@ -27,10 +28,10 @@ MODULES =
 
 # Programs used by "make":
 CC = gcc
-CFLAGS =  -fomit-frame-pointer -O2 -fexpensive-optimizations -DUNICODE -DNO_GETTEXT
+CFLAGS =   -fomit-frame-pointer -O2 -fexpensive-optimizations -DUNICODE -DNO_GETTEXT -DNO_SIGSEGV -I.
 CPP = gcc -E
 CLFLAGS =  -x none
-LIBS = readline/libreadline.a  -ltermcap
+LIBS =  -ltermcap
 X_LIBS = 
 LD = ld
 EMX = c:\emx\bin\emxl.exe
@@ -417,6 +418,7 @@ gray.lisp \
 german.lisp \
 french.lisp \
 spanish.lisp \
+russian.lisp \
 dutch.lisp \
 deprecated.lisp \
 config.lisp
@@ -468,6 +470,7 @@ gray.fas \
 german.fas \
 french.fas \
 spanish.fas \
+russian.fas \
 dutch.fas \
 deprecated.fas \
 config.fas
@@ -524,6 +527,7 @@ stage\gray.lisp \
 stage\german.lisp \
 stage\french.lisp \
 stage\spanish.lisp \
+stage\russian.lisp \
 stage\dutch.lisp \
 stage\deprecated.lisp \
 stage\config.lisp
@@ -575,6 +579,7 @@ stage\gray.fas \
 stage\german.fas \
 stage\french.fas \
 stage\spanish.fas \
+stage\russian.fas \
 stage\dutch.fas \
 stage\deprecated.fas \
 stage\config.fas
@@ -582,9 +587,8 @@ stage\config.fas
 
 all : init allc allo lisp.exe interpreted.mem halfcompiled.mem lispinit.mem manual
 
-makemake : makemake.in
-	sh config.status --file=makemake
-	chmod +x makemake
+makemake : makemake.in config.status
+	./config.status --file=makemake
 
 unixconf.h : unixconf.h.in config.status
 	sh config.status --header=unixconf.h
@@ -620,20 +624,14 @@ varbrace.exe : ..\utils\varbrace.d comment5.exe ansidecl.exe
 	$(CC) $(CFLAGS) $(CLFLAGS) varbrace.c -o varbrace.exe
 	$(RM) varbrace.c
 
-txt2c.exe : ..\utils\txt2c.c ansidecl.exe
-	$(ANSIDECL) < ..\utils\txt2c.c > txt2c.c
-	$(CC) $(CFLAGS) $(CLFLAGS) txt2c.c -o txt2c.exe
-	$(RM) txt2c.c
+txt2c.exe : ..\utils\txt2c.c
+	$(CC) $(CFLAGS) $(CLFLAGS)  ../utils/txt2c.c -o txt2c.exe
 
-ccmp2c.exe : ..\utils\ccmp2c.d comment5.exe ansidecl.exe
-	$(COMMENT5) ../utils/ccmp2c.d | $(ANSIDECL) > ccmp2c.c
-	$(CC) $(CFLAGS) $(CLFLAGS) -I. ccmp2c.c -o ccmp2c.exe
-	$(RM) ccmp2c.c
+ccmp2c.exe : ..\utils\ccmp2c.c
+	$(CC) $(CFLAGS) $(CLFLAGS)  -I. ../utils/ccmp2c.c -o ccmp2c.exe
 
-modprep.exe : ..\utils\modprep.d comment5.exe ansidecl.exe
-	$(COMMENT5) ../utils/modprep.d | $(ANSIDECL) > modprep.c
-	$(CC) $(CFLAGS) $(CLFLAGS) modprep.c -o modprep.exe
-	$(RM) modprep.c
+modprep.exe : ..\utils\modprep.c
+	$(CC) $(CFLAGS) $(CLFLAGS)  ../utils/modprep.c -o modprep.exe
 
 
 stdbool.h : stdbool.h.in
@@ -1039,13 +1037,13 @@ pathname.o : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constob
 	$(CC) $(CFLAGS) -c pathname.c
 
 stream.i : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c arilev0.c stdbool.h stdint.h
-	$(CPP) $(CFLAGS) -Ireadline stream.c > stream.i
+	$(CPP) $(CFLAGS) stream.c > stream.i
 
 stream.s : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c arilev0.c stdbool.h stdint.h
-	$(CC) $(CFLAGS) -Ireadline -S stream.c
+	$(CC) $(CFLAGS) -S stream.c
 
 stream.o : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c arilev0.c stdbool.h stdint.h
-	$(CC) $(CFLAGS) -Ireadline -c stream.c
+	$(CC) $(CFLAGS) -c stream.c
 
 io.i : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c arilev0.c stdbool.h stdint.h
 	$(CPP) $(CFLAGS) io.c > io.i
@@ -1110,13 +1108,13 @@ sequence.s : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constob
 sequence.o : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c stdbool.h stdint.h
 	$(CC) $(CFLAGS) -c sequence.c
 
-charstrg.i : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h
+charstrg.i : charstrg.c streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h
 	$(CPP) $(CFLAGS) charstrg.c > charstrg.i
 
-charstrg.s : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h
+charstrg.s : charstrg.c streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h
 	$(CC) $(CFLAGS) -S charstrg.c
 
-charstrg.o : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h
+charstrg.o : charstrg.c streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h
 	$(CC) $(CFLAGS) -c charstrg.c
 
 debug.i : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c stdbool.h stdint.h
@@ -1219,13 +1217,13 @@ modules.o : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.
 	$(CC) $(CFLAGS) -DNO_CLISP_H -c modules.c
 
 noreadline.i : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c stdbool.h stdint.h
-	$(CPP) $(CFLAGS) -Ireadline noreadline.c > noreadline.i
+	$(CPP) $(CFLAGS) noreadline.c > noreadline.i
 
 noreadline.s : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c stdbool.h stdint.h
-	$(CC) $(CFLAGS) -Ireadline -S noreadline.c
+	$(CC) $(CFLAGS) -S noreadline.c
 
 noreadline.o : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c stdbool.h stdint.h
-	$(CC) $(CFLAGS) -Ireadline -c noreadline.c
+	$(CC) $(CFLAGS) -c noreadline.c
 
 ari80386.o : ari80386.s
 	$(CC) $(CFLAGS) -x assembler -c ari80386.s
@@ -1233,16 +1231,13 @@ ari80386.o : ari80386.s
 libcharset.h libcharset.a :
 	builddir="`pwd`"; cd libcharset && $(MAKE) && $(MAKE) install-lib libdir="$$builddir" includedir="$$builddir"
 
-sigsegv.h libsigsegv.a :
-	builddir="`pwd`"; cd sigsegv && $(MAKE) && $(MAKE) check && $(MAKE) install-lib libdir="$$builddir" includedir="$$builddir"
-
 data : ..\utils\unicode\ftp.unicode.org\UnicodeData.txt ..\src\clhs.txt
 	$(RMRF) data
 	mkdir data
 	cd data && $(LN_S) ..\..\utils\unicode\ftp.unicode.org\UnicodeData.txt .
 	cd data && $(LN_S) ..\..\src\clhs.txt .
 
-lisp.exe : $(OBJECTS) modules.o  readline/libreadline.a    data
+lisp.exe : $(OBJECTS) modules.o     data
 	$(RM) lisp
 	$(RM) lisp.exe
 	$(CC) $(CFLAGS) -o lisp @gcclink.in $(CLFLAGS) $(LIBS)
@@ -1255,7 +1250,7 @@ alllisp : $(LISPFILES)
 config.lisp : cfgdos.lisp
 	$(CP) cfgdos.lisp config.lisp
 
-RUN= lisp.exe -B . -Efile UTF-8 -norc
+RUN= lisp.exe -B . -Efile UTF-8 -Eterminal UTF-8 -norc
 
 interpreted.mem : lisp.exe $(LISPFILES)
 	-$(RM) interpreted.mem
@@ -1400,6 +1395,9 @@ french.fas : french.lisp lisp.exe halfcompiled.mem
 spanish.fas : spanish.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c spanish.lisp
 
+russian.fas : russian.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1000KW -M halfcompiled.mem -q -c russian.lisp
+
 dutch.fas : dutch.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c dutch.lisp
 
@@ -1421,6 +1419,11 @@ lispinit.mem : lisp.exe $(FASFILES)
 
 # Perform self-tests.
 check : test testsuite
+
+# check the sources: subr.d, fsubr.d, subrkw.d and
+# all the LISPFUNs must add up
+check-sources : # lisp.exe lispinit.mem
+	$(RUN) -M lispinit.mem -C -i check-lispfun.lisp -x '(check-lisp-defs "")'
 
 # Test: recompile $(LISPFILES) and compare their contents.
 test : lispinit.mem stage $(TESTLISPFILES) $(TESTFASFILES)
@@ -1567,6 +1570,9 @@ stage\french.lisp : french.lisp
 
 stage\spanish.lisp : spanish.lisp
 	$(LN_S) spanish.lisp stage
+
+stage\russian.lisp : russian.lisp
+	$(LN_S) russian.lisp stage
 
 stage\dutch.lisp : dutch.lisp
 	$(LN_S) dutch.lisp stage
@@ -1718,6 +1724,9 @@ stage\french.fas : stage\french.lisp lisp.exe stage\testinit.mem
 stage\spanish.fas : stage\spanish.lisp lisp.exe stage\testinit.mem
 	$(RUN) -M stage\testinit.mem -q -c stage\spanish.lisp
 
+stage\russian.fas : stage\russian.lisp lisp.exe stage\testinit.mem
+	$(RUN) -M stage\testinit.mem -q -c stage\russian.lisp
+
 stage\dutch.fas : stage\dutch.lisp lisp.exe stage\testinit.mem
 	$(RUN) -M stage\testinit.mem -q -c stage\dutch.lisp
 
@@ -1734,13 +1743,17 @@ lispinit2.mem : lisp.exe $(TESTFASFILES)
 
 
 testsuite : suite lisp.exe lispinit.mem
-	LISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -norc"; export LISP; cd suite; $(MAKE) LISP="$$LISP"
+	LISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc"; export LISP; cd suite; $(MAKE) LISP="$$LISP"
 
 suite :
 	-mkdir suite
 	cd suite && $(LN_S) ..\..\tests\Makefile .
 	cd suite && $(LN_S) ..\..\tests\*.lisp .
 	cd suite && $(LN_S) ..\..\tests\*.tst .
+
+
+lispbibl.h : lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c stdbool.h stdint.h
+	(($(CPP) $(CFLAGS) -P lispbibl.c | $(GREP) -v "^ *$$") ; ($(CPP) $(CFLAGS) -P -dM lispbibl.c | sort) ) > lispbibl.h
 
 
 clisp.h : genclisph.o unixconf.h intparam.h
@@ -1755,29 +1768,29 @@ linkkit : modules.d modules.c clisp.h
 	cd linkkit && $(LN_S) ..\modules.c modules.c
 	cd linkkit && $(LN_S) ..\clisp.h clisp.h
 
-modular : lisp.a  clisp-link linkkit modules.h modules.o makevars
+modular : lisp.a libnoreadline.a  clisp-link linkkit modules.h modules.o makevars
 
 makevars :
-	(echo 'CC='"'"'$(CC)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a '"'") > makevars
+	(echo 'CC='"'"'$(CC)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a libnoreadline.a '"'") > makevars
 
 clisp-link : clisp-link.in
-	sed -e 's%@with_dynamic_modules@%%' -e 's%@createsharedlib@%%' < clisp-link.in > clisp-link
+	sed -e 's%@with_dynamic_modules@%%' -e 's%@createsharedlib@%%' -e 's%@LEXE@%.exe%' < clisp-link.in > clisp-link
 	chmod a+x clisp-link
 
 base : modular lispinit.mem
-	test -d base || (mkdir base && cd base && for f in lisp.a  modules.h modules.o makevars lisp.run lispinit.mem; do $(LN_S) ..\$$f $$f; done) || ($(RMRF) base ; exit 1)
+	test -d base || (mkdir base && cd base && for f in lisp.a libnoreadline.a  modules.h modules.o makevars lisp.exe lispinit.mem; do $(LN_S) ..\$$f $$f; done) || ($(RMRF) base ; exit 1)
 
 anymodule $(MODULES) : lisp.exe lispinit.mem force
 	test -d $@ || lndir ..\modules/$@ $@
 	if test -f $@/configure -a '!' -f $@/config.status ; then cd $@ ; ./configure --cache-file=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'`config.cache ; fi
-	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'` ; $(MAKE) clisp-module CC="$(CC)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}lispbibl.c $${dots}fsubr.c $${dots}subr.c $${dots}pseudofun.c $${dots}constsym.c $${dots}constobj.c $${dots}msdos.c $${dots}stdbool.h $${dots}stdint.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
+	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'` ; $(MAKE) clisp-module CC="$(CC)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}lispbibl.c $${dots}fsubr.c $${dots}subr.c $${dots}pseudofun.c $${dots}constsym.c $${dots}constobj.c $${dots}msdos.c $${dots}stdbool.h $${dots}stdint.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
 
 full : modular base $(MODULES)
 	test -d full || CLISP_LINKKIT=. clisp-link add-module-sets base full $(MODULES) || ($(RMRF) full ; exit 1)
 
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 IMPNOTES = impnotes.html impnotes.css clisp.png
-MANUALS = clisp.1 clisp.html $(TXTFILES) $(IMPNOTES) clreadline.3 clreadline.html clreadline.dvi readline.dvi
+MANUALS = clisp.1 clisp.html $(TXTFILES) $(IMPNOTES)
 
 impnotes.html : ..\doc\impnotes.html
 	$(LN_S) ..\doc\impnotes.html impnotes.html
@@ -1790,7 +1803,7 @@ clisp.png : ..\doc\clisp.png
 
 manual : $(READMES) $(MANUALS)
 
-manualx : manual clisp.man clisp.dvi clreadline.man
+manualx : manual clisp.man clisp.dvi
 
 ANNOUNCE : ..\ANNOUNCE
 	-$(LN_S) ..\ANNOUNCE ANNOUNCE
@@ -1839,23 +1852,18 @@ clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c consto
 	$(RM) txt.c
 	$(RM) txt.exe
 
+clisp.c : _clisp.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c stdbool.h stdint.h txt2c.exe
+	$(TXT2C) < _clisp.c > txt.c
+	$(CC) $(CFLAGS) $(CLFLAGS) -O0 txt.c -o txt.exe
+	txt > clisp.c
+	$(RM) txt.c
+	$(RM) txt.exe
+
 clisp.dvi : clisp.1
 	$(ROFF_DVI) clisp.1 > clisp.dvi
 
-clreadline.3 : readline\doc\clreadline.3
-	-$(LN_S) readline\doc\clreadline.3 clreadline.3
-
-clreadline.html : readline\doc\clreadline.html
-	-$(LN_S) readline\doc\clreadline.html clreadline.html
-
-clreadline.dvi : readline\doc\clreadline.dvi
-	-$(LN_S) readline\doc\clreadline.dvi clreadline.dvi
-
 clisp.man : clisp.1
 	$(ROFF_MAN) clisp.1 > clisp.man
-
-clreadline.man : clreadline.3
-	$(ROFF_MAN) clreadline.3 > clreadline.man
 
 LISP-tutorial.txt : ..\doc\LISP-tutorial.txt
 	-$(LN_S) ..\doc\LISP-tutorial.txt LISP-tutorial.txt
@@ -1866,12 +1874,9 @@ CLOS-guide.txt : ..\doc\CLOS-guide.txt
 editors.txt : ..\doc\editors.txt
 	-$(LN_S) ..\doc\editors.txt editors.txt
 
-readline\doc\rluserman.dvi :
-	cd readline\doc && $(MAKE) rluserman.dvi
 
-readline.dvi : readline\doc\rluserman.dvi
-	-$(LN_S) readline\doc\rluserman.dvi readline.dvi
-
+clisp : clisp.c
+	$(CC) $(CFLAGS) $(CLFLAGS) -DLISPLIBDIR='"/usr/local/src/clisp/current"' -DLOCALEDIR='"/usr/local/src/clisp/current/locale"' clisp.c -o clisp
 
 install : install-bin
 
@@ -1902,7 +1907,7 @@ uninstall-bin : force
 
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
-	-$(RM) core ansidecl.c varbrace.c ccmp2c.c modprep.c genclisph.exe txt.c txt.exe
+	-$(RM) core ansidecl.c varbrace.c genclisph.exe txt.c txt.exe
 	-$(RMRF) linkkit
 
 # clean1 removes everything that becomes obsolete once lisp.exe is recompiled
@@ -1911,10 +1916,10 @@ clean0 : force
 clean1 : clean0
 	-$(RM) lispbibl.h clisp.h *.i *.s *.o *.a lisp.exe clisp-link makevars stage\* suite\*
 	-$(RMRF) base full
-	-$(RM) libsigsegv.* libcharset.* libavcall.* libcallback.*
+	-$(RM) libcharset.* libavcall.* libcallback.*
 	-rmdir stage
 	-rmdir suite
-	-$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.html $(IMPNOTES) clisp.c distmakefile $(TXTFILES) clreadline.3 clreadline.html clreadline.dvi readline.dvi clreadline.man
+	-$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.html $(IMPNOTES) clisp.c distmakefile $(TXTFILES)
 
 # clean2 removes everything that becomes obsolete once lisp.exe
 # is recompiled without changing the bytecode format.
@@ -1931,7 +1936,6 @@ clean3 : clean2
 # It leaves everything generated by "make init".
 clean4 : clean3
 	-$(RM) $(CFILES)
-	cd readline && $(MAKE) clean
 	-$(RM) stdbool.h
 	-$(RM) stdint.h
 
@@ -1940,7 +1944,7 @@ clean5 : clean4
 	-$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY
 	-$(RM) config.lisp
 	-$(RMRF) data
-	-$(RM) comment5.exe ansidecl.exe varbrace.exe ccpaux.exe deema.exe txt2c.exe ccmp2c.exe modprep.exe
+	-$(RM) comment5.exe ansidecl.exe varbrace.exe ccpaux.exe deema.exe txt2c.exe ccmp2c.exe modprep.exe clisp.exe
 
 # clean6 lets us go back to "makemake > Makefile".
 clean6 : clean5
@@ -1949,11 +1953,9 @@ clean6 : clean5
 # clean7 lets us go back to the main "configure".
 clean7 : clean6
 	-$(RM) config.status config.log config.cache intparam.h unixconf.h makemake
-	cd readline && $(MAKE) distclean
 	-$(RMRF) avcall
 	-$(RMRF) callback
 	-$(RMRF) libcharset
-	-$(RMRF) sigsegv
 
 # clean8 moreover cleans up the SRCDIR.
 clean8 : clean7

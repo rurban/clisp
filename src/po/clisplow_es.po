@@ -22,10 +22,11 @@
 #
 #
 #
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 2002-05-18 10:08:45 EDT\n"
+"POT-Creation-Date: 2002-09-13 10:53:58 EDT\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -286,7 +287,8 @@ msgstr "No se puede abrir /dev/zero."
 
 #
 #
-msgid "msync(0x%x,0x%x,MS_INVALIDATE) fails."
+#, fuzzy
+msgid "msync(0x%x,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) falló."
 
 msgid "Cannot open %s ."
@@ -340,7 +342,8 @@ msgstr "No se pudo rellenar la memoria compartida."
 msgid "Cannot remove shared memory segment."
 msgstr "No se puede desechar el segmento de memoria compartida."
 
-msgid "mprotect() fails."
+#, fuzzy
+msgid "mprotect() failed."
 msgstr "mprotect() falló."
 
 #
@@ -358,7 +361,8 @@ msgstr ""
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
 msgstr "Escenario Apollo 13: Falló la manipulación del desbordamiento de pila. a¡ Nos estrellaremos en el siguiente desbordamiento de pila !!!\n"
 
-msgid "munmap() fails."
+#, fuzzy
+msgid "munmap() failed."
 msgstr "munmap() falló."
 
 #
@@ -948,6 +952,7 @@ msgstr ""
 #
 #
 
+#, fuzzy
 
 
 
@@ -999,6 +1004,10 @@ msgstr ""
 
 
 #
+
+#, fuzzy
+
+#, fuzzy
 
 #
 #
@@ -1100,13 +1109,12 @@ msgstr ""
 #, fuzzy
 
 #, fuzzy
-
 
 
 
-
 #, fuzzy
 
+
 #, fuzzy
 
 #, fuzzy
@@ -1375,7 +1383,11 @@ msgstr ""
 
 
 
+#, fuzzy
 
+#
+#
+#, fuzzy
 
 
 
@@ -1401,7 +1413,6 @@ msgstr ""
 
 #
 #
-
 
 #
 #
@@ -1482,8 +1493,6 @@ msgstr ""
 
 
 
-#, fuzzy
-
 #
 #
 
@@ -1581,6 +1590,9 @@ msgstr ""
 #, fuzzy
 
 #, fuzzy
+
+
+
 
 
 
@@ -1589,12 +1601,58 @@ msgstr ""
 
 
 
+#
+#
+
+
 
 
 
+
+
+
 #
 #
+
+
+
+
+
+
+
+
+
+
+
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #
 #
 
@@ -1689,6 +1747,7 @@ msgstr ""
 
 
 #, fuzzy
+
 
 
 
@@ -1703,6 +1762,7 @@ msgstr ""
 
 
 
+#, fuzzy
 
 #, fuzzy
 
@@ -1741,12 +1801,11 @@ msgstr ""
 #, fuzzy
 
 #, fuzzy
-
 
 
 
-#
 
+#, fuzzy
 
 
 
@@ -1890,6 +1949,7 @@ msgstr ""
 
 
 
+
 #
 #
 #
@@ -1939,8 +1999,6 @@ msgstr ""
 
 
 
-
-#, fuzzy
 
 
 #, fuzzy
@@ -2018,6 +2076,8 @@ msgstr ""
 
 #, fuzzy
 
+#, fuzzy
+
 
 
 
@@ -2030,6 +2090,8 @@ msgstr ""
 #, fuzzy
 
 
+
+#, fuzzy
 
 
 
@@ -2081,6 +2143,7 @@ msgstr ""
 
 
 
+#, fuzzy
 
 
 
@@ -2090,13 +2153,16 @@ msgstr ""
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
 #
 #
 #
+#, fuzzy
 
 
 
@@ -2133,7 +2199,6 @@ msgstr ""
 
 #
 #
-
 
 
 
@@ -2174,11 +2239,13 @@ msgstr ""
 
 
 
-
+#, fuzzy
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 #, fuzzy
@@ -2233,7 +2300,6 @@ msgstr ""
 
 
 
-
 #, fuzzy
 
 
@@ -2331,6 +2397,8 @@ msgstr ""
 
 #
 #
+#, fuzzy
+
 #, fuzzy
 
 
@@ -2390,6 +2458,7 @@ msgstr ""
 
 
 
+#, fuzzy
 
 
 #, fuzzy
@@ -2414,23 +2483,17 @@ msgstr ""
 
 
 
+#, fuzzy
 
 #
 #, fuzzy
 
-
 #, fuzzy
 
 #, fuzzy
 
 #, fuzzy
-
 
-#
-#
-#
-#
-#
 
 #
 #
@@ -2501,63 +2564,35 @@ msgstr ""
 #, fuzzy
 
 
-
 #, fuzzy
-
 
 
 
-
-
-
-
-#
-#
 #, fuzzy
 
+#, fuzzy
 
 
-#
-#
 #
 
-
-
+#, fuzzy
 
 
 
 
 
 
+#, fuzzy
 
 #
 #
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#
+#
+#
 
 
 
+#, fuzzy
 
 
 
@@ -2566,9 +2601,15 @@ msgstr ""
 
 
 
+#
+#
+#, fuzzy
 
 
 
+#
+#
+#
 
 
 
