@@ -1,3 +1,15 @@
+2003-12-12  Sam Steingold  <sds@gnu.org>
+
+	prompt is now fully customizable by the user
+	* reploop.lisp (prompt-to-string): new macro
+	(*prompt-start*, *prompt-step*, *prompt-break*, *prompt-body*)
+	(*prompt-finish*): new custom variables
+	(*prompt*, prompt-string1, prompt-string2, prompt-string3): removed
+	(break-level, step-level): new exported functions
+	(prompt-start, prompt-body, prompt-finish, prompt-step)
+	(prompt-break): new functions
+	(main-loop, break-loop, step-hook-fn): use them
+
 2003-12-11  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 858011 ]: RETURN-FROM not working in compiled FLET/LABELS

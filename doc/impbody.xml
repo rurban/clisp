@@ -5056,13 +5056,15 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
    <ulink url="&clhs;/Body/sec_25-1-2.html">[CLHS-25.1.2]</ulink></title>
 
 <para>The debugger may be invoked through the functions
- &invoke-debugger;, &break;, &signal;, &error;, &cerror;, &warn;.  The
- stepper is invoked through the macro &step; .  Debugger and stepper
- execute subordinate &repl; (called "break loops") which are similar to
- the main &repl; except for the prompt and the set of available
- commands.  Commands must be typed literally, without surrounding quotes
- or white space.  Each command has a keyword abbreviation, indicated in
- the second column.</para>
+ &invoke-debugger;, &break;, &signal;, &error;, &cerror;, &warn;.
+ The stepper is invoked through the macro &step;.
+ Debugger and stepper execute subordinate &repl; (called "break loops")
+ which are similar to the main &repl; except for the
+ <link linkend="prompt">prompt</link> and the set of available commands.
+ Commands must be typed literally, in any case,
+ without surrounding quotes or white space.
+ Each command has a keyword abbreviation,
+ indicated in the second column.</para>
 
 <table id="debugger-main-deb-step" frame="all">
  <title>Commands common to the main loop, the debugger and the stepper</title>

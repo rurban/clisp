@@ -15,6 +15,10 @@ User visible changes
 * Module syscalls now exports function POSIX:STAT-VFS.
   See <http://clisp.cons.org/impnotes.html#syscalls> for details.
 
+* Prompt is now fully customizable by the user.
+  CUSTOM:*PROMPT* is replaced with 5 variables.
+  See <http://clisp.cons.org/impnotes.html#prompt> for details.
+
 * Readline is now used properly on Cygwin/X11.
 
 
