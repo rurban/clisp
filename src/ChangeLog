@@ -1,5 +1,12 @@
 2003-12-27  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_calendar.c: New file.
+	* spvw.d: Include spvw_calendar.c.
+	(print_banner): Light the candles.
+	* makemake.in: Emit rule for spvw_calendar.c.
+
+2003-12-27  Bruno Haible  <bruno@clisp.org>
+
 	* m4/mmap.m4: Treat i786 CPUs like i686.
 	* asmi386.hh: Likewise.
 	* makemake.in: Likewise.
