@@ -2419,6 +2419,17 @@ T
 #-CLISP T
 
 
+;; Check that it's possible to call methods individually.
+(progn
+  (defgeneric foo141 (x)
+    (:method ((x integer)) (isqrt x))
+    (:method ((x real)) (- x)))
+  (let ((my-method (find-method #'foo141 nil (list (find-class 'real))))
+        (my-arglist (list 43)))
+    (funcall (clos:method-function my-method) my-arglist '())))
+-43
+
+
 ;; Check that it's possible to create custom method classes.
 (progn
   (defclass custom-method (method)
