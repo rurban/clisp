@@ -2141,7 +2141,7 @@ site-specific CONFIG.LSP file.
 The variable *FEATURES* initially contains the symbols
    CLISP            ; this implementation
    COMMON-LISP
-   CLTL1
+   CLTL2
    INTERPRETER
    COMPILER
 #ifdef LOGICAL_PATHNAMES
