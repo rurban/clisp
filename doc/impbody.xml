@@ -2534,6 +2534,14 @@ checks whether the &hash-table-t; is weak.</para>
 
 <para>See also <olink targetdoc="impnotes" targetptr="weak-ht"/>.</para>
 
+<para>While <constant>:WARN-IF-NEEDS-REHASH-AFTER-GC</constant> can help
+ checking the efficiency of a particular hash table, the variable
+ <constant>CUSTOM:*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</constant>
+ achieves the same effect for all hash table in the system at once: When
+ <constant>CUSTOM:*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</constant>
+ is true and a hash table needs to be rehashed after a &gc;ion, a warning
+ is issued that shows the inefficient hash table.</para>
+
 </section>
 
 <section id="defhash"><title>Macro &defhash;</title>

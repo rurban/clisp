@@ -1154,6 +1154,7 @@ local void init_symbol_values (void) {
   define_variable(S(eq_hashfunction),S(fasthash_eq)); # EXT:*EQ-HASHFUNCTION* := 'EXT:FASTHASH-EQ
   define_variable(S(eql_hashfunction),S(fasthash_eql)); # EXT:*EQL-HASHFUNCTION* := 'EXT:FASTHASH-EQL
   define_variable(S(equal_hashfunction),S(fasthash_equal)); # EXT:*EQUAL-HASHFUNCTION* := 'EXT:FASTHASH-EQUAL
+  define_variable(S(warn_on_hashtable_needing_rehash_after_gc),NIL); # CUSTOM:*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC* := NIL
   # for PACKAGE:
   define_variable(S(packagestern),Car(O(all_packages))); # *PACKAGE* := '#<PACKAGE LISP>
   # for SYMBOL:

@@ -170,6 +170,7 @@
                   #+CLISP           "genstream"
                   #+XCL             "hash"
                                     "hashlong"
+                  #+CLISP           "hashtable"
                                     "iofkts"
                                     "lambda"
                                     "lists151"
