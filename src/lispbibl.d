@@ -1577,8 +1577,9 @@
 #if !(defined(TYPECODES) || defined(NO_TYPECODES))
   # Choose typecodes on 64-bit machines (because there's enough room for type
   # bits), but not on 32-bit machines (because a 16 MB limit is ridiculous
-  # today), except if support for immutable objects is requested.
-  #if defined(WIDE) || defined(IMMUTABLE)
+  # today), except if support for immutable objects is requested, or if the
+  # CPU cannot address more than 16 MB anyway.
+  #if defined(WIDE) || defined(IMMUTABLE) || defined(MC68000)
     #define TYPECODES
   #else
     #define NO_TYPECODES

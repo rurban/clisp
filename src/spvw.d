@@ -807,7 +807,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 
   # Flag für AllocMem().
   #define default_allocmemflag  MEMF_ANY
-  #if !(defined(WIDE) || defined(MC68000))
+  #if !(defined(WIDE) || defined(MC68000) || !defined(TYPECODES))
     # Es kann sein, daß wir mit MEMF_ANY Speicher außerhalb des
     # 24/26-Bit-Adreßraums bekommen, den wir nicht nutzen können.
     # Dann versuchen wir's nochmal.
@@ -11721,7 +11721,7 @@ local uintC generation;
             asciz_out_2("CODE: %x, DATA: %x." NLstring, (aint)&init_amiga, (aint)&symbol_tab);
             exit(RETURN_FAIL);
           }
-        #if !(defined(WIDE) || defined(MC68000))
+        #if !(defined(WIDE) || defined(MC68000) || !defined(TYPECODES))
         # Ein Flag, das uns hilft, Speicher mit niedrigen Adressen zu bekommen:
         retry_allocmemflag =
           (CPU_IS_68000              # der 68000 hat nur 24 Bit Adreßbereich,
@@ -14811,10 +14811,13 @@ local uintC generation;
 #                                Version
 #ifdef AMIGAOS
 # Es gibt eine Utility, die ein Executable nach einem Versionsstring absucht.
+# Format "name version.revision (date)\r\n"
   global const char version_string[] =
     "$VER: CLISP"
     #if defined(WIDE)
       "-wide"
+    #elif !defined(TYPECODES)
+      "-typ2"
     #elif defined(AMIGA3000)
       "-high"
     #elif defined(MC68000)
@@ -14822,6 +14825,7 @@ local uintC generation;
     #else
       "-low"
     #endif
+    " "STRINGIFY(VERSION_YYYY)"."STRINGIFY(VERSION_MM) # Datum als Versionsnummer
     " (" VERSION ")\r\n"; # Datum in Klammern
 #endif
 

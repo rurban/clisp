@@ -1,3 +1,9 @@
+1998-08-08  Jörg Höhle  <hoehle@tzd.telekom.de>
+
+        * lispbibl.d (define) TYPECODES is default for MC68000.
+        * spvw.d (version_string) added !TYPECODES recognition.
+          (retry_allocmemflag) not needed with !TYPECODES.
+
 1998-08-05  Jörg Höhle  <hoehle<zeus.gmd.de>
 
         * lispbibl.d (SIXBIT_TYPECODES): Fix a collision between
