@@ -933,7 +933,6 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
 #endif
 #ifdef X11SOCKETS
 LISPFUNN(make_x11socket_stream,2)
-LISPFUNN(listen_byte,1)
 LISPFUNN(read_n_bytes,4)
 LISPFUNN(write_n_bytes,4)
 #endif
@@ -967,6 +966,9 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
 LISPFUNN(interactive_stream_p,1)
 LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
 LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
+LISPFUNN(read_byte_lookahead,1)
+LISPFUNN(read_byte_will_hang_p,1)
+LISPFUN(read_byte_no_hang,1,2,norest,nokey,0,NIL)
 LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
 LISPFUN(read_float,2,3,norest,nokey,0,NIL)
 LISPFUNN(write_byte,2)
