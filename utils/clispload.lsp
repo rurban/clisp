@@ -140,7 +140,7 @@
   ;; over time. Thus in RANDOM-PRINT-TEST, we can have
   ;;   S1 = "((common-lisp:most-positive-fixnum . #\\=) #<array common-lisp:t (11) #x20B62A7E> . #<array common-lisp:t (11) #x208A68FE>)"
   ;;   S2 = "((common-lisp:most-positive-fixnum . #\\=) #<array common-lisp:t (11) #x208A67EE> . #<array common-lisp:t (11) #x208A68FE>)"
-  PRINT.1 PPRINT.1
+  PRINT.1 PPRINT.1 WRITE-TO-STRING.1
 
   ;; Paul Dietz assumes that structure objects are printed like atoms.
   ;; CLISP prints them as objects with components, like vectors.
