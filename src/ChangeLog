@@ -1,5 +1,10 @@
 2004-06-21  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/dbi.lisp (CLOSE):
+	define methods for ENV, DB and CURSOR
+
+2004-06-21  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/bdb.c (BDB:MAKE-CURSOR, BDB:CURSOR-CLOSE)
 	(BDB:CURSOR-COUNT, BDB:CURSOR-DEL, BDB:CURSOR-DUP)
 	(BDB:CURSOR-GET, BDB:CURSOR-PUT): implemented
