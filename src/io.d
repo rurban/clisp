@@ -5592,8 +5592,13 @@ global object cons_ssstring (const object* stream_, object nl_type) {
   return new_cons;
 }
 # access the NL type and indentation
-#define PPHELP_NL_TYPE Car
-#define PPHELP_INDENTN Cdr
+#ifdef IO_DEBUG
+  #define PPHELP_NL_TYPE(o) (mconsp(o) ? Car(o) : (NOTREACHED,nullobj))
+  #define PPHELP_INDENTN(o) (mconsp(o) ? Cdr(o) : (NOTREACHED,nullobj))
+#else
+  #define PPHELP_NL_TYPE Car
+  #define PPHELP_INDENTN Cdr
+#endif
 
 # UP: tabulation (see format-tabulate here in io.d and in format.lisp)
 #define PPH_TAB_COLON(tab_spec) TheSvector(tab_spec)->data[0]
@@ -6655,7 +6660,8 @@ local void pr_enter_1 (const object* stream_, object obj,
                 string_fit_line_p(Cdr(STACK_0),*stream_,num_space)))) {
             spaces(stream_,fixnum(num_space));
             goto skip_NL;
-          }
+          } else if (mconsp(Car(STACK_0))) # set indent
+            indent = PPHELP_INDENTN(Car(STACK_0));
         }
         write_ascii_char(stream_,NL); # #\Newline as the line separator
         pprint_prefix(stream_,indent); # line prefix & indentation, if any
