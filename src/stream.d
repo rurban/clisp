@@ -2110,22 +2110,9 @@ LISPFUNN(string_input_stream_index,1)
     var uintL len;
     { if (len==0) return;
      {var object ssstring = TheStream(*stream_)->strm_str_out_string; # Semi-Simple-String
-      var uintL old_len = TheIarray(ssstring)->dims[1]; # jetzige Länge = Fill-Pointer
-      if (old_len + len > TheIarray(ssstring)->dims[0]) # passen keine len Bytes mehr hinein
-        { pushSTACK(srcstring);
-          ssstring = ssstring_extend(ssstring,old_len+len); # dann länger machen
-          srcstring = popSTACK();
-        }
-      # Zeichen hineinschieben:
-      {var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
-       SstringDispatch(srcstring,
-         { chartcopy(&TheSstring(srcstring)->data[start],ptr,len); },
-         { scintcopy(&TheSmallSstring(srcstring)->data[start],ptr,len); }
-         );
-       # und Fill-Pointer erhöhen:
-       TheIarray(ssstring)->dims[1] = old_len + len;
-       wr_ss_lpos(*stream_,&ptr[len],len); # Line-Position aktualisieren
-    }}}
+      ssstring = ssstring_append_extend(ssstring,srcstring,start,len);
+      wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len); # Line-Position aktualisieren
+    }}
 
 # Liefert einen String-Output-Stream.
 # make_string_output_stream()
@@ -2317,23 +2304,10 @@ LISPFUNN(string_stream_p,1)
     var uintL len;
     { if (len==0) return;
      {var object ssstring = Car(TheStream(*stream_)->strm_pphelp_strings); # Semi-Simple-String
-      var uintL old_len = TheIarray(ssstring)->dims[1]; # jetzige Länge = Fill-Pointer
-      if (old_len + len > TheIarray(ssstring)->dims[0]) # passen keine len Bytes mehr hinein
-        { pushSTACK(srcstring);
-          ssstring = ssstring_extend(ssstring,old_len+len); # dann länger machen
-          srcstring = popSTACK();
-        }
-      # Zeichen hineinschieben:
-      {var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
-       SstringDispatch(srcstring,
-         { chartcopy(&TheSstring(srcstring)->data[start],ptr,len); },
-         { scintcopy(&TheSmallSstring(srcstring)->data[start],ptr,len); }
-         );
-       # und Fill-Pointer erhöhen:
-       TheIarray(ssstring)->dims[1] = old_len + len;
-       if (wr_ss_lpos(*stream_,&ptr[len],len)) # Line-Position aktualisieren
-         { TheStream(*stream_)->strm_pphelp_modus = T; } # Nach NL: Modus := Mehrzeiler
-    }}}
+      ssstring = ssstring_append_extend(ssstring,srcstring,start,len);
+      if (wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len)) # Line-Position aktualisieren
+        { TheStream(*stream_)->strm_pphelp_modus = T; } # Nach NL: Modus := Mehrzeiler
+    }}
 
 # UP: Liefert einen Pretty-Printer-Hilfs-Stream.
 # make_pphelp_stream()

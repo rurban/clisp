@@ -2064,6 +2064,38 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       return ssstring;
     }
 
+# Function: Adds a substring to a semi-simple-string, thereby possibly
+# extending it.
+# ssstring_append_extend(ssstring,sstring,start,len)
+# > ssstring: a semi-simple-string
+# > sstring: a simple-string
+# > start: the start index into the sstring
+# > len: the number of characters to be pushed, starting from start
+# < result: the same semi-simple-string
+# can trigger GC
+  global object ssstring_append_extend (object ssstring, object sstring, uintL start, uintL len);
+  global object ssstring_append_extend(ssstring,srcstring,start,len)
+    var object ssstring;
+    var object srcstring;
+    var uintL start;
+    var uintL len;
+    { var uintL old_len = TheIarray(ssstring)->dims[1]; # jetzige Länge = Fill-Pointer
+      if (old_len + len > TheIarray(ssstring)->dims[0]) # passen keine len Bytes mehr hinein
+        { pushSTACK(srcstring);
+          ssstring = ssstring_extend(ssstring,old_len+len); # dann länger machen
+          srcstring = popSTACK();
+        }
+      # Zeichen hineinschieben:
+     {var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
+      SstringDispatch(srcstring,
+        { chartcopy(&TheSstring(srcstring)->data[start],ptr,len); },
+        { scintcopy(&TheSmallSstring(srcstring)->data[start],ptr,len); }
+        );
+      # und Fill-Pointer erhöhen:
+      TheIarray(ssstring)->dims[1] = old_len + len;
+      return ssstring;
+    }}
+
 # The following functions work on "semi-simple byte-vector"s.
 # That are bit vectors with FILL-POINTER, (pro forma) not adjustable and
 # not displaced, whose storagevector is a simple-bit-vector. When their
