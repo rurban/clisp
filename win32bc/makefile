@@ -1,4 +1,4 @@
-# Makefile for the CLISP binaries
+# -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
 # This file was created on host david as the output of the command:
 # ./makemake --with-dir-key win32bc bcc32i
@@ -155,6 +155,7 @@ time.d \
 predtype.d \
 symbol.d \
 lisparit.d \
+i18n.d \
 win32aux.d \
 dirkey.d \
 lispbibl.d \
@@ -262,6 +263,7 @@ time.c \
 predtype.c \
 symbol.c \
 lisparit.c \
+i18n.c \
 win32aux.c \
 dirkey.c \
 lispbibl.c \
@@ -369,6 +371,7 @@ time.obj \
 predtype.obj \
 symbol.obj \
 lisparit.obj \
+i18n.obj \
 win32aux.obj \
 dirkey.obj
 
@@ -386,6 +389,7 @@ floatprint.lisp \
 type.lisp \
 defstruct.lisp \
 format.lisp \
+international.lisp \
 savemem.lisp \
 trace.lisp \
 cmacros.lisp \
@@ -435,6 +439,7 @@ floatprint.fas \
 type.fas \
 defstruct.fas \
 format.fas \
+international.fas \
 savemem.fas \
 trace.fas \
 cmacros.fas \
@@ -489,6 +494,7 @@ stage\floatprint.lisp \
 stage\type.lisp \
 stage\defstruct.lisp \
 stage\format.lisp \
+stage\international.lisp \
 stage\savemem.lisp \
 stage\trace.lisp \
 stage\cmacros.lisp \
@@ -538,6 +544,7 @@ stage\floatprint.fas \
 stage\type.fas \
 stage\defstruct.fas \
 stage\format.fas \
+stage\international.fas \
 stage\savemem.fas \
 stage\trace.fas \
 stage\cmacros.fas \
@@ -802,6 +809,13 @@ lisparit.c : lisparit.d comment5.exe ansidecl.exe varbrace.exe
 	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
 	$(RM) TMPPIPE1
 	$(VARBRACE) < TMPPIPE2 > lisparit.c
+	$(RM) TMPPIPE2
+
+i18n.c : i18n.d comment5.exe ansidecl.exe varbrace.exe
+	$(COMMENT5) i18n.d > TMPPIPE1
+	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(RM) TMPPIPE1
+	$(VARBRACE) < TMPPIPE2 > i18n.c
 	$(RM) TMPPIPE2
 
 win32aux.c : win32aux.d comment5.exe ansidecl.exe varbrace.exe
@@ -1364,12 +1378,12 @@ noreadline.c : noreadline.d comment5.exe ansidecl.exe varbrace.exe
 	$(VARBRACE) < TMPPIPE2 > noreadline.c
 	$(RM) TMPPIPE2
 
-allo : allc spvw.obj spvwtabf.obj spvwtabs.obj spvwtabo.obj eval.obj control.obj encoding.obj pathname.obj stream.obj socket.obj io.obj array.obj hashtabl.obj list.obj package.obj record.obj sequence.obj charstrg.obj debug.obj error.obj misc.obj time.obj predtype.obj symbol.obj lisparit.obj win32aux.obj dirkey.obj
+allo : allc spvw.obj spvwtabf.obj spvwtabs.obj spvwtabo.obj eval.obj control.obj encoding.obj pathname.obj stream.obj socket.obj io.obj array.obj hashtabl.obj list.obj package.obj record.obj sequence.obj charstrg.obj debug.obj error.obj misc.obj time.obj predtype.obj symbol.obj lisparit.obj i18n.obj win32aux.obj dirkey.obj
 
-alls : allc spvw.s spvwtabf.s spvwtabs.s spvwtabo.s eval.s control.s encoding.s pathname.s stream.s socket.s io.s array.s hashtabl.s list.s package.s record.s sequence.s charstrg.s debug.s error.s misc.s time.s predtype.s symbol.s lisparit.s win32aux.s dirkey.s
+alls : allc spvw.s spvwtabf.s spvwtabs.s spvwtabo.s eval.s control.s encoding.s pathname.s stream.s socket.s io.s array.s hashtabl.s list.s package.s record.s sequence.s charstrg.s debug.s error.s misc.s time.s predtype.s symbol.s lisparit.s i18n.s win32aux.s dirkey.s
 
 # Normally not used (just for debugging).
-alli : allc spvw.i spvwtabf.i spvwtabs.i spvwtabo.i eval.i control.i encoding.i pathname.i stream.i socket.i io.i array.i hashtabl.i list.i package.i record.i sequence.i charstrg.i debug.i error.i misc.i time.i predtype.i symbol.i lisparit.i win32aux.i dirkey.i
+alli : allc spvw.i spvwtabf.i spvwtabs.i spvwtabo.i eval.i control.i encoding.i pathname.i stream.i socket.i io.i array.i hashtabl.i list.i package.i record.i sequence.i charstrg.i debug.i error.i misc.i time.i predtype.i symbol.i lisparit.i i18n.i win32aux.i dirkey.i
 
 spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c stdbool.h iconv.h sigsegv.h version.h
 	$(CPP) $(CFLAGS) spvw.c > spvw.i
@@ -1771,6 +1785,22 @@ lisparit.obj : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c const
 	$(MV) lisparit.i.obj lisparit.obj
 	$(RM) lisparit.i.c
 
+i18n.i : i18n.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h
+	$(CPP) $(CFLAGS) i18n.c > i18n.i
+
+i18n.s : i18n.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h
+	$(CPP) $(CFLAGS) i18n.c > i18n.i.c
+	$(CC) $(CFLAGS) -c i18n.i.c /FAs /Fai18n.s
+	$(RM) i18n.i.obj
+	$(RM) i18n.i.c
+
+i18n.obj : i18n.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h
+	$(CPP) $(CFLAGS) i18n.c > i18n.i.c
+	$(CC) $(CFLAGS) -c i18n.i.c
+	$(RM) i18n.obj
+	$(MV) i18n.i.obj i18n.obj
+	$(RM) i18n.i.c
+
 win32aux.i : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h
 	$(CPP) $(CFLAGS) win32aux.c > win32aux.i
 
@@ -1929,6 +1959,9 @@ defstruct.fas : defstruct.lisp lisp.exe halfcompiled.mem
 
 format.fas : format.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c format.lisp
+
+international.fas : international.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1000KW -M halfcompiled.mem -q -c international.lisp
 
 savemem.fas : savemem.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c savemem.lisp
@@ -2093,6 +2126,9 @@ stage\defstruct.lisp : defstruct.lisp
 stage\format.lisp : format.lisp
 	$(LN_S) format.lisp stage
 
+stage\international.lisp : international.lisp
+	$(LN_S) international.lisp stage
+
 stage\savemem.lisp : savemem.lisp
 	$(LN_S) savemem.lisp stage
 
@@ -2236,6 +2272,9 @@ stage\defstruct.fas : stage\defstruct.lisp lisp.exe stage\testinit.mem
 
 stage\format.fas : stage\format.lisp lisp.exe stage\testinit.mem
 	$(RUN) -M stage\testinit.mem -q -c stage/format.lisp
+
+stage\international.fas : stage\international.lisp lisp.exe stage\testinit.mem
+	$(RUN) -M stage\testinit.mem -q -c stage/international.lisp
 
 stage\savemem.fas : stage\savemem.lisp lisp.exe stage\testinit.mem
 	$(RUN) -M stage\testinit.mem -q -c stage/savemem.lisp
