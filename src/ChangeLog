@@ -1,5 +1,11 @@
 2002-07-22  Sam Steingold  <sds@gnu.org>
 
+	fixed the (compile nil (lambda () ... #'(lambda ...))) bug
+	* compiler.lisp (symbol-suffix): also work when funname is NIL,
+	but suffix is not a symbol (see also the 2002-02-11 patch)
+
+2002-07-22  Sam Steingold  <sds@gnu.org>
+
 	* check-lispfun.lisp: new file: check LISPFUN, LISPFUNN and
 	LISPSPECFORM between *.d and subr.d/subrkw.d/fsubr.d
 	* makemake.in (check-sources): new target
@@ -2708,7 +2714,7 @@
 	fixed the (compile nil (lambda () (flet (())))) bug
 	* compiler.lisp (symbol-suffix): use just the suffix for NIL funname
 
-2002-02-5  Sam Steingold  <sds@gnu.org>
+2002-02-10  Sam Steingold  <sds@gnu.org>
 
 	* foreign1.lisp, affi1.lisp: moved *FOREIGN-ENCODING* to the
 	CUSTOM package, as described in the impnotes
