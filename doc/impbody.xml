@@ -4653,8 +4653,9 @@ effects when being loaded, this is important as well.
    &fasl-file; with a different <link linkend="bytecode">bytecode</link>
    version from the one supported by this &clisp; version.
    The possible actions are <constant>:DELETE</constant> to delete the
-   &fasl-file; and &error-k; to signal and &error;.
-   The default action is to &warn; and look for another matching file.
+   &fasl-file; and &error-k; to signal an &error;.
+   The default action is to &warn; and <link linkend="load-paths">look
+   for another matching file</link>.
    If no file can be loaded and &if-does-not-exist; is non-&nil;,
    an &error; is signaled.
    The default is <emphasis
