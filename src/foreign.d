@@ -82,7 +82,7 @@ local object foreign_pointer_strict (object obj)
   return fp;
 }
 
-/* (FFI::VALIDP foreign-entity) tests whether a foreign entity
+/* (FFI:VALIDP foreign-entity) tests whether a foreign entity
  is still valid or refers to an invalid foreign pointer. */
 LISPFUNNR(validp,1) {
   var object fp = foreign_pointer(popSTACK());
@@ -114,23 +114,27 @@ LISPFUNN(set_validp,2)
 /* FOREIGN-POINTER of this foreign entity */
 LISPFUNNR(foreign_pointer,1)
 { VALUES1(foreign_pointer_strict(popSTACK())); }
+
+/* (FFI:SET-FOREIGN-POINTER foreign-entity other-entity)
+ returns foreign-entity modified to share pointer-base with other entity */
 LISPFUNN(set_foreign_pointer,2)
-{ /* (setf (foreign-pointer f-ent) new-value) */
-  /* f-ent --> foreign-address */
-  var object faddr = foreign_address(STACK_1,false);
+{
+  /* TODO? restart that allows all of (OR (EQL :COPY) FOREIGN-xyz) */
   var object new_fp = STACK_0;
+  STACK_0 = foreign_address(STACK_1,false);
+  /* Stack layout: f-entity f-entity-address. */
   if (eq(new_fp,S(Kcopy))) {
-    TheFaddress(faddr)->fa_base =
-      allocate_fpointer(TheFpointer(TheFaddress(faddr)->fa_base)->fp_pointer);
-    VALUES1(S(Kcopy));
+    var object fp = TheFaddress(STACK_0)->fa_base;
+    new_fp = allocate_fpointer(Fpointer_value(fp));
   } else {
-    new_fp = check_fpointer(new_fp,true);
-    TheFaddress(faddr)->fa_base = new_fp;
-    TheFaddress(faddr)->fa_offset =
-      (uintP)Faddress_value(faddr) - (uintP)Fpointer_value(new_fp);
-    VALUES1(new_fp);
+    /* extract other entity's FOREIGN-POINTER */
+    new_fp = foreign_pointer_strict(new_fp);
+    var sintP offset = (uintP)Faddress_value(STACK_0)
+                     - (uintP)Fpointer_value(new_fp);
+    TheFaddress(STACK_0)->fa_offset = offset;
   }
-  skipSTACK(2);
+  TheFaddress(STACK_0)->fa_base = new_fp;
+  VALUES1(STACK_1); skipSTACK(2);
 }
 
 /* (FFI:UNSIGNED-FOREIGN-ADDRESS integer)

@@ -26,7 +26,8 @@
           foreign-address foreign-address-unsigned unsigned-foreign-address
           with-foreign-object with-c-var with-foreign-string
           foreign-allocate allocate-deep allocate-shallow foreign-free
-          foreign-pointer foreign-variable foreign-function))
+          foreign-pointer set-foreign-pointer
+          foreign-variable foreign-function))
 
 (eval-when (load compile eval)
   (import (intern "*COUTPUT-FILE*" "COMPILER"))
@@ -817,7 +818,7 @@
     (push (list c-name (parse-c-type type) flags) *variable-list*)))
 
 (defsetf foreign-value set-foreign-value)
-(defsetf foreign-pointer set-foreign-pointer)
+;(defsetf foreign-pointer set-foreign-pointer) ; no, incompatible with SETF
 (defsetf validp set-validp)
 
 (defmacro with-c-place ((var fvar) &body body)
@@ -847,7 +848,7 @@
     . ,(if init-p (list init))))
 
 ;; symbol-macro based interface (like DEF-C-VAR)
-; WITH-C-VAR appears as a composition of WITH-FOREIGN-OBJECT and WITH-C-PLACE
+;; WITH-C-VAR appears as a composition of WITH-FOREIGN-OBJECT and WITH-C-PLACE
 (defmacro with-c-var ((var c-type &optional (init nil init-p)) &body body)
   (let ((fv (gensym (symbol-name var))))
     `(EXEC-ON-STACK
