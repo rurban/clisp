@@ -88,7 +88,7 @@ Both of them have some things in common:
    heap allocated object, not in the object pointer.</simpara></listitem>
 </itemizedlist></para>
 
-<para>The &no-typecodes; object representation has a minimum of type
+<para>The &heapcodes; object representation has a minimum of type
 bits in the object pointer, namely, 2 bits. They allow to distinguish
 immediate objects (which have some more type bits), &cons-t;es (which
 have no type bits in the heap, since they occupy just two words in the
@@ -110,9 +110,9 @@ particularly fast type test.</para>
 
 <para>Which object representation is chosen is decided at build time
 depending on the available preprocessor definitions. You can define
-&typecodes; or &no-typecodes; to force one or the other.</para>
+&typecodes; or &heapcodes; to force one or the other.</para>
 
-<para>One might expect that &typecodes; is faster than &no-typecodes;
+<para>One might expect that &typecodes; is faster than &heapcodes;
 because it does not need to make as many memory accesses. This effect
 is, however, hardly measurable in practice (certainly not more than 5%
 faster).  Apparently because, first, the situations where the type of an
@@ -126,9 +126,9 @@ data.</para>
 <para>&typecodes; is problematic on 32-bit machines, when you want to
 use more than 16 MB of memory, because the type bits (at bit 31..24)
 interfere with the bits of a heap address. For this reason,
-&no-typecodes; is the default on 32-bit platforms.</para>
+&heapcodes; is the default on 32-bit platforms.</para>
 
-<para>&no-typecodes; is problematic on platforms whose object alignment
+<para>&heapcodes; is problematic on platforms whose object alignment
 is less than 4. This affects only the mc680x0 CPU; however, here the
 alignment can usually be guaranteed through some &gcc; options.</para>
 
@@ -291,8 +291,8 @@ have been developed):</para>
      <entry>4</entry><entry/><entry/><entry/><entry/></row>
 </tbody></tgroup></table>
 
-<table id="mem-models-comb-no-typecodes" frame="all">
- <title>Memory models with &no-typecodes;</title>
+<table id="mem-models-comb-heapcodes" frame="all">
+ <title>Memory models with &heapcodes;</title>
 <tgroup cols="4" colsep="1" rowsep="1" align="center">
 <thead><row><entry/><entry>no MAP_MEMORY</entry>
  <entry>TRIVIALMAP_MEMORY</entry><entry>GENERATIONAL_GC</entry></row></thead>

@@ -100,8 +100,8 @@ PC 486/33, 16 MB RAM  Linux 2.0.29   Bruno Haible
 7.9.1997 (elf)              657 s user + 25 s system
 
 PC 486/33, 16 MB RAM  Linux 2.0.33   Bruno Haible
-17.6.1998 (egcs103)               603 s user + 25 s system
-17.6.1998 (egcs103,NO_TYPECODES)  606 s user + 29 s system
+17.6.1998 (egcs103)           603 s user + 25 s system
+17.6.1998 (egcs103,HEAPCODES) 606 s user + 29 s system
 
 PC 486/50, 32 MB RAM  Linux 0.99.14  Marcus Daniels
 25.1.1994 (gcc258,shm)      331 s    <marcus@ee.pdx.edu>
