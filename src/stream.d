@@ -17167,9 +17167,9 @@ global object stream_fd (object stream);
 global object stream_fd (stream)
   var object stream;
 {
+  stream = check_open_file_stream(stream);
   return UL_to_I(TheHandle(TheStream(stream)->strm_ochannel));
 }
-
 
 #endif # UNIX
 #endif # EXPORT_SYSCALLS
