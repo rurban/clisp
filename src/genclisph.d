@@ -1903,7 +1903,7 @@ int main(int argc, char* argv[])
             " obj = check_list_replacement(obj);"
           " return obj;"
         " }\n");
-  printf("nonreturning_function(extern, fehler_proper_list, (object caller, object obj));\n");
+  printf("nonreturning_function(extern, fehler_proper_list_dotted, (object caller, object obj));\n");
 #if notused
   printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");
   printf("nonreturning_function(extern, fehler_vector, (object obj));\n");

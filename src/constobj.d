@@ -372,6 +372,7 @@
   LISPOBJ(type_end_index,"(OR NULL INTEGER)")
   LISPOBJ(type_posinteger,"(INTEGER 0 *)")
   LISPOBJ(type_stringsymchar,"(OR STRING SYMBOL CHARACTER)")
+  LISPOBJ(type_proper_list,"(SATISFIES EXT::PROPER-LIST-P)")
   LISPOBJ(type_svector2,"(SIMPLE-VECTOR 2)")
   LISPOBJ(type_svector5,"(SIMPLE-VECTOR 5)")
   LISPOBJ(type_climb_mode,"(INTEGER 1 5)")
