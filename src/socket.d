@@ -154,7 +154,7 @@
       inet_ntop(AF_INET6,&addr,buffer,45+1)
   #elif defined(WIN32) || defined(UNIX_CYGWIN32)
     #define ipv6_ntop(buffer,addr)  \
-      sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x", \
+     (sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x", \
               ntohs(((u_short*)(addr).s6_addr)[0]), \
               ntohs(((u_short*)(addr).s6_addr)[1]), \
               ntohs(((u_short*)(addr).s6_addr)[2]), \
@@ -162,10 +162,10 @@
               ntohs(((u_short*)(addr).s6_addr)[4]), \
               ntohs(((u_short*)(addr).s6_addr)[5]), \
               ntohs(((u_short*)(addr).s6_addr)[6]), \
-              ntohs(((u_short*)(addr).s6_addr)[7]))
+              ntohs(((u_short*)(addr).s6_addr)[7])),buffer)
   #else
     #define ipv6_ntop(buffer,addr)  \
-      sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x", \
+     (sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x", \
               ntohs((addr).in6_u.u6_addr16[0]), \
               ntohs((addr).in6_u.u6_addr16[1]), \
               ntohs((addr).in6_u.u6_addr16[2]), \
@@ -173,7 +173,7 @@
               ntohs((addr).in6_u.u6_addr16[4]), \
               ntohs((addr).in6_u.u6_addr16[5]), \
               ntohs((addr).in6_u.u6_addr16[6]), \
-              ntohs((addr).in6_u.u6_addr16[7]))
+              ntohs((addr).in6_u.u6_addr16[7])),buffer)
   #endif
 #endif
 
