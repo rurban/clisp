@@ -1,5 +1,10 @@
 2002-06-19  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (nametype_diff_aux): treat logical and physical
+	pathnames the same way
+
+2002-06-19  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d (MAKE-ENCODING): new keyword argument
 	:IF-DOES-NOT-EXIST to return nil for non-existing charsets
 	(init_encodings_2): when the charset does not exist,
