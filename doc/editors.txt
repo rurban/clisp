@@ -11,17 +11,19 @@ This is a small survey of editors available with Lisp support.
 1. vi
    --
 
-Platforms: Unix, DOS, and probably others.
-(I recommend especially elvis-1.4 and vim.)
+Platforms: Unix, DOS, Win32...
+(We recommend especially vim and elvis.)
 
 Characteristics:
-- Text mode editor, no mouse support (at least not until elvis-2.0).
+- Text mode editor.
+- Full GUI in elvis 2 and vim 6.
 
 Features:
 - Fast, small.
 - Automatic backup.
 - Extremely handy search / replace / repeat functions ("/", "s", ".").
 - Deals well with big files (provided enough room in /tmp).
+- Syntax highlighting in recent versions of elvis and vim.
 
 Drawbacks:
 - User needs to constantly switch between "command mode" and "insert mode".
@@ -87,7 +89,7 @@ Recommended in the following situations:
 Platforms: Unix, OS/2, Win32.
 
 Characteristics:
-- X11 GUI editor with pull-down menus.
+- GUI editor with pull-down menus.
 
 Features:
 - Can also be used in text mode.
@@ -116,7 +118,7 @@ Drawbacks:
   - Using the scrollbar repositions the cursor.
   - Need to press C-g twice to abort incremental search.
   - many more details like this...
-  
+
 Lisp support:
 - Parenthesis matching (blinks once).
 - Helps indentation of Lisp code.
@@ -147,17 +149,16 @@ Discussion:
 
 * Which Emacs to use?
 
-  To date, we have the choice between GNU Emacs 18.58 (text mode only),
-  GNU Emacs 19.34 (GUI support for X11 and Win32), XEmacs 19.15 (GUI
-  support for X11, better than GNU Emacs), XEmacs 20.0 (GUI for X11,
-  with support for Hebrew(?) and Asian languages).
+  To date, we have the choice between
+   * Emacs 18.58 (text mode only);
+   * Emacs 19.34 (GUI for X11 and Win32);
+   * Emacs 20.7 (ditto);
+   * Emacs 21.1 (ditto);
+   * XEmacs 19.16 (GUI for X11);
+   * XEmacs 20.4 (GUI for X11);
+   * XEmacs 21.1 (GUI for X11 and Win32).
 
-  - On Unix without X11, I recommend GNU Emacs v19.
-    Available from ftp://prep.ai.mit.edu/pub/gnu/.
-  - On Unix with X11, I recommend XEmacs v19.
-  - On OS/2, I recommend GNU Emacs patched for emx+gcc by Eberhard Mattes.
-  - On Win32, I recommend GNU Emacs 19.34.6.
-    Available from http://www.cs.washington.edu/homes/voelker/ntemacs.html.
+  We recommend using the latest (21.*) version of either Emacs or XEmacs.
 
 * How to customize Emacs in general?
 
@@ -191,15 +192,14 @@ Discussion:
 
          ;; GNU Info pages.
          (setq Info-default-directory-list
-               '("/usr/local/info/" "/usr/info/")) 
+               '("/usr/local/info/" "/usr/info/"))
 
   4. Choose the default font. On my screen, "6x13" looks better than
      the default "9x15" font, so I put into my .emacs:
 
          ;; Default font for GNU Emacs 19.
          (if (not (string-match "XEmacs" emacs-version))
-           (set-default-font "6x13")
-         )
+           (set-default-font "6x13"))
 
      For XEmacs, you set the default font through an X resource in your
      .Xdefaults file. Get some inspiration from the file called
@@ -216,121 +216,58 @@ Discussion:
 * How to customize Emacs for use of CLISP?
 
   1. When you load a Lisp file (extension ".lisp") into Emacs, it
-     automatically switches to lisp-mode, magically by a variable
-     called auto-mode-alist.
+     automatically switches to `lisp-mode', magically by a variable
+     called `auto-mode-alist'.
      One feature of the lisp-mode is that the tab key indents the current
      line, which makes typing Lisp programs easier because you don't have
-     to type the whitespace. Unfortunately, this also educates you to lazily
-     put all closing parentheses at the end of the line, instead of closing
-     them - with thought - one by one.
-     The lisp-mode is not well suited for Common Lisp. In particular, IF
-     forms get badly indented. To fix this, add the following to your
-     .emacs:
+     to type the whitespace.
+     The lisp-mode is not well suited for Common Lisp.
+     In particular, IF forms get badly indented.
+     To fix this, add the following to your <.emacs>:
 
          ;; Common Lisp indentation.
          (load-library "cl-indent")
-         (add-hook 'lisp-mode-hook
-           (lambda ()
-             (setq lisp-indent-function 'common-lisp-indent-function)
-         ) )
-         ;; Additional definitions by Pierpaolo Bernardi.
-         (defun cl-indent (sym indent)
-           (put sym 'common-lisp-indent-function
-             (if (symbolp indent)
-               (get indent 'common-lisp-indent-function)
-               indent
-         ) ) )
-         (cl-indent 'if '1)
-         (cl-indent 'defclass '((&whole 4 &rest (&whole 2 &rest 1))
-                                &rest (&whole 2 &rest 1)))
-         (cl-indent 'defgeneric 'defun)
-         (cl-indent 'defmethod '(4 4 (&whole 4 &rest 1) &body))
-         (cl-indent 'generic-flet 'flet)
-         (cl-indent 'generic-labels 'labels)
-         (cl-indent 'symbol-macrolet 'multiple-value-bind)
-         (cl-indent 'with-accessors 'multiple-value-bind)
-         (cl-indent 'with-added-methods '((1 4 ((&whole 1))) (2 &body)))
-         (cl-indent 'with-slots 'multiple-value-bind)
-         (cl-indent 'handler-bind '((&whole 4 &rest 1) 2 &body))
-         (cl-indent 'handler-case '((1 4) (&whole 2 ((0 1) (1 3) (2 &body)))))
-         (cl-indent 'define-condition '((1 6)
-                                        (2 6 ((&whole 1)))
-                                        (3 4 ((&whole 1)))
-                                        (4 &body)))
-         (cl-indent 'restart-bind '(((&whole 2 (0 1) (&whole 1))) (2 &body)))
-         (cl-indent 'restart-case '((1 4) (&whole 2 ((0 1) (&whole 1)))))
-         (cl-indent 'with-condition-restarts '((1 4 ((&whole 1))) (2 &body)))
-         (cl-indent 'with-simple-restart '((1 4 ((&whole 1))) (2 &body)))
+         (setq lisp-indent-function 'common-lisp-indent-function)
 
-  2. If you still have problems with parentheses and indentation,
-     try out the mode-motion package. When you move the mouse cursor on
-     an opening parenthesis, it highlights the entire Lisp expression.
-     Very nice for checking badly indented Lisp code.
-     Insert into your .emacs:
-
-         ;; Visualizing Lisp forms.
-         (let ((hook
-                 (lambda ()
-                   (setq mode-motion-hook 'mode-motion-highlight-sexp))))
-           (add-hook 'emacs-lisp-mode-hook hook t)
-           (add-hook 'lisp-interaction-mode-hook hook t)
-           (add-hook 'lisp-mode-hook hook t)
-           (add-hook 'inferior-lisp-mode-hook hook t)
-           (add-hook 'talk-mode-hook hook t)
-         )
-
-  3. You might try out syntactic colouring of your Lisp programs.
+  2. You might try out syntactic colouring of your Lisp programs.
      Just after loading the first Lisp file into Emacs, type
-     M-x font-lock-mode.
-     Well, some people like it, some don't.
+       M-x font-lock-mode RET
+     You can also add
+       (global-font-lock-mode 1)
+     to your <.emacs>
 
-  4. Now, the easiest way to start clisp within Emacs, is M-x shell,
-     and at the shell prompt type
-
-         $ clisp
-
-     In this mode, you cycle through the history using M-p (not C-p
-     as with the readline library). Also, to retry a command, just
-     place the cursor at the beginning of the command and type
-     Return (in XEmacs) or C-c Return (in GNU Emacs).
-
-  5. There is a better Emacs mode, called inferior-lisp-mode.
-     CLISP is by no means "inferior" to Emacs Lisp (rather the contrary),
-     but CLISP in then turning as a kind of "server", with Emacs as "client".
+  3. The easiest way to start CLISP under Emacs is to type C-c C-z in a
+     Lisp buffer or M-x run-lisp RET anywhere.  This creates a Lisp
+     interaction buffer in `inferior-lisp-mode'.
+     (CLISP is by no means "inferior" to Emacs Lisp, but CLISP is
+      running "under" Emacs, thus the name).
      For this, add to your .emacs:
 
          ;; XEmacs doesn't autoload inf-lisp.el, load it now.
          (load-library "inf-lisp")
          ;; Define the program to be called by M-x run-lisp.
-         (setq inferior-lisp-program "clisp -I -q")
+         (setq inferior-lisp-program "clisp -I") ; the "-I" is important.
          ;; Add new keybindings: C-x C-e evaluates the *next* form,
          ;; C-x C-m macroexpands the next form.
          (defun lisp-eval-sexp (&optional and-go)
            "Send the next sexp to the inferior Lisp process.
             Prefix argument means switch to the Lisp buffer afterwards."
            (interactive "P")
-           (lisp-eval-region (point)
-                             (save-excursion (forward-sexp) (point))
-                             and-go
-         ) )
+           (lisp-eval-region (point) (scan-sexps (point) 1) and-go))
          (defun lisp-macroexpand-region (start end &optional and-go)
            "Macroexpand the current region in the inferior Lisp process.
             Prefix argument means switch to the Lisp buffer afterwards."
            (interactive "r\nP")
            (comint-send-string
             (inferior-lisp-proc)
-            (format "(macroexpand-1 (quote %s))\n" (buffer-substring start end))
-           )
-           (if and-go (switch-to-lisp t))
-         )
+            (format "(macroexpand-1 (quote %s))\n"
+                    (buffer-substring-no-properties start end)))
+           (if and-go (switch-to-lisp t)))
          (defun lisp-macroexpand-sexp (&optional and-go)
            "Macroexpand the next sexp in the inferior Lisp process.
             Prefix argument means switch to the Lisp buffer afterwards."
            (interactive "P")
-           (lisp-macroexpand-region (point)
-                                    (save-excursion (forward-sexp) (point))
-                                    and-go
-         ) )
+           (lisp-macroexpand-region (point) (scan-sexps (point) 1) and-go))
          ;; Define the great keybindings.
          (inferior-lisp-install-letter-bindings)
          (define-key lisp-mode-map          "\C-x\C-e" 'lisp-eval-sexp)
@@ -338,10 +275,8 @@ Discussion:
          (define-key lisp-mode-map          "\C-x\C-m" 'lisp-macroexpand-sexp)
          (define-key inferior-lisp-mode-map "\C-x\C-m" 'lisp-macroexpand-sexp)
 
-     The "-I" is important. The "-q" is only needed if the banner annoys you.
-     Then start CLISP by the command M-x run-lisp.
-     In this mode, M-p cycles through the history, as above, but C-c Return
-     doesn't work. The keybinding C-x C-e, which may also be issued from
+     In this mode, M-p cycles through the history.
+     The keybinding C-x C-e, which may also be issued from
      another lisp-mode buffer, evaluates the form before(!) the cursor.
 
      If you want to start clisp in different configurations, you can make
@@ -360,7 +295,7 @@ Discussion:
            (setq inferior-lisp-program "garnet -I -q")
            (run-lisp inferior-lisp-program))
 
-  6. There is an even better Emacs mode, called ilisp-mode.
+  4. There is an even better Emacs mode, called ilisp-mode.
      [Merge here stuff from Marcus, Matthias, Peter.??]
      XEmacs 19.14 comes with ILISP version 5.7. A newer version with much
      better support for CLISP is at http://ilisp.cons.org/ .
