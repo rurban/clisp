@@ -108,7 +108,10 @@
   #endif
 #endif
 # additional specification of the machine:
-#ifdef OS2
+#if defined(OS2) || defined(WIN32)
+  # declare availability of typical PC facilities,
+  # like a console with a graphics mode that differs from the text mode,
+  # or a keyboard with function keys F1..F12.
   #define PC386 # IBMPC-compatible with 80386/80486-processor
 #endif
 #ifdef GENERIC_UNIX
