@@ -851,9 +851,11 @@ if [ $XCC_GCC = true ] ; then
       * ) ;;
     esac
   fi
+ if [ "${DEBUGGING}" != debug ] ; then # no optimizations
   if [ "$cpu" = i386 ] ; then
     # gcc <= 2.3.2 may crash when compiling lisparit with -O2
-    # gcc 2.3.3 may produce incorrect code when compiling spvw(SPVW_PURE) with -O -fomit-frame-pointer
+    # gcc 2.3.3 may produce incorrect code when compiling spvw(SPVW_PURE)
+    # with -O -fomit-frame-pointer
     if [ $CROSS = false ] ; then
       XCC_GCC_VERSION=`$XCC -v 2>&1 | tail -1 | sed -e 's/.*version //g'`
       case "$XCC_GCC_VERSION" in
@@ -895,6 +897,7 @@ if [ $XCC_GCC = true ] ; then
   else
     XCFLAGS=$XCFLAGS'-O2'
   fi
+ fi # DEBUGGING
   if [ $TSYS = win32gcc ] ; then
     XCFLAGS=$XCFLAGS' -D_WIN32';
   fi
