@@ -389,7 +389,8 @@ local void affi_call_argsa(address, ffinfo, args, count)
               goto case_orecord;
             else switch (0)
             #endif
-            { case_posfixnum: case_posbignum:
+            {
+              case_posfixnum: case_posbignum:
                 if (!(accept & ACCEPT_ADDR_ARG))
                   goto bad_arg;
                 *thing = (aint)I_to_UL(arg);
@@ -453,14 +454,14 @@ local void affi_call_argsa(address, ffinfo, args, count)
                     goto bad_arg;
                 }
                 break;
-              case_ob8vector:
-              case_ob16vector:
-              case_ob32vector:
+              case_b8vector:
+              case_b16vector:
+              case_b32vector:
                 if (!(accept & ACCEPT_UBVECTOR_ARG))
                   goto bad_arg;
                 {
                   var uintL index = 0;
-                  arg = iarray_displace_check(arg,0,&index); # UNSAFE
+                  arg = array_displace_check(arg,0,&index); # UNSAFE
                   *thing = (aint)&TheSbvector(arg)->data[index];
                 }
                 break;
@@ -738,7 +739,8 @@ LISPFUN(affi_nonzerop,1,0,norest,nokey,0,NIL)
       goto case_orecord;
     else switch (0)
     #endif
-    { case_posfixnum: case_posbignum:
+    {
+      case_posfixnum: case_posbignum:
         value1 = (eq(arg,Fixnum_0) ? NIL : T);
         break;
       case_orecord:
