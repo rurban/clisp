@@ -304,16 +304,6 @@
 ;;                    class-of cons gethash funcall apply ...
 ;;   )        )
 
-;; Returns a generic function without dispatch-code. Not callable!!
-(defun %make-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation)
-  (make-generic-function-instance generic-function-class
-    :name name
-    :lambda-list lambda-list
-    :argument-precedence-order argument-precedence-order
-    :method-class method-class
-    :declarations declspecs
-    :documentation documentation))
-
 #||
  (defun make-gf (generic-function-class name lambdabody signature argorder methods)
   (let ((preliminary
@@ -331,7 +321,14 @@
 #|| ;; Generic functions with primitive dispatch:
 
  (defun make-slow-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation methods)
-  (let* ((final (%make-gf generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation))
+  (let* ((final
+           (make-generic-function-instance generic-function-class
+             :name name
+             :lambda-list lambda-list
+             :argument-precedence-order argument-precedence-order
+             :method-class method-class
+             :declarations declspecs
+             :documentation documentation))
          (preliminary
            (eval `(LET ((GF ',final))
                     (DECLARE (COMPILE))
@@ -442,7 +439,13 @@
 ;; Generic functions with optimized dispatch:
 
 (defun make-fast-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation)
-  (%make-gf generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation))
+  (make-generic-function-instance generic-function-class
+    :name name
+    :lambda-list lambda-list
+    :argument-precedence-order argument-precedence-order
+    :method-class method-class
+    :declarations declspecs
+    :documentation documentation))
 
 (let ((prototype-factory-table
         (make-hash-table :key-type '(cons fixnum boolean) :value-type '(cons function (simple-array (unsigned-byte 8) (*)))
