@@ -123,6 +123,17 @@ This will not work with closures that use lexical variables!"
 (defun local-function-name-p (obj)
   (and (consp obj) (eq 'local (car obj))))
 
+(defstruct (tracer (:type vector))
+  name symb cur-def local-p
+  suppress-if step-if pre post pre-break-if post-break-if
+  pre-print post-print print)
+
+;; install the new function definition
+(defun tracer-set-fdef (trr new-fdef)
+  (if (tracer-local-p trr)
+      (%local-set new-fdef (rest (tracer-name trr)))
+      (setf (symbol-function (tracer-symb trr)) new-fdef)))
+
 ;; Functions, that the Tracer calls at runtime and that the user could
 ;; trace, must be called in their untraced form.
 ;; Instead of (fun arg ...) use instead (SYS::%FUNCALL '#,#'fun arg ...)
@@ -134,10 +145,14 @@ This will not work with closures that use lexical variables!"
   (if (null funs)
     '*traced-functions*
     (cons 'append
-      (mapcar #'(lambda (fun)
-                  (if (or (atom fun) (function-name-p fun))
-                    (trace1 fun)
-                    (apply #'trace1 fun)))
+      (mapcar (lambda (fun)
+                (cond ((or (function-name-p fun) (local-function-name-p fun))
+                       (let ((trr (make-tracer :name fun)))
+                         (check-traceable fun trr 'trace)
+                         `(trace1 ,trr)))
+                      ((let ((trr (apply #'make-tracer :name fun)))
+                         (check-traceable (first fun) trr 'trace)
+                         `(trace1 ,trr)))))
               funs))))
 
 (defun error-function-name (caller funname)
@@ -145,88 +160,118 @@ This will not work with closures that use lexical variables!"
     (TEXT "~s: ~s is not a function name")
     caller funname))
 
-(defun trace1 (funname &key (suppress-if nil) (step-if nil)
-                            (pre nil) (post nil)
-                            (pre-break-if nil) (post-break-if nil)
-                            (pre-print nil) (post-print nil) (print nil)
-                       &aux (old-function (gensym)) (macro-flag (gensym)))
-  (unless (function-name-p funname) (error-function-name 'trace funname))
-  (check-redefinition funname 'trace "function")
-  (let ((symbolform
-          (if (atom funname)
-            `',funname
-            `(load-time-value (get-setf-symbol ',(second funname))))))
-    `(block nil
-       (unless (fboundp ,symbolform) ; function defined at all?
-         (warn (TEXT "~S: undefined function ~S")
-               'trace ',funname)
-         (return nil))
-       (when (special-operator-p ,symbolform) ; Special-Form: not traceable
-         (warn (TEXT "~S: cannot trace special operator ~S")
-               'trace ',funname)
-         (return nil))
-       (let* ((,old-function (symbol-function ,symbolform))
-              (,macro-flag (macrop ,old-function)))
-         (unless (eq ,old-function (get ,symbolform 'sys::tracing-definition))
-           ;; already traced?
-           (setf (get ,symbolform 'sys::traced-definition) ,old-function)
-           (pushnew ',funname *traced-functions* :test #'equal))
-         (format t (TEXT "~&;; Tracing ~:[function~;macro~] ~S.")
-                   ,macro-flag ',funname)
-         (setf (get ,symbolform 'sys::tracing-definition)
-           (setf (symbol-function ,symbolform)
-             ;; new function, that replaces the original one:
-             ,(let ((newname (concat-pnames "TRACED-"
-                                            (get-funname-symbol funname)))
-                    (body
-                     `((declare (compile)
-                        (inline car cdr cons apply values-list))
-                       (let ((*trace-level* (trace-level-inc)))
-                         (block nil
-                           (unless ,suppress-if
-                             (trace-pre-output))
-                           ,@(when pre-print
-                               `((trace-print (multiple-value-list
-                                               ,pre-print))))
-                           ,@(when print
-                               `((trace-print (multiple-value-list ,print))))
-                           ,pre
-                           ,@(when pre-break-if
-                               `((when ,pre-break-if (sys::break-loop t))))
-                           (let ((*trace-values*
-                                  (multiple-value-list
-                                   (if ,step-if
-                                     (trace-step-apply)
-                                     (apply *trace-function* *trace-args*)))))
-                             ,@(when post-break-if
-                                 `((when ,post-break-if (sys::break-loop t))))
-                             ,post
-                             ,@(when print
-                                 `((trace-print (multiple-value-list ,print))))
-                             ,@(when post-print
+;; check whether the FUNNAME can be traced,
+;; fill SYMB, CUR-DEF and LOCAL-P slots of TRR and return TRR
+(defun check-traceable (funname trr caller)
+  (cond ((function-name-p funname)
+         (let ((sym (if (atom funname) funname
+                        (get-setf-symbol (second funname)))))
+           (unless (fboundp sym)
+             (error (TEXT "~S: undefined function ~S") caller funname))
+           (when (special-operator-p sym)
+             (error (TEXT "~S: cannot trace special operator ~S")
+                    caller funname))
+           (setf (tracer-symb trr) sym
+                 (tracer-cur-def trr) (symbol-function sym)
+                 (tracer-local-p trr) nil)))
+        ((local-function-name-p funname)
+         (setf (tracer-cur-def trr) (%local-get (rest funname))
+               (tracer-symb trr) (closure-name (tracer-cur-def trr))
+               (tracer-local-p trr) t)
+         (when (get (tracer-symb trr) 'sys::untraced-name)
+           (setf (tracer-symb trr)
+                 (get (tracer-symb trr) 'sys::untraced-name))))
+        (t (error-function-name caller funname)))
+  (check-redefinition funname caller "function")
+  trr)
+
+(defun trace1 (trr)
+  (let ((macro-flag (macrop (tracer-cur-def trr)))
+        (sig (when (tracer-local-p trr)
+               (sig-to-list (get-signature (tracer-cur-def trr))))))
+    (unless (eq (tracer-cur-def trr) ; already traced?
+                (get (tracer-symb trr) 'sys::tracing-definition))
+      (setf (get (tracer-symb trr) 'sys::traced-definition)
+            (tracer-cur-def trr))
+      (pushnew (tracer-name trr) *traced-functions* :test #'equal))
+    (format t (TEXT "~&;; Tracing ~:[function~;macro~] ~S.")
+            macro-flag (tracer-name trr))
+    (setf (get (tracer-symb trr) 'sys::tracing-definition)
+          ;; new function, that replaces the original one:
+          (let ((newname (concat-pnames "TRACED-" (tracer-symb trr)))
+                (body
+                 `((declare (inline car cdr cons apply values-list))
+                   (let ((*trace-level* (trace-level-inc)))
+                     (block nil
+                       (unless ,(tracer-suppress-if trr) (trace-pre-output))
+                       ,@(when (tracer-pre-print trr)
+                           `((trace-print (multiple-value-list
+                                           ,(tracer-pre-print trr)))))
+                       ,@(when (tracer-print trr)
+                           `((trace-print (multiple-value-list
+                                           ,(tracer-print trr)))))
+                       ,(tracer-pre trr)
+                       ,@(when (tracer-pre-break-if trr)
+                           `((when ,(tracer-pre-break-if trr)
+                               (sys::break-loop t))))
+                       (let ((*trace-values*
+                              (multiple-value-list
+                               ,(if (tracer-local-p trr)
+                                    `(funcall ,(tracer-cur-def trr) ,@sig)
+                                  (if (tracer-step-if trr)
+                                    '(trace-step-apply)
+                                    '(apply *trace-function* *trace-args*))))))
+                         ,@(when (tracer-post-break-if trr)
+                             `((when ,(tracer-post-break-if trr)
+                                 (sys::break-loop t))))
+                         ,(tracer-post trr)
+                         ,@(when (tracer-print trr)
+                             `((trace-print (multiple-value-list
+                                             ,(tracer-print trr)))))
+                         ,@(when (tracer-post-print trr)
                                 `((trace-print (multiple-value-list
-                                                ,post-print))))
-                             (unless ,suppress-if
+                                             ,(tracer-post-print trr)))))
+                         (unless ,(tracer-suppress-if trr)
                                (trace-post-output))
                              (values-list *trace-values*)))))))
-                `(if (not ,macro-flag)
-                   (function ,newname
-                     (lambda (&rest *trace-args*
-                              &aux (*trace-form*
-                                    (make-apply-form ',funname *trace-args*))
-                                   (*trace-function*
-                                    (get-traced-definition ,symbolform)))
-                       ,@body))
+            (setf (get newname 'sys::untraced-name) (tracer-symb trr))
+            (cond (macro-flag
                    (make-macro
-                     (function ,newname
-                       (lambda (&rest *trace-args*
+                    (fdefinition
+                     (compile newname
+                      `(lambda (&rest *trace-args*
                                 &aux (*trace-form* (car *trace-args*))
                                      (*trace-function*
                                       (macro-expander
                                        (get-traced-definition
-                                        ,symbolform))))
-                         ,@body))))))))
-       '(,funname))))
+                                   ',(tracer-symb trr)))))
+                        ,@body)))))
+                  ((tracer-local-p trr)
+                   (fdefinition
+                    (compile newname
+                     `(lambda ,sig
+                        (let* ((*trace-args* (list ,@sig))
+                               (*trace-form*
+                                (make-apply-form ',(tracer-name trr)
+                                                 *trace-args*))
+                               (*trace-function*
+                                (get-traced-definition
+                                 ',(tracer-symb trr))))
+                          ,@body)))))
+                  (t (fdefinition
+                      (compile newname
+                       `(lambda (&rest *trace-args*
+                                 &aux (*trace-form*
+                                       (make-apply-form ',(tracer-name trr)
+                                                        *trace-args*))
+                                 (*trace-function*
+                                  (get-traced-definition
+                                   ',(tracer-symb trr))))
+                         ,@body)))))))
+    ;; install the new definition
+    (tracer-set-fdef trr (get (tracer-symb trr) 'sys::tracing-definition))
+    ;; return the name
+    (list (tracer-name trr))))
 
 ;; auxiliary functions:
 ;; return next-higher Trace-Level:
@@ -289,30 +334,30 @@ This will not work with closures that use lexical variables!"
     ,(if (null funs) `(copy-list *traced-functions*) `',funs)))
 
 (defun untrace1 (funname)
-  (unless (function-name-p funname)
-    (error-of-type 'source-program-error
-      (TEXT "~S: function name should be a symbol, not ~S")
-      'untrace funname))
-  (check-redefinition funname 'untrace "function")
-  (let* ((symbol (get-funname-symbol funname))
+  (let* ((trr (check-traceable funname (make-tracer :name funname) 'untrace))
+         (symbol (tracer-symb trr))
          (old-definition (get symbol 'sys::traced-definition)))
     (prog1
       (if old-definition
         ;; symbol was traced
         (progn
-          (if (and (fboundp symbol)
-                   (eq (symbol-function symbol)
-                       (get symbol 'sys::tracing-definition)))
-            (setf (symbol-function symbol) old-definition)
+          (if (eq (tracer-cur-def trr)
+                  (get symbol 'sys::tracing-definition))
+            (tracer-set-fdef trr old-definition)
             (warn (TEXT "~S: ~S was traced and has been redefined!")
                   'untrace funname))
           `(,funname))
         ;; funname was not traced
         '())
-      (untrace2 funname))))
+      (untrace2 trr))))
 
 (defun untrace2 (funname)
-  (let ((symbol (get-funname-symbol funname)))
+  ;; funname can be either a tracer (from untrace1)
+  ;; or a function name (from remove-old-definitions)
+  (let ((symbol (if (vectorp funname) (tracer-symb funname)
+                    (get-funname-symbol funname))))
     (remprop symbol 'sys::traced-definition)
     (remprop symbol 'sys::tracing-definition))
-  (setq *traced-functions* (delete funname *traced-functions* :test #'equal)))
+  (setq *traced-functions*
+        (delete (if (vectorp funname) (tracer-name funname) funname)
+                *traced-functions* :test #'equal)))
