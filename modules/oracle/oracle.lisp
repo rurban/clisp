@@ -149,6 +149,18 @@ Returns: T if a cached connection was re-used (NIL if a new connection
   (let* ((hkey (connection-key user schema server))
          (conn (gethash hkey *oracle-connection-cache*))
          (result t))
+
+    ; If using cached connection, "ping" it with a query to make sure it's still alive
+    ; If there's an error, disconnect and invalidate; fall through and retry
+    (when conn
+	  (let ((conn-handle (db-connection conn)))
+	    (oracle_exec_sql conn-handle "SELECT 'x' FROM dual" (make-array 0) (c-truth t))
+	    (when (not (lisp-truth (oracle_success conn-handle)))
+		  (oracle_disconnect conn-handle) ; Don't check for error here
+		  (remhash hkey *oracle-connection-cache*)
+		  (setf conn nil)
+		  (setf *oracle-connection* nil))))
+    
     (when (null conn)
           ; Connect to database
           (let ((handle (oracle_connect user schema password server prefetch-buffer-bytes (c-truth auto-commit) long-len (c-truth truncate-ok))))
