@@ -1,3 +1,8 @@
+2000-03-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * clisp-link.in (create-module-set): Remove generation of variables
+          wfiles_o and wfile_list.
+
 2000-03-21  Sam Steingold  <sds@gnu.org>
 
 	* inspect.lsp: use a vector instead of a hash for inspected
