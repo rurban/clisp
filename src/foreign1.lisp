@@ -26,7 +26,7 @@
           foreign-address foreign-address-unsigned unsigned-foreign-address
           with-foreign-object with-c-var with-foreign-string
           foreign-allocate allocate-deep allocate-shallow foreign-free
-          foreign-address foreign-variable foreign-function))
+          foreign-pointer foreign-variable foreign-function))
 
 (eval-when (load compile eval)
   (import (intern "*COUTPUT-FILE*" "COMPILER"))
@@ -750,7 +750,6 @@
 
 (defsetf foreign-value set-foreign-value)
 (defsetf foreign-pointer set-foreign-pointer)
-(defsetf foreign-pointer set-foreign-pointer)
 (defsetf validp set-validp)
 
 (defun foreign-address-null (fadr)
@@ -807,7 +806,7 @@
 
 (defmacro allocate-shallow (ffi-type &rest keywords &key count read-only)
   (declare (ignore count read-only)) ; to be accessed via keywords
-  `(foreign-alloc* (parse-c-type ,ffi-type) ,@keywords))
+  `(foreign-allocate (parse-c-type ,ffi-type) ,@keywords))
 
 ;; ============================ named C functions ============================
 
