@@ -4404,7 +4404,7 @@ functions are provided:</para>
  which do not fit onto the same line as the the corresponding opening
  parenthesis are output just below their corresponding opening
  parenthesis, in the same column.  <varname>lisp:*print-rpars*</varname>
- is initially set to &t;.</para>
+ is initially set to &nil;.</para>
 
 <para id="pr-indent">An additional variable <emphasis
  role="strong"><varname>lisp:*print-indent-lists*</varname></emphasis>
@@ -4412,7 +4412,7 @@ functions are provided:</para>
  specifies by how many characters items within the list will be indented
  relative to the beginning of the list.
  <varname>lisp:*print-indent-lists*</varname> is initially set to
- <literal>2</literal>.</para>
+ <literal>1</literal>.</para>
 
 </section>
 

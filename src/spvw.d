@@ -1404,8 +1404,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         define_variable(S(print_closure),NIL);          # *PRINT-CLOSURE* := NIL
         define_variable(S(print_readably),NIL);         # *PRINT-READABLY* := NIL
         define_variable(S(print_right_margin),NIL);     # *PRINT-RIGHT-MARGIN* := NIL
-        define_variable(S(print_rpars),T);              # *PRINT-RPARS* := T
-        define_variable(S(print_indent_lists),fixnum(2)); # *PRINT-INDENT-LISTS* := 2
+        define_variable(S(print_rpars),NIL);            # *PRINT-RPARS* := NIL
+        define_variable(S(print_indent_lists),fixnum(1)); # *PRINT-INDENT-LISTS* := 1
         define_variable(S(print_circle_table),unbound); # SYS::*PRINT-CIRCLE-TABLE*
         define_variable(S(prin_level),unbound);         # SYS::*PRIN-LEVEL*
         define_variable(S(prin_stream),unbound);        # SYS::*PRIN-STREAM*
