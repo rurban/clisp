@@ -92,10 +92,10 @@ The following information is associated with class metaobjects:
  </indexterm></firstterm>
  contains information about the definition of a slot.
 There are two kinds of slot definition metaobjects.
-A <emphasis>direct</emphasis> slot definition metaobject is used to
+A <firstterm>direct</firstterm> slot definition metaobject is used to
  represent the direct definition of a slot in a class.
 This corresponds roughly to the slot specifiers found in &defclass; forms.
-An <emphasis>effective</emphasis> slot definition metaobject is used to
+An <firstterm>effective</firstterm> slot definition metaobject is used to
  represent information, including inherited information, about a slot
  which is accessible in instances of a particular class.</para>
 
@@ -115,7 +115,7 @@ effective slot definitions metaobjects:
   initialization form together with its lexical environment is available
   as a function of no arguments which, when called, returns the result
   of evaluating the initialization form in its lexical environment. This
-  is called the <emphasis>initfunction</emphasis> of the slot.
+  is called the <firstterm>initfunction</firstterm> of the slot.
 </simpara></listitem>
 <listitem><simpara>The slot filling initialization arguments are
   available as a list of symbols.</simpara></listitem>
@@ -165,7 +165,7 @@ slot in instances of the class is available.
 </simpara>
 <note><simpara>There is some ambiguity in &cl; about the terms used to
   identify the various parts of &declare; special forms.
-  In this document, the term <emphasis>declaration</emphasis> is used to
+  In this document, the term <firstterm>declaration</firstterm> is used to
   refer to an object that could be an argument to a &declare; special form.
   For example, in the special form
   <literal role="sexp">(&declare; (&special-dec; *g1*))</literal>,
