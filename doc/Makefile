@@ -1,7 +1,7 @@
 # CLISP Implementation Notes generation
 # (c) 2000-2002 Sam Steingold
 
-DTDVER=4.1.2
+DTDVER=4.2
 IMPNOTES=impnotes.dsl cl-ent.xml clhs-ent.xml impbody.xml impent.xml \
 	impext.xml impissue.xml impbyte.xml unix-ent.xml \
 	../modules/regexp/regexp.xml
