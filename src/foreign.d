@@ -175,7 +175,7 @@ global void register_foreign_variable (void* address, const char * name_asciz,
                                        uintBWL flags, uintL size)
 {
   var object name = asciz_to_string(name_asciz,O(internal_encoding));
-  var object obj = gethash(name,O(foreign_variable_table));
+  var object obj = gethash(name,O(foreign_variable_table),false);
   if (!eq(obj,nullobj)) {
     obj = TheFvariable(obj)->fv_address;
     obj = TheFaddress(obj)->fa_base;
@@ -210,7 +210,7 @@ global void register_foreign_function (void* address, const char * name_asciz,
                                        uintWL flags)
 {
   var object name = asciz_to_string(name_asciz,O(internal_encoding));
-  var object obj = gethash(name,O(foreign_function_table));
+  var object obj = gethash(name,O(foreign_function_table),false);
   if (!eq(obj,nullobj)) {
     obj = TheFfunction(obj)->ff_address;
     obj = TheFaddress(obj)->fa_base;
@@ -427,7 +427,7 @@ local object convert_function_to_foreign (object fun, object resulttype,
     return fun;
   }
   { /* Look it up in the hash table, alist: */
-    var object alist = gethash(fun,O(foreign_callin_table));
+    var object alist = gethash(fun,O(foreign_callin_table),false);
     if (!eq(alist,nullobj)) {
       while (consp(alist)) {
         var object acons = Car(alist);
@@ -485,7 +485,7 @@ local object convert_function_to_foreign (object fun, object resulttype,
     { /* Put it into the hash table. */
       var object new_cons = allocate_cons();
       Car(new_cons) = popSTACK();
-      var object alist = gethash(STACK_1,O(foreign_callin_table));
+      var object alist = gethash(STACK_1,O(foreign_callin_table),false);
       if (eq(alist,nullobj))
         alist = NIL;
       Cdr(new_cons) = alist;
@@ -520,7 +520,7 @@ local void free_foreign_callin (void* address)
         triple[2] = TheSvector(dv)->data[0];
         TheSvector(dv)->data[0] = fixnum(cb_data);
         { /* remove from hash table entry: */
-          var object alist = gethash(fun,O(foreign_callin_table));
+          var object alist = gethash(fun,O(foreign_callin_table),false);
           if (!eq(alist,nullobj)) { /* safety check */
             /* see list.d:deleteq() */
             var object alist1 = alist;
@@ -2179,7 +2179,7 @@ LISPFUNN(lookup_foreign_variable,2)
 {
   var object fvd = popSTACK();
   var object name = popSTACK();
-  var object fvar = gethash(name,O(foreign_variable_table));
+  var object fvar = gethash(name,O(foreign_variable_table),false);
   if (eq(fvar,nullobj)) {
     pushSTACK(name);
     fehler(error,GETTEXT("A foreign variable ~S does not exist"));
@@ -2884,7 +2884,7 @@ LISPFUNN(lookup_foreign_function,2)
     pushSTACK(S(lookup_foreign_function));
     fehler(error,GETTEXT("~S: illegal foreign function type ~S"));
   }
-  var object oldffun = gethash(name,O(foreign_function_table));
+  var object oldffun = gethash(name,O(foreign_function_table),false);
   if (eq(oldffun,nullobj)) {
     pushSTACK(name);
     pushSTACK(S(lookup_foreign_function));

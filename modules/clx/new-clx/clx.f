@@ -778,7 +778,7 @@ static object make_xid_obj_2 (object type, object dpy, XID xid,
     /* Now go with that cons into the hash-table ... */
     pushSTACK(STACK_0);         /* the display object */
     display_hash_table(); /* the table [also ensures that dpy is a display] */
-    value1 = gethash(O(xlib_a_cons),popSTACK()); /* look it up */
+    value1 = gethash(O(xlib_a_cons),popSTACK(),true); /* look it up */
     if (!eq(value1,nullobj)) {  /* something found? */
       mv_count = 1;             /* simply return what we found */
     } else { /* Nothing found, so create a new object */
