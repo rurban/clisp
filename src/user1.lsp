@@ -585,6 +585,7 @@ Step-until, Next-until, Over-until, Continue-until:
                        (write-string (prompt-string1) s)
                        (write-string "Step " s)
                        (write *step-level* :stream s)
+                       (write-char #\Space s)
                        (write-string (prompt-string2) s)
                        (write-string (prompt-string3) s)
              )       )
