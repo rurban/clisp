@@ -8474,8 +8474,8 @@ LISPFUNN(print_structure,2)
               # call (NAMESTRING pathname)
               pushSTACK(obj); funcall(L(namestring),1); obj = value1;
               ASSERT(stringp(obj));
-              if (test_value(S(print_readably)) &&
-                  !test_value(S(print_pathnames_ansi))) {
+              if (test_value(S(print_readably))
+                  && !test_value(S(print_pathnames_ansi))) {
                 var object* obj_;
                 pushSTACK(obj); # string
                 obj_ = &STACK_0;
