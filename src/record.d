@@ -1546,8 +1546,7 @@ local Values do_initialize_instance (object info,
          (setq initargs
                (append initargs
                  (list (car default-initarg)
-                       (let ((init (cdr default-initarg)))
-                         (if (car init) (funcall (car init)) (cdr init)))))))))
+                       (funcall (caddr default-initarg))))))))
    (let ((h (gethash class *make-instance-table*)))
      (if h
        (progn
@@ -1594,8 +1593,7 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
       /* not found */
       pushSTACK(key); /* Initarg in the stack */
       {
-        var object initer = Cdr(default_initarg);
-        var object init = Cdr(initer);
+        var object init = Car(Cdr(Cdr(default_initarg)));
         if (closurep(init)
             && eq(TheClosure(init)->clos_name,S(constant_initfunction))
             && eq(TheClosure(init)->clos_codevec,O(constant_initfunction_code))) {

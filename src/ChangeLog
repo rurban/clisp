@@ -1,3 +1,14 @@
+2004-04-25  Bruno Haible  <bruno@clisp.org>
+
+	Change the default-initargs representation to match the MOP.
+	* record.d (CLOS::%MAKE-INSTANCE): Assume each default initarg is
+	in the form (symbol form func) instead of (symbol . initer).
+	* clos-class2.lisp (defclass): Produce :DIRECT-DEFAULT-INITARGS
+	as a list of (symbol form func).
+	(ensure-class, equal-default-initargs,
+	finalize-instance-standard-class, initialize-instance-structure-class):
+	Update.
+
 2004-05-17  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d: Rewrite a preprocessor expression, to avoid a gcc
