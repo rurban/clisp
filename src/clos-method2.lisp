@@ -120,7 +120,7 @@
             (and (fboundp 'find-method) (fboundp funname)
                  (typep-class (fdefinition funname) <generic-function>)
                  (not (eq (std-gf-signature (fdefinition funname)) (sys::%unbound)))
-                 (eql (sig-req-num (std-gf-signature (fdefinition funname))) (length spec-list))
+                 (eql (sig-req-num (safe-gf-signature (fdefinition funname))) (length spec-list))
                  (find-method (fdefinition funname) qualifiers spec-list nil)
                  "method"))
           (multiple-value-bind (reqvars optvars optinits optsvars rest

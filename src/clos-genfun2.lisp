@@ -7,6 +7,20 @@
 
 ;; ===================== Generic Function Initialization =====================
 
+;; Checks a generic-function lambda-list and converts it to a signature.
+;; Reports errors through errfunc (a function taking a detail object, an
+;; error format string and format string arguments).
+(defun generic-function-lambda-list-to-signature (lambdalist errfunc)
+  (multiple-value-bind (reqvars optvars rest keyp keywords keyvars allowp)
+      (sys::analyze-generic-function-lambdalist lambdalist errfunc)
+    (declare (ignore keyvars))
+    (let ((reqnum (length reqvars))
+          (optnum (length optvars))
+          (restp (or (not (eql rest 0)) keyp))) ; &key implies &rest
+      (make-signature :req-num reqnum :opt-num optnum
+                      :rest-p restp :keys-p keyp
+                      :keywords keywords :allow-p allowp))))
+
 ; n --> list (0 ... n-1)
 (defun countup (n)
   (do* ((count n (1- count))
@@ -22,51 +36,45 @@
 ;; error format string and format string arguments).
 (defun check-gf-lambdalist+argorder (lambdalist argument-precedence-order argument-precedence-order-p errfunc)
   ;; Check the lambda-list.
-  (multiple-value-bind (reqvars optvars rest keyp keywords keyvars allowp)
-      (sys::analyze-generic-function-lambdalist lambdalist
-        #'(lambda (detail errorstring &rest arguments)
-            (funcall errfunc detail
-                     (TEXT "Invalid generic function lambda-list: ~A")
-                     (apply #'format nil errorstring arguments))))
-    (declare (ignore keyvars))
-    (let ((reqnum (length reqvars))
-          (optnum (length optvars))
-          (restp (or (not (eql rest 0)) keyp))) ; &key implies &rest
-      (let ((signature
-              (make-signature :req-num reqnum :opt-num optnum
-                              :rest-p restp :keys-p keyp
-                              :keywords keywords :allow-p allowp)))
-        (if argument-precedence-order-p
-          ;; Check the argument-precedence-order.
-          (progn
-            (unless (proper-list-p argument-precedence-order)
-              (funcall errfunc argument-precedence-order
-                       (TEXT "The ~S argument should be a proper list, not ~S")
-                       ':argument-precedence-order argument-precedence-order))
-            (let ((indices
-                    (mapcar #'(lambda (x)
-                                (or (position x reqvars)
-                                    (funcall errfunc x
-                                             (TEXT "Incorrect ~S argument: ~S is not one of the required parameters: ~S")
-                                             ':argument-precedence-order x argument-precedence-order)))
-                            argument-precedence-order)))
-              ;; Is argument-precedence-order a permutation of reqvars?
-              ;; In other words: Is the mapping
-              ;;         argument-precedence-order --> reqvars
-              ;; resp.   indices                   --> {0, ..., reqnum-1}
-              ;; bijective?
-              (unless (or (<= (length indices) 1) (apply #'/= indices)) ; injective?
-                (funcall errfunc argument-precedence-order
-                         (TEXT "Incorrect ~S argument: Some variable occurs twice in ~S")
-                         ':argument-precedence-order argument-precedence-order))
-              (unless (eql (length indices) reqnum) ; surjective?
-                (let ((missing (set-difference reqvars argument-precedence-order)))
-                  (funcall errfunc missing
-                           (TEXT "Incorrect ~S argument: The variables ~S are missing in ~S")
-                           ':argument-precedence-order
-                           missing argument-precedence-order)))
-              (values signature argument-precedence-order indices)))
-          (values signature reqvars (countup reqnum)))))))
+  (let* ((signature
+           (generic-function-lambda-list-to-signature lambdalist
+             #'(lambda (detail errorstring &rest arguments)
+                 (funcall errfunc detail
+                          (TEXT "Invalid generic function lambda-list: ~A")
+                          (apply #'format nil errorstring arguments)))))
+         (reqnum (sig-req-num signature))
+         (reqvars (subseq lambdalist 0 reqnum)))
+    (if argument-precedence-order-p
+      ;; Check the argument-precedence-order.
+      (progn
+        (unless (proper-list-p argument-precedence-order)
+          (funcall errfunc argument-precedence-order
+                   (TEXT "The ~S argument should be a proper list, not ~S")
+                   ':argument-precedence-order argument-precedence-order))
+        (let ((indices
+                (mapcar #'(lambda (x)
+                            (or (position x reqvars)
+                                (funcall errfunc x
+                                         (TEXT "Incorrect ~S argument: ~S is not one of the required parameters: ~S")
+                                         ':argument-precedence-order x argument-precedence-order)))
+                        argument-precedence-order)))
+          ;; Is argument-precedence-order a permutation of reqvars?
+          ;; In other words: Is the mapping
+          ;;         argument-precedence-order --> reqvars
+          ;; resp.   indices                   --> {0, ..., reqnum-1}
+          ;; bijective?
+          (unless (or (<= (length indices) 1) (apply #'/= indices)) ; injective?
+            (funcall errfunc argument-precedence-order
+                     (TEXT "Incorrect ~S argument: Some variable occurs twice in ~S")
+                     ':argument-precedence-order argument-precedence-order))
+          (unless (eql (length indices) reqnum) ; surjective?
+            (let ((missing (set-difference reqvars argument-precedence-order)))
+              (funcall errfunc missing
+                       (TEXT "Incorrect ~S argument: The variables ~S are missing in ~S")
+                       ':argument-precedence-order
+                       missing argument-precedence-order)))
+          (values signature argument-precedence-order indices)))
+      (values signature reqvars (countup reqnum)))))
 
 ;; Checks a generic-function declspecs list.
 (defun check-gf-declspecs (declspecs keyword errfunc)
@@ -80,7 +88,7 @@
 
 ;; CLtL2 28.1.6.4., ANSI CL 7.6.4. Congruent Lambda-lists
 (defun check-signature-congruence (gf method
-                                   &optional (gf-sign (std-gf-signature gf))
+                                   &optional (gf-sign (safe-gf-signature gf))
                                              (m-sign (method-signature method)))
   (unless (= (sig-req-num m-sign) (sig-req-num gf-sign))
     (error-of-type 'error
@@ -156,7 +164,7 @@
       ;; value [for the :lambda-list argument] is congruent with the lambda
       ;; lists of all existing methods or there are no methods, the value is
       ;; changed; otherwise an error is signaled.
-      (unless (equalp signature (std-gf-signature gf))
+      (unless (equalp signature (safe-gf-signature gf))
         (dolist (method (safe-gf-methods gf))
           (check-signature-congruence gf method signature)))))
   (when (or (eq situation 't) method-class-p)
@@ -421,7 +429,7 @@
     ;; Signature not known yet, hence no methods installed.
     (assert (null (safe-gf-methods gf)))
     (progn
-      (let ((n (sig-req-num (std-gf-signature gf))))
+      (let ((n (sig-req-num (safe-gf-signature gf))))
         (unless (eql (length specializers) n)
           (error-of-type 'error
             (TEXT "~S: the specializers argument has length ~D, but ~S has ~D required parameter~:P")
@@ -618,7 +626,7 @@
 ;; Call of a generic function.
 ;; Without any caching: Compute the effective method at each call.
  (defun slow-funcall-gf (gf &rest args)
-  (unless (>= (length args) (sig-req-num (std-gf-signature gf)))
+  (unless (>= (length args) (sig-req-num (safe-gf-signature gf)))
       (error-of-type 'program-error
         (TEXT "Too few arguments to ~S: ~S")
         gf args))
@@ -651,7 +659,7 @@
             (if (eq (std-gf-signature gf) (sys::%unbound))
               ;; gf has uninitialized lambda-list, hence no methods.
               uninitialized-prototype-factory
-              (let* ((signature (std-gf-signature gf))
+              (let* ((signature (safe-gf-signature gf))
                      (reqnum (sig-req-num signature))
                      (restp (gf-sig-restp signature))
                      (hash-key (cons reqnum restp)))
@@ -672,7 +680,7 @@
       (set-funcallable-instance-function gf (funcall prototype-factory gf))))
   (defun gf-never-called-p (gf)
     (or (eq (std-gf-signature gf) (sys::%unbound))
-        (let* ((signature (std-gf-signature gf))
+        (let* ((signature (safe-gf-signature gf))
                (reqnum (sig-req-num signature))
                (restp (gf-sig-restp signature))
                (hash-key (cons reqnum restp))
@@ -788,7 +796,7 @@
         `((&REST ,(gensym))
           (DECLARE (INLINE FUNCALL))
           (FUNCALL 'NO-METHOD-CALLER 'NO-APPLICABLE-METHOD ',gf)))))
-  (let* ((signature (std-gf-signature gf))
+  (let* ((signature (safe-gf-signature gf))
          (req-anz (sig-req-num signature))
          (req-vars (gensym-list req-anz))
          (restp (gf-sig-restp signature))
@@ -1102,7 +1110,7 @@
     ;; gf has uninitialized lambda-list, hence no methods.
     (return-from compute-applicable-methods-effective-method
       (no-method-caller 'no-applicable-method gf)))
-  (let ((req-num (sig-req-num (std-gf-signature gf))))
+  (let ((req-num (sig-req-num (safe-gf-signature gf))))
     (if (>= (length args) req-num)
       (let ((req-args (subseq args 0 req-num)))
         (multiple-value-bind (methods originator)
@@ -1154,7 +1162,7 @@
   (if (eq (std-gf-signature gf) (sys::%unbound))
     ;; gf has uninitialized lambda-list, hence no methods.
     '()
-    (let ((req-num (sig-req-num (std-gf-signature gf))))
+    (let ((req-num (sig-req-num (safe-gf-signature gf))))
       (if (>= (length args) req-num)
         ;; 0. Check the method specializers:
         (let ((methods (safe-gf-methods gf)))
@@ -1188,7 +1196,7 @@
   (if (eq (std-gf-signature gf) (sys::%unbound))
     ;; gf has uninitialized lambda-list, hence no methods.
     '()
-    (let ((req-num (sig-req-num (std-gf-signature gf))))
+    (let ((req-num (sig-req-num (safe-gf-signature gf))))
       (if (= (length req-arg-classes) req-num)
         ;; 0. Check the method specializers:
         (let ((methods (safe-gf-methods gf)))
@@ -1241,7 +1249,7 @@
     ;; gf has uninitialized lambda-list, hence no methods.
     (return-from compute-applicable-methods-effective-method-for-set
       (no-method-caller 'no-applicable-method gf)))
-  (let ((req-num (sig-req-num (std-gf-signature gf))))
+  (let ((req-num (sig-req-num (safe-gf-signature gf))))
     (if (and (= (length req-arg-specs) req-num)
              (>= (length tentative-args) req-num))
       (multiple-value-bind (methods certain)
@@ -1278,7 +1286,7 @@
   (if (eq (std-gf-signature gf) (sys::%unbound))
     ;; gf has uninitialized lambda-list, hence no methods.
     '()
-    (let ((req-num (sig-req-num (std-gf-signature gf))))
+    (let ((req-num (sig-req-num (safe-gf-signature gf))))
       (if (= (length req-arg-specs) req-num)
         ;; 0. Check the method specializers:
         (let ((methods (safe-gf-methods gf)))
