@@ -118,21 +118,20 @@ The point should be on the prototype and the definition should follow."
   (interactive)
   (save-excursion
     (beginning-of-line)
-    (while (looking-at "[ \t]*# ")
+    (while (looking-at "[ \t]*\\(# \\)")
       (forward-line -1))
-    (replace-match "/* ")
+    (replace-match "/* " t t nil 1)
     (forward-line 1)
-    (while (looking-at "[ \t]*# ")
-      (replace-match " ") (forward-line 1))
-    (forward-char -1) (insert " */")))
+    (while (looking-at "[ \t]*\\(# \\)")
+      (replace-match " " t t nil 1) (forward-line 1))
+    (forward-char -1) (skip-chars-backward "\\") (just-one-space)
+    (insert "*/ ")))
 
 (defun d-mode-convert-next-comment ()
   "Convert the next comment appropriately"
   (interactive)
   (search-forward "# ")
-  (if (or (looking-at "UP\\>") (looking-at "Function:")
-          (looking-at "method.*:")
-          (looking-at "error-message") (looking-at "Return"))
+  (if (progn (beginning-of-line) (looking-at "[ \t]*# "))
       (d-mode-convert-block-comment)
       (d-mode-convert-comment)))
 
