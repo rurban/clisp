@@ -165,10 +165,12 @@
   (unless (member mod-name *modules* :test #'string=)
     (unless p-given (setq pathname (pathname mod-name)))
     (let (#+CLISP
-          (*load-paths* (if (null *load-truename*) *load-paths*
-                            (cons (make-pathname :name nil :type nil
-                                                 :defaults *load-truename*)
-                                  *load-paths*)))
+          (*load-paths*
+           (cons (merge-pathnames "dynmod/" *lib-directory*)
+                 (if (null *load-truename*) *load-paths*
+                     (cons (make-pathname :name nil :type nil
+                                          :defaults *load-truename*)
+                           *load-paths*))))
           #-CLISP (*default-pathname-defaults* '#""))
       (if (atom pathname) (load pathname) (mapcar #'load pathname)))))
 

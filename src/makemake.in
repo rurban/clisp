@@ -3489,6 +3489,10 @@ if [ $CROSS = false ] ; then
     echotab "    *) \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f;; \\"
     echotab "  esac; \\"
     echotab "done"
+    if [ "${with_dynamic_modules}" != no ]; then
+      echotab "mkdir \$(DESTDIR)\$(lisplibdir)/dynmod"
+      echotab "for f in dynmod/*; do \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f; done"
+    fi
     # Don't strip the executables, otherwise (disassemble #'cons) won't work.
     # echotab "strip \$(DESTDIR)\$(lisplibdir)/base/lisp${LEXE}"
     if [ -n "$USE_GETTEXT" ] ; then
@@ -3721,6 +3725,10 @@ if [ -n "$USE_GETTEXT" ] ; then
   echotab "for f in \`find locale -type d -print\`; do mkdir \$(TOPDIR)/\$\$f; done"
   echotab "for f in \`find locale -type f -print\`; do ${HLN} \$\$f \$(TOPDIR)/\$\$f; done"
 fi
+if [ "${with_dynamic_modules}" != no ]; then
+  echotab "mkdir \$(TOPDIR)/dynmod"
+  echotab "${HLN} dynmod/* \$(TOPDIR)/dynmod"
+fi
 echotab "mkdir \$(TOPDIR)/data"
 echotab "${HLN} data/* \$(TOPDIR)/data"
 echotab "mkdir \$(TOPDIR)/doc"
@@ -3779,6 +3787,10 @@ elif [ $HOS = win32 ] ; then
     echotab "  cp -p linkkit/\$\$f \$\$distdir/linkkit/\$\$f; \\"
     echotab "done ; \\"
     echotab "cp clisp-link \$\$distdir/; \\"
+  fi
+  if [ "${with_dynamic_modules}" != no ]; then
+    echotab "mkdir \$\$distdir/dynmod ; \\"
+    echotab "cp dynmod/* \$\$distdir/dynmod/; \\"
   fi
   echotab "mkdir \$\$distdir/data ; \\"
   for f in ${DATA_FILES}; do
