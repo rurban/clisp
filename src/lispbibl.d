@@ -583,9 +583,20 @@
 
 
 /* Global register declarations.
-   They must occur before any system include files define any inline function,
-   which is the case on UNIX_DGUX and UNIX_GNU. */
-#if defined(GNU) && !defined(__cplusplus) && !defined(MULTITHREAD) && (SAFETY < 2) && (!(defined(SPARC) && (__GNUC__ >= 3))) && !defined(__APPLE_CC__)
+   Speed benefit: Just putting the STACK into a register, brought 5% of speed
+   around 1992. Now, with an AMD Athlon CPU from 2000, with good caches, it
+   still brings 4%.
+   The declarations must occur before any system include files define any
+   inline function, which is the case on UNIX_DGUX and UNIX_GNU.
+   Only GCC supports global register variables. Not Apple's variant of GCC.
+   And only the C frontend, not the C++ frontend, understands the syntax.
+   And gcc-3.0 to 3.3 has severe bugs with global register variables, see
+   CLISP bugs 710737 and 723097 and
+   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=7871
+   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=10684
+   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14937
+   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14938 */
+#if defined(GNU) && !defined(__APPLE_CC__) && !defined(__cplusplus) && !(__GNUC__ >= 3) && !defined(MULTITHREAD) && (SAFETY < 2)
 /* Overview of use of registers in gcc terminology:
  fixed: mentioned in FIXED_REGISTERS
  used:  mentioned in CALL_USED_REGISTERS but not FIXED_REGISTERS
@@ -622,11 +633,10 @@
   #if defined(MC680X0)
     #define STACK_register "a4" # highest address register after sp=A7,fp=A6/A5
   #endif
-  #if defined(I80386) && !defined(UNIX_BEOS) && !defined(DYNAMIC_MODULES) && !(__GNUC__ >= 3)
+  #if defined(I80386) && !defined(UNIX_BEOS) && !defined(DYNAMIC_MODULES)
     # On BeOS, everything is compiled as PIC, hence %ebx is already booked.
     # If DYNAMIC_MODULES is defined, external modules are compiled as PIC,
     # which is why %ebx is already in use.
-    # With GCC3, avoid a GCC bug, see CLISP bugs 710737 and 723097.
     #if (__GNUC__ >= 2) # The register names have changed
       #define STACK_register  "%ebx"  # one of the call-saved registers without special hardware commands
     #else
