@@ -2,6 +2,7 @@
 
 	* type.lisp (typep, subtypep): accept &optional environment,
 	as per ANSI CL spec
+	* compiler.lisp (c-TYPEP): ditto
 
 2003-01-31  Sam Steingold  <sds@gnu.org>
 
