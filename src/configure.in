@@ -168,7 +168,7 @@ CL_ABORT
                       dnl DEFS RETABORTTYPE, ABORT_VOLATILE
 CL_PERROR
                       dnl DEFS HAVE_PERROR_DECL
-CL_STRERROR
+AC_CHECK_FUNCS(strerror)
                       dnl DEFS HAVE_STRERROR
 CL_SYS_ERRLIST
                       dnl DEFS SYS_ERRLIST_CONST
@@ -184,7 +184,7 @@ AC_FUNC_VFORK
                       dnl DEFS HAVE_VFORK_H, vfork
 CL_VFORK
                       dnl DEFS RETVFORKTYPE
-CL_SETSID
+AC_CHECK_FUNCS(setsid setpgid)
                       dnl DEFS HAVE_SETSID, HAVE_SETPGID
 CL_EXECV
                       dnl DEFS EXECV_CONST, EXECV1_CONST, EXECV2_CONST
@@ -228,7 +228,7 @@ CL_RENAME
                       dnl DEFS RENAME_CONST
 CL_UNLINK
                       dnl DEFS UNLINK_CONST
-CL_FSYNC
+AC_CHECK_FUNCS(fsync)
                       dnl DEFS HAVE_FSYNC
 CL_IOCTL
                       dnl DEFS IOCTL_REQUEST_T, IOCTL_ARGUMENT_T, IOCTL_DOTS, HAVE_FIONREAD, NEED_SYS_FILIO_H, NEED_SYS_IOCTL_H, HAVE_RELIABLE_FIONREAD
@@ -236,11 +236,11 @@ CL_FCNTL
                       dnl DEFS FCNTL_DOTS
 CL_SELECT
                       dnl DEFS HAVE_SELECT, SELECT_WIDTH_T, SELECT_SET_T, SELECT_CONST, HAVE_POLL
-CL_UALARM
+AC_CHECK_FUNCS(ualarm)
                       dnl DEFS HAVE_UALARM
 CL_SETITIMER
                       dnl DEFS HAVE_SETITIMER, SETITIMER_CONST
-CL_USLEEP
+AC_CHECK_FUNCS(usleep)
                       dnl DEFS HAVE_USLEEP
 CL_LOCALTIME
                       dnl DEFS LOCALTIME_CONST
