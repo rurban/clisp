@@ -1,5 +1,5 @@
 # Liste aller SUBRs mit Keywords
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2004
 
 v(7, (kw(adjustable),kw(element_type),kw(initial_element),
       kw(initial_contents),kw(fill_pointer),
@@ -95,6 +95,37 @@ s(merge)
 v(3, (kw(nicknames),kw(use),kw(case_sensitive)) )
 s(make_package)
 s(pin_package)
+v(3, (kw(start),kw(end),kw(junk_allowed)) )
+s(parse_namestring)
+v(1, (kw(case)) )
+s(pathnamehost)
+s(pathnamedevice)
+s(pathnamedirectory)
+s(pathnamename)
+s(pathnametype)
+#ifdef LOGICAL_PATHNAMES
+v(0,_EMA_)
+s(translate_logical_pathname)
+#endif
+v(1, (kw(wild)) )
+s(merge_pathnames)
+v(8, (kw(defaults),kw(case),kw(host),kw(device),kw(directory),kw(name),kw(type),kw(version)) )
+s(make_pathname)
+#ifdef LOGICAL_PATHNAMES
+s(make_logical_pathname)
+#endif
+v(2, (kw(all),kw(merge)) )
+s(translate_pathname)
+v(6, (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format),kw(buffered)) )
+s(open)
+v(3, (kw(if_does_not_exist),kw(circle),kw(full)) )
+s(directory)
+v(1, (kw(verbose)))
+s(ensure_directories_exist)
+#if defined(UNIX) || defined(WIN32_NATIVE)
+v(9, (kw(element_type),kw(external_format),kw(buffered),kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority)))
+s(launch)
+#endif
 v(2, (kw(initial_element),kw(update)) )
 s(make_sequence)
 v(5, (kw(from_end),kw(start),kw(end),kw(key),kw(initial_value)) )
@@ -133,31 +164,6 @@ s(search)
 v(3, (kw(key),kw(start),kw(end)) )
 s(sort)
 s(stable_sort)
-v(3, (kw(start),kw(end),kw(junk_allowed)) )
-s(parse_namestring)
-v(1, (kw(case)) )
-s(pathnamehost)
-s(pathnamedevice)
-s(pathnamedirectory)
-s(pathnamename)
-s(pathnametype)
-#ifdef LOGICAL_PATHNAMES
-v(0,_EMA_)
-s(translate_logical_pathname)
-#endif
-v(1, (kw(wild)) )
-s(merge_pathnames)
-v(8, (kw(defaults),kw(case),kw(host),kw(device),kw(directory),kw(name),kw(type),kw(version)) )
-s(make_pathname)
-#ifdef LOGICAL_PATHNAMES
-s(make_logical_pathname)
-#endif
-v(2, (kw(all),kw(merge)) )
-s(translate_pathname)
-v(6, (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format),kw(buffered)) )
-s(open)
-v(3, (kw(if_does_not_exist),kw(circle),kw(full)) )
-s(directory)
 v(2, (kw(element_type),kw(line_position)) )
 s(make_string_output_stream)
 #ifdef PIPES
@@ -177,15 +183,9 @@ s(make_stream)
 #endif
 v(1, (kw(abort)) )
 s(built_in_stream_close)
-v(1, (kw(verbose)))
-s(ensure_directories_exist)
 #ifdef DYNAMIC_FFI
 v(3, (kw(initial_contents),kw(count),kw(read_only)))
 s(foreign_allocate)
 v(1, (kw(full)))
 s(foreign_free)
-#endif
-#if defined(UNIX) || defined(WIN32_NATIVE)
-v(9, (kw(element_type),kw(external_format),kw(buffered),kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority)))
-s(launch)
 #endif
