@@ -3665,7 +3665,7 @@ local inline void* find_name (void *handle, char *name)
     HANDLE cur_proc = GetCurrentProcess();
     HMODULE *modules;
     DWORD needed, i;
-    EnumProcessModules(cur_proc,NULL,0,&needed);
+    if (!EnumProcessModules(cur_proc,NULL,0,&needed)) OS_error();
     modules = (HMODULE*)alloca(needed);
     if (!EnumProcessModules(cur_proc,modules,needed,&needed)) OS_error();
     for (i=0; i < needed/sizeof(HMODULE); i++)
