@@ -17,7 +17,8 @@
 
 # Update the varobject heaps.
 #   #define update_ht_invalid ...
-#   #define update_instance_unrealloc ...
+#   #define update_unrealloc ...
+#   #define update_ss_unrealloc ...
 #   #define update_in_unrealloc ...
 #   #define update_fpointer_invalid ...
 #   #define update_fp_invalid ...
@@ -31,7 +32,8 @@
 #   #undef update_fp_invalid
 #   #undef update_fpointer_invalid
 #   #undef update_in_unrealloc
-#   #undef update_instance_unrealloc
+#   #undef update_ss_unrealloc
+#   #undef update_unrealloc
 #   #undef update_ht_invalid
 # Some possible implementation of update_page.
 #   update_page_normal
@@ -137,7 +139,7 @@
     # which is now changed).                                              \
     if (record_type((Record)ptr) == Rectype_Hashtable) { # a hash-table ? \
       update_ht_invalid((Hashtable)ptr); # yes -> note for reorganisation \
-    } else if (update_instance_unrealloc &&  # Instance ?                 \
+    } else if (update_unrealloc && # Instance ?                           \
                (record_type((Record)ptr) == Rectype_Instance)) {          \
       update_in_unrealloc((Record)ptr); # yes -> cleanup forward ptr mark \
     } else if (update_fpointer_invalid &&  # foreign-pointer ?            \
@@ -159,86 +161,97 @@
 # and advances ptr:
 #ifdef SPVW_MIXED
  #ifdef TYPECODES
-  #define update_varobject(type_expr)                                  \
-   do {                                                                \
-     var tint type = (type_expr); # typeinfo                           \
-     var uintL laenge = objsize((Varobject)ptr); # determine length    \
-     var aint newptr = ptr+laenge; # pointer to next object            \
-     # fall differentiation according to:                              \
-     # symbol; simple-vector; non-simple array;                        \
-     # Record (esp. hash-table); rest.                                 \
-     switch (type) {                                                   \
-       case_symbolwithflags: # Symbol: update all pointers             \
-         do_update_symbol();                                           \
-         break;                                                        \
-       case_svector: # Simple-vector: update all pointers              \
-         do_update_svector();                                          \
-         break;                                                        \
-       case_sstring: # Simple-string                                   \
-         if (sstring_reallocatedp((Sstring)ptr))                       \
-           do_update_sistring(); # update data vector                  \
-         break;                                                        \
-       case_mdarray: case_obvector: case_ob2vector: case_ob4vector:    \
-       case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: \
-       case_ovector: # non-simple array: update data vector            \
-         do_update_iarray();                                           \
-         break;                                                        \
-       case_record: # Record: update all pointers                      \
-         do_update_record();                                           \
-         break;                                                        \
-       default:  # all others contain no pointer that need update      \
-         break; # -> do nothing                                        \
-     }                                                                 \
-     # advance to the next object                                      \
-     ptr = newptr;                                                     \
+  #define update_varobject(type_expr)                                      \
+   do {                                                                    \
+     var tint type = (type_expr); # typeinfo                               \
+     var uintL laenge = objsize((Varobject)ptr); # determine length        \
+     var aint newptr = ptr+laenge; # pointer to next object                \
+     # fall differentiation according to:                                  \
+     # symbol; simple-vector; non-simple array;                            \
+     # Record (esp. hash-table); rest.                                     \
+     switch (type) {                                                       \
+       case_symbolwithflags: # Symbol: update all pointers                 \
+         do_update_symbol();                                               \
+         break;                                                            \
+       case_svector: # Simple-vector: update all pointers                  \
+         do_update_svector();                                              \
+         break;                                                            \
+       case_sstring: # Simple-string                                       \
+         if_HAVE_SMALL_SSTRING(                                            \
+           if (sstring_reallocatedp((Sstring)ptr))                         \
+             do_update_sistring(); # update data vector                    \
+           else if (update_unrealloc) {                                    \
+             update_ss_unrealloc((Sstring)ptr); # cleanup forward ptr mark \
+           }                                                               \
+         )                                                                 \
+         break;                                                            \
+       case_mdarray: case_obvector: case_ob2vector: case_ob4vector:        \
+       case_ob8vector: case_ob16vector: case_ob32vector: case_ostring:     \
+       case_ovector: # non-simple array: update data vector                \
+         do_update_iarray();                                               \
+         break;                                                            \
+       case_record: # Record: update all pointers                          \
+         do_update_record();                                               \
+         break;                                                            \
+       default:  # all others contain no pointer that need update          \
+         break; # -> do nothing                                            \
+     }                                                                     \
+     # advance to the next object                                          \
+     ptr = newptr;                                                         \
    } while(0)
  #else # TYPECODES
-  #define update_varobject(type_expr)                               \
-   do {                                                             \
-     var uintL laenge = objsize((Varobject)ptr); # determine length \
-     var aint newptr = ptr+laenge; # pointer to the next object     \
-     switch (record_type((Record)ptr)) { # type of the next object  \
-       case Rectype_mdarray:                                        \
-       case Rectype_bvector:                                        \
-       case Rectype_b2vector:                                       \
-       case Rectype_b4vector:                                       \
-       case Rectype_b8vector:                                       \
-       case Rectype_b16vector:                                      \
-       case Rectype_b32vector:                                      \
-       case Rectype_string:                                         \
-       case Rectype_vector:                                         \
-         # non-simple array: update data vector                     \
-         do_update_iarray();                                        \
-         break;                                                     \
-       if_HAVE_SMALL_SSTRING(                                       \
-       case Rectype_reallocstring:                                  \
-         # reallocated simple string: update data vector            \
-         do_update_sistring();                                      \
-         break;                                                     \
-       )                                                            \
-       case Rectype_Svector:                                        \
-         # Simple-vector: update all pointers                       \
-         do_update_svector();                                       \
-         break;                                                     \
-       case Rectype_Sbvector:                                       \
-       case Rectype_Sb2vector:                                      \
-       case Rectype_Sb4vector:                                      \
-       case Rectype_Sb8vector:                                      \
-       case Rectype_Sb16vector:                                     \
-       case Rectype_Sb32vector:                                     \
-       case Rectype_S8string: case Rectype_Imm_S8string:            \
-       case Rectype_S16string: case Rectype_Imm_S16string:          \
-       case Rectype_S32string: case Rectype_Imm_S32string:          \
-       case Rectype_Bignum: case Rectype_Ffloat:                    \
-       case Rectype_Dfloat: case Rectype_Lfloat:                    \
-         # these contain no pointers that need update -> do nothing \
-         break;                                                     \
-       default: # Record: update all pointers                       \
-         do_update_record();                                        \
-         break;                                                     \
-     }                                                              \
-     # advance to the next object                                   \
-     ptr = newptr;                                                  \
+  #define update_varobject(type_expr)                                      \
+   do {                                                                    \
+     var uintL laenge = objsize((Varobject)ptr); # determine length        \
+     var aint newptr = ptr+laenge; # pointer to the next object            \
+     switch (record_type((Record)ptr)) { # type of the next object         \
+       case Rectype_mdarray:                                               \
+       case Rectype_bvector:                                               \
+       case Rectype_b2vector:                                              \
+       case Rectype_b4vector:                                              \
+       case Rectype_b8vector:                                              \
+       case Rectype_b16vector:                                             \
+       case Rectype_b32vector:                                             \
+       case Rectype_string:                                                \
+       case Rectype_vector:                                                \
+         # non-simple array: update data vector                            \
+         do_update_iarray();                                               \
+         break;                                                            \
+       if_HAVE_SMALL_SSTRING(                                              \
+       case Rectype_reallocstring:                                         \
+         # reallocated simple string: update data vector                   \
+         do_update_sistring();                                             \
+         break;                                                            \
+       )                                                                   \
+       case Rectype_S16string: case Rectype_Imm_S16string:                 \
+       case Rectype_S32string: case Rectype_Imm_S32string:                 \
+         if_HAVE_SMALL_SSTRING(                                            \
+           if (update_unrealloc) {                                         \
+             update_ss_unrealloc((Sstring)ptr); # cleanup forward ptr mark \
+           }                                                               \
+         )                                                                 \
+         break;                                                            \
+       case Rectype_Svector:                                               \
+         # Simple-vector: update all pointers                              \
+         do_update_svector();                                              \
+         break;                                                            \
+       case Rectype_Sbvector:                                              \
+       case Rectype_Sb2vector:                                             \
+       case Rectype_Sb4vector:                                             \
+       case Rectype_Sb8vector:                                             \
+       case Rectype_Sb16vector:                                            \
+       case Rectype_Sb32vector:                                            \
+       case Rectype_S8string: case Rectype_Imm_S8string:                   \
+       case Rectype_Bignum: case Rectype_Ffloat:                           \
+       case Rectype_Dfloat: case Rectype_Lfloat:                           \
+         # these contain no pointers that need update -> do nothing        \
+         break;                                                            \
+       default: # Record: update all pointers                              \
+         do_update_record();                                               \
+         break;                                                            \
+     }                                                                     \
+     # advance to the next object                                          \
+     ptr = newptr;                                                         \
    } while(0)
  #endif # TYPECODES
  #define update_varobjects()  \
@@ -276,6 +289,8 @@
      if (sstring_reallocatedp((Sstring)ptr)) {                          \
        # reallocated simple string: update data vector                  \
        do_update_sistring();                                            \
+     } else if (update_unrealloc) {                                     \
+       update_ss_unrealloc((Sstring)ptr); # cleanup forward ptr mark    \
      }                                                                  \
      ptr = newptr; # advance to the next object                         \
    } while(0)

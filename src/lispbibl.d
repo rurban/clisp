@@ -4451,12 +4451,18 @@ typedef sstring_ *  Sstring;
 # Extract the flags of a simple string (reallocated or not):
 #ifdef TYPECODES
   #define sstring_flags(ptr)  ((ptr)->tfl & 3)
+  #define sstring_flags_clr(ptr,bits)  ((ptr)->tfl &= ~(uintL)(bits))
+  #define sstring_flags_set(ptr,bits)  ((ptr)->tfl |= (uintL)(bits))
 #else
-  #define sstring_flags(ptr)  (((ptr)->tfl) >> 8) & 3)
+  #define sstring_flags(ptr)  (((ptr)->tfl >> 8) & 3)
+  #define sstring_flags_clr(ptr,bits)  ((ptr)->tfl &= ~((uintL)(bits) << 8))
+  #define sstring_flags_set(ptr,bits)  ((ptr)->tfl |= ((uintL)(bits) << 8))
 #endif
 # Bit masks in the flags. Only used during garbage collection.
   #define sstringflags_backpointer_B  bit(0)
   #define sstringflags_relocated_B    bit(1)
+  #define mark_sstring_clean(ptr)  \
+    sstring_flags_clr(ptr,sstringflags_backpointer_B|sstringflags_relocated_B)
 
 # simple vector
 typedef struct {
