@@ -2555,11 +2555,10 @@ LISPFUNNR(hash_table_warn_if_needs_rehash_after_gc,1)
   VALUES_IF(record_flags(TheHashtable(ht)) & htflags_warn_gc_rehash_B);
 }
 
-LISPFUNN(set_hash_table_warn_if_needs_rehash_after_gc,1)
-{ /* (SYS::%SET-HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC hashtable val)
-   == (setf (HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC hashtable) val) */
-  var bool warn_p = !nullp(popSTACK());
+LISPFUNN(set_hash_table_warn_if_needs_rehash_after_gc,2)
+{ /* ((SETF HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC) val hashtable) */
   var object ht = check_hashtable(popSTACK()); /* hashtable argument */
+  var bool warn_p = !nullp(popSTACK());
   if (warn_p)
     record_flags_set(TheHashtable(ht),htflags_warn_gc_rehash_B);
   else
@@ -2670,18 +2669,18 @@ LISPFUNNR(hash_table_weak_p,1)
 }
 
 LISPFUNN(set_hash_table_weak_p,2)
-{ /* (SYS::%SET-HASH-TABLE-WEAK-P ht val)
-  == (SETF (HASH-TABLE-WEAK-P ht) val) */
-  STACK_1 = check_hashtable(STACK_1);
-  var object val = check_weak(popSTACK()); /* weak-p */
-  var object ht = STACK_0; /* hashtable argument */
+{ /* ((SETF HASH-TABLE-WEAK-P) val ht) */
+  var object val = (STACK_1 = check_weak(STACK_1)); /* weak-p */
+  var object ht = (STACK_0 = check_hashtable(STACK_0)); /* hashtable */
   if (!eq(val,hash_table_weak_type(ht))) {
     var uintL maxcount = posfixnum_to_L(TheHashtable(STACK_0)->ht_maxcount);
     var object new_kvt;
     for (;;) {
       new_kvt = allocate_kvt(val,maxcount);
-      # Check whether the hash-table has not been resized during allocate_kvt.
-      var uintL new_maxcount = posfixnum_to_L(TheHashtable(STACK_0)->ht_maxcount);
+      /* Check whether the hash-table has not been resized during
+         allocate_kvt(). */
+      var uintL new_maxcount =
+        posfixnum_to_L(TheHashtable(STACK_0)->ht_maxcount);
       if (maxcount == new_maxcount)
         break;
       maxcount = new_maxcount;
@@ -2696,7 +2695,7 @@ LISPFUNN(set_hash_table_weak_p,2)
     TheHashedAlist(new_kvt)->hal_freelist = TheHashedAlist(old_kvt)->hal_freelist;
     TheHashtable(ht)->ht_kvtable = new_kvt;
   }
-  VALUES1(hash_table_weak_type(popSTACK()));
+  VALUES1(hash_table_weak_type(STACK_0)); skipSTACK(2);
 }
 
 LISPFUNN(class_gethash,2)

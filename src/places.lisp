@@ -1,5 +1,5 @@
 ;;; CLISP - PLACES.LSP
-;;; CLISP-spezifisch: string-concat, %rplaca, %rplacd, store, %setelt, ...
+;;; CLISP-specific: string-concat, %rplaca, %rplacd, store, setelt, ...
 
 (in-package "SYSTEM")
 
@@ -318,10 +318,12 @@
 ;;;----------------------------------------------------------------------------
 (system::%put 'system::package-documentation 'SYSTEM::SETF-FUNCTION
               'SYSTEM::|(SETF PACKAGE-DOCUMENTATION)|)
-(defsetf package-lock SYSTEM::%SET-PACKAGE-LOCK)
-(defsetf hash-table-weak-p SYSTEM::%SET-HASH-TABLE-WEAK-P)
-(defsetf hash-table-warn-if-needs-rehash-after-gc
-    SYSTEM::%SET-HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC)
+(system::%put 'package-lock 'SYSTEM::SETF-FUNCTION
+              'SYSTEM::|(SETF PACKAGE-LOCK)|)
+(system::%put 'hash-table-weak-p 'SYSTEM::SETF-FUNCTION
+              'SYSTEM::|(SETF HASH-TABLE-WEAK-P)|)
+(system::%put 'hash-table-warn-if-needs-rehash-after-gc 'SYSTEM::SETF-FUNCTION
+              'SYSTEM::|(SETF HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC)|)
 (system::%put 'weak-pointer-value 'SYSTEM::SETF-FUNCTION
               'SYSTEM::|(SETF WEAK-POINTER-VALUE)|)
 (system::%put 'weak-list-list 'SYSTEM::SETF-FUNCTION
@@ -352,7 +354,7 @@
 ) )
 (defsetf nth SYSTEM::%SETNTH)
 ;;;----------------------------------------------------------------------------
-(defsetf elt SYSTEM::%SETELT)
+(system::%put 'elt 'SYSTEM::SETF-FUNCTION 'SYSTEM::|(SETF ELT)|)
 ;;;----------------------------------------------------------------------------
 (defsetf rest SYSTEM::%RPLACD)
 (defsetf first SYSTEM::%RPLACA)
@@ -939,7 +941,8 @@
   `(PROGN (SET-DISPATCH-MACRO-CHARACTER ,disp-char ,sub-char ,value ,readtable) ,value)
 )
 ;;;----------------------------------------------------------------------------
-(defsetf long-float-digits SYSTEM::%SET-LONG-FLOAT-DIGITS)
+(system::%put 'long-float-digits 'SYSTEM::SETF-FUNCTION
+              'SYSTEM::|(SETF LONG-FLOAT-DIGITS)|)
 ;;;----------------------------------------------------------------------------
 (defsetf system::%record-ref system::%record-store)
 ;;;----------------------------------------------------------------------------
