@@ -12,16 +12,24 @@
  <varlistentry><term><literal
     role="sexp">(<function>POSIX:RESOLVE-HOST-IPADDR</function>
     &optional-amp; &host-r;)</literal></term>
- <listitem><simpara>Returns the <type>HOSTENT</type> structure (name,
-   list of aliases, list of IP addresses as dotted quads (for IPv4) or
-   coloned octets (for IPv6), address type - IPv4 or IPv6).
+ <listitem><para>Returns the <type>HOSTENT</type> structure:
+   <variablelist><varlistentry><term><structfield>name</structfield></term>
+     <listitem><simpara>host name</simpara></listitem></varlistentry>
+    <varlistentry><term><structfield>aliases</structfield></term>
+     <listitem><simpara>&list-t; of aliases</simpara></listitem></varlistentry>
+    <varlistentry><term><structfield>addr-list</structfield></term>
+     <listitem><simpara>&list-t; of IP addresses as dotted quads (for IPv4) or
+       coloned octets (for IPv6)</simpara></listitem></varlistentry>
+    <varlistentry><term><structfield>addrtype</structfield></term>
+     <listitem><simpara>&integer-t; address type (IPv4 or IPv6)
+   </simpara></listitem></varlistentry></variablelist>
    When &host-r; is omitted or &default-k;, return the data for the
-   current host. When &host-r; is given and is &nil;, all the
+   current host. When &host-r; is &nil;, all the
    host database is returned as a list (this would be the contents of the
    <filename>/etc/hosts</filename> file on a &unix; system or
-   <filename>${windir}/system32/etc/hosts</filename> on a Win32 system).
-   This is an interface to &gethostbyname;/&gethostbyaddr;.
-  </simpara></listitem></varlistentry>
+   <filename>${windir}/system32/etc/hosts</filename> on a &win32; system).
+  </para><simpara>This is an interface to &gethostbyname;/&gethostbyaddr;.
+ </simpara></listitem></varlistentry>
  <varlistentry id="file-stat"><term><literal
       role="sexp">(<function>POSIX:FILE-STAT</function> &path-r;
       &optional-amp; <replaceable>link-p</replaceable>)</literal></term>
@@ -32,28 +40,28 @@
    number on which &stat;/&fstat;/&lstat; was called.
    The other slots are numbers, members of the <type>struct stat</type>:
     <variablelist>
-     <varlistentry><term>dev</term>
+     <varlistentry><term><structfield>dev</structfield></term>
       <listitem><simpara>Device ID of device containing file.
      </simpara></listitem></varlistentry>
-     <varlistentry><term>ino</term>
+     <varlistentry><term><structfield>ino</structfield></term>
       <listitem><simpara>File serial number.
      </simpara></listitem></varlistentry>
-     <varlistentry><term>mode</term>
+     <varlistentry><term><structfield>mode</structfield></term>
       <listitem><simpara>Mode of file.
      </simpara></listitem></varlistentry>
-     <varlistentry><term>nlink</term>
+     <varlistentry><term><structfield>nlink</structfield></term>
       <listitem><simpara>Number of hard links to the file.
      </simpara></listitem></varlistentry>
-     <varlistentry><term>uid</term>
+     <varlistentry><term><structfield>uid</structfield></term>
       <listitem><simpara>User ID of file.
      </simpara></listitem></varlistentry>
-     <varlistentry><term>gid</term>
+     <varlistentry><term><structfield>gid</structfield></term>
       <listitem><simpara>Group ID of file.
      </simpara></listitem></varlistentry>
-     <varlistentry><term>rdev</term>
+     <varlistentry><term><structfield>rdev</structfield></term>
       <listitem><simpara>Device ID (if file is character or block
         special).</simpara></listitem></varlistentry>
-     <varlistentry><term>size</term>
+     <varlistentry><term><structfield>size</structfield></term>
       <listitem><simpara>For regular files, the file size in bytes.
         For symbolic links, the length in bytes of the pathname contained
         in the symbolic link.
@@ -61,20 +69,20 @@
         For a typed memory object, the length in bytes.
         For other file types, the use of this field is unspecified.
      </simpara></listitem></varlistentry>
-     <varlistentry><term>atime</term>
+     <varlistentry><term><structfield>atime</structfield></term>
       <listitem><simpara>Time of last access (as the number of seconds
         since 1900-01-01).</simpara></listitem></varlistentry>
-     <varlistentry><term>mtime</term>
+     <varlistentry><term><structfield>mtime</structfield></term>
       <listitem><simpara>Time of last data modification (as the number of
         seconds since 1900-01-01).</simpara></listitem></varlistentry>
-     <varlistentry><term>ctime</term>
+     <varlistentry><term><structfield>ctime</structfield></term>
       <listitem><simpara>Time of last status change (as the number of
         seconds since 1900-01-01).</simpara></listitem></varlistentry>
-     <varlistentry><term>blksize</term>
+     <varlistentry><term><structfield>blksize</structfield></term>
       <listitem><simpara>A file system-specific preferred I/O block size
         for this object.  In some file system types, this may vary from
         file to file.</simpara></listitem></varlistentry>
-     <varlistentry><term>blocks</term>
+     <varlistentry><term><structfield>blocks</structfield></term>
       <listitem><simpara>Number of blocks allocated for this object.
      </simpara></listitem></varlistentry></variablelist>
     All slots are read-only.
@@ -101,36 +109,36 @@
    or the number on which &statvfs;/&fstatvfs; was called.
    The other slots are members of the <type>struct statvfs</type>:
    <variablelist>
-    <varlistentry><term>bsize</term>
+    <varlistentry><term><structfield>bsize</structfield></term>
      <listitem><simpara>File system block size.
     </simpara></listitem></varlistentry>
-    <varlistentry><term>frsize</term>
+    <varlistentry><term><structfield>frsize</structfield></term>
      <listitem><simpara>Fundamental file system block size.
     </simpara></listitem></varlistentry>
-    <varlistentry><term>blocks</term>
-     <listitem><simpara>Total number of blocks on file system in units
-       of <literal>frsize</literal>.</simpara></listitem></varlistentry>
-    <varlistentry><term>bfree</term>
+    <varlistentry><term><structfield>blocks</structfield></term>
+     <listitem><simpara>Total number of blocks on file system in units of
+       <structfield>frsize</structfield>.</simpara></listitem></varlistentry>
+    <varlistentry><term><structfield>bfree</structfield></term>
      <listitem><simpara>Total number of free blocks.
     </simpara></listitem></varlistentry>
-    <varlistentry><term>bavail</term>
+    <varlistentry><term><structfield>bavail</structfield></term>
      <listitem><simpara>Number of free blocks available to
        non-privileged processes.</simpara></listitem></varlistentry>
-    <varlistentry><term>files</term>
+    <varlistentry><term><structfield>files</structfield></term>
      <listitem><simpara>Total number of file serial numbers.
     </simpara></listitem></varlistentry>
-    <varlistentry><term>ffree</term>
+    <varlistentry><term><structfield>ffree</structfield></term>
      <listitem><simpara>Total number of free file serial numbers.
     </simpara></listitem></varlistentry>
-    <varlistentry><term>favail</term>
+    <varlistentry><term><structfield>favail</structfield></term>
      <listitem><simpara>Number of file serial numbers available to
        non-privileged processes.</simpara></listitem></varlistentry>
-    <varlistentry><term>fsid</term>
+    <varlistentry><term><structfield>fsid</structfield></term>
      <listitem><simpara>File system ID.</simpara></listitem></varlistentry>
-    <varlistentry><term>flag</term>
+    <varlistentry><term><structfield>flag</structfield></term>
      <listitem><simpara>List of platform-dependent values, such as &ro-k;.
     </simpara></listitem></varlistentry>
-    <varlistentry><term>namemax</term>
+    <varlistentry><term><structfield>namemax</structfield></term>
      <listitem><simpara>Maximum filename length.
    </simpara></listitem></varlistentry></variablelist>
    All slots are read-only.
@@ -200,10 +208,11 @@
        &real-r;)</literal></term>
  <listitem><simpara>Compute the error functions, Bessel functions and
    Gamma.  These functions are required by the POSIX standard and should
-   be available in libm.so.  Please note that these functions do not
-   provide lisp-style error handling and precision, and do all the
-   computations at the double float level.
- </simpara></listitem></varlistentry>
+   be available in <filename>libm.so</filename>.</simpara>
+  <warning><simpara>Please note that these functions do not provide
+    lisp-style error handling and precision, and do all the computations
+    at the &double-float-t; level.</simpara></warning>
+ </listitem></varlistentry>
  <varlistentry id="stream-lock"><term>
    <literal role="sexp">(<function>POSIX:STREAM-LOCK</function> &stream-r;
     <replaceable>lock-p</replaceable> &key-amp;
