@@ -407,7 +407,7 @@
            (*PRINT-PRETTY*              NIL)
            (*PRINT-RADIX*               NIL)
            (*PRINT-READABLY*            T)
-          ;(*PRINT-RIGHT-MARGIN*        NIL) ; XP variable not present in CLISP
+           (*PRINT-RIGHT-MARGIN*        NIL)
            (*PRINT-CLOSURE*             NIL) ; CLISP specific
            (*PRINT-RPARS*               T) ; CLISP specific
            (*PRINT-INDENT-LISTS*        2) ; CLISP specific
