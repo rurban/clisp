@@ -462,11 +462,10 @@ extern object* slot_up (void);	// from record.d
                   ->data[posfixnum_to_L(Cdr(slotinfo))]         \
     )
 
-  local object* slot_up (void);
   #ifdef RISCOS_CCBUG
     #pragma -z0
   #endif
-  local object* slot_up()
+  local object* slot_up (void)
     { pushSTACK(STACK_1); C_class_of(); // (CLASS-OF instance) bestimmen
      {var object slotinfo = // (GETHASH slot-name (class-slot-location-table class))
         gethash(STACK_0,TheClass(value1)->slot_location_table);
