@@ -1,3 +1,58 @@
+2004-05-21  Bruno Haible  <bruno@clisp.org>
+
+	Make it possible to enforce an alignment == 4 mod 8 of all varobjects
+	in HEAPCODES mode.
+	* lispbibl.d (varobjects_misaligned, VAROBJECTS_ALIGNMENT_DUMMY_DECL):
+	New macros.
+	(conses_misaligned): New macro.
+	(subr_t): Check that the size is a multiple of varobject_alignment.
+	(DYNAMIC_8BIT_VECTOR, DYNAMIC_STRING): Enforce varobjects_misaligned.
+	(subr_tab_, symbol_tab_): Add a varobjects_misaligned dummy decl.
+	* genclisph.d (main): Emit varobjects_misaligned,
+	VAROBJECTS_ALIGNMENT_DUMMY_DECL, varobject_alignment definitions.
+	Update subr_tab_, symbol_tab_ definitions.
+	* spvw.d (subr_anz, symbol_anz): Take varobjects_misaligned into
+	account.
+	(for_all_subrs, for_all_constsyms): Likewise.
+	(init_subr_tab_1, init_symbol_tab_1, init_symbol_tab_2): Likewise.
+	(init_symbol_functions): Likewise.
+	(main): Likewise. Let heap_start point past the misaligned bytes.
+	If SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY, preallocate the first heap
+	page. If SPVW_PAGES, initialize heap->misaligned.
+	(dynload_modules): Take varobjects_misaligned into account.
+	* spvw_heap.d (Heap) [SPVW_PAGES]: Add misaligned field.
+	* spvw_global.d (check_gc_consistency): Take varobjects_misaligned into
+	account.
+	* spvw_garcol.d (gar_col_normal): If GENERATIONAL_GC, let generation 1
+	respect varobjects_misaligned.
+	(gc_compact_heap): Don't set a page's page_start and page_end before
+	it is moved to the free_pages pool.
+	* spvw_genera1.d (build_old_generation_cache): Allow for the
+	possibility that heap_gen0_start has varobjects_misaligned.
+	* spvw_allocate.d (make_space_gc_true): Take varobjects_misaligned into
+	account.
+	(make_space_gc_false): Assume map_pagesize is a power of 2.
+	(make_space_gc) [SPVW_PAGES]: Take a Heap* as argument, not a Pages*.
+	Take varobjects_misaligned into account. Set a page's page_start and
+	page_end when taking it from the free_pages pool.
+	(make_space) [SPVW_PAGES]: Update.
+	* spvw_memfile.d (WRITE_page_alignment, READ_page_alignment): Add
+	parens where needed.
+	(savemem): Write out zero-bytes to enforce the varobjects_misaligned.
+	(loadmem_from_handle): Take varobjects_misaligned into account.
+	If SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY, mmap also the zero-bytes
+	that enforce the varobjects_misaligned.
+	* spvwtabf.d (subr_tab_data): Enforce varobject_alignment. Add
+	varobjects_misaligned dummy bytes at the beginning.
+	(subr_tab_data_size): Take varobjects_misaligned into account.
+	* spvwtabs.d (symbol_tab_data): Enforce varobject_alignment. Add
+	varobjects_misaligned dummy bytes at the beginning.
+	* modules.d (MODULE, modules): Add the varobjects_misaligned bytes at
+	the beginning of the module's subr_tab.
+	* affi.d (module__affi__subr_tab): Likewise.
+	* utils/modprep.lisp (print-tables-1, print-tables-2): Likewise.
+	* utils/modpreptest.out: Update.
+
 2004-05-18  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (number_immediatep): New macro.

@@ -37,7 +37,7 @@
 
 # table of all SUBRs: out-sourced to SPVWTABF
 # size of this table:
-#define subr_anz  (sizeof(subr_tab)/sizeof(subr_t))
+#define subr_anz  ((sizeof(subr_tab)-varobjects_misaligned)/sizeof(subr_t))
 
 # table of all FSUBRs: moved to CONTROL
 # size of this table:
@@ -57,7 +57,7 @@ local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
 
 # table of all fixed symbols: moved to SPVWTABS
 # size of these tables:
-#define symbol_anz  (sizeof(symbol_tab)/sizeof(symbol_))
+#define symbol_anz  ((sizeof(symbol_tab)-varobjects_misaligned)/sizeof(symbol_))
 
 # table of all other fixed objects: moved to SPVWTABO
 # size of these tables:
@@ -68,22 +68,25 @@ local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
 # into a genuine lisp-object.)
 #ifdef MAP_MEMORY_TABLES
   local uintC total_subr_anz;
-  #define for_all_subrs(statement)                                      \
-    do { var subr_t* ptr = (subr_t*)&subr_tab; /* traverse subr_tab */  \
-         var uintC count;                                               \
-         dotimesC(count,total_subr_anz, { statement; ptr++; } );        \
+  #define for_all_subrs(statement)                                   \
+    do {                                                             \
+      var subr_t* ptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned); /* traverse subr_tab */  \
+      var uintC count;                                               \
+      dotimesC(count,total_subr_anz, { statement; ptr++; } );        \
     } while(0)
 #else
-  #define for_all_subrs(statement)                      \
-    do { var module_t* module; /* traverse modules */   \
-         for_modules(all_modules,{                      \
-           if (module->initialized)                     \
-             if (*module->stab_size > 0) {              \
-               var subr_t* ptr = module->stab;          \
-               var uintC count;                         \
-               dotimespC(count,*module->stab_size,      \
-                         { statement; ptr++; } );       \
-         }});                                           \
+  #define for_all_subrs(statement)                   \
+    do {                                             \
+      var module_t* module; /* traverse modules */   \
+      for_modules(all_modules,{                      \
+        if (module->initialized)                     \
+          if (*module->stab_size > 0) {              \
+            var subr_t* ptr = module->stab;          \
+            var uintC count;                         \
+            dotimespC(count,*module->stab_size,      \
+                      { statement; ptr++; } );       \
+          }                                          \
+      });                                            \
     } while(0)
 #endif
 
@@ -104,7 +107,7 @@ local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
 #endif
 # traversal of symbol_tab:
 #define for_all_constsyms(statement)                                       \
-  do { var symbol_* ptr = (symbol_*)&symbol_tab; # pass through symbol_tab \
+  do { var symbol_* ptr = (symbol_*)((char*)&symbol_tab+varobjects_misaligned); # pass through symbol_tab \
        var uintC count;                                                    \
        dotimesC(count,symbol_anz, { statement; ptr++; } );                 \
   } while(0)
@@ -867,14 +870,14 @@ local void init_subr_tab_1 (void) {
   #endif
   #if !NIL_IS_CONSTANT
   { # initialize the name-slot first:
-    var subr_t* ptr = (subr_t*)&subr_tab; # traverse subr_tab
+    var subr_t* ptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned); # traverse subr_tab
      #define LISPFUN  LISPFUN_E
        #include "subr.c"
      #undef LISPFUN
   }
   { # and initialize the GCself and keywords-slot temporarily:
-    var subr_t* ptr = (subr_t*)&subr_tab; # traverse subr_tab
-    var uintC count = subr_anz;
+    var subr_t* ptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned); # traverse subr_tab
+    var uintC count;
     dotimesC(count,subr_anz, {
       ptr->GCself = subr_tab_ptr_as_object(ptr);
       ptr->keywords = NIL;
@@ -885,13 +888,13 @@ local void init_subr_tab_1 (void) {
   # Because of SPVWTABF all slots except keywords and argtype
   # are already initialized.
   { # now initialize the argtype-slot:
-    var subr_t* ptr = (subr_t*)&subr_tab; # traverse subr_tab
+    var subr_t* ptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned); # traverse subr_tab
     var uintC count;
     dotimesC(count,subr_anz,{ SUBR_SET_ARGTYPE(ptr,NULL); ptr++; });
   }
  #else
   { # initialize all slots except keywords:
-    var subr_t* ptr = (subr_t*)&subr_tab; # traverse subr_tab
+    var subr_t* ptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned); # traverse subr_tab
     #define LISPFUN  LISPFUN_D
       #include "subr.c"
     #undef LISPFUN
@@ -905,7 +908,7 @@ local void init_subr_tab_1 (void) {
   }
  #ifdef MAP_MEMORY_TABLES
   { # ditto, copy other tables tino the mapped region:
-    var subr_t* newptr = (subr_t*)&subr_tab;
+    var subr_t* newptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned);
     var module_t* module;
     main_module.stab = newptr; newptr += subr_anz;
     for_modules(all_other_modules,{
@@ -916,7 +919,7 @@ local void init_subr_tab_1 (void) {
         dotimespC(count,*module->stab_size, { *newptr++ = *oldptr++; } );
       }
     });
-    ASSERT(newptr == (subr_t*)&subr_tab + total_subr_anz);
+    ASSERT(newptr == (subr_t*)((char*)&subr_tab+varobjects_misaligned) + total_subr_anz);
   }
  #endif
 }
@@ -929,7 +932,7 @@ local void init_symbol_tab_1 (void) {
   #endif
  #else
   {
-    var symbol_* ptr = (symbol_*)&symbol_tab; # traverse symbol_tab
+    var symbol_* ptr = (symbol_*)((char*)&symbol_tab+varobjects_misaligned); # traverse symbol_tab
     var uintC count;
     for (count = symbol_anz; count > 0; count--) {
       ptr->GCself = symbol_tab_ptr_as_object(ptr);
@@ -1057,7 +1060,7 @@ local void init_symbol_tab_2 (void) {
     dotimespC(count,package_anz, { pushSTACK(Car(list)); list = Cdr(list); });
   }
   {
-    var symbol_* ptr = (symbol_*)&symbol_tab; # traverse symbol_tab
+    var symbol_* ptr = (symbol_*)((char*)&symbol_tab+varobjects_misaligned); # traverse symbol_tab
     var const char * const * pname_ptr = &pname_table[0]; # traverse pname_table
     var const uintB* index_ptr = &package_index_table[0]; # traverse package_index_table
     var uintC count = symbol_anz;
@@ -1124,7 +1127,7 @@ local void init_symbol_functions (void) {
     });
   }
   { # enter SUBRs:
-    var subr_t* ptr = (subr_t*)&subr_tab; # traverse subr_tab
+    var subr_t* ptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned); # traverse subr_tab
     var uintC count;
     dotimesC(count,subr_anz,{
       Symbol_function(ptr->name) = subr_tab_ptr_as_object(ptr);
@@ -2349,7 +2352,7 @@ global int main (argc_t argc, char* argv[]) {
       multimap(case_symbolflagged: , 0, memneed, false);
     }
     # set subr_tab to address 0:
-    if (zeromap(&subr_tab,round_up(total_subr_anz*sizeof(subr_t),pagesize)) <0)
+    if (zeromap(&subr_tab,round_up(varobjects_misaligned+total_subr_anz*sizeof(subr_t),pagesize)) <0)
       goto no_mem;
     #else
     # multimap symbol_tab and subr_tab:
@@ -2399,7 +2402,7 @@ global int main (argc_t argc, char* argv[]) {
            mem.heaps[typecode(as_object((oint)&tab))].heap_limit += map_len; \
       } while(0)
     map_tab(symbol_tab,sizeof(symbol_tab));
-    map_tab(subr_tab,total_subr_anz*sizeof(subr_t));
+    map_tab(subr_tab,varobjects_misaligned+total_subr_anz*sizeof(subr_t));
     #endif
     #ifdef TRIVIALMAP_MEMORY
     # initialize all heaps as empty.
@@ -2470,7 +2473,15 @@ global int main (argc_t argc, char* argv[]) {
       var uintL heapnr;
       for (heapnr=0; heapnr<heapcount; heapnr++) {
         var Heap* heapptr = &mem.heaps[heapnr];
-        heapptr->heap_start = heapptr->heap_end = heapptr->heap_limit;
+        heapptr->heap_start = heapptr->heap_limit;
+       #if varobjects_misaligned
+        if (is_varobject_heap(heapnr)) {
+          if (zeromap((void*)heapptr->heap_start,map_pagesize) < 0) goto no_mem;
+          heapptr->heap_limit = heapptr->heap_start + map_pagesize;
+          heapptr->heap_start += varobjects_misaligned;
+        }
+       #endif
+        heapptr->heap_end = heapptr->heap_start;
        #ifdef SELFMADE_MMAP
         heapptr->memfile_numpages = 0;
         # heapptr->memfile_pages = NULL; # irrelevant
@@ -2478,7 +2489,7 @@ global int main (argc_t argc, char* argv[]) {
        #endif
        #ifdef GENERATIONAL_GC
         heapptr->heap_gen0_start = heapptr->heap_gen0_end =
-          heapptr->heap_gen1_start = heapptr->heap_limit;
+          heapptr->heap_gen1_start = heapptr->heap_start;
         heapptr->physpages = NULL;
        #endif
       }
@@ -2609,9 +2620,9 @@ global int main (argc_t argc, char* argv[]) {
         #ifdef GENERATIONAL_GC
         mem.varobjects.heap_gen0_start = mem.varobjects.heap_gen0_end =
           mem.varobjects.heap_gen1_start = mem.varobjects.heap_start =
-          (ptr + (physpagesize-1)) & -physpagesize;
+          ((ptr + (physpagesize-1)) & -physpagesize) + varobjects_misaligned;
         #else
-        mem.varobjects.heap_start = ptr;
+        mem.varobjects.heap_start = ptr + varobjects_misaligned;
         #endif
         mem.varobjects.heap_end = mem.varobjects.heap_start; # there are no objects of variable length, yet
         # rest (14/16 or a little less) for lisp-objects:
@@ -2643,6 +2654,8 @@ global int main (argc_t argc, char* argv[]) {
         for_each_heap(heap, { heap->inuse = EMPTY; } );
         for_each_cons_heap(heap, { heap->lastused = dummy_lastused; } );
         dummy_lastused->page_room = 0;
+        for_each_varobject_heap(heap, { heap->misaligned = varobjects_misaligned; } );
+        for_each_cons_heap(heap, { heap->misaligned = conses_misaligned; } );
         mem.free_pages = NULL;
         mem.total_space = 0;
         mem.used_space = 0;
@@ -3181,7 +3194,7 @@ global void dynload_modules (const char * library, uintC modcount,
           }
           { # Find the addresses of some C data in the shared library:
             sprintf(symbolbuf,"module__%s__subr_tab",modname);
-            module->stab = (subr_t*) dlsym(libhandle,symbolbuf);
+            module->stab = (subr_t*) ((char*) dlsym(libhandle,symbolbuf) + varobjects_misaligned);
             err = dlerror();
             if (err) fehler_dlerror("dlsym",symbolbuf,err);
           }
@@ -3247,12 +3260,12 @@ global void dynload_modules (const char * library, uintC modcount,
           if (*module->stab_size > 0) module_set_argtypes(module);
          #if (defined(MULTIMAP_MEMORY) || defined(SINGLEMAP_MEMORY)) && defined(MAP_MEMORY_TABLES)
           {
-            var subr_t* newptr = (subr_t*)&subr_tab + total_subr_anz;
+            var subr_t* newptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned) + total_subr_anz;
             var uintC count = *module->stab_size;
             if (count > 0) {
               {
-                var uintL old_map_len = round_up(total_subr_anz*sizeof(subr_t),map_pagesize);
-                var uintL new_map_len = round_up((total_subr_anz+count)*sizeof(subr_t),map_pagesize);
+                var uintL old_map_len = round_up(varobjects_misaligned+total_subr_anz*sizeof(subr_t),map_pagesize);
+                var uintL new_map_len = round_up(varobjects_misaligned+(total_subr_anz+count)*sizeof(subr_t),map_pagesize);
                 if (old_map_len < new_map_len) {
                   if (zeromap((void*)((aint)&subr_tab+old_map_len),new_map_len-old_map_len) <0)
                     fehler_dlerror("zeromap",NULL,"out of memory for subr_tab");

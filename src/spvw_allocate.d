@@ -234,15 +234,15 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
         if (needed_limit <= heapptr->heap_limit) # has the GC done its job?
           return; # yes -> finished
         # round up to the next page boundary:
-        #ifndef GENERATIONAL_GC
-        needed_limit = round_up(needed_limit,map_pagesize); # for sure > heapptr->heap_limit
-        #else # map_pagesize is commonly known a power of two
         needed_limit = (needed_limit + map_pagesize-1) & -map_pagesize; # for suer > heapptr->heap_limit
-        #endif
         # allocate new memory:
         if (needed_limit <= mem.conses.heap_limit) { # avoid crossover
+          var aint mapstart = heapptr->heap_limit;
+          #if varobjects_misaligned
+          mapstart &= -map_pagesize;
+          #endif
           begin_system_call();
-          var int ergebnis = zeromap((void*)(heapptr->heap_limit),needed_limit - heapptr->heap_limit);
+          var int ergebnis = zeromap((void*)mapstart,needed_limit - mapstart);
           end_system_call();
           if (ergebnis >= 0)
             goto sufficient;
@@ -297,12 +297,8 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
           goto failed;
         if (needed_limit >= heapptr->heap_limit) # has the GC done its job?
           return; # yes -> finished
-        # round off to the next page boundary:
-        #ifndef GENERATIONAL_GC
-        needed_limit = round_down(needed_limit,map_pagesize); # for sure < heapptr->heap_limit
-        #else # map_pagesize is commonly known a power of two
+        # round down to the next page boundary:
         needed_limit = needed_limit & -map_pagesize; # for sure < heapptr->heap_limit
-        #endif
         # allocate new memory:
         if (needed_limit >= mem.varobjects.heap_limit) { # avoid crossover
           begin_system_call();
@@ -429,11 +425,13 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
   #define make_space(need,heap_ptr,stack_ptr,pagevar)  \
     { pagevar = AVL(AVLID,least)(need,&(heap_ptr)->inuse,stack_ptr); \
       if (pagevar==EMPTY)                                            \
-        pagevar = make_space_gc(need,&(heap_ptr)->inuse,stack_ptr);  \
+        pagevar = make_space_gc(need,heap_ptr,stack_ptr);            \
       inc_alloccount();                                              \
     }
-  local Pages make_space_gc (uintL need, Pages* pages_ptr, AVL(AVLID,stack) * stack_ptr)
+  local Pages make_space_gc (uintL need, Heap* heap_ptr, AVL(AVLID,stack) * stack_ptr)
   {
+    var Pages* pages_ptr = &heap_ptr->inuse;
+    var uintL misaligned = heap_ptr->misaligned;
     # AVL(AVLID,least)(need,pages_ptr,stack_ptr) == EMPTY
     # is already checked,
     # so there is not enough room.
@@ -450,7 +448,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
       # try to get space from the operating system:
       #define make_space_using_malloc()                                     \
         do {                                                                \
-          var uintL size1 = round_up(need,sizeof(cons_));                   \
+          var uintL size1 = round_up(misaligned+need,sizeof(cons_));        \
           if (size1 < std_page_size) { size1 = std_page_size; }             \
          {var uintL size2 = size1 + sizeof(NODE) + (varobject_alignment-1); \
           var aint addr = (aint)mymalloc(size2);                            \
@@ -459,7 +457,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
             var Pages page = (Pages)addr;                                   \
             page->m_start = addr; page->m_length = size2;                   \
             # initialize:                                                   \
-            page->page_start = page->page_end = page_start0(page);          \
+            page->page_start = page->page_end = page_start0(page) + misaligned; \
             page->page_room = size1;                                        \
             # add to this heap:                                             \
             *pages_ptr = AVL(AVLID,insert1)(page,*pages_ptr);               \
@@ -472,7 +470,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
       # try to get space from the operating system:
       #define make_space_using_malloc()                                   \
         do {                                                              \
-          var uintL size1 = round_up(need,sizeof(cons_));                 \
+          var uintL size1 = round_up(misaligned+need,sizeof(cons_));      \
           if (size1 < std_page_size) { size1 = std_page_size; }           \
           begin_system_call();                                            \
          {var Pages page = (NODE*)malloc(sizeof(NODE));                   \
@@ -484,7 +482,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
               # get page from the OS.                                     \
               page->m_start = addr; page->m_length = size2;               \
               # Initialize:                                               \
-              page->page_start = page->page_end = page_start0(page);      \
+              page->page_start = page->page_end = page_start0(page) + misaligned; \
               page->page_room = size1;                                    \
               # add to this heap:                                         \
               *pages_ptr = AVL(AVLID,insert1)(page,*pages_ptr);           \
@@ -497,14 +495,14 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
            }                                                              \
         }}} while(0)
     #endif
-    if ((need <= std_page_size) && !(mem.free_pages == NULL)) {
+    if ((misaligned+need <= std_page_size) && !(mem.free_pages == NULL)) {
       # take a normal sized page from the common pool:
       var Pages page = mem.free_pages;
       mem.free_pages = (Pages)page->page_gcpriv.next;
-      # page is already correctly initialized:
-      # page->page_start = page->page_end = page_start0(page);
+      # page is already partially correctly initialized:
       # page->page_room =
       #   round_down(page->m_start + page->m_length,varobject_alignment)
+      page->page_start = page->page_end = page_start0(page) + misaligned;
       # and add to this heap:
       *pages_ptr = AVL(AVLID,insert1)(page,*pages_ptr);
       if (!(AVL(AVLID,least)(need,pages_ptr,stack_ptr) == page))

@@ -865,6 +865,7 @@ commas and parentheses."
     (write-string "  0" out) (newline out)
     (write-string "};" out) (newline out) (newline out)
     (format out "struct ~A_t {" subr-tab) (newline out)
+    (write-string "  VAROBJECTS_ALIGNMENT_DUMMY_DECL" out) (newline out)
     (loop :for fd :across *fundefs*
       :do (with-conditional (out (fundef-cond-stack fd))
             (format out "  subr_t _~A;" (fundef-tag fd))))
@@ -918,7 +919,14 @@ commas and parentheses."
         (subr-tab
          (ext:string-concat "module__" *module-name* "__subr_tab")))
     (newline out) (newline out)
-    (format out "struct ~A_t ~A = {" subr-tab subr-tab) (newline out)
+    (format out "struct ~A_t ~A" subr-tab subr-tab) (newline out)
+    (write-string "  #if defined(HEAPCODES) && (alignment_long < varobject_alignment) && defined(__GNUC__)" out) (newline out)
+    (write-string "    __attribute__ ((aligned (varobject_alignment)))" out) (newline out)
+    (write-string "  #endif" out) (newline out)
+    (write-string "  = {" out) (newline out)
+    (write-string "  #if varobjects_misaligned" out) (newline out)
+    (write-string "  { 0 }," out) (newline out)
+    (write-string "  #endif" out) (newline out)
     (loop :for fd :across *fundefs* :do
       (setf (fundef-signatures fd) (nreverse (fundef-signatures fd)))
       (loop :for sig :in (fundef-signatures fd) :do
@@ -926,7 +934,7 @@ commas and parentheses."
           (format out "  LISPFUN_F~A" (fundef-lispfun fd sig)))))
     (write-string "  0" out) (newline out)
     (write-string "};" out) (newline out)
-    (format out "uintC module__~A__subr_tab_size = (sizeof(struct ~A_t)-sizeof(int))/sizeof(subr_t);" *module-name* subr-tab)
+    (format out "uintC module__~A__subr_tab_size = (sizeof(struct ~A_t)-varobjects_misaligned-sizeof(int))/sizeof(subr_t);" *module-name* subr-tab)
     (newline out) (newline out)
     (write-string "struct {" out) (newline out)
     (loop :for fd :across *fundefs*

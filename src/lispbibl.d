@@ -3041,6 +3041,21 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 
 #endif # TYPECODES
 
+# The misalignment of varobjects, modulo varobject_alignment.
+#ifndef varobjects_misaligned
+  #define varobjects_misaligned  0
+#endif
+#if varobjects_misaligned
+  #define VAROBJECTS_ALIGNMENT_DUMMY_DECL  char alignment_dummy[varobjects_misaligned];
+#else
+  #define VAROBJECTS_ALIGNMENT_DUMMY_DECL
+#endif
+
+# The misalignment of conses, modulo 2*sizeof(gcv_object_t).
+#ifndef conses_misaligned
+  #define conses_misaligned  0
+#endif
+
 
 # Objects with variable length must reside at addresses that are divisable by 2
 #if defined(VAX) # ?? gcc/config/vax/vax.h sagt: Alignment = 4
@@ -5504,6 +5519,8 @@ typedef struct {
     uintB key_flag;         # flag for keywords
     uintW key_anz;          # number of keyword parameter
     uintW seclass;          /* side-effect class */
+    # If necessary, add fillers here to ensure sizeof(subr_t) is a multiple of
+    # varobject_alignment.
   } subr_t
     #if defined(HEAPCODES) && (alignment_long < 4) && defined(GNU)
       # Force all Subrs to be allocated with a 4-byte alignment. GC needs this.
@@ -5511,6 +5528,8 @@ typedef struct {
     #endif
     ;
   typedef subr_t *  Subr;
+  # Compile-time check: sizeof(subr_t) is a multiple of varobject_alignment.
+  typedef int subr_size_check[1 - 2 * (sizeof(subr_t) % varobject_alignment)];
 # GC needs information where objects are in here:
   #define subr_length  2
   #define subr_xlength  (sizeof(*(Subr)0)-offsetofa(record_,recdata)-subr_length*sizeof(gcv_object_t))
@@ -8112,9 +8131,10 @@ extern object allocate_bit_vector (uintB atype, uintL len);
       ((Sbvector)objvar##_storage)->length = (len)
   #else
     #define DYNAMIC_8BIT_VECTOR(objvar,len)  \
-      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+offsetofa(sbvector_,data),sizeof(gcv_object_t))); \
-      var object objvar = ((Sbvector)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sb8vector_type,(Sbvector)objvar##_storage); \
-      ((Sbvector)objvar##_storage)->tfl = vrecord_tfl(Rectype_Sb8vector,len)
+      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+offsetofa(sbvector_,data)+varobjects_misaligned,sizeof(gcv_object_t))); \
+      var object* objvar##_address = (object*)((uintP)objvar##_storage | varobjects_misaligned); \
+      var object objvar = ((Sbvector)objvar##_address)->GCself = bias_type_pointer_object(varobject_bias,sb8vector_type,(Sbvector)objvar##_address); \
+      ((Sbvector)objvar##_address)->tfl = vrecord_tfl(Rectype_Sb8vector,len)
   #endif
   #define FREE_DYNAMIC_8BIT_VECTOR(objvar)  \
     FREE_DYNAMIC_ARRAY(objvar##_storage)
@@ -8224,14 +8244,16 @@ extern object allocate_imm_s32string (uintL len);
   # pointers to this object untouched.
   #ifdef UNICODE
     #define DYNAMIC_STRING(objvar,len)  \
-      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(s32string_,data),sizeof(gcv_object_t))); \
-      var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
-      ((Sstring)objvar##_storage)->tfl = sstring_tfl(Sstringtype_32Bit,0,0,len);
+      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(s32string_,data)+varobjects_misaligned,sizeof(gcv_object_t))); \
+      var object* objvar##_address = (object*)((uintP)objvar##_storage | varobjects_misaligned); \
+      var object objvar = ((Sstring)objvar##_address)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_address); \
+      ((Sstring)objvar##_address)->tfl = sstring_tfl(Sstringtype_32Bit,0,0,len);
   #else
     #define DYNAMIC_STRING(objvar,len)  \
-      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(s8string_,data),sizeof(gcv_object_t))); \
-      var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
-      ((Sstring)objvar##_storage)->tfl = sstring_tfl(Sstringtype_8Bit,0,0,len);
+      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(s8string_,data)+varobjects_misaligned,sizeof(gcv_object_t))); \
+      var object* objvar##_address = (object*)((uintP)objvar##_storage | varobjects_misaligned); \
+      var object objvar = ((Sstring)objvar##_address)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_address); \
+      ((Sstring)objvar##_address)->tfl = sstring_tfl(Sstringtype_8Bit,0,0,len);
   #endif
   #define FREE_DYNAMIC_STRING(objvar)  \
     FREE_DYNAMIC_ARRAY(objvar##_storage)
@@ -8932,6 +8954,7 @@ typedef Values subr_rest_function_t (uintC argcount, gcv_object_t* rest_args_poi
 # Make Subr-tables visible:
 #define LISPFUN  LISPFUN_C
 extern struct subr_tab_ {
+  VAROBJECTS_ALIGNMENT_DUMMY_DECL
   #include "subr.c"
 } subr_tab_data;
 #undef LISPFUN
@@ -8995,6 +9018,7 @@ extern struct pseudodata_tab_ {
 # Declaration if the Symbol-table:
 #define LISPSYM  LISPSYM_A
 extern struct symbol_tab_ {
+  VAROBJECTS_ALIGNMENT_DUMMY_DECL
   #include "constsym.c"
 } symbol_tab_data;
 #undef LISPSYM
