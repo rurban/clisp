@@ -90,10 +90,82 @@ nil
   (with-open-file (foo "./foocl" :direction :output
                        :element-type '(unsigned-byte 8))
     (write-sequence vec foo))
-  (prog1
-      (with-open-file (foo "./foocl" :direction :input
-                           :element-type '(unsigned-byte 8))
-        (read-float foo 'double-float :big))
+  (unwind-protect
+       (with-open-file (foo "./foocl" :direction :input
+                            :element-type '(unsigned-byte 8))
+         (read-float foo 'double-float :big))
     (delete-file "./foocl")))
 #+clisp
 1d0
+
+#+clisp
+(progn
+  (defclass list-input-stream (fundamental-input-stream)
+    ((list :initarg :list)))
+  (defmethod stream-element-type ((stream list-input-stream)) t)
+  (defmethod stream-read-char ((stream list-input-stream))
+    (with-slots (list) stream
+      (if list
+          (let ((ret (pop list)))
+            (typecase ret
+              (integer (code-char ret))
+              (character ret)
+              (t (coerce ret 'character))))
+          :eof)))
+  (defmethod stream-unread-char ((stream list-input-stream) (char character))
+    (with-slots (list) stream (push char list)))
+  (defmethod stream-read-byte ((stream list-input-stream))
+    (with-slots (list) stream
+      (if list
+          (let ((ret (pop list)))
+            (typecase ret
+              (integer ret)
+              (character (char-code ret))
+              (t (coerce ret 'integer))))
+          :eof)))
+  nil)
+#+clisp
+nil
+
+#+clisp
+(read-float (make-instance 'list-input-stream :list '(#x3f #xf0 0 0 0 0 0 0))
+            'double-float :big)
+#+clisp
+1d0
+
+#+clisp
+(read-float (make-instance 'list-input-stream :list '(0 0 0 0 0 0 #xf0 #x3f))
+            'double-float :little)
+#+clisp
+1d0
+
+#+clisp
+(progn
+  (defclass list-output-stream (fundamental-output-stream)
+    ((list :initform nil)))
+  (defmethod stream-element-type ((stream list-output-stream)) t)
+  (defmethod stream-write-char ((stream list-output-stream) (char character))
+    (with-slots (list) stream
+      (push char list)))
+  (defmethod stream-write-byte ((stream list-output-stream) (byte integer))
+    (with-slots (list) stream
+      (push byte list)))
+  nil)
+#+clisp
+nil
+
+#+clisp
+(let ((out (make-instance 'list-output-stream)))
+  (write-float 1d0 out 'double-float :big)
+  (with-slots (list) out
+    (nreverse list)))
+#+clisp
+(#x3f #xf0 0 0 0 0 0 0)
+
+#+clisp
+(let ((out (make-instance 'list-output-stream)))
+  (write-float 1d0 out 'double-float :little)
+  (with-slots (list) out
+    (nreverse list)))
+#+clisp
+(0 0 0 0 0 0 #xf0 #x3f)
