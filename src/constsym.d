@@ -1513,6 +1513,7 @@ LISPSYM(standard_output,"*STANDARD-OUTPUT*",lisp) /* variable in STREAM */
 LISPSYM(error_output,"*ERROR-OUTPUT*",lisp) /* variable in STREAM */
 LISPSYM(trace_output,"*TRACE-OUTPUT*",lisp) /* variable in STREAM */
 LISPSYM(stream_element_type,"STREAM-ELEMENT-TYPE",lisp) /* function in STREAM */
+LISPSYM(lastchar,"$LASTCHAR",system) /* slotname in STREAM */
 LISPSYM(reval,"$REVAL",system) /* slotname in STREAM */
 LISPSYM(default_pathname_defaults,"*DEFAULT-PATHNAME-DEFAULTS*",lisp) /* variable in PATHNAME */
 LISPSYM(merge_pathnames_ansi,"*MERGE-PATHNAMES-ANSI*",custom) /* variable in PATHNAME */
