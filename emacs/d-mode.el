@@ -95,7 +95,7 @@ Beware - this will modify the original C-mode too!"
                       (setq make "make") "makefile-gcc")
                      (t "<makefile>"))))
          (concat make " -f " makefile " " target)))
-  (setf (cdr (assq 'cpp-macro c-offsets-alist)) 'd-mode-indent-charp)
+  (setf (cdr (assq 'cpp-macro c-offsets-alist)) 'd-mode-indent-sharp)
   (when (<= 21 emacs-major-version)
     (set (make-local-variable 'font-lock-defaults)
          d-mode-font-lock-defaults)))
