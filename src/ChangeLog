@@ -1,5 +1,15 @@
 2001-10-04  Sam Steingold  <sds@gnu.org>
 
+	make COERCE error message more consistent
+	* sequence.d (coerce_sequence): return nullobj when result_type is
+	not a sequence (instead of signalling an error); since all calls
+	to coerce_sequence() except for the ones in COERCE have constant
+	result_type (which is a sequence), this is compatible
+	* predtype.d (COERCE): when calling coerce_sequence() and unsure
+	of result_type being a sequence, check value1
+
+2001-10-04  Sam Steingold  <sds@gnu.org>
+
 	special file for deprecated functions
 	* deprecated.lisp: added (define type-expand-1)
 	* init.lisp: load deprecated.lisp
