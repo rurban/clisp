@@ -197,7 +197,7 @@
 <!ENTITY sose-port "<link linkend='sose-port'><function>SOCKET:SOCKET-SERVER-PORT</function></link>">
 <!ENTITY so-wait "<link linkend='so-wait'><function>SOCKET:SOCKET-WAIT</function></link>">
 <!ENTITY timeout-opt "&optional-amp; <link linkend='timeout-opt'>[<replaceable>seconds</replaceable> [<replaceable>microseconds</replaceable>]]</link>">
-<!ENTITY timeout-k "<link linkend='timeout-k'><constant>seconds</constant></link>">
+<!ENTITY timeout-k "<link linkend='timeout-k'><constant>:TIMEOUT</constant></link>">
 <!ENTITY so-status "<link linkend='so-status'><function>SOCKET:SOCKET-STATUS</function></link>">
 <!ENTITY sost-host "<link linkend='sost-hopo'><function>SOCKET:SOCKET-STREAM-HOST</function></link>">
 <!ENTITY sost-port "<link linkend='sost-hopo'><function>SOCKET:SOCKET-STREAM-PORT</function></link>">
@@ -332,6 +332,7 @@
 <!ENTITY declaration-r "<replaceable>declaration</replaceable>">
 <!ENTITY digits-r "<replaceable>digits</replaceable>">
 <!ENTITY dimensions-r "<replaceable>dimensions</replaceable>">
+<!ENTITY direction-r "<replaceable>direction</replaceable>">
 <!ENTITY dkey-r "<replaceable>dkey</replaceable>">
 <!ENTITY eltype-r "<replaceable>element-type</replaceable>">
 <!ENTITY encoding-r "<replaceable>encoding</replaceable>">
