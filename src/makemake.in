@@ -2856,7 +2856,7 @@ if [ $CROSS = false ] ; then
 
   echol "# check the sources: subr.d, fsubr.d, subrkw.d and"
   echol "# all the LISPFUNs must add up"
-  echol "check-sources : lisp.run lispinit.mem"
+  echol "check-sources : # lisp.run lispinit.mem"
   echotab "\$(RUN) -M lispinit.mem -C -i ${SRCDIR}check-lispfun.lisp -x '(check-lisp-defs \"${SRCDIR}\")'"
   echol
 
