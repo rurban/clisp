@@ -856,6 +856,23 @@ local object test_default_pathname (object defaults) {
     return coerce_xpathname(defaults);
 }
 
+/* <http://www.lisp.org/HyperSpec/Body/sec_19-2-3.html>:
+ "for functions that manipulate or inquire about files in the file system,
+  the pathname argument to such a function is merged with
+  *DEFAULT-PATHNAME-DEFAULTS* before accessing the file system"
+ When pathname comes from a file stream, this is NOT done because
+ that pathname has already been "transfered from the world of the abstract
+ Lisp pathname algebra to the real world of computer file system"
+ Another option is to ensure that all slots of *DEFAULT-PATHNAME-DEFAULTS*
+ are non-NIL (use :UNSPECIFIC instead): then merge_defaults() becomes
+ an idempotent operation -- assuming trivial directory or non-ANSI merging.
+ can trigger GC */
+local object merge_defaults (object pathname) {
+  pushSTACK(pathname); pushSTACK(defaults_pathname());
+  funcall(L(merge_pathnames),2);
+  return value1;
+}
+
 /* error-message because of illegal pathname-argument.
  fehler_pathname_designator(thing); ( fehler_... = error_... )
  > thing: (erroneous) argument */
@@ -5244,18 +5261,18 @@ BOOL FullName (LPCSTR shortname, LPSTR fullname) {
     } else if (state == 3) {/* slash */
       switch(symbol) {
       case fn_slash: state = 2;break;
-      case fn_eof: 
+      case fn_eof:
         if (current == rent) state = 0; else return FALSE; /*D:FOO*/
         break;
       default: return FALSE; /* program error */
       }
     } else if (state % 2 == 1) {/* dots - slash 9, 11, 13 ... */
       switch(symbol) {
-      case fn_slash: 
+      case fn_slash:
         state += 1;
         if (state == 10) state = 2; /* zero depth */
         break; /* same depth */
-      case fn_eof: 
+      case fn_eof:
         return FALSE; /* too many ".." */
         break;
       default: return FALSE; /* program error */
@@ -5756,8 +5773,8 @@ LISPFUNNR(truename,1)
     /* Streamtype File-Stream */
     VALUES1(TheStream(pathname)->strm_file_truename);
   } else {
-    var object namestring = true_namestring(coerce_pathname(pathname),
-                                            false,false);
+    var object namestring =
+      true_namestring(merge_defaults(coerce_pathname(pathname)),false,false);
     if (namenullp(STACK_0)) {
       /* no name specified */
       if (!nullp(ThePathname(STACK_0)->pathname_type)) {
@@ -5792,9 +5809,8 @@ LISPFUNNR(probe_file,1)
       VALUES1(pathname); return;
     }
     /* no -> yet to test, if the file for the truename exists. */
-  } else {
-    pathname = coerce_pathname(pathname); /* turn into a pathname */
-  }
+  } else /* turn into a pathname */
+    pathname = merge_defaults(coerce_pathname(pathname));
   /* pathname is now a Pathname. */
   var object namestring = true_namestring(pathname,true,true);
   if (eq(namestring,nullobj)) {
@@ -5864,7 +5880,7 @@ local bool directory_exists (object pathname) {
 LISPFUNNR(probe_directory,1)
 { /* (PROBE-DIRECTORY filename) tests, if a directory exists. */
   var object pathname = popSTACK(); /* pathname-argument */
-  pathname = coerce_pathname(pathname); /* turn into a pathname */
+  pathname = merge_defaults(coerce_pathname(pathname)); /* --> pathname */
   check_no_wildcards(pathname); /* with wildcards -> error */
   pathname = use_default_dir(pathname); /* insert default-directory */
   check_notdir(pathname); /* ensure that Name=NIL and Type=NIL */
@@ -5953,9 +5969,8 @@ LISPFUNN(delete_file,1) {
     }
     /* then take the truename as file to be deleted: */
     pathname = TheStream(stream)->strm_file_truename;
-  } else {
-    pathname = coerce_pathname(pathname); /* turn into a pathname */
-  }
+  } else /* turn into a pathname */
+    pathname = merge_defaults(coerce_pathname(pathname));
   /* pathname is now a pathname. */
   check_no_wildcards(pathname); /* with wildcards -> error */
   pathname = use_default_dir(pathname); /* insert default-directory */
@@ -6052,8 +6067,8 @@ LISPFUNN(rename_file,2) {
     TheStream(filename)->strm_file_name = STACK_4; /* newpathname as new name */
     TheStream(filename)->strm_file_truename = STACK_1; /* newtruename as new truename */
     /* leave handle etc. untouched */
-  } else {
-    filename = coerce_pathname(filename); /* turn into a pathname */
+  } else { /* turn into a pathname */
+    filename = merge_defaults(coerce_pathname(filename));
     pushSTACK(filename);
     /* rename: */
     rename_file();
@@ -6485,6 +6500,7 @@ LISPFUN(open,seclass_default,1,0,norest,key,6,
     if (logpathnamep(filename))
       filename = coerce_pathname(filename);
    #endif
+    filename = merge_defaults(filename);
   }
   /* Stack layout: filename-arg, direction, element-type, if-exists,
                  if-does-not-exist, external-format, buffered, origpathname.
@@ -7445,7 +7461,7 @@ LISPFUN(directory,seclass_read,1,0,norest,key,3,
   dsp.full_p = !missingp(STACK_0); /* :FULL argument defaults to NIL */
   skipSTACK(3);
   /* check pathname-argument: */
-  var object pathname = coerce_pathname(STACK_0); /* turn into a pathname */
+  var object pathname = merge_defaults(coerce_pathname(STACK_0));
   /* let's go: */
  #ifdef PATHNAME_WIN32
   if (eq(ThePathname(pathname)->pathname_device,S(Kwild))) {
@@ -7500,9 +7516,9 @@ LISPFUN(cd,seclass_default,0,1,norest,nokey,0,NIL) {
   if (!boundp(pathname)) { pathname = O(empty_string); } /* "" */
   else if (stringp(pathname)) /* make sure it ends with a slash */
     pathname = ensure_last_slash(pathname);
-  pathname = coerce_pathname(pathname); /* turn into a pathname */
-  /* copy and set name and type to NIL: */
-  pathname = copy_pathname(pathname);
+  pathname = merge_defaults(coerce_pathname(pathname)); /* --> pathname */
+  /* no need to copy: merge_defaults produces a fresh pathname
+     set name and type to NIL: */
   ThePathname(pathname)->pathname_name = NIL;
   ThePathname(pathname)->pathname_type = NIL;
   true_namestring(pathname,false,false); /* the directory must exist */
@@ -7527,7 +7543,7 @@ LISPFUN(cd,seclass_default,0,1,norest,nokey,0,NIL) {
 /* decrements STACK by 1.
  can trigger GC */
 local object shorter_directory (object pathname, bool resolve_links) {
-  pathname = coerce_pathname(pathname); /* turn argument into a pathname */
+  pathname = merge_defaults(coerce_pathname(pathname)); /* --> pathname */
   check_no_wildcards(pathname); /* with wildcards -> error */
   pathname = use_default_dir(pathname); /* insert default-directory */
   check_notdir(pathname); /* ensure that Name=NIL and Type=NIL */
@@ -7608,7 +7624,7 @@ LISPFUNN(delete_dir,1)
 LISPFUN(ensure_directories_exist,seclass_default,1,0,norest,key,1,
         (kw(verbose))) {
   var object pathname = coerce_pathname(STACK_1);
-  pathname = copy_pathname(pathname); /* copy and discard name, type */
+  pathname = merge_defaults(pathname); /* copy and discard name, type */
   ThePathname(pathname)->pathname_name = NIL;
   ThePathname(pathname)->pathname_type = NIL;
   check_no_wildcards(pathname); /* with wildcards -> error */
@@ -7840,8 +7856,8 @@ LISPFUNNR(file_write_date,1)
       pathname = TheStream(pathname)->strm_file_truename;
       goto is_pathname;
     }
-  } else {
-    pathname = coerce_pathname(pathname); /* turn into a pathname */
+  } else { /* turn into a pathname */
+    pathname = merge_defaults(coerce_pathname(pathname));
    is_pathname: { /* pathname is now really a pathname */
       var object namestring = true_namestring(pathname,true,false);
      #ifdef UNIX
@@ -7896,7 +7912,7 @@ LISPFUNNR(file_author,1)
       goto is_pathname;
     }
   } else {
-    pathname = coerce_pathname(pathname); /* turn into a pathname */
+    pathname = merge_defaults(coerce_pathname(pathname)); /* --> pathname */
    is_pathname: { /* pathname is now really a pathname */
       var object namestring = true_namestring(pathname,true,false);
      #if defined(UNIX) || defined(WIN32_NATIVE)

@@ -1,5 +1,16 @@
 2004-08-11  Sam Steingold  <sds@gnu.org>
 
+	ANSI compliance <http://www.lisp.org/HyperSpec/Body/sec_19-2-3.html>:
+	"for functions that manipulate or inquire about files in the file
+	 system, the pathname argument to such a function is merged with
+	 *DEFAULT-PATHNAME-DEFAULTS* before accessing the file system"
+	* pathname.d (merge_defaults): new function
+	(TRUENAME, PROBE-FILE, PROBE-DIRECTORY, DELETE-FILE, RENAME-FILE)
+	(OPEN, DIRECTORY, CD, shorter_directory, ENSURE-DIRECTORIES-EXIST)
+	(FILE-WRITE-DATE, FILE-AUTHOR): call it
+
+2004-08-11  Sam Steingold  <sds@gnu.org>
+
 	* record.d (SET-FUNCALLABLE-INSTANCE-FUNCTION): fixed G++ compilation
 
 2004-08-11  Sam Steingold  <sds@gnu.org>
