@@ -108,29 +108,6 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
     begin_system_call();
     free(addr);
     end_system_call();
-    #if defined(AMIGAOS) && !(defined(WIDE_SOFT) || defined(MC68000) || !defined(TYPECODES))
-    # A second attempt with different flags.
-    if (!(default_allocmemflag == retry_allocmemflag)) {
-      begin_system_call();
-      addr = allocmem(need,retry_allocmemflag);
-      end_system_call();
-      if (addr==NULL)
-        return NULL;
-      # Interval [addr,addr+need-1] must lie in [0..2^oint_addr_len-1] :
-      {
-        var aint a = (aint)addr; # a = lower interval bound
-        if (pointable_usable_test(a)) {
-          a = round_down(a + need-1,bit(addr_shift)); # a = upper interval bound
-          if (pointable_usable_test(a))
-            return addr;
-        }
-      }
-      # we cannot do anything with this piece of memory, too, return it again:
-      begin_system_call();
-      freemem(addr);
-      end_system_call();
-    }
-    #endif
     return NULL;
   }
 

@@ -134,7 +134,7 @@ global break_sems_ break_sems;
   # break_sem_3 == break_sems.einzeln[3]
   #   for package-management on higher level
   # break_sem_4 == break_sems.einzeln[4]
-  #   set, as long as (AMIGAOS) DOS or external functions are being called.
+  #   set, as long as external functions are being called.
   # break_sem_5 == break_sems.einzeln[5]
   #   set, as long as (UNIX) a signal-handler is being called.
 
@@ -191,7 +191,7 @@ local int exitcode;
 #if defined(SPVW_BLOCKS) && defined(SPVW_PURE) # e.g. UNIX_LINUX, Linux 0.99.7
   #define SPVW_PURE_BLOCKS
 #endif
-#if defined(SPVW_PAGES) && defined(SPVW_MIXED) # e.g. SUN3, AMIGA, HP9000_800
+#if defined(SPVW_PAGES) && defined(SPVW_MIXED) # e.g. SUN3, HP9000_800
   #define SPVW_MIXED_PAGES
 #endif
 #if defined(SPVW_PAGES) && defined(SPVW_PURE) # e.g. SUN4, SUN386
@@ -1357,9 +1357,6 @@ local void init_object_tab (void) {
      #if (base_char_code_limit == char_code_limit)
       " :BASE-CHAR=CHARACTER"
      #endif
-     #ifdef AMIGA
-      " :AMIGA"
-     #endif
      #ifdef PC386
       " :PC386"
      #endif
@@ -1629,11 +1626,7 @@ local void print_banner ()
    "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998\n",
    "Copyright (c) Bruno Haible, Sam Steingold 1999-2003\n",
   };
-  #ifdef AMIGA
-  var const char * banner2 =
-    GETTEXT("                    Amiga version: Joerg Hoehle\n");
-  #endif
-  var const char * banner3 = "\n";
+  var const char * banner2 = "\n";
   var int candles = 0;
   var uintL offset = (posfixnum_to_L(Symbol_value(S(prin_linelength))) >= 65 ? 0 : 20);
   if (offset == 0) {
@@ -1703,10 +1696,7 @@ local void print_banner ()
   ptr = banner1; count = sizeof(banner1)/sizeof(banner1[0]);
   while (count--)
     write_sstring(&STACK_0,asciz_to_string(*ptr++,O(internal_encoding)));
- #ifdef AMIGA
-  write_sstring(&STACK_0,asciz_to_string(banner2+offset,O(internal_encoding)));
- #endif
-  write_sstring(&STACK_0,asciz_to_string(banner3,O(internal_encoding)));
+  write_sstring(&STACK_0,asciz_to_string(banner2,O(internal_encoding)));
   skipSTACK(1);
 }
 
@@ -1746,9 +1736,6 @@ global int main (argc_t argc, char* argv[]) {
   # build up interrupt-handler.
   # print banner.
   # jump into the driver.
- #ifdef AMIGAOS
-  init_amiga();
- #endif
  #ifdef EMUNIX
   # expand wildcards and response-files int the command line:
   _response(&argc,&argv);
@@ -2515,14 +2502,6 @@ global int main (argc_t argc, char* argv[]) {
                 { rl.rlim_cur = need; setrlimit(RLIMIT_STACK,&rl); }
             }
           #endif
-          #ifdef AMIGAOS
-          { var struct Process * myprocess = (struct Process *)FindTask(NULL);
-            var aint original_SP = process->pr_ReturnAddr; # SP on program start
-            # the shell moves the stack size before the start to the SP.
-            var aint SP_bottom = original_SP - *(ULONG*)original_SP;
-            SP_bound = SP_bottom + 0x1000; # 1024 pointer safety margin
-          }
-          #endif
           #if defined(WIN32_NATIVE) && !defined(NO_SP_CHECK)
             # Even if the NOCOST_SP_CHECK stack overflow detection (using a
             # guard page) works, we set SP_bound.
@@ -2702,17 +2681,6 @@ global int main (argc_t argc, char* argv[]) {
    }
  }
  #endif
- #if defined(AMIGAOS) && 0
-  # ask the console.driver ??
-  if (IsInteractive(stdin_handle) && IsInteractive(stdout_handle)) { # ??
-    var uintL len;
-    var uintB question[4] = { CSI, '0', ' ', 'q' };
-    var uintB response[30+1];
-    Write(stdout_handle,question,4);
-    len = Read(stdin_handle,response,30);
-    response[len] = `\0`; sscanf(&response[5],"%d;%d", &lines, &columns); # ??
-  }
- #endif
  #if (defined(HAVE_SIGNALS) && (defined(UNIX) || defined(EMUNIX))) || defined(WIN32_NATIVE)
   # install Ctrl-C-Handler:
   install_sigint_handler();
@@ -2845,7 +2813,7 @@ global int main (argc_t argc, char* argv[]) {
     #       :IF-DOES-NOT-EXIST NIL
     # )
     pushSTACK(S(Kname));
-   #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
+   #ifdef PATHNAME_UNIX
     pushSTACK(ascii_to_string(".clisprc"));
    #endif
    #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
@@ -3040,7 +3008,7 @@ global int main (argc_t argc, char* argv[]) {
  #ifdef WIN32_NATIVE
   done_win32();
  #endif
- #if (defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS)
+ #if defined(UNIX) && !defined(NEXTAPP)
   terminal_sane(); # switch terminal again in normal mode
  #endif
  #ifdef UNIX
@@ -3048,9 +3016,6 @@ global int main (argc_t argc, char* argv[]) {
  #endif
  #if defined(MSDOS) || defined(WIN32_NATIVE)
   _exit(exitcode);
- #endif
- #ifdef AMIGAOS
-  exit_amiga(exitcode ? RETURN_ERROR : RETURN_OK);
  #endif
   # if that did not help:
   return exitcode;
@@ -3266,7 +3231,7 @@ global void dynload_modules (const char * library, uintC modcount,
           if (*module->stab_size > 0) {
             # multimap the subr_tab of the loaded module .
             # the pages to be mapped belong to the data segment of the
-            # newly laoded Shared-Library, so are surely not yet
+            # newly loaded Shared-Library, so are surely not yet
             # multi-mapped.
             var aint subr_tab_start = round_down((aint)module->stab,pagesize);
             var aint subr_tab_end = round_up((aint)module->stab+(*module->stab_size)*sizeof(subr_t),pagesize);
@@ -3295,27 +3260,6 @@ global void dynload_modules (const char * library, uintC modcount,
   }
 }
 
-#endif
-
-# -----------------------------------------------------------------------------
-#                                Version
-#ifdef AMIGAOS
-# There is a utility, that searches an executable for a version string.
-# Format "name version.revision (date)\r\n"
-  global const char version_string[] =
-    "$VER: " PACKAGE_NAME
-    #if defined(WIDE)
-      "-wide"
-    #elif !defined(TYPECODES)
-      "-typ2"
-    #elif defined(AMIGA3000)
-      "-high"
-    #elif defined(MC68000)
-      "-68000"
-    #else
-      "-low"
-    #endif
-    " " PACKAGE_VERSION "\r\n";
 #endif
 
 # -----------------------------------------------------------------------------

@@ -19,7 +19,6 @@
 ;; Das temporäre File, das LISP beim Editieren anlegt:
 (defun editor-tempfile ()
   #+OS/2 "lisptemp.lisp"
-  #+AMIGA "T:lisptemp.lisp"
   #+(or UNIX WIN32) (merge-pathnames "lisptemp.lisp" (user-homedir-pathname))
 )
 
@@ -31,7 +30,7 @@
   ) )
   ; Damit TRUENAME keinen Fehler liefert, wenn das File noch nicht existiert,
   ; stellen wir sicher, dass das File existiert:
-  #+(or UNIX AMIGA)
+  #+UNIX
   (unless (probe-file file)
     (close (open file :direction :output))
   )
@@ -41,8 +40,6 @@
     )
   #+UNIX
     (shell (format nil "~A ~A" (editor-name) (truename file)))
-  #+AMIGA
-    (shell (format nil "~A \"~A\"" (editor-name) (truename file)))
 )
 
 (defun ed (&optional arg &aux funname sym fun def)

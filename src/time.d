@@ -16,12 +16,6 @@
    day-of-week, daylight-saving-time, time zone.
  Universal time =
    seconds since 1900-01-01 */
-#ifdef TIME_AMIGAOS
-  /* A small bug:
-   - Wrap-around of internal_time_t after 2.7 years.
-   Internal time =
-     1/50 sec since session start */
-#endif
 #ifdef TIME_MSDOS
   /* A small bug:
    - Wrap-around of internal_time_t after 1.36 years.
@@ -55,10 +49,6 @@
  using internal_time_t. */
 
 /* Variables: */
-#ifdef TIME_AMIGAOS
-  /* (The unit is 1/50 sec, a 32 bit counter therefore suffices for
-   994d 4h 55m 45.92s, and no LISP session runs for 2.7 years.) */
-#endif
 #ifdef TIME_MSDOS
   /* (The unit is 1/100 sec, a 32 bit counter therefore suffices for
    497d 2h 27m 52.96s, and no LISP session runs for 1.3 years.) */
@@ -89,19 +79,6 @@ local internal_time_t realstart_time; /* real time at start of LISP session */
 
 /* Returns the current hi-res time.
  get_time() */
- #ifdef TIME_AMIGAOS
-/* < uintL result: current value of the 50Hz counter */
-global uintL get_time(void)
-{
-  var struct DateStamp datestamp;
-  begin_system_call();
-  DateStamp(&datestamp);        /* get current time and date */
-  end_system_call();
-  /* convert to ticks starting at 1978-01-01 00:00:00: */
-  return ((uintL)(datestamp.ds_Days)*24*60 + (uintL)(datestamp.ds_Minute))
-    *60*ticks_per_second + (uintL)(datestamp.ds_Tick);
-}
- #endif
  #ifdef TIME_MSDOS
 /* < uintL result: current value of the 100Hz counter */
 global uintL get_time(void);
@@ -396,60 +373,6 @@ global void convert_timedate (uintW time, uintW date,
 }
 #endif
 
-#ifdef AMIGAOS
-/* UP: Wandelt das Amiga-Zeitformat in Decoded-Time um.
- convert_time(&datestamp,&timepoint);
- > struct DateStamp datestamp: Uhrzeit
-          datestamp.ds_Days   : Anzahl Tage seit 1.1.1978
-          datestamp.ds_Minute : Anzahl Minuten seit 00:00 des Tages
-          datestamp.ds_Tick   : Anzahl Ticks seit Beginn der Minute
- < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
-   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums  */
-global void convert_time (const struct DateStamp * datestamp,
-                          decoded_time_t* timepoint)
-{
-  /* Methode:
-    ds_Tick durch ticks_per_second dividieren, liefert Sekunden.
-    ds_Minute durch 60 dividierem liefert Stunden und (als Rest) Minuten.
-    ds_Days in Tag, Monat, Jahr umrechnen:
-      d := ds_Days - 790; # Tage seit 1.3.1980 (Schaltjahr)
-      y := floor((4*d+3)/1461); # März-Jahre ab 1.3.1980
-      d := d - floor(y*1461/4); # Tage ab letztem März-Jahres-Anfang
-      (Diese Rechnung geht gut, solange jedes vierte Jahr ein Schaltjahr
-       ist, d.h. bis zum Jahr 2099.)
-      m := floor((5*d+2)/153); # Monat ab letztem März
-      d := d - floor((153*m+2)/5); # Tag ab letztem Monatsanfang
-      m := m+2; if (m>=12) then { m:=m-12; y:=y+1; } # auf Jahre umrechnen
-      Tag d+1, Monat m+1, Jahr 1980+y. */
-  {
-    var uintL sec;
-    divu_3216_1616(datestamp->ds_Tick,ticks_per_second,sec=,);
-    timepoint->Sekunden = fixnum(sec);
-  }
-  {
-    var uintL std;
-    var uintL min;
-    divu_3216_1616(datestamp->ds_Minute,60,std=,min=);
-    timepoint->Minuten = fixnum(min);
-    timepoint->Stunden = fixnum(std);
-  }
-  {
-    var uintL y;
-    var uintW m;
-    var uintW d;
-    divu_3216_1616(4*(datestamp->ds_Days - 424),1461,y=,d=); /* y = März-Jahre ab 1.1.1979 */
-    d = floor(d,4);        /* Tage ab dem letzten März-Jahres-Anfang */
-    divu_1616_1616(5*d+2,153,m=,d=); /* m = Monat ab letztem März */
-    d = floor(d,5);                  /* Tag ab letztem Monatsanfang */
-    /* m=0..9 -> Monat März..Dezember des Jahres 1979+y,
-       m=10..11 -> Monat Januar..Februar des Jahres 1980+y. */
-    if (m<10) { m += 12; y -= 1; } /* auf Jahre umrechnen */
-    timepoint->Tag = fixnum(1+(uintL)d);
-    timepoint->Monat = fixnum(-9+(uintL)m);
-    timepoint->Jahr = fixnum(1980+y);
-  }
-}
-#endif
 #if defined(UNIX) || defined(MSDOS)
 /* UP: Wandelt das System-Zeitformat in Decoded-Time um.
  convert_time(&time,&timepoint);
@@ -519,24 +442,6 @@ local object encode_universal_time (const decoded_time_t* timepoint)
   return value1;
 }
 
-#ifdef AMIGAOS
-/* UP: convert the system (Amiga) time format into lisp universal time.
- convert_time_to_universal(&datestamp)
- > struct DateStamp datestamp: Uhrzeit
-          datestamp.ds_Days   : Anzahl Tage seit 1.1.1978
-          datestamp.ds_Minute : Anzahl Minuten seit 00:00 des Tages
-          datestamp.ds_Tick   : Anzahl Ticks seit Beginn der Minute
- < result: integer denoting the seconds since 1900-01-01 00:00 GMT
- can trigger GC */
-global object convert_time_to_universal (const struct DateStamp * datestamp)
-{
-  var decoded_time_t timepoint;
-  convert_time(datestamp,&timepoint);
-  /* Have to go through ENCODE-UNIVERSAL-TIME because a DateStamp is an
-   encoded time format, and because we must take the timezone into account.*/
-  return encode_universal_time(&timepoint);
-}
-#endif
 #if defined(UNIX) || defined(MSDOS)
 /* UP: convert the system time format into lisp universal time.
  convert_time_to_universal(&time)
@@ -717,13 +622,6 @@ global void init_time (void)
  #ifdef TIME_RELATIVE
   { /* Start-Zeit holen und merken: */
     var decoded_time_t timepoint;
-   #ifdef AMIGAOS
-    {
-      var struct DateStamp datestamp; /* aktuelle Uhrzeit */
-      DateStamp(&datestamp);
-      convert_time(&datestamp,&timepoint); /* in Decoded-Time umwandeln */
-    }
-   #endif
    #ifdef EMUNIX
     {
       var struct timeb real_time;
@@ -860,14 +758,6 @@ LISPFUNN(sleep,1)
   VALUES1(NIL);               /* 1 Wert NIL */
 }
 #endif
-#ifdef TIME_AMIGAOS
-{ /* (SYSTEM::%SLEEP delay) wartet delay/50 Sekunden.
- Argument delay muss ein Integer >=0, <2^32 sein. */
-  var uintL delay = I_to_UL(popSTACK()); /* Pausenlänge */
-  if (delay>0) { begin_system_call(); Delay(delay); end_system_call(); }
-  VALUES1(NIL);               /* 1 Wert NIL */
-}
-#endif
 #endif
 #ifdef SLEEP_2
 #ifdef TIME_UNIX_TIMES
@@ -969,10 +859,6 @@ LISPFUNNR(time,0)
    Real-Time (Zeit seit Systemstart) in 2 Werten,
    Run-Time (verbrauchte Zeit seit Systemstart) in 2 Werten,
    GC-Time (durch GC verbrauchte Zeit seit Systemstart) in 2 Werten,
-   #ifdef TIME_AMIGAOS
-     jeweils in 50stel Sekunden,
-     jeweils (ldb (byte 16 16) time) und (ldb (byte 16 0) time).
-   #endif
    #ifdef TIME_MSDOS
      jeweils in 100stel Sekunden,
      jeweils (ldb (byte 16 16) time) und (ldb (byte 16 0) time).

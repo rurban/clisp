@@ -12,7 +12,7 @@
 (in-package "FFI")
 
 (export '(def-c-type def-c-var parse-c-type deparse-c-type
-          def-c-call-out def-call-out #+AMIGA def-lib-call-out
+          def-c-call-out def-call-out #+AFFI def-lib-call-out
           def-c-call-in def-call-in default-foreign-language
           c-lines *output-c-functions* *output-c-variables*
           nil boolean character char uchar short ushort int uint long ulong
@@ -106,10 +106,6 @@
                        (t (write-char c s))))
              string)
     (write-char #\" s)))
-
-#+AMIGA
-(defconstant *registers*
-  '#(:D0 :D1 :D2 :D3 :D4 :D5 :D6 :D7 :A0 :A1 :A2 :A3 :A4 :A5 :A6))
 
 ;; ============================ C types ============================
 
@@ -318,7 +314,7 @@
     (coerce (mapcap (lambda (argspec)
                       (unless (and (listp argspec)
                                    (symbolp (first argspec))
-                                   (<= 2 (length argspec) #-AMIGA 4 #+AMIGA 5))
+                                   (<= 2 (length argspec) #-AFFI 4 #+AFFI 5))
                         (error (TEXT "Invalid parameter specification in ~S: ~S")
                                whole argspec))
                       (let* ((argtype (parse-c-type (second argspec)))
@@ -344,7 +340,7 @@
                                    (:NONE 0)
                                    (:ALLOCA ff-flag-alloca)
                                    (:MALLOC-FREE ff-flag-malloc-free))
-                                 #+AMIGA
+                                 #+AFFI
                                  (if (cddddr argspec)
                                    (ash (1+ (position (fifth argspec) *registers*)) 8)
                                    0)))))
@@ -446,7 +442,7 @@
                                                         ,(cond ((flag-set-p argflags ff-flag-alloca) ':ALLOCA)
                                                                ((flag-set-p argflags ff-flag-malloc-free) ':MALLOC-FREE)
                                                                (t ':NONE))
-                                                        #+AMIGA
+                                                        #+AFFI
                                                         ,@(let ((h (logand (ash argflags -8) #xF)))
                                                             (if (not (zerop h))
                                                                (list (svref *registers* (- h 1)))
@@ -883,7 +879,7 @@
                 (cadr (assoc :built-in alist)))
           *function-list*)))
 
-#+AMIGA
+#+AFFI
 (defmacro DEF-LIB-CALL-OUT (&whole whole name library &rest options)
   (check-symbol (first whole) name)
   (let* ((alist (parse-options options '(:name :offset :arguments :return-type) whole))

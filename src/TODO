@@ -291,11 +291,6 @@ You can't put this declaration into a C macro definition. Therefore the
 right place for it is still the comment.
 
 
-Amiga: handling of Ctrl-C in stream.d
-
-I think we have fixed this finally.
-
-
 Block the signals SIGHUP SIGPIPE SIGTERM SIGXCPU SIGXFSZ during GC, and
 when they occur outside of GC, do a quit(1); .
 

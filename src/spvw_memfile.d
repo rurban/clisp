@@ -741,10 +741,6 @@ local void loadmem (const char* filename)
 {
   /* open file for reading: */
   begin_system_call();
- #ifdef AMIGAOS
-  var Handle handle = Open(filename,MODE_OLDFILE);
-  if (handle==Handle_NULL) goto abort1;
- #endif
  #ifdef EMUNIX
   var int handle = open(filename,O_RDONLY);
   if (handle<0) goto abort1;
@@ -792,11 +788,6 @@ local void loadmem (const char* filename)
  abort_quit:
   /* first close file, if it had been opened successfully.
      (Thus, now really all errors are ignored!) */
- #ifdef AMIGAOS
-  if (handle != Handle_NULL) {
-    begin_system_call(); CLOSE(handle); end_system_call();
-  }
- #endif
  #if defined(UNIX) || defined(EMUNIX)
   if (handle >= 0) {
     begin_system_call(); CLOSE(handle); end_system_call();
@@ -1431,9 +1422,6 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     begin_system_call();
     #if defined(UNIX) || defined(EMUNIX)
     if ( CLOSE(handle) <0) goto abort1;
-    #elif defined(AMIGAOS)
-    /* Never close handles twice */
-    if ( CLOSE(handle) <0) { handle = Handle_NULL; goto abort1; }
     #elif defined(WIN32_NATIVE)
     if (!CloseHandle(handle)) { handle = INVALID_HANDLE_VALUE; goto abort1; }
     #endif
@@ -1540,9 +1528,6 @@ local void loadmem_from_handle (Handle handle, const char* filename)
   goto abort_quit;
  abort_quit:
   /* close the file beforehand. */
- #ifdef AMIGAOS
-  begin_system_call(); CLOSE(handle); end_system_call();
- #endif
  #if defined(UNIX) || defined(EMUNIX)
   begin_system_call(); CLOSE(handle); end_system_call();
  #endif

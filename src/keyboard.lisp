@@ -25,19 +25,6 @@
         )
         (sys::terminal-raw *terminal-io* mode)
     ) )
-  #+AMIGA
-    (let ((*keyboard-input* *terminal-io*))
-      (unwind-protect
-        (progn (sys::terminal-raw *terminal-io* t) (funcall fun))
-        (sys::terminal-raw *terminal-io* nil)
-    ) )
-    #| ;; redefined after SCREEN is loaded:
-    (let ((*keyboard-input* (screen::make-generic-stream ...)))
-      (unwind-protect
-        (funcall fun)
-        (close *keyboard-input*)
-    ) )
-    |#
 )
 
 ; Used by spvw.d.

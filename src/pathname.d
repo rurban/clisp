@@ -258,19 +258,6 @@ local char* realpath (const char* path, char* resolved_path) {
  > pathstring: result of shorter_directory(...)
  > STACK_0: pathname */
 local inline void make_directory (char* pathstring) {
- #ifdef AMIGAOS
-  set_break_sem_4();
-  begin_system_call();
-  {
-    var BPTR lock = CreateDir(pathstring); /* create sub-directory */
-    if (lock==BPTR_NULL) {
-      end_system_call(); OS_file_error(STACK_0);
-    }
-    UnLock(lock); /* release lock */
-  }
-  end_system_call();
-  clr_break_sem_4();
- #endif
  #if defined(UNIX) || defined(EMUNIX)
   begin_system_call();
   if (mkdir(pathstring,0777)) { /* create sub-directory */
@@ -292,14 +279,6 @@ local inline void make_directory (char* pathstring) {
  > pathstring: result of shorter_directory(...)
  > STACK_0: pathname */
 local inline void delete_directory (char* pathstring) {
- #ifdef AMIGAOS
-  /* yet test, if it is really a directory and not a file?? */
-  begin_system_call();
-  if (! DeleteFile(pathstring) ) { /* delete sub-directory */
-    end_system_call(); OS_file_error(STACK_0);
-  }
-  end_system_call();
- #endif
  #if defined(UNIX) || defined(EMUNIX)
   begin_system_call();
   if (rmdir(pathstring)) { /* delete sub-directory */
@@ -350,7 +329,7 @@ local inline void delete_existing_file (char* pathstring) {
   }
   end_system_call();
  #endif
- #if defined(AMIGAOS) || defined(WIN32_NATIVE)
+ #ifdef WIN32_NATIVE
   begin_system_call();
   if (! DeleteFile(pathstring) ) {
     end_system_call(); OS_file_error(STACK_0);
@@ -375,16 +354,6 @@ local inline bool delete_file_if_exists (char* pathstring) {
   begin_system_call();
   if (!( unlink(pathstring) ==0)) {
     if (!(errno==ENOENT)) { /* not found -> OK */
-      end_system_call(); OS_file_error(STACK_0); /* report other error */
-    }
-    exists = false;
-  }
-  end_system_call();
- #endif
- #ifdef AMIGAOS
-  begin_system_call();
-  if (! DeleteFile(pathstring) ) {
-    if (!(IoErr()==ERROR_OBJECT_NOT_FOUND)) { /* not found -> OK */
       end_system_call(); OS_file_error(STACK_0); /* report other error */
     }
     exists = false;
@@ -431,13 +400,6 @@ local inline void rename_existing_file (char* old_pathstring,
   }
   end_system_call();
  #endif
- #ifdef AMIGAOS
-  begin_system_call();
-  if (! Rename(old_pathstring,new_pathstring) ) {
-    end_system_call(); OS_file_error(STACK_0);
-  }
-  end_system_call();
- #endif
  #ifdef WIN32_NATIVE
   begin_system_call();
   if (! MoveFile(old_pathstring,new_pathstring) ) {
@@ -467,17 +429,6 @@ local inline void rename_file_to_nonexisting (char* old_pathstring,
   }
   end_system_call();
  #endif
- #ifdef AMIGAOS
-  begin_system_call();
-  if (! Rename(old_pathstring,new_pathstring) ) {
-    if (IoErr()==ERROR_OBJECT_NOT_FOUND) {
-      end_system_call(); OS_file_error(STACK_3);
-    } else {
-      end_system_call(); OS_file_error(STACK_1);
-    }
-  }
-  end_system_call();
- #endif
  #ifdef WIN32_NATIVE
   begin_system_call();
   if (! MoveFile(old_pathstring,new_pathstring) ) {
@@ -496,70 +447,6 @@ local inline void rename_file_to_nonexisting (char* old_pathstring,
 
 /* All simple-strings occurring in pathnames are in fact
    normal-simple-strings. */
-
-#ifdef PATHNAME_AMIGAOS
-/* components:
- HOST          always NIL
- DEVICE        NIL or Simple-String
- DIRECTORY     (Startpoint . Subdirs) with
-                Startpoint = :RELATIVE | :ABSOLUTE
-                Subdirs = () | (subdir . Subdirs)
-                subdir = :WILD-INFERIORS (means "**" or "...", all subdirectories) or
-                subdir = :PARENT (means "/" instead of "subdir/") or
-                subdir = Simple-String, poss. with Wildcard-Character ? and *
- NAME          NIL or
-               Simple-String, poss. wit Wildcard-Character ? and *
-               (also :WILD on input)
- TYPE          NIL or
-               Simple-String, poss. with Wildcard-Character ? and *
-               (also :WILD on input)
- VERSION       always NIL (also :WILD or :NEWEST on input)
- Constraint: Startpoint = :RELATIVE only, if Device = NIL;
-             for a specified device there are only absolute Pathnames!
- An AMIGAOS-Filename is split in Name and Type as follows:
-   if there is no '.' in filename: Name = everything, Type = NIL,
-   if there is a '.' in filename: Name = everything in front, Type = everything behind the last '.' .
- capital-/small letters within the Strings are ignored for comparison,
- but apart from that no conversion between capital and small letters takes place.
- If a pathname must be completely specified (no wildcards),
- :WILD, :WILD-INFERIORS is not permitted; no wildcard-characters in the
- Strings, no NIL at NAME poss. too.
- External Notation:  device:sub1.typ/sub2.typ/name.typ
- with Defaults:             sub1.typ/sub2.typ/name.typ
- or                                           name.typ
- or                         sub1.typ/ ** /sub3.typ/x*.lisp  (without Spaces!)
- or similar.
- Formal:
-   ch ::= any Character except ':','/' and '*','?'
-   name ::= {ch}+
-   device ::= [ <empty> | ':' | name ':' ]
-              ; empty = current device, relative from the current directory
-              ; ':'  = current device, absolute (from root for disks)
-              ; name ':' = specified device, absolute (from root for disks)
-   subdir ::= [ <empty> | name ]                ; empty = '..'
-   pathname ::= device { subdir '/' }* name
- Examples:
-   String        Device    Directory                unser Pathname
-   ------        ------    ---------                --------------
-   'c:foo'       'C',     device->foo               "c" (:ABSOLUTE "foo")
-   'c:foo/'      'C',     device->foo               "c" (:ABSOLUTE "foo")
-   'c:foo/bar'   'C',     device->foo->bar          "c" (:ABSOLUTE "foo" "bar")
-   'c:/foo'      'C',     device->up->foo           "c" (:ABSOLUTE :PARENT "foo")
-   'c:'          'C',     device                    "c" (:ABSOLUTE)
-   ':foo'        current, device->root->foo         NIL (:ABSOLUTE "foo")
-   'foo'         current, device->foo               NIL (:RELATIVE "foo")
-   '/foo'        current, device->up->foo           NIL (:RELATIVE :PARENT "foo")
-   '//foo/bar'   current, device->up->up->foo->bar  NIL (:RELATIVE :PARENT :PARENT "foo" "bar")
-   ''            current, device                    NIL (:RELATIVE)
- A '/' can be appended to a pathstring, that is non-empty and that does
-  not end with ':' or '/', without changing its semantics.
- This '/' must be appended, before a further non-empty
- component can be appended.
- Appending a '/' to a pathstring, that is empty or that ends with ':' or '/' ,
- means to ascend to the Parent Directory!
- We interprete each pathstring, that is empty or that ends with ':' or '/' ,
- as directory-pathname (with Name=NIL and Type=NIL) . */
-#endif
 
 #ifdef PATHNAME_UNIX
 /* Components:
@@ -950,9 +837,9 @@ local object test_optional_host (object host) {
  equal_pathchar(ch1,ch2)
  > chart ch1,ch2: Character-Codes
  < result: true if equal, else false */
-  #if !(defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32))
+  #if !(defined(PATHNAME_OS2) || defined(PATHNAME_WIN32))
     #define equal_pathchar(ch1,ch2)  chareq(ch1,ch2)
-  #else /* defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) */
+  #else /* defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) */
     /* Case-insensitive, but normally without conversion */
     #define equal_pathchar(ch1,ch2)  chareq(up_case(ch1),up_case(ch2))
   #endif
@@ -976,9 +863,6 @@ local bool legal_namechar (chart ch) {
   return VALID_FILENAME_CHAR || (ch=='*') || (ch=='?');
   #undef ch
  #else
-  #ifdef PATHNAME_AMIGAOS
-  return (graphic_char_p(ch) && !(c=='/') && !(c==':'));
-  #endif
   #ifdef PATHNAME_UNIX
   return ((c>=' ') && (c<='~') && !(c=='/'));
   #endif
@@ -1091,7 +975,7 @@ nonreturning_function(local, fehler_file_stream_unnamed, (object stream)) {
 #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
  #define pslashp(c)  (chareq(c,ascii('\\')) || chareq(c,ascii('/')))
  #define cpslashp(c) ((c) == '\\' || (c) == '/')
-#else /* PATHNAME_UNIX PATHNAME_AMIGAOS */
+#else /* PATHNAME_UNIX */
  #define pslashp(c)  chareq(c,ascii(slash))
  #define cpslashp(c) ((c) == slash)
 #endif
@@ -1687,14 +1571,6 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
       string = popSTACK();
       simple_array_to_storage(string);
      #endif
-     #ifdef PATHNAME_AMIGAOS
-      /* operating system with preference for Capitalize */
-      Z_SUB(z,string); /* yes -> convert with STRING-CAPITALIZE */
-      pushSTACK(string);
-      nstring_capitalize(string,0,Sstring_length(string));
-      string = popSTACK();
-      simple_array_to_storage(string);
-     #endif
     }
     /* Coerce string to be a normal-simple-string. */
     #ifdef HAVE_SMALL_SSTRING
@@ -1816,38 +1692,6 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
       ThePathname(STACK_0)->pathname_device = device;
     }
     #endif /* PATHNAME_OS2 || PATHNAME_WIN32 */
-    #ifdef PATHNAME_AMIGAOS
-    { /* parse Device-Specification: */
-      var object device;
-      { /* Is it a non-empty sequence of alphanumeric characters
-           and then a ':'? */
-        var zustand startz = z; /* start-state */
-        var chart ch;
-        loop {
-          if (z.count==0)
-            goto no_devicespec; /* string already through -> no Device */
-          ch = TheSstring(STACK_1)->data[z.index]; /* next character */
-          if (!legal_namechar(ch))
-            break;
-          /* skip alphanumeric character: */
-          Z_SHIFT(z,1);
-        }
-        if (!colonp(ch))
-          goto no_devicespec; /* no ':' -> no Device */
-        if (z.index==startz.index)
-          goto no_devicespec; /* ':' at the start is no Device */
-        /* build Device-String: */
-        device = subsstring(STACK_1,startz.index,z.index);
-        /* do not skip character ':' ; it will then result in :ABSOLUTE. */
-        goto devicespec_ok;
-      no_devicespec: /* no Device-Specification */
-        z = startz; /* back to the start */
-        device = NIL; /* Device NIL */
-      }
-    devicespec_ok: /* enter Device: */
-      ThePathname(STACK_0)->pathname_device = device;
-    }
-   #endif /* PATHNAME_AMIGAOS */
    #endif /* HAS_DEVICE */
     /* enter Directory-Start: */
     {
@@ -2002,15 +1846,6 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
           Car(STACK_0) = S(Krelative);
         }
      #endif
-     #ifdef PATHNAME_AMIGAOS
-      /* if 1st char is a ':', start with :ABSOLUTE (otherwise :RELATIVE): */
-      if (Z_AT_SLASH(z,colonp,STACK_2)) {
-        Z_SHIFT(z,1);
-        Car(STACK_0) = S(Kabsolute);
-      } else {
-        Car(STACK_0) = S(Krelative);
-      }
-     #endif
       loop {
         /* try to parse another subdirectory. */
        #ifdef PATHNAME_NOEXT
@@ -2044,17 +1879,11 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
         /* stack layout: ...,
            data-vector, pathname, (last (pathname-directory Pathname)),
            subdir. */
-        #ifdef PATHNAME_AMIGAOS
-        /* was it '' ? */
-        if (equal(STACK_0,O(empty_string))) {
-          STACK_0 = S(Kparent); /* replace with :PARENT */
-        } else
-        #endif
-          /* was it '**' or '...' ? */
-          if (equal(STACK_0,O(wildwild_string))
-              || equal(STACK_0,O(dotdotdot_string))) {
-            STACK_0 = S(Kwild_inferiors); /* replace with :WILD-INFERIORS */
-          }
+        /* was it '**' or '...' ? */
+        if (equal(STACK_0,O(wildwild_string))
+            || equal(STACK_0,O(dotdotdot_string))) {
+          STACK_0 = S(Kwild_inferiors); /* replace with :WILD-INFERIORS */
+        }
        #endif /* PATHNAME_NOEXT */
         /* lengthen (pathname-directory pathname) by subdir STACK_0: */
         var object new_cons = allocate_cons(); /* new Cons */
@@ -2456,16 +2285,6 @@ local object coerce_pathname (object obj) {
 
 local uintC subdir_namestring_parts (object path,bool logp) {
   var object subdir = Car(path);
- #if defined(LOGICAL_PATHNAMES) && defined(PATHNAME_AMIGAOS)
-  if (logp) { /* same as UNIX/Win32/OS2 */
-    SUBDIR_PUSHSTACK(subdir); return 1;
-  }
- #endif
- #ifdef PATHNAME_AMIGAOS
-  if (eq(subdir,S(Kparent))) { /* :PARENT ? */
-    return 0; /* empty string */
-  } else { SUBDIR_PUSHSTACK(subdir); return 1; }
- #endif
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
   SUBDIR_PUSHSTACK(subdir); return 1;
  #endif
@@ -2527,16 +2346,6 @@ local uintC directory_namestring_parts (object pathname) {
        this can never happen in CLISP */
     stringcount += host_namestring_parts(pathname);
  #endif
- #ifdef PATHNAME_AMIGAOS
-  { /* Device: */
-    var object device = xpathname_device(logp,pathname);
-    if (!(nullp(device))) { /* NIL -> no string */
-      pushSTACK(device); /* Device on the stack */
-      stringcount += 1; /* and count */
-      /* Because of :ABSOLUTE there is a ":" immediately on the stack. */
-    }
-  }
- #endif
   { /* Directory: */
     var object directory = xpathname_directory(logp,pathname);
    #if defined(LOGICAL_PATHNAMES)
@@ -2552,9 +2361,6 @@ local uintC directory_namestring_parts (object pathname) {
     if (eq(Car(directory),S(Kabsolute))) {
      #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
       pushSTACK(O(backslash_string)); stringcount++; /* "\\" */
-     #endif
-     #ifdef PATHNAME_AMIGAOS
-      pushSTACK(O(colon_string)); stringcount++; /* ":" */
      #endif
      #ifdef PATHNAME_UNIX
       pushSTACK(O(slash_string)); stringcount++; /* "/" */
@@ -2573,7 +2379,7 @@ local uintC directory_namestring_parts (object pathname) {
        #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
         pushSTACK(O(backslash_string)); stringcount++; /* "\\" */
        #endif
-       #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
+       #ifdef PATHNAME_UNIX
         pushSTACK(O(slash_string)); stringcount++; /* "/" */
        #endif
       }
@@ -2782,7 +2588,7 @@ local void test_optional_version_ (void) {
 
 #endif /* PATHNAME_OS2 || PATHNAME_WIN32 */
 
-#if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
+#ifdef PATHNAME_UNIX
 
 /* The variable *DEFAULT-PATHNAME-DEFAULTS* contains (as pathname) the
  default value for each MERGE-operation. It is the one, which the system
@@ -2795,14 +2601,6 @@ local void test_optional_version_ (void) {
 /* the operating system manages a default-directory ("working directory")
  for this process. It can be changed with chdir and queried with getwd.
  See CHDIR(2) and GETWD(3). */
-
-#endif
-
-#ifdef AMIGAOS
-
-/* the operating system manages a default-directory ("current directory")
- for this process. It can be changed with CurrentDir and queried with a
- combination of Examine and ParentDir. */
 
 #endif
 
@@ -2819,7 +2617,7 @@ local object recalc_defaults_pathname (void) {
   pushSTACK(S(Kdevice)); pushSTACK(O(default_drive));
   funcall(L(make_pathname),2);
  #endif
- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
+ #ifdef PATHNAME_UNIX
   /* execute (MAKE-PATHNAME) : */
   funcall(L(make_pathname),0);
  #endif
@@ -3430,11 +3228,6 @@ local bool directory_list_valid_p (bool logical, object dirlist) {
    #endif
     {
      #ifdef PATHNAME_NOEXT
-      #ifdef PATHNAME_AMIGAOS
-      if (!(eq(subdir,S(Kwild_inferiors)) || eq(subdir,S(Kparent))
-            || legal_name(subdir) || eq(subdir,S(Kup))))
-        return false;
-      #endif
       #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
       if (!(eq(subdir,S(Kwild_inferiors)) || eq(subdir,S(Kwild))
             || legal_name(subdir) || eq(subdir,S(Kup))))
@@ -3537,19 +3330,6 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
         }
       }
      #endif
-     #ifdef PATHNAME_AMIGAOS
-      else if (simple_string_p(device)) { /* Simple-String ? */
-        var uintL count = Sstring_length(device);
-        if (count > 0) {
-          var const chart* ptr = &TheSstring(device)->data[0];
-          dotimespL(count,count, {
-            if (!legal_namechar(*ptr++)) goto device_not_ok;
-          });
-        }
-        goto device_ok;
-      device_not_ok: ;
-      }
-     #endif
       else if (xpathnamep(device)) { /* Pathname -> its Device */
         COERCE_PATHNAME_SLOT(device,device,STACK_4);
         goto device_ok;
@@ -3586,12 +3366,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
       goto directory_ok;
     } else if (missingp(directory)) {
       /* not specified or NIL */
-     #ifdef PATHNAME_AMIGAOS
-      if (!nullp(STACK_4)) /* Device specified (with non-logical pathname)? */
-        STACK_3 = O(directory_absolute); /* Default is (:ABSOLUTE) */
-      else
-     #endif
-        STACK_3 = O(directory_default); /* Default is (:RELATIVE) */
+      STACK_3 = O(directory_default); /* Default is (:RELATIVE) */
       goto directory_ok;
     } else if (eq(directory,S(Kwild)) || eq(directory,S(Kwild_inferiors))) {
       directory = S(Kwild_inferiors);
@@ -3629,11 +3404,6 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
   directory_bad:
     pushSTACK(STACK_3); pushSTACK(S(Kdirectory)); goto fehler_arg;
   directory_ok: ;
-   #ifdef PATHNAME_AMIGAOS
-    /* For device /= NIL the directory must begin with :ABSOLUTE : */
-    if (!nullp(STACK_4) && !eq(Car(STACK_3),S(Kabsolute)))
-      goto directory_bad;
-   #endif
   }
   { /* 4. check name: */
     DOUT("make-pathname:[name]",STACK_2);
@@ -4176,7 +3946,7 @@ local bool device_match (object pattern, object sample, bool logical) {
   if (eq(pattern,S(Kwild))) return true;
   if (eq(sample,S(Kwild))) return false;
   #endif
-  #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+  #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
   return equalp(pattern,sample);
   #else
   return equal(pattern,sample);
@@ -4511,15 +4281,9 @@ local void device_diff (object pattern, object sample, bool logical,
   }
   if (eq(sample,S(Kwild))) return;
   #endif
-  #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-  if (nullp(pattern)) {
-    var object string =
-  #if defined(PATHNAME_AMIGAOS)
-      sample;
-  #endif
   #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-    wild2string(sample);
-  #endif
+  if (nullp(pattern)) {
+    var object string = wild2string(sample);
     push_solution_with(string);
     return;
   }
@@ -4731,15 +4495,6 @@ local object customary_case (object string) {
   /* operating system with preference for lowercase letters */
   return string_downcase(string);
  #endif
- #ifdef PATHNAME_AMIGAOS
-  /* operating system with preference for Capitalize */
-  string = copy_string(string);
-  pushSTACK(string);
-  nstring_capitalize(&TheSstring(string)->data[0],Sstring_length(string));
-  string = popSTACK();
-  simple_array_to_storage(string);
-  return string;
- #endif
 }
 /* The same, recursive like with SUBST: */
 local object subst_customary_case (object obj) {
@@ -4825,7 +4580,7 @@ local object translate_device (gcv_object_t* subst, object pattern,
     return pattern;
   }
   #endif
-  #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+  #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
   if (nullp(pattern) && mconsp(*subst))
   #else
   if ((nullp(pattern) || eq(pattern,S(Kwild))) && mconsp(*subst))
@@ -5657,295 +5412,6 @@ global object assume_dir_exists (void) {
 
 #endif
 
-#ifdef PATHNAME_AMIGAOS
-
-/* UP: returns the truename of a directory-locks.
- > set_break_sem_4(): already executed
- > lock: Directory-Lock, will be released
- < result: Directory (as Pathname)
- can trigger GC */
-local object directory_truename (BPTR lock)
-{ /* move up from here: */
-  pushSTACK(NIL); /* subdir-liste := NIL */
-  {
-    var LONGALIGNTYPE(struct FileInfoBlock) fib;
-    var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
-    loop { /* look at directory itself: */
-      begin_system_call();
-      {
-        var LONG ergebnis = Examine(lock,fibptr);
-        if (!ergebnis) { UnLock(lock); OS_error(); }
-        end_system_call();
-      }
-      /* use its name: */
-      var object name =
-        asciz_to_string(&fibptr->fib_FileName[0],O(pathname_encoding));
-      /* step up to the parent-directory: */
-      var BPTR parentlock;
-      begin_system_call();
-      parentlock = ParentDir(lock);
-      UnLock(lock);
-      end_system_call();
-      if (!(parentlock==BPTR_NULL)) {
-        /* name is the name of a subdirectory
-         push in front of the subdir-list: */
-        pushSTACK(name);
-        {
-          var object new_cons = allocate_cons();
-          Car(new_cons) = popSTACK();
-          Cdr(new_cons) = STACK_0;
-          STACK_0 = new_cons;
-        }
-        lock = parentlock; /* continue, starting from the parent directory */
-      } else {
-        begin_system_call();
-        if (IoErr()) { OS_error(); } /* Error occurred? */
-        end_system_call();
-        /* name is the name of a DOS-Volume. */
-        pushSTACK(name);
-        break;
-      }
-    }
-  }
-  clr_break_sem_4(); /* allow breaks again */
-  /* stack layout: subdirs, devicename. */
-  { /* let subdirs start with :ABSOLUTE : */
-    var object new_cons = allocate_cons();
-    Car(new_cons) = S(Kabsolute); Cdr(new_cons) = STACK_1;
-    STACK_1 = new_cons;
-  }
-  var object default_dir = allocate_pathname(); /* new pathname with Name=NIL and Type=NIL */
-  ThePathname(default_dir)->pathname_device = popSTACK();
-  ThePathname(default_dir)->pathname_directory = popSTACK();
-  return default_dir;
-}
-
-/* UP: returns the current directory.
- < result: current directory (as pathname)
- can trigger GC */
-local object default_directory (void) {
-  /* acquire lock for the current directory: */
-  set_break_sem_4(); /* impede breaks in the meantime */
-  begin_system_call();
-  var BPTR lock = Lock("",ACCESS_READ);
-  if (lock==BPTR_NULL) {
-    if (!(IoErr()==ERROR_OBJECT_NOT_FOUND)) { clr_break_sem_4(); OS_error(); }
-    end_system_call(); clr_break_sem_4();
-    pushSTACK(unbound); /* FILE-ERROR slot PATHNAME */
-    fehler(file_error,GETTEXT("Could not access current directory"));
-  }
-  end_system_call();
-  return directory_truename(lock); /* executes clr_break_sem_4(); and UnLock(lock); */
-}
-
-/* UP: Fills default-directory into a pathname.
- use_default_dir(pathname)
- > pathname: non-logical pathname
- < result: new absolute pathname
- can trigger GC */
-local object use_default_dir (object pathname) {
-  /* copy the pathname first: */
-  pathname = copy_pathname(pathname);
-  { /* then build the default-directory into the pathname: */
-    var object subdirs = ThePathname(pathname)->pathname_directory;
-    /* does pathname-directory start with :RELATIVE? */
-    if (eq(Car(subdirs),S(Krelative))) {
-      /* yes -> replace :RELATIVE with default-subdirs, i.e.
-       form  (append default-subdirs (cdr subdirs))
-            = (nreconc (reverse default-subdirs) (cdr subdirs)) */
-      pushSTACK(pathname);
-      pushSTACK(Cdr(subdirs));
-      var object temp = default_directory();
-      temp = ThePathname(temp)->pathname_directory;
-      temp = reverse(temp);
-      subdirs = nreconc(temp,popSTACK());
-      pathname = popSTACK();
-      ThePathname(pathname)->pathname_directory =
-        simplify_directory(subdirs); /* enter into the pathname: */
-    }
-  }
-  return pathname;
-}
-
-/* UP: Turns a directory-namestring into one that is appropriate for AMIGAOS.
- OSdirnamestring(namestring)
- > namestring: newly created directory-namestring, wit '/' or ':' at the
-               end, a Normal-Simple-String
- < result: Namestring for this Directory, in AmigaOS-Format: last '/'
-             discarded, if redundant, a Normal-Simple-String
- can trigger GC */
-local object OSdirnamestring (object namestring) {
-  var uintL len = Sstring_length(namestring);
-  if (len==0) goto ok; /* empty string -> do not discard anything */
-  var chart ch = TheSstring(namestring)->data[len-1];
-  if (!chareq(ch,ascii('/'))) /*no '/' at the end -> do not discard anything*/
-    goto ok;
-  if (len==1) goto ok; /* "/" means Parent -> do not discard */
-  ch = TheSstring(namestring)->data[len-2];
-  if (chareq(ch,ascii('/')) || chareq(ch,ascii(':')))/* a '/' or ':' before */
-    goto ok; /* -> means Parent -> do not discard */
-  /* discard '/' at the end: */
-  namestring = subsstring(namestring,0,len-1);
- ok: /* do not discard anything */
-  return namestring;
-}
-
-/* UP: ensures, that the directory of a pathname exists.
- assure_dir_exists(tolerantp)
- > STACK_0: non-logical pathname, whose directory does not contain :RELATIVE.
- > links_resolved: Flag, if all links in the directory of the pathname are
-     already resolved and if it is known as existing
- > tolerantp: Flag, if an error is to be avoided
- < STACK_0: (poss. the same) pathname, but resolved.
- < result:
-     if Name=NIL: Directory-Namestring (for AMIGAOS, wit '/' at the end)
-     if Name/=NIL: Namestring (for AMIGAOS)
-     if tolerantp poss.: nullobj
- < filestatus: if Name/=NIL: NULL if the File does not exist,
-                                else a pointer to STAT-information.
- can trigger GC */
-local var struct FileInfoBlock * filestatus;
-local object assure_dir_exists (bool links_resolved, bool tolerantp) {
-  if (!links_resolved) {
-    /* For resolution of :PARENTs, that step beyond Root,
-     the operating system has to be asked. So: */
-    var object dir_namestring = directory_namestring(STACK_0);
-    pushSTACK(dir_namestring);
-    dir_namestring = OSdirnamestring(dir_namestring); /* without redundant '/' at the end */
-    with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
-      /* acquire lock for this directory: */
-      set_break_sem_4(); /* impede breaks in the meantime */
-      begin_system_call();
-      var BPTR lock = Lock(dir_namestring_asciz,ACCESS_READ);
-      if (lock==BPTR_NULL) {
-        var LONG errcode = IoErr();
-        end_system_call();
-        FREE_DYNAMIC_ARRAY(dir_namestring_asciz);
-        switch (errcode) {
-          case ERROR_OBJECT_NOT_FOUND:
-            clr_break_sem_4();
-            if (tolerantp) { skipSTACK(1); return nullobj; }
-            fehler_dir_not_exists(STACK_0);
-          case ERROR_ACTION_NOT_KNOWN:
-            /* A device, for which no locks for subdirectories can be
-             acquired! It must be a special device
-             (PIPE, CON, AUX, etc.).
-             We stop the subdirectory-checks. We even do not call
-             Examine() . On the contrary, we assume that
-             the file does not exist (yet) in the usual sense. */
-            clr_break_sem_4(); /* allow breaks, as we have not occupied a lock after all. */
-            if (namenullp(STACK_(0+1))) { /* no file addressed? */
-              return popSTACK(); /* yes -> finished */
-            } else {
-              var uintC stringcount = 1; /* directory_namestring already on the STACK */
-              stringcount += file_namestring_parts(STACK_(0+1)); /* Strings for the Filename */
-              var object namestring = string_concat(stringcount);
-              filestatus = (struct FileInfoBlock *)NULL; /* we say, the file does not exist */
-              return namestring;
-            }
-          default:
-            OS_file_error(STACK_(0+1));
-        }
-      }
-      end_system_call();
-      dir_namestring = popSTACK();
-      { /* and check whether it is a directory: */
-        var LONGALIGNTYPE(struct FileInfoBlock) fib;
-        var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
-        begin_system_call();
-        var LONG ergebnis = Examine(lock,fibptr);
-        if (!ergebnis) {
-          UnLock(lock);
-          end_system_call(); clr_break_sem_4();
-          FREE_DYNAMIC_ARRAY(dir_namestring_asciz);
-          OS_file_error(STACK_0);
-        }
-        if (!(fibptr->fib_DirEntryType >= 0)) { /* it is not a directory? */
-          UnLock(lock);
-          end_system_call(); clr_break_sem_4();
-          FREE_DYNAMIC_ARRAY(dir_namestring_asciz);
-          if (tolerantp) { return nullobj; }
-          /* STACK_0 = FILE-ERROR slot PATHNAME */
-          pushSTACK(dir_namestring);
-          pushSTACK(TheSubr(subr_self)->name);
-          fehler(file_error,GETTEXT("~: ~ names a file, not a directory"));
-        }
-        end_system_call();
-      }
-      /* create lock for Truename: */
-      var object new_pathname = directory_truename(lock); /* does clr_break_sem_4(); */
-      var object old_pathname = STACK_0;
-      ThePathname(new_pathname)->pathname_name
-        = ThePathname(old_pathname)->pathname_name;
-      ThePathname(new_pathname)->pathname_type
-        = ThePathname(old_pathname)->pathname_type;
-      STACK_0 = new_pathname;
-    });
-  }
-  var object pathname = STACK_0;
-  /* get information concerning the addressed file: */
-  if (namenullp(pathname)) /* no file addressed? */
-    return directory_namestring(pathname); /* yes -> finished */
-  var object namestring = whole_namestring(pathname);
-  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-    /* create lock for this file: */
-    set_break_sem_4(); /* impede breaks in the meantime */
-    begin_system_call();
-    var BPTR lock = Lock(namestring_asciz,ACCESS_READ);
-    if (lock==BPTR_NULL) {
-      if (!(IoErr()==ERROR_OBJECT_NOT_FOUND)) {
-        end_system_call(); clr_break_sem_4(); OS_file_error(STACK_0);
-      }
-      end_system_call(); clr_break_sem_4();
-      /* file does not exist. */
-      filestatus = (struct FileInfoBlock *)NULL; return namestring;
-    }
-    end_system_call();
-    /* file exists.
-     get information: */
-    var local LONGALIGNTYPE(struct FileInfoBlock) status;
-    var struct FileInfoBlock * statusptr = LONGALIGN(&status);
-    begin_system_call();
-    if (! Examine(lock,statusptr) ) {
-      UnLock(lock); end_system_call(); clr_break_sem_4();
-      OS_file_error(STACK_0);
-    }
-    UnLock(lock);
-    end_system_call();
-    clr_break_sem_4();
-    if (statusptr->fib_DirEntryType >= 0) { /* Is it a directory? */
-      /* STACK_0 = FILE-ERROR slot PATHNAME */
-      pushSTACK(whole_namestring(STACK_0));
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(file_error,GETTEXT("~: ~ names a directory, not a file"));
-    } else {
-      /* normal file */
-      pushSTACK(namestring);
-      /* the capitalization/(use of small letters) of the truename is
-       determined by the already existing file. */
-      pushSTACK(asciz_to_string(&statusptr->fib_FileName[0],
-                                O(pathname_encoding)));
-      split_name_type(1);
-      var object pathname = STACK_(0+3); /* the copied pathname */
-      ThePathname(pathname)->pathname_type = popSTACK();
-      ThePathname(pathname)->pathname_name = popSTACK();
-      /* finished. */
-      filestatus = statusptr;
-      return popSTACK(); /* namestring */
-    }
-  });
-}
-
-/* the same, under the assumption that the directory already exists.
- (No simplification, because we have to determine the truename.??) */
-global object assume_dir_exists (void) {
-  var object ret;
-  with_saved_back_trace(L(open),-1,ret=assure_dir_exists(true,false));
-  return ret;
-}
-
-#endif
-
 #ifdef PATHNAME_UNIX
 
 /* UP: Return the current Directory.
@@ -6212,34 +5678,6 @@ local void change_default (void) {
   recalc_defaults_pathname();
 }
 #endif
-#ifdef PATHNAME_AMIGAOS
-/* UP: changes the default-directory.
- change_default();
- > STACK_0: absolute pathname, whose directory contains no :RELATIVE, :CURRENT,
-     :PARENT , and name and type are =NIL.
- can trigger GC */
-extern BPTR orig_dir_lock; /* lock for the original directory */
-                           /* (this does not belong to us, do not release!) */
-local void change_default (void) {
-  var object dir_namestring = directory_namestring(STACK_0);
-  dir_namestring = OSdirnamestring(dir_namestring); /* without redundant '/' at the end */
-  with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
-    /* change default-directory: */
-    set_break_sem_4();
-    begin_system_call();
-    var BPTR lock = Lock(dir_namestring_asciz,ACCESS_READ);
-    if (lock==BPTR_NULL) { end_system_call(); OS_file_error(STACK_0); }
-    lock = CurrentDir(lock); /* newly set current directory */
-    /* memorize resp. release lock of the old current directory: */
-    if (orig_dir_lock == BPTR_NONE)
-      orig_dir_lock = lock;
-    else
-      UnLock(lock);
-    end_system_call();
-    clr_break_sem_4();
-  });
-}
-#endif
 #ifdef PATHNAME_UNIX
 /* UP: changes the default-directory.
  change_default();
@@ -6263,13 +5701,13 @@ local void change_default (void) {
 LISPFUN(namestring,seclass_read,1,1,norest,nokey,0,NIL) {
   var object flag = popSTACK(); /* optional argument flag */
   var object pathname = coerce_xpathname(popSTACK());
- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) || defined(PATHNAME_WIN32)
+ #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
   if (!missingp(flag)) {
     /* flag /= NIL -> for the operating system: */
     pathname = coerce_pathname(pathname);
     check_no_wildcards(pathname); /* with wildcards -> error */
     pathname = use_default_dir(pathname); /* insert default-directory */
-    /* (because Unix/AMIGAOS does not know the default-directory of LISP
+    /* (because Unix does not know the default-directory of LISP
      and Win32 is multitasking) */
   }
  #endif
@@ -6335,10 +5773,6 @@ nonreturning_function(local, fehler_notdir, (object pathname)) {
     });
     return exists;
   }
-#endif
-#ifdef AMIGAOS
-  #define file_exists(namestring)  (!(filestatus == (struct FileInfoBlock *)NULL))
-  #define FILE_EXISTS_TRIVIAL
 #endif
 #ifdef UNIX
   #define file_exists(namestring)  (!(filestatus == (struct stat *)NULL))
@@ -6483,35 +5917,6 @@ local bool directory_exists (object pathname) {
     end_system_call();
   });
  #endif
- #ifdef PATHNAME_AMIGAOS
-  dir_namestring = OSdirnamestring(dir_namestring); /* without redundant '/' at the end */
-  with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
-    /* get lock for this directory: */
-    set_break_sem_4(); /* impede breaks in the meantime */
-    begin_system_call();
-    var BPTR lock = Lock(dir_namestring_asciz,ACCESS_READ);
-    if (lock==BPTR_NULL) {
-      var LONG errcode = IoErr();
-      switch (errcode) {
-        case ERROR_OBJECT_NOT_FOUND:
-        case ERROR_ACTION_NOT_KNOWN:
-          exists = false;
-          break;
-        default:
-          end_system_call(); OS_file_error(STACK_0);
-      }
-    } else {
-      var LONGALIGNTYPE(struct FileInfoBlock) fib;
-      var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
-      var LONG ergebnis = Examine(lock,fibptr);
-      if (!ergebnis || !(fibptr->fib_DirEntryType >= 0))
-        exists = false;
-      UnLock(lock);
-    }
-    end_system_call();
-    clr_break_sem_4();
-  });
- #endif
  #ifdef PATHNAME_UNIX
   pushSTACK(dir_namestring);
   pushSTACK(O(dot_string)); /* and "." */
@@ -6556,9 +5961,6 @@ global object pathname_to_OSdir (object pathname, bool use_default) {
   check_notdir(pathname); /* ensure that Name=NIL and Type=NIL */
   pushSTACK(pathname); /* save pathname */
   var object dir_namestring = directory_namestring(pathname);
-  #ifdef PATHNAME_AMIGAOS
-  dir_namestring = OSdirnamestring(dir_namestring);
-  #endif
   var object dir_namestring_asciz =
     string_to_asciz(dir_namestring,O(pathname_encoding));
   var char* asciz = TheAsciz(dir_namestring_asciz);
@@ -6595,9 +5997,6 @@ global object OSdir_to_pathname (const char* path) {
  openp(pathname) */
 #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
 /* > pathname: absolute pathname, without wildcards. */
-#endif
-#ifdef PATHNAME_AMIGAOS
-/* > pathname: absolute pathname, without wildcards, without :PARENT */
 #endif
 #ifdef PATHNAME_UNIX
 /* > pathname: absolute pathname, without wildcards, after resolution
@@ -6756,15 +6155,6 @@ LISPFUNN(rename_file,2) {
  > pathstring: file name, ASCIZ-String
  > STACK_0: pathname */
 local inline void create_new_file (char* pathstring) {
- #ifdef AMIGAOS
-  begin_system_call();
-  var Handle handle = Open(pathstring,MODE_NEWFILE);
-  if (handle == Handle_NULL) { end_system_call(); OS_file_error(STACK_0); } /* report error */
-  /* file was created, handle is the Handle.
-   close file again: */
-  (void) Close(handle);
-  end_system_call();
- #endif
  #ifdef WIN32_NATIVE
   begin_system_call();
   var Handle handle = CreateFile(pathstring, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -6842,35 +6232,6 @@ local inline bool open_input_file (char* pathstring, bool create_if_not_exists,
   end_system_call();
   *handle_ = result; return true;
  #endif
- #ifdef AMIGAOS
-  var Handle handle;
-  #ifdef FILE_EXISTS_TRIVIAL
-  if (file_exists(_EMA_)) {
-    begin_system_call();
-    handle = Open(pathstring,MODE_OLDFILE);
-  } else { /* file does not exist */
-    if (!create_if_not_exists) return false;
-    /* create file with Open: */
-    begin_system_call();
-    handle = Open(pathstring,MODE_READWRITE);
-  }
-  #else
-  /* first find out with Open, if the file exists: */
-  begin_system_call();
-  handle = Open(pathstring,MODE_OLDFILE);
-  if (handle==Handle_NULL) {
-    if (IoErr()==ERROR_OBJECT_NOT_FOUND) {
-      /* file does not exist */
-      if (!create_if_not_exists) { end_system_call(); return false; }
-      /* create file with Open: */
-      handle = Open(pathstring,MODE_READWRITE);
-    }
-  }
-  #endif
-  end_system_call();
-  if (handle==Handle_NULL) { OS_file_error(STACK_0); }
-  *handle_ = handle; return true;
- #endif
  #ifdef UNIX
   var int result;
   #ifdef FILE_EXISTS_TRIVIAL
@@ -6936,7 +6297,7 @@ local inline bool open_input_file (char* pathstring, bool create_if_not_exists,
  #endif
 }
 
-#if defined(UNIX) || defined(AMIGAOS) || defined(WIN32_NATIVE)
+#if defined(UNIX) || defined(WIN32_NATIVE)
 /* Open a file for output.
  open_output_file(pathstring,truncate_if_exists)
  > pathstring: file name, ASCIZ-String
@@ -6945,13 +6306,6 @@ local inline bool open_input_file (char* pathstring, bool create_if_not_exists,
  < result: open file handle */
 local inline Handle open_output_file (char* pathstring,
                                       bool truncate_if_exists) {
- #ifdef AMIGAOS
-  begin_system_call();
-  var Handle handle = Open(pathstring, (truncate_if_exists ? MODE_NEWFILE : MODE_READWRITE));
-  end_system_call();
-  if (handle==Handle_NULL) { OS_file_error(STACK_0); } /* report error */
-  return handle;
- #endif
  #ifdef UNIX
   begin_system_call();
   var int result =
@@ -6997,7 +6351,7 @@ local inline void create_backup_file (char* pathstring,
   /* directory already exists. */
   new_namestring = assume_dir_exists(); /* filename for the operating system */
  #endif
- #if defined(UNIX) || defined(AMIGAOS) || defined(WIN32_NATIVE)
+ #if defined(UNIX) || defined(WIN32_NATIVE)
   /* extend truename with "%" resp. ".bak" resp. "~" :
    filename := (parse-namestring (concatenate 'string (namestring filename) "%")) : */
   filename = whole_namestring(filename); /* as String */
@@ -7262,7 +6616,7 @@ local object open_file (object filename, direction_t direction,
         handle = allocate_handle(ergebnis);
       });
       #endif
-      #if defined(UNIX) || defined(AMIGAOS) || defined(WIN32_NATIVE)
+      #if defined(UNIX) || defined(WIN32_NATIVE)
       with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
         if (file_exists(namestring)) {
           /* file exists
@@ -7489,7 +6843,7 @@ local object pathname_add_subdir (void) {
   return pathname;
 }
 
-#if defined(UNIX) || defined(AMIGAOS)
+#ifdef UNIX
 /* UP: extends a pathname by the file-information.
  > STACK_1: absolute pathname
  > STACK_0: absolute pathname, links resolved
@@ -7498,21 +6852,11 @@ local object pathname_add_subdir (void) {
             in :FULL-Format */
 local void with_stat_info (void) {
   var object newlist;
- #ifdef UNIX
   var off_t size = filestatus->st_size;
- #endif
- #ifdef AMIGAOS
-  var off_t size = filestatus->fib_Size;
- #endif
   { /* Pathname already in STACK_1, as 1. list element
    Truename already in STACK_0, as 2. list element */
     var decoded_time_t timepoint; /* Write-Date in decoded form */
-   #ifdef UNIX
     convert_time(&filestatus->st_mtime,&timepoint);
-   #endif
-   #ifdef AMIGAOS
-    convert_time(&filestatus->fib_Date,&timepoint);
-   #endif
     pushSTACK(timepoint.Sekunden);
     pushSTACK(timepoint.Minuten);
     pushSTACK(timepoint.Stunden);
@@ -7527,14 +6871,7 @@ local void with_stat_info (void) {
  #else
   pushSTACK(UL_to_I(size)); /* length as 4. list element */
  #endif
- #ifdef UNIX
   newlist = listof(4); /* build 4-element list */
- #endif
- #ifdef AMIGAOS
-  /* comment as 5th list element */
-  pushSTACK(asciz_to_string(&filestatus->fib_Comment[0],O(pathname_encoding)));
-  newlist = listof(5); /* build 5-element list */
- #endif
   pushSTACK(Car(newlist)); /* pathname again in the stack */
   pushSTACK(newlist); /* list in the stack */
 }
@@ -7557,30 +6894,6 @@ local void with_stat_info (void) {
         if (S_ISDIR(status.st_mode)) /* is it a directory? */           \
           { exists_statement }                                          \
     }}
-#endif
-#ifdef AMIGAOS
-  #define check_stat_directory(namestring_asciz,error_statement,exists_statement) \
-    { var LONGALIGNTYPE(struct FileInfoBlock) fib;                      \
-      var struct FileInfoBlock * fibptr = LONGALIGN(&fib);              \
-      set_break_sem_4();                                                \
-      begin_system_call();                                              \
-     {var BPTR lock = Lock(namestring_asciz,ACCESS_READ);               \
-      if (lock==BPTR_NULL) {                                            \
-        if (IoErr() !=ERROR_OBJECT_NOT_FOUND)                           \
-          { end_system_call(); clr_break_sem_4(); error_statement }     \
-        else /* subdirectory does not exist -> OK. */                   \
-          { end_system_call(); clr_break_sem_4(); }                     \
-      } else { /* file exists. */                                       \
-        if (! Examine(lock,fibptr) ) {                                  \
-          UnLock(lock);                                                 \
-          end_system_call(); clr_break_sem_4();                         \
-          error_statement                                               \
-        } else {                                                        \
-          UnLock(lock);                                                 \
-          end_system_call(); clr_break_sem_4();                         \
-          if (fibptr->fib_DirEntryType >= 0) /* is it a directory? */   \
-            { exists_statement }                                        \
-    }}}}
 #endif
 #ifdef WIN32_NATIVE
   #define check_stat_directory(namestring_asciz,error_statement,exists_statement) \
@@ -7932,146 +7245,6 @@ local void directory_search_scandir (bool recursively, signean next_task,
     clr_break_sem_4();
   }
  #endif
- #ifdef AMIGAOS
-  { /* search through directory: */
-    var object namestring = OSdirnamestring(STACK_0);
-    with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-      set_break_sem_4();
-      begin_system_call();
-      var BPTR lock = Lock(namestring_asciz,ACCESS_READ);
-      var LONGALIGNTYPE(struct FileInfoBlock) fib;
-      var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
-      if (lock==BPTR_NULL) {
-        end_system_call();
-        if (dsp->if_none == DIR_IF_NONE_IGNORE) {
-          FREE_DYNAMIC_ARRAY(namestring_asciz); return;
-        } else OS_file_error(STACK_1);
-      }
-      if (! Examine(lock,fibptr) ) {
-        UnLock(lock); end_system_call();
-        if (dsp->if_none == DIR_IF_NONE_IGNORE) {
-          FREE_DYNAMIC_ARRAY(namestring_asciz); return;
-        } else OS_file_error(STACK_1);
-      }
-      while (ExNext(lock,fibptr)) { /* no error and directory not finished? */
-        end_system_call();
-        /* convert directory-entry into string: */
-        var object direntry = asciz_to_string(&fibptr->fib_FileName[0],O(pathname_encoding));
-        pushSTACK(direntry);
-        /* stack layout: ..., pathname, dir_namestring, direntry.
-         determine, if it is a directory or a file: */
-        {
-          var bool isdir;
-          if (fibptr->fib_DirEntryType == ST_SOFTLINK) {
-            /* get a lock on the target and execute Examine:
-             this works, because Lock() resolves links (resp. it tries) */
-            SUBDIR_PUSHSTACK(STACK_1); SUBDIR_PUSHSTACK(STACK_(0+1));
-            var object direntry_namestring = string_concat(2);
-            with_sstring_0(direntry_namestring,O(pathname_encoding),direntry_namestring_asciz, {
-              begin_system_call();
-              /* TODO olddir = CurrentDir(lock); ... CurrentDir(olddir) */
-              var BPTR direntry_lock = Lock(direntry_namestring_asciz,ACCESS_READ);
-              if (direntry_lock==BPTR_NULL)
-                switch (IoErr()) {
-                  case ERROR_OBJECT_NOT_FOUND:
-                  case ERROR_DEVICE_NOT_MOUNTED: /* user canceled requester */
-                    end_system_call();
-                    FREE_DYNAMIC_ARRAY(direntry_namestring_asciz);
-                    goto skip_direntry; /* forget direntry and ignore */
-                  default:
-                    end_system_call(); OS_file_error(STACK_2);
-                }
-              var LONGALIGNTYPE(struct FileInfoBlock) direntry_status;
-              var struct FileInfoBlock * statusptr = LONGALIGN(&direntry_status);
-              if (! Examine(direntry_lock,statusptr) ) {
-                UnLock(direntry_lock); end_system_call(); OS_file_error(STACK_2);
-              }
-              UnLock(direntry_lock);
-              end_system_call();
-              isdir = (statusptr->fib_DirEntryType >= 0);
-            });
-          } else {
-            isdir = (fibptr->fib_DirEntryType >= 0);
-          }
-          if (isdir) {
-            /* entry is a directory. */
-            if (recursively) { /* all recursive subdirectories wanted? */
-              /* yes -> turn into a pathname and push
-               onto pathnames-to-insert (is inserted in
-               front of pathname-list-rest afterwards): */
-              pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); /* pathname and direntry */
-              {
-                var object pathname = pathname_add_subdir();
-                pushSTACK(pathname);
-              }
-              { /* push this new pathname in front of pathname-to-insert: */
-                var object new_cons = allocate_cons();
-                Car(new_cons) = popSTACK();
-                Cdr(new_cons) = STACK_(0+3);
-                STACK_(0+3) = new_cons;
-              }
-            }
-            if (next_task<0) {
-              /* match (car subdir-list) with direntry: */
-              if (wildcard_match(Car(STACK_(1+4+3)),STACK_0)) {
-                /* subdirectory matches -> turn into a pathname
-                 and push onto new-pathname-list: */
-                pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); /* pathname and direntry */
-                {
-                  var object pathname = pathname_add_subdir();
-                  pushSTACK(pathname);
-                }
-                { /* push this new pathname in front of new-pathname-list: */
-                  var object new_cons = allocate_cons();
-                  Car(new_cons) = popSTACK();
-                  Cdr(new_cons) = STACK_(3+3);
-                  STACK_(3+3) = new_cons;
-                }
-              }
-            }
-          } else {
-            /* entry is a (halfway) normal file. */
-            if (next_task>0) {
-              /* match name&type with direntry: */
-              if (wildcard_match(STACK_(2+4+3),STACK_0)) {
-                /* File matches -> turn into a pathname
-                 and push onto result-list: */
-                pushSTACK(STACK_0); /* direntry */
-                split_name_type(1); /* split up in Name and Type */
-                {
-                  var object pathname = copy_pathname(STACK_(2+2));
-                  ThePathname(pathname)->pathname_type = popSTACK(); /* insert type */
-                  ThePathname(pathname)->pathname_name = popSTACK(); /* insert name */
-                  pushSTACK(pathname);
-                  pushSTACK(pathname);
-                }
-                assure_dir_exists(true,false); /* build truename (resolve symbolic links) */
-                if (dsp->full_p) /* :FULL wanted? */
-                  with_stat_info(); /* yes -> extend STACK_0 */
-                { /* and push STACK_0 on front of result-list: */
-                  var object new_cons = allocate_cons();
-                  Car(new_cons) = STACK_0;
-                  Cdr(new_cons) = STACK_(4+4+3+2);
-                  STACK_(4+4+3+2) = new_cons;
-                }
-                skipSTACK(2);
-              }
-            }
-          }
-        }
-      skip_direntry:
-        skipSTACK(1); /* forget direntry */
-        begin_system_call();
-      }
-      UnLock(lock);
-      if (!(IoErr()==ERROR_NO_MORE_ENTRIES)) {
-        end_system_call(); OS_file_error(STACK_1);
-      }
-      end_system_call();
-      clr_break_sem_4();
-    });
-  }
- #endif
  #if defined(MSDOS) || defined(WIN32_NATIVE)
   {
     SUBDIR_PUSHSTACK(STACK_0); /* Directory-Name */
@@ -8334,11 +7507,7 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
         recursively = true; goto passed_subdir;
       }
      #ifndef MSDOS
-      if (
-       #ifdef PATHNAME_AMIGAOS
-          eq(next_subdir,S(Kparent)) ||
-       #endif
-          !wild_p(next_subdir,false))
+      if (!wild_p(next_subdir,false))
         next_task = -1; /* search subdir */
       else
      #endif
@@ -8413,12 +7582,7 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
 
                 {
                   var object subdir = Car(STACK_(1+4+1+1)); /* (car subdir-list) */
-                 #ifdef PATHNAME_AMIGAOS
-                  if (eq(subdir,S(Kparent))) { /* for parent-directory */
-                    pushSTACK(O(slash_string)); /* additional "/" at the end */
-                  } else
-                 #endif
-                    SUBDIR_PUSHSTACK(subdir);
+                  SUBDIR_PUSHSTACK(subdir);
                 }
                #if defined(WIN32_NATIVE)
                 pushSTACK(O(backslash_string));
@@ -8612,7 +7776,7 @@ LISPFUN(cd,seclass_default,0,1,norest,nokey,0,NIL) {
 #if defined(MSDOS) || defined(WIN32_NATIVE)
 /* < result: Directory-Namestring (for the OS, without '\' at the end, Normal-Simple-String) */
 #endif
-#if defined(UNIX) || defined(AMIGAOS)
+#ifdef UNIX
 /* < result: Directory-Namestring (for the OS, without '/' at the end, Normal-Simple-String) */
 #endif
 /* decrements STACK by 1.
@@ -8632,10 +7796,6 @@ local object shorter_directory (object pathname, bool resolve_links) {
     fehler(file_error,GETTEXT("root directory not allowed here: ~"));
   }
   subdirs = reverse(subdirs); /* copy list and reverse */
- #ifdef PATHNAME_AMIGAOS
-  if (eq(Car(subdirs),S(Kparent))) /* last subdir must be /= :PARENT */
-    goto baddir;
- #endif
   pushSTACK(subdirs); /* save cons with last subdir as CAR */
   subdirs = Cdr(subdirs); /* all subdirs except for the last */
   subdirs = nreverse(subdirs); /* bring into right order again */
@@ -8898,9 +8058,6 @@ global void init_pathnames (void) {
 
 LISPFUNNR(file_write_date,1)
 { /* (FILE-WRITE-DATE file), CLTL p. 424 */
- #ifdef AMIGAOS
-  var struct DateStamp file_datetime; /* buffer for date/time of a file */
- #endif
  #if defined(UNIX) || defined(EMUNIX)
   var time_t file_datetime; /* buffer for date/time of a file */
  #endif
@@ -8912,7 +8069,6 @@ LISPFUNNR(file_write_date,1)
     /* must be file-stream: */
     pathname = as_file_stream(pathname);
     /* streamtype file-stream */
-   #if !defined(AMIGAOS)
     if ((TheStream(pathname)->strmflags & strmflags_open_B)
         && (!nullp(TheStream(pathname)->strm_buffered_channel))) {
       /* open file-stream
@@ -8942,9 +8098,8 @@ LISPFUNNR(file_write_date,1)
         goto is_pathname;
       }
      #endif
-    } else
-   #endif
-    { /* closed file-stream -> use truename as pathname */
+    } else {
+      /* closed file-stream -> use truename as pathname */
       test_file_stream_named(pathname);
       pathname = TheStream(pathname)->strm_file_truename;
       goto is_pathname;
@@ -8964,10 +8119,6 @@ LISPFUNNR(file_write_date,1)
         if (!S_ISREG(statbuf.st_mode)) { fehler_file_not_exists(); } /* file must exist */
         file_datetime = statbuf.st_mtime;
       });
-     #endif
-     #ifdef AMIGAOS
-      if (!file_exists(namestring)) { fehler_file_not_exists(); } /* file must exist */
-      file_datetime = filestatus->fib_Date;
      #endif
      #ifdef UNIX
       if (!file_exists(namestring)) { fehler_file_not_exists(); } /* file must exist */
@@ -8995,7 +8146,7 @@ LISPFUNNR(file_write_date,1)
   }
   /* date/time no is in the buffer file_datetime.
    convert into Universal-Time-Format: */
- #if defined(UNIX) || defined(EMUNIX) || defined(AMIGAOS)
+ #if defined(UNIX) || defined(EMUNIX)
   VALUES1(convert_time_to_universal(&file_datetime));
  #endif
  #ifdef WIN32_NATIVE
@@ -9052,7 +8203,7 @@ LISPFUNNR(file_author,1)
       });
      #endif
     #endif
-     #if defined(UNIX) || defined(AMIGAOS) || defined(WIN32_NATIVE)
+     #if defined(UNIX) || defined(WIN32_NATIVE)
       if (!file_exists(namestring)) { fehler_file_not_exists(); } /* file must exist */
      #endif
       skipSTACK(1);
@@ -9188,16 +8339,6 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
 
 #endif
 
-#ifdef AMIGAOS
-
-/* (EXECUTE command-string) sends a string to the operating system.
- in this case this is synonymous with (SHELL command-string). */
-LISPFUN(execute,seclass_default,1,0,norest,nokey,0,NIL) {
-  C_shell(); /* call SHELL, same stack layout */
-}
-
-#endif
-
 /* duplicate the handle (maybe into new_handle)
  must be surrounded with begin_system_call()/end_system_call() */
 global Handle handle_dup (Handle old_handle, Handle new_handle) {
@@ -9221,69 +8362,7 @@ global Handle handle_dup (Handle old_handle, Handle new_handle) {
 /* (SHELL) calls a shell.
  (SHELL command) calls a shell and lets it execute a command. */
 
-#if defined(AMIGAOS)
-#include <dos/dostags.h>         /* for SystemTags() */
-
-LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
-  var object command = popSTACK();
-  /* As I/O is on the terminal and we obviously keep a handle on it,
-   we will also get ^C^D^E^F signals from it during command execution.
-   We choose to restore the initial signal state to avoid a double
-   interruption, even though that implies that signals sent to us
-   explicitly (Break command) in this time will be ignored. */
-  if (missingp(command)) {
-    /* call command interpreter: */
-    run_time_stop();
-    begin_system_call();
-    var BOOL ergebnis = false;
-   #if 0 /* ok, it is not that simple */
-    ergebnis = Execute("",stdin_handle,stdout_handle);
-   #else
-    var Handle terminal = Open("*",MODE_READWRITE);
-    if (!(terminal==Handle_NULL)) {
-      var ULONG signals = SetSignal(0L,0L);
-      ergebnis = Execute("",terminal,Handle_NULL);
-      /* Restore state of break signals */
-      SetSignal(signals,(SIGBREAKF_CTRL_C|SIGBREAKF_CTRL_D|
-                         SIGBREAKF_CTRL_E|SIGBREAKF_CTRL_F));
-      Write(terminal,NLstring,1);
-      Close(terminal);
-    }
-   #endif
-    end_system_call();
-    run_time_restart();
-    /* utilize return value: executed -> T, not found -> NIL : */
-    VALUES_IF(ergebnis);
-  } else {
-    /* execute single command: */
-    command = check_string(command);
-    with_string_0(command,O(misc_encoding),command_asciz, {
-      /* execute command: */
-      run_time_stop();
-      begin_system_call();
-      var ULONG signals = SetSignal(0L,0L);
-      /* Using SystemTags() instead of Execute() sends console signals to
-       the command and it gives us the command's exit code. */
-      var LONG ergebnis =
-        SystemTags(command_asciz,
-                   SYS_Input, stdin_handle,
-                   /* Work around bug in Emacs-18 subshell where Input() and Output()
-                    are forbiddenly the same by having Input() cloned. */
-                   SYS_Output, (stdin_handle == stdout_handle) ? Handle_NULL : stdout_handle,
-                   SYS_UserShell, 1L,
-                   TAG_DONE);
-      /* Restore state of break signals */
-      SetSignal(signals,(SIGBREAKF_CTRL_C|SIGBREAKF_CTRL_D|
-                         SIGBREAKF_CTRL_E|SIGBREAKF_CTRL_F));
-      end_system_call();
-      run_time_restart();
-      /* utilize return value */
-      VALUES1(L_to_I(ergebnis));
-    });
-  }
-}
-
-#elif defined(WIN32_NATIVE)
+#if defined(WIN32_NATIVE)
 
 /* (SYSTEM::SHELL-NAME) returns the name of the command shell. */
 LISPFUNN(shell_name,0) {

@@ -67,53 +67,6 @@
 # for CHARSTRG.D:
   # On change of character-names except of CONSTOBJ.D, also
   # readjust CHARSTRG.D, FORMAT.LISP, IMPNOTES.HTML!
-  #ifdef AMIGA_CHARNAMES
-    LISPOBJ(charname_0,"\"Null\"")
-    LISPOBJ(charname_1,"\"Code1\"")
-    LISPOBJ(charname_2,"\"Code2\"")
-    LISPOBJ(charname_3,"\"Code3\"")
-    LISPOBJ(charname_4,"\"Code4\"")
-    LISPOBJ(charname_5,"\"Code5\"")
-    LISPOBJ(charname_6,"\"Code6\"")
-    LISPOBJ(charname_7,"\"Bell\"")
-    LISPOBJ(charname_8,"\"Backspace\"")
-    LISPOBJ(charname_9,"\"Tab\"")
-    LISPOBJ(charname_10,"\"Newline\"")
-    LISPOBJ(charname_11,"\"Vt\"")
-    LISPOBJ(charname_12,"\"Page\"")
-    LISPOBJ(charname_13,"\"Return\"")
-    LISPOBJ(charname_14,"\"So\"")
-    LISPOBJ(charname_15,"\"Si\"")
-    LISPOBJ(charname_16,"\"Code16\"")
-    LISPOBJ(charname_17,"\"Code17\"")
-    LISPOBJ(charname_18,"\"Code18\"")
-    LISPOBJ(charname_19,"\"Code19\"")
-    LISPOBJ(charname_20,"\"Code20\"")
-    LISPOBJ(charname_21,"\"Code21\"")
-    LISPOBJ(charname_22,"\"Code22\"")
-    LISPOBJ(charname_23,"\"Code23\"")
-    LISPOBJ(charname_24,"\"Code24\"")
-    LISPOBJ(charname_25,"\"Code25\"")
-    LISPOBJ(charname_26,"\"Code26\"")
-    LISPOBJ(charname_27,"\"Escape\"")
-    LISPOBJ(charname_28,"\"Code28\"")
-    LISPOBJ(charname_29,"\"Code29\"")
-    LISPOBJ(charname_30,"\"Code30\"")
-    LISPOBJ(charname_31,"\"Code31\"")
-    LISPOBJ(charname_32,"\"Space\"")
-    LISPOBJ(charname_127,"\"Delete\"")
-    LISPOBJ(charname_7bis,"\"Bel\"")
-    LISPOBJ(charname_8bis,"\"Bs\"")
-    LISPOBJ(charname_9bis,"\"Ht\"")
-    LISPOBJ(charname_10bis,"\"Linefeed\"")
-    LISPOBJ(charname_10tris,"\"Lf\"")
-    LISPOBJ(charname_12bis,"\"Ff\"")
-    LISPOBJ(charname_13bis,"\"Cr\"")
-    LISPOBJ(charname_27bis,"\"Esc\"")
-    LISPOBJ(charname_127bis,"\"Del\"")
-    LISPOBJ(charname_127tris,"\"Rubout\"")
-    LISPOBJ(charname_155,"\"Csi\"")
-  #endif
   #ifdef MSDOS_CHARNAMES
     # names of characters with codes 0,7,...,13,26,27,32,8,10:
     LISPOBJ(charname_0,"\"Null\"")
@@ -483,11 +436,11 @@
   LISPOBJ(backslashbackslash_string,"\"\\\\\\\\\"")
   LISPOBJ_S(lnk_string,"lnk") /* for woe32 shell link resolution */
  #endif
- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
+ #if defined(PATHNAME_UNIX)
   LISPOBJ_S(slash_string,"/")
  #endif
   LISPOBJ_S(dot_string,".")
- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
+ #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_UNIX)
   LISPOBJ_S(dotdot_string,"..")
   LISPOBJ_S(dotdotdot_string,"...")
  #endif
@@ -500,7 +453,7 @@
  #ifdef PATHNAME_OS2
   LISPOBJ_S(backuptype_string,"bak") # filetype of backupfiles
  #endif
- #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_WIN32)
+ #ifdef PATHNAME_WIN32
   LISPOBJ_S(backupextend_string,".bak") # name-extension of backupfiles
  #endif
  #ifdef PATHNAME_UNIX
@@ -510,7 +463,7 @@
   # default-drive (as string of length 1):
   LISPOBJ(default_drive,"NIL")
  #endif
- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
   LISPOBJ_S(wildwild_string,"**")
   LISPOBJ(directory_absolute,"(:ABSOLUTE)") # directory of the empty absolute pathname
  #endif
@@ -737,7 +690,7 @@ LISPOBJ(seclass_default,"(T T T)")
   LISPOBJ(fp_zero,"NIL")
   LISPOBJ(foreign_variable_table,"#.(make-hash-table :test #'equal)")
   LISPOBJ(foreign_function_table,"#.(make-hash-table :test #'equal)")
- #if defined(AMIGAOS) || defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
+ #if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
   LISPOBJ(foreign_libraries,"NIL")
  #endif
   LISPOBJ(foreign_callin_table,"#.(make-hash-table :test #'eq)")

@@ -3351,29 +3351,6 @@ local void clear_tty_output (Handle handle) {
 
 #endif
 
-#if defined(AMIGAOS)
-
-# UP: Deletes already entered interactive Input from a Handle.
-  local void clear_tty_input (Handle handle);
-  #define clear_tty_input(handle)
-
-# UP: Move the pending Output of a Handle to the destination.
-  local void finish_tty_output (Handle handle);
-  # We cannot do anything, because we are not allowed to close the handle and
-  # we do not have fsync().
-  #define finish_tty_output(handle)
-
-# UP: Move the pending Output of a Handle to the destination.
-  local void force_tty_output (Handle handle);
-  #define force_tty_output(handle)  finish_tty_output(handle)
-
-# UP: Deletes the pending Output of a Handle.
-  local void clear_tty_output (Handle handle);
-  # Nothing to do.
-  #define clear_tty_output(handle)
-
-#endif
-
 # UP: Determines, if a Handle refers to a (static) File.
 # regular_handle_p(handle)
 # > handle: Handle of the opened File
@@ -3392,13 +3369,6 @@ local bool regular_handle_p (Handle handle) {
   if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
   end_system_call();
   return (S_ISREG(statbuf.st_mode));
- #endif
- #ifdef AMIGAOS
-  var LONG not_regular_p;
-  begin_system_call();
-  not_regular_p = IsInteractive(handle); # treatment of non-interactive, non-regular Files??
-  end_system_call();
-  return !not_regular_p;
  #endif
  #ifdef WIN32_NATIVE
   var DWORD filetype;
@@ -3505,9 +3475,6 @@ typedef struct strm_unbuffered_extrafields_t {
                                        #    bytebuf, to be consumed
   uintB bytebuf[max_bytes_per_chart];  # the last bytes read
                                        # but not yet consumed
-  #ifdef AMIGAOS
-  LONG rawp;                           # current mode: 0 = CON, 1 = RAW
-  #endif
    # For general interoperability with Win32 systems, we recognize all possible
    # line-terminators: LF, CR/LF and CR, independently of strm_encoding. This
    # is because, when confronted to Unix-style text files (eol = LF), some
@@ -3530,9 +3497,6 @@ typedef struct strm_unbuffered_extrafields_t {
 #define UnbufferedStreamLow_read_array(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_read_array
 #define UnbufferedStream_status(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->status
 #define UnbufferedStream_bytebuf(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->bytebuf
-#ifdef AMIGAOS
-#define UnbufferedStream_rawp(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->rawp
-#endif
 #define UnbufferedStream_ignore_next_LF(stream)   ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->ignore_next_LF
 #define UnbufferedStreamLow_write(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_write
 #define UnbufferedStreamLow_write_array(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_write_array
@@ -4112,7 +4076,7 @@ local void ChannelStream_fini (object stream) {
 # Closes a handle.
 local void low_close_handle (object stream, object handle) {
   begin_system_call();
- #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS)
+ #if defined(UNIX) || defined(MSDOS)
   if (!( CLOSE(TheHandle(handle)) ==0))
     { end_system_call(); OS_filestream_error(stream); }
  #endif
@@ -4578,16 +4542,13 @@ local sintL low_read_unbuffered_handle (object stream) {
   var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
   var uintB b;
  restart_it:
-  #if defined(AMIGAOS)
-  interruptp({ fehler_interrupt(); });
-  #endif
   run_time_stop(); # hold run time clock
   begin_system_call();
   var int result = read(handle,&b,1); # try to read a byte
   end_system_call();
   run_time_restart(); # resume run time clock
   if (result<0) {
-    #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
+    #if !defined(WIN32_NATIVE)
     begin_system_call();
     if (errno==EINTR) { # Interrupt (poss. by Ctrl-C) ?
       end_system_call();
@@ -4607,16 +4568,6 @@ local sintL low_read_unbuffered_handle (object stream) {
   if (result==0) { # no byte available -> must be EOF
     UnbufferedStream_status(stream) = -1; return -1;
   } else {
-    #if defined(AMIGAOS)
-    # Ctrl-C is usually detected during the Read()-Call, and
-    # Read() then returns "innocently" a character. We treat
-    # the Ctrl-C now. Therewith the Byte is not lost, it is
-    # put back to bytebuf.
-    interruptp({
-      UnbufferedStreamLow_push_byte(stream,b);
-      fehler_interrupt();
-    });
-    #endif
     return b;
   }
 }
@@ -4673,7 +4624,7 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
     end_system_call();
     return ls_wait;
   }
-  #elif !(defined(AMIGAOS) || defined(WIN32_NATIVE))
+  #elif !defined(WIN32_NATIVE)
   #if defined(HAVE_SELECT) && !defined(UNIX_BEOS)
   {
     # Use select() with readfds = singleton set {handle}
@@ -4777,29 +4728,6 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
       OS_error();
     }
     end_system_call();
-    if (result==0) {
-      return ls_eof;
-    } else {
-      if (byte) *byte = b;
-      return ls_avail;
-    }
-  }
-  #elif defined(AMIGAOS)
-  begin_system_call();
-  if (tty_p) { # interactive
-    if (WaitForChar(handle,0)) { # wait 0 usec for a byte
-      end_system_call(); return ls_avail;
-    } else {
-      end_system_call(); return ls_wait;
-    }
-  } else { # not interactive
-    # try to read a byte:
-    var uintB b;
-    var long result = Read(handle,&b,1);
-    end_system_call();
-    if (result<0) {
-      OS_error();
-    }
     if (result==0) {
       return ls_eof;
     } else {
@@ -4926,7 +4854,7 @@ local bool low_clear_input_unbuffered_handle (object stream) {
   if (nullp(TheStream(stream)->strm_isatty))
     return false; # it's a file -> nothing to do
   UnbufferedStream_status(stream) = 0; # forget about past EOF
-  # Terminal (interactive on AMIGAOS)
+  # Terminal.
   clear_tty_input(TheHandle(TheStream(stream)->strm_ichannel));
   # In case this didn't work, and as a general method for platforms on
   # which clear_tty_input() does nothing: read a byte, as long as listen
@@ -4964,7 +4892,7 @@ local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr,
     end_system_call();
     run_time_restart(); /* resume run time clock */
     if (result<0) {
-     #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
+     #if !defined(WIN32_NATIVE)
       begin_system_call();
       if (errno==EINTR) /* Interrupt (poss. by Ctrl-C) ? */
         interruptp({ end_system_call(); fehler_interrupt(); });
@@ -5307,14 +5235,7 @@ local uintL rd_ch_array_unbuffered (const gcv_object_t* stream_,
    UnbufferedHandleStream_input_init_data(stream);                      \
  }
 #define UnbufferedHandleStream_input_init_data(stream)  \
-    UnbufferedStream_status(stream) = 0;                \
-    UnbufferedHandleStream_input_init_amiga(stream);
-#ifdef AMIGAOS
-  #define UnbufferedHandleStream_input_init_amiga(stream) \
-    UnbufferedStream_rawp(stream) = 0;
-#else
-  #define UnbufferedHandleStream_input_init_amiga(stream)
-#endif
+    UnbufferedStream_status(stream) = 0;
 
 # Closes a Channel-Stream.
 # close_ichannel(stream);
@@ -5339,7 +5260,6 @@ local void low_write_unbuffered_handle (object stream, uintB b) {
  restart_it:
   begin_system_call();
   # Try to output the byte.
-  #if !defined(AMIGAOS)
   var int result = write(handle,&b,1);
   if (result<0) {
     #if !defined(WIN32_NATIVE)
@@ -5352,12 +5272,6 @@ local void low_write_unbuffered_handle (object stream, uintB b) {
     OS_error();
   }
   end_system_call();
-  #else # defined(AMIGAOS)
-  var long result = Write(handle,&b,1);
-  end_system_call();
-  if (result<0) { OS_error(); }
-  interruptp({ fehler_interrupt(); }); # Ctrl-C -> call Break-Loop
-  #endif
   if (result==0) # not successful?
     fehler_unwritable(TheSubr(subr_self)->name,stream);
 }
@@ -5855,7 +5769,7 @@ local object make_unbuffered_stream (uintB type, direction_t direction,
 # File-Stream
 # ===========
 
-# In order to not have to bestir the UNIX/AMIGADOS for each Character,
+# In order to not have to bestir the UNIX for each Character,
 # our own Buffer is maintained.
 # (This caused e.g. for the Consumption of a 408 KByte- File on an Atari
 # an acceleration by a Factor of 2.7 from 500 sec to 180 sec.)
@@ -5991,24 +5905,6 @@ global object file_stream_truename (object s)
       unused (result_assignment result);                                \
     }
 #endif
-#ifdef AMIGAOS
-  #define handle_lseek(stream,handle,offset,mode,result_assignment)           \
-    { var uoff_t _offset = (offset);                                          \
-      var sintL result = Seek(TheHandle(handle),_offset,mode);                \
-      if (result<0) /* error occurred? */                                     \
-        { end_system_call(); OS_filestream_error(stream); }                   \
-      if (mode==SEEK_SET) { unused (result_assignment _offset); }             \
-      else if (mode==SEEK_CUR) { unused (result_assignment result+_offset); } \
-      else { /* mode==SEEK_END */                                             \
-        result = Seek(TheHandle(handle),0,SEEK_CUR);                          \
-        if (result<0) /* error occurred? */                                   \
-          { end_system_call(); OS_filestream_error(stream); }                 \
-        unused (result_assignment (off_t)result);                                    \
-    }}
-  #define SEEK_SET  OFFSET_BEGINNING
-  #define SEEK_CUR  OFFSET_CURRENT
-  #define SEEK_END  OFFSET_END
-#endif
 #ifdef WIN32_NATIVE
   #define handle_lseek(stream,handle,offset,mode,result_assignment)           \
     { var DWORD result = SetFilePointer(TheHandle(handle),offset, NULL,mode); \
@@ -6074,7 +5970,7 @@ local void low_flush_buffered_handle (object stream, uintL bufflen) {
         #endif
           { end_system_call(); OS_filestream_error(stream); }
     #endif
-    #if defined(AMIGAOS) || defined(WIN32_NATIVE)
+    #if defined(WIN32_NATIVE)
     if (result<0) { # error occurred?
       end_system_call(); OS_filestream_error(stream);
     }
@@ -7863,36 +7759,6 @@ local void finish_output_buffered (object stream) {
       # enter new Handle:
       BufferedStream_channel(stream) = handlobj;
     #endif
-    #ifdef AMIGAOS
-     #if 0 # Some Devices don't tolerate, if opened Files are
-           # closed and reopened. E.g. this has a special meaning
-           # for Pipes.
-      begin_system_call();
-      var Handle handle = TheHandle(BufferedStream_channel(stream));
-      if (!IsInteractive(handle)) {
-        # close File (OS writes physically):
-        Close(handle);
-        end_system_call();
-        # reopen File:
-        pushSTACK(stream); # save stream
-        pushSTACK(TheStream(stream)->strm_file_truename); # Filename
-        # Directory already exists, reopen file:
-        var object namestring = assume_dir_exists(); # Filename as ASCIZ-String
-        with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-          begin_system_call();
-          handle = Open(namestring_asciz,MODE_OLDFILE);
-          end_system_call();
-        });
-        if (handle==NULL) { OS_filestream_error(STACK_1); }
-        skipSTACK(1);
-        stream = popSTACK(); # restore stream
-        # enter new Handle:
-        TheHandle(BufferedStream_channel(stream)) = handle;
-      } else {
-        end_system_call();
-      }
-     #endif
-    #endif
     }
    #endif
   }
@@ -9376,7 +9242,7 @@ local object make_terminal_stream_ (void) {
 
 #endif # NEXTAPP
 
-#if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(WIN32_NATIVE)
+#if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(WIN32_NATIVE)
 
 # Functionality:
 # Standard-Input and Standard-Output are accessed.
@@ -9510,55 +9376,7 @@ local object rd_ch_terminal1 (const gcv_object_t* stream_) {
 # wr_ch_terminal1(&stream,ch);
 # > stream: Terminal-Stream
 # > ch: character to be written
-#if !defined(AMIGAOS)
-  #define wr_ch_terminal1  wr_ch_unbuffered_unix
-#else # defined(AMIGAOS)
-local void wr_ch_terminal1 (const gcv_object_t* stream_, object ch) {
-  # ch should be a Character with font at most, but without Bits:
-  #error "FIXME character fonts don't exist in this form any more"
-  if (!((as_oint(ch) & ~(((oint)char_code_mask_c|(oint)char_font_mask_c)<<oint_data_shift)) == as_oint(type_data_object(char_type,0)))) {
-    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-    pushSTACK(*stream_);
-    pushSTACK(ch);
-    fehler(stream_error,GETTEXT("character ~ contains bits, cannot be output onto ~"));
-  }
-  #if (!(char_font_len_c == 4))
-  #error "readjust char_font_len_c or rewrite wr_ch_terminal()!"
-  #endif
-  var uintB outbuffer[14];
-  var uintB* ptr = &outbuffer[0];
-  var uintL count = 1;
-  var uintB f = (char_int(ch) & char_font_mask_c) >> char_font_shift_c; # Font of the character
-  var uintB c = char_code(ch); # Code of the character
-  if (f==0) {
-    *ptr++ = c;
-  } else {
-    *ptr++ = CSI; # Control-Sequence for switching to the right Font:
-    if (f & bit(0)) {
-      *ptr++ = ';'; *ptr++ = '1'; count += 2; # bold activated
-    }
-    if (f & bit(1)) {
-      *ptr++ = ';'; *ptr++ = '3'; count += 2; # italics activated
-    }
-    if (f & bit(2)) {
-      *ptr++ = ';'; *ptr++ = '4'; count += 2; # underline activated
-    }
-    if (f & bit(3)) {
-      *ptr++ = ';'; *ptr++ = '7'; count += 2; # Reverse activated
-    }
-    *ptr++ = 0x6D;
-    *ptr++ = c; # then write the character
-    *ptr++ = CSI; *ptr++ = '0'; *ptr++ = 0x6D; # again normal font
-    count += 5;
-  }
-  begin_system_call();
-  var long result = Write(stdout_handle,&outbuffer[0],count); # try to write character
-  end_system_call();
-  if (result<0) { OS_error(); }
-  if (result<count) # not successful?
-    fehler_unwritable(S(write_char),*stream_);
-}
-#endif
+#define wr_ch_terminal1  wr_ch_unbuffered_unix
 
 # UP: write several characters on a Terminal-Stream.
 # wr_ch_array_terminal1(&stream,&chararray,start,len);
@@ -10049,11 +9867,87 @@ local bool stdio_same_tty_p (void)
 # Returns an interactive Terminal-Stream.
 # can trigger GC
 local object make_terminal_stream_ (void) {
- #ifdef AMIGAOS
-  # only HAVE_TERMINAL1
+  bool stdin_tty, stdout_tty, same_tty;
+  begin_system_call();
+  stdin_tty = isatty(stdin_handle); # stdin a Terminal?
+  stdout_tty = isatty(stdout_handle); # stdout a Terminal?
+  same_tty = stdin_tty && stdout_tty && stdio_same_tty_p();
+  end_system_call();
+ #ifdef HAVE_TERMINAL3
+  if (rl_gnu_readline_p && same_tty) { # Build a TERMINAL3-Stream:
+    pushSTACK(make_ssstring(80)); # allocate line-buffer
+    pushSTACK(make_ssstring(80)); # allocate line-buffer
+    pushSTACK(allocate_handle(stdout_handle));
+    pushSTACK(allocate_handle(stdin_handle));
+    # allocate new Stream:
+    var object stream = # Flags: only READ-CHAR and WRITE-CHAR allowed
+      allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,
+                      sizeof(strm_unbuffered_extrafields_t));
+    # and fill:
+    stream_dummy_fill(stream);
+    var Stream s = TheStream(stream);
+   #ifdef UNICODE
+    s->strm_encoding = O(terminal_encoding);
+   #endif
+    s->strm_rd_ch = P(rd_ch_terminal3); # READ-CHAR-Pseudofunction
+    s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
+    s->strm_wr_ch = P(wr_ch_terminal3); # WRITE-CHAR-Pseudofunction
+    s->strm_wr_ch_array = P(wr_ch_array_terminal3); # WRITE-CHAR-SEQUENCE-Pseudofunction
+    s->strm_terminal_isatty = S(equal); # stdout=stdin
+    s->strm_terminal_ihandle = popSTACK(); # Handle for listen_char_unbuffered()
+    s->strm_terminal_ohandle = popSTACK(); # Handle for Output
+   #if 1 # TERMINAL_LINEBUFFERED
+    s->strm_terminal_inbuff = popSTACK(); # register line buffer, count := 0
+    s->strm_terminal_index = Fixnum_0; # index := 0
+   #endif
+   #if 1 # TERMINAL_OUTBUFFERED
+    s->strm_terminal_outbuff = popSTACK(); # register line buffer
+   #endif
+    ChannelStream_buffered(stream) = false;
+    ChannelStream_init(stream);
+    UnbufferedHandleStream_input_init(stream);
+    UnbufferedHandleStream_output_init(stream);
+    return stream;
+  }
+ #endif
+ #ifdef HAVE_TERMINAL2
+  if (stdin_tty) { # Build a TERMINAL2-Stream:
+    pushSTACK(make_ssstring(80)); # allocate line-buffer
+    pushSTACK(allocate_handle(stdout_handle));
+    pushSTACK(allocate_handle(stdin_handle));
+    # allocate new Stream:
+    var object stream = # Flags: only READ-CHAR and WRITE-CHAR allowed
+      allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,
+                      sizeof(strm_unbuffered_extrafields_t));
+    # and fill:
+    stream_dummy_fill(stream);
+    var Stream s = TheStream(stream);
+   #ifdef UNICODE
+    s->strm_encoding = O(terminal_encoding);
+   #endif
+    s->strm_rd_ch = P(rd_ch_terminal2); # READ-CHAR-Pseudofunction
+    s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
+    s->strm_wr_ch = P(wr_ch_terminal2); # WRITE-CHAR-Pseudofunction
+    s->strm_wr_ch_array = P(wr_ch_array_terminal2); # WRITE-CHAR-SEQUENCE-Pseudofunction
+    s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
+    s->strm_terminal_ihandle = popSTACK(); # Handle for listen_char_unbuffered()
+    s->strm_terminal_ohandle = popSTACK(); # Handle for Output
+   #if 1 # TERMINAL_LINEBUFFERED
+    s->strm_terminal_inbuff = popSTACK(); # register line buffer, count := 0
+    s->strm_terminal_index = Fixnum_0; # index := 0
+   #endif
+    ChannelStream_buffered(stream) = false;
+    ChannelStream_init(stream);
+    UnbufferedHandleStream_input_init(stream);
+    UnbufferedHandleStream_output_init(stream);
+    return stream;
+  }
+ #endif
+  # Build a TERMINAL1-Stream:
   {
     pushSTACK(allocate_handle(stdout_handle));
     pushSTACK(allocate_handle(stdin_handle));
+    # allocate new Stream:
     var object stream = # Flags: only READ-CHAR and WRITE-CHAR allowed
       allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,
                       sizeof(strm_unbuffered_extrafields_t));
@@ -10067,142 +9961,18 @@ local object make_terminal_stream_ (void) {
     s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
     s->strm_wr_ch = P(wr_ch_terminal1); # WRITE-CHAR-Pseudofunction
     s->strm_wr_ch_array = P(wr_ch_array_terminal1); # WRITE-CHAR-SEQUENCE-Pseudofunction
-    begin_system_call();
-    s->strm_terminal_isatty =
-      (IsInteractive(stdin_handle)
-       ? (IsInteractive(stdout_handle)
-          ? S(equal) # input and output terminals -> probably the same
-          : T)
-       : NIL);
-    end_system_call();
-    s->strm_terminal_ihandle = popSTACK();
-    s->strm_terminal_ohandle = popSTACK();
+    s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
+    s->strm_terminal_ihandle = popSTACK(); # Handle for listen_char_unbuffered()
+    s->strm_terminal_ohandle = popSTACK(); # Handle for Output
     ChannelStream_buffered(stream) = false;
     ChannelStream_init(stream);
     UnbufferedHandleStream_input_init(stream);
     UnbufferedHandleStream_output_init(stream);
     return stream;
   }
- #else
-  {
-    bool stdin_tty, stdout_tty, same_tty;
-    begin_system_call();
-    stdin_tty = isatty(stdin_handle); # stdin a Terminal?
-    stdout_tty = isatty(stdout_handle); # stdout a Terminal?
-    same_tty = stdin_tty && stdout_tty && stdio_same_tty_p();
-    end_system_call();
-   #ifdef HAVE_TERMINAL3
-    if (rl_gnu_readline_p && same_tty) { # Build a TERMINAL3-Stream:
-      pushSTACK(make_ssstring(80)); # allocate line-buffer
-      pushSTACK(make_ssstring(80)); # allocate line-buffer
-      pushSTACK(allocate_handle(stdout_handle));
-      pushSTACK(allocate_handle(stdin_handle));
-      # allocate new Stream:
-      var object stream = # Flags: only READ-CHAR and WRITE-CHAR allowed
-        allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,
-                        sizeof(strm_unbuffered_extrafields_t));
-      # and fill:
-      stream_dummy_fill(stream);
-      var Stream s = TheStream(stream);
-     #ifdef UNICODE
-      s->strm_encoding = O(terminal_encoding);
-     #endif
-      s->strm_rd_ch = P(rd_ch_terminal3); # READ-CHAR-Pseudofunction
-      s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
-      s->strm_wr_ch = P(wr_ch_terminal3); # WRITE-CHAR-Pseudofunction
-      s->strm_wr_ch_array = P(wr_ch_array_terminal3); # WRITE-CHAR-SEQUENCE-Pseudofunction
-      s->strm_terminal_isatty = S(equal); # stdout=stdin
-      s->strm_terminal_ihandle = popSTACK(); # Handle for listen_char_unbuffered()
-      s->strm_terminal_ohandle = popSTACK(); # Handle for Output
-     #if 1 # TERMINAL_LINEBUFFERED
-      s->strm_terminal_inbuff = popSTACK(); # register line buffer, count := 0
-      s->strm_terminal_index = Fixnum_0; # index := 0
-     #endif
-     #if 1 # TERMINAL_OUTBUFFERED
-      s->strm_terminal_outbuff = popSTACK(); # register line buffer
-     #endif
-      ChannelStream_buffered(stream) = false;
-      ChannelStream_init(stream);
-      UnbufferedHandleStream_input_init(stream);
-      UnbufferedHandleStream_output_init(stream);
-      return stream;
-    }
-   #endif
-   #ifdef HAVE_TERMINAL2
-    if (stdin_tty) { # Build a TERMINAL2-Stream:
-      pushSTACK(make_ssstring(80)); # allocate line-buffer
-      pushSTACK(allocate_handle(stdout_handle));
-      pushSTACK(allocate_handle(stdin_handle));
-      # allocate new Stream:
-      var object stream = # Flags: only READ-CHAR and WRITE-CHAR allowed
-        allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,
-                        sizeof(strm_unbuffered_extrafields_t));
-      # and fill:
-      stream_dummy_fill(stream);
-      var Stream s = TheStream(stream);
-#ifdef UNICODE
-      s->strm_encoding = O(terminal_encoding);
-#endif
-      s->strm_rd_ch = P(rd_ch_terminal2); # READ-CHAR-Pseudofunction
-      s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
-      s->strm_wr_ch = P(wr_ch_terminal2); # WRITE-CHAR-Pseudofunction
-      s->strm_wr_ch_array = P(wr_ch_array_terminal2); # WRITE-CHAR-SEQUENCE-Pseudofunction
-      s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
-      s->strm_terminal_ihandle = popSTACK(); # Handle for listen_char_unbuffered()
-      s->strm_terminal_ohandle = popSTACK(); # Handle for Output
-     #if 1 # TERMINAL_LINEBUFFERED
-      s->strm_terminal_inbuff = popSTACK(); # register line buffer, count := 0
-      s->strm_terminal_index = Fixnum_0; # index := 0
-     #endif
-      ChannelStream_buffered(stream) = false;
-      ChannelStream_init(stream);
-      UnbufferedHandleStream_input_init(stream);
-      UnbufferedHandleStream_output_init(stream);
-      return stream;
-    }
-   #endif
-    # Build a TERMINAL1-Stream:
-    {
-      pushSTACK(allocate_handle(stdout_handle));
-      pushSTACK(allocate_handle(stdin_handle));
-      # allocate new Stream:
-      var object stream = # Flags: only READ-CHAR and WRITE-CHAR allowed
-        allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,
-                        sizeof(strm_unbuffered_extrafields_t));
-      # and fill:
-      stream_dummy_fill(stream);
-      var Stream s = TheStream(stream);
-     #ifdef UNICODE
-      s->strm_encoding = O(terminal_encoding);
-     #endif
-      s->strm_rd_ch = P(rd_ch_terminal1); # READ-CHAR-Pseudofunction
-      s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
-      s->strm_wr_ch = P(wr_ch_terminal1); # WRITE-CHAR-Pseudofunction
-      s->strm_wr_ch_array = P(wr_ch_array_terminal1); # WRITE-CHAR-SEQUENCE-Pseudofunction
-      s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
-      s->strm_terminal_ihandle = popSTACK(); # Handle for listen_char_unbuffered()
-      s->strm_terminal_ohandle = popSTACK(); # Handle for Output
-      ChannelStream_buffered(stream) = false;
-      ChannelStream_init(stream);
-      UnbufferedHandleStream_input_init(stream);
-      UnbufferedHandleStream_output_init(stream);
-      return stream;
-    }
-  }
- #endif
 }
 
-#ifdef AMIGAOS
-
-# error, if TERMINAL-RAW does not work.
-nonreturning_function(local, fehler_terminal_raw, (object stream)) {
-  pushSTACK(stream);
-  fehler(error,GETTEXT("RAW mode not supported on ~"));
-}
-
-#endif
-
-#if defined(UNIX) || defined(AMIGAOS)
+#ifdef UNIX
 
 # (SYS::TERMINAL-RAW *terminal-io* flag [errorp])
 # flag /= NIL: sets the Terminal in cbreak/noecho-Mode,
@@ -10222,8 +9992,6 @@ nonreturning_function(local, fehler_terminal_raw, (object stream)) {
 # )
 # (SYS::TERMINAL-RAW *terminal-io* nil) is essentially
 # (shell "stty sane")
-
-#ifdef UNIX
 
 local void term_raw (void);
 local void term_unraw (void);
@@ -10429,80 +10197,9 @@ LISPFUN(terminal_raw,seclass_default,2,1,norest,nokey,0,NIL) {
 
 #endif # UNIX
 
-#ifdef AMIGAOS
+#endif # (UNIX && !NEXTAPP) || MSDOS || WIN32_NATIVE
 
-# We can switch arbitrary interactive Handle-Streams
-# (other text-windows) to Raw-Mode like the Terminal-Stream.
-
-# For Terminal-Streams we store the current state (in order
-# to switch as little as possible). For Handle-Streams this
-# is done by screen.lisp.
-local LONG terminal_mode = 0; # 0 = CON, 1 = RAW
-
-global void terminal_sane (void);
-global void terminal_sane()
-  {
-    if (!(terminal_mode == 0)) {
-      begin_system_call(); SetMode(stdin_handle,0); end_system_call();
-      terminal_mode = 0;
-    }
-  }
-
-LISPFUN(terminal_raw,seclass_default,2,1,norest,nokey,0,NIL) {
-  var object errorp = popSTACK();
-  var object flag = popSTACK();
-  var object stream = popSTACK();
-  check_stream(stream);
-  stream = resolve_synonym_stream(stream);
-  if (!(builtin_stream_p(stream)
-        && (TheStream(stream)->strmflags & strmflags_open_B))) # Stream closed?
-    fehler_illegal_streamop(S(terminal_raw),stream);
-  VALUES1(NIL);
-  var LONG new_mode = (nullp(flag) ? 0 : 1);
-  var LONG success;
-  if (builtin_stream_p(stream)
-      && ((TheStream(stream)->strmtype == strmtype_terminal) # the Terminal-Stream
-          || (TheStream(stream)->strmtype == strmtype_file # an unbuffered File-Stream
-              && !ChannelStream_buffered(stream)))) {
-    if (!nullp(TheStream(stream)->strm_isatty)) {
-      if (TheStream(stream)->strmtype == strmtype_terminal) { # Terminal
-        VALUES_IF(terminal_mode);
-        if (new_mode == terminal_mode) {
-          success = true;
-        } else {
-          begin_system_call();
-          success = SetMode(stdin_handle,new_mode);
-          end_system_call();
-          terminal_mode = new_mode;
-        }
-      } else { # unbuffered File-Stream
-        VALUES_IF(UnbufferedStream_rawp(stream));
-        if (new_mode == UnbufferedStream_rawp(stream)) {
-          success = true;
-        } else {
-          begin_system_call();
-          success = SetMode(TheHandle(TheStream(stream)->strm_ichannel),new_mode);
-          end_system_call();
-          UnbufferedStream_rawp(stream) = new_mode;
-        }
-      }
-    } else {
-      success = true;
-    }
-  } else {
-    success = false;
-  }
-  if (!success && !missingp(errorp))
-    fehler_terminal_raw(stream);
-}
-
-#endif # AMIGAOS
-
-#endif # UNIX || AMIGAOS
-
-#endif # (UNIX && !NEXTAPP) || MSDOS || AMIGAOS || WIN32_NATIVE
-
-#if !((defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS))
+#if !(defined(UNIX) && !defined(NEXTAPP))
 
 LISPFUN(terminal_raw,seclass_default,2,1,norest,nokey,0,NIL) {
   VALUES1(NIL); skipSTACK(3); /* do nothing */
@@ -13221,217 +12918,7 @@ LISPFUNN(window_cursor_off,1) {
 
 #endif # UNIX
 
-#ifdef AMIGAOS
-
-# Terminal-Emulation: ANSI-Control-Characters, see console.doc
-
-# UP: Output of several characters on the screen
-local void wr_window (const uintB* outbuffer, uintL count) {
-  set_break_sem_1();
-  begin_system_call();
-  var long result = Write(stdout_handle,outbuffer,count);
-  end_system_call();
-  if (result<0) { OS_error(); }
-  if (result<count) # not successful?
-    { ?? }
-  clr_break_sem_1();
-}
-
-#define WR_WINDOW(characters)  \
-  { local var uintB outbuffer[] = characters; \
-     wr_window(&outbuffer,sizeof(outbuffer)); \
-  }
-
-# UP: Write a character to a Window-Stream.
-# wr_ch_window(&stream,ch);
-# > stream: Window-Stream
-# > ch: character to be written
-local void wr_ch_window (const gcv_object_t* stream_, object ch) {
-  check_wr_char(*stream_,ch);
-  var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
-  ??
-}
-
-LISPFUNN(make_window,0) {
-  finish_output(var_stream(S(terminal_io),strmflags_wr_ch_B)); # write poss. pending NL now
-  var object stream = # Flags: only WRITE-CHAR allowed
-    allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+0,0);
-  # and fill:
-  stream_dummy_fill(stream);
-  var Stream s = TheStream(stream);
-  s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunction
-  s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunction
-  # size: aWSR? aWBR??
-  # Wrap off ?? ASM? AWM?
-  WR_WINDOW({CSI,'0',0x6D}); # Set Graphics Rendition Normal
-  VALUES1(stream);
-}
-
-# Closes a Window-Stream.
-local void close_window (object stream) {
-  # Wrap on ?? ASM? AWM?
-  WR_WINDOW({CSI,'0',0x6D}); # Set Graphics Rendition Normal
-}
-
-LISPFUNN(window_size,1) {
-  check_window_stream(popSTACK());
-  value1 = fixnum(window_size.y); ??
-    value2 = fixnum(window_size.x); ??
-      mv_count=2;
-}
-
-LISPFUNN(window_cursor_position,1) {
-  check_window_stream(popSTACK());
-  # aWSR? CPR??
-  value1 = fixnum(_y); ??
-    value2 = fixnum(_x); ??
-      mv_count=2;
-}
-
-LISPFUNN(set_window_cursor_position,3) {
-  check_window_stream(STACK_2);
-  var uintL line = posfixnum_to_L(STACK_1);
-  var uintL column = posfixnum_to_L(STACK_0);
-  if ((line < (uintL)window_size.y) && (column < (uintL)window_size.x)) {
-    var uintB outbuffer[23]; # Buffer for  CSI <line> ; <column> H
-    var uintB* ptr = &outbuffer[sizeof(outbuffer)];
-    var uintL count = 0;
-    count++; *--ptr = 'H';
-    do {
-      count++; *--ptr = '0'+(column%10); column = floor(column,10);
-    } until (column==0);
-    count++; *--ptr = ';';
-    do {
-      count++; *--ptr = '0'+(line%10); line = floor(line,10);
-    } until (line==0);
-    count++; *--ptr = CSI;
-    wr_window(ptr,count);
-  }
-  VALUES2(STACK_1, STACK_0); skipSTACK(3);
-}
-
-LISPFUNN(clear_window,1) {
-  check_window_stream(popSTACK());
-  WR_WINDOW({CSI,'0',';','0','H',CSI,'J'});
-  VALUES0;
-}
-
-LISPFUNN(clear_window_to_eot,1) {
-  check_window_stream(popSTACK());
-  WR_WINDOW({CSI,'J'});
-  VALUES0;
-}
-
-LISPFUNN(clear_window_to_eol,1) {
-  check_window_stream(popSTACK());
-  WR_WINDOW({CSI,'K'});
-  VALUES0;
-}
-
-LISPFUNN(delete_window_line,1) {
-  check_window_stream(popSTACK());
-  WR_WINDOW({CSI,'M'});
-  VALUES0;
-}
-
-LISPFUNN(insert_window_line,1) {
-  check_window_stream(popSTACK());
-  WR_WINDOW({CSI,'L'});
-  VALUES0;
-}
-
-LISPFUNN(highlight_on,1) {
-  check_window_stream(popSTACK());
-  WR_WINDOW({CSI,'1',0x6D}); # Set Graphics Rendition Bold
-  VALUES0;
-}
-
-LISPFUNN(highlight_off,1) {
-  check_window_stream(popSTACK());
-  WR_WINDOW({CSI,'0',0x6D}); # Set Graphics Rendition Normal
-  VALUES0;
-}
-
-LISPFUNN(window_cursor_on,1) {
-  check_window_stream(popSTACK());
-  # aSCR ??
-  VALUES0;
-}
-
-LISPFUNN(window_cursor_off,1) {
-  check_window_stream(popSTACK());
-  # aSCR ??
-  VALUES0;
-}
-
-#endif # AMIGAOS
-
 #endif # SCREEN
-
-
-#ifdef PRINTER_AMIGAOS
-
-# Printer-Stream
-# ==============
-
-# Additional Components:
-  #define strm_printer_handle  strm_other[0]  # Handle of "PRT:"
-
-# FIXME: Should be based on an encoding.
-
-# WRITE-CHAR - Pseudo-Function for Printer-Streams:
-local void wr_ch_printer (const gcv_object_t* stream_, object ch) {
-  var object stream = *stream_;
-  check_wr_char(stream,ch);
-  begin_system_call();
-  var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
-  var long result = # try to write character
-    Write(TheHandle(TheStream(stream)->strm_printer_handle),&c,1L);
-  end_system_call();
-  if (result<0) { OS_error(); }
-  # result = number of written characters (0 or 1)
-  if (result==0) # not successful?
-    fehler_unwritable(S(write_char),stream);
-}
-
-# close a printer-stream.
-local void close_printer (object stream) {
-  begin_system_call();
-  Close(TheHandle(TheStream(stream)->strm_printer_handle));
-  end_system_call();
-}
-
-# UP: Returns a Printer-Stream.
-# can trigger GC
-local object make_printer_stream (void) {
-  pushSTACK(allocate_handle(Handle_NULL)); # Handle-Wrapping
-  var object stream = # new Stream, only WRITE-CHAR allowed
-    allocate_stream(strmflags_wr_ch_B,strmtype_printer,strm_len+1,0);
-  set_break_sem_4();
-  begin_system_call();
-  {
-    var Handle handle = Open("PRT:",MODE_NEWFILE);
-    if (handle==Handle_NULL) { OS_error(); }
-    end_system_call();
-    TheHandle(STACK_0) = handle; # wrap Handle
-  }
-  stream_dummy_fill(stream);
-  TheStream(stream)->strm_wr_ch = P(wr_ch_printer);
-  TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_dummy);
-  TheStream(stream)->strm_printer_handle = popSTACK();
-  # extend List of open Streams by stream:
-  stream = add_to_open_streams(stream);
-  clr_break_sem_4();
-  return stream;
-}
-
-# (SYSTEM::MAKE-PRINTER-STREAM) returns a Printer-Stream.
-# For the Escape-Sequences that are understood see PRINTER.DOC.
-LISPFUNN(make_printer_stream,0) {
-  VALUES1(make_printer_stream()); return;
-}
-
-#endif # PRINTER_AMIGAOS
 
 
 #ifdef PIPES
@@ -16482,9 +15969,6 @@ global void builtin_stream_close (const gcv_object_t* stream_) {
     #ifdef SCREEN
     case strmtype_window: close_window(stream); break;
     #endif
-    #ifdef PRINTER_AMIGAOS
-    case strmtype_printer: close_printer(stream); break;
-    #endif
     default: NOTREACHED;
   }
   # enter dummys:
@@ -16689,7 +16173,7 @@ global signean listen_char (object stream) {
         #if defined(NEXTAPP)
           return listen_char_terminal(stream);
         #endif
-        #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(WIN32_NATIVE)
+        #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(WIN32_NATIVE)
           terminalcase(stream,
           { return listen_char_terminal1(stream); },
           { return listen_char_terminal2(stream); },
@@ -16787,7 +16271,7 @@ global bool clear_input (object stream) {
       #if defined(NEXTAPP)
         result = clear_input_terminal(stream);
       #endif
-      #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(WIN32_NATIVE)
+      #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(WIN32_NATIVE)
         terminalcase(stream,
         { result = clear_input_terminal1(stream); },
         { result = clear_input_terminal2(stream); },
@@ -16938,12 +16422,6 @@ global void finish_output (object stream) {
           break;
         case strmtype_terminal:
           finish_output_terminal(stream); break;
-        #ifdef PRINTER_AMIGAOS
-        case strmtype_printer: # Printer:
-        # Closing and Reopening would presumably cause a
-        # formfeed, which is scarcely desired.
-          break; # Hence do nothing.
-        #endif
         default: # do nothing
           break;
       }
@@ -16996,12 +16474,6 @@ global void force_output (object stream) {
           break;
         case strmtype_terminal:
           force_output_terminal(stream); break;
-        #ifdef PRINTER_AMIGAOS
-        case strmtype_printer: # Printer:
-          # Closing and Reopening would presumably cause a
-          # formfeed, which is scarcely desired.
-          break; # Hence do nothing.
-        #endif
         default: # do nothing
           break;
       }
@@ -17057,17 +16529,13 @@ global void clear_output (object stream) {
           }
           break;
         case strmtype_terminal:
-          #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(WIN32_NATIVE)
+          #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(WIN32_NATIVE)
           terminalcase(stream,
           { clear_output_terminal1(stream); },
           { clear_output_terminal2(stream); },
           { clear_output_terminal3(stream); });
           #endif
           break;
-        #ifdef PRINTER_AMIGAOS
-        case strmtype_printer: # Printer: unbuffered, so nothing to do
-          break;
-        #endif
         default: # do nothing
           break;
       }

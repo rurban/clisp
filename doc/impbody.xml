@@ -1686,7 +1686,7 @@ performance considerations.
 <!-- #if defined(ISOLATIN_CHS) && !defined(UNICODE) -->
 <variablelist>
 <varlistentry><term>Platform dependent: &unix; (except &nextstep;),
-   &win32;, &amiga; platforms only, and only in
+   &win32; platforms only, and only in
    &clisp; built &without; compile-time flag &unicode;.</term>
 <listitem><para>More precisely, &clisp; uses the ISO Latin-1 (ISO
  8859-1) character set:
@@ -2112,92 +2112,6 @@ and the international alphabetic characters from the character set:
 
 <para>The characters that are not graphic chars and the space character
  have names:</para>
-
-<!-- #ifdef AMIGA_CHARNAMES -->
-<table id="amiga-chars-table" frame="all">
- <title>Platform dependent characters: &amiga; platforms.</title>
- <tgroup cols="2" colsep="1" rowsep="1" align="center">
-  &code-char-header;<tbody>
- <row><entry><literal role="sexp">(&code-char; #x00)</literal></entry>
-          <entry><keysym>#\Null</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x01)</literal></entry>
-          <entry><keysym>#\Code1</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x02)</literal></entry>
-          <entry><keysym>#\Code2</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x03)</literal></entry>
-          <entry><keysym>#\Code3</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x04)</literal></entry>
-          <entry><keysym>#\Code4</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x05)</literal></entry>
-          <entry><keysym>#\Code5</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x06)</literal></entry>
-          <entry><keysym>#\Code6</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x07)</literal></entry>
-          <entry><keysym>#\Bell</keysym></entry>
-          <entry><keysym>#\Bel</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x08)</literal></entry>
-          <entry><keysym>#\Backspace</keysym></entry>
-          <entry><keysym>#\Bs</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x09)</literal></entry>
-          <entry><keysym>#\Tab</keysym></entry>
-          <entry><keysym>#\Ht</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x0A)</literal></entry>
-          <entry>&nl-c;</entry>
-          <entry><keysym>#\Linefeed</keysym></entry>
-          <entry><keysym>#\Lf</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x0B)</literal></entry>
-          <entry><keysym>#\Vt</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x0C)</literal></entry>
-          <entry><keysym>#\Page</keysym></entry>
-          <entry><keysym>#\Ff</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x0D)</literal></entry>
-          <entry>&ret-c;</entry>
-          <entry><keysym>#\Cr</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x0E)</literal></entry>
-          <entry><keysym>#\So</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x0F)</literal></entry>
-          <entry><keysym>#\Si</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x10)</literal></entry>
-          <entry><keysym>#\Code16</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x11)</literal></entry>
-          <entry><keysym>#\Code17</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x12)</literal></entry>
-          <entry><keysym>#\Code18</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x13)</literal></entry>
-          <entry><keysym>#\Code19</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x14)</literal></entry>
-          <entry><keysym>#\Code20</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x15)</literal></entry>
-          <entry><keysym>#\Code21</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x16)</literal></entry>
-          <entry><keysym>#\Code22</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x17)</literal></entry>
-          <entry><keysym>#\Code23</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x18)</literal></entry>
-          <entry><keysym>#\Code24</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x19)</literal></entry>
-          <entry><keysym>#\Code25</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x1A)</literal></entry>
-          <entry><keysym>#\Code26</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x1B)</literal></entry>
-          <entry><keysym>#\Escape</keysym></entry>
-          <entry><keysym>#\Esc</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x1C)</literal></entry>
-          <entry><keysym>#\Code28</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x1D)</literal></entry>
-          <entry><keysym>#\Code29</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x1E)</literal></entry>
-          <entry><keysym>#\Code30</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x1F)</literal></entry>
-          <entry><keysym>#\Code31</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x20)</literal></entry>
-          <entry><keysym>#\Space</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x7F)</literal></entry>
-          <entry><keysym>#\Rubout</keysym></entry></row>
- <row><entry><literal role="sexp">(&code-char; #x9B)</literal></entry>
-          <entry><keysym>#\Csi</keysym></entry></row>
-</tbody></tgroup></table>
-<!-- #endif -->
 
 <!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
 <table id="dos-win32-chars-table" frame="all">
@@ -2642,8 +2556,8 @@ printed readably.</para>
  denoting directories cannot be used interchangeably.</para>
 
 <variablelist>
-<!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
-<varlistentry><term>Platform dependent: &unix;, &amiga; platforms only.</term>
+<!-- #if defined(PATHNAME_UNIX) -->
+<varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><simpara>For example, <filename>#P"foo/bar"</filename> denotes
  the file &bar-f; in the directory &foo-f;,
  while <filename>#P"foo/bar/"</filename> denotes the subdirectory
@@ -2733,126 +2647,6 @@ printed readably.</para>
 </section>
 
 <section id="path-platform-specific"><title>Platform-specific issues.</title>
-
-<!-- #ifdef PATHNAME_AMIGAOS -->
-<variablelist>
-<varlistentry><term>Platform dependent: &amiga; platforms only.</term>
-<listitem><variablelist>&path-comps;
-<varlistentry><term>&host-r;</term>&always-nil;</varlistentry>
-<varlistentry><term>&device-r;</term>&string-or-nil;</varlistentry>
-<varlistentry>&dir-term;
- <listitem><informaltable id="amiga-dir-table" frame="all">
- <tgroup cols="2" colsep="1" rowsep="1" align="center">
-   &elt-val-meaning-header;<tbody>
- &startp-rel-abs; &subdirs-def; &subdir-string-or-wild;
- <row><entry>&subdir-r;</entry><entry>&parent-k;</entry>
-  <entry>&file-slash; instead of <filename>"subdir/"</filename></entry></row>
- </tbody></tgroup></informaltable></listitem></varlistentry>
-<varlistentry><term>&name-r;</term>&wild-string-or-nil;</varlistentry>
-<varlistentry><term>&type-r;</term>&wild-string-or-nil;</varlistentry>
-&version-nil;
-</variablelist>
-
-<para>Constraint: &startpoint-r; = &relative-k; only if &device-r; is
- &nil;.  If the device is specified, the pathname must be absolute!</para>
-
-<para>An &amiga; &name-type-split;</para>
-
-<para>Case is ignored in the strings on comparison.
-  No case conversions are performed.</para>
-
-<informaltable id="pathnames-externally-amiga" frame="all">
- <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
- <row><entry>External notation:</entry>
-  <entry><filename>"dev:sub1.typ/sub2.typ/name.typ"</filename></entry></row>
- <row><entry>using defaults:</entry>
-  <entry><filename>    "sub1.typ/sub2.typ/name.typ"</filename></entry></row>
- <row><entry>or</entry>
-  <entry><filename>                      "name.typ"</filename></entry></row>
- <row><entry>or</entry>
-  <entry><filename>    "sub1.typ/**/sub3.typ/x*.lisp"</filename></entry></row>
- <row><entry>or similar.</entry><entry/></row>
-</tbody></tgroup></informaltable>
-
-<variablelist><title>Formal specification of the external notation</title>
-  <varlistentry><term>ch ::==</term>
-   <listitem><simpara>any character except ':','/' and '*','?'
-   </simpara></listitem></varlistentry>
-  <varlistentry><term>name ::==</term>
-   <listitem><simpara>{ch}+</simpara></listitem></varlistentry>
-  <varlistentry><term>device ::==</term>
-   <listitem><para>[ &lt;empty&gt; | ':' | name ':' ]
-    <informaltable id="amiga-dev" frame="all">
-    <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
-    <row><entry>empty</entry><entry>current device, relative to
-     current directory</entry></row>
-    <row><entry>':'</entry><entry>current device, absolute (relative
-     to root for disks)</entry></row>
-    <row><entry>name ':'</entry><entry>specified device, absolute
-     (relative to root for disks)</entry></row>
-   </tbody></tgroup></informaltable></para></listitem></varlistentry>
-  <varlistentry><term>subdir ::==</term>
-   <listitem><para>[ &lt;empty&gt; | name ]
-    <informaltable id="amifa-subdir" frame="all">
-    <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
-    <row><entry>empty</entry><entry>parent directory</entry></row>
-   </tbody></tgroup></informaltable></para></listitem></varlistentry>
-  <varlistentry><term>pathname ::==</term>
-   <listitem><simpara>device { subdir '/' }* name
-   </simpara></listitem></varlistentry>
-</variablelist>
-
-<para>Examples:
-<informaltable id="amiga-path-examples-table" frame="all">
- <tgroup cols="4" colsep="1" rowsep="1" align="center">
-  <thead><row><entry>String</entry><entry>Device</entry>
-  <entry>Directory</entry><entry>our pathname</entry></row></thead><tbody>
- <row><entry><filename>"c:foo"</filename></entry><entry>'C'</entry>
-   <entry><filename>"device-&gt;foo"</filename></entry>
-   <entry><filename>"c"</filename> (&absolute-k; &foo-f;)</entry></row>
- <row><entry><filename>"c:foo/"</filename></entry><entry>'C'</entry>
-   <entry><filename>"device-&gt;foo"</filename></entry>
-   <entry><filename>"c"</filename> (&absolute-k; &foo-f;)</entry></row>
- <row><entry><filename>"c:foo/bar"</filename></entry><entry>'C'</entry>
-   <entry><filename>"device-&gt;foo-&gt;bar"</filename></entry>
-   <entry><filename>"c"</filename> (&absolute-k; &foo-f; &bar-f;)</entry></row>
- <row><entry><filename>"c:/foo"</filename></entry><entry>'C'</entry>
-   <entry><filename>"device-&gt;up-&gt;foo"</filename></entry>
-   <entry><filename>"c"</filename>
-          (&absolute-k; &parent-k; &foo-f;)</entry></row>
- <row><entry><filename>"c:"</filename></entry><entry>'C'</entry>
-   <entry><filename>"device"</filename></entry>
-   <entry><filename>"c"</filename> (&absolute-k;)</entry></row>
- <row><entry><filename>":foo"</filename></entry><entry>current</entry>
-   <entry><filename>"device-&gt;root-&gt;foo"</filename></entry>
-   <entry>&nil; (&absolute-k; &foo-f;)</entry></row>
- <row><entry>&foo-f;</entry><entry>current</entry>
-   <entry><filename>"device-&gt;foo"</filename></entry>
-   <entry>&nil; (&relative-k; &foo-f;)</entry></row>
- <row><entry><filename>"/foo"</filename></entry><entry>current</entry>
-   <entry><filename>"device-&gt;up-&gt;foo"</filename></entry>
-   <entry>&nil; (&relative-k; &parent-k; &foo-f;)</entry></row>
- <row><entry><filename>"//foo/bar"</filename></entry><entry>current</entry>
-   <entry><filename>"device-&gt;up-&gt;up-&gt;foo-&gt;bar"</filename></entry>
-   <entry>&nil; (&relative-k; &parent-k; &parent-k; &foo-f;
-                 &bar-f;)</entry></row>
- <row><entry>&file-bsla;</entry><entry>current</entry>
-   <entry><filename>"device"</filename></entry>
-   <entry>&nil; (&relative-k;)</entry></row>
-</tbody></tgroup></informaltable></para>
-
-<para>Appending a &file-slash; to a path string that is non-empty and
- does not end with &file-colon; or &file-slash; does not change its
- meaning.  This &file-slash; must be appended before another non-empty
- component can be appended.  But appending a &file-slash; to a path
- string that is empty or ends with &file-colon; or &file-slash; means
- going up to the parent directory!</para>
-
-<para>We interpret any path string that is empty or ends with
- &file-colon; or &file-slash; as pathname of a directory (with both
- &name-r; and &type-r; being &nil;).</para>
-</listitem></varlistentry></variablelist>
-<!-- #endif -->
 
 <!-- #ifdef PATHNAME_UNIX -->
 <variablelist>
@@ -2976,7 +2770,7 @@ printed readably.</para>
 
 <!-- #ifdef PATHNAME_NOEXT -->
 <variablelist>
-<varlistentry><term>Platform dependent: &unix;, &amiga;, &os2;, &win32;
+<varlistentry><term>Platform dependent: &unix;, &os2;, &win32;
     platforms only.</term>
 <listitem><simpara>The wildcard characters: &file-star; matches any
  sequence of characters, &file-ques; matches any one character.
@@ -2987,7 +2781,7 @@ printed readably.</para>
 <!-- #ifdef PATHNAME_NOEXT -->
 <formalpara id="name-type-split"><title>Name/type namestring split.</title>
 <para><variablelist>
-<varlistentry><term>Platform dependent:  &unix;, &amiga;, &os2;, &win32;
+<varlistentry><term>Platform dependent:  &unix;, &os2;, &win32;
    platforms only.</term>
 <listitem><para>A filename is split into name and type according to the
  following rule: <itemizedlist>
@@ -3054,12 +2848,6 @@ printed readably.</para>
 </listitem></varlistentry>
 <!-- #endif -->
 
-<!-- #ifdef PATHNAME_AMIGAOS -->
-<varlistentry><term>Platform dependent: &amiga; platforms only.</term>
-<listitem><simpara>see <link linkend="pathnames-externally-amiga">above</link>.
-</simpara></listitem></varlistentry>
-<!-- #endif -->
-
 <!-- #ifdef PATHNAME_UNIX -->
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><informaltable id="unix-path-external-table" frame="all">
@@ -3104,7 +2892,7 @@ printed readably.</para>
 
 <!-- #if !defined(USER_HOMEDIR) -->
 <variablelist>
-<varlistentry><term>Platform dependent:  &dos;, &os2;, &amiga;
+<varlistentry><term>Platform dependent:  &dos;, &os2;
    platforms only.</term>
 <listitem><simpara>The function &user-homedir-pathname; is not implemented.
 </simpara></listitem></varlistentry>
@@ -3382,8 +3170,8 @@ pointing to non-existent files and can take the following values:
 <para><literal role="sexp">(&cd; &path-r;)</literal> sets it,
  <literal role="sexp">(&cd;)</literal> returns it.
 <variablelist>
-<!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
-<varlistentry><term>Platform dependent: &unix;, &amiga; platforms only.</term>
+<!-- #if defined(PATHNAME_UNIX) -->
+<varlistentry><term>Platform dependent: &unix; platforms only.</term>
  <listitem><simpara><literal role="sexp">(&cd; [&path-r;])</literal>
    manages the current directory.</simpara></listitem></varlistentry>
 <!-- #else -->
@@ -3449,9 +3237,9 @@ pointing to non-existent files and can take the following values:
  </varlistentry></variablelist>
 <!-- #endif -->
 
-<!-- #if defined(KEYBOARD) || defined(AMIGAOS) -->
+<!-- #if defined(KEYBOARD) -->
 <variablelist><title>Macro &with-kbd;</title>
-<varlistentry><term>Platform dependent: &unix;, &amiga;, &dos;,
+<varlistentry><term>Platform dependent: &unix;, &dos;,
   &os2;, &win32; platforms only.</term>
 <listitem><para>&terminal-io-var; is not the only stream that
  communicates directly with the user: During execution of the body of a
@@ -3461,17 +3249,14 @@ pointing to non-existent files and can take the following values:
  It returns every keystroke in detail, as &character-t; or
  &input-char; with the following bits:
 <variablelist>
-<!-- #if defined(MSDOS) || defined(WIN32) || defined(AMIGAOS) -->
+<!-- #if defined(MSDOS) || defined(WIN32) -->
  <varlistentry><term><constant>:hyper</constant></term>
   <listitem><simpara><emphasis>(Platform dependent: &dos;, &os2;,
-   &win32;, &amiga; platforms only.)</emphasis>
+   &win32; platforms only.)</emphasis>
    if a non-standard key.  These keys are:
 <!-- #if defined(MSDOS) || defined(WIN32) -->
    <emphasis>[&dos;, &os2;, &win32;]:</emphasis>
    Function keys, cursor keypads, numeric keypad.
-<!-- #endif -->
-<!-- #ifdef AMIGAOS -->
-   <emphasis>[&amiga;]:</emphasis>Function keys, cursor keypad.
 <!-- #endif -->
    </simpara></listitem></varlistentry>
 <!-- #endif -->
@@ -3533,32 +3318,16 @@ pointing to non-existent files and can take the following values:
          <constant>:Up</constant><constant>:Down</constant></entry></row>
       </tbody></tgroup></informaltable></listitem></varlistentry>
 <!-- #endif -->
-
-<!-- #ifdef AMIGAOS -->
-    <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
-    <listitem><informaltable id="amiga-kbd-keys" frame="all">
-     <tgroup cols="2" colsep="1" rowsep="1" align="center">
-      &key-value-header;<tbody>
-       <row><entry><keycode>F1</keycode>..<keycode>F10</keycode></entry>
-         <entry><constant>:F1</constant>..<constant>:F10</constant>
-         </entry></row>
-       <row><entry><keycode>Help</keycode></entry>
-         <entry><constant>:Help</constant></entry></row>
-       <row><entry>Arrow keys</entry>
-         <entry><constant>:Left</constant><constant>:Right</constant>
-         <constant>:Up</constant><constant>:Down</constant></entry></row>
-      </tbody></tgroup></informaltable></listitem></varlistentry>
-<!-- #endif -->
       </variablelist></para></listitem></varlistentry>
 
   <varlistentry><term>slot &ch-r;</term>
     <listitem><simpara>the &ascii; code for standard keys
     </simpara></listitem></varlistentry>
 
-<!-- #if defined(MSDOS) || defined(WIN32) || defined(AMIGAOS) -->
+<!-- #if defined(MSDOS) || defined(WIN32) -->
   <varlistentry><term><constant>:super</constant></term>
    <listitem><simpara><emphasis>(Platform dependent: &dos;, &os2;,
-     &win32;, &amiga; platforms only.)</emphasis>
+     &win32; platforms only.)</emphasis>
   if pressed together with &shift; key(s) and if the keystroke would
   have been an other without &shift;.</simpara></listitem></varlistentry>
 <!-- #endif -->
@@ -4181,18 +3950,11 @@ functions are provided:
  has no influence on the way floating point numbers are printed.</para>
 
 <variablelist>
-<!-- #ifndef AMIGAOS -->
 <varlistentry><term>Platform dependent: &unix;, &dos;, &os2;, &win32;
    platforms only.</term>
 <listitem><simpara>&print-pretty-var; is initially &nil; but set to &t;
  in &config-file;.  This makes screen output prettier.
  </simpara></listitem></varlistentry>
-<!-- #else -->
-<varlistentry><term>Platform dependent: &amiga; platforms only.</term>
-<listitem><simpara>&print-pretty-var; is initially &nil; but set to &t;
- in &config-file;.  This makes unbuffered screen output both much faster
- and prettier.</simpara></listitem></varlistentry>
-<!-- #endif -->
 </variablelist>
 
 <para>&print-array-var; is initially set to &t;.</para>
@@ -4246,21 +4008,21 @@ functions are provided:
  <!-- #ifdef FOREIGN -->
  <row><entry><literal>#&lt;&foreign-pointer-t; #x...&gt;</literal></entry>
   <entry>foreign pointer <emphasis>(Platform dependent: &unix;,
-    &win32;, &amiga; platforms only.)</emphasis>
+    &win32; platforms only.)</emphasis>
  </entry></row>
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
  <row><entry><literal>#&lt;&foreign-address-t; #x...&gt;</literal></entry>
   <entry>foreign address <emphasis>(Platform dependent: &unix;,
-    &win32;, &amiga; platforms only.)</emphasis></entry></row>
+    &win32; platforms only.)</emphasis></entry></row>
  <row><entry><literal>#&lt;&foreign-variable;
     &name-r; #x...&gt;</literal></entry>
   <entry>foreign variable <emphasis>(Platform dependent: &unix;,
-    &win32;, &amiga; platforms only.)</emphasis></entry></row>
+    &win32; platforms only.)</emphasis></entry></row>
  <row><entry><literal>#&lt;&foreign-function;
     &name-r; #x...&gt;</literal></entry>
   <entry>foreign function <emphasis>(Platform dependent: &unix;,
-    &win32;, &amiga; platforms only.)</emphasis></entry></row>
+    &win32; platforms only.)</emphasis></entry></row>
 <!-- #endif -->
  <row><entry><literal>#&lt;UNBOUND&gt;</literal></entry>
   <entry>"value" of a symbol without value, "value" of an unsupplied
@@ -4581,8 +4343,6 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <!-- #endif -->
 <row><entry><constant>:LOOP</constant></entry><entry/></row>
 <row><entry><constant>:CLOS</constant></entry><entry/></row>
-<row><entry><constant>:AMIGA</constant></entry>
- <entry>if &hw; = Amiga and &os; = Exec/AmigaDOS</entry></row>
 <row><entry><constant>:DOS</constant></entry>
  <entry>if &hw; = PC (clone) and &os; = DOS</entry></row>
 <row><entry><constant>:OS/2</constant></entry>
@@ -5010,7 +4770,7 @@ exhaust the available line length.</para></formalpara>
 
 <!-- #if !(defined(UNIX) || defined(WIN32)) -->
 <variablelist id="default-tz">
-<varlistentry><term>Platform dependent: &amiga;, &dos;, &os2;
+<varlistentry><term>Platform dependent: &dos;, &os2;
   platforms only.</term>
  <listitem><simpara>The variable <firstterm>&default-tz;</firstterm>
    contains the default time zone used by &encode-universal-time; and
@@ -5028,8 +4788,7 @@ exhaust the available line length.</para></formalpara>
  <title>Time granularity</title>
  <tgroup cols="5" colsep="1" rowsep="1" align="center">
  <thead><row><entry>platform</entry><entry>&dos;, &os2;</entry>
-        <entry>&amiga;</entry><entry>&unix;</entry>
-        <entry>&win32;</entry></row></thead><tbody>
+        <entry>&unix;</entry><entry>&win32;</entry></row></thead><tbody>
  <row><entry>&internal-time-units-per-second;</entry><entry>100</entry>
   <entry>50</entry><entry>1,000,000</entry><entry>10,000,000</entry></row>
 </tbody></tgroup></table>
@@ -5054,7 +4813,7 @@ exhaust the available line length.</para></formalpara>
    The default implementations try to read the registry.
 </simpara></listitem></varlistentry>
 <!-- #else -->
-<varlistentry><term>Platform dependent: &amiga;, &dos;, &os2;
+<varlistentry><term>Platform dependent: &dos;, &os2;
   platforms only.</term>
  <listitem><simpara>The functions &machine-type;, &machine-version;,
    &machine-instance; and &short-site-name;, &long-site-name; should be

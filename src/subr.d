@@ -717,9 +717,6 @@ LISPFUNNR(file_author,1)
 #if defined(UNIX) || defined(MSDOS)
 LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
 #endif
-#if defined(AMIGAOS)
-LISPFUN(execute,seclass_default,1,0,norest,nokey,0,NIL)
-#endif
 #ifdef HAVE_SHELL
 #ifdef WIN32_NATIVE
 LISPFUNN(shell_name,0)
@@ -993,9 +990,6 @@ LISPFUNN(window_cursor_on,1)
 LISPFUNN(window_cursor_off,1)
 #endif
 LISPFUNNF(file_stream_p,1)
-#ifdef PRINTER_AMIGAOS
-LISPFUNN(make_printer_stream,0)
-#endif
 #ifdef PIPES
 LISPFUN(make_pipe_input_stream,seclass_default,1,0,norest,key,3,
         (kw(element_type),kw(external_format),kw(buffered)) )
@@ -1217,11 +1211,11 @@ LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
 LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
 LISPFUNN(lookup_foreign_function,2)
 LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL)
-#if defined(AMIGAOS) || defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
+#if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
 LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUNN(foreign_library_variable,4)
 LISPFUNN(foreign_library_function,4)
-#endif  /* AMIGAOS || WIN32_NATIVE || HAVE_DLOPEN */
+#endif  /* WIN32_NATIVE || HAVE_DLOPEN */
 #endif  /* DYNAMIC_FFI */
 #ifdef HAVE_AFFI
 LISPFUN(affi_libcall,seclass_default,2,0,rest,nokey,0,NIL)
