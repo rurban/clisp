@@ -1,28 +1,27 @@
-# -*- sh -*-
 # CLISP .gdbinit
 set language c
 
 define base
-       file lisp.run
-       set args -B . -M lispinit.mem -q -norc
+  file lisp.run
+  set args -B . -M lispinit.mem -q -norc
 end
 document base
          debug the base linking set
 end
 
 define full
-       file full/lisp.run
-       set args -B . -M full/lispinit.mem -q -norc -i clx/new-clx/demos/clx-demos -p CLX-DEMOS
-       break my_type_error
-       break closed_display_error
+  file full/lisp.run
+  set args -B . -M full/lispinit.mem -q -norc
+  break my_type_error
+  break closed_display_error
 end
 document full
          debug the full linking set
 end
 
 define interpreted
-       file lisp.run
-       set args -B . -M interpreted.mem -q -norc
+  file lisp.run
+  set args -B . -M interpreted.mem -q -norc
 end
 document interpreted
          debug the base linking set with the interpreted memory image
@@ -32,37 +31,37 @@ end
 base
 
 define zout
-       output object_out($arg0)
-       echo \n
+  output object_out($arg0)
+  echo \n
 end
 document zout
          print the specified object with PRIN1
 end
 
 define xout
-       output nobject_out(0,$arg0)
-       echo \n
+  output nobject_out(0,$arg0)
+  echo \n
 end
 document xout
          print the specified object with nobject_out()
 end
 
 define run_test
-       run -B . -M lispinit.mem -q -norc -C -i suite/tests.lisp -x "(run-test \"suite/$arg0.tst\")"
+  run -B . -M lispinit.mem -q -norc -C -i suite/tests.lisp -x "(run-test \"suite/$arg0.tst\")"
 end
 document run_test
          run the specified test in the test suite
 end
 
 define run_all_tests
-       run -B . -M lispinit.mem -q -norc -C -i suite/tests.lisp -x "(cd \"suite/\") (run-all-tests)"
+  run -B . -M lispinit.mem -q -norc -C -i suite/tests.lisp -x "(cd \"suite/\") (run-all-tests)"
 end
 document run_all_tests
          run the whole test suite
 end
 
 define ansi_tests
-       run -B . -M lispinit.mem -q -norc -ansi -x "(setq system::*disassemble-use-live-process* nil) (cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (time (regression-test:do-tests))"
+  run -B . -M lispinit.mem -q -norc -ansi -x "(setq system::*disassemble-use-live-process* nil) (cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (time (regression-test:do-tests))"
 end
 document ansi_tests
          run the gcl/ansi-test suite
@@ -70,22 +69,22 @@ end
 
 
 define stack
-       set $idx = $arg1
-       while $idx >= $arg0
-         echo ***** STACK_
-         output $idx
-         echo \ *****\n
-         output object_out(STACK[-1-$idx])
-         echo \n
-         set $idx = $idx-1
-       end
+  set $idx = $arg1
+  while $idx >= $arg0
+    echo ***** STACK_
+    output $idx
+    echo \ *****\n
+    output object_out(STACK[-1-$idx])
+    echo \n
+    set $idx = $idx-1
+  end
 end
 document stack
          print the section of STACK
 end
 
 define zbacktrace
-       p back_trace_out(0,0)
+  p back_trace_out(0,0)
 end
 document zbacktrace
          print the CLISP backtrace
