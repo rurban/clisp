@@ -476,7 +476,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 
 <para>It is &not-e; required that the superclasses of a class are
  defined before the &defclass; form for the class is evaluated.
- Use &amop; generic functions &class-finalized-p; to check whether the
+ Use &mop; generic functions &class-finalized-p; to check whether the
  class has been finalized and thus its instances can be created,
  and &finalize-inheritance; to force class finalization.</para>
 

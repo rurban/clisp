@@ -79,13 +79,13 @@ reference to the method with the signature shown above is written as:
 
 <section id="mop-package"><title>Package</title>
 
-<para>The package exporting the &amop; symbols is unspecified.</para>
+<para>The package exporting the &mop; symbols is unspecified.</para>
 
-<note>&clisp-only;<simpara>The symbols specified by the &amop; are
+<note>&clisp-only;<simpara>The symbols specified by the &mop; are
   exported from the package &clos-pac; and &re-export;ed by the package
   &ext-pac;.</simpara></note>
 
-<para>The package exporting the &amop; symbols is different in other
+<para>The package exporting the &mop; symbols is different in other
 implementations: In &sbcl; it is the package
  <quote role="package">SB-MOP</quote>;
 in &openmcl; it is the package
@@ -4197,7 +4197,7 @@ restrictions.</para>
  <returnvalue>(P X Y)</returnvalue>
 
 (&extract-lambda-list; '(a (b (eql x)) c &rest-amp; i))
- <returnvalue>(A B C &optional-amp; I)</returnvalue>
+ <returnvalue>(A B C &amp;OPTIONAL I)</returnvalue>
 </programlisting></informalexample></para></formalpara>
 </section><!-- extract-lambda-list -->
 
@@ -5473,7 +5473,7 @@ cache of the dependent when it is updated.</para>
 </itemizedlist>
 
 <itemizedlist id="mop-clisp-ext"><title>Extensions specific to &clisp;</title>
-<listitem><para>The &amop; is applicable to classes of type &structure-class;.
+<listitem><para>The &mop; is applicable to classes of type &structure-class;.
 The default superclass for &structure-class; instances is &structure-object-t;.
 Structure classes do not support multiple inheritance and reinitialization.
 See <xref linkend="mop-cl-init-mo"/>.</para></listitem>
