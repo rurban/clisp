@@ -1,5 +1,12 @@
 1999-07-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (low_clear_input_unbuffered_handle) [WIN32]: Set the
+          ignore_next_LF flag after eating a CR.
+          (clear_input_unbuffered) [WIN32]: Don't reset the ignore_next_LF
+          flag.
+
+1999-07-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * win32aux.d (interruptible_active): New variable.
           (temp_interrupt_handler): Query it and set it to FALSE.
           (DoInterruptible): Set it to TRUE only while the thread is running.
