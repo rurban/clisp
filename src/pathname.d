@@ -1345,11 +1345,13 @@ local bool legal_namechar (chart ch) {
 # singlewild_char_p(ch)
 # > chart ch: Character-Code
 # < ergebnis: true falls ja, false sonst
-  #if !defined(PATHNAME_RISCOS)
-    #define singlewild_char_p(ch)  chareq(ch,ascii('?'))
-  #else # defined(PATHNAME_RISCOS)
-    #define singlewild_char_p(ch)  (chareq(ch,ascii('?')) || chareq(ch,ascii('#')))
-  #endif
+#if !defined(PATHNAME_RISCOS)
+  #define singlewild_char_p(ch)  chareq(ch,ascii('?'))
+#else # defined(PATHNAME_RISCOS)
+  #define singlewild_char_p(ch)  (chareq(ch,ascii('?')) || chareq(ch,ascii('#')))
+#endif
+#define multiwild_char_p(ch)  chareq(ch,ascii('*'))
+#define wild_char_p(ch)   (multiwild_char_p(ch) || singlewild_char_p(ch))
 
 # Wandelt ein Objekt in einen Pathname um.
 local object coerce_xpathname (object obj); # später
@@ -2234,7 +2236,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                 if (z.count==0)
                   goto no_devicespec; # String schon zu Ende -> kein Device
                 ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
-                if (!(legal_namechar(ch) && !chareq(ch,ascii('*')) && !singlewild_char_p(ch)))
+                if (!(legal_namechar(ch) && !wild_char_p(ch)))
                   break;
                 # gültiges Character übergehen:
                 Z_SHIFT(z,1);
@@ -4114,7 +4116,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
             var const chart* ptr = &TheSstring(device)->data[0];
             dotimespL(count,count, {
               var chart ch = *ptr++;
-              if (!(legal_namechar(ch) && !chareq(ch,ascii('*')) && !singlewild_char_p(ch)))
+              if (!(legal_namechar(ch) && !wild_char_p(ch)))
                 goto device_not_ok;
             });
           }
@@ -4528,8 +4530,7 @@ local bool wild_p (object obj, bool dirp) {
       var const chart* charptr = &TheSstring(obj)->data[0];
       dotimespL(len,len, {
         var chart ch = *charptr++;
-        if (chareq(ch,ascii('*')) # Wildcard for many characters
-            || singlewild_char_p(ch)) # Wildcard for a single character
+        if (wild_char_p(ch))
           return true;
       });
     }
@@ -5014,22 +5015,22 @@ LISPFUNN(pathname_match_p,2)
 
   # Here you need not Lisp or C, but PROLOG!
   # (PUSH previous solutions)
-  #define push_solution()                    \
-    { var object new_cons = allocate_cons(); \
-      Car(new_cons) = *previous;             \
-      Cdr(new_cons) = *solutions;            \
-      *solutions = new_cons;                 \
-    }
+  #define push_solution()   do {                \
+      var object new_cons = allocate_cons();    \
+      Car(new_cons) = *previous;                \
+      Cdr(new_cons) = *solutions;               \
+      *solutions = new_cons;                    \
+    } while(0)
   # (PUSH (CONS new_piece previous) solutions)
-  #define push_solution_with(new_piece)                       \
-    { pushSTACK(new_piece);                                   \
-     {var object new_cons = allocate_cons();                  \
-      Car(new_cons) = STACK_0; Cdr(new_cons) = *previous;     \
-      STACK_0 = new_cons;                                     \
-      new_cons = allocate_cons();                             \
-      Car(new_cons) = popSTACK(); Cdr(new_cons) = *solutions; \
-      *solutions = new_cons;                                  \
-    }}
+  #define push_solution_with(new_piece)   do {                  \
+      pushSTACK(new_piece);                                     \
+     {var object new_cons = allocate_cons();                    \
+      Car(new_cons) = STACK_0; Cdr(new_cons) = *previous;       \
+      STACK_0 = new_cons;                                       \
+      new_cons = allocate_cons();                               \
+      Car(new_cons) = popSTACK(); Cdr(new_cons) = *solutions;   \
+      *solutions = new_cons;                                    \
+    }} while(0)
 
 #if defined(PATHNAME_NOEXT) || defined(LOGICAL_PATHNAMES)
 
@@ -5050,7 +5051,7 @@ local void wildcard_diff_ab (object muster, object beispiel,
     if (b_index == Sstring_length(beispiel))
       return;
     if (chareq(c,ascii('?'))) {
-    # recursive call to wildcard_diff_ab(), with extended previous:
+      # recursive call to wildcard_diff_ab(), with extended previous:
       c = TheSstring(beispiel)->data[b_index++];
       pushSTACK(muster); pushSTACK(beispiel);
       {
@@ -5190,9 +5191,9 @@ local void device_diff (object muster, object beispiel, bool logical,
  #else
   if (!equal(muster,beispiel)) return;
  #endif
-      push_solution_with(S(Kdevice));
+  push_solution_with(S(Kdevice));
 #else # if HAS_DEVICE
-      push_solution();
+  push_solution();
 #endif
 }
 local void nametype_diff_aux (object muster, object beispiel, bool logical,
@@ -5231,11 +5232,10 @@ local void subdir_diff (object muster, object beispiel, bool logical,
                         const object* previous, object* solutions) {
   DEBUG_DIFF(subdir_diff);
   if (eq(muster,beispiel)) {
-    if (eq(beispiel,S(Kwild))) {
+    if (eq(beispiel,S(Kwild)))
       push_solution_with(O(wild_string));
-    } else {
+    else
       push_solution();
-    }
     return;
   }
 #ifdef LOGICAL_PATHNAMES
