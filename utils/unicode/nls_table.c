@@ -148,7 +148,7 @@ int main (int argc, char *argv[])
       if (pages[p])
         fprintf(f, "#undef page%02x\n", p);
     fprintf(f, "\n");
-    fprintf(f, "struct nls_table nls_%s_table = {\n", c_charsetname);
+    fprintf(f, "struct nls_table_t nls_%s_table = {\n", c_charsetname);
     fprintf(f, "  \"%s\",\n", charsetname);
     fprintf(f, "  uni2charset,\n");
     fprintf(f, "  charset2uni,\n");

@@ -4,6 +4,8 @@
 	* spvw_debug.d (hex_table): const
 	* spvw_memfile.d (memflags): const
 	* stream.d (vktable, attr_table): const
+	* encoding.d, utils/unicode/nls_table.c:
+	renamed nls_table to nls_table_t
 
 2003-02-17  Sam Steingold  <sds@gnu.org>
 
