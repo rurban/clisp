@@ -6,10 +6,15 @@
 
 ;; a legitimate option is to keep the `compiler-macro' definition of the
 ;; symbol in a global hash-table instead of the `symbol-plist'.
-;; the reason is that
-;; * this performance issue is related only to compilation speed,
-;;   not execution speed
+;; the reason we use plists is that
+;; * this performance issue is related only to the compilation speed,
+;;   not the execution speed
 ;; * the plists are actually quite short:
+;;   [non-standard functions & macros used in this snippet are in CLOCC:
+;;    compose:            <http://clocc.sf.net/clocc/src/port/ext.lisp>
+;;    standard-deviation: <http://clocc.sf.net/clocc/src/cllib/math.lisp>
+;;    top-bottom-ui:      <http://clocc.sf.net/clocc/src/cllib/sorted.lisp>
+;;    CLOCC is available at <http://clocc.sf.net>]
 ;; (let ((al nil)
 ;;       (acc (compose length symbol-plist)))
 ;;   (do-all-symbols (sy) (push sy al))
@@ -32,27 +37,27 @@
 ;;   5: dir-key-info-type   ==> 10
 ;; also, compiler macros are probably not used often anyway.
 ;; At any rate, if someone will want to switch to a global hash-table,
-;; one needs to change only the following two functions.
+;; one needs to change only the following two functions:
+;;    compiler-macro-function and
+;;    (setf compiler-macro-function)
 
 (defun compiler-macro-function (name &optional environment)
   (declare (ignore environment))
   (cond ((symbolp name) (get name 'compiler-macro))
         ((function-name-p name) ; (setf name)
          (get (second name) 'compiler-macro-setf))
-        (t (error-of-type
-            'source-program-error
-            (ENGLISH "~S: function name should be a symbol, not ~S")
-            'compiler-macro-function name))))
+        (t (error-of-type 'source-program-error
+             (ENGLISH "~S: function name should be a symbol, not ~S")
+             'compiler-macro-function name))))
 
 (defun (setf compiler-macro-function) (newf name &optional environment)
   (declare (ignore environment))
   (cond ((symbolp name) (setf (get name 'compiler-macro) newf))
         ((function-name-p name) ; (setf name)
          (setf (get (second name) 'compiler-macro-setf) newf))
-        (t (error-of-type
-            'source-program-error
-            (ENGLISH "~S: function name should be a symbol, not ~S")
-            'compiler-macro-function name))))
+        (t (error-of-type 'source-program-error
+             (ENGLISH "~S: function name should be a symbol, not ~S")
+             'compiler-macro-function name))))
 
 ;; (proclaim '(inline function-form-funform simple-function-form-p))
 
