@@ -53,7 +53,8 @@ array-total-size-limit internal-time-units-per-second
 *compile-verbose* *compile-print* *compile-file-pathname*
 *compile-file-truename* *features*
 ;; Funktionen:
-coerce type-of upgraded-array-element-type typep subtypep null symbolp
+coerce type-of upgraded-array-element-type upgraded-complex-part-type
+typep subtypep null symbolp
 atom consp listp numberp integerp rationalp floatp realp complexp characterp
 stringp bit-vector-p vectorp simple-vector-p simple-string-p
 simple-bit-vector-p arrayp packagep functionp compiled-function-p eq
