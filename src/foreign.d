@@ -17,12 +17,36 @@
 #include "amiga2.c"      /* declares OpenLibrary(), CloseLibrary() */
 #endif
 
-/* Complain about an invalid foreign pointer.
- fehler_fpointer_invalid(obj);
- > obj: invalid Fpointer */
-nonreturning_function(local, fehler_fpointer_invalid, (object obj)) {
-  pushSTACK(obj);
-  fehler(error,GETTEXT("~ comes from a previous Lisp session and is invalid"));
+/* check that the argument is a valid foreign pointer.
+ check_fpointer(obj);
+ > obj: object
+ > restart_p: allow entering a new value
+ < a valid foreign pointer
+ can trigger GC */
+global object check_fpointer (object obj, bool restart_p) {
+ check_fpointer_restart:
+  if (!fpointerp(obj)) {
+    pushSTACK(NIL);                /* no PLACE */
+    pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(foreign_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(foreign_pointer)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    if (restart_p)
+      check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    else fehler(type_error,GETTEXT("~: ~ is not a ~"));
+    obj = value1;
+    goto check_fpointer_restart;
+  }
+  if (!fp_validp(TheFpointer(obj))) {
+    pushSTACK(NIL);                /* no PLACE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    if (restart_p)
+      check_value(error,GETTEXT("~: ~ comes from a previous Lisp session and is invalid"));
+    else fehler(error,GETTEXT("~: ~ comes from a previous Lisp session and is invalid"));
+    obj = value1;
+    goto check_fpointer_restart;
+  }
+  return obj;
 }
 
 /* complain about non-foreign object */
@@ -135,19 +159,11 @@ LISPFUNN(set_foreign_pointer,2)
     TheFaddress(faddr)->fa_base =
       allocate_fpointer(TheFpointer(TheFaddress(faddr)->fa_base)->fp_pointer);
     VALUES1(S(Kcopy));
-  } else if (!fpointerp(new_fp)) {
-    pushSTACK(new_fp);          /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(foreign_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(foreign_pointer)); pushSTACK(new_fp);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: argument ~ should be of type ~"));
-  } else if (!fp_validp(TheFpointer(new_fp))) {
-    fehler_fpointer_invalid(new_fp);
   } else {
-    var sintP offset =
-      (uintP)Faddress_value(faddr) - (uintP)Fpointer_value(new_fp);
+    new_fp = check_fpointer(new_fp,true);
     TheFaddress(faddr)->fa_base = new_fp;
-    TheFaddress(faddr)->fa_offset = offset;
+    TheFaddress(faddr)->fa_offset =
+      (uintP)Faddress_value(faddr) - (uintP)Fpointer_value(new_fp);
     VALUES1(new_fp);
   }
   skipSTACK(2);
@@ -3754,7 +3770,7 @@ global void validate_fpointer (object obj)
       return;
     }
   }
-  fehler_fpointer_invalid(obj);
+  check_fpointer(obj,false);
 }
 
 local object check_library (object obj)
@@ -3870,7 +3886,7 @@ LISPFUNN(foreign_library_function,4)
  validate_fpointer(obj); */
 global void validate_fpointer (object obj)
 { /* Can't do anything. */
-  fehler_fpointer_invalid(obj);
+  check_fpointer(obj,false);
 }
 
 #endif
