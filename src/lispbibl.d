@@ -6619,24 +6619,6 @@ typedef struct {
   extern void convert_time (const FILETIME* time, decoded_time* timepoint);
 #endif
 
-#ifdef TIME_RELATIVE
-
-# UP: Merkt sich die Uhrzeit beim LISP-System-Start.
-# set_start_time(&timepoint);
-# > timepoint: Zeit beim LISP-System-Start
-# >   timepoint.Sekunden in {0,...,59},
-# >   timepoint.Minuten in {0,...,59},
-# >   timepoint.Stunden in {0,...,23},
-# >   timepoint.Tag in {1,...,31},
-# >   timepoint.Monat in {1,...,12},
-# >   timepoint.Jahr in {1980,...,2999},
-# >   jeweils als Fixnums.
-# can trigger GC
-  extern void set_start_time (const decoded_time* timepoint);
-# wird verwendet von SPVW
-
-#endif
-
 # UP: Initialisiert die Zeitvariablen beim LISP-System-Start.
 # init_time();
   extern void init_time (void);
