@@ -252,7 +252,7 @@
     { if (R_minusp(z))
         # z<0 -> Vorzeichen ausgeben:
         { pushSTACK(z);
-          write_schar(stream_,'-');
+          write_ascii_char(stream_,'-');
           z = I_minus_I(popSTACK());
         }
      { SAVE_NUM_STACK # num_stack retten
@@ -267,7 +267,7 @@
        if (write_char_array(*stream_,erg.MSBptr,erg.len) == NULL)
          { var uintB* ptr = erg.MSBptr;
            var uintL count;
-           dotimespL(count,erg.len, { write_schar(stream_,*ptr++); } );
+           dotimespL(count,erg.len, { write_code_char(stream_,*ptr++); } );
          }
        FREE_DYNAMIC_ARRAY(ziffern);
        RESTORE_NUM_STACK # num_stack zurück
@@ -296,9 +296,9 @@
           F_integer_decode_float_I_I_I(z);
           # Stackaufbau: z, m, e, s.
           # Vorzeichen ausgeben, falls <0:
-          if (eq(STACK_0,Fixnum_minus1)) { write_schar(stream_,'-'); }
+          if (eq(STACK_0,Fixnum_minus1)) { write_ascii_char(stream_,'-'); }
           # Mantisse binär(!) ausgeben:
-          write_schar(stream_,'.');
+          write_ascii_char(stream_,'.');
           print_integer(STACK_2,2,stream_);
           # Exponent-Marker ausgeben:
           {var object exp_marker;

@@ -258,8 +258,8 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
             prin1(&STACK_(1+2),Car(valsr)); # nächsten Wert ausgeben
             # ';' als Trennzeichen vorm Zeilenende:
             if (matomp(STACK_0)) break;
-            write_schar(&STACK_(1+2),' ');
-            write_schar(&STACK_(1+2),';');
+            write_ascii_char(&STACK_(1+2),' ');
+            write_ascii_char(&STACK_(1+2),';');
       }   }
     #else
     # unnötige Leerzeile zwischen Input und Output vermeiden:
@@ -278,8 +278,8 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
             prin1(&STACK_(1+2),Car(valsr)); # nächsten Wert ausgeben
             # ';' als Trennzeichen vorm Zeilenende:
             if (matomp(STACK_0)) break;
-            write_schar(&STACK_(1+2),' ');
-            write_schar(&STACK_(1+2),';');
+            write_ascii_char(&STACK_(1+2),' ');
+            write_ascii_char(&STACK_(1+2),';');
             terpri(&STACK_(1+2));
       }   }
     #endif
@@ -974,17 +974,17 @@ LISPFUNN(return_from_eval_frame,2)
                 write_sstring(stream_,OLS(showstack_string_APPLY_frame)); # "¿APPLY-Frame für Aufruf "
               APPLY_frame:
                 # Funktionsnamen und Argumente ausgeben:
-                write_schar(stream_,'('); # '(' ausgeben
+                write_ascii_char(stream_,'('); # '(' ausgeben
                 prin1(stream_,TheIclosure(FRAME_(frame_closure))->clos_name); # Namen ausgeben
                 { var object* argptr = FRAME_top;
                   var uintL count = STACK_item_count(FRAME STACKop frame_args,FRAME_top);
                   dotimesL(count,count,
-                    { write_schar(stream_,' '); # ' ' ausgeben
-                      write_schar(stream_,'\''); # "'" ausgeben
+                    { write_ascii_char(stream_,' '); # ' ' ausgeben
+                      write_ascii_char(stream_,'\''); # "'" ausgeben
                       prin1(stream_,NEXT(argptr)); # nächstes Argument ausgeben
                     });
                 }
-                write_schar(stream_,')'); # ')' ausgeben
+                write_ascii_char(stream_,')'); # ')' ausgeben
                 break;
               case TRAPPED_EVAL_frame_info:
                 # getrapte EVAL-Frames:
@@ -1004,8 +1004,8 @@ LISPFUNN(return_from_eval_frame,2)
                 until (FRAME==FRAME_top)
                   { # Bindung von Symbol FRAME_(0) an Wert FRAME_(1) ausgeben:
                     write_sstring(stream_,O(showstack_string_bindung)); # "¿  | "
-                    write_schar(stream_,'~'); # '~' ausgeben
-                    write_schar(stream_,' '); # ' ' ausgeben
+                    write_ascii_char(stream_,'~'); # '~' ausgeben
+                    write_ascii_char(stream_,' '); # ' ' ausgeben
                     prin1(stream_,FRAME_(0)); # Symbol ausgeben
                     write_sstring(stream_,O(showstack_string_zuord)); # " <--> "
                     prin1(stream_,FRAME_(1)); # Wert ausgeben
@@ -1032,8 +1032,8 @@ LISPFUNN(return_from_eval_frame,2)
                       # Bindung von Symbol FRAME_(1) an Wert FRAME_(2) ausgeben:
                       { write_sstring(stream_,O(showstack_string_bindung)); # "¿  | "
                         if (!( (as_oint(FRAME_(varframe_binding_mark)) & wbit(dynam_bit_o)) ==0)) # Bindung dynamisch?
-                          { write_schar(stream_,'~'); } # ja -> '~' ausgeben
-                        write_schar(stream_,' '); # ' ' ausgeben
+                          { write_ascii_char(stream_,'~'); } # ja -> '~' ausgeben
+                        write_ascii_char(stream_,' '); # ' ' ausgeben
                         prin1(stream_,symbol_without_flags(FRAME_(varframe_binding_sym))); # Symbol ausgeben
                         write_sstring(stream_,O(showstack_string_zuord)); # " <--> "
                         prin1(stream_,FRAME_(varframe_binding_value)); # Wert ausgeben
@@ -1058,8 +1058,8 @@ LISPFUNN(return_from_eval_frame,2)
                       # Bindung von Symbol FRAME_(0) an Wert FRAME_(1) ausgeben:
                       { write_sstring(stream_,O(showstack_string_bindung)); # "¿  | "
                         if (!( (as_oint(FRAME_(0)) & wbit(dynam_bit_o)) ==0)) # Bindung dynamisch?
-                          { write_schar(stream_,'~'); } # ja -> '~' ausgeben
-                        write_schar(stream_,' '); # ' ' ausgeben
+                          { write_ascii_char(stream_,'~'); } # ja -> '~' ausgeben
+                        write_ascii_char(stream_,' '); # ' ' ausgeben
                         prin1(stream_,symbol_without_flags(FRAME_(0))); # Symbol ausgeben
                         write_sstring(stream_,O(showstack_string_zuord)); # " <--> "
                         prin1(stream_,FRAME_(1)); # Wert ausgeben
@@ -1172,7 +1172,7 @@ LISPFUNN(return_from_eval_frame,2)
                 write_sstring(stream_,OLS(showstack_string_HANDLER_frame)); # "¿Handler-Frame für Conditions"
                 { var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); # 2*m
                   var uintL i = 0;
-                  do { write_schar(stream_,' '); # ' ' ausgeben
+                  do { write_ascii_char(stream_,' '); # ' ' ausgeben
                        prin1(stream_,TheSvector(Car(FRAME_(frame_handlers)))->data[i]); # Typ i ausgeben
                        i += 2;
                      }

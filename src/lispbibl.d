@@ -10775,7 +10775,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < stream: Stream
 # kann GC auslösen
   # extern void terpri (const object* stream_);
-  #define terpri(stream_)  write_schar(stream_,NL)
+  #define terpri(stream_)  write_ascii_char(stream_,NL)
 # wird verwendet von IO, DEBUG, PACKAGE, ERROR, SPVW
 
 # ####################### LISTBIBL zu LIST.D ############################## #
@@ -11352,13 +11352,24 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   extern void write_char (const object* stream_, object ch);
 # wird verwendet von LISPARIT, IO, ERROR, SEQUENCE
 
-# Schreibt ein festes Standard-Char auf einen Stream.
-# write_schar(&stream,ch);
+# Schreibt ein Character auf einen Stream.
+# write_code_char(&stream,ch);
+# > ch: a character
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  # extern void write_schar (const object* stream_, uintB ch);
-  #define write_schar(stream_,ch)  write_char(stream_,code_char(ch))
+  # extern void write_code_char (const object* stream_, chart ch);
+  #define write_code_char(stream_,ch)  write_char(stream_,code_char(ch))
+# wird verwendet von LISPARIT, IO
+
+# Schreibt ein festes Standard-Char auf einen Stream.
+# write_ascii_char(&stream,ch);
+# > ch: a standard char, in ASCII encoding
+# > stream: Stream
+# < stream: Stream
+# kann GC auslösen
+  # extern void write_ascii_char (const object* stream_, uintB ch);
+  #define write_ascii_char(stream_,ch)  write_char(stream_,code_char(ch))
 # wird verwendet von LISPARIT, IO, DEBUG, Macro TERPRI
 
 # UP: Stellt fest, ob ein Stream "interaktiv" ist, d.h. ob Input vom Stream

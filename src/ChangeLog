@@ -1,3 +1,13 @@
+1999-01-10  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d: (write_schar): Remove.
+          (write_code_char, write_ascii_char): New macros.
+        * debug.d: Update all callers of write_schar.
+        * error.d: Likewise.
+        * eval.d: Likewise.
+        * io.d: Likewise.
+        * lisparit.d: Likewise.
+
 1999-01-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (string_to_asciz, TheAsciz): ASCIZ strings are now
