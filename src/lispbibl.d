@@ -8001,7 +8001,9 @@ All other long words on the LISP-Stack are LISP-objects.
   extern_C void setSP (void* adresse);
 #else
   # access function portable in C
-  extern void* SP (void);
+  #define SP()  getSP()
+  extern void* getSP (void);
+  #define NEED_OWN_GETSP
 #endif
 #if defined(stack_grows_down) # defined(MC680X0) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || ...
   #define SP_DOWN # SP grows downward
