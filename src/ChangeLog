@@ -1,5 +1,10 @@
 2002-08-01  Sam Steingold  <sds@gnu.org>
 
+	* type.lisp (COMPLEX): use UPGRADED-COMPLEX-PART-TYPE,
+	just like VECTOR uses UPGRADED-ARRAY-ELEMENT-TYPE
+
+2002-08-01  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (DISTFILE): strip parens from OS version for cygwin
 
 2002-08-01  Sam Steingold  <sds@gnu.org>
