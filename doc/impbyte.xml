@@ -835,7 +835,8 @@ letters:
              number of objects from the &STACK;.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &STACK; := *(&SP;+&k-r;),
-             &SP; := &SP;+&k-r;+1</entry></row>
+             &SP; := &SP;+&k-r;+1,
+             &STACK; := &STACK; + &n-r;</entry></row>
  <row><entry><literal role="sexp">(SKIPSP &k1-r; &k2-r;)</literal></entry>
       <entry>Restore a previous &SP; pointer.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
