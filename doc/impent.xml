@@ -134,6 +134,7 @@
 <!ENTITY encoding "<link linkend='encoding'><classname>EXT:ENCODING</classname></link>">
 <!ENTITY enc-built-in "<link linkend='charset-symbols'>built-in</link>"> <!-- encoding -->
 <!ENTITY ethe "<link linkend='ethe'><function>EXT:ETHE</function></link>">
+<!ENTITY getenv "<link linkend='getenv'><function>EXT:GETENV</function></link>">
 <!ENTITY make-encoding "<link linkend='make-encoding'><function>EXT:MAKE-ENCODING</function></link>">
 <!ENTITY enc-charset "<link linkend='enc-charset'><function>EXT:ENCODING-CHARSET</function></link>">
 <!ENTITY def-file-enc "<link linkend='def-file-enc'><varname>CUSTOM:*DEFAULT-FILE-ENCODING*</varname></link>">
