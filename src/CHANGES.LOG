@@ -14,6 +14,10 @@ User visible changes
 * Implemented ANSI CL function INSPECT,
   and a function LISP:CLHS for access of Common Lisp HyperSpec.
 
+* ANSI CL compliance: When an end-of-stream occurs, READ, READ-CHAR, PEEK-CHAR,
+  READ-CHAR-NO-HANG, READ-LINE, called with arguments eof-error-p = NIL and
+  without eof-value, now return NIL instead of #<END OF FILE>.
+
 * Fixed a bug: A garbage collection during the execution of a foreign function
   callback caused a crash.
 

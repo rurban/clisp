@@ -1,5 +1,5 @@
 # Ein-/Ausgabe für CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 # Marcus Daniels 11.3.1997
 
 #include "lispbibl.c"
@@ -4788,7 +4788,7 @@ LISPFUNN(unix_executable_reader,3) # liest #!
         # EOF verarzten:
         var object eofval = STACK_1;
         if (eq(eofval,unbound))
-          eofval = eof_value; # Default ist #<EOF>
+          eofval = NIL; # Default ist NIL
         value1 = eofval; mv_count=1; skipSTACK(4); # eofval als Wert
       }
     }
