@@ -273,51 +273,118 @@ and with the next-method support."
                        `(MACROLET ,macrodefs
                           ,effective-method-form)))
                  (when combination-arguments-lambda-list
-                   (let ((whole-binding nil))
+                   ;; Use an inline lambda to assign values to the variables
+                   ;; of the combination-arguments-lambda-list.
+                   (let ((whole-var nil)
+                         (whole-form nil))
                      (when (eq (first combination-arguments-lambda-list) '&WHOLE)
-                       (setq whole-binding
-                             (list (second combination-arguments-lambda-list)
-                                   (list* (ecase apply-fun
-                                            (APPLY 'LIST*)
-                                            (FUNCALL 'LIST))
-                                          apply-args)))
+                       (setq whole-var (second combination-arguments-lambda-list))
+                       (setq whole-form (list* (ecase apply-fun
+                                                 (APPLY 'LIST*)
+                                                 (FUNCALL 'LIST))
+                                               apply-args))
                        (setq combination-arguments-lambda-list
                              (cddr combination-arguments-lambda-list)))
-                     (analyze-lambdalist combination-arguments-lambda-list
-                       #'(lambda (errorstring &rest arguments)
-                           (error (TEXT "In ~S ~S lambda list: ~A")
-                                  combination ':arguments
-                                  (apply #'format nil errorstring arguments))))
-                     ;; Since excess required arguments in the
-                     ;; combination-arguments-lambda-list must be bound to nil
-                     ;; when the generic function has less required arguments,
-                     ;; they are effectively optional arguments.
-                     (setq combination-arguments-lambda-list
-                           (remove '&OPTIONAL combination-arguments-lambda-list))
-                     (unless (memq (first combination-arguments-lambda-list)
-                                   lambda-list-keywords)
-                       (setq combination-arguments-lambda-list
-                             (cons '&OPTIONAL combination-arguments-lambda-list)))
-                     ;; The combination-arguments-lambda-list has an implicit
-                     ;; &ALLOW-OTHER-KEYS.
-                     (when (and (memq '&KEY combination-arguments-lambda-list)
-                                (not (memq '&ALLOW-OTHER-KEYS combination-arguments-lambda-list)))
-                       (let ((i (or (position '&AUX combination-arguments-lambda-list)
-                                    (length combination-arguments-lambda-list))))
-                         (setq combination-arguments-lambda-list
-                               (append (subseq combination-arguments-lambda-list 0 i)
-                                       '(&ALLOW-OTHER-KEYS)
-                                       (subseq combination-arguments-lambda-list i)))))
-                     (setq wrapped-ef-form
-                           (if whole-binding
-                             `(,apply-fun #'(LAMBDA ,(cons (first whole-binding) combination-arguments-lambda-list)
-                                              ,@declarations
-                                              ,wrapped-ef-form)
-                                          ,(second whole-binding) ,@apply-args)
-                             `(,apply-fun #'(LAMBDA ,combination-arguments-lambda-list
-                                              ,@declarations
-                                              ,wrapped-ef-form)
-                                          ,@apply-args)))))
+                     (multiple-value-bind (reqvars optvars optinits optsvars rest
+                                           keyp keywords keyvars keyinits keysvars
+                                           allowp auxvars auxinits)
+                         (analyze-lambdalist combination-arguments-lambda-list
+                           #'(lambda (errorstring &rest arguments)
+                               (error (TEXT "In ~S ~S lambda list: ~A")
+                                      combination ':arguments
+                                      (apply #'format nil errorstring arguments))))
+                       (declare (ignore optinits optsvars 
+                                        keywords keyvars keyinits keysvars
+                                        allowp auxvars auxinits))
+                       ;; The combination-arguments-lambda-list has an implicit
+                       ;; &ALLOW-OTHER-KEYS.
+                       (when (and (memq '&KEY combination-arguments-lambda-list)
+                                  (not (memq '&ALLOW-OTHER-KEYS combination-arguments-lambda-list)))
+                         (let ((i (or (position '&AUX combination-arguments-lambda-list)
+                                      (length combination-arguments-lambda-list))))
+                           (setq combination-arguments-lambda-list
+                                 (append (subseq combination-arguments-lambda-list 0 i)
+                                         '(&ALLOW-OTHER-KEYS)
+                                         (subseq combination-arguments-lambda-list i)))))
+                       (let* ((ll-req-num (length reqvars))
+                              (ll-opt-num (length optvars))
+                              (signature (gf-signature generic-function))
+                              (gf-req-num (sig-req-num signature))
+                              (gf-opt-num (sig-opt-num signature)))
+                         ;; "If the section of the :arguments lambda-list is
+                         ;;  shorter, extra arguments are ignored."
+                         (when (< ll-req-num gf-req-num)
+                           (setq apply-args (append (subseq apply-args 0 ll-req-num)
+                                                    (subseq apply-args gf-req-num))))
+                         ;; "If the section of the :arguments lambda-list is
+                         ;;  longer, excess required parameters are bound to
+                         ;;  forms that evaluate to nil and excess optional
+                         ;;  parameters are bound to their initforms."
+                         (when (> ll-req-num gf-req-num)
+                           (setq apply-args (append (subseq apply-args 0 gf-req-num)
+                                                    (make-list (- ll-req-num gf-req-num)
+                                                               :initial-element 'NIL)
+                                                    (subseq apply-args gf-req-num))))
+                         ;; Now the required parameters section of apply-args
+                         ;; has length ll-req-num.
+                         ;; Likewise for the &optional section.
+                         (when (< ll-opt-num gf-opt-num)
+                           (let* ((has-&optional (eq (nth ll-req-num combination-arguments-lambda-list) '&OPTIONAL))
+                                  (i (+ ll-req-num (if has-&optional 1 0) ll-opt-num)))
+                             (setq combination-arguments-lambda-list
+                                   (append (subseq combination-arguments-lambda-list 0 i)
+                                           (if has-&optional '() '(&OPTIONAL))
+                                           (gensym-list (- gf-opt-num ll-opt-num))
+                                           (subseq combination-arguments-lambda-list i)))))
+                         (when (> ll-opt-num gf-opt-num)
+                           ;; In this case we have to split the one lambda into
+                           ;; two or three ones.
+                           ;; Outermost lambda: the required and present optional
+                           ;;                   variables.
+                           ;; Inner lambda: The missing optional variables.
+                           ;; Innermost lambda: The &rest/&key variables.
+                           (let ((combination-arguments-rest
+                                   (subseq combination-arguments-lambda-list (+ ll-req-num 1 ll-opt-num)))
+                                 (apply-args-rest (subseq apply-args ll-req-num)))
+                             (when (memq (first combination-arguments-rest) '(&REST &KEY))
+                               (setq wrapped-ef-form
+                                     `(,apply-fun #'(LAMBDA ,(append (if (> gf-opt-num 0) '(&OPTIONAL) '())
+                                                                     (gensym-list gf-opt-num)
+                                                                     combination-arguments-rest)
+                                                      ,@declarations
+                                                      ,wrapped-ef-form)
+                                                  ,@apply-args-rest))
+                               (setq combination-arguments-lambda-list
+                                     (subseq combination-arguments-lambda-list 0 (+ ll-req-num 1 ll-opt-num))))
+                             (setq wrapped-ef-form
+                                   `(FUNCALL #'(LAMBDA (&OPTIONAL ,@(subseq combination-arguments-lambda-list (+ ll-req-num 1 gf-opt-num)))
+                                                 ,@declarations
+                                                 ,wrapped-ef-form)))
+                             (setq combination-arguments-lambda-list
+                                   (subseq combination-arguments-lambda-list 0 (+ ll-req-num 1 gf-opt-num)))
+                             (when (memq (first combination-arguments-rest) '(&REST &KEY))
+                               (setq combination-arguments-lambda-list
+                                     (append combination-arguments-lambda-list `(&REST ,(gensym)))))))
+                         ;; When lambdalist has &rest or &key but combination-arguments-lambda-list
+                         ;; doesn't, add a dummy &rest variable to it.
+                         (when (and (eq apply-fun 'APPLY)
+                                    (not (or (not (eql rest 0)) keyp)))
+                           (let ((i (or (position '&AUX combination-arguments-lambda-list)
+                                        (length combination-arguments-lambda-list))))
+                             (setq combination-arguments-lambda-list
+                                   (append (subseq combination-arguments-lambda-list 0 i)
+                                           `(&REST ,(gensym))
+                                           (subseq combination-arguments-lambda-list i)))))
+                         ;; "&whole var can be placed first in the :arguments lambda-list."
+                         (when whole-form
+                           (setq combination-arguments-lambda-list
+                                 (cons whole-var combination-arguments-lambda-list))
+                           (setq apply-args (cons whole-form apply-args)))
+                         (setq wrapped-ef-form
+                               `(,apply-fun #'(LAMBDA ,combination-arguments-lambda-list
+                                                ,@declarations
+                                                ,wrapped-ef-form)
+                                            ,@apply-args))))))
                  `#'(LAMBDA ,lambdalist
                       ,@declarations
                       ,@firstforms
