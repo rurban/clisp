@@ -9655,7 +9655,7 @@ This step works on the code-list and changes is destructively.
                  ;; replaces the next length elements
                  ;; (nth 0 middle) ... (nth (- length 1) middle)
                  ;; by one single element new-code.
-                 (check-type length (INTEGER 0 4))
+                 (assert (typep length '(INTEGER 0 4)))
                  `(progn
                     ,(case length
                        (0 `(setf (cdr middle)
