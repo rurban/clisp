@@ -1,3 +1,12 @@
+2004-12-18  Bruno Haible  <bruno@clisp.org>
+
+	* places.lisp (get-setf-method, push, pop, psetf, pushnew, remf,
+	rotatef, define-modify-macro, setf, shiftf, getf, char-bit, ldb,
+	mask-field, the, apply, progn, locally, if, values, setf-VALUES-aux,
+	multiple-value-setf): Use reasonable variable names.
+	* condition.lisp (assert): Likewise.
+	* macros3.lisp (expand-LETF*, expand-LETF): Likewise.
+
 2004-12-20  Sam Steingold  <sds@gnu.org>
 
 	* exporting.lisp ("EXPORTING"): removed XP nickname because it is

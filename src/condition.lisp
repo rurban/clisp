@@ -1191,23 +1191,23 @@
                   `("~A" (ASSERT-ERROR-STRING ',test-form))))
            ;; only one restart: CONTINUE
            (CONTINUE
-               :REPORT ,reporter
-               :INTERACTIVE ,(if place-list
-                                 'assert-restart-prompt
-                                 'assert-restart-no-prompts)
-               ,@(do ((pl place-list (cdr pl))
-                      (all-setter-vars '())
-                      (all-setter-forms '()))
-                     ((endp pl)
-                      (cons (nreverse all-setter-vars)
-                            (nreverse all-setter-forms)))
-                     (multiple-value-bind (vr vl sv se ge)
-                         (get-setf-expansion (car pl))
-                       (declare (ignore ge))
-                       (setq all-setter-vars
-                             (revappend sv all-setter-vars))
-                       (push `(LET* ,(mapcar #'list vr vl) ,se)
-                             all-setter-forms)))))
+             :REPORT ,reporter
+             :INTERACTIVE ,(if place-list
+                             'assert-restart-prompt
+                             'assert-restart-no-prompts)
+             ,@(do ((pl place-list (cdr pl))
+                    (all-setter-vars '())
+                    (all-setter-forms '()))
+                   ((endp pl)
+                    (cons (nreverse all-setter-vars)
+                          (nreverse all-setter-forms)))
+                 (multiple-value-bind (temps subforms stores setterform getterform)
+                     (get-setf-expansion (car pl))
+                   (declare (ignore getterform))
+                   (setq all-setter-vars
+                         (revappend stores all-setter-vars))
+                   (push `(LET* ,(mapcar #'list temps subforms) ,setterform)
+                         all-setter-forms)))))
          (GO ,tag1)
          ,tag2))))
 
