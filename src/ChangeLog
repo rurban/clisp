@@ -1,5 +1,10 @@
 2003-09-29  Sam Steingold  <sds@gnu.org>
 
+	* foreign.d (update_library): avoid an infinite loop
+	Reported by Roland Averkamp <roland.averkamp@gmx.de>
+
+2003-09-29  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d (init_dependent_encodings): use ASCII for
 	*FOREIGN-ENCODING* when argv_encoding_foreign is not 1:1
 	Reported by Douglas Philips <dgou@mac.com>
