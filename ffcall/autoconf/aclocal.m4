@@ -1,4 +1,4 @@
-# generated automatically by aclocal 1.9.2 -*- Autoconf -*-
+# generated automatically by aclocal 1.9.4 -*- Autoconf -*-
 
 # Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004
 # Free Software Foundation, Inc.
@@ -28,6 +28,7 @@ m4_include([../m4/longlong.m4])
 m4_include([../m4/mach-vm.m4])
 m4_include([../m4/mmap.m4])
 m4_include([../m4/mprotect.m4])
+m4_include([../m4/nocrash.m4])
 m4_include([../m4/openflags.m4])
 m4_include([../m4/proto.m4])
 m4_include([../m4/ranlib.m4])
