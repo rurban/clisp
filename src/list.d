@@ -517,15 +517,15 @@ local bool tree_equal (const object* stackptr, up2_function_t up2_fun,
 }
 
 LISPFUN(tree_equal,2,0,norest,key,2, (kw(test),kw(test_not)) )
-  # (TREE-EQUAL x y :test :test-not), CLTL S. 264
-  {
-    var object* stackptr = &STACK_0;
-    var up2_function_t up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente überprüfen
-    VALUES_IF(tree_equal(stackptr,up2_fun,STACK_3,STACK_2));
-    skipSTACK(4);
-  }
+{ /* (TREE-EQUAL x y :test :test-not), CLTL p. 264 */
+  var object* stackptr = &STACK_0;
+  /* check :TEST/:TEST-NOT arguments: */
+  var up2_function_t up2_fun = test_test2_args(stackptr);
+  VALUES_IF(tree_equal(stackptr,up2_fun,STACK_3,STACK_2));
+  skipSTACK(4);
+}
 
-/* UP: check whenter OBJ ends a proper list
+/* UP: check whether OBJ ends a proper list
  endp(obj)
  > obj: object
  > subr_self: caller (a SUBR)
@@ -541,10 +541,10 @@ local bool endp (object obj) {
     fehler_proper_list(obj);
 }
 
-LISPFUNN(endp,1) # (ENDP object), CLTL S. 264
-  {
-    VALUES_IF(endp(popSTACK()));
-  }
+LISPFUNN(endp,1)
+{ /* (ENDP object), CLTL S. 264 */
+  VALUES_IF(endp(popSTACK()));
+}
 
 LISPFUNN(list_length,1) # (LIST-LENGTH list), CLTL S. 265
   # (defun list-length (list)  ; vgl. CLTL, S. 265
