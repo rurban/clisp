@@ -313,7 +313,7 @@
 ;; The names of modules already compiled
 ;; (treated as if they were already loaded)
 (defvar *compiled-modules* nil)
-(defvar *package-tasks-treat-specially* t
+(defvar *package-tasks-treat-specially* nil
   "Treat package-related operations the same way at compile and load time.")
 ;; The list of the pending package tasks
 (defvar *package-tasks* nil)
@@ -1317,7 +1317,6 @@ for-value   NIL oder T
           (identity 1 0 nil nil nil)
           (imagpart 1 0 nil nil nil)
           (import 1 1 nil nil nil)
-          (in-package 1 0 nil (:nicknames :use :case-sensitive) nil)
           (system::initial-contents-aux 1 0 nil nil nil)
           (input-stream-p 1 0 nil nil nil)
           (int-char 1 0 nil nil nil)
@@ -4195,7 +4194,7 @@ der Docstring (oder NIL).
     ) )
     ; Package-Anforderungen zur Kenntnis nehmen:
     (when (and *package-tasks-treat-specially*
-               (memq fun '(MAKE-PACKAGE SYSTEM::%IN-PACKAGE IN-PACKAGE
+               (memq fun '(MAKE-PACKAGE SYSTEM::%IN-PACKAGE
                            SHADOW SHADOWING-IMPORT EXPORT UNEXPORT
                            USE-PACKAGE UNUSE-PACKAGE IMPORT))
                (every #'c-constantp (rest *form*)))

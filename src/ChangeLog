@@ -1,5 +1,12 @@
 2001-05-30  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (*package-tasks-treat-specially*): set to NIL
+	(#+CROSS subr-info): `in-package' is now an always-evaluated macro
+	(c-GLOBAL-FUNCTION-CALL): remove `in-package' from the list of
+	specially treated tasks.
+
+2001-05-30  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (with-defining-c-type): new macro
 	(parse-components, c-struct-constructor): new functions
 	(parse-c-type): use the above
