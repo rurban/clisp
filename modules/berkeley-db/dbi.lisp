@@ -7,7 +7,7 @@
   (:nicknames "BERKELEY-DB" "BERKDB")
   (:export "DB-VERSION"
            "BDB-HANDLE" "BDB-HANDLE-PARENTS" "BDB-HANDLE-DEPENDENTS"
-           "DBE" "DB" "TXN" "DBC" "LOGC" "MPOOLFILE"
+           "DBE" "DB" "TXN" "DBC" "LOGC" "MPOOLFILE" "DBLOCK"
            "DBE-CREATE" "DBE-CLOSE" "DBE-DBREMOVE" "DBE-DBRENAME" "DBE-OPEN"
            "DBE-REMOVE" "DBE-SET-OPTIONS" "DBE-GET-OPTIONS"
            "DB-CREATE" "DB-CLOSE" "DB-DEL" "DB-FD" "DB-GET" "DB-STAT"
@@ -16,6 +16,8 @@
            "DB-SET-OPTIONS" "DB-GET-OPTIONS"
            "MAKE-DBC" "DBC-CLOSE" "DBC-COUNT" "DBC-DEL"
            "DBC-DUP" "DBC-GET" "DBC-PUT"
+           "LOCK-DETECT" "LOCK-GET" "LOCK-ID" "LOCK-ID-FREE" "LOCK-PUT"
+           "LOCK-CLOSE" "LOCK-STAT"
            "TXN-BEGIN" "TXN-ABORT" "TXN-COMMIT" "TXN-DISCARD" "TXN-ID"
            "TXN-CHECKPOINT" "TXN-PREPARE" "TXN-RECOVER" "TXN-SET-TIMEOUT"
            "TXN-STAT"
@@ -45,6 +47,8 @@
                  (:constructor mklogc (handle parents))))
 (defstruct (mpoolfile (:include bdb-handle) (:copier nil)
                       (:constructor mkmpoolfile (handle parents))))
+(defstruct (dblock (:copier nil) (:constructor mkdblock (handle parent)))
+  (handle nil :read-only t) parent)
 
 (defun mkhandle (maker parents closer handle)
   "make BDB-HANDLE, add it to the DEPENDETS of its PARENT, call FINALIZE"
@@ -126,6 +130,68 @@
   (first-recno nil :read-only t)
   (curr-recno nil :read-only t))
 
+(defstruct (db-lock-stat (:constructor
+                          mklockstat
+                          (st_id st_cur_maxid st_nmodes st_maxlocks
+                           st_maxlockers st_maxobjects st_nlocks st_maxnlocks
+                           st_nlockers st_maxnlockers st_nobjects st_maxnobjects
+                           st_nrequests st_nreleases st_nnowaits st_nconflicts
+                           st_ndeadlocks st_locktimeout st_nlocktimeouts
+                           st_txntimeout st_ntxntimeouts st_regsize
+                           st_region_wait st_region_nowait)))
+  ;; The last allocated locker ID.
+  (st_id 0 :type (unsigned-byte 32) :read-only t)
+  ;; The current maximum unused locker ID.
+  (st_cur_maxid 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of lock modes.
+  (st_nmodes 0 :type (unsigned-byte 32) :read-only t)
+  ;; The maximum number of locks possible.
+  (st_maxlocks 0 :type (unsigned-byte 32) :read-only t)
+  ;; The maximum number of lockers possible.
+  (st_maxlockers 0 :type (unsigned-byte 32) :read-only t)
+  ;; The maximum number of lock objects possible.
+  (st_maxobjects 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of current locks.
+  (st_nlocks 0 :type (unsigned-byte 32) :read-only t)
+  ;; The maximum number of locks at any one time.
+  (st_maxnlocks 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of current lockers.
+  (st_nlockers 0 :type (unsigned-byte 32) :read-only t)
+  ;; The maximum number of lockers at any one time.
+  (st_maxnlockers 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of current lock objects.
+  (st_nobjects 0 :type (unsigned-byte 32) :read-only t)
+  ;; The maximum number of lock objects at any one time.
+  (st_maxnobjects 0 :type (unsigned-byte 32) :read-only t)
+  ;; The total number of locks requested.
+  (st_nrequests 0 :type (unsigned-byte 32) :read-only t)
+  ;; The total number of locks released.
+  (st_nreleases 0 :type (unsigned-byte 32) :read-only t)
+  ;; The total number of lock requests failing because DB_LOCK_NOWAIT was set.
+  (st_nnowaits 0 :type (unsigned-byte 32) :read-only t)
+  ;; The total number of locks not immediately available due to conflicts.
+  (st_nconflicts 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of deadlocks.
+  (st_ndeadlocks 0 :type (unsigned-byte 32) :read-only t)
+  ;; Lock timeout value.
+  (st_locktimeout 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of lock requests that have timed out.
+  (st_nlocktimeouts 0 :type (unsigned-byte 32) :read-only t)
+  ;; Transaction timeout value.
+  (st_txntimeout 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of transactions that have timed out. This value is also
+  ;; a component of st_ndeadlocks, the total number of deadlocks detected.
+  (st_ntxntimeouts 0 :type (unsigned-byte 32) :read-only t)
+  ;; The size of the lock region.
+  (st_regsize 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of times that a thread of control was forced to wait
+  ;; before obtaining the region lock.
+  (st_region_wait 0 :type (unsigned-byte 32) :read-only t)
+  ;; The number of times that a thread of control was able to obtain the
+  ;; region lock without waiting.
+  (st_region_nowait 0 :type (unsigned-byte 32) :read-only t))
+
+
 (defstruct (db-txn-active (:constructor mktxnactive
                                         (txnid parentid lsn xa_status xid)))
   ;; The transaction ID of the transaction.
@@ -206,6 +272,9 @@
 (defmethod close ((cu dbc) &key abort)
   (declare (ignore abort))
   (dbc-close cu))
+(defmethod close ((lock dblock) &key abort)
+  (declare (ignore abort))
+  (lock-close lock))
 (defmethod close ((tx txn) &key abort)
   (if abort (txn-abort tx) (txn-commit tx)))
 )

@@ -72,7 +72,8 @@
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:DBE-SET-OPTIONS dbe
    &key-amp; ERRFILE PASSWORD ENCRYPT LOCK_TIMEOUT TXN_TIMEOUT SHM_KEY
-   TAS_SPINS TX_TIMESTAMP TX_MAX DATA_DIR TMP_DIR AUTO_COMMIT CDB_ALLDB
+   TAS_SPINS TX_TIMESTAMP TX_MAX DATA_DIR TMP_DIR LK_CONFLICTS LK_DETECT
+   LK_MAX_LOCKERS LK_MAX_LOCKS LK_MAX_OBJECTS AUTO_COMMIT CDB_ALLDB
    DIRECT_DB DIRECT_LOG NOLOCKING NOMMAP NOPANIC OVERWRITE
    PANIC_ENVIRONMENT REGION_INIT TXN_NOSYNC TXN_WRITE_NOSYNC YIELDCPU
    VERB_CHKPOINT VERB_DEADLOCK VERB_RECOVERY VERB_REPLICATION
@@ -89,7 +90,12 @@
     <member>&DBE_set_timeout;</member>
     <member>&DBE_set_encrypt;</member>
     <member>&DBE_set_errfile;</member>
-   </simplelist></para></listitem></varlistentry>
+    <member>&DBE_set_lk_conflicts;</member>
+    <member>&DBE_set_lk_detect;</member>
+    <member>&DBE_set_lk_max_lockers;</member>
+    <member>&DBE_set_lk_max_locks;</member>
+    <member>&DBE_set_lk_max_objects;</member>
+</simplelist></para></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DBE-GET-OPTIONS dbe
    &optional-amp; what)</literal></term>
  <listitem><para>Retrieve some environment options.
@@ -134,6 +140,21 @@
      <listitem><simpara>a &boolean-t; indicator of whether this
        option is set or not (&DBE_get_verbose; and &DBE_get_flags;).
     </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:LK_CONFLICTS</constant></term>
+     <listitem><simpara>lock conflicts matrix
+       (&DBE_get_lk_conflicts;)</simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:LK_DETECT</constant></term>
+     <listitem><simpara>automatic deadlock detection
+       (&DBE_get_lk_detect;)</simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:LK_MAX_LOCKERS</constant></term>
+     <listitem><simpara>maximum number of lockers
+       (&DBE_get_lk_max_lockers;)</simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:lk_max_locks</constant></term>
+     <listitem><simpara>maximum number of locks
+       (&DBE_get_lk_max_locks;)</simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:lk_max_objects</constant></term>
+     <listitem><simpara>maximum number of lock objects
+       (&DBE_get_lk_max_objects;)</simpara></listitem></varlistentry>
     <varlistentry><term><constant>:TAS_SPINS</constant></term>
      <listitem><simpara>the number of test-and-set spins
        (&DBE_get_tas_spins;).</simpara></listitem></varlistentry>
@@ -262,9 +283,10 @@
    will force <constant>DB_ORDERCHKONLY</constant>.
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:WITH-DB (var dbe file
-   &rest-amp; options &key-amp; xa &allow-other-keys)
+   &rest-amp; options &key-amp; xa &allow-other-keys-amp;)
    &body-amp; body)</literal></term>
  <listitem><simpara>Open the database, execute &body-r;, close it.
+</simpara></listitem></varlistentry>
 </variablelist></section>
 
 
@@ -500,10 +522,41 @@
  DB_ENV->lock_vec	Acquire/release locks
  -->
 <variablelist>
-<varlistentry><term><literal role="sexp">()</literal></term>
- <listitem><simpara></simpara></listitem></varlistentry>
-</variablelist>
-</section>
+<varlistentry><term><literal role="sexp">(BDB:LOCK-DETECT dbe
+   action)</literal></term>
+ <listitem><simpara>Perform deadlock detection
+   (&DBE_lock_detect;).</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:LOCK-ID dbe)</literal></term>
+ <listitem><simpara>Acquire a locker ID
+  (&DBE_lock_id;).</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:LOCK-ID-FREE dbe
+   id)</literal></term>
+ <listitem><simpara>Release a locker ID (&DBE_lock_id_free;).
+   All associated locks should be released first.
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:LOCK-GET dbe object locker
+   mode &key-amp; NOWAIT)</literal></term>
+ <listitem><simpara>Acquire a lock (&DBE_lock_get).
+   The <type>BDB:DBLOCK</type> object returned by this function will
+   &not-e; be released when the environment is closed.
+   This permits long-lived locks.</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:LOCK-PUT dbe
+   lock)</literal></term>
+ <listitem><simpara>Release a lock
+   (&DBE_lock_put;).</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:LOCK-CLOSE
+   lock)</literal></term>
+ <listitem><simpara>Release a lock (&DBE_lock_put;) using the
+   environment with which it has been acquired.
+   This is used to &finalize; <type>BDB:DBLOCK</type> objects.
+   If that environment has already been closed, you are in big trouble,
+   so you better release your locks or do not drop them.
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:LOCK-STAT dbe &key-amp;
+   STAT_CLEAR)</literal></term>
+ <listitem><simpara>Return lock subsystem statistics
+   (&DBE_lock_stat;).</simpara></listitem></varlistentry>
+</variablelist></section>
 
 
 <section id="bdb-log"><title>Log Subsystem</title>

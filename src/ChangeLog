@@ -1,7 +1,19 @@
 2004-07-23  Sam Steingold  <sds@gnu.org>
 
-	* modprep.lisp: DEFCHECKER can now handle constants that come
-	from "enum" and therefore not available to CPP
+	interface to the LOCK sybsystem
+	* modules/berkeley-db/bdb.c (OH_INVALID_IS_NULL): new object_handle_t
+	(object_handle): handle it
+	(BDB:DBE-SET-OPTIONS, BDB:DBE-GET-OPTIONS): handle lock options
+	(fill_dbt): use return instead of pointers to return type
+	(BDB:LOCK-DETECT, BDB:LOCK-GET, BDB:LOCK-ID, BDB:LOCK-ID-FREE)
+	(BDB:LOCK-PUT, BDB:LOCK-CLOSE, BDB:LOCK-STAT): implemented
+	* modules/berkeley-db/dbi.lisp (dblock, db-lock-stat): new structs
+	(close): define a method for dblock
+
+2004-07-23  Sam Steingold  <sds@gnu.org>
+
+	* utils/modprep.lisp: DEFCHECKER can now handle constants that
+	come from "enum" and therefore not available to CPP
 
 2004-07-22  Sam Steingold  <sds@gnu.org>
 
