@@ -49,8 +49,8 @@
 <refsynopsisdiv>
 <cmdsynopsis>
 <command>clisp</command>
-<arg><option><link linkend="opt-help">-h</link></option> |
-     <option><link linkend="opt-help">--help</link></option></arg>
+<group><arg><option><link linkend="opt-help">-h</link></option></arg>
+ <arg><option><link linkend="opt-help">--help</link></option></arg></group>
 <arg><option><link linkend="opt-version">--version</link></option></arg>
 <arg><option><link linkend="opt-license">--license</link></option></arg>
 <arg><option><link linkend="opt-libdir">-B &lld;</link></option></arg>
@@ -73,18 +73,18 @@
 <arg><option><link linkend="opt-lang">-L &lang-r;</link></option></arg>
 <arg><option><link linkend="opt-locale">-N &ld;</link></option></arg>
 <arg><option><link linkend="opt-enc">-E&dom; &encoding-r;</link></option></arg>
-<arg><group><option><link linkend="opt-verbose">-q</link></option>
-  <option><link linkend="opt-verbose">--quiet</link></option>
-  <option><link linkend="opt-verbose">--silent</link></option>
-  <option><link linkend="opt-verbose">-v</link></option>
-  <option><link linkend="opt-verbose">--verbose</link></option></group></arg>
+<group><arg><option><link linkend="opt-verbose">-q</link></option></arg>
+ <arg><option><link linkend="opt-verbose">--quiet</link></option></arg>
+ <arg><option><link linkend="opt-verbose">--silent</link></option></arg>
+ <arg><option><link linkend="opt-verbose">-v</link></option></arg>
+ <arg><option><link linkend="opt-verbose">--verbose</link></option></arg></group>
 <arg><option><link linkend="opt-interactive-debug"
                    >-interactive-debug</link></option></arg>
 <arg><option><link linkend="opt-repl">-repl</link></option></arg>
 <arg><option><link linkend="opt-wait">-w</link></option></arg>
 <arg><option><link linkend="opt-ilisp">-I</link></option></arg>
-<arg><option><link linkend="opt-ansi">-ansi</link></option> |
-  <option><link linkend="opt-traditional" >-traditional</link></option></arg>
+<group><arg><option><link linkend="opt-ansi">-ansi</link></option></arg>
+ <arg><option><link linkend="opt-traditional" >-traditional</link></option></arg></group>
 <arg><option><link linkend="opt-pack">-p &pack-r;</link></option></arg>
 <arg><option><link linkend="opt-load-comp">-C</link></option></arg>
 <arg><option><link linkend="opt-norc">-norc</link></option></arg>
@@ -94,7 +94,7 @@
  <arg><option><link linkend="opt-list">-l</link></option></arg> &lf;
  <arg><option><link linkend="opt-out">-o</link>
    <replaceable>output-file</replaceable></option></arg></arg>
-<arg><option><link linkend="opt-exec-expr">-x
+<arg rep="repeat"><option><link linkend="opt-exec-expr">-x
    <replaceable>expressions</replaceable></link></option></arg>
 <arg><option><link linkend="opt-exec-file">&lf;</link></option>
  <arg rep="repeat"><option><link linkend="opt-exec-file"
@@ -331,15 +331,18 @@ that can be executed more efficiently.</para>
  <listitem><simpara>Override the batch mode imposed by
    <option><link linkend="opt-compile">-c</link></option>,
    <option><link linkend="opt-exec-expr">-x</link></option>, and
-   <link linkend="opt-exec-file">&lf;</link>
-   and allow interactive handling of &assert; and friends.
+   <link linkend="opt-exec-file">&lf;</link>: &cont-err;s are still
+   turned into &warning-t;s (and, in case of &assert;, you are
+   immeditely asked for new values), but other &error-t;s are handled
+   interactively.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-repl"><term><option>-repl</option></term>
  <listitem><simpara>Start an interactive &repl; after
    processing the <option><link linkend="opt-compile">-c</link></option>,
    <option><link linkend="opt-exec-expr">-x</link></option>, and
-   <link linkend="opt-exec-file">&lf;</link> options.
+   <link linkend="opt-exec-file">&lf;</link> options and on any
+   &error-t; &signal;ed during that processing.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-wait"><term><option>-w</option></term>
