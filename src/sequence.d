@@ -199,7 +199,7 @@ local object valid_type1 (object name) {
               if (consp(name3) && integerp(Car(name3))) pushSTACK(Car(name3));
               else pushSTACK(unbound);
             }
-            var uintB atype = eltype_code(name2);
+            var uintB atype = (eq(name2,S(mal)) ? Atype_T : eltype_code(name2));
             if (atype==Atype_T) { # (VECTOR T)
               name = S(vector); goto expanded;
             } else if (atype==Atype_Char) { # (VECTOR CHARACTER)
