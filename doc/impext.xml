@@ -4174,7 +4174,7 @@ future).</para>
 <variablelist>
  <varlistentry id="dir-key-open"><term><literal role="sexp">(&dkey-open;
    &dkey-r; &path-r; &key-amp; (&direction-k; &input-k;)
-   &if-does-not-exist;</literal></term>
+   &if-does-not-exist;)</literal></term>
   <listitem><simpara>Open the directory key under &dkey-r;, which should
    be either an open directory key or a valid &dk-t;.
    The meaning of the &direction-k; and &if-does-not-exist; keyword
@@ -4305,7 +4305,7 @@ are returned in an &alist;.</para>
   (&setq; &error-output-var;
     (&setq; &debug-io-var;
       (&open; "CON:0/0/500/300/CLISP-Debugger/AUTO/CLOSE"
-              &direction-k; &io-k;)))
+            &direction-k; &io-k;)))
 </programlisting>
 at startup.
 </para></listitem></varlistentry></variablelist>
