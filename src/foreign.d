@@ -3293,6 +3293,10 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
         }
       }
     }
+    if (av_overflown(alist))
+      # avcall has limited buffer space
+      # __AV_ALIST_WORDS is only an approximation in number of arguments
+      fehler_too_many_args(S(foreign_call_out),ffun,allargcount,__AV_ALIST_WORDS);
     # Finally call the function.
     begin_call();
     av_call(alist);
