@@ -867,7 +867,7 @@ LISPFUN(set_dispatch_macro_character,3,1,norest,nokey,0,NIL)
              GETTEXT("~: digit $ not allowed as sub-char")
             );
     } else {
-      perchar_table_put(dm_table,char_code(STACK_0),function); # Funktion in die Dispatch-Macro-Tabelle eintragen
+      perchar_table_put(dm_table,up_case(char_code(STACK_0)),function); # Funktion in die Dispatch-Macro-Tabelle eintragen
       value1 = T; mv_count=1; skipSTACK(2); # 1 Wert T
     }
   }
@@ -877,7 +877,7 @@ LISPFUN(get_dispatch_macro_character,2,1,norest,nokey,0,NIL)
   {
     var object readtable = test_readtable_null_arg(); # Readtable
     var object dm_table = test_disp_sub_char(readtable);
-    value1 = (eq(dm_table,nullobj) ? NIL : perchar_table_get(dm_table,char_code(STACK_0))); # NIL oder Funktion als Wert
+    value1 = (eq(dm_table,nullobj) ? NIL : perchar_table_get(dm_table,up_case(char_code(STACK_0)))); # NIL oder Funktion als Wert
     mv_count=1; skipSTACK(2);
   }
 
