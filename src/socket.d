@@ -795,6 +795,8 @@ global SOCKET create_client_socket(hostname,port)
 
 # ==================== miscellaneous network related stuff ====================
 
+# while TEST collect EXPR into VAL
+# can trigger GC
 #define ARR_TO_LIST(val,test,expr)                      \
   { int ii; for (ii = 0; test; ii ++) { pushSTACK(expr); } val = listof(ii); }
 
@@ -802,15 +804,22 @@ global SOCKET create_client_socket(hostname,port)
 
 #if !defined(UNIX_BEOS)
 
-#define SERVENT_TO_STACK(se)                                          \
-  { var object tmp;                                                   \
-    pushSTACK(asciz_to_string(se->s_name,O(misc_encoding)));          \
-    ARR_TO_LIST(tmp,(se->s_aliases[ii] != NULL),                      \
-                asciz_to_string(se->s_aliases[ii],O(misc_encoding))); \
-    pushSTACK(tmp);                                                   \
-    pushSTACK(L_to_I(ntohs(se->s_port)));                             \
-    pushSTACK(asciz_to_string(se->s_proto,O(misc_encoding)));         \
-  }
+# push the contents of SE onto the stack
+# 4 values are pushed:
+#   s_name
+#   list of s_aliases
+#   s_port
+#   s_proto
+# can trigger GC
+local void servent_to_stack (struct servent * se) {
+  var object tmp;
+  pushSTACK(asciz_to_string(se->s_name,O(misc_encoding))); 
+  ARR_TO_LIST(tmp,(se->s_aliases[ii] != NULL),
+              asciz_to_string(se->s_aliases[ii],O(misc_encoding)));
+  pushSTACK(tmp);
+  pushSTACK(L_to_I(ntohs(se->s_port)));
+  pushSTACK(asciz_to_string(se->s_proto,O(misc_encoding)));
+}
 
 LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 # (LISP:SOCKET-SERVICE-PORT &optional service-name protocol)
@@ -822,6 +831,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 #      when there is no service associated with a name or a number, an error is
 #      signalled, so that whenever this function returns, you can be sure it
 #      returns something useful.
+# can trigger GC
 {
   var object protocol = popSTACK();
   var object serv = popSTACK();
@@ -841,7 +851,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
     begin_system_call();
     for (; (se = getservent()); count++) {
       end_system_call();
-      SERVENT_TO_STACK(se);
+      servent_to_stack(se);
       pushSTACK(vectorof(4));
       begin_system_call();
     }
@@ -854,7 +864,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
       se = getservbyport(port,proto);
       if (!(se==NULL)) {
         end_system_call();
-        SERVENT_TO_STACK(se);
+        servent_to_stack(se);
         pushSTACK(vectorof(4));
         begin_system_call();
       }
@@ -871,7 +881,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
       }
       end_system_call();
     });
-    SERVENT_TO_STACK(se);
+    servent_to_stack(se);
     funcall(L(values),4);
   } elif (integerp(serv)) {
     var uintL port = I_to_UL(serv);
@@ -881,7 +891,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
       OS_error();
     }
     end_system_call();
-    SERVENT_TO_STACK(se);
+    servent_to_stack(se);
     funcall(L(values),4);
   } else
     fehler_string_integer(serv);
@@ -910,46 +920,57 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
                    O(misc_encoding)) :                             \
    (type ==  AF_INET ?                                             \
     asciz_to_string(ipv4_ntop(buf,*(const struct in_addr*)(addr)), \
-                    O(misc_encoding)) : NULL ))
+                    O(misc_encoding)) : NIL ))
 #else
 #define ADDR_TO_STRING(type,addr,buf)                            \
   (type ==  AF_INET ?                                            \
    asciz_to_string(ipv4_ntop(buf,*(const struct in_addr*)(addr)),\
-                   O(misc_encoding)) : NULL )
+                   O(misc_encoding)) : NIL )
 #endif # HAVE_IPV6
 
-# void print_he (struct hostent he) {
-#  int ii;
-#  char **pp;
-#  struct in_addr in;
-#  printf("h_name: %s; h_length: %d; h_addrtype: %d\n [size in.s_addr: %d]\n",
-#         he.h_name,he.h_length,he.h_addrtype,sizeof(in.s_addr));
-#  for (pp = he.h_aliases; *pp != 0; pp++) printf("\t%s", *pp);
-#  printf("\n IP:");
-#  for (pp = he.h_addr_list; *pp != 0; pp++) {
-#    (void) memcpy(&in.s_addr, *pp, sizeof (in.s_addr));
-#    (void) printf("\t%s", inet_ntoa(in));
-#  }
-#  printf("\n");
-# }
+#if 0
+void print_he (struct hostent he) {
+ int ii;
+ char **pp;
+ struct in_addr in;
+ printf("h_name: %s; h_length: %d; h_addrtype: %d\n [size in.s_addr: %d]\n",
+        he.h_name,he.h_length,he.h_addrtype,sizeof(in.s_addr));
+ for (pp = he.h_aliases; *pp != 0; pp++) printf("\t%s", *pp);
+ printf("\n IP:");
+ for (pp = he.h_addr_list; *pp != 0; pp++) {
+   (void) memcpy(&in.s_addr, *pp, sizeof (in.s_addr));
+   (void) printf("\t%s", inet_ntoa(in));
+ }
+ printf("\n");
+}
+#endif
 
-#define HOSTENT_TO_STACK(he,buf)                                          \
-  { var object tmp;                                                       \
-    pushSTACK(ascii_to_string(he->h_name));                               \
-    ARR_TO_LIST(tmp,(he->h_aliases[ii] != NULL),                          \
-                asciz_to_string(he->h_aliases[ii],O(misc_encoding)));     \
-    pushSTACK(tmp);                                                       \
-    ARR_TO_LIST(tmp,(he->h_addr_list[ii] != NULL),                        \
-                ADDR_TO_STRING(he->h_addrtype,he->h_addr_list[ii],buf));  \
-    pushSTACK(tmp);                                                       \
-    pushSTACK(fixnum(he->h_addrtype));                                    \
-  }
+# push the contents of HE onto the stack
+# BUF is temporary storage for ipv4_ntop()
+# 4 values are pushed:
+#   h_name
+#   list of h_aliases
+#   list of h_addr_list
+#   addrtype
+# can trigger GC
+local void hostent_to_stack (struct hostent *he,char *buf) {
+  var object tmp;
+  pushSTACK(ascii_to_string(he->h_name));
+  ARR_TO_LIST(tmp,(he->h_aliases[ii] != NULL),
+              asciz_to_string(he->h_aliases[ii],O(misc_encoding)));
+  pushSTACK(tmp);
+  ARR_TO_LIST(tmp,(he->h_addr_list[ii] != NULL),
+              ADDR_TO_STRING(he->h_addrtype,he->h_addr_list[ii],buf));
+  pushSTACK(tmp);
+  pushSTACK(fixnum(he->h_addrtype));
+}
 
 # Lisp interface to gethostbyname(3) and gethostbyaddr(3)
 LISPFUN(resolve_host_ipaddr_,1,0,norest,nokey,0,NIL)
 # (POSIX::RESOLVE-HOST-IPADDR-INTERNAL host)
 # if you modify this function wrt its return values,
 # you should modify POSIX:RESOLVE-HOST-IPADDR in posix.lisp accordingly
+# can trigger GC 
 {
   var object arg = popSTACK();
   var struct hostent *he = NULL;
@@ -962,7 +983,7 @@ LISPFUN(resolve_host_ipaddr_,1,0,norest,nokey,0,NIL)
     int count = 0;
     begin_system_call();
     for (; (he = gethostent()); count++) {
-      HOSTENT_TO_STACK(he,buffer);
+      hostent_to_stack(he,buffer);
       funcall(L(vector),4);
       pushSTACK(value1);
     }
@@ -1016,7 +1037,7 @@ LISPFUN(resolve_host_ipaddr_,1,0,norest,nokey,0,NIL)
           );
   }
 
-  HOSTENT_TO_STACK(he,buffer);
+  hostent_to_stack(he,buffer);
   funcall(L(values),4);
 }
 

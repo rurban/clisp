@@ -1,5 +1,12 @@
 2001-04-11  Sam Steingold  <sds@gnu.org>
 
+	* socket.d: made compilable with SAFETY=3
+	(SERVENT_TO_STACK): turned into a local function servent_to_stack()
+	(ADDR_TO_STRING): return NIL, not NULL, as the failure value
+	(HOSTENT_TO_STACK): turned into a local function hostent_to_stack()
+
+2001-04-11  Sam Steingold  <sds@gnu.org>
+
 	Merged FLET with SYS::%FLET (same for LABELS & MACROLET)
 	* init.lisp (flet, labels, macrolet): removed
 	(%expand-form): removed flet, labels and macrolet
