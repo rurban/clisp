@@ -1,3 +1,13 @@
+2004-05-05  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in: Use "sed -n -e '$p'" instead of "tail -n 1".
+	Needed for Solaris.
+
+2004-05-02  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in: Use "tail -n 1" instead of "tail -1".
+	Suggested by SuSE.
+
 2004-04-28  Bruno Haible  <bruno@clisp.org>
 
 	* genclisph.d (main) [TYPECODES]: Emit consp, atomp, mconsp, matomp
