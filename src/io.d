@@ -8448,9 +8448,9 @@ local maygc void pr_readlabel (const gcv_object_t* stream_, object obj) {
   JUSTIFY_SPACE;
   JUSTIFY_LAST(true);
 #ifdef TYPECODES
-  pr_uint(stream_,(as_oint(obj) >> (oint_addr_shift+1)) & (bit(oint_data_len-2)-1)); # print bits 21..0 decimally
+  pr_uint(stream_,(as_oint(obj) >> (oint_data_shift+1)) & (bit(oint_data_len-2)-1)); # print bits 21..0 decimally
 #else
-  pr_uint(stream_,(as_oint(obj) >> oint_addr_shift) & (bit(oint_data_len)-1)); # print bits decimally
+  pr_uint(stream_,(as_oint(obj) >> oint_data_shift) & (bit(oint_data_len)-1)); # print bits decimally
 #endif
   JUSTIFY_END_FILL;
   UNREADABLE_END;
