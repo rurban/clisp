@@ -1,5 +1,10 @@
 2001-11-28  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (wild_char_p): new macro
+	(PARSE-NAMESTRING, MAKE-PATHNAME, wild_p): use it
+
+2001-11-28  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (MAKE-PATHNAME): revert the 2001-07-20 patch: :case
 	applies only to strings, not pathnames in the :default arg
 	Reported by Kent M Pitman <pitman@world.std.com>
