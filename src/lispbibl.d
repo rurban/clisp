@@ -11453,9 +11453,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   nonreturning_function(extern, fehler_string, (object obj));
 # wird verwendet von CHARSTRG, FOREIGN
 
-# signal a "string or integer" error
-nonreturning_function(extern, fehler_string_int, (object obj));
-
 # Fehlermeldung, falls ein Argument kein Simple-String ist:
 # fehler_sstring(obj);
 # > obj: Das fehlerhafte Argument
@@ -11476,6 +11473,11 @@ nonreturning_function(extern, fehler_string_int, (object obj));
   nonreturning_function(extern, fehler_sstring_immutable, (object obj));
 # wird verwendet von Macro check_sstring_mutable
 #endif
+
+# Error message, if an argument is not of type (OR STRING INTEGER).
+# fehler_string_integer(obj);
+# > subr_self: caller (a SUBR)
+  nonreturning_function(extern, fehler_string_integer, (object obj));
 
 # Fehlermeldung, wenn ein Argument kein Stream ist:
 # fehler_stream(obj);
