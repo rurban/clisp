@@ -1,16 +1,17 @@
+# Generated automatically from Makefile.in by configure.
 # This makefile for Readline library documentation is in -*- text -*- mode.
 # Emacs likes it that way.
-top_srcdir = @top_srcdir@
-srcdir = @srcdir@
-VPATH = .:@srcdir@
+top_srcdir = ..
+srcdir = .
+VPATH = .:.
 
-prefix = @prefix@
-infodir = @infodir@
+prefix = /usr/local
+infodir = ${prefix}/info
 
-mandir = @mandir@
+mandir = ${prefix}/man
 man3dir = $(mandir)/man3
 
-SHELL = @MAKE_SHELL@
+SHELL = /bin/sh
 RM = rm -f
 
 TEXINPUTDIR = $(srcdir)
@@ -21,9 +22,9 @@ TEXI2HTML   = $(srcdir)/texi2html
 QUIETPS     = #set this to -q to shut up dvips
 DVIPS       = dvips -D600 $(QUIETPS) -o $@     # tricky
 
-INSTALL = @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@
-INSTALL_DATA = @INSTALL_DATA@
+INSTALL = /usr/bin/install -c
+INSTALL_PROGRAM = ${INSTALL}
+INSTALL_DATA = ${INSTALL} -m 644
 
 RLSRC = $(srcdir)/rlman.texinfo $(srcdir)/rluser.texinfo \
 	$(srcdir)/rltech.texinfo $(srcdir)/manvers.texinfo
