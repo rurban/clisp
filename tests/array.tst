@@ -731,5 +731,4 @@ T
 #(1 2 3 4 NIL NIL)
 
 (equal (make-string 0) (make-array 0 :element-type nil)) T
-(equalp (make-array 0 :element-type 'bit) (make-array 0 :element-type nil)) T
 (equalp (make-array '(1 2 0)) (make-array '(1 2 0) :element-type nil)) T

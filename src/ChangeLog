@@ -28,8 +28,7 @@
 	* lispbibl.d (nil_vector_p, nil_vector_0_p): new macros
 	* error.d (check_string): use them
 	* predtype.d (equal, equalp): handle nilvector properly:
-	since NIL is a subtype of both BIT and CHARACTER, (VECTOR NIL)
-	is both a STRING and a BIT-VECTOR
+	since NIL is a subtype of CHARACTER, (VECTOR NIL) is a STRING
 
 2004-02-16  Sam Steingold  <sds@gnu.org>
 
