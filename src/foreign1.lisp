@@ -850,7 +850,8 @@
 (defmacro with-c-place ((var fvar) &body body)
   (let ((fv (gensym (symbol-name var))))
     `(LET ((,fv ,fvar))
-       (SYMBOL-MACROLET ((,var (FOREIGN-VALUE ,fv))) ,@body))))
+       (SYMBOL-MACROLET ((,var (FOREIGN-VALUE ,fv)))
+         ,@body))))
 
 ;; ============================ Stack allocation ============================
 
@@ -869,18 +870,20 @@
 (defmacro with-foreign-object ((var c-type &optional (init nil init-p))
                                &body body)
   `(EXEC-ON-STACK
-    (LAMBDA (,var) ,@body)
-    (PARSE-C-TYPE ,c-type)
-    . ,(if init-p (list init))))
+     #'(LAMBDA (,var) ,@body)
+     (PARSE-C-TYPE ,c-type)
+     ,@(if init-p `(,init))))
 
 ;; symbol-macro based interface (like DEF-C-VAR)
 ;; WITH-C-VAR appears as a composition of WITH-FOREIGN-OBJECT and WITH-C-PLACE
 (defmacro with-c-var ((var c-type &optional (init nil init-p)) &body body)
   (let ((fv (gensym (symbol-name var))))
     `(EXEC-ON-STACK
-      (LAMBDA (,fv) (SYMBOL-MACROLET ((,var (FOREIGN-VALUE ,fv))) ,@body))
-      (PARSE-C-TYPE ,c-type)
-      . ,(if init-p (list init)))))
+       #'(LAMBDA (,fv)
+           (SYMBOL-MACROLET ((,var (FOREIGN-VALUE ,fv)))
+             ,@body))
+       (PARSE-C-TYPE ,c-type)
+       ,@(if init-p `(,init)))))
 
 (defun exec-with-foreign-string (thunk string ; ABI
                                  &key (encoding #+UNICODE custom:*foreign-encoding*
@@ -899,7 +902,7 @@
   (declare (ignore encoding null-terminated-p start end)) ; get them via keywords
   `(EXEC-WITH-FOREIGN-STRING
      #'(LAMBDA (,foreign-variable ,char-count ,byte-count) ,@body)
-     ,string .,keywords))
+     ,string ,@keywords))
 
 ;; ============================ heap allocation ============================
 

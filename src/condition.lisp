@@ -1065,8 +1065,8 @@
                          restart-clauses &body body &environment env)
   (expand-restart-case 'with-restarts whole-form restart-clauses
                        (if (cdr body)
-                           (cons 'PROGN body)
-                           (macroexpand (car body) env))))
+                         (cons 'PROGN body)
+                         (macroexpand (car body) env))))
 
 ;; WITH-SIMPLE-RESTART, CLtL2 p. 902
 (defmacro with-simple-restart ((name format-string &rest format-arguments) &body body)
