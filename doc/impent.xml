@@ -718,7 +718,7 @@
 <!ENTITY make-file "<filename>Makefile</filename>">
 <!ENTITY lispinit "<link linkend='image'><filename>lispinit.mem</filename></link>">
 <!ENTITY lisp-run "<filename>lisp.run</filename>">
-<!ENTITY clisp-h "<link linkend='clisp-h'><filename>clisp.h</filename></link>">
+<!ENTITY clisp-h "<link linkend='clisp-h'><filename>&quot;clisp.h&quot;</filename></link>">
 
 <!-- *** pathnames *** -->
 <!ENTITY file-star  "<filename>&quot;*&quot;</filename>">
