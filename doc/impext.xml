@@ -2101,7 +2101,7 @@ containing:</para>
 <!-- #ifdef DYNAMIC_FFI -->
 <section id="dffi">
   <title>Extensions-2.3. The Foreign Function Call Facility</title>
-<subtitle>Platform dependent: many &unix;, &win32; &amiga; platforms
+<subtitle>Platform dependent: many &unix;, &win32;, &amiga; platforms
 only.</subtitle>
 
 <para>A foreign function description is written as a Lisp file, and when
@@ -2278,8 +2278,8 @@ only.</subtitle>
      <replaceable>index&sub-n;</replaceable>)</literal></term>
 <listitem><simpara>Array element: If &cplace-r; is of foreign type
   <literal role="type">(&c-array; &ctype-r;
-  <replaceable>dim&sub-1;</replaceable>
-  ... <replaceable>dim&sub-n;</replaceable>)</literal>
+  (<replaceable>dim&sub-1;</replaceable>
+  ... <replaceable>dim&sub-n;</replaceable>))</literal>
   and 0 &le; <replaceable>index&sub-1;</replaceable>
   &lt; <replaceable>dim&sub-1;</replaceable>, ..., 0
   &le; <replaceable>index&sub-n;</replaceable> &lt;
@@ -2376,7 +2376,7 @@ only.</subtitle>
 <varlistentry id="fa-null">
   <term><literal role="sexp">(&foreign-address-null; &f-ent;)</literal></term>
 <listitem><simpara>This predicate returns &nil; if the
-  &f-ent; referes to the &c-NULL; address (and thus &f-ent; should
+  &f-ent; refers to the &c-NULL; address (and thus &f-ent; should
   probably not be passed to most foreign functions).
  </simpara></listitem></varlistentry>
 
@@ -2569,8 +2569,8 @@ only.</subtitle>
   object so operations on places (e.g. &cast;, &deref;, &slot; etc.) can
   be used within &body-r;.  &with-c-var; appears as a composition of
   &with-foreign-object; and &with-c-place;.</simpara>
-  <para>A &f-ent; object can be stored into, places can be used to
-   access contents:
+  <para>Such a &place; can be used to access memory referenced by a &f-ent;
+  object:
   <programlisting>(setq foo (allocate-deep '(c-array uint8 3) rgb))
 (with-c-place (place foo) (element place 0))</programlisting>
 </para></listitem></varlistentry>
@@ -2695,8 +2695,10 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
  </simpara></listitem></varlistentry>
 
 <varlistentry id="c-array"><term><literal role="type">(&c-array;
-   &ctype-r; <replaceable>dim&sub-1;</replaceable> ...
-   <replaceable>dim&sub-n;</replaceable>)</literal></term>
+   &ctype-r; <replaceable>dim&sub-1;</replaceable>)</literal></term>
+   <term><literal role="type">(&c-array;
+   &ctype-r; (<replaceable>dim&sub-1;</replaceable> ...
+   <replaceable>dim&sub-n;</replaceable>))</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
   <type>&ctype-r; [<replaceable>dim&sub-1;</replaceable>]
   ... [<replaceable>dim&sub-n;</replaceable>]</type>.
@@ -2748,6 +2750,12 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
   <type>&ctype-r; (*)[]</type>: a pointer to a zero-terminated array of
   items of the given &ctype-r;.</simpara></listitem></varlistentry>
 </variablelist>
+
+<!-- #ifdef UNICODE -->
+<para>&foreign-enc; governs conversion for any &ctype-r; involving
+ &c-string; or &character-t; (but not <type>char</type>).</para>
+<!-- #endif -->
+
 </section>
 
 <section id="c-flavor"><title>The choice of the &c-lang; flavor.</title>
@@ -2915,10 +2923,6 @@ unit</ulink> (usually a file), a warning is issued and
  arguments (not via pointers) is only possible to the extent the &c-lang;
  compiler supports it. Most &c-lang; compilers do it right, but some
  &c-lang; compilers (such as gcc on hppa) have problems with this.</para>
-
-<!-- #ifdef UNICODE -->
-<para>See also &foreign-enc;.</para>
-<!-- #endif -->
 
 </section>
 
