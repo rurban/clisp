@@ -1,5 +1,10 @@
 2002-01-15  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (OGETTEXT): mark as GC-unsafe
+	* package.d (cerror_package_locked): fixed a GC-safety bug
+
+2002-01-15  Sam Steingold  <sds@gnu.org>
+
 	* defs2.lisp (with-standard-io-syntax): bind
 	SYSTEM::*PRIN-LINE-PREFIX* to NIL
 
