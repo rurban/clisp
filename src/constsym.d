@@ -1730,10 +1730,10 @@ LISPSYM(windows_1254,"WINDOWS-1254",charset)
 LISPSYM(windows_1256,"WINDOWS-1256",charset)
 LISPSYM(windows_1257,"WINDOWS-1257",charset)
 #if defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
-# All documented encodings of libiconv, except those which are already builtin
-# without libiconv.
+# All documented encodings of libiconv, except for those which are already
+# builtin without libiconv.
 #ifdef GNU_LIBICONV
-LISPSYM(koi8_ru,"KOI8-RU",charset) # -----------------------+ These block is
+LISPSYM(koi8_ru,"KOI8-RU",charset) # -----------------------+ This block is
 #endif
 LISPSYM(cp1255,"CP1255",charset) #                          | referenced in
 LISPSYM(cp1258,"CP1258",charset) #                          | encoding.d
