@@ -9110,6 +9110,19 @@ Sie werden erzeugt vom Macro HANDLER-BIND. Ihr Aufbau ist wie folgt:
 SP ist ein Pointer in den Programmstack. Wenn eine Condition vom Typ typei
 auftritt, wird als Handler die Closure ab Byte labeli abinterpretiert, wobei
 zuerst ein Stück Programmstack der Länge SPdepth dupliziert wird.
+Eine Variante von Handler-Frames ruft einen C-Handler auf:
+  Offset  Stack-Inhalt
+   16
+   12       Cons (#(type1 label1 ... typem labelm))
+   8        Handler-Funktion
+   4        SP
+   0        Frame-Info; Pointer über Frame
+SP ist ein Pointer in den Programmstack. Wenn eine Condition vom Typ typei
+auftritt, wird die Handler-Funktion aufgerufen, mit den Argumenten SP
+(beliebiger Pointer in den C-Stack), frame (Pointer auf den Frame),
+labeli (beliebiges Lisp-Objekt), condition. Wenn der Handler von sich aus
+per unwind_upto(FRAME) die Kontrolle übergeben will, muss der Frame mit
+finish_entry_frame gebaut worden sein.
 
 Driver-Frames
 -------------
@@ -9937,6 +9950,29 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
                    #endif
                  }
           DRIVER_frame_data;
+
+# Baut einen HANDLER-Frame mit C-Handler auf.
+# make_HANDLER_frame(types_labels_vector_list,handler,sp_arg);
+# make_HANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement);
+# > object types_labels_vector_list: a list containing a simple-vector: (#(type1 label1 ... typem labelm))
+# > handler: void (*) (void* sp, object* frame, object label, object condition)
+# > sp_arg: any void*
+# > jmp_buf* returner: longjmp-Buffer für Wiedereintritt
+# > reentry_statement: Was sofort nach Wiedereintritt zu tun ist.
+  #define make_HANDLER_frame(types_labels_vector_list,handler,sp_arg)  \
+    { var object* top_of_frame = STACK;      \
+      pushSTACK(types_labels_vector_list);   \
+      pushSTACK(make_machine_code(handler)); \
+      pushSTACK(as_oint((aint)(sp_arg)));    \
+      finish_frame(HANDLER);                 \
+    }
+  #define make_HANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement)  \
+    { var object* top_of_frame = STACK;                        \
+      pushSTACK(types_labels_vector_list);                     \
+      pushSTACK(make_machine_code(handler));                   \
+      finish_entry_frame(HANDLER,returner,,reentry_statement); \
+    }
+  #define unwind_HANDLER_frame()  skipSTACK(4)
 
 # UP: Wendet eine Funktion auf ihre Argumente an.
 # apply(function,args_on_stack,other_args);
