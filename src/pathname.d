@@ -26,7 +26,7 @@ local object debug_output (const char*label,object obj,const int pos) {
   fprintf(stdout,"[%d] %s: ",pos,label);fflush(stdout);
   pushSTACK(obj);pushSTACK(subr_self);
   # gar_col();fprintf(stdout,"[gc] ");fflush(stdout);
-  pushSTACK(STACK_1);funcall(L(prin1),1);printf("\n"); # object_out(STACK_1)?
+  object_out(STACK_1);
   # gar_col();fprintf(stdout," [gc]\n");fflush(stdout);
   subr_self = popSTACK();
   return popSTACK();
@@ -1484,6 +1484,7 @@ local bool legal_logical_word_char(ch)
  #define pslashp(c)  chareq(c,ascii('.'))
 #endif
 #define colonp(c)    chareq(c,ascii(':'))
+#define slashp(c)    pslashp(c)
 
 # UP: Wandelt eine Unix-Directory-Angabe in ein Pathname um.
 # asciz_dir_to_pathname(path,encoding)
@@ -1539,7 +1540,8 @@ local bool legal_logical_word_char(ch)
 # Parsing of logical pathnames.
 
 # Trennzeichen zwischen subdirs
-#define lslashp(c)  (chareq(c,ascii(';')) || pslashp(c))
+#define semicolonp(c)  (chareq(c,ascii(';')))
+#define slashp(c)      (semicolonp(c) || pslashp(c))
 
 # Parses the name/type/version part (if subdirp=false) or a subdir part
 # (if subdirp=true) of a logical pathname.
@@ -1583,7 +1585,7 @@ local object parse_logical_word(z,subdirp)
     }
     var uintL len = z->index - startz.index;
     if (subdirp) {
-      if ((z->count == 0) || !lslashp(ch)) {
+      if ((z->count == 0) || !slashp(ch)) {
         *z = startz; return NIL; # kein ';' -> kein subdir
       }
       # Character ';' übergehen:
@@ -1713,7 +1715,7 @@ local uintL parse_logical_pathnamestring(z)
     # "foo:/bar/baz.zot" is an :ABSOLUTE physical pathname.
     # see "19.3.1.1.3 The Directory part of a Logical Pathname Namestring"
     # http://www.lisp.org/HyperSpec/Body/sec_19-3-1-1-3.html
-    if (Z_AT_SLASH(z,lslashp,STACK_2)) {
+    if (Z_AT_SLASH(z,slashp,STACK_2)) {
       Z_SHIFT(z,1);
       Car(STACK_0) = S(Krelative);
     } else {
@@ -1778,8 +1780,6 @@ local uintL parse_logical_pathnamestring(z)
     DOUT("parse_logical_pathnamestring:>1",STACK_1);
     return z.count;
   }
-
-#undef lslashp
 
 # Erkennung eines logischen Hosts, vgl. CLtL2 S. 631
 # (defun logical-host-p (host)
@@ -1963,8 +1963,6 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
       if (!parse_logical) {
         # Check whether *PARSE-NAMESTRING-ANSI* is true and the string
         # starts with a logical hostname.
-        # (NB: ANSI CL specifies that we should look at the entire string, using
-        # parse_logical_pathnamestring, not only parse_logical_host_prefix.)
         if (!nullp(Symbol_value(S(parse_namestring_ansi)))) {
           # Coerce string to be a normal-simple-string.
 #define Z_SUB(z,s) s = subsstring(s,z.index,z.index+z.count); z.index = 0
@@ -1977,9 +1975,20 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               # Test whether the given hostname is valid. This is not
               # strictly what ANSI specifies, but is better than giving
               # an error for Win32 pathnames like "C:\\FOOBAR".
-              && logical_host_p(host)
-             )
+              && logical_host_p(host))
             parse_logical = true;
+          # ANSI CL specifies that we should look at the entire string, using
+          # parse_logical_pathnamestring, not only parse_logical_host_prefix.
+          else {
+            tmp = z;
+            while (tmp.count-- > 0) {
+              chart ch = TheSstring(string)->data[tmp.index++];
+              if (semicolonp(ch)) {
+                parse_logical = true;
+                break;
+              }
+            }
+          }
         }
       }
       #endif
@@ -2125,11 +2134,11 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               # Look for two slashes, then a sequence of characters.
               if (z.count==0) goto no_hostspec;
               ch = TheSstring(STACK_1)->data[z.index];
-              if (!pslashp(ch)) goto no_hostspec;
+              if (!slashp(ch)) goto no_hostspec;
               Z_SHIFT(z,1);
               if (z.count==0) goto no_hostspec;
               ch = TheSstring(STACK_1)->data[z.index];
-              if (!pslashp(ch)) goto no_hostspec;
+              if (!slashp(ch)) goto no_hostspec;
               Z_SHIFT(z,1);
               loop {
                 if (z.count==0)
@@ -2425,7 +2434,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
         #endif
         #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
           # if 1st char is a slash, start with :ABSOLUTE (otherwise :RELATIVE):
-          if (Z_AT_SLASH(z,pslashp,STACK_2)) {
+          if (Z_AT_SLASH(z,slashp,STACK_2)) {
             Z_SHIFT(z,1);
             Car(STACK_0) = S(Kabsolute);
           } else {
@@ -2489,7 +2498,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               }
               # Kommt sofort ein '/' bzw. '\', so war es ein Unterdirectory,
               # sonst ist der Pathname beendet:
-              if (!Z_AT_SLASH(z,pslashp,STACK_3))
+              if (!Z_AT_SLASH(z,slashp,STACK_3))
                 # Nein -> war der Name und kein Subdir.
                 break;
               # Es kommt ein '/' bzw. '\'. Character übergehen:
@@ -2528,7 +2537,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
             if (!nullp(STACK_0)
                 && (z.count >= 2)
                 && chareq(TheSstring(STACK_3)->data[z.index],ascii('^'))
-                && pslashp(TheSstring(STACK_3)->data[z.index+1])) {
+                && slashp(TheSstring(STACK_3)->data[z.index+1])) {
               # beide Characters übergehen:
               Z_SHIFT(z,2);
               pushSTACK(S(Kparent)); # :PARENT
@@ -2555,7 +2564,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               else
                 string = subsstring(STACK_3,z_start_index,z.index);
               # Name fertig.
-              if (nullp(STACK_0) || (!Z_AT_SLASH(z,pslashp,STACK_3))) {
+              if (nullp(STACK_0) || (!Z_AT_SLASH(z,slashp,STACK_3))) {
                 pushSTACK(string); break;
               }
               # Character '.' übergehen:
@@ -2696,6 +2705,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
     skipSTACK(5+2); return;
   }
 #undef pslashp
+#undef slashp
 #undef colonp
 #undef Z_AT_SLASH
 #undef Z_SHIFT
@@ -3636,13 +3646,13 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
     !(called_from_make_pathname ? eq(obj,unbound) :     \
       (wildp ? eq(obj,S(Kwild)) : nullp(obj)))
 #define NAMETYPE_MATCH(acc,slot)                                        \
-    { var object tmp = acc(p)->slot;                                    \
-      acc(newp)->slot = (SPECIFIED(tmp) ? tmp : acc(d)->slot); }
+    { var object tmp = x##slot(p_log,p);                                \
+      acc(newp)->slot = (SPECIFIED(tmp) ? tmp : x##slot(d_log,d)); }
 #define VERSION_MATCH(acc)                                              \
-    { var object p_version = acc(p)->pathname_version;                  \
+    { var object p_version = xpathname_version(p_log,p);                \
       acc(newp)->pathname_version =                                     \
         (SPECIFIED(p_version) ? p_version :                             \
-         (nullp(STACK_0) ? acc(d)->pathname_version : STACK_0)); }
+         (nullp(STACK_0) ? xpathname_version(d_log,d) : STACK_0)); }
 
     # default-version überprüfen:
     #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
@@ -3658,40 +3668,31 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
     #endif
     # check pathname and defaults:
     # (coerce defaults 'pathname):
-    var object d_path = test_default_pathname(STACK_0);
-    if (eq(unbound,STACK_0)) STACK_0 = d_path;
-    pushSTACK(d_path);
-    DOUT("merge-pathnames:",d_path);
-    # stack layout: 0: d_path; 1: d_original; 2: pathname
+    STACK_0 = test_default_pathname(STACK_0);
     # (coerce pathname 'pathname):
     #ifdef LOGICAL_PATHNAMES
-    if (logpathnamep(d_path)) {
-      if (!xpathnamep(STACK_2)) { # pathname
-        STACK_2 = parse_as_logical(STACK_2);
-        DOUT("merge-pathnames:[log_pathname]",STACK_2);
+    if (logpathnamep(STACK_0)) {
+      if (!xpathnamep(STACK_1)) { # pathname
+        STACK_1 = parse_as_logical(STACK_1);
+        DOUT("merge-pathnames:[log_pathname]",STACK_1);
       }
     } else
     #endif
-    STACK_2 = coerce_xpathname(STACK_2); # pathname
+    STACK_1 = coerce_xpathname(STACK_1); # pathname
     #ifdef LOGICAL_PATHNAMES
-    if (logpathnamep(STACK_2) && !logpathnamep(STACK_0)) {
-      if (pathnamep(STACK_1))
-        STACK_1 = whole_namestring(STACK_1);
-      STACK_0 = parse_as_logical(STACK_1);
-      DOUT("merge-pathnames:[log_default]",STACK_0);
-    }
-    #endif
-    STACK_1 = STACK_0; popSTACK(); # drop the first parse default
-    #ifdef LOGICAL_PATHNAMES
-    if (logpathnamep(STACK_1) && logpathnamep(STACK_0)) {
+    DOUT("merge-pathnames:[defaults]",STACK_0);
+    DOUT("merge-pathnames:[pathname]",STACK_1);
+    var bool d_log = logpathnamep(STACK_0);
+    var bool p_log = logpathnamep(STACK_1);
+    if (d_log || p_log) {
       # MERGE-PATHNAMES for Logical Pathnames
       var object newp = allocate_logpathname(); # neuen Pathname holen
       var object d = popSTACK(); # defaults
       var object p = popSTACK(); # pathname
       # Hosts matchen:
       {
-        var object p_host = TheLogpathname(p)->pathname_host;
-        var object d_host = TheLogpathname(d)->pathname_host;
+        var object p_host = xpathname_host(p_log,p);
+        var object d_host = xpathname_host(d_log,d);
         TheLogpathname(newp)->pathname_host = p_host; # erstmal new-host := pathname-host
         if (equal(p_host,d_host))
           goto lmatch_directories;
@@ -3705,18 +3706,15 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
       {
         # new-directory := pathname-directory :
         TheLogpathname(newp)->pathname_directory =
-          eq(unbound,TheLogpathname(p)->pathname_directory) ?
-          TheLogpathname(d)->pathname_directory :
-          TheLogpathname(p)->pathname_directory;
+          eq(unbound,xpathname_directory(p_log,p)) ?
+          xpathname_directory(d_log,d) : xpathname_directory(p_log,p);
         goto ldirectories_OK;
       }
      lmatch_directories:
       # Directories matchen:
       {
-        var object p_directory = # pathname-directory
-          TheLogpathname(p)->pathname_directory;
-        var object d_directory = # defaults-directory
-          TheLogpathname(d)->pathname_directory;
+        var object p_directory = xpathname_directory(p_log,p);
+        var object d_directory = xpathname_directory(d_log,d);
         var object new_subdirs = p_directory;
         if (called_from_make_pathname) {
           # pathname-subdirs nicht angegeben?
@@ -4518,9 +4516,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     # Fehlermeldung:
    fehler_arg:
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,
-           GETTEXT("~: illegal ~ argument ~")
-          );
+    fehler(error,GETTEXT("~: illegal ~ argument ~"));
   }
 
 #ifdef LOGICAL_PATHNAMES
@@ -8480,8 +8476,8 @@ global direction_t check_direction (const object dir) {
   else {
     pushSTACK(dir);               # TYPE-ERROR slot DATUM
     pushSTACK(O(type_direction)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(dir); pushSTACK(S(open));
-    fehler(type_error,GETTEXT("~: illegal :DIRECTION argument ~"));
+    pushSTACK(dir); pushSTACK(S(Kdirection)); pushSTACK(S(open));
+    fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
   }
 }
 
@@ -8499,8 +8495,9 @@ global if_does_not_exist_t check_if_does_not_exist (const object if_not_exist)
   else {
     pushSTACK(if_not_exist);              # TYPE-ERROR slot DATUM
     pushSTACK(O(type_if_does_not_exist)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(if_not_exist); pushSTACK(S(open));
-    fehler(type_error,GETTEXT("~: illegal :IF-DOES-NOT-EXIST argument ~"));
+    pushSTACK(if_not_exist); pushSTACK(S(Kif_does_not_exist));
+    pushSTACK(S(open));
+    fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
   }
 }
 
@@ -8525,8 +8522,8 @@ global if_exists_t check_if_exists (const object if_exists) {
   else {
     pushSTACK(if_exists);         # TYPE-ERROR slot DATUM
     pushSTACK(O(type_if_exists)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(if_exists); pushSTACK(S(open));
-    fehler(type_error,GETTEXT("~: illegal :IF-EXISTS argument ~"));
+    pushSTACK(if_exists); pushSTACK(S(Kif_exists)); pushSTACK(S(open));
+    fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
   }
 }
 
@@ -8788,9 +8785,9 @@ LISPFUN(open,1,0,norest,key,6,\
     }
     # Stack layout: filename-arg, direction, element-type, if-exists, if-does-not-exist, external-format, buffered, origpathname.
     # filename ist jetzt ein Pathname.
-    var uintB direction = check_direction(STACK_(5+1));
-    var uintB if_exists = check_if_exists(STACK_(3+1));
-    var uintB if_not_exists = check_if_does_not_exist(STACK_(2+1));
+    var direction_t direction = check_direction(STACK_(5+1));
+    var if_exists_t if_exists = check_if_exists(STACK_(3+1));
+    var if_does_not_exist_t if_not_exists=check_if_does_not_exist(STACK_(2+1));
     # :element-type wird später überprüft.
     # :external-format wird später überprüft.
     # :buffered wird später überprüft.
