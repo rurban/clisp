@@ -876,6 +876,8 @@
               (let ((low 0) (high 0)) (yes))) ; wlog!
              (t (no))))
           ((and (consp type) (symbolp (first type)))
+           (unless (and (list-length type) (null (cdr (last type))))
+             (typespec-error 'subtypep type))
            (case (first type)
              (MEMBER ; (MEMBER &rest objects)
               ;; All elements must be of type INTEGER.
