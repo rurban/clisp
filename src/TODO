@@ -33,6 +33,12 @@ Should handle these soon.
 Embeddability: additional API in spvw.d; global error handler; example.
 
 
+Remove all unnecessary MACROEXPAND calls from compiler.lisp. When a macro
+is also a special form or a compiler macro, the special form handler or
+the compiler should be used, not the regular macro, for efficiency reasons.
+Use macroexpand-form instead.
+
+
 Better error checking in get-setf-expansion for long defsetf
 
 
