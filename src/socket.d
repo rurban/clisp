@@ -1072,11 +1072,10 @@ LISPFUNN(resolve_host_ipaddr_,1)
     fehler_string_integer(arg);
 
   if (he == NULL) {
-    pushSTACK(ascii_to_string(H_ERRMSG));
-    pushSTACK(arg);
-    fehler(os_error,
-           GETTEXT("~: ~")
-          );
+    pushSTACK(arg); pushSTACK(arg);
+    STACK_1 = ascii_to_string(H_ERRMSG);
+    pushSTACK(S(resolve_host_ipaddr_));
+    fehler(os_error,"~ (~): ~");
   }
 
   hostent_to_stack(he,buffer);
