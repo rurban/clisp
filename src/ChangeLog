@@ -1,5 +1,12 @@
 2000-06-11  Bruno Haible  <haible@clisp.cons.org>
 
+        * fsubr.d (system::function-macro-let): New special form.
+        * control.d (system::function-macro-let): Likewise.
+        * init.lisp (%expand-form): Handle SYSTEM::FUNCTION-MACRO-LET.
+          (%expand-funmacdefs-1, %expand-funmacdefs-2): New functions.
+        * compiler.lisp (c-form-table): Add SYSTEM::FUNCTION-MACRO-LET.
+          (c-FUNCTION-MACRO-LET): New function.
+
         * lispbibl.d (Rectype_Macro, Rectype_FunctionMacro): New enumeration
           items.
           (Macro, FunctionMacro): New types.

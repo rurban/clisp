@@ -794,6 +794,18 @@ interpreter compiler
                         (ENGLISH "illegal syntax in MACROLET: ~S")
                         macrodef
               ) ) ) ) )
+              (FUNCTION-MACRO-LET ; Funktionsdefinitionen expandieren,
+                                  ; Body im erweiterten Environment expandieren
+                (if (null (second form))
+                  (values (%expand-form (cons 'PROGN (cddr form))) t)
+                  (let ((newfenv (%expand-funmacdefs-1 (second form))))
+                    (multiple-value-call #'%expand-cons form
+                      (first form) nil
+                      (multiple-value-call #'%expand-cons (rest form)
+                        (%expand-funmacdefs-2 (second form))
+                        (let ((*fenv* (apply #'vector newfenv)))
+                          (%expand-list (cddr form))
+              ) ) ) ) ) )
               (SYMBOL-MACROLET ; Body im erweiterten Environment expandieren
                 (do ((L1 (second form) (cdr L1))
                      (L2 nil))
@@ -1160,6 +1172,45 @@ interpreter compiler
                      (%expand-lambdabody (cdr fundef) (car fundef) t)
              )
              (%expand-fundefs-2 (rest fundefs))
+) ) ) )
+; (%expand-funmacdefs-1 funmacdefs) liefert eine Liste (name1 nil ... namek nil *fenv*)
+(defun %expand-funmacdefs-1 (funmacdefs)
+  (if (atom funmacdefs)
+    (if funmacdefs
+      (error-of-type 'source-program-error
+        (ENGLISH "FUNCTION-MACRO-LET: code contains a dotted list, ending with ~S")
+        funmacdefs
+      )
+      (list *fenv*)
+    )
+    (let ((funmacdef (car funmacdefs)))
+      (if (and (consp funmacdef)
+               (symbolp (car funmacdef))
+               (consp (cdr funmacdef)) (consp (second funmacdef))
+               (consp (cddr funmacdef)) (consp (third funmacdef))
+               (null (cdddr funmacdef))
+          )
+        (list* (car funmacdef) nil (%expand-funmacdefs-1 (cdr funmacdefs)))
+        (error-of-type 'source-program-error
+          (ENGLISH "illegal syntax in FUNCTION-MACRO-LET: ~S")
+          funmacdef
+) ) ) ) )
+; (%expand-funmacdefs-2 funmacdefs) expandiert eine FunctionMacros-
+; Definitionenliste, wie in FUNCTION-MACRO-LET. 2 Werte.
+(defun %expand-funmacdefs-2 (funmacdefs)
+  (if (atom funmacdefs)
+    (values funmacdefs nil)
+    (let ((funmacdef (car funmacdefs)))
+      (multiple-value-call #'%expand-cons funmacdefs
+        (multiple-value-call #'%expand-cons funmacdef
+          (car funmacdef) nil
+          (multiple-value-call #'%expand-cons (cdr funmacdef)
+            (%expand-lambdabody (cadr funmacdef))
+            (multiple-value-call #'%expand-cons (cddr funmacdef)
+              (%expand-lambdabody (caddr funmacdef))
+              (cdddr funmacdef) nil
+        ) ) )
+        (%expand-funmacdefs-2 (rest funmacdefs))
 ) ) ) )
 ; (%expand-handlers handlers) expandiert eine Typ/Handler-Liste
 ; wie in %HANDLER-BIND. 2 Werte.

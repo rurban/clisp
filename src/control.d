@@ -1169,6 +1169,68 @@ LISPSPECFORM(macrolet, 1,0,body)
     return_Values finish_flet(top_of_frame,body);
   }
 
+LISPSPECFORM(function_macro_let, 1,0,body)
+# (SYSTEM::FUNCTION-MACRO-LET ({(name fun-lambdabody macro-lambdabody)}) {form})
+# is similar to FLET, except that alternative macro definitions are provided
+# for every function.
+  {
+    var object body = popSTACK(); # ({form})
+    var object funmacspecs = popSTACK(); # {(name fun-lambdabody macro-lambdabody)}
+    # FunctionMacro-Bindungs-Frame aufbauen:
+    var object* top_of_frame = STACK; # Pointer übern Frame
+    while (consp(funmacspecs)) {
+      pushSTACK(body); # Formenliste retten
+      pushSTACK(Cdr(funmacspecs)); # restliche funmacspecs
+      funmacspecs = Car(funmacspecs); # nächstes (name fun-lambdabody macro-lambdabody)
+      # Sollte eine Liste der Länge 3 sein, dessen CAR ein Symbol und dessen
+      # weitere Listenelemente Conses sind:
+      if (!consp(funmacspecs)) {
+       fehler_spec:
+        pushSTACK(funmacspecs);
+        pushSTACK(S(function_macro_let));
+        fehler(source_program_error,
+               GETTEXT("~: ~ is not a function and macro specification")
+              );
+      }
+      var object name = Car(funmacspecs);
+      if (!symbolp(name)) {
+        pushSTACK(name);
+        pushSTACK(S(function_macro_let));
+        fehler(source_program_error,
+               GETTEXT("~: function and macro name ~ should be a symbol")
+              );
+      }
+      if (!(mconsp(Cdr(funmacspecs)) && mconsp(Car(Cdr(funmacspecs)))
+            && mconsp(Cdr(Cdr(funmacspecs))) && mconsp(Car(Cdr(Cdr(funmacspecs))))
+            && nullp(Cdr(Cdr(Cdr(funmacspecs))))
+         ) )
+        goto fehler_spec;
+      pushSTACK(name); # name retten
+      pushSTACK(Car(Cdr(funmacspecs))); # fun-lambdabody
+      pushSTACK(Car(Cdr(Cdr(funmacspecs)))); # macro-lambdabody
+      # fun-lambdabody zu einer Closure machen:
+      STACK_1 = get_closure(STACK_1,name,FALSE,&aktenv);
+      # Macro-Expander bauen:
+      # (SYSTEM::MAKE-MACRO-EXPANDER (cons name macro-lambdabody))
+      {
+        var object macrodef = allocate_cons();
+        Car(macrodef) = STACK_2; Cdr(macrodef) = STACK_0;
+        pushSTACK(macrodef); funcall(S(make_macro_expander),1);
+        pushSTACK(value1); C_macro_expander();
+        STACK_0 = value1;
+      }
+      # Beides zusammenfassen:
+      C_make_function_macro();
+      name = popSTACK();
+      funmacspecs = popSTACK(); # restliche funmacspecs
+      body = popSTACK();
+      # in den Frame:
+      pushSTACK(value1); # als "Wert" das FunctionMacro
+      pushSTACK(name); # Name, Bindung ist automatisch aktiv
+    }
+    return_Values finish_flet(top_of_frame,body);
+  }
+
 LISPSPECFORM(symbol_macrolet, 1,0,body)
 # (SYMBOL-MACROLET ({(var expansion)}) {decl} {form}), CLTL2 S. 155
   {
