@@ -1332,22 +1332,22 @@
         #endif
       #else # defined(SPVW_PURE_BLOCKS) # && defined(SINGLEMAP_MEMORY)
         #define update(objptr)  \
-          { var tint type = mtypecode(*(object*)objptr);                      \
-            if (!is_unused_heap(type)) # unverschieblich -> nichts tun        \
-              { var object obj = *(object*)objptr; # fragliches Objekt        \
-                if (!in_old_generation(obj,type,?))                           \
-                  # ältere Generation -> nichts zu tun (Objekt blieb stehen)  \
-                  if (is_varobject_heap(type))                                \
-                    # Objekt variabler Länge                                  \
-                    { if (marked(ThePointer(obj))) # markiert?                \
-                        *(object*)objptr = type_untype_object(type,untype(*(object*)ThePointer(obj))); \
-                    }                                                         \
-                    else                                                      \
-                    # Zwei-Pointer-Objekt                                     \
-                    { # Für spätere Aktualisierung in dessen Liste einhängen: \
-                      *(object*)objptr = *(object*)ThePointer(obj);           \
-                      *(object*)ThePointer(obj) = with_mark_bit(pointer_as_object(objptr)); \
-                    }                                                         \
+          { var tint type = mtypecode(*(object*)objptr);                        \
+            if (!is_unused_heap(type)) # unverschieblich -> nichts tun          \
+              { var object obj = *(object*)objptr; # fragliches Objekt          \
+                if (!in_old_generation(obj,type,?))                             \
+                  # ältere Generation -> nichts zu tun (Objekt blieb stehen)    \
+                  { if (is_varobject_heap(type))                                \
+                      # Objekt variabler Länge                                  \
+                      { if (marked(ThePointer(obj))) # markiert?                \
+                          *(object*)objptr = type_untype_object(type,untype(*(object*)ThePointer(obj))); \
+                      }                                                         \
+                      else                                                      \
+                      # Zwei-Pointer-Objekt                                     \
+                      { # Für spätere Aktualisierung in dessen Liste einhängen: \
+                        *(object*)objptr = *(object*)ThePointer(obj);           \
+                        *(object*)ThePointer(obj) = with_mark_bit(pointer_as_object(objptr)); \
+                  }   }                                                         \
           }   }
       #endif
     #endif
