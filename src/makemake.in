@@ -2085,11 +2085,10 @@ echol "${SRCDIR}configure : ${SRCDIR}configure.in"
 echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}configure"
 echol
 if [ -n "${SRCDIR}" ] ; then
-  for f in makemake.in unixconf.h.in configure VERSION; do
+  for f in makemake.in unixconf.h.in configure VERSION version.h; do
     link_dep "${f}" "${SRCDIR}${f}"
   done
 fi
-
 
 UTILS=''
 if [ $NEED_CCPAUX = true ] ; then
