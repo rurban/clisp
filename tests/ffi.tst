@@ -577,17 +577,15 @@ MAKE-FOREIGN-STRING
   (stringp (command-line)))
 #+win32 T
 
-(list
+(let ((libc #+(and unix (not cygwin)) :DEFAULT
+            #+cygwin "/bin/cygwin1.dll" ; RTLD_DEFAULT not implemented
+            #+win32 :DEFAULT))
  (def-call-out c-malloc (:arguments (l long))
    (:name "malloc") (:language :stdc) (:return-type c-pointer)
-   (:library #+(and unix (not cygwin)) :DEFAULT
-             #+cygwin "/bin/cygwin1.dll" ; RTLD_DEFAULT not implemented
-             #+win32 :DEFAULT))
+   (:library libc))
  (def-call-out c-free (:arguments (p c-pointer))
    (:name "free") (:language :stdc) (:return-type nil)
-   (:library #+(and unix (not cygwin)) :DEFAULT
-             #+cygwin "/bin/cygwin1.dll" ; RTLD_DEFAULT not implemented
-             #+win32 :DEFAULT)))
+   (:library libc)))
 (c-malloc c-free)
 
 ;; this is ugly and inefficient; if you find yourself doing this,
