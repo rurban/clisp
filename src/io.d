@@ -3885,9 +3885,9 @@ LISPFUNN(not_feature_reader,3) { # reads #-
 #                       ; VECTOR or LIST. A CLISP extension.
 #                       (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
 #                         (if desc
-#                           (if (svref desc 3)
+#                           (if (svref desc 2)
 #                             (values
-#                               (apply (svref desc 3)
+#                               (apply (svref desc 2)
 #                                      (structure-arglist-expand name (cdr args))
 #                             ) )
 #                             (error "~S: Structures of type ~S cannot be read (constructor function unknown)"
@@ -4036,11 +4036,11 @@ LISPFUNN(structure_reader,3) { # reads #S
       { # execute (GET name 'SYS::DEFSTRUCT-DESCRIPTION):
         var object description = get(name,S(defstruct_description));
         if (boundp(description)) {
-          # description must be a Simple-Vector of length >=6:
-          if (simple_vector_p(description) && (Svector_length(description) >= 6)) {
+          # description must be a Simple-Vector of length >=4:
+          if (simple_vector_p(description) && (Svector_length(description) >= 4)) {
             # fetch constructor-function:
-            constructor = # (svref description 3)
-              TheSvector(description)->data[3];
+            constructor = # (svref description 2)
+              TheSvector(description)->data[2];
             goto found_constructor;
           } else {
             pushSTACK(*stream_); # STREAM-ERROR slot STREAM
