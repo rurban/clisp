@@ -1,3 +1,8 @@
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
+	* autoconf/acgeneral.m4 (AC_MSG_RESULTPROTO): Remove macro.
+	(AC_LANG_EXTERN): Move to aclocal.m4.
+
 2001-07-21  Bruno Haible  <haible@clisp.cons.org>
 
 	* po/clisp-msguniq: Update comments.
