@@ -1,3 +1,9 @@
+2004-05-25  Sam Steingold  <sds@gnu.org>
+
+	* defs2.lisp (function-name): new inline function
+	* compiler.lisp (function-signature): use it
+	* documentation.lisp (documentation): ditto
+
 2004-05-24  Bruno Haible  <bruno@clisp.org>
 
 	* built.d: New file.
