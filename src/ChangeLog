@@ -1,3 +1,39 @@
+2001-02-03  Bruno Haible  <haible@clisp.cons.org>
+
+        * configure: Also copy gettext/autoconf.
+        * makemake.in (libintl.h): Link to gettext/intl/libintl.h.
+        * lispbibl.d (GETTEXTL): New macro.
+          (clgettextl): New declaration.
+        * amigaaux.d: Use GETTEXTL instead of GETTEXT for strings to be output
+          via asciz_out().
+        * spvw.d: Likewise.
+        * spvw_alloca.d: Likewise.
+        * spvw_allocate.d: Likewise.
+        * spvw_fault.d: Likewise.
+        * spvw_garcol.d: Likewise.
+        * spvw_memfile.d: Likewise.
+        * spvw_mmap.d: Likewise.
+        * spvw_multimap.d: Likewise.
+        * spvw_sigsegv.d: Likewise.
+        * spvw_language.d (init_language): Call bindtextdomain also for domain
+          "clisplow". Remove textdomain() call. Call bind_textdomain_codeset.
+          (to_latin_table, from_latin_table, cvgettext): Remove.
+          (clgettext): Call dgettext with domain "clisp".
+          (clgettextl): New function.
+          (localized_string): Check argument must be in ASCII. clgettext()
+          returns value in UTF-8.
+          (localized_object): Likewise.
+        * error.d (write_errorasciz_substring): New function.
+          (write_errorasciz): Use it.
+          (write_errorstring): Move into string segment after segment, not
+          byte after byte.
+        * errunix.d (get_errormsg): Use GETTEXTL instead of GETTEXT, so the
+          strings end up in both clisp.mo and clisplow.mo.
+          (OS_error_internal): Define 'translate' as clgettext, for UTF-8
+          converted translation.
+          (errno_out): Define 'translate' as clgettextl, for locale dependent
+          encoded translation.
+
 2001-02-01  Bruno Haible  <haible@clisp.cons.org>
 
         * io.d (pr_sstring_ab): Make GC safe.

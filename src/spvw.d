@@ -654,12 +654,12 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 # Bei Überlauf eines der Stacks:
   nonreturning_function(global, SP_ueber, (void));
   global void SP_ueber()
-    { asciz_out(GETTEXT(NLstring "*** - " "Program stack overflow. RESET"));
+    { asciz_out(GETTEXTL(NLstring "*** - " "Program stack overflow. RESET"));
       reset();
     }
   nonreturning_function(global, STACK_ueber, (void));
   global void STACK_ueber()
-    { asciz_out(GETTEXT(NLstring "*** - " "Lisp stack overflow. RESET"));
+    { asciz_out(GETTEXTL(NLstring "*** - " "Lisp stack overflow. RESET"));
       reset();
     }
 
@@ -858,7 +858,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           default: goto illegal;
         }
       illegal:
-        asciz_out(GETTEXT("Unknown signature of an FSUBR" NLstring));
+        asciz_out(GETTEXTL("Unknown signature of an FSUBR" NLstring));
         quit_sofort(1);
     }
 
@@ -967,7 +967,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           default: goto illegal;
         }
       illegal:
-        asciz_out(GETTEXT("Unknown signature of a SUBR" NLstring));
+        asciz_out(GETTEXTL("Unknown signature of a SUBR" NLstring));
         quit_sofort(1);
     }
 
@@ -1609,7 +1609,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                   else
                   { var object pack = find_package(asciz_to_string(packname,O(internal_encoding)));
                     if (nullp(pack)) # Package nicht gefunden?
-                      { asciz_out_ss(GETTEXT("module `%s' requires package %s." NLstring),
+                      { asciz_out_ss(GETTEXTL("module `%s' requires package %s." NLstring),
                                      module->name, packname
                                     );
                         quit_sofort(1);
@@ -1965,11 +1965,11 @@ local void print_banner ()
                            arg++; break;                            \
                        }                                            \
                      if (!(*arg == '\0')) # Argument zu Ende?       \
-                       { asciz_out_s(GETTEXT("Syntax for %s: nnnnnnn or nnnnKB or nMB" NLstring), docstring); \
+                       { asciz_out_s(GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB" NLstring), docstring); \
                          usage (1);                                 \
                        }                                            \
                      if (!((val >= limit_low) && (val <= limit_high))) \
-                       { asciz_out_s(GETTEXT("%s out of range" NLstring), docstring); \
+                       { asciz_out_s(GETTEXTL("%s out of range" NLstring), docstring); \
                          usage (1);                                 \
                        }                                            \
                      # Bei mehreren -m bzw. -s Argumenten zählt nur das letzte. \
@@ -1981,7 +1981,7 @@ local void print_banner ()
                       { DumpProcessMemoryMap(); quit_sofort(1); }
                     #endif
                     OPTION_ARG
-                    SIZE_ARG(GETTEXT("memory size"),
+                    SIZE_ARG(GETTEXTL("memory size"),
                              argv_memneed,100000,
                              (oint_addr_len+addr_shift < intLsize-1 # memory size begrenzt durch
                               ? bitm(oint_addr_len+addr_shift)      # Adressraum in oint_addr_len+addr_shift Bits
@@ -1991,7 +1991,7 @@ local void print_banner ()
                   #ifndef NO_SP_MALLOC
                   case 's': # Stack size
                     OPTION_ARG
-                    SIZE_ARG(GETTEXT("stack size"),
+                    SIZE_ARG(GETTEXTL("stack size"),
                              argv_stackneed,40000,8*1024*1024)
                     break;
                   #endif
@@ -2312,14 +2312,14 @@ local void print_banner ()
         { begin_system_call();
           memblock = (aint)malloc(1);
           end_system_call();
-          asciz_out_1(GETTEXT("Return value of malloc() = %x is not compatible with type code distribution." NLstring),
+          asciz_out_1(GETTEXTL("Return value of malloc() = %x is not compatible with type code distribution." NLstring),
                       memblock
                      );
           goto no_mem;
         }
       if (memneed < MINIMUM_SPACE+RESERVE) # aber mit weniger als MINIMUM_SPACE
         # geben wir uns nicht zufrieden:
-        { asciz_out_1(GETTEXT("Only %d bytes available." NLstring),
+        { asciz_out_1(GETTEXTL("Only %d bytes available." NLstring),
                       memneed
                      );
           goto no_mem;
@@ -2553,7 +2553,7 @@ local void print_banner ()
             # page is 0x32000-0x32FFF, hence we can set SP_bound = 0x34000.
             { var MEMORY_BASIC_INFORMATION info;
               if (!(VirtualQuery((void*)SP(),&info,sizeof(info)) == sizeof(info)))
-                { asciz_out(GETTEXT("Couldn't determine the end of the SP stack!" NLstring));
+                { asciz_out(GETTEXTL("Couldn't determine the end of the SP stack!" NLstring));
                   SP_bound = 0;
                 }
                 else
@@ -2774,11 +2774,11 @@ local void print_banner ()
         # Warning for beginners
         { pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
           write_sstring(&STACK_0,
-            asciz_to_string(GETTEXT(NLstring "WARNING: No initialisation file specified." NLstring),
+            asciz_to_string(GETTEXTL(NLstring "WARNING: No initialisation file specified." NLstring),
                             O(internal_encoding)
                            ));
           write_sstring(&STACK_0,
-            asciz_to_string(GETTEXT("Please try: "),
+            asciz_to_string(GETTEXTL("Please try: "),
                             O(internal_encoding)
                            ));
           write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
@@ -2997,7 +2997,7 @@ local void print_banner ()
       # Falls der Speicher nicht ausreichte:
       no_mem:
       asciz_out(program_name); asciz_out(": ");
-      asciz_out(GETTEXT("Not enough memory for Lisp." NLstring));
+      asciz_out(GETTEXTL("Not enough memory for Lisp." NLstring));
       quit_sofort(1);
       /*NOTREACHED*/
      # Beendigung des Programms durch quit_sofort():

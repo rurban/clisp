@@ -2017,7 +2017,7 @@
         if (FALSE)
           munmap_failure:
           { end_system_call();
-            asciz_out(GETTEXT("munmap() fails."));
+            asciz_out(GETTEXTL("munmap() fails."));
             errno_out(OS_errno);
             abort();
           }

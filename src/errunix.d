@@ -33,7 +33,7 @@
 
   #ifdef GNU_GETTEXT
     # Let the caller of get_errormsg() translate the messages.
-    #define clgettext
+    #define clgettextl
   #endif
 
   # Returns a system error message.
@@ -54,193 +54,193 @@
           #ifdef EPERM
           if (errcode == EPERM) {
             errormsg->name = "EPERM";
-            errormsg->msg = GETTEXT("Operation not permitted");
+            errormsg->msg = GETTEXTL("Operation not permitted");
           }
           #endif
           #ifdef ENOENT
           if (errcode == ENOENT) {
             errormsg->name = "ENOENT";
-            errormsg->msg = GETTEXT("No such file or directory");
+            errormsg->msg = GETTEXTL("No such file or directory");
           }
           #endif
           #ifdef ESRCH
           if (errcode == ESRCH) {
             errormsg->name = "ESRCH";
-            errormsg->msg = GETTEXT("No such process");
+            errormsg->msg = GETTEXTL("No such process");
           }
           #endif
           #ifdef EINTR
           if (errcode == EINTR) {
             errormsg->name = "EINTR";
-            errormsg->msg = GETTEXT("Interrupted system call");
+            errormsg->msg = GETTEXTL("Interrupted system call");
           }
           #endif
           #ifdef EIO
           if (errcode == EIO) {
             errormsg->name = "EIO";
-            errormsg->msg = GETTEXT("I/O error");
+            errormsg->msg = GETTEXTL("I/O error");
           }
           #endif
           #ifdef ENXIO
           if (errcode == ENXIO) {
             errormsg->name = "ENXIO";
-            errormsg->msg = GETTEXT("No such device or address");
+            errormsg->msg = GETTEXTL("No such device or address");
           }
           #endif
           #ifdef E2BIG
           if (errcode == E2BIG) {
             errormsg->name = "E2BIG";
-            errormsg->msg = GETTEXT("Arg list too long");
+            errormsg->msg = GETTEXTL("Arg list too long");
           }
           #endif
           #ifdef ENOEXEC
           if (errcode == ENOEXEC) {
             errormsg->name = "ENOEXEC";
-            errormsg->msg = GETTEXT("Exec format error");
+            errormsg->msg = GETTEXTL("Exec format error");
           }
           #endif
           #ifdef EBADF
           if (errcode == EBADF) {
             errormsg->name = "EBADF";
-            errormsg->msg = GETTEXT("Bad file number");
+            errormsg->msg = GETTEXTL("Bad file number");
           }
           #endif
           #ifdef ECHILD
           if (errcode == ECHILD) {
             errormsg->name = "ECHILD";
-            errormsg->msg = GETTEXT("No child processes");
+            errormsg->msg = GETTEXTL("No child processes");
           }
           #endif
           #ifdef EAGAIN
           if (errcode == EAGAIN) {
             errormsg->name = "EAGAIN";
-            errormsg->msg = GETTEXT("No more processes");
+            errormsg->msg = GETTEXTL("No more processes");
           }
           #endif
           #ifdef ENOMEM
           if (errcode == ENOMEM) {
             errormsg->name = "ENOMEM";
-            errormsg->msg = GETTEXT("Not enough memory");
+            errormsg->msg = GETTEXTL("Not enough memory");
           }
           #endif
           #ifdef EACCES
           if (errcode == EACCES) {
             errormsg->name = "EACCES";
-            errormsg->msg = GETTEXT("Permission denied");
+            errormsg->msg = GETTEXTL("Permission denied");
           }
           #endif
           #ifdef EFAULT
           if (errcode == EFAULT) {
             errormsg->name = "EFAULT";
-            errormsg->msg = GETTEXT("Bad address");
+            errormsg->msg = GETTEXTL("Bad address");
           }
           #endif
           #ifdef ENOTBLK
           if (errcode == ENOTBLK) {
             errormsg->name = "ENOTBLK";
-            errormsg->msg = GETTEXT("Block device required");
+            errormsg->msg = GETTEXTL("Block device required");
           }
           #endif
           #ifdef EBUSY
           if (errcode == EBUSY) {
             errormsg->name = "EBUSY";
-            errormsg->msg = GETTEXT("Device busy");
+            errormsg->msg = GETTEXTL("Device busy");
           }
           #endif
           #ifdef EEXIST
           if (errcode == EEXIST) {
             errormsg->name = "EEXIST";
-            errormsg->msg = GETTEXT("File exists");
+            errormsg->msg = GETTEXTL("File exists");
           }
           #endif
           #ifdef EXDEV
           if (errcode == EXDEV) {
             errormsg->name = "EXDEV";
-            errormsg->msg = GETTEXT("Cross-device link");
+            errormsg->msg = GETTEXTL("Cross-device link");
           }
           #endif
           #ifdef ENODEV
           if (errcode == ENODEV) {
             errormsg->name = "ENODEV";
-            errormsg->msg = GETTEXT("No such device");
+            errormsg->msg = GETTEXTL("No such device");
           }
           #endif
           #ifdef ENOTDIR
           if (errcode == ENOTDIR) {
             errormsg->name = "ENOTDIR";
-            errormsg->msg = GETTEXT("Not a directory");
+            errormsg->msg = GETTEXTL("Not a directory");
           }
           #endif
           #ifdef EISDIR
           if (errcode == EISDIR) {
             errormsg->name = "EISDIR";
-            errormsg->msg = GETTEXT("Is a directory");
+            errormsg->msg = GETTEXTL("Is a directory");
           }
           #endif
           #ifdef EINVAL
           if (errcode == EINVAL) {
             errormsg->name = "EINVAL";
-            errormsg->msg = GETTEXT("Invalid argument");
+            errormsg->msg = GETTEXTL("Invalid argument");
           }
           #endif
           #ifdef ENFILE
           if (errcode == ENFILE) {
             errormsg->name = "ENFILE";
-            errormsg->msg = GETTEXT("File table overflow");
+            errormsg->msg = GETTEXTL("File table overflow");
           }
           #endif
           #ifdef EMFILE
           if (errcode == EMFILE) {
             errormsg->name = "EMFILE";
-            errormsg->msg = GETTEXT("Too many open files");
+            errormsg->msg = GETTEXTL("Too many open files");
           }
           #endif
           #ifdef ENOTTY
           if (errcode == ENOTTY) {
             errormsg->name = "ENOTTY";
-            errormsg->msg = GETTEXT("Inappropriate ioctl for device");
+            errormsg->msg = GETTEXTL("Inappropriate ioctl for device");
           }
           #endif
           #ifdef ETXTBSY
           if (errcode == ETXTBSY) {
             errormsg->name = "ETXTBSY";
-            errormsg->msg = GETTEXT("Text file busy");
+            errormsg->msg = GETTEXTL("Text file busy");
           }
           #endif
           #ifdef EFBIG
           if (errcode == EFBIG) {
             errormsg->name = "EFBIG";
-            errormsg->msg = GETTEXT("File too large");
+            errormsg->msg = GETTEXTL("File too large");
           }
           #endif
           #ifdef ENOSPC
           if (errcode == ENOSPC) {
             errormsg->name = "ENOSPC";
-            errormsg->msg = GETTEXT("No space left on device");
+            errormsg->msg = GETTEXTL("No space left on device");
           }
           #endif
           #ifdef ESPIPE
           if (errcode == ESPIPE) {
             errormsg->name = "ESPIPE";
-            errormsg->msg = GETTEXT("Illegal seek");
+            errormsg->msg = GETTEXTL("Illegal seek");
           }
           #endif
           #ifdef EROFS
           if (errcode == EROFS) {
             errormsg->name = "EROFS";
-            errormsg->msg = GETTEXT("Read-only file system");
+            errormsg->msg = GETTEXTL("Read-only file system");
           }
           #endif
           #ifdef EMLINK
           if (errcode == EMLINK) {
             errormsg->name = "EMLINK";
-            errormsg->msg = GETTEXT("Too many links");
+            errormsg->msg = GETTEXTL("Too many links");
           }
           #endif
           #ifdef EPIPE
           if (errcode == EPIPE) {
             errormsg->name = "EPIPE";
-            errormsg->msg = GETTEXT("Broken pipe, child process terminated or socket closed");
+            errormsg->msg = GETTEXTL("Broken pipe, child process terminated or socket closed");
             # Note that these "translations" exploit that CLISP only catches
             # SIGPIPEs from subprocesses and sockets. Other pipes lead to a
             # deadly signal and never to this error message.
@@ -250,361 +250,361 @@
           #ifdef EDOM
           if (errcode == EDOM) {
             errormsg->name = "EDOM";
-            errormsg->msg = GETTEXT("Argument out of domain");
+            errormsg->msg = GETTEXTL("Argument out of domain");
           }
           #endif
           #ifdef ERANGE
           if (errcode == ERANGE) {
             errormsg->name = "ERANGE";
-            errormsg->msg = GETTEXT("Result too large");
+            errormsg->msg = GETTEXTL("Result too large");
           }
           #endif
           # Errors in multibyte functions:
           #ifdef EILSEQ
           if (errcode == EILSEQ && EILSEQ != EINVAL) {
             errormsg->name = "EILSEQ";
-            errormsg->msg = GETTEXT("Invalid multibyte or wide character");
+            errormsg->msg = GETTEXTL("Invalid multibyte or wide character");
           }
           #endif
           # Errors related to non-blocking I/O and interrupt I/O:
           #ifdef EWOULDBLOCK
           if (errcode == EWOULDBLOCK) {
             errormsg->name = "EWOULDBLOCK";
-            errormsg->msg = GETTEXT("Operation would block");
+            errormsg->msg = GETTEXTL("Operation would block");
           }
           #endif
           #ifdef EINPROGRESS
           if (errcode == EINPROGRESS) {
             errormsg->name = "EINPROGRESS";
-            errormsg->msg = GETTEXT("Operation now in progress");
+            errormsg->msg = GETTEXTL("Operation now in progress");
           }
           #endif
           #ifdef EALREADY
           if (errcode == EALREADY) {
             errormsg->name = "EALREADY";
-            errormsg->msg = GETTEXT("Operation already in progress");
+            errormsg->msg = GETTEXTL("Operation already in progress");
           }
           #endif
           # Other common errors:
           #ifdef ELOOP
           if (errcode == ELOOP) {
             errormsg->name = "ELOOP";
-            errormsg->msg = GETTEXT("Too many levels of symbolic links");
+            errormsg->msg = GETTEXTL("Too many levels of symbolic links");
           }
           #endif
           #ifdef ENAMETOOLONG
           if (errcode == ENAMETOOLONG) {
             errormsg->name = "ENAMETOOLONG";
-            errormsg->msg = GETTEXT("File name too long");
+            errormsg->msg = GETTEXTL("File name too long");
           }
           #endif
           #ifdef ENOTEMPTY
           if (errcode == ENOTEMPTY) {
             errormsg->name = "ENOTEMPTY";
-            errormsg->msg = GETTEXT("Directory not empty");
+            errormsg->msg = GETTEXTL("Directory not empty");
           }
           #endif
           # Errors relating to Network File System (NFS):
           #ifdef ESTALE
           if (errcode == ESTALE) {
             errormsg->name = "ESTALE";
-            errormsg->msg = GETTEXT("Stale NFS file handle");
+            errormsg->msg = GETTEXTL("Stale NFS file handle");
           }
           #endif
           #ifdef EREMOTE
           if (errcode == EREMOTE) {
             errormsg->name = "EREMOTE";
-            errormsg->msg = GETTEXT("Too many levels of remote in path");
+            errormsg->msg = GETTEXTL("Too many levels of remote in path");
           }
           #endif
           # Errors relating to sockets, IPC and networking:
           #ifdef ENOTSOCK
           if (errcode == ENOTSOCK) {
             errormsg->name = "ENOTSOCK";
-            errormsg->msg = GETTEXT("Socket operation on non-socket");
+            errormsg->msg = GETTEXTL("Socket operation on non-socket");
           }
           #endif
           #ifdef EDESTADDRREQ
           if (errcode == EDESTADDRREQ) {
             errormsg->name = "EDESTADDRREQ";
-            errormsg->msg = GETTEXT("Destination address required");
+            errormsg->msg = GETTEXTL("Destination address required");
           }
           #endif
           #ifdef EMSGSIZE
           if (errcode == EMSGSIZE) {
             errormsg->name = "EMSGSIZE";
-            errormsg->msg = GETTEXT("Message too long");
+            errormsg->msg = GETTEXTL("Message too long");
           }
           #endif
           #ifdef EPROTOTYPE
           if (errcode == EPROTOTYPE) {
             errormsg->name = "EPROTOTYPE";
-            errormsg->msg = GETTEXT("Protocol wrong type for socket");
+            errormsg->msg = GETTEXTL("Protocol wrong type for socket");
           }
           #endif
           #ifdef ENOPROTOOPT
           if (errcode == ENOPROTOOPT) {
             errormsg->name = "ENOPROTOOPT";
-            errormsg->msg = GETTEXT("Option not supported by protocol");
+            errormsg->msg = GETTEXTL("Option not supported by protocol");
           }
           #endif
           #ifdef EPROTONOSUPPORT
           if (errcode == EPROTONOSUPPORT) {
             errormsg->name = "EPROTONOSUPPORT";
-            errormsg->msg = GETTEXT("Protocol not supported");
+            errormsg->msg = GETTEXTL("Protocol not supported");
           }
           #endif
           #ifdef ESOCKTNOSUPPORT
           if (errcode == ESOCKTNOSUPPORT) {
             errormsg->name = "ESOCKTNOSUPPORT";
-            errormsg->msg = GETTEXT("Socket type not supported");
+            errormsg->msg = GETTEXTL("Socket type not supported");
           }
           #endif
           #ifdef EOPNOTSUPP
           if (errcode == EOPNOTSUPP) {
             errormsg->name = "EOPNOTSUPP";
-            errormsg->msg = GETTEXT("Operation not supported on socket");
+            errormsg->msg = GETTEXTL("Operation not supported on socket");
           }
           #endif
           #ifdef EPFNOSUPPORT
           if (errcode == EPFNOSUPPORT) {
             errormsg->name = "EPFNOSUPPORT";
-            errormsg->msg = GETTEXT("Protocol family not supported");
+            errormsg->msg = GETTEXTL("Protocol family not supported");
           }
           #endif
           #ifdef EAFNOSUPPORT
           if (errcode == EAFNOSUPPORT) {
             errormsg->name = "EAFNOSUPPORT";
-            errormsg->msg = GETTEXT("Address family not supported by protocol family");
+            errormsg->msg = GETTEXTL("Address family not supported by protocol family");
           }
           #endif
           #ifdef EADDRINUSE
           if (errcode == EADDRINUSE) {
             errormsg->name = "EADDRINUSE";
-            errormsg->msg = GETTEXT("Address already in use");
+            errormsg->msg = GETTEXTL("Address already in use");
           }
           #endif
           #ifdef EADDRNOTAVAIL
           if (errcode == EADDRNOTAVAIL) {
             errormsg->name = "EADDRNOTAVAIL";
-            errormsg->msg = GETTEXT("Can't assign requested address");
+            errormsg->msg = GETTEXTL("Can't assign requested address");
           }
           #endif
           #ifdef ENETDOWN
           if (errcode == ENETDOWN) {
             errormsg->name = "ENETDOWN";
-            errormsg->msg = GETTEXT("Network is down");
+            errormsg->msg = GETTEXTL("Network is down");
           }
           #endif
           #ifdef ENETUNREACH
           if (errcode == ENETUNREACH) {
             errormsg->name = "ENETUNREACH";
-            errormsg->msg = GETTEXT("Network is unreachable");
+            errormsg->msg = GETTEXTL("Network is unreachable");
           }
           #endif
           #ifdef ENETRESET
           if (errcode == ENETRESET) {
             errormsg->name = "ENETRESET";
-            errormsg->msg = GETTEXT("Network dropped connection on reset");
+            errormsg->msg = GETTEXTL("Network dropped connection on reset");
           }
           #endif
           #ifdef ECONNABORTED
           if (errcode == ECONNABORTED) {
             errormsg->name = "ECONNABORTED";
-            errormsg->msg = GETTEXT("Software caused connection abort");
+            errormsg->msg = GETTEXTL("Software caused connection abort");
           }
           #endif
           #ifdef ECONNRESET
           if (errcode == ECONNRESET) {
             errormsg->name = "ECONNRESET";
-            errormsg->msg = GETTEXT("Connection reset by peer");
+            errormsg->msg = GETTEXTL("Connection reset by peer");
           }
           #endif
           #ifdef ENOBUFS
           if (errcode == ENOBUFS) {
             errormsg->name = "ENOBUFS";
-            errormsg->msg = GETTEXT("No buffer space available");
+            errormsg->msg = GETTEXTL("No buffer space available");
           }
           #endif
           #ifdef EISCONN
           if (errcode == EISCONN) {
             errormsg->name = "EISCONN";
-            errormsg->msg = GETTEXT("Socket is already connected");
+            errormsg->msg = GETTEXTL("Socket is already connected");
           }
           #endif
           #ifdef ENOTCONN
           if (errcode == ENOTCONN) {
             errormsg->name = "ENOTCONN";
-            errormsg->msg = GETTEXT("Socket is not connected");
+            errormsg->msg = GETTEXTL("Socket is not connected");
           }
           #endif
           #ifdef ESHUTDOWN
           if (errcode == ESHUTDOWN) {
             errormsg->name = "ESHUTDOWN";
-            errormsg->msg = GETTEXT("Can't send after socket shutdown");
+            errormsg->msg = GETTEXTL("Can't send after socket shutdown");
           }
           #endif
           #ifdef ETOOMANYREFS
           if (errcode == ETOOMANYREFS) {
             errormsg->name = "ETOOMANYREFS";
-            errormsg->msg = GETTEXT("Too many references: can't splice");
+            errormsg->msg = GETTEXTL("Too many references: can't splice");
           }
           #endif
           #ifdef ETIMEDOUT
           if (errcode == ETIMEDOUT) {
             errormsg->name = "ETIMEDOUT";
-            errormsg->msg = GETTEXT("Connection timed out");
+            errormsg->msg = GETTEXTL("Connection timed out");
           }
           #endif
           #ifdef ECONNREFUSED
           if (errcode == ECONNREFUSED) {
             errormsg->name = "ECONNREFUSED";
-            errormsg->msg = GETTEXT("Connection refused");
+            errormsg->msg = GETTEXTL("Connection refused");
           }
           #endif
           #if 0
             errormsg->name = "";
-            errormsg->msg = GETTEXT("Remote peer released connection");
+            errormsg->msg = GETTEXTL("Remote peer released connection");
           #endif
           #ifdef EHOSTDOWN
           if (errcode == EHOSTDOWN) {
             errormsg->name = "EHOSTDOWN";
-            errormsg->msg = GETTEXT("Host is down");
+            errormsg->msg = GETTEXTL("Host is down");
           }
           #endif
           #ifdef EHOSTUNREACH
           if (errcode == EHOSTUNREACH) {
             errormsg->name = "EHOSTUNREACH";
-            errormsg->msg = GETTEXT("Host is unreachable");
+            errormsg->msg = GETTEXTL("Host is unreachable");
           }
           #endif
           #if 0
             errormsg->name = "";
-            errormsg->msg = GETTEXT("Networking error");
+            errormsg->msg = GETTEXTL("Networking error");
           #endif
           # Quotas:
           #ifdef EPROCLIM
           if (errcode == EPROCLIM) {
             errormsg->name = "EPROCLIM";
-            errormsg->msg = GETTEXT("Too many processes");
+            errormsg->msg = GETTEXTL("Too many processes");
           }
           #endif
           #ifdef EUSERS
           if (errcode == EUSERS) {
             errormsg->name = "EUSERS";
-            errormsg->msg = GETTEXT("Too many users");
+            errormsg->msg = GETTEXTL("Too many users");
           }
           #endif
           #ifdef EDQUOT
           if (errcode == EDQUOT) {
             errormsg->name = "EDQUOT";
-            errormsg->msg = GETTEXT("Disk quota exceeded");
+            errormsg->msg = GETTEXTL("Disk quota exceeded");
           }
           #endif
           # Errors relating to STREAMS:
           #ifdef ENOSTR
           if (errcode == ENOSTR) {
             errormsg->name = "ENOSTR";
-            errormsg->msg = GETTEXT("Not a stream device");
+            errormsg->msg = GETTEXTL("Not a stream device");
           }
           #endif
           #ifdef ETIME
           if (errcode == ETIME) {
             errormsg->name = "ETIME";
-            errormsg->msg = GETTEXT("Timer expired");
+            errormsg->msg = GETTEXTL("Timer expired");
           }
           #endif
           #ifdef ENOSR
           if (errcode == ENOSR) {
             errormsg->name = "ENOSR";
-            errormsg->msg = GETTEXT("Out of stream resources");
+            errormsg->msg = GETTEXTL("Out of stream resources");
           }
           #endif
           #ifdef ENOMSG
           if (errcode == ENOMSG) {
             errormsg->name = "ENOMSG";
-            errormsg->msg = GETTEXT("No message of desired type");
+            errormsg->msg = GETTEXTL("No message of desired type");
           }
           #endif
           #ifdef EBADMSG
           if (errcode == EBADMSG) {
             errormsg->name = "EBADMSG";
-            errormsg->msg = GETTEXT("Not a data message");
+            errormsg->msg = GETTEXTL("Not a data message");
           }
           #endif
           # Errors relating to SystemV IPC:
           #ifdef EIDRM
           if (errcode == EIDRM) {
             errormsg->name = "EIDRM";
-            errormsg->msg = GETTEXT("Identifier removed");
+            errormsg->msg = GETTEXTL("Identifier removed");
           }
           #endif
           # Errors relating to SystemV record locking:
           #ifdef EDEADLK
           if (errcode == EDEADLK) {
             errormsg->name = "EDEADLK";
-            errormsg->msg = GETTEXT("Resource deadlock would occur");
+            errormsg->msg = GETTEXTL("Resource deadlock would occur");
           }
           #endif
           #ifdef ENOLCK
           if (errcode == ENOLCK) {
             errormsg->name = "ENOLCK";
-            errormsg->msg = GETTEXT("No record locks available");
+            errormsg->msg = GETTEXTL("No record locks available");
           }
           #endif
           # Errors for Remote File System (RFS):
           #ifdef ENONET
           if (errcode == ENONET) {
             errormsg->name = "ENONET";
-            errormsg->msg = GETTEXT("Machine is not on the network");
+            errormsg->msg = GETTEXTL("Machine is not on the network");
           }
           #endif
           #ifdef EREMOTE
           if (errcode == EREMOTE) {
             errormsg->name = "EREMOTE";
-            errormsg->msg = GETTEXT("Object is remote");
+            errormsg->msg = GETTEXTL("Object is remote");
           }
           #endif
           #ifdef ERREMOTE
           if (errcode == ERREMOTE) {
             errormsg->name = "ERREMOTE";
-            errormsg->msg = GETTEXT("Object is remote");
+            errormsg->msg = GETTEXTL("Object is remote");
           }
           #endif
           #ifdef ENOLINK
           if (errcode == ENOLINK) {
             errormsg->name = "ENOLINK";
-            errormsg->msg = GETTEXT("Link has been severed");
+            errormsg->msg = GETTEXTL("Link has been severed");
           }
           #endif
           #ifdef EADV
           if (errcode == EADV) {
             errormsg->name = "EADV";
-            errormsg->msg = GETTEXT("Advertise error");
+            errormsg->msg = GETTEXTL("Advertise error");
           }
           #endif
           #ifdef ESRMNT
           if (errcode == ESRMNT) {
             errormsg->name = "ESRMNT";
-            errormsg->msg = GETTEXT("Srmount error");
+            errormsg->msg = GETTEXTL("Srmount error");
           }
           #endif
           #ifdef ECOMM
           if (errcode == ECOMM) {
             errormsg->name = "ECOMM";
-            errormsg->msg = GETTEXT("Communication error on send");
+            errormsg->msg = GETTEXTL("Communication error on send");
           }
           #endif
           #ifdef EPROTO
           if (errcode == EPROTO) {
             errormsg->name = "EPROTO";
-            errormsg->msg = GETTEXT("Protocol error");
+            errormsg->msg = GETTEXTL("Protocol error");
           }
           #endif
           #ifdef EMULTIHOP
           if (errcode == EMULTIHOP) {
             errormsg->name = "EMULTIHOP";
-            errormsg->msg = GETTEXT("Multihop attempted");
+            errormsg->msg = GETTEXTL("Multihop attempted");
           }
           #endif
           #ifdef EDOTDOT
@@ -616,21 +616,21 @@
           #ifdef EREMCHG
           if (errcode == EREMCHG) {
             errormsg->name = "EREMCHG";
-            errormsg->msg = GETTEXT("Remote address changed");
+            errormsg->msg = GETTEXTL("Remote address changed");
           }
           #endif
           # POSIX errors:
           #ifdef ENOSYS
           if (errcode == ENOSYS) {
             errormsg->name = "ENOSYS";
-            errormsg->msg = GETTEXT("Function not implemented");
+            errormsg->msg = GETTEXTL("Function not implemented");
           }
           #endif
           # Other:
           #ifdef EMSDOS # emx 0.8e - 0.8h
           if (errcode == EMSDOS) {
             errormsg->name = "EMSDOS";
-            errormsg->msg = GETTEXT("Not supported under MS-DOS");
+            errormsg->msg = GETTEXTL("Not supported under MS-DOS");
           }
           #endif
         # If no error message known, default to the system's one.
@@ -645,8 +645,11 @@
       }
 
   #ifdef GNU_GETTEXT
+    #undef clgettextl
+  #endif
+
+  #ifdef GNU_GETTEXT
     # Now translate after calling get_errormsg().
-    #undef clgettext
     #define translate(string)  clgettext(string)
   #else
     #define translate(string)  string
@@ -709,6 +712,14 @@
         OS_error_internal(errcode);
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }
+
+  #undef translate
+  #ifdef GNU_GETTEXT
+    # Now translate after calling get_errormsg().
+    #define translate(string)  clgettextl(string)
+  #else
+    #define translate(string)  string
+  #endif
 
   # Ausgabe eines Fehlers, direkt übers Betriebssystem
   # errno_out(errorcode);

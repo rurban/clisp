@@ -1,3 +1,32 @@
+2001-02-03  Bruno Haible  <haible@clisp.cons.org>
+
+        * po/clisp-xgettext (main): Recognize "GETTEXTL(" calls and put them
+          into a .pot2 file.
+        * Makefile.devel (SOURCES_POT2): New variable and rule.
+          (pot): Also generate the clisplow POT and PO files.
+          (update-po): Make more similar to gettext-2001-02-01.
+          (clisplow.pot, clisplow_*.po): New rules.
+          (GMOFILES): Include clisplow_*.gmo.
+        * po/Makefile.in (CATOBJEXT): Remove, assume it is ".gmo".
+          (INSTOBJEXT): Remove, assume it is ".mo".
+          (datadir): Assume @DATADIRNAME@ = "share".
+          (MSGFMT, GENCAT): Remove variables.
+          (SUFFIXES): Trim down.
+          (.po.mo): Remove rule.
+          (.po.cat): Likewise.
+          (.c.o, cat-id-tbl.o, cat-id-tbl.c): Likewise.
+          (install-data-yes): Remove old code. Install clisplow.mo as well.
+          (uninstall): Uninstall clisplow.mo as well.
+
+        * intl/*: Upgrade from 0.10.35 to 2001-02-01.
+        * aclocal.m4: Use macros from gettext-2001-02-01, but without the
+          rule for po/POTFILES.
+        * acconfig.h: Remove unneeded macros.
+        * configure.in: Call AC_CONFIG_AUX_DIR, needed for AC_CANONICAL_HOST.
+          Remove intl/intlh.inst from AC_OUTPUT.
+        * autoconf/config.guess, autoconf/config.sub, autoconf/install-sh: New
+          files.
+
 2000-10-22  Bruno Haible  <haible@clisp.cons.org>
 
         * po/clisp-xgettext (main): Default file encoding for all CLISP
@@ -39,11 +68,6 @@
         * po/Makefile.in (distclean): Don't remove *.gmo.
           (maintainer-clean): Remove *.gmo here.
 
-1999-06-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
-
-        * intl/libgettext.h: Prepare a __GNUC_MINOR__ conditional for GCC
-          version 3, consistently with intl/intlh.inst.in.
-
 1999-04-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * po/Makefile.devel (DSOURCES): Add amigaaux.
@@ -65,27 +89,10 @@
         * po/Makefile.trans.de, po/Makefile.trans.fr, po/Makefile.trans.es:
           New files.
 
-1999-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
-
-        * intl/dcgettext.c: Define _GNU_SOURCE before including any system
-          header file.
-        * intl/l10nflist.c: Likewise.
-        * intl/localealias.c: Likewise.
-
 1998-11-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * po_header: Use "ls --full-time" instead of "ls -e". Option -e does
           not exist in GNU fileutils 3.16 any more.
-
-1998-10-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
-
-        Modifications for EMX, from Kai Uwe Rommel <rommel@ars.de>.
-        * intl/localealias.c (PATH_SEPARATOR): New macro.
-          (_nl_expand_alias): Use it instead of ':'.
-        * intl/l10nflist.c (PATH_SEPARATOR): New macro.
-          (_nl_make_l10nflist): Use it instead of ':'.
-        * intl/dcgettext.c (IS_ABSOLUTE): New macro.
-          (DCGETTEXT): Use it.
 
 1998-06-01  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
