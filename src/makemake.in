@@ -950,7 +950,7 @@ SYSLIBS=''
 if [ $TSYS = master -o $TOS = win32 ] ; then
   OS_INCLUDES=$OS_INCLUDES' win32'
   if [ $TSYS = win32gcc ] ; then
-    LIBS=$LIBS' -luser32 -lws2_32 -lole32 -loleaut32 -luuid '$LIBSIGSEGV
+    LIBS=$LIBS' -luser32 -lws2_32 -lole32 -loleaut32 -luuid '$LIBICONV' '$LIBSIGSEGV
   else
     if [ $TSYS = win32msvc ] ; then
       LIBS=$LIBS' user32.lib ws2_32.lib advapi32.lib'
