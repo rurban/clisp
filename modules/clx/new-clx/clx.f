@@ -7705,17 +7705,18 @@ int this_is_a_test_for_the_linker_and_the_debugger_and_the_nm_utility__lets_have
 #include <X11/xpm.h>
 
 DEFUN(XPM:READ-FILE-TO-PIXMAP, drawable filename &key SHAPE-MASK-P PIXMAP-P)
-{ /* -> pixmap, shape, error code */
+{ /* -> pixmap, shape */
   Display     *dpy;
   Drawable      da = get_drawable_and_display (STACK_3, &dpy);
-  int shape_mask_p = !missingp(STACK_1);
-  int     pixmap_p = boundp(STACK_0) ? get_bool(STACK_0) : 1;
+  int shape_mask_p = !missingp(STACK_1);                      /* default NIL */
+  int     pixmap_p = boundp(STACK_0) ? get_bool(STACK_0) : 1; /* default T */
   int r;
   Pixmap pixmap = 0;
   Pixmap shape_mask = 0;
 
   pushSTACK(get_display_obj (STACK_3));
 
+  STACK_3 = funcall1(L(truename),STACK_3);
   STACK_3 = funcall1(L(namestring),STACK_3);
 
   with_string_0 (STACK_3, GLO(pathname_encoding), filename, {
@@ -7724,26 +7725,26 @@ DEFUN(XPM:READ-FILE-TO-PIXMAP, drawable filename &key SHAPE-MASK-P PIXMAP-P)
                                       shape_mask_p?&shape_mask:NULL, NULL));
     });
 
+  if (r != XpmSuccess) { /* http://root.cern.ch/lxr/source/x11/inc/Xpm.h */
+    switch (r) {
+      case XpmColorError:  pushSTACK(`"color error"`);  break;
+      case XpmOpenFailed:  pushSTACK(`"open failed"`);  break;
+      case XpmFileInvalid: pushSTACK(`"file invalid"`); break;
+      case XpmNoMemory:    pushSTACK(`"no memory"`);    break;
+      case XpmColorFailed: pushSTACK(`"color failed"`); break;
+      default:             NOTREACHED;
+    }
+    pushSTACK(STACK_4);         /* pathname */
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,"~: Cannot read ~: ~");
+  }
+
   if (pixmap)     pushSTACK(make_pixmap (STACK_0, pixmap));
   else pushSTACK(NIL);
   if (shape_mask) pushSTACK(make_pixmap (STACK_1, shape_mask));
   else pushSTACK(NIL);
-
-  switch (r) {
-    case XpmColorError:  pushSTACK(`:COLOR-ERROR`);  break;
-    case XpmSuccess:     pushSTACK(`:SUCCESS`);      break;
-    case XpmOpenFailed:  pushSTACK(`:OPEN-FAILED`);  break;
-    case XpmFileInvalid: pushSTACK(`:FILE-INVALID`); break;
-    case XpmNoMemory:    pushSTACK(`:NO-MEMORY`);    break;
-    case XpmColorFailed: pushSTACK(`:COLOR-FAILED`); break;
-    default:             pushSTACK(NIL);
-  }
-
-  value3 = popSTACK();
-  value2 = popSTACK();
-  value1 = popSTACK();
-  mv_count = 3;
-  skipSTACK(5);
+  VALUES2(STACK_1,STACK_0);
+  skipSTACK(7);
 }
 ##endif
 

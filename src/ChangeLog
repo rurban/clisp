@@ -10,6 +10,8 @@
 	use error_required_keywords()
 	(handle_image_z, PUT-IMAGE, SET-FONT-PATH): use my_malloc()
 	(ALLOC-COLOR, LOOKUP-COLOR): use error_no_such_color()
+	(READ-FILE-TO-PIXMAP): signal an error on failure instead of
+	returning error code
 
 2004-01-25  Bruno Haible  <bruno@clisp.org>
 
