@@ -564,6 +564,8 @@
     /* FRANCAIS */ "~S: De ~S héritent ~{~S~^, ~}.")
   # Default-Use-List:
   LISPOBJ(use_default,"(\"LISP\" \"CLOS\")")
+  # Default-Package bei ANSI-CL-Compliance:
+  LISPOBJ(ansi_user_package_name,"\"COMMON-LISP-USER\"")
 # zu SYMBOL.D:
   LISPOBJ(gensym_prefix,"\"G\"") # Präfix für gensym, ein String
 # zu MISC.D:

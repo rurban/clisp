@@ -1330,6 +1330,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         define_constant(S(nil),S(nil));                 # NIL := NIL
         define_constant(S(t),S(t));                     # T := T
         define_variable(S(gc_statistics_stern),Fixnum_minus1); # SYS::*GC-STATISTICS* := -1
+        define_variable(S(ansi),S(nil));                # *ANSI* := NIL
         # zu EVAL/CONTROL:
         define_constant_UL1(S(lambda_parameters_limit),lp_limit_1); # LAMBDA-PARAMETERS-LIMIT := lp_limit_1 + 1
         define_constant_UL1(S(call_arguments_limit),ca_limit_1); # CALL-ARGUMENTS-LIMIT := ca_limit_1 + 1
@@ -1767,6 +1768,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       typedef struct { char* input_file; char* output_file; } argv_compile_file;
       var local argv_compile_file* argv_compile_files;
       var local char* argv_package = NULL;
+      var local boolean argv_ansi = FALSE;
       var local char* argv_expr = NULL;
       var local char* argv_execute_file = NULL;
       var local char** argv_execute_args = NULL;
@@ -1795,6 +1797,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       #   -c file ...     LISP-Files compilieren, dann LISP verlassen
       #   -l              Beim Compilieren: Listings anlegen
       #   -p package      *PACKAGE* setzen
+      #   -a              ANSI CL Compliance
       #   -x expr         LISP-Expressions ausführen, dann LISP verlassen
       #   file [arg ...]  LISP-File im Batch-Modus laden und ausführen,
       #                   dann LISP verlassen
@@ -1820,7 +1823,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           #endif
           asciz_out(" [-W] [-M memfile] [-L language] [-N nlsdir] [-q] [-I] [-C]"
                     " [-i initfile ...] [-c [-l] lispfile [-o outputfile] ...]"
-                    " [-p packagename] [-x expression] [lispfile [argument ...]]"
+                    " [-p packagename] [-a] [-x expression] [lispfile [argument ...]]"
                     NLstring);
           quit_sofort(1); # anormales Programmende
         }
@@ -1970,6 +1973,10 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                     OPTION_ARG
                     # Bei mehreren -p Argumenten zählt nur das letzte.
                     argv_package = arg;
+                    break;
+                  case 'a': # ANSI CL Compliance
+                    argv_ansi = TRUE;
+                    if (!(arg[2] == '\0')) goto usage;
                     break;
                   case 'x': # LISP-Expression ausführen
                     OPTION_ARG
@@ -2746,6 +2753,12 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
          {var object stream = var_stream(S(query_io),strmflags_wr_ch_B);
           Symbol_value(S(debug_io)) = make_twoway_stream(popSTACK(),stream);
         }}
+      if (argv_ansi)
+        # Maximum ANSI CL compliance, even where it hurts.
+        { Symbol_value(S(ansi)) = T;                          # (SETQ *ANSI* T)
+          Symbol_value(S(floating_point_contagion_ansi)) = T; # (SETQ *FLOATING-POINT-CONTAGION-ANSI* T)
+          pushSTACK(O(ansi_user_package_name)); funcall(L(in_package),1); # (IN-PACKAGE "COMMON-LISP-USER")
+        }
       if (!(argv_package == NULL))
         # (IN-PACKAGE packagename) ausführen:
         { var object packname = asciz_to_string(argv_package);
