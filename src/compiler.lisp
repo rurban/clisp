@@ -1444,7 +1444,7 @@ for-value   NIL or T
   (loop
     (when (atom denv)
       (return-from declared-optimize 1))
-    (let ((declspec (pop denv)))
+    (let ((declspec (car denv)))
       (when (eq (car declspec) 'OPTIMIZE)
         (dolist (optimspec (cdr declspec))
           (cond ((eq optimspec quality)
@@ -1457,7 +1457,8 @@ for-value   NIL or T
                        (if (<= value 3)
                          (floor value)
                          3)
-                       0))))))))))
+                       0))))))))
+    (setq denv (cdr denv))))
 
 
 ;;;;****             FUNCTION   MANAGEMENT
@@ -3041,9 +3042,9 @@ for-value   NIL or T
              (if check ; (and (<= req n) (or rest-p (<= n (+ req opt))))
                ;; we make the call INLINE.
                (let ((sideeffects ; side-effect-class of the function-execution
-                      (if (>= (declared-optimize 'SAFETY) 3)
-                        *seclass-dirty* ; see comment in F-SIDE-EFFECT
-                        (function-side-effect fun)))) ; no need for a check
+                       (if (>= (declared-optimize 'SAFETY) 3)
+                         *seclass-dirty* ; see comment in F-SIDE-EFFECT
+                         (function-side-effect fun)))) ; no need for a check
                  (if (and (null *for-value*) (null (cdr sideeffects)))
                    ;; don't have to call the function,
                    ;; only evaluate the arguments
