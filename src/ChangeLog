@@ -1,5 +1,10 @@
 2001-02-04  Bruno Haible  <haible@clisp.cons.org>
 
+        * pathname.d (translate_directory): Don't choke if 'subst' doesn't
+          specify any pieces for the directory.
+
+2001-02-04  Bruno Haible  <haible@clisp.cons.org>
+
         * pathname.d (PARSE-NAMESTRING): Make treatment of :HOST argument CLHS
           compliant.
 
