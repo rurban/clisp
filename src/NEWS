@@ -235,6 +235,10 @@ User visible changes
 * In non-interactive batch mode, *ERROR-OUTPUT* now uses the system's
   standard error stream, instead of the standard output stream.
 
+* The macros MUFFLE-CERRORS, APPEASE-CERRORS and EXIT-ON-ERROR now treat
+  CONTINUE restarts which require interactive user intervention like other
+  restarts. Only non-interactive CONTINUE restarts are silently invoked.
+
 * LOAD :OBSOLETE-ACTION can now also be :COMPILE to automatically
   recompile the obsolete *.fas file.
   LOAD can now ignore erroneous forms using SKIP and STOP restarts.

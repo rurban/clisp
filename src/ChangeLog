@@ -1,5 +1,10 @@
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
+	* condition.lisp (exitonerror): Treat non-meaningful or interactive
+	CONTINUE restarts like absent.
+
+2005-01-01  Bruno Haible  <bruno@clisp.org>
+
 	* condition.lisp (maybe-continue): Ignore the CONTINUE restart if it
 	is not meaningful: In a handler, it's better to decline than to call
 	invoke-debugger.

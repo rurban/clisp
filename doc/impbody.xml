@@ -929,7 +929,9 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
 
 <formalpara id="exit-on-error"><title>Macro &exit-on-error;</title>
 <para>The macro <code>(&exit-on-error; {&form-r;}*)</code>
- executes the &form-r;s; when a non-&cont-err; or
+ executes the &form-r;s; when an &error-t; occurs which is not
+ <ulink url='&clhs;/Body/glo_c.html#continuable'>continuable</ulink> or
+ whose &continue; &restart-t; requires interactive processing, or when
  a <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupt occurs, the
  error message is printed and &clisp; terminates with an error
  status.</para></formalpara>
