@@ -1428,13 +1428,13 @@ main (int argc, char *argv[])
     for (i = 0; i < main_output.index; i++)
       emit_control_directive (&main_output.data[i]);
   }
-  printf ("  if (fflush (stdout) || ferror (stdout))\n");
+  printf ("  if (ferror (stdout) || fclose (stdout))\n");
   printf ("    exit (1);\n");
   printf ("  exit (0);\n");
   printf ("}\n");
 
   /* Done. */
-  if (fflush (stdout) || ferror (stdout))
+  if (ferror (stdout) || fclose (stdout))
     exit (1);
   exit (0);
 }

@@ -1,3 +1,21 @@
+2004-12-12  Bruno Haible  <bruno@clisp.org>
+
+	Fix the error checking of stdout. When writing to a full disk over an
+	NFS or CODA file system, write() writes into a operating system's
+	buffer, fflush() succeeds, and only fclose() fails.
+	* intparam.c (main): Check the error status of fclose(stdout).
+	* floatparam.c (main): Likewise.
+	* utils/ccmp2c.c (main): Check the error status of fclose(stdout)
+	instead of fflush(stdout).
+	* utils/ccpaux.c (main): Likewise.
+	* utils/deema.c (main): Likewise.
+	* utils/txt2c.c (main): Likewise.
+	* utils/comment5.c (main): Likewise. No need to fclose(stdin).
+	* utils/varbrace.d (main): Likewise.
+	* utils/gctrigger.d (main): No need to call fflush(stdout) before
+	fclose(stdout).
+	Reported by Jim Meyering.
+
 2004-12-09  Bruno Haible  <bruno@clisp.org>
 
 	Make DEBUG_GCSAFETY work with GENERATIONAL_GC && MORRIS_GC.

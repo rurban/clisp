@@ -128,6 +128,6 @@ int main()
   main_ldouble();
 #endif
 
-  if (ferror(stdout)) exit(1);
+  if (ferror(stdout) || fclose(stdout)) exit(1);
   exit(0);
 }
