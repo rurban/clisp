@@ -204,18 +204,18 @@
    floating-point-invalid-operation))
 
 (sys::%proclaim-constant 'lambda-list-keywords
-  '(&optional &rest &key &allow-other-keys &aux &body &whole &environment)
-)
+  '(&optional &rest &key &allow-other-keys &aux &body &whole &environment))
 (export lambda-list-keywords)
 
 (proclaim '(special *features*))
-(proclaim '(special compiler::*compiling* compiler::*compiling-from-file*))
-(setq compiler::*compiling* nil)
 
 (use-package '("COMMON-LISP" "EXT") "SYSTEM")
 ;; (in-package "SYSTEM")
 (common-lisp:eval-when (common-lisp:compile common-lisp:load common-lisp:eval)
   (common-lisp:setq common-lisp:*package* (sys::%find-package "SYSTEM")))
+
+(proclaim '(special compiler::*compiling* compiler::*compiling-from-file*))
+(setq compiler::*compiling* nil)
 
 #-COMPILER ; only for bootstrapping
 (progn
