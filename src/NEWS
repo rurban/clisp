@@ -277,6 +277,9 @@ User visible changes
 * New FFI function CLOSE-FOREIGN-LIBRARY can be used to unload a library.
   See <http://clisp.cons.org/impnotes.html#dffi-close-lib> for details.
 
+* Foreign functions and variables can now be documented using the
+  :DOCUMENTATION option to DEF-CALL-OUT and DEF-C-VAR.
+
 * Buffered streams now are suitable for interactive streams. It is no longer
   necessary to use :BUFFERED NIL to avoid blocking in various situations.
 

@@ -19,9 +19,13 @@ T
 
 (def-call-out c-self
   (:name "ffi_identity")
+  (:documentation "return the pointer argument as is")
   (:arguments (obj c-pointer))
   (:return-type c-pointer) (:language :stdc))
 C-SELF
+
+(stringp (documentation 'c-self 'function))
+T
 
 (typep #'c-self 'function)
 T
