@@ -2287,6 +2287,7 @@ LISPFUNN(keyword_test,2)
     var uintL argcount = llength(arglist);
     if (argcount % 2) {
       pushSTACK(arglist);
+      /* ANSI CL 3.5.1.6. wants a PROGRAM-ERROR here. */
       fehler(program_error,
              GETTEXT("keyword argument list ~S has an odd length"));
     }
