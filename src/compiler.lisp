@@ -3013,6 +3013,7 @@ for-value   NIL or T
        (HANDLER-BIND . c-HANDLER-BIND)
        (SYS::%HANDLER-BIND . c-HANDLER-BIND)
        (SYS::CONSTANT-EQL . c-CONSTANT-EQL)
+       (WITHOUT-PACKAGE-LOCK . c-WITHOUT-PACKAGE-LOCK)
        ;; Inline-compiled functions:
        (FUNCALL . c-FUNCALL)
        (SYS::%FUNCALL . c-FUNCALL)
@@ -5668,8 +5669,10 @@ for-value   NIL or T
     (let ((s (car l)))
       (when (and (symbolp s) (venv-search-macro s)) (return t)))))
 
+(defvar *compiler-unlocked-packages* nil)
 (defun set-check-lock (caller symbol)
-  (when (symbol-value-lock symbol)
+  (when (and (not (memq (symbol-package symbol) *compiler-unlocked-packages*))
+             (symbol-value-lock symbol))
     (c-warn (TEXT "~S: assignment to the internal special symbol ~S")
             caller symbol)))
 
@@ -7053,6 +7056,14 @@ for-value   NIL or T
                (or (stringp value) (bit-vector-p value))))
       (c-form `(SYS::LOOSE-CONSTANT-EQL ,@form23))
       (c-form `(EQL ,@form23)))))
+
+;; compile (without-package-lock (packages) ...)
+(defun c-WITHOUT-PACKAGE-LOCK  (&optional (c #'c-form))
+  (test-list *form* 1)
+  (let ((*compiler-unlocked-packages*
+         (append (mapcar #'find-package (second *form*))
+                 *compiler-unlocked-packages*)))
+    (funcall c (macroexpand *form*))))
 
 
 ;;;;****   FIRST PASS :   INLINE   FUNCTIONS   (PRIMOPS)
@@ -11157,7 +11168,8 @@ The function make-closure is required.
                                    (symbol-suffix *toplevel-name*
                                                   (incf subform-count)))))))))
                  (return-from compile-toplevel-form))
-                ((LOCALLY EVAL-WHEN COMPILER-LET MACROLET SYMBOL-MACROLET)
+                ((LOCALLY EVAL-WHEN COMPILER-LET MACROLET SYMBOL-MACROLET
+                  WITHOUT-PACKAGE-LOCK)
                  (let ((*form* form))
                    ;; call c-LOCALLY resp. c-EVAL-WHEN resp. c-COMPILER-LET
                    ;; resp. c-MACROLET resp. c-SYMBOL-MACROLET:
@@ -11359,10 +11371,8 @@ The function make-closure is required.
 ;;               an Output-Stream. Default: t.
 ;; :listing      should be nil or t or a Pathname/String/Symbol or
 ;;               an Output-Stream. Default: nil.
-;; :warnings     indicates, if the Warnings should also appear on the
-;;               screen.
-;; :verbose      indicates, if the Errors also have to appear on the
-;;               screen.
+;; :warnings     indicates, if the Warnings should also appear on the screen.
+;; :verbose      indicates, if the Errors also have to appear on the screen.
 (defun compile-file (file &key (output-file 'T) listing
                                ((:warnings *compile-warnings*)
                                 *compile-warnings*)
