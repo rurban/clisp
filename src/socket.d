@@ -186,27 +186,27 @@ LISPFUNN(machine_instance,0)
           begin_system_call();
           h = gethostbyname(host);
           end_system_call();
-          if (!(h == (struct hostent *)NULL)
-              && !(h->h_addr == (char*)NULL)
-              && (h->h_length > 0)
-             ) {
-            #ifdef HAVE_IPV6
-            if (h->h_addrtype == AF_INET6) {
-              var char buffer[45+1];
-              ipv6_ntop(buffer,*(const struct in6_addr*)h->h_addr);
-              pushSTACK(ascii_to_string(" ["));
-              pushSTACK(asciz_to_string(buffer,O(misc_encoding)));
-              pushSTACK(ascii_to_string("]"));
-              stringcount += 3;
-            } else
-            #endif
-            if (h->h_addrtype == AF_INET) {
-              var char buffer[15+1];
-              ipv4_ntop(buffer,*(const struct in_addr*)h->h_addr);
-              pushSTACK(ascii_to_string(" ["));
-              pushSTACK(asciz_to_string(buffer,O(misc_encoding)));
-              pushSTACK(ascii_to_string("]"));
-              stringcount += 3;
+          if (!(h == (struct hostent *)NULL)) {
+            STACK_0 = asciz_to_string(h->h_name,O(misc_encoding));
+            if (!(h->h_addr == (char*)NULL) && (h->h_length > 0)) {
+              #ifdef HAVE_IPV6
+              if (h->h_addrtype == AF_INET6) {
+                var char buffer[45+1];
+                ipv6_ntop(buffer,*(const struct in6_addr*)h->h_addr);
+                pushSTACK(ascii_to_string(" ["));
+                pushSTACK(asciz_to_string(buffer,O(misc_encoding)));
+                pushSTACK(ascii_to_string("]"));
+                stringcount += 3;
+              } else
+              #endif
+              if (h->h_addrtype == AF_INET) {
+                var char buffer[15+1];
+                ipv4_ntop(buffer,*(const struct in_addr*)h->h_addr);
+                pushSTACK(ascii_to_string(" ["));
+                pushSTACK(asciz_to_string(buffer,O(misc_encoding)));
+                pushSTACK(ascii_to_string("]"));
+                stringcount += 3;
+              }
             }
           }
           # Strings zusammenhängen:
