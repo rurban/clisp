@@ -3,8 +3,7 @@
 CC = @CC@
 CFLAGS = @CFLAGS@
 INCLUDES= ../
-REGEX_O = @REGEX_O@
-REGEX_H = @REGEX_H@
+FNMATCH_O = @FNMATCH_O@
 
 CLISP = clisp -q -norc
 
@@ -25,8 +24,12 @@ wildcard.c : wildcard.lisp
 wildcard.o : wildcard.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -c wildcard.c
 
-fnmatch.o : fnmatch.c fnmatch.h
+fnmatch.o : fnmatch.c fnmatch_loop.c fnmatch.h
 	$(CC) $(CFLAGS) -I. -DHAVE_CONFIG_H -c fnmatch.c
+
+fnmatch.h : fnmatch_.h
+	cp fnmatch_.h fnmatch.h-t
+	mv fnmatch.h-t fnmatch.h
 
 # Make a module
 clisp-module : all
@@ -37,6 +40,7 @@ clisp-module-distrib : clisp-module force
 
 clean : force
 	rm -f core *.o *.a
+	rm -f fnmatch.h fnmatch.h-t
 	rm -f *.aux *.cp *.fn *.ky *.log *.pg *.toc *.tp *.vr
 
 distclean : clean
