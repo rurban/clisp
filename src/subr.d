@@ -1,101 +1,102 @@
-# Liste aller SUBRs
-# Bruno Haible 1990-2002
+/*
+ * list of all SUBRs
+ * Bruno Haible 1990-2002
+ * Sam Steingold 1998-2002
+ */
 
-# Eine C-compilierte LISP-Funktion wird definiert durch eine Deklaration
-#   LISPFUN(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)
-# in diesem File.
-# > name: der Funktionsname (ein C-Identifier)
-# > req_anz: die Anzahl der required-Parameter (eine Zahl)
-# > opt_anz: die Anzahl der optional-Parameter (eine Zahl)
-# > rest_flag: entweder norest oder rest
-# > key_flag: entweder nokey oder key oder key_allow
-# > key_anz: eine Zahl (0 falls nokey)
-# > keywords: entweder NIL oder ein Ausdruck der Form (kw(keyword1),...,kw(keywordn))
-#             (NIL falls nokey)
+/* A C-compiled LISP-function is defined by a declaration
+   LISPFUN(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)
+ in this file.
+ > name: the function name (a C-identifier)
+ > req_anz: the number of required-parameters (a number)
+ > opt_anz: the number of optional parameters (a number)
+ > rest_flag: either norest or rest
+ > key_flag: either nokey or key or key_allow
+ > key_anz: a number (0 if nokey)
+ > keywords: either NIL (if nokey) or a expression of the form
+             (kw(keyword1),...,kw(keywordn)) */
 
-# Eine C-compilierte LISP-Funktion mit einer festen Anzahl Argumente
-# wird definiert durch die akkürzende Deklaration
-#   LISPFUNN(name,req_anz)
-# > name: der Funktionsname (ein C-Identifier)
-# > req_anz: die (feste) Anzahl der Argumente (eine Zahl)
-  #define LISPFUNN(name,req_anz)  \
-    LISPFUN(name,req_anz,0,norest,nokey,0,NIL)
+/* A C-compiled LISP-function with a fixed number of arguments
+ is defined by the abbreviating declaration
+   LISPFUNN(name,req_anz)
+ > name: the function name (a C-identifier)
+ > req_anz: the (fixed) number of arguments (a number) */
+#define LISPFUNN(name,req_anz)                  \
+  LISPFUN(name,req_anz,0,norest,nokey,0,NIL)
 
-# Zusätzlich muss in einem C-File dieselbe Deklaration samt C-Body stehen.
+/* Additionally, the same declaration plus C-Body must occur in a C-file. */
 
+/* expander for the construction of the extern-declarations: */
+#define LISPFUN_A(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
+  extern subr_##rest_flag##_function_t C_##name;
 
-# Expander für die Konstruktion der extern-Deklarationen:
-  #define LISPFUN_A(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
-    extern subr_##rest_flag##_function_t C_##name;
+/* expander for the construction of the declaration of the C-function: */
+#define LISPFUN_B(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
+  global Values C_##name subr_##rest_flag##_function_args
+#define subr_norest_function_args  (void)
+#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)
 
-# Expander für die Konstruktion der Deklaration der C-Funktion:
-  #define LISPFUN_B(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
-    global Values C_##name subr_##rest_flag##_function_args
-  #define subr_norest_function_args  (void)
-  #define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)
+/* expander for the declaration of the SUBR-table: */
+#define LISPFUN_C(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
+  subr_t D_##name;
 
-# Expander für die Deklaration der SUBR-Tabelle:
-  #define LISPFUN_C(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
-    subr_t D_##name;
+/* expander for the initialization of the SUBR-table: */
+#define LISPFUN_D(name_,req_anz_,opt_anz_,rest_flag_,key_flag_,key_anz_,keywords_) \
+  ptr->function = (lisp_function_t)(&C_##name_);                        \
+  ptr->name = S_help_(S_##name_);                                       \
+  ptr->keywords = NIL; /* preliminary */                                \
+  ptr->argtype = (uintW)subr_argtype(req_anz_,opt_anz_,subr_##rest_flag_,subr_##key_flag_); \
+  ptr->req_anz = req_anz_;                                              \
+  ptr->opt_anz = opt_anz_;                                              \
+  ptr->rest_flag = (uintB)subr_##rest_flag_;                            \
+  ptr->key_flag = (uintB)subr_##key_flag_;                              \
+  ptr->key_anz = key_anz_;                                              \
+  ptr++;
+#define LISPFUN_E(name_,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
+  ptr->name = S_help_(S_##name_);                                       \
+  ptr++;
+#define LISPFUN_F(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
+  { (lisp_function_t)(&C_##name),                                       \
+    nullobj, /* preliminary */                                          \
+    nullobj, /* preliminary */                                          \
+    0, /* preliminary */                                                \
+    req_anz,                                                            \
+    opt_anz,                                                            \
+    (uintB)subr_##rest_flag,                                            \
+    (uintB)subr_##key_flag,                                             \
+    key_anz,                                                            \
+  },
+#define LISPFUN_G(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
+  { (lisp_function_t)(&C_##name),                                       \
+    S_help_(S_##name),                                                  \
+    NIL, /* preliminary */                                              \
+    0, /* preliminary */                                                \
+    req_anz,                                                            \
+    opt_anz,                                                            \
+    (uintB)subr_##rest_flag,                                            \
+    (uintB)subr_##key_flag,                                             \
+    key_anz,                                                            \
+  },
 
-# Expander für die Initialisierung der SUBR-Tabelle:
-  #define LISPFUN_D(name_,req_anz_,opt_anz_,rest_flag_,key_flag_,key_anz_,keywords_)  \
-    ptr->function = (lisp_function_t)(&C_##name_);  \
-    ptr->name = S_help_(S_##name_);               \
-    ptr->keywords = NIL; # vorläufig              \
-    ptr->argtype = (uintW)subr_argtype(req_anz_,opt_anz_,subr_##rest_flag_,subr_##key_flag_); \
-    ptr->req_anz = req_anz_;                      \
-    ptr->opt_anz = opt_anz_;                      \
-    ptr->rest_flag = (uintB)subr_##rest_flag_;    \
-    ptr->key_flag = (uintB)subr_##key_flag_;      \
-    ptr->key_anz = key_anz_;                      \
-    ptr++;
-  #define LISPFUN_E(name_,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
-    ptr->name = S_help_(S_##name_); \
-    ptr++;
-  #define LISPFUN_F(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
-    { (lisp_function_t)(&C_##name), \
-      nullobj, # vorläufig        \
-      nullobj, # vorläufig        \
-      0, # vorläufig              \
-      req_anz,                    \
-      opt_anz,                    \
-      (uintB)subr_##rest_flag,    \
-      (uintB)subr_##key_flag,     \
-      key_anz,                    \
-    },
-  #define LISPFUN_G(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
-    { (lisp_function_t)(&C_##name), \
-      S_help_(S_##name),          \
-      NIL, # vorläufig            \
-      0, # vorläufig              \
-      req_anz,                    \
-      opt_anz,                    \
-      (uintB)subr_##rest_flag,    \
-      (uintB)subr_##key_flag,     \
-      key_anz,                    \
-    },
+/* expander for the second initialization of the SUBR-table: */
+#define LISPFUN_H(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords_) \
+  (subr_##key_flag==subr_key) ?                                         \
+  subr_tab.D_##name.keywords =                                          \
+    (vec = allocate_vector(key_anz),                                    \
+     vecptr = &TheSvector(vec)->data[0],                                \
+     (keywords_),                                                       \
+     vec) : 0;
 
-# Expander für die zweite Initialisierung der SUBR-Tabelle:
-  #define LISPFUN_H(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords_)  \
-    (subr_##key_flag==subr_key) ?            \
-      subr_tab.D_##name.keywords =           \
-        (vec = allocate_vector(key_anz),     \
-         vecptr = &TheSvector(vec)->data[0], \
-         (keywords_),                        \
-         vec                                 \
-        ) : 0;
-
-# Welcher Expander benutzt wird, muss vom Hauptfile aus eingestellt werden.
-# Default ist   #define LISPFUN LISPFUN_B
+/* which expander is used must be specified in the main file.
+   the default is #define LISPFUN LISPFUN_B */
 
 
-# ---------- SPVW ----------
-# keine SUBRs
-# ---------- EVAL ----------
+/* ---------- SPVW ---------- */
+/* no SUBRs */
+/* ---------- EVAL ---------- */
 LISPFUNN(funtabref,1)
 LISPFUNN(subr_info,1)
-# ---------- ARRAY ----------
+/* ---------- ARRAY ---------- */
 LISPFUNN(copy_simple_vector,1)
 LISPFUN(vector,0,0,rest,nokey,0,NIL)
 LISPFUN(aref,1,0,rest,nokey,0,NIL)
@@ -151,7 +152,7 @@ LISPFUNN(vector_length,1)
 LISPFUNN(vector_init_start,2)
 LISPFUNN(vector_fe_init_end,2)
 LISPFUNN(make_bit_vector,1)
-# ---------- CHARSTRG ----------
+/* ---------- CHARSTRG ---------- */
 LISPFUNN(string_info,1)
 LISPFUNN(standard_char_p,1)
 LISPFUNN(graphic_char_p,1)
@@ -232,7 +233,7 @@ LISPFUNN(string,1)
 LISPFUNN(name_char,1)
 LISPFUN(substring,2,1,norest,nokey,0,NIL)
 LISPFUN(string_concat,0,0,rest,nokey,0,NIL)
-# ---------- CONTROL ----------
+/* ---------- CONTROL ---------- */
 LISPFUN(exit,0,1,norest,nokey,0,NIL)
 LISPFUNN(psymbol_value,1)
 LISPFUNN(symbol_value,1)
@@ -269,7 +270,7 @@ LISPFUN(constantp,1,1,norest,nokey,0,NIL)
 LISPFUNN(function_name_p,1)
 LISPFUN(parse_body,1,2,norest,nokey,0,NIL)
 LISPFUNN(keyword_test,2)
-# ---------- DEBUG ----------
+/* ---------- DEBUG ---------- */
 LISPFUN(read_form,1,1,norest,nokey,0,NIL)
 LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
 LISPFUNN(load,1)
@@ -290,7 +291,7 @@ LISPFUNN(show_stack,0)
 LISPFUNN(debug,0)
 LISPFUNN(proom,0)
 LISPFUNN(gc,0)
-# ---------- ENCODING ----------
+/* ---------- ENCODING ---------- */
 LISPFUN(make_encoding,0,0,norest,key,5,
         (kw(charset),kw(line_terminator),kw(input_error_action),
          kw(output_error_action),kw(if_does_not_exist)) )
@@ -316,14 +317,14 @@ LISPFUNN(set_misc_encoding,1)
 #endif
 LISPFUN(convert_string_from_bytes,2,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(convert_string_to_bytes,2,0,norest,key,2, (kw(start),kw(end)) )
-# ---------- ERROR ----------
+/* ---------- ERROR ---------- */
 LISPFUN(error,1,0,rest,nokey,0,NIL)
 LISPFUNN(defclcs,1)
 LISPFUN(cerror_of_type,3,0,rest,nokey,0,NIL)
 LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
 LISPFUNN(invoke_debugger,1)
 LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
-# ---------- HASHTABL ----------
+/* ---------- HASHTABL ---------- */
 LISPFUN(make_hash_table,0,0,norest,key,6,
         (kw(weak),kw(initial_contents),
          kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )
@@ -344,7 +345,7 @@ LISPFUNN(set_hash_table_weak_p,2)
 LISPFUNN(class_gethash,2)
 LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
 LISPFUNN(sxhash,1)
-# ---------- IO ----------
+/* ---------- IO ---------- */
 LISPFUNN(defio,2)
 LISPFUN(copy_readtable,0,2,norest,nokey,0,NIL)
 LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
@@ -435,7 +436,7 @@ LISPFUN(write_unreadable,3,0,norest,key,2, (kw(type),kw(identity)) )
 LISPFUN(line_position,0,1,norest,nokey,0,NIL)
 LISPFUNN(whitespacep,1)
 LISPFUN(write_spaces,1,1,norest,nokey,0,NIL)
-# ---------- LIST ----------
+/* ---------- LIST ---------- */
 LISPFUNN(car,1)
 LISPFUNN(cdr,1)
 LISPFUNN(caar,1)
@@ -534,7 +535,7 @@ LISPFUNN(list_elt,2)
 LISPFUNN(list_set_elt,3)
 LISPFUNN(list_init_start,2)
 LISPFUNN(list_fe_init_end,2)
-# ---------- MISC ----------
+/* ---------- MISC ---------- */
 LISPFUNN(lisp_implementation_type,0)
 LISPFUNN(lisp_implementation_version,0)
 LISPFUN(version,0,1,norest,nokey,0,NIL)
@@ -559,7 +560,7 @@ LISPFUNN(program_id,0)
 #endif
 LISPFUNN(ansi,0)
 LISPFUNN(set_ansi,1)
-# ---------- I18N ----------
+/* ---------- I18N ---------- */
 LISPFUNN(current_language,0)
 LISPFUNN(set_current_language,1)
 LISPFUNN(text,1)
@@ -569,7 +570,7 @@ LISPFUNN(textdomain,0)
 LISPFUNN(set_textdomain,1)
 LISPFUNN(textdomaindir,1)
 LISPFUNN(set_textdomaindir,2)
-# ---------- SOCKET ----------
+/* ---------- SOCKET ---------- */
 #ifdef MACHINE_KNOWN
 LISPFUNN(machine_instance,0)
 #endif
@@ -581,7 +582,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 LISPFUNN(resolve_host_ipaddr_,1)
 #endif
 #endif
-# ---------- TIME ----------
+/* ---------- TIME ---------- */
 LISPFUNN(get_internal_real_time,0)
 LISPFUNN(get_internal_run_time,0)
 LISPFUNN(get_universal_time,0)
@@ -596,7 +597,7 @@ LISPFUNN(sleep,2)
 #endif
 LISPFUNN(time,0)
 LISPFUNN(delta4,5)
-# ---------- PACKAGE ----------
+/* ---------- PACKAGE ---------- */
 LISPFUNN(make_symbol,1)
 LISPFUNN(find_package,1)
 LISPFUNN(pfind_package,1)
@@ -622,8 +623,10 @@ LISPFUN(shadowing_import,1,1,norest,nokey,0,NIL)
 LISPFUN(shadow,1,1,norest,nokey,0,NIL)
 LISPFUN(use_package,1,1,norest,nokey,0,NIL)
 LISPFUN(unuse_package,1,1,norest,nokey,0,NIL)
-LISPFUN(make_package,1,0,norest,key,3, (kw(nicknames),kw(use),kw(case_sensitive)) )
-LISPFUN(pin_package,1,0,norest,key,3, (kw(nicknames),kw(use),kw(case_sensitive)) )
+LISPFUN(make_package,1,0,norest,key,3,
+        (kw(nicknames),kw(use),kw(case_sensitive)) )
+LISPFUN(pin_package,1,0,norest,key,3,
+        (kw(nicknames),kw(use),kw(case_sensitive)) )
 LISPFUNN(delete_package,1)
 LISPFUNN(find_all_symbols,1)
 LISPFUNN(map_symbols,2)
@@ -631,7 +634,7 @@ LISPFUNN(map_external_symbols,2)
 LISPFUNN(map_all_symbols,1)
 LISPFUNN(package_iterator,2)
 LISPFUNN(package_iterate,1)
-# ---------- PATHNAME ----------
+/* ---------- PATHNAME ---------- */
 LISPFUN(parse_namestring,1,2,norest,key,3,
         (kw(start),kw(end),kw(junk_allowed)) )
 LISPFUNN(pathname,1)
@@ -651,10 +654,12 @@ LISPFUNN(host_namestring,1)
 LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
 LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
 LISPFUN(make_pathname,0,0,norest,key,8,
-        (kw(defaults),kw(case),kw(host),kw(device),kw(directory),kw(name),kw(type),kw(version)) )
+        (kw(defaults),kw(case),kw(host),kw(device),kw(directory),
+         kw(name),kw(type),kw(version)) )
 #ifdef LOGICAL_PATHNAMES
 LISPFUN(make_logical_pathname,0,0,norest,key,8,
-        (kw(defaults),kw(case),kw(host),kw(device),kw(directory),kw(name),kw(type),kw(version)) )
+        (kw(defaults),kw(case),kw(host),kw(device),kw(directory),
+         kw(name),kw(type),kw(version)) )
 #endif
 #ifdef USER_HOMEDIR
 LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
@@ -669,7 +674,8 @@ LISPFUNN(probe_directory,1)
 LISPFUNN(delete_file,1)
 LISPFUNN(rename_file,2)
 LISPFUN(open,1,0,norest,key,6,
-        (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format),kw(buffered)) )
+        (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),
+         kw(external_format),kw(buffered)) )
 LISPFUN(directory,0,1,norest,key,2, (kw(circle),kw(full)) )
 LISPFUN(cd,0,1,norest,nokey,0,NIL)
 LISPFUNN(make_dir,1)
@@ -707,12 +713,12 @@ LISPFUN(duplicate_handle,1,1,norest,nokey,0,NIL)
 LISPFUN(copy_file, 2, 0, norest, key, 4,
         (kw(method),kw(preserve),kw(if_exists),kw(if_does_not_exist)))
 #endif
-# ---------- POSIXMISC ----------
+/* ---------- POSIXMISC ---------- */
 #if defined(EXPORT_SYSCALLS) && defined(UNIX)
 LISPFUNN(sysinfo_,0)
 LISPFUNN(resource_usage_limits_,0)
 #endif
-# ---------- PREDTYPE ----------
+/* ---------- PREDTYPE ---------- */
 LISPFUNN(eq,2)
 LISPFUNN(eql,2)
 LISPFUNN(equal,2)
@@ -769,7 +775,7 @@ LISPFUNN(gc_statistics,0)
 LISPFUNN(list_statistics,1)
 LISPFUNN(heap_statistics_statistics,1)
 LISPFUNN(gc_statistics_statistics,2)
-# ---------- RECORD ----------
+/* ---------- RECORD ---------- */
 LISPFUNN(record_ref,2)
 LISPFUNN(record_store,3)
 LISPFUNN(record_length,1)
@@ -814,7 +820,7 @@ LISPFUN(pshared_initialize,2,0,rest,nokey,0,NIL)
 LISPFUN(preinitialize_instance,1,0,rest,nokey,0,NIL)
 LISPFUN(pinitialize_instance,1,0,rest,nokey,0,NIL)
 LISPFUN(pmake_instance,1,0,rest,nokey,0,NIL)
-# ---------- SEQUENCE ----------
+/* ---------- SEQUENCE ---------- */
 LISPFUNN(sequencep,1)
 LISPFUNN(defseq,1)
 LISPFUNN(elt,2)
@@ -840,13 +846,15 @@ LISPFUN(fill,2,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(replace,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(remove,2,0,norest,key,7,
-        (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not),kw(count)) )
+        (kw(from_end),kw(start),kw(end),kw(key),kw(test),
+         kw(test_not),kw(count)) )
 LISPFUN(remove_if,2,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 LISPFUN(remove_if_not,2,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 LISPFUN(delete,2,0,norest,key,7,
-        (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not),kw(count)) )
+        (kw(from_end),kw(start),kw(end),kw(key),kw(test),
+         kw(test_not),kw(count)) )
 LISPFUN(delete_if,2,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 LISPFUN(delete_if_not,2,0,norest,key,5,
@@ -856,13 +864,15 @@ LISPFUN(remove_duplicates,1,0,norest,key,6,
 LISPFUN(delete_duplicates,1,0,norest,key,6,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not)) )
 LISPFUN(substitute,3,0,norest,key,7,
-        (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not),kw(count)) )
+        (kw(from_end),kw(start),kw(end),kw(key),kw(test),
+         kw(test_not),kw(count)) )
 LISPFUN(substitute_if,3,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 LISPFUN(substitute_if_not,3,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 LISPFUN(nsubstitute,3,0,norest,key,7,
-        (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not),kw(count)) )
+        (kw(from_end),kw(start),kw(end),kw(key),kw(test),
+         kw(test_not),kw(count)) )
 LISPFUN(nsubstitute_if,3,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 LISPFUN(nsubstitute_if_not,3,0,norest,key,5,
@@ -898,7 +908,7 @@ LISPFUN(read_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(write_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(write_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
-# ---------- STREAM ----------
+/* ---------- STREAM ---------- */
 LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 LISPFUNN(make_synonym_stream,1)
 LISPFUNN(synonym_stream_p,1)
@@ -919,7 +929,8 @@ LISPFUNN(echo_stream_input_stream,1)
 LISPFUNN(echo_stream_output_stream,1)
 LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL)
 LISPFUNN(string_input_stream_index,1)
-LISPFUN(make_string_output_stream,0,0,norest,key,2, (kw(element_type),kw(line_position)))
+LISPFUN(make_string_output_stream,0,0,norest,key,2,
+        (kw(element_type),kw(line_position)))
 LISPFUNN(get_output_stream_string,1)
 LISPFUNN(make_string_push_stream,1)
 LISPFUNN(string_stream_p,1)
@@ -1019,7 +1030,7 @@ LISPFUNN(defgray,1)
 #if defined(EXPORT_SYSCALLS) && defined(HAVE_FLOCK)
 LISPFUN(stream_lock,2,0,norest,key,2, (kw(shared),kw(block)) )
 #endif
-# ---------- SYMBOL ----------
+/* ---------- SYMBOL ---------- */
 LISPFUNN(putd,2)
 LISPFUNN(find_subr,1)
 LISPFUNN(proclaim_constant,2)
@@ -1035,7 +1046,7 @@ LISPFUNN(symbol_name,1)
 LISPFUNN(keywordp,1)
 LISPFUNN(special_variable_p,1)
 LISPFUN(gensym,0,1,norest,nokey,0,NIL)
-# ---------- LISPARIT ----------
+/* ---------- LISPARIT ---------- */
 LISPFUNN(decimal_string,1)
 LISPFUNN(zerop,1)
 LISPFUNN(plusp,1)
@@ -1155,8 +1166,8 @@ LISPFUNN(gamma,1)
 LISPFUNN(lgamma,1)
 #endif
 LISPFUNN(bogomips,0)
-#endif # EXPORT_SYSCALLS
-# ---------- REXX ----------
+#endif /* EXPORT_SYSCALLS */
+/* ---------- REXX ---------- */
 #ifdef REXX
 LISPFUN(rexx_put,1,0,norest,key,5,
         (kw(result),kw(string),kw(token),kw(host),kw(io)) )
@@ -1164,7 +1175,7 @@ LISPFUNN(rexx_wait_input,0)
 LISPFUNN(rexx_get,0)
 LISPFUNN(rexx_reply,3)
 #endif
-# ---------- FOREIGN ----------
+/* ---------- FOREIGN ---------- */
 #ifdef DYNAMIC_FFI
 LISPFUNN(validp,1)
 LISPFUNN(sizeof,1)
@@ -1197,7 +1208,7 @@ LISPFUN(mem_write,3,1,norest,nokey,0,NIL)
 LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
 LISPFUN(affi_nonzerop,1,0,norest,nokey,0,NIL)
 #endif
-# ---------------- directory key
+/* ---------- DIRECTORY KEY ---------- */
 #ifdef DIR_KEY
 LISPFUNN(dir_key_type,1)
 LISPFUNN(dir_key_path,1)
