@@ -2571,9 +2571,9 @@ rpcsvc:
 |#
 ; =============================================================================
 
-(in-package "LISP")
+(lisp:in-package "LISP")
 
 (eval-when (compile eval)
-  (delete-package "LINUX-AUX")
+  (lisp:delete-package "LINUX-AUX")
 )
 
