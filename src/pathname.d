@@ -11235,7 +11235,7 @@ local void copy_file_low (object source, object dest,
   var uintL total_count = 0; /* return value: total byte count */
   { /* make the bit buffer and copy data */
     var uintL buffer_size = strm_buffered_bufflen;
-    var DYNAMIC_BIT_VECTOR(bitbuffer,buffer_size*8);
+    var DYNAMIC_8BIT_VECTOR(bitbuffer,buffer_size);
     pushSTACK(bitbuffer);
     /* stack layout: 0 - bitbuffer; 1 - dest-stream; 2 - source-stream */
     /* copy loop */
@@ -11247,7 +11247,7 @@ local void copy_file_low (object source, object dest,
       total_count += bytes_read;
       write_byte_array(&STACK_1,&STACK_0,0,bytes_read);
     }
-    FREE_DYNAMIC_BIT_VECTOR(STACK_0);
+    FREE_DYNAMIC_8BIT_VECTOR(STACK_0);
   }
   if (!preserve_p) {
     builtin_stream_close(&STACK_1);

@@ -7644,39 +7644,39 @@ extern object allocate_bit_vector (uintB atype, uintL len);
 # is used by ARRAY, IO, RECORD, LISPARIT, STREAM, CLX
 
 # Macro: Allocates a 8bit-vector on the stack, with dynamic extent.
-#   { var DYNAMIC_BIT_VECTOR(obj,len);
+#   { var DYNAMIC_8BIT_VECTOR(obj,len);
 #     ...
-#     FREE_DYNAMIC_BIT_VECTOR(obj);
+#     FREE_DYNAMIC_8BIT_VECTOR(obj);
 #   }
-# > uintL len: length (number of bits)
+# > uintL len: length (number of bytes)
 # < object obj: simple-8bit-vector with dynamic extent
 #   (may or may not be heap-allocated, therefore not GC-invariant)
 # can trigger GC
 #if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
   # No way to allocate a Lisp object on the stack.
-  #define DYNAMIC_BIT_VECTOR(objvar,len)  \
+  #define DYNAMIC_8BIT_VECTOR(objvar,len)  \
     uintL objvar##_len = (len);                   \
-    var object objvar = O(dynamic_bit_vector);    \
-    O(dynamic_bit_vector) = NIL;                  \
+    var object objvar = O(dynamic_8bit_vector);   \
+    O(dynamic_8bit_vector) = NIL;                 \
     if (!(simple_bit_vector_p(Atype_8Bit,objvar) && (Sbvector_length(objvar) >= objvar##_len))) \
       objvar = allocate_bit_vector(Atype_8Bit,objvar##_len)
-  #define FREE_DYNAMIC_BIT_VECTOR(objvar)  \
-    O(dynamic_bit_vector) = objvar
+  #define FREE_DYNAMIC_8BIT_VECTOR(objvar)  \
+    O(dynamic_8bit_vector) = objvar
 #else
   # Careful: Fill GCself with pointers to itself, so that GC will leave
   # pointers to this object untouched.
   #ifdef TYPECODES
-    #define DYNAMIC_BIT_VECTOR(objvar,len)  \
-      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+8*offsetofa(sbvector_,data),8*sizeof(gcv_object_t))); \
+    #define DYNAMIC_8BIT_VECTOR(objvar,len)  \
+      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+offsetofa(sbvector_,data),sizeof(gcv_object_t))); \
       var object objvar = ((Sbvector)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sb8vector_type,(Sbvector)objvar##_storage); \
       ((Sbvector)objvar##_storage)->length = (len)
   #else
-    #define DYNAMIC_BIT_VECTOR(objvar,len)  \
-      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+8*offsetofa(sbvector_,data),8*sizeof(gcv_object_t))); \
+    #define DYNAMIC_8BIT_VECTOR(objvar,len)  \
+      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+offsetofa(sbvector_,data),sizeof(gcv_object_t))); \
       var object objvar = ((Sbvector)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sb8vector_type,(Sbvector)objvar##_storage); \
       ((Sbvector)objvar##_storage)->tfl = lrecord_tfl(Rectype_Sb8vector,len)
   #endif
-  #define FREE_DYNAMIC_BIT_VECTOR(objvar)  \
+  #define FREE_DYNAMIC_8BIT_VECTOR(objvar)  \
     FREE_DYNAMIC_ARRAY(objvar##_storage)
 #endif
 # used by STREAM, PATHNAME
@@ -12291,7 +12291,7 @@ extern object get_line_position (object stream);
 # Function: Reads several bytes from a stream.
 # read_byte_array(&stream,&bytearray,start,len)
 # > stream: stream (on the STACK)
-# > object bytearray: simple-bit-vector (on the STACK)
+# > object bytearray: simple-8bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be filled
 # > uintL len: length of byte sequence to be filled
 # < uintL result: number of bytes that have been filled
@@ -12302,7 +12302,7 @@ extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* b
 # Function: Writes several bytes to a stream.
 # write_byte_array(&stream,&bytearray,start,len)
 # > stream: Stream (on the STACK)
-# > object bytearray: simple-bit-vector (on the STACK)
+# > object bytearray: simple-8bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be written
 # > uintL len: length of byte sequence to be written
 extern void write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len);
