@@ -27,6 +27,7 @@
 <!ENTITY alloca-k "<constant>:ALLOCA</constant>">
 <!ENTITY append-k "<constant>:APPEND</constant>">
 <!ENTITY arguments-k "<constant>:ARGUMENTS</constant>">
+<!ENTITY both-k "<constant>:BOTH</constant>">
 <!ENTITY c-k "<constant>:C</constant>">
 <!ENTITY c-NULL "<constant>NULL</constant>">
 <!ENTITY case-sensitive-k "<constant>:CASE-SENSITIVE</constant>">
@@ -38,6 +39,7 @@
 <!ENTITY default-k "<constant>:DEFAULT</constant>">
 <!ENTITY direction-k "<constant>:DIRECTION</constant>">
 <!ENTITY echo-k "<constant>:ECHO</constant>">
+<!ENTITY either-k "<constant>:EITHER</constant>">
 <!ENTITY end-k "<constant>:END</constant>">
 <!ENTITY eof-k "<constant>:EOF</constant>">
 <!ENTITY error-k "<constant>:ERROR</constant>">
@@ -84,6 +86,7 @@
 <!ENTITY super-k "<constant>:SUPER</constant>">
 <!ENTITY type-k "<constant>:TYPE</constant>">
 <!ENTITY use-k "<constant>:USE</constant>">
+<!ENTITY value-k "<constant>:VALUE</constant>">
 <!ENTITY verbose-k "<constant>:VERBOSE</constant>">
 <!ENTITY wait-k "<constant>:WAIT</constant>">
 <!ENTITY warnings-k "<constant>:WARNINGS</constant>">
@@ -325,7 +328,7 @@
 <!ENTITY weak-mapping "<link linkend='weak-mapping'><classname>EXT:WEAK-MAPPING</classname></link>">
 <!ENTITY weak-or-mapping "<link linkend='weak-or-mapping'><classname>EXT:WEAK-OR-MAPPINGINTER</classname></link>">
 <!ENTITY weak-or-relation "<link linkend='weak-or-relation'><classname>EXT:WEAK-OR-RELATION</classname></link>">
-<!ENTITY weak-pointer "<link linkend='weak'><classname>EXT:WEAK-POINTER</classname></link>">
+<!ENTITY weak-pointer "<link linkend='weak-pointer'><classname>EXT:WEAK-POINTER</classname></link>">
 <!ENTITY with-kbd "<link linkend='terminal'><function>EXT:WITH-KEYBOARD</function></link>">
 <!ENTITY with-print "<link linkend='hardcopy'><function>EXT:WITH-OUTPUT-TO-PRINTER</function></link>">
 <!ENTITY with-restarts "<link linkend='with-restarts'><function>EXT:WITH-RESTARTS</function></link>">
@@ -480,17 +483,20 @@
 <!ENTITY hw "<replaceable>hardware</replaceable>">
 <!ENTITY i-r "<replaceable>i</replaceable>">
 <!ENTITY int-r "<replaceable>integer</replaceable>">
+<!ENTITY item-r "<replaceable>item</replaceable>">
 <!ENTITY k-r "<replaceable>k</replaceable>">
 <!ENTITY k1-r "<replaceable>k&sub-1;</replaceable>">
 <!ENTITY k2-r "<replaceable>k&sub-2;</replaceable>">
 <!ENTITY kn-r "<replaceable>k&sub-n;</replaceable>">
 <!ENTITY key-r "<replaceable>key</replaceable>">
+<!ENTITY keys-r "<replaceable>keys</replaceable>">
 <!ENTITY l-r "<replaceable>l</replaceable>">
 <!ENTITY lib-name "<replaceable>library-name</replaceable>">
 <!ENTITY lab-r "<replaceable>label</replaceable>">
 <!ENTITY lang-r "<replaceable>language</replaceable>">
 <!ENTITY lc-r "<replaceable>lc</replaceable>">
 <!ENTITY len-r "<replaceable>length</replaceable>">
+<!ENTITY list-r "<replaceable>list</replaceable>">
 <!ENTITY m-r "<replaceable>m</replaceable>">
 <!ENTITY match-r "<replaceable>match</replaceable>">
 <!ENTITY maxdim-r "<replaceable>maxdimension</replaceable>">
