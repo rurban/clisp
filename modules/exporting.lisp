@@ -80,3 +80,5 @@
        (exporting "def-call-out")
        (normal "c-lines")
        (normal "eval-when"))))
+
+(provide "exporting")
