@@ -414,22 +414,18 @@
       (unless fi (return-from load-lpt-many nil))
       (when *load-verbose*
         (fresh-line) (write-string ";; ")
-        (write-string (TEXT "Loading logical hosts from file "))
-        (princ file)
-        (write-string " ...")
+        (format t (TEXT "Loading logical hosts from file ~A ...") file)
         (terpri))
       (do* ((eof (gensym)) (host (read fi nil eof) (read fi nil eof)))
            ((eq host eof)
             (write-string ";; ")
-            (write-string (TEXT "Loaded file "))
-            (princ file)
+            (format t (TEXT "Loaded file ~A") file)
             (terpri))
         (setq host (string-upcase host))
         (set-logical-pathname-translations host (eval (read fi)))
         (when *load-verbose*
           (fresh-line) (write-string ";; ")
-          (write-string (TEXT "Defined logical host "))
-          (write-string host)
+          (format t (TEXT "Defined logical host ~A") host)
           (terpri))))
     (gethash host *logical-pathname-translations*))
   ;; load a single host from a file, CMUCL-style
@@ -438,11 +434,7 @@
       (unless fi (return-from load-lpt-one nil))
       (when *load-verbose*
         (fresh-line) (write-string ";; ")
-        (write-string (TEXT "Loading logical host "))
-        (write-string host)
-        (write-string (TEXT " from file "))
-        (princ file)
-        (write-string " ..."))
+        (format t (TEXT "Loading logical host ~S from file ~A ...") host file))
       (set-logical-pathname-translations host (read fi))
       (when *load-verbose*
         (write-string (TEXT " done"))

@@ -1472,9 +1472,9 @@ local object check_hashtable (object obj) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot DATUM */
     pushSTACK(S(hash_table)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(hash_table)); pushSTACK(obj);
+    pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: argument ~ is not a ~"));
+    check_value(type_error,GETTEXT("~: argument ~ is not a hash table"));
     obj = value1;
   }
   return obj;

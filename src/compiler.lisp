@@ -4506,7 +4506,7 @@ for-value   NIL or T
 (defun set-check-lock (caller symbol)
   (when (and (not (memq (symbol-package symbol) *compiler-unlocked-packages*))
              (symbol-value-lock symbol))
-    (c-warn (TEXT "~S: assignment to the internal special symbol ~S")
+    (c-warn (TEXT "~S: assignment to the internal special variable ~S")
             caller symbol)))
 
 ;; compile (SETQ {symbol form}*)
@@ -10513,8 +10513,7 @@ The function make-closure is required.
 (defun disassemble-closure (closure &optional (stream *standard-output*))
   (terpri stream)
   (terpri stream)
-  (write-string (TEXT "Disassembly of function ") stream)
-  (prin1 (closure-name closure) stream)
+  (format stream (TEXT "Disassembly of function ~S") (closure-name closure))
   (multiple-value-bind (req-anz opt-anz rest-p
                         key-p keyword-list allow-other-keys-p
                         byte-list const-list)
@@ -10555,11 +10554,11 @@ The function make-closure is required.
             ((SETVALUE)
              (pushnew (nth (caddr L) const-list) special-vars-write)))))
       (when special-vars-read
-        (format stream (TEXT "~%reads special variable~P: ~S")
-              (length special-vars-read) special-vars-read))
+        (format stream (TEXT "~%reads special variable~P: ~{~S~^ ~}")
+                (length special-vars-read) special-vars-read))
       (when special-vars-write
-        (format stream (TEXT "~%writes special variable~P : ~S")
-              (length special-vars-write) special-vars-write))
+        (format stream (TEXT "~%writes special variable~P: ~{~S~^ ~}")
+                (length special-vars-write) special-vars-write))
       (format stream (TEXT "~%~S byte-code instruction~:P:") (length lap-list))
       (dolist (L lap-list)
         (let ((PC (car L)) (instr (cdr L)))

@@ -3862,7 +3862,7 @@ in the generic function instance."
 (defgeneric make-instances-obsolete (class)
   (:method ((class standard-class))
     (let ((name (class-name class)))
-      (warn (TEXT "~S: Class ~S (or its ancestor) is being redefined, instances are obsolete")
+      (warn (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
             'defclass name)
       (mapc #'make-instances-obsolete (class-direct-subclasses class)))
     class)
@@ -4043,7 +4043,7 @@ in the generic function instance."
 ;;; error functions
 (defun invalid-method-error (method format-string &rest args)
   (error-of-type 'sys::source-program-error
-    (TEXT "for function ~s applied to ~s:~%while computing the effective method for ~s~:%invalid method: ~s~%~?")
+    (TEXT "for function ~s applied to ~s:~%while computing the effective method through ~s:~%invalid method: ~s~%~?")
     *method-combination-generic-function*
     *method-combination-arguments*
     *method-combination*
@@ -4051,11 +4051,11 @@ in the generic function instance."
 
 (defun method-combination-error (format-string &rest args)
   (error-of-type 'sys::source-program-error
-    (TEXT "for function ~s applied to ~s:~%while computing the effective method for ~s~%invalid combination: ~s~%~?")
+    (TEXT "for function ~s applied to ~s:~%while computing the effective method through ~s:~%invalid method combination: ~s~%~?")
     *method-combination-generic-function*
     *method-combination-arguments*
     *method-combination*
-    format-string args))
+    *method-combination* format-string args))
 
 ;;; utility functions
 (defun qualifiers-match-p (qualifiers pattern)

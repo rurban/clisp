@@ -81,7 +81,7 @@
              (unless (closurep closure)
                (error-of-type 'type-error
                  :datum closure :expected-type 'closure
-                 (TEXT "~S: ~S must name a closure") 'local name))
+                 (TEXT "~S: ~S does not name a closure") 'local name))
              (if (sys::%compiled-function-p closure)
                  closure
                  (fdefinition (compile name closure)))))
@@ -100,7 +100,7 @@
     (unless (closurep new-def)
       (error-of-type 'type-error
         :datum new-def :expected-type 'closure
-        (TEXT "~S: ~S must be a closure") `(setf (local ,@spec) ,new-def)))
+        (TEXT "~S: ~S is not a closure") `(setf (local ,@spec)) new-def))
     (multiple-value-bind (clo pos) (local-helper spec)
       (sys::%record-store clo pos
          (if (sys::%compiled-function-p new-def)

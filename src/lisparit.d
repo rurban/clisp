@@ -330,9 +330,9 @@ local inline object check_number (object obj) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
     pushSTACK(S(number)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(number)); pushSTACK(obj);
+    pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    check_value(type_error,GETTEXT("~: ~ is not a number"));
     obj = value1;
   }
   return obj;
@@ -347,9 +347,9 @@ global object check_real (object obj) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
     pushSTACK(S(real)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(real)); pushSTACK(obj);
+    pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    check_value(type_error,GETTEXT("~: ~ is not a real number"));
     obj = value1;
     goto restart;
   });
@@ -364,9 +364,9 @@ local inline object check_float (object obj) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);      /* TYPE-ERROR slot DATUM */
     pushSTACK(S(float)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(float)); pushSTACK(obj);
+    pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    check_value(type_error,GETTEXT("~: ~ is not a floating-point number"));
     obj = value1;
   }
   return obj;
@@ -381,9 +381,9 @@ local inline object check_rational (object obj) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
     pushSTACK(S(rational)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(rational)); pushSTACK(obj);
+    pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    check_value(type_error,GETTEXT("~: ~ is not a rational number"));
     obj = value1;
     goto restart;
   });

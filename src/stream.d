@@ -1295,8 +1295,8 @@ LISPFUNNR(make_synonym_stream,1)
   if (!symbolp(arg)) {
     pushSTACK(arg);       # TYPE-ERROR slot DATUM
     pushSTACK(S(symbol)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(arg); pushSTACK(S(symbol)); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: argument should be a ~, not ~"));
+    pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,GETTEXT("~: argument should be a symbol, not ~"));
   }
   VALUES1(make_synonym_stream(arg));
 }
@@ -2240,9 +2240,9 @@ LISPFUNNR(string_input_stream_index,1)
         && (TheStream(stream)->strmtype == strmtype_str_in))) {
     pushSTACK(stream);           /* TYPE-ERROR slot DATUM */
     pushSTACK(S(string_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(string_stream)); pushSTACK(stream);
+    pushSTACK(stream);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: ~ is not an input ~"));
+    fehler(type_error,GETTEXT("~: ~ is not a string input stream"));
   }
   var object index = TheStream(stream)->strm_str_in_index;
   /* if a Character was pushed back with UNREAD-CHAR,
@@ -2369,7 +2369,7 @@ LISPFUNN(get_output_stream_string,1)
     pushSTACK(S(string_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(string_stream)); pushSTACK(STACK_2);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: ~ is not an output ~"));
+    fehler(type_error,GETTEXT("~: ~ is not a string output stream"));
   }
   /* the collected stuff is the value */
   VALUES1(get_output_stream_string(&STACK_0));
@@ -8661,10 +8661,9 @@ global char** lisp_completion (char* text, int start, int end) {
     # around with sys::completion.
     pushSTACK(mlist);   # slot DATUM of TYPE-ERROR
     pushSTACK(S(list)); # slot EXPECTED-TYPE of TYPE-ERROR
-    pushSTACK(S(list));
     pushSTACK(S(completion));
     pushSTACK(mlist);
-    fehler(type_error,GETTEXT("Return value ~ of call to ~ is not a ~."));
+    fehler(type_error,GETTEXT("Return value ~ of call to ~ is not a list."));
   }
   begin_system_call();
   var char** array = (char**) malloc((llength(mlist)+1)*sizeof(char*));
@@ -13765,10 +13764,9 @@ local void stream_handles (object obj, bool check_open, bool* char_p,
   if (!(TheStream(obj)->strmflags & strmflags_open_B)) {
     pushSTACK(obj);       # TYPE-ERROR slot DATUM
     pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(S(stream));
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: argument ~ is not an open ~"));
+    fehler(type_error,GETTEXT("~: argument ~ is not an open stream"));
   }
   switch (TheStream(obj)->strmtype) {
     case strmtype_terminal:
@@ -14146,7 +14144,7 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
       pushSTACK(O(type_socket_option)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(O(type_socket_option));
       pushSTACK(kwd); pushSTACK(S(socket_options));
-      fehler(type_error,GETTEXT("~: argument ~ should be ~."));
+      fehler(type_error,GETTEXT("~: argument ~ should be of type ~."));
     }
     end_system_call();
   }
@@ -14320,8 +14318,8 @@ local object handle_to_stream (Handle fd, object direction, object buff_p,
     if (   (READ_P(dir)  && ((fcntl_flags & O_ACCMODE) == O_WRONLY))
         || (WRITE_P(dir) && ((fcntl_flags & O_ACCMODE) == O_RDONLY))) {
       pushSTACK(STACK_5); /* FILE-ERROR slot PATHNAME */
-      pushSTACK(direction); pushSTACK(STACK_1); /* handle */
-      fehler(file_error,GETTEXT("Invalid direction ~ for handle ~"));
+      pushSTACK(STACK_0); pushSTACK(direction);
+      fehler(file_error,GETTEXT("Invalid direction ~ for accessing ~"));
     }
   }
  #endif
@@ -14346,8 +14344,9 @@ LISPFUN(make_stream,seclass_default,1,0,norest,key,4,
     fd = stream_lend_handle(STACK_4,READ_P(dir),NULL);
   } else {
     pushSTACK(NIL); /* no PLACE */
-    pushSTACK(STACK_(4+1)); pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,GETTEXT("~: ~ should be a handle, handle stream, or direction"));
+    pushSTACK(S(Kerror)); pushSTACK(S(Koutput)); pushSTACK(S(Kinput));
+    pushSTACK(STACK_(4+4)); pushSTACK(TheSubr(subr_self)->name);
+    check_value(error,GETTEXT("~: ~ should be a handle, handle stream, or one of ~, ~, ~"));
     STACK_4 = value1;
     goto restart_make_stream;
   }
@@ -15426,10 +15425,9 @@ global bool read_line (const gcv_object_t* stream_, const gcv_object_t* buffer_)
     if (!stringp(value1)) {
       pushSTACK(value1);    # TYPE-ERROR slot DATUM
       pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(S(string));
       pushSTACK(S(stream_read_line));
       pushSTACK(value1);
-      fehler(type_error,GETTEXT("Return value ~ of call to ~ is not a ~."));
+      fehler(type_error,GETTEXT("Return value ~ of call to ~ is not a string."));
     }
     var bool eofp = (mv_count >= 2 && !nullp(value2));
     # Add the line to the buffer:
@@ -16442,10 +16440,9 @@ local object check_open_file_stream (object obj, bool strict_p) {
  fehler_bad_obj:
   pushSTACK(obj);                      # TYPE-ERROR slot DATUM
   pushSTACK(O(type_open_file_stream)); # TYPE-ERROR slot EXPECTED-TYPE
-  pushSTACK(S(file_stream));
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ is not an open ~"));
+  fehler(type_error,GETTEXT("~: argument ~ is not an open file stream"));
 }
 
 /* for syscall module */
