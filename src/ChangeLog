@@ -1,3 +1,9 @@
+2003-08-22  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (defun): reverted the 2003-08-12 patch: cannot parse
+	the signature at macroexpand time, FUNCTION should see it first
+	for proper error reporting
+
 2003-08-21  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.c: rewrote in lisp

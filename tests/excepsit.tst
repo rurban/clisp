@@ -296,6 +296,12 @@ program-error
   (defgeneric foo11 (x)))
 program-error
 
+(defun foo11 ((x y) z) (list x y z))
+type-error
+
+(lambda ((x y) z) (list x y z))
+type-error
+
 (progn
   (defun foo12 (x) x)
   (defgeneric foo12 (x)))
