@@ -3,16 +3,16 @@
 ;; Sam Steingold 2001
 
 ;; the standard way to deprecate a function is to define a
-;; compiler-marco for it which will issue a warning
+;; compiler-macro for it which will issue a warning
 
 (in-package "SYSTEM")
 
 (defun deprecate (symbol superseded &optional (def (fdefinition superseded)))
   (export symbol (symbol-package symbol))
   (sys::%putd symbol def)
-  (setf (get symbol 'deprecated) superseded)
-  #+compiler
-  (pushnew symbol *deprecated-functions-list*))
+  (push (list symbol "Use ~S instead." superseded)
+        compiler::*deprecated-functions-alist*)
+  symbol)
 
 ;; ---------------------------------------------------------
 ;; `type-expand-1' -- superseded by (type-expand typespec t)
@@ -42,5 +42,9 @@ Use ~s instead"
 (deprecate 'ext::define-setf-method 'define-setf-expander)
 
 ;; ------------------------------------------------------
-;; not needed bacause null pointer is now returned as NIL
-#+ffi (deprecate 'ffi::foreign-address-null 'null)
+
+#+ffi
+(progn
+  (deprecate 'ffi::foreign-address-null 'null)
+  (setf (cdr (assoc 'ffi::foreign-address-null compiler::*deprecated-functions-alist*))
+        (list "The FFI now returns C NULL pointers as Lisp NIL. Use the function ~S instead." 'null)))
