@@ -1,6 +1,7 @@
 2003-07-31  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (open_file_stream_handle): use ChannelStream_ihandle()
+	* genclisph.d (OS_filestream_error): export
 
 2003-07-31  Sam Steingold  <sds@gnu.org>
 
