@@ -1,5 +1,22 @@
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Since make_machine and make_machine_code are different on some
+        platforms...
+        * pseudofun.d (LPSEUDOCODE): New macro, replaces PSEUDOFUN.
+          (XPSEUDOCODE, XPSEUDODATA): New macros, replace XPSEUDO.
+          (LCODE_PSEUDO_*, XCODE_PSEUDO_*, XDATA_PSEUDO_*): New macros.
+        * lispbibl.d (pseudofun_tab): Remove.
+          (pseudocode_tab, pseudodata_tab): New variables.
+        * spvw.d (pseudocode_anz, pseudodata_anz): New macros.
+          (pseudofun_anz): Change definition.
+          (pseudofun_tab): Define as local variable.
+          (main): Initialize pseudofun_tab from pseudocode_anz, pseudodata_anz.
+        * spvw_memfile.d (loadmem_update): Compare objects, not Pseudofuns.
+        * stream.d (pseudofun_tab): Remove.
+          (pseudocode_tab, pseudodata_tab): New variables.
+
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * control.d (test_env): Accept NIL, denoting the global environment.
 
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>

@@ -17320,18 +17320,20 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
   #endif
 
 # Tabelle aller Pseudofunktionen
-  #define PSEUDOFUN  PSEUDOFUN_B
-  #define XPSEUDO  XPSEUDO_B
+  #define PSEUDO  PSEUDO_C
   #include "pseudofun.c"
-  #undef XPSEUDO
-  #undef PSEUDOFUN
-  global struct pseudofun_tab_ pseudofun_tab =
+  #undef PSEUDO
+  global struct pseudocode_tab_ pseudocode_tab =
     {
-      #define PSEUDOFUN  PSEUDOFUN_C
-      #define XPSEUDO  XPSEUDO_C
+      #define PSEUDO  PSEUDO_D
       #include "pseudofun.c"
-      #undef XPSEUDO
-      #undef PSEUDOFUN
+      #undef PSEUDO
+    };
+  global struct pseudodata_tab_ pseudodata_tab =
+    {
+      #define PSEUDO  PSEUDO_E
+      #include "pseudofun.c"
+      #undef PSEUDO
     };
 
 # =============================================================================

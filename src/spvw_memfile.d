@@ -642,21 +642,14 @@
           #endif
           case_machine: # Pseudo-Funktion oder sonstiger Maschinenpointer
             # Umsetzung old_pseudofun_tab -> pseudofun_tab :
-            {
-              #if (machine_type==0)
-              var Pseudofun addr = ThePseudofun(*objptr);
-              #else # muss zum Vergleichen die Typinfo wegnehmen
-              var Pseudofun addr = (void*)upointer(*objptr);
-              #endif
+            { var object addr = *objptr;
               { var uintC i = pseudofun_anz;
-                var Pseudofun* ptr = &((Pseudofun*)(&old_pseudofun_tab))[pseudofun_anz];
+                var const object* ptr = &old_pseudofun_tab.pointer[pseudofun_anz];
                 until (i==0)
                   { i--;
-                    if (*--ptr == addr)
-                      { # Pseudo-Funktion
-                        *objptr = make_machine_code(((Pseudofun*)(&pseudofun_tab))[i]);
-                        break;
-              }   }   }
+                    if (eq(*--ptr,addr))
+                      { *objptr = pseudofun_tab.pointer[i]; break; }
+              }   }
               # sonstiger Maschinenpointer
               break;
             }
