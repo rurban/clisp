@@ -1834,9 +1834,9 @@ LISPFUNN(subr_info,1)
               }
             # SPECIAL-Deklaration verarbeiten:
             if (eq(Car(declspec),S(special))) # SPECIAL-Deklaration ?
-              { declspec = Cdr(declspec);
-                while (consp(declspec))
-                  { var object sym = Car(declspec);
+              { var object declspecrest = Cdr(declspec);
+                while (consp(declspecrest))
+                  { var object sym = Car(declspecrest);
                     if (!symbolp(sym))
                       { pushSTACK(sym);
                         fehler(source_program_error,
@@ -1848,7 +1848,7 @@ LISPFUNN(subr_info,1)
                       }
                     # Symbol im STACK ablegen:
                     check_STACK(); pushSTACK(sym); spec_count++; var_count++;
-                    declspec = Cdr(declspec);
+                    declspecrest = Cdr(declspecrest);
               }   }
             # sonstige Deklaration verarbeiten:
             pushSTACK(Cdr(declarations)); # declarations verkürzen und retten
