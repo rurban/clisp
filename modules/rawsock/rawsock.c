@@ -180,6 +180,34 @@ DEFUN(RAWSOCK:NTOHS, num) {
   VALUES1(uint16_to_I(arg));
 }
 #endif
+DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
+  int family = check_socket_domain(STACK_1);
+  if (stringp(STACK_0)) {
+    with_string_0(STACK_0,Symbol_value(S(utf_8)),ip_address,
+                  { value1 = string_to_addr(ip_address); });
+  } else if (integerp(STACK_0)) {
+    switch (family) {
+     #if defined(AF_INET6)
+      case AF_INET6: {
+        uint64 ip_address = I_to_uint64(check_uint64(STACK_0));
+        value1 = addr_to_string(family,(char*)&ip_address);
+      } break;
+     #endif
+      case AF_INET: {
+        uint32 ip_address = I_to_uint32(check_uint32(STACK_0));
+        value1 = addr_to_string(family,(char*)&ip_address);
+      } break;
+      default: value1 = NIL;
+    }
+  } else fehler_string_integer(STACK_0);
+  if (nullp(value1)) {
+    pushSTACK(STACK_1);         /* domain */
+    pushSTACK(STACK_1);         /* address */
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~S: invalid address ~S for family ~S"));
+  }
+  skipSTACK(2); mv_count = 1;
+}
 
 /* ================== sys/socket.h interface ================== */
 DEFCHECKER(check_socket_domain, AF_UNSPEC AF_UNIX AF_LOCAL AF_INET AF_AX25 \
