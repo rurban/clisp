@@ -57,7 +57,7 @@ T = $(TOPDIR)
 SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/clisp.lsm $T/configure
 SOURCES2 = $T/src
 SOURCES4 = $T/ffcall $T/libcharset $T/utils
-SOURCES5 = $T/unix $T/os2 $T/win32msvc $T/win32bc $T/nextapp
+SOURCES5 = $T/unix $T/os2 $T/win32msvc $T/nextapp
 SOURCES6 = $T/modules
 # $T/benchmarks are for developers only
 SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
@@ -87,7 +87,7 @@ htmldoc:
 	cd doc && make impnotes.html && make html && cd ..;
 
 makefiles : os2/makefile                                                   \
-	win32bc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc7 \
+	win32msvc/makefile.msvc4 win32msvc/makefile.msvc7                  \
 	win32msvc/makefile.msvc5 win32msvc/makefile.msvc5d
 
 os2/makefile : makemake
@@ -108,9 +108,6 @@ win32msvc/makefile.msvc5d : makemake
 win32msvc/makefile.msvc7 : makemake
 	./makemake --with-dynamic-ffi \
 		win32msvc msvc7 > win32msvc/makefile.msvc7
-
-win32bc/makefile : makemake
-	./makemake win32bc bcc32i > win32bc/makefile
 
 makemake : src/makemake.in
 	(echo "#!/bin/sh" ; cat src/makemake.in) > makemake
