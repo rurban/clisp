@@ -33,7 +33,6 @@ options: The following options are recognized:
          --with-PACKAGE        use PACKAGE
          --without-PACKAGE     do not use PACKAGE
            PACKAGEs available (the default is the opposite of the following):
-          --with-export-syscalls  export some UNIX syscalls to Lisp
           --without-dynamic-ffi   do not support Foreign Function Interface
           --without-unicode       no UNICODE support: character=8bit
           --with-threads=FLAVOR   support multiple threads in one CLISP image
@@ -179,9 +178,6 @@ do
         subdir_configure_args="$subdir_configure_args $arg"
         prev=host
         passnext=yes ;;
-
-      --with-export-syscalls)
-        makemake_args="$makemake_args $arg" ;;
 
       --with-debug)
         debug="debug" ;;

@@ -160,10 +160,6 @@ v(3, (kw(if_does_not_exist),kw(circle),kw(full)) )
 s(directory)
 v(2, (kw(element_type),kw(line_position)) )
 s(make_string_output_stream)
-#ifdef EXPORT_SYSCALLS
-v(4, (kw(method),kw(preserve),kw(if_exists),kw(if_does_not_exist)) )
-s(copy_file)
-#endif
 #ifdef PIPES
 v(3, (kw(element_type),kw(external_format),kw(buffered)) )
 s(make_pipe_input_stream)
@@ -192,10 +188,6 @@ v(3, (kw(initial_contents),kw(count),kw(read_only)))
 s(foreign_allocate)
 v(1, (kw(full)))
 s(foreign_free)
-#endif
-#if defined(EXPORT_SYSCALLS) && defined(HAVE_FLOCK)
-v(2, (kw(shared),kw(block)))
-s(stream_lock)
 #endif
 #if defined(UNIX) || defined(WIN32_NATIVE) || defined(RISCOS)
 v(6, (kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority)))
