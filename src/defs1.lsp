@@ -366,8 +366,11 @@
           (list (list (sys::getenv (string-concat "LOGICAL_HOST_" host "_FROM"))
                       (sys::getenv (string-concat "LOGICAL_HOST_" host "_TO"))
           )     )
-          '()
-  ) ) ) )
+          (error (DEUTSCH "Keine Umsetzungen für Logical Host ~S gefunden."
+                  ENGLISH "No translations for logical host ~S found"
+                  FRANCAIS "Aucune traduction du host logique ~S n'a été trouvé.")
+                 host
+  ) ) ) ) )
   (set-logical-pathname-translations "SYS"
     '#+(or DOS)
        (("**;*.LISP" "\\**\\*.LSP") (";**;*.LISP" "**\\*.LSP")
