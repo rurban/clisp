@@ -466,10 +466,15 @@ to print the corresponding values, or T for all of them.")
                     obj (or *print-right-margin* sys::*prin-linelength*))))
     (if (memq obj *describe-done*)
       (format stream (TEXT "~&~%~A [see above]") objstring)
-      (progn
+      (let ((doc (gethash obj *documentation*)))
         (push obj *describe-done*)
         (format stream (TEXT "~&~%~A is ") objstring)
-        (describe-object obj stream))))
+        (describe-object obj stream)
+        (when doc
+          (format stream (TEXT "~&Documentation:~%"))
+          (do ((tail doc (cddr tail)))
+              ((endp tail))
+            (format stream "~s:~%~s" (car tail) (cadr tail)))))))
   (finish-output stream))
 
 (defun describe (obj &optional stream)

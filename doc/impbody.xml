@@ -469,8 +469,6 @@ executes a compiled version of form.</para>
  It is not called on other objects, like &cons-t;es
  and &number-t;s, due to the performance concerns.</para>
 
-<para>&documentation; still has the &cltl1; implementation.</para>
-
 </section>
 
 <section id="metaclasses"><title>Standard Metaclasses
@@ -5084,7 +5082,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <section id="documentation"><title>Function &documentation;</title>
 
 <para>No on-line documentation is available for the system functions
- (yet).  &documentation; still has the &cltl1; implementation.</para>
+ (yet).</para>
 
 <formalpara id="browser"><title>Function <function>EXT:CLHS</function></title>
 <para>&hyperspec; access is provided via <literal

@@ -191,7 +191,7 @@
              (%PUT ',name 'DEFTYPE-EXPANDER
                (FUNCTION ,(make-symbol (string-concat "DEFTYPE-" (string name)))
                  (LAMBDA (<DEFTYPE-FORM>) ,mainform)))
-             (SETF (DOCUMENTATION ',name 'TYPE) ',docstring)
+             (SYS::%SET-DOCUMENTATION ',name 'TYPE ',docstring)
              ',name))))))
 (defun type-call-error (deftype-form)
   (error-of-type 'error
