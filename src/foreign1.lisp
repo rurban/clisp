@@ -932,7 +932,7 @@
                              argtypes)))
       (prepare-c-typedecl rettype)
       ;(mapc #'prepare-c-typedecl argtypes)
-      (format *coutput-stream* "~%global ~A "
+      (format *coutput-stream* "~%extern ~A "
               (to-c-typedecl rettype (format nil "(~A)" c-name)))
       (if (flag-set-p flags ff-language-ansi-c)
         ; ANSI C parameter declarations
