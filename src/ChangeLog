@@ -18,6 +18,7 @@
 
 2004-10-29  Bruno Haible  <bruno@clisp.org>
 
+	fixed bug #[ 1027441 ]: run-time broken when it does not fit in 32bit
 	* aridecl.d (wbitc): New macro.
 	* intelem.d (UQ_to_I): Use it instead of bitc.
 
