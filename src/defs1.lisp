@@ -782,6 +782,21 @@
         (write-to-string object :level level :length length)
 ) ) ) )
 
+;; (MEMOIZED form) memoizes the result of form from its first evaluation.
+(defmacro memoized (form)
+  `(LET ((MEMORY
+           (IF (EVAL-WHEN (EVAL) T)
+             ',(cons nil nil)
+             ;; Careful: Different expansions of MEMOIZED forms must yield
+             ;; LOAD-TIME-VALUE forms that are not EQ, otherwise compile-file
+             ;; will coalesce these LOAD-TIME-VALUE forms. Therefore here we
+             ;; explicitly cons up the list and don't use backquote.
+             ,(list 'LOAD-TIME-VALUE '(CONS NIL NIL)))))
+     (UNLESS (CAR MEMORY)
+       (SETF (CDR MEMORY) ,form)
+       (SETF (CAR MEMORY) T))
+     (CDR MEMORY)))
+
 ;; *ERROR-HANDLER* should be NIL or a function which accepts the following
 ;; arguments:
 ;;  - NIL (in case of ERROR) or a continue-format-string (in case of CERROR),
