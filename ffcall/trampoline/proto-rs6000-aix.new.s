@@ -21,18 +21,17 @@ tramp:
 	stw 0,8(1)
 	stwu 1,-56(1)
 	lis 11,0x1234
-	lis 9,0x7355
-	lis 0,0xbabe
+	lis 0,0x7355
 	ori 11,11,22136
-	ori 9,9,18193
-	ori 0,0,48832
-	stw 9,0(11)
-	mr 8,0
+	ori 0,0,18193
+	lis 9,0xbabe
+	stw 0,0(11)
+	ori 9,9,48832
 	stw 2,20(1)
-	lwz 10,0(8)
-	lwz 2,4(8)
-	mtlr 10
-	lwz 11,8(8)
+	lwz 0,0(9)
+	lwz 2,4(9)
+	mtlr 0
+	lwz 11,8(9)
 	blrl
 	lwz 2,20(1)
 	la 1,56(1)
@@ -64,5 +63,5 @@ LT..jump:
 	.short 4
 	.byte "jump"
 _section_.text:
-.csect .data[RW]
+.csect .data[RW],3
 	.long _section_.text
