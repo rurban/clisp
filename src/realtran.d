@@ -84,17 +84,16 @@
          return (f_len < newlen ? LF_shorten_LF(temp,f_len) : temp);
     }}}}}
 
-# pi() liefert die Zahl pi im Default-Float-Format.
+# pi(x) returns the number pi in default-float-format or the format of x
 # can trigger GC
-  local object pi (void);
-  local object pi()
-    { defaultfloatcase(S(default_float_format),
-                       return O(SF_pi); , # pi als SF
-                       return O(FF_pi); , # pi als FF
-                       return O(DF_pi); , # pi als DF
-                       return O(pi); , # pi als LF der Defaultlänge
-                       ,); # nichts zu retten
-    }
+local object pi (object x) {
+  defaultfloatcase(S(default_float_format),x,
+                   return O(SF_pi), # pi as SF
+                   return O(FF_pi), # pi as FF
+                   return O(DF_pi), # pi as DF
+                   return O(pi)   , # pi as LF with default length
+                   ,); # nothing to save
+}
 
 # F_atanhx_F(x) liefert zu einem Float x (betragsmäßig <1/2) atanh(x) als Float.
 # can trigger GC
@@ -218,16 +217,16 @@
     { if (eq(y,Fixnum_0))
         # y=0 (exakt)
         { if (R_zerop(x)) { divide_0(); } # x=0 -> Error
-          if (R_minusp(x)) { return pi(); } # x<0 -> pi in Default-Float-Genauigkeit
+          if (R_minusp(x)) { return pi(x); } # x<0 -> pi in default-float-format
           else { return Fixnum_0; } # x>0 -> 0
         }
       elif (eq(x,Fixnum_0))
         # x=0 (exakt)
         { if (R_zerop(y)) { divide_0(); } # y=0 -> Error
           if (R_minusp(y)) # y<0 -> -pi/2
-            { return F_minus_F(F_I_scale_float_F(pi(),Fixnum_minus1)); }
+            { return F_minus_F(F_I_scale_float_F(pi(y),Fixnum_minus1)); }
           else # y>0 -> pi/2
-            { return F_I_scale_float_F(pi(),Fixnum_minus1); }
+            { return F_I_scale_float_F(pi(y),Fixnum_minus1); }
         }
       pushSTACK(x); pushSTACK(y);
       # Stackaufbau: x, y.

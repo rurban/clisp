@@ -4,37 +4,28 @@
 # Macro: verteilt je nach Float-Typ eines Floats x auf 4 Statements.
 # floatcase(x, SF_statement,FF_statement,DF_statement,LF_statement);
 # x sollte eine Variable sein.
-  #ifdef TYPECODES
-    #define floatcase(obj, SF_statement,FF_statement,DF_statement,LF_statement) \
-      {                                                       \
-        if (!number_wbit_test(as_oint(obj),float1_bit_o)) {   \
-          if (!number_wbit_test(as_oint(obj),float2_bit_o)) { \
-            SF_statement                                      \
-          } else {                                            \
-            FF_statement                                      \
-          }                                                   \
-        } else {                                              \
-          if (!number_wbit_test(as_oint(obj),float2_bit_o)) { \
-            DF_statement                                      \
-          } else {                                            \
-            LF_statement                                      \
-          }                                                   \
-        }                                                     \
-      }
-  #else
-    #define floatcase(obj, SF_statement,FF_statement,DF_statement,LF_statement) \
-      if (as_oint(obj) & wbit(1)) {                   \
-        SF_statement                                  \
-      } else {                                        \
-        if (Record_type(obj) > Rectype_Dfloat) {      \
-          FF_statement                                \
-        } elif (Record_type(obj) == Rectype_Dfloat) { \
-          DF_statement                                \
-        } else {                                      \
-          LF_statement                                \
-        }                                             \
-      }
-  #endif
+#ifdef TYPECODES
+  #define floatcase(obj,SF_statement,FF_statement,DF_statement,LF_statement) \
+    do {                                                                     \
+      if (!number_wbit_test(as_oint(obj),float1_bit_o)) {                    \
+        if (!number_wbit_test(as_oint(obj),float2_bit_o)) { SF_statement; }  \
+        else { FF_statement; }                                               \
+      } else {                                                               \
+        if (!number_wbit_test(as_oint(obj),float2_bit_o)) { DF_statement; }  \
+        else { LF_statement; }                                               \
+      }                                                                      \
+    } while(0)
+#else
+  #define floatcase(obj,SF_statement,FF_statement,DF_statement,LF_statement) \
+    do {                                                                     \
+      if (as_oint(obj) & wbit(1)) { SF_statement; }                          \
+      else {                                                                 \
+        if (Record_type(obj) > Rectype_Dfloat) { FF_statement; }             \
+        else if (Record_type(obj) == Rectype_Dfloat) { DF_statement; }       \
+        else { LF_statement; }                                               \
+      }                                                                      \
+    } while(0)
+#endif
 # DF_statement darf kein #if enthalten. Daher:
   #ifdef intQsize
     #define ifdef_intQsize(A,B)  A

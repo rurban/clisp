@@ -246,10 +246,9 @@
             return (sign==0 ? x : LF_minus_LF(x)); # evtl. noch Vorzeichenwechsel
           }
         default: # case 'E':
-          defaultfloatcase(S(read_default_float_format),
-                           goto SF; , goto FF; , goto DF; , goto LF; ,
-                           pushSTACK(mantisse); , mantisse = popSTACK();
-                          );
+          defaultfloatcase(S(read_default_float_format),Fixnum_0,
+                           goto SF, goto FF, goto DF, goto LF,
+                           pushSTACK(mantisse), mantisse = popSTACK());
       }
     }
 

@@ -1,5 +1,18 @@
 2001-11-19  Sam Steingold  <sds@gnu.org>
 
+	more consistent floating point computations: (log -1d0) =>
+	#C(0.0d0 3.141592653589793d0), not #C(0.0d0 3.1415927f0)
+	* realelem.d (defaultfloatcase): accept NUM arg
+	(I_float_F, RA_float_F): update accordingly
+	* realtran.d (pi): accept an arg and pass it to defaultfloatcase()
+	(R_R_atan_R): pass an argument to pi()
+	* comptran.d (R_R_atanh_R_R, R_R_asinh_R_R, N_acos_N, N_acosh_N):
+	pass an argument to pi()
+	* flo_rest.d (floatcase): envelop in "do{}while(0)"
+	* lisparit.d (read_float): pass Fixnum_0 to defaultfloatcase()
+
+2001-11-19  Sam Steingold  <sds@gnu.org>
+
 	Move all deprecated functionality to deprecated.lisp
 	* compiler.lisp (*deprecated-functions-list*): took SPECIAL-FORM-P
 	and GET-SETF-METHOD-MULTIPLE-VALUE out

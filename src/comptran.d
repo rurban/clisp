@@ -641,7 +641,7 @@
         } else {
           # (1+x)/(1-x) < 0 -> Betrag nehmen, Imaginärteil berechnen:
           STACK_1 = F_minus_F(temp);
-          temp = F_I_scale_float_F(pi(),Fixnum_minus1); # (scale-float pi -1) = pi/2
+          temp = F_I_scale_float_F(pi(STACK_1),Fixnum_minus1); # (scale-float pi -1) = pi/2
           if (R_minusp(STACK_0)) # 1-x<0 -> dann -pi/2
             temp = F_minus_F(temp);
           STACK_0 = temp;
@@ -804,10 +804,10 @@
           if (RA_integerp(y)) {
             # y Integer
             if (eq(y,Fixnum_1)) { # x=0, y=1 -> v = pi/2
-              STACK_0 = F_I_scale_float_F(pi(),Fixnum_minus1); return;
+              STACK_0 = F_I_scale_float_F(pi(y),Fixnum_minus1); return;
             }
             if (eq(y,Fixnum_minus1)) { # x=0, y=-1 -> v = -pi/2
-              STACK_0 = F_minus_F(F_I_scale_float_F(pi(),Fixnum_minus1)); return;
+              STACK_0 = F_minus_F(F_I_scale_float_F(pi(y),Fixnum_minus1)); return;
             }
             STACK_0 = y = I_float_F(y); # y in Float umwandeln
           } else {
@@ -815,10 +815,10 @@
             if (eq(TheRatio(y)->rt_den,fixnum(2))) { # Nenner = 2 ?
               var object temp = TheRatio(y)->rt_num; # Zähler
               if (eq(temp,Fixnum_1)) { # x=0, y=1/2 -> v = pi/6
-                STACK_0 = R_R_durch_R(pi(),fixnum(6)); return;
+                STACK_0 = R_R_durch_R(pi(y),fixnum(6)); return;
               }
               if (eq(temp,Fixnum_minus1)) { # x=0, y=-1/2 -> v = -pi/6
-                STACK_0 = F_minus_F(R_R_durch_R(pi(),fixnum(6))); return;
+                STACK_0 = F_minus_F(R_R_durch_R(pi(y),fixnum(6))); return;
               }
             }
             STACK_0 = y = RA_float_F(y); # y in Float umwandeln
@@ -845,7 +845,7 @@
             temp = F_F_plus_F(temp,y);
           # temp = sqrt(y^2-1)+|y|, ein Float >1
           STACK_1 = R_ln_R(temp); # ln(|y|+sqrt(y^2-1)), ein Float >0
-          temp = F_I_scale_float_F(pi(),Fixnum_minus1); # (scale-float pi -1) = pi/2
+          temp = F_I_scale_float_F(pi(STACK_1),Fixnum_minus1); # (scale-float pi -1) = pi/2
           if (!R_minusp(STACK_0)) { # Vorzeichen von y
             # y>1 -> v = pi/2
             STACK_0 = temp;
@@ -954,20 +954,20 @@
           if (RA_integerp(z)) {
             # z Integer
             if (eq(z,Fixnum_0)) # x=0 -> Ergebnis pi/2
-              return F_I_scale_float_F(pi(),Fixnum_minus1);
+              return F_I_scale_float_F(pi(Fixnum_0),Fixnum_minus1);
             if (eq(z,Fixnum_1)) # x=1 -> Ergebnis 0
               return Fixnum_0;
             if (eq(z,Fixnum_minus1)) # x=-1 -> Ergebnis pi
-              return pi();
+              return pi(Fixnum_0);
             z = I_float_F(z); # z in Float umwandeln
           } else {
             # z Ratio
             if (eq(TheRatio(z)->rt_den,fixnum(2))) { # Nenner = 2 ?
               var object temp = TheRatio(z)->rt_num; # Zähler
               if (eq(temp,Fixnum_1)) # x=1/2 -> Ergebnis pi/3
-                return R_R_durch_R(pi(),fixnum(3));
+                return R_R_durch_R(pi(Fixnum_0),fixnum(3));
               if (eq(temp,Fixnum_minus1)) # x=-1/2 -> Ergebnis 2pi/3
-                return R_R_durch_R(F_I_scale_float_F(pi(),Fixnum_1),fixnum(3));
+                return R_R_durch_R(F_I_scale_float_F(pi(Fixnum_0),Fixnum_1),fixnum(3));
             }
             z = RA_float_F(z); # z in Float umwandeln
           }
@@ -991,7 +991,7 @@
       # Stackaufbau: u, v.
       # Bilde pi/2-v :
       z = STACK_0;
-      z = (R_rationalp(z) ? pi() : pi_F_float_F(z)); # pi im Float-Format von v
+      z = (R_rationalp(z) ? pi(z) : pi_F_float_F(z)); # pi im Float-Format von v
       z = F_I_scale_float_F(z,Fixnum_minus1); # pi/2
       z = R_R_minus_R(z,STACK_0); # pi/2-v
       z = R_R_complex_N(z,STACK_1); # (pi/2-v)+iu
@@ -1025,19 +1025,19 @@
           if (RA_integerp(z)) {
             # z Integer
             if (eq(z,Fixnum_0)) # x=0 -> Ergebnis pi/2 i
-              return R_R_complex_C(Fixnum_0,F_I_scale_float_F(pi(),Fixnum_minus1));
+              return R_R_complex_C(Fixnum_0,F_I_scale_float_F(pi(z),Fixnum_minus1));
             if (eq(z,Fixnum_1)) # x=1 -> Ergebnis 0
               return Fixnum_0;
             if (eq(z,Fixnum_minus1)) # x=-1 -> Ergebnis pi i
-              return R_R_complex_C(Fixnum_0,pi());
+              return R_R_complex_C(Fixnum_0,pi(z));
           } else {
             # z Ratio
             if (eq(TheRatio(z)->rt_den,fixnum(2))) { # Nenner = 2 ?
               var object temp = TheRatio(z)->rt_num; # Zähler
               if (eq(temp,Fixnum_1)) # x=1/2 -> Ergebnis pi/3 i
-                return R_R_complex_C(Fixnum_0,R_R_durch_R(pi(),fixnum(3)));
+                return R_R_complex_C(Fixnum_0,R_R_durch_R(pi(z),fixnum(3)));
               if (eq(temp,Fixnum_minus1)) # x=-1/2 -> Ergebnis 2pi/3 i
-                return R_R_complex_C(Fixnum_0,R_R_durch_R(F_I_scale_float_F(pi(),Fixnum_1),fixnum(3)));
+                return R_R_complex_C(Fixnum_0,R_R_durch_R(F_I_scale_float_F(pi(z),Fixnum_1),fixnum(3)));
             }
           }
         }
@@ -1049,7 +1049,7 @@
           # z Float <= -1
           z = F_sqrt_F(R_R_minus_R(F_square_F(z),Fixnum_1)); # sqrt(z^2-1), ein Float >=0
           STACK_0 = R_ln_R(F_F_minus_F(z,STACK_0)); # log(sqrt(z^2-1)-z), ein Float >=0
-          z = pi(); # und Imaginärteil pi
+          z = pi(STACK_0); # and imaginary part == pi
           return R_R_complex_C(popSTACK(),z);
         }
         z = popSTACK();
