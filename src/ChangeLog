@@ -1,3 +1,8 @@
+1999-03-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d: Include <string.h> also in the case of NO_READLINE,
+          in order to declare `strcpy' and `strcat'.
+
 1999-03-11  Sam Steingold  <sds@goems.com>
 
 	* loop.lsp (expand-loop): do not nreverse for collect/nconc/append.
