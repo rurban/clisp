@@ -1,3 +1,9 @@
+2004-09-08  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (run-all-tests): bind CUSTOM:*LOAD-PATHS* to NIL to
+	avoid SEARCH-FILE overhead and potential errors stemming from it
+	Suggested by Jörg Höhle
+
 2004-09-08  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* Makefile: %.erg shall not depend on ../lisp.run&../lispinit.mem
@@ -7,7 +13,7 @@
 	* Makefile: target tests now works with MS-VC's nmake
 	nmake BD="..\\" LEXE=.exe RM=del tests
 	It's more portable to use $(dir)file than $(dir)/file
-	
+
 2004-09-03  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst (c-malloc, c-free): :LIBRARY argument is now evaluated
