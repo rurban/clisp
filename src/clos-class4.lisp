@@ -31,8 +31,9 @@
 ;;; ===========================================================================
 
 (defmethod shared-initialize ((class built-in-class) situation &rest args
-                              &key name direct-superclasses)
-  (declare (ignore name direct-superclasses))
+                              &key name direct-superclasses
+                                   ((prototype prototype) nil))
+  (declare (ignore name direct-superclasses prototype))
   (apply #'shared-initialize-<built-in-class> class situation args))
 
 ;;; ===========================================================================
