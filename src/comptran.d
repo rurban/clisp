@@ -166,7 +166,7 @@ local object N_log_N (object x, bool start_p, object *end_p)
         pushSTACK(a); pushSTACK(b);
         STACK_1 = N_log_N(STACK_1,true,&STACK_1); /* (log a) */
         STACK_0 = N_log_N(STACK_0,true,&STACK_0); /* (log b) */
-        a = N_N_durch_N(a,b); /* divide */
+        a = N_N_durch_N(STACK_1,STACK_0); /* divide */
         skipSTACK(2); return a;
       }
     }
@@ -935,7 +935,7 @@ local object N_atan_N (object z)
       STACK_0 = F_I_scale_float_F(STACK_0,Fixnum_1); # v:=2*v
       return;
     }
-  
+
   local object N_asinh_N(z)
     var object z;
     {
@@ -947,7 +947,7 @@ local object N_atan_N (object z)
       /* stack layout: u, v. */
       z = R_R_complex_N(STACK_1,STACK_0); skipSTACK(2); return z;
     }
-  
+
   local object N_asin_N(z)
     var object z;
     {
