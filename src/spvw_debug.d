@@ -88,11 +88,11 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     string_out(out,Symbol_name(obj));
   } else if (simple_vector_p(obj)) {
     var uintL len = vector_length(obj);
-    var uintL idx = 0;
+    var uintL index = 0;
     fputs("#(",out);
-    while (idx < len) {
-      if (idx) fputc(' ',out);
-      XOUT(TheSvector(obj)->data[idx++]);
+    while (index < len) {
+      if (index) fputc(' ',out);
+      XOUT(TheSvector(obj)->data[index++]);
     }
     fputc(')',out);
   } else if (consp(obj)) {
