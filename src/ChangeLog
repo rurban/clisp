@@ -1,3 +1,7 @@
+1999-02-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d (init_streamvars): Avoid gcc warning.
+
 1999-02-19  Sam Steingold  <sds@goems.com>
 
 	* defs3.lsp, clos.lsp, init.lsp: do not export `generic-flet',
