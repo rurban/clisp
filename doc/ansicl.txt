@@ -310,7 +310,7 @@
 ; SETF-FUNCTIONS-AGAIN:MINIMAL-CHANGES                       yes
 ; SETF-GET-DEFAULT:EVALUATED-BUT-IGNORED                     yes
 ; SETF-MACRO-EXPANSION:LAST                                  yes
-; SETF-METHOD-VS-SETF-METHOD:RENAME-OLD-TERMS                no
+; SETF-METHOD-VS-SETF-METHOD:RENAME-OLD-TERMS                yes
 ; SETF-MULTIPLE-STORE-VARIABLES:ALLOW                        yes for SETF, no for SHIFTF, ROTATEF, ASSERT
 ; SETF-OF-APPLY:ONLY-AREF-AND-FRIENDS                        yes
 ; SETF-OF-VALUES:ADD                                         no, SHIFTF etc. don't work right with it

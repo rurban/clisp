@@ -5,8 +5,8 @@
 ;;;----------------------------------------------------------------------------
 ;;; Funktionen zur Definition und zum Ausnutzen von places:
 ;;;----------------------------------------------------------------------------
+;; Return an un-interned symbol for SYSTEM::SETF-FUNCTION
 (defun setf-symbol (symbol)
-  ;; Return an un-interned symbol for SYSTEM::SETF-FUNCTION
   (make-symbol
     (string-concat
       "(SETF "
@@ -16,24 +16,32 @@
       ")"
 ) ) )
 ;;;----------------------------------------------------------------------------
-(defun get-setf-symbol (symbol) ; return a symbol for SYSTEM::SETF-FUNCTION
+;; Returns the symbol which is on the property list at SYSTEM::SETF-FUNCTION
+(defun get-setf-symbol (symbol)
   (or (get symbol 'SYSTEM::SETF-FUNCTION)
       (progn
         (when (get symbol 'SYSTEM::SETF-EXPANDER)
           (warn (DEUTSCH "Die Funktion (~S ~S) ist durch einen SETF-Expander verborgen."
                  ENGLISH "The function (~S ~S) is hidden by a SETF expander."
-                 FRANCAIS "La fonction (~S ~S) est cachŒ¸e par une mŒ¸thode SETF.")
+                 FRANCAIS "La fonction (~S ~S) est cachée par une méthode SETF.")
                 'setf symbol
         ) )
         (setf (get symbol 'SYSTEM::SETF-FUNCTION) (setf-symbol symbol))
 ) )   )
 ;;;----------------------------------------------------------------------------
-(defun get-funname-symbol (funname) ; Abbildung Funktionsname --> Symbol
+;; Mapping funname -> symbol
+(defun get-funname-symbol (funname)
   (if (atom funname)
     funname
     (get-setf-symbol (second funname))
 ) )
 ;;;----------------------------------------------------------------------------
+;; Returns 5 values:
+;;   SM1  vr  variables to bind
+;;   SM2  vl  values to bind to
+;;   SM3  sv  variables whose values are used by the setter form
+;;   SM4  se  setter form
+;;   SM5  ge  getter form
 (defun get-setf-expansion (form &optional (env (vector nil nil)))
   (loop
     ; 1. Schritt: nach globalen SETF-Definitionen suchen:
@@ -61,12 +69,12 @@
                   (if (eql argcount -5)
                     ; (-5 . fun) kommt von DEFINE-SETF-METHOD
                     (funcall (cdr plist-info) form env)
-                    ; (argcount . fun) kommt von langem DEFSETF
+                    ; (argcount storevarcount . fun) kommt von langem DEFSETF
                     (let ((access-form form)
                           (tempvars '())
                           (tempforms '())
                           (new-access-form '()))
-                      (let ((i 0)) ; Argumente-ZŒ´hler
+                      (let ((i 0)) ; Argumente-Zähler
                         ; argcount = -1 falls keine Keyword-Argumente existieren
                         ; bzw.     = Anzahl der einzelnen Argumente vor &KEY,
                         ;          = nil nachdem diese abgearbeitet sind.
@@ -78,7 +86,7 @@
                               (error-of-type 'source-program-error
                                 (DEUTSCH "Das Argument ~S zu ~S sollte ein Keyword sein."
                                  ENGLISH "The argument ~S to ~S should be a keyword."
-                                 FRANCAIS "L'argument ~S de ~S doit Œ¹tre un mot-clŒ¸.")
+                                 FRANCAIS "L'argument ~S de ~S doit être un mot-clé.")
                                 argform (car access-form)
                             ) )
                             (let ((tempvar (gensym)))
@@ -91,15 +99,14 @@
                       (setq new-access-form
                         (cons (car access-form) (nreverse new-access-form))
                       )
-                      (let ((newval-var (map-into (make-list
-                                                   (1- (function-signature
-                                                        (cdr plist-info))))
-                                                  #'gensym)))
+                      (let ((newval-vars
+                              (map-into (make-list (cadr plist-info))
+                                        #'gensym)))
                         (values
                           (nreverse tempvars)
                           (nreverse tempforms)
-                         newval-var
-                         (apply (cdr plist-info) new-access-form newval-var)
+                          newval-vars
+                          (apply (cddr plist-info) new-access-form newval-vars)
                           new-access-form
                 ) ) ) ) )
             ) )
@@ -134,14 +141,15 @@
                 ))
         )) )
         (t (error-of-type 'source-program-error
-             (DEUTSCH "Das Argument muŒê eine 'SETF-place' sein, ist aber keine: ~S"
+             (DEUTSCH "Das Argument muß eine 'SETF-place' sein, ist aber keine: ~S"
               ENGLISH "Argument ~S is not a SETF place."
-              FRANCAIS "L'argument ~S doit reprŒ¸senter une place modifiable.")
+              FRANCAIS "L'argument ~S doit représenter une place modifiable.")
              form
   )     )  )
 )
 (defun get-setf-method-multiple-value (&rest args) ; backward compatibility
-  (apply #'get-setf-expansion args))
+  (apply #'get-setf-expansion args)
+)
 ;;;----------------------------------------------------------------------------
 (defun get-setf-method (form &optional (env (vector nil nil)))
   (multiple-value-bind (vars vals stores store-form access-form)
@@ -150,7 +158,7 @@
       (error-of-type 'source-program-error
         (DEUTSCH "Diese 'SETF-place' produziert mehrere 'Store-Variable': ~S"
          ENGLISH "SETF place ~S produces more than one store variable."
-         FRANCAIS "La place modifiable ~S produit plusieurs variables de rŒ¸sultat.")
+         FRANCAIS "La place modifiable ~S produit plusieurs variables de résultat.")
         form
     ) )
     (values vars vals stores store-form access-form)
@@ -174,7 +182,7 @@
 (defun documentation (symbol doctype)
   (unless (function-name-p symbol)
     (error-of-type 'error
-      (DEUTSCH "~S: Das ist als erstes Argument unzulŒ´ssig, da kein Symbol: ~S"
+      (DEUTSCH "~S: Das ist als erstes Argument unzulässig, da kein Symbol: ~S"
        ENGLISH "~S: first argument ~S is illegal, not a symbol"
        FRANCAIS "~S : Le premier argument ~S est invalide car ce n'est pas un symbole.")
       'documentation symbol
@@ -184,7 +192,7 @@
 (defun SYSTEM::%SET-DOCUMENTATION (symbol doctype value)
   (unless (function-name-p symbol)
     (error-of-type 'error
-      (DEUTSCH "~S: Das ist als erstes Argument unzulŒ´ssig, da kein Symbol: ~S"
+      (DEUTSCH "~S: Das ist als erstes Argument unzulässig, da kein Symbol: ~S"
        ENGLISH "~S: first argument ~S is illegal, not a symbol"
        FRANCAIS "~S : Le premier argument ~S est invalide car ce n'est pas un symbole.")
       'documentation symbol
@@ -199,25 +207,32 @@
 ) )
 ;;;----------------------------------------------------------------------------
 (defmacro push (item place &environment env)
-  (multiple-value-bind (du va ne se ge) (get-setf-expansion place env)
-    (if (simple-assignment-p se ne)
-        (subst `(cons ,item ,ge) (car ne) se)
-        (do ((bindlist (mapcar #'list du va)) (ns (copy-tree se))
-             (nn ne (cdr nn)) its)
-            ((null nn)
-             `(let* ,bindlist
-               (multiple-value-bind ,ne ,item
-                 (multiple-value-bind ,(nreverse its) ,ge ,ns))))
-          (setq its (cons (gensym) its)
-                ns (nsubst `(cons ,(car nn) ,(car its)) (car nn) ns))))))
+  (multiple-value-bind (vr vl sv se ge) (get-setf-expansion place env)
+    (if (simple-assignment-p se sv)
+      (subst `(CONS ,item ,ge) (car sv) se)
+      (let* ((bindlist (mapcar #'list vr vl))
+             (tempvars (map-into (make-list (length sv)) #'gensym))
+             (ns (sublis (mapcar #'(lambda (storevar tempvar)
+                                     (cons storevar `(CONS ,storevar ,tempvar))
+                                   )
+                                 sv tempvars
+                         )
+                         se
+            ))   )
+        `(LET* ,bindlist
+           (MULTIPLE-VALUE-BIND ,sv ,item
+             (MULTIPLE-VALUE-BIND ,tempvars ,ge
+               ,ns
+         ) ) )
+) ) ) )
 ;;;----------------------------------------------------------------------------
 (defmacro define-setf-expander (accessfn lambdalist &body body
                                 &environment env)
   (unless (symbolp accessfn)
     (error-of-type 'source-program-error
-      (DEUTSCH "Der Name der Access-Function muŒê ein Symbol sein und nicht ~S."
+      (DEUTSCH "Der Name der Access-Function muß ein Symbol sein und nicht ~S."
        ENGLISH "The name of the access function must be a symbol, not ~S"
-       FRANCAIS "Le nom de la fonction d'accŒÅs doit Œ¹tre un symbole et non ~S.")
+       FRANCAIS "Le nom de la fonction d'accès doit être un symbole et non ~S.")
       accessfn
   ) )
   (multiple-value-bind (body-rest declarations docstring)
@@ -250,9 +265,9 @@
               (setq mainform
                 `(IF ,lengthtest
                    (ERROR-OF-TYPE 'PROGRAM-ERROR
-                     (DEUTSCH "Der SETF-Expander fŒÍr ~S kann nicht mit ~S Argumenten aufgerufen werden."
+                     (DEUTSCH "Der SETF-Expander für ~S kann nicht mit ~S Argumenten aufgerufen werden."
                       ENGLISH "The SETF expander for ~S may not be called with ~S arguments."
-                      FRANCAIS "L'«expandeur» SETF pour ~S ne peut pas Œ¹tre appelŒ¸ avec ~S arguments.")
+                      FRANCAIS "L'«expandeur» SETF pour ~S ne peut pas être appelé avec ~S arguments.")
                      (QUOTE ,accessfn) (1- (LENGTH SYSTEM::%LAMBDA-LIST))
                    )
                    ,mainform
@@ -272,7 +287,8 @@
              ) )
 ) ) ) ) ) )
 (defmacro define-setf-method (&rest args) ; backward compatibility
-  `(define-setf-expander ,@ args))
+  `(DEFINE-SETF-EXPANDER ,@args)
+)
 ;;;----------------------------------------------------------------------------
 (defmacro defsetf (accessfn &rest args &environment env)
   (cond ((and (consp args) (not (listp (first args))) (symbolp (first args)))
@@ -286,15 +302,15 @@
                    (second args)
                    (if (cddr args)
                      (error-of-type 'source-program-error
-                       (DEUTSCH "Zu viele Argumente fŒÍr DEFSETF: ~S"
+                       (DEUTSCH "Zu viele Argumente für DEFSETF: ~S"
                         ENGLISH "Too many arguments to DEFSETF: ~S"
                         FRANCAIS "Trop d'arguments pour DEFSETF : ~S")
                        (cdr args)
                      )
                      (error-of-type 'source-program-error
-                       (DEUTSCH "Der Dok.-String zu DEFSETF muŒê ein String sein: ~S"
+                       (DEUTSCH "Der Dok.-String zu DEFSETF muß ein String sein: ~S"
                         ENGLISH "The doc string to DEFSETF must be a string: ~S"
-                        FRANCAIS "La documentation pour DEFSETF doit Œ¹tre un chaŒ½ne : ~S")
+                        FRANCAIS "La documentation pour DEFSETF doit être un chaîne : ~S")
                        (second args)
                  ) ) )
               )
@@ -303,10 +319,10 @@
         )
         ((and (consp args) (listp (first args)) (consp (cdr args)) (listp (second args)))
          (when (null (second args))
-                (error-of-type 'source-program-error
-              (DEUTSCH "Bei DEFSETF muŒê genau eine 'Store-Variable' angegeben werden."
-                   ENGLISH "Missing store variable in DEFSETF."
-               FRANCAIS "Une variable de rŒ¸sultat doit Œ¹tre prŒ¸cisŒ¸e dans DEFSETF.")))
+           (error-of-type 'source-program-error
+             (DEUTSCH "Bei DEFSETF muß mindestens eine 'Store-Variable' angegeben werden."
+              ENGLISH "Missing store variable in DEFSETF."
+              FRANCAIS "Une variable de résultat doit être précisée dans DEFSETF.")))
          (multiple-value-bind (body-rest declarations docstring)
              (system::parse-body (cddr args) t env)
            (let* (arg-count
@@ -338,17 +354,17 @@
              `(EVAL-WHEN (LOAD COMPILE EVAL)
                 (LET ()
                   (SYSTEM::%PUT ',accessfn 'SYSTEM::SETF-EXPANDER
-                    (CONS ,arg-count
-                          (FUNCTION ,(concat-pnames "SETF-" accessfn) ,setter)
+                    (LIST* ,arg-count ,(length storevars)
+                           (FUNCTION ,(concat-pnames "SETF-" accessfn) ,setter)
                   ) )
                   (SYSTEM::%SET-DOCUMENTATION ',accessfn 'SETF ,docstring)
                   ',accessfn
               ) )
         )) )
         (t (error-of-type 'source-program-error
-             (DEUTSCH "DEFSETF-Aufruf fŒÍr ~S ist falsch aufgebaut."
+             (DEUTSCH "DEFSETF-Aufruf für ~S ist falsch aufgebaut."
               ENGLISH "Illegal syntax in DEFSETF for ~S"
-              FRANCAIS "Le DEFSETF ~S est mal formŒ¸.")
+              FRANCAIS "Le DEFSETF ~S est mal formé.")
              accessfn
 ) )     )  )
 ;;;----------------------------------------------------------------------------
@@ -361,15 +377,15 @@
   (let ((pointer (nthcdr index list)))
     (if (null pointer)
       (error-of-type 'error
-        (DEUTSCH "(SETF (NTH ...) ...) : Index ~S ist zu groŒê fŒÍr ~S."
+        (DEUTSCH "(SETF (NTH ...) ...) : Index ~S ist zu groß für ~S."
          ENGLISH "(SETF (NTH ...) ...) : index ~S is too large for ~S"
          FRANCAIS "(SETF (NTH ...) ...) : L'index ~S est trop grand pour ~S.")
         index list
-                            )
+      )
       (rplaca pointer value)
-                        )
+    )
     value
-                ))
+) )
 (defsetf nth SYSTEM::%SETNTH)
 ;;;----------------------------------------------------------------------------
 (defsetf elt SYSTEM::%SETELT)
@@ -420,80 +436,117 @@
 (defsetf svref SYSTEM::SVSTORE)
 (defsetf row-major-aref system::row-major-store)
 ;;;----------------------------------------------------------------------------
-(defun devalue-form (form)      ; (values x y z) ==> (x y z)
-  (if (eq (car form) 'values) (cdr form) (list form)))
+;; Simplify a form, when its values are not needed, only its side effects.
+;; Returns a list of subforms.
+;;   (values x y z) --> (x y z)
+;;   x --> (x)
+(defun devalue-form (form)
+  (if (eq (car form) 'VALUES) (cdr form) (list form))
+)
 ;;;----------------------------------------------------------------------------
 (defmacro pop (place &environment env)
-  (multiple-value-bind (du va ne se ge) (get-setf-expansion place env)
-    (if (simple-assignment-p se ne)
-        `(prog1 (car ,ge) ,(subst `(cdr ,ge) (car ne) se))
-        (do ((bindlist (mapcar #'list du va)) (ns (copy-tree se))
-             (nn ne (cdr nn)))
-            ((null nn)
-             `(let* ,bindlist
-               (multiple-value-bind ,ne ,ge
-                 ,@(devalue-form ns)
-                 (values ,@(mapcar (lambda (nn) `(car ,nn)) ne)))))
-          (setq ns (nsubst `(cdr ,(car nn)) (car nn) ns))))))
-;;;----------------------------------------------------------------------------
+  (multiple-value-bind (vr vl sv se ge) (get-setf-expansion place env)
+    (if (and (symbolp ge) (simple-assignment-p se sv))
+      `(PROG1 (CAR ,ge) ,(subst `(CDR ,ge) (car sv) se))
+      ;; Be sure to call the CARs before the CDRs - it matters in case
+      ;; not all of the places evaluate to lists.
+      (let ((bindlist (mapcar #'list vr vl)))
+        (if (= (length sv) 1)
+          `(LET* ,(append bindlist (list (list (car sv) ge)))
+             (PROG1
+               (CAR ,(car sv))
+               ,@(devalue-form (subst `(CDR ,(car sv)) (car sv) se))
+           ) )
+          `(LET* ,bindlist
+             (MULTIPLE-VALUE-BIND ,sv ,ge
+               (MULTIPLE-VALUE-PROG1
+                 (VALUES ,@(mapcar #'(lambda (storevar) `(CAR ,storevar)) sv))
+                 ,@(devalue-form
+                     (sublis (mapcar #'(lambda (storevar)
+                                         (cons storevar `(CDR ,storevar))
+                                       )
+                                     sv
+                             )
+                             se
+                   ) )
+           ) ) )
+) ) ) ) )
+;----------------------------------------------------------------------------
 (defmacro psetf (&whole form &rest args &environment env)
-  (labels ((ps (args)
-             (multiple-value-bind (du va ne se ge)
+  (labels ((recurse (args)
+             (multiple-value-bind (vr vl sv se ge)
                  (get-setf-expansion (car args) env)
                (declare (ignore ge))
                (when (atom (cdr args))
                  (error-of-type 'source-program-error
-                    (DEUTSCH "PSETF mit einer ungeraden Anzahl von Argumenten aufgerufen: ~S"
-                     ENGLISH "PSETF called with an odd number of arguments: ~S"
-                     FRANCAIS "PSETF fut appelŒ¸ avec un nombre impair d'arguments : ~S")
-                    form))
-               `(let* ,(mapcar #'list du va)
-                 (multiple-value-bind ,ne ,(second args)
-                   ,@(when (cddr args) (list (ps (cddr args))))
-                   ,@(devalue-form se))))))
-    (nconc (ps args) (list nil))))
+                   (DEUTSCH "PSETF mit einer ungeraden Anzahl von Argumenten aufgerufen: ~S"
+                    ENGLISH "PSETF called with an odd number of arguments: ~S"
+                    FRANCAIS "PSETF fut appelé avec un nombre impair d'arguments : ~S")
+                   form))
+               `(LET* ,(mapcar #'list vr vl)
+                  (MULTIPLE-VALUE-BIND ,sv ,(second args)
+                    ,@(when (cddr args) (list (recurse (cddr args))))
+                    ,@(devalue-form se)
+                ) )
+          )) )
+    `(,@(recurse args) NIL)
+) )
 ;;;----------------------------------------------------------------------------
 (defmacro pushnew (item place &rest keylist &environment env)
-  (multiple-value-bind (du va ne se ge) (get-setf-expansion place env)
-    (if (simple-assignment-p se ne)
-        (subst `(adjoin ,item ,ge ,@keylist) (car ne) se)
-        (do ((bindlist (mapcar #'list du va)) (ns (copy-tree se))
-             (nn ne (cdr nn)) its)
-            ((null nn)
-             `(let* ,bindlist
-               (multiple-value-bind ,ne ,item
-                 (multiple-value-bind ,(nreverse its) ,ge ,ns))))
-          (setq its (cons (gensym) its)
-                ns (nsubst `(adjoin ,(car nn) ,(car its) ,@keylist)
-                           (car nn) ns))))))
+  (multiple-value-bind (vr vl sv se ge) (get-setf-expansion place env)
+    (if (simple-assignment-p se sv)
+      (subst `(ADJOIN ,item ,ge ,@keylist) (car sv) se)
+      (let* ((bindlist (mapcar #'list vr vl))
+             (tempvars (map-into (make-list (length sv)) #'gensym))
+             (ns (sublis (mapcar #'(lambda (storevar tempvar)
+                                     (cons storevar `(ADJOIN ,storevar ,tempvar ,@keylist))
+                                   )
+                                 sv tempvars
+                         )
+                         se
+            ))   )
+        `(LET* ,bindlist
+           (MULTIPLE-VALUE-BIND ,sv ,item
+             (MULTIPLE-VALUE-BIND ,tempvars ,ge
+               ,ns
+         ) ) )
+) ) ) )
 ;;;----------------------------------------------------------------------------
 (defmacro remf (place indicator &environment env)
   (multiple-value-bind (SM1 SM2 SM3 SM4 SM5) (get-setf-method place env)
     (let* ((indicatorvar (gensym))
-           (bindlist (nconc (mapcar #'list SM1 SM2)
-                            `((,(first SM3) ,SM5) (,indicatorvar ,indicator))))
-           (var1 (gensym)) (var2 (gensym)))
-          `(LET* ,(nreverse bindlist)
-             (DO ((,var1 ,(first SM3) (CDDR ,var1))
-                  (,var2 NIL ,var1))
-                 ((ATOM ,var1) NIL)
-               (COND ((ATOM (CDR ,var1))
-                      (ERROR-OF-TYPE 'ERROR
-                   (DEUTSCH "REMF: Property-Liste ungerader LŒ´nge aufgetreten."
-                         ENGLISH "REMF: property list with an odd length"
-                    FRANCAIS "REMF : Occurence d'une liste de propriŒ¸tŒ¸s de longueur impaire.")))
-                     ((EQ (CAR ,var1) ,indicatorvar)
-                      (IF ,var2
-                        (RPLACD (CDR ,var2) (CDDR ,var1))
-                        ,(let ((newvalform `(CDDR ,(first SM3))))
-                           (if (simple-assignment-p SM4 SM3)
-                             (subst newvalform (first SM3) SM4)
-                               `(PROGN (SETQ ,(first SM3) ,newvalform) ,SM4))))
-                 (RETURN T))))))))
+           (bindlist
+             `(,@(mapcar #'list SM1 SM2)
+               (,(first SM3) ,SM5)
+               (,indicatorvar ,indicator)))
+           (var1 (gensym))
+           (var2 (gensym)))
+      `(LET* ,bindlist
+         (DO ((,var1 ,(first SM3) (CDDR ,var1))
+              (,var2 NIL ,var1))
+             ((ATOM ,var1) NIL)
+           (COND ((ATOM (CDR ,var1))
+                  (ERROR-OF-TYPE 'ERROR
+                    (DEUTSCH "REMF: Property-Liste ungerader Länge aufgetreten."
+                     ENGLISH "REMF: property list with an odd length"
+                     FRANCAIS "REMF : Occurence d'une liste de propriétés de longueur impaire.")
+                 ))
+                 ((EQ (CAR ,var1) ,indicatorvar)
+                  (IF ,var2
+                    (RPLACD (CDR ,var2) (CDDR ,var1))
+                    ,(let ((newvalform `(CDDR ,(first SM3))))
+                       (if (simple-assignment-p SM4 SM3)
+                         (subst newvalform (first SM3) SM4)
+                         `(PROGN (SETQ ,(first SM3) ,newvalform) ,SM4)
+                     ) )
+                 )
+                 (RETURN T)
+      ) ) )     )
+) ) )
 ;;;----------------------------------------------------------------------------
 (defmacro rotatef (&rest args &environment env)
-  (when (null args) (return-from rotatef nil))
-  (when (null (cdr args)) (return-from rotatef `(progn ,(car args) nil)))
+  (when (null args) (return-from rotatef NIL))
+  (when (null (cdr args)) (return-from rotatef `(PROGN ,(car args) NIL)))
   (do* ((arglist args (cdr arglist))
         (res (list 'let* nil nil)) lf
         (tail (cdr res)) bindlist stores lv fv)
@@ -503,14 +556,16 @@
               (cdr tail) (nconc (nreverse stores) (devalue-form lf))
               (cdr (last res)) (list nil))
         res)
-    (multiple-value-bind (du va ne se ge)
+    (multiple-value-bind (vr vl sv se ge)
         (get-setf-expansion (first arglist) env)
-      (setq bindlist (nconc (nreverse (mapcar #'list du va)) bindlist))
-      (setf (cadr tail) (list 'multiple-value-bind lv ge nil))
+      (setq bindlist (nreconc (mapcar #'list vr vl) bindlist))
+      (setf (cadr tail) (list 'MULTIPLE-VALUE-BIND lv ge nil))
       (setq tail (cddadr tail))
-      (if (null fv) (setq fv ne)
-          (setq stores (nconc (nreverse (devalue-form lf)) stores)))
-      (setq lv ne lf se))))
+      (if (null fv)
+        (setq fv sv)
+        (setq stores (revappend (devalue-form lf) stores))
+      )
+      (setq lv sv lf se))))
 ;;;----------------------------------------------------------------------------
 (defmacro define-modify-macro (name lambdalist function &optional docstring)
   (let* ((varlist nil)
@@ -526,7 +581,7 @@
                (error-of-type 'source-program-error
                  (DEUTSCH "In der Definition von ~S ist die &REST-Variable kein Symbol: ~S"
                   ENGLISH "In the definition of ~S: &REST variable ~S should be a symbol."
-                  FRANCAIS "Dans la dŒ¸finition de ~S la variable pour &REST n'est pas un symbole : ~S.")
+                  FRANCAIS "Dans la définition de ~S la variable pour &REST n'est pas un symbole : ~S.")
                  name (second lambdalistr)
              ) )
              (if (null (cddr lambdalistr))
@@ -539,7 +594,7 @@
             )) )
             ((or (eq next '&KEY) (eq next '&ALLOW-OTHER-KEYS) (eq next '&AUX))
              (error-of-type 'source-program-error
-               (DEUTSCH "In einer DEFINE-MODIFY-MACRO-Lambdaliste ist ~S unzulŒ´ssig."
+               (DEUTSCH "In einer DEFINE-MODIFY-MACRO-Lambdaliste ist ~S unzulässig."
                 ENGLISH "Illegal in a DEFINE-MODIFY-MACRO lambda list: ~S"
                 FRANCAIS "~S n'est pas permis dans une lambda-liste pour DEFINE-MODIFY-MACRO.")
                next
@@ -549,7 +604,7 @@
              (push (first next) varlist)
             )
             (t (error-of-type 'source-program-error
-                 (DEUTSCH "Lambdalisten dŒÍrfen nur Symbole und Listen enthalten, nicht aber ~S"
+                 (DEUTSCH "Lambdalisten dürfen nur Symbole und Listen enthalten, nicht aber ~S"
                   ENGLISH "lambda list may only contain symbols and lists, not ~S"
                   FRANCAIS "Les lambda-listes ne peuvent contenir que des symboles et des listes et non ~S.")
                  next
@@ -595,7 +650,7 @@
            (let* ((place (first args))
                   (value (second args)))
              (loop
-               ; 1. Schritt: nach globalen SETF-Definitionen suchen:
+               ;; 1. Schritt: nach globalen SETF-Definitionen suchen:
                (when (and (consp place) (symbolp (car place)))
                  (when (global-in-fenv-p (car place) (svref env 1))
                    ; Operator nicht lokal definiert
@@ -618,34 +673,42 @@
                                     (get-setf-expansion place env)
                                   (declare (ignore SM5))
                                   (let ((bindlist (mapcar #'list SM1 SM2)))
-                                    (if (eql (length SM3) 1) ; store variable
-                                          `(LET* ,(nreverse
-                                                    (cons `(,(first SM3) ,value)
-                                                       bindlist))
-                                          ,SM4)
-                                        ;; mehrere Store-Variable
-                                        (if ;; Hat SM4 die Gestalt
-                                         ;; (VALUES (SETQ v1 store1) ...) ?
-                                         (and (consp SM4)
-                                              (eq (car SM4) 'VALUES)
-                                              (do ((SM3r SM3 (cdr SM3r))
-                                                   (SM4r (cdr SM4) (cdr SM4r)))
-                                                  ((or (null SM3r) (null SM4r))
-                                                   (and (null SM3r) (null SM4r)))
-                                                (unless (simple-assignment-p (car SM4r) (list (car SM3r)))
-                                                  (return nil))))
-                                            (let ((vlist (mapcar #'second (rest SM4))))
-                                              `(LET* ,(nreverse bindlist)
-                                                 (MULTIPLE-VALUE-SETQ ,vlist ,value)
-                                             (VALUES ,@vlist)))
-                                            `(LET* ,(nreverse bindlist)
-                                               (MULTIPLE-VALUE-BIND ,SM3 ,value
-                                             ,SM4)))))))))))))
+                                    (if (= (length SM3) 1)
+                                      ;; 1 store variable
+                                      `(LET* ,(append bindlist
+                                                 (list `(,(first SM3) ,value))
+                                              )
+                                         ,SM4
+                                       )
+                                      ;; mehrere Store-Variable
+                                      (if ;; Hat SM4 die Gestalt
+                                          ;; (VALUES (SETQ v1 store1) ...) ?
+                                        (and (consp SM4)
+                                             (eq (car SM4) 'VALUES)
+                                             (do ((SM3r SM3 (cdr SM3r))
+                                                  (SM4r (cdr SM4) (cdr SM4r)))
+                                                 ((or (null SM3r) (null SM4r))
+                                                  (and (null SM3r) (null SM4r)))
+                                               (unless (simple-assignment-p (car SM4r) (list (car SM3r)))
+                                                 (return nil)
+                                        )    ) )
+                                        (let ((vlist (mapcar #'second (rest SM4))))
+                                          `(LET* ,bindlist
+                                             (MULTIPLE-VALUE-SETQ ,vlist ,value)
+                                             (VALUES ,@vlist)
+                                           )
+                                        )
+                                        `(LET* ,bindlist
+                                           (MULTIPLE-VALUE-BIND ,SM3 ,value
+                                             ,SM4
+                                         ) )
+                               )) ) ) )
+               ) ) ) ) ) )
                ;; 2. Schritt: macroexpandieren
                (when (eq place (setq place (macroexpand-1 place env)))
                  (return)
              ) )
-             ; 3. Schritt: Default-SETF-Methoden
+             ;; 3. Schritt: Default-SETF-Methoden
              (cond ((symbolp place)
                     `(SETQ ,place ,value)
                    )
@@ -654,7 +717,7 @@
                         (get-setf-expansion place env)
                       (declare (ignore SM5))
                       ; SM4 hat die Gestalt `((SETF ,(first place)) ,@SM3 ,@SM1).
-                      ; SM3 ist ŒÍberflŒÍssig.
+                      ; SM3 ist überflüssig.
                       `(LET* ,(mapcar #'list SM1 SM2)
                          ,(subst value (first SM3) SM4)
                        )
@@ -670,7 +733,7 @@
            (error-of-type 'source-program-error
              (DEUTSCH "~S mit einer ungeraden Anzahl von Argumenten aufgerufen: ~S"
               ENGLISH "~S called with an odd number of arguments: ~S"
-              FRANCAIS "~S fut appelŒ¸ avec un nombre impair d'arguments : ~S")
+              FRANCAIS "~S fut appelé avec un nombre impair d'arguments : ~S")
              'setf form
           ))
           (t (do* ((arglist args (cddr arglist))
@@ -685,27 +748,28 @@
     (error-of-type 'source-program-error
       (DEUTSCH "SHIFTF mit zu wenig Argumenten aufgerufen: ~S"
        ENGLISH "SHIFTF called with too few arguments: ~S"
-       FRANCAIS "SHIFTF fut appelŒ¸ avec trop peu d'arguments : ~S")
+       FRANCAIS "SHIFTF fut appelé avec trop peu d'arguments : ~S")
       form))
   (do* ((arglist args (cdr arglist))
         (res (list 'let* nil nil)) lf ff
         (tail (cdr res)) bindlist stores lv fv)
        ((null (cdr arglist))
         (setf (second res) (nreverse bindlist)
-              (cadr tail)
-              (list 'multiple-value-bind lv (car (last args)) nil)
+              (cadr tail) (list 'MULTIPLE-VALUE-BIND lv (car (last args)) nil)
               tail (cddadr tail)
               (cdr tail) (nconc (nreverse stores) (devalue-form lf))
               (cdr (last res)) (list ff))
         res)
-    (multiple-value-bind (du va ne se ge)
+    (multiple-value-bind (vr vl sv se ge)
         (get-setf-expansion (first arglist) env)
-      (setq bindlist (nconc (nreverse (mapcar #'list du va)) bindlist))
-      (if (null fv) (setq fv ne ff ge)
-          (setf stores (nconc (nreverse (devalue-form lf)) stores)
-                (cadr tail) (list 'multiple-value-bind lv ge nil)
-                tail (cddadr tail)))
-      (setq lv ne lf se))))
+      (setq bindlist (nreconc (mapcar #'list vr vl) bindlist))
+      (if (null fv)
+        (setq fv sv ff ge)
+        (setf stores (revappend (devalue-form lf) stores)
+              (cadr tail) (list 'multiple-value-bind lv ge nil)
+              tail (cddadr tail)
+      ) )
+      (setq lv sv lf se))))
 ;;;----------------------------------------------------------------------------
 ;;; more places
 ;;;----------------------------------------------------------------------------
@@ -724,9 +788,9 @@
       ((atom plistr) (list* indicator value plist))
     (when (atom (cdr plistr))
       (error-of-type 'error
-        (DEUTSCH "(SETF (GETF ...) ...) : Property-Liste ungerader LŒ´nge aufgetaucht."
+        (DEUTSCH "(SETF (GETF ...) ...) : Property-Liste ungerader Länge aufgetaucht."
          ENGLISH "(SETF (GETF ...) ...) : property list with an odd length"
-         FRANCAIS "(SETF (GETF ...) ...) : Occurence d'une liste de propriŒ¸tŒ¸s de longueur impaire.")
+         FRANCAIS "(SETF (GETF ...) ...) : Occurence d'une liste de propriétés de longueur impaire.")
     ))
     (when (eq (car plistr) indicator)
       (rplaca (cdr plistr) value)
@@ -761,7 +825,7 @@
 (defun SYSTEM::%SET-DOCUMENTATION (symbol doctype value)
   (unless (function-name-p symbol)
     (error-of-type 'error
-      (DEUTSCH "Das ist als erstes Argument unzulŒ´ssig, da kein Symbol: ~S"
+      (DEUTSCH "Das ist als erstes Argument unzulässig, da kein Symbol: ~S"
        ENGLISH "first argument ~S is illegal, not a symbol"
        FRANCAIS "Le premier argument ~S est invalide car ce n'est pas un symbole.")
       symbol
@@ -851,8 +915,17 @@
 (define-setf-expander THE (type place &environment env)
   (multiple-value-bind (SM1 SM2 SM3 SM4 SM5) (get-setf-expansion place env)
     (values SM1 SM2 SM3
-            (let ((ne (copy-tree SM4)))
-              (dolist (vv SM3 ne) (nsubst `(THE ,type ,vv) vv ne)))
+            (sublis (mapcar #'(lambda (storevar simpletype)
+                                (cons storevar `(THE ,simpletype ,storevar))
+                              )
+                            SM3
+                            (if (and (consp type) (eq (car type) 'VALUES))
+                              (cdr type)
+                              (list type)
+                            )
+                    )
+                    SM4
+            )
             `(THE ,type ,SM5)
 ) ) )
 ;;;----------------------------------------------------------------------------
@@ -864,31 +937,31 @@
       )
     (setq fun (second fun))
     (error-of-type 'source-program-error
-      (DEUTSCH "SETF von APPLY ist nur fŒÍr Funktionen der Form #'symbol als Argument definiert."
+      (DEUTSCH "SETF von APPLY ist nur für Funktionen der Form #'symbol als Argument definiert."
        ENGLISH "SETF APPLY is only defined for functions of the form #'symbol."
-       FRANCAIS "Un SETF de APPLY n'est dŒ¸fini que pour les fonctions de la forme #'symbole.")
+       FRANCAIS "Un SETF de APPLY n'est défini que pour les fonctions de la forme #'symbole.")
   ) )
   (multiple-value-bind (SM1 SM2 SM3 SM4 SM5)
       (get-setf-expansion (cons fun args) env)
     (unless (eq (car (last args)) (car (last SM2)))
       (error-of-type 'source-program-error
-        (DEUTSCH "APPLY von ~S kann nicht als 'SETF-Place' aufgefaŒêt werden."
+        (DEUTSCH "APPLY von ~S kann nicht als 'SETF-Place' aufgefaßt werden."
          ENGLISH "APPLY on ~S is not a SETF place."
-         FRANCAIS "APPLY de ~S ne peux pas Œ¹tre considŒ¸rŒ¸ comme une place modifiable.")
+         FRANCAIS "APPLY de ~S ne peux pas être considéré comme une place modifiable.")
         fun
     ) )
-    (let ((item (car (last SM1)))) ; 'item' steht fŒÍr eine Argumentliste!
+    (let ((item (car (last SM1)))) ; 'item' steht für eine Argumentliste!
       (labels ((splice (arglist)
-                 ; WŒÍrde man in (LIST . arglist) das 'item' nicht als 1 Element,
+                 ; Würde man in (LIST . arglist) das 'item' nicht als 1 Element,
                  ; sondern gespliced, sozusagen als ',@item', haben wollen, so
-                 ; brŒ´uchte man die Form, die (splice arglist) liefert.
+                 ; bräuchte man die Form, die (splice arglist) liefert.
                  (if (endp arglist)
                    'NIL
                    (let ((rest (splice (cdr arglist))))
                      (if (eql (car arglist) item)
-                       ; ein (APPEND item ...) davorhŒ´ngen, wie bei Backquote
+                       ; ein (APPEND item ...) davorhängen, wie bei Backquote
                        (backquote-append item rest)
-                       ; ein (CONS (car arglist) ...) davorhŒ´ngen, wie bei Backquote
+                       ; ein (CONS (car arglist) ...) davorhängen, wie bei Backquote
                        (backquote-cons (car arglist) rest)
               )) ) ) )
         (flet ((call-splicing (form)
@@ -917,7 +990,7 @@
           (values SM1 SM2 SM3 (call-splicing SM4) (call-splicing SM5))
 ) ) ) ) )
 ;;;----------------------------------------------------------------------------
-;;; ZusŒ´tzliche Definitionen von places
+;;; Zusätzliche Definitionen von places
 ;;;----------------------------------------------------------------------------
 (define-setf-expander funcall (fun &rest args &environment env)
   (unless (and (listp fun)
@@ -929,9 +1002,9 @@
                (setq fun (second fun))
           )
     (error-of-type 'source-program-error
-      (DEUTSCH "SETF von FUNCALL ist nur fŒÍr Funktionen der Form #'symbol definiert."
+      (DEUTSCH "SETF von FUNCALL ist nur für Funktionen der Form #'symbol definiert."
        ENGLISH "SETF FUNCALL is only defined for functions of the form #'symbol."
-       FRANCAIS "Un SETF de FUNCALL n'est dŒ¸fini que pour les fonctions de la forme #'symbole.")
+       FRANCAIS "Un SETF de FUNCALL n'est défini que pour les fonctions de la forme #'symbole.")
   ) )
   (get-setf-expansion (cons fun args) env)
 )

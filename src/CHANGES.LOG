@@ -14,6 +14,11 @@ User visible changes
   The syntaxes (IN-PACKAGE "FOO") and (IN-PACKAGE :FOO) work with both
   variations.
 
+* X3J13 writeup <SETF-METHOD-VS-SETF-METHOD:RENAME-OLD-TERMS> is implemented:
+  New function GET-SETF-EXPANSION, new macro DEFINE-SETF-EXPANDER. The old
+  symbols GET-SETF-METHOD-MULTIPLE-VALUE, GET-SETF-METHOD, DEFINE-SETF-METHOD
+  are removed from package COMMON-LISP.
+
 * X3J13 writeups <READER-ERROR:NEW-TYPE> and <PARSE-ERROR-STREAM:SPLIT-TYPES>
   are implemented: New condition classes PARSE-ERROR and READER-ERROR.
 
