@@ -1,5 +1,11 @@
 2004-12-09  Bruno Haible  <bruno@clisp.org>
 
+	Make DEBUG_SPVW work in g++ && GENERATIONAL_GC mode.
+	* spvw_genera1.d (gc_check_ptr_at): New function.
+	(gc_overall_check): Use it instead of gc_check_at.
+
+2004-12-09  Bruno Haible  <bruno@clisp.org>
+
 	Make DEBUG_SPVW work in HEAPCODES && GENERATIONAL_GC mode.
 	* spvw_genera1.d (gc_check_at): Add support for HEAPCODES mode.
 
