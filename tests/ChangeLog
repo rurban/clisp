@@ -1,3 +1,7 @@
+2004-04-18  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Add test that defclass removes old accessor methods.
+
 2004-04-15  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Add tests regarding the update of the direct-subclasses

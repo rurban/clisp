@@ -1069,6 +1069,41 @@ x-y-position
     update-counter))
 0
 
+;; Redefining a class removes the slot accessors installed on behalf of the
+;; old class.
+(progn
+  (defclass foo94 () ((a :reader foo94-get-a :writer foo94-set-a)
+                      (b :reader foo94-get-b :writer foo94-set-b)
+                      (c :accessor foo94-c)
+                      (d :accessor foo94-d)
+                      (e :accessor foo94-e)))
+  (list* (not (null (find-method #'foo94-get-a '() (list (find-class 'foo94)) nil)))
+         (not (null (find-method #'foo94-set-a '() (list (find-class 't) (find-class 'foo94)) nil)))
+         (not (null (find-method #'foo94-get-b '() (list (find-class 'foo94)) nil)))
+         (not (null (find-method #'foo94-set-b '() (list (find-class 't) (find-class 'foo94)) nil)))
+         (not (null (find-method #'foo94-c '() (list (find-class 'foo94)) nil)))
+         (not (null (find-method #'(setf foo94-c) '() (list (find-class 't) (find-class 'foo94)) nil)))
+         (not (null (find-method #'foo94-d '() (list (find-class 'foo94)) nil)))
+         (not (null (find-method #'(setf foo94-d) '() (list (find-class 't) (find-class 'foo94)) nil)))
+         (not (null (find-method #'foo94-e '() (list (find-class 'foo94)) nil)))
+         (not (null (find-method #'(setf foo94-e) '() (list (find-class 't) (find-class 'foo94)) nil)))
+         (progn
+           (defclass foo94 () ((a :reader foo94-get-a :writer foo94-set-a)
+                               (b)
+                               (c :accessor foo94-c)
+                               (e :accessor foo94-other-e)))
+           (list (not (null (find-method #'foo94-get-a '() (list (find-class 'foo94)) nil)))
+                 (not (null (find-method #'foo94-set-a '() (list (find-class 't) (find-class 'foo94)) nil)))
+                 (not (null (find-method #'foo94-get-b '() (list (find-class 'foo94)) nil)))
+                 (not (null (find-method #'foo94-set-b '() (list (find-class 't) (find-class 'foo94)) nil)))
+                 (not (null (find-method #'foo94-c '() (list (find-class 'foo94)) nil)))
+                 (not (null (find-method #'(setf foo94-c) '() (list (find-class 't) (find-class 'foo94)) nil)))
+                 (not (null (find-method #'foo94-d '() (list (find-class 'foo94)) nil)))
+                 (not (null (find-method #'(setf foo94-d) '() (list (find-class 't) (find-class 'foo94)) nil)))
+                 (not (null (find-method #'foo94-e '() (list (find-class 'foo94)) nil)))
+                 (not (null (find-method #'(setf foo94-e) '() (list (find-class 't) (find-class 'foo94)) nil)))))))
+(T T T T T T T T T T
+ T T NIL NIL T T NIL NIL NIL NIL)
 
 ;;; ensure-generic-function
 ;;; <http://www.lisp.org/HyperSpec/Body/fun_ensure-ge_ric-function.html>
