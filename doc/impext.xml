@@ -1855,7 +1855,7 @@ containing:</para>
     a particular shell:
 <programlisting>
 (use-package :regexp)
-(sexp ((h (make-hash-table :test #'equal :size 10)) (n 0))
+(let ((h (make-hash-table :test #'equal :size 10)) (n 0))
   (with-open-file (f "/etc/passwd")
     (with-loop-split (s f ":")
       (let ((sh (seventh s)))
