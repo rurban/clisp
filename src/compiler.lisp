@@ -4958,10 +4958,7 @@ for-value   NIL or T
             (setf (first *stackz*) `(TAGBODY ,l))
             (setq codelist
               `((TAGBODY-OPEN
-                  ,(new-const (map 'simple-vector
-                                   #'(lambda (tag) ; set (gensym)s to nil
-                                       (and (symbol-package tag) tag))
-                                   used-tags))
+                  ,(new-const (map 'simple-vector #'identity used-tags))
                   ,@used-label-list)
                 ,@codelist
                 (TAGBODY-CLOSE-NIL)))))

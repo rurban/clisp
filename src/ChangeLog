@@ -1,5 +1,11 @@
 2003-12-21  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 864220 ]: integer tags cannot be compiled
+	* compiler.lisp (c-TAGBODY): put all tags into Car(tagbody_cons),
+	even gensyms and numbers
+
+2003-12-21  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (--version): print SOFTWARE-TYPE, SOFTWARE-VERSION,
 	MACHINE-TYPE, MACHINE-VERSION, MACHINE-INSTANCE
 	(print_license): removed dead link
