@@ -1,3 +1,8 @@
+2004-05-30  Bruno Haible  <bruno@clisp.org>
+
+	* clos-slotdef1.lisp (convert-direct-slots): Check the return value
+	from direct-slot-definition-class.
+
 2004-05-09  Bruno Haible  <bruno@clisp.org>
 
 	Move the ht_itable and ht_freelist into ht_kvtable.
