@@ -91,7 +91,7 @@ $(patsubst %,%.po,$(OTHER_LINGUAS)) : %.po : $(PACKAGE).pot
 # translations. Two separate $(MSGMERGE) runs don't do this.
 $(patsubst %,%.po.merged,$(OTHER_LINGUAS)) : %.po.merged : %.po.new %.po $(PACKAGE).pot
 	$(MSGMERGE) $*.po.new $*.po -o $*.po.tmp
-	$(MSGMERGE) $*.po.tmp $*.pot -o $*.po.merged
+	$(MSGMERGE) $*.po.tmp $(PACKAGE).pot -o $*.po.merged
 	$(RM) $*.po.tmp
 
 
