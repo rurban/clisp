@@ -446,7 +446,7 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       goto restart_LK_CONFLICTS;
     }
     { /* set the conflict matrix */
-      uintL offset;
+      uintL offset = 0;
       object data = array_displace_check(STACK_0,dims[0]*dims[1],&offset);
       SYSCALL(dbe->set_lk_conflicts,
               (dbe,TheSbvector(data)->data + offset,dims[0]));

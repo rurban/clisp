@@ -66,13 +66,13 @@ nil
                      :data_dir "bdb-data/")
 NIL
 
-(progn (print (bdb:dbe-get-options *dbe*)) nil) NIL
+(let ((*print-pretty* t)) (print (bdb:dbe-get-options *dbe*)) nil) NIL
 
 (bdb:dbe-open *dbe* :home "bdb-home/" :create t :init_mpool t :init_lock t) NIL
 
-(progn (print (bdb:dbe-get-options *dbe*)) nil) NIL
+(let ((*print-pretty* t)) (print (bdb:dbe-get-options *dbe*)) nil) NIL
 
-(defvar *db* (print (bdb:db-create *dbe*))) *db*
+(defvar *db* (let ((*print-pretty* t)) (print (bdb:db-create *dbe*)))) *db*
 
 ;; the actual file goes to ./bdb-data/bazonk.db !
 (bdb:db-open *db* "bazonk.db" :type :BTREE :create t) NIL
@@ -173,19 +173,30 @@ NIL
 
 ;;; access
 
-(progn (setq *dbe* (print (bdb:dbe-create))) nil) NIL
+(let ((*print-pretty* t)) (setq *dbe* (print (bdb:dbe-create))) nil) NIL
 
 (bdb:dbe-set-options *dbe* :errfile "bdb-errors" :verbose t
                      :data_dir "bdb-data/")
 NIL
 
+(let ((arr #A((unsigned-byte 8) (6 6)
+              ((0 0 0 0 0 0)
+               (0 0 1 1 0 1)
+               (0 1 1 1 1 1)
+               (0 1 1 0 0 0)
+               (0 0 1 0 0 0)
+               (0 1 1 0 0 0)))))
+  (bdb:dbe-set-options *dbe* :lk_conflicts arr)
+  (equalp arr (bdb:dbe-get-options *dbe* :lk_conflicts)))
+T
+
 (bdb:dbe-open *dbe* :home "bdb-home/" :create t :init_mpool t :init_txn t
               :init_lock t)
 NIL
 
-(progn (print (bdb:dbe-get-options *dbe*)) nil) NIL
+(let ((*print-pretty* t)) (print (bdb:dbe-get-options *dbe*)) nil) NIL
 
-(progn (setq *db* (print (bdb:db-create *dbe*))) nil) NIL
+(let ((*print-pretty* t)) (setq *db* (print (bdb:db-create *dbe*))) nil) NIL
 
 (bdb:db-open *db* "bazonk.db" :rdonly t) NIL
 
@@ -211,7 +222,7 @@ NIL
 (close *cursor*) T
 (close *db*)         T
 
-(progn (setq *db* (print (bdb:db-create *dbe*))) nil) NIL
+(let ((*print-pretty* t)) (setq *db* (print (bdb:db-create *dbe*))) nil) NIL
 (bdb:db-open *db* "bazonk.db") NIL
 (bdb:db-truncate *db*)      2   ; the number of records discarded
 (close *db*)         T
