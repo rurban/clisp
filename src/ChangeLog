@@ -1,5 +1,10 @@
 1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (wr_ch_terminal2, wr_ch_array_terminal2) [MSDOS]: Define
+          as the _unbuffered_dos variant.
+
+1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Remove obsolete stream primitive `wr_ss'.
         * lispbibl.d (Stream): Remove strm_wr_ss field.
         * io.d (write_sstring_ab): New function, remove macro.
