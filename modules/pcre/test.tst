@@ -48,6 +48,14 @@ NIL
 (pcre:pattern-info p :options)
 NIL
 
+(let ((cp (pcre:pcre-compile "a(a)*b" :extended t)))
+  (pcre:pcre-exec cp "ab"))
+#(#S(PCRE:MATCH :START 0 :END 2))
+
+(let ((cp (pcre:pcre-compile "a(a)*(b)" :extended t)))
+  (pcre:pcre-exec cp "ab"))
+#(#S(PCRE:MATCH :START 0 :END 2) NIL #S(PCRE:MATCH :START 1 :END 2))
+
 (progn (setq d nil s nil v nil p nil r nil)
        (gc)
        nil)
