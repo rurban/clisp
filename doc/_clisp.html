@@ -119,15 +119,16 @@ that can be executed more efficiently.</p>
 #else
    allocates memory dynamically.
    <i class="replaceable"><tt>mem-size</tt></i> is essentially ignored
-   (except that it determines the Lisp STACK size).
+   (except that it determines the Lisp <a href="impnotes.html#vm"><tt class="literal">STACK</tt></a> size).
 
 #endif
 
 </p></dd>
 #ifndef NO_SP_MALLOC
 <dt><a id="opt-stack"></a><tt class="option">-s</tt>
-  <i class="replaceable"><tt>stack-size</tt></i></dt><dd>Sets the size of the stack <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a> allocates for
-   itself.  The syntax is the same as for
+  <i class="replaceable"><tt>stack-size</tt></i></dt><dd>Sets the size of the program stack
+   (<a href="impnotes.html#vm"><tt class="literal">SP</tt></a>)
+   <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a> allocates for itself.  The syntax is the same as for
    <a href="#opt-memsize"><tt class="option">-m</tt></a>.
    Default is one eighth of <i class="replaceable"><tt>mem-size</tt></i>.
    The argument is constrained between 40 KB and 8 MB.
@@ -145,10 +146,10 @@ that can be executed more efficiently.</p>
    This may be
 
 #ifndef GNU_GETTEXT
-   <span><b class="command">english</b></span>.
+   only <span><b class="command">english</b></span>.
 
 #else
-   </p><table class="simplelist" border="0" summary="Simple list"><tr><td><span><b class="command">english</b></span></td><td><span><b class="command">german</b></span></td><td><span><b class="command">french</b></span></td></tr><tr><td><span><b class="command">spanish</b></span></td><td><span><b class="command">dutch</b></span></td><td><span><b class="command">russian</b></span></td></tr></table><p>.
+   </p><table class="simplelist" border="0" summary="Simple list"><tr><td><span><b class="command">english</b></span></td><td><span><b class="command">german</b></span></td><td><span><b class="command">french</b></span></td></tr><tr><td><span><b class="command">spanish</b></span></td><td><span><b class="command">dutch</b></span></td><td><span><b class="command">russian</b></span></td></tr></table><p>
    Other languages may be specified through the environment variable
    <tt class="envar">LANG</tt>,
    provided the corresponding message catalog is installed.
@@ -321,8 +322,8 @@ that can be executed more efficiently.</p>
   [CLHS-1.4.1.3]”</a>).
 </dd>
 #ifdef GNU_READLINE
-<dt>arrow keys (with <a href="http://www.gnu.org" target="_top">GNU</a> <a href="http://cnswww.cns.cwru.edu/~chet/readline/rltop.html" target="_top">readline</a>)</dt><dd>for editing and viewing the input history, using the
-   <a href="http://www.gnu.org" target="_top">GNU</a> <a href="http://cnswww.cns.cwru.edu/~chet/readline/rltop.html" target="_top">readline</a> library.</dd><dt><a id="completion"></a>Tab key (with <a href="http://www.gnu.org" target="_top">GNU</a> <a href="http://cnswww.cns.cwru.edu/~chet/readline/rltop.html" target="_top">readline</a>)</dt><dd><p>Context sensitive:
+<dt>arrow keys</dt><dd>for editing and viewing the input history, using the
+   <a href="http://www.gnu.org" target="_top">GNU</a> <a href="http://cnswww.cns.cwru.edu/~chet/readline/rltop.html" target="_top">readline</a> library.</dd><dt><a id="completion"></a>Tab key</dt><dd><p>Context sensitive:
   </p><div class="itemizedlist"><ul type="disc"><li>If you are in the "function
      position" (in the first symbol after an opening paren or in the
      first symbol after a <span><b class="command">#'</b></span>), the completion is
@@ -347,28 +348,16 @@ that can be executed more efficiently.</p>
 <dl><dt><span><b class="command">clisp</b></span> on <a href="http://www.UNIX-systems.org/online.html" target="_top"><strong>UNIX</strong></a></dt><dd>startup driver (a script or an executable)
 </dd>
 #endif
-<dt><a id="runtime"></a>
-
-#if defined(UNIX)
-<tt class="filename">lisp.run</tt> on <a href="http://www.UNIX-systems.org/online.html" target="_top"><strong>UNIX</strong></a>
-
-#endif
-
-#if defined(WIN32_NATIVE)
-<tt class="filename">lisp.exe</tt> on <a href="http://www.willows.com/" target="_top"><strong>Win32</strong></a>
-
-#endif
-
-</dt><dd>main executable
-   (runtime)</dd><dt><tt class="filename">lispinit.mem</tt></dt><dd>initial <a href="impnotes.html#image">memory image</a></dd><dt><tt class="filename">config.lisp</tt></dt><dd>site-dependent configuration (should have been
+<dt><a id="runtime"></a><tt class="filename">lisp.run</tt><br /><tt class="filename">lisp.exe</tt></dt><dd>main executable
+   (runtime)</dd><dt><tt class="filename">lispinit.mem</tt></dt><dd>initial <a href="impnotes.html#image">memory image</a></dd><dt><a id="config-file"></a><tt class="filename">config.lisp</tt></dt><dd>site-dependent configuration (should have been
   customized before <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a> was built); see
   <a href="impnotes.html#customize">Section 29.11, “Extensions-1.11. Customizing CLISP behavior.”</a>
 </dd><dt><tt class="filename">*.lisp</tt></dt><dd>lisp source</dd><dt><tt class="filename">*.fas</tt></dt><dd>lisp code, compiled by <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a>
 </dd><dt><tt class="filename">*.lib</tt></dt><dd>lisp source library information,
-  generated by <a href="impnotes.html#compilefile"><tt class="function">COMPILE-FILE</tt></a> and used by
+  generated by <a href="impnotes.html#compilefile"><tt class="function">COMPILE-FILE</tt></a>, see
   <a href="impnotes.html#require">Section 24.1.3, “Function REQUIRE”</a>.
 </dd><dt><tt class="filename">*.c</tt></dt><dd>C code, compiled from lisp source by <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a>
- (for the <a href="impnotes.html#dffi">Section 30.3, “Extensions-2.3. The Foreign Function Call Facility”</a>)
+ (see <a href="impnotes.html#dffi">Section 30.3, “Extensions-2.3. The Foreign Function Call Facility”</a>)
 </dd></dl></div>
 </div>
 #ifdef HAVE_ENVIRONMENT
@@ -412,12 +401,11 @@ that can be executed more efficiently.</p>
    <span><b class="command">en</b></span>, <span><b class="command">de</b></span>, <span><b class="command">fr</b></span>.
 </dd>
 #ifdef UNIX
-<dt><tt class="envar">HOME</tt> and <tt class="envar">USER</tt>
-  (Unix implementation only)</dt><dd>are used for determining the value of the function
+<dt><tt class="envar">HOME</tt><br /><tt class="envar">USER</tt></dt><dd>are used for determining the value of the function
    <a href="http://www.lisp.org/HyperSpec/Body/fun_user-homedir-pathname.html" target="_top"><tt class="function">USER-HOMEDIR-PATHNAME</tt></a>.</dd>
 #endif
 #ifdef UNIX
-<dt><tt class="envar">SHELL</tt> (Unix implementation only)</dt><dd>is used to find the interactive command interpreter
+<dt><tt class="envar">SHELL</tt></dt><dd>is used to find the interactive command interpreter
    called by <a href="impnotes.html#shell"><tt class="function">SHELL</tt></a>.
 </dd>
 #endif
@@ -426,20 +414,19 @@ that can be executed more efficiently.</p>
    printer.</dd>
 #endif
 #ifdef MULTIMAP_MEMORY_VIA_FILE
-<dt><tt class="envar">TMPDIR</tt> (Sparc implementation only)</dt><dd>specifies the directory where the temporary core
+<dt><tt class="envar">TMPDIR</tt></dt><dd>specifies the directory where the temporary core
    file is to be held.</dd>
 #endif
-<dt><tt class="envar">ORGANIZATION</tt></dt><dd>for <a href="http://www.lisp.org/HyperSpec/Body/fun_short-sit_ng-site-name.html" target="_top"><tt class="function">SHORT-SITE-NAME</tt></a> and <a href="http://www.lisp.org/HyperSpec/Body/fun_short-sit_ng-site-name.html" target="_top"><tt class="function">LONG-SITE-NAME</tt></a>
-   in <tt class="filename">config.lisp</tt>.
-</dd><dt><tt class="envar">CLHSROOT</tt></dt><dd>for <tt class="function">clhs-root</tt> in
-   <tt class="filename">config.lisp</tt>.</dd><dt><tt class="envar">EDITOR</tt></dt><dd>for <tt class="function">editor-name</tt> in
-   <tt class="filename">config.lisp</tt>.</dd><dt><tt class="envar">LOGICAL_HOST_<i class="replaceable"><tt>host</tt></i>_FROM</tt><br /><tt class="envar">LOGICAL_HOST_<i class="replaceable"><tt>host</tt></i>_TO</tt><br /><tt class="envar">LOGICAL_HOST_<i class="replaceable"><tt>host</tt></i></tt></dt><dd>for <a href="impnotes.html#load-lpt"><tt class="function">LOAD-LOGICAL-PATHNAME-TRANSLATIONS</tt>
+<dt><tt class="envar">ORGANIZATION</tt></dt><dd>for <a href="http://www.lisp.org/HyperSpec/Body/fun_short-sit_ng-site-name.html" target="_top"><tt class="function">SHORT-SITE-NAME</tt></a> and <a href="http://www.lisp.org/HyperSpec/Body/fun_short-sit_ng-site-name.html" target="_top"><tt class="function">LONG-SITE-NAME</tt></a> in
+   <a href="#config-file"><tt class="filename">config.lisp</tt></a>.</dd><dt><tt class="envar">CLHSROOT</tt></dt><dd>for <tt class="function">clhs-root</tt> in
+   <a href="#config-file"><tt class="filename">config.lisp</tt></a>.</dd><dt><tt class="envar">EDITOR</tt></dt><dd>for <tt class="function">editor-name</tt> in
+   <a href="#config-file"><tt class="filename">config.lisp</tt></a>.</dd><dt><tt class="envar">LOGICAL_HOST_<i class="replaceable"><tt>host</tt></i>_FROM</tt><br /><tt class="envar">LOGICAL_HOST_<i class="replaceable"><tt>host</tt></i>_TO</tt><br /><tt class="envar">LOGICAL_HOST_<i class="replaceable"><tt>host</tt></i></tt></dt><dd>for <a href="impnotes.html#load-lpt"><tt class="function">LOAD-LOGICAL-PATHNAME-TRANSLATIONS</tt>
 </a></dd></dl></div>
 </div>
 #endif
 <div class="refsection" lang="en" xml:lang="en"><a id="see-also"></a><h2>See also</h2>
 
-<p>,
+<p><a href="impnotes.html#impnotes-top">CLISP impnotes</a>,
 <a href="http://www.cons.org/cmucl" target="_top"><span><b class="command">CMU CL</b></span></a> - <span><b class="command">cmucl</b></span>(1),
 <a href="http://www.gnu.org/software/emacs/" target="_top">Emacs</a> - <span><b class="command">emacs</b></span>(1),
 <a href="http://www.xemacs.org" target="_top">XEmacs</a> - <span><b class="command">xemacs</b></span>(1).</p>
@@ -465,12 +452,12 @@ following information:</p>
    If you are reporting a crash (segmentation fault, bus error, core
    dump etc), please do
    <span><b class="command">"./configure --with-debug --build build-g"</b></span>
-   and report the backtrace.</li><li>If you are using pre-built binaries, the problem is likely
-   to be in the incompatibilities between the platform on which
+   and report the backtrace.</li><li>If you are using pre-built binaries, the problem is
+   likely to be in the incompatibilities between the platform on which
    the binary was built and yours;
    please try compiling the sources.</li><li>What is the output of
-   <tt class="option"><a href="#opt-version">"clisp
-     --version"</a></tt>?</li><li>Please supply the full output (copy and paste) of
+   <span><b class="command"><a href="#opt-version">"clisp
+     --version"</a></b></span>?</li><li>Please supply the full output (copy and paste) of
    all the error messages, as well as detailed instructions on how to
    reproduce them.</li></ol></div>
 
@@ -498,8 +485,8 @@ following information:</p>
    threads.</li></ul></div>
 </div><div class="refsection" lang="en" xml:lang="en"><a id="authors"></a><h2>CLISP Authors</h2>
 
-<p>CLISP project was started in late 1980-ies by Bruno Haible and Michael
- Stoll, both in Germany.</p>
+<p><a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a> project was started in late 1980-ies by Bruno Haible and
+ Michael Stoll, both in Germany.</p>
 
 <p>See <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/clisp/clisp/COPYRIGHT?rev=HEAD&amp;content-type=text/plain" target="_top">COPYRIGHT</a>
 for the list of other contributors and the license.</p>
