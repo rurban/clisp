@@ -11,6 +11,7 @@
 //
 // Revision 1.21  1999-05-30  bruno
 // - Add missing begin_callback() in `xlib_io_error_handler'.
+// - Save subr_self during some calls in xlib:change-property.
 //
 // Revision 1.20  1999-04-04  bruno
 // - Modifications for UNICODE.
@@ -1160,7 +1161,7 @@ local object make_font_with_info (object dpy, Font fn, object name, XFontStruct 
   pushSTACK (`XLIB::FONT-INFO`);			// slot
   funcall (L(slot_value), 2);				// (slot-value new-xid-object `font-info)
   
-  // do not overwrite any allready fetch font info
+  // do not overwrite any already fetched font info
   unless (fpointerp (value1))
     {
       // o.k allocate a new fpointer
@@ -6383,8 +6384,10 @@ defun XLIB:CHANGE-PROPERTY (5, 0, norest, key, 4, (:MODE :START :END :TRANSFORM)
 
   if (eq (STACK_1, unbound) || eq (STACK_1, NIL))
     {
-      pushSTACK (STACK_6);	// data argument
+      pushSTACK (subr_self);	// save subr_self
+      pushSTACK (STACK_7);	// data argument
       funcall (L(length), 1);
+      subr_self = popSTACK ();	// restore subr_self
       end = get_uint32 (value1);
     }
   else
@@ -6413,8 +6416,10 @@ defun XLIB:CHANGE-PROPERTY (5, 0, norest, key, 4, (:MODE :START :END :TRANSFORM)
 	if (!eq (STACK_0, unbound) && !eq (STACK_0, NIL))
 	  {
 	    // call the transform function
+	    pushSTACK (subr_self);	// save subr_self
 	    pushSTACK (value1);
-	    funcall (STACK_1, 1);
+	    funcall (STACK_2, 1);
+	    subr_self = popSTACK ();	// restore subr_self
 	  }
 
 	switch (format)
