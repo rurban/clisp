@@ -1126,6 +1126,26 @@ LISPSYM(dir_key_value_delete,"DIR-KEY-VALUE-DELETE",ldap)
 LISPSYM(dkey_info,"DKEY-INFO",ldap)
 LISPSYM(dir_key,"DIR-KEY",ldap)
 #endif
+/* ---------- ZTHREAD ---------- */
+#ifdef MULTITHREAD
+LISPSYM(make_process,"MAKE-PROCESS",mt)
+LISPSYM(process_wait,"PROCESS-WAIT",mt)
+LISPSYM(call_with_timeout,"CALL-WITH-TIMEOUT",mt)
+LISPSYM(process_yield,"PROCESS-YIELD",mt)
+LISPSYM(process_kill,"PROCESS-KILL",mt)
+LISPSYM(process_interrupt,"PROCESS-INTERRUPT",mt)
+LISPSYM(process_restart,"PROCESS-RESTART",mt)
+LISPSYM(processp,"PROCESSP",mt)
+LISPSYM(process_name,"PROCESS-NAME",mt)
+LISPSYM(process_active_p,"PROCESS-ACTIVE-P",mt)
+LISPSYM(process_state,"PROCESS-STATE",mt)
+LISPSYM(process_whostate,"PROCESS-WHOSTATE",mt)
+LISPSYM(current_process,"CURRENT-PROCESS",mt)
+LISPSYM(list_processes,"LIST-PROCESSES",mt)
+LISPSYM(make_lock,"MAKE-LOCK",mt)
+LISPSYM(process_lock,"PROCESS-LOCK",mt)
+LISPSYM(process_unlock,"PROCESS-UNLOCK",mt)
+#endif
 
 /* Keywords: */
 LISPSYM(Kallow_other_keys,"ALLOW-OTHER-KEYS",keyword)

@@ -14596,12 +14596,12 @@ LISPFUNN(socket_server_host,1) {
   skipSTACK(1);
 }
 
-# parse timeout argument
-# sec = posfixnum or (SEC . USEC) or (SEC USEC) or float or ratio
-#       or nil/unbound
-# usec = posfixnum or nil/unbound
-# can trigger GC
-local struct timeval * sec_usec (object sec, object usec, struct timeval *tv) {
+/* parse timeout argument
+ sec = posfixnum or (SEC . USEC) or (SEC USEC) or float or ratio or nil/unbound
+ usec = posfixnum or nil/unbound
+ can trigger GC */
+global struct timeval * sec_usec (object sec, object usec, struct timeval *tv)
+{
   if (missingp(sec)) {
     return NULL;
   } else if (consp(sec)) {

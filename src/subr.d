@@ -1229,3 +1229,20 @@ LISPFUNN(dir_key_subkey_delete,2)
 LISPFUNN(dir_key_value_delete,2)
 LISPFUNN(dkey_info,1)
 #endif
+/* ---------- ZTHREAD ---------- */
+#ifdef MULTITHREAD
+LISPFUN(make_process,2,0,rest,nokey,0,NIL)
+LISPFUN(process_wait,3,0,rest,nokey,0,NIL)
+LISPFUNN(call_with_timeout,3)
+LISPFUNN(process_yield,0)
+LISPFUNN(process_kill,1)
+LISPFUN(process_interrupt,2,0,rest,nokey,0,NIL)
+LISPFUNN(process_restart,1)
+LISPFUNN(processp,1)
+LISPFUNN(process_name,1)
+LISPFUNN(process_active_p,1)
+LISPFUNN(process_state,1)
+LISPFUNN(process_whostate,1)
+LISPFUNN(current_process,0)
+LISPFUNN(list_processes,0)
+#endif

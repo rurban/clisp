@@ -1357,6 +1357,9 @@ fi
 if test -n "$with_dir_key"; then
   CPARTS=$CPARTS' dirkey';
 fi
+if [ -n "${with_threads}" -a "${with_threads}" != "0" ]; then
+  CPARTS=$CPARTS' zthread';
+fi
 
 EVERY_INCLUDES='lispbibl fsubr subr pseudofun constsym constobj '$OS_INCLUDES
 
@@ -1515,9 +1518,12 @@ COMMENTS=''
 LPARTS='        init defseq backquote defmacro macros1 macros2 defs1'
 LPARTS=$LPARTS' timezone places floatprint type defstruct format international'
 LPARTS=$LPARTS' savemem trace cmacros compiler defs2 loop clos'
-LPARTS=$LPARTS' disassem condition loadform threads gstream xcharin keyboard'
+LPARTS=$LPARTS' disassem condition loadform gstream xcharin keyboard'
 LPARTS=$LPARTS' screen beossock runprog query reploop dribble complete'
 LPARTS=$LPARTS' pprint describe room edit macros3 clhs inspect gray'
+if [ -n "${with_threads}" -a "${with_threads}" != "0" ]; then
+  LPARTS=$LPARTS' threads';
+fi
 if [ $TSYS = master -o -n "$with_dynamic_ffi" ] ; then
   LPARTS=$LPARTS' foreign1'
 fi
