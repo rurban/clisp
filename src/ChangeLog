@@ -1,5 +1,9 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (execute): Remove declaration (leftover from Atari ST).
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (DYNAMIC_8BIT_VECTOR, DYNAMIC_STRING): Use 'var'.
 
 2004-12-05  Bruno Haible  <bruno@clisp.org>
