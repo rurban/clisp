@@ -413,6 +413,13 @@ typedef struct
 #define __av_eptr(LIST)	(&(LIST).args[__AV_ALIST_WORDS])
 #endif
 
+/* Delayed overflow detection */
+#if defined(__hppa__)
+#define av_overflown(LIST) ((LIST).aptr < __av_eptr(LIST))
+#else
+#define av_overflown(LIST) ((LIST).aptr > __av_eptr(LIST))
+#endif
+
 
 /*
  *  av_start_<type> macros which specify the return type
