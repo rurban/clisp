@@ -391,6 +391,27 @@
         );
     }
 
+# check whether the stream is a terminal stream
+global bool terminal_stream_p (const object stream) {
+  if (!streamp(stream)) return false;
+  if (TheStream(stream)->strmtype == strmtype_terminal) return true;
+  if (TheStream(stream)->strmtype == strmtype_synonym)
+    return terminal_stream_p(Symbol_value # get_synonym_stream
+                             (TheStream(stream)->strm_synonym_symbol));
+  if (TheStream(stream)->strmtype == strmtype_concat) {
+    # this is a gross hack for the CLISP kludge
+    # of reading the first line with READ-LINE for *KEY-BINDINGS*
+    # and then concatenating the line with the terminal stream
+    object list = TheStream(stream)->strm_concat_list;
+    while (consp(list)) {
+      if (terminal_stream_p(Car(list)))
+        return true;
+      list = Cdr(list);
+    }
+    return false;
+  } else return false;
+}
+
   # Am Ende eines wr_ch_array die Line-Position aktualisieren:
   # wr_ss_lpos(stream,ptr,len);
   # > stream: Builtin-Stream, nicht der Terminal-Stream
@@ -10900,15 +10921,16 @@ local char * strip_white (char *string) {
           # put into the history if non-empty
           if (line[0] != '\0') {
             HIST_ENTRY *prev = previous_history();
-            if (true) { # how do I check for an end of form here?! (prev==NULL)
+            if ((prev==NULL) ||
+                eq(Symbol_value(S(terminal_read_open_object)),unbound)) {
               begin_system_call(); add_history((char*)line); end_system_call();
             } else { # append this line to the previous history entry
               int offset = where_history();
               HIST_ENTRY *old;
-              char *new_line = (char*)xmalloc(3+strlen(line)+
+              char *new_line = (char*)xmalloc(2+strlen(line)+
                                               strlen(prev->line));
-              strcpy(new_line,prev->line[0]=='\n' ? "" : "\n");
-              strcat(new_line,prev->line);
+              # strcpy(new_line,prev->line[0]=='\n' ? "" : "\n");
+              strcpy(new_line,prev->line);
               strcat(new_line,"\n");
               strcat(new_line,line);
               old = replace_history_entry(offset,new_line,prev->data);
@@ -16642,6 +16664,44 @@ LISPFUNN(socket_stream_handle,1)
       return make_terminal_stream();
     }
 
+#ifdef GNU_READLINE
+local int next_line_virtual(int,int);
+local int previous_line_virtual(int,int);
+local int get_col() {
+  int col=rl_point;
+  while(col && rl_line_buffer[col]!='\n') col--;
+  return rl_point - col;
+}
+local int next_line_virtual (int count, int key) {
+  if (count > 0) {
+    int col = get_col(),len=strlen(rl_line_buffer);
+    while (count--) {
+      while(rl_point<len && rl_line_buffer[rl_point]!='\n') rl_point++;
+      if (rl_point<len) rl_point++;
+    }
+    rl_point += col-1;
+    if (rl_point>=len) rl_point = len-1;
+  } else if (count < 0)
+    return previous_line_virtual(-count,key);
+  # else rl_variable_dumper(1);
+  return 0;
+}
+local int previous_line_virtual (int count, int key) {
+  if (count > 0) {
+    int col = get_col();
+    do {
+      while(rl_point && rl_line_buffer[rl_point]!='\n') rl_point--;
+      if (rl_point) rl_point--;
+      else return 0;
+    } while (count--);
+    rl_point += col;
+  } else if (count < 0)
+    return next_line_virtual(-count,key);
+  # else rl_variable_dumper(1);
+  return 0;
+}
+#endif
+
 # UP: Initialisiert die Stream-Variablen.
 # init_streamvars(unixyp);
 # > unixyp: Flag, ob *error-output* nach Unix-Art (vom Standard abweichend)
@@ -16663,6 +16723,8 @@ LISPFUNN(socket_stream_handle,1)
       rl_completion_entry_function = &lisp_completion_more;
       _rl_comment_begin = ";";
       _rl_enable_paren_matching(true); # readline-4.1-clisp or newer
+      rl_add_defun("next-line-virtual",&next_line_virtual,META('n'));
+      rl_add_defun("previous-line-virtual",&previous_line_virtual,META('p'));
       end_call();
       #endif
       {
