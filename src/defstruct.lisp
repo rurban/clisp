@@ -735,7 +735,8 @@
                                     directslotlist)
                ,@(ds-make-defsetfs name names type-option conc-name-option
                                    directslotlist)))
-         (sys::%set-documentation ',name 'STRUCTURE ,docstring)
+         ;; see documentation.lisp: we map STRUCTURE to TYPE
+         (sys::%set-documentation ',name 'TYPE ,docstring)
          ,@(when (eq type-option 'T)
              (list
                (if print-object-option
