@@ -607,10 +607,10 @@ the next-method support."
 ;;; ---------------------- Long-Form Method Combination ----------------------
 
 (defun long-form-method-combination-expander
-    (*method-combination-generic-function* *method-combination* methods options
-     long-expander)
+    (*method-combination-generic-function* *method-combination* options methods)
   (values
-    (apply long-expander *method-combination-generic-function* methods options)
+    (apply (method-combination-long-expander *method-combination*)
+           *method-combination-generic-function* methods options)
     `((:ARGUMENTS ,@(method-combination-arguments-lambda-list *method-combination*)))))
 
 (defun long-form-method-combination-call-next-method-allowed (gf method-combo method)
@@ -994,15 +994,11 @@ Long-form options are a list of method-group specifiers,
                             (FUNCTION METHOD-COMBINATION-OPTION-CHECKER
                               (LAMBDA (,@lambda-list)
                                 (,check-options-lambda)))))
-                    :EXPANDER
-                      #'(LAMBDA (,gf-variable ,combination-variable
-                                 ,options-variable ,methods-variable)
-                          (LONG-FORM-METHOD-COMBINATION-EXPANDER
-                            ,gf-variable ,combination-variable
-                            ,methods-variable ,options-variable
-                            #'(LAMBDA (,gf-variable ,methods-variable ,@lambda-list)
-                                (LET (,@(when user-gf-variable `(,user-gf-variable ,gf-variable)))
-                                  (,partition-lambda ,methods-variable)))))
+                    :EXPANDER #'LONG-FORM-METHOD-COMBINATION-EXPANDER
+                    :LONG-EXPANDER
+                      #'(LAMBDA (,gf-variable ,methods-variable ,@lambda-list)
+                          (LET (,@(when user-gf-variable `(,user-gf-variable ,gf-variable)))
+                            (,partition-lambda ,methods-variable)))
                     :CHECK-METHOD-QUALIFIERS
                       #'(LAMBDA (,gf-variable ,combination-variable ,method-variable)
                           (DECLARE (IGNORE ,combination-variable))
