@@ -1,3 +1,8 @@
+2003-08-15  Sam Steingold  <sds@gnu.org>
+
+	* io.d (pr_orecord): print logical pathnames as namestrings (when
+	printing un-readably and ANSI "host:path" is enabled)
+
 2003-08-14  Sam Steingold  <sds@gnu.org>
 
 	* defmacro.lisp (analyze1): match lambda-list to argument strictly
