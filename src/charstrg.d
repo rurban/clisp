@@ -1664,8 +1664,8 @@ local void test_char_args_upcase (uintC argcount, gcv_object_t* args_pointer) {
 }
 
 /* UP: (CHAR= char {char}) for checked arguments */
-local Values char_gleich (uintC argcount, gcv_object_t* args_pointer) {
-/* method:
+local Values char_gleich (uintC argcount, gcv_object_t* args_pointer)
+{ /* method:
  n+1 arguments Arg[0..n].
  x:=Arg[n].
  for i:=n-1 to 0 step -1 do ( if Arg[i]/=x then return(NIL) ), return(T). */
@@ -1680,8 +1680,8 @@ local Values char_gleich (uintC argcount, gcv_object_t* args_pointer) {
 }
 
 /* UP: (CHAR/= char {char}) for checked arguments */
-local Values char_ungleich (uintC argcount, gcv_object_t* args_pointer) {
-/* method:
+local Values char_ungleich (uintC argcount, gcv_object_t* args_pointer)
+{ /* method:
  n+1 arguments Arg[0..n].
  for j:=n-1 to 0 step -1 do
    x:=Arg[j+1], for i:=j to 0 step -1 do
@@ -1706,12 +1706,12 @@ local Values char_ungleich (uintC argcount, gcv_object_t* args_pointer) {
 }
 
 /* UP: (CHAR< char {char}) for checked arguments */
-local Values char_kleiner (uintC argcount, gcv_object_t* args_pointer) {
-  /* Method:
-     n+1 Arguments Arg[0..n].
-     for i:=n to 1 step -1 do
-       x:=Arg[i], if x char<= Arg[i-1] then return(NIL),
-     return(T). */
+local Values char_kleiner (uintC argcount, gcv_object_t* args_pointer)
+{ /* method:
+ n+1 Arguments Arg[0..n].
+ for i:=n to 1 step -1 do
+    x:=Arg[i], if x char<= Arg[i-1] then return(NIL),
+ return(T). */
   while (argcount--) {
     var object x = popSTACK();
     if (as_oint(x) <= as_oint(STACK_0))
@@ -1724,12 +1724,11 @@ local Values char_kleiner (uintC argcount, gcv_object_t* args_pointer) {
 
 /* UP: (CHAR> char {char}) for checked arguments */
 local Values char_groesser (uintC argcount, gcv_object_t* args_pointer)
-/* method:
+{ /* method:
  n+1 arguments Arg[0..n].
  for i:=n to 1 step -1 do
     x:=Arg[i], if x char>= Arg[i-1] then return(NIL),
  return(T). */
-{
   while (argcount--) {
     var object x = popSTACK();
     if (as_oint(x) >= as_oint(STACK_0))
@@ -1742,12 +1741,11 @@ local Values char_groesser (uintC argcount, gcv_object_t* args_pointer)
 
 /* UP: (CHAR<= char {char}) for checked arguments */
 local Values char_klgleich (uintC argcount, gcv_object_t* args_pointer)
-/* method:
+{ /* method:
  n+1 arguments Arg[0..n].
  for i:=n to 1 step -1 do
     x:=Arg[i], if x char< Arg[i-1] then return(NIL),
  return(T). */
-{
   while (argcount--) {
     var object x = popSTACK();
     if (as_oint(x) < as_oint(STACK_0))
@@ -1760,13 +1758,12 @@ local Values char_klgleich (uintC argcount, gcv_object_t* args_pointer)
 
 /* UP: (CHAR>= char {char}) for checked arguments */
 local Values char_grgleich (uintC argcount, gcv_object_t* args_pointer)
-/* method:
+{ /* method:
  n+1 arguments Arg[0..n].
  for i:=n to 1 step -1 do
     x:=Arg[i], if x char> Arg[i-1] then return(NIL),
  return(T). */
-{
-  while (argcount) {
+  while (argcount--) {
     var object x = popSTACK();
     if (as_oint(x) > as_oint(STACK_0))
       goto no;
