@@ -7744,12 +7744,17 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # wird von allen Modulen verwendet
 
 # Sprache, in der mit dem Benutzer kommuniziert wird:
-#ifndef LANGUAGE_STATIC
+#ifdef LANGUAGE_STATIC
+  #if ENGLISH
+    #define GETTEXT(english)  english
+  #endif
+#else
   #define language_english   0
   #ifndef GNU_GETTEXT
     # Sprache wird zur Laufzeit von der Variablen language bestimmt.
     extern uintL language;
     #define ENGLISH  (language==language_english)
+    #define GETTEXT(english)  english
   #else # GNU_GETTEXT
     #include "libintl.h"
     # Fetch the message translations from a message catalog.
