@@ -1521,18 +1521,18 @@ can give problems:
   </simpara></listitem></varlistentry>
 </variablelist>
 
-<formalpara id="warn-fpc"><title>Variable &warn-fpc;</title>
+<simplesect id="warn-fpc"><title>Variable &warn-fpc;</title>
 <para>If the variable &warn-fpc; is non-&nil;, a &warning-t; is emitted for
  every coercion involving different floating-point types.
  As explained above, float precision contagion is not a good idea.
  You can avoid the contagion by doing all your computations with the
  same floating-point type (and using &float; to convert all constants,
  e.g., &pi-v;, to your preferred type).</para>
-<para>This variable helps you eliminating all occurrences of float precision
- contagion: Set it to &t; to have &clisp; show a &warning-t; on float precision
- contagion. Set it to &error; to have &clisp; &signal; an &error-t; on float
- precision contagion, so that you can look at the stack backtrace.
-</para></formalpara>
+<para>This variable helps you eliminate all occurrences of float
+ precision contagion: set it to &t; to have &clisp; &signal; a
+ &warning-t; on float precision contagion; set it to &error; to have
+ &clisp; &signal; an &error-t; on float precision contagion, so that you
+ can look at the stack backtrace.</para></simplesect>
 
 </section>
 
@@ -1555,23 +1555,24 @@ can give problems:
  <code>(&atan; 0 1.0)</code>, <code>(&expt; 2.0 0)</code>,
  <code>(&phase; 2.718)</code>.</para>
 
-<formalpara id="warn-fprc"><title>Variable &warn-fprc;</title>
+<simplesect id="warn-fprc"><title>Variable &warn-fprc;</title>
 <para>If the variable &warn-fprc; is non-&nil;, a &warning-t; is emitted for
  every avoidable coercion from a rational number to a floating-point number.
  You can avoid such coercions by calling &float; to convert the particular
  rational numbers to your preferred floating-point type.</para>
-<para>This variable helps you eliminating all occurrences of avoidable coercions
- to a floating-point number when a rational number result would be possible:
- Set it to &t; to have &clisp; show a &warning-t; in such situations. Set it
- to &error; to have &clisp; &signal; an &error-t; in such situations, so that
- you can look at the stack backtrace.</para></formalpara>
+<para>This variable helps you eliminate all occurrences of avoidable
+ coercions to a floating-point number when a rational number result
+ would be possible: set it to &t; to have &clisp; &signal; a &warning-t;
+ in such situations; set it to &error; to have &clisp; &signal; an
+ &error-t; in such situations, so that you can look at the stack
+ backtrace.</para></simplesect>
 
-<formalpara id="phasecont"><title>Variable &phasecont;</title>
+<simplesect id="phasecont"><title>Variable &phasecont;</title>
 <para>A similar variable, &phasecont;, controls the return
  value of &phase; when the argument is an exact nonnegative &real-t;.
  Namely, if &phasecont; is non-&nil;, it returns a floating-point zero;
  if &phasecont; is &nil;, it returns an exact zero.  Example:
- <code>(&phase; 2/3)</code></para></formalpara>
+ <code>(&phase; 2/3)</code></para></simplesect>
 
 </section>
 </section>
@@ -3765,8 +3766,8 @@ functions are provided:
 
 <para>The function <code>(&elastic-newline; [&stream-r;])</code> is like
  &fresh-line; but the other way around: It outputs a conditional newline on
- &stream-r;, that is annullated if the <emphasis>next</emphasis> output on
- &stream-r; happens to be a newline. More precisely,
+ &stream-r;, which is canceled if the <emphasis>next</emphasis> output on
+ &stream-r; happens to be a newline.  More precisely,
  <code>(&elastic-newline; [&stream-r;])</code> causes a newline to be
  output right before the next character is written on &stream-r;, if this
  character is not a newline. The newline is also output if the next operation
@@ -4039,8 +4040,8 @@ functions are provided:
 
 </section>
 
-<section id="print-formatted"><title>Formatted Output</title>
-   <ulink url="&clhs;/Body/sec_22-3.html">[CLHS-22.3]</ulink></title>
+<section id="print-formatted"><title>Formatted Output
+  <ulink url="&clhs;/Body/sec_22-3.html">[CLHS-22.3]</ulink></title>
 
 <section id="format"><title>Function &format;</title>
 
