@@ -353,10 +353,6 @@ NIL
 (setf (validp (unsigned-foreign-address 4)) nil)
 ERROR
 
-#+UNICODE
-(type-of (setq custom:*foreign-encoding* orig-encoding))
-#+UNICODE EXT:ENCODING
-
 (with-c-var (place '(c-ptr (c-struct list
                             (a (c-array long 2))
                             (s (c-array character 3))))
