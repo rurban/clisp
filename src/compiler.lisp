@@ -3863,11 +3863,17 @@ for-value   NIL or T
                            ;; and the Slot is still empty
                            ;; for-value = NIL: ALLOW-allowed Keyword
                            ;; or Slot already filled
+                           (unless for-value
+                             (c-warn
+                              (TEXT "~S: ignored duplicate keyword ~S ~S")
+                              fun key arg))
                            (let* ((*stackz* (cons 0 *stackz*)) ; 0 will be replaced later
                                   (anode (c-form arg (if for-value
                                                          'ONE 'NIL))))
                              (seclass-or-f seclass anode)
-                             (push (list t (second tripel) anode *stackz*) L))
+                             (push (list t (second tripel) anode *stackz*
+                                         for-value)
+                                   L))
                            (setf (third tripel) nil)))
                         (nreverse L))))
                 (let ((depth1 0)
@@ -3942,7 +3948,7 @@ for-value   NIL or T
                           ;; correct stack-depth
                           (setf (first (fourth anodeetc)) depth-now)
                           (push (third anodeetc) codelist)
-                          (when (second anodeetc)
+                          (when (and (second anodeetc) (fifth anodeetc))
                             (push `(STORE ,(- (second anodeetc) depth2))
                                   codelist)))))
                     ;; now codelist-from-end:
