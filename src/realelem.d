@@ -175,9 +175,10 @@ local object N_N_contagion_R (object x, object y)
 # sein, wird der Wert auf SINGLE-FLOAT gesetzt und eine Warnung ausgegeben.
 # can trigger GC, but only between save_statement and restore_statement.
 #define defaultfloatcase(symbol,num,SF_statement,FF_statement,DF_statement,LF_statement,save_statement,restore_statement) do {\
+  var object def;                                                       \
   if (floatp(num))                                                      \
     floatcase(num,goto _DFC_SF,goto _DFC_FF,goto _DFC_DF,goto _DFC_LF); \
-  { var object def = Symbol_value(symbol); # Wert holen                 \
+  def = Symbol_value(symbol); # Wert holen                              \
   if (eq(def,S(short_float))) { _DFC_SF: SF_statement; }                \
   else if (eq(def,S(single_float))) { _DFC_FF: FF_statement; }          \
   else if (eq(def,S(double_float))) { _DFC_DF: DF_statement; }          \
@@ -198,7 +199,7 @@ local object N_N_contagion_R (object x, object y)
     funcall(S(warn),4);                                                 \
     restore_statement;                                                  \
     { FF_statement; }                                                   \
-  }}} while(0)
+  }} while(0)
 
 # I_float_F(x) wandelt ein Integer x in ein Float um und rundet dabei.
 # > x: ein Integer

@@ -38,10 +38,10 @@ local void string_out (FILE* out, object str, object encoding) {
   var const chart* srcptr;
   unpack_sstring_alloca(string,len,offset, srcptr=);
   var uintL bytelen = cslen(encoding,srcptr,len);
-  var DYNAMIC_ARRAY(buffer,char,bytelen+1);
+  var DYNAMIC_ARRAY(buffer,uintB,bytelen+1);
   cstombs(encoding,srcptr,len,buffer,bytelen);
   buffer[bytelen] = 0;
-  fputs(buffer,out);
+  fputs((const char*)buffer,out);
   FREE_DYNAMIC_ARRAY(buffer);
 }
 #else /* no UNICODE */
