@@ -128,8 +128,14 @@
 ;; A few tests call DISASSEMBLE. Make it work without user intervention.
 (setf (ext:getenv "PAGER") "cat")
 
+;; w2k exits on (disassemble 'car)
+#+(or win32 cygwin)
+(ext:without-package-lock ("SYS")
+  (defun sys::disassemble-machine-code (a b c)
+    (format t "~&<~S ~S ~S>~%" a b c)))
+
 ;; Then the tests.
 (load "gclload2.lsp")
 
 ;; Run the tests.
-(regression-test:do-tests)
+(time (regression-test:do-tests))
