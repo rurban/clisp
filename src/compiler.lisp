@@ -2989,6 +2989,16 @@ der Docstring (oder NIL).
                 :seclass '(NIL . NIL)
                 :code '((NIL)))))
 
+;; the 2nd return value of `compile' and `compile-file'
+(defun compile-warnings-p ()
+  (let ((count (+ *error-count* *warning-count*)))
+    (if (zerop count) nil count)))
+
+;; the 3rd return value of `compile' and `compile-file'
+(defun compile-failure-p ()
+  (let ((count (+ *error-count* (- *warning-count* *style-warning-count*))))
+    (if (zerop count) nil count)))
+
 ;; caught c-error
 (defmacro c-error-c (&rest args) `(catch 'c-error (c-error ,@args)))
 
@@ -12119,68 +12129,46 @@ Die Funktion make-closure wird dazu vorausgesetzt.
         (ENGLISH "Not a lambda expression nor a function: ~S")
         definition
     ) )
-    (let ((*compiling* t)
-          (*error-count* 0)
-          (*warning-count* 0)
-          (*style-warning-count* 0)
-          (*compiling-from-file* nil)
-          (*c-listing-output* nil)
-          (*c-error-output* *error-output*)
-          (*known-special-vars* '())
-          (*constant-special-vars* '())
-          (*func* nil)
-          (*fenv* (if (sys::closurep definition)
-                    (sys::%record-ref definition 5)
-                    nil
-          )       )
-          (*benv* (if (sys::closurep definition)
-                    (sys::%record-ref definition 6)
-                    nil
-          )       )
-          (*genv* (if (sys::closurep definition)
-                    (sys::%record-ref definition 7)
-                    nil
-          )       )
-          (*venv* (if (sys::closurep definition)
-                    (sys::%record-ref definition 4)
-                    nil
-          )       )
-          (*venvc* nil)
-          (*denv* (if (sys::closurep definition)
-                    (sys::%record-ref definition 8)
-                    *toplevel-denv*
-          )       )
-          (*no-code* nil))
-      (let ((lambdabody (if (sys::closurep definition)
-                          (sys::%record-ref definition 1)
-                          (cdr definition)
-           ))           )
-        (let ((funobj (compile-lambdabody name lambdabody)))
-          (values
-            (if (zerop *error-count*)
-              (if name
-                (progn
-                  (when macro-flag (setq funobj (make-macro funobj)))
-                  (if trace-flag
-                    (setf (get symbol 'sys::traced-definition) funobj)
-                    (setf (symbol-function symbol) funobj)
-                  )
-                  (when save-flag
-                    (setf (get symbol 'sys::definition) save-flag)
-                  )
-                  name
-                )
-                funobj
-              )
-              nil
-            )
-            (let ((count (+ *error-count* *warning-count*)))
-              (if (zerop count) nil count)
-            )
-            (let ((count (+ *error-count* (- *warning-count* *style-warning-count*))))
-              (if (zerop count) nil count)
-            )
-) ) ) ) ) )
+    (flet ((closure-slot (obj num)
+             (if (sys::closurep obj)
+                 (sys::%record-ref obj num)
+                 nil)))
+      (let ((*compiling* t)
+            (*error-count* 0)
+            (*warning-count* 0)
+            (*style-warning-count* 0)
+            (*compiling-from-file* nil)
+            (*c-listing-output* nil)
+            (*c-error-output* *error-output*)
+            (*known-special-vars* '())
+            (*constant-special-vars* '())
+            (*func* nil)
+            (*fenv* (closure-slot definition 5))
+            (*benv* (closure-slot definition 6))
+            (*genv* (closure-slot definition 7))
+            (*venv* (closure-slot definition 4))
+            (*venvc* nil)
+            (*denv* (or (closure-slot definition 8)
+                        *toplevel-denv*))
+            (*no-code* nil))
+        (let ((lambdabody (or (closure-slot definition 1)
+                              (cdr definition))))
+          (let ((funobj (compile-lambdabody name lambdabody)))
+            (values
+             (if (zerop *error-count*)
+               (if name
+                 (progn
+                   (when macro-flag (setq funobj (make-macro funobj)))
+                   (if trace-flag
+                     (setf (get symbol 'sys::traced-definition) funobj)
+                     (setf (symbol-function symbol) funobj))
+                   (when save-flag
+                     (setf (get symbol 'sys::definition) save-flag))
+                   name)
+                 funobj)
+               nil)
+             (compile-warnings-p)
+             (compile-failure-p))))))))
 
 ; Top-Level-Formen müssen einzeln aufs .fas-File rausgeschrieben werden,
 ; wegen der Semantik von EVAL-WHEN und LOAD-TIME-VALUE.
@@ -12322,6 +12310,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                    (car kf) (c-source-point-location (second kf))))
       t)))
 
+;; report the compilation problems accumulated so far and reset them
 (defun c-report-problems ()
   (when *functions-with-errors*
     (c-comment (ENGLISH "~%There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}")
@@ -12345,23 +12334,39 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                  (nreverse too-late-vars))))
   (when *deprecated-functions*
     (c-comment (ENGLISH "~%The following functions were used but are deprecated:~%~{~<~%~:; ~S~>~^~}")
-               (nreverse *deprecated-functions*))))
+               (nreverse *deprecated-functions*)))
+  (when (boundp '*error-count*) ; then `*warning-count*' is bound too
+    (c-comment (ENGLISH "~%~D error~:P, ~D warning~:P")
+               *error-count* *warning-count*)
+    (c-comment "~%"))
+  ;; clean-up for the next compilation unit
+  (c-reset-globals))
 
-;; FIXME: Comment?
-(defvar *c-top-call* nil)
+;; non-NIL means that the current compilation is the top call,
+;; i.e., it will report the errors/warnings &c.
+;; this is T inside the outer-most `with-compilation-unit'/`compile-file'
+;; or when `with-compilation-unit' is given non-NIL `:override' argument
+(defvar *c-top-call*)
 
 (defmacro with-compilation-unit ((&key override) &body forms)
-  ;; FIXME: This looks fishy.
-  `(let ((*c-top-call* (or ,override (not *c-top-call*)))
+  `(let ((*c-top-call* (or ,override (not (boundp '*c-top-call*))))
          (*c-error-output* *error-output*))
+     ;; clean up from the outer `with-compilation-unit':
+     ;; <http://www.lisp.org/HyperSpec/Body/mac_with-compilation-unit.html>
+     ;; [CLHS]: If nested dynamically only the outer call to
+     ;; `withcompilation-unit' has any effect unless the value associated
+     ;; with `:override' is true, in which case warnings are deferred only
+     ;; to the end of the innermost call for which override is true.
      (when *c-top-call*
-       (c-report-problems)
-       (c-reset-globals))
-     (unwind-protect
-         (progn ,@forms)
-       (when *c-top-call*
-         (c-report-problems)
-         (c-reset-globals)))))
+       (c-report-problems))
+     (progv (when *c-top-call*
+              '(*error-count* *warning-count* *style-warning-count*))
+         (when *c-top-call* '(0 0 0))
+       (unwind-protect
+            (progn ,@forms)
+         ;; report the errors and reset
+         (when *c-top-call*
+           (c-report-problems))))))
 
 ;; Common part of COMPILE-FILE and COMPILE-FILE-PATHNAME.
 ;; Returns two values:
@@ -12444,8 +12449,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
     (let ((listing-stream ; a stream or NIL
             (if new-listing-stream
               (open listing :direction :output)
-              (if (streamp listing) listing nil)))
-          (*c-top-call* (and (null *c-top-call*) (null *compiling*))))
+              (if (streamp listing) listing nil))))
       (unwind-protect
         (let ((*compile-file-pathname* file)
               (*compile-file-truename* (truename file))
@@ -12466,7 +12470,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
           (when *fasoutput-stream* (sys::allow-read-eval *fasoutput-stream* t))
           (when *liboutput-stream* (sys::allow-read-eval *liboutput-stream* t))
           (unwind-protect
-            (progn
+            (with-compilation-unit ()
               (when listing-stream
                 (format listing-stream
                   (ENGLISH "~&Listing of compilation of file ~A~%on ~@? by ~A, version ~A")
@@ -12476,8 +12480,6 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                     ; Liste (sec min hour day month year ...)
                   (lisp-implementation-type) (lisp-implementation-version)
               ) )
-              (when *c-top-call*
-                (c-reset-globals))
               (let ((*compiling* t)
                     (*compiling-from-file* t)
                     (*package* *package*)
@@ -12495,7 +12497,6 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                     (*venv* nil)
                     (*venvc* nil)
                     (*denv* *toplevel-denv*)
-                    (*error-count* 0) (*warning-count* 0) (*style-warning-count* 0)
                     (*no-code* (and (null *fasoutput-stream*) (null listing-stream)))
                     (*toplevel-for-value* t)
                     (eof-value "EOF")
@@ -12553,34 +12554,22 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                 (finalize-coutput-file)
                 (c-comment (ENGLISH "~&~%Compilation of file ~A is finished.")
                            file)
-                (when *c-top-call*
-                  (c-report-problems))
-                (c-comment (ENGLISH "~%~D error~:P, ~D warning~:P")
-                           *error-count* *warning-count*)
-                (c-comment "~%")
                 (setq compilation-successful (zerop *error-count*))
                 (values (if compilation-successful output-file nil)
-                        (let ((count (+ *error-count* *warning-count*)))
-                          (if (zerop count) nil count)
-                        )
-                        (let ((count (+ *error-count* (- *warning-count* *style-warning-count*))))
-                          (if (zerop count) nil count)
-                        )
-            ) ) )
+                        (compile-warnings-p)
+                        (compile-failure-p))))
             (when new-output-stream
               (close *fasoutput-stream*)
               (close *liboutput-stream*)
               (if *coutput-stream*
                 (close *coutput-stream*)
-                (when (probe-file *coutput-file*) (delete-file *coutput-file*))
-              )
+                (when (probe-file *coutput-file*)
+                  (delete-file *coutput-file*)))
               (unless compilation-successful
                 (delete-file output-file) (delete-file liboutput-file)
-                (when (probe-file *coutput-file*) (delete-file *coutput-file*))
-            ) )
-        ) )
-        (when new-listing-stream (close listing-stream))
-) ) ) )
+                (when (probe-file *coutput-file*)
+                  (delete-file *coutput-file*))))))
+        (when new-listing-stream (close listing-stream))))))
 
 ; Das muss mit compile-file (s.o.) konsistent sein!
 (defun compile-file-pathname (file &key (output-file 'T) &allow-other-keys)
