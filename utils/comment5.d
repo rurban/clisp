@@ -123,7 +123,7 @@ int main (int argc, char* argv[])
     L3:  ; # am File-Ende
   }
   # Files schlieﬂen:
-  if (ferror(infile) || ferror(outfile))
+  if (ferror(infile) || fflush(outfile) || ferror(outfile))
     { fclose(infile); fclose(outfile); exit(1); }
   fclose(infile);
   fclose(outfile);

@@ -10,16 +10,18 @@
 extern "C" void exit(int);
 #endif
 
-main ()
-  { int c;
-    int c1 = -1;
-    while (1)
-      { c = getchar(); if (c==EOF) break;
-        if ((c == ')') && (c1 == ',')) { fputs("_EMA_",stdout); }
-        putchar(c);
-        c1 = c;
-      }
-    if (ferror(stdin) || ferror(stdout)) { exit(1); }
-    exit(0);
+int main ()
+{
+  int c;
+  int c1 = -1;
+  while (1) {
+    c = getchar(); if (c==EOF) break;
+    if ((c == ')') && (c1 == ','))
+      fputs("_EMA_",stdout);
+    putchar(c);
+    c1 = c;
   }
+  if (ferror(stdin) || fflush(stdout) || ferror(stdout)) { exit(1); }
+  exit(0);
+}
 
