@@ -1,8 +1,0 @@
-#!/bin/sh
-# Usage: to-hp <isolatin-file> <hp-file>
-if test $# != 2; then
-  echo "Usage: ${CHARSETBINDIR}to-hp <isolatin-file> <hp-file>"
-  exit 1
-fi
-${CHARSETBINDIR}cv-to-hp < "$1" > "$2"
-${CHARSETBINDIR}touchr "$1" "$2"

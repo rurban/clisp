@@ -1,8 +1,0 @@
-#!/bin/sh
-# Usage: from-next <next-file> <isolatin-file>
-if test $# != 2; then
-  echo "Usage: ${CHARSETBINDIR}from-next <next-file> <isolatin-file>"
-  exit 1
-fi
-${CHARSETBINDIR}cv-fr-next < "$1" > "$2"
-${CHARSETBINDIR}touchr "$1" "$2"
