@@ -9,7 +9,7 @@
 
 <!-- *** general references about Common Lisp *** -->
 <!ENTITY clhs "http://www.lisp.org/HyperSpec">
-<!ENTITY mop "http://www.lisp.org/mop">
+<!ENTITY mop-home "http://www.lisp.org/mop">
 <!ENTITY cl "<ulink url='http://www.lisp.org'><command>Common Lisp</command></ulink>">
 <!ENTITY clos "<ulink url='&clhs;/Body/chap-7.html'><command>CLOS</command></ulink>">
 <!ENTITY clx "<ulink url='http://www.cliki.net/CLX'><command>CLX</command></ulink>">
@@ -61,7 +61,7 @@
    <publisher><publishername>Digital Press</publishername></publisher>
   </biblioentry>">
 
-<!ENTITY amop "<citation><link linkend='amop'>Metaobject Protocol</link></citation>">
+<!ENTITY amop "<xref linkend='amop'/>">
 <!ENTITY amop-bib
   "<biblioentry id='amop'>
    <abbrev>AMOP</abbrev>
@@ -70,7 +70,8 @@
     <author><firstname>Jim</firstname><surname>des Rivieres</surname></author>
     <author><firstname>Daniel G.</firstname><surname>Bobrow</surname></author>
    </authorgroup>
-   <title><ulink url='&mop;'>The Art of the Metaobject Protocol</ulink></title>
+   <title><ulink url='&mop-home;'>The Art of the Metaobject
+     Protocol</ulink></title>
    <pubdate>1991</pubdate> <pagenums>335 pages</pagenums>
    <isbn>0-262-61074-4</isbn>
    <publisher><publishername><ulink url='http://www-mitpress.mit.edu'>MIT
@@ -98,6 +99,7 @@
 <!ENTITY fsf "<ulink url='http://www.fsf.org'>Free Software Foundation (FSF)</ulink>">
 <!ENTITY eff "<ulink url='http://www.eff.org'>Electronic Frontier Foundation</ulink>">
 <!ENTITY gnu "<ulink url='http://www.gnu.org'>GNU</ulink>">
+<!ENTITY ggettext "&gnu; <ulink url='http://www.gnu.org/software/gettext/gettext.html'>gettext</ulink>">
 <!ENTITY glibc "&gnu; <ulink url='http://www.gnu.org/software/libc/'>libc</ulink>">
 <!ENTITY libiconv "&gnu; <ulink url='http://www.gnu.org/software/libiconv/'>libiconv</ulink>">
 <!ENTITY readline "&gnu; <ulink url='http://cnswww.cns.cwru.edu/~chet/readline/rltop.html'>readline</ulink>">
@@ -144,6 +146,11 @@
 <!ENTITY gdb "<ulink url='http://sources.redhat.com/gdb/'><command>gdb</command></ulink>">
 <!ENTITY apache "<ulink url='http://www.apache.org/'>Apache</ulink>">
 <!ENTITY gzip "<ulink url='http://www.gzip.org/'><command>gzip</command></ulink>">
+<!ENTITY c-lang "<ulink url='http://www.eskimo.com/~scs/C-faq/top.html'><command>C</command></ulink>">
+<!ENTITY java "<ulink url='http://java.sun.com'><command>Java</command></ulink>">
+<!ENTITY perl "<ulink url='http://www.perl.com'><command>Perl</command></ulink>">
+<!ENTITY python "<ulink url='http://python.org/'><command>Python</command></ulink>">
+<!ENTITY ieee-bfp "<ulink url='http://grouper.ieee.org/groups/754/'>IEEE 754</ulink>">
 
 <!-- *** CLHS - Common Lisp HyperSpec *** -->
 
