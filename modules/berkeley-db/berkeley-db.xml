@@ -5,7 +5,7 @@
 <para>This interface to &sleepycat-berkeley-db; exports almost all
  functions in the official &c-lang; API.</para>
 
-<section><title>Database Environment</title>
+<section id="bdb-db-environment"><title>Database Environment</title>
 
 <variablelist>
  <varlistentry><term><literal role="sexp">(BDB:DB-VERSION)</literal></term>
@@ -42,7 +42,7 @@
 </variablelist>
 </section>
 
-<section><title>Environment Configuration</title>
+<section id="bdb-environment-config"><title>Environment Configuration</title>
 
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:ENV-SET-OPTIONS dbe
@@ -58,7 +58,7 @@
 </section>
 
 
-<section><title>Database Operations</title>
+<section id="bdb-operations"><title>Database Operations</title>
 
  <!--
  DB->associate	Associate a secondary index
@@ -125,7 +125,7 @@
 </section>
 
 
-<section><title>Database Configuration</title>
+<section id="bdb-db-config"><title>Database Configuration</title>
  <!--
  DB->set_alloc	Set local space allocation functions
  DB->set_cache_priority	Set the database cache priority
@@ -149,7 +149,7 @@
 
 
 
-<section><title>Btree/Recno Configuration</title>
+<section id="bdb-bt-rn-config"><title>Btree/Recno Configuration</title>
 
  <!--
  DB->set_append_recno	Set record append callback
@@ -169,7 +169,7 @@
 </section>
 
 
-<section><title>Hash/Queue Configuration</title>
+<section id="bdb-hash-q-config"><title>Hash/Queue Configuration</title>
  <!--
  DB->set_h_ffactor	Set the Hash table density
  DB->set_h_hash	Set a hashing function
@@ -183,7 +183,7 @@
 </section>
 
 
-<section><title>Database Cursor Operations</title>
+<section id="bdb-cursor"><title>Database Cursor Operations</title>
  <!--
  DB->cursor	Create a cursor handle
  DBcursor->c_close	Close a cursor
@@ -200,7 +200,7 @@
 </section>
 
 
-<section><title>Lock Subsystem</title>
+<section id="bdb-lock"><title>Lock Subsystem</title>
  <!--
  DB_ENV->set_lk_conflicts	Set lock conflicts matrix
  DB_ENV->set_lk_detect	Set automatic deadlock detection
@@ -222,7 +222,7 @@
 </section>
 
 
-<section><title>Log Subsystem</title>
+<section id="bdb-log"><title>Log Subsystem</title>
  <!--
  DB_ENV->set_lg_bsize	Set log buffer size
  DB_ENV->set_lg_dir	Set the environment logging directory
@@ -241,7 +241,7 @@
 </section>
 
 
-<section><title>Log Cursor Operations</title>
+<section id="bdb-log-cursor"><title>Log Cursor Operations</title>
  <!--
  DB_ENV->log_cursor	Create a log cursor handle
  DB_LOGC->close	Close a log cursor
@@ -254,7 +254,7 @@
 </section>
 
 
-<section><title>Log Sequence Numbers</title>
+<section id="bdb-log-seq"><title>Log Sequence Numbers</title>
  <!-- log_compare	Compare two Log Sequence Numbers -->
 <variablelist>
 <varlistentry><term><literal role="sexp">()</literal></term>
@@ -263,7 +263,7 @@
 </section>
 
 
-<section><title>Memory Pool Subsystem</title>
+<section id="bdb-mem-pool"><title>Memory Pool Subsystem</title>
  <!--
  DB_ENV->set_cachesize	Set the environment cache size
  DB_ENV->set_mp_mmapsize	Set maximum mapped-in database file size
@@ -294,7 +294,7 @@ Memory Pool Files
 
 
 
-<section><title>Transaction Subsystem</title>
+<section id="bdb-transaction"><title>Transaction Subsystem</title>
  <!--
  DB_ENV->set_tx_max	Set maximum number of transactions
  DB_ENV->set_tx_timestamp	Set recovery timestamp
@@ -327,7 +327,7 @@ Memory Pool Files
 </section>
 
 
-<section><title>Replication</title>
+<section id="bdb-replication"><title>Replication</title>
  <!--
  DB_ENV->set_rep_transport	Configure replication transport
  DB_ENV->rep_elect	Hold a replication election
@@ -344,7 +344,8 @@ Memory Pool Files
 </section>
 
 
-<section><title></title>
+<!--
+<section id="bdb-"><title></title>
 
 <variablelist>
 <varlistentry><term><literal role="sexp">()</literal></term>
@@ -352,7 +353,7 @@ Memory Pool Files
 </variablelist>
 </section>
 
-
+-->
 
 
 
