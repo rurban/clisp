@@ -3,6 +3,12 @@
 	* foreign1.lisp (default-foreign-language): avoid a compile-time
 	warning by wrapping SETQ *FOREIGN-LANGUAGE* inside a
 	WITHOUT-PACKAGE-LOCK macro
+	* compiler.lisp (c-form-table, compile-toplevel-form): handle
+	WITHOUT-PACKAGE-LOCK specially
+	(*compiler-unlocked-packages*): new variable
+	(set-check-lock): use it
+	(c-WITHOUT-PACKAGE-LOCK): new function, binds
+	*COMPILER-UNLOCKED-PACKAGES*
 
 2002-09-18  Will Newton  <will@misconception.org.uk>
 
