@@ -53,146 +53,135 @@ __builtin_avcall:
 	ld	 #r8,#r25,48
 	jsr.n	 #r13
 	ld	 #r9,#r25,52
-	ld	 #r10,#r25,12
+	ld	 #r11,#r25,12
+	cmp	 #r13,#r11,1
+	bb0.n	 #ne,#r13,.L9
 	or	 #r9,#r0,#r2
-	or.u	 #r13,#r0,#hi16(.L49)
-	cmp	 #r11,#r10,16
-	bb0.n	 #ls,#r11,.L8
-	or	 #r13,#r13,#lo16(.L49)
-	ld	 #r13,#r13[#r10]
-	jmp	 #r13
-section	 .rodata,"a"
-	align	 4
-.L49:
-	word	 .L44
-	word	 .L8
-	word	 .L42
-	word	 .L42
-	word	 .L42
-	word	 .L43
-	word	 .L43
-	word	 .L44
-	word	 .L44
-	word	 .L44
-	word	 .L44
-	word	 .L21
-	word	 .L21
-	word	 .L22
-	word	 .L23
-	word	 .L44
-	word	 .L25
-text
-	align	 4
-.L21:
+	bcnd.n	 #eq0,#r11,.L59
+	cmp	 #r13,#r11,2
+	bb0.n	 #ne,#r13,.L60
+	cmp	 #r13,#r11,3
+	bb0.n	 #ne,#r13,.L60
+	cmp	 #r13,#r11,4
+	bb0.n	 #ne,#r13,.L60
+	cmp	 #r13,#r11,5
+	bb0.n	 #ne,#r13,.L61
+	cmp	 #r13,#r11,6
+	bb0.n	 #ne,#r13,.L61
+	cmp	 #r13,#r11,7
+	bb0.n	 #ne,#r13,.L59
+	cmp	 #r13,#r11,8
+	bb0.n	 #ne,#r13,.L59
+	cmp	 #r13,#r11,9
+	bb0.n	 #ne,#r13,.L59
+	cmp	 #r13,#r11,10
+	bb0.n	 #ne,#r13,.L59
+	subu	 #r13,#r11,11
+	cmp	 #r13,#r13,1
+	bb0	 #ls,#r13,.L30
 	ld	 #r13,#r25,8
 	st	 #r9,#r0,#r13
 	ld	 #r13,#r25,8
-	br.n	 .L8
+	br.n	 .L9
 	st	 #r3,#r13,4
 	align	 4
-.L22:
+.L30:
+	cmp	 #r13,#r11,13
+	bb1.n	 #ne,#r13,.L32
+	cmp	 #r13,#r11,14
 	ld	 #r13,#r25,8
-	br.n	 .L8
+	br.n	 .L9
 	st	 #r2,#r0,#r13
 	align	 4
-.L23:
+.L32:
+	bb1.n	 #ne,#r13,.L34
+	cmp	 #r13,#r11,15
 	ld	 #r13,#r25,8
-	br.n	 .L8
+	br.n	 .L9
 	st.d	 #r2,#r0,#r13
 	align	 4
-.L25:
+.L34:
+	bb0.n	 #ne,#r13,.L59
+	cmp	 #r13,#r11,16
+	bb0	 #eq,#r13,.L9
 	ld	 #r13,#r25,4
-	bb0	 (31-31),#r13,.L26
+	bb0	 (31-31),#r13,.L39
 	ld	 #r11,#r25,16
-	cmp	 #r13,#r11,2
-	bb0	 #ne,#r13,.L29
-	bb0.n	 #ls,#r13,.L38
 	cmp	 #r13,#r11,1
-	bb0	 #ne,#r13,.L28
-	br	 .L32
-	align	 4
-.L38:
-	cmp	 #r13,#r11,4
-	bb0.n	 #ne,#r13,.L30
-	cmp	 #r13,#r11,8
-	bb0	 #ne,#r13,.L31
-	br	 .L32
-	align	 4
-.L28:
+	bb1.n	 #ne,#r13,.L40
+	cmp	 #r13,#r11,2
 	ld	 #r11,#r25,8
 	ld.bu	 #r13,#r0,#r9
-	br.n	 .L8
+	br.n	 .L9
 	st.b	 #r13,#r0,#r11
 	align	 4
-.L29:
+.L40:
+	bb1.n	 #ne,#r13,.L42
+	cmp	 #r13,#r11,4
 	ld	 #r11,#r25,8
 	ld.hu	 #r13,#r0,#r9
-	br.n	 .L8
+	br.n	 .L9
 	st.h	 #r13,#r0,#r11
 	align	 4
-.L30:
+.L42:
+	bb1.n	 #ne,#r13,.L44
+	cmp	 #r13,#r11,8
 	ld	 #r11,#r25,8
 	ld	 #r13,#r0,#r9
-	br.n	 .L8
+	br.n	 .L9
 	st	 #r13,#r0,#r11
 	align	 4
-.L31:
+.L44:
+	bb1.n	 #ne,#r13,.L46
+	addu	 #r13,#r11,3
 	ld	 #r11,#r25,8
 	ld	 #r13,#r0,#r9
 	st	 #r13,#r0,#r11
 	ld	 #r11,#r25,8
 	ld	 #r13,#r9,4
-	br.n	 .L8
+	br.n	 .L9
 	st	 #r13,#r11,4
 	align	 4
-.L32:
-	ld	 #r13,#r25,16
-	addu	 #r13,#r13,3
+.L46:
 	extu	 #r10,#r13,0<2>
 	subu	 #r10,#r10,1
-	bcnd	 #lt0,#r10,.L8
-.L35:
+	bcnd	 #lt0,#r10,.L9
+.L50:
 	ld	 #r11,#r25,8
 	ld	 #r13,#r9[#r10]
 	st	 #r13,#r11[#r10]
 	subu	 #r10,#r10,1
-	bcnd	 #ge0,#r10,.L35
+	bcnd	 #ge0,#r10,.L50
 	addu	 #r31,#r31,1024
-	br	 .L50
+	br	 .L62
 	align	 4
-.L26:
-	bb0	 (31-30),#r13,.L8
-	ld	 #r13,#r25,16
-	cmp	 #r11,#r13,2
-	bb0	 #ne,#r11,.L43
-	bb0	 #ls,#r11,.L47
-	cmp	 #r13,#r13,1
-	bb0	 #ne,#r13,.L42
-	addu	 #r31,#r31,1024
-	br	 .L50
-	align	 4
-.L47:
-	cmp	 #r13,#r13,4
-	bb0	 #ne,#r13,.L44
-	addu	 #r31,#r31,1024
-	br	 .L50
-	align	 4
-.L42:
+.L39:
+	bb0	 (31-30),#r13,.L9
+	ld	 #r11,#r25,16
+	cmp	 #r13,#r11,1
+	bb1.n	 #ne,#r13,.L54
+	cmp	 #r13,#r11,2
+.L60:
 	ld	 #r13,#r25,8
-	br.n	 .L8
+	br.n	 .L9
 	st.b	 #r9,#r0,#r13
 	align	 4
-.L43:
+.L54:
+	bb1.n	 #ne,#r13,.L56
+	cmp	 #r13,#r11,4
+.L61:
 	ld	 #r13,#r25,8
-	br.n	 .L8
+	br.n	 .L9
 	st.h	 #r9,#r0,#r13
 	align	 4
-.L44:
+.L56:
+	bb1	 #ne,#r13,.L9
+.L59:
 	ld	 #r13,#r25,8
 	st	 #r9,#r0,#r13
-.L8:
+.L9:
 	addu	 #r31,#r31,1024
-.L50:
+.L62:
 .Lte0:
 	ld	 #r1,#r31,36
 	or	 #r2,#r0,0

@@ -49,7 +49,7 @@ avcall-sparc.S : avcall-sparc.c avcall.h.in
 # works but compiled with "-O2" doesn't work.
 avcall-alpha.s : avcall-alpha.c avcall.h.in
 	$(GCC) -V 2.7.2 -b alpha-dec-osf $(GCCFLAGS) -O1 -D__alpha__ -S avcall-alpha.c -o avcall-alpha-temp.s
-	$(SED) -e 's/\.rdata/\.data/g' < avcall-alpha-temp.s > avcall-alpha.s
+	$(SED) -e '/ldgp/d' < avcall-alpha-temp.s > avcall-alpha.s
 	$(RM) avcall-alpha-temp.s
 
 avcall-hppa.s : avcall-hppa.c avcall.h.in

@@ -38,136 +38,135 @@ L3:
 L7:
 	movl 12(%esi),%eax
 	cmpl $13,%eax
-	je L9
-	cmpl $14,%eax
-	je L10
-	jmp L11
-L9:
+	jne L8
 	movl (%esi),%eax
 	call *%eax
 	movl 8(%esi),%eax
 	fstps (%eax)
-	jmp L13
-L10:
+	jmp L9
+L8:
+	cmpl $14,%eax
+	jne L10
 	movl (%esi),%eax
 	call *%eax
 	movl 8(%esi),%eax
 	fstpl (%eax)
-	jmp L13
-L11:
+	jmp L9
+L10:
 	movl (%esi),%eax
 	call *%eax
 	movl %eax,%ebx
 	movl 12(%esi),%eax
-	cmpl $16,%eax
-	ja L13
-	jmp *L55(,%eax,4)
-L55:
-	.long L49
-	.long L13
-	.long L47
-	.long L47
-	.long L47
-	.long L48
-	.long L48
-	.long L49
-	.long L49
-	.long L49
-	.long L49
-	.long L50
-	.long L50
-	.long L13
-	.long L13
-	.long L49
-	.long L30
-L30:
+	cmpl $1,%eax
+	je L9
+	testl %eax,%eax
+	je L61
+	cmpl $2,%eax
+	je L62
+	cmpl $3,%eax
+	je L62
+	cmpl $4,%eax
+	je L62
+	cmpl $5,%eax
+	je L63
+	cmpl $6,%eax
+	je L63
+	cmpl $7,%eax
+	je L61
+	cmpl $8,%eax
+	je L61
+	cmpl $9,%eax
+	je L61
+	cmpl $10,%eax
+	je L61
+	movl 12(%esi),%ecx
+	leal -11(%ecx),%eax
+	cmpl $1,%eax
+	jbe L64
+	cmpl $15,%ecx
+	je L61
+	cmpl $16,%ecx
+	jne L9
 	movl 4(%esi),%eax
 	testb $1,%al
-	je L31
+	je L39
 	movl 16(%esi),%eax
-	cmpl $2,%eax
-	je L34
-	ja L43
 	cmpl $1,%eax
-	je L33
-	jmp L37
-L43:
-	cmpl $4,%eax
-	je L35
-	cmpl $8,%eax
-	je L36
-	jmp L37
-L33:
+	jne L40
 	movl 8(%esi),%edx
 	movb (%ebx),%al
 	movb %al,(%edx)
-	jmp L13
-L34:
+	jmp L9
+L40:
+	cmpl $2,%eax
+	jne L42
 	movl 8(%esi),%edx
 	movw (%ebx),%ax
 	movw %ax,(%edx)
-	jmp L13
-L35:
+	jmp L9
+L42:
+	cmpl $4,%eax
+	jne L44
 	movl 8(%esi),%edx
 	movl (%ebx),%eax
 	movl %eax,(%edx)
-	jmp L13
-L36:
+	jmp L9
+L44:
+	cmpl $8,%eax
+	jne L46
 	movl 8(%esi),%edx
 	movl (%ebx),%eax
 	movl %eax,(%edx)
 	movl 8(%esi),%edx
 	movl 4(%ebx),%eax
 	movl %eax,4(%edx)
-	jmp L13
-L37:
-	movl 16(%esi),%eax
+	jmp L9
+L46:
 	addl $3,%eax
 	movl %eax,%ecx
 	shrl $2,%ecx
 	decl %ecx
-	js L13
-L40:
+	js L9
+L50:
 	movl 8(%esi),%edx
 	movl (%ebx,%ecx,4),%eax
 	movl %eax,(%edx,%ecx,4)
 	decl %ecx
-	jns L40
-	jmp L13
-L31:
+	jns L50
+	jmp L9
+L39:
 	testb $2,%ah
-	je L13
+	je L9
 	movl 16(%esi),%eax
-	cmpl $2,%eax
-	je L48
-	ja L53
 	cmpl $1,%eax
-	je L47
-	jmp L13
-L53:
-	cmpl $4,%eax
-	je L49
-	cmpl $8,%eax
-	je L50
-	jmp L13
-L47:
+	jne L54
+L62:
 	movl 8(%esi),%eax
 	movb %bl,(%eax)
-	jmp L13
-L48:
+	jmp L9
+L54:
+	cmpl $2,%eax
+	jne L56
+L63:
 	movl 8(%esi),%eax
 	movw %bx,(%eax)
-	jmp L13
-L49:
+	jmp L9
+L56:
+	cmpl $4,%eax
+	jne L58
+L61:
 	movl 8(%esi),%eax
 	movl %ebx,(%eax)
-	jmp L13
-L50:
+	jmp L9
+L58:
+	cmpl $8,%eax
+	jne L9
+L64:
 	movl 8(%esi),%eax
 	movl %ebx,(%eax)
 	movl 8(%esi),%eax
 	movl %edx,4(%eax)
-L13:
+L9:
 	xorl %eax,%eax
 	leal -8(%ebp),%esp
 	popl %ebx

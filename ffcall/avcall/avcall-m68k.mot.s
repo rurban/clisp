@@ -35,175 +35,188 @@ __builtin_avcall:
 	move.l (%a2),%a0
 	jbsr (%a0)
 	move.l %d0,%a1
-	move.l 12(%a2),%d2
-	moveq.l #16,%d3
+	move.l 12(%a2),%a0
+	move.l %a0,%d2
+	moveq.l #1,%d3
+	cmp.l %a0,%d3
+	jbeq .L9
+	tst.l %a0
+	jbeq .L68
+	moveq.l #2,%d3
+	cmp.l %a0,%d3
+	jbeq .L69
+	moveq.l #3,%d3
+	cmp.l %a0,%d3
+	jbeq .L69
+	moveq.l #4,%d3
+	cmp.l %a0,%d3
+	jbeq .L69
+	moveq.l #5,%d3
+	cmp.l %a0,%d3
+	jbeq .L70
+	moveq.l #6,%d3
+	cmp.l %a0,%d3
+	jbeq .L70
+	moveq.l #7,%d3
+	cmp.l %a0,%d3
+	jbeq .L68
+	moveq.l #8,%d3
+	cmp.l %a0,%d3
+	jbeq .L68
+	moveq.l #9,%d3
+	cmp.l %a0,%d3
+	jbeq .L68
+	moveq.l #10,%d3
+	cmp.l %a0,%d3
+	jbeq .L68
+	moveq.l #-11,%d3
+	add.l %d3,%d2
+	moveq.l #1,%d3
 	cmp.l %d2,%d3
-	jbcs .L35
-	.set .LI57,.+2
-	move.w .L57-.LI57.b(%pc,%d2.l*2),%d2
-	jmp %pc@(2,%d2:w)
-	.align 	2
-.L57:
-	.word .L37-.L57
-	.word .L35-.L57
-	.word .L34-.L57
-	.word .L34-.L57
-	.word .L34-.L57
-	.word .L36-.L57
-	.word .L36-.L57
-	.word .L37-.L57
-	.word .L37-.L57
-	.word .L37-.L57
-	.word .L37-.L57
-	.word .L38-.L57
-	.word .L38-.L57
-	.word .L22-.L57
-	.word .L27-.L57
-	.word .L37-.L57
-	.word .L31-.L57
-	.align 	2
-.L22:
+	jbcc .L71
+	moveq.l #13,%d3
+	cmp.l %a0,%d3
+	jbne .L32
 	move.l 4(%a2),%d2
 	btst #6,%d2
-	jbeq .L23
+	jbeq .L33
 	move.l 8(%a2),%a0
 	fmove.s %fp0,(%a0)
-	jbra .L35
+	jbra .L9
 	.align 	2
-.L23:
+.L33:
 	btst #5,%d2
-	jbeq .L25
+	jbeq .L35
 	move.l 8(%a2),%a0
 	move.l %d1,-(%sp)
 	move.l %d0,-(%sp)
 	fmove.d (%sp)+,%fp1
 	fmove.s %fp1,(%a0)
-	jbra .L35
+	jbra .L9
 	.align 	2
-.L25:
+.L35:
 	move.l 8(%a2),%a0
 	move.l %d0,(%a0)
-	jbra .L35
+	jbra .L9
 	.align 	2
-.L27:
+.L32:
+	moveq.l #14,%d3
+	cmp.l %a0,%d3
+	jbne .L38
 	btst #6,7(%a2)
-	jbeq .L28
+	jbeq .L39
 	move.l 8(%a2),%a0
 	fmove.d %fp0,(%a0)
-	jbra .L35
+	jbra .L9
 	.align 	2
-.L28:
+.L39:
 	move.l 8(%a2),%a0
 	move.l %d0,(%a0)
 	move.l %d1,4(%a0)
-	jbra .L35
+	jbra .L9
 	.align 	2
-.L31:
+.L38:
+	moveq.l #15,%d3
+	cmp.l %a0,%d3
+	jbeq .L68
+	moveq.l #16,%d3
+	cmp.l %a0,%d3
+	jbne .L9
 	move.l 4(%a2),%d2
 	btst #9,%d2
-	jbeq .L32
+	jbeq .L45
 	move.l 16(%a2),%d0
-	moveq.l #2,%d3
-	cmp.l %d0,%d3
-	jbeq .L36
-	jbcs .L41
 	moveq.l #1,%d3
 	cmp.l %d0,%d3
-	jbeq .L34
-	jbra .L32
-	.align 	2
-.L41:
-	moveq.l #4,%d3
-	cmp.l %d0,%d3
-	jbeq .L37
-	moveq.l #8,%d3
-	cmp.l %d0,%d3
-	jbeq .L38
-	jbra .L32
-	.align 	2
-.L34:
+	jbne .L46
+.L69:
 	move.l 8(%a2),%a0
 	move.w %a1,%d3
 	move.b %d3,(%a0)
-	jbra .L35
+	jbra .L9
 	.align 	2
-.L36:
+.L46:
+	moveq.l #2,%d3
+	cmp.l %d0,%d3
+	jbne .L49
+.L70:
 	move.l 8(%a2),%a0
 	move.w %a1,(%a0)
-	jbra .L35
+	jbra .L9
 	.align 	2
-.L37:
+.L49:
+	moveq.l #4,%d3
+	cmp.l %d0,%d3
+	jbne .L51
+.L68:
 	move.l 8(%a2),%a0
 	move.l %a1,(%a0)
-	jbra .L35
+	jbra .L9
 	.align 	2
-.L38:
+.L51:
+	moveq.l #8,%d3
+	cmp.l %d0,%d3
+	jbne .L45
+.L71:
 	move.l 8(%a2),%a0
 	move.l %a1,(%a0)
 	move.l 8(%a2),%a0
 	move.l %d1,4(%a0)
-	jbra .L35
-	.align 	2
-.L32:
-	btst #0,%d2
-	jbeq .L35
-	move.l 16(%a2),%d0
-	moveq.l #2,%d3
-	cmp.l %d0,%d3
-	jbeq .L45
-	jbcs .L54
-	moveq.l #1,%d3
-	cmp.l %d0,%d3
-	jbeq .L44
-	jbra .L48
-	.align 	2
-.L54:
-	moveq.l #4,%d3
-	cmp.l %d0,%d3
-	jbeq .L46
-	moveq.l #8,%d3
-	cmp.l %d0,%d3
-	jbeq .L47
-	jbra .L48
-	.align 	2
-.L44:
-	move.l 8(%a2),%a0
-	move.b (%a1),(%a0)
-	jbra .L35
+	jbra .L9
 	.align 	2
 .L45:
+	btst #0,%d2
+	jbeq .L9
+	move.l 16(%a2),%d0
+	moveq.l #1,%d3
+	cmp.l %d0,%d3
+	jbne .L55
+	move.l 8(%a2),%a0
+	move.b (%a1),(%a0)
+	jbra .L9
+	.align 	2
+.L55:
+	moveq.l #2,%d3
+	cmp.l %d0,%d3
+	jbne .L57
 	move.l 8(%a2),%a0
 	move.w (%a1),(%a0)
-	jbra .L35
+	jbra .L9
 	.align 	2
-.L46:
+.L57:
+	moveq.l #4,%d3
+	cmp.l %d0,%d3
+	jbne .L59
 	move.l 8(%a2),%a0
 	move.l (%a1),(%a0)
-	jbra .L35
+	jbra .L9
 	.align 	2
-.L47:
+.L59:
+	moveq.l #8,%d3
+	cmp.l %d0,%d3
+	jbne .L61
 	move.l 8(%a2),%a0
 	move.l (%a1),(%a0)
 	move.l 8(%a2),%a0
 	move.l 4(%a1),4(%a0)
-	jbra .L35
+	jbra .L9
 	.align 	2
-.L48:
+.L61:
 	addq.l #3,%d0
 	lsr.l #2,%d0
 	subq.l #1,%d0
-	jbmi .L35
+	jbmi .L9
 	lea (%a1,%d0.l*4),%a1
 	.align 	2
-.L51:
+.L65:
 	move.l 8(%a2),%a0
 	move.l (%a1),(%a0,%d0.l*4)
 	subq.l #4,%a1
-	dbra %d0,.L51
+	dbra %d0,.L65
 	clr.w %d0
 	subq.l #1,%d0
-	jbcc .L51
-.L35:
+	jbcc .L65
+.L9:
 	lea (1024,%sp),%sp
 	clr.l %d0
 	movm.l (%sp)+,#0xc0c

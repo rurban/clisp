@@ -37,103 +37,100 @@ __vacall_r:
 	ld	 #r13,#r0,#r11
 	jsr.n	 #r13
 	addu	 #r3,#r31,40
-	ld	 #r9,#r31,52
-	or.u	 #r13,#r0,#hi16(.L29)
-	cmp	 #r10,#r9,15
-	bb0.n	 #ls,#r10,.L2
-	or	 #r13,#r13,#lo16(.L29)
-	ld	 #r13,#r13[#r9]
-	jmp	 #r13
-section	 .rodata,"a"
-	align	 4
-.L29:
-	word	 .L2
-	word	 .L4
-	word	 .L5
-	word	 .L6
-	word	 .L7
-	word	 .L8
-	word	 .L17
-	word	 .L17
-	word	 .L17
-	word	 .L17
-	word	 .L14
-	word	 .L14
-	word	 .L15
-	word	 .L16
-	word	 .L17
-	word	 .L18
-text
-	align	 4
-.L4:
-.L5:
+	ld	 #r10,#r31,52
+	bcnd.n	 #eq0,#r10,.L3
+	cmp	 #r13,#r10,1
+	bb0.n	 #ne,#r13,.L39
+	cmp	 #r13,#r10,2
+	bb1.n	 #ne,#r13,.L6
+	cmp	 #r13,#r10,3
+.L39:
 	ld.b	 #r2,#r31,64
-	br	 .L2
+	br	 .L3
 	align	 4
 .L6:
+	bb1.n	 #ne,#r13,.L8
+	cmp	 #r13,#r10,4
 	ld.bu	 #r2,#r31,64
-	br	 .L2
-	align	 4
-.L7:
-	ld.h	 #r2,#r31,64
-	br	 .L2
+	br	 .L3
 	align	 4
 .L8:
-	ld.hu	 #r2,#r31,64
-	br	 .L2
+	bb1.n	 #ne,#r13,.L10
+	cmp	 #r13,#r10,5
+	ld.h	 #r2,#r31,64
+	br	 .L3
 	align	 4
-.L14:
+.L10:
+	bb1.n	 #ne,#r13,.L12
+	cmp	 #r13,#r10,6
+	ld.hu	 #r2,#r31,64
+	br	 .L3
+	align	 4
+.L12:
+	bb0.n	 #ne,#r13,.L40
+	cmp	 #r13,#r10,7
+	bb0.n	 #ne,#r13,.L40
+	cmp	 #r13,#r10,8
+	bb0.n	 #ne,#r13,.L40
+	cmp	 #r13,#r10,9
+	bb0.n	 #ne,#r13,.L40
+	subu	 #r13,#r10,10
+	cmp	 #r13,#r13,1
+	bb0	 #ls,#r13,.L22
 	ld	 #r2,#r31,64
 	ld	 #r3,#r31,68
-	br	 .L2
+	br	 .L3
 	align	 4
-.L15:
+.L22:
+	ld	 #r10,#r31,52
+	cmp	 #r13,#r10,12
+	bb1.n	 #ne,#r13,.L24
+	cmp	 #r13,#r10,13
 	ld	 #r2,#r31,64
-	br	 .L2
-	align	 4
-.L16:
-	ld.d	 #r2,#r31,64
-	br	 .L2
-	align	 4
-.L17:
-	ld	 #r2,#r31,64
-	br	 .L2
-	align	 4
-.L18:
-	ld	 #r13,#r31,40
-	bb0	 (31-31),#r13,.L19
-	ld	 #r2,#r31,48
-	br	 .L2
-	align	 4
-.L19:
-	bb0	 (31-30),#r13,.L2
-	ld	 #r13,#r31,56
-	cmp	 #r10,#r13,2
-	bb0	 #ne,#r10,.L24
-	bb0	 #ls,#r10,.L28
-	cmp	 #r13,#r13,1
-	bb0	 #ne,#r13,.L23
-	br	 .L2
-	align	 4
-.L28:
-	cmp	 #r13,#r13,4
-	bb0	 #ne,#r13,.L25
-	br	 .L2
-	align	 4
-.L23:
-	ld	 #r13,#r31,48
-	ld.bu	 #r2,#r0,#r13
-	br	 .L2
+	br	 .L3
 	align	 4
 .L24:
+	bb1.n	 #ne,#r13,.L26
+	cmp	 #r13,#r10,14
+	ld.d	 #r2,#r31,64
+	br	 .L3
+	align	 4
+.L26:
+	bb1.n	 #ne,#r13,.L28
+	cmp	 #r13,#r10,15
+.L40:
+	ld	 #r2,#r31,64
+	br	 .L3
+	align	 4
+.L28:
+	bb0	 #eq,#r13,.L3
+	ld	 #r13,#r31,40
+	bb0	 (31-31),#r13,.L31
+	ld	 #r2,#r31,48
+	br	 .L3
+	align	 4
+.L31:
+	bb0	 (31-30),#r13,.L3
+	ld	 #r10,#r31,56
+	cmp	 #r13,#r10,1
+	bb1.n	 #ne,#r13,.L34
+	cmp	 #r13,#r10,2
+	ld	 #r13,#r31,48
+	ld.bu	 #r2,#r0,#r13
+	br	 .L3
+	align	 4
+.L34:
+	bb1.n	 #ne,#r13,.L36
+	cmp	 #r13,#r10,4
 	ld	 #r13,#r31,48
 	ld.hu	 #r2,#r0,#r13
-	br	 .L2
+	br	 .L3
 	align	 4
-.L25:
+.L36:
+	bb1	 #ne,#r13,.L3
 	ld	 #r13,#r31,48
 	ld	 #r2,#r0,#r13
-.L2:
+.L3:
 .Lte0:
 	ld	 #r1,#r31,36
 	jmp.n	 #r1

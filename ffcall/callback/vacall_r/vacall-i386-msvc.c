@@ -22,208 +22,113 @@ FUNBEGIN(__vacall_r)
 	INSN1(call,_	,INDIR(R(edx)))
 	INSN2(add,l	,NUM(8),R(esp))
 	INSN2(mov,l	,X4 MEM_DISP(esp,16),R(edx))
-	INSN2(cmp,l	,NUM(15),R(edx))
-	INSN1(ja,_	,L2)
-#ifdef _MSC_VER
-	INSN2(lea,l	,MEM_DISP_SHINDEX0(L33+8,edx,8),R(edx))
-	INSN2(mov,l	,X4 MEM_DISP(edx,-4),R(edx))
-	INSN1(jmp,_	,INDIR(R(edx)))
-#else
-	INSN1(jmp,_	,INDIR(MEM_DISP_SHINDEX0(L33,edx,4)))
-#endif
-L33:
-#ifdef _MSC_VER
-	nop
-	nop
-	push L2
-#else
-	.long L2
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L4
-#else
-	.long L4
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L5
-#else
-	.long L5
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L6
-#else
-	.long L6
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L7
-#else
-	.long L7
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L8
-#else
-	.long L8
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L17
-#else
-	.long L17
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L17
-#else
-	.long L17
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L17
-#else
-	.long L17
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L17
-#else
-	.long L17
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L14
-#else
-	.long L14
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L14
-#else
-	.long L14
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L15
-#else
-	.long L15
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L16
-#else
-	.long L16
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L17
-#else
-	.long L17
-#endif
-#ifdef _MSC_VER
-	nop
-	nop
-	push L18
-#else
-	.long L18
-#endif
-L4:
-L5:
+	INSN2(test,l	,R(edx),R(edx))
+	INSN1(je,_	,L3)
+	INSN2(cmp,l	,NUM(1),R(edx))
+	INSN1(je,_	,L45)
+	INSN2(cmp,l	,NUM(2),R(edx))
+	INSN1(jne,_	,L6)
+L45:
 	INSN2MOVX(movs,b	,X1 MEM_DISP(esp,28),R(eax))
-	INSN1(jmp,_	,L2)
+	INSN1(jmp,_	,L3)
 L6:
+	INSN2(cmp,l	,NUM(3),R(edx))
+	INSN1(jne,_	,L8)
 	INSN2MOVX(movz,b	,X1 MEM_DISP(esp,28),R(eax))
-	INSN1(jmp,_	,L2)
-L7:
-	INSN2MOVX(movs,w	,X2 MEM_DISP(esp,28),R(eax))
-	INSN1(jmp,_	,L2)
+	INSN1(jmp,_	,L3)
 L8:
+	INSN2(cmp,l	,NUM(4),R(edx))
+	INSN1(jne,_	,L10)
+	INSN2MOVX(movs,w	,X2 MEM_DISP(esp,28),R(eax))
+	INSN1(jmp,_	,L3)
+L10:
+	INSN2(cmp,l	,NUM(5),R(edx))
+	INSN1(jne,_	,L12)
 	INSN2MOVX(movz,w	,X2 MEM_DISP(esp,28),R(eax))
-	INSN1(jmp,_	,L2)
-L14:
+	INSN1(jmp,_	,L3)
+L12:
+	INSN2(cmp,l	,NUM(6),R(edx))
+	INSN1(je,_	,L46)
+	INSN2(cmp,l	,NUM(7),R(edx))
+	INSN1(je,_	,L46)
+	INSN2(cmp,l	,NUM(8),R(edx))
+	INSN1(je,_	,L46)
+	INSN2(cmp,l	,NUM(9),R(edx))
+	INSN1(je,_	,L46)
+	INSN2(add,l	,NUM(-10),R(edx))
+	INSN2(cmp,l	,NUM(1),R(edx))
+	INSN1(ja,_	,L22)
 	INSN2(mov,l	,X4 MEM_DISP(esp,28),R(eax))
 	INSN2(mov,l	,X4 MEM_DISP(esp,32),R(edx))
-	INSN1(jmp,_	,L2)
-L15:
+	INSN1(jmp,_	,L3)
+L22:
+	INSN2(mov,l	,X4 MEM_DISP(esp,16),R(edx))
+	INSN2(cmp,l	,NUM(12),R(edx))
+	INSN1(jne,_	,L24)
 	INSN1(fld,s	,X4 MEM_DISP(esp,28))
-	INSN1(jmp,_	,L2)
-L16:
+	INSN1(jmp,_	,L3)
+L24:
+	INSN2(cmp,l	,NUM(13),R(edx))
+	INSN1(jne,_	,L26)
 	INSN1(fld,l	,X8 MEM_DISP(esp,28))
-	INSN1(jmp,_	,L2)
-L17:
+	INSN1(jmp,_	,L3)
+L26:
+	INSN2(cmp,l	,NUM(14),R(edx))
+	INSN1(jne,_	,L28)
+L46:
 	INSN2(mov,l	,X4 MEM_DISP(esp,28),R(eax))
-	INSN1(jmp,_	,L2)
-L18:
+	INSN1(jmp,_	,L3)
+L28:
+	INSN2(cmp,l	,NUM(15),R(edx))
+	INSN1(jne,_	,L3)
 	INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edx))
 	INSN2(test,b	,NUM(1),R(dl))
-	INSN1(jne,_	,L36)
+	INSN1(jne,_	,L47)
 	INSN2(test,b	,NUM(4),R(dh))
-	INSN1(je,_	,L21)
+	INSN1(je,_	,L33)
 	INSN2(mov,l	,X4 MEM_DISP(esp,20),R(edx))
-	INSN2(cmp,l	,NUM(2),R(edx))
-	INSN1(je,_	,L25)
-	INSN1(ja,_	,L30)
 	INSN2(cmp,l	,NUM(1),R(edx))
-	INSN1(je,_	,L23)
-	INSN1(jmp,_	,L21)
-L30:
-	INSN2(cmp,l	,NUM(4),R(edx))
-	INSN1(je,_	,L26)
-	INSN2(cmp,l	,NUM(8),R(edx))
-	INSN1(je,_	,L27)
-	INSN1(jmp,_	,L21)
-L23:
+	INSN1(jne,_	,L34)
 	INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edx))
 	INSN2MOVX(movz,b	,X1 MEM(edx),R(eax))
-	INSN1(jmp,_	,L2)
-L25:
+	INSN1(jmp,_	,L3)
+L34:
+	INSN2(cmp,l	,NUM(2),R(edx))
+	INSN1(jne,_	,L37)
 	INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edx))
 	INSN2MOVX(movz,w	,X2 MEM(edx),R(eax))
-	INSN1(jmp,_	,L2)
-L26:
+	INSN1(jmp,_	,L3)
+L37:
+	INSN2(cmp,l	,NUM(4),R(edx))
+	INSN1(jne,_	,L39)
 	INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edx))
 	INSN2(mov,l	,X4 MEM(edx),R(eax))
-	INSN1(jmp,_	,L2)
-L27:
+	INSN1(jmp,_	,L3)
+L39:
+	INSN2(cmp,l	,NUM(8),R(edx))
+	INSN1(jne,_	,L33)
 	INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edx))
 	INSN2(mov,l	,X4 MEM(edx),R(eax))
 	INSN2(mov,l	,X4 MEM_DISP(edx,4),R(edx))
-	INSN1(jmp,_	,L2)
-L21:
+	INSN1(jmp,_	,L3)
+L33:
 	INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edx))
 	INSN2(test,b	,NUM(24),R(dl))
-	INSN1(jne,_	,L31)
+	INSN1(jne,_	,L42)
 	INSN2(add,l	,NUM(40),R(esp))
 	ret NUM(4)
-L31:
+L42:
 	INSN2(test,b	,NUM(16),R(dl))
-	INSN1(je,_	,L2)
-L36:
+	INSN1(je,_	,L3)
+L47:
 	INSN2(mov,l	,X4 MEM_DISP(esp,12),R(eax))
-L2:
+L3:
 	INSN2(test,b	,NUM(2),X1 MEM_DISP(esp,5))
-	INSN1(je,_	,L35)
+	INSN1(je,_	,L44)
 	INSN2(mov,l	,X4 MEM_DISP(esp,40),R(ecx))
 	INSN2(mov,l	,X4 MEM_DISP(esp,8),R(esp))
 	INSN1(jmp,_	,INDIR(R(ecx)))
-L35:
+L44:
 	INSN1(pop,l	,R(esi))
 	INSN2(add,l	,NUM(36),R(esp))
 	ret

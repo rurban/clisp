@@ -10,9 +10,6 @@ gcc2_compiled.:
 ___gnu_compiled_c:
 .text
 	.align	0
-LC0:
-	.word	L49
-	.align	0
 	.global	___builtin_avcall
 ___builtin_avcall:
 	@ args = 0, pretend = 0, frame = 1024
@@ -45,130 +42,130 @@ L3:
 	mov	lr, pc
 	ldr	pc, [r4, #0]
 	mov	ip, r0
+	ldr	r3, [r4, #12]
+	cmp	r3, #1
+	beq	L8
+	cmp	r3, #0
+	beq	L60
+	cmp	r3, #2
+	beq	L61
+	cmp	r3, #3
+	beq	L61
+	cmp	r3, #4
+	beq	L61
+	cmp	r3, #5
+	beq	L62
+	cmp	r3, #6
+	beq	L62
+	cmp	r3, #7
+	beq	L60
+	cmp	r3, #8
+	beq	L60
+	cmp	r3, #9
+	beq	L60
+	cmp	r3, #10
+	beq	L60
 	ldr	r2, [r4, #12]
+	sub	r3, r2, #11
+	cmp	r3, #1
+	bls	L63
+	cmp	r2, #13
+	ldreq	r3, [r4, #8]
+	streq	r0, [r3, #0]	@ float
+	beq	L8
+L31:
+	cmp	r2, #14
+	ldreq	r3, [r4, #8]
+	stmeqia	r3, {r0, r1}	@ double
+	beq	L8
+L33:
+	cmp	r2, #15
+	beq	L60
 	cmp	r2, #16
-	bhi	L7
-	ldr	r3, [pc, #LC0 - . - 8]
-	ldr	pc, [r3, r2, asl #2]	@ table jump, label L49
-L49:
-	.word	L43
-	.word	L7
-	.word	L41
-	.word	L41
-	.word	L41
-	.word	L42
-	.word	L42
-	.word	L43
-	.word	L43
-	.word	L43
-	.word	L43
-	.word	L44
-	.word	L44
-	.word	L21
-	.word	L22
-	.word	L43
-	.word	L24
-L21:
-	ldr	r3, [r4, #8]
-	str	r0, [r3, #0]	@ float
-	b	L7
-L22:
-	ldr	r3, [r4, #8]
-	stmia	r3, {r0, r1}	@ double
-	b	L7
-L24:
+	bne	L8
 	ldr	r3, [r4, #4]
 	tst	r3, #1
-	beq	L25
+	beq	L38
 	ldr	r3, [r4, #16]
-	cmp	r3, #2
-	beq	L28
-	bhi	L37
 	cmp	r3, #1
-	beq	L27
-	b	L31
-L37:
-	cmp	r3, #4
-	beq	L29
-	cmp	r3, #8
-	beq	L30
-	b	L31
-L27:
-	ldr	r2, [r4, #8]
-	ldrb	r3, [ip, #0]
-	strb	r3, [r2, #0]
-	b	L7
-L28:
+	ldreq	r2, [r4, #8]
+	ldreqb	r3, [ip, #0]
+	streqb	r3, [r2, #0]
+	beq	L8
+L39:
+	cmp	r3, #2
+	bne	L41
 	ldr	r2, [r4, #8]
 	ldr	r3, [ip, #0]	@ movhi
 	strb	r3, [r2, #0]
 	mov	r3, r3, asr #8
 	strb	r3, [r2, #1]
-	b	L7
-L29:
-	ldr	r2, [r4, #8]
-	ldr	r3, [ip, #0]
-	str	r3, [r2, #0]
-	b	L7
-L30:
+	b	L8
+L41:
+	cmp	r3, #4
+	ldreq	r2, [r4, #8]
+	ldreq	r3, [ip, #0]
+	streq	r3, [r2, #0]
+	beq	L8
+L43:
+	cmp	r3, #8
+	bne	L45
 	ldr	r2, [r4, #8]
 	ldr	r3, [ip, #0]
 	str	r3, [r2, #0]
 	ldr	r2, [r4, #8]
 	ldr	r3, [ip, #4]
 	str	r3, [r2, #4]
-	b	L7
-L31:
-	ldr	r3, [r4, #16]
+	b	L8
+L45:
 	add	r3, r3, #3
 	mov	r1, r3, lsr #2
 	sub	r1, r1, #1
 	cmp	r1, #0
-	blt	L7
-L34:
+	blt	L8
+L49:
 	ldr	r2, [r4, #8]
 	ldr	r3, [ip, r1, asl #2]
 	str	r3, [r2, r1, asl #2]
 	sub	r1, r1, #1
 	cmp	r1, #0
-	bge	L34
-	b	L7
-L25:
+	bge	L49
+	b	L8
+L38:
 	tst	r3, #512
-	beq	L7
+	beq	L8
 	ldr	r3, [r4, #16]
-	cmp	r3, #2
-	beq	L42
-	bhi	L47
 	cmp	r3, #1
-	beq	L41
-	b	L7
-L47:
-	cmp	r3, #4
-	beq	L43
-	cmp	r3, #8
-	beq	L44
-	b	L7
-L41:
+	bne	L53
+L61:
 	ldr	r3, [r4, #8]
 	strb	ip, [r3, #0]
-	b	L7
-L42:
+	b	L8
+L53:
+	cmp	r3, #2
+	bne	L55
+L62:
 	ldr	r2, [r4, #8]
 	strb	ip, [r2, #0]
 	mov	r3, ip, asr #8
 	strb	r3, [r2, #1]
-	b	L7
-L43:
+	b	L8
+L55:
+	cmp	r3, #4
+	bne	L57
+L60:
 	ldr	r3, [r4, #8]
 	str	ip, [r3, #0]
-	b	L7
-L44:
+	b	L8
+L57:
+	cmp	r3, #8
+	bne	L8
+L63:
 	ldr	r3, [r4, #8]
 	str	ip, [r3, #0]
 	ldr	r3, [r4, #8]
 	str	r1, [r3, #4]
-L7:
+L8:
 	mov	r0, #0
 	add	sp, sp, #1024
 	ldmfd	sp!, {r4, pc}^
