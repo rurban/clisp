@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<section id="pcre"><title>Perl Compatible Regular Expressions.</title>
+
+<para>This is an interface to <ulink url="http://www.pcre.org/">Perl
+  Compatible Regular Expressions</ulink>.</para>
+
+<variablelist>
+ <varlistentry><term><literal role="sexp">(PCRE:PCRE-VERSION)</literal></term>
+  <listitem><simpara>Return version information as 3 values: descriptive
+    &string-t; and 2 &fixnum-t;s: major and minor numbers.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(PCRE:PCRE-CONFIG
+    &type-r;)</literal></term>
+  <listitem><simpara>Return some information about the PCRE build
+    configuration (&type-r; is one of <literal>:UTF8</literal>
+    <literal>:NEWLINE</literal> <literal>:LINK-SIZE</literal>
+    <literal>:POSIX-MALLOC-THRESHOLD</literal>
+    <literal>:MATCH-LIMIT</literal>).</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(PCRE:PCRE-COMPILE &string-r;
+    &key-amp; :STUDY :IGNORE-CASE :MULTILINE :DOTALL :EXTENDED :ANCHORED
+    :DOLLAR-ENDONLY :EXTRA :NOTBOL :NOTEOL :UNGREADY :NOTEMPTY :UTF8
+    :NO-AUTO-CAPTURE :NO-UTF8-CHECK)</literal></term>
+  <listitem><simpara>Compile a pattern, optionally study it.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(PCRE:PATTERN-INFO &pattern-r;
+    request)</literal></term>
+  <listitem><simpara>Return some information about the &pattern-r;,
+    such as <literal>:OPTIONS</literal> <literal>:SIZE</literal>
+    <literal>:CAPTURECOUNT</literal> <literal>:BACKREFMAX</literal>
+    <literal>:FIRSTBYTE</literal> <literal>:FIRSTTABLE</literal>
+    <literal>:LASTLITERAL</literal> <literal>:NAMEENTRYSIZE</literal>
+    <literal>:NAMECOUNT</literal> <literal>:NAMETABLE</literal>
+    <literal>:STUDYSIZE</literal>.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(PCRE:PCRE-NAME-TO-INDEX
+    &pattern-r; &name-r;)</literal></term>
+  <listitem><simpara>Convert the name of the sub-pattern to an index in
+    the return vector.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(PCRE:PCRE-EXEC &pattern-r;
+    &string-r; &key-amp; :OFFSET :ANCHORED :NOTBOL :NOTEOL :NOTEMPTY
+    :NO-UTF8-CHECK)</literal></term>
+  <listitem><simpara>Execute the compiled &pattern-r; against the
+    &string-r; at the given &offset-r; with the given options.
+    Returns &nil; if no matches or a &vector-t; of &length;
+    <literal>CAPTURECOUNT+1</literal> of <type>PCRE:MATCH</type> strunctures.
+ </simpara></listitem></varlistentry>
+ <varlistentry>
+  <term><literal role="sexp">(PCRE:MATCH-START &match-r;)</literal></term>
+  <term><literal role="sexp">(PCRE:MATCH-END &match-r;)</literal></term>
+  <listitem><simpara>Return the start and end of the <type>PCRE:MATCH</type>.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(PCRE:MATCH-SUBSTRING
+    &match-r; &string-r;)</literal></term>
+  <listitem><simpara>Return the substring of &string-r; bounded by &match-r;.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(PCRE:MATCH-STRINGS
+    return-vector &string-r;)</literal></term>
+  <listitem><simpara>Return all subsctrings for all matches found
+    by <function>PCRE:PCRE-EXEC</function>.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(PCRE:MATCH-STRING
+    return-vector which &string-r;
+    &optional-amp; &pattern-r;)</literal></term>
+  <listitem><simpara>Return the substring that matches the given sub-pattern.
+    If <replaceable>which</replaceable> is a name of the sub-pattern (as
+    opposed to its number), &pattern-r; must be supplied.
+ </simpara></listitem></varlistentry>
+</variablelist>
+</section>

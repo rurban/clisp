@@ -47,6 +47,7 @@ options:
        --with-module=berkeley-db
        --with-module=postgresql
        --with-module=regexp
+       --with-module=pcre
        --with-module=syscalls
        --with-module=wildcard
 debug: Specify this if you expect that you will need to debug the sources.
@@ -1725,9 +1726,10 @@ echol     "# queens               the queens function as a separate module"
 echol     "# dirkey               the directory access (LDAP, win32 registry)"
 echol     "# berkeley-db          the Berkeley DB access"
 echol     "# syscalls             export some POSIX (and other) system calls"
+echol     "# regexp               POSIX regular expressions"
+echol     "# pcre                 Perl-compatible regular expressions"
 if test -n "$with_dynamic_ffi"; then
   echol   "# wildcard             wildcard matching"
-  echol   "# regexp               Unix-style regular expression matching and searching"
   echol   "# postgresql           interface to PostgreSQL ODBMS"
   echol   "# fastcgi              FastCGI (http://www.fastcgi.com/) interface"
   echol   "# oracle               Oracle (http://www.oracle.com/) interface"
