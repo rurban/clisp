@@ -25,7 +25,7 @@ AC_PREREQ(2.13)
 AC_DEFUN([CL_PROG_RANLIB],
 [AC_CHECK_PROG(RANLIB, ranlib, ranlib, true)])
 
-dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -81,8 +81,18 @@ AC_CACHE_VAL(cl_cv_path_install,
     esac
   done
   IFS="$ac_save_ifs"
-  # As a last resort, use cp.
-  test -z "$cl_cv_path_install" && cl_cv_path_install="cp"
+  # As a last resort, use the absolute pathname of cp.
+  if test -z "$cl_cv_path_install"; then
+    cl_cv_path_install="cp"
+    IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
+    for ac_dir in $PATH; do
+      if test -f $ac_dir/cp; then
+        cl_cv_path_install="$ac_dir/cp"
+        break
+      fi
+    done
+    IFS="$ac_save_ifs"
+  fi
 ])dnl
   INSTALL="$cl_cv_path_install"
 fi
@@ -3723,7 +3733,7 @@ fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -3811,7 +3821,7 @@ AC_DEFINE_UNQUOTED(IOCTL_REQUEST_T,$cl_cv_proto_ioctl_arg2,[type of `request' in
 if test $cl_cv_proto_ioctl_dots = yes; then
 AC_DEFINE(IOCTL_DOTS,,[declaration of ioctl() needs dots])
 else
-AC_DEFINE(IOCTL_ARGUMENT_T,$cl_cv_proto_ioctl_arg3,[type of `argument' in ioctl() declaration, if not superseded by dots])
+AC_DEFINE_UNQUOTED(IOCTL_ARGUMENT_T,$cl_cv_proto_ioctl_arg3,[type of `argument' in ioctl() declaration, if not superseded by dots])
 fi
 ioctl_decl="$ioctl_decl1"
 ioctl_prog='int x = FIONREAD;'

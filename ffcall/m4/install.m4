@@ -1,4 +1,4 @@
-dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -54,8 +54,18 @@ AC_CACHE_VAL(cl_cv_path_install,
     esac
   done
   IFS="$ac_save_ifs"
-  # As a last resort, use cp.
-  test -z "$cl_cv_path_install" && cl_cv_path_install="cp"
+  # As a last resort, use the absolute pathname of cp.
+  if test -z "$cl_cv_path_install"; then
+    cl_cv_path_install="cp"
+    IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
+    for ac_dir in $PATH; do
+      if test -f $ac_dir/cp; then
+        cl_cv_path_install="$ac_dir/cp"
+        break
+      fi
+    done
+    IFS="$ac_save_ifs"
+  fi
 ])dnl
   INSTALL="$cl_cv_path_install"
 fi
