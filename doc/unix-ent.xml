@@ -112,6 +112,7 @@
 <!ENTITY setpgrp "<ulink url='&unix-f;/setpgrp.html'><function>setpgrp</function></ulink>">
 <!ENTITY getsid "<ulink url='&unix-f;/getsid.html'><function>getsid</function></ulink>">
 <!ENTITY setsid "<ulink url='&unix-f;/setsid.html'><function>setsid</function></ulink>">
+<!ENTITY setpgid "<ulink url='&unix-f;/setpgid.html'><function>setpgid</function></ulink>">
 <!ENTITY endutxent "<ulink url='&unix-f;/endutxent.html'><function>endutxent</function></ulink>">
 <!ENTITY getutxent "<ulink url='&unix-f;/getutxent.html'><function>getutxent</function></ulink>">
 <!ENTITY getutxid "<ulink url='&unix-f;/getutxid.html'><function>getutxid</function></ulink>">

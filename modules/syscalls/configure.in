@@ -40,7 +40,7 @@ CL_RLIMIT
 AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname dnl
 getlogin getpwent getpwnam getpwuid getuid dnl
 openlog setlogmask syslog closelog dnl
-getpgid setpgrp getsid setsid kill dnl
+getpgid setpgrp getsid setpgid setsid kill dnl
 endutxent getutxent getutxid getutxline pututxline setutxent dnl
 fchmod fchown fstat link stat symlink utime mknod chmod umask)
 AC_FUNC_CHOWN
@@ -52,6 +52,21 @@ AC_SEARCH_LIBS(crypt, crypt)
 AC_CHECK_FUNCS(crypt encrypt setkey GlobalMemoryStatusEx)
 CL_LSTAT
 CL_RUSAGE
+if test "$ac_cv_func_setpgrp" = "yes"; then
+dnl BSD versions of setpgrp() are identical to setpgid()
+AC_CACHE_CHECK([whether setpgrp() is POSIX],ac_cv_func_setpgrp_posix,[
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <sys/types.h>
+], [[pid_t pid = setpgrp();]])],
+ac_cv_func_setpgrp_posix=yes,ac_cv_func_setpgrp_posix=no)])
+if test "$ac_cv_func_setpgrp_posix" = "yes"; then
+AC_DEFINE(HAVE_SETPGRP_POSIX,1,
+[Define to 1 if setpgrp() does not accept arguments])
+fi
+fi
 
 AC_MSG_NOTICE([ * System Calls (output)])
 AC_CONFIG_FILES(Makefile link.sh)
