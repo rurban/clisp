@@ -14965,6 +14965,9 @@ LISPFUNNR(stream_external_format,1)
      #ifdef SOCKET_STREAMS
       case strmtype_socket:
      #endif
+     #if ((defined(UNIX) && !defined(NEXTAPP)) || defined(WIN32_NATIVE)) && defined(UNICODE)
+      case strmtype_terminal:
+     #endif
         VALUES1(TheStream(stream)->strm_encoding); break;
       case strmtype_broad:
         stream = broadcast_stream_last(stream);
