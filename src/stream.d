@@ -904,33 +904,32 @@ nonreturning_function(local, fehler_unwritable, (object caller, object stream))
   fehler(file_error,GETTEXT("~: cannot output to ~"));
 }
 
-# signal an error if an Object is not a Character:
-# fehler_wr_char(stream,obj);
-nonreturning_function(local, fehler_wr_char, (object stream, object obj)) {
-  pushSTACK(obj);          # TYPE-ERROR slot DATUM
-  pushSTACK(S(character)); # TYPE-ERROR slot EXPECTED-TYPE
-  pushSTACK(stream);
-  pushSTACK(obj);
-  fehler(type_error,GETTEXT("~ is not a character, cannot be output onto ~"));
+/* signal an error if an Object is not the needed type:
+ fehler_write(stream,obj,type); */
+nonreturning_function(local, fehler_write, (object stream, object obj,
+                                            object type)) {
+  pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
+  pushSTACK(type);              /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(type); pushSTACK(stream); pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: cannot output ~ into ~, not of type ~"));
 }
-#define check_wr_char(s,c)  if(!charp(c)) fehler_wr_char(s,c)
+nonreturning_function(local, wr_ch_forbidden,
+                      (const gcv_object_t* stream_, object ch))
+{ fehler_write(*stream_,ch,NIL); }
+nonreturning_function(local, wr_ch_array_forbidden,
+                      (const gcv_object_t* stream_,
+                       const gcv_object_t* chararray_,
+                       uintL start, uintL len))
+{ unused start; unused len; fehler_write(*stream_,chararray_[0],NIL); }
 
-# signal an error if an Object is not an Integer:
-# fehler_wr_integer(stream,obj);
-nonreturning_function(local, fehler_wr_integer, (object stream, object obj)) {
-  pushSTACK(obj);        # TYPE-ERROR slot DATUM
-  pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
-  pushSTACK(stream);
-  pushSTACK(obj);
-  fehler(type_error,GETTEXT("~ is not an integer, cannot be output onto ~"));
-}
+#define check_wr_char(s,c)  if(!charp(c)) fehler_write(s,c,S(character))
 
 # signal an error if an Integer is out of range:
 # fehler_bad_integer(stream,obj);
 nonreturning_function(local, fehler_bad_integer, (object stream, object obj)) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
-  pushSTACK(stream);
-  pushSTACK(obj);
+  pushSTACK(stream); pushSTACK(obj);
   fehler(stream_error,GETTEXT("integer ~ is out of range, cannot be output onto ~"));
 }
 
@@ -946,7 +945,7 @@ nonreturning_function(local, fehler_bad_integer, (object stream, object obj)) {
    : (fehler_streamtype(obj,O(type_builtin_stream)), unbound))
 # barf of the object is not an integer
 #define check_wr_int(stream,obj)                                \
-  (integerp(obj) ? (object)(obj) : (fehler_wr_integer(stream,obj),unbound))
+  (integerp(obj)?(object)(obj):(fehler_write(stream,obj,S(integer)),unbound))
 
 # UP: checks, if Arguments are Streams.
 # test_stream_args(args_pointer,argcount);
@@ -2283,48 +2282,64 @@ global object make_string_output_stream (void) {
   return stream;
 }
 
-# (MAKE-STRING-OUTPUT-STREAM [:element-type] [:line-position])
 LISPFUN(make_string_output_stream,seclass_read,0,0,norest,key,2,
-        (kw(element_type),kw(line_position))) {
-  # check line-position:
+        (kw(element_type),kw(line_position)))
+{ /* (MAKE-STRING-OUTPUT-STREAM [:element-type] [:line-position]) */
+  /* check line-position: */
   if (missingp(STACK_0)) {
-    STACK_0 = Fixnum_0; # Default value 0
-  } else { # line-position specified, should be a Fixnum >=0 :
-    if (!posfixnump(STACK_0))
-      fehler_posfixnum(STACK_0);
-  }
-  # check element-type:
-  if (boundp(STACK_1)) {
+    STACK_0 = Fixnum_0;         /* Default value 0 */
+  } else /* line-position specified, should be a Fixnum >=0 : */
+    STACK_0 = check_posfixnum(STACK_0);
+  /* check element-type: */
+  if (boundp(STACK_1) && !nullp(STACK_1) && !eq(STACK_1,S(character))) {
     var object eltype = STACK_1;
-    if (!eq(eltype,S(character))) {
-      # Verify (SUBTYPEP eltype 'CHARACTER):
-      pushSTACK(eltype); pushSTACK(S(character)); funcall(S(subtypep),2);
-      if (nullp(value1)) {
-        pushSTACK(STACK_1); # eltype
-        pushSTACK(S(character)); # CHARACTER
-        pushSTACK(S(Kelement_type)); # :ELEMENT-TYPE
-        pushSTACK(S(make_string_output_stream));
-        fehler(error,GETTEXT("~: ~ argument must be a subtype of ~, not ~"));
-      }
+   restart_check_eltype:
+    /* Verify (SUBTYPEP eltype 'CHARACTER): */
+    pushSTACK(eltype); pushSTACK(S(character)); funcall(S(subtypep),2);
+    if (nullp(value1)) {
+      pushSTACK(NIL);           /* no PLACE */
+      pushSTACK(STACK_2);       /* TYPE-ERROR slot DATUM - eltype */
+      pushSTACK(S(character));  /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(STACK_1);       /* eltype */
+      pushSTACK(S(character));  /* CHARACTER */
+      pushSTACK(S(Kelement_type)); /* :ELEMENT-TYPE */
+      pushSTACK(S(make_string_output_stream));
+      check_value(type_error,
+                  GETTEXT("~: ~ argument must be a subtype of ~, not ~"));
+      eltype = STACK_1 = value1;
+      goto restart_check_eltype;
     }
   }
-  var object stream = make_string_output_stream(); # String-Output-Stream
-  TheStream(stream)->strm_wr_ch_lpos = popSTACK(); # Line Position eintragen
+  var object stream;
+  if (nullp(STACK_1)) {         /* (VECTOR NIL) */
+    pushSTACK(fixnum(SEMI_SIMPLE_DEFAULT_SIZE));
+    pushSTACK(S(Kelement_type)); pushSTACK(NIL);
+    pushSTACK(S(Kfill_pointer)); pushSTACK(Fixnum_0);
+    funcall(L(make_array),5); pushSTACK(value1);
+    stream = allocate_stream(strmflags_wr_ch_B,strmtype_str_out,strm_len+1,0);
+    stream_dummy_fill(stream);
+    TheStream(stream)->strm_wr_ch = P(wr_ch_forbidden);
+    TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_forbidden);
+    TheStream(stream)->strm_str_out_string = popSTACK(); /* (VECTOR NIL) */
+  } else stream = make_string_output_stream(); /* String-Output-Stream */
+  TheStream(stream)->strm_wr_ch_lpos = popSTACK(); /* enter Line Position */
   VALUES1(stream); /* return stream */
   skipSTACK(1);
 }
 
-# UP: Returns the collected stuff from a String-Output-Stream.
-# get_output_stream_string(&stream)
-# > stream: String-Output-Stream
-# < stream: emptied Stream
-# < result: collected stuff, a Simple-String
-# can trigger GC
+/* UP: Returns the collected stuff from a String-Output-Stream.
+ get_output_stream_string(&stream)
+ > stream: String-Output-Stream
+ < stream: emptied Stream
+ < result: collected stuff, a Simple-String
+ can trigger GC */
 global object get_output_stream_string (const gcv_object_t* stream_) {
   var object string = TheStream(*stream_)->strm_str_out_string; # old String
-  string = coerce_ss(string); # convert to Simple-String (enforces copying)
-  # empty old String by Fill-Pointer:=0 :
-  TheIarray(TheStream(*stream_)->strm_str_out_string)->dims[1] = 0;
+  if (stringp(string)) {
+    string = coerce_ss(string); # convert to Simple-String (enforces copying)
+    # empty old String by Fill-Pointer:=0 :
+    TheIarray(TheStream(*stream_)->strm_str_out_string)->dims[1] = 0;
+  } /* if (VECTOR NIL) - return as is */
   return string;
 }
 
@@ -14594,8 +14609,11 @@ LISPFUNNR(built_in_stream_element_type,1) {
       } else eltype = T; /* empty stream list */
       break;
     # first the stream-types with restricted element-types:
+    case strmtype_str_out:      /* could be (VECTOR NIL) */
+      eltype = (stringp(TheStream(stream)->strm_str_out_string)
+                ? S(character) : NIL);
+      break;
     case strmtype_str_in:
-    case strmtype_str_out:
     case strmtype_str_push:
     case strmtype_pphelp:
     case strmtype_buff_in:
@@ -16563,7 +16581,7 @@ LISPFUNN(file_string_length,2)
     } else if (charp(obj)) {
       VALUES1(NIL);
     } else
-      fehler_wr_char(stream,obj);
+      fehler_write(stream,obj,S(character));
     return;
   }
  #endif
@@ -16581,7 +16599,7 @@ LISPFUNN(file_string_length,2)
     } else if (charp(obj)) {
       auxch = char_code(obj); charptr = &auxch; len = 1;
     } else
-      fehler_wr_char(stream,obj);
+      fehler_write(stream,obj,S(character));
     if (eq(TheEncoding(encoding)->enc_eol,S(Kunix))) {
       # Treat all the characters all at once.
       var uintL result = cslen(encoding,charptr,len);
@@ -16636,7 +16654,7 @@ LISPFUNN(file_string_length,2)
     } else if (charp(obj)) {
       VALUES1(fixnum(bytes_per_char)); return;
     } else
-      fehler_wr_char(stream,obj);
+      fehler_write(stream,obj,S(character));
   }
   if (eq(TheEncoding(encoding)->enc_eol,S(Kdos))) {
     # Take into account the NL -> CR/LF translation.
@@ -16662,7 +16680,7 @@ LISPFUNN(file_string_length,2)
         result++;
       VALUES1(fixnum(result*bytes_per_char)); return;
     } else
-      fehler_wr_char(stream,obj);
+      fehler_write(stream,obj,S(character));
   }
   NOTREACHED;
   #undef bytes_per_char

@@ -811,6 +811,11 @@ T
                       (make-string-input-stream "zot")))
 CHARACTER
 
+(let ((s (make-string-output-stream :element-type nil)))
+  (list (typep #\z (stream-element-type s))
+        (typep #\a (array-element-type (get-output-stream-string s)))))
+(NIL NIL)
+
 (progn
 (makunbound 's)
 (makunbound 's1)
