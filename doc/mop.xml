@@ -4191,13 +4191,13 @@ restrictions.</para>
 <formalpara><title>Examples</title>
 <para><informalexample><programlisting language="lisp">
 (&extract-lambda-list; '((p position)))
- <literal role="data">(P)</literal>
+ <returnvalue>(P)</returnvalue>
 
 (&extract-lambda-list; '((p position) x y))
- <literal role="data">(P X Y)</literal>
+ <returnvalue>(P X Y)</returnvalue>
 
 (&extract-lambda-list; '(a (b (eql x)) c &rest-amp; i))
- <literal role="data">(A B C &optional-amp; I)</literal>
+ <returnvalue>(A B C &optional-amp; I)</returnvalue>
 </programlisting></informalexample></para></formalpara>
 </section><!-- extract-lambda-list -->
 
@@ -4232,13 +4232,13 @@ restrictions.</para>
 <formalpara><title>Examples</title>
 <para><informalexample><programlisting language="lisp">
 (&extract-specializer-names; '((p position)))
- <literal role="data">(POSITION)</literal>
+ <returnvalue>(POSITION)</returnvalue>
 
 (&extract-specializer-names; '((p position) x y))
- <literal role="data">(POSITION T T)</literal>
+ <returnvalue>(POSITION T T)</returnvalue>
 
 (&extract-specializer-names; '(a (b (eql x)) c &rest-amp; i))
- <literal role="data">(T (EQL X) T)</literal>
+ <returnvalue>(T (EQL X) T)</returnvalue>
 </programlisting></informalexample></para></formalpara>
 </section><!-- extract-specializer-names -->
 
@@ -4835,10 +4835,10 @@ objects linked, for example, by hash tables.)
 
 (setq c1 (make-instance 'constructor
                         :name 'position :fields '(x y)))
-<literal role="data">#&lt;CONSTRUCTOR 262437&gt;</literal>
+<returnvalue>#&lt;CONSTRUCTOR 262437&gt;</returnvalue>
 
 (setq p1 (funcall c1))
-<literal role="data">#&lt;ARRAY 3 263674&gt;</literal>
+<returnvalue>#&lt;ARRAY 3 263674&gt;</returnvalue>
 </programlisting></para></informalexample>
 </section><!-- mop-sa-funcallable -->
 
@@ -5443,75 +5443,62 @@ cache of the dependent when it is updated.</para>
 </section><!-- mop-dep-maint-protocol -->
 </section><!-- mop-dep-maint -->
 
-<section id="mop-clisp"><title>&clisp; Specific Differences</title>
+<section id="mop-clisp"><title>Deviations from &amop;.</title>
 
-<para>This section summarizes the differences between the &amop; and the
-&clisp; implementation of it.</para>
+<para>This section lists the differences between the &amop; and the
+&clisp; implementation thereof.</para>
 
-<itemizedlist><title>Not implemented in &clisp;</title>
+<itemizedlist id="mop-not-in-clisp"><title>Not implemented in &clisp;</title>
 <listitem><para>The class &forward-referenced-class; is not implemented.
-See <xref linkend="mop-mo-cl-inheritance"/>.
-</para></listitem>
+  See <xref linkend="mop-mo-cl-inheritance"/>.</para></listitem>
 <listitem><para>The generic function &make-method-lambda; is not implemented.
-See <xref linkend="mop-gf-invocation"/>.
-</para></listitem>
-<listitem><para>Custom methods on &finalize-inheritance; sometimes have no
-effect. See <xref linkend="finalize-inheritance"/>.
-</para></listitem>
+  See <xref linkend="mop-gf-invocation"/>.</para></listitem>
+<listitem><para>Custom methods on &finalize-inheritance; sometimes have
+  no effect. See <xref linkend="finalize-inheritance"/>.</para></listitem>
 </itemizedlist>
 
-<itemizedlist><title>Features implemented differently in &clisp;</title>
+<itemizedlist id="mop-clisp-different">
+ <title>Features implemented differently in &clisp;</title>
 <listitem><para>The class precedence list of &funcallable-standard-object-t;
-is different. See <xref linkend="mop-mo-cl-inheritance"/>.
-</para></listitem>
+  is different. See <xref linkend="mop-mo-cl-inheritance"/>.</para></listitem>
 <listitem><para>The &defclass; macro passes default values to &ensure-class;.
-See <xref linkend="mop-cl-defclass"/>.
-</para></listitem>
+  See <xref linkend="mop-cl-defclass"/>.</para></listitem>
 <listitem><para>The &defgeneric; macro passes default values to &ensure-gf;.
-See <xref linkend="mop-gf-init-defgeneric"/>.
-</para></listitem>
-<listitem><para>The direct-superclasses list of non-finalized classes contains
-symbols instead of &forward-referenced-class; instances.
-See <xref linkend="mop-mo-cl-inheritance"/>.
-</para></listitem>
-<listitem><para>The function &gf-argument-precedence-order; signals an error
-if the generic function has no &lalist;.
-</para></listitem>
+  See <xref linkend="mop-gf-init-defgeneric"/>.</para></listitem>
+<listitem><para>The direct-superclasses list of non-finalized classes
+  contains symbols instead of &forward-referenced-class; instances.
+  See <xref linkend="mop-mo-cl-inheritance"/>.</para></listitem>
+<listitem><para>The function &gf-argument-precedence-order; &sig-err;
+  if the generic function has no &lalist;.</para></listitem>
 </itemizedlist>
 
-<itemizedlist><title>Extensions specific to &clisp;</title>
+<itemizedlist id="mop-clisp-ext"><title>Extensions specific to &clisp;</title>
 <listitem><para>The &amop; is applicable to classes of type &structure-class;.
 The default superclass for &structure-class; instances is &structure-object-t;.
-Structure classes don't support multiple inheritance and reinitialization.
-See <xref linkend="mop-cl-init-mo"/>.
-</para></listitem>
+Structure classes do not support multiple inheritance and reinitialization.
+See <xref linkend="mop-cl-init-mo"/>.</para></listitem>
 <listitem><para>The class &method-t; is subclassable.
-See <xref linkend="mop-mo-cl-inheritance"/>.
-</para></listitem>
-<listitem><para>Slot names like &nil; and &t; are allowed. See
-<xref linkend="slotdef-name"/>.
-</para></listitem>
-<listitem><para>The &validate-superclass; method is more permissive by default
-and does not need to be overridden in some "obvious" cases.
-See <xref linkend="validate-superclass"/>.
-</para></listitem>
-<listitem><para>New generic function &compute-dsd-initargs;. It can sometimes
-be used when overriding &dsd-class; is cumbersome.
-</para></listitem>
+  See <xref linkend="mop-mo-cl-inheritance"/>.</para></listitem>
+<listitem><para>Slot names like &nil; and &t; are allowed.
+  See <xref linkend="slotdef-name"/>.</para></listitem>
+<listitem><para>The &validate-superclass; method is more permissive by
+  default and does not need to be overridden in
+  some <quote>obvious</quote> cases.
+  See <xref linkend="validate-superclass"/>.</para></listitem>
+<listitem><para>New generic function &compute-dsd-initargs;.  It can sometimes
+  be used when overriding &dsd-class; is cumbersome.</para></listitem>
 <listitem><para>New generic function &compute-esd-initargs;. It can sometimes
-be used when overriding &esd-class; is cumbersome.
+  be used when overriding &esd-class; is cumbersome.</para></listitem>
+<listitem><para>New function &compute-effective-method-as-function;. It
+  can be used in overriding methods of &compute-discriminating-function;.
 </para></listitem>
-<listitem><para>New function &compute-effective-method-as-function;. It can be
-used in overriding methods of &compute-discriminating-function;.
-</para></listitem>
-<listitem><para>The generic function &ensure-gf-UC; accepts a &declare-k;
-keyword.
-</para></listitem>
-<listitem><para>The function &standard-instance-access; supports non-updated
-obsolete instances and also supports slots with allocation &class-k;. 
-</para></listitem>
-<listitem><para>The existence of the &class-direct-subclasses; function does
-not prevent otherwise unreferenced classes from being &gc;ed.
+<listitem><para>The generic function &ensure-gf-UC; accepts a
+  &declare-k; keyword.</para></listitem>
+<listitem><para>The function &standard-instance-access; supports
+  non-updated obsolete instances and also supports slots with allocation
+  &class-k;.</para></listitem>
+<listitem><para>The existence of the &class-direct-subclasses; function
+  does not prevent otherwise unreferenced classes from being &gc;ed.
 </para></listitem>
 </itemizedlist>
 
