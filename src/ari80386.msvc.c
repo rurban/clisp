@@ -475,7 +475,7 @@ FUNBEGIN(compare_loop_up)
 
             INSN2(mov,l	,R(eax),R(edi))
             INSN2(mov,l	,R(edx),R(esi))
-            jbe     L(cmlu1)
+            INSN1(jbe,_	,L(cmlu1))
             INSN2(mov,l	,NUM(1),R(eax))
             ret
 L(cmlu1:)   INSN2(sbb,l	,R(eax),R(eax))
