@@ -4334,7 +4334,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <varlistentry><term><constant>:CLOS</constant></term>
  <listitem><simpara>&clos; is implemented</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:WIN32</constant></term>
- <listitem><simpara>if &hw; = PC (clone) and &os; = Win32
+ <listitem><simpara>if &hw; = PC (clone) and &os; = &win32;
   (Windows 95/98/NT/Me/2000/XP)</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:PC386</constant></term>
  <listitem><simpara>if &hw; = PC (clone) with a 386/486/586/686/786 CPU
@@ -4342,13 +4342,16 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <varlistentry><term>&unix-k;</term>
  <listitem><simpara>if &os; = &unix; (in this case the &hw; is irrelevant!)
 </simpara></listitem></varlistentry>
-<varlistentry><term><constant>:MACOS</constant></term>
- <listitem><simpara>if &os; = MacOS X (in that case &unix-k; is also present)
+<varlistentry><term><constant>:BEOS</constant></term>
+ <listitem><simpara>if &os; = &beos; (in that case &unix-k; is also present)
 </simpara></listitem></varlistentry>
 <varlistentry><term><constant>:CYGWIN</constant></term>
  <listitem><simpara>if &clisp; is using the &cygwin; &unix;
    compatibility layer on top of &win32;
    (in that case &unix-k; is also present)
+</simpara></listitem></varlistentry>
+<varlistentry><term><constant>:MACOS</constant></term>
+ <listitem><simpara>if &os; = &macosx; (in that case &unix-k; is also present)
 </simpara></listitem></varlistentry></variablelist></para>
 
 <para>Each &module; should add the appropriate keyword, e.g.,
