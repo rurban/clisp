@@ -1,3 +1,8 @@
+1999-01-04  Sam Steingold  <sds@goems.com>
+
+	* socket.d (socket_getlocalname): declare return value to be 
+	pointer to host_data, not const char.
+
 1999-01-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * aclocal.m4 (CL_CANONICAL_HOST): Set ac_aux_dir before the cache
