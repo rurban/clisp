@@ -2929,11 +2929,17 @@ if [ $CROSS = false ] ; then
     echol "install-bin : lisp${LEXE} lispinit.mem clisp.c force"
     echotab "if [ ! -d \$(libdir) ] ; then mkdir \$(libdir) ; fi"
     echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
+    echotab "if [ ! -d \$(lisplibdir)/full ] ; then mkdir \$(lisplibdir)/full ; fi"
+    echotab "\$(RM) \$(lisplibdir)/lisp${LEXE}"
     echotab "\$(INSTALL_PROGRAM) lisp${LEXE} \$(lisplibdir)/lisp${LEXE}"
     # Don't strip the executable, otherwise (disassemble #'cons) won't work.
     # echotab "strip \$(lisplibdir)/lisp${LEXE}"
     echotab "\$(RM) \$(lisplibdir)/lispinit.mem"
     echotab "\$(INSTALL_DATA) lispinit.mem \$(lisplibdir)/lispinit.mem"
+    echotab "\$(RM) \$(lisplibdir)/full/lisp${LEXE}"
+    echotab "\$(INSTALL_PROGRAM) full/lisp${LEXE} \$(lisplibdir)/full/lisp${LEXE}"
+    echotab "\$(RM) \$(lisplibdir)/full/lispinit.mem"
+    echotab "\$(INSTALL_DATA) full/lispinit.mem \$(lisplibdir)/full/lispinit.mem"
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd gettext/po && \$(MAKE) install prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
       localeflags=" -N \$(localedir)"
@@ -2995,6 +3001,8 @@ if [ $CROSS = false ] ; then
     echol "uninstall-bin : force"
     echotab "\$(RM) \$(lisplibdir)/lisp${LEXE}"
     echotab "\$(RM) \$(lisplibdir)/lispinit.mem"
+    echotab "\$(RM) \$(lisplibdir)/full/lisp${LEXE}"
+    echotab "\$(RM) \$(lisplibdir)/full/lispinit.mem"
     echotab "\$(RM) \$(bindir)/clisp"
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd gettext/po && \$(MAKE) uninstall prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
@@ -3048,6 +3056,8 @@ if [ $CROSS = false ] ; then
     echol "uninstall-bin : force"
     echotab "\$(RM) \$(lisplibdir)/lisp${LEXE}"
     echotab "\$(RM) \$(lisplibdir)/lispinit.mem"
+    echotab "\$(RM) \$(lisplibdir)/full/lisp${LEXE}"
+    echotab "\$(RM) \$(lisplibdir)/full/lispinit.mem"
     if [ $HOS = dos ] ; then
       echotab "\$(RM) \$(bindir)/clisp.bat"
     fi
