@@ -27,8 +27,6 @@
           Remove bogus function type casts.
           (rl_menu_complete): Likewise.
 
-        * readline.c (readline_internal_charloop): Initialize eof to 0.
-
 1998-10-12  Bruno Haible  <linuix.math.u-bordeaux.fr>
 
         * Makefile.in: Rewrite the dependency lines, one rule per target.

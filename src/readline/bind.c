@@ -66,7 +66,6 @@ extern char *strchr (), *strrchr ();
 Keymap rl_binding_keymap;
 
 /* Prototype declarations. */
-char *rl_get_keymap_name_from_edit_mode _PROTO((void));
 static int _rl_read_init_file _PROTO((char *filename, int include_level));
 static int glean_key_from_name _PROTO((char *name));
 static int substring_member_of_array _PROTO((char *string, char **array));
