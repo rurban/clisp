@@ -6265,15 +6265,16 @@ LISPFUNN(subr_info,1)
             }
         #endif
         #if defined(GNU) && defined(I80386) && !defined(NO_ASM)
-          # Bei manchen Assemblern muss das Ergebnis in %eax liegen:
-          #if defined(UNIX_LINUX) || defined(UNIX_NETBSD) || defined(UNIX_FREEBSD) || defined(UNIX_OPENBSD)
-            # GNU-Assembler: in beliebigem Register.
-            # "testb %edx,%edx" wird als "testb %dl,%dl" assembliert.
+          #if 0
+            # In earlier times, the GNU assembler assembled
+            # "testb %edx,%edx" as "testb %dl,%dl". This made possib;e to
+            # produce the output in any register.
             #define OUT_EAX  "=q"
             #define EAX      "%0"
             #define AL       "%0"
           #else
-            # sonstiger Assembler: in %eax. "testb %edx,%edx" ist illegal.
+            # Now "testb %edx,%edx" is invalid everywhere. The macros must
+            # put their result in %eax.
             #define OUT_EAX  "=a"
             #define EAX      "%%eax"
             #define AL       "%%al"
