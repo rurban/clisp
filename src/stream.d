@@ -3178,8 +3178,8 @@ local object test_external_format_arg (object arg) {
           #if defined(UNIX_IRIX) || defined(EMUNIX)
           if (!(errno==ENOSYS))
           #endif
-          #ifdef UNIX_CYGWIN32  /* for win95 and xterm/rxvt */
-            if ((errno != EBADF) && (errno != EACCES))
+          #ifdef UNIX_CYGWIN32 /* for win95 and xterm/rxvt */
+          if ((errno != EBADF) && (errno != EACCES))
           #endif
           if (!(errno==EINVAL))
             { OS_error(); }
@@ -3244,8 +3244,8 @@ local object test_external_format_arg (object arg) {
           #if defined(UNIX_IRIX) || defined(EMUNIX)
           if (!(errno==ENOSYS))
           #endif
-          #ifdef UNIX_CYGWIN32 # needed for Win95 only
-          if (!(errno==EBADF))
+          #ifdef UNIX_CYGWIN32 /* for win95 and xterm/rxvt */
+          if ((errno != EBADF) && (errno != EACCES))
           #endif
           if (!(errno==EINVAL))
             { OS_error(); }
