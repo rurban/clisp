@@ -13,7 +13,6 @@ AC_DEFUN([CL_RUSAGE],
 [AC_CHECK_HEADERS(sys/resource.h sys/times.h)dnl
 if test $ac_cv_header_sys_resource_h = yes; then
   dnl HAVE_SYS_RESOURCE_H defined
-  AC_CACHE_CHECK(whether getrusage works, cl_cv_func_getrusage_works, [
   CL_LINK_CHECK([getrusage], cl_cv_func_getrusage,
 [#include <sys/types.h> /* NetBSD 1.0 needs this */
 #include <sys/time.h>
@@ -35,6 +34,7 @@ if test $ac_cv_header_sys_resource_h = yes; then
 [cl_cv_proto_getrusage_arg1="int"],
 [cl_cv_proto_getrusage_arg1="enum __rusage_who"])
 ], [extern int getrusage ($cl_cv_proto_getrusage_arg1, struct rusage *);])dnl
+    AC_CACHE_CHECK(whether getrusage works, cl_cv_func_getrusage_works, [
     AC_TRY_RUN([
 #include <stdio.h>
 #include <sys/types.h> /* NetBSD 1.0 needs this */
@@ -64,9 +64,8 @@ int main ()
 cl_cv_func_getrusage_works=yes,
 cl_cv_func_getrusage_works=no,
 dnl When cross-compiling, don't assume anything.
-cl_cv_func_getrusage_works="guessing no")
+cl_cv_func_getrusage_works="guessing no")])
   fi
-])
   if test $cl_cv_func_getrusage_works = yes; then
     AC_DEFINE(HAVE_GETRUSAGE)
     AC_DEFINE_UNQUOTED(RUSAGE_WHO_T,$cl_cv_proto_getrusage_arg1)
