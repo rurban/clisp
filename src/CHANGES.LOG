@@ -1,3 +1,10 @@
+Important note
+--------------
+
+* The default extension of Lisp source files for CLISP is now ".lisp" instead
+  of ".lsp". When both "foo.lisp" and "foo.lsp" exist, (LOAD "foo") will load
+  "foo.lisp".
+
 User visible changes
 --------------------
 
@@ -9,6 +16,11 @@ User visible changes
 
 * Fixed a bug: A garbage collection during the execution of a foreign function
   callback caused a crash.
+
+Portability
+-----------
+
+* Removed support for DOS. Don't worry, OS/2 and Win32 are still supported.
 
 
 2000-03-06
