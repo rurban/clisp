@@ -427,7 +427,7 @@ DEFUN(POSIX::CONFSTR, &optional what)
        for sizes > BUFSIZ. */                                           \
     char *tmp;                                                          \
     begin_system_call();                                                \
-    tmp = malloc(res);                                                  \
+    tmp = my_malloc(res);                                               \
     confstr(cmd,tmp,res);                                               \
     end_system_call();                                                  \
     value1 = asciz_to_string(tmp,GLO(misc_encoding));                   \
@@ -443,7 +443,7 @@ DEFUN(POSIX::CONFSTR, &optional what)
     int cmd = confstr_arg(what);
     CS_S(cmd); mv_count = 1;
   } else { /* all possible values */
-    int pos = 0;
+    unsigned int pos = 0;
     for (; pos < confstr_arg_table_size; pos++) {
       CS_S(confstr_arg_table[pos].c_const);
       pushSTACK(*confstr_arg_table[pos].l_const);
