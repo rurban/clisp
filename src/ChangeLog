@@ -1,3 +1,8 @@
+2005-03-03  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (oconv_unshift_output_unbuffered_)
+	(oconv_unshift_output_buffered_): use OS_errno instead of errno
+
 2005-03-02  Sam Steingold  <sds@gnu.org>
 
 	* modules/postgresql/postgresql.lisp (PQprepare, PQsendPrepare): added
