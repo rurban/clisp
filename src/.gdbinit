@@ -43,7 +43,10 @@ end
 
 break gar_col
 break fehler_notreached
+break SP_ueber
+break STACK_ueber
 
+# disable breaks in funcall, apply, eval and gar_col
 disable 1 2 3 4
 
 info break
