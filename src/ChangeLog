@@ -1,3 +1,9 @@
+2004-10-19  Sam Steingold  <sds@gnu.org>
+
+	* clos-genfun3.lisp (defmethod): when the function is being
+	TRACEd, UNTRACE it to avoid an error
+	(defgeneric): use UNTRACE1, not UNTRACE
+
 2004-10-14  Bruno Haible  <bruno@clisp.org>
 
 	Access the structure type's keyword-constructor from the class.
