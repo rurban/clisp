@@ -7,9 +7,9 @@ INCLUDES=.
 CPP = gcc -O -E -w
 CLFLAGS =
 
-MODPREP = ../clisp -q -norc ../modprep
+MODPREP = ../modprep.fas
 
-CLISP =
+CLISP = clisp -q -norc
 
 LN = ln
 
@@ -25,8 +25,8 @@ all : queens.o callqueens.o
 queens.o : queens.c
 	$(CC) $(CFLAGS) -c queens.c
 
-callqueens.m.c : callqueens.c
-	$(MODPREP) callqueens.c
+callqueens.m.c : callqueens.c $(MODPREP)
+	$(CLISP) $(MODPREP) callqueens.c
 
 callqueens.o : callqueens.m.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -c callqueens.m.c -o callqueens.o
