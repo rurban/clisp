@@ -1,3 +1,9 @@
+2004-08-13  Sam Steingold  <sds@gnu.org>
+
+	* configure.in: check for <sys/int_types.h>
+	* stdint.h.in [__sun]: include <sys/int_types.h> only when present
+	Reported by Michael Livshin <clisp@cmm.kakpryg.net>
+
 2004-08-12  Sam Steingold  <sds@gnu.org>
 
 	standard I/O streams are handle streams in batch mode
