@@ -1,3 +1,12 @@
+2004-04-04  Bruno Haible  <bruno@clisp.org>
+
+	Make TYPEP work on structure types with user-defined :TYPE.
+	* defstruct.lisp (ds-typep, ds-typep-expansion): New functions.
+	* type.lisp (typep): Implement test for structure types with
+	user-defined :TYPE by calling ds-typep.
+	* compiler.lisp (c-TYPEP): Implement test for structure types with
+	user-defined :TYPE by calling ds-typep-expansion.
+
 2004-04-13  Sam Steingold  <sds@gnu.org>
 
 	sync modules/clx/mit-clx/ with CLOCC/GUI/CLX

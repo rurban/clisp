@@ -62,6 +62,116 @@
 (defun copy-ds-slot (slot) (sys::%copy-simple-vector slot))
 (defmacro ds-real-slot-p (slot) `(not (null (ds-slot-initargs ,slot))))
 
+#| The type test comes in 3 variants. Keep them in sync! |#
+
+#| Type test, for TYPEP.
+   Must be equivalent to (typep object (ds-canonicalize-type symbol)).
+|#
+(defun ds-typep (object symbol desc)
+  (let ((type (svref desc 1)))
+    (if (eq type 'T)
+      (%STRUCTURE-TYPE-P symbol object)
+      (let ((size (svref desc 2)))
+        (if (eq type 'LIST)
+          (and (conses-p size object)
+               (dolist (slot (svref desc 4) t)
+                 (unless (ds-real-slot-p slot)
+                   (unless (eq (nth (ds-slot-offset slot) object)
+                               (ds-slot-default slot))
+                     (return nil)))))
+          (and (vectorp object) (simple-array-p object)
+               (>= (length object) size)
+               (equal (array-element-type object)
+                      (if (consp type)
+                        (upgraded-array-element-type (second type))
+                        'T))
+               (dolist (slot (svref desc 4) t)
+                 (unless (ds-real-slot-p slot)
+                   (unless (and (simple-vector-p object)
+                                (eq (svref object (ds-slot-offset slot))
+                                    (ds-slot-default slot)))
+                     (return nil))))))))))
+
+#| Type test expansion, for TYPEP compiler macro. |#
+(defun ds-typep-expansion (objform symbol desc)
+  (let ((type (svref desc 1)))
+    (if (eq type 'T)
+      `(%STRUCTURE-TYPE-P ',symbol ,objform)
+      (let ((size (svref desc 2))
+            (tmp (gensym)))
+        `(LET ((,tmp ,objform))
+           ,(if (eq type 'LIST)
+              `(AND ,@(case size
+                        (0 '())
+                        (1 `((CONSP ,tmp)))
+                        (t `((CONSES-P ,size ,tmp))))
+                    ,@(mapcan #'(lambda (slot)
+                                  (unless (ds-real-slot-p slot)
+                                    `((EQ (NTH ,(ds-slot-offset slot) ,tmp)
+                                          ',(ds-slot-default slot)))))
+                              (svref desc 4)))
+              (let ((eltype (if (consp type)
+                              (upgraded-array-element-type (second type))
+                              'T)))
+                `(AND ,@(if (eq eltype 'T)
+                          `((SIMPLE-VECTOR-P ,tmp))
+                          `((VECTORP ,tmp)
+                            (SIMPLE-ARRAY-P ,tmp)
+                            (EQUAL (ARRAY-ELEMENT-TYPE ,tmp) ',eltype)))
+                      ,(case size
+                         (0 'T)
+                         (t `(>= (LENGTH ,tmp) ,size)))
+                      ,@(mapcan #'(lambda (slot)
+                                    (unless (ds-real-slot-p slot)
+                                      `((EQ (SVREF ,tmp ,(ds-slot-offset slot))
+                                            ',(ds-slot-default slot)))))
+                                (svref desc 4))))))))))
+
+#| (ds-make-pred predname type name slotlist size)
+   returns the form, that creates the type-test-predicate for
+   the structure name.
+
+   type         the type of the structure,
+   name         the name of the structure,
+   predname     the name of the type-test-predicate,
+   slotlist     (only used when type /= T) list of slots
+   size         instance size
+|#
+(defun ds-make-pred (predname type name slotlist size)
+  `(,@(if (eq type 'T) `((PROCLAIM '(INLINE ,predname))) '())
+    (DEFUN ,predname (OBJECT)
+      ,(if (eq type 'T)
+         `(%STRUCTURE-TYPE-P ',name OBJECT)
+         (let ((max-offset -1)
+               (max-name-offset -1))
+           (dolist (slot slotlist)
+             (setq max-offset (max max-offset (ds-slot-offset slot)))
+             (unless (ds-real-slot-p slot)
+               (setq max-name-offset (max max-name-offset (ds-slot-offset slot)))))
+           ; This code is only used when there is at least one named slot.
+           (assert (<= 0 max-name-offset max-offset))
+           (assert (< max-offset size))
+           (if (eq type 'LIST)
+             `(AND ,@(case size
+                       (0 '())
+                       (1 `((CONSP OBJECT)))
+                       (t `((CONSES-P ,size OBJECT))))
+                   ,@(mapcan #'(lambda (slot)
+                                 (unless (ds-real-slot-p slot)
+                                   `((EQ (NTH ,(ds-slot-offset slot) OBJECT)
+                                         ',(ds-slot-default slot)))))
+                             slotlist))
+             ; This code is only used when there is at least one named slot.
+             ; Therefore the vector's upgraded element type must contain
+             ; SYMBOL, i.e. it must be a general vector.
+             `(AND (SIMPLE-VECTOR-P OBJECT)
+                   (>= (LENGTH OBJECT) ,size)
+                   ,@(mapcan #'(lambda (slot)
+                                 (unless (ds-real-slot-p slot)
+                                   `((EQ (SVREF OBJECT ,(ds-slot-offset slot))
+                                         ',(ds-slot-default slot)))))
+                             slotlist))))))))
+
 #| auxiliary function for both constructors:
    (ds-arg-default arg slot)
    returns for an argument arg (part of the argument list) the part of
@@ -229,49 +339,6 @@
                   '()))
             slotlist varlist))
        ,(ds-make-constructor-body type name names size slotlist varlist))))
-
-#| (ds-make-pred predname type name slotlist size)
-   returns the form, that creates the type-test-predicate for
-   the structure name.
-
-   type         the type of the structure,
-   name         the name of the structure,
-   predname     the name of the type-test-predicate,
-   slotlist     (only used when type /= T) list of slots
-   size         instance size
-|#
-(defun ds-make-pred (predname type name slotlist size)
-  `(,@(if (eq type 'T) `((PROCLAIM '(INLINE ,predname))) '())
-    (DEFUN ,predname (OBJECT)
-      ,(if (eq type 'T)
-         `(%STRUCTURE-TYPE-P ',name OBJECT)
-         (let ((max-offset -1)
-               (max-name-offset -1))
-           (dolist (slot slotlist)
-             (setq max-offset (max max-offset (ds-slot-offset slot)))
-             (unless (ds-slot-var slot)
-               (setq max-name-offset (max max-name-offset (ds-slot-offset slot)))))
-           ; This code is only used when there is at least one named slot.
-           (assert (<= 0 max-name-offset max-offset))
-           (assert (< max-offset size))
-           (if (eq type 'LIST)
-             `(AND (CONSP OBJECT)
-                   ,@(if (> size 1) `((CONSES-P ,size OBJECT)))
-                   ,@(mapcan #'(lambda (slot)
-                                 (unless (ds-slot-var slot)
-                                   `((EQ (NTH ,(ds-slot-offset slot) OBJECT)
-                                         ',(ds-slot-default slot)))))
-                             slotlist))
-             ; This code is only used when there is at least one named slot.
-             ; Therefore the vector's upgraded element type must contain
-             ; SYMBOL, i.e. it must be a general vector.
-             `(AND (SIMPLE-VECTOR-P OBJECT)
-                   (>= (LENGTH OBJECT) ,size)
-                   ,@(mapcan #'(lambda (slot)
-                                 (unless (ds-slot-var slot)
-                                   `((EQ (SVREF OBJECT ,(ds-slot-offset slot))
-                                         ',(ds-slot-default slot)))))
-                             slotlist))))))))
 
 (defun ds-make-copier (copiername name type)
   (declare (ignore name))
