@@ -1,3 +1,7 @@
+2004-06-05  Bruno Haible  <bruno@clisp.org>
+
+	* clos-methcomb2.lisp: Reorder.
+
 2004-05-15  Bruno Haible   <bruno@clisp.org>
 
 	* init.lisp (*documentation*): Change the hash table test to
