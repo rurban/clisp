@@ -1495,7 +1495,7 @@ case "$fsstnd" in
     ;;
 esac
 echol "libdir = \$(exec_prefix)${NEXT_}lib"
-echol "lisplibdir = \$(libdir)${NEXT_}lisp"
+echol "lisplibdir = \$(libdir)${NEXT_}clisp"
 if [ -n "$USE_GETTEXT" ] ; then
   echol "datadir = \$(prefix)/@DATADIRNAME@" | sed -e "$gettext_datadirname_sedcommand"
   echol "localedir = \$(datadir)/locale"
