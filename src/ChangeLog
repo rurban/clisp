@@ -1,5 +1,12 @@
 2003-05-18  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
+	Solve problems with CLHS and INSPECT on win32
+	* clhs.lisp (BROWSE-URL): use EXT::LAUNCH on win32.
+	* runprog.lisp (run-shell-command): don't try to use #\&
+	on win32.
+
+2003-05-18  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
 	* pathname.d (LAUNCH) [WIN32_NATIVE]: small fixes.
 	(LAUNCH) [UNIX || RISCOS]: implemented for these 
 	systems (like EXECUTE). Moved out of HAVE_SHELL.
