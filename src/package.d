@@ -2504,7 +2504,7 @@ LISPFUNN(delete_package,1) {
     pack = Symbol_name(pack); goto string; /* use printname */
   } else if (charp(pack)) { /* character -> string */
     var object new_string = allocate_string(1);
-    TheSstring(new_string)->data[0] = char_code(STACK_0);
+    TheSstring(new_string)->data[0] = char_code(pack);
     pack = new_string;
     goto string;
   } else
