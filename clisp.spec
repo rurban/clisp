@@ -1,4 +1,4 @@
-# Copyright (C) 1998-2004 by Sam Steingold
+# Copyright (C) 1998-2005 by Sam Steingold
 # Distributed under the terms of the GNU General Public License.
 # See <http://www.gnu.org/copyleft/gpl.html>.
 
@@ -24,7 +24,7 @@
 #%define release %(test -f .release || echo 0 >> .release; echo "1 + " `cat .release` | bc > .,release; mv -fv .,release .release; cat .release)
 #%define release %(cat .release)
 %define release 1
-%define modules rawsock syscalls berkeley-db pcre regexp bindings/glibc clx/new-clx zlib i18n
+%define modules rawsock berkeley-db pcre bindings/glibc clx/new-clx zlib
 
 Summary:      Common Lisp (ANSI CL) implementation
 Name:         %{name}
@@ -45,6 +45,7 @@ BuildRoot:    %{_tmppath}/%{name}-root
 
 This binary distribution was built with the following modules:
  %{modules}
+(run "clisp -K full" to use them)
 
 %prep
 cat <<EOF
