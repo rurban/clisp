@@ -92,10 +92,17 @@ check-hash-unique
   (check-hash-unique ht))
 do-hash-test
 
+;; compile the test for a 17% speedup
+(progn (compile 'hash-table-keys)
+       (compile 'check-hash-unique)
+       (compile 'do-hash-test)
+       nil)
+nil
+
 (loop :for test :in '(eq eql equal equalp)
   :do (format t "~& === ~10@S:" test)
   :sum (loop :with ht = (make-hash-table :test test :size 1000)
-         :for i :from 1 :to 1 :do (format t " <*>") (force-output)
+         :for i :from 1 :to 1 :do (format t " <~d>" i) (force-output)
          :sum (do-hash-test ht))
   :do (format t " done~%"))
 0                               ; there should have been 0 errors!
