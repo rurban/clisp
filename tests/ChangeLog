@@ -1,8 +1,16 @@
 2001-03-26  Sam Steingold  <sds@gnu.org>
 
+	more transparent debugging interface
+	* tests.lisp (run-test): added `ignore-errors' optional arg,
+	pass it to `tester'
+	(with-ignored-errors): ignore unused `ARGS'
+
+2001-03-26  Sam Steingold  <sds@gnu.org>
+
 	* hash.tst, iofkts.tst, pack11.tst, streams.tst, symbol10.tst:
 	use strings instead of quoted symbols in `in-package' calls;
-	use ANSI-specified packages.
+	use ANSI-specified packages;
+	(symbol10.tst): use `special-operator-p' always
 
 2000-12-29  Bruno Haible  <haible@clisp.cons.org>
 
