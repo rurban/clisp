@@ -64,7 +64,7 @@ local void begin_error (void)
     /* *ERROR-HANDER* = NIL, SYS::*USE-CLCS* = NIL */
     pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
     pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B)); /* Stream *ERROR-OUTPUT* */
-    terpri(&STACK_0); /* new line */
+    fresh_line(&STACK_0); /* new line */
     write_sstring(&STACK_0,O(error_string1)); /* print "*** - " */
   } else { /* *ERROR-HANDER* = NIL, SYS::*USE-CLCS* /= NIL */
     pushSTACK(S(simple_error)); pushSTACK(NIL); pushSTACK(unbound);
@@ -193,6 +193,7 @@ local gcv_object_t* write_errorstring (const char* errorstring)
     write_errorasciz_substring((const uintB*)errorstring,(const uintB*)ptr);
     errorstring = ptr;
   }
+  elastic_newline(&STACK_0);
   return argptr;
 }
 
@@ -440,9 +441,10 @@ LISPFUN(error,seclass_default,1,0,rest,nokey,0,NIL)
        (if *error-handler*
          (apply *error-handler* nil errorstring args)
          (progn
-           (terpri *error-output*)
+           (fresh-line *error-output*)
            (write-string "*** - " *error-output*)
-           (apply #'format *error-output* errorstring args)))
+           (apply #'format *error-output* errorstring args)
+           (elastic-newline *error-output*)))
        (funcall *break-driver* nil))
      (let ((condition (coerce-to-condition errorstring args 'error
                                            'simple-error)))
@@ -452,25 +454,33 @@ LISPFUN(error,seclass_default,1,0,rest,nokey,0,NIL)
   if (!nullpSv(error_handler) || nullpSv(use_clcs)) {
     begin_error(); /* start error message */
     rest_args_pointer skipSTACKop 1; /* pointer to the arguments */
-    {
-      var object fun;
-      var object arg1;
-      if (nullp(STACK_1)) {
-        fun = S(format); arg1 = STACK_0; /* (FORMAT *error-output* ...) */
-      } else {
-        fun = STACK_1; arg1 = NIL; /* (FUNCALL *error-handler* NIL ...) */
-      }
-      skipSTACK(4);
+    if (nullp(STACK_1)) {
       /* write error message:
          (FORMAT *ERROR-OUTPUT* errorstring {expr})
-         resp. ({handler} nil errorstring {expr}) */
-      pushSTACK(arg1);
+         (ELASTIC-NEWLINE *ERROR-OUTPUT*) */
+      var object stream = STACK_0;
+      skipSTACK(4);
+      pushSTACK(stream);
+      pushSTACK(stream);
       {
         var gcv_object_t* ptr = rest_args_pointer;
         var uintC count;
         dotimespC(count,1+argcount, { pushSTACK(NEXT(ptr)); } );
       }
-      funcall(fun,2+argcount); /* call fun (= FORMAT resp. handler) */
+      funcall(S(format),2+argcount);
+      funcall(L(elastic_newline),1);
+    } else {
+      /* write error message:
+         ({handler} nil errorstring {expr}) */
+      var object fun = STACK_1;
+      skipSTACK(4);
+      pushSTACK(NIL);
+      {
+        var gcv_object_t* ptr = rest_args_pointer;
+        var uintC count;
+        dotimespC(count,1+argcount, { pushSTACK(NEXT(ptr)); } );
+      }
+      funcall(fun,2+argcount);
     }
     /* finish error message, cf. end_error(): */
     dynamic_unbind(S(recursive_error_count)); /* no error message output is active */
@@ -594,9 +604,10 @@ LISPFUN(error_of_type,seclass_default,2,0,rest,nokey,0,NIL)
            (if *error-handler*
              (apply *error-handler* nil errorstring args)
              (progn
-               (terpri *error-output*)
+               (fresh-line *error-output*)
                (write-string "*** - " *error-output*)
-               (apply #'format *error-output* errorstring args)))
+               (apply #'format *error-output* errorstring args)
+               (elastic-newline *error-output*)))
            (funcall *break-driver* nil))
          (let ((condition
                  (apply #'coerce-to-condition errorstring args
@@ -617,25 +628,33 @@ LISPFUN(error_of_type,seclass_default,2,0,rest,nokey,0,NIL)
   if (!nullpSv(error_handler) || nullpSv(use_clcs)) {
     /* the type and the keyword-arguments are ignored. */
     begin_error(); /* start error message */
-    {
-      var object fun;
-      var object arg1;
-      if (nullp(STACK_1)) {
-        fun = S(format); arg1 = STACK_0; /* (FORMAT *error-output* ...) */
-      } else {
-        fun = STACK_1; arg1 = NIL; /* (FUNCALL *error-handler* NIL ...) */
-      }
-      skipSTACK(4);
+    if (nullp(STACK_1)) {
       /* write error message:
          (FORMAT *ERROR-OUTPUT* errorstring {expr})
-         resp. ({handler} nil errorstring {expr}) */
-      pushSTACK(arg1);
+         (ELASTIC-NEWLINE *ERROR-OUTPUT*) */
+      var object stream = STACK_0;
+      skipSTACK(4);
+      pushSTACK(stream);
+      pushSTACK(stream);
       {
         var gcv_object_t* ptr = rest_args_pointer;
         var uintC count;
         dotimespC(count,1+argcount, { pushSTACK(NEXT(ptr)); } );
       }
-      funcall(fun,2+argcount); /* call fun (= FORMAT resp. handler) */
+      funcall(S(format),2+argcount);
+      funcall(L(elastic_newline),1);
+    } else {
+      /* write error message:
+         ({handler} nil errorstring {expr}) */
+      var object fun = STACK_1;
+      skipSTACK(4);
+      pushSTACK(NIL);
+      {
+        var gcv_object_t* ptr = rest_args_pointer;
+        var uintC count;
+        dotimespC(count,1+argcount, { pushSTACK(NEXT(ptr)); } );
+      }
+      funcall(fun,2+argcount);
     }
     /* finish error message, cf. end_error(): */
     dynamic_unbind(S(recursive_error_count)); /* no error message output is active */
@@ -702,7 +721,7 @@ global maygc void tast_break (void)
     pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
     pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
     pushSTACK(var_stream(S(debug_io),strmflags_wr_ch_B)); /* Stream *DEBUG-IO* */
-    terpri(&STACK_0); /* new line */
+    fresh_line(&STACK_0); /* new line */
     write_sstring(&STACK_0,O(error_string1)); /* print "*** - " */
     /* print string, consume caller names, clean up STACK: */
     set_args_end_pointer(write_errorstring(GETTEXT("~S: User break")));
