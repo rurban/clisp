@@ -267,8 +267,7 @@ local uint32 hashcode_string (object obj) {
   if (len > 0 && !simple_nilarray_p(string)) {
     SstringDispatch(string,X, {
       var const cintX* ptr = &((SstringX)TheVarobject(string))->data[offset];
-      bish_code ^= (uint32)(ptr[len-1]);        /* add last character */
-      var uintC count = (len <= 31 ? len : 31); /* min(len,31) */
+      var uintC count = len;
       dotimespC(count,count, {
         var uint32 next_code = (uint32)(*ptr++); /* next character */
         bish_code = misch(bish_code,next_code);  /* add */
