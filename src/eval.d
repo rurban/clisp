@@ -774,8 +774,7 @@ LISPFUN(special_variable_p,1,1,norest,nokey,0,NIL)
      missing or NIL environment means null environment
      environment T means the current environment */
   var object env = popSTACK();
-  var object symbol = popSTACK();
-  if (!symbolp(symbol)) fehler_symbol(symbol);
+  var object symbol = test_symbol(popSTACK());
   if (eq(env,T)) env = aktenv.var_env;
   if (constantp(TheSymbol(symbol)) || special_var_p(TheSymbol(symbol))) {
     value1 = T;

@@ -103,9 +103,7 @@ nonreturning_function(local, fehler_no_value, (object symbol)) {
 
 LISPFUNN(psymbol_value,1)
 { /* (SYS::%SYMBOL-VALUE symbol), CLTL p. 90 */
-  var object symbol = popSTACK();
-  if (!symbolp(symbol))
-    fehler_symbol(symbol);
+  var object symbol = test_symbol(popSTACK());
   var object val = Symbol_value(symbol);
   if (!boundp(val))
     fehler_no_value(symbol);
@@ -114,9 +112,7 @@ LISPFUNN(psymbol_value,1)
 
 LISPFUNN(symbol_value,1)
 { /* (SYMBOL-VALUE symbol), CLTL p. 90 */
-  var object symbol = popSTACK();
-  if (!symbolp(symbol))
-    fehler_symbol(symbol);
+  var object symbol = test_symbol(popSTACK());
   var object val = Symbol_value(symbol);
   if (!boundp(val))
     fehler_no_value(symbol);
@@ -141,9 +137,7 @@ nonreturning_function(global, fehler_undef_function,
 
 LISPFUNN(symbol_function,1)
 { /* (SYMBOL-FUNCTION symbol), CLTL p. 90 */
-  var object symbol = popSTACK();
-  if (!symbolp(symbol))
-    fehler_symbol(symbol);
+  var object symbol = test_symbol(popSTACK());
   var object val = Symbol_function(symbol);
   if (!boundp(val))
     fehler_undef_function(S(symbol_function),symbol);
@@ -175,9 +169,7 @@ LISPFUNN(fdefinition,1)
 
 LISPFUNN(boundp,1)
 { /* (BOUNDP symbol), CLTL p. 90 */
-  var object symbol = popSTACK();
-  if (!symbolp(symbol))
-    fehler_symbol(symbol);
+  var object symbol = test_symbol(popSTACK());
   VALUES_IF(boundp(Symbol_value(symbol)));
 }
 
@@ -190,9 +182,7 @@ LISPFUNN(fboundp,1)
 
 LISPFUNN(special_operator_p,1)
 { /* (SPECIAL-OPERATOR-P symbol), was (SPECIAL-FORM-P symbol), CLTL p. 91 */
-  var object symbol = popSTACK();
-  if (!symbolp(symbol))
-    fehler_symbol(symbol);
+  var object symbol = test_symbol(popSTACK());
   var object obj = Symbol_function(symbol);
   VALUES_IF(fsubrp(obj));
 }
@@ -307,9 +297,7 @@ LISPSPECFORM(psetq, 0,0,body)
 
 LISPFUNN(set,2)
 { /* (SETF (SYMBOL-VALUE symbol) value) = (SET symbol value), CLTL p. 92 */
-  var object symbol = STACK_1;
-  if (!symbolp(symbol))
-    fehler_symbol(symbol);
+  var object symbol = test_symbol(STACK_1);
   if (constantp(TheSymbol(symbol))) /* constant? */
     fehler_symbol_constant(S(set),symbol);
   if (symbolmacrop(Symbol_value(symbol))) { /* symbol-macro? */
@@ -326,9 +314,7 @@ LISPFUNN(set,2)
 
 LISPFUNN(makunbound,1)
 { /* (MAKUNBOUND symbol), CLTL p. 92 */
-  var object symbol = popSTACK();
-  if (!symbolp(symbol))
-    fehler_symbol(symbol);
+  var object symbol = test_symbol(popSTACK());
   if (constantp(TheSymbol(symbol))) {
     pushSTACK(symbol);
     pushSTACK(S(makunbound));
@@ -1260,9 +1246,7 @@ LISPSPECFORM(case, 1,0,body)
 LISPSPECFORM(block, 1,0,body)
 { /* (BLOCK name {form}), CLTL p. 119 */
   var object body = popSTACK();
-  var object name = popSTACK();
-  if (!symbolp(name))
-    fehler_symbol(name);
+  var object name = test_symbol(popSTACK());
   var sp_jmp_buf returner; /* return point */
   { /* build block-frame: */
     var object* top_of_frame = STACK; /* pointer to frame */
@@ -1297,9 +1281,7 @@ nonreturning_function(global, fehler_block_left, (object name)) {
 
 LISPSPECFORM(return_from, 1,1,nobody)
 { /* (RETURN-FROM name [result]), CLTL p. 120 */
-  var object name = STACK_1;
-  if (!symbolp(name)) /* should be a symbol */
-    fehler_symbol(name);
+  var object name = test_symbol(STACK_1);
   /* traverse BLOCK_ENV: */
   var object env = aktenv.block_env; /* current BLOCK_ENV */
   var object* FRAME;
@@ -1991,9 +1973,7 @@ LISPFUN(macro_function,1,1,norest,nokey,0,NIL)
      Issue MACRO-FUNCTION-ENVIRONMENT:YES */
   test_env();
   var object env = popSTACK();
-  var object symbol = popSTACK();
-  if (!symbolp(symbol))
-    fehler_symbol(symbol);
+  var object symbol = test_symbol(popSTACK());
   var object fundef = sym_function(symbol,TheSvector(env)->data[1]);
   if (fsubrp(fundef)) {
     /* a FSUBR -> search in property list: (GET symbol 'SYS::MACRO) */
@@ -2078,18 +2058,14 @@ LISPFUNN(proclaim,1)
   var object decltype = Car(declspec); /* declaration type */
   if (eq(decltype,S(special))) { /* SPECIAL */
     while (consp( declspec = Cdr(declspec) )) {
-      var object symbol = Car(declspec);
-      if (!symbolp(symbol))
-        fehler_symbol(symbol);
+      var object symbol = test_symbol(Car(declspec));
       if (!keywordp(symbol))
         clear_const_flag(TheSymbol(symbol));
       set_special_flag(TheSymbol(symbol));
     }
   } else if (eq(decltype,S(declaration))) { /* DECLARATION */
     while (consp( declspec = Cdr(declspec) )) {
-      var object symbol = Car(declspec);
-      if (!symbolp(symbol))
-        fehler_symbol(symbol);
+      var object symbol = test_symbol(Car(declspec));
       /* (PUSHNEW symbol (cdr declaration-types)) : */
       if (nullp(memq(symbol,Cdr(O(declaration_types))))) {
         pushSTACK(declspec); pushSTACK(symbol);

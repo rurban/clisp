@@ -26,9 +26,8 @@ LISPFUNN(current_language,0) {
 LISPFUNN(set_current_language,1) {
  #ifndef LANGUAGE_STATIC
   if (consp(STACK_0)) {
-    var object new_lang = Car(STACK_0);
+    var object new_lang = test_symbol(Car(STACK_0));
     var object new_locd = Cdr(STACK_0);
-    if (!symbolp(new_lang)) fehler_symbol(new_lang);
     if (!stringp(new_locd)) fehler_string(new_locd);
     with_sstring_0(Symbol_name(new_lang),O(misc_encoding),lang,{
       with_string_0(new_locd,O(misc_encoding),localedir,
