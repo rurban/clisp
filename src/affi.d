@@ -616,7 +616,7 @@ LISPFUN(affi_nonzerop,1,0,norest,nokey,0,NIL)
                 break;
               #ifndef TYPECODES
               case Rectype_Bignum:
-                if (BN_positive(arg)) goto case_posbignum;
+                if (BN_positivep(arg)) goto case_posbignum;
                 # fall through
               #endif
               default:
