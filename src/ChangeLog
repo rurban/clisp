@@ -7,6 +7,7 @@
 2002-12-05  Sam Steingold  <sds@gnu.org>
 
 	* clx.f (get_event_mask): fixed error handling
+	removed saving/restoring subr_self throughout
 
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
