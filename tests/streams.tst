@@ -1,4 +1,4 @@
-(progn (in-package 'sys) t) t
+(progn (in-package "SYS") t) t
 
 #-(or AKCL ECL ALLEGRO) (PRIN1-TO-STRING (MAKE-BROADCAST-STREAM))
 #+XCL "#<%TYPE-STRUCTURE-STREAM NIL>"
