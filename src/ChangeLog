@@ -1,5 +1,10 @@
 2004-08-24  Bruno Haible  <bruno@clisp.org>
 
+	* utils/clispload.lsp (*expected-failures*): Many new failures to be
+	revisited.
+
+2004-08-24  Bruno Haible  <bruno@clisp.org>
+
 	* constobj.d (printstring_closure, printstring_compiled_closure): Use
 	the term FUNCTION instead of CLOSURE.
 
