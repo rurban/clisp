@@ -16,7 +16,7 @@ extension &mem-file; is recommended (when &filename-r; does not have an
 extension, &mem-file; extension is automatically added).
 <variablelist>
  <varlistentry><term><constant>:QUIET</constant></term>
-  <listitem><simpara>If the this argument is not &nil;, the startup
+  <listitem><simpara>If this argument is not &nil;, the startup
    banner and the good-bye message will be suppressed.
    </simpara></listitem></varlistentry>
  <varlistentry><term><constant>:INIT-FUNCTION</constant></term>
