@@ -47,7 +47,7 @@ AR = ar
 CC = @CC@
 LIBTOOL = @LIBTOOL@
 RANLIB = @RANLIB@
-YACC = @YACC@ -d
+YACC = bison -y -d
 YFLAGS = --name-prefix=__gettext
 
 DEFS = -DLOCALEDIR=\"$(localedir)\" -DLOCALE_ALIAS_PATH=\"$(aliaspath)\" \
@@ -70,10 +70,12 @@ finddomain.$lo loadmsgcat.$lo localealias.$lo textdomain.$lo l10nflist.$lo \
 explodename.$lo dcigettext.$lo dcngettext.$lo dngettext.$lo ngettext.$lo \
 plural.$lo localcharset.$lo
 GETTOBJS = intl-compat.$lo
-DISTFILES.common = ChangeLog Makefile.in \
+DISTFILES.common = Makefile.in \
 config.charset locale.alias ref-add.sin ref-del.sin $(HEADERS) $(SOURCES)
+DISTFILES.generated = plural.c
 DISTFILES.normal = VERSION
-DISTFILES.gettext = libintl.glibc plural.c
+DISTFILES.gettext = libintl.glibc
+DISTFILES.obsolete = xopen-msg.sed linux-msg.sed po2tbl.sed.in cat-compat.c
 
 # Libtool's library version information for libintl.
 # Before making a gettext release, the gettext maintainer must change this
@@ -104,19 +106,21 @@ INCLUDES = -I.. -I. -I$(top_srcdir)/intl
 all: all-@USE_INCLUDED_LIBINTL@
 all-yes: libintl.$la libintl.h charset.alias ref-add.sed ref-del.sed
 all-no: all-no-@BUILD_INCLUDED_LIBINTL@
-all-no-yes: libintl.$la
+all-no-yes: libgnuintl.$la
 all-no-no:
 
-libintl.a: $(OBJECTS)
+libintl.a libgnuintl.a: $(OBJECTS)
 	rm -f $@
 	$(AR) cru $@ $(OBJECTS)
 	$(RANLIB) $@
 
-libintl.la: $(OBJECTS)
+libintl.la libgnuintl.la: $(OBJECTS)
 	$(LIBTOOL) --mode=link \
-	  $(CC) $(CPPFLAGS) $(CFLAGS) $(XCFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) \
+	  $(CC) $(CPPFLAGS) $(CFLAGS) $(XCFLAGS) $(LDFLAGS) -o $@ \
+	  $(OBJECTS) @LIBICONV@ \
 	  -version-info $(LTV_CURRENT):$(LTV_REVISION):$(LTV_AGE) \
-	  -rpath $(libdir)
+	  -rpath $(libdir) \
+	  -no-undefined
 
 libintl.h: libgnuintl.h
 	cp $(srcdir)/libgnuintl.h libintl.h
@@ -172,10 +176,15 @@ install-data: all
 	if test "$(PACKAGE)" = "gettext"; then \
 	  $(mkinstalldirs) $(DESTDIR)$(gettextsrcdir); \
 	  $(INSTALL_DATA) VERSION $(DESTDIR)$(gettextsrcdir)/VERSION; \
+	  $(INSTALL_DATA) ChangeLog.inst $(DESTDIR)$(gettextsrcdir)/ChangeLog; \
 	  dists="$(DISTFILES.common)"; \
 	  for file in $$dists; do \
 	    $(INSTALL_DATA) $(srcdir)/$$file \
 			    $(DESTDIR)$(gettextsrcdir)/$$file; \
+	  done; \
+	  dists="$(DISTFILES.obsolete)"; \
+	  for file in $$dists; do \
+	    rm -f $(DESTDIR)$(gettextsrcdir)/$$file; \
 	  done; \
 	else \
 	  : ; \
@@ -220,8 +229,7 @@ uninstall:
 	  : ; \
 	fi
 	if test "$(PACKAGE)" = "gettext"; then \
-	  dists="$(DISTFILES.common)"; \
-	  for file in VERSION $$dists; do \
+	  for file in VERSION ChangeLog $(DISTFILES.common); do \
 	    rm -f $(DESTDIR)$(gettextsrcdir)/$$file; \
 	  done; \
 	else \
@@ -255,7 +263,7 @@ clean: mostlyclean
 distclean: clean
 	rm -f Makefile ID TAGS
 	if test "$(PACKAGE)" = gettext; then \
-	  rm -f $(DISTFILES.normal); \
+	  rm -f ChangeLog.inst $(DISTFILES.normal); \
 	else \
 	  : ; \
 	fi
@@ -268,13 +276,14 @@ maintainer-clean: distclean
 # GNU gettext needs not contain the file `VERSION' but contains some
 # other files which should not be distributed in other packages.
 distdir = ../$(PACKAGE)-$(VERSION)/$(subdir)
-dist distdir: Makefile $(DISTFILES)
+dist distdir: Makefile
 	if test "$(PACKAGE)" = gettext; then \
 	  additional="$(DISTFILES.gettext)"; \
 	else \
 	  additional="$(DISTFILES.normal)"; \
 	fi; \
-	for file in $(DISTFILES.common) $$additional; do \
+	$(MAKE) $(DISTFILES.common) $(DISTFILES.generated) $$additional; \
+	for file in ChangeLog $(DISTFILES.common) $(DISTFILES.generated) $$additional; do \
 	  ln $(srcdir)/$$file $(distdir) 2> /dev/null \
 	    || cp -p $(srcdir)/$$file $(distdir); \
 	done
