@@ -3088,12 +3088,12 @@ for-value   NIL or T
 
 ;; expand (recursively) the compiler macro form
 (defun expand-compiler-macro (form)
-  (let ((expanded-p nil))
+  (let ((expanded-p nil) fun)
     (tagbody
      reexpand
-       (when (and (consp form) (function-name-p (car form)))
-         (let* ((env (env)) (cmf (compiler-macro-function (car form) env)))
-           (when cmf
+       (when (and (consp form) (function-name-p (setq fun (car form))))
+         (let* ((env (env)) (cmf (compiler-macro-function fun env)))
+           (when (and cmf (not (declared-notinline fun)))
              (let ((exp (mac-exp cmf form env)))
                (unless (eq form exp)
                  (setq form exp
