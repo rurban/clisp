@@ -1,3 +1,17 @@
+2001-08-21  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (stream_dummy_fill): fill the stream with error pseudofuns
+	(close_dummys): a macro now, uses stream_dummy_fill()
+	(make_broadcast_stream, make_concatenated_stream,
+	MAKE-STRING-INPUT-STREAM, make_string_output_stream,
+	MAKE-STRING-PUSH-STREAM, make_pphelp_stream,
+	MAKE-BUFFERED-INPUT-STREAM, MAKE-BUFFERED-OUTPUT-STREAM,
+	fill_pseudofuns_unbuffered, fill_pseudofuns_buffered,
+	make_keyboard_stream, make_terminal_stream_,
+	MAKE-WINDOW, make_printer_stream): use stream_dummy_fill()
+	(ELTYPE_DISPATCH): new macro
+	(canon_eltype, fill_pseudofuns_buffered): use it
+
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
 	* lispbibl.d (direction_t): Explicit value assignments.
