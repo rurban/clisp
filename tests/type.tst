@@ -1,3 +1,4 @@
+;; -*- Lisp -*-
 
 (TYPEP (QUOTE A) (QUOTE SYMBOL))
 T
@@ -140,7 +141,7 @@ T
 (TYPEP '#(A B C D) (QUOTE (VECTOR * 4)))
 T
 
-#| ; hängt von (upgraded-array-element-type 'SYMBOL) ab!
+#| ; depends on (upgraded-array-element-type 'SYMBOL) !
 (TYPEP '#(A B C D) (QUOTE (VECTOR SYMBOL 4)))
 NIL
 |#
@@ -218,7 +219,7 @@ T
 NIL
 
 (SUBTYPEP (QUOTE CONS) (QUOTE (NOT ATOM)))
-#-(or CLISP AKCL ALLEGRO) T #+(or CLISP AKCL ALLEGRO) NIL
+#-(or AKCL ALLEGRO CMU) T #+(or AKCL ALLEGRO CMU) NIL
 
 (SUBTYPEP (QUOTE LIST) (QUOTE (NOT ATOM)))
 NIL
@@ -364,3 +365,8 @@ NIL
 
 (type-of (coerce '(1 2 3 4) '(simple-array * (4))))
 (SIMPLE-VECTOR 4)
+
+;; these must be recognized correctly (see CLHS SUBTYPE and Figure 4-2)
+(multiple-value-list (subtypep 'atom 'cons)) (nil t)
+(multiple-value-list (subtypep 'atom 'list)) (nil t)
+(multiple-value-list (subtypep nil nil))     (t t)
