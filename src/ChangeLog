@@ -1,5 +1,61 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Start merging handle-streams and file-streams.
+        * lispbibl.d (strm_eltype, strm_file_handle): Change.
+        * stream.d (strm_eltype, strm_isatty, strm_ihandle, strm_ohandle):
+          Change.
+          (strm_buffer, strm_field1, strm_field2, strm_field3): New macros.
+          (strm_handle_extrafields): New macro.
+          (strm_handle_len): Change.
+          (strm_handle_extrafields_struct, strm_u_file_extrafields_struct):
+          New structure types.
+          (HandleStream_eltype, HandleStream_isatty, HandleStream_ihandle,
+           HandleStream_ohandle, HandleStream_buffered, FileStream_status,
+           FileStream_lastbyte, FileStream_rawp): New macros.
+          (close_handle): Remove macro.
+          (make_unbuffered_file_stream): Renamed from make_handle_stream.
+          Allocate room for an unbuffered handle stream. Initialize the
+          buffered, status, rawp fields.
+          (strm_file_name, strm_file_truename, strm_file_handle,
+           strm_file_buffer, strm_file_bitbuffer): Change.
+          (strm_file_extrafields, strm_file_length): Remove macros.
+          (strm_file_extrafields_struct): Inherit from
+          strm_handle_extrafields_struct.
+          (FileStream_buffstart, FileStream_eofindex, FileStream_index,
+           FileStream_modified, FileStream_position, FileStream_lineno,
+           FileStream_bitsize, FileStream_bitindex, FileStream_eofposition):
+          Update.
+          (make_file_stream): Allocate room for a buffered handle stream.
+          Initialize the buffered field.
+          (strm_keyboard_buffer, strm_keyboard_keytab, strm_keyboard_len):
+          Change.
+          (strm_keyboard_xlen): New macro.
+          (make_keyboard_stream): Allocate room for an unbuffered handle
+          stream. Initialize the buffered, status, rawp fields.
+          (strm_terminal_inbuff, strm_terminal_index, strm_terminal_outbuff):
+          Change.
+          (strm_terminal1_len, strm_terminal2_len, strm_terminal3_len): Remove
+          macros.
+          (strm_terminal_len): New macro.
+          (terminalcase): Rewritten.
+          (make_terminal_stream_): Allocate room for an unbuffered handle
+          stream. Initialize the buffered, status, rawp fields.
+          (SYS::TERMINAL-RAW) [AMIGAOS]: Update.
+          (strm_pipe_pid): Change.
+          (MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM,
+           MAKE-PIPE-IO-STREAM): Allocate room for an unbuffered handle
+          stream. Initialize the buffered, status, rawp fields.
+          (strm_x11socket_connect): Change.
+          (SYS::MAKE-SOCKET-STREAM): Allocate room for an unbuffered handle
+          stream. Initialize the buffered, status, rawp fields.
+          (strm_socket_port, strm_socket_host): Change.
+          (make_socket_stream): Allocate room for an unbuffered handle stream.
+          Initialize the buffered, status, rawp fields.
+          (init_streamvars): Update.
+          (stream_close): Call either close_ihandle or close_ohandle.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (regular_handle_p) [UNIX]: Treat block devices like regular
           files.
 
