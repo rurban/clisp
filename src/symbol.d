@@ -319,15 +319,6 @@ LISPFUNN(keywordp,1)
     VALUES_IF(symbolp(obj) && keywordp(obj));
   }
 
-LISPFUNN(special_variable_p,1)
-# (SYS::SPECIAL-VARIABLE-P symbol) stellt fest, ob das Symbol eine
-# Special-Variable (oder eine Konstante) darstellt.
-# (Bei Konstanten ist ja das Special-Bit bedeutungslos.)
-  {
-    var object symbol = test_symbol(popSTACK());
-    VALUES_IF(constantp(TheSymbol(symbol)) || special_var_p(TheSymbol(symbol)));
-  }
-
 LISPFUN(gensym,0,1,norest,nokey,0,NIL)
 # (GENSYM x), CLTL S. 169, CLtL2 S. 245-246
 # (defun gensym (&optional (x nil s))

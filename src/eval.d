@@ -15,8 +15,8 @@
   # FUNTAB1 and FUNTAB2, first:
   local const Subr FUNTAB[] = {
     # SPVW : 0 SUBRs
-    # EVAL : 2 SUBRs
-    _(funtabref), _(subr_info),
+    # EVAL : 3 SUBRs
+    _(funtabref), _(subr_info), _(special_variable_p),
     # ARRAY : 30-2 SUBRs
     _(copy_simple_vector), /* _(svref), _(psvstore), */ _(row_major_aref),
     _(row_major_store), _(array_element_type), _(array_rank),
@@ -72,7 +72,7 @@
     _(cddadr), _(cdddar), _(cddddr), _(cons), */ _(tree_equal), _(endp),
     _(list_length), _(nth), /* _(first), _(second), _(third), _(fourth), */
     _(fifth), _(sixth), _(seventh), _(eighth), _(ninth), _(tenth), /* _(rest), */
-    _(nthcdr), _(last), _(make_list), _(copy_list), _(copy_alist),_(memq),
+    _(nthcdr), _(last), _(make_list), _(copy_list), _(copy_alist), _(memq),
     _(copy_tree), _(revappend), _(nreconc), _(list_nreverse), _(butlast),
     _(nbutlast), _(ldiff), _(rplaca), _(prplaca), _(rplacd), _(prplacd),
     _(subst), _(subst_if), _(subst_if_not), _(nsubst), _(nsubst_if),
@@ -142,10 +142,10 @@
     _(output_stream_p), _(built_in_stream_element_type),
     _(stream_external_format), _(built_in_stream_close), _(read_byte),
     _(write_byte), _(file_position), _(file_length),
-    # SYMBOL : 15 SUBRs
+    # SYMBOL : 14 SUBRs
     _(putd), _(proclaim_constant), _(get), _(getf), _(get_properties),
     _(putplist), _(put), _(remprop), _(symbol_package), _(symbol_plist),
-    _(symbol_name), _(keywordp), _(gensym), _(special_variable_p), _(gensym),
+    _(symbol_name), _(keywordp), _(gensym), _(gensym),
     # LISPARIT : 84 SUBRs
     _(decimal_string), _(zerop), _(plusp), _(minusp), _(oddp), _(evenp),
     _(einsplus), _(einsminus), _(conjugate), _(exp), _(expt), _(log),
@@ -723,171 +723,127 @@ global bool funnamep (object obj) {
   return false;
 }
 
-# UP: returns the value of a symbol in an environment.
-# sym_value(symbol,venv)
-# > symbol: Symbol
-# > venv: a Variable- and Symbolmacro-Environment
-# < result: value of the Symbols in this Environment
-  local object sym_value (object sym, object venv);
-  local object sym_value(sym,env)
-    var object sym;
-    var object env;
-    {
-      if (constantp(TheSymbol(sym))) # constants have only global values
-        goto global_value;
-      if (special_var_p(TheSymbol(sym))) # the same for symbols declared special
-        goto global_value;
-      {
-        #ifdef NO_symbolflags
-          #define binds_sym_p(bindptr) # Does the binding at bindptr bind the Symbol sym? \
-            (eq(*(bindptr STACKop 1),sym) # right Symbol?                                  \
-             && eq(*(bindingsptr STACKop 0),fixnum(bit(active_bit))) # and active and static? \
-            )
-        #else
-        var object cmp = as_object(as_oint(sym) | wbit(active_bit_o)); # for comparison: binding must be active
-          #define binds_sym_p(bindptr) # Does the binding at bindptr bind the Symbol sym? \
-            (eq(*(bindingsptr STACKop 0),cmp)) # right Symbol and active and static?
-        #endif
-       next_env:
-        if (framepointerp(env)) {
-          # Environment is a Pointer to a variable-binding-frame
-          var object* FRAME = TheFramepointer(env);
-          var uintL count = as_oint(FRAME_(frame_anz)); # number of bindings
-          if (count > 0) {
-            var object* bindingsptr = &FRAME_(frame_bindings); # pointer to the first binding
-            dotimespL(count,count, {
-              if (binds_sym_p(bindingsptr)) { # right Symbol and active and static?
-                var object value = *(bindingsptr STACKop varframe_binding_value);
-                if (eq(value,specdecl))
-                  goto global_value;
-                else
-                  return value;
-              }
-              bindingsptr skipSTACKop varframe_binding_size; # no: next binding
-            });
-          }
-          env = FRAME_(frame_next_env);
-          goto next_env;
-        } elif (simple_vector_p(env))
-          # Environment is a Simple-Vector
-          goto next_vector;
-        else
-          # Environment is NIL
-          goto global_value;
-       next_vector:
-        # Environment is a Simple-Vector
-        {
-          var uintL count = floor(Svector_length(env),2); # number of bindings
-          var object* ptr = &TheSvector(env)->data[0];
-          dotimesL(count,count, {
-            if (eq(*ptr,sym)) { # right Symbol?
-              var object value = *(ptr+1);
-              if (eq(value,specdecl))
-                goto global_value;
-              else
-                return value;
-            }
-            ptr += 2; # next binding
-          });
-          env = *ptr; # next environment
-          if (simple_vector_p(env)) # a Simple-Vector?
-            goto next_vector;
-          # else: Environment is NIL
-        }
-        #undef binds_sym_p
-      }
-     global_value: # the global (dynamic) value of the Symbol
-      return Symbol_value(sym);
+/* UP: find whether the symbol is bound in the environment */
+local inline object* symbol_env_search (object sym, object venv)
+{
+  /* Does the binding at bindptr bind the symbol sym? */
+#ifdef NO_symbolflags
+ #define binds_sym_p(bindptr)                                           \
+  (eq(*(bindptr STACKop 1),sym) && /* the right symbol? */              \
+   eq(*(bindingsptr STACKop 0),fixnum(bit(active_bit)))) /* active & static? */
+#else
+  var object cmp = as_object(as_oint(sym) | wbit(active_bit_o)); /* for comparison: binding must be active */
+  #define binds_sym_p(bindptr)                                          \
+   (eq(*(bindingsptr STACKop 0),cmp)) /* right symbol & active & static? */
+#endif
+ next_env:
+  if (framepointerp(venv)) {
+    /* Environment is a Pointer to a variable-binding-frame */
+    var object* FRAME = TheFramepointer(venv);
+    var uintL count = as_oint(FRAME_(frame_anz)); /* number of bindings */
+    if (count > 0) {
+      var object* bindingsptr = &FRAME_(frame_bindings); /* 1st binding */
+      dotimespL(count,count, {
+        if (binds_sym_p(bindingsptr)) /* right symbol & active & static? */
+          return bindingsptr STACKop varframe_binding_value;
+        bindingsptr skipSTACKop varframe_binding_size; /* no: next binding */
+      });
     }
+    venv = FRAME_(frame_next_env);
+    goto next_env;
+  } else if (simple_vector_p(venv)) { /* environment is a simple-vector */
+    do {
+      var uintL count = floor(Svector_length(venv),2); /* number of bindings */
+      var object* ptr = &TheSvector(venv)->data[0];
+      dotimesL(count,count, {
+        if (eq(*ptr,sym)) /* right symbol? */
+          return ptr+1;
+        ptr += 2; /* next binding */
+      });
+      venv = *ptr; /* next environment */
+    } while (simple_vector_p(venv));
+  }
+  /* Environment is NIL */
+  return NULL;
+#undef binds_sym_p
+}
 
-# UP: determines, if a Symbol is a Macro in the current environment.
-# sym_macrop(symbol)
-# > symbol: Symbol
-# < result: true if sym is a Symbol-Macro
+LISPFUN(special_variable_p,1,1,norest,nokey,0,NIL)
+{ /* (SYS::SPECIAL-VARIABLE-P symbol &optional environment)
+     check whether the symbol is a special variable or a constant
+     missing or NIL environment means null environment
+     environment T means the current environment */
+  var object env = popSTACK();
+  var object symbol = popSTACK();
+  if (!symbolp(symbol)) fehler_symbol(symbol);
+  if (eq(env,T)) env = aktenv.var_env;
+  if (constantp(TheSymbol(symbol)) || special_var_p(TheSymbol(symbol))) {
+    value1 = T;
+  } else if (missingp(env)) {
+   missing:
+    value1 = NIL;
+  } else {
+    if (eq(env,T)) env = aktenv.var_env;
+    else if (simple_vector_p(env)) {
+      var uintL len = Svector_length(env);
+      if (len == 5)
+        env = TheSvector(env)->data[0]; /* venv */
+      else if (len%2)           /* odd length! */
+        goto missing;
+    }
+    { var object *binding = symbol_env_search(symbol,env);
+      if ((binding != NULL) && eq(*binding,specdecl))
+        value1 = T;
+      else value1 = NIL;
+    }
+  }
+  mv_count = 1;
+}
+
+/* UP: returns the value of a symbol in an environment.
+ sym_value(symbol,venv)
+ > symbol: Symbol
+ > venv: a Variable- and Symbolmacro-Environment
+ < result: value of the Symbols in this Environment */
+local object sym_value (object sym, object env)
+{
+  if (constantp(TheSymbol(sym))) /* constants have only global values */
+    goto global_value;
+  if (special_var_p(TheSymbol(sym))) # the same for symbols declared special
+    goto global_value;
+  var object *binding = symbol_env_search(sym,env);
+  if (binding == NULL || eq(*binding,specdecl)) {
+   global_value: /* the global (dynamic) value of the Symbol */
+    return Symbol_value(sym);
+  } else return *binding;
+}
+
+/* UP: determines, if a Symbol is a Macro in the current environment.
+ sym_macrop(symbol)
+ > symbol: Symbol
+ < result: true if sym is a Symbol-Macro */
 global bool sym_macrop (object sym) {
   var object val = sym_value(sym,aktenv.var_env);
   return (symbolmacrop(val) ? true : false);
 }
 
-# UP: Sets the value of a Symbol in the current Environment.
-# setq(symbol,value);
-# > symbol: Symbol, no constant
-# > value: desired value of the Symbols in the current Environment
-  global void setq (object sym, object value);
-  global void setq(sym,value)
-    var object sym;
-    var object value;
-    {
-      if (special_var_p(TheSymbol(sym))) # the same for special declared symbols
-        goto global_value;
-      {
-        var object env = aktenv.var_env; # current VAR_ENV
-        #ifdef NO_symbolflags
-          #define binds_sym_p(bindptr) # Does the binding at bindptr bind the Symbol sym? \
-            (eq(*(bindptr STACKop 1),sym) # right Symbol?                                  \
-             && eq(*(bindingsptr STACKop 0),fixnum(bit(active_bit))) # active and static? \
-            )
-        #else
-        var object cmp = as_object(as_oint(sym) | wbit(active_bit_o)); # for comparison: binding must be active
-          #define binds_sym_p(bindptr) # Does the binding at bindptr bind the Symbol sym? \
-            (eq(*(bindingsptr STACKop 0),cmp)) # right Symbol and active and static?
-        #endif
-       next_env:
-        if (framepointerp(env)) {
-          # Environment is a Pointer to a variable-binding-frame
-          var object* FRAME = TheFramepointer(env);
-          var uintL count = as_oint(FRAME_(frame_anz)); # number of bindings
-          if (count > 0) {
-            var object* bindingsptr = &FRAME_(frame_bindings); # pointer to the first binding
-            dotimespL(count,count, {
-              if (binds_sym_p(bindingsptr)) { # right Symbol and active and static?
-                if (eq(*(bindingsptr STACKop varframe_binding_value),specdecl)) {
-                  goto global_value;
-                } else {
-                  *(bindingsptr STACKop varframe_binding_value) = value;
-                  return;
-                }
-              }
-              bindingsptr skipSTACKop varframe_binding_size; # no: next binding
-            });
-          }
-          env = FRAME_(frame_next_env);
-          goto next_env;
-        } elif (simple_vector_p(env))
-          # Environment is a Simple-Vector
-          goto next_vector;
-        else
-          # Environment is NIL
-          goto global_value;
-       next_vector:
-        # Environment is a Simple-Vector
-        {
-          var uintL count = floor(Svector_length(env),2); # number of bindings
-          var object* ptr = &TheSvector(env)->data[0];
-          dotimesL(count,count, {
-            if (eq(*ptr,sym)) { # right Symbol?
-              if (eq(*(ptr+1),specdecl)) {
-                goto global_value;
-              } else {
-                *(ptr+1) = value;
-                return;
-              }
-            }
-            ptr += 2; # next binding
-          });
-          env = *ptr; # next Environment
-          if (simple_vector_p(env)) # a Simple-Vector?
-            goto next_vector;
-          # else: Environment is NIL
-        }
-        #undef binds_sym_p
-      }
-     global_value: #  global (dynamic) value of the Symbols
-      pushSTACK(value); pushSTACK(sym);
-      symbol_value_check_lock(S(setq),sym);
-      Symbol_value(STACK_0) = STACK_1;
-      skipSTACK(2); return;
-    }
+/* UP: Sets the value of a Symbol in the current Environment.
+ setq(symbol,value);
+ > symbol: Symbol, no constant
+ > value: desired value of the Symbols in the current Environment */
+global void setq (object sym, object value)
+{
+  if (special_var_p(TheSymbol(sym))) # the same for special declared symbols
+    goto global_value;
+  var object *binding = symbol_env_search(sym,aktenv.var_env);
+  if (binding == NULL || eq(*binding,specdecl)) {
+   global_value: /* the global (dynamic) value of the Symbol */
+    pushSTACK(value); pushSTACK(sym);
+    symbol_value_check_lock(S(setq),sym);
+    Symbol_value(STACK_0) = STACK_1;
+    skipSTACK(2);
+  } else *binding = value;
+}
 
 # UP: returns for a Symbol its function definition in an Environment
 # sym_function(sym,fenv)

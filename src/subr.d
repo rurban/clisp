@@ -96,6 +96,7 @@
 /* ---------- EVAL ---------- */
 LISPFUNN(funtabref,1)
 LISPFUNN(subr_info,1)
+LISPFUN(special_variable_p,1,1,norest,nokey,0,NIL)
 /* ---------- ARRAY ---------- */
 LISPFUNN(copy_simple_vector,1)
 LISPFUN(vector,0,0,rest,nokey,0,NIL)
@@ -1043,7 +1044,6 @@ LISPFUNN(symbol_package,1)
 LISPFUNN(symbol_plist,1)
 LISPFUNN(symbol_name,1)
 LISPFUNN(keywordp,1)
-LISPFUNN(special_variable_p,1)
 LISPFUN(gensym,0,1,norest,nokey,0,NIL)
 /* ---------- LISPARIT ---------- */
 LISPFUNN(decimal_string,1)
