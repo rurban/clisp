@@ -593,7 +593,7 @@
 #     erhöhe den Exponenten um 1.
 #   Falls der Quotient <2^25 ist, runde das letzte Bit weg. Bei rounding
 #     overflow schiebe um ein weiteres Bit nach rechts, incr. Exponenten.
- #if defined(FAST_FLOAT) && !FLOAT_DIV0_EXCEPTION && !defined(I80386)
+#if defined(FAST_FLOAT) && !defined(FLOAT_DIV0_EXCEPTION) && !defined(I80386)
   local object FF_FF_durch_FF(x1,x2)
     var object x1;
     var object x2;
