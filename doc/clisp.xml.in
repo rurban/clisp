@@ -244,13 +244,13 @@ that can be executed more efficiently.</para>
 <!-- #ifndef GNU_GETTEXT -->
    only <command>english</command>.
 <!-- #else -->
-   <simplelist type="horiz" columns="3">
+   one of <simplelist type="inline">
     <member><command>english</command></member>
     <member><command>german</command></member>
     <member><command>french</command></member>
     <member><command>spanish</command></member>
     <member><command>dutch</command></member>
-    <member><command>russian</command></member></simplelist>
+    <member><command>russian</command></member></simplelist>.
    Other languages may be specified through the environment variable
    <envar>LANG</envar>,
    provided the corresponding message catalog is installed.
