@@ -55,6 +55,9 @@
                (search-forward (concat "LISPSYM(" c-name ","))
                (buffer-substring-no-properties
                 (1+ (point)) (1- (scan-sexps (point) 1))))))
+          ((looking-at "DEFUN")
+           (re-search-forward "([-A-Za-Z]*::?\\([^ ,]+\\)")
+           (match-string 1))
           ((looking-at "\\(local\\|global\\)")
            (search-forward "(") (forward-char -1)
            (let ((beg (scan-sexps (point) -1)))
@@ -74,7 +77,7 @@
    (eval-when-compile
     (concat "^" (regexp-opt '("LISPFUN" "LISPSPECFORM" "local " "global "
                               "#define " "nonreturning_function"
-                              "typedef " "struct ")
+                              "typedef " "struct " "DEFUN")
                             t)))
    nil 1))                      ; move to the limit
 
@@ -224,11 +227,11 @@ use fontifications, you have to (require 'font-lock) first.  Sorry.
 Beware - this will modify the original C-mode too!"
   (set (make-local-variable 'compile-command)
        (let* ((target (if (eq window-system 'w32) "lisp.exe" "lisp.run"))
-              (prefix "")
+              build-dir
               (make (if (eq window-system 'w32) "nmake" "make"))
               (makefile
-               (cond ((file-readable-p "Makefile") "Makefile")
-                     ((file-readable-p "makefile") "makefile")
+               (cond ((file-readable-p "Makefile") nil)
+                     ((file-readable-p "makefile") nil)
                      ((file-readable-p "makefile-msvc") "makefile-msvc")
                      ((file-readable-p "makefile.msvc") "makefile.msvc")
                      ((file-readable-p "makefile.msvc5") "makefile.msvc5")
@@ -237,10 +240,14 @@ Beware - this will modify the original C-mode too!"
                      ((file-readable-p "makefile-gcc")
                       (setq make "make") "makefile-gcc")
                      ((file-directory-p d-mode-build-dir)
-                      (setq prefix (concat "cd '" d-mode-build-dir "'; "))
+                      (setq build-dir d-mode-build-dir make "make")
                       "Makefile")
-                     (t "<makefile>"))))
-         (concat prefix make " -f " makefile " " target)))
+                     (t nil))))
+         (if build-dir
+             (concat make " -C " build-dir " -f " makefile " " target)
+             (if makefile
+                 (concat make " -f " makefile " " target)
+                 (concat make " " target)))))
   (set (make-local-variable 'add-log-current-defun-function)
        'd-mode-current-defun-function)
   (c-set-offset 'cpp-macro 'd-mode-indent-sharp)
