@@ -46,3 +46,6 @@ However, a Global Variable can become a Global Constant (by means of a
 DEFCONSTANT declaration), and a Per-Thread Variable can become a
 Per-Thread Special Variable (by means of a SPECIAL proclamation).
 
+The Common Lisp standard variables are all Per-Thread, except *features* and
+*modules*, which are Global.
+
