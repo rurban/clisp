@@ -1,5 +1,13 @@
 2003-01-29  Sam Steingold  <sds@gnu.org>
 
+	SOCKET-STATUS on lists does not have to cons
+	* stream.d (parse_sock_list): new function
+	(handle_set, handle_isset): use it
+	(SOCKET-STATUS): do not cons if the list provides places for the STATUS
+	return the number of actionable streams as the second values
+
+2003-01-29  Sam Steingold  <sds@gnu.org>
+
 	upgraded to autoconf-2.57
 	* Makefile.devel, ffcall/Makefile.devel (AUTOCONF_VERSION): removed
 	(AUTOCONF, AUTOCONF_CACHE): do not depend on it

@@ -14874,16 +14874,41 @@ local void stream_handles (object obj, bool check_open, bool* char_p,
   }
 }
 
-# set the appropriate fd_sets for the socket,
-# either a socket-server, a socket-stream or a (socket . direction)
-# see socket_status() for details
-# return the number of handles set
+/* extract socket, direction and status place
+   from the SOCKET-STATUS argument */
+local gcv_object_t* parse_sock_list (object obj,object *sock,direction_t *dir)
+{
+  if (consp(obj)) { /* (sock ...) */
+    *sock = (object)Car(obj);
+    if (nullp(Cdr(obj))) { /* (sock) */
+      *dir = DIRECTION_IO;
+      return &Cdr(obj);
+    } else if (consp(Cdr(obj))) { /* (sock dir . place) */
+      *dir = check_direction(Car(Cdr(obj)));
+      return &Cdr(Cdr(obj));
+    } else { /* (sock . dir) */
+      *dir = check_direction(Cdr(obj));
+      return NULL;
+    }
+  } else { /* sock */
+    *sock = obj;
+    *dir = DIRECTION_IO;
+    return NULL;
+  }
+}
+
+/* set the appropriate fd_sets for the socket,
+ either a socket-server, a socket-stream or a (socket . direction)
+ see socket_status() for details
+ return the number of handles set */
 local uintL handle_set (object socket, fd_set *readfds, fd_set *writefds,
-                        fd_set *errorfds) {
-  object sock = (consp(socket) ? (object)Car(socket) : socket);
-  direction_t dir = (consp(socket)?check_direction(Cdr(socket)):DIRECTION_IO);
-  SOCKET in_sock = INVALID_SOCKET, out_sock = INVALID_SOCKET;
-  uintL ret = 0;
+                        fd_set *errorfds, bool *need_new_list) {
+  var object sock;
+  var direction_t dir;
+  var SOCKET in_sock = INVALID_SOCKET, out_sock = INVALID_SOCKET;
+  var uintL ret = 0;
+  if (NULL==parse_sock_list(socket,&sock,&dir) && need_new_list)
+    *need_new_list = true;
   stream_handles(sock,true,NULL,
                  READ_P(dir)  ? &in_sock  : NULL,
                  WRITE_P(dir) ? &out_sock : NULL);
@@ -14900,24 +14925,28 @@ local uintL handle_set (object socket, fd_set *readfds, fd_set *writefds,
   return ret;
 }
 
-# check the appropriate fd_sets for the socket,
-# either a socket-server, a socket-stream or a (socket . direction)
-# see socket_status() for details
-# can trigger GC
+/* check the appropriate fd_sets for the socket,
+ either a socket-server, a socket-stream or a (socket . direction)
+ see socket_status() for details
+ can trigger GC */
 local object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
                            fd_set *errorfds) {
-  object sock = (consp(socket) ? (object)Car(socket) : socket);
-  direction_t dir = (consp(socket)?check_direction(Cdr(socket)):DIRECTION_IO);
-  SOCKET in_sock = INVALID_SOCKET, out_sock = INVALID_SOCKET;
-  bool char_p = true, wr = false;
-  signean rd = ls_wait;
+  var object sock, ret;
+  var direction_t dir;
+  var gcv_object_t *place = parse_sock_list(socket,&sock,&dir);
+  var SOCKET in_sock = INVALID_SOCKET, out_sock = INVALID_SOCKET;
+  var bool char_p = true, wr = false;
+  var signean rd = ls_wait;
   stream_handles(sock,true,&char_p,
                  READ_P(dir)  ? &in_sock  : NULL,
                  WRITE_P(dir) ? &out_sock : NULL);
   if (in_sock != INVALID_SOCKET) {
     if (FD_ISSET(in_sock,errorfds)) return S(Kerror);
-    if (socket_server_p(sock))
-      return FD_ISSET(in_sock,readfds) ? T : NIL;
+    if (socket_server_p(sock)) {
+      ret = FD_ISSET(in_sock,readfds) ? T : NIL;
+      if (place) *place = ret;
+      return ret;
+    }
     if (FD_ISSET(in_sock,readfds))
       rd = (char_p ? listen_char(sock) : listen_byte(sock));
   }
@@ -14925,23 +14954,38 @@ local object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
     if (FD_ISSET(out_sock,errorfds)) return S(Kerror);
     wr = FD_ISSET(out_sock,writefds);
   }
-  if (ls_avail_p(rd)) return wr ? S(Kio)     : S(Kinput);
-  if (ls_eof_p(rd))   return wr ? S(Kappend) : S(Keof);
-  if (ls_wait_p(rd))  return wr ? S(Koutput) : S(Kwait);
-  NOTREACHED;
+  if      (ls_avail_p(rd)) ret = wr ? S(Kio)     : S(Kinput);
+  else if (ls_eof_p(rd))   ret = wr ? S(Kappend) : S(Keof);
+  else if (ls_wait_p(rd))  ret = wr ? S(Koutput) : NIL;
+  else NOTREACHED;
+  if (place) *place = ret;
+  return ret;
 }
 #undef READ_P
 #undef WRITE_P
 
-# (SOCKET-STATUS socket-or-list [seconds [microseconds]])
-# socket-or-list should be either
-#   -- socket [socket-stream or socket-server]
-#   -- (socket . direction) [direction is :input or :output or :io (default)]
-#   -- list of the above
-# returns either a single symbol :ERROR/:INPUT/:OUTPUT/:IO (for streams)
-#         or T/NIL (for socket-servers) - when a single object was given -
-#      or a list of such symbols.
-# will cons the list (and thus can trigger GC) in the latter case.
+/* (SOCKET-STATUS socket-or-list [seconds [microseconds]])
+ socket-or-list should be either
+   -- socket [socket-stream or socket-server]
+   -- (socket . direction) [direction is :input or :output or :io (default)]
+   -- (socket direction . ???) [??? is replaced with the status, no consing]
+   -- list of the above
+ returns either a single symbol :ERROR/:INPUT/:OUTPUT/:IO/:EOF/:APPEND/NIL
+   (for streams) or T/NIL (for socket-servers) - when a single object was
+   given - or a list of such symbols:
+  we can distinguish between 3 states for input:
+    <i1> available
+    <i2> EOF
+    <i3> no info/will block/did not request information
+  and 2 states for output:
+    <o1> available
+    <o2> no info/will block/did not request information/EOF
+  the return values are:
+       <i1>   <i2>     <i3>
+  <o1> :IO    :APPEND  :OUTPUT
+  <o2> :INPUT :EOF     NIL
+ may cons the list (and thus can trigger GC) if the list does not
+ provide space for the return values. */
 LISPFUN(socket_status,1,2,norest,nokey,0,NIL) {
  #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
   var struct timeval timeout;
@@ -14954,12 +14998,14 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL) {
     FD_ZERO(&readfds); FD_ZERO(&writefds); FD_ZERO(&errorfds);
     var bool many_sockets_p =
       (consp(all) && !(symbolp(Cdr(all)) && keywordp(Cdr(all))));
+    var bool need_new_list = false;
     if (many_sockets_p) {
       var object list = all;
       var int index = 0;
       for(; !nullp(list); list = Cdr(list)) {
         if (!listp(list)) fehler_list(list);
-        index += handle_set(Car(list),&readfds,&writefds,&errorfds);
+        index += handle_set(Car(list),&readfds,&writefds,&errorfds,
+                            &need_new_list);
         if (index > FD_SETSIZE) {
           pushSTACK(fixnum(FD_SETSIZE));
           pushSTACK(all);
@@ -14968,27 +15014,36 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL) {
         }
       }
     } else
-      handle_set(all,&readfds,&writefds,&errorfds);
+      handle_set(all,&readfds,&writefds,&errorfds,NULL);
     if (select(FD_SETSIZE,&readfds,&writefds,&errorfds,timeout_ptr) < 0) {
       if (sock_errno_is(EINTR)) { end_system_call(); goto restart_select; }
       if (!sock_errno_is(EBADF)) { SOCK_error(); }
     }
     if (many_sockets_p) {
       var object list = all;
-      var int index = 0;
+      var uintL index = 0, count = 0;
       while(!nullp(list)) {
-        index++; pushSTACK(list); # save list
+        index++; pushSTACK(list); /* save list */
         var object tmp = handle_isset(Car(list),&readfds,&writefds,&errorfds);
-        list = Cdr(STACK_0); # (POP list)
-        STACK_0 = tmp;
+        if (need_new_list) {
+          list = Cdr(STACK_0); /* (POP list) */
+          STACK_0 = tmp;
+        } else
+          list = Cdr(popSTACK()); /* (POP list) */
+        if (!nullp(tmp)) count ++;
       }
-      VALUES1(listof(index));
-    } else
-      VALUES1(handle_isset(all,&readfds,&writefds,&errorfds));
+      if (need_new_list)
+        VALUES2(listof(index),fixnum(count));
+      else VALUES2(STACK_2,fixnum(count));
+    } else {
+      value1 = handle_isset(all,&readfds,&writefds,&errorfds);
+      value2 = nullp(value1) ? Fixnum_0 : Fixnum_1;
+      mv_count = 2;
+    }
     end_system_call();
   }
  #else
-  VALUES1(NIL);
+  VALUES2(NIL,Fixnum_0);
  #endif
   skipSTACK(3);
 }
