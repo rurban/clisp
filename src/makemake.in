@@ -1715,7 +1715,7 @@ echol "# The value of following variable is prepended to all the paths for"
 echol "# installation. This is useful when preparing a binary distribution."
 echol "DESTDIR ="
 echol
-echol     "# List of add-on modules:"
+echol     "# (partial) list of available add-on modules:"
 echol     "# queens               the queens function as a separate module"
 echol     "# dirkey               the directory access (LDAP, win32 registry)"
 echol     "# syscalls             export some POSIX (and other) system calls"
@@ -1723,6 +1723,9 @@ if test -n "$with_dynamic_ffi"; then
   echol   "# wildcard             wildcard matching"
   echol   "# regexp               Unix-style regular expression matching and searching"
   echol   "# postgresql           interface to PostgreSQL ODBMS"
+  echol   "# fastcgi              FastCGI (http://www.fastcgi.com/) interface"
+  echol   "# oracle               Oracle (http://www.oracle.com/) interface"
+  echol   "# netica               Netica (http://norsys.com/netica_c_api.htm)"
   if [ "$cpu" = i386 -a "$TSYSOS" = linux ] ; then
     echol "# bindings/glibc       Linux glibc bindings (GNU libc version 2)"
   fi
@@ -1733,7 +1736,6 @@ fi
 if [ $TOS = unix ] ; then
   echol   "# clx/new-clx          faster X11 interface (replaces clx/mit-clx)"
 fi
-echol '# If you change this after doing "make", you have to "rm -r full; make".'
 echol "MODULES = ${MODULES} "`set | grep '^with_module_' | sed -e 's,^with_module_,,' -e 's,=.*$,,'`
 echol
 echol '# Programs used by "make":'
