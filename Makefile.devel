@@ -73,7 +73,7 @@ TEMPDIR = /tmp/clispdos
 
 all : makefiles check-configures update-ansi-tests update-docbook-utils     \
 	potfiles                                                            \
-	src/FILES src/VERSION src/version.h                                 \
+	src/VERSION src/version.h                                           \
 	src/uninames.h src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c \
 	ffcall/avcall/avcall.h.msvc ffcall/vacall/config.h.msvc             \
 	ffcall/vacall/vacall.h.msvc ffcall/trampoline/config.h.msvc         \
@@ -240,9 +240,6 @@ view-html :
 	netscape /tmp/clisp.html &
 	lynx /tmp/clisp.html
 
-
-src/FILES : src/FILES.1
-	$(GROFF) -Tascii src/FILES.1 > src/FILES
 
 src/VERSION : src/configure
 	src/configure --version | head -1 | cut -d' ' -f 4 > src/VERSION
@@ -458,7 +455,7 @@ upload : $(SRC_DIST1) force
 	  lftp $${h} -e "put clisp.lsm $(SRC_DIST) $(SRC_DIST1); quit"; \
 	done
 
-src-distrib : src/FILES src/VERSION potfiles force
+src-distrib : src/VERSION potfiles force
 	$(MAKE) -f Makefile.devel src--distrib TOPDIR=clisp-$(VER)
 
 src--distrib : force

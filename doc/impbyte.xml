@@ -2,6 +2,714 @@
 
 <part id="internals"><title>Internals of the &clisp; Implementation</title>
 
+<chapter id="source-files"><title>The source files of &clisp;</title>
+
+<section id="scr-file-types"><title>File Types</title>
+
+<variablelist>
+<varlistentry><term><filename>*.d</filename></term>
+ <listitem><simpara>The source files for unpreprocessed &c-lang;
+   code.</simpara></listitem></varlistentry>
+<varlistentry><term><filename>*.c</filename></term>
+ <listitem><simpara>The &c-lang; code after preprocessing
+   by <command>comment5</command> and <command>varbrace</command>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>*.lisp</filename></term>
+ <listitem><simpara>The source files for Lisp
+   code.</simpara></listitem></varlistentry>
+<varlistentry><term><filename>*.fas</filename></term>
+ <listitem><simpara>Compiled lisp code (platform-independent).
+</simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+<section id="src-files"><title>Files</title>
+
+<section id="src-unpreproc-C"><title>Unpreprocessed C code</title>
+
+<section id="src-includes"><title>Includes</title>
+
+<variablelist>
+<varlistentry><term><filename>lispbibl.d</filename></term>
+ <listitem><simpara>main include file</simpara></listitem></varlistentry>
+<varlistentry><term><filename>fsubr.d</filename></term>
+ <listitem><simpara>list of all built-in special forms
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>subr.d</filename></term>
+ <listitem><simpara>list of all built-in functions
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>pseudofun.d</filename></term>
+ <listitem><simpara>list of all <quote>pseudo functions</quote>
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>constpack.d</filename></term>
+ <listitem><simpara>list of packages accessed by &c-lang; code
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>constsym.d</filename></term>
+ <listitem><simpara>list of symbols accessed by &c-lang; code
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>constobj.d</filename></term>
+ <listitem><simpara>list of miscellaneous objects accessed by &c-lang; code
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>unix.d</filename></term>
+ <listitem><simpara>include file for the &unix; implementations
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>win32.d</filename></term>
+ <listitem><simpara>include file for the &win32; based versions
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>xthread.d</filename></term>
+ <listitem><simpara>include file for thread support
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>modules.h</filename></term>
+ <listitem><simpara>list of foreign &module;s
+</simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+<section id="src-modules"><title>Modules</title>
+
+<variablelist>
+<varlistentry><term><filename>spvw.d</filename></term>
+ <listitem><para>Memory management (&gc;ion), startup; some OS interface.
+   <variablelist><varlistentry><term><filename>avl.d</filename></term>
+     <listitem><simpara>An implementation of AVL (Adelson-Velskii and
+       Landis) trees.</simpara></listitem></varlistentry>
+    <varlistentry><term><filename>sort.d</filename></term>
+     <listitem><simpara>A sorting routine.</simpara></listitem></varlistentry>
+    <varlistentry><term><filename>subrkw.d</filename></term>
+     <listitem><simpara>The list of all built-in functions with keywords
+       in &lalist;.</simpara></listitem></varlistentry></variablelist>
+</para></listitem></varlistentry>
+<varlistentry><term><filename>spvwtabf.d</filename></term>
+ <listitem><simpara>The table of built-in special operators and functions.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>spvwtabs.d</filename></term>
+ <listitem><simpara>The table of all &symbol-t;s accessed by &c-lang; code.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>spvwtabo.d</filename></term>
+ <listitem><simpara>The table of miscellaneous objects accessed by
+   &c-lang; code.</simpara></listitem></varlistentry>
+<varlistentry><term><filename>eval.d</filename></term>
+ <listitem><para>Evaluator (form interpreter) and bytecode interpreter.
+   <variablelist><varlistentry><term><filename>bytecode.d</filename></term>
+     <listitem><simpara>List of bytecodes.</simpara></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
+<varlistentry><term><filename>control.d</filename></term>
+ <listitem><simpara>Special operator interpreter.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>pathname.d</filename></term>
+ <listitem><simpara>Pathnames, file- and directory-related functions.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>stream.d</filename></term>
+ <listitem><simpara>&stream-t;s of all kinds: &file-stream-t;s,
+   <link linkend="terminal">terminal</link> streams, &string-stream-t;s
+   etc.</simpara></listitem></varlistentry>
+<varlistentry><term><filename>socket.d</filename></term>
+ <listitem><simpara>Opening sockets for TCP/IP and CLX.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>io.d</filename></term>
+ <listitem><simpara>The lisp reader (parser) and printer (also pretty
+   printer).</simpara></listitem></varlistentry>
+<varlistentry><term><filename>array.d</filename></term>
+ <listitem><simpara>Functions dealing with &array-t;s and &vector-t;s.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>hashtabl.d</filename></term>
+ <listitem><simpara>Functions dealing with &hash-table-t;s.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>list.d</filename></term>
+ <listitem><simpara>Functions dealing with &list-t;s.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>package.d</filename></term>
+ <listitem><simpara>Functions dealing with &package-t;s.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>record.d</filename></term>
+ <listitem><simpara>Functions dealing with records (structures, closures, etc.)
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>sequence.d</filename></term>
+ <listitem><simpara>The generic &sequence-t; functions.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>charstrg.d</filename></term>
+ <listitem><simpara>Functions dealing with &character-t;s and &string-t;s.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>debug.d</filename></term>
+ <listitem><simpara>Support for debugging and the read-eval-print loop
+   (see <xref linkend="debugger"/>).</simpara></listitem></varlistentry>
+<varlistentry><term><filename>error.d</filename></term>
+ <listitem><para>&error-t; handling and &signal;ing.
+   <variablelist><varlistentry><term><filename>errunix.d</filename></term>
+     <listitem><simpara>&unix;-specific error messages.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><filename>errwin32.d</filename></term>
+     <listitem><simpara>&win32;-specific error messages.
+    </simpara></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
+<varlistentry><term><filename>misc.d</filename></term>
+ <listitem><simpara>Miscellaneous functions.</simpara></listitem></varlistentry>
+<varlistentry><term><filename>time.d</filename></term>
+ <listitem><simpara>Timing functions.</simpara></listitem></varlistentry>
+<varlistentry><term><filename>predtype.d</filename></term>
+ <listitem><simpara>Predicates, type tests.</simpara></listitem></varlistentry>
+<varlistentry><term><filename>symbol.d</filename></term>
+ <listitem><simpara>Functions dealing with &symbol-t;s.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>unixaux.d</filename></term>
+ <listitem><simpara>Auxiliary functions (&unix; version only).
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>win32aux.d</filename></term>
+ <listitem><simpara>Auxiliary functions (&win32; version only).
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>foreign.d</filename></term>
+ <listitem><simpara>&ffi-pac; support.</simpara></listitem></varlistentry>
+<varlistentry><term><filename>lisparit.d</filename></term>
+ <listitem><simpara>Functions dealing with numbers (arithmetic), see
+   <xref linkend="src-arith"/>.</simpara></listitem></varlistentry>
+<varlistentry><term><filename>noreadline.d</filename></term>
+ <listitem><simpara>Dummy plug-in for the &readline; library.
+</simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+<section id="src-arith"><title>Number system (arithmetic)</title>
+
+<variablelist>
+<varlistentry><term><filename>lisparit.d</filename></term>
+ <listitem><simpara>initialization, input/output of numbers, lisp functions
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>aridecl.d</filename></term>
+ <listitem><simpara>declarations</simpara></listitem></varlistentry>
+<varlistentry><term><filename>arilev0.d</filename></term>
+ <listitem><simpara>arithmetic at the machine level
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>arilev1.d</filename></term>
+ <listitem><simpara>digit sequences</simpara></listitem></varlistentry>
+<varlistentry><term><filename>arilev1c.d</filename></term>
+ <listitem><simpara>operations on digit sequences, written in &c-lang;
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>arilev1i.d</filename></term>
+ <listitem><simpara>operations on digit sequences, as inline functions
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>arilev1e.d</filename></term>
+ <listitem><simpara>operations on digit sequences, bindings to external
+   routines</simpara></listitem></varlistentry>
+<varlistentry><term><filename>intelem.d</filename></term>
+ <listitem><simpara>&integer-t;s: elementary operations
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>intlog.d</filename></term>
+ <listitem><simpara>&integer-t;s: logical connectives
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>intplus.d</filename></term>
+ <listitem><simpara>&integer-t;s: addition and subtraction
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>intcomp.d</filename></term>
+ <listitem><simpara>&integer-t;s: comparison
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>intbyte.d</filename></term>
+ <listitem><simpara>&integer-t;s: byte operations &ldb;, &dpb;
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>intmal.d</filename></term>
+ <listitem><simpara>&integer-t;s: multiplication
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>intdiv.d</filename></term>
+ <listitem><simpara>&integer-t;s: division
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>intgcd.d</filename></term>
+ <listitem><simpara>&integer-t;s: &gcd; and &lcm;
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>int2adic.d</filename></term>
+ <listitem><simpara>&integer-t;s: operations on 2-adic integers
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>intsqrt.d</filename></term>
+ <listitem><simpara>&integer-t;s: square root, n-th root
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>intprint.d</filename></term>
+ <listitem><simpara>subroutines for &integer-t; output
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>intread.d</filename></term>
+ <listitem><simpara>subroutines for &integer-t; input
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>rational.d</filename></term>
+ <listitem><simpara>rational numbers (&ratio-t;s)
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>sfloat.d</filename></term>
+ <listitem><simpara>elementary operations for &short-float-t;s
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>ffloat.d</filename></term>
+ <listitem><simpara>elementary operations for &single-float-t;s
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>dfloat.d</filename></term>
+ <listitem><simpara>elementary operations for &double-float-t;s
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>lfloat.d</filename></term>
+ <listitem><simpara>elementary operations for &long-float-t;s
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>flo_konv.d</filename></term>
+ <listitem><simpara>conversions between &float-t;s
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>flo_rest.d</filename></term>
+ <listitem><simpara>general &float-t; operations
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>realelem.d</filename></term>
+ <listitem><simpara>elementary functions for &real-t; numbers
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>realrand.d</filename></term>
+ <listitem><simpara>random numbers
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>realtran.d</filename></term>
+ <listitem><simpara>transcendental functions for &real-t; numbers
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>compelem.d</filename></term>
+ <listitem><simpara>elementary functions for &complex-t; numbers
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>comptran.d</filename></term>
+ <listitem><simpara>transcendental functions for &complex-t; numbers
+</simpara></listitem></varlistentry>
+</variablelist>
+
+<section id="src-ari-asm"><title>External routines for the arithmetic
+  system, written in assembly language</title>
+<variablelist>
+<varlistentry><term><filename>ari68000.d</filename></term>
+ <listitem><simpara>written in 68000 assembler, MIT syntax
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>ari68020.d</filename></term>
+ <listitem><simpara>written in 68020 assembler, MIT syntax
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>arisparc.d</filename></term>
+ <listitem><simpara>written in SPARC assembler
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>arisparc64.d</filename></term>
+ <listitem><simpara>written in 64-bit SPARC assembler
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>ari80386.d</filename></term>
+ <listitem><simpara>written in i386/i486 assembler
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>arimips.d</filename></term>
+ <listitem><simpara>written in MIPS assembler
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>arimips64.d</filename></term>
+ <listitem><simpara>written in 64-bit MIPS assembler
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>arihppa.d</filename></term>
+ <listitem><simpara>written in HPPA-1.0 assembler
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>arivaxunix.d</filename></term>
+ <listitem><simpara>written in VAX assembler, Unix assembler syntax
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>ariarm.d</filename></term>
+ <listitem><simpara>written in ARM assembler
+</simpara></listitem></varlistentry>
+</variablelist></section>
+</section>
+
+<section id="src-asm-sp"><title>External routines for accessing the
+  stack, written in assembly language</title>
+
+<variablelist>
+<varlistentry><term><filename>sp68000.d</filename></term>
+ <listitem><simpara>written in 68000 assembler, MIT syntax
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>spsparc.d</filename></term>
+ <listitem><simpara>written in SPARC assembler
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>spsparc64.d</filename></term>
+ <listitem><simpara>written in 64-bit SPARC assembler
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>sp80386.d</filename></term>
+ <listitem><simpara>written in i386/i486 assembler
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>spmips.d</filename></term>
+ <listitem><simpara>written in MIPS assembler
+</simpara></listitem></varlistentry>
+</variablelist></section>
+</section>
+
+<section id="src-asm-misc"><title>Other assembly language stuff</title>
+
+<variablelist>
+<varlistentry><term><filename>asmi386.sh</filename></term>
+ <listitem><simpara>converts i386 assembler from MIT syntax to a macro syntax
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>asmi386.hh</filename></term>
+ <listitem><simpara>expands i386 assembler in macro syntax to either MIT
+   or Intel syntax</simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+<section id="src-lisp"><title>Lisp source files</title>
+
+<variablelist>
+<varlistentry><term><filename>init.lisp</filename></term>
+ <listitem><simpara>the first file to be loaded during bootstrapping,
+ loads everything else</simpara></listitem></varlistentry>
+<varlistentry><term><filename>defseq.lisp</filename></term>
+ <listitem><simpara>defines the usual sequence types for the generic
+   sequence functions</simpara></listitem></varlistentry>
+<varlistentry><term><filename>backquote.lisp</filename></term>
+ <listitem><simpara>implements the backquote read macro
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>defmacro.lisp</filename></term>
+ <listitem><simpara>implements &defmacro;</simpara></listitem></varlistentry>
+<varlistentry><term><filename>macros1.lisp</filename></term>
+ <listitem><simpara>the most important macros
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>macros2.lisp</filename></term>
+ <listitem><simpara>some other macros
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>defs1.lisp</filename></term>
+ <listitem><simpara>miscellaneous definitions
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>timezone.lisp</filename></term>
+ <listitem><simpara>site-dependent definition of time zone, except for &unix;
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>places.lisp</filename></term>
+ <listitem><simpara>macros using &place;s, definitions of most standard
+   and extensiion &place;s</simpara></listitem></varlistentry>
+<varlistentry><term><filename>floatprint.lisp</filename></term>
+ <listitem><simpara>printing floating point numbers in base 10
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>type.lisp</filename></term>
+ <listitem><simpara>functions working with type specifiers: &typep;,
+   &subtypep;</simpara></listitem></varlistentry>
+<varlistentry><term><filename>defstruct.lisp</filename></term>
+ <listitem><simpara>implements the macro &defstruct;
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>format.lisp</filename></term>
+ <listitem><simpara>implements the function &format;
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>room.lisp</filename></term>
+ <listitem><simpara>implements the function &room;
+   (see also <xref linkend="room"/>)</simpara></listitem></varlistentry>
+<varlistentry><term><filename>savemem.lisp</filename></term>
+ <listitem><simpara>see <xref linkend="image"/>
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>keyboard.lisp</filename></term>
+ <listitem><simpara>implements the macro &with-kbd;
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>runprog.lisp</filename></term>
+ <listitem><simpara>implements the functions &run-prog;, &run-cmd; etc.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>query.lisp</filename></term>
+ <listitem><simpara>implements the functions &y-or-n-p; and &yes-or-no-p;
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>reploop.lisp</filename></term>
+ <listitem><simpara>support for debugging and the read-eval-print loop
+   (see <xref linkend="debugger"/>)</simpara></listitem></varlistentry>
+<varlistentry><term><filename>dribble.lisp</filename></term>
+ <listitem><simpara>implements the functions &dribble; and
+   <link linkend="dribble"><function>EXT:DRIBBLE-STREAM</function></link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>complete.lisp</filename></term>
+ <listitem><simpara>implements completion, see <xref linkend="terminal"/>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>describe.lisp</filename></term>
+ <listitem><simpara>implements functions &describe;, &apropos;, &apropos-list;
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>trace.lisp</filename></term>
+ <listitem><simpara><link linkend="trace">tracer</link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>macros3.lisp</filename> (optional)</term>
+ <listitem><simpara>the macros &letf;, &letf-star; and &ethe;
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>config.lisp</filename></term>
+ <listitem><para>(user written) site-dependent configuration,
+   may be a link to one of the following:<variablelist>
+    <varlistentry><term><filename>cfgsunux.lisp</filename></term>
+     <listitem><simpara>for &unix;, using SunOS
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><filename>cfgunix.lisp</filename></term>
+     <listitem><simpara>for any other &unix;
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><filename>cfgwin32.lisp</filename></term>
+     <listitem><simpara>for the &win32;
+    </simpara></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
+<varlistentry><term><filename>compiler.lisp</filename></term>
+ <listitem><simpara>compiles Lisp code
+   to <link linkend="bytecode">bytecode</link>
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>disassem.lisp</filename></term>
+ <listitem><simpara>the function &disassemble;
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>defs2.lisp</filename></term>
+ <listitem><simpara>miscellaneous &ansi-cl; definitions
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>loop.lisp</filename></term>
+ <listitem><simpara>implements the &ansi-cl;-compatible &loop; macro
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>clos.lisp</filename></term>
+ <listitem><para>loads the various parts of the &clos;:<variablelist>
+  <varlistentry><term><filename>clos-package.lisp</filename></term>
+   <listitem><simpara>declares the imports and exports of the
+     &clos-pac; package</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-macros.lisp</filename></term>
+   <listitem><simpara>defines some internal macros used by the &clos;
+     implementation</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-class0.lisp</filename></term>
+   <listitem><simpara>defines the <classname>class-version</classname>
+     structure</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-metaobject1.lisp</filename></term>
+   <listitem><simpara>defines the &metaobject-t; class
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-slotdef1.lisp</filename></term>
+   <listitem><simpara>defines the &slot-definition-t; class and its
+     subclasses</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-slotdef2.lisp</filename></term>
+   <listitem><simpara>defines &initialize-instance; methods for
+     &slot-definition-t; and its subclasses</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-slotdef3.lisp</filename></term>
+   <listitem><simpara>defines the generic functions that can be used on
+     &slot-definition-t; objects</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-stablehash1.lisp</filename></term>
+   <listitem><simpara>defines the &standard-stablehash; class
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-stablehash2.lisp</filename></term>
+   <listitem><simpara>defines &initialize-instance; methods for
+     &standard-stablehash;</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-specializer1.lisp</filename></term>
+   <listitem><simpara>defines the &specializer-t; class and its subclasses
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-specializer2.lisp</filename></term>
+   <listitem><simpara>defines &initialize-instance; methods for
+     &specializer-t; and its subclasses</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-specializer3.lisp</filename></term>
+   <listitem><simpara>defines the generic functions that can be used on
+     &specializer-t; objects</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-class1.lisp</filename></term>
+   <listitem><simpara>defines the <classname>potential-class</classname>
+     class and its subclasses</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-class2.lisp</filename></term>
+   <listitem><simpara>implements the mapping from class names to classes
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-class3.lisp</filename></term>
+   <listitem><simpara>implements the &defclass; macro, class definition
+     and class redefinition</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-class4.lisp</filename></term>
+   <listitem><simpara>defines &initialize-instance; methods
+     for <classname>potential-class</classname> and its
+     subclasses</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-class5.lisp</filename></term>
+   <listitem><simpara>implements the special logic of &make-instance;,
+     &initialize-instance; etc.</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-class6.lisp</filename></term>
+   <listitem><simpara>defines the generic functions that can be used on
+     <classname>potential-class</classname> objects
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-method1.lisp</filename></term>
+   <listitem><simpara>defines the &method-t; class and its subclasses
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-method2.lisp</filename></term>
+   <listitem><simpara>implements the bulk of &defmethod;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-method3.lisp</filename></term>
+   <listitem><simpara>defines the generic functions that can be used on
+     &method-t; objects</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-method4.lisp</filename></term>
+   <listitem><simpara>makes generic functions on &standard-method-t;
+     objects extensible</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-methcomb1.lisp</filename></term>
+   <listitem><simpara>defines the &method-combination-t; class
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-methcomb2.lisp</filename></term>
+   <listitem><simpara>implements the &define-method-combination; macro
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-methcomb3.lisp</filename></term>
+   <listitem><simpara>defines &initialize-instance; methods for
+     &method-combination-t;</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-methcomb4.lisp</filename></term>
+   <listitem><simpara>makes generic functions on &method-combination-t;
+     objects extensible</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-genfun1.lisp</filename></term>
+   <listitem><simpara>defines the &generic-function-t; class and its
+     metaclass, superclass and subclasses</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-genfun2a.lisp</filename></term>
+   <listitem><simpara>implements part 1 of generic function dispatch and
+     execution</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-genfun2b.lisp</filename></term>
+   <listitem><simpara>implements part 3 of generic function dispatch and
+     execution</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-genfun3.lisp</filename></term>
+   <listitem><simpara>implements creation of generic function objects,
+     &defmethod;, &defgeneric;</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-genfun4.lisp</filename></term>
+   <listitem><simpara>defines &initialize-instance; methods for
+     &generic-function-t; and its subclasses</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-genfun5.lisp</filename></term>
+   <listitem><simpara>makes generic functions on &generic-function-t;
+     objects extensible</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-slots1.lisp</filename></term>
+   <listitem><simpara>implements low-level slot access, &with-slots;,
+     &with-accessors;</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-slots2.lisp</filename></term>
+   <listitem><simpara>defines the generic functions that deal with slot access
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-dependent.lisp</filename></term>
+   <listitem><simpara>implements notification from metaobjects to
+     dependent objects</simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-print.lisp</filename></term>
+   <listitem><simpara>implements the function &print-object;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><filename>clos-custom.lisp</filename></term>
+   <listitem><simpara>provides user customization of the &clos;
+  </simpara></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
+<varlistentry><term><filename>condition.lisp</filename></term>
+ <listitem><simpara>implements the &cl; Condition System (&clcs;)
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>gstream.lisp</filename></term>
+ <listitem><simpara>generic stream default methods
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>foreign1.lisp</filename></term>
+ <listitem><simpara>&ffi-pac; interface
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>screen.lisp</filename></term>
+ <listitem><simpara>the screen access package, see <xref linkend="screen"/>
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>edit.lisp</filename> (optional)</term>
+ <listitem><simpara>the screen editor (&ed;), &uncompile;
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>threads.lisp</filename></term>
+ <listitem><simpara>MT interface</simpara></listitem></varlistentry>
+<varlistentry><term><filename>spanish.lisp</filename></term>
+ <term><filename>german.lisp</filename></term>
+ <term><filename>french.lisp</filename></term>
+ <term><filename>russian.lisp</filename></term>
+ <term><filename>dutch.lisp</filename></term>
+ <listitem><simpara><link linkend="i18n">i18n</link> user messages
+</simpara></listitem></varlistentry>
+</variablelist></section>
+
+<section id="src-ext-mod"><title>External Modules</title>
+
+<variablelist>
+<varlistentry><term><filename>modules/**/</filename></term>
+ <listitem><simpara>individual external module sources
+</simpara></listitem></varlistentry>
+</variablelist></section>
+
+<section id="src-doc"><title>Documentation</title>
+
+<variablelist>
+<varlistentry><term><filename>src/NEWS</filename></term>
+ <listitem><simpara>the list of the user-visible changes
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>src/_README</filename></term>
+ <listitem><para>master for the distribution's README<variablelist>
+    <varlistentry><term><filename>_README.en</filename></term>
+     <term><filename>src/_README.de</filename></term>
+     <term><filename>src/_README.es</filename></term>
+     <listitem><simpara>translations of <filename>_README</filename>
+    </simpara></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
+<varlistentry><term><filename>doc/clisp.xml.in</filename></term>
+ <listitem><simpara>Docbook sources for the &clisp; manual page
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>src/_clisp.1</filename></term>
+ <listitem><simpara>the distribution's manual page,
+   generated from <filename>doc/clisp.xml.in</filename> at build time
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>src/_clisp.html</filename></term>
+ <listitem><simpara>the distribution's manual page in HTML format,
+   generated from <filename>doc/clisp.xml.in</filename> at build time
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>doc/impnotes.xml.in</filename></term>
+ <listitem><para>the master file for these implementation notes,
+   includes the following files<variablelist>
+    <varlistentry><term><filename>doc/cl-ent.xml</filename></term>
+     <listitem><simpara>&clisp;-independent general &cl;-related entities
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><filename>doc/clhs-ent.xml</filename></term>
+     <listitem><simpara>generated list of &clhs; concepts
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><filename>doc/impent.xml</filename></term>
+     <listitem><simpara>&clisp;-specific entities
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><filename>doc/unix-ent.xml</filename></term>
+     <listitem><simpara>&unix;-related entities
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><filename>doc/mop-ent.xml</filename></term>
+     <listitem><simpara>&mop;-related entities
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><filename>doc/impbody.xml</filename></term>
+     <listitem><simpara>most of <xref linkend="clhs-chapters"/>
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><filename>doc/impissue.xml</filename></term>
+     <listitem><simpara><xref linkend="issues"/>
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><filename>doc/gray.xml</filename></term>
+     <listitem><simpara><xref linkend="gray"/>
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><filename>doc/mop.xml</filename></term>
+     <listitem><simpara><xref linkend="mop-chap"/>
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><filename>doc/impext.xml</filename></term>
+     <listitem><simpara><xref linkend="ext-p-indep"/> and
+       <xref linkend="ext-platform"/></simpara></listitem></varlistentry>
+    <varlistentry><term><filename>doc/impbyte.xml</filename></term>
+     <listitem><simpara>this <xref linkend="internals"/>
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><filename>modules/**/*.xml</filename></term>
+     <listitem><simpara>individual external module documentation
+    </simpara></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
+<varlistentry><term><filename>doc/impnotes.html</filename></term>
+ <listitem><simpara>the implementation notes,
+   generated from <filename>doc/impnotes.xml.in</filename> at release time
+</simpara></listitem></varlistentry>
+</variablelist></section>
+
+<section id="src-i18n"><title>Internationalization</title>
+
+<variablelist>
+<varlistentry><term><filename>po/*.pot</filename></term>
+ <listitem><simpara>list of translatable messages (<quote>portable
+    object template</quote>)</simpara></listitem></varlistentry>
+<varlistentry><term><filename>po/*.po</filename></term>
+ <listitem><simpara>translated messages (<quote>portable objects</quote>)
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>po/*.gmo</filename></term>
+ <listitem><simpara>translated messages (<quote>&gnu; format message
+    objects</quote>)</simpara></listitem></varlistentry>
+</variablelist></section>
+
+<section id="src-conf-unix"><title>Automatic configuration on &unix;</title>
+
+<variablelist>
+<varlistentry><term><filename>configure.in</filename></term>
+ <listitem><simpara>lists features to be checked
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>autoconf/autoconf.m4</filename></term>
+ <listitem><simpara><command>autoconf</command>'s driver macros.
+   Part of &autoconf; 2.53</simpara></listitem></varlistentry>
+<varlistentry><term><filename>m4/*.m4</filename></term>
+ <listitem><simpara>a repertoire of features.
+   Use with &autoconf; 2.53</simpara></listitem></varlistentry>
+<varlistentry><term><filename>configure</filename></term>
+ <listitem><simpara>configuration script, generated
+   from <filename>configure.in</filename></simpara></listitem></varlistentry>
+<varlistentry><term><filename>intparam.c</filename></term>
+ <listitem><simpara>figures out some machine parameters (word size,
+   endianness etc.)</simpara></listitem></varlistentry>
+<varlistentry><term><filename>floatparam.c</filename></term>
+ <listitem><simpara>figures out some floating point arithmetics parameters
+   (rounding, epsilons etc.)</simpara></listitem></varlistentry>
+<varlistentry><term><filename>unixconf.h.in</filename></term>
+ <listitem><simpara>header file master, generated
+   from <filename>configure.in</filename>.
+   <filename>unixconf.h</filename> contains the values of the features
+   discovered by <filename>configure</filename>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>makemake.in</filename></term>
+ <listitem><simpara>makefile construction script master
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>_clisp.c</filename></term>
+ <listitem><simpara>master for the distribution's driver program
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>_distmakefile</filename></term>
+ <listitem><simpara>master for the distribution's Makefile
+</simpara></listitem></varlistentry>
+</variablelist></section>
+</section>
+</chapter>
+
 <chapter id="gc"><title>Overview of &clisp;'s Garbage Collection</title>
  <subtitle>These are internals, which are of interest only to the
   &clisp; developers.
