@@ -1,3 +1,9 @@
+2004-04-30  Bruno Haible  <bruno@clisp.org>
+
+	Fixes for the TYPECODES model on 32-bit platforms.
+	* intlog.d (I_I_logand_I, I_I_lognand_I, I_I_logandc2_I): Fix bug
+	when combining a fixnum with a bignum.
+
 2004-04-25  Bruno Haible  <bruno@clisp.org>
 
 	* condition.lisp (check-value): Fix bug in the CONTINUE restart.
