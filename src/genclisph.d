@@ -1309,9 +1309,9 @@ int main(int argc, char* argv[])
  #endif
 #else
  #if defined(STANDARD_HEAPCODES)
-  printf("#define number_immediatep(obj)  ((as_oint(obj) & wbit(1)) != 0)\n");
+  printf1("#define number_immediatep(obj)  ((as_oint(obj) & %d) != 0)\n",wbit(1));
  #elif defined(LINUX_NOEXEC_HEAPCODES)
-  printf("#define number_immediatep(obj)  ((as_oint(obj) & wbit(1)) == 0)\n");
+  printf1("#define number_immediatep(obj)  ((as_oint(obj) & %d) == 0)\n",wbit(1));
  #else
   #error "what is your HEAPCODES model?"
  #endif
