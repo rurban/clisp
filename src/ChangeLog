@@ -1,3 +1,8 @@
+2000-03-01  Sam Steingold  <sds@gnu.org>
+
+	* clhs.lsp, clhs.txt: new files.
+	* init.lsp: load clhs.
+
 2000-02-29  Sam Steingold  <sds@gnu.org>
 
 	* loop.lsp (destructure-vars, destructure-type): use tail recursion.

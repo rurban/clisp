@@ -1502,11 +1502,11 @@ fi
 
 COMMENTS=''
 
-LPARTS='        init defseq backquot defmacro macros1 macros2 defs1 timezone'
-LPARTS=$LPARTS' places floatpri type defstruc format savemem trace compiler'
-LPARTS=$LPARTS' disassem defs2 loop clos conditio gstream xcharin keyboard'
-LPARTS=$LPARTS' screen runprog query reploop dribble complete describe room'
-LPARTS=$LPARTS' edit macros3 posix foreign1 defs3 german french spanish config'
+LPARTS='init defseq backquot defmacro macros1 macros2 defs1 timezone places
+  floatpri type defstruc format savemem trace compiler disassem defs2 loop
+  conditio gstream xcharin keyboard screen runprog query reploop dribble
+  complete describe room edit macros3 posix foreign1 defs3 clhs
+  german french spanish config'
 
 DOC='LISP-tutorial CLOS-guide editors'
 
@@ -2606,12 +2606,16 @@ if [ $TOS = unix ] ; then
   echotab "if test -d data; then rm -rf data; fi"
   echotab "mkdir data"
   echotab "\$(LN) ${PARENT_SRCTOPDIR}utils${NEXT}unicode${NEXT}ftp.unicode.org${NEXT}UnicodeData.txt data${NEXT}UnicodeData.txt"
+  echotab "\$(LN) ${PARENT_SRCTOPDIR}src{NEXT}clhs.txt data${NEXT}clhs.txt"
   echol
   XCL_DATA='data'
 else
   echol "UnicodeData.txt :"
   echotab "\$(LN) ${SRCTOPDIR_M}utils${NEXT_}unicode${NEXT_}ftp.unicode.org${NEXT_}UnicodeData.txt UnicodeData.txt"
-  XCL_DATA='UnicodeData.txt'
+  echol
+  echol "clhs.txt :"
+  echotab "\$(LN) ${SRCTOPDIR_M}src${NEXT_}clhs.txt clhs.txt"
+  XCL_DATA='UnicodeData.txt clhs.txt'
 fi
 
 echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB} ${XCL_SIGSEGVLIB}${SYSLIBS} ${XCL_DATA}"
@@ -3144,6 +3148,7 @@ if [ $CROSS = false ] ; then
     echotab "if [ ! -d \$(install_root)\$(lisplibdir) ] ; then mkdir \$(install_root)\$(lisplibdir) ; fi"
     echotab "if [ ! -d \$(install_root)\$(lisplibdir)/data ] ; then mkdir \$(install_root)\$(lisplibdir)/data ; fi"
     echotab "\$(INSTALL_DATA) data/UnicodeData.txt \$(install_root)\$(lisplibdir)/data/UnicodeData.txt"
+    echotab "\$(INSTALL_DATA) data/clhs.txt \$(install_root)\$(lisplibdir)/data/clhs.txt"
     echotab "if [ ! -d \$(install_root)\$(lisplibdir)/linkkit ] ; then mkdir \$(install_root)\$(lisplibdir)/linkkit ; fi"
     echotab "(cd \$(install_root)\$(lisplibdir) && rm -rf base full)"
     echotab "mkdir \$(install_root)\$(lisplibdir)/base"
@@ -3254,6 +3259,7 @@ if [ $CROSS = false ] ; then
     echotab "-mkdir \$(install_root)\$(libdir)"
     echotab "-mkdir \$(install_root)\$(lisplibdir)"
     echotab "\$(INSTALL_DATA) UnicodeData.txt \$(install_root)\$(lisplibdir)\UnicodeData.txt"
+    echotab "\$(INSTALL_DATA) clhs.txt \$(install_root)\$(lisplibdir)\clhs.txt"
     echotab "\$(INSTALL_PROGRAM) lisp${LEXE} \$(install_root)\$(lisplibdir)\lisp${LEXE}"
     echotab "\$(INSTALL_DATA) lispinit.mem \$(install_root)\$(lisplibdir)\lispinit.mem"
     echotab "-mkdir \$(install_root)\$(bindir)"
@@ -3269,6 +3275,7 @@ if [ $CROSS = false ] ; then
     echol
     echol "uninstall-bin : force"
     echotab "\$(RM) \$(install_root)\$(lisplibdir)/UnicodeData.txt"
+    echotab "\$(RM) \$(install_root)\$(lisplibdir)/clhs.txt"
     echotab "\$(RM) \$(install_root)\$(lisplibdir)/lisp${LEXE}"
     echotab "\$(RM) \$(install_root)\$(lisplibdir)/lispinit.mem"
     if [ $HOS = dos ] ; then
