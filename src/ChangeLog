@@ -1,5 +1,10 @@
 1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_language.d (init_language): Use `ascii_alphanumericp' instead
+          of `alphanumericp'.
+
+1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_module.d (main_module): Fix type of declaration. Declare extern,
           to avoid a warning.
 
