@@ -54,8 +54,8 @@ trampoline_r.h :
 libcallback.a : vacall_r/libvacall.a trampoline_r/libtrampoline.a
 	$(RM) libcallback.a
 	mkdir libtmpdir
-	cd libtmpdir; $(AR) x ../vacall_r/libvacall.a
-	cd libtmpdir; $(AR) x ../trampoline_r/libtrampoline.a
+	cd libtmpdir; $(AR) x ../vacall_r/libvacall.a && $(RM) ________64ELEL_
+	cd libtmpdir; $(AR) x ../trampoline_r/libtrampoline.a && $(RM) ________64ELEL_
 	cd libtmpdir; $(AR) $(AR_FLAGS) ../libcallback.a *.o
 	$(RM) -r libtmpdir
 	$(RANLIB) libcallback.a
