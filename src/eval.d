@@ -2479,6 +2479,7 @@ LISPFUNN(subr_info,1)
       var bool allow_flag = # Flag für allow-other-keys (ob                 \
         # &ALLOW-OTHER-KEYS angegeben war oder ':ALLOW-OTHER-KEY T' vorkam) \
         (allow_flag_expr);                                                  \
+      var bool check_forced = false; # allow-other-key nil                  \
       var uintC check_count;                                                \
       dotimesC(check_count,argcount, {                                      \
         var object kw = NEXT(argptr); # nächstes Argument                   \
@@ -2487,8 +2488,9 @@ LISPFUNN(subr_info,1)
         if (!symbolp(kw))                                                   \
           fehler_key_notkw(kw);                                             \
         if (!allow_flag) { # andere Keywords erlaubt? ja -> ok              \
-          if (eq(kw,S(Kallow_other_keys))) { #  Kommt :ALLOW-OTHER-KEYS ?   \
+          if (!check_forced && eq(kw,S(Kallow_other_keys))) {               \
             if (!nullp(val)) { allow_flag = true; }                         \
+            else { check_forced = true; }                                   \
           } else {                                                          \
             # bis hierher war nicht :ALLOW-OTHER-KEYS da, und NOALLOW       \
             if (eq(bad_keyword,nullobj)) { # bisher alle Keywords ok?       \

@@ -1,3 +1,8 @@
+2001-05-06  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (check_for_illegal_keywords): look ony at the first
+	:allow-other-keys keyword
+
 2001-05-05  Sam Steingold  <sds@gnu.org>
 
 	handle devices in hostname translation correctly
