@@ -1,3 +1,8 @@
+2004-12-17  Bruno Haible  <bruno@clisp.org>
+
+	* _clisp.c (main): Fix handling of option -E.
+	Reported by John K. Hinsdale <hin@alma.com>.
+
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
 	Allocate narrow strings by default, instead of wide UCS-4 strings.
