@@ -623,7 +623,7 @@
 ;          )
            (CHARACTER
              `(OR CHARACTER
-                  #-ANSI-CL (INTEGER 0 ,(1- char-int-limit))
+                  ,@(if (not *ansi*) `((INTEGER 0 ,(1- char-int-limit))))
                   (DESIGNATOR (STRING 1))
            )  )
 ;          (CLASS `(OR CLOS:CLASS (AND SYMBOL (SATISFIES CLASS-DESIGNATOR-P))))
@@ -660,7 +660,7 @@
 ;          )
            (STRING-CHAR
              `(OR STRING-CHAR
-                  #-ANSI-CL (INTEGER 0 ,(1- char-code-limit))
+                  ,@(if (not *ansi*) `((INTEGER 0 ,(1- char-code-limit))))
                   (DESIGNATOR (STRING 1))
            )  )
            (t thing)
