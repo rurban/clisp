@@ -1,5 +1,10 @@
 2005-01-21  Sam Steingold  <sds@gnu.org>
 
+	* control.d (make_variable_frame): fixed the check whether the
+	variable is special
+
+2005-01-21  Sam Steingold  <sds@gnu.org>
+
 	* control.d (SET_BIT): new macro
 	(make_variable_frame, activate_bindings, LET*, SYMBOL-MACROLET):
 	(MULTIPLE-VALUE-BIND): use it
