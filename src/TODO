@@ -33,6 +33,10 @@ Should handle these soon.
 Embeddability: additional API in spvw.d; global error handler; example.
 
 
+Review all macros and tighten the runtime interface of the macros.
+  check-redefinition
+
+
 CLISP_LANGUAGE=german LC_ALL=C clisp -q
 > (/ 0)
 => endless loop
