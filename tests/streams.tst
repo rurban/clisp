@@ -9,6 +9,12 @@
 
 ;; CLOSE should not delete information about
 ;; element type, direction, and external format
+;; Note that CLHS <http://www.lisp.org/HyperSpec/Body/sec_21-1-3.html>
+;; 21.1.3 "Stream Arguments to Standardized Functions"
+;; says that INPUT-STREAM-P &c do not operate on closed streams while
+;; the comp.lang.lisp thread "CLOSE and OUTPUT-STREAM-P"
+;; <http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&th=e0c06a88910db64b&rnum=1>
+;; appears to imply otherwise; we follow the opinion of the users.
 (defun close-1 (s)
   (let* ((i (input-stream-p s))
          (o (output-stream-p s))
