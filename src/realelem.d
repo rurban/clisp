@@ -1126,7 +1126,7 @@ local maygc object R_I_expt_R (object x, object y)
   if (R_minusp(y)) /* take absolute value of y */
     { y = I_minus_I(y); y_negative = true; }
   /* now y>0. */
-  if (R_rationalp(x)) { /* x rational (query not endangered by GC!) ? */
+  if (R_rationalp(STACK_0)) { /* x rational? */
     x = RA_I_expt_RA(popSTACK(),y); /* yes -> faster routine */
   } else {
     pushSTACK(y);

@@ -1,5 +1,9 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* realelem.d (R_I_expt_R): Avoid a false GC-safety bug alert.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* encoding.d (CONVERT-STRING-FROM-BYTES): Avoid a false GC-safety bug
 	alert.
 
