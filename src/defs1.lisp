@@ -46,7 +46,7 @@
              (SYSTEM::MAP-SYMBOLS
               #'(LAMBDA (,var)
                   ,@(if declarations `((DECLARE ,@declarations)) '())
-                  ,@body-rest)
+                  (TAGBODY ,@body-rest))
                ,packvar)
              ,resultform))))))
 
@@ -63,7 +63,7 @@
              (SYSTEM::MAP-EXTERNAL-SYMBOLS
                #'(LAMBDA (,var)
                    ,@(if declarations `((DECLARE ,@declarations)) '())
-                   ,@body-rest)
+                   (TAGBODY ,@body-rest))
                ,packvar)
              ,resultform))))))
 
@@ -77,7 +77,7 @@
          (SYSTEM::MAP-ALL-SYMBOLS
            #'(LAMBDA (,var)
                ,@(if declarations `((DECLARE ,@declarations)) '())
-               ,@body-rest))
+               (TAGBODY ,@body-rest)))
          ,resultform))))
 
 ;;; <HS>/Body/mac_with-package-iterator.html
