@@ -11829,6 +11829,14 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   extern object coerce_float (object obj, object type);
 # wird verwendet von PREDTYPE
 
+# UP: Returns the decimal string representation of an integer >= 0.
+# decimal_string(x)
+# > object x: an integer >= 0
+# < object result: a simple-string containing the digits
+# kann GC auslösen
+  extern object decimal_string (object x);
+# wird verwendet von PATHNAME
+
 # ###################### FRGNIBL zu FOREIGN.D ############################# #
 
 #ifdef DYNAMIC_FFI
