@@ -1,44 +1,34 @@
 # posix math functions in <math.h>
 # Sam Steingold <sds@gnu.org> 1999+
-# configure --export-syscalls to access these in the package posix
+# configure --with-export-syscalls to access these in the package "POSIX"
+# This file gets included by lisparit.d
 
 #ifdef EXPORT_SYSCALLS
 
-## trying to include math.h
-
-#ifdef __sun__
-#define decimal_string solaris_decimal_string
-#endif
-
-#ifdef __linux__
-#undef floor
-#endif
-
+# Must include <math.h>
+#define decimal_string  solaris_decimal_string  # needed on Solaris
+#undef floor  # needed on Linux
 #include <math.h>
-
-#ifdef __sun__
-#undef decimal_string
-#endif
-
-#ifdef __linux__
 #define floor(a,b)  ((a) / (b))
-#endif
-
-## done with math.h
+#undef decimal_string
 
 local double to_double (object x);
 local double to_double(x)
   var object x;
-{ check_real(x);
- { dfloatjanus fj;
-   DF_to_c_double(R_rationalp(x) ? RA_to_DF(x) : F_to_DF(x), &fj);
-   { double ret; *(dfloatjanus*)&ret = fj; return ret; }
-}}
+{
+  check_real(x);
+  var double ret;
+  DF_to_c_double(R_rationalp(x) ? RA_to_DF(x) : F_to_DF(x), (dfloatjanus*)&ret);
+  return ret;
+}
 
 local int to_int (object x);
 local int to_int(x)
   var object x;
-{ check_integer(x); return I_to_L(x); }
+{
+  check_integer(x);
+  return I_to_L(x);
+}
 
 #define D_S           to_double(popSTACK())
 #define I_S           to_int(popSTACK())
@@ -93,24 +83,22 @@ LISPFUNN(lgamma,1)
 LISPFUNN(bogomips,0)
 # (POSIX:BOGOMIPS)
 {
-  var unsigned long loops = 1, ticks, ii;
-
-  mv_count=1;
-  if ((clock_t)-1 == clock()) {
-    N_D(-1.0,value1);
-    return;
-  }
-  while ((loops <<= 1)) {
-    ticks = clock();
-    for (ii = loops; ii > 0; ii--);
-    ticks = clock() - ticks;
-    if (ticks >= CLOCKS_PER_SEC) {
-      double bogo = (1.0 * loops / ticks) * (CLOCKS_PER_SEC / 500000.0);
-      N_D(bogo,value1);
-      return;
+  if (clock() != (clock_t)-1) {
+    var unsigned long loops = 1;
+    while ((loops <<= 1)) {
+      var unsigned long ticks;
+      var unsigned long ii;
+      ticks = clock();
+      for (ii = loops; ii > 0; ii--);
+      ticks = clock() - ticks;
+      if (ticks >= CLOCKS_PER_SEC) {
+        double bogo = (1.0 * loops / ticks) * (CLOCKS_PER_SEC / 500000.0);
+        N_D(bogo,value1); mv_count=1;
+        return;
+      }
     }
   }
-  N_D(-1.0,value1);
+  N_D(-1.0,value1); mv_count=1;
 }
 
 #undef D_S
