@@ -14703,7 +14703,7 @@ local struct timeval * sec_usec (object sec, object usec, struct timeval *tv) {
 local bool socket_server_wait (object sose, struct timeval *tvp) {
   var SOCKET handle = TheSocket(TheSocketServer(sose)->socket_handle);
  #if defined(WIN32_NATIVE)
-  return interruptible_wait(handle,tvp);
+  return interruptible_socket_wait(handle,socket_wait_read,tvp);
  #else
  restart_select:
   begin_system_call();

@@ -252,6 +252,11 @@ LISPFUNN(machine_instance,0)
   extern_C int setsockopt (SOCKET fd, int level, int optname, SETSOCKOPT_CONST SETSOCKOPT_ARG_T optval, SETSOCKOPT_OPTLEN_T optlen);
 #endif
 
+# ioctl for sockets
+#ifdef WIN32
+#define ioctl ioctlsocket
+#endif
+
 # A wrapper around the closesocket() function/macro.
   #define CLOSESOCKET(fd)  while ((closesocket(fd) < 0) && sock_errno_is(EINTR)) ;
 
@@ -737,9 +742,6 @@ local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
       saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
     }
   }
- #ifdef WIN32_NATIVE
-  if (!lingerize_socket(&fd)) return INVALID_SOCKET;
- #endif
   # Bind it to the desired port.
   if (bind(fd, addr, addrlen) >= 0)
     # Start listening for client connections.
@@ -810,9 +812,6 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
   var SOCKET fd;
   if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
     return INVALID_SOCKET;
- #ifdef WIN32_NATIVE
-  if (!lingerize_socket(&fd)) return INVALID_SOCKET;
- #endif
  #if defined(FIONBIO) && (defined(HAVE_SELECT) || defined(WIN32_NATIVE))
   if (timeout) {
     var int non_blocking_io = 1;
@@ -822,11 +821,14 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
   if (connect(fd, addr, addrlen) >= 0)
     return fd;
  #if defined(FIONBIO) && (defined(HAVE_SELECT) || defined(WIN32_NATIVE))
-  if (sock_errno_is(EINPROGRESS)) {
+  if (sock_errno_is(EINPROGRESS) || sock_errno_is(EWOULDBLOCK)) {
     var struct timeval *tvp = (struct timeval*)timeout;
     if ((tvp == NULL) || (tvp->tv_sec != 0) || (tvp->tv_usec != 0)) { # wait
      #if defined(WIN32_NATIVE)
-      interruptible_wait(fd,tvp);
+      if (!interruptible_socket_wait(fd,socket_wait_write,tvp)) {
+        CLOSESOCKET(fd); sock_set_errno(ETIMEDOUT);
+        return INVALID_SOCKET;
+      }
      #else
      restart_select:
       var fd_set handle_set;
@@ -852,6 +854,7 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
   saving_sock_errno(CLOSESOCKET(fd));
   return INVALID_SOCKET;
 }
+
 global SOCKET create_client_socket (const char*hostname, unsigned intport,
                                     void* timeout) {
   return with_hostname(hostname,(unsigned short)intport,
