@@ -6,21 +6,8 @@
 (export '(eval-env with-keyboard *keyboard-input* *prompt*))
 (in-package "SYSTEM")
 
-;-------------------------------------------------------------------------------
-;;                               LOAD-RC-FILE
-
-(defun load-rc-file ()
-  "Load ~/.clisprc"
-  (let ((rc (make-pathname :directory (user-homedir-pathname)
-                           :name #+DOS "_CLISPRC"
-                                 #+(or OS/2 WIN32 ACORN) "_clisprc"
-                                 #+(or UNIX AMIGA) ".clisprc"
-       ))   )
-    (load rc :if-does-not-exist nil)
-) )
-
-;-------------------------------------------------------------------------------
-;;                                 EVAL-ENV
+;;;--------------------------------------------------------------------------
+;;;                                 EVAL-ENV
 
 ; Das Toplevel-Environment
 (defparameter *toplevel-environment* (eval '(the-environment)))
@@ -31,8 +18,8 @@
   (evalhook form nil nil env)
 )
 
-;-------------------------------------------------------------------------------
-;;                                 Debugger
+;;;--------------------------------------------------------------------------
+;;;                                 Debugger
 
 (defvar *break-count* 0) ; Anzahl der aktiven Break-Schleifen (Fixnum >=0)
 
@@ -491,8 +478,8 @@ Continue = continuer l'évaluation"
 ) )
 (setq *break-driver* #'break-loop)
 
-;-------------------------------------------------------------------------------
-;;        komfortabler Stepper. (Läuft nur in compiliertem Zustand!)
+;;;--------------------------------------------------------------------------
+;;;        komfortabler Stepper. (Läuft nur in compiliertem Zustand!)
 
 (defvar *step-level* 0) ; momentane Step-Tiefe
 (defvar *step-quit* most-positive-fixnum) ; kritische Step-Tiefe:
@@ -672,8 +659,8 @@ Step-until, Next-until, Over-until, Continue-until:
         (go over)
 ) ) )
 
-;-------------------------------------------------------------------------------
-;;                                  Errors
+;;;-------------------------------------------------------------------------
+;;;                                  Errors
 
 ; *ERROR-HANDLER* sollte NIL oder eine Funktion sein, die übergeben bekommt:
 ; - NIL (bei ERROR) bzw. continue-format-string (bei CERROR),
@@ -759,8 +746,8 @@ Step-until, Next-until, Over-until, Continue-until:
   (exit t)
 )
 
-;-------------------------------------------------------------------------------
-;;                            Querying the user
+;;;--------------------------------------------------------------------------
+;;;                            Querying the user
 
 ; (Y-OR-N-P [format-string {arg}*]), CLTL S. 407
 (defun y-or-n-p (&optional format-string &rest args)

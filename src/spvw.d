@@ -1655,26 +1655,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           });
       }
 
-# print usage and exit
-nonreturning_function (local, usage, (int exit_code));
-local void usage (int exit_code)
-{
-  asciz_out("Usage:  ");
-  asciz_out(program_name);
-  asciz_out(" [-h] [-m memsize]");
-  #ifndef NO_SP_MALLOC
-  asciz_out(" [-s stacksize]");
-  #endif
-  #ifdef MULTIMAP_MEMORY_VIA_FILE
-  asciz_out(" [-t tmpdir]");
-  #endif
-  asciz_out(" [-W] [-M memfile] [-L language] [-N nlsdir] [-q] [-I] [-C]"
-            " [-norc] [-i initfile ...] [-c [-l] lispfile [-o outputfile] ...]"
-            " [-p packagename] [-a] [-x expression] [lispfile [argument ...]]"
-            NLstring);
-  quit_sofort (exit_code); # anormales Programmende
-}
-
 # Hauptprogramm trägt den Namen 'main'.
   #ifdef NEXTAPP
     # main() existiert schon in Lisp_main.m
@@ -1832,6 +1812,24 @@ local void usage (int exit_code)
       # - in den Manual-Pages _clisp.1 und _clisp.html.
       #
       program_name = argv[0]; # argv[0] ist der Programmname
+      if (FALSE)
+        { usage:
+          asciz_out("Usage:  ");
+          asciz_out(program_name);
+          asciz_out(" [-h] [-m memsize]");
+          #ifndef NO_SP_MALLOC
+          asciz_out(" [-s stacksize]");
+          #endif
+          #ifdef MULTIMAP_MEMORY_VIA_FILE
+          asciz_out(" [-t tmpdir]");
+          #endif
+          asciz_out(" [-W] [-M memfile] [-L language] [-N nlsdir] [-q] [-I]"
+                    " [-C] [-norc] [-i initfile ...] [-c [-l] lispfile"
+                    " [-o outputfile] ...] [-p packagename] [-a]"
+                    " [-x expression] [lispfile [argument ...]]"
+                    NLstring);
+          quit_sofort(1); # anormales Programmende
+        }
      {var char** argptr = &argv[1];
       var char** argptr_limit = &argv[argc];
       var enum { for_exec, for_init, for_compile } argv_for = for_exec;
@@ -1842,12 +1840,12 @@ local void usage (int exit_code)
           if ((arg[0] == '-') && !(arg[1] == '\0'))
             { switch (arg[1])
                 { case 'h': # Help
-                    usage ((arg[2] != 0));
+                    goto usage;
                   # Liefert nach einem einbuchstabigen Kürzel den Rest der
                   # Option in arg. Evtl. Space wird übergangen.
                   #define OPTION_ARG  \
                     if (arg[2] == '\0') \
-                      { if (argptr < argptr_limit) arg = *argptr++; else usage (1); } \
+                      { if (argptr < argptr_limit) arg = *argptr++; else goto usage; } \
                       else { arg = &arg[2]; }
                   # Parst den Rest einer Option, die eine Byte-Größe angibt.
                   # Überprüft auch, ob gewisse Grenzen eingehalten werden.
@@ -1874,14 +1872,14 @@ local void usage (int exit_code)
                                      ENGLISH ? "Syntax for %s: nnnnnnn or nnnnKB or nMB" NLstring : \
                                      FRANCAIS ? "syntaxe pour %s: nnnnnnn ou nnnnKB ou nMB" NLstring : \
                                      "", docstring);                \
-                         usage (1);                                 \
+                         goto usage;                                \
                        }                                            \
                      if (!((val >= limit_low) && (val <= limit_high))) \
                        { asciz_out_s(DEUTSCH ? "%s ist nicht im gültigen Bereich" NLstring : \
                                      ENGLISH ? "%s out of range" NLstring : \
                                      FRANCAIS ? "%s n'est pas entre les bornes" NLstring : \
                                      "", docstring);                \
-                         usage (1);                                 \
+                         goto usage;                                \
                        }                                            \
                      # Bei mehreren -m bzw. -s Argumenten zählt nur das letzte. \
                      sizevar = val;                                 \
@@ -1915,17 +1913,17 @@ local void usage (int exit_code)
                   #ifdef MULTIMAP_MEMORY_VIA_FILE
                   case 't': # temporäres Directory
                     OPTION_ARG
-                    if (!(argv_tmpdir == NULL)) usage (1);
+                    if (!(argv_tmpdir == NULL)) goto usage;
                     argv_tmpdir = arg;
                     break;
                   #endif
                   case 'W': # WIDE-Version wählen, for backward compatibility
                     argv_wide = TRUE;
-                    if (!(arg[2] == '\0')) usage (1);
+                    if (!(arg[2] == '\0')) goto usage;
                     break;
                   case 'n':
                     if (!strcmp (arg, "-norc")) argv_norc = TRUE;
-                    else usage (1);
+                    else goto usage;
                     break;
                   case 'M': # MEM-File
                     OPTION_ARG
@@ -1944,38 +1942,38 @@ local void usage (int exit_code)
                     break;
                   case 'q': # keine Copyright-Meldung
                     argv_quiet = TRUE;
-                    if (!(arg[2] == '\0')) usage (1);
+                    if (!(arg[2] == '\0')) goto usage;
                     break;
                   case 'I': # ILISP-freundlich
                     ilisp_mode = TRUE;
-                    if (!(arg[2] == '\0')) usage (1);
+                    if (!(arg[2] == '\0')) goto usage;
                     break;
                   case 'C': # *LOAD-COMPILING* setzen
                     argv_load_compiling = TRUE;
-                    if (!(arg[2] == '\0')) usage (1);
+                    if (!(arg[2] == '\0')) goto usage;
                     break;
                   case 'i': # Initialisierungs-Files
                     argv_for = for_init;
-                    if (!(arg[2] == '\0')) usage (1);
+                    if (!(arg[2] == '\0')) goto usage;
                     break;
                   case 'c': # Zu compilierende Files
                     argv_compile = TRUE;
                     argv_for = for_compile;
                     if (arg[2] == 'l')
                       { argv_compile_listing = TRUE;
-                        if (!(arg[3] == '\0')) usage (1);
+                        if (!(arg[3] == '\0')) goto usage;
                       }
                       else
-                      { if (!(arg[2] == '\0')) usage (1); }
+                      { if (!(arg[2] == '\0')) goto usage; }
                     break;
                   case 'l': # Compilate und Listings
                     argv_compile_listing = TRUE;
-                    if (!(arg[2] == '\0')) usage (1);
+                    if (!(arg[2] == '\0')) goto usage;
                     break;
                   case 'o': # Ziel für zu compilierendes File
-                    if (!(arg[2] == '\0')) usage (1);
+                    if (!(arg[2] == '\0')) goto usage;
                     OPTION_ARG
-                    if (!((argv_compile_filecount > 0) && (argv_compile_files[argv_compile_filecount-1].output_file==NULL))) usage (1);
+                    if (!((argv_compile_filecount > 0) && (argv_compile_files[argv_compile_filecount-1].output_file==NULL))) goto usage;
                     argv_compile_files[argv_compile_filecount-1].output_file = arg;
                     break;
                   case 'p': # Package
@@ -1985,18 +1983,18 @@ local void usage (int exit_code)
                     break;
                   case 'a': # ANSI CL Compliance
                     argv_ansi = TRUE;
-                    if (!(arg[2] == '\0')) usage (1);
+                    if (!(arg[2] == '\0')) goto usage;
                     break;
                   case 'x': # LISP-Expression ausführen
                     OPTION_ARG
-                    if (!(argv_expr == NULL)) usage (1);
+                    if (!(argv_expr == NULL)) goto usage;
                     argv_expr = arg;
                     break;
                   case '-': # -- Optionen im GNU-Stil
                     if (asciz_equal(&arg[2],"help"))
-                      usage (0);
+                      goto usage;
                     elif (asciz_equal(&arg[2],"version"))
-                      { if (!(argv_expr == NULL)) usage (0);
+                      { if (!(argv_expr == NULL)) goto usage;
                         argv_quiet = TRUE;
                         argv_expr = "(PROGN (FORMAT T \"CLISP ~A\" (LISP-IMPLEMENTATION-VERSION)) (LISP:EXIT))";
                         break;
@@ -2004,10 +2002,10 @@ local void usage (int exit_code)
                     elif (asciz_equal(&arg[2],"quiet") || asciz_equal(&arg[2],"silent"))
                       { argv_quiet = TRUE; break; }
                     else
-                      usage (1); # Unbekannte Option
+                      goto usage; # Unbekannte Option
                     break;
                   default: # Unbekannte Option
-                    usage (1);
+                    goto usage;
             }   }
             else
             # keine Option,
@@ -2067,11 +2065,11 @@ local void usage (int exit_code)
       #endif
       if (!argv_compile)
         # Manche Optionen sind nur zusammen mit '-c' sinnvoll:
-        { if (argv_compile_listing) usage (1); }
+        { if (argv_compile_listing) goto usage; }
         else
         # Andere Optionen sind nur ohne '-c' sinnvoll:
-        { if (!(argv_expr == NULL)) usage (1); }
-      if (argv_expr && argv_execute_file) usage (1);
+        { if (!(argv_expr == NULL)) goto usage; }
+      if (argv_expr && argv_execute_file) goto usage;
      }
      # Tabelle von Fehlermeldungen initialisieren:
      if (init_errormsg_table()<0) goto no_mem;
@@ -2776,8 +2774,29 @@ local void usage (int exit_code)
       if (argv_load_compiling)
         # (SETQ *LOAD-COMPILING* T) ausführen:
         { Symbol_value(S(load_compiling)) = T; }
-      # load RC file ~/.clisprc.(lsp|fas)
-      if (!argv_norc) { funcall(S(load_rc_file),0); }
+      # load RC file ~/.clisprc
+      if (!argv_norc) {
+         funcall(S(user_homedir_pathname),0);
+         pushSTACK(S(Kdirectory));
+         pushSTACK(value1);
+         pushSTACK(S(Kname));
+       #if defined(UNIX) || defined(AMIGAOS)
+         pushSTACK(asciz_to_string(".clisprc"));
+       #else
+       #if defined(OS2) || defined(WIN32) || defined(ACORN)
+         pushSTACK(asciz_to_string("_clisprc"));
+       #else
+       #if defined(MSDOS)
+         pushSTACK(asciz_to_string("_CLISPRC"));
+       #endif
+       #endif
+       #endif
+         funcall(S(make_pathname),4);
+         pushSTACK(value1);
+         pushSTACK(S(Kif_does_not_exist));
+         pushSTACK(S(nil));
+         funcall(S(load),3);
+      }
       # für jedes initfile (LOAD initfile) ausführen:
       { var char** fileptr = &argv_init_files[0];
         var uintL count;
