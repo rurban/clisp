@@ -1053,7 +1053,7 @@ The graphic characters have been described above.
 The standard characters are <CODE>#\Newline</CODE> and those graphic characters with a
 code between 32 and 126 (inclusive).
 <P>
-The alphabetic characters are these string-chars:<PRE>
+The alphabetic characters are these characters:<PRE>
              ABCDEFGHIJKLMNOPQRSTUVWXYZ
              abcdefghijklmnopqrstuvwxyz
 </PRE>and the international alphabetic characters from the character set:<PRE>
@@ -1065,7 +1065,7 @@ arguments.
 
 <H3>13.4.</H3>
 
-The string chars that are not graphic chars and the space character have
+The characters that are not graphic chars and the space character have
 names:
 <!-- #ifdef AMIGA_CHARNAMES -->
 <DL>
@@ -1250,7 +1250,7 @@ be used instead of <CODE>maphash</CODE> :
 
 <CODE>make-array</CODE> can return specialized arrays for the element types
 <CODE>(unsigned-byte 2)</CODE>, <CODE>(unsigned-byte 4)</CODE>, <CODE>(unsigned-byte 8)</CODE>, <CODE>(unsigned-byte 16)</CODE>,
-<CODE>(unsigned-byte 32)</CODE> and of course <CODE>bit</CODE> and <CODE>string-char</CODE>.
+<CODE>(unsigned-byte 32)</CODE> and of course <CODE>bit</CODE> and <CODE>character</CODE>.
 <P>
 <CODE>array-rank-limit</CODE> is either 65536 or 4294967296.
 <P>
@@ -1673,8 +1673,8 @@ consecutively read from <VAR>stream</VAR>. It returns the index of the first ele
 of <VAR>sequence</VAR> that was not updated (= <VAR>end</VAR> or &lt; <VAR>end</VAR> if the stream reached its
 end).
 This function is especially efficient if <VAR>sequence</VAR> is a string and <VAR>stream</VAR> is
-a file stream with element type <VAR>string-char</VAR>, a pipe stream or a string input
-stream.
+a file stream with element type <CODE>character</CODE> or <CODE>string-char</CODE>, a pipe stream or
+a string input stream.
 
 <DL>
   <DT>
@@ -1725,7 +1725,7 @@ The function <STRONG><CODE>write-char-sequence</CODE></STRONG> performs multiple
 of the subsequence of <VAR>sequence</VAR> specified by <VAR><CODE>:start</CODE></VAR> and <VAR><CODE>:end</CODE></VAR> to <VAR>stream</VAR>.
 It returns <VAR>sequence</VAR>.
 This function is especially efficient if <VAR>sequence</VAR> is a string and <VAR>stream</VAR> is
-a file stream with element type <CODE>string-char</CODE> or a pipe stream.
+a file stream with element type <CODE>character</CODE> or <CODE>string-char</CODE> or a pipe stream.
 
 <H3>22.3.2.</H3>
 
@@ -3473,7 +3473,7 @@ The simple C types are these:
 <TR> <TH>Lisp name     <TH>Lisp equiv           <TH>C equiv        <TH>ILU equiv <TH>Comment
 <TR>  <TD><CODE>nil</CODE>           <TD><CODE>nil</CODE>                  <TD><CODE>void</CODE>           <TD>                  <TD>as a result type only
 <TR>  <TD><CODE>boolean</CODE>       <TD><CODE>boolean</CODE>              <TD><CODE>int</CODE>            <TD><CODE>BOOLEAN</CODE>
-<TR>  <TD><CODE>character</CODE>     <TD><CODE>string-char</CODE>          <TD><CODE>char</CODE>           <TD><CODE>SHORT CHARACTER</CODE>
+<TR>  <TD><CODE>character</CODE>     <TD><CODE>character</CODE>            <TD><CODE>char</CODE>           <TD><CODE>SHORT CHARACTER</CODE>
 <TR>  <TD><CODE>char</CODE>          <TD><CODE>integer</CODE>              <TD><CODE>signed char</CODE>
 <TR>  <TD><CODE>uchar</CODE>         <TD><CODE>integer</CODE>              <TD><CODE>unsigned char</CODE>
 <TR>  <TD><CODE>short</CODE>         <TD><CODE>integer</CODE>              <TD><CODE>short</CODE>

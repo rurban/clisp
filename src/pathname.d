@@ -8031,9 +8031,7 @@ LISPFUN(open,1,0,norest,key,5,\
     } }
     # :element-type überprüfen und in type und eltype_size übersetzen:
     { var object arg = STACK_3;
-      if (eq(arg,unbound) || eq(arg,S(string_char)) || eq(arg,S(Kdefault))) # STRING-CHAR, :DEFAULT
-        { type = strmtype_sch_file; goto eltype_ok; }
-      if (eq(arg,S(character))) # CHARACTER
+      if (eq(arg,unbound) || eq(arg,S(character)) || eq(arg,S(string_char)) || eq(arg,S(Kdefault))) # CHARACTER, STRING-CHAR, :DEFAULT
         { type = strmtype_ch_file; goto eltype_ok; }
       if (eq(arg,S(bit))) # BIT
         { type = strmtype_iu_file; eltype_size = Fixnum_1; goto eltype_ok; }
@@ -8074,14 +8072,6 @@ LISPFUN(open,1,0,norest,key,5,\
       # SUBTYPEP dann nicht dreimal dasselbe machen müssen):
       pushSTACK(arg); funcall(S(canonicalize_type),1); # (SYS::CANONICALIZE-TYPE arg)
       pushSTACK(value1); # canon-arg retten
-      pushSTACK(STACK_0); pushSTACK(S(string_char)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'STRING-CHAR)
-      if (!nullp(value1))
-        { skipSTACK(1);
-          subr_self = popSTACK();
-          filename = popSTACK();
-          type = strmtype_sch_file;
-          goto eltype_ok;
-        }
       pushSTACK(STACK_0); pushSTACK(S(character)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'CHARACTER)
       if (!nullp(value1))
         { skipSTACK(1);

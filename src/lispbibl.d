@@ -2209,7 +2209,7 @@ some information about the rank, the representation and the element type:
   ------------------------------+---------------+--------------+
    (vector bit/[un]signed-byte) | sbvector_type | bvector_type |
   ------------------------------+---------------+--------------+
-   (vector string-char)         | sstring_type  | string_type  |
+   (vector character)           | sstring_type  | string_type  |
   ------------------------------+---------------+--------------+
    (vector t)                   | svector_type  | vector_type  |
   ------------------------------+---------------+--------------+
@@ -4556,7 +4556,7 @@ typedef symbol_ *  Symbol;
 # Characters
 
 # Integer, der die Daten eines Character ganz faßt:
-  #define char_int_len 16
+  #define char_int_len 8
   #define char_int_limit  (1UL<<char_int_len)
   typedef unsigned_int_with_n_bits(char_int_len)  cint;
 # Aus einem Integer-Code ein Character machen:
@@ -4582,28 +4582,12 @@ typedef symbol_ *  Symbol;
 # das ist ein oint-Vergleich bzw. (unter Characters) sogar ein
 # cint-Vergleich ihrer Integer-Codes.
 
-# Aufteilung eines Integer-Codes in Bits:
-  #define char_code_shift_c   0      # (sollte =0 sein, siehe CLTL S. 242)
-  #define char_code_len_c     8      # Ascii-Zeichensatz mit 8 Bits, paßt in uintB
-  #define char_code_limit     (1UL<<char_code_len_c)
-  #define char_code_mask_c    ((char_code_limit-1)<<char_code_shift_c)
-# Aus dem Code eines String-Char ein Character machen:
-  #if !(char_code_shift_c==0)
-    #define code_char(code_from_code_char)  \
-      int_char((cint)(code_from_code_char)<<char_code_shift_c)
-  #else
-    # falls nicht geschoben werden muß:
-    #define code_char(code_from_code_char)  \
-      int_char((cint)(code_from_code_char))
-  #endif
+# Die Daten eines Character bestehen nur aus dem Code.
+  #define char_code_limit  char_int_limit
+# Aus dem Code ein Character machen:
+  #define code_char(code_from_code_char)  int_char((cint)(code_from_code_char))
 # Aus einem Character den Code extrahieren:
-  #if !((char_code_shift_c==0)&&(char_code_len_c==8))
-    #define char_code(char_from_char_code)  \
-      ((uintB)((char_int(char_from_char_code)&char_code_mask_c)>>char_code_shift_c))
-  #else
-    # falls der char-code genau das untere Byte belegt:
-    #define char_code(char_from_char_code)  ((uintB)(char_int(char_from_char_code)))
-  #endif
+  #define char_code(char_from_char_code)  ((uintB)(char_int(char_from_char_code)))
 # wird verwendet von STREAM, DEBUG, EVAL
 
 # Fixnums
@@ -4890,14 +4874,14 @@ typedef iarray_ *  Iarray;
   #define arrayflags_atype_mask  0x07  # Maske für Elementtyp
 # Elementtypen von Arrays in Bits 2..0 der flags:
   # Die ersten sind so gewählt, daß 2^Atype_nBit = n ist.
-  #define Atype_Bit          0         # arrayflags_notbytep_bit gesetzt!
-  #define Atype_2Bit         1
-  #define Atype_4Bit         2
-  #define Atype_8Bit         3
-  #define Atype_16Bit        4
-  #define Atype_32Bit        5
-  #define Atype_T            6         # arrayflags_notbytep_bit gesetzt!
-  #define Atype_String_Char  7         # arrayflags_notbytep_bit gesetzt!
+  #define Atype_Bit    0         # arrayflags_notbytep_bit gesetzt!
+  #define Atype_2Bit   1
+  #define Atype_4Bit   2
+  #define Atype_8Bit   3
+  #define Atype_16Bit  4
+  #define Atype_32Bit  5
+  #define Atype_T      6         # arrayflags_notbytep_bit gesetzt!
+  #define Atype_Char   7         # arrayflags_notbytep_bit gesetzt!
 
 # Typ von Arrays:
   #ifdef TYPECODES
@@ -5177,8 +5161,6 @@ typedef struct {
   #define strmflags_wr_ch_B  bit(strmflags_wr_ch_bit_B)
 # Nähere Typinfo:
   enum { # Die Werte dieser Aufzählung sind der Reihe nach 0,1,2,...
-                              enum_strmtype_sch_file,
-  #define strmtype_sch_file   (uintB)enum_strmtype_sch_file
                               enum_strmtype_ch_file,
   #define strmtype_ch_file    (uintB)enum_strmtype_ch_file
                               enum_strmtype_iu_file,
@@ -5257,7 +5239,7 @@ typedef struct {
   #define strm_file_name       strm_other[3] # Filename, ein Pathname oder NIL
   #define strm_file_truename   strm_other[4] # Truename, ein nicht-Logical Pathname oder NIL
   #define strm_file_handle     strm_other[2] # Handle, ein Fixnum >=0, <2^16
-  #define strm_sch_file_lineno strm_other[8] # Zeilennummer beim Lesen, ein Fixnum >0
+  #define strm_ch_file_lineno  strm_other[8] # Zeilennummer beim Lesen, ein Fixnum >0
   #define strm_synonym_symbol  strm_other[0]
   #define strm_broad_list      strm_other[0] # Liste von Streams
   #define strm_concat_list     strm_other[0] # Liste von Streams
@@ -6104,8 +6086,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test, ob ein Stream vom Typ gebufferter File-Stream ist:
   #define if_strm_bfile_p(strm,statement1,statement2)  \
     switchu (TheStream(strm)->strmtype) \
-      { case strmtype_sch_file:        \
-        case strmtype_ch_file:         \
+      { case strmtype_ch_file:         \
         case strmtype_iu_file:         \
         case strmtype_is_file:         \
           statement1; break;           \
@@ -6117,14 +6098,12 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test, ob ein Stream vom Typ File-Stream ist:
   #ifdef HANDLES
     #define case_strmtype_file  \
-      case strmtype_sch_file:   \
       case strmtype_ch_file:    \
       case strmtype_iu_file:    \
       case strmtype_is_file:    \
       case strmtype_handle
   #else
     #define case_strmtype_file  \
-      case strmtype_sch_file:   \
       case strmtype_ch_file:    \
       case strmtype_iu_file:    \
       case strmtype_is_file
@@ -6232,10 +6211,6 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #else
     #define charp(obj)  ((as_oint(obj) & 0x3F) == char_type)
   #endif
-
-# Test auf String-Char
-  #define string_char_p(obj)  \
-    ((as_oint(obj) & ~(((oint)char_code_mask_c)<<oint_data_shift)) == type_zero_oint(char_type))
 
 # Test auf SUBR (compiliertes funktionales Objekt)
   #ifdef TYPECODES
@@ -10242,7 +10217,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > element_type: Type-Specifier
 # < ergebnis: Elementtyp-Code Atype_xxx
 # Standard-Typen sind die möglichen Ergebnisse von ARRAY-ELEMENT-TYPE
-# (Symbole T, BIT, STRING-CHAR und Listen (UNSIGNED-BYTE n)).
+# (Symbole T, BIT, CHARACTER und Listen (UNSIGNED-BYTE n)).
 # Das Ergebnis ist ein Obertyp von element-type.
 # kann GC auslösen
   extern uintB eltype_code (object element_type);
@@ -10332,7 +10307,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # UP, liefert den Element-Typ eines Arrays
 # array_element_type(array)
 # > array : ein Array (simple oder nicht)
-# < ergebnis : Element-Typ, eines der Symbole T, BIT, STRING-CHAR, oder eine Liste
+# < ergebnis : Element-Typ, eines der Symbole T, BIT, CHARACTER, oder eine Liste
 # kann GC auslösen
   extern object array_element_type (object array);
 # wird verwendet von PREDTYPE, IO
@@ -10394,7 +10369,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # wird verwendet von SEQUENCE
 
 # Folgende beide Funktionen arbeiten auf "Semi-Simple String"s.
-# Das sind STRING-CHAR-Arrays mit FILL-POINTER, die aber nicht adjustierbar
+# Das sind CHARACTER-Arrays mit FILL-POINTER, die aber nicht adjustierbar
 # und nicht displaced sind und deren Datenvektor ein Simple-String ist.
 # Beim Überschreiten der Länge wird ihre Länge verdoppelt
 # (so daß der Aufwand fürs Erweitern nicht sehr ins Gewicht fällt).
@@ -10407,7 +10382,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   extern object make_ssstring (uintL len);
 # wird verwendet von STREAM, IO
 
-# UP: Schiebt ein String-Char in einen Semi-Simple String und erweitert ihn
+# UP: Schiebt ein Character in einen Semi-Simple String und erweitert ihn
 # dabei eventuell.
 # ssstring_push_extend(ssstring,ch)
 # > ssstring: Semi-Simple String
@@ -10970,13 +10945,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   nonreturning_function(extern, fehler_char, (object obj));
 # wird verwendet von CHARSTRG
 
-# Fehler, wenn Argument kein String-Char ist.
-# fehler_string_char(obj);
-# > obj: fehlerhaftes Argument
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_string_char, (object obj));
-# wird verwendet von IO
-
 # Fehlermeldung, falls ein Argument kein String ist:
 # fehler_string(obj);
 # > obj: Das fehlerhafte Argument
@@ -11019,8 +10987,8 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > obj: Argument
 # > subr_self: Aufrufer (ein SUBR)
 # obj sollte eine Variable sein
-  #define check_string_char(obj)  \
-    if (!string_char_p(obj)) { fehler_string_char(obj); }
+  #define check_char(obj)  \
+    if (!charp(obj)) { fehler_char(obj); }
   #define check_uint8(obj)  \
     if (!uint8_p(obj)) { fehler_uint8(obj); }
   #define check_sint8(obj)  \
@@ -11414,22 +11382,22 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   extern const uintB* write_byte_array (object stream, const uintB* byteptr, uintL len);
 # wird verwendet von SEQUENCE
 
-# UP: Liest mehrere String-Characters von einem Stream.
-# read_schar_array(stream,charptr,len)
+# UP: Liest mehrere Characters von einem Stream.
+# read_char_array(stream,charptr,len)
 # > stream: Stream
 # > uintB* charptr: Adresse der zu füllenden Zeichenfolge
 # > uintL len: Länge der zu füllenden Zeichenfolge
 # < uintB* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
-  extern uintB* read_schar_array (object stream, uintB* charptr, uintL len);
+  extern uintB* read_char_array (object stream, uintB* charptr, uintL len);
 # wird verwendet von SEQUENCE
 
-# UP: Schreibt mehrere String-Characters auf einen Stream.
-# write_schar_array(stream,charptr,len)
+# UP: Schreibt mehrere Characters auf einen Stream.
+# write_char_array(stream,charptr,len)
 # > stream: Stream
 # > uintB* charptr: Adresse der zu schreibenden Zeichenfolge
 # > uintL len: Länge der zu schreibenden Zeichenfolge
 # < uintB* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-  extern const uintB* write_schar_array (object stream, const uintB* charptr, uintL len);
+  extern const uintB* write_char_array (object stream, const uintB* charptr, uintL len);
 # wird verwendet von SEQUENCE
 
 # UP: Liefert den Stream, der der Wert einer Variablen ist.

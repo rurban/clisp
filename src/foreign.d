@@ -817,7 +817,7 @@ global object convert_from_foreign (object fvd, const void* data);
       pushSTACK(dims);
       if (symbolp(eltype))
         { if (eq(eltype,S(character)))
-            { pushSTACK(S(Kelement_type)); pushSTACK(S(string_char));
+            { pushSTACK(S(Kelement_type)); pushSTACK(S(character));
               argcount += 2;
             }
           elif (eq(eltype,S(uint8)))
@@ -1616,7 +1616,7 @@ local void convert_to_foreign(fvd,obj,data)
           }
         elif (eq(fvd,S(character)))
           { var uintB* pdata = (unsigned char *)data;
-            if (!string_char_p(obj)) goto bad_obj;
+            if (!charp(obj)) goto bad_obj;
             *pdata = char_code(obj);
             return;
           }

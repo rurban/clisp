@@ -473,12 +473,12 @@
                  FRANCAIS "~S : Le «stream» d'entrée se termine à l'intérieur d'un macro de lecture en ~S")
                 'read stream ch
             ) )
-            (unless (string-char-p nextch)
+            (unless (characterp nextch)
               (error-of-type 'stream-error
                 :stream stream
-                (DEUTSCH "~S von ~S: Gelesenes Zeichen ist kein String-Char: ~S"
-                 ENGLISH "~S from ~S: character read should be a string-char: ~S"
-                 FRANCAIS "~S de ~S : le caractère lu n'est pas de type STRING-CHAR.")
+                (DEUTSCH "~S von ~S: Gelesenes Zeichen ist kein Character: ~S"
+                 ENGLISH "~S from ~S: character read should be a character: ~S"
+                 FRANCAIS "~S de ~S : le caractère lu n'est pas un caractère: ~S")
                 'read stream ch
             ) )
             (unless (char<= #\0 nextch #\9)
@@ -555,7 +555,7 @@
 (defun read-sequence (sequence stream &rest rest &key (start 0) (end nil))
   (declare (ignore start end))
   (let ((eltype (stream-input-element-type stream)))
-    (cond ((or (eq eltype 'NIL) (eq eltype 'STRING-CHAR) (eq eltype 'CHARACTER))
+    (cond ((or (eq eltype 'NIL) (eq eltype 'CHARACTER))
            (apply #'read-char-sequence sequence stream rest)
           )
           ((subtypep eltype 'INTEGER)
@@ -572,7 +572,7 @@
 (defun write-sequence (sequence stream &rest rest &key (start 0) (end nil))
   (declare (ignore start end))
   (let ((eltype (stream-output-element-type stream)))
-    (cond ((or (eq eltype 'NIL) (eq eltype 'STRING-CHAR) (eq eltype 'CHARACTER))
+    (cond ((or (eq eltype 'NIL) (eq eltype 'CHARACTER))
            (apply #'write-char-sequence sequence stream rest)
           )
           ((subtypep eltype 'INTEGER)
@@ -613,7 +613,6 @@
 ; stream                     STREAM
 ; stream variable            ---
 ; string                     STRING, (STRING length)
-;                            STRING-CHAR
 
 (deftype designator (thing)
   (cond ((symbolp thing)
@@ -623,7 +622,7 @@
 ;          )
            (CHARACTER
              `(OR CHARACTER
-                  ,@(if (not *ansi*) `((INTEGER 0 ,(1- char-int-limit))))
+                  ,@(if (not *ansi*) `((INTEGER 0 ,(1- char-code-limit))))
                   (DESIGNATOR (STRING 1))
            )  )
 ;          (CLASS `(OR CLOS:CLASS (AND SYMBOL (SATISFIES CLASS-DESIGNATOR-P))))
@@ -658,11 +657,6 @@
 ;          (STREAM
 ;            `(OR BOOLEAN STREAM)
 ;          )
-           (STRING-CHAR
-             `(OR STRING-CHAR
-                  ,@(if (not *ansi*) `((INTEGER 0 ,(1- char-code-limit))))
-                  (DESIGNATOR (STRING 1))
-           )  )
            (t thing)
         ))
         ((consp thing)
@@ -688,7 +682,7 @@
                              (and (symbolp s) (eql (length (symbol-name s)) n))
                            )
                  ) )
-                 `(OR ,@(if (eql n 1) '(STRING-CHAR) '())
+                 `(OR ,@(if (eql n 1) '(CHARACTER) '())
                       (STRING ,n)
                       (AND SYMBOL (SATISFIES ,fun))
                   )

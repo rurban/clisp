@@ -1186,8 +1186,7 @@ LISPFUNN(coerce,2)
 #   (get type 'DEFTYPE-EXPANDER) /= NIL ->
 #          mit (list result-type) als Argument aufrufen, zum Anfang
 #   type = T -> object zurück
-#   type = CHARACTER -> COERCE_CHAR anwenden
-#   type = STRING-CHAR -> COERCE_CHAR anwenden und überprüfen
+#   type = CHARACTER, STRING-CHAR -> COERCE_CHAR anwenden
 #   type = FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT ->
 #          mit der Arithmetik umwandeln
 #   type = COMPLEX -> auf Zahl überprüfen
@@ -1238,20 +1237,11 @@ LISPFUNN(coerce,2)
         }  }}
         if (eq(result_type,T)) # result-type = T ?
           goto return_object; # ja -> object als Wert
-        if (eq(result_type,S(character))) # result-type = CHARACTER ?
+        if (eq(result_type,S(character)) || eq(result_type,S(string_char))) # result-type = CHARACTER oder STRING-CHAR ?
           { var object as_char = coerce_char(STACK_1); # object in Character umzuwandeln versuchen
             if (nullp(as_char))
               { pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
                 pushSTACK(O(type_designator_character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-                goto fehler_object;
-              }
-            value1 = as_char; mv_count=1; skipSTACK(2); return;
-          }
-        if (eq(result_type,S(string_char))) # result-type = STRING-CHAR ?
-          { var object as_char = coerce_char(STACK_1); # object in Character umzuwandeln versuchen
-            if (!string_char_p(as_char))
-              { pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-                pushSTACK(O(type_designator_string_char)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
                 goto fehler_object;
               }
             value1 = as_char; mv_count=1; skipSTACK(2); return;

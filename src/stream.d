@@ -165,10 +165,8 @@
 
 #  Mögliche Typen von Streams                 Zusatzkomponenten
 #  --------------------------                 -----------------
-#  0. Keyboard-Stream
-#  1. Interaktiver Terminalstream             Eingabebuffer, Zeichenzähler
-#  2. File-Stream für String-Chars            Handle, Pathname, File-Position,
-#     (Input, Output, I/O, Closed=Probe)      Buffer
+#  1. Keyboard-Stream
+#  2. Interaktiver Terminalstream             Eingabebuffer, Zeichenzähler
 #  3. File-Stream für Characters              Handle, Pathname, File-Position,
 #     (Input, Output, I/O, Closed=Probe)      Buffer
 #  4. File-Stream für Unsigned-Bytes          Handle, Pathname, File-Position,
@@ -448,7 +446,7 @@
   global void write_char(stream_,ch)
     var const object* stream_;
     var object ch;
-    { var cint c = char_int(ch);
+    { var uintB c = char_code(ch);
       # Char schreiben:
       wr_ch(*stream_)(stream_,ch);
       # Line Position aktualisieren:
@@ -577,24 +575,6 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
              DEUTSCH ? "~ ist kein Character und kann daher nicht auf ~ ausgegeben werden." :
              ENGLISH ? "~ is not a character, cannot be output onto ~" :
              FRANCAIS ? "~, n'étant pas de type CHARACTER, ne peut pas être écrit dans ~." :
-             ""
-            );
-    }
-
-# Fehler, wenn ein Character kein String-Char ist:
-# fehler_wr_string_char(stream,ch);
-  nonreturning_function(local, fehler_wr_string_char, (object stream, object ch));
-  local void fehler_wr_string_char(stream,ch)
-    var object stream;
-    var object ch;
-    { pushSTACK(ch); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(string_char)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-      pushSTACK(stream);
-      pushSTACK(ch);
-      fehler(type_error,
-             DEUTSCH ? "Character ~ ist kein String-Char und kann daher nicht auf ~ ausgegeben werden." :
-             ENGLISH ? "character ~ is not a string-char, cannot be output onto ~" :
-             FRANCAIS ? "Le caractère ~, n'étant pas de type STRING-CHAR, ne peut pas être écrit dans ~." :
              ""
             );
     }
@@ -1445,8 +1425,8 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     var const object* stream_;
     var object ch;
     { var Handle handle = TheHandle(TheStream(*stream_)->strm_ohandle);
-      # ch sollte String-Char sein:
-      if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); }
+      # ch sollte Character sein:
+      if (!charp(ch)) { fehler_wr_char(*stream_,ch); }
      {var uintB c = char_code(ch); # Code des Zeichens
       restart_it:
       begin_system_call();
@@ -1480,8 +1460,8 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     }}
 
 # WRITE-CHAR-SEQUENCE für Handle-Streams:
-  local const uintB* write_schar_array_handle (object stream, const uintB* ptr, uintL len);
-  local const uintB* write_schar_array_handle(stream,ptr,len)
+  local const uintB* write_char_array_handle (object stream, const uintB* ptr, uintL len);
+  local const uintB* write_char_array_handle(stream,ptr,len)
     var object stream;
     var const uintB* ptr;
     var uintL len;
@@ -1509,7 +1489,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     var uintL start;
     var uintL len;
     { if (len==0) return;
-      write_schar_array_handle(*stream_,&TheSstring(string)->data[start],len);
+      write_char_array_handle(*stream_,&TheSstring(string)->data[start],len);
     }
 #endif
 
@@ -3005,7 +2985,7 @@ LISPFUNN(make_keyboard_stream,0)
     var const object* stream_;
     var object ch;
     { var object stream = *stream_;
-      if (!string_char_p(ch)) { fehler_wr_string_char(stream,ch); } # ch sollte String-Char sein
+      if (!charp(ch)) { fehler_wr_char(stream,ch); } # ch sollte Character sein
       begin_call();
       nxterminal_write_char(char_code(ch));
       end_call();
@@ -3619,7 +3599,7 @@ LISPFUNN(make_keyboard_stream,0)
   local void wr_ch_terminal3(stream_,ch)
     var const object* stream_;
     var object ch;
-    { if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); } # ch sollte String-Char sein
+    { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
      {var uintB c = char_code(ch); # Code des Zeichens
       #if TERMINAL_OUTBUFFERED
       if (c==NL)
@@ -4715,7 +4695,7 @@ uintW v_put(ch)
   local void wr_ch_window(stream_,ch)
     var const object* stream_;
     var object ch;
-    { if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); } # ch sollte String-Char sein
+    { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
      {var uintB c = char_code(ch); # Code des Zeichens
       # Code c übers BIOS auf den Bildschirm ausgeben:
       v_put(c);
@@ -4874,7 +4854,7 @@ local int COLS;  # Anzahl Spalten, Anzahl Zeichen pro Zeile
   local void wr_ch_window(stream_,ch)
     var const object* stream_;
     var object ch;
-    { if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); } # ch sollte String-Char sein
+    { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
      {var uintB c = char_code(ch); # Code des Zeichens
       # Code c über die Video-Library auf den Bildschirm ausgeben:
       if (c==NL)
@@ -6712,7 +6692,7 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
   local void wr_ch_window(stream_,ch)
     var const object* stream_;
     var object ch;
-    { if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); } # ch sollte String-Char sein
+    { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
      {var uintB c = char_code(ch); # Code des Zeichens
       begin_system_call();
       if (graphic_char_p(c))
@@ -6943,7 +6923,7 @@ LISPFUNN(window_cursor_off,1)
   local void wr_ch_window(stream_,ch)
     var const object* stream_;
     var object ch;
-    { if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); } # ch sollte String-Char sein
+    { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
      {var uintB c = char_code(ch); # Code des Zeichens
       begin_system_call();
       if (graphic_char_p(c)) # nur druckbare Zeichen auf den Bildschirm lassen
@@ -7131,7 +7111,7 @@ LISPFUNN(window_cursor_off,1)
   local void wr_ch_window(stream_,ch)
     var const object* stream_;
     var object ch;
-    { if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); } # ch sollte String-Char sein
+    { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
      {var uintB c = char_code(ch); # Code des Zeichens
       ??
     }}
@@ -7304,11 +7284,9 @@ LISPFUNN(window_cursor_off,1)
 # Bis hierher wird ein File aus Bytes à 8 Bits aufgebaut gedacht.
 # Logisch ist es jedoch aus anderen Einheiten aufgebaut:
   #define strm_file_position    strm_other[7] # Position, ein Fixnum >=0
-  # Bei File-Streams mit element-type = STRING-CHAR (sch_file)
-  #   belegt jedes Character 1 Byte.
-  # define strm_sch_file_lineno strm_other[8] # Zeilennummer beim Lesen, ein Fixnum >0
   # Bei File-Streams mit element-type = CHARACTER (ch_file)
-  #   belegt jedes Character 2 Bytes.
+  #   belegt jedes Character 1 Byte.
+  # define strm_ch_file_lineno  strm_other[8] # Zeilennummer beim Lesen, ein Fixnum >0
   # Bei File-Streams mit element-type = INTEGER ("Byte-Files")
   #   belegt jeder Integer immer dieselbe Anzahl Bits.
   #define strm_file_bitsize     strm_other[8] # Anzahl der Bits, ein Fixnum >0 und <intDsize*uintWC_max
@@ -7691,17 +7669,17 @@ LISPFUNN(window_cursor_off,1)
         } }   }}
     }
 
-# File-Stream für String-Chars
-# ============================
+# File-Stream für Characters
+# ==========================
 
 # Funktionsweise:
 # Beim Schreiben: Characters werden unverändert durchgereicht, nur NL wird auf
 # MSDOS und WIN32 und bei O_BINARY != 0 in CR/LF umgewandelt.
 # Beim Lesen: CR/LF wird in NL umgewandelt.
 
-# READ-CHAR - Pseudofunktion für File-Streams für String-Chars
-  local object rd_ch_sch_file (const object* stream_);
-  local object rd_ch_sch_file(stream_)
+# READ-CHAR - Pseudofunktion für File-Streams für Characters
+  local object rd_ch_ch_file (const object* stream_);
+  local object rd_ch_ch_file(stream_)
     var const object* stream_;
     { var object stream = *stream_;
       var uintB* charptr = b_file_nextbyte(stream);
@@ -7715,7 +7693,7 @@ LISPFUNN(window_cursor_off,1)
       if (!eq(ch,code_char(CR))) # Ist es CR ?
         { # nein -> OK
           if (eq(ch,code_char(NL))) # Ist es NL, dann lineno incrementieren
-            { TheStream(stream)->strm_sch_file_lineno = fixnum_inc(TheStream(stream)->strm_sch_file_lineno,1); }
+            { TheStream(stream)->strm_ch_file_lineno = fixnum_inc(TheStream(stream)->strm_ch_file_lineno,1); }
           return ch;
         }
       # ja -> nächstes Zeichen auf LF untersuchen
@@ -7726,19 +7704,19 @@ LISPFUNN(window_cursor_off,1)
       TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
       TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
       # lineno incrementieren:
-      TheStream(stream)->strm_sch_file_lineno = fixnum_inc(TheStream(stream)->strm_sch_file_lineno,1);
+      TheStream(stream)->strm_ch_file_lineno = fixnum_inc(TheStream(stream)->strm_ch_file_lineno,1);
       # NL als Ergebnis:
       return code_char(NL);
     }}
 
 # Stellt fest, ob ein File-Stream ein Zeichen verfügbar hat.
-# listen_sch_file(stream)
-# > stream: File-Stream für String-Chars
+# listen_ch_file(stream)
+# > stream: File-Stream für Characters
 # < ergebnis:  0 falls Zeichen verfügbar,
 #             -1 falls bei EOF angelangt,
 #             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
-  local signean listen_sch_file (object stream);
-  local signean listen_sch_file(stream)
+  local signean listen_ch_file (object stream);
+  local signean listen_ch_file(stream)
     var object stream;
     { if (b_file_nextbyte(stream) == (uintB*)NULL)
         { return signean_minus; } # EOF
@@ -7760,14 +7738,14 @@ LISPFUNN(window_cursor_off,1)
       TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
     }
 
-# WRITE-CHAR - Pseudofunktion für File-Streams für String-Chars
-  local void wr_ch_sch_file (const object* stream_, object obj);
-  local void wr_ch_sch_file(stream_,obj)
+# WRITE-CHAR - Pseudofunktion für File-Streams für Characters
+  local void wr_ch_ch_file (const object* stream_, object obj);
+  local void wr_ch_ch_file(stream_,obj)
     var const object* stream_;
     var object obj;
     { var object stream = *stream_;
-      # obj muß ein String-Char sein:
-      if (!string_char_p(obj)) { fehler_wr_string_char(stream,obj); }
+      # obj muß ein Character sein:
+      if (!charp(obj)) { fehler_wr_char(stream,obj); }
      {var uintB ch = char_code(obj);
       #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
       if (ch==NL)
@@ -7781,11 +7759,11 @@ LISPFUNN(window_cursor_off,1)
       #endif
     }}
 
-# WRITE-CHAR-SEQUENCE für File-Streams für String-Chars:
-  local const uintB* write_schar_array_sch_file (object stream, const uintB* strptr, uintL len);
+# WRITE-CHAR-SEQUENCE für File-Streams für Characters:
+  local const uintB* write_char_array_ch_file (object stream, const uintB* strptr, uintL len);
   #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
   # Wegen NL->CR/LF-Umwandlung keine Optimierung möglich.
-  local inline const uintB* write_schar_array_sch_file(stream,strptr,len)
+  local inline const uintB* write_char_array_ch_file(stream,strptr,len)
     var object stream;
     var const uintB* strptr;
     var uintL len;
@@ -7804,7 +7782,7 @@ LISPFUNN(window_cursor_off,1)
       return strptr;
     }
   #else
-  local const uintB* write_schar_array_sch_file(stream,strptr,len)
+  local const uintB* write_char_array_ch_file(stream,strptr,len)
     var object stream;
     var const uintB* strptr;
     var uintL len;
@@ -7872,99 +7850,17 @@ LISPFUNN(window_cursor_off,1)
   #endif
 
 #ifdef STRM_WR_SS
-# WRITE-SIMPLE-STRING - Pseudofunktion für File-Streams für String-Chars
-  local void wr_ss_sch_file (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_sch_file(stream_,string,start,len)
+# WRITE-SIMPLE-STRING - Pseudofunktion für File-Streams für Characters
+  local void wr_ss_ch_file (const object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_ch_file(stream_,string,start,len)
     var const object* stream_;
     var object string;
     var uintL start;
     var uintL len;
     { if (len==0) return;
-      write_schar_array_sch_file(*stream_,&TheSstring(string)->data[start],len);
+      write_char_array_ch_file(*stream_,&TheSstring(string)->data[start],len);
     }
 #endif
-
-# File-Stream für Characters
-# ==========================
-
-# Funktionsweise:
-# Characters werden incl. Fonts und Bits durchgereicht.
-  #if (!((char_int_len % 8) == 0)) # char_int_len muß durch 8 teilbar sein
-    #error "Charactergröße neu einstellen!"
-  #endif
-  #define char_size  (char_int_len / 8)  # Größe eines Characters in Bytes
-
-# READ-CHAR - Pseudofunktion für File-Streams für Characters
-  local object rd_ch_ch_file (const object* stream_);
-  local object rd_ch_ch_file(stream_)
-    var const object* stream_;
-    { var object stream = *stream_;
-      var cint c;
-      var uintB* ptr = b_file_nextbyte(stream);
-      if (ptr == (uintB*)NULL) goto eof; # EOF ?
-      c = *ptr;
-      # index incrementieren:
-      TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
-      doconsttimes(char_size-1,
-        ptr = b_file_nextbyte(stream);
-        if (ptr == (uintB*)NULL) goto eof1; # EOF ?
-        c = (c<<8) | *ptr;
-        # index incrementieren:
-        TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
-        );
-      # position incrementieren:
-      TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
-      return int_char(c);
-      eof1:
-        # Wieder zurückpositionieren:
-        position_b_file(stream,posfixnum_to_L(TheStream(stream)->strm_file_position) * char_size);
-      eof: # EOF erreicht gewesen
-        return eof_value;
-    }
-
-# Stellt fest, ob ein File-Stream ein Zeichen verfügbar hat.
-# listen_ch_file(stream)
-# > stream: File-Stream für Characters
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
-# kann GC auslösen
-  local signean listen_ch_file (object stream);
-  local signean listen_ch_file(stream)
-    var object stream;
-    { var uintB* ptr = b_file_nextbyte(stream); # erstes Byte da ?
-      if (ptr == (uintB*)NULL) goto eof; # EOF ?
-      doconsttimes(char_size-1,
-        # index incrementieren:
-        TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
-        ptr = b_file_nextbyte(stream); # nächstes Byte da ?
-        if (ptr == (uintB*)NULL) goto eof1; # EOF ?
-        );
-      # Wieder zurückpositionieren:
-      position_b_file(stream,posfixnum_to_L(TheStream(stream)->strm_file_position) * char_size);
-      return signean_null;
-      eof1:
-        # Wieder zurückpositionieren:
-        position_b_file(stream,posfixnum_to_L(TheStream(stream)->strm_file_position) * char_size);
-      eof: # EOF erreicht gewesen
-        return signean_minus;
-    }
-
-# WRITE-CHAR - Pseudofunktion für File-Streams für Characters
-  local void wr_ch_ch_file (const object* stream_, object obj);
-  local void wr_ch_ch_file(stream_,obj)
-    var const object* stream_;
-    var object obj;
-    { var object stream = *stream_;
-      # obj muß ein Character sein:
-      if (!charp(obj)) { fehler_wr_char(stream,obj); }
-     {var cint c = char_int(obj);
-      #define WRITEBYTE(i)  b_file_writebyte(stream,(uintB)(c>>(char_size-1-i)));
-      DOCONSTTIMES(char_size,WRITEBYTE) # WRITEBYTE(0..char_size-1)
-      #undef WRITEBYTE
-      # position incrementieren:
-      TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
-    }}
 
 # File-Stream, Bit-basiert
 # ========================
@@ -8781,10 +8677,8 @@ LISPFUNN(window_cursor_off,1)
             { position_i_file(stream,position); }
         }
         else
-        { if (TheStream(stream)->strmtype == strmtype_ch_file) # Character-Stream ?
-            { position_b_file(stream,position*char_size); }
-          else # String-Char-Stream
-            { position_b_file(stream,position); }
+        { # Character-Stream
+          position_b_file(stream,position);
           TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
           TheStream(stream)->strmflags &= ~strmflags_unread_B;
         }
@@ -8837,10 +8731,8 @@ LISPFUNN(window_cursor_off,1)
               }
           }
           else
-          { if (TheStream(stream)->strmtype == strmtype_ch_file) # Character-Stream ?
-              { position = floor(eofbytes,char_size); eofbytes = position*char_size; }
-            else # String-Char-Stream
-              { position = eofbytes; }
+          { # Character-Stream
+            position = eofbytes;
           }
         if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
           { # Positionieren:
@@ -8912,7 +8804,7 @@ LISPFUNN(window_cursor_off,1)
       # Alles andere gibt File-Handle-Streams, weil vermutlich lseek() nicht geht.
       if (!nullp(handle))
         { if (!regular_handle_p(TheHandle(handle)))
-            { if (((type == strmtype_sch_file)
+            { if (((type == strmtype_ch_file)
                    || ((type == strmtype_iu_file) && eq(eltype_size,fixnum(8)))
                   )
                   && !append_flag
@@ -8946,8 +8838,8 @@ LISPFUNN(window_cursor_off,1)
        # Länge:
        var uintC len = strm_len; # Das hat jeder Stream
        len += 8; # Das haben alle File-Streams
-       if (type==strmtype_sch_file)
-         { len += 1; } # Das haben die File-Streams für String-Chars
+       if (type==strmtype_ch_file)
+         { len += 1; } # Das haben die File-Streams für Characters
        elif (type>=strmtype_iu_file)
          { len += 2; # Das haben die File-Streams für Integers
            {var uintL bitsize = posfixnum_to_L(eltype_size);
@@ -8970,20 +8862,12 @@ LISPFUNN(window_cursor_off,1)
        # und füllen:
        # Komponenten aller Streams:
        switch (type)
-         { case strmtype_sch_file:
-             TheStream(stream)->strm_rd_ch = P(rd_ch_sch_file);
-             TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-             TheStream(stream)->strm_wr_ch = P(wr_ch_sch_file);
-             #ifdef STRM_WR_SS
-             TheStream(stream)->strm_wr_ss = P(wr_ss_sch_file);
-             #endif
-             break;
-           case strmtype_ch_file:
+         { case strmtype_ch_file:
              TheStream(stream)->strm_rd_ch = P(rd_ch_ch_file);
              TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
              TheStream(stream)->strm_wr_ch = P(wr_ch_ch_file);
              #ifdef STRM_WR_SS
-             TheStream(stream)->strm_wr_ss = P(wr_ss_dummy_nogc);
+             TheStream(stream)->strm_wr_ss = P(wr_ss_ch_file);
              #endif
              break;
            case strmtype_iu_file:
@@ -9050,9 +8934,9 @@ LISPFUNN(window_cursor_off,1)
            TheStream(stream)->strm_file_eofindex = NIL; # eofindex := NIL
            TheStream(stream)->strm_file_index = Fixnum_0; # index := 0, Buffer unmodifiziert
            TheStream(stream)->strm_file_position = Fixnum_0; # position := 0
-           if (type==strmtype_sch_file)
-             # File-Stream für String-Chars
-             { TheStream(stream)->strm_sch_file_lineno = Fixnum_1; }
+           if (type==strmtype_ch_file)
+             # File-Stream für Characters
+             { TheStream(stream)->strm_ch_file_lineno = Fixnum_1; }
            elif (type>=strmtype_iu_file)
              # File-Stream für Integers
              { TheStream(stream)->strm_file_bitsize = eltype_size;
@@ -10391,8 +10275,8 @@ LISPFUNN(string_input_stream_index,1)
     var const object* stream_;
     var object ch;
     { var object stream = *stream_;
-      # obj sollte String-Char sein:
-      if (!string_char_p(ch)) { fehler_wr_string_char(stream,ch); }
+      # obj sollte Character sein:
+      if (!charp(ch)) { fehler_wr_char(stream,ch); }
       # Character in den String schieben:
       ssstring_push_extend(TheStream(stream)->strm_str_out_string,char_code(ch));
     }
@@ -10459,7 +10343,7 @@ LISPFUN(make_string_output_stream,0,0,norest,key,2, (kw(element_type),kw(line_po
     # element-type überprüfen:
     if (!eq(STACK_1,unbound))
       { var object eltype = STACK_1;
-        if (!(eq(eltype,S(character)) || eq(eltype,S(string_char))))
+        if (!eq(eltype,S(character)))
           { # Verify (SUBTYPEP eltype 'CHARACTER):
             pushSTACK(eltype); pushSTACK(S(character)); funcall(S(subtypep),2);
             if (nullp(value1))
@@ -10527,8 +10411,8 @@ LISPFUNN(get_output_stream_string,1)
     var const object* stream_;
     var object ch;
     { var object stream = *stream_;
-      # ch sollte String-Char sein:
-      if (!string_char_p(ch)) { fehler_wr_string_char(stream,ch); }
+      # ch sollte Character sein:
+      if (!charp(ch)) { fehler_wr_char(stream,ch); }
       # Character in den String schieben:
       pushSTACK(ch); pushSTACK(TheStream(stream)->strm_str_push_string);
       funcall(L(vector_push_extend),2); # (VECTOR-PUSH-EXTEND ch string)
@@ -10602,8 +10486,8 @@ LISPFUNN(string_stream_p,1)
     var const object* stream_;
     var object ch;
     { var object stream = *stream_;
-      # ch sollte String-Char sein:
-      if (!string_char_p(ch)) { fehler_wr_string_char(stream,ch); }
+      # ch sollte Character sein:
+      if (!charp(ch)) { fehler_wr_char(stream,ch); }
      {var uintB c = char_code(ch); # Character
       # Bei NL: Ab jetzt  Modus := Mehrzeiler
       if (c == NL) { TheStream(stream)->strm_pphelp_modus = T; }
@@ -10673,7 +10557,7 @@ LISPFUNN(string_stream_p,1)
 # Buffered-Input-Stream
 # =====================
 
-# Elementtyp: string-char
+# Elementtyp: character
 # Richtungen: nur input
 # (make-buffered-input-stream fun mode) liefert einen solchen.
 #   Dabei ist fun eine Funktion von 0 Argumenten, die bei Aufruf
@@ -10864,7 +10748,7 @@ LISPFUNN(buffered_input_stream_index,1)
 # Buffered-Output-Stream
 # ======================
 
-# Elementtyp: string-char
+# Elementtyp: character
 # Richtungen: nur output
 # (make-buffered-output-stream fun) liefert einen solchen.
 #   Dabei ist fun eine Funktion von einem Argument, die, mit einem
@@ -10919,8 +10803,8 @@ LISPFUNN(buffered_input_stream_index,1)
     var const object* stream_;
     var object ch;
     { var object stream = *stream_;
-      # obj sollte String-Char sein:
-      if (!string_char_p(ch)) { fehler_wr_string_char(stream,ch); }
+      # obj sollte Character sein:
+      if (!charp(ch)) { fehler_wr_char(stream,ch); }
       # Character in den String schieben:
       ssstring_push_extend(TheStream(stream)->strm_buff_out_string,char_code(ch));
       # Nach #\Newline den Buffer durchreichen:
@@ -10983,8 +10867,8 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
     var const object* stream_;
     var object ch;
     { var object stream = *stream_;
-      # ch sollte String-Char sein:
-      if (!string_char_p(ch)) { fehler_wr_string_char(stream,ch); }
+      # ch sollte Character sein:
+      if (!charp(ch)) { fehler_wr_char(stream,ch); }
       begin_system_call();
      {var uintB c = char_code(ch);
       var long ergebnis = # Zeichen auszugeben versuchen
@@ -11739,8 +11623,8 @@ LISPFUNN(make_pipe_io_stream,1)
       var object ch;
       { restart_it:
        {  var SOCKET handle = TheSocket(TheStream(*stream_)->strm_ohandle);
-          # ch sollte String-Char sein:
-          if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); }
+          # ch sollte Character sein:
+          if (!charp(ch)) { fehler_wr_char(*stream_,ch); }
         { var uintB c = char_code(ch); # Code des Zeichens
           begin_system_call();
          {var int ergebnis = sock_write(handle,&c,1); # Zeichen auszugeben versuchen
@@ -11762,8 +11646,8 @@ LISPFUNN(make_pipe_io_stream,1)
 
 # WRITE-CHAR-SEQUENCE für X11-Socket-Streams:
   #ifdef WIN32_NATIVE
-    local const uintB* write_schar_array_socket (object stream, const uintB* ptr, uintL len);
-    local const uintB* write_schar_array_socket(stream,ptr,len)
+    local const uintB* write_char_array_socket (object stream, const uintB* ptr, uintL len);
+    local const uintB* write_char_array_socket(stream,ptr,len)
       var object stream;
       var const uintB* ptr;
       var uintL len;
@@ -11796,7 +11680,7 @@ LISPFUNN(make_pipe_io_stream,1)
       var uintL start;
       var uintL len;
       { if (len==0) return;
-        write_schar_array_socket(*stream_,&TheSstring(string)->data[start],len);
+        write_char_array_socket(*stream_,&TheSstring(string)->data[start],len);
       }
   #else
     #define wr_ss_socket  wr_ss_handle
@@ -12585,7 +12469,7 @@ LISPFUNN(generic_stream_p,1)
               pushSTACK(NIL);
               #endif
               pushSTACK(NIL);
-              stream = make_file_stream(allocate_handle(stdin_handle),1,strmtype_sch_file,NIL,FALSE);
+              stream = make_file_stream(allocate_handle(stdin_handle),1,strmtype_ch_file,NIL,FALSE);
               file_lseek(stream,0,SEEK_CUR,position=);
               position_b_file(stream,position);
             }
@@ -12602,7 +12486,7 @@ LISPFUNN(generic_stream_p,1)
               pushSTACK(NIL);
               #endif
               pushSTACK(NIL);
-              stream = make_file_stream(allocate_handle(stdout_handle),4,strmtype_sch_file,NIL,FALSE);
+              stream = make_file_stream(allocate_handle(stdout_handle),4,strmtype_ch_file,NIL,FALSE);
               file_lseek(stream,0,SEEK_CUR,position=);
               position_b_file(stream,position);
             }
@@ -12811,7 +12695,7 @@ LISPFUNN(output_stream_p,1)
 LISPFUNN(stream_element_type,1)
 # (STREAM-ELEMENT-TYPE stream), CLTL S. 332, CLtL2 S. 505
 # liefert NIL (für geschlossene Streams) oder CHARACTER oder INTEGER oder T
-# oder (spezieller) STRING-CHAR oder (UNSIGNED-BYTE n) oder (SIGNED-BYTE n).
+# oder (spezieller) (UNSIGNED-BYTE n) oder (SIGNED-BYTE n).
   { var object stream = popSTACK();
     if (!streamp(stream)) { fehler_stream(stream); }
    {var object eltype;
@@ -12824,12 +12708,11 @@ LISPFUNN(stream_element_type,1)
           { # erst die Streamtypen mit eingeschränkten Element-Typen:
             #ifdef KEYBOARD
             case strmtype_keyboard:
+              eltype = T;
+              break;
             #endif
-            case strmtype_ch_file:
-              # CHARACTER
-              eltype = S(character); break;
             case strmtype_terminal:
-            case strmtype_sch_file:
+            case strmtype_ch_file:
             case strmtype_str_in:
             case strmtype_str_out:
             case strmtype_str_push:
@@ -12842,8 +12725,8 @@ LISPFUNN(stream_element_type,1)
             #ifdef PRINTER
             case strmtype_printer:
             #endif
-              # STRING-CHAR
-              eltype = S(string_char); break;
+              # CHARACTER
+              eltype = S(character); break;
             case strmtype_iu_file:
               # (UNSIGNED-BYTE bitsize)
               pushSTACK(S(unsigned_byte));
@@ -12995,7 +12878,6 @@ LISPFUNN(stream_external_format,1)
               /* return interactive_stream_p(stream); */ # entrekursiviert:
               goto start;
             }
-          case strmtype_sch_file:
           case strmtype_ch_file:
           case strmtype_iu_file:
           case strmtype_is_file:
@@ -13030,7 +12912,6 @@ LISPFUNN(interactive_stream_p,1)
           case strmtype_keyboard: break;
           #endif
           case strmtype_terminal: break;
-          case strmtype_sch_file:
           case strmtype_ch_file:
           case strmtype_iu_file:
           case strmtype_is_file:
@@ -13174,11 +13055,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                             );
                 #endif
                 NOTREACHED
-              case strmtype_sch_file:
-                if (TheStream(stream)->strmflags & strmflags_rd_ch_B)
-                  { return listen_sch_file(stream); }
-                  else
-                  { return signean_minus; } # kein READ-CHAR
               case strmtype_ch_file:
                 if (TheStream(stream)->strmflags & strmflags_rd_ch_B)
                   { return listen_ch_file(stream); }
@@ -13323,7 +13199,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
         { switch (TheStream(stream)->strmtype)
             { case strmtype_terminal:
                 finish_output_terminal(stream); break;
-              case strmtype_sch_file:
               case strmtype_ch_file:
               case strmtype_iu_file:
               case strmtype_is_file:
@@ -13377,7 +13252,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
         { switch (TheStream(stream)->strmtype)
             { case strmtype_terminal:
                 force_output_terminal(stream); break;
-              case strmtype_sch_file:
               case strmtype_ch_file:
               case strmtype_iu_file:
               case strmtype_is_file:
@@ -13441,7 +13315,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                             );
                 #endif
                 break;
-              case strmtype_sch_file:
               case strmtype_ch_file:
               case strmtype_iu_file:
               case strmtype_is_file:
@@ -13672,14 +13545,14 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
         { return NULL; }
     }
 
-# UP: Liest mehrere String-Characters von einem Stream.
-# read_schar_array(stream,charptr,len)
+# UP: Liest mehrere Characters von einem Stream.
+# read_char_array(stream,charptr,len)
 # > stream: Stream
 # > uintB* charptr: Adresse der zu füllenden Zeichenfolge
 # > uintL len: Länge der zu füllenden Zeichenfolge
 # < uintB* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
-  global uintB* read_schar_array (object stream, uintB* charptr, uintL len);
-  global uintB* read_schar_array(stream,charptr,len)
+  global uintB* read_char_array (object stream, uintB* charptr, uintL len);
+  global uintB* read_char_array(stream,charptr,len)
     var object stream;
     var uintB* charptr;
     var uintL len;
@@ -13688,7 +13561,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
       if (eq(lastchar,eof_value)) # EOF ?
         { return charptr; }
       if ((TheStream(stream)->strmflags & strmflags_unread_B) # Char nach UNREAD ?
-          && !string_char_p(lastchar) # aber kein String-Char?
+          && !charp(lastchar) # aber kein Character?
          )
         { return NULL; }
       if (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_synonym))) # synonym
@@ -13696,8 +13569,8 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
           check_SP();
          {var uintB* endptr =
             (TheStream(stream)->strmflags & strmflags_unread_B
-             ? read_schar_array(substream,charptr+1,len-1)
-             : read_schar_array(substream,charptr,len)
+             ? read_char_array(substream,charptr+1,len-1)
+             : read_char_array(substream,charptr,len)
             );
           if (endptr==NULL) { return NULL; }
           if (TheStream(stream)->strmflags & strmflags_unread_B)
@@ -13712,8 +13585,8 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
           check_SP();
          {var uintB* endptr =
             (TheStream(stream)->strmflags & strmflags_unread_B
-             ? read_schar_array(substream,charptr+1,len-1)
-             : read_schar_array(substream,charptr,len)
+             ? read_char_array(substream,charptr+1,len-1)
+             : read_char_array(substream,charptr,len)
             );
           if (endptr==NULL) { return NULL; }
           if (TheStream(stream)->strmflags & strmflags_unread_B)
@@ -13806,7 +13679,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
           return charptr;
         }
       #endif
-      elif (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_sch_file))) # file
+      elif (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_ch_file))) # file
         { if (TheStream(stream)->strmflags & strmflags_unread_B)
             { *charptr++ = char_code(lastchar); len--; }
           while (len>0)
@@ -13828,7 +13701,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 }   }
               if (ch==NL)
                 # lineno incrementieren:
-                { TheStream(stream)->strm_sch_file_lineno = fixnum_inc(TheStream(stream)->strm_sch_file_lineno,1); }
+                { TheStream(stream)->strm_ch_file_lineno = fixnum_inc(TheStream(stream)->strm_ch_file_lineno,1); }
               *charptr++ = ch; len--;
             }}
           TheStream(stream)->strm_rd_ch_last =
@@ -13863,14 +13736,14 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
         { return NULL; }
     }}
 
-# UP: Schreibt mehrere String-Characters auf einen Stream.
-# write_schar_array(stream,charptr,len)
+# UP: Schreibt mehrere Characters auf einen Stream.
+# write_char_array(stream,charptr,len)
 # > stream: Stream
 # > uintB* charptr: Adresse der zu schreibenden Zeichenfolge
 # > uintL len: Länge der zu schreibenden Zeichenfolge
 # < uintB* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-  global const uintB* write_schar_array (object stream, const uintB* charptr, uintL len);
-  global const uintB* write_schar_array(stream,charptr,len)
+  global const uintB* write_char_array (object stream, const uintB* charptr, uintL len);
+  global const uintB* write_char_array(stream,charptr,len)
     var object stream;
     var const uintB* charptr;
     var uintL len;
@@ -13888,14 +13761,14 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
         }
       #ifdef XHANDLES
       elif (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_handle))) # handle, pipe_out, socket
-        { return write_schar_array_handle(stream,charptr,len); }
+        { return write_char_array_handle(stream,charptr,len); }
       #endif
       #if (defined(X11SOCKETS) || defined(SOCKET_STREAMS)) && defined(WIN32_NATIVE)
       elif (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_socket))) # socket
-        { return write_schar_array_socket(stream,charptr,len); }
+        { return write_char_array_socket(stream,charptr,len); }
       #endif
-      elif (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_sch_file))) # file
-        { return write_schar_array_sch_file(stream,charptr,len); }
+      elif (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_ch_file))) # file
+        { return write_char_array_ch_file(stream,charptr,len); }
       else # keine Optimierung möglich
         { return NULL; }
     }
@@ -14036,7 +13909,7 @@ LISPFUNN(file_string_length,2)
     skipSTACK(2);
     if (!(TheStream(stream)->strmflags & strmflags_wr_ch_B))
       { fehler_illegal_streamop(S(file_string_length),stream); }
-    if (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_sch_file)))
+    if (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_ch_file)))
       { # Possibly take into account the NL -> CR/LF translation.
         #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
         if (stringp(obj))
@@ -14047,7 +13920,7 @@ LISPFUNN(file_string_length,2)
             dotimesL(count,len, { if (*charptr++ == NL) result++; } );
             value1 = UL_to_I(result); mv_count=1; return;
           }
-        elif (string_char_p(obj))
+        elif (charp(obj))
           { var uintL result = 1;
             if (char_code(obj) == NL) result++;
             value1 = fixnum(result); mv_count=1; return;
@@ -14057,19 +13930,9 @@ LISPFUNN(file_string_length,2)
           { var uintL result = vector_length(obj);
             value1 = fixnum(result); mv_count=1; return;
           }
-        elif (string_char_p(obj))
+        elif (charp(obj))
           { value1 = fixnum(1); mv_count=1; return; }
         #endif
-        else
-          { fehler_wr_string_char(stream,obj); }
-      }
-    elif (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_ch_file)))
-      { if (stringp(obj))
-          { var uintL result = vector_length(obj)*char_size;
-            value1 = UL_to_I(result); mv_count=1; return;
-          }
-        elif (charp(obj))
-          { value1 = fixnum(1*char_size); mv_count=1; return; }
         else
           { fehler_wr_char(stream,obj); }
       }
@@ -14079,12 +13942,12 @@ LISPFUNN(file_string_length,2)
 
 LISPFUNN(line_number,1)
 # (SYS::LINE-NUMBER stream) liefert die aktuelle Zeilennummer (falls stream
-# ein String-Char-File-Input-Stream ist, von dem nur gelesen wurde).
+# ein Character-File-Input-Stream ist, von dem nur gelesen wurde).
   { var object stream = popSTACK();
     if (!streamp(stream)) { fehler_stream(stream); } # stream überprüfen
-    value1 = (TheStream(stream)->strmtype == strmtype_sch_file
-              ? TheStream(stream)->strm_sch_file_lineno # aktuelle Zeilennummer
-              : NIL                                     # NIL falls unbekannt
+    value1 = (TheStream(stream)->strmtype == strmtype_ch_file
+              ? TheStream(stream)->strm_ch_file_lineno # aktuelle Zeilennummer
+              : NIL                                    # NIL falls unbekannt
              );
     mv_count=1;
   }

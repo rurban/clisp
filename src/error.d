@@ -758,24 +758,6 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
             );
     }
 
-# Fehler, wenn Argument kein String-Char ist.
-# fehler_string_char(obj);
-# > obj: fehlerhaftes Argument
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_string_char, (object obj));
-  global void fehler_string_char(obj)
-    var object obj;
-    { pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(string_char)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             DEUTSCH ? "~: ~ ist kein String-Char." :
-             ENGLISH ? "~: ~ is not a string-char" :
-             FRANCAIS ? "~ : ~ n'est pas de type STRING-CHAR." :
-             ""
-            );
-    }
-
 # Fehlermeldung, falls ein Argument kein String ist:
 # > obj: Das fehlerhafte Argument
 # > subr_self: Aufrufer (ein SUBR)
