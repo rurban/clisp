@@ -1,3 +1,10 @@
+2001-03-13  Sam Steingold  <sds@gnu.org>
+
+	X3J13 vote <72> unconditionally implemented
+	* compiler.lisp (c-form): do not check (package-use-list *package*)
+	* eval.d (other_self_evaluating_p): removed
+	(eval1): do not call it
+
 2001-03-09  Sam Steingold  <sds@gnu.org>
 
 	A Logical Pathnames bug fixed.

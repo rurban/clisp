@@ -3123,23 +3123,6 @@ LISPFUNN(subr_info,1)
       pushSTACK(NIL); eval1(form);
     }
 
-# UP: Stellt fest, ob eine non-Standard Form self-evaluating ist.
-  local bool other_self_evaluating_p (void);
-  local bool other_self_evaluating_p()
-    {
-      # (member (find-package "COMMON-LISP") (package-use-list *package*))
-      var object pack = find_package(O(common_lisp_string));
-      if (!nullp(pack)) {
-        var object list = ThePackage(get_current_package())->pack_use_list;
-        while (consp(list)) {
-          if (eq(Car(list),pack))
-            return true;
-          list = Cdr(list);
-        }
-      }
-      return false;
-    }
-
 # UP: Wertet eine Form im aktuellen Environment aus.
 # Nimmt dabei auf *EVALHOOK* keine Rücksicht, und erwartet den Wert von
 # *APPLYHOOK*.
@@ -3175,20 +3158,11 @@ LISPFUNN(subr_info,1)
             skipSTACK(1);
             unwind(); # EVAL-Frame auflösen
           }
-        } elif (   numberp(form) # Zahl ?
-                || charp(form) # Character ?
-                || arrayp(form) # Array ?
-                || other_self_evaluating_p() # X3J13 vote <72> erwünscht?
-               ) {
+        } else {
           # self-evaluating form
           value1 = form; mv_count=1; # form als Wert
           skipSTACK(1);
           unwind(); # EVAL-Frame auflösen
-        } else {
-          pushSTACK(form);
-          fehler(source_program_error,
-                 GETTEXT("EVAL: illegal form ~")
-                );
         }
       } else {
         # Form ist ein Cons
