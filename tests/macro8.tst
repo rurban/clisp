@@ -266,6 +266,12 @@ m
 (destructuring-bind (x . y) '(1 . 10) (list x y))
 (1 10)
 
+(destructuring-bind (&whole (a  . b) c . d) '(1 . 2) (list a b c d))
+(1 2 1 2)
+
+(macrolet ((%m (&whole (m a b) c d) `'(,m ,a ,b ,c ,d))) (%m 1 2))
+(%M 1 2 1 2)
+
 ;;; <http://www.lisp.org/HyperSpec/Body/fun_macroexpa_acroexpand-1.html>
 (defmacro alpha (x y) `(beta ,x ,y))   ALPHA
 (defmacro beta (x y) `(gamma ,x ,y))   BETA

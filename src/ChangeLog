@@ -1,5 +1,9 @@
 2003-04-21  Sam Steingold  <sds@gnu.org>
 
+	* defmacro.lisp (analyze1): &WHOLE arg may be a pattern too
+
+2003-04-21  Sam Steingold  <sds@gnu.org>
+
 	* defmacro.lisp (make-macro-expansion): the environment argument
 	in MACRO-FUNCTION is not optional but required
 	* init.lisp (backquote, bq-nconc, defmacro): ditto

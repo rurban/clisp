@@ -291,12 +291,16 @@ the actual object #<MACRO expander> for the FENV.
          (setq %restp t)))
     (setq item (car listr))
     (cond ((eq item '&WHOLE)
-           (if (and wholevar (cdr listr) (symbolp (cadr listr)))
+           (if (and wholevar (cdr listr))
+             (if (symbolp (cadr listr))
                (setq %let-list (cons `(,(cadr listr) ,wholevar) %let-list)
                      listr (cdr listr))
-               (error-of-type 'source-program-error
-                 (TEXT "The lambda list of macro ~S contains an invalid &WHOLE: ~S")
-                 name listr)))
+               (let ((%min-args 0) (%arg-count 0) (%restp nil))
+                 (setq listr (cdr listr)) ; pop &WHOLE
+                 (analyze1 (car listr) wholevar name wholevar)))
+             (error-of-type 'source-program-error
+               (TEXT "The lambda list of macro ~S contains an invalid &WHOLE: ~S")
+               name listr)))
           ((eq item '&OPTIONAL)
            (if withinoptional
                (cerror (TEXT "It will be ignored.")
