@@ -1554,7 +1554,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         init_symbol_values();
         # sonstige Objekte kreieren:
         init_object_tab();
-        pushSTACK(NIL); funcall(S(set_ansi),1); # (SYS::SET-ANSI NIL)
       }
   # Laden vom MEM-File:
     local void loadmem (const char* filename); # siehe unten
