@@ -1,5 +1,9 @@
 1998-08-01  Bruno Haible  <haible@ilog.fr>
 
+       * makemake.in (DEEMA): Add _EMA_ in more places.
+
+1998-08-01  Bruno Haible  <haible@ilog.fr>
+
         * lispbibl.d: Accept __unix__ as an alternative for __unix.
 
 1998-08-01  Bruno Haible  <haible@ilog.fr>
