@@ -77,12 +77,14 @@
 	* spvw_heap.d (old_new_pointer_t): Change type of field 'o' to
 	gcv_object_t.
 
-2003-10-25  Bruno Haible  <bruno@clisp.org>
+2003-10-27  Bruno Haible  <bruno@clisp.org>
 
 	Make DEBUG_GCSAFETY work with g++ 3.3.x.
 	* utils/varbrace.d (SPLIT_OBJECT_INITIALIZATIONS): New macro.
-	(next_token): Split 'object' initializations inside macro definitions.
-	(convert): Split 'object' initializations outside macro definitions.
+	(next_token): Split 'object' and 'chart' initializations inside macro
+	definitions.
+	(convert): Split 'object' and 'chart' initializations outside macro
+	definitions.
 	* lispbibl.d (INIT_SUBR_TAB, INIT_SYMBOL_TAB, INIT_OBJECT_TAB): Don't
 	define when using g++ 3.3 with DEBUG_GCSAFETY.
 	* intmal.d (FN_fak_I): Convert fakul_table to a table of uintL.

@@ -61,7 +61,8 @@ extern "C" void exit(int);
 #endif
 
 # g++ 3.3 doesn't accept compound expressions as initializers; as a workaround,
-# we transform "var object foo = ..." into "var object foo; foo = ...".
+# we transform "var object foo = ..." into "var object foo; foo = ...",
+# and likewise "var chart foo = ..." into "var chart foo; foo = ...".
 #if defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3)
 #define SPLIT_OBJECT_INITIALIZATIONS
 #endif
@@ -1169,11 +1170,16 @@ local Token next_token (void)
                 out.buffer[out.buffindex] = '\0';
                 var uintB* p;
                 for (p = &out.buffer[token.startindex]; ; p++) {
-                  p = (uintB*) strstr((char*)p,"var object ");
+                  p = (uintB*) strstr((char*)p,"var ");
                   if (p == NULL)
                     break;
-                  if (p[-1] == ' ' || p[-1] == '{') {
-                    p += strlen("var object ");
+                  if ((strncmp(p,"var object ",strlen("var object "))==0
+                       || strncmp(p,"var chart ",strlen("var chart "))==0)
+                      && (p[-1] == ' ' || p[-1] == '{')) {
+                    if (strncmp(p,"var object ",strlen("var object "))==0)
+                      p += strlen("var object ");
+                    else if (strncmp(p,"var chart ",strlen("var chart "))==0)
+                      p += strlen("var chart ");
                     var uintB* q = p;
                     if ((*q >= 'A' && *q <= 'Z') || (*q >= 'a' && *q <= 'z') || *q == '_') {
                       do
@@ -1426,13 +1432,19 @@ void convert (FILE* infp, FILE* outfp, const char* infilename)
           seen_var_object = FALSE;
           seen_var_object_ident = FALSE;
         } else if (seen_var
-                   && (token.endindex - token.startindex == 6)
-                   && (out.buffer[token.startindex  ] == 'o')
-                   && (out.buffer[token.startindex+1] == 'b')
-                   && (out.buffer[token.startindex+2] == 'j')
-                   && (out.buffer[token.startindex+3] == 'e')
-                   && (out.buffer[token.startindex+4] == 'c')
-                   && (out.buffer[token.startindex+5] == 't')) {
+                   && (((token.endindex - token.startindex == 6)
+                        && (out.buffer[token.startindex  ] == 'o')
+                        && (out.buffer[token.startindex+1] == 'b')
+                        && (out.buffer[token.startindex+2] == 'j')
+                        && (out.buffer[token.startindex+3] == 'e')
+                        && (out.buffer[token.startindex+4] == 'c')
+                        && (out.buffer[token.startindex+5] == 't'))
+                       || ((token.endindex - token.startindex == 5)
+                           && (out.buffer[token.startindex  ] == 'c')
+                           && (out.buffer[token.startindex+1] == 'h')
+                           && (out.buffer[token.startindex+2] == 'a')
+                           && (out.buffer[token.startindex+3] == 'r')
+                           && (out.buffer[token.startindex+4] == 't')))) {
           seen_var = FALSE;
           seen_var_object = TRUE;
           seen_var_object_ident = FALSE;
