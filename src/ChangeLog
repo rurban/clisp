@@ -1,3 +1,8 @@
+2003-08-30  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	* stream.d (wr_ch_window) [WIN32_NATIVE]: explicit typecast.
+	(stream_lend_handle): allow pipe-streams.
+
 2003-08-29  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/posix.lisp (make-file-stat):
