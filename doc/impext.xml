@@ -1493,24 +1493,30 @@ N. Gray to X3J13.</para>
 
 <section id="final"><title>Extensions-1.7. Finalization</title>
 
-<para>Calling <literal role="sexp">(&finalize; &object-r;
- &func-r;)</literal> has the effect that when the specified object is
- being &gc;ed, <literal role="sexp">(&funcall; &func-r;
- &object-r;)</literal> will be executed.</para>
+<para>Calling
+ <literal role="sexp">(&finalize; &object-r; &func-r;)</literal>
+ has the effect that when the specified object is being &gc;ed,
+ <literal role="sexp">(&funcall; &func-r; &object-r;)</literal>
+ will be executed.</para>
 
-<para>Calling <literal role="sexp">(&finalize; &object-r; &func-r;
- <replaceable>guardian</replaceable>)</literal> has a similar effect,
- but only as long as the "guardian" has not been &gc;ed: When &object-r;
- is being &gc;ed, <literal role="sexp">(&funcall; &func-r; &object-r;
- <replaceable>guardian</replaceable>)</literal> will be executed.  If
- the guardian is &gc;ed before &object-r; is, nothing happens.</para>
+<para>Calling
+ <literal role="sexp">(&finalize; &object-r; &func-r;
+                       <replaceable>guardian</replaceable>)</literal>
+ has a similar effect, but only as long as the "guardian" has not been
+ &gc;ed: when &object-r; is being &gc;ed,
+ <literal role="sexp">(&funcall; &func-r; &object-r;
+                       <replaceable>guardian</replaceable>)</literal>
+ will be executed.
+ If the guardian is &gc;ed before &object-r; is, nothing happens.</para>
 
 <para>Note: The time when <quote>the &object-r; is being &gc;ed</quote>
- is not defined deterministically.  (Actually, it might possibly never
- occur.)  It denotes a moment at which no references to &object-r; exist
- from other Lisp objects.  When the &func-r; is called, &object-r; (and
- possibly <replaceable>guardian</replaceable>) enter the "arena of live
- Lisp objects" again.</para>
+ is not defined deterministically.
+ (Actually, it might possibly never occur.)
+ It denotes a moment at which no references to &object-r; exist
+ from other Lisp objects.
+ When the &func-r; is called, &object-r;
+ (and possibly <replaceable>guardian</replaceable>)
+ enter the "arena of live Lisp objects" again.</para>
 
 <para>No finalization request will be executed more than once.</para>
 
@@ -1520,31 +1526,37 @@ N. Gray to X3J13.</para>
 <section id="prompt"><title>Extensions-1.8. The Prompt</title>
 
 <para>The variable <emphasis
- role="strong"><varname>custom:*prompt*</varname></emphasis> controls the
- appearance of the prompt.  When its value is a function, it is called
- and its value is printed with &princ;.  Otherwise, the value itself is
- printed with &princ;.  The default value of
- <varname>custom:*prompt*</varname> prints
- <prompt>"package[nn]&gt;&nbsp;"</prompt> where
+ role="strong"><varname>CUSTOM:*PROMPT*</varname></emphasis> controls
+ the appearance of the prompt.  When its value is a function, it is
+ called and its value is printed with &princ;.  Otherwise, the value
+ itself is printed with &princ;.  The default value of
+ <varname>CUSTOM:*PROMPT*</varname> prints
+ <prompt>"package[n]&gt;&nbsp;"</prompt> where
  <replaceable>package</replaceable> is the shortest (nick)name of the
  current package &package-var; if it is the same as it was in the
  beginning or if it does not contain symbol &t; (it is assumed that in
  the latter case you would want to keep in mind that your current
- package is something weird); and <replaceable>nn</replaceable> is the
- ordinal number of the current prompt (hopefully, it will remain
- finite).  To help you in constructing your own fancy prompts, two
- functions are provided: <emphasis
- role="strong"><function>ext:prompt-new-package</function></emphasis>,
- returning &package-var; or &nil; if the current package is the same as
- it was initially; and <emphasis
- role="strong"><function>ext:package-short-name</function></emphasis>
- taking one argument, a package, and returning its shortest name or
- nickname.  Also, a variable <emphasis
- role="strong"><varname>ext:*command-index*</varname></emphasis>
- contains the current prompt number, it is your responsibility to
- increment it
- (this variable is bound to 0 before saving the &mem-image;).</para>
-
+ package is something weird);
+ and &n-r; is the ordinal number of the current prompt
+ (hopefully, it will remain finite).
+ To help you in constructing your own fancy prompts, two
+ functions and one variable are provided:
+ <variablelist>
+  <varlistentry><term>function
+    <function>EXT:PROMPT-NEW-PACKAGE</function></term>
+   <listitem><simpara>returns &package-var; or &nil; if the current
+     package is the same as it was initially
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>function
+    <function>EXT:PACKAGE-SHORT-NAME</function></term>
+   <listitem><simpara>takes one argument, a package, and returns its
+     shortest name or nickname</simpara></listitem></varlistentry>
+  <varlistentry><term>variable <varname>EXT:*COMMAND-INDEX*</varname></term>
+   <listitem><simpara>contains the current prompt number;
+     it is your responsibility to increment it
+     (this variable is bound to 0 before saving the &mem-image;).
+  </simpara></listitem></varlistentry>
+ </variablelist></para>
 </section>
 
 
@@ -1552,7 +1564,7 @@ N. Gray to X3J13.</para>
 
 <para>Some &ansi-cl; features are turned off by default for backwards
  compatibility.
- They can be switched on, all at once by setting the &symbol-macro;
+ They can be switched on, all at once, by setting the &symbol-macro;
  &ansi; to &t;, or they can be switched on individually.
  Setting &ansi; to &t; implies the following:</para>
 
@@ -1565,13 +1577,14 @@ N. Gray to X3J13.</para>
  <listitem><simpara>Setting &flocont; to &t;.</simpara></listitem>
 </itemizedlist>
 
-<para>Please note that if you run &clisp; with the &ansi-opt; switch or
- set the &symbol-macro; &ansi; to &t; and save &mem-image;, then all
- subsequent invocations of &clisp; with this image will be as if with
- &ansi-opt; (regardless whether you actually supply the &ansi-opt; switch).
- You can always set the &symbol-macro; &ansi; to &nil;,
- or invoke &clisp; with the &traditional-opt; switch,
- reversing the above settings, i.e.,</para>
+<para>Note that if you run &clisp; with the &ansi-opt; switch or set
+ the &symbol-macro; &ansi; to &t; and then save &mem-image;,
+ then all subsequent invocations of &clisp; with this image
+ will be as if with &ansi-opt;
+ (regardless whether you actually supply the &ansi-opt; switch).
+ You can always set the &symbol-macro; &ansi; to &nil;, or invoke
+ &clisp; with the &traditional-opt; switch, reversing the above
+ settings, i.e.,</para>
 
 <itemizedlist>
  <listitem><simpara>Setting &pathprint; to &nil;.</simpara></listitem>
@@ -1628,10 +1641,12 @@ is approximately equivalent to
 
 <formalpara id="with-collect">
      <title><function>EXT:WITH-COLLECT</function></title>
-<para>Similar to the &loop;'s <constant>collect</constant> instruction,
- except that it is more "Lispy" in appearance and can appear arbitrarily
- deep.  It defines local macros (with &macrolet;) which collect objects
- given to it in lists, which are then returned as multiple values.  E.g.,
+<para>Similar to the &loop;'s
+ <ulink url="&clhs;/Body/sec_6-1-3.html"><constant>collect</constant></ulink>
+ construct, except that it is looks more "Lispy" and can appear
+ arbitrarily deep.  It defines local macros (with &macrolet;) which
+ collect objects given to it into lists, which are then returned as
+ multiple values.  E.g.,
 
 <programlisting>
  (ext:with-collect (c0 c1)
