@@ -3399,7 +3399,7 @@ clean0 : force
 # without changing the bytecode format and the tables in
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
-	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ${TESTDIR}${NEXT}* ${TESTSDIR}${NEXT}*
+	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a libsigsegv.* lisp${LEXE} clisp-link makevars ${TESTDIR}${NEXT}* ${TESTSDIR}${NEXT}*
 	-rmdir ${TESTDIR}
 	-rmdir ${TESTSDIR}
 	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.html impnotes.html clisp.c distmakefile \$(TXTFILES) clreadline.3 clreadline.man clreadline.html clreadline.dvi readline.dvi
@@ -3431,6 +3431,16 @@ cat <<!!
 	cd gettext/po && \$(MAKE) clean
 	-\$(RM) -r locale
 !!
+if [ -n "$GETTEXTLIB" ] ; then
+cat <<!!
+	-\$(RM) libintl.h
+!!
+fi
+fi
+if [ -n "$USE_SIGSEGV" ] ; then
+cat <<!!
+	-\$(RM) sigsegv.h
+!!
 fi
 if [ -n "$USE_TERMCAP" ] ; then
 cat <<!!
@@ -3442,12 +3452,16 @@ cat <<!!
 # clean5 even undoes "make init".
 !!
 echol "clean5 : clean4"
+echotab "-\$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY"
 if [ -n "${SRCDIR}" ] ; then
-  echotab "-\$(RM) \$(DFILES) modules.h \$(LSPFILES) COPYRIGHT"
+  echotab "-\$(RM) \$(DFILES) modules.h \$(LSPFILES) version.h NEWS clisp.gif"
 else
   echotab "-\$(RM) config.lsp"
 fi
-echotab "-\$(RM) comment5${HEXE} ansidecl${HEXE} ccpaux${HEXE} deema${HEXE} txt2c${HEXE}"
+if [ $TOS = unix ] ; then
+  echotab "-\$(RM) MAGIC.add"
+fi
+echotab "-\$(RM) comment5${HEXE} ansidecl${HEXE} ccpaux${HEXE} deema${HEXE} txt2c${HEXE} ccmp2c${HEXE} modprep${HEXE}"
 echol
 cat <<!!
 # clean6 lets us go back to "makemake > Makefile".
