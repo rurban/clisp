@@ -37,7 +37,8 @@
 (in-package "COMMON-LISP")
 (export '(trace untrace))
 (in-package "EXT")
-(export '(*trace-function* *trace-args* *trace-form* *trace-values*))
+(export '(*trace-function* *trace-args* *trace-form* *trace-values*
+          fdefinition-local))
 (in-package "SYSTEM")
 
 (proclaim '(special *trace-function* *trace-args* *trace-form* *trace-values*))
@@ -55,6 +56,30 @@
 ;; ===>   (member funname *traced-functions* :test #'equal)
 ;; <==>   (get symbol 'sys::traced-definition)
 (defvar *trace-level* 0) ; nesting depth for Trace-Output
+
+(defun fdefinition-local (spec)
+  "Return the closure defined locally with LABELS or FLET.
+SPEC is a list of (CLOSURE SUB-CLOSURE SUB-SUB-CLOSURE ...)
+CLOSURE must be compiled."
+  (flet ((subclosure (closure name)
+           (let ((consts (closure-consts closure))
+                 ;; compiler::symbol-suffix is defined in compiler.lisp
+                 (nm (compiler::symbol-suffix (closure-name closure) name)))
+             (or (find nm consts :test #'eq :key
+                       (lambda (obj) (and (closurep obj) (closure-name obj))))
+                 (error (ENGLISH "~s: no local name ~s in ~s")
+                        'fdefinition-local name closure)))))
+    (let ((closure (fdefinition (car spec))))
+      (unless (closurep closure)
+        (error-of-type 'type-error
+          :datum closure :expected-type 'closure
+          (ENGLISH "~S: ~S must name a closure")
+          'fdefinition-local (car spec)))
+      (unless (compiled-function-p closure)
+        (setq closure (compile nil closure)))
+      (dolist (spe (cdr spec))
+        (setq closure (subclosure closure spe)))
+      closure)))
 
 ;; Functions, that the Tracer calls at runtime and that the user could
 ;; trace, must be called in their untraced form.
