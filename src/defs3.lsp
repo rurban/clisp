@@ -72,7 +72,7 @@ array-total-size-limit internal-time-units-per-second
 coerce type-of upgraded-array-element-type typep subtypep null symbolp
 atom consp listp numberp integerp rationalp floatp realp complexp characterp
 stringp bit-vector-p vectorp simple-vector-p simple-string-p
-simple-bit-vector-p arrayp packagep functionp compiled-function-p commonp eq
+simple-bit-vector-p arrayp packagep functionp compiled-function-p eq
 eql equal equalp not symbol-value symbol-function fdefinition boundp fboundp
 special-operator-p set makunbound fmakunbound get-setf-method
 get-setf-method-multiple-value apply funcall mapcar maplist mapc mapl mapcan
@@ -175,7 +175,7 @@ package-error-package print-not-readable-object stream-error-stream
 file-error-pathname cell-error-name arithmetic-error-operation
 arithmetic-error-operands
 ;; Special-forms:
-eval-when quote function setq progn let let* locally compiler-let progv flet
+eval-when quote function setq progn let let* locally progv flet
 labels macrolet symbol-macrolet if block return-from tagbody go
 multiple-value-call multiple-value-prog1 catch unwind-protect throw declare
 the load-time-value
