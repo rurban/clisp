@@ -1,3 +1,23 @@
+2005-03-26  Sam Steingold  <sds@gnu.org>
+
+	replaced -interactive-debug with -on-error <action>
+	* spvw.d (usage): updated
+	(init_symbol_values): define_variable(report_error_print_backtrace)
+	(on_error_t): new enum type
+	(appease_form): first argument is an on_error_t
+	(argv_actions): replaced argv_interactive_debug with argv_on_error
+	(parse_options): parse -on-error
+	(main_actions): wrap the REPL according to argv_on_error
+	* constsym.d (report_error_print_backtrace, abort_errors, lloop): added
+	* condition.lisp (*report-error-print-backtrace*): added
+	(report-error): new function
+	(exitunconditionally): use it
+	(abort-on-error, abort-errors): added
+	* reploop.lisp (*debug-mode*): init in defvar
+	(print-backtrace): extracted from DEBUG-BACKTRACE
+	(debug-backtrace): use it
+	(break-loop, step-hook-fn): bind *DEBUG-MODE* to self
+
 2005-03-27  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/configure.in: use CL_RLIMIT instead of

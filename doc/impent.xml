@@ -154,12 +154,13 @@
 <!ENTITY clu-pac "<link linkend='clupack'><quote role='package'>COMMON-LISP-USER</quote></link>">
 
 <!-- *** local *** -->
+<!ENTITY abort-on-error "<olink targetdoc='impnotes' targetptr='abort-on-error'><function>EXT:ABORT-ON-ERROR</function></olink>">
 <!ENTITY absolute-pathname "<link linkend='absolute-pathname'><function>EXT:ABSOLUTE-PATHNAME</function></link>">
 <!ENTITY ansi "<olink targetdoc='impnotes' targetptr='ansi'><varname>CUSTOM:*ANSI*</varname></olink>">
 <!ENTITY ansi-opt "<olink targetdoc='man' targetptr='opt-ansi'><option>-ansi</option></olink>">
 <!ENTITY apropos-do-more "<link linkend='apropos'><varname>CUSTOM:*APROPOS-DO-MORE*</varname></link>">
 <!ENTITY apropos-matcher "<link linkend='apropos'><varname>CUSTOM:*APROPOS-MATCHER*</varname></link>">
-<!ENTITY appease-cerrors "<link linkend='appease-cerrors'><function>EXT:APPEASE-CERRORS</function></link>">
+<!ENTITY appease-cerrors "<olink targetdoc='impnotes' targetptr='appease-cerrors'><function>EXT:APPEASE-CERRORS</function></olink>">
 <!ENTITY browser "<link linkend='browser'><constant>CUSTOM:*BROWSER*</constant></link>">
 <!ENTITY browser-k "<link linkend='browser'><constant>:BROWSER</constant></link>">
 <!ENTITY browsers "<link linkend='browser'><constant>CUSTOM:*BROWSERS*</constant></link>">
@@ -217,7 +218,7 @@
 <!ENTITY endianness "<link linkend='endianness'><replaceable>ENDIANNESS</replaceable></link>">
 <!ENTITY ethe "<link linkend='ethe'><function>EXT:ETHE</function></link>">
 <!ENTITY exec "<link linkend='exec'><function>EXT:EXECUTE</function></link>">
-<!ENTITY exit-on-error "<link linkend='exit-on-error'><function>EXT:EXIT-ON-ERROR</function></link>">
+<!ENTITY exit-on-error "<olink targetdoc='impnotes' targetptr='exit-on-error'><function>EXT:EXIT-ON-ERROR</function></olink>">
 <!ENTITY expand-form "<link linkend='code-walk'><function>EXT:EXPAND-FORM</function></link>">
 <!ENTITY extfmt "<link linkend='extfmt'><constant>:EXTERNAL-FORMAT</constant></link>">
 <!ENTITY file-pipe-socket-s "<link linkend='open'>file</link>/<link linkend='pipe'>pipe</link>/<link linkend='socket'>socket</link> &stream-t;">
@@ -395,6 +396,7 @@
 <!ENTITY standard-stablehash "<link linkend='make-hash'><classname>EXT:STANDARD-STABLEHASH</classname></link>">
 <!ENTITY structure-stablehash "<link linkend='make-hash'><classname>EXT:STRUCTURE-STABLEHASH</classname></link>">
 <!ENTITY warn-on-hashtable-needing-rehash-after-gc "<link linkend='hashtable-gc-rehash-warn'><varname>CUSTOM:*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</varname></link>">
+<!ENTITY err-pr-bt "<olink targetdoc='impnotes' targetptr='err-pr-bt'><varname>CUSTOM:*REPORT-ERROR-PRINT-BACKTRACE*</varname></olink>">
 
 <!-- *** netica *** -->
 <!ENTITY netica-link "<ulink url='http://norsys.com/netica_c_api.htm'>Netica C API</ulink>">
