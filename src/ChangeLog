@@ -1,5 +1,11 @@
 2001-04-25  Sam Steingold  <sds@gnu.org>
 
+	* runprog.lisp (run-shell-command, run-program): accept :wait
+	parameter (defaults to T)
+	* clhs.lisp (clhs): pass :wait nil to RUN-PROGRAM
+
+2001-04-25  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (invoke_handlers): fixed the 2001-04-18 patch for Linux
 
 2001-04-24  Sam Steingold  <sds@gnu.org>
