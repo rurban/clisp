@@ -1,5 +1,9 @@
 2004-08-19  Sam Steingold  <sds@gnu.org>
 
+	* clos-class5.lisp (change-class): avoid a compilation warning
+
+2004-08-19  Sam Steingold  <sds@gnu.org>
+
 	* clos-genfun3.lisp (analyze-defgeneric): fixed a typo in error
 	message: DEFSTRUCT -> DEFGENERIC
 
