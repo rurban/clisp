@@ -1,3 +1,7 @@
+1998-10-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * makemake.in: If SRCDIR is empty, emit "./lndir" instead of "lndir".
+
 1998-10-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (STACK_reg, mv_count_reg, value1_reg, subr_self_reg):
