@@ -560,11 +560,15 @@ local void make_variable_frame (object caller, object varspecs,
               declarations = popSTACK(); varspecs = popSTACK(); /* restore */
               caller = popSTACK();
               value2 = popSTACK(); value1 = popSTACK();         /* restore */
-              STACK_1 = symbol;
+              STACK_(varframe_binding_sym) = symbol;
             }
             if (specdecled || special_var_p(TheSymbol(symbol))) {
               /* bind dynamically */
-              STACK_0 = as_object(as_oint(STACK_0) | wbit(dynam_bit_o));
+              #if (varframe_binding_mark == varframe_binding_sym)
+              STACK_(varframe_binding_mark) = as_object(as_oint(symbol) | wbit(dynam_bit_o));
+              #else
+              STACK_(varframe_binding_mark) = as_object(as_oint(Fixnum_0) | wbit(dynam_bit_o));
+              #endif
             } else {
               /* bind statically */
             }
