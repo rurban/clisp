@@ -73,9 +73,8 @@
   (clos:with-slots (target-stream) stream (force-output target-stream)))
 (clos:defmethod stream-clear-output ((stream html-stream-out))
   (clos:with-slots (target-stream) stream (clear-output target-stream)))
-(clos:defmethod close ((stream html-stream-out) &rest ignore)
-  (declare (ignore ignore))
-  (clos:with-slots (target-stream) stream (close target-stream))
+(clos:defmethod close ((stream html-stream-out) &rest opts)
+  (clos:with-slots (target-stream) stream (apply #'close target-stream opts))
   (call-next-method))
 
 
