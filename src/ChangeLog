@@ -1,3 +1,7 @@
+2005-03-15  Bruno Haible  <bruno@clisp.org>
+
+	* modules/regexp/regex.c: Upgrade from gnulib.
+
 2005-03-14  Sam Steingold  <sds@gnu.org>
 
 	* condition.lisp (exitunconditionally): use PRETTY-PRINT-CONDITION
@@ -25,12 +29,12 @@
 
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
-	* regexp/configure.in: Add AC_CONFIG_AUX_DIR invocation.
+	* modules/regexp/configure.in: Add AC_CONFIG_AUX_DIR invocation.
 
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
-	* regexp/configure.in: Invoke AM_GNU_GETTEXT.
-	* regexp/regex.c: Don't include clisp.h.
+	* modules/regexp/configure.in: Invoke AM_GNU_GETTEXT.
+	* modules/regexp/regex.c: Don't include clisp.h.
 
 2004-03-14  Bruno Haible  <bruno@clisp.org>
 
@@ -91,8 +95,8 @@
 
 2005-03-12  Bruno Haible  <bruno@clisp.org>
 
-	* syscalls/calls.c: Assume limits.h exists.
-	* syscalls/configure.in: Don't test whether limits.h exists.
+	* modules/syscalls/calls.c: Assume limits.h exists.
+	* modules/syscalls/configure.in: Don't test whether limits.h exists.
 
 2005-03-12  Bruno Haible  <bruno@clisp.org>
 
