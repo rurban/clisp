@@ -1,3 +1,9 @@
+2002-12-09  Sam Steingold  <sds@gnu.org>
+
+	* spvw_garcol.d (gar_col_normal): gc_mark() bt_caller's even
+	though we are certain they have already been marked, since Bruno
+	said: "Better safe than sorry"
+
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (gcv_environment_t): New type.
@@ -17,9 +23,9 @@
 	* debug.d (same_env_as): Likewise.
 	* predtype.d (COERCE): Update.
 
-	* array.d, control.d, eval.d, lispbibl.d, predtype.d, sequence.d,
-	spvw.d, spvw_circ.d, spvw_garcol.d, spvw_genera1.d, spvw_memfile.d,
-	spvw_objsize.d, spvw_update.d, spvwtabo.d: Use sizeof(gcv_object_t)
+	* array.d, control.d, eval.d, lispbibl.d, predtype.d, sequence.d:
+	* spvw.d, spvw_circ.d, spvw_garcol.d, spvw_genera1.d, spvw_memfile.d:
+	* spvw_objsize.d, spvw_update.d, spvwtabo.d: Use sizeof(gcv_object_t)
 	where appropriate.
 
 2002-12-08  Sam Steingold  <sds@gnu.org>
