@@ -1,3 +1,10 @@
+2002-08-03  Sam Steingold  <sds@gnu.org>
+
+	* spvw_garcol.d (GC_MARK): new macro
+	(gc_mark_stack): use it
+	(gc_mark): unroll Rectype_reallocstring
+	* spvw_genera2.d (gc_mark_at, gc_mark_old_generation): use GC_MARK
+
 2002-08-02  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-DIRECT-FUNCTION-CALL): fixed repeated key
