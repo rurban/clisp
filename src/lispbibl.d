@@ -4554,13 +4554,6 @@ typedef symbol_ *  Symbol;
   #endif
 
 # Characters
-# Implementiert sind 4 Bits und 16 Fonts.
-# Aufteilung in code, bits, font:
-#   Fontnummer  in den Bits 15..12,
-#   Bits        in den Bits 11..8,
-#   Ascii-Code  in den Bits 7..0.
-# Bits: 8=Control, 9=Meta, 10=Super, 11=Hyper.
-# Fonts: 0=Default, restliche ungenutzt und non-graphic.
 
 # Integer, der die Daten eines Character ganz faﬂt:
   #define char_int_len 16
@@ -4594,14 +4587,6 @@ typedef symbol_ *  Symbol;
   #define char_code_len_c     8      # Ascii-Zeichensatz mit 8 Bits, paﬂt in uintB
   #define char_code_limit     (1UL<<char_code_len_c)
   #define char_code_mask_c    ((char_code_limit-1)<<char_code_shift_c)
-  #define char_bits_shift_c   8
-  #define char_bits_len_c     4
-  #define char_bits_limit     (1UL<<char_bits_len_c)
-  #define char_bits_mask_c    ((char_bits_limit-1)<<char_bits_shift_c)
-  #define char_font_shift_c  12
-  #define char_font_len_c     4
-  #define char_font_limit     (1UL<<char_font_len_c)
-  #define char_font_mask_c    ((char_font_limit-1)<<char_font_shift_c)
 # Aus dem Code eines String-Char ein Character machen:
   #if !(char_code_shift_c==0)
     #define code_char(code_from_code_char)  \
@@ -4619,16 +4604,6 @@ typedef symbol_ *  Symbol;
     # falls der char-code genau das untere Byte belegt:
     #define char_code(char_from_char_code)  ((uintB)(char_int(char_from_char_code)))
   #endif
-# Bits im cint:
-  #define char_control_bit_c  8
-  #define char_meta_bit_c     9
-  #define char_super_bit_c   10
-  #define char_hyper_bit_c   11
-# Bitmasken im cint:
-  #define char_control_c  bit(char_control_bit_c)
-  #define char_meta_c     bit(char_meta_bit_c)
-  #define char_super_c    bit(char_super_bit_c)
-  #define char_hyper_c    bit(char_hyper_bit_c)
 # wird verwendet von STREAM, DEBUG, EVAL
 
 # Fixnums

@@ -1,3 +1,56 @@
+1998-11-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Remove font and bits attributes of characters.
+        * lispbibl.d (char_bits_*, char_font_*, char_*_c): Remove definitions.
+        * io.d (char_reader): Font must be 0, bitnames are not supported any
+          more.
+          (pr_character): Remove support for font and bitnames.
+        * constobj.d (charname_hyper_*): Remove extra character names for keys.
+          (bitnamekw_*): Remove bitnames.
+        * charstrg.d (charname_table_extra): Remove definition.
+          (charname_table_codes): Remove extra characters.
+          (name_char): Don't test for extra characters.
+          (CHAR-BITS, CHAR-FONT, MAKE-CHAR): Remove functions.
+          (test_font_arg, test_bits_arg, test_bitname_arg): Remove.
+          (CODE-CHAR, DIGIT-CHAR): Remove the optional font and bits arguments.
+          (CHAR-BIT, SET-CHAR-BIT): Remove functions.
+        * eval.d (FUNTAB): Remove CHAR-BITS, CHAR-FONT, MAKE-CHAR, CHAR-BIT,
+          SET-CHAR-BIT.
+        * compiler.lsp (funtab): Remove CHAR-BITS, CHAR-FONT, MAKE-CHAR,
+          CHAR-BIT, SET-CHAR-BIT.
+          (subr-info): Remove CHAR-BITS, CHAR-FONT, MAKE-CHAR, CHAR-BIT,
+          SET-CHAR-BIT, update for CODE-CHAR, DIGIT-CHAR.
+          (c-DIRECT-FUNCTION-CALL): Remove CHAR-BITS, CHAR-FONT, MAKE-CHAR,
+          CHAR-BIT.
+        * format.lsp (format-character): Remove handling of font and bits.
+        * user2.lsp (describe): Likewise.
+
+        * xcharin.lsp: New file.
+        * makemake.in (LPARTS): Add xcharin.
+        * defs1.lsp (char-font-limit, char-bits-limit, char-int-limit,
+          char-control-bit, char-meta-bit, char-super-bit, char-hyper-bit):
+          Moved to xcharin.lsp.
+        * init.lsp: Load xcharin.
+        * defs3.lsp: Don't export COMMON, STRING-CHAR, CHAR-FONT-LIMIT,
+          CHAR-BITS-LIMIT, CHAR-CONTROL-BIT, CHAR-META-BIT, CHAR-SUPER-BIT,
+          CHAR-HYPER-BIT, STRING-CHAR-P, CHAR-BITS, CHAR-FONT, MAKE-CHAR,
+          INT-CHAR, CHAR-BIT, SET-CHAR-BIT.
+
+        * stream.d (key_event): New structure type.
+          (make_key_event): New function.
+          (char_control_c, char_meta_c, char_super_c, char_hyper_c): Define.
+          (scancode_table): Use key_event data.
+          (listen_keyboard): Call make_key_event and make-char.
+          (rd_ch_keyboard): Likewise.
+          (add_keybinding): Renamed from keybinding.
+          (keybinding): New macro.
+          (make_keyboard_stream): Use key_event data.
+          (wr_ch_terminal1): Leave a #error for Jörg to fix.
+
+        * type.lsp (upgraded-array-element-type): Treat CHARACTER as synonym
+          of STRING-CHAR.
+        * array.d (eltype_code): Likewise.
+
 1998-10-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * stream.d (MAKE-STRING-OUTPUT-STREAM): Replace optional argument by

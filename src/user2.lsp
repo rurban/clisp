@@ -336,17 +336,6 @@
                      ENGLISH "a character"
                      FRANCAIS "un caractère")
           )
-          (unless (zerop (char-bits obj))
-            (format s (DEUTSCH " mit Zusatzbits"
-                       ENGLISH " with additional bits"
-                       FRANCAIS " avec des bits supplémentaires")
-          ) )
-          (unless (zerop (char-font obj))
-            (format s (DEUTSCH " aus Zeichensatz ~S"
-                       ENGLISH " from font ~S"
-                       FRANCAIS " de la police («font») ~S")
-                      (char-font obj)
-          ) )
           (format s (DEUTSCH "."
                      ENGLISH "."
                      FRANCAIS ".")

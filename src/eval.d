@@ -24,16 +24,15 @@
     _(bit_orc2), _(bit_not), _(array_has_fill_pointer_p), _(fill_pointer),
     _(set_fill_pointer), _(vector_push), _(vector_pop), _(vector_push_extend),
     _(make_array), _(adjust_array),
-    # CHARSTRG : 52 SUBRs
+    # CHARSTRG : 47 SUBRs
     _(standard_char_p), _(graphic_char_p), _(string_char_p), _(alpha_char_p),
     _(upper_case_p), _(lower_case_p), _(both_case_p), _(digit_char_p),
-    _(alphanumericp), _(char_code), _(char_bits), _(char_font), _(code_char),
-    _(make_char), _(character), _(char_upcase), _(char_downcase),
-    _(digit_char), _(char_int), _(int_char), _(char_name), _(char_bit),
-    _(set_char_bit), _(char), _(schar), _(store_char), _(store_schar),
-    _(string_gleich), _(string_ungleich), _(string_kleiner),
-    _(string_groesser), _(string_klgleich), _(string_grgleich),
-    _(string_equal), _(string_not_equal), _(string_lessp), _(string_greaterp),
+    _(alphanumericp), _(char_code), _(code_char), _(character), _(char_upcase),
+    _(char_downcase), _(digit_char), _(char_int), _(int_char), _(char_name),
+    _(char), _(schar), _(store_char), _(store_schar), _(string_gleich),
+    _(string_ungleich), _(string_kleiner), _(string_groesser),
+    _(string_klgleich), _(string_grgleich), _(string_equal),
+    _(string_not_equal), _(string_lessp), _(string_greaterp),
     _(string_not_greaterp), _(string_not_lessp), _(search_string_gleich),
     _(search_string_equal), _(make_string), _(string_both_trim),
     _(nstring_upcase), _(string_upcase), _(nstring_downcase),
@@ -160,7 +159,7 @@
     _(set_long_float_digits), _(log2), _(log10),
     # sonstige:
     };
-  # Das waren 530-43 SUBRs.
+  # Das waren 525-43 SUBRs.
   # Nun FUNTABR :
   local const Subr FUNTABR[] = {
     # SPVW : 0 SUBRs

@@ -2805,23 +2805,18 @@ LISPFUNN(char_reader,3) # liest #\
    {var cint c = 0; # im Aufbau befindliches Zeichen
     # Font bestimmen:
     if (!nullp(STACK_0)) # n=NIL -> Default-Font 0
-      { var uintL font;
-        if (posfixnump(STACK_0) && ((font = posfixnum_to_L(STACK_0)) < char_font_limit))
-          { c |= (font << char_font_shift_c); } # font einbauen
-          else
-          { pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
-            pushSTACK(fixnum(char_font_limit)); # char-font-limit
-            pushSTACK(STACK_(0+2)); # n
-            pushSTACK(*stream_); # Stream
-            pushSTACK(S(read));
-            fehler(stream_error,
-                   DEUTSCH ? "~ von ~: Fontnummer ~ für Zeichen ist zu groß (muß < ~ sein)" :
-                   ENGLISH ? "~ from ~: font number ~ for character is too large, should be < ~" :
-                   FRANCAIS ? "~ de ~ : Le numéro ~ de font de caractère est trop grand (devrait être < ~)." :
-                   ""
-                  );
-          }
-      }
+      if (!eq(STACK_0,Fixnum_0))
+        { pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(STACK_(0+1)); # n
+          pushSTACK(*stream_); # Stream
+          pushSTACK(S(read));
+          fehler(stream_error,
+                 DEUTSCH ? "~ von ~: Fontnummer ~ für Zeichen ist zu groß (muß = 0 sein)" :
+                 ENGLISH ? "~ from ~: font number ~ for character is too large, should be = 0" :
+                 FRANCAIS ? "~ de ~ : Le numéro ~ de font de caractère est trop grand (devrait être = 0)." :
+                 ""
+                );
+        }
     # Font fertig.
     { var object token = O(token_buff_1); # gelesenes Token als Semi-Simple-String
       var uintL len = TheIarray(token)->dims[1]; # Länge = Fill-Pointer
@@ -2843,32 +2838,6 @@ LISPFUNN(char_reader,3) # liest #\
             TheIarray(hstring)->totalsize =
               TheIarray(hstring)->dims[1] = sub_len; # Länge := hyphen-pos
             # Jetzt ist hstring = (subseq token pos hyphen)
-            if (sub_len==1)
-              # Länge=1 -> auf Bitnamen-Abkürzungen überprüfen:
-              { var uintB bitname1 = TheSstring(token)->data[pos]; # (char token pos)
-                bitname1 = up_case(bitname1); # als Großbuchstabe
-                # Ist es einer der Anfangsbuchstaben der Bitnamen?
-               {var const object* bitnameptr = &O(bitname_0);
-                var uintL bitnr = char_bits_shift_c;
-                var uintL count;
-                dotimesL(count,char_bits_len_c, # alle Bitnamen durchlaufen
-                  { var object bitname = *bitnameptr++; # nächster Bitname (Simple-String)
-                    if (TheSstring(bitname)->data[0] == bitname1) # mit bitname1 als Anfangsbuchstaben?
-                      { c |= bit(bitnr); goto bit_ok; } # ja -> entsprechendes Bit setzen
-                    bitnr++;
-                  });
-              }}
-            # Ist es einer der Bitnamen selber?
-            {var const object* bitnameptr = &O(bitname_0);
-             var uintL bitnr = char_bits_shift_c;
-             var uintL count;
-             dotimesL(count,char_bits_len_c, # alle Bitnamen durchlaufen
-               { var object bitname = *bitnameptr++; # nächster Bitname (Simple-String)
-                 if (string_equal(hstring,bitname)) # mit hstring vergleichen
-                   { c |= bit(bitnr); goto bit_ok; } # gleich -> entsprechendes Bit setzen
-                 bitnr++;
-               });
-            }
             # Displaced-String hstring ist kein Bitname -> Error
             { pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
               pushSTACK(copy_string(hstring)); # Displaced-String kopieren
@@ -6824,91 +6793,20 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     { # *PRINT-ESCAPE* abfragen:
       if (test_value(S(print_escape)) || test_value(S(print_readably)))
         # Character mit Escape-Zeichen ausgeben.
-        # Syntax:  # [font] \ char
-        # bzw.     # [font] \ charname
-        # bzw.     # [font] \ bitname - ... - bitname - [\] char
-        # bzw.     # [font] \ bitname - ... - bitname - charname
+        # Syntax:  # \ char
+        # bzw.     # \ charname
         { var cint c = char_int(ch);
           write_schar(stream_,'#');
-         {var cint font = (c >> char_font_shift_c) & (char_font_limit-1); # Font
-          if (!(font==0)) # Falls font /=0 :
-            { pr_uint(stream_,font); } # Fontnummer dezimal ausgeben
-         }
           write_schar(stream_,'\\');
-         {var cint bits = (c >> char_bits_shift_c) & (char_bits_limit-1); # Bits
-          if (bits==0)
-            # keine Bits auszugeben ->
-            # Syntax  # [font] \ char  oder  # [font] \ charname
-            { var uintB code = (c >> char_code_shift_c) & (char_code_limit-1); # Code
-              var object charname = char_name(code); # Name des Characters
-              if (nullp(charname))
-                # kein Name vorhanden
-                { write_schar(stream_,code); }
-                else
-                # Namen (Simple-String) ausgeben
-                { write_sstring_case(stream_,charname); }
-            }
-            else
-            # Es sind Bits auszugeben
-            { # Bitnamen ausgeben:
-              { var const object* bitnameptr = &O(bitname_0);
-                var uintC count;
-                dotimesC(count,char_bits_len_c, # alle Bits und Bitnamen durchgehen
-                  { if (bits & bit(0))
-                      # Bit war gesetzt -> Bitnamen *bitnameptr ausgeben:
-                      { write_sstring_case(stream_,*bitnameptr);
-                        write_schar(stream_,'-');
-                      }
-                    bits = bits >> 1;
-                    bitnameptr++;
-                  });
-              }
-              # Noch auszugeben:  charname  oder  [\]char
-              { var uintB code = (c >> char_code_shift_c) & (char_code_limit-1); # Code
-                var object charname = char_name(code); # Name des Characters
-                if (nullp(charname))
-                  # kein Name vorhanden
-                  { # code selbst ausgeben.
-                    # Falls es
-                    # - den Syntaxcode Constituent oder Nonterminating Macro hat und
-                    # - in der Groß-/Klein-Schreibung zur readtable-case paßt,
-                    # kann man sich den '\' sparen:
-                    { var object readtable;
-                      get_readtable(readtable = ); # aktuelle Readtable
-                      switch ((uintW)posfixnum_to_L(TheReadtable(readtable)->readtable_case))
-                        { case case_upcase:
-                            if (!(code == up_case(code))) # code ein Kleinbuchstabe?
-                              goto backslash; # ja -> Backslash nötig
-                            break;
-                          case case_downcase:
-                            if (!(code == down_case(code))) # code ein Großbuchstabe?
-                              goto backslash; # ja -> Backslash nötig
-                            break;
-                          case case_preserve:
-                            break;
-                          case case_invert:
-                            break;
-                          default: NOTREACHED
-                        }
-                      # Syntaxcode-Tabelle holen:
-                     {var object syntax_table = TheReadtable(readtable)->readtable_syntax_table; # Syntaxcode-Tabelle
-                      switch (TheSbvector(syntax_table)->data[code]) # Syntaxcode
-                        { case syntax_constituent:
-                          case syntax_nt_macro:
-                            # Syntaxcode Constituent oder Nonterminating Macro
-                            goto no_backslash; # kein '\' nötig
-                          default: ;
-                    }}  }
-                    backslash:
-                    write_schar(stream_,'\\');
-                    no_backslash:
-                    write_schar(stream_,code);
-                  }
-                  else
-                  # Namen (Simple-String) ausgeben
-                  { write_sstring_case(stream_,charname); }
-            } }
-        }}
+          { var uintB code = (c >> char_code_shift_c) & (char_code_limit-1); # Code
+            var object charname = char_name(code); # Name des Characters
+            if (nullp(charname))
+              # kein Name vorhanden
+              { write_schar(stream_,code); }
+              else
+              # Namen (Simple-String) ausgeben
+              { write_sstring_case(stream_,charname); }
+        } }
         else
         # Character ohne Escape-Zeichen ausgeben
         { write_char(stream_,ch); } # ch selbst ausgeben

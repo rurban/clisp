@@ -535,51 +535,38 @@
 # in CONSTOBJ.D definiert,
   #ifdef AMIGA_CHARNAMES
     #define charname_table_length  45  # Länge der Tabelle
-    #define charname_table_extra   15  # zusätzlich
     #define charname_table  ((object*)(&object_tab.charname_0)) # Tabelle fängt mit charname_0 an
   #endif
   #ifdef MSDOS_CHARNAMES
     #define charname_table_length  13  # Länge der Tabelle
-    #define charname_table_extra   24  # zusätzlich
     #define charname_table  ((object*)(&object_tab.charname_0)) # Tabelle fängt mit charname_0 an
   #endif
   #ifdef WIN32_CHARNAMES
     #define charname_table_length  13  # Länge der Tabelle
-    #define charname_table_extra   24  # zusätzlich
     #define charname_table  ((object*)(&object_tab.charname_0)) # Tabelle fängt mit charname_0 an
   #endif
   #ifdef UNIX_CHARNAMES
     #define charname_table_length  46  # Länge der Tabelle
-    #define charname_table_extra   22  # zusätzlich
     #define charname_table  ((object*)(&object_tab.charname_0bis)) # Tabelle fängt mit charname_0bis an
   #endif
 # Tabelle der Codes zu diesen Namen:
-  local const uintB charname_table_codes [charname_table_length+charname_table_extra]
+  local const uintB charname_table_codes [charname_table_length]
     #ifdef AMIGA_CHARNAMES
       = { 0,1,2,3,4,5,6,BEL,BS,TAB,NL,11,PG,CR,14,15,16,17,18,19,20,21,22,
           23,24,25,26,ESC,28,29,30,31,' ',127,7,8,9,LF,10,12,13,27,127,RUBOUT,
           155,
-          18,20,22,24,28,'A','B','C','D','E','F','G','H','I','J',
         };
     #endif
     #ifdef MSDOS_CHARNAMES
-      = { 0,BEL,BS,TAB,NL,11,PG,CR,26,ESC,' ',RUBOUT,LF,
-          CR,16,17,18,19,20,22,23,24,25,29,127,
-          'A','B','C','D','E','F','G','H','I','J','K','L',
-        };
+      = { 0,BEL,BS,TAB,NL,11,PG,CR,26,ESC,' ',RUBOUT,LF, };
     #endif
     #ifdef WIN32_CHARNAMES
-      = { 0,BEL,BS,TAB,NL,11,PG,CR,26,ESC,' ',RUBOUT,LF,
-          CR,16,17,18,19,20,21,22,23,24,25,127,
-          'A','B','C','D','E','F','G','H','I','J','K','L',
-        };
+      = { 0,BEL,BS,TAB,NL,11,PG,CR,26,ESC,' ',RUBOUT,LF, };
     #endif
     #ifdef UNIX_CHARNAMES
       = { 0,7,BS,TAB,NL,LF,PG,CR,27,32,RUBOUT,127,
           0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,
           20,21,22,23,24,25,26,27,28,29,30,31,32,127,
-          16,17,18,19,20,21,22,23,24,25,
-          'A','B','C','D','E','F','G','H','I','J','K','L',
         };
     #endif
 # Zum Namen charname_table[i] gehört der Code charname_table_codes[i]
@@ -619,16 +606,10 @@
         { if (string_equal(string,*strings_ptr++)) goto found; # string mit charname_table[i] vergleichen
           codes_ptr++;
         });
-      dotimesC(count,charname_table_extra,
-        { if (string_equal(string,*strings_ptr++)) goto found_extra; # string mit charname_table[i] vergleichen
-          codes_ptr++;
-        });
       # kein Character mit diesem Namen gefunden
       return NIL;
       found: # gefunden
         return code_char(*codes_ptr); # Code charname_table_codes[i] aus der Tabelle holen
-      found_extra: # gefunden unter den Extra-Namen
-        return int_char((cint)(*codes_ptr << char_code_shift_c) | char_hyper_c); # hier mit Hyper-Bit
     }
 
 LISPFUNN(standard_char_p,1) # (STANDARD-CHAR-P char), CLTL S. 234
@@ -1023,69 +1004,9 @@ LISPFUNN(char_code,1) # (CHAR-CODE char), CLTL S. 239
     mv_count=1;
   }
 
-LISPFUNN(char_bits,1) # (CHAR-BITS char), CLTL S. 240
-  { var object arg = popSTACK(); # Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    value1 = fixnum(((char_int(arg) & char_bits_mask_c) >> char_bits_shift_c));
-    mv_count=1;
-  }
-
-LISPFUNN(char_font,1) # (CHAR-FONT char), CLTL S. 240
-  { var object arg = popSTACK(); # Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    value1 = fixnum(((char_int(arg) & char_font_mask_c) >> char_font_shift_c));
-    mv_count=1;
-  }
-
-# UP: Überprüft ein optionales Font-Argument
-# > STACK_0: Argument, Default ist 0
-# > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: Font, ein Integer
-# erhöht STACK um 1
-  local object test_font_arg (void);
-  local object test_font_arg()
-    { var object arg = popSTACK(); # font-Argument
-      if (eq(arg,unbound)) { return Fixnum_0; } # 0 als Default
-      if (integerp(arg)) { return arg; }
-      # arg ist kein Integer.
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-      pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             DEUTSCH ? "~: Font-Argument muß ein Integer sein, nicht ~." :
-             ENGLISH ? "~: the font argument should be an integer, not ~" :
-             FRANCAIS ? "~: L'argument fonte doit être un entier et non ~." :
-             ""
-            );
-    }
-
-# UP: Überprüft ein optionales Bits-Argument
-# > STACK_0: Argument, Default ist 0
-# > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: Bits, ein Integer
-# erhöht STACK um 1
-  local object test_bits_arg (void);
-  local object test_bits_arg()
-    { var object arg = popSTACK(); # bits-Argument
-      if (eq(arg,unbound)) { return Fixnum_0; } # 0 als Default
-      if (integerp(arg)) { return arg; }
-      # arg ist kein Integer.
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-      pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             DEUTSCH ? "~: Bits-Argument muß ein Integer sein, nicht ~." :
-             ENGLISH ? "~: the bits argument should be an integer, not ~" :
-             FRANCAIS ? "~: L'argument bits doit être un entier et non ~." :
-             ""
-            );
-    }
-
-LISPFUN(code_char,1,2,norest,nokey,0,NIL)
-# (CODE-CHAR code [bits] [font]), CLTL S. 240
-  { var object fontobj = test_font_arg(); # Font-Argument, ein Integer
-    var object bitsobj = test_bits_arg(); # Bits-Argument, ein Integer
-    var object codeobj = popSTACK(); # code-Argument
+LISPFUNN(code_char,1)
+# (CODE-CHAR code)
+  { var object codeobj = popSTACK(); # code-Argument
     if (!integerp(codeobj))
       { # code-Argument ist kein Integer.
         pushSTACK(codeobj); # Wert für Slot DATUM von TYPE-ERROR
@@ -1099,45 +1020,10 @@ LISPFUN(code_char,1,2,norest,nokey,0,NIL)
               );
       }
     # codeobj ist jetzt ein Integer.
-    { var uintL font;
-      var uintL bits;
-      var uintL code;
-      # Teste, ob  0 <= font < char_font_limit
-      #       und  0 <= bits < char_bits_limit
-      #       und  0 <= code < char_code_limit :
-      if ( (posfixnump(fontobj)) && ((font = posfixnum_to_L(fontobj)) < char_font_limit)
-        && (posfixnump(bitsobj)) && ((bits = posfixnum_to_L(bitsobj)) < char_bits_limit)
-        && (posfixnump(codeobj)) && ((code = posfixnum_to_L(codeobj)) < char_code_limit)
-         )
-        { # Bastle neues Character:
-          value1 = int_char( (font << char_font_shift_c) |
-                             (bits << char_bits_shift_c) |
-                             (code << char_code_shift_c) );
-          mv_count=1;
-        }
-        else
-        { value1 = NIL; mv_count=1; } # sonst Wert NIL
-  } }
-
-LISPFUN(make_char,1,2,norest,nokey,0,NIL)
-# (MAKE-CHAR char [bits] [font]), CLTL S. 240
-  { var object fontobj = test_font_arg(); # Font-Argument, ein Integer
-    var object bitsobj = test_bits_arg(); # Bits-Argument, ein Integer
-    var object charobj = popSTACK(); # char-Argument
-    if (!(charp(charobj))) fehler_char(charobj);
-    { var uintL font;
-      var uintL bits;
-      # Teste, ob  0 <= font < char_font_limit
-      #       und  0 <= bits < char_bits_limit :
-      if ( (posfixnump(fontobj)) && ((font = posfixnum_to_L(fontobj)) < char_font_limit)
-        && (posfixnump(bitsobj)) && ((bits = posfixnum_to_L(bitsobj)) < char_bits_limit)
-         )
-        { # Bastle neues Character:
-          value1 = int_char( (font << char_font_shift_c) |
-                             (bits << char_bits_shift_c) |
-                             (char_code(charobj) << char_code_shift_c) );
-          mv_count=1;
-        }
+    { var uintL code;
+      # Teste, ob  0 <= code < char_code_limit :
+      if (posfixnump(codeobj) && ((code = posfixnum_to_L(codeobj)) < char_code_limit))
+        { value1 = code_char(code); mv_count=1; } # String-Char basteln
         else
         { value1 = NIL; mv_count=1; } # sonst Wert NIL
   } }
@@ -1184,15 +1070,14 @@ LISPFUNN(char_downcase,1) # (CHAR-DOWNCASE char), CLTL S. 241
       mv_count=1;
   } }
 
-LISPFUN(digit_char,1,2,norest,nokey,0,NIL)
-# (DIGIT-CHAR weight [radix] [font]), CLTL S. 241
+LISPFUN(digit_char,1,1,norest,nokey,0,NIL)
+# (DIGIT-CHAR weight [radix]), CLTL2 S. 384
   # Methode:
   # Alles müssen Integers sein, radix zwischen 2 und 36.
-  # Falls font=0 und 0 <= weight < radix, konstruiere
+  # Falls 0 <= weight < radix, konstruiere
   #     ein String-Char aus '0',...,'9','A',...,'Z' mit Wert weight.
-  # Sonst Wert NIL. (Denn Characters mit font/=0 erfüllen nicht DIGIT-CHAR-P.)
-  { var object font = test_font_arg(); # Font-Argument, ein Integer
-    var uintWL radix = test_radix_arg(); # radix-Argument, >=2, <=36
+  # Sonst Wert NIL.
+  { var uintWL radix = test_radix_arg(); # radix-Argument, >=2, <=36
     var object weightobj = popSTACK(); # weight-Argument
     if (!integerp(weightobj))
       { # weight-Argument ist kein Integer.
@@ -1202,20 +1087,17 @@ LISPFUN(digit_char,1,2,norest,nokey,0,NIL)
         fehler(type_error,
                DEUTSCH ? "~: Weight-Argument muß ein Integer sein, nicht ~." :
                ENGLISH ? "~: the weight argument should be an integer, not ~" :
-               FRANCAIS ? "~: L'argument poids doit être un entier et non ~." :
+               FRANCAIS ? "~ : L'argument poids doit être un entier et non ~." :
                ""
               );
       }
     # weightobj ist jetzt ein Integer.
-    # Teste, ob font=0 und 0<=weight<radix, sonst NIL:
+    # Teste, ob 0<=weight<radix, sonst NIL:
     { var uintL weight;
-      if ((eq(font,Fixnum_0))
-          && (posfixnump(weightobj))
-          && ((weight = posfixnum_to_L(weightobj)) < radix)
-         )
+      if (posfixnump(weightobj) && ((weight = posfixnum_to_L(weightobj)) < radix))
         { weight = weight + '0'; # in Ziffer umwandeln
           if (weight > '9') { weight += 'A'-'0'-10; } # oder Buchstaben draus machen
-          value1 = code_char(weight); # String-Char basteln (font ist ja =0)
+          value1 = code_char(weight); # String-Char basteln
           mv_count=1;
         }
         else
@@ -1263,67 +1145,6 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
         );
       mv_count=1;
   } }
-
-# UP: Überprüft ein Bitname-Argument
-# Das Argument muß eines der Keywords :CONTROL, :META, :SUPER, :HYPER oder
-# einer der Werte der Konstanten CHAR-CONTROL-BIT = 1, CHAR-META-BIT = 2,
-# CHAR-SUPER-BIT = 4, CHAR-HYPER-BIT = 8 sein.
-# test_bitname_arg()
-# > STACK_0: Argument
-# > subr_self: Aufrufer
-# < ergebnis: Maske fürs Bit (genau 1 Bit gesetzt)
-# erhöht STACK um 1
-  local cint test_bitname_arg (void);
-  local cint test_bitname_arg()
-    { var object arg = popSTACK(); # Argument
-      var object* bitnamekwptr = &object_tab.bitnamekw_0; # Pointer in Bitnamen-Tabelle
-      var uintL intval = 1; # Bitname als Integer-Wert
-      var cint bitmask = bit(char_bits_shift_c); # Bit als cint-Maske
-      var uintC count;
-      dotimesC(count,char_bits_len_c,
-        { # Hier ist für i=0,...,char_bits_len_c-1:
-          # bitnamekwptr = &object_tab.bitnamekw_i,
-          # intval = 2^i, bitmask = bit(char_bits_shift_c + i).
-          if (eq(arg,*bitnamekwptr++) # ist arg das Bitnamen-Keyword Nummer i
-              || eq(arg,fixnum(intval)) # oder das Fixnum 2^i
-             )
-            goto found; # ja -> fertig
-          intval = intval << 1;
-          bitmask = bitmask << 1;
-        });
-      # Bitname nicht gefunden -> Fehler:
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_bitname)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-      pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             DEUTSCH ? "~: Als Bit-Name sind nur :CONTROL, :META, :SUPER, :HYPER zugelassen, nicht ~." :
-             ENGLISH ? "~: the only bit names are :CONTROL, :META, :SUPER, :HYPER, not ~" :
-             FRANCAIS ? "~: Les seuls noms bits permis sont :CONTROL, :META, :SUPER et :HYPER et non ~." :
-             ""
-            );
-      found: return bitmask;
-    }
-
-LISPFUNN(char_bit,2) # (CHAR-BIT char name), CLTL S. 243
-  { var cint bitmask = test_bitname_arg(); # name als Bitmaske
-    var object arg = popSTACK(); # char-Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    # entsprechendes Bit herausgreifen:
-    if ((char_int(arg) & bitmask)==0) goto no; else goto yes;
-    yes: value1 = T; mv_count=1; return;
-    no: value1 = NIL; mv_count=1; return;
-  }
-
-LISPFUNN(set_char_bit,3) # (SET-CHAR-BIT char name newvalue), CLTL S. 244
-  { var object newvalue = popSTACK();
-    var cint bitmask = test_bitname_arg(); # name als Bitmaske
-    var object arg = popSTACK(); # char-Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-   {var cint ch = char_int(arg);
-    # entsprechendes Bit setzen oder löschen:
-    if (nullp(newvalue)) { ch = ch & ~bitmask; } else { ch = ch | bitmask; }
-    value1 = int_char(ch); mv_count=1;
-  }}
 
 
 # Fehler, wenn Index-Argument kein Integer ist.

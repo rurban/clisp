@@ -1403,80 +1403,17 @@
         )) ) )
     (if (not atsign-modifier)
       ; ~C oder ~:C
-      (progn
-        (dolist (name '(:CONTROL :META :SUPER :HYPER))
-          (when (char-bit arg name)
-            (write-string (string-capitalize (symbol-name name)) stream
-                          :end (if colon-modifier nil 1)
-            )
-            (write-char #\- stream)
-        ) )
-        (if (not colon-modifier)
-          ; ~C
-          (write-char (make-char arg 0 (char-font arg)) stream)
-          ; ~:C
-          (write-charname (make-char arg))
-      ) )
+      (if (not colon-modifier)
+        ; ~C
+        (write-char arg stream)
+        ; ~:C
+        (write-charname arg)
+      )
       (if (not colon-modifier)
         ; ~@C
         (prin1 arg stream)
         ; ~:@C -- hier NUR die Anweisung, wie's zu tippen ist.
-        (progn
-          (let ((keynames '("Shift-" "Control-" "Alternate-")))
-            (dolist (name '(:SUPER :CONTROL :META))
-              (when (char-bit arg name)
-                (write-string (car keynames) stream)
-                (setq arg (set-char-bit arg name nil))
-              )
-              (setq keynames (cdr keynames))
-          ) )
-          (let* ((hyperkey-alist
-                   #+(or DOS OS/2 WIN32 UNIX AMIGA)
-                   '(
-   #-(or UNIX AMIGA) (#\Enter  . "Enter" )
-             #-AMIGA (#\Insert . "Insert")
-             #-AMIGA (#\End    . "End"   )
-                     (#\Down   . "Down"  )
-             #-AMIGA (#\PgDn   . "PgDn"  )
-                     (#\Left   . "Left"  )
-   #+(or UNIX WIN32) (#\Center . "Center")
-                     (#\Right  . "Right" )
-             #-AMIGA (#\Home   . "Home"  )
-                     (#\Up     . "Up"    )
-             #-AMIGA (#\PgUp   . "PgUp"  )
-             #+AMIGA (#\Help   . "Help"  )
-     #+(or DOS OS/2) (#\Prtscr . "PrtScr")
-   #-(or UNIX AMIGA) (#\Delete . "Delete")
-                     (#\F1     . "F1"    )
-                     (#\F2     . "F2"    )
-                     (#\F3     . "F3"    )
-                     (#\F4     . "F4"    )
-                     (#\F5     . "F5"    )
-                     (#\F6     . "F6"    )
-                     (#\F7     . "F7"    )
-                     (#\F8     . "F8"    )
-                     (#\F9     . "F9"    )
-                     (#\F10    . "F10"   )
-             #-AMIGA (#\F11    . "F11"   )
-             #-AMIGA (#\F12    . "F12"   )
-                    )
-                   #-(or DOS OS/2 WIN32 UNIX AMIGA)
-                   '()
-                 )
-                 (acons (assoc arg hyperkey-alist)))
-            (if acons
-              (write-string (cdr acons) stream)
-              (progn
-                (when (char-bit arg ':HYPER)
-                  (write-string (DEUTSCH "Ziffernblock-"
-                                 ENGLISH "Keypad-"
-                                 FRANCAIS "bloc numérique ")
-                                stream
-                  )
-                  (setq arg (set-char-bit arg :HYPER nil))
-                )
-                (write-charname arg)
-        ) ) ) )
+        (write-charname arg)
 ) ) ) )
 
 ; ~F, CLTL S.390-392, CLtL2 S. 588-590

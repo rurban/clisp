@@ -175,7 +175,9 @@
 (defun upgraded-array-element-type (type)
   ; siehe array.d
   (case type
-    ((BIT STRING-CHAR T) type)
+    ((BIT) 'BIT)
+    ((CHARACTER STRING-CHAR) 'STRING-CHAR)
+    ((T) 'T)
     (t (multiple-value-bind (low high) (sys::subtype-integer type)
          ; Es gilt (or (null low) (subtypep type `(INTEGER ,low ,high)))
          (if (and (integerp low) (not (minusp low)) (integerp high))
@@ -189,7 +191,7 @@
                    ((<= l 32) '(UNSIGNED-BYTE 32))
                    (t 'T)
            ) )
-           (if (subtypep type 'STRING-CHAR)
+           (if (subtypep type 'CHARACTER)
              'STRING-CHAR
              'T
   ) )  ) ) )

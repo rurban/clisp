@@ -1817,6 +1817,8 @@ interpreter compiler
 
 (LOAD "gstream")  ;; generic streams, optional
 
+(LOAD "xcharin")  ;; extended character input, optional
+
 #+AMIGA
 (LOAD "amigasock")  ;; Sockets, optional
 
