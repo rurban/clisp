@@ -47,8 +47,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 
 <variablelist id="rawsock-add-on"><title>Additional Functions</title>
  <varlistentry><term><literal role="sexp">(RAWSOCK:MAKE-SOCKADDR
-    <replaceable>family</replaceable>
-    <replaceable>data</replaceable>)</literal></term>
+    <replaceable>family</replaceable> &data-r;)</literal></term>
   <listitem><simpara>create a <type>sockaddr</type> object.
  </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(RAWSOCK:SOCKADDR-FAMILY
@@ -62,6 +61,36 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  <varlistentry><term><literal role="sexp">(RAWSOCK:OPEN-UNIX-SOCKET
     &path-r; &optional-amp; &type-r;)</literal></term>
   <listitem><simpara>open a &unix; socket special file.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(RAWSOCK:MAKE-MSGHDR
+    &data-r;)</literal></term>
+  <listitem><simpara>Create a <type>RAWSOCK:MSGHDR</type> object for
+    &sendmsg; and &recvmsg;.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(RAWSOCK:IPCSUM
+    &optional-amp; &buf-r;)</literal></term>
+  <term><literal role="sexp">(RAWSOCK:ICMPCSUM
+    &optional-amp; &buf-r;)</literal></term>
+  <term><literal role="sexp">(RAWSOCK:TCPCSUM
+    &optional-amp; &buf-r;)</literal></term>
+  <term><literal role="sexp">(RAWSOCK:UDPCSUM
+    &optional-amp; &buf-r;)</literal></term>
+  <listitem><simpara>Compute the appropriate protocol checksum.
+    &buf-r; defaults to the internal buffer.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(RAWSOCK:BUFFER)</literal></term>
+  <listitem><simpara>Return the internal buffer, used as the default
+    argument in the checksum functions and when &nil; is passed as the
+    &buf-r; argument to the i/o functions like &sendto;.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(RAWSOCK:RESIZE-BUFFER
+    &size-r;)</literal></term>
+  <listitem><simpara>Resize the internal buffer.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(RAWSOCK:CONFIGDEV &sock-r;
+    &name-r; <replaceable>ip-address</replaceable>
+    &key-amp; <replaceable>promisc</replaceable>
+    <replaceable>noarp</replaceable>)</literal></term>
+  <listitem><simpara>Set some socket options and IP address with &ioctl;.
  </simpara></listitem></varlistentry>
 </variablelist>
 
