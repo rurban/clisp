@@ -2,6 +2,49 @@
 
 <chapter id="ext-p-indep"><title>Platform Independent Extensions</title>
 
+<section id="craddle-grave"><title>Craddle to Grave</title>
+<subtitle>What is done when.</subtitle>
+<orderedlist numeration="upperalpha">
+<listitem><orderedlist numeration="arabic" inheritnum="inherit">
+  <title>Initialization</title>
+<listitem><simpara>Load the &mem-image;.</simpara></listitem>
+<listitem><simpara>Install internal signal handlers.</simpara></listitem>
+<listitem><simpara>Initialize time variables.</simpara></listitem>
+<listitem><simpara>Initialize locale-dependent encodings.</simpara></listitem>
+<listitem><simpara>Initialize stream variables.</simpara></listitem>
+<listitem><simpara>Initialize pathname variables.</simpara></listitem>
+<listitem><simpara>Initialize &ffi-pac;.</simpara></listitem>
+<listitem><simpara><link linkend="modinit">Initialize
+   modules</link>.</simpara></listitem>
+<listitem id="init-hooks"><simpara>Run all functions in &init-hooks;
+  like this: <literal role="sexp">(&mapc; #'&funcall;
+   &init-hooks;)</literal>.</simpara></listitem>
+</orderedlist></listitem>
+<listitem><para>Handle command line options: file
+  <olink targetdoc="man" targetptr="opt-init">loading</olink> and/or
+  <olink targetdoc="man" targetptr="opt-compile">compilation</olink>,
+  <olink targetdoc="man" targetptr="opt-exec-expr">form evaluation</olink>,
+  <olink targetdoc="man" targetptr="opt-exec-file">script execution</olink>,
+  &repl;.</para></listitem>
+<listitem><orderedlist numeration="arabic" inheritnum="inherit">
+  <title>Finalization</title>
+<listitem id="fini-hooks"><simpara>Run all functions in &fini-hooks;
+  like this: <literal role="sexp">(&mapc; #'&funcall;
+   &fini-hooks;)</literal>.</simpara></listitem>
+<listitem><simpara>Call &fresh-line; on the standard
+  streams.</simpara></listitem>
+<listitem><simpara>Say <quote>bye</quote> if not suppressed by
+  &opt-v;.</simpara></listitem>
+<listitem><simpara>Wait for a keypress if requested by
+  <option><olink targetdoc="man" targetptr="opt-wait">-w</olink></option>.
+</simpara></listitem>
+<listitem><simpara>Close all open file streams.</simpara></listitem>
+<listitem><simpara><link linkend="modfini">Finalize
+   modules</link>.</simpara></listitem>
+<listitem><simpara>Close opened DLLs.</simpara></listitem>
+</orderedlist></listitem></orderedlist>
+</section>
+
 <section id="image"><title>Saving an Image</title>
 
 <para>The function
@@ -24,7 +67,8 @@ extension, &mem-file; extension is automatically added).
    of the init function yourself.</simpara>
    <simpara>See <olink targetdoc="man" targetptr="opt-exec-file">the
      manual</olink> for passing command line arguments to this function.
- </simpara></listitem></varlistentry>
+ </simpara><simpara>See also &init-hooks; and &fini-hooks;.</simpara>
+ </listitem></varlistentry>
  <varlistentry><term><constant>:LOCKED-PACKAGES</constant></term>
   <listitem><simpara>This argument specifies the packages to lock before
    saving the image; this is convenient for application delivery, when
@@ -1593,9 +1637,11 @@ here <function>WITH-FOO</function> does not receive the
   <member><varname>CUSTOM:*ERROR-HANDLER*</varname></member>
   <member><varname>CUSTOM:*EVALHOOK*</varname></member>
   <member>&fill-indent-sexp;</member>
+  <member>&fini-hooks;</member>
   <member>&flocont;</member>
   <member>&floratcont;</member>
   <member>&foreign-enc;</member>
+  <member>&init-hooks;</member>
   <member><varname>CUSTOM:*INSPECT-BROWSER*</varname></member>
   <member><varname>CUSTOM:*INSPECT-FRONTEND*</varname></member>
   <member><varname>CUSTOM:*INSPECT-LENGTH*</varname></member>
@@ -1968,7 +2014,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 &name-r; is the <link linkend="mod-overview">module name</link>.</para>
 </section>
 
-<section id="modexit"><title>Module finalization.</title>
+<section id="modfini"><title>Module finalization.</title>
 
 <para>Each module has a finalization function
 <variablelist><varlistentry>
@@ -2445,7 +2491,7 @@ only.</subtitle>
    &fmt-r; {&arg-r;}*)</literal></term>
  <listitem><simpara>This form adds &c-lang; code
    <literal role="sexp">(&format; &nil; &fmt-r; {&arg-r;}*)</literal>
-   to the <link linkend="modexit">finalization function</link>.
+   to the <link linkend="modfini">finalization function</link>.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="element"><term><literal role="sexp">(&element;
