@@ -475,12 +475,14 @@ clos-methcomb2.lisp \
 clos-methcomb3.lisp \
 clos-methcomb4.lisp \
 clos-genfun1.lisp \
-clos-genfun2.lisp \
+clos-genfun2a.lisp \
+clos-genfun2b.lisp \
 clos-genfun3.lisp \
 clos-genfun4.lisp \
 clos-genfun5.lisp \
 clos-dependent.lisp \
 clos-print.lisp \
+clos-custom.lisp \
 documentation.lisp \
 fill-out.lisp \
 disassem.lisp \
@@ -568,12 +570,14 @@ clos-methcomb2.fas \
 clos-methcomb3.fas \
 clos-methcomb4.fas \
 clos-genfun1.fas \
-clos-genfun2.fas \
+clos-genfun2a.fas \
+clos-genfun2b.fas \
 clos-genfun3.fas \
 clos-genfun4.fas \
 clos-genfun5.fas \
 clos-dependent.fas \
 clos-print.fas \
+clos-custom.fas \
 documentation.fas \
 fill-out.fas \
 disassem.fas \
@@ -666,12 +670,14 @@ stage\clos-methcomb2.lisp \
 stage\clos-methcomb3.lisp \
 stage\clos-methcomb4.lisp \
 stage\clos-genfun1.lisp \
-stage\clos-genfun2.lisp \
+stage\clos-genfun2a.lisp \
+stage\clos-genfun2b.lisp \
 stage\clos-genfun3.lisp \
 stage\clos-genfun4.lisp \
 stage\clos-genfun5.lisp \
 stage\clos-dependent.lisp \
 stage\clos-print.lisp \
+stage\clos-custom.lisp \
 stage\documentation.lisp \
 stage\fill-out.lisp \
 stage\disassem.lisp \
@@ -759,12 +765,14 @@ stage\clos-methcomb2.fas \
 stage\clos-methcomb3.fas \
 stage\clos-methcomb4.fas \
 stage\clos-genfun1.fas \
-stage\clos-genfun2.fas \
+stage\clos-genfun2a.fas \
+stage\clos-genfun2b.fas \
 stage\clos-genfun3.fas \
 stage\clos-genfun4.fas \
 stage\clos-genfun5.fas \
 stage\clos-dependent.fas \
 stage\clos-print.fas \
+stage\clos-custom.fas \
 stage\documentation.fas \
 stage\fill-out.fas \
 stage\disassem.fas \
@@ -801,14 +809,15 @@ stage\config.fas
 all : init allc allo lisp.exe interpreted.mem halfcompiled.mem lispinit.mem manual lisp.bsc
 
 cflags.h : Makefile
-	echo /* generated from Makefile */ > cflags.h
-	echo #define CC "$(CC)" >> cflags.h
-	echo #define CFLAGS "$(CFLAGS)" >> cflags.h
-	echo #define CPP "$(CPP)" >> cflags.h
-	echo #define CPPLAGS "$(CPPLAGS)" >> cflags.h
-	echo #define CLFLAGS "$(CLFLAGS)" >> cflags.h
-	echo #define LIBS "$(LIBS)" >> cflags.h
-	echo #define X_LIBS "$(X_LIBS)" >> cflags.h
+	echo /* generated from Makefile */ > cflags.h.new
+	echo #define CC "$(CC)" >> cflags.h.new
+	echo #define CFLAGS "$(CFLAGS)" >> cflags.h.new
+	echo #define CPP "$(CPP)" >> cflags.h.new
+	echo #define CPPLAGS "$(CPPLAGS)" >> cflags.h.new
+	echo #define CLFLAGS "$(CLFLAGS)" >> cflags.h.new
+	echo #define LIBS "$(LIBS)" >> cflags.h.new
+	echo #define X_LIBS "$(X_LIBS)" >> cflags.h.new
+	if cmp cflags.h.new cflags.h > /dev/null 2>&1; then ${RM} cflags.h.new; else ${MV} cflags.h.new cflags.h; fi
 
 init : ../utils/gcc-cccp/cccp.exe comment5.exe varbrace.exe txt2c.exe ccmp2c.exe $(DFILES) modules.h
 
@@ -1971,8 +1980,11 @@ clos-methcomb4.fas : clos-methcomb4.lisp lisp.exe halfcompiled.mem
 clos-genfun1.fas : clos-genfun1.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-genfun1.lisp
 
-clos-genfun2.fas : clos-genfun2.lisp lisp.exe halfcompiled.mem
-	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-genfun2.lisp
+clos-genfun2a.fas : clos-genfun2a.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-genfun2a.lisp
+
+clos-genfun2b.fas : clos-genfun2b.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-genfun2b.lisp
 
 clos-genfun3.fas : clos-genfun3.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-genfun3.lisp
@@ -1988,6 +2000,9 @@ clos-dependent.fas : clos-dependent.lisp lisp.exe halfcompiled.mem
 
 clos-print.fas : clos-print.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-print.lisp
+
+clos-custom.fas : clos-custom.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-custom.lisp
 
 documentation.fas : documentation.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c documentation.lisp
@@ -2272,8 +2287,11 @@ stage\clos-methcomb4.lisp : clos-methcomb4.lisp
 stage\clos-genfun1.lisp : clos-genfun1.lisp
 	$(LN_S) clos-genfun1.lisp stage
 
-stage\clos-genfun2.lisp : clos-genfun2.lisp
-	$(LN_S) clos-genfun2.lisp stage
+stage\clos-genfun2a.lisp : clos-genfun2a.lisp
+	$(LN_S) clos-genfun2a.lisp stage
+
+stage\clos-genfun2b.lisp : clos-genfun2b.lisp
+	$(LN_S) clos-genfun2b.lisp stage
 
 stage\clos-genfun3.lisp : clos-genfun3.lisp
 	$(LN_S) clos-genfun3.lisp stage
@@ -2289,6 +2307,9 @@ stage\clos-dependent.lisp : clos-dependent.lisp
 
 stage\clos-print.lisp : clos-print.lisp
 	$(LN_S) clos-print.lisp stage
+
+stage\clos-custom.lisp : clos-custom.lisp
+	$(LN_S) clos-custom.lisp stage
 
 stage\documentation.lisp : documentation.lisp
 	$(LN_S) documentation.lisp stage
@@ -2548,8 +2569,11 @@ stage\clos-methcomb4.fas : stage\clos-methcomb4.lisp lisp.exe stage\testinit.mem
 stage\clos-genfun1.fas : stage\clos-genfun1.lisp lisp.exe stage\testinit.mem
 	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-genfun1.lisp
 
-stage\clos-genfun2.fas : stage\clos-genfun2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-genfun2.lisp
+stage\clos-genfun2a.fas : stage\clos-genfun2a.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-genfun2a.lisp
+
+stage\clos-genfun2b.fas : stage\clos-genfun2b.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-genfun2b.lisp
 
 stage\clos-genfun3.fas : stage\clos-genfun3.lisp lisp.exe stage\testinit.mem
 	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-genfun3.lisp
@@ -2565,6 +2589,9 @@ stage\clos-dependent.fas : stage\clos-dependent.lisp lisp.exe stage\testinit.mem
 
 stage\clos-print.fas : stage\clos-print.lisp lisp.exe stage\testinit.mem
 	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-print.lisp
+
+stage\clos-custom.fas : stage\clos-custom.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-custom.lisp
 
 stage\documentation.fas : stage\documentation.lisp lisp.exe stage\testinit.mem
 	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\documentation.lisp
@@ -2915,7 +2942,7 @@ distrib : install.lisp install.bat clisp.man clisp.html force
 
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
-	-$(RM) core varbrace.c genclisph.exe txt.c txt.exe txt.i.c
+	-$(RM) core varbrace.c clisp-test.c genclisph.exe txt.c txt.exe txt.i.c
 	-$(RMRF) linkkit
 
 # clean1 removes everything that becomes obsolete once lisp.exe is recompiled
@@ -2940,15 +2967,17 @@ clean2 : clean1
 clean3 : clean2
 	-$(RM) $(FASFILES) *.lib
 	-$(RM) modprep.fas
+	for m in $(MODULES); do $(RM) $$m/*.fas $$m/*.lib; done
 
 # clean4 removes everything that becomes obsolete
 # when switching to a new version of the C compiler.
 # It leaves everything generated by "make init".
 clean4 : clean3
+	-$(RM) cflags.h
 	-$(RM) $(CFILES)
 	-$(RM) avcall.h
 	-$(RM) callback.h vacall_r.h trampoline_r.h
-	-$(RM) libcharset.h
+	-$(RM) libcharset.h localcharset.h
 	-$(RM) charset.alias
 	-$(RM) stdbool.h
 	-$(RM) stdint.h
