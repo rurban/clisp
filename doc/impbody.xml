@@ -5469,6 +5469,19 @@ and you can leave the function call with specified values by using
  ignored.</para>
 
 </section>
+
+<section><title>&lisp-implementation-version;</title>
+
+<para>&lisp-implementation-version; returns
+ the numeric version (like <literal>3.14</literal>), and
+ the release date (like <literal>"1999-07-21"</literal>).
+ When running on the same machine on which &clisp; was built, it appends
+  the binary build and memory image dump date in universal time
+  (like <literal>3141592654</literal>).
+ When running on a different machine, it appends the &machine-instance;
+  of the machine on which it was built.</para>
+</section>
+
 </section>
 </chapter>
 

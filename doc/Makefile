@@ -5,21 +5,22 @@ RM=/bin/rm -f
 # DOC=$(shell pwd)
 
 ifneq (,$(filter Windows%,$(OS)))
-XMLHOME=/cygdrive/c/doc/xml
+XMLHOME=c:/doc/xml
 NSGMLS=/cygdrive/c/gnu/sp/bin/nsgmls.exe
-XMLSOC=/cygdrive/c/gnu/sp/pubtext/xml.soc
-XALAN=/cygdrive/c/java/xalan-j_2_0_0
+XMLSOC=c:/gnu/sp/pubtext/xml.soc
+XALAN=c:/java/xalan-j_2_0_0
+CLASSPATH=$(XALAN)/bin/xerces.jar;$(XALAN)/bin/xalan.jar
 JAVA=/cygdrive/c/java/jdk1.3/bin/java.exe
 else
 XMLHOME=/usr/local/src/xml
 NSGMLS=nsgmls
 XMLSOC=/usr/local/src/sp/pubtext/xml.soc
 XALAN=/usr/local/src/xml/xalan-j_2_0_0
+CLASSPATH=$(XALAN)/bin/xerces.jar:$(XALAN)/bin/xalan.jar \
 JAVA=java
 endif
 
 DBHOME=$(XMLHOME)/db4xml
-CLASSPATH=$(XALAN)/bin/xerces.jar:$(XALAN)/bin/xalan.jar
 
 # this is the original DTD
 # DTD="http://www.oasis-open.org/docbook/xml/$(DTDVER)"
@@ -42,8 +43,10 @@ impnotes.texi: $(IMPNOTES)
 	docbook2texi impnotes.xml > $@
 
 impnotes.html: impnotes.xml $(IMPNOTES)
-	$(JAVA) org.apache.xalan.xslt.Process -diag -edump -in $< -out $@ \
-		-xsl file://$(XMLHOME)/docbook-xsl/html/docbook.xsl
+	$(JAVA) -classpath "$(CLASSPATH)" \
+		org.apache.xalan.xslt.Process \
+		-diag -edump -in $< -out $@ \
+		-xsl "file://$(XMLHOME)/docbook-xsl/html/docbook.xsl"
 
 clean: force
 	$(RM) impnotes.xml impnotes.texi impnotes.html

@@ -1,3 +1,6 @@
+2.25 (2001-03-15)
+=================
+
 Important notes
 ---------------
 
@@ -10,6 +13,8 @@ Important notes
 
 User visible changes
 --------------------
+
+* A new version numbering scheme is adopted.
 
 * If an error is signalled by a form supplied with the command-line
   option "-x", CLISP now exits with a non-zero status.

@@ -451,61 +451,17 @@
 # zu MISC.D:
   # Eigenwissen:
   LISPOBJ_S(lisp_implementation_type_string,"CLISP")
-  LISPOBJ_S(lisp_implementation_version_date_string,VERSION)
-  #ifdef VERSION_MM
-  #if VERSION_MM==1
-  LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* ENGLISH */ "January")
-  #endif
-  #if VERSION_MM==2
-  LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* ENGLISH */ "February")
-  #endif
-  #if VERSION_MM==3
-  LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* ENGLISH */ "March")
-  #endif
-  #if VERSION_MM==4
-  LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* ENGLISH */ "April")
-  #endif
-  #if VERSION_MM==5
-  LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* ENGLISH */ "May")
-  #endif
-  #if VERSION_MM==6
-  LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* ENGLISH */ "June")
-  #endif
-  #if VERSION_MM==7
-  LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* ENGLISH */ "July")
-  #endif
-  #if VERSION_MM==8
-  LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* ENGLISH */ "August")
-  #endif
-  #if VERSION_MM==9
-  LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* ENGLISH */ "September")
-  #endif
-  #if VERSION_MM==10
-  LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* ENGLISH */ "October")
-  #endif
-  #if VERSION_MM==11
-  LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* ENGLISH */ "November")
-  #endif
-  #if VERSION_MM==12
-  LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* ENGLISH */ "December")
-  #endif
-  #else # [dummy: often version.h is not included]
-  LISPOBJ_LS(lisp_implementation_version_month_string,"")
-  #endif
-  LISPOBJ_S(lisp_implementation_version_year_string,VERSION_YYYY_STRING)
+  LISPOBJ_S(lisp_implementation_version_date_string,VERSION_DATE)
+  LISPOBJ_S(lisp_implementation_version_number_string,VERSION_NUMBER)
+  # we want here the _LINK_ time, but I have no idea about how to get it
+#ifdef __DATE__
+  LISPOBJ_S(lisp_implementation_version_built_string,__DATE__ __TIME__)
+#else
+  LISPOBJ(lisp_implementation_version_built_string,"NIL")
+#endif
   LISPOBJ(lisp_implementation_version_string,"NIL") # ein Cache
+  LISPOBJ(memory_image_timestamp,"NIL") # the dump date of the current image
+  LISPOBJ(memory_image_host,"NIL") # the host on which this image was dumped
   LISPOBJ(version,"(20000611)") # Date of last change of bytecode interpreter
   #ifdef MACHINE_KNOWN
     LISPOBJ(machine_type_string,"NIL")

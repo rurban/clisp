@@ -1650,7 +1650,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 nonreturning_function (local, usage, (int exit_code));
 local void usage (int exit_code)
 {
-  asciz_out("CLISP (http://clisp.cons.org/) is an ANSI Common Lisp." NLstring
+  asciz_out("GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp." NLstring
             "Usage:  ");
   asciz_out(program_name);
   asciz_out(" [options] [lispfile [argument ...]]" NLstring
@@ -2115,9 +2115,7 @@ local void print_banner ()
                       { if (!(argv_expr == NULL)) usage (1);
                         argv_quiet = true;
                         argv_norc = true;
-                        argv_expr = "(PROGN (PRINC \"CLISP \") (PRINC (LISP-IMPLEMENTATION-VERSION)) (SYS::%EXIT))";
-                        # suppress installation directory warning
-                        argv_lisplibdir = (char *)-1;
+                        argv_expr = "(PROGN (PRINC \"GNU CLISP \") (PRINC (LISP-IMPLEMENTATION-VERSION)) (SYS::%EXIT))";
                         break;
                       }
                     elif (asciz_equal(&arg[2],"quiet")
@@ -2791,7 +2789,7 @@ local void print_banner ()
           #endif
           skipSTACK(1);
         }
-      if (argv_lisplibdir == NULL) {
+      if ((argv_lisplibdir == NULL) && (argv_expr == NULL)) {
         # Warning for beginners and careless developers
         pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # on *STANDARD-OUTPUT*
         write_sstring(&STACK_0,asciz_to_string(GETTEXT(NLstring "WARNING: No installation directory specified." NLstring),O(internal_encoding)));
@@ -3266,7 +3264,7 @@ local void print_banner ()
 # Es gibt eine Utility, die ein Executable nach einem Versionsstring absucht.
 # Format "name version.revision (date)\r\n"
   global const char version_string[] =
-    "$VER: CLISP"
+    "$VER: GNU CLISP"
     #if defined(WIDE)
       "-wide"
     #elif !defined(TYPECODES)

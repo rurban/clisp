@@ -1,6 +1,21 @@
-2001-03-13  Sam Steingold  <sds@gnu.org>
+2001-03-14  Sam Steingold  <sds@gnu.org>
 
+	New versioning system adompted
 	* spvw.d (main): --version works without -B and -M
+	  we are now GNU CLISP!
+	  do not complain about missing -B when given -x
+	* constobj.d (lisp_implementation_version_month_string): removed
+	(lisp_implementation_version_date_string): set to VERSION_DATE
+	(lisp_implementation_version_number_string): set to VERSION_NUMBER
+	(lisp_implementation_version_built_string): set to __DATE__
+	(memory_image_timestamp, memory_image_host): new objects
+	* makemake.in: VERSION depends on version.h now
+	* Makefile.devel: ditto; remove `update-version', unused for 2.5 years
+	* misc.d (lisp-implementation-version): return "2.25 (2001-03-15)"
+	  and then either the build date of the build host
+	* spvw_memfile.d (memdump_header): added `_dumptime' and `_dumphost'
+	(savemem, loadmem_from_handle): use them for
+	  `memory_image_timestamp' and `memory_image_host'
 
 2001-03-13  Sam Steingold  <sds@gnu.org>
 
