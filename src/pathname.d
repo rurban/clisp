@@ -3156,16 +3156,16 @@ local uintC directory_namestring_parts (object pathname) {
       var object string = wild2string(device);
       pushSTACK(string);
       stringcount++; # and count
-      pushSTACK(O(colon_string)); 
+      pushSTACK(O(colon_string));
       stringcount++; # ":"
     }
   }
  #endif
  #if defined(PATHNAME_WIN32) || defined(PATHNAME_UNIX)
-   if (stringcount == 0)   /* only if there's no device already
-                              FIXME: no error when both host and device are
-                              present */
-     stringcount += host_namestring_parts(pathname);
+  if (stringcount == 0) /* only if there's no device already */
+    /* no check for both host and device being present:
+       this can never happen in CLISP */
+    stringcount += host_namestring_parts(pathname);
  #endif
  #ifdef PATHNAME_AMIGAOS
   { # Device:
@@ -7045,7 +7045,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
       var char path_buffer[MAXPATHLEN]; # cf. REALPATH(3)
       {
         var object pathname = STACK_0;
-        var uintC stringcount = 
+        var uintC stringcount =
           directory_namestring_parts(pathname); /* host and directory strings */
         pushSTACK(O(dot_string)); # and "."
         var object string = string_concat(stringcount+1); # concatenate
