@@ -485,6 +485,63 @@ local void propagate_through_weak (object obj, uintL index) {
   }
 }
 
+/* Straightens one pointer into a WeakHashedAlist. */
+local inline object weak_hashed_alist_update_one (object kvtable, uintL n, object x) {
+  loop {
+    if (!(posfixnump(x) && posfixnum_to_L(x) < n)) abort();
+    var gcv_object_t* KVptr = &TheWeakHashedAlist(kvtable)->whal_data[3*posfixnum_to_L(x)];
+    if (!eq(KVptr[0],unbound))
+      # Found an alive key/value pair at index x.
+      break;
+    # The key/value pair at index x is dead, continue following the chain.
+    var object y = KVptr[2];
+    # Move the cell at index x to the freelist.
+    KVptr[2] = TheWeakHashedAlist(kvtable)->whal_freelist;
+    TheWeakHashedAlist(kvtable)->whal_freelist = x;
+    x = y;
+    # Test whether the last element of the list was removed.
+    if (eq(x,unbound))
+      break;
+  }
+  return x;
+}
+
+/* Update the list structure inside a WeakHashedAlist after one or more
+   (key, value) pairs have been removed.
+   This pass doesn't assume anything about the hash code function or about
+   whether the hash table's list structure is invalid and needs rehashing or
+   not. All it does is to straighten pointers from itable to kvtable or
+   inside kvtable, by removing list elements which correspond to removed
+   (key, value) pairs. This pass _does_ assume that the itable and the
+   kvtable's next fields contain indices that realize a list structure of
+   pairwise disjoint lists of finite length. */
+local void weak_hashed_alist_update (object kvtable) {
+  var uintL n = (Lrecord_length(kvtable)-4) / 3;
+  {
+    var object itable = TheWeakHashedAlist(kvtable)->whal_itable;
+    if (!eq(itable,unbound)) {
+      if (!simple_vector_p(itable)) abort();
+      var uintL m = Svector_length(itable);
+      var uintL i;
+      for (i = 0; i < m; i++) {
+        var object x = TheSvector(itable)->data[i];
+        if (!eq(x,unbound))
+          TheSvector(itable)->data[i] =
+            weak_hashed_alist_update_one(kvtable,n,x);
+      }
+    }
+  }
+  {
+    var uintL i;
+    for (i = 0; i < n; i++) {
+      var object x = TheWeakHashedAlist(kvtable)->whal_data[3*i+2];
+      if (!eq(x,unbound))
+        TheWeakHashedAlist(kvtable)->whal_data[3*i+2] =
+          weak_hashed_alist_update_one(kvtable,n,x);
+    }
+  }
+}
+
 /* Given an object of Rectype_Weak* type, clean the dead parts.
    Return a flag indicating whether the object should still be kept active. */
 local bool weak_clean_dead (object obj) {
@@ -701,6 +758,7 @@ local bool weak_clean_dead (object obj) {
       }
       if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_freelist))
         abort();
+      var bool any_died = false;
       var uintL i;
       for (i = 0; i < n; i++) {
         var object key = TheWeakHashedAlist(obj)->whal_data[3*i+0];
@@ -712,10 +770,13 @@ local bool weak_clean_dead (object obj) {
           TheWeakHashedAlist(obj)->whal_data[3*i+0] = unbound;
           TheWeakHashedAlist(obj)->whal_data[3*i+1] = unbound;
           TheWeakHashedAlist(obj)->whal_count = fixnum_inc(TheWeakHashedAlist(obj)->whal_count,-1);
+          any_died = true;
         }
         if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_data[3*i+2]))
           abort();
       }
+      if (any_died)
+        weak_hashed_alist_update(obj);
       # Must keep obj active, even if its whal_count is 0: the whal_itable is
       # not seen by spvw_gcmark (due to Lrecord_nonweak_length(obj) = 0) and
       # must nevertheless be updated during the next GCs.
@@ -730,6 +791,7 @@ local bool weak_clean_dead (object obj) {
       }
       if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_freelist))
         abort();
+      var bool any_died = false;
       var uintL i;
       for (i = 0; i < n; i++) {
         var object value = TheWeakHashedAlist(obj)->whal_data[3*i+1];
@@ -741,10 +803,13 @@ local bool weak_clean_dead (object obj) {
           TheWeakHashedAlist(obj)->whal_data[3*i+0] = unbound;
           TheWeakHashedAlist(obj)->whal_data[3*i+1] = unbound;
           TheWeakHashedAlist(obj)->whal_count = fixnum_inc(TheWeakHashedAlist(obj)->whal_count,-1);
+          any_died = true;
         }
         if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_data[3*i+2]))
           abort();
       }
+      if (any_died)
+        weak_hashed_alist_update(obj);
       # Must keep obj active, even if its whal_count is 0: the whal_itable is
       # not seen by spvw_gcmark (due to Lrecord_nonweak_length(obj) = 0) and
       # must nevertheless be updated during the next GCs.
@@ -759,6 +824,7 @@ local bool weak_clean_dead (object obj) {
       }
       if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_freelist))
         abort();
+      var bool any_died = false;
       var uintL i;
       for (i = 0; i < n; i++) {
         var object key = TheWeakHashedAlist(obj)->whal_data[3*i+0];
@@ -773,10 +839,13 @@ local bool weak_clean_dead (object obj) {
           TheWeakHashedAlist(obj)->whal_data[3*i+0] = unbound;
           TheWeakHashedAlist(obj)->whal_data[3*i+1] = unbound;
           TheWeakHashedAlist(obj)->whal_count = fixnum_inc(TheWeakHashedAlist(obj)->whal_count,-1);
+          any_died = true;
         }
         if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_data[3*i+2]))
           abort();
       }
+      if (any_died)
+        weak_hashed_alist_update(obj);
       # Must keep obj active, even if its whal_count is 0: the whal_itable is
       # not seen by spvw_gcmark (due to Lrecord_nonweak_length(obj) = 0) and
       # must nevertheless be updated during the next GCs.
@@ -791,6 +860,7 @@ local bool weak_clean_dead (object obj) {
       }
       if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_freelist))
         abort();
+      var bool any_died = false;
       var uintL i;
       for (i = 0; i < n; i++) {
         var object key = TheWeakHashedAlist(obj)->whal_data[3*i+0];
@@ -807,11 +877,14 @@ local bool weak_clean_dead (object obj) {
             TheWeakHashedAlist(obj)->whal_data[3*i+0] = unbound;
             TheWeakHashedAlist(obj)->whal_data[3*i+1] = unbound;
             TheWeakHashedAlist(obj)->whal_count = fixnum_inc(TheWeakHashedAlist(obj)->whal_count,-1);
+            any_died = true;
           }
         }
         if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_data[3*i+2]))
           abort();
       }
+      if (any_died)
+        weak_hashed_alist_update(obj);
       # Must keep obj active, even if its whal_count is 0: the whal_itable is
       # not seen by spvw_gcmark (due to Lrecord_nonweak_length(obj) = 0) and
       # must nevertheless be updated during the next GCs.
