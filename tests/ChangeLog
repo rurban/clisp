@@ -1,3 +1,7 @@
+1999-05-10  Sam Steingold  <sds@goems.com>
+
+	* eval20.tst: (constantp '#(110)) is T unconditionally.
+
 1999-05-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * genstream.tst: Untabify.
@@ -154,10 +158,10 @@
         * conditions.tst (my-cpl): Support ACL 5.0 beta.
 
 1997-06-19  Pierpaolo Bernardi  <bernardp@cli.di.unipi.it>
-	
+
 	* testsuite: (characters.tst, macro8.tst): Added two simple tests
  	  which fail on ACL.
-	
+
 1997-10-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-	
+
 	* testsuite: Support ACL 4.3 for Linux (Allegro CL from Franz Inc).

@@ -30,16 +30,20 @@ T
 T
 
 (constantp '#(110))
-#+(or XCL AKCL ANSI-CL) T #-(or XCL AKCL ANSI-CL) NIL
+T
 
 (constantp :max)
 T
+
 (constantp T)
 T
+
 (constantp NIL)
 T
+
 (constantp 'PI)
 #-CLISP T #+CLISP NIL
+
 (constantp '(quote foo))
 T
 
