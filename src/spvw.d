@@ -2995,8 +2995,10 @@ local inline void main_actions (struct argv_actions *p) {
     if (!p->argv_repl)
       return;
   }
-  if (p->argv_package != NULL) { # (IN-PACKAGE packagename)
+  if (p->argv_package != NULL) {
+    # (IN-PACKAGE packagename)
     var object packname = asciz_to_string(p->argv_package,O(misc_encoding));
+    pushSTACK(packname);
     var object package = find_package(packname);
     if (!nullp(package)) {
       Symbol_value(S(packagestern)) = package;
@@ -3004,10 +3006,11 @@ local inline void main_actions (struct argv_actions *p) {
       pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
       terpri(&STACK_0);
       write_sstring(&STACK_0,CLSTEXT("WARNING: no such package: "));
-      write_sstring(&STACK_0,packname);
+      write_sstring(&STACK_0,STACK_1);
       terpri(&STACK_0);
       skipSTACK(1);
     }
+    skipSTACK(1);
   }
   if (p->argv_execute_file != NULL) {
     #  execute:
