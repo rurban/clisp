@@ -155,8 +155,8 @@
               if ((len <= input_len) && string_eqcomp_ci(line,0,key,0,len)) {
                 if (len == input_len) goto found;
                 # now len < input_len
-                var cint ch = schar(line,len);
-                if (cint_white_p(ch)) {
+                var chart ch = schar(line,len);
+                if (cint_white_p(as_cint(ch))) {
                  found:
                   funcall(Cdr(Car(alist)),0); # call the appropriate function
                   dynamic_unbind(); # S(key_bindings)
