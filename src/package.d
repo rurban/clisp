@@ -831,16 +831,16 @@ local bool inherited_find (object symbol, object pack)
 # continue means "Ignore the lock and proceed"
 # can trigger GC
 local void cerror_package_locked (object func, object pack, object obj) {
-  pushSTACK(OGETTEXT("Ignore the lock and proceed")); # continue-format-string
-  # pushSTACK(OLS(cerror_package_locked_string1));
-  pushSTACK(S(package_error)); # error type
-  pushSTACK(S(Kpackage)); # :PACKAGE
-  pushSTACK(pack); # PACKAGE-ERROR slot PACKAGE
-  pushSTACK(OGETTEXT("~A(~S): ~S is locked")); # error-format-string
-  # pushSTACK(OLS(cerror_package_locked_string2));
-  pushSTACK(func);
-  pushSTACK(obj);
-  pushSTACK(pack);
+  pushSTACK(NIL);              # 7 continue-format-string
+  pushSTACK(S(package_error)); # 6 error type
+  pushSTACK(S(Kpackage));      # 5 :PACKAGE
+  pushSTACK(pack);             # 4 PACKAGE-ERROR slot PACKAGE
+  pushSTACK(NIL);              # 3 error-format-string
+  pushSTACK(func);             # 2
+  pushSTACK(obj);              # 1
+  pushSTACK(pack);             # 0
+  STACK_7 = OGETTEXT("Ignore the lock and proceed"); # continue-format-string
+  STACK_3 = OGETTEXT("~A(~S): ~S is locked"); # error-format-string
   funcall(L(cerror_of_type),8);
 }
 # check the package lock
