@@ -1745,7 +1745,7 @@ local void print_banner ()
   };
   #ifdef AMIGA
   var const char * banner2 =
-    GETTEXT("                    Amiga version: Jörg Höhle" NLstring);
+    GETTEXT("                    Amiga version: Joerg Hoehle" NLstring);
   #endif
   #ifdef RISCOS
   var const char * banner2 =
