@@ -1,4 +1,4 @@
-;; Test-Suiten ablaufen lassen:
+;; run the test suit:
 
 #+CLISP
 (defmacro with-ignored-errors (&rest forms)
@@ -17,35 +17,24 @@
        (LET ((,h (SYMBOL-FUNCTION 'SYSTEM:UNIVERSAL-ERROR-HANDLER)))
          (UNWIND-PROTECT
            (PROGN (SETF (SYMBOL-FUNCTION 'SYSTEM:UNIVERSAL-ERROR-HANDLER)
-                        #'(LAMBDA (&REST ARGS) (RETURN-FROM ,b 'ERROR))
-                  )
-                  ,@forms
-           )
-           (SETF (SYMBOL-FUNCTION 'SYSTEM:UNIVERSAL-ERROR-HANDLER) ,h)
-     ) ) )
-) )
+                        #'(LAMBDA (&REST ARGS) (RETURN-FROM ,b 'ERROR)))
+                  ,@forms)
+           (SETF (SYMBOL-FUNCTION 'SYSTEM:UNIVERSAL-ERROR-HANDLER) ,h))))))
 
 #+ALLEGRO
 (defmacro with-ignored-errors (&rest forms)
   (let ((r (gensym)))
     `(LET ((,r (MULTIPLE-VALUE-LIST (EXCL:ERRORSET (PROGN ,@forms)))))
-       (IF (CAR ,r) (VALUES-LIST (CDR ,r)) 'ERROR)
-     )
-) )
+       (IF (CAR ,r) (VALUES-LIST (CDR ,r)) 'ERROR))))
 
 #-(or CLISP AKCL ECL ALLEGRO)
 (defmacro with-ignored-errors (&rest forms)
   (let ((b (gensym)))
     `(BLOCK ,b
        (HANDLER-BIND
-         ((ERROR
-            #'(LAMBDA (CONDITION) (DECLARE (IGNORE CONDITION))
-                (RETURN-FROM ,b 'ERROR)
-              )
-         ))
-         ,@forms
-     ) )
-) )
+         ((ERROR #'(LAMBDA (CONDITION) (DECLARE (IGNORE CONDITION))
+                     (RETURN-FROM ,b 'ERROR))))
+         ,@forms))))
 
 (defun merge-extension (type filename)
   (make-pathname :type type :defaults filename))
@@ -60,25 +49,19 @@
         (let ((my-result
                 (if ignore-errors
                   (with-ignored-errors (eval form)) ; return ERROR on errors
-                  (eval form) ; don't disturb the condition system when testing it!
-             )) )
+                  (eval form)))) ; don't disturb the condition system when testing it!
           (cond ((eql result my-result)
-                 (format t "~%EQL-OK: ~S" result)
-                )
+                 (format t "~%EQL-OK: ~S" result))
                 ((equal result my-result)
-                 (format t "~%EQUAL-OK: ~S" result)
-                )
+                 (format t "~%EQUAL-OK: ~S" result))
                 ((equalp result my-result)
-                 (format t "~%EQUALP-OK: ~S" result)
-                )
+                 (format t "~%EQUALP-OK: ~S" result))
                 (t
                  (format t "~%ERROR!! ~S should be ~S !" my-result result)
                  (format log "~%Form: ~S~%CORRECT: ~S~%~A: ~S~%"
                              form result
                              #+CLISP "CLISP" #+AKCL "AKCL" #+ECL "ECL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
-                             my-result
-                ))
-) ) ) ) ) )
+                             my-result))))))))
 
 (defun do-errcheck (stream log &optional ignore-errors)
   (declare (ignore ignore-errors))
@@ -92,16 +75,13 @@
           (multiple-value-bind (typep-result typep-error)
               (ignore-errors (typep my-result errtype))
             (cond ((and (not typep-error) typep-result)
-                   (format t "~%OK: ~S" errtype)
-                  )
+                   (format t "~%OK: ~S" errtype))
                   (t
                    (format t "~%ERROR!! ~S instead of ~S !" my-result errtype)
                    (format log "~%Form: ~S~%CORRECT: ~S~%~A: ~S~%"
                                form errtype
                                #+CLISP "CLISP" #+AKCL "AKCL" #+ECL "ECL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
-                               my-result
-                  ))
-) ) ) ) ) ) )
+                               my-result)))))))))
 
 (defun run-test (testname
                  &optional (tester #'do-test) (ignore-errors t)
@@ -114,11 +94,9 @@
             (*print-pretty* nil))
         (funcall tester s log ignore-errors))
       #+CMU (finish-output log) ; otherwise (file-length log) may be less than (file-position log)
-      (setq log-empty-p (zerop (file-length log)))
-  ) )
+      (setq log-empty-p (zerop (file-length log)))))
   (when log-empty-p (delete-file logname))
-  (values)
-)
+  (values))
 
 (defun run-all-tests ()
   (mapc #'run-test
@@ -161,10 +139,8 @@
                                     "symbols"
            #+XCL                    "tprint"
            #+XCL                    "tread"
-                                    "type"
-  )      )
+                                    "type"))
   #+(or CLISP ALLEGRO CMU)
   (run-test "conditions" #'do-test nil)
   (run-test "excepsit" #'do-errcheck)
-  t
-)
+  t)
