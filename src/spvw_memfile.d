@@ -740,7 +740,7 @@ local void loadmem (const char* filename)
   setmode(handle,O_BINARY);
  #endif
  #if defined(UNIX) || defined(RISCOS)
-  var int handle = OPEN(filename,O_RDONLY|O_BINARY,my_open_mask);
+  var int handle = OPEN((char*)filename,O_RDONLY|O_BINARY,my_open_mask);
   if (handle<0) goto abort1;
  #endif
  #if defined(WIN32_NATIVE)
