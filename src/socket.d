@@ -871,10 +871,20 @@ LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
   } else if (stringp(arg)) {
     char * name = TheAsciz(string_to_asciz(arg,O(misc_encoding)));
     begin_system_call();
+    #ifdef HAVE_INET_PTON
+    if (inet_pton(AF_INET,name,(void*)buffer) > 0)
+      he = gethostbyaddr(buffer,sizeof(struct in_addr),AF_INET);
+    #ifdef HAVE_IPV6
+    else if (inet_pton(AF_INET6,name,buffer) > 0)
+      he = gethostbyaddr(buffer,sizeof(struct in6_addr),AF_INET);
+    #endif # HAVE_IPV6
+    #else # HAVE_INET_PTON
     if (all_digits_dots(name)) {
       var uint32 ip = inet_addr(name) INET_ADDR_SUFFIX;
       he = gethostbyaddr ((char*)&ip,sizeof(uint32),AF_INET);
-    } else he = gethostbyname(name);
+    }
+    #endif # HAVE_INET_PTON
+    else he = gethostbyname(name);
     end_system_call();
   } else if (uint32_p(arg)) {
     var uint32 ip = htonl(I_to_UL(arg));
@@ -886,7 +896,7 @@ LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
   if (NULL == he) {
     pushSTACK(arg);
     pushSTACK(ascii_to_string(H_ERRMSG));
-    fehler(file_error,
+    fehler(os_error,
            DEUTSCH ? "~: ~" :
            ENGLISH ? "~: ~" :
            FRANCAIS ? "~: ~" :

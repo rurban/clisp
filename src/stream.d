@@ -17357,12 +17357,109 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
 
-global object stream_fd (object stream);
-global object stream_fd (stream)
-  var object stream;
+global object as_file_stream (object stream);
+nonreturning_function(global, fehler_file_stream_unnamed, (object stream));
+nonreturning_function(global, fehler_pathname_descriptor, (object thing));
+
+# Lisp interface to stat(2), lstat(2) and fstat(2)
+# the first arg can be: file stream, pathname, string, symbol, number.
+# the return values are: the file descriptor (int) or the file name
+# (string) on which the appropriate stat function was called,
+# as well as the 13 slots of the struct stat.
+LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
+# (LISP:FILE-STAT file &optional link-p)
 {
-  return (TheStream(stream)->strmflags & strmflags_rd_B ?
-          TheStream(stream)->strm_ichannel : TheStream(stream)->strm_ochannel);
+  var object link = popSTACK();
+  var object file = popSTACK();
+  struct stat buf;
+
+  if (streamp(file)) {
+    pushSTACK(file);
+    funcall(L(open_stream_p),1);
+    if (nullp(value1)) {        # closed stream
+      file = as_file_stream(file);
+      if (nullp(TheStream(file)->strm_file_truename))
+        fehler_file_stream_unnamed(file);
+      file = TheStream(file)->strm_file_truename;
+    } else                      # open stream
+      file = UL_to_I(TheHandle(TheStream(file)->strm_ochannel));
+  } else if (symbolp(file)) file = Symbol_name(file);
+
+  if (pathnamep(file)) {
+    pushSTACK(file);
+    funcall(L(namestring),1);
+    file = value1;
+  }
+
+  if (posfixnump(file)) {
+    begin_system_call();
+    if (0 != fstat(posfixnum_to_L(file),&buf)) { OS_error(); }
+    end_system_call();
+  } else if (stringp(file)) {
+    char * string = TheAsciz(string_to_asciz(file,O(pathname_encoding)));
+    begin_system_call();
+    if (0 != ((eq(link,unbound) || nullp(link)) ?
+              stat(string,&buf) : lstat(string,&buf)))
+      { OS_error(); }
+    end_system_call();
+  } else fehler_thing(file);
+
+  pushSTACK(file);                    # the object stat'ed
+  pushSTACK(L_to_I(buf.st_dev));      # device
+  pushSTACK(UL_to_I(buf.st_ino));     # inode
+  pushSTACK(UL_to_I(buf.st_mode));    # protection
+  pushSTACK(UL_to_I(buf.st_nlink));   # number of hard links
+  pushSTACK(UL_to_I(buf.st_uid));     # user ID of owner
+  pushSTACK(UL_to_I(buf.st_gid));     # group ID of owner
+  pushSTACK(L_to_I(buf.st_rdev));     # device type (if inode device)
+  pushSTACK(L_to_I(buf.st_size));     # total size, in bytes
+  pushSTACK(UL_to_I(buf.st_blksize)); # blocksize for filesystem I/O
+  pushSTACK(UL_to_I(buf.st_blocks));  # number of blocks allocated
+  pushSTACK(L_to_I(buf.st_atime));    # time of last access
+  pushSTACK(L_to_I(buf.st_mtime));    # time of last modification
+  pushSTACK(L_to_I(buf.st_ctime));    # time of last change
+  funcall(L(values),14);
+}
+
+#define PASSWD_TO_STACK(pwd)                                   \
+  pushSTACK(asciz_to_string(pwd->pw_name,O(misc_encoding)));   \
+  pushSTACK(asciz_to_string(pwd->pw_passwd,O(misc_encoding))); \
+  pushSTACK(UL_to_I(pwd->pw_uid));                             \
+  pushSTACK(UL_to_I(pwd->pw_gid));                             \
+  pushSTACK(asciz_to_string(pwd->pw_gecos,O(misc_encoding)));  \
+  pushSTACK(asciz_to_string(pwd->pw_dir,O(misc_encoding)));    \
+  pushSTACK(asciz_to_string(pwd->pw_shell,O(misc_encoding)))
+
+# return the data for the user as 7 values (slots of struct passwd)
+# or a list of simple vectors of length 7 is no argument was given.
+LISPFUN(user_data,0,1,norest,nokey,0,NIL)
+# (LISP::USER-DATA &optional user)
+{
+  var object user = popSTACK();
+  struct passwd *pwd = NULL;
+
+  if (symbolp(user)) user = Symbol_name(user);
+
+  if (eq(user,unbound)) { # all users as a list
+    int count = 0;
+    begin_system_call();
+    for (; (pwd = getpwent()); count++) {
+      PASSWD_TO_STACK(pwd);
+      funcall(L(vector),7);
+      pushSTACK(value1);
+    }
+    endpwent();
+    end_system_call();
+    value1 = listof(count); mv_count = 1;
+  } else if ((posfixnump(user)) || stringp(user)) {
+    begin_system_call();
+    pwd = (fixnump(user) ? getpwuid(posfixnum_to_L(user)) :
+           getpwnam(TheAsciz(string_to_asciz(user,O(misc_encoding)))));
+    end_system_call();
+    if (NULL == pwd) { OS_error(); }
+    PASSWD_TO_STACK(pwd);
+    funcall(L(values),7);
+  } else fehler_string_int(user);
 }
 
 #endif # UNIX
