@@ -1,3 +1,8 @@
+2001-06-27  Sam Steingold  <sds@gnu.org>
+
+	non-whole byte i/o finally works
+	* stream.d (rd_by_aux_icx_buffered): fixed
+
 2001-06-25  Bruno Haible  <haible@clisp.cons.org>
 
 	Optimize away local functions that are not used.

@@ -7817,7 +7817,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         var uintB* ptr = buffered_nextbyte(stream);
         if (ptr == (uintB*)NULL)
           goto eof;
-        # angefangenes Byte holen:
+        # start getting bytes:
         bit_akku = (*ptr)>>bitindex;
         # bitshift := 8-bitindex
         # Von bit_akku sind die Bits (bitshift-1)..0 gültig.
@@ -7868,53 +7868,37 @@ typedef struct strm_i_buffered_extrafields_struct {
       var uintB* ptr = buffered_nextbyte(stream);
       if (ptr == (uintB*)NULL)
         goto eof;
-      if (bitshift==0) {
-        loop {
-          *bitbufferptr++ = *ptr; # get and store 8 Bits
-          # index incrementieren, da gerade *ptr verarbeitet:
-          BufferedStream_index(stream) += 1;
-          count -= 8;
-          # Noch count (>0) Bits zu holen.
-          ptr = buffered_nextbyte(stream);
+      # start getting bytes:
+      var uint16 bit_akku = (*ptr)>>bitshift;
+      bitshift = 8-bitshift; # bitshift := 8-bitindex
+      count -= bitshift;
+      loop {
+        BufferedStream_index(stream) += 1;
+        # bit_akku: bits (bitshift-1)..0 are valid.
+        # have to get count (>0) bits.
+        {
+          var uintB* ptr = buffered_nextbyte(stream);
           if (ptr == (uintB*)NULL)
             goto eof;
-          if (count<=8) # Sind damit count Bits fertig?
-            break;
+          # get next byte:
+          bit_akku |= (uint16)(*ptr)<<bitshift;
         }
-        # Noch count = bitsize mod 8 (>0,<8) Bits zu holen.
-        *bitbufferptr++ = *ptr; # get and store count Bits
-      } else { # 0<bitindex<8
-        var uint16 bit_akku;
-        # angefangenes Byte holen:
-        bit_akku = (*ptr)>>bitshift;
-        bitshift = 8-bitshift; # bitshift := 8-bitindex
-        count -= bitshift;
-        loop {
-          # index incrementieren, da gerade *ptr verarbeitet:
-          BufferedStream_index(stream) += 1;
-          # Von bit_akku sind die Bits (bitshift-1)..0 gültig.
-          # Noch count (>0) Bits zu holen.
-          {
-            var uintB* ptr = buffered_nextbyte(stream);
-            if (ptr == (uintB*)NULL)
-              goto eof;
-            # nächstes Byte holen:
-            bit_akku |= (uint16)(*ptr)<<bitshift;
-          }
-          # Von bit_akku sind die Bits (7+bitshift)..0 gültig.
-          *bitbufferptr++ = (uint8)bit_akku; # 8 Bit abspeichern
-          if (count<=8) # Sind damit count Bits fertig?
-            break;
-          count -= 8;
-          bit_akku = bit_akku>>8;
-        }
+        # bit_akku: bits (7+bitshift)..0 are valid.
+        *bitbufferptr++ = (uint8)bit_akku; # store 8 Bit
+        bit_akku >>= 8;
+        if (count<=8) # are count bits finished?
+          break;
+        count -= 8;
       }
+      # count > 0 -- the number of bits to get
+      ptr = buffered_nextbyte(stream);
+      if (ptr == (uintB*)NULL) # EOF ?
+        bit_akku = buffered_eofbyte(stream);
+      *bitbufferptr = (uint8)(bit_akku & (uint8)(bit(count)-1));
       BufferedStream_bitindex(stream) = count;
-      # position incrementieren:
-      BufferedStream_position(stream) += 1;
-      # in Zahl umwandeln:
-      return (*finisher)(stream,bitsize,bytesize);
-     eof: # EOF erreicht
+      BufferedStream_position(stream) += 1; # increment position:
+      return (*finisher)(stream,bitsize,bytesize); # convert to a number:
+     eof:
       position_file_i_buffered(stream,BufferedStream_position(stream));
       return eof_value;
     }
@@ -8039,6 +8023,23 @@ typedef struct strm_i_buffered_extrafields_struct {
       BufferedStream_position(stream) += 1;
     }
 
+# write last byte (count bits):
+#define WRITE_LAST_BYTE                                                 \
+ if (!(count==0)) {                                                     \
+   ptr = buffered_nextbyte(stream);                                     \
+   if (ptr == (uintB*)NULL) { /* EOF */                                 \
+     ptr = buffered_eofbyte(stream); /* 1 Byte */                       \
+     *ptr = (uint8)bit_akku; /* write byte */                           \
+   } else { /* overwrite the last byte only partially: */               \
+     var uint8 diff = (*ptr ^ (uint8)bit_akku) & (uint8)(bit(count)-1); \
+     if (diff == 0)                                                     \
+       goto no_modification;                                            \
+     *ptr ^= diff;                                                      \
+   }                                                                    \
+   BufferedStream_modified(stream) = true;                              \
+ no_modification: ;                                                     \
+ }
+
 # UP für WRITE-BYTE auf File-Streams für Integers, Art b :
 # Schreibt den Bitbuffer-Inhalt aufs File.
   local void wr_by_aux_ib_buffered (object stream, uintL bitsize, uintL bytesize);
@@ -8051,7 +8052,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       var uint16 bit_akku = (uint16)(TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0])<<bitshift;
       var uintL count = bitsize;
       var uintB* ptr = buffered_nextbyte(stream);
-      # angefangenes Byte holen:
+      # start getting bytes:
       if (!(ptr == (uintB*)NULL))
         bit_akku |= (*ptr)&(bit(bitshift)-1);
       count += bitshift;
@@ -8061,22 +8062,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         bit_akku = bit_akku>>8;
         count -= 8;
       }
-      # letztes Byte (count Bits) schreiben:
-      if (!(count==0)) {
-        ptr = buffered_nextbyte(stream);
-        if (ptr == (uintB*)NULL) { # EOF ?
-          ptr = buffered_eofbyte(stream); # 1 Byte Platz machen
-          *ptr = (uint8)bit_akku; # Byte schreiben
-        } else {
-          # nächstes Byte nur teilweise überschreiben:
-          var uint8 diff = (*ptr ^ (uint8)bit_akku) & (uint8)(bit(count)-1);
-          if (diff == 0)
-            goto no_modification;
-          *ptr ^= diff;
-        }
-        BufferedStream_modified(stream) = true;
-       no_modification: ;
-      }
+      WRITE_LAST_BYTE;
       BufferedStream_bitindex(stream) = count;
       # position und evtl. eofposition incrementieren:
       if (BufferedStream_eofposition(stream) == BufferedStream_position(stream))
@@ -8097,10 +8083,10 @@ typedef struct strm_i_buffered_extrafields_struct {
       var uintL count = bitsize;
       var uint16 bit_akku;
       var uintB* ptr = buffered_nextbyte(stream);
-      # angefangenes Byte holen:
+      # start getting bytes:
       bit_akku = (ptr==(uintB*)NULL ? 0 : (*ptr)&(bit(bitshift)-1) );
       count += bitshift;
-      # einzelne Bytes schreiben:
+      # write individual bytes:
       loop {
         bit_akku |= (uint16)(*bitbufferptr++)<<bitshift;
         if (count<8)
@@ -8111,26 +8097,11 @@ typedef struct strm_i_buffered_extrafields_struct {
         if (count<=bitshift)
           break;
       }
-      # letztes Byte (count Bits) schreiben:
-      if (!(count==0)) {
-        ptr = buffered_nextbyte(stream);
-        if (ptr == (uintB*)NULL) { # EOF ?
-          ptr = buffered_eofbyte(stream); # 1 Byte Platz machen
-          *ptr = (uint8)bit_akku; # Byte schreiben
-        } else {
-          # nächstes Byte nur teilweise überschreiben:
-          var uint8 diff = (*ptr ^ (uint8)bit_akku) & (uint8)(bit(count)-1);
-          if (diff == 0)
-            goto no_modification;
-          *ptr ^= diff;
-        }
-        BufferedStream_modified(stream) = true;
-       no_modification: ;
-      }
+      WRITE_LAST_BYTE;
       BufferedStream_bitindex(stream) = count;
-      # position incrementieren:
       BufferedStream_position(stream) += 1;
     }
+#undef WRITE_LAST_BYTE
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art au :
   local void wr_by_iau_buffered (object stream, object obj);
