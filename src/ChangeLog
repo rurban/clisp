@@ -5,6 +5,9 @@
 	(*gf-warn-on-removing-all-methods*): removed
 	(do-defgeneric): do not remove the existing methods;
 	check signature congruence instead
+	(make-instance-standard-class, make-instance-structure-class):
+	use (SETF FDEFINITON) instead of DEFUN: this avoids 2 warnigns,
+	and should speed things up a tiny little bit
 	* init.lisp (ensure-generic-function): export
 
 2003-04-04  Sam Steingold  <sds@gnu.org>
