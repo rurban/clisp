@@ -875,7 +875,7 @@ local void *get_ptr_object_and_display (object type, object obj, Display **dpyf)
 	{
 	  // Raise an error message.
 	  pushSTACK (STACK_1);
-	  pushSTACK (TheSubr (STACK_2)->name);
+	  pushSTACK (TheSubr(subr_self)->name);
 	  fehler (error, "~: Wanted to refer to a dead CLX object of type ~.");
 	}
 
@@ -886,7 +886,7 @@ local void *get_ptr_object_and_display (object type, object obj, Display **dpyf)
     {
       pushSTACK (STACK_0);					// 'obj' -- Slot DATUM of TYPE-ERROR
       pushSTACK (STACK_2);					// 'type' -- Slot EXPECTED-TYPE of TYPE-ERROR
-      my_standard_type_error (TheSubr(STACK_4)->name);		// Give the right subr name on error message.
+      my_standard_type_error (TheSubr(subr_self)->name);
       BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
     }
 }
@@ -1026,7 +1026,7 @@ local XID get_xid_object_and_display (object type, object obj, Display **dpyf)
     {
       pushSTACK (STACK_0);					// 'obj' -- Slot DATUM of TYPE-ERROR
       pushSTACK (STACK_2);					// 'type' -- Slot EXPECTED-TYPE of TYPE-ERROR
-      my_standard_type_error (TheSubr(STACK_4)->name);		// Give the right subr name on error message.
+      my_standard_type_error (TheSubr(subr_self)->name);
       BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
     }
 }
@@ -5237,7 +5237,7 @@ defun XLIB:DISCARD-FONT-INFO (1)
     {
       // Raise an error message.
       pushSTACK (STACK_1);
-      pushSTACK (TheSubr (STACK_2)->name);
+      pushSTACK (TheSubr(subr_self)->name);
       fehler (error, "~: Wanted to refer to a dead font.");
     }
   info = TheFpointer(value1)->fp_pointer;
@@ -5324,7 +5324,7 @@ defun XLIB:FONT-PATH-SETTER (2)
 	    // Raise type error
 	    pushSTACK (value1);		// object in question
 	    pushSTACK (`STRING`);	// desired type
-	    my_standard_type_error (TheSubr(STACK_2)->name);
+	    my_standard_type_error (TheSubr(subr_self)->name);
 	  }
       }
 
