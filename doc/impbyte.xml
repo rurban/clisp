@@ -31,7 +31,7 @@
 
 <section id="src-files"><title>Files</title>
 
-<section id="src-unpreproc-C"><title>Unpreprocessed C code</title>
+<section id="src-unpreproc-C"><title>Unpreprocessed &c-lang; code</title>
 
 <section id="src-includes"><title>Includes</title>
 
@@ -137,7 +137,7 @@
  <listitem><simpara>Functions dealing with &character-t;s and &string-t;s.
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>debug.d</filename></term>
- <listitem><simpara>Support for debugging and the read-eval-print loop
+ <listitem><simpara>Support for debugging and the &repl;
    (see <xref linkend="debugger"/>).</simpara></listitem></varlistentry>
 <varlistentry><term><filename>error.d</filename></term>
  <listitem><para>&error-t; handling and &signal;ing.
@@ -398,7 +398,7 @@
  <listitem><simpara>implements the functions &y-or-n-p; and &yes-or-no-p;
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>reploop.lisp</filename></term>
- <listitem><simpara>support for debugging and the read-eval-print loop
+ <listitem><simpara>support for debugging and the &repl;
    (see <xref linkend="debugger"/>)</simpara></listitem></varlistentry>
 <varlistentry><term><filename>dribble.lisp</filename></term>
  <listitem><simpara>implements the functions &dribble; and
