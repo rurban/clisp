@@ -633,7 +633,7 @@ LISPFUNN(invoke_debugger,1)
   /* *BREAK-DRIVER* can be assumed here as /= NIL. */
   pushSTACK(NIL); pushSTACK(STACK_(0+1)); pushSTACK(T);
   funcall(Symbol_value(S(break_driver)),3); /* call break-driver */
-  reset(); /* returns unexpectedly -> back to the next loop */
+  reset(1); /* returns unexpectedly -> back to the next loop */
   NOTREACHED;
 }
 

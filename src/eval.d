@@ -501,9 +501,10 @@ global void unwind (void);
 
 /* UP: "unwinds" the STACK up to the next DRIVER_FRAME and
  jumps into the corresponding top-level-loop.
- reset(); */
-nonreturning_function(global, reset, (void)) {
+ if count=0, unwind to TOP; otherwise reset that many times */
+nonreturning_function(global, reset, (uintL count)) {
   /* when unwinding UNWIND-PROTECT-frames, don't save values: */
+  bool top_p = (count==0);
   VALUES0;
   unwind_protect_to_save.fun = (restartf_t)&reset;
   loop {
@@ -513,7 +514,8 @@ nonreturning_function(global, reset, (void)) {
     }
     if (framecode(STACK_0) & bit(frame_bit_t)) {
       /* at STACK_0: beginning of a frame */
-      if (framecode(STACK_0) == DRIVER_frame_info) /* DRIVER_FRAME ? */
+      if (framecode(STACK_0) == DRIVER_frame_info /* DRIVER_FRAME ? */
+          && !top_p && --count==0) /* done count resets */
         break; /* yes -> found */
       unwind(); /* unwind frame */
     } else {

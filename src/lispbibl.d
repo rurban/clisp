@@ -10421,11 +10421,11 @@ typedef struct {
 extern void unwind (void);
 # is used by CONTROL, DEBUG, SPVW
 
-# UP: "unwinds" the STACK to the next DRIVER_FRAME and
-# jumps to the corresponding Top-Level-loop
-# reset();
-nonreturning_function(extern, reset, (void));
-# is used by SPVW, CONTROL
+/* UP: "unwinds" the STACK to the next DRIVER_FRAME and
+ jumps to the corresponding Top-Level-loop
+ if count=0, unwind to TOP; otherwise reset that many times */
+nonreturning_function(extern, reset, (uintL count));
+/* is used by SPVW, CONTROL */
 
 /* UP: binds the symbols of the list symlist dynamically
  to the values of the list vallist.
