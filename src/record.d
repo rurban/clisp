@@ -1111,6 +1111,7 @@ global object update_instance (object user_obj, object obj) {
   instance_un_realloc(obj);
   record_flags_clr(TheInstance(obj),instflags_beingupdated_B);
   fun(arg); /* jump further */
+  NOTREACHED;
  }
 }
 

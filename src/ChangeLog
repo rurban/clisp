@@ -1,6 +1,7 @@
 2004-07-27  Sam Steingold  <sds@gnu.org>
 
 	* control.d (FUNCTION-SIDE-EFFECT): fixed G++ compilation
+	* record.d (update_instance): avoid a G++ warning
 
 2004-07-26  Sam Steingold  <sds@gnu.org>
 
