@@ -6,7 +6,7 @@ BD=..
 # executable extension (.exe on win32, .run everywhere else)
 LEXE=.run
 
-LISP=$(BD)/lisp$(LEXE) -E utf-8 -norc -B $(BD) -N $(BD)/locale -M $(BD)/lispinit.mem
+LISP=$(BD)/lisp$(LEXE) -E utf-8 -norc -B $(BD) -N $(BD)/locale -M $(BD)/lispinit.mem -m 30000KW
 # LISP=../clisp -norc
 # LISP=clisp -norc
 

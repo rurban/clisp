@@ -1,3 +1,9 @@
+2004-05-20  Bruno Haible  <bruno@clisp.org>
+
+	Increase memory sizes for builds with fixed memory size.
+	* Makefile (LISP): Grant 30000 KW, since lists153 needs more than
+	25000 KW.
+
 2004-05-08  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Update a test.
