@@ -23,8 +23,8 @@ global object copy_svector (object vector) {
   vector = popSTACK();
   /* copy the contents of vector into newvector: */
   if (length != 0) {
-    var object* ptr1 = &TheSvector(vector)->data[0];
-    var object* ptr2 = &TheSvector(newvector)->data[0];
+    var gcv_object_t* ptr1 = &TheSvector(vector)->data[0];
+    var gcv_object_t* ptr2 = &TheSvector(newvector)->data[0];
     dotimespL(length,length, {
       *ptr2++ = *ptr1++;
     });
@@ -155,9 +155,9 @@ global uintB eltype_code (object obj)
 global object vectorof (uintC len) {
   var object new_vector = allocate_vector(len);
   if (len > 0) {
-    var object* topargptr = STACK STACKop len;
-    var object* argptr = topargptr;
-    var object* ptr = &TheSvector(new_vector)->data[0];
+    var gcv_object_t* topargptr = STACK STACKop len;
+    var gcv_object_t* argptr = topargptr;
+    var gcv_object_t* ptr = &TheSvector(new_vector)->data[0];
     dotimespC(len,len, {
       *ptr++ = NEXT(argptr);
     });
@@ -370,8 +370,8 @@ nonreturning_function(local, fehler_subscript_range,
  > argptr : pointer to the Subscripts
  > argcount : number of subscripts
  < result : row-major-index */
-local uintL test_subscripts (object array, object* argptr, uintC argcount) {
-  var object* args_pointer = argptr; /* save argptr for later */
+local uintL test_subscripts (object array, gcv_object_t* argptr, uintC argcount) {
+  var gcv_object_t* args_pointer = argptr; /* save argptr for later */
   /* check number of subscripts: */
   if (argcount != Iarray_rank(array)) /* should be = rank */
     fehler_subscript_anz(array,argcount);
@@ -453,7 +453,7 @@ local uintL test_index (void) {
  > argcount : number of subscripts
  < index : index into the data vector
  < result : the data vector */
-local object subscripts_to_index (object array, object* argptr,
+local object subscripts_to_index (object array, gcv_object_t* argptr,
                                   uintC argcount, uintL* index_) {
   test_array(array); /* check array */
   if (array_simplep(array)) { /* simple vector, will be treated separately: */
@@ -917,7 +917,7 @@ LISPFUNN(array_total_size,1)
 
 LISPFUN(array_in_bounds_p,1,0,rest,nokey,0,NIL)
 { /* (ARRAY-IN-BOUNDS-P array {subscript}), CLTL p. 292 */
-  var object* argptr = rest_args_pointer;
+  var gcv_object_t* argptr = rest_args_pointer;
   var object array = test_array(BEFORE(rest_args_pointer)); /* fetch array */
   if (array_simplep(array)) { /* simple vector is treated separately: */
     /* check number of subscripts: */
@@ -1930,15 +1930,15 @@ local void elt_copy_2Bit_2Bit (object dv1, uintL index1, object dv2, uintL index
 local void elt_copy_4Bit_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
 local void elt_copy_T_T (object dv1, uintL index1,
                          object dv2, uintL index2, uintL count) {
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
-  var object* ptr2 = &TheSvector(dv2)->data[index2];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
+  var gcv_object_t* ptr2 = &TheSvector(dv2)->data[index2];
   dotimespL(count,count, {
     *ptr2++ = *ptr1++;
   });
 }
 local void elt_copy_Char_T (object dv1, uintL index1,
                             object dv2, uintL index2, uintL count) {
-  var object* ptr2 = &TheSvector(dv2)->data[index2];
+  var gcv_object_t* ptr2 = &TheSvector(dv2)->data[index2];
   SstringDispatch(dv1,X1, {
     var const cintX1* ptr1 = &((SstringX1)TheVarobject(dv1))->data[index1];
     dotimespL(count,count, {
@@ -1949,7 +1949,7 @@ local void elt_copy_Char_T (object dv1, uintL index1,
 local void elt_copy_Bit_T (object dv1, uintL index1,
                            object dv2, uintL index2, uintL count) {
   var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/8];
-  var object* ptr2 = &TheSvector(dv2)->data[index2];
+  var gcv_object_t* ptr2 = &TheSvector(dv2)->data[index2];
   dotimespL(count,count, {
     *ptr2++ = fixnum((*ptr1 >> ((~index1)%8)) & (bit(1)-1));
     index1++;
@@ -1959,7 +1959,7 @@ local void elt_copy_Bit_T (object dv1, uintL index1,
 local void elt_copy_2Bit_T (object dv1, uintL index1,
                             object dv2, uintL index2, uintL count) {
   var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/4];
-  var object* ptr2 = &TheSvector(dv2)->data[index2];
+  var gcv_object_t* ptr2 = &TheSvector(dv2)->data[index2];
   dotimespL(count,count, {
     *ptr2++ = fixnum((*ptr1 >> (2*((~index1)%4))) & (bit(2)-1));
     index1++;
@@ -1969,7 +1969,7 @@ local void elt_copy_2Bit_T (object dv1, uintL index1,
 local void elt_copy_4Bit_T (object dv1, uintL index1,
                             object dv2, uintL index2, uintL count) {
   var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/2];
-  var object* ptr2 = &TheSvector(dv2)->data[index2];
+  var gcv_object_t* ptr2 = &TheSvector(dv2)->data[index2];
   dotimespL(count,count, {
     *ptr2++ = fixnum((*ptr1 >> (4*((~index1)%2))) & (bit(4)-1));
     index1++;
@@ -1979,7 +1979,7 @@ local void elt_copy_4Bit_T (object dv1, uintL index1,
 local void elt_copy_8Bit_T (object dv1, uintL index1,
                             object dv2, uintL index2, uintL count) {
   var const uint8* ptr1 = &TheSbvector(dv1)->data[index1];
-  var object* ptr2 = &TheSvector(dv2)->data[index2];
+  var gcv_object_t* ptr2 = &TheSvector(dv2)->data[index2];
   dotimespL(count,count, {
     *ptr2++ = fixnum(*ptr1++);
   });
@@ -1987,7 +1987,7 @@ local void elt_copy_8Bit_T (object dv1, uintL index1,
 local void elt_copy_16Bit_T (object dv1, uintL index1,
                              object dv2, uintL index2, uintL count) {
   var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1];
-  var object* ptr2 = &TheSvector(dv2)->data[index2];
+  var gcv_object_t* ptr2 = &TheSvector(dv2)->data[index2];
   dotimespL(count,count, {
     *ptr2++ = fixnum(*ptr1++);
   });
@@ -1997,7 +1997,7 @@ local void elt_copy_32Bit_T (object dv1, uintL index1,
  #if (intLsize<=oint_data_len)
   /* UL_to_I(x) = fixnum(x), cannot trigger GC */
   var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
-  var object* ptr2 = &TheSvector(dv2)->data[index2];
+  var gcv_object_t* ptr2 = &TheSvector(dv2)->data[index2];
   dotimespL(count,count, {
     *ptr2++ = fixnum(*ptr1++);
   });
@@ -2040,7 +2040,7 @@ local void elt_copy_T_Char (object dv1, uintL index1,
       }
     }
   },{
-    var const object* ptr1 = &TheSvector(dv1)->data[index1];
+    var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
     var cint32* ptr2 = &TheS32string(dv2)->data[index2];
     dotimespL(count,count, {
       var object value = *ptr1++;
@@ -2145,7 +2145,7 @@ local void elt_copy_Char_Char (object dv1, uintL index1,
 }
 local void elt_copy_T_Bit (object dv1, uintL index1,
                            object dv2, uintL index2, uintL count) {
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
   var uint8* ptr2 = &TheSbvector(dv2)->data[index2/8];
   dotimespL(count,count, {
     var object value = *ptr1++;
@@ -2227,7 +2227,7 @@ local void elt_copy_32Bit_Bit (object dv1, uintL index1,
 }
 local void elt_copy_T_2Bit (object dv1, uintL index1,
                             object dv2, uintL index2, uintL count) {
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
   var uint8* ptr2 = &TheSbvector(dv2)->data[index2/4];
   dotimespL(count,count, {
     var object value = *ptr1++;
@@ -2308,7 +2308,7 @@ local void elt_copy_32Bit_2Bit (object dv1, uintL index1,
 }
 local void elt_copy_T_4Bit (object dv1, uintL index1,
                             object dv2, uintL index2, uintL count) {
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
   var uint8* ptr2 = &TheSbvector(dv2)->data[index2/2];
   dotimespL(count,count, {
     var object value = *ptr1++;
@@ -2388,7 +2388,7 @@ local void elt_copy_32Bit_4Bit (object dv1, uintL index1,
 }
 local void elt_copy_T_8Bit (object dv1, uintL index1,
                             object dv2, uintL index2, uintL count) {
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
   var uint8* ptr2 = &TheSbvector(dv2)->data[index2];
   dotimespL(count,count, {
     var object value = *ptr1++;
@@ -2460,7 +2460,7 @@ local void elt_copy_32Bit_8Bit (object dv1, uintL index1,
 }
 local void elt_copy_T_16Bit (object dv1, uintL index1,
                              object dv2, uintL index2, uintL count) {
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
   var uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
   dotimespL(count,count, {
     var object value = *ptr1++;
@@ -2530,7 +2530,7 @@ local void elt_copy_32Bit_16Bit (object dv1, uintL index1,
 }
 local void elt_copy_T_32Bit (object dv1, uintL index1,
                              object dv2, uintL index2, uintL count) {
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
   var uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
   dotimespL(count,count, {
     var object value = *ptr1++;
@@ -2779,14 +2779,14 @@ global void elt_move (object dv1, uintL index1,
 local void elt_move_T (object dv1, uintL index1,
                        object dv2, uintL index2, uintL count) {
   if (eq(dv1,dv2) && index1 < index2 && index2 < index1+count) {
-    var const object* ptr1 = &TheSvector(dv1)->data[index1+count];
-    var object* ptr2 = &TheSvector(dv2)->data[index2+count];
+    var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1+count];
+    var gcv_object_t* ptr2 = &TheSvector(dv2)->data[index2+count];
     dotimespL(count,count, {
       *--ptr2 = *--ptr1;
     });
   } else {
-    var const object* ptr1 = &TheSvector(dv1)->data[index1];
-    var object* ptr2 = &TheSvector(dv2)->data[index2];
+    var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
+    var gcv_object_t* ptr2 = &TheSvector(dv2)->data[index2];
     dotimespL(count,count, {
       *ptr2++ = *ptr1++;
     });
@@ -2992,7 +2992,7 @@ global bool elt_fill (object dv, uintL index, uintL count, object element) {
   switch (Array_type(dv)) {
     case Array_type_svector: /* Simple-Vector */
       if (count > 0) {
-        var object* ptr = &TheSvector(dv)->data[index];
+        var gcv_object_t* ptr = &TheSvector(dv)->data[index];
         SIMPLE_FILL(ptr,count,element);
       }
       break;
@@ -3216,8 +3216,8 @@ global void elt_reverse (object dv1, uintL index1, object dv2,
   index2 += count-1;
   switch (Array_type(dv1)) {
     case Array_type_svector: { /* Simple-Vector */
-      var const object* ptr1 = &TheSvector(dv1)->data[index1];
-      var object* ptr2 = &TheSvector(dv2)->data[index2];
+      var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
+      var gcv_object_t* ptr2 = &TheSvector(dv2)->data[index2];
       SIMPLE_REVERSE(ptr1,ptr2,count);
     }
       break;
@@ -4140,7 +4140,7 @@ local object make_storagevector (uintL len, uintB eltype) {
  not reentrant!
  can trigger GC */
 typedef struct {
-  object* localptr; /* pointer to data vector and dimensions */
+  gcv_object_t* localptr; /* pointer to data vector and dimensions */
   uintL index; /* index into the data vector */
   uintL depth; /* recursion depth */
 } initial_contents_locals_t;
@@ -4178,7 +4178,7 @@ local void initial_contents_aux (void* arg, object obj) {
      when Depth depth>0 :
      dimension (rank-depth) = *(localptr+depth-1),
      data vector = *(localptr-1), caller = *(localptr-2). */
-  var object* localptr = locals->localptr;
+  var gcv_object_t* localptr = locals->localptr;
   if (locals->depth==0) {
     /* depth 0 -> store element obj in the data vector: */
     var object datenvektor = *(localptr STACKop -1);

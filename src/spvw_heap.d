@@ -44,13 +44,13 @@ typedef Page Pages;
 # this information at the next GC. Additionally, this should be done
 # without accessing the page before it or after it.
 typedef struct {
-  object* p; # address of the pointer, within an old object
+  gcv_object_t* p; # address of the pointer, within an old object
   object o;  # o = *p, pointer to a new object
 } old_new_pointer;
 typedef struct {
   # traversal of the pointers in the page requires the following:
     # continuation of the last object on previous page:
-    object* continued_addr;
+    gcv_object_t* continued_addr;
     uintC continued_count;
     # first object, that begins at this page (or later) :
     aint firstobject;

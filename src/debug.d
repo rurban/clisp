@@ -98,7 +98,7 @@
     }
     # Prompt OK
     {
-      var object* inputstream_ = &STACK_1;
+      var gcv_object_t* inputstream_ = &STACK_1;
       #if 0 # Das erweist sich doch als ungeschickt: Drückt man Ctrl-C während
             # der Eingabe, so hat man dann in der Break-Schleife manche Kommandos
             # doppelt in der Liste!
@@ -345,7 +345,7 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
       Symbol_value(S(break_count)) = Fixnum_0; # SYS::*BREAK-COUNT* := 0
       # dann einen Driver-Frame aufbauen:
       {
-        var object* top_of_frame = STACK; # Pointer übern Frame
+        var gcv_object_t* top_of_frame = STACK; # Pointer übern Frame
         var sp_jmp_buf returner; # Rücksprungpunkt merken
         finish_entry_frame(DRIVER,&!returner,,;);
         # Hier ist der Einsprungpunkt.
@@ -406,7 +406,7 @@ global void break_driver (bool continuable_p) {
       STACK_0 = get_output_stream_string(&STACK_0);
     }
     { /* make driver-frame: */
-      var object* top_of_frame = STACK; /* pointer over frame */
+      var gcv_object_t* top_of_frame = STACK; /* pointer over frame */
       var sp_jmp_buf returner; /* return point */
       finish_entry_frame(DRIVER,&!returner,,;);
       /* re-entry point is here */
@@ -491,9 +491,9 @@ LISPFUNN(load,1)
 # #define frame_p()  (!( (as_oint(FRAME_(0)) & wbit(frame_bit_o)) ==0))
 # in zweiter Näherung, unter Berücksichtigung der Frames mit Skip2-bit:
   #define frame_p()  framep(FRAME)
-  local bool framep (object* FRAME);
+  local bool framep (gcv_object_t* FRAME);
   local bool framep(FRAME)
-    var object* FRAME;
+    var gcv_object_t* FRAME;
     {
       # Ein normales Lisp-Objekt ist kein Frame:
       if ((as_oint(FRAME_(0)) & wbit(frame_bit_o)) ==0)
@@ -536,11 +536,11 @@ LISPFUNN(load,1)
   ((framecode(FRAME_(0)) & ~bit(trapped_bit_t)) == (APPLY_frame_info & ~bit(trapped_bit_t)))
 
 # UP: überspringt ein Stackitem nach oben
-  local object* frame_up_1 (object* stackptr);
-  local object* frame_up_1(stackptr)
-    var object* stackptr;
+  local gcv_object_t* frame_up_1 (gcv_object_t* stackptr);
+  local gcv_object_t* frame_up_1(stackptr)
+    var gcv_object_t* stackptr;
     {
-      var object* FRAME = stackptr;
+      var gcv_object_t* FRAME = stackptr;
       if (frame_p())
         FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
       else
@@ -549,11 +549,11 @@ LISPFUNN(load,1)
     }
 
 # UP: überspringt ein Stackitem nach unten
-  local object* frame_down_1 (object* stackptr);
-  local object* frame_down_1(stackptr)
-    var object* stackptr;
+  local gcv_object_t* frame_down_1 (gcv_object_t* stackptr);
+  local gcv_object_t* frame_down_1(stackptr)
+    var gcv_object_t* stackptr;
     {
-      var object* FRAME = stackptr;
+      var gcv_object_t* FRAME = stackptr;
       next_frame_down(); # nächsten Frame drunter suchen
       if (!(topofframe(FRAME_(0)) == stackptr)) # nicht direkt unterhalb stackptr?
         FRAME = stackptr STACKop -1;
@@ -561,11 +561,11 @@ LISPFUNN(load,1)
     }
 
 # UP: springt zum nächsthöheren Frame
-  local object* frame_up_2 (object* stackptr);
-  local object* frame_up_2(stackptr)
-    var object* stackptr;
+  local gcv_object_t* frame_up_2 (gcv_object_t* stackptr);
+  local gcv_object_t* frame_up_2(stackptr)
+    var gcv_object_t* stackptr;
     {
-      var object* FRAME = stackptr;
+      var gcv_object_t* FRAME = stackptr;
       if (frame_p())
         FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
       else
@@ -580,21 +580,21 @@ LISPFUNN(load,1)
     }
 
 # UP: springt zum nächstniedrigeren Frame
-  local object* frame_down_2 (object* stackptr);
-  local object* frame_down_2(stackptr)
-    var object* stackptr;
+  local gcv_object_t* frame_down_2 (gcv_object_t* stackptr);
+  local gcv_object_t* frame_down_2(stackptr)
+    var gcv_object_t* stackptr;
     {
-      var object* FRAME = stackptr;
+      var gcv_object_t* FRAME = stackptr;
       next_frame_down(); # nächsten Frame drunter suchen
       return (stack_downend_p() ? stackptr : FRAME);
     }
 
 # UP: springt zum nächsthöheren lexikalischen Frame
-  local object* frame_up_3 (object* stackptr);
-  local object* frame_up_3(stackptr)
-    var object* stackptr;
+  local gcv_object_t* frame_up_3 (gcv_object_t* stackptr);
+  local gcv_object_t* frame_up_3(stackptr)
+    var gcv_object_t* stackptr;
     {
-      var object* FRAME = stackptr;
+      var gcv_object_t* FRAME = stackptr;
       if (frame_p())
         FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
       else
@@ -613,11 +613,11 @@ LISPFUNN(load,1)
     }
 
 # UP: springt zum nächstniedrigeren lexikalischen Frame
-  local object* frame_down_3 (object* stackptr);
-  local object* frame_down_3(stackptr)
-    var object* stackptr;
+  local gcv_object_t* frame_down_3 (gcv_object_t* stackptr);
+  local gcv_object_t* frame_down_3(stackptr)
+    var gcv_object_t* stackptr;
     {
-      var object* FRAME = stackptr;
+      var gcv_object_t* FRAME = stackptr;
       loop {
         next_frame_down(); # nächsten Frame drunter suchen
         if (stack_downend_p())
@@ -629,11 +629,11 @@ LISPFUNN(load,1)
     }
 
 # UP: springt zum nächsthöheren EVAL/APPLY-Frame
-  local object* frame_up_4 (object* stackptr);
-  local object* frame_up_4(stackptr)
-    var object* stackptr;
+  local gcv_object_t* frame_up_4 (gcv_object_t* stackptr);
+  local gcv_object_t* frame_up_4(stackptr)
+    var gcv_object_t* stackptr;
     {
-      var object* FRAME = stackptr;
+      var gcv_object_t* FRAME = stackptr;
       if (frame_p())
         FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
       else
@@ -652,11 +652,11 @@ LISPFUNN(load,1)
     }
 
 # UP: springt zum nächstniedrigeren EVAL/APPLY-Frame
-  local object* frame_down_4 (object* stackptr);
-  local object* frame_down_4(stackptr)
-    var object* stackptr;
+  local gcv_object_t* frame_down_4 (gcv_object_t* stackptr);
+  local gcv_object_t* frame_down_4(stackptr)
+    var gcv_object_t* stackptr;
     {
-      var object* FRAME = stackptr;
+      var gcv_object_t* FRAME = stackptr;
       loop {
         next_frame_down(); # nächsten Frame drunter suchen
         if (stack_downend_p())
@@ -668,11 +668,11 @@ LISPFUNN(load,1)
     }
 
 # UP: springt zum nächsthöheren APPLY-Frame
-  local object* frame_up_5 (object* stackptr);
-  local object* frame_up_5(stackptr)
-    var object* stackptr;
+  local gcv_object_t* frame_up_5 (gcv_object_t* stackptr);
+  local gcv_object_t* frame_up_5(stackptr)
+    var gcv_object_t* stackptr;
     {
-      var object* FRAME = stackptr;
+      var gcv_object_t* FRAME = stackptr;
       if (frame_p())
         FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
       else
@@ -691,11 +691,11 @@ LISPFUNN(load,1)
     }
 
 # UP: springt zum nächstniedrigeren APPLY-Frame
-  local object* frame_down_5 (object* stackptr);
-  local object* frame_down_5(stackptr)
-    var object* stackptr;
+  local gcv_object_t* frame_down_5 (gcv_object_t* stackptr);
+  local gcv_object_t* frame_down_5(stackptr)
+    var gcv_object_t* stackptr;
     {
-      var object* FRAME = stackptr;
+      var gcv_object_t* FRAME = stackptr;
       loop {
         next_frame_down(); # nächsten Frame drunter suchen
         if (stack_downend_p())
@@ -707,7 +707,7 @@ LISPFUNN(load,1)
     }
 
 # Typ eines Pointers auf eine Hochsteige- bzw. Absteige-Routine:
-typedef object* (*climb_fun_t) (object* stackptr);
+typedef gcv_object_t* (*climb_fun_t) (gcv_object_t* stackptr);
 
 local const climb_fun_t frame_up_table[] =
   { &frame_up_1, &frame_up_2, &frame_up_3, &frame_up_4, &frame_up_5, };
@@ -740,8 +740,8 @@ local climb_fun_t test_mode_arg (const climb_fun_t* table) {
 # > STACK_0: Lisp-Objekt, sollte ein Frame-Pointer sein
 # < ergebnis: Frame-Pointer
 # erhöht STACK um 1
-  local object* test_framepointer_arg (void);
-  local object* test_framepointer_arg()
+  local gcv_object_t* test_framepointer_arg (void);
+  local gcv_object_t* test_framepointer_arg()
     {
       var object arg = popSTACK();
       if (!framepointerp(arg)) {
@@ -758,7 +758,7 @@ LISPFUNN(frame_up_1,2)
 # (SYS::FRAME-UP-1 framepointer mode) liefert den Frame-Pointer 1 höher.
   {
     var climb_fun_t frame_up_x = test_mode_arg(&frame_up_table[0]);
-    var object* stackptr = test_framepointer_arg();
+    var gcv_object_t* stackptr = test_framepointer_arg();
     stackptr = (*frame_up_x)(stackptr); # einmal hochsteigen
     VALUES1(make_framepointer(stackptr));
   }
@@ -767,10 +767,10 @@ LISPFUNN(frame_up,2)
 # (SYS::FRAME-UP framepointer mode) liefert den Frame-Pointer ganz oben.
   {
     var climb_fun_t frame_up_x = test_mode_arg(&frame_up_table[0]);
-    var object* stackptr = test_framepointer_arg();
+    var gcv_object_t* stackptr = test_framepointer_arg();
     # hochsteigen, bis es nicht mehr weiter geht:
     loop {
-      var object* next_stackptr = (*frame_up_x)(stackptr);
+      var gcv_object_t* next_stackptr = (*frame_up_x)(stackptr);
       if (next_stackptr == stackptr)
         break;
       stackptr = next_stackptr;
@@ -782,7 +782,7 @@ LISPFUNN(frame_down_1,2)
 # (SYS::FRAME-DOWN-1 framepointer mode) liefert den Frame-Pointer 1 drunter.
   {
     var climb_fun_t frame_down_x = test_mode_arg(&frame_down_table[0]);
-    var object* stackptr = test_framepointer_arg();
+    var gcv_object_t* stackptr = test_framepointer_arg();
     stackptr = (*frame_down_x)(stackptr); # einmal hinabsteigen
     VALUES1(make_framepointer(stackptr));
   }
@@ -791,10 +791,10 @@ LISPFUNN(frame_down,2)
 # (SYS::FRAME-DOWN framepointer mode) liefert den Frame-Pointer ganz unten.
   {
     var climb_fun_t frame_down_x = test_mode_arg(&frame_down_table[0]);
-    var object* stackptr = test_framepointer_arg();
+    var gcv_object_t* stackptr = test_framepointer_arg();
     # hinabsteigen, bis es nicht mehr weiter geht:
     loop {
-      var object* next_stackptr = (*frame_down_x)(stackptr);
+      var gcv_object_t* next_stackptr = (*frame_down_x)(stackptr);
       if (next_stackptr == stackptr)
         break;
       stackptr = next_stackptr;
@@ -805,7 +805,7 @@ LISPFUNN(frame_down,2)
 LISPFUNN(the_frame,0)
 # (SYS::THE-FRAME) liefert den aktuellen Stackpointer als Frame-Pointer.
   {
-    var object* stackptr = STACK;
+    var gcv_object_t* stackptr = STACK;
     stackptr = frame_up_2(stackptr); # bis zum nächsthöheren Frame hoch
     VALUES1(make_framepointer(stackptr));
   }
@@ -817,7 +817,7 @@ LISPFUNN(the_frame,0)
   local void same_env_as (void);
   local void same_env_as()
     {
-      var object* FRAME = test_framepointer_arg();
+      var gcv_object_t* FRAME = test_framepointer_arg();
       var environment_t env;
       # 5 Environments noch "leer":
       env.var_env = nullobj;
@@ -886,7 +886,7 @@ LISPFUNN(the_frame,0)
       if (eq(env.block_env,nullobj)) { env.block_env = aktenv.block_env; }
       if (eq(env.go_env,nullobj)) { env.go_env = aktenv.go_env; }
       if (eq(env.decl_env,nullobj)) { env.decl_env = aktenv.decl_env; }
-     fertig: # env fertig.
+     fertig:
       # Environment-Frame aufbauen:
       make_ENV5_frame();
       # aktuelle Environments setzen:
@@ -917,7 +917,7 @@ LISPFUNN(eval_frame_p,1)
 # (SYS::EVAL-FRAME-P framepointer)
 # gibt an, ob framepointer auf einen EVAL/APPLY-Frame zeigt.
   {
-    var object* FRAME = test_framepointer_arg();
+    var gcv_object_t* FRAME = test_framepointer_arg();
     VALUES_IF(evalapply_frame_p());
   }
 
@@ -925,7 +925,7 @@ LISPFUNN(driver_frame_p,1)
 # (SYS::DRIVER-FRAME-P framepointer)
 # gibt an, ob framepointer auf einen Driver-Frame zeigt.
   {
-    var object* FRAME = test_framepointer_arg();
+    var gcv_object_t* FRAME = test_framepointer_arg();
     VALUES_IF(framecode(FRAME_(0)) == DRIVER_frame_info);
   }
 
@@ -948,7 +948,7 @@ LISPFUNN(trap_eval_frame,2)
     var object frame = popSTACK();
     if (!framepointerp(frame))
       fehler_evalframe(frame);
-    var object* FRAME = uTheFramepointer(frame);
+    var gcv_object_t* FRAME = uTheFramepointer(frame);
     if (!evalapply_frame_p())
       fehler_evalframe(frame);
     # FRAME zeigt auf den EVAL/APPLY-Frame.
@@ -969,7 +969,7 @@ LISPFUNN(redo_eval_frame,1)
     var object frame = popSTACK();
     if (!framepointerp(frame))
       fehler_evalframe(frame);
-    var object* FRAME = uTheFramepointer(frame);
+    var gcv_object_t* FRAME = uTheFramepointer(frame);
     if (!evalapply_frame_p())
       fehler_evalframe(frame);
     # FRAME zeigt auf den EVAL/APPLY-Frame.
@@ -986,7 +986,7 @@ LISPFUNN(return_from_eval_frame,2)
     var object frame = popSTACK();
     if (!framepointerp(frame))
       fehler_evalframe(frame);
-    var object* FRAME = uTheFramepointer(frame);
+    var gcv_object_t* FRAME = uTheFramepointer(frame);
     if (!evalapply_frame_p())
       fehler_evalframe(frame);
     # FRAME zeigt auf den EVAL/APPLY-Frame.
@@ -997,7 +997,7 @@ LISPFUNN(return_from_eval_frame,2)
 # ------------------------------------------------------------------------- #
 #                                 Debug aux
 
-local void print_back_trace (const object* stream_, struct backtrace_t *bt,
+local void print_back_trace (const gcv_object_t* stream_, struct backtrace_t *bt,
                              int index) {
   terpri(stream_);
   write_ascii_char(stream_,'[');
@@ -1017,10 +1017,10 @@ local void print_back_trace (const object* stream_, struct backtrace_t *bt,
 # und liefert den nächsthöheren stackptr.
 # print_stackitem(&stream,FRAME)
 # can trigger GC
-  local object* print_stackitem (const object* stream_, object* FRAME);
-  local object* print_stackitem(stream_,FRAME)
-    var const object* stream_;
-    var object* FRAME;
+  local gcv_object_t* print_stackitem (const gcv_object_t* stream_, gcv_object_t* FRAME);
+  local gcv_object_t* print_stackitem(stream_,FRAME)
+    var const gcv_object_t* stream_;
+    var gcv_object_t* FRAME;
     {
       if (!frame_p()) {
         # kein Frame, normales LISP-Objekt
@@ -1036,7 +1036,7 @@ local void print_back_trace (const object* stream_, struct backtrace_t *bt,
         return FRAME STACKop 1;
       } else {
         # Frame angetroffen
-        var object* FRAME_top = topofframe(FRAME_(0)); # Pointer übern Frame
+        var gcv_object_t* FRAME_top = topofframe(FRAME_(0)); # Pointer übern Frame
         switch (framecode(FRAME_(0))) { # je nach Frametyp
           case TRAPPED_APPLY_frame_info:
             # getrapte APPLY-Frames:
@@ -1050,7 +1050,7 @@ local void print_back_trace (const object* stream_, struct backtrace_t *bt,
             write_ascii_char(stream_,'('); # '(' ausgeben
             prin1(stream_,TheIclosure(FRAME_(frame_closure))->clos_name); # Namen ausgeben
             {
-              var object* argptr = FRAME_top;
+              var gcv_object_t* argptr = FRAME_top;
               var uintL count = STACK_item_count(FRAME STACKop frame_args,FRAME_top);
               dotimesL(count,count, {
                 write_ascii_char(stream_,' '); # ' ' ausgeben
@@ -1325,7 +1325,7 @@ LISPFUNN(describe_frame,2)
 # (SYS::DESCRIBE-FRAME stream framepointer) gibt das Stackitem, auf das der
 # Pointer zeigt, detailliert aus.
   {
-    var object* FRAME = test_framepointer_arg(); # Pointer in den Stack
+    var gcv_object_t* FRAME = test_framepointer_arg(); # Pointer in den Stack
     if (!streamp(STACK_0)) fehler_stream(STACK_0);
     { var struct backtrace_t *bt = back_trace;
       unwind_back_trace(bt,FRAME);
@@ -1340,11 +1340,11 @@ LISPFUNN(describe_frame,2)
  In debugger, use 'show_stack(0,0,0)'
  can trigger GC */
 local inline uintL show_stack (climb_fun_t frame_up_x, uintL frame_limit,
-                               object* start_frame)
+                               gcv_object_t* start_frame)
 { /* run along the stack upwards */
-  var object* FRAME = (start_frame == NULL ? STACK : start_frame);
+  var gcv_object_t* FRAME = (start_frame == NULL ? STACK : start_frame);
   pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
-  var object* stream_ = &STACK_0;
+  var gcv_object_t* stream_ = &STACK_0;
   var uintL count = 0;
   var struct backtrace_t *bt = back_trace;
   while (!eq(FRAME_(0),nullobj) /* nullobj = stack end */
@@ -1354,7 +1354,7 @@ local inline uintL show_stack (climb_fun_t frame_up_x, uintL frame_limit,
       bt = bt->next;
     }
     if (frame_up_x != NULL) {
-      var object* next_frame = (*frame_up_x)(FRAME);
+      var gcv_object_t* next_frame = (*frame_up_x)(FRAME);
       if (next_frame == FRAME) break;
       print_stackitem(stream_,FRAME = next_frame);
     } else
@@ -1366,8 +1366,8 @@ local inline uintL show_stack (climb_fun_t frame_up_x, uintL frame_limit,
 
 LISPFUN(show_stack,0,3,norest,nokey,0,NIL)
 { /* (SHOW-STACK mode limit start-frame) print the stack contents. */
-  var object* start_frame = (missingp(STACK_0) ? (skipSTACK(1), &STACK_1)
-                             : test_framepointer_arg());
+  var gcv_object_t* start_frame = (missingp(STACK_0) ? (skipSTACK(1), &STACK_1)
+                                   : test_framepointer_arg());
   var uintL frame_limit = (missingp(STACK_0) ? (skipSTACK(1), 0) :
                            posfixnump(STACK_0) ? posfixnum_to_L(popSTACK())
                            : (fehler_posfixnum(popSTACK()), 0));

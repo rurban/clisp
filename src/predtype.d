@@ -190,8 +190,8 @@ global bool equal (object obj1, object obj2)
           /* compare pathnames component-wise: */
           if (!pathnamep(obj2)) goto no;
           {
-            var object* ptr1 = &TheRecord(obj1)->recdata[0];
-            var object* ptr2 = &TheRecord(obj2)->recdata[0];
+            var gcv_object_t* ptr1 = &TheRecord(obj1)->recdata[0];
+            var gcv_object_t* ptr2 = &TheRecord(obj2)->recdata[0];
             var uintC count;
             check_SP();
            #if !(defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32))
@@ -212,8 +212,8 @@ global bool equal (object obj1, object obj2)
           /* compare logical pathnames componenten-wise, too: */
           if (!logpathnamep(obj2)) goto no;
           {
-            var object* ptr1 = &TheRecord(obj1)->recdata[0];
-            var object* ptr2 = &TheRecord(obj2)->recdata[0];
+            var gcv_object_t* ptr1 = &TheRecord(obj1)->recdata[0];
+            var gcv_object_t* ptr2 = &TheRecord(obj2)->recdata[0];
             var uintC count;
             check_SP();
             dotimespC(count,logpathname_length, {
@@ -303,8 +303,8 @@ local bool elt_compare_T_T (object dv1, uintL index1,
                             object dv2, uintL index2, uintL count)
 {
   check_SP();
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
-  var const object* ptr2 = &TheSvector(dv2)->data[index2];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
+  var const gcv_object_t* ptr2 = &TheSvector(dv2)->data[index2];
   dotimespL(count,count, {
     if (!equalp(*ptr1++,*ptr2++)) goto no;
       });
@@ -314,7 +314,7 @@ local bool elt_compare_T_T (object dv1, uintL index1,
 local bool elt_compare_T_Char (object dv1, uintL index1,
                                object dv2, uintL index2, uintL count)
 {
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
   SstringDispatch(dv2,X, {
     var const cintX* ptr2 = &((SstringX)TheVarobject(dv2))->data[index2];
     dotimespL(count,count, {
@@ -330,7 +330,7 @@ local bool elt_compare_T_Char (object dv1, uintL index1,
 local bool elt_compare_T_Bit (object dv1, uintL index1,
                               object dv2, uintL index2, uintL count)
 {
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
   var const uintB* ptr2 = &TheSbvector(dv2)->data[index2/8];
   dotimespL(count,count, {
     var object elt1 = *ptr1++;
@@ -345,7 +345,7 @@ local bool elt_compare_T_Bit (object dv1, uintL index1,
 local bool elt_compare_T_2Bit (object dv1, uintL index1,
                                object dv2, uintL index2, uintL count)
 {
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
   var const uintB* ptr2 = &TheSbvector(dv2)->data[index2/4];
   dotimespL(count,count, {
     var object elt1 = *ptr1++;
@@ -360,7 +360,7 @@ local bool elt_compare_T_2Bit (object dv1, uintL index1,
 local bool elt_compare_T_4Bit (object dv1, uintL index1,
                                object dv2, uintL index2, uintL count)
 {
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
   var const uintB* ptr2 = &TheSbvector(dv2)->data[index2/2];
   dotimespL(count,count, {
     var object elt1 = *ptr1++;
@@ -375,7 +375,7 @@ local bool elt_compare_T_4Bit (object dv1, uintL index1,
 local bool elt_compare_T_8Bit (object dv1, uintL index1,
                                object dv2, uintL index2, uintL count)
 {
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
   var const uintB* ptr2 = &TheSbvector(dv2)->data[index2];
   dotimespL(count,count, {
     var object elt1 = *ptr1++;
@@ -388,7 +388,7 @@ local bool elt_compare_T_8Bit (object dv1, uintL index1,
 local bool elt_compare_T_16Bit (object dv1, uintL index1,
                                 object dv2, uintL index2, uintL count)
 {
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
   var const uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
   dotimespL(count,count, {
     var object elt1 = *ptr1++;
@@ -401,7 +401,7 @@ local bool elt_compare_T_16Bit (object dv1, uintL index1,
 local bool elt_compare_T_32Bit (object dv1, uintL index1,
                                 object dv2, uintL index2, uintL count)
 {
-  var const object* ptr1 = &TheSvector(dv1)->data[index1];
+  var const gcv_object_t* ptr1 = &TheSvector(dv1)->data[index1];
   var const uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
   dotimespL(count,count, {
     var object elt1 = *ptr1++;
@@ -961,8 +961,8 @@ global bool equalp (object obj1, object obj2)
             /* compare the elements recursively (also for PATHNAMEs): */
             check_SP();
             if (len > 0) {
-              var object* ptr1 = &TheRecord(obj1)->recdata[0];
-              var object* ptr2 = &TheRecord(obj2)->recdata[0];
+              var gcv_object_t* ptr1 = &TheRecord(obj1)->recdata[0];
+              var gcv_object_t* ptr2 = &TheRecord(obj2)->recdata[0];
               var uintC count;
               dotimespC(count,len, {
                 if (!equalp(*ptr1++,*ptr2++)) goto no;
@@ -1482,8 +1482,8 @@ LISPFUNN(defclos,2)
   O(class_structure_types) = STACK_1;
   /* for CLOS:CLASS-OF : */
   {
-    var object* ptr1 = &TheSvector(STACK_0)->data[0];
-    var object* ptr2 = &O(class_array);
+    var gcv_object_t* ptr1 = &TheSvector(STACK_0)->data[0];
+    var gcv_object_t* ptr2 = &O(class_array);
     var uintC count;
     dotimesC(count,Svector_length(STACK_0), { /* = &O(class_vector)-&O(class_array)+1 */
       *ptr2++ = *ptr1++;
@@ -2079,7 +2079,7 @@ LISPFUNN(note_new_standard_class,0)
  heap allocation takes place. */
 
 typedef struct {
-  const object* name; /* pointer to a GC-safe object (e.g. in the STACK) */
+  const gcv_object_t* name; /* pointer to a GC-safe object (e.g. in the STACK) */
   sintL n_instances; /* number of instances */
   sintL n_bytes;     /* number of bytes */
 } hs_record_t;
@@ -2221,7 +2221,7 @@ local void init_hs_locals_rest (hs_locals_t* locals, NODE* free_room)
   {
     var uintC count;
     var hs_record_t* ptr = &locals->builtins[0];
-    var const object* optr = &O(hs_t);
+    var const gcv_object_t* optr = &O(hs_t);
     dotimesC(count,(uintC)enum_hs_dummy, {
       ptr->name = optr;
       ptr->n_instances = 0;
@@ -2524,7 +2524,7 @@ local void heap_statistics_result (hs_locals_t* locals)
     + locals->structure_classes.count
     + locals->standard_classes.count;
   pushSTACK(allocate_vector(length));
-  var object* result_ = &STACK_0;
+  var gcv_object_t* result_ = &STACK_0;
   /* Fill result vector.
      (L_to_I cannot call GC here, because the numbers are small.) */
   var uintL i = 0;

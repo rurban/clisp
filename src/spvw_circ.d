@@ -25,7 +25,7 @@ global object get_circularities (object obj, bool pr_array, bool pr_closure);
 # > alist : alist (read-label --> object to be substituted)
 # < *ptr : object with resolved references
 # < result : first invalid reference found, or nullobj if everything is OK
-global object subst_circ (object* ptr, object alist);
+global object subst_circ (gcv_object_t* ptr, object alist);
 # Note: This substitution must respect circularities, so that it can be
 # applied to circular structures, such as values of #. (in particular
 # #.(FIND-CLASS 'FOO)).
@@ -380,7 +380,7 @@ global object subst_circ (object* ptr, object alist);
     bool pr_closure;
     uintL counter;
     jmp_buf abbruch_context;
-    object* abbruch_STACK;
+    gcv_object_t* abbruch_STACK;
   } get_circ_global;
 
 # UP: marks the object obj, pushes occurring circularities on the STACK
@@ -445,7 +445,7 @@ global object subst_circ (object* ptr, object alist);
             var uintL count = Svector_length(obj);
             if (!(count==0)) {
               # mark count>0 components
-              var object* ptr = &TheSvector(obj)->data[0];
+              var gcv_object_t* ptr = &TheSvector(obj)->data[0];
               if (SP_overflow()) # check SP-depth
                 longjmp(env->abbruch_context,true); # abort
               dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # mark components (recursive)
@@ -535,7 +535,7 @@ global object subst_circ (object* ptr, object alist);
             var uintC count = Record_length(obj);
             if (!(count==0)) {
               # mark count>0 components
-              var object* ptr = &TheRecord(obj)->recdata[0];
+              var gcv_object_t* ptr = &TheRecord(obj)->recdata[0];
               if (SP_overflow()) # check SP-depth
                 longjmp(env->abbruch_context,true); # abort
               dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # mark components (recursive)
@@ -596,7 +596,7 @@ global object subst_circ (object* ptr, object alist);
         } else {
           var object vector = allocate_vector(n+1); # vector with n+1 elements
           # fill:
-          var object* ptr = &TheSvector(vector)->data[0];
+          var gcv_object_t* ptr = &TheSvector(vector)->data[0];
           *ptr++ = Fixnum_0; # first element = Fixnum 0
           # store remaining elements (at least one):
           dotimespL(n,n, { *ptr++ = popSTACK(); } );
@@ -625,7 +625,7 @@ global object subst_circ (object* ptr, object alist);
     bool pr_closure;
     uintL counter;
     jmp_buf abbruch_context;
-    object* abbruch_STACK;
+    gcv_object_t* abbruch_STACK;
   } get_circ_global;
   # It has to be accessed from within the two local routines.
   local void get_circ_mark (object obj, get_circ_global* env);
@@ -655,7 +655,7 @@ global object subst_circ (object* ptr, object alist);
         } else {
           var object vector = allocate_vector(n+1); # vector with n+1 elements
           # fill:
-          var object* ptr = &TheSvector(vector)->data[0];
+          var gcv_object_t* ptr = &TheSvector(vector)->data[0];
           *ptr++ = Fixnum_0; # first element = Fixnum 0
           # store remaining elements (at least one):
           dotimespL(n,n, { *ptr++ = popSTACK(); } );
@@ -740,7 +740,7 @@ global object subst_circ (object* ptr, object alist);
             var uintL count = Svector_length(obj);
             if (!(count==0)) {
               # mark count>0 components
-              var object* ptr = &TheSvector(obj)->data[0];
+              var gcv_object_t* ptr = &TheSvector(obj)->data[0];
               if (SP_overflow()) # check SP-depth
                 longjmp(env->abbruch_context,true); # abort
               dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # mark components (recursive)
@@ -837,7 +837,7 @@ global object subst_circ (object* ptr, object alist);
             var uintC count = Record_length(obj);
             if (!(count==0)) {
               # mark count>0 components
-              var object* ptr = &TheRecord(obj)->recdata[0];
+              var gcv_object_t* ptr = &TheRecord(obj)->recdata[0];
               if (SP_overflow()) # check SP-depth
                 longjmp(env->abbruch_context,true); # abort
               dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # mark components (recursive)
@@ -923,7 +923,7 @@ global object subst_circ (object* ptr, object alist);
             var uintL count = Svector_length(obj);
             if (!(count==0)) {
               # unmark count>0 components
-              var object* ptr = &TheSvector(obj)->data[0];
+              var gcv_object_t* ptr = &TheSvector(obj)->data[0];
               dotimespL(count,count, { get_circ_unmark(*ptr++,env); } ); # unmark components (recursive)
             }
           }
@@ -1012,7 +1012,7 @@ global object subst_circ (object* ptr, object alist);
             var uintC count = Record_length(obj);
             if (!(count==0)) {
               # unmark count>0 components
-              var object* ptr = &TheRecord(obj)->recdata[0];
+              var gcv_object_t* ptr = &TheRecord(obj)->recdata[0];
               dotimespC(count,count, { get_circ_unmark(*ptr++,env); } ); # unmark components (recursive)
             }
           }
@@ -1050,9 +1050,9 @@ global object subst_circ (object* ptr, object alist);
     object bad;
   } subst_circ_global;
 
-  local void subst_circ_mark (object* ptr, subst_circ_global* env);
+  local void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env);
   local void subst_circ_mark(ptr,env)
-    var object* ptr;
+    var gcv_object_t* ptr;
     var subst_circ_global* env;
     {
       #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
@@ -1099,7 +1099,7 @@ global object subst_circ (object* ptr, object alist);
             {
               var uintL len = Svector_length(obj);
               if (!(len==0)) {
-                var object* objptr = &TheSvector(obj)->data[0];
+                var gcv_object_t* objptr = &TheSvector(obj)->data[0];
                 dotimespL(len,len, { subst_circ_mark(&(*objptr++),env); } );
               }
             }
@@ -1138,7 +1138,7 @@ global object subst_circ (object* ptr, object alist);
             {
               var uintC len = Record_length(obj);
               if (!(len==0)) {
-                var object* objptr = &TheRecord(obj)->recdata[0];
+                var gcv_object_t* objptr = &TheRecord(obj)->recdata[0];
                 dotimespC(len,len, { subst_circ_mark(&(*objptr++),env); } );
               }
             }
@@ -1200,7 +1200,7 @@ global object subst_circ (object* ptr, object alist);
     }
 
   global object subst_circ(ptr,alist)
-    var object* ptr;
+    var gcv_object_t* ptr;
     var object alist;
     {
       var subst_circ_global my_global;
@@ -1230,12 +1230,12 @@ global object subst_circ (object* ptr, object alist);
 
 #if 0 # without consideration of circularities
 
-  local void subst (object* ptr);
+  local void subst (gcv_object_t* ptr);
   local object subst_circ_alist;
   local jmp_buf subst_circ_jmpbuf;
   local object subst_circ_bad;
   global object subst_circ(ptr,alist)
-    var object* ptr;
+    var gcv_object_t* ptr;
     var object alist;
     {
       subst_circ_alist = alist;
@@ -1248,7 +1248,7 @@ global object subst_circ (object* ptr, object alist);
       }
     }
   local void subst(ptr)
-    var object ptr;
+    var gcv_object_t* ptr;
     {
       check_SP();
      enter_subst:
@@ -1289,7 +1289,7 @@ global object subst_circ (object* ptr, object alist);
             {
               var uintL len = Svector_length(obj);
               if (!(len==0)) {
-                var object* objptr = &TheSvector(obj)->data[0];
+                var gcv_object_t* objptr = &TheSvector(obj)->data[0];
                 dotimespL(len,len, { subst(&(*objptr++)); } );
               }
             }
@@ -1321,7 +1321,7 @@ global object subst_circ (object* ptr, object alist);
             {
               var uintC len = Record_length(obj);
               if (!(len==0)) {
-                var object* objptr = &TheRecord(obj)->recdata[0];
+                var gcv_object_t* objptr = &TheRecord(obj)->recdata[0];
                 dotimespC(len,len, { subst(&(*objptr++)); } );
               }
             }
@@ -1387,13 +1387,13 @@ global object subst_circ (object* ptr, object alist);
 # Mark the objects recursively, in which the substitution has just been
 # performed. Then unmark the object recursively.
 
-  local void subst_circ_mark (object* ptr);
-  local void subst_circ_unmark (object* ptr);
+  local void subst_circ_mark (gcv_object_t* ptr);
+  local void subst_circ_unmark (gcv_object_t* ptr);
   local object subst_circ_alist;
   local jmp_buf subst_circ_jmpbuf;
   local object subst_circ_bad;
   global object subst_circ(ptr,alist)
-    var object* ptr;
+    var gcv_object_t* ptr;
     var object alist;
     {
       subst_circ_alist = alist;
@@ -1416,7 +1416,7 @@ global object subst_circ (object* ptr, object alist);
       }
     }
   local void subst_circ_mark(ptr)
-    var object* ptr;
+    var gcv_object_t* ptr;
     {
       #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
       if (SP_overflow()) { # check SP-depth
@@ -1463,7 +1463,7 @@ global object subst_circ (object* ptr, object alist);
             {
               var uintL len = Svector_length(obj);
               if (!(len==0)) {
-                var object* objptr = &TheSvector(obj)->data[0];
+                var gcv_object_t* objptr = &TheSvector(obj)->data[0];
                 dotimespL(len,len, { subst_circ_mark(&(*objptr++)); } );
               }
             }
@@ -1504,7 +1504,7 @@ global object subst_circ (object* ptr, object alist);
             {
               var uintC len = Record_length(obj);
               if (!(len==0)) {
-                var object* objptr = &TheRecord(obj)->recdata[0];
+                var gcv_object_t* objptr = &TheRecord(obj)->recdata[0];
                 dotimespC(len,len, { subst_circ_mark(&(*objptr++)); } );
               }
             }
@@ -1566,7 +1566,7 @@ global object subst_circ (object* ptr, object alist);
       }
     }
   local void subst_circ_unmark(ptr)
-    var object* ptr;
+    var gcv_object_t* ptr;
     {
      enter_subst:
       {
@@ -1599,7 +1599,7 @@ global object subst_circ (object* ptr, object alist);
             {
               var uintL len = Svector_length(obj);
               if (!(len==0)) {
-                var object* objptr = &TheSvector(obj)->data[0];
+                var gcv_object_t* objptr = &TheSvector(obj)->data[0];
                 dotimespL(len,len, { subst_circ_unmark(&(*objptr++)); } );
               }
             }
@@ -1635,7 +1635,7 @@ global object subst_circ (object* ptr, object alist);
             {
               var uintC len = Record_length(obj);
               if (!(len==0)) {
-                var object* objptr = &TheRecord(obj)->recdata[0];
+                var gcv_object_t* objptr = &TheRecord(obj)->recdata[0];
                 dotimespC(len,len, { subst_circ_unmark(&(*objptr++)); } );
               }
             }

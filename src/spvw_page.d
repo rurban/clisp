@@ -9,7 +9,7 @@
 typedef struct {
   aint start;   # pointer to the occupied space (aligned)
   aint end;     # pointer right after the occupied space (aligned)
-  union { object firstmarked; uintL l; aint d; void* next; }
+  union { gcv_object_t firstmarked; uintL l; aint d; void* next; }
         gcpriv; # private variable during GC
 } _Page;
 

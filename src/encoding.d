@@ -1799,8 +1799,8 @@ LISPFUN(make_encoding,0,0,norest,key,5,
     var object encoding = allocate_encoding();
     var object old_encoding = STACK_3;
     {
-      var const object* ptr1 = &TheRecord(old_encoding)->recdata[0];
-      var object* ptr2 = &TheRecord(encoding)->recdata[0];
+      var const gcv_object_t* ptr1 = &TheRecord(old_encoding)->recdata[0];
+      var gcv_object_t* ptr2 = &TheRecord(encoding)->recdata[0];
       var uintC count;
       dotimesC(count,encoding_length, { *ptr2++ = *ptr1++; } );
       copy_mem_b(ptr2,ptr1,encoding_xlength);

@@ -94,7 +94,7 @@
   # > uintL len: length of byte sequence to be filled, >0
   # < uintL result: number of bytes that have been filled
   # can trigger GC
-    typedef uintL (* rd_by_array_Pseudofun) (const object* stream_, const object* bytearray_, uintL start, uintL len);
+    typedef uintL (* rd_by_array_Pseudofun) (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len);
 
   # Specification for WRITE-BYTE - Pseudo-Function:
   # fun(stream,obj)
@@ -110,7 +110,7 @@
   # > uintL start: start index of byte sequence to be written
   # > uintL len: length of byte sequence to be written, >0
   # can trigger GC
-    typedef void (* wr_by_array_Pseudofun) (const object* stream_, const object* bytearray_, uintL start, uintL len);
+    typedef void (* wr_by_array_Pseudofun) (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len);
 
   # Specification for READ-CHAR - Pseudo-Function:
   # fun(&stream)
@@ -118,7 +118,7 @@
   # < stream: Stream
   # < result: read Character (eof_value at EOF)
   # can trigger GC
-    typedef object (* rd_ch_Pseudofun) (const object* stream_);
+    typedef object (* rd_ch_Pseudofun) (const gcv_object_t* stream_);
 
   # Specification for PEEK-CHAR - Pseudo-Function:
   # fun(&stream)
@@ -128,7 +128,7 @@
   # < stream: Stream
   # < result: read Character (eof_value at EOF)
   # can trigger GC
-    typedef object (* pk_ch_Pseudofun) (const object* stream_);
+    typedef object (* pk_ch_Pseudofun) (const gcv_object_t* stream_);
 
   # Specification for READ-CHAR-ARRAY - Pseudo-Function:
   # fun(&stream,&chararray,start,len)
@@ -138,7 +138,7 @@
   # > uintL len: length of character sequence to be filled, >0
   # < uintL result: number of characters that have been filled
   # can trigger GC
-    typedef uintL (* rd_ch_array_Pseudofun) (const object* stream_, const object* chararray_, uintL start, uintL len);
+    typedef uintL (* rd_ch_array_Pseudofun) (const gcv_object_t* stream_, const gcv_object_t* chararray_, uintL start, uintL len);
 
   # Specification for WRITE-CHAR - Pseudo-Function:
   # fun(&stream,obj)
@@ -146,7 +146,7 @@
   # < stream: Stream
   # > obj: Character to be written
   # can trigger GC
-    typedef void (* wr_ch_Pseudofun) (const object* stream_, object obj);
+    typedef void (* wr_ch_Pseudofun) (const gcv_object_t* stream_, object obj);
 
   # Specification for WRITE-CHAR-ARRAY - Pseudo-Function:
   # fun(&stream,&chararray,start,len)
@@ -154,7 +154,7 @@
   # > object chararray: simple-string
   # > uintL start: start index of character sequence to be written
   # > uintL len: length of character sequence to be written, >0
-    typedef void (* wr_ch_array_Pseudofun) (const object* stream_, const object* chararray_, uintL start, uintL len);
+    typedef void (* wr_ch_array_Pseudofun) (const gcv_object_t* stream_, const gcv_object_t* chararray_, uintL start, uintL len);
 
 # extract Pseudo-Functions out of a Stream:
 #define rd_by(strm)       \
@@ -232,12 +232,12 @@ local object rd_by_error (object stream) {
   fehler_illegal_streamop(S(read_byte),stream);
 }
 
-local uintL rd_by_array_error (const object* stream_, const object* bytearray_,
+local uintL rd_by_array_error (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
                                uintL start, uintL len) {
   fehler_illegal_streamop(S(read_byte),*stream_);
 }
 
-local uintL rd_by_array_dummy (const object* stream_, const object* bytearray_,
+local uintL rd_by_array_dummy (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
                                uintL start, uintL len) {
   var uintL end = start + len;
   var uintL index = start;
@@ -259,12 +259,12 @@ local void wr_by_error (object stream, object obj) {
   fehler_illegal_streamop(S(write_byte),stream);
 }
 
-local void wr_by_array_error (const object* stream_, const object* bytearray_,
+local void wr_by_array_error (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
                               uintL start, uintL len) {
   fehler_illegal_streamop(S(write_byte),*stream_);
 }
 
-local void wr_by_array_dummy (const object* stream_, const object* bytearray_,
+local void wr_by_array_dummy (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
                               uintL start, uintL len) {
   var uintL end = start + len;
   var uintL index = start;
@@ -275,11 +275,11 @@ local void wr_by_array_dummy (const object* stream_, const object* bytearray_,
   } while (index < end);
 }
 
-local object rd_ch_error (const object* stream_) {
+local object rd_ch_error (const gcv_object_t* stream_) {
   fehler_illegal_streamop(S(read_char),*stream_);
 }
 
-local object pk_ch_dummy (const object* stream_) {
+local object pk_ch_dummy (const gcv_object_t* stream_) {
   var object newch = rd_ch(*stream_)(stream_);
   TheStream(*stream_)->strm_rd_ch_last = newch;
   if (!eq(newch,eof_value))
@@ -287,12 +287,12 @@ local object pk_ch_dummy (const object* stream_) {
   return newch;
 }
 
-local uintL rd_ch_array_error (const object* stream_, const object* chararray_,
+local uintL rd_ch_array_error (const gcv_object_t* stream_, const gcv_object_t* chararray_,
                                uintL start, uintL len) {
   fehler_illegal_streamop(S(read_char),*stream_);
 }
 
-local uintL rd_ch_array_dummy (const object* stream_, const object* chararray_,
+local uintL rd_ch_array_dummy (const gcv_object_t* stream_, const gcv_object_t* chararray_,
                                uintL start, uintL len) {
   var uintL end = start + len;
   var uintL index = start;
@@ -308,16 +308,16 @@ local uintL rd_ch_array_dummy (const object* stream_, const object* chararray_,
   return index - start;
 }
 
-local void wr_ch_error (const object* stream_, object obj) {
+local void wr_ch_error (const gcv_object_t* stream_, object obj) {
   fehler_illegal_streamop(S(write_char),*stream_);
 }
 
-local void wr_ch_array_error (const object* stream_, const object* chararray_,
+local void wr_ch_array_error (const gcv_object_t* stream_, const gcv_object_t* chararray_,
                               uintL start, uintL len) {
   fehler_illegal_streamop(S(write_char),*stream_);
 }
 
-local void wr_ch_array_dummy (const object* stream_, const object* chararray_,
+local void wr_ch_array_dummy (const gcv_object_t* stream_, const gcv_object_t* chararray_,
                               uintL start, uintL len) {
   var uintL end = start + len;
   var uintL index = start;
@@ -463,7 +463,7 @@ global object read_byte (object stream) {
 # > uintL len: length of byte sequence to be filled
 # < uintL result: number of bytes that have been filled
 # can trigger GC
-global uintL read_byte_array (const object* stream_, const object* bytearray_,
+global uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
                               uintL start, uintL len) {
   if (len==0)
     return 0;
@@ -510,7 +510,7 @@ global void write_byte (object stream, object byte) {
 # > object bytearray: simple-bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be written
 # > uintL len: length of byte sequence to be written
-global void write_byte_array (const object* stream_, const object* bytearray_,
+global void write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
                               uintL start, uintL len) {
   if (len==0)
     return;
@@ -532,7 +532,7 @@ global void write_byte_array (const object* stream_, const object* bytearray_,
 # < stream: Stream
 # < result: read Character (eof_value at EOF)
 # can trigger GC
-global object read_char (const object* stream_) {
+global object read_char (const gcv_object_t* stream_) {
   var object stream = *stream_;
   if (builtin_stream_p(stream)) {
     if (!(TheStream(stream)->strmflags & strmflags_unread_B)) { # Char after UNREAD ?
@@ -563,7 +563,7 @@ global object read_char (const object* stream_) {
 # > ch: last read Character
 # > stream: Stream
 # < stream: Stream
-global void unread_char (const object* stream_, object ch) {
+global void unread_char (const gcv_object_t* stream_, object ch) {
   var object stream = *stream_;
   if (builtin_stream_p(stream)) {
     if (eq(TheStream(stream)->strm_rd_ch_last,ch)
@@ -597,7 +597,7 @@ global void unread_char (const object* stream_, object ch) {
 # < stream: Stream
 # < result: read Character (eof_value at EOF)
 # can trigger GC
-global object peek_char (const object* stream_) {
+global object peek_char (const gcv_object_t* stream_) {
   var object stream = *stream_;
   if (builtin_stream_p(stream)) {
     if (!(TheStream(stream)->strmflags & strmflags_unread_B)) # Char after UNREAD ?
@@ -625,7 +625,7 @@ global object peek_char (const object* stream_) {
 # > uintL len: length of character sequence to be filled
 # < uintL result: number of characters that have been filled
 # can trigger GC
-global uintL read_char_array (const object* stream_, const object* chararray_,
+global uintL read_char_array (const gcv_object_t* stream_, const gcv_object_t* chararray_,
                               uintL start, uintL len) {
   if (len==0)
     return 0;
@@ -684,7 +684,7 @@ global uintL read_char_array (const object* stream_, const object* chararray_,
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-global void write_char (const object* stream_, object ch) {
+global void write_char (const gcv_object_t* stream_, object ch) {
   var object stream = *stream_;
   if (builtin_stream_p(stream)) {
     var chart c = char_code(ch);
@@ -728,7 +728,7 @@ global void write_char (const object* stream_, object ch) {
 # > object chararray: simple-string (on the STACK)
 # > uintL start: start index of character sequence to be written
 # > uintL len: length of character sequence to be written
-global void write_char_array (const object* stream_, const object* chararray_,
+global void write_char_array (const gcv_object_t* stream_, const gcv_object_t* chararray_,
                               uintL start, uintL len) {
   if (len==0)
     return;
@@ -858,23 +858,24 @@ nonreturning_function(local, fehler_bad_integer, (object stream, object obj)) {
 }
 
 # barf if the object is not a stream
-#define check_stream(obj) (streamp(obj) ? obj : (fehler_stream(obj),NIL))
+#define check_stream(obj) \
+  (streamp(obj) ? (obj) : (fehler_stream(obj),NIL))
 # barf if the object is not a stream of the specific type
 #define check_streamtype(obj,type)                                        \
   if (!streamp(obj)) fehler_stream(obj); else fehler_streamtype(obj,type)
 # barf if the object is not a built-in stream
 #define check_builtin_stream(obj)                               \
-  (builtin_stream_p(obj) ? obj                                  \
+  (builtin_stream_p(obj) ? (obj)                                \
    : (fehler_streamtype(obj,O(type_builtin_stream)), NIL))
 # barf of the object is not an integer
-#define check_wr_int(str,obj)                                   \
-  (integerp(obj) ? obj : (fehler_wr_integer(str,obj),NIL))
+#define check_wr_int(stream,obj)                                \
+  (integerp(obj) ? (obj) : (fehler_wr_integer(stream,obj),NIL))
 
 # UP: checks, if Arguments are Streams.
 # test_stream_args(args_pointer,argcount);
 # > args_pointer: Pointer to the Arguments
 # > argcount: number of Arguments
-local void test_stream_args (object* args_pointer, uintC argcount) {
+local void test_stream_args (gcv_object_t* args_pointer, uintC argcount) {
   dotimesC(argcount,argcount, {
     var object next_arg = NEXT(args_pointer);
     check_stream(next_arg);
@@ -929,7 +930,7 @@ nonreturning_function(local, fehler_output_stream, (object stream)) {
 # > argcount: number of Arguments
 #define test_input_stream_args(args_pointer,argcount)   \
     if (argcount > 0) {                                 \
-      var object* pointer = (args_pointer);             \
+      var gcv_object_t* pointer = (args_pointer);       \
       var uintC count;                                  \
       dotimespC(count,argcount, {                       \
         var object arg = NEXT(pointer);                 \
@@ -944,7 +945,7 @@ nonreturning_function(local, fehler_output_stream, (object stream)) {
 # > argcount: number of Arguments
 #define test_output_stream_args(args_pointer,argcount)  \
     if (argcount > 0) {                                 \
-      var object* pointer = (args_pointer);             \
+      var gcv_object_t* pointer = (args_pointer);       \
       var uintC count;                                  \
       dotimespC(count,argcount, {                       \
         var object arg = NEXT(pointer);                 \
@@ -992,8 +993,8 @@ local object rd_by_synonym (object stream) {
 }
 
 # READ-BYTE-ARRAY - Pseudo-Function for Synonym-Streams:
-local uintL rd_by_array_synonym (const object* stream_,
-                                 const object* bytearray_,
+local uintL rd_by_array_synonym (const gcv_object_t* stream_,
+                                 const gcv_object_t* bytearray_,
                                  uintL start, uintL len) {
   check_SP(); check_STACK();
   var object symbol = TheStream(*stream_)->strm_synonym_symbol;
@@ -1011,8 +1012,8 @@ local void wr_by_synonym (object stream, object obj) {
 }
 
 # WRITE-BYTE-ARRAY - Pseudo-Function for Synonym-Streams:
-local void wr_by_array_synonym (const object* stream_,
-                                const object* bytearray_,
+local void wr_by_array_synonym (const gcv_object_t* stream_,
+                                const gcv_object_t* bytearray_,
                                 uintL start, uintL len) {
   check_SP(); check_STACK();
   var object symbol = TheStream(*stream_)->strm_synonym_symbol;
@@ -1022,7 +1023,7 @@ local void wr_by_array_synonym (const object* stream_,
 }
 
 # READ-CHAR - Pseudo-Function for Synonym-Streams:
-local object rd_ch_synonym (const object* stream_) {
+local object rd_ch_synonym (const gcv_object_t* stream_) {
   check_SP(); check_STACK();
   var object stream = *stream_;
   var object symbol = TheStream(stream)->strm_synonym_symbol;
@@ -1033,7 +1034,7 @@ local object rd_ch_synonym (const object* stream_) {
 }
 
 # PEEK-CHAR - Pseudo-Function for Synonym-Streams:
-local object pk_ch_synonym (const object* stream_) {
+local object pk_ch_synonym (const gcv_object_t* stream_) {
   check_SP(); check_STACK();
   var object stream = *stream_;
   var object symbol = TheStream(stream)->strm_synonym_symbol;
@@ -1044,8 +1045,8 @@ local object pk_ch_synonym (const object* stream_) {
 }
 
 # READ-CHAR-ARRAY - Pseudo-Function for Synonym-Streams:
-local uintL rd_ch_array_synonym (const object* stream_,
-                                 const object* chararray_,
+local uintL rd_ch_array_synonym (const gcv_object_t* stream_,
+                                 const gcv_object_t* chararray_,
                                  uintL start, uintL len) {
   check_SP(); check_STACK();
   var object symbol = TheStream(*stream_)->strm_synonym_symbol;
@@ -1056,7 +1057,7 @@ local uintL rd_ch_array_synonym (const object* stream_,
 }
 
 # WRITE-CHAR - Pseudo-Function for Synonym-Streams:
-local void wr_ch_synonym (const object* stream_, object obj) {
+local void wr_ch_synonym (const gcv_object_t* stream_, object obj) {
   check_SP(); check_STACK();
   var object stream = *stream_;
   var object symbol = TheStream(stream)->strm_synonym_symbol;
@@ -1066,8 +1067,8 @@ local void wr_ch_synonym (const object* stream_, object obj) {
 }
 
 # WRITE-CHAR-ARRAY - Pseudo-Function for Synonym-Streams:
-local void wr_ch_array_synonym (const object* stream_,
-                                const object* chararray_,
+local void wr_ch_array_synonym (const gcv_object_t* stream_,
+                                const gcv_object_t* chararray_,
                                 uintL start, uintL len) {
   check_SP(); check_STACK();
   var object symbol = TheStream(*stream_)->strm_synonym_symbol;
@@ -1098,7 +1099,7 @@ local void wr_ch_array_synonym (const object* stream_,
 # < buffer: contains the read characters, excluding the terminating #\Newline
 # < result: true if EOF was seen before newline, else false
 # can trigger GC
-local bool read_line_synonym (object stream, const object* buffer_) {
+local bool read_line_synonym (object stream, const gcv_object_t* buffer_) {
   check_SP(); check_STACK();
   var object symbol = TheStream(stream)->strm_synonym_symbol;
   pushSTACK(get_synonym_stream(symbol));
@@ -1251,7 +1252,7 @@ local void wr_by_broad (object stream, object obj) {
 }
 
 # WRITE-BYTE-ARRAY - Pseudo-Function for Broadcast-Streams:
-local void wr_by_array_broad (const object* stream_, const object* bytearray_,
+local void wr_by_array_broad (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
                               uintL start, uintL len) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_broad_list); # list of streams
@@ -1266,7 +1267,7 @@ local void wr_by_array_broad (const object* stream_, const object* bytearray_,
 }
 
 # WRITE-CHAR - Pseudo-Function for Broadcast-Streams:
-local void wr_ch_broad (const object* stream_, object obj) {
+local void wr_ch_broad (const gcv_object_t* stream_, object obj) {
   check_SP(); check_STACK();
   pushSTACK(obj);
   pushSTACK(NIL); # dummy
@@ -1282,7 +1283,7 @@ local void wr_ch_broad (const object* stream_, object obj) {
 }
 
 # WRITE-CHAR-ARRAY - Pseudo-Function for Broadcast-Streams:
-local void wr_ch_array_broad (const object* stream_, const object* chararray_,
+local void wr_ch_array_broad (const gcv_object_t* stream_, const gcv_object_t* chararray_,
                               uintL start, uintL len) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_broad_list); # list of streams
@@ -1438,8 +1439,8 @@ local object rd_by_concat (object stream) {
 }
 
 # READ-BYTE-ARRAY - Pseudo-Function for Concatenated-Streams:
-local uintL rd_by_array_concat (const object* stream_,
-                                const object* bytearray_,
+local uintL rd_by_array_concat (const gcv_object_t* stream_,
+                                const gcv_object_t* bytearray_,
                                 uintL start, uintL len) {
   check_SP(); check_STACK();
   var uintL result = 0;
@@ -1464,7 +1465,7 @@ local uintL rd_by_array_concat (const object* stream_,
 }
 
 # READ-CHAR - Pseudo-Function for Concatenated-Streams:
-local object rd_ch_concat (const object* stream_) {
+local object rd_ch_concat (const gcv_object_t* stream_) {
   check_SP(); check_STACK();
   var object streamlist = TheStream(*stream_)->strm_concat_list; # list of streams
   while (consp(streamlist)) {
@@ -1483,7 +1484,7 @@ local object rd_ch_concat (const object* stream_) {
 }
 
 # PEEK-CHAR - Pseudo-Function for Concatenated-Streams:
-local object pk_ch_concat (const object* stream_) {
+local object pk_ch_concat (const gcv_object_t* stream_) {
   check_SP(); check_STACK();
   var object streamlist = TheStream(*stream_)->strm_concat_list; # list of streams
   while (consp(streamlist)) {
@@ -1502,8 +1503,8 @@ local object pk_ch_concat (const object* stream_) {
 }
 
 # READ-CHAR-ARRAY - Pseudo-Function for Concatenated-Streams:
-local uintL rd_ch_array_concat (const object* stream_,
-                                const object* chararray_,
+local uintL rd_ch_array_concat (const gcv_object_t* stream_,
+                                const gcv_object_t* chararray_,
                                 uintL start, uintL len) {
   check_SP(); check_STACK();
   var uintL result = 0;
@@ -1663,7 +1664,7 @@ local void wr_by_twoway (object stream, object obj) {
 }
 
 # WRITE-BYTE-ARRAY - Pseudo-Function for Two-Way- and Echo-Streams:
-local void wr_by_array_twoway (const object* stream_, const object* bytearray_,
+local void wr_by_array_twoway (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
                                uintL start, uintL len) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_output);
@@ -1672,7 +1673,7 @@ local void wr_by_array_twoway (const object* stream_, const object* bytearray_,
 }
 
 # WRITE-CHAR - Pseudo-Function for Two-Way- and Echo-Streams:
-local void wr_ch_twoway (const object* stream_, object obj) {
+local void wr_ch_twoway (const gcv_object_t* stream_, object obj) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_output);
   write_char(&STACK_0,obj);
@@ -1680,7 +1681,7 @@ local void wr_ch_twoway (const object* stream_, object obj) {
 }
 
 # WRITE-CHAR-ARRAY - Pseudo-Function for Two-Way- and Echo-Streams:
-local void wr_ch_array_twoway (const object* stream_, const object* chararray_,
+local void wr_ch_array_twoway (const gcv_object_t* stream_, const gcv_object_t* chararray_,
                                uintL start, uintL len) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_output);
@@ -1761,8 +1762,8 @@ local object rd_by_twoway (object stream) {
 }
 
 # READ-BYTE-ARRAY - Pseudo-Function for Two-Way-Streams:
-local uintL rd_by_array_twoway (const object* stream_,
-                                const object* bytearray_,
+local uintL rd_by_array_twoway (const gcv_object_t* stream_,
+                                const gcv_object_t* bytearray_,
                                 uintL start, uintL len) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_input);
@@ -1772,7 +1773,7 @@ local uintL rd_by_array_twoway (const object* stream_,
 }
 
 # READ-CHAR - Pseudo-Function for Two-Way-Streams:
-local object rd_ch_twoway (const object* stream_) {
+local object rd_ch_twoway (const gcv_object_t* stream_) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_input);
   var object result = read_char(&STACK_0);
@@ -1781,7 +1782,7 @@ local object rd_ch_twoway (const object* stream_) {
 }
 
 # PEEK-CHAR - Pseudo-Function for Two-Way-Streams:
-local object pk_ch_twoway (const object* stream_) {
+local object pk_ch_twoway (const gcv_object_t* stream_) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_input);
   var object result = peek_char(&STACK_0);
@@ -1790,8 +1791,8 @@ local object pk_ch_twoway (const object* stream_) {
 }
 
 # READ-CHAR-ARRAY - Pseudo-Function for Two-Way-Streams:
-local uintL rd_ch_array_twoway (const object* stream_,
-                                const object* chararray_,
+local uintL rd_ch_array_twoway (const gcv_object_t* stream_,
+                                const gcv_object_t* chararray_,
                                 uintL start, uintL len) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_input);
@@ -1807,7 +1808,7 @@ local uintL rd_ch_array_twoway (const object* stream_,
 # < buffer: contains the read characters, excluding the terminating #\Newline
 # < result: true if EOF was seen before newline, else false
 # can trigger GC
-local bool read_line_twoway (object stream, const object* buffer_) {
+local bool read_line_twoway (object stream, const gcv_object_t* buffer_) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(stream)->strm_twoway_input);
   var bool eofp = read_line(&STACK_0,buffer_);
@@ -1902,7 +1903,7 @@ local object rd_by_echo (object stream) {
 }
 
 # READ-BYTE-ARRAY - Pseudo-Function for Echo-Streams:
-local uintL rd_by_array_echo (const object* stream_, const object* bytearray_,
+local uintL rd_by_array_echo (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
                               uintL start, uintL len) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_input);
@@ -1914,7 +1915,7 @@ local uintL rd_by_array_echo (const object* stream_, const object* bytearray_,
 }
 
 # READ-CHAR - Pseudo-Function for Echo-Streams:
-local object rd_ch_echo (const object* stream_) {
+local object rd_ch_echo (const gcv_object_t* stream_) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_input);
   var object obj = read_char(&STACK_0);
@@ -1929,7 +1930,7 @@ local object rd_ch_echo (const object* stream_) {
 }
 
 # READ-CHAR-ARRAY - Pseudo-Function for Echo-Streams:
-local uintL rd_ch_array_echo (const object* stream_, const object* chararray_,
+local uintL rd_ch_array_echo (const gcv_object_t* stream_, const gcv_object_t* chararray_,
                               uintL start, uintL len) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_input);
@@ -2028,7 +2029,7 @@ nonreturning_function(local, fehler_str_in_adjusted, (object stream)) {
 }
 
 # READ-CHAR - Pseudo-Function for String-Input-Streams:
-local object rd_ch_str_in (const object* stream_) {
+local object rd_ch_str_in (const gcv_object_t* stream_) {
   var object stream = *stream_;
   var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index);
   var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
@@ -2050,8 +2051,8 @@ local object rd_ch_str_in (const object* stream_) {
 }
 
 # READ-CHAR-ARRAY - Pseudo-Function for String-Input-Streams:
-local uintL rd_ch_array_str_in (const object* stream_,
-                                const object* chararray_,
+local uintL rd_ch_array_str_in (const gcv_object_t* stream_,
+                                const gcv_object_t* chararray_,
                                 uintL start, uintL len) {
   var object stream = *stream_;
   var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index);
@@ -2144,7 +2145,7 @@ LISPFUNN(string_input_stream_index,1) {
   #define strm_str_out_string  strm_other[0]  # Semi-Simple-String for Output
 
 # WRITE-CHAR - Pseudo-Function for String-Output-Streams:
-local void wr_ch_str_out (const object* stream_, object ch) {
+local void wr_ch_str_out (const gcv_object_t* stream_, object ch) {
   var object stream = *stream_;
   check_wr_char(stream,ch);
   # push Character in the String:
@@ -2152,8 +2153,8 @@ local void wr_ch_str_out (const object* stream_, object ch) {
 }
 
 # WRITE-CHAR-ARRAY - Pseudo-Function for String-Output-Streams:
-local void wr_ch_array_str_out (const object* stream_,
-                                const object* chararray_,
+local void wr_ch_array_str_out (const gcv_object_t* stream_,
+                                const gcv_object_t* chararray_,
                                 uintL start, uintL len) {
   var object ssstring = TheStream(*stream_)->strm_str_out_string; # Semi-Simple-String
   ssstring = ssstring_append_extend(ssstring,*chararray_,start,len);
@@ -2211,7 +2212,7 @@ LISPFUN(make_string_output_stream,0,0,norest,key,2,
 # < stream: emptied Stream
 # < result: collected stuff, a Simple-String
 # can trigger GC
-global object get_output_stream_string (const object* stream_) {
+global object get_output_stream_string (const gcv_object_t* stream_) {
   var object string = TheStream(*stream_)->strm_str_out_string; # old String
   string = coerce_ss(string); # convert to Simple-String (enforces copying)
   # empty old String by Fill-Pointer:=0 :
@@ -2242,7 +2243,7 @@ LISPFUNN(get_output_stream_string,1) {
   #define strm_str_push_string  strm_other[0]  # String with Fill-Pointer for Output
 
 # WRITE-CHAR - Pseudo-Function for String-Push-Streams:
-local void wr_ch_str_push (const object* stream_, object ch) {
+local void wr_ch_str_push (const gcv_object_t* stream_, object ch) {
   var object stream = *stream_;
   check_wr_char(stream,ch);
   # push Character in the String:
@@ -2303,7 +2304,7 @@ LISPFUNN(string_stream_p,1) {
   # define strm_pphelp_modus    strm_other[1]   # Mode (NIL=single-liner, T=multi-liner)
 
 # WRITE-CHAR - Pseudo-Function for Pretty-Printer-Auxiliary-Streams:
-local void wr_ch_pphelp (const object* stream_, object ch) {
+local void wr_ch_pphelp (const gcv_object_t* stream_, object ch) {
   var object stream = *stream_;
   check_wr_char(stream,ch);
   var chart c = char_code(ch); # Character
@@ -2326,7 +2327,7 @@ local void wr_ch_pphelp (const object* stream_, object ch) {
 }
 
 # WRITE-CHAR-ARRAY - Pseudo-Function for Pretty-Printer-Auxiliary-Streams:
-local void wr_ch_array_pphelp (const object* stream_, const object* chararray_,
+local void wr_ch_array_pphelp (const gcv_object_t* stream_, const gcv_object_t* chararray_,
                                uintL start, uintL len) {
   var bool filling = !nullpSv(print_pretty_fill);
   var uintL beg = start;
@@ -2417,7 +2418,7 @@ global object make_pphelp_stream (void) {
   #define strm_buff_in_endindex  strm_other[4]  # Endindex (Fixnum >= index >=0)
 
 # READ-CHAR - Pseudo-Function for Buffered-Input-Streams:
-local object rd_ch_buff_in (const object* stream_) {
+local object rd_ch_buff_in (const gcv_object_t* stream_) {
   var object stream = *stream_;
   var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index);
   var uintL endindex =
@@ -2599,7 +2600,7 @@ local void clear_output_buff_out (object stream) {
 }
 
 # WRITE-CHAR - Pseudo-Function for Buffered-Output-Streams:
-local void wr_ch_buff_out (const object* stream_, object ch) {
+local void wr_ch_buff_out (const gcv_object_t* stream_, object ch) {
   var object stream = *stream_;
   check_wr_char(stream,ch);
   # push Character in the String:
@@ -2670,7 +2671,7 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL) {
 
 # (READ-CHAR s) ==
 # (GENERIC-STREAM-READ-CHAR c)
-local object rd_ch_generic (const object* stream_) {
+local object rd_ch_generic (const gcv_object_t* stream_) {
   pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
   pushSTACK(value1); funcall(S(generic_stream_rdch),1);
   return nullp(value1) ? eof_value : value1;
@@ -2678,7 +2679,7 @@ local object rd_ch_generic (const object* stream_) {
 
 # (PEEK-CHAR s) ==
 # (GENERIC-STREAM-PEEK-CHAR c)
-local object pk_ch_generic (const object* stream_) {
+local object pk_ch_generic (const gcv_object_t* stream_) {
   pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
   pushSTACK(value1); funcall(S(generic_stream_pkch),1);
   if (nullp(value1))
@@ -2725,7 +2726,7 @@ local bool clear_input_generic (object stream) {
 
 # (WRITE-CHAR ch s) ==
 # (GENERIC-STREAM-WRITE-CHAR c ch)
-local void wr_ch_generic (const object* stream_, object ch) {
+local void wr_ch_generic (const gcv_object_t* stream_, object ch) {
   # ch is a character, need not save it
   pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
   pushSTACK(value1); pushSTACK(ch); funcall(S(generic_stream_wrch),2);
@@ -2733,8 +2734,8 @@ local void wr_ch_generic (const object* stream_, object ch) {
 
 # (WRITE-CHAR-ARRAY s string start len) ==
 # (GENERIC-STREAM-WRITE-STRING c string start len)
-local void wr_ch_array_generic (const object* stream_,
-                                const object* chararray_,
+local void wr_ch_array_generic (const gcv_object_t* stream_,
+                                const gcv_object_t* chararray_,
                                 uintL start, uintL len) {
   pushSTACK(*stream_); funcall(L(generic_stream_controller),1);
   pushSTACK(value1); pushSTACK(*chararray_);
@@ -2906,7 +2907,7 @@ typedef struct {
 # > object eltype: argument (in the STACK)
 # < decoded: decoded eltype
 # can trigger GC
-local void test_eltype_arg (object* eltype_, decoded_el_t* decoded) {
+local void test_eltype_arg (gcv_object_t* eltype_, decoded_el_t* decoded) {
   var object arg = *eltype_;
   if (!boundp(arg) || eq(arg,S(character)) || eq(arg,S(string_char))
       || eq(arg,S(Kdefault))) { # CHARACTER, STRING-CHAR, :DEFAULT
@@ -4992,8 +4993,8 @@ local object rd_by_iau8_unbuffered (object stream) {
 }
 
 # READ-BYTE-ARRAY - Pseudo-Function for Handle-Streams, Type au, bitsize = 8 :
-local uintL rd_by_array_iau8_unbuffered (const object* stream_,
-                                         const object* bytearray_,
+local uintL rd_by_array_iau8_unbuffered (const gcv_object_t* stream_,
+                                         const gcv_object_t* bytearray_,
                                          uintL start, uintL len) {
   var object stream = *stream_;
   var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
@@ -5016,7 +5017,7 @@ local signean listen_byte_ia8_unbuffered (object stream) {
 # -----------------
 
 # READ-CHAR - Pseudo-Function for Unbuffered-Channel-Streams:
-local object rd_ch_unbuffered (const object* stream_) {
+local object rd_ch_unbuffered (const gcv_object_t* stream_) {
   var object stream = *stream_;
   if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # already EOF?
     return eof_value;
@@ -5175,8 +5176,8 @@ local bool clear_input_unbuffered (object stream) {
 }
 
 # READ-CHAR-ARRAY - Pseudo-Function for Unbuffered-Channel-Streams:
-local uintL rd_ch_array_unbuffered (const object* stream_,
-                                    const object* chararray_,
+local uintL rd_ch_array_unbuffered (const gcv_object_t* stream_,
+                                    const gcv_object_t* chararray_,
                                     uintL start, uintL len) {
   # Need a temporary buffer for CR/LF->NL translation.
   #define tmpbufsize 4096
@@ -5382,8 +5383,8 @@ local void wr_by_iau8_unbuffered (object stream, object obj) {
 }
 
 # WRITE-BYTE-ARRAY - Pseudo-Function for Handle-Streams, Type au, bitsize = 8 :
-local void wr_by_array_iau8_unbuffered (const object* stream_,
-                                        const object* bytearray_,
+local void wr_by_array_iau8_unbuffered (const gcv_object_t* stream_,
+                                        const gcv_object_t* bytearray_,
                                         uintL start, uintL len) {
   var object stream = *stream_;
   UnbufferedStreamLow_write_array(stream)
@@ -5396,7 +5397,7 @@ local void wr_by_array_iau8_unbuffered (const object* stream_,
 # Three versions, one for each kind of line-terminator: :unix, :mac, :dos.
 
 # WRITE-CHAR - Pseudo-Function for Unbuffered-Channel-Streams:
-local void wr_ch_unbuffered_unix (const object* stream_, object ch) {
+local void wr_ch_unbuffered_unix (const gcv_object_t* stream_, object ch) {
   var object stream = *stream_;
   check_wr_char(stream,ch);
   var chart c = char_code(ch); # Code of the character
@@ -5415,8 +5416,8 @@ local void wr_ch_unbuffered_unix (const object* stream_, object ch) {
 }
 
 # WRITE-CHAR-ARRAY - Pseudo-Function for Unbuffered-Channel-Streams:
-local void wr_ch_array_unbuffered_unix (const object* stream_,
-                                        const object* chararray_,
+local void wr_ch_array_unbuffered_unix (const gcv_object_t* stream_,
+                                        const gcv_object_t* chararray_,
                                         uintL start, uintL len) {
   var object stream = *stream_;
   var const chart* charptr;
@@ -5439,7 +5440,7 @@ local void wr_ch_array_unbuffered_unix (const object* stream_,
 }
 
 # WRITE-CHAR - Pseudo-Function for Unbuffered-Channel-Streams:
-local void wr_ch_unbuffered_mac (const object* stream_, object ch) {
+local void wr_ch_unbuffered_mac (const gcv_object_t* stream_, object ch) {
   var object stream = *stream_;
   check_wr_char(stream,ch);
   var chart c = char_code(ch); # Code of the character
@@ -5459,8 +5460,8 @@ local void wr_ch_unbuffered_mac (const object* stream_, object ch) {
 }
 
 # WRITE-CHAR-ARRAY - Pseudo-Function for Unbuffered-Channel-Streams:
-local void wr_ch_array_unbuffered_mac (const object* stream_,
-                                       const object* chararray_,
+local void wr_ch_array_unbuffered_mac (const gcv_object_t* stream_,
+                                       const gcv_object_t* chararray_,
                                        uintL start, uintL len) {
   var object stream = *stream_;
   var const chart* charptr;
@@ -5503,7 +5504,7 @@ local void wr_ch_array_unbuffered_mac (const object* stream_,
 }
 
 # WRITE-CHAR - Pseudo-Function for Unbuffered-Channel-Streams:
-local void wr_ch_unbuffered_dos (const object* stream_, object ch) {
+local void wr_ch_unbuffered_dos (const gcv_object_t* stream_, object ch) {
   var object stream = *stream_;
   check_wr_char(stream,ch);
   var chart c = char_code(ch); # Code of the character
@@ -5533,8 +5534,8 @@ local void wr_ch_unbuffered_dos (const object* stream_, object ch) {
 }
 
 # WRITE-CHAR-ARRAY - Pseudo-Function for Unbuffered-Channel-Streams:
-local void wr_ch_array_unbuffered_dos (const object* stream_,
-                                       const object* chararray_,
+local void wr_ch_array_unbuffered_dos (const gcv_object_t* stream_,
+                                       const gcv_object_t* chararray_,
                                        uintL start, uintL len) {
   var object stream = *stream_;
   var const chart* charptr;
@@ -5896,8 +5897,8 @@ typedef struct strm_i_buffered_extrafields_t {
 #define BufferedStream_eofposition(stream)  \
   ((strm_i_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->eofposition
 
-#define Truename_or_Self(stream)                                \
- (nullp(TheStream(stream)->strm_file_truename) ? stream :       \
+#define Truename_or_Self(stream)                                  \
+ (nullp(TheStream(stream)->strm_file_truename) ? (object)stream : \
   TheStream(stream)->strm_file_truename)
 
 #define ChannelStream_ihandle(obj)                                      \
@@ -6312,7 +6313,7 @@ local const uintB* write_byte_array_buffered (object stream,
 # ----------
 
 # READ-CHAR - Pseudo-Function for File-Streams of Characters
-local object rd_ch_buffered (const object* stream_) {
+local object rd_ch_buffered (const gcv_object_t* stream_) {
   var object stream = *stream_;
   var uintB* bufferptr = buffered_nextbyte(stream);
   if (bufferptr == (uintB*)NULL) # EOF ?
@@ -6411,8 +6412,8 @@ local signean listen_char_buffered (object stream) {
 }
 
 # READ-CHAR-ARRAY - Pseudo-Function for File-Streams of Characters:
-local uintL rd_ch_array_buffered (const object* stream_,
-                                  const object* chararray_,
+local uintL rd_ch_array_buffered (const gcv_object_t* stream_,
+                                  const gcv_object_t* chararray_,
                                   uintL start, uintL len) {
   var object stream = *stream_;
   #ifdef UNICODE
@@ -6570,7 +6571,7 @@ local void write_byte_buffered (object stream, uintB b) {
 }
 
 # WRITE-CHAR - Pseudo-Function for File-Streams of Characters
-local void wr_ch_buffered_unix (const object* stream_, object obj) {
+local void wr_ch_buffered_unix (const gcv_object_t* stream_, object obj) {
   var object stream = *stream_;
   check_wr_char(stream,obj);
   var chart c = char_code(obj);
@@ -6591,8 +6592,8 @@ local void wr_ch_buffered_unix (const object* stream_, object obj) {
 }
 
 # WRITE-CHAR-ARRAY - Pseudo-Function for File-Streams of Characters:
-local void wr_ch_array_buffered_unix (const object* stream_,
-                                      const object* chararray_,
+local void wr_ch_array_buffered_unix (const gcv_object_t* stream_,
+                                      const gcv_object_t* chararray_,
                                       uintL start, uintL len) {
   var object stream = *stream_;
   var const chart* charptr;
@@ -6620,7 +6621,7 @@ local void wr_ch_array_buffered_unix (const object* stream_,
 }
 
 # WRITE-CHAR - Pseudo-Function for File-Streams of Characters
-local void wr_ch_buffered_mac (const object* stream_, object obj) {
+local void wr_ch_buffered_mac (const gcv_object_t* stream_, object obj) {
   var object stream = *stream_;
   check_wr_char(stream,obj);
   var chart c = char_code(obj);
@@ -6643,8 +6644,8 @@ local void wr_ch_buffered_mac (const object* stream_, object obj) {
 }
 
 # WRITE-CHAR-ARRAY - Pseudo-Function for File-Streams of Characters:
-local void wr_ch_array_buffered_mac (const object* stream_,
-                                     const object* chararray_,
+local void wr_ch_array_buffered_mac (const gcv_object_t* stream_,
+                                     const gcv_object_t* chararray_,
                                      uintL start, uintL len) {
   var object stream = *stream_;
   var const chart* charptr;
@@ -6695,7 +6696,7 @@ local void wr_ch_array_buffered_mac (const object* stream_,
 }
 
 # WRITE-CHAR - Pseudo-Function for File-Streams of Characters
-local void wr_ch_buffered_dos (const object* stream_, object obj) {
+local void wr_ch_buffered_dos (const gcv_object_t* stream_, object obj) {
   var object stream = *stream_;
   check_wr_char(stream,obj);
   var chart c = char_code(obj);
@@ -6728,8 +6729,8 @@ local void wr_ch_buffered_dos (const object* stream_, object obj) {
 }
 
 # WRITE-CHAR-ARRAY - Pseudo-Function for File-Streams of Characters:
-local void wr_ch_array_buffered_dos (const object* stream_,
-                                     const object* chararray_,
+local void wr_ch_array_buffered_dos (const gcv_object_t* stream_,
+                                     const gcv_object_t* chararray_,
                                      uintL start, uintL len) {
   var object stream = *stream_;
   var const chart* charptr;
@@ -7050,8 +7051,8 @@ local object rd_by_iau8_buffered (object stream) {
 }
 
 # READ-BYTE-SEQUENCE for File-Streams of Integers, Type au, bitsize = 8 :
-local uintL rd_by_array_iau8_buffered (const object* stream_,
-                                       const object* bytearray_,
+local uintL rd_by_array_iau8_buffered (const gcv_object_t* stream_,
+                                       const gcv_object_t* bytearray_,
                                        uintL start, uintL len) {
   var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
   var uintB* endptr = read_byte_array_buffered(*stream_,startptr,len);
@@ -7201,8 +7202,8 @@ local void wr_by_iau8_buffered (object stream, object obj) {
 }
 
 # WRITE-BYTE-SEQUENCE for File-Streams of Integers, Type au, bitsize = 8 :
-local void wr_by_array_iau8_buffered (const object* stream_,
-                                      const object* bytearray_,
+local void wr_by_array_iau8_buffered (const gcv_object_t* stream_,
+                                      const gcv_object_t* bytearray_,
                                       uintL start, uintL len) {
   write_byte_array_buffered(*stream_,TheSbvector(*bytearray_)->data+start,len);
   # increment position:
@@ -8347,7 +8348,7 @@ local bool clear_input_keyboard (object stream) {
 
 # Read a character from Keyboard:
 #ifdef EMUNIX
-local object rd_ch_keyboard (const object* stream_) {
+local object rd_ch_keyboard (const gcv_object_t* stream_) {
   if (_osmode != DOS_MODE) { # OS/2
     run_time_stop(); # hold run time clock
     var object c;
@@ -8439,7 +8440,7 @@ local object rd_ch_keyboard (const object* stream_) {
 #endif
 
 #ifdef WIN32_NATIVE
-local object rd_ch_keyboard (const object* stream_) {
+local object rd_ch_keyboard (const gcv_object_t* stream_) {
   var INPUT_RECORD event;
   var DWORD nevents_read;
   var Handle handle;
@@ -8617,7 +8618,7 @@ local object rd_ch_keyboard (const object* stream_) {
 
 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
 # cf. rd_ch_unbuffered() :
-local object rd_ch_keyboard (const object* stream_) {
+local object rd_ch_keyboard (const gcv_object_t* stream_) {
  restart_it:
   var object stream = *stream_;
   if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # EOF already?
@@ -8655,7 +8656,7 @@ local object rd_ch_keyboard (const object* stream_) {
       var object new_cons = allocate_cons();
       Car(new_cons) = code_char(as_chart(c)); # FIXME: This should take into account the encoding.
       stream = *stream_;
-      var object* last_ = &TheStream(stream)->strm_keyboard_buffer;
+      var gcv_object_t* last_ = &TheStream(stream)->strm_keyboard_buffer;
       while (mconsp(*last_)) { last_ = &Cdr(*last_); }
       *last_ = new_cons;
     }
@@ -9112,7 +9113,7 @@ LISPFUNN(make_keyboard_stream,0) {
 
 #if defined(GNU_READLINE) || defined(NEXTAPP)
 # Function to ignore unconvertible symbols.
-local void lisp_completion_ignore (void* sp, object* frame, object label,
+local void lisp_completion_ignore (void* sp, gcv_object_t* frame, object label,
                                    object condition) {
   # (THROW 'SYS::CONVERSION-FAILURE NIL):
   VALUES1(NIL);
@@ -9175,7 +9176,7 @@ global char** lisp_completion (char* text, int start, int end) {
       var const chart* ptr1;
       unpack_sstring_alloca(m,charcount,0, ptr1=);
       { /* (CATCH 'SYS::CONVERSION-FAILURE ...) */
-        var object* top_of_frame = STACK;
+        var gcv_object_t* top_of_frame = STACK;
         pushSTACK(S(conversion_failure));
         var sp_jmp_buf returner;
         finish_entry_frame(CATCH,&!returner,, goto catch_return; );
@@ -9228,7 +9229,7 @@ global char** lisp_completion (char* text, int start, int end) {
 # rd_ch_terminal(&stream)
 # > stream: Terminal-Stream
 # < object ch: entered character
-local object rd_ch_terminal (const object* stream_) {
+local object rd_ch_terminal (const gcv_object_t* stream_) {
   var int linepos;
   var uintB ch;
   begin_call();
@@ -9265,7 +9266,7 @@ local bool clear_input_terminal (object stream) {
 # wr_ch_terminal(&stream,ch);
 # > stream: Terminal-Stream
 # > ch: character to be written
-local void wr_ch_terminal (const object* stream_, object ch) {
+local void wr_ch_terminal (const gcv_object_t* stream_, object ch) {
   var object stream = *stream_;
   check_wr_char(stream,ch);
   begin_call();
@@ -9410,7 +9411,7 @@ local object make_terminal_stream_ (void) {
 #ifdef HAVE_TERMINAL1
 
 # read a character from a terminal-stream.
-local object rd_ch_terminal1 (const object* stream_) {
+local object rd_ch_terminal1 (const gcv_object_t* stream_) {
   var object ch = rd_ch_unbuffered(stream_);
   # If both stdin and stdout are the same Terminal,
   # and we read a NL, we can assume, that afterwards
@@ -9444,7 +9445,7 @@ local object rd_ch_terminal1 (const object* stream_) {
 #if !defined(AMIGAOS)
   #define wr_ch_terminal1  wr_ch_unbuffered_unix
 #else # defined(AMIGAOS)
-local void wr_ch_terminal1 (const object* stream_, object ch) {
+local void wr_ch_terminal1 (const gcv_object_t* stream_, object ch) {
   # ch should be a Character with font at most, but without Bits:
   #error "FIXME character fonts don't exist in this form any more"
   if (!((as_oint(ch) & ~(((oint)char_code_mask_c|(oint)char_font_mask_c)<<oint_data_shift)) == as_oint(type_data_object(char_type,0)))) {
@@ -9512,7 +9513,7 @@ local void wr_ch_terminal1 (const object* stream_, object ch) {
 #define TERMINAL_LINEBUFFERED  true
 
 # read a character from a terminal-stream.
-local object rd_ch_terminal2 (const object* stream_) {
+local object rd_ch_terminal2 (const gcv_object_t* stream_) {
   var object stream = *stream_;
   if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # EOF already?
     return eof_value;
@@ -9689,7 +9690,7 @@ local char* xrealloc (void* ptr, int count);
 
 # read a character from a terminal-stream.
 # cp. rd_ch_unbuffered() :
-local object rd_ch_terminal3 (const object* stream_) {
+local object rd_ch_terminal3 (const gcv_object_t* stream_) {
   var object stream = *stream_;
   if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # EOF already?
     return eof_value;
@@ -9844,7 +9845,7 @@ local bool clear_input_terminal3 (object stream) {
 # wr_ch_terminal3(&stream,ch);
 # > stream: Terminal-Stream
 # > ch: character to be written
-local void wr_ch_terminal3 (const object* stream_, object ch) {
+local void wr_ch_terminal3 (const gcv_object_t* stream_, object ch) {
   check_wr_char(*stream_,ch);
  #if TERMINAL_OUTBUFFERED
   {
@@ -9864,8 +9865,8 @@ local void wr_ch_terminal3 (const object* stream_, object ch) {
 # > chararray: Simple-String
 # > start: Startindex
 # > len: number of characters to be written
-local void wr_ch_array_terminal3 (const object* stream_,
-                                  const object* chararray_,
+local void wr_ch_array_terminal3 (const gcv_object_t* stream_,
+                                  const gcv_object_t* chararray_,
                                   uintL start, uintL len) {
   wr_ch_array_unbuffered_unix(stream_,chararray_,start,len);
  #if TERMINAL_OUTBUFFERED
@@ -10566,7 +10567,7 @@ local int COLS;  # number of columns, number of characters per line
 # wr_ch_window(&stream,ch);
 # > stream: Window-Stream
 # > ch: character to be written
-local void wr_ch_window (const object* stream_, object ch) {
+local void wr_ch_window (const gcv_object_t* stream_, object ch) {
   check_wr_char(*stream_,ch);
   var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
   # write Code c via the Video-Library to the screen:
@@ -10912,8 +10913,8 @@ local void v_puts(HANDLE handle,char *s,COORD *pos,COORD sz,uintW attr) {
 
 # Lisp functions:
 
-local void wr_ch_array_window (const object* stream_,const object* chararray_,
-                               uintL start,uintL len) {
+local void wr_ch_array_window (const gcv_object_t* stream_, const gcv_object_t* chararray_,
+                               uintL start, uintL len) {
   var Handle handle = ConsoleHandleR(*stream_);
   var COORD  pos    = ConsoleData(*stream_)->cursor_position;
   var COORD  sz     = ConsoleData(*stream_)->console_size;
@@ -10961,7 +10962,7 @@ local void wr_ch_array_window (const object* stream_,const object* chararray_,
 # wr_ch_window(&stream,ch);
 # > stream: Window-Stream
 # > ch: character to be written
-local void wr_ch_window (const object* stream_, object ch) {
+local void wr_ch_window (const gcv_object_t* stream_, object ch) {
   var Handle handle = ConsoleHandleR(*stream_);
   var COORD  pos    = ConsoleData(*stream_)->cursor_position;
   var COORD  sz     = ConsoleData(*stream_)->console_size;
@@ -12786,7 +12787,7 @@ local void init_curr (void) {
 # wr_ch_window(&stream,ch);
 # > stream: Window-Stream
 # > ch: character to be written
-local void wr_ch_window (const object* stream_, object ch) {
+local void wr_ch_window (const gcv_object_t* stream_, object ch) {
   check_wr_char(*stream_,ch);
   var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
   begin_system_call();
@@ -13013,7 +13014,7 @@ LISPFUNN(window_cursor_off,1) {
 # wr_ch_window(&stream,ch);
 # > stream: Window-Stream
 # > ch: character to be written
-local void wr_ch_window (const object* stream_, object ch) {
+local void wr_ch_window (const gcv_object_t* stream_, object ch) {
   check_wr_char(*stream_,ch);
   var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
   begin_system_call();
@@ -13184,7 +13185,7 @@ local void wr_window (const uintB* outbuffer, uintL count) {
 # wr_ch_window(&stream,ch);
 # > stream: Window-Stream
 # > ch: character to be written
-local void wr_ch_window (const object* stream_, object ch) {
+local void wr_ch_window (const gcv_object_t* stream_, object ch) {
   check_wr_char(*stream_,ch);
   var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
   ??
@@ -13318,7 +13319,7 @@ LISPFUNN(window_cursor_off,1) {
 # FIXME: Should be based on an encoding.
 
 # WRITE-CHAR - Pseudo-Function for Printer-Streams:
-local void wr_ch_printer (const object* stream_, object ch) {
+local void wr_ch_printer (const gcv_object_t* stream_, object ch) {
   var object stream = *stream_;
   check_wr_char(stream,ch);
   begin_system_call();
@@ -15045,7 +15046,7 @@ local void sock_opt_time (SOCKET handle, int option, object value)
    value of :so-keepalive and the old value of :so-rcvlowat */
 LISPFUN(socket_options,1,0,rest,nokey,0,NIL) {
   var object socket = *(rest_args_pointer STACKop 1);
-  var object *arg_p = rest_args_pointer;
+  var gcv_object_t *arg_p = rest_args_pointer;
   var int count = argcount, retval_count = argcount;
   var SOCKET handle;
   stream_handles(socket,true,NULL,&handle,NULL);
@@ -16142,7 +16143,7 @@ LISPFUNN(interactive_stream_p,1) {
 # > stream: Builtin-Stream
 # < stream: Builtin-Stream
 # can trigger GC
-global void builtin_stream_close (const object* stream_) {
+global void builtin_stream_close (const gcv_object_t* stream_) {
   var object stream = *stream_;
   if ((TheStream(stream)->strmflags & strmflags_open_B) == 0) # Stream already closed?
     return;
@@ -16271,7 +16272,7 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) ) {
 # < buffer: contains the read characters, excluding the terminating #\Newline
 # < result: true if EOF was seen before newline, else false
 # can trigger GC
-global bool read_line (const object* stream_, const object* buffer_) {
+global bool read_line (const gcv_object_t* stream_, const gcv_object_t* buffer_) {
   var object stream = *stream_;
   if (builtin_stream_p(stream)) {
     if (TheStream(stream)->strmflags & strmflags_unread_B) { # Char after UNREAD ?
@@ -16868,7 +16869,7 @@ local void check_multiple8_eltype (const decoded_el_t* eltype) {
 # check_float_eltype(&eltype)
 # > object eltype: argument (in the STACK)
 # < result: sizeof(ffloatjanus) or sizeof(dfloatjanus)
-local uintL check_float_eltype (object* eltype_) {
+local uintL check_float_eltype (gcv_object_t* eltype_) {
   var object arg = *eltype_;
   if (eq(arg,S(single_float)))
     return sizeof(ffloatjanus);

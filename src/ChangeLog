@@ -1,3 +1,20 @@
+2002-12-04  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (gcv_object_t): New type.
+	(kvtable_data): Don't confuse object and void*.
+	(copy_mem_b, copy_mem_o): Use const.
+	* genclisph.d (main): Emit gcv_object_t type.
+	* affi.d, array.d, charstrg.d, comptran.d, constobj.d, control.d,
+	debug.d, encoding.d, error.d, eval.d, foreign.d, hashtabl.d, io.d,
+	lisparit.d, list.d, modules.d, package.d, pathname.d, predtype.d,
+	realtran.d, record.d, rexx.d, sequence.d, spvw.d, spvw_circ.d,
+	spvw_garcol.d, spvw_genera1.d, spvw_genera2.d, spvw_genera3.d,
+	spvw_heap.d, spvw_mark.d, spvw_memfile.d, spvw_page.d, spvw_sigsegv.d,
+	spvw_typealloc.d, spvw_update.d, stream.d, subr.d, symbol.d: Use
+	gcv_object_t instead of object where appropriate.
+	* charstrg.d (char_name, name_char): Use const.
+	* hashtabl.d (hashcode3_atom): Likewise.
+
 2002-12-05  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (lp_limit_1, ca_limit_1): set to 2^12-1

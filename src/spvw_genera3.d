@@ -14,7 +14,7 @@
 
 #ifdef GENERATIONAL_GC
 
-local void update_at (object* ptr) {
+local void update_at (gcv_object_t* ptr) {
   update(ptr);
 }
 

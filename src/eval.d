@@ -415,7 +415,7 @@ LISPFUNN(subr_info,1)
               #ifdef HAVE_SAVED_REGISTERS
               if ((frame_info & bit(callback_bit_t)) == 0) {
                 # CALLBACK_FRAME
-                var object* new_STACK = topofframe(STACK_0); # Pointer to Frame
+                var gcv_object_t* new_STACK = topofframe(STACK_0); # Pointer to Frame
                 # set callback_saved_registers:
                 callback_saved_registers = (struct registers *)(aint)as_oint(STACK_1);
                 # set STACK, thus unwind frame:
@@ -425,13 +425,13 @@ LISPFUNN(subr_info,1)
               #endif
               {
                 # VAR_FRAME or FUN_FRAME
-                var object* new_STACK = topofframe(STACK_0); # Pointer to Frame
+                var gcv_object_t* new_STACK = topofframe(STACK_0); # Pointer to Frame
                 if (frame_info & bit(fun_bit_t)) {
                   # for functions: do nothing
                 } else {
                   # VAR_FRAME, bindingptr iterates over the bindungs
-                  var object* frame_end = STACKpointable(new_STACK);
-                  var object* bindingptr = &STACK_(frame_bindings); # start of the variable-/functionbindings
+                  var gcv_object_t* frame_end = STACKpointable(new_STACK);
+                  var gcv_object_t* bindingptr = &STACK_(frame_bindings); # start of the variable-/functionbindings
                   until (bindingptr == frame_end) {
                     if (as_oint(*(bindingptr STACKop 0)) & wbit(dynam_bit_o))
                       if (as_oint(*(bindingptr STACKop 0)) & wbit(active_bit_o)) {
@@ -452,7 +452,7 @@ LISPFUNN(subr_info,1)
             # DYNBIND_FRAME or CALLBACK_FRAME or ENV_FRAME
             if (frame_info & bit(envbind_bit_t)) {
               # ENV_FRAME
-              var object* ptr = &STACK_1;
+              var gcv_object_t* ptr = &STACK_1;
               switch (frame_info & envbind_case_mask_t) {
                 case (ENV1V_frame_info & envbind_case_mask_t): # 1 VAR_ENV
                   aktenv.var_env = *ptr; ptr skipSTACKop 1; break;
@@ -479,9 +479,9 @@ LISPFUNN(subr_info,1)
               }
             } else {
               # DYNBIND_FRAME
-              var object* new_STACK = topofframe(STACK_0); # Pointer to Frame
-              var object* frame_end = STACKpointable(new_STACK);
-              var object* bindingptr = &STACK_1; # start of the bindings
+              var gcv_object_t* new_STACK = topofframe(STACK_0); # Pointer to Frame
+              var gcv_object_t* frame_end = STACKpointable(new_STACK);
+              var gcv_object_t* bindingptr = &STACK_1; # start of the bindings
               # bindingptr iterates through the bindings
               until (bindingptr == frame_end) {
                 Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
@@ -534,7 +534,7 @@ global void progv (object symlist, object vallist) {
   # demand room on STACK:
   get_space_on_STACK(llength(symlist)*2*sizeof(object));
   # build frame:
-  var object* top_of_frame = STACK; # Pointer to Frame
+  var gcv_object_t* top_of_frame = STACK; # Pointer to Frame
   var object symlistr = symlist;
   while (consp(symlistr)) { # loop over symbol list
     var object sym = test_symbol_non_constant(S(progv),Car(symlistr));
@@ -568,7 +568,7 @@ global void progv (object symlist, object vallist) {
 # changes STACK,SP
 # can trigger GC
 # then jumps to the frame, which was found.
-nonreturning_function(global, unwind_upto, (object* upto_frame)) {
+nonreturning_function(global, unwind_upto, (gcv_object_t* upto_frame)) {
   unwind_back_trace(back_trace,upto_frame); /* _WHY_ is this necessary?!!! */
   unwind_protect_to_save.fun        = &unwind_upto;
   unwind_protect_to_save.upto_frame = upto_frame;
@@ -590,7 +590,7 @@ nonreturning_function(global, unwind_upto, (object* upto_frame)) {
 # throw_to(tag);
 global void throw_to (object tag) {
   # search for Catch-Frame with Tag = tag:
-  var object* FRAME = STACK;
+  var gcv_object_t* FRAME = STACK;
   loop { # search in the Stack starting at FRAME for a CATCH-Frame with the same Tag:
     if (eq(FRAME_(0),nullobj)) # end of Stack?
       return; # yes -> no suitable Catch there -> jump back
@@ -621,7 +621,7 @@ global void invoke_handlers (object cond) {
   var stack_range_t* other_ranges = inactive_handlers;
   var stack_range_t new_range;
   # Search for Handler-Frame, that handles a Type with (TYPEP cond type):
-  var object* FRAME = STACK;
+  var gcv_object_t* FRAME = STACK;
   loop { # search in Stack starting at FRAME for a suitable HANDLER-Frame:
     if (!(other_ranges == NULL) && (FRAME == other_ranges->low_limit)) {
       FRAME = other_ranges->high_limit;
@@ -650,11 +650,11 @@ global void invoke_handlers (object cond) {
             new_range.low_limit = STACK;
             new_range.high_limit = topofframe(FRAME_(0));
             new_range.next = other_ranges;
-            var object* top_of_frame = STACK;
+            var gcv_object_t* top_of_frame = STACK;
             var sp_jmp_buf returner; # return point
             finish_entry_frame(UNWIND_PROTECT,&!returner,, {
               var restartf_t fun = unwind_protect_to_save.fun;
-              var object* arg = unwind_protect_to_save.upto_frame;
+              var gcv_object_t* arg = unwind_protect_to_save.upto_frame;
               skipSTACK(2); # unwind Unwind-Protect-Frame
               # Cleanup: reactivate Handler:
               inactive_handlers = saved_inactive_handlers;
@@ -679,7 +679,7 @@ global void invoke_handlers (object cond) {
             } else {
               # call C-Handler:
               void* handler_fn = TheMachineCode(FRAME_(frame_closure));
-              ((void (*) (void*, object*, object, object)) handler_fn)
+              ((void (*) (void*, gcv_object_t*, object, object)) handler_fn)
                 ((void*)(aint)as_oint(FRAME_(frame_SP)),FRAME,
                  TheSvector(Car(FRAME_(frame_handlers)))->data[i+1],
                  STACK_(0+2));
@@ -717,7 +717,7 @@ global bool funnamep (object obj) {
 }
 
 /* UP: find whether the symbol is bound in the environment */
-local inline object* symbol_env_search (object sym, object venv)
+local inline gcv_object_t* symbol_env_search (object sym, object venv)
 {
   /* Does the binding at bindptr bind the symbol sym? */
 #ifdef NO_symbolflags
@@ -732,10 +732,10 @@ local inline object* symbol_env_search (object sym, object venv)
  next_env:
   if (framepointerp(venv)) {
     /* Environment is a Pointer to a variable-binding-frame */
-    var object* FRAME = TheFramepointer(venv);
+    var gcv_object_t* FRAME = TheFramepointer(venv);
     var uintL count = as_oint(FRAME_(frame_anz)); /* number of bindings */
     if (count > 0) {
-      var object* bindingsptr = &FRAME_(frame_bindings); /* 1st binding */
+      var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); /* 1st binding */
       dotimespL(count,count, {
         if (binds_sym_p(bindingsptr)) /* right symbol & active & static? */
           return bindingsptr STACKop varframe_binding_value;
@@ -747,7 +747,7 @@ local inline object* symbol_env_search (object sym, object venv)
   } else if (simple_vector_p(venv)) { /* environment is a simple-vector */
     do {
       var uintL count = floor(Svector_length(venv),2); /* number of bindings */
-      var object* ptr = &TheSvector(venv)->data[0];
+      var gcv_object_t* ptr = &TheSvector(venv)->data[0];
       dotimesL(count,count, {
         if (eq(*ptr,sym)) /* right symbol? */
           return ptr+1;
@@ -784,7 +784,7 @@ LISPFUN(special_variable_p,1,1,norest,nokey,0,NIL)
       /* it is not at all clear that we should accept VENV directly;
          we do, for now... */
     }
-    { var object *binding = symbol_env_search(symbol,env);
+    { var gcv_object_t *binding = symbol_env_search(symbol,env);
       if ((binding != NULL) && eq(*binding,specdecl))
         value1 = T;
       else value1 = NIL;
@@ -804,7 +804,7 @@ local object sym_value (object sym, object env)
     goto global_value;
   if (special_var_p(TheSymbol(sym))) # the same for symbols declared special
     goto global_value;
-  { var object *binding = symbol_env_search(sym,env);
+  { var gcv_object_t *binding = symbol_env_search(sym,env);
     if (binding != NULL && !eq(*binding,specdecl))
       return *binding;
   }
@@ -829,7 +829,7 @@ global void setq (object sym, object value)
 {
   if (special_var_p(TheSymbol(sym))) # the same for special declared symbols
     goto global_value;
-  { var object *binding = symbol_env_search(sym,aktenv.var_env);
+  { var gcv_object_t *binding = symbol_env_search(sym,aktenv.var_env);
     if (binding != NULL && !eq(*binding,specdecl)) {
       *binding = value;
       return;
@@ -858,10 +858,10 @@ global void setq (object sym, object value)
        next_env:
         if (framepointerp(env)) {
           # Environment is a Pointer to a function-binding-frame
-          var object* FRAME = TheFramepointer(env);
+          var gcv_object_t* FRAME = TheFramepointer(env);
           var uintL count = as_oint(FRAME_(frame_anz)); # number of bindings
           if (count > 0) {
-            var object* bindingsptr = &FRAME_(frame_bindings); # pointer to the first binding
+            var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); # pointer to the first binding
             dotimespL(count,count, {
               if (equal(*(bindingsptr STACKop 0),sym)) { # right Symbol?
                 value = *(bindingsptr STACKop 1); goto fertig;
@@ -881,7 +881,7 @@ global void setq (object sym, object value)
         # Environment is a Simple-Vector
         {
           var uintL count = floor(Svector_length(env),2); # number of bindings
-          var object* ptr = &TheSvector(env)->data[0];
+          var gcv_object_t* ptr = &TheSvector(env)->data[0];
           dotimesL(count,count, {
             if (equal(*ptr,sym)) { # right Symbol?
               value = *(ptr+1); goto fertig;
@@ -965,13 +965,13 @@ global Values eval_noenv (object form) {
         pushSTACK(env); # save env
         # execute nest_fun(NEXT_ENV(env)) "disrecursified" :-) :
         {
-          var object* FRAME = TheFramepointer(env);
+          var gcv_object_t* FRAME = TheFramepointer(env);
           env = FRAME_(frame_next_env); depth++; goto nest_start;
         }
        nest_reentry: depth--;
         # NEXT_ENV is now nested.
         {
-          var object* FRAME = TheFramepointer(STACK_0); # next STACK-Frame to be nested
+          var gcv_object_t* FRAME = TheFramepointer(STACK_0); # next STACK-Frame to be nested
           STACK_0 = env; # bisher genestetes Environment
           var uintL anzahl = as_oint(FRAME_(frame_anz)); # number of not yet netsted bindings
           if (anzahl == 0) {
@@ -982,8 +982,8 @@ global Values eval_noenv (object form) {
             env = allocate_vector(2*anzahl+1);
             # and fill:
             {
-              var object* ptr = &TheSvector(env)->data[0];
-              var object* bindingsptr = &FRAME_(frame_bindings); # Pointer to the first binding
+              var gcv_object_t* ptr = &TheSvector(env)->data[0];
+              var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); # Pointer to the first binding
               # put anzahl bindings starting at bindingsptr into the vector at ptr:
               dotimespL(anzahl,anzahl, {
                 *ptr++ = *(bindingsptr STACKop 0); # copy binding into the vector
@@ -1022,19 +1022,19 @@ global Values eval_noenv (object form) {
         pushSTACK(env); # save env
         # execute nest_var(NEXT_ENV(env)) "disrecursified" :-) :
         {
-          var object* FRAME = TheFramepointer(env);
+          var gcv_object_t* FRAME = TheFramepointer(env);
           env = FRAME_(frame_next_env); depth++; goto nest_start;
         }
        nest_reentry: depth--;
         # NEXT_ENV is now nested.
         {
-          var object* FRAME = TheFramepointer(STACK_0); # next STACK-Frame to be nested
+          var gcv_object_t* FRAME = TheFramepointer(STACK_0); # next STACK-Frame to be nested
           STACK_0 = env; # formerly nested Environment
           # Search (from bottom) the first active among the not yet
           # nested bindings:
           var uintL anzahl = as_oint(FRAME_(frame_anz)); # number of not yet nested bindings
           var uintL count = 0;
-          var object* bindingsptr = &FRAME_(frame_bindings); # Pointer to the first binding
+          var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); # Pointer to the first binding
           until ((count>=anzahl) # all unnested bindings through?
                  || (as_oint(*(bindingsptr STACKop 0)) & wbit(active_bit_o))) { # discovered active binding?
             # no -> continue search:
@@ -1052,7 +1052,7 @@ global Values eval_noenv (object form) {
             env = allocate_vector(2*anzahl+1);
             # and fill:
             {
-              var object* ptr = &TheSvector(env)->data[0];
+              var gcv_object_t* ptr = &TheSvector(env)->data[0];
               # put bindungs starting at bindingsptr in the vector at ptr:
               dotimespL(anzahl,anzahl, {
                 if (as_oint(*(bindingsptr STACKop varframe_binding_mark)) & wbit(dynam_bit_o)) { # binding dynamic?
@@ -1106,7 +1106,7 @@ global Values eval_noenv (object form) {
         # pseudo-recursion: nests a GO_ENV.
         # Input: env, a GO_ENV. Output: env, with Alist.
        nest_go_start: # start of recursion
-        var object* FRAME;
+        var gcv_object_t* FRAME;
         if (framepointerp(env)) {
           # env is a pointer into the STACK to a ITAGBODY-frame.
           check_STACK();
@@ -1123,8 +1123,8 @@ global Values eval_noenv (object form) {
               var object frame = STACK_0; # next to be nested STACK-Frame
               FRAME = uTheFramepointer(frame);
               STACK_0 = env; # so far nested Environment
-              var object* tagsptr = &FRAME_(frame_bindings); # Pointer to the bottom Tag
-              var object* frame_end = STACKpointable(topofframe(FRAME_(0))); # Pointer to Frame
+              var gcv_object_t* tagsptr = &FRAME_(frame_bindings); # Pointer to the bottom Tag
+              var gcv_object_t* frame_end = STACKpointable(topofframe(FRAME_(0))); # Pointer to Frame
               var uintL count = # number of tags
                 # subtract the pointers tagsptr and frame_end (both without Typinfo!):
                 STACK_item_count(tagsptr,frame_end) / 2;
@@ -1133,7 +1133,7 @@ global Values eval_noenv (object form) {
                 var object tagvec = allocate_vector(count);
                 # and fill:
                 if (count > 0) {
-                  var object* ptr = &TheSvector(tagvec)->data[0];
+                  var gcv_object_t* ptr = &TheSvector(tagvec)->data[0];
                   # put tags starting at tagsptr in the vector at ptr:
                   dotimespL(count,count, {
                     *ptr++ = *(tagsptr STACKop 0);
@@ -1170,7 +1170,7 @@ global Values eval_noenv (object form) {
         # Pseudo-Recursion: nests a BLOCK_ENV.
         # Input: env, a BLOCK_ENV. Output: env, with Aliste.
        nest_block_start: # start of recursion
-        var object* FRAME;
+        var gcv_object_t* FRAME;
         if (framepointerp(env)) {
           # env is a pointer into the STACK to a IBLOCK-Frame.
           check_STACK();
@@ -1496,7 +1496,7 @@ global Values eval_noenv (object form) {
 global void bindhooks (object evalhook_value, object applyhook_value) {
   # build frame:
   {
-    var object* top_of_frame = STACK; # Pointer to Frame
+    var gcv_object_t* top_of_frame = STACK; # Pointer to Frame
     pushSTACK(Symbol_value(S(evalhookstern)));  # old value of *EVALHOOK*
     pushSTACK(S(evalhookstern));                # *EVALHOOK*
     pushSTACK(Symbol_value(S(applyhookstern))); # old value of *APPLYHOOK*
@@ -1706,7 +1706,7 @@ local object lambdabody_source (object lambdabody) {
       pushSTACK(value1); # Body
       pushSTACK(value2); # Declarations
       pushSTACK(value3); # Doc-String or NIL
-      var object* closure_; # Pointer to the Closure in the STACK
+      var gcv_object_t* closure_; # Pointer to the Closure in the STACK
       # create Closure (filled with NIL):
       {
         var object closure = allocate_closure(iclos_length);
@@ -2043,7 +2043,7 @@ local object lambdabody_source (object lambdabody) {
       var object varflags = popSTACK();
       # write variables in the Vector (last one to the back, leading ones in front):
       {
-        var object* ptr = &TheSvector(vars)->data[var_count];
+        var gcv_object_t* ptr = &TheSvector(vars)->data[var_count];
         var uintB* ptrflags = &TheSbvector(varflags)->data[var_count-spec_count];
         var uintC count;
         dotimesC(count,var_count-spec_count, {
@@ -2069,14 +2069,14 @@ local object lambdabody_source (object lambdabody) {
       if (!(spec_count==0)) {
         # loop over the remaining variables:
         if (var_count-spec_count > 0) {
-          var object* othervarptr = &TheSvector(vars)->data[spec_count];
+          var gcv_object_t* othervarptr = &TheSvector(vars)->data[spec_count];
           var uintB* othervarflagsptr = &TheSbvector(varflags)->data[0];
           var uintC count1;
           dotimespC(count1,var_count-spec_count, {
             var object othervar = *othervarptr++; # next variable
             # Search it among the SPECIAL-declared variables:
             {
-              var object* specvarptr = &TheSvector(vars)->data[0];
+              var gcv_object_t* specvarptr = &TheSvector(vars)->data[0];
               var uintC count2;
               dotimespC(count2,spec_count, {
                 if (eq(*specvarptr++,othervar)) { # found?
@@ -2265,13 +2265,13 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
 # Test for illegal keywords
 # check_for_illegal_keywords(allow_flag,fehler_statement);
 # > uintC argcount: Number of Keyword/Value-pairs
-# > object* rest_args_pointer: Pointer to the 2*argcount remaining arguments
+# > gcv_object_t* rest_args_pointer: Pointer to the 2*argcount remaining arguments
 # > bool allow_flag: Flag, if &ALLOW-OTHER-KEYS was specified
 # > for_every_keyword: Macro, which loops over all Keywords and assigns
 #                      them to 'keyword'.
 # > fehler_statement: Statement, that reports, that bad_keyword is illegal.
   #define check_for_illegal_keywords(allow_flag_expr,fehler_statement)  \
-    { var object* argptr = rest_args_pointer; # Pointer to the arguments    \
+    { var gcv_object_t* argptr = rest_args_pointer; # Pointer to the arguments \
       var object bad_keyword = nullobj; # first illegal keyword or nullobj  \
       var bool allow_flag = # Flag for allow-other-keys (if                 \
         # &ALLOW-OTHER-KEYS was specified or ':ALLOW-OTHER-KEY T' occurred) \
@@ -2318,11 +2318,11 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
 # find_keyword_value( notfound_statement, found_statement );
 # > keyword: Keyword
 # > uintC argcount: Number of Keyword/Value-Pairs
-# > object* rest_args_pointer: Pointer to the 2*argcount remaining Arguments
+# > gcv_object_t* rest_args_pointer: Pointer to the 2*argcount remaining Arguments
 # > notfound_statement: what is to be done, if not found
 # > found_statement: what is to be done, if value found
   #define find_keyword_value(notfound_statement,found_statement)  \
-    { var object* argptr = rest_args_pointer;                             \
+    { var gcv_object_t* argptr = rest_args_pointer;                       \
       var uintC find_count;                                               \
       dotimesC(find_count,argcount, {                                     \
         if (eq(NEXT(argptr),keyword)) goto kw_found; # right keyword?     \
@@ -2346,10 +2346,10 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
 # < mv_count/mv_space: values
 # < STACK: cleaned up, = args_pointer
 # can trigger GC
-  local Values funcall_iclosure (object closure, object* args_pointer, uintC argcount);
+  local Values funcall_iclosure (object closure, gcv_object_t* args_pointer, uintC argcount);
   local Values funcall_iclosure(closure,args_pointer,argcount)
     var object closure;
-    var object* args_pointer;
+    var gcv_object_t* args_pointer;
     var uintC argcount;
     {
       # 1. step: finish building ofAPPLY-frame:
@@ -2360,7 +2360,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
       }
       #endif
       {
-        var object* top_of_frame = args_pointer; # Pointer to frame
+        var gcv_object_t* top_of_frame = args_pointer; # Pointer to frame
         pushSTACK(closure);
         finish_entry_frame(APPLY,&!my_jmp_buf,,{
             if (mv_count==0) { # after reentry: pass form?
@@ -2373,16 +2373,16 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
             }
           });
       }
-      var object* closure_ = &STACK_(frame_closure); # Pointer to the closure
-      var object* frame_pointer; # Pointer to Frame
+      var gcv_object_t* closure_ = &STACK_(frame_closure); # Pointer to the closure
+      var gcv_object_t* frame_pointer; # Pointer to Frame
       # 2. Schritt: build variable-binding-frame:
       {
-        var object* top_of_frame = STACK; # Pointer to Frame
+        var gcv_object_t* top_of_frame = STACK; # Pointer to Frame
         var object vars = TheIclosure(closure)->clos_vars; # Vector of variable-names
         var uintL var_count = Svector_length(vars); # number of variables
         get_space_on_STACK(var_count * 2 * sizeof(object)); # reserve space
         {
-          var object* varptr = &TheSvector(vars)->data[0]; # Pointer to variables in vector
+          var gcv_object_t* varptr = &TheSvector(vars)->data[0]; # Pointer to variables in vector
           var uintC spec_count = posfixnum_to_L(TheIclosure(closure)->clos_spec_anz);
           var uintC count;
           # the special-references first:
@@ -2436,7 +2436,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
         # (takes advantage of varframe_binding_mark = 0 !)
         #define bind_next_var(value,markptr_zuweisung)  \
           { frame_pointer skipSTACKop -varframe_binding_size;                                  \
-           {var object* markptr = markptr_zuweisung &Before(frame_pointer);                    \
+           {var gcv_object_t* markptr = markptr_zuweisung &Before(frame_pointer);              \
             if (as_oint(*markptr) & wbit(dynam_bit_o))                                         \
               # activate dynamic Binding:                                                      \
               { var object sym = *(markptr STACKop varframe_binding_sym); # variable           \
@@ -2481,7 +2481,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
                 goto optional_aus;
               argcount--;
               var object next_arg = NEXT(args_pointer); # next argument
-              var object* optmarkptr;
+              var gcv_object_t* optmarkptr;
               bind_next_var(next_arg,optmarkptr=); # bind next variable
               if (as_oint(*optmarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter follows?
                 *optmarkptr = as_object(as_oint(*optmarkptr) & ~wbit(svar_bit_o));
@@ -2499,7 +2499,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
             var object inits = STACK_0; # remaining Initforms
             STACK_0 = Cdr(inits);
             inits = (eval(Car(inits)),value1); # next Initform, evaluated
-            var object* optmarkptr;
+            var gcv_object_t* optmarkptr;
             bind_next_var(inits,optmarkptr=); # bind next variable
             if (as_oint(*optmarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter follows?
               *optmarkptr = as_object(as_oint(*optmarkptr) & ~wbit(svar_bit_o));
@@ -2518,7 +2518,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
               var object inits = STACK_0; # remaining Initforms
               STACK_0 = Cdr(inits);
               inits = (eval(Car(inits)),value1); # next Initform, evaluated
-              var object* keymarkptr;
+              var gcv_object_t* keymarkptr;
               bind_next_var(inits,keymarkptr=); # bind next Variable
               if (as_oint(*keymarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter follows?
                 *keymarkptr = as_object(as_oint(*keymarkptr) & ~wbit(svar_bit_o));
@@ -2547,7 +2547,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
             # yes -> collect residual arguments in a list:
             pushSTACK(NIL); # start of list
             if (argcount>0) {
-              var object* ptr = args_pointer STACKop -(uintP)argcount;
+              var gcv_object_t* ptr = args_pointer STACKop -(uintP)argcount;
               var uintC count;
               dotimespC(count,argcount, {
                 var object new_cons = allocate_cons();
@@ -2563,7 +2563,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
           # process &KEY-parameters:
           if (!numberp(TheIclosure(closure)->clos_keywords)) {
             # Keyword-parameters present
-            var object* rest_args_pointer = args_pointer;
+            var gcv_object_t* rest_args_pointer = args_pointer;
             # argcount = number of remaining arguments
             # halve argcount --> number of pairs Key.Value:
             if (!((argcount%2)==0))
@@ -2611,7 +2611,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
                     }
                     );
                   {
-                    var object* keymarkptr;
+                    var gcv_object_t* keymarkptr;
                     bind_next_var(var_value,keymarkptr=); # bind Keyword-Variable
                     if (as_oint(*keymarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter follows?
                       *keymarkptr = as_object(as_oint(*keymarkptr) & ~wbit(svar_bit_o));
@@ -2660,12 +2660,12 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
 # > rest_args_pointer: Pointer to the remaining arguments in the STACK
 # < STACK: set correctly
 # changes STACK
-  local void match_subr_key (object fun, uintL argcount, object* key_args_pointer, object* rest_args_pointer);
+  local void match_subr_key (object fun, uintL argcount, gcv_object_t* key_args_pointer, gcv_object_t* rest_args_pointer);
   local void match_subr_key(fun,argcount,key_args_pointer,rest_args_pointer)
     var object fun;
     var uintL argcount;
-    var object* key_args_pointer;
-    var object* rest_args_pointer;
+    var gcv_object_t* key_args_pointer;
+    var gcv_object_t* rest_args_pointer;
     {
       # halve argcount --> the number of pairs Key.Value:
       if (!((argcount%2)==0))
@@ -2677,16 +2677,16 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
       argcount = argcount/2;
       # test for illegal Keywords:
       {
-        var object* keywords_pointer = &TheSvector(TheSubr(fun)->keywords)->data[0];
+        var gcv_object_t* keywords_pointer = &TheSvector(TheSubr(fun)->keywords)->data[0];
         var uintC key_anz = TheSubr(fun)->key_anz;
         #define for_every_keyword(statement)  \
-          if (key_anz > 0)                               \
-            { var object* keywordptr = keywords_pointer; \
-              var uintC count;                           \
-              dotimespC(count,key_anz,                   \
-                { var object keyword = *keywordptr++;    \
-                  statement;                             \
-                });                                      \
+          if (key_anz > 0)                                     \
+            { var gcv_object_t* keywordptr = keywords_pointer; \
+              var uintC count;                                 \
+              dotimespC(count,key_anz,                         \
+                { var object keyword = *keywordptr++;          \
+                  statement;                                   \
+                });                                            \
             }
         check_for_illegal_keywords(
           TheSubr(fun)->key_flag == subr_key_allow,
@@ -2701,8 +2701,8 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
         #undef for_every_keyword
       # now assign Arguments and Parameters:
         if (key_anz > 0) {
-          var object* keywordptr = keywords_pointer;
-          var object* key_args_ptr = key_args_pointer;
+          var gcv_object_t* keywordptr = keywords_pointer;
+          var gcv_object_t* key_args_ptr = key_args_pointer;
           var uintC count;
           dotimespC(count,key_anz, {
             var object keyword = *keywordptr++; # Keyword
@@ -2737,12 +2737,12 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
 # < ergebnis: closure
 # changes STACK
 # can trigger GC
-  local object match_cclosure_key (object closure, uintL argcount, object* key_args_pointer, object* rest_args_pointer);
+  local object match_cclosure_key (object closure, uintL argcount, gcv_object_t* key_args_pointer, gcv_object_t* rest_args_pointer);
   local object match_cclosure_key(closure,argcount,key_args_pointer,rest_args_pointer)
     var object closure;
     var uintL argcount;
-    var object* key_args_pointer;
-    var object* rest_args_pointer;
+    var gcv_object_t* key_args_pointer;
+    var gcv_object_t* rest_args_pointer;
     {
       # halve argcount --> number of pairs Key.Value:
       if (!((argcount%2)==0))
@@ -2756,20 +2756,20 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
       {
         var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # number of Keywords
         var uintL keywords_offset = TheCodevec(codevec)->ccv_keyconsts; # Offset of Keywords in FUNC
-        var object* keywords_pointer = # points to the first Keyword
+        var gcv_object_t* keywords_pointer = # points to the first Keyword
           (TheCodevec(codevec)->ccv_flags & bit(4) # generic function?
            ? &TheSvector(TheCclosure(closure)->clos_consts[0])->data[keywords_offset]
            : &TheCclosure(closure)->clos_consts[keywords_offset]
           );
       # test for illegal Keywords:
         #define for_every_keyword(statement)  \
-          if (key_anz > 0)                               \
-            { var object* keywordptr = keywords_pointer; \
-              var uintC count;                           \
-              dotimespC(count,key_anz,                   \
-                { var object keyword = *keywordptr++;    \
-                  statement;                             \
-                });                                      \
+          if (key_anz > 0)                                     \
+            { var gcv_object_t* keywordptr = keywords_pointer; \
+              var uintC count;                                 \
+              dotimespC(count,key_anz,                         \
+                { var object keyword = *keywordptr++;          \
+                  statement;                                   \
+                });                                            \
             }
         check_for_illegal_keywords(
           !((TheCodevec(codevec)->ccv_flags & bit(6)) == 0),
@@ -2785,8 +2785,8 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
         #undef for_every_keyword
       # now assign Arguments and Parameters:
         if (key_anz > 0) {
-          var object* keywordptr = keywords_pointer;
-          var object* key_args_ptr = key_args_pointer;
+          var gcv_object_t* keywordptr = keywords_pointer;
+          var gcv_object_t* key_args_ptr = key_args_pointer;
           var uintC count;
           dotimespC(count,key_anz, {
             var object keyword = *keywordptr++; # Keyword
@@ -2803,7 +2803,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
       # poss. process Rest-parameters:
       if (TheCodevec(codevec)->ccv_flags & bit(0)) { # Rest-Flag?
         # Closure with Keywords and &REST-Flag:
-        var object* rest_arg_ = &BEFORE(key_args_pointer); # Pointer to the REST-Parameter
+        var gcv_object_t* rest_arg_ = &BEFORE(key_args_pointer); # Pointer to the REST-Parameter
         if (!boundp(*rest_arg_)) {
           # must still be filed: handicraft list
           *rest_arg_ = closure; # save Closure
@@ -2860,7 +2860,7 @@ local Values eval_ffunction (object fun);
       var sp_jmp_buf my_jmp_buf;
       # build EVAL-frame:
       {
-        var object* top_of_frame = STACK; # Pointer to Frame
+        var gcv_object_t* top_of_frame = STACK; # Pointer to Frame
         pushSTACK(form); # Form
         finish_entry_frame(EVAL,&!my_jmp_buf,,
           {
@@ -2908,7 +2908,7 @@ global Values eval_no_hooks (object form) {
   var sp_jmp_buf my_jmp_buf;
   # build EVAL-Frame:
   {
-    var object* top_of_frame = STACK; # Pointer to Frame
+    var gcv_object_t* top_of_frame = STACK; # Pointer to Frame
     pushSTACK(form); # Form
     finish_entry_frame(EVAL,&!my_jmp_buf,,
     {
@@ -3062,7 +3062,7 @@ global Values eval_no_hooks (object form) {
       skipSTACK(1); # forget value of *APPLYHOOK*
       check_SP(); check_STACK();
       #if STACKCHECKS
-      var object* STACKbefore = STACK;
+      var gcv_object_t* STACKbefore = STACK;
       #endif
       # put arguments in the STACK:
       switch ((uintW)posfixnum_to_L(TheFsubr(fun)->argtype)) {
@@ -3238,8 +3238,8 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
       var object args = popSTACK(); # argument-list
       skipSTACK(1); # forget value of *APPLYHOOK*
       check_SP(); check_STACK();
-      var object* args_pointer = args_end_pointer; # Pointer to the arguments
-      var object* rest_args_pointer; # Pointer to the remaining arguments
+      var gcv_object_t* args_pointer = args_end_pointer; # Pointer to the arguments
+      var gcv_object_t* rest_args_pointer; # Pointer to the remaining arguments
       var uintL argcount; # number of remaining arguments
       # push arguments evaluated in the STACK:
       # first a Dispatch for most important cases:
@@ -3483,7 +3483,7 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
         # First initialize the Keyword-parameters with #<UNBOUND> , then
         # evaluate the remaining arguments and push into Stack, then
         # assign the Keywords:
-        var object* key_args_pointer = args_end_pointer; # Pointer to Keyword-parameters
+        var gcv_object_t* key_args_pointer = args_end_pointer; # Pointer to Keyword-parameters
         # initialize all Keyword-parameters with  #<UNBOUND> :
         {
           var uintC count;
@@ -3553,8 +3553,8 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
       # STACK-layout: EVAL-Frame.
       check_SP(); check_STACK();
       pushSTACK(closure); # save Closure
-      var object* closure_ = &STACK_0; # and memorize, where it is
-      var object* STACKbefore = STACK;
+      var gcv_object_t* closure_ = &STACK_0; # and memorize, where it is
+      var gcv_object_t* STACKbefore = STACK;
       if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
         # closure is a compiled Closure
         var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
@@ -3823,13 +3823,13 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
         goto done;
        apply_cclosure_key: # jump to Closure only with &KEY:
         {
-          var object* key_args_pointer = args_end_pointer; # Pointer to Keyword-Parameter
+          var gcv_object_t* key_args_pointer = args_end_pointer; # Pointer to Keyword-Parameter
           # initialize all Keyword-parameters with #<UNBOUND> :
           {
             var uintC count = TheCodevec(codevec)->ccv_numkey;
             dotimesC(count,count, { pushSTACK(unbound); } );
           }
-          var object* rest_args_pointer = args_end_pointer; # Pointer to the remaining arguments
+          var gcv_object_t* rest_args_pointer = args_end_pointer; # Pointer to the remaining arguments
           # evaluate all further arguments and push into Stack:
           var uintL argcount = 0; # counter for the remaining arguments
           do {
@@ -3883,7 +3883,7 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
         return; # finished
       } else {
         # closure is an interpreted Closure
-        var object* args_pointer = args_end_pointer; # Pointer to the arguments
+        var gcv_object_t* args_pointer = args_end_pointer; # Pointer to the arguments
         var uintC args_on_stack = 0; # Anzahl der Argumente
         while (consp(args)) {
           pushSTACK(Cdr(args)); # save rest of list
@@ -3933,7 +3933,7 @@ local Values eval_ffunction(object ffun) {
   check_SP(); check_STACK();
   pushSTACK(ffun); # Foreign-Function as 1. Argument
   {
-    var object* args_pointer = args_end_pointer; # Pointer to the arguments
+    var gcv_object_t* args_pointer = args_end_pointer; # Pointer to the arguments
     var uintC args_on_stack = 1; # number of arguments
     while (consp(args)) {
       pushSTACK(Cdr(args)); # save list-rest
@@ -4029,7 +4029,7 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
        call_ffunction:
         # Therefore first shift down the arguments in Stack by 1.
         var uintC count;
-        var object* ptr = &STACK_0;
+        var gcv_object_t* ptr = &STACK_0;
         dotimesC(count,args_on_stack, {
           *(ptr STACKop -1) = *ptr; ptr skipSTACKop 1;
         });
@@ -4095,10 +4095,10 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
     var object args;
     {
       #if STACKCHECKS
-      var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the arguments
+      var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the arguments
       #endif
-      var object* key_args_pointer; # Pointer to the Keyword-Arguments
-      var object* rest_args_pointer; # Pointer to the remaining Arguments
+      var gcv_object_t* key_args_pointer; # Pointer to the Keyword-Arguments
+      var gcv_object_t* rest_args_pointer; # Pointer to the remaining Arguments
       var uintL argcount; # number of remaining Arguments
       #ifdef DEBUG_EVAL
       if (streamp(Symbol_value(S(funcall_trace_output)))) {
@@ -4369,9 +4369,9 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
         argcount = args_on_stack;
         get_space_on_STACK(sizeof(object) * (uintL)key_anz);
         {
-          var object* new_args_end_pointer = args_end_pointer STACKop -(uintP)key_anz;
-          var object* ptr1 = args_end_pointer;
-          var object* ptr2 = new_args_end_pointer;
+          var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)key_anz;
+          var gcv_object_t* ptr1 = args_end_pointer;
+          var gcv_object_t* ptr2 = new_args_end_pointer;
           var uintC count;
           dotimesC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
           key_args_pointer = ptr1;
@@ -4461,11 +4461,11 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
       if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
         # closure is a compiled Closure
         #if STACKCHECKC
-        var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the arguments
+        var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the arguments
         #endif
         var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
-        var object* key_args_pointer; # Pointer to the Keyword-arguments
-        var object* rest_args_pointer; # Pointer to the remaining arguments
+        var gcv_object_t* key_args_pointer; # Pointer to the Keyword-arguments
+        var gcv_object_t* rest_args_pointer; # Pointer to the remaining arguments
         var uintL argcount; # number of remaining arguments
         check_SP(); check_STACK();
         # put argumente in STACK:
@@ -4782,9 +4782,9 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
               shift++; # poss. 1 more for Rest-Parameter
             argcount = args_on_stack;
             get_space_on_STACK(sizeof(object) * shift);
-            var object* new_args_end_pointer = args_end_pointer STACKop -(uintP)shift;
-            var object* ptr1 = args_end_pointer;
-            var object* ptr2 = new_args_end_pointer;
+            var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)shift;
+            var gcv_object_t* ptr1 = args_end_pointer;
+            var gcv_object_t* ptr2 = new_args_end_pointer;
             var uintC count;
             dotimesC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
             if (flags & bit(0))
@@ -4796,7 +4796,7 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
             if (flags & bit(0))
               # fill Rest-Parameter, less effort than with match_cclosure_key:
               if (args_on_stack > 0) {
-                var object* ptr3 = new_args_end_pointer;
+                var gcv_object_t* ptr3 = new_args_end_pointer;
                 pushSTACK(closure); # save Closure
                 pushSTACK(args); # save args
                 dotimespC(count,args_on_stack, {
@@ -4944,7 +4944,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
        call_ffunction:
         # First shift down the arguments in Stack by 1.
         var uintC count;
-        var object* ptr = &STACK_0;
+        var gcv_object_t* ptr = &STACK_0;
         dotimesC(count,args_on_stack, {
           *(ptr STACKop -1) = *ptr; ptr skipSTACKop 1;
         });
@@ -4975,10 +4975,10 @@ local Values funcall_closure (object fun, uintC args_on_stack);
     var uintC args_on_stack;
     {
       #if STACKCHECKS
-      var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the arguments
+      var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the arguments
       #endif
-      var object* key_args_pointer; # Pointer to the Keyword-arguments
-      var object* rest_args_pointer; # Pointer to the remaining arguments
+      var gcv_object_t* key_args_pointer; # Pointer to the Keyword-arguments
+      var gcv_object_t* rest_args_pointer; # Pointer to the remaining arguments
       var uintL argcount; # number of remaining arguments
       #ifdef DEBUG_EVAL
       if (streamp(Symbol_value(S(funcall_trace_output)))) {
@@ -5266,9 +5266,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         argcount = args_on_stack; # (> 0)
         get_space_on_STACK(sizeof(object) * (uintL)key_anz);
         {
-          var object* new_args_end_pointer = args_end_pointer STACKop -(uintP)key_anz;
-          var object* ptr1 = args_end_pointer;
-          var object* ptr2 = new_args_end_pointer;
+          var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)key_anz;
+          var gcv_object_t* ptr1 = args_end_pointer;
+          var gcv_object_t* ptr2 = new_args_end_pointer;
           var uintC count;
           dotimespC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
           key_args_pointer = ptr1;
@@ -5329,11 +5329,11 @@ local Values funcall_closure (object fun, uintC args_on_stack);
       if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
         # closure is a compiled Closure
         #if STACKCHECKC
-        var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the Arguments
+        var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the Arguments
         #endif
         var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
-        var object* key_args_pointer; # Pointer to the Keyword-Arguments
-        var object* rest_args_pointer; # Pointer to the remaining Arguments
+        var gcv_object_t* key_args_pointer; # Pointer to the Keyword-Arguments
+        var gcv_object_t* rest_args_pointer; # Pointer to the remaining Arguments
         var uintL argcount; # number of remaining Arguments
         check_SP(); check_STACK();
         # store arguments in STACK:
@@ -5702,9 +5702,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               shift++; # poss. 1 more for Rest-Parameter
             argcount = args_on_stack;
             get_space_on_STACK(sizeof(object) * shift);
-            var object* new_args_end_pointer = args_end_pointer STACKop -(uintP)shift;
-            var object* ptr1 = args_end_pointer;
-            var object* ptr2 = new_args_end_pointer;
+            var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)shift;
+            var gcv_object_t* ptr1 = args_end_pointer;
+            var gcv_object_t* ptr2 = new_args_end_pointer;
             var uintC count;
             dotimesC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
             if (flags & bit(0))
@@ -5856,7 +5856,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
       }
       #endif
       # situate closure in STACK, below the arguments:
-      var object* closureptr = (pushSTACK(closure), &STACK_0);
+      var gcv_object_t* closureptr = (pushSTACK(closure), &STACK_0);
       #ifndef FAST_SP
         # If there is no fast SP-Access, one has to introduce
         # an extra pointer:
@@ -6378,7 +6378,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(k1);
             U_operand(k2);
             U_operand(n);
-            var object* FRAME = (object*) SP_(k1+jmpbufsize*k2);
+            var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
             VALUES1(FRAME_(n));
           }
           goto next_byte;
@@ -6390,7 +6390,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(k1);
             U_operand(k2);
             U_operand(n);
-            var object* FRAME = (object*) SP_(k1+jmpbufsize*k2);
+            var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
             pushSTACK(FRAME_(n));
           }
           goto next_byte;
@@ -6448,7 +6448,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(k2);
             U_operand(n);
             U_operand(m);
-            var object* FRAME = (object*) SP_(k1+jmpbufsize*k2);
+            var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
             VALUES1(TheSvector(FRAME_(n))->data[1+m]);
           }
           goto next_byte;
@@ -6475,7 +6475,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(k1);
             U_operand(k2);
             U_operand(n);
-            var object* FRAME = (object*) SP_(k1+jmpbufsize*k2);
+            var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
             VALUES1(FRAME_(n) = value1);
           }
           goto next_byte;
@@ -6517,7 +6517,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(k2);
             U_operand(n);
             U_operand(m);
-            var object* FRAME = (object*) SP_(k1+jmpbufsize*k2);
+            var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
             TheSvector(FRAME_(n))->data[1+m] = value1; mv_count=1;
           }
           goto next_byte;
@@ -6577,9 +6577,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           #endif
           # unwind variable-binding-frame:
           {
-            var object* new_STACK = topofframe(STACK_0); # pointer above frame
-            var object* frame_end = STACKpointable(new_STACK);
-            var object* bindingptr = &STACK_1; # begin of bindings
+            var gcv_object_t* new_STACK = topofframe(STACK_0); # pointer above frame
+            var gcv_object_t* frame_end = STACKpointable(new_STACK);
+            var gcv_object_t* bindingptr = &STACK_1; # begin of bindings
             # bindingptr loops upwards through the bindings
             until (bindingptr == frame_end) {
               # write back old value:
@@ -6594,16 +6594,16 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var uintC n;
             U_operand(n); # n>0
-            var object* FRAME = STACK;
+            var gcv_object_t* FRAME = STACK;
             do {
               #if STACKCHECKC
               if (!(framecode(FRAME_(0)) == DYNBIND_frame_info))
                 goto fehler_STACK_putt;
               #endif
               # unwind variable-binding-frame:
-              var object* new_FRAME = topofframe(FRAME_(0)); # pointer above frame
-              var object* frame_end = STACKpointable(new_FRAME);
-              var object* bindingptr = &FRAME_(1); # begin of the bindings
+              var gcv_object_t* new_FRAME = topofframe(FRAME_(0)); # pointer above frame
+              var gcv_object_t* frame_end = STACKpointable(new_FRAME);
+              var gcv_object_t* bindingptr = &FRAME_(1); # begin of the bindings
               # bindingptr loops upwards through the bindings
               until (bindingptr == frame_end) {
                 # write back old value:
@@ -6646,8 +6646,8 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(k2);
             U_operand(n);
             skipSP(k1+jmpbufsize*k2);
-            var object* newSTACK;
-            popSP( newSTACK = (object*) );
+            var gcv_object_t* newSTACK;
+            popSP( newSTACK = (gcv_object_t*) );
             setSTACK(STACK = newSTACK STACKop n);
           }
           goto next_byte;
@@ -6786,8 +6786,8 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(m);
             U_operand(n);
             # It is n>=m. Copy m stack-entries upwards by n-m :
-            var object* ptr1 = STACK STACKop m;
-            var object* ptr2 = STACK STACKop n;
+            var gcv_object_t* ptr1 = STACK STACKop m;
+            var gcv_object_t* ptr2 = STACK STACKop n;
             var uintC count;
             dotimesC(count,m, { NEXT(ptr2) = NEXT(ptr1); } );
             # Now ptr1 = STACK and ptr2 = STACK STACKop (n-m).
@@ -6835,7 +6835,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             {
               var uintL n;
               U_operand(n);
-              var object* newptr = &TheCclosure(newclos)->clos_consts[n];
+              var gcv_object_t* newptr = &TheCclosure(newclos)->clos_consts[n];
               dotimespL(n,n, { *--newptr = popSTACK(); } );
             }
             VALUES1(newclos);
@@ -6863,7 +6863,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             {
               var uintL n;
               U_operand(n);
-              var object* newptr = &TheCclosure(newclos)->clos_consts[n];
+              var gcv_object_t* newptr = &TheCclosure(newclos)->clos_consts[n];
               dotimespL(n,n, { *--newptr = popSTACK(); } );
             }
             pushSTACK(newclos);
@@ -7162,7 +7162,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           goto next_byte;
         CASE cod_mvcall:                 # (MVCALL)
           {
-            var object* FRAME; popSP( FRAME = (object*) ); # Pointer to Arguments and Function
+            var gcv_object_t* FRAME; popSP( FRAME = (gcv_object_t*) ); # Pointer to Arguments and Function
             var object fun = NEXT(FRAME); # Function
             with_saved_context({
               var uintL argcount = # number of arguments on stack
@@ -7199,7 +7199,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             pushSP(label_dist); pushSP((aint)closureptr);
             # build up CBLOCK-Frame:
             {
-              var object* top_of_frame = STACK; # Pointer above Frame
+              var gcv_object_t* top_of_frame = STACK; # Pointer above Frame
               pushSTACK(block_cons); # Cons ( (CONST n) . ...)
               var JMPBUF_on_SP(returner); # memorize return-point
               finish_entry_frame_1(CBLOCK,returner, goto block_return; );
@@ -7216,7 +7216,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             Cdr(popSTACK()) = disabled; # Block-Cons as Disabled
             var uintL index;
             # get closure back, byteptr:=label_byteptr :
-            popSP(closureptr = (object*) ); popSP(index = );
+            popSP(closureptr = (gcv_object_t*) ); popSP(index = );
             closure = *closureptr; # fetch Closure from Stack
             codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
             byteptr = CODEPTR + index;
@@ -7256,7 +7256,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(k1);
             U_operand(k2);
             U_operand(n);
-            var object* FRAME = (object*) SP_(k1+jmpbufsize*k2);
+            var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
             var object block_cons = FRAME_(n);
             if (eq(Cdr(block_cons),disabled))
               fehler_block_left(Car(block_cons));
@@ -7295,7 +7295,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             pushSP((aint)closureptr);
             # build upCTAGBODY-Frame:
             {
-              var object* top_of_frame = STACK; # Pointer above Frame
+              var gcv_object_t* top_of_frame = STACK; # Pointer above Frame
               pushSTACK(tagbody_cons); # Cons ( (CONST n) . ...)
               var JMPBUF_on_SP(returner); # memorize return-point
               finish_entry_frame_1(CTAGBODY,returner, goto tagbody_go; );
@@ -7312,7 +7312,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var uintL i = posfixnum_to_L(value1); # Number of Labels
             var uintL index = posfixnum_to_L(STACK_((m-i)+3)); # labeli
             # get closure back, byteptr:=labeli_byteptr :
-            closureptr = (object*) SP_(jmpbufsize+0);
+            closureptr = (gcv_object_t*) SP_(jmpbufsize+0);
             closure = *closureptr; # fetch Closure from Stack
             codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
             byteptr = CODEPTR + index;
@@ -7353,7 +7353,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             # value passed to the Tagbody:
             # For CTAGBODY-Frames: 1+l as Fixnum,
             # For ITAGBODY-Frames: the form-list for Tag nr. l.
-            var object* FRAME = uTheFramepointer(Cdr(tagbody_cons));
+            var gcv_object_t* FRAME = uTheFramepointer(Cdr(tagbody_cons));
             VALUES1(framecode(FRAME_(0)) == CTAGBODY_frame_info
                    ? fixnum(1+l)
                    : FRAME_(frame_bindings+2*l+1));
@@ -7374,7 +7374,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(k2);
             U_operand(n);
             U_operand(l);
-            var object* FRAME = (object*) SP_(k1+jmpbufsize*k2);
+            var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
             var object tagbody_cons = FRAME_(n);
             if (eq(Cdr(tagbody_cons),disabled)) {
               var object tag_vector = Car(tagbody_cons);
@@ -7386,7 +7386,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             }
             # value passed to Tagbody:
             # For CTAGBODY-Frames 1+l as Fixnum.
-            var object* FRAME = uTheFramepointer(Cdr(tagbody_cons));
+            var gcv_object_t* FRAME = uTheFramepointer(Cdr(tagbody_cons));
             VALUES1(fixnum(1+l));
             # unwind upto Tagbody-Frame, then jump to its Routine,
             # which then jumps to Label l:
@@ -7406,7 +7406,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           }
           # build up Frame:
           {
-            var object* top_of_frame = STACK;
+            var gcv_object_t* top_of_frame = STACK;
             pushSTACK(value1); # Tag
             var JMPBUF_on_SP(returner); # memorize return-point
             finish_entry_frame_1(CATCH,returner, goto catch_return; );
@@ -7419,7 +7419,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             skipSTACK(3); # unwind CATCH-Frame
             var uintL index;
             # get closure back, byteptr:=label_byteptr :
-            popSP(closureptr = (object*) ); popSP(index = );
+            popSP(closureptr = (gcv_object_t*) ); popSP(index = );
             closure = *closureptr; # fetch Closure from Stack
             codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
             byteptr = CODEPTR + index;
@@ -7433,7 +7433,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           #endif
           FREE_JMPBUF_on_SP();
           #if STACKCHECKC
-          if (!(closureptr == (object*)SP_(0))) # that Closureptr must be the current one
+          if (!(closureptr == (gcv_object_t*)SP_(0))) # that Closureptr must be the current one
             goto fehler_STACK_putt;
           #endif
           skipSP(2); skipSTACK(3); # unwind CATCH-Frame
@@ -7458,7 +7458,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           }
           # build Frame:
           {
-            var object* top_of_frame = STACK;
+            var gcv_object_t* top_of_frame = STACK;
             var JMPBUF_on_SP(returner); # memorize return-point
             finish_entry_frame_1(UNWIND_PROTECT,returner, goto throw_save; );
           }
@@ -7477,7 +7477,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var uintL index;
             # get closure back, byteptr:=label_byteptr :
-            popSP(closureptr = (object*) );
+            popSP(closureptr = (gcv_object_t*) );
             popSP(index = );
             # save unwind_protect_to_save:
             pushSP((aint)unwind_protect_to_save.fun);
@@ -7495,7 +7495,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           #if STACKCHECKC
           if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
             goto fehler_STACK_putt;
-          if (!(closureptr == (object*)SP_(jmpbufsize+0))) # that Closureptr must be the current one
+          if (!(closureptr == (gcv_object_t*)SP_(jmpbufsize+0))) # that Closureptr must be the current one
             goto fehler_STACK_putt;
           #endif
           # unwind Frame:
@@ -7512,8 +7512,8 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         CASE cod_uwp_close:              # (UNWIND-PROTECT-CLOSE)
           # jump to this labe takes place at the end of the Cleanup-Forms.
           {
-            var object* oldSTACK; # value of STACK before saveing the values
-            popSP( oldSTACK = (object*) );
+            var gcv_object_t* oldSTACK; # value of STACK before saveing the values
+            popSP( oldSTACK = (gcv_object_t*) );
             var uintL mvcount = # number of saved values on Stack
               STACK_item_count(STACK,oldSTACK);
             if (mvcount >= mv_limit) goto fehler_zuviele_werte;
@@ -7521,14 +7521,14 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           }
           { /* return to the saved unwind_protect_to_save.fun : */
             var restartf_t fun;
-            var object* arg;
-            popSP( arg = (object*) ); popSP( fun = (restartf_t) );
+            var gcv_object_t* arg;
+            popSP( arg = (gcv_object_t*) ); popSP( fun = (restartf_t) );
             # return to uwp_continue or uwp_jmpback or unwind_upto:
             if (fun != NULL) {
               (*fun)(arg); # return to unwind_upto or similar.
               NOTREACHED;
             }
-            if (arg == (object*)NULL) {
+            if (arg == (gcv_object_t*)NULL) {
               # uwp_continue:
               # jump to this label takes place, if after the execution of
               # the Cleanup-Forms simply interpretation shall continue.
@@ -7548,7 +7548,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           #if STACKCHECKC
           if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
             goto fehler_STACK_putt;
-          if (!(closureptr == (object*)SP_(jmpbufsize+0))) # that Closureptr must be the current one
+          if (!(closureptr == (gcv_object_t*)SP_(jmpbufsize+0))) # that Closureptr must be the current one
             goto fehler_STACK_putt;
           #endif
           # closure remains, byteptr:=label_byteptr :
@@ -7574,7 +7574,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var uintL n;
             U_operand(n);
             # build up Frame:
-            var object* top_of_frame = STACK; # Pointer above Frame
+            var gcv_object_t* top_of_frame = STACK; # Pointer above Frame
             pushSTACK(TheCclosure(closure)->clos_consts[n]);
             pushSTACK(closure);
             pushSTACK(as_object((aint)(_SP_(0))));
@@ -7695,7 +7695,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var uintL n;
             U_operand(n);
-            var object* arg_ = &STACK_(n);
+            var gcv_object_t* arg_ = &STACK_(n);
             var object arg = *arg_;
             if (consp(arg)) {
               *arg_ = value1 = Cdr(arg); # CDR of a Cons
@@ -7739,7 +7739,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             with_saved_context( { new_cons = allocate_cons(); } );
             # fill Cons:
             Car(new_cons) = popSTACK();
-            var object* arg_ = &STACK_(n);
+            var gcv_object_t* arg_ = &STACK_(n);
             Cdr(new_cons) = *arg_;
             VALUES1(*arg_ = new_cons);
           }
@@ -7943,7 +7943,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var uintL n;
             U_operand(n);
-            var object* arg_ = &STACK_(n);
+            var gcv_object_t* arg_ = &STACK_(n);
             var object arg = *arg_;
             INC(arg,mv_count=1); # increment, one value
             value1 = *arg_ = arg;
@@ -7962,7 +7962,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var uintL n;
             U_operand(n);
-            var object* arg_ = &STACK_(n);
+            var gcv_object_t* arg_ = &STACK_(n);
             var object arg = *arg_;
             DEC(arg,mv_count=1); # decrement, one value
             value1 = *arg_ = arg;

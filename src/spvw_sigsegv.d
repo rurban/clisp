@@ -72,22 +72,22 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
     # stackoverflow_context_t is actually `struct sigcontext *'.
     # What about MC680X0 and SPARC ??
    #ifdef I80386
-    if (scp) { setSTACK(STACK = (object*)(scp->ebx)); }
+    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->ebx)); }
    #endif
    #ifdef ARM
-    if (scp) { setSTACK(STACK = (object*)(scp->arm_r8)); }
+    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->arm_r8)); }
    #endif
    #ifdef DECALPHA
-    if (scp) { setSTACK(STACK = (object*)(scp->sc_regs[9])); }
+    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->sc_regs[9])); }
    #endif
   #endif
   #ifdef UNIX_SUNOS5
     # stackoverflow_context_t is actually `ucontext_t *'.
    #ifdef SPARC
-    if (scp) { setSTACK(STACK = (object*)(scp->uc_mcontext.gregs[REG_G5])); }
+    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->uc_mcontext.gregs[REG_G5])); }
    #endif
    #ifdef I80386
-    if (scp) { setSTACK(STACK = (object*)(scp->uc_mcontext.gregs[EBX])); }
+    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->uc_mcontext.gregs[EBX])); }
    #endif
   #endif
   #ifdef UNIX_IRIX
@@ -99,16 +99,16 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
   #ifdef UNIX_OSF
     # stackoverflow_context_t is actually `struct sigcontext *'.
    #ifdef DECALPHA
-    if (scp) { setSTACK(STACK = (object*)(scp->sc_regs[9])); }
+    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->sc_regs[9])); }
    #endif
   #endif
   #ifdef UNIX_FREEBSD
     # stackoverflow_context_t is actually `struct sigcontext *'.
    #ifdef I80386
-    if (scp) { setSTACK(STACK = (object*)(scp->sc_ebx)); }
+    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->sc_ebx)); }
    #endif
    #ifdef DECALPHA
-    if (scp) { setSTACK(STACK = (object*)(scp->sc_regs[9])); }
+    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->sc_regs[9])); }
    #endif
   #endif
   }
