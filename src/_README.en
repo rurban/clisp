@@ -1,19 +1,23 @@
-This is GNU CLISP, a Common Lisp implementation.
+This is GNU CLISP, an ANSI Common Lisp implementation.
 
 
 What is LISP?
 -------------
 
-LISP is a programming language. It was invented by J. McCarthy in 1959.
+LISP is a general purpose programming language.
+It was invented by J. McCarthy in 1959.
 There have been many dialects of it, but nowadays LISP has been standardized
-and wide-spread due to the industrial standard COMMON LISP. There are
+and wide-spread due to the industrial standard ANSI COMMON LISP. There are
 applications in the domains of symbolic knowledge processing (AI), numerical
 mathematics (MACLISP yielded numerical code as good as FORTRAN), and
 widely used programs like editors (EMACS) and CAD (AUTOCAD).
-There is an introduction to the language:
+There are introductions to the language:
 
   Sheila Hughes: Lisp. Pitman Publishing Limited, London 1986.
-  107 pages.
+  Paul Graham: "ANSI Common Lisp", Prentice Hall, 1995, ISBN 0133708756.
+  <http://paulgraham.com/acl.html>
+  and "On Lisp", Prentice Hall, 1993. ISBN 0130305529.
+  <http://paulgraham.com/onlisp.html>
 
 After a while wou will need the standard text containing the language
 definition:
@@ -23,7 +27,7 @@ definition:
   2nd edition, 1990, 1032 pages.
 
 This book is available in HTML form via FTP from
-  ftp.cs.cmu.edu:/user/ai/lang/lisp/doc/cltl/cltl_ht.tgz
+  ftp://ftp.cs.cmu.edu/user/ai/lang/lisp/doc/cltl/cltl_ht.tgz
 and can be viewed through WWW under
   http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html or
   http://www.cs.cmu.edu:8001/afs/cs/project/ai-repository/ai/html/cltl/cltl2.html .
@@ -62,15 +66,8 @@ It consists of the following files:
    doc/impnotes.html,
    doc/impnotes.css,
    doc/clisp.png          implementation notes
-#ifdef GNU_READLINE
-   doc/clreadline.3       line editing manual page in Unix man format
-   doc/clreadline.man     line editing manual page
-#endif
    doc/LISP-tutorial.txt  LISP tutorial for beginners
    doc/CLOS-guide.txt     brief guide to CLOS
-#ifdef GNU_READLINE
-   doc/readline.dvi       GNU readline library documentation
-#endif
    doc/editors.txt        survey of editors with Lisp support
    README                 this text
    SUMMARY                short description of CLISP
@@ -80,13 +77,13 @@ It consists of the following files:
    GNU-GPL                free software license
    emacs/*.el             Emacs customization, see doc/editors.txt
 #ifndef UNIX_BINARY_DISTRIB
-   src/clisp.c            source of driver program
+   src/clisp.c            source of the driver program
 #endif
    src/config.lisp        site-dependent configuration
    data/clhs.txt          keyword-to-HyperSpec mapper
    data/UnicodeData.txt   unicode mapper
 #ifdef WIN32_NATIVE
-   install.bat,           
+   install.bat,
    src/install.lisp       user-friendly installer
 #endif
 
@@ -95,17 +92,7 @@ and - to your convenience, if you like reading source -
 
    src/*.lisp             the source of lispinit.mem
    src/*.fas              the same files, already compiled
-#if !defined(UNIX_BINARY_DISTRIB) && defined(GNU_READLINE)
-
-For building the executable, you also need:
-
-   base/libreadline.a     GNU readline library
-
-or
-
-   base/libnoreadline.a   dummy replacement for the GNU readline library
-#endif
-#else /* !defined(UNIX) */
+#else /* !defined(UNIX) && !defined(WIN32_NATIVE) */
 #ifdef AMIGAOS
       lisp.run           main program
 #endif
@@ -130,14 +117,6 @@ or
       clisp.dvi          manual page in dvi format
 #endif
       impnotes.html      implementation notes
-#ifdef GNU_READLINE
-      clreadline.3       line editing manual page in Unix man format
-      clreadline.man     line editing manual page
-      clreadline.html    line editing manual page in HTML format
-#ifdef OS2
-      clreadline.dvi     line editing manual page in dvi format
-#endif
-#endif
       LISP-tutorial.txt  LISP tutorial for beginners
       CLOS-guide.txt     brief guide to CLOS
       editors.txt        some words about text editors for Lisp
@@ -159,9 +138,6 @@ or
       NEWS               list of modifications since the last version
       COPYRIGHT          copyright notice
       GNU-GPL            free software license
-#ifdef GNU_READLINE
-      readline.dvi       GNU readline library documentation
-#endif
       config.lisp        site-dependent configuration
 #if !(defined(UNIX) || defined(WIN32))
       timezone.lisp      site-dependent time zone
@@ -272,12 +248,6 @@ Type
 
          make
 
-#if 0 /* def GNU_READLINE - must change the Makefile */
-If you prefer to resign GNU readline's input editing capabilities, you should
-have previously replaced the "libreadline.a" in the LIBS line of the file
-base/makevars by "libnoreadline.a".
-
-#endif
 #endif
 Change the strings in src/config.lisp, using a text editor.
 #else
@@ -403,16 +373,9 @@ And create the driver program that starts lisp:
               clisp /usr/local/bin/clisp
 #endif
 
-#ifdef GNU_READLINE
-Now install the man pages
-#else
 Now install the man page
-#endif
 
    mv doc/clisp.1 /usr/local/man/man1/clisp.1
-#ifdef GNU_READLINE
-   mv doc/clreadline.3 /usr/local/man/man3/clreadline.3
-#endif
 
 and try
 
@@ -438,7 +401,7 @@ For example,
 #endif
 #ifdef RISCOS
 
-Short of memory?
+Short on memory?
 ----------------
 
 If you have only 2 MB RAM, you can easily produce a stripped-down CLISP
@@ -459,7 +422,7 @@ When you encounter problems:
 ----------------------------
 
 #ifdef EMUNIX
-If clisp doesn't start up at all, check EMX-USER.DOC. lisp.exe is an EMX
+If clisp does not start up at all, check EMX-USER.DOC. lisp.exe is an EMX
 application, so everything mentioned there applies to lisp.exe.
 
 #endif
@@ -501,12 +464,12 @@ Sources:
 --------
 
 The sources of CLISP are available from
-     ftp://clisp.cons.org/pub/lisp/clisp/source/clispsrc*
-#ifdef UNIX_LINUX
-The latest binary distribution of CLISP for Linux has its sources in
-     ftp://sunsite.unc.edu/pub/Linux/devel/lang/lisp/clisp-source.tar.gz
-#endif
-
+     ftp://cvs2.cons.org/pub/lisp/clisp/source/
+     ftp://ftp.gnu.org/pub/gnu/clisp/
+     http://clisp.cons.org/
+     http://www.gnu.org/software/clisp/
+     http://www.clisp.org/
+     http://clisp.sf.net/
 
 Mailing Lists:
 --------------
@@ -523,12 +486,8 @@ We are indebted to
 #ifdef UNIX
   * Richard Stallman's GNU project for GCC, Autoconf and the readline library.
 #else
-#ifdef GNU_READLINE
-  * Richard Stallman's GNU project for GCC and the readline library.
-#else
 #ifdef GNU
   * Richard Stallman's GNU project for GCC.
-#endif
 #endif
 #endif
 #ifdef EMUNIX
