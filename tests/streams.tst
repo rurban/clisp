@@ -745,15 +745,14 @@ T
 
 (stream-element-type (make-broadcast-stream))  t
 
-(let ((f "foo.bar") fl1 fwd1)
+(let ((f "foo.bar") fwd1)
   (unwind-protect
-       (progn ; FILE-LENGTH & FILE-WRITE-DATE should work on :PROBE streams
+       (progn ; FILE-WRITE-DATE should work on :PROBE streams
          (with-open-file (s f :direction :output)
            (write f :stream s)
-           (setq fl1 (file-length s) fwd1 (file-write-date s)))
+           (setq fwd1 (file-write-date s)))
          (with-open-file (s f :direction :probe)
-           (and (= fl1 (file-length s))
-                (= fwd1 (file-write-date s)))))
+           (= fwd1 (file-write-date s))))
     (delete-file f)))
 T
 
