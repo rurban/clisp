@@ -7449,8 +7449,8 @@ der Docstring (oder NIL).
              ;; declarations, and that macroexpansion might rely on the
              ;; definitions of the current `symbol-macrolet'
              (apply #'vector
-                    (nconc (mapcan (lambda (sym expansion)
-                                     (list sym (make-symbol-macro expansion)))
+                    (nconc (mapcan #'(lambda (sym exp)
+                                       (list sym (make-symbol-macro exp)))
                                    symbols expansions)
                            (list *venv*)))))
         (multiple-value-bind (body-rest declarations)
