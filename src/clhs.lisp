@@ -1,4 +1,4 @@
-;;; Copyright (C) 2000-2002 by Sam Steingold
+;;; Copyright (C) 2000-2004 by Sam Steingold
 ;;; This file is a part of CLISP (http://clisp.cons.org), and, as such,
 ;;; is distributed under the GNU GPL (http://www.gnu.org/copyleft/gpl.html)
 

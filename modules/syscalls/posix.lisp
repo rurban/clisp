@@ -1,5 +1,5 @@
 ;;; handle the posix functions
-;;; Sam Steingold 1999-2003
+;;; Sam Steingold 1999-2004
 
 (defpackage "POSIX"
   (:use "COMMON-LISP" "EXT")

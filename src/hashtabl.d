@@ -1,7 +1,7 @@
 /*
  * Hash-Tables in CLISP
  * Bruno Haible 1990-2004
- * Sam Steingold 1998-2003
+ * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-01-29
  */
 

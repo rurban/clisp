@@ -1,7 +1,7 @@
 /*
  * Functions for characters and strings for CLISP
  * Bruno Haible 1990-2004
- * Sam Steingold 1998-2002
+ * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-09-20
  */
 
