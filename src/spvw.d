@@ -798,6 +798,9 @@ nonreturning_function(local, fehler_code_alignment,
   asciz_out("C_CODE_ALIGNMENT is wrong. ");
   asciz_out_s("&%s",TheAsciz(string_to_asciz(Symbol_name(symbol),O(terminal_encoding))));
   asciz_out_1(" = 0x%x." NLstring,address);
+  #if (__GNUC__ >= 3)
+    asciz_out_1("Try adding -falign-functions=%d to the CFLAGS in the Makefile." NLstring,C_CODE_ALIGNMENT);
+  #endif
   abort();
 }
 #endif
