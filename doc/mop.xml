@@ -461,25 +461,36 @@ has a <quote>no</quote> in this column.</para>
  stand-in until the class is actually defined.</para>
 
 <note>&clisp-only;<formalpara id="no-forward-referenced-class">
-  <title>The class &forward-referenced-class; is not implemented.</title>
+  <title>Implementation of class &forward-referenced-class;</title>
+  <para>The class &forward-referenced-class; is implemented in a way that fixes several
+   flaws in the &amop; specification.</para>
+  <para>It is not a subclass of &class; and &specializer-t;, just a subclass
+   of &metaobject-t;, because forward references to classes are not classes and
+   cannot be used as specializers of methods.  An &amop; compatibility mode is
+   provided, however, if you set the variable
+   <literal>CUSTOM:*FORWARD-REFERENCED-CLASS-MISDESIGN*</literal>
+   to &t;. In this mode, &forward-referenced-class; is formally a subclass of
+   &class; and &specializer-t;, but the behaviour of &forward-referenced-class;
+   instances is the same.</para>
+  <para>The &amop; says that the first argument of
+   &ensure-class-UC; can be a &forward-referenced-class;.  But from
+   the description of &ensure-class;, it is clear that it can only be
+   a class returned by &find-class;, and &ansi-cl; &find-class;
+   cannot return a &forward-referenced-class;.</para>
+  <para>The &amop; says that &ensure-class-UC; creates a
+   &forward-referenced-class; for not-yet-defined class symbols among
+   the direct-superclasses list.  But this leads to many
+   &forward-referenced-class; with the same name (since they cannot
+   be stored and retrieved through &find-class;), and since
+   &change-class; preserves the &eq;-ness, after the class is
+   defined, we have many class objects with the same name.</para>
   <para>In the direct-superclasses list of non-finalized classes,
-   symbols are used instead of &forward-referenced-class; instances.
-   This choice has been made because the concept of
-   &forward-referenced-class; contradicts the &find-class;
-   specification:<orderedlist>
-    <listitem><simpara>The &amop; says that the first argument of
-      &ensure-class-UC; can be a &forward-referenced-class;.  But from
-      the description of &ensure-class;, it is clear that it can only be
-      a class returned by &find-class;, and &ansi-cl; &find-class;
-      cannot return a &forward-referenced-class;.</simpara></listitem>
-    <listitem><simpara>The &amop; says that &ensure-class-UC; creates a
-      &forward-referenced-class; for not-yet-defined class symbols among
-      the direct-superclasses list.  But this leads to many
-      &forward-referenced-class; with the same name (since they cannot
-      be stored and retrieved through &find-class;), and since
-      &change-class; preserves the &eq;-ness, after the class is
-      defined, we have many class objects with the same name.
-</simpara></listitem></orderedlist></para></formalpara></note>
+   &forward-referenced-class; instances can occur, denoting classes that
+   have not yet been defined. When or after such a class gets defined,
+   the &forward-referenced-class; instance is replaced with the real
+   class.  &clisp; uses simple object replacement, not &change-class;, in
+   this process.</para>
+</formalpara></note>
 
 <para>The class &standard-object-t; is the <emphasis>default direct
 superclass</emphasis> of the class &standard-class;.  When an instance
@@ -1019,9 +1030,9 @@ with the class during initialization or reinitialization.
 </para>
 
 <note>&clisp-only;<simpara>For a class that has not yet been finalized,
- the returned list may contain symbols as placeholder for classes that
- were not yet defined when finalization of the class was last attempted.
-  <xref linkend="no-forward-referenced-class"/>.</simpara></note>
+ the returned list may contain &forward-referenced-class; instances as
+ placeholder for classes that were not yet defined when finalization of
+ the class was last attempted.</simpara></note>
 </section>
 
 <section id="class-direct-slots">
@@ -1671,9 +1682,11 @@ any dependents of the class metaobject will be updated by calling
          The &proper-name-glo; of the newly created forward referenced
          class metaobject is set to the element.</simpara>
         <note>&clisp-only;
-         <simpara><xref linkend="no-forward-referenced-class"/>.
-          In the &direct-superclasses-k; argument, symbols are used
-          to represent classes that have not yet been defined.</simpara>
+         <simpara>A new &forward-referenced-class; instance is only created
+          when one for the given class name does not yet exist; otherwise the
+          existing one is reused.
+          See <xref linkend="no-forward-referenced-class"/>.
+          </simpara>
     </note></listitem></itemizedlist></para></listitem>
     <listitem><simpara>All other keyword arguments are included directly
       in the initialization arguments.</simpara></listitem>
@@ -1691,6 +1704,7 @@ any dependents of the class metaobject will be updated by calling
    a documented violation of the general constraint that &change-class;
    may not be used with class metaobjects.)</simpara>
   <note>&clisp-only;<simpara>
+    The &class-r; argument cannot be a forward referenced class. See
     <xref linkend="no-forward-referenced-class"/>.</simpara></note>
   <simpara>If the class of the &class-r; argument is not the same as the
    class specified by the &metaclass-k; argument, an &err-sig;.</simpara>
@@ -1713,7 +1727,7 @@ any dependents of the class metaobject will be updated by calling
    function in the case where the &class-r; argument is a forward
    referenced class.</simpara>
  <note>&clisp-only;<simpara>This method does not exist.
-   <xref linkend="no-forward-referenced-class"/>.  Use the method
+   See <xref linkend="no-forward-referenced-class"/>.  Use the method
    specialized on &null-t; instead.</simpara></note>
 </listitem></varlistentry>
 <varlistentry><term><literal role="method">(&ensure-class-UC;
@@ -3635,14 +3649,38 @@ override the system's definitions.</para>
 </informalexample>
 
 <note>&clisp-only;<formalpara id="no-make-method-lambda">
-  <title>The generic function &make-method-lambda; is not implemented</title>
-  <para>Its specification is misdesigned: it mixes &compile-time; and
-   &exec-time; behaviour.</para></formalpara>
+  <title>The generic function &make-method-lambda; is not implemented.</title>
+  <para>Its specification is misdesigned: it mixes compile-time and run-time
+   behaviour. The essential problem is: where could the generic-function
+   argument come from?
+   <itemizedlist>
+    <listitem><simpara>If a &defmethod; form occurs in a source file, is
+     &make-method-lambda; then called at compile time or at load time?
+     If it was called at compile time, there's no possible value for the
+     first argument, since the class of the generic function to which the
+     method will belong is not known until load time.  If it was called
+     at load time, it would mean that the method's source code could only
+     be compiled at load time, not earlier - which defeats the purpose of
+     &compile-file;</simpara></listitem>
+    <listitem><simpara>When a method is removed from a generic function
+     using &remove-method; and then added through &add-method; to a different
+     generic function, possibly belonging to a different generic function
+     class, would &make-method-lambda; then be called again or not? If no,
+     then &make-method-lambda;'s first argument is useless. If yes, then the
+     source code of every method would have to be present at runtime, and its
+     lexical environment as well.
+    </simpara></listitem>
+   </itemizedlist>
+  </para>
+ </formalpara>
  <formalpara id="method-functions-args">
-  <title>Method function arguments.</title>
-  <para>&call-method; and method functions always expect exactly two
-   arguments: the list of arguments passed to the generic function, and
-   the list of next methods.</para></formalpara></note>
+  <title>Method function arguments</title>
+  <para>&call-method; always expect exactly two arguments: the method and a
+   list of next methods.</para>
+  <para>Method functions always expect exactly two arguments: the list of
+   arguments passed to the generic function, and the list of next
+   methods.</para>
+ </formalpara></note>
 </section><!-- make-method-lambda -->
 
 <section id="compute-discriminating-function">
@@ -3713,8 +3751,12 @@ override the system's definitions.</para>
 <note>&clisp-only;<simpara>Overriding methods can make use of the function
    &compute-effective-method-as-function;. It is more convenient to call
    &compute-effective-method-as-function; than &compute-effective-method;
-   because the definition of the local macros &call-method; and &make-method;
-   is implementation dependent.</simpara></note>
+   because the in the latter case one needs a lot of <quote>glue code</quote>
+   for implementing the local macros &call-method; and &make-method;, and
+   this glue code is implementation dependent because it needs 1. to retrieve
+   the declarations list stored in the method-combination object and 2. to
+   handle implementation dependent options that are returned as second value
+   from &compute-effective-method;.</simpara></note>
 </section><!-- compute-discriminating-function -->
 
 <!-- end generic-function advanced customization -->
@@ -5453,8 +5495,6 @@ cache of the dependent when it is updated.</para>
 &clisp; implementation thereof.</para>
 
 <itemizedlist id="mop-not-in-clisp"><title>Not implemented in &clisp;</title>
-<listitem><para>The class &forward-referenced-class; is not implemented.
-  See <xref linkend="mop-mo-cl-inheritance"/>.</para></listitem>
 <listitem><para>The generic function &make-method-lambda; is not implemented.
   See <xref linkend="mop-gf-invocation"/>.</para></listitem>
 <listitem><para>Custom methods on &finalize-inheritance; sometimes have
@@ -5469,9 +5509,8 @@ cache of the dependent when it is updated.</para>
   See <xref linkend="mop-cl-defclass"/>.</para></listitem>
 <listitem><para>The &defgeneric; macro passes default values to &ensure-gf;.
   See <xref linkend="mop-gf-init-defgeneric"/>.</para></listitem>
-<listitem><para>The direct-superclasses list of non-finalized classes
-  contains symbols instead of &forward-referenced-class; instances.
-  See <xref linkend="mop-mo-cl-inheritance"/>.</para></listitem>
+<listitem><para>The class &forward-referenced-class; is implemented differently.
+  See <xref linkend="no-forward-referenced-class"/>.</para></listitem>
 <listitem><para>The function &gf-argument-precedence-order; &sig-err;
   if the generic function has no &lalist;.</para></listitem>
 </itemizedlist>
