@@ -1,5 +1,15 @@
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
+	Portability to BeOS.
+	* configure.in: Add test for getsockopt.
+	* stream.d (sock_opt_bool): Define also when only SO_DEBUG exists.
+	When getsockopt doesn't exist, push no values.
+	(sock_opt_int, sock_opt_time): When getsockopt doesn't exist, push no
+	values.
+	(SOCKET-OPTIONS): Likewise. Check against stack overflow.
+
+2004-10-31  Bruno Haible  <bruno@clisp.org>
+
 	Portability to FreeBSD 4.0.
 	* foreign.d (open_library): Handle FreeBSD as well. Improved error
 	messages.
