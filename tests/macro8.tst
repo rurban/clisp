@@ -272,6 +272,13 @@ m
 (macrolet ((%m (&whole (m a b) c d) `'(,m ,a ,b ,c ,d))) (%m 1 2))
 (%M 1 2 1 2)
 
+(macrolet ((%m (&key ((:a (b c)))) `'(,c ,b))) (%m :a (1 2)))
+(2 1)
+
+(macrolet ((%m (&key ((:a (b c)) '(3 4))) `'(,c ,b)))
+  (list (%m :a (1 2)) (%m :a (1 2) :a (10 11)) (%m)))
+((2 1) (2 1) (4 3))
+
 ;;; <http://www.lisp.org/HyperSpec/Body/fun_macroexpa_acroexpand-1.html>
 (defmacro alpha (x y) `(beta ,x ,y))   ALPHA
 (defmacro beta (x y) `(gamma ,x ,y))   BETA

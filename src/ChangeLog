@@ -1,6 +1,7 @@
 2003-04-21  Sam Steingold  <sds@gnu.org>
 
-	* defmacro.lisp (analyze1): &WHOLE arg may be a pattern too
+	* defmacro.lisp (analyze1): &WHOLE argument may be a pattern too
+	(analyze-key): permit patterns as &KEY arguments (broken on 2003-03-25)
 
 2003-04-21  Sam Steingold  <sds@gnu.org>
 
