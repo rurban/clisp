@@ -46,7 +46,7 @@
   #-(or CLISP AKCL ECL ALLEGRO CMU) (lisp-implementation-type))
 
 (defun do-test (stream log &optional (ignore-errors t))
-  (let ((eof "EOF"))
+  (let ((eof "EOF") (error-count 0))
     (loop
       (let ((form (read stream nil eof))
             (result (read stream nil eof)))
@@ -63,14 +63,16 @@
                 ((equalp result my-result)
                  (format t "~%EQUALP-OK: ~S" result))
                 (t
+                 (incf error-count)
                  (format t "~%ERROR!! ~S should be ~S !" my-result result)
                  (format log "~%Form: ~S~%CORRECT: ~S~%~7A: ~S~%"
                              form result lisp-implementation-type
-                             my-result))))))))
+                             my-result))))))
+    error-count))
 
 (defun do-errcheck (stream log &optional ignore-errors)
   (declare (ignore ignore-errors))
-  (let ((eof "EOF"))
+  (let ((eof "EOF") (error-count 0))
     (loop
       (let ((form (read stream nil eof))
             (errtype (read stream nil eof)))
@@ -82,43 +84,46 @@
             (cond ((and (not typep-error) typep-result)
                    (format t "~%OK: ~S" errtype))
                   (t
+                   (incf error-count)
                    (format t "~%ERROR!! ~S instead of ~S !" my-result errtype)
                    (format log "~%Form: ~S~%CORRECT: ~S~%~7A: ~S~%"
                                form errtype lisp-implementation-type
-                               my-result)))))))))
+                               my-result)))))))
+    error-count))
 
 (defun run-test (testname
                  &optional (tester #'do-test) (ignore-errors t)
                  &aux (logname (merge-extension "erg" testname))
-                      log-empty-p)
+                      error-count)
   (with-open-file (s (merge-extension "tst" testname) :direction :input)
+    (format t "~&~s: started ~s~%" 'run-test s)
     (with-open-file (log logname :direction :output
                                  #+ANSI-CL :if-exists #+ANSI-CL :new-version)
       (let ((*package* *package*)
             (*print-pretty* nil))
-        (funcall tester s log ignore-errors))
-      #+CMU (finish-output log) ; otherwise (file-length log) may be less than (file-position log)
-      (setq log-empty-p (zerop (file-length log)))))
-  (when log-empty-p (delete-file logname))
-  (values))
+        (setq error-count (funcall tester s log ignore-errors)))))
+  (when (zerop error-count) (delete-file logname))
+  (format t "~&~s: finished ~s (~:d errors)~%" 'run-test testname error-count)
+  error-count)
 
 (defun run-all-tests ()
-  (mapc #'run-test
-        '( #-(or AKCL ECL)          "alltest"
+  (format t "~s: grand total: ~:d error~:p~%" 'run-all-tests
+   (+ (reduce #'+
+              '(#-(or AKCL ECL)     "alltest"
                                     "array"
                                     "backquot"
-           #+CLISP                  "bin-io"
-           #-AKCL                   "characters"
-           #+(or CLISP ALLEGRO CMU) "clos"
-          #+(and CLISP UNICODE)     "encoding"
+                #+CLISP             "bin-io"
+                #-AKCL              "characters"
+                #+(or CLISP ALLEGRO CMU) "clos"
+                #+(and CLISP UNICODE) "encoding"
                                     "eval20"
-          #+(and CLISP FFI)         "ffi"
+                #+(and CLISP FFI)   "ffi"
                                     "floeps"
                                     "format"
-           #+CLISP                  "genstream"
-           #+XCL                    "hash"
+                #+CLISP             "genstream"
+                #+XCL               "hash"
                                     "hashlong"
-          #+CLISP                   "hashweak"
+                #+CLISP             "hashweak"
                                     "iofkts"
                                     "lambda"
                                     "lists151"
@@ -127,26 +132,26 @@
                                     "lists154"
                                     "lists155"
                                     "lists156"
-           #+(or CLISP ALLEGRO CMU) "loop"
+                #+(or CLISP ALLEGRO CMU) "loop"
                                     "macro8"
                                     "map"
-           #+(or CLISP ALLEGRO CMU) "mop"
+                #+(or CLISP ALLEGRO CMU) "mop"
                                     "number"
-           #+CLISP                  "number2"
-           #-(or AKCL ALLEGRO CMU)  "pack11"
-           #+(or XCL CLISP)         "path"
-           #+XCL                    "readtable"
+                #+CLISP             "number2"
+                #-(or AKCL ALLEGRO CMU) "pack11"
+                #+(or XCL CLISP)    "path"
+                #+XCL               "readtable"
                                     "setf"
                                     "steele7"
-           #-ALLEGRO                "streams"
+                #-ALLEGRO           "streams"
                                     "streamslong"
                                     "strings"
-           #-(or AKCL ECL)          "symbol10"
+                #-(or AKCL ECL)     "symbol10"
                                     "symbols"
-           #+XCL                    "tprint"
-           #+XCL                    "tread"
-                                    "type"))
-  #+(or CLISP ALLEGRO CMU)
-  (run-test "conditions" #'do-test nil)
-  (run-test "excepsit" #'do-errcheck)
-  t)
+                #+XCL               "tprint"
+                #+XCL               "tread"
+                                    "type")
+              :key #'run-test)
+      #+(or CLISP ALLEGRO CMU)
+      (run-test "conditions" #'do-test nil)
+      (run-test "excepsit" #'do-errcheck))))
