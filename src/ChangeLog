@@ -1,5 +1,13 @@
 2002-10-30  Sam Steingold  <sds@gnu.org>
 
+	* error.d (fehler_proper_list): accept `caller' argument
+	* control.d (ENDP): pass caller to fehler_proper_list()
+	* lispbibl.d (list_to_mv): ditto
+	* list.d (endp, memq1, LIST-LLENGTH): ditto
+	* sequence.d (LENGTH): ditto
+
+2002-10-30  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (restart): renamed the typedef to restartf_t
 	* control.d (UNWIND-PROTECT): ditto
 	* eval.d (reset, invoke_handlers, interpret_bytecode_): ditto
