@@ -375,4 +375,87 @@
         allow-other-keys
         env)))
 
+;;; Analyzes a define-modify-macro lambda-list (ANSI CL 3.4.9.).
+;;; Reports errors through errfunc (a function taking an error format string
+;;; and format string arguments).
+;; Returns 5 values:
+;; 1. list of required parameters
+;; 2. list of optional parameters
+;; 3. list of init-forms of the optional parameters
+;; 4. list of supplied-vars for the optional parameters (0 for the missing)
+;; 5. &rest parameter or 0
+  (defun analyze-modify-macro-lambdalist (lambdalist errfunc)
+    (let ((L lambdalist) ; rest of the lambda-list
+          (reqvar nil)
+          (optvar nil)
+          (optinit nil)
+          (optsvar nil)
+          (rest 0))
+      ;; The lists are all accumulated in reversed order.
+      ;; Required parameters:
+      (loop
+        (if (atom L) (return))
+        (let ((item (car L)))
+          (if (symbolp item)
+            (if (memq item lambda-list-keywords)
+              (check-item item '(&optional &rest))
+              (push item reqvar))
+            (err-invalid item)))
+        (setq L (cdr L)))
+      ;; Now (or (atom L) (member (car L) '(&optional &rest))).
+      ;; Optional parameters:
+      (when (and (consp L) (eq (car L) '&optional))
+        (setq L (cdr L))
+        (macrolet ((note-optional (var init svar)
+                     `(progn
+                        (push ,var optvar)
+                        (push ,init optinit)
+                        (push ,svar optsvar))))
+          (loop
+            (if (atom L) (return))
+            (let ((item (car L)))
+              (if (symbolp item)
+                (if (memq item lambda-list-keywords)
+                  (check-item item '(&rest))
+                  (note-optional item nil 0))
+                (if (and (consp item) (symbolp (car item)))
+                  (if (null (cdr item))
+                    (note-optional (car item) nil 0)
+                    (if (consp (cdr item))
+                      (if (null (cddr item))
+                        (note-optional (car item) (cadr item) 0)
+                        (if (and (consp (cddr item)) (symbolp (caddr item))
+                                 (null (cdddr item)))
+                          (note-optional (car item) (cadr item) (caddr item))
+                          (err-invalid item)))
+                      (err-invalid item)))
+                  (err-invalid item))))
+            (setq L (cdr L)))))
+      ;; Now (or (atom L) (member (car L) '(&rest))).
+      ;; &rest parameters:
+      (when (and (consp L) (eq (car L) '&rest))
+        (setq L (cdr L))
+        (macrolet ((err-norest ()
+                     `(funcall errfunc (TEXT "Missing &REST parameter in lambda list ~S")
+                                       lambdalist)))
+          (if (atom L)
+            (err-norest)
+            (prog ((item (car L)))
+              (if (symbolp item)
+                (if (memq item lambda-list-keywords)
+                  (progn (err-norest) (return))
+                  (setq rest item))
+                (err-invalid item))
+              (setq L (cdr L)))))
+        ;; Move forward to the end:
+        (skip-L &rest '()))
+      ;; Now (atom L).
+      (if L
+        (funcall errfunc (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
+                         lambdalist))
+      (values
+        (nreverse reqvar)
+        (nreverse optvar) (nreverse optinit) (nreverse optsvar)
+        rest)))
+
 ) ; macrolet

@@ -512,63 +512,41 @@
       (setq lv sv lf se))))
 ;;;----------------------------------------------------------------------------
 (defmacro define-modify-macro (name lambdalist function &optional docstring)
-  (let* ((varlist nil)
-         (restvar nil))
-    (do* ((lambdalistr lambdalist (cdr lambdalistr))
-          (next))
-         ((null lambdalistr))
-      (setq next (first lambdalistr))
-      (cond ((eq next '&OPTIONAL))
-            ((eq next '&REST)
-             (if (symbolp (second lambdalistr))
-               (setq restvar (second lambdalistr))
-               (error-of-type 'source-program-error
-                 (TEXT "~S ~S: &REST variable ~S should be a symbol.")
-                 'define-modify-macro name (second lambdalistr)))
-             (if (null (cddr lambdalistr))
-               (return)
-               (error-of-type 'source-program-error
-                 (TEXT "~S(~S): Only one variable is allowed after &REST, not ~S")
-                 'define-modify-macro name lambdalistr)))
-            ((or (eq next '&KEY) (eq next '&ALLOW-OTHER-KEYS) (eq next '&AUX))
-             (error-of-type 'source-program-error
-               (TEXT "Illegal in a ~S lambda list: ~S")
-               'define-modify-macro next))
-            ((symbolp next) (push next varlist))
-            ((and (listp next) (symbolp (first next)))
-             (push (first next) varlist))
-            (t (error-of-type 'source-program-error
-                 (TEXT "~S: lambda list may only contain symbols and lists, not ~S")
-                 'define-modify-macro next))))
-    (setq varlist (nreverse varlist))
-    `(DEFMACRO ,name (%REFERENCE ,@lambdalist &ENVIRONMENT ENV) ,docstring
-       (MULTIPLE-VALUE-BIND (DUMMIES VALS NEWVAL SETTER GETTER)
-           (GET-SETF-METHOD %REFERENCE ENV)
-         (DO ((D DUMMIES (CDR D))
-              (V VALS (CDR V))
-              (LET-LIST NIL (CONS (LIST (CAR D) (CAR V)) LET-LIST)))
-             ((NULL D)
-              (WHEN (SYMBOLP GETTER)
-                (RETURN
-                  (SUBST
-                    (LIST* (QUOTE ,function) GETTER ,@varlist ,restvar)
-                    (CAR NEWVAL)
-                    SETTER
-              ) ) )
-              (PUSH
-                (LIST
-                  (CAR NEWVAL)
-                  (IF (AND (LISTP %REFERENCE) (EQ (CAR %REFERENCE) 'THE))
-                    (LIST 'THE (CADR %REFERENCE)
-                      (LIST* (QUOTE ,function) GETTER ,@varlist ,restvar)
-                    )
-                    (LIST* (QUOTE ,function) GETTER ,@varlist ,restvar)
-                ) )
-                LET-LIST
-              )
-              (LIST 'LET* (NREVERSE LET-LIST) SETTER)
-     ) ) ) )
-) )
+  (multiple-value-bind (reqvars optvars optinits optsvars rest)
+      (analyze-modify-macro-lambdalist lambdalist
+        #'(lambda (errorstring &rest arguments)
+            (error-of-type 'sys::source-program-error
+              (TEXT "~S ~S: invalid ~S lambda-list: ~A")
+              'define-modify-macro name 'define-modify-macro
+              (apply #'format nil errorstring arguments))))
+    (declare (ignore optinits optsvars))
+    (let ((varlist (append reqvars optvars))
+          (restvar (if (not (eql rest 0)) rest nil)))
+      `(DEFMACRO ,name (%REFERENCE ,@lambdalist &ENVIRONMENT ENV) ,docstring
+         (MULTIPLE-VALUE-BIND (DUMMIES VALS NEWVAL SETTER GETTER)
+             (GET-SETF-METHOD %REFERENCE ENV)
+           (DO ((D DUMMIES (CDR D))
+                (V VALS (CDR V))
+                (LET-LIST NIL (CONS (LIST (CAR D) (CAR V)) LET-LIST)))
+               ((NULL D)
+                (LET ((FUNCTION-APPLICATION
+                        (LIST* ',function GETTER ,@varlist ,restvar)))
+                  (WHEN (SYMBOLP GETTER)
+                    (RETURN
+                      (SUBST FUNCTION-APPLICATION (CAR NEWVAL) SETTER)
+                  ) )
+                  (PUSH
+                    (LIST
+                      (CAR NEWVAL)
+                      (IF (AND (LISTP %REFERENCE) (EQ (CAR %REFERENCE) 'THE))
+                        (LIST 'THE (CADR %REFERENCE) FUNCTION-APPLICATION)
+                        FUNCTION-APPLICATION
+                    ) )
+                    LET-LIST
+                  )
+                  (LIST 'LET* (NREVERSE LET-LIST) SETTER)
+       ) ) )   ))
+) ) )
 ;;;----------------------------------------------------------------------------
 (define-modify-macro decf (&optional (delta 1)) -)
 ;;;----------------------------------------------------------------------------
