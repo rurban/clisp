@@ -1,0 +1,16 @@
+1998-10-06  Bruno Haible  <linuix.math.u-bordeaux.fr>
+
+        Added ANSI C prototypes, such that the library can be compiled
+        using "gcc -Wall -Wmissing-prototypes".
+        * ansi_proto.h, xmalloc.h, shell.h: New files.
+        * Makefile.in: Update.
+        * tilde.h, tilde.c: Add prototypes.
+        * history.h: Add prototypes.
+        * histlib.h: Add extern declarations.
+        * histexpand.c, histfile.c, history.c, histsearch.c: Remove extern
+          declarations.
+        * readline.h: Add extern declarations and prototypes.
+        * bind.c, callback.c, complete.c, display.c, funmap.c, input.c,
+          isearch.c, keymaps.c, kill.c, macro.c, nls.c, parens.c, readline.c,
+          rltty.c, search.c, signals.c, terminal.c, util.c, vi_mode.c: Remove
+          extern declarations.

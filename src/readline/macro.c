@@ -49,16 +49,7 @@
 #define SWAP(s, e)  do { int t; t = s; s = e; e = t; } while (0)
 
 /* Forward definitions. */
-void _rl_push_executing_macro (), _rl_pop_executing_macro ();
-void _rl_add_macro_char ();
-
-/* Extern declarations. */
-extern int rl_explicit_arg;
-extern int rl_key_sequence_length;
-
-extern void _rl_abort_internal ();
-
-extern char *xmalloc (), *xrealloc ();
+void _rl_add_macro_char _PROTO((int c));
 
 /* **************************************************************** */
 /*								    */

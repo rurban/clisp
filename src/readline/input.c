@@ -72,30 +72,6 @@ extern int errno;
 #  define O_NDELAY O_NONBLOCK	/* Posix style */
 #endif
 
-/* Functions imported from other files in the library. */
-extern char *xmalloc (), *xrealloc ();
-
-/* Variables and functions from macro.c. */
-extern void _rl_add_macro_char ();
-extern void _rl_with_macro_input ();
-extern int _rl_next_macro_key ();
-extern int _rl_defining_kbd_macro;
-
-#if defined (VI_MODE)
-extern void _rl_vi_set_last ();
-extern int _rl_vi_textmod_command ();
-#endif /* VI_MODE */
-
-extern FILE *rl_instream, *rl_outstream;
-extern Function *rl_last_func;
-extern int rl_key_sequence_length;
-extern int rl_pending_input;
-extern int rl_editing_mode;
-
-extern Keymap _rl_keymap;
-
-extern int _rl_convert_meta_chars_to_ascii;
-
 #if defined (__GO32__)
 #  include <pc.h>
 #endif /* __GO32__ */
@@ -363,7 +339,7 @@ rl_read_key ()
   else
     {
       /* If input is coming from a macro, then use that. */
-      if (c = _rl_next_macro_key ())
+      if ((c = _rl_next_macro_key ()) != 0)
 	return (c);
 
       /* If the user has an event function, then call it periodically. */

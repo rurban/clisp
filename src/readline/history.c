@@ -52,8 +52,7 @@
 
 #include "history.h"
 #include "histlib.h"
-
-extern char *xmalloc (), *xrealloc ();
+#include "xmalloc.h"
 
 /* The number of slots to increase the_history by. */
 #define DEFAULT_HISTORY_GROW_SIZE 50
@@ -278,7 +277,7 @@ HIST_ENTRY *
 replace_history_entry (which, line, data)
      int which;
      char *line;
-     char *data;
+     void *data;
 {
   HIST_ENTRY *temp = (HIST_ENTRY *)xmalloc (sizeof (HIST_ENTRY));
   HIST_ENTRY *old_value;

@@ -54,22 +54,6 @@
 
 #define SWAP(s, e)  do { int t; t = s; s = e; e = t; } while (0)
 
-/* Pseudo-globals imported from readline.c */
-extern int readline_echoing_p;
-extern procenv_t readline_top_level;
-extern int rl_line_buffer_len;
-extern Function *rl_last_func;
-
-extern int _rl_defining_kbd_macro;
-extern char *_rl_executing_macro;
-
-/* Pseudo-global functions imported from other library files. */
-extern void _rl_pop_executing_macro ();
-extern void _rl_set_the_line ();
-extern void _rl_init_argument ();
-
-extern char *xmalloc (), *xrealloc ();
-
 /* **************************************************************** */
 /*								    */
 /*			Utility Functions			    */

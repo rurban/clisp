@@ -60,44 +60,13 @@
 extern char *strchr (), *strrchr ();
 #endif /* !strchr && !__STDC__ */
 
-/* Global and pseudo-global variables and functions
-   imported from readline.c. */
-extern char *rl_prompt;
-extern int readline_echoing_p;
-
-extern int _rl_output_meta_chars;
-extern int _rl_horizontal_scroll_mode;
-extern int _rl_mark_modified_lines;
-extern int _rl_prefer_visible_bell;
-
-/* Variables and functions imported from terminal.c */
-extern void _rl_output_some_chars ();
-#ifdef _MINIX
-extern void _rl_output_character_function ();
-#else
-extern int _rl_output_character_function ();
-#endif
-extern int _rl_backspace ();
-
-extern char *term_clreol, *term_clrpag;
-extern char *term_im, *term_ic,  *term_ei, *term_DC;
-extern char *term_up, *term_dc, *term_cr, *term_IC;
-extern int screenheight, screenwidth, screenchars;
-extern int terminal_can_insert, _rl_term_autowrap;
-
-/* Pseudo-global functions (local to the readline library) exported
-   by this file. */
-void _rl_move_cursor_relative (), _rl_output_some_chars ();
-void _rl_move_vert ();
-void _rl_clear_to_eol (), _rl_clear_screen ();
-
-static void update_line (), space_to_eol ();
-static void delete_chars (), insert_some_chars ();
-static void cr ();
+static void update_line _PROTO((char *old, char *new, int current_line, int omax, int nmax, int inv_botlin));
+static void space_to_eol _PROTO((int count));
+static void insert_some_chars _PROTO((char *string, int count));
+static void delete_chars _PROTO((int count));
+static void cr _PROTO((void));
 
 static int *inv_lbreaks, *vis_lbreaks;
-
-extern char *xmalloc (), *xrealloc ();
 
 /* Heuristic used to decide whether it is faster to move from CUR to NEW
    by backing up or outputting a carriage return and moving forward. */
@@ -1540,6 +1509,6 @@ _rl_clean_up_for_exit ()
       _rl_move_vert (_rl_vis_botlin);
       _rl_vis_botlin = 0;
       fflush (rl_outstream);
-      rl_restart_output ();
+      rl_restart_output (0, 0);
     }
 }

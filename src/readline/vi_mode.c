@@ -74,26 +74,6 @@
 #define exchange(x, y) do {int temp = x; x = y; y = temp;} while (0)
 #endif
 
-extern char *xmalloc (), *xrealloc ();
-
-/* Variables imported from readline.c */
-extern int rl_point, rl_end, rl_mark, rl_done;
-extern FILE *rl_instream;
-extern int rl_line_buffer_len, rl_explicit_arg, rl_numeric_arg;
-extern Keymap _rl_keymap;
-extern char *rl_prompt;
-extern char *rl_line_buffer;
-extern int rl_arg_sign;
-
-extern int _rl_doing_an_undo;
-extern int _rl_undo_group_level;
-
-extern void _rl_dispatch ();
-extern int _rl_char_search_internal ();
-
-extern void rl_extend_line_buffer ();
-extern int rl_vi_check ();
-
 /* Non-zero means enter insertion mode. */
 static int _rl_vi_doing_insert;
 
@@ -131,7 +111,9 @@ static char *vi_textmod = "_*\\AaIiCcDdPpYyRrSsXx~";
 /* Arrays for the saved marks. */
 static int vi_mark_chars[27];
 
-static int rl_digit_loop1 ();
+/* Prototype declarations. */
+static int rl_digit_loop1 _PROTO((void));
+int rl_vi_domove _PROTO((int key, int *nextkey));
 
 void
 _rl_vi_initialize_line ()
@@ -729,7 +711,7 @@ rl_vi_put (count, key)
   if (!_rl_uppercase_p (key) && (rl_point + 1 <= rl_end))
     rl_point++;
 
-  rl_yank ();
+  rl_yank (0, 0);
   rl_backward (1, key);
   return (0);
 }

@@ -49,18 +49,6 @@
 #include "readline.h"
 #include "history.h"
 
-extern int readline_echoing_p;
-extern int rl_pending_input;
-extern int _rl_meta_flag;
-
-extern void free_undo_list ();
-extern void _rl_get_screen_size ();
-extern void _rl_redisplay_after_sigwinch ();
-extern void _rl_clean_up_for_exit ();
-extern void _rl_kill_kbd_macro ();
-extern void _rl_init_argument ();
-extern void rl_deprep_terminal (), rl_prep_terminal ();
-
 #if !defined (RETSIGTYPE)
 #  if defined (VOID_SIGHANDLER)
 #    define RETSIGTYPE void
@@ -78,8 +66,6 @@ extern void rl_deprep_terminal (), rl_prep_terminal ();
 /* This typedef is equivalant to the one for Function; it allows us
    to say SigHandler *foo = signal (SIGKILL, SIG_IGN); */
 typedef RETSIGTYPE SigHandler ();
-
-static SigHandler *rl_set_sighandler ();
 
 /* **************************************************************** */
 /*					        		    */
@@ -102,6 +88,8 @@ typedef struct sigaction sighandler_cxt;
 typedef struct { SigHandler *sa_handler; } sighandler_cxt;
 #  define sigemptyset(m)
 #endif /* !HAVE_POSIX_SIGNALS */
+
+static SigHandler *rl_set_sighandler _PROTO((int sig, SigHandler *handler, sighandler_cxt *ohandler));
 
 static sighandler_cxt old_int, old_alrm;
 

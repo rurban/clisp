@@ -36,15 +36,6 @@
 #include "rldefs.h"
 #include "readline.h"
 
-extern void readline_internal_startup ();
-extern char *readline_internal_teardown ();
-extern int readline_internal_char ();
-extern void _rl_init_line_state ();
-
-extern int _rl_meta_flag;
-extern char *rl_prompt;
-extern int rl_visible_prompt_length;
-
 /* **************************************************************** */
 /*								    */
 /*			Callback Readline Functions                 */
