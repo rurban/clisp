@@ -1,5 +1,11 @@
 2004-10-03  Bruno Haible  <bruno@clisp.org>
 
+	* modules/syscalls/calls.c: Include sys/resource.h early enough, so
+	that getrlimit_arg can use it. Also include sys/types.h before
+	sys/stat.h, not after it.
+
+2004-10-03  Bruno Haible  <bruno@clisp.org>
+
 	* syscalls/calls.c: Don't set Solaris specific flags just temporarily
 	for a few includes. We don't control their effect.
 	* syscalls/Makefile.in (CPPFLAGS): Add Solaris specific flags here.
