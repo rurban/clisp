@@ -2350,8 +2350,9 @@
       no-next-method no-primary-method print-object reinitialize-instance
       remove-method shared-initialize slot-missing slot-unbound
   )  )
+  (defvar *warn-if-gf-already-called* t)
   (defun warn-if-gf-already-called (gf)
-    (unless (gf-never-called-p gf)
+    (when (and *warn-if-gf-already-called* (not (gf-never-called-p gf)))
       (unless (member (sys::%record-ref gf 0) *dynamically-modifiable-generic-function-names* :test #'eq)
         (warn (DEUTSCH "Die generische Funktion ~S wird modifiziert, wurde aber bereits aufgerufen."
                ENGLISH "The generic function ~S is being modified, but has already been called."
@@ -3402,6 +3403,8 @@
     gf
 ) )
 
+(defvar *gf-warn-on-removing-all-methods* t)
+
 (defun do-defgeneric (funname signature argorder &rest methods)
   (if (fboundp funname)
     (let ((gf (fdefinition funname)))
@@ -3409,7 +3412,7 @@
         ; Umdefinition einer generischen Funktion
         (progn
           (warn-if-gf-already-called gf)
-          (unless (null (gf-methods gf))
+          (when (and *warn-on-removing-all-methods* (gf-methods gf))
             (warn (DEUTSCH "Alle Methoden von ~S werden entfernt."
                    ENGLISH "Removing all methods of ~S"
                    FRANCAIS "On enlève toutes les méthodes de ~S.")
