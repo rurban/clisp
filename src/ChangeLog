@@ -1,5 +1,15 @@
 2004-12-04  Bruno Haible  <bruno@clisp.org>
 
+	Prepare for using DEBUG_GCSAFETY with modules.
+	* genclisph.d (main): Fix VAROBJECT_HEADER definition.
+	* utils/modprep.lisp (print-tables-1): Change element type of the
+	object-tab to gcv_object_t.
+	* modules/clx/new-clx/clx.f (with_stringable_0_tc): Add casts in
+	conditional expression.
+	(XLIB:CREATE-PIXMAP): Likewise.
+
+2004-12-04  Bruno Haible  <bruno@clisp.org>
+
 	Make it possible to use CC=g++ with modules.
 	* genclisph.d (main): Fix the declaration of fd_read, fd_write on Unix.
 	* utils/modprep.lisp (print-tables-1): Use "extern" in the forward

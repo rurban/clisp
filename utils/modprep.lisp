@@ -871,13 +871,13 @@ commas and parentheses."
           *fundefs* (sort *fundefs* #'string-lessp :key #'fundef-tag))
     (loop :for od :across *objdefs*
       :do (with-conditional (out (objdef-cond-stack od))
-            (format out "  object _~A;" (objdef-tag od))))
+            (format out "  gcv_object_t _~A;" (objdef-tag od))))
     (loop :for vd :across *vardefs*
       :do (with-conditional (out (vardef-cond-stack vd))
-            (format out "  object _~A;" (vardef-tag vd))))
+            (format out "  gcv_object_t _~A;" (vardef-tag vd))))
     (format out "} ~A;" object-tab) (newline out)
     (format
-     out "uintC module__~A__object_tab_size = sizeof(~A)/sizeof(object);"
+     out "uintC module__~A__object_tab_size = sizeof(~A)/sizeof(gcv_object_t);"
      *module-name* object-tab)
     (newline out) (newline out)
     (write-string "struct {" out) (newline out)

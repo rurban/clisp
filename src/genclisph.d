@@ -765,9 +765,9 @@ int main(int argc, char* argv[])
   printf("inline gcv_object_t::gcv_object_t () {}\n");
 #endif
 #ifdef TYPECODES
-  printf("#define VAROBJECT_HEADER  object GCself;\n");
+  printf("#define VAROBJECT_HEADER  gcv_object_t GCself;\n");
 #else
-  printf("#define VAROBJECT_HEADER  object GCself; uintL tfl;\n");
+  printf("#define VAROBJECT_HEADER  gcv_object_t GCself; uintL tfl;\n");
 #endif
 #ifndef TYPECODES
   printf("#define varobject_type(ptr) ((sintB)((ptr)->tfl & 0xFF))\n");
