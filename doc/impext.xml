@@ -4,47 +4,43 @@
 
 <section id="cradle-grave"><title>Cradle to Grave</title>
 <subtitle>What is done when.</subtitle>
-<orderedlist numeration="upperalpha">
-<listitem><orderedlist numeration="arabic" inheritnum="inherit">
-  <title>Initialization</title>
-<listitem><simpara>Load the &mem-image;.</simpara></listitem>
-<listitem><simpara>Install internal signal handlers.</simpara></listitem>
-<listitem><simpara>Initialize time variables.</simpara></listitem>
-<listitem><simpara>Initialize <link linkend="enc-dflt">locale-dependent
-   encodings</link>.</simpara></listitem>
-<listitem><simpara>Initialize stream variables.</simpara></listitem>
-<listitem><simpara>Initialize pathname variables.</simpara></listitem>
-<listitem><simpara>Initialize &ffi-pac;.</simpara></listitem>
-<listitem><simpara><link linkend="modinit">Initialize
-   modules</link>.</simpara></listitem>
-<listitem id="init-hooks"><simpara>Run all functions in &init-hooks;
-  like this: <code>(&mapc; #'&funcall; &init-hooks;)</code>.
-</simpara></listitem>
-<listitem><simpara>Say <quote>hi</quote> unless suppressed by &opt-v;.
-</simpara></listitem></orderedlist></listitem>
-<listitem><para>Handle command line options: file
+<procedure><step><title>Initialization</title>
+ <substeps><step><simpara>Load the &mem-image;.</simpara></step>
+  <step><simpara>Install internal signal handlers.</simpara></step>
+  <step><simpara>Initialize time variables.</simpara></step>
+  <step><simpara>Initialize <link linkend="enc-dflt">locale-dependent
+     encodings</link>.</simpara></step>
+  <step><simpara>Initialize stream variables.</simpara></step>
+  <step><simpara>Initialize pathname variables.</simpara></step>
+  <step><simpara>Initialize &ffi-pac;.</simpara></step>
+  <step><simpara><link linkend="modinit">Initialize
+     modules</link>.</simpara></step>
+  <step id="init-hooks"><simpara>Run all functions in &init-hooks;
+    like this: <code>(&mapc; #'&funcall; &init-hooks;)</code>.
+  </simpara></step>
+  <step><simpara>Say <quote>hi</quote> unless suppressed by &opt-v;.
+</simpara></step></substeps></step>
+<step><title>The actual work</title><para>Handle command line options: file
   <olink targetdoc="man" targetptr="opt-init">loading</olink> and/or
   <olink targetdoc="man" targetptr="opt-compile">compilation</olink>,
   <olink targetdoc="man" targetptr="opt-exec-expr">form evaluation</olink>,
   <olink targetdoc="man" targetptr="opt-exec-file">script execution</olink>,
-  &repl;.</para></listitem>
-<listitem><orderedlist numeration="arabic" inheritnum="inherit">
-  <title>Finalization</title>
-<listitem id="fini-hooks"><simpara>Run all functions in &fini-hooks;
-  like this: <code>(&mapc; #'&funcall; &fini-hooks;)</code>.
-</simpara></listitem>
-<listitem><simpara>Call &fresh-line; on the standard
-  streams.</simpara></listitem>
-<listitem><simpara>Say <quote>bye</quote> unless suppressed by &opt-v;.
-</simpara></listitem>
-<listitem><simpara>Wait for a keypress if requested by
-  <option><olink targetdoc="man" targetptr="opt-wait">-w</olink></option>.
-</simpara></listitem>
-<listitem><simpara>Close all open file streams.</simpara></listitem>
-<listitem><simpara><link linkend="modfini">Finalize
-   modules</link>.</simpara></listitem>
-<listitem><simpara>Close opened DLLs.</simpara></listitem>
-</orderedlist></listitem></orderedlist>
+  &repl;.</para></step>
+<step><title>Finalization</title>
+ <substeps><step id="fini-hooks"><simpara>Run all functions in
+  &fini-hooks; like this: <code>(&mapc; #'&funcall; &fini-hooks;)</code>.
+  </simpara></step>
+  <step><simpara>Call &fresh-line; on the standard streams.</simpara></step>
+  <step><simpara>Say <quote>bye</quote> unless suppressed by &opt-v;.
+  </simpara></step>
+  <step><simpara>Wait for a keypress if requested by
+    <option><olink targetdoc="man" targetptr="opt-wait">-w</olink></option>.
+  </simpara></step>
+  <step><simpara>Close all open file streams.</simpara></step>
+  <step><simpara><link linkend="modfini">Finalize
+     modules</link>.</simpara></step>
+  <step><simpara>Close opened DLLs.</simpara></step>
+</substeps></step></procedure>
 </section>
 
 <section id="image"><title>Saving an Image</title>
@@ -2040,34 +2036,28 @@ precludes some efficiency optimizations which are on by default.</para></note>
  system, the following steps are needed.  (Step 1 and step 2 need not be
  executed in this order.)</para>
 
-<orderedlist numeration="arabic">
-<listitem><para>Create a new &modset;:
+<procedure><step><title>Create a new &modset;</title>
+<screen>$ clisp-link create-module-set linux /<replaceable>somewhere</replaceable>/bindings/linux.c</screen></step>
 
-<screen>$ clisp-link create-module-set linux /<replaceable>somewhere</replaceable>/bindings/linux.c</screen></para></listitem>
+<step><title>Modify the newly created
+  <filename>linux/&link-sh;</filename></title>
+ <substeps><step><title>add <option>-lm</option> to the libraries</title>
+   <para>replace <screen>NEW_LIBS="$file_list"</screen>
+    with <screen>NEW_LIBS="$file_list -lm"</screen></para></step>
+  <step><title>load <filename>linux.fas</filename> before saving the
+    &mem-image;</title><para>replace <screen>TO_LOAD=''</screen> with
+      <screen>TO_LOAD='/<replaceable>somewhere</replaceable>/bindings/linux.fas'</screen></para></step></substeps></step>
 
-<listitem><para>Modify the newly created <filename>linux/</filename>&link-sh;:
-<orderedlist inheritnum="inherit" numeration="loweralpha">
- <listitem><para>add <option>-lm</option> to the libraries:
-   replace <screen>NEW_LIBS="$file_list"</screen>
-   with <screen>NEW_LIBS="$file_list -lm"</screen></para></listitem>
-<listitem><para>load <filename>linux.fas</filename> before saving the
-  &mem-image;: replace <screen>TO_LOAD=''</screen> with
-  <screen>TO_LOAD='/<replaceable>somewhere</replaceable>/bindings/linux.fas'</screen>
-</para></listitem></orderedlist></para></listitem>
+<step><title>Compile <filename>linux.lisp</filename>, creating
+  <filename>linux.c</filename></title>
+<screen>$ clisp -c /<replaceable>somewhere</replaceable>/bindings/linux.lisp</screen></step>
 
-<listitem><para>Compile <filename>linux.lisp</filename>, creating
-  <filename>linux.c</filename>:
+<step><title>Create a new &linkset;</title>
+<screen>$ clisp-link add-module-set linux base base+linux</screen></step>
 
-<screen>$ clisp -c /<replaceable>somewhere</replaceable>/bindings/linux.lisp</screen></para></listitem>
-
-<listitem><para>Create a new &linkset;:
-<screen>$ clisp-link add-module-set linux base base+linux</screen></para></listitem>
-
-<listitem><para>Run and try it:
-
-<screen>$ base+linux/lisp.run -M base+linux/lispinit.mem -x '(linux:stat "/tmp")'</screen></para></listitem>
-
-</orderedlist>
+<step><title>Run and try it</title>
+<screen>$ base+linux/lisp.run -M base+linux/lispinit.mem -x '(linux:stat "/tmp")'</screen></step>
+</procedure>
 
 </section>
 
@@ -4404,7 +4394,6 @@ input will be available.</para></formalpara>
 </section>
 <!-- #endif -->
 
-<!-- #ifdef WIN32 -->
 <section id="quickstart-desktop"><title>Desktop Environments</title>
  <subtitle>Platform dependent: &win32;, &gnome;, &kde;, &macosx; desktop
   platforms only.</subtitle>
@@ -4414,7 +4403,7 @@ input will be available.</para></formalpara>
  on other desktop environments as well.</para></note>
 
 <para>There are two different ways to make &clisp;
- "executables" on Windows platforms.</para>
+ <quote>executables</quote> on desktop platforms.</para>
 
 <orderedlist>
  <listitem><simpara>Associate the &mem-file; extension with
@@ -4441,7 +4430,6 @@ input will be available.</para></formalpara>
  &fasl-file;, &lisp-file;, and &mem-file; files with &clisp;.</para>
 
 </section>
-<!-- #endif -->
 
 <section id="quickstart-linux">
  <title>Associating extensions with &clisp; via kernel</title>
