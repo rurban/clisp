@@ -638,6 +638,8 @@ for-value   NIL or T
   (if (< funtab-index 256)
     `(CALLS1 ,funtab-index)
     `(CALLS2 ,(- funtab-index 256))))
+(defmacro CALLS-code-fun (fun)
+  `(load-time-value (CALLS-code (gethash ',fun function-codes))))
 
 ;; error message function
 (defun compiler-error (caller &optional where)
@@ -4037,8 +4039,7 @@ for-value   NIL or T
                     (assert (= (fnode-keyword-offset fnode) 1))
                     `((FCONST ,fnode)
                       (PUSH)
-                      ,(CALLS-code (gethash 'SYSTEM::%COPY-GENERIC-FUNCTION
-                                            function-codes))))
+                      ,(CALLS-code-fun SYSTEM::%COPY-GENERIC-FUNCTION)))
                   `((COPY-CLOSURE ,fnode ,(fnode-keyword-offset fnode))))))))
 
 
@@ -5022,9 +5023,7 @@ for-value   NIL or T
                        (CONST ,(new-const f3))
                        (SVREF)
                        ,@(if f4
-                           `((PUSH)
-                             ,(CALLS-code (gethash 'FUNCTION-MACRO-FUNCTION
-                                                   function-codes)))
+                           `((PUSH) ,(CALLS-code-fun FUNCTION-MACRO-FUNCTION))
                            '()))))
             (LOCAL ; found in *fenv* without %fenv%
              (if (const-p f2)
@@ -9057,288 +9056,281 @@ This step works on the code-list and changes is destructively.
 
 |#
 
-(let ((CALLS-1+ (CALLS-code (gethash '1+ function-codes)))
-      (CALLS-1- (CALLS-code (gethash '1- function-codes)))
-      (CALLS-atom (CALLS-code (gethash 'atom function-codes)))
-      (CALLS-consp (CALLS-code (gethash 'consp function-codes))))
-  (defun insert-combined-LAPs (code-list)
-    ; First the ATOM/CONSP-Conversion, because it can introduce PUSHs:
-    (do ((crest code-list (cdr crest)))
-        ((null crest))
-      (let ((item (car crest)))
-        (when (consp item)
-          (case (first item)
-            (CONST ; (CONST n c) -> (CONST n)
-              (setf (cddr item) '()))
-            ((ATOM CONSP)
-              (setq item (first item))
-              (if (and #| (consp (cdr crest)) |#
-                       (consp (cadr crest))
-                       (memq (first (cadr crest)) '(JMPIF JMPIFNOT))
-                       (null (third (cadr crest))))
-                ;; e.g. (ATOM) (JMPIF label NIL) --> (JMPIFATOM label)
-                (setf (car crest)
-                      `(,(if (eq (first (cadr crest)) 'JMPIF)
-                           (if (eq item 'ATOM) 'JMPIFATOM 'JMPIFCONSP)
-                           (if (eq item 'ATOM) 'JMPIFCONSP 'JMPIFATOM))
-                        ,(second (cadr crest)))
-                      (cdr crest) (cddr crest))
-                ;; e.g. (ATOM) --> (PUSH) (CALLS ATOM)
-                (setf (car crest) '(PUSH)
-                      (cdr crest) (cons (if (eq item 'ATOM)
-                                            CALLS-atom CALLS-consp)
-                                        (cdr crest)))))))))
-    ;; Now the other Conversions: One single run.
-    ;; Two pointers loop through the code-list: ...middle.right...
-    (do* ((middle code-list right)
-          (right (cdr middle) (cdr right)))
-         ((null middle))
-      (macrolet ((ersetze (length new-code)
-                   ; replaces the next length elements
-                   ; (nth 0 middle) ... (nth (- length 1) middle)
-                   ; by one single element new-code.
-                   (assert (typep length '(INTEGER 0 4)))
-                   `(progn
-                      ,(case length
-                         (0 `(setf (cdr middle) (setq right (cons (car middle) right))
-                                   (car middle) ,new-code))
-                         (1 `(setf (car middle) ,new-code))
-                         (t `(setf (car middle) ,new-code
-                                   (cdr middle) ,(setq right
-                                                  (case length
-                                                    (2 `(cdr right))
-                                                    (3 `(cddr right))
-                                                    (4 `(cdddr right)))))))
-                      (go next))))
-        (let ((item (car middle)))
-          (when (consp item)
-            ; analysis of the instruction item and the consecutive ones:
-            (when (and #| (consp right) |# (consp (car right)))
-              ; normal conversions, with chaining of the arguments:
-              (let ((new-op
-                      (cdr (assoc (first item)
-                                  (case (first (car right))
-                                    (PUSH  '((T        . T&PUSH)
-                                             (CONST    . CONST&PUSH)
-                                             (LOADI    . LOADI&PUSH)
-                                             (LOADC    . LOADC&PUSH)
-                                             (LOADV    . LOADV&PUSH)
-                                             (GETVALUE . GETVALUE&PUSH)
-                                             (CALL     . CALL&PUSH)
-                                             (CALL1    . CALL1&PUSH)
-                                             (CALL2    . CALL2&PUSH)
-                                             (CALLS1   . CALLS1&PUSH)
-                                             (CALLS2   . CALLS2&PUSH)
-                                             (CALLSR   . CALLSR&PUSH)
-                                             (CALLC    . CALLC&PUSH)
-                                             (CALLCKEY . CALLCKEY&PUSH)
-                                             (CAR      . CAR&PUSH)
-                                             (CDR      . CDR&PUSH)
-                                             (CONS     . CONS&PUSH)
-                                             (LIST     . LIST&PUSH)
-                                             (LIST*    . LIST*&PUSH)
-                                             (FUNCALL  . FUNCALL&PUSH)
-                                             (APPLY    . APPLY&PUSH)
-                                             (COPY-CLOSURE . COPY-CLOSURE&PUSH)
-                                             (HANDLER-BEGIN . HANDLER-BEGIN&PUSH)))
-                                    (JMPIF
-                                      (let ((alist
-                                              '((EQ     . JMPIFEQ)
-                                                (LOAD   . LOAD&JMPIF)
-                                                (CALL1  . CALL1&JMPIF)
-                                                (CALL2  . CALL2&JMPIF)
-                                                (CALLS1 . CALLS1&JMPIF)
-                                                (CALLS2 . CALLS2&JMPIF)
-                                                (CALLSR . CALLSR&JMPIF))))
-                                        (when (third (car right))
-                                          (setq alist (cdr alist)))
-                                        (setf (cddr (car right)) '())
-                                        alist))
-                                    (JMPIFNOT
-                                      (let ((alist
-                                              '((EQ     . JMPIFNOTEQ)
-                                                (LOAD   . LOAD&JMPIFNOT)
-                                                (CALL1  . CALL1&JMPIFNOT)
-                                                (CALL2  . CALL2&JMPIFNOT)
-                                                (CALLS1 . CALLS1&JMPIFNOT)
-                                                (CALLS2 . CALLS2&JMPIFNOT)
-                                                (CALLSR . CALLSR&JMPIFNOT))))
-                                        (when (third (car right))
-                                          (setq alist (cdr alist)))
-                                        (setf (cddr (car right)) '())
-                                        alist))
-                                    (STORE '((NIL    . NIL&STORE)
-                                             (T      . T&STORE)
-                                             (POP    . POP&STORE)
-                                             (CALLS1 . CALLS1&STORE)
-                                             (CALLS2 . CALLS2&STORE)
-                                             (CALLSR . CALLSR&STORE)))
-                                    (STOREC '((LOAD . LOAD&STOREC)))
-                                    (RET '((SKIP . SKIP&RET)))
-                                    (RETGF '((SKIP . SKIP&RETGF))))
-                                  :test #'eq))))
-                (when new-op
-                  (ersetze 2 `(,new-op ,@(rest item) ,@(rest (car right)))))))
-            ;; further conversions:
-            (case (first item)
-              ((NIL PUSH-NIL)
-                (flet ((nilpusher-p (coder)
-                         ; if (NIL) (PUSH) --> 1,
-                         ; if (PUSH-NIL n) --> n,
-                         ; else nil.
-                         (and #| (consp coder) |# (consp (car coder))
-                              (case (first (car coder))
-                                (PUSH-NIL (second (car coder)))
-                                ((NIL) (when (equal (cadr coder) '(PUSH))
-                                         (setf (cdr coder) (cddr coder))
-                                         1))
-                                (t nil)))))
-                  (let ((count (nilpusher-p middle)))
-                    (when count
-                      (setq right (cdr middle))
-                      (loop
-                        (let ((next-count (nilpusher-p right)))
-                          (unless next-count (return))
-                          (incf count next-count))
-                        (setq right (cdr right)))
-                      (setf (car middle)
-                            (if (eql count 1) '(NIL&PUSH) `(PUSH-NIL ,count))
-                            (cdr middle) right)
-                      (go next)))))
-              (CONST
-                (when (and #| (consp right) |# (consp (car right)))
-                  (case (first (car right))
-                    (SYMBOL-FUNCTION
-                      (let ((n (second item)))
-                        (cond ((and #| (consp (cdr right)) |#
-                                    (equal (cadr right) '(PUSH)))
-                               (ersetze 3 `(CONST&SYMBOL-FUNCTION&PUSH ,n)))
-                              ((and #| (consp (cdr right)) |#
-                                    (consp (cadr right))
-                                    (eq (first (cadr right)) 'STORE))
-                               (ersetze 3
-                                 `(CONST&SYMBOL-FUNCTION&STORE ,n
-                                   ,(second (cadr right)))))
-                              (t (ersetze 2 `(CONST&SYMBOL-FUNCTION ,n))))))
-                    (EQ
-                      (when (and #| (consp (cdr right)) |#
-                                 (consp (cadr right))
-                                 (memq (first (cadr right)) '(JMPIF JMPIFNOT))
-                                 (null (third (cadr right))))
-                        (ersetze 3
-                          `(,(if (eq (first (cadr right)) 'JMPIF)
-                               'JMPIFEQTO
-                               'JMPIFNOTEQTO)
-                            ,(second item)
-                            ,(second (cadr right)))))))))
-              (LOAD
-                (when (and #| (consp right) |# (consp (car right)))
-                  (let ((n (second item)))
-                    (case (first (car right))
-                      (CAR
-                        (when (and #| (consp (cdr right)) |# (consp (cadr right)))
-                          (case (first (cadr right))
-                            (PUSH (ersetze 3 `(LOAD&CAR&PUSH ,n)))
-                            (STORE
-                             (ersetze 3 `(LOAD&CAR&STORE
-                                          ,n ,(second (cadr right))))))))
-                      (CDR
-                        (when (and #| (consp (cdr right)) |# (consp (cadr right)))
-                          (case (first (cadr right))
-                            (PUSH (ersetze 3 `(LOAD&CDR&PUSH ,n)))
-                            (STORE
-                              (when (eql n (second (cadr right)))
-                                (ersetze 3 `(LOAD&CDR&STORE ,n)))))))
-                      (CONS
-                        (when (and #| (consp (cdr right)) |# (consp (cadr right))
-                                   (eq (first (cadr right)) 'STORE)
-                                   (eql (second (cadr right)) (- n 1)))
-                          (ersetze 3 `(LOAD&CONS&STORE ,(- n 1)))))
-                      (PUSH
-                        (when (and #| (consp (cdr right)) |# (consp (cadr right))
-                                   (or (equal (cadr right) CALLS-1+)
-                                       (equal (cadr right) CALLS-1-))
-                                   #| (consp (cddr right)) |# (consp (caddr right)))
-                          (when (equal (caddr right) '(PUSH))
-                            (ersetze 4
-                              `(,(if (equal (cadr right) CALLS-1+)
-                                   'LOAD&INC&PUSH
-                                   'LOAD&DEC&PUSH)
-                                ,n)))
-                          (when (and (eq (first (caddr right)) 'STORE)
-                                     (eql (second (caddr right)) n))
-                            (ersetze 4
-                              `(,(if (equal (cadr right) CALLS-1+)
-                                   'LOAD&INC&STORE
-                                   'LOAD&DEC&STORE)
-                                ,n))))
-                        (ersetze 2 `(LOAD&PUSH ,n)))))))
-              (JMPIFBOUNDP ; simplify (JMPIFBOUNDP n l) (NIL) (STORE n) l
-                (when (and #| (consp right) |#
-                           (equal (car right) '(NIL))
-                           #| (consp (cdr right)) |#
-                           (consp (cadr right))
-                           (eq (first (cadr right)) 'STORE)
-                           (eql (second (cadr right)) (second item))
-                           #| (consp (cddr right)) |#
-                           (eq (caddr right) (third item)))
-                  (ersetze 3 `(UNBOUND->NIL ,(second item)))))
-              (JSR
-                (if (and #| (consp right) |# (equal (car right) '(PUSH)))
-                  (ersetze 2 `(JSR&PUSH ,(third item)))
-                  (ersetze 1 `(JSR ,(third item)))))
-              (UNBIND1
-                (let ((count 1))
-                  (loop
-                    (unless (and #| (consp right) |#
-                                 (equal (car right) '(UNBIND1)))
-                      (return))
-                    (incf count)
-                    (setq right (cdr right)))
-                  (unless (eql count 1)
-                    (setf (car middle) `(UNBIND ,count))
-                    (setf (cdr middle) right)
+(defun insert-combined-LAPs (code-list)
+  ;; First the ATOM/CONSP-Conversion, because it can introduce PUSHs:
+  (do ((crest code-list (cdr crest)))
+      ((null crest))
+    (let ((item (car crest)))
+      (when (consp item)
+        (case (first item)
+          (CONST ; (CONST n c) -> (CONST n)
+           (setf (cddr item) '()))
+          ((ATOM CONSP)
+           (setq item (first item))
+           (if (and #| (consp (cdr crest)) |#
+                   (consp (cadr crest))
+                   (memq (first (cadr crest)) '(JMPIF JMPIFNOT))
+                   (null (third (cadr crest))))
+             ;; e.g. (ATOM) (JMPIF label NIL) --> (JMPIFATOM label)
+             (setf (car crest)
+                   `(,(if (eq (first (cadr crest)) 'JMPIF)
+                          (if (eq item 'ATOM) 'JMPIFATOM 'JMPIFCONSP)
+                          (if (eq item 'ATOM) 'JMPIFCONSP 'JMPIFATOM))
+                      ,(second (cadr crest)))
+                   (cdr crest) (cddr crest))
+             ;; e.g. (ATOM) --> (PUSH) (CALLS ATOM)
+             (setf (car crest) '(PUSH)
+                   (cdr crest) (cons (if (eq item 'ATOM)
+                                         (CALLS-code-fun atom)
+                                         (CALLS-code-fun consp))
+                                     (cdr crest)))))))))
+  ;; Now the other Conversions: One single run.
+  ;; Two pointers loop through the code-list: ...middle.right...
+  (do* ((middle code-list right)
+        (right (cdr middle) (cdr right)))
+       ((null middle))
+    (macrolet ((ersetze (length new-code)
+                 ;; replaces the next length elements
+                 ;; (nth 0 middle) ... (nth (- length 1) middle)
+                 ;; by one single element new-code.
+                 (assert (typep length '(INTEGER 0 4)))
+                 `(progn
+                    ,(case length
+                       (0 `(setf (cdr middle)
+                                 (setq right (cons (car middle) right))
+                                 (car middle) ,new-code))
+                       (1 `(setf (car middle) ,new-code))
+                       (t `(setf (car middle) ,new-code
+                                 (cdr middle) ,(setq right
+                                                     (case length
+                                                       (2 `(cdr right))
+                                                       (3 `(cddr right))
+                                                       (4 `(cdddr right)))))))
                     (go next))))
-              ;; (RET (ersetze 1 '(SKIP&RET 0))) ; does not occur!
-              ;; (RETGF (ersetze 1 '(SKIP&RETGF 0))) ; does not occur!
-              (UNWIND-PROTECT-CLOSE (ersetze 1 '(UNWIND-PROTECT-CLOSE)))
-              ((JMPIF JMPIFNOT) (ersetze 1 `(,(first item) ,(second item))))
-              ((JMPHASH JMPHASHV)
-                (let ((hashtable (third item))
-                      (labels (cddddr item)))
-                  (maphash
-                    #'(lambda (obj index) ; (gethash obj hashtable) = index
-                        (setf (gethash obj hashtable) (nth index labels)))
-                    hashtable))
-                (setf (cddddr item) '()))
-              (HANDLER-OPEN
-                (do ((v (third item))
-                     (labels (cddddr item) (cdr labels))
-                     (i 1 (+ i 2)))
-                    ((null labels))
-                  (setf (svref v i) (car labels)))
-                (setf (cdddr item) '()))
-              (APPLY
-                (when (and #| (consp right) |#
-                           (consp (car right))
-                           (eq (first (car right)) 'SKIP)
-                           #| (consp (cdr right)) |#
-                           (equal (cadr right) '(RET)))
-                  (ersetze 3 `(APPLY&SKIP&RET ,(second item)
-                               ,(second (car right))))))
-              (FUNCALL
-                (when (and #| (consp right) |#
-                           (consp (car right))
-                           (eq (first (car right)) 'SKIP)
-                           #| (consp (cdr right)) |#
-                           (equal (cadr right) '(RETGF)))
-                  (ersetze 3 `(FUNCALL&SKIP&RETGF ,(second item)
-                               ,(second (car right))))))))))
-      next ; Here we are finished with (car middle) .
-      (when (equal (car right) '(BARRIER))
-        ;; discard element (car right)
-        (setf (cdr middle) (setq right (cdr right)))))
-    code-list))
+      (let ((item (car middle)))
+        (when (consp item)
+          ;; analysis of the instruction item and the consecutive ones:
+          (when (and #| (consp right) |# (consp (car right)))
+            ;; normal conversions, with chaining of the arguments:
+            (let ((new-op
+                   (cdr (assoc (first item)
+                               (case (first (car right))
+                                 (PUSH  '((T        . T&PUSH)
+                                          (CONST    . CONST&PUSH)
+                                          (LOADI    . LOADI&PUSH)
+                                          (LOADC    . LOADC&PUSH)
+                                          (LOADV    . LOADV&PUSH)
+                                          (GETVALUE . GETVALUE&PUSH)
+                                          (CALL     . CALL&PUSH)
+                                          (CALL1    . CALL1&PUSH)
+                                          (CALL2    . CALL2&PUSH)
+                                          (CALLS1   . CALLS1&PUSH)
+                                          (CALLS2   . CALLS2&PUSH)
+                                          (CALLSR   . CALLSR&PUSH)
+                                          (CALLC    . CALLC&PUSH)
+                                          (CALLCKEY . CALLCKEY&PUSH)
+                                          (CAR      . CAR&PUSH)
+                                          (CDR      . CDR&PUSH)
+                                          (CONS     . CONS&PUSH)
+                                          (LIST     . LIST&PUSH)
+                                          (LIST*    . LIST*&PUSH)
+                                          (FUNCALL  . FUNCALL&PUSH)
+                                          (APPLY    . APPLY&PUSH)
+                                          (COPY-CLOSURE . COPY-CLOSURE&PUSH)
+                                          (HANDLER-BEGIN . HANDLER-BEGIN&PUSH)))
+                                 (JMPIF
+                                  (let ((alist
+                                         '((EQ     . JMPIFEQ)
+                                           (LOAD   . LOAD&JMPIF)
+                                           (CALL1  . CALL1&JMPIF)
+                                           (CALL2  . CALL2&JMPIF)
+                                           (CALLS1 . CALLS1&JMPIF)
+                                           (CALLS2 . CALLS2&JMPIF)
+                                           (CALLSR . CALLSR&JMPIF))))
+                                    (when (third (car right))
+                                      (setq alist (cdr alist)))
+                                    (setf (cddr (car right)) '())
+                                    alist))
+                                 (JMPIFNOT
+                                  (let ((alist
+                                         '((EQ     . JMPIFNOTEQ)
+                                           (LOAD   . LOAD&JMPIFNOT)
+                                           (CALL1  . CALL1&JMPIFNOT)
+                                           (CALL2  . CALL2&JMPIFNOT)
+                                           (CALLS1 . CALLS1&JMPIFNOT)
+                                           (CALLS2 . CALLS2&JMPIFNOT)
+                                           (CALLSR . CALLSR&JMPIFNOT))))
+                                    (when (third (car right))
+                                      (setq alist (cdr alist)))
+                                    (setf (cddr (car right)) '())
+                                    alist))
+                                 (STORE '((NIL    . NIL&STORE)
+                                          (T      . T&STORE)
+                                          (POP    . POP&STORE)
+                                          (CALLS1 . CALLS1&STORE)
+                                          (CALLS2 . CALLS2&STORE)
+                                          (CALLSR . CALLSR&STORE)))
+                                 (STOREC '((LOAD . LOAD&STOREC)))
+                                 (RET '((SKIP . SKIP&RET)))
+                                 (RETGF '((SKIP . SKIP&RETGF))))
+                               :test #'eq))))
+              (when new-op
+                (ersetze 2 `(,new-op ,@(rest item) ,@(rest (car right)))))))
+          ;; further conversions:
+          (case (first item)
+            ((NIL PUSH-NIL)
+             (flet ((nilpusher-p (coder)
+                      ;; if (NIL) (PUSH) --> 1,
+                      ;; if (PUSH-NIL n) --> n,
+                      ;; else nil.
+                      (and #| (consp coder) |# (consp (car coder))
+                           (case (first (car coder))
+                             (PUSH-NIL (second (car coder)))
+                             ((NIL) (when (equal (cadr coder) '(PUSH))
+                                      (setf (cdr coder) (cddr coder))
+                                      1))
+                             (t nil)))))
+               (let ((count (nilpusher-p middle)))
+                 (when count
+                   (setq right (cdr middle))
+                   (loop
+                     (let ((next-count (nilpusher-p right)))
+                       (unless next-count (return))
+                       (incf count next-count))
+                     (setq right (cdr right)))
+                   (setf (car middle)
+                         (if (eql count 1) '(NIL&PUSH) `(PUSH-NIL ,count))
+                         (cdr middle) right)
+                   (go next)))))
+            (CONST
+             (when (and #| (consp right) |# (consp (car right)))
+               (case (first (car right))
+                 (SYMBOL-FUNCTION
+                  (let ((n (second item)))
+                    (cond ((and #| (consp (cdr right)) |#
+                            (equal (cadr right) '(PUSH)))
+                           (ersetze 3 `(CONST&SYMBOL-FUNCTION&PUSH ,n)))
+                          ((and #| (consp (cdr right)) |#
+                            (consp (cadr right))
+                            (eq (first (cadr right)) 'STORE))
+                           (ersetze 3 `(CONST&SYMBOL-FUNCTION&STORE
+                                        ,n ,(second (cadr right)))))
+                          (t (ersetze 2 `(CONST&SYMBOL-FUNCTION ,n))))))
+                 (EQ
+                  (when (and #| (consp (cdr right)) |#
+                             (consp (cadr right))
+                             (memq (first (cadr right)) '(JMPIF JMPIFNOT))
+                             (null (third (cadr right))))
+                    (ersetze 3 `(,(if (eq (first (cadr right)) 'JMPIF)
+                                      'JMPIFEQTO 'JMPIFNOTEQTO)
+                                 ,(second item)
+                                 ,(second (cadr right)))))))))
+            (LOAD
+             (when (and #| (consp right) |# (consp (car right)))
+               (let ((n (second item)))
+                 (case (first (car right))
+                   (CAR
+                    (when (and #| (consp (cdr right)) |# (consp (cadr right)))
+                      (case (first (cadr right))
+                        (PUSH (ersetze 3 `(LOAD&CAR&PUSH ,n)))
+                        (STORE
+                         (ersetze 3 `(LOAD&CAR&STORE
+                                      ,n ,(second (cadr right))))))))
+                   (CDR
+                    (when (and #| (consp (cdr right)) |# (consp (cadr right)))
+                      (case (first (cadr right))
+                        (PUSH (ersetze 3 `(LOAD&CDR&PUSH ,n)))
+                        (STORE
+                         (when (eql n (second (cadr right)))
+                           (ersetze 3 `(LOAD&CDR&STORE ,n)))))))
+                   (CONS
+                    (when (and #| (consp (cdr right)) |# (consp (cadr right))
+                               (eq (first (cadr right)) 'STORE)
+                               (eql (second (cadr right)) (- n 1)))
+                      (ersetze 3 `(LOAD&CONS&STORE ,(- n 1)))))
+                   (PUSH
+                    (when (and #| (consp (cdr right)) |# (consp (cadr right))
+                               (or (equal (cadr right) (CALLS-code-fun 1+))
+                                   (equal (cadr right) (CALLS-code-fun 1-)))
+                               #| (consp (cddr right)) |# (consp (caddr right)))
+                      (when (equal (caddr right) '(PUSH))
+                        (ersetze 4 `(,(if (equal (cadr right)
+                                                 (CALLS-code-fun 1+))
+                                          'LOAD&INC&PUSH 'LOAD&DEC&PUSH)
+                                      ,n)))
+                      (when (and (eq (first (caddr right)) 'STORE)
+                                 (eql (second (caddr right)) n))
+                        (ersetze 4 `(,(if (equal (cadr right)
+                                                 (CALLS-code-fun 1+))
+                                          'LOAD&INC&STORE 'LOAD&DEC&STORE)
+                                      ,n))))
+                    (ersetze 2 `(LOAD&PUSH ,n)))))))
+            (JMPIFBOUNDP ; simplify (JMPIFBOUNDP n l) (NIL) (STORE n) l
+             (when (and #| (consp right) |#
+                        (equal (car right) '(NIL))
+                        #| (consp (cdr right)) |#
+                        (consp (cadr right))
+                        (eq (first (cadr right)) 'STORE)
+                        (eql (second (cadr right)) (second item))
+                        #| (consp (cddr right)) |#
+                        (eq (caddr right) (third item)))
+               (ersetze 3 `(UNBOUND->NIL ,(second item)))))
+            (JSR
+             (if (and #| (consp right) |# (equal (car right) '(PUSH)))
+                 (ersetze 2 `(JSR&PUSH ,(third item)))
+                 (ersetze 1 `(JSR ,(third item)))))
+            (UNBIND1
+             (let ((count 1))
+               (loop
+                 (unless (and #| (consp right) |#
+                              (equal (car right) '(UNBIND1)))
+                   (return))
+                 (incf count)
+                 (setq right (cdr right)))
+               (unless (eql count 1)
+                 (setf (car middle) `(UNBIND ,count))
+                 (setf (cdr middle) right)
+                 (go next))))
+            ;; (RET (ersetze 1 '(SKIP&RET 0))) ; does not occur!
+            ;; (RETGF (ersetze 1 '(SKIP&RETGF 0))) ; does not occur!
+            (UNWIND-PROTECT-CLOSE (ersetze 1 '(UNWIND-PROTECT-CLOSE)))
+            ((JMPIF JMPIFNOT) (ersetze 1 `(,(first item) ,(second item))))
+            ((JMPHASH JMPHASHV)
+             (let ((hashtable (third item))
+                   (labels (cddddr item)))
+               (maphash
+                #'(lambda (obj index) ; (gethash obj hashtable) = index
+                    (setf (gethash obj hashtable) (nth index labels)))
+                hashtable))
+             (setf (cddddr item) '()))
+            (HANDLER-OPEN
+             (do ((v (third item))
+                  (labels (cddddr item) (cdr labels))
+                  (i 1 (+ i 2)))
+                 ((null labels))
+               (setf (svref v i) (car labels)))
+             (setf (cdddr item) '()))
+            (APPLY
+             (when (and #| (consp right) |#
+                        (consp (car right))
+                        (eq (first (car right)) 'SKIP)
+                        #| (consp (cdr right)) |#
+                        (equal (cadr right) '(RET)))
+               (ersetze 3 `(APPLY&SKIP&RET ,(second item)
+                                           ,(second (car right))))))
+            (FUNCALL
+             (when (and #| (consp right) |#
+                        (consp (car right))
+                        (eq (first (car right)) 'SKIP)
+                        #| (consp (cdr right)) |#
+                        (equal (cadr right) '(RETGF)))
+               (ersetze 3 `(FUNCALL&SKIP&RETGF ,(second item)
+                                               ,(second (car right))))))))))
+   next ; Here we are finished with (car middle) .
+    (when (equal (car right) '(BARRIER))
+      ;; discard element (car right)
+      (setf (cdr middle) (setq right (cdr right)))))
+  code-list)
 
 
 #|
