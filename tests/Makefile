@@ -1,4 +1,14 @@
-LISP = clisp
+OS=$(shell uname);
+ifneq (,$(filter CYGWIN%,$(OS)))
+BD=../src/
+EXE=$(BD)lisp.exe
+else
+BD=../build/
+EXE=$(BD)lisp.run
+endif
+LISP=$(EXE) -norc -q -B $(BD) -M $(BD)lispinit.mem
+# LISP = clisp
+
 RM = rm -f
 
 all : clean tests compare
