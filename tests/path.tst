@@ -786,12 +786,13 @@ NIL
   (unwind-protect
        (let ((d (directory (make-pathname
                             :defaults (open file :direction :probe
-                                            :if-does-not-exist :create)
+                                        :if-does-not-exist :create)
                             :version :wild))))
          (list (= (length d) 1)
-               (remove-if-not #'wild-pathname-p d)))
+               (notany #'wild-pathname-p d)
+               (equalp (car d) (truename file))))
     (delete-file file)))
-(T NIL)
+(T T T)
 
 (first (pathname-directory (translate-pathname
                             "foo/bar/baz" #p"" #p"" :absolute t)))
