@@ -1,5 +1,10 @@
 2005-02-01  Sam Steingold  <sds@gnu.org>
 
+	* foreign.d (find_library): extracted from FFI::FOREIGN-LIBRARY
+	(FFI::FOREIGN-LIBRARY): use it; fixed a GC-safety bug
+
+2005-02-01  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (POSIX::LGAMMA): finished the
 	2005-01-24 patch: HAVE_DECL_* is always defined to either 0 or 1
 
