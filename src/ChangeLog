@@ -1,3 +1,7 @@
+1998-12-21  Sam Steingold  <sds@goems.com>
+
+	* spvw_language.d (init_language): use `getcwd' instead of `getwd'.
+
 1998-12-21  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
         * makemake.in: Don't remove full/* for DOS,OS/2, as it doesn't exist.
