@@ -44,6 +44,16 @@ img
 .epigraph
 { text-align: right; margin-left: 50%; }
 
-/* larger headings */
-h1, h2, h3, h4, h5, h6, h7, h8, h9
-{ font-size: 150%; }
+/* larger headings:
+ (loop :for i :from 1 :to 9 :do
+   (format t "h~d { font-size: ~d%; }~%"
+           i (round (expt 1.1 (- 10 i)) 1d-2))) */
+h1 { font-size: 236%; }
+h2 { font-size: 214%; }
+h3 { font-size: 195%; }
+h4 { font-size: 177%; }
+h5 { font-size: 161%; }
+h6 { font-size: 146%; }
+h7 { font-size: 133%; }
+h8 { font-size: 121%; }
+h9 { font-size: 110%; }
