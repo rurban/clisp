@@ -1630,6 +1630,7 @@ LISPFUNNR(class_of,1)
     case_sb8vector: case_ob8vector:
     case_sb16vector: case_ob16vector:
     case_sb32vector: case_ob32vector:
+    case_snilvector: case_nilvector: /* NIL vector -> <vector> */
     case_svector: case_ovector: case_weakkvt: /* General-Vector -> <vector> */
       value1 = O(class_vector); break;
     case_mdarray: /* other Array -> <array> */
@@ -1674,6 +1675,8 @@ LISPFUNNR(class_of,1)
         case_Rectype_Sb32vector_above;
         case_Rectype_ob32vector_above;
         case_Rectype_Svector_above;
+        case_Rectype_Snilvector_above;
+        case_Rectype_nilvector_above;
         case_Rectype_WeakKVT_above;
         case_Rectype_ovector_above;
         case_Rectype_mdarray_above;
