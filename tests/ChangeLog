@@ -1,3 +1,7 @@
+2004-05-23  Bruno Haible  <bruno@clisp.org>
+
+	* backquot.tst: Add test for vector element type.
+
 2004-05-20  Bruno Haible  <bruno@clisp.org>
 
 	Increase memory sizes for builds with fixed memory size.

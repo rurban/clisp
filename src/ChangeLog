@@ -1,3 +1,8 @@
+2004-05-23  Bruno Haible  <bruno@clisp.org>
+
+	* backquote.lisp (backquote-reader, bq-expand): Treat vectors of
+	element types other than T like strings and bit-vectors.
+
 2004-05-21  Bruno Haible  <bruno@clisp.org>
 
 	* Makefile.devel (multibuild-linux-x86): Add builds with both
