@@ -57,7 +57,7 @@
                    (push name symname-list)))
                (modernize (name)
                  ;; MODERN: CL ==> CS-CL
-                 (let ((pack (find-package name)))
+                 (let ((pack (sys::%find-package name)))
                    (ecase modern
                      ((t) (if (eq pack #.(find-package "COMMON-LISP"))
                               "CS-COMMON-LISP" (package-name pack)))
