@@ -60,8 +60,9 @@ LISPFUNN(lisp_implementation_version,0)
             # YYYY-MM-DD HH:MM:SS
             var char build_time[4+1+2+1+2 +1+ 2+1+2+1+2+1];
             if (eq(unbound,Symbol_function(S(encode_universal_time)))) {
-              sprintf(build_time,"%04d-%02d-%02d %02d:%02d:%02d",
-                      ye,mo,da,ho,mi,se);
+              sprintf(build_time,"%04u-%02u-%02u %02u:%02u:%02u",
+                      (unsigned int) ye, (unsigned int) mo, (unsigned int) da,
+                      (unsigned int) ho, (unsigned int) mi, (unsigned int) se);
             } else {
               pushSTACK(fixnum(se));
               pushSTACK(fixnum(mi));
@@ -70,7 +71,7 @@ LISPFUNN(lisp_implementation_version,0)
               pushSTACK(fixnum(mo));
               pushSTACK(fixnum(ye));
               funcall(S(encode_universal_time),6);
-              sprintf(build_time,"%u",I_to_UL(value1));
+              sprintf(build_time,"%u", (unsigned int) I_to_UL(value1));
             }
             O(lisp_implementation_version_built_string) =
               ascii_to_string(build_time);

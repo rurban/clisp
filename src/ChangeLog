@@ -1,3 +1,9 @@
+2002-05-06  Bruno Haible  <bruno@clisp.org>
+
+	* misc.d (LISP-IMPLEMENTATION-VERSION): Use casts to 'unsigned int'
+	to avoid gcc-3.1 warnings.
+	* utils/comment5.d: Include <stdlib.h>, for exit().
+
 2002-05-06  Sam Steingold  <sds@gnu.org>
 
 	do not create unusable iconv encodings

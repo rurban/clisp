@@ -135,6 +135,8 @@ static int mmap_zeromap (void* map_addr, unsigned long map_len)
 
 /* Now the test program. */
 
+#include <stdlib.h>
+
 static sigsegv_dispatcher dispatcher;
 
 static unsigned int logcount = 0;
