@@ -330,6 +330,8 @@
   LISPOBJ(hs_special_operator,"SPECIAL-OPERATOR")
   LISPOBJ(hs_load_time_eval,"LOAD-TIME-EVAL")
   LISPOBJ(hs_symbol_macro,"SYMBOL-MACRO")
+  LISPOBJ(hs_macro,"MACRO")
+  LISPOBJ(hs_function_macro,"FUNCTION-MACRO")
   LISPOBJ(hs_encoding,"ENCODING")
   #ifdef FOREIGN
   LISPOBJ(hs_foreign_pointer,"FOREIGN-POINTER")
@@ -752,6 +754,8 @@
   LISPOBJ(pathname_slotlist,"#.(list (cons :HOST #'pathname-host) (cons :DEVICE #'pathname-device) (cons :DIRECTORY #'pathname-directory) (cons :NAME #'pathname-name) (cons :TYPE #'pathname-type) (cons :VERSION #'pathname-version))")
   LISPOBJ(byte_slotlist,"#.(list (cons :SIZE #'byte-size) (cons :POSITION #'byte-position))")
   LISPOBJ_S(printstring_symbolmacro,"SYMBOL-MACRO")
+  LISPOBJ_S(printstring_macro,"MACRO")
+  LISPOBJ_S(printstring_functionmacro,"FUNCTION-MACRO")
   LISPOBJ_S(printstring_encoding,"ENCODING")
   #ifdef FOREIGN
   LISPOBJ_S(printstring_invalid,"INVALID ")

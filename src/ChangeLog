@@ -1,5 +1,58 @@
 2000-06-11  Bruno Haible  <haible@clisp.cons.org>
 
+        * lispbibl.d (Rectype_Macro, Rectype_FunctionMacro): New enumeration
+          items.
+          (Macro, FunctionMacro): New types.
+          (macro_length, functionmacro_length): New macros.
+          (TheMacro, TheFunctionMacro): New macros.
+          (macrop, functionmacrop): New macros.
+          (allocate_macro, allocate_functionmacro): New macros.
+          (fehler_function): New declaration.
+        * error.d (fehler_function): New function.
+        * predtype.d (TYPE-OF, CLOS:CLASS-OF): Treat Rectype_Macro and
+          Rectype_FunctionMacro.
+          (COERCE): When the symbol has both a function and a macro, use the
+          function.
+          (enum_hs_macro, enum_hs_function_macro): New enum items.
+          (heap_statistics_mapper): Update.
+        * io.d (pr_orecord): Treat Rectype_Macro and Rectype_FunctionMacro.
+        * record.d (SYS::MAKE-MACRO, SYS::MACROP, SYS::MACRO-EXPANDER,
+           SYS::MAKE-FUNCTION-MACRO, SYS::FUNCTION-MACRO-P,
+           SYS::FUNCTION-MACRO-FUNCTION, SYS::FUNCTION-MACRO-EXPANDER): New
+          functions.
+        * eval.d (FUNTAB): Add SYS::FUNCTION-MACRO-FUNCTION.
+          (macroexp): Test for Macro instead of cons with car = SYS::MACRO.
+          (macroexp0): Likewise.
+          (eval1): Treat Rectype_FunctionMacro.
+        * control.d (FUNCTION): Treat Rectype_FunctionMacro.
+          (MACRO-FUNCTION): Test for Macro instead of cons with car =
+          SYS::MACRO.
+        * symbol.d (SYS::%PUTD): Test for Macro instead of cons with
+          car = SYS::MACRO.
+        * defmacro.lisp (make-macro-expander): Renamed from
+          make-macro-expandercons.
+        * init.lisp: Use function sys::make-macro instead of cons 'sys::macro.
+          (%expand-form): Treat FunctionMacros like functions.
+          Test for Macro instead of cons with car = SYS::MACRO.
+          (defmacro) : Use function sys::make-macro instead of cons
+          'sys::macro.
+        * trace.lisp (trace1): Use function sys::make-macro instead of cons
+          'sys::macro.
+        * places.lisp (MACRO-FUNCTION): Likewise.
+        * compiler.lisp: Import sys::make-macro-expander.
+          (funtab): Add SYS::FUNCTION-MACRO-FUNCTION.
+          (fenv-search): Return more values, to deal with the FunctionMacro
+          case.
+          (c-form, macroexpand-form): Update for changed fenv-search. Call
+          *macroexpand-hook* directly.
+          (c-FUNCTION): Update for changed fenv-search.
+          (c-MACROLET): Update.
+          (c-APPLY): Update for changed fenv-search.
+          (compile): Test for Macro instead of cons with car = SYS::MACRO.
+          (compile-toplevel-form): Update for changed fenv-search.
+          (disassemble): Test for Macro instead of cons with car = SYS::MACRO.
+        * describe.lisp (describe-object): Treat SYS::MACRO and FUNCTION-MACRO.
+
         * init.lisp (MACRO-EXPANDER): Remove macro.
         * macros1.lisp (defmacro-special): New macro.
           (and, or, prog1, prog2, when, unless, psetq, multiple-value-list,

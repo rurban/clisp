@@ -9188,6 +9188,46 @@ LISPFUNN(print_structure,2)
           }
           LEVEL_END;
           break;
+        case Rectype_Macro:
+          # #<MACRO expansion>
+          if (test_value(S(print_readably)))
+            fehler_print_readably(obj);
+          LEVEL_CHECK;
+          {
+            pushSTACK(obj); # Macro retten
+            var object* obj_ = &STACK_0; # und merken, wo es sitzt
+            write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
+            INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+            JUSTIFY_START;
+            write_sstring_case(stream_,O(printstring_macro)); # "MACRO"
+            pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
+            JUSTIFY_END_ENG;
+            INDENT_END;
+            write_ascii_char(stream_,'>');
+            skipSTACK(1);
+          }
+          LEVEL_END;
+          break;
+        case Rectype_FunctionMacro:
+          # #<FUNCTION-MACRO expansion>
+          if (test_value(S(print_readably)))
+            fehler_print_readably(obj);
+          LEVEL_CHECK;
+          {
+            pushSTACK(obj); # FunctionMacro retten
+            var object* obj_ = &STACK_0; # und merken, wo es sitzt
+            write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
+            INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+            JUSTIFY_START;
+            write_sstring_case(stream_,O(printstring_functionmacro)); # "FUNCTION-MACRO"
+            pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
+            JUSTIFY_END_ENG;
+            INDENT_END;
+            write_ascii_char(stream_,'>');
+            skipSTACK(1);
+          }
+          LEVEL_END;
+          break;
         case Rectype_Encoding:
           # #<ENCODING [charset] line-terminator>
           if (test_value(S(print_readably)))

@@ -3707,6 +3707,8 @@ typedef xrecord_ *  Xrecord;
          Rectype_Fsubr,
          Rectype_Loadtimeeval,
          Rectype_Symbolmacro,
+         Rectype_Macro,
+         Rectype_FunctionMacro,
          Rectype_Encoding,
          Rectype_Fpointer,              # only used #ifdef FOREIGN
          #ifdef DYNAMIC_FFI
@@ -4416,6 +4418,21 @@ typedef struct {
 } *  Symbolmacro;
 #define symbolmacro_length  ((sizeof(*(Symbolmacro)0)-offsetofa(record_,recdata))/sizeof(object))
 
+# Macros
+typedef struct {
+  XRECORD_HEADER
+  object macro_expander;
+} *  Macro;
+#define macro_length  ((sizeof(*(Macro)0)-offsetofa(record_,recdata))/sizeof(object))
+
+# FunctionMacros
+typedef struct {
+  XRECORD_HEADER
+  object functionmacro_macro_expander;
+  object functionmacro_function;
+} *  FunctionMacro;
+#define functionmacro_length  ((sizeof(*(FunctionMacro)0)-offsetofa(record_,recdata))/sizeof(object))
+
 # Encoding
 typedef struct {
   XRECORD_HEADER
@@ -5092,6 +5109,8 @@ typedef struct {
   #define TheFsubr(obj)  ((Fsubr)(type_pointable(orecord_type,obj)))
   #define TheLoadtimeeval(obj)  ((Loadtimeeval)(type_pointable(orecord_type,obj)))
   #define TheSymbolmacro(obj)  ((Symbolmacro)(type_pointable(orecord_type,obj)))
+  #define TheMacro(obj)  ((Macro)(type_pointable(orecord_type,obj)))
+  #define TheFunctionMacro(obj)  ((FunctionMacro)(type_pointable(orecord_type,obj)))
   #define TheEncoding(obj)  ((Encoding)(type_pointable(orecord_type,obj)))
   #ifdef FOREIGN
   #define TheFpointer(obj)  ((Fpointer)(type_pointable(orecord_type,obj)))
@@ -5187,6 +5206,8 @@ typedef struct {
   #define TheFsubr(obj)  ((Fsubr)(as_oint(obj)-varobject_bias))
   #define TheLoadtimeeval(obj)  ((Loadtimeeval)(as_oint(obj)-varobject_bias))
   #define TheSymbolmacro(obj)  ((Symbolmacro)(as_oint(obj)-varobject_bias))
+  #define TheMacro(obj)  ((Macro)(as_oint(obj)-varobject_bias))
+  #define TheFunctionMacro(obj)  ((FunctionMacro)(as_oint(obj)-varobject_bias))
   #define TheEncoding(obj)  ((Encoding)(as_oint(obj)-varobject_bias))
   #ifdef FOREIGN
   #define TheFpointer(obj)  ((Fpointer)(as_oint(obj)-varobject_bias))
@@ -5643,6 +5664,14 @@ typedef struct {
 # Test auf Symbolmacro
   #define symbolmacrop(obj)  \
     (orecordp(obj) && (Record_type(obj) == Rectype_Symbolmacro))
+
+# Test auf Macro
+  #define macrop(obj)  \
+    (orecordp(obj) && (Record_type(obj) == Rectype_Macro))
+
+# Test auf FunctionMacro
+  #define functionmacrop(obj)  \
+    (orecordp(obj) && (Record_type(obj) == Rectype_FunctionMacro))
 
 # Test for Encoding
   #define encodingp(obj)  \
@@ -7529,6 +7558,22 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #define allocate_symbolmacro()  \
     allocate_xrecord(0,Rectype_Symbolmacro,symbolmacro_length,0,orecord_type)
 # wird verwendet von CONTROL, RECORD
+
+# UP, allocates a Macro
+# allocate_macro()
+# < result: a fresh Macro
+# can trigger GC
+  #define allocate_macro()  \
+    allocate_xrecord(0,Rectype_Macro,macro_length,0,orecord_type)
+# wird verwendet von RECORD
+
+# UP, allocates a FunctionMacro
+# allocate_functionmacro()
+# < result: a fresh FunctionMacro
+# can trigger GC
+  #define allocate_functionmacro()  \
+    allocate_xrecord(0,Rectype_FunctionMacro,functionmacro_length,0,orecord_type)
+# wird verwendet von RECORD
 
 # UP, allocates an Encoding
 # allocate_encoding()
@@ -9596,7 +9641,7 @@ typedef struct {
 # > sym: Funktionsname (z.B. Symbol)
 # > fenv: ein Funktions- und Macrobindungs-Environment
 # < ergebnis: Funktionsdefinition, entweder unbound (falls undefinierte Funktion)
-#             oder Closure/SUBR/FSUBR oder ein Cons (SYS::MACRO . expander).
+#             oder Closure/SUBR/FSUBR/Macro/FunctionMacro.
   extern object sym_function (object sym, object fenv);
 # wird verwendet von CONTROL
 
@@ -9640,7 +9685,7 @@ typedef struct {
 # wird verwendet von CONTROL
 
 # UP: expandiert eine Form, falls möglich, (nicht jedoch, wenn FSUBR-Aufruf
-# oder Symbol) in einem Environment
+# oder Symbol oder FunctionMacro-Aufruf) in einem Environment
 # macroexp(form,venv,fenv);
 # > form: Form
 # > venv: ein Variablen- und Symbolmacro-Environment
@@ -9652,8 +9697,8 @@ typedef struct {
   extern void macroexp (object form, object venv, object fenv);
 # wird verwendet von CONTROL
 
-# UP: expandiert eine Form, falls möglich, (auch, wenn FSUBR-Aufruf)
-# in einem Environment
+# UP: expandiert eine Form, falls möglich, (auch, wenn FSUBR-Aufruf oder
+# Symbol, nicht jedoch, wenn FunctionMacro-Aufruf) in einem Environment
 # macroexp0(form,env);
 # > form: Form
 # > env: ein Macroexpansions-Environment
@@ -11017,6 +11062,13 @@ typedef struct {
 # > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(extern, fehler_streamtype, (object obj, object type));
 # wird verwendet von STREAM
+
+# Fehlermeldung, wenn ein Argument keine Function ist:
+# fehler_function(obj);
+# obj: Das fehlerhafte Argument
+# > subr_self: Aufrufer (ein SUBR)
+  nonreturning_function(extern, fehler_function, (object obj));
+# wird verwendet von RECORD
 
 # Fehlermeldung, wenn ein Argument ein Lambda-Ausdruck statt einer Funktion ist:
 # fehler_lambda_expression(obj);

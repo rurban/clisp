@@ -108,9 +108,9 @@ liefert zu einer Macrodefinition macrodef = (name lambdalist . body)
 3. lambdalist,
 4. docstring (oder NIL, wenn keiner da).
 
-(MAKE-MACRO-EXPANDERCONS macrodef)
+(MAKE-MACRO-EXPANDER macrodef)
 liefert zu einer Macrodefinition macrodef = (name lambdalist . body)
-das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
+das fürs FENV bestimmte Objekt #<MACRO expander>.
 |#
 
 (%proclaim-constant 'macro-missing-value (list 'macro-missing-value))
@@ -564,8 +564,8 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
   ) ) ) ) ) ) ) )
 )
 
-(%putd 'make-macro-expandercons
-  (function make-macro-expandercons
+(%putd 'make-macro-expander
+  (function make-macro-expander
     (lambda (macrodef)
-      (cons 'MACRO (eval (make-macro-expansion macrodef)))
+      (make-macro (eval (make-macro-expansion macrodef)))
 ) ) )

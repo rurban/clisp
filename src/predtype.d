@@ -1,5 +1,5 @@
 # Prädikate für Gleichheit und Typtests, Typen, Klassen in CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 
@@ -1633,6 +1633,10 @@ LISPFUNN(type_of,1)
             value1 = S(load_time_eval); break;
           case Rectype_Symbolmacro: # Symbol-Macro
             value1 = S(symbol_macro); break;
+          case Rectype_Macro: # Macro
+            value1 = S(macro); break;
+          case Rectype_FunctionMacro: # FunctionMacro
+            value1 = S(function_macro); break;
           case Rectype_Encoding: # Encoding
             value1 = S(encoding); break;
           #ifdef FOREIGN
@@ -1875,6 +1879,8 @@ LISPFUNN(class_of,1)
           case Rectype_Fsubr: # Fsubr -> <t>
           case Rectype_Loadtimeeval: # Load-Time-Eval -> <t>
           case Rectype_Symbolmacro: # Symbol-Macro -> <t>
+          case Rectype_Macro: # Macro -> <t>
+          case Rectype_FunctionMacro: # FunctionMacro -> <t>
           case Rectype_Encoding: # Encoding -> <t>
           #ifdef FOREIGN
           case Rectype_Fpointer: # Foreign-Pointer-Verpackung -> <t>
@@ -2089,8 +2095,12 @@ LISPFUNN(coerce,2)
         var object fun = STACK_1;
         if (funnamep(fun)) { # Symbol oder (SETF symbol) ?
           value1 = sym_function(fun,NIL); # globale Funktionsdefinition holen
-          if (!(subrp(value1) || closurep(value1) || ffunctionp(value1))) # FUNCTIONP überprüfen
-            fehler_undef_function(S(coerce),fun);
+          if (!(subrp(value1) || closurep(value1) || ffunctionp(value1))) { # FUNCTIONP überprüfen
+            if (functionmacrop(value1))
+              value1 = TheFunctionMacro(value1)->functionmacro_function;
+            else
+              fehler_undef_function(S(coerce),fun);
+          }
           mv_count=1;
           skipSTACK(2); return;
         }
@@ -2379,6 +2389,8 @@ enum { # The values of this enumeration are 0,1,2,...
   enum_hs_special_operator,
   enum_hs_load_time_eval,
   enum_hs_symbol_macro,
+  enum_hs_macro,
+  enum_hs_function_macro,
   enum_hs_encoding,
   #ifdef FOREIGN
   enum_hs_foreign_pointer,
@@ -2688,6 +2700,10 @@ local void heap_statistics_mapper(arg,obj,bytelen)
             pighole = &locals->builtins[(int)enum_hs_load_time_eval]; break;
           case Rectype_Symbolmacro: # Symbol-Macro
             pighole = &locals->builtins[(int)enum_hs_symbol_macro]; break;
+          case Rectype_Macro: # Macro
+            pighole = &locals->builtins[(int)enum_hs_macro]; break;
+          case Rectype_FunctionMacro: # FunctionMacro
+            pighole = &locals->builtins[(int)enum_hs_function_macro]; break;
           case Rectype_Encoding: # Encoding
             pighole = &locals->builtins[(int)enum_hs_encoding]; break;
           #ifdef FOREIGN

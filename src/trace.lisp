@@ -163,7 +163,7 @@
                              )
                        ,@body
                    ) )
-                   (cons 'sys::macro
+                   (make-macro
                      (function ,newname
                        (lambda (&rest *trace-args*
                                 &aux (*trace-form* (car *trace-args*))

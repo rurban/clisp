@@ -287,7 +287,7 @@ interpreter compiler
 
 ; vorläufig soll defun ganz trivial expandiert werden:
 (sys::%putd 'defun
-  (cons 'sys::macro
+  (sys::make-macro
     (function defun
       (lambda (form env)
         (declare (ignore env))
@@ -310,7 +310,7 @@ interpreter compiler
 ;; Handling for internationalized strings. New translations are not defined
 ;; through `deflocalized'; instead, they are produced using GNU gettext and
 ;; retrieved using SYS::LANGUAGE, which calls the C function gettext().
-(let ((h (cons 'sys::macro
+(let ((h (sys::make-macro
            (function
              (lambda (form env)
                (declare (ignore env))
@@ -395,7 +395,7 @@ interpreter compiler
     ) )
 ) )
 (sys::%putd 'the-environment
-  (cons 'sys::macro
+  (sys::make-macro
     (function the-environment
       (lambda (form env)
         (declare (ignore form env))
@@ -449,7 +449,7 @@ interpreter compiler
 ; *fenv* = Das aktuelle Function-Environment während der Expansion
 ; einer Form. Struktur: NIL oder ein 2n+1-elementiger Vektor
 ; (n1 f1 ... nn fn next), wo die ni Funktionsnamen sind, die fi ihre funktionale
-; Bedeutung sind (Closure oder (MACRO . Closure) oder noch NIL); bei next
+; Bedeutung sind (Closure oder Macro oder FunctionMacro oder noch NIL); bei next
 ; geht's ebenso weiter.
 
 ; (fenv-assoc s fenv) sucht Symbol s in Function-Environment fenv.
@@ -586,8 +586,10 @@ interpreter compiler
                   (if (atom (cddr form))
                     (if (function-name-p (second form))
                       (let ((h (fenv-assoc (second form) *fenv*)))
-                        (cond ((or (eq h 'T) (closurep h) (null h)) (values (rest form) nil))
-                              ((and (consp h) (eq (first h) 'MACRO))
+                        (cond ((or (eq h 'T) (closurep h) (function-macro-p h) (null h))
+                               (values (rest form) nil)
+                              )
+                              ((macrop h)
                                (error-of-type 'source-program-error
                                  (ENGLISH "~S: ~S is illegal since ~S is a local macro")
                                  '%expand form (second form)
@@ -785,7 +787,7 @@ interpreter compiler
                              (consp (cdr macrodef))
                         )
                       (setq L2
-                        (cons (make-macro-expandercons macrodef)
+                        (cons (make-macro-expander macrodef)
                               (cons (car macrodef) L2)
                       ) )
                       (error-of-type 'source-program-error
@@ -858,13 +860,14 @@ interpreter compiler
                          (%expand-list (rest form))
             ) ) )     ))
             ; f hat eine lokale Definition
-            (cond ((or (closurep h) (null h)); aufzurufende Funktion
+            (cond ((or (closurep h) (function-macro-p h) (null h))
+                   ; aufzurufende Funktion
                    (multiple-value-call #'%expand-cons form
                      f nil
                      (%expand-list (rest form))
                   ))
-                  ((and (consp h) (eq (car h) 'MACRO)) ; zu expandierender Macro
-                   (values (%expand-form (funcall (cdr h) form *fenv*)) t)
+                  ((macrop h) ; zu expandierender Macro
+                   (values (%expand-form (funcall (macro-expander h) form (vector *venv* *fenv*))) t)
                   ) ; Expander aufrufen
                   (t (error-of-type 'error
                        (ENGLISH "bad function environment occurred in ~S: ~S")
@@ -1339,7 +1342,7 @@ interpreter compiler
 
 ; vorläufig:
 (sys::%putd 'defun
-  (cons 'sys::macro
+  (sys::make-macro
     (function defun
       (lambda (form env)
         (unless (and (consp (cdr form)) (consp (cddr form)))
@@ -1394,7 +1397,7 @@ interpreter compiler
 
 ; vorläufige Definition des Macros DO :
 (sys::%putd 'do
-  (cons 'sys::macro
+  (sys::make-macro
     (function do
       (lambda (form env)
         (let ((varclauselist (second form))
@@ -1469,7 +1472,7 @@ interpreter compiler
 
 ; vorläufige Definition des Macros DOTIMES :
 (sys::%putd 'dotimes
-  (cons 'sys::macro
+  (sys::make-macro
     (function dotimes
       (lambda (form env)
         (let ((var (first (second form)))
@@ -1506,7 +1509,7 @@ interpreter compiler
 (PROGN
 
 (sys::%putd 'sys::backquote
-  (cons 'sys::macro
+  (sys::make-macro
     (function sys::backquote
       (lambda (form &optional env) (declare (ignore env)) (third form))
 ) ) )
@@ -1522,7 +1525,7 @@ interpreter compiler
 (PROGN
 
 (sys::%putd 'defmacro
-  (cons 'sys::macro
+  (sys::make-macro
     (function defmacro
       (lambda (form &optional env)
         (declare (ignore env))
@@ -1536,7 +1539,7 @@ interpreter compiler
                    `((SYSTEM::%SET-DOCUMENTATION ',name 'FUNCTION ',docstring))
                    '()
                  )
-               (SYSTEM::%PUTD ',name (CONS 'SYSTEM::MACRO ,expansion))
+               (SYSTEM::%PUTD ',name (SYSTEM::MAKE-MACRO ,expansion))
              )
              (EVAL-WHEN (EVAL)
                (SYSTEM::%PUT ',name 'SYSTEM::DEFINITION
@@ -1548,7 +1551,7 @@ interpreter compiler
 ) )
 
 (sys::%putd 'defun
-  (cons 'sys::macro
+  (sys::make-macro
     (function defun
       (lambda (form env)
         (if (atom (cdr form))
