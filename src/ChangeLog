@@ -26,6 +26,10 @@
 	(check_charset): return false when code is invalid and charset is
 	nullobj
 
+2002-06-19  Bruno Haible  <bruno@clisp.org>
+
+	* constsym.d (CHARSET:ARMSCII-8, CHARSET:TCVN): Disable in glibc-2.2.
+
 2002-06-19  Sam Steingold  <sds@gnu.org>
 
 	new built-in MEMQ == MEMBER :TEST #'EQ
