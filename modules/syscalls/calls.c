@@ -4,8 +4,6 @@
  * GPL2
  */
 
-#include "clisp.h"
-
 #include "config.h"
 
 #if defined(TIME_WITH_SYS_TIME)
@@ -27,6 +25,14 @@
 #if defined(HAVE_ERRNO_H)
 # include <errno.h>
 #endif
+#if defined(_WIN32)
+/* need this for CreateHardLink to work */
+# define WINVER 0x0500
+/* get ASCII functions */
+# undef UNICODE
+#endif
+
+#include "clisp.h"
 
 /* #define DEBUG */
 #if defined(DEBUG)
@@ -43,12 +49,9 @@ extern object nobject_out (FILE* stream, object obj);
 
 DEFMODULE(syscalls,"POSIX");
 
-#if defined(UNICODE)
+#if CLISP_UNICODE
 DEFVAR(misc_encoding, (funcall(L(misc_encoding),0),value1));
 DEFVAR(pathname_encoding, (funcall(L(pathname_encoding),0),value1));
-#else
-DEFVAR(misc_encoding, (funcall(L(default_file_encoding),0),value1));
-DEFVAR(pathname_encoding, O(misc_encoding));
 #endif
 
 #if defined(HAVE_FLOCK)
@@ -561,18 +564,20 @@ DEFUN(POSIX::FILE-STAT-INTERNAL, file &optional linkp) {
  > new_pathstring: new file name, ASCIZ-String
  > STACK_3: old pathname
  > STACK_1: new pathname */
-#if defined(HAVE_CREATEHARDLINK)
-/* we are on woe32 */
+#if defined(WIN32_NATIVE)
 # define HAVE_LINK
-# define link(x,y) CreateHardLink(y,x,NULL)
-# define errno  GetLastError()
-# define ENOENT ERROR_FILE_NOT_FOUND
 #endif
 #if defined(HAVE_LINK)
 static inline void hardlink_file (char* old_pathstring, char* new_pathstring) {
   begin_system_call();
+# if defined(WIN32_NATIVE)
+  if (CreateHardLink(new_pathstring,old_pathstring,NULL) == 0) {
+    if (GetLastError() == ERROR_FILE_NOT_FOUND)
+# else
   if (link(old_pathstring,new_pathstring) < 0) { /* hardlink file */
-    if (errno==ENOENT) OS_file_error(STACK_3);
+    if (errno==ENOENT)
+# endif
+      OS_file_error(STACK_3);
     else OS_file_error(STACK_1);
   }
   end_system_call();
@@ -938,8 +943,8 @@ DEFUN(POSIX::COPY-FILE, source target &key METHOD PRESERVE IF-EXISTS IF-DOES-NOT
         pushSTACK(STACK_(3+1)); /* source */
         pushSTACK(STACK_(2+2)); /* dest */
         funcall(L(translate_pathname),3);
-        copy_one_file(NIL,Car(STACK_0),NIL,value1,method,preserve_p,
-                      if_exists,if_not_exists,&STACK_1);
+        copy_one_file(NIL,Car(STACK_0),NIL,value1,method,
+                      preserve_p,if_exists,if_not_exists,&STACK_1);
         STACK_0 = Cdr(STACK_0);
       }
     } else { /* non-wild dest, must be a directory */
@@ -948,8 +953,8 @@ DEFUN(POSIX::COPY-FILE, source target &key METHOD PRESERVE IF-EXISTS IF-DOES-NOT
         pushSTACK(STACK_2); funcall(L(make_dir),1);
       }
       while (!nullp(STACK_0)) {
-        copy_one_file(NIL,Car(STACK_0),STACK_4,STACK_2,method,preserve_p,
-                      if_exists,if_not_exists,&STACK_1);
+        copy_one_file(NIL,Car(STACK_0),STACK_4,STACK_2,method,
+                      preserve_p,if_exists,if_not_exists,&STACK_1);
         STACK_0 = Cdr(STACK_0);
       }
     }
