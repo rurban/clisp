@@ -487,7 +487,7 @@ if test -z "$do_build"; then
   echo "    cd $DIRNAME"
   echo "    ./makemake $makemake_args > Makefile"
   echo "    make config.lsp"
-  echo "    ${EDITOR:-vi} config.lsp
+  echo "    ${EDITOR:-vi} config.lsp"
   echo "    make"
   echo "    make check"
 
