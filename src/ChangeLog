@@ -1,3 +1,9 @@
+2004-10-05  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* foreign.d (FOREIGN-VARIABLE, FOREIGN-FUNCTION):
+	new constructor functions.
+	* subr.d, subrkw.d: add them
+
 2004-10-05  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (unused): do not redefine (win32.d already defines it)
@@ -23,12 +29,6 @@
 	check_encoding() can trigger GC
 	Reported by Jörg Höhle
 
-2004-10-05  Jörg Höhle  <hoehle@users.sourceforge.net>
-
-	* foreign.d (FOREIGN-VARIABLE, FOREIGN_FUNCTION):
-	new constructor functions.
-	* subr.d, subrkw.d: add them
-	
 2004-10-05  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* foreign.d (fehler_foreign_variable, fehler_foreign_function):
