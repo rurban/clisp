@@ -1,5 +1,12 @@
 2001-10-04  Sam Steingold  <sds@gnu.org>
 
+	special file for deprecated functions
+	* deprecated.lisp: added (define type-expand-1)
+	* init.lisp: load deprecated.lisp
+	* makemake.in (LPARTS): added deprecated
+
+2001-10-04  Sam Steingold  <sds@gnu.org>
+
 	expand compiler macros in C-FORM
 	* compiler.lisp (expand-compiler-macro): new function
 	(c-form, macroexpand-form): use it

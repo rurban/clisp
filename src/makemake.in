@@ -1525,7 +1525,7 @@ LPARTS=$LPARTS' german french'
 if [ -z "$with_nounicode" ] ; then
   LPARTS=$LPARTS' spanish'
 fi
-LPARTS=$LPARTS' dutch config'
+LPARTS=$LPARTS' dutch deprecated config'
 
 DOC='LISP-tutorial CLOS-guide editors'
 
