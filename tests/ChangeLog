@@ -1,3 +1,7 @@
+2004-06-10  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Change expected result of positive-integer qualifiers test.
+
 2004-05-29  Bruno Haible  <bruno@clisp.org>
 
 	* mop.tst: Update: #+CLISP (:metaclass structure-class) no longer
