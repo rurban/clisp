@@ -16,6 +16,7 @@
         * eval.d: Likewise.
         * io.d: Likewise.
         * lisparit.d: Likewise.
+        * stream.d (wr_ss_dummy, wr_ss_dummy_nogc): Likewise.
 
 1999-01-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
