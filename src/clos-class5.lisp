@@ -730,8 +730,30 @@
                 valid-keywords))
         (unless (eq valid-keywords 't)
           (sys::keyword-test initargs valid-keywords)))
-      (apply #'shared-initialize current added-slots initargs))))
+      (apply #'shared-initialize current added-slots initargs)))
+  ;; MOP p. 57.
+  (:method ((previous class) (current standard-object) &rest initargs)
+    (declare (ignore initargs))
+    (update-metaobject-instance-for-different-class previous))
+  #| ;; MOP p. 61. We support this anyway, as an extension.
+  (:method ((previous generic-function) (current standard-object) &rest initargs)
+    (declare (ignore initargs))
+    (update-metaobject-instance-for-different-class previous))
+  |#
+  #| ;; MOP p. 64. We support this anyway, as an extension.
+  (:method ((previous method) (current standard-object) &rest initargs)
+    (declare (ignore initargs))
+    (update-metaobject-instance-for-different-class previous))
+  |#
+  ;; MOP p. 67.
+  (:method ((previous slot-definition) (current standard-object) &rest initargs)
+    (declare (ignore initargs))
+    (update-metaobject-instance-for-different-class previous)))
 (setq |#'update-instance-for-different-class| #'update-instance-for-different-class)
+
+(defun update-metaobject-instance-for-different-class (previous)
+  (error (TEXT "~S: The MOP does not allow changing the class of metaobject ~S")
+         'update-instance-for-different-class previous))
 
 ;; Users want to be able to create subclasses of <standard-class> and write
 ;; methods on MAKE-INSTANCES-OBSOLETE on them. So, we now go redefine
@@ -765,7 +787,19 @@
                     valid-keywords))))
         (unless (eq valid-keywords 't)
           (sys::keyword-test initargs valid-keywords))))
-    (apply #'shared-initialize instance added-slots initargs)))
+    (apply #'shared-initialize instance added-slots initargs))
+  #| ;; MOP p. 57, 61, 64, 67.
+     ;; This is not needed, because the tests for <metaobject> in
+     ;; reinitialize-instance-<class> and
+     ;; make-instances-obsolete-<semi-standard-class>-nonrecursive
+     ;; prevent metaobject instances from being updated.
+  (:method ((instance metaobject) added-slots discarded-slots
+            property-list &rest initargs)
+    (declare (ignore added-slots discarded-slots property-list initargs))
+    (error (TEXT "~S: The MOP does not allow changing the metaobject class ~S")
+           'update-instance-for-redefined-class (class-of instance)))
+  |#
+)
 (setq |#'update-instance-for-redefined-class| #'update-instance-for-redefined-class)
 
 ;;; Utility functions

@@ -1,3 +1,9 @@
+2004-10-09  Bruno Haible  <bruno@clisp.org>
+
+	Forbid change-class for <class>, <slot-definition>.
+	* clos-class5.lisp (update-instance-for-different-class): Add error
+	signalling methods for <class>, <slot-definition>.
+
 2004-10-11  Sam Steingold  <sds@gnu.org>
 
 	* misc.d (MODULE-INFO): return the DLL information for :FFI
