@@ -38,7 +38,11 @@ AC_DEFUN([CL_SELECT],
 [AC_REQUIRE([CL_OPENFLAGS])dnl
 dnl Not AC_CHECK_FUNCS(select) because it doesn't work when CC=g++.
 AC_CACHE_CHECK([for select], ac_cv_func_select, [
-AC_TRY_LINK([#include <sys/time.h>
+AC_TRY_LINK([
+#ifdef __BEOS__
+#include <sys/socket.h>
+#endif
+#include <sys/time.h>
 ]AC_LANG_EXTERN[
 #ifdef __cplusplus
 int select(int, fd_set*, fd_set*, fd_set*, struct timeval *);
