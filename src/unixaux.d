@@ -1,5 +1,5 @@
 # Hilfsfunktionen für CLISP auf UNIX
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 
@@ -324,6 +324,72 @@
       }
       return done;
     }
+
+#ifdef UNIX_BEOS
+
+# BeOS 5 sockets cannot be used like file descriptors.
+
+# A wrapper around the recv() function.
+  global ssize_t sock_read (int fd, void* bufarea, size_t nbyte);
+  global ssize_t sock_read (fd,bufarea,nbyte)
+    var int fd;
+    var void* bufarea;
+    var size_t nbyte;
+    {
+      var char* buf = (char*) bufarea;
+      var ssize_t retval;
+      var size_t done = 0;
+      #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+      # Must adjust the memory permissions before calling recv().
+      handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
+      #endif
+      until (nbyte==0) {
+        retval = recv(fd,buf,nbyte,0);
+        if (retval == 0)
+          break;
+        elif (retval < 0) {
+          #ifdef EINTR
+          if (!(errno == EINTR))
+          #endif
+            return retval;
+        } else {
+          buf += retval; done += retval; nbyte -= retval;
+        }
+      }
+      return done;
+    }
+
+# A wrapper around the send() function.
+  global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte);
+  global ssize_t sock_write (fd,bufarea,nbyte)
+    var int fd;
+    var const void* bufarea;
+    var size_t nbyte;
+    {
+      var const char* buf = (WRITE_CONST char*) bufarea;
+      var ssize_t retval;
+      var size_t done = 0;
+      #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+      # Must adjust the memory permissions before calling send().
+      handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
+      #endif
+      until (nbyte==0) {
+        retval = send(fd,buf,nbyte,0);
+        if (retval == 0)
+          break;
+        elif (retval < 0) {
+          #ifdef EINTR
+          if (!(errno == EINTR))
+          #endif
+            return retval;
+        } else {
+          buf += retval; done += retval; nbyte -= retval;
+        }
+      }
+      return done;
+    }
+
+#endif
 
 #ifdef PID_T
 

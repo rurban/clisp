@@ -5149,7 +5149,7 @@ global object iconv_range(encoding,start,end)
         return ls_wait;
       }
       #elif !(defined(AMIGAOS) || defined(WIN32_NATIVE))
-      #ifdef HAVE_SELECT
+      #if defined(HAVE_SELECT) && !defined(UNIX_BEOS)
       {
         # Use select() with readfds = singleton set {handle}
         # and timeout = zero interval.
@@ -5205,7 +5205,7 @@ global object iconv_range(encoding,start,end)
         }
       }
       #endif
-      #ifndef HAVE_SELECT
+      #if !(defined(HAVE_SELECT) && !defined(UNIX_BEOS))
       if (!nullp(TheStream(stream)->strm_isatty)) {
         # Terminal
         # switch to non-blocking mode, then try read():
@@ -5231,9 +5231,15 @@ global object iconv_range(encoding,start,end)
           if (( fcntl_flags = fcntl(handle,F_GETFL,0) )<0) {
             OS_error();
           }
+          #ifdef O_NONBLOCK
+          if ( fcntl(handle,F_SETFL,fcntl_flags|O_NONBLOCK) <0) {
+            OS_error();
+          }
+          #else # older Unices called it O_NDELAY
           if ( fcntl(handle,F_SETFL,fcntl_flags|O_NDELAY) <0) {
             OS_error();
           }
+          #endif
           result = read(handle,&b,1);
           if ( fcntl(handle,F_SETFL,fcntl_flags) <0) {
             OS_error();
@@ -9708,7 +9714,7 @@ local object make_key_event(event)
         }
         goto empty_buffer;
        wait_for_another:
-        #ifdef HAVE_SELECT
+        #if defined(HAVE_SELECT) && !defined(UNIX_BEOS)
         {
           # Verwende select mit readfds = einelementige Menge {stdin_handle}
           # und timeout = kleines Zeitintervall.
@@ -15126,13 +15132,14 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
 # ================================
 
 # Socket streams are just like handle streams (unbuffered file streams),
-# except that on WIN32_NATIVE, the low-level functions are different.
+# except that on UNIX_BEOS and WIN32_NATIVE, the low-level functions are
+# different.
 
 # Both sides
 # ----------
 
 # Closes a socket handle.
-  #ifdef WIN32_NATIVE
+  #if defined(UNIX_BEOS) || defined(WIN32_NATIVE)
     local void low_close_socket (object stream, object handle);
     local void low_close_socket(stream,handle)
       var object stream;
@@ -15149,7 +15156,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
 # Input side
 # ----------
 
-#ifdef WIN32_NATIVE
+#if defined(UNIX_BEOS) || defined(WIN32_NATIVE)
 
   local sintL low_read_unbuffered_socket (object stream);
   local sintL low_read_unbuffered_socket(stream)
@@ -15165,9 +15172,11 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       begin_system_call();
       var int result = sock_read(handle,&b,1); # Zeichen lesen versuchen
       if (result<0) {
+        #ifdef WIN32_NATIVE
         if (WSAGetLastError()==WSAEINTR) { # Unterbrechung durch Ctrl-C ?
           end_system_call(); fehler_interrupt();
         }
+        #endif
         SOCK_error();
       }
       end_system_call();
@@ -15194,13 +15203,19 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       var struct timeval zero_time; # time interval := 0
       begin_system_call();
       FD_ZERO(&handle_menge); FD_SET(handle,&handle_menge);
+     restart_select:
       zero_time.tv_sec = 0; zero_time.tv_usec = 0;
       var int result;
       result = select(FD_SETSIZE,&handle_menge,NULL,NULL,&zero_time);
       if (result<0) {
+        #ifdef WIN32_NATIVE
         if (WSAGetLastError()==WSAEINTR) { # Unterbrechung durch Ctrl-C ?
           end_system_call(); fehler_interrupt();
         }
+        #else
+        if (errno==EINTR)
+          goto restart_select;
+        #endif
         SOCK_error();
       } else {
         # result = number of handles in handle_menge for which read() would
@@ -15214,9 +15229,11 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
         var uintB b;
         var int result = sock_read(handle,&b,1);
         if (result<0) {
+          #ifdef WIN32_NATIVE
           if (WSAGetLastError()==WSAEINTR) { # Unterbrechung durch Ctrl-C ?
             end_system_call(); fehler_interrupt();
           }
+          #endif
           SOCK_error();
         }
         end_system_call();
@@ -15257,10 +15274,12 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       begin_system_call();
       var sintL result = sock_read(handle,byteptr,len);
       if (result<0) {
+        #ifdef WIN32_NATIVE
         if (WSAGetLastError()==WSAEINTR) { # Unterbrechung (evtl. durch Ctrl-C) ?
           end_system_call(); fehler_interrupt();
         }
-        OS_error(); # Error melden
+        #endif
+        SOCK_error(); # Error melden
       }
       end_system_call();
       byteptr += result;
@@ -15286,7 +15305,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
 # Output side
 # -----------
 
-#ifdef WIN32_NATIVE
+#if defined(UNIX_BEOS) || defined(WIN32_NATIVE)
 
   local void low_write_unbuffered_socket (object stream, uintB b);
   local void low_write_unbuffered_socket(stream,b)
@@ -15298,9 +15317,11 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       # Try to output the byte.
       var int result = sock_write(handle,&b,1);
       if (result<0) {
+        #ifdef WIN32_NATIVE
         if (WSAGetLastError()==WSAEINTR) { # Unterbrechung (evtl. durch Ctrl-C) ?
           end_system_call(); fehler_interrupt();
         }
+        #endif
         SOCK_error(); # Error melden
       }
       end_system_call();
@@ -15318,9 +15339,11 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       begin_system_call();
       var sintL result = sock_write(handle,byteptr,len);
       if (result<0) {
+        #ifdef WIN32_NATIVE
         if (WSAGetLastError()==WSAEINTR) { # Unterbrechung (evtl. durch Ctrl-C) ?
           end_system_call(); fehler_interrupt();
         }
+        #endif
         SOCK_error(); # Error melden
       }
       end_system_call();
@@ -15333,7 +15356,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
 
 # Initializes the output side fields of a socket stream.
 # UnbufferedSocketStream_output_init(stream);
-#ifdef WIN32_NATIVE
+#if defined(UNIX_BEOS) || defined(WIN32_NATIVE)
   #define UnbufferedSocketStream_output_init(stream)  \
     { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_socket;               \
       UnbufferedStreamLow_write_array(stream) = &low_write_array_unbuffered_socket;   \
@@ -15549,7 +15572,7 @@ LISPFUNN(write_n_bytes,4)
 
 # Low-level functions for buffered socket streams.
 
-#ifdef WIN32_NATIVE
+#if defined(UNIX_BEOS) || defined(WIN32_NATIVE)
 
 # UP: Fills the buffer, up to strm_buffered_bufflen bytes.
 # low_fill_buffered_socket(stream)
@@ -15567,10 +15590,12 @@ LISPFUNN(write_n_bytes,4)
                   strm_buffered_bufflen
                  );
       if (result<0) {
+        #ifdef WIN32_NATIVE
         if (WSAGetLastError()==WSAEINTR) { # Unterbrechung (evtl. durch Ctrl-C) ?
           end_system_call(); fehler_interrupt();
         }
-        OS_error(); # Error melden
+        #endif
+        SOCK_error(); # Error melden
       }
       end_system_call();
       return result;
@@ -15588,20 +15613,28 @@ LISPFUNN(write_n_bytes,4)
     var uintL bufflen;
     {
       begin_system_call();
+      #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+      writing_to_subprocess = TRUE;
+      #endif
       var sintL result = # Buffer hinausschreiben
         sock_write(TheSocket(TheStream(stream)->strm_buffered_channel), # Handle
                    &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferadresse
                    bufflen
                   );
+      #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+      writing_to_subprocess = FALSE;
+      #endif
       if (result==bufflen) {
         # alles korrekt geschrieben
         end_system_call(); BufferedStream_modified(stream) = FALSE;
       } else {
         # Nicht alles geschrieben
         if (result<0) {
+          #ifdef WIN32_NATIVE
           if (WSAGetLastError()==WSAEINTR) { # Unterbrechung (evtl. durch Ctrl-C) ?
             end_system_call(); fehler_interrupt();
           }
+          #endif
           SOCK_error(); # Error melden
         }
         end_system_call();
