@@ -765,7 +765,7 @@ DEFUN(POSIX::STAT-VFS, file)
   pushSTACK(UL_to_I(buf.f_favail)); /* # of file serial numbers available to
                                        non-privileged processes */
 #if HAVE_SCALAR_FSID
-  pushSTACK(UL(buf.f_fsid));   /* file system ID */
+  pushSTACK(UL_to_I(buf.f_fsid));   /* file system ID */
 #else
   /* On Linux, f_fsid of 'struct statfs' is a struct consisting of two ints.
      With glibc <= 2.1, f_fsid of 'struct statvfs' is the same. */
