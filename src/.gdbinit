@@ -93,33 +93,38 @@ end
 
 break funcall
 commands
-        zout fun
+        xout fun
 end
 
 break apply
 commands
-        zout fun
+        xout fun
 end
 
 break eval
 commands
-        zout form
+        xout form
+end
+
+break interpret_bytecode_
+commands
+        xout closure
 end
 
 break gar_col
-break fehler_notreached
-break SP_ueber
-break STACK_ueber
-
-# disable breaks in funcall, apply, eval and gar_col
-disable 1 2 3 4
 
 watch back_trace
 commands
         zbacktrace
         continue
 end
-disable 8
+
+# disable all the above breaks
+disable 1 2 3 4 5 6
+
+break fehler_notreached
+break SP_ueber
+break STACK_ueber
 
 info break
 
@@ -135,3 +140,9 @@ break sigsegv_handler_failed
 handle SIGSEGV noprint nostop
 handle SIGBUS noprint nostop
 #endif
+
+# cut and paste when you stop in interpret_bytecode_()
+watch byteptr
+commands
+        output byteptr-byteptr_in
+end
