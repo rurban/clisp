@@ -916,7 +916,7 @@
 
 2001-07-25  Sam Steingold  <sds@gnu.org>
 
-	Win32: understand Cygwin's /sygdrive/[letter] pathnames
+	Win32: understand Cygwin's /cygdrive/[letter] pathnames
 	* pathname.d (parse_namestring): translate :directory (:absolute
 	*device-prefix* "c" ...) to :device "C" :device (:absolute ...)
 	* cfgwin32.lisp (*device-prefix*): set to "cygdrive"
