@@ -10156,26 +10156,17 @@ LISPFUNN(file_write_date,1)
       skipSTACK(1);
     }
     # Datum/Uhrzeit steht nun im Buffer file_datetime.
-    # In Decoded-Time-Format umwandeln:
-    var decoded_time timepoint;
+    # In Universal-Time-Format umwandeln:
     #if defined(UNIX) || defined(EMUNIX) || defined(AMIGAOS) || defined(RISCOS)
-    convert_time(&file_datetime,&timepoint);
+    value1 = convert_time_to_universal(&file_datetime);
     #endif
     #ifdef WIN32_NATIVE
     var FILETIME* pftimepoint = &filedata.ftLastWriteTime;
     if (pftimepoint->dwLowDateTime==0 && pftimepoint->dwHighDateTime==0)
       pftimepoint = &filedata.ftCreationTime;
-    convert_time(pftimepoint,&timepoint);
+    value1 = convert_time_to_universal(pftimepoint);
     #endif
-    pushSTACK(timepoint.Sekunden);
-    pushSTACK(timepoint.Minuten);
-    pushSTACK(timepoint.Stunden);
-    pushSTACK(timepoint.Tag);
-    pushSTACK(timepoint.Monat);
-    pushSTACK(timepoint.Jahr);
-    funcall(S(encode_universal_time),6);
-    # (ENCODE-UNIVERSAL-TIME Sekunden Minuten Stunden Tag Monat Jahr)
-    # als Ergebnis
+    mv_count=1;
   }
 
 LISPFUNN(file_author,1)

@@ -1,3 +1,9 @@
+2000-11-30  Bruno Haible  <haible@clisp.cons.org>
+
+        * lispbibl.d (convert_time_to_universal): New declaration.
+        * time.d (convert_time_to_universal): New function.
+        * pathname.d (FILE-WRITE-DATE): Use it.
+
 2000-11-29  Bruno Haible  <haible@clisp.cons.org>
 
         * lispbibl.d (set_start_time): Remove declaration.
