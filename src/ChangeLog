@@ -1,3 +1,14 @@
+2004-05-08  Bruno Haible  <bruno@clisp.org>
+
+	* control.d (check_setq_body): Fix GC-safety bug introduced on
+	2003-05-20.
+	* eval.d (progv): Likewise.
+	* i18n.d (SYS::SET-CURRENT-LANGUAGE): Fix GC-safety bug introduced on
+	2003-05-01.
+	* misc.d (push_envar): Fix GC-safety bug introduced on 2003-07-28.
+	* pathname.d (PARSE-NAMESTRING): Fix GC-safety bug introduced on
+	2002-08-01.
+
 2004-05-03  Bruno Haible  <bruno@clisp.org>
 
 	* subrkw.d: Reorder, to match the order in subr.d.

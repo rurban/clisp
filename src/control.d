@@ -184,8 +184,9 @@ LISPFUNNF(special_operator_p,1)
 local bool check_setq_body (object caller) {
   pushSTACK(STACK_0); /* save body */
   while (consp(STACK_0)) {
-    Car(STACK_0) = check_symbol_non_constant(Car(STACK_0),caller);
-    if (sym_macrop(Car(STACK_0))) {
+    var object sym = check_symbol_non_constant(Car(STACK_0),caller);
+    Car(STACK_0) = sym;
+    if (sym_macrop(sym)) {
       skipSTACK(1); /* drop body */
       return true;
     }

@@ -1803,8 +1803,9 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
           /* if string starts with 'x:', treat it as a device */
           var chart ch = down_case(schar(STACK_2,z.index));
           if ((as_cint(ch) >= 'a') && (as_cint(ch) <= 'z')) {
-            Car(STACK_0) = allocate_string(1);
-            TheSnstring(Car(STACK_0))->data[0] = ch;
+            var object drive = allocate_string(1);
+            TheSnstring(drive)->data[0] = ch;
+            Car(STACK_0) = drive;
             Z_SHIFT(z,2);
             if (Z_AT_SLASH(z,pslashp,STACK_2)) Z_SHIFT(z,1);
           } else goto continue_parsing_despite_semicolon;
