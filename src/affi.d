@@ -779,12 +779,24 @@ object_initdata_t module__affi__object_tab_initdata[1];
 
 uintC module__affi__subr_tab_size = subr_anz;
 
-subr_ module__affi__subr_tab[subr_anz] = {
-  LISPFUN(affi_libcall,seclass_default,2,0,rest,nokey,0,NIL)
-  LISPFUN(mem_read,seclass_default,2,1,norest,nokey,0,NIL)
-  LISPFUN(mem_write,seclass_default,3,1,norest,nokey,0,NIL)
-  LISPFUN(mem_write_vector,seclass_default,2,1,norest,nokey,0,NIL)
-  LISPFUN(affi_nonzerop,seclass_default,1,0,norest,nokey,0,NIL)
+struct {
+  VAROBJECTS_ALIGNMENT_DUMMY_DECL
+  subr_t subrs[subr_anz];
+} module__affi__subr_tab
+  #if defined(HEAPCODES) && (alignment_long < varobject_alignment) && defined(GNU)
+    __attribute__ ((aligned (varobject_alignment)))
+  #endif
+  = {
+  #if varobjects_misaligned
+  { 0 },
+  #endif
+  {
+    LISPFUN(affi_libcall,seclass_default,2,0,rest,nokey,0,NIL)
+    LISPFUN(mem_read,seclass_default,2,1,norest,nokey,0,NIL)
+    LISPFUN(mem_write,seclass_default,3,1,norest,nokey,0,NIL)
+    LISPFUN(mem_write_vector,seclass_default,2,1,norest,nokey,0,NIL)
+    LISPFUN(affi_nonzerop,seclass_default,1,0,norest,nokey,0,NIL)
+  }
 };
 
 subr_initdata_t module__affi__subr_tab_initdata[subr_anz] = {

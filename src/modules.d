@@ -1,6 +1,6 @@
 /*
  * Module für CLISP
- * Bruno Haible 1994-2003
+ * Bruno Haible 1994-2004
  */
 
 /* All dependencies on modules.h are collected here! */
@@ -22,7 +22,8 @@ uintC module_count =
 extern uintC subr_tab_data_size;
 extern uintC object_tab_size;
 #define MODULE(module_name)                                             \
-  extern subr_t module__##module_name##__subr_tab[];                    \
+  extern struct { VAROBJECTS_ALIGNMENT_DUMMY_DECL subr_t subrs[1]; }    \
+         module__##module_name##__subr_tab;                             \
   extern uintC module__##module_name##__subr_tab_size;                  \
   extern gcv_object_t module__##module_name##__object_tab[];            \
   extern uintC module__##module_name##__object_tab_size;                \
@@ -39,13 +40,13 @@ extern uintC object_tab_size;
 #endif
 module_t modules[] = {
   { "clisp",
-    (subr_t*)&subr_tab_data, &subr_tab_data_size,
+    (subr_t*)((char*)&subr_tab_data+varobjects_misaligned), &subr_tab_data_size,
     (gcv_object_t*)&object_tab, &object_tab_size,
     true, NULL, NULL, NULL, NULL
     _NEXT_NULL },
  #define MODULE(module_name)                                            \
   { #module_name, /* cannot use STRING(): module_name may be a CPP macro */ \
-    &module__##module_name##__subr_tab[0],                              \
+    &module__##module_name##__subr_tab.subrs[0],                        \
     &module__##module_name##__subr_tab_size,                            \
     &module__##module_name##__object_tab[0],                            \
     &module__##module_name##__object_tab_size,                          \

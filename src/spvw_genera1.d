@@ -425,6 +425,7 @@ local uintC generation;
                 physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
                 physpage->continued_count = 0;
                 physpage->firstobject = gen0_start;
+                gen0_start &= -physpagesize;
                 gen0_start += physpagesize; physpage++;
                 while (objptr < gen0_end) {
                   var aint nextptr = objptr + size_symbol();
@@ -451,6 +452,7 @@ local uintC generation;
                 physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
                 physpage->continued_count = 0;
                 physpage->firstobject = gen0_start;
+                gen0_start &= -physpagesize;
                 gen0_start += physpagesize; physpage++;
                 while (objptr < gen0_end) {
                   var aint nextptr = objptr + objsize_iarray((Iarray)objptr);
@@ -485,6 +487,8 @@ local uintC generation;
                 physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
                 physpage->continued_count = 0;
                 physpage->firstobject = gen0_start;
+                gen0_start &= -physpagesize;
+                gen0_start &= -physpagesize;
                 gen0_start += physpagesize; physpage++;
                 while (objptr < gen0_end) {
                   var uintL count = svector_length((Svector)objptr);
@@ -525,6 +529,7 @@ local uintC generation;
                 physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
                 physpage->continued_count = 0;
                 physpage->firstobject = gen0_start;
+                gen0_start &= -physpagesize;
                 gen0_start += physpagesize; physpage++;
                 while (objptr < gen0_end) {
                   var uintC count;
@@ -573,6 +578,7 @@ local uintC generation;
             physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
             physpage->continued_count = 0;
             physpage->firstobject = gen0_start;
+            gen0_start &= -physpagesize;
             gen0_start += physpagesize; physpage++;
             while (objptr < gen0_end) {
               #ifdef TYPECODES

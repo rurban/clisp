@@ -130,6 +130,7 @@ DEFUN (fun5, x y &rest r,(subr_user__fun5,2,0,rest,nokey,0,NIL))
 #endif
 
 struct {
+  VAROBJECTS_ALIGNMENT_DUMMY_DECL
 #if defined(cond0)
   subr_ _subr_mypack__fun1;
 #endif
@@ -141,16 +142,21 @@ struct {
   subr_t _subr_user__fun5;
   int _dummy_to_avoid_trailing_comma_in_initializer;
 } module__sample__subr_tab = {
+  #if varobjects_misaligned
+  { 0 },
+  #endif
+  {
 #if defined(cond0)
-  LISPFUN_F(subr_mypack__fun1,1,0,norest,nokey,0,NIL)
+    LISPFUN_F(subr_mypack__fun1,1,0,norest,nokey,0,NIL)
 #endif
 #if ((defined(cond0)) && (defined(cond1))) || ((defined(cond0)) && (!(defined(cond1))))
-  LISPFUN_F(subr_mypack__fun2,1,0,norest,nokey,0,NIL)
+    LISPFUN_F(subr_mypack__fun2,1,0,norest,nokey,0,NIL)
 #endif
-  LISPFUN_F(subr_mypack__fun3,2,1,norest,nokey,0,NIL)
-  LISPFUN_F(subr_mypack__fun4,2,0,norest,key,2,NIL)
-  LISPFUN_F(subr_user__fun5,2,0,rest,nokey,0,NIL)
-  0
+    LISPFUN_F(subr_mypack__fun3,2,1,norest,nokey,0,NIL)
+    LISPFUN_F(subr_mypack__fun4,2,0,norest,key,2,NIL)
+    LISPFUN_F(subr_user__fun5,2,0,rest,nokey,0,NIL)
+    0
+  }
 };
 uintC module__sample__subr_tab_size = (sizeof(struct module__sample__subr_tab_t)-sizeof(int))/sizeof(subr_t);
 

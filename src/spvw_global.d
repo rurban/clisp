@@ -292,7 +292,7 @@
           if ((sintL)page->page_room < 0) {
             fprintf(stderr,"\npage overrun at address 0x%x\n",page); abort();
           }
-          if (page->page_start != page_start0(page)) {
+          if (page->page_start != page_start0(page) + mem.heaps[heapnr].misaligned) {
             fprintf(stderr,"\ninconsistent page at address 0x%x\n",page);
             abort();
           }
