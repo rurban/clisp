@@ -1,3 +1,8 @@
+2004-06-24  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/bdb.c (ENV-GET-OPTIONS, ENV-SET-OPTIONS):
+	get and set tas_spins & shm_key
+
 2004-06-08  Bruno Haible  <bruno@clisp.org>
 
 	* clos-methcomb1.lisp (get-method-combination): Renamed from
