@@ -1,5 +1,10 @@
 2005-02-11  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (anymodule): pass CC to configure only if it was
+	actually set (fixed the 2004-03-15 patch)
+
+2005-02-11  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (parse-optimize-quality): work in interpreter too
 	* eval.d (parse_dd): call NOTE-OPTIMIZE
 
