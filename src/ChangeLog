@@ -3,6 +3,8 @@
 	* modules/postgresql/postgresql.lisp (PQgetCancel, PQfreeCancel)
 	(PQcancel, PQserverVersion, PQgetssl, PQinitSSL, PQdsplen):
 	added v8 functions
+	* modules/postgresql/configure.in: check for v8
+	do not check for crypt
 
 2005-03-16  Sam Steingold  <sds@gnu.org>
 
