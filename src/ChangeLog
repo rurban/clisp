@@ -1,3 +1,9 @@
+2002-06-12  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	Fixed win32 build
+	* win32.d [_MSC_VER]: no LC_MESSAGES in msvc
+	* socket.d (connect_via_ip): fixed bad goto
+
 2002-06-12  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (schar): Add comments! Change return type to chart.
