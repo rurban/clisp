@@ -996,12 +996,12 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
     }
     if (boundp(STACK_2)) /* :initial-element supplied? */
       if (!(eq(STACK_3,Fixnum_0))) { # size (ein Integer) = 0 -> nichts zu tun
-        if (!boundp(STACK_1)
-            && vectorp(value1) && array_simplep(value1) && posfixnump(STACK_3)) {
-          if (elt_fill(value1,0,posfixnum_to_L(STACK_3),STACK_2))
-            fehler_store(value1,STACK_2);
+        pushSTACK(value1);
+        if (!boundp(STACK_(1+1))
+            && vectorp(value1) && array_simplep(value1) && posfixnump(STACK_(3+1))) {
+          if (elt_fill(value1,0,posfixnum_to_L(STACK_(3+1)),STACK_(2+1)))
+            fehler_store(STACK_0,STACK_(2+1));
         } else {
-          pushSTACK(value1);
           # Stackaufbau: typdescr, count, element, updatefun, type-len, seq.
           pushSTACK(STACK_0); funcall(seq_init(STACK_(5+1)),1); # (SEQ-INIT seq)
           pushSTACK(value1);
@@ -1022,8 +1022,8 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
             }
           }
           skipSTACK(1); # pointer vergessen
-          value1 = popSTACK(); # seq
         }
+        value1 = popSTACK(); # seq
       }
     if (boundp(STACK_0) && !integerp(STACK_0)) {
       # Verify complicated length constraint, by calling TYPEP:
