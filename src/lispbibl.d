@@ -170,7 +170,7 @@
     #define MC680X0
     #define MC680Y0
   #endif
-  #if defined(i386) || defined(__i386) || defined(_I386)
+  #if defined(i386) || defined(__i386) || defined(__i386__) || defined(_I386)
     #define I80386
   #endif
   #if defined(sparc) || defined(__sparc__)
