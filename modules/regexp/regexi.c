@@ -81,7 +81,15 @@ DEFUN(REGEXP::REGEXP-EXEC, pattern string &key BOOLEAN START END NOTBOL NOTEOL)
   regex_t *re;
   regmatch_t *ret;
   skipSTACK(5);                 /* drop all options */
-  STACK_1 = check_fpointer(STACK_1,true);
+  while(1) {
+    STACK_1 = check_fpointer(STACK_1,true);
+    re = (regex_t*)TheFpointer(STACK_1)->fp_pointer;
+    if (re != NULL) break;
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(STACK_(1+1)); pushSTACK(TheSubr(subr_self)->name);
+    check_value(error,GETTEXT("~S: NULL pattern ~S"));
+    STACK_1 = value1;
+  }
   string = STACK_0;
   if (end != length || start != 0) {
     pushSTACK(sfixnum((int)(end-start)));
@@ -91,7 +99,6 @@ DEFUN(REGEXP::REGEXP-EXEC, pattern string &key BOOLEAN START END NOTBOL NOTEOL)
     funcall(L(make_array),7);
     string = value1;
   }
-  re = (regex_t*)TheFpointer(STACK_1)->fp_pointer;
   begin_system_call();
   ret = (regmatch_t*)alloca((re->re_nsub+1)*sizeof(regmatch_t));
   end_system_call();
