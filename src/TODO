@@ -4,6 +4,8 @@ See also <https://sourceforge.net/tracker/?group_id=1355&atid=351355>
 MUST-FIX BEFORE NEXT RELEASE
 ============================
 
+read_form loses pasted multi-line input on MacOS X.
+
 Restore interpretation of command-line options.
         [sds: what does this mean?]
 
