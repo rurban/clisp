@@ -135,7 +135,7 @@ readline.0: readline.3
 
 clean:
 	$(RM) *.aux *.cp *.fn *.ky *.log *.pg *.toc *.tp *.vr *.cps *.pgs \
-	      *.fns *.kys *.tps *.vrs *.bt *.o core
+	      *.fns *.kys *.tps *.vrs *.bt *.bts *.o core
 
 distclean: clean
 	$(RM) $(CREATED_DOCS)
