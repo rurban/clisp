@@ -708,6 +708,20 @@
         goto abbruch_quit;
       abbruch_quit:
         # Abbruch.
+        # Zuvor die Datei schließen, falls sie erfolgreich geöffnet worden war.
+        # (Hierbei werden Fehler nun aber wirklich ignoriert!)
+        #ifdef AMIGAOS
+        if (!(handle==Handle_NULL))
+          { begin_system_call(); CLOSE(handle); end_system_call(); }
+        #endif
+        #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+        if (!(handle<0))
+          { begin_system_call(); CLOSE(handle); end_system_call(); }
+        #endif
+        #ifdef WIN32_NATIVE
+        if (!(handle==INVALID_HANDLE_VALUE))
+          { begin_system_call(); CloseHandle(handle); end_system_call(); }
+        #endif
         quit_sofort(1);
     }}
   local void loadmem_from_handle(handle)
@@ -1406,19 +1420,15 @@
         goto abbruch_quit;
       abbruch_quit:
         # Abbruch.
-        # Zuvor die Datei schließen, falls sie erfolgreich geöffnet worden war.
-        # (Hierbei werden Fehler nun aber wirklich ignoriert!)
+        # Zuvor die Datei schließen.
         #ifdef AMIGAOS
-        if (!(handle==Handle_NULL))
-          { begin_system_call(); CLOSE(handle); end_system_call(); }
+        begin_system_call(); CLOSE(handle); end_system_call();
         #endif
         #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
-        if (!(handle<0))
-          { begin_system_call(); CLOSE(handle); end_system_call(); }
+        begin_system_call(); CLOSE(handle); end_system_call();
         #endif
         #ifdef WIN32_NATIVE
-        if (!(handle==INVALID_HANDLE_VALUE))
-          { begin_system_call(); CloseHandle(handle); end_system_call(); }
+        begin_system_call(); CloseHandle(handle); end_system_call();
         #endif
         quit_sofort(1);
     }
