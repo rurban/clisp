@@ -2841,6 +2841,13 @@ checks whether the &hash-table-t; is weak.</para>
 
 </section>
 
+<!-- #ifdef LOGICAL_PATHNAMES -->
+<section id="log-path"><title>Logical Pathnames
+  <ulink url="&clhs;/Body/sec_19-3.html">[CLHS-19.3]</ulink></title>
+ <para>No notes.</para>
+</section>
+<!-- #endif -->
+
 <section id="filename-dict"><title>The Filenames Dictionary
    <ulink url="&clhs;/Body/sec_the_filen_s_dictionary.html"
           >[CLHS-19.4]</ulink></title>
