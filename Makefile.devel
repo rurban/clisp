@@ -90,7 +90,8 @@ os2/makefile : makemake
 	./makemake os2 gcc > os2/makefile
 
 win32gcc/makefile : makemake
-	./makemake --with-dir-key win32gcc gcc > win32gcc/makefile
+	./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi \
+		win32gcc gcc > win32gcc/makefile
 
 win32msvc/makefile.msvc4 : makemake
 	./makemake --with-dir-key --with-dynamic-ffi \
@@ -270,7 +271,7 @@ distrib : linux-distrib src-distrib
 # news:comp.os.linux.announce
 # http://freshmeat.net/projects/clisp/
 # https://sourceforge.net/news/submit.php?group_id=1355
-# www/index.php has to be updated too
+# www/index.php and www/impnotes.html have to be updated too
 
 src-distrib : src/FILES src/version.h potfiles force
 	$(MAKE) src--distrib TOPDIR=clisp-`cat src/VERSION`
