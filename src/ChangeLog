@@ -1,5 +1,8 @@
 2001-01-17  Sam Steingold  <sds@gnu.org>
 
+	* posix.lisp (sysinfo, rlimit, limits, usage): unix-specific,
+	do not define on other systems
+
 	* spvw.d (main): handle `argv_expr' ("-x") similar to
 	`argv_execute_file', as if wrapped in `exit-on-error'
 

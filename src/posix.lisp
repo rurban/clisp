@@ -88,6 +88,7 @@
                     :blocks blocks :atime atime :mtime mtime :ctime ctime)))
 
 ;;; ============================================================
+#+unix (progn
 (defstruct sysinfo
   "see uname(2) and sysconf(3c) for details"
   ;; from uname
@@ -119,8 +120,9 @@ NIL - no such key; T - sysconf(3c) returned -1."
                   :num-processor-conf num-processor-conf
                   :num-processor-online num-processor-online
                   :max-threads-per-process max-threads-per-process)))
-
+)
 ;;; ============================================================
+#+unix (progn
 (defstruct rlimit
   "see getrlimit(2) for details"
   (soft nil :type (or null (unsigned-byte 32)))
@@ -195,3 +197,4 @@ see getrusage(3) and getrlimit(2) for details"
                     :num-files (mk lim51 lim52) :stack (mk lim61 lim62)
                     :virt-mem (mk lim71 lim72) :rss (mk lim81 lim82)
                     :memlock (mk lim91 lim92))))))
+)
