@@ -1623,7 +1623,7 @@ DEFUN(BDB:CURSOR-GET, cursor key data action &key :DIRTY_READ :MULTIPLE \
   DBT key, val;
   dbt_o_t key_type, val_type;
   int status;
-  u_int32_t re_len = 0/*record_length(db)*/;
+  u_int32_t re_len = record_length(cursor->dbp);
   if (symbolp(STACK_1)) {       /* type spec for the return value */
     key_type = check_dbt_type(STACK_1);
     init_dbt(&key,DB_DBT_MALLOC);
@@ -1659,7 +1659,7 @@ DEFUN(BDB:CURSOR-PUT, cursor key data flag)
   u_int32_t flag = cursor_put_flag(popSTACK());
   DBC *cursor = object_handle(STACK_2,`BDB::CURSOR`,OH_VALID);
   DBT key, val;
-  u_int32_t re_len = 0/*record_length(db)*/;
+  u_int32_t re_len = record_length(cursor->dbp);
   fill_dbt(STACK_1,&key,NULL,re_len);
   fill_dbt(STACK_0,&val,NULL,re_len);
   SYSCALL1(cursor->c_put,(cursor,&key,&val,flag),
