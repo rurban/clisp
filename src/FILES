@@ -559,7 +559,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
            ggeetttteexxtt//iinnttll//**
                   internationalization  library,  taken  from GNU
-                  gettext-0.10.32
+                  gettext-0.10.35
 
            ggeetttteexxtt//ppoo//**..ppoott
                   list of translatable messages ("portable object
