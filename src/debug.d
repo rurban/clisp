@@ -332,8 +332,8 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
   global void driver (void);
   global void driver()
     {
-      var struct backtrace_t *bt_save = back_trace;
-      var struct backtrace_t bt_here = {NULL, L(driver), STACK , -1};
+      var p_backtrace_t bt_save = back_trace;
+      var const struct backtrace_t bt_here = {NULL, L(driver), STACK , -1};
       back_trace = &bt_here;
       loop {
         var object driverfun = Symbol_value(S(driverstern)); # Wert von *DRIVER*
@@ -373,7 +373,7 @@ global void break_driver (bool continuable_p) {
     if (!continuable_p) /* not continuable? */
       reset(); /* -> back to the previous REPLoop */
   } else {
-    var struct backtrace_t *bt_save = back_trace;
+    var p_backtrace_t bt_save = back_trace;
     var struct backtrace_t bt_here = {NULL, S(break_driver), STACK , -1};
     back_trace = &bt_here;
     /* Default-Driver: (CLEAR-INPUT *DEBUG-IO*), since whatever has been
@@ -418,6 +418,7 @@ global void break_driver (bool continuable_p) {
           break;
       }
       if (!continuable_p) { /* not continuable? */
+        back_trace = bt_save;
         unwind(); reset(); /* -> back to the previous REPLoop */
       }
       skipSTACK(1+2); /* dissolve driver frame, forget prompt */
@@ -1001,7 +1002,7 @@ LISPFUNN(return_from_eval_frame,2)
 #                                 Debug aux
 
 local void print_back_trace (const gcv_object_t* stream_,
-                             struct backtrace_t *bt, int index) {
+                             const struct backtrace_t *bt, int index) {
   terpri(stream_);
   write_ascii_char(stream_,'[');
   if (index >= 0) prin1(stream_,fixnum(index));
@@ -1330,7 +1331,7 @@ LISPFUNN(describe_frame,2)
   {
     var gcv_object_t* FRAME = test_framepointer_arg(); # Pointer in den Stack
     if (!streamp(STACK_0)) fehler_stream(STACK_0);
-    { var struct backtrace_t *bt = back_trace;
+    { var p_backtrace_t bt = back_trace;
       unwind_back_trace(bt,FRAME);
       if (bt->bt_stack == FRAME) print_back_trace(&STACK_0,bt,0); }
     print_stackitem(&STACK_0,FRAME); # Stack-Item ausgeben
@@ -1349,7 +1350,7 @@ local inline uintL show_stack (climb_fun_t frame_up_x, uintL frame_limit,
   pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
   var gcv_object_t* stream_ = &STACK_0;
   var uintL count = 0;
-  var struct backtrace_t *bt = back_trace;
+  var p_backtrace_t bt = back_trace;
   while (!eq(FRAME_(0),nullobj) /* nullobj = stack end */
          && (frame_limit==0 || count<frame_limit)) {
     while (bt_beyond_stack_p(bt,FRAME)) {
