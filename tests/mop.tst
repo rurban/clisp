@@ -875,6 +875,37 @@ EXTRA
 (17 42)
 
 
+;;; Check the compute-effective-slot-definition-initargs protocol
+;;;   compute-effective-slot-definition-initargs
+
+;; Check that it's possible to generate initargs automatically and have a
+;; default initform of 42.
+(progn
+  (defclass auto-initargs-2-class (standard-class)
+    ())
+  (defmethod clos::compute-effective-slot-definition-initargs ((class auto-initargs-2-class) direct-slot-definitions)
+    (let ((initargs (call-next-method)))
+      (unless (getf initargs ':initargs)
+        (setq initargs
+              (list* ':initargs
+                     (list (intern (symbol-name (getf initargs ':name))
+                                   (find-package "KEYWORD")))
+                     initargs)))
+      (unless (getf initargs ':initfunction)
+        (setq initargs
+              (list* ':initfunction #'(lambda () 42)
+                     ':initform '42
+                     initargs)))
+      initargs))
+  #-CLISP
+  (defmethod clos:validate-superclass ((c1 auto-initargs-2-class) (c2 standard-class))
+    t)
+  (defclass testclass17-2 () ((x) (y)) (:metaclass auto-initargs-2-class))
+  (let ((inst (make-instance 'testclass17-2 :x 17)))
+    (list (slot-value inst 'x) (slot-value inst 'y))))
+(17 42)
+
+
 ;;; Check the compute-slots protocol
 ;;;   compute-slots
 
@@ -1914,3 +1945,163 @@ T
             (succeeds (testclass28-pair x))
             (succeeds (slot-value x 'pair))))))
 (nil t t nil nil)
+
+
+;;; Application example: Slot which has one value cell per subclass.
+
+(progn
+
+  ;; We must limit the support for per-subclass slots to those that inherit
+  ;; from this class, because we need to specialize
+  ;; clos:direct-slot-definition-class, clos:compute-slots and a few other
+  ;; generic functions and must not override the method responsible for
+  ;; standard-class.
+  (defclass class-supporting-classof-slots (standard-class)
+    ((slotname-to-dummyslotname :type list :initform nil)))
+  #-CLISP
+  (defmethod clos:validate-superclass ((c1 class-supporting-classof-slots) (c2 standard-class))
+    t)
+
+  ;; Define subclasses of direct-slot-definition that support a :per-subclass
+  ;; option. (It's not portable to use :allocation :classof, so we use
+  ;; :per-subclass t instead.)
+  (defclass classof-direct-slot-definition-mixin ()
+    ())
+  (let ((add-mixin-table (make-hash-table :test #+clisp 'ext:stablehash-eq #-clisp 'eq)))
+    ;; For a given direct slot definition class, returns a subclass that also
+    ;; inherits from classof-direct-slot-definition-mixin.
+    (defun add-classof-direct-mixin (slot-class)
+      (if (subtypep slot-class (find-class 'classof-direct-slot-definition-mixin))
+        slot-class
+        (or (gethash slot-class add-mixin-table)
+            (setf (gethash slot-class add-mixin-table)
+                  (clos:ensure-class (make-symbol (concatenate 'string (symbol-name (class-name slot-class)) "-WITH-CLASSOF-SUPPORT"))
+                    :metaclass (class-of slot-class)
+                    :direct-superclasses (list slot-class (find-class 'classof-direct-slot-definition-mixin))))))))
+  (defmethod clos:direct-slot-definition-class ((class class-supporting-classof-slots) &rest initargs)
+    (if (getf initargs ':per-subclass)
+      (add-classof-direct-mixin (call-next-method))
+      (call-next-method)))
+  (defmethod initialize-instance :after ((slot classof-direct-slot-definition-mixin) &rest initargs &key per-subclass)
+    (declare (ignore per-subclass)))
+
+  ;; If the direct slot has :per-subclass t, let the effective slot have
+  ;; :per-subclass t as well.
+  (defmethod clos::compute-effective-slot-definition-initargs ((class class-supporting-classof-slots) direct-slot-definitions)
+    (if (typep (first direct-slot-definitions) 'classof-direct-slot-definition-mixin)
+      (append (call-next-method) (list ':per-subclass t))
+      (call-next-method)))
+
+  ;; Define subclasses of effective-slot-definition that support a :per-subclass
+  ;; option.
+  (defclass classof-effective-slot-definition-mixin ()
+    ((value-slot-name :type symbol)))
+  (let ((add-mixin-table (make-hash-table :test #+clisp 'ext:stablehash-eq #-clisp 'eq)))
+    ;; For a given effective slot definition class, returns a subclass that also
+    ;; inherits from classof-effective-slot-definition-mixin.
+    (defun add-classof-effective-mixin (slot-class)
+      (if (subtypep slot-class (find-class 'classof-effective-slot-definition-mixin))
+        slot-class
+        (or (gethash slot-class add-mixin-table)
+            (setf (gethash slot-class add-mixin-table)
+                  (clos:ensure-class (make-symbol (concatenate 'string (symbol-name (class-name slot-class)) "-WITH-CLASSOF-SUPPORT"))
+                    :metaclass (class-of slot-class)
+                    :direct-superclasses (list slot-class (find-class 'classof-effective-slot-definition-mixin))))))))
+  (defmethod clos:effective-slot-definition-class ((class class-supporting-classof-slots) &rest initargs)
+    (if (getf initargs ':per-subclass)
+      (add-classof-effective-mixin (call-next-method))
+      (call-next-method)))
+  (defmethod initialize-instance :after ((slot classof-effective-slot-definition-mixin) &rest initargs &key per-subclass)
+    (declare (ignore per-subclass)))
+
+  ;; Add dummy effective slots, used to store the per-subclass value.
+  ;; (Using a dummy slot here, instead of just storing the value in the
+  ;; classof-effective-slot-definition-mixin, provides for smooth behaviour
+  ;; when a class is redefined: the values of slots are kept, but
+  ;; effective-slot-definitions and their contents are thrown away.)
+  (defmethod clos:compute-slots ((class class-supporting-classof-slots))
+    (let* ((slots (call-next-method))
+           (dummy-slots
+             (let ((old-dummyslotnames (slot-value class 'slotname-to-dummyslotname))
+                   (new-dummyslotnames '()))
+               (prog1
+                 (mapcan #'(lambda (slot)
+                             (if (typep slot 'classof-effective-slot-definition-mixin)
+                               (let* ((value-slot-name
+                                        ;; Try to keep the same dummyslotname as in the previous
+                                        ;; definition, so that the slot's value is preserved if possible.
+                                        (or (getf old-dummyslotnames (clos:slot-definition-name slot))
+                                            (make-symbol (concatenate 'string
+                                                           "VALUE-OF-"
+                                                           (symbol-name (clos:slot-definition-name slot))
+                                                           "-IN-"
+                                                           (symbol-name (class-name class))))))
+                                      (value-slot
+                                        (make-instance 'clos:standard-effective-slot-definition
+                                          :name value-slot-name
+                                          :allocation :class
+                                          :initform (clos:slot-definition-initform slot)
+                                          :initfunction (clos:slot-definition-initfunction slot)
+                                          :type (clos:slot-definition-type slot))))
+                                 (setf (slot-value slot 'value-slot-name) value-slot-name)
+                                 (setf (getf new-dummyslotnames (clos:slot-definition-name slot)) value-slot-name)
+                                 (list value-slot))
+                               '()))
+                         slots)
+                 (setf (slot-value class 'slotname-to-dummyslotname) new-dummyslotnames)))))
+      (append slots dummy-slots)))
+
+  ;; Redirect slot-value et al. from the slot with :per-subclass t to the dummy
+  ;; slot.
+  (defmethod clos:slot-value-using-class ((class standard-class) object (slot classof-effective-slot-definition-mixin))
+    (slot-value object (slot-value slot 'value-slot-name)))
+  (defmethod (setf clos:slot-value-using-class) (new-value (class standard-class) object (slot classof-effective-slot-definition-mixin))
+    (setf (slot-value object (slot-value slot 'value-slot-name)) new-value))
+  (defmethod clos:slot-boundp-using-class ((class standard-class) object (slot classof-effective-slot-definition-mixin))
+    (slot-boundp object (slot-value slot 'value-slot-name)))
+  (defmethod clos:slot-makunbound-using-class ((class standard-class) object (slot classof-effective-slot-definition-mixin))
+    (slot-makunbound object (slot-value slot 'value-slot-name)))
+
+  ;; Provide a general initialization hook, where the initform may depend on the
+  ;; class in which it is located.
+  (defgeneric initialize-classof-slot (class slot)
+    (:method ((class class-supporting-classof-slots) (slot classof-effective-slot-definition-mixin))))
+  (defmethod initialize-instance :after ((class class-supporting-classof-slots) &rest initargs)
+    (dolist (slot (clos:class-slots class))
+      (when (and (typep slot 'classof-effective-slot-definition-mixin)
+                 (not (slot-boundp (clos:class-prototype class) (clos:slot-definition-name slot))))
+        (initialize-classof-slot class slot))))
+
+  ;; Test it.
+  (defclass testclass29a ()
+    ((x :allocation :instance)
+     (y :allocation :class :per-subclass t)
+     (z :allocation :class))
+    (:metaclass class-supporting-classof-slots))
+  (defclass testclass29b (testclass29a)
+    ()
+    (:metaclass class-supporting-classof-slots))
+  (let ((insta1 (make-instance 'testclass29a))
+        (insta2 (make-instance 'testclass29a))
+        (instb1 (make-instance 'testclass29b))
+        (instb2 (make-instance 'testclass29b)))
+    (setf (slot-value insta1 'x) 'x1)
+    (setf (slot-value insta1 'y) 'y1)
+    (setf (slot-value insta1 'z) 'z1)
+    (setf (slot-value instb1 'x) 'x2)
+    (setf (slot-value instb1 'y) 'y2)
+    (setf (slot-value instb1 'z) 'z2)
+    (setf (slot-value instb2 'x) 'x3)
+    (setf (slot-value instb2 'y) 'y3)
+    (setf (slot-value instb2 'z) 'z3)
+    (setf (slot-value insta2 'x) 'x4)
+    (setf (slot-value insta2 'y) 'y4)
+    (setf (slot-value insta2 'z) 'z4)
+    (list (slot-value insta1 'x) (slot-value insta1 'y) (slot-value insta1 'z)
+          (slot-value insta2 'x) (slot-value insta2 'y) (slot-value insta2 'z)
+          (slot-value instb1 'x) (slot-value instb1 'y) (slot-value instb1 'z)
+          (slot-value instb2 'x) (slot-value instb2 'y) (slot-value instb2 'z))))
+(x1 y4 z4
+ x4 y4 z4
+ x2 y3 z4
+ x3 y3 z4)

@@ -1174,6 +1174,7 @@
       compute-discriminating-function
       compute-effective-method
       compute-effective-slot-definition
+      compute-effective-slot-definition-initargs
       compute-slots
       direct-slot-definition-class
       effective-slot-definition-class

@@ -76,6 +76,7 @@
      (:fixed-slot-locations t)))
 
 ;; Information about a slot, as specified in a DEFCLASS form.
+(defvar <direct-slot-definition> 'direct-slot-definition)
 (defvar *<direct-slot-definition>-defclass*
   '(defclass direct-slot-definition (slot-definition)
      (($readers      :type list               :initarg :readers)
@@ -465,6 +466,16 @@
        (eq (null (slot-definition-documentation slot1)) (null (slot-definition-documentation slot2)))
        (equal (slot-definition-readers slot1) (slot-definition-readers slot2))
        (equal (slot-definition-writers slot1) (slot-definition-writers slot2))))
+
+;; Type test.
+(defun direct-slot-definition-p (object)
+  (and (std-instance-p object)
+       (let ((cv (sys::%record-ref object 0)))
+         ; Treat the most frequent case first, for speed and bootstrapping.
+         (cond ((eq cv *<standard-direct-slot-definition>-class-version*) t)
+               (t ; Now a slow, but general instanceof test.
+                 (gethash <direct-slot-definition>
+                          (class-all-superclasses (class-of object))))))))
 
 ;; Preliminary.
 (predefun effective-slot-definition-class (class &rest initargs)
