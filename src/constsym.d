@@ -732,6 +732,8 @@ LISPSYM(closure_codevec,"CLOSURE-CODEVEC",system)
 LISPSYM(closure_consts,"CLOSURE-CONSTS",system)
 LISPSYM(make_code_vector,"MAKE-CODE-VECTOR",system)
 LISPSYM(make_closure,"%MAKE-CLOSURE",system)
+LISPSYM(make_constant_initfunction,"MAKE-CONSTANT-INITFUNCTION",system)
+LISPSYM(constant_initfunction_p,"CONSTANT-INITFUNCTION-P",system)
 LISPSYM(closure_set_seclass,"CLOSURE-SET-SECLASS",system)
 LISPSYM(copy_generic_function,"%COPY-GENERIC-FUNCTION",system)
 LISPSYM(generic_function_effective_method_function,"GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION",system)
@@ -1280,6 +1282,7 @@ LISPSYM(initial_make_instance,"INITIAL-MAKE-INSTANCE",clos) /* function for RECO
 LISPSYM(allocate_instance,"ALLOCATE-INSTANCE",clos) /* function for RECORD */
 LISPSYM(finalize_class,"FINALIZE-CLASS",clos) /* function for RECORD */
 LISPSYM(class_version_compute_slotlists,"CLASS-VERSION-COMPUTE-SLOTLISTS",clos) /* function for RECORD */
+LISPSYM(constant_initfunction,"CONSTANT-INITFUNCTION",clos) /* marker in RECORD */
 LISPSYM(simple_vector,"SIMPLE-VECTOR",lisp) /* type in SEQUENCE, PREDTYPE */
 LISPSYM(simple_string,"SIMPLE-STRING",lisp) /* type in SEQUENCE, PREDTYPE */
 LISPSYM(base_string,"BASE-STRING",lisp) /* type in SEQUENCE, PREDTYPE */
