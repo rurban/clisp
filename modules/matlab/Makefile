@@ -15,7 +15,7 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = matlab.o link.sh Makefile matlab.lisp wrap.lisp
+DISTRIBFILES = matlab.o link.sh Makefile matlab.lisp wrap.lisp test.tst
 distribdir =
 
 all : matlab.fas matlab.o wrap.fas
