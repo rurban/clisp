@@ -1247,7 +1247,7 @@ program run during the process of compiling the source program.
 &funcallable-standard-class; or one of its subclasses are called
 <firstterm>funcallable instances</firstterm>.
 Funcallable instances can only be created by
-<literal role="sexp">&allocate-instance;
+<literal role="method">&allocate-instance;
  (&funcallable-standard-class;)</literal>.</para>
 
 <para>Like standard instances, funcallable instances have slots with the
@@ -1442,7 +1442,7 @@ of these methods, a <firstterm>method signature</firstterm> is used to
 describe the parameters and parameter specializers of each method. The
 following is an example of the format for a method signature:
 <programlisting>
-<literal role="sexp">(<function>gf1</function> (&x-r; &class;) &y-r; &optional-amp; &y-r; &key-amp; &k-r;)</literal>
+<literal role="method">(<function>gf1</function> (&x-r; &class;) &y-r; &optional-amp; &y-r; &key-amp; &k-r;)</literal>
 </programlisting></para>
 
 <para>This signature indicates that this primary method on the generic
@@ -1492,7 +1492,7 @@ reference to the method with the signature shown above is written as:
    specified.</simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&add-dependent;
+<varlistentry><term><literal role="method">(&add-dependent;
    (&class-r; &standard-class;) &dependent-r;)</literal></term>
  <listitem>&no-extra-spec;
   <para>&also-must-override;<itemizedlist>
@@ -1501,7 +1501,7 @@ reference to the method with the signature shown above is written as:
     <listitem><simpara><literal role="method">&map-dependents;
        (&standard-class; &t-t;)</literal></simpara></listitem>
 </itemizedlist></para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&add-dependent;
+<varlistentry><term><literal role="method">(&add-dependent;
    (&class-r; &funcallable-standard-class;) &dependent-r;)</literal></term>
  <listitem>&no-extra-spec;
   <para>&also-must-override;<itemizedlist>
@@ -1510,7 +1510,7 @@ reference to the method with the signature shown above is written as:
     <listitem><simpara><literal role="method">&map-dependents;
        (&funcallable-standard-class; &t-t;)</literal></simpara></listitem>
 </itemizedlist></para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&add-dependent;
+<varlistentry><term><literal role="method">(&add-dependent;
    (&gf-r; &standard-generic-function-t;) &dependent-r;)</literal></term>
  <listitem>&no-extra-spec;
   <para>&also-must-override;<itemizedlist>
@@ -1561,7 +1561,7 @@ use of this facility.</para></formalpara>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&add-direct-method;
+<varlistentry><term><literal role="method">(&add-direct-method;
    (&specializer-r; &class;) (&method-r; &method-t;))</literal></term>
  <listitem><simpara>This method implements the behavior of the generic
    function for class specializers.</simpara>&no-extra-spec;
@@ -1573,7 +1573,7 @@ use of this facility.</para></formalpara>
     <listitem><simpara><literal role="method">&specializer-direct-methods;
        (&class;)</literal></simpara></listitem></itemizedlist>
 </para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&add-direct-method;
+<varlistentry><term><literal role="method">(&add-direct-method;
    (&specializer-r; &eql-specializer-t;)
    (&method-r; &method-t;))</literal></term>
  <listitem><simpara>This method implements the behavior of the generic
@@ -1611,7 +1611,7 @@ use of this facility.</para></formalpara>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&add-direct-subclass;
+<varlistentry><term><literal role="method">(&add-direct-subclass;
    (&superclass-r; &class;) (&subclass-r; &class;))</literal></term>
  <listitem>&no-extra-spec;
   <para>&also-must-override;<itemizedlist>
@@ -1670,7 +1670,7 @@ use of this facility.</para></formalpara>
    or the implementation.</simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&add-method;
+<varlistentry><term><literal role="method">(&add-method;
    (&gf-r; &standard-generic-function-t;)
    (&method-r; &standard-method-t;))</literal></term>
  <listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
@@ -1704,13 +1704,13 @@ use of this facility.</para></formalpara>
    is allocated.</simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&allocate-instance;
+<varlistentry><term><literal role="method">(&allocate-instance;
    (&class-r; &standard-class;) &rest-amp; &initargs-r;</literal></term>
  <listitem><simpara>This method allocates storage in the instance for
    each slot with allocation &instance-k;.  These slots are unbound.
    Slots with any other allocation are ignored by this method (no
    &err-sig;).</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&allocate-instance;
+<varlistentry><term><literal role="method">(&allocate-instance;
    (&class-r; &funcallable-standard-class;)
    &rest-amp; &initargs-r;)</literal></term>
  <listitem><simpara>This method allocates storage in the instance for
@@ -1722,7 +1722,7 @@ use of this facility.</para></formalpara>
    arguments before &set-funcallable-instance-function; has been used
    to set the funcallable instance function.
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&allocate-instance;
+<varlistentry><term><literal role="method">(&allocate-instance;
    (&class-r; &built-in-class;) &rest-amp; &initargs-r;)</literal></term>
  <listitem><simpara>This method &sig-err;.
 </simpara></listitem></varlistentry></variablelist>
@@ -1786,7 +1786,7 @@ use of this facility.</para></formalpara>
   &result-immutable;</listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&compute-applicable-methods;
+<varlistentry><term><literal role="method">(&compute-applicable-methods;
    (&gf-r; &standard-generic-function-t;) &args-r;)</literal></term>
  <listitem><simpara>This method &sig-err; if any method of the generic
    function has a specializer which is neither a class metaobject nor an
@@ -1854,7 +1854,7 @@ use of this facility.</para></formalpara>
   &result-immutable;</listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&compute-applicable-methods-UC;
+<varlistentry><term><literal role="method">(&compute-applicable-methods-UC;
    (&gf-r; &standard-generic-function-t;) &classes-r;)</literal></term>
  <listitem><simpara>If any method of the generic function has a
    specializer which is neither a class metaobject nor an &eql-t;
@@ -1921,7 +1921,7 @@ their own memoization scheme.</para></simplesect>
   &result-immutable;</listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&compute-cpl; (&class-r;
+<varlistentry><term><literal role="method">(&compute-cpl; (&class-r;
    &class;))</literal></term>
  <listitem><simpara>This method computes the class precedence list
    according to the rules described in the &ansi-cl; section
@@ -1969,9 +1969,9 @@ their own memoization scheme.</para></simplesect>
  &result-immutable;</listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&compute-default-initargs;
+<varlistentry><term><literal role="method">(&compute-default-initargs;
    (&class-r; &standard-class;))</literal></term>
- <term><literal role="sexp">(&compute-default-initargs;
+ <term><literal role="method">(&compute-default-initargs;
    (&class-r; &funcallable-standard-class;))</literal></term>
  <listitem><simpara>These methods compute the default initialization
    arguments according to the rules described in the &ansi-cl; section
@@ -2046,7 +2046,7 @@ their own memoization scheme.</para></simplesect>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
- <varlistentry><term><literal role="sexp">(&compute-discriminating-function;
+ <varlistentry><term><literal role="method">(&compute-discriminating-function;
     (&gf-r; &standard-generic-function-t;))</literal></term>
   <listitem>&no-extra-spec;
    &overridable;</listitem></varlistentry></variablelist>
@@ -2096,7 +2096,7 @@ their own memoization scheme.</para></simplesect>
     method.</simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&compute-effective-method;
+<varlistentry><term><literal role="method">(&compute-effective-method;
    (&gf-r; &standard-generic-function-t;) &mc-r; &methods-r;)</literal></term>
  <listitem><simpara>This method computes the effective method according
    to the rules of the method combination type implemented by &mc-r;.</simpara>
@@ -2142,10 +2142,10 @@ their own memoization scheme.</para></simplesect>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&compute-esd;
+<varlistentry><term><literal role="method">(&compute-esd;
    (&class-r; &standard-class;) &name-r;
    <replaceable>direct-slot-definitions</replaceable>)</literal></term>
- <term><literal role="sexp">(&compute-esd;
+ <term><literal role="method">(&compute-esd;
    (&class-r; &funcallable-standard-class;) &name-r;
    <replaceable>direct-slot-definitions</replaceable>)</literal></term>
  <listitem><simpara>This method implements the inheritance and
@@ -2197,16 +2197,16 @@ their own memoization scheme.</para></simplesect>
   &result-immutable;</listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&compute-slots;
+<varlistentry><term><literal role="method">(&compute-slots;
    (&class-r; &standard-class;))</literal></term>
- <term><literal role="sexp">(&compute-slots;
+ <term><literal role="method">(&compute-slots;
    (&class-r; &funcallable-standard-class;)}</literal></term>
  <listitem><simpara>These methods implement the specified behavior of
    the generic function.</simpara>
   &overridables;</listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&compute-slots;
+<varlistentry><term><literal role="method">(&compute-slots;
    <constant>:AROUND</constant> (&class-r; &standard-class;))</literal></term>
- <term><literal role="sexp">(&compute-slots; <constant>:AROUND</constant>
+ <term><literal role="method">(&compute-slots; <constant>:AROUND</constant>
    (&class-r; &funcallable-standard-class;))</literal></term>
  <listitem><simpara>These methods implement the specified behavior of
    computing and storing slot locations.
@@ -2241,9 +2241,9 @@ their own memoization scheme.</para></simplesect>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
- <varlistentry><term><literal role="sexp">(&dsd-class;
+ <varlistentry><term><literal role="method">(&dsd-class;
     (&class-r; &standard-class;) &rest-amp; &initargs-r;)</literal></term>
-  <term><literal role="sexp">(&dsd-class; (&class-r;
+  <term><literal role="method">(&dsd-class; (&class-r;
     &funcallable-standard-class;) &rest-amp; &initargs-r;)</literal></term>
  <listitem><simpara>These methods return the class &standard-dsd-t;.
   </simpara>&overridables;</listitem></varlistentry></variablelist>
@@ -2274,9 +2274,9 @@ their own memoization scheme.</para></simplesect>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&esd-class;
+<varlistentry><term><literal role="method">(&esd-class;
    (&class-r; &standard-class;) &rest-amp; &initargs-r;)</literal></term>
- <term><literal role="sexp">(&esd-class; (&class-r;
+ <term><literal role="method">(&esd-class; (&class-r;
    &funcallable-standard-class;) &rest-amp; &initargs-r;)</literal></term>
  <listitem><simpara>These methods return  the class &standard-esd-t;.
   </simpara>&overridables;</listitem></varlistentry></variablelist>
@@ -2402,19 +2402,19 @@ their own memoization scheme.</para></simplesect>
    returned.</simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&ensure-class-UC;
+<varlistentry><term><literal role="method">(&ensure-class-UC;
    (&class-r; &class;) &name-r; &key-amp; &metaclass-k;
    &direct-superclasses-k; &allow-other-keys-amp;)</literal></term>
  <listitem><simpara>This method implements the behavior of the generic
    function in the case where the &class-r; argument is a class.</simpara>
  &overridable;</listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&ensure-class-UC;
+<varlistentry><term><literal role="method">(&ensure-class-UC;
    (&class-r; &forward-referenced-class;) &name-r; &key-amp; &metaclass-k;
    &direct-superclasses-k; &allow-other-keys-amp;)</literal></term>
  <listitem><simpara>This method implements the behavior of the generic
    function in the case where the &class-r; argument is a forward
    referenced class.</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&ensure-class-UC;
+<varlistentry><term><literal role="method">(&ensure-class-UC;
    (&class-r; &null-t;) &name-r; &key-amp; &metaclass-k;
    &direct-superclasses-k; &allow-other-keys-amp;)</literal></term>
  <listitem><simpara>This method implements the behavior of the generic
@@ -2528,14 +2528,14 @@ their own memoization scheme.</para></simplesect>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&ensure-gf-UC;
+<varlistentry><term><literal role="method">(&ensure-gf-UC;
    (&gf-r; &generic-function-t;) &funcname-r; &key-amp;
    &gf-class-k; &allow-other-keys-amp;)</literal></term>
  <listitem><simpara>This method implements the behavior of the generic
    function in the case where &funcname-r; names an existing generic
    function.</simpara>
   &overridable;</listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&ensure-gf-UC;
+<varlistentry><term><literal role="method">(&ensure-gf-UC;
    (&gf-r; &null-t;) &funcname-r; &key-amp; &gf-class-k;
    &allow-other-keys-amp;)</literal></term>
  <listitem><simpara>This method implements the behavior of the generic
@@ -2672,12 +2672,12 @@ their own memoization scheme.</para></simplesect>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&finalize-inheritance;
+<varlistentry><term><literal role="method">(&finalize-inheritance;
    (&class-r; &standard-class;))</literal></term>
- <term><literal role="sexp">(&finalize-inheritance;
+ <term><literal role="method">(&finalize-inheritance;
    (&class-r; &funcallable-standard-class;))</literal></term>
 <listitem>&no-extra-specs;</listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&finalize-inheritance;
+<varlistentry><term><literal role="method">(&finalize-inheritance;
    (&class-r; &forward-referenced-class;))</literal></term>
 <listitem><simpara>This method &sig-err;.
 </simpara></listitem></varlistentry></variablelist>
@@ -3399,14 +3399,14 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&make-instance;
+<varlistentry><term><literal role="method">(&make-instance;
    (&class-r; &symbol-t;) &rest-amp; &initargs-r;)</literal></term>
  <listitem><simpara>This method simply invokes &make-instance;
-   recursively on the arguments <literal role="sexp">(&find-class;
+   recursively on the arguments <literal role="method">(&find-class;
    &class-r;)</literal> and &initargs-r;.</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&make-instance; (&class-r;
+<varlistentry><term><literal role="method">(&make-instance; (&class-r;
    &standard-class;) &rest-amp; &initargs-r;)</literal></term>
- <term><literal role="sexp">(&make-instance; (&class-r;
+ <term><literal role="method">(&make-instance; (&class-r;
    &funcallable-standard-class;) &rest-amp; &initargs-r;)</literal></term>
  <listitem><simpara>These methods implement the behavior of
    &make-instance; described in the &ansi-cl; section
@@ -3479,7 +3479,7 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&make-method-lambda;
+<varlistentry><term><literal role="method">(&make-method-lambda;
    (&gf-r; &standard-generic-function-t;)
    (&method-r; &standard-method-t;)
    <replaceable>lambda-expression</replaceable> &env-r;)</literal></term>
@@ -3568,7 +3568,7 @@ override the system's definitions.</para>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&map-dependents;
+<varlistentry><term><literal role="method">(&map-dependents;
    (&metaobject-r; &standard-class;) &func-r;)</literal></term>
  <listitem>&no-extra-spec;
   <para>&also-must-override;<itemizedlist>
@@ -3577,7 +3577,7 @@ override the system's definitions.</para>
     <listitem><simpara><literal role="method">&remove-dependent;
        (&standard-class; &t-t;)</literal></simpara></listitem>
 </itemizedlist></para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&map-dependents;
+<varlistentry><term><literal role="method">(&map-dependents;
    (&metaobject-r; &funcallable-standard-class;) &func-r;)</literal></term>
  <listitem>&no-extra-spec;
   <para>&also-must-override;<itemizedlist>
@@ -3586,7 +3586,7 @@ override the system's definitions.</para>
     <listitem><simpara><literal role="method">&remove-dependent;
        (&funcallable-standard-class; &t-t;)</literal></simpara></listitem>
 </itemizedlist></para></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(&map-dependents;
+ <varlistentry><term><literal role="method">(&map-dependents;
    (&metaobject-r; &standard-generic-function-t;) &func-r;)</literal></term>
  <listitem>&no-extra-spec;
   <para>&also-must-override;<itemizedlist>
@@ -3954,20 +3954,20 @@ metaobject during initialization or reinitialization.  (Also see
 
 <variablelist><title>The specified methods for the generic function
   metaobject reader generic functions.</title>
-<varlistentry><term><literal role="sexp">(&gf-argument-precedence-order;
+<varlistentry><term><literal role="method">(&gf-argument-precedence-order;
    (&gf-r; &standard-generic-function-t;))</literal></term>
- <term><literal role="sexp">(&gf-declarations;
+ <term><literal role="method">(&gf-declarations;
    (&gf-r; &standard-generic-function-t;))</literal></term>
- <term><literal role="sexp">(&gf-lambda-list;
+ <term><literal role="method">(&gf-lambda-list;
    (&gf-r; &standard-generic-function-t;))</literal></term>
- <term><literal role="sexp">(&gf-method-class;
+ <term><literal role="method">(&gf-method-class;
    (&gf-r; &standard-generic-function-t;))</literal></term>
- <term><literal role="sexp">(&gf-method-combination;
+ <term><literal role="method">(&gf-method-combination;
    (&gf-r; &standard-generic-function-t;))</literal></term>
- <term><literal role="sexp">(&gf-name;
+ <term><literal role="method">(&gf-name;
    (&gf-r; &standard-generic-function-t;))</literal></term>
  <listitem>&no-extra-specs;</listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&gf-methods;
+<varlistentry><term><literal role="method">(&gf-methods;
    (&gf-r; &standard-generic-function-t;))</literal></term>
  <listitem>&no-extra-spec;
   <simpara>The value returned by this method is maintained by
@@ -4059,16 +4059,16 @@ method during initialization.</para></simplesect>
 
 <variablelist>
  <title>The specified methods for the method metaobject readers.</title>
-<varlistentry><term><literal role="sexp">(&method-function;
+<varlistentry><term><literal role="method">(&method-function;
    (&method-r; &standard-method-t;))</literal></term>
- <term><literal role="sexp">(&method-lambda-list;
+ <term><literal role="method">(&method-lambda-list;
    (&method-r; &standard-method-t;))</literal></term>
- <term><literal role="sexp">(&method-specializers;
+ <term><literal role="method">(&method-specializers;
    (&method-r; &standard-method-t;))</literal></term>
- <term><literal role="sexp">(&method-qualifiers;
+ <term><literal role="method">(&method-qualifiers;
    (&method-r; &standard-method-t;))</literal></term>
  <listitem>&no-extra-specs;</listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&method-gf;
+<varlistentry><term><literal role="method">(&method-gf;
    (&method-r; &standard-method-t;))</literal></term>
 <listitem>&no-extra-spec;
  <simpara>The value returned by this method is maintained by
@@ -4076,7 +4076,7 @@ method during initialization.</para></simplesect>
    &standard-method-t;)</literal> and
   <literal role="method">&remove-method;(&standard-generic-function-t;
    &standard-method-t;)</literal>.</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&accessor-method-slotdef;
+<varlistentry><term><literal role="method">(&accessor-method-slotdef;
    (&method-r; &standard-accessor-method-t;))</literal></term>
  <listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
 </simplesect>
@@ -4168,17 +4168,17 @@ initialization.</para></simplesect>
 
 <variablelist><title>The specified methods for the slot definition
   metaobject readers.</title>
- <varlistentry><term><literal role="sexp">(&slotdef-allocation;
+ <varlistentry><term><literal role="method">(&slotdef-allocation;
     (&slotdef-r; &standard-slotdef-t;))</literal></term>
-  <term><literal role="sexp">(&slotdef-initargs;
+  <term><literal role="method">(&slotdef-initargs;
     (&slotdef-r; &standard-slotdef-t;))</literal></term>
-  <term><literal role="sexp">(&slotdef-initform;
+  <term><literal role="method">(&slotdef-initform;
     (&slotdef-r; &standard-slotdef-t;))</literal></term>
-  <term><literal role="sexp">(&slotdef-initfunction;
+  <term><literal role="method">(&slotdef-initfunction;
     (&slotdef-r; &standard-slotdef-t;))</literal></term>
-  <term><literal role="sexp">(&slotdef-name;
+  <term><literal role="method">(&slotdef-name;
     (&slotdef-r; &standard-slotdef-t;))</literal></term>
-  <term><literal role="sexp">(&slotdef-type;
+  <term><literal role="method">(&slotdef-type;
     (&slotdef-r; &standard-slotdef-t;))</literal></term>
   <listitem>&no-extra-specs;</listitem></varlistentry></variablelist>
 </section>
@@ -4209,9 +4209,9 @@ value is a list of function names.  This is the defaulted value of the
 &writers-k; initialization argument that was associated with the direct
 slot definition metaobject during initialization.
 <variablelist>
- <varlistentry><term><literal role="sexp">(&slotdef-readers;
+ <varlistentry><term><literal role="method">(&slotdef-readers;
     (&dsd-r; &standard-dsd-t;))</literal></term>
-  <term><literal role="sexp">(&slotdef-writers;
+  <term><literal role="method">(&slotdef-writers;
     (&dsd-r; &standard-dsd-t;))</literal></term>
   <listitem>&no-extra-specs;</listitem></varlistentry></variablelist>
 </para></simplesect>
@@ -4233,7 +4233,7 @@ slot definition metaobject during initialization.
  of this value is described in <xref linkend="instance-stuct"/>.</para>
 
 <variablelist>
- <varlistentry><term><literal role="sexp">(&slotdef-location;
+ <varlistentry><term><literal role="method">(&slotdef-location;
     (&esd-r; &standard-esd-t;))</literal></term>
   <listitem><simpara>This method returns the value stored by
     <literal role="method">&compute-slots; <constant>:AROUND</constant>
@@ -4276,10 +4276,10 @@ slot definition metaobject during initialization.
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&reader-method-class;
+<varlistentry><term><literal role="method">(&reader-method-class;
    (&class-r; &standard-class;) (&dsd-r; &standard-dsd-t;)
    &rest-amp; &initargs-r;)</literal></term>
- <term><literal role="sexp">(&reader-method-class;
+ <term><literal role="method">(&reader-method-class;
    (&class-r; &funcallable-standard-class;) (&dsd-r; &standard-dsd-t;)
    &rest-amp; &initargs-r;)</literal></term>
  <listitem><simpara>These methods return the class
@@ -4320,7 +4320,7 @@ slot definition metaobject during initialization.
    specified.</simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&remove-dependent;
+<varlistentry><term><literal role="method">(&remove-dependent;
    (&class-r; &standard-class;) &dependent-r;)</literal></term>
  <listitem>&no-extra-spec;
   <para>&also-must-override;<itemizedlist>
@@ -4329,7 +4329,7 @@ slot definition metaobject during initialization.
     <listitem><simpara><literal role="method">&map-dependents;
        (&standard-class; &t-t;)</literal></simpara></listitem>
 </itemizedlist></para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&remove-dependent;
+<varlistentry><term><literal role="method">(&remove-dependent;
    (&class-r; &funcallable-standard-class;) &dependent-r;)</literal></term>
  <listitem>&no-extra-spec;
   <para>&also-must-override;<itemizedlist>
@@ -4338,7 +4338,7 @@ slot definition metaobject during initialization.
     <listitem><simpara><literal role="method">&map-dependents;
        (&funcallable-standard-class; &t-t;)</literal></simpara></listitem>
 </itemizedlist></para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&remove-dependent;
+<varlistentry><term><literal role="method">(&remove-dependent;
    (&class-r; &standard-generic-function-t;) &dependent-r;)</literal></term>
  <listitem>&no-extra-spec;
   <para>&also-must-override;<itemizedlist>
@@ -4390,7 +4390,7 @@ use of this facility.</para></formalpara>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&remove-direct-method;
+<varlistentry><term><literal role="method">(&remove-direct-method;
    (&specializer-r; &class;) (&method-r; &method-t;))</literal></term>
  <listitem><simpara>This method implements the behavior of the generic
    function for class specializers.</simpara>
@@ -4403,7 +4403,7 @@ use of this facility.</para></formalpara>
     <listitem><simpara><literal role="method">&specializer-direct-methods;
        (&class;)</literal></simpara></listitem>
 </itemizedlist></para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&remove-direct-method;
+<varlistentry><term><literal role="method">(&remove-direct-method;
    (&specializer-r; &eql-specializer-t;)
    (&method-r; &method-t;))</literal></term>
  <listitem><simpara>This method implements the behavior of the generic
@@ -4437,7 +4437,7 @@ use of this facility.</para></formalpara>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&remove-direct-subclass;
+<varlistentry><term><literal role="method">(&remove-direct-subclass;
    (&superclass-r; &class;) (&subclass-r; &class;))</literal></term>
 <listitem>&no-extra-spec;
  <para>&also-must-override;<itemizedlist>
@@ -4487,7 +4487,7 @@ use of this facility.</para></formalpara>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&remove-method;
+<varlistentry><term><literal role="method">(&remove-method;
    (&gf-r; &standard-generic-function-t;)
    (&method-r; &standard-method-t;))</literal></term>
  <listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
@@ -4606,15 +4606,15 @@ use of this facility.</para></formalpara>
   &class-slot-UC-consistent;</listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&setf-slot-value-UC;
+<varlistentry><term><literal role="method">(&setf-slot-value-UC;
    &nval-r; (&class-r; &standard-class;) &object-r;
    (&slot-r; &standard-esd-t;))</literal></term>
- <term><literal role="sexp">(&setf-slot-value-UC;
+ <term><literal role="method">(&setf-slot-value-UC;
    &nval-r; (&class-r; &funcallable-standard-class;) &object-r;
    (&slot-r; &standard-esd-t;))</literal></term>
  <listitem>&class-slot-alloc-inst-class;
   &may-override;</listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&setf-slot-value-UC;
+<varlistentry><term><literal role="method">(&setf-slot-value-UC;
    &nval-r; (&class-r; &built-in-class;) &object-r; &slot-r;)</literal></term>
 <listitem><simpara>This method &sig-err;.
 </simpara></listitem></varlistentry></variablelist>
@@ -4649,15 +4649,15 @@ use of this facility.</para></formalpara>
   &class-slot-UC-consistent;</listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&slot-boundp-UC;
+<varlistentry><term><literal role="method">(&slot-boundp-UC;
    (&class-r; &standard-class;) &object-r;
    (&slot-r; &standard-esd-t;))</literal></term>
- <term><literal role="sexp">(&slot-boundp-UC;
+ <term><literal role="method">(&slot-boundp-UC;
    (&class-r; &funcallable-standard-class;) &object-r;
    (&slot-r; &standard-esd-t;))</literal></term>
  <listitem>&class-slot-alloc-inst-class;
   &may-override;</listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&slot-boundp-UC;
+<varlistentry><term><literal role="method">(&slot-boundp-UC;
    (&class-r; &built-in-class;) &object-r; &slot-r;)</literal></term>
 <listitem><simpara>This method &sig-err;.</simpara></listitem></varlistentry>
 </variablelist>
@@ -4716,15 +4716,15 @@ unbound slots, true should be returned.</para></formalpara>
   &class-slot-UC-consistent;</listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&slot-makunbound-UC;
+<varlistentry><term><literal role="method">(&slot-makunbound-UC;
    (&class-r; &standard-class;) &object-r;
    (&slot-r; &standard-esd-t;))</literal></term>
- <term><literal role="sexp">(&slot-makunbound-UC;
+ <term><literal role="method">(&slot-makunbound-UC;
    (&class-r; &funcallable-standard-class;) &object-r;
    (&slot-r; &standard-esd-t;))</literal></term>
  <listitem>&class-slot-alloc-inst-class;
   &may-override;</listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&slot-makunbound-UC;
+<varlistentry><term><literal role="method">(&slot-makunbound-UC;
    (&class-r; &built-in-class;) &object-r; &slot-r;)</literal></term>
  <listitem><simpara>This method &sig-err;.
 </simpara></listitem></varlistentry></variablelist>
@@ -4759,15 +4759,15 @@ unbound slots, true should be returned.</para></formalpara>
   &class-slot-UC-consistent;</listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&slot-value-UC;
+<varlistentry><term><literal role="method">(&slot-value-UC;
    (&class-r; &standard-class;) &object-r;
    (&slot-r; &standard-esd-t;))</literal></term>
- <term><literal role="sexp">(&slot-value-UC;
+ <term><literal role="method">(&slot-value-UC;
    (&class-r; &funcallable-standard-class;) &object-r;
    (&slot-r; &standard-esd-t;))</literal></term>
  <listitem>&class-slot-alloc-inst-class;
   &may-override;</listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&slot-value-UC;
+<varlistentry><term><literal role="method">(&slot-value-UC;
    (&class-r; &built-in-class;) &object-r; &slot-r;)</literal></term>
  <listitem><simpara>This method &sig-err;.
 </simpara></listitem></varlistentry></variablelist>
@@ -4798,7 +4798,7 @@ unbound slots, true should be returned.</para></formalpara>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&specializer-direct-gfs;
+<varlistentry><term><literal role="method">(&specializer-direct-gfs;
    (&specializer-r; &class;))</literal></term>
 <listitem>&no-extra-spec;
  <para>&also-must-override;<itemizedlist>
@@ -4809,7 +4809,7 @@ unbound slots, true should be returned.</para></formalpara>
    <listitem><simpara><literal role="method">&specializer-direct-methods;
       (&class;)</literal></simpara></listitem>
 </itemizedlist></para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&specializer-direct-gfs;
+<varlistentry><term><literal role="method">(&specializer-direct-gfs;
    (&specializer-r; &eql-specializer-t;))</literal></term>
 <listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
 </section>
@@ -4838,7 +4838,7 @@ unbound slots, true should be returned.</para></formalpara>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&specializer-direct-methods;
+<varlistentry><term><literal role="method">(&specializer-direct-methods;
    (&specializer-r; &class;))</literal></term>
 <listitem>&no-extra-spec;
  <para>&also-must-override;<itemizedlist>
@@ -4849,7 +4849,7 @@ unbound slots, true should be returned.</para></formalpara>
    <listitem><simpara><literal role="method">&specializer-direct-gfs;
       (&class;)</literal></simpara></listitem>
 </itemizedlist></para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&specializer-direct-methods;
+<varlistentry><term><literal role="method">(&specializer-direct-methods;
    (&specializer-r; &eql-specializer-t;))</literal></term>
 <listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
 </section>
@@ -4974,7 +4974,7 @@ use of this facility.</para></formalpara>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="sexp">(&validate-superclass;
+<varlistentry><term><literal role="method">(&validate-superclass;
    (&class-r; &class;) (&superclass-r; &class;))</literal></term>
 <listitem><para>This method returns true in three situations:
   <orderedlist numeration="lowerroman">
@@ -5029,11 +5029,11 @@ use of this facility.</para></formalpara>
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
- <varlistentry><term><literal role="sexp">(&writer-method-class;
+ <varlistentry><term><literal role="method">(&writer-method-class;
     (&class-r; &standard-class;)
     (<replaceable>direct-slot</replaceable> &standard-dsd-t;)
     &rest-amp; &initargs-r;)</literal></term>
-<term><literal role="sexp">(&writer-method-class;
+<term><literal role="method">(&writer-method-class;
     (&class-r; &funcallable-standard-class;)
     (<replaceable>direct-slot</replaceable> &standard-dsd-t;)
     &rest-amp; &initargs-r;)</literal></term>
