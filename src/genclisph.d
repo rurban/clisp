@@ -753,12 +753,12 @@ int main(int argc, char* argv[])
 #endif
   printf("#define Record_flags(obj)  record_flags(TheRecord(obj))\n");
 #ifdef TYPECODES
-  printf("#define LRECORD_HEADER  VAROBJECT_HEADER uintL length;\n");
+  printf("#define VRECORD_HEADER  VAROBJECT_HEADER uintL length;\n");
 #else
-  printf("#define LRECORD_HEADER  VAROBJECT_HEADER\n");
+  printf("#define VRECORD_HEADER  VAROBJECT_HEADER\n");
 #endif
-  emit_typedef("struct { LRECORD_HEADER }","lrecord_");
-  emit_typedef("lrecord_ *","Lrecord");
+  emit_typedef("struct { VRECORD_HEADER }","vrecord_");
+  emit_typedef("vrecord_ *","Vrecord");
 #ifdef TYPECODES
   printf("#define SRECORD_HEADER  VAROBJECT_HEADER uintB recflags; sintB rectype; uintW reclength;\n");
 #else
@@ -878,10 +878,10 @@ int main(int argc, char* argv[])
 #endif
   emit_typedef("union { dfloat eksplicit; }","dfloatjanus");
 #if notused
-  emit_typedef("struct { LRECORD_HEADER }","sarray_");
+  emit_typedef("struct { VRECORD_HEADER }","sarray_");
   emit_typedef("sarray_ *","Sarray");
 #endif
-  emit_typedef("struct { LRECORD_HEADER uint8  data[unspecified]; }","sbvector_");
+  emit_typedef("struct { VRECORD_HEADER uint8  data[unspecified]; }","sbvector_");
   emit_typedef("sbvector_ *","Sbvector");
 #ifdef TYPECODES
   printf("#define SSTRING_HEADER  VAROBJECT_HEADER uintL tfl;\n");
@@ -891,15 +891,15 @@ int main(int argc, char* argv[])
   emit_typedef("struct { SSTRING_HEADER }","sstring_");
   emit_typedef("sstring_ *","Sstring");
   emit_typedef("struct { SSTRING_HEADER chart data[unspecified]; }","snstring_");
-  sprintf(buf,"struct { LRECORD_HEADER gcv_object_t data[unspecified]%s; }",attribute_aligned_object);
+  sprintf(buf,"struct { VRECORD_HEADER gcv_object_t data[unspecified]%s; }",attribute_aligned_object);
   emit_typedef(buf,"svector_");
   emit_typedef("svector_ *","Svector");
 #ifdef TYPECODES
-  printf("#define lrecord_length(ptr)  ((ptr)->length)\n");
+  printf("#define vrecord_length(ptr)  ((ptr)->length)\n");
 #else
-  printf("#define lrecord_length(ptr)  ((ptr)->tfl >> 8)\n");
+  printf("#define vrecord_length(ptr)  ((ptr)->tfl >> 8)\n");
 #endif
-  printf("#define sarray_length(ptr)  lrecord_length(ptr)\n");
+  printf("#define sarray_length(ptr)  vrecord_length(ptr)\n");
   printf("#define Sarray_length(obj)  sarray_length(TheSarray(obj))\n");
   printf("#define sbvector_length(ptr)  sarray_length(ptr)\n");
   printf("#define Sbvector_length(obj)  sbvector_length(TheSbvector(obj))\n");
