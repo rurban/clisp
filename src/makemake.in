@@ -690,10 +690,7 @@ fi
 if [ $TSYS = master -o $TOS = dos -o $TOS = os2 ] ; then
   OS_INCLUDES=$OS_INCLUDES' msdos'
   if [ $TSYS = dos -o $TSYS = os2 ] ; then
-    LIBS=$LIBS' -ltermcap -lgraph'
-    if [ $TSYS = os2 ] ; then
-      LIBS=$LIBS' -lvideo'
-    fi
+    LIBS=$LIBS' -ltermcap'
   fi
   if [ $TSYS = dosdjgpp ] ; then
     LIBS=$LIBS' -lpc'
@@ -1278,9 +1275,6 @@ CPARTS=$CPARTS' array hashtabl list package record sequence'
 CPARTS=$CPARTS' charstrg debug error misc time predtype symbol lisparit'
 if [ $TSYS = master -o $TSYS = amiga ] ; then
   CPARTS=$CPARTS' rexx'
-fi
-if [ $TSYS = master -o $TOS = unix -o $TSYS = dos -o $TSYS = dosdjgpp -o $TSYS = doswatcom -o $TSYS = os2 ] ; then
-  CPARTS=$CPARTS' graph'
 fi
 if [ $TSYS = master -o -n "$with_dynamic_ffi" ] ; then
   CPARTS=$CPARTS' foreign'
@@ -2223,7 +2217,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   if [ $f = eval ] ; then
     depends=$depends' bytecode'
   fi
-  if [ $f = array -o $f = hashtabl -o $f = io -o $f = time -o $f = package -o $f = spvw -o $f = stream -o $f = graph -o $f = foreign ] ; then
+  if [ $f = array -o $f = hashtabl -o $f = io -o $f = time -o $f = package -o $f = spvw -o $f = stream -o $f = foreign ] ; then
     depends=$depends' arilev0'
   fi
   if [ $f = spvw -o $f = hashtabl ] ; then
@@ -2578,14 +2572,10 @@ else
           # emx-Option -C0 bewirkt, dass malloc() bei fehlendem Speicher und
           #   Plattenplatz NULL liefert, statt es später auf einen Programm-Ausstieg
           #   wegen "Out of swap space" ankommen zu lassen.
-          # emx-Option -aim bewirkt, dass der Zugriff auf die Grafikkarte und
-          #   den Bildschirmspeicher funktioniert.
-          echotab "emxbind -q \$(EMX) lisp lisp${LEXE} -p -C0 -aim"
-          echotab "emxbind -q \$(EMX) lisp lisp_1mb${LEXE} -C0 -aim"
+          echotab "emxbind -q \$(EMX) lisp lisp${LEXE} -p -C0"
+          echotab "emxbind -q \$(EMX) lisp lisp_1mb${LEXE} -C0"
         else
-          # emx-Option -acmi bewirkt, dass unter DOS der Zugriff auf den Bildschirm-
-          #   speicher und die Grafikkarten-Ports funktioniert.
-          echotab "emxbind -q \$(EMX) lisp lisp${LEXE} -p -acmi"
+          echotab "emxbind -q \$(EMX) lisp lisp${LEXE} -p"
           # Strippen darf man wegen -lvideo erst hinterher.
           echotab "emxbind -s lisp${LEXE}"
         fi

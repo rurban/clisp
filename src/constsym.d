@@ -949,17 +949,6 @@ LISPSYM(rexx_wait_input,"%REXX-WAIT-INPUT",system)
 LISPSYM(rexx_get,"%REXX-GET",system)
 LISPSYM(rexx_reply,"%REXX-REPLY",system)
 #endif
-# ---------- GRAPH ----------
-#ifdef GRAPHICS
-LISPSYM(gr_init,"GRAPH-INIT",system)
-LISPSYM(gr_show,"GRAPH-SHOW",system)
-LISPSYM(gr_clear,"GRAPH-CLEAR",system)
-LISPSYM(gr_dims,"GRAPH-DIMS",system)
-LISPSYM(gr_dot,"GRAPH-DOT",system)
-LISPSYM(gr_box,"GRAPH-BOX",system)
-LISPSYM(gr_line,"GRAPH-LINE",system)
-LISPSYM(gr_text,"GRAPH-TEXT",system)
-#endif
 # ---------- FOREIGN ----------
 #ifdef DYNAMIC_FFI
 LISPSYM(validp,"VALIDP",ffi)

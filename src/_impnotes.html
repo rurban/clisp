@@ -175,7 +175,6 @@ details.
    <li><a href="#dffi">The Foreign Function Call Facility</a>
    <li><a href="#affi">The Amiga Foreign Function Call Facility</a>
    <li><a href="#rexx">ARexx</a>
-   <li><a href="#graphics">Graphics Primitives</a>
    <li><a href="#socket">Socket Streams</a>
    <li><a href="#script">CLISP as a script interpreter</a>
    <li><a href="#shell">Shell</a>
@@ -6642,108 +6641,8 @@ with the ARexx <code>exit-loop.cl</code> script.
 several sources, e.g. both a console and ARexx, at the same time.
 <!-- #endif -->
 
-<!-- #ifdef GRAPHICS -->
-<H3><a name="graphics">Extensions-3.6. Graphics Primitives</a></H3>
-
-<EM>Platform dependent: Linux/x86, DOS, OS/2 platforms only.</EM>
-
-<P>In CLISP 1994-01-07 or newer,
-<UL>
-<LI>DOS version,
-<LI>Linux version, installed setuid root,
-</UL>
-there are some pixel graphics primitives in the <code>SYSTEM</code>
-package.  They operate on a VGA card.
-
-<P>Similar pixel graphics primitives can be used in the
-<UL>
-<LI>Unix version running under X11
-</UL>
-by use of the small <code>xterm</code> package available on
-<code>ftp2.cons.org</code>.
-
-<P>This is the description of the PC/VGA graphics primitives:
-
-<P><DL>
-<DT>
-<code>(system::<STRONG>graph-init</STRONG> [<var>width</var>
-       [<var>height</var> [<var>colors</var>]]])</code>
-<DD>
-initializes the graphics system. The <var>width</var>, <var>height</var>
-parameters are hints for the size of the desired graphics screen
-(positive integers). The <var>colors</var> parameter is a hint for the
-number of colors. The actual width, height is implementation dependent,
-currently up to 640x480 on VGA cards and up to 1024x768 on ET4000 SVGA
-cards.  Returns an alist <code>((<var>color-value</var>
-<var>color-keyword</var>) ...)</code> which lists the available colors
-and their numerical equivalents.
-<DT>
-<code>(system::<STRONG>graph-show</STRONG>)</code>
-<DD>
-switches the graphics hardware so that the graphics screen is
-visible. The text screen is activated on any text output.
-<DT>
-<code>(system::<STRONG>graph-clear</STRONG> [<var>color</var>])</code>
-<DD>
-fills the entire graphics screen with a single color.
-<DT>
-<code>(system::<STRONG>graph-dims</STRONG>)</code>
-<DD>
-returns two values: the actual width and the actual height of the graphics
-screen (in pixels).
-<BR>
-If <code>(system::graph-dims)</code> returns the values <var>w</var> and
-<var>h</var>, then valid screen coordinates are pairs <var>(x,y)</var>
-with 0 &lt;= <var>x</var> &lt; <var>w</var> and 0 &lt;= <var>y</var>
-&lt; <var>h</var>. <var>x</var>=0 denotes the left edge, <var>y</var>=0
-the top edge.
-<DT>
-<code>(system::<STRONG>graph-dot</STRONG> <var>x</var> <var>y</var>)</code>
-<DD>
-returns the color of the pixel <var>(x,y)</var>.
-<DT>
-<code>(system::<STRONG>graph-dot</STRONG> <var>x</var> <var>y</var>
-       <var>color</var>)</code>
-<DD>
-sets the color of the pixel <var>(x,y)</var> to <var>color</var>.
-<DT>
-<code>(system::<STRONG>graph-box</STRONG> <var>x<SUB>1</SUB></var>
-       <var>y<SUB>1</SUB></var> <var>x<SUB>2</SUB></var>
-       <var>y<SUB>2</SUB></var> <var>color</var>)</code>
-<DD>
-draws a box (= filled rectangle) in color <var>color</var>, the vertices
-being the pixels
-<TABLE>
-<TR> <TD><var>(x<SUB>1</SUB>,y<SUB>1</SUB>)</var>
-     <TD><var>(x<SUB>2</SUB>,y<SUB>1</SUB>)</var>
-<TR> <TD><var>(x<SUB>1</SUB>,y<SUB>2</SUB>)</var>
-     <TD><var>(x<SUB>2</SUB>,y<SUB>2</SUB>)</var>
-</TABLE>
-<DT>
-<code>(system::<STRONG>graph-line</STRONG> <var>x<SUB>1</SUB></var>
-       <var>y<SUB>1</SUB></var> <var>x<SUB>2</SUB></var>
-       <var>y<SUB>2</SUB></var> <var>color</var>)</code>
-<DD>
-Draws a line in color <var>color</var> from pixel
-<var>(x<SUB>1</SUB>,y<SUB>1</SUB>)</var> to pixel
-<var>(x<SUB>2</SUB>,y<SUB>2</SUB>)</var>.
-<DT>
-<code>(system::<STRONG>graph-text</STRONG> <var>x</var> <var>y</var>
-       <var>dir</var> <var>string</var> <var>color</var>)</code>
-<DD>
-Paints the text contained in <var>string</var>, starting at
-<var>(x,y)</var>, in color <var>color</var>, and returns as values the
-end coordinates <var>(x,y)</var>. <var>dir</var> is the direction: 0
-goes to the right, 90 vertically up, 180 to the left, 270 vertically
-down.
-</DL>
-<P>
-This specification is subject to change.
-
-<!-- #endif -->
-
 <!-- #ifdef SOCKET_STREAMS -->
-<H3><a name="socket">Extensions-3.7. Socket Streams</a></H3>
+<H3><a name="socket">Extensions-3.6. Socket Streams</a></H3>
 
 <EM>Platform dependent: UNIX, Win32 platforms only.</EM>
 
@@ -6811,7 +6710,7 @@ name and port number, but for the local host.
 <!-- #endif -->
 
 <!-- #ifdef UNIX -->
-<H3><a name="script">Extensions-3.8. CLISP as a script interpreter</a></H3>
+<H3><a name="script">Extensions-3.7. CLISP as a script interpreter</a></H3>
 
 <EM>Platform dependent: UNIX platforms only.</EM>
 <P>
@@ -6872,7 +6771,7 @@ script with error status.
 
 <!-- #endif -->
 
-<H3><a name="shell">Extensions-3.9. Shell</a></H3>
+<H3><a name="shell">Extensions-3.8. Shell</a></H3>
 
 <DL>
 <!-- #if defined(UNIX) || defined(MSDOS) || defined(RISCOS) -->
@@ -6957,7 +6856,7 @@ function <code>make-pipe-io-stream</code>. This use of
 <!-- #endif -->
 
 <!-- #ifdef AMIGAOS -->
-<H3><a name="other">Extensions-3.10. Other</a></H3>
+<H3><a name="other">Extensions-3.9. Other</a></H3>
 
 <p>
 <DL>

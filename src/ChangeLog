@@ -1,3 +1,21 @@
+1999-03-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Remove the graphics stuff.
+        * graph.d: Remove file.
+        * gettext/po/Makefile.devel (DSOURCES): Remove graph.
+        * unix.d (geteuid, setreuid): Remove declarations.
+        * makemake.in (LIBS): Don't add -lgraph and -lvideo on EMX.
+          (CPARTS): Remove graph.
+          (lisp.exe rule): Don't use emx options -aim or -acmi.
+        * lispbibl.d (GRAPHICS, GRAPHICS_SWITCH): Remove definitions.
+          (switch_text_mode): Remove declaration.
+        * spvw.d (main): Don't drop setuid-root privilege. Don't call
+          switch_text_mode.
+        * stream.d (low_read_unbuffered_handle, low_listen_unbuffered_handle,
+           low_read_array_unbuffered_handle, low_write_unbuffered_handle,
+           low_write_array_unbuffered_handle, rd_ch_terminal2,
+           rd_ch_terminal3, out_char): Don't call switch_text_mode.
+
 1999-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * configure: Don't tell the user to do "cd .".
