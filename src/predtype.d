@@ -1770,7 +1770,7 @@ LISPFUN(find_class,seclass_default,1,2,norest,nokey,0,NIL)
            'find-class symbol)
          nil)
        class))) */
-  if (!symbolp(STACK_2)) fehler_symbol(STACK_2);
+  STACK_2 = check_symbol(STACK_2);
   var object clas = get(STACK_2,S(closclass)); /* (GET symbol 'CLOS::CLOSCLASS) */
   if_classp(clas, { value1 = clas; } , {
     if (!nullp(STACK_1)) {

@@ -1871,8 +1871,7 @@ local object test_package_arg (object obj) {
 }
 
 LISPFUNNR(make_symbol,1) { /* (MAKE-SYMBOL printname), CLTL p. 168 */
-  var object arg = popSTACK();
-  if (!stringp(arg)) fehler_string(arg);
+  var object arg = check_string(popSTACK());
   VALUES1(make_symbol(coerce_imm_ss(arg)));
 }
 
@@ -2107,11 +2106,8 @@ local void test_optional_package_arg (void) {
  test_intern_args()
  can trigger GC */
 local void test_intern_args (void) {
-  /* test string: */
-  if (!stringp(STACK_1))
-    fehler_string(STACK_1);
-  /* test package: */
-  test_optional_package_arg();
+  STACK_1 = check_string(STACK_1); /* test string */
+  test_optional_package_arg(); /* test package */
 }
 
 /* UP: Transforms a INTERN/FIND-SYMBOL - result into a keyword.
@@ -2161,7 +2157,7 @@ LISPFUN(find_symbol,seclass_read,1,1,norest,nokey,0,NIL)
 /* (UNINTERN symbol [package]), CLTL p. 185 */
 LISPFUN(unintern,seclass_default,1,1,norest,nokey,0,NIL) {
   /* test symbol: */
-  if (!symbolp(STACK_1)) fehler_symbol(STACK_1);
+  STACK_1 = check_symbol(STACK_1);
   /* test package: */
   test_optional_package_arg();
   /* unintern: */

@@ -93,34 +93,41 @@ LISPSPECFORM(function, 1,1,nobody)
 }
 
 /* error-message, if a symbol has no value.
- > symbol: symbol */
-nonreturning_function(local, fehler_no_value, (object symbol)) {
-  pushSTACK(symbol); /* CELL-ERROR Slot NAME */
-  pushSTACK(symbol);
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(unbound_variable,GETTEXT("~: ~ has no dynamic value"));
+ > symbol: symbol
+ < value1: bound value
+ can trigger GC */
+local void check_global_symbol_value (object symbol) {
+  value1 = Symbol_value(symbol);
+  if (!boundp(value1)) {
+    do {
+      pushSTACK(symbol); /* save */
+      pushSTACK(symbol); /* PLACE */
+      pushSTACK(symbol); /* CELL-ERROR Slot NAME */
+      pushSTACK(symbol);
+      pushSTACK(TheSubr(subr_self)->name);
+      check_value(unbound_variable,GETTEXT("~: ~ has no dynamic value"));
+      symbol = popSTACK(); /* restore */
+    } while (!boundp(value1));
+    if (!nullp(value2)) /* STORE-VALUE */
+      Symbol_value(symbol) = value1;
+  }
 }
 
 LISPFUNNR(psymbol_value,1)
 { /* (SYS::%SYMBOL-VALUE symbol), CLTL p. 90 */
-  var object symbol = test_symbol(popSTACK());
-  var object val = Symbol_value(symbol);
-  if (!boundp(val))
-    fehler_no_value(symbol);
-  VALUES1(val);
+  var object symbol = check_symbol(popSTACK());
+  check_global_symbol_value(symbol);
+  mv_count = 1;
 }
 
 LISPFUNNR(symbol_value,1)
 { /* (SYMBOL-VALUE symbol), CLTL p. 90 */
-  var object symbol = test_symbol(popSTACK());
-  var object val = Symbol_value(symbol);
-  if (!boundp(val))
-    fehler_no_value(symbol);
-  if (symbolmacrop(val)) { /* symbol-macro? */
+  var object symbol = check_symbol(popSTACK());
+  check_global_symbol_value(symbol); /* value1 <- Symbol_value */
+  if (symbolmacrop(value1)) /* symbol-macro? */
     /* yes -> expand and evaluate: */
-    eval_noenv(TheSymbolmacro(val)->symbolmacro_expansion); mv_count=1;
-  } else
-    VALUES1(val);
+    eval_noenv(TheSymbolmacro(value1)->symbolmacro_expansion);
+  mv_count=1;
 }
 
 /* error-message because of undefined function.
@@ -137,7 +144,7 @@ nonreturning_function(global, fehler_undef_function,
 
 LISPFUNNR(symbol_function,1)
 { /* (SYMBOL-FUNCTION symbol), CLTL p. 90 */
-  var object symbol = test_symbol(popSTACK());
+  var object symbol = check_symbol(popSTACK());
   var object val = Symbol_function(symbol);
   if (!boundp(val))
     fehler_undef_function(S(symbol_function),symbol);
@@ -145,8 +152,8 @@ LISPFUNNR(symbol_function,1)
 }
 
 /* UP: just like GET-FUNNAME-SYMBOL (see init.lisp),
-   except that it does not create the new symbol when there is none yet
-   and does not issue a warning when the SETF symbol is shadowed */
+ except that it does not create the new symbol when there is none yet
+ and does not issue a warning when the SETF symbol is shadowed */
 local object funname_to_symbol (object symbol) {
   if (!funnamep(symbol))
     fehler_funname_type(TheSubr(subr_self)->name,symbol);
@@ -169,7 +176,7 @@ LISPFUNNR(fdefinition,1)
 
 LISPFUNNR(boundp,1)
 { /* (BOUNDP symbol), CLTL p. 90 */
-  var object symbol = test_symbol(popSTACK());
+  var object symbol = check_symbol(popSTACK());
   VALUES_IF(boundp(Symbol_value(symbol)));
 }
 
@@ -182,7 +189,7 @@ LISPFUNNR(fboundp,1)
 
 LISPFUNNF(special_operator_p,1)
 { /* (SPECIAL-OPERATOR-P symbol), was (SPECIAL-FORM-P symbol), CLTL p. 91 */
-  var object symbol = test_symbol(popSTACK());
+  var object symbol = check_symbol(popSTACK());
   var object obj = Symbol_function(symbol);
   VALUES_IF(fsubrp(obj));
 }
@@ -1210,8 +1217,8 @@ LISPSPECFORM(case, 1,0,body)
 
 LISPSPECFORM(block, 1,0,body)
 { /* (BLOCK name {form}), CLTL p. 119 */
-  var object body = popSTACK();
-  var object name = test_symbol(popSTACK());
+  var object name = check_symbol(STACK_1);
+  var object body = STACK_0; skipSTACK(2);
   var sp_jmp_buf returner; /* return point */
   { /* build block-frame: */
     var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
@@ -1246,7 +1253,7 @@ nonreturning_function(global, fehler_block_left, (object name)) {
 
 LISPSPECFORM(return_from, 1,1,nobody)
 { /* (RETURN-FROM name [result]), CLTL p. 120 */
-  var object name = test_symbol(STACK_1);
+  var object name = check_symbol(STACK_1);
   /* traverse BLOCK_ENV: */
   var object env = aktenv.block_env; /* current BLOCK_ENV */
   var gcv_object_t* FRAME;
@@ -1936,24 +1943,26 @@ LISPFUNN(unwind_to_driver,1)
  can trigger GC */
 local void test_env (void) {
   var object arg = STACK_0;
-  if (!boundp(arg)
-      || nullp(arg)) { /* required by ANSI CL sections 3.1.1.3.1, 3.1.1.4 */
-    STACK_0 = allocate_vector(2); /* vector #(nil nil) as default */
-  } else if (!(simple_vector_p(arg) && (Svector_length(arg) == 2))) {
+  if (missingp(arg)) { /* required by ANSI CL sections 3.1.1.3.1, 3.1.1.4 */
+    arg = allocate_vector(2); /* vector #(nil nil) as default */
+  } else while (!(simple_vector_p(arg) && (Svector_length(arg) == 2))) {
+    pushSTACK(NIL); /* no PLACE */
     pushSTACK(arg); /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_svector2)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(arg);
-    fehler(type_error,
-           GETTEXT("Argument ~ is not a macroexpansion environment"));
+    check_value(type_error,
+                GETTEXT("Argument ~ is not a macroexpansion environment"));
+    arg = value1;
   }
+  STACK_0 = arg;
 }
 
 LISPFUN(macro_function,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (MACRO-FUNCTION symbol [env]), CLTL p. 144;
      Issue MACRO-FUNCTION-ENVIRONMENT:YES */
   test_env();
-  var object env = popSTACK();
-  var object symbol = test_symbol(popSTACK());
+  var object symbol = check_symbol(STACK_1);
+  var object env = STACK_0; skipSTACK(2);
   var object fundef = sym_function(symbol,TheSvector(env)->data[1]);
   if (fsubrp(fundef)) {
     /* a FSUBR -> search in property list: (GET symbol 'SYS::MACRO) */
@@ -2029,66 +2038,57 @@ LISPSPECFORM(the, 2,0,nobody)
 
 LISPFUNN(proclaim,1)
 { /* (PROCLAIM decl-spec) */
-  var object declspec = popSTACK();
-  if (!consp(declspec)) {
-    pushSTACK(declspec);
+  if (!consp(STACK_0/*declspec*/)) {
     pushSTACK(S(proclaim));
     fehler(error,GETTEXT("~: bad declaration ~"));
   }
-  var object decltype = Car(declspec); /* declaration type */
+  var object decltype = Car(STACK_0/*declspec*/); /* declaration type */
   if (eq(decltype,S(special))) { /* SPECIAL */
-    while (consp( declspec = Cdr(declspec) )) {
-      var object symbol = test_symbol(Car(declspec));
+    while (consp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
+      var object symbol = check_symbol(Car(STACK_0/*declspec*/));
       if (!keywordp(symbol))
         clear_const_flag(TheSymbol(symbol));
       set_special_flag(TheSymbol(symbol));
     }
   } else if (eq(decltype,S(declaration))) { /* DECLARATION */
-    while (consp( declspec = Cdr(declspec) )) {
-      var object symbol = test_symbol(Car(declspec));
+    while (consp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
+      var object symbol = check_symbol(Car(STACK_0/*declspec*/));
       /* (PUSHNEW symbol (cdr declaration-types)) : */
       if (nullp(memq(symbol,Cdr(O(declaration_types))))) {
-        pushSTACK(declspec); pushSTACK(symbol);
+        pushSTACK(symbol);
         {
           var object new_cons = allocate_cons();
           var object list = O(declaration_types);
           Car(new_cons) = popSTACK(); Cdr(new_cons) = Cdr(list);
           Cdr(list) = new_cons;
-          declspec = popSTACK();
         }
       }
     }
   } else if (eq(decltype,S(inline)) || eq(decltype,S(notinline))) {
-    /* INLINE, NOTINLINE */
-    pushSTACK(decltype);
-    while (consp( declspec = Cdr(declspec) )) {
-      var object symbol = Car(declspec);
+    pushSTACK(decltype); /* INLINE, NOTINLINE */
+    while (consp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
+      var object symbol = Car(STACK_0/*declspec*/);
       if (!funnamep(symbol))
         fehler_kein_symbol(S(proclaim),symbol);
       /*(SYS::%PUT (SYS::GET-FUNNAME-SYMBOL symbol) 'SYS::INLINABLE decltype)*/
-      pushSTACK(declspec);
       pushSTACK(symbol); funcall(S(get_funname_symbol),1); pushSTACK(value1);
-      pushSTACK(S(inlinable));
-      pushSTACK(STACK_(1+2));
+      pushSTACK(S(inlinable)); pushSTACK(STACK_2)/*decltype*/;
       funcall(L(put),3);
-      declspec = popSTACK();
     }
-      skipSTACK(1);
-  } else if (eq(decltype,S(constant_inline)) || eq(decltype,S(constant_notinline))) { /* CONSTANT-INLINE, CONSTANT-NOTINLINE */
-    pushSTACK(decltype);
-    while (consp( declspec = Cdr(declspec) )) {
-      var object symbol = Car(declspec);
-      if (!symbolp(symbol))
-        fehler_kein_symbol(S(proclaim),symbol);
+    skipSTACK(1); /*decltype*/
+  } else if (eq(decltype,S(constant_inline))
+             || eq(decltype,S(constant_notinline))) {
+    pushSTACK(decltype); /* CONSTANT-INLINE, CONSTANT-NOTINLINE */
+    while (consp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
+      var object symbol = check_symbol(Car(STACK_0/*declspec*/));
       /* (SYS::%PUT symbol 'SYS::CONSTANT-INLINABLE decltype) : */
-      pushSTACK(declspec);
-      pushSTACK(symbol); pushSTACK(S(constant_inlinable)); pushSTACK(STACK_(1+2)); funcall(L(put),3);
-      declspec = popSTACK();
+      pushSTACK(symbol); pushSTACK(S(constant_inlinable));
+      pushSTACK(STACK_2)/*decltype*/; funcall(L(put),3);
     }
-    skipSTACK(1);
+    skipSTACK(1); /*decltype*/
   }
   /* the rest is ignored. */
-  VALUES1(NIL);
+  VALUES1(NIL); skipSTACK(1);
 }
 
 LISPFUNN(eval,1)

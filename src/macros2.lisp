@@ -26,7 +26,9 @@
     (TEXT "The value of ~S should be ~:[of type ~S~;~:*~A~].")
     place string typespec))
 (defun report-one-new-value-string ()
-  (TEXT "You may input a new value."))
+  (TEXT "You may input a new value for ~S."))
+(defun report-one-new-value-string-instead ()
+  (TEXT "You may input a value to be used instead~@[ of ~S~]."))
 (defun prompt-for-new-value-string ()
   (TEXT "~%New ~S: "))
 (defmacro check-type (place typespec &optional (string nil))
@@ -47,7 +49,7 @@
 (defun report-no-new-value-string ()
   (TEXT "Retry"))
 (defun report-new-values-string ()
-  (TEXT "You may input new values."))
+  (TEXT "You may input new values for ~S."))
 (defun assert-error-string (test-form)
   (format nil
     (TEXT "~S must evaluate to a non-NIL value.")
@@ -58,10 +60,11 @@
     `(TAGBODY
        ,tag1
        (WHEN ,test-form (GO ,tag2))
-       (CERROR ,(case (length place-list)
-                  (0 `(REPORT-NO-NEW-VALUE-STRING))
-                  (1 `(REPORT-ONE-NEW-VALUE-STRING))
-                  (t `(REPORT-NEW-VALUES-STRING)))
+       (CERROR (format nil ,(case (length place-list)
+                                  (0 (REPORT-NO-NEW-VALUE-STRING))
+                                  (1 (REPORT-ONE-NEW-VALUE-STRING))
+                                  (t (REPORT-NEW-VALUES-STRING)))
+                       place-list)
                ',(or string "~A")
                ,@(if string
                    args

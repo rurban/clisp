@@ -659,62 +659,60 @@
     #define translate(string)  string
   #endif
 
-    local void OS_error_internal (uintC errcode);
-    local void OS_error_internal(errcode)
-      var uintC errcode;
-      {
-        # Meldungbeginn ausgeben:
-        #ifdef UNIX
-        write_errorstring(GETTEXT("UNIX error "));
-        #else
-        write_errorstring(GETTEXT("UNIX library error "));
-        #endif
-        # Fehlernummer ausgeben:
-        write_errorobject(fixnum(errcode));
-        # Eigene Fehlermeldung ausgeben:
-        var os_error_t errormsg;
-        get_errormsg(errcode,&errormsg);
-        errormsg.msg = translate(errormsg.msg);
-        if (!(errormsg.name[0] == 0)) { # bekannter Name?
-          write_errorasciz(" (");
-          write_errorasciz(errormsg.name);
-          write_errorasciz(")");
-        }
-        if (!(errormsg.msg[0] == 0)) { # nichtleere Meldung?
-          write_errorasciz(": ");
-          write_errorasciz(errormsg.msg);
-        }
-      }
-    nonreturning_function(global, OS_error, (void))
-      {
-        var uintC errcode; # positive Fehlernummer
-        end_system_call(); # just in case
-        begin_system_call();
-        errcode = errno;
-        errno = 0; # Fehlercode löschen (fürs nächste Mal)
-        end_system_call();
-        clr_break_sem_4(); # keine UNIX-Operation mehr aktiv
-        begin_error(); # Fehlermeldung anfangen
-        if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
-          STACK_3 = S(simple_os_error);
-        OS_error_internal(errcode);
-        end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
-      }
-    nonreturning_function(global, OS_file_error, (object pathname))
-      {
-        var uintC errcode; # positive Fehlernummer
-        begin_system_call();
-        errcode = errno;
-        errno = 0; # Fehlercode löschen (fürs nächste Mal)
-        end_system_call();
-        clr_break_sem_4(); # keine UNIX-Operation mehr aktiv
-        pushSTACK(pathname); # Wert von PATHNAME für FILE-ERROR
-        begin_error(); # Fehlermeldung anfangen
-        if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
-          STACK_3 = S(simple_file_error);
-        OS_error_internal(errcode);
-        end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
-      }
+local void OS_error_internal (uintC errcode)
+{
+  /* start error message: */
+ #ifdef UNIX
+  write_errorstring(GETTEXT("UNIX error "));
+ #else
+  write_errorstring(GETTEXT("UNIX library error "));
+ #endif
+  /* output errno: */
+  write_errorobject(fixnum(errcode));
+  /* output the error-specific message: */
+  var os_error_t errormsg;
+  get_errormsg(errcode,&errormsg);
+  errormsg.msg = translate(errormsg.msg);
+  if (!(errormsg.name[0] == 0)) { /* known name? */
+    write_errorasciz(" (");
+    write_errorasciz(errormsg.name);
+    write_errorasciz(")");
+  }
+  if (!(errormsg.msg[0] == 0)) { /* non-empty message? */
+    write_errorasciz(": ");
+    write_errorasciz(errormsg.msg);
+  }
+}
+nonreturning_function(global, OS_error, (void)) {
+  var uintC errcode; /* positive error number */
+  end_system_call(); /* just in case */
+  begin_system_call();
+  errcode = errno;
+  errno = 0; /* reset for the next error */
+  end_system_call();
+  clr_break_sem_4(); /* no UNIX operation may be active */
+  begin_error(); /* start error message */
+  if (!nullp(STACK_3)) /* *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ? */
+    STACK_3 = S(simple_os_error);
+  OS_error_internal(errcode);
+  end_error(args_end_pointer STACKop 7,true); /* finish error */
+  NOTREACHED;
+}
+nonreturning_function(global, OS_file_error, (object pathname)) {
+  var uintC errcode; /* positive error number */
+  begin_system_call();
+  errcode = errno;
+  errno = 0; /* reset for the next error */
+  end_system_call();
+  clr_break_sem_4(); /* no UNIX operation may be active */
+  pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
+  begin_error(); /* start error message */
+  if (!nullp(STACK_3)) /* *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ? */
+    STACK_3 = S(simple_file_error);
+  OS_error_internal(errcode);
+  end_error(args_end_pointer STACKop 7,true); /* finish error */
+  NOTREACHED;
+}
 
   #undef translate
   #ifdef GNU_GETTEXT

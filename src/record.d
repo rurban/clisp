@@ -519,7 +519,7 @@ LISPFUNNF(symbol_macro_p,1)
    (and (boundp v) (symbol-macro-p (%symbol-value v))
         (values t (sys::%record-ref (%symbol-value v) 0)))) */
 LISPFUNN(symbol_macro_expand,1) {
-  var object obj = test_symbol(popSTACK());
+  var object obj = check_symbol(popSTACK());
   obj = Symbol_value(obj);
   if (!symbolmacrop(obj))
     VALUES1(NIL);

@@ -26,15 +26,14 @@ LISPFUNNR(current_language,0) {
 LISPFUNN(set_current_language,1) {
  #ifndef LANGUAGE_STATIC
   if (consp(STACK_0)) {
-    var object new_lang = test_symbol(Car(STACK_0));
-    var object new_locd = Cdr(STACK_0);
-    if (!stringp(new_locd)) fehler_string(new_locd);
-    with_sstring_0(Symbol_name(new_lang),O(misc_encoding),lang,{
-      with_string_0(new_locd,O(misc_encoding),localedir,
+    Car(STACK_0) = check_symbol(Car(STACK_0));
+    Cdr(STACK_0) = check_string(Cdr(STACK_0));
+    with_sstring_0(Symbol_name(Car(STACK_0)),O(misc_encoding),lang,{
+      with_string_0(Cdr(STACK_0),O(misc_encoding),localedir,
                     { init_language(lang,localedir); });
     });
   } else {
-    if (!symbolp(STACK_0)) fehler_symbol(STACK_0);
+    STACK_0 = check_symbol(STACK_0);
     with_sstring_0(Symbol_name(STACK_0),O(misc_encoding),lang,
                    { init_language(lang,NULL); });
   }
@@ -53,7 +52,7 @@ LISPFUNNR(text,1)
  #ifndef GNU_GETTEXT
   VALUES1(ENGLISH ? (object)STACK_0 : NIL);
  #else
-  if (!stringp(STACK_0)) fehler_string(STACK_0);
+  STACK_0 = check_string(STACK_0);
   with_string_0(STACK_0,Symbol_value(S(ascii)),asciz, {
     VALUES1(CLSTEXT(asciz));
   });
@@ -126,9 +125,7 @@ local inline object do_ngettext (const char* msgid, const char* msgid_plural,
 LISPFUN(gettext,seclass_read,1,2,norest,nokey,0,NIL)
 { /* (I18N:GETTEXT msgid [domain [category]]) returns the translation of
  msgid in the given domain, depending on the given category. */
-  var object msgid = STACK_2;
-  if (!stringp(msgid))
-    fehler_string(msgid);
+  var object msgid = check_string(STACK_2);
   #ifdef GNU_GETTEXT
   with_string_0(msgid,Symbol_value(S(ascii)),msgid_asciz, {
     var object domain = STACK_1;
@@ -136,8 +133,7 @@ LISPFUN(gettext,seclass_read,1,2,norest,nokey,0,NIL)
       var int category = check_category(STACK_0);
       VALUES1(do_gettext(msgid_asciz,NULL,category));
     } else {
-      if (!stringp(domain))
-        fehler_string(domain);
+      domain = check_string(domain);
       with_string_0(domain,Symbol_value(S(ascii)),domain_asciz, {
         var int category = check_category(STACK_0);
         VALUES1(do_gettext(msgid_asciz,domain_asciz,category));
@@ -154,12 +150,8 @@ LISPFUN(ngettext,seclass_read,3,2,norest,nokey,0,NIL)
 { /* (I18N:NGETTEXT msgid msgid_plural n [domain [category]]) returns
  the plural form of the translation for of msgid and n in the given domain,
  depending on the given category. */
-  var object msgid = STACK_4;
-  if (!stringp(msgid))
-    fehler_string(msgid);
-  var object msgid_plural = STACK_3;
-  if (!stringp(msgid_plural))
-    fehler_string(msgid_plural);
+  var object msgid = check_string(STACK_4);
+  var object msgid_plural = check_string(STACK_3);
   var object arg = STACK_2;
   if (!(integerp(arg) && positivep(arg))) {
     pushSTACK(arg); # TYPE-ERROR slot DATUM
@@ -184,8 +176,7 @@ LISPFUN(ngettext,seclass_read,3,2,norest,nokey,0,NIL)
         VALUES1(do_ngettext(msgid_asciz,msgid_plural_asciz,NULL,
                            n,category));
       } else {
-        if (!stringp(domain))
-          fehler_string(domain);
+        domain = check_string(domain);
         with_string_0(domain,Symbol_value(S(ascii)),domain_asciz, {
           var int category = check_category(STACK_0);
           VALUES1(do_ngettext(msgid_asciz,msgid_plural_asciz,domain_asciz,
@@ -215,9 +206,7 @@ LISPFUNNR(textdomain,0)
 
 LISPFUNN(set_textdomain,1)
 { /* (I18N::SET-TEXTDOMAIN domain) sets the default domain. */
-  var object domain = popSTACK();
-  if (!stringp(domain))
-    fehler_string(domain);
+  var object domain = check_string(popSTACK());
   #ifdef GNU_GETTEXT
   with_string_0(domain,Symbol_value(S(ascii)),domain_asciz, {
     begin_system_call();
@@ -232,9 +221,7 @@ LISPFUNN(set_textdomain,1)
 LISPFUNNR(textdomaindir,1)
 { /* (I18N::TEXTDOMAINDIR domain) returns the message catalog directory
  for the given domain. */
-  var object domain = popSTACK();
-  if (!stringp(domain))
-    fehler_string(domain);
+  var object domain = check_string(popSTACK());
   #ifdef GNU_GETTEXT
   var const char* dir;
   with_string_0(domain,Symbol_value(S(ascii)),domain_asciz, {
@@ -251,9 +238,7 @@ LISPFUNNR(textdomaindir,1)
 LISPFUNN(set_textdomaindir,2)
 { /* (I18N::SET-TEXTDOMAINDIR domain directory) sets the message
   catalog directory for the given domain. */
-  var object domain = STACK_1;
-  if (!stringp(domain))
-    fehler_string(domain);
+  var object domain = check_string(STACK_1);
   #ifdef GNU_GETTEXT
   # Check and use default directory, because the bindtextdomain()
   # documentation recommends that the argument be an absolute pathname,

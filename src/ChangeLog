@@ -1,16 +1,93 @@
-2003-05-02  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+2003-05-01  Sam Steingold  <sds@gnu.org>
 
-	* pathname.d (LAUNCH) [WIN32_NATIVE]: use :PRIORITY argument.
-	No more use of MyCreateProcess.
+	make some errors recoverable
+	* condition.lisp (report-new-value, report-no-new-value)
+	(report-new-values): removed
+	(prompt-for-new-value): take an optional INSTEAD-P argument
+	(check-type, assert, retry-loop): must cons up the reporter
+	at macroexpansion time
+	(check-value): install restarts and signal the condition
+	* constsym.d (check_value): added
+	* error.d (end_error): may return when the new argument,
+	start_driver_p, is false
+	(fehler): pass true as start_driver_p to end_error()
+	(check_value): new function, calls CHECK-VALUE
+	(fehler_symbol): removed
+	(check_symbol, check_char, check_string): added
+	* errunix.d (OS_error, OS_file_error): pass true as
+	start_driver_p to end_error()
+	* init.lisp (make-condition): pre-draw for clos.lisp
+	* lispbibl.d (check_string, check_symbol, check_char): declare
+	(fehler_symbol, test_symbol): removed
+	* macros2.lisp (report-one-new-value-string)
+	(report-new-values-string): return a format string with 1 argument
+	(report-one-new-value-string-instead): new function
+	(assert): call FORMAT on REPORT-*NEW-VALUE?-STRING
+	* charstrg.d (coerce_ss, coerce_imm_ss, coerce_imm_normal_ss)
+	(string_concat): use check_string() instead of fehler_string()
+	(test_string_limits_ro): ditto - it is now GC-unsafe!
+	(test_char_arg): superseded by check_char()
+	(STANDARD-CHAR-P, GRAPHIC-CHAR-P, CHAR-WIDTH, STRING-CHAR-P)
+	(BASE-CHAR-P, ALPHA-CHAR-P, UPPER-CASE-P, LOWER-CASE-P)
+	(BOTH-CASE-P, DIGIT-CHAR-P, ALPHANUMERICP, CHAR-CODE, CHAR-UPCASE)
+	(CHAR-DOWNCASE, CHAR-INT, CHAR-NAME): use check_char()
+	instead of test_char_arg()
+	(CHAR, STORE-CHAR, SCHAR, STORE-SCHAR): use check_char() instead
+	of test_char_arg() and check_string() instead of fehler_string()
+	* clos.lisp (slot-unbound): use CHECK-VALUE
+	* control.d (fehler_no_value): superseded by ...
+	(check_global_symbol_value): new function
+	(%SYMBOL-VALUE, SYMBOL-VALUE): use check_symbol() instead of
+	test_symbol() and check_global_symbol_value() instead of
+	fehler_no_value()
+	(SYMBOL-FUNCTION, BOUNDP, SPECIAL-OPERATOR-P, BLOCK)
+	(MACRO-FUNCTION, PROCLAIM, RETURN-FROM): use check_symbol()
+	instead of test_symbol()
+	(test_env): use check_value - it is now GC-unsafe!
+	* dirkey.d (test_dir_key): ditto
+	(DIR-KEY-OPEN, DKEY-SEARCH-ITERATOR, init_iteration_node)
+	(DIR-KEY-VALUE, SET-DKEY-VALUE, REG_KEY_DEL):
+	use check_string() instead of fehler_string()
+	* eval.d (SPECIAL-VARIABLE-P): use use check_symbol()
+	instead of test_symbol()
+	(sym_value_place, check_local_symbol_value): new functions
+	(sym_value): now a macro that cals sym_value_place()
+	(eval1): use check_local_symbol_value()
+	* foreign.d (FOREIGN-LIBRARY): use check_string() instead of
+	fehler_string()
+	(FOREIGN-LIBRARY-FUNCTION): coerce_ss() makes the stringp()
+	check unnecessary
+	* genclisph.d (fehler_symbol, check_char, fehler_string): removed
+	* i18n.d (SET-CURRENT-LANGUAGE): use check_symbol() instead of
+	test_symbol() and check_string() instead of fehler_string()
+	(GETTEXT, NGETTEXT): use check_string() instead of fehler_string()
+	* misc.d (GETENV, SETENV, REGISTRY, MODULE-INFO): ditto
+	* package.d (MAKE-SYMBOL, test_intern_args): ditto
+	(UNINTERN): use check_symbol() instead of fehler_symbol()
+	* pathname.d (SHELL): treat nil as unbound
+	(SHELL, LAUNCH, DYNLOAD-MODULES) use check_string()
+	instead of fehler_string()
+	* predtype.d (FIND-CLASS): use check_symbol()
+	instead of fehler_symbol()
+	* record.d (SYMBOL-MACRO-EXPAND): use check_symbol()
+	instead of test_symbol()
+	* socket.d (SOCKET-SERVICE-PORT) use check_string()
+	instead of fehler_string()
+	* stream.d (SOCKET-CONNECT): ditto
+	(SYMBOL-STREAM): use check_symbol() instead of test_symbol()
+	* symbol.d (%PUTD, %FIND-SUBR, %PROCLAIM-CONSTANT, GET, %PUTPLIST)
+	(%PUT, REMPROP, SYMBOL-PACKAGE, SYMBOL-PLIST, SYMBOL-NAME): ditto
+	(Symbol_function_checked): removed
 
 2003-05-02  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	improved LAUNCH for win32
 	* pathname.d (LAUNCH) [WIN32_NATIVE]: added new arguments:
-	arguments, priority (not supported yet), changed return value.
+	:ARGUMENTS, :PRIORITY, changed return value.
+	No longer use MyCreateProcess.
 	(shell_quote, allocate_cons_v) [WIN32_NATIVE && HAVE_SHELL]: new
 	functions.
-	* constsym.d (:ARGUMENTS, :PRIORITY, :HIGH, :NORMAL, :LOW) 
+	* constsym.d (:ARGUMENTS, :PRIORITY, :HIGH, :NORMAL, :LOW)
 	[HAVE_SHELL]: added new keywords.
 	(:WAIT, :TERMINAL): define only when HAVE_SHELL.
 	* subr.d (LAUNCH): changed declaration.

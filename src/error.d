@@ -201,8 +201,10 @@ nonreturning_function(local, signal_and_debug, (object condition)) {
   NOTREACHED;
 }
 
-/* finishes the output of an error message and starts a new driver. */
-nonreturning_function(local, end_error, (gcv_object_t* stackptr)) {
+/* finishes the output of an error message and starts a new driver,
+ (when start_driver_p is true)
+ may trigger GC */
+local void end_error (gcv_object_t* stackptr, bool start_driver_p) {
   if (nullp(STACK_1)) {
     /* *ERROR-HANDER* = NIL, SYS::*USE-CLCS* = NIL */
     skipSTACK(4); /* error message has already been printed */
@@ -229,7 +231,8 @@ nonreturning_function(local, end_error, (gcv_object_t* stackptr)) {
          because no error message output is active */
       dynamic_unbind(S(recursive_error_count));
       set_args_end_pointer(stackptr);
-      break_driver(false); /* call break-driver (does not return) */
+      if (start_driver_p)
+        break_driver(false); /* call break-driver (does not return) */
     } else {
       /* *ERROR-HANDER* = NIL, SYS::*USE-CLCS* /= NIL
          stack layout: type, args, --, errorstring. */
@@ -288,16 +291,12 @@ nonreturning_function(local, end_error, (gcv_object_t* stackptr)) {
         pushSTACK(S(Kpathname)); pushSTACK(BEFORE(stackptr)); /* :pathname ... */
         argcount += 2;
       }
-      funcall(S(coerce_to_condition),argcount); /* (SYS::COERCE-TO-CONDITION ...) */
-      /* set_args_end_pointer(stackptr); -- what for? Only makes debugging difficult! */
-      signal_and_debug(value1);
+      funcall(S(coerce_to_condition),argcount); /* SYS::COERCE-TO-CONDITION */
+      set_args_end_pointer(stackptr);
+      if (start_driver_p)
+        signal_and_debug(value1);
     }
   }
-  /* there is no point in using the condition system here:
-     we will get into an infinite loop reporting the error */
-  fprintf(stderr,"[%s:%d] cannot handle the fatal error due to a fatal error in the fatal error handler!\n",__FILE__,__LINE__);
-  abort();
-  /* NOTREACHED; */
 }
 
 /* Error message with Errorstring. Does not return.
@@ -320,7 +319,36 @@ nonreturning_function(global, fehler, (condition_t errortype,
                      * (uintL)errortype);
     STACK_3 = sym;
   }
-  end_error(write_errorstring(errorstring)); /* write error message, stop */
+  end_error(write_errorstring(errorstring),true); /* finish error message */
+  /* there is no point in using the condition system here:
+     we will get into an infinite loop reporting the error */
+  fprintf(stderr,"[%s:%d] cannot handle the fatal error due to a fatal error in the fatal error handler!\n",__FILE__,__LINE__);
+  abort();
+  /* NOTREACHED; */
+}
+
+/* just like fehler(), but allow recovery via STORE-VALUE / USE-VALUE
+ expects one more stack element before everything cosumed by fehler() -
+ the place to be modified or NIL
+ the returned multiple values come from CHECK-VALUE (see condition.lisp)
+ may trigger GC */
+global void check_value (condition_t errortype, const char* errorstring)
+{
+  begin_error(); /* start error message */
+  if (!nullp(STACK_3)) { /* *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ? */
+    /* choose error-type-symbol for errortype: */
+    var object sym = S(simple_condition); /* first error-type */
+    sym = objectplus(sym,
+                     (soint)(sizeof(*TheSymbol(sym))
+                             <<(oint_addr_shift-addr_shift))
+                     * (uintL)errortype);
+    STACK_3 = sym;
+  }
+  /* finish the error message */
+  end_error(write_errorstring(errorstring),nullpSv(use_clcs));
+  /* if SYS::*USE-CLCS* /= NIL, use CHECK-VALUE */
+  pushSTACK(value1); /* place is already on the stack! */
+  funcall(S(check_value),2);
 }
 
 #undef OS_error
@@ -678,8 +706,8 @@ LISPFUN(clcs_signal,seclass_default,1,0,rest,nokey,0,NIL)
 nonreturning_function(global, fehler_list, (object obj)) {
   pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
   pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a list"));
+  pushSTACK(S(list)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: ~ is not a ~"));
 }
 
 /* error-message, if an object is not a true list.
@@ -702,19 +730,21 @@ nonreturning_function(global, fehler_kein_symbol, (object caller, object obj))
 {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
   pushSTACK(S(symbol)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj);
-  pushSTACK(caller);
-  fehler(type_error,GETTEXT("~: ~ is not a symbol"));
+  pushSTACK(S(symbol)); pushSTACK(obj); pushSTACK(caller);
+  fehler(type_error,GETTEXT("~: ~ is not a ~"));
 }
-
-/* error-message, if an object is not a symbol.
- fehler_symbol(obj);
- > obj: non-symbol */
-nonreturning_function(global, fehler_symbol, (object obj)) {
-  var object aufrufer = subr_self;
-  aufrufer = (subrp(aufrufer) ? TheSubr(aufrufer)->name
-              : TheFsubr(aufrufer)->name);
-  fehler_kein_symbol(aufrufer,obj);
+global object check_symbol (object sy) {
+  while (!symbolp(sy)) {
+    var object caller = subr_self;
+    caller = (subrp(caller) ? TheSubr(caller)->name : TheFsubr(caller)->name);
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(sy);        /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(symbol)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(symbol)); pushSTACK(sy); pushSTACK(caller);
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    sy = value1;
+  }
+  return sy;
 }
 
 /* UP: signal an error if OBJ is not a non-constant symbol and
@@ -741,9 +771,8 @@ nonreturning_function(global, fehler_kein_svector, (object caller, object obj))
 {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(S(simple_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj);
-  pushSTACK(caller);
-  fehler(type_error,GETTEXT("~: ~ is not a simple-vector"));
+  pushSTACK(S(simple_vector)); pushSTACK(obj); pushSTACK(caller);
+  fehler(type_error,GETTEXT("~: ~ is not a ~"));
 }
 
 /* error-message, if an object is not a vector.
@@ -752,8 +781,8 @@ nonreturning_function(global, fehler_kein_svector, (object caller, object obj))
 nonreturning_function(global, fehler_vector, (object obj)) {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
   pushSTACK(S(vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a vector"));
+  pushSTACK(S(vector)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: ~ is not a ~"));
 }
 
 /* error-message, if an object is not an environment.
@@ -782,8 +811,22 @@ nonreturning_function(global, fehler_posfixnum, (object obj)) {
 nonreturning_function(global, fehler_char, (object obj)) {
   pushSTACK(obj);          /* TYPE-ERROR slot DATUM */
   pushSTACK(S(character)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ is not a character"));
+  pushSTACK(S(character)); pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: argument ~ is not a ~"));
+}
+
+global object check_char (object obj) {
+  while (!charp(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);          /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(character)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(character)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: argument ~ is not a ~"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error-message, if an argument is not a String:
@@ -791,8 +834,19 @@ nonreturning_function(global, fehler_char, (object obj)) {
 nonreturning_function(global, fehler_string, (object obj)) {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
   pushSTACK(S(string)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ is not a string"));
+  pushSTACK(S(string)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: argument ~ is not a ~"));
+}
+global object check_string (object obj) {
+  while (!stringp(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(string)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(string)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: argument ~ is not a ~"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error-message, if an argument is not a Simple-String:
@@ -800,8 +854,9 @@ nonreturning_function(global, fehler_string, (object obj)) {
 nonreturning_function(global, fehler_sstring, (object obj)) {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(S(simple_string)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ is not a simple string"));
+  pushSTACK(S(simple_string)); pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: argument ~ is not a ~"));
 }
 
 #ifndef TYPECODES
@@ -830,8 +885,8 @@ nonreturning_function(global, fehler_string_integer, (object obj)) {
 nonreturning_function(global, fehler_stream, (object obj)) {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
   pushSTACK(S(stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ should be a stream"));
+  pushSTACK(S(stream)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: argument ~ is not a ~"));
 }
 
 /* error-message, if an argument is not a Stream of required stream type:
@@ -860,8 +915,8 @@ nonreturning_function(global, fehler_encoding, (object obj)) {
 nonreturning_function(global, fehler_function, (object obj)) {
   pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
   pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a function"));
+  pushSTACK(S(function)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: ~ is not a ~"));
 }
 
 /* signal a type-error when the argument is not a function name */

@@ -768,9 +768,8 @@ LISPFUN(special_variable_p,seclass_read,1,1,norest,nokey,0,NIL)
      check whether the symbol is a special variable or a constant
      missing or NIL environment means null environment
      environment T means the current environment */
-  var object env = popSTACK();
-  var object symbol = test_symbol(popSTACK());
-  if (eq(env,T)) env = aktenv.var_env;
+  var object symbol = check_symbol(STACK_1);
+  var object env = STACK_0; skipSTACK(2);
   if (constantp(TheSymbol(symbol)) || special_var_p(TheSymbol(symbol))) {
     value1 = T;
   } else if (missingp(env)) {
@@ -800,18 +799,38 @@ LISPFUN(special_variable_p,seclass_read,1,1,norest,nokey,0,NIL)
  > symbol: Symbol
  > venv: a Variable- and Symbolmacro-Environment
  < result: value of the Symbols in this Environment */
-local object sym_value (object sym, object env)
+local gcv_object_t* sym_value_place (object sym, object env)
 {
-  if (constantp(TheSymbol(sym))) /* constants have only global values */
+  if (constantp(TheSymbol(sym)) || special_var_p(TheSymbol(sym))) {
+    /* constants & symbols declared special have only global values */
     goto global_value;
-  if (special_var_p(TheSymbol(sym))) # the same for symbols declared special
-    goto global_value;
-  { var gcv_object_t *binding = symbol_env_search(sym,env);
+  } else {
+    var gcv_object_t *binding = symbol_env_search(sym,env);
     if (binding != NULL && !eq(*binding,specdecl))
-      return *binding;
+      return binding;
   }
  global_value: /* the global (dynamic) value of the Symbol */
-  return Symbol_value(sym);
+  return &(Symbol_value(sym));
+}
+#define sym_value(sym,env) *sym_value_place(sym,env)
+/* like sym_value, but force bound
+ the value is returned in value1
+ can trigger GC */
+local void check_local_symbol_value (object sym, object env)
+{
+  value1 = sym_value(sym,env);
+  if (!boundp(value1)) {
+    do {
+      pushSTACK(sym); pushSTACK(env); /* save */
+      pushSTACK(sym); /* PLACE */
+      pushSTACK(sym); /* CELL-ERROR slot NAME */
+      pushSTACK(sym);
+      check_value(unbound_variable,GETTEXT("EVAL: variable ~ has no value"));
+      env = popSTACK(); sym = popSTACK();
+    } while (!boundp(value1));
+    if (!nullp(value2)) /* STORE-VALUE */
+      *sym_value_place(sym,env) = value1;
+  }
 }
 
 /* UP: determines, if a Symbol is a Macro in the current environment.
@@ -2895,14 +2914,10 @@ global Values eval_no_hooks (object form) {
     var object form;
     {
       if (atomp(form)) {
-        if (symbolp(form)) {
-          # Form is a Symbol
-          value1 = sym_value(form,aktenv.var_env); # value in the current Environment
-          if (!boundp(value1)) {
-            pushSTACK(form); # CELL-ERROR slot NAME
-            pushSTACK(form);
-            fehler(unbound_variable,GETTEXT("EVAL: variable ~ has no value"));
-          } else if (symbolmacrop(value1)) { # Symbol-Macro?
+        if (symbolp(form)) { /* Form is a Symbol */
+          /* value1 = value in the current Environment - not unbound! */
+          check_local_symbol_value(form,aktenv.var_env);
+          if (symbolmacrop(value1)) { /* Symbol-Macro? */
             # yes -> expand and evaluate again:
             skipSTACK(1); # forget value of *APPLYHOOK*
             check_SP(); check_STACK();
