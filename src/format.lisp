@@ -2084,13 +2084,15 @@
                         (simple-call)))
                      (FORMAT-S-EXPRESSION           ; #\S
                       (simple-arglist 4)
+                      (push '(STREAM-START-S-EXPRESSION STREAM) forms)
                       (if (and (member (first arglist) '(nil 0)) ; mincol
                                (member (third arglist) '(nil 0)) ; minpad
                                (not colon-p))
                         (progn
                           (setq forms (revappend (remove 'NIL arglist) forms))
                           (push `(PRIN1 ,(formatter-next-arg) STREAM) forms))
-                        (simple-call)))
+                        (simple-call))
+                      (push '(STREAM-END-S-EXPRESSION STREAM) forms))
                      (FORMAT-WRITE                  ; #\W
                       (simple-arglist 4)
                       (if (and (member (first arglist) '(nil 0)) ; mincol
