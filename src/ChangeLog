@@ -1,6 +1,11 @@
 2002-11-25  Sam Steingold  <sds@gnu.org>
 
-	* loop.lisp (loop-syntax-error, expand-loop): macroexpansion-time
+	* loop.lisp (expand-loop): THEREIS clause adds NIL to RESULTS to
+	prevent ambiguity in the return values
+
+2002-11-25  Sam Steingold  <sds@gnu.org>
+
+	* loop.lisp (loop-syntax-error, expand-loop): macro-expansion-time
 	errors have type SOURCE-PROGRAM-ERROR
 
 2002-11-25  Sam Steingold  <sds@gnu.org>
