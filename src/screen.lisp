@@ -5,6 +5,7 @@
 ;; thus we have to use DEFPACKAGE here just in case
 
 (defpackage "SCREEN"
+  (:documentation "http://clisp.cons.org/impnotes.html#screen")
   (:use "COMMON-LISP" "EXT"))
 
 (in-package "SCREEN")
@@ -12,16 +13,14 @@
 #|
 ; Re-Export von importierten Symbolen kann man nicht mit der
 ; P I S E R U I - Regel erreichen. Diese Symbole muss man zuerst importieren.
-(in-package "SYSTEM")
-(import '(make-window window-size
+ (in-package "SYSTEM")
+ (import '(make-window window-size
           window-cursor-position set-window-cursor-position
           clear-window clear-window-to-eot clear-window-to-eol
           delete-window-line insert-window-line
-          highlight-on highlight-off window-cursor-on window-cursor-off
-         )
-        "SCREEN"
-)
-(in-package "SCREEN")
+          highlight-on highlight-off window-cursor-on window-cursor-off)
+        "SCREEN")
+ (in-package "SCREEN")
 |#
 
 (export '(; exported functions and macros:

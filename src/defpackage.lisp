@@ -136,8 +136,8 @@
        ,@(if export-list `((INTERN-EXPORT ',export-list ,packname)))
        ;; step 5
        ,@(if documentation
-             `((SYS::%SET-DOCUMENTATION (find-package ,packname)
-                                        'package ,documentation)))
+             `((SYS::|(SETF PACKAGE-DOCUMENTATION)|
+                     ,documentation (find-package ,packname))))
        (FIND-PACKAGE ,packname))))
 
 ; Hilfsfunktionen:
