@@ -1,5 +1,16 @@
 2004-12-09  Bruno Haible  <bruno@clisp.org>
 
+	Make DEBUG_GCSAFETY work with GENERATIONAL_GC && MORRIS_GC.
+	* lispbibl.d (inside_gc): New declaration.
+	(nonimmprobe, nonimmsubrp): Don't access memory if inside_gc.
+	* spvw_global.d (inside_gc): New variable.
+	* spvw_garcol.d (gar_col_normal, gar_col_compact): Set and reset
+	inside_gc.
+	* spvw_fault.d (handle_read_fault): Verify that this isn't called
+	inside_gc.
+
+2004-12-09  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (ASM_get_SP_register, SP) [SPARC64]: Respect the bias of
 	2048 bytes.
 
