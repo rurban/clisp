@@ -1,5 +1,32 @@
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Changes to the distribution structure on Unix:
+        - The default linking set is moved into subdirectory `base'.
+        - Both `base' and `full' are installed.
+        - All the documentation is installed.
+        * _clisp.c (main): New option "-K". Drop option "-F".
+        * _clisp.1: Document option "-K".
+        * _clisp.html: Likewise.
+        * spvw.d (usage): Mention "-K".
+          (main): Accept and ignore "-K".
+        * _distmakefile (fromdir): Remove variable.
+          (linkingsets): New variable.
+          (docdir, lispdocdir): New variables.
+          (all): Depend on all lisp.runs.
+          (install): Depend on install-doc.
+          (install-bin): Copy all linking sets entirely. Copy clisp-link and
+          linkkit as well.
+          (install-doc): New target.
+        * makemake.in: $(lispdocdir) replaces $(docdir). Define $(docdir) and
+          $(lispdocdir) in all cases. Make `base' a directory containing
+          symlinks, not a symlink. `full' depends on `base'. `install' depends
+          on `install-doc'. New target `install-doc'. `installdirs' creates
+          the `base' directory and the doc directories. `install-bin' copies
+          the linking sets `base' and `full', and clisp-link and linkkit as
+          well. `install-man' installs all readmes and manual files.
+
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * modules/clx/new-clx/link.sh: Add -L/usr/X11R6/lib -lX11 to
           NEW_LIBS. Necessary since 1999-03-08 change.
         * modules/clx/new-clx/clx.f (pathname_encoding, misc_encoding): New

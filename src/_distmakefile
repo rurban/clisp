@@ -2,11 +2,12 @@
 
 # -------------- Start of configurable section --------------------
 
-# Subdirectory containing lispinit.mem:
-#ifndef UNIX_BINARY_DISTRIB
-# Replace `base' by `full' to get a full-fledged CLISP.
+# Linking sets to be installed:
+#ifdef UNIX_BINARY_DISTRIB
+linkingsets = base
+#else
+linkingsets = base full
 #endif
-fromdir = base
 
 # Directories used by "make install":
 # Common base directory for not architecture dependent files.
@@ -16,12 +17,15 @@ exec_prefix = $(prefix)
 # Directory where executables are installed.
 bindir = $(exec_prefix)/bin
 mandir = $(exec_prefix)/man
+# Directory where documentation is installed.
+docdir = $(exec_prefix)/doc
+lispdocdir = $(docdir)/clisp
 libdir = $(exec_prefix)/lib
 lisplibdir = $(libdir)/clisp
 #ifdef GNU_GETTEXT
 # If you have $(exec_prefix) different from $(prefix), and indend to use
 # different versions of CLISP on different architectures, replace the
-# following line by:  datadir = $(exec_prefix)/@DATADIRNAME@
+# following line with:  datadir = $(exec_prefix)/@DATADIRNAME@
 datadir = $(prefix)/@DATADIRNAME@
 localedir = $(datadir)/locale
 #endif
@@ -53,7 +57,11 @@ INSTALL_DATA = $(INSTALL)
 
 SHELL = /bin/sh
 
-all : $(fromdir)/lisp.run
+#ifdef UNIX_BINARY_DISTRIB
+all : base/lisp.run
+#else
+all : base/lisp.run full/lisp.run
+#endif
 
 #ifndef UNIX_BINARY_DISTRIB
 base/lisp.run : @@BASE_FILES@@
@@ -63,22 +71,16 @@ full/lisp.run : @@FULL_FILES@@
 	$(CC) $(CFLAGS) @@FULL_LIBS@@ -o full/lisp.run
 
 #endif
-install : install-bin install-man
+install : install-bin install-man install-doc
 
-install-bin : $(fromdir)/lisp.run $(fromdir)/lispinit.mem force
+install-bin : all force
 	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
 	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
 	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
 	if [ ! -d $(lisplibdir) ] ; then mkdir $(lisplibdir) ; fi
-	if [ ! -d $(lisplibdir)/full ] ; then mkdir $(lisplibdir)/full ; fi
-	rm -f $(lisplibdir)/lisp.run
-	$(INSTALL_PROGRAM) $(fromdir)/lisp.run $(lisplibdir)/lisp.run
-	rm -f $(lisplibdir)/lispinit.mem
-	$(INSTALL_DATA) $(fromdir)/lispinit.mem $(lisplibdir)/lispinit.mem
-	rm -f $(lisplibdir)/full/lisp.run
-	$(INSTALL_PROGRAM) $(fromdir)/full/lisp.run $(lisplibdir)/full/lisp.run
-	rm -f $(lisplibdir)/full/lispinit.mem
-	$(INSTALL_DATA) $(fromdir)/full/lispinit.mem $(lisplibdir)/full/lispinit.mem
+	(cd $(lisplibdir) && rm -rf $(linkingsets))
+	tar cf - clisp-link linkkit | (cd $(lisplibdir) && tar xf -)
+	tar cf - $(linkingsets) | (cd $(lisplibdir) && tar xf -)
 #ifdef GNU_GETTEXT
 	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
 	if [ ! -d $(localedir) ] ; then mkdir $(localedir) ; fi
@@ -128,6 +130,13 @@ install-man : doc/clisp.1 force
 	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
 	$(INSTALL_DATA) doc/clreadline.3 $(mandir)/man3/clreadline.3
 #endif
+
+install-doc : force
+	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
+	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
+	if [ ! -d $(docdir) ] ; then mkdir $(docdir) ; fi
+	if [ ! -d $(lispdocdir) ] ; then mkdir $(lispdocdir) ; fi
+	tar cf - ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add doc | (cd $(lispdocdir) && tar xf -)
 
 force:
 

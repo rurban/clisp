@@ -1566,14 +1566,21 @@ echol "exec_prefix = ${EXEC_PREFIX}"
 echol "bindir = \$(exec_prefix)${NEXT_}bin"
 echol "mandir = \$(exec_prefix)${NEXT_}man"
 case "$fsstnd" in
+  gnu_ext)
+    echol "docdir = \$(exec_prefix)${NEXT_}doc"
+    echol "lispdocdir = \$(docdir)${NEXT_}clisp"
+    ;;
   suse)
-    echol "docdir = \$(exec_prefix)${NEXT_}doc${NEXT_}packages${NEXT_}clisp"
+    echol "docdir = \$(exec_prefix)${NEXT_}doc"
+    echol "lispdocdir = \$(docdir)${NEXT_}packages${NEXT_}clisp"
     ;;
   redhat)
-    echol "docdir = \$(exec_prefix)${NEXT_}doc${NEXT_}clisp-`cat ../src/VERSION | tr "-" "."`"
+    echol "docdir = \$(exec_prefix)${NEXT_}doc"
+    echol "lispdocdir = \$(docdir)${NEXT_}clisp-`cat ../src/VERSION | tr "-" "."`"
     ;;
   debian)
-    echol "docdir = \$(exec_prefix)${NEXT_}doc${NEXT_}clisp"
+    echol "docdir = \$(exec_prefix)${NEXT_}doc"
+    echol "lispdocdir = \$(docdir)${NEXT_}clisp"
     ;;
 esac
 echol "libdir = \$(exec_prefix)${NEXT_}lib"
@@ -2000,7 +2007,6 @@ fi
 echol $line
 if [ $HOS = unix -a $CROSS = false ] ; then
   echotab "test -d linkkit || \$(LN) . linkkit"
-  echotab "test -d base || \$(LN) . base"
   echotab "test -d bindings || mkdir bindings"
 else
   echodummyrule init
@@ -2833,6 +2839,9 @@ if [ $HOS = unix ] && [ $CROSS = false ] ; then
     echotab "chmod a+x ${f}"
     echol
   done
+  echol "base : modular lispinit.mem"
+  echotab "test -d base || (mkdir base && cd base && for f in ${FILES} modules.h makevars lisp.run lispinit.mem; do \$(LN) ../\$\$f \$\$f; done) || (\$(RM) -r base ; exit 1)"
+  echol
   # Some "make"s don't support empty target lists. Hence the "anymodule".
   echol "anymodule \$(MODULES) : lisp${LEXE} lispinit.mem force"
   echotab "test -d \$@ || ${SRCDIR:-${HERE}}lndir ${SRCTOPDIR}modules/\$@ \$@"
@@ -2848,7 +2857,7 @@ if [ $HOS = unix ] && [ $CROSS = false ] ; then
   fi
   echotab "CLISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags -norc\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
   echol
-  echol "full : modular \$(MODULES)"
+  echol "full : modular base \$(MODULES)"
   echotab "test -d full || CLISP_LINKKIT=. ./clisp-link add-module-sets base full \$(MODULES) || (\$(RM) -r full ; exit 1)"
   echol
 fi
@@ -2991,7 +3000,7 @@ echol
 
 if [ $CROSS = false ] ; then
   if [ $HOS = unix ] ; then
-    echol "install : install-bin install-man"
+    echol "install : install-bin install-man install-doc"
     echodummyrule install
     echol
     echol "installdirs : force"
@@ -2999,6 +3008,7 @@ if [ $CROSS = false ] ; then
     echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
     echotab "if [ ! -d \$(libdir) ] ; then mkdir \$(libdir) ; fi"
     echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
+    echotab "if [ ! -d \$(lisplibdir)/base ] ; then mkdir \$(lisplibdir)/base ; fi"
     echotab "if [ ! -d \$(lisplibdir)/full ] ; then mkdir \$(lisplibdir)/full ; fi"
     echotab "if [ ! -d \$(bindir) ] ; then mkdir \$(bindir) ; fi"
     if [ -n "$USE_GETTEXT" ] ; then
@@ -3013,28 +3023,22 @@ if [ $CROSS = false ] ; then
       gnu_ext)
         echotab "if [ ! -d \$(mandir)/html ] ; then mkdir \$(mandir)/html ; fi"
         ;;
-      suse | redhat | debian)
-        echotab "if [ ! -d \$(docdir) ] ; then mkdir \$(docdir) ; fi"
-        echotab "if [ ! -d \$(docdir)/doc ] ; then mkdir \$(docdir)/doc ; fi"
-        ;;
     esac
+    echotab "if [ ! -d \$(docdir) ] ; then mkdir \$(docdir) ; fi"
+    echotab "if [ ! -d \$(lispdocdir) ] ; then mkdir \$(lispdocdir) ; fi"
+    echotab "if [ ! -d \$(lispdocdir)/doc ] ; then mkdir \$(lispdocdir)/doc ; fi"
     echol
     echol "install-bin : lisp${LEXE} lispinit.mem clisp.c force"
     echotab "if [ ! -d \$(prefix) ] ; then mkdir \$(prefix) ; fi"
     echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
     echotab "if [ ! -d \$(libdir) ] ; then mkdir \$(libdir) ; fi"
     echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
-    echotab "if [ ! -d \$(lisplibdir)/full ] ; then mkdir \$(lisplibdir)/full ; fi"
-    echotab "\$(RM) \$(lisplibdir)/lisp${LEXE}"
-    echotab "\$(INSTALL_PROGRAM) lisp${LEXE} \$(lisplibdir)/lisp${LEXE}"
-    # Don't strip the executable, otherwise (disassemble #'cons) won't work.
-    # echotab "strip \$(lisplibdir)/lisp${LEXE}"
-    echotab "\$(RM) \$(lisplibdir)/lispinit.mem"
-    echotab "\$(INSTALL_DATA) lispinit.mem \$(lisplibdir)/lispinit.mem"
-    echotab "\$(RM) \$(lisplibdir)/full/lisp${LEXE}"
-    echotab "\$(INSTALL_PROGRAM) full/lisp${LEXE} \$(lisplibdir)/full/lisp${LEXE}"
-    echotab "\$(RM) \$(lisplibdir)/full/lispinit.mem"
-    echotab "\$(INSTALL_DATA) full/lispinit.mem \$(lisplibdir)/full/lispinit.mem"
+    echotab "if [ ! -d \$(lisplibdir)/linkkit ] ; then mkdir \$(lisplibdir)/linkkit ; fi"
+    echotab "(cd \$(lisplibdir) && rm -rf base full)"
+    echotab "tar cf - clisp-link linkkit/modules.d linkkit/modules.c linkkit/clisp.h) | (cd \$(lisplibdir) && tar xf -)"
+    echotab "(tar cf - base full) | (cd \$(lisplibdir) && tar xf -)"
+    # Don't strip the executables, otherwise (disassemble #'cons) won't work.
+    # echotab "strip \$(lisplibdir)/base/lisp${LEXE}"
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd gettext/po && \$(MAKE) install prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
       localeflags=" -N \$(localedir)"
@@ -3044,16 +3048,16 @@ if [ $CROSS = false ] ; then
     echotab "if [ ! -d \$(bindir) ] ; then mkdir \$(bindir) ; fi"
     if false; then
       if test -n "${GOOD_SH}" ; then
-        echotab "(echo '#!${GOOD_SH}' ; echo 'exec \$(lisplibdir)/lisp${LEXE} -M \$(lisplibdir)/lispinit.mem$localeflags \"\$\$@\"') > \$(bindir)/clisp"
+        echotab "(echo '#!${GOOD_SH}' ; echo 'exec \$(lisplibdir)/base/lisp${LEXE} -M \$(lisplibdir)/base/lispinit.mem$localeflags \"\$\$@\"') > \$(bindir)/clisp"
       else
-        echotab "(echo '#!/bin/sh' ; echo 'if test \$\$# = 0; then' ; echo '  exec \$(lisplibdir)/lisp${LEXE} -M \$(lisplibdir)/lispinit.mem$localeflags' ; echo 'else' ; echo '  exec \$(lisplibdir)/lisp${LEXE} -M \$(lisplibdir)/lispinit.mem$localeflags \"\$\$@\"' ; echo 'fi') > \$(bindir)/clisp"
+        echotab "(echo '#!/bin/sh' ; echo 'if test \$\$# = 0; then' ; echo '  exec \$(lisplibdir)/base/lisp${LEXE} -M \$(lisplibdir)/base/lispinit.mem$localeflags' ; echo 'else' ; echo '  exec \$(lisplibdir)/base/lisp${LEXE} -M \$(lisplibdir)/base/lispinit.mem$localeflags \"\$\$@\"' ; echo 'fi') > \$(bindir)/clisp"
       fi
       echotab "chmod a+x \$(bindir)/clisp"
     else
       echotab "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(bindir)/clisp"
     fi
     echol
-    if [ "$fsstnd" = suse -o "$fsstnd" = redhat -o "$fsstnd" = debian ] ; then
+    if [ "$fsstnd" = gnu_ext -o "$fsstnd" = suse -o "$fsstnd" = redhat -o "$fsstnd" = debian ] ; then
       echol "install-man : \$(READMES) \$(MANUALS) force"
     else
       if [ $TERMINAL = readline ] ; then
@@ -3079,13 +3083,16 @@ if [ $CROSS = false ] ; then
           echotab "\$(INSTALL_DATA) clreadline.html \$(mandir)/html/clreadline.html"
         fi
         ;;
-      suse | redhat | debian)
-        echotab "if [ ! -d \$(docdir) ] ; then mkdir \$(docdir) ; fi"
-        echotab "if [ ! -d \$(docdir)/doc ] ; then mkdir \$(docdir)/doc ; fi"
-        echotab "\$(INSTALL_DATA) \$(READMES) \$(docdir)/"
-        echotab "\$(INSTALL_DATA) \$(MANUALS) \$(docdir)/doc/"
-        ;;
     esac
+    echol
+    echol "install-doc : \$(READMES) \$(MANUALS) force"
+    echotab "if [ ! -d \$(prefix) ] ; then mkdir \$(prefix) ; fi"
+    echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
+    echotab "if [ ! -d \$(docdir) ] ; then mkdir \$(docdir) ; fi"
+    echotab "if [ ! -d \$(lispdocdir) ] ; then mkdir \$(lispdocdir) ; fi"
+    echotab "if [ ! -d \$(lispdocdir)/doc ] ; then mkdir \$(lispdocdir)/doc ; fi"
+    echotab "\$(INSTALL_DATA) \$(READMES) \$(lispdocdir)/"
+    echotab "\$(INSTALL_DATA) \$(MANUALS) \$(lispdocdir)/doc/"
     echol
     echol
     echol "installcheck : ${TESTSDIR} force"
@@ -3096,8 +3103,8 @@ if [ $CROSS = false ] ; then
     echodummyrule uninstall
     echol
     echol "uninstall-bin : force"
-    echotab "\$(RM) \$(lisplibdir)/lisp${LEXE}"
-    echotab "\$(RM) \$(lisplibdir)/lispinit.mem"
+    echotab "\$(RM) \$(lisplibdir)/base/lisp${LEXE}"
+    echotab "\$(RM) \$(lisplibdir)/base/lispinit.mem"
     echotab "\$(RM) \$(lisplibdir)/full/lisp${LEXE}"
     echotab "\$(RM) \$(lisplibdir)/full/lispinit.mem"
     echotab "\$(RM) \$(bindir)/clisp"
@@ -3117,11 +3124,9 @@ if [ $CROSS = false ] ; then
           echotab "\$(RM) \$(mandir)/html/clreadline.html"
         fi
         ;;
-      suse | redhat | debian)
-        echotab "for f in \$(READMES); do \$(RM) \$(docdir)/\$\$f; done"
-        echotab "for f in \$(MANUALS); do \$(RM) \$(docdir)/doc/\$\$f; done"
-        ;;
     esac
+    echotab "for f in \$(READMES); do \$(RM) \$(lispdocdir)/\$\$f; done"
+    echotab "for f in \$(MANUALS); do \$(RM) \$(lispdocdir)/doc/\$\$f; done"
     echol
     echol
   fi

@@ -26,6 +26,12 @@ clisp \- Common Lisp language interpreter and compiler
 .I tempdir
 ]
 #endif
+#if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
+[
+.B -K
+.I linking-set
+]
+#endif
 [
 .B -M
 .I memfile
@@ -166,6 +172,16 @@ The argument is constrained between 40 KB and 8 MB.
 Specifies the directory where the temporary core file is to be held.
 This option takes precedence over the environment variable
 .BR TMPDIR .
+#endif
+
+#if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
+.TP
+.BI "-K " linking-set
+Specifies the linking set to be run. This is a directory containing at least
+a main executable and an initial memory image. Possible values are
+.BR base ", " full .
+The default is
+.BR base .
 #endif
 
 .TP
