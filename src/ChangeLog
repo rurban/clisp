@@ -1,5 +1,11 @@
 2004-05-21  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (char_int): Make it work when some heapcode bits are
+	in the high bits, not only in the low bits.
+	* genclisph.d (main): Update.
+
+2004-05-21  Bruno Haible  <bruno@clisp.org>
+
 	Make it possible to enforce an alignment == 4 mod 8 of all varobjects
 	in HEAPCODES mode.
 	* lispbibl.d (varobjects_misaligned, VAROBJECTS_ALIGNMENT_DUMMY_DECL):

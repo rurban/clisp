@@ -817,7 +817,11 @@ int main(int argc, char* argv[])
  #ifdef TYPECODES
   printf("#define char_int(char_from_char_int)  ((cint)(untype(char_from_char_int)))\n");
  #else
+  #if (char_type>>oint_data_shift)==0 || (char_int_len<=16)
   printf1("#define char_int(char_from_char_int)  ((cint)(as_oint(char_from_char_int)>>%d))\n",oint_data_shift);
+  #else
+  printf2("#define char_int(char_from_char_int)  ((cint)((as_oint(char_from_char_int)>>%d)&%d))\n",oint_data_shift,bitm(oint_data_len)-1);
+  #endif
  #endif
 #else
   printf("#define char_int(char_from_char_int)  ((cint)as_oint(char_from_char_int))\n");
