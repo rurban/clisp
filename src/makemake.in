@@ -1425,7 +1425,7 @@ fi
 COMMENTS=''
 
 LPARTS='        init defseq backquote defmacro macros1 macros2 defs1'
-LPARTS=$LPARTS' timezone places floatprint defpackage type subtypep'
+LPARTS=$LPARTS' timezone lambdalist places floatprint defpackage type subtypep'
 LPARTS=$LPARTS' clos-package clos-class0 clos-slotdef1 defstruct format'
 LPARTS=$LPARTS' international savemem functions trace cmacros compiler'
 LPARTS=$LPARTS' defs2 loop clos'

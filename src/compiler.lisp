@@ -60,6 +60,7 @@
 ;; and it is used by other program parts.
 (import '(sys::function-name-p sys::parse-body sys::add-implicit-block
           sys::make-load-time-eval sys::make-macro-expander
+          sys::analyze-lambdalist
           sys::closure-name sys::closure-codevec sys::closure-consts
           sys::fixnump sys::short-float-p sys::single-float-p
           sys::double-float-p sys::long-float-p
@@ -901,7 +902,7 @@ for-value   NIL or T
 ;;           fnode is the fnode belonging to fi, still NIL at the beginning.
 ;; fdescr is a Cons (fnode . lambdadescr),
 ;;           fnode is the fnode belonging to fi or NIL,
-;;           lambdadescr = (LABELS . list of values of analyze-lambdalist)
+;;           lambdadescr = (LABELS . list of values of c-analyze-lambdalist)
 ;;           or lambdadescr = (GENERIC . Signature) or NIL.
 ;; defi = (#<MACRO expander> fdescr . {var|const})
 ;;                                    denotes a local function-definition
@@ -3207,198 +3208,31 @@ for-value   NIL or T
           (t (c-error-c (TEXT "Illegal syntax in LET/LET*: ~S")
                         (car L))))))
 
-;;; analyzes a lambda-list of a function (CLTL p. 60), returns 13 values:
+;; Analyzes a lambda-list of a function (CLtL2 p. 76, ANSI CL 3.4.1.).
+;; Returns 13 values:
 ;; 1. list of required parameters
 ;; 2. list of optional parameters
 ;; 3. list of init-forms of the optional parameters
-;; 4. list of Svars for the optional parameters (0 for the missing)
-;; 5. Rest-Parameter or 0
-;; 6. Flag, if Keywords are allowed
-;; 7. list of Keywords
-;; 8. list of Keyword-Parameters
-;; 9. list of init-forms of the Keyword-Parameters
-;; 10. list of Svars for the keyword-parameters (0 for the missing)
-;; 11. Flag, if Keywords are allowed
-;; 12. list of Aux-Variables
-;; 13. list of init-forms of the Aux-Variables
-(defun analyze-lambdalist (lambdalist)
-  (let ((L lambdalist) ; Rest of the lambda-list
-        (req nil)
-        (optvar nil)
-        (optinit nil)
-        (optsvar nil)
-        (rest 0)
-        (keyflag nil)
-        (keyword nil)
-        (keyvar nil)
-        (keyinit nil)
-        (keysvar nil)
-        (allow-other-keys nil)
-        (auxvar nil)
-        (auxinit nil))
-    ;; all in reversed order
-    (macrolet ((err-illegal (item)
-                 `(c-error-c (TEXT "Lambda list marker ~S not allowed here.")
-                   ,item))
-               (check-item (item permissible)
-                 `(if (memq ,item ,permissible)
-                   (return)
-                   (err-illegal ,item)))
-               (err-norest ()
-                 `(c-error-c (TEXT "Missing &REST parameter in lambda list ~S")
-                   lambdalist))
-               (push-opt (v i s)
-                 `(progn (push ,v optvar) (push ,i optinit) (push ,s optsvar)))
-               (skip-L (items)
-                 `(loop
-                   (when (atom L) (return))
-                   (let ((item (car L)))
-                     (if (memq item lambda-list-keywords)
-                         (check-item item ,items)
-                         (c-error-c
-                          (TEXT "Lambda list element ~S is superfluous.")
-                          item)))
-                   (setq L (cdr L)))))
-      ;; Required Parameters:
-      (loop
-        (if (atom L) (return))
-        (let ((item (car L)))
-          (if (symbolp item)
-            (if (memq item lambda-list-keywords)
-              (check-item item '(&optional &rest &key &aux))
-              (push item req))
-            (lambdalist-error item)))
-        (setq L (cdr L)))
-      ;; (or (atom L) (member (car L) '(&optional &rest &key &aux)))  applies.
-      ;; optional parameters:
-      (when (and (consp L) (eq (car L) '&optional))
-        (setq L (cdr L))
-        (loop
-          (if (atom L) (return))
-          (let ((item (car L)))
-            (if (symbolp item)
-              (if (memq item lambda-list-keywords)
-                (check-item item '(&rest &key &aux))
-                (push-opt item nil 0))
-              (if (and (consp item) (symbolp (car item)))
-                (if (null (cdr item))
-                  (push-opt (car item) nil 0)
-                  (if (consp (cdr item))
-                    (if (null (cddr item))
-                      (push-opt (car item) (cadr item) 0)
-                      (if (and (consp (cddr item)) (symbolp (caddr item))
-                               (null (cdddr item)))
-                        (push-opt (car item) (cadr item) (caddr item))
-                        (lambdalist-error item)))
-                    (lambdalist-error item)))
-                (lambdalist-error item))))
-          (setq L (cdr L))))
-      ;; (or (atom L) (member (car L) '(&rest &key &aux))) applies.
-      ;; rest-parameters:
-      (when (and (consp L) (eq (car L) '&rest))
-        (setq L (cdr L))
-        (if (atom L)
-          (err-norest)
-          (prog ((item (car L)))
-            (if (symbolp item)
-              (if (memq item lambda-list-keywords)
-                (progn (err-norest) (return))
-                (setq rest item))
-              (lambdalist-error item))
-            (setq L (cdr L)))))
-      ;; move forward to the next &key or &aux :
-      (skip-L '(&key &aux))
-      ;; (or (atom L) (member (car L) '(&key &aux)))  applies.
-      ;; keyword-parameters:
-      (when (and (consp L) (eq (car L) '&key))
-        (setq L (cdr L))
-        (setq keyflag t)
-        (loop
-          (if (atom L) (return))
-          (let ((item (car L)))
-            (if (symbolp item)
-              (if (memq item lambda-list-keywords)
-                (check-item item '(&allow-other-keys &aux))
-                (progn
-                  (push (intern (symbol-name item) *keyword-package*) keyword)
-                  (push item keyvar) (push nil keyinit) (push 0 keysvar)))
-              (if (and
-                    (consp item)
-                    (or
-                      (symbolp (car item))
-                      (and (consp (car item))
-                           (symbolp (caar item))
-                           (consp (cdar item))
-                           (symbolp (cadar item))
-                           (null (cddar item))))
-                    (or (null (cdr item))
-                        (and (consp (cdr item))
-                             (or (null (cddr item))
-                                 (and (consp (cddr item))
-                                      (symbolp (caddr item))
-                                      (null (cdddr item)))))))
-                (progn
-                  (if (consp (car item))
-                    (progn (push (caar item) keyword)
-                           (push (cadar item) keyvar))
-                    (progn (push (intern (symbol-name (car item))
-                                         *keyword-package*)
-                                 keyword)
-                           (push (car item) keyvar)))
-                  (if (consp (cdr item))
-                    (progn
-                      (push (cadr item) keyinit)
-                      (if (consp (cddr item))
-                        (push (caddr item) keysvar)
-                        (push 0 keysvar)))
-                    (progn (push nil keyinit) (push 0 keysvar))))
-                (lambdalist-error item))))
-          (setq L (cdr L)))
-        ;; (or (atom L) (member (car L) '(&allow-other-keys &aux))) applies.
-        (when (and (consp L) (eq (car L) '&allow-other-keys))
-          (setq allow-other-keys t)
-          (setq L (cdr L))))
-      ;; move forward  to the next &AUX :
-      (skip-L '(&aux))
-      ;; (or (atom L) (member (car L) '(&aux))) applies.
-      ;; &AUX-Variables:
-      (when (and (consp L) (eq (car L) '&aux))
-        (setq L (cdr L))
-        (loop
-          (if (atom L) (return))
-          (let ((item (car L)))
-            (if (symbolp item)
-              (if (memq item lambda-list-keywords)
-                (err-illegal item)
-                (progn (push item auxvar) (push nil auxinit)))
-              (if (and (consp item) (symbolp (car item)))
-                (if (null (cdr item))
-                  (progn (push (car item) auxvar) (push nil auxinit))
-                  (if (and (consp (cdr item)) (null (cddr item)))
-                    (progn (push (car item) auxvar) (push (cadr item) auxinit))
-                    (lambdalist-error item)))
-                (lambdalist-error item))))
-          (setq L (cdr L))))
-      ;; (atom L) applies.
-      (if L
-          (c-error-c (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
-                     lambdalist)))
-    (values
-     (nreverse req)
-     (nreverse optvar) (nreverse optinit) (nreverse optsvar)
-     rest
-     keyflag
-     (nreverse keyword) (nreverse keyvar) (nreverse keyinit) (nreverse keysvar)
-     allow-other-keys
-     (nreverse auxvar) (nreverse auxinit))))
-
-(defun lambdalist-error (item)
-  (c-error-c (TEXT "Illegal lambda list element ~S") item))
+;; 4. list of supplied-vars for the optional parameters (0 for the missing)
+;; 5. &rest parameter or 0
+;; 6. flag, if keywords are allowed
+;; 7. list of keywords
+;; 8. list of keyword parameters
+;; 9. list of init-forms of the keyword parameters
+;; 10. list of supplied-vars for the keyword parameters (0 for the missing)
+;; 11. flag, if other keywords are allowed
+;; 12. list of &aux variables
+;; 13. list of init-forms of the &aux variables
+(defun c-analyze-lambdalist (lambdalist)
+  (sys::analyze-lambdalist lambdalist
+    #'(lambda (errorstring &rest arguments)
+        (catch 'c-error
+          (apply #'c-error errorstring arguments)))))
 
 (defun lambda-list-to-signature (lambda-list)
   (multiple-value-bind (req opt opt-i opt-p rest
                         key-p keywords key-v key-i key-v-p allow-p)
-      (analyze-lambdalist lambda-list)
+      (c-analyze-lambdalist lambda-list)
     (declare (ignore opt-i opt-p key-v key-i key-v-p))
     (make-signature :req-num (length req) :opt-num (length opt)
                     :rest-p (not (eql 0 rest)) :keys-p key-p
@@ -3888,9 +3722,9 @@ for-value   NIL or T
                           keyflag keyword keyvar keyinit keysvar
                           allow-other-keys auxvar auxinit)
         (if fenv-cons
-          ;; analyze-lambdalist was already called at c-LABELS
+          ;; c-analyze-lambdalist was already called at c-LABELS
           (values-list (cddar fenv-cons))
-          (analyze-lambdalist (car lambdabody)))
+          (c-analyze-lambdalist (car lambdabody)))
       (setf (fnode-req-anz *func*) (length reqvar)
             (fnode-opt-anz *func*) (length optvar)
             (fnode-rest-flag *func*) (not (eql restvar 0))
@@ -5348,8 +5182,8 @@ for-value   NIL or T
                       ;; fdescr, consisting of:
                       (cons nil ; room for the FNODE
                         (cons 'LABELS
-                          (multiple-value-list ; values from analyze-lambdalist
-                            (analyze-lambdalist (cadr fdef)))))
+                          (multiple-value-list ; values from c-analyze-lambdalist
+                            (c-analyze-lambdalist (cadr fdef)))))
                       ;; Variable
                       (car L2))
                     L5))
@@ -5955,7 +5789,7 @@ for-value   NIL or T
   (multiple-value-bind (reqvar  optvar optinit optsvar  restvar
                         keyflag keyword keyvar keyinit keysvar allow-other-keys
                         auxvar auxinit)
-      (analyze-lambdalist (pop lambdabody))
+      (c-analyze-lambdalist (pop lambdabody))
     (when (or keyflag keyword keyvar keyinit keysvar allow-other-keys)
       (compiler-error 'c-FUNCALL-INLINE funform))
     (let ((r (length reqvar)) ; number of required-arguments
