@@ -69,6 +69,19 @@ libvacall.a : $(OBJECTS)
 	$(RM) libvacall.a
 	$(AR) $(AR_FLAGS) libvacall.a $(OBJECTS)
 
+minitests.o : $(srcdir)/minitests.c vacall.h
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/minitests.c
+
+minitests.s : $(srcdir)/minitests.c vacall.h
+	$(CC) $(CFLAGS) $(INCLUDES) -S $(srcdir)/minitests.c
+
+minitests.exe : minitests.o $(OBJECTS)
+	$(CC) $(CFLAGS) minitests.o $(OBJECTS) -o minitests.exe
+
+check : all minitests.exe
+	minitests.exe > minitests.out
+	uniq -u < minitests.out > minitests.output.$(HOST)
+
 tests.o : $(srcdir)/tests.c vacall.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/tests.c
 
@@ -78,7 +91,7 @@ tests.s : $(srcdir)/tests.c vacall.h
 tests.exe : tests.o $(OBJECTS)
 	$(CC) $(CFLAGS) tests.o $(OBJECTS) -o tests.exe
 
-check : all tests.exe
+extracheck : all tests.exe
 	tests.exe > tests.out
 	uniq -u < tests.out > tests.output.$(HOST)
 
@@ -87,6 +100,7 @@ mostlyclean : clean
 clean : force
 	$(RM) *.o *.a core
 	$(RM) vacall-i386.asm
+	$(RM) minitests.o minitests.s minitests.exe minitests.out
 	$(RM) tests.o tests.s tests.exe tests.out
 
 distclean : clean
