@@ -8595,7 +8595,10 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         if (not_compiling) { JUSTIFY_END_FILL; JUSTIFY_END_FILL; }
         skipSTACK(1);
       } else {
-        STACK_0 = obj; # String
+        if (!nullpSv(print_readably)
+            && !namestring_correctly_parseable_p(&STACK_0))
+          fehler_print_readably(STACK_0);
+        STACK_0 = obj;          /* String */
         if (!nullpSv(print_escape) || !nullpSv(print_readably)) {
           # print "#P"
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
