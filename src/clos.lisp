@@ -16,6 +16,7 @@
     ;; Import:
     sys::text                   ; for error messages (i18n.d)
     sys::error-of-type          ; defined in error.d
+    sys::error-function-name    ; defined in trace.lisp
     sys::function-name-p        ; defined in control.d
     sys::function-block-name    ; defined in init.lisp
     sys::gensym-list            ; defined in macros2.lisp
@@ -3597,11 +3598,11 @@
     (documentation (nth-value 2 (function-lambda-expression x)) 'function))
   (:method ((x list) (doc-type (eql 'function)))
     (declare (ignore doc-type))
-    (unless (function-name-p x) (error-function-name x))
+    (unless (function-name-p x) (error-function-name 'documentation x))
     (documentation (second x) 'setf))
   (:method ((x list) (doc-type (eql 'compiler-macro)))
     (declare (ignore doc-type))
-    (unless (function-name-p x) (error-function-name x))
+    (unless (function-name-p x) (error-function-name  'documentation x))
     (documentation (second x) 'setf-compiler-macro))
   (:method ((x symbol) (doc-type symbol))
     ;; doc-type = `function', `compiler-macro', `setf', `variable', `type',
@@ -3645,11 +3646,11 @@
                              'function new-value))
   (:method (new-value (x list) (doc-type (eql 'function)))
     (declare (ignore doc-type))
-    (unless (function-name-p x) (error-function-name x))
+    (unless (function-name-p x) (error-function-name '(setf documentation) x))
     (sys::%set-documentation (second x) 'setf new-value))
   (:method (new-value (x list) (doc-type (eql 'compiler-macro)))
     (declare (ignore doc-type))
-    (unless (function-name-p x) (error-function-name x))
+    (unless (function-name-p x) (error-function-name '(setf documentation) x))
     (sys::%set-documentation (second x) 'setf-compiler-macro new-value))
   (:method (new-value (x symbol) (doc-type symbol))
     ;; doc-type = `function', `compiler-macro', `setf', `variable', `type',
