@@ -1,5 +1,19 @@
 2005-01-09  Bruno Haible  <bruno@clisp.org>
 
+	Distribute the manual page also in PDF format.
+	* makemake.in (pdfdir): New variable.
+	(manual_dvi): Add clisp.pdf.
+	(clisp.pdf): New rule.
+	(installdirs): Create $(pdfdir).
+	(install-man): Install also clisp.pdf.
+	(uninstall-man): Uninstall also clisp.pdf.
+	(clean1): Remove clisp.pdf.
+	* _distmakefile (pdfdir): New variable.
+	(install-man): Install also clisp.pdf.
+	(uninstall): Uninstall clisp.pdf.
+
+2005-01-09  Bruno Haible  <bruno@clisp.org>
+
 	* clisp-link.in (func_tmpdir): New function.
 	(run): Use it for all temporary files and directories.
 
