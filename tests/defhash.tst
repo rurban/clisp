@@ -1,9 +1,9 @@
 ;; -*- Lisp -*-
 
-(define-hash-table-test string string= sxhash)
-string
+(define-hash-table-test string-eq string= sxhash)
+string-eq
 
-(let ((h (make-hash-table :test 'string)))
+(let ((h (make-hash-table :test 'string-eq)))
   (list
    (setf (gethash "foo" h) 10)
    (gethash "zot" h)
