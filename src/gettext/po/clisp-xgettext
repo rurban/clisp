@@ -37,6 +37,7 @@
 
 (defun main (filename destdir)
  (declare (type string filename destdir))
+ #+UNICODE (setq *default-file-encoding* charset:iso-8859-1)
  (with-open-file (file filename :direction :input)
   (with-open-file (pot (concatenate 'string destdir "/" filename ".pot")
                        :direction :output)

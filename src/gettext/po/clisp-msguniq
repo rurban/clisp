@@ -28,6 +28,7 @@
 
 (defun main (infilename outfilename)
  (declare (type string infilename outfilename))
+ #+UNICODE (setq *default-file-encoding* charset:iso-8859-1)
  (with-open-file (istream infilename :direction :input)
   (with-open-file (ostream outfilename :direction :output)
    (let ((hunk-list nil) ; list of all hunks
