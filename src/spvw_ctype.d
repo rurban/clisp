@@ -344,7 +344,7 @@
       #   deutsch                 de_DE.ISO-8859-1
       #   dutch                   nl_NL.ISO-8859-1
       #   finnish                 fi_FI.ISO-8859-1
-      #   fran#ais                fr_FR.ISO-8859-1
+      #   français                fr_FR.ISO-8859-1
       #   french                  fr_FR.ISO-8859-1
       #   german                  de_DE.ISO-8859-1
       #   greek                   el_GR.ISO-8859-7
@@ -566,12 +566,15 @@
                 || asciz_equal(lang,"de") || asciz_equal(lang,"german") || asciz_equal(lang,"deutsch")
                 || asciz_equal(lang,"en") || asciz_equal(lang,"english")
                 || asciz_equal(lang,"es") || asciz_equal(lang,"spanish")
+                                          #ifndef ASCII_CHS
+                                          || asciz_equal(lang,"espa\361ol") || asciz_equal(lang,"espa\303\261ol") # español
+                                          #endif
                 || asciz_equal(lang,"eu") || asciz_equal(lang,"basque")
                 || asciz_equal(lang,"fi") || asciz_equal(lang,"finnish")
                 || asciz_equal(lang,"fo") || asciz_equal(lang,"faroese") || asciz_equal(lang,"faeroese")
                 || asciz_equal(lang,"fr") || asciz_equal(lang,"french")
                                           #ifndef ASCII_CHS
-                                          || asciz_equal(lang,"français")
+                                          || asciz_equal(lang,"fran\347ais") || asciz_equal(lang,"fran\303\247ais") # français
                                           #endif
                 || asciz_equal(lang,"ga") || asciz_equal(lang,"irish")
                 || asciz_equal(lang,"gd") || asciz_equal(lang,"scottish")
