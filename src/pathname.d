@@ -10739,6 +10739,379 @@ LISPFUN(file_stat_,1,1,norest,nokey,0,NIL) {
 
 #endif # UNIX
 
+/* COPY-FILE related functions. */
+
+#define NAMESTRING2(source,dest) do {                                   \
+  pushSTACK(dest);                                                      \
+  pushSTACK(source); funcall(L(namestring),1);                          \
+  pushSTACK(dest); STACK_1 = value1; /* STACK_1 <- source_namestring */ \
+  funcall(L(namestring),1); source = popSTACK();                        \
+  dest = value1;                                                        \
+} while(0)
+
+#define FILENAME_ACTION(source,dest,action) do {                \
+  NAMESTRING2(source,dest);                                     \
+  with_sstring_0(source, O(pathname_encoding), source_asciz, {  \
+    with_sstring_0(dest, O(pathname_encoding), dest_asciz, {    \
+      begin_system_call(); action; end_system_call();           \
+    });                                                         \
+  });                                                           \
+} while (0)
+
+/* copy_file_low can assume the following:
+  1) source exists
+  2) target's directory exists
+ can trigger GC */
+local void copy_file_low (object source, object dest, bool append_p) {
+/* (let ((buffer (make-array buffer-size :element-type 'unsigned-byte)))
+    (with-open-file (source-stream source :direction :input
+                                   :element-type 'unsigned-byte)
+     (with-open-file (dest-stream dest :direction (if append-p :append :output)
+                                  :element-type 'unsigned-byte)
+       (loop for bytes-read = (read-byte-sequence buffer source-stream)
+             until (= 0 bytes-read)
+             do (write-byte-sequence buffer dest-stream :end bytes-read)))))
+*/
+  /* create the two streams */
+  pushSTACK(dest);
+  pushSTACK(source);
+
+  /* we need both namestring and truename */
+  pushSTACK(STACK_0);
+  funcall(L(namestring), 1);
+  pushSTACK(value1);
+
+  pushSTACK(STACK_1);
+  funcall(L(truename), 1);
+  pushSTACK(value1);
+
+  var Handle handle;
+  with_sstring_0(STACK_1,O(pathname_encoding),source_asciz, {
+    pushSTACK(STACK_1);
+    var bool open_ret = open_input_file(source_asciz,false,&handle);
+    popSTACK();
+    if (!open_ret)
+      OS_error();
+  });
+  var object source_handle = allocate_handle(handle);
+
+  /* handle is ready, call make_file_stream */
+  pushSTACK(STACK_1); /* filename */
+  pushSTACK(STACK_1); /* truename */
+  pushSTACK(T); /* :BUFFERED */
+  pushSTACK(unbound); /* :EXTERNAL-FORMAT */
+  pushSTACK(S(unsigned_byte)); /* :ELEMENT-TYPE */
+  pushSTACK(source_handle);
+  subr_self = L(copy_file);
+  pushSTACK(make_file_stream(DIRECTION_INPUT,false,false));
+
+  pushSTACK(STACK_4);
+  funcall(L(namestring), 1);
+  pushSTACK(value1);
+
+  var Handle handle;
+  with_sstring_0(STACK_0, O(pathname_encoding), dest_asciz, {
+    pushSTACK(STACK_0);
+    handle = open_output_file(dest_asciz,!append_p);
+    popSTACK();
+  });
+  var object dest_handle = allocate_handle(handle);
+
+  /* handle is ready, call make_file_stream */
+  pushSTACK(STACK_0); /* filename */
+  pushSTACK(NIL); /* truename */
+  pushSTACK(T); /* :BUFFERED */
+  pushSTACK(unbound); /* :EXTERNAL-FORMAT */
+  pushSTACK(S(unsigned_byte)); /* ELEMENT-TYPE */
+  pushSTACK(dest_handle);
+  pushSTACK(make_file_stream(DIRECTION_OUTPUT,append_p,false));
+
+  { /* make the bit buffer and copy data */
+    var uintL buffer_size = strm_buffered_bufflen;
+    var DYNAMIC_BIT_VECTOR(bitbuffer,buffer_size*8);
+    pushSTACK(bitbuffer);
+    /* NB: at this point the stack looks like this:
+       0 - bitbuffer
+       1 - dest-stream
+       2 - dest-namestring
+       3 - source-stream
+       4 - source-truename
+       5 - source-namestring
+       6 - source-pathname
+       7 - dest-pathname */
+    /* copy loop */
+    var uintL bytes_read = 0;
+    loop {
+      bytes_read = read_byte_array(&STACK_3,&STACK_0,0,buffer_size);
+      if (bytes_read == 0)
+        break;
+      write_byte_array(&STACK_1, &STACK_0, 0, bytes_read);
+    }
+    FREE_DYNAMIC_BIT_VECTOR(STACK_0);
+  }
+  builtin_stream_close(&STACK_1);
+  builtin_stream_close(&STACK_3);
+  /* clean up the stack */
+  skipSTACK(8);
+  return;
+}
+
+local void copy_attributes(object source, object dest) {
+#if defined(UNIX)
+  var struct stat source_sb;
+  var struct stat dest_sb;
+  var int source_fd;
+  var int dest_fd;
+
+  pushSTACK(dest);
+
+  pushSTACK(coerce_pathname(source));
+  funcall(L(namestring),1);
+  pushSTACK(value1);
+
+  pushSTACK(coerce_pathname(STACK_1));
+  funcall(L(namestring),1);
+
+  var object dest_namestring = value1;
+  var object source_namestring = popSTACK();
+  popSTACK();
+
+  /* we don't actually want to do anything to the files, but the
+     various file attribute manipulation functions (chmod, chown) are
+     faster if done through file descriptors and not file names, and we
+     do a lot of this. */
+  with_sstring_0(source_namestring, O(pathname_encoding), source_asciz, {
+    source_fd = open(source_asciz, O_RDONLY, 0);
+  });
+  if (source_fd == -1)
+    OS_file_error(source_namestring);
+
+  with_sstring_0(dest_namestring, O(pathname_encoding), dest_asciz, {
+    dest_fd = open(dest_asciz, O_RDONLY, 0);
+  });
+  if (dest_fd == -1) {
+    close(source_fd);
+    OS_file_error(dest_namestring);
+  }
+
+  if (fstat(source_fd, &source_sb) == -1)
+    goto close_and_err;
+
+  if (fstat(dest_fd, &dest_sb) == -1)
+    goto close_and_err;
+
+  /*** file mode ***/
+  if ((source_sb.st_mode & 0777) != (dest_sb.st_mode & 0777)) {
+    if (fchmod(dest_fd, source_sb.st_mode & 0777) == -1)
+      goto close_and_err;
+  }
+
+  /*** owner/group ***/
+  if (fchown(dest_fd, source_sb.st_uid, source_sb.st_gid) == -1)
+    goto close_and_err;
+
+  close(source_fd);
+  close(dest_fd);
+
+  /*** access/mod times ***/
+  var struct timeval utb[2];
+  /* first element of the array is access time, second is mod time. set
+   * both tv_usec to zero since the file system can't gurantee that
+   * kind of precision anyway. */
+  utb[0].tv_sec = source_sb.st_atime;
+  utb[0].tv_usec = 0;
+  utb[1].tv_sec = source_sb.st_mtime;
+  utb[1].tv_usec = 0;
+
+  var int utimes_ret;
+  with_sstring_0(dest_namestring, O(pathname_encoding), dest_asciz, {
+    utimes_ret = utimes(dest_asciz, utb);
+  });
+  if (utimes_ret == -1)
+    goto close_and_err;
+
+  return;
+
+close_and_err:
+  value1 = NIL; mv_count = 1;
+  close(source_fd);
+  close(dest_fd);
+  OS_error();
+
+#else
+/*** windows? amiga? riscos? ***/
+#endif
+}
+
+/* COPY-FILE
+  (COPY-FILE source target &key link preserve (if-exists :supersede))
+ source and target are pathname designators (whether or not they
+ can be streams is up for debate). if target is missing a name or
+ type designator it is taken from source.
+ keywords:
+ link := :hard      ; make a hard link
+       | :symbolic  ; make a symbolic linke
+       | :rename    ; move
+       | nil        ; make a copy
+  if the underlying file system does not support a given operation
+  a copy is made
+
+ preserve := t ;; preserve as much of source-file's attributes as
+               ;; possible
+           | nil ;; don't try to preserve source-file's attributes
+                 ;; when creating target-file
+ if-exists := :supersede ;; the existing file is superseded. that is
+                         ;; a new file with the same name (and
+                         ;; attributes if possible) is created.
+            | :error ;; an error of type file-error is signaled.
+            | :new-version ;; a new file is created with a larger
+                           ;; version number
+            | (:rename new-extension) ;; the existing file is reanmed to
+                       ;; (concatentate 'string target-file new-extension)
+                       ;; and then a new fileis created
+            | :rename ;; equivalente to (:rename ".bak")
+            | :append ;; the contents of source-file are appended to
+                      ;; the end of target-file
+ if-does-not-exist := nil ;; do nothing and return nil
+                    | :error ;; (default) signal an error
+ */
+LISPFUN(copy_file,2,0,norest,key,4,
+        (kw(link),kw(preserve),kw(if_exists),kw(if_does_not_exist)) )
+{
+  /* stack:
+     5 - source
+     4 - dest
+     3 - link method
+     2 - preserve
+     1 - if_exists
+     0 - if_does_not_exist  */
+
+  STACK_5 = coerce_pathname(STACK_5);
+  STACK_4 = coerce_pathname(STACK_4);
+
+  /* source-file must exist and can not contain wildcards, and we want
+     the truename of source, so we just call probe-file.  */
+  pushSTACK(STACK_5);
+  funcall(L(probe_file),1);
+  pushSTACK(value1);
+
+  pushSTACK(STACK_(4+1));
+  funcall(L(probe_file),1);
+  pushSTACK(value1);
+
+  var object dest_true = popSTACK();
+  var object source_true = popSTACK();
+  var object if_does_not_exist_arg = popSTACK();
+  var object if_exists_arg = popSTACK();
+  var bool preserve_p = !nullp(popSTACK());
+  var object method = popSTACK();
+  var object dest_path = popSTACK();
+  var object source_path = popSTACK();
+
+  var if_does_not_exist_t if_does_not_exist =
+    check_if_does_not_exist(if_does_not_exist_arg);
+  if (nullp(source_true)) {
+    /* source does not exist. */
+    switch (if_does_not_exist) {
+      case IF_DOES_NOT_EXIST_NIL:
+        value1 = NIL; mv_count = 1;
+        return;
+      default:
+        pushSTACK(source_path);
+        fehler_file_not_exists();
+    }
+  }
+
+  var if_exists_t if_exists = check_if_exists(if_exists_arg);
+  if (! nullp(dest_true)) {
+    /* target-file exists. */
+    switch (if_exists) {
+      case IF_EXISTS_NIL:
+        value1 = NIL;
+        mv_count = 1;
+        return;
+      case IF_EXISTS_UNBOUND:
+      case IF_EXISTS_ERROR:
+        pushSTACK(dest_path);
+        fehler_file_exists();
+        break;
+      case IF_EXISTS_APPEND:
+        /* handled in copy_file_low() */
+        if (!eq(method,NIL) && !eq(unbound,method)) {
+          pushSTACK(if_exists_arg); pushSTACK(method); pushSTACK(S(copy_file));
+          fehler(error,GETTEXT("~: ~ forbids ~"));
+        }
+        break;
+      case IF_EXISTS_OVERWRITE:
+      case IF_EXISTS_SUPERSEDE:
+        /* FIXME: for now we treat these as the same thing and always
+           overwrite (see copy_file_low() for details) */
+        break;
+      case IF_EXISTS_RENAME:
+        /* FIXME: not yet implemented */
+      case IF_EXISTS_RENAME_AND_DELETE:
+        /* FIXME: not yet implemented */
+      default:
+        pushSTACK(if_exists_arg);
+        pushSTACK(O(type_if_exists));
+        pushSTACK(if_exists_arg);
+        pushSTACK(S(Kif_exists));
+        pushSTACK(S(copy_file));
+        fehler(type_error,GETTEXT("~: ~ illegal ~ argument ~"));
+    }
+  }
+
+  /* save the two pathnames for later and the link and preserve arg,
+     which we need */
+  pushSTACK(method);
+  pushSTACK(source_path);
+  pushSTACK(dest_path);
+
+  /* make sure target directory exists. note that this secretly messes
+     with STACK_0 */
+  assure_dir_exists(false, false);
+
+  dest_path = popSTACK();
+  source_path = popSTACK();
+  method = popSTACK();
+
+  /* and finally we can start doing something. */
+  if (! (eq(method,unbound) || nullp(method)) ) {
+    if (eq(method,S(Ksymbolic))) {
+     #ifdef UNIX
+      FILENAME_ACTION(source_path,dest_path, {
+        if (symlink(source_asciz,dest_asciz) != 0) OS_error(); });
+     #else
+      copy_file_low(source_path,dest_path,if_exists == IF_EXISTS_APPEND);
+     #endif
+    } else if (eq(method,S(Khard))) {
+     #ifdef UNIX
+      FILENAME_ACTION(source_path,dest_path, {
+        if (link(source_asciz,dest_asciz) != 0) OS_error(); });
+     #else
+      copy_file_low(source,dest,if_exists == IF_EXISTS_APPEND);
+     #endif
+    } else if (eq(method,S(Krename))) {
+      FILENAME_ACTION(source_path,dest_path, {
+        if (rename(source_asciz,dest_asciz) != 0) OS_error(); });
+    } else {
+      pushSTACK(method);           /* TYPE-ERROR slot DATUM */
+      pushSTACK(O(type_link_arg)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(method);
+      pushSTACK(S(Klink));
+      pushSTACK(S(copy_file));
+      fehler(type_error,GETTEXT("~: ~ illegal ~ argument ~"));
+    }
+  } else {
+    copy_file_low(source_path,dest_path,if_exists == IF_EXISTS_APPEND);
+    if (preserve_p)
+      copy_attributes(source_path,dest_path);
+  }
+  value1 = dest_path; mv_count = 1;
+}
+#undef FILENAME_ACTION
+#undef NAMESTRING2
+
 /* Lisp interface to dup(2)/dup2(2). */
 LISPFUN(duplicate_handle,1,1,norest,nokey,0,NIL) {
   var object new_fd = popSTACK();

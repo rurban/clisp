@@ -25,13 +25,16 @@
 <!ENTITY getrlimit "<ulink url='&unix-f;/getrlimit.html'><function>getrlimit</function></ulink>">
 <!ENTITY getrusage "<ulink url='&unix-f;/getrusage.html'><function>getrusage</function></ulink>">
 <!ENTITY iconv "<ulink url='&unix-f;/iconv.html'><function>iconv</function></ulink>">
+<!ENTITY link "<ulink url='&unix-f;/link.html'><function>link</function></ulink>">
 <!ENTITY lstat "<ulink url='&unix-f;/lstat.html'><function>lstat</function></ulink>">
 <!ENTITY malloc "<ulink url='&unix-f;/malloc.html'><function>malloc</function></ulink>">
 <!ENTITY qsort "<ulink url='&unix-f;/qsort.html'><function>qsort</function></ulink>">
+<!ENTITY rename "<ulink url='&unix-f;/rename.html'><function>rename</function></ulink>">
 <!ENTITY read "<ulink url='&unix-f;/read.html'><function>read</function></ulink>">
 <!ENTITY select "<ulink url='&unix-f;/select.html'><function>select</function></ulink>">
 <!ENTITY shutdown "<ulink url='&unix-f;/shutdown.html'><function>shutdown</function></ulink>">
 <!ENTITY stat "<ulink url='&unix-f;/stat.html'><function>stat</function></ulink>">
+<!ENTITY symlink "<ulink url='&unix-f;/symlink.html'><function>symlink</function></ulink>">
 <!ENTITY sysconf "<ulink url='&unix-f;/sysconf.html'><function>sysconf</function></ulink>">
 <!ENTITY uname "<ulink url='&unix-f;/uname.html'><function>uname</function></ulink>">
 

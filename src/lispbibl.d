@@ -4953,6 +4953,7 @@ typedef struct {
   #ifdef GENERIC_STREAMS
   #define strm_controller_object strm_other[0] # Controller (usually a CLOS-instance)
   #endif
+  #define strm_buffered_bufflen 4096   # buffer length, a power of 2, <2^16
 # is used by stream.d, pathname.d, io.d
 
 # Structures

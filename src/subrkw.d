@@ -159,6 +159,10 @@ v(2, (kw(circle),kw(full)) )
 s(directory)
 v(2, (kw(element_type),kw(line_position)) )
 s(make_string_output_stream)
+#ifdef EXPORT_SYSCALLS
+v(4, (kw(link),kw(preserve),kw(if_exists),kw(if_does_not_exist)) )
+s(copy_file)
+#endif
 #ifdef PIPES
 v(3, (kw(element_type),kw(external_format),kw(buffered)) )
 s(make_pipe_input_stream)

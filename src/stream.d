@@ -5855,7 +5855,7 @@ local object make_unbuffered_stream (uintB type, direction_t direction,
   # define strm_file_name        strm_field1   # Filename, a pathname or NIL
   # define strm_file_truename    strm_field2   # Truename, a non-logical pathname or NIL
   # define strm_buffered_channel strm_ochannel # a wrapped Handle
-  #define strm_buffered_bufflen  4096          # buffer length, a power of 2, <2^16
+  # define strm_buffered_bufflen 4096 # buffer length, a power of 2, <2^16
   #define strm_buffered_buffer   strm_buffer   # our own buffer, a simple-bit-vector
                                                # with strm_buffered_bufflen bytes
 
