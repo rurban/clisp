@@ -388,34 +388,6 @@ local inline object check_rational (object obj) {
   return obj;
 }
 
-/* check_integer(obj) checks, if obj is a integer number.
- < integer number
- can trigger GC */
-local inline object check_integer (object obj) {
-  while (!integerp(obj)) {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);      /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(integer)); pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
-    obj = value1;
-  }
-  return obj;
-}
-local inline object check_pos_integer (object obj) {
-  while (!integerp(obj) || R_minusp(obj)) {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);      /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(integer)); pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a non-negatve ~"));
-    obj = value1;
-  }
-  return obj;
-}
-
 /* coersions - used in modules
  can trigger GC */
 global double to_double (object x) {
