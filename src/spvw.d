@@ -2776,22 +2776,26 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         { Symbol_value(S(load_compiling)) = T; }
       # load RC file ~/.clisprc
       if (!argv_norc) {
-         funcall(S(user_homedir_pathname),0);
-         pushSTACK(S(Kdirectory));
-         pushSTACK(value1);
+         # Call
+         # (LOAD (MERGE-PATHNAMES (MAKE-PATHNAME :NAME ".clisprc")
+         #                        (USER-HOMEDIR-PATHNAME))
+         #       :IF-DOES-NOT-EXIST NIL
+         # )
          pushSTACK(S(Kname));
-       #if defined(UNIX) || defined(AMIGAOS)
-         pushSTACK(asciz_to_string(".clisprc"));
-       #else
-       #if defined(OS2) || defined(WIN32) || defined(ACORN)
-         pushSTACK(asciz_to_string("_clisprc"));
-       #else
-       #if defined(MSDOS)
-         pushSTACK(asciz_to_string("_CLISPRC"));
-       #endif
-       #endif
-       #endif
-         funcall(S(make_pathname),4);
+         #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
+           pushSTACK(asciz_to_string(".clisprc"));
+         #endif
+         #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
+           pushSTACK(asciz_to_string("_clisprc"));
+         #endif
+         #if defined(PATHNAME_MSDOS)
+           pushSTACK(asciz_to_string("_CLISPRC"));
+         #endif
+         funcall(L(make_pathname),2);
+         pushSTACK(value1);
+         funcall(S(user_homedir_pathname),0);
+         pushSTACK(value1);
+         funcall(L(merge_pathnames),2);
          pushSTACK(value1);
          pushSTACK(S(Kif_does_not_exist));
          pushSTACK(S(nil));
