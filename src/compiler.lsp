@@ -254,12 +254,12 @@
 (defvar *c-error-output*) ; Compiler-Error-Stream
 ; Es ist im wesentlichen
 ; *c-error-output* = (make-broadcast-stream *error-output* *c-listing-output*)
-
-;;; The variables for COMPILE-FILE:
 ;; The names of declared dynamic variables
 (defvar *known-special-vars* nil)
 ;; The names and values of constants
 (defvar *constant-special-vars* nil)
+
+;;; The variables for COMPILE-FILE:
 ;; The compiler's output file stream, or nil
 (defvar *fasoutput-stream* nil)
 ;; The compiler's library file stream, or nil
@@ -12120,7 +12120,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 (defun finalize-coutput-file ())
 
 (defun c-reset-globals ()
-  ;; the golbal variables have to be assigned, not bound!
+  ;; The global variables have to be assigned, not bound!
   (setq *functions-with-errors*  nil
         *known-special-vars*     nil
         *unknown-free-vars*      nil
@@ -12159,18 +12159,21 @@ Die Funktion make-closure wird dazu vorausgesetzt.
     (c-comment (ENGLISH "~%The following functions were used but are deprecated:~%~{~<~%~:; ~S~>~^~}")
                (nreverse *deprecated-functions*))))
 
+;; FIXME: Comment?
 (defvar *c-top-call* nil)
 
 (defmacro with-compilation-unit ((&key override) &body forms)
+  ;; FIXME: This looks fishy.
   `(let ((*c-top-call* (or ,override (not *c-top-call*)))
          (*c-error-output* *error-output*))
-    (when *c-top-call*
-      (c-report-problems)
-      (c-reset-globals))
-    (unwind-protect (progn ,@forms)
-      (when *c-top-call*
-        (c-report-problems)
-        (c-reset-globals)))))
+     (when *c-top-call*
+       (c-report-problems)
+       (c-reset-globals))
+     (unwind-protect
+         (progn ,@forms)
+       (when *c-top-call*
+         (c-report-problems)
+         (c-reset-globals)))))
 
 ; Common-Lisp-Funktion COMPILE-FILE
 ; file          sollte ein Pathname/String/Symbol sein.
@@ -12210,9 +12213,10 @@ Die Funktion make-closure wird dazu vorausgesetzt.
     (setq new-listing-stream t)
   )
   (with-open-file (istream file :direction :input-immutable)
-    (let ((listing-stream (if new-listing-stream ; stream or NIL
-                            (open listing :direction :output)
-                            (if (streamp listing) listing nil)))
+    (let ((listing-stream ; a stream or NIL
+            (if new-listing-stream
+              (open listing :direction :output)
+              (if (streamp listing) listing nil)))
           (*c-top-call* (and (null *c-top-call*) (null *compiling*))))
       (unwind-protect
         (let ((*compile-file-pathname* file)
@@ -12318,8 +12322,10 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                       (symbol-suffix '#:TOP-LEVEL-FORM (incf form-count))
                 ) ) )
                 (finalize-coutput-file)
-                (c-comment (ENGLISH "~&~%Compilation of file ~A is finished.~%~D error~:P, ~D warning~:P")
-                           file *error-count* *warning-count*)
+                (c-comment (ENGLISH "~&~%Compilation of file ~A is finished.")
+                           file)
+                (c-comment (ENGLISH "~%~D error~:P, ~D warning~:P")
+                           *error-count* *warning-count* (eql *warning-count* 1))
                 (when *c-top-call*
                   (c-report-problems))
                 (c-comment "~%")
