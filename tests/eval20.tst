@@ -110,6 +110,12 @@ T
 (constantp '(quote foo))
 T
 
+(constantp '(+ 3 4))
+#+CLISP T #-CLISP NIL
+
+(constantp '((setf cons) 3 4))
+NIL
+
 ;; <http://www.lisp.org/HyperSpec/Issues/iss146-writeup.html>
 (let ((src "foo.lisp") (zz (cons 1 2)))
   (defun setf-foo (u v) (setf (car u) v))
