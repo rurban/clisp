@@ -1,5 +1,27 @@
 1999-05-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * configure.in: Add check for groff.
+        * makemake.in (GROFF): New variable.
+          (htmldir, dvidir): New Makefile variables.
+          (ROFF_MAN, ROFF_DVI): Set if $GROFF is nonempty.
+          (ROFF_DVI): Don't define if $GROFF is empty.
+          (clisp.dvi): Create if and only if $GROFF is nonempty.
+          (MANUALS): Include clisp.dvi if and only if $GROFF is nonempty.
+          (installdirs): Create $(htmldir) and $(dvidir) instead of
+          $(mandir)/html.
+          (install-man): Clean up dependencies.
+          Use $(htmldir) and $(dvidir) instead of $(mandir)/html.
+          Install clisp.dvi and clreadline.dvi if appropriate.
+          (uninstall-man): Use $(htmldir) and $(dvidir) instead of
+          $(mandir)/html. Also remove clisp.dvi and clreadline.dvi.
+          (distrib): Distribute clisp.dvi if and only if $GROFF is nonempty.
+          (clean1): Also remove clisp.dvi.
+        * _distmakefile (htmldir, dvidir): New variables.
+          (install-man): Install clisp.1 without modifications.
+          Also install clisp.html, clisp.dvi, clreadline.html, clreadline.dvi.
+
+1999-05-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * configure: In avcall and callback, do "make minicheck" instead of
           "make check".
 

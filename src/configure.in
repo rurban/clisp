@@ -56,6 +56,8 @@ AC_PROG_LN_S
                       dnl sets variable LN_S
 CL_PROG_LN
                       dnl sets variable LN
+AC_CHECK_PROG(GROFF,groff,groff)
+                      dnl sets variable GROFF
 dnl
 dnl           checks for UNIX variants that set DEFS
 dnl
