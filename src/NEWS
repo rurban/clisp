@@ -138,6 +138,7 @@ User visible changes
   + DEFSETF lambda-lists now support &ENVIRONMENT.
   + DEFSETF lambda-lists are no longer destructuring lambda-lists.
   + NAMESTRING no longer accepts an optional second argument.
+  + SETF of VALUES now uses only the first value of each subform.
   Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance
   suite, which helped detect some of these deficiencies.
   Thanks to Yuji Minejima <ggb01164@nifty.ne.jp> and his ANSI compliance
