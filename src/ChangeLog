@@ -1,3 +1,9 @@
+2004-06-08  Bruno Haible  <bruno@clisp.org>
+
+	* clos-methcomb2.lisp (define-method-combination): Provide bindings
+	also for the supplied-p variables of optional and keyword arguments
+	in the :arguments lambda-list.
+
 2004-05-27  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class3.lisp: Reorder.
