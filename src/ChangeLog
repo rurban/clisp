@@ -1,5 +1,12 @@
 2004-02-19  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (PATHNAME-DEVICE): return :UNSPECIFIC for
+	LOGICAL-PATHNAMEs per
+	<http://www.lisp.org/HyperSpec/Body/sec_19-3-2-1.html>
+	* constsym.d (Kunspecific): added
+
+2004-02-19  Sam Steingold  <sds@gnu.org>
+
 	* io.d (pr_orecord): signal PRINT-NOT-READABLE when *PRINT-READABLY*
 	and *PRINT-PATHNAMES-ANSI* are non-NIL, but the namestring will
 	not be parsed in to a similar pathname

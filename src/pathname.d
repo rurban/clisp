@@ -2009,7 +2009,8 @@ LISPFUN(pathnamedevice,seclass_read,1,0,norest,key,1, (kw(case))) {
   var object pathname = coerce_xpathname(STACK_1);
  #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname)) {
-    VALUES1(NIL);
+    /* http://www.lisp.org/HyperSpec/Body/sec_19-3-2-1.html */
+    VALUES1(S(Kunspecific));
   } else
  #endif
   {
