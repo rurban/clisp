@@ -14,13 +14,19 @@
 <!-- http://article.gmane.org/gmane.text.docbook.apps:9779 -->
 <xsl:preserve-space elements="entry"/>
 
-<xsl:template match="emphasis[@role = 'strong' or @role = 'first']">
- <strong><xsl:apply-templates/></strong>
+<!-- http://article.gmane.org/gmane.text.docbook.apps:11014
+     apply-templates is mapc on children
+     apply-imports is call-next-method -->
+
+<xsl:template match="literal[@role = 'type'
+      or @role = 'method' or @role = 'data' or @role = 'byte']">
+ <span class="{@role}"><xsl:apply-imports/></span>
 </xsl:template>
 
-<xsl:template match="literal[@role = 'type' or @role = 'sexp'
-      or @role = 'method' or @role = 'data' or @role = 'byte']">
- <tt class="{@role}"><xsl:apply-templates/></tt>
+<xsl:template match="isbn" mode="bibliography.mode">
+ <xsl:text>ISBN&#160;</xsl:text>
+ <xsl:apply-templates mode="bibliography.mode"/>
+ <xsl:value-of select="$biblioentry.item.separator"/>
 </xsl:template>
 
 <xsl:template match="quote[@role = 'package']">
