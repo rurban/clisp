@@ -4875,9 +4875,7 @@ LISPFUN(read_char_sequence,seclass_default,2,0,norest,key,2,
     # sequence überprüfen:
     pushSTACK(get_valid_seq_type(STACK_3));
     # Stackaufbau: sequence, stream, start, end, typdescr.
-    # Stream überprüfen:
-    if (!streamp(STACK_3))
-      fehler_stream(STACK_3);
+    STACK_3 = check_stream(STACK_3);
     # Defaultwert für start ist 0:
     start_default_0(STACK_2);
     # Defaultwert für end ist die Länge der Sequence:
@@ -4927,8 +4925,7 @@ LISPFUN(write_char_sequence,seclass_default,2,0,norest,key,2,
     # sequence überprüfen:
     pushSTACK(get_valid_seq_type(STACK_3));
     # Stackaufbau: sequence, stream, start, end, typdescr.
-    # Stream überprüfen:
-    if (!streamp(STACK_3)) { fehler_stream(STACK_3); }
+    STACK_3 = check_stream(STACK_3);
     # Defaultwert für start ist 0:
     start_default_0(STACK_2);
     # Defaultwert für end ist die Länge der Sequence:
@@ -4976,7 +4973,7 @@ LISPFUN(read_byte_sequence,seclass_default,2,0,norest,key,3,
   var bool no_hang = !missingp(STACK_0); skipSTACK(1);
   pushSTACK(get_valid_seq_type(STACK_3)); /* check sequence */
   /* stack layout: sequence, stream, start, end, typdescr. */
-  if (!streamp(STACK_3)) fehler_stream(STACK_3); /* check stream */
+  STACK_3 = check_stream(STACK_3);
   start_default_0(STACK_2); /* default value for start is 0 */
   end_default_len(STACK_1,STACK_4,STACK_0); /* end defaults to length */
   test_start_end(&O(kwpair_start),&STACK_1); /* check start and end */
@@ -5025,8 +5022,7 @@ LISPFUN(write_byte_sequence,seclass_default,2,0,norest,key,3,
   var bool no_hang = !missingp(STACK_0); skipSTACK(1);
   pushSTACK(get_valid_seq_type(STACK_3)); /* sequence check */
   /* stack layout: sequence, stream, start, end, typdescr. */
-  if (!streamp(STACK_3)) /* check stream */
-    fehler_stream(STACK_3);
+  STACK_3 = check_stream(STACK_3);
   start_default_0(STACK_2); /* default value for start is 0 */
   end_default_len(STACK_1,STACK_4,STACK_0); /* end defaults to length */
   test_start_end(&O(kwpair_start),&STACK_1); /* check start and end */

@@ -930,6 +930,7 @@ LISPSYM(make_pipe_io_stream,"MAKE-PIPE-IO-STREAM",ext)
 LISPSYM(make_x11socket_stream,"MAKE-SOCKET-STREAM",system)
 LISPSYM(read_n_bytes,"READ-N-BYTES",system)
 LISPSYM(write_n_bytes,"WRITE-N-BYTES",system)
+LISPSYM(x11_socket_stream,"X11-SOCKET-STREAM",system)
 #endif
 #ifdef SOCKET_STREAMS
 LISPSYM(socket_server,"SOCKET-SERVER",socket)
@@ -1424,6 +1425,7 @@ LISPSYM(generic_stream_clear_output,"GENERIC-STREAM-CLEAR-OUTPUT",gstream)
 LISPSYM(generic_stream_rdby,"GENERIC-STREAM-READ-BYTE",gstream)
 LISPSYM(generic_stream_wrby,"GENERIC-STREAM-WRITE-BYTE",gstream)
 LISPSYM(generic_stream_close,"GENERIC-STREAM-CLOSE",gstream)
+LISPSYM(generic_stream,"GENERIC-STREAM",gstream)
 #endif
 #ifdef KEYBOARD
 LISPSYM(Kchar,"CHAR",keyword) /* make-input-character-argument for STREAM */

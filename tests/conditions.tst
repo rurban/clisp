@@ -481,6 +481,30 @@ check-use-value
 (check-use-value fdefinition cons "CONS") t
 (check-use-value string "123" 123) t
 
+(let ((bs (make-broadcast-stream)))
+  (handler-bind ((type-error (lambda (c) (princ c) (terpri) (use-value bs))))
+    (broadcast-stream-streams 10)))
+NIL
+
+(handler-bind ((error (lambda (c) (princ c) (terpri) (use-value #\#))))
+  (eq (get-dispatch-macro-character #\a #\()
+      (get-dispatch-macro-character #\# #\()))
+T
+
+(with-output-to-string (o)
+  (handler-bind ((type-error (lambda (c) (princ c) (terpri) (use-value o))))
+    (princ "no error!" 123)))
+"no error!"
+
+(handler-bind ((type-error (lambda (c) (princ c) (terpri) (use-value 16))))
+  (parse-integer "ABC" :radix 'lambda))
+2748
+
+(with-input-from-string (s "bazonk")
+  (handler-bind ((type-error (lambda (c) (princ c) (terpri) (use-value s))))
+    (list (read-char 123) (read-char 1) (read-char 'read-char))))
+(#\b #\a #\z)
+
 (handler-bind
     ((type-error
       (lambda (c)

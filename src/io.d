@@ -719,25 +719,26 @@ LISPFUN(make_dispatch_macro_character,seclass_default,1,2,norest,nokey,0,NIL)
   skipSTACK(3);
 }
 
-# UP: checks the arguments disp-char and sub-char.
-# > STACK: STACK_1 = disp-char, STACK_0 = sub-char
-# > readtable: Readtable
-# < result: the dispatch-macro-table for disp-char,
-#             nullobj if sub-char is a digit.
+/* UP: checks the arguments disp-char and sub-char.
+ > STACK: STACK_2 = disp-char, STACK_1 = sub-char
+ > readtable: Readtable
+ < result: the dispatch-macro-table for disp-char,
+             nullobj if sub-char is a digit.
+ can trigger GC */
 local object test_disp_sub_char (object readtable) {
-  var object sub_ch = STACK_0; # sub-char
-  var object disp_ch = STACK_1; # disp-char
-  if (!charp(disp_ch)) # disp-char must be a character
-    fehler_char(disp_ch);
-  if (!charp(sub_ch)) # sub-char must be a character
-    fehler_char(sub_ch);
+  var object sub_ch = check_char(STACK_1);  /* sub-char */
+ retry_disp_ch:
+  var object disp_ch = check_char(STACK_2); /* disp-char */
   var chart disp_c = char_code(disp_ch);
   var object entry =
     perchar_table_get(TheReadtable(readtable)->readtable_macro_table,disp_c);
   if (!simple_vector_p(entry)) {
+    pushSTACK(NIL);             /* no PLACE */
     pushSTACK(disp_ch);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: ~S is not a dispatch macro character"));
+    check_value(error,GETTEXT("~S: ~S is not a dispatch macro character"));
+    STACK_2 = value1;
+    goto retry_disp_ch;
   }
   # disp-char is a dispatching-macro-character, entry is the vector.
   var cint sub_c = as_cint(up_case(char_code(sub_ch))); # convert sub-char into upper case
@@ -753,8 +754,8 @@ LISPFUN(set_dispatch_macro_character,seclass_default,3,1,norest,nokey,0,NIL)
   /* check function and convert it into an object of Type FUNCTION: */
   STACK_1 = coerce_function(STACK_1);
   var object readtable = test_readtable_arg(popSTACK()); /* Readtable */
-  var object function = popSTACK(); /* function */
   var object dm_table = test_disp_sub_char(readtable);
+  var object function = popSTACK(); /* function */
   if (eq(dm_table,nullobj)) {
     /* STACK_0 = sub-char, TYPE-ERROR slot DATUM */
     pushSTACK(O(type_not_digit)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -771,11 +772,11 @@ LISPFUN(set_dispatch_macro_character,seclass_default,3,1,norest,nokey,0,NIL)
 LISPFUN(get_dispatch_macro_character,seclass_read,2,1,norest,nokey,0,NIL)
 { /* (GET-DISPATCH-MACRO-CHARACTER disp-char sub-char [readtable]),
      CLTL p. 364 */
-  var object readtable = test_readtable_null_arg(popSTACK()); /* readtable */
+  var object readtable = test_readtable_null_arg(STACK_0); /* readtable */
   var object dm_table = test_disp_sub_char(readtable);
   VALUES1(eq(dm_table,nullobj) ? NIL /* NIL or Function as value */
-          : perchar_table_get(dm_table,up_case(char_code(STACK_0))));
-  skipSTACK(2);
+          : perchar_table_get(dm_table,up_case(char_code(STACK_1))));
+  skipSTACK(3);
 }
 
 #define RTCase(rt) ((uintW)posfixnum_to_L(TheReadtable(rt)->readtable_case))
@@ -2454,19 +2455,20 @@ local object read_delimited_list_recursive (const gcv_object_t* stream_,
   }
 }
 
-# Macro: checks the Stream-Argument of a SUBRs.
-# stream_ = test_stream_arg(stream);
-# > stream: Stream-Argument in STACK
-# < stream_: &stream
-#define test_stream_arg(stream)  \
-    (!streamp(stream) ? (fehler_stream(stream), (gcv_object_t*)NULL) : &(stream))
+/* stream_ = check_stream_arg(stream_);
+ > stream_: Stream-Argument in STACK
+ < stream_: &stream
+ can trigger GC */
+static inline gcv_object_t* check_stream_arg (gcv_object_t *stream_) {
+  *stream_ = check_stream(*stream_); return stream_;
+}
 
 # (set-macro-character #\(
 #   #'(lambda (stream char)
 #       (read-delimited-list #\) stream t :dot-allowed t)
 # )   )
 LISPFUNN(lpar_reader,2) { # reads (
-  var gcv_object_t* stream_ = test_stream_arg(STACK_1);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_1);
   # read List after '(' until ')', Dot allowed:
   VALUES1(read_delimited_list(stream_,ascii_char(')'),dot_value));
   skipSTACK(2);
@@ -2478,7 +2480,7 @@ LISPFUNN(lpar_reader,2) { # reads (
 #       (error "~S of ~S: ~S at the beginning of object" 'read stream char)
 # )   )
 LISPFUNN(rpar_reader,2) { # reads )
-  var gcv_object_t* stream_ = test_stream_arg(STACK_1);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_1);
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(STACK_(0+1)); # char
   pushSTACK(*stream_); # stream
@@ -2508,7 +2510,7 @@ LISPFUNN(rpar_reader,2) { # reads )
 #         (if *read-suppress* nil (coerce buffer 'simple-string))
 # )   ) )
 LISPFUNN(string_reader,2) { # reads "
-  var gcv_object_t* stream_ = test_stream_arg(STACK_1);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_1);
   var object delim_char = STACK_0;
   if (terminal_stream_p(*stream_)) {
     dynamic_bind(S(terminal_read_open_object),S(string));
@@ -2611,7 +2613,7 @@ local Values list2_reader (const gcv_object_t* stream_) {
 #       (list 'QUOTE (read stream t nil t))
 # )   )
 LISPFUNN(quote_reader,2) { # reads '
-  var gcv_object_t* stream_ = test_stream_arg(STACK_1);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_1);
   STACK_0 = S(quote); return_Values list2_reader(stream_);
 }
 
@@ -2624,7 +2626,7 @@ LISPFUNN(quote_reader,2) { # reads '
 #       (values)
 # )   )
 LISPFUNN(line_comment_reader,2) { # reads ;
-  var gcv_object_t* stream_ = test_stream_arg(STACK_1);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_1);
   loop {
     var object ch = read_char(stream_); # read character
     if (eq(ch,eof_value) || eq(ch,ascii_char(NL)))
@@ -2648,14 +2650,15 @@ nonreturning_function(local, fehler_dispatch_zahl, (void)) {
          GETTEXT("~S from ~S: no number allowed between #"" and ~C"));
 }
 
-# UP: checks the absence of Infix-Argument n
-# test_no_infix()
-# > stack layout: Stream, sub-char, n.
-# < result: &stream
-# increases STACK by 1
-# modifies STACK
+/* UP: checks the absence of Infix-Argument n
+ test_no_infix()
+ > stack layout: Stream, sub-char, n.
+ < result: &stream
+ increases STACK by 1
+ modifies STACK
+ can trigger GC */
 local gcv_object_t* test_no_infix (void) {
-  var gcv_object_t* stream_ = test_stream_arg(STACK_2);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   var object n = popSTACK();
   if ((!nullp(n)) && nullpSv(read_suppress))
     # if n/=NIL and *READ-SUPPRESS*=NIL : report error
@@ -2801,7 +2804,7 @@ LISPFUNN(comment_reader,3) { # reads #|
 # )   ) ) ) )
 LISPFUNN(char_reader,3) { # reads #\\
   # stack layout: Stream, sub-char, n.
-  var gcv_object_t* stream_ = test_stream_arg(STACK_2);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   # read Token, with Dummy-Character '\' as start of Token:
   read_token_1(stream_,ascii_char('\\'),syntax_single_esc);
   # finished at once, when *READ-SUPPRESS* /= NIL:
@@ -2953,7 +2956,7 @@ local Values radix_2 (uintWL base) {
   # < mv_space/mv_count: values
   # can trigger GC
 local Values radix_1 (uintWL base) {
-  var gcv_object_t* stream_ = test_stream_arg(STACK_2);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   read_token(stream_); # read Token
   # finished at once when *READ-SUPPRESS* /= NIL:
   if (!nullpSv(read_suppress)) {
@@ -2998,7 +3001,7 @@ LISPFUNN(hexadecimal_reader,3) { # reads #X
 #         (progn (read-token stream) nil)
 # )   ) )
 LISPFUNN(radix_reader,3) { # reads #R
-  var gcv_object_t* stream_ = test_stream_arg(STACK_2);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   read_token(stream_); # read Token
   # finished at once when *READ-SUPPRESS* /= NIL:
   if (!nullpSv(read_suppress)) {
@@ -3084,7 +3087,7 @@ LISPFUNN(complex_reader,3) { # reads #C
 #           (make-symbol token)
 # )   ) ) )
 LISPFUNN(uninterned_reader,3) { # reads #:
-  var gcv_object_t* stream_ = test_stream_arg(STACK_2);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   # when *READ-SUPPRESS* /= NIL, read form and return NIL:
   if (!nullpSv(read_suppress)) {
     read_recursive(stream_);
@@ -3165,7 +3168,7 @@ LISPFUNN(uninterned_reader,3) { # reads #:
 #               bv
 # )   ) ) ) ) )
 LISPFUNN(bit_vector_reader,3) { # reads #*
-  var gcv_object_t* stream_ = test_stream_arg(STACK_2);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   read_token(stream_); # read Token
   # finished at once, if *READ-SUPPRESS* /= NIL:
   if (!nullpSv(read_suppress)) {
@@ -3267,7 +3270,7 @@ LISPFUNN(bit_vector_reader,3) { # reads #*
 #               v
 # )   ) ) ) ) )
 LISPFUNN(vector_reader,3) { # reads #(
-  var gcv_object_t* stream_ = test_stream_arg(STACK_2);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   # read List until parenthese, Dot is not allowed:
   var object elements = read_delimited_list(stream_,ascii_char(')'),eof_value);
   # already finished when *READ-SUPPRESS* /= NIL:
@@ -3348,7 +3351,7 @@ LISPFUNN(vector_reader,3) { # reads #(
 #             (make-array (nreverse dims) :element-type eltype :initial-contents cont)
 # )   ) ) ) )
 LISPFUNN(array_reader,3) { # reads #A
-  var gcv_object_t* stream_ = test_stream_arg(STACK_2);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   # stack layout: stream, sub-char, n.
   if (!nullpSv(read_suppress)) { /* *READ-SUPPRESS* /= NIL ? */
     # yes -> skip next Object:
@@ -3458,7 +3461,7 @@ nonreturning_function(local, fehler_read_eval_forbidden, (const gcv_object_t* st
 #             (eval h)
 # )   ) ) ) )
 LISPFUNN(read_eval_reader,3) { # reads #.
-  var gcv_object_t* stream_ = test_stream_arg(STACK_2);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   var object obj = read_recursive_no_dot(stream_); # read Form
   # if *READ-SUPPRESS* /= NIL ==> finished immediately:
   if (!nullpSv(read_suppress)) {
@@ -3487,7 +3490,7 @@ LISPFUNN(read_eval_reader,3) { # reads #.
 #             (if sys::*compiling* (make-load-time-eval h) (eval h))
 # )   ) ) ) )
 LISPFUNN(load_eval_reader,3) { # reads #,
-  var gcv_object_t* stream_ = test_stream_arg(STACK_2);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   var object obj = read_recursive_no_dot(stream_); # read Form
   # finished immediately, when *READ-SUPPRESS* /= NIL:
   if (!nullpSv(read_suppress)) {
@@ -3617,7 +3620,7 @@ LISPFUNN(label_definition_reader,3) { # reads #=
   } else {
     # lookup = label, not jeopardized by GC.
     # (push (setq h (cons label label)) sys::*read-reference-table*) :
-    var gcv_object_t* stream_ = test_stream_arg(STACK_2);
+    var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
     {
       var object new_cons = allocate_cons();
       Car(new_cons) = Cdr(new_cons) = lookup; # h = (cons label label)
@@ -3671,7 +3674,7 @@ LISPFUNN(label_reference_reader,3) { # reads ##
 #               'read stream
 # )   ) )
 LISPFUNN(not_readable_reader,3) { # reads #<
-  var gcv_object_t* stream_ = test_stream_arg(STACK_2);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(*stream_); # Stream
   pushSTACK(S(read));
@@ -3686,7 +3689,7 @@ LISPFUNN(not_readable_reader,3) { # reads #<
 #                 'read stream '*print-level*
 # ) )   ) )
 LISPFUNN(syntax_error_reader,3) { # reads #) and #whitespace
-  var gcv_object_t* stream_ = test_stream_arg(STACK_2);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(S(print_level));
   pushSTACK(*stream_); # Stream
@@ -4109,7 +4112,7 @@ local uintB hexziffer (object ch, uintWL scode) {
 }
 
 LISPFUNN(closure_reader,3) { # read #Y
-  var gcv_object_t* stream_ = test_stream_arg(STACK_2);
+  var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   # when n=0 read an Encoding:
   if (eq(STACK_0,Fixnum_0)) {
     dynamic_bind(S(read_suppress),NIL); # bind *READ-SUPPRESS* to NIL
@@ -4304,22 +4307,21 @@ LISPFUNN(unix_executable_reader,3) { # reads #!
 
 # ------------------------ LISP-Functions of the Reader -----------------------
 
-# UP: checks an Input-Stream-Argument.
-# Default is the value of *STANDARD-INPUT*.
-# test_istream(&stream);
-# > stream: Input-Stream-Argument
-# < stream: Input-Stream (a Stream)
-local void test_istream (gcv_object_t* stream_) {
+/* UP: checks an Input-Stream-Argument.
+ Default is the value of *STANDARD-INPUT*.
+ check_istream(&stream);
+ > stream: Input-Stream-Argument
+ < stream: Input-Stream (a Stream)
+ can trigger GC*/
+local void check_istream (gcv_object_t* stream_) {
   var object stream = *stream_;
   if (missingp(stream)) {
-    # instead of #<UNBOUND> or NIL: value of *STANDARD-INPUT*
+    /* instead of #<UNBOUND> or NIL: value of *STANDARD-INPUT* */
     *stream_ = var_stream(S(standard_input),strmflags_rd_ch_B);
-  } else if (eq(stream,T)) { # instead of T: value of *TERMINAL-IO*
+  } else if (eq(stream,T)) {  /* instead of T: value of *TERMINAL-IO* */
     *stream_ = var_stream(S(terminal_io),strmflags_rd_ch_B);
-  } else {
-    if (!streamp(stream))
-      fehler_stream(stream);
-  }
+  } else
+    *stream_ = check_stream(stream);
 }
 
 # EOF-Handling, ends Reader-Functions.
@@ -4345,15 +4347,15 @@ local Values eof_handling (int mvc) {
   }
 }
 
-# UP: for READ and READ-PRESERVING-WHITESPACE
-# read_w(whitespace-p)
-# > whitespace-p: indicates, if whitespace has to be consumed afterwards
-# > stack layout: input-stream, eof-error-p, eof-value, recursive-p.
-# < STACK: cleaned up
-# < mv_space/mv_count: values
+/* UP: for READ and READ-PRESERVING-WHITESPACE
+ read_w(whitespace-p)
+ > whitespace-p: indicates, if whitespace has to be consumed afterwards
+ > stack layout: input-stream, eof-error-p, eof-value, recursive-p.
+ < STACK: cleaned up
+ < mv_space/mv_count: values
+ can trigger GC */
 local Values read_w (object whitespace_p) {
-  # check input-stream:
-  test_istream(&STACK_3);
+  check_istream(&STACK_3);      /* check input-stream */
   # check for recursive-p-Argument:
   var object recursive_p = STACK_0;
   if (missingp(recursive_p)) { /* non-recursive call */
@@ -4384,11 +4386,8 @@ LISPFUN(read_preserving_whitespace,seclass_default,0,4,norest,nokey,0,NIL) {
 # (READ-DELIMITED-LIST char [input-stream [recursive-p]]), CLTL p. 377
 LISPFUN(read_delimited_list,seclass_default,1,2,norest,nokey,0,NIL) {
   # check char:
-  var object ch = STACK_2;
-  if (!charp(ch))
-    fehler_char(ch);
-  # check input-stream:
-  test_istream(&STACK_1);
+  var object ch = check_char(STACK_2);
+  check_istream(&STACK_1);      /* check input-stream */
   # check for recursive-p-Argument:
   var object recursive_p = popSTACK();
   # stack layout: char, input-stream.
@@ -4417,9 +4416,8 @@ LISPFUN(read_delimited_list,seclass_default,1,2,norest,nokey,0,NIL) {
 # This implementation always returns a simple string, if end-of-stream
 # is not encountered immediately.  Code in debug.d depends on this.
 LISPFUN(read_line,seclass_default,0,4,norest,nokey,0,NIL) {
-  # check input-stream:
   var gcv_object_t* stream_ = &STACK_3;
-  test_istream(stream_);
+  check_istream(stream_);       /* check input-stream */
   get_buffers(); # two empty Buffers on Stack
   if (!read_line(stream_,&STACK_1)) { # read line
     # End of Line
@@ -4450,9 +4448,8 @@ LISPFUN(read_line,seclass_default,0,4,norest,nokey,0,NIL) {
 # (READ-CHAR [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL p. 379
 LISPFUN(read_char,seclass_default,0,4,norest,nokey,0,NIL) {
-  # check input-stream:
   var gcv_object_t* stream_ = &STACK_3;
-  test_istream(stream_);
+  check_istream(stream_);             /* check input-stream */
   var object ch = read_char(stream_); # read Character
   if (eq(ch,eof_value)) {
     return_Values eof_handling(1);
@@ -4463,12 +4460,9 @@ LISPFUN(read_char,seclass_default,0,4,norest,nokey,0,NIL) {
 
 # (UNREAD-CHAR char [input-stream]), CLTL p. 379
 LISPFUN(unread_char,seclass_default,1,1,norest,nokey,0,NIL) {
-  # check input-stream:
   var gcv_object_t* stream_ = &STACK_0;
-  test_istream(stream_);
-  var object ch = STACK_1; # char
-  if (!charp(ch)) # must be a character
-    fehler_char(ch);
+  check_istream(stream_);              /* check input-stream */
+  var object ch = check_char(STACK_1); # char
   unread_char(stream_,ch); # push back char to Stream
   VALUES1(NIL); skipSTACK(2);
 }
@@ -4476,9 +4470,8 @@ LISPFUN(unread_char,seclass_default,1,1,norest,nokey,0,NIL) {
 # (PEEK-CHAR [peek-type [input-stream [eof-error-p [eof-value [recursive-p]]]]]),
 # CLTL p. 379
 LISPFUN(peek_char,seclass_default,0,5,norest,nokey,0,NIL) {
-  # check input-stream:
   var gcv_object_t* stream_ = &STACK_3;
-  test_istream(stream_);
+  check_istream(stream_);       /* check input-stream */
   # distinction of cases by peek-type:
   var object peek_type = STACK_4;
   if (missingp(peek_type)) {
@@ -4519,7 +4512,7 @@ LISPFUN(peek_char,seclass_default,0,5,norest,nokey,0,NIL) {
 
 # (LISTEN [input-stream]), CLTL p. 380
 LISPFUN(listen,seclass_default,0,1,norest,nokey,0,NIL) {
-  test_istream(&STACK_0); # check input-stream
+  check_istream(&STACK_0);      /* check input-stream */
   VALUES_IF(ls_avail_p(listen_char(popSTACK())));
 }
 
@@ -4528,16 +4521,15 @@ LISPFUN(listen,seclass_default,0,1,norest,nokey,0,NIL) {
 # character, but accomplishes this without actually calling READ-CHAR-NO-HANG,
 # thus avoiding the need for UNREAD-CHAR and preventing side effects.
 LISPFUNN(read_char_will_hang_p,1) {
-  test_istream(&STACK_0); # check input-stream
+  check_istream(&STACK_0);      /* check input-stream */
   VALUES_IF(ls_wait_p(listen_char(popSTACK())));
 }
 
 # (READ-CHAR-NO-HANG [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL p. 380
 LISPFUN(read_char_no_hang,seclass_default,0,4,norest,nokey,0,NIL) {
-  # check input-stream:
   var gcv_object_t* stream_ = &STACK_3;
-  test_istream(stream_);
+  check_istream(stream_);       /* check input-stream */
   var object stream = *stream_;
   if (builtin_stream_p(stream)
       ? !(TheStream(stream)->strmflags & bit(strmflags_rd_ch_bit_B))
@@ -4561,7 +4553,7 @@ LISPFUN(read_char_no_hang,seclass_default,0,4,norest,nokey,0,NIL) {
 
 # (CLEAR-INPUT [input-stream]), CLTL p. 380
 LISPFUN(clear_input,seclass_default,0,1,norest,nokey,0,NIL) {
-  test_istream(&STACK_0); # check input-stream
+  check_istream(&STACK_0);      /* check input-stream */
   clear_input(popSTACK());
   VALUES1(NIL);
 }
@@ -4644,20 +4636,20 @@ LISPFUN(parse_integer,seclass_read,1,0,norest,key,4,
   var uintL base;
   {
     var object arg = popSTACK();
-    if (!boundp(arg)) {
-      base = 10; # Default 10
-    } else {
-      if (!(posfixnump(arg)
-            && (base = posfixnum_to_L(arg), ((base >= 2) && (base <= 36))))) {
-        pushSTACK(arg);           # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_radix)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(arg); # base
+    if (!boundp(arg))
+      base = 10;                /* Default 10 */
+    else
+      while (!(posfixnump(arg)
+               && (base = posfixnum_to_L(arg), ((base >= 2) && (base <= 36))))) {
+        pushSTACK(NIL);           /* no PLACE */
+        pushSTACK(arg);           /* TYPE-ERROR slot DATUM */
+        pushSTACK(O(type_radix)); /* TYPE-ERROR slot EXPECTED-TYPE */
+        pushSTACK(arg);           /* base */
         pushSTACK(S(Kradix));
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~S: ~S argument should be an integer between 2 and 36, not ~S"));
+        check_value(type_error,GETTEXT("~S: ~S argument ~S is not an integer between 2 and 36"));
+        arg = value1;
       }
-    }
   }
   # base = value of :radix-argument.
   # check string, :start and :end:
@@ -8152,8 +8144,7 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure)
 LISPFUNN(print_structure,2) {
   /* stack layout: structure, stream. */
   STACK_1 = check_structure(STACK_1);
-  if (!streamp(STACK_0))
-    fehler_stream(STACK_0);
+  STACK_0 = check_stream(STACK_0);
   pr_enter(&STACK_0,STACK_1,&pr_structure_default);
   skipSTACK(2);
   VALUES1(NIL);
@@ -9766,19 +9757,18 @@ global void print (const gcv_object_t* stream_, object obj) {
 
 /* UP: Check the output-stream argument.
  The value of *STANDARD-OUTPUT* is the default.
- test_ostream(&stream);
+ check_ostream(&stream);
  > stream_: output-stream argument
- < stream_: output-stream (a Stream) */
-local void test_ostream (gcv_object_t* stream_) {
+ < stream_: output-stream (a Stream)
+ can trigger GC */
+local void check_ostream (gcv_object_t* stream_) {
   var object stream = *stream_;  /* output-stream argument */
   if (missingp(stream)) { /* #<UNBOUND> or NIL -> value of *STANDARD-OUTPUT* */
     *stream_ = var_stream(S(standard_output),strmflags_wr_ch_B);
   } else if (eq(stream,T)) { /* T -> value of *TERMINAL-IO* */
     *stream_ = var_stream(S(terminal_io),strmflags_wr_ch_B);
-  } else { /* should be a stream */
-    if (!streamp(stream))
-      fehler_stream(stream);
-  }
+  } else /* should be a stream */
+    *stream_ = check_stream(stream);
 }
 
 LISPFUNN(whitespacep,1) { # (SYS::WHITESPACEP CHAR)
@@ -9794,7 +9784,7 @@ LISPFUNN(whitespacep,1) { # (SYS::WHITESPACEP CHAR)
 
 # (SYS::WRITE-SPACES num &optional stream)
 LISPFUN(write_spaces,seclass_default,1,1,norest,nokey,0,NIL) {
-  test_ostream(&STACK_0);
+  check_ostream(&STACK_0);
   if (!posfixnump(STACK_1)) fehler_posfixnum(STACK_1);
   spaces(&STACK_0,STACK_1);
   VALUES1(NIL); skipSTACK(2);
@@ -9807,7 +9797,7 @@ LISPFUN(write_spaces,seclass_default,1,1,norest,nokey,0,NIL) {
 # n          ---a real.
 # stream     ---an output stream designator. The default is standard output.
 LISPFUN(pprint_indent,seclass_default,2,1,norest,nokey,0,NIL) {
-  test_ostream(&STACK_0);
+  check_ostream(&STACK_0);
   /* check the indentation increment */
   STACK_1 = check_real(STACK_1);
   var int offset=0;
@@ -9869,7 +9859,7 @@ typedef enum {
 # kind  ---one of :linear, :fill, :miser, or :mandatory.
 # stream---a stream designator. The default is standard output.
 LISPFUN(pprint_newline,seclass_default,1,1,norest,nokey,0,NIL) {
-  test_ostream(&STACK_0);
+  check_ostream(&STACK_0);
   var pprint_newline_t ppn_type = PPRINT_NEWLINE_MANDATORY;
   if (eq(S(Klinear),STACK_1))         ppn_type = PPRINT_NEWLINE_LINEAR;
   else if (eq(S(Kfill),STACK_1))      ppn_type = PPRINT_NEWLINE_FILL;
@@ -9934,7 +9924,7 @@ local void pprin_object_dispatch (const gcv_object_t* stream_,object obj) {
 
 # (%PPRINT-LOGICAL-BLOCK function object stream)
 LISPFUNN(ppprint_logical_block,3) {
-  test_ostream(&STACK_0);
+  check_ostream(&STACK_0);
   if (listp(STACK_1)) {
     var gcv_object_t* stream_ = &STACK_0;
     var object obj = STACK_1;
@@ -9951,7 +9941,7 @@ LISPFUNN(ppprint_logical_block,3) {
 # return the appropriate read label or NIL
 # called from PPRINT-POP
 LISPFUNN(pcirclep,2) {
-  test_ostream(&STACK_0);
+  check_ostream(&STACK_0);
   # var circle_info_t ci;
   if (!circle_p(STACK_1,NULL) || !PPHELP_STREAM_P(STACK_0)) # &ci
     VALUES1(NIL);
@@ -9968,7 +9958,7 @@ LISPFUNN(pcirclep,2) {
 #                  &optional (colnum 1) (colinc 1))
 # see format.lisp
 LISPFUN(format_tabulate,seclass_default,3,2,norest,nokey,0,NIL) {
-  test_ostream(&STACK_4);
+  check_ostream(&STACK_4);
  #define COL_ARG(x) (missingp(x) ? Fixnum_1 : \
                      (posfixnump(x) ? (object)x : \
                      (fehler_posfixnum(x),nullobj)))
@@ -10066,7 +10056,7 @@ LISPFUN(write,seclass_default,1,0,norest,key,17,
          kw(lines),kw(miser_width),kw(pprint_dispatch),
          kw(right_margin),kw(stream))) {
   # stack layout: object, Print-Variablen-Arguments, Stream-Argument.
-  test_ostream(&STACK_0);       /* check Output-Stream */
+  check_ostream(&STACK_0);       /* check Output-Stream */
   write_up(); # execute WRITE
   skipSTACK(print_vars_anz+1);
   VALUES1(popSTACK()); /* object as value */
@@ -10093,7 +10083,7 @@ local void prin1_up (void) {
 
 # (PRIN1 object [stream]), CLTL p. 383
 LISPFUN(prin1,seclass_default,1,1,norest,nokey,0,NIL) {
-  test_ostream(&STACK_0);       /* check Output-Stream */
+  check_ostream(&STACK_0);       /* check Output-Stream */
   prin1_up(); # execute PRIN1
   skipSTACK(1);
   VALUES1(popSTACK()); /* object as value */
@@ -10110,7 +10100,7 @@ LISPFUN(prin1,seclass_default,1,1,norest,nokey,0,NIL) {
 # )
 # (PRINT object [stream]), CLTL p. 383
 LISPFUN(print,seclass_default,1,1,norest,nokey,0,NIL) {
-  test_ostream(&STACK_0);       /* check Output-Stream */
+  check_ostream(&STACK_0);       /* check Output-Stream */
   terpri(&STACK_0); # new line
   prin1_up(); # execute PRIN1
   write_ascii_char(&STACK_0,' '); # add Space
@@ -10128,7 +10118,7 @@ LISPFUN(print,seclass_default,1,1,norest,nokey,0,NIL) {
 # )
 # (PPRINT object [stream]), CLTL p. 383
 LISPFUN(pprint,seclass_default,1,1,norest,nokey,0,NIL) {
-  test_ostream(&STACK_0);       /* check Output-Stream */
+  check_ostream(&STACK_0);       /* check Output-Stream */
   terpri(&STACK_0); # new line
   var object obj = STACK_1;
   var gcv_object_t* stream_ = &STACK_0;
@@ -10165,7 +10155,7 @@ local void princ_up (void) {
 
 # (PRINC object [stream]), CLTL p. 383
 LISPFUN(princ,seclass_default,1,1,norest,nokey,0,NIL) {
-  test_ostream(&STACK_0);       /* check Output-Stream */
+  check_ostream(&STACK_0);       /* check Output-Stream */
   princ_up(); # execute PRINC
   skipSTACK(1);
   VALUES1(popSTACK()); /* object as value */
@@ -10218,10 +10208,8 @@ LISPFUNN(princ_to_string,1) {
 
 # (WRITE-CHAR character [stream]), CLTL p. 384
 LISPFUN(write_char,seclass_default,1,1,norest,nokey,0,NIL) {
-  test_ostream(&STACK_0);       /* check Output-Stream */
-  var object ch = STACK_1; # character-Argument
-  if (!charp(ch))
-    fehler_char(ch);
+  check_ostream(&STACK_0);       /* check Output-Stream */
+  var object ch = check_char(STACK_1); # character-Argument
   write_char(&STACK_0,ch);
   VALUES1(ch); /* ch (not jeopardized by GC) as value */
   skipSTACK(2);
@@ -10233,7 +10221,7 @@ LISPFUN(write_char,seclass_default,1,1,norest,nokey,0,NIL) {
 # < stack layout: Stream, String.
 # can trigger GC
 local void write_string_up (void) {
-  test_ostream(&STACK_2);       /* check Output-Stream */
+  check_ostream(&STACK_2);       /* check Output-Stream */
   swap(object,STACK_2,STACK_3); /* swap string and stream */
   # stack layout: stream, string, :START-Argument, :END-Argument.
   # check borders:
@@ -10259,14 +10247,14 @@ LISPFUN(write_line,seclass_default,1,1,norest,key,2, (kw(start),kw(end)) ) {
 
 # (TERPRI [stream]), CLTL p. 384
 LISPFUN(terpri,seclass_default,0,1,norest,nokey,0,NIL) {
-  test_ostream(&STACK_0);       /* check Output-Stream */
+  check_ostream(&STACK_0);       /* check Output-Stream */
   terpri(&STACK_0); # new line
   VALUES1(NIL); skipSTACK(1);
 }
 
 # (FRESH-LINE [stream]), CLTL p. 384
 LISPFUN(fresh_line,seclass_default,0,1,norest,nokey,0,NIL) {
-  test_ostream(&STACK_0);       /* check Output-Stream */
+  check_ostream(&STACK_0);       /* check Output-Stream */
   if (eq(get_line_position(STACK_0),Fixnum_0)) { # Line-Position = 0 ?
     VALUES1(NIL);
   } else {
@@ -10278,21 +10266,21 @@ LISPFUN(fresh_line,seclass_default,0,1,norest,nokey,0,NIL) {
 
 # (FINISH-OUTPUT [stream]), CLTL p. 384
 LISPFUN(finish_output,seclass_default,0,1,norest,nokey,0,NIL) {
-  test_ostream(&STACK_0);       /* check Output-Stream */
+  check_ostream(&STACK_0);       /* check Output-Stream */
   finish_output(popSTACK()); # bring Output to the destination
   VALUES1(NIL);
 }
 
 # (FORCE-OUTPUT [stream]), CLTL p. 384
 LISPFUN(force_output,seclass_default,0,1,norest,nokey,0,NIL) {
-  test_ostream(&STACK_0);       /* check Output-Stream */
+  check_ostream(&STACK_0);       /* check Output-Stream */
   force_output(popSTACK()); # bring output to destination
   VALUES1(NIL);
 }
 
 # (CLEAR-OUTPUT [stream]), CLTL p. 384
 LISPFUN(clear_output,seclass_default,0,1,norest,nokey,0,NIL) {
-  test_ostream(&STACK_0);       /* check Output-Stream */
+  check_ostream(&STACK_0);       /* check Output-Stream */
   clear_output(popSTACK()); # delete output
   VALUES1(NIL);
 }
@@ -10316,7 +10304,7 @@ LISPFUN(write_unreadable,seclass_default,3,0,norest,key,2,
   }
   if (!nullp(STACK_2))
     flag_fun = true;
-  test_ostream(&STACK_0);       /* check Output-Stream */
+  check_ostream(&STACK_0);       /* check Output-Stream */
   CHECK_PRINT_READABLY(STACK_1);
   var gcv_object_t* stream_ = &STACK_0;
   UNREADABLE_START;
@@ -10347,7 +10335,7 @@ LISPFUN(write_unreadable,seclass_default,3,0,norest,key,2,
 # (SYS::LINE-POSITION [stream]), Auxiliary function for FORMAT ~T,
 # returns the position of an (Output-)Stream in the current line, or NIL.
 LISPFUN(line_position,seclass_default,0,1,norest,nokey,0,NIL) {
-  test_ostream(&STACK_0);       /* check Output-Stream */
+  check_ostream(&STACK_0);       /* check Output-Stream */
   VALUES1(get_line_position(popSTACK()));
 }
 

@@ -1082,24 +1082,20 @@ nonreturning_function(global, fehler_class, (object obj)) {
 }
 
 /* error-message, if an argument is not a Stream:
- fehler_stream(obj);
- > obj: the erroneous argument */
-nonreturning_function(global, fehler_stream, (object obj)) {
-  pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is not a stream"));
-}
-
-/* error-message, if an argument is not a Stream of required stream type:
- fehler_streamtype(obj,type);
- > obj: the erroneous argument
- > type: required stream-type */
-nonreturning_function(global, fehler_streamtype, (object obj, object type)) {
-  pushSTACK(obj);  /* TYPE-ERROR slot DATUM */
-  pushSTACK(type); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(type); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S should be a stream of type ~S"));
+ check_stream_replacement(obj);
+ > obj: not a stream
+ < obj: a stream
+ can trigger GC */
+global object check_stream_replacement (object obj) {
+  do {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(stream));       /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~S: argument ~S is not a stream"));
+    obj = value1;
+  } while (!streamp(obj));
+  return obj;
 }
 
 /* Report an error when the argument is not an encoding:

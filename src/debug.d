@@ -1382,8 +1382,7 @@ LISPFUNN(describe_frame,2)
 # Pointer zeigt, detailliert aus.
   {
     var gcv_object_t* FRAME = test_framepointer_arg(); # Pointer in den Stack
-    if (!streamp(STACK_0))
-      fehler_stream(STACK_0);
+    STACK_0 = check_stream(STACK_0);
     {
       var p_backtrace_t bt = back_trace;
       unwind_back_trace(bt,FRAME);
