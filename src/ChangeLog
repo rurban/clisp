@@ -1,5 +1,9 @@
 2004-12-19  Bruno Haible  <bruno@clisp.org>
 
+	* utils/clispload.lsp (*expected-failures*): Revisited.
+
+2004-12-19  Bruno Haible  <bruno@clisp.org>
+
 	* format.lisp (formatter-main-1): In ~{, when the max-n-iterations
 	prefix is not known to be a number, test it against nil before
 	comparing it.
