@@ -28,7 +28,7 @@ Este libro está disponible en formato HTML via FTP en:
 
 y puede consultarse a través de WWW en:
 
-  http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html o	
+  http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html o
   http://www.cs.cmu.edu:8001/afs/cs/project/ai-repository/ai/html/cltl/cltl2.html .
 
 Nota para los expertos: Este texto estandar se ha convertido en un
@@ -138,7 +138,7 @@ o
       emx-faq.doc        preguntas frecuentes sobre las aplicaciones emx
       emx.dll            librería de enlazamiento dinámico de OS/2 que contiene emx
       emxlibc.dll        librería de enlazamiento dinámico de OS/2 que contiene emx libc
-      termcap.dat        base de datos del terminal 
+      termcap.dat        base de datos del terminal
 #endif
 #ifdef RISCOS
       !Run               fichero de ejecución para CLISP
@@ -523,7 +523,7 @@ information and archives on the homepage http://clisp.cons.org/.>>>
 Agradecimientos:
 ----------------
 
-Estamos muy agradecidos a 
+Estamos muy agradecidos a
   * Guy L. Steele y otros muchos por la especificación de Common Lisp.
 #ifdef UNIX
   * El proyecto GNU de Richard Stallman para el GCC, Autoconf y la librería
@@ -571,6 +571,6 @@ Email: clisp@arcangel.dircon.co.uk
 "Mantenedor":
 -------------
 
-        Marcus Daniels
+        Sam Steingold
 
-Email: marcus@sysc.pdx.edu
+Email: clisp-list@lists.sourceforge.net

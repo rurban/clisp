@@ -19,8 +19,8 @@ After a while wou will need the standard text containing the language
 definition:
 
   Guy L. Steele Jr.: Common Lisp - The Language. Digital Press.
-  1. edition 1984, 465 pages.
-  2. edition 1990, 1032 pages.
+  1st edition, 1984, 465 pages.
+  2nd edition, 1990, 1032 pages.
 
 This book is available in HTML form via FTP from
   ftp.cs.cmu.edu:/user/ai/lang/lisp/doc/cltl/cltl_ht.tgz
@@ -378,6 +378,10 @@ And create the driver program that starts lisp:
               -DLOCALEDIR='/usr/local/share/locale' \
               clisp /usr/local/bin/clisp
 #endif
+#ifdef WIN32_NATIVE
+You can also use file install.bat which creates the driver file
+on your desktop and sets up the registry.
+#endif
 
 #ifdef GNU_READLINE
 Now install the man pages
@@ -470,7 +474,7 @@ On bigger problems, e.g. stack dumps, please send a description of the error
 #endif
 and how to produce it reliably to the authors or the maintainer. Please
 accompany it with the CLISP version, which you get by calling
-(lisp-implementation-version).
+(lisp-implementation-version), as well as the OS name and version.
 
 
 Sources:
@@ -541,6 +545,6 @@ Email: clisp@arcangel.dircon.co.uk
 Maintainer:
 -----------
 
-        Marcus Daniels
+        Sam Steingold
 
-Email: marcus@sysc.pdx.edu
+Email: clisp-list@lists.sourceforge.net
