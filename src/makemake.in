@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: shell-script -*-
 # Creation of the Makefile used for compiling CLISP
-# Bruno Haible 1991-2003
-# Sam Steingold 1999-2003
+# Bruno Haible 1991-2004
+# Sam Steingold 1999-2004
 
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
@@ -1494,6 +1494,8 @@ if [ -z "$fsstnd" ]; then       # default fsstnd depends on the OS
   esac
 fi
 
+echol "VERSION="`cat VERSION`
+echol "CLISP_VERSION=clisp-\$(VERSION)"
 echol '# Directories used by "make install":'
 echol "prefix = ${PREFIX}"
 echol "exec_prefix = ${EXEC_PREFIX}"
@@ -1506,7 +1508,7 @@ case "$fsstnd" in
     echol "lispdocdir = \$(docdir)${NEXT_}packages${NEXT_}clisp"
     ;;
   redhat)
-    echol "lispdocdir = \$(docdir)${NEXT_}clisp-\`cat ${SRCDIR}VERSION\`"
+    echol "lispdocdir = \$(docdir)${NEXT_}\$(CLISP_VERSION)"
     ;;
   debian | gnu_ext | *bsd)
     echol "lispdocdir = \$(docdir)${NEXT_}clisp"
@@ -1869,7 +1871,7 @@ if [ ! $TSYS = win32msvc ] ; then
   echol "unixconf.h : unixconf.h.in config.status"
   echotab "sh config.status --header=unixconf.h"
   echol
-  echol "Makefile : makemake"
+  echol "Makefile : makemake VERSION"
   echotab "$0$makemake_args > Makefile.tmp"
   echotab "\$(MV) Makefile Makefile~"
   echotab "\$(MV) Makefile.tmp Makefile"
@@ -3089,12 +3091,18 @@ fi
 if [ ${HSYSOS} = cygwin ]; then
   echol "full/lisp.exe : full"
   echol
-  echol "setup.hint : full/lisp.exe"
-  echotab "echo 'sdesc: \"an ANSI Common Lisp implementation\"' > setup.hint"
+  echol "CLISP_RELEASE=1"
+  echol "setup.hint : " # full/lisp.exe
+  echotab "\$(RM) setup.hint"
+  echotab "if test \$(CLISP_RELEASE) != 1; then echo 'test: \$(VERSION)-\$(CLISP_RELEASE)' >> setup.hint; echo 'curr: \$(VERSION)-1' >> setup.hint; fi"
+  echotab "echo 'sdesc: \"an ANSI Common Lisp implementation\"' >> setup.hint"
   echotab "echo 'category: Devel Interpreters Math Shells' >> setup.hint"
   echotab 'REQ=''; for f in `cygcheck full/lisp.exe`; do echo "* "$$f; f=`cygpath -u $$f`; REQ=$${REQ}" "`cygcheck -f $$f|sed "s/-.*//"`; done; echo "="$${REQ}; echo "requires:"$${REQ} >> setup.hint'
   echotab "echo 'ldesc: \"' >> setup.hint"
   echotab "cat SUMMARY >> setup.hint"
+  echotab "echo >> setup.hint"
+  echotab "echo 'This binary distribution was built with the following modules:' >> setup.hint"
+  echotab "echo ' '\$(MODULES) >> setup.hint"
   echotab "echo '\"' >> setup.hint"
   echol
   echol "cygwin.README : setup.hint makemake"
@@ -3110,27 +3118,27 @@ if [ ${HSYSOS} = cygwin ]; then
   echotab "echo '' >> cygwin.README"
   echotab "cat SUMMARY >> cygwin.README"
   echol
-  CLISP_VERSION="clisp-\`cat VERSION\`"
-  CLISP_SCRIPT=${CLISP_VERSION}-1.sh
-  CLISP_CYGWIN=${CLISP_VERSION}-cygwin-`uname -r|sed 's/(.*)//g'`.tar.bz2
+  echol "CLISP_VR=\$(CLISP_VERSION)-\$(CLISP_RELEASE)"
+  echol "CLISP_SCRIPT=\$(CLISP_VR).sh"
+  echol "CLISP_CYGWIN=\$(CLISP_VERSION)-cygwin-"`uname -r|sed 's/(.*)//g'`.tar.bz2
   echol "DEST_TMP='`pwd`/.install'"
   echol "distrib : setup.hint cygwin.README force"
   echotab "\$(RMRF) \$(DEST_TMP); mkdir -p \$(DEST_TMP)"
   echotab "\$(MAKE) install prefix=/usr DESTDIR=\$(DEST_TMP)"
-  echotab "cd \$(DEST_TMP); tar cvfj ../${CLISP_CYGWIN} *"
-  echotab "ln ${CLISP_CYGWIN} ${CLISP_VERSION}-1.tar.bz2"
+  echotab "cd \$(DEST_TMP); tar cvfj ../\$(CLISP_CYGWIN) *"
+  echotab "ln \$(CLISP_CYGWIN) \$(CLISP_VR).tar.bz2"
   echotab "\$(RMRF) \$(DEST_TMP)"
   echol
-  echol "TAR_SRC=\"../../archives/${CLISP_VERSION}.tar.bz2\""
+  echol "TAR_SRC=\"../../archives/\$(CLISP_VERSION).tar.bz2\""
   echol "cygwin-src : setup.hint force"
-  echotab "touch ${CLISP_VERSION}-1.patch"
-  echotab "echo '#!/bin/sh' > ${CLISP_SCRIPT}"
-  echotab "echo './configure$makemake_args --build build-cygwin' >> ${CLISP_SCRIPT}"
-  echotab "echo 'cd build-cygwin' >> ${CLISP_SCRIPT}"
-  echotab "echo 'make distrib' >> ${CLISP_SCRIPT}"
-  echotab "ln -s \$(TAR_SRC) ${CLISP_VERSION}.tar.bz2"
-  echotab "tar cvfjh ${CLISP_VERSION}-1-src.tar.bz2 ${CLISP_VERSION}.tar.bz2 ${CLISP_SCRIPT} ${CLISP_VERSION}-1.patch setup.hint cygwin.README"
-  echotab "\$(RMRF) ${CLISP_VERSION}.tar.bz2 ${CLISP_SCRIPT} ${CLISP_VERSION}-1.patch"
+  echotab "touch \$(CLISP_VR).patch"
+  echotab "echo '#!/bin/sh' > \$(CLISP_SCRIPT)"
+  echotab "echo './configure$makemake_args --build build-cygwin' >> \$(CLISP_SCRIPT)"
+  echotab "echo 'cd build-cygwin' >> \$(CLISP_SCRIPT)"
+  echotab "echo 'make distrib' >> \$(CLISP_SCRIPT)"
+  echotab "ln -s \$(TAR_SRC) ."
+  echotab "tar cvfjh \$(CLISP_VR)-src.tar.bz2 \$(CLISP_VERSION).tar.bz2 \$(CLISP_SCRIPT) \$(CLISP_VR).patch setup.hint cygwin.README"
+  echotab "\$(RMRF) \$(CLISP_VERSION).tar.bz2 \$(CLISP_SCRIPT) \$(CLISP_VR).patch"
   echol
 elif [ ${HOS} = unix ] ; then   # but not cygwin!
 cat <<!!
