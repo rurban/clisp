@@ -102,6 +102,10 @@ User visible changes
 * New function EXT:XOR checks that exactly one of its arguments is non-NIL.
   See <http://clisp.cons.org/impnotes.html#xor> for details.
 
+* New function EXT:MODULE-INFO provides information about the CLISP
+  modules that comprise the running image.
+  See <http://clisp.cons.org/impnotes.html#modinfo> for details.
+
 * New FFI functionality:
   + functions FFI:FOREIGN-ALLOCATE and FFI:FOREIGN-FREE and macros
     FFI:ALLOCATE-DEEP and FFI:ALLOCATE-SHALLOW permit heap allocation;
