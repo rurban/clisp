@@ -1876,11 +1876,9 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 # When changed: extend stream.d, keyboard.lisp
 
 # Whether to use the GNU readline library for *TERMINAL-IO*:
-#if ((defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS)) && !defined(__cplusplus) && !defined(NO_READLINE)
-  # The readline library cannot be compiled with a C++-compiler.
+#if defined(HAVE_READLINE_READLINE_H) && !defined(NO_READLINE)
   #define GNU_READLINE
 #endif
-# When changed: extend READLINE.
 
 # Whether there are Window-streams and a package SCREEN:
 #if defined(MSDOS) || defined(WIN32_NATIVE) || ((defined(UNIX) && !defined(NEXTAPP) || defined(MAYBE_NEXTAPP)) && !defined(NO_TERMCAP_NCURSES))

@@ -9,10 +9,8 @@
 #include "arilev0.c" # for R_sign
 
 #ifdef GNU_READLINE
-  #define READLINE_LIBRARY # hint, where the Include-Files have to be searched
-  #include "readline.h"
-  #include "history.h"
-  #undef READLINE_LIBRARY
+  #include <readline/readline.h>
+  #include <readline/history.h>
 #endif
 #ifdef STDC_HEADERS
   #include <string.h>  # declares strcpy(), strcat()

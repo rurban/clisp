@@ -1,5 +1,19 @@
 2002-07-19  Sam Steingold  <sds@gnu.org>
 
+	do not distribute readline and termcap with CLISP
+	* configure, makemake.in: dropped termcap and readline
+	* m4/termcap.m4 (LIBTERMCAP): set to "broken" when termcap does
+	not work
+	* m4/readline.m4 (CL_READLINE): new test
+	* configure.in (CL_READLINE): call it
+	* lispbibl.d (GNU_READLINE): define based on NO_READLINE and
+	HAVE_READLINE_READLINE_H, not complex heuristics
+	* stream.d [GNU_READLINE]: include system headers, not local ones
+	* unixconf.h.in (HAVE_READLINE_READLINE_H): undef
+	* readline/*, termcap/*: removed
+
+2002-07-19  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 583751 ]: (compile-file xx :verbose NIL)
 	* compiler.lisp (with-compilation-unit): bind *C-LISTING-OUTPUT*
 

@@ -32,11 +32,9 @@ options:
             or the value of the environment variable CLHSROOT, if set).
     The following options add support for specific separate packages. See the
     main INSTALL file for how to get them.
-       --with-readline         the (readline-4.2a based) readline lib
-       --with-noreadline       no readline library
+       --with-noreadline       do not use readline library (even when present)
        --with-gettext          internationalization, needs GNU gettext
        --with-nogettext        static internationalization (en only)
-       --with-termcap          termcap-1.3 library (needed only on cygwin32)
        --without-unicode       no Unicode character set, only 8-bit characters
        --with-dynamic-ffi      a foreign language interface
        --with-dynamic-modules  dynamic loading of foreign language modules
@@ -54,19 +52,17 @@ options:
        --with-module=bindings/amigaos
 debug: Specify this if you expect that you will need to debug the sources.
 Example:
-       ./makemake --with-readline --with-dynamic-ffi > Makefile
+       ./makemake --with-dynamic-ffi > Makefile
 EOP
 }
 
 # Advanced usage:
 #        ./makemake [--with-PACKAGE] TARGET COMPILER [debug] > Makefile
 #  where PACKAGE is one of
-#        readline         the (readline-4.2a based) readline library
 #        noreadline       no readline library
 #        gettext          internationalization, needs GNU gettext
 #        nogettext        static internationalization (en only)
 #        unicode          Unicode character set
-#        termcap          termcap-1.3 library (needed only on cygwin32)
 #        dynamic-ffi      a dynamic foreign language interface
 #        dynamic-modules  dynamic loading of foreign language modules
 #        module=MODULE    an add-on module
@@ -702,6 +698,11 @@ if [ -z "$INSTALL" ] ; then
   INSTALL_DATA='$(INSTALL)'
 fi
 
+if [ "${with_termcap_ncurses}" = "0" -o "${LIBTERMCAP}" = "broken" ] ; then
+  XCFLAGS=$XCFLAGS' -DNO_TERMCAP_NCURSES'
+  LIBTERMCAP="";
+fi
+
 # Main target OS dependencies:
 
 OS_INCLUDES=''
@@ -1280,61 +1281,18 @@ if [ $HOS = unix -o $HOS = win32 ] ; then
   LIBS=$XCL_CHARSETLIB' '$LIBS
 fi
 
-TERMINAL='generic'
-READLINELIB=''
-XCL_READLINELIB=''
 if [ $TOS = unix -o $TOS = os2 ] ; then
   if [ "${with_readline}" = "0" ]; then
     XCFLAGS=$XCFLAGS' -DNO_READLINE'
   else
-    TERMINAL='readline'
-    READLINELIB='libreadline.a'
-    READLINEDIR='readline'
-    READLINELIB=$READLINEDIR'/'$READLINELIB
-    # Don't put "-lreadline" into LIBS for two reasons:
-    # 1. The system may have its own libreadline.a.
-    # 2. EMX 0.8h would be looking for readline.a instead of libreadline.a.
-    if [ $HOS = unix ] ; then
-      # use symbolic link
-      XCL_READLINELIB='libreadline.a'
-      FILES='libnoreadline.a libreadline.a '$FILES
-    else
-      XCL_READLINELIB=$READLINELIB
-    fi
-    LIBS=$XCL_READLINELIB' '$LIBS
+    FILES='libnoreadline.a '$FILES
+    LIBS=${LIBS}' -lreadline'
   fi
-fi
-
-USE_TERMCAP=''
-TERMCAPLIB=''
-XCL_TERMCAPLIB=''
-if [ $TOS = unix ] ; then
-  if [ "$TSYSOS" = cygwin32 ] ; then
-    # Cygwin32 has tgetent(), but lacks the other termcap functions.
-    USE_TERMCAP=yes
-  fi
-fi
-if test -n "$with_termcap" ; then
-  USE_TERMCAP=yes
-fi
-if [ -n "$USE_TERMCAP" ] ; then
-  TERMCAPLIB='termcap/libtermcap.a'
-  if [ $HOS = unix ] ; then
-    # use symbolic link
-    XCL_TERMCAPLIB='libtermcap.a'
-    FILES='libtermcap.a '$FILES
-  else
-    XCL_TERMCAPLIB=$TERMCAPLIB
-  fi
-  LIBS=$XCL_TERMCAPLIB' '$LIBS
-fi
-if [ "${with_termcap_ncurses}" = "0" ] ; then
-  XCFLAGS=$XCFLAGS' -DNO_TERMCAP_NCURSES'
 fi
 
 USE_GETTEXT=''
 XCL_GETTEXTLIB=''
-if [ $TOS = unix ] || [ $TOS = os2 ] ; then
+if [ $TOS = unix -o $TOS = os2 ] ; then
   if [ "${with_gettext}" = "0" ]; then
     XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
   else
@@ -2446,11 +2404,6 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     dependsc=$dependsc' avcall.h callback.h'
   fi
   flags=$XCFLAGS
-  if [ $f = stream -o $f = noreadline ] ; then
-    if [ $TERMINAL = readline ] ; then
-      flags=$flags" -I${SRCDIR}${READLINEDIR}"
-    fi
-  fi
   if [ $f = foreign ] ; then
     if [ $HOS = win32 ] ; then
       flags=$flags" -I${SRCTOPDIR}ffcall"
@@ -2621,19 +2574,6 @@ if [ -n "$with_dynamic_ffi" ] ; then
   done
 fi
 
-if [ $TERMINAL = readline -a $HOS = unix ] ; then
-
-  echol "${READLINELIB} :"
-  echotab "cd ${READLINEDIR} && \$(MAKE) CC='${XCC}' CFLAGS='${XCFLAGS} -DCLISP' RANLIB='\$(RANLIB)'"
-  echol
-  echol "libreadline.a : ${READLINELIB}"
-  echotab "-\$(LN_S) ${READLINELIB} libreadline.a"
-  echol
-
-  echol
-
-fi
-
 if [ -n "$USE_GETTEXT" ] ; then
 
   echol "locale :"
@@ -2650,19 +2590,6 @@ if [ -n "$USE_GETTEXT" ] ; then
       echotab "\$(LN_S) po${NEXT_}${lang}.gmo locale${NEXT_}${lang}${NEXT_}LC_MESSAGES${NEXT_}clisp.mo"
     done
   fi
-  echol
-
-  echol
-
-fi
-
-if [ -n "$USE_TERMCAP" ] ; then
-
-  echol "${TERMCAPLIB} :"
-  echotab "cd termcap && ./configure --srcdir=${PARENT_SRCTOPDIR}src/termcap && \$(MAKE) -r CC='${XCC}' CFLAGS='${XCFLAGS}' RANLIB='\$(RANLIB)'"
-  echol
-  echol "libtermcap.a : ${TERMCAPLIB}"
-  echotab "-\$(LN_S) ${TERMCAPLIB} libtermcap.a"
   echol
 
   echol
@@ -2735,7 +2662,7 @@ for f in ${DATA_FILES_TOP_PATH}; do
 done
 echol
 
-echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB} ${XCL_SIGSEGVLIB}${SYSLIBS} data"
+echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB} ${XCL_SIGSEGVLIB}${SYSLIBS} data"
 if [ $HOS != os2 -a $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.
@@ -3079,17 +3006,10 @@ if test -n "$GROFF"; then
 else
   manual_dvi=''
 fi
-if [ $TERMINAL = readline ] ; then
-  manual_readline=' clreadline.3 clreadline.html clreadline.dvi readline.dvi'
-  manualx_readline=' clreadline.man'
-else
-  manual_readline=''
-  manualx_readline=''
-fi
 echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi`
 IMPNOTES_FILES="impnotes.html impnotes.css clisp.png";
 echol "IMPNOTES = ${IMPNOTES_FILES}"
-echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) \$(IMPNOTES)${manual_readline}"
+echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) \$(IMPNOTES)"
 echol
 for f in ${IMPNOTES_FILES} ; do
   echol "${f} : ${DOCDIR_M}${f}"
@@ -3106,14 +3026,14 @@ if [ $HOS = unix ] ; then
   echol "manual : \$(READMES) \$(MANUALS)${manual_dvi}"
   echodummyrule manual
   echol
-  echol "manualx : manual clisp.man${manualx_readline}"
+  echol "manualx : manual clisp.man"
   echodummyrule manualx
   echol
 else
   echol "manual : \$(READMES) \$(MANUALS)"
   echodummyrule manual
   echol
-  echol "manualx : manual clisp.man${manual_dvi}${manualx_readline}"
+  echol "manualx : manual clisp.man${manual_dvi}"
   echodummyrule manualx
   echol
 fi
@@ -3195,42 +3115,15 @@ if test -n "$GROFF"; then
   echol
 fi
 
-if [ $TERMINAL = readline ] ; then
-  echol "clreadline.3 : ${SRCDIR}${READLINEDIR}${NEXT_M}doc${NEXT_M}clreadline.3"
-  echotab "-\$(LN_S) ${SRCDIR}${READLINEDIR}${NEXT_}doc${NEXT_}clreadline.3 clreadline.3"
-  echol
-  echol "clreadline.html : ${SRCDIR}${READLINEDIR}${NEXT_M}doc${NEXT_M}clreadline.html"
-  echotab "-\$(LN_S) ${SRCDIR}${READLINEDIR}${NEXT_}doc${NEXT_}clreadline.html clreadline.html"
-  echol
-  echol "clreadline.dvi : ${SRCDIR}${READLINEDIR}${NEXT_M}doc${NEXT_M}clreadline.dvi"
-  echotab "-\$(LN_S) ${SRCDIR}${READLINEDIR}${NEXT_}doc${NEXT_}clreadline.dvi clreadline.dvi"
-  echol
-fi
-
 echol "clisp.man : clisp.1"
 echotab "\$(ROFF_MAN) clisp.1 > clisp.man"
 echol
-
-if [ $TERMINAL = readline ] ; then
-  echol "clreadline.man : clreadline.3"
-  echotab "\$(ROFF_MAN) clreadline.3 > clreadline.man"
-  echol
-fi
 
 for f in $DOC ; do
   echol "${f}.txt : ${DOCDIR_M}${f}.txt"
   echotab "-\$(LN_S) ${DOCDIR_}${f}.txt ${f}.txt"
   echol
 done
-
-if [ $TERMINAL = readline ] ; then
-  echol "${SRCDIR}readline${NEXT_M}doc${NEXT_M}rluserman.dvi :"
-  echotab "cd ${SRCDIR}readline${NEXT_}doc && \$(MAKE) rluserman.dvi"
-  echol
-  echol "readline.dvi : ${SRCDIR}readline${NEXT_M}doc${NEXT_M}rluserman.dvi"
-  echotab "-\$(LN_S) ${SRCDIR}readline${NEXT_}doc${NEXT_}rluserman.dvi readline.dvi"
-  echol
-fi
 
 echol
 
@@ -3255,9 +3148,6 @@ if [ $CROSS = false ] ; then
     echotab_mkdir_maybe "\$(DESTDIR)\$(shared)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man1"
-    if [ $TERMINAL = readline ] ; then
-      echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man3"
-    fi
     case "$fsstnd" in
       gnu_ext)
         echotab_mkdir_maybe "\$(DESTDIR)\$(htmldir)"
@@ -3307,42 +3197,25 @@ if [ $CROSS = false ] ; then
     echotab_mkdir_maybe "\$(DESTDIR)\$(bindir)"
     echotab "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(DESTDIR)\$(bindir)/clisp"
     echol
-    if [ $TERMINAL = readline ] ; then
-      echol "install-man : clisp.1${manual_dvi} clisp.html clreadline.3 clreadline.html clreadline.dvi force"
-    else
-      echol "install-man : clisp.1${manual_dvi} clisp.html force"
-    fi
+    echol "install-man : clisp.1${manual_dvi} clisp.html force"
     echotab_mkdir_maybe "\$(DESTDIR)\$(prefix)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(exec_prefix)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(shared)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man1"
     echotab "\$(INSTALL_DATA) clisp.1 \$(DESTDIR)\$(mandir)/man1/clisp.1"
-    if [ $TERMINAL = readline ] ; then
-      echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man3"
-      echotab "\$(INSTALL_DATA) clreadline.3 \$(DESTDIR)\$(mandir)/man3/clreadline.3"
-    fi
     case "$fsstnd" in
       gnu_ext)
         echotab_mkdir_maybe "\$(DESTDIR)\$(htmldir)"
         echotab "\$(INSTALL_DATA) clisp.html \$(DESTDIR)\$(htmldir)/clisp.html"
-        if [ $TERMINAL = readline ] ; then
-          echotab "\$(INSTALL_DATA) clreadline.html \$(DESTDIR)\$(htmldir)/clreadline.html"
-        fi
         echotab_mkdir_maybe "\$(DESTDIR)\$(dvidir)"
         if test -n "$GROFF"; then
           echotab "\$(INSTALL_DATA) clisp.dvi \$(DESTDIR)\$(dvidir)/clisp.dvi"
-        fi
-        if [ $TERMINAL = readline ] ; then
-          echotab "\$(INSTALL_DATA) clreadline.dvi \$(DESTDIR)\$(dvidir)/clreadline.dvi"
         fi
         ;;
       netbsd)
         echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)"
         echotab "\$(INSTALL_DATA) clisp.html \$(DESTDIR)\$(lispdocdir)/clisp.html"
-        if [ $TERMINAL = readline ] ; then
-          echotab "\$(INSTALL_DATA) clreadline.html \$(DESTDIR)\$(lispdocdir)/clreadline.html"
-        fi
         ;;
     esac
     echol
@@ -3382,25 +3255,13 @@ if [ $CROSS = false ] ; then
     echol
     echol "uninstall-man : force"
     echotab "\$(RM) \$(DESTDIR)\$(mandir)/man1/clisp.1"
-    if [ $TERMINAL = readline ] ; then
-      echotab "\$(RM) \$(DESTDIR)\$(mandir)/man3/clreadline.3"
-    fi
     case "$fsstnd" in
       gnu_ext)
         echotab "\$(RM) \$(DESTDIR)\$(htmldir)/clisp.html"
-        if [ $TERMINAL = readline ] ; then
-          echotab "\$(RM) \$(DESTDIR)\$(htmldir)/clreadline.html"
-        fi
         echotab "\$(RM) \$(DESTDIR)\$(dvidir)/clisp.dvi"
-        if [ $TERMINAL = readline ] ; then
-          echotab "\$(RM) \$(DESTDIR)\$(dvidir)/clreadline.dvi"
-        fi
         ;;
       netbsd)
         echotab "\$(RM) \$(DESTDIR)\$(lispdocdir)/clisp.html"
-        if [ $TERMINAL = readline ] ; then
-          echotab "\$(RM) \$(DESTDIR)\$(lispdocdir)/clreadline.html"
-        fi
         ;;
     esac
     echotab "for f in \$(READMES); do \$(RM) \$(DESTDIR)\$(lispdocdir)/\$\$f; done"
@@ -3548,7 +3409,7 @@ fi
 echotab "mkdir \$(TOPDIR)/data"
 echotab "${HLN} data/* \$(TOPDIR)/data"
 echotab "mkdir \$(TOPDIR)/doc"
-echotab "${HLN} clisp.1 clisp.man${manual_dvi} clisp.html \$(TXTFILES) \$(IMPNOTES)${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
+echotab "${HLN} clisp.1 clisp.man${manual_dvi} clisp.html \$(TXTFILES) \$(IMPNOTES) \$(TOPDIR)/doc"
 echotab "mkdir \$(TOPDIR)/emacs"
 for f in ${EMACS_FILES}; do
   echotab "${HLN} ${SRCTOPDIR}/emacs/${f} \$(TOPDIR)/emacs/${f}"
@@ -3684,7 +3545,7 @@ fi
 cat <<!!
 	-rmdir ${TESTDIR}
 	-rmdir ${TESTSDIR}
-	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.html \$(IMPNOTES) clisp.c distmakefile \$(TXTFILES)${manual_readline}${manualx_readline}
+	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.html \$(IMPNOTES) clisp.c distmakefile \$(TXTFILES)
 
 # clean2 removes everything that becomes obsolete once lisp${LEXE}
 # is recompiled without changing the bytecode format.
@@ -3708,11 +3569,6 @@ cat <<!!
 	-\$(RM) callback.h vacall_r.h trampoline_r.h
 !!
 fi
-if [ $TERMINAL = readline ] ; then
-cat <<!!
-	cd ${READLINEDIR} && \$(MAKE) clean
-!!
-fi
 if [ -n "$USE_GETTEXT" ] ; then
 cat <<!!
 	cd po && \$(MAKE) clean
@@ -3728,11 +3584,6 @@ fi
 if [ -n "$USE_SIGSEGV" ] ; then
 cat <<!!
 	-\$(RM) sigsegv.h
-!!
-fi
-if [ -n "$USE_TERMCAP" ] ; then
-cat <<!!
-	cd termcap && \$(MAKE) clean
 !!
 fi
 cat <<!!
@@ -3773,20 +3624,10 @@ clean6 : clean5
 clean7 : clean6
 	-\$(RM) config.status config.log config.cache intparam.h unixconf.h makemake
 !!
-if [ $TERMINAL = readline ] ; then
-cat <<!!
-	cd ${READLINEDIR} && \$(MAKE) distclean
-!!
-fi
 if [ -n "$USE_GETTEXT" ] ; then
 cat <<!!
 	cd po && \$(MAKE) distclean
 	-\$(RMRF) locale
-!!
-fi
-if [ -n "$USE_TERMCAP" ] ; then
-cat <<!!
-	cd termcap && \$(MAKE) distclean
 !!
 fi
 if [ $HOS = unix ] && [ $CROSS = false ] ; then
@@ -3802,9 +3643,7 @@ cat <<!!
 !!
 if [ -n "${SRCDIR}" ] ; then
 cat <<!!
-	-\$(RMRF) readline
 	-\$(RMRF) po
-	-\$(RMRF) termcap
 	-\$(RM) configure unixconf.h.in makemake.in VERSION
 !!
 fi

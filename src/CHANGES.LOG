@@ -1,9 +1,15 @@
 User visible changes
 --------------------
 
-* CLISP does not come with GNU libiconv and GNU gettext anymore.
-  The most important encodings are built-in anyway, and CLISP can use the
-  GNU libc 2.2 iconv and a GNU libiconv when it is independently installed.
+* CLISP does not come with GNU libiconv anymore.  The most important
+  encodings are built-in anyway, and CLISP can use the GNU libc 2.2
+  iconv and a GNU libiconv when it is independently installed.
+
+* CLISP does not come with GNU gettext anymore.  This is a separate
+  package and should be installed separately, if you wish to use i18n.
+
+* CLISP does not come with GNU readline anymore, because, starting with
+  version 4.3, readline supports multibyte characters out of the box.
 
 * Strings can now hold UCS-4 characters, instead of only UCS-2 characters.
   CHAR-CODE-LIMIT increased from 65536 to 1114112.
