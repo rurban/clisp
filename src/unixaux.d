@@ -237,33 +237,34 @@ global ssize_t read_helper (int fd, void* bufarea, size_t nbyte, bool no_hang)
    does not specify anything about possible side effects. */
   handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
  #endif
- {NO_BLOCK_DECL(fd);
-  if (no_hang) START_NO_BLOCK(fd);
-  while (nbyte!=0) {
-    retval = read(fd,buf,nbyte);
-    if (retval == 0)
-      break;
-    else if (retval < 0) {
-      if (no_hang && (errno == EAGAIN)) {
-        /* FIXME: signal blocking state reached -- just use errno?
-           never executes - printf("read_helper - read blocked\n"); */
-        goto end;
-      }
-     #ifdef EINTR
-      if (errno != EINTR)
-     #endif
-        return retval;
-    } else {
-      buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
-      if (no_hang)
+  {
+    NO_BLOCK_DECL(fd);
+    if (no_hang) START_NO_BLOCK(fd);
+    while (nbyte!=0) {
+      retval = read(fd,buf,nbyte);
+      if (retval == 0)
         break;
+      else if (retval < 0) {
+        /* FIXME: Why only EAGAIN and not also EWOULDBLOCK? */
+        if (no_hang && (errno == EAGAIN)) {
+          /* FIXME: signal blocking state reached -- just use errno?
+             never executes - printf("read_helper - read blocked\n"); */
+          break;
+        }
+       #ifdef EINTR
+        if (errno != EINTR)
+       #endif
+          return retval;
+      } else {
+        buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
+        if (no_hang)
+          break;
+      }
     }
-  }
-  end:
     if (no_hang) END_NO_BLOCK(fd);
- }
- /* never executes
-    if (errno == EAGAIN) printf("returning with block from read_helper\n");*/
+  }
+  /* never executes
+     if (errno == EAGAIN) printf("returning with block from read_helper\n");*/
   return done;
 }
 
@@ -274,30 +275,32 @@ global ssize_t write_helper (int fd, const void* bufarea, size_t nbyte,
   var const char* buf = (const char*) bufarea;
   var ssize_t retval;
   var size_t done = 0;
-#if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+ #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
   /* Must adjust the memory permissions before calling write(). */
   handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
-#endif
-  {NO_BLOCK_DECL(fd);
-   if (no_hang) START_NO_BLOCK(fd);
-   while (nbyte!=0) {
-     retval = write(fd,buf,nbyte);
-     if (retval < 0) {
-       if (no_hang && (errno == EAGAIN)) goto end;
-      #ifdef EINTR
-       /* FIXME: no way to interrupt a large write? *** */
-       if (errno != EINTR)
-      #endif
-         {
-           done = retval; /* -1 */
-           goto end;
-         }
-     } else {
-       buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
-     }
-   }
-   end:
-   if (no_hang) END_NO_BLOCK(fd);
+ #endif
+  {
+    NO_BLOCK_DECL(fd);
+    if (no_hang) START_NO_BLOCK(fd);
+    while (nbyte!=0) {
+      retval = write(fd,buf,nbyte);
+      if (retval < 0) {
+        /* FIXME: Why only EAGAIN and not also EWOULDBLOCK? */
+        if (no_hang && (errno == EAGAIN))
+          break;
+       #ifdef EINTR
+        /* FIXME: no way to interrupt a large write? *** */
+        if (errno != EINTR)
+       #endif
+          {
+            done = retval; /* -1 */
+            break;
+          }
+      } else {
+        buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
+      }
+    }
+    if (no_hang) END_NO_BLOCK(fd);
   }
   return done;
 }
@@ -307,6 +310,7 @@ global ssize_t write_helper (int fd, const void* bufarea, size_t nbyte,
 /* BeOS 5 sockets cannot be used like file descriptors. */
 
 /* A wrapper around the recv() function. */
+/* FIXME: Why no no_hang argument here? */
 global ssize_t sock_read (int fd, void* bufarea, size_t nbyte) {
   var char* buf = (char*) bufarea;
   var ssize_t retval;
@@ -314,7 +318,7 @@ global ssize_t sock_read (int fd, void* bufarea, size_t nbyte) {
  #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
   /* Must adjust the memory permissions before calling recv(). */
   handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
-#endif
+ #endif
   while (nbyte!=0) {
     retval = recv(fd,buf,nbyte,0);
     if (retval == 0)
@@ -340,29 +344,30 @@ global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte,
   var const char* buf = (const char*) bufarea;
   var ssize_t retval;
   var size_t done = 0;
-  #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-    /* Must adjust the memory permissions before calling send(). */
-    handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
-  #endif
-  {NO_BLOCK_DECL(fd);
-   if (no_hang) START_NO_BLOCK(fd);
-   while (nbyte!=0) {
-     retval = send(fd,buf,nbyte,0);
-     if (retval < 0) {
-       if (errno == EWOULDBLOCK) goto end;
-      #ifdef EINTR
-       if (errno != EINTR)
-      #endif
-         {
-           done = retval;
-           goto end;
-         }
-     } else {
-       buf += retval; done += retval; nbyte -= retval;
-     }
-   }
-   end:
-   if (no_hang) END_NO_BLOCK(fd);
+ #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+  /* Must adjust the memory permissions before calling send(). */
+  handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
+ #endif
+  {
+    NO_BLOCK_DECL(fd);
+    if (no_hang) START_NO_BLOCK(fd);
+    while (nbyte!=0) {
+      retval = send(fd,buf,nbyte,0);
+      if (retval < 0) {
+        if (no_hang && (errno == EAGAIN || errno == EWOULDBLOCK))
+          break;
+       #ifdef EINTR
+        if (errno != EINTR)
+       #endif
+          {
+            done = retval;
+            break;
+          }
+      } else {
+        buf += retval; done += retval; nbyte -= retval;
+      }
+    }
+    if (no_hang) END_NO_BLOCK(fd);
   }
   return done;
 }
