@@ -1,5 +1,9 @@
 1998-11-06  Sam Steingold  <sds@goems.com>
 
+        * loop.tst: added a test for `by' preceding `upto'.
+
+1998-11-06  Sam Steingold  <sds@goems.com>
+
         * type.tst: added a test for (un)signed-byte as sybtype of
           integer.
 

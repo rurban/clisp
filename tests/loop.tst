@@ -108,6 +108,9 @@
 )
 (1 11 21 31 41)
 
+(loop for i from 1 by 2 upto 10 collect i)
+(1 3 5 7 9)
+
 (loop for char across (the simple-string "Hello")
       collect char
 )
