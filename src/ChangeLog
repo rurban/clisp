@@ -1,5 +1,9 @@
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
+	* regexp/configure.in: Add AC_CONFIG_AUX_DIR invocation.
+
+2004-03-12  Bruno Haible  <bruno@clisp.org>
+
 	* regexp/configure.in: Invoke AM_GNU_GETTEXT.
 	* regexp/regex.c: Don't include clisp.h.
 
