@@ -1,5 +1,16 @@
 2004-05-30  Bruno Haible  <bruno@clisp.org>
 
+	Make class definition and redefinition customizable.
+	* init.lisp: Export ensure-class, ensure-class-using-class.
+	* clos-package.lisp: Likewise.
+	* clos-class3.lisp (ensure-class-using-class-<t>): New function,
+	extracted from ensure-class.
+	(ensure-class-using-class): New function.
+	(ensure-class): Just call ensure-class-using-class.
+	* clos-class6.lisp (ensure-class-using-class): New generic function.
+
+2004-05-30  Bruno Haible  <bruno@clisp.org>
+
 	* clos-class5.lisp (finalize-inheritance): Move to ...
 	* clos-class6.lisp (finalize-inheritance): ... here. Add method for
 	CLASS.

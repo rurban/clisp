@@ -461,6 +461,7 @@
           validate-superclass add-direct-subclass remove-direct-subclass
           standard-reader-method standard-writer-method
           reader-method-class writer-method-class
+          ensure-class ensure-class-using-class
           ;; MOP for specializers
           specializer-direct-generic-functions specializer-direct-methods
           eql-specializer-object intern-eql-specializer
