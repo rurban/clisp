@@ -112,6 +112,7 @@
                        `',superclass)
                      superclass-specs)))
          (classvar (gensym))
+         (accessor-decl-forms '())
          (accessor-def-forms '())
          (slot-forms
            (let ((slot-names '()))
@@ -210,19 +211,53 @@
                              (setq readers (nreverse readers))
                              (setq writers (nreverse writers))
                              (dolist (funname readers)
+                               (push `(DECLAIM-METHOD ,funname ((OBJECT ,name)))
+                                     accessor-decl-forms)
                                (push `(SETF (CLASS-DIRECT-ACCESSORS ,classvar)
                                             (LIST* ',funname
+                                                   #|
                                                    (DEFMETHOD ,funname ((OBJECT ,name))
+                                                     ; (:METHOD-CLASS STANDARD-READER-METHOD)
                                                      (DECLARE (COMPILE))
                                                      (SLOT-VALUE OBJECT ',slot-name))
+                                                   |#
+                                                   (DO-DEFMETHOD ',funname
+                                                     (MAKE-STANDARD-READER-METHOD
+                                                       :INITFUNCTION
+                                                         #'(LAMBDA (#:SELF)
+                                                             (DECLARE (COMPILE))
+                                                             (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
+                                                               (DECLARE (COMPILE))
+                                                               (SLOT-VALUE OBJECT ',slot-name)))
+                                                       :WANTS-NEXT-METHOD-P T
+                                                       :PARAMETER-SPECIALIZERS (LIST (FIND-CLASS ',name))
+                                                       :QUALIFIERS 'NIL
+                                                       :SIGNATURE ,(make-signature :req-num 1)))
                                                    (CLASS-DIRECT-ACCESSORS ,classvar)))
                                      accessor-def-forms))
                              (dolist (funname writers)
+                               (push `(DECLAIM-METHOD ,funname (NEW-VALUE (OBJECT ,name)))
+                                     accessor-decl-forms)
                                (push `(SETF (CLASS-DIRECT-ACCESSORS ,classvar)
                                             (LIST* ',funname
+                                                   #|
                                                    (DEFMETHOD ,funname (NEW-VALUE (OBJECT ,name))
+                                                     ; (:METHOD-CLASS STANDARD-WRITER-METHOD)
                                                      (DECLARE (COMPILE))
                                                      (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))
+                                                   |#
+                                                   (DO-DEFMETHOD ',funname
+                                                     (MAKE-STANDARD-WRITER-METHOD
+                                                       :INITFUNCTION
+                                                         #'(LAMBDA (#:SELF)
+                                                             (DECLARE (COMPILE))
+                                                             (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
+                                                               (DECLARE (COMPILE))
+                                                               (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE)))
+                                                       :WANTS-NEXT-METHOD-P T
+                                                       :PARAMETER-SPECIALIZERS (LIST (FIND-CLASS 'T) (FIND-CLASS ',name))
+                                                       :QUALIFIERS 'NIL
+                                                       :SIGNATURE ,(make-signature :req-num 2)))
                                                    (CLASS-DIRECT-ACCESSORS ,classvar)))
                                      accessor-def-forms))
                              `(LIST
@@ -313,6 +348,7 @@
                      (TEXT "~S ~S: invalid option ~S")
                      'defclass name option)))
                `(,@metaclass ,@direct-default-initargs ,@documentation ,@fixed-slot-locations))))
+       ,@(nreverse accessor-decl-forms) ; the DECLAIM-METHODs
        (LET ((,classvar (FIND-CLASS ',name)))
          ,@(nreverse accessor-def-forms) ; the DEFMETHODs
          ,classvar))))

@@ -456,6 +456,7 @@
           specializer-direct-generic-functions specializer-direct-methods
           eql-specializer-object intern-eql-specializer
           ;; MOP for methods
+          accessor-method-slot-definition
           ;; MOP for method combinations
           ;; MOP for generic functions
           ;; CLISP specific symbols
