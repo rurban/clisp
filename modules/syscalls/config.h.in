@@ -9,6 +9,9 @@
 /* Define to 1 if you have the `clock' function. */
 #undef HAVE_CLOCK
 
+/* Define to 1 if you have the `closelog' function. */
+#undef HAVE_CLOSELOG
+
 /* Define to 1 if you have the `confstr' function. */
 #undef HAVE_CONFSTR
 
@@ -111,6 +114,9 @@
 /* Define to 1 if you have the <netdb.h> header file. */
 #undef HAVE_NETDB_H
 
+/* Define to 1 if you have the `openlog' function. */
+#undef HAVE_OPENLOG
+
 /* Define to 1 if you have the <pwd.h> header file. */
 #undef HAVE_PWD_H
 
@@ -120,6 +126,9 @@
 
 /* Define to 1 if you have the `setkey' function. */
 #undef HAVE_SETKEY
+
+/* Define to 1 if you have the `setlogmask' function. */
+#undef HAVE_SETLOGMASK
 
 /* Define to 1 if you have the `setpriority' function. */
 #undef HAVE_SETPRIORITY
@@ -153,6 +162,12 @@
 
 /* Define to 1 if you have the `sysconf' function. */
 #undef HAVE_SYSCONF
+
+/* Define to 1 if you have the `syslog' function. */
+#undef HAVE_SYSLOG
+
+/* Define to 1 if you have the <syslog.h> header file. */
+#undef HAVE_SYSLOG_H
 
 /* Define to 1 if you have the <sys/resource.h> header file. */
 #undef HAVE_SYS_RESOURCE_H
