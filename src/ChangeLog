@@ -1,3 +1,8 @@
+2004-04-18  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class5.lisp (class-prototype): Don't mark the class as being
+	instantiated.
+
 2004-05-03  Sam Steingold  <sds@gnu.org>
 
 	* disassem.lisp (disassemble): return when cannot disassemble
