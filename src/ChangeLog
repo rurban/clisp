@@ -1,5 +1,9 @@
 2005-03-17  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (cygwin_check): fixed the logic
+
+2005-03-17  Sam Steingold  <sds@gnu.org>
+
 	* execname.c (find_executable) [LINUX|CYGWIN]: use
 	"/proc/self/exe" instead of sprintf()+getpid()
 

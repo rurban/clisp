@@ -3260,7 +3260,7 @@ echol
 # make sure no cygwin libraries creeped into the mingw distribution
 cygwin_check() {
   if [ "$host_os" = cygwin -a "${TSYS}" = win32gcc ]; then
-    echotab "cygcheck $1/lisp.exe | grep cyg && exit 1"
+    echotab "if cygcheck $1/lisp.exe | grep cyg; then exit 1; else true; fi"
   fi
 }
 
