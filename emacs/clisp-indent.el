@@ -182,33 +182,5 @@
 (defindent with-standard-io-syntax (&body))
 (defindent without-floating-point-underflow (&body))
 
-
-;;; D
-
-(setq auto-mode-alist (cons '("\\.d\\'" . d-mode) auto-mode-alist))
-
-(define-derived-mode d-mode c-mode "D"
-  "Major mode for editing CLISP source code.
-Special commands:
-\\{d-mode-map}
-Turning on D mode calls the value of the variable `d-mode-hook',
-if that value is non-nil.
-If you are using Emacs 20.2 or earlier (including XEmacs) and want to
-use fontifications, you have to (require 'font-lock) first.  Sorry."
-  (set (make-local-variable 'font-lock-defaults)
-       (cdr (assq 'c-mode font-lock-defaults-alist))))
-(when window-system
-  (if (boundp 'running-xemacs)
-      (put 'd-mode 'font-lock-defaults (get 'c-mode 'font-lock-defaults))
-      (when (and (> 21 emacs-major-version)
-                 (null (assq 'd-mode font-lock-defaults-alist)))
-        (setq font-lock-defaults-alist
-              (cons (cons 'd-mode
-                          (cdr (assq 'c-mode font-lock-defaults-alist)))
-                    font-lock-defaults-alist)))))
-(modify-syntax-entry ?# ". 1" d-mode-syntax-table)
-(modify-syntax-entry 32 "- 2" d-mode-syntax-table) ; space
-(modify-syntax-entry 10 "> b" d-mode-syntax-table) ; newline
-
 ;;; Permit the user to load this file using (require 'clisp-indent).
 (provide 'clisp-indent)
