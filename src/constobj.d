@@ -731,7 +731,6 @@
   LISPOBJ_S(printstring_disabled_pointer,"#<DISABLED POINTER>")
   LISPOBJ_S(printstring_dot,"#<DOT>")
   LISPOBJ_S(printstring_eof,"#<END OF FILE>")
-  LISPOBJ_S(printstring_hash_table,"HASH-TABLE")
   LISPOBJ_S(printstring_deleted,"DELETED ")
   LISPOBJ_S(printstring_package,"PACKAGE")
   LISPOBJ_S(printstring_readtable,"READTABLE")
