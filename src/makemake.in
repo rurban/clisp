@@ -157,12 +157,6 @@ fsstnd='' # supported styles: gnu, gnu_ext, suse, redhat, debian, *bsd
 MODULES=''
 CP='cp -p'
 LN_S='ln -s'
-if [ "$HSYSOS" = beos ] ; then
-  # The BeOS 5 filesystem has only symbolic links, no hard links.
-  LN_HARD='ln -s'
-else
-  LN_HARD='ln'
-fi
 HLN='ln'
 
 # NLS nuisances.
@@ -629,6 +623,14 @@ fi
 if [ $H_DOS = "true" ] ; then
   LN_S='copy'
 # else see above
+fi
+
+# LN_HARD = command for copying files, saving disk space if possible
+if [ "$HSYSOS" = beos ] ; then
+  # The BeOS 5 filesystem has only symbolic links, no hard links.
+  LN_HARD='cp -p'
+else
+  LN_HARD='ln'
 fi
 
 # LN = command for making hard links ($HOS = unix only)
