@@ -41,6 +41,7 @@ This file presents
     DEC Alpha AXP running OSF/1 1.3 or OSF/1 2.0 or OSF/1 3.0
     DEC Alpha AXP running OSF/1 3.2
     DEC Alpha AXP running OSF/1 4.0b
+    IA-64 running Linux, emulated by HP NUE
 * hints for porting to new platforms.
 
 
@@ -818,6 +819,12 @@ install GNU gcc (version 2.5.5 or newer).
 The bug should be gone in OSF/1 4.0c. But on OSF/1 4.0d, the preprocessor
 has another bug which occurs in pathname.d. So get and install GNU gcc
 for real.
+
+
+On IA-64 running Linux, emulated by HP NUE:
+
+Add -DNO_MULTIMAP_SHM -DNO_MULTIMAP_FILE -DNO_SINGLEMAP -DNO_TRIVIALMAP
+to the CFLAGS.
 
 
 Hints for porting to new platforms:
