@@ -8,8 +8,8 @@
 
 #ifdef DYNAMIC_FFI
 
-#include "avcall/avcall.h"          # Low level support for call-out
-#include "callback/callback.h"      # Low level support for call-in
+#include "avcall.h"        # Low level support for call-out
+#include "callback.h"      # Low level support for call-in
 
 #ifdef AMIGAOS
 #include "amiga2.c"      # declares OpenLibrary(), CloseLibrary()

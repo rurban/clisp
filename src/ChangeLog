@@ -1,5 +1,15 @@
 1999-05-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Libtoolify avcall and callback.
+        * foreign.d: Include avcall.h and callback.h.
+        * makemake.in (foreign): Depend on avcall.h and callback.h.
+          (avcall.h, libavcall.a, callback.h, libcallback.a): Create by
+          doing "make install-lib" in the subdirectory.
+          (clean1): Remove libavcall.* and libcallback.*.
+          (clean4): Remove avcall.h and callback.h.
+
+1999-05-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * asmi386.hh (DECLARE_FUNCTION): New macro.
           (INSN2MOVX): Fix bug with ANSI C preprocessors.
           (ALIGN): Don't put parentheses. For Solaris/x86.
