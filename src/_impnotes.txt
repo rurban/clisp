@@ -1844,9 +1844,9 @@ function PROBE-DIRECTORY or the function DIRECTORY for this purpose.
 FILE-AUTHOR always returns NIL.
 #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
 
-FILE-POSITION works on any file stream. When a Newline is output to resp.
-input from a file stream, its file position is increased by 2 since Newline
-is encoded as CR/LF in the file.
+FILE-POSITION works on any buffered file stream. When a Newline is output to
+resp. input from a file stream, its file position is increased by 2 since
+Newline is encoded as CR/LF in the file.
 #endif
 
 23.4.

@@ -5,6 +5,12 @@ User visible changes
 * Weak pointers are implemented. New functions MAKE-WEAK-POINTER,
   WEAK-POINTER-P, WEAK-POINTER-VALUE.
 
+* Conforming with ANSI CL, FILE-LENGTH and FILE-POSITION, when called on
+  an unbuffered file stream, now return NIL instead of signalling an error.
+
+* On Unix, calling OPEN on a block device now returns a buffered stream
+  instead of an unbuffered stream.
+
 * The function XGCD now really always returns coefficients of smallest
   possible absolute value.
 
