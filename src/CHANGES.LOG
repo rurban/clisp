@@ -26,6 +26,8 @@ User visible changes
 * Fixed a bug: A garbage collection during the execution of a foreign function
   callback caused a crash.
 
+* Fixed a bug: (subtypep 'fundamental-stream 'stream) returned NIL.
+
 Portability
 -----------
 

@@ -761,6 +761,17 @@
                 )
                  (canonicalize-type (list type))
                )
+               ((STREAM FILE-STREAM SYNONYM-STREAM BROADCAST-STREAM
+                 CONCATENATED-STREAM TWO-WAY-STREAM ECHO-STREAM STRING-STREAM
+                )
+                 ; We treat STREAM and subclasses like CLOS classes, so that
+                 ; (subtypep 'FUNDAMENTAL-STREAM 'STREAM) can return T.
+                 (if (and (setq f (get type 'CLOS::CLOSCLASS))
+                          (clos::class-p f) (eq (clos:class-name f) type)
+                     )
+                   f
+                   type
+               ) )
                (t (if (and (setq f (get type 'CLOS::CLOSCLASS))
                            (clos::class-p f) (not (clos::built-in-class-p f))
                            (eq (clos:class-name f) type)
@@ -1102,7 +1113,7 @@
                  (if (and caremptyknown cdremptyknown) (no) (unknown))
       )) ) ) ) )
       ((CHARACTER ENCODING FUNCTION HASH-TABLE PACKAGE PATHNAME RANDOM-STATE
-        READTABLE STREAM SYMBOL)
+        READTABLE SYMBOL)
        (no)
       )
       (CLOS:GENERIC-FUNCTION
@@ -1113,10 +1124,6 @@
       )
       #+LOGICAL-PATHNAMES
       (LOGICAL-PATHNAME (if (eq type2 'PATHNAME) (yes) (no)))
-      ((FILE-STREAM SYNONYM-STREAM BROADCAST-STREAM CONCATENATED-STREAM
-        TWO-WAY-STREAM ECHO-STREAM STRING-STREAM)
-       (if (eq type2 'STREAM) (yes) (no))
-      )
       (t
        (if (encodingp (first type1))
          (cond ((eq type2 'CHARACTER) (yes))
