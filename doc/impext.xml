@@ -3837,7 +3837,7 @@ bash$
   &clisp;.</simpara></listitem>
  <listitem><simpara>Programs distributed as &clisp; &mem-image;s can be
   distributed only if accompanied with the non-&clisp; &fasl-file; files
-  which make up the &mem-image;, and a <filename>Makefile</filename>
+  which make up the &mem-image;, and a &make-file;
   for rebuilding the &mem-image;.</simpara></listitem>
  <listitem><simpara>If you need to distribute a modified &clisp;
   executable (for example, incorporating additional modules written in
