@@ -252,6 +252,8 @@ LISPSYM(gc,"GC",lisp)
 # ---------- ENCODING ----------
 LISPSYM(make_encoding,"MAKE-ENCODING",lisp)
 LISPSYM(encodingp,"ENCODINGP",system)
+LISPSYM(charset_typep,"CHARSET-TYPEP",system)
+LISPSYM(charset_range,"CHARSET-RANGE",system)
 # ---------- ERROR ----------
 LISPSYM(error,"ERROR",lisp)
 LISPSYM(defclcs,"%DEFCLCS",system)

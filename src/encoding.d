@@ -42,6 +42,16 @@ local char hex_table[] = "0123456789ABCDEF";
             );
     }
 
+# The range function for an encoding covering all of Unicode.
+global object all_range (object encoding, uintL start, uintL end);
+global object all_range(encoding,start,end)
+  var object encoding;
+  var uintL start;
+  var uintL end;
+  { pushSTACK(code_char(as_chart(start))); pushSTACK(code_char(as_chart(end)));
+    return stringof(2);
+  }
+
 # -----------------------------------------------------------------------------
 #                              Unicode-16 encoding
 
@@ -743,6 +753,7 @@ global void nls_asciiext_mbstowcs (object encoding, object stream, const uintB* 
 global uintL nls_wcslen (object encoding, const chart* src, const chart* srcend);
 global void nls_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
 global void nls_asciiext_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+global object nls_range (object encoding, uintL start, uintL end);
 
 # Bytes to characters.
 
@@ -901,6 +912,43 @@ global void nls_asciiext_wcstombs(encoding,stream,srcp,srcend,destp,destend)
         fehler_unencodable(encoding,ch);
   }   }
 
+# Determining the range of encodable characters.
+global object nls_range(encoding,start,end)
+  var object encoding;
+  var uintL start;
+  var uintL end;
+  { var uintL count = 0; # number of intervals already on the STACK
+    var const nls_table* table = (const nls_table*) ThePseudofun(TheEncoding(encoding)->enc_table);
+    var const unsigned char* const* cvtable = table->page_uni2charset;
+    var uintL i1;
+    var uintL i2;
+    var boolean have_i1_i2 = FALSE; # [i1,i2] = interval being built
+    var uintL i;
+    for (i = start;;)
+      { var chart ch = as_chart(i);
+        if (cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] == 0 && !chareq(ch,ascii(0)))
+          # ch not encodable -> finish the interval
+          { if (have_i1_i2)
+              { pushSTACK(code_char(as_chart(i1))); pushSTACK(code_char(as_chart(i2)));
+                check_STACK(); count++;
+              }
+            have_i1_i2 = FALSE;
+          }
+          else
+          # ch encodable -> extend the interval
+          { if (!have_i1_i2) { have_i1_i2 = TRUE; i1 = i; }
+            i2 = i;
+          }
+        if (i == end) break;
+        i++;
+      }
+    if (have_i1_i2)
+      { pushSTACK(code_char(as_chart(i1))); pushSTACK(code_char(as_chart(i2)));
+        check_STACK(); count++;
+      }
+    return stringof(2*count);
+  }
+
 # -----------------------------------------------------------------------------
 #                             iconv-based encodings
 
@@ -913,6 +961,7 @@ extern uintL iconv_mblen (object encoding, const uintB* src, const uintB* srcend
 extern void iconv_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
 extern uintL iconv_wcslen (object encoding, const chart* src, const chart* srcend);
 extern void iconv_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+extern object iconv_range (object encoding, uintL start, uintL end);
 
 #endif # HAVE_ICONV
 
@@ -949,6 +998,7 @@ LISPFUN(make_encoding,0,0,norest,key,2,
         TheEncoding(encoding)->enc_mbstowcs = P(iconv_mbstowcs);
         TheEncoding(encoding)->enc_wcslen   = P(iconv_wcslen);
         TheEncoding(encoding)->enc_wcstombs = P(iconv_wcstombs);
+        TheEncoding(encoding)->enc_range    = P(iconv_range);
         TheEncoding(encoding)->min_bytes_per_char = 1;
         TheEncoding(encoding)->max_bytes_per_char = 6; # unfounded assumption
         arg = encoding;
@@ -1006,6 +1056,61 @@ LISPFUNN(encodingp,1)
   { var object arg = popSTACK();
     value1 = (encodingp(arg) ? T : NIL); mv_count=1;
   }
+
+# Fehlermeldung, falls ein Argument kein Encoding ist:
+# > obj: Das fehlerhafte Argument
+# > subr_self: Aufrufer (ein SUBR)
+  nonreturning_function(local, fehler_encoding, (object obj));
+  local void fehler_encoding(obj)
+    var object obj;
+    { pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(encoding)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             DEUTSCH ? "~: Argument ~ ist kein Zeichensatz." :
+             ENGLISH ? "~: argument ~ is not a character set" :
+             FRANCAIS ? "~ : L'argument ~ n'est pas un jeu de caractères." :
+             ""
+            );
+    }
+
+LISPFUNN(charset_typep,2)
+# (SYSTEM::CHARSET-TYPEP object encoding)
+# tests whether the object is a character belonging to the given character set.
+  { var object encoding = STACK_0;
+    if (!encodingp(encoding)) { fehler_encoding(encoding); }
+   {var object obj = STACK_1;
+    if (charp(obj))
+      {
+        #ifdef UNICODE
+        var uintL i = as_cint(char_code(obj));
+        obj = Encoding_range(encoding)(encoding,i,i);
+        value1 = (Svector_length(obj) > 0 ? T : NIL); mv_count=1;
+        #else
+        value1 = T; mv_count=1;
+        #endif
+      }
+      else
+      { value1 = NIL; mv_count=1; }
+    skipSTACK(2);
+  }}
+
+LISPFUNN(charset_range,3)
+# (SYSTEM::CHARSET-RANGE encoding char1 char2)
+# returns the range of characters in [char1,char2] encodable in the encoding.
+  { var object encoding = STACK_2;
+    if (!encodingp(encoding)) { fehler_encoding(encoding); }
+    if (!charp(STACK_1)) { fehler_char(STACK_1); }
+    if (!charp(STACK_0)) { fehler_char(STACK_0); }
+   {var uintL i1 = as_cint(char_code(STACK_1));
+    var uintL i2 = as_cint(char_code(STACK_0));
+    if (i1 <= i2)
+      value1 = Encoding_range(encoding)(encoding,i1,i2);
+    else
+      value1 = O(leer_string);
+    mv_count=1;
+    skipSTACK(3);
+  }}
 
 # -----------------------------------------------------------------------------
 #                          Elementary string functions
@@ -1158,6 +1263,7 @@ LISPFUNN(encodingp,1)
         TheEncoding(encoding)->enc_mbstowcs = P(uni16be_mbstowcs);
         TheEncoding(encoding)->enc_wcslen   = P(uni16_wcslen);
         TheEncoding(encoding)->enc_wcstombs = P(uni16be_wcstombs);
+        TheEncoding(encoding)->enc_range    = P(all_range);
         TheEncoding(encoding)->min_bytes_per_char = 2;
         TheEncoding(encoding)->max_bytes_per_char = 2;
         define_constant(symbol,encoding);
@@ -1170,6 +1276,7 @@ LISPFUNN(encodingp,1)
         TheEncoding(encoding)->enc_mbstowcs = P(uni16le_mbstowcs);
         TheEncoding(encoding)->enc_wcslen   = P(uni16_wcslen);
         TheEncoding(encoding)->enc_wcstombs = P(uni16le_wcstombs);
+        TheEncoding(encoding)->enc_range    = P(all_range);
         TheEncoding(encoding)->min_bytes_per_char = 2;
         TheEncoding(encoding)->max_bytes_per_char = 2;
         define_constant(symbol,encoding);
@@ -1182,6 +1289,7 @@ LISPFUNN(encodingp,1)
         TheEncoding(encoding)->enc_mbstowcs = P(utf8_mbstowcs);
         TheEncoding(encoding)->enc_wcslen   = P(utf8_wcslen);
         TheEncoding(encoding)->enc_wcstombs = P(utf8_wcstombs);
+        TheEncoding(encoding)->enc_range    = P(all_range);
         TheEncoding(encoding)->min_bytes_per_char = 1;
         TheEncoding(encoding)->max_bytes_per_char = 3;
         define_constant(symbol,encoding);
@@ -1194,6 +1302,7 @@ LISPFUNN(encodingp,1)
         TheEncoding(encoding)->enc_mbstowcs = P(java_mbstowcs);
         TheEncoding(encoding)->enc_wcslen   = P(java_wcslen);
         TheEncoding(encoding)->enc_wcstombs = P(java_wcstombs);
+        TheEncoding(encoding)->enc_range    = P(all_range);
         TheEncoding(encoding)->min_bytes_per_char = 1;
         TheEncoding(encoding)->max_bytes_per_char = 6;
         define_constant(symbol,encoding);
@@ -1216,6 +1325,7 @@ LISPFUNN(encodingp,1)
                                                    ? P(nls_asciiext_wcstombs)
                                                    : P(nls_wcstombs)
                                                   );
+            TheEncoding(encoding)->enc_range    = P(nls_range);
             TheEncoding(encoding)->enc_table    = P(**ptr);
             TheEncoding(encoding)->min_bytes_per_char = 1;
             TheEncoding(encoding)->max_bytes_per_char = 1;
