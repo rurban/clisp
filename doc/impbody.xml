@@ -191,7 +191,7 @@ ignored by the interpreter.</para>
  <code>(&ftype-dec; &type-r; &func-r; ...)</code>,
  <code>(&optimize-dec; (<replaceable>quality</replaceable>
         &value-r;) ...)</code>
-   are ignored by the interpreter and the compiler.</para>
+   are ignored by both the interpreter and the compiler.</para>
 
 <section id="compile-decl"><title>Additional declarations</title>
 
