@@ -47,7 +47,7 @@
   direct-slots             ; list of all freshly added slots (as plists)
   direct-default-initargs  ; freshly added default-initargs (as plist)
   instantiated             ; true if an instance has already been created
-  direct-subclasses        ; list of all direct subclasses
+  direct-subclasses        ; list of weak-pointers to all direct subclasses
   proto)                   ; class prototype - an instance or NIL
 
 ;; CLtL2 28.1.4., ANSI CL 4.3.7. Integrating Types and Classes
@@ -597,7 +597,7 @@
           (std-compute-superclasses (class-precedence-list class)))
     (dolist (super augmented-direct-superclasses)
       (when (standard-class-p super)
-        (pushnew class (class-direct-subclasses super)))))
+        (add-direct-subclass super class))))
   (setf (class-slots class) (std-compute-slots class))
   (setf (class-slot-location-table class) (make-hash-table :test #'eq))
   (setf (class-instance-size class) 1) ; slot 0 is the class_version pointer
@@ -990,9 +990,34 @@
 
 ;; --------------- Auxiliary functions for <standard-class> ---------------
 
+;; Iterates over the list of direct subclasses, cleaning unused weak-pointers.
+;; Also removes those objects for which the function returns true.
+(defun map-direct-subclasses (fun class)
+  (setf (class-direct-subclasses class)
+        (delete-if #'(lambda (weak)
+                       (multiple-value-bind (x alive)
+                           (ext:weak-pointer-value weak)
+                         (if alive (funcall fun x) t)))
+                   (the list (class-direct-subclasses class)))))
+
+;; Adds a class to the list of direct subclasses.
+(defun add-direct-subclass (class subclass)
+  (let ((found nil))
+    (map-direct-subclasses
+       #'(lambda (x) (when (eq x subclass) (setq found t)) nil)
+       class)
+    (unless found
+      (push (ext:make-weak-pointer subclass) (class-direct-subclasses class)))))
+
+;; Removes a class from the list of direct subclasses.
+(defun remove-direct-subclass (class subclass)
+  (map-direct-subclasses #'(lambda (x) (eq x subclass)) class))
+
 ;; Returns the currently existing direct subclasses, as a freshly consed list.
 (defun list-direct-subclasses (class)
-  (copy-list (class-direct-subclasses class)))
+  (let ((found '()))
+    (map-direct-subclasses #'(lambda (x) (push x found) nil) class)
+    found))
 
 ;; Returns the currently existing subclasses, in top-down order, including the
 ;; class itself as first element.
