@@ -4688,18 +4688,13 @@ LISPFUN(listen,0,1,norest,nokey,0,NIL)
       { value1 = NIL; mv_count=1; } # Wert NIL
   }
 
-LISPFUNN(read_char_status,1)
-# (READ-CHAR-STATUS input-stream)
-# real listen as needed by generic streams -- GB
+LISPFUNN(read_char_will_hang_p,1)
+# (READ-CHAR-WILL-HANG-P input-stream)
+# tests whether READ-CHAR-NO-HANG will return immediately without reading a
+# character, but accomplishes this without actually calling READ-CHAR-NO-HANG,
+# thus avoiding the need for UNREAD-CHAR and preventing side effects.
   { test_istream(&STACK_0); # input-stream überprüfen
-    switch (stream_listen(popSTACK()))
-    {
-      case ls_eof:   value1 = S(Keof); break;
-      case ls_avail: value1 = S(Kinput_available); break;
-      case ls_wait:  value1 = S(Kwait); break;
-      default: NOTREACHED;
-    }
-    mv_count=1;
+    value1 = (ls_wait_p(stream_listen(popSTACK())) ? T : NIL); mv_count=1;
   }
 
 LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)

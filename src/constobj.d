@@ -703,7 +703,6 @@
   LISPOBJ(type_output_stream,"(SATISFIES OUTPUT-STREAM-P)") # Typ für Fehlermeldung
   LISPOBJ(type_string_with_fill_pointer,"(AND STRING (SATISFIES ARRAY-HAS-FILL-POINTER-P))") # Typ für Fehlermeldung
   LISPOBJ(setf_stream_element_type,"(SETF STREAM-ELEMENT-TYPE)")
-  LISPOBJ(type_read_char_status,"(MEMBER :EOF :INPUT-AVAILABLE :WAIT)")
   LISPOBJ(type_endianness,"(MEMBER :LITTLE :BIG)") # Typ für Fehlermeldung
   LISPOBJ(type_open_file_stream,"(AND FILE-STREAM (SATISFIES OPEN-STREAM-P))") # Typ für Fehlermeldung
   LISPOBJ(strmtype_ubyte8,"(UNSIGNED-BYTE 8)") # als Stream-Element-Type

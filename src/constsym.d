@@ -343,7 +343,7 @@ LISPSYM(read_char,"READ-CHAR",lisp)
 LISPSYM(unread_char,"UNREAD-CHAR",lisp)
 LISPSYM(peek_char,"PEEK-CHAR",lisp)
 LISPSYM(listen,"LISTEN",lisp)
-LISPSYM(read_char_status,"READ-CHAR-STATUS",lisp)
+LISPSYM(read_char_will_hang_p,"READ-CHAR-WILL-HANG-P",lisp)
 LISPSYM(read_char_no_hang,"READ-CHAR-NO-HANG",lisp)
 LISPSYM(clear_input,"CLEAR-INPUT",lisp)
 LISPSYM(read_from_string,"READ-FROM-STRING",lisp)
@@ -1190,7 +1190,7 @@ LISPSYM(stream_read_char_sequence,"STREAM-READ-CHAR-SEQUENCE",lisp) # als Funkti
 LISPSYM(stream_write_char,"STREAM-WRITE-CHAR",lisp) # als Funktion für STREAM
 LISPSYM(stream_write_char_sequence,"STREAM-WRITE-CHAR-SEQUENCE",lisp) # als Funktion für STREAM
 LISPSYM(stream_read_line,"STREAM-READ-LINE",lisp) # als Funktion für STREAM
-LISPSYM(stream_read_char_status,"STREAM-READ-CHAR-STATUS",lisp) # als Funktion für STREAM
+LISPSYM(stream_read_char_will_hang_p,"STREAM-READ-CHAR-WILL-HANG-P",lisp) # als Funktion für STREAM
 LISPSYM(stream_clear_input,"STREAM-CLEAR-INPUT",lisp) # als Funktion für STREAM
 LISPSYM(stream_finish_output,"STREAM-FINISH-OUTPUT",lisp) # als Funktion für STREAM
 LISPSYM(stream_force_output,"STREAM-FORCE-OUTPUT",lisp) # als Funktion für STREAM
@@ -1199,7 +1199,7 @@ LISPSYM(stream_line_column,"STREAM-LINE-COLUMN",lisp) # als Funktion für STREAM
 #ifdef GENERIC_STREAMS
 LISPSYM(generic_stream_rdch,"GENERIC-STREAM-READ-CHAR",lisp) # als Funktion für STREAM
 LISPSYM(generic_stream_pkch,"GENERIC-STREAM-PEEK-CHAR",lisp) # als Funktion für STREAM
-LISPSYM(generic_stream_read_char_status,"GENERIC-STREAM-READ-CHAR-STATUS",lisp) # als Funktion für STREAM
+LISPSYM(generic_stream_read_char_will_hang_p,"GENERIC-STREAM-READ-CHAR-WILL-HANG-P",lisp) # als Funktion für STREAM
 LISPSYM(generic_stream_clear_input,"GENERIC-STREAM-CLEAR-INPUT",lisp) # als Funktion für STREAM
 LISPSYM(generic_stream_wrch,"GENERIC-STREAM-WRITE-CHAR",lisp) # als Funktion für STREAM
 LISPSYM(generic_stream_wrss,"GENERIC-STREAM-WRITE-STRING",lisp) # als Funktion für STREAM
