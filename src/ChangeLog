@@ -1,5 +1,9 @@
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * compiler.lsp (compile-file): Create the .fas and .lib files in UTF-8.
+
+1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Reader macro for switching the stream's encoding.
         * constobj.d (O(charset_package)): New variable.
         * package.d (init_packages): Create #<PACKAGE CHARSET> and initialize
