@@ -11040,7 +11040,7 @@ local void copy_one_file (object source, object src_path,
                     | :error ;; (default) signal an error
  */
 LISPFUN(copy_file,2,0,norest,key,4,
-        (kw(link),kw(preserve),kw(if_exists),kw(if_does_not_exist)) )
+        (kw(method),kw(preserve),kw(if_exists),kw(if_does_not_exist)) )
 {
   var if_does_not_exist_t if_not_exists = check_if_does_not_exist(STACK_0);
   var if_exists_t if_exists = check_if_exists(STACK_1);
