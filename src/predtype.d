@@ -1665,7 +1665,7 @@ LISPFUNN(type_of,1)
           case Rectype_Socket_Server: # Socket-Server
             value1 = S(socket_server); break;
           #endif
-          #ifdef WIN32_NATIVE
+          #ifdef DIR_KEY
           case Rectype_Dir_Key: # Dir-Key
             value1 = S(dir_key); break;
           #endif
@@ -1904,7 +1904,7 @@ LISPFUNN(class_of,1)
           #ifdef SOCKET_STREAMS
           case Rectype_Socket_Server: # Socket-Server -> <t>
           #endif
-          #ifdef WIN32_NATIVE
+          #ifdef DIR_KEY
           case Rectype_Dir_Key: # Dir-Key -> <t>
           #endif
             value1 = O(class_t); break;
@@ -2418,7 +2418,7 @@ enum { # The values of this enumeration are 0,1,2,...
   #ifdef SOCKET_STREAMS
   enum_hs_socket_server,
   #endif
-  #ifdef WIN32_NATIVE
+  #ifdef DIR_KEY
   enum_hs_dir_key,
   #endif
   #ifdef YET_ANOTHER_RECORD
@@ -2742,7 +2742,7 @@ local void heap_statistics_mapper(arg,obj,bytelen)
           case Rectype_Socket_Server: # Socket-Server
             pighole = &locals->builtins[(int)enum_hs_socket_server]; break;
           #endif
-          #ifdef WIN32_NATIVE
+          #ifdef DIR_KEY
           case Rectype_Dir_Key: # Dir-Key
             pighole = &locals->builtins[(int)enum_hs_dir_key]; break;
           #endif
