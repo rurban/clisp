@@ -1114,7 +1114,7 @@
         READTABLE SYMBOL)
        (no)
       )
-      (CLOS:GENERIC-FUNCTION
+      ((CLOS:GENERIC-FUNCTION COMPILED-FUNCTION)
        (if (eq type2 'FUNCTION) (yes) (no))
       )
       (CLOS:STANDARD-GENERIC-FUNCTION
