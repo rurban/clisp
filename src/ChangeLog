@@ -1,3 +1,7 @@
+2003-07-01  Sam Steingold  <sds@gnu.org>
+
+	* describe.lisp (describe1): better whitespace for documentation
+
 2003-06-25  Sam Steingold  <sds@gnu.org>
 
 	* spvw_debug.d (nobject_out1): accept third argument `level'
