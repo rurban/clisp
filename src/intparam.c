@@ -1,11 +1,14 @@
 #line 1 "intparam.d"
-/* Bestimmung einiger Maschinen-Parameter und -Abhängigkeiten */
-/* und Ausgabe in ein Include-File */
-/* Bruno Haible 10.9.1991, 12.10.1992, 6.12.1992, 24.10.1993 */
-
-/* Auf einigen Systemen werden in <sys/types.h> die Typen uchar, ushort, uint, */
-/* ulong definiert. Normalerweise reicht _POSIX_SOURCE aus, dies zu verhindern, */
-/* bei AIX 3.2.5 (rs6000-ibm-aix3.2.5) jedoch nicht. Wir müssen Gewalt anwenden. */
+/*
+ * Bestimmung einiger Maschinen-Parameter und -Abhängigkeiten
+ * und Ausgabe in ein Include-File
+ * Bruno Haible 10.9.1991, 12.10.1992, 6.12.1992, 24.10.1993
+ *
+ * Auf einigen Systemen werden in <sys/types.h> die Typen uchar, ushort,
+ * uint, ulong definiert. Normalerweise reicht _POSIX_SOURCE aus, dies
+ * zu verhindern, bei AIX 3.2.5 (rs6000-ibm-aix3.2.5) jedoch nicht. Wir
+ * müssen Gewalt anwenden.
+ */
 #define _POSIX_SOURCE
 #define uchar  os_uchar
 #define ushort os_ushort
@@ -85,8 +88,8 @@ void printf_underscored(string)
     while (!((c = *string++) == '\0')) { printf("%c",(c==' ' ? '_' : c)); }
   }
 
-/* string_length(string) is the same as strlen(string). */
-/* Better avoid to depend on <string.h>. */
+/* string_length(string) is the same as strlen(string).
+   Better avoid depending on <string.h>. */
 #if defined(__STDC__) || defined(__cplusplus)
 int string_length (char* string)
 #else
