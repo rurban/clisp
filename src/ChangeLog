@@ -1,3 +1,9 @@
+2003-07-26  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (CONFIGURES): added config.h.in in wildcard,
+	regexp, dirkey and syscall, use autoheader to generate them
+	* m4/cc-void.m4 (RL_VOID): fixed the AC_DEFINE call
+
 2003-07-25  Sam Steingold  <sds@gnu.org>
 
 	Converted syscall to a module
