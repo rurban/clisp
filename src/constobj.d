@@ -648,7 +648,7 @@
   LISPOBJ(type_posint16,"(INTEGER (0) (65536))")
   LISPOBJ(type_gensym_arg,"(OR STRING INTEGER)")
   LISPOBJ(type_uint8_vector,"(ARRAY (UNSIGNED-BYTE 8) (*))")
-  LISPOBJ(type_position,"(OR (MEMBER :START :END) (INTEGER 0 #.MOST-POSITIVE-FIXNUM))")
+  LISPOBJ(type_position,"(OR (MEMBER :START :END) (INTEGER 0 4294967295))")
  #if HAS_HOST || defined(LOGICAL_PATHNAMES)
   LISPOBJ(type_host,"(OR NULL STRING)")
  #endif

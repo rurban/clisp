@@ -13929,9 +13929,9 @@ LISPFUN(file_position,1,1,norest,nokey,0,NIL)
         elif (eq(position,S(Kend)))
           # :END -> ans Ende positionieren:
           { position_file_end(stream); }
-        elif (posfixnump(position))
+        elif (uint32_p(position))
           # an die angegebene Position positionieren:
-          { position_file(stream,posfixnum_to_L(position)); }
+          { position_file(stream,I_to_UL(position)); }
         else
           # Unzulässiges Position-Argument
           { pushSTACK(position); # Wert für Slot DATUM von TYPE-ERROR
@@ -13939,9 +13939,9 @@ LISPFUN(file_position,1,1,norest,nokey,0,NIL)
             pushSTACK(position); pushSTACK(S(Kend)); pushSTACK(S(Kstart));
             pushSTACK(TheSubr(subr_self)->name);
             fehler(type_error,
-                   DEUTSCH ? "~: Position-Argument muss ~ oder ~ oder ein Fixnum >=0 sein, nicht ~" :
-                   ENGLISH ? "~: position argument should be ~ or ~ or a nonnegative fixnum, not ~" :
-                   FRANCAIS ? "~ : L'argument position doit être ~, ~ ou de type FIXNUM positif ou zéro, mais non ~." :
+                   DEUTSCH ? "~: Position-Argument muss ~ oder ~ oder ein Integer >=0 sein, nicht ~" :
+                   ENGLISH ? "~: position argument should be ~ or ~ or a nonnegative integer, not ~" :
+                   FRANCAIS ? "~ : L'argument position doit être ~, ~ ou un entier positif ou zéro, mais non ~." :
                    ""
                   );
           }
