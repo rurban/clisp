@@ -1,6 +1,6 @@
 # Choice of user interface language, and internationalization.
 
-# ------------------------------ Specification ---------------------------------
+# ------------------------------ Specification --------------------------------
 
 #ifndef LANGUAGE_STATIC
 
@@ -25,117 +25,7 @@
 
 #endif
 
-# ------------------------------ Implementation --------------------------------
-
-#ifdef GNU_GETTEXT
-
-  # Modify the environment variables. putenv() is POSIX, but some BSD systems
-  # only have setenv(). Therefore (and because it's simpler to use) we
-  # implement this interface, but without the third argument.
-  # mysetenv(name,value) sets the value of the environment variable `name' to
-  # `value' and returns 0. Returns -1 if not enough memory.
-  local int mysetenv (const char * name, const char * value);
-  local int mysetenv(name,value)
-    var const char * name;
-    var const char * value;
-    {
-      var uintL namelen = asciz_length(name);
-      var uintL valuelen = asciz_length(value);
-      #if defined(HAVE_PUTENV)
-        var char* buffer = malloc(namelen+1+valuelen+1);
-        var char* bufptr;
-        if (!buffer)
-          return -1; # no need to set errno = ENOMEM
-        bufptr = buffer;
-        dotimesL(namelen,namelen, {
-          *bufptr++ = *name++;
-        });
-        *bufptr++ = '=';
-        dotimesL(valuelen,valuelen, {
-          *bufptr++ = *value++;
-        });
-        *bufptr = '\0';
-        return putenv(buffer);
-      #elif defined(HAVE_SETENV)
-        return setenv(name,value,1);
-      #else
-        # Uh oh, neither putenv() nor setenv(), have to frob the environment
-        # ourselves. Routine taken from glibc and fixed in several aspects.
-        extern char** environ;
-        var char** epp;
-        var char* ep;
-        var uintL envvar_count = 0;
-        for (epp = environ; (ep = *epp) != NULL; epp++) {
-          var const char * np = name;
-          # Compare *epp and name:
-          while (*np != '\0' && *np == *ep) { np++; ep++; }
-          if (*np == '\0' && *ep == '=')
-            break;
-          envvar_count++;
-        }
-        ep = *epp;
-        if (ep == NULL) {
-          # name not found in environ, add it.
-          # Remember the environ, so that we can free it if we need
-          # to reallocate it again next time.
-          var static char** last_environ = NULL;
-          var char** new_environ = (char**) malloc((envvar_count+2)*sizeof(char*));
-          if (!new_environ)
-            return -1; # no need to set errno = ENOMEM
-          {
-            var uintL count;
-            epp = environ;
-            for (count = 0; count < envvar_count; count++)
-              new_environ[count] = epp[count];
-          }
-          ep = (char*) malloc(namelen+1+valuelen+1);
-          if (!ep) {
-            free(new_environ); return -1; # no need to set errno = ENOMEM
-          }
-          {
-            var char* cp = ep;
-            dotimesL(namelen,namelen, {
-              *cp++ = *name++;
-            });
-            *cp++ = '=';
-            dotimesL(valuelen,valuelen, {
-              *cp++ = *value++;
-            });
-            *cp = '\0';
-          }
-          new_environ[envvar_count] = ep;
-          new_environ[envvar_count+1] = NULL;
-          environ = new_environ;
-          if (last_environ != NULL)
-            free(last_environ);
-          last_environ = new_environ;
-        } else {
-          # name found, replace its value.
-          # We could be tempted to overwrite name's value directly if
-          # the new value is not longer than the old value. But that's
-          # not a good idea - maybe someone still has a pointer to
-          # this area around.
-          ep = (char*) malloc(namelen+1+valuelen+1);
-          if (!ep)
-            return -1; # no need to set errno = ENOMEM
-          {
-            var char* cp = ep;
-            dotimesL(namelen,namelen, {
-              *cp++ = *name++;
-            });
-            *cp++ = '=';
-            dotimesL(valuelen,valuelen, {
-              *cp++ = *value++;
-            });
-            *cp = '\0';
-          }
-          *epp = ep;
-        }
-        return 0;
-      #endif
-    }
-
-#endif
+# ------------------------------ Implementation -------------------------------
 
 #ifndef LANGUAGE_STATIC
 
@@ -262,10 +152,10 @@
               language == language_dutch ? "nl" :
               "";
             if (getenv("LANGUAGE"))
-              mysetenv("LANGUAGE","");
+              clisp_setenv("LANGUAGE","");
             if (getenv("LC_ALL"))
-              mysetenv("LC_ALL","");
-            mysetenv("LC_MESSAGES",locale);
+              clisp_setenv("LC_ALL","");
+            clisp_setenv("LC_MESSAGES",locale);
             #ifdef LC_MESSAGES # !(UNIX_NEXTSTEP || ...)
             # Given the above, the following line is probably not needed.
             # (Depends on the behaviour of setlocale(LC_MESSAGES,NULL) on
