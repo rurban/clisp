@@ -1,5 +1,9 @@
 2004-02-28  Bruno Haible  <bruno@clisp.org>
 
+	* lfloat.d (LF_sqrt_LF): Simplify the last bug fix.
+
+2004-02-28  Bruno Haible  <bruno@clisp.org>
+
 	* io.d (pr_structure_default): Change error message.
 
 2004-02-28  Bruno Haible  <bruno@clisp.org>
