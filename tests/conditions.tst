@@ -23,8 +23,8 @@ MY-CPL
 (defun check-superclasses (class expected)
   (let ((expected (list* class 't #+CLISP 'clos:standard-object #+ALLEGRO 'standard-object #+CMU 'instance 'condition expected))
         (super (mapcar #' #+CLISP clos:class-name #+ALLEGRO class-name #+CMU pcl:class-name (my-cpl class))))
-    (and (null (set-difference super expected))
-         (null (set-difference expected super)))))
+    (list (set-difference super expected)
+          (set-difference expected super))))
 CHECK-SUPERCLASSES
 
 ;;;
@@ -48,35 +48,64 @@ CHECK-SUPERCLASSES
 ;;; Predefined condition types.
 ;;;
 
-(check-superclasses 'warning '()) T
-(check-superclasses 'style-warning '(warning)) T
-(check-superclasses 'serious-condition '()) T
-(check-superclasses 'error '(serious-condition)) T
-(check-superclasses 'cell-error '(error serious-condition)) T
-(check-superclasses 'parse-error '(error serious-condition)) T
-(check-superclasses 'storage-condition '(serious-condition)) T
-(check-superclasses 'simple-error '(simple-condition error serious-condition)) T
-(check-superclasses 'simple-condition '()) T
-(check-superclasses 'simple-warning '(simple-condition warning)) T
-(check-superclasses 'file-error '(error serious-condition)) T
-(check-superclasses 'control-error '(error serious-condition)) T
-(check-superclasses 'program-error '(error serious-condition)) T
-(check-superclasses 'undefined-function '(cell-error error serious-condition)) T
-(check-superclasses 'arithmetic-error '(error serious-condition)) T
-(check-superclasses 'division-by-zero '(arithmetic-error error serious-condition)) T
-(check-superclasses 'floating-point-invalid-operation '(arithmetic-error error serious-condition)) T
-(check-superclasses 'floating-point-inexact '(arithmetic-error error serious-condition)) T
-(check-superclasses 'floating-point-overflow '(arithmetic-error error serious-condition)) T
-(check-superclasses 'floating-point-underflow '(arithmetic-error error serious-condition)) T
-(check-superclasses 'unbound-slot '(cell-error error serious-condition)) T
-(check-superclasses 'package-error '(error serious-condition)) T
-(check-superclasses 'print-not-readable '(error serious-condition)) T
-(check-superclasses 'reader-error '(parse-error stream-error error serious-condition)) T
-(check-superclasses 'stream-error '(error serious-condition)) T
-(check-superclasses 'end-of-file '(stream-error error serious-condition)) T
-(check-superclasses 'unbound-variable '(cell-error error serious-condition)) T
-(check-superclasses 'type-error '(error serious-condition)) T
-(check-superclasses 'simple-type-error '(simple-condition type-error error serious-condition)) T
+(check-superclasses 'warning '())
+(nil nil)
+(check-superclasses 'style-warning '(warning))
+(nil nil)
+(check-superclasses 'serious-condition '())
+(nil nil)
+(check-superclasses 'error '(serious-condition))
+(nil nil)
+(check-superclasses 'cell-error '(error serious-condition))
+(nil nil)
+(check-superclasses 'parse-error '(error serious-condition))
+(nil nil)
+(check-superclasses 'storage-condition '(serious-condition))
+(nil nil)
+(check-superclasses 'simple-error '(simple-condition error serious-condition))
+(nil nil)
+(check-superclasses 'simple-condition '())
+(nil nil)
+(check-superclasses 'simple-warning '(simple-condition warning))
+(nil nil)
+(check-superclasses 'file-error '(error serious-condition))
+(nil nil)
+(check-superclasses 'control-error '(error serious-condition))
+(nil nil)
+(check-superclasses 'program-error '(error serious-condition))
+(nil nil)
+(check-superclasses 'undefined-function '(cell-error error serious-condition))
+(nil nil)
+(check-superclasses 'arithmetic-error '(error serious-condition))
+(nil nil)
+(check-superclasses 'division-by-zero '(arithmetic-error error serious-condition))
+(nil nil)
+(check-superclasses 'floating-point-invalid-operation '(arithmetic-error error serious-condition))
+(nil nil)
+(check-superclasses 'floating-point-inexact '(arithmetic-error error serious-condition))
+(nil nil)
+(check-superclasses 'floating-point-overflow '(arithmetic-error error serious-condition))
+(nil nil)
+(check-superclasses 'floating-point-underflow '(arithmetic-error error serious-condition))
+(nil nil)
+(check-superclasses 'unbound-slot '(cell-error error serious-condition))
+(nil nil)
+(check-superclasses 'package-error '(error serious-condition))
+(nil nil)
+(check-superclasses 'print-not-readable '(error serious-condition))
+(nil nil)
+(check-superclasses 'reader-error '(parse-error stream-error error serious-condition))
+(nil nil)
+(check-superclasses 'stream-error '(error serious-condition))
+(nil nil)
+(check-superclasses 'end-of-file '(stream-error error serious-condition))
+(nil nil)
+(check-superclasses 'unbound-variable '(cell-error error serious-condition))
+(nil nil)
+(check-superclasses 'type-error '(error serious-condition))
+(nil nil)
+(check-superclasses 'simple-type-error '(simple-condition type-error error serious-condition))
+(nil nil)
 
 ;;;
 ;;; Defining conditions.
@@ -84,20 +113,20 @@ CHECK-SUPERCLASSES
 (progn (define-condition test () ()) t)
 T
 
-(check-superclasses  'test '())
-T
+(check-superclasses 'test '())
+(nil nil)
 
 (progn (define-condition test2 (test) ()) t)
 T
 
 (check-superclasses 'test2 '(test))
-T
+(nil nil)
 
 (progn (define-condition test3 (test2 simple-condition) ()) t)
 T
 
 (check-superclasses 'test3 '(test2 test simple-condition))
-T
+(nil nil)
 
 ;;;
 ;;; Making conditions

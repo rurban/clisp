@@ -1,3 +1,8 @@
+2001-04-05  Sam Steingold  <sds@gnu.org>
+
+	* conditions.tst (check-superclasses): return the list of
+	differences, not just a failure indicator
+
 2001-03-28  Sam Steingold  <sds@gnu.org>
 
 	* conditions.tst: `:no-error' clause must be last in `handler-case'
