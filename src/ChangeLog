@@ -1,3 +1,11 @@
+2002-06-12  Eduard Haritonov <hed@iis.nsk.su>
+	    Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	Long awaited Russian translations
+	* po/Makefile.devel: added ru language
+	* po/Makefile.trans.ru: new translator's makefile
+	* po/ru.po: new translations file
+
 2002-06-11  Sam Steingold  <sds@gnu.org>
 
 	* complete.lisp (completion): restored adding ")" when completing
