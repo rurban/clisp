@@ -200,7 +200,7 @@
 
 2004-06-01  Sam Steingold  <sds@gnu.org>
 
-	* list.d (check_list_length): to check that the argument is a
+	* list.d (check_list_length): check that the argument is a
 	non-circular list and compute its length
 	(BUTLAST, NBUTLAST): use it
 
