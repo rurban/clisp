@@ -560,7 +560,7 @@ local void make_variable_frame (object caller, object varspecs,
       }
      #endif
       pushSTACK(aktenv.var_env); /* current VAR_ENV as NEXT_ENV */
-      pushSTACK(as_object(var_anz)); /* number of bindings */
+      pushSTACK(fake_gcv_object(var_anz)); /* number of bindings */
       finish_frame(VAR);
     }
   }
@@ -830,7 +830,7 @@ local Values finish_flet (gcv_object_t* top_of_frame, object body) {
     var uintL bindcount = /* number of bindings */
       STACK_item_count(STACK,top_of_frame) / 2;
       pushSTACK(aktenv.fun_env); /* current FUN_ENV as NEXT_ENV */
-    pushSTACK(as_object(bindcount));
+    pushSTACK(fake_gcv_object(bindcount));
     finish_frame(FUN);
   }
   /* function binding frame is finished.
