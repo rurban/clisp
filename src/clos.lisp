@@ -428,7 +428,6 @@
   direct-subclasses) ; list of all direct subclasses
 
 (defstruct (built-in-class (:inherit class) (:conc-name "CLASS-")))
-(proclaim '(notinline built-in-class-p))
 
 (defstruct (slotted-class (:inherit class) (:predicate nil) (:copier nil)
                           (:conc-name "CLASS-"))

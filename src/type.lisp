@@ -20,8 +20,9 @@
 (in-package "SYSTEM")
 
 ; vorläufig, solange bis clos.lisp geladen wird:
-(unless (fboundp 'clos::built-in-class-p)
-  (defun clos::built-in-class-p (object) (declare (ignore object)) nil)
+(eval-when (eval)
+  (defun clos::built-in-class-p (object) (declare (ignore object)) nil))
+(unless (fboundp 'clos::subsclassp)
   (defun clos::subclassp (class1 class2) (declare (ignore class1 class2)) nil)
   (defun clos::class-name (c) (declare (ignore c)) nil)
 )
