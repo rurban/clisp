@@ -1323,7 +1323,7 @@
   (apply #'format *error-output* format-string args)
   nil)
 (defun open-for-load (filename extra-file-types external-format
-                      &aux stream (present-files t) obj path)
+                      &aux stream (present-files t) obj path bad-file)
  (block open-for-load
   (when (streamp filename)
     (return-from open-for-load (values filename filename)))
@@ -1340,6 +1340,7 @@
            (bad (error-p stream message)
              (sys::built-in-stream-close stream)
              (when (eq *load-obsolete-action* :delete) (delete-file stream))
+             (setq bad-file (pathname stream))
              (if error-p
                  (error-of-type 'file-error :pathname (pathname stream)
                                 message 'load (pathname stream))
@@ -1354,12 +1355,25 @@
     (setq filename (pathname filename) path filename stream (my-open path))
     (tagbody proceed
       (when (and stream
-                 (or (not (compiledp stream))
+                 (if (compiledp stream)
                      (check-compiled-file
                       stream (or (eq *load-obsolete-action* :error)
                                  (eq present-files t)
                                  (cdr present-files))
-                      (setq obj (read stream)))))
+                      (setq obj (read stream)))
+                     #+compiler
+                     (if (and bad-file (eq *load-obsolete-action* :compile))
+                         ;; assume that BAD-FILE was compiled from STREAM
+                         (let ((compiled-file ; try to compile
+                                (compile-file stream :output-file bad-file)))
+                           (if compiled-file ; ==> compiled-file == bad-file
+                               (progn (sys::built-in-stream-close stream)
+                                      (setq stream (my-open compiled-file)
+                                            path compiled-file))
+                               ;; compilation failed - try to load the source
+                               stream))
+                         stream)
+                     #-compiler stream))
         (return-from open-for-load (values stream path)))
       (when (eq present-files t)
         ;; File with precisely this name not present OR bad
