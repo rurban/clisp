@@ -6,7 +6,8 @@
     `(BLOCK ,b
        (LET ((*ERROR-HANDLER*
               #'(LAMBDA (&REST ARGS)
-                  (DECLARE (IGNORE ARGS)) (RETURN-FROM ,b 'ERROR))))
+                  (TERPRI) (APPLY #'FORMAT T (CDR ARGS))
+                  (RETURN-FROM ,b 'ERROR))))
          ,@forms))))
 
 #+(or AKCL ECL)
