@@ -23,8 +23,8 @@ CPP = cl -E
 INCLUDES = -I. -I$(srcdir)
 AR = lib
 AR_FLAGS = /out:
-MV = mv
-LN = cp
+MV = ren
+LN = copy
 RM = del
 
 # Programs used by "make install":
