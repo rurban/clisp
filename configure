@@ -67,7 +67,7 @@ Using GNU libiconv (only needed if you do not have GNU LIBC 2.2 or better):
          If you want to use GNU libiconv which is not installed system-wide,
          you may supply a --with-libiconv-prefix argument
          (type \`./src/configure --help' for details).
-         The same goes for non-standard locations of gettext.
+         The same goes for non-standard locations of libintl and libsigsegv.
 EOP
 }
 
@@ -395,19 +395,19 @@ if test -n "$do_config"; then
       maybe_link ffcall/$f $ABS_DIRNAME/$f
     done
   fi # do_ffi
-  # Similarly for libcharset and sigsegv.
-  for subdir in libcharset sigsegv; do
+  # Similarly for libcharset.
+  for subdir in libcharset; do
     if [ -d $subdir ] ; then
       maybe_mkdir "${ABS_DIRNAME}/${subdir}";
     fi
   done
-  for subdir in libcharset sigsegv; do
+  for subdir in libcharset; do
     f=$subdir/configure
     maybe_link $f $ABS_DIRNAME/$f
   done
   # Prepare the configure files.
   chmod a+x $ABS_DIRNAME/configure
-  for subdir in ${FFI_DIRS} libcharset sigsegv; do
+  for subdir in ${FFI_DIRS} libcharset; do
     if test -d $ABS_DIRNAME/$subdir; then
       chmod a+x $ABS_DIRNAME/$subdir/configure
     fi
@@ -429,7 +429,7 @@ if test -n "$do_config"; then
       fi
     done
   fi # do_ffi
-  for subdir in libcharset sigsegv; do
+  for subdir in libcharset; do
     if test -d $subdir; then
       conf_dir $subdir --srcdir="$RREL_SRCDIR/$subdir" \
         $subdir_configure_args --cache-file=../config.cache

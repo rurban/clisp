@@ -11,6 +11,8 @@
 #     NO_TERMCAP_NCURSES
 #   Internationalization:
 #     NO_GETTEXT, UNICODE
+#   Fault handling:
+#     NO_SIGSEGV
 #   Foreign function interface:
 #     DYNAMIC_FFI
 #   Dynamic loading of modules:
@@ -1759,9 +1761,9 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 
 #endif # UNIX || EMUNIX || WIN32
 
-#if defined(UNIX) || defined(WIN32_NATIVE)
+#if (defined(UNIX) || defined(WIN32_NATIVE)) && !defined(NO_SIGSEGV)
   # Support for fault handling.
-  #include "sigsegv.h"
+  #include <sigsegv.h>
 #endif
 
 # Consensys and Solaris: "#define DS 3", "#define SP ESP", "#define EAX 11".

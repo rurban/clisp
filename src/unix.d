@@ -318,7 +318,7 @@
     #define siginterrupt(sig,flag)
   #endif
   # Zur Behebung von SIGSEGV-Signalen nach Schreibzugriff auf
-  # schreibgeschützte Bereiche. Siehe unix/sigsegv.c.
+  # schreibgeschützte Bereiche. Siehe libsigsegv.
   # Obacht: Hans-J. Boehm <boehm@parc.xerox.com> sagt, dass Schreibzugriffe
   # aus Betriebssystem-Aufrufen heraus (z.B. read()) auf vielen Systemen
   # wider Erwarten kein Signal auslösen. (Unter Linux funktioniert's.)

@@ -1,3 +1,22 @@
+2002-09-03  Bruno Haible  <bruno@clisp.org>
+
+	* sigsegv: Remove directory.
+	* unix/INSTALL: Recommend installation of GNU libiconv, GNU libsigsegv.
+	* win32msvc/INSTALL: Likewise.
+	* m4/sigsegv.m4: New file.
+	* configure.in: Call CL_SIGSEGV.
+	* makemake.in (LIBSIGSEGV): New variable.
+	(USE_SIGSEGV, XCL_SIGSEGVLIB): Remove variables.
+	(FILES, LIBS): Remove libsigsegv.a.
+	(EVERY_INCLUDES_H): Remove sigsegv.h.
+	(sigsegv.h, libsigsegv.a): Remove rules.
+	(clean1, clean4): Don't remove libsigsegv.a, sigsegv.h, sigsegv.
+	* lispbibl.d: Don't include sigsegv.h if NO_SIGSEGV is defined.
+	* Makefile.devel (SOURCES4): Remove sigsegv.
+	(CONFIGURES): Remove sigsegv/configure.
+	(configures): Remove dependency on sigsegv/autoconf/aclocal.m4.
+	(sigsegv/autoconf/aclocal.m4, sigsegv/configure): Remove rules.
+
 2002-09-03  Sam Steingold  <sds@gnu.org>
 
 	* win32.d (HAVE_UNISTD_H): do not define (revert the 2002-08-19
