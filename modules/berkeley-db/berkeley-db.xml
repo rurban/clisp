@@ -28,7 +28,7 @@
 <section id="bdb-close"><title>Closing handles</title>
 
 <para>&close; will close (or commit, in the case of a transaction) the
- DB handle objects.  &gc;or will also call &close;.
+ Berkeley-DB handle objects.  &gc;or will also call &close;.
  Closing an object will first close all its dependents.</para>
 </section>
 

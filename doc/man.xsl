@@ -52,7 +52,7 @@
        -h
        -/-help Displays a help message on how to use CLISP.
   it appears that the former is at least no worse than the latter,
-  so we diable these templates -->
+  so we disable these templates -->
 <!--
 <xsl:template match="varlistentry/term|glossterm">
  <xsl:variable name="content"><xsl:apply-templates/></xsl:variable>
