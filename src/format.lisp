@@ -33,7 +33,6 @@
   (atsign-p     nil :type symbol)
   (data         nil)
   (clause-chain nil))
-#+CLISP (remprop 'control-string-directive 'sys::defstruct-description)
 ;; Explanation:
 ;; type=0: directive ~<Newline>, nothing to print.
 ;;         further components are meaningless
