@@ -2957,6 +2957,9 @@ if [ $CROSS = false ] ; then
   echol "testsuite : ${TESTSDIR} lisp${LEXE} lispinit.mem"
   echotab "cd ${TESTSDIR} && \$(MAKE) LEXE=${LEXE}"
   echol
+  echol "testsuite-all : ${TESTSDIR} lisp${LEXE} lispinit.mem"
+  echotab "cd ${TESTSDIR} && \$(MAKE) LEXE=${LEXE} complete"
+  echol
   echol "${TESTSDIR} :"
   echotab "-mkdir ${TESTSDIR}"
   # on win32, LN_S=copy and it accepts exactly 2 arguments
