@@ -228,7 +228,7 @@
 #endif
 #ifdef GENERIC_UNIX
   #define UNIX
-  #ifdef linux
+  #ifdef __linux__
     #define UNIX_LINUX  # Linux (Linus Torvalds Unix)
   #endif
   #ifdef __GNU__
