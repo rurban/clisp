@@ -287,7 +287,7 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 </section>
 </chapter>
 
-<chapter id="extend"><title>Extending the &clisp; &c-lang; kernel.</title>
+<chapter id="extend"><title>Extending &clisp;.</title>
 
 <epigraph><attribution><ulink url="http://www.franz.com/~jkf/">John
   Foderaro</ulink></attribution>
