@@ -440,14 +440,6 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  original arguments is enforced by the implementation only in
  interpreted code.</para>
 
-<para>There is a generic function
- <firstterm>&no-prim;<indexterm id="no-prim" significance="preferred">
-   <primary id="no-prim-i"><function>NO-PRIMARY-METHOD</function>
- </primary></indexterm></firstterm>
- (similar to &no-applicable-method;) which is called when a generic
- function of the class &standard-generic-function-t; is invoked and
- no primary method on that generic function is applicable.</para>
-
 <para><firstterm>&gen-flet;<indexterm id="gen-flet" significance="preferred">
    <primary id="gen-flet-i"><function>GENERIC-FLET</function>
  </primary></indexterm></firstterm>
@@ -841,6 +833,41 @@ is the same as
    <ulink url="&clhs;/Body/chap-7.html">[CLHS-7]</ulink></title>
 
 <para>Only the &standard; method combination is implemented.</para>
+
+<section id="std-meth-combo"><title>Standard Method Combination
+  <ulink url="&clhs;/Body/sec_7-6-6-2.html">[CLHS-7.6.6.2]</ulink></title>
+
+<para>Generic function
+ <firstterm>&no-prim;<indexterm id="no-prim" significance="preferred">
+   <primary id="no-prim-i"><function>NO-PRIMARY-METHOD</function>
+ </primary></indexterm></firstterm>
+ (similar to &no-applicable-method;) is called when there is an
+ applicable method but no applicable <emphasis>primary</emphasis>
+ method.</para>
+
+<para>The default methods for &no-prim;, &no-applicable-method; and
+ &no-next-method; &signal; an &error-t; of type
+ <firstterm>&meth-call-err;
+  <indexterm id="meth-call-err" significance="preferred">
+   <primary id="meth-call-err-i"><classname>METHOD-CALL-ERROR</classname>
+ </primary></indexterm></firstterm>.
+ You can find out more information about the error using functions
+ <function>CLOS:METHOD-CALL-ERROR-GENERIC-FUNCTION</function>,
+ <function>CLOS:METHOD-CALL-ERROR-ARGUMENT-LIST</function>, and
+ (only for &no-next-method;)
+ <function>CLOS:METHOD-CALL-ERROR-METHOD</function>.
+ Moreover, when the generic function has only one <emphasis>dispatching
+ argument</emphasis>, (i.e., such an argument that not all the
+ corresponding parameter specializers are &t-t;), an &error-t; of type
+ <firstterm>&meth-call-type-err;
+  <indexterm id="meth-call-type-err" significance="preferred">
+   <primary id="meth-call-type-err-i">
+    <classname>METHOD-CALL-TYPE-ERROR</classname>
+ </primary></indexterm></firstterm>
+  is &signal;ed, additinally making &type-error-datum; and
+  &type-error-expected-type; available.</para>
+
+</section>
 
 <section id="meth-combo"><title>Declarative Method Combination
   <ulink url="&clhs;/Body/sec_7-6-6-3.html">[CLHS-7.6.6.3]</ulink></title>
@@ -1440,7 +1467,7 @@ performance considerations.
 <para>The macro <literal role="sexp">(&no-underflow;
  {&form-r;}*)</literal> executes the &form-r;s, with errors of type
  &floating-point-underflow-t; inhibited.  Floating point operations
- will silently return zero instead of &signal;ling an &error-t; of type
+ will silently return zero instead of &signal;ing an &error-t; of type
  &floating-point-underflow-t;.</para></formalpara>
 
 <section id="int-func-ext"><title>Additional Integer Functions</title>
@@ -3759,7 +3786,7 @@ is not a defined logical host yet, we proceed as follows:
  the pathname &path-r;, not its &truename;, and returns the absolute
  pathname it actually removed or &nil; if &path-r; did not exist.
  When &path-r; points to a file which is currently open in &clisp;, an
- &error-t; is &signal;led.</para></formalpara>
+ &error-t; is &signal;ed.</para></formalpara>
 
 <section id="dir"><title>Function &directory;</title>
 

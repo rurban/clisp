@@ -136,6 +136,8 @@
 <!ENTITY class-proto "<link linkend='class-proto'><function>CLOS:CLASS-PROTOTYPE</function></link>">
 
 <!ENTITY no-prim "<link linkend='no-prim'><function>CLOS:NO-PRIMARY-METHOD</function></link>">
+<!ENTITY meth-call-err "<link linkend='meth-call-err'><classname>CLOS:METHOD-CALL-ERROR</classname></link>">
+<!ENTITY meth-call-type-err "<link linkend='meth-call-type-err'><classname>CLOS:METHOD-CALL-TYPE-ERROR</classname></link>">
 <!ENTITY gen-flet "<link linkend='gen-flet'><function>CLOS:GENERIC-FLET</function></link>">
 <!ENTITY gen-labels "<link linkend='gen-labels'><function>CLOS:GENERIC-LABELS</function></link>">
 <!ENTITY class-fin-p "<link linkend='class-fin-p'><function>CLOS:CLASS-FINALIZED-P</function></link>">
