@@ -2592,9 +2592,9 @@ argument to &ensure-gf;.</simpara></listitem>
 keyword argument with the same name.  If the option does not appear in
 the macro form, the keyword argument does not appear in the resulting
 call to &ensure-gf;.</simpara></listitem>
-<listitem><simpara>For the option <replaceable>declare</replaceable>,
+<listitem><simpara>For the option <literal>declare</literal>,
 the list of &ldquo;declarations&rdquo; becomes the value of the &declarations-k;
-keyword argument.  If the <replaceable>declare</replaceable> option does
+keyword argument.  If the <literal>declare</literal> option does
 not appear in the macro form, the &declarations-k; keyword argument does
 not appear in the call to &ensure-gf;.</simpara></listitem>
 <listitem><simpara>The handling of the &method-combination-k; option is
