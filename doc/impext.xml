@@ -2860,8 +2860,7 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
  <replaceable>c-type&sub-n;</replaceable>
  <replaceable>ident&sub-n;</replaceable>; }</type>.
  Its Lisp equivalent is: if &class-r; is &vector-t;, a
- &simple-vector-t;; if &class-r; is &list-t;, a
- <ulink url="&clhs;/Body/glo_p.html#proper_list">proper list</ulink>;
+ &simple-vector-t;; if &class-r; is &list-t;, a &proper-list-glo;;
  if &class-r; is a symbol naming a structure or &clos; class, an
  instance of this class, with slots of names
  <replaceable>ident&sub-1;</replaceable>, ...,
