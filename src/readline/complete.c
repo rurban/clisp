@@ -128,7 +128,7 @@ int _rl_complete_mark_directories = 1;
 int _rl_print_completions_horizontally;
 
 /* Non-zero means that case is not significant in filename completion. */
-#ifdef __MSDOS__
+#if defined (__MSDOS__) && !defined (__DJGPP__)
 int _rl_completion_case_fold = 1;
 #else
 int _rl_completion_case_fold;

@@ -41,7 +41,7 @@ INSTALL_DATA = ${INSTALL} -m 644
 
 TEXINPUTDIR = $(srcdir)
 
-MAKEINFO    = LANGUAGE= makeinfo
+MAKEINFO    = LANG= LANGUAGE= makeinfo
 TEXI2DVI    = $(srcdir)/texi2dvi
 TEXI2HTML   = $(srcdir)/texi2html
 QUIETPS     = #set this to -q to shut up dvips

@@ -29,7 +29,7 @@ options:
             or the value of the environment variable CLHSROOT, if set).
     The following options add support for specific separate packages. See the
     main INSTALL file for how to get them.
-       --with-readline         the (readline-4.1-beta3 based) readline lib
+       --with-readline         the (readline-4.1 based) readline lib
        --with-noreadline       no readline library
        --with-gettext          internationalization library gettext-0.10.27
        --with-nogettext        static internationalization (en,de,fr only)
@@ -54,7 +54,7 @@ EOP
 # Advanced usage:
 #        ./makemake [--with-PACKAGE] TARGET COMPILER [debug] > Makefile
 #  where PACKAGE is one of
-#        readline         the (readline-4.1-beta3 based) readline library
+#        readline         the (readline-4.1 based) readline library
 #        noreadline       no readline library
 #        gettext          internationalization library gettext-0.10.27
 #        nogettext        static internationalization (en,de,fr only)
