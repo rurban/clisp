@@ -1,5 +1,11 @@
 2004-01-08  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 873204 ]: infinite recursion with pprint-logical-block
+	* io.d (pretty_print_call): avoid an infinite recursion by
+	cheking *PRIN-PPRINTER* before calling PPRINT-DISPATCH
+
+2004-01-08  Sam Steingold  <sds@gnu.org>
+
 	moved *LOAD-FORMS* to C to speed up instance output
 	* constsym.d (*LOAD-FORMS*): added
 	* io.d (pr_instance): check *LOAD-FORMS* before calling MAKE-INIT-FORM

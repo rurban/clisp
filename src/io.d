@@ -6346,12 +6346,13 @@ local void pr_circle (const gcv_object_t* stream_, object obj, pr_routine_t* pr_
 local void pretty_print_call (const gcv_object_t* stream_,object obj,
                               pr_routine_t* pr_xxx_default) {
   object ppp_disp = Symbol_value(S(print_pprint_dispatch));
-  if (DISPATCH_TABLE_VALID_P(ppp_disp)) {
+  if (!boundp(Symbol_value(S(prin_pprinter))) /* been here already! */
+      && DISPATCH_TABLE_VALID_P(ppp_disp)) {
     pushSTACK(obj); funcall(S(pprint_dispatch),1);
     if (nullp(value2)) goto default_printing;
     pushSTACK(*stream_); pushSTACK(obj); funcall(value1,2);
   } else {
-  default_printing:
+   default_printing:
     (*pr_xxx_default)(stream_,obj);
   }
 }
