@@ -100,7 +100,8 @@
 
 # Locale definition function
   #include <locale.h>
-  extern_C char *setlocale( int category, const char *locale );
+  extern_C char *setlocale (int category, const char *locale);
+  #define HAVE_LC_MESSAGES 1
 # used by spvw_ctype.d
 
 # Character set conversion
