@@ -78,6 +78,16 @@
                  :detail slot-specs
                  (TEXT "~S ~S: expecting list of slot specifications instead of ~S")
                  'defclass name slot-specs))
+             (when (and (oddp (length slot-specs)) (cdr slot-specs)
+                        (do ((l (cdr slot-specs) (cddr l)))
+                            ((endp l) t)
+                          (unless (keywordp (car l))
+                            (return nil))))
+               ;; Typical beginner error: Omission of the parentheses around the
+               ;; slot-specs. Probably someone who knows DEFSTRUCT and uses
+               ;; DEFCLASS for the first time.
+               (warn (TEXT "~S ~S: Every second slot name is a keyword, and these slots have no options. If you want to define a slot with options, you need to enclose all slot specifications in parentheses: ~S, not ~S.")
+                     'defclass name (list slot-specs) slot-specs))
              (mapcar #'(lambda (slot-spec)
                          (let ((slot-name slot-spec) (slot-options '()))
                            (when (consp slot-spec)
