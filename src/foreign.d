@@ -2241,7 +2241,7 @@ LISPFUN(foreign_variable,seclass_read,2,0,norest,key,1,(kw(name)) )
   foreign_layout(fvd);
   TheFvariable(fvar)->fv_size      = fixnum(data_size);
   TheFvariable(fvar)->fv_type      = fvd;
-  TheFvariable(fvar)->fv_name      = boundp(STACK_0) ? STACK_0 : NIL;
+  TheFvariable(fvar)->fv_name      = (boundp(STACK_0) ? (object)STACK_0 : NIL);
   if (fvariablep(STACK_2)) {
     var object old_fvar = STACK_2;
     TheFvariable(fvar)->fv_address = TheFvariable(old_fvar)->fv_address;
@@ -3746,7 +3746,7 @@ local object dlerror_string (void)
 }
 #endif
 
-local inline void *libopen (char *libname, uintL version)
+local inline void * libopen (char* libname, uintL version)
 { /* open the library == dlopen() */
  #if defined(WIN32_NATIVE)
   return (void*)LoadLibrary(libname);
@@ -3758,7 +3758,7 @@ local inline void *libopen (char *libname, uintL version)
 
 /* Open a library.
  can trigger GC */
-local void * open_library (object *name, uintL version)
+local void * open_library (gcv_object_t* name, uintL version)
 {
   var void * handle;
  open_library_restart:
@@ -3895,11 +3895,15 @@ local void* object_handle (object library, gcv_object_t *name, bool retry_p)
 }
 
 /* update the DLL pointer and all related objects
- acons = (library fpointer object1 object2 ...) */
+ acons = (library fpointer object1 object2 ...)
+ can trigger GC */
 local void update_library (object acons, uintL version) {
-  var object lib_name = Car(acons);
+  pushSTACK(acons);
+  pushSTACK(Car(acons)); /* lib_name */
+  var void *lib_handle = open_library(&STACK_0,version);
+  var object lib_name = popSTACK();
+  acons = popSTACK();
   var object lib_addr = Car(Cdr(acons)); /* presumably invalid */
-  var void *lib_handle = open_library(&lib_name,version);/*cannot trigger GT!*/
   TheFpointer(lib_addr)->fp_pointer = lib_handle;
   mark_fp_valid(TheFpointer(lib_addr));
   var object lib_list = Cdr(Cdr(acons));
@@ -3913,8 +3917,8 @@ local void update_library (object acons, uintL version) {
       default: NOTREACHED;
     }
     ASSERT(eq(TheFaddress(fa)->fa_base,lib_addr));
-    TheFaddress(fa)->fa_offset = (sintP)object_handle(acons,fn,false) -
-      (sintP)lib_handle;
+    TheFaddress(fa)->fa_offset =
+      (sintP)object_handle(acons,fn,false) - (sintP)lib_handle;
     lib_list = Cdr(lib_list);
   }
 }
