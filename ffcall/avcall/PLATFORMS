@@ -15,6 +15,7 @@ Supported CPUs:  (Put the GNU config.guess values here.)
             mips-sgi-irix5.2 (gcc, cc -ansi, ...)    SGI mips      Irix 5.2
             mips-sgi-irix5.3 (gcc, cc -ansi, ...)    SGI mips      Irix 5.3
             mips-sgi-irix6.2 (cc -32)                SGI mips3     Irix 6.2
+            mips-sgi-irix6.4 (cc -32, -n32, -64)     SGI mips3     Irix 6.4
    sparc    sparc-sun-sunos4.1.1 (gcc, cc)           Sun4 Sparc    SunOS 4.x
             sparc-sun-solaris2.3 (gcc)               Sun4 Sparc    SunOS 5.x
             sparc-sun-solaris2.4 (gcc, cc)           Sun4 Sparc    SunOS 5.x

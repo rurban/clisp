@@ -1,5 +1,5 @@
 dnl  AUTOCONF configuration for TRAMPOLINE
-dnl  Bruno Haible 7.11.1997
+dnl  Bruno Haible 18.10.1998
 dnl
 AC_INIT(trampoline.h.in)
 AC_CONFIG_HEADER(config.h)
@@ -34,7 +34,7 @@ CL_SHMDT
 CL_SHMCTL
 CL_SHM
 CL_CANONICAL_HOST(../autoconf)
-CL_CANONICAL_HOST_CPU
+CL_CANONICAL_HOST_CPU_FOR_FFCALL
 CL_CODEEXEC
 CPU_OBJECTS=''
 if test ${host_cpu} = hppa -o ${host_cpu} = rs6000; then
@@ -44,7 +44,7 @@ if test ${host_cpu} = sparc -o ${host_cpu} = alpha -o ${host_cpu} = hppa -o ${ho
   CPU_OBJECTS="$CPU_OBJECTS "'cache-$(CPU).o'
 fi
 AC_SUBST(CPU_OBJECTS)
-if test ${host_cpu} = mips -o ${host_cpu} = mips64; then
+if test ${host_cpu} = mips -o ${host_cpu} = mipsn32 -o ${host_cpu} = mips64; then
 AC_CHECK_HEADERS(sys/cachectl.h)
 fi
 if test ${host_cpu} = m88k; then

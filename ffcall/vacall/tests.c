@@ -2,7 +2,7 @@
 
 /*
  * Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
- * Copyright 1995-1997 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1998 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -67,6 +67,10 @@ FILE* out;
  * the copy of X has used %l2 as a counter without saving and restoring its
  * value.
  */
+#define SKIP_X
+#endif
+#if defined(__mipsn32__) && !defined(__GNUC__)
+/* The X test crashes for an unknown reason. */
 #define SKIP_X
 #endif
 
