@@ -172,7 +172,7 @@ typedef thread_key_t      xthread_key_t;
 
 #define xthread_init()
 #define xthread_self()  thr_self()
-#define xthread_create(thread,startroutine,arg)  *thread = ?? thr_create(NULL,0,startroutine,arg,THR_NEW_LWP|THR_DETACHED,NULL)
+#define xthread_create(thread,startroutine,arg) thr_create(NULL,0,startroutine,arg,THR_NEW_LWP|THR_DETACHED,thread)
 #define xthread_exit(v)  thr_exit(v)
 #define xthread_yield()  thr_yield()
 #define xthread_equal(t1,t2)  ((t1)==(t2))
