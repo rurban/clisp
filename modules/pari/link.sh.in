@@ -8,6 +8,7 @@ make clisp-module \
      CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
      INCLUDES="$absolute_linkkitdir"
 NEW_FILES="$file_list"
-NEW_LIBS="$file_list @PARI_HOME@/build/libpari.so"
+NEW_LIBS="$file_list @LIBS@"
 NEW_MODULES="$mod_list"
 TO_LOAD='pari'
+TO_PRELOAD='preload.lisp'
