@@ -824,13 +824,14 @@ is the same as
    <ulink url="&clhs;/Body/chap-8.html">[CLHS-8]</ulink></title>
 
 <para>The &print-function-k; option should contain a &lambda-expr;
- <literal role="sexp">(&lambda-m; (structure stream depth) (declare
- (ignore depth)) ...)</literal> This &lambda-expr; names a function
- whose task is to output the external representation of structure onto
- the stream. This may be done by outputting text onto the stream using
- &write-char;, &write-string;, &write;, &prin1;, &princ;, &print;,
- &pprint;, &format; and the like. The following rules must be
- obeyed:</para>
+ <literal role="sexp">(&lambda-m; (object stream depth) (declare
+ (ignore depth)) ...)</literal>
+ This &lambda-expr; names a &function-t; whose task is to output the
+ external representation of the &structure-object-t; &object-r; onto the
+ &stream-t; &stream-r;. This may be done by outputting text onto the
+ stream using &write-char;, &write-string;, &write;, &prin1;, &princ;,
+ &print;, &pprint;, &format; and the like.
+ The following rules must be obeyed:</para>
 
 <itemizedlist>
  <listitem><simpara>The value of &print-escape-var; must be
@@ -1108,7 +1109,7 @@ performance considerations.
 <para>The function <literal role="sexp"
  >(&re-export; <replaceable>FROM-PACK</replaceable>
                <replaceable>TO-PACK</replaceable>)</literal>
- re-exports all external symbols from
+ re-&export;s all external &symbol-t;s from
  <replaceable>FROM-PACK</replaceable> also from
  <replaceable>TO-PACK</replaceable>, provided it already uses
  <replaceable>FROM-PACK</replaceable>; and &signal;s an &error-t; otherwise.
