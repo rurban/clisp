@@ -239,6 +239,63 @@ H
   (testgf00 'a 'b))
 ERROR
 
+;; Check that call-next-method functions have indefinite extent and can
+;; be called in arbitrary order.
+(let ((methods nil))
+  (defgeneric foo136 (mode object))
+  (defmethod foo136 (mode (object t))
+    (if (eq mode 'store)
+      (push #'call-next-method methods)
+      (if (eq mode 'list)
+        (list 't)
+        (cons (list 't) (funcall mode)))))
+  (defmethod foo136 (mode (object number))
+    (if (eq mode 'store)
+      (progn (push #'call-next-method methods) (call-next-method))
+      (if (eq mode 'list)
+        (cons 'number (call-next-method))
+        (cons (cons 'number (call-next-method 'list object)) (funcall mode)))))
+  (defmethod foo136 (mode (object real))
+    (if (eq mode 'store)
+      (progn (push #'call-next-method methods) (call-next-method))
+      (if (eq mode 'list)
+        (cons 'real (call-next-method))
+        (cons (cons 'real (call-next-method 'list object)) (funcall mode)))))
+  (defmethod foo136 (mode (object rational))
+    (if (eq mode 'store)
+      (progn (push #'call-next-method methods) (call-next-method))
+      (if (eq mode 'list)
+        (cons 'rational (call-next-method))
+        (cons (cons 'rational (call-next-method 'list object)) (funcall mode)))))
+  (defmethod foo136 (mode (object integer))
+    (if (eq mode 'store)
+      (progn (push #'call-next-method methods) (call-next-method))
+      (if (eq mode 'list)
+        (cons 'integer (call-next-method))
+        (cons (cons 'integer (call-next-method 'list object)) (funcall mode)))))
+  (foo136 'store 3)
+  (multiple-value-bind (t-error-method
+                        number-t-method
+                        real-number-method
+                        rational-real-method
+                        integer-rational-method)
+      (values-list methods)
+    (foo136 #'(lambda ()
+                (funcall number-t-method
+                  #'(lambda ()
+                      (funcall integer-rational-method
+                        #'(lambda ()
+                            (funcall real-number-method
+                              #'(lambda () nil)
+                              5))
+                        5))
+                  5))
+            5)))
+((INTEGER RATIONAL REAL NUMBER T)
+ (T)
+ (RATIONAL REAL NUMBER T)
+ (NUMBER T))
+
 (unintern '<C1>)
 T
 
