@@ -1,40 +1,42 @@
-# Auxiliary functions for CLISP on Win32
-# Bruno Haible 1997-2002
-# Sam Steingold 1999-2002
+/*
+ * Auxiliary functions for CLISP on Win32
+ * Bruno Haible 1997-2003
+ * Sam Steingold 1999-2003
+ */
 
 #include "lispbibl.c"
 
-# File handles of standard input and standard output
-  global Handle stdin_handle = INVALID_HANDLE_VALUE;
-  global Handle stdout_handle = INVALID_HANDLE_VALUE;
-  global Handle stderr_handle = INVALID_HANDLE_VALUE;
+/* File handles of standard input and standard output */
+global Handle stdin_handle = INVALID_HANDLE_VALUE;
+global Handle stdout_handle = INVALID_HANDLE_VALUE;
+global Handle stderr_handle = INVALID_HANDLE_VALUE;
 
-# Auxiliary event for full_read and full_write.
-  local HANDLE aux_event;
+/* Auxiliary event for full_read and full_write. */
+local HANDLE aux_event;
 
 #ifndef UNICODE
-# when UNICODE is defined, console i/o is translated through
-# the encoding mechanism.
-# The encodings for *TERMINAL-IO* and *KEYBOARD-INPUT* should be
-# set to the OEM codepage (see GetConsole[Output]CP() in Windows API)
+/* when UNICODE is defined, console i/o is translated through
+ the encoding mechanism.
+ The encodings for *TERMINAL-IO* and *KEYBOARD-INPUT* should be
+ set to the OEM codepage (see GetConsole[Output]CP() in Windows API) */
 
-# Character conversion table for OEM->ANSI.
-  local char OEM2ANSI_table[256+1];
+/* Character conversion table for OEM->ANSI. */
+local char OEM2ANSI_table[256+1];
 
-# Character conversion table for ANSI->OEM.
-  local char ANSI2OEM_table[256+1];
+/* Character conversion table for ANSI->OEM. */
+local char ANSI2OEM_table[256+1];
 
 #endif
 
-# Auxiliary event for interrupt handling.
-  local HANDLE sigint_event;
-  local HANDLE sigbreak_event;
+/* Auxiliary event for interrupt handling. */
+local HANDLE sigint_event;
+local HANDLE sigbreak_event;
 
-# Winsock library initialization flag
-  local bool winsock_initialized = false;
+/* Winsock library initialization flag */
+local bool winsock_initialized = false;
 
 # COM library initialization flag
-  local bool com_initialized = false;
+local bool com_initialized = false;
 
 /* Early/late error print function. The problem of early/late errors is
    complex, this is a simple kind of temporary solution */
@@ -43,49 +45,45 @@ local void earlylate_asciz_error (const char * description, bool fatal_p) {
   if (fatal_p) _exit(1); /* FIXME: no finalization, no closing files! */
 }
 
-# Initialization.
-  global void init_win32 (void);
-  global void init_win32()
-    {
-      # Standard input/output handles.
-      stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
-      stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
-      stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
-      # What to do if one of these is == INVALID_HANDLE_VALUE ??
-      # Auxiliary events.
-      aux_event = CreateEvent(NULL, true, false, NULL);
-      sigint_event = CreateEvent(NULL, true, false, NULL);
-      sigbreak_event = CreateEvent(NULL, true, false, NULL);
-      #ifndef UNICODE
-      # Translation table for console input.
-      {
-        var int i;
-        for (i = 0; i < 256; i++)
-          OEM2ANSI_table[i] = i;
-        OEM2ANSI_table[i] = '\0';
-        OemToChar(&OEM2ANSI_table[1],&OEM2ANSI_table[1]);
-      }
-      # Translation table for console output.
-      {
-        var int i;
-        for (i = 0; i < 256; i++)
-          ANSI2OEM_table[i] = i;
-        ANSI2OEM_table[i] = '\0';
-        CharToOem(&ANSI2OEM_table[1],&ANSI2OEM_table[1]);
-      }
-      #endif
-      # Initialize COM for shell link resolution
-      if (CoInitialize(NULL) == S_OK)
-        com_initialized = true;
-      # Winsock.
-      {
-        var WSADATA data;
-        if (WSAStartup(MAKEWORD(1,1),&data)) {
-          winsock_initialized = 0;
-          earlylate_asciz_error("\n*** - Failed to initialize winsock library\n",0);
-        } else winsock_initialized = true;
-      }
-    }
+/* Initialization. */
+global void init_win32 (void)
+{
+  /* Standard input/output handles. */
+  stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
+  stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+  stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
+  /* What to do if one of these is == INVALID_HANDLE_VALUE ?? */
+  /* Auxiliary events. */
+  aux_event = CreateEvent(NULL, true, false, NULL);
+  sigint_event = CreateEvent(NULL, true, false, NULL);
+  sigbreak_event = CreateEvent(NULL, true, false, NULL);
+ #ifndef UNICODE
+  { /* Translation table for console input. */
+    var int i;
+    for (i = 0; i < 256; i++)
+      OEM2ANSI_table[i] = i;
+    OEM2ANSI_table[i] = '\0';
+    OemToChar(&OEM2ANSI_table[1],&OEM2ANSI_table[1]);
+  }
+  { /* Translation table for console output. */
+    var int i;
+    for (i = 0; i < 256; i++)
+      ANSI2OEM_table[i] = i;
+    ANSI2OEM_table[i] = '\0';
+    CharToOem(&ANSI2OEM_table[1],&ANSI2OEM_table[1]);
+  }
+ #endif
+  /* Initialize COM for shell link resolution */
+  if (CoInitialize(NULL) == S_OK)
+    com_initialized = true;
+  { /* Winsock. */
+    var WSADATA data;
+    if (WSAStartup(MAKEWORD(1,1),&data)) {
+      winsock_initialized = 0;
+      earlylate_asciz_error("\n*** - Failed to initialize winsock library\n",0);
+    } else winsock_initialized = true;
+  }
+}
 
 global void done_win32 (void) {
   if (winsock_initialized && WSACleanup()) {
@@ -745,33 +743,26 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
     }
 
 
-# Create a new process, given a command line and two handles for standard
-# input and standard output (both must be inheritable).
-  global BOOL MyCreateProcess (LPTSTR CommandLine, HANDLE StdInput, HANDLE StdOutput, HANDLE StdError, LPPROCESS_INFORMATION ProcessInformation);
-  global BOOL MyCreateProcess(CommandLine,StdInput,StdOutput,StdError,ProcessInformation)
-    var LPTSTR CommandLine;
-    var HANDLE StdInput;
-    var HANDLE StdOutput;
-    var HANDLE StdError;
-    var LPPROCESS_INFORMATION ProcessInformation;
-    {
-      var STARTUPINFO sinfo;
-      sinfo.cb = sizeof(STARTUPINFO);
-      sinfo.lpReserved = NULL;
-      sinfo.lpDesktop = NULL;
-      sinfo.lpTitle = NULL;
-      sinfo.cbReserved2 = 0;
-      sinfo.lpReserved2 = NULL;
-      sinfo.dwFlags = STARTF_USESTDHANDLES;
-      sinfo.hStdInput = StdInput;
-      sinfo.hStdOutput = StdOutput;
-      sinfo.hStdError = StdError;
-      if (!CreateProcess(NULL, CommandLine, NULL, NULL, true, 0,
-                         NULL, NULL, &sinfo, ProcessInformation))
-        return false;
-      return true;
-    }
-
+/* Create a new process, given a command line and two handles for standard
+ input and standard output (both must be inheritable). */
+global BOOL MyCreateProcess (LPTSTR CommandLine, HANDLE StdInput,
+                             HANDLE StdOutput, HANDLE StdError,
+                             LPPROCESS_INFORMATION ProcessInformation)
+{
+  var STARTUPINFO sinfo;
+  sinfo.cb = sizeof(STARTUPINFO);
+  sinfo.lpReserved = NULL;
+  sinfo.lpDesktop = NULL;
+  sinfo.lpTitle = NULL;
+  sinfo.cbReserved2 = 0;
+  sinfo.lpReserved2 = NULL;
+  sinfo.dwFlags = STARTF_USESTDHANDLES;
+  sinfo.hStdInput = StdInput;
+  sinfo.hStdOutput = StdOutput;
+  sinfo.hStdError = StdError;
+  return CreateProcess(NULL, CommandLine, NULL, NULL, true, 0,
+                       NULL, NULL, &sinfo, ProcessInformation);
+}
 
 # I want to see a backtrace!
   int abort_dummy;
