@@ -2,6 +2,7 @@
 
 	* describe.lsp (describe-object): handle CLOS classes in a
 	`standard-object' method.  Describe the value of the `weak-pointer'.
+	* stream.d (file_stat): fixed time handling.
 
 1999-03-16  Sam Steingold  <sds@gnu.org>
 
