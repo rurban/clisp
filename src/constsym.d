@@ -263,8 +263,8 @@ LISPSYM(gc,"GC",ext)
 LISPSYM(make_encoding,"MAKE-ENCODING",ext)
 LISPSYM(encodingp,"ENCODINGP",system)
 LISPSYM(charset_typep,"CHARSET-TYPEP",system)
-LISPSYM(encoding_charset,"ENCODING-CHARSET",ext)
 #ifdef UNICODE
+LISPSYM(encoding_charset,"ENCODING-CHARSET",ext)
 LISPSYM(charset_range,"CHARSET-RANGE",system)
 #endif
 LISPSYM(default_file_encoding,"DEFAULT-FILE-ENCODING",system)

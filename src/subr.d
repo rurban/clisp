@@ -311,8 +311,8 @@ LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
          kw(output_error_action),kw(if_does_not_exist)) )
 LISPFUNNF(encodingp,1)
 LISPFUNNR(charset_typep,2)
-LISPFUNNR(encoding_charset,1)
 #ifdef UNICODE
+LISPFUNNR(encoding_charset,1)
 LISPFUN(charset_range,seclass_read,3,1,norest,nokey,0,NIL)
 #endif
 LISPFUNNR(default_file_encoding,0)
