@@ -28,46 +28,75 @@
     }
 #endif
 
-# Fehlermeldung, wenn ein Symbol eine Property-Liste ungerader Länge hat.
-# fehler_plist_odd(symbol);
-# > symbol: Symbol
-nonreturning_function(local, fehler_plist_odd, (object symbol)) {
+/* Error when the symbol's property list has odd length.
+ fehler_sym_plist_odd(symbol);
+ > symbol: Symbol */
+nonreturning_function(local, fehler_sym_plist_odd, (object symbol)) {
   pushSTACK(symbol);
   pushSTACK(S(get));
   fehler(error,GETTEXT("~: the property list of ~ has an odd length"));
 }
+/* Error when the property list has odd length
+ fehler_plist_odd(caller,plist);
+ > caller: Subr
+ > plist: bad plist */
+nonreturning_function(local, fehler_plist_odd, (object caller, object plist)) {
+  pushSTACK(plist); pushSTACK(caller);
+  fehler(error,GETTEXT("~: the property list ~ has an odd length"));
+}
 
-# UP: Holt eine Property aus der Property-Liste eines Symbols.
-# get(symbol,key)
-# > symbol: ein Symbol
-# > key: ein mit EQ zu vergleichender Key
-# < value: dazugehöriger Wert aus der Property-Liste von symbol, oder unbound.
-  global object get (object symbol, object key);
-  global object get(symbol,key)
-    var object symbol;
-    var object key;
-    {
-      var object plistr = Symbol_plist(symbol);
-      loop {
-        if (atomp(plistr))
-          goto notfound;
-        if (eq(Car(plistr),key))
-          goto found;
-        plistr = Cdr(plistr);
-        if (atomp(plistr))
-          goto odd;
-        plistr = Cdr(plistr);
-      }
-     found: # key gefunden
-      plistr = Cdr(plistr);
-      if (atomp(plistr))
-        goto odd;
-      return Car(plistr);
-     odd: # Property-Liste hat ungerade Länge
-      fehler_plist_odd(symbol);
-     notfound: # key nicht gefunden
-      return unbound;
-    }
+/* UP: find the key in the property list
+ > plist_: the address of the plist
+ > key: indicator
+ < tail: eq(Car(*tail),key), or a pointer to an atom if not found,
+         or NULL if odd length */
+local inline object* plist_find (object *plist_, object key) {
+  loop {
+    var object plistr = *plist_;
+    if (atomp(plistr)) /* not found */
+      return plist_;
+    if (eq(Car(plistr),key)) /* found */
+      return plist_;
+    plistr = Cdr(plistr);
+    if (atomp(plistr)) /* odd length --> error */
+      return NULL;
+    plist_ = &Cdr(plistr);
+  }
+}
+
+/* UP: remove the first value of key in plist
+ > plist_: the address of the plist
+ > key: indicator
+ < 0: if odd length (error); 1: found; -1: not found */
+local inline int plist_rem (object *plist_, object key) {
+  var object *tail = plist_find(plist_,key);
+  if (tail == NULL) return 0; /* odd length --> error */
+  var object plistr = *tail;
+  if (atomp(plistr)) return -1; /* key not found */
+  plistr = Cdr(plistr);
+  if (atomp(plistr)) return 0; /* odd length --> error */
+  *tail = Cdr(plistr); /* shorten the property list by 2 elements */
+  return 1;
+}
+
+/* UP: find a property in the property list of the symbol.
+ get(symbol,key)
+ > symbol: a Symbol
+ > key: indicator
+ < value: the value of key in the property list or unbound. */
+global object get (object symbol, object key) {
+  var object* plistr_ = plist_find(&(Symbol_plist(symbol)),key);
+  if (plistr_ == NULL) /* property list has odd length */
+    fehler_sym_plist_odd(symbol);
+  var object plistr = *plistr_;
+  if (atomp(plistr)) /* not found */
+    return unbound;
+  /* key found */
+  plistr = Cdr(plistr);
+  if (atomp(plistr))
+    fehler_sym_plist_odd(symbol);
+  return Car(plistr);
+}
 
 LISPFUNN(putd,2)
 # (SYS::%PUTD symbol function)
@@ -134,71 +163,101 @@ LISPFUN(get,2,1,norest,nokey,0,NIL)
   }
 
 LISPFUN(getf,2,1,norest,nokey,0,NIL)
-# (GETF place key [not-found]), CLTL S. 166
-  {
-    var object plistr = STACK_2;
-    var object key = STACK_1;
-    loop {
-      if (atomp(plistr))
-        goto notfound;
-      if (eq(Car(plistr),key))
-        goto found;
-      plistr = Cdr(plistr);
-      if (atomp(plistr))
-        goto odd;
-      plistr = Cdr(plistr);
-    }
-   found: # key gefunden
-    plistr = Cdr(plistr);
-    if (atomp(plistr))
-      goto odd;
-    VALUES1(Car(plistr)); skipSTACK(3); return;
-   odd: # Property-Liste hat ungerade Länge
-    pushSTACK(STACK_2);
-    pushSTACK(S(getf));
-    fehler(error,
-           GETTEXT("~: the property list ~ has an odd length")
-          );
-   notfound: # key nicht gefunden
-    if (eq( value1 = STACK_0, unbound)) # Defaultwert ist not-found
-      value1 = NIL; # Ist der nicht angegeben, dann NIL.
+{ /* (GETF place key [not-found]), CLTL p. 166 */
+  var object *plistr_ = plist_find(&STACK_2,STACK_1);
+  if (plistr_ == NULL) /* property list has odd length */
+    fehler_plist_odd(S(getf),STACK_2);
+  var object plistr = *plistr_;
+  if (atomp(plistr)) { /* key not found */
+    if (eq( value1 = STACK_0, unbound)) /* default value is not-found */
+      value1 = NIL; /* if not supplied, then NIL. */
     mv_count=1; skipSTACK(3); return;
   }
+  /* found key */
+  plistr = Cdr(plistr);
+  if (atomp(plistr))
+    fehler_plist_odd(S(getf),STACK_2);
+  VALUES1(Car(plistr)); skipSTACK(3);
+}
+
+LISPFUNN(putf,3)
+{ /* (setf place (SYS::%PUTF place key value)) ==
+     (setf (getf place key) value)
+  see places.lisp: this will return NIL if no allocation was done, i.e.,
+  if the list was modified "in place" and the PLACE does not have to be set */
+  var object *tail = plist_find(&STACK_2,STACK_1);
+  if (tail == NULL) fehler_plist_odd(S(putf),STACK_2);
+  var object plistr = *tail;
+  if (atomp(plistr)) { /* key not found => extend plist with 2 conses */
+    pushSTACK(allocate_cons());
+    var object cons1 = allocate_cons();
+    var object cons2 = popSTACK();
+    Car(cons2) = STACK_0; /* value */
+    Cdr(cons2) = STACK_2; /* tail */
+    Car(cons1) = STACK_1; /* key */
+    Cdr(cons1) = cons2;
+    VALUES1(cons1);
+  } else {
+    plistr = Cdr(plistr);
+    if (atomp(plistr)) fehler_plist_odd(S(putf),STACK_2);
+    Car(plistr) = STACK_0; /* value */
+    VALUES1(NIL);
+  }
+  skipSTACK(3);
+}
+
+LISPFUNN(remf,2)
+{ /* (remf place key) ==
+     (multiple-value-bind (new-place removed-p) (SYS::%REMF place key)
+       (when (and removed (null new-place)) (setf place new-place)) removed-p)
+  see places.lisp: PLACE has to be modified only if the new value is ATOM */
+  var object *tail = plist_find(&STACK_1,STACK_0);
+  if (tail == NULL) fehler_plist_odd(S(remf),STACK_1);
+  var object plistr = *tail;
+  if (atomp(plistr)) value2 = NIL; /* key not found => not removed */
+  else {
+    plistr = Cdr(plistr);
+    if (atomp(plistr)) fehler_plist_odd(S(remf),STACK_1);
+    plistr = Cdr(plistr);
+    if (atomp(plistr)) *tail = plistr;
+    else { /* shorten the property list by 2 elements */
+      Car(*tail) = Car(plistr);
+      Cdr(*tail) = Cdr(plistr);
+    }
+    value2 = T;
+  }
+  value1 = STACK_1; mv_count = 2; skipSTACK(2);
+}
 
 LISPFUNN(get_properties,2)
-# (GET-PROPERTIES place keylist), CLTL S. 167
-  {
-    var object keylist = popSTACK();
-    var object plist = popSTACK();
-    var object plistr = plist;
-    loop {
-      if (atomp(plistr))
-        goto notfound;
-      var object item = Car(plistr);
-      if (!nullp(memq(item,keylist)))
-        goto found;
-      plistr = Cdr(plistr);
-      if (atomp(plistr))
-        goto odd;
-      plistr = Cdr(plistr);
-    }
-   found: # key gefunden
-    value3 = plistr; # Dritter Wert = Listenrest
-    value1 = Car(plistr); # Erster Wert = gefundener Key
+{ /* (GET-PROPERTIES place keylist), CLTL p. 167 */
+  var object keylist = popSTACK();
+  var object plist = popSTACK();
+  var object plistr = plist;
+  loop {
+    if (atomp(plistr))
+      goto notfound;
+    var object item = Car(plistr);
+    if (!nullp(memq(item,keylist)))
+      goto found;
     plistr = Cdr(plistr);
     if (atomp(plistr))
       goto odd;
-    value2 = Car(plistr); # Zweiter Wert = Wert zum Key
-    mv_count=3; return; # Drei Werte
-   odd: # Property-Liste hat ungerade Länge
-    pushSTACK(plist);
-    pushSTACK(S(get_properties));
-    fehler(error,
-           GETTEXT("~: the property list ~ has an odd length")
-          );
-   notfound: # key nicht gefunden
-    VALUES3(NIL,NIL,NIL); return; /* all 3 values */
+    plistr = Cdr(plistr);
   }
+ found: /* key found */
+  value3 = plistr; /* 3rd value = list rest */
+  value1 = Car(plistr); /* 1st value = found key */
+  plistr = Cdr(plistr);
+  if (atomp(plistr))
+    goto odd;
+  value2 = Car(plistr); /* 2nd value = value for key */
+  mv_count=3; return; /* 2 values */
+ odd: /* property list has odd length */
+  fehler_plist_odd(S(get_properties),plist);
+ notfound: /* key not found */
+  VALUES3(NIL,NIL,NIL); return; /* all 3 values */
+}
 
 LISPFUNN(putplist,2)
 # (SYS::%PUTPLIST symbol list) == (SETF (SYMBOL-PLIST symbol) list)
@@ -209,76 +268,46 @@ LISPFUNN(putplist,2)
   }
 
 LISPFUNN(put,3)
-# (SYS::%PUT symbol key value) == (SETF (GET symbol key) value)
-  {
-    {
-      var object symbol = test_symbol(STACK_2);
-      var object key = STACK_1;
-      var object plistr = Symbol_plist(symbol);
-      loop {
-        if (atomp(plistr))
-          goto notfound;
-        if (eq(Car(plistr),key))
-          goto found;
-        plistr = Cdr(plistr);
-        if (atomp(plistr))
-          goto odd;
-        plistr = Cdr(plistr);
-      }
-     found: # key gefunden
-      plistr = Cdr(plistr);
-      if (atomp(plistr))
-        goto odd;
-      VALUES1(Car(plistr) = STACK_0); /* fill new value */
-      skipSTACK(3); return;
-     odd: # Property-Liste hat ungerade Länge
-      fehler_plist_odd(symbol);
-    }
-   notfound: # key nicht gefunden
-    {
-      # Property-Liste um 2 Conses erweitern:
-      pushSTACK(allocate_cons());
-      var object cons1 = allocate_cons();
-      var object cons2 = popSTACK();
-      VALUES1(Car(cons2) = popSTACK()); /* value */
-      Car(cons1) = popSTACK(); # key
-      var object symbol = popSTACK();
-      Cdr(cons2) = Symbol_plist(symbol);
-      Cdr(cons1) = cons2;
-      Symbol_plist(symbol) = cons1;
-      return;
-    }
+{ /* (SYS::%PUT symbol key value) == (SETF (GET symbol key) value) */
+  var object symbol = test_symbol(STACK_2);
+  var object *tail = plist_find(&Symbol_plist(symbol),STACK_1);
+  if (tail == NULL) /* property list has odd length */
+    fehler_sym_plist_odd(symbol);
+  var object plistr = *tail;
+  if (atomp(plistr)) { /* key not found => extend plist with 2 conses */
+    pushSTACK(allocate_cons());
+    var object cons1 = allocate_cons();
+    var object cons2 = popSTACK();
+    Car(cons2) = STACK_0; /* value */
+    Cdr(cons2) = Symbol_plist(STACK_2);
+    Car(cons1) = STACK_1; /* key */
+    Cdr(cons1) = cons2;
+    Symbol_plist(STACK_2) = cons1;
+  } else {
+    plistr = Cdr(plistr);
+    if (atomp(plistr)) fehler_sym_plist_odd(symbol); /* odd length --> error */
+    Car(plistr) = STACK_0;
   }
+  VALUES1(STACK_0);
+  skipSTACK(3);
+}
 
 LISPFUNN(remprop,2)
-# (REMPROP symbol indicator), CLTL S. 166
-  {
-    var object key = popSTACK();
-    var object symbol = test_symbol(popSTACK());
-    var object* plistr_ = &Symbol_plist(symbol);
-    var object plistr;
-    loop {
-      plistr = *plistr_;
-      if (atomp(plistr))
-        goto notfound;
-      if (eq(Car(plistr),key))
-        goto found;
-      plistr = Cdr(plistr);
-      if (atomp(plistr))
-        goto odd;
-      plistr_ = &Cdr(plistr);
-    }
-   found: # key gefunden
+{ /* (REMPROP symbol indicator), CLTL p. 166 */
+  var object key = popSTACK();
+  var object symbol = test_symbol(popSTACK());
+  var object *tail = plist_find(&Symbol_plist(symbol),key);
+  if (tail == NULL) fehler_sym_plist_odd(symbol);
+  var object plistr = *tail;
+  if (atomp(plistr)) value1 = NIL; /* key not found */
+  else { /* key found */
     plistr = Cdr(plistr);
-    if (atomp(plistr))
-      goto odd;
-    *plistr_ = Cdr(plistr); # Property-Liste um 2 Elemente verkürzen
-    VALUES1(T); return;
-   odd: # Property-Liste hat ungerade Länge
-    fehler_plist_odd(symbol);
-   notfound: # key nicht gefunden
-    VALUES1(NIL); return;
+    if (atomp(plistr)) fehler_sym_plist_odd(symbol);
+    *tail = Cdr(plistr); /* shorten the property list by 2 elements */
+    value1 = T;
   }
+  mv_count = 1;
+}
 
 LISPFUNN(symbol_package,1)
 # (SYMBOL-PACKAGE symbol), CLTL S. 170

@@ -1,3 +1,16 @@
+2002-11-14  Sam Steingold  <sds@gnu.org>
+
+	moved %REMF and %PUTF to C to unify all plist handling in one place
+	* symbol.d (fehler_sym_plist_odd): renamed from fehler_plist_odd()
+	(fehler_plist_odd): new function for property lists (not
+	associated with any symbol)
+	(plist_find): generic property list search
+	(get, GETF, %PUT, REMPROP): use plist_find()
+	(%PUTF, %REMF): new functions (use plist_find())
+	* subr.d, constsym.d (%PUTF, %REMF): new functions
+	* places.lisp (remf): use the built-in SYS::%REMF
+	(%putf): removed
+
 2002-11-10  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (SP_ueber, STACK_ueber): quit when CLISP is non-interactive
