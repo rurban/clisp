@@ -81,7 +81,7 @@ It consists of the following files:
 #endif
    src/config.lisp        site-dependent configuration
    data/clhs.txt          keyword-to-HyperSpec mapper
-   data/UnicodeData.txt   unicode mapper
+   data/UnicodeDataFull.txt  unicode character database
 #ifdef WIN32_NATIVE
    install.bat,
    src/install.lisp       user-friendly installer
