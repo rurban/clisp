@@ -41,6 +41,11 @@
 [ <A HREF="#Option -h"><CODE>-h</CODE></A> | <A HREF="#Option -h"><CODE>--help</CODE></A> ]
 [ <A HREF="#Option --version"><CODE>--version</CODE></A> ]
 [ <A HREF="#Option --license"><CODE>--license</CODE></A> ]
+[ <A HREF="#Option -B"><CODE>-B</CODE> <EM>lisplibdir</EM></A> ]
+#ifdef UNIX
+[ <A HREF="#Option -K"><CODE>-K</CODE> <EM>linking-set</EM></A> ]
+#endif
+[ <A HREF="#Option -M"><CODE>-M</CODE> <EM>memfile</EM></A> ]
 [ <A HREF="#Option -m"><CODE>-m</CODE> <EM>memsize</EM></A> ]
 #ifndef NO_SP_MALLOC
 [ <A HREF="#Option -s"><CODE>-s</CODE> <EM>stacksize</EM></A> ]
@@ -48,23 +53,18 @@
 #ifdef MULTIMAP_MEMORY_VIA_FILE
 [ <A HREF="#Option -t"><CODE>-t</CODE> <EM>tempdir</EM></A> ]
 #endif
-[ <A HREF="#Option -B"><CODE>-B</CODE> <EM>lisplibdir</EM></A> ]
-#ifdef UNIX
-[ <A HREF="#Option -K"><CODE>-K</CODE> <EM>linking-set</EM></A> ]
-#endif
-[ <A HREF="#Option -M"><CODE>-M</CODE> <EM>memfile</EM></A> ]
-[ <A HREF="#Option -norc"><CODE>-norc</CODE></A> ]
 [ <A HREF="#Option -L"><CODE>-L</CODE> <EM>language</EM></A> ]
 [ <A HREF="#Option -N"><CODE>-N</CODE> <EM>localedir</EM></A> ]
 [ <A HREF="#Option -E"><CODE>-E</CODE><EM>domain</EM> <EM>encoding</EM></A> ]
 [ <A HREF="#Option -q"><CODE>-q</CODE></A> | <A HREF="#Option -q"><CODE>--quiet</CODE></A> | <A HREF="#Option -q"><CODE>--silent</CODE></A> ]
 [ <A HREF="#Option -w"><CODE>-w</CODE></A> ]
 [ <A HREF="#Option -I"><CODE>-I</CODE></A> ]
+[ <A HREF="#Option -a"><CODE>-a</CODE></A> ]
+[ <A HREF="#Option -p"><CODE>-p</CODE> <EM>packagename</EM></A> ]
 [ <A HREF="#Option -C"><CODE>-C</CODE></A> ]
+[ <A HREF="#Option -norc"><CODE>-norc</CODE></A> ]
 [ <A HREF="#Option -i"><CODE>-i</CODE> <EM>initfile</EM> ...</A> ]
 [ <A HREF="#Option -c"><CODE>-c</CODE> [ <CODE>-l</CODE> ] <EM>lispfile</EM> [ <CODE>-o</CODE> <EM>outputfile</EM> ] ...</A> ]
-[ <A HREF="#Option -p"><CODE>-p</CODE> <EM>packagename</EM></A> ]
-[ <A HREF="#Option -a"><CODE>-a</CODE></A> ]
 [ <A HREF="#Option -x"><CODE>-x</CODE> <EM>expression</EM></A> ]
 [ <A HREF="#Option exec"><EM>lispfile</EM></A>
   [ <A HREF="#Option exec"><EM>argument</EM> ...</A> ] ]
@@ -97,6 +97,32 @@ call <CODE>(<A HREF="CLHSROOT/Body/fun_lisp-impl_tion-version.html">lisp-impleme
 
 <DT> <A NAME="Option --license"> <B><CODE>--license</CODE></B> </A>
 <DD> Displays a summary of the licensing information, the GNU GPL.
+<P>
+
+<DT> <A NAME="Option -B"> <B><CODE>-B</CODE> <EM>lisplibdir</EM></B> </A>
+<DD> Specifies the installation directory. This is the directory containing
+the linking sets and other data files.
+#ifdef UNIX
+This option is normally not necessary, because the installation directory
+is already built-in in the <CODE>clisp</CODE> executable.
+#endif
+<P>
+
+#ifdef UNIX
+<DT> <A NAME="Option -K"> <B><CODE>-K</CODE> <EM>linking-set</EM></B> </A>
+<DD> Specifies the linking set to be run. This is a directory containing
+at least a main executable and an initial memory image. Possible values are
+<CODE>base</CODE>, <CODE>full</CODE>. The default is <CODE>base</CODE>.
+<P>
+#endif
+
+<DT> <A NAME="Option -M"> <B><CODE>-M</CODE> <EM>memfile</EM></B> </A>
+<DD> Specifies the initial memory image.
+This must be a memory dump produced by the
+<CODE><A HREF="impnotes.html#image">saveinitmem</A></CODE> function.
+#ifdef UNIX
+It may have been compressed using GNU gzip.
+#endif
 <P>
 
 <DT> <A NAME="Option -m"> <B><CODE>-m</CODE> <EM>memsize</EM></B> </A>
@@ -149,51 +175,6 @@ This option takes precedence over the environment variable
 <CODE>TMPDIR</CODE>.
 <P>
 #endif
-
-<DT> <A NAME="Option -B"> <B><CODE>-B</CODE> <EM>lisplibdir</EM></B> </A>
-<DD> Specifies the installation directory. This is the directory containing
-the linking sets and other data files.
-#ifdef UNIX
-This option is normally not necessary, because the installation directory
-is already built-in in the <CODE>clisp</CODE> executable.
-#endif
-<P>
-
-#ifdef UNIX
-<DT> <A NAME="Option -K"> <B><CODE>-K</CODE> <EM>linking-set</EM></B> </A>
-<DD> Specifies the linking set to be run. This is a directory containing
-at least a main executable and an initial memory image. Possible values are
-<CODE>base</CODE>, <CODE>full</CODE>. The default is <CODE>base</CODE>.
-<P>
-#endif
-
-<DT> <A NAME="Option -M"> <B><CODE>-M</CODE> <EM>memfile</EM></B> </A>
-<DD> Specifies the initial memory image.
-This must be a memory dump produced by the
-<CODE><A HREF="impnotes.html#image">saveinitmem</A></CODE> function.
-#ifdef UNIX
-It may have been compressed using GNU gzip.
-#endif
-<P>
-
-<DT> <A NAME="Option -norc"> <B><CODE>-norc</CODE></B> </A>
-<DD> Normally <CODE>clisp</CODE> loads a user run control (RC) file on
-startup (this happens after the <A HREF="#Option -C"><CODE>-C</CODE></A>
-option is processed). The file loaded is
-#if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
-<CODE>_clisprc.lsp</CODE> or <CODE>_clisprc.fas</CODE> in the home directory
-<CODE>(user-homedir-pathname)</CODE>,
-#endif
-#if defined(PATHNAME_AMIGAOS)
-<CODE>.clisprc.lsp</CODE> or <CODE>.clisprc.fas</CODE> in the home directory
-<CODE>(user-homedir-pathname)</CODE>,
-#endif
-#if defined(PATHNAME_UNIX)
-<CODE>${HOME}/.clisprc.lsp</CODE> or <CODE>${HOME}/.clisprc.fas</CODE>,
-#endif
-whichever is newest. This option, <CODE>-norc</CODE>, prevents loading of
-the RC file.
-<P>
 
 <DT> <A NAME="Option -L"> <B><CODE>-L</CODE> <EM>language</EM></B> </A>
 <DD> Specifies the language <CODE>clisp</CODE>
@@ -249,12 +230,51 @@ character.
 #endif
 <P>
 
+<DT> <A NAME="Option -a"> <B><CODE>-a</CODE></B> </A>
+<DD> ANSI CL compliant: Comply with the ANSI CL specification even on
+those issues where ANSI CL is broken. This option is provided for maximum
+portability of Lisp programs, and is not useful for actual everyday work.
+It sets the variable <CODE>*package*</CODE> to
+<A HREF="impnotes.html#imppack"><CODE>COMMON-LISP-USER</CODE></A>
+and the symbol macro <CODE>*ansi*</CODE> to <CODE>t</CODE>.
+See <A HREF="impnotes.html#ansi">impnotes.html,
+section "Maximum ANSI CL compliance"</A>, for details.
+<P>
+
+<DT> <A NAME="Option -p"> <B><CODE>-p</CODE> <EM>packagename</EM></B> </A>
+<DD> At startup the value of the variable <CODE>*package*</CODE> will
+be set to the package named <EM>packagename</EM>. The default is the package
+which was active when the image was <A HREF="impnotes.html#image">saved</A>,
+normally <A HREF="impnotes.html#imppack"><CODE>USER</CODE></A>, or
+<A HREF="impnotes.html#imppack"><CODE>COMMON-LISP-USER</CODE></A> if the option
+<A HREF="#Option -a"><CODE>-a</CODE></A> was specified.
+<P>
+
 <DT> <A NAME="Option -C"> <B><CODE>-C</CODE></B> </A>
 <DD> Compile when load: At startup the value of the variable
 <CODE><A HREF="impnotes.html#loadfile">*load-compiling*</A></CODE>
 will be set to <A HREF="CLHSROOT/Body/convar_t.html"><CODE>t</CODE></A>.
 Code being <CODE>load</CODE>ed will then be compiled on the fly. This results
 in slower loading, but faster execution.
+<P>
+
+<DT> <A NAME="Option -norc"> <B><CODE>-norc</CODE></B> </A>
+<DD> Normally <CODE>clisp</CODE> loads a user run control (RC) file on
+startup (this happens after the <A HREF="#Option -C"><CODE>-C</CODE></A>
+option is processed). The file loaded is
+#if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
+<CODE>_clisprc.lsp</CODE> or <CODE>_clisprc.fas</CODE> in the home directory
+<CODE>(user-homedir-pathname)</CODE>,
+#endif
+#if defined(PATHNAME_AMIGAOS)
+<CODE>.clisprc.lsp</CODE> or <CODE>.clisprc.fas</CODE> in the home directory
+<CODE>(user-homedir-pathname)</CODE>,
+#endif
+#if defined(PATHNAME_UNIX)
+<CODE>${HOME}/.clisprc.lsp</CODE> or <CODE>${HOME}/.clisprc.fas</CODE>,
+#endif
+whichever is newest. This option, <CODE>-norc</CODE>, prevents loading of
+the RC file.
 <P>
 
 <DT> <A NAME="Option -i"> <B><CODE>-i</CODE> <EM>initfile</EM> ...</B> </A>
@@ -279,26 +299,6 @@ specified <EM>lispfile</EM>.
 <DD> A bytecode listing (*.lis) of the files being compiled will be produced.
 Useful only for debugging purposes. See the documentation of
 <A HREF="impnotes.html#compilefile"><CODE>compile-file</CODE></A> for details.
-<P>
-
-<DT> <A NAME="Option -p"> <B><CODE>-p</CODE> <EM>packagename</EM></B> </A>
-<DD> At startup the value of the variable <CODE>*package*</CODE> will
-be set to the package named <EM>packagename</EM>. The default is the package
-which was active when the image was <A HREF="impnotes.html#image">saved</A>,
-normally <A HREF="impnotes.html#imppack"><CODE>USER</CODE></A>, or
-<A HREF="impnotes.html#imppack"><CODE>COMMON-LISP-USER</CODE></A> if the option
-<A HREF="#Option -a"><CODE>-a</CODE></A> was specified.
-<P>
-
-<DT> <A NAME="Option -a"> <B><CODE>-a</CODE></B> </A>
-<DD> ANSI CL compliant: Comply with the ANSI CL specification even on
-those issues where ANSI CL is broken. This option is provided for maximum
-portability of Lisp programs, and is not useful for actual everyday work.
-It sets the variable <CODE>*package*</CODE> to
-<A HREF="impnotes.html#imppack"><CODE>COMMON-LISP-USER</CODE></A>
-and the symbol macro <CODE>*ansi*</CODE> to <CODE>t</CODE>.
-See <A HREF="impnotes.html#ansi">impnotes.html,
-section "Maximum ANSI CL compliance"</A>, for details.
 <P>
 
 <DT> <A NAME="Option -x"> <B><CODE>-x</CODE> <EM>expressions</EM></B> </A>
@@ -665,7 +665,7 @@ and Michael Stoll.
 Bruno Haible &lt;haible@clisp.cons.org&gt;
 </ADDRESS>
 <P>
-Last modified: 4 July 1999.
+Last modified: 18 July 1999.
 
 </BODY>
 
