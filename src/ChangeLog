@@ -1,5 +1,20 @@
 2002-05-26  Bruno Haible  <bruno@clisp.org>
 
+	Fix "make distclean".
+	* makemake.in (OBSOLETE): Don't add linkkit.
+	(install-bin): Use RMRF variable.
+	(distrib): Likewise.
+	(clean0): rm -rf linkkit.
+	(clean1): rm -rf base full.
+	(clean4): rm -f charset.alias.
+	(clean5): If building outside srcdir, remove the UNICODE_INCLUDES,
+	the NLS_INCLUDES, and unitypes.h, uniname.h, uninames.h. rm -rf data.
+	(clean7): rm -rf avcall callback libcharset sigsegv. If building
+	outside srcdir, rm -rf readline po termcap, and rm -f configure
+	unixconf.h.in makemake.in VERSION.
+
+2002-05-26  Bruno Haible  <bruno@clisp.org>
+
 	Implement UCS-4 strings.
 	* lispbibl.d: Accept new flag NO_SMALL_SSTRING.
 	(Rectype_S8string, Rectype_Imm_S8string, Rectype_S16string,
