@@ -1,3 +1,8 @@
+1998-06-29  Sam Steingold  <sds@usa.net>
+
+        * compiler.lsp (compile-file): in ANSI CL, compile-file is
+          required to return 3 values.
+
 1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d: Define NO_TYPECODES by default for 32-bit machines.
