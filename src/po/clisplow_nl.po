@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2002-09-13 10:53:58 EDT\n"
+"POT-Creation-Date: 2004-03-12 14:25:28 EST\n"
 "PO-Revision-Date: 2000-03-03 15:02+01:00\n"
 "Last-Translator: Tijs van Bakel <smoke@casema.net>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -28,17 +28,19 @@ msgstr ""
 "\n"
 "*** - Lisp stapeloverloop. RESET"
 
-msgid "Unknown signature of an FSUBR\n"
-msgstr "Onbekend argumenttype voor FSUBR\n"
+#, fuzzy
+msgid "Unknown FSUBR signature: %d %d %d\n"
+msgstr "Onbekend argumenttype voor SUBR\n"
 
-msgid "Unknown signature of a SUBR\n"
+#, fuzzy
+msgid "Unknown SUBR signature: %d %d %d %d"
 msgstr "Onbekend argumenttype voor SUBR\n"
 
 msgid "module `%s' requires package %s.\n"
 msgstr "module `%s' vereist package %s.\n"
 
 msgid ""
-"GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp.\n"
+"is an ANSI Common Lisp.\n"
 "Usage:  "
 msgstr ""
 
@@ -97,10 +99,13 @@ msgstr ""
 msgid "Interoperability:\n"
 msgstr ""
 
-msgid " -q, --quiet, --silent - do not print the banner\n"
+msgid ""
+" -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
+"     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
+"     and *LOAD-PRINT*/*COMPILE-PRINT*\n"
 msgstr ""
 
-msgid " -w            - wait for keypress after program termination\n"
+msgid " -w            - wait for a keypress after program termination\n"
 msgstr ""
 
 msgid " -I            - be ILISP-friendly\n"
@@ -133,7 +138,7 @@ msgstr ""
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 msgstr ""
 
-msgid " -x expression - execute the expression, then exit\n"
+msgid " -x expressions - execute the expressions, then exit\n"
 msgstr ""
 
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
@@ -143,6 +148,9 @@ msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr ""
 
 msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
+msgstr ""
+
+msgid " -repl              - enter the interactive read-eval-print loop when done\n"
 msgstr ""
 
 msgid "Default action is an interactive read-eval-print loop.\n"
@@ -173,7 +181,8 @@ msgstr "Nog maar %d bytes beschikbaar.\n"
 msgid "Could not determine the end of the SP stack!\n"
 msgstr "Kan het einde van de SP stack niet bepalen!\n"
 
-msgid "Not enough memory for Lisp.\n"
+#, fuzzy
+msgid "%s: Not enough memory for Lisp.\n"
 msgstr "Niet genoeg geheugen voor Lisp.\n"
 
 msgid ""
@@ -190,7 +199,8 @@ msgstr ""
 "\n"
 "*** - Geen geheugen meer beschikbaar. RESET"
 
-msgid "Cannot map memory to address 0x%x ."
+#, fuzzy
+msgid "Cannot map memory to address 0x%x .\n"
 msgstr "Kan geheugen niet op adres 0x%x afbeelden."
 
 msgid "Cannot reserve address range at 0x%x ."
@@ -214,57 +224,57 @@ msgstr "VirtualFree() mislukt."
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect() mislukt."
 
-msgid "Cannot open /dev/zero ."
-msgstr "Kan /dev/zero niet openen."
+#, fuzzy
+msgid "Cannot open <%s>."
+msgstr "Kan %s niet openen."
 
 #, fuzzy
 msgid "msync(0x%x,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) mislukt."
 
-msgid "Cannot open %s ."
-msgstr "Kan %s niet openen."
-
-msgid "Cannot delete %s ."
+#, fuzzy
+msgid "Cannot delete <%s>."
 msgstr "Kan %s niet verwijderen."
 
-msgid "** WARNING: ** Too few free disk space for %s .\n"
+#, fuzzy
+msgid "** WARNING: ** Too little free disk space for <%s>.\n"
 msgstr "** LET OP: ** Te weinig vrije schijfruimte voor %s.\n"
 
-msgid "Please restart LISP with fewer memory (option -m).\n"
+#, fuzzy
+msgid "Please restart LISP with less memory (option -m).\n"
 msgstr "Herstart a.u.b. LISP met minder geheugen (optie -m).\n"
 
-msgid "Cannot make %s long enough."
+#, fuzzy
+msgid "Cannot make <%s> long enough."
 msgstr "Kan %s niet lang genoeg maken."
 
-msgid "Cannot fill %s ."
+#, fuzzy
+msgid "Cannot fill <%s>."
 msgstr "Kan %s niet vullen."
 
-msgid "Cannot close %s ."
+#, fuzzy
+msgid "Cannot close <%s>."
 msgstr "Kan %s niet sluiten."
-
-msgid "Cannot close /dev/zero ."
-msgstr "Kan /dev/zero niet sluiten."
 
 msgid "Recompile your operating system with SYSV IPC support.\n"
 msgstr "Hercompileer uw besturingssysteem met ondersteuning van SYSV IPC.\n"
 
-msgid "Cannot allocate private shared memory segment."
+#, fuzzy
+msgid "Cannot allocate private shared memory segment of size %d."
 msgstr "Kan privé shared-memory segment niet reserveren. "
 
 msgid "Cannot map shared memory to address 0x%x."
 msgstr "Kan shared-memory niet afbeelden op adres 0x%x."
 
-msgid "Cannot fill shared memory."
-msgstr "Kan shared-memory niet vullen."
-
-msgid "Could not fill shared memory."
+#, fuzzy
+msgid "%s: Cannot fill shared memory."
 msgstr "Kan shared-memory niet vullen."
 
 msgid "Cannot remove shared memory segment."
 msgstr "Kan shared-memory segment niet verwijderen."
 
 #, fuzzy
-msgid "mprotect() failed."
+msgid "mprotect(0x%x,%d,%d) failed."
 msgstr "mprotect() mislukt."
 
 msgid ""
@@ -291,19 +301,24 @@ msgstr ""
 msgid "Trying to make room through a GC...\n"
 msgstr "Ik probeer ruimte te maken door een GC...\n"
 
-msgid "operating system error during load of initialization file `%s'\n"
+#, fuzzy
+msgid "%s: operating system error during load of initialization file `%s'\n"
 msgstr "besturingssysteem-fout bij het lezen van opstart bestand `%s'\n"
 
-msgid "Cannot map the initialization file into memory."
+#, fuzzy
+msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "Kan het opstartbestand niet in het geheugen afbeelden."
 
-msgid "operating system error during load of initialization file\n"
-msgstr "besturingssysteem-fout bij het lezen van opstartbestand\n"
+#, fuzzy
+msgid "%s: operating system error during load of initialization file `%s'"
+msgstr "besturingssysteem-fout bij het lezen van opstart bestand `%s'\n"
 
-msgid "initialization file was not created by this version of LISP\n"
+#, fuzzy
+msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
 msgstr "opstartbestand was niet gemaakt door deze versie van LISP\n"
 
-msgid "not enough memory for initialization\n"
+#, fuzzy
+msgid "%s: not enough memory for initialization\n"
 msgstr "onvoldoende geheugen om te starten\n"
 
 msgid "Invalid multibyte or wide character"
@@ -586,36 +601,14 @@ msgstr "Adres van andere computer is gewijzigd"
 msgid "Function not implemented"
 msgstr "Functie niet geïmplementeerd"
 
-msgid "Not supported under MS-DOS"
-msgstr "Niet ondersteund in MS-DOS"
 
 #, fuzzy
-msgid "This version of CLISP runs only in low address memory.\n"
-msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
-
-
-
-
-
-
 #, fuzzy
-
-
-
-
 
 
 
-
-
-
-
-
-
-
-
-
+#, fuzzy
 
 
 
@@ -626,14 +619,23 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 #, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 #, fuzzy
 
@@ -646,15 +648,20 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 #, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
 
+#, fuzzy
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -664,11 +671,13 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 #, fuzzy
 
 
+#, fuzzy
 
 
 
@@ -699,7 +708,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
+#, fuzzy
 
 
 #, fuzzy
@@ -717,7 +726,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
 #, fuzzy
 
 
@@ -740,8 +748,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
-
 
 
 
@@ -759,24 +765,22 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
-
-#, fuzzy
-
-
 
 
 
 
-
+#, fuzzy
 
 
 
 
+#, fuzzy
 
 
+#, fuzzy
 
 
+#, fuzzy
 
 
 
@@ -808,11 +812,16 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
+
 
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 #, fuzzy
 
@@ -829,10 +838,13 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 #, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
+#, fuzzy
 
 
 
@@ -853,9 +865,9 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
+#, fuzzy
 
 
 
@@ -884,9 +896,9 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
+#, fuzzy
 
 
 
@@ -903,7 +915,9 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -918,7 +932,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
 
 
 
@@ -927,8 +940,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
-
+#, fuzzy
 
 
 
@@ -964,9 +976,13 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1016,7 +1032,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
 #, fuzzy
 
 
@@ -1027,8 +1042,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
-
 
 
 
@@ -1037,19 +1050,13 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 #, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 #, fuzzy
 
 
 
 #, fuzzy
-
-
-
-
 
 
 
@@ -1075,9 +1082,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
-
-
+#, fuzzy
 
 
 
@@ -1118,25 +1123,9 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
-
-
-
-
-
 
-
-
-
-
-
-
-
-
-
 #, fuzzy
 
-#, fuzzy
 
 #, fuzzy
 
@@ -1144,25 +1133,27 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
-
-
-
-
+#, fuzzy
 
 
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1190,15 +1181,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1208,17 +1190,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
-
-
-
-
-
-
-
-
 #, fuzzy
-
 
 
 
@@ -1241,13 +1213,11 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
-
-
-
-
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1255,6 +1225,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
@@ -1274,37 +1245,17 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
 
 
-
-
-
 #, fuzzy
-
-
-
-
-
-
-
 
 
-
-
-
-
-
-
 #, fuzzy
 
-#, fuzzy
 
 
 #, fuzzy
-
 
-
 #, fuzzy
 
 #, fuzzy
@@ -1333,7 +1284,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 #, fuzzy
 
-
+#, fuzzy
 
 
 #, fuzzy
@@ -1349,14 +1300,20 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
+
+#, fuzzy
 
+#, fuzzy
 
 
 
 #, fuzzy
+
 
 
 
+#, fuzzy
 
 
 
@@ -1401,9 +1358,11 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
+#, fuzzy
 
 
 
@@ -1422,37 +1381,43 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 #, fuzzy
 
 #, fuzzy
-
-
 
 
 
 
 
 
-
 #, fuzzy
-
-
-
-
 
 
+#, fuzzy
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 #, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1516,18 +1481,21 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 #, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
+
+
 #, fuzzy
 
+#, fuzzy
 
 #, fuzzy
 
+#, fuzzy
 
 
 #, fuzzy
+
 
 
 
@@ -1554,7 +1522,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 #, fuzzy
 
 
-
 #, fuzzy
 
 
@@ -1574,9 +1541,12 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
+#, fuzzy
 
 
 
@@ -1605,30 +1575,26 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
 #, fuzzy
-
 
+#, fuzzy
 
 
+#, fuzzy
 
 
 
 
-#, fuzzy
 
 
 
 
 #, fuzzy
-
-
 
 
 
 
 
-
 #, fuzzy
 
 #, fuzzy
@@ -1648,16 +1614,20 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
 #, fuzzy
 
+#, fuzzy
 
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1666,6 +1636,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
@@ -1703,13 +1674,12 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 #, fuzzy
 
+#, fuzzy
 
 
-#, fuzzy
 
 #, fuzzy
 
-
 #, fuzzy
 
 
@@ -1724,58 +1694,27 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 #, fuzzy
 
 #, fuzzy
-
 
-
-
 #, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
-
-
-
-
-
-
-
-
 #, fuzzy
 
+#, fuzzy
 
 #, fuzzy
 
+#, fuzzy
 
 
 
 
+#, fuzzy
 
 
 
 
 
+#, fuzzy
 
 
 
@@ -1783,24 +1722,21 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
 
+#, fuzzy
 
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 #, fuzzy
 
 #, fuzzy
 
-#, fuzzy
 
 
 #, fuzzy
@@ -1813,16 +1749,8 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
-
-
 
 
-
-
-
-
-
 #, fuzzy
 
 
@@ -1833,20 +1761,12 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
-
-
-
-
 
 
 
 
 
-
-
-
-
+#, fuzzy
 
 
 
@@ -1863,28 +1783,16 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 #, fuzzy
 
 
-
-
-
 #, fuzzy
 
-
-
 #, fuzzy
-
 
-
-
-
-
-
-
-
-
+#, fuzzy
 
 #, fuzzy
 
 
+#, fuzzy
 
 
 
@@ -1894,13 +1802,11 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 #, fuzzy
 
-
 #, fuzzy
 
 #, fuzzy
 
 #, fuzzy
-
 
 
 
@@ -1910,16 +1816,16 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
-
 #, fuzzy
 
+#, fuzzy
 
 
 
 
 
 
+#, fuzzy
 
 
 
@@ -1946,17 +1852,19 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
+#, fuzzy
 
 
 
 
 
+#, fuzzy
 
 
 
+#, fuzzy
 
 
 
@@ -1972,8 +1880,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
-
 
 
 
@@ -1981,11 +1887,12 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 #, fuzzy
 
-#, fuzzy
 
-
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1995,9 +1902,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
-
-
 
 
 
@@ -2005,18 +1909,15 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 #, fuzzy
 
 
-#, fuzzy
-
 
 
 
 
 
-
+#, fuzzy
 
 
 
-#, fuzzy
 
 
 
@@ -2035,19 +1936,23 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
 
 
+#, fuzzy
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
-#, fuzzy
 
 
 

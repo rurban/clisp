@@ -1,9 +1,11 @@
 #
 #
+#
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2.27\n"
-"POT-Creation-Date: 2002-09-13 10:53:58 EDT\n"
+"Project-Id-Version: clisp 2.33\n"
+"POT-Creation-Date: 2004-03-12 14:25:28 EST\n"
 "PO-Revision-Date: 1998-09-02 19:50+0600\n"
 "Last-Translator: Arseny Slobodjuck <ampy@ich.dvo.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -25,20 +27,20 @@ msgstr ""
 "\n"
 "*** - Переполнение стека Лисп'а. СБРОС"
 
-msgid "Unknown signature of an FSUBR\n"
-msgstr "Неизвестная сигнатура FSUBR\n"
+msgid "Unknown FSUBR signature: %d %d %d\n"
+msgstr "Неизвестная сигнатура FSUBR: %d %d %d\n"
 
-msgid "Unknown signature of a SUBR\n"
-msgstr "Неизвестная сигнатура SUBR\n"
+msgid "Unknown SUBR signature: %d %d %d %d"
+msgstr "Неизвестная сигнатура SUBR: %d %d %d %d"
 
 msgid "module `%s' requires package %s.\n"
 msgstr "модуль `%s' требует пакета %s.\n"
 
 msgid ""
-"GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp.\n"
+"is an ANSI Common Lisp.\n"
 "Usage:  "
 msgstr ""
-"GNU CLISP (http://clisp.cons.org/) - реализация ANSI Common Lisp.\n"
+" - реализация ANSI Common Lisp.\n"
 "Использование:  "
 
 msgid ""
@@ -104,14 +106,20 @@ msgstr ""
 msgid "Interoperability:\n"
 msgstr "Взаимодействие:\n"
 
-msgid " -q, --quiet, --silent - do not print the banner\n"
-msgstr " -q  --quiet, --silent - не выводить приветствие при старте\n"
+msgid ""
+" -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
+"     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
+"     and *LOAD-PRINT*/*COMPILE-PRINT*\n"
+msgstr ""
+" -q, --quiet, --silent, -v, --verbose - степень болтливости:\n"
+"     приветствие, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
+"     и *LOAD-PRINT*/*COMPILE-PRINT*\n"
 
-msgid " -w            - wait for keypress after program termination\n"
+msgid " -w            - wait for a keypress after program termination\n"
 msgstr " -w            - ожидать нажатия клавиши после работы\n"
 
 msgid " -I            - be ILISP-friendly\n"
-msgstr " -I            - ILISP - наш друг\n"
+msgstr " -I            - дружить с ILISP\n"
 
 msgid "Startup actions:\n"
 msgstr "Загрузка:\n"
@@ -140,17 +148,20 @@ msgstr "Действия:\n"
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 msgstr " -c [-l] лисп-файл [-o вых-файл] - компилировать лисп-файл\n"
 
-msgid " -x expression - execute the expression, then exit\n"
-msgstr " -x выражение  - выполнить выражение, выйти\n"
+msgid " -x expressions - execute the expressions, then exit\n"
+msgstr " -x выражения  - выполнить выражения и завершить работу\n"
 
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
-msgstr " лисп-файл [аргумент1 ...] - загрузить лисп файл и выйти\n"
+msgstr " лисп-файл [аргумент1 ...] - загрузить лисп файл и завершить работу\n"
 
 msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr "Эти действия поместят CLISP в пакетный режим, если не задан\n"
 
 msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
 msgstr " -interactive-debug - интерактивное взаимодействие в случае ошибок\n"
+
+msgid " -repl              - enter the interactive read-eval-print loop when done\n"
+msgstr " -repl             - по окончании войти в интерактивный цикл чтение-выполнение-печать.\n"
 
 msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr "По умолчанию - интерактивный цикл чтение-выполнение-печать.\n"
@@ -179,8 +190,8 @@ msgstr "Только %d байтов доступно.\n"
 msgid "Could not determine the end of the SP stack!\n"
 msgstr "Невозможно определить конец стека SP !\n"
 
-msgid "Not enough memory for Lisp.\n"
-msgstr "Не достаточно памяти для Лисп'a.\n"
+msgid "%s: Not enough memory for Lisp.\n"
+msgstr "%s: Не достаточно памяти для Лиспa.\n"
 
 msgid ""
 "\n"
@@ -196,8 +207,8 @@ msgstr ""
 "\n"
 "*** - Исчерпана память. СБРОС"
 
-msgid "Cannot map memory to address 0x%x ."
-msgstr "Невозможно проецировать память на адрес 0x%x ."
+msgid "Cannot map memory to address 0x%x .\n"
+msgstr "Невозможно проецировать память на адрес 0x%x .\n"
 
 msgid "Cannot reserve address range at 0x%x ."
 msgstr "Невозможно зарезервировать адресный диапазон в 0x%x ."
@@ -220,58 +231,47 @@ msgstr "VirtualFree(): неудачное завершение."
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect(): неудачное завершение."
 
-msgid "Cannot open /dev/zero ."
-msgstr "Невозможно открыть /dev/zero ."
+msgid "Cannot open <%s>."
+msgstr "Невозможно открыть <%s>."
 
-#, fuzzy
 msgid "msync(0x%x,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) завершился неудачно."
 
-msgid "Cannot open %s ."
-msgstr "Невозможно открыть %s ."
+msgid "Cannot delete <%s>."
+msgstr "Невозможно удалить <%s>."
 
-msgid "Cannot delete %s ."
-msgstr "Невозможно удалить %s ."
+msgid "** WARNING: ** Too little free disk space for <%s>.\n"
+msgstr "** ПРЕДУПРЕЖДЕНИЕ: ** Слишком мало свободного места на диске для <%s>.\n"
 
-msgid "** WARNING: ** Too few free disk space for %s .\n"
-msgstr "** ПРЕДУПРЕЖДЕНИЕ: ** Слишком мало свободного места на диске для %s .\n"
-
-msgid "Please restart LISP with fewer memory (option -m).\n"
+msgid "Please restart LISP with less memory (option -m).\n"
 msgstr "Пожалуйста, перезапустите LISP с меньшим количеством памяти (параметр -m).\n"
 
-msgid "Cannot make %s long enough."
-msgstr "Невозможно сделать %s достаточно длинным."
+msgid "Cannot make <%s> long enough."
+msgstr "Невозможно сделать <%s> достаточно длинным."
 
-msgid "Cannot fill %s ."
-msgstr "Невозможно заполнить %s ."
+msgid "Cannot fill <%s>."
+msgstr "Невозможно заполнить <%s>."
 
-msgid "Cannot close %s ."
-msgstr "Невозможно закрыть %s ."
-
-msgid "Cannot close /dev/zero ."
-msgstr "Невозможно закрыть /dev/zero ."
+msgid "Cannot close <%s>."
+msgstr "Невозможно закрыть <%s>."
 
 msgid "Recompile your operating system with SYSV IPC support.\n"
 msgstr "Перекомпилируйте вашу операционную систему с поддержкой SYSV IPC.\n"
 
-msgid "Cannot allocate private shared memory segment."
-msgstr "Невозможно разместить сегмент частной разделяемой (private shared) памяти."
+msgid "Cannot allocate private shared memory segment of size %d."
+msgstr "Невозможно разместить сегмент частной разделяемой (private shared) памяти размером %d."
 
 msgid "Cannot map shared memory to address 0x%x."
 msgstr "Невозможно проецировать общую память на адрес 0x%x."
 
-msgid "Cannot fill shared memory."
-msgstr "Невозможно заполнить общую память."
-
-msgid "Could not fill shared memory."
-msgstr "Невозможно заполнить общую память."
+msgid "%s: Cannot fill shared memory."
+msgstr "%s: Невозможно заполнить общую память."
 
 msgid "Cannot remove shared memory segment."
 msgstr "Невозможно удалить сегмент общей памяти."
 
-#, fuzzy
-msgid "mprotect() failed."
-msgstr "mprotect(): неудачное завершение."
+msgid "mprotect(0x%x,%d,%d) failed."
+msgstr "mprotect(0x%x,%d,%d): неудачное завершение."
 
 msgid ""
 "\n"
@@ -283,7 +283,6 @@ msgstr ""
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
 msgstr "Сценарий Аполло-13: Обработка переполнения стека закончилась неудачей. Следующее переполнение стека приведет к разрушению!!!\n"
 
-#, fuzzy
 msgid "munmap() failed."
 msgstr "munmap(): неудачное завершение."
 
@@ -297,20 +296,20 @@ msgstr ""
 msgid "Trying to make room through a GC...\n"
 msgstr "Освобождаем память - вызываем GC...\n"
 
-msgid "operating system error during load of initialization file `%s'\n"
-msgstr "ошибка операционной системы во время загрузки файла инициализации `%s'\n"
+msgid "%s: operating system error during load of initialization file `%s'\n"
+msgstr "%s: ошибка операционной системы во время загрузки файла инициализации `%s'\n"
 
-msgid "Cannot map the initialization file into memory."
-msgstr "Невозможно разместить файл инициализации в памяти."
+msgid "%s: Cannot map the initialization file `%s' into memory."
+msgstr "%s: Невозможно разместить файл инициализации `%s' в памяти."
 
-msgid "operating system error during load of initialization file\n"
-msgstr "ошибка операционной системы во время загрузки файла инициализации\n"
+msgid "%s: operating system error during load of initialization file `%s'"
+msgstr "%s: ошибка операционной системы во время загрузки файла инициализации `%s'"
 
-msgid "initialization file was not created by this version of LISP\n"
-msgstr "файл инициализации был создан не этой версией Лисп'а\n"
+msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
+msgstr "%s: файл инициализации `%s' был создан не этой версией CLISP\n"
 
-msgid "not enough memory for initialization\n"
-msgstr "недостаточно памяти для инициализации\n"
+msgid "%s: not enough memory for initialization\n"
+msgstr "%s: недостаточно памяти для инициализации\n"
 
 msgid "Invalid multibyte or wide character"
 msgstr "Неверный многобайтный или широкий характер"
@@ -588,11 +587,7 @@ msgstr "Удаленный (remote) адрес изменен"
 msgid "Function not implemented"
 msgstr "Функция не реализована"
 
-msgid "Not supported under MS-DOS"
-msgstr "Не поддерживается под MS-DOS"
 
-msgid "This version of CLISP runs only in low address memory.\n"
-msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
 
 
 
@@ -700,7 +695,6 @@ msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -742,9 +736,7 @@ msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -799,7 +791,6 @@ msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -974,9 +965,7 @@ msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -991,11 +980,9 @@ msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
 
 
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
@@ -1252,7 +1239,6 @@ msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -1285,7 +1271,6 @@ msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -1483,7 +1468,6 @@ msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -1500,7 +1484,6 @@ msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -1538,7 +1521,6 @@ msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -1548,13 +1530,10 @@ msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
@@ -1619,13 +1598,10 @@ msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
 
 
 
-#, fuzzy
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1658,80 +1634,6 @@ msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
 
 
 
