@@ -16092,17 +16092,15 @@ global void builtin_stream_close (const object* stream_) {
   switch (TheStream(stream)->strmtype) {
     case strmtype_synonym:
       close_synonym(stream); break; # X3J13_014 says: non-recursive
-    case strmtype_broad: break; # non-recursive
+    case strmtype_broad:  break; # non-recursive
     case strmtype_concat: break; # non-recursive
     case strmtype_twoway: break; # non-recursive
-    case strmtype_echo: break; # non-recursive
-    case strmtype_str_in:
-      close_str_in(stream); break;
-    case strmtype_str_out: break;
+    case strmtype_echo:   break; # non-recursive
+    case strmtype_str_in:  close_str_in(stream); break;
+    case strmtype_str_out:  break;
     case strmtype_str_push: break;
-    case strmtype_pphelp: break;
-    case strmtype_buff_in:
-      close_buff_in(stream); break;
+    case strmtype_pphelp:   break;
+    case strmtype_buff_in:  close_buff_in(stream);  break;
     case strmtype_buff_out: close_buff_out(stream); break;
     #ifdef GENERIC_STREAMS
     case strmtype_generic: close_generic(stream); break;
