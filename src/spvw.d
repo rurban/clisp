@@ -1470,6 +1470,9 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             #ifdef UNICODE
               " :UNICODE"
             #endif
+            #if (base_char_code_limit == char_code_limit)
+              " :BASE-CHAR=CHARACTER"
+            #endif
             #ifdef AMIGA
               " :AMIGA"
             #endif
