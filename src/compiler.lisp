@@ -10168,6 +10168,7 @@ The function make-closure is required.
                                 *compile-warnings*)
                                ((:verbose *compile-verbose*) *compile-verbose*)
                                ((:print *compile-print*) *compile-print*)
+                               (external-format :default)
                           &aux liboutput-file (*coutput-file* nil)
                                (*compile-file-directory*
                                 (if (eq t output-file) nil
@@ -10186,7 +10187,8 @@ The function make-closure is required.
                     (merge-extension "lis" file)
                     (merge-pathnames listing)))
     (setq new-listing-stream t))
-  (with-open-file (istream file :direction :input-immutable)
+  (with-open-file (istream file :direction :input-immutable
+                           :external-format external-format)
     (let ((listing-stream ; a stream or NIL
             (if new-listing-stream
               (open listing :direction :output)
