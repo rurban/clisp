@@ -2730,7 +2730,7 @@ done
 
 
 
-for ac_header in errno.h netdb.h sys/file.h sys/resource.h sys/utsname.h
+for ac_header in errno.h fcntl.h netdb.h sys/resource.h sys/utsname.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
@@ -3028,7 +3028,7 @@ echo "$as_me:  * System Calls (Functions)" >&6;}
 
 
 
-for ac_func in clock flock gethostent getrusage getrlimit sysconf uname
+for ac_func in clock fcntl gethostent getrusage getrlimit sysconf uname
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
