@@ -664,3 +664,7 @@ A
 t)
 T
 
+(let ((st (string (code-char 27))))
+  (string= st (symbol-name (read-from-string
+                            (prin1-to-string (make-symbol st))))))
+t
