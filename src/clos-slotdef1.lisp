@@ -364,31 +364,24 @@
       ($efm-sbuc  :type function :initform #'%slot-boundp-using-class)
       ($efm-smuc  :type function :initform #'%slot-makunbound-using-class)
       ; New slots:
-      ($initff   :type t       :initarg initff) ; init-function-fetcher
       ($readonly :type boolean :initarg readonly))
      (:fixed-slot-locations t)))
 (defvar *<structure-effective-slot-definition>-class-version* (make-class-version))
 
-(defun structure-effective-slot-definition-initff (object)
-  (sys::%record-ref object 12))
-(defun (setf structure-effective-slot-definition-initff) (new-value object)
-  (setf (sys::%record-ref object 12) new-value))
 (defun structure-effective-slot-definition-readonly (object)
-  (sys::%record-ref object 13))
+  (sys::%record-ref object 12))
 (defun (setf structure-effective-slot-definition-readonly) (new-value object)
-  (setf (sys::%record-ref object 13) new-value))
+  (setf (sys::%record-ref object 12) new-value))
 
 ;; Initialization of a <structure-effective-slot-definition> instance.
 (defun initialize-instance-<structure-effective-slot-definition> (slotdef &rest args
-                                                                  &key ((initff initff) nil)
-                                                                       ((readonly readonly) nil)
+                                                                  &key ((readonly readonly) nil)
                                                                   &allow-other-keys)
   (apply #'initialize-instance-<effective-slot-definition> slotdef args)
   (setf (slot-definition-efm-svuc slotdef) #'%slot-value-using-class)
   (setf (slot-definition-efm-ssvuc slotdef) #'%set-slot-value-using-class)
   (setf (slot-definition-efm-sbuc slotdef) #'%slot-boundp-using-class)
   (setf (slot-definition-efm-smuc slotdef) #'%slot-makunbound-using-class)
-  (setf (structure-effective-slot-definition-initff slotdef) initff)
   (setf (structure-effective-slot-definition-readonly slotdef) readonly)
   slotdef)
 
@@ -399,7 +392,7 @@
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'make-instance later.
   (declare (ignore class))
-  (let ((slotdef (allocate-metaobject-instance *<structure-effective-slot-definition>-class-version* 14)))
+  (let ((slotdef (allocate-metaobject-instance *<structure-effective-slot-definition>-class-version* 13)))
     (apply #'initialize-instance-<structure-effective-slot-definition> slotdef args)))
 
 
@@ -528,7 +521,7 @@
     :writers            ',(slot-definition-writers object)))
 
 ;; Needed by DEFSTRUCT.
-(defun make-load-form-<structure-effective-slot-definition> (object &optional local-initff)
+(defun make-load-form-<structure-effective-slot-definition> (object &optional initff)
   `(make-instance-<structure-effective-slot-definition>
     <structure-effective-slot-definition>
     :name               ',(slot-definition-name object)
@@ -543,8 +536,7 @@
                         ;; classes don't support class redefinition.
                         (make-inheritable-slot-definition-initer
                           ',(slot-definition-initform object)
-                          ,(or local-initff (structure-effective-slot-definition-initff object)))
+                          ,initff)
     'inheritable-doc    ',(slot-definition-inheritable-doc object)
     'location           ',(slot-definition-location object)
-    'initff             ',(structure-effective-slot-definition-initff object)
     'readonly           ',(structure-effective-slot-definition-readonly object)))
