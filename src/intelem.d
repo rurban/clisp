@@ -1056,7 +1056,7 @@ global object UQ_to_I (uint64 wert)
 {
   if ((wert & ~ (FN_value_mask >> oint_data_shift)) == 0)
     /* all bits, that do not fit into the fixnum-value, =0 ? */
-    return as_object(((oint)fixnum_type<<oint_type_shift) | (wert<<oint_data_shift));
+    return as_object(((oint)fixnum_type<<oint_type_shift) | (oint)(wert<<oint_data_shift));
   /* create bignum:
      (its length bn_minlength <= n <= ceiling((64+1)/intDsize) ) */
  #define UQ_maxlength  ceiling(64+1,intDsize)
