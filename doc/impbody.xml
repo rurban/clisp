@@ -597,6 +597,30 @@ executes a compiled version of form.</para>
                <replaceable>object</replaceable>)</literal>.
   </simpara></listitem></varlistentry>
 
+ <varlistentry><term>&progn;</term>
+  <listitem><simpara>
+   <literal role="sexp">(&setf; (&progn; <replaceable>form</replaceable> ...
+                                         <replaceable>place</replaceable>)
+                                <replaceable>object</replaceable>)</literal>
+  </simpara></listitem></varlistentry>
+
+ <varlistentry><term>&locally;</term>
+  <listitem><simpara>
+   <literal role="sexp">(&setf; (&locally;
+                                 <replaceable>declaration</replaceable> ...
+                                 <replaceable>form</replaceable> ...
+                                 <replaceable>place</replaceable>)
+                                <replaceable>object</replaceable>)</literal>
+  </simpara></listitem></varlistentry>
+
+ <varlistentry><term>&if;</term>
+  <listitem><simpara>
+   <literal role="sexp">(&setf; (&if; <replaceable>condition</replaceable>
+                                  <replaceable>place1</replaceable>
+                                  <replaceable>place2</replaceable>)
+                                <replaceable>object</replaceable>)</literal>
+  </simpara></listitem></varlistentry>
+
  <varlistentry><term>&get-dispatch-macro-character;</term>
   <listitem><simpara>
    <literal role="sexp">(&setf; (&get-dispatch-macro-character; ...)

@@ -959,6 +959,65 @@
   (get-setf-expansion (cons fun args) env)
 )
 ;;;----------------------------------------------------------------------------
+(define-setf-expander PROGN (&rest forms &environment env)
+  (let ((last (last forms)))
+    (multiple-value-bind (SM1 SM2 SM3 SM4 SM5)
+        (get-setf-expansion (car last) env)
+      (if (eq forms last)
+        (values SM1 SM2 SM3 SM4 SM5)
+        (let ((dummyvar (gensym)))
+          (values
+            `(,dummyvar                    ,@SM1)
+            `((PROGN ,@(ldiff forms last)) ,@SM2)
+            SM3
+            `(PROGN
+               ,dummyvar ; avoid warning about unused temporary variable
+               ,SM4
+             )
+            SM5
+) ) ) ) ) )
+;;;----------------------------------------------------------------------------
+(define-setf-expander LOCALLY (&rest body &environment env)
+  (multiple-value-bind (body-rest declspecs) (system::parse-body body nil env)
+    (multiple-value-bind (SM1 SM2 SM3 SM4 SM5)
+        (get-setf-expansion `(PROGN ,@body-rest) env)
+      (if declspecs
+        (let ((declarations `(DECLARE ,@declspecs)))
+          (values
+            SM1
+            (mapcar #'(lambda (x) `(LOCALLY ,declarations ,x)) SM2)
+            SM3
+           `(LOCALLY ,declarations ,SM4)
+           `(LOCALLY ,declarations ,SM5)
+        ) )
+        (values SM1 SM2 SM3 SM4 SM5)
+) ) ) )
+;;;----------------------------------------------------------------------------
+(define-setf-expander IF (condition t-form f-form &environment env)
+  (let ((conditionvar (gensym)))
+    (multiple-value-bind (T-SM1 T-SM2 T-SM3 T-SM4 T-SM5)
+        (get-setf-expansion t-form)
+      (multiple-value-bind (F-SM1 F-SM2 F-SM3 F-SM4 F-SM5)
+          (get-setf-expansion f-form)
+        (unless (eql (length T-SM3) (length F-SM3))
+          (error-of-type 'source-program-error
+            (ENGLISH "SETF place ~S expects different numbers of values in the true and branches (~D vs. ~D values).")
+            (cons 'IF condition t-form f-form) (length T-SM3) (length F-SM3)
+        ) )
+        (values
+          `(,conditionvar
+            ,@T-SM1
+            ,@F-SM1
+           )
+          `(,condition
+            ,@(mapcar #'(lambda (x) `(IF ,conditionvar ,x)) T-SM2)
+            ,@(mapcar #'(lambda (x) `(IF (NOT ,conditionvar) ,x)) F-SM2)
+           )
+          T-SM3
+          `(IF ,conditionvar ,T-SM4 ,(sublis (mapcar #'cons F-SM3 T-SM3) F-SM4))
+          `(IF ,conditionvar ,T-SM5 ,F-SM5)
+) ) ) ) )
+;;;----------------------------------------------------------------------------
 (defsetf GET-DISPATCH-MACRO-CHARACTER
          (disp-char sub-char &optional (readtable '*READTABLE*)) (value)
   `(PROGN (SET-DISPATCH-MACRO-CHARACTER ,disp-char ,sub-char ,value ,readtable) ,value)
