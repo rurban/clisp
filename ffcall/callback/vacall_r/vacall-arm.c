@@ -1,7 +1,7 @@
 /* vacall function for arm CPU */
 
 /*
- * Copyright 1995-1999 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-2004 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -16,7 +16,7 @@
 #endif
 
 #ifdef REENTRANT
-#define vacall __vacall_r
+#define __vacall __vacall_r
 register struct { void (*vacall_function) (void*,va_alist); void* arg; }
          *		env	__asm__("r12");
 #endif
@@ -26,8 +26,8 @@ register float		fret	__asm__("f0");
 register double		dret	__asm__("f0");
 
 void /* the return type is variable, not void! */
-vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
-        __vaword firstword)
+__vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
+          __vaword firstword)
 {
   struct { long retaddr, arg1, arg2, arg3, arg4; } args;
   __va_alist list;
