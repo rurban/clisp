@@ -1,3 +1,4 @@
+ -*- coding: utf-8 -*-
             Copyright (c) 1992-2001 Bruno Haible and Michael Stoll
                            All Rights Reserved
 
@@ -50,9 +51,10 @@ Additionally:
 
 Note:
 
-  This copyright does *not* cover user programs that run in CLISP, if
-  they don't reference symbols in CLISP's built-in packages (except
-  the packages LISP, USER, COMMON-LISP, COMMON-LISP-USER, KEYWORD),
+  This copyright does *not* cover user programs that run in CLISP
+  and third-party packages not part of CLISP,
+  if they only reference external symbols in CLISP's public packages
+  (namely the packages COMMON-LISP, COMMON-LISP-USER, KEYWORD, EXT),
   i.e. if they don't rely on CLISP internals and would as well run in any
   other Common Lisp implementation. Such user programs are not covered
   by the term "derived work" used in the GNU GPL. Neither is their
@@ -80,14 +82,19 @@ Authors:
   PCL:           Richard Harris, ported by Bruno Haible
   Punimax:       Bill Schelter, ported by Bruno Haible
 
-Maintenance:     Bruno Haible, Marcus Daniels
+Maintenance:     Bruno Haible, Michael Stoll 1992, 1993
+                 Bruno Haible, Marcus Daniels 1994-1997
+                 Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998
+                 Bruno Haible, Sam Steingold 1999-2001
 
 Email addresses (September 1992 or newer):
-  Bruno Haible     haible@clisp.cons.org
-  Michael Stoll    michael@rhein.iam.uni-bonn.de
-  Jörg Höhle       Joerg.Hoehle@gmd.de
-  Peter Burwood    clisp@arcangel.dircon.co.uk
-  Marcus Daniels   marcus@sysc.pdx.edu
-  Richard Harris   harrisr@cs.rpi.edu
-  Bill Schelter    wfs@rascal.ics.utexas.edu
+  Bruno Haible       haible@clisp.cons.org
+  Michael Stoll      michael@rhein.iam.uni-bonn.de
+  Jörg Höhle         Joerg.Hoehle@gmd.de
+  Peter Burwood      clisp@arcangel.dircon.co.uk
+  Marcus Daniels     marcus@sysc.pdx.edu
+  Richard Harris     harrisr@cs.rpi.edu
+  Bill Schelter      wfs@rascal.ics.utexas.edu
+  Pierpaolo Bernardi bernardp@cli.di.unipi.it
+  Sam Steingold      sds@gnu.org
 
