@@ -1,5 +1,5 @@
 ;;; handle the posix functions
-;;; Sam Steingold 1999-2004
+;;; Sam Steingold 1999-2005
 
 (defpackage #:posix
   (:use #:common-lisp #:ext)
@@ -21,7 +21,8 @@
 (in-package "POSIX")
 
 ;;; ============================================================
-(defsetf priority set-priority)
+(defsetf priority (pid &optional which) (value)
+  `(set-priority ,pid ,which ,value))
 ;;; ============================================================
 (defstruct (hostent (:constructor
                      make-hostent (name aliases addr-list addrtype)))
