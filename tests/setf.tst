@@ -494,3 +494,7 @@ pl
   (defun (setf foo21) (x y) (error "Not inlined"))
   (bar21 1 2))
 3
+
+;; <http://article.gmane.org/gmane.lisp.clisp.general:9034>
+(defsetf foo () () (values))
+FOO
