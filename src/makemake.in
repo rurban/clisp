@@ -2078,7 +2078,7 @@ echol
 echol "config.status : configure"
 echotab "sh config.status --recheck"
 echol
-echol "${SRCDIR}VERSION : ${SRCDIR}version.h"
+echol "${SRCDIR}VERSION : ${SRCDIR}configure"
 echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}VERSION"
 echol
 echol "${SRCDIR}configure : ${SRCDIR}configure.in"
@@ -2254,7 +2254,7 @@ if [ -n "${SRCDIR}" ] ; then
     for f in $UNICODE_INCLUDES $NLS_INCLUDES w32shell; do
       link_dep "${f}.c" "${SRCDIR}${f}.c"
     done
-    for f in ${UNICODE_EXTRA} version.h modules.h ; do
+    for f in ${UNICODE_EXTRA} modules.h ; do
       link_dep "${f}" "${SRCDIR}${f}"
     done
     echol
@@ -2404,9 +2404,6 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     dependsc=$dependsc' '$g'.c'
   done
   dependsc=$dependsc''$EVERY_INCLUDES_H
-  if [ $f = spvw ] ; then
-    dependsc=$dependsc' version.h'
-  fi
   if [ $f = encoding ] ; then
     dependsc=$dependsc' libcharset.h'
   fi
@@ -3626,7 +3623,7 @@ if [ -n "${SRCDIR}" ] ; then
   for f in $UNICODE_INCLUDES $NLS_INCLUDES ; do
     line="$line ${f}.c"
   done
-  line="$line version.h modules.h"${UNICODE_EXTRA}
+  line="$line modules.h"${UNICODE_EXTRA}
   line="$line \$(LISPFILES) NEWS clisp.png"
   if [ ${HOS} = win32 ]; then
     line="$line clisp.ico";

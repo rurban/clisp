@@ -214,8 +214,8 @@ view-html :
 src/FILES : src/FILES.1
 	$(GROFF) -Tascii src/FILES.1 > src/FILES
 
-src/VERSION : src/version.h
-	fgrep _NUMBER src/version.h | sed 's/^.*_NUMBER "\(.*\)"$$/\1/' > src/VERSION
+src/VERSION : src/configure
+	src/configure --version | head -1 | cut -d' ' -f 4 > src/VERSION
 
 src/uninames.h : utils/unicode/UnicodeDataFull.txt utils/gen-uninames
 	$${CLISP} utils/gen-uninames utils/unicode/UnicodeDataFull.txt src/uninames.h
@@ -274,10 +274,10 @@ distrib : linux-distrib src-distrib
 
 ## RELEASE TODO:
 # Before doing a "make src-distrib":
-# * update src/version.h, src/NEWS, src/HISTORY
+# * update src/configure.in (version number), src/NEWS, src/HISTORY
 # * update clisp.lsm, clisp.spec
-# * "make -f Makefile.devel",
-# * "make -f Makefile.devel check-configures",
+# * "make -f Makefile.devel"
+# * "make -f Makefile.devel check-configures"
 # * check that src/genclisph.d is up to date.
 # web pages to be updated:
 # www/index.php, www/impnotes.html, www/clisp.html, www/impnotes/
@@ -308,7 +308,7 @@ upload : $(SRC_DIST1) force
 	  lftp $${h} -e "put clisp.lsm $(SRC_DIST) $(SRC_DIST1); quit"; \
 	done
 
-src-distrib : src/FILES src/version.h potfiles force
+src-distrib : src/FILES src/VERSION potfiles force
 	$(MAKE) -f Makefile.devel src--distrib TOPDIR=clisp-$(VER)
 
 src--distrib : force

@@ -361,8 +361,7 @@
 # for MISC.D:
   # basic knowledge:
   LISPOBJ_S(lisp_implementation_type_string,"CLISP")
-  LISPOBJ_S(lisp_implementation_version_date_string,VERSION_DATE)
-  LISPOBJ_S(lisp_implementation_version_number_string,VERSION_NUMBER)
+  LISPOBJ_S(lisp_implementation_package_version,PACKAGE_VERSION)
   # we want here the _LINK_ time, but I have no idea about how to get it
 #ifdef __DATE__
   LISPOBJ_S(lisp_implementation_version_built_string,__DATE__ __TIME__)
