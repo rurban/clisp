@@ -15,6 +15,10 @@
 ;;   INITIALIZE-INSTANCE and SHARED-INITIALIZE.
 ;; - REINITIALIZE-INSTANCE must be informed about the methods of
 ;;   REINITIALIZE-INSTANCE and SHARED-INITIALIZE.
+;; - UPDATE-INSTANCE-FOR-REDEFINED-CLASS must be informed about the methods of
+;;   UPDATE-INSTANCE-FOR-REDEFINED-CLASS and SHARED-INITIALIZE.
+;; - UPDATE-INSTANCE-FOR-DIFFERENT-CLASS must be informed about the methods of
+;;   UPDATE-INSTANCE-FOR-DIFFERENT-CLASS and SHARED-INITIALIZE.
 
 (defparameter *make-instance-table* (make-hash-table :test #'eq))
   ;; Hash table, mapping a class to a simple-vector containing
@@ -27,6 +31,20 @@
   ;; Hash table, mapping a class to a cons containing
   ;; - a list of valid keyword arguments,
   ;; - the effective method of shared-initialize.
+
+(defparameter *update-instance-for-redefined-class-table*
+  (make-hash-table :test #'eq))
+  ;; Hash table, mapping a class to
+  ;; - a list of valid keyword arguments.
+
+(defparameter *update-instance-for-different-class-table*
+  (make-hash-table :test #'equal))
+  ;; Hash table, mapping a cons (old-class . new-class) to
+  ;; - a list of valid keyword arguments.
+
+;; FIXME: These tables must also be cleaned when a classed is redefined
+;; (because subclassp changes, and for *update-instance-for-redefined-class-table*
+;; also because the class-slots change).
 
 (defun note-i-change (specializer table)
   (maphash #'(lambda (class value) (declare (ignore value))
@@ -43,10 +61,10 @@
   (let ((specializer (first (std-method-parameter-specializers method))))
     (if (consp specializer)
       ;; EQL-method for ALLOCATE-INSTANCE:
-      ;; object must be a class, else worthless
+      ;; object must be a class, else worthless.
       (let ((specialized-object (second specializer)))
         (when (class-p specialized-object)
-          ;; remove the entries from *make-instance-table* for which the
+          ;; Remove the entries from *make-instance-table* for which the
           ;; implied method might be applicable:
           (note-i-change specialized-object *make-instance-table*)))
       ;; remove the entries from *make-instance-table* for which the
@@ -55,36 +73,76 @@
 
 (defun note-ii-change (method)
   (let ((specializer (first (std-method-parameter-specializers method))))
-    ;; EQL-methods for INITIALIZE-INSTANCE are worthless in any case
+    ;; EQL-methods for INITIALIZE-INSTANCE are worthless in any case.
     (unless (consp specializer)
-      ;; remove the entries from *make-instance-table* for which the
+      ;; Remove the entries from *make-instance-table* for which the
       ;; implied method might be applicable:
       (note-i-change specializer *make-instance-table*))))
 
 (defun note-ri-change (method)
   (let ((specializer (first (std-method-parameter-specializers method))))
-    ;; EQL-methods for REINITIALIZE-INSTANCE are essentially worthless
+    ;; EQL-methods for REINITIALIZE-INSTANCE are essentially worthless.
     (unless (consp specializer)
-      ;; remove the entries from *reinitialize-instance-table* for which the
+      ;; Remove the entries from *reinitialize-instance-table* for which the
       ;; implied method might be applicable:
       (note-i-change specializer *reinitialize-instance-table*))))
+
+(defun note-uirc-change (method)
+  (let ((specializer (first (std-method-parameter-specializers method))))
+    ;; EQL-methods for UPDATE-INSTANCE-FOR-REDEFINED-CLASS are essentially
+    ;; worthless.
+    (unless (consp specializer)
+      ;; Remove the entries from *update-instance-for-redefined-class-table*
+      ;; for which the implied method might be applicable:
+      (note-i-change specializer *update-instance-for-redefined-class-table*))))
+
+(defun note-uidc-change (method)
+  (let ((specializer1 (first (std-method-parameter-specializers method)))
+        (specializer2 (second (std-method-parameter-specializers method))))
+    ;; Methods for UPDATE-INSTANCE-FOR-DIFFERENT-CLASS with EQL specializer
+    ;; in the first argument are essentially worthless.
+    (unless (consp specializer1)
+      ;; Methods for UPDATE-INSTANCE-FOR-DIFFERENT-CLASS with EQL specializer
+      ;; in the second argument are worthless in any case.
+      (unless (consp specializer2)
+        ;; Remove the entries from *update-instance-for-different-class-table*
+        ;; for which the implied method might be applicable:
+        (let ((table *update-instance-for-different-class-table*))
+          (maphash #'(lambda (classes value) (declare (ignore value))
+                       (let ((class1 (car classes))
+                             (class2 (cdr classes)))
+                         (when (and (subclassp class1 specializer1)
+                                    (subclassp class2 specializer2))
+                           (remhash classes table))))
+                   table))))))
 
 (defun note-si-change (method)
   (let* ((specializers (std-method-parameter-specializers method))
          (specializer1 (first specializers))
          (specializer2 (second specializers)))
-    ;; EQL-methods for SHARED-INITIALIZE are essentially worthless
+    ;; EQL-methods for SHARED-INITIALIZE are essentially worthless.
     (unless (consp specializer1)
       ;; As second argument, INITIALIZE-INSTANCE passes always T .
       (when (typep 'T specializer2)
-        ;; remove the entries from *make-instance-table* for which the
+        ;; Remove the entries from *make-instance-table* for which the
         ;; implied method might be applicable:
         (note-i-change specializer1 *make-instance-table*))
       ;; As second argument, REINITIALIZE-INSTANCE passes always NIL .
       (when (typep 'NIL specializer2)
-        ;; remove the entries from *reinitialize-instance-table* for which the
+        ;; Remove the entries from *reinitialize-instance-table* for which the
         ;; implied method might be applicable:
-        (note-i-change specializer1 *reinitialize-instance-table*)))))
+        (note-i-change specializer1 *reinitialize-instance-table*))
+      ;; Remove the entries from *update-instance-for-redefined-class-table*
+      ;; for which the implied method might be applicable:
+      (note-i-change specializer1 *reinitialize-instance-table*)
+      ;; Remove the entries from *update-instance-for-different-class-table*
+      ;; for which the implied method might be applicable:
+      (let ((table *update-instance-for-different-class-table*))
+        (maphash #'(lambda (classes value) (declare (ignore value))
+                     (let ((class2 (cdr classes)))
+                       (when (subclassp class2 specializer1)
+                         (remhash classes table))))
+                 table)))))
 
 ;;; collect all keywords from a list of applicable methods
 (defun valid-initarg-keywords (class methods)
@@ -117,7 +175,8 @@
 (defun valid-make-instance-keywords (class)
   (valid-initarg-keywords
     class
-    (append ; list of all applicable methods from SHARED-INITIALIZE
+    (append
+     ;; list of all applicable methods from SHARED-INITIALIZE
      (remove-if-not
       #'(lambda (method)
           (let* ((specializers (std-method-parameter-specializers method))
@@ -149,17 +208,114 @@
   (values (compute-effective-method |#'initialize-instance| instance)
           (compute-effective-method |#'shared-initialize| instance 'T)))
 
-#|| ;; Now in record.d.
- (defun check-initialization-argument-list (initargs caller)
-   (do ((l initargs (cddr l)))
-       ((endp l))
-     (unless (symbolp (car l))
-       (error "~S: invalid initialization argument ~S"
-              caller (car l)))
-     (when (endp (cdr l))
-       (error "~S: keyword arguments in ~S should occur pairwise"
-              caller initargs))))
-||#
+;; For REINITIALIZE-INSTANCE the following is necessary as keys:
+;; - the initargs that are used for the initialization of slots,
+;; - the keywords of methods from SHARED-INITIALIZE,
+;; - the keywords of methods from REINITIALIZE-INSTANCE.
+(defun valid-reinitialize-instance-keywords (class)
+  (valid-initarg-keywords
+    class
+    (append
+      ;; list of all applicable methods from SHARED-INITIALIZE
+      (remove-if-not
+        #'(lambda (method)
+            (let* ((specializers (std-method-parameter-specializers method))
+                   (specializer1 (first specializers))
+                   (specializer2 (second specializers)))
+              (and (atom specializer1) (subclassp class specializer1)
+                   (typep 'NIL specializer2))))
+        (gf-methods |#'shared-initialize|))
+      ;; list of all applicable methods from REINITIALIZE-INSTANCE
+      (remove-if-not
+        #'(lambda (method)
+            (let ((specializer
+                    (first (std-method-parameter-specializers method))))
+              (and (atom specializer) (subclassp class specializer))))
+        (gf-methods |#'reinitialize-instance|)))))
+
+;; For UPDATE-INSTANCE-FOR-REDEFINED-CLASS the following is necessary as keys:
+;; - the initargs that are used for the initialization of slots,
+;; - the keywords of methods from SHARED-INITIALIZE,
+;; - the keywords of methods from UPDATE-INSTANCE-FOR-REDEFINED-CLASS.
+;; Return a 2nd value that indicates whether the result is independent of
+;; added-slots, discarded-slots, property-list.
+(defun valid-update-instance-for-redefined-class-keywords (class added-slots discarded-slots property-list)
+  (let ((independent t))
+    (values
+      (valid-initarg-keywords
+        class
+        (append
+          ;; list of all applicable methods from SHARED-INITIALIZE
+          (remove-if-not
+            #'(lambda (method)
+                (let* ((specializers (std-method-parameter-specializers method))
+                       (specializer1 (first specializers))
+                       (specializer2 (second specializers)))
+                  (and (atom specializer1) (subclassp class specializer1)
+                       (progn
+                         (when (or (consp specializer2) (eq specializer2 <null>))
+                           (setq independent nil))
+                         (typep added-slots specializer2)))))
+            (gf-methods |#'shared-initialize|))
+          ;; list of all applicable methods from UPDATE-INSTANCE-FOR-REDEFINED-CLASS
+          (remove-if-not
+            #'(lambda (method)
+                (let* ((specializers (std-method-parameter-specializers method))
+                       (specializer1 (first specializers))
+                       (specializer2 (second specializers))
+                       (specializer3 (third specializers))
+                       (specializer4 (fourth specializers)))
+                  (and (atom specializer1) (subclassp class specializer1)
+                       (progn
+                         (when (or (consp specializer2) (eq specializer2 <null>))
+                           (setq independent nil))
+                         (when (or (consp specializer3) (eq specializer3 <null>))
+                           (setq independent nil))
+                         (when (or (consp specializer4) (eq specializer4 <null>))
+                           (setq independent nil))
+                         (and (typep added-slots specializer2)
+                              (typep discarded-slots specializer3)
+                              (typep property-list specializer4))))))
+            (gf-methods |#'update-instance-for-redefined-class|))))
+      independent)))
+
+;; For UPDATE-INSTANCE-FOR-DIFFERENT-CLASS the following is necessary as keys:
+;; - the initargs that are used for the initialization of slots,
+;; - the keywords of methods from SHARED-INITIALIZE,
+;; - the keywords of methods from UPDATE-INSTANCE-FOR-DIFFERENT-CLASS.
+(defun valid-update-instance-for-different-class-keywords (old-class new-class added-slots)
+  (valid-initarg-keywords
+    new-class
+    (append
+      ;; list of all applicable methods from SHARED-INITIALIZE
+      (remove-if-not
+        #'(lambda (method)
+            (let* ((specializers (std-method-parameter-specializers method))
+                   (specializer1 (first specializers))
+                   (specializer2 (second specializers)))
+              (and (atom specializer1) (subclassp new-class specializer1)
+                   (typep added-slots specializer2))))
+        (gf-methods |#'shared-initialize|))
+      ;; list of all applicable methods from UPDATE-INSTANCE-FOR-DIFFERENT-CLASS
+      (remove-if-not
+        #'(lambda (method)
+            (let* ((specializers (std-method-parameter-specializers method))
+                   (specializer1 (first specializers))
+                   (specializer2 (second specializers)))
+              (and (atom specializer1) (subclassp old-class specializer1)
+                   (atom specializer2) (subclassp new-class specializer2))))
+        (gf-methods |#'update-instance-for-different-class|)))))
+
+;; Also in record.d.
+(defun check-initialization-argument-list (initargs caller)
+  (do ((l initargs (cddr l)))
+      ((endp l))
+    (unless (symbolp (car l))
+      (error "~S: invalid initialization argument ~S"
+             caller (car l)))
+    (when (endp (cdr l))
+      (error "~S: keyword arguments in ~S should occur pairwise"
+             caller initargs))))
 
 ;; CLtL2 28.1.9.5., 28.1.9.4., ANSI CL 7.1.5., 7.1.4.
 (defgeneric shared-initialize
@@ -220,7 +376,7 @@
       (progn
         ;; CLtL2 28.1.9.2., ANSI CL 7.1.2. Validity of initialization arguments
         (let ((valid-keywords (car h)))
-          (unless (eq valid-keyword 't)
+          (unless (eq valid-keywords 't)
             (sys::keyword-test initargs valid-keywords)))
         (if (not (eq (cdr h) #'clos::%shared-initialize))
           ;; apply effective method from shared-initialize:
@@ -258,27 +414,7 @@
 ;; we memorize the needed information in *reinitialize-instance-table*.
 (defun initial-reinitialize-instance (instance &rest initargs)
   (let* ((class (class-of instance))
-         (valid-keywords
-          (valid-initarg-keywords
-           class
-           (append
-            ;; list of all applicable methods from SHARED-INITIALIZE
-            (remove-if-not
-             #'(lambda (method)
-                 (let* ((specializers (std-method-parameter-specializers
-                                       method))
-                        (specializer1 (first specializers))
-                        (specializer2 (second specializers)))
-                   (and (atom specializer1) (subclassp class specializer1)
-                        (typep 'NIL specializer2))))
-             (gf-methods |#'shared-initialize|))
-            ;; list of all applicable methods from REINITIALIZE-INSTANCE
-            (remove-if-not
-             #'(lambda (method)
-                 (let ((specializer
-                        (first (std-method-parameter-specializers method))))
-                   (and (atom specializer) (subclassp class specializer))))
-             (gf-methods |#'reinitialize-instance|))))))
+         (valid-keywords (valid-reinitialize-instance-keywords class)))
     ;; CLtL2 28.1.9.2., ANSI CL 7.1.2. Validity of initialization arguments
     (unless (eq valid-keywords 't)
       (sys::keyword-test initargs valid-keywords))
@@ -339,6 +475,8 @@
     :parameter-specializers (list (find-class 'structure-object))
     :qualifiers '()
     :signature #s(compiler::signature :req-num 1 :rest-p t)))
+;; At the first call of MAKE-INSTANCE or INITIALIZE-INSTANCE of each class
+;; we memorize the needed information in *make-instance-table*.
 (defun initial-initialize-instance (instance &rest initargs)
   (let ((class (class-of instance)))
     (multiple-value-bind (valid-keywords ai-ef)
@@ -456,6 +594,8 @@
     :parameter-specializers (list (find-class 'structure-class))
     :qualifiers '()
     :signature #s(compiler::signature :req-num 1 :rest-p t)))
+;; At the first call of MAKE-INSTANCE or INITIALIZE-INSTANCE of each class
+;; we memorize the needed information in *make-instance-table*.
 (defun initial-make-instance (class &rest initargs)
   (multiple-value-bind (valid-keywords ai-ef)
       (make-instance-table-entry1 class)
@@ -533,7 +673,11 @@
                                                  &key &allow-other-keys)
   (:method ((previous standard-object) (current standard-object)
             &rest initargs)
-    (let* ((old-slots-table (class-slot-location-table (class-of previous)))
+    ;; ANSI CL 7.2.2. Initializing Newly Added Local Slots.
+    (check-initialization-argument-list initargs 'update-instance-for-different-class)
+    (let* ((old-class (class-of previous))
+           (old-slots-table (class-slot-location-table old-class))
+           (new-class (class-of current))
            (added-slots
              (mapcan #'(lambda (slot)
                          ; Only local slots.
@@ -543,8 +687,20 @@
                              ; exists in the previous class.
                              (when (null (gethash name old-slots-table))
                                (list name)))))
-                     (class-slots (class-of current)))))
+                     (class-slots new-class))))
+      ;; CLtL2 28.1.9.2., ANSI CL 7.1.2. Validity of initialization arguments
+      (multiple-value-bind (valid-keywords found)
+          (gethash (cons old-class new-class) *update-instance-for-different-class-table*)
+        (unless found
+          (setq valid-keywords
+                (valid-update-instance-for-different-class-keywords
+                  old-class new-class added-slots))
+          (setf (gethash (cons old-class new-class) *update-instance-for-different-class-table*)
+                valid-keywords))
+        (unless (eq valid-keywords 't)
+          (sys::keyword-test initargs valid-keywords)))
       (apply #'shared-initialize current added-slots initargs))))
+(setq |#'update-instance-for-different-class| #'update-instance-for-different-class)
 
 ;; Users want to be able to create subclasses of <standard-class> and write
 ;; methods on MAKE-INSTANCES-OBSOLETE on them. So, we now go redefine
@@ -564,7 +720,23 @@
   (:method ((instance standard-object) added-slots discarded-slots
             property-list &rest initargs)
     (declare (ignore discarded-slots property-list))
+    (check-initialization-argument-list initargs 'update-instance-for-redefined-class)
+    ;; CLtL2 28.1.9.2., ANSI CL 7.1.2. Validity of initialization arguments
+    (let ((class (class-of instance)))
+      (multiple-value-bind (valid-keywords found)
+          (gethash class *update-instance-for-redefined-class-table*)
+        (unless found
+          (let (independent)
+            (multiple-value-setq (valid-keywords independent)
+                (valid-update-instance-for-redefined-class-keywords
+                  class added-slots discarded-slots property-list))
+            (when independent
+              (setf (gethash class *update-instance-for-redefined-class-table*)
+                    valid-keywords))))
+        (unless (eq valid-keywords 't)
+          (sys::keyword-test initargs valid-keywords))))
     (apply #'shared-initialize instance added-slots initargs)))
+(setq |#'update-instance-for-redefined-class| #'update-instance-for-redefined-class)
 
 ;;; class prototype (MOP)
 

@@ -28,9 +28,15 @@
 ;;   INITIALIZE-INSTANCE and SHARED-INITIALIZE.
 ;; - REINITIALIZE-INSTANCE must be informed about the methods of
 ;;   REINITIALIZE-INSTANCE and SHARED-INITIALIZE.
+;; - UPDATE-INSTANCE-FOR-REDEFINED-CLASS must be informed about the methods of
+;;   UPDATE-INSTANCE-FOR-REDEFINED-CLASS and SHARED-INITIALIZE.
+;; - UPDATE-INSTANCE-FOR-DIFFERENT-CLASS must be informed about the methods of
+;;   UPDATE-INSTANCE-FOR-DIFFERENT-CLASS and SHARED-INITIALIZE.
 (defvar |#'allocate-instance| nil)
 (defvar |#'initialize-instance| nil)
 (defvar |#'reinitialize-instance| nil)
+(defvar |#'update-instance-for-redefined-class| nil)
+(defvar |#'update-instance-for-different-class| nil)
 (defvar |#'shared-initialize| nil)
 (defvar *gf-warn-on-replacing-method* t)
 
@@ -97,6 +103,8 @@
     (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
           ((eq gf |#'initialize-instance|) (note-ii-change method))
           ((eq gf |#'reinitialize-instance|) (note-ri-change method))
+          ((eq gf |#'update-instance-for-redefined-class|) (note-uirc-change method))
+          ((eq gf |#'update-instance-for-different-class|) (note-uidc-change method))
           ((eq gf |#'shared-initialize|) (note-si-change method)))
     (setf (gf-methods gf)
           (cons method
@@ -125,6 +133,8 @@
       (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
             ((eq gf |#'initialize-instance|) (note-ii-change method))
             ((eq gf |#'reinitialize-instance|) (note-ri-change method))
+            ((eq gf |#'update-instance-for-redefined-class|) (note-uirc-change method))
+            ((eq gf |#'update-instance-for-different-class|) (note-uidc-change method))
             ((eq gf |#'shared-initialize|) (note-si-change method)))
       (setf (gf-methods gf) (remove old-method (gf-methods gf))
             (std-method-gf old-method) nil)
