@@ -772,7 +772,7 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
 
   if ( OCI_SUCCESS != status ) {
 
-    ub4 err_offset = 0;
+    ub2 err_offset = 0;
 
     sprintf(db->errmsg, "Error executing SQL %s:\n---\n%s\n---\n", is_command ? "command" : "query", sql);
 
