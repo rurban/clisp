@@ -3469,16 +3469,17 @@ nonreturning_function(local, fehler_dlerror,
                       (const char* func, const char* symbol,
                        const char* errstring)) {
   end_system_call();
-  pushSTACK(asciz_to_string(errstring,O(misc_encoding)));
+  pushSTACK(asciz_to_string(errstring==NULL ? "Unknown error" : errstring,
+                            O(misc_encoding)));
   if (symbol != NULL)
-    { pushSTACK(asciz_to_string(symbol,O(internal_encoding))); }
+    pushSTACK(asciz_to_string(symbol,O(internal_encoding)));
   pushSTACK(asciz_to_string(func,O(internal_encoding)));
   pushSTACK(TheSubr(subr_self)->name);
   fehler(error, (symbol == NULL ? "~S: ~S -> ~S" : "~S: ~S(~S) -> ~S"));
 }
 
 #if !defined(HAVE_DLERROR)
-#define dlerror()  "Unknown error"
+#define dlerror()  NULL
 #endif
 
 /* find the symbol, signal an error if not found
