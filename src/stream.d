@@ -16745,8 +16745,8 @@ local bool maygc check_endianness_arg (object arg) {
     return false;
   if (eq(arg,S(Kbig)))
     return true;
-  pushSTACK(arg);                # TYPE-ERROR slot DATUM
-  pushSTACK(O(type_endianness)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(arg);                /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_endianness)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
   check_value(type_error,GETTEXT("~S: illegal endianness argument ~S"));
   arg = value1;
