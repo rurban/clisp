@@ -1,3 +1,8 @@
+2002-05-28  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (buffered_half_flush, buffered_full_flush): removed
+	(buffered_flush): always do what buffered_half_flush() used to do
+
 2002-05-28  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (STACK_register): Fix #if condition.
