@@ -1,3 +1,4 @@
+# -*- makefile -*-
 # This is the developer's makefile, not the user's makefile.
 # Don't use it unless you know exactly what you do!
 
@@ -7,7 +8,8 @@ SHELL = /bin/sh
 MAKE = make
 COMMENT5 = comment5
 PERL = perl
-GROFF = nroff
+GROFF = nroff -man
+# GROFF = groff -mandoc
 
 # Choose one of the packers:
 
@@ -176,7 +178,7 @@ potfiles :
 
 
 view-man :
-	grep -v '^#[ie]' src/_clisp.1 | $(GROFF) -Tascii -mandoc | less
+	grep -v '^#[ie]' src/_clisp.1 | $(GROFF) -Tascii | less
 
 view-html :
 	grep -v '^#[ie]' src/_clisp.html > /tmp/clisp.html
@@ -185,7 +187,7 @@ view-html :
 
 
 src/FILES : src/FILES.1
-	$(GROFF) -Tascii -mandoc src/FILES.1 > src/FILES
+	$(GROFF) -Tascii src/FILES.1 > src/FILES
 
 src/VERSION : src/version.h
 	fgrep _NUMBER src/version.h | sed 's/^.*_NUMBER "\(.*\)"$$/\1/' > src/VERSION
@@ -277,7 +279,7 @@ os2--distrib : force
 	cp -p $(DOSDIR)/lisp.exe $(TEMPDIR)
 	cp -p $(DOSDIR)/lispinit.mem $(TEMPDIR)
 	cp -p $(DOSDIR)/*.lisp $(TEMPDIR)
-	# cp -p $(DOSDIR)/*.fas $(TEMPDIR)
+#	cp -p $(DOSDIR)/*.fas $(TEMPDIR)
 	mkdir $(TEMPDIR)/locale
 	for lang in en de fr es; do mkdir $(TEMPDIR)/locale/$$lang; mkdir $(TEMPDIR)/locale/$$lang/LC_MESSAGES; cp -p $(DOSDIR)/locale/$$lang/LC_MESSAGES/clisp.mo $(TEMPDIR)/locale/$$lang/LC_MESSAGES/clisp.mo; done
 	cp -p $(DOSDIR)/README $(DOSDIR)/README.de $(DOSDIR)/README.en $(DOSDIR)/README.es $(DOSDIR)/clisp.1 $(DOSDIR)/clisp.html $(DOSDIR)/impnotes.html $(DOSDIR)/clisp.gif $(DOSDIR)/clreadline.3 $(DOSDIR)/clreadline.html $(TEMPDIR)
@@ -286,10 +288,10 @@ os2--distrib : force
 	from-ibmpc $(TEMPDIR)/impnotes.html os2/impnotes.html
 	from-ibmpc $(TEMPDIR)/clreadline.3 os2/clreadline.3
 	from-ibmpc $(TEMPDIR)/clreadline.html os2/clreadline.html
-	cd os2 ; $(GROFF) -Tascii -mandoc clisp.1 > clisp.man
-	cd os2 ; $(GROFF) -Tdvi -mandoc clisp.1 > clisp.dvi
-	cd os2 ; $(GROFF) -Tascii -mandoc clreadline.3 > clreadline.man
-	cd os2 ; $(GROFF) -Tdvi -mandoc clreadline.3 > clreadline.dvi
+	cd os2 ; $(GROFF) -Tascii clisp.1 > clisp.man
+	cd os2 ; $(GROFF) -Tdvi clisp.1 > clisp.dvi
+	cd os2 ; $(GROFF) -Tascii clreadline.3 > clreadline.man
+	cd os2 ; $(GROFF) -Tdvi clreadline.3 > clreadline.dvi
 	to-ibmpc os2/clisp.man $(TEMPDIR)/clisp.man
 	cp -p os2/clisp.dvi $(TEMPDIR)/clisp.dvi
 	to-ibmpc os2/clreadline.man $(TEMPDIR)/clreadline.man
