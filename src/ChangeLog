@@ -1,3 +1,8 @@
+2005-03-14  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (cygwin_check): make sure that no cygwin
+	dependencies creep into the mingw builds
+
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
 	* regexp/configure.in: Add AC_CONFIG_AUX_DIR invocation.
