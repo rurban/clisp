@@ -99,7 +99,11 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 #    if defined(WIN32_NATIVE)
       LARGE_INTEGER size;
       begin_system_call();
-      failed_p = (!GetFileSizeEx(fd,&size));
+      size.LowPart = GetFileSize(fd,&size.HighPart);
+      /* Value returned can be (LONG) -1 even on success,
+         check the last error code */
+      if ((LONG)size.LowPart == -1) failed_p = GetLastError();
+        else failed_p = 0;
       end_system_call();
       if (failed_p) goto error;
       length = size.LowPart;
@@ -786,6 +790,120 @@ DEFUN(POSIX::STAT-VFS, file)
 
 /* COPY-FILE related functions. */
 
+#if defined(WIN32_NATIVE)
+
+/* Pointers to functions unavailable on windows 95, 98, ME */
+
+typedef BOOL (WINAPI * CreateHardLinkFuncType) ( LPCTSTR lpFileName, LPCTSTR lpExistingFileName,
+   LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+static CreateHardLinkFuncType CreateHardLinkFunc = NULL;
+
+typedef BOOL (WINAPI * BackupWriteFuncType) (HANDLE hFile, LPBYTE lpBuffer, DWORD nNumberOfBytesToWrite,
+   LPDWORD lpNumberOfBytesWritten, BOOL bAbort, BOOL bProcessSecurity, LPVOID *lpContext);
+static BackupWriteFuncType BackupWriteFunc = NULL;
+
+static HMODULE kernel32 = NULL;
+
+/* Checks if it's safe to call OldHardLink */
+static BOOL OldHardLinkGuard () {
+  OSVERSIONINFO vi;
+  if (BackupWriteFunc == NULL) return FALSE;
+  vi.dwOSVersionInfoSize = sizeof(vi);
+  if (!GetVersionEx(&vi)) return FALSE;
+  return vi.dwPlatformId == VER_PLATFORM_WIN32_NT;
+}
+
+/* From knowledge base article Q234727
+   This approach works on NT >= 3.51. */
+static BOOL OldHardLink( LPCTSTR source, LPCTSTR dest ) {
+
+   WCHAR  wsource[ MAX_PATH + 1 ];
+   WCHAR  wdest[ MAX_PATH + 1 ];
+   WCHAR  wdestfull[ MAX_PATH + 1 ];
+   LPWSTR wdestfullfile;
+
+   HANDLE hFileSource;
+
+   WIN32_STREAM_ID StreamId;
+   DWORD dwBytesWritten;
+   LPVOID lpContext;
+   DWORD cbPathLen;
+   DWORD StreamHeaderSize;
+
+   BOOL bSuccess;
+
+   /* convert from ANSI to UNICODE */
+   if (MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS /*error on invalid chars*/,
+     dest, -1/*null terminated*/, wdest, MAX_PATH + 1) == 0) return FALSE;
+
+   /* open existing file that we link to */
+   hFileSource = CreateFile(source, FILE_WRITE_ATTRIBUTES,
+     FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+     NULL, /* sa */ OPEN_EXISTING, 0, NULL );
+
+   if (hFileSource == INVALID_HANDLE_VALUE) return FALSE;
+
+   /* validate and sanitize supplied link path and use the result
+      the full path MUST be Unicode for BackupWrite */
+   cbPathLen = GetFullPathNameW( wdest , MAX_PATH, wdestfull, &wdestfullfile);
+
+   if (cbPathLen == 0) return FALSE;
+
+   cbPathLen = (cbPathLen + 1) * sizeof(WCHAR); // adjust for byte count
+
+   /* prepare and write the WIN32_STREAM_ID out */
+   lpContext = NULL;
+
+   StreamId.dwStreamId = BACKUP_LINK;
+   StreamId.dwStreamAttributes = 0;
+   StreamId.dwStreamNameSize = 0;
+   StreamId.Size.HighPart = 0;
+   StreamId.Size.LowPart = cbPathLen;
+
+   /* compute length of variable size WIN32_STREAM_ID */
+   StreamHeaderSize = (LPBYTE)&StreamId.cStreamName - (LPBYTE)&StreamId
+                      + StreamId.dwStreamNameSize ;
+
+   bSuccess = BackupWriteFunc(hFileSource,
+                         (LPBYTE)&StreamId,  /* buffer to write */
+                         StreamHeaderSize,   /* number of bytes to write */
+                         &dwBytesWritten,
+                         FALSE,              /* don't abort yet */
+                         FALSE,              /* don't process security */
+                         &lpContext);
+   bSuccess &= BackupWriteFunc(hFileSource,(LPBYTE)wdestfull, cbPathLen,
+        &dwBytesWritten, FALSE, FALSE, &lpContext);
+   /* free context */
+   bSuccess &= BackupWriteFunc(hFileSource,NULL,0,&dwBytesWritten,TRUE, FALSE,
+        &lpContext);
+   CloseHandle( hFileSource );
+   return bSuccess;
+} 
+#endif
+
+void module__syscalls__init_function_2 (module_t* module) {
+#if defined(WIN32_NATIVE)
+  kernel32 = LoadLibrary ("kernel32.dll");
+  if (kernel32 != NULL) {
+    CreateHardLinkFunc = (CreateHardLinkFuncType)
+      GetProcAddress (kernel32, "CreateHardLinkA");
+    BackupWriteFunc = (BackupWriteFuncType)
+      GetProcAddress (kernel32, "BackupWrite");
+  }
+#endif
+}
+
+#if defined(WIN32_NATIVE)
+static inline int MkHardLink (char* old_pathstring, char* new_pathstring) {
+  if (CreateHardLinkFunc != NULL)
+    return CreateHardLinkFunc(new_pathstring,old_pathstring,NULL);
+  if (OldHardLinkGuard())
+    return OldHardLink(old_pathstring,new_pathstring);
+  SetLastError(ERROR_INVALID_FUNCTION); /* or what ? */
+  return 0;
+}
+#endif
+
 /* Hard/Soft Link a file
  > old_pathstring: old file name, ASCIZ-String
  > new_pathstring: new file name, ASCIZ-String
@@ -798,7 +916,7 @@ DEFUN(POSIX::STAT-VFS, file)
 static inline void hardlink_file (char* old_pathstring, char* new_pathstring) {
   begin_system_call();
 # if defined(WIN32_NATIVE)
-  if (CreateHardLink(new_pathstring,old_pathstring,NULL) == 0)
+  if (MkHardLink(old_pathstring,new_pathstring) == FALSE)
     if (GetLastError() == ERROR_FILE_NOT_FOUND)
 # else
   if (link(old_pathstring,new_pathstring) < 0)
