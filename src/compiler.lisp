@@ -1804,7 +1804,8 @@ for-value   NIL or T
 (defmacro eval-when-compile (&body body)
   `(eval-when (compile) (c-eval-and-write-lib '(progn ,@body))))
 
-;; check whether FORM is a (QUOTE FOO)
+;; Test whether FORM - already known to be a cons - is of the form
+;; (QUOTE object)
 (defun quote-p (form)
   (and (eq (first form) 'QUOTE) (consp (cdr form)) (null (cddr form))))
 
