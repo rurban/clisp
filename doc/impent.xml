@@ -440,10 +440,11 @@
 <!ENTITY shift "<keycap>Shift</keycap>">
 <!ENTITY malloc "<function>malloc()</function>">
 <!ENTITY free "<function>free()</function>">
-<!ENTITY fasl-file "<filename>fas</filename>">
-<!ENTITY lisp-file "<filename>lisp</filename>">
-<!ENTITY mem-file "<filename>mem</filename>">
-<!ENTITY c-file "<filename>c</filename>">
+<!ENTITY fasl-file "<filename>#P&quot;.fas&quot;</filename>">
+<!ENTITY lisp-file "<filename>#P&quot;.lisp&quot;</filename>">
+<!ENTITY mem-file "<filename>#P&quot;.mem&quot;</filename>">
+<!ENTITY c-file "<filename>#P&quot;.c&quot;</filename>">
+<!ENTITY lib-file "<link linkend='lib-file'><filename>#P&quot;.lib&quot;</filename></link>">
 <!ENTITY config-file "<filename>config.lisp</filename>">
 <!ENTITY lispinit "<filename>lispinit.mem</filename>">
 
