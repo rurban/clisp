@@ -809,7 +809,7 @@
 )
 (defsetf FDEFINITION SYSTEM::SET-FDEFINITION)
 ;;;----------------------------------------------------------------------------
-(defsetf MACRO-FUNCTION (symbol) (value)
+(defsetf MACRO-FUNCTION (symbol &optional env) (value)
   `(PROGN
      (SETF (SYMBOL-FUNCTION ,symbol) (CONS 'SYSTEM::MACRO ,value))
      (REMPROP ,symbol 'SYSTEM::MACRO)

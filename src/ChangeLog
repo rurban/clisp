@@ -1,5 +1,7 @@
 1999-06-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * places.lsp (MACRO-FUNCTION): Add optional, ignored env argument.
+
         * control.d (SYSTEM::OLD-MACRO-FUNCTION): New function.
         * eval.d (FUNTAB): Use it instead of MACRO-FUNCTION.
         * compiler.lsp (funtab): Likewise.
