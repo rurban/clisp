@@ -508,3 +508,31 @@ ERROR
 
 (get-setf-expansion '(ldb x y . z))
 ERROR
+
+;; Check that some macroexpansions are as optimized as they can be.
+;; This is important for good bytecode generation.
+
+(macroexpand-1 '(push (foo) l))
+(SETQ L (CONS (FOO) L))
+
+(macroexpand-1 '(pop l))
+(PROG1 (CAR L) (SETQ L (CDR L)))
+
+#|
+(macroexpand-1 '(psetf l (foo)))
+(PROGN (SETQ L (FOO)) NIL)
+|#
+
+(macroexpand-1 '(pushnew (foo) l))
+(SETQ L (ADJOIN (FOO) L))
+
+(macroexpand-1 '(incf x))
+(SETQ X (+ X 1))
+
+(macroexpand-1 '(setf l (foo)))
+(SETQ L (FOO))
+
+#|
+(macroexpand-1 '(setf (values l) (foo)))
+(VALUES (SETQ L (FOO)))
+|#
