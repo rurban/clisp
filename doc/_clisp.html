@@ -9,10 +9,6 @@
 [<tt class="option"><a href="#opt-memfile">-M
    <i class="replaceable"><tt>mem-file</tt></i></a></tt>] [<tt class="option"><a href="#opt-memsize">-m
    <i class="replaceable"><tt>mem-size</tt></i></a></tt>]
-#ifndef NO_SP_MALLOC
-[<tt class="option"><a href="#opt-stack">-s
-   <i class="replaceable"><tt>stack-size</tt></i></a></tt>]
-#endif
 #ifdef MULTIMAP_MEMORY_VIA_FILE
 [<tt class="option"><a href="#opt-tempdir">-t
    <i class="replaceable"><tt>temp-dir</tt></i></a></tt>]
@@ -122,16 +118,6 @@ that can be executed more efficiently.</p>
 #endif
 
 </p></dd>
-#ifndef NO_SP_MALLOC
-<dt><a id="opt-stack"></a><tt class="option">-s</tt>
-  <i class="replaceable"><tt>stack-size</tt></i></dt><dd>Sets the size of the program stack
-   (<a href="impnotes.html#vm"><tt class="literal">SP</tt></a>)
-   <a href="http://clisp.cons.org" target="_top"><span><b class="command">CLISP</b></span></a> allocates for itself.  The syntax is the same as for
-   <tt class="option"><a href="#opt-memsize">-m</a></tt>.
-   Default is one eighth of <i class="replaceable"><tt>mem-size</tt></i>.
-   The argument is constrained between 40 KB and 8 MB.
-</dd>
-#endif
 #ifdef MULTIMAP_MEMORY_VIA_FILE
 <dt><a id="opt-tempdir"></a><tt class="option">-t</tt>
   <i class="replaceable"><tt>temp-dir</tt></i></dt><dd>Specifies the directory where the temporary core
