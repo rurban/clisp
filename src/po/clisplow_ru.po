@@ -25,7 +25,7 @@ msgid ""
 "*** - Lisp stack overflow. RESET"
 msgstr ""
 "\n"
-"*** - Переполнение стека Лисп'а. СБРОС"
+"*** - Переполнение стека Лиспа. СБРОС"
 
 msgid "Unknown FSUBR signature: %d %d %d\n"
 msgstr "Неизвестная сигнатура FSUBR: %d %d %d\n"
@@ -217,19 +217,19 @@ msgid "Cannot reserve address range 0x%x-0x%x ."
 msgstr "Невозможно зарезервировать адресный диапазон 0x%x-0x%x ."
 
 msgid "CreateFileMapping() failed."
-msgstr "CreateFileMapping(): неудачное завершение."
+msgstr "CreateFileMapping(): ошибка."
 
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
-msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x): неудачное завершение."
+msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x): ошибка."
 
 msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x.\n"
 msgstr "MapViewOfFileEx() вернула 0x%x вместо 0x%x.\n"
 
 msgid "VirtualFree() failed."
-msgstr "VirtualFree(): неудачное завершение."
+msgstr "VirtualFree(): ошибка."
 
 msgid "VirtualProtect() failed."
-msgstr "VirtualProtect(): неудачное завершение."
+msgstr "VirtualProtect(): ошибка."
 
 msgid "Cannot open <%s>."
 msgstr "Невозможно открыть <%s>."
@@ -271,7 +271,7 @@ msgid "Cannot remove shared memory segment."
 msgstr "Невозможно удалить сегмент общей памяти."
 
 msgid "mprotect(0x%x,%d,%d) failed."
-msgstr "mprotect(0x%x,%d,%d): неудачное завершение."
+msgstr "mprotect(0x%x,%d,%d): ошибка."
 
 msgid ""
 "\n"
@@ -284,14 +284,14 @@ msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack ove
 msgstr "Сценарий Аполло-13: Обработка переполнения стека закончилась неудачей. Следующее переполнение стека приведет к разрушению!!!\n"
 
 msgid "munmap() failed."
-msgstr "munmap(): неудачное завершение."
+msgstr "munmap(): ошибка."
 
 msgid ""
 "\n"
 "*** - No more room for LISP objects: RESET"
 msgstr ""
 "\n"
-"*** - Нет места для объектов LISP'a: СБРОС"
+"*** - Нет места для объектов Лиспа: СБРОС"
 
 msgid "Trying to make room through a GC...\n"
 msgstr "Освобождаем память - вызываем GC...\n"

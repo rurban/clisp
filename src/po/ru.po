@@ -42,11 +42,11 @@ msgid ""
 "*** - Lisp stack overflow. RESET"
 msgstr ""
 "\n"
-"*** - Переполнение стека Лисп'а. СБРОС"
+"*** - Переполнение стека Лиспа. СБРОС"
 
 #: spvw.d:617
 msgid "~: malloc() failed"
-msgstr "~: malloc(): неудачное завершение."
+msgstr "~: malloc(): ошибка."
 
 #: spvw.d:644
 msgid ""
@@ -336,11 +336,11 @@ msgstr "Невозможно зарезервировать адресный диапазон 0x%x-0x%x ."
 
 #: spvw_mmap.d:224
 msgid "CreateFileMapping() failed."
-msgstr "CreateFileMapping(): неудачное завершение."
+msgstr "CreateFileMapping(): ошибка."
 
 #: spvw_mmap.d:232
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
-msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x): неудачное завершение."
+msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x): ошибка."
 
 #: spvw_mmap.d:238
 msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x.\n"
@@ -348,11 +348,11 @@ msgstr "MapViewOfFileEx() вернула 0x%x вместо 0x%x.\n"
 
 #: spvw_mmap.d:252
 msgid "VirtualFree() failed."
-msgstr "VirtualFree(): неудачное завершение."
+msgstr "VirtualFree(): ошибка."
 
 #: spvw_mmap.d:265
 msgid "VirtualProtect() failed."
-msgstr "VirtualProtect(): неудачное завершение."
+msgstr "VirtualProtect(): ошибка."
 
 #: spvw_mmap.d:335 spvw_multimap.d:114 spvw_multimap.d:189
 msgid "Cannot open <%s>."
@@ -408,7 +408,7 @@ msgstr "Невозможно удалить сегмент общей памяти."
 
 #: spvw_fault.d:458
 msgid "mprotect(0x%x,%d,%d) failed."
-msgstr "mprotect(0x%x,%d,%d): неудачное завершение."
+msgstr "mprotect(0x%x,%d,%d): ошибка."
 
 #: spvw_sigsegv.d:29
 msgid ""
@@ -428,11 +428,11 @@ msgstr "Ctrl-C: Прерывание пользователем"
 
 #: spvw_garcol.d:2225
 msgid "munmap() failed."
-msgstr "munmap(): неудачное завершение."
+msgstr "munmap(): ошибка."
 
 #: spvw_allocate.d:32
 msgid "No more room for LISP objects"
-msgstr "Нет места для объектов Лисп'a"
+msgstr "Нет места для объектов Лиспa"
 
 #: spvw_allocate.d:49
 msgid ""
@@ -440,7 +440,7 @@ msgid ""
 "*** - No more room for LISP objects: RESET"
 msgstr ""
 "\n"
-"*** - Нет места для объектов LISP'a: СБРОС"
+"*** - Нет места для объектов Лиспа: СБРОС"
 
 #: spvw_allocate.d:248 spvw_allocate.d:311 spvw_allocate.d:391
 msgid "Trying to make room through a GC...\n"
@@ -2334,7 +2334,7 @@ msgstr "~S: Выполнение прервано пользователем"
 
 #: error.d:726 error.d:727
 msgid "~: ~ comes from a previous Lisp session and is invalid"
-msgstr "~: ~ осталось от прошлого сеанса Lisp'а и некорректно"
+msgstr "~: ~ осталось от прошлого сеанса Лиспа и некорректно"
 
 #: error.d:767
 msgid "~: A true list must not end with ~"
@@ -2852,7 +2852,7 @@ msgstr "Ошибка Winsock "
 
 #: misc.d:110
 msgid "This file was produced by another lisp version, must be recompiled."
-msgstr "Этот файл создан другой версией Лисп'а и должен быть перекомпилирован."
+msgstr "Этот файл создан другой версией Лиспа и должен быть перекомпилирован."
 
 #: misc.d:426
 msgid "~ (~ ~): out of memory"
