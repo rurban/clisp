@@ -46,8 +46,8 @@ User visible changes
 
 * When configured with --with-export-syscalls,
   several new functions are available:
-  POSIX:STREAM-LOCK provides an interface to flock(2),
-  POSIX:DUPLICATE-HANDLE provides an interface to dup(2)/dup2(2).
+   POSIX:STREAM-LOCK provides an interface to flock(2),
+   POSIX:DUPLICATE-HANDLE provides an interface to dup(2)/dup2(2).
   See <http://clisp.cons.org/impnotes.html#syscalls> for details.
 
 * You can now control the CLISP exit code better by passing a
@@ -81,9 +81,18 @@ User visible changes
   (MAKE-ENCODING :CHARSET CHARSET:UNICODE-32-LITTLE-ENDIAN
                  :INPUT-ERROR-ACTION :IGNORE).
 
+* Fixed a bug in compiling duplicate keyword arguments.
+
 * Wide-mode -W backward compatibility option is now gone
   (defunct since 1998-09-09).  This permits colons in memory image file
   names (necessary on Cygwin).
+
+* CLISP on Cygwin now understands native pathnames like "c:/gnu/clisp/"
+  by translating them internally to "/cygdrive/c/gnu/clisp/".
+  CLISP on Win32 now understands Cygwin pathnames like "/cygdrive/c/gnu/clisp/"
+  by translating them internally to "c:/gnu/clisp/".
+  You can disable this by setting CUSTOM:*DEVICE-PREFIX* to NIL.
+  See <http://clisp.cons.org/impnotes.html#device-prefix> for details.
 
 * Readline is now used properly on Cygwin.
 

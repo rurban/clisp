@@ -2486,6 +2486,28 @@ printed readably.</para>
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 
+<!-- #if defined(PATHNAME_WIN32) || defined(UNIX_CYGWIN32) -->
+<varlistentry id="device-prefix"><term>Platform dependent: &win32; and
+  &cygwin; platforms only.</term>
+ <listitem><simpara>User variable <emphasis role="strong"><varname
+  >CUSTOM:*DEVICE-PREFIX*</varname></emphasis> controls translation
+  between &cygwin; pathnames
+  (e.g., <filename>#P"/cygdrive/c/gnu/clisp/"</filename>) and native
+  &win32; pathnames (e.g., <filename>#P"C:\\gnu\\clisp\\"</filename>)
+  When it is set to &nil;, no translations occur and the &cygwin; port
+  will not understand the native paths and the native &win32; port will
+  not understand the &cygwin; paths.
+  When its value is a string, it is used by &parse-namestring; to
+  translate into the appropriate platform-specific representation,
+  so that on &cygwin;,
+  <literal role="sexp">(&parse-namestring; "c:/gnu/clisp/")</literal>
+  returns <literal role="sexp">#P"/cygdrive/c/gnu/clisp/"</literal>,
+  while on &win32;
+  <literal role="sexp">(&parse-namestring; "/cygdrive/c/gnu/clisp/")</literal>
+  returns <literal role="sexp">#P"C:/gnu/clisp/"</literal>.
+  The initial value is <literal>"cygdrive"</literal>, you should edit
+  &config-file; to change it.</simpara></listitem></varlistentry>
+<!-- #endif -->
 </variablelist>
 
 <para>This is especially important for the
@@ -4677,18 +4699,21 @@ effects when being loaded, this is important as well.
 <row><entry><constant>:LOOP</constant></entry><entry/></row>
 <row><entry><constant>:CLOS</constant></entry><entry/></row>
 <row><entry><constant>:AMIGA</constant></entry>
-   <entry>if &hw; = Amiga and &os; = Exec/AmigaDOS</entry></row>
+ <entry>if &hw; = Amiga and &os; = Exec/AmigaDOS</entry></row>
 <row><entry><constant>:DOS</constant></entry>
-   <entry>if &hw; = PC (clone) and &os; = DOS</entry></row>
+ <entry>if &hw; = PC (clone) and &os; = DOS</entry></row>
 <row><entry><constant>:OS/2</constant></entry>
-   <entry>if &hw; = PC (clone) and &os; = OS/2</entry></row>
+ <entry>if &hw; = PC (clone) and &os; = OS/2</entry></row>
 <row><entry><constant>:WIN32</constant></entry>
-   <entry>if &hw; = PC (clone) and
-             &os; = Win32 (Windows 95/98/NT/Me/2000/XP)</entry></row>
+ <entry>if &hw; = PC (clone) and
+  &os; = Win32 (Windows 95/98/NT/Me/2000/XP)</entry></row>
 <row><entry><constant>:PC386</constant></entry>
-   <entry>if &hw; = PC (clone) with a 386/486/586/686 CPU</entry></row>
+ <entry>if &hw; = PC (clone) with a 386/486/586/686 CPU</entry></row>
 <row><entry>&unix-k;</entry>
-   <entry>if &os; = Unix (in this case the &hw; is irrelevant!)</entry></row>
+ <entry>if &os; = Unix (in this case the &hw; is irrelevant!)</entry></row>
+<row><entry><constant>:CYGWIN</constant></entry>
+ <entry>if &clisp; is using the &cygwin; &unix; compatibility layer on
+  top of &win32; (in that case &unix-k; is also present)</entry></row>
 </tbody></tgroup></table></para>
 
 </section>
