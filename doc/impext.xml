@@ -719,9 +719,9 @@ their corresponding byte vector representation according to that encoding.
  <listitem><simpara>converts the subsequence of
   &string-r; from &start-r;
   to &end-r; to a vector of
-  <literal role="sexp">(unsigned-byte 8)</literal>, according to the given
-  <replaceable>encoding</replaceable>, and returns the resulting byte vector.
-  </simpara></listitem></varlistentry>
+  <literal role="sexp">(&unsigned-byte-type; 8)</literal>, according to the
+  given <replaceable>encoding</replaceable>, and returns the resulting byte
+  vector.</simpara></listitem></varlistentry>
 
 </variablelist>
 
