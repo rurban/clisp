@@ -1,5 +1,9 @@
 2000-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * errunix.d (init_errormsg_table): Add EILSEQ.
+
+2000-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * encoding.d (encoding_from_name): Recognize ISO-8859-3.
 
 2000-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>

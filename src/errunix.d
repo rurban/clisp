@@ -250,6 +250,13 @@
         errormsg_table[ERANGE].msg = GETTEXT("Result too large");
         }
         #endif
+        /* Errors bei Multibyte-Funktionen: */
+        #ifdef EILSEQ
+        if (EILSEQ < sys_nerr && EILSEQ != EINVAL) {
+        errormsg_table[EILSEQ].name = "EILSEQ";
+        errormsg_table[EILSEQ].msg = GETTEXT("Invalid multibyte or wide character");
+        }
+        #endif
         /* Errors bei Non-Blocking I/O und Interrupt I/O: */
         #ifdef EWOULDBLOCK
         if (EWOULDBLOCK < sys_nerr) {
