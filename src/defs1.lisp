@@ -177,7 +177,7 @@
 
 ;;; integer constants (Chapter 12)
 
-;; see file INTLOG.TXT
+;; see file INTLOG.D
 (defconstant boole-clr 0)
 (defconstant boole-set 15)
 (defconstant boole-1 10)
