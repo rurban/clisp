@@ -203,15 +203,15 @@
 ;; MOP p. 35
 (fmakunbound 'compute-applicable-methods)
 (defgeneric compute-applicable-methods (gf args)
-  (:method ((gf standard-generic-function) args)
-    (compute-applicable-methods-<standard-generic-function> gf args)))
+  (:method ((gf generic-function) args)
+    (compute-applicable-methods-<generic-function> gf args)))
 (setq |#'compute-applicable-methods| #'compute-applicable-methods)
 
 ;; MOP p. 36
 (fmakunbound 'compute-applicable-methods-using-classes)
 (defgeneric compute-applicable-methods-using-classes (gf req-arg-classes)
-  (:method ((gf standard-generic-function) req-arg-classes)
-    (compute-applicable-methods-using-classes-<standard-generic-function> gf req-arg-classes)))
+  (:method ((gf generic-function) req-arg-classes)
+    (compute-applicable-methods-using-classes-<generic-function> gf req-arg-classes)))
 (setq |#'compute-applicable-methods-using-classes| #'compute-applicable-methods-using-classes)
 
 ;; MOP p. 41
