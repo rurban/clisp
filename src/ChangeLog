@@ -1,5 +1,17 @@
 2005-02-01  Sam Steingold  <sds@gnu.org>
 
+	* modules/i18n/gettext.c (get_locale_info) [WIN32_NATIVE]: define
+	for I18N:LANGUAGE-INFORMATION even when HAVE_LOCALECONV is defined
+	which can happen on mingw which has localeconv() but not
+	nl_langinfo(); do not require begin_system_call()/end_system_call()
+	wrap and use my_realloc() and my_malloc()
+	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
+	(my_atoi) [WIN32_NATIVE]: new function
+	(thousands_sep_to_STACK, locale_int_to_STACK)
+	(locale_bool_to_STACK): use it
+
+2005-02-01  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (my_realloc): new function for modules
 	* genclisph.d (my_realloc): export
 
