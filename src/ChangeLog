@@ -1,5 +1,12 @@
 2003-06-12  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: on win32gcc, translate /cygdrive/ prefixes to the
+	normal win32 pathnames (so that clisp.exe would work properly)
+	(stage): use the same check for defining ${LN_S} to copy and
+	for using it as a copier (as opposed to symbolic linker)
+
+2003-06-12  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (simplify_directory): fold "*" into :WILD
 	and "**" into :WILD-INFERIORS
 	(directory_list_valid_p): accept :WILD
