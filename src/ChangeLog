@@ -1,3 +1,9 @@
+2000-01-10  Sam Steingold  <sds@gnu.org>
+
+	* posixmisc.d: new file
+	* unixaux.d (sysinfo_, resource_usage_limits_): moved to
+	posixmisc.d
+
 1999-12-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * pathname.d (translate_version): Don't access Car(*subst) before

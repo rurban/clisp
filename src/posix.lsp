@@ -13,7 +13,7 @@
   (name "" :type simple-string)
   (aliases nil :type list)
   (addr-list nil :type list)
-  addrtype)
+  (addr-type 2 :type fixnum))
 
 (defun resolve-host-ipaddr (&optional (host :default))
   (if host
