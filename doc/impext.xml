@@ -1784,8 +1784,8 @@ returns two values:
 <para>A <firstterm>module<indexterm id="module" significance="preferred">
    <primary id="module-i">module</primary></indexterm></firstterm> is a
  piece of external code which defines extra Lisp objects, symbols and
- functions.  A module name must consist of the characters
- <filename>A</filename>-<filename>Z</filename>,
+ functions.  A module <firstterm>name</firstterm> must consist of the
+ characters <filename>A</filename>-<filename>Z</filename>,
  <filename>a</filename>-<filename>z</filename>, <filename>_</filename>,
  <filename>0</filename>-<filename>9</filename>.
  The module name <quote>clisp</quote> is reserved.
@@ -1863,8 +1863,8 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <varlistentry><term>&link-sh;</term>
  <listitem><simpara>some &sh; commands, which prepare the directory
   before linking, and set the variables <envar>NEW_FILES</envar>,
-  <envar>NEW_LIBS</envar>, <envar>NEW_MODULES</envar>, <envar>TO_LOAD</envar>
-  and optionally <envar>TO_PRELOAD</envar></simpara></listitem></varlistentry>
+  <envar>NEW_LIBS</envar>, <envar>NEW_MODULES</envar>, &mod-load;
+  and optionally &mod-preload;</simpara></listitem></varlistentry>
 <varlistentry><term>and any other files</term>
  <listitem><simpara>needed by &link-sh;
  </simpara></listitem></varlistentry>
@@ -1888,11 +1888,11 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   belonging to the &modset;.  Normally, every &c-file; file in the
   &modset; defines a module of its own.  The module name is derived
   from the file name.</simpara></listitem></varlistentry>
-<varlistentry><term><envar>TO_LOAD</envar></term>
+<varlistentry id="mod-load"><term>&mod-load;</term>
  <listitem><simpara>the space-separated list of Lisp files to load
   before building the &lispinit; belonging to a new &linkset;.
  </simpara></listitem></varlistentry>
-<varlistentry><term><envar>TO_PRELOAD</envar> (optional)</term>
+<varlistentry id="mod-preload"><term>&mod-preload; (optional)</term>
  <listitem><simpara>the space-separated list of Lisp files to load
   into an intermediate &lispinit; file, before building the &lispinit;
   belonging to a new &linkset;.
@@ -1900,7 +1900,11 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   (or <link linkend="pack-lock">unlock</link>) the Lisp &package-t;s which
   must be present when the new &c-file; files are initialized.
   E.g., the &def-call-in; functions must reside in already defined packages;
-  see <xref linkend="ex-call-in"/>.</simpara></listitem></varlistentry>
+  see <xref linkend="ex-call-in"/>.</simpara>
+  <warning><simpara>If you are unlocking a package, you must also
+    &delete; it from &sys-pack-list; (see <xref linkend="image"/>)
+    here and re-add it to &sys-pack-list; in one of the &mod-load;
+    files.</simpara></warning></listitem></varlistentry>
 </variablelist>
 
 <para>The command <command>clisp-link create-module-set
@@ -1931,6 +1935,32 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  <option>--with-dynamic-modules</option> precludes some efficiency
  optimizations which are enabled by default.</para>
 
+</section>
+
+<section id="modinit"><title>Module initialization.</title>
+
+<para>Each module has two initialization functions:
+<variablelist><varlistentry>
+ <term><function>module__&name-r;__init_function_1</function></term>
+<listitem><simpara>called only <emphasis>once</emphasis> when &clisp;
+  discovers while loading a &mem-image; that there is a module present
+  in the executable (&lisp-run;) which was not present at the time the
+  image was saved.  It can be used to create Lisp objects,
+  e.g. functions or keywords, and is indeed used for that purpose by
+  <link linkend="modprep">modprep</link>.</simpara>
+ <warning><simpara>The &package-t;s must already exist and be unlocked,
+   cf. &mod-preload;.</simpara></warning></listitem></varlistentry>
+<varlistentry>
+ <term><function>module__&name-r;__init_function_2</function></term>
+<listitem><simpara>called <emphasis>every time</emphasis> &clisp; starts.
+  It can be used to bind names to foreign addresses, since the address
+  will be different in each invocation of &clisp;, and is indeed used
+  for that purpose by &ffi-pac; (e.g., &def-call-out;).
+  It can also be used to set parameters of the libraries to which the
+  module interfaces, e.g., the <link linkend="pcre">pcre</link> module
+  sets <varname>pcre_malloc</varname> and <varname>pcre_free</varname>.
+</simpara></listitem></varlistentry></variablelist>
+&name-r; is the <link linkend="mod-overview">module name</link>.</para>
 </section>
 
 <section id="modinfo"><title>Function &modinfo;</title>
@@ -2994,15 +3024,15 @@ If this macro has not been called in the current &comp-unit;
 <section id="dffi-functions"><title>Foreign functions</title>
 
 <para>Foreign functions are functions which are defined in the foreign
- language.  There are <emphasis>named foreign functions</emphasis>
+ language.  There are <firstterm>named foreign functions</firstterm>
  (imported via &def-call-out; or created via &def-call-in;) and
- <emphasis>anonymous foreign functions</emphasis>; they arise through
+ <firstterm>anonymous foreign functions</firstterm>; they arise through
  conversion of function pointers.</para>
 
-<para>A <emphasis>"call-out"</emphasis> function is a foreign function
- called from Lisp: control flow temporarily leaves Lisp.  A
- <emphasis>"call-in"</emphasis> function is a Lisp function called from
- the foreign language: control flow temporary enters Lisp.</para>
+<para>A <firstterm>call-out function</firstterm> is a foreign function
+ called from Lisp: control flow temporarily leaves Lisp.
+ A <firstterm>call-in function</firstterm> is a Lisp function called
+ from the foreign language: control flow temporary enters Lisp.</para>
 
 <para>The following operators define foreign functions: &def-call-in;,
  &def-call-out;, &def-c-call-in;, &def-c-call-out;, &foreign-function;.</para>
@@ -3399,7 +3429,7 @@ and <envar>NEW_FILES</envar> in &link-sh;.
 Create a file <filename>package.lisp</filename> containing the
 form <literal role="sexp">(&defpackage; "FFI-TEST" (:use &cl-pac;
 &ffi-pac;))</literal> and add <filename>package.lisp</filename>
-to <envar>TO_PRELOAD</envar> in &link-sh;.
+to &mod-preload; in &link-sh;.
 Proceed:
 
 <screen>
