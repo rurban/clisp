@@ -5070,8 +5070,7 @@ exhaust the available line length.</para></formalpara>
 </simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
-<para>The <ulink url="&clhs;/Body/glo_t.html#time_zone">time
- zone</ulink> in a decoded time must not necessarily be an
+<para>The &TZ; in a &dec-time; must not necessarily be an
  &integer-t;, but (as &float-t; or &rational-t; number)
  it should be a multiple of <literal role="data">1/3600</literal>.</para>
 
@@ -5218,7 +5217,7 @@ exhaust the available line length.</para></formalpara>
  the numeric version (like <literal>3.14</literal>), and
  the release date (like <literal>"1999-07-21"</literal>).
  When running on the same machine on which &clisp; was built, it appends
-  the binary build and &mem-image; dump date in universal time
+  the binary build and &mem-image; dump date in &uni-time;
   (like <literal>3141592654</literal>).
  When running on a different machine, it appends the &machine-instance;
   of the machine on which it was built.</para>
