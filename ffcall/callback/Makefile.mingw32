@@ -1,4 +1,4 @@
-# -*-Makefile-*- for callback
+# Makefile for callback
 
 #### Start of system configuration section. ####
 
@@ -14,10 +14,10 @@ local_prefix = /usr/local
 exec_prefix = $(prefix)
 libdir = $(exec_prefix)/lib
 includedir = $(prefix)/include
-mandir = $(prefix)/man
+mandir = $(exec_prefix)/man
 
 # Programs used by "make":
-CC = gcc -mno-cygwin
+CC = gcc
 CFLAGS = -O
 CPP = gcc -E
 INCLUDES = -I. -I$(srcdir)
@@ -60,23 +60,6 @@ libcallback.a : vacall_r/libvacall.a trampoline_r/libtrampoline.a
 	$(AR) $(AR_FLAGS) libcallback.a $(OBJECTS)
 	$(RM) $(OBJECTS)
 
-minitests.o : $(srcdir)/minitests.c callback.h vacall_r.h trampoline_r.h
-	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/minitests.c
-
-minitests.s : $(srcdir)/minitests.c callback.h vacall_r.h trampoline_r.h
-	$(CC) $(CFLAGS) $(INCLUDES) -S $(srcdir)/minitests.c
-
-minitests.exe : minitests.o libcallback.a
-	$(CC) $(CFLAGS) minitests.o libcallback.a -o minitests.exe
-
-check-subdirs : force
-	$(MAKE) -C vacall_r -f Makefile.mingw32 check
-	$(MAKE) -C trampoline_r -f Makefile.mingw32 check
-
-check : all check-subdirs minitests.exe
-	minitests.exe > minitests.out
-	uniq -u < minitests.out > minitests.output.$(HOST)
-
 tests.o : $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/tests.c
 
@@ -86,11 +69,11 @@ tests.s : $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
 tests.exe : tests.o libcallback.a
 	$(CC) $(CFLAGS) tests.o libcallback.a -o tests.exe
 
-extracheck-subdirs : force
-	$(MAKE) -C vacall_r -f Makefile.mingw32 extracheck
-	$(MAKE) -C trampoline_r -f Makefile.mingw32 extracheck
+check-subdirs : force
+	$(MAKE) -C vacall_r -f Makefile.mingw32 check
+	$(MAKE) -C trampoline_r -f Makefile.mingw32 check
 
-extracheck : all extracheck-subdirs tests.exe
+check : all check-subdirs tests.exe
 	tests.exe > tests.out
 	uniq -u < tests.out > tests.output.$(HOST)
 
@@ -105,7 +88,6 @@ clean-subdirs : force
 clean : clean-subdirs
 	$(RM) $(OBJECTS) *.a core
 	$(RM) vacall_r.h trampoline_r.h libcallback.a
-	$(RM) minitests.o minitests.s minitests.exe minitests.out
 	$(RM) tests.o tests.s tests.exe tests.out
 
 distclean-subdirs : clean

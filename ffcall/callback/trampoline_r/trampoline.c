@@ -129,12 +129,7 @@ extern RETGETPAGESIZETYPE getpagesize (void);
 extern RETGETPAGESIZETYPE getpagesize ();
 #endif
 #else
-#ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
-#else
-/* Not Unix, e.g. mingw32 */
-#define PAGESIZE 4096
-#endif
 #define getpagesize() PAGESIZE
 #endif
 
@@ -407,13 +402,6 @@ __TR_function alloc_trampoline_r (address, data0, data1)
   /* 1. Allocate room */
 
 #if !defined(CODE_EXECUTABLE) && !defined(EXECUTABLE_VIA_MPROTECT)
-  /* Note: This memory allocation is not multithread-safe. We might need
-   * to add special (platform dependent) code for locking.
-   * Fortunately, most modern systems where multithread-safety matters
-   * have EXECUTABLE_VIA_MPROTECT, and those which don't (AIX on rs6000 and
-   * HP-UX on hppa) have CODE_EXECUTABLE. Thus no locking code is needed
-   * for the moment.
-   */
   if (freelist == NULL)
     { /* Get a new page. */
       char* page;

@@ -1,4 +1,4 @@
-# -*- Makefile -*- for trampoline
+# Makefile for trampoline
 
 #### Start of system configuration section. ####
 
@@ -42,7 +42,7 @@ local_prefix = /usr/local
 exec_prefix = $(prefix)
 libdir = $(exec_prefix)/lib
 includedir = $(prefix)/include
-mandir = $(prefix)/man
+mandir = $(exec_prefix)/man
 
 # Programs used by "make":
 CC = cl
@@ -51,7 +51,7 @@ CPP = cl -E
 INCLUDES = -I. -I$(srcdir)
 AR = lib
 AR_FLAGS = /out:
-RM = -del
+RM = del
 LN = copy
 
 # Programs used by "make install":

@@ -1,4 +1,4 @@
-# -*-Makefile-*- for vacall
+# Makefile for vacall
 
 #### Start of system configuration section. ####
 
@@ -14,10 +14,10 @@ local_prefix = /usr/local
 exec_prefix = $(prefix)
 libdir = $(exec_prefix)/lib
 includedir = $(prefix)/include
-mandir = $(prefix)/man
+mandir = $(exec_prefix)/man
 
 # Programs used by "make":
-CC = gcc -mno-cygwin
+CC = gcc
 CFLAGS = -O
 CPP = gcc -E
 INCLUDES = -I. -I$(srcdir)
@@ -26,7 +26,7 @@ AR = ar
 AR_FLAGS = rc
 MV = mv
 LN = cp
-RM = rm -f
+RM = del
 
 # Programs used by "make install":
 INSTALL = @INSTALL@
@@ -56,8 +56,8 @@ vacall.o : vacall-$(CPU).o
 vacall-i386.o : vacall-i386.asm
 	$(CC) -c -x assembler vacall-i386.asm
 
-vacall-i386.asm : $(srcdir)/vacall-i386-macro.S
-	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-i386-macro.S | grep -v '^ *#line' | grep -v '^#ident' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > vacall-i386.asm
+vacall-i386.asm : $(srcdir)/vacall-i386.S
+	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-i386.S | grep -v '^ *#line' | grep -v '^#ident' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > vacall-i386.asm
 
 misc.o : $(srcdir)/misc.c vacall.h config.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/misc.c
@@ -69,19 +69,6 @@ libvacall.a : $(OBJECTS)
 	$(RM) libvacall.a
 	$(AR) $(AR_FLAGS) libvacall.a $(OBJECTS)
 
-minitests.o : $(srcdir)/minitests.c vacall.h
-	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/minitests.c
-
-minitests.s : $(srcdir)/minitests.c vacall.h
-	$(CC) $(CFLAGS) $(INCLUDES) -S $(srcdir)/minitests.c
-
-minitests.exe : minitests.o $(OBJECTS)
-	$(CC) $(CFLAGS) minitests.o $(OBJECTS) -o minitests.exe
-
-check : all minitests.exe
-	minitests.exe > minitests.out
-	uniq -u < minitests.out > minitests.output.$(HOST)
-
 tests.o : $(srcdir)/tests.c vacall.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/tests.c
 
@@ -91,7 +78,7 @@ tests.s : $(srcdir)/tests.c vacall.h
 tests.exe : tests.o $(OBJECTS)
 	$(CC) $(CFLAGS) tests.o $(OBJECTS) -o tests.exe
 
-extracheck : all tests.exe
+check : all tests.exe
 	tests.exe > tests.out
 	uniq -u < tests.out > tests.output.$(HOST)
 
@@ -100,7 +87,6 @@ mostlyclean : clean
 clean : force
 	$(RM) *.o *.a core
 	$(RM) vacall-i386.asm
-	$(RM) minitests.o minitests.s minitests.exe minitests.out
 	$(RM) tests.o tests.s tests.exe tests.out
 
 distclean : clean
