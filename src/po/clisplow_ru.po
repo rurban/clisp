@@ -12,7 +12,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.33\n"
-"POT-Creation-Date: 2004-03-17 15:20:59 EST\n"
+"Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
+"POT-Creation-Date: 2004-11-30 09:31:04-0500\n"
 "PO-Revision-Date: 1998-09-02 19:50+0600\n"
 "Last-Translator: Arseny Slobodjuck <ampy@ich.dvo.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -20,43 +21,38 @@ msgstr ""
 "Content-Type: text/plain; charset=koi8-r\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: spvw.d:487
-msgid ""
-"\n"
-"*** - Program stack overflow. RESET"
-msgstr ""
-"\n"
-"*** - Переполнение программного стека. СБРОС"
+#: spvw.d:482
+msgid "*** - Program stack overflow. RESET"
+msgstr "*** - Переполнение программного стека. СБРОС"
 
-#: spvw.d:498
-msgid ""
-"\n"
-"*** - Lisp stack overflow. RESET"
-msgstr ""
-"\n"
-"*** - Переполнение стека Лиспа. СБРОС"
+#: spvw.d:494
+msgid "*** - Lisp stack overflow. RESET"
+msgstr "*** - Переполнение стека Лиспа. СБРОС"
 
-#: spvw.d:695
+#: spvw.d:691
 msgid "Unknown FSUBR signature: %d %d %d\n"
 msgstr "Неизвестная сигнатура FSUBR: %d %d %d\n"
 
-#: spvw.d:803
+#: spvw.d:799
 msgid "Unknown SUBR signature: %d %d %d %d"
 msgstr "Неизвестная сигнатура SUBR: %d %d %d %d"
 
-#: spvw.d:1479
+#: spvw.d:1517
 msgid "module `%s' requires package %s.\n"
 msgstr "модуль `%s' требует пакета %s.\n"
 
-#: spvw.d:1518
-msgid ""
-"is an ANSI Common Lisp.\n"
-"Usage:  "
+#: spvw.d:1556
+#, fuzzy
+msgid "is an ANSI Common Lisp."
 msgstr ""
 " - реализация ANSI Common Lisp.\n"
 "Использование:  "
 
-#: spvw.d:1520
+#: spvw.d:1558
+msgid "Usage:  "
+msgstr ""
+
+#: spvw.d:1560
 msgid ""
 " [options] [lispfile [argument ...]]\n"
 " When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
@@ -68,63 +64,59 @@ msgstr ""
 " принимает значения списка аргументов. Если файл не задан, происходит\n"
 " вход в интерактивный режим `чтение-выполнение-печать'.\n"
 
-#: spvw.d:1524
+#: spvw.d:1564
 msgid "Informative output:\n"
 msgstr "Информативный вывод:\n"
 
-#: spvw.d:1525
+#: spvw.d:1565
 msgid " -h, --help    - print this help and exit\n"
 msgstr " -h, --help    - вывод этой справки и выход\n"
 
-#: spvw.d:1526
+#: spvw.d:1566
 msgid " --version     - print the version information\n"
 msgstr " --version     - вывод информации о версии программы\n"
 
-#: spvw.d:1527
+#: spvw.d:1567
 msgid " --license     - print the licensing information\n"
 msgstr " --license     - вывод информации о лицензии\n"
 
-#: spvw.d:1528
+#: spvw.d:1568
 msgid "Memory image selection:\n"
 msgstr "Выбор файла с образом памяти:\n"
 
-#: spvw.d:1529
+#: spvw.d:1569
 msgid " -B lisplibdir - set the installation directory\n"
 msgstr " -B библ-дир   - задать директорию установки\n"
 
-#: spvw.d:1531
+#: spvw.d:1571
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr " -K линк-набор - задать исполнимый файл и образ памяти\n"
 
-#: spvw.d:1533
+#: spvw.d:1573
 msgid " -M memfile    - use this memory image\n"
 msgstr " -M образ      - использовать файл образа памяти\n"
 
-#: spvw.d:1534
+#: spvw.d:1574
 msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr " -m размер     - размер памяти (xxxxxxxB или xxxxKB или xMB)\n"
 
-#: spvw.d:1536
-msgid " -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
-msgstr " -s размер     - размер стека (xxxxxxxB или xxxxKB или xMB)\n"
-
-#: spvw.d:1539
+#: spvw.d:1576
 msgid " -t tmpdir     - temporary directory for memmap\n"
 msgstr " -t врем-дир   - временная директория для memmap\n"
 
-#: spvw.d:1541
+#: spvw.d:1578
 msgid "Internationalization:\n"
 msgstr "Интернационализация:\n"
 
-#: spvw.d:1542
+#: spvw.d:1579
 msgid " -L language   - set user language\n"
 msgstr " -L язык       - задать язык\n"
 
-#: spvw.d:1543
+#: spvw.d:1580
 msgid " -N nlsdir     - NLS catalog directory\n"
 msgstr " -N nlsdir     - задать каталог с NLS\n"
 
-#: spvw.d:1544
+#: spvw.d:1581
 msgid " -Edomain encoding - set encoding\n"
 msgstr ""
 " -Eтиппотока кодировка - задавать кодировки для различных типов потоков.\n"
@@ -132,11 +124,11 @@ msgstr ""
 "           Осн. кодировки: koi8-r, koi8-ru, koi8-u, CP866, CP1251,\n"
 "           ISO-8859-5. См. impnotes.\n"
 
-#: spvw.d:1545
+#: spvw.d:1582
 msgid "Interoperability:\n"
 msgstr "Взаимодействие:\n"
 
-#: spvw.d:1546
+#: spvw.d:1583
 msgid ""
 " -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
@@ -146,261 +138,249 @@ msgstr ""
 "     приветствие, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
 "     и *LOAD-PRINT*/*COMPILE-PRINT*\n"
 
-#: spvw.d:1549
+#: spvw.d:1586
 msgid " -w            - wait for a keypress after program termination\n"
 msgstr " -w            - ожидать нажатия клавиши после работы\n"
 
-#: spvw.d:1550
+#: spvw.d:1587
 msgid " -I            - be ILISP-friendly\n"
 msgstr " -I            - дружить с ILISP\n"
 
-#: spvw.d:1551
+#: spvw.d:1588
 msgid "Startup actions:\n"
 msgstr "Загрузка:\n"
 
-#: spvw.d:1552
+#: spvw.d:1589
 msgid " -ansi         - more ANSI CL compliance\n"
 msgstr " -ansi         - большее соответствие стандарту ANSI CL\n"
 
-#: spvw.d:1553
+#: spvw.d:1590
 msgid " -traditional  - traditional (undoes -ansi)\n"
 msgstr " -traditional  - традиционные установки clisp (отменяет -ansi)\n"
 
-#: spvw.d:1554
+#: spvw.d:1591
 msgid " -p package    - start in the package\n"
 msgstr " -p пакет      - запускаться в пакете\n"
 
-#: spvw.d:1555
+#: spvw.d:1592
 msgid " -C            - set *LOAD-COMPILING* to T\n"
 msgstr " -C            - установить *LOAD_COMPILING* в T\n"
 
-#: spvw.d:1556
+#: spvw.d:1593
 msgid " -norc         - do not load the user ~/.clisprc file\n"
 msgstr " -norc         - не грузить ~/.clisprc\n"
 
-#: spvw.d:1557
+#: spvw.d:1594
 msgid " -i file       - load initfile (can be repeated)\n"
 msgstr " -i файл       - загрузить файл инициализации (можно повторять)\n"
 
-#: spvw.d:1558
+#: spvw.d:1595
 msgid "Actions:\n"
 msgstr "Действия:\n"
 
-#: spvw.d:1559
+#: spvw.d:1596
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 msgstr " -c [-l] лисп-файл [-o вых-файл] - компилировать лисп-файл\n"
 
-#: spvw.d:1560
+#: spvw.d:1597
 msgid " -x expressions - execute the expressions, then exit\n"
 msgstr " -x выражения  - выполнить выражения и завершить работу\n"
 
-#: spvw.d:1561
+#: spvw.d:1598
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
 msgstr " лисп-файл [аргумент1 ...] - загрузить лисп файл и завершить работу\n"
 
-#: spvw.d:1562
+#: spvw.d:1599
 msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr "Эти действия поместят CLISP в пакетный режим, если не задан\n"
 
-#: spvw.d:1563
+#: spvw.d:1600
 msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
 msgstr " -interactive-debug - интерактивное взаимодействие в случае ошибок\n"
 
-#: spvw.d:1564
+#: spvw.d:1601
 msgid " -repl              - enter the interactive read-eval-print loop when done\n"
 msgstr " -repl             - по окончании войти в интерактивный цикл чтение-выполнение-печать.\n"
 
-#: spvw.d:1565
+#: spvw.d:1602
 msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr "По умолчанию - интерактивный цикл чтение-выполнение-печать.\n"
 
-#: spvw.d:1871
-msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
-msgstr "Синтаксис для %s: nnnnnnn, или nnnnKB, или nMB\n"
+#: spvw.d:1969
+msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
+msgstr "Синтаксис для %s: nnnnnnn, или nnnnKB, или nMB"
 
-#: spvw.d:1875
-msgid "%s out of range\n"
-msgstr "%s вне диапазона\n"
+#: spvw.d:1975
+msgid "%s out of range"
+msgstr "%s вне диапазона"
 
-#: spvw.d:1888
+#: spvw.d:1981
+msgid "warning: %s out of range, using %u instead"
+msgstr ""
+
+#: spvw.d:1994
 msgid "memory size"
 msgstr "размер памяти"
 
-#: spvw.d:1899
-msgid "stack size"
-msgstr "размер стека"
+#: spvw.d:2179
+msgid "CLISP: -a is deprecated, use -ansi"
+msgstr "CLISP: опция -a устарела, используйте -ansi"
 
-#: spvw.d:2025
-msgid "CLISP: -a is deprecated, use -ansi\n"
-msgstr "CLISP: опция -a устарела, используйте -ansi\n"
+#: spvw.d:2441
+#, fuzzy
+msgid "Return value of malloc() = %lx is not compatible with type code distribution."
+msgstr "Значение функции malloc() = %x не совместимо с typecode."
 
-#: spvw.d:2271
-msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
-msgstr "Значение функции malloc() = %x не совместимо с typecode.\n"
+#: spvw.d:2448
+msgid "Only %d bytes available."
+msgstr "Только %d байтов доступно."
 
-#: spvw.d:2277
-msgid "Only %d bytes available.\n"
-msgstr "Только %d байтов доступно.\n"
+#: spvw.d:2688
+msgid "Could not determine the end of the SP stack!"
+msgstr "Невозможно определить конец стека SP !"
 
-#: spvw.d:2520
-msgid "Could not determine the end of the SP stack!\n"
-msgstr "Невозможно определить конец стека SP !\n"
+#: spvw.d:3222
+msgid "%s: Not enough memory for Lisp."
+msgstr "%s: Не достаточно памяти для Лиспa."
 
-#: spvw.d:2995
-msgid "%s: Not enough memory for Lisp.\n"
-msgstr "%s: Не достаточно памяти для Лиспa.\n"
+#: spvw_alloca.d:48
+msgid "*** - Virtual memory exhausted. RESET"
+msgstr "*** - Исчерпана виртуальная память. СБРОС"
 
-#: spvw_alloca.d:47
-msgid ""
-"\n"
-"*** - Virtual memory exhausted. RESET"
-msgstr ""
-"\n"
-"*** - Исчерпана виртуальная память. СБРОС"
+#: spvw_alloca.d:50
+msgid "*** - Memory exhausted. RESET"
+msgstr "*** - Исчерпана память. СБРОС"
 
-#: spvw_alloca.d:49
-msgid ""
-"\n"
-"*** - Memory exhausted. RESET"
-msgstr ""
-"\n"
-"*** - Исчерпана память. СБРОС"
+#: spvw_mmap.d:66 spvw_mmap.d:197 spvw_mmap.d:358 spvw_multimap.d:161
+#, fuzzy
+msgid "Cannot map memory to address 0x%lx ."
+msgstr "Невозможно проецировать память на адрес 0x%x ."
 
-#: spvw_mmap.d:66 spvw_mmap.d:196 spvw_mmap.d:355 spvw_multimap.d:160
-msgid "Cannot map memory to address 0x%x .\n"
-msgstr "Невозможно проецировать память на адрес 0x%x .\n"
-
-#: spvw_mmap.d:169
-msgid "Cannot reserve address range at 0x%x ."
+#: spvw_mmap.d:170
+#, fuzzy
+msgid "Cannot reserve address range at 0x%lx ."
 msgstr "Невозможно зарезервировать адресный диапазон в 0x%x ."
 
-#: spvw_mmap.d:179
-msgid "Cannot reserve address range 0x%x-0x%x ."
+#: spvw_mmap.d:180
+#, fuzzy
+msgid "Cannot reserve address range 0x%lx-0x%lx ."
 msgstr "Невозможно зарезервировать адресный диапазон 0x%x-0x%x ."
 
-#: spvw_mmap.d:224
+#: spvw_mmap.d:226
 msgid "CreateFileMapping() failed."
 msgstr "CreateFileMapping(): ошибка."
 
-#: spvw_mmap.d:232
+#: spvw_mmap.d:234
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
 msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x): ошибка."
 
-#: spvw_mmap.d:238
-msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x.\n"
-msgstr "MapViewOfFileEx() вернула 0x%x вместо 0x%x.\n"
+#: spvw_mmap.d:240
+msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x."
+msgstr "MapViewOfFileEx() вернула 0x%x вместо 0x%x."
 
-#: spvw_mmap.d:252
+#: spvw_mmap.d:255
 msgid "VirtualFree() failed."
 msgstr "VirtualFree(): ошибка."
 
-#: spvw_mmap.d:265
+#: spvw_mmap.d:268
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect(): ошибка."
 
-#: spvw_mmap.d:335 spvw_multimap.d:114 spvw_multimap.d:189
+#: spvw_mmap.d:338 spvw_multimap.d:115 spvw_multimap.d:191
 msgid "Cannot open <%s>."
 msgstr "Невозможно открыть <%s>."
 
-#: spvw_multimap.d:138
-msgid "msync(0x%x,0x%x,MS_INVALIDATE) failed."
+#: spvw_multimap.d:139
+#, fuzzy
+msgid "msync(0x%lx,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) завершился неудачно."
 
-#: spvw_multimap.d:198
+#: spvw_multimap.d:200
 msgid "Cannot delete <%s>."
 msgstr "Невозможно удалить <%s>."
 
-#: spvw_multimap.d:216
-msgid "** WARNING: ** Too little free disk space for <%s>.\n"
-msgstr "** ПРЕДУПРЕЖДЕНИЕ: ** Слишком мало свободного места на диске для <%s>.\n"
+#: spvw_multimap.d:218
+msgid "** WARNING: ** Too little free disk space for <%s>."
+msgstr "** ПРЕДУПРЕЖДЕНИЕ: ** Слишком мало свободного места на диске для <%s>."
 
-#: spvw_multimap.d:217
-msgid "Please restart LISP with less memory (option -m).\n"
-msgstr "Пожалуйста, перезапустите LISP с меньшим количеством памяти (параметр -m).\n"
+#: spvw_multimap.d:220
+msgid "Please restart LISP with less memory (option -m)."
+msgstr "Пожалуйста, перезапустите LISP с меньшим количеством памяти (параметр -m)."
 
-#: spvw_multimap.d:225
+#: spvw_multimap.d:229
 msgid "Cannot make <%s> long enough."
 msgstr "Невозможно сделать <%s> достаточно длинным."
 
-#: spvw_multimap.d:239
+#: spvw_multimap.d:243
 msgid "Cannot fill <%s>."
 msgstr "Невозможно заполнить <%s>."
 
-#: spvw_multimap.d:252 spvw_multimap.d:286
+#: spvw_multimap.d:256 spvw_multimap.d:290
 msgid "Cannot close <%s>."
 msgstr "Невозможно закрыть <%s>."
 
-#: spvw_multimap.d:324
-msgid "Recompile your operating system with SYSV IPC support.\n"
-msgstr "Перекомпилируйте вашу операционную систему с поддержкой SYSV IPC.\n"
+#: spvw_multimap.d:328
+msgid "Recompile your operating system with SYSV IPC support."
+msgstr "Перекомпилируйте вашу операционную систему с поддержкой SYSV IPC."
 
-#: spvw_multimap.d:336
+#: spvw_multimap.d:341
 msgid "Cannot allocate private shared memory segment of size %d."
 msgstr "Невозможно разместить сегмент частной разделяемой (private shared) памяти размером %d."
 
-#: spvw_multimap.d:353
-msgid "Cannot map shared memory to address 0x%x."
+#: spvw_multimap.d:358
+#, fuzzy
+msgid "Cannot map shared memory to address 0x%lx."
 msgstr "Невозможно проецировать общую память на адрес 0x%x."
 
-#: spvw_multimap.d:371 spvw_multimap.d:377
+#: spvw_multimap.d:376 spvw_multimap.d:382
 msgid "%s: Cannot fill shared memory."
 msgstr "%s: Невозможно заполнить общую память."
 
-#: spvw_multimap.d:390
+#: spvw_multimap.d:395
 msgid "Cannot remove shared memory segment."
 msgstr "Невозможно удалить сегмент общей памяти."
 
-#: spvw_fault.d:458
-msgid "mprotect(0x%x,%d,%d) failed."
+#: spvw_fault.d:267
+#, fuzzy
+msgid "mprotect(0x%lx,%d,%d) failed."
 msgstr "mprotect(0x%x,%d,%d): ошибка."
 
-#: spvw_sigsegv.d:29
-msgid ""
-"\n"
-"SIGSEGV cannot be cured. Fault address = 0x%x.\n"
-msgstr ""
-"\n"
-"SIGSEGV не удается исправить. Ошибочный адрес = 0x%x.\n"
+#: spvw_sigsegv.d:26
+#, fuzzy
+msgid "SIGSEGV cannot be cured. Fault address = 0x%lx."
+msgstr "SIGSEGV не удается исправить. Ошибочный адрес = 0x%x."
 
-#: spvw_sigsegv.d:63
-msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
-msgstr "Сценарий Аполло-13: Обработка переполнения стека закончилась неудачей. Следующее переполнение стека приведет к разрушению!!!\n"
+#: spvw_sigsegv.d:61
+msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"
+msgstr "Сценарий Аполло-13: Обработка переполнения стека закончилась неудачей. Следующее переполнение стека приведет к разрушению!!!"
 
-#: spvw_garcol.d:2225
+#: spvw_garcol.d:1944
 msgid "munmap() failed."
 msgstr "munmap(): ошибка."
 
-#: spvw_allocate.d:49
-msgid ""
-"\n"
-"*** - No more room for LISP objects: RESET"
-msgstr ""
-"\n"
-"*** - Нет места для объектов Лиспа: СБРОС"
+#: spvw_allocate.d:50
+msgid "*** - No more room for LISP objects: RESET"
+msgstr "*** - Нет места для объектов Лиспа: СБРОС"
 
-#: spvw_allocate.d:248 spvw_allocate.d:311 spvw_allocate.d:391
-msgid "Trying to make room through a GC...\n"
-msgstr "Освобождаем память - вызываем GC...\n"
+#: spvw_allocate.d:249 spvw_allocate.d:309 spvw_allocate.d:394
+msgid "Trying to make room through a GC..."
+msgstr "Освобождаем память - вызываем GC..."
 
-#: spvw_memfile.d:777
-msgid "%s: operating system error during load of initialization file `%s'\n"
-msgstr "%s: ошибка операционной системы во время загрузки файла инициализации `%s'\n"
-
-#: spvw_memfile.d:1244
-msgid "%s: Cannot map the initialization file `%s' into memory."
-msgstr "%s: Невозможно разместить файл инициализации `%s' в памяти."
-
-#: spvw_memfile.d:1510
+#: spvw_memfile.d:816 spvw_memfile.d:1562
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "%s: ошибка операционной системы во время загрузки файла инициализации `%s'"
 
-#: spvw_memfile.d:1515
-msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
-msgstr "%s: файл инициализации `%s' был создан не этой версией CLISP\n"
+#: spvw_memfile.d:1278
+msgid "%s: Cannot map the initialization file `%s' into memory."
+msgstr "%s: Невозможно разместить файл инициализации `%s' в памяти."
 
-#: spvw_memfile.d:1518
-msgid "%s: not enough memory for initialization\n"
-msgstr "%s: недостаточно памяти для инициализации\n"
+#: spvw_memfile.d:1567
+msgid "%s: initialization file `%s' was not created by this version of CLISP"
+msgstr "%s: файл инициализации `%s' был создан не этой версией CLISP"
+
+#: spvw_memfile.d:1571
+msgid "%s: not enough memory for initialization"
+msgstr "%s: недостаточно памяти для инициализации"
 
 #: errunix.d:56
 msgid "Invalid multibyte or wide character"
