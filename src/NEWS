@@ -35,6 +35,7 @@ User visible changes
 
 * New module netica interfaces to <http://norsys.com/netica_c_api.htm>
   and allows working with Bayesian belief networks and influence diagrams.
+  See <http://clisp.cons.org/impnotes.html#netica> for details.
 
 * READ-BYTE-SEQUENCE now accepts :NO-HANG keyword argument.
 
