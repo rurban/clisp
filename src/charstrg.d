@@ -3014,7 +3014,7 @@ LISPFUN(string_width,1,0,norest,key,2, (kw(start),kw(end)) )
   var uintL len = arg.len;
   if (len > 0) {
     SstringDispatch(string,X, {
-      var const cintX* charptr = &((SstringX)TheVarobject(arg.string))->data[arg.index];
+      var const cintX* charptr = &((SstringX)TheVarobject(arg.string))->data[arg.offset+arg.index];
       dotimespL(len,len, {
         width += char_width(as_chart(*charptr)); charptr++;
       });
