@@ -637,11 +637,13 @@ A
 A
 "1234567890"
 
-(WITH-OUTPUT-TO-STRING (S A) (PRINC (QUOTE A) S))
+(IF (ADJUSTABLE-ARRAY-P A)
+  (ERROR "this test assumes that A is not actually adjustable")
+  (WITH-OUTPUT-TO-STRING (S A) (PRINC (QUOTE A) S)))
 ERROR
 
-A
-"1234567890"
+(EQUAL A (IF (ADJUSTABLE-ARRAY-P A) "1234567890A" "1234567890"))
+T
 
 (SETQ A
       (MAKE-ARRAY 10 :ELEMENT-TYPE (QUOTE #-CMU STRING-CHAR #+CMU CHARACTER)
@@ -757,6 +759,7 @@ MY-PPRINT-LOGICAL
   (write-to-string '(bar foo :boo 1) :pretty t :escape t))
 "(?BAR? ?FOO? ?:BOO? ?1?)"
 
+#+CLISP
 (progn
  (defclass c1 () ((a :initarg a) (b :initarg b) (c :initarg c)))
  (defclass c2 (c1) ((aa :initarg aa) (bb :initarg bb) (cc :initarg cc)))
@@ -774,21 +777,25 @@ MY-PPRINT-LOGICAL
          (write-char #\space out) (pprint-newline :fill out)
          (write (slot-value obj slot) :stream out)))))
  t)
+#+CLISP
 T
 
+#+CLISP
 (write-to-string (make-instance 'c2 'b 123 'cc 42) :pretty t)
+#+CLISP
 "#[C2 CC 42 B 123]"
 
-#+:enable-risky-tests
+#+(and CLISP :enable-risky-tests)
 (write-to-string (list (make-instance 'c2 'a 45 'bb 17 'aa 12)
                        (make-instance 'c2 'b 123 'cc 42))
                  :pretty t)
-#+:enable-risky-tests
+#+(and CLISP :enable-risky-tests)
 "(#[C2 AA 12 BB 17 A 45] #[C2 CC 42 B 123])"
 
 (let ((*print-readably* t))
   (with-output-to-string (out) (pprint-linear out (list 'a 'b 'c))))
-"(|COMMON-LISP-USER|::|A| |COMMON-LISP-USER|::|B| |COMMON-LISP-USER|::|C|)"
+#+CLISP "(|COMMON-LISP-USER|::|A| |COMMON-LISP-USER|::|B| |COMMON-LISP-USER|::|C|)"
+#-CLISP "(A B C)"
 
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)

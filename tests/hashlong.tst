@@ -74,7 +74,7 @@ T
 hash-table-keys
 
 (defun check-hash-unique-vec (ht size)
-  (let ((vec (make-array size)) (error-count 0))
+  (let ((vec (make-array size :initial-element nil)) (error-count 0))
     (maphash (lambda (key val)
                (let* ((pos (1- (cdr key))) (elt (svref vec pos)))
                  (cond (elt

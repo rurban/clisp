@@ -690,8 +690,9 @@ error
 (replace #(0 1 0 1) nil-vec)
 error
 
-(copy-seq nil-vec)
-#A(NIL (4))
+(progn (copy-seq nil-vec) #-CLISP nil)
+#+CLISP #A(NIL (4))
+#-CLISP NIL
 
 (setq nil-vec nil nil-arr nil)
 nil

@@ -113,11 +113,15 @@ TESTP
 (defun testp () 'B)
 TESTP
 
-(defun test11 () (testp))
+(locally (declare (notinline testp))
+  (defun test11 () (testp)))
 TEST11
 
 (test11)
 B
+
+(defun test11 () (testp))
+TEST11
 
 (compile 'test11)
 TEST11
@@ -131,11 +135,15 @@ testc
 (defun testc () 'b)
 testc
 
-(defun test6 () (testc))
+(locally (declare (notinline testc))
+  (defun test6 () (testc)))
 test6
 
 (test6)
 B
+
+(defun test6 () (testc))
+test6
 
 (compile 'test6)
 test6
@@ -149,11 +157,15 @@ testw
 (defun testw () 'b)
 testw
 
-(defun test9 () (testw))
+(locally (declare (notinline testw))
+  (defun test9 () (testw)))
 test9
 
 (test9)
 B
+
+(defun test9 () (testw))
+test9
 
 (compile 'test9)
 test9
@@ -167,11 +179,15 @@ testf
 (defun testf () 'b)
 testf
 
-(defun test10 () (testf))
+(locally (declare (notinline testf))
+  (defun test10 () (testf)))
 test10
 
 (test10)
 B
+
+(defun test10 () (testf))
+test10
 
 (compile 'test10)
 test10
@@ -185,11 +201,15 @@ testp
 (defun testp () 'b)
 testp
 
-(defun test11 () (testp))
+(locally (declare (notinline testp))
+  (defun test11 () (testp)))
 test11
 
 (test11)
 B
+
+(defun test11 () (testp))
+test11
 
 (compile 'test11)
 test11
@@ -472,12 +492,15 @@ MY-MAC
 (macroexpand '(dm2a x y)) '(FORM (DM2A X Y) A X B Y)
 (dm2a x y)                (FORM (DM2A X Y) A X B Y)
 
+(defmacro incfq (x) `(setq ,x (+ ,x 1)))
+incfq
+
 (defmacro dm2b (&whole form a (&whole b (c . d) &optional (e 5))
                 &body f &environment env)
   ``(,',form ,,a ,',b ,',(macroexpand c env) ,',d ,',e ,',f))
 dm2b
-(dm2b :x1 (((incf x2) x3 x4)) x5 x6)
-((DM2B :X1 (((INCF X2) X3 X4)) X5 X6) :X1 (((INCF X2) X3 X4))
+(dm2b :x1 (((incfq x2) x3 x4)) x5 x6)
+((DM2B :X1 (((INCFQ X2) X3 X4)) X5 X6) :X1 (((INCFQ X2) X3 X4))
  (SETQ X2 (+ X2 1)) (X3 X4) 5 (X5 X6))
 
 (let ((x1 5))

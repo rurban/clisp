@@ -1,3 +1,10 @@
+2004-04-17  Bruno Haible  <bruno@clisp.org>
+
+	* alltest.tst, array.tst, clos.tst, eval20.tst, hashlong.tst,
+	iofkts.tst, lists152.tst, macro8.tst, map.tst, type.tst: Make many
+	tests independent of CLISP. Mark those which are dependent of CLISP
+	with #+CLISP.
+
 2004-04-12  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: New tests for class redefinition.

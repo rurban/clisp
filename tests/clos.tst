@@ -554,7 +554,7 @@ FOO
        (progn
          (makunbound '*foo*)
          (with-open-file (f file :direction :output)
-           (format f "(defstruct foo slot)~@
+           (format f "(eval-when (compile load eval) (defstruct foo slot))~@
                       (defparameter *foo* #.(make-foo))~%"))
          (load (setq c (compile-file file)))
          *foo*)
@@ -614,6 +614,7 @@ FOO
 ((C2 C1) (C1 C1))
 
 ;; Check that a GC collects the forward pointer left over by change-class.
+#+CLISP
 (progn
   (defclass c3 () (a b c))
   (defclass c4 () (b c d e))
@@ -622,6 +623,7 @@ FOO
     (change-class i 'c4)
     (gc)
     (< nslots-before (sys::%record-length i))))
+#+CLISP
 T
   
 ;; Redefining a finalized class must not change its identity.
@@ -1176,6 +1178,7 @@ error
  (NO-APPLICABLE-METHOD ((A . B)))
  (NO-APPLICABLE-METHOD ((A . B) (C . D))))
 
+#+CLISP
 (let ((gf1 (defgeneric no-prim-meth-gf-01 ()))
       (gf2 (defgeneric no-prim-meth-gf-02 (x)))
       (gf3 (defgeneric no-prim-meth-gf-03 (x y))))
@@ -1194,6 +1197,7 @@ error
   (list (no-prim-meth-gf-01)
         (no-prim-meth-gf-02 (cons 'a 'b))
         (no-prim-meth-gf-03 (cons 'a 'b) (cons 'c 'd))))
+#+CLISP
 ((NO-PRIMARY-METHOD nil)
  (NO-PRIMARY-METHOD ((A . B)))
  (NO-PRIMARY-METHOD ((A . B) (C . D))))
