@@ -970,17 +970,17 @@ is the same as
 
 <formalpara id="muffle-cerrors"><title>Macro &muffle-cerrors;</title>
 <para>The macro <literal role="sexp">(&muffle-cerrors; {&form-r;}*)</literal>
- executes the &form-r;s.  When a continuable error occurs, no message is
- printed, instead, the &continue; &restart-t; is invoked.</para></formalpara>
+ executes the &form-r;s; when a &cont-err; occurs, no message is printed,
+ instead, the &continue; &restart-t; is invoked.</para></formalpara>
 
 <formalpara id="appease-cerrors"><title>Macro &appease-cerrors;</title>
 <para>The macro <literal role="sexp">(&appease-cerrors; {&form-r;}*)</literal>
- executes the &form-r;s.  Continuable errors are reported as warnings
+ executes the &form-r;s; &cont-err;s are reported as &warning-t;s
  and the &continue; &restart-t; is invoked.</para></formalpara>
 
 <formalpara id="exit-on-error"><title>Macro &exit-on-error;</title>
 <para>The macro <literal role="sexp">(&exit-on-error; {&form-r;}*)</literal>
- executes the &form-r;s.  When a non-continuable error or
+ executes the &form-r;s; when a non-&cont-err; or
  a <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupt occurs, the
  error message is printed and &clisp; terminates with an error
  status.</para></formalpara>
@@ -1067,8 +1067,8 @@ is the same as
  </primary></indexterm>
  Packages can be <quote>locked</quote>.
 When a package is locked, attempts to change its symbol table or
-redefine functions which its symbols name result in a continuable
-&error-t; (continuing overrides locking for this operation).
+redefine functions which its symbols name result in a &cont-err;
+(continuing overrides locking for this operation).
 When &suppress-check-redef; is &t; (&not-e; a good idea!), the &error-t;
 is not &signal;ed for redefine operations.
 Function <literal role="sexp" >(&package-lock; &pack-r;)</literal>
@@ -1106,7 +1106,7 @@ temporarily unlocks all packages in &sys-pack-list;.</para></formalpara>
  (&defstruct; instance ...)
 </programlisting>
 and allow enforcing modularity.
-Note that you will also get the continuable error when you try to
+Note that you will also get the &cont-err; when you try to
 assign (with &setq;, &psetq;, etc.) a value to an internal special
 variable living in a locked package and not accessible in your current
 &package-var;, but only in the interpreted code and during compilation.
