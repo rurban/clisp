@@ -95,7 +95,9 @@ info pages.</para>
      (&start-k; 0) &end-k;)</literal></term>
  <listitem><simpara>Execute the &pattern-r;, which must be a compiled
   regular expression returned by &re-regexp-compile;, against the
-  appropriate portion of the &string-r;.</simpara></listitem></varlistentry>
+  appropriate portion of the &string-r;.</simpara>
+  <simpara>Negative &end-r; means <literal role="sexp">(&plus; (&length;
+  &string-r;) &end-r;)</literal></simpara></listitem></varlistentry> 
 
 <varlistentry id="re-regexp-split"><term><literal
     role="sexp">(&re-regexp-split;  &pattern-r; &string-r; &key-amp;
@@ -107,7 +109,7 @@ info pages.</para>
 
 <varlistentry id="re-with-loop-split"><term><literal
     role="sexp">(&re-with-loop-split; (&var-r; &stream-r; &pattern-r;
-     &optional-amp; (&case-sensitive-r; t))
+     &key-amp; (&start-k; 0) &end-k; (&case-sensitive-k; t))
      &body-amp; &body-r;)</literal></term>
  <listitem><simpara>Read lines from &stream-r;, split them with
   &re-regexp-split; on &pattern-r;, and bind the resulting list to

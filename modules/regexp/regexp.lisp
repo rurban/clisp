@@ -209,7 +209,10 @@ extern void mregfree (regex_t *preg);
           "~s: the second argument must be a string, not ~s"
           'regexp-exec string)
   (let* ((len (length string))
-         (end (or end len))
+         (end (cond ((null end) len)
+                    ((>= end len) len)
+                    ((minusp end) (+ len end))
+                    (t end)))
          ;; Prepare the string.
          (string
            (if (and (eql start 0) (eql end len))
@@ -307,7 +310,8 @@ extern void mregfree (regex_t *preg);
     :while match
     :do (setq start (match-end match))))
 
-(defmacro with-loop-split ((var stream pattern &optional (case-sensitive t))
+(defmacro with-loop-split ((var stream pattern
+                            &key (start 0) end (case-sensitive t))
                            &body forms)
   "Read from STREAM one line at a time, binding VAR to the split line."
   (let ((compiled-pattern (gensym "WLS-")) (line (gensym "WLS-")))
@@ -319,4 +323,6 @@ extern void mregfree (regex_t *preg);
        :and ,var
        :for ,line = (read-line ,stream nil nil)
        :while ,line
-       :do (setq ,var (regexp-split ,compiled-pattern ,line)) ,@forms)))
+       :do (setq ,var
+             (regexp-split ,compiled-pattern ,line :start start :end end))
+      ,@forms)))

@@ -1,5 +1,11 @@
 2001-09-14  Sam Steingold  <sds@gnu.org>
 
+	* regexp.lisp (with-loop-split): :case-sensitive is a &key, not
+	&optional, added :start and :end
+	(regexp-exec): accept negative :end
+
+2001-09-14  Sam Steingold  <sds@gnu.org>
+
 	more work on the Pretty-Printer
 	* constsym.d (*PRIN-INDENTATION*): new var
 	* format.lisp (format-tabulate): use it instead of CURRENT-INDENT
