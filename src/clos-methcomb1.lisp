@@ -36,6 +36,10 @@ in the generic function instance."
   (documentation nil)           ; an optional documentation string
   (declarations nil)            ; list to be prepended to the effective method
                                 ; body
+  (check-options nil)           ; A function of 3 arguments
+                                ; (function-name method-combination options)
+                                ; that checks the syntax of arguments to the
+                                ; method combination
   (expander nil)                ; A function of 4 arguments
                                 ; (function method-combination options arguments)
                                 ; which computes a combined method function.
