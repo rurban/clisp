@@ -1023,10 +1023,10 @@ LISPSPECFORM(macrolet, 1,0,body)
     }
     if (!mconsp(Cdr(macrodefs)))
       goto fehler_spec;
-    pushSTACK(name); /* save name */
+    pushSTACK(name); /* save */
     /* build macro-expander: (SYSTEM::MAKE-MACRO-EXPANDER macrodef env) */
-    aktenv_to_stack();
-    { object vec = vectorof(5); pushSTACK(macrodefs); pushSTACK(vec); }
+    pushSTACK(macrodefs); aktenv_to_stack();
+    { object vec = vectorof(5); /*STACK_0 == macrodefs*/ pushSTACK(vec); }
     funcall(S(make_macro_expander),2);
     name = popSTACK();
     macrodefs = popSTACK(); /* remaining macrodefs */

@@ -1,5 +1,9 @@
 2003-08-26  Sam Steingold  <sds@gnu.org>
 
+	* control.d (MACROLET): fixed a GC-safety bug
+
+2003-08-26  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (modular): do not depend on exporting, modprep, clisp.h
 	(anymodule): depend on exporting, modprep, clisp.h
 
