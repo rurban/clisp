@@ -3,7 +3,7 @@
 #endif
 #include "asmi386.h"
 TEXT()
-	ALIGN(2)
+	ALIGN(4)
 GLOBL(C(vacall))
 FUNBEGIN(vacall)
 	INSN2(sub,l	,NUM(36),R(esp))
