@@ -1,5 +1,5 @@
 /*
- * Copyright 1993-1999 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1993-1999, 2002  Bruno Haible <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -20,6 +20,9 @@
 #endif
 #if defined(sun) && defined(unix) && (defined(mc68020) || defined(sparc) || (defined(i386) || defined(__i386))) /* SunOS */
 #  define UNIX_SUNOS
+#endif
+#if defined(__hpux) || defined (hpux) /* HP-UX */
+#  define UNIX_HPUX
 #endif
 #if (defined(sgi) || defined(__sgi)) && (defined(SYSTYPE_SVR4) || defined(__SYSTYPE_SVR4)) /* Irix 5 or 6 */
 #  define UNIX_IRIX
@@ -127,6 +130,11 @@
 #define SIGSEGV_FAULT_CONTEXT  scp
 #define SIGSEGV_FAULT_STACKPOINTER  scp->sc_regs[29]
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
+#endif
+#if defined(UNIX_HPUX) /* HP-UX */
+#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext *scp
+#define SIGSEGV_FAULT_ADDRESS scp->sc_sl.sl_ss.ss_narrow.ss_cr21
+#define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV) FAULT_HANDLER(SIGBUS)
 #endif
 #if defined(UNIX_OSF) /* OSF/1 on Alpha */
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext *scp
