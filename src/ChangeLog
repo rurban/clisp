@@ -1,5 +1,12 @@
 2003-07-28  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (directory_search) [WIN32_NATIVE]: save some consing
+	(directory_search_scandir) [WIN32_NATIVE]: fixed a GC-safety bug:
+	use O(lnk_string) instead of allocating a new string each time
+	* constobj.d (lnk_string) [WIN32_NATIVE]: new string
+
+2003-07-28  Sam Steingold  <sds@gnu.org>
+
 	* misc.d (clisp_setenv) [WIN32_NATIVE]: use SetEnvironmentVariable()
 	(GETENV) [WIN32_NATIVE]: use GetEnvironmentStrings() and
 	FreeEnvironmentStrings() instead of the fictitious `environ' global
