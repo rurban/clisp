@@ -1187,7 +1187,14 @@ local boolean legal_logical_word_char(ch)
   local boolean legal_namechar (chart ch);
   local boolean legal_namechar(ch)
     var chart ch;
-    { var cint c = as_cint(ch);
+    { var uintB c;
+      #ifdef UNICODE
+      # Check whether ch fits into a single byte in O(pathname_encoding).
+      if (!(cslen(O(pathname_encoding),&ch,1) == 1)) return FALSE;
+      cstombs(O(pathname_encoding),&ch,1,&c,1); # causes error message if it doesn't fit
+      #else
+      c = as_cint(ch);
+      #endif
       #ifdef VALID_FILENAME_CHAR # defined in unixconf.h
       #define ch c
       return VALID_FILENAME_CHAR || (ch=='*') || (ch=='?');
