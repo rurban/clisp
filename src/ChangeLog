@@ -1,3 +1,20 @@
+2004-04-08  Bruno Haible  <bruno@clisp.org>
+
+	Make REMOVE[-IF[-NOT]], DELETE[-IF[-NOT]], SUBSTITUTE[-IF[-NOT]] on
+	lists cons less.
+	* sequence.d (seq_prepare_filterop): New function, extracted from
+	seq_filterop.
+	(seq_filterop): Remove the argument checking.
+	(remove_op, delete_op): New functions.
+	(REMOVE, REMOVE-IF, REMOVE-IF-NOT): Use remove_op instead of
+	seq_filterop.
+	(DELETE, DELETE-IF, DELETE-IF-NOT): Use delete_op instead of
+	seq_filterop.
+	(substitute_op): New function.
+	(SUBSTITUTE, SUBSTITUTE-IF, SUBSTITUTE-IF-NOT): Use substitute_op
+	instead of seq_filterop.
+	(nsubstitute_op): Update.
+
 2004-04-03  Bruno Haible  <bruno@clisp.org>
 
 	New SUBTYPEP implementation.
