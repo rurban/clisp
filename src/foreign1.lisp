@@ -731,6 +731,7 @@
     (push (list c-name (parse-c-type type) flags) *variable-list*)))
 
 (defsetf foreign-value set-foreign-value)
+(defsetf foreign-pointer set-foreign-pointer)
 
 (defun foreign-address-null (fadr)
   (zerop (foreign-address-unsigned fadr)))
