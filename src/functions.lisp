@@ -57,6 +57,6 @@
          (sys::%record-ref obj 0))
         ((sys::subr-info obj))
         ((sys::%compiled-function-p obj) ; compiled closure?
-         (name (sys::%record-ref obj 0)))
+         (sys::%record-ref obj 0))
         ((sys::closurep obj) ; interpreted closure?
          (sys::%record-ref obj 0))))
