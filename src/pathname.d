@@ -1760,25 +1760,27 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                   FNindex_fallback = z.FNindex;
                   # Character '>' übergehen:
                   z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
-                  # Environment-Variable als ASCIZ-String bauen:
+                  # Environment-Variable als Simple-String bauen:
                   if (z.index - startz.index - 2 == 0) goto no_envvar;
-                 {var object envvar = subsstring(STACK_0,startz.index+1,z.index-1);
-                  # Dessen Wert holen:
-                   begin_system_call();
-                  {var const char* envval = getenv(TheAsciz(envvar));
-                   end_system_call();
-                   if (envval==NULL)
-                     { pushSTACK(envvar);
-                       pushSTACK(S(parse_namestring));
-                       fehler(parse_error,
-                              DEUTSCH ? "~: Es gibt keine Environment-Variable ~." :
-                              ENGLISH ? "~: there is no environment variable ~" :
-                              FRANCAIS ? "~ : Il n'y a pas de variable ~ dans l'environnement." :
-                              ""
-                             );
-                     }
-                   pushSTACK(asciz_to_string(envval)); # Wert der Variablen als String
-                 }}
+                  {var object envvar = subsstring(STACK_0,startz.index+1,z.index-1);
+                   # Deren Wert holen:
+                   with_sstring_0(envvar,envvar_asciz,
+                     { begin_system_call();
+                      {var const char* envval = getenv(envvar_asciz);
+                       end_system_call();
+                       if (envval==NULL)
+                         { pushSTACK(envvar);
+                           pushSTACK(S(parse_namestring));
+                           fehler(parse_error,
+                                  DEUTSCH ? "~: Es gibt keine Environment-Variable ~." :
+                                  ENGLISH ? "~: there is no environment variable ~" :
+                                  FRANCAIS ? "~ : Il n'y a pas de variable ~ dans l'environnement." :
+                                  ""
+                                 );
+                         }
+                       pushSTACK(asciz_to_string(envval)); # Wert der Variablen als String
+                     }});
+                  }
                   # Reststück bilden:
                   pushSTACK(subsstring(STACK_1,z.index,z.index+z.count));
                   # Beides zusammenhängen, thing ersetzen:
@@ -2006,34 +2008,30 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                   if (charcount==0)
                     { userhomedir = O(user_homedir); } # nur '~' -> User-Homedir
                     else
-                    { # Username als ASCIZ-String bauen:
-                      var object username = allocate_string(charcount+1);
-                      { var uintB* charptr2 = &TheSstring(username)->data[0];
-                        var uintL count;
-                        charptr = &TheSstring(STACK_2)->data[z.index];
-                        dotimespL(count,charcount, { *charptr2++ = *charptr++; } );
-                        *charptr2 = '\0';
-                      }
+                    { # Username bauen:
+                      var object username = subsstring(STACK_2,z.index,z.index+charcount);
                       # Dessen Home-Directory aus dem Passwort-File holen:
-                      begin_system_call();
-                      errno = 0;
-                     {var struct passwd * userpasswd = getpwnam(TheAsciz(username));
-                      if (userpasswd == (struct passwd *)NULL) # erfolglos?
-                        { if (!(errno==0)) { OS_error(); } # Error melden
+                      with_sstring_0(username,username_asciz,
+                        { begin_system_call();
+                          errno = 0;
+                         {var struct passwd * userpasswd = getpwnam(username_asciz);
+                          if (userpasswd == (struct passwd *)NULL) # erfolglos?
+                            { if (!(errno==0)) { OS_error(); } # Error melden
+                              end_system_call();
+                              # sonst: Fehler
+                              pushSTACK(username);
+                              pushSTACK(S(parse_namestring));
+                              fehler(parse_error,
+                                     DEUTSCH ? "~: Es gibt keinen Benutzer mit Namen ~." :
+                                     ENGLISH ? "~: there is no user named ~" :
+                                     FRANCAIS ? "~ : Il n'y a pas d'utilisateur de nom ~." :
+                                     ""
+                                    );
+                            }
                           end_system_call();
-                          # sonst: Fehler
-                          pushSTACK(username);
-                          pushSTACK(S(parse_namestring));
-                          fehler(parse_error,
-                                 DEUTSCH ? "~: Es gibt keinen Benutzer mit Namen ~." :
-                                 ENGLISH ? "~: there is no user named ~" :
-                                 FRANCAIS ? "~ : Il n'y a pas d'utilisateur de nom ~." :
-                                 ""
-                                );
-                        }
-                      end_system_call();
-                      userhomedir = asciz_dir_to_pathname(userpasswd->pw_dir); # Homedir als Pathname
-                    }}
+                          userhomedir = asciz_dir_to_pathname(userpasswd->pw_dir); # Homedir als Pathname
+                        }});
+                    }
                   # Directory aus dem Pathname userhomedir kopieren:
                   # (copy-list dir) = (nreconc (reverse dir) nil),
                   # dabei dessen letztes Cons merken.
@@ -2069,30 +2067,25 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                       });
                   }
                   # Environment-Variable hat charcount Zeichen,
-                  # als ASCIZ-String bauen:
-                  { var object envvar = allocate_string(charcount+1);
-                    { var uintB* charptr2 = &TheSstring(envvar)->data[0];
-                      var uintL count;
-                      charptr = &TheSstring(STACK_2)->data[z.index];
-                      dotimesL(count,charcount, { *charptr2++ = *charptr++; } );
-                      *charptr2 = '\0';
-                    }
-                    # Dessen Wert holen:
-                    begin_system_call();
-                   {var const char* envval = getenv(TheAsciz(envvar));
-                    end_system_call();
-                    if (envval==NULL)
-                      { pushSTACK(envvar);
-                        pushSTACK(S(parse_namestring));
-                        fehler(parse_error,
-                               DEUTSCH ? "~: Es gibt keine Environment-Variable ~." :
-                               ENGLISH ? "~: there is no environment variable ~" :
-                               FRANCAIS ? "~ : Il n'y a pas de variable ~ dans l'environnement." :
-                               ""
-                              );
-                      }
-                    envval_dir = asciz_dir_to_pathname(envval); # Wert der Variablen als Pathname
-                  }}
+                  { var object envvar = subsstring(STACK_2,z.index,z.index+charcount);
+                    # Deren Wert holen:
+                    with_sstring_0(envvar,envvar_asciz,
+                      { begin_system_call();
+                       {var const char* envval = getenv(envvar_asciz);
+                        end_system_call();
+                        if (envval==NULL)
+                          { pushSTACK(envvar);
+                            pushSTACK(S(parse_namestring));
+                            fehler(parse_error,
+                                   DEUTSCH ? "~: Es gibt keine Environment-Variable ~." :
+                                   ENGLISH ? "~: there is no environment variable ~" :
+                                   FRANCAIS ? "~ : Il n'y a pas de variable ~ dans l'environnement." :
+                                   ""
+                                  );
+                          }
+                        envval_dir = asciz_dir_to_pathname(envval); # Wert der Variablen als Pathname
+                      }});
+                  }
                   # Directory aus dem Pathname envval_dir kopieren:
                   # (copy-list dir) = (nreconc (reverse dir) nil),
                   # dabei dessen letztes Cons merken.
@@ -6378,14 +6371,14 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     }
 
 # UP: Macht aus einem Directory-Namestring einen, der für AMIGAOS geeignet ist.
-# OSnamestring(namestring)
+# OSdirnamestring(namestring)
 # > namestring: neu erzeugter Directory-Namestring, mit '/' oder ':' am
 #               Schluss, ein Simple-String
 # < ergebnis: Namestring zu diesem Directory, im AmigaOS-Format: letzter '/'
-#             gestrichen, falls überflüssig, ASCIZ-String
+#             gestrichen, falls überflüssig, ein Simple-String
 # kann GC auslösen
-  local object OSnamestring (object namestring);
-  local object OSnamestring(namestring)
+  local object OSdirnamestring (object namestring);
+  local object OSdirnamestring(namestring)
     var object namestring;
     { var uintL len = Sstring_length(namestring);
       if (len==0) goto ok; # Leerstring -> nichts streichen
@@ -6395,12 +6388,10 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       ch = TheSstring(namestring)->data[len-2];
       if ((ch=='/') || (ch==':')) # davor ein '/' oder ':'
         goto ok; # -> bedeutet Parent -> nicht streichen
-      # '/' am Schluss streichen, dann string_to_asciz:
-        namestring = copy_string(namestring); # Länge bleibt dabei gleich!
-        TheSstring(namestring)->data[len-1] = '\0';
-        return namestring;
+      # '/' am Schluss streichen:
+        namestring = subsstring(namestring,0,len-1);
       ok: # nichts streichen
-        return string_to_asciz(namestring);
+        return namestring;
     }}
 
 # UP: Stellt sicher, dass das Directory eines Pathname existiert.
@@ -6431,71 +6422,74 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
            dir_namestring = string_concat(stringcount);
           }
           pushSTACK(dir_namestring);
-          dir_namestring = OSnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
-          # Lock für dieses Directory holen:
-          set_break_sem_4(); # Unterbrechungen währenddessen verhindern
-          begin_system_call();
-         {var BPTR lock = Lock(TheAsciz(dir_namestring),ACCESS_READ);
-          if (lock==BPTR_NULL)
-            { var LONG errcode = IoErr();
+          dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
+          with_sstring_0(dir_namestring,dir_namestring_asciz,
+            { # Lock für dieses Directory holen:
+              set_break_sem_4(); # Unterbrechungen währenddessen verhindern
+              begin_system_call();
+             {var BPTR lock = Lock(dir_namestring_asciz,ACCESS_READ);
+              if (lock==BPTR_NULL)
+                { var LONG errcode = IoErr();
+                  end_system_call();
+                  FREE_DYNAMIC_ARRAY(dir_namestring_asciz);
+                  switch (errcode)
+                    { case ERROR_OBJECT_NOT_FOUND:
+                        clr_break_sem_4();
+                        if (tolerantp) { skipSTACK(1); return nullobj; }
+                        fehler_dir_not_exists(STACK_0);
+                      case ERROR_ACTION_NOT_KNOWN:
+                        # Ein Device, bei dem man keine Locks für Subdirectories holen
+                        # kann! Hierbei muss es sich wohl um ein spezielles Device handeln
+                        # (PIPE, CON, AUX, etc.).
+                        # Wir stoppen die Subdirectory-Überprüfungen. Nicht einmal mehr
+                        # Examine() rufen wir auf. Wir gehen im Gegenteil davon aus, dass
+                        # das File im gewöhnlichen Sinne (noch) nicht existiert.
+                        clr_break_sem_4(); # Unterbrechungen zulassen, da wir nun doch kein Lock belegt haben
+                        if (namenullp(STACK_(0+1))) # kein File angesprochen?
+                          { return popSTACK(); } # ja -> fertig
+                          else
+                          { var uintC stringcount = 1; # directory_namestring schon auf dem STACK
+                            stringcount += file_namestring_parts(STACK_(0+1)); # Strings für den Filename
+                            pushSTACK(O(null_string)); stringcount++; # und Nullbyte
+                           {var object namestring = string_concat(stringcount); # zusammenhängen
+                            filestatus = (struct FileInfoBlock *)NULL; # File existiert nicht, sagen wir
+                            return namestring;
+                          }}
+                      default:
+                        OS_file_error(STACK_(0+1));
+                }   }
               end_system_call();
-              switch (errcode)
-                { case ERROR_OBJECT_NOT_FOUND:
-                    clr_break_sem_4();
-                    if (tolerantp) { skipSTACK(1); return nullobj; }
-                    fehler_dir_not_exists(STACK_0);
-                  case ERROR_ACTION_NOT_KNOWN:
-                    # Ein Device, bei dem man keine Locks für Subdirectories holen
-                    # kann! Hierbei muss es sich wohl um ein spezielles Device handeln
-                    # (PIPE, CON, AUX, etc.).
-                    # Wir stoppen die Subdirectory-Überprüfungen. Nicht einmal mehr
-                    # Examine() rufen wir auf. Wir gehen im Gegenteil davon aus, dass
-                    # das File im gewöhnlichen Sinne (noch) nicht existiert.
-                    clr_break_sem_4(); # Unterbrechungen zulassen, da wir nun doch kein Lock belegt haben
-                    if (namenullp(STACK_(0+1))) # kein File angesprochen?
-                      { return popSTACK(); } # ja -> fertig
-                      else
-                      { var uintC stringcount = 1; # directory_namestring schon auf dem STACK
-                        stringcount += file_namestring_parts(STACK_(0+1)); # Strings für den Filename
-                        pushSTACK(O(null_string)); stringcount++; # und Nullbyte
-                       {var object namestring = string_concat(stringcount); # zusammenhängen
-                        filestatus = (struct FileInfoBlock *)NULL; # File existiert nicht, sagen wir
-                        return namestring;
-                      }}
-                  default:
-                    OS_file_error(STACK_(0+1));
-            }   }
-          end_system_call();
-          dir_namestring = popSTACK();
-          # und überprüfen, ob's ein Directory ist:
-          { var LONGALIGNTYPE(struct FileInfoBlock) fib;
-            var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
-            begin_system_call();
-           {var LONG ergebnis = Examine(lock,fibptr);
-            if (!ergebnis) { UnLock(lock); end_system_call(); OS_file_error(STACK_0); }
-            if (!(fibptr->fib_DirEntryType >= 0)) # etwa kein Directory?
-              { UnLock(lock);
+              dir_namestring = popSTACK();
+              # und überprüfen, ob's ein Directory ist:
+              { var LONGALIGNTYPE(struct FileInfoBlock) fib;
+                var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
+                begin_system_call();
+               {var LONG ergebnis = Examine(lock,fibptr);
+                if (!ergebnis) { UnLock(lock); end_system_call(); OS_file_error(STACK_0); }
+                if (!(fibptr->fib_DirEntryType >= 0)) # etwa kein Directory?
+                  { UnLock(lock);
+                    end_system_call();
+                    if (tolerantp) { return nullobj; }
+                    # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+                    pushSTACK(dir_namestring);
+                    pushSTACK(TheSubr(subr_self)->name);
+                    fehler(file_error,
+                           DEUTSCH ? "~: ~ ist ein File und kein Directory." :
+                           ENGLISH ? "~: ~ names a file, not a directory" :
+                           FRANCAIS ? "~ : ~ est un fichier et non un répertoire." :
+                           ""
+                          );
+                  }
                 end_system_call();
-                if (tolerantp) { return nullobj; }
-                # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
-                pushSTACK(dir_namestring);
-                pushSTACK(TheSubr(subr_self)->name);
-                fehler(file_error,
-                       DEUTSCH ? "~: ~ ist ein File und kein Directory." :
-                       ENGLISH ? "~: ~ names a file, not a directory" :
-                       FRANCAIS ? "~ : ~ est un fichier et non un répertoire." :
-                       ""
-                      );
-              }
-            end_system_call();
-          }}
-          # Lock zum Truename machen:
-          {var object new_pathname = directory_truename(lock); # macht clr_break_sem_4();
-           var object old_pathname = STACK_0;
-           ThePathname(new_pathname)->pathname_name = ThePathname(old_pathname)->pathname_name;
-           ThePathname(new_pathname)->pathname_type = ThePathname(old_pathname)->pathname_type;
-           STACK_0 = new_pathname;
-        }}}
+              }}
+              # Lock zum Truename machen:
+              {var object new_pathname = directory_truename(lock); # macht clr_break_sem_4();
+               var object old_pathname = STACK_0;
+               ThePathname(new_pathname)->pathname_name = ThePathname(old_pathname)->pathname_name;
+               ThePathname(new_pathname)->pathname_type = ThePathname(old_pathname)->pathname_type;
+               STACK_0 = new_pathname;
+            }}});
+        }
      {var object pathname = STACK_0;
       # Information zum angesprochenen File holen:
       if (namenullp(pathname)) # kein File angesprochen?
@@ -7120,14 +7114,14 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
 #if 0 # unbenutzt
 # UP: Macht aus einem Directory-Namestring einen, der für DOS geeignet ist.
-# OSnamestring(namestring)
+# OSdirnamestring(namestring)
 # > namestring: neu erzeugter Directory-Namestring, mit '\' am Schluss,
 #               ein Simple-String
 # < ergebnis: Namestring zu diesem Directory, im DOS-Format: letzter '\'
-#             gestrichen, falls überflüssig, ASCIZ-String
+#             gestrichen, falls überflüssig, ein Simple-String
 # kann GC auslösen
-  local object OSnamestring (object namestring);
-  local object OSnamestring(namestring)
+  local object OSdirnamestring (object namestring);
+  local object OSdirnamestring(namestring)
     var object namestring;
     { var uintL len = Sstring_length(namestring);
       if (len==0) goto ok; # Leerstring -> nichts streichen
@@ -7137,12 +7131,10 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       ch = TheSstring(namestring)->data[len-2];
       if ((ch=='\\') || (ch==':')) # davor ein '\' oder ':'
         goto ok; # -> bedeutet Parent -> nicht streichen
-      # '\' am Schluss streichen, dann string_to_asciz:
-        namestring = copy_string(namestring); # Länge bleibt dabei gleich!
-        TheSstring(namestring)->data[len-1] = '\0';
-        return namestring;
+      # '\' am Schluss streichen:
+        namestring = subsstring(namestring,0,len-1);
       ok: # nichts streichen
-        return string_to_asciz(namestring);
+        return namestring;
     }}
 #endif
 # UP: Setzt das Default-Drive und sein Default-Directory neu.
@@ -7184,21 +7176,23 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     { var uintC stringcount =
         directory_namestring_parts(STACK_0); # Strings fürs Directory
       var object dir_namestring = string_concat(stringcount);
-      dir_namestring = OSnamestring(dir_namestring); # Asciz, ohne überflüssigen '/' am Schluss
-      # Default-Directory ändern:
-      set_break_sem_4();
-      begin_system_call();
-      {var BPTR lock = Lock(TheAsciz(dir_namestring),ACCESS_READ);
-       if (lock==BPTR_NULL) { end_system_call(); OS_file_error(STACK_0); }
-       lock = CurrentDir(lock); # current directory neu setzen
-       # Lock zum alten current directory merken bzw. aufgeben:
-       if (orig_dir_lock == BPTR_NONE)
-         { orig_dir_lock = lock; }
-         else
-         { UnLock(lock); }
-      }
-      end_system_call();
-      clr_break_sem_4();
+      dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
+      with_sstring_0(dir_namestring,dir_namestring_asciz,
+        { # Default-Directory ändern:
+          set_break_sem_4();
+          begin_system_call();
+          {var BPTR lock = Lock(dir_namestring_asciz,ACCESS_READ);
+           if (lock==BPTR_NULL) { end_system_call(); OS_file_error(STACK_0); }
+           lock = CurrentDir(lock); # current directory neu setzen
+           # Lock zum alten current directory merken bzw. aufgeben:
+           if (orig_dir_lock == BPTR_NONE)
+             { orig_dir_lock = lock; }
+             else
+             { UnLock(lock); }
+          }
+          end_system_call();
+          clr_break_sem_4();
+        });
     }
 #endif
 #ifdef PATHNAME_UNIX
@@ -7488,32 +7482,33 @@ LISPFUNN(probe_file,1)
         );
       #endif
       #ifdef PATHNAME_AMIGAOS
-        dir_namestring = OSnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
+        dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
         # Lock für dieses Directory holen:
-        set_break_sem_4(); # Unterbrechungen währenddessen verhindern
-        begin_system_call();
-       {var BPTR lock = Lock(TheAsciz(dir_namestring),ACCESS_READ);
-        if (lock==BPTR_NULL)
-          { var LONG errcode = IoErr();
-            switch (errcode)
-              { case ERROR_OBJECT_NOT_FOUND:
-                case ERROR_ACTION_NOT_KNOWN:
-                  exists = FALSE;
-                  break;
-                default:
-                  end_system_call(); OS_file_error(STACK_0);
-          }   }
-        else
-          { var LONGALIGNTYPE(struct FileInfoBlock) fib;
-            var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
-           {var LONG ergebnis = Examine(lock,fibptr);
-            if (!ergebnis || !(fibptr->fib_DirEntryType >= 0))
-              { exists = FALSE; }
-            UnLock(lock);
-          }}
-        end_system_call();
-        clr_break_sem_4();
-       }
+        with_sstring_0(dir_namestring,dir_namestring_asciz,
+          { set_break_sem_4(); # Unterbrechungen währenddessen verhindern
+            begin_system_call();
+           {var BPTR lock = Lock(dir_namestring_asciz,ACCESS_READ);
+            if (lock==BPTR_NULL)
+              { var LONG errcode = IoErr();
+                switch (errcode)
+                  { case ERROR_OBJECT_NOT_FOUND:
+                    case ERROR_ACTION_NOT_KNOWN:
+                      exists = FALSE;
+                      break;
+                    default:
+                      end_system_call(); OS_file_error(STACK_0);
+              }   }
+            else
+              { var LONGALIGNTYPE(struct FileInfoBlock) fib;
+                var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
+               {var LONG ergebnis = Examine(lock,fibptr);
+                if (!ergebnis || !(fibptr->fib_DirEntryType >= 0))
+                  { exists = FALSE; }
+                UnLock(lock);
+              }}
+            end_system_call();
+            clr_break_sem_4();
+          }});
       #endif
       #ifdef PATHNAME_UNIX
         pushSTACK(dir_namestring);
@@ -8565,6 +8560,28 @@ LISPFUN(open,1,0,norest,key,5,\
     #endif
   #endif
   #
+  #if defined(UNIX) || defined(RISCOS)
+  # Just like stat(), except that directories or files which would lead
+  # to problems are silently hidden.
+    local inline int stat_for_search (char* pathstring, struct stat * statbuf);
+    local inline int stat_for_search(pathstring,statbuf)
+      var char* pathstring;
+      var struct stat * statbuf;
+      {
+        #ifdef UNIX_LINUX
+          # Avoid searching /proc: It is a zoo containing strange animals:
+          # directories which go away constantly, pseudo-regular files which
+          # are really pipes, etc.
+          if (asciz_equal(pathstring,"/proc")) { errno = ENOENT; return -1; }
+        #endif
+       {var int result = stat(pathstring,statbuf);
+        #ifdef UNIX_CYGWIN32
+        if ((result < 0) && (errno == EACCES)) { errno = ENOENT; }
+        #endif
+        return result;
+      }}
+  #endif
+  #
   #ifdef PATHNAME_EXT83
   #
   # UP: Extrahiert Name und Typ aus dem DTA-Buffer.
@@ -8607,9 +8624,9 @@ LISPFUN(open,1,0,norest,key,5,\
   #           gepusht werden
   # > pathstring: Suchpfad als fertiger ASCIZ-String
   # verändert STACK_1, kann GC auslösen
-    local void subdirs (object pathstring);
+    local void subdirs (const char* pathstring);
     local void subdirs(pathstring)
-      var object pathstring;
+      var const char* pathstring;
       {
        #ifdef MSDOS
         # Dateisuche gemäß DOS-Konvention:
@@ -8617,7 +8634,7 @@ LISPFUN(open,1,0,norest,key,5,\
         # Suchanfang, suche nach Ordnern und normalen Dateien:
         begin_system_call();
         do {
-          READDIR_findfirst(TheAsciz(pathstring),
+          READDIR_findfirst(pathstring,
                             { end_system_call(); OS_file_error(STACK_0); },
                             break; );
           loop
@@ -8680,9 +8697,10 @@ LISPFUN(open,1,0,norest,key,5,\
          {var uintC stringcount =
             directory_namestring_parts(pathname); # Directory-Namestring-Teile,
           pushSTACK(O(wild_wild_string)); # "*.*"
-          pushSTACK(O(null_string)); # und Nullbyte
-          {var object pathstring = string_concat(stringcount+1+1); # zusammenhängen
-           subdirs(pathstring); # alle subdirs auf new-pathname-list pushen
+          {var object pathstring = string_concat(stringcount+1); # zusammenhängen
+           with_sstring_0(pathstring,pathstring_asciz,
+             { subdirs(pathstring_asciz); } # alle subdirs auf new-pathname-list pushen
+             );
         }}}
         skipSTACK(1); # pathname vergessen
         { var object new_pathname_list = popSTACK();
@@ -8746,9 +8764,10 @@ LISPFUN(open,1,0,norest,key,5,\
                     directory_namestring_parts(next_pathname); # Directory-Namestring-Teile (keine GC!)
                   stringcount +=
                     subdir_namestring_parts(subdir_list); # und Strings zum nächsten subdir
-                  pushSTACK(O(null_string)); stringcount += 1; # und Nullbyte
                  {var object pathstring = string_concat(stringcount); # zusammenhängen
-                  subdirs(pathstring); # alle subdirs auf new-pathname-list pushen
+                  with_sstring_0(pathstring,pathstring_asciz,
+                    { subdirs(pathstring_asciz); } # alle subdirs auf new-pathname-list pushen
+                    );
                   skipSTACK(1); # next-pathname vergessen
                 }}
                 else
@@ -9355,24 +9374,11 @@ LISPFUN(open,1,0,norest,key,5,\
                          # Information holen:
                          var struct stat status;
                          begin_system_call();
-                         #ifdef UNIX_LINUX
-                         # Avoid searching /proc: It is a zoo containing
-                         # strange animals: directories which go away constantly,
-                         # pseudo-regular files which are really pipes, etc.
-                         if (asciz_equal(TheAsciz(namestring),"/proc"))
-                           {}
-                           else
-                         #endif
-                         if (!( stat(TheAsciz(namestring),&status) ==0))
-                           { if (!((errno==ENOENT) || (errno==ELOOP_VALUE)
-                                   #ifdef UNIX_CYGWIN32
-                                   || (errno==EACCES)
-                                   #endif
-                                ) )
+                         if (!( stat_for_search(TheAsciz(namestring),&status) ==0))
+                           { if (!((errno==ENOENT) || (errno==ELOOP_VALUE)))
                                { end_system_call(); OS_file_error(STACK_2); }
                              end_system_call();
-                             # Eintrag existiert doch nicht (das kann uns
-                             # wohl nur bei symbolischen Links passieren)
+                             # Eintrag existiert doch nicht oder ist unerwünscht
                              # -> wird übergangen
                            }
                            else
@@ -9470,121 +9476,123 @@ LISPFUN(open,1,0,norest,key,5,\
                #endif
                #ifdef AMIGAOS
                 # Directory absuchen:
-               { var object namestring = OSnamestring(STACK_0);
-                 set_break_sem_4();
-                 begin_system_call();
-                {var BPTR lock = Lock(TheAsciz(namestring),ACCESS_READ);
-                 var LONGALIGNTYPE(struct FileInfoBlock) fib;
-                 var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
-                 if (lock==BPTR_NULL)
-                   { end_system_call(); OS_file_error(STACK_1); }
-                 if (! Examine(lock,fibptr) )
-                   { UnLock(lock); end_system_call(); OS_file_error(STACK_1); }
-                 end_system_call();
-                 loop
-                   { begin_system_call();
-                     if (! ExNext(lock,fibptr) ) # Error oder Directory zu Ende?
-                       break;
+               { var object namestring = OSdirnamestring(STACK_0);
+                 with_sstring_0(namestring,namestring_asciz,
+                   { set_break_sem_4();
+                     begin_system_call();
+                    {var BPTR lock = Lock(namestring_asciz,ACCESS_READ);
+                     var LONGALIGNTYPE(struct FileInfoBlock) fib;
+                     var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
+                     if (lock==BPTR_NULL)
+                       { end_system_call(); OS_file_error(STACK_1); }
+                     if (! Examine(lock,fibptr) )
+                       { UnLock(lock); end_system_call(); OS_file_error(STACK_1); }
                      end_system_call();
-                     # Directory-Eintrag in String umwandeln:
-                    {var object direntry = asciz_to_string(&fibptr->fib_FileName[0]);
-                     pushSTACK(direntry);
-                     # Stackaufbau: ..., pathname, dir_namestring, direntry.
-                     # Feststellen, ob es ein Directory oder ein File ist:
-                     {var boolean isdir;
-                      if (fibptr->fib_DirEntryType == ST_SOFTLINK)
-                        {   # Einen Lock auf das Ziel holen und Examine ausführen:
-                            # das geht, denn Lock() löst Links auf (bzw. versucht es)
-                            pushSTACK(STACK_1); pushSTACK(STACK_(0+1)); pushSTACK(O(null_string));
-                         {  var object direntry_namestring = string_concat(3);
-                            begin_system_call();
-                            # TODO olddir = CurrentDir(lock); ... CurrentDir(olddir)
-                          { var BPTR direntry_lock = Lock(TheAsciz(direntry_namestring),ACCESS_READ);
-                            if (direntry_lock==BPTR_NULL)
-                              switch (IoErr())
-                                { case ERROR_OBJECT_NOT_FOUND:
-                                  case ERROR_DEVICE_NOT_MOUNTED: # user canceled requester
-                                    end_system_call();
-                                    goto skip_direntry; # direntry vergessen und ignorieren
-                                  default:
-                                    end_system_call(); OS_file_error(STACK_2);
-                                }
-                           {var LONGALIGNTYPE(struct FileInfoBlock) direntry_status;
-                            var struct FileInfoBlock * statusptr = LONGALIGN(&direntry_status);
-                            if (! Examine(direntry_lock,statusptr) )
-                              { UnLock(direntry_lock); end_system_call(); OS_file_error(STACK_2); }
-                            UnLock(direntry_lock);
-                            end_system_call();
-                            isdir = (statusptr->fib_DirEntryType >= 0);
-                        }}}}
-                        else
-                        { isdir = (fibptr->fib_DirEntryType >= 0); }
-                      if (isdir)
-                        # Eintrag ist ein Directory.
-                        { if (recursively) # alle rekursiven Subdirectories gewünscht?
-                            # ja -> zu einem Pathname machen und auf
-                            # pathnames-to-insert pushen (wird nachher
-                            # vor pathname-list-rest eingefügt):
-                            { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
-                             {var object pathname = pathname_add_subdir();
-                              pushSTACK(pathname);
-                             }# Diesen neuen Pathname vor pathname-to-insert pushen:
-                             {var object new_cons = allocate_cons();
-                              Car(new_cons) = popSTACK();
-                              Cdr(new_cons) = STACK_(0+3);
-                              STACK_(0+3) = new_cons;
-                            }}
-                          if (next_task<0)
-                            { # (car subdir-list) mit direntry matchen:
-                              if (wildcard_match(Car(STACK_(1+(1+H+2)+3)),STACK_0))
-                                # Subdirectory matcht -> zu einem Pathname
-                                # machen und auf new-pathname-list pushen:
+                     loop
+                       { begin_system_call();
+                         if (! ExNext(lock,fibptr) ) # Error oder Directory zu Ende?
+                           break;
+                         end_system_call();
+                         # Directory-Eintrag in String umwandeln:
+                        {var object direntry = asciz_to_string(&fibptr->fib_FileName[0]);
+                         pushSTACK(direntry);
+                         # Stackaufbau: ..., pathname, dir_namestring, direntry.
+                         # Feststellen, ob es ein Directory oder ein File ist:
+                         {var boolean isdir;
+                          if (fibptr->fib_DirEntryType == ST_SOFTLINK)
+                            {   # Einen Lock auf das Ziel holen und Examine ausführen:
+                                # das geht, denn Lock() löst Links auf (bzw. versucht es)
+                                pushSTACK(STACK_1); pushSTACK(STACK_(0+1)); pushSTACK(O(null_string));
+                             {  var object direntry_namestring = string_concat(3);
+                                begin_system_call();
+                                # TODO olddir = CurrentDir(lock); ... CurrentDir(olddir)
+                              { var BPTR direntry_lock = Lock(TheAsciz(direntry_namestring),ACCESS_READ);
+                                if (direntry_lock==BPTR_NULL)
+                                  switch (IoErr())
+                                    { case ERROR_OBJECT_NOT_FOUND:
+                                      case ERROR_DEVICE_NOT_MOUNTED: # user canceled requester
+                                        end_system_call();
+                                        goto skip_direntry; # direntry vergessen und ignorieren
+                                      default:
+                                        end_system_call(); OS_file_error(STACK_2);
+                                    }
+                               {var LONGALIGNTYPE(struct FileInfoBlock) direntry_status;
+                                var struct FileInfoBlock * statusptr = LONGALIGN(&direntry_status);
+                                if (! Examine(direntry_lock,statusptr) )
+                                  { UnLock(direntry_lock); end_system_call(); OS_file_error(STACK_2); }
+                                UnLock(direntry_lock);
+                                end_system_call();
+                                isdir = (statusptr->fib_DirEntryType >= 0);
+                            }}}}
+                            else
+                            { isdir = (fibptr->fib_DirEntryType >= 0); }
+                          if (isdir)
+                            # Eintrag ist ein Directory.
+                            { if (recursively) # alle rekursiven Subdirectories gewünscht?
+                                # ja -> zu einem Pathname machen und auf
+                                # pathnames-to-insert pushen (wird nachher
+                                # vor pathname-list-rest eingefügt):
                                 { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
                                  {var object pathname = pathname_add_subdir();
                                   pushSTACK(pathname);
-                                 }# Diesen neuen Pathname vor new-pathname-list pushen:
+                                 }# Diesen neuen Pathname vor pathname-to-insert pushen:
                                  {var object new_cons = allocate_cons();
                                   Car(new_cons) = popSTACK();
-                                  Cdr(new_cons) = STACK_(H+2+3);
-                                  STACK_(H+2+3) = new_cons;
-                            }   }}
-                        }
-                        else
-                        # Eintrag ist ein (halbwegs) normales File.
-                        { if (next_task>0)
-                            { # name&type mit direntry matchen:
-                              if (wildcard_match(STACK_(2+(1+H+2)+3),STACK_0))
-                                # File matcht -> zu einem Pathname machen
-                                # und auf result-list pushen:
-                                { pushSTACK(STACK_0); # direntry
-                                  split_name_type(1); # in Name und Typ aufspalten
-                                 {var object pathname = copy_pathname(STACK_(2+2));
-                                  ThePathname(pathname)->pathname_type = popSTACK(); # Typ einsetzen
-                                  ThePathname(pathname)->pathname_name = popSTACK(); # Name einsetzen
-                                  pushSTACK(pathname);
-                                  pushSTACK(pathname);
-                                 }
-                                 assure_dir_exists(TRUE,FALSE); # Truename bilden (symbolische Links auflösen)
-                                 { if (!nullp(STACK_(0+5+(1+H+2)+3+2))) # :FULL gewünscht?
-                                     with_stat_info(); # ja -> STACK_0 erweitern
-                                   # und STACK_0 vor result-list pushen:
-                                  {var object new_cons = allocate_cons();
-                                   Car(new_cons) = STACK_0;
-                                   Cdr(new_cons) = STACK_(4+(1+H+2)+3+2);
-                                   STACK_(4+(1+H+2)+3+2) = new_cons;
-                                 }}
-                                 skipSTACK(2);
-                        }   }   }
-                     }
-                     skip_direntry:
-                     skipSTACK(1); # direntry vergessen
-                   }}
-                 UnLock(lock);
-                 if (!(IoErr()==ERROR_NO_MORE_ENTRIES))
-                   { end_system_call(); OS_file_error(STACK_1); }
-                 end_system_call();
-                 clr_break_sem_4();
-               }}
+                                  Cdr(new_cons) = STACK_(0+3);
+                                  STACK_(0+3) = new_cons;
+                                }}
+                              if (next_task<0)
+                                { # (car subdir-list) mit direntry matchen:
+                                  if (wildcard_match(Car(STACK_(1+(1+H+2)+3)),STACK_0))
+                                    # Subdirectory matcht -> zu einem Pathname
+                                    # machen und auf new-pathname-list pushen:
+                                    { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
+                                     {var object pathname = pathname_add_subdir();
+                                      pushSTACK(pathname);
+                                     }# Diesen neuen Pathname vor new-pathname-list pushen:
+                                     {var object new_cons = allocate_cons();
+                                      Car(new_cons) = popSTACK();
+                                      Cdr(new_cons) = STACK_(H+2+3);
+                                      STACK_(H+2+3) = new_cons;
+                                }   }}
+                            }
+                            else
+                            # Eintrag ist ein (halbwegs) normales File.
+                            { if (next_task>0)
+                                { # name&type mit direntry matchen:
+                                  if (wildcard_match(STACK_(2+(1+H+2)+3),STACK_0))
+                                    # File matcht -> zu einem Pathname machen
+                                    # und auf result-list pushen:
+                                    { pushSTACK(STACK_0); # direntry
+                                      split_name_type(1); # in Name und Typ aufspalten
+                                     {var object pathname = copy_pathname(STACK_(2+2));
+                                      ThePathname(pathname)->pathname_type = popSTACK(); # Typ einsetzen
+                                      ThePathname(pathname)->pathname_name = popSTACK(); # Name einsetzen
+                                      pushSTACK(pathname);
+                                      pushSTACK(pathname);
+                                     }
+                                     assure_dir_exists(TRUE,FALSE); # Truename bilden (symbolische Links auflösen)
+                                     { if (!nullp(STACK_(0+5+(1+H+2)+3+2))) # :FULL gewünscht?
+                                         with_stat_info(); # ja -> STACK_0 erweitern
+                                       # und STACK_0 vor result-list pushen:
+                                      {var object new_cons = allocate_cons();
+                                       Car(new_cons) = STACK_0;
+                                       Cdr(new_cons) = STACK_(4+(1+H+2)+3+2);
+                                       STACK_(4+(1+H+2)+3+2) = new_cons;
+                                     }}
+                                     skipSTACK(2);
+                            }   }   }
+                         }
+                         skip_direntry:
+                         skipSTACK(1); # direntry vergessen
+                       }}
+                     UnLock(lock);
+                     if (!(IoErr()==ERROR_NO_MORE_ENTRIES))
+                       { end_system_call(); OS_file_error(STACK_1); }
+                     end_system_call();
+                     clr_break_sem_4();
+                   }});
+               }
                #endif
                #if defined(MSDOS) || defined(WIN32_NATIVE)
                 pushSTACK(STACK_0); # Directory-Name
