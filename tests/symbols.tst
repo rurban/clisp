@@ -240,11 +240,9 @@
           lst))
        (known-missing
         #+CLISP
-        '(call-method change-class
-          define-method-combination
+        '(call-method define-method-combination
           ensure-generic-function invalid-method-error method-combination
           method-combination-error make-instances-obsolete make-method
-          update-instance-for-different-class
           update-instance-for-redefined-class)
         #-CLISP nil)
        (known-extra

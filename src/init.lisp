@@ -366,6 +366,7 @@
    make-instance allocate-instance initialize-instance reinitialize-instance
    shared-initialize
    make-load-form make-load-form-saving-slots
+   change-class update-instance-for-different-class
    ;; names of classes:
    class standard-class structure-class built-in-class
    standard-object structure-object
@@ -394,7 +395,7 @@
             ((fboundp sym)            (TEXT "function"))))))
 
 (proclaim '(special *documentation*))
-(setq *documentation* (make-hash-table :test 'eq)); :weak t
+(setq *documentation* (make-hash-table :test 'eq :size 1000)) ; :weak :key
 (sys::%putd 'sys::%set-documentation
   (function sys::%set-documentation
     (lambda (symbol doctype value)
