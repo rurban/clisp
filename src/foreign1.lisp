@@ -23,6 +23,7 @@
           def-c-enum def-c-struct element deref slot cast typeof
           sizeof bitsizeof c-var-address offset
           validp foreign-address-null
+          with-foreign-object with-c-var with-foreign-string
           foreign-address foreign-variable foreign-function))
 
 (eval-when (load compile eval)
@@ -725,6 +726,34 @@
 
 (defun foreign-address-null (fadr)
   (zerop (foreign-address-unsigned fadr)))
+
+;; ============================ Stack allocation ============================
+
+;; Allocate arbitrarily complex structure on the stack,
+;; but allocate only (sizeof c-type) bytes when called without initarg!
+;; C-ARRAY-MAX, "" and #() are thus your friends for creation of empty arrays.
+;; (with-c-var (v '(c-ptr  (c-array     uint8 32)))     (cast v 'c-pointer))
+;;                -> null-pointer, 4 bytes
+;; (with-c-var (v '(c-ptr  (c-array-max uint8 32)) #()) (cast v 'c-pointer))
+;;                -> non-null,  4+32 bytes
+;; (with-c-var (v '(c-ptr-null (c-array uint8 32)) nil) (cast v 'c-pointer))
+;;                -> null-pointer, 4 bytes
+
+;; c-type is evaluated. This is particularly useful for variable sized arrays
+;; using: `(c-array uint8 ,(length foo))
+(defmacro with-foreign-object ((var c-type &optional (init nil init-p))
+                               &body body)
+  `(EXEC-ON-STACK (LAMBDA (,var) ,@body)
+                  (PARSE-C-TYPE ,c-type)
+                  . ,(if init-p (list init))))
+
+;; symbol-macro based interface (like DEF-C-VAR)
+(defmacro with-c-var ((var c-type &optional (init nil init-p)) &body body)
+  (let ((fv (gensym (symbol-name var))))
+    `(EXEC-ON-STACK
+      (LAMBDA (,fv) (SYMBOL-MACROLET ((,var (FFI::FOREIGN-VALUE ,fv))) ,@body))
+      (PARSE-C-TYPE ,c-type)
+      . ,(if init-p (list init)))))
 
 ;; ============================ named C functions ============================
 
