@@ -1324,9 +1324,8 @@
           (fresh-line)
           (write-string ";;")
           (write-string indent)
-          (write-string (TEXT "Loading of file "))
-          (princ filename)
-          (write-string (TEXT " is finished.")))
+          (write-string (TEXT "Loaded file "))
+          (princ filename))
         t)
       (if if-does-not-exist
         (error-of-type 'file-error
