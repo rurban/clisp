@@ -1,9 +1,10 @@
 # BMakefile für CLISP mit GNU-ANSI-C-Compiler
-# Jörg Höhle 15.4.97
-# Optionen: ADE, C00, C20, WIDE, HIGH, FFI, KI, KA, LMEM
+# Jörg Höhle 3.8.98
+# Optionen: ADE, C00, C20, TYPC, HIGH, WIDE, FFI, KI, KA, LMEM
 #  Versionsauswahl
 #   HIGH => C20 -high version
 #   WIDE => C20 -wide: 64 bits for use within VMM
+#   TYP2 =>     - version with only two type bits
 #   C00         -00 for 68000 only
 #   ---         -low with 24 address bits
 #  Optional: FFI KI KA LMEM
@@ -30,15 +31,18 @@ MCFLAGS=-m68020
 MAFLAGS=-mc68020
 endif
 
-WPFLAGS=
+WPFLAGS=-DTYPECODES
 if def(WIDE)
-WPFLAGS=-DWIDE -DHAVE_LONGLONG
+WPFLAGS=-DWIDE
 endif
 ifdef(HIGH)
-WPFLAGS=-DAMIGA3000
+WPFLAGS=-DAMIGA3000 -DTYPECODES
 endif
 ifdef(C00)
 WPFLAGS=-DMC68000
+endif
+ifdef(TYP2)
+WPFLAGS=-DNO_TYPECODES
 endif
 
 #IXCFLAGS= >NIL: -a -.
@@ -51,10 +55,10 @@ if def(ADE)
 IXCONFIG=GCC258:bin/ixprefs
 CC  = gcc
 CPP = cpp -undef -D__GNUC__=2 -D__GNUC_MINOR__=7 -lang-c -v
-CC1 = T:cc1 -version
+CC1 = T:cc1 -version -freg-struct-return
 AS  = as
 
-CPPSTACK = 20000
+CPPSTACK = 40000
 CC1STACK = 400000
 LDSTACK  = 180000
 
@@ -75,7 +79,7 @@ CPP = cpp -undef -D__GNUC__=2 -D__GNUC_MINOR__=5 -lang-c -v
 CC1 = cc1 -version
 AS  = as
 
-CPPSTACK = 20000
+CPPSTACK = 40000
 CC1STACK = 450000
 LDSTACK  = 200000
 
@@ -89,7 +93,7 @@ CRT0   =LISP:amiga/jchlib/lib/crt0.o
 endif
 
 
-CPPFLAGS = -Wcomment -nostdinc $(INCPATH) -D__OPTIMIZE__ -DSTDC_HEADERS -Damiga -DNO_CLISP_H $(MPFLAGS) $(WPFLAGS)
+CPPFLAGS = -Wcomment -nostdinc $(INCPATH) -D__OPTIMIZE__ -DSTDC_HEADERS -Damiga -DNO_CLISP_H -DNO_GETTEXT $(MPFLAGS) $(WPFLAGS)
 CC1FLAGS = -quiet -O2 -W -Wimplicit -Wreturn-type -Wswitch -Wcomment -Wpointer-arith\
  -ffixed-a4 -fomit-frame-pointer -fno-strength-reduce $(MCFLAGS)
 ASFLAGS  = $(MAFLAGS)
@@ -113,7 +117,7 @@ R=/src/
 
 D_INC_MACHINE = amiga.d
 D_INC_SPECIAL = amiga2.d
-D_INC_FURTHER = avl.d sort.d ari68000.d ari68020.d arilev1e.d arilev1i.d bytecode.d
+D_INC_FURTHER = avl.d sort.d ari68000.d ari68020.d arilev1e.d arilev1i.d bytecode.d erramiga.d
 D_INC_NORMAL = lispbibl.d fsubr.d subr.d subrkw.d pseudofun.d constsym.d \
  constobj.d constpack.d aridecl.d arilev0.d $(D_INC_MACHINE)
 D_INC_ALL = $(D_INC_NORMAL) $(D_INC_SPECIAL) $(D_INC_FURTHER)
@@ -133,7 +137,7 @@ D_CMODULES = misc.d spvw.d spvwtabf.d spvwtabs.d spvwtabo.d \
  eval.d control.d pathname.d stream.d io.d error.d time.d \
  array.d hashtabl.d list.d package.d record.d sequence.d \
  charstrg.d debug.d predtype.d symbol.d \
- lisparit0.d modules.d $(D_CMODULES_SPECIAL) $(D_EMODULES)
+ lisparit0.d modules.d amigaaux.d $(D_CMODULES_SPECIAL) $(D_EMODULES)
 #D_MODULES = $(D_CMODULES) $(D_AMODULES)
 DFILES_OTHERARIT = \
  aridecl.d arilev0.d arilev1.d intelem.d intlog.d intplus.d \
@@ -204,6 +208,8 @@ nope eval.o: bytecode.c
 
 nope modules.o: $(R)modules.h
 
+nope error.o: erramiga.c
+
 nope lisparit0.o: ari68000.c ari68020.c arilev1e.c arilev1i.c
 
 .PHONY: all init allc allo
@@ -235,7 +241,7 @@ $(C_INC_ALL) $(C_DIST): $(R)$*.d
 # Here only when .c is available
 $(OBJECTS_A): $*.c
 	stack $(CPPSTACK)
-	$(CPP) -DUNDERSCORE $(CPPFLAGS) $*.c $(TMPDIR)$*.s
+	$(CPP) -DASM_UNDERSCORE $(CPPFLAGS) $*.c $(TMPDIR)$*.s
 	stack $(CC1STACK)
 	$(AS) $(ASFLAGS) -o $@ $(TMPDIR)$*.s
 	$(RM) $(TMPDIR)$*.s

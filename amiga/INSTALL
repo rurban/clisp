@@ -1,4 +1,4 @@
-Installation on Amiga (AmigaDOS):
+Installation on Amiga (AmigaOS):
 ---------------------------------
 
 1. Install a GNU GCC development platform
@@ -10,7 +10,8 @@ Installation on Amiga (AmigaDOS):
    of RAM and gcc-1.40, throwing every program out of the machine (including
    RAM: and LoadWB) and running each compiler stage separately. Luckily,
    when I hit GCC bugs, newer bug-freed versions were available. Compilation
-   of CLISP has lead to several bug-reports in gnu.gcc.bugs.
+   of CLISP has lead to several bug-reports in gnu.gcc.bugs. At present
+   you'll need at least gcc-2.5.8.
 
 2. Install Amiga includes
 
@@ -22,8 +23,7 @@ Installation on Amiga (AmigaDOS):
    Leave source in src/ (only *.d, *.h and *.lsp files are needed) and
    utilities in utils/ (only comment5, ansidecl and cvtmsgs are needed).
    Choose the version you want to build (see README.Amiga or README) and
-   create directories like make.high/, make.low/ and make.wide/ at the same
-   level as src/.
+   create directories like make.typ2/ at the same level as src/.
 
 4. IxPrefs and ixemul.library `/' pathname translation
 
@@ -35,7 +35,7 @@ Installation on Amiga (AmigaDOS):
 
 5. Check your stack sizes
 
-   gcc-cc1 uses up to 400000 bytes of stack in EVAL.D.
+   gcc-cc1 uses up to 450000 bytes of stack in EVAL.D.
    gcc-cpp and gcc-as get along with 40000 bytes.
    gcc-ld requires 200000 bytes.
 
@@ -54,12 +54,13 @@ Installation on Amiga (AmigaDOS):
    (currently all in the same directory only).
 
    Compiling CLISP without using my library has never been tested.
+   Nevertheless it should work.
 
 7. Makefile
 
    Due to lack of RAM (I have 10 MB :-), big CLISP source files and the huge
    stack needed by cc1, it was not possible for me to use a generic Makefile
-   and simply run gcc with a stack set to 380000 bytes. That's why I'm using
+   and simply run gcc with a stack set to 400000 bytes. That's why I'm using
    a private make which nobody but I has. It recognizes the stack command.
    Furthermore my Makefile calls each compiler stage directly, saving the
    space for the gcc driver.
@@ -74,7 +75,7 @@ Installation on Amiga (AmigaDOS):
    variable PATH to all the paths. Make and thus sh will inherit this
    variable:
 
-        set PATH /gnu/bin:/gnu/lib/gcc-lib/m68k-cbm-amigados/2.x.x:/C:/utils/:.
+        set PATH /gg/bin:/gg/lib/gcc-lib/m68k-unknown-amigaos/2.x.x:/C:/utils/:.
 
 8. Edit
 
@@ -86,15 +87,24 @@ Installation on Amiga (AmigaDOS):
    adding one of -DENGLISH, -DFRANCAIS or -DDEUTSCH flags to the compiler.
    See src/lispbibl.d for everything that can be defined. The amiga or AMIGA
    define serves to recognize the Amiga (don't set them for now under
-   Amiga-UNIX). Interesting preprocessor flags include AMIGA3000, MC680Y0
-   for 68020 or better (implied by AMIGA3000), MC68000 for 68000 only, and
-   WIDE for 64 bit ints (for 32 bit clean pointers).
+   Amiga-UNIX). Interesting preprocessor flags include NO_TYPECODES
+   (preferred), AMIGA3000 (don't set when using NO_TYPECODES), MC680Y0 for
+   68020 or better (implied by AMIGA3000), MC68000 for 68000 only, and WIDE
+   for 64 bit ints (for 32 bit clean pointers).
 
-   Extensions like gettext and readline cannot currently be added as they
-   use stdio and malloc whereas CLISP uses the low-level and unbuffered
-   dos.library routines for i/o and AllocMem() etc. for all memory.  Don't
-   mess with it. Using UNIX-like (open) or ANSI (fopen) stdio would require
-   a rewrite of several source files.
+   Extensions like gettext (must define NO_GETTEXT) and readline cannot
+   currently be added as they use stdio and malloc() whereas CLISP uses the
+   low-level and unbuffered dos.library routines for i/o and AllocMem() etc.
+   for all memory.  Don't mess with it.  Using UNIX-like (open) or ANSI
+   (fopen) stdio would require a rewrite of several source files.
+
+   The HAVE_FFI version which provides a linkable CLISP was built and
+   provided in the 1996-05-30 release.  It might be dangerous to build in
+   the NO_TYPECODES configuration because all linked object and subr tables
+   must be longword aligned, which gcc apparently cannot guarantee, although
+   LoadSeg() does it (for obvious BCPL reasons).  You have to build, run
+   lisp.run and relink in a different order or with a dummy object file
+   causing a two byte displacement in case you get an error message.
 
 9. Edit
 
@@ -102,7 +112,7 @@ Installation on Amiga (AmigaDOS):
         src/timezone.lsp
 
    See README for the one line to modify in timezone.lsp. In config.lsp,
-   you may wish to set your favourite editor or restrict the load-path.
+   you may wish to set your favourite editor or restrict the *load-paths*.
 
 10. Remove
 
@@ -114,8 +124,10 @@ Installation on Amiga (AmigaDOS):
 11. Type
 
         make    (while in a make.* directory)   (-low)
+        make TYP2=1 C20=1                       (-typ2, 68020 version)
         make HIGH=1                             (-high)
         make WIDE=1                             (-wide)
+        make C00=1                              (-00)
 
    and wait for things to happen. One night on a B2000, more than one hour
    on an A4000/40.
@@ -186,8 +198,8 @@ Installation on Amiga (AmigaDOS):
         (load "tests")
         (run-all-tests)
 
-   and have a look at possibly resulting .erg files. Only alltest.erg and
-   array.erg should remain and report some limit or fixnum differences.
+   and have a look at possibly resulting .erg files. Only alltest.erg should
+   remain in the *-low version and report some trigonometric differences.
 
 15. Documentation
 
