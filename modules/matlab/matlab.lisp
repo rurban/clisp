@@ -344,9 +344,6 @@
 ;; bool mxIsLogical(const mxArray *array_ptr);
 (def-call-out mxIsLogical (:return-type boolean)
   (:arguments (array_ptr (c-pointer mxArray))))
-;; bool mxIsLogicalScalar(const mxArray *array_ptr);
-(def-call-out mxIsLogicalScalar (:return-type boolean)
-  (:arguments (array_ptr (c-pointer mxArray))))
 ;; bool mxIsLogicalScalarTrue(const mxArray *array_ptr);
 (def-call-out mxIsLogicalScalarTrue (:return-type boolean)
   (:arguments (array_ptr (c-pointer mxArray))))
