@@ -901,9 +901,8 @@ global object convert_from_foreign (object fvd, const void* data);
         }
       }
       #endif
-      else {
-        NOTREACHED
-      }
+      else
+        NOTREACHED;
     }
 global object convert_from_foreign(fvd,data)
   var object fvd;

@@ -2328,7 +2328,7 @@ local void wr_ch_pphelp (const object* stream_, object ch) {
   if (chareq(c,ascii(NL))) {
     TheStream(stream)->strm_pphelp_modus = T;
     PPHELP_NEW_STRING(stream_);
-  } else 
+  } else
     # Character in den ersten String schieben:
     ssstring_push_extend(Car(TheStream(stream)->strm_pphelp_strings),c);
 }
@@ -3756,7 +3756,7 @@ global uintL iconv_wcslen(encoding,src,srcend)
                 fehler_unencodable(encoding,*(const chart*)inptr);
               }
             } elif (errno == EINVAL) { # incomplete input?
-              NOTREACHED
+              NOTREACHED;
             } else {
               var int saved_errno = errno;
               iconv_close(cd);
@@ -3773,7 +3773,7 @@ global uintL iconv_wcslen(encoding,src,srcend)
         var size_t res = iconv(cd,NULL,NULL,&outptr,&outsize);
         if (res == (size_t)(-1)) {
           if (errno == E2BIG) { # output buffer too small?
-            NOTREACHED
+            NOTREACHED;
           } else {
             var int saved_errno = errno;
             iconv_close(cd);
@@ -3841,9 +3841,9 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
                 fehler_unencodable(encoding,*(const chart*)inptr);
               }
             } elif (errno == EINVAL) { # incomplete input?
-              NOTREACHED
+              NOTREACHED;
             } elif (errno == E2BIG) { # output buffer too small?
-              NOTREACHED
+              NOTREACHED;
             } else {
               var int saved_errno = errno;
               iconv_close(cd);
@@ -3856,7 +3856,7 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
           var size_t res = iconv(cd,NULL,NULL,&outptr,&outsize);
           if (res == (size_t)(-1)) {
             if (errno == E2BIG) { # output buffer too small?
-              NOTREACHED
+              NOTREACHED;
             } else {
               var int saved_errno = errno;
               iconv_close(cd);
@@ -3912,7 +3912,7 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
               fehler_unencodable(encoding,*(const chart*)inptr);
             }
           } elif (errno == EINVAL) { # incomplete input?
-            NOTREACHED
+            NOTREACHED;
           } elif (errno == E2BIG) { # output buffer full?
             break;
           } else {
@@ -3966,9 +3966,9 @@ global object iconv_range(encoding,start,end)
                 }
                 have_i1_i2 = false;
               } elif (errno == EINVAL) { # incomplete input?
-                NOTREACHED
+                NOTREACHED;
               } elif (errno == E2BIG) { # output buffer too small?
-                NOTREACHED
+                NOTREACHED;
               } else {
                 var int saved_errno = errno;
                 iconv_close(cd);
@@ -5611,7 +5611,7 @@ local void wr_ch_array_unbuffered_dos (const object* stream_,
         iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
       if (res == (size_t)(-1)) {
         if (errno == E2BIG) { # output buffer too small?
-          NOTREACHED
+          NOTREACHED;
         } else {
           OS_error();
         }
@@ -5732,9 +5732,8 @@ local void fill_pseudofuns_unbuffered (object stream,
       } else if (eq(eol,S(Kdos))) {
         TheStream(stream)->strm_wr_ch = P(wr_ch_unbuffered_dos);
         TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_unbuffered_dos);
-      } else {
+      } else
         NOTREACHED;
-      }
     } else {
       TheStream(stream)->strm_wr_by =
         (eltype->kind == eltype_iu
@@ -6887,7 +6886,7 @@ local void wr_ch_buffered_unix (const object* stream_, object obj) {
      iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
    if (res == (size_t)(-1)) {
      if (errno == E2BIG) { # output buffer too small?
-       NOTREACHED
+       NOTREACHED;
      } else {
        OS_error();
      }
@@ -7474,9 +7473,8 @@ local void fill_pseudofuns_buffered (object stream,
       } else if (eq(eol,S(Kdos))) {
         TheStream(stream)->strm_wr_ch = P(wr_ch_buffered_dos);
         TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_buffered_dos);
-      } else {
+      } else
         NOTREACHED;
-      }
     }
   }
 }
@@ -16593,7 +16591,7 @@ global void builtin_stream_close (const object* stream_) {
     #ifdef PRINTER_AMIGAOS
     case strmtype_printer: close_printer(stream); break;
     #endif
-    default: NOTREACHED
+    default: NOTREACHED;
   }
   # Dummys eintragen:
   close_dummys(*stream_);
@@ -16798,7 +16796,7 @@ global signean listen_char (object stream) {
           { return listen_char_terminal2(stream); },
           { return listen_char_terminal3(stream); });
         #endif
-          NOTREACHED
+          NOTREACHED;
         #ifdef SCREEN
         case strmtype_window:   return ls_eof; # kein READ-CHAR
         #endif
@@ -16982,8 +16980,8 @@ global signean listen_byte (object stream) {
         #ifdef PRINTER
         case strmtype_printer:  return ls_eof; # kein READ-BYTE
         #endif
-        default: NOTREACHED
-                   }
+        default: NOTREACHED;
+      }
     } else {
       return ls_eof; # kein READ-BYTE
     }
@@ -17446,7 +17444,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
         case eltype_is:
           result = bitbuff_is_I(bitbuffer,bitsize,bytesize);
           break;
-        default: NOTREACHED
+        default: NOTREACHED;
       }
       FREE_DYNAMIC_BIT_VECTOR(STACK_0);
       value1 = result; mv_count=1;
@@ -17525,7 +17523,7 @@ LISPFUN(read_float,2,3,norest,nokey,0,NIL)
           value1 = c_double_to_DF(&tmp);
         }
         break;
-      default: NOTREACHED
+      default: NOTREACHED;
     }
     FREE_DYNAMIC_BIT_VECTOR(STACK_0);
     mv_count=1;
@@ -17596,7 +17594,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
       case eltype_is:
         bitbuff_ixs_sub(STACK_3,bitbuffer,bitsize,bytesize,obj);
         break;
-      default: NOTREACHED
+      default: NOTREACHED;
     }
     # The data is now in little-endian order.
     if (endianness) {
@@ -17654,12 +17652,10 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL)
           pushSTACK(STACK_(2+2));
           pushSTACK(S(double_float));
           pushSTACK(obj);
-          fehler(type_error,
-                 GETTEXT("~ is not a ~, cannot be output onto ~")
-                );
+          fehler(type_error,GETTEXT("~ is not a ~, cannot be output onto ~"));
         }
         break;
-      default: NOTREACHED
+      default: NOTREACHED;
     }
     var DYNAMIC_BIT_VECTOR(bitbuffer,bytesize*8);
     pushSTACK(bitbuffer);
@@ -17687,7 +17683,7 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL)
           memcpy(&TheSbvector(bitbuffer)->data[0],&tmp,sizeof(dfloatjanus));
         }
         break;
-      default: NOTREACHED
+      default: NOTREACHED;
     }
     # The data is now in machine-dependent order.
     if (BIG_ENDIAN_P ? !endianness : endianness) {
@@ -17853,7 +17849,7 @@ LISPFUNN(file_string_length,2)
           static const chart eol_dos[2] = { ascii(CR), ascii(LF) };
           eol_charptr = &eol_dos[0]; eol_len = 2;
         } else {
-          NOTREACHED
+          NOTREACHED;
         }
         var const chart* endptr = charptr+len;
         var uintL result = 0;
@@ -17934,7 +17930,7 @@ LISPFUNN(file_string_length,2)
         fehler_wr_char(stream,obj);
       }
     }
-    NOTREACHED
+    NOTREACHED;
     #undef bytes_per_char
   }
 

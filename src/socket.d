@@ -618,7 +618,7 @@ local host_data * socket_getlocalname_aux(socket_handle,hd)
         ipv4_ntop(hd->hostname,addr.inaddr.sin_addr);
         hd->port = ntohs(addr.inaddr.sin_port);
         break;
-      default: NOTREACHED
+      default: NOTREACHED;
     }
     return hd;
   }
@@ -668,7 +668,7 @@ global host_data * socket_getpeername (SOCKET socket_handle, host_data * hd,
         hp = gethostbyaddr((const char *)&addr.inaddr.sin_addr,
                            sizeof(struct in_addr),AF_INET);
       break;
-    default: NOTREACHED
+    default: NOTREACHED;
   }
   # Fill in hd->truename.
   if (hp) {
@@ -739,7 +739,7 @@ global SOCKET create_server_socket (hd, sock, port)
         case AF_INET:
           addr.inaddr.sin_port = htons(0);
           break;
-        default: NOTREACHED
+        default: NOTREACHED;
       }
       fd = bindlisten_via_ip((struct sockaddr *)&addr,addrlen);
     }

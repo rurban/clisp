@@ -876,7 +876,7 @@ LISPFUNN(the_frame,0)
             if (eq(env.go_env,nullobj)) { env.go_env = FRAME_(4); }
             if (eq(env.decl_env,nullobj)) { env.decl_env = FRAME_(5); }
             break;
-          default: NOTREACHED
+          default: NOTREACHED;
         }
         # Falls alle einzelnen Environments von env gefüllt (/=nullobj) sind,
         # ist das Environment fertig:

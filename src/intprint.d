@@ -165,7 +165,7 @@
         case 34: need = 202*need; break;
         case 35: need = 200*need; break;
         case 36: need = 199*need; break;
-        default: NOTREACHED
+        default: NOTREACHED;
       }
       # Nun gilt need >= len*intDsize*log(2)/log(base).
       need += 1; # Platzbedarf in Bytes
