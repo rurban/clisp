@@ -4,7 +4,7 @@
 
 (in-package "LISP")
 
-(export '(clhs *browsers* read-from-file browse-url))
+(export '(clhs *browsers* *browser* read-from-file browse-url))
 
 (in-package "SYSTEM")
 
@@ -28,6 +28,7 @@
     (:mmm "mmm" "-external" "~a")
     (:mosaic "xmosaic" "~a")
     (:emacs-w3 "gnudoit" "-q" "(w3-fetch \"~a\")")))
+(defvar *browser* nil)          ; the default browser
 
 (defun read-from-file (file &key (out *standard-output*))
   "Read an object from a file.
@@ -48,7 +49,7 @@ The keyword argument OUT specifies the output for log messages."
                 (/ (- (get-internal-real-time) beg-real)
                    internal-time-units-per-second))))))
 
-(defun browse-url (url &key (browser :netscape) (out *standard-output*))
+(defun browse-url (url &key (browser *browser*) (out *standard-output*))
   "Run the browser (a keyword in `*browsers*' or a list) on the URL."
   (let* ((command
           (etypecase browser
@@ -57,12 +58,15 @@ The keyword argument OUT specifies the output for log messages."
                         (error "unknown browser: `~s' (must be a key in `~s')"
                                browser '*browsers*)))))
          (args (mapcar (lambda (arg) (format nil arg url)) (cdr command))))
-    (when out
-      (format out "~&;; running [~s~{ ~s~}]..." (car command) args)
-      (force-output (if (eq out t) *standard-output* out)))
-    (run-program (car command) :arguments args)
-    (when out
-      (format out "done~%"))))
+    (cond (command
+           (when out
+             (format out "~&;; running [~s~{ ~s~}]..." (car command) args)
+             (force-output (if (eq out t) *standard-output* out)))
+           (run-program (car command) :arguments args)
+           (when out
+             (format out "done~%")))
+          ((format t "~s: no browser specified; please point your browser at
+ --> <URL:~a>~%" 'browse-url url)))))
 
 (defun clhs (symbol-string &key (browser :netscape) (out *standard-output*))
   "Dump the CLHS doc for the symbol."
