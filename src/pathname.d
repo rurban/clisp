@@ -6046,16 +6046,16 @@ LISPFUNN(pathname_match_p,2)
    if (eq(item,nullobj)) { skipSTACK(skip); goto subst_error; }             \
    pushSTACK(S(K##xwhat)); pushSTACK(item)
 #endif /* DEBUG_TRANSLATE_PATHNAME */
-#define GET_ITEM_S(y,x,w) GET_ITEM(y,x,STACK_##w,w)
+#define GET_ITEM_S(y,x,w) GET_ITEM(y,x,STACK_(w),w)
       # Argumente für MAKE-PATHNAME zusammenbauen:
       GET_ITEM(host,host,muster,0);
       #if HAS_DEVICE
       GET_ITEM_S(device,device,2);
       #endif
-      GET_ITEM_S(directory,directory,(2+2*HAS_DEVICE));
-      GET_ITEM_S(nametype,name,(2+2*HAS_DEVICE+2));
-      GET_ITEM_S(nametype,type,(2+2*HAS_DEVICE+4));
-      GET_ITEM_S(version,version,(2+2*HAS_DEVICE+6));
+      GET_ITEM_S(directory,directory,2+2*HAS_DEVICE);
+      GET_ITEM_S(nametype,name,2+2*HAS_DEVICE+2);
+      GET_ITEM_S(nametype,type,2+2*HAS_DEVICE+4);
+      GET_ITEM_S(version,version,2+2*HAS_DEVICE+6);
       # Alle Ersetzungsstücke müssen verbraucht werden!
       if (mconsp(*subst)) { skipSTACK(2+2*HAS_DEVICE+8); goto subst_error; }
       # (MAKE-PATHNAME ...) bzw. (SYS::MAKE-LOGICAL-PATHNAME ...) aufrufen:

@@ -1,3 +1,7 @@
+2001-03-28  Bruno Haible  <haible@clisp.cons.org>
+
+	* pathname.d (translate_pathname): Fix invalid use of ## in GET_ITEM_S.
+
 2001-03-27  Sam Steingold  <sds@gnu.org>
 
 	fixed a bug: macros were reported as special forms by funcall &Co
