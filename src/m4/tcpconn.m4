@@ -69,10 +69,10 @@ AC_DEFINE(INET_ADDR_SUFFIX,[])
 fi
 AC_CHECK_HEADERS(netinet/tcp.h,,,
 dnl AIX 4 requires <netinet/in.h> to be included before <netinet/tcp.h>.
-[[#if HAVE_NETINET_IN_H
+[#if HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
-]])
+])
 CL_PROTO([setsockopt], [
 for z in 'int' 'unsigned int' 'size_t'; do
 for y in 'char*' 'void*'; do

@@ -13,8 +13,8 @@ AC_PREREQ(2.57)
 AC_DEFUN([CL_LDAP],
 [AC_CHECK_HEADERS(lber.h ldap.h,,,
 dnl Solaris/cc requires <lber.h> to be included before <ldap.h>
-[[#if HAVE_LBER_H
+[#if HAVE_LBER_H
 # include <lber.h>
 #endif
-]])]
+])]
 )
