@@ -511,7 +511,7 @@
 2005-02-28  Sam Steingold  <sds@gnu.org>
 
 	* modules/postgresql/configure.in: use AC_LIB_LINKFLAGS([pq])
-	* modules/postgresql/Makefile.in; use PQCPPFLAGS instead of
+	* modules/postgresql/Makefile.in: use PQCPPFLAGS instead of
 	CPPFLAGS to pass the result of --with-pq-prefix to CC
 	* modules/pari/configure.in: use AC_LIB_LINKFLAGS instead of
 	AC_LIB_LINKFLAGS_BODY
