@@ -36,6 +36,7 @@ This file presents
     Convex C2 running ConvexOS 10.1
     Atari ST/TT running MiNT
     DEC Alpha AXP running OSF/1 1.3 or OSF/1 2.0 or OSF/1 3.0
+    DEC Alpha AXP running OSF/1 3.2
     DEC Alpha AXP running OSF/1 4.0b
 * hints for porting to new platforms.
 
@@ -541,16 +542,15 @@ If cc had no bugs:
 Alas, cc and c89 initialize string arrays declared like
     static char* table[] = { 0?"a":1?"b":"", ..., 0?"x":1?"y":"", };
 with NULL pointers!
-
+On HP-UX 10, the compilation also fails with error messages like
+    "Catenated input line too long" and "Macro param too large".
 So get and install GNU gcc. This works for sure.
 
 If you get an error message "initialisation file was not created by this
 version of LISP", remove the "-O2" from CFLAGS in the makefile, remove spvw.o
 and continue.
 
-On HP-UX 9 and 10, "configure" detects that mmap() works, but not good enough
-for clisp's purposes. You would have to add -DNO_TRIVIALMAP to the CFLAGS in
-the makefile. But lispbibl.d now already takes care of this.
+The testsuite causes a failure because of ISQRT. A workaround is not known.
 
 
 On a HP9000/3xx under HP-UX version 8:
@@ -769,11 +769,19 @@ configuration time.)
 On OSF/1 3.0, mmap() works.
 
 
+On DEC Alpha AXP running OSF/1 3.2:
+
+The build process crashes during bootstrap, right after loading backquot.lsp.
+You'd better try with gcc.
+
+
 On DEC Alpha AXP running OSF/1 4.0b:
 
 cc has a preprocessor bug which occurs in spvw.d and eval.d. So get and
 install GNU gcc (version 2.5.5 or newer).
-The bug should be gone in OSF/1 4.0c.
+The bug should be gone in OSF/1 4.0c. But on OSF/1 4.0d, the preprocessor
+has another bug which occurs in pathname.d. So get and install GNU gcc
+for real.
 
 
 Hints for porting to new platforms:
