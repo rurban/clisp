@@ -229,7 +229,7 @@ ignored by the interpreter.</para>
 
 <section id="compile-decl"><title>Additional declarations</title>
 
-<para>The declaration <literal role="sexp">(compile)</literal> has the
+<para>The declaration <literal role="sexp">(COMPILE)</literal> has the
  effect that the current form is compiled prior to execution.
  Examples:
 <programlisting>
@@ -392,9 +392,9 @@ executes a compiled version of form.</para>
       <classname>SYSTEM-INTERNAL</classname></simpara></listitem>
  <listitem><simpara><classname>ADDRESS</classname> (should not
   occur)</simpara></listitem>
- <listitem><simpara>any other symbol (structure types or &clos;
+ <listitem><simpara>any other &symbol-t; (structure types or &clos;
   classes)</simpara></listitem>
- <listitem><simpara>a class (&clos; classes without proper
+ <listitem><simpara>a class object (&clos; classes without a proper
   name)</simpara></listitem>
 </itemizedlist>
 
@@ -558,7 +558,7 @@ executes a compiled version of form.</para>
           >[CLHS-5.3]</ulink></title>
 
 <formalpara id="fle"><title>Function &function-lambda-expression;</title>
-<para>The name of a &foreign-function; is a <emphasis>string</emphasis>
+<para>The &name-r; of a &foreign-function; is a <emphasis>string</emphasis>
 (the name of the underlying &c-lang; function), not a lisp
 <ulink url="&clhs;/Body/glo_f.html#function_name">function name</ulink>.
 </para></formalpara>

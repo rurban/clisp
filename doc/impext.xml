@@ -874,18 +874,18 @@ their corresponding byte vector representation according to that encoding.
 
 <variablelist>
 
-<varlistentry><term><literal role="sexp">
- (<function>EXT:CONVERT-STRING-FROM-BYTES</function>
-  <replaceable>byte-vector</replaceable> &encoding-r;
-  &key-amp; &start-k; &end-k;)</literal></term>
+<varlistentry><term><literal role="sexp"
+    >(<function>EXT:CONVERT-STRING-FROM-BYTES</function>
+      <replaceable>byte-vector</replaceable> &encoding-r;
+      &key-amp; &start-k; &end-k;)</literal></term>
  <listitem><simpara>converts the subsequence of
   <replaceable>byte-vector</replaceable> from &start-r; to &end-r; to a
   string, according to the given &encoding-r;, and returns the resulting
   string.</simpara></listitem></varlistentry>
 
-<varlistentry><term><literal role="sexp">
- (<function>EXT:CONVERT-STRING-TO-BYTES</function>
-  &string-r; &encoding-r; &key-amp; &start-k; &end-k;)</literal></term>
+<varlistentry><term><literal role="sexp"
+    >(<function>EXT:CONVERT-STRING-TO-BYTES</function>
+      &string-r; &encoding-r; &key-amp; &start-k; &end-k;)</literal></term>
  <listitem><simpara>converts the subsequence of &string-r; from
   &start-r; to &end-r; to a &unsigned-byte-vec;,
   according to the given &encoding-r;, and returns the resulting byte
@@ -2093,7 +2093,7 @@ within Lisp (using &setq; or similar).</simpara>
      &cplace-r; <replaceable>index&sub-1;</replaceable> ...
      <replaceable>index&sub-n;</replaceable>)</literal></term>
 <listitem><simpara>Array element: If &cplace-r; is of foreign type
-  <literal role="sexp">(c-array &ctype-r;
+  <literal role="type">(&c-array; &ctype-r;
   <replaceable>dim&sub-1;</replaceable>
   ... <replaceable>dim&sub-n;</replaceable>)</literal>
   and 0 &le; <replaceable>index&sub-1;</replaceable>
@@ -2105,7 +2105,7 @@ within Lisp (using &setq; or similar).</simpara>
   ... <replaceable>index&sub-n;</replaceable>)</literal> or
   <varname>&cplace-r;[<replaceable>index&sub-1;</replaceable>]...[<replaceable>index&sub-n;</replaceable>]</varname>.
   It is a place of type &ctype-r;.
-  If &cplace-r; is of foreign type <literal role="sexp">(&c-array-max;
+  If &cplace-r; is of foreign type <literal role="type">(&c-array-max;
   &ctype-r; <replaceable>dim</replaceable>)</literal> and 0 &le;
   <replaceable>index</replaceable> &lt; <replaceable>dim</replaceable>,
   this will be the place corresponding to <literal role="sexp">(&aref;
@@ -2118,20 +2118,20 @@ within Lisp (using &setq; or similar).</simpara>
                 &cplace-r;)</literal></term>
 <listitem><simpara>Dereference pointer: If
   &cplace-r; is of foreign type
-  <literal role="sexp">(&c-ptr; &ctype-r;)</literal> or
-  <literal role="sexp">(&c-ptr-null; &ctype-r;)</literal>,
+  <literal role="type">(&c-ptr; &ctype-r;)</literal> or
+  <literal role="type">(&c-ptr-null; &ctype-r;)</literal>,
   this will be the place the pointer points to.
   It is a place of type &ctype-r;.
-  For <literal role="sexp">(&c-ptr-null; &ctype-r;)</literal>,
+  For <literal role="type">(&c-ptr-null; &ctype-r;)</literal>,
   the &cplace-r; may not be &c-NULL;.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="slot"><term><literal role="sexp">(&slot;
        &cplace-r; <replaceable>slot-name</replaceable>)</literal></term>
 <listitem><simpara>Struct or union component: If &cplace-r; is of
-  foreign type <literal role="sexp">(&c-struct; &class-r;
+  foreign type <literal role="type">(&c-struct; &class-r;
   ... (<replaceable>slot-name</replaceable> &ctype-r;) ...)</literal> or
-  of type <literal role="sexp">(&c-union;
+  of type <literal role="type">(&c-union;
   ... (<replaceable>slot-name</replaceable> &ctype-r;) ...)</literal>,
   this will be of type &ctype-r;.
   </simpara></listitem></varlistentry>
@@ -2148,7 +2148,7 @@ within Lisp (using &setq; or similar).</simpara>
   a memory locations displaced from the original &cplace-r; by an
   &offset-r; counted in bytes, with type &ctype-r;.
   This can be used to resize an array, e.g. of &ctype-r;
-  <literal role="sexp">(&c-array; <type>uint16</type> &n-r;)</literal>
+  <literal role="type">(&c-array; <type>uint16</type> &n-r;)</literal>
   via <literal role="sexp">(&offset; &cplace-r; 0
   '(&c-array; <type>uint16</type> &k-r;))</literal>.
  </simpara></listitem></varlistentry>
@@ -2166,8 +2166,8 @@ within Lisp (using &setq; or similar).</simpara>
   </simpara></listitem></varlistentry>
 
 <varlistentry id="sizeof">
-  <term><literal role="sexp">(&sizeof; &ctype-r;)</literal>,
-        <literal role="sexp">(&sizeof; &cplace-r;)</literal></term>
+  <term><literal role="sexp">(&sizeof; &ctype-r;)</literal></term>
+  <term><literal role="sexp">(&sizeof; &cplace-r;)</literal></term>
 <listitem><simpara>The first form returns the size and alignment of a
   &c-lang; type &ctype-r;, measured in bytes.</simpara>
   <simpara>The second form returns the size and alignment of the
@@ -2175,8 +2175,8 @@ within Lisp (using &setq; or similar).</simpara>
   </simpara></listitem></varlistentry>
 
 <varlistentry id="bitsizeof">
-  <term><literal role="sexp">(&bitsizeof; &ctype-r;)</literal>,
-        <literal role="sexp">(&bitsizeof; &cplace-r;)</literal></term>
+  <term><literal role="sexp">(&bitsizeof; &ctype-r;)</literal></term>
+  <term><literal role="sexp">(&bitsizeof; &cplace-r;)</literal></term>
 <listitem><simpara>The first form returns the size and alignment of the
   &c-lang; type &ctype-r;, measured in bits.</simpara>
   <simpara>The second form returns the size and alignment of the
@@ -2210,7 +2210,7 @@ within Lisp (using &setq; or similar).</simpara>
   <simpara>When <replaceable>initarg</replaceable> is not supplied,
   they allocate space only for <literal role="sexp">(&sizeof;
   &ctype-r;)</literal> bytes.  This space is filled with zeroes.  E.g.,
-  using a &ctype-r; of &c-string; or even <literal role="sexp">(&c-ptr;
+  using a &ctype-r; of &c-string; or even <literal role="type">(&c-ptr;
   (&c-array; <type>uint8</type> 32))</literal> (!) both allocate place
   for a single pointer, initialized to &c-NULL;.</simpara>
   <para>When <replaceable>initarg</replaceable> is supplied, they
@@ -2310,7 +2310,7 @@ classes.</para>
   a string, without the trailing zero character.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="c-struct"><term><literal role="sexp">(&c-struct; &class-r;
+<varlistentry id="c-struct"><term><literal role="type">(&c-struct; &class-r;
   (<replaceable>ident&sub-1;</replaceable>
    <replaceable>c-type&sub-1;</replaceable>) ...
   (<replaceable>ident&sub-n;</replaceable>
@@ -2327,7 +2327,7 @@ classes.</para>
  ... ,<replaceable>ident&sub-n;</replaceable>.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="c-union"><term><literal role="sexp">(&c-union;
+<varlistentry id="c-union"><term><literal role="type">(&c-union;
   (<replaceable>ident&sub-1;</replaceable>
    <replaceable>c-type&sub-1;</replaceable>) ...
   (<replaceable>ident&sub-n;</replaceable>
@@ -2342,7 +2342,7 @@ classes.</para>
   being of <replaceable>c-type&sub-1;</replaceable>.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="c-array"><term><literal role="sexp">(&c-array;
+<varlistentry id="c-array"><term><literal role="type">(&c-array;
    &ctype-r; <replaceable>dim&sub-1;</replaceable> ...
    <replaceable>dim&sub-n;</replaceable>)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
@@ -2350,10 +2350,10 @@ classes.</para>
   ... [<replaceable>dim&sub-n;</replaceable>]</type>.
   Note that when an array is passed as an argument to a function in
   &c-lang;, it is actually passed as a pointer; you therefore have to
-  write <literal role="sexp">(&c-ptr; (&c-array; ...))</literal> for this
+  write <literal role="type">(&c-ptr; (&c-array; ...))</literal> for this
   argument's type.</simpara></listitem></varlistentry>
 
-<varlistentry id="c-array-max"><term><literal role="sexp">(&c-array-max;
+<varlistentry id="c-array-max"><term><literal role="type">(&c-array-max;
   &ctype-r; &maxdim-r;)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
   <type>&ctype-r; [&maxdim-r;]</type>, an array containing up to
@@ -2364,7 +2364,7 @@ classes.</para>
   </simpara></listitem></varlistentry>
 
 <varlistentry id="c-function"><term><literal
-   role="sexp">(&c-function; (&arguments-k;
+   role="type">(&c-function; (&arguments-k;
       {(<replaceable>arg-name</replaceable> <replaceable>a-c-type</replaceable>
         [&param-mode; [&allocation;]])}*)
     (<constant>:return-type</constant> <replaceable>r-c-type</replaceable>
@@ -2377,21 +2377,21 @@ classes.</para>
   Conversion between &c-lang; functions and Lisp functions
   is transparent.</simpara></listitem></varlistentry>
 
-<varlistentry id="c-ptr"><term><literal role="sexp">(&c-ptr;
+<varlistentry id="c-ptr"><term><literal role="type">(&c-ptr;
               &ctype-r;)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
   <type>&ctype-r; *</type>: a pointer to a single item of the given
   &ctype-r;.</simpara></listitem></varlistentry>
 
 <varlistentry id="c-ptr-null"><term><literal
-   role="sexp">(&c-ptr-null; &ctype-r;)</literal></term>
+   role="type">(&c-ptr-null; &ctype-r;)</literal></term>
  <listitem><simpara>This type is also equivalent to what &c-lang; calls
   <type>&ctype-r; *</type>: a pointer to a single item of the given
   &ctype-r;, with the exception that &c-lang; &c-NULL; corresponds to
   Lisp &nil;.</simpara></listitem></varlistentry>
 
 <varlistentry id="c-array-ptr"><term><literal
-   role="sexp">(&c-array-ptr; &ctype-r;)</literal></term>
+   role="type">(&c-array-ptr; &ctype-r;)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
   <type>&ctype-r; (*)[]</type>: a pointer to a zero-terminated array of
   items of the given &ctype-r;.</simpara></listitem></varlistentry>
@@ -2403,7 +2403,7 @@ classes.</para>
 <para>&c-function;, &def-call-in;, &def-call-out; take &lang-k; argument.
 The &lang-r; is either &c-k; (denotes K&amp;R &c-lang;) or &stdc-k;
 (denotes ANSI &c-lang;) or &stdc-sc-k; (denotes ANSI &c-lang;
-with <emphasis>stdcall</emphasis> calling convention).
+with the <emphasis>stdcall</emphasis> calling convention).
 It specifies whether the &c-lang; function (caller or callee) has been
 compiled by a K&amp;R &c-lang; compiler or by an ANSI &c-lang; compiler,
 and possibly the calling convention.</para>
