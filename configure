@@ -202,6 +202,9 @@ else
 fi
 rm -f conftest*
 
+# get the absolute pathname from a possibly relative one
+abs_pwd () { cd "$1" > /dev/null; pwd; }
+
 # link FILE1 FILE2  is like `ln', but chooses the cheapest alternative:
 # hard link if FILE1 and FILE2 on the same disk, else symbolic link if the
 # system supports that, else file copy.
@@ -213,7 +216,7 @@ else
   srcfile_dirname=`echo "$1" | sed -e 's,/[^/]*$,,'`
   test -n "$srcfile_dirname" || srcfile_dirname='/'
   srcfile_basename=`echo "$1" | sed -e 's,^.*/,,'`
-  srcfile_absdirname=`cd "$srcfile_dirname"; pwd`
+  srcfile_absdirname=`abs_pwd "$srcfile_dirname"`
   if ln -s "$srcfile_absdirname/$srcfile_basename" "$2" 2>/dev/null; then
     :
   else
@@ -232,13 +235,15 @@ else
   ABSPATHPWD=pwd
 fi
 
+abs_path_pwd () { cd "$1" > /dev/null; ${ABSPATHPWD}; }
+
 INPLACE=''
 if test -n "$srcdir" ; then
   if test ! -d "$srcdir" ; then
     echo "$0: srcdir: ($srcdir) nonexistent" 1>&2
     exit 1
   fi
-  ABS_SRCDIR=`cd "$srcdir"; pwd`
+  ABS_SRCDIR=`abs_pwd "$srcdir"`;
   if [ "$DIRNAME" = "" ] ; then
     DIRNAME='.'
   fi
@@ -249,14 +254,14 @@ if test -n "$srcdir" ; then
 else
   if test -f ./ANNOUNCE -a -f ./SUMMARY; then
     srcdir='.'
-    ABS_SRCDIR=`cd "$srcdir"; pwd`
+    ABS_SRCDIR=`abs_pwd "$srcdir"`
     if [ "$DIRNAME" = "" ] ; then
       DIRNAME=src
     fi
   else
     if test -f ../ANNOUNCE -a -f ../SUMMARY; then
       srcdir='..'
-      ABS_SRCDIR=`cd "$srcdir"; pwd`
+      ABS_SRCDIR=`abs_pwd "$srcdir"`
       if [ "$DIRNAME" = "" ] ; then
         DIRNAME='.'
       fi
@@ -268,14 +273,14 @@ else
   if [ ! -d $DIRNAME ] ; then
     mkdir $DIRNAME
   fi
-  if test `cd "$DIRNAME"/..; $ABSPATHPWD` = `cd "$srcdir"; $ABSPATHPWD` ; then
+  if test `abs_path_pwd "$DIRNAME"` = `abs_path_pwd "$srcdir"` ; then
     REL_SRCDIR='..'
   else
     REL_SRCDIR="$ABS_SRCDIR"
   fi
 fi
-ABS_DIRNAME=`cd "$DIRNAME"; pwd`
-if test `cd "$DIRNAME"; $ABSPATHPWD` = `cd "$srcdir"/src; $ABSPATHPWD` ; then
+ABS_DIRNAME=`abs_pwd "$DIRNAME"`;
+if test `abs_path_pwd "$DIRNAME"` = `abs_path_pwd "$srcdir"/src` ; then
   INPLACE=yes
 fi
 case "$REL_SRCDIR" in
@@ -344,13 +349,13 @@ if test -n "$do_config"; then
   # Create subdirectories for the modules parts, and fill them.
   # The modules outright assumes that $(srcdir)='.', hence all files need to
   # be linked over.
-  #for subdir in `cd modules ; find . -type d -print`
+  #for subdir in `cd modules > /dev/null ; find . -type d -print`
   #do
   #  if [ ! -d $ABS_DIRNAME/$f ] ; then
   #    mkdir $ABS_DIRNAME/$f
   #  fi
   #done
-  #for f in `cd modules ; find . '!' -type d -print`
+  #for f in `cd modules > /dev/null ; find . '!' -type d -print`
   #do
   #  rm -f $ABS_DIRNAME/$f
   #  link $f $ABS_DIRNAME/$f

@@ -249,7 +249,7 @@ while test -z "$endofargs"; do
               file:*) arg=`echo "$arg" | sed -e 's,^file:,,'` ;;
             esac
             if test -d "$arg" -a -d "$arg/FrontMatter" ; then
-              hyperspec="file:"`cd "$arg" && pwd`
+              hyperspec="file:"`cd "$arg" > /dev/null && pwd`
             else
               echo "makemake: --hyperspec=${arg} argument ignored, does not point to the Common Lisp HyperSpec" 1>&2
             fi

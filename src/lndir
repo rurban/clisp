@@ -31,7 +31,7 @@ else
   srcfile_dirname=`echo "$1" | sed -e 's,/[^/]*$,,'`
   test -n "$srcfile_dirname" || srcfile_dirname='/'
   srcfile_basename=`echo "$1" | sed -e 's,^.*/,,'`
-  srcfile_absdirname=`cd "$srcfile_dirname"; pwd`
+  srcfile_absdirname=`cd "$srcfile_dirname" > /dev/null; pwd`
   ln -s "$srcfile_absdirname/$srcfile_basename" "$2" 2>/dev/null ||
     ln "$srcfile_absdirname/$srcfile_basename" "$2" 2>/dev/null ||
     cp -p "$srcfile_absdirname/$srcfile_basename" "$2"
@@ -44,7 +44,7 @@ fi
 mkdirparent () {
 DIR="$1"
 DIR=`echo "$DIR" | sed -e 's,/*$,,'`
-defaultIFS=' 	
+defaultIFS='
 '
 IFS="${IFS-${defaultIFS}}"
 oIFS="${IFS}"
@@ -72,12 +72,12 @@ fi
 
 mkdirparent "$DST"
 
-for f in `cd "$SRC" ; find . -type d -print`; do
+for f in `cd "$SRC" > /dev/null ; find . -type d -print`; do
   dir="$DST"`echo "$f" | sed -e 's,^\.,,'`;
   test -d "${dir}" || mkdir "${dir}"
 done
 
-for f in `cd "$SRC" ; find . -type f -print`; do
+for f in `cd "$SRC" > /dev/null ; find . -type f -print`; do
   f=`echo "$f" | sed -e 's,^\./,,'`
   link "$SRC"/"$f" "$DST"/"$f"
 done
