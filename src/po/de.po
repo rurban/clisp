@@ -3285,7 +3285,7 @@ msgstr "~S: Eine Datei mit Namen ~A gibt es nicht."
 
 #: init.lisp:1348
 msgid "Loading file "
-msgstr "Datei "
+msgstr "Lade Datei "
 
 #: init.lisp:1383 defs1.lisp:424
 msgid "Loaded file "
