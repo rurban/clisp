@@ -1,5 +1,10 @@
 2003-07-08  Sam Steingold  <sds@gnu.org>
 
+	* m4/filecharset.m4: avloid ":" on __MINGW32__
+	just like we do with __CYGWIN32__
+
+2003-07-08  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-MAP-on-CARs, c-MAP-on-LISTs): fixed the
 	2003-02-09 patch: avoid bytecode duplication
 

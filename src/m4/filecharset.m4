@@ -79,7 +79,7 @@ changequote(,)dnl
 #define N 256
 int main ()
 {
-#ifdef __CYGWIN32__
+#if defined(__CYGWIN32__) || defined(__MINGW32__)
   /* The test below would cause a dialog box to pop up (ch == ':'),
      and create files which cause "rm -rf conftest*" to hang
      (ch == '"') || (ch == '<') || (ch == '>') || (ch == 197) || (ch == 206).
