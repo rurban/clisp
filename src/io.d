@@ -1,7 +1,7 @@
 # Input/Output for CLISP
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2002
 # Marcus Daniels 11.3.1997
-# Sam Steingold 1998-2001
+# Sam Steingold 1998-2002
 # German comments translated into English: Stefan Kain 2001-06-12
 
 #include "lispbibl.c"
@@ -9012,6 +9012,9 @@ local void pr_orecord (const object* stream_, object obj) {
       break;
 #endif
 #ifdef DYNAMIC_FFI
+  # see macro Faddress_value() in lispbibl.d:
+  #define Fpointer_value_no_check(obj) \
+    ((uintP)TheFpointer(TheFaddress(obj)->fa_base)->fp_pointer + TheFaddress(obj)->fa_offset)
     case Rectype_Faddress: # #<FOREIGN-ADDRESS #x...>
       CHECK_PRINT_READABLY(obj);
       LEVEL_CHECK;
@@ -9030,9 +9033,8 @@ local void pr_orecord (const object* stream_, object obj) {
           if (length >= length_limit) goto faddress_end;
           JUSTIFY_SPACE; # print Space
           JUSTIFY_LAST(true);
-          # print Address, ref. Macro Faddress_value():
-          pr_hex8(stream_,(uintP)TheFpointer(TheFaddress(*obj_)->fa_base)->fp_pointer
-                  +  TheFaddress(*obj_)->fa_offset);
+          # print Address:
+          pr_hex8(stream_,Fpointer_value_no_check(*obj_));
           length++; # increase previous length
         }
       faddress_end:
@@ -9051,6 +9053,8 @@ local void pr_orecord (const object* stream_, object obj) {
         UNREADABLE_START;
         var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
         JUSTIFY_LAST(length_limit==0);
+        if (!fp_validp(TheFpointer(TheFaddress(TheFvariable(*obj_)->fv_address)->fa_base)))
+          write_sstring_case(stream_,O(printstring_invalid)); # "INVALID "
         write_sstring_case(stream_,O(printstring_fvariable)); # FOREIGN-VARIABLE
         {
           var uintL length = 0; # previous length := 0
@@ -9067,7 +9071,8 @@ local void pr_orecord (const object* stream_, object obj) {
           }
           JUSTIFY_LAST(true);
           # print Address:
-          pr_hex8(stream_,(uintP)Faddress_value(TheFvariable(*obj_)->fv_address));
+          var object faddress = TheFvariable(*obj_)->fv_address;
+          pr_hex8(stream_,Fpointer_value_no_check(faddress));
           length++; # increase previous length
         }
       fvariable_end:
@@ -9086,6 +9091,8 @@ local void pr_orecord (const object* stream_, object obj) {
         UNREADABLE_START;
         var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
         JUSTIFY_LAST(length_limit==0);
+        if (!fp_validp(TheFpointer(TheFaddress(TheFfunction(*obj_)->ff_address)->fa_base)))
+          write_sstring_case(stream_,O(printstring_invalid)); # "INVALID "
         write_sstring_case(stream_,O(printstring_ffunction)); # FOREIGN-FUNCTION
         {
           var uintL length = 0; # previous length := 0
@@ -9102,7 +9109,8 @@ local void pr_orecord (const object* stream_, object obj) {
           }
           JUSTIFY_LAST(true);
           # print Address:
-          pr_hex8(stream_,(uintP)Faddress_value(TheFfunction(*obj_)->ff_address));
+          var object faddress = TheFfunction(*obj_)->ff_address;
+          pr_hex8(stream_,Fpointer_value_no_check(faddress));
           length++; # increase previous length
         }
       ffunction_end:
@@ -9112,6 +9120,7 @@ local void pr_orecord (const object* stream_, object obj) {
       }
       LEVEL_END;
       break;
+  #undef Fpointer_value_no_check
 #endif
     case Rectype_Weakpointer: # #<WEAK-POINTER value> or #<BROKEN WEAK-POINTER>
       CHECK_PRINT_READABLY(obj);
