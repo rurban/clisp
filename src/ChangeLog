@@ -2,6 +2,12 @@
 
 	* modules/berkeley-db/dbi.lisp (CLOSE):
 	define methods for ENV, DB and CURSOR
+	* modules/berkeley-db/bdb.c (BDB:ENV-CLOSE, BDB:CURSOR-CLOSE)
+	(BDB:DB-CLOSE): reset the Fpointer value and return a value,
+	do not crash on repeated calls
+	(wrap_finalize): new function
+	(BDB:ENV-CREATE, BDB:DB-CREATE, BDB:MAKE-CURSOR, BDB:CURSOR-DUP):
+	use it to close ENV, DB & CURSOR objects on GC
 
 2004-06-21  Sam Steingold  <sds@gnu.org>
 
