@@ -760,7 +760,7 @@ global int main()
 # printf("#define Fixnum_1  fixnum(1)\n");
 # printf2("#define Fixnum_minus1  type_data_object(%d,%x)\n",(tint)(fixnum_type | bit(sign_bit_t)),(aint)(bitm(oint_data_len)-1));
   #if !(defined(SPARC) && (oint_data_len+oint_data_shift<32))
-    printf2("#define posfixnum_to_L(obj)  ((uintL)((as_oint(obj)&%x)>>%d))\n",(oint)(wbitm(oint_data_len+oint_data_shift)-1),oint_data_shift);
+    printf2("#define posfixnum_to_L(obj)  ((uintL)((as_oint(obj)&%x)>>%d))\n",(oint)wbitm(oint_data_len+oint_data_shift)-1,oint_data_shift);
   #else
     printf("#define posfixnum_to_L(obj)  ((uintL)((as_oint(obj) << %d) >> %d))\n",32-oint_data_len-oint_data_shift,32-oint_data_len);
   #endif

@@ -4794,7 +4794,7 @@ typedef symbol_ *  Symbol;
 # Ergebnis ist >= 0, < 2^oint_data_len.
   #if !(defined(SPARC) && (oint_data_len+oint_data_shift<32))
     #define posfixnum_to_L(obj)  \
-      ((uintL)((as_oint(obj)&(wbitm(oint_data_len+oint_data_shift)-1))>>oint_data_shift))
+      ((uintL)((as_oint(obj)&((oint)wbitm(oint_data_len+oint_data_shift)-1))>>oint_data_shift))
   #else
     # Auf einem SPARC-Prozessor sind lange Konstanten langsamer als Shifts:
     #define posfixnum_to_L(obj)  \
@@ -4827,7 +4827,7 @@ typedef symbol_ *  Symbol;
     #if !defined(SPARC)
       #define fixnum_to_L(obj)  \
         (sintL)( ((((sintL)as_oint(obj) >> sign_bit_o) << (intLsize-1)) >> (intLsize-1-oint_data_len)) \
-                |((uintL)((as_oint(obj) & (wbitm(oint_data_len+oint_data_shift)-1)) >> oint_data_shift)) \
+                |((uintL)((as_oint(obj) & ((oint)wbitm(oint_data_len+oint_data_shift)-1)) >> oint_data_shift)) \
                )
     #else
       # Auf einem SPARC-Prozessor sind lange Konstanten langsamer als Shifts:
