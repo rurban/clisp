@@ -132,4 +132,4 @@ X
         (eval (get-macro 1234 5678 :double))
         env))
 #+:enable-risky-tests
-(1234 5678 12 2468 54)
+(1234 5678 12 2468 64)
