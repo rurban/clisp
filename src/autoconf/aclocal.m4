@@ -4329,8 +4329,33 @@ rm -f conftest*
 if test "$cl_cv_cplusplus_ctorprefix" '!=' unknown; then
   ac_value='"'"$cl_cv_cplusplus_ctorprefix"'"'
   AC_DEFINE_UNQUOTED(CL_GLOBAL_CONSTRUCTOR_PREFIX,$ac_value)
-  ac_value=`echo "$ac_value" | sed -e 's,I,D,'`
-  AC_DEFINE_UNQUOTED(CL_GLOBAL_DESTRUCTOR_PREFIX,$ac_value)
+AC_CACHE_CHECK(for the global destructors function prefix,
+cl_cv_cplusplus_dtorprefix, [
+cat > conftest.cc << EOF
+struct foo { foo (); ~ foo (); };
+foo foobar;
+EOF
+# look for the assembly language name in the .s file
+AC_TRY_COMMAND(${CXX-g++} $CXXFLAGS -S conftest.cc) >/dev/null 2>&1
+if grep '_GLOBAL_\$D\$foobar' conftest.s >/dev/null ; then
+  cl_cv_cplusplus_dtorprefix='_GLOBAL_$D$'
+else
+  if grep '_GLOBAL_\.D\.foobar' conftest.s >/dev/null ; then
+    cl_cv_cplusplus_dtorprefix='_GLOBAL_.D.'
+  else
+    if grep '_GLOBAL__D_foobar' conftest.s >/dev/null ; then
+      cl_cv_cplusplus_dtorprefix='_GLOBAL__D_'
+    else
+      cl_cv_cplusplus_dtorprefix=none
+    fi
+  fi
+fi
+rm -f conftest*
+])
+  if test "$cl_cv_cplusplus_dtorprefix" '!=' none; then
+    ac_value='"'"$cl_cv_cplusplus_ctorprefix"'"'
+    AC_DEFINE_UNQUOTED(CL_GLOBAL_DESTRUCTOR_PREFIX,$ac_value)
+  fi
 dnl Check whether the global constructors/destructors functions are file-scope
 dnl only by default. This is the case in egcs-1.1.2 or newer.
 AC_CACHE_CHECK(whether the global constructors function need to be exported,
