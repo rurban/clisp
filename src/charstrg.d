@@ -424,22 +424,6 @@ static const cint nop_page[256] = {
       #endif
     }
 
-#if defined(WIN32_NATIVE) && defined(UNICODE)
-# Copies an array of chart to an array of wchar.
-# n_chart_to_wchar(src,dest,len);
-# > chart* src: characters
-# > wchar* dest: room for characters
-# > uintL len: number of characters to be copied, > 0
-  global void n_chart_to_wchar (const chart* src, wchar* dest, uintL len);
-  global void n_chart_to_wchar(src,dest,len)
-    var const chart* src;
-    var wchar* dest;
-    var uintL len;
-    { # This assumes that `wchar' is at least as large as `cint' (16 bit).
-      dotimespL(len,len, { *dest++ = as_cint(*src++); } );
-    }
-#endif
-
 # Copies an array of chart to an array of chart.
 # chartcopy(src,dest,len);
 # > chart* src: characters

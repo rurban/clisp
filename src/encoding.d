@@ -1450,20 +1450,6 @@ LISPFUNN(charset_range,3)
         return obj;
       }
   #endif
-  #if defined(WIN32_NATIVE) && defined(UNICODE)
-    global object n_wchar_to_string_ (const wchar* srcptr, uintL len);
-    global object n_wchar_to_string_(srcptr,len)
-      var const wchar* srcptr;
-      var uintL len;
-      { var object obj = allocate_string(len); # String allozieren
-        if (len > 0)
-          { var chart* ptr = &TheSstring(obj)->data[0];
-            # Zeichenfolge von srcptr nach ptr kopieren:
-            dotimespL(len,len, { *ptr++ = as_chart(*srcptr++); } );
-          }
-        return obj;
-      }
-  #endif
 
 # UP: Wandelt einen ASCIZ-String in einen LISP-String um.
 # asciz_to_string(asciz,encoding)
@@ -1484,12 +1470,6 @@ LISPFUNN(charset_range,3)
     global object asciz_to_string_(asciz)
       var const char* asciz;
       { return n_char_to_string_(asciz,asciz_length(asciz)); }
-  #endif
-  #if defined(WIN32_NATIVE) && defined(UNICODE)
-    global object wasciz_to_string_ (const wchar * asciz);
-    global object wasciz_to_string_(asciz)
-      var const wchar* asciz;
-      { return n_wchar_to_string_(asciz,wasciz_length(asciz)); }
   #endif
   global object ascii_to_string (const char * asciz);
   global object ascii_to_string(asciz)
