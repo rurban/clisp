@@ -4795,7 +4795,7 @@ Compiled, it will have inlined the library function calls.
 <listitem><para>On &unix;, a text file (&fasl-file; or &lisp-file;) can
  be made executable by adding a first line of the form
  <programlisting>#!&interp-r; [&interp-args;]</programlisting>
- and using &chmod; to make the script executable.
+ and using &chmod-u; to make the script executable.
  &clisp; can be used as a script interpreter under the following
  circumstances:</para>
 
