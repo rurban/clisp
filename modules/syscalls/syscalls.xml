@@ -251,6 +251,19 @@
  <varlistentry><term><literal role="sexp">(OS:VERSION)</literal></term>
   <listitem><simpara>Return &win32; version information in a
     <type>VERSION</type> structure.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(POSIX:CRYPT &key-r;
+    <replaceable>salt</replaceable>)</literal></term>
+  <listitem><simpara>Call &crypt;, arguments are &string-t;s.
+ </simpara></listitem></varlistentry>
+ <varlistentry>
+  <term><literal role="sexp">(POSIX:ENCRYPT <replaceable>block</replaceable>
+    <replaceable>decrypt-p</replaceable>)</literal></term>
+  <term><literal role="sexp">(POSIX:SETKEY &key-r;)</literal></term>
+  <listitem><simpara>Call &encrypt; and &setkey;, respectively.
+    <replaceable>block</replaceable> and &key-r; are of type
+    <literal role="type">(&vector; (&unsigned-byte; 8) 8)</literal>.
+    <replaceable>decrypt-p</replaceable> is &boolean-t;.
+ </simpara></listitem></varlistentry>
 </variablelist>
 
 </section>

@@ -3174,7 +3174,7 @@ pointing to non-existent files and can take the following values:
 <!-- #endif -->
    </simpara></listitem></varlistentry>
 <!-- #endif -->
-  <varlistentry><term>slot <replaceable>key</replaceable></term>
+  <varlistentry><term>slot &key-r;</term>
     <listitem><para>the key name, for non-standard keys:
       <variablelist>
 <!-- #if defined(UNIX) || defined(WIN32) -->

@@ -1,5 +1,11 @@
 2004-04-27  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (CRYPT, ENCRYPT, SETKEY): implemented
+	(get_block, set_block): helpers for ENCRYPT and SETKEY
+	* modules/syscalls/posix.lisp (crypt, encrypt, setkey) [UNIX]: export
+
+2004-04-27  Sam Steingold  <sds@gnu.org>
+
 	* loop.lisp (expand-loop): fixed last patch: pattern may be NIL
 
 2004-04-27  Kaz Kylheku  <kaz@ashi.footprints.net>

@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for syscalls
-dnl Copyright (C) 2003  Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2003-2004  Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -20,7 +20,7 @@ AC_CHECK_HEADERS(shlobj.h)
 if test "$ac_cv_header_shlobj_h" = yes ; then
    LIBS=${LIBS}' -luser32 -lole32 -luuid';
 fi
-AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/vfs.h sys/types.h)
+AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/vfs.h sys/types.h crypt.h)
 AC_MSG_CHECKING([whether f_fsid is scalar])
 AC_TRY_COMPILE([#include <sys/statvfs.h>], [struct statvfs x; x.f_fsid = 0;],
   ac_cv_struct_fsid_scalar=yes, ac_cv_struct_fsid_scalar=no)
@@ -37,6 +37,8 @@ AC_CHECK_FUNCS(fchmod fchown fstat link lstat stat symlink utimes)
 AC_CHECK_FUNCS(erf erfc lgamma lgamma_r)
 AC_CHECK_FUNCS(fstatvfs statvfs)
 AC_CHECK_DECLS(signgam, , , [#include <math.h>] )
+AC_SEARCH_LIBS(crypt, crypt)
+AC_CHECK_FUNCS(crypt encrypt setkey)
 
 AC_MSG_NOTICE([ * System Calls (output)])
 AC_CONFIG_FILES(Makefile link.sh)
