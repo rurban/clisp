@@ -38,6 +38,7 @@
 (load "clos-slotdef3")
 (load "clos-specializer3")
 (load "clos-class6")
+(load "clos-method4")
 (load "clos-print")
 (load "documentation")
 
