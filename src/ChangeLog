@@ -1,8 +1,7 @@
 2002-05-21  Sam Steingold  <sds@gnu.org>
 
 	* encoding.d (MAKE-ENCODING): when the iconv charset is already
-	built-in, use it if the name is given in UPPER case (to let the
-	user a way to access iconv nevertheless)
+	built-in use it instead of iconv
 	(ENCODING-CHARSET): new function
 	* constsym.d, subr.d: added encoding_charset
 	* init.lisp: export ENCODING-CHARSET
