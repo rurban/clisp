@@ -31,7 +31,6 @@
 <!ENTITY both-k "<constant>:BOTH</constant>">
 <!ENTITY c-k "<constant>:C</constant>">
 <!ENTITY c-NULL "<constant>NULL</constant>">
-<!ENTITY case-inverted-k "<constant>:CASE-INVERTED</constant>">
 <!ENTITY class-k "<constant>:CLASS</constant>">
 <!ENTITY compiling-k "<constant>:COMPILING</constant>">
 <!ENTITY control-k "<constant>:CONTROL</constant>">
@@ -137,6 +136,8 @@
 <!ENTITY affi-pac "<link linkend='affi'><quote role='package'>AFFI</quote></link>">
 <!ENTITY charset-pac "<link linkend='encoding'><quote role='package'>CHARSET</quote></link>">
 <!ENTITY clos-pac "<link linkend='classes'><quote role='package'>CLOS</quote></link>">
+<!ENTITY cs-cl "<olink targetdoc='impnotes' targetptr='package-case'><quote role='package'>CS-COMMON-LISP</quote></olink>">
+<!ENTITY cs-clu "<olink targetdoc='impnotes' targetptr='cs-clu'><quote role='package'>CS-COMMON-LISP-USER</quote></olink>">
 <!ENTITY custom-pac "<link linkend='customize'><quote role='package'>CUSTOM</quote></link>">
 <!ENTITY ext-pac "<link linkend='ext-pac'><quote role='package'>EXT</quote></link>">
 <!ENTITY ffi-pac "<link linkend='dffi'><quote role='package'>FFI</quote></link>">
@@ -164,6 +165,7 @@
 <!ENTITY browsers "<link linkend='browser'><constant>CUSTOM:*BROWSERS*</constant></link>">
 <!ENTITY buffered "<link linkend='buffered'><constant>:BUFFERED</constant></link>">
 <!ENTITY byte-t "<link linkend='byte-type'><type>BYTE</type></link>">
+<!ENTITY case-inverted-k "<link linkend='package-case'><constant>:CASE-INVERTED</constant></link>">
 <!ENTITY case-sensitive-k "<link linkend='package-case'><constant>:CASE-SENSITIVE</constant></link>">
 <!ENTITY cd "<link linkend='cd'><function>EXT:CD</function></link>">
 <!ENTITY ch-ctrl "<link linkend='char-bits'><constant>EXT:CHAR-CONTROL-BIT</constant></link>">
@@ -264,6 +266,7 @@
 <!ENTITY opt-L "<option><olink targetdoc='man' targetptr='opt-lang'>-L</olink></option>">
 <!ENTITY opt-M "<option><olink targetdoc='man' targetptr='opt-memfile'>-M</olink></option>">
 <!ENTITY opt-v "<option><olink targetdoc='man' targetptr='opt-verbose'>-v</olink></option>">
+<!ENTITY opt-modern "<option><olink targetdoc='man' targetptr='opt-modern'>-modern</olink></option>">
 <!ENTITY package-lock "<link linkend='pack-lock'><function>EXT:PACKAGE-LOCK</function></link>">
 <!ENTITY without-package-lock "<link linkend='without-pack-lock'><function>EXT:WITHOUT-PACKAGE-LOCK</function></link>">
 <!ENTITY parsedot "<link linkend='name-type-split'><varname>CUSTOM:*PARSE-NAMESTRING-DOT-FILE*</varname></link>">
