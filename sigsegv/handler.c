@@ -917,6 +917,9 @@ void stackoverflow_deinstall_handler (void)
  * extern DWORD GetLastError (void);
  */
 
+/* User's SIGSEGV handler. */
+static sigsegv_handler_t user_handler = (sigsegv_handler_t)NULL;
+
 /*
  * Stack overflow handling is tricky:
  * First, we must catch a STATUS_STACK_OVERFLOW exception. This is signalled
