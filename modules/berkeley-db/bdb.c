@@ -128,7 +128,7 @@ static void env_set_encryption (DB_ENV *dbe, gcv_object_t *o_flags_,
                                 gcv_object_t *o_password_) {
   u_int32_t flags = env_encryption_check(*o_flags_);
   *o_password_ = check_string(*o_password_);
-  with_string_0(o_password_,GLO(misc_encoding),password,
+  with_string_0(*o_password_,GLO(misc_encoding),password,
                 { SYSCALL(dbe->set_encrypt,(dbe,password,flags)); });
 }
 
@@ -637,8 +637,6 @@ DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
  DB->associate	Associate a secondary index
  DB->err	Error message with error string
  DB->errx	Error message
- DB->join	Perform a database join on cursors
- DB->key_range	Return estimate of key location
  DB->verify	Verify/salvage a database
 */
 
@@ -979,6 +977,22 @@ DEFUN(BDB:DB-JOIN, db cursors &key :JOIN_NOSORT)
   }
   SYSCALL(db->join,(db,curslist,&dbc,flags));
   wrap_finalize(dbc,&`BDB::MKCURSOR`,&``BDB::CURSOR-CLOSE``);
+}
+
+DEFUN(BDB:DB-KEY-RANGE, db key &key :TRANSACTION)
+{ /* return an estimate of the proportion of keys that are less than,
+     equal to, and greater than the specified key. The underlying
+     database must be of type Btree. */
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
+  DBT key;
+  DB_KEY_RANGE key_range;
+  DB *db = object_handle(STACK_1,`BDB::DB`,false);
+  fill_dbt(STACK_0,&key);
+  SYSCALL(db->key_range,(db,txn,&key,&key_range,0));
+  pushSTACK(c_double_to_DF(&(key_range.less)));
+  pushSTACK(c_double_to_DF(&(key_range.equal)));
+  pushSTACK(c_double_to_DF(&(key_range.greater)));
+  VALUES3(STACK_0,STACK_1,STACK_2); skipSTACK(5);
 }
 
 /* ===== cursors ===== */
