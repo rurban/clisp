@@ -1,3 +1,8 @@
+1998-10-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * spvw.d (main): Use `merge-pathnames' instead of explicit
+          `make-pathname'. Also make the #ifs consistent with _clisp.1.
+
 1998-10-29  Sam Steingold  <sds@goems.com>
 
 	* spvw.d (main): replace `load_rc_file' with explicit load.
