@@ -1,3 +1,8 @@
+2004-12-09  Bruno Haible  <bruno@clisp.org>
+
+	Make DEBUG_SPVW work in HEAPCODES && GENERATIONAL_GC mode.
+	* spvw_genera1.d (gc_check_at): Add support for HEAPCODES mode.
+
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (init_object_tab): Make the :CLISP-DEBUG feature depend on
