@@ -363,7 +363,7 @@ T
 
 ; shadow
 
-(shadow '(e f) (find-package 'shadow-test))
+(shadow '(e #\F) (find-package 'shadow-test))
 t
 
 (setf e 'shadow-test-e)

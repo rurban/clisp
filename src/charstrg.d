@@ -2266,7 +2266,7 @@ local object test_string_limits_rw (stringarg* arg) {
  > subr_self: caller (a SUBR)
  < ergebnis: argument as string
  can trigger GC */
-local object test_stringsymchar_arg (object obj) {
+global object test_stringsymchar_arg (object obj) {
   if (stringp(obj)) /* string: return unchanged */
     return obj;
   if (symbolp(obj)) /* symbol: user print name */

@@ -11145,6 +11145,14 @@ typedef struct stringarg {
 extern object test_string_limits_ro (stringarg* arg);
 # is used by STREAM, PATHNAME, IO
 
+/* UP: checks a string/symbol/character-argument
+ > obj: argument
+ > subr_self: caller (a SUBR)
+ < ergebnis: argument as string
+ can trigger GC */
+extern object test_stringsymchar_arg (object obj);
+/* used by PACKAGE */
+
 # UP: tests two equally long strings for equality
 # > string1,offset1: Chars in String1 start from here
 # > string2,offset2: Chars in String2 start from here
