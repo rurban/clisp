@@ -346,6 +346,16 @@
 (def-atomic-type VECTOR vectorp)
 (def-atomic-type PLIST (lambda (x) (and (listp x) (evenp (length x)))))
 
+(defmacro ensure-dim (type dim)
+  ;; make sure DIM is a valid dimension
+  `(unless (or (eq ,dim '*) (typep ,dim `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))))
+     (error (TEXT "~S: dimension ~S is invalid") ',type ,dim)))
+
+(defmacro ensure-rank (type rank)
+  ;; make sure RANK is a valid rank
+  `(unless (typep ,rank `(INTEGER 0 (,ARRAY-RANK-LIMIT)))
+     (error (TEXT "~S: rank ~S is invalid") ',type ,rank)))
+
 ; CLtL1 p. 46-50
 (defun c-typep-array (tester el-type dims x)
   `(AND (,tester ,x)
@@ -377,7 +387,7 @@
   `(AND (,tester ,x)
         ,@(if (eq size '*)
             '()
-            `((EQL (ARRAY-DIMENSION ,x 0) ',size))
+            `((EQL ',size (ARRAY-DIMENSION ,x 0)))
           )
    )
 )
@@ -426,7 +436,10 @@
    )
 )
 (def-compound-type ARRAY (&optional (el-type '*) (dims '*)) (x)
-  nil
+  (unless (eq dims '*)
+    (if (numberp dims)
+        (ensure-rank ARRAY dims)
+        (dolist (dim dims) (ensure-dim ARRAY dim))))
   (and (arrayp x)
        (or (eq el-type '*)
            (equal (array-element-type x) (upgraded-array-element-type el-type))
@@ -441,7 +454,10 @@
   (c-typep-array 'ARRAYP el-type dims x)
 )
 (def-compound-type SIMPLE-ARRAY (&optional (el-type '*) (dims '*)) (x)
-  nil
+  (unless (eq dims '*)
+    (if (numberp dims)
+        (ensure-rank SIMPLE-ARRAY dims)
+        (dolist (dim dims) (ensure-dim SIMPLE-ARRAY dim))))
   (and (simple-array-p x)
        (or (eq el-type '*)
            (equal (array-element-type x) (upgraded-array-element-type el-type))
@@ -456,7 +472,7 @@
   (c-typep-array 'SIMPLE-ARRAY-P el-type dims x)
 )
 (def-compound-type VECTOR (&optional (el-type '*) (size '*)) (x)
-  nil
+  (ensure-dim VECTOR size)
   (and (vectorp x)
        (or (eq el-type '*)
            (equal (array-element-type x) (upgraded-array-element-type el-type))
@@ -475,7 +491,7 @@
    )
 )
 (def-compound-type SIMPLE-VECTOR (&optional (size '*)) (x)
-  nil
+  (ensure-dim SIMLPE-VECTOR size)
   (and (simple-vector-p x)
        (or (eq size '*) (eql size (array-dimension x 0)))
   )
@@ -567,42 +583,42 @@
   (c-typep-number 'LONG-FLOAT 'LONG-FLOAT-P low high x)
 )
 (def-compound-type STRING (&optional (size '*)) (x)
-  nil
+  (ensure-dim STRING size)
   (and (stringp x)
        (or (eq size '*) (eql size (array-dimension x 0)))
   )
   (c-typep-vector 'STRINGP size x)
 )
 (def-compound-type SIMPLE-STRING (&optional (size '*)) (x)
-  nil
+  (ensure-dim SIMPLE-STRING size)
   (and (simple-string-p x)
        (or (eq size '*) (eql size (array-dimension x 0)))
   )
   (c-typep-vector 'SIMPLE-STRING-P size x)
 )
 (def-compound-type BASE-STRING (&optional (size '*)) (x)
-  nil
+  (ensure-dim BASE-STRING size)
   (and (stringp x)
        (or (eq size '*) (eql size (array-dimension x 0)))
   )
   (c-typep-vector 'STRINGP size x)
 )
 (def-compound-type SIMPLE-BASE-STRING (&optional (size '*)) (x)
-  nil
+  (ensure-dim SIMPLE-BASE-STRING size)
   (and (simple-string-p x)
        (or (eq size '*) (eql size (array-dimension x 0)))
   )
   (c-typep-vector 'SIMPLE-STRING-P size x)
 )
 (def-compound-type BIT-VECTOR (&optional (size '*)) (x)
-  nil
+  (ensure-dim BIT-VECTOR size)
   (and (bit-vector-p x)
        (or (eq size '*) (eql size (array-dimension x 0)))
   )
   (c-typep-vector 'BIT-VECTOR-P size x)
 )
 (def-compound-type SIMPLE-BIT-VECTOR (&optional (size '*)) (x)
-  nil
+  (ensure-dim SIMPLE-BIT-VECTOR size)
   (and (simple-bit-vector-p x)
        (or (eq size '*) (eql size (array-dimension x 0)))
   )
