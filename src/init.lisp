@@ -372,6 +372,9 @@
 (use-package '("CLOS") "COMMON-LISP")
 (ext:re-export "CLOS" "COMMON-LISP")
 (let ((clos-extra '(generic-flet generic-labels no-primary-method
+                    method-call-error method-call-type-error
+                    method-call-error-generic-function
+                    method-call-error-method method-call-error-argument-list
                     class-prototype class-finalized-p finalize-inheritance)))
   ;; not in ANSI - export separately, after `re-export' above
   (export clos-extra "CLOS")
