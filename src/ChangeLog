@@ -11,6 +11,7 @@
 	OS_error() generates an error of type `os-error'.
 	* erramiga.d, errdjgpp.d, errunix.d, errwin32.d (OS_error): use
 	`simple_os_error'.
+	* lispbibl.d (conditiontype): added `os_error'.
 	* constsym.d: added `simple_os_error' symbol.
 	* error.d: handle `simple_os_error'.
 	* conditio.lsp: added `os-error' and `simple-os-error'.
