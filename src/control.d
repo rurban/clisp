@@ -1914,24 +1914,28 @@ LISPFUNN(unwind_to_driver,0)
     }   }
 
 LISPFUN(macro_function,1,1,norest,nokey,0,NIL)
-# (MACRO-FUNCTION symbol), CLTL S. 144; Issue MACRO-FUNCTION-ENVIRONMENT:YES
+# (MACRO-FUNCTION symbol [env]), CLTL S. 144; Issue MACRO-FUNCTION-ENVIRONMENT:YES
   { test_env();
    {var object env = popSTACK();
     var object symbol = popSTACK();
     if (!symbolp(symbol)) { fehler_symbol(symbol); }
-   {var object fundef = sym_function(symbol,TheSvector(env)->data[1]);
-    if (fsubrp(fundef))
-      # ein FSUBR -> Propertyliste absuchen: (GET symbol 'SYS::MACRO)
-      { var object got = get(symbol,S(macro)); # suchen
-        if (eq(got,unbound)) goto nil; # nichts gefunden?
-        value1 = got;
-      }
-    elif (consp(fundef) && eq(Car(fundef),S(macro))) # (SYS::MACRO . expander) ?
-      { value1 = Cdr(fundef); }
-    else # SUBR/Closure/#<UNBOUND> -> keine Macrodefinition
-      { nil: value1 = NIL; }
-    mv_count=1;
+    {var object fundef = sym_function(symbol,TheSvector(env)->data[1]);
+     if (fsubrp(fundef))
+       # ein FSUBR -> Propertyliste absuchen: (GET symbol 'SYS::MACRO)
+       { var object got = get(symbol,S(macro)); # suchen
+         if (eq(got,unbound)) goto nil; # nichts gefunden?
+         value1 = got;
+       }
+     elif (consp(fundef) && eq(Car(fundef),S(macro))) # (SYS::MACRO . expander) ?
+       { value1 = Cdr(fundef); }
+     else # SUBR/Closure/#<UNBOUND> -> keine Macrodefinition
+       { nil: value1 = NIL; }
+     mv_count=1;
   }}}
+
+LISPFUNN(old_macro_function,1)
+# (SYS::OLD-MACRO-FUNCTION symbol), for backward compatibility
+  { pushSTACK(unbound); C_macro_function(); }
 
 LISPFUN(macroexpand,1,1,norest,nokey,0,NIL)
 # (MACROEXPAND form [env]), CLTL S. 151

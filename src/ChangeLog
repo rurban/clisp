@@ -1,5 +1,9 @@
 1999-06-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * control.d (SYSTEM::OLD-MACRO-FUNCTION): New function.
+        * eval.d (FUNTAB): Use it instead of MACRO-FUNCTION.
+        * compiler.lsp (funtab): Likewise.
+
         * sequence.d (test_count_arg): Simplify.
 
 1999-06-10  Sam Steingold  <sds@goems.com>

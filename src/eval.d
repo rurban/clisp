@@ -41,7 +41,7 @@
     # CONTROL : 21-2 SUBRs
     _(symbol_value), /* _(symbol_function), */ _(boundp), _(fboundp),
     _(special_operator_p), _(set), _(makunbound), _(fmakunbound), /* _(values_list), */
-    _(driver), _(unwind_to_driver), _(macro_function), _(macroexpand),
+    _(driver), _(unwind_to_driver), _(old_macro_function), _(macroexpand),
     _(macroexpand_1), _(proclaim), _(eval), _(evalhook), _(applyhook),
     _(constantp), _(parse_body), _(keyword_test),
     # DEBUG : 0 SUBRs
