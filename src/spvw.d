@@ -1434,7 +1434,7 @@ local void init_module_2 (module_* module) {
   # enter Subr-symbols:
   if (*module->stab_size > 0) {
     var subr_* subr_ptr = module->stab;
-    var const subr_initdata* init_ptr = module->stab_initdata;
+    var const subr_initdata_t* init_ptr = module->stab_initdata;
     var uintC count;
     dotimespC(count,*module->stab_size,{
       var const char* packname = init_ptr->packname;
@@ -1460,7 +1460,7 @@ local void init_module_2 (module_* module) {
   # enter objects:
   if (*module->otab_size > 0) {
     var object* object_ptr = module->otab;
-    var const object_initdata* init_ptr = module->otab_initdata;
+    var const object_initdata_t* init_ptr = module->otab_initdata;
     var uintC count;
     dotimespC(count,*module->otab_size, {
       pushSTACK(asciz_to_string(init_ptr->initstring,O(internal_encoding))); # string
@@ -3068,14 +3068,15 @@ global void dynload_modules (const char * library, uintC modcount,
           module->initialized = false;
           {
             sprintf(symbolbuf,"module__%s__subr_tab_initdata",modname);
-            module->stab_initdata = (const subr_initdata*)
+            module->stab_initdata = (const subr_initdata_t*)
               dlsym(libhandle,symbolbuf);
             err = dlerror();
             if (err) fehler_dlerror("dlsym",symbolbuf,err);
           }
           {
             sprintf(symbolbuf,"module__%s__object_tab_initdata",modname);
-            module->otab_initdata = (const object_initdata*) dlsym(libhandle,symbolbuf);
+            module->otab_initdata = (const object_initdata_t*)
+              dlsym(libhandle,symbolbuf);
             err = dlerror();
             if (err) fehler_dlerror("dlsym",symbolbuf,err);
           }

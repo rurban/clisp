@@ -8564,7 +8564,7 @@ local void with_stat_info (void) {
   # Pathname already in STACK_1, as 1. list element
   # Truename already in STACK_0, as 2. list element
   {
-    var decoded_time timepoint; # Write-Date in decoded form
+    var decoded_time_t timepoint; # Write-Date in decoded form
    #if defined(UNIX) || defined(RISCOS)
     convert_time(&filestatus->st_mtime,&timepoint);
    #endif
@@ -9193,7 +9193,7 @@ local void directory_search_scandir (bool recursively, signean next_task) {
                       pushSTACK(new); # newpathname as 2. list element
                       {
                         # convert time and date from DOS-format to decoded-time:
-                        var decoded_time timepoint;
+                        var decoded_time_t timepoint;
                         READDIR_entry_timedate(&timepoint);
                         pushSTACK(timepoint.Sekunden);
                         pushSTACK(timepoint.Minuten);

@@ -1,4 +1,4 @@
-/* Sample module */
+/* Sample -*- C -*- module */
 #line 4
 DEFMODULE(sample,"USER")
 #define O(varname) module__sample__object_tab._##varname
@@ -44,31 +44,31 @@ uintC module__sample__object_tab_size = sizeof(module__sample__object_tab)/sizeo
 
 struct {
 #if ((defined(cond0)) && (defined(cond1))) || (cond2a ? cond2b : cond2c)
-  object_initdata _object_Kgoto;
+  object_initdata_t _object_Kgoto;
 #endif
 #if (defined(cond0)) && (defined(cond1))
-  object_initdata _object__23_28_29;
+  object_initdata_t _object__23_28_29;
 #endif
 #if (defined(cond0)) && (defined(cond1))
-  object_initdata _object__28foo2_29;
+  object_initdata_t _object__28foo2_29;
 #endif
 #if (defined(cond0)) && (!(defined(cond1)))
-  object_initdata _object_Kotog;
+  object_initdata_t _object_Kotog;
 #endif
 #if (defined(cond0)) && (!(defined(cond1)))
-  object_initdata _object__28foo3_29;
+  object_initdata_t _object__28foo3_29;
 #endif
-  object_initdata _object_Ktest;
-  object_initdata _object_Ktest_2Dnot;
+  object_initdata_t _object_Ktest;
+  object_initdata_t _object_Ktest_2Dnot;
 #if (!(cond2a ? cond2b : cond2c)) && (cond3)
-  object_initdata _object__23_5Cspace;
+  object_initdata_t _object__23_5Cspace;
 #endif
-  object_initdata _var1;
+  object_initdata_t _var1;
 #if ((defined(cond0)) && (defined(cond1))) || ((defined(cond0)) && (!(defined(cond1))))
-  object_initdata _var2;
+  object_initdata_t _var2;
 #endif
 #if ((defined(cond0)) && (defined(cond1))) || ((defined(cond0)) && (!(defined(cond1))))
-  object_initdata _var3;
+  object_initdata_t _var3;
 #endif
   int _dummy_to_avoid_trailing_comma_in_initializer;
 } module__sample__object_tab_initdata = {
@@ -156,14 +156,14 @@ uintC module__sample__subr_tab_size = ((char*)&module__sample__subr_tab._dummy_t
 
 struct {
 #if defined(cond0)
-  subr_initdata _subr_mypack__fun1;
+  subr_initdata_t _subr_mypack__fun1;
 #endif
 #if ((defined(cond0)) && (defined(cond1))) || ((defined(cond0)) && (!(defined(cond1))))
-  subr_initdata _subr_mypack__fun2;
+  subr_initdata_t _subr_mypack__fun2;
 #endif
-  subr_initdata _subr_mypack__fun3;
-  subr_initdata _subr_mypack__fun4;
-  subr_initdata _subr_user__fun5;
+  subr_initdata_t _subr_mypack__fun3;
+  subr_initdata_t _subr_mypack__fun4;
+  subr_initdata_t _subr_user__fun5;
   int _dummy_to_avoid_trailing_comma_in_initializer;
 } module__sample__subr_tab_initdata = {
 #if defined(cond0)

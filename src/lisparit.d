@@ -1894,7 +1894,7 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
           begin_system_call(); seed_hi = time(NULL); end_system_call(); # Uhrzeit, 1 Hz
         #elif defined(UNIX)
           #ifdef TIME_UNIX
-            var internal_time real_time; # Uhrzeit
+            var internal_time_t real_time; # Uhrzeit
             get_real_time(&real_time);
             seed_lo = highlow32(real_time.tv_sec,real_time.tv_usec); # 16+16 zufällige Bits
           #endif
@@ -1906,7 +1906,7 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
                            << 8) ^ (uintL)(getpid()); # ca. 8 Bit von der Process ID
           end_system_call();
         #elif defined(WIN32_NATIVE)
-          var internal_time real_time; # Uhrzeit
+          var internal_time_t real_time; # Uhrzeit
           get_real_time(&real_time);
           seed_lo = real_time.dwHighDateTime ^ real_time.dwLowDateTime;
           begin_system_call();

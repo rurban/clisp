@@ -3,7 +3,7 @@
 # ------------------------------ Specification --------------------------------
 
 # Walks through all objects, and calls a given function on every object.
-  global void map_heap_objects (map_heap_function* fun, void* arg);
+  global void map_heap_objects (map_heap_function_t* fun, void* arg);
 
 # ------------------------------ Implementation -------------------------------
 
@@ -12,7 +12,7 @@
 # map_heap_objects(fun,arg)
 # > fun: C-function
 # > arg: arbitrary given argument
-global void map_heap_objects (map_heap_function* fun, void* arg) {
+global void map_heap_objects (map_heap_function_t* fun, void* arg) {
   # program constants:
   for_all_subrs({
     fun(arg,subr_tab_ptr_as_object(ptr),sizeof(subr_));

@@ -587,16 +587,21 @@
     (format *coutput-stream* "~%")
     (format *coutput-stream* "subr_ module__~A__subr_tab[1];~%" *c-name*)
     (format *coutput-stream* "uintC module__~A__subr_tab_size = 0;~%" *c-name*)
-    (format *coutput-stream* "subr_initdata module__~A__subr_tab_initdata[1];~%" *c-name*)
+    (format *coutput-stream* "subr_initdata_t module__~A__subr_tab_initdata[1];~%"
+            *c-name*)
     (format *coutput-stream* "~%")
     (let ((count (hash-table-count *object-table*)))
       (if (zerop count)
         (progn
           (format *coutput-stream* "object module__~A__object_tab[1];~%" *c-name*)
-          (format *coutput-stream* "object_initdata module__~A__object_tab_initdata[1];~%" *c-name*))
+          (format *coutput-stream*
+                  "object_initdata_t module__~A__object_tab_initdata[1];~%" *c-name*))
         (let ((v (make-array count)))
-          (format *coutput-stream* "object module__~A__object_tab[~D];~%" *c-name* count)
-          (format *coutput-stream* "object_initdata module__~A__object_tab_initdata[~D] = {~%" *c-name* count)
+          (format *coutput-stream* "object module__~A__object_tab[~D];~%"
+                  *c-name* count)
+          (format *coutput-stream*
+                  "object_initdata_t module__~A__object_tab_initdata[~D] = {~%"
+                  *c-name* count)
           (dohash (key value *object-table*)
             (declare (ignore key))
             (setf (svref v (cdr value)) (car value)))

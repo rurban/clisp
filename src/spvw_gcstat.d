@@ -15,7 +15,7 @@
 # inc_gc_space(freed);
 
 # Time used by GC so far in this process.
-  extern internal_time gc_time;
+  extern internal_time_t gc_time;
 
 # Toggle the GC timer on/off: gc_timer_on(); ... gc_timer_off();
 # The time elapsed in between the two calls is added to gc_time.
@@ -44,7 +44,7 @@ global uintL2 gc_space =
     } while(0)
  #endif
 
-global internal_time gc_time =
+global internal_time_t gc_time =
  #ifdef TIME_1
   0
  #endif
@@ -54,10 +54,10 @@ global internal_time gc_time =
   ;
 
 #define gc_timer_on()  \
-    { var internal_time gcstart_time; \
+    { var internal_time_t gcstart_time; \
       get_running_time(gcstart_time); # get current elapsed time and store
 #define gc_timer_off()  \
-     {var internal_time gcend_time;                           \
+     {var internal_time_t gcend_time;                           \
       get_running_time(gcend_time);                           \
       # calculate difference between gcend_time and gcstart_time:     \
       sub_internal_time(gcend_time,gcstart_time, gcend_time); \

@@ -2014,7 +2014,7 @@ local void output_tables1 (FILE* stream)
           print_condition(stream,odef->condition);
           print_nl(stream);
         }
-        fprintf(stream,"  object_initdata _%s;",odef->tag);
+        fprintf(stream,"  object_initdata_t _%s;",odef->tag);
         print_nl(stream);
         if (!is_true_condition(odef->condition)) {
           fprintf(stream,"#endif");
@@ -2034,7 +2034,7 @@ local void output_tables1 (FILE* stream)
           print_condition(stream,vdef->condition);
           print_nl(stream);
         }
-        fprintf(stream,"  object_initdata _%s;",vdef->tag);
+        fprintf(stream,"  object_initdata_t _%s;",vdef->tag);
         print_nl(stream);
         if (!is_true_condition(vdef->condition)) {
           fprintf(stream,"#endif");
@@ -2177,7 +2177,7 @@ local void output_tables2 (FILE* stream)
           print_condition(stream,fdef->condition);
           print_nl(stream);
         }
-        fprintf(stream,"  subr_initdata _%s;",fdef->tag);
+        fprintf(stream,"  subr_initdata_t _%s;",fdef->tag);
         print_nl(stream);
         if (!is_true_condition(fdef->condition)) {
           fprintf(stream,"#endif");
