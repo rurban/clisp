@@ -1,6 +1,12 @@
+2002-03-13  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 528886 ] (typep x (type-of x)) must => T (FFI)
+	* type.lisp (foreign-function, foreign-variable, foreign-address)
+	(foreign-pointer): new types
+
 2002-03-12  Sam Steingold  <sds@gnu.org>
 
-	fixed bug #527380: encoding :output-error-action :ignore did not work
+	fixed bug #[ 527380 ]: encoding :output-error-action :ignore broken
 	* encoding.d (nls_wcslen): synch with nls_wcstombs() wrt
 	ignoring errors (i.e., return the correct number of dest bytes)
 	(nls_asciiext_wcslen): synch with nls_asciiext_wcstombs() wrt
@@ -463,7 +469,7 @@
 
 2002-02-20  Sam Steingold  <sds@gnu.org>
 
-	fixed bug #515604: (EVAL-WHEN (COMPILE)) no longer automatically
+	fixed bug #[ 515604 ]: (EVAL-WHEN (COMPILE)) no longer automatically
 	writes to *.lib; you need EVAL-WHEN-COMPILE or both LOAD and COMPILE
 	* compiler.lisp (c-write-lib): new function
 	(c-eval-and-write-lib): renamed from c-eval-when-compile
@@ -603,7 +609,7 @@
 
 2002-01-27  Sam Steingold  <sds@gnu.org>
 
-	fixed bug #509073
+	fixed bug #[ 509073 ]
 	* compiler.lisp (expand-compiler-macro): pass to
 	COMPILER-MACRO-FUNCTION only function names
 
@@ -629,7 +635,7 @@
 
 2002-01-24  Sam Steingold  <sds@gnu.org>
 
-	fixed bug #506105: check semi-simple vectors&strings for overflow
+	fixed bug #[ 506105 ]: check semi-simple vectors&strings for overflow
 	* array.d (fehler_extension): new function
 	(VECTOR-PUSH-EXTEND): use it
 	(fehler_dim_type): moved before semi-simple vectors&strings
@@ -811,7 +817,7 @@
 
 2002-01-09  Sam Steingold  <sds@gnu.org>
 
-	fixed bug #501166
+	fixed bug #[ 501166 ]
 	* pathname.d (SUBDIR_PUSHSTACK): check for non-string subdir
 	elements, do not return
 	(subdir_namestring_parts): modified accordingly
@@ -1293,7 +1299,7 @@
 
 2001-10-23  Sam Steingold  <sds@gnu.org>
 
-	fixed bug #474216
+	fixed bug #[ 474216 ]
 	* misc.d (LISP-IMPLEMENTATION-VERSION): do not try to convert
 	O(lisp_implementation_version_built_string) when month is not found
 
@@ -1372,7 +1378,7 @@
 
 2001-10-08  Sam Steingold  <sds@gnu.org>
 
-	fixed bug #462982: support ipv6 on i386 (cygwin32, mingw32, msvc)
+	fixed bug #[ 462982 ]: support ipv6 on i386 (cygwin32, mingw32, msvc)
 	* win32.d (HAVE_IPV6): define
 	(ws2tcpip.h, winsock2.h): include
 	* socket.d (in6_addr): define to in_addr6
@@ -1678,7 +1684,7 @@
 
 2001-09-10  Sam Steingold  <sds@gnu.org>
 
-	fixed bug #458746
+	fixed bug #[ 458746 ]
 	* format.lisp (format-float-to-string): make sure width is at
 	least 2 (when given): for a digit and for the decimal point
 
@@ -1766,7 +1772,7 @@
 
 2001-08-27  Sam Steingold  <sds@gnu.org>
 
-	fixed bug #455559
+	fixed bug #[ 455559 ]
 	* defstruct.lisp (ds-arg-default): when ARG is a list and default
 	is NIL, return (ARG NIL) and not (ARG)
 	(ds-arg-with-default): pass VAR instead of ARG to DS-ARG-DEFAULT
@@ -1936,7 +1942,7 @@
 
 2001-08-21  Sam Steingold  <sds@gnu.org>
 
-	fixed bug #446942
+	fixed bug #[ 446942 ]
 	* makemake.in (DISTFILE): isulate from AIX uname which does not
 	have the -p option
 
@@ -2163,7 +2169,7 @@
 
 2001-08-14  Sam Steingold  <sds@gnu.org>
 
-	fixed bug #448817
+	fixed bug #[ 448817 ]
 	* io.d (pr_external_1): use new macro BIND_UNLESS
 	(pr_sharp_dot): new local function
 	(pr_instance): use it
@@ -2270,7 +2276,7 @@
 
 2001-08-02  Sam Steingold  <sds@gnu.org>
 
-	Fixed bug #445286
+	Fixed bug #[ 445286 ]
 	* compiler.lisp (c-SYMBOL-MACROLET): bind *VENV* before PARSE-BODY
 	because PARSE-BODY macroexpands the first form in search of
 	declarations, and that macroexpansion might rely on the
@@ -2483,7 +2489,7 @@
 
 	replaced chartcopy with memcpy
 	compilation time of compiler.lisp went down 3.76%
-	fixed bug #438486
+	fixed bug #[ 438486 ]
 	* charstrg.d (chartcopy): removed
 	* lispbibl.d (chartcopy): defined to expand to memcpy()
 
@@ -3625,7 +3631,7 @@
 
 2001-02-07  Sam Steingold  <sds@gnu.org>
 
-	* inspect.lisp: Fixed bug #130567: unbound slots.
+	* inspect.lisp: Fixed bug #[ 130567 ]: unbound slots.
 	(*inspect-unbound-value*): new internal variable
 	(inspect-cllib): bind it
 	(inspect-backend): use it for unbound symbols and slots
