@@ -1328,7 +1328,8 @@
   local void F_integer_decode_float_I_I_I (object x);
   local void F_integer_decode_float_I_I_I(x)
     var object x;
-    { floatcase(x,
+    { var object x_sign = (!R_minusp(x) ? Fixnum_1 : Fixnum_minus1); # Vorzeichen von x (nicht GC-gefährdet!)
+      floatcase(x,
       /* x SF */ { # x entpacken:
                    var sintWL exp;
                    var uint32 mant;
@@ -1379,7 +1380,7 @@
                     pushSTACK(UL_UL_minus_I(uexp,sub));
                  }}}
                );
-      pushSTACK(!R_minusp(x) ? Fixnum_1 : Fixnum_minus1); # Vorzeichen von x (nicht GC-gefährdet!)
+      pushSTACK(x_sign);
       return;
       zero: pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); pushSTACK(Fixnum_1); return;
     }

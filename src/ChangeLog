@@ -1,3 +1,11 @@
+1998-06-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * spvw.d (make_ratio): Compute positivep(num) before doing the
+          memory allocation.
+        * comptran.d (R_R_atanh_R_R): Do not call R_sign on a non-GC-safe
+          object.
+        * flo_rest.d (F_integer_decode_float_I_I_I): Likewise.
+
 1998-06-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * arilev1c.d (eqv_loop_up, nand_loop_up): Fix typo in declaration.
