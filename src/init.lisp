@@ -192,6 +192,7 @@
    make-condition               ; pre-drawn for clos.lisp
    handler-bind                 ; pre-drawn for compiler.lisp
    end-of-file restart          ; avoid conflict with defs2.lisp
+   abort                        ; avoid conflict with gray.lisp
    ;; types for error-of-type:
    condition warning serious-condition error storage-condition type-error
    program-error control-error package-error print-not-readable parse-error
