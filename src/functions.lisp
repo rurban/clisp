@@ -16,16 +16,6 @@
   (keywords nil :type list)
   (allow-p nil  :type boolean))
 
-;; Check an argument that should be a function name, giving the user the
-;; opportunity to correct it if it is not.
-(defun check-function-name (caller funname)
-  (do () ((function-name-p funname) funname)
-    (setq funname
-          (check-value nil
-            (coerce-to-condition (TEXT "~s: ~s is not a function name")
-                                 (list caller funname) 'check-function-name
-                                 'simple-source-program-error)))))
-
 ;; X3J13 vote <88>
 ;; function --> lambda expression, CLtL2 p. 682
 (defun function-lambda-expression (obj)
