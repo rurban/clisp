@@ -1,5 +1,10 @@
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
+	* describe.lisp (describe1): Add a fresh-line call after the
+	describe-object call, and a blank line before the documentation.
+
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
 	* compiler.lisp (disassemble-closure): Start with fresh-line, end with
 	elastic-newline.
 
