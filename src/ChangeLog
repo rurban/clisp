@@ -1,5 +1,9 @@
 2004-12-15  Sam Steingold  <sds@gnu.org>
 
+	* modules/pari/pari.lisp: major re-write (use "modern" package)
+
+2004-12-15  Sam Steingold  <sds@gnu.org>
+
 	* defpackage.lisp (defpackage): always pass :CASE-SENSITIVE
 	and :CASE-INVERTED to %IN-PACKAGE
 

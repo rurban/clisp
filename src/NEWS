@@ -309,6 +309,9 @@ Modules
   other functionality for Lisp program internationalization.
   See <http://clisp.cons.org/impnotes.html#i18n-mod> for details.
 
+* New module PARI interfacee to <http://pari.math.u-bordeaux.fr/>.
+  See <http://clisp.cons.org/impnotes.html#pari> for details.
+
 * Module syscalls now exports functions POSIX:CRYPT, POSIX:ENCRYPT,
   POSIX:SETKEY, POSIX:SET-FILE-STAT, POSIX:CONVERT-MODE, POSIX:UMASK,
   POSIX:MKNOD, OS:FILE-PROPERTIES.
