@@ -707,3 +707,7 @@ t
                                     :defaults #P"/home/kent/"))
          (namestring #P"/home/kent/foo"))
 t
+
+(make-pathname :directory '(:absolute :wild) :host nil :device nil
+               :name nil :type nil :version nil)
+#P"/*/"
