@@ -1,5 +1,9 @@
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
+	* lispbibl.d (direction_t): Explicit value assignments.
+
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
 	* io.d (get_readtable): Local variable zuweisung -> assignment.
 	(read_char_syntax): Likewise.
 	(wpeek_char_syntax): Likewise.
