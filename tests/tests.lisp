@@ -1,6 +1,11 @@
 ;; run the test suit:
 
-#+CLISP
+#+OLD-CLISP
+;; Binding *ERROR-HANDLER* is a hammer technique for catching errors. It also
+;; disables CLCS processing and thus breaks tests that rely on the condition
+;; system, such as:
+;;   - the compile-file on structure literal test in clos.lisp
+;;   - all tests that use IGNORE-ERRORS
 (defmacro with-ignored-errors (&rest forms)
   (let ((b (gensym)))
     `(BLOCK ,b
@@ -31,7 +36,7 @@
     `(LET ((,r (MULTIPLE-VALUE-LIST (EXCL:ERRORSET (PROGN ,@forms)))))
        (IF (CAR ,r) (VALUES-LIST (CDR ,r)) 'ERROR))))
 
-#-(or CLISP AKCL ECL ALLEGRO)
+#-(or OLD-CLISP AKCL ECL ALLEGRO)
 (defmacro with-ignored-errors (&rest forms)
   (let ((b (gensym)))
     `(BLOCK ,b
