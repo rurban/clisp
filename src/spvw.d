@@ -1479,7 +1479,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             };
         # *FEATURES* initialisieren:
         { var const char * features_initstring =
-            "(:CLISP :ANSI-CL :COMMON-LISP :INTERPRETER"
+            "(:CLISP :ANSI-CL :COMMON-LISP :LISP=CL :INTERPRETER"
             #ifdef SOCKET_STREAMS
               " :SOCKETS"
             #endif
