@@ -1,3 +1,11 @@
+2002-03-11  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-warn, c-warn): CURRENT-FUNCTION does not
+	necessarily return a function
+	(form-name): new function - a short printed form representation
+	(compile-file): use it for *COMPILE-PRINT* and form name that is
+	passed to COMPILE-TOPLEVEL-FORM instead of '#:TOP-LEVEL-FORM
+
 2002-03-10  Peter Burwood  <clisp@peterb.org.uk>
 
 	* pathname.d (realpath) [UNIX_CYGWIN32]: neither dir nor symlink
