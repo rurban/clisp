@@ -1,5 +1,11 @@
 2001-07-25  Sam Steingold  <sds@gnu.org>
 
+	due to the change in the WRITE signature,
+	all FAS files have to be re-compiled
+	* constobj.d (version): bumped
+
+2001-07-25  Sam Steingold  <sds@gnu.org>
+
 	Win32: understand Cygwin's /sygdrive/[letter] pathnames
 	* pathname.d (parse_namestring): translate :directory (:absolute
 	*device-prefix* "c" ...) to :device "C" :device (:absolute ...)
