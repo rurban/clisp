@@ -2222,7 +2222,11 @@ done
 echol
 
 echol "stdbool.h : ${SRCDIR}stdbool.h.in"
-echotab "sed -e 's/@''HAVE__BOOL''@/@HAVE__BOOL@/g' < ${SRCDIR}stdbool.h.in > stdbool.h"
+if [ $TOS = unix ] ; then
+  echotab "sed -e 's/@''HAVE__BOOL''@/@HAVE__BOOL@/g' < ${SRCDIR}stdbool.h.in > stdbool.h"
+else
+  echotab "sed -e 's/@''HAVE__BOOL''@/0/g' < ${SRCDIR}stdbool.h.in > stdbool.h"
+fi
 echol
 
 if [ -n "${SRCDIR}" ] ; then
