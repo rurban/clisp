@@ -4299,7 +4299,11 @@ for-value   NIL or T
   (unless (member (string module-name) *compiled-modules* :test #'string-equal)
     (unless p-given (setq pathname (pathname module-name)))
     (flet ((load-lib (file)
-             (let* ((present-files
+             (let* ((*load-paths*
+                     (cons (make-pathname :name nil :type nil
+                                          :defaults *compile-file-truename*)
+                           *load-paths*))
+                    (present-files
                      (search-file file (append *source-file-types*
                                                '(#".lib"))))
                     (newest-file (first present-files)))
