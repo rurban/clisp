@@ -4592,7 +4592,7 @@ cl_cv_sys_endian=little,
 # must guess the endianness
 )
 if test -z "$cl_cv_sys_endian"; then
-AC_EGREP_CPP(yes,[#if defined(m68k) || defined(mc68000) || defined(mc68020) || defined(sparc) || defined(MIPSEB) || defined(hppa) || defined(__hppa) || defined(m88000)
+AC_EGREP_CPP(yes,[#if defined(m68k) || defined(mc68000) || defined(mc68020) || defined(sparc) || defined(__sparc__) || defined(MIPSEB) || defined(hppa) || defined(__hppa) || defined(m88000)
   yes
 #endif
 ], cl_cv_sys_endian=big)

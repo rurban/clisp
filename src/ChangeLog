@@ -1,5 +1,11 @@
 1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * autoconf/aclocal.m4 (CL_WORDS_LITTLEENDIAN): Test for `__sparc__',
+          because gcc-2.95 on SparcLinux defines only `__sparc__', not `sparc'.
+        * lispbibl.d: Likewise.
+
+1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * autoconf/aclocal.m4 (CL_CANONICAL_HOST_CPU,
            CL_CANONICAL_HOST_CPU_FOR_FFCALL): Distinguish "sparc" and
           "sparc64" according to the C compiler, not the uname result.
