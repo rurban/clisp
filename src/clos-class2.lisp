@@ -17,7 +17,8 @@
 
 ;; An empty hash table.
 (defconstant empty-ht (make-hash-table :key-type 'symbol :value-type 't
-                                       :test #'eq :size 0))
+                                       :test 'eq :warn-if-needs-rehash-after-gc t
+                                       :size 0))
 
 ;; Definition of <structure-stablehash>.
 ;; Used for (make-hash-table :test 'stablehash-eq).
