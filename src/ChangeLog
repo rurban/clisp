@@ -1,3 +1,7 @@
+2004-06-18  Sam Steingold  <sds@gnu.org>
+
+	* macros1.lisp (do/do*-expand): do not bind DOC: it is ignored anyway
+
 2004-06-06  Bruno Haible  <bruno@clisp.org>
 
 	* clos-genfun2.lisp (compute-applicable-methods-effective-method):
