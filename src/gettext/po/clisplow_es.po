@@ -25,7 +25,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 2001-07-16 18:42:48 EDT\n"
+"POT-Creation-Date: 2002-02-25 09:53:14 EST\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -217,21 +217,6 @@ msgstr "Sólo quedan %d bytes disponibles.\n"
 #
 msgid "Could not determine the end of the SP stack!\n"
 msgstr "No fue posible determinar el final de la pila SP!\n"
-
-#
-#
-#
-#
-#
-msgid ""
-"\n"
-"WARNING: No initialization file specified.\n"
-msgstr ""
-"\n"
-"ATENCIÓN: No se ha especificado ningún fichero de inicialización.\n"
-
-msgid "Please try: "
-msgstr "Por favor, intente:"
 
 msgid "Not enough memory for Lisp.\n"
 msgstr "No hay memoria suficiente para Lisp.\n"
@@ -739,161 +724,29 @@ msgstr "No soportado en MS-DOS"
 msgid "This version of CLISP runs only in low address memory.\n"
 msgstr ""
 
-
-
-
-
-
-
-
-
-#
-#
-#
-
-#
-#
-
-#
-#
-
-
-#
-#
-
-
-#
-#
-
-
-
-
-
-#
-#
-
-
-
-
-
-#
-#
-#
-
-
-#
-#
-#
-#
-#
-
-#
-#
-
-
 #
 #
-#
-#
-#
-
-
-
 
-
-
 #
 #
-#, fuzzy
-
 #, fuzzy
 
 #, fuzzy
-
-
-#
-
-
-
-
-#
-#
-
-
-
-
-
-#
-#
-#
-#
-#
-#
-#
-#
-#
-
-
-
-
-
-
-
-
-
 
 #
 #
 #
 #
 #
-#
-#
-
-
-
-#
-#
-
-#
-#
-#
-#
-#
-#
-#
-
-#
-#
-#
-#
 
-#
-#
-#
-#
 
-#
-#
 #
-#
-#
-
 #
 #
-
 #
 #
-#, fuzzy
-
 #, fuzzy
 
-#
-#
-#
-#
-#
-#, fuzzy
 
 
 
@@ -962,10 +815,12 @@ msgstr ""
 
 #
 #
+#, fuzzy
 
 #
 #
 #
+#, fuzzy
 
 #, fuzzy
 
@@ -1093,6 +948,7 @@ msgstr ""
 #
 #
 #
+
 
 
 
@@ -1107,6 +963,7 @@ msgstr ""
 
 
 
+#, fuzzy
 
 
 
@@ -1122,8 +979,6 @@ msgstr ""
 
 #
 #
-
-
 
 
 
@@ -1134,8 +989,6 @@ msgstr ""
 
 
 #
-#
-#
 
 #
 #
@@ -1232,7 +1085,9 @@ msgstr ""
 #, fuzzy
 
 #, fuzzy
+
 
+#, fuzzy
 
 #, fuzzy
 
@@ -1378,9 +1233,15 @@ msgstr ""
 
 #
 #
+
 
+
+
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 #
 #
@@ -1448,6 +1309,10 @@ msgstr ""
 #
 #
 #
+
+
+
+
 
 
 
@@ -1462,50 +1327,62 @@ msgstr ""
 
 
 
+#, fuzzy
+
+
 
 
 
+
 #
 #
 #
 
-
+#
+#
 
+#
+#
 
 
+#
+#
+#
 
 
+#
+#
 
 
-#
 #
 #
 
 
-#, fuzzy
 
 
 
+#
+#
 
 
-#, fuzzy
 
 
 
 
 
 
+#
+#
+#
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
+#
+#
+#
 
-#, fuzzy
 
 
-#, fuzzy
 
 #
 #
@@ -1513,12 +1390,24 @@ msgstr ""
 #
 #
 
+#
+#
+
+
+#
+#
+#
+#
+#
 
+#, fuzzy
 
 
 
+#, fuzzy
 
 
+#, fuzzy
 
 
 
@@ -1526,11 +1415,16 @@ msgstr ""
 
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
+#, fuzzy
 
 #
 #
@@ -1550,19 +1444,18 @@ msgstr ""
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 
 
 
-#, fuzzy
 
 #
 #
-
+#
+#
+#
 
 
 
@@ -1576,15 +1469,18 @@ msgstr ""
 
 
 
+#, fuzzy
 
 
 #, fuzzy
-
 
 
 
 
+#, fuzzy
 
+#
+#
 
 
 
@@ -1594,32 +1490,70 @@ msgstr ""
 
 #
 #
+#
+#
+#
+#
+#
+#
+#
 
 
 
 
 
+#
+#
 
 
 
-#
-#
 
 
 
 
+#
+#
+#
+#
+#
+#
+#
 
 
 
+#
+#
 
+#
+#
+#
+#
+#
+#
+#
 
+#
+#
+#
+#
 
+#
+#
+#
+#
 
+#
+#
+#
+#
+#
 
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1630,6 +1564,7 @@ msgstr ""
 
 
 
+#, fuzzy
 
 
 
@@ -1643,6 +1578,8 @@ msgstr ""
 
 
 
+#
+#
 
 #
 #
@@ -1650,6 +1587,8 @@ msgstr ""
 
 #
 #
+
+
 
 
 
@@ -1661,6 +1600,9 @@ msgstr ""
 
 
 
+#, fuzzy
+
+
 
 
 
@@ -1697,6 +1639,8 @@ msgstr ""
 #
 
 
+
+
 #
 
 #
@@ -1717,18 +1661,21 @@ msgstr ""
 
 #
 #
+
 
 
 
 
 
 
+#, fuzzy
 
 
 
 
 
 
+#, fuzzy
 
 
 
@@ -1749,12 +1696,12 @@ msgstr ""
 #, fuzzy
 
 #, fuzzy
-
 
-
 #, fuzzy
 
 
+
+#, fuzzy
 
 #
 #
@@ -1844,7 +1791,7 @@ msgstr ""
 
 
 
-
+#, fuzzy
 
 
 
@@ -1871,11 +1818,14 @@ msgstr ""
 
 
 
+#, fuzzy
 
 
+#, fuzzy
 
 #, fuzzy
 
+#, fuzzy
 
 
 
@@ -1884,6 +1834,7 @@ msgstr ""
 
 
 
+#, fuzzy
 
 #
 #
@@ -1980,6 +1931,9 @@ msgstr ""
 
 
 
+#, fuzzy
+
+#, fuzzy
 
 
 
@@ -2005,8 +1959,10 @@ msgstr ""
 #, fuzzy
 
 
+#, fuzzy
 
 
+
 #
 #
 #
@@ -2026,7 +1982,9 @@ msgstr ""
 #
 #
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -2069,8 +2027,9 @@ msgstr ""
 
 
 
+#, fuzzy
 
-#
+#, fuzzy
 
 
 
@@ -2089,14 +2048,12 @@ msgstr ""
 #
 #
 #
-
 
 
 
 
 
-
-
+#, fuzzy
 
 #
 #
@@ -2104,6 +2061,9 @@ msgstr ""
 #
 #
 #
+
+
+
 
 
 
@@ -2204,7 +2164,6 @@ msgstr ""
 
 
 
-
 #, fuzzy
 
 
@@ -2300,6 +2259,8 @@ msgstr ""
 #
 #
 #
+
+#, fuzzy
 
 #, fuzzy
 
@@ -2395,7 +2356,9 @@ msgstr ""
 
 #, fuzzy
 
+#, fuzzy
 
+
 #, fuzzy
 
 #
@@ -2403,6 +2366,7 @@ msgstr ""
 
 #, fuzzy
 
+#, fuzzy
 
 
 
@@ -2510,7 +2474,82 @@ msgstr ""
 
 
 #, fuzzy
+
+#
+#
+#, fuzzy
+
+
+
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+#
+#
+
+
+
+
+
+
+
+
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+
+
+
 #
 #
 #
@@ -2536,7 +2575,6 @@ msgstr ""
 
 
 
-#, fuzzy
 
 
 
@@ -2551,7 +2589,6 @@ msgstr ""
 
 
 
-
 #, fuzzy
 
 #, fuzzy
@@ -2594,7 +2631,6 @@ msgstr ""
 #
 #
 #
-
 
 
 
