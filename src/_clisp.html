@@ -283,7 +283,9 @@ and allow interactive handling of <code>ASSERT</code> and friends.</dd>
  Currently the only effect of this is that unnecessary prompts are not
  suppressed.
 #ifdef GNU_READLINE
- Furthermore, the GNU readline library treats
+ Furthermore, the
+ <a href="http://cnswww.cns.cwru.edu/~chet/readline/rluserman.html">GNU
+ readline</a> library treats
  <a href="#completion">Tab</a> as a normal self-inserting character,
  so you should always use this option when you invoke CLISP from Emacs.
 #endif
@@ -473,9 +475,9 @@ EOF (Ctrl-\e)
 
 #ifdef GNU_READLINE
 <dt>arrow keys</dt>
-<dd>for editing and viewing the input history, using
+<dd>for editing and viewing the input history, using the
  <a href="http://cnswww.cns.cwru.edu/~chet/readline/rluserman.html">GNU
- readline</a>.<p/></dd>
+ readline</a> library.<p/></dd>
 
 <dt id="completion">Tab key</dt>
 <dd>Context sensitive:
