@@ -30,9 +30,9 @@ local void init_ctype() {
     setlocale(LC_CTYPE,locale);
 
   # Also set the other locale facets that may be used by i18n.d.
-#ifndef WIN32_NATIVE
+ #if !defined(WIN32_NATIVE) && !defined(UNIX_DARWIN)
   setlocale(LC_MESSAGES,"");
-#endif
+ #endif
   setlocale(LC_CTYPE,"");
   setlocale(LC_TIME,"");
   setlocale(LC_COLLATE,"");
