@@ -1,5 +1,10 @@
 1998-10-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * charstrg.d (MAKE-STRING): Add keyword argument :ELEMENT-TYPE.
+        * compiler.lsp (subr-info): Update for MAKE-STRING.
+
+1998-10-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * pathname.d (OPEN): Add keyword argument :EXTERNAL-FORMAT.
         * stream.d (STREAM-EXTERNAL-FORMAT): New function.
         * eval.d (FUNTAB): Add stream-external-format.
