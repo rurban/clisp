@@ -1027,47 +1027,6 @@ LISPFUNNR(slot_exists_p,2) {
   VALUES_IF(! eq(slotinfo,nullobj)); skipSTACK(2);
 }
 
-/* (CLOS::%CHANGE-CLASS instance new-class do-copy-p)
-   copy instance (and return the copy)
-   make instance point to a new instance of new-class */
-LISPFUNN(pchange_class,3) {
-  var bool do_copy_p = !nullp(popSTACK());
-  /* Stack layout: instance, new-class. */
-  instance_un_realloc(STACK_0);
-  do_allocate_instance(STACK_0);
-  pushSTACK(value1); /* the new object, to be filled in Lisp */
-  /* Stack layout: instance, new-class, new-instance. */
-  if (do_copy_p) {
-    /* a copy of the old instance - the return value of CHANGE-CLASS */
-    var object clas = class_of(STACK_2);
-    pushSTACK(clas);
-    do_allocate_instance(STACK_0); /* these values are returned */
-    if (structurep(value1))
-      copy_mem_o(&TheStructure(value1)->structure_types,
-                 &TheStructure(STACK_3)->structure_types,
-                 Structure_length(STACK_3));
-    else { /* CLOS class instance */
-      var object old_instance = STACK_3;
-      instance_un_realloc(old_instance);
-      copy_mem_o(&TheInstance(value1)->inst_class_version,
-                 &TheInstance(old_instance)->inst_class_version,
-                 posfixnum_to_L(TheClass(STACK_0)->instance_size));
-    }
-    skipSTACK(1);
-  } else
-    VALUES1(NIL);
-  /* Stack layout: instance, new-class, new-instance. */
-  { /* Turn instance into a realloc (see the instance_un_realloc macro): */
-    set_break_sem_1(); /* forbid interrupts */
-    var Instance ptr = TheInstance(STACK_2);
-    record_flags_set(ptr,instflags_forwarded_B);
-    ptr->inst_class_version = STACK_0;
-    clr_break_sem_1(); /* permit interrupts again */
-  }
-  ASSERT(Record_flags(STACK_2) & instflags_forwarded_B);
-  skipSTACK(3);
-}
-
 /* update_instance(obj)
  updates a CLOS instance after its class or one of its superclasses has been
  redefined.
@@ -1705,4 +1664,37 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
       VALUES1(popSTACK());
     }
   }
+}
+
+/* (CLOS::%CHANGE-CLASS instance new-class)
+   Copy instance, and return the copy.
+   Make instance point to a new instance of new-class. */
+LISPFUNN(pchange_class,2) {
+  /* Stack layout: instance, new-class. */
+  /* Create the new object, to be filled in Lisp: */
+  do_allocate_instance(STACK_0);
+  STACK_0 = value1;
+  /* Stack layout: instance, new-instance. */
+  /* Create copy of the old instance: */
+  var object clas = class_of(STACK_1); /* Calls instance_update if necessary */
+  pushSTACK(clas);
+  do_allocate_instance(STACK_0); /* these values are returned */
+  /* Stack layout: instance, new-instance, old-class. */
+  var object old_instance = STACK_2;
+  {
+    var object old_instance_forwarded = old_instance;
+    instance_un_realloc(old_instance_forwarded);
+    copy_mem_o(&TheInstance(value1)->inst_class_version,
+               &TheInstance(old_instance_forwarded)->inst_class_version,
+               posfixnum_to_L(TheClass(STACK_0)->instance_size));
+  }
+  { /* Turn instance into a realloc (see the instance_un_realloc macro): */
+    set_break_sem_1(); /* forbid interrupts */
+    var Instance ptr = TheInstance(old_instance);
+    record_flags_set(ptr,instflags_forwarded_B);
+    ptr->inst_class_version = STACK_1;
+    clr_break_sem_1(); /* permit interrupts again */
+  }
+  ASSERT(Record_flags(old_instance) & instflags_forwarded_B);
+  skipSTACK(3);
 }
