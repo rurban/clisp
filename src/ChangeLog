@@ -1,5 +1,11 @@
 2003-04-06  Sam Steingold  <sds@gnu.org>
 
+	* constobj.d: added hs_simple_nilvector and hs_nilvector
+	* predtype.d: added enum_hs_simple_nilvector and enum_hs_nilvector
+	(heap_statistics_mapper): count (VECTOR NIL) objects separately
+
+2003-04-06  Sam Steingold  <sds@gnu.org>
+
 	implemented ANSI CLOS class forward definition
 	* clos.lisp (defclass): do not require that the parents exist
 	(*finalizing-now*): new variable
@@ -12,7 +18,7 @@
 	finalization status and the number of redefinitions
 	(class-finalized-p, finalize-inheritance): new MOP generics
 	* constsym.d (CLASS-FINALIZE): added
-	* init.lisp (class-prototype, class-finalized-p)
+	* inist.lisp (class-prototype, class-finalized-p)
 	(finalize-inheritance): re-export from EXT
 	* record.d (do_allocate_instance, %MAKE-INSTANCE): call
 	CLASS-FINALIZE when the CLASS-PRECEDENCE-LIST is void
