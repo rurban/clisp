@@ -2426,11 +2426,15 @@ local object read_delimited_list_recursive (const gcv_object_t* stream_, object 
 #endif
 local object read_delimited_list(const gcv_object_t* stream_, object endch,
                                  object ifdotted) {
+ #if STACKCHECKR
+  var gcv_object_t* STACKbefore = STACK; /* retain STACK for later */
+ #endif
   # bind SYS::*READ-LINE-NUMBER* to (SYS::LINE-NUMBER stream)
   # (for error-message, in order to know about the line with the opening parenthese):
+  var bool terminal_read_open_object_bind = terminal_stream_p(*stream_);
   var object lineno = stream_line_number(*stream_);
   dynamic_bind(S(read_line_number),lineno);
-  if (terminal_stream_p(*stream_))
+  if (terminal_read_open_object_bind)
     dynamic_bind(S(terminal_read_open_object),S(list));
   var object ergebnis;
   # possibly bind SYS::*READ-RECURSIVE-P* to T, first:
@@ -2441,17 +2445,21 @@ local object read_delimited_list(const gcv_object_t* stream_, object endch,
     ergebnis = read_delimited_list_recursive(stream_,endch,ifdotted);
     dynamic_unbind();
   }
-  if (terminal_stream_p(*stream_))
+  if (terminal_read_open_object_bind)
     dynamic_unbind(); # S(terminal_read_open_object)
   dynamic_unbind(); # S(read_line_number)
+ #if STACKCHECKR
+  if (STACK != STACKbefore) /* verify if Stack is cleaned up */
+    abort(); /* if not --> go to Debugger */
+ #endif
   return ergebnis;
 }
 #ifdef RISCOS_CCBUG
 #pragma -z1
 #endif
 # then the more special Function:
-local object read_delimited_list_recursive (const gcv_object_t* stream_, object endch,
-                                            object ifdotted) {
+local object read_delimited_list_recursive (const gcv_object_t* stream_,
+                                            object endch, object ifdotted) {
   # don't need to save endch and ifdotted.
   {
     var object object1; # first List element
