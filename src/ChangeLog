@@ -12,6 +12,8 @@
 	(SYS::%MAKE-CLOSURE, SYS::CONSTANT-INITFUNCTION-P,
 	CLOS::%SHARED-INITIALIZE, do_initialize_instance, CLOS::%MAKE-INSTANCE):
 	Likewise.
+	* control.d (FUNCTION-SIDE-EFFECT): Likewise. Check that Cdr(fdef) is
+	a cons before accessing its Car.
 	* functions.lisp (function-lambda-expression, function-name): Use
 	sys::closure-name.
 	* clos-genfun2.lisp (need-gf-already-called-warning-p): Likewise.
