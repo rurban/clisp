@@ -1644,6 +1644,7 @@ here <function>WITH-FOO</function> does not receive the
   <member>&user-commands;</member>
   <member><varname>CUSTOM:*USER-MAIL-ADDRESS*</varname></member>
   <member>&warn-fpc;</member>
+  <member>&warn-on-hashtable-needing-rehash-after-gc;</member>
   <member><varname>CUSTOM:*WITH-HTML-OUTPUT-DOCTYPE*</varname></member>
 </simplelist></para>
 <note><title>Note</title><para>Some of these variables are
