@@ -1,5 +1,10 @@
 2003-05-24  Sam Steingold  <sds@gnu.org>
 
+	* hashtabl.d (HASH-TABLE-COUNT): rehash the argument when it is
+	weak and invalid because GC could reduce the count
+
+2003-05-24  Sam Steingold  <sds@gnu.org>
+
 	* spvw_debug.d (nobject_out): handle hash tables
 
 2003-05-24  Sam Steingold  <sds@gnu.org>
