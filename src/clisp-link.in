@@ -24,6 +24,7 @@ dirname=`echo "$1" | sed -e 's,/[^/]*$,,'`
 test -n "$dirname" || dirname='/'
 basename=`echo "$1" | sed -e 's,^.*/,,'`
 absolute_dirname=`cd "$dirname" ; /bin/pwd`
+rm -f "$2"
 ln -s "$absolute_dirname"/"$basename" "$2" 2>/dev/null ||
   ln "$1" "$2" 2>/dev/null ||
   cp -p "$1" "$2"
