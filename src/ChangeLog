@@ -1,3 +1,8 @@
+2001-05-11  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (cpu): set to "arm" when "$host_cpu" is "arm*"
+	Reported by Ola Rinta-Koski <ola@cyberell.com>.
+
 2001-05-10  Sam Steingold  <sds@gnu.org>
 
 	Fixed a crash, reported by Christophe Rhodes <csr21@cam.ac.uk>
