@@ -1,3 +1,8 @@
+2001-05-09  Bruno Haible  <haible@clisp.cons.org>
+
+        * sigsegv.h.in: Recognize __arm__ as CPU indicator on Linux.
+        * handler.c: Likewise.
+
 2001-03-19  Bruno Haible  <haible@clisp.cons.org>
 
         * autoconf/aclocal.m4 (CL_CANONICAL_HOST): Always define

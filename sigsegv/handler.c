@@ -88,7 +88,7 @@
 #define SIGSEGV_FAULT_CONTEXT  scp
 #define SIGSEGV_FAULT_STACKPOINTER  scp->sc_regs[30]
 #endif
-#if (defined(arm) || defined(__arm))
+#if (defined(arm) || defined(__arm) || defined(__arm__))
 /* Not sure about this one. */
 #include <asm/sigcontext.h>
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int r1, int r2, int r3, struct sigcontext sc
