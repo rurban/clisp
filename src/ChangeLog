@@ -1,5 +1,12 @@
 2004-08-07  Bruno Haible  <bruno@clisp.org>
 
+	* package.d (apply_symbols): Interpret an argument of nil as an empty
+	list, not as a single symbol.
+	* defpackage.lisp (shadowing-import-cerror, import-cerror): Handle
+	the NIL symbol accordingly.
+
+2004-08-07  Bruno Haible  <bruno@clisp.org>
+
 	* places.lisp (setf-VALUES-aux): Use only the first store variable
 	for each subform. Bind the others to nil.
 
