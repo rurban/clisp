@@ -157,6 +157,7 @@
 
 (defun run-all-tests (&optional (disable-risky t))
   (let ((error-count 0) (total-count 0)
+        #+CLISP (custom:*load-paths* nil)
         #+CLISP (custom:*warn-on-floating-point-contagion* nil)
         #+CLISP (custom:*warn-on-floating-point-rational-contagion* nil)
         (*features* (if disable-risky *features*
