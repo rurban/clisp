@@ -12202,8 +12202,13 @@ nonreturning_function(extern, fehler_function, (object obj));
 # is used by RECORD
 
 /* Report an error when the argument is not an encoding:
- > obj: the bad argument */
-nonreturning_function(global, fehler_encoding, (object obj));
+ > obj: the (possibly) bad argument
+ > e_default: what to return for :DEFAULT
+ > keyword_p: true if the object comes from the :EXTERNAL-FORMAT argument
+ < encoding
+ can trigger GC */
+global object check_encoding (object obj, const gcv_object_t* e_default,
+                              bool keyword_p);
 /* used by ENCODING, FOREIGN */
 
 # report errors if the argument is not a function name

@@ -1879,11 +1879,16 @@ LISPFUNNF(encodingp,1) {
   VALUES_IF(encodingp(arg));
 }
 
+#ifdef UNICODE
+#define DEFAULT_ENC &O(misc_encoding)
+#else
+#define DEFAULT_ENC &O(default_file_encoding)
+#endif
+
 /* (SYSTEM::CHARSET-TYPEP object encoding) tests whether the object
    is a character belonging to the given character set. */
 LISPFUNNR(charset_typep,2) {
-  var object encoding = STACK_0;
-  if (!encodingp(encoding)) fehler_encoding(encoding);
+  var object encoding = check_encoding(STACK_0,DEFAULT_ENC,false);
   var object obj = STACK_1;
   if (charp(obj)) {
    #ifdef UNICODE
@@ -1903,18 +1908,16 @@ LISPFUNNR(charset_typep,2) {
 
 /* (EXT:ENCODING-CHARSET encoding) --> charset */
 LISPFUNNR(encoding_charset,1) {
-  var object encoding = popSTACK();
-  if (!encodingp(encoding)) fehler_encoding(encoding);
+  var object encoding = check_encoding(popSTACK(),DEFAULT_ENC,false);
   VALUES1(TheEncoding(encoding)->enc_charset);
 }
 
 /* (SYSTEM::CHARSET-RANGE encoding char1 char2 [maxintervals])
  returns the range of characters in [char1,char2] encodable in the encoding. */
 LISPFUN(charset_range,seclass_read,3,1,norest,nokey,0,NIL) {
-  var object encoding = STACK_3;
-  if (!encodingp(encoding)) fehler_encoding(encoding);
-  if (!charp(STACK_2)) fehler_char(STACK_2);
-  if (!charp(STACK_1)) fehler_char(STACK_1);
+  var object encoding = check_encoding(STACK_3,DEFAULT_ENC,false);
+  if (!charp(STACK_2)) STACK_2 = check_char(STACK_2);
+  if (!charp(STACK_1)) STACK_1 = check_char(STACK_1);
   var uintL i1 = as_cint(char_code(STACK_2));
   var uintL i2 = as_cint(char_code(STACK_1));
   var uintL maxintervals;
@@ -2447,8 +2450,8 @@ LISPFUNNR(default_file_encoding,0) {
 
 /* (SYSTEM::SET-DEFAULT-FILE-ENCODING encoding) */
 LISPFUNN(set_default_file_encoding,1) {
-  var object encoding = popSTACK();
-  if (!encodingp(encoding)) fehler_encoding(encoding);
+  var object encoding =
+    check_encoding(popSTACK(),&O(default_file_encoding),false);
   VALUES1(O(default_file_encoding) = encoding);
 }
 
@@ -2461,8 +2464,7 @@ LISPFUNNR(pathname_encoding,0) {
 
 /* (SYSTEM::SET-PATHNAME-ENCODING encoding) */
 LISPFUNN(set_pathname_encoding,1) {
-  var object encoding = popSTACK();
-  if (!encodingp(encoding)) fehler_encoding(encoding);
+  var object encoding = check_encoding(popSTACK(),&O(pathname_encoding),false);
   VALUES1(O(pathname_encoding) = encoding);
 }
 
@@ -2473,8 +2475,7 @@ LISPFUNNR(terminal_encoding,0) {
 
 /* (SYSTEM::SET-TERMINAL-ENCODING encoding) */
 LISPFUNN(set_terminal_encoding,1) {
-  var object encoding = STACK_0;
-  if (!encodingp(encoding)) fehler_encoding(encoding);
+  var object encoding = check_encoding(STACK_0,&O(terminal_encoding),false);
   /* Ensure O(terminal_encoding) = (STREAM-EXTERNAL-FORMAT *TERMINAL-IO*).
      But first modify (STREAM-EXTERNAL-FORMAT *TERMINAL-IO*): */
   set_terminalstream_external_format(var_stream(S(terminal_io),0),encoding);
@@ -2490,9 +2491,8 @@ LISPFUNNR(foreign_encoding,0) {
 
 /* (SYSTEM::SET-FOREIGN-ENCODING encoding) */
 LISPFUNN(set_foreign_encoding,1) {
-  var object encoding = popSTACK();
-  if (!encodingp(encoding)) fehler_encoding(encoding);
-  if (!(TheEncoding(encoding)->max_bytes_per_char == 1)) {
+  var object encoding = check_encoding(popSTACK(),&O(foreign_encoding),false);
+  if (TheEncoding(encoding)->max_bytes_per_char != 1) {
     pushSTACK(encoding); pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: ~ is not a 1:1 encoding"));
   }
@@ -2508,8 +2508,7 @@ LISPFUNNR(misc_encoding,0) {
 
 /* (SYSTEM::SET-MISC-ENCODING encoding) */
 LISPFUNN(set_misc_encoding,1) {
-  var object encoding = popSTACK();
-  if (!encodingp(encoding)) fehler_encoding(encoding);
+  var object encoding = check_encoding(popSTACK(),&O(misc_encoding),false);
   VALUES1(O(misc_encoding) = encoding);
 }
 
@@ -2524,7 +2523,7 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
   /* Stack layout: array, encoding, start, end. */
   var object array = STACK_3;
   if (!vectorp(array)) fehler_vector(array); /* check array */
-  if (!encodingp(STACK_2)) fehler_encoding(STACK_2); /* check encoding */
+  STACK_2 = check_encoding(STACK_2,DEFAULT_ENC,false);
   STACK_3 = STACK_2; /* encoding */ STACK_2 = array; /* array */
   if (!boundp(STACK_1)) STACK_1 = Fixnum_0; /* check start */
   if (missingp(STACK_0)) /* check end */
@@ -2580,7 +2579,7 @@ LISPFUN(convert_string_to_bytes,seclass_read,2,0,norest,key,2,
         (kw(start),kw(end)) ) {
   /* Stack layout: string, encoding, start, end. */
   var object string = STACK_3;
-  if (!encodingp(STACK_2)) fehler_encoding(STACK_2); /* check encoding */
+  STACK_2 = check_encoding(STACK_2,DEFAULT_ENC,false);
   STACK_3 = STACK_2; /* encoding */ STACK_2 = string; /* string */
   var stringarg sa;
   string = test_string_limits_ro(&sa); /* check string */

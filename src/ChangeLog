@@ -1,3 +1,18 @@
+2003-05-07  Sam Steingold  <sds@gnu.org>
+
+	* error.d (check_encoding): new function, based on
+	test_external_format_arg() in stream.d
+	(fehler_encoding): removed
+	* lispbibl.d (check_encoding, fehler_encoding): ditto
+	* foreign.d (CALL-WITH-FOREIGN-STRING): use check_encoding()
+	instead of fehler_encoding()
+	* encoding.d (CHARSET-TYPEP, ENCODING-CHARSET, CHARSET-RANGE)
+	(SET-DEFAULT-FILE-ENCODING, SET-PATHNAME-ENCODING)
+	(SET-TERMINAL-ENCODING, SET-FOREIGN-ENCODING, SET-MISC-ENCODING)
+	(CONVERT-STRING-FROM-BYTES, CONVERT-STRING-TO-BYTES): ditto
+	* stream.d (test_external_format_arg): turned in to a macro that
+	calls check_encoding()
+
 2003-05-06  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* ffcall/avcall/avcall.h.in (av_overflown): added this macro to
