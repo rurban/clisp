@@ -153,7 +153,7 @@
 <formalpara id="eval-env"><title>Function <literal role="sexp">(EXT:EVAL-ENV
  &form-r; &optional-amp; &env-r;)</literal></title>
 <para>evaluates a form in a given &lex-env;, just as if the
- form had been a part of the program that the environment came from.
+ form had been a part of the program that the &env-r; came from.
 </para></formalpara>
 
 </section>
