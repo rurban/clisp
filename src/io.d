@@ -544,7 +544,7 @@ nonreturning_function(local, fehler_bad_readtable, (void)) {
       { if (!readtablep(Symbol_value(S(readtablestern)))) { fehler_bad_readtable(); }  \
         assignment Symbol_value(S(readtablestern));                                    \
       }
-  #else # oder (optimized):
+  #else # or (optimized):
     #define get_readtable(assignment)  \
       { if (!(orecordp(Symbol_value(S(readtablestern)))                                             \
               && (Record_type( assignment Symbol_value(S(readtablestern)) ) == Rectype_Readtable))) \
@@ -605,137 +605,116 @@ LISPFUNN(defio,2) {
 # LISP - Functions for readtables
 # =============================================================================
 
-# error, if argument is no Readtable.
-# fehler_readtable(obj);  means: error_readtable(obj);
-# > obj: erroneous Argument
-nonreturning_function(local, fehler_readtable, (object obj)) {
-  pushSTACK(obj);          # TYPE-ERROR slot DATUM
-  pushSTACK(S(readtable)); # TYPE-ERROR slot EXPECTED-TYPE
-  pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ is not a readtable"));
+/* error, if argument is no Readtable.
+ check_readtable(obj);
+ > obj: possibly erroneous Argument
+ can trigger GC */
+local object check_readtable (object obj) {
+  while (!readtablep(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);          /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(readtable)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(readtable)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: argument ~ is not a ~"));
+    obj = value1;
+  }
+  return obj;
 }
-
-# Verifies an object is a readtable. Error if not.
-# check_readtable(obj);
-# > obj: argument
-#define check_readtable(obj) \
-  { if (!readtablep(obj)) fehler_readtable(obj); }
 
 LISPFUN(copy_readtable,seclass_read,0,2,norest,nokey,0,NIL)
 { /* (COPY-READTABLE [from-readtable [to-readtable]]), CLTL p. 361 */
-    var object from_readtable = STACK_1;
-    if (!boundp(from_readtable)) {
-      # no arguments are given
-      get_readtable(from_readtable=); # current readtable
+  var object from_readtable = STACK_1;
+  if (!boundp(from_readtable)) {
+    /* no arguments are given */
+    get_readtable(from_readtable=); /* current readtable */
+    VALUES1(copy_readtable(from_readtable));
+  } else {
+    if (nullp(from_readtable))
+      /* instead of NIL take the standard-readtable */
+      from_readtable = O(standard_readtable);
+    else /* check from-readtable: */
+      from_readtable = STACK_1 = check_readtable(from_readtable);
+    /* from-readtable is OK */
+    var object to_readtable = STACK_0;
+    if (missingp(to_readtable))
+      /* copy from-readtable, without to-readtable */
       VALUES1(copy_readtable(from_readtable));
-    } else {
-      if (nullp(from_readtable)) {
-        # instead of NIL take the standard-readtable
-        from_readtable = O(standard_readtable);
-      } else {
-        # check from-readtable:
-        check_readtable(from_readtable);
-      }
-      # from-readtable is OK
-      var object to_readtable = STACK_0;
-      if (missingp(to_readtable)) {
-        # copy from-readtable, without to-readtable
-        VALUES1(copy_readtable(from_readtable));
-      } else {
-        # check to-readtable and perform the copying:
-        check_readtable(to_readtable);
-        VALUES1(copy_readtable_contents(from_readtable,to_readtable));
-      }
+    else { /* check to-readtable and perform the copying: */
+      to_readtable = check_readtable(to_readtable);
+      from_readtable = STACK_1; /* restore: check_readtable() may cons */
+      VALUES1(copy_readtable_contents(from_readtable,to_readtable));
     }
-    skipSTACK(2);
+  }
+  skipSTACK(2);
 }
 
 LISPFUN(set_syntax_from_char,seclass_default,2,2,norest,nokey,0,NIL)
-# (SET-SYNTAX-FROM-CHAR to-char from-char [to-readtable [from-readtable]]),
-# CLTL p. 361
-  {
-    var object to_char = STACK_3;
-    var object from_char = STACK_2;
-    var object to_readtable = STACK_1;
-    var object from_readtable = STACK_0;
-    # check to-char:
-    if (!charp(to_char)) # must be a character
-      fehler_char(to_char);
-    # check from-char:
-    if (!charp(from_char)) # must be a character
-      fehler_char(from_char);
-    # check to-readtable:
-    if (!boundp(to_readtable)) {
-      get_readtable(to_readtable=); # default is the current readtable
-    } else {
-      check_readtable(to_readtable);
-    }
-    # check from-readtable:
-    if (missingp(from_readtable)) {
-      from_readtable = O(standard_readtable); # default is the standard-readtable
-    } else {
-      check_readtable(from_readtable);
-    }
-    STACK_1 = to_readtable;
-    STACK_0 = from_readtable;
-    # now to_char, from_char, to_readtable, from_readtable are OK.
-    {
-      var chart to_c = char_code(to_char);
-      var chart from_c = char_code(from_char);
-      # copy syntaxcode:
-      syntax_readtable_put(to_readtable,to_c,
-                           syntax_readtable_get(from_readtable,from_c));
-      # copy macro-function/vector:
-      var object entry = perchar_table_get(TheReadtable(STACK_0)->readtable_macro_table,from_c);
-      if (simple_vector_p(entry))
-        # if entry is a simple-vector, it must be copied:
-        { entry = copy_perchar_table(entry); }
-      perchar_table_put(TheReadtable(STACK_1)->readtable_macro_table,to_c,entry);
-    }
-    VALUES1(T);
-    skipSTACK(4);
-  }
-
-# UP: checks an optional readtable-argument,
-# with default = current readtable.
-# > STACK_0: Argument
-# < STACK: increased by 1
-# < result: readtable
-local object test_readtable_arg (void) {
-  var object readtable = popSTACK();
-  if (!boundp(readtable)) {
-    get_readtable(readtable=); # the current readtable is default
+{ /* (SET-SYNTAX-FROM-CHAR to-char from-char [to-readtable [from-readtable]]),
+ CLTL p. 361 */
+  var chart to_char = char_code(check_char(STACK_3));
+  var chart from_char = char_code(check_char(STACK_2));
+  var object to_readtable = STACK_1;
+  var object from_readtable = STACK_0;
+  /* check to-readtable: */
+  if (!boundp(to_readtable)) { /* default is the current readtable */
+    get_readtable(to_readtable=STACK_1=);
+  } else
+    to_readtable = STACK_1 = check_readtable(to_readtable);
+  /* check from-readtable: */
+  if (missingp(from_readtable)) { /* default is the standard-readtable */
+    STACK_0 = from_readtable = O(standard_readtable);
   } else {
-    check_readtable(readtable);
+    STACK_0 = from_readtable = check_readtable(from_readtable);
+    to_readtable = STACK_1; /* restore: check_readtable() may cons */
   }
+  /* now to_char, from_char, to_readtable, from_readtable are OK. */
+  /* copy syntaxcode: */
+  syntax_readtable_put(to_readtable,to_char,
+                       syntax_readtable_get(from_readtable,from_char));
+  # copy macro-function/vector:
+  var object entry = perchar_table_get(TheReadtable(STACK_0)->readtable_macro_table,from_char);
+  if (simple_vector_p(entry))
+    # if entry is a simple-vector, it must be copied:
+    entry = copy_perchar_table(entry);
+  perchar_table_put(TheReadtable(STACK_1)->readtable_macro_table,to_char,entry);
+  VALUES1(T);
+  skipSTACK(4);
+}
+
+/* UP: checks an optional readtable-argument,
+ with default = current readtable.
+ > readtable: Argument
+ < result: readtable
+ can trigger GC */
+local object test_readtable_arg (object readtable) {
+  if (!boundp(readtable)) {
+    get_readtable(readtable=); /* the current readtable is default */
+  } else
+    readtable = check_readtable(readtable);
   return readtable;
 }
 
-# UP: checks an optional readtable-argument,
-# with default = current readtable, nil = standard-readtable.
-# > STACK_0: Argument
-# < STACK: increased by 1
-# < result: readtable
-local object test_readtable_null_arg (void) {
-  var object readtable = popSTACK();
+/* UP: checks an optional readtable-argument,
+ with default = current readtable, nil = standard-readtable.
+ > readtable: Argument
+ < result: readtable
+ can trigger GC */
+local object test_readtable_null_arg (object readtable) {
   if (!boundp(readtable)) {
-    get_readtable(readtable=); # the current readtable is default
+    get_readtable(readtable=); /* the current readtable is default */
   } else if (nullp(readtable)) {
-    readtable = O(standard_readtable); # respectively the standard-readtable
-  } else {
-    check_readtable(readtable);
-  }
+    readtable = O(standard_readtable); /* respectively the standard-readtable */
+  } else
+    readtable = check_readtable(readtable);
   return readtable;
 }
 
-# UP: checks the next-to-last optional argument of
-# SET-MACRO-CHARACTER and MAKE-DISPATCH-MACRO-CHARACTER.
-# > STACK_0: non-terminating-p - Argument
-# < STACK: increased by 1
-# < result: new syntaxcode
-local uintB test_nontermp_arg (void) {
-  var object arg = popSTACK();
+/* UP: checks the next-to-last optional argument of
+ SET-MACRO-CHARACTER and MAKE-DISPATCH-MACRO-CHARACTER.
+ > arg: non-terminating-p - Argument
+ < result: new syntaxcode */
+local uintB test_nontermp_arg (object arg) {
   if (missingp(arg))
     return syntax_t_macro; # terminating is default
   else
@@ -743,108 +722,87 @@ local uintB test_nontermp_arg (void) {
 }
 
 LISPFUN(set_macro_character,seclass_default,2,2,norest,nokey,0,NIL)
-# (SET-MACRO-CHARACTER char function [non-terminating-p [readtable]]),
-# CLTL p. 362
-  {
-    # check char:
-    {
-      var object ch = STACK_3;
-      if (!charp(ch))
-        fehler_char(ch);
-    }
-    # check function and convert into an object of type FUNCTION:
-    {
-      var object function = coerce_function(STACK_2);
-      if (cclosurep(function)
-          && eq(TheCclosure(function)->clos_codevec,TheCclosure(O(dispatch_reader))->clos_codevec)) {
-        var object vector =
-          ((Srecord)TheCclosure(function))->recdata[posfixnum_to_L(O(dispatch_reader_index))];
-        if (simple_vector_p(vector)) {
-          # It's a clone of #'dispatch-reader. Pull out the vector.
-          function = copy_perchar_table(vector);
-        }
+{ /* (SET-MACRO-CHARACTER char function [non-terminating-p [readtable]]),
+ CLTL p. 362 */
+  var chart c = char_code(check_char(STACK_3));
+  { /* check function and convert into an object of type FUNCTION: */
+    var object function = coerce_function(STACK_2);
+    if (cclosurep(function)
+        && eq(TheCclosure(function)->clos_codevec,
+              TheCclosure(O(dispatch_reader))->clos_codevec)) {
+      var object vector =
+        ((Srecord)TheCclosure(function))->recdata[posfixnum_to_L(O(dispatch_reader_index))];
+      if (simple_vector_p(vector)) {
+        # It's a clone of #'dispatch-reader. Pull out the vector.
+        function = copy_perchar_table(vector);
       }
-      STACK_2 = function;
     }
-    var object readtable = test_readtable_arg(); # Readtable
-    var uintB syntaxcode = test_nontermp_arg(); # new syntaxcode
-    var chart c = char_code(STACK_1);
-    STACK_1 = readtable;
-    # set syntaxcode:
-    syntax_table_put(TheReadtable(readtable)->readtable_syntax_table,c,syntaxcode);
-    # add macrodefinition:
-    perchar_table_put(TheReadtable(STACK_1)->readtable_macro_table,c,STACK_0);
-    VALUES1(T);
-    skipSTACK(2);
+    STACK_2 = function;
   }
+  var object readtable = test_readtable_arg(popSTACK()); /* readtable */
+  var uintB syntaxcode = test_nontermp_arg(popSTACK()); /* new syntaxcode */
+  STACK_1 = readtable;
+  # set syntaxcode:
+  syntax_table_put(TheReadtable(readtable)->readtable_syntax_table,c,syntaxcode);
+  # add macrodefinition:
+  perchar_table_put(TheReadtable(STACK_1)->readtable_macro_table,c,STACK_0);
+  VALUES1(T);
+  skipSTACK(2);
+}
 
 LISPFUN(get_macro_character,seclass_read,1,1,norest,nokey,0,NIL)
-# (GET-MACRO-CHARACTER char [readtable]), CLTL p. 362
-  {
-    # check char:
-    {
-      var object ch = STACK_1;
-      if (!charp(ch))
-        fehler_char(ch);
-    }
-    var object readtable = test_readtable_null_arg(); # Readtable
-    var object ch = popSTACK();
-    var chart c = char_code(ch);
-    # Test the Syntaxcode:
-    var object nontermp = NIL; # non-terminating-p Flag
-    switch (syntax_readtable_get(readtable,c)) {
-      case syntax_nt_macro: nontermp = T;
-      case syntax_t_macro: # nontermp = NIL;
-        # c is a macro-character.
-        {
-          var object entry = perchar_table_get(TheReadtable(readtable)->readtable_macro_table,c);
-          if (simple_vector_p(entry)) {
-            # c is a dispatch-macro-character.
-            if (nullp(O(dispatch_reader))) {
-              # Shouldn't happen (bootstrapping problem).
-              pushSTACK(ch);
-              pushSTACK(TheSubr(subr_self)->name);
-              fehler(error,GETTEXT("~: ~ is a dispatch macro character"));
-            }
-            # Clone #'dispatch-reader.
-            pushSTACK(copy_perchar_table(entry));
-            var object newclos = allocate_cclosure_copy(O(dispatch_reader));
-            do_cclosure_copy(newclos,O(dispatch_reader));
-            ((Srecord)TheCclosure(newclos))->recdata[posfixnum_to_L(O(dispatch_reader_index))] = popSTACK();
-            value1 = newclos;
-          } else {
-            value1 = entry;
-          }
+{ /* (GET-MACRO-CHARACTER char [readtable]), CLTL p. 362 */
+  var chart c = char_code(check_char(STACK_1));
+  var object readtable = test_readtable_null_arg(STACK_0); /* Readtable */
+  skipSTACK(2);
+  /* Test the Syntaxcode: */
+  var object nontermp = NIL; /* non-terminating-p Flag */
+  switch (syntax_readtable_get(readtable,c)) {
+    case syntax_nt_macro: nontermp = T;
+    case syntax_t_macro: { /* nontermp = NIL; */
+      /* c is a macro-character. */
+      var object entry =
+        perchar_table_get(TheReadtable(readtable)->readtable_macro_table,c);
+      if (simple_vector_p(entry)) {
+        /* c is a dispatch-macro-character. */
+        if (nullp(O(dispatch_reader))) {
+          /* Shouldn't happen (bootstrapping problem). */
+          pushSTACK(code_char(c));
+          pushSTACK(TheSubr(subr_self)->name);
+          fehler(error,GETTEXT("~: ~ is a dispatch macro character"));
         }
-        break;
-      default: # nontermp = NIL;
-        value1 = NIL; break;
-    }
-    value2 = nontermp; mv_count=2; # nontermp as second value
+        /* Clone #'dispatch-reader. */
+        pushSTACK(copy_perchar_table(entry));
+        var object newclos = allocate_cclosure_copy(O(dispatch_reader));
+        do_cclosure_copy(newclos,O(dispatch_reader));
+        ((Srecord)TheCclosure(newclos))->recdata[posfixnum_to_L(O(dispatch_reader_index))] = popSTACK();
+        value1 = newclos;
+      } else
+        value1 = entry;
+    } break;
+    default: /* nontermp = NIL; */
+      value1 = NIL; break;
   }
+  value2 = nontermp; mv_count=2; /* nontermp as second value */
+}
 
 LISPFUN(make_dispatch_macro_character,seclass_default,1,2,norest,nokey,0,NIL)
-# (MAKE-DISPATCH-MACRO-CHARACTER char [non-terminating-p [readtable]]),
-# CLTL p. 363
-  {
-    var object readtable = test_readtable_arg(); # Readtable
-    var uintB syntaxcode = test_nontermp_arg(); # new syntaxcode
-    # check char:
-    var object ch = popSTACK();
-    if (!charp(ch))
-      fehler_char(ch);
-    var chart c = char_code(ch);
-    # fetch new (empty) dispatch-macro-table:
-    pushSTACK(readtable);
-    pushSTACK(allocate_perchar_table()); # vector, filled with NIL
-    # store everything in the readtable:
-    # syntaxcode into syntax-table:
-    syntax_table_put(TheReadtable(STACK_1)->readtable_syntax_table,c,syntaxcode);
-    # new dispatch-macro-table into the macrodefinition table:
-    perchar_table_put(TheReadtable(STACK_1)->readtable_macro_table,c,STACK_0);
-    VALUES1(T);
-    skipSTACK(2);
-  }
+{ /* (MAKE-DISPATCH-MACRO-CHARACTER char [non-terminating-p [readtable]]),
+ CLTL p. 363 */
+  var object readtable = test_readtable_arg(STACK_0); /* Readtable */
+  var uintB syntaxcode = test_nontermp_arg(STACK_1); /* new syntaxcode */
+  STACK_1 = readtable;
+  var chart c = char_code(check_char(STACK_2));
+  /* fetch new (empty) dispatch-macro-table: */
+  STACK_0 = allocate_perchar_table(); /* vector, filled with NIL */
+  /* store everything in the readtable: */
+  /* syntaxcode into syntax-table: */
+  syntax_table_put(TheReadtable(STACK_1)->readtable_syntax_table,c,syntaxcode);
+  /* new dispatch-macro-table into the macrodefinition table: */
+  perchar_table_put(TheReadtable(STACK_1)->readtable_macro_table,c,STACK_0);
+  VALUES1(T);
+  skipSTACK(3);
+}
 
 # UP: checks the arguments disp-char and sub-char.
 # > STACK: STACK_1 = disp-char, STACK_0 = sub-char
@@ -875,30 +833,30 @@ local object test_disp_sub_char (object readtable) {
 }
 
 LISPFUN(set_dispatch_macro_character,seclass_default,3,1,norest,nokey,0,NIL)
-# (SET-DISPATCH-MACRO-CHARACTER disp-char sub-char function [readtable]),
-# CLTL p. 364
-  {
-    # check function and convert it into an object of Type FUNCTION:
-    STACK_1 = coerce_function(STACK_1);
-    var object readtable = test_readtable_arg(); # Readtable
-    var object function = popSTACK(); # function
-    var object dm_table = test_disp_sub_char(readtable);
-    if (eq(dm_table,nullobj)) {
-      # STACK_0 = sub-char, TYPE-ERROR slot DATUM
-      pushSTACK(O(type_not_digit)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(STACK_1);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~: digit $ not allowed as sub-char"));
-    } else {
-      perchar_table_put(dm_table,up_case(char_code(STACK_0)),function); # add function to the dispatch-macro-table
-      VALUES1(T); skipSTACK(2);
-    }
+{ /* (SET-DISPATCH-MACRO-CHARACTER disp-char sub-char function [readtable]),
+ CLTL p. 364 */
+  /* check function and convert it into an object of Type FUNCTION: */
+  STACK_1 = coerce_function(STACK_1);
+  var object readtable = test_readtable_arg(popSTACK()); /* Readtable */
+  var object function = popSTACK(); /* function */
+  var object dm_table = test_disp_sub_char(readtable);
+  if (eq(dm_table,nullobj)) {
+    /* STACK_0 = sub-char, TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_not_digit)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(STACK_1);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,GETTEXT("~: digit $ not allowed as sub-char"));
+  } else {
+    /* add function to the dispatch-macro-table */
+    perchar_table_put(dm_table,up_case(char_code(STACK_0)),function);
+    VALUES1(T); skipSTACK(2);
   }
+}
 
 LISPFUN(get_dispatch_macro_character,seclass_read,2,1,norest,nokey,0,NIL)
 { /* (GET-DISPATCH-MACRO-CHARACTER disp-char sub-char [readtable]),
      CLTL p. 364 */
-  var object readtable = test_readtable_null_arg(); /* Readtable */
+  var object readtable = test_readtable_null_arg(popSTACK()); /* readtable */
   var object dm_table = test_disp_sub_char(readtable);
   VALUES1(eq(dm_table,nullobj) ? NIL /* NIL or Function as value */
           : perchar_table_get(dm_table,up_case(char_code(STACK_0))));
@@ -907,36 +865,39 @@ LISPFUN(get_dispatch_macro_character,seclass_read,2,1,norest,nokey,0,NIL)
 
 #define RTCase(rt) ((uintW)posfixnum_to_L(TheReadtable(rt)->readtable_case))
 
-# (READTABLE-CASE readtable), CLTL2 S. 549
-LISPFUNN(readtable_case,1) {
-  var object readtable = popSTACK(); # Readtable
-  check_readtable(readtable);
+LISPFUNN(readtable_case,1)
+{ /* (READTABLE-CASE readtable), CLTL2 S. 549 */
+  var object readtable = check_readtable(popSTACK()); /* Readtable */
   VALUES1((&O(rtcase_0))[RTCase(readtable)]);
 }
 
-# (SYSTEM::SET-READTABLE-CASE readtable value), CLTL2 p. 549
-LISPFUNN(set_readtable_case,2) {
+LISPFUNN(set_readtable_case,2)
+{ /* (SYSTEM::SET-READTABLE-CASE readtable value), CLTL2 p. 549 */
   var object value = popSTACK();
-  var object readtable = popSTACK(); # Readtable
-  check_readtable(readtable);
-  # convert symbol value into an index by searching in table O(rtcase..):
+ retry_readtable_case:
+  /* convert symbol value into an index by searching in table O(rtcase..): */
   var const gcv_object_t* ptr = &O(rtcase_0);
   var object rtcase = Fixnum_0;
-  var uintC count;
-  dotimesC(count,4, {
+  var uintC count = 4;
+  while (count--) {
     if (eq(*ptr,value))
       goto found;
     ptr++; rtcase = fixnum_inc(rtcase,1);
-  });
-  # invalid value
-  pushSTACK(value);          # TYPE-ERROR slot DATUM
-  pushSTACK(O(type_rtcase)); # TYPE-ERROR slot EXPECTED-TYPE
+  };
+  /* invalid value */
+  pushSTACK(NIL); /* no PLACE */
+  pushSTACK(value);          /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_rtcase)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(O(rtcase_3)); pushSTACK(O(rtcase_2));
   pushSTACK(O(rtcase_1)); pushSTACK(O(rtcase_0));
   pushSTACK(value);
   pushSTACK(S(set_readtable_case));
-  fehler(type_error,GETTEXT("~: new value ~ should be ~, ~, ~ or ~."));
- found: # found in  table
+  check_value(type_error,GETTEXT("~: new value ~ should be ~, ~, ~ or ~."));
+  value = value1;
+  goto retry_readtable_case;
+ found: /* found in  table */
+  var object readtable = check_readtable(popSTACK()); /* readtable */
+  /* rtcase is a GC-invariant fixnum */
   TheReadtable(readtable)->readtable_case = rtcase;
   VALUES1(value);
 }
