@@ -1504,6 +1504,7 @@
                          ; NO-NEXT-METHOD)
   initfunction           ; returns - if called - the function
                          ; (only for the demand of ADD-METHOD)
+  origin                 ; flag, if this method comes from a DEFGENERIC
 )
 
 ;; For CALL-NEXT-METHOD and NO-NEXT-METHOD the generic function must be known.
@@ -1752,7 +1753,8 @@ in the generic function instance."
                  :PARAMETER-SPECIALIZERS
                    (LIST ,@(nreverse req-specializer-forms))
                  :QUALIFIERS ',qualifiers
-                 :SIGNATURE ,sig)
+                 :SIGNATURE ,sig
+                 ,@(if (eq caller 'DEFGENERIC) `(:ORIGIN T)))
               sig)))))))
 
 
@@ -3067,6 +3069,15 @@ in the generic function instance."
         ;; redefinition of a generic function
         (progn
           (warn-if-gf-already-called gf)
+          ;; Remove the old defgeneric-originated methods. Instead of calling
+          ;; std-remove-method on each such method, while inhibiting warnings,
+          ;; we can just as well remove the methods directly.
+          (setf (gf-methods gf)
+                (remove-if #'(lambda (method)
+                               (when (std-method-origin method)
+                                 (setf (std-method-gf method) nil)
+                                 t))
+                           (gf-methods gf)))
           (unless (equalp signature (gf-signature gf))
             (dolist (method (gf-methods gf))
               (check-signature-congruence gf method signature))
