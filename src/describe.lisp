@@ -172,7 +172,11 @@ to print the corresponding values, or T for all of them.")
       (EXT:SYMBOL-MACRO
        (format stream (TEXT "a symbol macro handler.")))
       (SYS::MACRO
-       (format stream (TEXT "a macro expander.")))
+       (format stream (TEXT "a macro expander."))
+       (format stream (TEXT "~%For more information, evaluate ~{~S~^ or ~}.")
+               `((DISASSEMBLE (MACRO-FUNCTION
+                               ',(sys::closure-name
+                                  (sys::macro-expander obj)))))))
       (EXT:FUNCTION-MACRO
        (format stream (TEXT "a function with alternative macro expander.")))
       (EXT:ENCODING
@@ -453,14 +457,14 @@ to print the corresponding values, or T for all of them.")
              (sys::signature obj)
            (sys::describe-signature stream req opt rest-p key-p keywords
                                     other-keys-p)
-           (format stream (TEXT "~%For more information, evaluate ~{~S~^ or ~}.")
-                   (let* ((name (sys::closure-name obj))
-                          (funform
-                            (if (and (symbolp name) (macro-function name))
-                              `(MACRO-FUNCTION ',name)
-                              `(FUNCTION ,name)
-                         )) )
-                     `((DISASSEMBLE ,funform)))))
+           (let* ((name (sys::closure-name obj))
+                  (funform (cond ((and (symbolp name) (macro-function name))
+                                  `(MACRO-FUNCTION ',name))
+                                 ((fboundp name) `(FUNCTION ,name)))))
+             (when funform
+               (format stream
+                       (TEXT "~%For more information, evaluate ~{~S~^ or ~}.")
+                       `((DISASSEMBLE ,funform))))))
          (let ((doc (sys::%record-ref obj 2)))
            (format stream (TEXT "~%argument list: ~:S")
                    (car (sys::%record-ref obj 1)))
