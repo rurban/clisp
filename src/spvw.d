@@ -1343,6 +1343,7 @@ local void init_symbol_values (void) {
   define_variable(S(load_print),NIL); /* *LOAD-PRINT* := NIL */
   define_variable(S(compile_print),NIL); /* *COMPILE-PRINT* := NIL */
   define_variable(S(compile_verbose),T); /* *COMPILE-VERBOSE* := T */
+  define_variable(S(report_error_print_backtrace),NIL); /* *REPORT-ERROR-PRINT-BACKTRACE* := NIL */
   define_variable(S(loop_ansi),NIL); /* CUSTOM:*LOOP-ANSI* := NIL */
   define_variable(S(defun_accept_specialized_lambda_list),NIL); /* CUSTOM:*DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST* := NIL */
   # for FOREIGN:
@@ -1634,8 +1635,8 @@ local void usage (void) {
   printf(GETTEXTL(" -x expressions - execute the expressions, then exit\n"));
   printf(GETTEXTL(" lispfile [argument ...] - load lispfile, then exit\n"));
   printf(GETTEXTL("These actions put CLISP into a batch mode, which is overridden by\n"));
-  printf(GETTEXTL(" -interactive-debug - allow interaction for failed ASSERT and friends\n"));
-  printf(GETTEXTL(" -repl              - enter the interactive read-eval-print loop when done\n"));
+  printf(GETTEXTL(" -on-error action - action can be one of debug, exit, abort, appease\n"));
+  printf(GETTEXTL(" -repl            - enter the interactive read-eval-print loop when done\n"));
   printf(GETTEXTL("Default action is an interactive read-eval-print loop.\n"));
 }
 
@@ -1796,12 +1797,27 @@ local void print_banner ()
   skipSTACK(1);
 }
 
+typedef enum {
+  ON_ERROR_DEFAULT,
+  ON_ERROR_DEBUG,
+  ON_ERROR_ABORT,
+  ON_ERROR_APPEASE,
+  ON_ERROR_EXIT
+} on_error_t;
+
 /* Returns `(BATCHMODE-ERRORS ,form) or `(APPEASE-CERRORS ,form), as
  appropriate.
  can trigger GC */
-local maygc object appease_form (bool interactive_debug, object form)
+local maygc object appease_form (on_error_t on_error, object form)
 {
-  pushSTACK(interactive_debug ? S(appease_cerrors) : S(batchmode_errors));
+  switch (on_error) {
+    case ON_ERROR_EXIT: case ON_ERROR_DEFAULT:
+      pushSTACK(S(batchmode_errors)); break;
+    case ON_ERROR_APPEASE: pushSTACK(S(appease_cerrors)); break;
+    case ON_ERROR_ABORT: pushSTACK(S(abort_errors)); break;
+    case ON_ERROR_DEBUG: return form;
+    default: NOTREACHED;
+  }
   pushSTACK(form);
   return listof(2);
 }
@@ -1870,7 +1886,7 @@ struct argv_actions {
   bool argv_compile;
   bool argv_compile_listing;
   bool argv_norc;
-  bool argv_interactive_debug;
+  on_error_t argv_on_error;
   uintL argv_compile_filecount;
   argv_compile_file_t* argv_compile_files;
   const char* argv_package;
@@ -1910,7 +1926,7 @@ local inline int parse_options (int argc, const char* const* argv,
   p2->argv_compile = false;
   p2->argv_compile_listing = false;
   p2->argv_norc = false;
-  p2->argv_interactive_debug = false;
+  p2->argv_on_error = ON_ERROR_DEFAULT;
   p2->argv_compile_filecount = 0;
   p2->argv_compile_files = (argv_compile_file_t*) malloc((uintL)argc*sizeof(argv_compile_file_t)); # maximal argc file-arguments
   p2->argv_package = NULL;
@@ -1953,7 +1969,7 @@ local inline int parse_options (int argc, const char* const* argv,
      -traditional    traditional (undoes -ansi)
      -modern         modern (set *PACKAGE* and *PRINT-CASE*)
      -x expr         execute LISP-expressions, then leave LISP
-     -interactive-debug  override batch-mode for -c, -x and file
+     -on-error debug override batch-mode for -c, -x and file
      -repl           enter REPL after -c, -x and file
      -w              wait for keypress after termination
      --help          print usage and exit (should be the only option)
@@ -2182,8 +2198,6 @@ local inline int parse_options (int argc, const char* const* argv,
           case 'i': # initialization files
             if (arg[2] == '\0')
               argv_for = for_init;
-            else if (asciz_equal(&arg[1],"interactive-debug"))
-              p2->argv_interactive_debug = true;
             else {
               INVALID_ARG(arg);
               return 1;
@@ -2212,18 +2226,40 @@ local inline int parse_options (int argc, const char* const* argv,
               return 1;
             }
             break;
-          case 'o': # target for files to be compiled
-            if (arg[2] != '\0') {
+          case 'o':
+            if (asciz_equal(&arg[1],"on-error")) {
+              if (argptr < argptr_limit)
+                arg = *argptr++;
+              else {
+                INVALID_ARG(arg);
+                return 1;
+              }
+              if (asciz_equal(arg,"default"))
+                p2->argv_on_error = ON_ERROR_DEFAULT;
+              else if (asciz_equal(arg,"debug"))
+                p2->argv_on_error = ON_ERROR_DEBUG;
+              else if (asciz_equal(arg,"abort"))
+                p2->argv_on_error = ON_ERROR_ABORT;
+              else if (asciz_equal(arg,"appease"))
+                p2->argv_on_error = ON_ERROR_APPEASE;
+              else if (asciz_equal(arg,"exit"))
+                p2->argv_on_error = ON_ERROR_EXIT;
+              else {
+                arg_error("invalid `on-error' action",arg);
+                return 1;
+              }
+            } else if (arg[2] == '\0') { /* target for files to be compiled */
+              OPTION_ARG;
+              if (!((p2->argv_compile_filecount > 0)
+                    && (p2->argv_compile_files[p2->argv_compile_filecount-1].output_file==NULL))) {
+                INVALID_ARG(arg);
+                return 1;
+              }
+              p2->argv_compile_files[p2->argv_compile_filecount-1].output_file = arg;
+            } else {
               INVALID_ARG(arg);
               return 1;
             }
-            OPTION_ARG;
-            if (!((p2->argv_compile_filecount > 0)
-                  && (p2->argv_compile_files[p2->argv_compile_filecount-1].output_file==NULL))) {
-              INVALID_ARG(arg);
-              return 1;
-            }
-            p2->argv_compile_files[p2->argv_compile_filecount-1].output_file = arg;
             break;
           case 'p': # package: when repeated, only the last one counts.
             OPTION_ARG;
@@ -2335,7 +2371,9 @@ local inline int parse_options (int argc, const char* const* argv,
     }
     p2->argv_batchmode_p = /* '-c' or '-x' or file => batch-mode: */
       ((p2->argv_compile || p2->argv_expr_count || p2->argv_execute_file != NULL)
-       && !p2->argv_interactive_debug && !p2->argv_repl);
+       && p2->argv_on_error != ON_ERROR_DEBUG
+       && p2->argv_on_error != ON_ERROR_APPEASE
+       && !p2->argv_repl);
     # check options semantically and store defaults:
     if (p1->argv_memneed == 0) {
      #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && defined(GENERATIONAL_GC)
@@ -2944,8 +2982,10 @@ local inline void main_actions (struct argv_actions *p) {
     { Symbol_value(S(load_compiling)) = T; }
   if (p->argv_verbose < 1) /* (setq *load-verbose* nil *compile-verbose* nil) */
     Symbol_value(S(load_verbose)) = Symbol_value(S(compile_verbose)) = NIL;
-  if (p->argv_verbose > 2) /* (setq *load-print* t *compile-print* t) */
-    Symbol_value(S(load_print)) = Symbol_value(S(compile_print)) = T;
+  if (p->argv_verbose > 2) /* (setq *load-print* t *compile-print* t
+                                    *report-error-print-backtrace* t) */
+    Symbol_value(S(report_error_print_backtrace)) =
+      Symbol_value(S(load_print)) = Symbol_value(S(compile_print)) = T;
   if (p->argv_developer) { /* developer mode */
     /* unlock all packages */
     var object packlist = O(all_packages);
@@ -3064,7 +3104,7 @@ local inline void main_actions (struct argv_actions *p) {
         }
         var object form = listof(1+argcount); # `(COMPILE-FILE ',...)
         if (!p->argv_repl)
-          form = appease_form(p->argv_interactive_debug,form);
+          form = appease_form(p->argv_on_error,form);
         eval_noenv(form); # execute
         fileptr++;
       });
@@ -3124,7 +3164,7 @@ local inline void main_actions (struct argv_actions *p) {
    #endif
     form = listof(4);
     if (!p->argv_repl)
-      form = appease_form(p->argv_interactive_debug,form);
+      form = appease_form(p->argv_on_error,form);
     eval_noenv(form); # execute
     if (!p->argv_repl)
       return;
@@ -3153,7 +3193,7 @@ local inline void main_actions (struct argv_actions *p) {
       var object form;
       pushSTACK(S(funcall)); pushSTACK(S(driverstern)); form = listof(2);
       if (!p->argv_repl)
-        form = appease_form(p->argv_interactive_debug,form);
+        form = appease_form(p->argv_on_error,form);
       eval_noenv(form);
       if (!p->argv_repl)
         return;
@@ -3162,6 +3202,16 @@ local inline void main_actions (struct argv_actions *p) {
       Symbol_value(S(standard_input)) = value1;
   }
   # call read-eval-print-loop:
+  if (!nullpSv(driverstern) && p->argv_on_error != ON_ERROR_DEFAULT
+      && p->argv_on_error != ON_ERROR_DEBUG) {
+    /* (LOOP (FUNCALL *DRIVER*)) */
+    pushSTACK(S(lloop));
+    pushSTACK(S(funcall));
+    pushSTACK(Symbol_value(S(driverstern)));
+    { object tmp = listof(2); pushSTACK(tmp); }
+    { object tmp = appease_form(p->argv_on_error,listof(2));
+      eval_noenv(tmp); }
+  }
   driver();
 }
 

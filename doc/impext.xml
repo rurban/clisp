@@ -1666,6 +1666,7 @@ here <function>WITH-FOO</function> does not receive the
   <member>&prompt-finish;</member>
   <member>&prompt-start;</member>
   <member>&prompt-step;</member>
+  <member>&err-pr-bt;</member>
   <member>&count-ansi;</member>
   <member>&source-types;</member>
   <member>&suppress-check-redef;</member>
