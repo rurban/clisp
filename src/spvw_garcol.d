@@ -93,6 +93,13 @@ Use GC_MARK when the argument might be a reallocated object */
 
 #if DEBUG_GC_MARK
   #define IF_DEBUG_GC_MARK(statement)  statement
+  #if defined(WIDE_SOFT) || defined(WIDE_AUXI)
+    # oint is defined as uint64.
+    #define PRIoint "ll"
+  #else
+    # oint is defined as uintP. Assume pointer_bitsize == long_bitsize.
+    #define PRIoint "l"
+  #endif
 #else
   #define IF_DEBUG_GC_MARK(statement)  /*nop*/
 #endif
@@ -101,7 +108,7 @@ local void gc_mark (object obj)
 {
   var object dies = obj; /* current object */
   var object vorg = nullobj; /* predecessor-object */
-  IF_DEBUG_GC_MARK(fprintf(stderr,"gc_mark obj = 0x%lx\n", as_oint(obj)));
+  IF_DEBUG_GC_MARK(fprintf(stderr,"gc_mark obj = 0x%"PRIoint"x\n", as_oint(obj)));
 
 #define down_pair()                                                     \
   if (in_old_generation(dies,typecode(dies),1))                         \
@@ -254,54 +261,54 @@ local void gc_mark (object obj)
  down: /* entry for further descent.
           dies = object to be marked (engl. this),
           vorg = its predecessor */
-  IF_DEBUG_GC_MARK(fprintf(stderr,"down: vorg = 0x%lx, dies = 0x%lx\n",
+  IF_DEBUG_GC_MARK(fprintf(stderr,"down: vorg = 0x%"PRIoint"x, dies = 0x%"PRIoint"x\n",
                            as_oint(vorg), as_oint(dies)));
  #ifdef TYPECODES
   switch (typecode(dies)) {
-   case_pair: /* object with exactly two 2 pointers (Cons and similar) */
-    down_pair();
-   case_symbol: /* Symbol */
-    down_varobject(TheSymbol,symbol_objects_offset,
-                   sizeof(symbol_)-sizeof(gcv_object_t));
-   case_sbvector: /* simple-bit-vector */
-   case_sb2vector: /* simple-2bit-vector */
-   case_sb4vector: /* simple-4bit-vector */
-   case_sb8vector: /* simple-8bit-vector */
-   case_sb16vector: /* simple-16bit-vector */
-   case_sb32vector: /* simple-32bit-vector */
-   case_sstring: /* simple-string */
-   case_bignum: /* bignum */
-  #ifndef IMMEDIATE_FFLOAT
-   case_ffloat: /* single-float */
-  #endif
-   case_dfloat: /* double-float */
-   case_lfloat: /* long-float */
-    /* objects of variable length, that do not contain pointers: */
-    down_nopointers(TheVarobject);
-   case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector:
-   case_ob16vector: case_ob32vector: case_ostring: case_ovector:
-    /* arrays, that are not simple: */
-    down_iarray();
-   case_svector: /* simple-vector */
-    down_svector();
-   case_weakkvt: /* weak-key-value-table */
-    down_weakkvt();
-   case_record: /* Srecord/Xrecord */
-    down_record();
-   case_machine: /* maschine address */
-   case_char: /* character */
-   case_system: /* frame-pointer, read-label, system */
-   case_fixnum: /* fixnum */
-   case_sfloat: /* short-float */
-  #ifdef IMMEDIATE_FFLOAT
-   case_ffloat: /* single-float */
-  #endif
-    /* These are direct objects, no pointers. */
-    goto up;
-   case_subr: /* SUBR */
-    down_subr();
-   default: /* These are no objects. */
-     /*NOTREACHED*/ abort();
+    case_pair: /* object with exactly two 2 pointers (Cons and similar) */
+      down_pair();
+    case_symbol: /* Symbol */
+      down_varobject(TheSymbol,symbol_objects_offset,
+                     sizeof(symbol_)-sizeof(gcv_object_t));
+    case_sbvector: /* simple-bit-vector */
+    case_sb2vector: /* simple-2bit-vector */
+    case_sb4vector: /* simple-4bit-vector */
+    case_sb8vector: /* simple-8bit-vector */
+    case_sb16vector: /* simple-16bit-vector */
+    case_sb32vector: /* simple-32bit-vector */
+    case_sstring: /* simple-string */
+    case_bignum: /* bignum */
+   #ifndef IMMEDIATE_FFLOAT
+    case_ffloat: /* single-float */
+   #endif
+    case_dfloat: /* double-float */
+    case_lfloat: /* long-float */
+      /* objects of variable length, that do not contain pointers: */
+      down_nopointers(TheVarobject);
+    case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector:
+    case_ob16vector: case_ob32vector: case_ostring: case_ovector:
+      /* arrays, that are not simple: */
+      down_iarray();
+    case_svector: /* simple-vector */
+      down_svector();
+    case_weakkvt: /* weak-key-value-table */
+      down_weakkvt();
+    case_record: /* Srecord/Xrecord */
+      down_record();
+    case_machine: /* maschine address */
+    case_char: /* character */
+    case_system: /* frame-pointer, read-label, system */
+    case_fixnum: /* fixnum */
+    case_sfloat: /* short-float */
+   #ifdef IMMEDIATE_FFLOAT
+    case_ffloat: /* single-float */
+   #endif
+      /* These are direct objects, no pointers. */
+      goto up;
+    case_subr: /* SUBR */
+      down_subr();
+    default: /* These are no objects. */
+      /*NOTREACHED*/ abort();
   }
  #else
   switch (as_oint(dies) & nonimmediate_bias_mask) {
@@ -367,7 +374,7 @@ local void gc_mark (object obj)
  #endif
  up: /* entry for ascent.
         dies = currently marked object, vorg = its predecessor */
-  IF_DEBUG_GC_MARK(fprintf(stderr,"up:   vorg = 0x%lx, dies = 0x%lx\n",
+  IF_DEBUG_GC_MARK(fprintf(stderr,"up:   vorg = 0x%"PRIoint"x, dies = 0x%"PRIoint"x\n",
                            as_oint(vorg), as_oint(dies)));
   if (eq(vorg,nullobj)) /* ending flag reached? */
     return; /* yes -> finished */
@@ -395,48 +402,48 @@ local void gc_mark (object obj)
     *(gcv_object_t*)ThePointer(vorg) = dies; /* write back first component */
    #ifdef TYPECODES
     switch (typecode(vorg)) {
-     case_pair: /* object with exactly two pointers (Cons and similar) */
-      up_pair();
-     case_symbol: /* Symbol */
-      up_varobject(symbol_objects_offset);
-     case_weakkvt: /* weak-key-value-table */
-      up_weakkvt();
-     case_svector: /* simple-vector with at least 1 component */
-      up_svector();
-     case_mdarray: case_obvector: case_ob2vector:
-     case_ob4vector: case_ob8vector: case_ob16vector:
-     case_ob32vector: case_ostring: case_ovector:
-      /* non-simple arrays: */
-      up_iarray();
-     case_record: /* Srecord/Xrecord */
-      up_record();
-     case_subr: /* SUBR */
-      up_subr();
-     case_machine: /* maschine address */
-     case_char: /* character */
-     case_system: /* frame-pointer, read-label, system */
-     case_fixnum: /* fixnum */
-     case_sfloat: /* short-float */
-    #ifdef IMMEDIATE_FFLOAT
-     case_ffloat: /* single-float */
-    #endif
-      /* These are direct objects, no pointers. */
-     case_sbvector: /* simple-bit-vector */
-     case_sb2vector: /* simple-2bit-vector */
-     case_sb4vector: /* simple-4bit-vector */
-     case_sb8vector: /* simple-8bit-vector */
-     case_sb16vector: /* simple-16bit-vector */
-     case_sb32vector: /* simple-32bit-vector */
-     case_sstring: /* simple-string */
-     case_bignum: /* bignum */
-    #ifndef IMMEDIATE_FFLOAT
-     case_ffloat: /* single-float */
-    #endif
-     case_dfloat: /* double-float */
-     case_lfloat: /* long-float */
-      /* Objects of variable length, that do not contain pointers. */
-     default: /* these are no objects. */
-      /*NOTREACHED*/ abort();
+      case_pair: /* object with exactly two pointers (Cons and similar) */
+        up_pair();
+      case_symbol: /* Symbol */
+        up_varobject(symbol_objects_offset);
+      case_weakkvt: /* weak-key-value-table */
+        up_weakkvt();
+      case_svector: /* simple-vector with at least 1 component */
+        up_svector();
+      case_mdarray: case_obvector: case_ob2vector:
+      case_ob4vector: case_ob8vector: case_ob16vector:
+      case_ob32vector: case_ostring: case_ovector:
+        /* non-simple arrays: */
+        up_iarray();
+      case_record: /* Srecord/Xrecord */
+        up_record();
+      case_subr: /* SUBR */
+        up_subr();
+      case_machine: /* maschine address */
+      case_char: /* character */
+      case_system: /* frame-pointer, read-label, system */
+      case_fixnum: /* fixnum */
+      case_sfloat: /* short-float */
+     #ifdef IMMEDIATE_FFLOAT
+      case_ffloat: /* single-float */
+     #endif
+        /* These are direct objects, no pointers. */
+      case_sbvector: /* simple-bit-vector */
+      case_sb2vector: /* simple-2bit-vector */
+      case_sb4vector: /* simple-4bit-vector */
+      case_sb8vector: /* simple-8bit-vector */
+      case_sb16vector: /* simple-16bit-vector */
+      case_sb32vector: /* simple-32bit-vector */
+      case_sstring: /* simple-string */
+      case_bignum: /* bignum */
+     #ifndef IMMEDIATE_FFLOAT
+      case_ffloat: /* single-float */
+     #endif
+      case_dfloat: /* double-float */
+      case_lfloat: /* long-float */
+        /* Objects of variable length, that do not contain pointers. */
+      default: /* these are no objects. */
+        /*NOTREACHED*/ abort();
     }
    #else
     switch (as_oint(vorg) & nonimmediate_bias_mask) {
@@ -511,7 +518,7 @@ local void gc_mark_stack (gcv_object_t* objptr)
         default: break;
       }
      #endif
-      GC_MARK(*objptr);
+      GC_MARK(obj);
       objptr skipSTACKop 1; /* advance */
     }
   }
