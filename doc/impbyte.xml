@@ -501,37 +501,36 @@ vector does not need to be scanned for pointers).</para>
 <para>A function looks like this
  (cf. the &c-lang; type <literal>Cclosure</literal>):
 <variablelist>
- <varlistentry><term>name</term>
+ <varlistentry id="func-name"><term>name</term>
   <listitem><simpara>This is the name of the function, normally a symbol
    or a list of the form <literal role="sexp">(&setf; &symbol-r;)</literal>.
    It is used for printing the function and for error messages.
    This field is immutable.</simpara></listitem></varlistentry>
- <varlistentry><term>&codevec;</term>
-  <listitem><simpara>This is the byte vector. It is a
-   &simple-bit-vector-t; (because that's the simplest type in &clisp;
-   which contains immediate data -- note that <literal
-   role="type">(&simple-array-t; (&unsigned-byte-t; 8))</literal>
-   is more complex than this).
+ <varlistentry id="func-codevec"><term>&codevec;</term>
+  <listitem><simpara>This is the byte-code vector, a <literal
+   role="type">(&simple-array-t; (&unsigned-byte-t; 8) (*))</literal>.
    This field is immutable.</simpara></listitem></varlistentry>
  <varlistentry><term>&consts;[]</term>
   <listitem><simpara>The remaining fields in the function object are
    references to other &clisp; objects.  These references are immutable,
    which is why they are called "constants".  (The referenced &clisp;
-   objects can be mutable objects, such as conses or vectors, however.)
-  </simpara></listitem></varlistentry>
+   objects can be mutable objects, such as &cons-t;es or &vector-t;s,
+   however.)</simpara></listitem></varlistentry>
 </variablelist></para>
 
-<para>There is actually one exception to the immutability rule: When a
-generic function's dispatch code is installed, the &codevec; and
-&consts; fields are destructively modified.</para>
+<note><title>The Exception to the Immutability Rule</title>
+ <para>When a generic function's dispatch code is installed, the &codevec;
+  and &consts; fields are destructively modified.</para></note>
 
 <para>Some of the &consts; can play special roles.
  A function looks like this, in more detail:
 <variablelist>
  <varlistentry><term>name</term>
-  <listitem><simpara>see above</simpara></listitem></varlistentry>
+  <listitem><simpara>see <link linkend="func-name">above</link>.
+ </simpara></listitem></varlistentry>
  <varlistentry><term>&codevec;</term>
-  <listitem><simpara>see above</simpara></listitem></varlistentry>
+  <listitem><simpara>see <link linkend="func-codevec">above</link>.
+ </simpara></listitem></varlistentry>
  <varlistentry><term>&venv-const;*</term>
   <listitem><simpara>At most one object, representing the closed-up
    variables, representing the variables of the lexical environment in
