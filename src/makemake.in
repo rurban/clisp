@@ -847,23 +847,23 @@ if [ $XCC_GCC = true ] ; then
     # Segmentregister nicht zulässig ist). Glücklicherweise ist das bei rsxw32
     # kein Problem, da dort %cs = 0x185F, %ds = %es = %fs = %gs = %ss = 0x1867,
     # insbesondere %ds = %ss.
-    XCFLAGS=$XCFLAGS'-fomit-frame-pointer '
+    XCFLAGS=$XCFLAGS' -fomit-frame-pointer'
   fi
   if [ $TSYS = amiga ] ; then
     # Register A4 enthält den Stack.
     # Die GCC-Strength-Reduction ist auf dem 68000 nicht problemlos.
-    XCFLAGS=$XCFLAGS'-ffixed-a4 -fno-strength-reduce '
+    XCFLAGS=$XCFLAGS' -ffixed-a4 -fno-strength-reduce'
   fi
   if [ $TSYS = acorn ] ; then
     # Acorn/RISCOS specific gcc option??
-    XCFLAGS=$XCFLAGS'-mthrowback '
+    XCFLAGS=$XCFLAGS' -mthrowback'
   fi
   if [ $TOS = unix -a $CROSS = false ] ; then
     XCC_GCC_VERSION=`$XCC -v 2>&1 | tail -1 | sed -e 's/.*version //g' -e 's/gcc //'`
     case "$XCC_GCC_VERSION" in
       # gcc 2.7 introduced an annoying warning, but gcc 2.8 has a workaround:
       2.[8-9]* | 3.* | egcs-2.*)
-        XCFLAGS=$XCFLAGS'-Wno-sign-compare '
+        XCFLAGS=$XCFLAGS' -Wno-sign-compare'
         ;;
       * ) ;;
     esac
@@ -879,20 +879,21 @@ if [ $XCC_GCC = true ] ; then
           2.7.[0-2] )
             # gcc-2.7.2 has a strength-reduction bug (fixed in gcc-2.7.2.1,
             # also fixed through the specs file of some Linux distributions).
-            XCFLAGS=$XCFLAGS'-O2 -fexpensive-optimizations -fno-strength-reduce' ;;
+            XCFLAGS=$XCFLAGS' -O2 -fexpensive-optimizations -fno-strength-reduce' ;;
           2.3.[3-9]* | 2.[4-9]* | 3.* | egcs-2.*)
-            # XCFLAGS=$XCFLAGS'-O2 -fno-omit-frame-pointer' ;;
+            # XCFLAGS=$XCFLAGS' -O2 -fno-omit-frame-pointer' ;;
             # Let's try it nevertheless!
-            XCFLAGS=$XCFLAGS'-O2 -fexpensive-optimizations' ;;
+            XCFLAGS=$XCFLAGS' -O2 -fexpensive-optimizations' ;;
           * )
-            XCFLAGS=$XCFLAGS'-O' ;;
+            XCFLAGS=$XCFLAGS' -O' ;;
         esac
       else
-        XCFLAGS=$XCFLAGS'-O'
+        XCFLAGS=$XCFLAGS' -O'
       fi
     elif [ "$cpu" = hppa ] ; then
-      # gcc-2.7.2 produces incorrect code when compiling spvw (loadmem routine).
-      XCFLAGS=$XCFLAGS'-O2 -fno-strength-reduce'
+      # gcc-2.7.2 produces incorrect code when compiling spvw
+      # (loadmem routine).
+      XCFLAGS=$XCFLAGS' -O2 -fno-strength-reduce'
     elif [ "$cpu" = sparc ] ; then
       if [ $CROSS = false ] ; then
         XCC_GCC_VERSION=`$XCC -v 2>&1 | tail -1 | sed -e 's/.*version //g' -e 's/gcc //'`
@@ -900,19 +901,19 @@ if [ $XCC_GCC = true ] ; then
           egcs-2.*)
             # egcs-1.0.3 and egcs-1.1.1 produce incorrect code when compiling
             # lisparit (function UDS_divide_).
-            XCFLAGS=$XCFLAGS'-O2 -fno-schedule-insns' ;;
+            XCFLAGS=$XCFLAGS' -O2 -fno-schedule-insns' ;;
           2.9* | 3.*)
-            # gcc-2.95 produces incorrect code when compiling predtype (function
-            # C_coerce).
-            XCFLAGS=$XCFLAGS'-O2 -fno-schedule-insns -fno-gcse' ;;
+            # gcc-2.95 produces incorrect code when compiling predtype
+            # (function C_coerce).
+            XCFLAGS=$XCFLAGS' -O2 -fno-schedule-insns -fno-gcse' ;;
           * )
-            XCFLAGS=$XCFLAGS'-O2' ;;
+            XCFLAGS=$XCFLAGS' -O2' ;;
         esac
       else
-        XCFLAGS=$XCFLAGS'-O2'
+        XCFLAGS=$XCFLAGS' -O2'
       fi
     else
-      XCFLAGS=$XCFLAGS'-O2'
+      XCFLAGS=$XCFLAGS' -O2'
     fi
     # For platforms that use global register variables...
     case "$cpu" in
@@ -921,8 +922,8 @@ if [ $XCC_GCC = true ] ; then
           XCC_GCC_VERSION=`$XCC -v 2>&1 | tail -1 | sed -e 's/.*version //g' -e 's/gcc //'`
           case "$XCC_GCC_VERSION" in
             3.1*)
-              # gcc-3.1 produces incorrect code when compiling record (function
-              # C_make_instance).
+              # gcc-3.1 produces incorrect code when compiling record
+              # (function C_make_instance).
               XCFLAGS=$XCFLAGS' -fno-gcse' ;;
           esac
         fi
