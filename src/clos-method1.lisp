@@ -8,6 +8,8 @@
 
 (defstruct (method (:predicate nil) (:copier nil) (:constructor nil)))
 
+(defparameter <method> (find-class 'method))
+
 (defstruct (standard-method (:include method) (:conc-name "STD-METHOD-")
                             (:copier nil)) ; (:print-object print-std-method)
   function               ; the function
