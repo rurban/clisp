@@ -1,5 +1,10 @@
 2004-02-18  Sam Steingold  <sds@gnu.org>
 
+	* array.d (ADJUST-ARRAY): :FILL-POINTER NIL means keep it as it was;
+	use DIMENSION, not FILL-POINTER when copying data to the new vector
+
+2004-02-18  Sam Steingold  <sds@gnu.org>
+
 	* clhs.lisp (read-from-file): FIND-PACKAGE is idempotent
 
 2004-02-18  Sam Steingold  <sds@gnu.org>
