@@ -6852,8 +6852,9 @@ local bool directory_search_direntry_ok (object namestring,
 #endif
 
 /* the version of files returned by DIRECTORY
- if it is :NEWEST, they will not be printable readably! */
-#define DEFAULT_VERSION  NIL
+ Since all pathnames returned by DIRECTORY must be truenames,
+ this must be :NEWEST [but then they will not be printable readably!] */
+#define DEFAULT_VERSION  S(Knewest)
 
 /* Scans an entire directory.
  directory_search_scandir(recursively,next_task);
