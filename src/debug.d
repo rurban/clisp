@@ -386,8 +386,8 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
           dynamic_bind(S(standard_input),stream);
           dynamic_bind(S(standard_output),stream);
         }
-        # *PRINT-ESCAPE* an T binden:
-        dynamic_bind(S(print_escape),T);
+        dynamic_bind(S(print_escape),T); # bind *PRINT-ESCAPE* to T
+        dynamic_bind(S(print_readably),NIL); # bind *PRINT-READABLY* to NIL
         # Prompt aufbauen:
         {
           # (format nil "~S. Break> " SYS::*BREAK-COUNT*)
@@ -422,7 +422,8 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
             unwind(); reset(); # -> dann zur nächsten Schleife zurück
           }
           skipSTACK(1+2); # Driver-Frame auflösen, Prompt vergessen
-          dynamic_unbind(); dynamic_unbind(); dynamic_unbind(); dynamic_unbind();
+          dynamic_unbind(); dynamic_unbind(); dynamic_unbind();
+          dynamic_unbind(); dynamic_unbind();
           skipSTACK(1);
         }
       }
