@@ -1,3 +1,18 @@
+2005-01-10  Bruno Haible  <bruno@clisp.org>
+	    Arseny Slobodyuk  <ampy@ich.dvo.ru>
+
+	* modules/syscalls/calls.c (get_owner): new local functions on
+	UNIX and WIN32_NATIVE.
+	(GetSecurityInfoFunc, LookupAccountSidFunc, GetLengthSidFunc,
+	CopySidFunc, EqualSidFunc, ConvertSidToStringSidFunc,
+	initialized_sid_apis, sid_cache_entry, sid_cache_count,
+	sid_cache_allocated) [WIN32_NATIVE]: new variables to support
+	get_owner on Win32.
+	(sid_cache_entry) [WIN32_NATIVE]: new stuct.
+	(sid_cache_get, sid_cache_put) [WIN32_NATIVE]: new local functions.
+	(OS::FILE-OWNER): new DEFUN.
+	* modules/syscalls/posix.lisp: export FILE-OWNER.
+
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
 	Fix check-type, assert, ctypecase, ccase when used on locally defined
