@@ -4,6 +4,7 @@
 <title>CLISP implementation notes</title>
 <meta name="author" content="Bruno Haible">
 <meta name="keywords" content="Lisp, Common Lisp, CLISP">
+<link rev=made href="mailto:clisp-list@clisp.cons.org">
 </head>
 
 <!-- todo: Add symbol index -->
@@ -71,7 +72,7 @@
 
 <h4 align=center>Last modified: April 3, 1999.</h4>
 <center>
-<img src="clisp.gif" width=48 height=48>
+<img src="clisp.gif" width=48 height=48 alt="[CLISP icon]">
 </center>
 
 <p>This implementation is mostly conformant to the <a
@@ -179,7 +180,6 @@ details.
    <li><a href="#weak">Weak Pointers</a>
    <li><a href="#final">Finalization</a>
    <li><a href="#prompt">The Prompt</a>
-   <li><a href="#syscalls">System Calls</a>
    <li><a href="#options">Command Line Options</a>
    <li><a href="#macros3">Additional Fancy Macros</a>
   </ol>
@@ -191,6 +191,7 @@ details.
    <li><a href="#affi">The Amiga Foreign Function Call Facility</a>
    <li><a href="#rexx">ARexx</a>
    <li><a href="#socket">Socket Streams</a>
+   <li><a href="#syscalls">System Calls</a>
    <li><a href="#script">CLISP as a script interpreter</a>
    <li><a href="#shell">Shell</a>
    <li><a href="#other">Other</a>
@@ -6586,58 +6587,7 @@ a variable <code><strong>sys::*command-index*</strong></code> contains
 the current prompt number, it is your responsibility to increment it
 (this variable is bound to 0 before saving the image).
 
-<a name="syscalls"></a><h3>Extensions-1.8. System Calls</h3>
-
-<p>When CLISP is configured with an option
-<code>--with-export-syscalls</code>, some system calls are available from
-lisp.
-
-<dl>
- <dt><code>(<strong>lisp:resolve-host-ipaddr </strong>
-            &amp;optional <var>host</var>)</code>
- <dd>Returns the hostent struct as multiple values (name, list of
-     aliases, list of IP addresses as dotted quads (for IPv4) or coloned
-     octets (for IPv6), address type - IPv4 or IPv6).  When
-     <code>host</code> is omitted or <code>:default</code>, return the
-     data for the current host.  When <code>host</code> is given and is
-     <a href="CLHSROOT/Body/convar_nil.html">
-     <code>nil</code></a>, all the host database is returned as a list of
-     vectors of length 4 (this would be the contents of the
-     <var>/etc/hosts</var> file on a UNIX system or
-     <var>${windir}/system32/etc/hosts</var> on a Win32 system).
- <dt><code>(<strong>lisp:file-stat</strong>
-            <var>file</var> &amp;optional <var>link-p</var>)</code>
- <dd>Return the stat struct as multiple values.  <code>file</code> can
-     be a stream, a pathname, a string or a number (on a UNIX system,
-     meaning file descriptor).  The first value returned is the string
-     or the number on which stat(2)/fstat(2)/lstat(2) was called.  The
-     other 13 values are numbers, members of the stat struct: device,
-     inode, protection, number of hard links, owner's UID, owner's GID,
-     device type, total size (bytes), blocksize for filesystem I/O,
-     number of blocks allocated, atime, mtime, ctime (as number of
-     seconds since 1900-01-01).  If the system does not support a
-     particular field (e.g., Win32 does not have hard links),
-     <a href="CLHSROOT/Body/convar_nil.html">
-     <code>nil</code></a> (or the default, like 1 for the number of
-     hard links for Win32 or DOS) is returned.
-     <br>[UNIX systems only at this time, patches are welcome.]
- <dt><code>(<strong>lisp:user-data</strong>
-             &amp;optional <var>user</var>)</code>
- <dd>Return the passwd struct as multiple values (name, encoded
-     password, UID, GID, full name, home directory, shell).  When
-     <code>user</code> is <a href="CLHSROOT/Body/convar_nil.html">
-     <code>nil</code></a>, return all users as a list
-     of vectors of length 7.  When <code>user</code> is
-     <code>:default</code> or not supplied, return the information
-     about the current user.  If the system does not support a particular
-     field (e.g., Win32 does not have a concept of a shell),
-     <a href="CLHSROOT/Body/convar_nil.html">
-     <code>nil</code></a> (or the default, like <var>c:\command.com</var>
-     for DOS) is returned.
-     <br>[UNIX systems only at this time, patches are welcome.]
-</dl>
-
-<a name="options"></a><h3>Extensions-1.9. Command Line Options</h3>
+<a name="options"></a><h3>Extensions-1.8. Command Line Options</h3>
 
 <p>CLISP executables (<em>lisp.run</em> and <em>clisp</em> on UNIX
 systems, <em>lisp.exe</em> on Win32, etc) accept the following
@@ -6784,7 +6734,7 @@ command line options:
   <dd>Execute the <em>SEXP</em> and exit.
 </dl>
 
-<a name="macros3"></a><h3>Extensions-1.10. Additional Fancy Macros</h3>
+<a name="macros3"></a><h3>Extensions-1.9. Additional Fancy Macros</h3>
 
 <p>If you uncomment the <code>(load "macros3")</code> line in the file
 <code>"init.lsp"</code> before doing <code>make</code>, or load the file
@@ -8540,11 +8490,62 @@ use this to see who connected.
 <dd>The dual to <code>lisp:socket-stream-peer</code> - same information,
     host name and port number, but for the local host.
 </dl>
-
 <!-- #endif -->
 
+<a name="syscalls"></a><h3>Extensions-2.7. System Calls</h3>
+
+<p>When CLISP is configured with an option
+<code>--with-export-syscalls</code>, some system calls are available from
+lisp.
+
+<dl>
+ <dt><code>(<strong>lisp:resolve-host-ipaddr </strong>
+            &amp;optional <var>host</var>)</code>
+ <dd>Returns the hostent struct as multiple values (name, list of
+     aliases, list of IP addresses as dotted quads (for IPv4) or coloned
+     octets (for IPv6), address type - IPv4 or IPv6).  When
+     <code>host</code> is omitted or <code>:default</code>, return the
+     data for the current host.  When <code>host</code> is given and is
+     <a href="CLHSROOT/Body/convar_nil.html">
+     <code>nil</code></a>, all the host database is returned as a list of
+     vectors of length 4 (this would be the contents of the
+     <var>/etc/hosts</var> file on a UNIX system or
+     <var>${windir}/system32/etc/hosts</var> on a Win32 system).
+ <dt><code>(<strong>lisp:file-stat</strong>
+            <var>file</var> &amp;optional <var>link-p</var>)</code>
+ <dd>Return the stat struct as multiple values.  <code>file</code> can
+     be a stream, a pathname, a string or a number (on a UNIX system,
+     meaning file descriptor).  The first value returned is the string
+     or the number on which stat(2)/fstat(2)/lstat(2) was called.  The
+     other 13 values are numbers, members of the stat struct: device,
+     inode, protection, number of hard links, owner's UID, owner's GID,
+     device type, total size (bytes), blocksize for filesystem I/O,
+     number of blocks allocated, atime, mtime, ctime (as number of
+     seconds since 1900-01-01).  If the system does not support a
+     particular field (e.g., Win32 does not have hard links),
+     <a href="CLHSROOT/Body/convar_nil.html">
+     <code>nil</code></a> (or the default, like 1 for the number of
+     hard links for Win32 or DOS) is returned.
+     <br>[UNIX systems only at this time, patches are welcome.]
+ <dt><code>(<strong>lisp:user-data</strong>
+             &amp;optional <var>user</var>)</code>
+ <dd>Return the passwd struct as multiple values (name, encoded
+     password, UID, GID, full name, home directory, shell).  When
+     <code>user</code> is <a href="CLHSROOT/Body/convar_nil.html">
+     <code>nil</code></a>, return all users as a list
+     of vectors of length 7.  When <code>user</code> is
+     <code>:default</code> or not supplied, return the information
+     about the current user.  If the system does not support a particular
+     field (e.g., Win32 does not have a concept of a shell),
+     <a href="CLHSROOT/Body/convar_nil.html">
+     <code>nil</code></a> (or the default, like <var>c:\command.com</var>
+     for DOS) is returned.
+     <br>[UNIX systems only at this time, patches are welcome.]
+</dl>
+
+
 <!-- #ifdef UNIX -->
-<a name="script"></a><h3>Extensions-2.7. CLISP as a script interpreter</h3>
+<a name="script"></a><h3>Extensions-2.8. CLISP as a script interpreter</h3>
 
 <em>Platform dependent: <strong>UNIX</strong> platforms only.</em>
 <p>On Unix, a script can be made executable by adding a first line of
@@ -8626,7 +8627,7 @@ input will be available.
 
 <!-- #endif -->
 
-<a name="shell"></a><h3>Extensions-2.8. Shell</h3>
+<a name="shell"></a><h3>Extensions-2.9. Shell</h3>
 
 <dl>
 <!-- #if defined(UNIX) || defined(MSDOS) || defined(RISCOS) -->
@@ -8721,7 +8722,7 @@ href="#pipe"><code>lisp:make-pipe-io-stream</code></a>.
 <!-- #endif -->
 
 <!-- #ifdef AMIGAOS -->
-<a name="other"></a><h3>Extensions-2.9. Other</h3>
+<a name="other"></a><h3>Extensions-2.10. Other</h3>
 
 <dl>
 <dt><em>Platform dependent: <strong>Amiga</strong> platforms only.
