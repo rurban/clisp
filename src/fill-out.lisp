@@ -33,8 +33,6 @@
   (with-slots (target-stream buffer pending-indent current-indent indent-var
                pending-space inside-sexp)
       stream
-    (when (zerop (length buffer)) ; nothing to flush!
-      (return-from fill-stream-flush-buffer))
     (flet ((newline ()          ; terpri
              (setq current-indent
                    (if (symbolp indent-var)
@@ -42,23 +40,24 @@
                        indent-var)
                    pending-indent current-indent)
              (terpri target-stream)))
-      ;; fill: if the buffer does not fit on the line, TERPRI
-      (let ((pos (line-pos stream)))
-        (when (and pos
-                   (<= (or *print-right-margin* sys::*prin-linelength*) pos))
-          (unless (find #\newline buffer) ; can happen only inside sexp
-            (newline))
-          (when inside-sexp ; just finished an S-expression
-            (setq newline-p t))))
-      (unless (and newline-p inside-sexp) ; S-expression on its own line(s)
-        (cond (pending-indent      ; do the indent
-               (sys::write-spaces pending-indent target-stream)
-               (setq pending-indent nil))
-              (pending-space
-               (write-char #\Space target-stream))))
-      (setq pending-space nil)
-      (write-char-sequence buffer target-stream)
-      (setf (fill-pointer buffer) 0)
+      (when (plusp (length buffer)) ; something in the buffer to flush
+        ;; fill: if the buffer does not fit on the line, TERPRI
+        (let ((pos (line-pos stream)))
+          (when (and pos
+                     (<= (or *print-right-margin* sys::*prin-linelength*) pos))
+            (unless (find #\newline buffer) ; can happen only inside sexp
+              (newline))
+            (when inside-sexp ; just finished an S-expression
+              (setq newline-p t))))
+        (unless (and newline-p inside-sexp) ; S-expression on its own line(s)
+          (cond (pending-indent      ; do the indent
+                 (sys::write-spaces pending-indent target-stream)
+                 (setq pending-indent nil))
+                (pending-space
+                 (write-char #\Space target-stream))))
+        (setq pending-space nil)
+        (write-char-sequence buffer target-stream)
+        (setf (fill-pointer buffer) 0))
       (when newline-p (newline)))))
 (progn
 (defmethod stream-write-char ((stream fill-stream) ch)

@@ -1,5 +1,10 @@
 2004-09-28  Sam Steingold  <sds@gnu.org>
 
+	* fill-out.lisp (fill-stream-flush-buffer): even when BUFFER is
+	empty, NEWLINE-P still has to be respected
+
+2004-09-28  Sam Steingold  <sds@gnu.org>
+
 	* loop.lisp (loop): as per 6.1.1.1.1 and 6.1.1.1.2, LOOP is
 	extended when it contains ATOMs, not just loop keywords
 	Reported by Kalle Olavi Niemitalo <kon@iki.fi>
