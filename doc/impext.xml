@@ -3203,7 +3203,10 @@ only.</subtitle>
  <listitem><simpara>This constructor creates a &foreign-function-t;
    from the given &foreign-address-t; or &foreign-function-t; and the
    internal &c-lang; type descriptor (as obtained from
-   <literal role="sexp">(&parse-c-type; '(&c-function; ...))</literal>).
+   <literal role="sexp">(&parse-c-type; '(&c-function; ...))</literal>, in
+   which case it is important to specify the &lang-k; because the expressions
+   is likely to be evaluated at run-time, outside a <ulink
+   url="&clhs;/Body/glo_c.html#compilation_unit">compilation unit</ulink>).
    &name-r;, a &string-t;, is mostly useful for documentation and
    interactive debugging since it appears in the printed representation
    of the &foreign-function-t; object, as in <literal
@@ -3588,7 +3591,7 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
 
 <section id="c-flavor"><title>The choice of the &c-lang; flavor.</title>
 
-<para>&c-function;, &def-call-in;, &def-call-out; take &lang-k; argument.
+<para>&c-function;, &def-call-in;, &def-call-out; take a &lang-k; argument.
 The &lang-r; is either &c-k; (denotes K&amp;R &c-lang;) or &stdc-k;
 (denotes ANSI &c-lang;) or &stdc-sc-k; (denotes ANSI &c-lang;
 with the <emphasis>stdcall</emphasis> calling convention).
@@ -4097,8 +4100,8 @@ int CallInFunc(LispFunc f) {
 <programlisting language="lisp">
 (&def-c-call-out; gethostname
   (:arguments (name (&c-ptr; (&c-array-max; ffi:char 256))
-		    &out-k; &alloca-k;)
-	      (len ffi:int))
+                    &out-k; &alloca-k;)
+              (len ffi:int))
   (:return-type ffi:int))
 
 (defun myhostname ()
@@ -4106,7 +4109,7 @@ int CallInFunc(LispFunc f) {
       ;; &out-k; and &in-out-k; parameters are returned as &mul-val;
       (gethostname 256)
     (if (zerop success) name
-	(error ...)))) ;; &strerror;(&errno;)
+        (error ...)))) ;; &strerror;(&errno;)
 
 (defvar hostname (myhostname))
 </programlisting>
