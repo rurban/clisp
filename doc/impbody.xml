@@ -546,8 +546,8 @@ is the same as
 <programlisting>
 (let ((var (subseq foo 0 (position #\Space foo))))
   (cond ((string= var "first") 1)
-        ((and (string= var "second") (string= var "two")) 2)
-        ((and (string= var "true") (string= var "yes")) t)
+        ((or (string= var "second") (string= var "two")) 2)
+        ((or (string= var "true") (string= var "yes")) t)
         (t nil)))
 </programlisting>
 </para>
