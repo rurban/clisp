@@ -2119,9 +2119,15 @@ LISPFUNNR(logical_pathname,1)
   }
 }
 
-/* (TRANSLATE-LOGICAL-PATHNAME pathname &key), CLtL2 p. 631 */
-LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,0,_EMA_) {
+/* forward declaration */
+local object use_default_dir (object pathname);
+
+/* (TRANSLATE-LOGICAL-PATHNAME pathname &key [:absolute]), CLtL2 p. 631 */
+LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,1,
+        (kw(absolute))) {
+  var bool absolute_p = !missingp(STACK_0);
   var object pathname;
+  skipSTACK(1);                 /* drop :ABSOLUTE */
   /* It is not clear from the ANSI CL spec how the argument shall be coerced
    to a pathname. But the examples in the spec indicate that if the
    argument is a string, it should be converted to a logical pathname,
@@ -2213,6 +2219,8 @@ LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,0,_EMA_) {
     DOUT("translate-logical-pathname: >",pathname);
     skipSTACK(2);
   }
+  if (absolute_p)
+    pathname = use_default_dir(pathname); /* insert default-directory */
   VALUES1(pathname);
 }
 
@@ -4720,9 +4728,6 @@ local object translate_pathname (gcv_object_t* subst, object pattern) {
 }
 #undef GET_ITEM
 #undef GET_ITEM_S
-
-/* forward declaration */
-local object use_default_dir (object pathname);
 
 /* (TRANSLATE-PATHNAME sample pattern1 pattern2 [:all] [:merge] [:absolute]),
    CLtL2 p. 624

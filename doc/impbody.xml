@@ -2825,11 +2825,8 @@ checks whether the &hash-table-t; is weak.</para>
 
 <!-- #ifdef LOGICAL_PATHNAMES -->
 <section id="log-path"><title>Logical Pathnames
-   <ulink url="&clhs;/Body/sec_19-3.html">[CLHS-19.3]</ulink></title>
-
-<para>When the argument of the function &translate-logical-pathname; is
- a string, it is interpreted as a logical pathname string.</para>
-
+  <ulink url="&clhs;/Body/sec_19-3.html">[CLHS-19.3]</ulink></title>
+ <para>No notes.</para>
 </section>
 <!-- #endif -->
 
@@ -2852,8 +2849,8 @@ checks whether the &hash-table-t; is weak.</para>
 
 <section id="translate-pathname"><title>Function &translate-pathname;</title>
 
-<para>&translate-pathname; has three additional keywords: <literal
- role="sexp">(&translate-pathname; &source-r;
+<para>&translate-pathname; accepts three additional keyword arguments:
+ <literal role="sexp">(&translate-pathname; &source-r;
  <replaceable>from-wildname</replaceable>
  <replaceable>to-wildname</replaceable> &key-amp; &all-k;
  &merge-k; &absolute-k;)</literal></para>
@@ -2876,6 +2873,15 @@ checks whether the &hash-table-t; is weak.</para>
 
 </section>
 
+<section id="translate-logpath">
+ <title>Function &translate-logical-pathname;</title>
+
+<para>&translate-logical-pathname; accepts an additional keyword
+ argument &absolute-k;, similar to
+ <olink targetdoc="impnotes" targetptr="translate-pathname"/>.</para>
+
+</section>
+
 <section id="parsename"><title>Function &parse-namestring;</title>
 
 <para><literal role="sexp">(&parse-namestring; &string-r; &optional-amp;
@@ -2893,9 +2899,9 @@ checks whether the &hash-table-t; is weak.</para>
  (cf. <filename>"c:/autoexec.bat"</filename>,
  <filename>"home:.clisprc"</filename> and
  <filename>"prep:/pub/gnu"</filename>)
- and therefore is disabled by default.
- To enable the &ansi-cl; behavior, you should set &parsename; to
- non-&nil;.</para>
+ and therefore is disabled by default. To enable the &ansi-cl; behavior,
+ you should set &parsename; to non-&nil;.
+ xNote that this also disables treating &symbol-t;s as &path-des;s.</para>
 </section>
 
 <section id="pathmerge"><title>Function &merge-pathnames;</title>
