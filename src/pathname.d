@@ -7619,8 +7619,9 @@ global void init_pathnames (void) {
  #ifdef PATHNAME_WIN32
   { /* initialize default-drive: */
     var char drive = default_drive();
-    O(default_drive) = drive == 0 ? NIL                  /* network */
-      : n_char_to_string(&drive,1,O(pathname_encoding)); /* local device */
+    O(default_drive) =
+      (drive == 0 ? NIL                  /* network */
+       : n_char_to_string(&drive,1,O(pathname_encoding))); /* local device */
   }
  #endif
   /* initialize *DEFAULT-PATHNAME-DEFAULTS* : */
