@@ -2035,6 +2035,10 @@ local void usage (int exit_code)
                     # Alle weiteren Argumente sind Argumente zu argv_execute_file.
                     argv_execute_args = argptr;
                     argv_execute_arg_count = argptr_limit - argptr;
+                    # Simulate -norc. Batch scripts should be executed in an
+                    # environment which doesn't depend on files in $HOME, for
+                    # maximum portability.
+                    argv_norc = TRUE;
                     argptr = argptr_limit; # Schleife abbrechen
                     break;
                   default:
