@@ -474,6 +474,7 @@ global void savemem (object stream)
     update_varobjects();
     update_weakpointers();
     update_weakkvtables();
+    update_back_traces();
     #undef update_fs_function
     #undef update_fp_invalid
     #undef update_ht_invalid
@@ -504,6 +505,7 @@ global void savemem (object stream)
     update_varobjects();
     update_weakpointers();
     update_weakkvtables();
+    update_back_traces();
     #undef update_fs_function
     #undef update_fp_invalid
     #undef update_ht_invalid
@@ -1321,6 +1323,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     update_weakkvtables();
     /* update program constants: */
     update_tables();
+    /* update back_trace's */
+    update_back_traces();
    #ifdef SINGLEMAP_MEMORY_RELOCATE
     if (!offset_heaps_all_zero)
    #endif

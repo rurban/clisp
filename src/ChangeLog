@@ -1,5 +1,12 @@
 2003-03-29  Sam Steingold  <sds@gnu.org>
 
+	solidified updating back_trace callers
+	* spvw.d (for_all_back_traces): new macro
+	* spvw_update.d (update_back_traces): new macro
+	* spvw_garcol.d, spvw_memfile.d: use it for all updating
+
+2003-03-29  Sam Steingold  <sds@gnu.org>
+
 	* condition.lisp (restart-case, with-restarts): macroexpand
 	`restartable-form' to associate the restarts with this condition
 
