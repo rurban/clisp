@@ -1,5 +1,9 @@
 2004-08-09  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (fehler_delete_open, fehler_rename_open): fixed messages
+
+2004-08-09  Sam Steingold  <sds@gnu.org>
+
 	* constsym.d (*loop-ansi*): new variable
 	* spvw.d (init_symbol_values): initialize *LOOP-ANSI* to NIL
 	* misc.d (ansi): reset *LOOP-ANSI*
