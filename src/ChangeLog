@@ -1,5 +1,11 @@
 2002-06-27  Sam Steingold  <sds@gnu.org>
 
+	fixed Sparc/Linux glibc 2.2 --with-debug build
+	* lispbibl.d (oint_type_*, oint_data_*) [SPARC UNIX_LINUX]:
+	do special handling only for glibc 2.1 and earlier
+
+2002-06-27  Sam Steingold  <sds@gnu.org>
+
 	* configure: check stack limit and suggest ulimit when printing
 	further recommendations and call ulimit before make
 
