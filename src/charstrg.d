@@ -837,7 +837,7 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
             TheSmallSstring(inner_string)->data[index] = (scint)as_cint(element);
             break;
           }
-          ASSERT(string == inner_string);
+          ASSERT(eq(string,inner_string));
           string = reallocate_small_string(inner_string);
           inner_string = TheSiarray(string)->data;
           /*FALLTHROUGH*/
@@ -898,7 +898,7 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
                 break;
               }
             }
-            ASSERT(string == inner_string);
+            ASSERT(eq(string,inner_string));
             string = reallocate_small_string(inner_string);
             inner_string = TheSiarray(string)->data;
             /*FALLTHROUGH*/
@@ -1478,11 +1478,11 @@ global object char_name (chart code) {
     local char hex_table[] = "0123456789ABCDEF";
     #ifdef HAVE_SMALL_SSTRING
     var object name = allocate_small_string(5);
-    TheSmallSstring(name)->data[0] = ascii('U');
-    TheSmallSstring(name)->data[1] = ascii(hex_table[(c>>12)&0x0F]);
-    TheSmallSstring(name)->data[2] = ascii(hex_table[(c>>8)&0x0F]);
-    TheSmallSstring(name)->data[3] = ascii(hex_table[(c>>4)&0x0F]);
-    TheSmallSstring(name)->data[4] = ascii(hex_table[c&0x0F]);
+    TheSmallSstring(name)->data[0] = as_cint(ascii('U'));
+    TheSmallSstring(name)->data[1] = as_cint(ascii(hex_table[(c>>12)&0x0F]));
+    TheSmallSstring(name)->data[2] = as_cint(ascii(hex_table[(c>>8)&0x0F]));
+    TheSmallSstring(name)->data[3] = as_cint(ascii(hex_table[(c>>4)&0x0F]));
+    TheSmallSstring(name)->data[4] = as_cint(ascii(hex_table[c&0x0F]));
     #else
     var object name = allocate_string(5);
     TheSstring(name)->data[0] = ascii('U');
