@@ -1,3 +1,11 @@
+1998-10-07  Bruno Haible  <linuix.math.u-bordeaux.fr>
+
+        * readline.c (rl_present_p): Add constant flag. A replacement
+          library libnoreadline.a shall define rl_present_p = 0. An
+          application can then determine at run time whether is was linked
+          with libreadline.a or libnoreadline.a.
+        * readline.c (RL_LIBRARY_VERSION): Set to "2.2-clisp".
+
 1998-10-06  Bruno Haible  <linuix.math.u-bordeaux.fr>
 
         Added ANSI C prototypes, such that the library can be compiled
