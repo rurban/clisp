@@ -38,7 +38,7 @@ DSOURCES = \
  foreign \
  unixaux win32aux acornaux acornsig amigaaux
 
-LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 timezone places floatprint type defstruct format savemem trace compiler disassem defs2 loop clos condition gstream xcharin keyboard screen amigasock runprog query reploop dribble complete describe room edit macros3 foreign1 affi1 rexx1 defs3
+LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 timezone places floatprint type defstruct format savemem trace compiler disassem defs2 loop clos condition gstream xcharin keyboard screen amigasock beossock runprog query reploop dribble complete describe room edit macros3 foreign1 affi1 rexx1 defs3
 
 SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lisp,$(LISPSOURCES))
 
