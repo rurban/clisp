@@ -93,18 +93,6 @@
           #define HAVE_MMAP_DEVZERO
         #endif
     #endif
-    #if defined(UNIX_SUNOS4) || defined(UNIX_LINUX)
-      # NB: Unter UNIX_SUNOS4 ist nicht HAVE_MMAP_ANON, nur HAVE_MMAP_DEVZERO
-      # definiert. Ersteres, weil es MAP_ANON nicht gibt; letzteres, weil
-      # das Testprogramm Adressen bis 0x4000000 belegt (SUN4_29 aber nur
-      # Adressen bis 0x2000000 verkraftet - daher der spezielle Test
-      # HAVE_MMAP_DEVZERO_SUN4_29). Außerdem besteht ein Limit von 20 MB
-      # mmap()-Speicher (danach kommt ENOMEM).
-      # Wir können wahlweise MULTIMAP_MEMORY oder SINGLEMAP_MEMORY verwenden.
-      # Für MULTIMAP_MEMORY:
-        #include <sys/vfs.h>
-        extern_C int fstatfs (int fd, struct statfs * buf); # siehe STATFS(2)
-    #endif
     #ifdef UNIX_SUNOS5
       # NB: Unter UNIX_SUNOS5 sollte HAVE_MMAP_DEVZERO definiert sein.
       # Dabei gibt es allerdings ein Limit von 25 MB mmap()-Speicher.
@@ -114,7 +102,8 @@
     #endif
     #ifdef HAVE_MSYNC
       #ifdef MS_INVALIDATE
-        # Getestet nur auf UNIX_LINUX, nicht UNIX_SUNOS4, nicht UNIX_SUNOS5. ??
+        # Getestet nur auf UNIX_LINUX, nicht UNIX_SUNOS4, nicht UNIX_SUNOS5,
+        # nicht UNIX_FREEBSD. ??
         # Für MULTIMAP_MEMORY_VIA_FILE:
           extern_C int msync (MMAP_ADDR_T addr, MMAP_SIZE_T len, int flags);
       #else
