@@ -1,5 +1,10 @@
 2002-07-09  Sam Steingold  <sds@gnu.org>
 
+	* bindings/linuxlibc6/linux.lisp (read): added commas before
+	arguments in backquote
+
+2002-07-09  Sam Steingold  <sds@gnu.org>
+
 	* complete.lisp (completion): consider the situation FUNCTIONALP
 	when start==end, this fixes the "(finalize TAB" bug)
 
@@ -987,7 +992,8 @@
 
 2002-05-24  Sam Steingold  <sds@gnu.org>
 
-	* linux.lisp (read-helper): new function (points to read_helper)
+	* bindings/linuxlibc6/linux.lisp (read-helper):
+	new function (points to read_helper)
 	(read): a macro, calls read-helper
 
 2002-05-23  Sam Steingold  <sds@gnu.org>
