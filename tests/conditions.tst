@@ -284,7 +284,7 @@ nil
              (declare (ignore c))
              (return-from foo 23))))
      (error "Foo"))))
-#-ANSI-CL nil #+ANSI-CL 23
+#+CLISP nil #-CLISP 23
 
 ;;; Multiple handlers should work.
 (block foo
