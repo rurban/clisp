@@ -1,5 +1,12 @@
 2003-02-17  Sam Steingold  <sds@gnu.org>
 
+	* charstrg.d (hex_table): const
+	* spvw_debug.d (hex_table): const
+	* spvw_memfile.d (memflags): const
+	* stream.d (vktable, attr_table): const
+
+2003-02-17  Sam Steingold  <sds@gnu.org>
+
 	* type.lisp (encoding-charset): removed (this completes the
 	2002-05-21 patch)
 
