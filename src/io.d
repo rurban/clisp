@@ -567,6 +567,10 @@ global void init_reader (void) {
   define_variable(S(read_suppress),NIL);    # *READ-SUPPRESS* := NIL
  # initialize *READ-EVAL*:
   define_variable(S(read_eval),T);          # *READ-EVAL* := T
+ # initialize *READING-ARRAY*
+  define_variable(S(reading_array),NIL);    # *READING-ARRAY* := NIL
+ # initialize *READING-STRUCT*
+  define_variable(S(reading_struct),NIL);    # *READING-STRUCT* := NIL
  # initialize *READTABLE*:
   {
     var object readtable = orig_readtable();
@@ -2373,10 +2377,16 @@ local object read_top (const gcv_object_t* stream_, object whitespace_p) {
   dynamic_bind(S(read_reference_table),NIL);
   # bind SYS::*BACKQUOTE-LEVEL* to NIL:
   dynamic_bind(S(backquote_level),NIL);
+  # bind SYS::*READING-ARRAY* to NIL:
+  dynamic_bind(S(reading_array),NIL);
+  # bind SYS::*READING-STRUCT* to NIL:
+  dynamic_bind(S(reading_struct),NIL);
   # read Object:
   var object obj = read_internal(stream_);
   # disentangle references:
   obj = make_references(obj);
+  dynamic_unbind();
+  dynamic_unbind();
   dynamic_unbind();
   dynamic_unbind();
   dynamic_unbind();
@@ -3473,7 +3483,7 @@ LISPFUNN(vector_reader,3) { # reads #(
 #               (error "~: Wrong Syntax for Array: #A~" 'read h)
 #           ) )
 #           (let* ((rank n)
-#                  (cont (let ((*backquote-level* nil)) (read stream t nil t)))
+#                  (cont (read stream t nil t))
 #                  (dims '())
 #                  (eltype 't))
 #             (when (plusp rank)
@@ -3525,7 +3535,10 @@ LISPFUNN(array_reader,3) { # reads #A
   # n specifies the Rank of the Arrays.
   # read content:
   {
-    dynamic_bind(S(backquote_level),NIL); # bind SYS::*BACKQUOTE-LEVEL* to NIL
+    # bind SYS::*READING-ARRAY* to T.
+    # this allows the backquote reader functions to 
+    # distinguish #(...) vectors from #1A(...) vectors.
+    dynamic_bind(S(reading_array),T); 
     var object contents = read_recursive_no_dot(stream_);
     dynamic_unbind();
     pushSTACK(contents); pushSTACK(contents);
@@ -3970,7 +3983,7 @@ LISPFUNN(not_feature_reader,3) { # reads #-
 #         (progn (read stream t nil t) nil)
 #         (if n
 #           (error "~: Between # and S no number is allowed." 'read)
-#           (let ((args (let ((*backquote-level* nil)) (read stream t nil t))))
+#           (let ((args (read stream t nil t)))
 #             (if (consp args)
 #               (let ((name (first args)))
 #                 (if (symbolp name)
@@ -4011,8 +4024,8 @@ LISPFUNN(structure_reader,3) { # reads #S
     read_recursive_no_dot(stream_); # read Objekt and throw away,
     VALUES1(NIL); skipSTACK(2); return;
   }
-  # bind SYS::*BACKQUOTE-LEVEL* to NIL and read object:
-  dynamic_bind(S(backquote_level),NIL);
+  # bind SYS::*READING-STRUCT* to T and read object:
+  dynamic_bind(S(reading_struct),T);
   var object args = read_recursive_no_dot(stream_);
   dynamic_unbind();
   # check read List:
@@ -7315,10 +7328,8 @@ local void pr_cons (const gcv_object_t* stream_, object list) {
 # (quote object)                               'object
 # (function object)                            #'object
 # (backquote original-form [expanded-form])    `original-form
-# (splice (unquote form))                      ,@form
-# (splice form)                                ,@'form
-# (nsplice (unquote form))                     ,.form
-# (nsplice form)                               ,.'form
+# (splice form)                                ,@form
+# (nsplice form)                               ,.form
 # (unquote form)                               ,form
 
 local void pr_list_quote (const gcv_object_t* stream_, object list) {
@@ -7368,21 +7379,9 @@ local void pr_list_bothsplice (const gcv_object_t* stream_, object list, object 
   list = popSTACK();
   # decrease SYS::*PRIN-BQLEVEL* by 1:
   dynamic_bind(S(prin_bqlevel),fixnum_inc(Symbol_value(S(prin_bqlevel)),-1));
-  # is this of the form (UNQUOTE form) ?
-  if (consp(list) && eq(Car(list),S(unquote))
-      && mconsp(Cdr(list)) && nullp(Cdr(Cdr(list)))) { # yes -> print the form:
-    list = Car(Cdr(list)); # (second object)
-    INDENT_START(2); # indent by 2 characters because of ",@" resp. ",."
-    prin_object(stream_,list); # print form
-    INDENT_END;
-  } else { # no -> print a Quote and the object:
-    pushSTACK(list); # save object
-    write_ascii_char(stream_,'\''); # print "'"
-    list = popSTACK();
-    INDENT_START(3); # indent by 3 characters because of ",@'" resp. ",.'"
-    prin_object(stream_,list); # print object
-    INDENT_END;
-  }
+  INDENT_START(2); # indent by 2 characters because of ",@" resp. ",."
+  prin_object(stream_,list); # print form
+  INDENT_END;
   dynamic_unbind();
 }
 

@@ -1,3 +1,28 @@
+2003-04-01  Kaz Kylheku  <kaz@ashi.footprints.net>
+	    Sam Steingold  <sds@gnu.org>
+
+	Brand new, from-scratch backquote implementation.
+	* constsym.d (reading_array): New variable, corresponds to
+	system::*reading-array*.
+	(reading_struct): New variable, corresponds to
+	system::*reading-struct*.
+	(backquote_reader, comma_reader): Associate these objects with the
+	symbol names of the new backquote reader functions.
+	* init.lisp: Load new-backquote module rather than backquote.
+	(bq-conc): New macro in SYSTEM package.
+	(backquote): Macro rewritten to call the new backquote
+	expander, rather than regurgitate the second argument.
+	* io.d (init_reader): Define the variables *reading-array*
+	and *reading-struct*.
+	(read_top): Bind *reading-struct* and *reading-aray* to NIL.
+	(structure_reader): Bind *reading-struct* to T.  Do not
+	bind *backquote-level* to NIL.
+	(array_reader): Bind *reading-array* to T. Do not
+	bind *backquote-level* to NIL.
+	(pr_list_bothsplice): Adjust pretty-printer to new, simplified
+	syntax for SPLICE and NSPLICE.
+	* backquote.lisp: Rewrote from scratch.
+
 2003-04-01  Sam Steingold  <sds@gnu.org>
 
 	Export struct slot accessors

@@ -122,10 +122,6 @@
                      (list 'function (list 'lambda nil (list 'quote b)))))
 </programlisting></informalexample></para>
 
-<para>Multiple backquote combinations like <literal>,,@</literal> or
- <literal>,@,@</literal> are not implemented.  Their use would be
- confusing anyway.</para>
-
 </section>
 
 <section id="sharpsign"><title>Sharpsign
