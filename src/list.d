@@ -538,7 +538,7 @@ local bool endp (object obj) {
   else if (nullp(obj))
     return true;
   else
-    fehler_proper_list(obj);
+    fehler_proper_list(obj,subr_self);
 }
 
 LISPFUNN(endp,1)
@@ -1615,7 +1615,7 @@ local inline object memq1 (const object obj, const object lis, bool strictp) {
     l = Cdr(l);
   }
   if (strictp && !nullp(l))
-    fehler_proper_list(l);
+    fehler_proper_list(l,subr_self);
   return NIL;
 }
 global object memq (const object obj, const object lis) {
@@ -1976,7 +1976,7 @@ LISPFUNN(list_llength,1)
 { /* #'(lambda (seq) (do ((L seq (cdr L)) (N 0 (1+ N))) ((endp L) N))) */
   var object last;
   var uintL len = llength1(popSTACK(),&last);
-  if (!nullp(last)) fehler_proper_list(last);
+  if (!nullp(last)) fehler_proper_list(last,L(list_llength));
   VALUES1(fixnum(len));
 }
 
