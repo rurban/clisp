@@ -1,5 +1,10 @@
 2004-03-15  Bruno Haible  <bruno@clisp.org>
 
+	* control.d (make_variable_frame): Make 2003-05-20 change work on
+	platforms with symbolflags too.
+
+2004-03-15  Bruno Haible  <bruno@clisp.org>
+
 	* po/de.po: Fix 3 format strings that had the wrong number of ~.
 	* po/fr.po: Fix 1 such format string.
 
