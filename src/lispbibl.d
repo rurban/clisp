@@ -4132,7 +4132,7 @@ typedef # 64-Bit-Float im IEEE-Format:
           uint64
         #else
           # Sign/Exponent/MantisseHigh und MantisseLow
-          #if BIG_ENDIAN_P
+          #if BIG_ENDIAN_P || defined(ARM)
             struct {uint32 semhi,mlo;}
           #else
             struct {uint32 mlo,semhi;}

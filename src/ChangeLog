@@ -1,5 +1,10 @@
 2001-05-21  Bruno Haible  <haible@clisp.cons.org>
 
+	* lispbibl.d (dfloat): ARM saves the doubles as two little-endian
+	words, in big-endian order. Reported by Richard Kreckel.
+
+2001-05-21  Bruno Haible  <haible@clisp.cons.org>
+
 	* ariarm.d: Use #0x instead of #& to designate hexadecimal constants.
 
 2001-05-15  Sam Steingold  <sds@gnu.org>
