@@ -1,5 +1,10 @@
 2004-04-26  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (init): do not treat "bindings" modules
+	subdirectory specially
+
+2004-04-26  Sam Steingold  <sds@gnu.org>
+
 	* error.d (check_classname): new function for modules
 	* genclisph.d (main): declare check_classname()
 	* rawsock/rawsock.c, pcre/cpcre.c: use check_classname() instead
