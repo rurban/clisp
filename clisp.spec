@@ -16,7 +16,7 @@
 # at least for some time :-)
 %define version %(cat %{src}/%{name}/current/src/VERSION)
 %define builddir build-rpm
-%define mysrc %{src}/%{name}/%{name}-%{version}
+%define mysrc %{src}/%{name}/current
 
 # don't you just love that you have to fit the macro into one line?
 # this automatically upgrades `release' with each build.
