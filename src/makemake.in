@@ -1175,7 +1175,7 @@ if [ "$DEBUGGING" = debug ] ; then
   esac
 fi
 
-if [ ${HSYS} = win32gcc ]; then
+if [ ${HSYSOS} = win32gcc -o ${HSYSOS} = cygwin32 ]; then
   # this is necessary for g++ to handle w32shell
   # <http://article.gmane.org/gmane.comp.gnu.mingw.user/8213>
   case "$CC" in ( *"g++"* ) XCFLAGS=$XCFLAGS' -DCINTERFACE'; ;; esac
@@ -2431,7 +2431,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     fi
   fi
   if [ $f = modules ] ; then
-    if [ $HOS = unix -a $CROSS = false ] ; then
+    if [ $HOS = unix -a $CROSS = true ] ; then
       dependsc=$dependsc' clisp.h'
     else
       flags=$flags' -DNO_CLISP_H'
