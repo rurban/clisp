@@ -386,9 +386,9 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
   &foreign-pointer-t;, &foreign-address-t;,
   &foreign-variable;;, &foreign-function;</simpara></listitem>
  <listitem><simpara>&weak-pointer;,
-          <link linkend="reader"><classname>READ-LABEL</classname></link>,
-          <link linkend="reader"><classname>FRAME-POINTER</classname></link>,
-      <classname>SYSTEM-INTERNAL</classname></simpara></listitem>
+   <link linkend="reader"><classname>READ-LABEL</classname></link>,
+   <link linkend="reader"><classname>FRAME-POINTER</classname></link>,
+   <classname>SYSTEM-INTERNAL</classname></simpara></listitem>
  <listitem><simpara><classname>ADDRESS</classname> (should not
   occur)</simpara></listitem>
  <listitem><simpara>any other &symbol-t; (structure types or &clos;
@@ -404,11 +404,12 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
   <ulink url="&clhs;/Body/sec_4-3.html">[CLHS-4.3]</ulink></title>
 
 <para>The &clos; symbols are &export;ed from the package &clos-pac;.
- &cl-pac; uses (as in &use-package;) &clos-pac; and &re-export;s all its
- exported symbols.
+ &cl-pac; uses (as in &use-package;) &clos-pac; and &re-export;s the
+ &ansi-cl; standard exported symbols (the &clisp; extensions, e.g.,
+ &class-proto;, are &not-e; &re-export;ed).
  Since <link linkend="make-pack">the default &use-k; argument</link>
- to &make-package; is &cl-pac;, the &clos; symbols are normally visible
- in all user-defined packages.
+ to &make-package; is &cl-pac;, the standard &clos; symbols are normally
+ visible in all user-defined packages.
  If you do not want them (for example, if you want to use the
  <ulink url="ftp://cvs2.cons.org/pub/lisp/clisp/packages/pcl.sept92f.clisp.tar.gz">PCL</ulink>
  implementation of &clos; instead of the native one), do the following:
