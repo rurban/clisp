@@ -1,7 +1,7 @@
 ;;; CLtL2-kompatible Definitionen
 ;;; Bruno Haible 21.7.1994
 
-;===============================================================================
+;; ============================================================================
 
 (in-package "LISP")
 (export '(nth-value function-lambda-expression defpackage
@@ -11,7 +11,7 @@
 )        )
 (in-package "SYSTEM")
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 ;; X3J13 vote <123>
 
@@ -37,7 +37,7 @@
     `(NTH ,n (MULTIPLE-VALUE-LIST ,form))
 ) )
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 ;; X3J13 vote <88>
 
@@ -64,7 +64,7 @@
            'function-lambda-expression obj
 ) )     ))
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 ;; X3J13 vote <52>
 
@@ -264,7 +264,7 @@
           packname
 ) )
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 ;; X3J13 vote <40>
 
@@ -277,7 +277,7 @@
    )
 )
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 ;; X3J13 vote <144>
 
@@ -287,7 +287,7 @@
    )
 )
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 ;; X3J13 vote <64>
 
@@ -322,7 +322,7 @@
       max (eql min max) min max destructuring-form
 ) ) )
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 ;; X3J13 vote <87>
 
@@ -336,7 +336,7 @@
   #'(lambda (&rest arguments) (declare (ignore arguments)) object)
 )
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 ;; part of X3J13 vote <40>
 
@@ -381,7 +381,7 @@
      )
 ) )
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 ;; part of X3J13 vote <98>
 
@@ -397,7 +397,7 @@
      ) )
 ) )
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 ;; ANSI-CL
 
@@ -407,7 +407,7 @@
   `(FUNCTION ,whole)
 )
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 ;; Make GET-MACRO-CHARACTER work on dispatch macro characters.
 (let ((vector '#()))
@@ -462,14 +462,14 @@
   )
 )
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
-; READ-SEQUENCE and WRITE-SEQUENCE are badly specified because they assume
-; that the stream has a unique element type, either subtype of CHARACTER or
-; subtype of INTEGER. But some streams (esp. generic-streams) have a type
-; of (OR CHARACTER INTEGER).
+;; READ-SEQUENCE and WRITE-SEQUENCE are badly specified because they assume
+;; that the stream has a unique element type, either subtype of CHARACTER or
+;; subtype of INTEGER. But some streams (esp. generic-streams) have a type
+;; of (OR CHARACTER INTEGER).
 
-; This is a little hack to get the non-ambigouous cases right.
+;; This is a little hack to get the non-ambigouous cases right.
 
 (defun stream-input-element-type (stream)
   (loop
@@ -535,33 +535,33 @@
                   'write-char-sequence 'write-byte-sequence
 ) ) )     ))
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
-; ANSI-CL specifies TYPE-ERRORs in many places.
-; Here are the corresponding types.
+;; ANSI-CL specifies TYPE-ERRORs in many places.
+;; Here are the corresponding types.
 
-; (DESIGNATOR thing) is an abbreviation for many terms seen in the CLHS
-; glossary.
-;
-; bounding index sequence    (START-INDEX sequence), (END-INDEX sequence)
-; character                  CHARACTER, BASE-CHAR
-; class                      CLASS
-; condition                  ---
-; extended function          EXTENDED-FUNCTION
-; external file format       ---
-; file position              FILE-POSITION
-; function                   FUNCTION
-; interval                   ---
-; list                       LIST
-; logical-host               LOGICAL-HOST
-; package                    PACKAGE
-; pathname                   PATHNAME
-; readtable                  READTABLE
-; restart                    RESTART
-; spreadable argument list   ---
-; stream                     STREAM
-; stream variable            ---
-; string                     STRING, (STRING length)
+;; (DESIGNATOR thing) is an abbreviation for many terms seen in the CLHS
+;; glossary.
+
+;; bounding index sequence    (START-INDEX sequence), (END-INDEX sequence)
+;; character                  CHARACTER, BASE-CHAR
+;; class                      CLASS
+;; condition                  ---
+;; extended function          EXTENDED-FUNCTION
+;; external file format       ---
+;; file position              FILE-POSITION
+;; function                   FUNCTION
+;; interval                   ---
+;; list                       LIST
+;; logical-host               LOGICAL-HOST
+;; package                    PACKAGE
+;; pathname                   PATHNAME
+;; readtable                  READTABLE
+;; restart                    RESTART
+;; spreadable argument list   ---
+;; stream                     STREAM
+;; stream variable            ---
+;; string                     STRING, (STRING length)
 
 (deftype designator (thing)
   (cond ((symbolp thing)
@@ -664,5 +664,5 @@
   (or (subtypep typespec 'LIST) (subtypep typespec 'VECTOR))
 )
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
