@@ -1,5 +1,11 @@
 2002-12-21  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (LIBSIGSEGV): init to @LTLIBSIGSEGV@ (-L/... -lsigsegv)
+	instead of @LIBSIGSEGV@ (/.../libsigsegv.a) because this value
+	gets into LIBS and from there into distmakefile and breaks that
+
+2002-12-21  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (--without*): escape "(|)" in sed RE with #\\
 	now handles --with-noreadline correctly
 	(my_eval): new function
