@@ -543,12 +543,12 @@ global int write_helper (HANDLE fd, const void* b, int nbyte, bool no_hang)
 
 /* Reading from a socket.
    This is the non-interruptible routine. */
-local int lowlevel_sock_read (SOCKET fd, void* buf, int nbyte)
+local int lowlevel_sock_read (SOCKET fd, void* b, int nbyte)
 {
 #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-  handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
+  handle_fault_range(PROT_READ_WRITE,(aint)b,(aint)b+nbyte);
 #endif
-  var char* buf = (char*) buf;
+  var char* buf = (char*) b;
   var int done = 0;
   while (nbyte!=0) {
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
@@ -596,13 +596,13 @@ global int sock_read (SOCKET fd, void* buf, int nbyte)
 
 /* Writing to a socket.
    This is the non-interruptible routine. */
-local int lowlevel_sock_write (SOCKET fd, const void* buf, int nbyte,
+local int lowlevel_sock_write (SOCKET fd, const void* b, int nbyte,
                                bool no_hang)
 {
 #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-  handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
+  handle_fault_range(PROT_READ,(aint)b,(aint)b+nbyte);
 #endif
-  var const char* buf = (const char*) buf;
+  var const char* buf = (const char*) b;
   var int done = 0;
   while (nbyte) {
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
