@@ -37,23 +37,26 @@ OBJECTS = handler.obj dispatcher.obj
 
 all : sigsegv.lib
 
-handler.obj : $(srcdir)/handler.c $(srcdir)/sigsegv.h
+sigsegv.h :
+	cp $(srcdir)/sigsegv.h.in sigsegv.h
+
+handler.obj : $(srcdir)/handler.c sigsegv.h
 	$(CC) $(CFLAGS) -c $(srcdir)/handler.c
 
-dispatcher.obj : $(srcdir)/dispatcher.c $(srcdir)/sigsegv.h
+dispatcher.obj : $(srcdir)/dispatcher.c sigsegv.h
 	$(CC) $(CFLAGS) -c $(srcdir)/dispatcher.c
 
 sigsegv.lib : $(OBJECTS)
 	$(RM) sigsegv.lib
 	$(AR) $(AR_FLAGS)sigsegv.lib $(OBJECTS)
 
-test1.exe : $(srcdir)/test1.c $(srcdir)/sigsegv.h sigsegv.lib
+test1.exe : $(srcdir)/test1.c sigsegv.h sigsegv.lib
 	$(CC) $(CFLAGS) $(srcdir)/test1.c sigsegv.lib /Fetest1
 
-test2.exe : $(srcdir)/test2.c $(srcdir)/sigsegv.h sigsegv.lib
+test2.exe : $(srcdir)/test2.c sigsegv.h sigsegv.lib
 	$(CC) $(CFLAGS) $(srcdir)/test2.c sigsegv.lib /Fetest2
 
-test3.exe : $(srcdir)/test3.c $(srcdir)/sigsegv.h sigsegv.lib
+test3.exe : $(srcdir)/test3.c sigsegv.h sigsegv.lib
 	$(CC) $(CFLAGS) $(srcdir)/test3.c sigsegv.lib /Fetest3
 
 check : all test1.exe test2.exe test3.exe
@@ -64,7 +67,7 @@ check : all test1.exe test2.exe test3.exe
 mostlyclean : clean
 
 clean : force
-	$(RM) *.obj *.lib core
+	$(RM) sigsegv.h *.obj *.lib core
 	$(RM) test1.exe test2.exe test3.exe
 
 distclean : clean

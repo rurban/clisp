@@ -39,12 +39,15 @@ OBJECTS = handler.o dispatcher.o
 all : sigsegv.h libsigsegv.a
 
 sigsegv.h :
-	ln $(srcdir)/sigsegv.h sigsegv.h || cp $(srcdir)/sigsegv.h sigsegv.h
+	cp $(srcdir)/sigsegv.h.in sigsegv.h
+	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test1.c $(srcdir)/handler.c -o test1
+	if ./test1 > /dev/null 2> /dev/null ; then : ; else sed -e 's/^.*if test1 crashes.*$$/#undef HAVE_SIGSEGV_RECOVERY/' < $(srcdir)/sigsegv.h.in > sigsegv.h ; fi
+	$(RM) test1 *.o core
 
-handler.o : $(srcdir)/handler.c $(srcdir)/sigsegv.h
+handler.o : $(srcdir)/handler.c sigsegv.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/handler.c
 
-dispatcher.o : $(srcdir)/dispatcher.c $(srcdir)/sigsegv.h
+dispatcher.o : $(srcdir)/dispatcher.c sigsegv.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/dispatcher.c
 
 libsigsegv.a : $(OBJECTS)
@@ -66,13 +69,13 @@ uninstall : force
 	$(RM) $(libdir)/libsigsegv.a
 	$(RM) $(includedir)/sigsegv.h
 
-test1 : $(srcdir)/test1.c $(srcdir)/sigsegv.h libsigsegv.a
+test1 : $(srcdir)/test1.c sigsegv.h libsigsegv.a
 	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test1.c libsigsegv.a -o test1
 
-test2 : $(srcdir)/test2.c $(srcdir)/sigsegv.h libsigsegv.a
+test2 : $(srcdir)/test2.c sigsegv.h libsigsegv.a
 	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test2.c libsigsegv.a -o test2
 
-test3 : $(srcdir)/test3.c $(srcdir)/sigsegv.h libsigsegv.a
+test3 : $(srcdir)/test3.c sigsegv.h libsigsegv.a
 	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test3.c libsigsegv.a -o test3
 
 check : all test1 test2 test3
@@ -83,7 +86,7 @@ check : all test1 test2 test3
 mostlyclean : clean
 
 clean : force
-	$(RM) *.o *.a core
+	$(RM) sigsegv.h *.o *.a core
 	$(RM) test1 test2 test3
 
 distclean : clean
