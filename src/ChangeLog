@@ -1,6 +1,8 @@
 2002-06-20  Sam Steingold  <sds@gnu.org>
 
 	* record.d (COPY-STRUCTURE): use memcpy() instead of dotimespC
+	(call_init_fun): new function
+	(%REINITIALIZE-INSTANCE, do_initialize_instance): use it
 
 2002-06-20  Sam Steingold  <sds@gnu.org>
 

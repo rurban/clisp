@@ -1045,6 +1045,22 @@ LISPFUN(pshared_initialize,2,0,rest,nokey,0,NIL) {
   set_args_end_pointer(rest_args_pointer STACKop 2); # clean up STACK
 }
 
+/* UP: call the non-%SHARED-INITIALIZE init function */
+local inline bool call_init_fun (object fun, object last,
+                                 object* rest_args_pointer, uintC argcount) {
+  /* shift initargs in the stack down by 1, then call fun: */
+  if (argcount > 0) {
+    var object* ptr = rest_args_pointer;
+    var uintC count;
+    dotimespC(count,argcount, {
+      var object next = Next(ptr); NEXT(ptr) = last;
+      last = Next(ptr); NEXT(ptr) = next;
+    });
+  }
+  pushSTACK(last);
+  funcall(fun,2*argcount+2);
+}
+
 # (CLOS::%REINITIALIZE-INSTANCE instance &rest initargs)
 # instance is an Instance of <standard-object> or <structure-object>,
 # initargs as list of pairs.
@@ -1092,18 +1108,7 @@ LISPFUN(preinitialize_instance,1,0,rest,nokey,0,NIL) {
     # stack layout: instance, slot-names, argcount Initarg/Value-pairs.
     var object fun = Cdr(info);
     if (!eq(fun,L(pshared_initialize))) {
-      # shift initargs in the stack down by 1, then call fun:
-      var object last = NIL;
-      if (argcount > 0) {
-        var object* ptr = rest_args_pointer;
-        var uintC count;
-        dotimespC(count,argcount, {
-          var object next = Next(ptr); NEXT(ptr) = last;
-          last = Next(ptr); NEXT(ptr) = next;
-        });
-      }
-      pushSTACK(last);
-      funcall(fun,2*argcount+2);
+      call_init_fun(fun,NIL,rest_args_pointer,argcount);
       return;
     }
   }
@@ -1179,22 +1184,10 @@ LISPFUN(pinitialize_instance,1,0,rest,nokey,0,NIL) {
 }
 local Values do_initialize_instance (object info, object* rest_args_pointer,
                                      uintC argcount) {
-  # stack layout: instance, argcount Initarg/Value-pairs.
-  {
+  { /* stack layout: instance, argcount Initarg/Value-pairs. */
     var object fun = TheSvector(info)->data[3];
     if (!eq(fun,L(pshared_initialize))) {
-      # shift initargs in the stack down by 1, then call fun:
-      var object last = T;
-      if (argcount > 0) {
-        var object* ptr = rest_args_pointer;
-        var uintC count;
-        dotimespC(count,argcount, {
-          var object next = Next(ptr); NEXT(ptr) = last;
-          last = Next(ptr); NEXT(ptr) = next;
-        });
-      }
-      pushSTACK(last);
-      funcall(fun,2*argcount+2);
+      call_init_fun(fun,T,rest_args_pointer,argcount);
       return;
     }
   }
