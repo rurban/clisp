@@ -454,11 +454,17 @@ global int fd_read_wont_hang_p (HANDLE fd)
   }
 }
 
+/* A wrapper around ReadFile() that supports different perseverances.
+   Return value like read().
+   When the return value is 0, it sets errno to indicate whether EOF has been
+   seen (ERROR_HANDLE_EOF) or whether it is not yet known (ERROR_IO_PENDING). */
 /* Reading from a file/pipe/console handle.
  This is the non-interruptible routine. */
 local int lowlevel_fd_read (HANDLE fd, void* bufarea, size_t nbyte, perseverance_t persev) {
-  if (nbyte == 0)
+  if (nbyte == 0) {
+    SetLastError(ERROR_IO_PENDING);
     return 0;
+  }
  #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ_WRITE,(aint)bufarea,(aint)bufarea+nbyte);
  #endif
@@ -467,11 +473,15 @@ local int lowlevel_fd_read (HANDLE fd, void* bufarea, size_t nbyte, perseverance
   do {
     if (persev == persev_immediate || persev == persev_bonus) {
       int wont_hang = fd_read_wont_hang_p(fd);
-      if (wont_hang == 0)
+      if (wont_hang == 0) {
+        SetLastError(ERROR_IO_PENDING);
         break;
+      }
       if (wont_hang < 0) {
-        if (persev == persev_bonus)
+        if (persev == persev_bonus) {
+          SetLastError(ERROR_IO_PENDING);
           break;
+        }
       }
     }
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
@@ -500,19 +510,29 @@ local int lowlevel_fd_read (HANDLE fd, void* bufarea, size_t nbyte, perseverance
         err = GetLastError();
       }
     }
-    if (err == ERROR_HANDLE_EOF || err == ERROR_BROKEN_PIPE)
+    if (err == ERROR_HANDLE_EOF || err == ERROR_BROKEN_PIPE) {
+      SetLastError(ERROR_HANDLE_EOF);
       break;
+    }
     if (err != ERROR_IO_PENDING)
       return -1;
     if (!GetOverlappedResult(fd, &overlap, &nchars,
                              persev != persev_immediate && persev != persev_bonus)) {
-      if (GetLastError() == ERROR_HANDLE_EOF)
+      if (GetLastError() == ERROR_HANDLE_EOF) {
+        SetLastError(ERROR_HANDLE_EOF);
         break;
+      }
       return -1;
     }
-   ok:
-    if (nchars == 0)
+    if (nchars == 0 && (persev == persev_immediate || persev == persev_bonus)) {
+      SetLastError(ERROR_IO_PENDING);
       break;
+    }
+   ok:
+    if (nchars == 0) {
+      SetLastError(ERROR_HANDLE_EOF);
+      break;
+    }
     buf += nchars; done += nchars; nbyte -= nchars;
     if (persev != persev_full && nchars < MAX_IO)
       break;
@@ -552,7 +572,7 @@ local DWORD WINAPI do_fd_read (LPVOID arg) {
   var struct fd_read_params * params = (struct fd_read_params *)arg;
   params->retval = lowlevel_fd_read(params->fd,params->buf,params->nbyte,
                                     params->persev);
-  if (params->retval < 0)
+  if (params->retval <= 0)
     params->errcode = GetLastError();
   return 0;
 }
@@ -566,7 +586,7 @@ global ssize_t fd_read (HANDLE fd, void* buf, size_t nbyte,
   params.retval  = 0;
   params.errcode = 0;
   if (DoInterruptible(&do_fd_read,(void*)&params,false)) {
-    if (params.retval < 0)
+    if (params.retval <= 0)
       SetLastError(params.errcode);
     return params.retval;
   } else {
@@ -586,11 +606,16 @@ local inline int fd_write_will_hang_p (HANDLE fd)
   }
 }
 
-/* Writing to a file/pipe/console handle. */
+/* A wrapper around WriteFile() that supports different perseverances.
+   Return value like write().
+   When the return value is 0, it sets errno to indicate whether EOWF has been
+   seen (ERROR_HANDLE_EOF) or whether it is not yet known (ERROR_IO_PENDING). */
 global ssize_t fd_write (HANDLE fd, const void* b, size_t nbyte,
                          perseverance_t persev) {
-  if (nbyte == 0)
+  if (nbyte == 0) {
+    SetLastError(ERROR_IO_PENDING);
     return 0;
+  }
 #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ,(aint)b,(aint)b+nbyte);
 #endif
@@ -624,11 +649,15 @@ global ssize_t fd_write (HANDLE fd, const void* b, size_t nbyte,
     /* Possibly check for Ctrl-C here ?? */
     if (persev == persev_immediate || persev == persev_bonus) {
       int will_hang = fd_write_will_hang_p(fd);
-      if (will_hang > 0)
+      if (will_hang > 0) {
+        SetLastError(ERROR_IO_PENDING);
         break;
+      }
       if (will_hang < 0) {
-        if (persev == persev_bonus)
+        if (persev == persev_bonus) {
+          SetLastError(ERROR_IO_PENDING);
           break;
+        }
       }
     }
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
@@ -662,9 +691,15 @@ global ssize_t fd_write (HANDLE fd, const void* b, size_t nbyte,
     if (!GetOverlappedResult(fd, &overlap, &nchars,
                              persev != persev_immediate && persev != persev_bonus))
       return -1;
-   ok:
-    if (nchars == 0)
+    if (nchars == 0 && (persev == persev_immediate || persev == persev_bonus)) {
+      SetLastError(ERROR_IO_PENDING);
       break;
+    }
+   ok:
+    if (nchars == 0) {
+      SetLastError(ERROR_HANDLE_EOF);
+      break;
+    }
     buf += nchars; done += nchars; nbyte -= nchars;
     if (persev != persev_full && nchars < MAX_IO)
       break;
@@ -700,12 +735,18 @@ local inline int sock_read_will_hang_p (int fd)
   return 0;
 }
 
+/* A wrapper around recv() that supports different perseverances.
+   Return value like read().
+   When the return value is 0, it sets errno to indicate whether EOF has been
+   seen (ENOENT) or whether it is not yet known (EAGAIN). */
 /* Reading from a socket.
    This is the non-interruptible routine. */
 local int lowlevel_sock_read (SOCKET fd, void* b, size_t nbyte, perseverance_t persev)
 {
-  if (nbyte == 0)
+  if (nbyte == 0) {
+    sock_set_errno(EAGAIN);
     return 0;
+  }
 #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ_WRITE,(aint)b,(aint)b+nbyte);
 #endif
@@ -714,22 +755,27 @@ local int lowlevel_sock_read (SOCKET fd, void* b, size_t nbyte, perseverance_t p
   do {
     if (persev == persev_immediate || persev == persev_bonus) {
       int will_hang = sock_read_will_hang_p(fd);
-      if (will_hang > 0)
+      if (will_hang > 0) {
+        sock_set_errno(EAGAIN);
         break;
+      }
       if (will_hang < 0) {
         #if 1
           NOTREACHED;
         #else
-          if (persev == persev_bonus)
+          if (persev == persev_bonus) {
+            sock_set_errno(EAGAIN);
             break;
+          }
         #endif
       }
     }
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
     var int retval = recv(fd,buf,limited_nbyte,0);
-    if (retval == 0)
+    if (retval == 0) {
+      sock_set_errno(ENOENT);
       break;
-    else if (retval < 0)
+    } else if (retval < 0)
       return retval;
     else {
       buf += retval; done += retval; nbyte -= retval;
@@ -751,7 +797,7 @@ local DWORD WINAPI do_sock_read (LPVOID arg)
   var struct sock_read_params * params = (struct sock_read_params *)arg;
   params->retval = lowlevel_sock_read(params->fd,params->buf,params->nbyte,
                                       params->persev);
-  if (params->retval < 0)
+  if (params->retval <= 0)
     params->errcode = WSAGetLastError();
   return 0;
 }
@@ -765,7 +811,7 @@ global int sock_read (SOCKET fd, void* buf, size_t nbyte, perseverance_t persev)
   params.retval  = 0;
   params.errcode = 0;
   if (DoInterruptible(&do_sock_read,(void*)&params,true)) {
-    if (params.retval < 0)
+    if (params.retval <= 0)
       WSASetLastError(params.errcode);
     return params.retval;
   } else {
@@ -799,12 +845,18 @@ local inline int sock_write_will_hang_p (int fd)
   return 0;
 }
 
+/* A wrapper around send() that supports different perseverances.
+   Return value like write().
+   When the return value is 0, it sets errno to indicate whether EOWF has been
+   seen (ENOENT) or whether it is not yet known (EAGAIN). */
 /* Writing to a socket.
    This is the non-interruptible routine. */
 local int lowlevel_sock_write (SOCKET fd, const void* b, size_t nbyte, perseverance_t persev)
 {
-  if (nbyte == 0)
+  if (nbyte == 0) {
+    sock_set_errno(EAGAIN);
     return 0;
+  }
 #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ,(aint)b,(aint)b+nbyte);
 #endif
@@ -813,22 +865,27 @@ local int lowlevel_sock_write (SOCKET fd, const void* b, size_t nbyte, persevera
   do {
     if (persev == persev_immediate || persev == persev_bonus) {
       int will_hang = sock_write_will_hang_p(fd);
-      if (will_hang > 0)
+      if (will_hang > 0) {
+        sock_set_errno(EAGAIN);
         break;
+      }
       if (will_hang < 0) {
         #if 1
           NOTREACHED;
         #else
-          if (persev == persev_bonus)
+          if (persev == persev_bonus) {
+            sock_set_errno(EAGAIN);
             break;
+          }
         #endif
       }
     }
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
     var int retval = send(fd,buf,limited_nbyte,0);
-    if (retval == 0)
+    if (retval == 0) {
+      sock_set_errno(ENOENT);
       break;
-    else if (retval < 0)
+    } else if (retval < 0)
       return retval;
     else {
       buf += retval; done += retval; nbyte -= retval;
@@ -850,7 +907,7 @@ local DWORD WINAPI do_sock_write (LPVOID arg)
   var struct sock_write_params * params = (struct sock_write_params *)arg;
   params->retval = lowlevel_sock_write(params->fd,params->buf,params->nbyte,
                                        params->persev);
-  if (params->retval < 0)
+  if (params->retval <= 0)
     params->errcode = WSAGetLastError();
   return 0;
 }
@@ -864,7 +921,7 @@ global int sock_write (SOCKET fd, const void* buf, size_t nbyte, perseverance_t 
   params.retval  = 0;
   params.errcode = 0;
   if (DoInterruptible(&do_sock_write,(void*)&params,true)) {
-    if (params.retval < 0)
+    if (params.retval <= 0)
       WSASetLastError(params.errcode);
     return params.retval;
   } else {
