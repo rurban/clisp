@@ -10201,9 +10201,15 @@ LISPFUN(execute,1,0,norest,nokey,0,NIL)
 # (SHELL command) ruft eine Shell auf und läßt sie ein Kommando ausführen.
 
 #if defined(AMIGAOS)
+#include <dos/dostags.h>         # für SystemTags()
 
 LISPFUN(shell,0,1,norest,nokey,0,NIL)
   { var object command = popSTACK();
+    # As I/O is on the terminal and we obviously keep a handle on it,
+    # we will also get ^C^D^E^F signals from it during command execution.
+    # We choose to restore the initial signal state to avoid a double
+    # interruption, even though that implies that signals sent to us
+    # explicitly (Break command) in this time will be ignored.
     if (eq(command,unbound))
       # Kommandointerpreter aufrufen:
       { run_time_stop();
@@ -10214,9 +10220,12 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
         #else
         var Handle terminal = Open("*",MODE_READWRITE);
         if (!(terminal==Handle_NULL))
-          { ergebnis = Execute("",terminal,Handle_NULL);
+          { var ULONG signals = SetSignal(0L,0L);
+            ergebnis = Execute("",terminal,Handle_NULL);
+            # Restore state of break signals
+            SetSignal(signals,(SIGBREAKF_CTRL_C|SIGBREAKF_CTRL_D|SIGBREAKF_CTRL_E|SIGBREAKF_CTRL_F));
+            Write(terminal,CRLFstring,1);
             Close(terminal);
-            Write(stdout_handle,CRLFstring,1);
           }
         #endif
         end_system_call();
@@ -10242,11 +10251,23 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
         # Kommando ausführen:
         run_time_stop();
         begin_system_call();
-       {var BOOL ergebnis = Execute(TheAsciz(command),Handle_NULL,stdout_handle);
+       {var ULONG signals = SetSignal(0L,0L);
+        # Using SystemTags() instead of Execute() sends console signals to
+        # the command and it gives us the command's exit code.
+        var LONG ergebnis =
+          SystemTags(TheAsciz(command),
+                     SYS_Input, stdin_handle,
+                     # Work around bug in Emacs-18 subshell where Input() and Output()
+                     # are forbiddenly the same by having Input() cloned.
+                     SYS_Output, (stdin_handle == stdout_handle) ? Handle_NULL : stdout_handle,
+                     SYS_UserShell, 1L,
+                     TAG_DONE);
+        # Restore state of break signals
+        SetSignal(signals,(SIGBREAKF_CTRL_C|SIGBREAKF_CTRL_D|SIGBREAKF_CTRL_E|SIGBREAKF_CTRL_F));
         end_system_call();
         run_time_restart();
-        # Rückgabewert verwerten: ausgeführt -> T, nicht gefunden -> NIL :
-        value1 = (ergebnis ? T : NIL); mv_count=1;
+        # Rückgabewert verwerten
+        value1 = L_to_I(ergebnis); mv_count=1;
       }}
   }
 
