@@ -2453,6 +2453,8 @@ global void init_dependent_encodings(void) {
   O(foreign_encoding) =
     (argv_encoding_foreign ? encoding_from_name(argv_encoding_foreign)
      : (object)STACK_0);
+  if (TheEncoding(O(foreign_encoding))->max_bytes_per_char != 1)
+    O(foreign_encoding) = Symbol_value(S(ascii));
  #endif
   O(misc_encoding) =
     (argv_encoding_misc ? encoding_from_name(argv_encoding_misc)
