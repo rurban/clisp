@@ -1133,7 +1133,7 @@
             ;; specifies a two-step process.
             (multiple-value-bind (methods certain)
                 (funcall (cond ((eq gf |#'compute-applicable-methods-using-classes|)
-                                #'compute-applicable-methods-using-classes-<standard-generic-function>)
+                                #'compute-applicable-methods-using-classes-<generic-function>)
                                (t #'compute-applicable-methods-using-classes))
                          gf (mapcar #'class-of req-args))
               (if certain
@@ -1141,7 +1141,7 @@
                 (values
                   (funcall (cond ((or (eq gf |#'compute-applicable-methods|)
                                       (eq gf |#'compute-effective-method|))
-                                  #'compute-applicable-methods-<standard-generic-function>)
+                                  #'compute-applicable-methods-<generic-function>)
                                  (t #'compute-applicable-methods))
                            gf args)
                   'compute-applicable-methods)))
@@ -1171,9 +1171,9 @@
 
 ;; Preliminary.
 (defun compute-applicable-methods (gf args)
-  (compute-applicable-methods-<standard-generic-function> gf args))
+  (compute-applicable-methods-<generic-function> gf args))
 
-(defun compute-applicable-methods-<standard-generic-function> (gf args)
+(defun compute-applicable-methods-<generic-function> (gf args)
   (if (safe-gf-undeterminedp gf)
     ;; gf has uninitialized lambda-list, hence no methods.
     '()
@@ -1202,9 +1202,9 @@
 
 ;; Preliminary.
 (defun compute-applicable-methods-using-classes (gf req-arg-classes)
-  (compute-applicable-methods-using-classes-<standard-generic-function> gf req-arg-classes))
+  (compute-applicable-methods-using-classes-<generic-function> gf req-arg-classes))
 
-(defun compute-applicable-methods-using-classes-<standard-generic-function> (gf req-arg-classes)
+(defun compute-applicable-methods-using-classes-<generic-function> (gf req-arg-classes)
   (unless (and (proper-list-p req-arg-classes) (every #'class-p req-arg-classes))
     (error (TEXT "~S: argument should be a proper list of classes, not ~S")
            'compute-applicable-methods-using-classes req-arg-classes))
@@ -1241,7 +1241,7 @@
                                                    (setq applicable nil))))
                                            req-arg-classes specializers)
                                      (when (and applicable unknown)
-                                       (return-from compute-applicable-methods-using-classes-<standard-generic-function>
+                                       (return-from compute-applicable-methods-using-classes-<generic-function>
                                          (values nil nil)))
                                      applicable))
                                (the list methods)))

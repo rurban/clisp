@@ -1,5 +1,14 @@
 2004-10-12  Bruno Haible  <bruno@clisp.org>
 
+	* clos-genfun2.lisp (compute-applicable-methods-<generic-function>):
+	Renamed from compute-applicable-methods-<standard-generic-function>.
+	(compute-applicable-methods-using-classes-<generic-function>): Renamed
+	from
+	compute-applicable-methods-using-classes-<standard-generic-function>.
+	* clos-genfun4.lisp (compute-applicable-methods,
+	compute-applicable-methods-using-classes): Generalize the method from
+	<standard-generic-function> to <generic-function>.
+
 	* clos-methcomb2.lisp (compute-effective-method-<generic-function>):
 	Renamed from compute-effective-method-<standard-generic-function>.
 	* clos-genfun4.lisp (compute-effective-method): Generalize method from
