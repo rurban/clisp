@@ -6,7 +6,8 @@
 
 #include "lispbibl.c"
 
-#include <string.h> /* declares memcpy() */
+#include <string.h>             /* declares memcpy() */
+#include <stdio.h>              /* declares fprintf() */
 
 #ifdef UNICODE
 #include "libcharset.h"
@@ -2271,136 +2272,91 @@ global void init_encodings_2 (void) {
 
 /* Returns an encoding specified by a name.
  The line-termination is OS dependent.
- encoding_from_name(name)
+ encoding_from_name(name,context)
  > char* name: Any of the canonical names returned by the locale_charset()
                function.
+ > char* context: for warnings
  can trigger GC */
-local object encoding_from_name (const char* name) {
+local object encoding_from_name (const char* name, const char* context) {
  #ifdef UNICODE
   /* Attempt to use the character set implicitly specified by the locale. */
-  if (name && (asciz_equal(name,"ASCII") || asciz_equal(name,"ANSI_X3.4-1968")))
-    pushSTACK(Symbol_value(S(ascii)));
-  else if (name && asciz_equal(name,"ISO-8859-1"))
-    pushSTACK(Symbol_value(S(iso8859_1)));
-  else if (name && asciz_equal(name,"ISO-8859-2"))
-    pushSTACK(Symbol_value(S(iso8859_2)));
-  else if (name && asciz_equal(name,"ISO-8859-3"))
-    pushSTACK(Symbol_value(S(iso8859_3)));
-  else if (name && asciz_equal(name,"ISO-8859-4"))
-    pushSTACK(Symbol_value(S(iso8859_4)));
-  else if (name && asciz_equal(name,"ISO-8859-5"))
-    pushSTACK(Symbol_value(S(iso8859_5)));
-  else if (name && asciz_equal(name,"ISO-8859-6"))
-    pushSTACK(Symbol_value(S(iso8859_6)));
-  else if (name && asciz_equal(name,"ISO-8859-7"))
-    pushSTACK(Symbol_value(S(iso8859_7)));
-  else if (name && asciz_equal(name,"ISO-8859-8"))
-    pushSTACK(Symbol_value(S(iso8859_8)));
-  else if (name && asciz_equal(name,"ISO-8859-9"))
-    pushSTACK(Symbol_value(S(iso8859_9)));
-  else if (name && asciz_equal(name,"ISO-8859-10"))
-    pushSTACK(Symbol_value(S(iso8859_10)));
-  else if (name && asciz_equal(name,"ISO-8859-13"))
-    pushSTACK(Symbol_value(S(iso8859_13)));
-  else if (name && asciz_equal(name,"ISO-8859-14"))
-    pushSTACK(Symbol_value(S(iso8859_14)));
-  else if (name && asciz_equal(name,"ISO-8859-15"))
-    pushSTACK(Symbol_value(S(iso8859_15)));
-  else if (name && asciz_equal(name,"ISO-8859-16"))
-    pushSTACK(Symbol_value(S(iso8859_16)));
-  else if (name && asciz_equal(name,"KOI8-R"))
-    pushSTACK(Symbol_value(S(koi8_r)));
-  else if (name && asciz_equal(name,"KOI8-U"))
-    pushSTACK(Symbol_value(S(koi8_u)));
-  else if (name && asciz_equal(name,"CP850"))
-    pushSTACK(Symbol_value(S(cp850)));
-  else if (name && asciz_equal(name,"CP866"))
-    pushSTACK(Symbol_value(S(cp866)));
-  else if (name && asciz_equal(name,"CP874"))
-    pushSTACK(Symbol_value(S(cp874_ms)));
-  else if (name && asciz_equal(name,"CP1250"))
-    pushSTACK(Symbol_value(S(windows_1250)));
-  else if (name && asciz_equal(name,"CP1251"))
-    pushSTACK(Symbol_value(S(windows_1251)));
-  else if (name && asciz_equal(name,"CP1252"))
-    pushSTACK(Symbol_value(S(windows_1252)));
-  else if (name && asciz_equal(name,"CP1253"))
-    pushSTACK(Symbol_value(S(windows_1253)));
-  else if (name && asciz_equal(name,"CP1254"))
-    pushSTACK(Symbol_value(S(windows_1254)));
-  else if (name && asciz_equal(name,"CP1256"))
-    pushSTACK(Symbol_value(S(windows_1256)));
-  else if (name && asciz_equal(name,"CP1257"))
-    pushSTACK(Symbol_value(S(windows_1257)));
-  else if (name && asciz_equal(name,"HP-ROMAN8"))
-    pushSTACK(Symbol_value(S(hp_roman8)));
+  struct enc_tab { const char* name; object encoding; } encoding_table[] = {
+    { "ASCII", Symbol_value(S(ascii)) },
+    { "US-ASCII", Symbol_value(S(ascii)) },
+    { "ANSI_X3.4-1968", Symbol_value(S(ascii)) },
+    { "ISO-8859-1", Symbol_value(S(iso8859_1)) },
+    { "ISO-8859-2", Symbol_value(S(iso8859_2)) },
+    { "ISO-8859-3", Symbol_value(S(iso8859_3)) },
+    { "ISO-8859-4", Symbol_value(S(iso8859_4)) },
+    { "ISO-8859-5", Symbol_value(S(iso8859_5)) },
+    { "ISO-8859-6", Symbol_value(S(iso8859_6)) },
+    { "ISO-8859-7", Symbol_value(S(iso8859_7)) },
+    { "ISO-8859-8", Symbol_value(S(iso8859_8)) },
+    { "ISO-8859-9", Symbol_value(S(iso8859_9)) },
+    { "ISO-8859-10", Symbol_value(S(iso8859_10)) },
+    { "ISO-8859-13", Symbol_value(S(iso8859_13)) },
+    { "ISO-8859-14", Symbol_value(S(iso8859_14)) },
+    { "ISO-8859-15", Symbol_value(S(iso8859_15)) },
+    { "ISO-8859-16", Symbol_value(S(iso8859_16)) },
+    { "KOI8-R", Symbol_value(S(koi8_r)) },
+    { "KOI8-U", Symbol_value(S(koi8_u)) },
+    { "CP850", Symbol_value(S(cp850)) },
+    { "CP866", Symbol_value(S(cp866)) },
+    { "CP874", Symbol_value(S(cp874_ms)) },
+    { "CP1250", Symbol_value(S(windows_1250)) },
+    { "CP1251", Symbol_value(S(windows_1251)) },
+    { "CP1252", Symbol_value(S(windows_1252)) },
+    { "CP1253", Symbol_value(S(windows_1253)) },
+    { "CP1254", Symbol_value(S(windows_1254)) },
+    { "CP1256", Symbol_value(S(windows_1256)) },
+    { "CP1257", Symbol_value(S(windows_1257)) },
+    { "HP-ROMAN8", Symbol_value(S(hp_roman8)) },
   #if defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
-  else if (name && asciz_equal(name,"CP932"))
-    pushSTACK(Symbol_value(S(cp932)));
-  else if (name && asciz_equal(name,"CP949"))
-    pushSTACK(Symbol_value(S(cp949)));
-  else if (name && asciz_equal(name,"CP950"))
-    pushSTACK(Symbol_value(S(cp950)));
-  else if (name && asciz_equal(name,"CP1255"))
-    pushSTACK(Symbol_value(S(windows_1255)));
-  else if (name && asciz_equal(name,"GB2312"))
-    pushSTACK(Symbol_value(S(euc_cn)));
-  else if (name && asciz_equal(name,"EUC-JP"))
-    pushSTACK(Symbol_value(S(euc_jp)));
-  else if (name && asciz_equal(name,"EUC-KR"))
-    pushSTACK(Symbol_value(S(euc_kr)));
-  else if (name && asciz_equal(name,"EUC-TW"))
-    pushSTACK(Symbol_value(S(euc_tw)));
-  else if (name && asciz_equal(name,"BIG5"))
-    pushSTACK(Symbol_value(S(big5)));
-  else if (name && asciz_equal(name,"BIG5-HKSCS"))
-    pushSTACK(Symbol_value(S(big5_hkscs)));
-  else if (name && asciz_equal(name,"GBK"))
-    pushSTACK(Symbol_value(S(gbk)));
-  else if (name && asciz_equal(name,"GB18030"))
-    pushSTACK(Symbol_value(S(gb18030)));
-  else if (name && asciz_equal(name,"SJIS"))
-    pushSTACK(Symbol_value(S(shift_jis)));
-  else if (name && asciz_equal(name,"JOHAB"))
-    pushSTACK(Symbol_value(S(johab)));
-  else if (name && asciz_equal(name,"TIS-620"))
-    pushSTACK(Symbol_value(S(tis_620)));
-  else if (name && asciz_equal(name,"VISCII"))
-    pushSTACK(Symbol_value(S(viscii)));
-  #if defined(GNU_LIBICONV) && defined(UNIX_AIX)
-  else if (name && asciz_equal(name,"CP856"))
-    pushSTACK(Symbol_value(S(cp856)));
-  else if (name && asciz_equal(name,"CP922"))
-    pushSTACK(Symbol_value(S(cp922)));
-  else if (name && asciz_equal(name,"CP943"))
-    pushSTACK(Symbol_value(S(cp943)));
-  else if (name && asciz_equal(name,"CP1046"))
-    pushSTACK(Symbol_value(S(cp1046)));
-  else if (name && asciz_equal(name,"CP1124"))
-    pushSTACK(Symbol_value(S(cp1124)));
-  else if (name && asciz_equal(name,"CP1129"))
-    pushSTACK(Symbol_value(S(cp1129)));
-  #endif
-  #endif
-  else if (name && asciz_equal(name,"UTF-8"))
-    pushSTACK(Symbol_value(S(utf_8)));
-  else { /* Use a reasonable default. */
-   #if defined(ISOLATIN_CHS)
-    pushSTACK(Symbol_value(S(iso8859_1)));
-   #elif defined(UTF8_CHS)
-    pushSTACK(Symbol_value(S(utf_8)));
-   #elif defined(HPROMAN8_CHS)
-    pushSTACK(Symbol_value(S(hp_roman8)));
-   #elif defined(NEXTSTEP_CHS)
-    pushSTACK(Symbol_value(S(nextstep)));
-   #elif defined(IBMPC_CHS)
-    pushSTACK(Symbol_value(S(cp437_ibm)));
-   #else
-    pushSTACK(Symbol_value(S(ascii)));
+    { "CP932", Symbol_value(S(cp932)) },
+    { "CP949", Symbol_value(S(cp949)) },
+    { "CP950", Symbol_value(S(cp950)) },
+    { "CP1255", Symbol_value(S(windows_1255)) },
+    { "GB2312", Symbol_value(S(euc_cn)) },
+    { "EUC-JP", Symbol_value(S(euc_jp)) },
+    { "EUC-KR", Symbol_value(S(euc_kr)) },
+    { "EUC-TW", Symbol_value(S(euc_tw)) },
+    { "BIG5", Symbol_value(S(big5)) },
+    { "BIG5-HKSCS", Symbol_value(S(big5_hkscs)) },
+    { "GBK", Symbol_value(S(gbk)) },
+    { "GB18030", Symbol_value(S(gb18030)) },
+    { "SJIS", Symbol_value(S(shift_jis)) },
+    { "JOHAB", Symbol_value(S(johab)) },
+    { "TIS-620", Symbol_value(S(tis_620)) },
+    { "VISCII", Symbol_value(S(viscii)) },
+   #if defined(GNU_LIBICONV) && defined(UNIX_AIX)
+    { "CP856", Symbol_value(S(cp856)) },
+    { "CP922", Symbol_value(S(cp922)) },
+    { "CP943", Symbol_value(S(cp943)) },
+    { "CP1046", Symbol_value(S(cp1046)) },
+    { "CP1124", Symbol_value(S(cp1124)) },
+    { "CP1129", Symbol_value(S(cp1129)) },
    #endif
+  #endif
+    { "UTF-8", Symbol_value(S(utf_8)) }
+  };
+  int ii;
+  for (ii=0; ii < sizeof(encoding_table)/sizeof(struct enc_tab); ii++)
+    if (asciz_equal(name,encoding_table[ii].name)) break;
+  if (ii < sizeof(encoding_table)/sizeof(struct enc_tab)) /* found! */
+    pushSTACK(encoding_table[ii].encoding);
+  else { /* Use a reasonable default. */
+    if (asciz_equal(context,"*FOREIGN-ENCODING*")) {
+      fprintf(stderr,"WARNING: %s: no encoding %s, using ASCII\n",
+              context,name);
+      pushSTACK(Symbol_value(S(ascii)));
+    } else {
+      fprintf(stderr,"WARNING: %s: no encoding %s, using UTF-8\n",
+              context,name);
+      pushSTACK(Symbol_value(S(utf_8)));
+    }
   }
  #else
-  unused name;
+  unused name; unused context;
   pushSTACK(unbound);           /* :charset */
  #endif /* UNICODE */
  #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
@@ -2428,43 +2384,46 @@ global void init_dependent_encodings(void) {
   begin_system_call();
   locale_encoding = locale_charset(); /* depends on environment variables */
   end_system_call();
-  pushSTACK(encoding_from_name(locale_encoding));
+  pushSTACK(encoding_from_name(locale_encoding,"locale"));
   /* Initialize each encoding as follows: If the corresponding -E....
      option was not given, use the locale dependent locale_charset().
      If it was given, use that, and if the specified encoding was invalid,
      use a default encoding that does not depend on the locale. */
   O(default_file_encoding) =
-    (argv_encoding_file ? encoding_from_name(argv_encoding_file)
-     : (object)STACK_0);
+    (argv_encoding_file == NULL ? (object)STACK_0
+     : encoding_from_name(argv_encoding_file,"*DEFAULT-FILE-ENCODING*"));
   O(pathname_encoding) =
-    (argv_encoding_pathname ? encoding_from_name(argv_encoding_pathname)
-     : (object)STACK_0);
+    (argv_encoding_pathname == NULL ? (object)STACK_0
+     : encoding_from_name(argv_encoding_pathname,"*PATHNAME-ENCODING*"));
  #if defined(WIN32_NATIVE)
   /* cf libiconv/libcharset/lib/localcharset.c locale_charset() */
   if (argv_encoding_terminal == NULL) {
     var char buf[2+10+1];
     sprintf(buf,"CP%u",GetOEMCP());
-    O(terminal_encoding) = encoding_from_name(buf);
+    O(terminal_encoding) = encoding_from_name(buf,"*TERMINAL-ENCODING*");
   } else
-    O(terminal_encoding) = encoding_from_name(argv_encoding_terminal);
+    O(terminal_encoding) =
+      encoding_from_name(argv_encoding_terminal,"*TERMINAL-ENCODING*");
  #else
   O(terminal_encoding) =
-    (argv_encoding_terminal ? encoding_from_name(argv_encoding_terminal)
-     : (object)STACK_0);
+    (argv_encoding_terminal == NULL ? (object)STACK_0
+     : encoding_from_name(argv_encoding_terminal,"*TERMINAL-ENCODING*"));
  #endif
  #if defined(HAVE_FFI) || defined(HAVE_AFFI)
   O(foreign_encoding) =
-    (argv_encoding_foreign ? encoding_from_name(argv_encoding_foreign)
-     : (object)STACK_0);
-  if (TheEncoding(O(foreign_encoding))->max_bytes_per_char != 1)
+    (argv_encoding_foreign == NULL ? (object)STACK_0
+     : encoding_from_name(argv_encoding_foreign,"*FOREIGN-ENCODING*"));
+  if (TheEncoding(O(foreign_encoding))->max_bytes_per_char != 1) {
+    fprintf(stderr,"WARNING: *FOREIGN-ENCODING*: reset to ASCII\n");
     O(foreign_encoding) = Symbol_value(S(ascii));
+  }
  #endif
   O(misc_encoding) =
-    (argv_encoding_misc ? encoding_from_name(argv_encoding_misc)
-     : (object)STACK_0);
+    (argv_encoding_misc == NULL ? (object)STACK_0
+     : encoding_from_name(argv_encoding_misc,"*MISC-ENCODING*"));
   skipSTACK(1);
 #else /* no UNICODE */
-  O(default_file_encoding) = encoding_from_name(NULL);
+  O(default_file_encoding) = encoding_from_name(NULL,NULL);
 #endif
 }
 
