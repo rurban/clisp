@@ -456,6 +456,7 @@ dm2b
  5 (((SEGUNDO X2) X3 X4)) (CADR X2) (X3 X4) 5 (X5 X6))
 
 ;; -C test
+;; <http://article.gmane.org/gmane.lisp.clisp.general/7393>
 #+CLISP
 (loop :for a :in
   (funcall
@@ -536,3 +537,17 @@ dm2b
 		    513972305 19641756)))
  125)
 513972305
+
+;; <http://article.gmane.org/gmane.lisp.clisp.devel/10566>
+(let ((file "tmp.lisp"))
+  (with-open-file (out file :direction :output)
+    (write '(eval-when (load compile eval)
+             (+ (funcall (compile nil (lambda () (load-time-value (+ 2 3)))))
+              120))
+           :stream out))
+  (unwind-protect (compile-file file)
+    (delete-file file)
+    (delete-file (compile-file-pathname file))
+    #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
+  nil)
+nil
