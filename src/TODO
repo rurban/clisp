@@ -10,9 +10,6 @@ IMMUTABLE & WIDE_SOFT: With or without MORRIS_GC, the immutable bit of
 objects gets lost during GC.
 
 
-clisp-link: don't copy modules.o, instead compile it freshly.
-
-
 MAYBE
 =====
 
