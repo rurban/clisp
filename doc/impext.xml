@@ -28,14 +28,19 @@ extension, &mem-file; extension is automatically added).
  <varlistentry><term><constant>:LOCKED-PACKAGES</constant></term>
   <listitem><simpara>This argument specifies the packages to lock before
    saving the image; this is convenient for application delivery, when
-   you do not want your user to mess up your product.
+   you do not want your users to mess up your product.
    This argument defaults to &sys-pack-list;.
    </simpara></listitem></varlistentry>
  <varlistentry><term><constant>:START-PACKAGE</constant></term>
   <listitem><simpara>This argument specifies the starting value of
    &package-var; in the image being saved, and defaults to the current
    value of &package-var;.</simpara></listitem></varlistentry>
-</variablelist></para>
+</variablelist>
+You can use this memory image with the
+<ulink url="clisp.html#opt-lang"><option>-M</option></ulink>
+option.  On &unix; systems, you may compress it with &gnu;
+<ulink url="http://www.gzip.org/"><command>gzip</command></ulink>
+to save disk space.</para>
 
 </section>
 
