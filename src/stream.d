@@ -8664,7 +8664,7 @@ local object make_key_event (const key_event* event) {
               OS_error();
             }
           }
-          if (event.Event.KeyEvent.uAsciiChar <= ' ') {
+          if ((uintB)event.Event.KeyEvent.uAsciiChar <= ' ') {
             # Translate Virtual Keycode.
             local struct { WORD vkcode; key_event myevent; } vktable[] = {
               VK_BACK,    { NULL,  BS, 0 },               # #\Backspace
@@ -8694,6 +8694,8 @@ local object make_key_event (const key_event* event) {
               VK_F10,     { "F10", 0, char_hyper_c },     # #\F10
               VK_F11,     { "F11", 0, char_hyper_c },     # #\F11
               VK_F12,     { "F12", 0, char_hyper_c },     # #\F12
+              VK_LWIN,    { "WIN", 0, char_hyper_c },     # Win key
+              VK_RWIN,    { "WIN", 0, char_hyper_c },     # Same
               ' ',        { NULL, ' ', 0 },               # #\Space
               '0',        { NULL, '0', 0 },               # #\0
               '1',        { NULL, '1', 0 },               # #\1
@@ -8770,8 +8772,22 @@ local object make_key_event (const key_event* event) {
             if (event.Event.KeyEvent.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
               ev.bits |= char_meta_c;
           } else {
+            #ifdef UNICODE
+            var object encoding = TheStream(*stream_)->strm_encoding;
+            var chart c = 0;
+            var uintB buf[max_bytes_per_chart];
+            var chart* cptr  = &c;
+            var char* bptr         = buf;
+            memset(buf,0,max_bytes_per_chart);
+            OemToCharBuff((char *)&(event.Event.KeyEvent.uAsciiChar),buf,1);
+            Encoding_mbstowcs(encoding)
+              (encoding,*stream_,&bptr,bptr+max_bytes_per_chart,&cptr,cptr+1);
+            #else
+            var chart c = event.Event.KeyEvent.uAsciiChar;
+            OemToCharBuff((char *)c,(char *)c,1);
+            #endif
             ev.key = NULL;
-            ev.code = as_chart((uintB)event.Event.KeyEvent.uAsciiChar); # FIXME: This should take into account the encoding.
+            ev.code = c;
             ev.bits = 0;
             if (event.Event.KeyEvent.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)) {
               # c = 'a'..'z' -> translate to 'A'..'Z'
@@ -9262,16 +9278,16 @@ local object make_key_event (const key_event* event) {
         #ifdef UNICODE
         s->strm_encoding = O(terminal_encoding);
         #endif
-        s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
-        s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
-        s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
-        s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
+        s->strm_rd_by = P(rd_by_error); # READ-BYTE impossible
+        s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE impossible
+        s->strm_wr_by = P(wr_by_error); # WRITE-BYTE impossible
+        s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE impossible
         s->strm_rd_ch = P(rd_ch_keyboard); # READ-CHAR-Pseudofunktion
         s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
         s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
         s->strm_rd_ch_last = NIL; # Lastchar := NIL
-        s->strm_wr_ch = P(wr_ch_error); # WRITE-CHAR unmöglich
-        s->strm_wr_ch_array = P(wr_ch_array_error); # WRITE-CHAR unmöglich
+        s->strm_wr_ch = P(wr_ch_error); # WRITE-CHAR impossible
+        s->strm_wr_ch_array = P(wr_ch_array_error); # WRITE-CHAR impossible
         s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
         #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
         # Flag isatty = (stdin_tty ? T : NIL) bestimmen:
@@ -9521,10 +9537,10 @@ LISPFUNN(make_keyboard_stream,0)
         # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
       # und füllen:
       var Stream s = TheStream(stream);
-        s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
-        s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
-        s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
-        s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
+        s->strm_rd_by = P(rd_by_error); # READ-BYTE impossible
+        s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE impossible
+        s->strm_wr_by = P(wr_by_error); # WRITE-BYTE impossible
+        s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE impossible
         s->strm_rd_ch = P(rd_ch_terminal); # READ-CHAR-Pseudofunktion
         s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
         s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
@@ -10227,10 +10243,10 @@ local char * strip_white (char *string) {
           #ifdef UNICODE
           s->strm_encoding = O(terminal_encoding);
           #endif
-          s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
-          s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
-          s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
-          s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
+          s->strm_rd_by = P(rd_by_error); # READ-BYTE impossible
+          s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE impossible
+          s->strm_wr_by = P(wr_by_error); # WRITE-BYTE impossible
+          s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE impossible
           s->strm_rd_ch = P(rd_ch_terminal1); # READ-CHAR-Pseudofunktion
           s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
           s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
@@ -10320,10 +10336,10 @@ local char * strip_white (char *string) {
             #ifdef UNICODE
             s->strm_encoding = O(terminal_encoding);
             #endif
-            s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
-            s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
-            s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
-            s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
+            s->strm_rd_by = P(rd_by_error); # READ-BYTE impossible
+            s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE impossible
+            s->strm_wr_by = P(wr_by_error); # WRITE-BYTE impossible
+            s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE impossible
             s->strm_rd_ch = P(rd_ch_terminal3); # READ-CHAR-Pseudofunktion
             s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
             s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
@@ -10363,10 +10379,10 @@ local char * strip_white (char *string) {
             #ifdef UNICODE
             s->strm_encoding = O(terminal_encoding);
             #endif
-            s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
-            s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
-            s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
-            s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
+            s->strm_rd_by = P(rd_by_error); # READ-BYTE impossible
+            s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE impossible
+            s->strm_wr_by = P(wr_by_error); # WRITE-BYTE impossible
+            s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE impossible
             s->strm_rd_ch = P(rd_ch_terminal2); # READ-CHAR-Pseudofunktion
             s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
             s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
@@ -10401,10 +10417,10 @@ local char * strip_white (char *string) {
             #ifdef UNICODE
             s->strm_encoding = O(terminal_encoding);
             #endif
-            s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
-            s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
-            s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
-            s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
+            s->strm_rd_by = P(rd_by_error); # READ-BYTE impossible
+            s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE impossible
+            s->strm_wr_by = P(wr_by_error); # WRITE-BYTE impossible
+            s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE impossible
             s->strm_rd_ch = P(rd_ch_terminal1); # READ-CHAR-Pseudofunktion
             s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
             s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunktion
@@ -10853,20 +10869,16 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
 # (SCREEN:WINDOW-CURSOR-OFF window-stream)
 #   macht den Cursor(block) wieder unsichtbar.
 
-# Überprüft, ob das Argument ein Window-Stream ist.
-  local void check_window_stream (object stream);
-  local void check_window_stream(stream)
-    var object stream;
-    {
-      if (builtin_stream_p(stream)
-          && (TheStream(stream)->strmtype == strmtype_window))
-        return;
-      pushSTACK(stream);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             GETTEXT("~: argument ~ should be a window stream")
-            );
-    }
+# check that the argument is a window-stream.
+local object check_window_stream (object stream) {
+  if (!(builtin_stream_p(stream)
+        && (TheStream(stream)->strmtype == strmtype_window))) {
+    pushSTACK(stream);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~: argument ~ should be a window stream"));
+  }
+  return stream;
+}
 
 #ifdef EMUNIX
 
@@ -10935,13 +10947,13 @@ LISPFUNN(make_window,0)
       # Flags: nur WRITE-CHAR erlaubt
     # und füllen:
     var Stream s = TheStream(stream);
-      s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
-      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
-      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
-      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
-      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR unmöglich
+      s->strm_rd_by = P(rd_by_error); # READ-BYTE impossible
+      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE impossible
+      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE impossible
+      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE impossible
+      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR impossible
       s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
-      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR unmöglich
+      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR impossible
       s->strm_rd_ch_last = NIL; # Lastchar := NIL
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
       s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
@@ -11077,7 +11089,8 @@ LISPFUNN(window_cursor_off,1)
 #ifdef WIN32_NATIVE
 
 # Implementation on top of the Win32 console.
-# Contributed by Arseny Slobodjuck <ampy@crosswinds.net>, 2001-02-14.
+# Contributed by Arseny Slobodjuck <ampy@crosswinds.net>, 2001-02-14
+# modified on 2001-07-31
 
 # The API is documented at
 # http://www.msdn.microsoft.com/library/psdk/winbase/conchar_4svm.htm
@@ -11085,32 +11098,30 @@ LISPFUNN(window_cursor_off,1)
 #  Consoles and Character-Mode Support -> About Character Mode Support ->
 #  Consoles)
 
-local HANDLE console_handle = INVALID_HANDLE_VALUE;
-local COORD console_size;
-local COORD console_cursor_pos;
-local bool console_needtoclose;
-local uintW screenattr; # screen attribute index
 
-# Documentation of attributes:
-# bit 7    : foreground character blinking,
-# bit 6..4 : background color,
-# bit 3    : foreground intensity,
-# bit 2..0 : foreground color,
-# color table:
-#   0 black, 1 blue, 2 green, 3 cyan, 4 red, 5 magenta, 6 brown, 7 lightgray,
-# and as foreground color with intensity bit set, it is light:
-#   8 darkgray, ..., E yelloe, F white.
-  #define col_black    0
-  #define col_blue     1
-  #define col_green    2
-  #define col_cyan     3
-  #define col_red      4
-  #define col_magenta  5
-  #define col_brown    6
-  #define col_white    7
-  #define col_light(x)  (8 | (x))
-  #define FG(x)  (x)         # foreground color
-  #define BG(x)  ((x) << 4)  # background color
+# console is a kind of channel stream
+# extra fields in strm_other
+#define strm_console_attrib     strm_other[3]  # attribute index in array
+#define strm_console_size       strm_other[6]  # (uintL)COORD
+#define strm_console_cursor_pos strm_other[7]  # (uintL)COORD
+
+# helpers
+#define UnwrapCoord(obj)  unwrap_coord(posfixnum_to_L(obj))
+#define WrapCoord(coord) fixnum(*((uintL*)&coord))
+
+# accessors that can be used at the Right Side
+#define ConsolePosR(stream)    UnwrapCoord(TheStream(stream)->strm_console_cursor_pos)
+#define ConsoleSizeR(stream)   UnwrapCoord(TheStream(stream)->strm_console_size)
+#define ConsoleAttribR(stream) posfixnum_to_L(TheStream(stream)->strm_console_attrib)
+#define ConsoleHandleR(stream) TheHandle(TheStream(stream)->strm_ochannel)
+
+# accessors that can be used for field assignment
+#define ConsolePosS(stream,value)    TheStream(stream)->strm_console_cursor_pos = WrapCoord(value)
+#define ConsoleSizeS(stream,value)   TheStream(stream)->strm_console_size = WrapCoord(value)
+#define ConsoleAttribS(stream,value) TheStream(stream)->strm_console_attrib = fixnum(value)
+#define ConsoleHandleS(stream,value) TheStream(stream)->strm_ochannel = allocate_handle(value)
+
+
 
 # The following attribute constants are defined in the <wincon.h> header file:
 # FOREGROUND_BLUE
@@ -11140,204 +11151,307 @@ local WORD attr_table[5] = {
   | FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_RED
 };
 
-local WORD attr; # = attr_table[screenattr];
+local COORD unwrap_coord (uintL coord_as_uintl) {
+  var COORD rv = *((COORD *)&coord_as_uintl);
+  return rv;
+}
 
-local void InitConsole (void);
-local void InitConsole()
-  {
-    CONSOLE_SCREEN_BUFFER_INFO info;
 
-    console_needtoclose = false;
-    console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (console_handle == INVALID_HANDLE_VALUE) {
-      console_handle = CreateConsoleScreenBuffer(GENERIC_READ|GENERIC_WRITE,0,NULL,CONSOLE_TEXTMODE_BUFFER,NULL);
-      if (console_handle == INVALID_HANDLE_VALUE)
-        return;
-      SetConsoleActiveScreenBuffer(console_handle);
-      console_needtoclose = true;
-    }
+local void move_ccp_by(COORD *pos,COORD sz,int by) {
+  int linear_ccp = pos->Y * sz.X + pos->X;
+  int new_linear = linear_ccp + by;
+  pos->X = new_linear % sz.X;
+  pos->Y = ( new_linear % ( sz.X * sz.Y )) / sz.X;
+}
 
-    if (GetConsoleScreenBufferInfo(console_handle,&info))
-      console_size = info.dwSize;
-    else {
-      console_size.X = 80; console_size.Y = 25;
-    }
+local void v_move(HANDLE handle,uintW y,uintW x) {
+  # set cursor
+  var COORD pos;
+  pos.X = x; pos.Y = y;
+  SetConsoleCursorPosition(handle,pos);
+}
 
-    screenattr = 0; attr = attr_table[screenattr];
-  }
+local void v_emit_spaces(HANDLE handle,COORD *pos,int nspaces,uintW attr) {
+  int i;
+  FillConsoleOutputAttribute(handle,attr,nspaces,*pos,&i);
+  FillConsoleOutputCharacter(handle,' ',nspaces,*pos,&i);
+}
 
-local void DoneConsole (void);
-local void DoneConsole()
-  {
-    if (console_needtoclose) {
-      CloseHandle(console_handle);
-      console_needtoclose = false;
-    }
-  }
+local void v_cb (HANDLE handle) {
+  # cursor have 50 percent fill and visibility
+  CONSOLE_CURSOR_INFO ci = { 50, 1 };
+  SetConsoleCursorInfo(handle,&ci);
+}
 
-local void v_up (void)
-  {
-    if (console_cursor_pos.Y > 0)
-      console_cursor_pos.Y--;
-    SetConsoleCursorPosition(console_handle,console_cursor_pos);
-  }
+local void v_cs (HANDLE handle) {
+  # cursor have 10 percent fill and 0 visibility
+  CONSOLE_CURSOR_INFO ci = { 10, 0 };
+  SetConsoleCursorInfo(handle,&ci);
+}
 
-local void v_cb (void)
-  {
-    # cursor have 50 percent fill and visibility
-    CONSOLE_CURSOR_INFO ci = { 50, 1 };
-    SetConsoleCursorInfo(console_handle,&ci);
-  }
+local void v_ce (HANDLE handle,COORD *pos,COORD sz,uintW attr) {
+  # clear to end: get cursor position and emit the aproppriate number
+  # of spaces, without moving cursor. attr of spaces set to default.
+  int nspaces = sz.X - pos->X;
+  v_emit_spaces(handle,pos,nspaces,attr);
+}
 
-local void v_cs (void)
-  {
-    # cursor have 10 percent fill and 0 visibility
-    CONSOLE_CURSOR_INFO ci = { 10, 0 };
-    SetConsoleCursorInfo(console_handle,&ci);
-  }
+local void v_cl (HANDLE handle,COORD *pos,COORD sz,uintW attr) {
+  int nspaces = sz.X * sz.Y;
+  v_emit_spaces(handle,pos,nspaces,attr);
+  v_move(handle,0,0);
+}
 
-local void v_ce (void)
-  {
-    # clear to end: get cursor position and emit the aproppriate number
-    # of spaces, without moving cursor. attr of spaces set to default.
-    int nspaces = console_size.X - console_cursor_pos.X;
-    int i;
-    FillConsoleOutputAttribute(console_handle,attr,nspaces,console_cursor_pos,&i);
-    FillConsoleOutputCharacter(console_handle,' ',nspaces,console_cursor_pos,&i);
-  }
+local void v_cd (HANDLE handle,COORD *pos,COORD sz,uintW attr) {
+  # clear to bottom: get position, clear to eol, clear next line to end
+  int nspaces = (sz.Y - pos->Y) * sz.X - pos->X;
+  v_emit_spaces(handle,pos,nspaces,attr);
+}
 
-local void v_cl (void)
-  {
-    int nspaces = console_size.X * console_size.Y;
-    int i;
-    console_cursor_pos.X = 0; console_cursor_pos.Y = 0;
-    FillConsoleOutputAttribute(console_handle,attr,nspaces,console_cursor_pos,&i);
-    FillConsoleOutputCharacter(console_handle,' ',nspaces,console_cursor_pos,&i);
-    SetConsoleCursorPosition(console_handle,console_cursor_pos);
-  }
+local void v_scroll (HANDLE handle,int ax,int ay,int bx,int by,
+                     int n,uintW attr) {
+  CHAR_INFO c;
+  SMALL_RECT r1;
+  SMALL_RECT r2;
+  COORD p;
+  c.Char.AsciiChar = ' '; c.Attributes = attr;
+  r1.Left = ax; r1.Top = ay; r1.Right = bx; r1.Bottom = by;
+  r2 = r1;
+  p.X = ax; p.Y = ay + n;
+  ScrollConsoleScreenBuffer(handle,&r1,&r2,p,&c);
+}
 
-local void v_cd (void)
-  {
-    # clear to bottom: get position, clear to eol, clear next line to end
-    int nspaces = (console_size.Y - console_cursor_pos.Y) * console_size.X - console_cursor_pos.X;
-    int i;
-    FillConsoleOutputAttribute(console_handle,attr,nspaces,console_cursor_pos,&i);
-    FillConsoleOutputCharacter(console_handle,' ',nspaces,console_cursor_pos,&i);
-  }
+local void v_al (HANDLE handle,COORD *pos,COORD sz,uintW attr) {
+  # add line: scroll rest of screen down
+  v_scroll(handle,0,pos->Y+1,sz.X-1,sz.Y-1,1,attr);
+}
 
-local void v_scroll (int ax, int ay, int bx, int by, int n)
-  {
+local void v_dl (HANDLE handle,COORD *pos,COORD sz,uintW attr) {
+  # delete line: scroll rest up
+  v_scroll(handle,0,pos->Y,sz.X-1,sz.Y-1,-1,attr);
+}
+
+local void v_su (HANDLE handle,COORD *pos,COORD sz,uintW attr) {
+  # not used. why is it here ?
+  # scroll up: scroll whole screen
+  v_scroll(handle,0,0,sz.X-1,sz.Y-1,-1,attr);
+}
+
+local uintW v_put(HANDLE handle,uintW ch,COORD *pos,COORD sz,uintW attr) {
+  # put character:
+  # put attribute and char (no scroll!), then update cursor position.
+  ch &= 0xff;
+  if (ch==NL) {
+    pos->Y += 1;
+    pos->Y %= sz.Y;
+    pos->X = 0;
+    SetConsoleCursorPosition(handle,*pos);
+  } else {
     CHAR_INFO c;
-    SMALL_RECT r1;
-    SMALL_RECT r2;
-    COORD p;
-    c.Char.AsciiChar = ' '; c.Attributes = attr;
-    r1.Left = ax; r1.Top = ay; r1.Right = bx; r1.Bottom = by;
-    r2 = r1;
-    p.X = ax; p.Y = ay + n;
-    ScrollConsoleScreenBuffer(console_handle,&r1,&r2,p,&c);
+    SMALL_RECT rto;
+    COORD p0;
+    COORD p1;
+    c.Char.AsciiChar = ch;
+    c.Attributes = attr;
+    rto.Left = pos->X; rto.Top = pos->Y;
+    rto.Right = pos->X+1; rto.Bottom = pos->Y+1;
+    p0.X = 0; p0.Y = 0;
+    p1.X = 1; p1.Y = 1;
+    WriteConsoleOutput(handle,&c,p1,p0,&rto);
+    move_ccp_by(pos,sz,1);
+    SetConsoleCursorPosition(handle,*pos);
   }
+  return ch;
+}
 
-local void v_al (void)
-  {
-    # add line: scroll rest of screen down
-    v_scroll(0,console_cursor_pos.Y+1,console_size.X-1,console_size.Y-1,1);
-  }
-
-local void v_dl (void)
-  {
-    # delete line: scroll rest up
-    v_scroll(0,console_cursor_pos.Y,console_size.X-1,console_size.Y-1,-1);
-  }
-
-local void v_su (void)
-  {
-    # scroll up: scroll whole screen
-    v_scroll(0,0,console_size.X-1,console_size.Y-1,-1);
-  }
-
-local void v_move(y,x)
-  var uintW y;
-  var uintW x;
-  {
-    # set cursor
-    console_cursor_pos.X = x; console_cursor_pos.Y = y;
-    SetConsoleCursorPosition(console_handle,console_cursor_pos);
-  }
-
-local uintW v_put(ch)
-  var uintW ch;
-  {
-    # put character:
-    # put attribute and char (no scroll!), then update cursor position.
-    ch &= 0xff;
-    if (ch==NL) {
-      if (console_cursor_pos.Y == console_size.Y - 1)
-        v_su();
-      else
-        console_cursor_pos.Y++;
-      console_cursor_pos.X = 0;
-      SetConsoleCursorPosition(console_handle,console_cursor_pos);
-    } else {
-      if (!(console_cursor_pos.X == console_size.X-1
-            && console_cursor_pos.Y == console_size.Y-1)) {
-        CHAR_INFO c;
-        SMALL_RECT rto;
-        COORD p0;
-        COORD p1;
-        c.Char.AsciiChar = ch;c.Attributes = attr;
-        rto.Left = console_cursor_pos.X; rto.Top = console_cursor_pos.Y;
-        rto.Right = console_cursor_pos.X+1; rto.Bottom = console_cursor_pos.Y+1;
-        p0.X = 0; p0.Y = 0;
-        p1.X = 1; p1.Y = 1;
-        WriteConsoleOutput(console_handle,&c,p1,p0,&rto);
-        if (console_cursor_pos.X == console_size.X-1) {
-          console_cursor_pos.X = 0; console_cursor_pos.Y++;
-        } else {
-          console_cursor_pos.X++;
-        }
-      }
+local void v_puts(HANDLE handle,char *s,COORD *pos,COORD sz,uintW attr) {
+  var char * cp    = s;           # cp = current position
+  var char * start = s;           # start of current piece of string
+  var char terminator = 0;        # judgement day
+  do {
+    # move cp to end of line or newline char or right screen border
+    # set terminator accordingly
+    while (1) {
+      if (!(*cp) || *cp == NL) {
+        terminator = *cp;
+        break;              }
+      cp++;
+      if ((cp - start) >= (sz.X - pos->X)) {
+        terminator = CR;
+        break;                                  }
     }
-    return ch;
+    if (cp > start) {
+      CHAR_INFO * ac = (CHAR_INFO *)malloc((cp - start) * sizeof(CHAR_INFO));
+      SMALL_RECT rto;
+      COORD zp;
+      COORD p;
+      int i;
+      zp.X = 0; zp.Y = 0;
+      if (!ac) return;
+      for (i=0;i<(cp - start);i++) {
+        ac[i].Char.AsciiChar = start[i];
+        ac[i].Attributes = attr;
+      }
+      rto.Left = pos->X;
+      rto.Top = pos->Y;
+      rto.Right = pos->X + (cp - start);
+      rto.Bottom = pos->Y + 1;
+      p.X = cp - start;
+      p.Y = 1;
+      WriteConsoleOutput(handle,ac,p,zp,&rto);
+      pos->X+=cp - start;
+      if (terminator == NL || terminator == CR) {
+        pos->X = 0;
+        if (pos->Y >= sz.Y - 1)
+          pos->Y = 0;
+        else pos->Y++;
+      }
+      free(ac);
+    }
+    if (terminator == NL) cp++;
+    start = cp;
+  } while (terminator == NL || terminator == CR);
+}
+
+# Lisp functions:
+
+local void wr_ch_array_window (const object* stream_,const object* chararray_,
+                               uintL start,uintL len) {
+  var Handle handle = ConsoleHandleR(*stream_);
+  var COORD  pos    = ConsolePosR(*stream_);
+  var COORD  sz     = ConsoleSizeR(*stream_);
+  var uintW  attr   = attr_table[ConsoleAttribR(*stream_)];
+  var uintL end = start + len;
+  var uintL index = start;
+  var uintL strindex = 0;
+  var uintL mbpos = 0;
+  var chart * chart_str = (chart *)malloc((len + 1)*sizeof(chart));
+  var char  * char_str = (char *)chart_str;
+  if (!chart_str) return;
+  SstringDispatch(*chararray_,{
+    do {
+      chart_str[strindex] = TheSstring(*chararray_)->data[index];
+      index++;strindex++;
+    } while (index < end);
+    chart_str[strindex] = 0;
+  },{
+    do {
+      chart_str[strindex] = TheSmallSstring(*chararray_)->data[index];
+      index++;strindex++;
+    } while (index < end);
+    chart_str[strindex] = 0;
+  });
+#ifdef UNICODE
+  var char *mb_str = (char*)malloc((len + 1)*sizeof(char)*max_bytes_per_chart);
+  if (mb_str) {
+    var object encoding = TheStream(*stream_)->strm_encoding;
+    var const chart* cptr = chart_str;
+    var char * bptr       = mb_str;
+    memset(mb_str, 0, (len + 1)*sizeof(char)*max_bytes_per_chart);
+    Encoding_wcstombs(encoding)
+      (encoding,*stream_,&cptr,chart_str+strindex,
+       &bptr,mb_str + len * max_bytes_per_chart);
+    CharToOem(mb_str,mb_str);
+    v_puts(handle,mb_str,&pos,sz,attr); # will work only when multi == 1 in multibytes
+    free(mb_str);
   }
+#else
+  for (mbpos=0;chart_str[mbpos];mbpos++)
+    char_str[mbpos] = chart_str[mbpos];
+  char_str[mbpos] = 0;
+  CharToOem(char_str,char_str);
+  v_puts(handle,char_str,pos,sz,attr);
+#endif
+  free(chart_str);
+  SetConsoleCursorPosition(handle,pos);
+  ConsolePosS(*stream_,pos);
+}
 
 # UP: Ein Zeichen auf einen Window-Stream ausgeben.
 # wr_ch_window(&stream,ch);
 # > stream: Window-Stream
 # > ch: auszugebendes Zeichen
-  local void wr_ch_window (const object* stream_, object ch);
-  local void wr_ch_window(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    {
-      if (!charp(ch)) # ch must be a character
-        fehler_wr_char(*stream_,ch);
-      var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
-      # Code c auf den Bildschirm ausgeben:
-      v_put(c);
-    }
+local void wr_ch_window (const object* stream_, object ch) {
+  var Handle handle = ConsoleHandleR(*stream_);
+  var COORD  pos    = ConsolePosR(*stream_);
+  var COORD  sz     = ConsoleSizeR(*stream_);
+  var uintW  attr   = attr_table[ConsoleAttribR(*stream_)];
+  if (!charp(ch)) # ch must be a character
+    fehler_wr_char(*stream_,ch);
+  var chart c = char_code(ch);
+#ifdef UNICODE
+  # we convert to local charset then to OEM charset
+  # since it will be inhumane to lisp programmer
+  # to make him remember about windows nightmares
+  # another way is init *terminal-io* to OEM charset
+  # but this may require other places to be changed.
+  # (I saw ANSI2OEM in win32aux.d)
+  var uintB buf[max_bytes_per_chart];
+  var object encoding = TheStream(*stream_)->strm_encoding;
+  var const chart* cptr = &c;
+  var uintB* bptr = buf;
+  Encoding_wcstombs(encoding)
+    (encoding,*stream_,&cptr,cptr+1,&bptr,buf+max_bytes_per_chart);
+  CharToOemBuff(buf,(char *)&c,1);
+#else
+  CharToOemBuff((char *)&c,(char *)&c,1);
+#endif
+  v_put(handle,as_cint(c),&pos,sz,attr);
+  ConsolePosS(*stream_,pos);
+}
 
 LISPFUNN(make_window,0)
   {
     var object stream =
-      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+0,0);
-      # Flags: nur WRITE-CHAR erlaubt
-    # und füllen:
+      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_channel_len,
+            sizeof(strm_channel_extrafields_struct));
+    var HANDLE handle =
+      CreateConsoleScreenBuffer(GENERIC_READ|GENERIC_WRITE,
+                                0,
+                                NULL,
+                                CONSOLE_TEXTMODE_BUFFER,
+                                NULL);
+    var COORD console_size;
+    var COORD console_pos;
+    var CONSOLE_SCREEN_BUFFER_INFO info;
+    if (handle == INVALID_HANDLE_VALUE)
+        fehler_unwritable(S(make_window),stream);
+    SetConsoleActiveScreenBuffer(handle);
+    if (GetConsoleScreenBufferInfo(handle,&info))
+      console_size = info.dwSize;
+    else {
+      console_size.X = 80; console_size.Y = 25;
+    }
+    console_pos.X = 0;console_pos.Y = 0;
+    ASSERT(sizeof(COORD)<=sizeof(uintL));
+
     var Stream s = TheStream(stream);
-      s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
-      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
-      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
-      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
-      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR unmöglich
-      s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
-      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR unmöglich
-      s->strm_rd_ch_last = NIL; # Lastchar := NIL
-      s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
-      s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
-      s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-    InitConsole(); # Initialisieren
-    v_move(0,0);
-    v_cs();
+    s->strm_rd_by       = P(rd_by_error);           # READ-BYTE impossible
+    s->strm_rd_by_array = P(rd_by_array_error);     # READ-BYTE impossible
+    s->strm_wr_by       = P(wr_by_error);           # WRITE-BYTE impossible
+    s->strm_wr_by_array = P(wr_by_array_error);     # WRITE-BYTE impossible
+    s->strm_rd_ch       = P(rd_ch_error);           # READ-CHAR impossible
+    s->strm_pk_ch       = P(pk_ch_dummy);           # PEEK-CHAR-Pseudofunktion
+    s->strm_rd_ch_array = P(rd_ch_array_error);     # READ-CHAR impossible
+    s->strm_rd_ch_last  = NIL;                      # Lastchar := NIL
+    s->strm_wr_ch       = P(wr_ch_window);          # WRITE-CHAR-Pseudofunktion
+    s->strm_wr_ch_array = P(wr_ch_array_window); # WRITE-CHAR-SEQUENCE-Pseudofunktion
+    s->strm_wr_ch_lpos  = Fixnum_0; # Line Position := 0
+    s->strm_encoding    = O(terminal_encoding);
+    s->strm_isatty      = NIL;
+    s->strm_ichannel    = NIL;
+    ConsoleHandleS(stream,handle);
+    ConsolePosS(stream,console_pos);
+    ConsoleAttribS(stream,0);
+    ConsoleSizeS(stream,console_size);
+    # non GCted fields
+    ChannelStream_init(stream);  # iconv extrafields init
+    ChannelStream_lineno(stream) = 1;
+    ChannelStream_buffered(stream) = false;
+    ChannelStream_bitsize(stream) = 0;
+    ChannelStreamLow_close(stream) = &low_close_handle;
+    v_move(handle,0,0);
+    v_cs(handle);
     value1 = stream; mv_count=1;
   }
 
@@ -11346,98 +11460,124 @@ LISPFUNN(make_window,0)
   local void close_window(stream)
     var object stream;
     {
-      v_cs();
-      attr = FOREGROUND_INTENSITY | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
-      v_cl(); # clear screen black
-      DoneConsole();
+      close_ochannel(stream);
     }
 
 LISPFUNN(window_size,1)
   {
-    check_window_stream(popSTACK());
-    value1 = fixnum(console_size.Y);
-    value2 = fixnum(console_size.X);
+    var object stream = check_window_stream(popSTACK());
+    var COORD  sz     = ConsoleSizeR(stream);
+    value1 = fixnum(sz.Y);
+    value2 = fixnum(sz.X);
     mv_count=2;
   }
 
 LISPFUNN(window_cursor_position,1)
   {
-    check_window_stream(popSTACK());
-    value1 = fixnum(console_cursor_pos.Y);
-    value2 = fixnum(console_cursor_pos.X);
+    var object stream = check_window_stream(popSTACK());
+    var COORD  pos    = ConsolePosR(stream);
+    value1 = fixnum(pos.Y);
+    value2 = fixnum(pos.X);
     mv_count=2;
   }
 
 LISPFUNN(set_window_cursor_position,3)
   {
-    check_window_stream(STACK_2);
-    var uintL line = posfixnum_to_L(STACK_1);
-    var uintL column = posfixnum_to_L(STACK_0);
-    if ((line < (uintL)console_size.Y) && (column < (uintL)console_size.X))
-      v_move((uintW)line,(uintW)column);
+    var object stream = check_window_stream(STACK_2);
+    var Handle handle = ConsoleHandleR(stream);
+    var COORD  sz     = ConsoleSizeR(stream);
+    var COORD pos;
+    pos.Y = posfixnum_to_L(STACK_1);
+    pos.X = posfixnum_to_L(STACK_0);
+    if ((pos.Y < sz.Y) && (pos.X < sz.X) &&
+        (pos.Y >=   0) && (pos.X >=   0)) {
+      v_move(handle,pos.Y,pos.X);
+      ConsolePosS(stream,pos);
+    }
     value1 = STACK_1; value2 = STACK_0; mv_count=2; skipSTACK(3);
   }
 
 LISPFUNN(clear_window,1)
   {
-    check_window_stream(popSTACK());
-    v_cl();
+    var object stream = check_window_stream(popSTACK());
+    var Handle handle = ConsoleHandleR(stream);
+    var COORD  pos    = ConsolePosR(stream);
+    var COORD  sz     = ConsoleSizeR(stream);
+    var uintW  attr   = attr_table[ConsoleAttribR(stream)];
+    v_cl(handle,&pos,sz,attr);
+    ConsolePosS(stream,pos);
     value1 = NIL; mv_count=0;
   }
 
 LISPFUNN(clear_window_to_eot,1)
   {
-    check_window_stream(popSTACK());
-    v_cd();
+    var object stream = check_window_stream(popSTACK());
+    var Handle handle = ConsoleHandleR(stream);
+    var COORD  pos    = ConsolePosR(stream);
+    var COORD  sz     = ConsoleSizeR(stream);
+    var uintW  attr   = attr_table[ConsoleAttribR(stream)];
+    v_cd(handle,&pos,sz,attr);
     value1 = NIL; mv_count=0;
   }
 
 LISPFUNN(clear_window_to_eol,1)
   {
-    check_window_stream(popSTACK());
-    v_ce();
+    var object stream = check_window_stream(popSTACK());
+    var Handle handle = ConsoleHandleR(stream);
+    var COORD  pos    = ConsolePosR(stream);
+    var COORD  sz     = ConsoleSizeR(stream);
+    var uintW  attr   = attr_table[ConsoleAttribR(stream)];
+    v_ce(handle,&pos,sz,attr);
     value1 = NIL; mv_count=0;
   }
 
 LISPFUNN(delete_window_line,1)
   {
-    check_window_stream(popSTACK());
-    v_dl();
+    var object stream = check_window_stream(popSTACK());
+    var Handle handle = ConsoleHandleR(stream);
+    var COORD  pos    = ConsolePosR(stream);
+    var COORD  sz     = ConsoleSizeR(stream);
+    var uintW  attr   = attr_table[ConsoleAttribR(stream)];
+    v_dl(handle,&pos,sz,attr);
     value1 = NIL; mv_count=0;
   }
 
 LISPFUNN(insert_window_line,1)
   {
-    check_window_stream(popSTACK());
-    v_al();
+    var object stream = check_window_stream(popSTACK());
+    var Handle handle = ConsoleHandleR(stream);
+    var COORD  pos    = ConsolePosR(stream);
+    var COORD  sz     = ConsoleSizeR(stream);
+    var uintW  attr   = attr_table[ConsoleAttribR(stream)];
+    v_al(handle,&pos,sz,attr);
     value1 = NIL; mv_count=0;
   }
 
 LISPFUNN(highlight_on,1)
   {
-    check_window_stream(popSTACK());
-    screenattr = 1; attr = attr_table[screenattr];
+    var object stream = check_window_stream(popSTACK());
+    ConsoleAttribS(stream,1);
     value1 = NIL; mv_count=0;
   }
 
 LISPFUNN(highlight_off,1)
   {
-    check_window_stream(popSTACK());
-    screenattr = 0; attr = attr_table[screenattr];
+    var object stream = check_window_stream(popSTACK());
+    ConsoleAttribS(stream,0);
     value1 = NIL; mv_count=0;
   }
 
 LISPFUNN(window_cursor_on,1)
   {
-    check_window_stream(popSTACK());
-    v_cb();
+    var object stream = check_window_stream(popSTACK());
+    v_cb(ConsoleHandleR(stream));
     value1 = NIL; mv_count=0;
   }
 
 LISPFUNN(window_cursor_off,1)
   {
-    check_window_stream(popSTACK());
-    v_cs();
+    var object stream = check_window_stream(popSTACK());
+    v_cs(ConsoleHandleR(stream));
     value1 = NIL; mv_count=0;
   }
 
@@ -13228,13 +13368,13 @@ LISPFUNN(make_window,0)
       # Flags: nur WRITE-CHAR erlaubt
     # und füllen:
     var Stream s = TheStream(stream);
-      s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
-      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
-      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
-      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
-      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR unmöglich
+      s->strm_rd_by = P(rd_by_error); # READ-BYTE impossible
+      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE impossible
+      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE impossible
+      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE impossible
+      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR impossible
       s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
-      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR unmöglich
+      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR impossible
       s->strm_rd_ch_last = NIL; # Lastchar := NIL
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
       s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
@@ -13496,13 +13636,13 @@ LISPFUNN(make_window,0)
       # Flags: nur WRITE-CHAR erlaubt
     # und füllen:
     var Stream s = TheStream(stream);
-      s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
-      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
-      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
-      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
-      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR unmöglich
+      s->strm_rd_by = P(rd_by_error); # READ-BYTE impossible
+      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE impossible
+      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE impossible
+      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE impossible
+      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR impossible
       s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
-      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR unmöglich
+      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR impossible
       s->strm_rd_ch_last = NIL; # Lastchar := NIL
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
       s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
@@ -13692,13 +13832,13 @@ LISPFUNN(make_window,0)
       # Flags: nur WRITE-CHAR erlaubt
     # und füllen:
     var Stream s = TheStream(stream);
-      s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
-      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
-      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
-      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
-      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR unmöglich
+      s->strm_rd_by = P(rd_by_error); # READ-BYTE impossible
+      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE impossible
+      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE impossible
+      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE impossible
+      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR impossible
       s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
-      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR unmöglich
+      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR impossible
       s->strm_rd_ch_last = NIL; # Lastchar := NIL
       s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
       s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
