@@ -184,8 +184,12 @@ DEFUN(OS:PRIORITY, pid &optional which) {
   VALUES1(sint32_to_I(res));
 #elif defined(WIN32_NATIVE)
   DWORD res;
+  HANDLE handle;
   begin_system_call();
-  res = GetPriorityClass(pid);
+  handle = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,pid);
+  if (handle == NULL) OS_error();
+  res = GetPriorityClass(handle);
+  CloseHandle(handle);
   end_system_call();
   VALUES1(check_priority_value_reverse(res));
 #else
@@ -200,7 +204,12 @@ DEFUN(OS:SET-PRIORITY, pid which value) {
 #if defined(HAVE_SETPRIORITY)
   if (setpriority(which,pid,value)) OS_error();
 #elif defined(WIN32_NATIVE)
-  if (!SetPriorityClass(pid,value)) OS_error();
+  {
+    HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,pid);
+    if (handle == NULL) OS_error();
+    if (!SetPriorityClass(handle,value)) OS_error();
+    CloseHandle(handle);
+  }
 #else
   NOTREACHED;
 #endif
