@@ -521,9 +521,7 @@ muffle-cerrors appease-cerrors exit-on-error
 (defmacro handler-bind (clauses &body body)
   (let ((typespecs (mapcar #'first clauses))
         (handlers (append (mapcar #'rest clauses) (list body))))
-    (let ((handler-vars
-            (mapcar #'(lambda (x) (declare (ignore x)) (gensym)) handlers)
-         ))
+    (let ((handler-vars (map-into (make-list (length handlers)) #'gensym)))
       `(LET ,(mapcar #'list
                handler-vars
                (mapcar #'(lambda (handler) `(FUNCTION (LAMBDA () (PROGN ,@handler))))
@@ -1213,9 +1211,18 @@ muffle-cerrors appease-cerrors exit-on-error
 )
 
 (defun prompt-for-new-value (place)
-  (format *query-io* (prompt-for-new-value-string) place)
-  (read *query-io*)
-)
+  (let ((nn (length (nth-value 2 (get-setf-expansion place)))))
+    (cond ((= nn 1)
+           (format *query-io* (prompt-for-new-value-string) place)
+           (list (read *query-io*)))
+          ((do ((ii 1 (1+ ii)) res)
+               ((> ii nn) (nreverse res))
+             (format *query-io*
+                     (DEUTSCH "~%Neues `~S' [Wert ~D of ~D]: "
+                      ENGLISH "~%New `~S' [value ~D of ~D]: "
+                      FRANCAIS "~%Nouveau `~S' [valeur ~D de ~D]: ")
+                     place ii nn)
+             (push (read *query-io*) res))))))
 
 ;; CHECK-TYPE, CLtL2 p. 889
 (defmacro check-type (place typespec &optional (string nil))
@@ -1236,7 +1243,7 @@ muffle-cerrors appease-cerrors exit-on-error
            ; only one restart, will "continue" invoke it?
            (STORE-VALUE
              :REPORT REPORT-NEW-VALUE
-             :INTERACTIVE (LAMBDA () (LIST (PROMPT-FOR-NEW-VALUE ',place)))
+             :INTERACTIVE (LAMBDA () (PROMPT-FOR-NEW-VALUE ',place))
              (NEW-VALUE) (SETF ,place NEW-VALUE)
            )
        ) )
@@ -1277,21 +1284,16 @@ muffle-cerrors appease-cerrors exit-on-error
                     )
            :INTERACTIVE
              (LAMBDA ()
-               (LIST
-                 ,@(mapcar #'(lambda (place) `(PROMPT-FOR-NEW-VALUE ',place))
-                           place-list
-                   )
-             ) )
-           ,@(let ((new-value-vars
-                     (mapcar #'(lambda (place) (declare (ignore place)) (gensym))
-                             place-list
-                  )) )
-               `(,new-value-vars
-                 ,@(mapcar #'(lambda (place var) `(SETF ,place ,var))
-                           place-list new-value-vars
-                )  )
-             )
-       ) )
+               (nconc
+                ,@(mapcar #'(lambda (place) `(PROMPT-FOR-NEW-VALUE ',place))
+                          place-list)))
+             ,@(do ((pl place-list (cdr pl)) r0 r1)
+                   ((endp pl) (cons (nreverse r0) (nreverse r1)))
+                 (multiple-value-bind (te va st sf af)
+                     (get-setf-expansion (car pl))
+                   (declare (ignore af))
+                   (push `(let* ,(mapcar #'list te va) ,sf) r1)
+                   (setq r0 (nreconc st r0))))))
        (GO ,tag1)
        ,tag2
      )
@@ -1375,7 +1377,7 @@ muffle-cerrors appease-cerrors exit-on-error
                                         ; only one restart, will "continue" invoke it?
                           (STORE-VALUE
                             :REPORT REPORT-NEW-VALUE
-                            :INTERACTIVE (LAMBDA () (LIST (PROMPT-FOR-NEW-VALUE ',place)))
+                            :INTERACTIVE (LAMBDA () (PROMPT-FOR-NEW-VALUE ',place))
                             (NEW-VALUE) (SETF ,place NEW-VALUE)
                         ) )
                         (GO ,h)

@@ -1,3 +1,10 @@
+1998-09-11  Sam Steingold  <sds@goems.com>
+
+	* conditio.lsp (prompt-for-new-value): returns a list now; works
+	with multiple value places.
+	(check-type): adopt for new semantics od `prompt-for-new-value'.
+	(assert): work with multiple value places.	
+
 1998-09-10  Sam Steingold  <sds@goems.com>
 
         * user1.lsp (prompt-new-package): removed the `values' declaration.
