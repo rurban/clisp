@@ -9,14 +9,15 @@
 	* rexx.d: Remove file.
 	* rexx1.lisp: Remove file.
 	* cfgamiga.lisp: Remove file.
-	* lispbibl.d, genclisph.d, constobj.d, constsym.d, subr.d, pseudofun.d,
-	spvw.d, spvw_allocate.d, spvw_garcol.d, spvw_language.d,
-	spvw_memfile.d, stream.d, pathname.d, charstrg.d, hashtabl.d, debug.d,
-	error.d, time.d, misc.d, predtype.d, lisparit.d, foreign.d, affi.d,
-	init.lisp, defs1.lisp, describe.lisp, edit.lisp, type.lisp,
-	keyboard.lisp, xcharin.lisp, screen.lisp, foreign1.lisp, affi1.lisp,
-	makemake.in, Makefile.devel, po/Makefile.devel,
-	modules/syscalls/calls.c, os2/delx.cmd: Remove AmigaOS support.
+	* lispbibl.d, genclisph.d, constobj.d, constsym.d, subr.d:
+	* pseudofun.d, spvw.d, spvw_allocate.d, spvw_garcol.d:
+	* spvw_language.d, spvw_memfile.d, stream.d, pathname.d, charstrg.d:
+	* hashtabl.d, debug.d, error.d, time.d, misc.d, predtype.d:
+	* lisparit.d, foreign.d, affi.d, init.lisp, defs1.lisp:
+	* describe.lisp, edit.lisp, type.lisp, keyboard.lisp, xcharin.lisp:
+	* screen.lisp, foreign1.lisp, affi1.lisp, makemake.in:
+	* Makefile.devel, po/Makefile.devel, modules/syscalls/calls.c:
+	* os2/delx.cmd: Remove AmigaOS support.
 
 2004-01-15  Sam Steingold  <sds@gnu.org>
 
@@ -116,7 +117,7 @@
 
 	* makemake.in: Remove useless trailing semicolons.
 
-	* clos.lisp (analyze-method-description, analyze-defgeneric,
+	* clos.lisp (analyze-method-description, analyze-defgeneric)
 	(make-generic-function-form, analyze-generic-fundefs): Remove
 	environment argument.
 	(defmethod, defgeneric, generic-flet, generic-labels): Update.
