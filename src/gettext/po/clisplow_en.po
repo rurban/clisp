@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-09\n"
-"POT-Creation-Date: 2001-02-06 17:24:02 CET\n"
+"POT-Creation-Date: 2001-03-15 19:39:57 CET\n"
 "PO-Revision-Date: 2000-06-13 22:37:09 CEST\n"
 "Last-Translator: Automatically generated <haible@honolulu>\n"
 "Language-Team: English <en@li.org>\n"
@@ -32,6 +32,114 @@ msgstr "Unknown signature of a SUBR\n"
 
 msgid "module `%s' requires package %s.\n"
 msgstr "module `%s' requires package %s.\n"
+
+msgid ""
+"GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp.\n"
+"Usage:  "
+msgstr ""
+"GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp.\n"
+"Usage:  "
+
+msgid ""
+" [options] [lispfile [argument ...]]\n"
+" When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
+" to the list of argument strings. Otherwise, an interactive\n"
+" read-eval-print loop is entered.\n"
+msgstr ""
+" [options] [lispfile [argument ...]]\n"
+" When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
+" to the list of argument strings. Otherwise, an interactive\n"
+" read-eval-print loop is entered.\n"
+
+msgid "Informative output:\n"
+msgstr "Informative output:\n"
+
+msgid " -h, --help  - print this help and exit\n"
+msgstr " -h, --help  - print this help and exit\n"
+
+msgid " --version   - print the version information\n"
+msgstr " --version   - print the version information\n"
+
+msgid " --license   - print the licensing information\n"
+msgstr " --license   - print the licensing information\n"
+
+msgid "Memory image selection:\n"
+msgstr "Memory image selection:\n"
+
+msgid " -B lisplibdir - set the installation directory\n"
+msgstr " -B lisplibdir - set the installation directory\n"
+
+msgid " -K linkingset - use this executable and memory image\n"
+msgstr " -K linkingset - use this executable and memory image\n"
+
+msgid " -M memfile  - use this memory image\n"
+msgstr " -M memfile  - use this memory image\n"
+
+msgid " -m size     - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgstr " -m size     - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
+
+msgid " -s size     - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgstr " -s size     - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
+
+msgid " -t tmpdir   - temporary directory for memmap\n"
+msgstr " -t tmpdir   - temporary directory for memmap\n"
+
+msgid "Internationalization:\n"
+msgstr "Internationalization:\n"
+
+msgid " -L language - set user language\n"
+msgstr " -L language - set user language\n"
+
+msgid " -N nlsdir   - NLS catalog directory\n"
+msgstr " -N nlsdir   - NLS catalog directory\n"
+
+msgid " -Edomain encoding - set encoding\n"
+msgstr " -Edomain encoding - set encoding\n"
+
+msgid "Interoperability:\n"
+msgstr "Interoperability:\n"
+
+msgid " -q, --quiet, --silent - do not print the banner\n"
+msgstr " -q, --quiet, --silent - do not print the banner\n"
+
+msgid " -w          - wait for keypress after program termination\n"
+msgstr " -w          - wait for keypress after program termination\n"
+
+msgid " -I          - be ILISP-friendly\n"
+msgstr " -I          - be ILISP-friendly\n"
+
+msgid "Startup actions:\n"
+msgstr "Startup actions:\n"
+
+msgid " -a          - more ANSI CL compliance\n"
+msgstr " -a          - more ANSI CL compliance\n"
+
+msgid " -p package  - start in the package\n"
+msgstr " -p package  - start in the package\n"
+
+msgid " -C          - set *LOAD-COMPILING* to T\n"
+msgstr " -C          - set *LOAD-COMPILING* to T\n"
+
+msgid " -norc       - do not load the user ~/.clisprc file\n"
+msgstr " -norc       - do not load the user ~/.clisprc file\n"
+
+msgid " -i file     - load initfile (can be repeated)\n"
+msgstr " -i file     - load initfile (can be repeated)\n"
+
+msgid "Actions:\n"
+msgstr "Actions:\n"
+
+msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
+msgstr " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
+
+msgid " -x expression - execute the expression, then exit\n"
+msgstr " -x expression - execute the expression, then exit\n"
+
+msgid " lispfile [argument ...] - load lispfile, then exit\n"
+msgstr " lispfile [argument ...] - load lispfile, then exit\n"
+
+msgid "Default action is an interactive read-eval-print loop.\n"
+msgstr "Default action is an interactive read-eval-print loop.\n"
 
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
 msgstr "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
@@ -475,17 +583,6 @@ msgstr "Not supported under MS-DOS"
 
 msgid "This version of CLISP runs only in low address memory.\n"
 msgstr "This version of CLISP runs only in low address memory.\n"
-
-
-
-
-
-
-
-
-
-
-
 
 
 
