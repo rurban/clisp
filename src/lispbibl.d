@@ -12750,7 +12750,7 @@ typedef struct {
       ({ var aint __SP; __asm__ ASM_get_SP_register(__SP); __SP; })
   #else
     #define roughly_SP()  (aint)__builtin_frame_address(0)
-    # Note: If (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 8))
+    # Note: If (__GNUC__ == 2) && (__GNUC_MINOR__ >= 8) && (__GNUC_MINOR__ < 95)
     # one can write
     #   #define roughly_SP()  (aint)__builtin_sp()
     # but this isn't efficient because gcc somehow knows that the stack pointer
