@@ -635,3 +635,14 @@ nil
                 (%F4 -5)))))
  13 17)
 123
+
+;;<https://sourceforge.net/tracker/index.php?func=detail&aid=842910&group_id=1355&atid=101355>
+(funcall
+ (COMPILE NIL
+          (LAMBDA (A C)
+            (IF (OR (LDB-TEST (BYTE 12 18) A)
+                    (NOT (AND T (NOT (IF (NOT (AND C T)) NIL NIL)))))
+                170
+                -110730)))
+ 123 456)
+-110730
