@@ -74,6 +74,11 @@ z               #C(1d-1 0d0)
 
 (cis 10)    #c(-0.8390715 -0.5440211)
 (cis 123)   #c(-0.8879689 -0.45990348)
+
+(cis #c(0.0d0 1.0d0))
+#+CLISP #c(0.36787944117144233d0 0.0d0)
+#-CLISP ERROR
+
 (zerop (+               (cis 123) (cis -123)  (* -2 (cos 123))))  T
 (zerop (+ (* #c(0 1) (- (cis 123) (cis -123))) (* 2 (sin 123))))  T
 
@@ -109,12 +114,108 @@ z               #C(1d-1 0d0)
 (log -3/4)      #C(-0.2876821f0 3.1415927f0)
 (log (/ most-positive-double-float 2))  709.0895657128241d0
 
-(tan 0)  0
-(tanh 0) 0
-(cosh 0) 1
-(cos 0)  1
-(sin 0)  0
-(sinh 0) 0
+;; Check that exact values are returned when possible.
+
+(eql (sqrt 0) 0)
+t
+(eql (sqrt 1) 1)
+t
+(eql (sqrt 9) 3)
+t
+(eql (sqrt -9) #c(0 3))
+t
+(eql (sqrt #c(-7 24)) #c(3 4))
+t
+
+(eql (exp 0) 1)
+t
+
+(eql (log 1) 0)
+t
+
+(eql (expt #c(10 11) 1) #c(10 11))
+t
+(eql (expt 0 1/2) 0)
+t
+(eql (expt 1 1/2) 1)
+t
+(eql (expt 9 1/2) 3)
+t
+(eql (expt -9 1/2) #c(0 3))
+t
+(eql (expt #c(-7 24) 1/2) #c(3 4))
+t
+(eql (expt 729 1/6) 3)
+t
+(eql (expt -3 -1) -1/3)
+t
+(eql (expt #c(3 4) -1) #c(3/25 -4/25))
+t
+
+(eql (conjugate #c(4 -1)) #c(4 1))
+t
+(eql (conjugate #c(3 0.4)) #c(3 -0.4))
+t
+
+(eql (sin 0) 0)
+t
+(eql (realpart (sin #c(0 3.0))) 0)
+t
+
+(eql (cos 0) 1)
+t
+(eql (imagpart (cos #c(0 3.0))) 0)
+t
+
+(eql (tan 0) 0)
+t
+(eql (realpart (tan #c(0 3.0))) 0)
+t
+
+(eql (asin 0) 0)
+t
+(eql (realpart (asin #c(0 3.0))) 0)
+t
+
+(eql (acos 1) 0)
+t
+(eql (realpart (acos 2.0)) 0)
+t
+
+(eql (atan 0) 0)
+t
+(eql (realpart (atan #c(0 0.5))) 0)
+t
+
+(eql (sinh 0) 0)
+t
+(eql (realpart (sinh #c(0 3.0))) 0)
+t
+
+(eql (cosh 0) 1)
+t
+(eql (imagpart (cosh #c(0 3.0))) 0)
+t
+
+(eql (tanh 0) 0)
+t
+(eql (realpart (tanh #c(0 3.0))) 0)
+t
+
+(eql (asinh 0) 0)
+t
+(eql (realpart (asinh #c(0 0.6))) 0)
+t
+
+(eql (acosh 1) 0)
+t
+(eql (realpart (acosh -0.4)) 0)
+t
+
+(eql (atanh 0) 0)
+t
+(eql (realpart (atanh #c(0 3.0))) 0)
+t
 
 (sqrt 1)    1
 (sqrt 1d0)  1.0d0

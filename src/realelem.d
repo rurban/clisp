@@ -297,6 +297,22 @@ local maygc object N_N_float_N (object x, object y)
   return R_R_float_F(x,y);
 }
 
+/* R_float_digits(x) returns (float-digits (float x)), with x being a real.
+ < result: a uintL >0 */
+local maygc uintL R_float_digits (object x)
+{
+  if (R_floatp(x)) {
+    return F_float_digits(x);
+  } else {
+    defaultfloatcase(S(default_float_format),Fixnum_0,
+                     { return SF_mant_len+1; }, /* 17 */
+                     { return FF_mant_len+1; }, /* 24 */
+                     { return DF_mant_len+1; }, /* 53 */
+                     { return intDsize*I_to_UL(O(LF_digits)); }, /* 16n */
+                     ,);
+  }
+}
+
 /* Generates a function like R_floor_I_R
  Returns whole-numbered and fractional part of a real number.
  (q,r) := (rounding x)
