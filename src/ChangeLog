@@ -1,3 +1,8 @@
+2004-04-25  Sam Steingold  <sds@gnu.org>
+
+	* describe.lisp (describe-object): since 2004-02-19,
+	PATHNAME-DEVICE of a LOGICAL-PATHNAME can be :UNSPECIFIC
+
 2004-04-23  Sam Steingold  <sds@gnu.org>
 
 	* rawsock/rawsock.c, rawsock/sock.lisp: renamed CLOSESOCK to
@@ -7,7 +12,7 @@
 2004-04-23  Sam Steingold  <sds@gnu.org>
 
 	* clx/mit-clx/dependent.lisp (make-process-lock, process-wakeup):
-	so not signal an error
+	do not signal an error
 	(holding-lock): no warning
 
 2004-04-13  Bruno Haible  <bruno@clisp.org>
