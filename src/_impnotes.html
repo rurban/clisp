@@ -2282,6 +2282,16 @@ and the international alphabetic characters from the character set:
 <code>char-not-lessp</code></a> ignore bits
 and font attributes of their arguments.
 
+<h4>Functions on characters</h4>
+
+<p><a name="char-width"></a><code>(<strong>lisp:char-width</strong>
+<var>character</var>)</code>
+returns the number of screen columns occupied by <var>character</var>.
+This is 0 for non-spacing characters (such as control characters and many
+combining characters), 2 for double-width East Asian characters, and 1 for
+all other characters.
+See also function <a href="#string-width"><code>string-width</code></a>.
+
 <h3>platform-dependent characters</h3>
 
 <p>The characters that are not graphic chars and the space character
@@ -2519,6 +2529,17 @@ points into void space.  This is not checked at the time
 national rules. Example: <code>"o"</code> &lt;
 <code>"oe"</code> &lt; <code>"z"</code> &lt;
 <code>"&ouml;"</code>.
+
+<h3><a href="CLHSROOT/Body/sec_the_strings_dictionary.html">
+    16.2 The Strings Dictionary</a></h3>
+
+<h4>Functions on strings</h4>
+
+<p><a name="string-width"></a><code>(<strong>lisp:string-width</strong>
+<var>string</var>)</code>
+returns the number of screen columns occupied by <var>string</var>. This is
+computed as the sum of all <a href="#char-width"><code>char-width</code></a>s
+of all of the string's characters.
 
 <h2><a name="sequences"></a><a href="CLHSROOT/Body/chap-17.html">
     Chapter 17: Sequences</a></h2>

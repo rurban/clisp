@@ -406,7 +406,7 @@
       if (TheStream(stream)->strmtype == strmtype_terminal)
         return FALSE; # Auf dem Atari machte dies wr_ch_terminal() selbst.
       #endif
-      # Zähle die Zahl der Zeichen seit dem letzten NL:
+      # Zähle die Breiten der Zeichen seit dem letzten NL zusammen:
       var boolean result;
       var uintL pos = 0;
       var uintL count;
@@ -422,23 +422,29 @@
         pos = posfixnum_to_L(TheStream(stream)->strm_wr_ch_lpos); result = FALSE;
       }
       # Es gab len Zeichen ab ptr, pos ist die Position dort.
-      #ifndef TERMINAL_USES_KEYBOARD
-      if (TheStream(stream)->strmtype == strmtype_terminal) {
-        dotimesL(count,len, {
-          var chart c = *ptr++;
-          # Wie wirken sich die Steuerzeichen in der Position aus?
-          if (graphic_char_p(c)) {
-            # normales druckendes Zeichen -> Line Position incrementieren:
-            pos++;
-          } elif (chareq(c,ascii(BS))) {
-            # Backspace -> Line Position, wenn möglich, decrementieren:
-            if (pos > 0)
-              pos--;
-          }
-        });
-      } else
+      #ifdef TERMINAL_USES_KEYBOARD
+      pos += len;
+      #else
+      if (len > 0) {
+        if (TheStream(stream)->strmtype == strmtype_terminal) {
+          dotimespL(count,len, {
+            var chart c = *ptr++;
+            # Wie wirken sich die Steuerzeichen in der Position aus?
+            if (chareq(c,ascii(BS))) {
+              # Backspace -> Line Position, wenn möglich, decrementieren:
+              if (pos > 0)
+                pos--;
+            } else
+              pos += char_width(c);
+          });
+        } else {
+          dotimespL(count,len, {
+            var chart c = *ptr++;
+            pos += char_width(c);
+          });
+        }
+      }
       #endif
-        pos += len;
       TheStream(stream)->strm_wr_ch_lpos = fixnum(pos);
       return result;
     }
@@ -743,18 +749,14 @@
           else
             # Line Position incrementieren:
             TheStream(stream)->strm_wr_ch_lpos =
-              fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,1);
+              fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,char_width(c));
         } else {
           # es ist der Terminal-Stream
           #ifdef TERMINAL_USES_KEYBOARD
           ; # Auf dem Atari machte dies wr_ch_terminal() selbst.
           #else
           # Wie wirken sich die Steuerzeichen in der Position aus?
-          if (graphic_char_p(c)) {
-            # normales druckendes Zeichen -> Line Position incrementieren:
-            TheStream(stream)->strm_wr_ch_lpos =
-              fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,1);
-          } elif (chareq(c,ascii(NL))) {
+          if (chareq(c,ascii(NL))) {
             # Newline -> Line Position := 0
             TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
           } elif (chareq(c,ascii(BS))) {
@@ -762,7 +764,10 @@
             if (!eq(TheStream(stream)->strm_wr_ch_lpos,Fixnum_0))
               TheStream(stream)->strm_wr_ch_lpos =
                 fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,-1);
-          }
+          } else
+            # Line Position incrementieren:
+            TheStream(stream)->strm_wr_ch_lpos =
+              fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,char_width(c));
           #endif
         }
       } else {

@@ -10283,6 +10283,13 @@ typedef struct {
   extern boolean graphic_char_p (chart ch);
 # wird verwendet von STREAM, PATHNAME
 
+# Returns the screen display width of a character.
+# char_width(ch)
+# > ch: character code
+# < result: number of output columns occupied by ch
+  extern uintL char_width (chart ch);
+# wird verwendet von IO, STREAM
+
 # Copies an array of chart to an array of chart.
 # chartcopy(src,dest,len);
 # > chart* src: characters
