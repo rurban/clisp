@@ -70,7 +70,7 @@
 (defun format-parse-cs (control-string startindex csdl stop-at)
   (declare (fixnum startindex))
   (macrolet ((errorstring ()
-               (TEXT "The control string terminates within a directive.")))
+               (TEXT "The control string terminates within a format directive.")))
     (prog* ((index startindex)  ; cs-index of the next character
             ch                  ; current character
             intparam            ; Integer-Parameter
@@ -211,7 +211,7 @@
             (if directive-name
               (setf (csd-data newcsd) directive-name)
               (format-error control-string index
-                (TEXT "Non-existent directive"))))
+                (TEXT "Non-existent format directive"))))
           (incf index)
           (case ch
             (#\/
@@ -250,18 +250,18 @@
             (( #\) #\] #\} #\> )
              (unless stop-at
                (format-error control-string index
-                 (TEXT "The closing directive '~A' does not have a corresponding opening one.")
+                 (TEXT "The closing format directive '~A' does not have a corresponding opening one.")
                  ch))
              (unless (eql ch stop-at)
                (format-error control-string index
-                 (TEXT "The closing directive '~A' does not match the corresponding opening one. It should read '~A'.")
+                 (TEXT "The closing format directive '~A' does not match the corresponding opening one. It should read '~A'.")
                  ch stop-at))
              (setf (csd-clause-chain last-separator-csd) csdl)
              (go end))
             (#\;
              (unless (or (eql stop-at #\]) (eql stop-at #\>))
                (format-error control-string index
-                 (TEXT "The ~~; directive is not allowed at this point.")))
+                 (TEXT "The ~~; format directive is not allowed at this point.")))
              (setf (csd-clause-chain last-separator-csd) csdl)
              (setq last-separator-csd newcsd))
             (#\Newline
@@ -269,7 +269,7 @@
              (if (csd-colon-p newcsd)
                (if (csd-atsign-p newcsd)
                  (format-error control-string index
-                   (TEXT "The ~~newline directive cannot take both modifiers."))
+                   (TEXT "The ~~newline format directive cannot take both modifiers."))
                  nil) ; ~:<newline> -> ignore Newline, retain Whitespace
                (progn
                  (when (csd-atsign-p newcsd)
@@ -286,7 +286,7 @@
       string-ended
       (when stop-at
         (format-error control-string index
-          (TEXT "An opening directive is never closed; expecting '~A'.")
+          (TEXT "An opening format directive is never closed; expecting '~A'.")
           stop-at))
 
       end
@@ -385,7 +385,7 @@
 (defun next-arg ()
   (if (atom *FORMAT-NEXT-ARG*)
     (format-error *FORMAT-CS* nil
-      (TEXT "There are not enough arguments left for this directive."))
+      (TEXT "There are not enough arguments left for this format directive."))
     (pop *FORMAT-NEXT-ARG*)))
 
 ;; (format-interpret stream [endmarker]) interprets *FORMAT-CSDL* .
@@ -469,7 +469,7 @@
 (defun format-old-roman (arg stream)
   (unless (and (integerp arg) (<= 1 arg 4999))
     (format-error *FORMAT-CS* nil
-      (TEXT "The ~~:@R directive requires an integer in the range 1 - 4999, not ~S")
+      (TEXT "The ~~:@R format directive requires an integer in the range 1 - 4999, not ~S")
       arg))
   (do ((charlistr  '(#\M  #\D #\C #\L #\X #\V #\I) (cdr charlistr))
        (valuelistr '(1000 500 100 50  10   5   1) (cdr valuelistr))
@@ -484,7 +484,7 @@
 (defun format-new-roman (arg stream)
   (unless (and (integerp arg) (<= 1 arg 3999))
     (format-error *FORMAT-CS* nil
-      (TEXT "The ~~@R directive requires an integer in the range 1 - 3999, not ~S")
+      (TEXT "The ~~@R format directive requires an integer in the range 1 - 3999, not ~S")
       arg))
   (do ((charlistr       '(#\M #\D #\C #\L #\X #\V #\I) (cdr charlistr))
        (valuelistr     '(1000 500 100 50  10   5   1 ) (cdr valuelistr))
@@ -541,7 +541,7 @@
         ((blocks1000 (illions-list arg) ; decomposition in 1000er-Blocks
            (when (null illions-list)
              (format-error *FORMAT-CS* nil
-               (TEXT "The argument for the ~~R directive is too large.")))
+               (TEXT "The argument for the ~~R format directive is too large.")))
            (multiple-value-bind (thousands small) (truncate arg 1000)
              (when (> thousands 0) (blocks1000 (cdr illions-list) thousands))
              (when (> small 0)
@@ -1184,7 +1184,7 @@
           (format-old-roman arg stream)
           (format-new-roman arg stream))
         (format-error *FORMAT-CS* nil
-          (TEXT "The ~~R and ~~:R directives require an integer argument, not ~S")
+          (TEXT "The ~~R and ~~:R format directives require an integer argument, not ~S")
           arg))
       (if colon-modifier
         (format-ordinal arg stream)
@@ -1203,7 +1203,7 @@
                   (arg)
   (unless (characterp arg)
     (format-error *FORMAT-CS* nil
-      (TEXT "The ~~C directive requires a character argument, not ~S")
+      (TEXT "The ~~C format directive requires a character argument, not ~S")
       arg))
   (if (not colon-modifier)
     (if (not atsign-modifier)
@@ -1421,11 +1421,11 @@
       (apply node stream arglistarg)))) ; wholelistarg??
 (defun format-indirection-cserror (csarg)
   (format-error *FORMAT-CS* nil
-    (TEXT "The control string argument for the ~~? directive is invalid: ~S")
+    (TEXT "The control string argument for the ~~? format directive is invalid: ~S")
     csarg))
 (defun format-indirection-lerror (arguments)
   (format-error *FORMAT-CS* nil
-    (TEXT "The argument list argument for the ~~? directive is invalid: ~S")
+    (TEXT "The argument list argument for the ~~? format directive is invalid: ~S")
     arguments))
 
 ;;; ~// ANSI CL 22.3.5.4 Tilde Slash: Call Function
@@ -1475,7 +1475,7 @@
         (format-interpret stream 'FORMAT-CONDITIONAL-END)
         (unless (null (csd-clause-chain (car *FORMAT-CSDL*)))
           (format-error *FORMAT-CS* nil
-            (TEXT "The ~~; directive is not allowed at this point."))))
+            (TEXT "The ~~; format directive is not allowed at this point."))))
       (let ((index (or prefix (next-arg))))
         (unless (integerp index)
           (format-error *FORMAT-CS* nil
@@ -1493,7 +1493,7 @@
 
 (defun format-conditional-error ()
   (format-error *FORMAT-CS* nil
-    (TEXT "The ~~[ directive cannot take both modifiers.")))
+    (TEXT "The ~~[ format directive cannot take both modifiers.")))
 
 ; ~{, CLTL p.403-404, CLtL2 p. 602-604
 (defun format-iteration (stream colon-modifier atsign-modifier
@@ -1515,7 +1515,7 @@
                             (let ((arg (next-arg)))
                               (unless (listp arg)
                                 (format-error *FORMAT-CS* nil
-                                  (TEXT "The ~~{ directive requires a list argument, not ~S")
+                                  (TEXT "The ~~{ format directive requires a list argument, not ~S")
                                   arg))
                               arg))))
       (do* ((iteration-count 0 (1+ iteration-count)))
@@ -2031,7 +2031,7 @@
                 (labels ((simple-arglist (n)
                            (unless (<= (length arglist) n)
                              (format-error *format-cs* nil
-                                (TEXT "Too many arguments for this directive")))
+                                (TEXT "Too many arguments for this format directive")))
                            (setq arglist
                                  (append arglist
                                          (make-list (- n (length arglist))
@@ -2269,7 +2269,7 @@
                            (unless (null (csd-clause-chain
                                           (car *format-csdl*)))
                              (format-error *format-cs* nil
-                                 (TEXT "The ~~; directive is not allowed at this point."))))
+                                 (TEXT "The ~~; format directive is not allowed at this point."))))
                          (progn
                            (simple-arglist 1)
                            (push `(CASE ,(or (first arglist)
