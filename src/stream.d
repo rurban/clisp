@@ -16050,8 +16050,8 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
       var object all = STACK_2;
       FD_ZERO(&readfds); FD_ZERO(&writefds); FD_ZERO(&exceptfds);
       if (listp(all)) {
-        object list = all;
-        int index = 0;
+        var object list = all;
+        var int index = 0;
         for(; !nullp(list); list = Cdr(list)) {
           if (!listp(list)) fehler_list(list);
           HANDLE_SET(Car(list));
@@ -16062,21 +16062,26 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
             fehler(error,
                    GETTEXT("~: list ~ is too long (~ maximum)")
                    );
-          }}
-      } else { HANDLE_SET(all); }
+          }
+        }
+      } else {
+        HANDLE_SET(all);
+      }
       if (select(FD_SETSIZE,&readfds,&writefds,&exceptfds,timeout_ptr) < 0) {
         if (sock_errno_is(EINTR)) { end_system_call(); goto restart_select; }
         if (!sock_errno_is(EBADF)) { SOCK_error(); }
       }
       if (listp(all)) {
-        object list = all;
-        int index = 0;
+        var object list = all;
+        var int index = 0;
         for(; !nullp(list); list = Cdr(list), index++) {
           HANDLE_ISSET(Car(list),value1);
           pushSTACK(value1);
         }
         value1 = listof(index);
-      } else HANDLE_ISSET(all,value1);
+      } else {
+        HANDLE_ISSET(all,value1);
+      }
       end_system_call();
     }
     #else
@@ -16504,27 +16509,64 @@ LISPFUNN(built_in_stream_element_type,1)
           eltype = TheStream(stream)->strm_eltype; break;
         #endif
         case strmtype_twoway:
-        case strmtype_echo: {
-          object istream = TheStream(stream)->strm_twoway_input,
-            ostream = TheStream(stream)->strm_twoway_output,
-            itype = TheStream(istream)->strm_eltype,
-            otype = TheStream(ostream)->strm_eltype;
-          if (nullp(itype)) eltype = otype;
-          else if (nullp(otype)) eltype = itype;
-          else {
-#define DEOR(o) (consp(o)&&eq(Car(o),S(or)) ? Cdr(o) : pushSTACK(o),listof(1))
-            pushSTACK(DEOR(itype));
-            pushSTACK(DEOR(otype));
-#undef DEOR
-            funcall(L(append),2);
-            pushSTACK(value1);
-            pushSTACK(S(Ktest));
-            pushSTACK(L(equal));
-            funcall(L(remove_duplicates),3);
-            eltype = value1;
+        case strmtype_echo:
+          # (let ((itype (stream-element-type (two-way-input-stream stream)))
+          #       (otype (stream-element-type (two-way-output-stream stream))))
+          #   ; Simplify `(OR ,itype ,otype)
+          #   (cond ((eq itype 'NIL) otype)
+          #         ((eq otype 'NIL) itype)
+          #         ((eq itype otype) itype)
+          #         (t
+          #           (cons 'OR
+          #             (remove-duplicates
+          #               (append
+          #                 (if (and (consp itype) (eq (car itype) 'OR))
+          #                   (cdr itype)
+          #                   (list itype)
+          #                 )
+          #                 (if (and (consp otype) (eq (car otype) 'OR))
+          #                   (cdr otype)
+          #                   (list otype)
+          #                 )
+          # ) )     ) ) ) )
+          {
+            pushSTACK(TheStream(stream)->strm_twoway_input);
+            pushSTACK(TheStream(stream)->strm_twoway_output);
+            pushSTACK(STACK_1); funcall(S(stream_element_type),1); STACK_1 = value1;
+            funcall(S(stream_element_type),1); pushSTACK(value1);
+            var object itype = STACK_1;
+            var object otype = STACK_0;
+            if (nullp(itype)) {
+              eltype = otype;
+              skipSTACK(2);
+            } elif (nullp(otype) || eq(itype,otype)) {
+              eltype = itype;
+              skipSTACK(2);
+            } else {
+              var object tmp;
+              if (consp(itype) && eq(Car(itype),S(or)))
+                tmp = Cdr(itype);
+              else {
+                tmp = allocate_cons();
+                Car(tmp) = STACK_1;
+                otype = STACK_0;
+              }
+              STACK_1 = tmp;
+              if (consp(otype) && eq(Car(otype),S(or)))
+                tmp = Cdr(otype);
+              else {
+                tmp = allocate_cons();
+                Car(tmp) = STACK_0;
+              }
+              STACK_0 = tmp;
+              funcall(L(append),2);
+              pushSTACK(value1); funcall(L(remove_duplicates),1);
+              pushSTACK(value1);
+              eltype = allocate_cons();
+              Car(eltype) = S(or); Cdr(eltype) = popSTACK();
+            }
           }
-        }
-        break;
+          break;
         # dann die allgemeinen Streams:
         #ifdef GENERIC_STREAMS
         case strmtype_generic:
