@@ -11,6 +11,7 @@
 	* gray.lisp (close): pass direction to BUILT-IN-STREAM-CLOSE
 	* configure.in (HAVE_SHUTDOWN): check for shutdown(2)
 	* unixconf.h.in (HAVE_SHUTDOWN): added an #undef
+	* win32.d (HAVE_SHUTDOWN, SHUT_RD, SHUT_WR, SHUT_RDWR): define
 
 2002-03-30  Sam Steingold  <sds@gnu.org>
 
