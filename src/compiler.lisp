@@ -926,32 +926,40 @@ for-value   NIL or T
 ;; Or:
 ;; 1. value: NIL                     if not defined locally.
 (defun fenv-search (f &optional (fenv *fenv*))
-  (loop
-    (when (null fenv) (return-from fenv-search 'NIL))
-    (unless (simple-vector-p fenv) (compiler-error 'fenv-search fenv))
-    (do ((l (1- (length fenv)))
-         (i 0 (+ i 2)))
-        ((= i l) (setq fenv (svref fenv i)))
-      (if (equal f (svref fenv i))
-        (let ((def (svref fenv (1+ i))))
-          (return-from fenv-search
-            (if (consp def)
-              (if (macrop (car def))
-                (values 'T
-                        (macro-expander (car def))
-                        'LOCAL (cddr def) (cadr def))
-                (values 'T
-                        'NIL
-                        'LOCAL (cdr def) (car def)))
-              (if (macrop def)
-                (values 'T (macro-expander def) 'NIL)
-                (if (function-macro-p def)
-                  (values 'T
-                          (function-macro-expander def)
-                          'GLOBAL fenv (1+ i) 'T)
-                  (values 'T
-                          'NIL
-                          'GLOBAL fenv (1+ i) 'NIL))))))))))
+  (let ((from-inside-macrolet nil))
+    (loop
+      (cond ((null fenv) (return-from fenv-search 'NIL))
+            ((simple-vector-p fenv)
+             (do ((l (1- (length fenv)))
+                  (i 0 (+ i 2)))
+                 ((= i l) (setq fenv (svref fenv i)))
+               (if (equal f (svref fenv i))
+                 (let ((def (svref fenv (1+ i))))
+                   (if (and from-inside-macrolet (not (macrop def)))
+                     (c-error (TEXT "Invalid access to the local function definition of ~S from within a ~S definition")
+                              f 'macrolet)
+                     (return-from fenv-search
+                       (if (consp def)
+                         (if (macrop (car def))
+                           (values 'T
+                                   (macro-expander (car def))
+                                   'LOCAL (cddr def) (cadr def))
+                           (values 'T
+                                   'NIL
+                                   'LOCAL (cdr def) (car def)))
+                         (if (macrop def)
+                           (values 'T (macro-expander def) 'NIL)
+                           (if (function-macro-p def)
+                             (values 'T
+                                     (function-macro-expander def)
+                                     'GLOBAL fenv (1+ i) 'T)
+                             (values 'T
+                                     'NIL
+                                     'GLOBAL fenv (1+ i) 'NIL))))))))))
+            ((and (consp fenv) (eq (car fenv) 'MACROLET))
+             (setq from-inside-macrolet t)
+             (setq fenv (cdr fenv)))
+            (t (compiler-error 'fenv-search fenv))))))
 ;; Determines, if a function-name is not defined in the
 ;; Function-Environment fenv and hence refers to the global function.
 (defun global-in-fenv-p (s fenv)
@@ -1158,23 +1166,32 @@ for-value   NIL or T
 (defun venv-search (v &optional (venv *venv*))
   (when (or (constantp v) (proclaimed-special-p v))
     (return-from venv-search 'SPECIAL))
-  (loop
-    (cond ((null venv) (return-from venv-search 'NIL))
-          ((simple-vector-p venv)
-           (do ((l (1- (length venv)))
-                (i 0 (+ i 2)))
-               ((= i l) (setq venv (svref venv i)))
-             (if (eq v (svref venv i))
-               (let ((val (svref venv (1+ i))))
-                 (return-from venv-search
-                   (if (and (var-p val) #| (eq (var-name val) v) |# )
-                     (progn
-                       (assert (not (var-specialp val)))
-                       (values T val))
-                     (if (eq val specdecl)
-                       'SPECIAL
-                       (values 'LOCAL venv (1+ i)))))))))
-          (t (compiler-error 'venv-search venv)))))
+  (let ((from-inside-macrolet nil))
+    (loop
+      (cond ((null venv) (return-from venv-search 'NIL))
+            ((simple-vector-p venv)
+             (do ((l (1- (length venv)))
+                  (i 0 (+ i 2)))
+                 ((= i l) (setq venv (svref venv i)))
+               (if (eq v (svref venv i))
+                 (let ((val (svref venv (1+ i))))
+                   (if (and from-inside-macrolet
+                            (not (eq val specdecl))
+                            (not (symbol-macro-p val)))
+                     (c-error (TEXT "Invalid access to the value of the lexical variable ~S from within a ~S definition")
+                              v 'macrolet)
+                     (return-from venv-search
+                       (if (and (var-p val) #| (eq (var-name val) v) |# )
+                         (progn
+                           (assert (not (var-specialp val)))
+                           (values T val))
+                         (if (eq val specdecl)
+                           'SPECIAL
+                           (values 'LOCAL venv (1+ i))))))))))
+            ((and (consp venv) (eq (car venv) 'MACROLET))
+             (setq from-inside-macrolet t)
+             (setq venv (cdr venv)))
+            (t (compiler-error 'venv-search venv))))))
 
 ;; (venv-search-macro v) searches in *venv* for a Variable with the Symbol v.
 ;; result:

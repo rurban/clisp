@@ -1,3 +1,18 @@
+2005-01-22  Bruno Haible  <bruno@clisp.org>
+
+	Improved error checking for the handling of references from local macro
+	definitions to bindings and declarations in the outer lexical
+	environment.
+	* control.d (macrolet): Add a marker to the venv and fenv being
+	passed to make-macro-expander.
+	* defmacro.lisp (make-macro-expander): Add a marker to the venv and
+	fenv being constructed.
+	* eval.d (symbol_env_search, sym_function): Respect the MACROLET
+	markers. Signal an error if an invalid reference from inside a
+	macroexpander is seen.
+	* init.lisp (fenv-assoc, venv-assoc): Likewise.
+	* compiler.lisp (fenv-search, venv-search): Likewise.
+
 2005-01-27  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class3.lisp (checked-compute-slots): Tweak an error message.
