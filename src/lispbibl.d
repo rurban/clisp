@@ -9326,16 +9326,28 @@ nonreturning_function(extern, fehler_mv_zuviel, (object caller));
 #else
   register object back_trace __asm__(back_trace_register);
 #endif
-#define subr_self  back_trace->caller
+#define subr_self  back_trace->bt_caller
 struct backtrace_t {
-  struct backtrace_t* next;
-  object caller;
-  gcv_object_t *stack;
-  int num_arg;
+  struct backtrace_t* bt_next;
+  gcv_object_t bt_caller;
+  gcv_object_t *bt_stack;
+  int bt_num_arg;
 };
-#define bt_beyond_stack_p(bt,st) (bt&&((aint)(bt->stack) cmpSTACKop (aint)st))
-/* unwind backtrace to the stack lockation */
-#define unwind_back_trace(bt,st) while (bt_beyond_stack_p(bt,st)) bt=bt->next
+#define bt_beyond_stack_p(bt,st) (bt&&((aint)(bt->bt_stack)cmpSTACKop(aint)st))
+/* unwind backtrace to the stack location */
+#ifdef DEBUG_SPVW
+#define BT_CHECK(bt) if(bt==bt->bt_next)abort()
+#define unwind_back_trace(bt,st)                                        \
+  do { var uintL count = 0;                                             \
+    /*fprintf(stderr,"<%s:%d:",__FILE__,__LINE__); fflush(stderr);*/    \
+    for (; bt_beyond_stack_p(bt,st); count++) {BT_CHECK(bt); bt=bt->bt_next;} \
+    /*fprintf(stderr,"skipped %d backtrace forms>\n",count);*/          \
+    BT_CHECK(bt);                                                       \
+  } while(0)
+#else
+#define BT_CHECK(bt)
+#define unwind_back_trace(bt,st) while(bt_beyond_stack_p(bt,st))bt=bt->bt_next
+#endif
 
 /* evaluate statement augmenting back_trace */
 #if defined(STACKCHECKS) || defined(STACKCHECKC)
@@ -9344,15 +9356,15 @@ struct backtrace_t {
     struct backtrace_t  bt_here = { back_trace, fun, STACK, num_arg };  \
     back_trace = &bt_here;                                              \
     statement;                                                          \
-    if (back_trace->next != bt_save) abort();                           \
-    back_trace = back_trace->next;                                      \
+    if (back_trace->bt_next != bt_save) abort();                        \
+    back_trace = back_trace->bt_next;                                   \
   } while(0)
 #else
 #define with_saved_back_trace(fun,num_arg,statement)           do {     \
     struct backtrace_t bt_here = { back_trace, fun, STACK, num_arg };   \
     back_trace = &bt_here;                                              \
     statement;                                                          \
-    back_trace = back_trace->next;                                      \
+    back_trace = back_trace->bt_next;                                   \
   } while(0)
 #endif
 
@@ -11150,7 +11162,6 @@ extern object test_string_limits_ro (stringarg* arg);
 
 /* UP: checks a string/symbol/character-argument
  > obj: argument
- > subr_self: caller (a SUBR)
  < ergebnis: argument as string
  can trigger GC */
 extern object test_stringsymchar_arg (object obj);

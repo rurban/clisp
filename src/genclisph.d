@@ -1372,8 +1372,8 @@ global int main()
 # printf("#define value2  mv_space[1]\n");
 # printf("#define value3  mv_space[2]\n");
 # printf("nonreturning_function(extern, fehler_mv_zuviel, (object caller));\n");
-    printf("struct backtrace_t {\n  struct backtrace_t* next;\n  object caller;\n  object *stack;\n  int num_arg;\n};\n");
-    printf("#define subr_self  back_trace->caller\n");
+    printf("struct backtrace_t {\n  struct backtrace_t* bt_next;\n  gcv_object_t bt_caller;\n  gcv_object_t *bt_stack;\n  int bt_num_arg;\n};\n");
+    printf("#define subr_self  back_trace->bt_caller\n");
   #if !defined(back_trace_register)
     printf("extern struct backtrace_t* back_trace;\n");
   #else
