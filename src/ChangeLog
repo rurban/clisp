@@ -1,3 +1,8 @@
+2004-03-26  Will Newton  <will@misconception.org.uk>
+
+	* eval.d (interpret_bytecode_): avoid a compiler warning by
+	declaring `byteptr' `register'
+
 2004-03-26  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp (%expand-form EVAL-WHEN): Don't look whether COMPILE is
