@@ -730,7 +730,9 @@
 ;;; ===========================================================================
 
 ;;; SUBTYPEP, the provisional version
-(defun canonicalize-type (type)
+(defvar *canonicalize-type-prefer-clos* nil)
+(defun canonicalize-type (type &optional (*canonicalize-type-prefer-clos*
+                                          *canonicalize-type-prefer-clos*))
   (setq type (expand-deftype type))
   ;; small, non-recursive simplifications
   (cond ((symbolp type)
@@ -745,12 +747,19 @@
                           #-BASE-CHAR=CHARACTER '(AND CHARACTER (NOT (SATISFIES BASE-CHAR-P))))
            (FIXNUM '(INTEGER #,most-negative-fixnum #,most-positive-fixnum))
            (KEYWORD '(AND SYMBOL (SATISFIES KEYWORDP)))
-           (LIST '(OR CONS (MEMBER NIL)))
+           (LIST (if *canonicalize-type-prefer-clos*
+                     (get 'LIST 'CLOS::CLOSCLASS) '(OR CONS (MEMBER NIL))))
            ((NIL) '(OR))
-           (NULL '(MEMBER NIL))
-           (NUMBER '(OR REAL COMPLEX))
-           (RATIO '(AND RATIONAL (NOT INTEGER)))
-           (SEQUENCE '(OR LIST VECTOR)) ; user-defined sequences??
+           (NULL (if *canonicalize-type-prefer-clos*
+                     (get 'NULL 'CLOS::CLOSCLASS) '(MEMBER NIL)))
+           (NUMBER (if *canonicalize-type-prefer-clos*
+                       (get 'NUMBER 'CLOS::CLOSCLASS) '(OR REAL COMPLEX)))
+           (RATIO (if *canonicalize-type-prefer-clos*
+                      (get 'RATIO 'CLOS::CLOSCLASS)
+                      '(AND RATIONAL (NOT INTEGER))))
+           (SEQUENCE (if *canonicalize-type-prefer-clos*
+                         (get 'SEQUENCE 'CLOS::CLOSCLASS)
+                         '(OR LIST VECTOR))) ; user-defined sequences??
            (SIGNED-BYTE 'INTEGER)
            (STANDARD-CHAR '(AND CHARACTER #-BASE-CHAR=CHARACTER (SATISFIES BASE-CHAR-P) (SATISFIES STANDARD-CHAR-P)))
            (STRING-CHAR 'CHARACTER)
@@ -896,6 +905,10 @@
   (macrolet ((yes () '(return-from subtypep (values t t)))
              (no () '(return-from subtypep (values nil t)))
              (unknown () '(return-from subtypep (values nil nil))))
+    (let ((ct1 (canonicalize-type type1 t))
+          (ct2 (canonicalize-type type2 t)))
+      (when (and (clos::class-p ct1) (clos::class-p ct2))
+        (if (clos::subclassp ct1 ct2) (yes) (no))))
     (setq type1 (canonicalize-type type1))
     (setq type2 (canonicalize-type type2))
     ;; canonicalize-type: T ==> (AND),  NIL ==> (OR)
