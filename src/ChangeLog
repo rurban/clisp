@@ -1,5 +1,11 @@
 2004-12-19  Bruno Haible  <bruno@clisp.org>
 
+	* format.lisp (formatter-main-1): In ~{, when the max-n-iterations
+	prefix is not known to be a number, test it against nil before
+	comparing it.
+
+2004-12-19  Bruno Haible  <bruno@clisp.org>
+
 	* format.lisp (format-goto-arg): If the argument is nil, use 0 or 1
 	instead.
 

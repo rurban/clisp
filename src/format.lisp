@@ -2345,7 +2345,11 @@
                                                (TAGBODY
                                                  L
                                                  ,@(if max-n-iterations
-                                                     `((WHEN (>= I N) (RETURN)) (INCF I)))
+                                                     `((WHEN ,(if (numberp max-n-iterations)
+                                                                `(>= I N)
+                                                                `(AND N (>= I N)))
+                                                         (RETURN))
+                                                       (INCF I)))
                                                  ,@(if (not min-1-iteration)
                                                      `((WHEN (ENDP ,*args*) (RETURN))))
                                                  ,@(compute-inner)
