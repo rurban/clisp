@@ -680,8 +680,8 @@ is the same as
  <varlistentry><term>&if;</term>
   <listitem><simpara>
    <literal role="sexp">(&setf; (&if; <replaceable>condition</replaceable>
-                                  <replaceable>place1</replaceable>
-                                  <replaceable>place2</replaceable>)
+                                  <replaceable>place&sub-1;</replaceable>
+                                  <replaceable>place&sub-2;</replaceable>)
                                 &object-r;)</literal>
   </simpara></listitem></varlistentry>
 
@@ -819,6 +819,13 @@ is the same as
           (write-to-string gensym-count :base 10 :radix nil)))
       (incf gensym-count))))
 </programlisting>
+
+<formalpara id="suppress-check-redef">
+ <title>Variable &suppress-check-redef;</title>
+<para>When <firstterm>&suppress-check-redef;</firstterm> is &nil;,
+ &clisp; issues a &warning-t; when a function (macro, variable, class,
+ etc) is redefined in a different file than its original definition.
+</para></formalpara>
 
 </section>
 
