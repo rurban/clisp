@@ -7,6 +7,7 @@
 
 ;;; documentation
 (defgeneric documentation (x doc-type)
+  (:argument-precedence-order doc-type x)
   (:method ((x function) (doc-type (eql 't)))
     (declare (ignore doc-type))
     (if (typep-class x <standard-generic-function>)
@@ -97,6 +98,7 @@
     (slot-definition-documentation x)))
 
 (defgeneric (setf documentation) (new-value x doc-type)
+  (:argument-precedence-order doc-type x new-value)
   (:method (new-value (x function) (doc-type (eql 't)))
     (declare (ignore doc-type))
     (if (typep-class x <standard-generic-function>)
