@@ -15,7 +15,7 @@ AC_DEFUN([CL_ALLOCA],
 # for constant arguments.  Useless!
 CL_LINK_CHECK(working alloca.h, cl_cv_header_alloca_h,
 [#include <alloca.h>], [char *p = (char *) alloca(2 * sizeof(int));],
-AC_DEFINE(HAVE_ALLOCA_H,,[have <alloca.h> and it should be used (not Ultrix)]))
+AC_DEFINE(HAVE_ALLOCA_H,1,[have <alloca.h> and it should be used (not Ultrix)]))
 decl="#ifdef __GNUC__
 #define alloca __builtin_alloca
 #else
