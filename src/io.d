@@ -9452,21 +9452,18 @@ global void print (const gcv_object_t* stream_, object obj) {
 
 # ----------------------- Helper-functions of the Printer --------------------
 
-# UP: Check ein Output-Stream-Argument.
-# The value of *STANDARD-OUTPUT* is default.
-# test_ostream();
-# > STACK_0: Output-Stream-Argument
-# < STACK_0: Output-Stream (a Stream)
-local void test_ostream (void) {
-  var object stream = STACK_0; # Output-Stream-Argument
-  if (missingp(stream)) {
-    # #<UNBOUND> or NIL -> value of *STANDARD-OUTPUT*
-    STACK_0 = var_stream(S(standard_output),strmflags_wr_ch_B);
-  } else if (eq(stream,T)) {
-    # T -> value of *TERMINAL-IO*
-    STACK_0 = var_stream(S(terminal_io),strmflags_wr_ch_B);
-  } else {
-    # should be a stream
+/* UP: Check the output-stream argument.
+ The value of *STANDARD-OUTPUT* is the default.
+ test_ostream(&stream);
+ > stream_: output-stream argument
+ < stream_: output-stream (a Stream) */
+local void test_ostream (gcv_object_t* stream_) {
+  var object stream = *stream_;  /* output-stream argument */
+  if (missingp(stream)) { /* #<UNBOUND> or NIL -> value of *STANDARD-OUTPUT* */
+    *stream_ = var_stream(S(standard_output),strmflags_wr_ch_B);
+  } else if (eq(stream,T)) { /* T -> value of *TERMINAL-IO* */
+    *stream_ = var_stream(S(terminal_io),strmflags_wr_ch_B);
+  } else { /* should be a stream */
     if (!streamp(stream))
       fehler_stream(stream);
   }
@@ -9485,7 +9482,7 @@ LISPFUNN(whitespacep,1) { # (SYS::WHITESPACEP CHAR)
 
 # (SYS::WRITE-SPACES num &optional stream)
 LISPFUN(write_spaces,seclass_default,1,1,norest,nokey,0,NIL) {
-  test_ostream();
+  test_ostream(&STACK_0);
   if (!posfixnump(STACK_1)) fehler_posfixnum(STACK_1);
   spaces(&STACK_0,STACK_1);
   VALUES1(NIL); skipSTACK(2);
@@ -9498,7 +9495,7 @@ LISPFUN(write_spaces,seclass_default,1,1,norest,nokey,0,NIL) {
 # n          ---a real.
 # stream     ---an output stream designator. The default is standard output.
 LISPFUN(pprint_indent,seclass_default,2,1,norest,nokey,0,NIL) {
-  test_ostream();
+  test_ostream(&STACK_0);
   /* check the indentation increment */
   STACK_1 = check_real(STACK_1);
   var int offset=0;
@@ -9560,7 +9557,7 @@ typedef enum {
 # kind  ---one of :linear, :fill, :miser, or :mandatory.
 # stream---a stream designator. The default is standard output.
 LISPFUN(pprint_newline,seclass_default,1,1,norest,nokey,0,NIL) {
-  test_ostream();
+  test_ostream(&STACK_0);
   var pprint_newline_t ppn_type = PPRINT_NEWLINE_MANDATORY;
   if (eq(S(Klinear),STACK_1))         ppn_type = PPRINT_NEWLINE_LINEAR;
   else if (eq(S(Kfill),STACK_1))      ppn_type = PPRINT_NEWLINE_FILL;
@@ -9625,7 +9622,7 @@ local void pprin_object_dispatch (const gcv_object_t* stream_,object obj) {
 
 # (%PPRINT-LOGICAL-BLOCK function object stream)
 LISPFUNN(ppprint_logical_block,3) {
-  test_ostream();
+  test_ostream(&STACK_0);
   if (listp(STACK_1)) {
     var gcv_object_t* stream_ = &STACK_0;
     var object obj = STACK_1;
@@ -9642,7 +9639,7 @@ LISPFUNN(ppprint_logical_block,3) {
 # return the appropriate read label or NIL
 # called from PPRINT-POP
 LISPFUNN(pcirclep,2) {
-  test_ostream();
+  test_ostream(&STACK_0);
   # var circle_info_t ci;
   if (!circle_p(STACK_1,NULL) || !PPHELP_STREAM_P(STACK_0)) # &ci
     VALUES1(NIL);
@@ -9659,20 +9656,19 @@ LISPFUNN(pcirclep,2) {
 #                  &optional (colnum 1) (colinc 1))
 # see format.lisp
 LISPFUN(format_tabulate,seclass_default,3,2,norest,nokey,0,NIL) {
-  swap(object,STACK_0,STACK_4); # get the stream into STACK_0
-  test_ostream();
+  test_ostream(&STACK_4);
  #define COL_ARG(x) (missingp(x) ? Fixnum_1 : \
                      (posfixnump(x) ? (object)x : \
                      (fehler_posfixnum(x),nullobj)))
   STACK_1 = COL_ARG(STACK_1);
-  STACK_4 = COL_ARG(STACK_4);
+  STACK_0 = COL_ARG(STACK_0);
  #undef COL_ARG
   if (PPHELP_STREAM_P(STACK_0) && !nullpSv(print_pretty)) {
     var object tab_spec = allocate_vector(4);
     PPH_TAB_COLON(tab_spec) = STACK_3;
     PPH_TAB_ATSIG(tab_spec) = STACK_2;
     PPH_TAB_COL_N(tab_spec) = STACK_1;
-    PPH_TAB_COL_I(tab_spec) = STACK_4;
+    PPH_TAB_COL_I(tab_spec) = STACK_0;
     var object list = TheStream(STACK_0)->strm_pphelp_strings;
     pushSTACK(tab_spec);
     if (stringp(Car(list)) && (0==vector_length(Car(list)))) {
@@ -9690,7 +9686,7 @@ LISPFUN(format_tabulate,seclass_default,3,2,norest,nokey,0,NIL) {
     }
   } else
     spaces(&STACK_0,
-           fixnum(format_tab(STACK_0,STACK_3,STACK_2,STACK_1,STACK_4)));
+           fixnum(format_tab(STACK_4,STACK_3,STACK_2,STACK_1,STACK_0)));
   VALUES1(NIL); skipSTACK(5);
 }
 
@@ -9758,7 +9754,7 @@ LISPFUN(write,seclass_default,1,0,norest,key,17,
          kw(lines),kw(miser_width),kw(pprint_dispatch),
          kw(right_margin),kw(stream))) {
   # stack layout: object, Print-Variablen-Arguments, Stream-Argument.
-  test_ostream(); # check Output-Stream
+  test_ostream(&STACK_0);       /* check Output-Stream */
   write_up(); # execute WRITE
   skipSTACK(print_vars_anz+1);
   VALUES1(popSTACK()); /* object as value */
@@ -9785,7 +9781,7 @@ local void prin1_up (void) {
 
 # (PRIN1 object [stream]), CLTL p. 383
 LISPFUN(prin1,seclass_default,1,1,norest,nokey,0,NIL) {
-  test_ostream(); # check Output-Stream
+  test_ostream(&STACK_0);       /* check Output-Stream */
   prin1_up(); # execute PRIN1
   skipSTACK(1);
   VALUES1(popSTACK()); /* object as value */
@@ -9802,7 +9798,7 @@ LISPFUN(prin1,seclass_default,1,1,norest,nokey,0,NIL) {
 # )
 # (PRINT object [stream]), CLTL p. 383
 LISPFUN(print,seclass_default,1,1,norest,nokey,0,NIL) {
-  test_ostream(); # check Output-Stream
+  test_ostream(&STACK_0);       /* check Output-Stream */
   terpri(&STACK_0); # new line
   prin1_up(); # execute PRIN1
   write_ascii_char(&STACK_0,' '); # add Space
@@ -9820,7 +9816,7 @@ LISPFUN(print,seclass_default,1,1,norest,nokey,0,NIL) {
 # )
 # (PPRINT object [stream]), CLTL p. 383
 LISPFUN(pprint,seclass_default,1,1,norest,nokey,0,NIL) {
-  test_ostream(); # check Output-Stream
+  test_ostream(&STACK_0);       /* check Output-Stream */
   terpri(&STACK_0); # new line
   var object obj = STACK_1;
   var gcv_object_t* stream_ = &STACK_0;
@@ -9857,7 +9853,7 @@ local void princ_up (void) {
 
 # (PRINC object [stream]), CLTL p. 383
 LISPFUN(princ,seclass_default,1,1,norest,nokey,0,NIL) {
-  test_ostream(); # check Output-Stream
+  test_ostream(&STACK_0);       /* check Output-Stream */
   princ_up(); # execute PRINC
   skipSTACK(1);
   VALUES1(popSTACK()); /* object as value */
@@ -9910,7 +9906,7 @@ LISPFUNN(princ_to_string,1) {
 
 # (WRITE-CHAR character [stream]), CLTL p. 384
 LISPFUN(write_char,seclass_default,1,1,norest,nokey,0,NIL) {
-  test_ostream(); # check Output-Stream
+  test_ostream(&STACK_0);       /* check Output-Stream */
   var object ch = STACK_1; # character-Argument
   if (!charp(ch))
     fehler_char(ch);
@@ -9925,11 +9921,8 @@ LISPFUN(write_char,seclass_default,1,1,norest,nokey,0,NIL) {
 # < stack layout: Stream, String.
 # can trigger GC
 local void write_string_up (void) {
-  pushSTACK(STACK_2); # Stream to the end of the STACK
-  test_ostream(); # check
-  STACK_(2+1) = STACK_(3+1);
-  STACK_(3+1) = STACK_0;
-  skipSTACK(1);
+  test_ostream(&STACK_2);       /* check Output-Stream */
+  swap(object,STACK_2,STACK_3); /* swap string and stream */
   # stack layout: stream, string, :START-Argument, :END-Argument.
   # check borders:
   var stringarg arg;
@@ -9954,14 +9947,14 @@ LISPFUN(write_line,seclass_default,1,1,norest,key,2, (kw(start),kw(end)) ) {
 
 # (TERPRI [stream]), CLTL p. 384
 LISPFUN(terpri,seclass_default,0,1,norest,nokey,0,NIL) {
-  test_ostream(); # check Output-Stream
+  test_ostream(&STACK_0);       /* check Output-Stream */
   terpri(&STACK_0); # new line
   VALUES1(NIL); skipSTACK(1);
 }
 
 # (FRESH-LINE [stream]), CLTL p. 384
 LISPFUN(fresh_line,seclass_default,0,1,norest,nokey,0,NIL) {
-  test_ostream(); # check Output-Stream
+  test_ostream(&STACK_0);       /* check Output-Stream */
   if (eq(get_line_position(STACK_0),Fixnum_0)) { # Line-Position = 0 ?
     VALUES1(NIL);
   } else {
@@ -9973,21 +9966,21 @@ LISPFUN(fresh_line,seclass_default,0,1,norest,nokey,0,NIL) {
 
 # (FINISH-OUTPUT [stream]), CLTL p. 384
 LISPFUN(finish_output,seclass_default,0,1,norest,nokey,0,NIL) {
-  test_ostream(); # check Output-Stream
+  test_ostream(&STACK_0);       /* check Output-Stream */
   finish_output(popSTACK()); # bring Output to the destination
   VALUES1(NIL);
 }
 
 # (FORCE-OUTPUT [stream]), CLTL p. 384
 LISPFUN(force_output,seclass_default,0,1,norest,nokey,0,NIL) {
-  test_ostream(); # check Output-Stream
+  test_ostream(&STACK_0);       /* check Output-Stream */
   force_output(popSTACK()); # bring output to destination
   VALUES1(NIL);
 }
 
 # (CLEAR-OUTPUT [stream]), CLTL p. 384
 LISPFUN(clear_output,seclass_default,0,1,norest,nokey,0,NIL) {
-  test_ostream(); # check Output-Stream
+  test_ostream(&STACK_0);       /* check Output-Stream */
   clear_output(popSTACK()); # delete output
   VALUES1(NIL);
 }
@@ -10011,7 +10004,7 @@ LISPFUN(write_unreadable,seclass_default,3,0,norest,key,2,
   }
   if (!nullp(STACK_2))
     flag_fun = true;
-  test_ostream(); # check Output-Stream
+  test_ostream(&STACK_0);       /* check Output-Stream */
   CHECK_PRINT_READABLY(STACK_1);
   var gcv_object_t* stream_ = &STACK_0;
   UNREADABLE_START;
@@ -10042,7 +10035,7 @@ LISPFUN(write_unreadable,seclass_default,3,0,norest,key,2,
 # (SYS::LINE-POSITION [stream]), Auxiliary function for FORMAT ~T,
 # returns the position of an (Output-)Stream in the current line, or NIL.
 LISPFUN(line_position,seclass_default,0,1,norest,nokey,0,NIL) {
-  test_ostream(); # check Output-Stream
+  test_ostream(&STACK_0);       /* check Output-Stream */
   VALUES1(get_line_position(popSTACK()));
 }
 
