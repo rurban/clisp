@@ -30,6 +30,9 @@ User visible changes
 * Implemented ANSI CL function INSPECT,
   and a function LISP:CLHS for access of Common Lisp HyperSpec.
 
+* Characters have now the same names as in Unicode 3.0, with space replaced
+  by underscore.
+
 * ANSI CL compliance: CALL-NEXT-METHOD and NEXT-METHOD-P are now implemented
   as local functions, not local macros. It is now possible to call
   (APPLY #'CALL-NEXT-METHOD argument-list-of-unknown-length).
