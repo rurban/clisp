@@ -373,9 +373,11 @@
                     )
                     (when (and (consp body-rest)
                                (or (not (loop-keywordp (first body-rest)))
-                                   (eq (first body-rest) 'of-type)))
+                                   (string= (symbol-name (first body-rest))
+                                            "OF-TYPE")))
                       (let ((type (pop body-rest)))
-                        (when (eq type 'of-type) (setq type (pop body-rest)))
+                        (when (string= (symbol-name type) "OF-TYPE")
+                          (setq type (pop body-rest)))
                         (case kw
                           ((MAXIMIZE MAXIMIZING MINIMIZE MINIMIZING)
                            (setq type `(OR NULL ,type)))) ; wegen Startwert NIL
