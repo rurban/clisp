@@ -14026,6 +14026,15 @@ local void stream_handles (object obj, bool check_open, bool* char_p,
       if (char_p) *char_p = true;
       return;
    #endif
+   #ifdef X11SOCKETS
+    case strmtype_x11socket:
+      if (in_sock && input_stream_p(obj))
+        *in_sock = TheSocket(TheStream(obj)->strm_ichannel);
+      if (out_sock && output_stream_p(obj))
+        *out_sock = TheSocket(TheStream(obj)->strm_ochannel);
+      if (char_p) *char_p = false;
+      return;
+   #endif
     case strmtype_twoway_socket:
       obj = TheStream(obj)->strm_twoway_socket_input;
       if (in_sock)  *in_sock  = SocketChannel(obj);
@@ -14095,7 +14104,8 @@ local uintL handle_set (object socket, fd_set *readfds, fd_set *writefds,
                         fd_set *errorfds, bool *need_new_list) {
   var object sock;
   var direction_t dir;
-  var SOCKET in_sock = INVALID_SOCKET, out_sock = INVALID_SOCKET;
+  var SOCKET in_sock = INVALID_SOCKET;
+  var SOCKET out_sock = INVALID_SOCKET;
   var uintL ret = 0;
   if (NULL==parse_sock_list(socket,&sock,&dir) && need_new_list)
     *need_new_list = true;
@@ -14124,7 +14134,8 @@ local maygc object handle_isset (object socket, fd_set *readfds, fd_set *writefd
   var object sock, ret;
   var direction_t dir;
   var gcv_object_t *place = parse_sock_list(socket,&sock,&dir);
-  var SOCKET in_sock = INVALID_SOCKET, out_sock = INVALID_SOCKET;
+  var SOCKET in_sock = INVALID_SOCKET;
+  var SOCKET out_sock = INVALID_SOCKET;
   var bool char_p = true, wr = false;
   var signean rd = ls_wait;
   stream_handles(sock,true,&char_p,
