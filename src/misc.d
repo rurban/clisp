@@ -343,9 +343,9 @@ LISPFUNN(set_ansi,1)
   Symbol_value(S(floating_point_contagion_ansi)) = val;
   # (SETQ *MERGE-PATHNAMES-ANSI* val)
   Symbol_value(S(merge_pathnames_ansi)) = val;
-  if (!eq(Symbol_value(S(features)),unbound)) { # *FEATURES*: PUSHNEW or DELETE
+  { # *FEATURES*: PUSHNEW or DELETE
     pushSTACK(S(Kansi_cl)); pushSTACK(Symbol_value(S(features)));
-    if (eq(val,T))      # (PUSHNEW :ANSI-CL *FEATURES*)
+    if (eq(val,T))      # (ADJOIN :ANSI-CL *FEATURES*)
       { funcall(L(adjoin),2); }
     else                # (DELETE :ANSI-CL *FEATURES*)
       { funcall(L(delete),2); }
