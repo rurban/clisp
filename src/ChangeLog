@@ -1,7 +1,8 @@
 2003-02-28  Sam Steingold  <sds@gnu.org>
 
 	* io.d (PARSE-INTEGER): seclass_read
-	* subr.d (parse_integer): ditto
+	print the error index on badsyntax
+	* subr.d (parse_integer): seclass_read
 
 2003-02-27  Sam Steingold  <sds@gnu.org>
 

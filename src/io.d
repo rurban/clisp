@@ -4886,10 +4886,11 @@ LISPFUN(parse_integer,seclass_read,1,0,norest,key,4,
   return;
  badsyntax: /* illegal character */
   if (!junk_allowed) { /* signal an error */
+    pushSTACK(fixnum(index-arg.index));
     pushSTACK(subsstring(arg.string,arg.offset+arg.index,
                          arg.offset+arg.index+arg.len));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(parse_error,GETTEXT("~: substring ~ does not have integer syntax"));
+    fehler(parse_error,GETTEXT("~: substring ~ does not have integer syntax at position ~"));
   }
   VALUES2(NIL,fixnum(index));
   return;
