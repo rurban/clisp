@@ -2960,7 +2960,8 @@ and &end-k;:</para>
 <varlistentry><term>Platform dependent: &os2;, &win32; platforms only.</term>
 <listitem><variablelist><title>Pathname components</title>
 <varlistentry><term><replaceable>host</replaceable></term>
- <listitem><simpara>always &nil;</simpara></listitem></varlistentry>
+ <listitem><simpara>on &os2;: always &nil;; on &win32;: &nil; or
+   &simple-string-type;</simpara></listitem></varlistentry>
 <varlistentry><term><replaceable>device</replaceable></term>
  <listitem><simpara>&nil; or &wild-k; or
  <filename>A</filename>|...|<filename>Z</filename>
