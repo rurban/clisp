@@ -32,6 +32,19 @@
 ; Use "C" as foreign language
 (default-foreign-language :stdc)
 
+; Inline everything for speed
+(proclaim '(inline
+aref-null array-to-hash auto-commit auto-commit-nocheck cat
+check-connection check-pairs check-success check-unique-elements
+column-names columns comma-list-of-keys commit commit-nocheck connect
+connection-key convert-type c-truth curconn disconnect do-rows-col
+do-rows-index-of do-rows-var eof fetch flatten from-sqlval
+gethash-required hash-combine hash-to-sqlparam-array if-null
+insert-row is-select-query join lisp-truth nl out out-nl pairs-to-hash
+peek rollback rollback-nocheck row-count row-to-result rowval run-sql
+to-sqlval to-string update-row valid-symbol
+))
+
 ;; GLOBALS
 
 ; Cached connections
@@ -227,25 +240,52 @@ switch the conneciton to a different database other than the one that
 was used to do the SELECT.  This is useful for reading from one
 database while writing to another.
 
+When specifying variables to which to bind column values, instead of a
+single symbol, a pair (bound-var \"column-name\") can be specified which
+will cause values from the given column name to be bound to the given
+variable.  This is for unusual cases where a Lisp symbol cannot be
+created with the same for the column (e.g., a column names "T") and
+when it is inconvenient of impossible to alias the column with
+\"SELECT ... AS\"
+
 "
+  ; COMPILE TIME CHECKS
+  ; Validate both variable list and column aliases are unique (at
+  ; compile time)
+  (check-unique-elements (map 'list #'do-rows-var vars))
+
+  ; Conceivably the caller MIGHT want to bind two different loop
+  ; variables to the same SELECTed column, but more likely that is a bug
+  ; on his part, so don't allow it.
+  (check-unique-elements (map 'list #'do-rows-col vars))
+
+  ; Declare variables and bind to fetch from appropriate array index.
+  ; Generate a map of the bound vars to gensyms which contain the index of that
+  ; var into the fetched array.
   (let ((fetch-result (gensym))
-        (colhash (gensym))
-        (saved-oracle-connection (gensym)))
+	(saved-oracle-connection (gensym))
+	(index-vars (make-hash-table)))
+    (dolist (v vars)
+	    (setf (gethash (to-string (do-rows-var v)) index-vars) (gensym)))
     (list 'let
-          `((,saved-oracle-connection *oracle-connection*))
-          (append (list 
-                   'do*
-                   (append (list `(,fetch-result (fetch 'hash) (fetch 'hash))
-                                 `(,colhash (null-hash ,fetch-result) (null-hash ,fetch-result)))
-                           (map 'list #'(lambda (col)
-                                          (let ((iter (list 'gethash-required
-                                                            (list 'quote col)
-                                                            colhash)))
-                                            (list col iter iter)))
-                                vars))
-                   (list `(null ,fetch-result) '(row-count)))
-                  (if (atom body) (list body) body)
-                  (list `(setf *oracle-connection* ,saved-oracle-connection))))))
+	  ; Declare saved Oracle connection and calculated array indices OUTSIDE fetch loop
+	  (append `((,saved-oracle-connection *oracle-connection*))
+			(map 'list
+			     #'(lambda (v) (list (gethash (to-string (do-rows-var v)) index-vars)
+						 (list 'do-rows-index-of (list 'quote v))))
+			     vars))
+	  ; Emit the DO loop itself
+	  (append (list 
+		   'do*
+		   (append (list `(,fetch-result (fetch 'array) (fetch 'array)))
+			     (map 'list 
+				  #'(lambda (k)
+				      (let ((iter (list 'aref-null fetch-result (gethash (to-string (do-rows-var k)) index-vars))))
+					(list (do-rows-var k) iter iter)))
+				  vars))
+		   (list `(null ,fetch-result) '(row-count)))
+		  (if (atom body) (list body) body)
+		  (list `(setf *oracle-connection* ,saved-oracle-connection))))))
 
 ;----------------------------------------------
 
@@ -603,6 +643,19 @@ Argument: none
 
 ; =-=-=-=-=-=-=-   INTERNAL FUNCTIONS BELOW     =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+; Helper functions for DO-ROWS
+(defun do-rows-var (v) (if (atom v) v (car v)))
+(defun do-rows-col (v) (if (atom v) v (cadr v)))
+(defun do-rows-index-of (v)
+  (let ((i (position (to-string (do-rows-col v))
+		     (map 'array
+			  #'(lambda (x) (to-string (sqlcol-name x)))
+			  (columns))
+		     :test #'equal)))
+    (when (null i)
+	  (error (cat "DO-ROWS: Column '" (do-rows-col v)
+		      "' does not occur in query.  Allowed columns are:~%" (column-names))))
+    i))
 ; COLUMN-NAMES
 ; Get list of column names, one per line.
 (defun column-names ()
@@ -836,10 +889,9 @@ Argument: none
 ; Default a null value.  Is there a better Lisp built-in for this?
 (defun if-null (value default) (if (null value) default value))
 
-; NULL-HASH
-; Map NIL to empty hash table
-(defun null-hash (h)
-  (if-null h (make-hash-table :test #'equal)))
+; AREF-NULL
+; Do an AREF, but allow array to be null, in which case return NIL
+(defun aref-null (a i) (if (null a) nil (aref a i)))
 
 ; HASH-COMBINE
 ; Combine two hash table.  Keys of the second hash will overwrite.
@@ -881,6 +933,19 @@ Argument: none
       (loop for i from 0 to (- n 1) do
             (setf (gethash (to-string (sqlcol-name (aref cols i))) result) (aref row i)))
       result)))
+
+; CHECK-UNIQUE-ELEMENTS
+; Does list consist of unqiue, non-null elements
+(defun check-unique-elements (l)
+  (let ((h (make-hash-table :test #'equal)))
+    (dolist (elt l)
+	    (when (null elt)
+		  (error "Null element in column/variable list"))
+	    (when (not (null (gethash (to-string elt) h)))
+		  (error (cat "DO-ROWS: Parameter/column '" elt "' occurs more than once in bound columns/variables:~%"
+			      (join "~%" l))))
+	    (setf (gethash (to-string elt) h) t))
+    t))
 
 ; JOIN
 ; Join a sequence of strings into one, separating with delimeter
