@@ -1,3 +1,10 @@
+2004-10-29  Sam Steingold  <sds@gnu.org>
+
+	use HASH-TABLEs when possible to speed-up SET functions
+	* defs1.lisp (list-to-ht): new function
+	(union, nunion, intersection, nintersection, set-difference)
+	(nset-difference, subsetp): use it
+
 2004-10-29  Bruno Haible  <bruno@clisp.org>
 
 	* aridecl.d (wbitc): New macro.
