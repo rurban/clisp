@@ -449,9 +449,6 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  of the &ansi-cl; issue <ulink url="&clhs;/Issues/iss181.html"
  >GENERIC-FLET-POORLY-DESIGNED:DELETE</ulink>.</para>
 
-<para>&add-method; can put methods into other generic functions
- than the one the method came from.</para>
-
 <para>&print-object; is only called on objects of type
  &standard-object-t; and &structure-object-t;.
  It is not called on other objects, like &cons-t;es

@@ -1,3 +1,9 @@
+2004-02-24  Sam Steingold  <sds@gnu.org>
+
+	* clos.lisp (std-remove-method): reset (STD-METHOD-GF OLD-METHOD)
+	(std-add-method): signal an error when METHOD already belongs to
+	a generic function
+
 2004-02-23  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (DIRECTORY): pathname argument is required
