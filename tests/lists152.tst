@@ -805,8 +805,8 @@ NIL
 (revappend '() 'a)
 A   ;degenerate case
 
-(let ((list-1 '(1 2 3))
-      (list-2 '(a b c)))
+(let ((list-1 (list '1 '2 '3))
+      (list-2 (list 'a 'b 'c)))
   (list (nreconc list-1 list-2)
         (equal list-1 '(1 2 3))
         (equal list-2 '(a b c))))

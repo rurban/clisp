@@ -116,7 +116,7 @@ T
   (with-open-file (s src :direction :output)
     (format s "(progn~%  (defsetf foo setf-foo)
   (defun bar (u v) (setf (foo u) v)))~%"))
-  (load src :compiling t)
+  (load src #+CLISP :compiling #+CLISP t)
   (delete-file src)
   (bar zz 12)
   zz)
