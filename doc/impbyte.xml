@@ -932,7 +932,7 @@ letters:
  <row><entry><literal role="sexp">(JMPTAIL &m-r; &n-r;
              &lab-r;)</literal></entry>
       <entry>Tail subroutine call.</entry>
-      <entry>&n-r; &gt;= &m-r;.
+      <entry>&n-r; &geq; &m-r;.
              The &STACK; frame of size &n-r; is reduced to size &m-r;:
              {*(&STACK;+&n-r;-&m-r;), ..., *(&STACK;+&n-r;-1)} :=
                {*&STACK;, ..., *(&STACK;+&m-r;-1)}.

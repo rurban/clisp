@@ -1369,8 +1369,9 @@ performance considerations.
 <formalpara><title>Constant &pi;</title>
 <para>The value of &pi; is a &long-float-t; with the precision given
  by &lfd-l;.  When this precision is changed, the value of &pi; is
- automatically recomputed.  Therefore &pi; is a <emphasis>variable</emphasis>,
- not a <emphasis>constant</emphasis>.</para></formalpara>
+ automatically recomputed.  Therefore &pi; is
+ a <emphasis>variable</emphasis>, <emphasis role="strong">not</emphasis>
+ a <emphasis>constant</emphasis>.</para></formalpara>
 
 </section>
 
@@ -1380,11 +1381,11 @@ performance considerations.
 <para>&float-radix; always returns <literal>2</literal>.</para>
 
 <para><literal role="sexp">(&float-digits; &number-r;
- &digits-r;)</literal> coerces &number-r; (a real number) to a floating
- point number with at least &digits-r; mantissa digits.
- The following holds:
+ &digits-r;)</literal> coerces &number-r; (a &real-t; number) to a
+ floating point number with at least &digits-r; mantissa digits.
+ The following always evaluates to &t;:
 <programlisting>
- (&gt;= (&float-digits; (&float-digits; &number-r; &digits-r;)) &digits-r;)
+ (&geq; (&float-digits; (&float-digits; &number-r; &digits-r;)) &digits-r;)
 </programlisting></para>
 
 </section>
@@ -1443,7 +1444,8 @@ performance considerations.
  &least-positive-long-float; &least-positive-normalized-long-float;
  &long-float-epsilon; &long-float-negative-epsilon;
  &most-negative-long-float; &most-positive-long-float; are recomputed
- whenever &lfd-l; is &setf;ed.  They are variables, not constants.</para>
+ whenever &lfd-l; is &setf;ed.  They are <emphasis>variables</emphasis>,
+ <emphasis role="strong">not</emphasis> <emphasis>constants</emphasis>.</para>
 
 </section>
 
@@ -1462,8 +1464,8 @@ performance considerations.
 <chapter id="characters"><title>Characters
    <ulink url="&clhs;/Body/chap-13.html">[CLHS-13]</ulink></title>
 
-<para>The characters are ordered according to a superset of the ASCII
-encoding.</para>
+<para>The characters are ordered according to a superset of the
+ &charset-ascii;.</para>
 
 <!-- #ifdef UNICODE -->
 <variablelist>
@@ -3335,7 +3337,7 @@ printed readably.</para>
 </tbody></tgroup></table>
 
 <para>Name and type may be character sequences of any &length;
- (consisting of printing ASCII characters, except &file-slash;).</para>
+ (consisting of printing &ascii; characters, except &file-slash;).</para>
 </listitem></varlistentry>
 <!-- #endif -->
 
@@ -3353,7 +3355,7 @@ printed readably.</para>
 </tbody></tgroup></table>
 
 <para>Name and type may be character sequences of any &length;
- (consisting of printing ASCII characters, except &file-slash;,
+ (consisting of printing &ascii; characters, except &file-slash;,
  &file-bsla;, &file-colon;).</para></listitem></varlistentry>
 <!-- #endif -->
 
@@ -3797,7 +3799,7 @@ use <literal role="sexp">(&nconc; (&directory; "**/")
       </variablelist></para></listitem></varlistentry>
 
   <varlistentry><term>slot &ch-r;</term>
-    <listitem><simpara>the ASCII code for standard keys
+    <listitem><simpara>the &ascii; code for standard keys
     </simpara></listitem></varlistentry>
 
 <!-- #if defined(MSDOS) || defined(WIN32) || defined(AMIGAOS) -->
