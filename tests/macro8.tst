@@ -806,3 +806,13 @@ NIL
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=890138&group_id=1355&atid=101355>
 (load "bug001.lisp") T
 (load "bug002.lisp") T
+
+;; <http://clisp.cons.org/impnotes.html#defun-accept-spelalist>
+(let ((f (lambda ((x1 fixnum) (x2 integer) (x3 number) y z)
+           (list x1 x2 x3 y z))))
+  (flet ((g ((x1 fixnum) (x2 integer) (x3 number) y z)
+           (list z y x3 x2 x1)))
+    (list (funcall f 0 1 2 3 4)
+          (funcall (compile nil f) 5 6 7 8 9)
+          (g 'a 'b 'c 'd 'e))))
+((0 1 2 3 4) (5 6 7 8 9) (e d c b a))

@@ -1,5 +1,12 @@
 2004-08-11  Sam Steingold  <sds@gnu.org>
 
+	* conditions.tst: disable tests that rely on lambda list errors
+	being TYPE-ERRORS (they are program errors now)
+	* excepsit.tst: updated the lambda list tests
+	* macro8.tst: new test for *DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST*
+
+2004-08-11  Sam Steingold  <sds@gnu.org>
+
 	* ffi.tst (c-malloc, c-free): added a couple of poor-style tests
 
 2004-08-04  Bruno Haible  <bruno@clisp.org>
