@@ -8072,9 +8072,9 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure)
         var object slot = STACK_0;
         STACK_0 = Cdr(slot); # shorten list
         slot = Car(slot); # a single slot
-        if (!(simple_vector_p(slot) && Svector_length(slot) == 8))
+        if (!(simple_vector_p(slot) && Svector_length(slot) == 7))
           goto bad_description; /* should be a ds-slot */
-        if (!nullp(TheSvector(slot)->data[7])) { # see defstruct.lisp
+        if (!nullp(TheSvector(slot)->data[1])) { # see defstruct.lisp
           pushSTACK(slot); # save slot
           JUSTIFY_SPACE; # print Space
           # check for attaining of *PRINT-LENGTH* :

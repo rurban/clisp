@@ -1,3 +1,17 @@
+2004-03-21  Bruno Haible  <bruno@clisp.org>
+
+	Remove redundant information from the DEFSTRUCT-DESCRIPTION.
+	* defstruct.lisp (make-ds-slot): Remove 8th argument.
+	(ds-slot-var): Remove function.
+	(ds-slot-initargs): New function.
+	(ds-real-slot-p): Use ds-slot-initargs.
+	(ds-arg-default): Simplify.
+	(ds-make-constructor-body): Take a varlist instead of a get-var
+	argument.
+	(ds-make-boa-constructor, ds-make-keyword-constructor): Update.
+	(defstruct): Update.
+	* io.d (pr_structure_default): Update.
+
 2004-02-29  Bruno Haible  <bruno@clisp.org>
 
 	Split clos.lisp.
