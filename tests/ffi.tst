@@ -95,6 +95,26 @@ nil
 (with-foreign-object (x 'character #\t) (c-self x))
 ERROR
 
+(type-of (foreign-function #'c-self
+  (parse-c-type '(c-function (:arguments (obj (c-pointer short)))
+			     (:return-type (c-ptr-null short))
+			     (:language :stdc)))))
+foreign-function
+
+(funcall (foreign-function #'c-self
+  (parse-c-type '(c-function (:arguments (obj long))
+			     (:return-type long)
+			     (:language :stdc))) :name "foo1")
+	 #x76767676)
+#x76767676
+
+(funcall (foreign-function (foreign-address #'c-self)
+  (parse-c-type '(c-function (:arguments (obj long))
+			     (:return-type long)
+			     (:language :stdc))) :name "foo1")
+	 #x76767676)
+#x76767676
+
 (progn
   (def-call-out c-self (:name "ffi_identity")
     (:arguments (obj c-pointer))
@@ -437,6 +457,25 @@ ERROR
 
 (with-c-place (x fm) (cast x '(c-ptr (c-array-max character 2))))
 "ab"
+
+(type-of (foreign-variable fm (parse-c-type '(c-ptr (c-array uint8 2)))))
+FOREIGN-VARIABLE
+
+(foreign-value (foreign-variable fm (parse-c-type '(c-ptr (c-array uint8 2)))))
+#(97 98)
+
+(foreign-value (foreign-variable (foreign-address fm)
+  (parse-c-type '(c-ptr (c-array uint8 2))) :name "conversion"))
+#(97 98)
+
+(foreign-variable "abc" (parse-c-type 'c-pointer))
+ERROR
+
+(foreign-variable fm (parse-c-type 'c-pointer) :name 123)
+ERROR
+
+(foreign-variable #'c-self (parse-c-type 'c-pointer))
+ERROR
 
 (progn (foreign-free fm) 0)
 0

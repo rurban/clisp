@@ -25,6 +25,12 @@
 
 2004-10-05  Jörg Höhle  <hoehle@users.sourceforge.net>
 
+	* foreign.d (FOREIGN-VARIABLE, FOREIGN_FUNCTION):
+	new constructor functions.
+	* subr.d, subrkw.d: add them
+	
+2004-10-05  Jörg Höhle  <hoehle@users.sourceforge.net>
+
 	* foreign.d (fehler_foreign_variable, fehler_foreign_function):
 	raise error of type type-error
 
