@@ -1,7 +1,7 @@
 /* Trampoline construction */
 
 /*
- * Copyright 1995-1999, 2001-2002 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999, 2001-2003 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -190,7 +190,7 @@ extern RETGETPAGESIZETYPE getpagesize ();
 #include <mips/cachectl.h>
 #else
 #ifdef linux
-#include <linux/cachectl.h>
+#include <asm/cachectl.h>
 #else
 #ifdef HAVE_SYS_CACHECTL_H
 #include <sys/cachectl.h>
