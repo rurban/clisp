@@ -1,3 +1,9 @@
+1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * po/clisp-xgettext (main): Read and write files in ISO-8859-1
+          encoding.
+        * po/clisp-msguniq (main): Likewise.
+
 1999-07-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * po/Makefile.in (distclean): Don't remove *.gmo.
