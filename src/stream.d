@@ -12031,7 +12031,6 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
                        INVALID_SOCKET);
     var host_data myname;
 
-    bzero ((void *) &myname, sizeof(host_data));
     if (posfixnump(STACK_0)) myname.port = posfixnum_to_L(STACK_0);
 
     if (posfixnump(STACK_0) || eq(STACK_0,unbound) ||
@@ -12237,8 +12236,6 @@ local void publish_host_data (func)
   {
     var SOCKET sk;
     var host_data hd;
-
-    bzero ((void *) &hd, sizeof(host_data));
 
     test_socket_stream(STACK_0);
     sk = TheSocket(TheStream(STACK_0)->strm_ihandle);
