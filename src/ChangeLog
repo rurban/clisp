@@ -1,5 +1,10 @@
 2003-05-02  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
+	* pathname.d (LAUNCH) [WIN32_NATIVE]: use :PRIORITY argument.
+	No more use of MyCreateProcess.
+
+2003-05-02  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
 	improved LAUNCH for win32
 	* pathname.d (LAUNCH) [WIN32_NATIVE]: added new arguments:
 	arguments, priority (not supported yet), changed return value.
