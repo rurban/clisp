@@ -78,7 +78,8 @@ The point should be on the prototype and the definition should follow."
 
 (defvar d-font-lock-extra-types
   '(nconc (list "bool" "object" "chart" "[otac]int" "signean" "scint" "Handle"
-           "[su]?int[BCLPW0-9]*" "Values" "fsubr_function" "lisp_function")
+           "[csu]?int[BCLPW0-9]*" "Values" "fsubr_function" "lisp_function"
+           "SOCKET" "stringarg")
     c-font-lock-extra-types)
   "Extra types to be fontified as such.")
 
@@ -97,7 +98,8 @@ The point should be on the prototype and the definition should follow."
    (regexp-opt '("var" "local" "global" "true" "false" "NIL" "T" "loop"
                  "inline" "NULL" "popSTACK" "pushSTACK" "skipSTACK"
                  "dotimespC" "dotimesC" "dotimespL" "dotimesL" "dotimespW"
-                 "dotimesW" "nonreturning_function" "return_Values")
+                 "dotimesW" "nonreturning_function" "return_Values"
+                 "SstringDispatch")
                'words)))
 
 (defvar d-font-lock-keywords-1
@@ -126,6 +128,21 @@ The point should be on the prototype and the definition should follow."
 
 (defvar d-mode-build-dir "../build/"
   "*The build directory to look at when there is not makefile in src.")
+
+;; from Martin Stjernholm <mast@lysator.liu.se>
+;; Date: 26 May 2002 17:34:21 +0200
+;; restore the indentation to pre-e21.4
+(defun d-indent-to-boi (langelem)
+  (save-excursion
+    (goto-char (cdr langelem))
+    (back-to-indentation)
+    (vector (current-column))))
+
+(defun d-indent-to-boi+offset (langelem)
+  (save-excursion
+    (goto-char (cdr langelem))
+    (back-to-indentation)
+    (vector (+ (current-column) c-basic-offset))))
 
 (define-derived-mode d-mode c-mode "D"
   "Major mode for editing CLISP source code.
@@ -157,7 +174,9 @@ Beware - this will modify the original C-mode too!"
          (concat prefix make " -f " makefile " " target)))
   (set (make-local-variable 'add-log-current-defun-function)
        'd-mode-current-defun-function)
-  (setf (cdr (assq 'cpp-macro c-offsets-alist)) 'd-mode-indent-sharp)
+  (c-set-offset 'cpp-macro 'd-mode-indent-sharp)
+  (c-set-offset 'block-close 'd-indent-to-boi)
+  (c-set-offset 'statement-block-intro 'd-indent-to-boi+offset)
   ;; (setq defun-prompt-regexp
   ;; "^\\(LISPFUNN?(.*) \\|\\(local\\|global\\|nonreturning_function\\) .*\\)")
   (set (make-local-variable 'beginning-of-defun-function)
@@ -175,10 +194,6 @@ Beware - this will modify the original C-mode too!"
         (setq font-lock-defaults-alist
               (cons (cons 'd-mode d-mode-font-lock-defaults)
                     font-lock-defaults-alist)))))
-
-(when (boundp 'c-C-specifier-kwds) ; Emacs 21.1 has it, Emacs 20.7 does not
-  (setq c-C-specifier-kwds
-        (concat c-C-specifier-kwds "\\|" d-extra-keywords)))
 
 ;; enable CLISP "# foo" comments
 (modify-syntax-entry ?# ". 1b" d-mode-syntax-table)
