@@ -159,8 +159,8 @@ Returns: T if a cached connection was re-used (NIL if a new connection
 	    (when (not (lisp-truth (oracle_success conn-handle)))
 		  (oracle_disconnect conn-handle) ; Don't check for error here
 		  (remhash hkey *oracle-connection-cache*)
-		  (setf conn nil)
-		  (setf *oracle-connection* nil))))
+		  (setf conn nil
+				*oracle-connection* nil))))
 
     (when (null conn)
           ; Connect to database
@@ -171,9 +171,9 @@ Returns: T if a cached connection was re-used (NIL if a new connection
                    ; Failed all attempts; give up
                   (db-error (oracle_last_error handle)))
             ; OK: cache the connection
-            (setf conn (make-db :connection handle :hkey hkey))
-            (setf (gethash hkey *oracle-connection-cache*) conn)
-            (setf result nil)))
+            (setf conn (make-db :connection handle :hkey hkey)
+				  (gethash hkey *oracle-connection-cache*) conn
+				  result nil)))
     ; Set current connection
     (setf *oracle-connection* conn)
     result))
@@ -241,9 +241,9 @@ for SELECT statements.
                    sql
                    (hash-to-sqlparam-array params)
                    (c-truth (not is-select)))
-  (setf (db-fetch-called *oracle-connection*) nil)
-  (setf (db-pending-row *oracle-connection*) nil)
-  (setf (db-colinfo *oracle-connection*) nil)
+  (setf (db-fetch-called *oracle-connection*) nil
+		(db-pending-row *oracle-connection*) nil
+		(db-colinfo *oracle-connection*) nil)
   (check-success)
 
   ; Get the row count for the result
@@ -357,8 +357,8 @@ Arguments: none
     (cond
      ; Use pending look-ahead row and reset, else do a "real" fetch
      ((db-pending-row *oracle-connection*)
-      (setf result (row-to-result (db-pending-row *oracle-connection*) result-type))
-      (setf (db-pending-row *oracle-connection*) nil))
+      (setf result (row-to-result (db-pending-row *oracle-connection*) result-type)
+			(db-pending-row *oracle-connection*) nil))
 
      ; Check if already at EOF from previous fetches
      ((and (db-fetch-called *oracle-connection*)
@@ -474,6 +474,13 @@ Arguments: none
         ; Convert C truth to Lisp for export
         (map-into result
                   #'(lambda (col)
+					  ; Oracle identifies FLOAT using special value -127 for scale,
+					  ; (which is irrelevant for floats).  In this case, map to "FLOAT"
+					  ; for type name and NIL for scale.  Precision will be given in bits
+					  ; as ANSI specifies
+					  (when (and (equal (sqlcol-type col) "NUMBER") (= (sqlcol-scale col) -127))
+							(setf (sqlcol-scale col) nil
+								  (sqlcol-type col) "FLOAT"))
                       (setf (sqlcol-null_ok col) (lisp-truth (sqlcol-null_ok col)))
                       col)
                   result)
