@@ -5136,10 +5136,16 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # can trigger GC
   local void write_sstring_ab (const object* stream_, object string, uintL start, uintL len);
-  typedef void (* wr_ss_Pseudofun) (const object* stream_, object string, uintL start, uintL len);
-  #define wr_ss(strm)  (*(wr_ss_Pseudofun)(ThePseudofun(TheStream(strm)->strm_wr_ss)))
-  #define write_sstring_ab(stream_,string,start,len)  \
-    wr_ss(*stream_)(stream_,string,start,len)
+  local void write_sstring_ab(stream_,string,start,len)
+    var const object* stream_;
+    var object string;
+    var uintL start;
+    var uintL len;
+    { if (len==0) return;
+      pushSTACK(string);
+      write_char_array(stream_,&STACK_0,start,len);
+      skipSTACK(1);
+    }
 
 # UP: Gibt einen Simple-String elementweise auf einen Stream aus.
 # write_sstring(&stream,string);
