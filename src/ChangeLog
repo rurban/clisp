@@ -1,5 +1,16 @@
 1998-05-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
+        * error.d (fehler_lambda_expression): New function.
+        * lispbibl.d (fehler_lambda_expression): Declare it.
+        * eval.d (coerce_function): Accept symbols, but reject lambda
+          expressions.
+          (apply, funcall): Reject lambda expressions.
+        * symbol.d (SYS::%PUTD): Likewise.
+        * sequence.d (seq_boolop): Check that predicate is a function
+          designator, and signal an error if not.
+
+1998-05-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
         * eval.d (fehler_specialform, fehler_undefined): New functions.
           (eval1, apply, funcall, interpret_bytecode_:csf_unbound): Call them.
 

@@ -1125,6 +1125,21 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
     var uintC argcount;
     var object defolt;
     { BEFORE(rest_args_pointer);
+      { var object predicate = Before(rest_args_pointer);
+        if (!(symbolp(predicate)
+              || subrp(predicate) || closurep(predicate) || ffunctionp(predicate)
+           ) )
+          { pushSTACK(predicate); # Wert für Slot DATUM von TYPE-ERROR
+            pushSTACK(S(function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+            pushSTACK(predicate);
+            pushSTACK(TheSubr(subr_self)->name);
+            fehler(type_error,
+                   DEUTSCH ? "~: ~ ist keine Funktion." :
+                   ENGLISH ? "~: ~ is not a function" :
+                   FRANCAIS ? "~: ~ n'est pas une fonction." :
+                   ""
+                  );
+      }   }
       # rest_args_pointer zeigt jetzt über alle argcount+1 Sequence-Argumente
       pushSTACK(defolt); # Defaultwert retten
       # 3*(argcount+1) Plätze auf dem STACK beanspruchen:
