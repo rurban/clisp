@@ -12,6 +12,9 @@ User visible changes
   Thanks to Fred and Don Cohens.
   See <http://clisp.cons.org/impnotes.html#rawsock> for details.
 
+* Module syscalls now exports functions POSIX:CRYPT, POSIX:ENCRYPT,
+  and POSIX:SETKEY.
+  See <http://clisp.cons.org/impnotes.html#syscalls> for details.
 
 
 2.33 (2004-03-17)

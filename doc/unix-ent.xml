@@ -20,14 +20,16 @@
 <!ENTITY unix-f "&unix-top;/functions">
 <!ENTITY accept "<ulink url='&unix-f;/accept.html'><function>accept</function></ulink>">
 <!ENTITY bind "<ulink url='&unix-f;/bind.html'><function>bind</function></ulink>">
-<!ENTITY close-c "<ulink url='&unix-f;/close.html'><function>close</function></ulink>">
 <!ENTITY calloc "<ulink url='&unix-f;/calloc.html'><function>calloc</function></ulink>">
+<!ENTITY close-c "<ulink url='&unix-f;/close.html'><function>close</function></ulink>">
 <!ENTITY confstr "<ulink url='&unix-f;/confstr.html'><function>confstr</function></ulink>">
 <!ENTITY connect "<ulink url='&unix-f;/connect.html'><function>connect</function></ulink>">
+<!ENTITY crypt "<ulink url='&unix-f;/crypt.html'><function>crypt</function></ulink>">
 <!ENTITY dlclose "<ulink url='&unix-f;/dlclose.html'><function>dlclose</function></ulink>">
 <!ENTITY dlopen "<ulink url='&unix-f;/dlopen.html'><function>dlopen</function></ulink>">
 <!ENTITY dlsym "<ulink url='&unix-f;/dlsym.html'><function>dlsym</function></ulink>">
 <!ENTITY dup "<ulink url='&unix-f;/dup.html'><function>dup/dup2</function></ulink>">
+<!ENTITY encrypt "<ulink url='&unix-f;/encrypt.html'><function>encrypt</function></ulink>">
 <!ENTITY errno "<ulink url='&unix-f;/errno.html'><varname>errno</varname></ulink>">
 <!ENTITY fcntl "<ulink url='&unix-f;/fcntl.html'><function>fcntl</function></ulink>">
 <!ENTITY free "<ulink url='&unix-f;/free.html'><function>free</function></ulink>">
@@ -61,6 +63,7 @@
 <!ENTITY send "<ulink url='&unix-f;/send.html'><function>send</function></ulink>">
 <!ENTITY sendmsg "<ulink url='&unix-f;/sendmsg.html'><function>sendmsg</function></ulink>">
 <!ENTITY sendto "<ulink url='&unix-f;/sendto.html'><function>sendto</function></ulink>">
+<!ENTITY setkey "<ulink url='&unix-f;/setkey.html'><function>setkey</function></ulink>">
 <!ENTITY setsockopt "<ulink url='&unix-f;/setsockopt.html'><function>setsockopt</function></ulink>">
 <!ENTITY shutdown "<ulink url='&unix-f;/shutdown.html'><function>shutdown</function></ulink>">
 <!ENTITY socket "<ulink url='&unix-f;/socket.html'><function>socket</function></ulink>">
@@ -77,7 +80,6 @@
 <!ENTITY wcstombs "<ulink url='&unix-f;/wcstombs.html'><function>wcstombs</function></ulink>">
 <!ENTITY wctomb "<ulink url='&unix-f;/wctomb.html'><function>wctomb</function></ulink>">
 <!ENTITY write-c "<ulink url='&unix-f;/write.html'><function>write</function></ulink>">
-
 
 <!-- header files -->
 <!ENTITY unix-b "&unix-top;/basedefs">

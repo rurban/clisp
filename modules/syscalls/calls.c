@@ -47,6 +47,9 @@
 #if defined(HAVE_SYS_STATVFS_H)
 # include <sys/statvfs.h>
 #endif
+#if defined(HAVE_CRYPT_H)
+# include <crypt.h>
+#endif
 
 #include <stdio.h>             /* for BUFSIZ */
 
@@ -222,6 +225,94 @@ DEFUN(POSIX:BOGOMIPS,)
 #undef VAL_D
 #undef VAL_ID
 
+#if defined(HAVE_CRYPT)
+DEFUN(POSIX::CRYPT, key salt) {
+  char *result;
+  STACK_0 = check_string(STACK_0);
+  STACK_1 = check_string(STACK_1);
+  with_string_0(STACK_0,GLO(misc_encoding),salt, {
+      with_string_0(STACK_1,GLO(misc_encoding),key, {
+          begin_system_call();
+          result = crypt(key,salt);
+          end_system_call();
+        });
+    });
+  if (result == NULL) OS_error;
+  VALUES1(asciz_to_string(result,GLO(misc_encoding)));
+  skipSTACK(2);
+}
+#endif
+#if defined(HAVE_ENCRYPT) || defined(HAVE_SETKEY)
+/* (encrypt (encrypt X t) nil) == X:
+   (let ((v (make-array 8 :element-type (quote (unsigned-byte 8)))) u)
+     (dotimes (i 8) (setf (aref v i) (random 256)))
+     (setq u (copy-seq v))
+     (print v) (os:encrypt v nil)
+     (print v) (os:encrypt v t)
+     (print v) (equalp v u))
+ the above should return T */
+/* move information from a bit vector to the char block
+ can trigger GC */
+static void get_block (char block[64], object vector) {
+  while (!bit_vector_p(Atype_8Bit,vector)
+         || vector_length(vector) != 8) {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(vector);          /* TYPE-ERROR slot DATUM */
+    pushSTACK(`(VECTOR (UNSIGNED-BYTE 8) 8)`); /* EXPECTED-TYPE */
+    pushSTACK(`(VECTOR (UNSIGNED-BYTE 8) 8)`); pushSTACK(vector);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
+    vector = value1;
+  }
+  {
+    uintL index=0, ii, jj, kk=0;
+    object dv = array_displace_check(vector,8,&index);
+    uint8* ptr1 = TheSbvector(dv)->data + index;
+    for (ii = 0; ii<8; ii++) {
+      uint8 bb = *ptr1++;
+      for (jj = 0; jj<8; jj++)
+        block[kk++] = ((bb & bit(jj)) != 0);
+    }
+  }
+}
+#endif
+#if defined(HAVE_ENCRYPT)
+/* the inverse of get_block(): move data from block to vector,
+ which is known to be a (VECTOR BIT) */
+static void set_block (char block[64], object vector) {
+  uintL index=0, ii, jj, kk=0;
+  object dv = array_displace_check(vector,8,&index);
+  uint8* ptr1 = TheSbvector(dv)->data + index;
+  for (ii = 0; ii<8; ii++) {
+    uint8 bb = 0;
+    for (jj = 0; jj<8; jj++)
+      bb |= (block[kk++]!=0) << jj;
+    *ptr1++ = bb;
+  }
+}
+DEFUN(POSIX::ENCRYPT, block flag) {
+  int flag = nullp(popSTACK());
+  char block[64];
+  get_block(block,STACK_0);
+  begin_system_call();
+  errno = 0; encrypt(block,flag);
+  if (errno) OS_error();
+  end_system_call();
+  set_block(block,STACK_0);
+  VALUES1(popSTACK());
+}
+#endif
+#if defined(HAVE_SETKEY)
+DEFUN(POSIX::SETKEY, key) {
+  char block[64];
+  get_block(block,popSTACK());
+  begin_system_call();
+  errno = 0; setkey(block);
+  if (errno) OS_error();
+  end_system_call();
+  VALUES0;
+}
+#endif
 
 /* ========= SYSTEM INFORMATION ========== */
 
