@@ -6,6 +6,24 @@
 (in-package "CLOS")
 
 
+(defgeneric class-name (class)
+  (:method ((class class))
+    (class-classname class)))
+
+(defgeneric (setf class-name) (new-value class)
+  (:method (new-value (class class))
+    (unless (symbolp new-value)
+      (error-of-type 'type-error
+        :datum new-value :expected-type 'symbol
+        (TEXT "~S: The name of a class must be a symbol, not ~S")
+        '(setf class-name) new-value))
+    (when (built-in-class-p class)
+      (error-of-type 'error
+        (TEXT "~S: The name of the built-in class ~S cannot be modified")
+        '(setf class-name) class))
+    (setf (class-classname class) new-value)))
+
+
 ;;; CLtL2 28.1.9., ANSI CL 7.1. Object Creation and Initialization
 
 ;; Cruel hack (CLtL2 28.1.9.2., ANSI CL 7.1.2.):
