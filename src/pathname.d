@@ -10601,8 +10601,9 @@ LISPFUNN(set_lib_directory,1) {
 
 #ifdef EXPORT_SYSCALLS
 
-# This piece of code is under the responsibility of Sam Steingold.
-
+/*
+ * This piece of code is under the responsibility of Sam Steingold.
+ */
 #ifdef UNIX
 
 #define PASSWD_TO_STACK(pwd)                                   \
@@ -10614,12 +10615,14 @@ LISPFUNN(set_lib_directory,1) {
   pushSTACK(asciz_to_string(pwd->pw_dir,O(misc_encoding)));    \
   pushSTACK(asciz_to_string(pwd->pw_shell,O(misc_encoding)))
 
-# return the data for the user as 7 values (slots of struct passwd)
-# or a list of simple vectors of length 7 if user is NIL
-# (POSIX::USER-DATA-INTERNAL user)
-# if you modify this function wrt its return values,
-# you should modify POSIX:USER-DATA in posix.lisp accordingly
-LISPFUN(user_data_,1,0,norest,nokey,0,NIL) {
+/*
+ * return the data for the user as 7 values (slots of struct passwd)
+ * or a list of simple vectors of length 7 if user is NIL
+ * (POSIX::USER-DATA-INTERNAL user)
+ * if you modify this function wrt its return values,
+ * you should modify POSIX:USER-DATA in posix.lisp accordingly
+ */
+LISPFUNN(user_data_,1) {
   var object user = popSTACK();
   struct passwd *pwd = NULL;
 
