@@ -1,10 +1,5 @@
 2004-03-08  Bruno Haible  <bruno@clisp.org>
 
-	* tests/hashlong.tst (symbole): Use DO-EXTERNAL-SYMBOLS, not
-	DO-SYMBOLS.
-
-2004-03-08  Bruno Haible  <bruno@clisp.org>
-
 	* lfloat.d (LF_LF_mal_LF): Fix the second underflow condition.
 
 2004-02-28  Bruno Haible  <bruno@clisp.org>
@@ -48,7 +43,6 @@
 	(long-form-method-combination-call-next-method-allowed): New function.
 	(method-combination AND APPEND ... PROGN +): Initialize the two new
 	method-combination slots.
-	* tests/clos.tst: Add test for test-mc-standard-bad-qualifiers.
 
 2004-03-08  Bruno Haible  <bruno@clisp.org>
 
