@@ -15343,7 +15343,7 @@ LISPFUNNR(stream_external_format,1)
 # If no direction is given, the operation is nonrecursive.
 LISPFUN(set_stream_external_format,seclass_default,2,1,norest,nokey,0,NIL) {
   STACK_2 = check_stream(STACK_2);
-  var object encoding = test_external_format_arg(STACK_1);
+  var object encoding = STACK_1 = test_external_format_arg(STACK_1);
   var object stream = STACK_2;
   var object direction = STACK_0;
  start:
