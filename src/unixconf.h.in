@@ -431,8 +431,6 @@
 #define WRITE_CONST
 
 /* CL_RENAME */
-/* Define if you have the rename() function. */
-#undef HAVE_RENAME
 /* Define as const if the declaration of rename() needs const. */
 #define RENAME_CONST
 

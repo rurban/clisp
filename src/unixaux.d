@@ -91,41 +91,6 @@
 
 # ==============================================================================
 
-#ifdef NEED_OWN_RENAME
-# Ein Ersatz für die rename-Funktion.
-  global int rename (const char* oldpath, const char* newpath);
-  global int rename(oldpath,newpath)
-    var const char* oldpath;
-    var const char* newpath;
-    { var int result;
-      if ((result = access(oldpath,0)) < 0) # oldpath überhaupt da?
-        { return result; }
-      if ((result = access(newpath,0)) < 0) # newpath auch da?
-        { if (!(errno==ENOENT)) return result; }
-        else
-        { # Überprüfe, ob oldpath und newpath dasselbe sind.
-          # Dann darf nämlich nichts gelöscht werden!
-          var struct stat oldstatbuf;
-          var struct stat newstatbuf;
-          if ((result = stat(oldpath,&oldstatbuf)) < 0) { return result; }
-          if ((result = stat(newpath,&newstatbuf)) < 0) { return result; }
-          if ((oldstatbuf.st_dev == newstatbuf.st_dev)
-              && (oldstatbuf.st_ino == newstatbuf.st_ino)
-             )
-            { return 0; }
-          if ((result = unlink(newpath)) < 0) # newpath löschen
-            { return result; }
-        }
-      if ((result = link(oldpath,newpath)) < 0) # newpath neu anlegen
-        { return result; }
-      if ((result = unlink(oldpath)) < 0) # oldpath kann nun gelöscht werden
-        { return result; }
-      return 0;
-    }
-#endif
-
-# ==============================================================================
-
 #ifdef EINTR
 
 #ifdef UNIX # EMUNIX und RISCOS brauchen das nicht
