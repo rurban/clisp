@@ -30,9 +30,9 @@ local uintC generation;
 # Same things as functions, calling a function, not a macro:
 # walk_physpage_(heapnr,physpage,pageend,heapend,walkstep);
 # walk_area_(heapnr,physpage_start,physpage_end,walkstep);
-  typedef void (*walkstep_fun)(gcv_object_t* ptr);
-  local void walk_physpage_ (uintL heapnr, const physpage_state* physpage, aint pageend, aint heapend, walkstep_fun walkstep);
-  local void walk_area_ (uintL heapnr, aint physpage_start, aint physpage_end, walkstep_fun walkstep);
+  typedef void (*walkstep_fun_t)(gcv_object_t* ptr);
+  local void walk_physpage_ (uintL heapnr, const physpage_state_t* physpage, aint pageend, aint heapend, walkstep_fun_t walkstep);
+  local void walk_area_ (uintL heapnr, aint physpage_start, aint physpage_end, walkstep_fun_t walkstep);
 
 # Builds a cache of all pointers inside the old generation.
 # This assumes that the new generation is empty, and therefore there are no
@@ -282,15 +282,15 @@ local uintC generation;
   # Same thing as functions.
 
   local void walk_area_ (uintL heapnr, aint physpage_start, aint physpage_end,
-                         walkstep_fun walkstep) {
+                         walkstep_fun_t walkstep) {
     #define walkstep1(obj)  walkstep(&(obj))
     walk_area(heapnr,physpage_start,physpage_end,walkstep1);
     #undef walkstep1
   }
 
-  local void walk_physpage_ (uintL heapnr, const physpage_state* physpage,
+  local void walk_physpage_ (uintL heapnr, const physpage_state_t* physpage,
                              aint pageend, aint heapend,
-                             walkstep_fun walkstep) {
+                             walkstep_fun_t walkstep) {
     #define walkstep1(obj)  walkstep(&(obj))
     walk_physpage(heapnr,physpage,pageend,heapend,walkstep1);
     #undef walkstep1
@@ -315,10 +315,10 @@ local uintC generation;
           # objptr < addr <= nextptr. (*Not* objptr <= addr < nextptr.) When a
           # page boundary is crossed, the continued_addr, continued_count, firstobject
           # fields of the physpage after it are set. Therefore, if gen0_end happens
-          # to lie on a page boundary, we need room for one more physpage_state.
+          # to lie on a page boundary, we need room for one more physpage_state_t.
           # It will only be written to, never really be used (because the page after
           # this last page boundary doesn't really exist).
-          heap->physpages = (physpage_state*) xrealloc(heap->physpages,(physpage_count+(gen0_end==gen0_end_pa))*sizeof(physpage_state));
+          heap->physpages = (physpage_state_t*) xrealloc(heap->physpages,(physpage_count+(gen0_end==gen0_end_pa))*sizeof(physpage_state_t));
           if (!(heap->physpages==NULL)) {
             #if defined(SELFMADE_MMAP) && !defined(SPVW_PURE_BLOCKS)
             # now at the latest the memory content has to be fetched from the mem-file.
@@ -338,7 +338,7 @@ local uintC generation;
             xmmprotect(heap, gen0_start_pa, gen0_end_pa-gen0_start_pa, PROT_READ);
             # fill heap->physpages[0..physpage_count-1] :
             {
-              var physpage_state* physpage = heap->physpages;
+              var physpage_state_t* physpage = heap->physpages;
               var uintL count;
               dotimespL(count,physpage_count, {
                 physpage->protection = PROT_READ;
@@ -349,7 +349,7 @@ local uintC generation;
             if (is_cons_heap(heapnr)) {
               # conses and similar
               # from gen0_start to gen0_end everything is a pointer.
-              var physpage_state* physpage = heap->physpages;
+              var physpage_state_t* physpage = heap->physpages;
               var uintL count;
               #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
               # all pages except the last are full, the last page is partly full.
@@ -384,7 +384,7 @@ local uintC generation;
               #endif
             } else {
               # is_varobject_heap(heapnr), objects of variable length
-              var physpage_state* physpage = heap->physpages;
+              var physpage_state_t* physpage = heap->physpages;
               var aint objptr = gen0_start;
               # for i=0,1,...:
               #   gen0_start = heap->heap_gen0_start + i*physpagesize
@@ -743,12 +743,12 @@ local uintC generation;
         var aint gen0_start = heap->heap_gen0_start;
         var aint gen0_end = heap->heap_gen0_end;
         if ((gen0_start < gen0_end) && !(heap->physpages==NULL)) {
-          var DYNAMIC_ARRAY(cache_buffer,old_new_pointer,physpagesize/sizeof(gcv_object_t));
-          var physpage_state* physpage = heap->physpages;
+          var DYNAMIC_ARRAY(cache_buffer,old_new_pointer_t,physpagesize/sizeof(gcv_object_t));
+          var physpage_state_t* physpage = heap->physpages;
           gen0_start &= -physpagesize;
           do {
             if (physpage->protection == PROT_READ_WRITE) {
-              var old_new_pointer* cache_ptr = &cache_buffer[0];
+              var old_new_pointer_t* cache_ptr = &cache_buffer[0];
               #ifdef TYPECODES
                 #define cache_at(obj)  \
                   { var tint type = mtypecode(obj);                                \
@@ -776,11 +776,11 @@ local uintC generation;
                 if (cache_size == 0) {
                   xfree(physpage->cache); physpage->cache = NULL;
                 } else {
-                  physpage->cache = (old_new_pointer*) xrealloc(physpage->cache,cache_size*sizeof(old_new_pointer));
+                  physpage->cache = (old_new_pointer_t*) xrealloc(physpage->cache,cache_size*sizeof(old_new_pointer_t));
                   if (physpage->cache == NULL)
                     goto no_cache;
-                  var old_new_pointer* ptr1 = &cache_buffer[0];
-                  var old_new_pointer* ptr2 = physpage->cache;
+                  var old_new_pointer_t* ptr1 = &cache_buffer[0];
+                  var old_new_pointer_t* ptr2 = physpage->cache;
                   dotimespL(cache_size,cache_size, { *ptr2++ = *ptr1++; } );
                 }
                 xmmprotect(heap,gen0_start,physpagesize,PROT_READ);
@@ -810,7 +810,7 @@ local uintC generation;
           var aint gen0_end_pa = (heap->heap_gen0_end + (physpagesize-1)) & -physpagesize;
           xmmprotect(heap, gen0_start_pa, gen0_end_pa-gen0_start_pa, PROT_READ);
           var uintL physpage_count = (gen0_end_pa-gen0_start_pa)>>physpageshift;
-          var physpage_state* physpage = heap->physpages;
+          var physpage_state_t* physpage = heap->physpages;
           var uintL count;
           dotimespL(count,physpage_count, {
             physpage->protection = PROT_READ;
@@ -838,13 +838,13 @@ local uintC generation;
               # first superimpose read-write:
               xmmprotect(heap, gen0_start, gen0_end-gen0_start, PROT_READ_WRITE);
               # then empty the cache:
-              var physpage_state* physpage = heap->physpages;
+              var physpage_state_t* physpage = heap->physpages;
               var uintL physpagecount;
               dotimespL(physpagecount, (gen0_end-gen0_start) >> physpageshift, {
                 if (physpage->protection == PROT_NONE) {
                   var uintL count = physpage->cache_size;
                   if (count > 0) {
-                    var old_new_pointer* ptr = physpage->cache;
+                    var old_new_pointer_t* ptr = physpage->cache;
                     dotimespL(count,count, { *(ptr->p) = ptr->o; ptr++; } );
                   }
                 }
@@ -885,7 +885,7 @@ local uintC generation;
 #endif
 
 #if defined(DEBUG_SPVW) && defined(GENERATIONAL_GC)
-  # control of the cache of the old_new_pointer:
+  # control of the cache of the old_new_pointer_t:
   #define CHECK_GC_CACHE()  gc_cache_check()
   local void gc_cache_check (void);
   local void gc_cache_check()
@@ -900,7 +900,7 @@ local uintC generation;
           var aint gen0_end_pa = (gen0_end + (physpagesize-1)) & -physpagesize; # page-aligned
           var uintL physpage_count = (gen0_end_pa - gen0_start_pa) >> physpageshift;
           if (physpage_count > 0) {
-            var physpage_state* physpage = heap->physpages;
+            var physpage_state_t* physpage = heap->physpages;
             if (!(physpage==NULL)) {
               var uintL count;
               dotimespL(count,physpage_count, {
@@ -973,14 +973,14 @@ local uintC generation;
             if (heap->physpages==NULL) {
               walk_area_(heapnr,gen0_start,gen0_end,gc_check_at); # fallback
             } else {
-              var physpage_state* physpage = heap->physpages;
+              var physpage_state_t* physpage = heap->physpages;
               gen0_start &= -physpagesize;
               do {
                 if (physpage->protection == PROT_READ) {
                   # do the pointers in the Cache and in the page match?
                   var uintL count = physpage->cache_size;
                   if (count > 0) {
-                    var old_new_pointer* ptr = physpage->cache;
+                    var old_new_pointer_t* ptr = physpage->cache;
                     var aint last_p = gen0_start-1;
                     dotimespL(count,count, {
                       if (!eq(*(ptr->p),ptr->o))
@@ -997,7 +997,7 @@ local uintC generation;
                   # take advantage of cache, traverse cached pointers:
                   var uintL count = physpage->cache_size;
                   if (count > 0) {
-                    var old_new_pointer* ptr = physpage->cache;
+                    var old_new_pointer_t* ptr = physpage->cache;
                     dotimespL(count,count, { gc_check_at(&ptr->o); ptr++; } );
                   }
                 } else {
@@ -1013,12 +1013,12 @@ local uintC generation;
   #define SAVE_GC_DATA()  save_gc_data()
   local void save_gc_data (void);
   typedef struct gc_data { struct gc_data * next; Heap heaps[heapcount]; } *
-          gc_data_list;
-  local var gc_data_list gc_history;
+          gc_data_list_t;
+  local var gc_data_list_t gc_history;
   local void save_gc_data()
     {
       # copy the current GC-data to the head of the list gc_history :
-      var gc_data_list new_data = (struct gc_data *) malloc(sizeof(struct gc_data));
+      var gc_data_list_t new_data = MALLOC(1,struct gc_data);
       if (!(new_data==NULL)) {
         var uintL heapnr;
         for (heapnr=0; heapnr<heapcount; heapnr++) {
@@ -1029,9 +1029,9 @@ local uintC generation;
               (((heap->heap_gen0_end + (physpagesize-1)) & -physpagesize)
                - (heap->heap_gen0_start & -physpagesize)
               ) >> physpageshift;
-            var physpage_state* physpages = NULL;
+            var physpage_state_t* physpages = NULL;
             if (physpagecount > 0)
-              physpages = (physpage_state*) malloc(physpagecount*sizeof(physpage_state));
+              physpages = MALLOC(physpagecount,physpage_state_t);
             if (!(physpages==NULL)) {
               var uintL i;
               for (i=0; i<physpagecount; i++) {
@@ -1039,9 +1039,9 @@ local uintC generation;
                 if (!(physpages[i].cache==NULL)) {
                   var uintC cache_size = physpages[i].cache_size;
                   if (cache_size > 0) {
-                    var old_new_pointer* cache = (old_new_pointer*) malloc(cache_size*sizeof(old_new_pointer));
+                    var old_new_pointer_t* cache = MALLOC(cache_size,old_new_pointer_t);
                     if (!(cache==NULL)) {
-                      var old_new_pointer* old_cache = physpages[i].cache;
+                      var old_new_pointer_t* old_cache = physpages[i].cache;
                       var uintC j;
                       for (j=0; j<cache_size; j++)
                         cache[j] = old_cache[j];

@@ -1094,6 +1094,8 @@
   extern_C void* alloca (int size); # see MALLOC(3V)
 #endif
 
+#define MALLOC(size,type)   (type*)malloc((size)*sizeof(type))
+
 # Synonyms for Byte, Word, Longword:
 # SBYTE   = signed 8 bit integer
 # UBYTE   = unsigned 8 bit int
