@@ -1,7 +1,6 @@
 ;;; Indentation style for CLISP sources                      -*- Emacs-Lisp -*-
 ;;; Load this file from ~/.emacs or ~/.emacs.el
-;;; Tested with XEmacs 21.1.7.
-
+;;; Tested with XEmacs 21.1.7, Emacs 20,21
 
 ;;; General
 
@@ -195,18 +194,21 @@ Special commands:
 Turning on D mode calls the value of the variable `d-mode-hook',
 if that value is non-nil.
 If you are using Emacs 20.2 or earlier (including XEmacs) and want to
-use fontifications, you have to (require 'font-lock) first.  Sorry.")
+use fontifications, you have to (require 'font-lock) first.  Sorry."
+  (set (make-local-variable 'font-lock-defaults)
+       (cdr (assq 'c-mode font-lock-defaults-alist))))
 (when window-system
   (if (boundp 'running-xemacs)
       (put 'd-mode 'font-lock-defaults (get 'c-mode 'font-lock-defaults))
-      (unless (assq 'd-mode font-lock-defaults-alist)
+      (when (and (> 21 emacs-major-version)
+                 (null (assq 'd-mode font-lock-defaults-alist)))
         (setq font-lock-defaults-alist
               (cons (cons 'd-mode
                           (cdr (assq 'c-mode font-lock-defaults-alist)))
                     font-lock-defaults-alist)))))
-(modify-syntax-entry ?# "<" d-mode-syntax-table)
-(modify-syntax-entry 10 ">" d-mode-syntax-table)
-
+(modify-syntax-entry ?# ". 1" d-mode-syntax-table)
+(modify-syntax-entry 32 "- 2" d-mode-syntax-table) ; space
+(modify-syntax-entry 10 "> b" d-mode-syntax-table) ; newline
 
 ;;; Permit the user to load this file using (require 'clisp-indent).
 (provide 'clisp-indent)
