@@ -1,5 +1,9 @@
 1999-07-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * record.d (CLOS::%ALLOCATE-INSTANCE): Fix typo in error message.
+
+1999-07-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * asmi386.sh: New optional argument -no-C.
         * Makefile.devel (src/ari80386.msvc.c, src/sp80386.msvc.c): Pass
           option -no-C to asmi386.sh.
