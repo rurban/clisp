@@ -3482,19 +3482,22 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
       if (!GetFileInformationByHandle(handle1,&fileinfo1)) { OS_error(); }
       if (!GetFileInformationByHandle(handle2,&fileinfo2)) { OS_error(); }
       end_system_call();
+     #define TIME_EQ(ft1,ft2) (ft1.dwLowDateTime == ft2.dwLowDateTime &&     \
+                               ft1.dwHighDateTime == ft2.dwHighDateTime)
       return (fileinfo1.dwVolumeSerialNumber == fileinfo2.dwVolumeSerialNumber
               && fileinfo1.nFileIndexLow == fileinfo2.nFileIndexLow
               && fileinfo1.nFileIndexHigh == fileinfo2.nFileIndexHigh
               /* Comparing the other members of the BY_HANDLE_FILE_INFORMATION
                  structure shouldn't be necessary, but doesn't hurt either. */
               && fileinfo1.dwFileAttributes == fileinfo2.dwFileAttributes
-              && fileinfo1.ftCreationTime == fileinfo2.ftCreationTime
-              && fileinfo1.ftLastAccessTime == fileinfo2.ftLastAccessTime
-              && fileinfo1.ftLastWriteTime == fileinfo2.ftLastWriteTime
+              && TIME_EQ(fileinfo1.ftCreationTime,fileinfo2.ftCreationTime)
+              && TIME_EQ(fileinfo1.ftLastAccessTime,fileinfo2.ftLastAccessTime)
+              && TIME_EQ(fileinfo1.ftLastWriteTime,fileinfo2.ftLastWriteTime)
               && fileinfo1.nFileSizeLow == fileinfo2.nFileSizeLow
               && fileinfo1.nFileSizeHigh == fileinfo2.nFileSizeHigh
               && fileinfo1.nNumberOfLinks == fileinfo2.nNumberOfLinks);
-    } else (filetype1 == FILE_TYPE_CHAR) {
+     #undef TIME_EQ
+    } else if (filetype1 == FILE_TYPE_CHAR) {
       /* Same console? */
       var DWORD console_mode;
       if (GetConsoleMode(handle1,&console_mode)
