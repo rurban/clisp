@@ -1,3 +1,8 @@
+2002-04-12  Peter Burwood  <clisp@peterb.org.uk>
+
+	* stream.d (finish_tty_output) [UNIX_CYGWIN32]: ignore EBADF from
+	fsync, just like in force_tty_output()
+
 2002-04-12  Sam Steingold  <sds@gnu.org>
 
 	*BROWSERS* and *BROWSER* are in CUSTOM, as advertised

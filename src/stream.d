@@ -3176,6 +3176,9 @@ local object test_external_format_arg (object arg) {
           #if defined(UNIX_IRIX) || defined(EMUNIX)
           if (!(errno==ENOSYS))
           #endif
+          #ifdef UNIX_CYGWIN32
+          if (errno != EBADF)
+          #endif
           if (!(errno==EINVAL))
             { OS_error(); }
         #endif
