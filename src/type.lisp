@@ -1267,7 +1267,7 @@
 ;;   type  with  `(OR ,type (MEMBER 0))
 #| ;; The original implementation calls canonicalize-type and then applies
    ;; a particular SUBTYPE variant:
-(defun subtype-integer (type)
+ (defun subtype-integer (type)
   (macrolet ((yes () '(return-from subtype-integer (values low high)))
              (no () '(return-from subtype-integer nil))
              (unknown () '(return-from subtype-integer nil)))
@@ -1279,8 +1279,7 @@
           (let ((low 0) (high 0)) ; wlog!
             (dolist (x (rest type) (yes))
               (unless (typep x 'INTEGER) (return (no)))
-              (setq low (min low x) high (max high x))
-        ) ) )
+              (setq low (min low x) high (max high x)))))
         (OR ; (OR type*)
           ;; Every type must be subtype of INTEGER.
           (let ((low 0) (high 0)) ; wlog!
@@ -1288,8 +1287,8 @@
               (multiple-value-bind (low1 high1) (subtype-integer type1)
                 (unless low1 (return (no)))
                 (setq low (if (or (eq low '*) (eq low1 '*)) '* (min low low1))
-                      high (if (or (eq high '*) (eq high1 '*)) '* (max high high1))
-        ) ) ) ) )
+                      high (if (or (eq high '*) (eq high1 '*))
+                               '* (max high high1)))))))
         (AND ; (AND type*)
           ;; If one of the types is subtype of INTEGER, then yes,
           ;; otherwise unknown.
@@ -1299,41 +1298,28 @@
                 (when low1
                   (if low
                     (setq low (if (eq low '*) low1 (if (eq low1 '*) low (max low low1)))
-                          high (if (eq high '*) high1 (if (eq high1 '*) high (min high high1)))
-                    )
-                    (setq low low1
-                          high high1
-            ) ) ) ) )
+                          high (if (eq high '*) high1 (if (eq high1 '*) high (min high high1))))
+                    (setq low low1 high high1)))))
             (if low
               (progn
                 (when (and (numberp low) (numberp high) (not (<= low high)))
-                  (setq low 0 high 0) ; type equivalent to NIL
-                )
-                (yes)
-              )
-              (unknown)
-        ) ) )
-      )
-      (setq type (list type))
-    )
+                  (setq low 0 high 0) ; type equivalent to NIL)
+                (yes))
+              (unknown)))))
+      (setq type (list type)))
     (if (eq (first type) 'INTEGER)
       (let ((low (if (rest type) (second type) '*))
             (high (if (cddr type) (third type) '*)))
         (when (consp low)
           (setq low (first low))
-          (when (numberp low) (incf low))
-        )
+          (when (numberp low) (incf low)))
         (when (consp high)
           (setq high (first high))
-          (when (numberp high) (decf high))
-        )
+          (when (numberp high) (decf high)))
         (when (and (numberp low) (numberp high) (not (<= low high))) ; type leer?
-          (setq low 0 high 0)
-        )
-        (yes)
-      )
-      (unknown)
-) ) )
+          (setq low 0 high 0))
+        (yes))
+      (unknown))))
 |# ;; This implementation inlines the (tail-recursive) canonicalize-type
    ;; function. Its advantage is that it doesn't cons as much.
    ;; (For example, (subtype-integer '(UNSIGNED-BYTE 8)) doesn't cons.)
@@ -1450,39 +1436,36 @@
           ((encodingp type) (no))
           (t (typespec-error 'subtypep type)))))
 
-#| Zu tun:
-SUBTYPEP so verbessern, dass
-(let ((l '(ARRAY BASE-CHAR BASE-STRING BIT-VECTOR BOOLEAN CHARACTER COMPLEX
+#| TODO:
+improve SUBTYPEP so that
+ (let ((l '(ARRAY BASE-CHAR BASE-STRING BIT-VECTOR BOOLEAN CHARACTER COMPLEX
            CONS FLOAT FUNCTION CLOS:GENERIC-FUNCTION HASH-TABLE INTEGER LIST
            NULL NUMBER PACKAGE PATHNAME #+LOGICAL-PATHNAMES LOGICAL-PATHNAME
            RANDOM-STATE RATIONAL READTABLE REAL SEQUENCE
-           CLOS:STANDARD-GENERIC-FUNCTION STREAM STRING SYMBOL VECTOR
-     ))   )
+           CLOS:STANDARD-GENERIC-FUNCTION STREAM STRING SYMBOL VECTOR)))
   (dolist (a l)
     (dolist (b l)
       (unless (or (subtypep a b) (subtypep b a))
         (unless (equal (multiple-value-list (subtypep `(AND ,a ,b) 'NIL))
-                       '(nil t)
-                )
-          (print (list a b))
-) ) ) ) )
-möglichst wenig ausgibt.
+                       '(nil t))
+          (print (list a b)))))))
+prints as little as possible
 
 Henry Baker:
-(defun type-null (x)
+ (defun type-null (x)
   (values (and (eq 'bit (upgraded-array-element-type `(or bit ,x)))
                (not (typep 0 x))
                (not (typep 1 x)))
           t))
-(type-null '(and symbol number))
-(type-null '(and integer symbol))
-(type-null '(and integer character))
-(subtypep '(and symbol number) 'nil)
-(subtypep '(array t (2 5)) '(or (array t (2 3 4)) (array t (2 4))))
-(subtypep '(array t (2 5)) '(not (or (array t (2 3 4)) (array t (2 5)))))
-(subtypep '(array t (2 5)) '(not (or (array t (2 3 4)) (array t (2 4)))))
-(subtypep '(ratio 2/3 1) '(ratio 4/5 1))
-(subtypep '(rational 4/5 1) '(or (member 1) (rational 2/3 (1))))
+ (type-null '(and symbol number))
+ (type-null '(and integer symbol))
+ (type-null '(and integer character))
+ (subtypep '(and symbol number) 'nil)
+ (subtypep '(array t (2 5)) '(or (array t (2 3 4)) (array t (2 4))))
+ (subtypep '(array t (2 5)) '(not (or (array t (2 3 4)) (array t (2 5)))))
+ (subtypep '(array t (2 5)) '(not (or (array t (2 3 4)) (array t (2 4)))))
+ (subtypep '(ratio 2/3 1) '(ratio 4/5 1))
+ (subtypep '(rational 4/5 1) '(or (member 1) (rational 2/3 (1))))
 
 Calling (equal type1 type2) is wrong: they may be MEMBER or EQL specifiers
 referring to circular lists.
