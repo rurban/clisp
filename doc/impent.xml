@@ -669,9 +669,6 @@
    <entry>#xE</entry><entry>#xF</entry></row></thead>">
 <!ENTITY key-value-header
  " <thead><row><entry>key</entry><entry>value</entry></row></thead>">
-<!ENTITY elt-val-meaning-header
- " <thead><row><entry>element</entry><entry>values</entry>
-         <entry>meaning</entry></row></thead>">
 <!ENTITY cc "<entry>**</entry>"> <!-- control character -->
 <!ENTITY char-table-legend "Here ** are control characters, not graphic
   characters.  (The characters left blank here cannot be represented in
@@ -727,9 +724,6 @@
 <!ENTITY file-slash "<filename>&quot;/&quot;</filename>">
 <!ENTITY file-bsla  "<filename>&quot;\&quot;</filename>">
 <!ENTITY file-colon "<filename>&quot;:&quot;</filename>">
-<!ENTITY file-hash  "<filename>&quot;#&quot;</filename>">
-<!ENTITY file-doll  "<filename>&quot;$&quot;</filename>">
-<!ENTITY file-dash  "<filename>&quot;-&quot;</filename>">
 <!ENTITY file-letter-lc "<filename>a</filename>|...|<filename>z</filename>">
 <!ENTITY file-letter-uc "<filename>A</filename>|...|<filename>Z</filename>">
 <!ENTITY defaults-r "<replaceable>defaults</replaceable>">
@@ -738,31 +732,35 @@
 <!ENTITY startpoint-r "<replaceable>startpoint</replaceable>">
 <!ENTITY subdir-r "<replaceable>subdir</replaceable>">
 <!ENTITY always-nil "<listitem><simpara>always &nil;</simpara></listitem>">
-<!ENTITY string-or-nil "<listitem><simpara>&nil; or a
-  &simple-string-t;</simpara></listitem>">
-<!ENTITY wild-string-or-nil "<listitem><simpara>&nil; or &simple-string-t;,
-  &maybe-wild;</simpara></listitem>">
 <!ENTITY path-comps "<title>Pathname components</title>">
+<!ENTITY unix-win32-dir-name-type-version
+ "<varlistentry><term><code>&directory-r; = (&startpoint-r;
+  . <replaceable>subdirs</replaceable>)</code></term>
+ <listitem><informaltable frame='all'>
+ <tgroup cols='2' colsep='1' rowsep='1' align='center'>
+  <thead><row><entry>element</entry><entry>values</entry>
+    <entry>meaning</entry></row></thead><tbody>
+   <row><entry>&startpoint-r;</entry>
+    <entry>&relative-k; | &absolute-k;</entry><entry/></row>
+   <row><entry><replaceable>subdirs</replaceable></entry>
+    <entry><literal role='data'>()</literal> | <literal role='data'>(&subdir-r;
+      . <replaceable>subdirs</replaceable>)</literal></entry><entry/></row>
+   <row><entry>&subdir-r;</entry>
+    <entry>&wild-inferiors-k;</entry><entry><filename>**</filename> or
+     <filename>...</filename>, all subdirectories</entry></row>
+   <row><entry>&subdir-r;</entry><entry>&simple-string-t;,
+     &maybe-wild;</entry><entry/></row>
+ </tbody></tgroup></informaltable></listitem></varlistentry>
+ <varlistentry><term>&name-r;</term><term>&type-r;</term>
+  <listitem><simpara>&nil; or &simple-string-t;, &maybe-wild;
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><replaceable>version</replaceable></term>
+  <listitem><simpara>&nil; or &wild-k; or &newest-k;
+    (after merging the defaults)</simpara></listitem></varlistentry>">
 <!ENTITY maybe-wild "may contain wildcard characters &file-ques; and
   &file-star; (may also be specified as &wild-k;)">
-<!ENTITY version-nil
- "<varlistentry><term><replaceable>version</replaceable></term>
-   <listitem><simpara>always &nil; (may also be specified as &wild-k; or
-   &newest-k;)</simpara></listitem></varlistentry>">
 <!ENTITY name-type-split "filename is <link
    linkend='name-type-split'>split into name and type</link>.">
-<!ENTITY dir-term "<term><code>&directory-r; = (&startpoint-r;
-   . <replaceable>subdirs</replaceable>)</code></term>">
-<!ENTITY startp-rel-abs "<row><entry>&startpoint-r;</entry>
-   <entry>&relative-k; | &absolute-k;</entry></row>">
-<!ENTITY subdirs-def "<row><entry><replaceable>subdirs</replaceable></entry>
-   <entry><literal role='data'>()</literal> | <literal role='data'>(&subdir-r;
-   . <replaceable>subdirs</replaceable>)</literal></entry></row>">
-<!ENTITY subdir-string-or-wild " <row><entry>&subdir-r;</entry>
-  <entry>&wild-inferiors-k;</entry><entry><filename>**</filename> or
-  <filename>...</filename>, all subdirectories </entry></row>
- <row><entry>&subdir-r;</entry><entry>&simple-string-t;,
-   &maybe-wild;</entry><entry/></row>">
 <!ENTITY foo-f "<filename>#P&quot;foo&quot;</filename>">
 <!ENTITY bar-f "<filename>#P&quot;bar&quot;</filename>">
 <!ENTITY foolisp-f "<filename>#P&quot;foo.lisp&quot;</filename>">
