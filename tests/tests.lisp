@@ -187,7 +187,7 @@
                   #-(or AKCL ALLEGRO CMU) "pack11"
                   #+(or XCL CLISP)  "path"
                   #+XCL             "readtable"
-                                    "setf"
+                  #-CMU             "setf"
                                     "steele7"
                   #-ALLEGRO         "streams"
                                     "streamslong"

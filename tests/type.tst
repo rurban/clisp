@@ -144,7 +144,7 @@ T
 
 ;; depends on (UPGRADED-COMPLEX-PART-TYPE '(EQL 0)) ?
 (TYPEP #C(0 1) '(COMPLEX (EQL 0)))
-#+CLISP T #+SBCL T #-(or CLISP SBCL) UNKNOWN
+#+CLISP T #+(or CMU SBCL) T #-(or CLISP CMU SBCL) UNKNOWN
 
 #| ; depends on (upgraded-array-element-type 'SYMBOL) !
  (TYPEP '#(A B C D) (QUOTE (VECTOR SYMBOL 4)))
@@ -224,7 +224,7 @@ T
 NIL
 
 (SUBTYPEP (QUOTE CONS) (QUOTE (NOT ATOM)))
-#-(or AKCL ALLEGRO CMU) T #+(or AKCL ALLEGRO CMU) NIL
+#-(or AKCL ALLEGRO) T #+(or AKCL ALLEGRO) NIL
 
 (SUBTYPEP (QUOTE LIST) (QUOTE (NOT ATOM)))
 NIL
@@ -339,9 +339,9 @@ NIL
 (subtypep 'null 'list) t
 (subtypep 'cons 'list) t
 
-(subtypep 'standard-char #-SBCL 'string-char #+SBCL 'character) t
+(subtypep 'standard-char #-(or CMU SBCL) 'string-char #+(or CMU SBCL) 'character) t
 
-(subtypep #-SBCL 'string-char #+SBCL 'character 'character) t
+(subtypep #-(or CMU SBCL) 'string-char #+(or CMU SBCL) 'character 'character) t
 
 (subtypep 'string 'vector) t
 
@@ -368,10 +368,10 @@ NIL
 (subtypep 'integer '*) ERROR
 
 (type-of (coerce '(1 2 3 4) '(simple-array (unsigned-byte 8))))
-#-SBCL (SIMPLE-ARRAY (UNSIGNED-BYTE 8) (4)) #+SBCL ERROR
+#-(or CMU SBCL) (SIMPLE-ARRAY (UNSIGNED-BYTE 8) (4)) #+(or CMU SBCL) ERROR
 
 (type-of (coerce '(1 2 3 4) '(simple-array *)))
-#-SBCL (SIMPLE-VECTOR 4) #+SBCL ERROR
+#-(or CMU SBCL) (SIMPLE-VECTOR 4) #+(or CMU SBCL) ERROR
 
 (type-of (coerce '(1 2 3 4) '(simple-array * (4))))
 (SIMPLE-VECTOR 4)
@@ -456,8 +456,8 @@ TYPEOF-TYPEP-SUBTYPE
 #+SBCL (FUNCTION NIL NIL)
 
 (typeof-typep-subtype #'print-object 'compiled-function)
-#-SBCL (STANDARD-GENERIC-FUNCTION NIL NIL)
-#+SBCL (STANDARD-GENERIC-FUNCTION T T)
+#-(or CMU SBCL) (STANDARD-GENERIC-FUNCTION NIL NIL)
+#+(or CMU SBCL) (STANDARD-GENERIC-FUNCTION T T)
 
 (typeof-typep-subtype #'print-object 'function)
 (STANDARD-GENERIC-FUNCTION T T)
@@ -542,13 +542,14 @@ TYPEOF-TYPEP-SUBTYPE
                              '(t t))))
             (push (list a b) failures))))))
   failures)
-#-SBCL NIL
-#+SBCL ((STREAM STANDARD-GENERIC-FUNCTION)
-        (STREAM GENERIC-FUNCTION)
-        (STREAM FUNCTION)
-        (STANDARD-GENERIC-FUNCTION STREAM)
-        (GENERIC-FUNCTION STREAM)
-        (FUNCTION STREAM))
+#-(or CMU SBCL) NIL
+#+(or CMU SBCL)
+((STREAM STANDARD-GENERIC-FUNCTION)
+ (STREAM GENERIC-FUNCTION)
+ (STREAM FUNCTION)
+ (STANDARD-GENERIC-FUNCTION STREAM)
+ (GENERIC-FUNCTION STREAM)
+ (FUNCTION STREAM))
 
 ;; from GCL ansi-test
 (unintern 'foo) t

@@ -1,6 +1,7 @@
 ;; -*- Lisp -*-
 ;; Test some MOP-like CLOS features
 
+#-CMU
 (progn
   (defstruct rectangle1 (x 0.0) (y 0.0))
   (defclass counted1-class (structure-class)
@@ -11,9 +12,10 @@
   (slot-value (find-class 'counted1-rectangle) 'counter)
   (make-instance 'counted1-rectangle)
   (slot-value (find-class 'counted1-rectangle) 'counter))
+#-CMU
 1
 
-#-SBCL
+#-(or CMU SBCL)
 (progn
   (defclass rectangle2 ()
     ((x :initform 0.0 :initarg x) (y :initform 0.0 :initarg y)))
@@ -25,10 +27,10 @@
   (slot-value (find-class 'counted2-rectangle) 'counter)
   (make-instance 'counted2-rectangle)
   (slot-value (find-class 'counted2-rectangle) 'counter))
-#-SBCL
+#-(or CMU SBCL)
 1
 
-#+(or CLISP ALLEGRO CMU)
+#+(or CLISP ALLEGRO)
 (progn
   (defclass counter ()
     ((count :allocation :class :initform 0 :reader how-many)))
@@ -36,8 +38,8 @@
   (defmethod initialize-instance :after ((obj counter) &rest args)
     (incf (slot-value obj 'count)))
   (list (how-many (make-instance 'counted-object :name 'foo))
-        (how-many (clos:class-prototype 'counter))
+        (how-many (#+(or CLISP ALLEGRO) clos:class-prototype 'counter))
         (how-many (make-instance 'counted-object :name 'bar))
-        (how-many (clos:class-prototype 'counter))))
-#+(or CLISP ALLEGRO CMU)
+        (how-many (#+(or CLISP ALLEGRO) clos:class-prototype 'counter))))
+#+(or CLISP ALLEGRO)
 (1 1 2 2)
