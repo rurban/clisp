@@ -61,11 +61,6 @@ vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
         __vaword word5, __vaword word6, __vaword word7, __vaword word8,
         __vaword firstword)
 {
-  /* gcc-2.6.3 behaves as if stack space were already allocated for
-   * word1,...,word8, but it isn't.
-   */
-  sp -= 8*sizeof(__vaword);
-  __asm__ __volatile__ ("");
   /* Move the arguments passed in registers to their stack locations. */
   (&firstword)[-8] = iarg0; /* word1 */
   (&firstword)[-7] = iarg1; /* word2 */
@@ -315,6 +310,4 @@ vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
       }
     }
   }
-  __asm__ __volatile__ ("");
-  sp += 8*sizeof(__vaword);
 }}

@@ -5,10 +5,10 @@
 	DECLARE_FUNCTION(vacall)
 C(vacall:)
 	link $a6,#-32
-	moveml #0x3830,$sp@-
+	moveml #0x3020,$sp@-
 	clrl $a6@(-32)
-	lea $a6@(8),$a3
-	movel $a3,$a6@(-28)
+	lea $a6@(8),$a2
+	movel $a2,$a6@(-28)
 	clrl $a6@(-24)
 	clrl $a6@(-20)
 	movel $a1,$a6@(-4)
@@ -16,164 +16,164 @@ C(vacall:)
 	movel C(vacall_function),$a2
 	jbsr $a2@
 	addql #4,$sp
-	movel $a6@(-20),$a2
-	movel $a2,$d3
-	jeq L3
-	moveq #1,$d4
-	cmpl $a2,$d4
-	jeq L48
-	moveq #2,$d4
-	cmpl $a2,$d4
-	jne L6
-L48:
+	movel $a6@(-20),$d2
+	jeq L4
+	moveq #1,$d3
+	cmpl $d2,$d3
+	jeq L49
+	moveq #2,$d3
+	cmpl $d2,$d3
+	jne L7
+L49:
 	moveb $a6@(-12),$d0
 	extbl $d0
-	jra L3
+	jra L4
 	.even
-L6:
-	moveq #3,$d4
-	cmpl $a2,$d4
-	jne L8
+L7:
+	moveq #3,$d3
+	cmpl $d2,$d3
+	jne L9
 	clrl $d0
 	moveb $a6@(-12),$d0
-	jra L3
+	jra L4
 	.even
-L8:
-	moveq #4,$d4
-	cmpl $a2,$d4
-	jne L10
+L9:
+	moveq #4,$d3
+	cmpl $d2,$d3
+	jne L11
 	movew $a6@(-12),$d0
 	extl $d0
-	jra L3
+	jra L4
 	.even
-L10:
-	moveq #5,$d4
-	cmpl $a2,$d4
-	jne L12
+L11:
+	moveq #5,$d3
+	cmpl $d2,$d3
+	jne L13
 	clrl $d0
 	movew $a6@(-12),$d0
-	jra L3
+	jra L4
 	.even
-L12:
-	moveq #6,$d4
-	cmpl $a2,$d4
-	jeq L49
-	moveq #7,$d4
-	cmpl $a2,$d4
-	jeq L49
-	moveq #8,$d4
-	cmpl $a2,$d4
-	jeq L49
-	moveq #9,$d4
-	cmpl $a2,$d4
-	jne L20
-L49:
+L13:
+	moveq #6,$d3
+	cmpl $d2,$d3
+	jeq L50
+	moveq #7,$d3
+	cmpl $d2,$d3
+	jeq L50
+	moveq #8,$d3
+	cmpl $d2,$d3
+	jeq L50
+	moveq #9,$d3
+	cmpl $d2,$d3
+	jne L21
+L50:
 	movel $a6@(-12),$d0
-	jra L3
+	jra L4
 	.even
-L20:
-	moveq #-10,$d2
-	addl $a2,$d2
-	moveq #1,$d4
-	cmpl $d2,$d4
-	jcs L22
+L21:
+	moveq #-10,$d3
+	addl $d3,$d2
+	moveq #1,$d3
+	cmpl $d2,$d3
+	jcs L23
 	movel $a6@(-12),$d0
 	movel $a6@(-8),$d1
-	jra L3
+	jra L4
 	.even
-L22:
-	moveq #12,$d4
-	cmpl $d3,$d4
-	jne L24
+L23:
+	movel $a6@(-20),$d2
+	moveq #12,$d3
+	cmpl $d2,$d3
+	jne L25
 	movel $a6@(-32),$d2
 	btst #6,$d2
-	jeq L25
+	jeq L26
 	fmoves $a6@(-12),$fp0
-	jra L3
+	jra L4
 	.even
-L25:
+L26:
 	btst #5,$d2
-	jeq L27
+	jeq L28
 	fmoves $a6@(-12),$fp1
 	fmoved $fp1,$sp@-
 	movel $sp@+,$d0
 	movel $sp@+,$d1
-	jra L3
+	jra L4
 	.even
-L27:
+L28:
 	movel $a6@(-12),$d0
-	jra L3
+	jra L4
 	.even
-L24:
-	moveq #13,$d4
-	cmpl $a2,$d4
-	jne L30
+L25:
+	moveq #13,$d3
+	cmpl $d2,$d3
+	jne L31
 	btst #6,$a6@(-29)
-	jeq L31
+	jeq L32
 	fmoved $a6@(-12),$fp0
-	jra L3
+	jra L4
 	.even
-L31:
+L32:
 	movel $a6@(-12),$d0
 	movel $a6@(-8),$d1
-	jra L3
+	jra L4
 	.even
-L30:
-	moveq #14,$d4
-	cmpl $a2,$d4
-	jne L34
+L31:
+	moveq #14,$d3
+	cmpl $d2,$d3
+	jne L35
 	movel $a6@(-12),$d0
-	jra L50
+	jra L51
 	.even
-L34:
-	moveq #15,$d4
-	cmpl $a2,$d4
-	jne L3
-	movel $a6@(-32),$d3
-	btst #10,$d3
-	jeq L37
-	movel $a6@(-16),$d2
-	moveq #1,$d4
-	cmpl $d2,$d4
-	jne L38
+L35:
+	moveq #15,$d3
+	cmpl $d2,$d3
+	jne L4
+	movel $a6@(-32),$d2
+	btst #10,$d2
+	jeq L38
+	movel $a6@(-16),$a2
+	moveq #1,$d3
+	cmpl $a2,$d3
+	jne L39
 	movel $a6@(-24),$a2
 	clrl $d0
 	moveb $a2@,$d0
-	jra L3
+	jra L4
 	.even
-L38:
-	moveq #2,$d4
-	cmpl $d2,$d4
-	jne L41
+L39:
+	moveq #2,$d3
+	cmpl $a2,$d3
+	jne L42
 	movel $a6@(-24),$a2
 	clrl $d0
 	movew $a2@,$d0
-	jra L3
+	jra L4
 	.even
-L41:
-	moveq #4,$d4
-	cmpl $d2,$d4
-	jne L43
+L42:
+	moveq #4,$d3
+	cmpl $a2,$d3
+	jne L44
 	movel $a6@(-24),$a2
 	movel $a2@,$d0
-	jra L3
+	jra L4
 	.even
-L43:
-	moveq #8,$d4
-	cmpl $d2,$d4
-	jne L37
+L44:
+	moveq #8,$d3
+	cmpl $a2,$d3
+	jne L38
 	movel $a6@(-24),$a2
 	movel $a2@,$d0
 	movel $a2@(4),$d1
-	jra L3
+	jra L4
 	.even
-L37:
-	btst #0,$d3
-	jeq L3
+L38:
+	btst #0,$d2
+	jeq L4
 	movel $a6@(-24),$d0
-L50:
+L51:
 	movel $d0,$a0
-L3:
-	moveml $a6@(-52),#0xc1c
+L4:
+	moveml $a6@(-44),#0x40c
 	unlk $a6
 	rts
