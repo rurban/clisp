@@ -118,23 +118,26 @@
        (incf ,error-count ,err)
        (incf ,total-count ,tot))))
 
-(defun run-all-tests (&aux (error-count 0) (total-count 0))
-  (dolist (ff '(#-(or AKCL ECL)     "alltest"
+(defun run-all-tests (&optional (disable-risky t))
+  (let ((error-count 0) (total-count 0)
+        (*features* (if disable-risky *features*
+                        (cons :enable-risky-tests *features*))))
+    (dolist (ff '(#-(or AKCL ECL)   "alltest"
                                     "array"
                                     "backquot"
-                #+CLISP             "bin-io"
-                #-AKCL              "characters"
-                #+(or CLISP ALLEGRO CMU) "clos"
-                #+CLISP             "defhash"
-                #+(and CLISP UNICODE) "encoding"
+                  #+CLISP           "bin-io"
+                  #-AKCL            "characters"
+                  #+(or CLISP ALLEGRO CMU) "clos"
+                  #+CLISP           "defhash"
+                  #+(and CLISP UNICODE) "encoding"
                                     "eval20"
-                #+(and CLISP FFI)   "ffi"
+                  #+(and CLISP FFI) "ffi"
                                     "floeps"
                                     "format"
-                #+CLISP             "genstream"
-                #+XCL               "hash"
+                  #+CLISP           "genstream"
+                  #+XCL             "hash"
                                     "hashlong"
-                #+CLISP             "hashweak"
+                  #+CLISP           "hashweak"
                                     "iofkts"
                                     "lambda"
                                     "lists151"
@@ -143,32 +146,32 @@
                                     "lists154"
                                     "lists155"
                                     "lists156"
-                #+(or CLISP ALLEGRO CMU) "loop"
+                  #+(or CLISP ALLEGRO CMU) "loop"
                                     "macro8"
                                     "map"
-                #+(or CLISP ALLEGRO CMU) "mop"
+                  #+(or CLISP ALLEGRO CMU) "mop"
                                     "number"
-                #+CLISP             "number2"
-                #-(or AKCL ALLEGRO CMU) "pack11"
-                #+(or XCL CLISP)    "path"
-                #+XCL               "readtable"
+                  #+CLISP           "number2"
+                  #-(or AKCL ALLEGRO CMU) "pack11"
+                  #+(or XCL CLISP)  "path"
+                  #+XCL             "readtable"
                                     "setf"
                                     "steele7"
-                #-ALLEGRO           "streams"
+                  #-ALLEGRO         "streams"
                                     "streamslong"
                                     "strings"
-                #-(or AKCL ECL)     "symbol10"
+                  #-(or AKCL ECL)   "symbol10"
                                     "symbols"
-                #+XCL               "tprint"
-                #+XCL               "tread"
+                  #+XCL             "tprint"
+                  #+XCL             "tread"
                                     "type"
-                #+CLISP             "weakptr"))
-    (with-accumulating-errors (error-count total-count) (run-test ff)))
-  #+(or CLISP ALLEGRO CMU)
-  (with-accumulating-errors (error-count total-count)
-    (run-test "conditions" #'do-test nil))
-  (with-accumulating-errors (error-count total-count)
-    (run-test "excepsit" #'do-errcheck))
-  (format t "~s: grand total: ~:d error~:p out of ~:d test~:p~%"
-          'run-all-tests error-count total-count)
-  (values total-count error-count))
+                  #+CLISP           "weakptr"))
+      (with-accumulating-errors (error-count total-count) (run-test ff)))
+    #+(or CLISP ALLEGRO CMU)
+    (with-accumulating-errors (error-count total-count)
+      (run-test "conditions" #'do-test nil))
+    (with-accumulating-errors (error-count total-count)
+      (run-test "excepsit" #'do-errcheck))
+    (format t "~s: grand total: ~:d error~:p out of ~:d test~:p~%"
+            'run-all-tests error-count total-count)
+    (values total-count error-count)))

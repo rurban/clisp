@@ -1,3 +1,7 @@
+2003-10-09  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (run-all-tests): optional argument to disable risky tests
+
 2003-09-17  Sam Steingold  <sds@gnu.org>
 
 	* macro8.tst: added a NOTINLINE declaration test
