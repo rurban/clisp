@@ -12600,6 +12600,11 @@ Die Funktion make-closure wird dazu vorausgesetzt.
     (format stream "~%")
 ) )
 #+CLISP
+(defun stream-tab (stream tab)
+  (dotimes (i (let ((pos (sys::line-position stream)))
+                (if pos (max 1 (- tab pos)) 2)))
+    (write-char #\Space stream)))
+#+CLISP
 (defun disassemble-closure (closure &optional (stream *standard-output*))
   (terpri stream)
   (terpri stream)
@@ -12607,7 +12612,8 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                 stream
   )
   (prin1 (closure-name closure) stream)
-  (multiple-value-bind (req-anz opt-anz rest-p key-p keyword-list allow-other-keys-p
+  (multiple-value-bind (req-anz opt-anz rest-p
+                        key-p keyword-list allow-other-keys-p
                         byte-list const-list)
       (signature closure)
     (do ((L const-list (cdr L))
@@ -12668,9 +12674,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
               (instr (cdar L)))
           (terpri stream)
           (prin1 PC stream)
-          (dotimes (i (let ((pos (sys::line-position stream))) (if pos (max 1 (- 6 pos)) 2)))
-            (write-char #\Space stream) ; Tab 6
-          )
+          (stream-tab stream 6)
           (princ instr stream) ; instr ausgeben, Symbole ohne Package-Marker!
           (multiple-value-bind (commentp comment)
             (when (consp instr)
@@ -12697,9 +12701,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                   (values 'string (nth (second instr) const-string-list))
             ) ) )
             (when commentp
-              (dotimes (i (let ((pos (sys::line-position stream))) (if pos (max 1 (- 42 pos)) 2)))
-                (write-char #\Space stream) ; Tab 42
-              )
+              (stream-tab 42 stream)
               (write-string "; " stream)
               (if (eq commentp 'string)
                 (write-string comment stream)

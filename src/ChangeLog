@@ -1,3 +1,8 @@
+2001-04-18  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (stream-tab): new function
+	(disassemble-closure): use it
+
 2001-04-16  Sam Steingold  <sds@gnu.org>
 
 	* io.d (CHECK_READTABLE): new macro
@@ -3177,7 +3182,7 @@
 
 1999-06-09  Sam Steingold  <sds@goems.com>
 
-	Implemented ANSI CL Issue MACRO-FUNCTION-ENVIRONMENT:YES
+	Implemented the ANSI CL Issue MACRO-FUNCTION-ENVIRONMENT:YES
 	* control.d (macro_function): optional second argument.
 	* subr.d (macro_function): ditto.
 	* compiler.lsp (macroexpand-1): pass ENV to `macro-function'
