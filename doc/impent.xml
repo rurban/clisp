@@ -75,7 +75,7 @@
 <!ENTITY socket-pac "<link linkend='socket'><quote>SOCKET</quote></link>">
 <!ENTITY gstream-pac "<link linkend='gstream'><quote>GSTREAM</quote></link>">
 <!ENTITY gray-pac "<link linkend='gray'><quote>GRAY</quote></link>">
-<!ENTITY i18n-pac "<link linkend='language'><quote>I18N</quote></link>">
+<!ENTITY i18n-pac "<link linkend='gettext'><quote>I18N</quote></link>">
 <!ENTITY custom-pac "<link linkend='customize'><quote>CUSTOM</quote></link>">
 <!ENTITY charset-pac "<link linkend='encoding'><quote>CHARSET</quote></link>">
 <!ENTITY ffi-pac "<link linkend='dffi'><quote>FFI</quote></link>">
@@ -111,6 +111,16 @@
 <!ENTITY socket-stream "<link linkend='socket'><classname>socket-stream</classname></link>">
 <!ENTITY warn-fpc "<link linkend='warn-fpc'><varname>custom:*warn-on-floating-point-contagion*</varname></link>">
 <!ENTITY with-kbd "<link linkend='terminal'><function>ext:with-keyboard</function></link>">
+
+<!-- *** gettext *** -->
+<!ENTITY ggettext "&gnu; <ulink url='http://www.gnu.org/software/gettext/gettext.html'>gettext</ulink>">
+<!ENTITY gettext "<link linkend='gettext'><function>i18n:gettext</function></link>">
+<!ENTITY ngettext "<link linkend='ngettext'><function>i18n:ngettext</function></link>">
+<!ENTITY category "<link linkend='category'><replaceable>category</replaceable></link>">
+<!ENTITY domain "<link linkend='domain'><replaceable>domain</replaceable></link>">
+<!ENTITY textdomain "<link linkend='textdomain'><function>textdomain</function></link>">
+<!ENTITY textdomaindir "<link linkend='textdomaindir'><function>textdomaindir</function></link>">
+<!ENTITY msgid "<replaceable>msgid</replaceable>">
 
 <!-- *** FFI *** -->
 <!ENTITY c-pointer "<link linkend='c-pointer'><type>c-pointer</type></link>">
