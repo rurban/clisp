@@ -1,5 +1,10 @@
 1999-05-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in (install-bin): Copy base/ and full/ using cp, not tar,
+          because they contain symbolic links.
+
+1999-05-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Make modules.o part of every linking set, including `base'.
         * makemake.in (lisp.a): Don't include modules.o.
           (modular): Depend on modules.o.

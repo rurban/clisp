@@ -3053,8 +3053,9 @@ if [ $CROSS = false ] ; then
     echotab "\$(INSTALL_DATA) data/UnicodeData.txt \$(lisplibdir)/data/UnicodeData.txt"
     echotab "if [ ! -d \$(lisplibdir)/linkkit ] ; then mkdir \$(lisplibdir)/linkkit ; fi"
     echotab "(cd \$(lisplibdir) && rm -rf base full)"
-    echotab "tar cf - clisp-link linkkit/modules.d linkkit/modules.c linkkit/clisp.h | (cd \$(lisplibdir) && tar xf -)"
-    echotab "tar cf - base full | (cd \$(lisplibdir) && tar xf -)"
+    echotab "mkdir \$(lisplibdir)/base"
+    echotab "mkdir \$(lisplibdir)/full"
+    echotab "for f in clisp-link linkkit/modules.d linkkit/modules.c linkkit/clisp.h base/* full/*; do cp -p \$\$f \$(lisplibdir)/\$\$f; done"
     # Don't strip the executables, otherwise (disassemble #'cons) won't work.
     # echotab "strip \$(lisplibdir)/base/lisp${LEXE}"
     if [ -n "$USE_GETTEXT" ] ; then
