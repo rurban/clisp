@@ -3916,76 +3916,78 @@ global void iconv_wcstombs (object encoding, object stream,
 }
 
 # Determining the range of encodable characters.
-global object iconv_range (object encoding, uintL start, uintL end, uintL maxintervals) {
+global object iconv_range (object encoding, uintL start, uintL end,
+                           uintL maxintervals) {
   var uintL count = 0; # number of intervals already on the STACK
   if (maxintervals > 0) {
+    var iconv_t cd;
     with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),
                    charset_asciz, {
       begin_system_call();
-      var iconv_t cd = open_iconv(charset_asciz,CLISP_INTERNAL_CHARSET,
-                                  TheEncoding(encoding)->enc_charset);
-      end_system_call();
-      {
-        var uintL i1;
-        var uintL i2;
-        var bool have_i1_i2 = false; # [i1,i2] = interval being built
-        var uintL i;
-        for (i = start;;) {
-          # Here count < maxintervals.
-          var chart ch = as_chart(i);
-          var uintB buf[max_bytes_per_chart];
-          var const char* inptr = (const char*)&ch;
-          var size_t insize = sizeof(chart);
-          var char* outptr = (char*)&buf[0];
-          var size_t outsize = max_bytes_per_chart;
-          begin_system_call();
-          {
-            var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
-            if (res == (size_t)(-1)) {
-              if (errno == EILSEQ) { # invalid input?
-                end_system_call();
-                # ch not encodable -> finish the interval
-                if (have_i1_i2) {
-                  pushSTACK(code_char(as_chart(i1)));
-                  pushSTACK(code_char(as_chart(i2)));
-                  check_STACK(); count++;
-                  have_i1_i2 = false;
-                  # If we have already produced the maximum number of intervals
-                  # requested by the caller, it's of no use to search further.
-                  if (count == maxintervals)
-                    break;
-                }
-              } else if (errno == EINVAL) { # incomplete input?
-                NOTREACHED;
-              } else if (errno == E2BIG) { # output buffer too small?
-                NOTREACHED;
-              } else
-                OS_error_saving_errno({ iconv_close(cd); });
-            } else {
-              end_system_call();
-              # ch encodable -> extend the interval
-              if (!have_i1_i2) {
-                have_i1_i2 = true;
-                i1 = i;
-              }
-              i2 = i;
-            }
-          }
-          if (i == end)
-            break;
-          i++;
-        }
-        if (have_i1_i2) {
-          pushSTACK(code_char(as_chart(i1)));
-          pushSTACK(code_char(as_chart(i2)));
-          check_STACK(); count++;
-        }
-      }
-      begin_system_call();
-      if (iconv_close(cd) < 0) { OS_error(); }
+      cd = open_iconv(charset_asciz,CLISP_INTERNAL_CHARSET,
+                      TheEncoding(encoding)->enc_charset);
       end_system_call();
     });
-  }
+    {
+      var uintL i1;
+      var uintL i2;
+      var bool have_i1_i2 = false; # [i1,i2] = interval being built
+      var uintL i = start;
+      while (1) {
+        # Here count < maxintervals.
+        var chart ch = as_chart(i);
+        var uintB buf[max_bytes_per_chart];
+        var const char* inptr = (const char*)&ch;
+        var size_t insize = sizeof(chart);
+        var char* outptr = (char*)&buf[0];
+        var size_t outsize = max_bytes_per_chart;
+        begin_system_call();
+        {
+          var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
+          if (res == (size_t)(-1)) {
+            if (errno == EILSEQ) { # invalid input?
+              end_system_call();
+              # ch not encodable -> finish the interval
+              if (have_i1_i2) {
+                pushSTACK(code_char(as_chart(i1)));
+                pushSTACK(code_char(as_chart(i2)));
+                check_STACK(); count++;
+                have_i1_i2 = false;
+                # If we have already produced the maximum number of intervals
+                # requested by the caller, it's of no use to search further.
+                if (count == maxintervals)
+                  break;
+              }
+            } else if (errno == EINVAL) { # incomplete input?
+              NOTREACHED;
+            } else if (errno == E2BIG) { # output buffer too small?
+              NOTREACHED;
+            } else
+              OS_error_saving_errno({ iconv_close(cd); });
+          } else {
+            end_system_call();
+            # ch encodable -> extend the interval
+            if (!have_i1_i2) {
+              have_i1_i2 = true;
+              i1 = i;
+            }
+            i2 = i;
+          }
+        }
+        if (i == end)
+          break;
+        i++;
+      }
+      if (have_i1_i2) {
+        pushSTACK(code_char(as_chart(i1)));
+        pushSTACK(code_char(as_chart(i2)));
+        check_STACK(); count++;
+      }
+    }
+    begin_system_call();
+    if (iconv_close(cd) < 0) { OS_error(); }
+    end_system_call();
+  };
   return stringof(2*count);
 }
 
