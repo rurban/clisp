@@ -11,6 +11,22 @@ User visible changes
 --------------------
 
 * Parts of the CLOS MetaObject Protocol are supported:
+  + Classes:
+    New classes
+      STANDARD-READER-METHOD, STANDARD-WRITER-METHOD.
+    New functions
+      ENSURE-CLASS.
+    New generic functions
+      CLASS-DIRECT-SUPERCLASSES, CLASS-PRECEDENCE-LIST, CLASS-DIRECT-SLOTS,
+      CLASS-SLOTS, CLASS-DIRECT-DEFAULT-INITARGS, CLASS-DEFAULT-INITARGS.
+    New customizable generic functions
+      For class creation:
+        ENSURE-CLASS-USING-CLASS, VALIDATE-SUPERCLASS,
+        COMPUTE-CLASS-PRECEDENCE-LIST, COMPUTE-EFFECTIVE-SLOT-DEFINITION,
+        COMPUTE-SLOTS, COMPUTE-DEFAULT-INITARGS, READER-METHOD-CLASS,
+        WRITER-METHOD-CLASS.
+      For notification about subclasses:
+        CLASS-DIRECT-SUBCLASSES, ADD-DIRECT-SUBCLASS, REMOVE-DIRECT-SUBCLASS.
   + Method-Combinations:
     New generic function
       FIND-METHOD-COMBINATION.
