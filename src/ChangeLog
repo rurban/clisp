@@ -1,5 +1,10 @@
 2003-06-07  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (*suppress-check-redefinition*): new user variable
+	(check-redefinition): respect it
+
+2003-06-07  Sam Steingold  <sds@gnu.org>
+
 	* cfgacorn.lisp, cfgamiga.lisp, cfgdos.lisp, cfgwin32.lisp:
 	no need to prefix GETENV with "SYS::"
 	* cfgsunux.lisp, cfgunix.lisp: ditto
