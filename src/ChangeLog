@@ -1,3 +1,7 @@
+2005-01-11  Sam Steingold  <sds@gnu.org>
+
+	* modules/matlab/matlab.lisp (mxIsLogicalScalar): removed
+
 2005-01-11  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (main): Init O(argv) only after locale_encoding is initialized.
