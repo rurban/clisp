@@ -1,5 +1,10 @@
 2002-12-18  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (bt_beyond_stack_p): fixed the back_trace circularity
+	bug: unwind until back_trace is strictly within STACK
+
+2002-12-18  Sam Steingold  <sds@gnu.org>
+
 	* spvw_debug.d (nobject_out): handle uninterned symbols and
 	special forms (Fsubrs) correctly
 

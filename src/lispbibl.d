@@ -7366,7 +7366,8 @@ struct p_backtrace_t {
 typedef const struct backtrace_t* p_backtrace_t;
 #endif
 
-#define bt_beyond_stack_p(bt,st) (bt&&((aint)(bt->bt_stack)cmpSTACKop(aint)st))
+#define bt_beyond_stack_p(bt,st) \
+  (bt && !((aint)st cmpSTACKop (aint)(bt->bt_stack)))
 /* unwind backtrace to the stack location */
 #ifdef DEBUG_SPVW
 #define unwind_back_trace(bt,st)                                        \
