@@ -1,3 +1,9 @@
+2004-07-13  John Hinsdale <hin@alma.com>
+
+	* modules/oracle/orafns.c: Fix bugs in error reporting; use better
+	supported calls in OCI to initialize; report initialization errors
+	better
+
 2004-06-10  Bruno Haible  <bruno@clisp.org>
 
 	* defs2.lisp (simple-destructuring-bind): New macro.
