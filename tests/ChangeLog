@@ -1,5 +1,10 @@
 2005-01-13  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (with-ignored-errors): use princ-error
+	use newline convention B consistently
+
+2005-01-13  Sam Steingold  <sds@gnu.org>
+
 	* tests.lisp (princ-error): moved here from...
 	* conditions.tst: here
 	* bind.tst: use it instead of print-cond

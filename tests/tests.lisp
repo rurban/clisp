@@ -1,5 +1,7 @@
 ;; run the test suit:
 
+(defun princ-error (c) (format t "~&[~A]: ~A~%" (type-of c) c))
+
 #+OLD-CLISP
 ;; Binding *ERROR-HANDLER* is a hammer technique for catching errors. It also
 ;; disables CLCS processing and thus breaks tests that rely on the condition
@@ -42,15 +44,13 @@
     `(BLOCK ,b
        (HANDLER-BIND
          ((ERROR #'(LAMBDA (CONDITION)
-                     (TERPRI) (PRINC CONDITION)
+                     (PRINC-ERROR CONDITION)
                      (RETURN-FROM ,b (values 'ERROR
                                              (princ-to-string condition))))))
          ,@forms))))
 
 (defun merge-extension (type filename)
   (make-pathname :type type :defaults filename))
-
-(defun princ-error (c) (format t "~&[~A]: ~A~%" (type-of c) c))
 
 ;; (lisp-implementation-type) may return something quite long, e.g.,
 ;; on CMUCL it returns "CMU Common Lisp".
@@ -77,21 +77,21 @@
             (result (read stream nil eof)))
         (when (or (eq form eof) (eq result eof)) (return))
         (incf total-count)
-        (print form)
+        (fresh-line) (prin1 form) (terpri)
         (multiple-value-bind (my-result error-message)
             (if *test-ignore-errors*
                 (with-ignored-errors (my-eval form)) ; return ERROR on errors
                 (my-eval form)) ; don't disturb the condition system when testing it!
           (cond ((eql result my-result)
-                 (format t "~%EQL-OK: ~S" result))
+                 (format t "~&EQL-OK: ~S~%" result))
                 ((equal result my-result)
-                 (format t "~%EQUAL-OK: ~S" result))
+                 (format t "~&EQUAL-OK: ~S~%" result))
                 ((equalp result my-result)
-                 (format t "~%EQUALP-OK: ~S" result))
+                 (format t "~&EQUALP-OK: ~S~%" result))
                 (t
                  (incf error-count)
-                 (format t "~%ERROR!! ~S should be ~S !" my-result result)
-                 (format log "~%Form: ~S~%CORRECT: ~S~%~7A: ~S~%~@[~A~%~]"
+                 (format t "~&ERROR!! ~S should be ~S !~%" my-result result)
+                 (format log "~&Form: ~S~%CORRECT: ~S~%~7A: ~S~%~@[~A~%~]~%"
                              form result lisp-implementation
                              my-result error-message)
                  (when (and (typep result 'sequence)
@@ -103,7 +103,7 @@
                                          (typep seq 'string))
                                   (concatenate 'string (subseq seq pos (+ pos 10)) "...")
                                   (subseq seq pos))))
-                         (format log "~%Differ at position ~:D: ~S vs ~S~%CORRECT: ~S~%~7A: ~S~%"
+                         (format log "~&Differ at position ~:D: ~S vs ~S~%CORRECT: ~S~%~7A: ~S~%"
                                  pos
                                  (if (< pos (length result)) (elt result pos) 'end-of-sequence)
                                  (if (< pos (length my-result)) (elt my-result pos) 'end-of-sequence)
@@ -119,16 +119,16 @@
             (errtype (read stream nil eof)))
         (when (or (eq form eof) (eq errtype eof)) (return))
         (incf total-count)
-        (print form)
+        (fresh-line) (prin1 form) (terpri)
         (let ((my-result (nth-value 1 (ignore-errors (my-eval form)))))
           (multiple-value-bind (typep-result typep-error)
               (ignore-errors (typep my-result errtype))
             (cond ((and (not typep-error) typep-result)
-                   (format t "~%OK: ~S" errtype))
+                   (format t "~&OK: ~S~%" errtype))
                   (t
                    (incf error-count)
-                   (format t "~%ERROR!! ~S instead of ~S !" my-result errtype)
-                   (format log "~%Form: ~S~%CORRECT: ~S~%~7A: ~S~%"
+                   (format t "~&ERROR!! ~S instead of ~S !~%" my-result errtype)
+                   (format log "~&Form: ~S~%CORRECT: ~S~%~7A: ~S~%"
                                form errtype lisp-implementation
                                my-result)))))))
     (values total-count error-count)))
@@ -172,7 +172,7 @@
     (format t "~&~s: finished ~3d file~:p: ~3:d error~:p out of ~5:d test~:p~%"
             'run-files (length files) error-count total-count)
     (loop :for rec :in res :for count :upfrom 1 :do
-      (format t "[~d] ~25@a: ~3:d error~:p out of ~5:d test~:p~%" count
+      (format t "~&[~d] ~25@a: ~3:d error~:p out of ~5:d test~:p~%" count
               (enough-namestring (first rec) here) (second rec) (third rec)))
     (values error-count total-count res)))
 
@@ -248,6 +248,6 @@
       (run-test "conditions" :ignore-errors nil))
     (with-accumulating-errors (error-count total-count)
       (run-test "excepsit" :tester #'do-errcheck))
-    (format t "~s: grand total: ~:d error~:p out of ~:d test~:p~%"
+    (format t "~&~s: grand total: ~:d error~:p out of ~:d test~:p~%"
             'run-all-tests error-count total-count)
     (values total-count error-count)))
