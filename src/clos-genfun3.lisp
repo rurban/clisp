@@ -342,7 +342,7 @@
              caller funname ':method-combination option))
          (let ((method-combination-name (second option)))
            (unless (or (symbolp method-combination-name)
-                       (typep method-combination-name <method-combination>))
+                       (typep-class method-combination-name <method-combination>))
              (error-of-type 'ext:source-program-error
                :form whole-form
                :detail method-combination-name

@@ -228,7 +228,7 @@
   (unless (and (proper-list-p (cdr option))
                (every #'(lambda (x)
                           (and (consp x)
-                               (typep (car x) <method>)
+                               (typep-class (car x) <method>)
                                (symbolp (cdr x))))
                       (cdr option)))
     (error-of-type 'program-error
@@ -322,7 +322,7 @@
     'make-method whole-form))
 
 (defun callable-method-form-p (form)
-  (or (typep form <method>)
+  (or (typep-class form <method>)
       (and (consp form) (eq (car form) 'MAKE-METHOD)
            (consp (cdr form)) (null (cddr form)))))
 
@@ -402,7 +402,7 @@
                           (LIST 'CALL-METHOD (CAR NEXT-METHODS-LIST)
                             (CDR NEXT-METHODS-LIST))))
                       'NIL)))
-              (IF (TYPEP METHOD <METHOD>)
+              (IF (TYPEP-CLASS METHOD <METHOD>)
                 (IF (STD-METHOD-FAST-FUNCTION METHOD)
                   ; Fast method function calling conventions.
                   (IF (STD-METHOD-WANTS-NEXT-METHOD-P METHOD)
@@ -420,7 +420,7 @@
                               apply-args)
                       (LIST* 'LIST
                         (MAPCAR #'(LAMBDA (NEXT-METHOD)
-                                    (IF (TYPEP NEXT-METHOD <METHOD>)
+                                    (IF (TYPEP-CLASS NEXT-METHOD <METHOD>)
                                       NEXT-METHOD ; no need to quote, since self-evaluating
                                       (LIST 'MAKE-METHOD-INSTANCE
                                         '',(std-gf-default-method-class gf)
@@ -459,7 +459,7 @@
              (if (and (consp effective-method-form)
                       (eq (first effective-method-form) 'CALL-METHOD)
                       (consp (cdr effective-method-form))
-                      (typep (second effective-method-form) <method>)
+                      (typep-class (second effective-method-form) <method>)
                       (std-method-fast-function (second effective-method-form))
                       (not (std-method-wants-next-method-p (second effective-method-form))))
                (std-method-fast-function (second effective-method-form))
