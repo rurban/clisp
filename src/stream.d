@@ -3144,6 +3144,7 @@ LISPFUNN(generic_stream_p,1)
 # > subr_self: calling function
 # < subr_self: unchanged
 # < result: an encoding
+# kann GC auslösen
   local object test_external_format_arg (object arg);
   local object test_external_format_arg(arg)
     var object arg;
@@ -14599,7 +14600,7 @@ LISPFUNN(make_x11socket_stream,2)
     if (handle == INVALID_SOCKET) { SOCK_error(); }
     # Liste bilden:
     {var object list = listof(2); pushSTACK(list); }
-    pushSTACK(S(Kunix));
+    pushSTACK(test_external_format_arg(S(Kunix)));
     pushSTACK(O(strmtype_ubyte8));
     pushSTACK(allocate_socket(handle));
     # Stream allozieren:
@@ -15341,7 +15342,9 @@ LISPFUNN(socket_stream_handle,1)
           # Filenamen kommt es nicht an, /dev/fd/2 existiert auch nicht überall.
           pushSTACK(ascii_to_string("/dev/fd/2")); funcall(L(pathname),1);
           pushSTACK(value1);
-          pushSTACK(S(Kunix)); pushSTACK(S(character)); pushSTACK(allocate_handle(2));
+          pushSTACK(test_external_format_arg(S(Kunix)));
+          pushSTACK(S(character));
+          pushSTACK(allocate_handle(2));
          {var decoded_eltype eltype = { eltype_ch, 0 };
           stream = make_unbuffered_stream(strmtype_file,4,&eltype,FALSE);
           UnbufferedHandleStream_output_init(stream);

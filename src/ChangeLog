@@ -1,5 +1,10 @@
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (SYS::MAKE-SOCKET-STREAM, init_streamvars): Pass a proper
+          encoding to make_unbuffered_stream, not the symbol :UNIX.
+
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * conditio.lsp: Export simple-condition-format-control.
           (coerce-to-condition): Use :format-control.
           (simple-condition): Use $format-control.
