@@ -125,7 +125,7 @@ Optional arguments:
 Returns: T if a cached connection was re-used (NIL if a new connection
          was created and cached).
 "
-  (when *oracle-in-transaction* (error "CONNECT not allowed inside WITH-TRANSACTION"))
+  (when *oracle-in-transaction* (db-error "CONNECT not allowed inside WITH-TRANSACTION"))
 
   ; Default current schema
   (if (null schema) (setq schema user))
@@ -145,7 +145,7 @@ Returns: T if a cached connection was re-used (NIL if a new connection
                    ; Retry connection
                    ; ... TODO: implement retry logic here
                    ; Failed all attempts; give up
-                  (error (oracle_last_error handle)))
+                  (db-error (oracle_last_error handle)))
             ; OK: cache the connection
             (setf conn (make-db :connection handle :hkey hkey))
             (setf (gethash hkey *oracle-connection-cache*) conn)
@@ -168,7 +168,7 @@ DISCONNECT may not be called inside the WITH-TRANSACTION macro.
 Arguments: none.
 Returns: NIL
 "
-  (when *oracle-in-transaction* (error "DISCONNECT not allowed inside WITH-TRANSACTION"))
+  (when *oracle-in-transaction* (db-error "DISCONNECT not allowed inside WITH-TRANSACTION"))
   (when (curconn)
         (oracle_disconnect (curconn))
         (check-success)
@@ -220,7 +220,8 @@ for SELECT statements.
   (setf (db-fetch-called *oracle-connection*) nil)
   (setf (db-pending-row *oracle-connection*) nil)
   (setf (db-colinfo *oracle-connection*) nil)
-  (check-success)
+  ; Don't output the stack here - it'll be too big
+  (check-success nil)
 
   ; Get the row count for the result
   (let ((result (row-count)))
@@ -346,7 +347,7 @@ Arguments: none
      ; Do a real fetch from Oracle
      (t (let ((fetch_status (oracle_fetch_row (curconn))))
           (cond ((not (lisp-truth fetch_status))
-                 (error (oracle_last_error (curconn))))
+                 (db-error (oracle_last_error (curconn))))
                 ((= fetch_status 2)
                  ; Newly arrived at EOF - do nothing
                  )
@@ -383,7 +384,11 @@ sequences.  Arguments (all optional) are:
    item-type     Sequence type of columns per row,'ARRAY (default) or 'LIST
 "
   (check-connection "fetch all rows of data")
-  
+  (when (not (find result-type '(array list)))
+	(db-error (cat "Result type '" result-type "' should be 'ARRAY or 'LIST")))
+  (when (not (find item-type '(array list)))
+	(db-error (cat "Item type '" item-type "' should be 'ARRAY or 'LIST")))
+
   (do ((result (make-array 100 :element-type item-type
 			   :fill-pointer 0 :adjustable t))
        (count 0 (1+ count))
@@ -488,9 +493,9 @@ given the default Oracle value, or NULL.
 
 Returns: the number of rows inserted (i.e., 1).
 "
-  (when (null vals) (error "NULL name -> value map given"))
+  (when (null vals) (db-error "NULL name -> value map given"))
   (setf vals (check-pairs vals))
-  (when (= 0 (hash-table-count vals)) (error "Empty column map given"))
+  (when (= 0 (hash-table-count vals)) (db-error "Empty column map given"))
   ; Build the INSERT statement
   (let ((sql (cat "INSERT INTO " table " ("
                   (comma-list-of-keys vals)
@@ -517,9 +522,9 @@ a match on a primary key, e.g.: \"pk_column = :pk_val\".
 Returns: the number of rows updated.
 
 "
-  (when (null vals) (error "NULL name -> value map given"))
+  (when (null vals) (db-error "NULL name -> value map given"))
   (setf vals (check-pairs vals))
-  (when (= 0 (hash-table-count vals)) (error "Empty column map given"))
+  (when (= 0 (hash-table-count vals)) (db-error "Empty column map given"))
 
   ; Build the UPDATE statement
   (let ((sql (cat "UPDATE " table " SET "))
@@ -571,7 +576,7 @@ WITH-TRANSACTION macro.
 
 Arguments: (Boolean) Whether to enable auto-commit.
 "
-  (when *oracle-in-transaction* (error "Setting of AUTO-COMMIT not allowed inside WITH-TRANSACTION"))
+  (when *oracle-in-transaction* (db-error "Setting of AUTO-COMMIT not allowed inside WITH-TRANSACTION"))
   (auto-commit-nocheck enable))
 
 ; Private version that does not check if in transaction
@@ -603,7 +608,7 @@ body.
         (result (gensym)))
     `(progn
        ; Check nesting
-       (when *oracle-in-transaction* (error "Nesting of WITH-TRANSACTION is not allowed."))
+       (when *oracle-in-transaction* (db-error "Nesting of WITH-TRANSACTION is not allowed."))
        (let ((,prev-auto-commit t)
              (,commit-ok nil))
          (unwind-protect
@@ -636,7 +641,7 @@ called inside the WITH-TRANSACTION macro. Always returns NIL.
 
 Argument: none
 "
-  (when *oracle-in-transaction* (error "COMMIT not allowed inside WITH-TRANSACTION"))
+  (when *oracle-in-transaction* (db-error "COMMIT not allowed inside WITH-TRANSACTION"))
   (commit-nocheck))
 
 (defun commit-nocheck ()
@@ -657,7 +662,7 @@ called insde the WITH-TRANSACTION macro.  Always returns NIL.
 
 Argument: none
 "
-  (when *oracle-in-transaction* (error "ROLLBACK not allowed inside WITH-TRANSACTION"))
+  (when *oracle-in-transaction* (db-error "ROLLBACK not allowed inside WITH-TRANSACTION"))
   (rollback-nocheck))
 
 (defun rollback-nocheck ()
@@ -679,7 +684,7 @@ Argument: none
                           (columns))
                      :test #'equal)))
     (when (null i)
-          (error (cat "DO-ROWS: Column '" (do-rows-col v)
+          (db-error (cat "DO-ROWS: Column '" (do-rows-col v)
                       "' does not occur in query.  Allowed columns are:~%" (column-names))))
     i))
 ; COLUMN-NAMES
@@ -695,7 +700,7 @@ Argument: none
       nil
     (multiple-value-bind
      (val exists) (gethash (to-string key) hash)
-     (when (not exists) (error (cat "DO-ROWS: bound variable '" key "' does not occur in the query."
+     (when (not exists) (db-error (cat "DO-ROWS: bound variable '" key "' does not occur in the query."
                                     "~%The allowed column/variable names are:~%~%" (column-names)
                                     "~%")))
      val)))
@@ -716,14 +721,14 @@ Argument: none
                     #'(lambda (col rowval)
                         (list (sqlcol-name col) rowval))
                     colinfo row)))))
-        (t (error (cat "Invalid result type '" result-type "' given - should be 'ARRAY, 'PAIRS or 'HASH")))))
+        (t (db-error (cat "Invalid result type '" result-type "' given - should be 'ARRAY, 'PAIRS or 'HASH")))))
 
 
 ; CHECK-SUCCESS
 ; Check Oracle success code after calling a function.  Assumes (check-connection) was called!
-(defun check-success ()
+(defun check-success (&optional (show-stack t))
   (if (not (lisp-truth (oracle_success (curconn))))
-      (error (oracle_last_error (curconn))))
+      (db-error (oracle_last_error (curconn)) show-stack))
   t)
 
 ; Convert Oracle type based on sqlcol data type.  Oracle numerics are converted
@@ -736,7 +741,7 @@ Argument: none
            (read-from-string val))
           ((find dtype '("VARCHAR" "DATE" "CHAR" "VARCHAR2") :test #'equal)
            val)
-          (t (error (cat "Unsupported data type '" dtype "'"))))))
+          (t (db-error (cat "Unsupported data type '" dtype "'"))))))
 
 ; TO-SQLVAL
 ; Return a SQL val for LISP object, handling null case
@@ -769,9 +774,9 @@ Argument: none
     (loop for key being the hash-keys of h do
           (let ((val (gethash key h)))
             (when (not (atom key))
-                  (error "Non-atom parameter name in bind-parameter hash"))
+                  (db-error "Non-atom parameter name in bind-parameter hash"))
             (when (not (atom val))
-                  (error "Non-atom parameter value in bind-parameter hash"))
+                  (db-error "Non-atom parameter value in bind-parameter hash"))
             (setf (aref result i) (make-sqlparam :name (to-string key) :value (to-sqlval val)))
             (incf i)))
     result))
@@ -780,7 +785,7 @@ Argument: none
 ; Check we are connected before doing an operation that requires a connection
 (defun check-connection (&optional action)
   (if (null (curconn))
-      (error (cat "Attempt to "
+      (db-error (cat "Attempt to "
                   (if-null action "perform database operation")
                   " when not connected to any database"))))
 
@@ -800,12 +805,12 @@ Argument: none
       (loop for p in plist do
             (let ((key (string-upcase (to-string (first p))))
                   (value (second p)))
-              (when (not (valid-symbol key)) (error (cat "Column or parameter '" key "' is not a valid Lisp symbol name."
+              (when (not (valid-symbol key)) (db-error (cat "Column or parameter '" key "' is not a valid Lisp symbol name."
                                                          "~%Consider using SELECT ... " key " AS <column alias>")))
               ; Check uniqueness
               (multiple-value-bind 
                (curval already-there) (gethash key result)
-               (when already-there (error (cat "Column or parameter '" key
+               (when already-there (db-error (cat "Column or parameter '" key
                                                "' appears twice in list of (name, value) pairs,~%first with value '"
                                                curval "' and again with value '" value "'.  Columns/parameters given were:~%"
                                                (join "~%" (map 'list #'car plist))
@@ -820,7 +825,7 @@ Argument: none
   (cond ((null p) (make-hash-table :test #'equal))
         ((eq (type-of p) 'HASH-TABLE) p)
         ((eq (type-of p) 'CONS) (pairs-to-hash p))
-        (t (error (cat "Invalid type for name -> value map: '" (type-of p) "' - should be hash or list of pairs.")))))
+        (t (db-error (cat "Invalid type for name -> value map: '" (type-of p) "' - should be hash or list of pairs.")))))
 
 ; COMMA-LIST-OF-KEYS
 ; Return keys of hash table as comma-separated list.  If flag given,
@@ -966,9 +971,9 @@ Argument: none
   (let ((h (make-hash-table :test #'equal)))
     (dolist (elt l)
             (when (null elt)
-                  (error "Null element in column/variable list"))
+                  (db-error "Null element in column/variable list"))
             (when (gethash (to-string elt) h)
-                  (error (cat "DO-ROWS: Parameter/column '" elt "' occurs more than once in bound columns/variables:~%"
+                  (db-error (cat "DO-ROWS: Parameter/column '" elt "' occurs more than once in bound columns/variables:~%"
                               (join "~%" l))))
             (setf (gethash (to-string elt) h) t))
     t))
@@ -1023,5 +1028,31 @@ Argument: none
 ; NL
 ; Return newline
 (defun nl () (format nil "~%"))
+
+; DB-ERROR - Throw an error, optionally appending the stack by default
+(defun db-error (message &optional (show-stack t))
+  (when show-stack
+	(setf message (cat message (nl) "Call stack:" (nl) (get-stack-as-string))))
+  (error message))
+
+; GET-STACK-AS-STRING - Get the stack as a string for inclusion error message
+(defun get-stack-as-string (&optional (nskip 0))
+  ; Skip to first relevant EVAL frame
+  (do* ((result (make-string-output-stream))
+	(mode 4)
+	(frame (system::the-frame) (system::frame-up-1 frame mode))
+	(last (system::frame-up frame 5))
+	(count 0 (1+ count))
+	(at-last nil))
+       (at-last (get-output-stream-string result))
+       (cond ((< count nskip) )
+	     ((= count nskip)
+	      (system::describe-frame result frame)
+	      (setf mode 5))
+	     ((equal frame last)
+	      (setf at-last t))
+	     (t
+	      (system::describe-frame result frame)))))
+
 
 ; End of oracle.lisp
