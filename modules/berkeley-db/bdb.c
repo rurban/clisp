@@ -955,6 +955,32 @@ DEFUN(BDB:DB-PUT, db key val &key :AUTO_COMMIT :FLAG :TRANSACTION)
   VALUES0; skipSTACK(3);
 }
 
+DEFFLAGSET(db_join_flags, DB_JOIN_NOSORT)
+DEFUN(BDB:DB-JOIN, db cursors &key :JOIN_NOSORT)
+{ /* create a specialized join cursor */
+  u_int32_t flags = db_join_flags(), length, pos;
+  DB *db = object_handle(STACK_1,`BDB::DB`,false);
+  DBC **curslist, *dbc;
+  pushSTACK(STACK_0); funcall(L(length),1); length = posfixnum_to_L(value1);
+  curslist = alloca((1+length)*sizeof(DBC*));
+  if (curslist == NULL) {
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(storage_condition,GETTEXT("~S: alloca() failed"));
+  }
+  curslist[length] = 0;
+  if (listp(STACK_0)) {         /* list */
+    for (pos=0; pos<length; pos++, STACK_0 = Cdr(STACK_0))
+      curslist[pos] = object_handle(Car(STACK_0),`BDB::CURSOR`,false);
+  } else {                      /* vector */
+    for (pos=0; pos<length; pos++) {
+      pushSTACK(STACK_0); pushSTACK(fixnum(pos)); funcall(L(aref),2);
+      curslist[pos] = object_handle(value1,`BDB::CURSOR`,false);
+    }
+  }
+  SYSCALL(db->join,(db,curslist,&dbc,flags));
+  wrap_finalize(dbc,&`BDB::MKCURSOR`,&``BDB::CURSOR-CLOSE``);
+}
+
 /* ===== cursors ===== */
 DEFFLAGSET(make_cursor_flags, DB_DIRTY_READ DB_WRITECURSOR)
 DEFUN(BDB:MAKE-CURSOR,db &key :DIRTY_READ :WRITECURSOR :TRANSACTION)

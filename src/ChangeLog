@@ -2,6 +2,7 @@
 
 	* modules/berkeley-db/bdb.c (ENV-GET-OPTIONS, ENV-SET-OPTIONS):
 	get and set tas_spins, shm_key, timeouts and encryption
+	(BDB:DB-JOIN): new function
 
 2004-06-08  Bruno Haible  <bruno@clisp.org>
 

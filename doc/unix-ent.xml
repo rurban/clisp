@@ -121,6 +121,7 @@
 <!ENTITY DB_get "<ulink url='&bdb;db_get.html'><function>DB-&gt;get</function></ulink>">
 <!ENTITY DB_get_byteswapped "<ulink url='&bdb;db_get_byteswapped.html'><function>DB-&gt;get_byteswapped</function></ulink>">
 <!ENTITY DB_get_type "<ulink url='&bdb;db_get_type.html'><function>DB-&gt;get_type</function></ulink>">
+<!ENTITY DB_join "<ulink url='&bdb;db_join.html'><function>DB-&gt;join</function></ulink>">
 <!ENTITY DB_open "<ulink url='&bdb;db_open.html'><function>DB-&gt;open</function></ulink>">
 <!ENTITY DB_pget "<ulink url='&bdb;db_pget.html'><function>DB-&gt;pget</function></ulink>">
 <!ENTITY DB_put "<ulink url='&bdb;db_put.html'><function>DB-&gt;put</function></ulink>">
