@@ -2164,8 +2164,8 @@ local maygc void elt_copy_T_Char (object dv1, uintL index1,
     for (;;) {
       var object value = TheSvector(dv1)->data[index1++];
       if (!charp(value)) fehler_store(dv2,value);
-      if (char_code(value) < cint8_limit) {
-        TheS8string(dv2)->data[index2++] = char_code(value);
+      if (as_cint(char_code(value)) < cint8_limit) {
+        TheS8string(dv2)->data[index2++] = as_cint(char_code(value));
         if (--count == 0)
           break;
       } else {
@@ -2182,8 +2182,8 @@ local maygc void elt_copy_T_Char (object dv1, uintL index1,
     for (;;) {
       var object value = TheSvector(dv1)->data[index1++];
       if (!charp(value)) fehler_store(dv2,value);
-      if (char_code(value) < cint16_limit) {
-        TheS16string(dv2)->data[index2++] = char_code(value);
+      if (as_cint(char_code(value)) < cint16_limit) {
+        TheS16string(dv2)->data[index2++] = as_cint(char_code(value));
         if (--count == 0)
           break;
       } else {
