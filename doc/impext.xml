@@ -3384,10 +3384,10 @@ int CallInFunc(LispFunc f) {
                                (:return-type ffi:int) (:language :stdc))))
   (:return-type ffi:int)
   (:language :stdc))
-> (defun f (x) (* x 2))
-F
-> (callout #'f)
-21
+(defun f (x) (* x 2))
+<returnvalue>F</returnvalue>
+(callout #'f)
+<returnvalue>21</returnvalue>
 </programlisting></para></example>
 
 <example id="dffi-gethostname"><title>Variable size arguments:
@@ -3406,13 +3406,13 @@ F
  Sometimes this will be an &in-out-k; parameter, returning the
  number of bytes actually filled in.</para>
 
-<para>So <replaceable>name</replaceable> is actually a pointer to an
- array of up to <replaceable>namelen</replaceable> characters,
- regardless of what the poor <type>char*</type> &c-lang; prototype says,
- to be used like a &c-lang; <type>string</type> (0-termination).
- &unix; specifies that "host names are limited to HOST_NAME_MAX bytes",
- which is, of course, system dependent, but it appears that 256 is a
- common value.</para>
+<para>So &name-r; is actually a pointer to an array of up to
+ <replaceable>namelen</replaceable> characters, regardless of what the
+ poor <type>char*</type> &c-lang; prototype says, to be used like a
+ &c-lang; <type>string</type> (&c-NULL;-termination).  &unix; specifies
+ that <quote>host names are limited to
+  <constant>HOST_NAME_MAX</constant> bytes</quote>, which is, of course,
+ system dependent, but it appears that 256 is sufficient.</para>
 
 <para>In the present example, you can use allocation &alloca-k;, like
  you would do in &c-lang;: stack-allocate a temporary.</para>
@@ -3433,6 +3433,69 @@ F
 
 (defvar hostname (myhostname))
 </programlisting>
+</example>
+
+<example id="dffi-dll-var">
+ <title>Accessing variables in shared libraries.</title>
+
+<para>Suppose one wants to access and modify variables that reside in
+ shared libraries:
+<programlisting>
+struct bar {
+  double x, y;
+  double out;
+};
+
+struct bar my_struct = {10.0, 20.5, 0.0};
+
+double test_dll(struct bar *ptr)
+{
+  return ptr->out = ptr->out + ptr->x + ptr->y;
+}
+</programlisting></para>
+
+<para>This is compiled to <filename>libtest.so.0</filename> (or
+ <filename>libtest.dll</filename>, depending on your platform).</para>
+
+<para>Use the following lisp code:
+<programlisting>
+(&use-package; "FFI")
+
+(&def-c-struct; bar
+  (x double-float)
+  (y double-float)
+  (out double-float))
+
+(&def-call-out; get-own-c-float
+  (:library "libtest.so.0")
+  (:language :stdc)
+  (:name "test_dll")
+  (:arguments (ptr c-pointer :in :alloca))
+  (:return-type double-float))
+
+(&def-c-var; my-c-var (:name "my_struct")
+  (:LIBRARY "libtest2.so.0") (:type (c-ptr bar)))
+</programlisting></para>
+
+<para>Note that <function>get-own-c-float</function> takes a
+ &c-pointer;, not a <literal role="type">(&c-ptr; bar)</literal> as the
+ argument.</para>
+
+<para>Now you can access call <function>get-own-c-float</function> on
+<varname>my-c-var</varname>:
+<programlisting>
+(&c-var-addr; my-c-var)
+<returnvalue>#&lt;FOREIGN-ADDRESS #x282935D8&gt;</returnvalue>
+(get-own-c-float (&c-var-addr; my-c-var))
+<returnvalue>30.5d0</returnvalue>
+(get-own-c-float (&c-var-addr; my-c-var))
+<returnvalue>61.0d0</returnvalue>
+(get-own-c-float (&c-var-addr; my-c-var))
+<returnvalue>91.5d0</returnvalue>
+(get-own-c-float (&c-var-addr; my-c-var))
+<returnvalue>122.0d0</returnvalue>
+</programlisting></para>
+
 </example>
 
 <section id="dffi-ex-more"><title>More examples</title>
