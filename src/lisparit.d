@@ -1610,10 +1610,11 @@ LISPFUN(random,seclass_default,1,1,norest,nokey,0,NIL)
   if (R_plusp(x)) {
     if (R_floatp(x)) {
       VALUES1(F_random_F(r,x));
+      return;
     } else if (RA_integerp(x)) {
       VALUES1(I_random_I(r,x));
+      return;
     }
-    return;
   }
   pushSTACK(x); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_random_arg)); /* TYPE-ERROR slot EXPECTED-TYPE */
