@@ -331,6 +331,13 @@ static int fetch_row(struct db_conn * db)
     }
   }
 
+  /* Positive indicator means truncated because it was that large, -2 means truncated from value so large, size does not fit in a SB2 */
+  for ( n=0; n < db->ncol; n++ ) {
+    col = &db->columns[n];
+	if ( col->indicator > 0 || col->indicator == -2 )
+	  truncated = 1;
+  }
+
   /* If data was truncated and that is not allowed, raise an error */
   if ( truncated && ! db->truncate_ok ) {
 	char * defind = db->long_len == DEFAULT_LONG_LEN ? "default" : "specified";
@@ -386,9 +393,10 @@ static int fetch_row(struct db_conn * db)
 	}
     else if ( col->indicator == -1 )
       r->is_null = 1;
-    else {
+    else if ( col->indicator < -2 ) {
       sprintf(db->errmsg, "Bad indicator value %d for column %d\n", col->indicator, n);
       append_oci_error(db->errmsg, db->err, 0);
+	  return db->success = 0;
     }
   }
   
