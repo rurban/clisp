@@ -10926,7 +10926,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < uintL len: Anzahl der Zeichen des Strings.
 # < chart* ergebnis: Anfangsadresse der Characters
   extern chart* unpack_string_rw (object string, uintL* len);
-# wird verwendet von SEQUENCE
+# wird verwendet von AFFI
 
 # UP: verfolgt einen String.
 # unpack_string_ro(string,&len,&offset)  [for read-only access]
@@ -12000,13 +12000,15 @@ extern object stream_fd (object stream);
   extern void write_byte_array (const object* stream_, const object* bytearray_, uintL start, uintL len);
 # wird verwendet von SEQUENCE
 
-# UP: Liest mehrere Characters von einem Stream.
-# read_char_array(stream,charptr,len)
-# > stream: Stream
-# > chart* charptr: Adresse der zu füllenden Zeichenfolge
-# > uintL len: Länge der zu füllenden Zeichenfolge
-# < chart* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
-  extern chart* read_char_array (object stream, chart* charptr, uintL len);
+# Function: Reads several characters from a stream.
+# read_char_array(&stream,&chararray,start,len)
+# > stream: stream (on the STACK)
+# > object chararray: mutable simple-string (on the STACK)
+# > uintL start: start index of character sequence to be filled
+# > uintL len: length of character sequence to be filled
+# < uintL result: number of characters that have been filled
+# can trigger GC
+  extern uintL read_char_array (const object* stream_, const object* chararray_, uintL start, uintL len);
 # wird verwendet von SEQUENCE
 
 # UP: Schreibt mehrere Characters auf einen Stream.
