@@ -1,13 +1,13 @@
-# Ein-/Ausgabe für CLISP
+# Input/Output for CLISP
 # Bruno Haible 1990-2001
 # Marcus Daniels 11.3.1997
 
 #include "lispbibl.c"
-#include "arilev0.c" # für Division in pr_uint
+#include "arilev0.c" # for Division in pr_uint
 
 
 # =============================================================================
-# Readtable-Funktionen
+# Readtable-functions
 # =============================================================================
 
 # Tables indexed by characters.
@@ -78,39 +78,40 @@
     #define copy_perchar_table(table)  copy_svector(table)
   #endif
 
-# Aufbau von Readtables (siehe LISPBIBL.D):
+# Construction of Readtables (cf. LISPBIBL.D):
   # readtable_syntax_table
-  #    ein Bitvektor mit char_code_limit Bytes: Zu jedem Character der Syntaxcode
+  #    bitvector consisting of char_code_limit bytes: for each character the
+  #                                                   syntaxcode is assigned
   # readtable_macro_table
-  #    ein Vektor mit char_code_limit Elementen: Zu jedem Character
-  #    entweder  (wenn das Character keinen Read-Macro darstellt)
+  #    a vector with char_code_limit elements: for each character
+  #    either  (if the character is no read-macro)
   #              NIL
-  #    oder      (wenn das Character einen Dispatch-Macro darstellt)
-  #              ein Vektor mit char_code_limit Funktionen/NILs,
-  #    oder      (wenn das Character einen sonstigen Read-Macro darstellt)
-  #              die Funktion, die aufgerufen wird, wenn das Character vorkommt.
+  #    or        (if the character is a dispatch-macro)
+  #              a vector with char_code_limit functions/NILs,
+  #    or        (if the character is a miscellaneous read-macro)
+  #              the function, which is called, when the character is read.
   # readtable_case
-  #    ein Fixnum in {0,1,2,3}
+  #    a fixnum in {0,1,2,3}
 
-# Bedeutung von case (mit CONSTOBJ.D abgestimmt!):
+# meaning of case (in sync with CONSTOBJ.D!):
   #define case_upcase    0
   #define case_downcase  1
   #define case_preserve  2
   #define case_invert    3
 
-# Bedeutung der Einträge in der syntax_table:
-  #define syntax_illegal      0  # nichtdruckende, soweit nicht whitespace
+# meaning of the entries in the syntax_table:
+  #define syntax_illegal      0  # invalid
   #define syntax_single_esc   1  # '\' (Single Escape)
   #define syntax_multi_esc    2  # '|' (Multiple Escape)
-  #define syntax_constituent  3  # alles übrige (Constituent)
+  #define syntax_constituent  3  # the rest (Constituent)
   #define syntax_whitespace   4  # TAB,LF,FF,CR,' ' (Whitespace)
   #define syntax_eof          5  # EOF
   #define syntax_t_macro      6  # '()'"' (Terminating Macro)
   #define syntax_nt_macro     7  # '#' (Non-Terminating Macro)
-# <= syntax_constituent : Wenn ein Objekt damit anfängt, ist es ein Token.
-#                         (ILL liefert dann einen einen Error.)
-# >= syntax_t_macro : Macro-Zeichen.
-#                     Wenn ein Objekt damit anfängt: Macro-Funktion aufrufen.
+# <= syntax_constituent : if an object starts with such a character, it's a token.
+#                         (ILL will deliver an error then.)
+# >= syntax_t_macro : macro-character.
+#                     if an object starts like that: call macro-funktion.
 
 # Syntax tables, indexed by characters.
 # allocate_syntax_table()
@@ -171,7 +172,7 @@
     #define syntax_table_put(table,c,value)  (TheSbvector(table)->data[as_cint(c)] = (value))
   #endif
 
-# originale Syntaxtabelle für eingelesene Zeichen:
+# standard(original) syntaxtable(readtable)  for read characters:
   local const uintB orig_syntax_table [small_char_code_limit] = {
     #define illg  syntax_illegal
     #define sesc  syntax_single_esc
@@ -283,18 +284,18 @@
     #define orig_syntax_table_get(c)  orig_syntax_table[as_cint(c)]
   #endif
 
-# UP: Liefert die originale Readtable.
+# UP: returns the standard (original) readtable.
 # orig_readtable()
-# < ergebnis: Originale Readtable
+# < result: standard(original) readtable
 # can trigger GC
   local object orig_readtable (void);
   local object orig_readtable()
     {
-      # Syntax-Tabelle initialisieren:
+      # initialize the syntax-table:
       {
-        var object s_table = allocate_syntax_table(); # neuer Bitvektor
-        pushSTACK(s_table); # retten
-        # und mit dem Original füllen:
+        var object s_table = allocate_syntax_table(); # new bitvector
+        pushSTACK(s_table); # save
+        # and fill with the original:
         #if (small_char_code_limit < char_code_limit)
         s_table = Car(s_table);
         #endif
@@ -303,11 +304,11 @@
         var uintC count;
         dotimesC(count,small_char_code_limit, { *ptr2++ = *ptr1++; } );
       }
-      # Dispatch-Macro '#' initialisieren:
+      # initialize dispatch-macro '#':
       {
-        var object d_table = allocate_perchar_table(); # neuer Vektor
-        pushSTACK(d_table); # retten
-        # und die Sub-Character-Funktionen zu '#' eintragen:
+        var object d_table = allocate_perchar_table(); # new vector
+        pushSTACK(d_table); # save
+        # and add the sub-character-functions for '#':
         var object* table = &TheSvector(d_table)->data[0];
         table['\''] = L(function_reader);
         table['|'] = L(comment_reader);
@@ -341,24 +342,24 @@
         table['"'] = L(clisp_pathname_reader);
         table['P'] = L(ansi_pathname_reader);
       }
-      # READ-Macros initialisieren:
+      # initialize READ-macros:
       {
-        var object m_table = allocate_perchar_table(); # neuer Vektor, mit NIL gefüllt
-        # und die Macro-Characters eintragen:
+        var object m_table = allocate_perchar_table(); # new Vektor, filled with NIL
+        # and add the macro-characters:
         var object* table = &TheSvector(m_table)->data[0];
         table['('] = L(lpar_reader);
         table[')'] = L(rpar_reader);
         table['"'] = L(string_reader);
         table['\''] = L(quote_reader);
-        table['#'] = popSTACK(); # Dispatch-Vektor für '#'
+        table['#'] = popSTACK(); # dispatch-vector for '#'
         table[';'] = L(line_comment_reader);
-        table['`'] = S(backquote_reader); # siehe BACKQUOTE.LISP
-        table[','] = S(comma_reader); # siehe BACKQUOTE.LISP
-        pushSTACK(m_table); # retten
+        table['`'] = S(backquote_reader); # cf. BACKQUOTE.LISP
+        table[','] = S(comma_reader); # cf. BACKQUOTE.LISP
+        pushSTACK(m_table); # save
       }
-      # Readtable bauen:
+      # build readtable:
       {
-        var object readtable = allocate_readtable(); # neue Readtable
+        var object readtable = allocate_readtable(); # new readtable
         TheReadtable(readtable)->readtable_macro_table = popSTACK(); # m_table
         TheReadtable(readtable)->readtable_syntax_table = popSTACK(); # s_table
         TheReadtable(readtable)->readtable_case = fixnum(case_upcase); # :UPCASE
@@ -366,20 +367,20 @@
       }
     }
 
-# UP: Kopiert eine Readtable
+# UP: copies a readtable
 # copy_readtable_contents(from_readtable,to_readtable)
 # > from-readtable
 # > to-readtable
-# < ergebnis : to-Readtable desselben Inhalts
+# < result : to-Readtable with same content
 # can trigger GC
   local object copy_readtable_contents (object from_readtable, object to_readtable);
   local object copy_readtable_contents(from_readtable,to_readtable)
     var object from_readtable;
     var object to_readtable;
     {
-      # den Case-Slot kopieren:
+      # copy the case-slot:
       TheReadtable(to_readtable)->readtable_case = TheReadtable(from_readtable)->readtable_case;
-      # die Syntaxtabelle kopieren:
+      # copy the syntaxtable:
       {
         var object stable1;
         var object stable2;
@@ -411,17 +412,17 @@
         var uintC count;
         dotimesC(count,small_char_code_limit, { *ptr2++ = *ptr1++; } );
       }
-      # die Macro-Tabelle kopieren:
-      pushSTACK(to_readtable); # to-readtable retten
+      # copy the macro-table:
+      pushSTACK(to_readtable); # save to-readtable
       {
         var object mtable1 = TheReadtable(from_readtable)->readtable_macro_table;
         var object mtable2 = TheReadtable(to_readtable)->readtable_macro_table;
         var uintL i;
         for (i = 0; i < small_char_code_limit; i++) {
-          # Eintrag Nummer i kopieren:
+          # copy entry number i:
           var object entry = TheSvector(mtable1)->data[i];
           if (simple_vector_p(entry)) {
-            # Simple-Vector wird elementweise kopiert:
+            # simple-vector is copied element for element:
             pushSTACK(mtable1); pushSTACK(mtable2);
             entry = copy_perchar_table(entry);
             mtable2 = popSTACK(); mtable1 = popSTACK();
@@ -445,39 +446,39 @@
           skipSTACK(2);
         #endif
       }
-      return popSTACK(); # to-readtable als Ergebnis
+      return popSTACK(); # to-readtable as result
     }
 
-# UP: Kopiert eine Readtable
+# UP: copies a readtable
 # copy_readtable(readtable)
 # > readtable: Readtable
-# < ergebnis: Kopie der Readtable, semantisch gleich
+# < result: copy of readtable, semantically equivalent
 # can trigger GC
   local object copy_readtable (object from_readtable);
   local object copy_readtable(from_readtable)
     var object from_readtable;
     {
-      pushSTACK(from_readtable); # retten
-      pushSTACK(allocate_syntax_table()); # neue leere Syntaxtabelle
-      pushSTACK(allocate_perchar_table()); # neue leere Macro-Tabelle
-      var object to_readtable = allocate_readtable(); # neue Readtable
-      # füllen:
+      pushSTACK(from_readtable); # save
+      pushSTACK(allocate_syntax_table()); # new empty syntaxtable
+      pushSTACK(allocate_perchar_table()); # new empty macro-table
+      var object to_readtable = allocate_readtable(); # new readtable
+      # fill:
       TheReadtable(to_readtable)->readtable_macro_table = popSTACK();
       TheReadtable(to_readtable)->readtable_syntax_table = popSTACK();
-      # und Inhalt kopieren:
+      # and copy content:
       return copy_readtable_contents(popSTACK(),to_readtable);
     }
 
-# Fehler bei falschem Wert von *READTABLE*
-# fehler_bad_readtable();
+# error at wrong value of *READTABLE*
+# fehler_bad_readtable(); english: error_bad_readtable();
   nonreturning_function(local, fehler_bad_readtable, (void));
   local void fehler_bad_readtable()
     {
-      # *READTABLE* korrigieren:
+      # correct *READTABLE*:
       var object sym = S(readtablestern); # Symbol *READTABLE*
       var object oldvalue = Symbol_value(sym);
-      Symbol_value(sym) = O(standard_readtable); # := Standard-Readtable von Common Lisp
-      # und Fehler melden:
+      Symbol_value(sym) = O(standard_readtable); # := Standard-Readtable of Common Lisp
+      # and report the error:
       pushSTACK(oldvalue);     # TYPE-ERROR slot DATUM
       pushSTACK(S(readtable)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(sym);
@@ -486,15 +487,15 @@
             );
     }
 
-# Macro: Holt die aktuelle Readtable.
+# Macro: fetches the current readtable. argument 'zuweisung' means 'assignment'
 # get_readtable(readtable =);
-# < readtable : die aktuelle Readtable
+# < readtable : the current readtable
   #if 0
     #define get_readtable(zuweisung)  \
       { if (!readtablep(Symbol_value(S(readtablestern)))) { fehler_bad_readtable(); }  \
         zuweisung Symbol_value(S(readtablestern));                                     \
       }
-  #else # oder (optimierter):
+  #else # oder (optimized):
     #define get_readtable(zuweisung)  \
       { if (!(orecordp(Symbol_value(S(readtablestern)))                                          \
               && (Record_type( zuweisung Symbol_value(S(readtablestern)) ) == Rectype_Readtable) \
@@ -505,35 +506,35 @@
 
 
 # =============================================================================
-# Initialisierung
+# Initialization
 # =============================================================================
 
-# UP: Initialisiert den Reader.
+# UP: Initializes the reader.
 # init_reader();
 # can trigger GC
   global void init_reader (void);
   global void init_reader()
     {
-      # *READ-BASE* initialisieren:
+      # initialize *READ-BASE*:
         define_variable(S(read_base),fixnum(10)); # *READ-BASE* := 10
-      # *READ-SUPPRESS* initialisieren:
+      # initialize *READ-SUPPRESS*:
         define_variable(S(read_suppress),NIL);    # *READ-SUPPRESS* := NIL
-      # *READ-EVAL* initialisieren:
+      # initialize *READ-EVAL*:
         define_variable(S(read_eval),T);          # *READ-EVAL* := T
-      # *READTABLE* initialisieren:
+      # initialize *READTABLE*:
       {
         var object readtable = orig_readtable();
-        O(standard_readtable) = readtable; # Das ist die Standard-Readtable,
-        readtable = copy_readtable(readtable); # eine Kopie von ihr
+        O(standard_readtable) = readtable; # that is the standard-readtable,
+        readtable = copy_readtable(readtable); # one copy of it
         define_variable(S(readtablestern),readtable);   # =: *READTABLE*
       }
-      # token_buff_1 und token_buff_2 initialisieren:
+      # initialize token_buff_1 and token_buff_2:
         O(token_buff_1) = NIL;
-        # token_buff_1 und token_buff_2 werden beim ersten Aufruf von
-        # get_buffers (s.u.) mit einem Semi-Simple-String und einem
-        # Semi-Simple-Byte-Vektor initialisiert.
+        # token_buff_1 and token_buff_2 will be initialized
+        # with a semi-simple-string and a semi-simple-byte-vector
+        # at the first call of get_buffers (see below).
       # Displaced-String initialisieren:
-        # neuer Array (mit Datenvektor NIL), Displaced, Rang=1
+        # new array (with data-vector NIL), Displaced, rank=1
         O(displaced_string) =
           allocate_iarray(bit(arrayflags_displaced_bit)|bit(arrayflags_dispoffset_bit)|
                           Atype_Char,
@@ -552,13 +553,13 @@ LISPFUNN(defio,2)
 
 
 # =============================================================================
-# LISP - Funktionen für Readtables
+# LISP - Functions for readtables
 # =============================================================================
 
-# Fehler, wenn Argument keine Readtable ist.
-# fehler_readtable(obj);
-# > obj: fehlerhaftes Argument
-# > subr_self: Aufrufer (ein SUBR)
+# error, if argument is no Readtable.
+# fehler_readtable(obj);  means: error_readtable(obj);
+# > obj: erroneous Argument
+# > subr_self: caller (a SUBR)
   nonreturning_function(local, fehler_readtable, (object obj));
   local void fehler_readtable(obj)
     var object obj;
@@ -578,24 +579,24 @@ LISPFUN(copy_readtable,0,2,norest,nokey,0,NIL)
   {
     var object from_readtable = STACK_1;
     if (eq(from_readtable,unbound)) {
-      # gar keine Argumente angegeben
-      get_readtable(from_readtable=); # aktuelle Readtable
-      value1 = copy_readtable(from_readtable); # kopieren
+      # no arguments are given
+      get_readtable(from_readtable=); # current readtable
+      value1 = copy_readtable(from_readtable); # copy
     } else {
       if (nullp(from_readtable)) {
-        # statt NIL nimm die Standard-Readtable
+        # instead of  NIL take the standard-readtable
         from_readtable = O(standard_readtable);
       } else {
-        # from-readtable überprüfen:
+        # check from-readtable:
         CHECK_READTABLE(from_readtable);
       }
-      # from-readtable ist OK
+      # from-readtable is OK
       var object to_readtable = STACK_0;
       if (eq(to_readtable,unbound) || nullp(to_readtable)) {
-        # kopiere from-readtable, ohne to-readtable
+        # copy from-readtable, without to-readtable
         value1 = copy_readtable(from_readtable);
       } else {
-        # to-readtable überprüfen und umkopieren:
+        # check to-readtable and copy it:
         CHECK_READTABLE(to_readtable);
         value1 = copy_readtable_contents(from_readtable,to_readtable);
       }
@@ -611,109 +612,109 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
     var object from_char = STACK_2;
     var object to_readtable = STACK_1;
     var object from_readtable = STACK_0;
-    # to-char überprüfen:
-    if (!charp(to_char)) # muss ein Character sein
+    # check to-char:
+    if (!charp(to_char)) # must be a character
       fehler_char(to_char);
-    # from-char überprüfen:
-    if (!charp(from_char)) # muss ein Character sein
+    # check from-char:
+    if (!charp(from_char)) # must be a character
       fehler_char(from_char);
-    # to-readtable überprüfen:
+    # check to-readtable:
     if (eq(to_readtable,unbound)) {
-      get_readtable(to_readtable=); # Default ist die aktuelle Readtable
+      get_readtable(to_readtable=); # default is the current readtable
     } else {
       CHECK_READTABLE(to_readtable);
     }
-    # from-readtable überprüfen:
+    # check from-readtable:
     if (eq(from_readtable,unbound) || nullp(from_readtable)) {
-      from_readtable = O(standard_readtable); # Default ist die Standard-Readtable
+      from_readtable = O(standard_readtable); # default is the standard-readtable
     } else {
       CHECK_READTABLE(from_readtable);
     }
     STACK_1 = to_readtable;
     STACK_0 = from_readtable;
-    # Nun sind to_char, from_char, to_readtable, from_readtable OK.
+    # now to_char, from_char, to_readtable, from_readtable are OK.
     {
       var chart to_c = char_code(to_char);
       var chart from_c = char_code(from_char);
-      # Syntaxcode kopieren:
+      # copy syntaxcode:
       syntax_table_put(TheReadtable(to_readtable)->readtable_syntax_table,to_c,
         syntax_table_get(TheReadtable(from_readtable)->readtable_syntax_table,from_c));
-      # Macro-Funktion/Vektor kopieren:
+      # copy macro-function/vector:
       var object entry = perchar_table_get(TheReadtable(STACK_0)->readtable_macro_table,from_c);
       if (simple_vector_p(entry))
-        # Ist entry ein Simple-Vector, so muss er kopiert werden:
+        # if entry is a simple-vector, it must be copied:
         { entry = copy_perchar_table(entry); }
       perchar_table_put(TheReadtable(STACK_1)->readtable_macro_table,to_c,entry);
     }
-    value1 = T; mv_count=1; # Wert T
+    value1 = T; mv_count=1; # value T
     skipSTACK(4);
   }
 
-# UP: Überprüft ein optionales Readtable-Argument,
-# mit Default = Current Readtable.
+# UP: checks an optional readtable-argument,
+# with default = current readtable.
 # > STACK_0: Argument
-# > subr_self: Aufrufer (ein SUBR)
-# < STACK: um 1 erhöht
-# < ergebnis: readtable
+# > subr_self: caller (a SUBR)
+# < STACK: increased by 1
+# < result: readtable
   local object test_readtable_arg (void);
   local object test_readtable_arg()
     {
       var object readtable = popSTACK();
       if (eq(readtable,unbound)) {
-        get_readtable(readtable=); # Default ist die aktuelle Readtable
+        get_readtable(readtable=); # the current readtable is default
       } else {
         CHECK_READTABLE(readtable);
       }
       return readtable;
     }
 
-# UP: Überprüft ein optionales Readtable-Argument,
-# mit Default = Current Readtable, NIL = Standard-Readtable.
+# UP: checks an optional readtable-argument,
+# with default = current readtable, nil = standard-readtable.
 # > STACK_0: Argument
-# > subr_self: Aufrufer (ein SUBR)
-# < STACK: um 1 erhöht
-# < ergebnis: readtable
+# > subr_self: caller (a SUBR)
+# < STACK: increased by 1
+# < result: readtable
   local object test_readtable_null_arg (void);
   local object test_readtable_null_arg()
     {
       var object readtable = popSTACK();
       if (eq(readtable,unbound)) {
-        get_readtable(readtable=); # Default ist die aktuelle Readtable
+        get_readtable(readtable=); # the current readtable is default
       } elif (nullp(readtable)) {
-        readtable = O(standard_readtable); # bzw. die Standard-Readtable
+        readtable = O(standard_readtable); # respectively the standard-readtable
       } else {
         CHECK_READTABLE(readtable);
       }
       return readtable;
     }
 
-# UP: Überprüft das vorletzte optionale Argument von
-# SET-MACRO-CHARACTER und MAKE-DISPATCH-MACRO-CHARACTER.
+# UP: checks the next-to-last optional argument of
+# SET-MACRO-CHARACTER and MAKE-DISPATCH-MACRO-CHARACTER.
 # > STACK_0: non-terminating-p - Argument
-# > subr_self: Aufrufer (ein SUBR)
-# < STACK: um 1 erhöht
-# < ergebnis: neuer Syntaxcode
+# > subr_self: caller (a SUBR)
+# < STACK: increased by 1
+# < result: new syntaxcode
   local uintB test_nontermp_arg (void);
   local uintB test_nontermp_arg()
     {
       var object arg = popSTACK();
       if (eq(arg,unbound) || nullp(arg))
-        return syntax_t_macro; # Default ist terminating
+        return syntax_t_macro; # terminating is default
       else
-        return syntax_nt_macro; # non-terminating-p angegeben und /= NIL
+        return syntax_nt_macro; # non-terminating-p given and /= NIL
     }
 
 LISPFUN(set_macro_character,2,2,norest,nokey,0,NIL)
 # (SET-MACRO-CHARACTER char function [non-terminating-p [readtable]]),
 # CLTL p. 362
   {
-    # char überprüfen:
+    # check char:
     {
       var object ch = STACK_3;
       if (!charp(ch))
         fehler_char(ch);
     }
-    # function überprüfen und in ein Objekt vom Typ FUNCTION umwandeln:
+    # check function and convert into an object of type FUNCTION:
     {
       var object function = coerce_function(STACK_2);
       if (cclosurep(function)
@@ -728,21 +729,21 @@ LISPFUN(set_macro_character,2,2,norest,nokey,0,NIL)
       STACK_2 = function;
     }
     var object readtable = test_readtable_arg(); # Readtable
-    var uintB syntaxcode = test_nontermp_arg(); # neuer Syntaxcode
+    var uintB syntaxcode = test_nontermp_arg(); # new syntaxcode
     var chart c = char_code(STACK_1);
     STACK_1 = readtable;
-    # Syntaxcode setzen:
+    # set syntaxcode:
     syntax_table_put(TheReadtable(readtable)->readtable_syntax_table,c,syntaxcode);
-    # Macrodefinition eintragen:
+    # add macrodefinition:
     perchar_table_put(TheReadtable(STACK_1)->readtable_macro_table,c,STACK_0);
-    value1 = T; mv_count=1; # 1 Wert T
+    value1 = T; mv_count=1; # 1 value T
     skipSTACK(2);
   }
 
 LISPFUN(get_macro_character,1,1,norest,nokey,0,NIL)
 # (GET-MACRO-CHARACTER char [readtable]), CLTL p. 362
   {
-    # char überprüfen:
+    # check char:
     {
       var object ch = STACK_1;
       if (!charp(ch))
@@ -751,16 +752,16 @@ LISPFUN(get_macro_character,1,1,norest,nokey,0,NIL)
     var object readtable = test_readtable_null_arg(); # Readtable
     var object ch = popSTACK();
     var chart c = char_code(ch);
-    # Teste den Syntaxcode:
+    # Test the Syntaxcode:
     var object nontermp = NIL; # non-terminating-p Flag
     switch (syntax_table_get(TheReadtable(readtable)->readtable_syntax_table,c)) {
       case syntax_nt_macro: nontermp = T;
       case syntax_t_macro: # nontermp = NIL;
-        # c ist ein Macro-Character.
+        # c is a macro-character.
         {
           var object entry = perchar_table_get(TheReadtable(readtable)->readtable_macro_table,c);
           if (simple_vector_p(entry)) {
-            # c ist ein Dispatch-Macro-Character.
+            # c is a dispatch-macro-character.
             if (nullp(O(dispatch_reader))) {
               # Shouldn't happen (bootstrapping problem).
               pushSTACK(ch);
@@ -783,7 +784,7 @@ LISPFUN(get_macro_character,1,1,norest,nokey,0,NIL)
       default: # nontermp = NIL;
         value1 = NIL; break;
     }
-    value2 = nontermp; mv_count=2; # nontermp als 2. Wert
+    value2 = nontermp; mv_count=2; # nontermp as second value
   }
 
 LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
@@ -791,39 +792,39 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
 # CLTL p. 363
   {
     var object readtable = test_readtable_arg(); # Readtable
-    var uintB syntaxcode = test_nontermp_arg(); # neuer Syntaxcode
-    # char überprüfen:
+    var uintB syntaxcode = test_nontermp_arg(); # new syntaxcode
+    # check char:
     var object ch = popSTACK();
     if (!charp(ch))
       fehler_char(ch);
     var chart c = char_code(ch);
-    # neue (leere) Dispatch-Macro-Tabelle holen:
+    # fetch new (empty) dispatch-macro-table:
     pushSTACK(readtable);
-    pushSTACK(allocate_perchar_table()); # Vektor, mit NIL gefüllt
-    # alles in der Readtable ablegen:
-    # Syntaxcode in die Syntax-Table:
+    pushSTACK(allocate_perchar_table()); # vector, filled with NIL
+    # store everything in the readtable:
+    # syntaxcode into syntax-table:
     syntax_table_put(TheReadtable(STACK_1)->readtable_syntax_table,c,syntaxcode);
-    # neue Dispatch-Macro-Tabelle in die Macrodefinitionen-Tabelle:
+    # new dispatch-macro-table into the  macrodefinitionen-table:
     perchar_table_put(TheReadtable(STACK_1)->readtable_macro_table,c,STACK_0);
-    value1 = T; mv_count=1; # 1 Wert T
+    value1 = T; mv_count=1; # 1 value T
     skipSTACK(2);
   }
 
-# UP: Überprüft die Argumente disp-char und sub-char.
+# UP: checks the arguments disp-char and sub-char.
 # > STACK: STACK_1 = disp-char, STACK_0 = sub-char
 # > readtable: Readtable
-# > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: die Dispatch-Macro-Tabelle zu disp-char,
-#             nullobj falls sub-char eine Ziffer ist.
+# > subr_self: caller (a SUBR)
+# < result: the dispatch-macro-table for disp-char,
+#             nullobj if sub-char is a digit.
   local object test_disp_sub_char (object readtable);
   local object test_disp_sub_char(readtable)
     var object readtable;
     {
       var object sub_ch = STACK_0; # sub-char
       var object disp_ch = STACK_1; # disp-char
-      if (!charp(disp_ch)) # disp-char muss ein Character sein
+      if (!charp(disp_ch)) # disp-char must be a character
         fehler_char(disp_ch);
-      if (!charp(sub_ch)) # sub-char muss ein Character sein
+      if (!charp(sub_ch)) # sub-char must be a character
         fehler_char(sub_ch);
       var chart disp_c = char_code(disp_ch);
       var object entry = perchar_table_get(TheReadtable(readtable)->readtable_macro_table,disp_c);
@@ -834,13 +835,13 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
                GETTEXT("~: ~ is not a dispatch macro character")
               );
       }
-      # disp-char ist ein Dispatching-Macro-Character, entry der Vektor.
-      var cint sub_c = as_cint(up_case(char_code(sub_ch))); # sub-char in Großbuchstaben umwandeln
+      # disp-char is a dispatching-macro-character, entry is the vector.
+      var cint sub_c = as_cint(up_case(char_code(sub_ch))); # convert sub-char into capitals
       if ((sub_c >= '0') && (sub_c <= '9'))
-        # Ziffer
+        # digit
         return nullobj;
       else
-        # gültiges sub-char
+        # valid sub-char
         return entry;
     }
 
@@ -848,7 +849,7 @@ LISPFUN(set_dispatch_macro_character,3,1,norest,nokey,0,NIL)
 # (SET-DISPATCH-MACRO-CHARACTER disp-char sub-char function [readtable]),
 # CLTL p. 364
   {
-    # function überprüfen und in ein Objekt vom Typ FUNCTION umwandeln:
+    # check function and convert it into an object of Type FUNCTION:
     STACK_1 = coerce_function(STACK_1);
     subr_self = L(set_dispatch_macro_character);
     var object readtable = test_readtable_arg(); # Readtable
@@ -863,7 +864,7 @@ LISPFUN(set_dispatch_macro_character,3,1,norest,nokey,0,NIL)
              GETTEXT("~: digit $ not allowed as sub-char")
             );
     } else {
-      perchar_table_put(dm_table,up_case(char_code(STACK_0)),function); # Funktion in die Dispatch-Macro-Tabelle eintragen
+      perchar_table_put(dm_table,up_case(char_code(STACK_0)),function); # add function to the dispatch-macro-table
       value1 = T; mv_count=1; skipSTACK(2); # 1 Wert T
     }
   }
@@ -873,7 +874,7 @@ LISPFUN(get_dispatch_macro_character,2,1,norest,nokey,0,NIL)
   {
     var object readtable = test_readtable_null_arg(); # Readtable
     var object dm_table = test_disp_sub_char(readtable);
-    value1 = (eq(dm_table,nullobj) ? NIL : perchar_table_get(dm_table,up_case(char_code(STACK_0)))); # NIL oder Funktion als Wert
+    value1 = (eq(dm_table,nullobj) ? NIL : perchar_table_get(dm_table,up_case(char_code(STACK_0)))); # NIL or Function as value
     mv_count=1; skipSTACK(2);
   }
 
@@ -887,12 +888,12 @@ LISPFUNN(readtable_case,1)
   }
 
 LISPFUNN(set_readtable_case,2)
-# (SYSTEM::SET-READTABLE-CASE readtable value), CLTL2 S. 549
+# (SYSTEM::SET-READTABLE-CASE readtable value), CLTL2 p. 549
   {
     var object value = popSTACK();
     var object readtable = popSTACK(); # Readtable
     CHECK_READTABLE(readtable);
-    # Symbol value in einen Index umwandeln durch Suche in der Tabelle O(rtcase..):
+    # convert symbol value into an index by searching in table O(rtcase..):
     var const object* ptr = &O(rtcase_0);
     var object rtcase = Fixnum_0;
     var uintC count;
@@ -901,7 +902,7 @@ LISPFUNN(set_readtable_case,2)
         goto found;
       ptr++; rtcase = fixnum_inc(rtcase,1);
     });
-    # kein gültiger Wert
+    # invalid value
     pushSTACK(value);          # TYPE-ERROR slot DATUM
     pushSTACK(O(type_rtcase)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(O(rtcase_3)); pushSTACK(O(rtcase_2)); pushSTACK(O(rtcase_1)); pushSTACK(O(rtcase_0));
@@ -910,24 +911,24 @@ LISPFUNN(set_readtable_case,2)
     fehler(type_error,
            GETTEXT("~: new value ~ should be ~, ~, ~ or ~.")
           );
-   found: # in der Tabelle gefunden
+   found: # found in  table
     TheReadtable(readtable)->readtable_case = rtcase;
     value1 = value; mv_count=1;
   }
 
 # =============================================================================
-# Einige Hilfsroutinen und Macros für READ und PRINT
+# some auxiliary routins and  macros for READ and PRINT
 # =============================================================================
 
-# Testet den dynamischen Wert eines Symbols auf /=NIL
-# < true, wenn /= NIL
+# Tests the dynamic value of a  symbols being /=NIL
+# < true, if /= NIL
 # #define test_value(sym)  (!nullp(Symbol_value(sym)))
   #define test_value(sym)  (!eq(NIL,Symbol_value(sym)))
 
-# UP: Holt den Wert eines Symbols. Muss Fixnum >=2, <=36 sein.
+# UP: fetches the value of a symbol. must be fixnum >=2, <=36.
 # get_base(symbol)
 # > symbol: Symbol
-# < ergebnis: Wert des Symbols, >=2, <=36.
+# < result: value of the Symbols, >=2, <=36.
   local uintL get_base (object symbol);
   local uintL get_base(symbol)
     var object symbol;
@@ -951,13 +952,13 @@ LISPFUNN(set_readtable_case,2)
       }
     }
 
-# UP: Holt den Wert von *PRINT-BASE*
+# UP: fetches the value of *PRINT-BASE*
 # get_print_base()
-# < uintL ergebnis: >=2, <=36
+# < uintL result: >=2, <=36
   #define get_print_base()  \
     (test_value(S(print_readably)) ? 10 : get_base(S(print_base)))
 
-# UP: Holt den Wert von *READ-BASE*
+# UP: fetches the value of *READ-BASE*
 # get_read_base()
 # < uintL ergebnis: >=2, <=36
   #define get_read_base()  get_base(S(read_base))
@@ -967,31 +968,31 @@ LISPFUNN(set_readtable_case,2)
 #                              R E A D
 # =============================================================================
 
-# Es werden einzelne Characters gelesen.
-# Mit Hilfe der Readtable werden Syntaxcodes (vgl. CLTL Table 22-1) gebildet.
-# Bei Syntaxcode = constituent wird ein (Extended) Token angefangen.
-# Mit Hilfe der Attributtabelle (vgl. CLTL Table 22-3) wird jedem Character
-# im Token ein Attribut a_xxxx zugeordnet.
-# O(token_buff_1) ist ein Semi-Simple-String, der die Characters des
-# gerade eingelesenen Extended-Tokens enthält.
-# O(token_buff_2) ist ein Semi-Simple-Byte-Vektor, der die Attribute des
-# gerade eingelesenen Extended-Tokens enthält.
-# Beide haben dieselbe Länge (in Characters bzw. Bytes).
+# Single characters are read.
+# The syntaxcodes (compare CLTL Table 22-1) are determined by use of the readtable.
+# An (Extended) token is intercepted when syntaxcode = constituent .
+# An attribut a_xxxx is allocated to every character in the token
+# by use of the attribute-table (compare CLTL Table 22-3).
+# O(token_buff_1) is a semi-simple-string, which contains the characters of
+# the currently read extended-token.
+# O(token_buff_2) is a semi-simple-byte-vektor, which contains the attributs of
+# the currently read extended-token.
+# Both have the same length (in characters respectively bytes).
 
-# Spezielle Objekte, die bei READ als Ergebnis kommen können:
-#   eof_value: spezielles Objekt, das EOF anzeigt
-#   dot_value: Hilfswert zum Erkennen einzelner Dots
+# special objects, that can be returned by READ:
+#   eof_value: special object, that indicates EOF
+#   dot_value: auxiliary value for the detection of single dots
 
-# ------------------------ READ auf Character-Ebene ---------------------------
+# ------------------------ READ on character-level ---------------------------
 
-# Fehler, wenn gelesenes Objekt kein Character ist:
-# fehler_charread(ch,&stream);
+# error, if read object is a character:
+# fehler_charread(ch,&stream);  english: error_charread(ch,&stream);
   nonreturning_function(local, fehler_charread, (object ch, const object* stream_));
   local void fehler_charread(ch,stream_)
     var object ch;
     var const object* stream_;
     {
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # value for slot STREAM of STREAM-ERROR
       pushSTACK(ch); # Character
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
@@ -1000,36 +1001,37 @@ LISPFUNN(set_readtable_case,2)
             );
     }
 
-# UP: Liest ein Zeichen und berechnet seinen Syntaxcode.
+# UP: Reads a character and calculates its syntaxcode.
 # read_char_syntax(ch=,scode=,&stream);
 # > stream: Stream
 # < stream: Stream
-# < object ch: Character oder eof_value
-# < uintWL scode: Syntaxcode (aus der aktuellen Readtable) bzw. syntax_eof
+# < object ch: Character or eof_value
+# < uintWL scode: Syntaxcode (from the current readtable) respectively syntax_eof
+# "zuweisung" = "assignment"
 # can trigger GC
   #define read_char_syntax(ch_zuweisung,scode_zuweisung,stream_)  \
-    { var object ch0 = read_char(stream_); # Character lesen           \
+    { var object ch0 = read_char(stream_); # read character            \
       ch_zuweisung ch0;                                                \
       if (eq(ch0,eof_value)) # EOF ?                                   \
         { scode_zuweisung syntax_eof; }                                \
         else                                                           \
-        { # Sonst auf Character überprüfen:                            \
+        { # check for character:                            \
           if (!charp(ch0)) { fehler_charread(ch0,stream_); }           \
          {var object readtable;                                        \
           get_readtable(readtable = );                                 \
-          scode_zuweisung # Syntaxcode aus Tabelle holen               \
+          scode_zuweisung # fetch syntaxcode from table                \
             syntax_table_get(TheReadtable(readtable)->readtable_syntax_table,char_code(ch0)); \
         }}                                                             \
     }
 
-# Fehlermeldung bei EOF außerhalb von Objekten
-# fehler_eof_aussen(&stream);
+# error-message at EOF outside of objects
+# fehler_eof_aussen(&stream); english: error_eof_outside(&stream);
 # > stream: Stream
   nonreturning_function(local, fehler_eof_aussen, (const object* stream_));
   local void fehler_eof_aussen(stream_)
     var const object* stream_;
     {
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # value for slot STREAM of STREAM-ERROR
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(end_of_file,
@@ -1037,16 +1039,16 @@ LISPFUNN(set_readtable_case,2)
             );
     }
 
-# Fehlermeldung bei EOF innerhalb von Objekten
-# fehler_eof_innen(&stream);
+# error-message at EOF inside of objects
+# fehler_eof_innen(&stream);  english: error_eof_inside(&stream)
 # > stream: Stream
   nonreturning_function(local, fehler_eof_innen, (const object* stream_));
   local void fehler_eof_innen(stream_)
     var const object* stream_;
     {
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
-      if (posfixnump(Symbol_value(S(read_line_number)))) { # SYS::*READ-LINE-NUMBER* abfragen
-        pushSTACK(Symbol_value(S(read_line_number))); # Zeilennummer
+      pushSTACK(*stream_); # value for slot STREAM of STREAM-ERROR
+      if (posfixnump(Symbol_value(S(read_line_number)))) { # check SYS::*READ-LINE-NUMBER*
+        pushSTACK(Symbol_value(S(read_line_number))); # line-number
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
         fehler(end_of_file,
@@ -1061,8 +1063,8 @@ LISPFUNN(set_readtable_case,2)
       }
     }
 
-# Fehlermeldung bei EOF, je nach *READ-RECURSIVE-P*
-# fehler_eof(&stream);
+# error-message at EOF, according to *READ-RECURSIVE-P*
+# fehler_eof(&stream); english: error_eof(&stream)
 # > stream: Stream
   nonreturning_function(local, fehler_eof, (const object* stream_));
   local void fehler_eof(stream_)
@@ -1074,91 +1076,90 @@ LISPFUNN(set_readtable_case,2)
         fehler_eof_aussen(stream_);
     }
 
-# UP: Liest bis zum nächsten non-whitespace-Zeichen, ohne dieses zu
-# verbrauchen. Bei EOF Error.
+# UP: read up to the next non-whitespace-character, without consuming it
+# At EOF --> Error.
 # wpeek_char_syntax(ch=,scode=,&stream);
 # > stream: Stream
 # < stream: Stream
-# < object ch: nächstes Character
-# < uintWL scode: sein Syntaxcode
+# < object ch: next character
+# < uintWL scode: its syntaxcode
 # can trigger GC
   #define wpeek_char_syntax(ch_zuweisung,scode_zuweisung,stream_)  \
     { loop                                                                 \
-        { var object ch0 = read_char(stream_); # Character lesen           \
+        { var object ch0 = read_char(stream_); # read Character            \
           if (eq(ch0,eof_value)) { fehler_eof(stream_); } # EOF -> Error   \
-          # Sonst auf Character überprüfen:                                \
+          # check for Character:                                           \
           if (!charp(ch0)) { fehler_charread(ch0,stream_); }               \
           {var object readtable;                                           \
            get_readtable(readtable = );                                    \
-           if (!((scode_zuweisung # Syntaxcode aus Tabelle holen           \
+           if (!((scode_zuweisung # fetch Syntaxcode from table            \
                     syntax_table_get(TheReadtable(readtable)->readtable_syntax_table,char_code(ch0)) \
                  )                                                         \
                  == syntax_whitespace                                      \
               ) )                                                          \
-             # kein Whitespace -> letztes gelesenes Zeichen zurückschieben \
+             # no Whitespace -> push back last read character              \
              { unread_char(stream_,ch0); ch_zuweisung ch0; break; }        \
         } }                                                                \
     }
 
-# UP: Liest bis zum nächsten non-whitespace-Zeichen, ohne dieses zu
-# verbrauchen.
+# UP: read up to the next non-whitespace-character, without consuming it.
 # wpeek_char_eof(&stream)
 # > stream: Stream
 # < stream: Stream
-# < ergebnis: nächstes Character oder eof_value
+# < result: next character or eof_value
 # can trigger GC
   local object wpeek_char_eof (const object* stream_);
   local object wpeek_char_eof(stream_)
     var const object* stream_;
     {
       loop {
-        var object ch = read_char(stream_); # Character lesen
+        var object ch = read_char(stream_); # read character
         if (eq(ch,eof_value)) # EOF ?
           return ch;
-        # Sonst auf Character überprüfen:
+        # check for Character:
         if (!charp(ch))
           fehler_charread(ch,stream_);
         var object readtable;
         get_readtable(readtable = );
-        if (!(( # Syntaxcode aus Tabelle holen
+        if (!(( # fetch Syntaxcode from table
                syntax_table_get(TheReadtable(readtable)->readtable_syntax_table,char_code(ch))
               )
               == syntax_whitespace
            ) ) {
-          # kein Whitespace -> letztes gelesenes Zeichen zurückschieben
+          # no Whitespace -> push back last read character
           unread_char(stream_,ch); return ch;
         }
       }
     }
 
-# ------------------------ READ auf Token-Ebene -------------------------------
+# ------------------------ READ at token-level -------------------------------
 
-# Bei read_token und test_potential_number_syntax, test_number_syntax werden
-# die Attribute gemäß CLTL Table 22-3 gebraucht.
-# Während test_potential_number_syntax werden Attribute umgewandelt,
-# a_digit teilweise in a_alpha oder a_letter oder a_expo_m.
+# read_token and test_potential_number_syntax, test_number_syntax need
+# the attributes according to table 22-3.
+# During test_potential_number_syntax attributes are transformed,
+# a_digit partially into a_alpha or a_letter or a_expo_m.
 
-# Bedeutung der Einträge in attribute_table:
-  #define a_illg     0   # illegales Constituent
+# meaning of the entries in attribute_table:
+  #define a_illg     0   # illegal constituent
   #define a_pack_m   1   # ':' = Package-marker
-  #define a_alpha    2   # Zeichen ohne besondere Eigenschaften (alphabetic)
-  #define a_escaped  3   # Zeichen ohne besondere Eigenschaften, nicht case-konvertierbar
+  #define a_alpha    2   # character without special property (alphabetic)
+  #define a_escaped  3   # character without special property, case can not be converted
   #define a_ratio    4   # '/'
   #define a_dot      5   # '.'
   #define a_plus     6   # '+'
   #define a_minus    7   # '-'
   #define a_extens   8   # '_^' extension characters
   #define a_digit    9   # '0123456789'
-  #define a_letter  10   # 'A'-'Z','a'-'z', nicht 'esfdlESFDL'
+  #define a_letter  10   # 'A'-'Z','a'-'z', not 'esfdlESFDL'
   #define a_expo_m  11   # 'esfdlESFDL'
   #    >= a_letter       #  'A'-'Z','a'-'z'
   #    >= a_digit        # '0123456789','A'-'Z','a'-'z'
-  #    >= a_ratio        # woraus eine potential number bestehen muss
+  #    >= a_ratio        # what a potential number must consist of
 
-# Attributtabelle für Constituents, Erstinterpretation:
-# Anmerkung: 0-9,A-Z,a-z werden erst als a_digit oder a_expo_m interpretiert,
-# dann (falls sich kein Integer aus einem Token ergibt) wird a_digit
-# oberhalb von *READ-BASE* als a_alpha (alphabetic) interpretiert.
+# attribute-table for constituents, first interpretation:
+# note: first, 0-9,A-Z,a-z are interpreted as a_digit or a_expo_m,
+# then (if no integer can be deduced out of token), a_digit
+# is interpreted as a_alpha (alphabetic) above of *READ-BASE*.
   local const uintB attribute_table[small_char_code_limit] = {
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(0) bis chr(7)
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(8) bis chr(15)
@@ -1265,39 +1266,39 @@ LISPFUNN(set_readtable_case,2)
     #define attribute_of(c)  attribute_table[as_cint(c)]
   #endif
 
-# Flag. Zeigt an, ob im letztgelesenen Token
-# ein Single-Escape- oder Multiple-Escape-Zeichen vorkam:
+# Flag. indicates, if  single-escape- or multiple-escape-character
+# occurred in the last read token:
   local bool token_escape_flag;
 
-# UP: Liefert zwei Buffer.
-# Falls im Reservoir O(token_buff_1), O(token_buff_2) zwei verfügbar sind,
-# werden sie entnommen. Sonst werden neue alloziert.
-# Werden die Buffer nicht mehr gebraucht, so können sie in
-# O(token_buff_1) und O(token_buff_2) geschrieben werden.
-# < STACK_1: ein Semi-Simple String mit Fill-Pointer 0
-# < STACK_0: ein Semi-Simple Byte-Vektor mit Fill-Pointer 0
-# < STACK: um 2 erniedrigt
+# UP: delivers two Buffers.
+# if two buffers are available in the reservoir O(token_buff_1), O(token_buff_2),
+# they are extracted. Otherwise new ones are allocated.
+# If the buffers are not needed anymore, they can be written in
+# O(token_buff_1) and O(token_buff_2).
+# < STACK_1: a Semi-Simple String with Fill-Pointer 0
+# < STACK_0: a Semi-Simple Byte-Vector with Fill-Pointer 0
+# < STACK: decreased by 2
 # can trigger GC
   local void get_buffers (void);
   local void get_buffers()
-    { # Mechanismus:
-      # In O(token_buff_1) und O(token_buff_2) stehen ein Semi-Simple-String
-      # und ein Semi-Simple-Byte-Vektor, die bei Bedarf entnommen (und mit
-      # O(token_buff_1) := NIL als entnommen markiert) und nach Gebrauch
-      # wieder hineingesetzt werden können. Reentrant!
+    { # Mechanism:
+      # O(token_buff_1) and O(token_buff_2) hold a Semi-Simple-String
+      # and a Semi-Simple-Byte-Vector, which are extracted if necessary (and marked
+      # with O(token_buff_1) := NIL as extracted)
+      # After use, they can be stored back again. Reentrant!
       var object buff_1 = O(token_buff_1);
       if (!nullp(buff_1)) {
-        # Buffer entnehmen und leeren:
+        # extract buffer and empty:
         TheIarray(buff_1)->dims[1] = 0; # Fill-Pointer:=0
-        pushSTACK(buff_1); # 1. Buffer fertig
+        pushSTACK(buff_1); # 1. Buffer finished
         var object buff_2 = O(token_buff_2);
         TheIarray(buff_2)->dims[1] = 0; # Fill-Pointer:=0
-        pushSTACK(buff_2); # 2. Buffer fertig
-        O(token_buff_1) = NIL; # Buffer als entnommen markieren
+        pushSTACK(buff_2); # 2. Buffer finished
+        O(token_buff_1) = NIL; # mark buffer as extracted
       } else {
-        # Buffer sind gerade entnommen und müssen neu alloziert werden:
-        pushSTACK(make_ssstring(50)); # neuer Semi-Simple-String mit Fill-Pointer=0
-        pushSTACK(make_ssbvector(50)); # neuer Semi-Simple-Byte-Vektor mit Fill-Pointer=0
+        # buffers are extracted and must be allocated newly:
+        pushSTACK(make_ssstring(50)); # new Semi-Simple-String with Fill-Pointer=0
+        pushSTACK(make_ssbvector(50)); # new Semi-Simple-Byte-Vector with Fill-Pointer=0
       }
     }
 
@@ -1311,25 +1312,25 @@ LISPFUNN(set_readtable_case,2)
 # can trigger GC
   local void read_token (const object* stream_);
 
-# UP: Liest ein Extended Token, erstes Zeichen bereits gelesen.
+# UP: reads an extended token, first character has already been read.
 # read_token_1(&stream,ch,scode);
 # > stream: Stream
-# > ch, scode: erstes Zeichen und sein Syntaxcode
+# > ch, scode: first character and its syntaxcode
 # < stream: Stream
-# < O(token_buff_1): gelesene Characters
-# < O(token_buff_2): ihre Attributcodes
-# < token_escape_flag: Escape-Zeichen-Flag
+# < O(token_buff_1): read characters
+# < O(token_buff_2): their attributcodes
+# < token_escape_flag: Escape-character-Flag
 # can trigger GC
   local void read_token_1 (const object* stream_, object ch, uintWL scode);
 
   local void read_token(stream_)
     var const object* stream_;
     {
-      # erstes Zeichen lesen:
+      # read first character:
       var object ch;
       var uintWL scode;
       read_char_syntax(ch = ,scode = ,stream_);
-      # Token aufbauen:
+      # build up token:
       read_token_1(stream_,ch,scode);
     }
 
@@ -1338,30 +1339,30 @@ LISPFUNN(set_readtable_case,2)
     var object ch;
     var uintWL scode;
     {
-      # leere Token-Buffer holen, auf den STACK:
-      get_buffers(); # (brauche ch nicht zu retten)
-      # Bis zum Ende von read_token_1 liegen die beiden Buffer im Stack.
-      # (So kann read_char rekursiv read aufrufen...)
-      # Danach (während test_potential_number_syntax, test_number_syntax,
-      # test_dots, read_internal bis zum Ende von read_internal) liegen
-      # die Buffer in O(token_buff_1) und O(token_buff_2). Nach dem Ende von
-      # read_internal ist ihr Inhalt wertlos, und sie können für weitere
-      # read-Operationen benutzt werden.
+      # fetch empty Token-Buffers, upon STACK:
+      get_buffers(); # (don't need to save ch)
+      # the two buffers lie up th the end of read_token_1 in the Stack.
+      # (thus read_char can call read recursively...)
+      # Afterwards (during test_potential_number_syntax, test_number_syntax,
+      # test_dots, read_internal up to the end of read_internal)
+      # the buffers lie in O(token_buff_1) and O(token_buff_2). After the return of
+      # read_internal their content is useless, and they can be used for further
+      # read-operations.
       var bool multiple_escape_flag = false;
       var bool escape_flag = false;
       goto char_read;
       loop {
-        # Hier wird das Token in STACK_1 (Semi-Simple-String für Characters)
-        # und STACK_0 (Semi-Simple-Byte-Vektor für Attributcodes) aufgebaut.
-        # Multiple-Escape-Flag zeigt an, ob man sich zwischen |...| befindet.
-        # Escape-Flag zeigt an, ob ein Escape-Character vorgekommen ist.
-        read_char_syntax(ch = ,scode = ,stream_); # nächstes Zeichen lesen
+        # Here the token in STACK_1 (Semi-Simple-String for characters)
+        # and STACK_0 (Semi-Simple-Byte-Vector for attributecodes) is constructed.
+        # Multiple-Escape-Flag indicates, if we are situated between |...|.
+        # Escape-Flag indicates, if a Escape-Character has appeared.
+        read_char_syntax(ch = ,scode = ,stream_); # read next character
        char_read:
         switch(scode) {
           case syntax_illegal:
-            # illegal -> Error melden:
-            pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
-            pushSTACK(ch); # Zeichen
+            # illegal -> issue Error:
+            pushSTACK(*stream_); # value for slot STREAM of STREAM-ERROR
+            pushSTACK(ch); # character
             pushSTACK(*stream_); # Stream
             pushSTACK(S(read));
             fehler(stream_error,
@@ -1369,12 +1370,12 @@ LISPFUNN(set_readtable_case,2)
                   );
             break;
           case syntax_single_esc:
-            # Single-Escape-Zeichen ->
-            # nächstes Zeichen lesen und unverändert übernehmen
+            # Single-Escape-Character ->
+            # read next character and take over unchanged
             escape_flag = true;
-            read_char_syntax(ch = ,scode = ,stream_); # nächstes Zeichen lesen
-            if (scode==syntax_eof) { # EOF erreicht?
-              pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+            read_char_syntax(ch = ,scode = ,stream_); # read next character
+            if (scode==syntax_eof) { # reached EOF?
+              pushSTACK(*stream_); # value for slot STREAM of STREAM-ERROR
               pushSTACK(*stream_);
               pushSTACK(S(read));
               fehler(end_of_file,
@@ -1382,22 +1383,22 @@ LISPFUNN(set_readtable_case,2)
                     );
             }
           escape:
-            # nach Escape-Zeichen:
-            # Zeichen unverändert ins Token übernehmen
+            # past Escape-character:
+            # take over character into token without change
             ssstring_push_extend(STACK_1,char_code(ch));
             ssbvector_push_extend(STACK_0,a_escaped);
             break;
           case syntax_multi_esc:
-            # Multiple-Escape-Zeichen
+            # Multiple-Escape-character
             multiple_escape_flag = !multiple_escape_flag;
             escape_flag = true;
             break;
           case syntax_constituent:
           case syntax_nt_macro:
-            # normales Constituent
-            if (multiple_escape_flag) # Zwischen Multiple-Escape-Zeichen?
-              goto escape; # ja -> Zeichen unverändert übernehmen
-            # ins Token übernehmen (Groß-/Klein-Umwandlung kommt später):
+            # normal constituent
+            if (multiple_escape_flag) # between Multiple-Escape-characters?
+              goto escape; # yes -> take over character without change
+            # take over into token (capital-conversion takes place later):
             {
               var chart c = char_code(ch);
               ssstring_push_extend(STACK_1,c);
@@ -1406,14 +1407,14 @@ LISPFUNN(set_readtable_case,2)
             break;
           case syntax_whitespace:
           case syntax_t_macro:
-            # whitespace oder terminating macro ->
-            # Token endet wohl vor diesem Character.
-            if (multiple_escape_flag) # Zwischen Multiple-Escape-Zeichen?
-              goto escape; # ja -> Zeichen unverändert übernehmen
-            # Token ist zu Ende.
-            # Schiebe das Character auf den Stream zurück,
-            # falls es kein Whitespace ist oder
-            # es ein Whitespace ist und *READ-PRESERVE-WHITESPACE* /= NIL.
+            # whitespace or terminating macro ->
+            # Token ends before this Character.
+            if (multiple_escape_flag) # between multiple-escape-characters?
+              goto escape; # yes -> take over character without change
+            # Token is finished.
+            # Push back character to the Stream,
+            # if ( it is no Whitespace ) or
+            # ( it is a  Whitespace and also  *READ-PRESERVE-WHITESPACE* /= NIL holds true).
             if ((!(scode == syntax_whitespace))
                 || test_value(S(read_preserve_whitespace))
                )
@@ -1421,42 +1422,42 @@ LISPFUNN(set_readtable_case,2)
             goto ende;
           case syntax_eof:
             # EOF erreicht.
-            if (multiple_escape_flag) { # zwischen Multiple-Escape-Zeichen?
-              pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+            if (multiple_escape_flag) { # between multiple-escape-character?
+              pushSTACK(*stream_); # value for slot STREAM of STREAM-ERROR
               pushSTACK(*stream_);
               pushSTACK(S(read));
               fehler(end_of_file,
                      GETTEXT("~: input stream ~ ends within a token after multiple escape character")
                     );
             }
-            # nein -> Token normal zu Ende
+            # no -> token is finished normally
             goto ende;
           default: NOTREACHED
         }
       }
      ende:
-      # Nun ist Token zu Ende, multiple_escape_flag = false.
-      token_escape_flag = escape_flag; # Escape-Flag abspeichern
-      O(token_buff_2) = popSTACK(); # Attributcode-Buffer
+      # now token is finished, multiple_escape_flag = false.
+      token_escape_flag = escape_flag; # store Escape-Flag
+      O(token_buff_2) = popSTACK(); # Attributecode-Buffer
       O(token_buff_1) = popSTACK(); # Character-Buffer
     }
 
-# --------------- READ zwischen Token-Ebene und Objekt-Ebene ------------------
+# --------------- READ between token-level and objekt-level ------------------
 
-# UP: Überprüft, ob der Token-Buffer eine potential-number enthält, und
-# wandelt, als Vorbereitung auf Zahl-Lese-Routinen, Attributcodes um.
+# UP: checks, if the token-buffer contains a potential-number, and
+# transforms Attributecodes as preparation on read-routines for digits.
 # test_potential_number_syntax(&base,&token_info);
-# > O(token_buff_1): gelesene Characters
-# > O(token_buff_2): ihre Attributcodes
-# > base: Ziffernsystembasis (Wert von *READ-BASE* oder *PRINT-BASE*)
-# < base: Ziffernsystembasis (= 10 oder altes base)
-# Innerhalb von O(token_buff_2) wird umgewandelt:
-#   Falls potential number:
-#     >=a_letter oberhalb der Ziffernsystembasis -> a_alpha
-#   Falls nicht potential number:
-#     Unterscheidung zwischen [a_pack_m | a_dot | sonstiges] bleibt erhalten.
-# < ergebnis: true, falls potential number vorliegt
-#             (und dann ist token_info mit {charptr, attrptr, len} gefüllt)
+# > O(token_buff_1): read characters
+# > O(token_buff_2): their attributecodes
+# > base: base of number-system (value of *READ-BASE* or *PRINT-BASE*)
+# < base: base of number-system (= 10 or old base)
+# conversion takes place within O(token_buff_2):
+#   if potential number:
+#     >=a_letter above the base of number-system -> a_alpha
+#   if not potential number:
+#     distinction between [a_pack_m | a_dot | others] is preserved.
+# < result: true, if potential number
+#             (and then token_info is filled with {charptr, attrptr, len} )
   typedef struct {
     chart* charptr;
     uintB* attrptr;
@@ -1466,43 +1467,43 @@ LISPFUNN(set_readtable_case,2)
   local bool test_potential_number_syntax(base_,info)
     var uintWL* base_;
     var token_info* info;
-    # Ein Token ist potential number, wenn (CLTL, S. 341)
-    # - es ausschließlich aus Ziffern, '+','-','/','^','_','.' und
-    #   Number-Markern besteht. Die Basis für die Ziffern ist dabei vom
-    #   Kontext abhängig, jedoch immer 10, wenn ein Punkt '.' vorkommt.
-    #   Ein Number-Marker ist ein Buchstabe, der keine Ziffer ist und
-    #   nicht neben einem anderen solchen steht.
-    # - es mindestens eine Ziffer enthält,
-    # - es mit einer Ziffer, '+','-','.','^' oder '_' beginnt,
-    # - es nicht mit '+' oder '-' endet.
-    # Überprüfung:
-    # 1. Suche, ob ein Punkt vorkommt. Falls ja, Basis:=10.
-    # 2. Alles >=a_letter (also 'A'-'Z','a'-'z'), was einen Wert <Basis hat,
-    #    wird in a_digit umgewandelt.
-    # (Jetzt wird a_digit als "digit" und >=a_letter als "letter" interpretiert.)
-    # 3. Test, ob nur >=a_ratio vorkommen. Nein -> kein potential number.
-    # 4. Test, ob ein a_digit vorkommt. Nein -> kein potential number.
-    # (Jetzt ist die Länge >0.)
-    # 5. Test, ob nebeneinanderliegende >=a_letter vorkommen.
-    #    Ja -> kein potential number.
-    # 6. Test, ob erstes Zeichenattribut >=a_dot,<=a_digit.
-    #    Nein -> kein potential number.
-    # 7. Test, ob letztes Zeichenattribut =a_plus oder =a_minus.
-    #    Ja -> kein potential number.
-    # 8. Potential number liegt vor.
+    # A token is a potential number, if (CLTL, p. 341)
+    # - it consists exclusively of digits, '+','-','/','^','_','.' and
+    #   Number-Markers. The base for the digits ist context-sensitive.
+    #   It is always 10, if a dot '.' is in the token.
+    #   A Number-Marker is a letter, that is no digit and
+    #   is not placed adjacent to another such letter.
+    # - it contains at least one digit,
+    # - it starts with a digit, '+','-','.','^' or '_',
+    # - it does not end with '+' or '-'.
+    # Verification:
+    # 1. Search for a dot. if ther is one ===> Base:=10.
+    # 2. Every char that is >=a_letter (also 'A'-'Z','a'-'z')  and has a value <Basis,
+    #    will be converted to an a_digit.
+    # (Now a_digit is interpreted as "digit" and >=a_letter as "letter".)
+    # 3. Test, if only chars >=a_ratio are in the token. No -> no potential number.
+    # 4. Test, if an a_digit is in the token. No -> no potential number.
+    # (No the length is >0.)
+    # 5. Test, if adjacend >=a_letter are in the token.
+    #    Yes -> no potential number.
+    # 6. Test, if first character attribute is  >=a_dot and <=a_digit.
+    #    No -> no potential number.
+    # 7. Test, if last character attribute is =a_plus or =a_minus.
+    #    Yes -> no potential number.
+    # 8. Otherwise it is a potential number.
     {
-      var chart* charptr0; # Pointer auf die Characters
-      var uintB* attrptr0; # Pointer auf die Attribute
-      var uintL len; # Länge des Token
-      # initialisieren:
+      var chart* charptr0; # Pointer to the characters
+      var uintB* attrptr0; # Pointer to the attributes
+      var uintL len; # Length of token
+      # initialize:
       {
         var object buff = O(token_buff_1); # Semi-Simple String
-        len = TheIarray(buff)->dims[1]; # Länge = Fill-Pointer
-        charptr0 = &TheSstring(TheIarray(buff)->data)->data[0]; # ab hier kommen die Characters
+        len = TheIarray(buff)->dims[1]; # length = Fill-Pointer
+        charptr0 = &TheSstring(TheIarray(buff)->data)->data[0]; # characters from this point on
         buff = O(token_buff_2); # Semi-Simple Byte-Vektor
-        attrptr0 = &TheSbvector(TheIarray(buff)->data)->data[0]; # ab hier kommen die Attributcodes
+        attrptr0 = &TheSbvector(TheIarray(buff)->data)->data[0]; # attributecodes from this point on
       }
-      # 1. Suche, ob ein Punkt vorkommt:
+      # 1. search, if thereis a dot:
       {
         if (len > 0) {
           var uintB* attrptr = attrptr0;
@@ -1511,38 +1512,38 @@ LISPFUNN(set_readtable_case,2)
             if (*attrptr++ == a_dot) goto dot;
           });
         }
-        # kein Punkt -> base unverändert lassen
+        # no dot -> leave base unchanged
         goto no_dot;
-        # Punkt -> base := 10
+        # dot -> base := 10
        dot: *base_ = 10;
        no_dot: ;
       }
-      # 2. Alles >=a_letter mit Wert <Basis in a_digit umwandeln:
+      # 2. translate everything  >=a_letter with value <Basis into a_digit:
       if (len > 0) {
         var uintB* attrptr = attrptr0;
         var chart* charptr = charptr0;
         var uintL count;
         dotimespL(count,len, {
           if (*attrptr >= a_letter) {
-            # Attributcode >= a_letter
-            var cint c = as_cint(*charptr); # Zeichen, muss 'A'-'Z','a'-'Z' sein
+            # Attributecode >= a_letter
+            var cint c = as_cint(*charptr); # character, must be 'A'-'Z','a'-'Z'
             if (c >= 'a') { c -= 'a'-'A'; }
-            if ((c - 'A') + 10 < *base_) # Wert < Basis ?
-              *attrptr = a_digit; # in a_digit umwandeln
+            if ((c - 'A') + 10 < *base_) # value < base ?
+              *attrptr = a_digit; # translate into a_digit
           }
           attrptr++; charptr++;
         });
       }
-      # 3. Teste, ob nur Attributcodes >=a_ratio vorkommen:
+      # 3. Test, if only attributecodes >=a_ratio occur:
       if (len > 0) {
         var uintB* attrptr = attrptr0;
         var uintL count;
         dotimespL(count,len, {
           if (!(*attrptr++ >= a_ratio))
-            return false; # nein -> kein potential number
+            return false; # no -> no potential number
         });
       }
-      # 4. Teste, ob ein a_digit vorkommt:
+      # 4. Test, if an a_digit occurs:
       {
         if (len > 0) {
           var uintB* attrptr = attrptr0;
@@ -1552,11 +1553,11 @@ LISPFUNN(set_readtable_case,2)
               goto digit_ok;
           });
         }
-        return false; # kein potential number
+        return false; # no potential number
        digit_ok: ;
       }
-      # Länge len>0.
-      # 5. Teste, ob hintereinander zwei Attributcodes >= a_letter kommen:
+      # length len>0.
+      # 5. Test, if two attributecodes >= a_letter follow adjacently:
       if (len > 1) {
         var uintB* attrptr = attrptr0;
         var uintL count;
@@ -1566,55 +1567,58 @@ LISPFUNN(set_readtable_case,2)
               return false;
         });
       }
-      # 6. Teste, ob erster Attributcode >=a_dot, <=a_digit ist:
+      # 6. Test, if first attributecode is >=a_dot and <=a_digit:
       {
         var uintB attr = attrptr0[0];
         if (!((attr >= a_dot) && (attr <= a_digit)))
           return false;
       }
-      # 7. Teste, ob letzter Attributcode = a_plus oder a_minus ist:
+      # 7. Test, if last attributecode is  =a_plus or =a_minus:
       {
         var uintB attr = attrptr0[len-1];
         if ((attr == a_plus) || (attr == a_minus))
           return false;
       }
-      # 8. Potential number liegt vor.
+      # 8. It is a potential number.
       info->charptr = charptr0; info->attrptr = attrptr0; info->len = len;
       return true;
     }
 
-# UP: Überprüft, ob der Token-Buffer eine Zahl enthält (Syntax gemäß CLTL
-# Table 22-2), und stellt gegebenenfalls die für die Umwandlung in eine Zahl
-# nötigen Parameter zur Verfügung.
+# UP: verifies, if the token-buffer contains a number (syntax according to CLTL
+# Table 22-2), and provides the parameters which are necessary for the translation
+# into a number, where necessary.
 # test_number_syntax(&base,&string,&info)
-# > O(token_buff_1): gelesene Characters
-# > O(token_buff_2): ihre Attributcodes
-# > token_escape_flag: Escape-Zeichen-Flag
-# > base: Ziffernsystembasis (Wert von *READ-BASE* oder *PRINT-BASE*)
-# < base: Ziffernsystembasis
-# < string: Normal-Simple-String mit den Characters
-# < info.sign: Vorzeichen (/=0 falls negativ)
-# < ergebnis: Zahl-Typ
-#     0 : keine Zahl (dann sind auch base,string,info bedeutungslos)
+# > O(token_buff_1): read characters
+# > O(token_buff_2): their attributecodes
+# > token_escape_flag: Escape-Character-Flag
+# > base: number-system-base (value of *READ-BASE* or *PRINT-BASE*)
+# < base: number-system-base
+# < string: Normal-Simple-String with the characters
+# < info.sign: sign (/=0 if negative)
+# < result: number-type
+#     0 : no number (then also base,string,info are meaningless)
 #     1 : Integer
-#         < index1: Index der ersten Ziffer
-#         < index2: Index nach der letzten Ziffer
-#         (also index2-index1 Ziffern, incl. evtl. Dezimalpunkt am Schluss)
+#         < index1: Index of the first digit
+#         < index2: Index after the last digit
+#         (that means index2-index1 digits, incl. a possible decimal
+#         dot at the end)
 #     2 : Rational
-#         < index1: Index der ersten Ziffer
-#         < index3: Index von '/'
-#         < index2: Index nach der letzten Ziffer
-#         (also index3-index1 Zähler-Ziffern, index2-index3-1 Nenner-Ziffern)
+#         < index1: Index of the first digit
+#         < index3: Index of '/'
+#         < index2: Index after the last digit
+#         (that means index3-index1 numerator-digits and
+#          index2-index3-1 denominator-digits)
 #     3 : Float
-#         < index1: Index vom Mantissenanfang (excl. Vorzeichen)
-#         < index4: Index nach dem Mantissenende
-#         < index2: Index beim Ende der Characters
-#         < index3: Index nach dem Dezimalpunkt (=index4 falls keiner da)
-#         (also Mantisse mit index4-index1 Characters: Ziffern und max. 1 '.')
-#         (also index4-index3 Nachkommaziffern)
-#         (also bei index4<index2: index4 = Index des Exponent-Markers,
-#               index4+1 = Index des Exponenten-Vorzeichens oder der ersten
-#               Exponenten-Ziffer)
+#         < index1: Index of the start of mantissa (excl. sign)
+#         < index4: Index after the end of mantissa
+#         < index2: Index at the  end of the characters
+#         < index3: Index after the dezimal dot (=index4 if there is no dot)
+#         (implies: mantissa with index4-index1 characters: digits and at
+#          most one '.')
+#         (implies: index4-index3 digits after the dot)
+#         (implies: if index4<index2: index4 = Index of the exponent-marker,
+#               index4+1 = index of exponenten-sign or of the first
+#               exponenten-digit)
   typedef struct {
     signean sign;
     uintL index1;
@@ -1627,137 +1631,134 @@ LISPFUNN(set_readtable_case,2)
     var uintWL* base_;
     var object* string_;
     var zahl_info* info;
-    # Methode:
-    # 1. Auf potential number testen.
-    #    Dann kommen nur Attributcodes >= a_ratio vor,
-    #    und bei a_dot ist base=10.
-    # 2. Vorzeichen { a_plus | a_minus | } lesen, merken.
-    # 3. versuchen, das Token als rationale Zahl zu interpretieren:
-    #    Teste, ob die Syntax
-    #    { a_plus | a_minus | }                               # schon gelesen
+    # Method:
+    # 1. test for potential number.
+    #    Then there exist only Attributcodes >= a_ratio,
+    #    and with a_dot, the base=10.
+    # 2. read sign { a_plus | a_minus | } and store.
+    # 3. try to read token as a rational number:
+    #    test, if syntax
+    #    { a_plus | a_minus | }                               # already read
     #    { a_digit < base }+ { a_ratio { a_digit < base }+ | }
-    #    vorliegt.
-    # 4. base:=10 setzen, und falls base vorher >10 war, den Characters
-    #    'A'-'Z','a'-'z' (waren früher a_letter oder a_expo_m, sind aber evtl.
-    #    durch test_potential_number_syntax in a_digit umgewandelt worden)
-    #    wieder ihren Attributcode gemäß Tabelle zuordnen (a_letter -> keine
-    #    Zahl oder a_expo_m).
-    # 5. versuchen, das Token als Floating-Point-Zahl oder Dezimal-Integer
-    #    zu interpretieren:
-    #    Teste, ob die Syntax
-    #    { a_plus | a_minus | }                               # schon gelesen
+    #    is matching.
+    # 4. set base:=10, and if base was >10 beforehand, assign the attributcodes to
+    #    the Characters 'A'-'Z','a'-'z' (which have been  a_letter oder a_expo_m earlier,
+    #    but might have been transformed in a_digit by test_potential_number_syntax)
+    #    according to table again (a_letter -> no number or a_expo_m).
+    # 5. try to interprete the token as a  floating-point-number or decimal-integer:
+    #    Test, if the syntax
+    #    { a_plus | a_minus | }                               # already read
     #    { a_digit }* { a_dot { a_digit }* | }
     #    { a_expo_m { a_plus | a_minus | } { a_digit }+ | }
-    #    vorliegt.
-    #    Falls Exponent vorliegt, müssen Vor- oder Nachkommastellen kommen;
-    #      es ist ein Float, Typ wird vom Exponent-Marker (e,E liefern den
-    #      Wert der Variablen *read-default-float-format* als Typ).
-    #    Falls kein Exponent:
-    #      Falls kein Dezimalpunkt da, ist es keine Zahl (hätte schon bei
-    #        Schritt 3 geliefert werden müssen, aber base hatte offenbar
-    #        nicht gepasst).
-    #      Falls Dezimalpunkt vorhanden:
-    #        Falls Nachkommastellen vorliegen, ist es ein Float (Typ wird
-    #          von der Variablen *read-default-float-format* angegeben).
-    #        Falls keine Nachkommastellen kommen:
-    #          Falls Vorkommastellen da waren, Dezimal-Integer.
-    #          Sonst keine Zahl.
+    #    is matching.
+    #    if there is an exponent, there must be digits before or after the dot;
+    #      it is a float, Type will be determined by exponent-marker
+    #      (e,E deliver the value of the variable *read-default-float-format* as type).
+    #    if there is no exponent:
+    #      if there is no dot, it is not a number (should have been delivered at
+    #        step 3, but base obviously did not fit).
+    #      if decimal dot exists:
+    #        if there are digits after the dot, it is a float (type is
+    #          denoted by the variable *read-default-float-format*).
+    #        if there are no digits after the dot:
+    #          if there were digits before the dot --> decimal-integer.
+    #          otherwise no number.
     {
-      var chart* charptr0; # Pointer auf die Characters
-      var uintB* attrptr0; # Pointer auf die Attribute
-      var uintL len; # Länge des Token
-      # 1. Auf potential number testen:
+      var chart* charptr0; # Pointer to the characters
+      var uintB* attrptr0; # Pointer to the attributes
+      var uintL len; # length of the token
+      # 1. test for potential number:
       {
-        if (token_escape_flag) # Token mit Escape-Zeichen ->
-          return 0; # keine potential number -> keine Zahl
-         # Escape-Flag gelöscht.
+        if (token_escape_flag) # token with escape-character ->
+          return 0; # no potential number -> no number
+         # escape-flag deleted.
         var token_info info;
         if (!test_potential_number_syntax(base_,&info)) # potential number ?
           return 0; # nein -> keine Zahl
-        # ja -> Ausgabeparameter von test_potential_number_syntax lesen:
+        # yes -> read outputparameter returned by test_potential_number_syntax:
         charptr0 = info.charptr;
         attrptr0 = info.attrptr;
         len = info.len;
       }
       *string_ = TheIarray(O(token_buff_1))->data; # Normal-Simple-String
       var uintL index0 = 0;
-      # 2. Vorzeichen lesen und merken:
-      info->sign = 0; # Vorzeichen:=positiv
+      # read 2. sign and store:
+      info->sign = 0; # sign:=positiv
       switch (*attrptr0) {
-        case a_minus: info->sign = -1; # Vorzeichen:=negativ
+        case a_minus: info->sign = -1; # sign:=negativ
         case a_plus:
-          # Vorzeichen überlesen:
+          # read over sign:
           charptr0++; attrptr0++; index0++;
         default:
           break;
       }
       info->index1 = index0; # Startindex
       info->index2 = len; # Endindex
-      # info->sign und info->index1 und info->index2 fertig.
-      # charptr0 und attrptr0 und index0 ab jetzt unverändert.
-      var uintB flags = 0; # alle Flags löschen
-      # 3. Rationale Zahl
+      # info->sign, info->index1 and info->index2 finished.
+      # charptr0 and attrptr0 and index0 from now on unchanged.
+      var uintB flags = 0; # delete all flags
+      # 3. Rational number
       {
         var chart* charptr = charptr0;
         var uintB* attrptr = attrptr0;
         var uintL index = index0;
-        # flags & bit(0)  zeigt an, ob bereits ein a_digit < base
-        #                 angetroffen ist.
-        # flags & bit(1)  zeigt an, ob bereits ein a_ratio angetroffen ist
-        #                 (und dann ist info->index3 dessen Position)
+        # flags & bit(0)  indicates, if an a_digit < base
+        #                 has already arrived.
+        # flags & bit(1)  indicates, if an a_ratio has already arrived
+        #                 (and then info->index3 is its position)
         loop {
-          # nächstes Zeichen
+          # next character
           if (index>=len)
             break;
-          var uintB attr = *attrptr++; # dessen Attributcode
+          var uintB attr = *attrptr++; # its attributcode
           if (attr==a_digit) {
-            var cint c = as_cint(*charptr++); # Character (Digit, also '0'-'9','A'-'Z','a'-'z')
-            # Wert bestimmen:
+            var cint c = as_cint(*charptr++); # character (Digit, namely '0'-'9','A'-'Z','a'-'z')
+            # determine value:
             var uintB wert = (c<'A' ? c-'0' : c<'a' ? c-'A'+10 : c-'a'+10);
-            if (wert >= *base_) # Digit mit Wert >=base ?
-              goto schritt4; # ja -> keine rationale Zahl
-            # Digit mit Wert <base
-            flags |= bit(0); # Bit 0 setzen
+            if (wert >= *base_) # Digit with value >=base ?
+              goto schritt4; # yes -> no rational number
+            # Digit with value <base
+            flags |= bit(0); # set bit 0
             index++;
           } elif (attr==a_ratio) {
-            if (flags & bit(1)) # nicht der einzige '/' ?
-              goto schritt4; # ja -> keine rationale Zahl
-            flags |= bit(1); # erster '/'
-            if (!(flags & bit(0))) # keine Ziffern vor dem Bruchstrich?
-              goto schritt4; # ja -> keine rationale Zahl
-            flags &= ~bit(0); # Bit 0 löschen, neuer Block fängt an
-            info->index3 = index; # Index des '/' merken
+            if (flags & bit(1)) # not the only '/' ?
+              goto schritt4; # yes -> not a rational number
+            flags |= bit(1); # first '/'
+            if (!(flags & bit(0))) # no digits before the fraction bar?
+              goto schritt4; # yes -> not a rational number
+            flags &= ~bit(0); # delete bit 0, new block starts
+            info->index3 = index; # store index of '/'
             charptr++; index++;
           } else
-            # Attributcode /= a_digit, a_ratio -> keine rationale Zahl
+            # Attributecode /= a_digit, a_ratio -> not a rational number
             goto schritt4;
         }
-        # Token zu Ende
-        if (!(flags & bit(0))) # keine Ziffern im letzten Block ?
-          goto schritt4; # ja -> keine rationale Zahl
-        # rationale Zahl
-        if (!(flags & bit(1))) # a_ratio aufgetreten?
-          # nein -> Integer liegt vor, info ist fertig.
+        # Token finished
+        if (!(flags & bit(0))) # no digits in the last block ?
+          goto schritt4; # yes -> not a rational number
+        # rational number
+        if (!(flags & bit(1))) # a_ratio?
+          # no -> it's an integer, info is ready.
           return 1;
         else
-          # ja -> Bruch liegt vor, info ist fertig.
+          # yes -> it's a fraction, info is ready.
           return 2;
       }
      schritt4:
-      # 4. base:=10, mit Eliminierung von 'A'-'Z','a'-'z'
+      # 4. base:=10, with elimination of 'A'-'Z','a'-'z'
       if (*base_ > 10) {
         var uintL count = len-index0;
         if (count > 0) {
           var chart* charptr = charptr0;
           var uintB* attrptr = attrptr0;
           dotimespL(count,count, {
-            var chart ch = *charptr++; # nächstes Character
+            var chart ch = *charptr++; # next character
             var cint c = as_cint(ch);
             if (((c>='A') && (c<='Z')) || ((c>='a') && (c<='z'))) {
-              var uintB attr = attribute_of(ch); # dessen wahrer Attributcode
-              if (attr == a_letter) # Ist er = a_letter ?
-                return 0; # ja -> keine Zahl
-              # sonst (muss a_expo_m sein) eintragen:
+              var uintB attr = attribute_of(ch); # its true Attributcode
+              if (attr == a_letter) # is er = a_letter ?
+                return 0; # yes -> not a number
+              # otherwise write (must be a_expo_m):
               *attrptr = attr;
             }
             attrptr++;
@@ -1765,83 +1766,85 @@ LISPFUNN(set_readtable_case,2)
         }
       }
       *base_ = 10;
-      # 5. Floating-Point-Zahl oder Dezimal-Integer
+      # 5. Floating-Point-Number or decimal-integer
       {
         var uintB* attrptr = attrptr0;
         var uintL index = index0;
-        # flags & bit(2)  zeigt an, ob bereits ein a_dot angetroffen ist
-        #                 (und dann ist info->index3 die Position danach)
+        # flags & bit(2)  indicates, if an a_dot has arrived already
+        #                 (then info->index3 is the subsequent position)
         # flags & bit(3)  zeigt an, ob im letzten Ziffernblock bereits ein
         #                 a_digit angetroffen wurde.
-        # flags & bit(4)  zeigt an, ob a_dot vorkam und es Vorkommastellen
-        #                 gab.
+        # flags & bit(4)  indicates, if there was an a_dot with digits in front
+        #                 of it
         loop {
-          # nächstes Zeichen
+          # next character
           if (index>=len)
             break;
-          var uintB attr = *attrptr++; # dessen Attributcode
+          var uintB attr = *attrptr++; # its attributecode
           if (attr==a_digit) {
             # Digit ('0'-'9')
             flags |= bit(3); index++;
           } elif (attr==a_dot) {
-            if (flags & bit(2)) # nicht das einzige '.' ?
-              return 0; # ja -> keine Zahl
-            flags |= bit(2); # erster '.'
+            if (flags & bit(2)) # not the only '.' ?
+              return 0; # yes -> not a number
+            flags |= bit(2); # first '.'
             if (flags & bit(3))
-              flags |= bit(4); # evtl. mit Vorkommastellen
-            flags &= ~bit(3); # Flag zurücksetzen
+              flags |= bit(4); # maybe with digits in front of the dot
+            flags &= ~bit(3); # reset flag
             index++;
-            info->index3 = index; # Index nach dem '.' merken
+            info->index3 = index; # store index after the '.'
           } elif (attr==a_expo_m)
-            goto expo; # Nun kommt der Exponent
+            goto expo; # treat exponent
           else
-            return 0; # sonst kein Float, also keine Zahl
+            return 0; # not a float, thus not a number
         }
-        # Token zu Ende, kein Exponent
-        if (!(flags & bit(2))) # nur Dezimalziffern ohne '.' ?
-          return 0; # ja -> keine Zahl
+        # token finished, no exponent
+        if (!(flags & bit(2))) # only decimal digits without '.' ?
+          return 0; # yes -> not a number
         info->index4 = index;
-        if (flags & bit(3)) # mit Nachkommastellen?
-          return 3; # ja -> Float, info fertig.
-        # nein.
-        if (!(flags & bit(4))) # auch ohne Vorkommastellen?
-          return 0; # ja -> nur '.' -> keine Zahl
-        # Nur Vorkomma-, keine Nachkommastellen -> Dezimal-Integer.
-        # Brauche Dot ganz hinten nicht wegzuschneiden (wird überlesen).
+        if (flags & bit(3)) # with digits behind the dot?
+          return 3; # yes -> Float, info ready.
+        # no.
+        if (!(flags & bit(4))) # also without digits in front of dot?
+          return 0; # yes -> only '.' -> no number
+        # only digits in front of '.',none behind it -> decimal-integer.
+        # Don't need to cut '.' away at the end (will be omitted).
         return 1;
        expo:
-        # Exponent erreicht.
+        # reached exponent.
         info->index4 = index;
-        index++; # Exponent-Marker mitzählen
+        index++; # count exponent-marker
         if (!(flags & bit(2)))
-          info->index3 = info->index4; # Default für index3
-        if (!(flags & (bit(3)|bit(4)))) # Kamen Vor- oder Nachkommastellen vor?
-          return 0; # nein -> keine Zahl
-        # Exponententeil weiter abarbeiten:
-        # flags & bit(5)  zeigt an, ob bereits eine Exponenten-Ziffer da war.
+          info->index3 = info->index4; # default for index3
+        if (!(flags & (bit(3)|bit(4)))) # were there digits in front of
+                                        # or behind the dot?
+          return 0; # no -> not a number
+        # continue with exponent:
+        # flags & bit(5)  indicates, if there has already been
+        # an exponent-digit.
         if (index>=len)
-          return 0; # String zu Ende -> keine Zahl
+          return 0; # string finished -> not a number
         switch (*attrptr) {
           case a_plus:
           case a_minus:
-            attrptr++; index++; # Exponenten-Vorzeichen übergehen
+            attrptr++; index++; # skip sign of the exponent
           default:
             break;
         }
         loop {
-          # nächstes Zeichen im Exponenten:
+          # next character in exponent:
           if (index>=len)
             break;
-          # Es dürfen nur noch Digits kennen:
+          # from now on only digits are allowed:
           if (!(*attrptr++ == a_digit))
             return 0;
           flags |= bit(5);
           index++;
         }
-        # Token nach Exponent zu Ende
-        if (!(flags & bit(5))) # keine Ziffer im Exponenten?
-          return 0; # ja -> keine Zahl
-        return 3; # Float, info fertig.
+        # Token is finished after exponent
+        if (!(flags & bit(5))) # no digit in exponent?
+          return 0; # yes -> not a number
+        return 3; # Float, info ready.
       }
     }
 
@@ -1859,33 +1862,33 @@ LISPFUNN(set_readtable_case,2)
       funcall(L(error_of_type),3);
     }
 
-# UP: Überprüft, ob ein Token nur aus Dots besteht.
+# UP: checks, if a token consists only of Dots.
 # test_dots()
-# > O(token_buff_1): gelesene Characters
-# > O(token_buff_2): ihre Attributcodes
-# < ergebnis: true, falls Token leer ist oder nur aus Dots besteht
+# > O(token_buff_1): read characters
+# > O(token_buff_2): their attributcodes
+# < result: true, if token is empty or consists only of dots
   local bool test_dots (void);
   local bool test_dots()
     {
-      # Suche nach Attributcode /= a_dot:
-      var object bvec = O(token_buff_2); # Semi-Simple-Byte-Vektor
+      # search for attributecode /= a_dot:
+      var object bvec = O(token_buff_2); # Semi-Simple-Byte-Vector
       var uintL len = TheIarray(bvec)->dims[1]; # Fill-Pointer
       if (len > 0) {
         var uintB* attrptr = &TheSbvector(TheIarray(bvec)->data)->data[0];
         var uintL count;
         dotimespL(count,len, {
-          if (!(*attrptr++ == a_dot)) # Attributcode /= a_dot gefunden?
-            return false; # ja -> fertig, false
+          if (!(*attrptr++ == a_dot)) # Attributcode /= a_dot found?
+            return false; # yes -> ready, false
         });
       }
-      # alles Dots.
+      # only dots.
       return true;
     }
 
-# UP: Wandelt ein Zahl-Token in Großbuchstaben um.
+# UP: converts a number-token into capitals.
 # upcase_token();
-# > O(token_buff_1): gelesene Characters
-# > O(token_buff_2): ihre Attributcodes
+# > O(token_buff_1): read characters
+# > O(token_buff_2): their attributecodes
   local void upcase_token (void);
   local void upcase_token()
     {
@@ -1897,13 +1900,13 @@ LISPFUNN(set_readtable_case,2)
       }
     }
 
-# UP: Wandelt ein Stück des gelesenen Tokens in Groß- oder Kleinbuchstaben um.
+# UP: converts a piece of the read Tokens into upper or lower case letters.
 # case_convert_token(start_index,end_index,direction);
-# > O(token_buff_1): gelesene Characters
-# > O(token_buff_2): ihre Attributcodes
-# > uintL start_index: Startindex des zu konvertierenden Bereiches
-# > uintL end_index: Endindex des zu konvertierenden Bereiches
-# > uintW direction: Richtung der Konversion
+# > O(token_buff_1): read characters
+# > O(token_buff_2): their attributecodes
+# > uintL start_index: startindex of range to be converted
+# > uintL end_index: endindex of the range to be converted
+# > uintW direction: direction of the conversion
   local void case_convert_token (uintL start_index, uintL end_index, uintW direction);
   local void case_convert_token(start_index,end_index,direction)
     var uintL start_index;
@@ -1917,7 +1920,7 @@ LISPFUNN(set_readtable_case,2)
         return;
       switch (direction) {
         case case_upcase:
-          # Nicht-escapte Characters in Großbuchstaben umwandeln:
+          # convert un-escaped characters to upper case:
         do_upcase:
           dotimespL(len,len, {
             if (!(*attrptr == a_escaped))
@@ -1926,7 +1929,7 @@ LISPFUNN(set_readtable_case,2)
           });
           break;
         case case_downcase:
-          # Nicht-escapte Characters in Kleinbuchstaben umwandeln:
+          # convert un-escaped characters to lower case:
         do_downcase:
           dotimespL(len,len, {
             if (!(*attrptr == a_escaped))
@@ -1935,14 +1938,14 @@ LISPFUNN(set_readtable_case,2)
           });
           break;
         case case_preserve:
-          # Nichts tun.
+          # do nothing.
           break;
         case case_invert:
-          # Falls kein nicht-escapter Kleinbuchstabe vorkommt,
-          # alle nicht-escapten Characters in Kleinbuchstaben umwandeln.
-          # Falls kein nicht-escapter Großbuchstabe vorkommt,
-          # alle nicht-escapten Characters in Großbuchstaben umwandeln.
-          # Ansonsten nichts tun.
+          # if there is no un-escaped lower-case-letter,
+          # convert all un-escaped characters to lower case.
+          # if there is no un-escaped upper-case-letter,
+          # convert all un-escaped characters to upper case.
+          # otherwise do nothing.
           {
             var bool seen_uppercase = false;
             var bool seen_lowercase = false;
@@ -1972,7 +1975,7 @@ LISPFUNN(set_readtable_case,2)
       }
     }
 
-# UP: Wandelt das gesamte gelesene Token in Groß- oder Kleinbuchstaben um.
+# UP: converts the whole read token to upper or lower case.
 # case_convert_token_1();
   local void case_convert_token_1 (void);
   local void case_convert_token_1()
@@ -1980,18 +1983,18 @@ LISPFUNN(set_readtable_case,2)
       var object readtable;
       get_readtable(readtable = );
       var uintW direction = (uintW)posfixnum_to_L(TheReadtable(readtable)->readtable_case);
-      var uintL len = TheIarray(O(token_buff_1))->dims[1]; # Länge = Fill-Pointer
+      var uintL len = TheIarray(O(token_buff_1))->dims[1]; # Length = Fill-Pointer
       case_convert_token(0,len,direction);
     }
 
-# UP: Behandelt ein Read-Macro-Character:
-# Ruft die zugehörige Macro-Funktion auf, bei Dispatch-Characters erst noch
-# Zahl-Argument und Subchar einlesen.
+# UP: treatment of read-macro-character:
+# calls the appropriate macro-function; for dispatch-characters read
+# number-argument and subchar first.
 # read_macro(ch,&stream)
-# > ch: Macro-Character, ein Character
+# > ch: macro-character, a character
 # > stream: Stream
 # < stream: Stream
-# < mv_count/mv_space: max. 1 Wert
+# < mv_count/mv_space: one value at most
 # can trigger GC
   local Values read_macro (object ch, const object* stream_);
   local Values read_macro(ch,stream_)
@@ -1999,11 +2002,11 @@ LISPFUNN(set_readtable_case,2)
     var const object* stream_;
     {
       var object readtable;
-      get_readtable(readtable = ); # aktuelle Readtable (brauche ch nicht zu retten)
-      var object macrodef = # Macro-Definition aus Tabelle holen
+      get_readtable(readtable = ); # current readtable (don't need to save ch)
+      var object macrodef = # fetch macro-definition from table
         perchar_table_get(TheReadtable(readtable)->readtable_macro_table,char_code(ch));
       if (nullp(macrodef)) { # =NIL ?
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # value for slot STREAM of STREAM-ERROR
         pushSTACK(ch);
         pushSTACK(*stream_);
         pushSTACK(S(read));
@@ -2011,13 +2014,13 @@ LISPFUNN(set_readtable_case,2)
                GETTEXT("~ from ~: ~ has no macro character definition")
               );
       }
-      if (!simple_vector_p(macrodef)) { # ein Simple-Vector?
-        # ch normales Macro-Character, macrodef Funktion
-        pushSTACK(*stream_); # Stream als 1. Argument
-        pushSTACK(ch); # Character als 2. Argument
-        funcall(macrodef,2); # Funktion aufrufen
+      if (!simple_vector_p(macrodef)) { # a simple-vector?
+        # ch normal macro-character, macrodef function
+        pushSTACK(*stream_); # stream as 1st argument
+        pushSTACK(ch); # character as 2nd argument
+        funcall(macrodef,2); # call function
         if (mv_count > 1) {
-          pushSTACK(fixnum(mv_count)); # Wertezahl als Fixnum
+          pushSTACK(fixnum(mv_count)); # value number as Fixnum
           pushSTACK(ch);
           pushSTACK(*stream_);
           pushSTACK(S(read));
@@ -2025,23 +2028,23 @@ LISPFUNN(set_readtable_case,2)
                  GETTEXT("~ from ~: macro character definition for ~ may not return ~ values, only one value.")
                 );
         }
-        # höchstens 1 Wert.
-        return; # mv_space/mv_count belassen
+        # at most one value.
+        return; # retain mv_space/mv_count
       } else {
-        # Dispatch-Macro-Zeichen.
+        # Dispatch-Macro-Character.
         # When this changes, keep DISPATCH-READER in defs2.lisp up to date.
-        pushSTACK(macrodef); # Vektor retten
-        var object arg; # Argument (Integer >=0 oder NIL)
+        pushSTACK(macrodef); # save vector
+        var object arg; # argument (Integer >=0 or NIL)
         var object subch; # sub-char
         var chart subc; # sub-char
-        # Ziffern des Argumentes lesen:
+        # read digits of argument:
         {
-          var bool flag = false; # Flag, ob schon eine Ziffer kam
-          pushSTACK(Fixnum_0); # bisheriger Integer := 0
+          var bool flag = false; # flag, if there has been a digit already
+          pushSTACK(Fixnum_0); # previous Integer := 0
           loop {
-            var object nextch = read_char(stream_); # Character lesen
+            var object nextch = read_char(stream_); # read character
             if (eq(nextch,eof_value)) {
-              pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+              pushSTACK(*stream_); # value for slot STREAM of STREAM-ERROR
               pushSTACK(ch); # main char
               pushSTACK(*stream_); # Stream
               pushSTACK(S(read));
@@ -2049,32 +2052,32 @@ LISPFUNN(set_readtable_case,2)
                      GETTEXT("~: input stream ~ ends within read macro beginning to ~")
                     );
             }
-            # Sonst auf Character überprüfen.
+            # otherwise check for character.
             if (!charp(nextch))
               fehler_charread(nextch,stream_);
             var chart ch = char_code(nextch);
             var cint c = as_cint(ch);
-            if (!((c>='0') && (c<='9'))) { # keine Ziffer -> Schleife fertig
+            if (!((c>='0') && (c<='9'))) { # no digit -> loop finished
               subc = ch;
               break;
             }
-            # Integer mal 10 nehmen und Ziffer addieren:
+            # multiply Integer by 10 and add digit:
             STACK_0 = mal_10_plus_x(STACK_0,(c-'0'));
             flag = true;
           }
-          # Argument in STACK_0 fertig (nur falls flag=true).
+          # argument in STACK_0 finished (only if flag=true).
           arg = popSTACK();
           if (!flag)
-            arg = NIL; # kam keine Ziffer -> Argument := NIL
+            arg = NIL; # there was no digit -> Argument := NIL
         }
-        # Weiter geht's mit Subchar (Character subc)
+        # let's continue with Subchar (Character subc)
         subch = code_char(subc);
-        subc = up_case(subc); # Subchar in Großbuchstaben umwandeln
-        macrodef = popSTACK(); # Vektor zurück
-        macrodef = perchar_table_get(macrodef,subc); # Subchar-Funktion oder NIL
+        subc = up_case(subc); # convert Subchar to upper case
+        macrodef = popSTACK(); # get back Vector
+        macrodef = perchar_table_get(macrodef,subc); # Subchar-Function or NIL
         if (nullp(macrodef)) {
-          # NIL -> undefiniert
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          # NIL -> undefined
+          pushSTACK(*stream_); # Wert for slot STREAM of STREAM-ERROR
           pushSTACK(subch); # Subchar
           pushSTACK(ch); # Mainchar
           pushSTACK(*stream_); # Stream
@@ -2083,12 +2086,12 @@ LISPFUNN(set_readtable_case,2)
                  GETTEXT("~ from ~: After ~ is ~ an undefined dispatch macro character")
                 );
         }
-        pushSTACK(*stream_); # Stream als 1. Argument
-        pushSTACK(subch); # Subchar als 2. Argument
-        pushSTACK(arg); # Argument (NIL oder Integer>=0) als 3. Argument
-        funcall(macrodef,3); # Funktion aufrufen
+        pushSTACK(*stream_); # Stream as 1. argument
+        pushSTACK(subch); # Subchar as 2. Argument
+        pushSTACK(arg); # Argument (NIL or Integer>=0) as 3. Argument
+        funcall(macrodef,3); # call function
         if (mv_count > 1) {
-          pushSTACK(fixnum(mv_count)); # Wertezahl als Fixnum
+          pushSTACK(fixnum(mv_count)); # value number as Fixnum
           pushSTACK(ch); # Mainchar
           pushSTACK(subch); # Subchar
           pushSTACK(*stream_); # Stream
@@ -2097,94 +2100,94 @@ LISPFUNN(set_readtable_case,2)
                  GETTEXT("~ from ~: dispatch macro character definition for ~ after ~ may not return ~ values, only one value.")
                 );
         }
-        # höchstens 1 Wert.
-        return; # mv_space/mv_count belassen
+        # at most 1 value.
+        return; # retain mv_space/mv_count
       }
     }
 
-# ------------------------ READ auf Objekt-Ebene ------------------------------
+# ------------------------ READ at object-level ------------------------------
 
-# UP: Liest ein Objekt ein.
-# Überliest dabei führenden Whitespace und Kommentar.
-# Maßgeblich sind die aktuellen Werte von SYS::*READ-PRESERVE-WHITESPACE*
-# (fürs evtl. Überlesen des ersten Whitespace nach dem Objekt)
-# und SYS::*READ-RECURSIVE-P* (für EOF-Behandlung).
+# UP: reads an object.
+# skip leading  whitespace and comment.
+# the curren values of SYS::*READ-PRESERVE-WHITESPACE* are definitive
+# (for potentially skipping the first Whitespace behind the object)
+# also devinitive is SYS::*READ-RECURSIVE-P* (for EOF-treatment).
 # read_internal(&stream)
 # > stream: Stream
 # < stream: Stream
-# < ergebnis: gelesenes Objekt (eof_value bei EOF, dot_value bei einzelnem Punkt)
+# < result: read object (eof_value at EOF, dot_value for single dot)
 # can trigger GC
   local object read_internal (const object* stream_);
   local object read_internal(stream_)
     var const object* stream_;
     {
-     wloop: # Schleife zum Überlesen von führendem Whitespace/Kommentar:
+     wloop: # loop for skipping of leading whitespace/comment:
       {
         var object ch;
         var uintWL scode;
-        read_char_syntax(ch = ,scode = ,stream_); # Zeichen lesen
+        read_char_syntax(ch = ,scode = ,stream_); # read character
         switch(scode) {
           case syntax_whitespace:
-            # Whitespace -> wegwerfen und weiterlesen
+            # Whitespace -> throw away and continue reading
             goto wloop;
           case syntax_t_macro:
           case syntax_nt_macro:
-            # Macro-Zeichen am Token-Anfang
-            read_macro(ch,stream_); # Macro-Funktion ausführen
+            # Macro-Character at start of Token
+            read_macro(ch,stream_); # call Macro-Function
             if (mv_count==0)
-              # 0 Werte -> weiterlesen
+              # 0 values -> continue reading
               goto wloop;
             else
-              # 1 Wert -> als Ergebnis
+              # 1 value -> as result
               return value1;
           case syntax_eof:
-            # EOF am Token-Anfang
+            # EOF at start of Token
             if (test_value(S(read_recursive_p))) # *READ-RECURSIVE-P* /= NIL ?
-              # ja -> EOF innerhalb eines Objektes -> Fehler
+              # yes -> EOF within an object -> error
               fehler_eof_innen(stream_);
-            # sonst eof_value als Wert:
+            # otherwise eof_value as value:
             return eof_value;
           case syntax_illegal:
-            # read_token_1 liefert Error
+            # read_token_1 returns Error
           case syntax_single_esc:
           case syntax_multi_esc:
           case syntax_constituent:
-            # Token lesen: Mit dem Zeichen ch fängt ein Token an.
-            read_token_1(stream_,ch,scode); # Token zu Ende lesen
+            # read Token: A Token starts with character ch.
+            read_token_1(stream_,ch,scode); # finish reading of Token
             break;
           default: NOTREACHED
         }
       }
-      # Token gelesen
+      # reading of Token finished
       if (test_value(S(read_suppress))) # *READ-SUPPRESS* /= NIL ?
-        return NIL; # ja -> Token nicht interpretieren, NIL als Wert
-      # Token muss interpretiert werden
-      # Der Token liegt in O(token_buff_1), O(token_buff_2), token_escape_flag.
+        return NIL; # yes -> don't interprete Token, NIL as value
+      # Token must be interpreted
+      # the Token is in O(token_buff_1), O(token_buff_2), token_escape_flag.
       if ((!token_escape_flag) && test_dots()) {
-        # Token ist eine Folge von Dots, ohne Escape-Characters gelesen.
-        # Länge ist damit automatisch >0.
-        var uintL len = TheIarray(O(token_buff_1))->dims[1]; # Länge des Token
+        # Token is a sequence of Dots, read without escape-characters
+        # thus Length is automatically >0.
+        var uintL len = TheIarray(O(token_buff_1))->dims[1]; # length of Token
         if (len > 1) {
-          # Länge>1 -> Fehler
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          # Length>1 -> error
+          pushSTACK(*stream_); # value for slot STREAM of STREAM-ERROR
           pushSTACK(*stream_);
           pushSTACK(S(read));
           fehler(stream_error,
                  GETTEXT("~ from ~: a token consisting only of dots cannot be meaningfully read in")
                 );
         }
-        # Länge=1 -> dot_value als Wert
+        # Length=1 -> dot_value as value
         return dot_value;
       }
-      # Token ist OK
+      # Token is OK
       {
-        var uintWL base = get_read_base(); # Wert von *READ-BASE*
-        # Token als Zahl interpretierbar?
+        var uintWL base = get_read_base(); # value of *READ-BASE*
+        # Token can be interpreted as number?
         var object string;
         var zahl_info info;
         var uintWL numtype = test_number_syntax(&base,&string,&info);
-        if (!(numtype==0)) { # Zahl?
-          upcase_token(); # in Großbuchstaben umwandeln
+        if (!(numtype==0)) { # number?
+          upcase_token(); # convert to upper case
           var object result;
           # ANSI CL 2.3.1.1 requires that we transform ARITHMETIC-ERROR into READER-ERROR
           make_HANDLER_frame(O(handler_for_arithmetic_error),&signal_reader_error,NULL);
@@ -2204,123 +2207,122 @@ LISPFUNN(set_readtable_case,2)
           return result;
         }
       }
-      # Token nicht als Zahl interpretierbar.
-      # Wir interpretieren das Token als Symbol (auch dann, wenn das Token
-      # Potential-number-Syntax hat, also ein 'reserved token' (im Sinne
-      # von CLTL S. 341 oben) ist).
-      # Dazu erst einmal die Verteilung der Doppelpunkte (Characters mit
-      # Attributcode a_pack_m) feststellen:
-      # Suche von vorne den ersten Doppelpunkt. Fälle (CLTL S. 343-344):
-      # 1. Kein Doppelpunkt -> aktuelle Package
-      # 2. Ein oder zwei Doppelpunkte am Anfang -> Keyword
-      # 3. Ein Doppelpunkt, nicht am Anfang -> externes Symbol
-      # 4. Zwei Doppelpunkte, nicht am Anfang -> internes Symbol
-      # In den letzten drei Fällen dürfen keine weiteren Doppelpunkte mehr
-      # kommen.
-      # (Dass bei 2. der Namensteil bzw. bei 3. und 4. der Packageteil und
-      # der Namensteil nicht die Syntax einer Zahl haben, kann hier nicht
-      # mehr überprüft werden, weil sich TOKEN_ESCAPE_FLAG auf das ganze
-      # Token bezieht. Vergleiche |USER|:: und |USER|::|| )
+      # Token cannot be interpreted as number.
+      # we interprete the Token as Symbol (even, if the Token matches
+      # Potential-number-Syntax, thus being a 'reserved token' (in the spirit
+      # of CLTL S. 341 top) ).
+      # first determine the distribution of colons (Characters with
+      # Attributecode a_pack_m):
+      # Beginning at the front, search the first colon. Cases (CLTL S. 343-344):
+      # 1. no colon -> current Package
+      # 2. one or two colons at the beginning -> Keyword
+      # 3. one colon, not at the beginning -> external Symbol
+      # 4. two Doppelpunkte, not at the beginning -> internal Symbol
+      # In the last three cases no more colons may occur.
+      # (It cannot be checked here , that at step 2. the name-part respectively at
+      # 3. and 4. der Package-part and the Name-part don't have the syntax of a number,
+      # because TOKEN_ESCAPE_FLAG is valid for the whole Token.
+      # Compare |USER|:: and |USER|::|| )
       {
-        var uintW direction; # Richtung der Case-Konversion
+        var uintW direction; # direction of the case-conversion
         {
           var object readtable;
           get_readtable(readtable = );
           direction = (uintW)posfixnum_to_L(TheReadtable(readtable)->readtable_case);
         }
-        var object buff_2 = O(token_buff_2); # Attributcode-Buffer
-        var uintL len = TheIarray(buff_2)->dims[1]; # Länge = Fill-Pointer
+        var object buff_2 = O(token_buff_2); # Attributecode-Buffer
+        var uintL len = TheIarray(buff_2)->dims[1]; # length = Fill-Pointer
         var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
         var uintL index = 0;
-        # stets attrptr = &TheSbvector(...)->data[index].
-        # Token wird in Packagenamen und Namen zerhackt:
+        # always attrptr = &TheSbvector(...)->data[index].
+        # Token is split in Packagename and Name:
         var uintL pack_end_index;
         var uintL name_start_index;
-        var bool external_internal_flag = false; # vorläufig external
+        var bool external_internal_flag = false; # preliminary external
         loop {
           if (index>=len)
-            goto current; # kein Doppelpunkt gefunden -> current package
+            goto current; # found no colon -> current package
           if (*attrptr++ == a_pack_m)
             break;
           index++;
         }
-        # erster Doppelpunkt bei Index index gefunden
-        pack_end_index = index; # Packagename endet hier
+        # found first colon at Index index
+        pack_end_index = index; # Packagename ends here
         index++;
-        name_start_index = index; # Symbolname fängt (vorläufig) hier an
-        # Tokenende erreicht -> externes Symbol:
+        name_start_index = index; # Symbolname starts (preliminary) here
+        # reached Tokenend -> external Symbol:
         if (index>=len)
           goto ex_in_ternal;
-        # Kommt sofort danach ein weiterer Doppelpunkt?
+        # is a further colon following, immediately?
         index++;
         if (*attrptr++ == a_pack_m) {
-          # zwei Doppelpunkte nebeneinander
-          name_start_index = index; # Symbolname fängt erst hier an
+          # two colons side by side
+          name_start_index = index; # Symbolname is starting but now
           external_internal_flag = true; # internal
         } else {
-          # erster Doppelpunkt war isoliert
+          # first colon was isolated
           # external
         }
-        # Es dürfen keine weiteren Doppelpunkte kommen:
+        # no more colons are to come:
         loop {
           if (index>=len)
-            goto ex_in_ternal; # kein weiterer Doppelpunkt gefunden -> ok
+            goto ex_in_ternal; # no further colon found -> ok
           if (*attrptr++ == a_pack_m)
             break;
           index++;
         }
-        # Fehlermeldung
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
-        pushSTACK(copy_string(O(token_buff_1))); # Character-Buffer kopieren
+        # error message
+        pushSTACK(*stream_); # Wert for slot STREAM of STREAM-ERROR
+        pushSTACK(copy_string(O(token_buff_1))); # copy Character-Buffer
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
                GETTEXT("~ from ~: too many colons in token ~")
               );
-        # Symbol suchen bzw. erzeugen:
-       current: # Symbol in der current package suchen.
+        # search Symbol or create it:
+       current: # search Symbol in the current package.
         # Symbolname = O(token_buff_1) = (subseq O(token_buff_1) 0 len)
-        # ist ein nicht-simpler String.
+        # is a non-simple String.
         {
           var object pack = get_current_package();
           if (!pack_casesensitivep(pack))
             case_convert_token(0,len,direction);
-          # Symbol internieren (und dabei String kopieren, falls das Symbol
-          # neu erzeugt werden muss):
+          # intern Symbol  (and copy String, if the Symbol
+          # must be created freshly):
           var object sym;
           intern(O(token_buff_1),pack,&sym);
           return sym;
         }
-       ex_in_ternal: # externes/internes Symbol bilden
+       ex_in_ternal: # build external/internal Symbol
         # Packagename = (subseq O(token_buff_1) 0 pack_end_index),
         # Symbolname = (subseq O(token_buff_1) name_start_index len).
         case_convert_token(0,pack_end_index,direction);
         if (pack_end_index==0) {
-          # Doppelpunkt(e) am Anfang -> Keyword bilden:
+          # colon(s) at the beginning -> build Keyword:
           # Symbolname = (subseq O(token_buff_1) name_start_index len).
           case_convert_token(name_start_index,len,direction);
-          # Hilfs-String adjustieren:
+          # adjust auxiliary-String:
           var object hstring = O(displaced_string);
-          TheIarray(hstring)->data = O(token_buff_1); # Datenvektor
+          TheIarray(hstring)->data = O(token_buff_1); # Data-vector
           TheIarray(hstring)->dims[0] = name_start_index; # Displaced-Offset
           TheIarray(hstring)->totalsize =
-            TheIarray(hstring)->dims[1] = len - name_start_index; # Länge
-          # Symbol in die Keyword-Package internieren (und dabei
-          # String kopieren, falls das Symbol neu erzeugt werden muss):
+            TheIarray(hstring)->dims[1] = len - name_start_index; # length
+          # intern Symbol in the Keyword-Package  (and copy String,
+          # if the Symbol must be created newly):
           return intern_keyword(hstring);
         }
         {
           # Packagename = (subseq O(token_buff_1) 0 pack_end_index).
-          # Hilfs-String adjustieren:
+          # adjust Auxiliary-String:
           var object hstring = O(displaced_string);
-          TheIarray(hstring)->data = O(token_buff_1); # Datenvektor
+          TheIarray(hstring)->data = O(token_buff_1); # Data-vector
           TheIarray(hstring)->dims[0] = 0; # Displaced-Offset
           TheIarray(hstring)->totalsize =
-            TheIarray(hstring)->dims[1] = pack_end_index; # Länge
-          # Package mit diesem Namen suchen:
+            TheIarray(hstring)->dims[1] = pack_end_index; # length
+          # search Package with this name:
           var object pack = find_package(hstring);
-          if (nullp(pack)) { # Package nicht gefunden?
-            pushSTACK(copy_string(hstring)); # Displaced-String kopieren, Wert für Slot PACKAGE von PACKAGE-ERROR
+          if (nullp(pack)) { # Package not found?
+            pushSTACK(copy_string(hstring)); # copy Displaced-String, Wert for Slot PACKAGE of PACKAGE-ERROR
             pushSTACK(STACK_0);
             pushSTACK(*stream_); # Stream
             pushSTACK(S(read));
@@ -2330,26 +2332,26 @@ LISPFUNN(set_readtable_case,2)
           }
           if (!pack_casesensitivep(pack))
             case_convert_token(name_start_index,len,direction);
-          # Hilfs-String adjustieren:
+          # adjust Auxiliary-String:
           TheIarray(hstring)->dims[0] = name_start_index; # Displaced-Offset
           TheIarray(hstring)->totalsize =
-            TheIarray(hstring)->dims[1] = len - name_start_index; # Länge
+            TheIarray(hstring)->dims[1] = len - name_start_index; # Length
           if (external_internal_flag) {
             # internal
-            # Symbol internieren (und dabei String kopieren,
-            # falls das Symbol neu erzeugt werden muss):
+            # intern Symbol (and copy String,
+            # if  Symbol must be created newly):
             var object sym;
             intern(hstring,pack,&sym);
             return sym;
           } else {
             # external
-            # externes Symbol mit diesem Printnamen suchen:
+            # search external Symbol with this Printnamen:
             var object sym;
             if (find_external_symbol(hstring,pack,&sym)) {
-              return sym; # sym gefunden
+              return sym; # found sym
             } else {
-              pushSTACK(pack); # Wert für Slot PACKAGE von PACKAGE-ERROR
-              pushSTACK(copy_string(hstring)); # Displaced-String kopieren
+              pushSTACK(pack); # value for Slot PACKAGE of PACKAGE-ERROR
+              pushSTACK(copy_string(hstring)); # copy Displaced-String
               pushSTACK(STACK_1); # pack
               pushSTACK(*stream_); # Stream
               pushSTACK(S(read));
@@ -2362,28 +2364,28 @@ LISPFUNN(set_readtable_case,2)
       }
     }
 
-# UP: Liest ein Objekt ein, mit SYS::*READ-RECURSIVE-P* /= NIL
-# (und SYS::*READ-PRESERVE-WHITESPACE* = NIL, vgl. CLTL S. 377 mitte).
-# Meldet bei EOF einen Error.
+# UP: reads an Objekt, with SYS::*READ-RECURSIVE-P* /= NIL
+# (and SYS::*READ-PRESERVE-WHITESPACE* = NIL, cmp. CLTL p. 377 middle).
+# reports error at EOF.
 # read_recursive(&stream)
 # > stream: Stream
 # < stream: Stream
-# < ergebnis: gelesenes Objekt (dot_value bei einzelnem Punkt)
+# < result: read Objekt (dot_value at single dot)
 # can trigger GC
   local object read_recursive (const object* stream_);
   local object read_recursive(stream_)
     var const object* stream_;
     {
-      check_SP(); check_STACK(); # Stacks auf Überlauf testen
+      check_SP(); check_STACK(); # check Stacks for Overflow
       if (test_value(S(read_recursive_p))) {
-        # schon rekursiv
+        #  recursive
         return read_internal(stream_);
       } else {
-        # SYS::*READ-RECURSIVE-P* an T binden:
+        # bind SYS::*READ-RECURSIVE-P* to T:
         dynamic_bind(S(read_recursive_p),T);
-        # und SYS::*READ-PRESERVE-WHITESPACE* an NIL binden:
+        # and bind SYS::*READ-PRESERVE-WHITESPACE* to NIL:
         dynamic_bind(S(read_preserve_whitespace),NIL);
-        # und Objekt lesen:
+        # and read Objekt:
         var object ergebnis = read_internal(stream_);
         dynamic_unbind();
         dynamic_unbind();
@@ -2391,14 +2393,14 @@ LISPFUNN(set_readtable_case,2)
       }
     }
 
-# Fehlermeldung wegen unpassendem Dot
-# fehler_dot(stream);
+# error-message because of out-of-place Dot
+# fehler_dot(stream); english: error_dot(stream);
 # > stream: Stream
   nonreturning_function(local, fehler_dot, (object stream));
   local void fehler_dot(stream)
     var object stream;
     {
-      pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(stream); # Wert for Slot STREAM of STREAM-ERROR
       pushSTACK(stream); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
@@ -2406,47 +2408,47 @@ LISPFUNN(set_readtable_case,2)
             );
     }
 
-# UP: Liest ein Objekt ein, mit SYS::*READ-RECURSIVE-P* /= NIL
-# (und SYS::*READ-PRESERVE-WHITESPACE* = NIL, vgl. CLTL S. 377 mitte).
-# Meldet Error bei EOF oder Token ".".
-# (Das entspricht dem Idiom (read stream t nil t).)
+# UP: reads an Object, with SYS::*READ-RECURSIVE-P* /= NIL
+# (and SYS::*READ-PRESERVE-WHITESPACE* = NIL, cmp. CLTL p. 377 middle).
+# reports Error at EOF or Token ".".
+# (this complies with the Idiom (read stream t nil t).)
 # read_recursive_no_dot(&stream)
 # > stream: Stream
 # < stream: Stream
-# < ergebnis: gelesenes Objekt
+# < result: read Objekt
 # can trigger GC
   local object read_recursive_no_dot (const object* stream_);
   local object read_recursive_no_dot(stream_)
     var const object* stream_;
     {
-      # READ rekursiv aufrufen:
+      # call READ rekursively:
       var object ergebnis = read_recursive(stream_);
-      # und bei "." einen Error melden:
+      # and report Error at ".":
       if (eq(ergebnis,dot_value))
         fehler_dot(*stream_);
       return ergebnis;
     }
 
-# UP: Entflicht #n# - Referenzen zu #n= - Markierungen in einem Objekt.
-# > Wert von SYS::*READ-REFERENCE-TABLE*:
-#     Aliste von Paaren (Markierung . markiertes Objekt), wobei
-#     jede Markierung ein Objekt  #<READ-LABEL n>  ist.
-# > obj: Objekt
-# < ergebnis: destruktiv modifiziertes Objekt ohne Referenzen
+# UP: disentangles #n# - References to #n= - markings in an Object.
+# > value of SYS::*READ-REFERENCE-TABLE*:
+#     Aliste of Pairs (marking . marked Object), where
+#     each margink is an Object  #<READ-LABEL n>.
+# > obj: Object
+# < result: destructively  modified Object without References
   local object make_references (object obj);
   local object make_references(obj)
     var object obj;
     {
       var object alist = Symbol_value(S(read_reference_table));
-      # SYS::*READ-REFERENCE-TABLE* = NIL -> nichts zu tun:
+      # SYS::*READ-REFERENCE-TABLE* = NIL -> nothing to do:
       if (nullp(alist)) {
         return obj;
       } else {
-        # Überprüfen, ob SYS::*READ-REFERENCE-TABLE* eine Aliste ist:
+        # check, if SYS::*READ-REFERENCE-TABLE* is an Aliste:
         {
-          var object alistr = alist; # Liste durchlaufen
+          var object alistr = alist; # run through list
           while (consp(alistr)) {
-            # jedes Listenelement muss ein Cons sein:
+            # each Listenelement must be a Cons:
             if (!mconsp(Car(alistr)))
               goto fehler_badtable;
             alistr = Cdr(alistr);
@@ -2460,12 +2462,12 @@ LISPFUNN(set_readtable_case,2)
                   );
           }
         }
-        # Aliste alist ist OK
+        # Alist alist is OK
         pushSTACK(obj);
         var object bad_reference =
-          subst_circ(&STACK_0,alist); # Referenzen durch Objekte substituieren
+          subst_circ(&STACK_0,alist); # substitute References by Objects
         if (!eq(bad_reference,nullobj)) {
-          pushSTACK(unbound); # "Wert" für Slot STREAM von STREAM-ERROR
+          pushSTACK(unbound); # "value" for Slot STREAM of STREAM-ERROR
           pushSTACK(Symbol_value(S(read_reference_table)));
           pushSTACK(S(read_reference_table));
           pushSTACK(obj);
@@ -2479,13 +2481,13 @@ LISPFUNN(set_readtable_case,2)
       }
     }
 
-# UP: Liest ein Objekt ein, mit SYS::*READ-RECURSIVE-P* = NIL .
-# (Top-Level-Aufruf des Readers)
+# UP: Reads an Object, with SYS::*READ-RECURSIVE-P* = NIL .
+# (Top-Level-Call of Reader)
 # read_top(&stream,whitespace-p)
-# > whitespace-p: gibt an, ob danach whitespace zu verbrauchen ist
+# > whitespace-p: indicates, if whitespace has to be consumend afterwards
 # > stream: Stream
 # < stream: Stream
-# < ergebnis: gelesenes Objekt (eof_value bei EOF, dot_value bei einzelnem Punkt)
+# < result: read Object (eof_value at EOF, dot_value at single dot)
 # can trigger GC
   local object read_top (const object* stream_, object whitespace_p);
   local object read_top(stream_,whitespace_p)
@@ -2493,39 +2495,39 @@ LISPFUNN(set_readtable_case,2)
     var object whitespace_p;
     {
      #if STACKCHECKR
-      var object* STACKbefore = STACK; # STACK aufheben für später
+      var object* STACKbefore = STACK; # retain STACK for later
      #endif
-      # SYS::*READ-RECURSIVE-P* an NIL binden:
+      # bind SYS::*READ-RECURSIVE-P* to NIL:
       dynamic_bind(S(read_recursive_p),NIL);
-      # und SYS::*READ-PRESERVE-WHITESPACE* an whitespace_p binden:
+      # and bind SYS::*READ-PRESERVE-WHITESPACE* to whitespace_p:
       dynamic_bind(S(read_preserve_whitespace),whitespace_p);
-      # SYS::*READ-REFERENCE-TABLE* an die leere Tabelle NIL binden:
+      # bind SYS::*READ-REFERENCE-TABLE* to the empty Table NIL:
       dynamic_bind(S(read_reference_table),NIL);
-      # SYS::*BACKQUOTE-LEVEL* an NIL binden:
+      # bind SYS::*BACKQUOTE-LEVEL* to NIL:
       dynamic_bind(S(backquote_level),NIL);
-      # Objekt lesen:
+      # read Object:
       var object obj = read_internal(stream_);
-      # Verweise entflechten:
+      # disentangle references:
       obj = make_references(obj);
       dynamic_unbind();
       dynamic_unbind();
       dynamic_unbind();
       dynamic_unbind();
      #if STACKCHECKR
-      # Überprüfen, ob Stack aufgeräumt:
+      # verify, if Stack is cleaned up:
       if (!(STACK == STACKbefore))
-        abort(); # wenn nicht, in den Debugger
+        abort(); # if not --> go to Debugger
      #endif
       return obj;
     }
 
-# UP: Liest ein Objekt ein.
+# UP: reads an Object.
 # stream_read(&stream,recursive-p,whitespace-p)
-# > recursive-p: gibt an, ob rekursiver Aufruf von READ, mit Error bei EOF
-# > whitespace-p: gibt an, ob danach whitespace zu verbrauchen ist
+# > recursive-p: indicates, if rekursive call of READ, with Error at EOF
+# > whitespace-p: indicates, if whitespace has to be consumed afterwards
 # > stream: Stream
 # < stream: Stream
-# < ergebnis: gelesenes Objekt (eof_value bei EOF, dot_value bei einzelnem Punkt)
+# < result: read Object (eof_value at EOF, dot_value at single dot)
 # can trigger GC
   global object stream_read (const object* stream_, object recursive_p, object whitespace_p);
   global object stream_read(stream_,recursive_p,whitespace_p)
@@ -2533,28 +2535,28 @@ LISPFUNN(set_readtable_case,2)
     var object recursive_p;
     var object whitespace_p;
     {
-      if (nullp(recursive_p)) # recursive-p abfragen
-        # nein -> Top-Level-Aufruf
+      if (nullp(recursive_p)) # inquire recursive-p
+        # no -> Top-Level-Call
         return read_top(stream_,whitespace_p);
       else
-        # ja -> rekursiver Aufruf
+        # ja -> rekursive Call
         return read_recursive(stream_);
     }
 
 # ----------------------------- READ-Macros -----------------------------------
 
-# UP: Liest eine Liste ein.
+# UP: Read List.
 # read_delimited_list(&stream,endch,ifdotted)
-# > endch: erwartetes Endzeichen, ein Character
-# > ifdotted: #DOT_VALUE falls Dotted List erlaubt, #EOF_VALUE sonst
+# > endch: expected character at the End, a Character
+# > ifdotted: #DOT_VALUE if Dotted List is allowed, #EOF_VALUE otherwise
 # > stream: Stream
 # < stream: Stream
-# < ergebnis: gelesenes Objekt
+# < result: read Object
 # can trigger GC
   local object read_delimited_list (const object* stream_, object endch, object ifdotted);
-# Dito mit gesetztem SYS::*READ-RECURSIVE-P* :
+# Dito with set SYS::*READ-RECURSIVE-P* :
   local object read_delimited_list_recursive (const object* stream_, object endch, object ifdotted);
-# Erst die allgemeine Funktion:
+# first the general function:
   #ifdef RISCOS_CCBUG
     #pragma -z0
   #endif
@@ -2563,16 +2565,16 @@ LISPFUNN(set_readtable_case,2)
     var object endch;
     var object ifdotted;
     {
-      # SYS::*READ-LINE-NUMBER* an (SYS::LINE-NUMBER stream) binden
-      # (für Fehlermeldung, damit man die Zeile der öffnenden Klammer erfährt):
+      # bind SYS::*READ-LINE-NUMBER* to (SYS::LINE-NUMBER stream)
+      # (for error-message, in order to know about the line with the opening parenthese):
       var object lineno = stream_line_number(*stream_);
       dynamic_bind(S(read_line_number),lineno);
       var object ergebnis;
-      # evtl. zuerst noch SYS::*READ-RECURSIVE-P* an T binden:
-      if (test_value(S(read_recursive_p))) { # schon rekursiv?
+      # possibly bind SYS::*READ-RECURSIVE-P* to T, first:
+      if (test_value(S(read_recursive_p))) { # recursive?
         ergebnis = read_delimited_list_recursive(stream_,endch,ifdotted);
       } else {
-        # nein -> SYS::*READ-RECURSIVE-P* an T binden:
+        # no -> bind SYS::*READ-RECURSIVE-P* to T:
         dynamic_bind(S(read_recursive_p),T);
         ergebnis = read_delimited_list_recursive(stream_,endch,ifdotted);
         dynamic_unbind();
@@ -2583,103 +2585,103 @@ LISPFUNN(set_readtable_case,2)
   #ifdef RISCOS_CCBUG
     #pragma -z1
   #endif
-# Dann die speziellere Funktion:
+# then the more special Function:
   local object read_delimited_list_recursive(stream_,endch,ifdotted)
     var const object* stream_;
     var object endch;
     var object ifdotted;
     {
-      # Brauche endch und ifdotted nicht zu retten.
+      # don't need to save endch and ifdotted.
       {
-        var object object1; # erstes Listenelement
-        loop { # Schleife, um erstes Listenelement zu lesen
-          # nächstes non-whitespace Character:
+        var object object1; # first List element
+        loop { # loop, in order to read first Listenelement
+          # next non-whitespace Character:
           var object ch;
           var uintWL scode;
           wpeek_char_syntax(ch = ,scode = ,stream_);
-          if (eq(ch,endch)) { # Ist es das erwartete Endezeichen?
-            # ja -> leere Liste als Ergebnis
-            read_char(stream_); # Endezeichen verbrauchen
+          if (eq(ch,endch)) { # is it the expected ending character?
+            # yes -> empty List as result
+            read_char(stream_); # consume ending character
             return NIL;
           }
           if (scode < syntax_t_macro) { # Macro-Character?
-            # nein -> 1. Objekt lesen:
+            # no -> read 1. Objekt:
             object1 = read_recursive_no_dot(stream_);
             break;
           } else {
-            # ja -> zugehöriges Zeichen lesen und Macro-Funktion ausführen:
+            # yes -> read belonging character and execute Macro-Function:
             ch = read_char(stream_);
             read_macro(ch,stream_);
-            if (!(mv_count==0)) { # Wert zurück?
-              object1 = value1; # ja -> als 1. Objekt nehmen
+            if (!(mv_count==0)) { # value back?
+              object1 = value1; # yes -> take as 1. Object
               break;
             }
-            # nein -> überlesen
+            # no -> skip
           }
         }
-        # object1 ist das 1. Objekt
+        # object1 is the 1. Object
         pushSTACK(object1);
       }
       {
-        var object new_cons = allocate_cons(); # Listenanfang basteln
+        var object new_cons = allocate_cons(); # tinker start of the List
         Car(new_cons) = popSTACK(); # new_cons = (cons object1 nil)
         pushSTACK(new_cons);
         pushSTACK(new_cons);
       }
-      # stack layout: Gesamtliste, (last Gesamtliste).
-      loop { # Schleife über weitere Listenelemente
-        var object object1; # weiteres Listenelement
-        loop { # Schleife, um weiteres Listenelement zu lesen
-          # nächstes non-whitespace Character:
+      # stack layout: entire_list, (last entire_list).
+      loop { # loop over further List elements
+        var object object1; # further List element
+        loop { # loop in order to read another  List element
+          # next non-whitespace Character:
           var object ch;
           var uintWL scode;
           wpeek_char_syntax(ch = ,scode = ,stream_);
-          if (eq(ch,endch)) { # Ist es das erwartete Endezeichen?
-            # ja -> Liste beenden
+          if (eq(ch,endch)) { # Is it the expected Ending character?
+            # yes -> finish list
            finish_list:
-            read_char(stream_); # Endezeichen verbrauchen
-            skipSTACK(1); return popSTACK(); # Gesamtliste als Ergebnis
+            read_char(stream_); # consume Ending character
+            skipSTACK(1); return popSTACK(); # entire list as result
           }
           if (scode < syntax_t_macro) { # Macro-Character?
-            # nein -> nächstes Objekt lesen:
+            # no -> read next Object:
             object1 = read_recursive(stream_);
             if (eq(object1,dot_value))
               goto dot;
             break;
           } else {
-            # ja -> zugehöriges Zeichen lesen und Macro-Funktion ausführen:
+            # yes -> read belonging character and execute Macro-Function:
             ch = read_char(stream_);
             read_macro(ch,stream_);
-            if (!(mv_count==0)) { # Wert zurück?
-              object1 = value1; # ja -> als nächstes Objekt nehmen
+            if (!(mv_count==0)) { # value back?
+              object1 = value1; # yes -> take as next Object
               break;
             }
-            # nein -> überlesen
+            # no -> skip
           }
         }
-        # nächstes Objekt in die Liste einhängen:
+        # insert next Objekt into List:
         pushSTACK(object1);
         {
-          var object new_cons = allocate_cons(); # nächstes Listen-Cons
+          var object new_cons = allocate_cons(); # next List-Cons
           Car(new_cons) = popSTACK(); # (cons object1 nil)
           Cdr(STACK_0) = new_cons; # =: (cdr (last Gesamtliste))
           STACK_0 = new_cons;
         }
       }
-     dot: # Dot gelesen
-      if (!eq(ifdotted,dot_value)) # war keiner erlaubt?
+     dot: # Dot has been read
+      if (!eq(ifdotted,dot_value)) # none was allowed?
         fehler_dot(*stream_);
       {
-        var object object1; # letztes Listenelement
-        loop { # Schleife, um letztes Listenelement zu lesen
-          # nächstes non-whitespace Character:
+        var object object1; # last List-element
+        loop { # loop, in order to read last List-element
+          # next non-whitespace Character:
           var object ch;
           var uintWL scode;
           wpeek_char_syntax(ch = ,scode = ,stream_);
-          if (eq(ch,endch)) { # Ist es das erwartete Endezeichen?
-            # ja -> Fehler
+          if (eq(ch,endch)) { # is it the expected ending-character?
+            # yes -> error
            fehler_dot:
-            pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+            pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
             pushSTACK(*stream_); # Stream
             pushSTACK(S(read_delimited_list));
             fehler(stream_error,
@@ -2687,49 +2689,49 @@ LISPFUNN(set_readtable_case,2)
                   );
           }
           if (scode < syntax_t_macro) { # Macro-Character?
-            # nein -> letztes Objekt lesen:
+            # no -> read last Objekt:
             object1 = read_recursive_no_dot(stream_);
             break;
           } else {
-            # ja -> zugehöriges Zeichen lesen und Macro-Funktion ausführen:
+            # yes -> read belonging character and execute Macro-Function:
             ch = read_char(stream_);
             read_macro(ch,stream_);
-            if (!(mv_count==0)) { # Wert zurück?
-              object1 = value1; # ja -> als letztes Objekt nehmen
+            if (!(mv_count==0)) { # value back?
+              object1 = value1; # yes -> take as last Object
               break;
             }
-            # nein -> überlesen
+            # no -> skip
           }
         }
-        # object1 ist das letzte Objekt
-        # als (cdr (last Gesamtliste)) in die Liste einhängen:
+        # object1 is the last Object
+        # insert into list as (cdr (last Gesamtliste)):
         Cdr(STACK_0) = object1;
       }
-      loop { # Schleife, um Kommentar nach letztem Listenelement zu lesen
-        # nächstes non-whitespace Character:
+      loop { # loop, in order to read comment after the last List-element
+        # next non-whitespace Character:
         var object ch;
         var uintWL scode;
         wpeek_char_syntax(ch = ,scode = ,stream_);
-        if (eq(ch,endch)) # Ist es das erwartete Endezeichen?
-          goto finish_list; # ja -> Liste fertig
+        if (eq(ch,endch)) # Is it the expected Ending-character?
+          goto finish_list; # yes -> List finished
         if (scode < syntax_t_macro) # Macro-Character?
-          # nein -> Dot kam zu früh, Fehler
+          # no -> Dot was there too early, error
           goto fehler_dot;
         else {
-          # ja -> zugehöriges Zeichen lesen und Macro-Funktion ausführen:
+          # yes -> read belonging character and execute Macro-Funktion:
           ch = read_char(stream_);
           read_macro(ch,stream_);
-          if (!(mv_count==0)) # Wert zurück?
-            goto fehler_dot; # ja -> Dot kam zu früh, Fehler
-          # nein -> überlesen
+          if (!(mv_count==0)) # value back?
+            goto fehler_dot; # yes -> Dot came to early, error
+          # no -> skip
         }
       }
     }
 
-# Macro: Überprüft das Stream-Argument eines SUBRs.
+# Macro: checks the Stream-Argument of a SUBRs.
 # stream_ = test_stream_arg(stream);
-# > stream: Stream-Argument im STACK
-# > subr_self: Aufrufer (ein SUBR)
+# > stream: Stream-Argument in STACK
+# > subr_self: Caller (a SUBR)
 # < stream_: &stream
   #define test_stream_arg(stream)  \
     (!streamp(stream) ? (fehler_stream(stream), (object*)NULL) : &(stream))
@@ -2738,10 +2740,10 @@ LISPFUNN(set_readtable_case,2)
 #   #'(lambda (stream char)
 #       (read-delimited-list #\) stream t :dot-allowed t)
 # )   )
-LISPFUNN(lpar_reader,2) # liest (
+LISPFUNN(lpar_reader,2) # reads (
   {
     var object* stream_ = test_stream_arg(STACK_1);
-    # Liste nach '(' bis ')' lesen, Dot erlaubt:
+    # read List after '(' until ')', Dot allowed:
     value1 = read_delimited_list(stream_,ascii_char(')'),dot_value); mv_count=1;
     skipSTACK(2);
   }
@@ -2749,12 +2751,12 @@ LISPFUNN(lpar_reader,2) # liest (
 # #| ( ( |#
 # (set-macro-character #\)
 #   #'(lambda (stream char)
-#       (error "~ von ~: ~ am Anfang eines Objekts" 'read stream char)
+#       (error "~ of ~: ~ at the beginning of object" 'read stream char)
 # )   )
-LISPFUNN(rpar_reader,2) # liest )
+LISPFUNN(rpar_reader,2) # reads )
   {
     var object* stream_ = test_stream_arg(STACK_1);
-    pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+    pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
     pushSTACK(STACK_(0+1)); # char
     pushSTACK(*stream_); # stream
     pushSTACK(S(read));
@@ -2771,7 +2773,7 @@ LISPFUNN(rpar_reader,2) # liest )
 #         (loop
 #           (multiple-value-bind (ch sy) (read-char-syntax stream)
 #             (cond ((eq sy 'eof-code)
-#                    (error "~: Eingabestream ~ endet innerhalb eines Strings."
+#                    (error "~: inputstream ~ ends within a String."
 #                           'read stream
 #                   ))
 #                   ((eql ch char) (return (coerce buffer 'simple-string)))
@@ -2784,52 +2786,52 @@ LISPFUNN(rpar_reader,2) # liest )
 #         ) ) )
 #         (if *read-suppress* nil (coerce buffer 'simple-string))
 # )   ) )
-LISPFUNN(string_reader,2) # liest "
+LISPFUNN(string_reader,2) # reads "
   {
     var object* stream_ = test_stream_arg(STACK_1);
     # stack layout: stream, char.
     if (test_value(S(read_suppress))) { # *READ-SUPPRESS* /= NIL ?
-      # ja -> String nur überlesen:
+      # yes -> only read ahead of string:
       loop {
-        # nächstes Zeichen lesen:
+        # read next character:
         var object ch;
         var uintWL scode;
         read_char_syntax(ch = ,scode = ,stream_);
-        if (scode == syntax_eof) # EOF -> Fehler
+        if (scode == syntax_eof) # EOF -> error
           goto fehler_eof;
-        if (eq(ch,STACK_0)) # selbes Zeichen wie char -> fertig
+        if (eq(ch,STACK_0)) # same character as char -> finished
           break;
         if (scode == syntax_single_esc) { # Single-Escape-Character?
-          # ja -> nochmal ein Zeichen lesen:
+          # yes -> read another character:
           read_char_syntax(ch = ,scode = ,stream_);
-          if (scode == syntax_eof) # EOF -> Fehler
+          if (scode == syntax_eof) # EOF -> error
             goto fehler_eof;
         }
       }
-      value1 = NIL; # NIL als Wert
+      value1 = NIL; # NIL as value
     } else {
-      # nein -> String wirklich lesen
-      get_buffers(); # zwei leere Buffer auf den Stack
-      # stack layout: stream, char, Buffer, andererBuffer.
+      # no -> really read String
+      get_buffers(); # two empty Buffers on the Stack
+      # stack layout: stream, char, Buffer, anotherBuffer.
       loop {
-        # nächstes Zeichen lesen:
+        # read next character:
         var object ch;
         var uintWL scode;
         read_char_syntax(ch = ,scode = ,stream_);
-        if (scode == syntax_eof) # EOF -> Fehler
+        if (scode == syntax_eof) # EOF -> error
           goto fehler_eof;
-        if (eq(ch,STACK_2)) # selbes Zeichen wie char -> fertig
+        if (eq(ch,STACK_2)) # same character as char -> finished
           break;
         if (scode == syntax_single_esc) { # Single-Escape-Character?
-          # ja -> nochmal ein Zeichen lesen:
+          # yes -> read another character:
           read_char_syntax(ch = ,scode = ,stream_);
-          if (scode == syntax_eof) # EOF -> Fehler
+          if (scode == syntax_eof) # EOF -> error
             goto fehler_eof;
         }
-        # Zeichen ch in den Buffer schieben:
+        # push character ch into Buffer:
         ssstring_push_extend(STACK_1,char_code(ch));
       }
-      # Buffer kopieren und dabei in Simple-String umwandeln:
+      # copy Buffer and convert it into Simple-String:
       {
         var object string;
         #ifndef TYPECODES
@@ -2840,13 +2842,13 @@ LISPFUNN(string_reader,2) # liest "
           string = copy_string(STACK_1);
         value1 = string;
       }
-      # Buffer zur Wiederverwendung freigeben:
+      # free Buffer for reuse:
       O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
     }
     mv_count=1; skipSTACK(2);
     return;
    fehler_eof:
-    pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+    pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
     fehler(end_of_file,
@@ -2854,21 +2856,21 @@ LISPFUNN(string_reader,2) # liest "
           );
   }
 
-# Liest ein Objekt und bildet eine zweielementige Liste.
+# reads an Object and creates a list with two elements.
 # list2_reader(stream_);
 # > stack layout: stream, symbol.
-# erhöht STACK um 2
-# verändert STACK,
+# increases STACK by 2
+# modifies STACK, can trigger GC
 # can trigger GC
   local Values list2_reader (const object* stream_);
   local Values list2_reader(stream_)
     var const object* stream_;
     {
-      var object obj = read_recursive_no_dot(stream_); # Objekt lesen
+      var object obj = read_recursive_no_dot(stream_); # read Object
       pushSTACK(obj);
-      pushSTACK(allocate_cons()); # zweites Listencons
-      var object new_cons1 = allocate_cons(); # erstes Listencons
-      var object new_cons2 = popSTACK(); # zweites Listencons
+      pushSTACK(allocate_cons()); # second List-cons
+      var object new_cons1 = allocate_cons(); # first List-cons
+      var object new_cons2 = popSTACK(); # second List-cons
       Car(new_cons2) = popSTACK(); # new_cons2 = (cons obj nil)
       Cdr(new_cons1) = new_cons2; Car(new_cons1) = STACK_0; # new_cons1 = (cons symbol new_cons2)
       value1 = new_cons1; mv_count=1; skipSTACK(2);
@@ -2878,7 +2880,7 @@ LISPFUNN(string_reader,2) # liest "
 #   #'(lambda (stream char)
 #       (list 'QUOTE (read stream t nil t))
 # )   )
-LISPFUNN(quote_reader,2) # liest '
+LISPFUNN(quote_reader,2) # reads '
   {
     var object* stream_ = test_stream_arg(STACK_1);
     STACK_0 = S(quote); return_Values list2_reader(stream_);
@@ -2892,27 +2894,27 @@ LISPFUNN(quote_reader,2) # liest '
 #       ) )
 #       (values)
 # )   )
-LISPFUNN(line_comment_reader,2) # liest ;
+LISPFUNN(line_comment_reader,2) # reads ;
   {
     var object* stream_ = test_stream_arg(STACK_1);
     loop {
-      var object ch = read_char(stream_); # Zeichen lesen
+      var object ch = read_char(stream_); # read character
       if (eq(ch,eof_value) || eq(ch,ascii_char(NL)))
         break;
     }
-    value1 = NIL; mv_count=0; skipSTACK(2); # keine Werte zurück
+    value1 = NIL; mv_count=0; skipSTACK(2); # return no values
   }
 
 # ------------------------- READ-Dispatch-Macros ------------------------------
 
-# Fehlermeldung wegen einer unerlaubten Zahl bei Dispatch-Macros
-# fehler_dispatch_zahl();
+# error-message due to forbidden number at Dispatch-Macros
+# fehler_dispatch_zahl(); english: error_dispatch_number();
 # > STACK_1: Stream
 # > STACK_0: sub-char
   nonreturning_function(local, fehler_dispatch_zahl, (void));
   local void fehler_dispatch_zahl()
     {
-      pushSTACK(STACK_1); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(STACK_1); # Wert for Slot STREAM of STREAM-ERROR
       pushSTACK(STACK_(0+1)); # sub-char
       pushSTACK(STACK_(1+2)); # Stream
       pushSTACK(S(read));
@@ -2921,20 +2923,20 @@ LISPFUNN(line_comment_reader,2) # liest ;
             );
     }
 
-# UP: Überprüft die Abwesenheit eines Infix-Arguments n
+# UP: checks the absence of Infix-Argument n
 # test_no_infix()
 # > stack layout: Stream, sub-char, n.
-# > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: &stream
-# erhöht STACK um 1
-# verändert STACK
+# > subr_self: Caller (ein SUBR)
+# < result: &stream
+# increases STACK by 1
+# modifies STACK
   local object* test_no_infix (void);
   local object* test_no_infix()
     {
       var object* stream_ = test_stream_arg(STACK_2);
       var object n = popSTACK();
       if ((!nullp(n)) && (!test_value(S(read_suppress))))
-        # Bei n/=NIL und *READ-SUPPRESS*=NIL : Fehler melden
+        # if n/=NIL and *READ-SUPPRESS*=NIL : report error
         fehler_dispatch_zahl();
       return stream_;
     }
@@ -2944,9 +2946,9 @@ LISPFUNN(line_comment_reader,2) # liest ;
 #       (when n (error ...))
 #       (list 'FUNCTION (read stream t nil t))
 # )   )
-LISPFUNN(function_reader,3) # liest #'
+LISPFUNN(function_reader,3) # reads #'
   {
-    var object* stream_ = test_no_infix(); # n muss NIL sein
+    var object* stream_ = test_no_infix(); # n must be NIL
     STACK_0 = S(function); return_Values list2_reader(stream_);
   }
 
@@ -2973,9 +2975,9 @@ LISPFUNN(function_reader,3) # liest #'
 #       ) )
 #       (values)
 # )   )
-LISPFUNN(comment_reader,3) # liest #|
+LISPFUNN(comment_reader,3) # reads #|
   {
-    var object* stream_ = test_no_infix(); # n muss NIL sein
+    var object* stream_ = test_no_infix(); # n must be NIL
     var uintL depth = 0;
     var object ch;
    loop1:
@@ -2984,12 +2986,12 @@ LISPFUNN(comment_reader,3) # liest #|
     if (eq(ch,eof_value)) # EOF -> Error
       goto fehler_eof;
     elif (eq(ch,STACK_0)) {
-      # sub-char gelesen
-      ch = read_char(stream_); # nächstes Zeichen
+      # sub-char has been read
+      ch = read_char(stream_); # next character
       if (eq(ch,eof_value)) # EOF -> Error
         goto fehler_eof;
       elif (eq(ch,ascii_char('#'))) {
-        # sub-char und '#' gelesen -> depth erniedrigen:
+        # sub-char and '#' has been read -> decrease depth:
         if (depth==0)
           goto fertig;
         depth--;
@@ -2997,12 +2999,12 @@ LISPFUNN(comment_reader,3) # liest #|
       } else
         goto loop2;
     } elif (eq(ch,ascii_char('#'))) {
-      # '#' gelesen
-      ch = read_char(stream_); # nächstes Zeichen
+      # '#' has been read
+      ch = read_char(stream_); # next character
       if (eq(ch,eof_value)) # EOF -> Error
         goto fehler_eof;
       elif (eq(ch,STACK_0)) {
-        # '#' und sub-char gelesen -> depth erhöhen:
+        # '#' and sub-char has been read -> increase depth:
         depth++;
         goto loop1;
       } else
@@ -3010,7 +3012,7 @@ LISPFUNN(comment_reader,3) # liest #|
     } else
       goto loop1;
    fehler_eof:
-    pushSTACK(STACK_1); # Wert für Slot STREAM von STREAM-ERROR
+    pushSTACK(STACK_1); # value for Slot STREAM of STREAM-ERROR
     pushSTACK(STACK_(0+1)); # sub-char
     pushSTACK(STACK_(0+2)); # sub-char
     pushSTACK(STACK_(1+3)); # Stream
@@ -3019,7 +3021,7 @@ LISPFUNN(comment_reader,3) # liest #|
            GETTEXT("~: input stream ~ ends within a comment #$ ... $#")
           );
    fertig:
-    value1 = NIL; mv_count=0; skipSTACK(2); # keine Werte zurück
+    value1 = NIL; mv_count=0; skipSTACK(2); # return no values
   }
 
 # (set-dispatch-macro-character #\# #\\
@@ -3078,22 +3080,22 @@ LISPFUNN(comment_reader,3) # liest #|
 #                     ) )
 #             ) ) ) )
 # )   ) ) ) )
-LISPFUNN(char_reader,3) # liest #\
+LISPFUNN(char_reader,3) # reads #\
   {
     # stack layout: Stream, sub-char, n.
     var object* stream_ = test_stream_arg(STACK_2);
-    # Token lesen, mit Dummy-Character '\' als Token-Anfang:
+    # read Token, with Dummy-Character '\' as start of Token:
     read_token_1(stream_,ascii_char('\\'),syntax_single_esc);
-    # bei *READ-SUPPRESS* /= NIL sofort fertig:
+    # finished at once, when *READ-SUPPRESS* /= NIL:
     if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; skipSTACK(3); # NIL als Wert
+      value1 = NIL; mv_count=1; skipSTACK(3); # NIL as value
       return;
     }
     case_convert_token_1();
-    # Font bestimmen:
+    # determine Font:
     if (!nullp(STACK_0)) # n=NIL -> Default-Font 0
       if (!eq(STACK_0,Fixnum_0)) {
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # Wert for Slot STREAM of STREAM-ERROR
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -3101,51 +3103,51 @@ LISPFUNN(char_reader,3) # liest #\
                GETTEXT("~ from ~: font number ~ for character is too large, should be = 0")
               );
       }
-    # Font fertig.
-    var object token = O(token_buff_1); # gelesenes Token als Semi-Simple-String
-    var uintL len = TheIarray(token)->dims[1]; # Länge = Fill-Pointer
-    var object hstring = O(displaced_string); # Hilfsstring
-    TheIarray(hstring)->data = token; # Datenvektor := O(token_buff_1)
-    token = TheIarray(token)->data; # Normal-Simple-String mit Token
-    var uintL pos = 0; # momentane Position im Token
-    loop { # Suche nächstes Hyphen
-      if (len-pos == 1) # einbuchstabiger Charactername?
+    # Font ready.
+    var object token = O(token_buff_1); # read Token as Semi-Simple-String
+    var uintL len = TheIarray(token)->dims[1]; # lengh = Fill-Pointer
+    var object hstring = O(displaced_string); # auxiliary string
+    TheIarray(hstring)->data = token; # Data-vector := O(token_buff_1)
+    token = TheIarray(token)->data; # Normal-Simple-String with Token
+    var uintL pos = 0; # current Position in Token
+    loop { # search for next Hyphen
+      if (len-pos == 1) # Charactername consists of one character?
         break;
       var uintL hyphen = pos; # hyphen := pos
       loop {
-        if (hyphen == len) # schon Token-Ende?
+        if (hyphen == len) # already at end of Token?
           goto no_more_hyphen;
-        if (chareq(TheSstring(token)->data[hyphen],ascii('-'))) # Hyphen gefunden?
+        if (chareq(TheSstring(token)->data[hyphen],ascii('-'))) # Hyphen found?
           break;
-        hyphen++; # nein -> weitersuchen
+        hyphen++; # no -> continue search
       }
-      # Hyphen bei Position hyphen gefunden
+      # Hyphen found at Position hyphen
       var uintL sub_len = hyphen-pos;
       TheIarray(hstring)->dims[0] = pos; # Displaced-Offset := pos
       TheIarray(hstring)->totalsize =
-        TheIarray(hstring)->dims[1] = sub_len; # Länge := hyphen-pos
-      # Jetzt ist hstring = (subseq token pos hyphen)
-      # Displaced-String hstring ist kein Bitname -> Error
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
-      pushSTACK(copy_string(hstring)); # Displaced-String kopieren
+        TheIarray(hstring)->dims[1] = sub_len; # length := hyphen-pos
+      # now hstring = (subseq token pos hyphen)
+      # Displaced-String hstring is no Bitname -> Error
+      pushSTACK(*stream_); # Wert for Slot STREAM of STREAM-ERROR
+      pushSTACK(copy_string(hstring)); # copy Displaced-String
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
              GETTEXT("~ from ~: there is no character bit with name ~")
             );
-     bit_ok: # Bitname gefunden, Bit gesetzt
-      # Mit diesem Bitnamen fertig.
-      pos = hyphen+1; # zum nächsten
+     bit_ok: # found Bitname, set Bit
+      # finished with this Bitname.
+      pos = hyphen+1; # go to the next
     }
-    # einbuchstabiger Charactername
+    # Charactername consists of one letter
     {
       var chart code = TheSstring(token)->data[pos]; # (char token pos)
       value1 = code_char(code); mv_count=1; skipSTACK(3);
       return;
     }
-   no_more_hyphen: # kein weiteres Hyphen gefunden.
+   no_more_hyphen: # no other Hyphen found.
     {
-      var uintL sub_len = len-pos; # Länge des Characternamens
+      var uintL sub_len = len-pos; # Length of  Character name
       TheIarray(hstring)->dims[0] = pos; # Displaced-Offset := pos
       /* TheIarray(hstring)->totalsize =          */
       /*   TheIarray(hstring)->dims[1] = sub_len; */ # Länge := len-pos
@@ -3156,30 +3158,30 @@ LISPFUNN(char_reader,3) # liest #\
           TheIarray(hstring)->dims[1] = 4;
         # hstring = (subseq token pos (+ pos 4))
         if (!string_equal(hstring,O(charname_prefix))) # = "Code" ?
-          goto not_codexxxx; # nein -> weiter
-        # Dezimalzahl entziffern:
-        var uintL code = 0; # bisher gelesenes xxxx (<char_code_limit)
+          goto not_codexxxx; # no -> continue
+        # decipher Decimal number:
+        var uintL code = 0; # so far read xxxx (<char_code_limit)
         var uintL index = pos+4;
         var const chart* charptr = &TheSstring(token)->data[index];
         loop {
-          if (index == len) # Token-Ende erreicht?
+          if (index == len) # reached end of Token?
             break;
-          var cint c = as_cint(*charptr++); # nächstes Character
-          # soll Ziffer sein:
+          var cint c = as_cint(*charptr++); # next Character
+          # is to be digit:
           if (!((c>='0') && (c<='9')))
             goto not_codexxxx;
-          code = 10*code + (c-'0'); # Ziffer dazunehmen
-          # code soll < char_code_limit bleiben:
+          code = 10*code + (c-'0'); # add digit
+          # code is to be < char_code_limit:
           if (code >= char_code_limit)
             goto not_codexxxx;
           index++;
         }
-        # Charactername war vom Typ "Codexxxx" mit code = xxxx < char_code_limit
+        # Charactername was of type Typ "Codexxxx" with code = xxxx < char_code_limit
         value1 = code_char(as_chart(code)); mv_count=1; skipSTACK(3);
         return;
       }
      not_codexxxx:
-      # Test auf Pseudo-Character-Namen ^X:
+      # Test for Pseudo-Character-Name ^X:
       if ((sub_len == 2) && chareq(TheSstring(token)->data[pos],ascii('^'))) {
         var cint code = as_cint(TheSstring(token)->data[pos+1])-64;
         if (code < 32) {
@@ -3187,21 +3189,21 @@ LISPFUNN(char_reader,3) # liest #\
           return;
         }
       }
-      # Test auf Characternamen wie NAME-CHAR:
+      # Test for Charactername like NAME-CHAR:
       TheIarray(hstring)->totalsize =
-        TheIarray(hstring)->dims[1] = sub_len; # Länge := len-pos
-      var object ch = name_char(hstring); # Character mit diesem Namen suchen
+        TheIarray(hstring)->dims[1] = sub_len; # Length := len-pos
+      var object ch = name_char(hstring); # search Character with this Name
       if (nullp(ch)) {
-        # nicht gefunden -> Error
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
-        pushSTACK(copy_string(hstring)); # Charactername kopieren
+        # not found -> Error
+        pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
+        pushSTACK(copy_string(hstring)); # copy Charactername
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
                GETTEXT("~ from ~: there is no character with name ~")
               );
       }
-      # gefunden
+      # found
       value1 = ch; mv_count=1; skipSTACK(3);
       return;
     }
@@ -3218,43 +3220,43 @@ LISPFUNN(char_reader,3) # liest #\
 #         (error "~ von ~: Das Token ~ nach # ~ lässt sich nicht als rationale Zahl in Basis ~ interpretieren."
 #                 'read stream token sub-char base
 # ) ) ) ) )
-  # UP für #B #O #X #R
+  # UP for #B #O #X #R
   # radix_2(base)
   # > base: Basis (>=2, <=36)
   # > stack layout: Stream, sub-char, base.
-  # > O(token_buff_1), O(token_buff_2), token_escape_flag: gelesenes Token
-  # < STACK: aufgeräumt
-  # < mv_space/mv_count: Werte
+  # > O(token_buff_1), O(token_buff_2), token_escape_flag: read Token
+  # < STACK: cleaned up
+  # < mv_space/mv_count: values
   # can trigger GC
   local Values radix_2 (uintWL base);
   local Values radix_2(base)
     var uintWL base;
     {
-      # Überprüfe, ob das Token eine rationale Zahl darstellt:
-      upcase_token(); # in Großbuchstaben umwandeln
+      # check, if the  Token is a rational number:
+      upcase_token(); # convert to upper case
       var object string;
       var zahl_info info;
       switch (test_number_syntax(&base,&string,&info)) {
         case 1: # Integer
-          # letztes Character ein Punkt?
+          # is last Character a dot?
           if (chareq(TheSstring(string)->data[info.index2-1],ascii('.')))
-            # ja -> Dezimal-Integer, nicht in Basis base
+            # yes -> Decimal-Integer, not in Base base
             goto not_rational;
-          # test_number_syntax wurde bereits im Schritt 3 fertig,
-          # also ist base immer noch unverändert.
+          # test_number_syntax finished already in step 3,
+          # so base is still unchanged.
           skipSTACK(3);
           value1 = read_integer(base,info.sign,string,info.index1,info.index2);
           mv_count=1; return;
         case 2: # Rational
-          # test_number_syntax wurde bereits im Schritt 3 fertig,
-          # also ist base immer noch unverändert.
+          # test_number_syntax finished already in step 3,
+          # so base is still unchanged.
           skipSTACK(3);
           value1 = read_rational(base,info.sign,string,info.index1,info.index3,info.index2);
           mv_count=1; return;
-        case 0: # keine Zahl
+        case 0: # no number
         case 3: # Float
-        not_rational: # keine rationale Zahl
-          pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+        not_rational: # no rational number
+          pushSTACK(STACK_2); # Wert for Slot STREAM of STREAM-ERROR
           pushSTACK(STACK_(0+1)); # base
           pushSTACK(STACK_(1+2)); # sub-char
           pushSTACK(copy_string(O(token_buff_1))); # Token
@@ -3266,35 +3268,35 @@ LISPFUNN(char_reader,3) # liest #\
         default: NOTREACHED
       }
     }
-  # UP für #B #O #X
+  # UP for #B #O #X
   # radix_1(base)
-  # > base: Basis (>=2, <=36)
+  # > base: Base (>=2, <=36)
   # > stack layout: Stream, sub-char, n.
-  # > subr_self: Aufrufer (ein SUBR)
-  # < STACK: aufgeräumt
-  # < mv_space/mv_count: Werte
+  # > subr_self: caller (ein SUBR)
+  # < STACK: cleaned
+  # < mv_space/mv_count: values
   # can trigger GC
   local Values radix_1 (uintWL base);
   local Values radix_1(base)
     var uintWL base;
     {
       var object* stream_ = test_stream_arg(STACK_2);
-      read_token(stream_); # Token lesen
-      # bei *READ-SUPPRESS* /= NIL sofort fertig:
+      read_token(stream_); # read Token
+      # finished at once when *READ-SUPPRESS* /= NIL:
       if (test_value(S(read_suppress))) {
-        value1 = NIL; mv_count=1; skipSTACK(3); # NIL als Wert
+        value1 = NIL; mv_count=1; skipSTACK(3); # NIL as value
         return;
       }
       if (!nullp(popSTACK())) # n/=NIL -> Error
         fehler_dispatch_zahl();
-      pushSTACK(fixnum(base)); # base als Fixnum
+      pushSTACK(fixnum(base)); # base as Fixnum
       return_Values radix_2(base);
     }
 
 # (set-dispatch-macro-character #\# #\B
 #   #'(lambda (stream sub-char n) (radix-1 stream sub-char n 2))
 # )
-LISPFUNN(binary_reader,3) # liest #B
+LISPFUNN(binary_reader,3) # reads #B
   {
     return_Values radix_1(2);
   }
@@ -3302,7 +3304,7 @@ LISPFUNN(binary_reader,3) # liest #B
 # (set-dispatch-macro-character #\# #\O
 #   #'(lambda (stream sub-char n) (radix-1 stream sub-char n 8))
 # )
-LISPFUNN(octal_reader,3) # liest #O
+LISPFUNN(octal_reader,3) # reads #O
   {
     return_Values radix_1(8);
   }
@@ -3310,7 +3312,7 @@ LISPFUNN(octal_reader,3) # liest #O
 # (set-dispatch-macro-character #\# #\X
 #   #'(lambda (stream sub-char n) (radix-1 stream sub-char n 16))
 # )
-LISPFUNN(hexadecimal_reader,3) # liest #X
+LISPFUNN(hexadecimal_reader,3) # reads #X
   {
     return_Values radix_1(16);
   }
@@ -3325,18 +3327,18 @@ LISPFUNN(hexadecimal_reader,3) # liest #X
 #         ) )
 #         (progn (read-token stream) nil)
 # )   ) )
-LISPFUNN(radix_reader,3) # liest #R
+LISPFUNN(radix_reader,3) # reads #R
   {
     var object* stream_ = test_stream_arg(STACK_2);
-    read_token(stream_); # Token lesen
-    # bei *READ-SUPPRESS* /= NIL sofort fertig:
+    read_token(stream_); # read Token
+    # finished at once when *READ-SUPPRESS* /= NIL:
     if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; skipSTACK(3); # NIL als Wert
+      value1 = NIL; mv_count=1; skipSTACK(3); # NIL as value
       return;
     }
-    # n überprüfen:
+    # check n:
     if (nullp(STACK_0)) {
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
@@ -3344,13 +3346,13 @@ LISPFUNN(radix_reader,3) # liest #R
             );
     }
     var uintL base;
-    # n muss ein Fixnum zwischen 2 und 36 (inclusive) sein:
+    # n must be a Fixnum between 2 and 36 (inclusive):
     if (posfixnump(STACK_0) &&
         (base = posfixnum_to_L(STACK_0), (base >= 2) && (base <= 36))
        ) {
-      return_Values radix_2(base); # Token als rationale Zahl interpretieren
+      return_Values radix_2(base); # interprete Token as rational number
     } else {
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
       pushSTACK(STACK_(0+1)); # n
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
@@ -3375,31 +3377,31 @@ LISPFUNN(radix_reader,3) # liest #R
 #               (apply #'complex h)
 #               (error "~: Falsche Syntax für komplexe Zahl: #C~" 'read h)
 # )   ) ) ) ) )
-LISPFUNN(complex_reader,3) # liest #C
+LISPFUNN(complex_reader,3) # reads #C
   {
-    var object* stream_ = test_no_infix(); # n muss NIL sein
-    var object obj = read_recursive_no_dot(stream_); # nächstes Objekt lesen
-    # bei *READ-SUPPRESS* /= NIL sofort fertig:
+    var object* stream_ = test_no_infix(); # n must be NIL
+    var object obj = read_recursive_no_dot(stream_); # read next Object
+    # finished at once when *READ-SUPPRESS* /= NIL:
     if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; skipSTACK(2); # NIL als Wert
+      value1 = NIL; mv_count=1; skipSTACK(2); # NIL as value
       return;
     }
-    obj = make_references(obj); # und Verweise vorzeitig entflechten
-    # Überprüfen, ob dies eine zweielementige Liste von reellen Zahlen ist:
-    if (!consp(obj)) goto bad; # obj muss ein Cons sein !
+    obj = make_references(obj); # unentangle references untimely
+    # check, if this is a 2-elemnt List of real numbers:
+    if (!consp(obj)) goto bad; # obj must be a Cons !
     {
       var object obj2 = Cdr(obj);
-      if (!consp(obj2)) goto bad; # obj2 muss ein Cons sein !
-      if (!nullp(Cdr(obj2))) goto bad; # mit (cdr obj2) = nil !
-      if_realp(Car(obj), ; , goto bad; ); # und (car obj) eine reelle Zahl !
-      if_realp(Car(obj2), ; , goto bad; ); # und (car obj2) eine reelle Zahl !
-      # (apply #'COMPLEX obj) durchführen:
+      if (!consp(obj2)) goto bad; # obj2 must be a Cons!
+      if (!nullp(Cdr(obj2))) goto bad; # with (cdr obj2) = nil !
+      if_realp(Car(obj), ; , goto bad; ); # and (car obj) being a real number!
+      if_realp(Car(obj2), ; , goto bad; ); # and (car obj2) being a real number!
+      # execute (apply #'COMPLEX obj):
       apply(L(complex),0,obj);
-      mv_count=1; skipSTACK(2); return; # value1 als Wert
+      mv_count=1; skipSTACK(2); return; # value1 as value
     }
    bad:
-    pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
-    pushSTACK(obj); # Objekt
+    pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
+    pushSTACK(obj); # Object
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
     fehler(stream_error,
@@ -3417,15 +3419,15 @@ LISPFUNN(complex_reader,3) # liest #C
 #           [Überprüfe, ob auch keine Package-Marker im Token vorkommen.]
 #           (make-symbol token)
 # )   ) ) )
-LISPFUNN(uninterned_reader,3) # liest #:
+LISPFUNN(uninterned_reader,3) # reads #:
   {
     var object* stream_ = test_stream_arg(STACK_2);
-    # bei *READ-SUPPRESS* /= NIL Form lesen und NIL liefern:
+    # when *READ-SUPPRESS* /= NIL, read form and return NIL:
     if (test_value(S(read_suppress))) {
       read_recursive(stream_);
       value1 = NIL; mv_count=1; skipSTACK(3); return;
     }
-    # nächstes Zeichen lesen:
+    # read next character:
     {
       var object ch;
       var uintWL scode;
@@ -3433,36 +3435,36 @@ LISPFUNN(uninterned_reader,3) # liest #:
       if (scode == syntax_eof) # EOF -> Error
         fehler_eof_innen(stream_);
       if (scode > syntax_constituent) {
-        # kein Zeichen, das am Token-Anfang stehen kann -> Error
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        # no character, that is allowed at beginning of Token -> Error
+        pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
                GETTEXT("~ from ~: token expected after #:")
               );
       }
-      # Token zu Ende lesen:
+      # read Token until the end:
       read_token_1(stream_,ch,scode);
       case_convert_token_1();
     }
     if (!nullp(popSTACK())) # n/=NIL -> Error
       fehler_dispatch_zahl();
-    # Token kopieren und dabei in Simple-String umwandeln:
+    # copy Token and convert into Simple-String:
     var object string = coerce_imm_ss(O(token_buff_1));
-    # Auf Package-Marker testen:
+    # test for Package-Marker:
     {
-      var object buff_2 = O(token_buff_2); # Attributcode-Buffer
-      var uintL len = TheIarray(buff_2)->dims[1]; # Länge = Fill-Pointer
+      var object buff_2 = O(token_buff_2); # Attribut-Code-Buffer
+      var uintL len = TheIarray(buff_2)->dims[1]; # length = Fill-Pointer
       if (len > 0) {
         var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
-        # Teste, ob einer der len Attributcodes ab attrptr ein a_pack_m ist:
+        # Test, if one of the len Attribut-Codes starting at attrptr and afterwards is an a_pack_m:
         dotimespL(len,len, { if (*attrptr++ == a_pack_m) goto fehler_dopp; } );
       }
     }
-    # uninterniertes Symbol mit diesem Namen bauen:
+    # build uninterned Symbol with this Name:
     value1 = make_symbol(string); mv_count=1; skipSTACK(2); return;
    fehler_dopp:
-    pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+    pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
     pushSTACK(string); # Token
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
@@ -3507,16 +3509,16 @@ LISPFUNN(uninterned_reader,3) # liest #:
 LISPFUNN(bit_vector_reader,3) # liest #*
   {
     var object* stream_ = test_stream_arg(STACK_2);
-    read_token(stream_); # Token lesen
-    # bei *READ-SUPPRESS* /= NIL sofort fertig:
+    read_token(stream_); # read Token
+    # finished at once, if *READ-SUPPRESS* /= NIL:
     if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; skipSTACK(3); # NIL als Wert
+      value1 = NIL; mv_count=1; skipSTACK(3); # NIL as value
       return;
     }
-    # Test, ob kein Escape-Zeichen und nur Nullen und Einsen verwendet:
+    # Test, if no Escape-character and only 0s and 1s are used:
     if (token_escape_flag) {
      fehler_nur01:
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
@@ -3524,27 +3526,27 @@ LISPFUNN(bit_vector_reader,3) # liest #*
             );
     }
     var object buff_1 = O(token_buff_1); # Character-Buffer
-    var uintL len = TheIarray(buff_1)->dims[1]; # Länge = Fill-Pointer
+    var uintL len = TheIarray(buff_1)->dims[1]; # length = Fill-Pointer
     if (len > 0) {
       var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
       var uintL count;
       dotimespL(count,len, {
-        var chart c = *charptr++; # nächstes Character
-        if (!(chareq(c,ascii('0')) || chareq(c,ascii('1')))) # nur '0' und '1' sind OK
+        var chart c = *charptr++; # next Character
+        if (!(chareq(c,ascii('0')) || chareq(c,ascii('1')))) # only '0' und '1' are OK
           goto fehler_nur01;
       });
     }
-    # n überprüfen:
-    var uintL n; # Länge des Bitvektors
+    # check n:
+    var uintL n; # Length of Bitvektors
     if (nullp(STACK_0)) {
-      n = len; # Defaultwert ist die Tokenlänge
+      n = len; # Defaultvalue is the Tokenlength
     } else {
-      # n angegeben, ein Integer >=0.
-      n = (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> Wert
-                               : bitm(oint_data_len)-1 # Bignum -> großer Wert
+      # n specified, an Integer >=0.
+      n = (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> value
+                               : bitm(oint_data_len)-1 # Bignum -> big value
           );
       if (n<len) {
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -3553,7 +3555,7 @@ LISPFUNN(bit_vector_reader,3) # liest #*
               );
       }
       if ((n>0) && (len==0)) {
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -3562,26 +3564,26 @@ LISPFUNN(bit_vector_reader,3) # liest #*
               );
       }
     }
-    # Erzeuge neuen Bit-Vektor der Länge n:
+    # create new Bit-Vector with length n:
     var object bv = allocate_bit_vector(Atype_Bit,n);
-    # und fülle die Bits ein:
+    # and fill the Bits into it:
     buff_1 = O(token_buff_1);
     {
       var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
-      var chart ch; # letztes Zeichen ('0' oder '1')
+      var chart ch; # last character ('0' or '1')
       var uintL index = 0;
       while (index < n) {
         if (index < len)
-          ch = *charptr++; # evtl. nächstes Character holen
+          ch = *charptr++; # possibly, fetch next Character
         if (chareq(ch,ascii('0'))) {
-          sbvector_bclr(bv,index); # Null -> Bit löschen
+          sbvector_bclr(bv,index); # Null -> delete Bit
         } else {
-          sbvector_bset(bv,index); # Eins -> Bit setzen
+          sbvector_bset(bv,index); # Eins -> set Bit
         }
         index++;
       }
     }
-    value1 = bv; mv_count=1; skipSTACK(3); # bv als Wert
+    value1 = bv; mv_count=1; skipSTACK(3); # bv as value
   }
 
 # (set-dispatch-macro-character #\# #\(
@@ -3612,28 +3614,28 @@ LISPFUNN(bit_vector_reader,3) # liest #*
 #               )
 #               v
 # )   ) ) ) ) )
-LISPFUNN(vector_reader,3) # liest #(
+LISPFUNN(vector_reader,3) # reads #(
   {
     var object* stream_ = test_stream_arg(STACK_2);
-    # Liste bis zur Klammer zu lesen, Dot nicht erlaubt:
+    # read List until parenthese, Dot is not allowed:
     var object elements = read_delimited_list(stream_,ascii_char(')'),eof_value);
-    # bei *READ-SUPPRESS* /= NIL sofort fertig:
+    # already finished when *READ-SUPPRESS* /= NIL:
     if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; skipSTACK(3); # NIL als Wert
+      value1 = NIL; mv_count=1; skipSTACK(3); # NIL as value
       return;
     }
-    var uintL len = llength(elements); # Listenlänge
-    # n überprüfen:
-    var uintL n; # Länge des Vektors
+    var uintL len = llength(elements); # Listlength
+    # check n:
+    var uintL n; # Length of Vector
     if (nullp(STACK_0)) {
-      n = len; # Defaultwert ist die Tokenlänge
+      n = len; # Defaultvalue is the length of the Token
     } else {
-      # n angegeben, ein Integer >=0.
-      n = (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> Wert
-                               : bitm(oint_data_len)-1 # Bignum -> großer Wert
+      # specify n, an Integer >=0.
+      n = (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> value
+                               : bitm(oint_data_len)-1 # Bignum -> big value
           );
       if (n<len) {
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -3642,7 +3644,7 @@ LISPFUNN(vector_reader,3) # liest #(
               );
       }
       if ((n>0) && (len==0)) {
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -3651,24 +3653,24 @@ LISPFUNN(vector_reader,3) # liest #(
               );
       }
     }
-    # Erzeuge neuen Vektor der Länge n:
-    pushSTACK(elements); # Liste retten
+    # create new Vector with Length n:
+    pushSTACK(elements); # save List
     var object v = allocate_vector(n);
-    elements = popSTACK(); # Liste zurück
-    # und fülle die Elemente ein:
+    elements = popSTACK(); # retrieve List
+    # und fill it with the Elements:
     {
       var object* vptr = &TheSvector(v)->data[0];
-      var object el; # letztes Element
+      var object el; # last Element
       var uintL index = 0;
       while (index < n) {
         if (index < len) {
-          el = Car(elements); elements = Cdr(elements); # evtl. nächstes Element holen
+          el = Car(elements); elements = Cdr(elements); # possibly fetch next Element
         }
         *vptr++ = el;
         index++;
       }
     }
-    value1 = v; mv_count=1; skipSTACK(3); # v als Wert
+    value1 = v; mv_count=1; skipSTACK(3); # v as value
   }
 
 # (set-dispatch-macro-character #\# #\A
@@ -3699,21 +3701,21 @@ LISPFUNN(vector_reader,3) # liest #(
 #             ) ) )
 #             (make-array (nreverse dims) :element-type eltype :initial-contents cont)
 # )   ) ) ) )
-LISPFUNN(array_reader,3) # liest #A
+LISPFUNN(array_reader,3) # reads #A
   {
     var object* stream_ = test_stream_arg(STACK_2);
     # stack layout: stream, sub-char, n.
     if (test_value(S(read_suppress))) { # *READ-SUPPRESS* /= NIL ?
-      # ja -> nächstes Objekt überlesen:
+      # yes -> skip next Object:
       read_recursive_no_dot(stream_);
       value1 = NIL; mv_count=1; skipSTACK(3); return;
     }
-    if (nullp(STACK_0)) { # n nicht angegeben?
-      # ja -> Liste (eltype dims contents) lesen:
-      var object obj = read_recursive_no_dot(stream_); # Liste lesen
-      obj = make_references(obj); # Verweise entflechten
-      # (Das ist ungefährlich, da wir diese #A-Syntax für Arrays mit
-      # Elementtyp T nicht benutzen, und Byte-Arrays enthalten keine Verweise.)
+    if (nullp(STACK_0)) { # n not specified?
+      # yes -> read List (eltype dims contents):
+      var object obj = read_recursive_no_dot(stream_); # read List
+      obj = make_references(obj); # unentangle references
+      # (this is harmless, since we don't use this #A-Syntax
+      # for Arrays with Elementtyp T, and Byte-Arrays contain no references.)
       if (!consp(obj)) goto bad;
       {
         var object obj2 = Cdr(obj);
@@ -3721,78 +3723,78 @@ LISPFUNN(array_reader,3) # liest #A
         var object obj3 = Cdr(obj2);
         if (!consp(obj3)) goto bad;
         if (!nullp(Cdr(obj3))) goto bad;
-        # (MAKE-ARRAY dims :element-type eltype :initial-contents contents) aufrufen:
+        # call (MAKE-ARRAY dims :element-type eltype :initial-contents contents):
         STACK_2 = Car(obj2); STACK_1 = S(Kelement_type); STACK_0 = Car(obj);
         pushSTACK(S(Kinitial_contents)); pushSTACK(Car(obj3));
         goto call_make_array;
       }
      bad:
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
-      pushSTACK(obj); # Objekt
+      pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
+      pushSTACK(obj); # Object
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
              GETTEXT("~ from ~: bad syntax for array: #A~")
             );
     }
-    # n gibt den Rang des Arrays an.
-    # Inhalt lesen:
+    # n specifies the Rank of the Arrays.
+    # read content:
     {
-      dynamic_bind(S(backquote_level),NIL); # SYS::*BACKQUOTE-LEVEL* an NIL binden
+      dynamic_bind(S(backquote_level),NIL); # bind SYS::*BACKQUOTE-LEVEL* to NIL
       var object contents = read_recursive_no_dot(stream_);
       dynamic_unbind();
       pushSTACK(contents); pushSTACK(contents);
     }
     STACK_4 = NIL; # dims := '()
     # stack layout: dims, -, rank, subcontents, contents.
-    # Dimensionen und Elementtyp bestimmen:
+    # determine Dimensions and Element-type:
     if (eq(STACK_2,Fixnum_0)) { # rank=0 ?
-      STACK_2 = S(t); # ja -> eltype := 'T
+      STACK_2 = S(t); # yes -> eltype := 'T
     } else {
-      var object i = Fixnum_0; # bisherige Verschachtelungstiefe
+      var object i = Fixnum_0; # former nesting depth
       loop {
         pushSTACK(STACK_1); funcall(L(length),1); # (LENGTH subcontents)
-        # auf dims pushen:
+        # push on dims:
         STACK_3 = value1;
         {
           var object new_cons = allocate_cons();
           Car(new_cons) = STACK_3; Cdr(new_cons) = STACK_4;
           STACK_4 = new_cons;
         }
-        # Tiefe erhöhen:
+        # increase depth:
         i = fixnum_inc(i,1); if (eql(i,STACK_2)) break;
-        # erstes Element von subcontents für die weiteren Dimensionen:
-        if (!eq(STACK_3,Fixnum_0)) { # (nur falls (length subcontents) >0)
+        # first Element of subcontents for the following Dimensionen:
+        if (!eq(STACK_3,Fixnum_0)) { # (only if (length subcontents) >0)
           pushSTACK(STACK_1); pushSTACK(Fixnum_0); funcall(L(elt),2);
           STACK_1 = value1; # subcontents := (ELT subcontents 0)
         }
       }
-      nreverse(STACK_4); # Liste dims umdrehen
-      # eltype bestimmen je nach innerstem subcontents:
+      nreverse(STACK_4); # reverse List dims
+      # determine eltype according to innermost subcontents:
       STACK_2 = (stringp(STACK_1) ? S(character) :          # String: CHARACTER
-                 bit_vector_p(Atype_Bit,STACK_1) ? S(bit) : # Bitvektor: BIT
-                 S(t)                                       # sonst (Liste): T
+                 bit_vector_p(Atype_Bit,STACK_1) ? S(bit) : # Bitvector: BIT
+                 S(t)                                       # else (Liste): T
                 );
     }
     # stack layout: dims, -, eltype, -, contents.
-    # MAKE-ARRAY aufrufen:
+    # call MAKE-ARRAY:
     STACK_3 = S(Kelement_type); STACK_1 = S(Kinitial_contents);
     call_make_array:
     funcall(L(make_array),5);
     mv_count=1; return;
   }
 
-# Fehlermeldung für #. und #, wegen *READ-EVAL*.
-# fehler_read_eval_forbidden(&stream,obj);
+# Errormessage for #. and #, because of *READ-EVAL*.
+# fehler_read_eval_forbidden(&stream,obj); english: erro_read_eval_forbidden(&stream,obj);
 # > stream: Stream
-# > obj: Objekt, dessen Evaluierung versucht wurde
+# > obj: Object, whose Evaluation was examined
   nonreturning_function(local, fehler_read_eval_forbidden, (object* stream_, object obj));
   local void fehler_read_eval_forbidden(stream_,obj)
     var object* stream_;
     var object obj;
     {
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
-      pushSTACK(obj); # Objekt
+      pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
+      pushSTACK(obj); # Object
       pushSTACK(NIL); # NIL
       pushSTACK(S(read_eval)); # *READ-EVAL*
       pushSTACK(*stream_); # Stream
@@ -3813,23 +3815,23 @@ LISPFUNN(array_reader,3) # liest #A
 #             )
 #             (eval h)
 # )   ) ) ) )
-LISPFUNN(read_eval_reader,3) # liest #.
+LISPFUNN(read_eval_reader,3) # reads #.
   {
     var object* stream_ = test_stream_arg(STACK_2);
-    var object obj = read_recursive_no_dot(stream_); # Form lesen
-    # bei *READ-SUPPRESS* /= NIL sofort fertig:
+    var object obj = read_recursive_no_dot(stream_); # read Form
+    # if *READ-SUPPRESS* /= NIL ==> finished immediately:
     if (test_value(S(read_suppress))) {
       value1 = NIL; mv_count=1; skipSTACK(3);
       return;
     }
     if (!nullp(popSTACK())) # n/=NIL -> Error
       fehler_dispatch_zahl();
-    obj = make_references(obj); # Verweise entflechten
-    # Entweder *READ-EVAL* oder der Stream muss die Evaluierung erlauben.
+    obj = make_references(obj); # unentangle references
+    # either *READ-EVAL* or the Stream must allow the Evaluation.
     if (!(test_value(S(read_eval)) || stream_get_read_eval(*stream_)))
       fehler_read_eval_forbidden(stream_,obj);
-    eval_noenv(obj); # Form auswerten
-    mv_count=1; skipSTACK(2); # nur 1 Wert zurück
+    eval_noenv(obj); # evaluate Form
+    mv_count=1; skipSTACK(2); # only 1 value back
   }
 
 # (set-dispatch-macro-character #\# #\,
@@ -3843,32 +3845,32 @@ LISPFUNN(read_eval_reader,3) # liest #.
 #             )
 #             (if sys::*compiling* (make-load-time-eval h) (eval h))
 # )   ) ) ) )
-LISPFUNN(load_eval_reader,3) # liest #,
+LISPFUNN(load_eval_reader,3) # reads #,
   {
     var object* stream_ = test_stream_arg(STACK_2);
-    var object obj = read_recursive_no_dot(stream_); # Form lesen
-    # bei *READ-SUPPRESS* /= NIL sofort fertig:
+    var object obj = read_recursive_no_dot(stream_); # read Form
+    # finished immediately, when *READ-SUPPRESS* /= NIL:
     if (test_value(S(read_suppress))) {
       value1 = NIL; mv_count=1; skipSTACK(3);
       return;
     }
     if (!nullp(popSTACK())) # n/=NIL -> Error
       fehler_dispatch_zahl();
-    obj = make_references(obj); # Verweise entflechten
+    obj = make_references(obj); # unentangle references
     if (test_value(S(compiling))) {
-      # Im Compiler:
+      # In Compiler:
       pushSTACK(obj);
-      var object newobj = allocate_loadtimeeval(); # Load-time-Eval-Objekt
-      TheLoadtimeeval(newobj)->loadtimeeval_form = popSTACK(); # mit obj als Form
+      var object newobj = allocate_loadtimeeval(); # Load-time-Eval-Object
+      TheLoadtimeeval(newobj)->loadtimeeval_form = popSTACK(); # with obj as Form
       value1 = newobj;
     } else {
-      # Im Interpreter:
-      # Entweder *READ-EVAL* oder der Stream muss die Evaluierung erlauben.
+      # In Interpreter:
+      # either *READ-EVAL* or the Stream must allow the Evaluation.
       if (!(test_value(S(read_eval)) || stream_get_read_eval(*stream_)))
         fehler_read_eval_forbidden(stream_,obj);
-      eval_noenv(obj); # Form auswerten
+      eval_noenv(obj); # evaluate Form
     }
-    mv_count=1; skipSTACK(2); # nur 1 Wert zurück
+    mv_count=1; skipSTACK(2); # only 1 value back
   }
 
 # (set-dispatch-macro-character #\# #\=
@@ -3911,16 +3913,16 @@ LISPFUNN(load_eval_reader,3) # liest #,
 #           (error "~ von ~: Zwischen # und # muss eine Zahl angegeben werden." 'read stream)
 # )   ) ) )
 
-# UP: Bildet ein internes Label und sucht es in der *READ-REFERENCE-TABLE* auf.
+# UP: creates an internal Label and looks it up in *READ-REFERENCE-TABLE*.
 # lookup_label()
 # > stack layout: Stream, sub-char, n.
-# < ergebnis: (or (assoc label sys::*read-reference-table* :test #'eq) label)
+# < result: (or (assoc label sys::*read-reference-table* :test #'eq) label)
   local object lookup_label (void);
   local object lookup_label()
     {
       var object n = STACK_0;
-      if (nullp(n)) { # nicht angegeben?
-        pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+      if (nullp(n)) { # not specified?
+        pushSTACK(STACK_2); # Wert for Slot STREAM of STREAM-ERROR
         pushSTACK(STACK_(1+1)); # sub-char
         pushSTACK(STACK_(2+2)); # Stream
         pushSTACK(S(read));
@@ -3928,10 +3930,10 @@ LISPFUNN(load_eval_reader,3) # liest #,
                GETTEXT("~ from ~: a number must be given between #"" and $")
               );
       }
-      # n ist ein Integer >=0
+      # n is an Integer >=0
       if (!read_label_integer_p(n)) {
-        # n ist zu gro
-        pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+        # n is too big
+        pushSTACK(STACK_2); # Value for Slot STREAM of STREAM-ERROR
         pushSTACK(STACK_(1+1)); # sub-char
         pushSTACK(STACK_(0+2)); # n
         pushSTACK(STACK_(2+3)); # Stream
@@ -3940,21 +3942,21 @@ LISPFUNN(load_eval_reader,3) # liest #,
                GETTEXT("~ from ~: label #~? too large")
               );
       }
-      var object label = make_read_label(posfixnum_to_L(n)); # Internal-Label mit Nummer n
-      var object alist = # Wert von SYS::*READ-REFERENCE-TABLE*
+      var object label = make_read_label(posfixnum_to_L(n)); # Internal-Label with Nummer n
+      var object alist = # value of SYS::*READ-REFERENCE-TABLE*
         Symbol_value(S(read_reference_table));
-      # (assoc label alist :test #'eq) ausführen:
+      # execute (assoc label alist :test #'eq):
       while (consp(alist)) {
-        var object acons = Car(alist); # Listenelement
-        if (!consp(acons)) goto bad_reftab; # muss ein Cons sein !
-        if (eq(Car(acons),label)) # dessen CAR = label ?
-          return acons; # ja -> fertig
+        var object acons = Car(alist); # List-element
+        if (!consp(acons)) goto bad_reftab; # must be a Cons !
+        if (eq(Car(acons),label)) # its CAR = label ?
+          return acons; # yes -> fertig
         alist = Cdr(alist);
       }
-      if (nullp(alist)) # Listenende mit NIL ?
-        return label; # ja -> (assoc ...) = NIL -> fertig mit label
-     bad_reftab: # Wert von SYS::*READ-REFERENCE-TABLE* ist keine Aliste
-      pushSTACK(Symbol_value(S(read_reference_table))); # Wert von SYS::*READ-REFERENCE-TABLE*
+      if (nullp(alist)) # List-end with NIL ?
+        return label; # yes -> (assoc ...) = NIL -> finished with label
+     bad_reftab: # value of SYS::*READ-REFERENCE-TABLE* is no Alist
+      pushSTACK(Symbol_value(S(read_reference_table))); # value of SYS::*READ-REFERENCE-TABLE*
       pushSTACK(S(read_reference_table)); # SYS::*READ-REFERENCE-TABLE*
       pushSTACK(STACK_(2+2)); # Stream
       pushSTACK(S(read));
@@ -3963,18 +3965,18 @@ LISPFUNN(load_eval_reader,3) # liest #,
             );
     }
 
-LISPFUNN(label_definition_reader,3) # liest #=
+LISPFUNN(label_definition_reader,3) # reads #=
   {
-    # bei *READ-SUPPRESS* /= NIL wird #n= als Kommentar behandelt:
+    # when *READ-SUPPRESS* /= NIL, #n= is treated as comment:
     if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=0; skipSTACK(3); # keine Werte
+      value1 = NIL; mv_count=0; skipSTACK(3); # no values
       return;
     }
-    # Label bilden und in der Tabelle aufsuchen:
+    # create Label and lookup in Table:
     var object lookup = lookup_label();
     if (consp(lookup)) {
-      # gefunden -> war schon da -> Fehler:
-      pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+      # found -> has already been there -> error:
+      pushSTACK(STACK_2); # value for Slot STREAM of STREAM-ERROR
       pushSTACK(STACK_(0+1)); # n
       pushSTACK(STACK_(2+2)); # Stream
       pushSTACK(S(read));
@@ -3982,25 +3984,25 @@ LISPFUNN(label_definition_reader,3) # liest #=
              GETTEXT("~ from ~: label #~= may not be defined twice")
             );
     } else {
-      # lookup = label, nicht GC-gefährdet.
+      # lookup = label, not jeopardized by GC.
       # (push (setq h (cons label label)) sys::*read-reference-table*) :
       var object* stream_ = test_stream_arg(STACK_2);
       {
         var object new_cons = allocate_cons();
         Car(new_cons) = Cdr(new_cons) = lookup; # h = (cons label label)
-        pushSTACK(new_cons); # h retten
+        pushSTACK(new_cons); # save h
       }
       {
-        var object new_cons = allocate_cons(); # neues Listen-Cons
+        var object new_cons = allocate_cons(); # new List-Cons
         Car(new_cons) = STACK_0;
         Cdr(new_cons) = Symbol_value(S(read_reference_table));
         Symbol_value(S(read_reference_table)) = new_cons;
       }
-      var object obj = read_recursive_no_dot(stream_); # Objekt lesen
+      var object obj = read_recursive_no_dot(stream_); # read Objekt
       var object h = popSTACK();
-      if (eq(obj,Car(h))) { # gelesenes Objekt = (car h) = label ?
-        # ja -> zyklische Definition -> Error
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      if (eq(obj,Car(h))) { # read Objekt = (car h) = label ?
+        # yes -> cyclic Definition -> Error
+        pushSTACK(*stream_); # Wert for Slot STREAM of STREAM-ERROR
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(STACK_(0+2)); # n
         pushSTACK(*stream_); # Stream
@@ -4009,27 +4011,27 @@ LISPFUNN(label_definition_reader,3) # liest #=
                GETTEXT("~ from ~: #~= #~#"" is illegal")
               );
       }
-      # gelesenes Objekt als (cdr h) eintragen:
+      # insert read Objekt as (cdr h):
       Cdr(h) = obj;
-      value1 = obj; mv_count=1; skipSTACK(3); # obj als Wert
+      value1 = obj; mv_count=1; skipSTACK(3); # obj as value
     }
   }
 
-LISPFUNN(label_reference_reader,3) # liest ##
+LISPFUNN(label_reference_reader,3) # reads ##
   {
-    # bei *READ-SUPPRESS* /= NIL sofort fertig:
+    # when *READ-SUPPRESS* /= NIL, finished immediately:
     if (test_value(S(read_suppress))) {
       value1 = NIL; mv_count=1; skipSTACK(3);
       return;
     }
-    # Label bilden und in der Tabelle aufsuchen:
+    # construct Label and lookup in Table:
     var object lookup = lookup_label();
     if (consp(lookup)) {
-      # gefunden -> Label als gelesenes Objekt zurück:
+      # found -> return Label as read object:
       value1 = Car(lookup); mv_count=1; skipSTACK(3);
     } else {
-      # nicht gefunden
-      pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+      # not found
+      pushSTACK(STACK_2); # value for Slot STREAM of STREAM-ERROR
       pushSTACK(STACK_(0+1)); # n
       pushSTACK(STACK_(2+2)); # Stream
       pushSTACK(S(read));
@@ -4044,10 +4046,10 @@ LISPFUNN(label_reference_reader,3) # liest ##
 #       (error "~ von ~: Als #<...> ausgegebene Objekte sind nicht mehr einlesbar."
 #               'read stream
 # )   ) )
-LISPFUNN(not_readable_reader,3) # liest #<
+LISPFUNN(not_readable_reader,3) # reads #<
   {
     var object* stream_ = test_stream_arg(STACK_2);
-    pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+    pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
     fehler(stream_error,
@@ -4061,10 +4063,10 @@ LISPFUNN(not_readable_reader,3) # liest #<
 #         (error "~ von ~: Wegen ~ als # ausgegebene Objekte sind nicht mehr einlesbar."
 #                 'read stream '*print-level*
 # ) )   ) )
-LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
+LISPFUNN(syntax_error_reader,3) # reads #) and #whitespace
   {
     var object* stream_ = test_stream_arg(STACK_2);
-    pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+    pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
     pushSTACK(S(print_level));
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
@@ -4094,19 +4096,19 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
 #           (t (error "~: Als Feature ist ~ nicht erlaubt." 'read feature))
 # ) ) )
 
-# UP: Stellt das Erfülltsein eines Feature-Ausdruckes fest.
+# UP: checks, if Feature-Expression is fulfilled.
 # interpret_feature(expr)
-# > expr: ein Feature-Ausdruck
+# > expr: a Feature-Expresion
 # > STACK_1: Stream
-# < ergebnis: Wahrheitswert: 0 falls erfüllt, ~0 falls nicht erfüllt.
+# < result: truth value: 0 if fulfilled, ~0 if not fulfilled.
   local uintWL interpret_feature (object expr);
   local uintWL interpret_feature(expr)
     var object expr;
     {
       check_SP();
       if (symbolp(expr)) {
-        # expr Symbol, in *FEATURES* suchen:
-        var object list = Symbol_value(S(features)); # Wert von *FEATURES*
+        # expr Symbol, search in *FEATURES*:
+        var object list = Symbol_value(S(features)); # value of *FEATURES*
         while (consp(list)) {
           if (eq(Car(list),expr))
             goto ja;
@@ -4123,11 +4125,11 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
           # expr = (OR ...)
           and_or_flag = ~0;
          and_or:
-          # Listenelemente von expr so lange abinterpretieren, bis ein
-          # Ergebnis /=and_or_flag kommt. Default ist and_or_flag.
+          # interprete on List-elements of expr, until there is a
+          # result /=and_or_flag. Default is and_or_flag.
           var object list = Cdr(expr);
           while (consp(list)) {
-            # Listenelement abinterpretieren:
+            # interprete on List-element:
             var uintWL sub_erg = interpret_feature(Car(list));
             if (!(sub_erg == and_or_flag))
               return sub_erg;
@@ -4135,59 +4137,59 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
           }
           if (nullp(list))
             return and_or_flag;
-          # expr war eine Dotted List -> Fehler
+          # expr was a  Dotted List -> error
         } elif (string_gleich(opname,Symbol_name(S(not)))) {
-          # expr = (NOT ...) soll die Gestalt (NOT obj) haben:
+          # expr = (NOT ...) is to be of the shape (NOT obj):
           var object opargs = Cdr(expr);
           if (consp(opargs) && nullp(Cdr(opargs)))
             return ~interpret_feature(Car(opargs));
-          # expr hat keine korrekte Gestalt -> Fehler
+          # expr has no correct shape -> error
         }
-        # falscher (car expr) -> Fehler
+        # wrong (car expr) -> error
       }
-     bad: # Falscher Aufbau eines Feature-Ausdrucks
-      pushSTACK(STACK_1); # Wert für Slot STREAM von STREAM-ERROR
-      pushSTACK(expr); # Feature-Ausdruck
+     bad: # wrong structure of Feature-Expression
+      pushSTACK(STACK_1); # value for Slot STREAM of STREAM-ERROR
+      pushSTACK(expr); # Feature-Expression
       pushSTACK(STACK_(1+2)); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
              GETTEXT("~ from ~: illegal feature ~")
             );
-     ja: return 0; # expr ist erfüllt
-     nein: return ~0; # expr ist nicht erfüllt
+     ja: return 0; # expr is fulfilled
+     nein: return ~0; # expr is not fulfilled
     }
 
-# UP für #+ und #-
+# UP for #+ und #-
 # feature(sollwert)
-# > sollwert: gewünschter Wahrheitswert des Feature-Ausdrucks
-# > stack layout: Stream, sub-char, n.
-# > subr_self: Aufrufer (ein SUBR)
-# < STACK: um 3 erhöht
-# < mv_space/mv_count: Werte
+# > expected value: exprected truth value of Feature-Expression
+# > Stack Structure: Stream, sub-char, n.
+# > subr_self: caller (a SUBR)
+# < STACK: increased by 3
+# < mv_space/mv_count: values
 # can trigger GC
   local Values feature (uintWL sollwert);
   local Values feature(sollwert)
     var uintWL sollwert;
     {
-      var object* stream_ = test_no_infix(); # n muss NIL sein
-      dynamic_bind(S(read_suppress),NIL); # *READ-SUPPRESS* an NIL binden
+      var object* stream_ = test_no_infix(); # n must be NIL
+      dynamic_bind(S(read_suppress),NIL); # bind *READ-SUPPRESS* to NIL
       dynamic_bind(S(packagestern),O(keyword_package)); # bind *PACKAGE* to #<PACKAGE KEYWORD>
-      var object expr = read_recursive_no_dot(stream_); # Feature-Ausdruck lesen
+      var object expr = read_recursive_no_dot(stream_); # read Feature-Expression
       dynamic_unbind();
       dynamic_unbind();
-      # Feature-Ausdruck interpretieren:
-      expr = make_references(expr); # zuvor Verweise entflechten
+      # interprete Feature-Expression:
+      expr = make_references(expr); # first unentangle references
       if (interpret_feature(expr) == sollwert) {
-        # Wahrheitswert "wahr"
-        # nächstes Objekt lesen und als Wert:
+        # truth value "true"
+        # read next Objekt and set for value:
         value1 = read_recursive_no_dot(stream_); mv_count=1;
       } else {
-        # Wahrheitswert "falsch"
-        # *READ-SUPPRESS* an T binden, Objekt lesen, Kommentar
+        # truth value "false"
+        # bind *READ-SUPPRESS* to T, read Objekt, comment
         dynamic_bind(S(read_suppress),T);
         read_recursive_no_dot(stream_);
         dynamic_unbind();
-        value1 = NIL; mv_count=0; # keine Werte
+        value1 = NIL; mv_count=0; # no values
       }
       skipSTACK(2);
     }
@@ -4204,7 +4206,7 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
 #               (read stream t nil t)
 #               (values)
 # )   ) ) ) ) )
-LISPFUNN(feature_reader,3) # liest #+
+LISPFUNN(feature_reader,3) # reads #+
   {
     return_Values feature(0);
   }
@@ -4222,7 +4224,7 @@ LISPFUNN(feature_reader,3) # liest #+
 #             )
 #             (read stream t nil t)
 # )   ) ) ) )
-LISPFUNN(not_feature_reader,3) # liest #-
+LISPFUNN(not_feature_reader,3) # reads #-
   {
     return_Values feature(~0);
   }
@@ -4268,22 +4270,22 @@ LISPFUNN(not_feature_reader,3) # liest #-
 #         (t (let ((kw (intern (symbol-name (car args)) (find-package "KEYWORD"))))
 #              (list* kw (cadr args) (structure-arglist-expand name (cddr args)))
 # ) )     )  )
-LISPFUNN(structure_reader,3) # liest #S
+LISPFUNN(structure_reader,3) # reads #S
   {
-    var object* stream_ = test_no_infix(); # n muss NIL sein
-    # bei *READ-SUPPRESS* /= NIL nur ein Objekt lesen:
+    var object* stream_ = test_no_infix(); # n must be NIL
+    # when *READ-SUPPRESS* /= NIL, only read one object:
     if (test_value(S(read_suppress))) {
-      read_recursive_no_dot(stream_); # Objekt lesen und wegwerfen,
-      value1 = NIL; mv_count=1; skipSTACK(2); return; # NIL als Wert
+      read_recursive_no_dot(stream_); # read Objekt and throw away,
+      value1 = NIL; mv_count=1; skipSTACK(2); return; # NIL as value
     }
-    # SYS::*BACKQUOTE-LEVEL* an NIL binden und Objekt lesen:
+    # bind SYS::*BACKQUOTE-LEVEL* to NIL and read object:
     dynamic_bind(S(backquote_level),NIL);
     var object args = read_recursive_no_dot(stream_);
     dynamic_unbind();
-    # gelesene Liste überprüfen:
+    # check read List:
     if (atomp(args)) {
-      pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
-      pushSTACK(args); # Argumente
+      pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
+      pushSTACK(args); # Arguments
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
@@ -4291,11 +4293,11 @@ LISPFUNN(structure_reader,3) # liest #S
             );
     }
     {
-      var object name = Car(args); # Typ der Structure
-      STACK_0 = args = Cdr(args); # Restliste retten
-      # stack layout: Stream, restl.Args.
-      if (!symbolp(name)) { # Typ muss ein Symbol sein !
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      var object name = Car(args); # Type of Structure
+      STACK_0 = args = Cdr(args); # save Restlist
+      # Stack Structure: Stream, remaining Args.
+      if (!symbolp(name)) { # Type must be a Symbol !
+        pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
         pushSTACK(name);
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -4304,13 +4306,13 @@ LISPFUNN(structure_reader,3) # liest #S
               );
       }
       pushSTACK(name);
-      # stack layout: Stream, restl.Args, name.
+      # Stack Structure: Stream, remaining Args, name.
       if (eq(name,S(hash_table))) { # Symbol HASH-TABLE ?
-        # ja -> speziell behandeln, keine Structure:
+        # yes -> treat specially, no Structure:
         # Hash-Tabelle
-        # Restliche Argumentliste muss ein Cons sein:
+        # Remaining Argumentlist must be a Cons:
         if (!consp(args)) {
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
           pushSTACK(*stream_); # Stream
           pushSTACK(S(read));
           fehler(stream_error,
@@ -4322,21 +4324,21 @@ LISPFUNN(structure_reader,3) # liest #S
         pushSTACK(Car(args)); # Test (Symbol)
         pushSTACK(S(Kinitial_contents)); # :INITIAL-CONTENTS
         pushSTACK(Cdr(args)); # Aliste ((Key_1 . Value_1) ... (Key_n . Value_n))
-        funcall(L(make_hash_table),4); # Hash-Tabelle bauen
-        mv_count=1; # value1 als Wert
+        funcall(L(make_hash_table),4); # build Hash-Table
+        mv_count=1; # value1 as value
         skipSTACK(3); return;
       }
       if (eq(name,S(random_state))) { # Symbol RANDOM-STATE ?
-        # ja -> speziell behandeln, keine Structure:
+        # yes -> treat specially, no Structure:
         # Random-State
-        # Restliche Argumentliste muss ein Cons mit NIL als CDR und
-        # einem Simple-Bit-Vektor der Länge 64 als CAR sein:
+        # Remaining Argumentlist must be a Cons with NIL as CDR and
+        # a Simple-Bit-Vector of length 64 as CAR:
         if (!(consp(args)
               && nullp(Cdr(args))
               && simple_bit_vector_p(Atype_Bit,Car(args))
               && (Sbvector_length(Car(args)) == 64)
            ) ) {
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
           pushSTACK(name);
           pushSTACK(*stream_); # Stream
           pushSTACK(S(read));
@@ -4344,31 +4346,31 @@ LISPFUNN(structure_reader,3) # liest #S
                  GETTEXT("~ from ~: bad ~")
                 );
         }
-        STACK_0 = Car(args); # Simple-Bit-Vektor retten
-        var object ergebnis = allocate_random_state(); # neuer Random-State
-        The_Random_state(ergebnis)->random_state_seed = popSTACK(); # füllen
+        STACK_0 = Car(args); # save Simple-Bit-Vector
+        var object ergebnis = allocate_random_state(); # new Random-State
+        The_Random_state(ergebnis)->random_state_seed = popSTACK(); # fill
         value1 = ergebnis; mv_count=1; skipSTACK(2); return;
       }
       if (eq(name,S(pathname))) { # Symbol PATHNAME ?
-        # ja -> speziell behandeln, keine Structure:
+        # yes -> treat specially, no Structure:
         STACK_1 = make_references(args); pushSTACK(L(make_pathname));
       }
       #ifdef LOGICAL_PATHNAMES
       elif (eq(name,S(logical_pathname))) { # Symbol LOGICAL-PATHNAME ?
-        # ja -> speziell behandeln, keine Structure:
+        # yes -> treat specially, no Structure:
         STACK_1 = make_references(args); pushSTACK(L(make_logical_pathname));
       }
       #endif
       elif (eq(name,S(byte))) { # Symbol BYTE ?
-        # ja -> speziell behandeln, keine Structure:
+        # yes -> treat specially, no Structure:
         pushSTACK(S(make_byte));
       }
       else {
-        # (GET name 'SYS::DEFSTRUCT-DESCRIPTION) ausführen:
+        # execute (GET name 'SYS::DEFSTRUCT-DESCRIPTION):
         var object description = get(name,S(defstruct_description));
-        if (eq(description,unbound)) { # nichts gefunden?
-          # Structure dieses Typs undefiniert
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        if (eq(description,unbound)) { # nothing found?
+          # Structure of this Type undefined
+          pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
           pushSTACK(name);
           pushSTACK(*stream_); # Stream
           pushSTACK(S(read));
@@ -4376,9 +4378,9 @@ LISPFUNN(structure_reader,3) # liest #S
                  GETTEXT("~ from ~: no structure of type ~ has been defined")
                 );
         }
-        # description muss ein Simple-Vector der Länge >=4 sein:
+        # description must be a Simple-Vector of length >=4:
         if (!(simple_vector_p(description) && (Svector_length(description) >= 4))) {
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
           pushSTACK(name);
           pushSTACK(S(defstruct_description));
           pushSTACK(*stream_); # Stream
@@ -4387,11 +4389,11 @@ LISPFUNN(structure_reader,3) # liest #S
                  GETTEXT("~ from ~: bad ~ for ~")
                 );
         }
-        # Konstruktorfunktion holen:
+        # fetch constructor-function:
         var object constructor = # (svref description 2)
           TheSvector(description)->data[2];
         if (nullp(constructor)) {
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
           pushSTACK(name);
           pushSTACK(*stream_); # Stream
           pushSTACK(S(read));
@@ -4399,21 +4401,21 @@ LISPFUNN(structure_reader,3) # liest #S
                  GETTEXT("~ from ~: structures of type ~ cannot be read in, missing constructor function")
                 );
         }
-    # Konstruktorfunktion mit angepasster Argumentliste aufrufen:
+    # call constructor-function with adapted Argumentlist:
         pushSTACK(constructor);
       }
     }
-    # stack layout: Stream, restl.Args, name, Konstruktor.
-    var uintC argcount = 0; # Zahl der Argumente für den Konstruktor
-    loop { # restliche Argumentliste durchlaufen,
-           # Argumente für den Konstruktor auf den STACK legen:
+    # stack layout: Stream, remaining Args, name, constructor.
+    var uintC argcount = 0; # number of arguments for constructor
+    loop { # process remaining Argumentlist,
+           # push Arguments for constructor on STACK:
       check_STACK();
-      args = *(stream_ STACKop -1); # restliche Args
-      if (nullp(args)) # keine mehr -> Argumente im STACK fertig
+      args = *(stream_ STACKop -1); # remaining Args
+      if (nullp(args)) # no more -> Arguments in STACK are ready
         break;
       if (atomp(args)) {
        dotted:
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
         pushSTACK(*(stream_ STACKop -2)); # name
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -4424,7 +4426,7 @@ LISPFUNN(structure_reader,3) # liest #S
       {
         var object slot = Car(args);
         if (!symbolp(slot)) {
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
           pushSTACK(*(stream_ STACKop -2)); # name
           pushSTACK(slot);
           pushSTACK(*stream_); # Stream
@@ -4434,7 +4436,7 @@ LISPFUNN(structure_reader,3) # liest #S
                 );
         }
         if (nullp(Cdr(args))) {
-          pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
           pushSTACK(*(stream_ STACKop -2)); # name
           pushSTACK(slot);
           pushSTACK(*stream_); # Stream
@@ -4446,18 +4448,18 @@ LISPFUNN(structure_reader,3) # liest #S
         if (matomp(Cdr(args)))
           goto dotted;
         {
-          var object kw = intern_keyword(Symbol_name(slot)); # Slotname als Keyword
-          pushSTACK(kw); # Keyword in den STACK
+          var object kw = intern_keyword(Symbol_name(slot)); # Slotname as Keyword
+          pushSTACK(kw); # Keyword into STACK
         }
       }
-      args = *(stream_ STACKop -1); # wieder dieselben restlichen Args
+      args = *(stream_ STACKop -1); # again the same remaining Args
       args = Cdr(args);
-      pushSTACK(Car(args)); # Slot-value in den STACK
-      *(stream_ STACKop -1) = Cdr(args); # Argliste verkürzen
-      argcount += 2; # und mitzählen
+      pushSTACK(Car(args)); # Slot-value into STACK
+      *(stream_ STACKop -1) = Cdr(args); # shorten Arglist
+      argcount += 2; # and count
       if (argcount == 0) {
-        # Argumentezähler zu groß geworden
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+        # Argument-Counter has become too big
+        pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
         pushSTACK(*(stream_ STACKop -2)); # name
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -4466,8 +4468,8 @@ LISPFUNN(structure_reader,3) # liest #S
               );
       }
     }
-    funcall(*(stream_ STACKop -3),argcount); # Konstruktor aufrufen
-    mv_count=1; skipSTACK(4); return; # value1 als Wert
+    funcall(*(stream_ STACKop -3),argcount); # call constructor
+    mv_count=1; skipSTACK(4); return; # value1 as value
   }
 
 # (set-dispatch-macro-character #\# #\Y
@@ -4498,13 +4500,13 @@ LISPFUNN(structure_reader,3) # liest #S
 #             (%make-closure (first obj) (second obj) (cddr obj))
 # )   ) ) ) )
 
-  # Fehlermeldung wegen falscher Syntax eines Code-Vektors
-  # fehler_closure_badchar();
+  # error-message because of wrong Syntax of a Code-Vector
+  # fehler_closure_badchar(); english: error_closure_badchar();
   # > stack layout: stream, sub-char, arg.
     nonreturning_function(local, fehler_closure_badchar, (void));
     local void fehler_closure_badchar()
       {
-        pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+        pushSTACK(STACK_2); # value for Slot STREAM of STREAM-ERROR
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(STACK_(2+2)); # Stream
         pushSTACK(S(read));
@@ -4513,12 +4515,12 @@ LISPFUNN(structure_reader,3) # liest #S
               );
       }
 
-  # UP: Überprüft, ob Character ch mit Syntaxcode scode eine
-  # Hexadezimal-Ziffer ist, und liefert ihren Wert.
-  # hexziffer(ch,scode)
-  # > ch, scode: Character (oder eof_value) und sein Syntaxcode
+  # UP: checks, if Character ch with Syntaxcode scode is a
+  # Hexadecimal-Digit, and delivers its value.
+  # hexziffer(ch,scode) english: hexdigit(ch,scode)
+  # > ch, scode: Character (or eof_value) and its Syntaxcode
   # > stack layout: stream, sub-char, arg.
-  # < ergebnis: Wert (>=0, <16) der Hexziffer
+  # < Result: value (>=0, <16) of Hexdigit
     local uintB hexziffer (object ch, uintWL scode);
     local uintB hexziffer(ch,scode)
       var object ch;
@@ -4526,7 +4528,7 @@ LISPFUNN(structure_reader,3) # liest #S
       {
         if (scode == syntax_eof)
           fehler_eof_innen(&STACK_2);
-        # ch ist ein Character
+        # ch is a Character
         var cint c = as_cint(char_code(ch));
         if (c<'0') goto badchar; if (c<='9') { return (c-'0'); } # '0'..'9'
         if (c<'A') goto badchar; if (c<='F') { return (c-'A'+10); } # 'A'..'F'
@@ -4537,29 +4539,29 @@ LISPFUNN(structure_reader,3) # liest #S
 LISPFUNN(closure_reader,3) # liest #Y
   {
     var object* stream_ = test_stream_arg(STACK_2);
-    # bei n=0 ein Encoding lesen:
+    # when n=0 read an Encoding:
     if (eq(STACK_0,Fixnum_0)) {
-      dynamic_bind(S(read_suppress),NIL); # *READ-SUPPRESS* an NIL binden
-      dynamic_bind(S(packagestern),O(charset_package)); # *PACKAGE* an #<PACKAGE CHARSET> binden
-      var object expr = read_recursive_no_dot(stream_); # Ausdruck lesen
+      dynamic_bind(S(read_suppress),NIL); # bind *READ-SUPPRESS* to NIL
+      dynamic_bind(S(packagestern),O(charset_package)); # bind *PACKAGE* to #<PACKAGE CHARSET>
+      var object expr = read_recursive_no_dot(stream_); # read expression
       dynamic_unbind();
       dynamic_unbind();
-      expr = make_references(expr); # Verweise entflechten
+      expr = make_references(expr); # unentangle references
       pushSTACK(*stream_); pushSTACK(expr); pushSTACK(S(Kinput));
       funcall(L(set_stream_external_format),3); # (SYS::SET-STREAM-EXTERNAL-FORMAT stream expr :input)
-      value1 = NIL; mv_count=0; skipSTACK(3); return; # keine Werte
+      value1 = NIL; mv_count=0; skipSTACK(3); return; # no values
     }
-    # bei *READ-SUPPRESS* /= NIL nur ein Objekt lesen:
+    # when *READ-SUPPRESS* /= NIL, only read one Object:
     if (test_value(S(read_suppress))) {
-      read_recursive_no_dot(stream_); # Objekt lesen, wegwerfen
-      value1 = NIL; mv_count=1; skipSTACK(3); return; # NIL als Wert
+      read_recursive_no_dot(stream_); # read Object, and throw away
+      value1 = NIL; mv_count=1; skipSTACK(3); return; # NIL as value
     }
-    # je nach n :
+    # according to n :
     if (nullp(STACK_0)) {
-      # n=NIL -> Closure lesen:
-      var object obj = read_recursive_no_dot(stream_); # Objekt lesen
-      if (!(consp(obj) && mconsp(Cdr(obj)))) { # Länge >=2 ?
-        pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+      # n=NIL -> read Closure:
+      var object obj = read_recursive_no_dot(stream_); # read Object
+      if (!(consp(obj) && mconsp(Cdr(obj)))) { # length >=2 ?
+        pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
         pushSTACK(obj);
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
@@ -4568,70 +4570,70 @@ LISPFUNN(closure_reader,3) # liest #Y
               );
       }
       skipSTACK(3);
-      # (SYS::%MAKE-CLOSURE (first obj) (second obj) (cddr obj)) ausführen:
+      # execute (SYS::%MAKE-CLOSURE (first obj) (second obj) (cddr obj)):
       pushSTACK(Car(obj)); obj = Cdr(obj); # 1. Argument
       pushSTACK(Car(obj)); obj = Cdr(obj); # 2. Argument
       pushSTACK(obj); # 3. Argument
       funcall(L(make_closure),3);
-      mv_count=1; # value1 als Wert
+      mv_count=1; # value1 as value
     } else {
-      # n angegeben -> Codevektor lesen:
-      # Syntax: #nY(b1 ... bn), wo n ein Fixnum >=0 und b1,...,bn
-      # Fixnums >=0, <256 in Basis 16 sind (jeweils ein- oder zweistellig).
-      # Beispielsweise #9Y(0 4 F CD 6B8FD1e4 5)
-      # n ist ein Integer >=0.
+      # n specified -> read Codevector:
+      # Syntax: #nY(b1 ... bn), where n is a Fixnum >=0 and b1,...,bn
+      # are Fixnums >=0, <256 in Base 16  (with one or two digits).
+      # e.g. #9Y(0 4 F CD 6B8FD1e4 5)
+      # n is an Integer >=0.
       var uintL n =
-        (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> Wert
-                             : bitm(oint_data_len)-1 # Bignum -> großer Wert
+        (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> value
+                             : bitm(oint_data_len)-1 # Bignum -> big value
         );
-      # neuen Bit-Vektor mit n Bytes besorgen:
+      # get new Bit-Vector with n Bytes:
       STACK_1 = allocate_bit_vector(Atype_8Bit,n);
       # stack layout: Stream, Codevektor, n.
       var object ch;
       var uintWL scode;
-      # Whitespace überlesen:
+      # skip Whitespace:
       do {
-        read_char_syntax(ch = ,scode = ,stream_); # Zeichen lesen
+        read_char_syntax(ch = ,scode = ,stream_); # read character
       } until (!(scode == syntax_whitespace));
-      # Es muss ein '(' folgen:
+      # '(' must follow:
       if (!eq(ch,ascii_char('(')))
         fehler_closure_badchar();
       {
         var uintL index = 0;
         until (index==n) {
-          # Whitespace überlesen:
+          # skip Whitespace:
           do {
-            read_char_syntax(ch = ,scode = ,stream_); # Zeichen lesen
+            read_char_syntax(ch = ,scode = ,stream_); # read character
           } until (!(scode == syntax_whitespace));
-          # es muss eine Hex-Ziffer folgen:
+          # Hex-digit must follow:
           var uintB zif = hexziffer(ch,scode);
-          # nächstes Character lesen:
+          # read next Character:
           read_char_syntax(ch = ,scode = ,stream_);
           if (scode == syntax_eof) # EOF -> Error
             fehler_eof_innen(stream_);
           if ((scode == syntax_whitespace) || eq(ch,ascii_char(')'))) {
-            # Whitespace oder Klammer zu
-            # wird auf den Stream zurückgeschoben:
+            # Whitespace or closing parenthese
+            # will be pushed back to Stream:
             unread_char(stream_,ch);
           } else {
-            # es muss eine zweite Hex-Ziffer sein
-            zif = 16*zif + hexziffer(ch,scode); # zur ersten Hex-Ziffer dazu
-            # (Nach der zweiten Hex-Ziffer wird kein Whitespace verlangt.)
+            # it must be a second Hex-digit
+            zif = 16*zif + hexziffer(ch,scode); # add to first Hex-digit
+            # (no whitespace is demanded after the second Hex-digit.)
           }
-          # zif = gelesenes Byte. In den Codevektor eintragen:
+          # zif = read Byte. write into Codevector:
           TheSbvector(STACK_1)->data[index] = zif;
           index++;
         }
       }
-      # Whitespace überlesen:
+      # skip Whitespace:
       do {
-        read_char_syntax(ch = ,scode = ,stream_); # Zeichen lesen
+        read_char_syntax(ch = ,scode = ,stream_); # read character
       } until (!(scode == syntax_whitespace));
-      # Es muss ein ')' folgen:
+      # ')' must follow:
       if (!eq(ch,ascii_char(')')))
         fehler_closure_badchar();
       #if BIG_ENDIAN_P
-      # Header von Little-Endian nach Big-Endian konvertieren:
+      # convert Header from Little-Endian to Big-Endian:
       {
         var Sbvector v = TheSbvector(STACK_1);
         swap(uintB, v->data[CCV_SPDEPTH_1], v->data[CCV_SPDEPTH_1+1]);
@@ -4644,7 +4646,7 @@ LISPFUNN(closure_reader,3) # liest #Y
         }
       }
       #endif
-      # Codevektor als Wert:
+      # Codevector as value:
       value1 = STACK_1; mv_count=1; skipSTACK(3);
     }
   }
@@ -4660,19 +4662,19 @@ LISPFUNN(closure_reader,3) # liest #Y
 #       (let ((obj (read stream t nil t))) ; String lesen
 #         (unless *read-suppress* (pathname obj))
 # )   ) )
-LISPFUNN(clisp_pathname_reader,3) # liest #"
+LISPFUNN(clisp_pathname_reader,3) # reads #"
   {
-    test_no_infix(); # n muss NIL sein
+    test_no_infix(); # n must be NIL
     # stack layout: Stream, sub-char #\".
-    var object string = # String lesen, der mit " anfängt
+    var object string = # read String, that starts with "
       (funcall(L(string_reader),2),value1);
-    # bei *READ-SUPPRESS* /= NIL sofort fertig:
+    # when *READ-SUPPRESS* /= NIL, finished immediately:
     if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; return; # NIL als Wert
+      value1 = NIL; mv_count=1; return; # NIL as value
     }
-    # Bilde (pathname string) = (values (parse-namestring string)) :
+    # construct (pathname string) = (values (parse-namestring string)) :
     pushSTACK(string); funcall(L(parse_namestring),1); # (PARSE-NAMESTRING string)
-    mv_count=1; # nur 1 Wert
+    mv_count=1; # only one value
   }
 
 # (set-dispatch-macro-character #\# #\P
@@ -4690,23 +4692,23 @@ LISPFUNN(clisp_pathname_reader,3) # liest #"
 #               (error "~ von ~: Falsche Syntax für Pathname: #P~"
 #                      'read stream obj
 # )   ) ) ) ) ) )
-LISPFUNN(ansi_pathname_reader,3) # liest #P
+LISPFUNN(ansi_pathname_reader,3) # reads #P
   {
-    var object* stream_ = test_no_infix(); # n muss NIL sein
-    var object obj = read_recursive_no_dot(stream_); # nächstes Objekt lesen
-    # bei *READ-SUPPRESS* /= NIL sofort fertig:
+    var object* stream_ = test_no_infix(); # n must be NIL
+    var object obj = read_recursive_no_dot(stream_); # read next Object
+    # when *READ-SUPPRESS* /= NIL, finished immediately:
     if (test_value(S(read_suppress))) {
       value1 = NIL; mv_count=1; skipSTACK(2); return;
     }
-    obj = make_references(obj); # und Verweise vorzeitig entflechten (unnötig?)
-    if (!stringp(obj)) # obj muss ein String sein!
+    obj = make_references(obj); # and unentangle references untimely (unnessecary?)
+    if (!stringp(obj)) # obj must be a String!
       goto bad;
-    # Bilde (pathname obj) = (values (parse-namestring obj)) :
+    # create (pathname obj) = (values (parse-namestring obj)) :
     pushSTACK(obj); funcall(L(parse_namestring),1); # (PARSE-NAMESTRING obj)
-    mv_count=1; skipSTACK(2); return; # nur 1 Wert
+    mv_count=1; skipSTACK(2); return; # only one value
    bad:
-    pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
-    pushSTACK(obj); # Objekt
+    pushSTACK(*stream_); # value for Slot STREAM of STREAM-ERROR
+    pushSTACK(obj); # Object
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
     fehler(stream_error,
@@ -4723,38 +4725,38 @@ LISPFUNN(ansi_pathname_reader,3) # liest #P
 #       (read-line stream)
 #       (values)
 # )   )
-LISPFUNN(unix_executable_reader,3) # liest #!
+LISPFUNN(unix_executable_reader,3) # reads #!
   {
-    var object* stream_ = test_no_infix(); # n muss NIL sein
+    var object* stream_ = test_no_infix(); # n must be NIL
     # stack layout: Stream, sub-char #\!.
     loop {
-      var object ch = read_char(stream_); # Zeichen lesen
+      var object ch = read_char(stream_); # read character
       if (eq(ch,eof_value) || eq(ch,ascii_char(NL)))
         break;
     }
-    value1 = NIL; mv_count=0; skipSTACK(2); # keine Werte zurück
+    value1 = NIL; mv_count=0; skipSTACK(2); # return no values
   }
 
 #endif
 
-# ------------------------ LISP-Funktionen des Readers ------------------------
+# ------------------------ LISP-Functions of the Reader -----------------------
 
-# UP: Überprüft ein Input-Stream-Argument.
-# Default ist der Wert von *STANDARD-INPUT*.
+# UP: checks an Input-Stream-Argument.
+# Default is the value of *STANDARD-INPUT*.
 # test_istream(&stream);
-# > subr_self: Aufrufer (ein SUBR)
+# > subr_self: caller (ein SUBR)
 # > stream: Input-Stream-Argument
-# < stream: Input-Stream (ein Stream)
+# < stream: Input-Stream (a Stream)
   local void test_istream (object* stream_);
   local void test_istream(stream_)
     var object* stream_;
     {
       var object stream = *stream_;
       if (eq(stream,unbound) || nullp(stream)) {
-        # statt #<UNBOUND> oder NIL: Wert von *STANDARD-INPUT*
+        # instead of #<UNBOUND> or NIL: value of *STANDARD-INPUT*
         *stream_ = var_stream(S(standard_input),strmflags_rd_ch_B);
       } elif (eq(stream,T)) {
-        # statt T: Wert von *TERMINAL-IO*
+        # instead of T: value of *TERMINAL-IO*
         *stream_ = var_stream(S(terminal_io),strmflags_rd_ch_B);
       } else {
         if (!streamp(stream))
@@ -4762,60 +4764,60 @@ LISPFUNN(unix_executable_reader,3) # liest #!
       }
     }
 
-# EOF-Handling, beendet Reader-Funktionen.
+# EOF-Handling, ends Reader-Functions.
 # eof_handling()
 # > STACK_3: Input-Stream
 # > STACK_2: eof-error-p
 # > STACK_1: eof-value
 # > STACK_0: recursive-p
-# < mv_space/mv_count: Werte
+# < mv_space/mv_count: values
   local Values eof_handling (int mvc);
   local Values eof_handling(mvc)
      var int mvc;
     {
-      if (!nullp(STACK_2)) { # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
-        # Error melden:
+      if (!nullp(STACK_2)) { # eof-error-p /= NIL (e.g. = #<UNBOUND>) ?
+        # report Error:
         var object recursive_p = STACK_0;
         if (eq(recursive_p,unbound) || nullp(recursive_p))
-          fehler_eof_aussen(&STACK_3); # EOF melden
+          fehler_eof_aussen(&STACK_3); # report EOF
         else
-          fehler_eof_innen(&STACK_3); # EOF innerhalb Objekt melden
+          fehler_eof_innen(&STACK_3); # report EOF within Objekt
       } else {
-        # EOF verarzten:
+        # handle EOF:
         var object eofval = STACK_1;
         if (eq(eofval,unbound))
-          eofval = NIL; # Default ist NIL
-        value1 = eofval; mv_count=mvc; skipSTACK(4); # eofval als Wert
+          eofval = NIL; # Default is NIL
+        value1 = eofval; mv_count=mvc; skipSTACK(4); # eofval as value
       }
     }
 
-# UP für READ und READ-PRESERVING-WHITESPACE
+# UP for READ and READ-PRESERVING-WHITESPACE
 # read_w(whitespace-p)
-# > whitespace-p: gibt an, ob danach whitespace zu verbrauchen ist
+# > whitespace-p: indicates, if whitespace has to be consumed afterwards
 # > stack layout: input-stream, eof-error-p, eof-value, recursive-p.
-# > subr_self: Aufrufer (ein SUBR) (unnötig, falls input-stream ein Stream ist)
-# < STACK: aufgeräumt
-# < mv_space/mv_count: Werte
+# > subr_self: caller (a SUBR) (unnecessary, if input-stream is a Stream)
+# < STACK: cleaned up
+# < mv_space/mv_count: values
   local Values read_w (object whitespace_p);
   local Values read_w(whitespace_p)
     var object whitespace_p;
     {
-      # input-stream überprüfen:
+      # check input-stream:
       test_istream(&STACK_3);
-      # recursive-p-Argument abfragen:
+      # check for recursive-p-Argument:
       var object recursive_p = STACK_0;
       if (eq(recursive_p,unbound) || nullp(recursive_p)) {
-        # nicht-rekursiver Aufruf
+        # non-recursive call
         var object obj = read_top(&STACK_3,whitespace_p);
         if (eq(obj,dot_value))
           fehler_dot(STACK_3); # Dot -> Error
         if (eq(obj,eof_value)) {
-          return_Values eof_handling(1); # EOF-Behandlung
+          return_Values eof_handling(1); # EOF-treatment
         } else {
-          value1 = obj; mv_count=1; skipSTACK(4); # obj als Wert
+          value1 = obj; mv_count=1; skipSTACK(4); # obj as value
         }
       } else {
-        # rekursiver Aufruf
+        # recursive call
         value1 = read_recursive_no_dot(&STACK_3); mv_count=1; skipSTACK(4);
       }
     }
@@ -4836,32 +4838,32 @@ LISPFUN(read_preserving_whitespace,0,4,norest,nokey,0,NIL)
 LISPFUN(read_delimited_list,1,2,norest,nokey,0,NIL)
 # (READ-DELIMITED-LIST char [input-stream [recursive-p]]), CLTL p. 377
   {
-    # char überprüfen:
+    # check char:
     var object ch = STACK_2;
     if (!charp(ch))
       fehler_char(ch);
-    # input-stream überprüfen:
+    # check input-stream:
     test_istream(&STACK_1);
-    # recursive-p-Argument abfragen:
+    # check for recursive-p-Argument:
     var object recursive_p = popSTACK();
     # stack layout: char, input-stream.
     if (eq(recursive_p,unbound) || nullp(recursive_p)) {
-      # nicht-rekursiver Aufruf
+      # non-recursive call
       var object* stream_ = &STACK_0;
-      # SYS::*READ-REFERENCE-TABLE* an die leere Tabelle NIL binden:
+      # bind SYS::*READ-REFERENCE-TABLE* to empty Table NIL:
       dynamic_bind(S(read_reference_table),NIL);
-      # SYS::*BACKQUOTE-LEVEL* an NIL binden:
+      # bind SYS::*BACKQUOTE-LEVEL* to NIL:
       dynamic_bind(S(backquote_level),NIL);
-      var object obj = read_delimited_list(stream_,ch,eof_value); # Liste lesen
-      obj = make_references(obj); # Verweise entflechten
+      var object obj = read_delimited_list(stream_,ch,eof_value); # read List
+      obj = make_references(obj); # unentangle references
       dynamic_unbind();
       dynamic_unbind();
-      value1 = obj; # Liste als Wert
+      value1 = obj; # List as value
     } else {
-      # rekursiver Aufruf
+      # recursive call
       value1 = read_delimited_list(&STACK_0,ch,eof_value);
     }
-    # (Beide Male Liste gelesen, keine Dotted List zugelassen.)
+    # (read List both times, no Dotted List allowed.)
     mv_count=1; skipSTACK(2);
   }
 
@@ -4869,33 +4871,33 @@ LISPFUN(read_line,0,4,norest,nokey,0,NIL)
 # (READ-LINE [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL p. 378
   {
-    # input-stream überprüfen:
+    # check input-stream:
     var object* stream_ = &STACK_3;
     test_istream(stream_);
-    get_buffers(); # zwei leere Buffer auf den Stack
-    if (!read_line(stream_,&STACK_1)) { # Zeile lesen
+    get_buffers(); # two empty Buffers on Stack
+    if (!read_line(stream_,&STACK_1)) { # read line
       # End of Line
-      # Buffer kopieren und dabei in Simple-String umwandeln:
+      # copy Buffer and convert into Simple-String:
       value1 = copy_string(STACK_1);
-      # Buffer zur Wiederverwendung freigeben:
+      # free Buffer for reuse:
       O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
-      value2 = NIL; mv_count=2; # NIL als 2. Wert
+      value2 = NIL; mv_count=2; # NIL as 2. value
       skipSTACK(4); return;
     } else {
       # End of File
-      # Buffer leer ?
-      if (TheIarray(STACK_1)->dims[1] == 0) { # Länge (Fill-Pointer) = 0 ?
-        # Buffer zur Wiederverwendung freigeben:
+      # Buffer empty?
+      if (TheIarray(STACK_1)->dims[1] == 0) { # Length (Fill-Pointer) = 0 ?
+        # free Buffer for reuse:
         O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
-        # EOF speziell behandeln:
+        # treat EOF specially:
         value2 = T;
         return_Values eof_handling(2);
       } else {
-        # Buffer kopieren und dabei in Simple-String umwandeln:
+        # copy Buffer and convert into Simple-String:
         value1 = copy_string(STACK_1);
-        # Buffer zur Wiederverwendung freigeben:
+        # free Buffer for reuse:
         O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
-        value2 = T; mv_count=2; # T als 2. Wert
+        value2 = T; mv_count=2; # T as 2. value
         skipSTACK(4); return;
       }
     }
@@ -4905,27 +4907,27 @@ LISPFUN(read_char,0,4,norest,nokey,0,NIL)
 # (READ-CHAR [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL p. 379
   {
-    # input-stream überprüfen:
+    # check input-stream:
     var object* stream_ = &STACK_3;
     test_istream(stream_);
-    var object ch = read_char(stream_); # Character lesen
+    var object ch = read_char(stream_); # read Character
     if (eq(ch,eof_value)) {
       return_Values eof_handling(1);
     } else {
-      value1 = ch; mv_count=1; skipSTACK(4); return; # ch als Wert
+      value1 = ch; mv_count=1; skipSTACK(4); return; # ch as value
     }
   }
 
 LISPFUN(unread_char,1,1,norest,nokey,0,NIL)
 # (UNREAD-CHAR char [input-stream]), CLTL p. 379
   {
-    # input-stream überprüfen:
+    # check input-stream:
     var object* stream_ = &STACK_0;
     test_istream(stream_);
     var object ch = STACK_1; # char
     if (!charp(ch)) # must be a character
       fehler_char(ch);
-    unread_char(stream_,ch); # char auf Stream zurückschieben
+    unread_char(stream_,ch); # push back char to Stream
     value1 = NIL; mv_count=1; skipSTACK(2); # NIL als Wert
   }
 
@@ -4933,35 +4935,35 @@ LISPFUN(peek_char,0,5,norest,nokey,0,NIL)
 # (PEEK-CHAR [peek-type [input-stream [eof-error-p [eof-value [recursive-p]]]]]),
 # CLTL p. 379
   {
-    # input-stream überprüfen:
+    # check input-stream:
     var object* stream_ = &STACK_3;
     test_istream(stream_);
-    # Fallunterscheidung nach peek-type:
+    # distinction of cases by peek-type:
     var object peek_type = STACK_4;
     if (eq(peek_type,unbound) || nullp(peek_type)) {
-      # Default NIL: 1 Zeichen peeken
+      # Default NIL: peek one character
       var object ch = peek_char(stream_);
       if (eq(ch,eof_value))
         goto eof;
-      value1 = ch; mv_count=1; skipSTACK(5); return; # ch als Wert
+      value1 = ch; mv_count=1; skipSTACK(5); return; # ch as value
     } elif (eq(peek_type,T)) {
       # T: Whitespace-Peek
       var object ch = wpeek_char_eof(stream_);
       if (eq(ch,eof_value))
         goto eof;
-      value1 = ch; mv_count=1; skipSTACK(5); return; # ch als Wert
+      value1 = ch; mv_count=1; skipSTACK(5); return; # ch as value
     } elif (charp(peek_type)) {
-      # peek-type ist ein Character
+      # peek-type is a Character
       var object ch;
       loop {
-        ch = read_char(stream_); # Zeichen lesen
+        ch = read_char(stream_); # read character
         if (eq(ch,eof_value))
           goto eof;
-        if (eq(ch,peek_type)) # das vorgegebene Ende-Zeichen?
+        if (eq(ch,peek_type)) # the preset End-character?
           break;
       }
-      unread_char(stream_,ch); # Zeichen zurückschieben
-      value1 = ch; mv_count=1; skipSTACK(5); return; # ch als Wert
+      unread_char(stream_,ch); # push back character
+      value1 = ch; mv_count=1; skipSTACK(5); return; # ch as value
     } else {
       pushSTACK(peek_type);        # TYPE-ERROR slot DATUM
       pushSTACK(O(type_peektype)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -4971,18 +4973,18 @@ LISPFUN(peek_char,0,5,norest,nokey,0,NIL)
              GETTEXT("~: peek type should be NIL or T or a character, not ~")
             );
     }
-   eof: # EOF liegt vor
+   eof: # EOF
     eof_handling(1); skipSTACK(1); return;
   }
 
 LISPFUN(listen,0,1,norest,nokey,0,NIL)
 # (LISTEN [input-stream]), CLTL p. 380
   {
-    test_istream(&STACK_0); # input-stream überprüfen
+    test_istream(&STACK_0); # check input-stream
     if (ls_avail_p(listen_char(popSTACK()))) {
-      value1 = T; mv_count=1; # Wert T
+      value1 = T; mv_count=1; # value T
     } else {
-      value1 = NIL; mv_count=1; # Wert NIL
+      value1 = NIL; mv_count=1; # value NIL
     }
   }
 
@@ -4992,7 +4994,7 @@ LISPFUNN(read_char_will_hang_p,1)
 # character, but accomplishes this without actually calling READ-CHAR-NO-HANG,
 # thus avoiding the need for UNREAD-CHAR and preventing side effects.
   {
-    test_istream(&STACK_0); # input-stream überprüfen
+    test_istream(&STACK_0); # check input-stream
     value1 = (ls_wait_p(listen_char(popSTACK())) ? T : NIL); mv_count=1;
   }
 
@@ -5000,7 +5002,7 @@ LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
 # (READ-CHAR-NO-HANG [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL p. 380
   {
-    # input-stream überprüfen:
+    # check input-stream:
     var object* stream_ = &STACK_3;
     test_istream(stream_);
     var object stream = *stream_;
@@ -5012,15 +5014,15 @@ LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
     var signean status = listen_char(stream);
     if (ls_eof_p(status)) { # EOF ?
       return_Values eof_handling(1);
-    } elif (ls_avail_p(status)) { # Zeichen verfügbar
-      var object ch = read_char(stream_); # Character lesen
-      if (eq(ch,eof_value)) { # sicherheitshalber nochmals auf EOF abfragen
+    } elif (ls_avail_p(status)) { # character available
+      var object ch = read_char(stream_); # read Character
+      if (eq(ch,eof_value)) { # query for EOF, for safety reasons
         return_Values eof_handling(1);
       } else {
-        value1 = ch; mv_count=1; skipSTACK(4); return; # ch als Wert
+        value1 = ch; mv_count=1; skipSTACK(4); return; # ch as value
       }
-    } else { # ls_wait_p(status) # kein Zeichen verfügbar
-      # statt zu warten, sofort NIL als Wert:
+    } else { # ls_wait_p(status) # no character available
+      # instead of waiting, return NIL as Wert, immediately:
       value1 = NIL; mv_count=1; skipSTACK(4); return;
     }
   }
@@ -5028,9 +5030,9 @@ LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
 LISPFUN(clear_input,0,1,norest,nokey,0,NIL)
 # (CLEAR-INPUT [input-stream]), CLTL p. 380
   {
-    test_istream(&STACK_0); # input-stream überprüfen
+    test_istream(&STACK_0); # check input-stream
     clear_input(popSTACK());
-    value1 = NIL; mv_count=1; # Wert NIL
+    value1 = NIL; mv_count=1; # value NIL
   }
 
 LISPFUN(read_from_string,1,2,norest,key,3,\
@@ -5074,27 +5076,27 @@ LISPFUN(read_from_string,1,2,norest,key,3,\
 # ) ) )
   {
     # stack layout: string, eof-error-p, eof-value, preserve-whitespace, start, end.
-    # :preserve-whitespace-Argument verarbeiten:
+    # process :preserve-whitespace-Argument:
     var object preserve_whitespace = STACK_2;
     if (eq(preserve_whitespace,unbound))
       preserve_whitespace = NIL;
-    # MAKE-STRING-INPUT-STREAM mit Argumenten string, start, end aufrufen:
+    # call MAKE-STRING-INPUT-STREAM with Arguments string, start, end:
     STACK_2 = STACK_5; # string
     if (eq(STACK_1,unbound))
-      STACK_1 = Fixnum_0; # start hat Default 0
+      STACK_1 = Fixnum_0; # start has Default 0
     if (eq(STACK_0,unbound))
-      STACK_0 = NIL; # end hat Default NIL
+      STACK_0 = NIL; # end has Default NIL
     STACK_5 = preserve_whitespace;
     funcall(L(make_string_input_stream),3);
     # stack layout: preserve-whitespace, eof-error-p, eof-value.
     pushSTACK(STACK_1); pushSTACK(STACK_1);
     STACK_3 = STACK_2 = value1;
     # stack layout: preserve-whitespace, stream, stream, eof-error-p, eof-value.
-    pushSTACK(NIL); read_w(STACK_5); # READ bzw. READ-PRESERVE-WHITESPACE
+    pushSTACK(NIL); read_w(STACK_5); # READ respectively READ-PRESERVE-WHITESPACE
     # stack layout: preserve-whitespace, stream.
-    STACK_1 = value1; # gelesenes Objekt
+    STACK_1 = value1; # read Objekt
     funcall(L(string_input_stream_index),1); # (SYS::STRING-INPUT-STREAM-INDEX stream)
-    value2 = value1; value1 = popSTACK(); # Index als 2., Objekt als 1. Wert
+    value2 = value1; value1 = popSTACK(); # Index as 2., Objekt as 1. value
     mv_count=2;
   }
 
@@ -5102,7 +5104,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         (kw(start),kw(end),kw(radix),kw(junk_allowed)) )
 # (PARSE-INTEGER string [:start] [:end] [:radix] [:junk-allowed]), CLTL p. 381
   {
-    # :junk-allowed-Argument verarbeiten:
+    # process :junk-allowed-Argument:
     var bool junk_allowed;
     {
       var object arg = popSTACK();
@@ -5111,8 +5113,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       else
         junk_allowed = true;
     }
-    # junk_allowed = Wert des :junk-allowed-Arguments.
-    # :radix-Argument verarbeiten:
+    # junk_allowed = value of :junk-allowed-Argument.
+    # process :radix-Argument:
     var uintL base;
     {
       var object arg = popSTACK();
@@ -5135,107 +5137,106 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         }
       }
     }
-    # base = Wert des :radix-Arguments.
-    # string, :start und :end überprüfen:
+    # base = value of :radix-Arguments.
+    # check string, :start and :end:
     var stringarg arg;
     var object string = test_string_limits_ro(&arg);
-    # STACK jetzt aufgeräumt.
-    var uintL start = arg.index; # Wert des :start-Arguments
-    var uintL len = arg.len; # Anzahl der angesprochenen Characters
+    # STACK is not cleared up.
+    var uintL start = arg.index; # value of :start-Arguments
+    var uintL len = arg.len; # number of the addressed characters
     var const chart* charptr;
     unpack_sstring_alloca(arg.string,arg.len,arg.offset+arg.index, charptr=);
-    # Schleifenvariablen:
+    # loop variables:
     var uintL index = start;
     var uintL count = len;
     var uintL start_offset;
     var uintL end_offset;
-    # Ab jetzt:
-    #   string : der String,
-    #   arg.string : sein Datenvektor (ein Simple-String),
-    #   start : Index des ersten Characters im String,
-    #   charptr : Pointer in den Datenvektor auf das nächste Character,
-    #   index : Index in den String,
-    #   count : verbleibende Anzahl Characters.
-    var signean sign; # Vorzeichen
+    # and now:
+    #   string : the string,
+    #   arg.string : its data-vector (a simple-string),
+    #   start : index of the first character in the string
+    #   charptr : pointer in the data-vector of the next character,
+    #   index : index in the string,
+    #   count : the number of remaining characters.
+    var signean sign;
     {
-      var chart c; # letztes gelesenes Character
-      # 1. Schritt: Whitespace übergehen
+      var chart c; # the last character read
+      # step 1: skip whitespace
       loop {
-        if (count==0) # Stringstück schon zu Ende ?
+        if (count==0) # the string has already ended?
           goto badsyntax;
-        c = *charptr; # nächstes Character
-        if (!(orig_syntax_table_get(c) == syntax_whitespace)) # kein Whitespace?
+        c = *charptr; # the next character
+        if (!(orig_syntax_table_get(c) == syntax_whitespace)) # no whitespace?
           break;
-        charptr++; index++; count--; # Whitespacezeichen übergehen
+        charptr++; index++; count--; # skip whitespace
       }
-      # 2. Schritt: Vorzeichen lesen
-      sign = 0; # Vorzeichen := positiv
+      # step 2: read the sign
+      sign = 0; # sign := positive
       switch (as_cint(c)) {
-        case '-': sign = -1; # Vorzeichen := negativ
-        case '+': # Vorzeichen angetroffen
-          charptr++; index++; count--; # übergehen
-          if (count==0) # Stringstück schon zu Ende ?
+        case '-': sign = -1; # sign := negative
+        case '+': # sign found
+          charptr++; index++; count--; # skip
+          if (count==0) # the string has already ended?
             goto badsyntax;
         default: break;
       }
     }
-    # Vorzeichen fertig, es kommt noch was (count>0).
+    # done with sign, still should be (count>0).
     start_offset = arg.offset + index;
-    # Ab jetzt:  start_offset = Offset der ersten Ziffer im Datenvektor.
-    # 3. Schritt: Ziffern lesen
+    # now:  start_offset = offset of the first digit in the data vector
+    # step 3: read digits
     loop {
-      var cint c = as_cint(*charptr); # nächstes Character
-      # Test auf Ziffer: (digit-char-p (code-char c) base) ?
-      # (vgl. DIGIT-CHAR-P in CHARSTRG.D)
-      if (c > 'z') break; # zu groß -> nein
-      if (c >= 'a') { c -= 'a'-'A'; } # Character >='a',<='z' in Großbuchstaben wandeln
-      # Nun ist $00 <= c <= $60.
+      var cint c = as_cint(*charptr); # the next character
+      # check the digits: (digit-char-p (code-char c) base) ?
+      # (cf. DIGIT-CHAR-P in CHARSTRG.D)
+      if (c > 'z') break; # too large -> no
+      if (c >= 'a') { c -= 'a'-'A'; } # upcase 'a'<= char <='z'
+      # now $00 <= c <= $60.
       if (c < '0') break;
-      # $30 <= c <= $60 in Zahlwert umwandeln:
+      # $30 <= c <= $60 convert to the numeric value
       if (c <= '9')
         c = c - '0';
       elif (c >= 'A')
         c = c - 'A' + 10;
       else
         break;
-      # Nun ist c der Zahlwert der Ziffer, >=0, <=41.
-      if (c >= (uintB)base) # nur gültig, falls 0 <= c < base.
+      # now 0 =< c <=41 is the numeric value of the digit
+      if (c >= (uintB)base) # only valid if 0 <= c < base.
         break;
-      # *charptr ist eine gültige Ziffer.
-      charptr++; index++; count--; # übergehen
+      # *charptr is a valid digit.
+      charptr++; index++; count--; # skip
       if (count==0)
         break;
     }
-    # Ziffern fertig.
+    # done with the digit.
     end_offset = arg.offset + index;
-    # Ab jetzt:  end_offset = Offset nach der letzten Ziffer im Datenvektor.
-    if (start_offset == end_offset) # gab es keine Ziffern?
+    # now:  end_offset = offset after the last digit in the data-vector.
+    if (start_offset == end_offset) # there were no digits?
       goto badsyntax;
-    # 4. Schritt: evtl. Whitespace am Schluss übergehen
-    if (!junk_allowed) { # (falls junk_allowed, ist nichts zu tun)
+    # step 4: skip the final whitespace
+    if (!junk_allowed) { # if junk_allowed, nothing is to be done
       while (!(count==0)) {
-        var chart c = *charptr; # nächstes Character
-        if (!(orig_syntax_table_get(c) == syntax_whitespace)) # kein Whitespace?
+        var chart c = *charptr; # the next character
+        if (!(orig_syntax_table_get(c) == syntax_whitespace)) # no whitespace?
           goto badsyntax;
-        charptr++; index++; count--; # Whitespacezeichen übergehen
+        charptr++; index++; count--; # skip whitespace
       }
     }
-    # 5. Schritt: Ziffernfolge in Zahl umwandeln
+    # step 5: convert the sequence of digits into a number
     value1 = read_integer(base,sign,arg.string,start_offset,end_offset);
-    value2 = fixnum(index); # Index als 2. Wert
+    value2 = fixnum(index);
     mv_count=2; return;
-   badsyntax: # Illegales Zeichen
-    if (!junk_allowed) {
-      # Error melden:
-      pushSTACK(unbound); # "Wert" für Slot STREAM von STREAM-ERROR
+   badsyntax: # illegale character
+    if (!junk_allowed) { # signal an error
+      pushSTACK(unbound); # STREAM-ERROR slot STREAM
       pushSTACK(string);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(stream_error,
              GETTEXT("~: string ~ does not have integer syntax")
             );
     }
-    value1 = NIL; # NIL als 1. Wert
-    value2 = fixnum(index); # Index als 2. Wert
+    value1 = NIL;
+    value2 = fixnum(index);
     mv_count=2; return;
   }
 
@@ -5397,8 +5398,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     #        'print '*print-readably* obj
     # )
     {
-      dynamic_bind(S(print_readably),NIL); # *PRINT-READABLY* an NIL binden
-      pushSTACK(obj); # Wert für Slot OBJECT von PRINT-NOT-READABLE
+      dynamic_bind(S(print_readably),NIL); # bind *PRINT-READABLY* to NIL
+      pushSTACK(obj); # PRINT-NOT-READABLE slot OBJECT
       pushSTACK(obj);
       pushSTACK(S(print_readably));
       pushSTACK(S(print));
@@ -6526,8 +6527,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # if (level_check(&stream)) return;
 # > stream: Stream
 # < stream: Stream
-# Wenn ja: can trigger GC
-# Wenn nein: verändert STACK
+# if yes: can trigger GC
+# if no: changes STACK
   local bool level_check (const object* stream_);
   local bool level_check(stream_)
     var const object* stream_;
@@ -7249,7 +7250,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   default: NOTREACHED
                 }
               count--; if (count == 0) break; # String zu Ende -> Schleifenende
-              c = *charptr++; # nächstes Character
+              c = *charptr++; # the next character
               switch (syntax_table_get(syntax_table,c)) { # sein Syntaxcode
                 case syntax_constituent:
                 case syntax_nt_macro:
@@ -7286,7 +7287,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   default: NOTREACHED
                 }
               count--; if (count == 0) break; # String zu Ende -> Schleifenende
-              c = as_chart(*charptr++); # nächstes Character
+              c = as_chart(*charptr++); # the next character
               switch (syntax_table_get(syntax_table,c)) { # sein Syntaxcode
                 case syntax_constituent:
                 case syntax_nt_macro:
@@ -7307,7 +7308,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           {
             var uintL index = 0;
             until (index == len) {
-              var chart c = TheSstring(STACK_2)->data[index]; # nächstes Character
+              var chart c = TheSstring(STACK_2)->data[index]; # the next character
               ssstring_push_extend(STACK_1,c); # in den Character-Buffer
               ssbvector_push_extend(STACK_0,attribute_of(c)); # und in den Attributcode-Buffer
               index++;
@@ -7316,7 +7317,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           {
             var uintL index = 0;
             until (index == len) {
-              var chart c = as_chart(TheSmallSstring(STACK_2)->data[index]); # nächstes Character
+              var chart c = as_chart(TheSmallSstring(STACK_2)->data[index]); # the next character
               ssstring_push_extend(STACK_1,c); # in den Character-Buffer
               ssbvector_push_extend(STACK_0,attribute_of(c)); # und in den Attributcode-Buffer
               index++;
@@ -7357,7 +7358,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         {
           var uintL index = 0;
           until (index == len) {
-            var chart c = TheSstring(STACK_0)->data[index]; # nächstes Character
+            var chart c = TheSstring(STACK_0)->data[index]; # the next character
             switch (syntax_table_get(STACK_1,c)) { # dessen Syntaxcode
               case syntax_single_esc:
               case syntax_multi_esc:
@@ -7372,7 +7373,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         {
           var uintL index = 0;
           until (index == len) {
-            var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # nächstes Character
+            var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # the next character
             switch (syntax_table_get(STACK_1,c)) { # dessen Syntaxcode
               case syntax_single_esc:
               case syntax_multi_esc:
@@ -8597,7 +8598,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                ) )
               goto bad_description; # sollte ein ds-slot sein
             if (!nullp(TheSvector(slot)->data[0])) { # Slot #(NIL ...) übergehen
-              pushSTACK(slot); # Slot retten
+              pushSTACK(slot); # save slot
               JUSTIFY_SPACE; # Space ausgeben
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) {
@@ -8686,7 +8687,7 @@ LISPFUNN(print_structure,2)
       pushSTACK(structure);           # TYPE-ERROR slot DATUM
       pushSTACK(S(structure_object)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(structure); # structure
-      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+      pushSTACK(TheSubr(subr_self)->name); # function name
       fehler(type_error,
              GETTEXT("~: ~ is not a structure")
             );
