@@ -28,6 +28,13 @@ mprotect_prog='
 #ifndef HAVE_GETPAGESIZE
 #include <sys/param.h>
 #define getpagesize() PAGESIZE
+#else
+]AC_LANG_EXTERN[
+#if defined(__STDC__) || defined(__cplusplus)
+RETGETPAGESIZETYPE getpagesize (void);
+#else
+RETGETPAGESIZETYPE getpagesize();
+#endif
 #endif
 char foo;
 int main () {
