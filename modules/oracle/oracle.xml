@@ -328,11 +328,11 @@ data to print headers, summaries, etc.
   <listitem><simpara>&oracle-link; data length (useful mostly for
     character types)</simpara></listitem></varlistentry>
  <varlistentry><term>SCALE</term>
-  <listitem><simpara>For numeric types, number of digits to right of
-    decimal</simpara></listitem></varlistentry>
+  <listitem><simpara>For numeric (NUMBER) types, number of digits to right of
+    decimal; NIL for FLOAT</simpara></listitem></varlistentry>
  <varlistentry><term>PRECISION</term>
   <listitem><simpara>For numeric types, total number of significant
-    digits</simpara></listitem></varlistentry>
+    digits (decimal digits for NUMBER, bits for FLOAT)</simpara></listitem></varlistentry>
  <varlistentry><term>NULL_OK</term>
   <listitem><simpara>&t; if &c-NULL;s allowed, &nil; if &c-NULL;s are
     not allowed.</simpara></listitem></varlistentry>
