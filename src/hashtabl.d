@@ -897,22 +897,23 @@ local object rehash (object ht) {
        Nptr = &TheSvector(Nvektor)->data[index],
        KVptr = &TheSvector(kvtable)->data[index],
        freelist = freelist up to now,
-       count = pair-coutner as fixnum. */
+       count = pair-counter as fixnum. */
     index = fixnum_inc(index,-1); /* decrement index */
     KVptr -= 2;
     var object key = KVptr[0];  /* next key */
     if (!eq(key,leer)) {                 /* /= "leer" ? */
-      if (user_defined_p) pushSTACK(ht); /* save */
+      if (user_defined_p)
+        pushSTACK(ht); /* save */
       var uintL hashindex = hashcode(ht,key); /* its hashcode */
       if (user_defined_p) { /* restore - don't have to restore fixnums! */
         /* this implementation favors built-in ht-tests at the expense
            of the user-defined ones */
-        var uintL index = posfixnum_to_L(index)+1;
+        var uintL maxcount1 = posfixnum_to_L(index)+1;
         ht = popSTACK();
         Ivektor = TheHashtable(ht)->ht_itable;
         Nvektor = TheHashtable(ht)->ht_ntable;
-        Nptr = TheSvector(Nvektor)->data + index;
-        KVptr = ht_kvt_data(ht) + 2*index;
+        Nptr = &TheSvector(Nvektor)->data[maxcount1];
+        KVptr = ht_kvt_data(ht) + 2*maxcount1;
       }
       /* "list", that starts at entry hashindex, in order to extend index:
        copy entry from index-vector to the next-vector
