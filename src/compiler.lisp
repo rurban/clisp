@@ -4201,7 +4201,8 @@ for-value   NIL or T
   (when (memq name *deprecated-functions-list*)
     (if *compiling-from-file*
         (pushnew name *deprecated-functions* :test #'eq)
-        (c-warn (ENGLISH "Function ~s is deprecated") name))))
+        (c-warn (ENGLISH "Function ~s is deprecated~@[, use ~s instead~]")
+                name (get name 'deprecated)))))
 
 ;; auxiliary function: PROCLAIM on file-compilation, cf. function PROCLAIM
 (defun c-PROCLAIM (declspec)
@@ -11208,8 +11209,9 @@ The function make-closure is required.
       (c-comment (ENGLISH "~%The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}")
                  (nreverse too-late-vars))))
   (when *deprecated-functions*
-    (c-comment (ENGLISH "~%The following functions were used but are deprecated:~%~{~<~%~:; ~S~>~^~}")
-               (nreverse *deprecated-functions*)))
+    (c-comment (ENGLISH "~%The following functions were used but are deprecated:~%~:{~<~%~:; ~S~@[ (use ~S instead)~]~>~^~}")
+               (mapcar (lambda (f) (list f (get f 'deprecated)))
+                       (nreverse *deprecated-functions*))))
   (when (boundp '*error-count*) ; then `*warning-count*' is bound too
     (c-comment (ENGLISH "~%~D error~:P, ~D warning~:P")
                *error-count* *warning-count*)
