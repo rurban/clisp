@@ -370,3 +370,4 @@ NIL
 (multiple-value-list (subtypep 'atom 'cons)) (nil t)
 (multiple-value-list (subtypep 'atom 'list)) (nil t)
 (multiple-value-list (subtypep nil nil))     (t t)
+(multiple-value-list (subtypep 'extended-char 'character))     (t t)
