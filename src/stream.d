@@ -3624,9 +3624,9 @@ global uintL iconv_mblen (object encoding, const uintB* src,
         var size_t outsize = tmpbufsize*sizeof(chart);
         var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
         if (res == (size_t)(-1) && errno != E2BIG) {
-          if (errno == EINVAL) # incomplete input?
-            break;
-          else if (errno == EILSEQ) {
+          # At the end of a delimited string, we treat
+          # EINVAL (incomplete input) like EILEQ (conversion error)
+          if (errno == EILSEQ || errno == EINVAL) {
             ASSERT(insize > 0);
             var object action = TheEncoding(encoding)->enc_towcs_error;
             if (eq(action,S(Kignore))) {
@@ -3675,9 +3675,9 @@ global void iconv_mbstowcs (object encoding, object stream,
       while (insize > 0 && outsize > 0) {
         var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
         if (res == (size_t)(-1)) {
-          if (errno == EINVAL) { # incomplete input?
-            inptr += insize; break;
-          } else if (errno == EILSEQ) {
+          # At the end of a delimited string, we treat
+          # EINVAL (incomplete input) like EILEQ (conversion error)
+          if (errno == EILSEQ || errno == EINVAL) {
             ASSERT(insize > 0);
             var object action = TheEncoding(encoding)->enc_towcs_error;
             if (eq(action,S(Kignore))) {
