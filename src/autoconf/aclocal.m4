@@ -1,6 +1,7 @@
 dnl local autoconf macros
 dnl Bruno Haible 2001-02-04
 dnl Marcus Daniels 1997-04-10
+dnl Sam Steingold 2002
 dnl
 AC_PREREQ(2.52)dnl
 dnl
@@ -691,7 +692,7 @@ changequote(,)dnl
   alphaev[4-7] | alphaev56 | alphapca5[67] )
     host_cpu=alpha
     ;;
-  hppa1.0 | hppa1.1 | hppa2.0 )
+  hppa1.0 | hppa1.1 | hppa2.0* )
     host_cpu=hppa
     ;;
   powerpc )
@@ -751,7 +752,7 @@ changequote(,)dnl
   alphaev[4-7] | alphaev56 | alphapca5[67] )
     host_cpu=alpha
     ;;
-  hppa1.0 | hppa1.1 | hppa2.0 )
+  hppa1.0 | hppa1.1 | hppa2.0* )
     host_cpu=hppa
     ;;
   powerpc )

@@ -988,7 +988,7 @@ LISPFUNN(resolve_host_ipaddr_,1)
   var char buffer[MAXHOSTNAMELEN];
 
   if (nullp(arg)) {
-   #ifdef WIN32_NATIVE
+   #if defined(WIN32_NATIVE) || !defined(HAVE_GETHOSTENT)
     value1 = NIL;
    #else
     int count = 0;
