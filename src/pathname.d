@@ -1617,22 +1617,10 @@ local uintL parse_logical_pathnamestring(z)
       pushSTACK(NIL);
       goto name_type_ok;
       punkt: # Punkt bei index gefunden
-      { # type := (substring string index)
-        var uintL count = length-index;
-        var object type = allocate_string(count);
-        var uintB* ptr2 = &TheSstring(type)->data[0];
-        var uintB* ptr1 = &TheSstring(STACK_0)->data[index];
-        dotimesL(count,count, { *ptr2++ = *ptr1++; } );
-        pushSTACK(type);
-      }
-      { # name := (substring string 0 (1- index))
-        var uintL count = index-1;
-        var object name = allocate_string(count);
-        var uintB* ptr2 = &TheSstring(name)->data[0];
-        var uintB* ptr1 = &TheSstring(STACK_1)->data[0];
-        dotimesL(count,count, { *ptr2++ = *ptr1++; } );
-        STACK_1 = name;
-      }
+      # type := (substring string index)
+      pushSTACK(subsstring(string,index,length));
+      # name := (substring string 0 (1- index))
+      STACK_1 = subsstring(STACK_1,0,index-1);
       name_type_ok: ;
     }
 #endif
@@ -1773,16 +1761,8 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                   # Character '>' übergehen:
                   z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                   # Environment-Variable als ASCIZ-String bauen:
-                 {var object envvar;
-                  { var uintL len = z.index - startz.index - 2;
-                    if (len==0) goto no_envvar;
-                    envvar = allocate_string(len+1);
-                    # und füllen:
-                   {var uintB* ptr1 = &TheSstring(STACK_0)->data[startz.index+1];
-                    var uintB* ptr2 = &TheSstring(envvar)->data[0];
-                    dotimesL(len,len, { *ptr2++ = *ptr1++; });
-                    *ptr2 = '\0';
-                  }}
+                  if (z.index - startz.index - 2 == 0) goto no_envvar;
+                 {var object envvar = subsstring(STACK_0,startz.index+1,z.index-1);
                   # Dessen Wert holen:
                    begin_system_call();
                   {var const char* envval = getenv(TheAsciz(envvar));
@@ -1800,13 +1780,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                    pushSTACK(asciz_to_string(envval)); # Wert der Variablen als String
                  }}
                   # Reststück bilden:
-                  { var uintL len = z.count;
-                    var object tail = allocate_string(len);
-                    var uintB* ptr1 = &TheSstring(STACK_1)->data[z.index];
-                    var uintB* ptr2 = &TheSstring(tail)->data[0];
-                    dotimesL(len,len, { *ptr2++ = *ptr1++; } );
-                    pushSTACK(tail);
-                  }
+                  pushSTACK(subsstring(STACK_1,z.index,z.index+z.count));
                   # Beides zusammenhängen, thing ersetzen:
                   { var uintL envval_len = Sstring_length(STACK_1);
                     var object new_thing = string_concat(2);
@@ -1846,14 +1820,8 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                            z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                          }
                        # Host-String bilden:
-                       { var uintL len = z.index - startz.index - 1;
-                         if (len==0) goto no_hostspec;
-                         host = allocate_string(len);
-                         # und füllen:
-                        {var uintB* ptr1 = &TheSstring(STACK_1)->data[startz.index+1];
-                         var uintB* ptr2 = &TheSstring(host)->data[0];
-                         dotimesL(len,len, { *ptr2++ = *ptr1++; });
-                       }}
+                       if (z.index - startz.index - 1 == 0) goto no_hostspec;
+                       host = subsstring(STACK_1,startz.index+1,z.index);
                      }
                      else
                      { loop
@@ -1865,13 +1833,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                            if (ch==':') break;
                          }
                        # Host-String bilden:
-                       { var uintL len = z.index - startz.index;
-                         host = allocate_string(len);
-                         # und füllen:
-                        {var uintB* ptr1 = &TheSstring(STACK_1)->data[startz.index];
-                         var uintB* ptr2 = &TheSstring(host)->data[0];
-                         dotimesL(len,len, { *ptr2++ = *ptr1++; });
-                       }}
+                       host = subsstring(STACK_1,startz.index,z.index);
                      }
                    # Character '-' bzw. ':' übergehen:
                    z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
@@ -1887,13 +1849,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                      }
                    if (!(ch==':')) goto no_hostspec; # kein ':' -> kein Host
                    # Host-String bilden:
-                   { var uintL len = z.index - startz.index;
-                     host = allocate_string(len);
-                     # und füllen:
-                    {var uintB* ptr1 = &TheSstring(STACK_1)->data[startz.index];
-                     var uintB* ptr2 = &TheSstring(host)->data[0];
-                     dotimesL(len,len, { *ptr2++ = *ptr1++; });
-                   }}
+                   host = subsstring(STACK_1,startz.index,z.index);
                    # Character ':' übergehen:
                    z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                    goto hostspec_ok;
@@ -1964,13 +1920,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                  if (!(ch==':')) goto no_devicespec; # kein ':' -> kein Device
                  if (z.index==startz.index) goto no_devicespec; # ':' am Anfang ist kein Device
                  # Device-String bilden:
-                 { var uintL len = z.index - startz.index;
-                   device = allocate_string(len);
-                   # und füllen:
-                  {var uintB* ptr1 = &TheSstring(STACK_1)->data[startz.index];
-                   var uintB* ptr2 = &TheSstring(device)->data[0];
-                   dotimesL(len,len, { *ptr2++ = *ptr1++; });
-                 }}
+                 device = subsstring(STACK_1,startz.index,z.index);
                  # Character ':' nicht übergehen; das ergibt dann :ABSOLUTE.
                  goto devicespec_ok;
                  no_devicespec: # keine Device-Specification
@@ -2002,14 +1952,8 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                    }
                  if (!(ch=='.')) goto no_devicespec; # kein '.' -> kein Device
                  # Device-String bilden:
-                 { var uintL len = z.index - startz.index - 1;
-                   if (len==0) goto no_devicespec;
-                   device = allocate_string(len);
-                   # und füllen:
-                  {var uintB* ptr1 = &TheSstring(STACK_1)->data[startz.index+1];
-                   var uintB* ptr2 = &TheSstring(device)->data[0];
-                   dotimesL(len,len, { *ptr2++ = *ptr1++; });
-                 }}
+                 if (z.index - startz.index - 1 == 0) goto no_devicespec;
+                 device = subsstring(STACK_1,startz.index+1,z.index);
                  # Character '.' übergehen:
                  z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                  goto devicespec_ok;
@@ -2309,12 +2253,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                       # Ende des Namens erreicht.
                       # Name := Teilstring von STACK_2 von z_start_index (einschließlich)
                       #                                bis z.index (ausschließlich).
-                     {var uintL len = z.index - z_start_index;
-                      var object string = allocate_string(len); # String der Länge len
-                      # füllen:
-                      var uintB* ptr1 = &TheSstring(STACK_2)->data[z_start_index];
-                      var uintB* ptr2 = &TheSstring(string)->data[0];
-                      dotimesL(len,len, { *ptr2++ = *ptr1++; });
+                     {var object string = subsstring(STACK_2,z_start_index,z.index);
                       # Name fertig.
                       pushSTACK(string);
                     }}
@@ -2380,17 +2319,11 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                       # Ende des Namens erreicht.
                       # Name := Teilstring von STACK_3 von z_start_index (einschließlich)
                       #                                bis z.index (ausschließlich).
-                     {var uintL len = z.index - z_start_index;
-                      var object string;
-                      if (len==0)
+                     {var object string;
+                      if (z.index - z_start_index == 0)
                         { string = NIL; } # "" wird zu NIL
                         else
-                        { string = allocate_string(len); # String der Länge len
-                          # füllen:
-                         {var uintB* ptr1 = &TheSstring(STACK_3)->data[z_start_index];
-                          var uintB* ptr2 = &TheSstring(string)->data[0];
-                          dotimespL(len,len, { *ptr2++ = *ptr1++; });
-                        }}
+                        { string = subsstring(STACK_3,z_start_index,z.index); }
                       # Name fertig.
                       if (nullp(STACK_0)
                           || (z.count==0)
@@ -4978,9 +4911,7 @@ LISPFUNN(pathname_match_p,2)
              )  )   )
             # wildcard_diff_ab() rekursiv aufrufen, mit erweitertem previous:
             { pushSTACK(muster); pushSTACK(beispiel);
-              pushSTACK(beispiel); pushSTACK(fixnum(b_start_index)); pushSTACK(fixnum(b_index));
-              funcall(L(substring),3); # (SUBSTRING beispiel b_start_index b_index)
-              pushSTACK(value1);
+              pushSTACK(subsstring(beispiel,b_start_index,b_index)); # (SUBSTRING beispiel b_start_index b_index)
              {var object new_cons = allocate_cons();
               Car(new_cons) = STACK_0; Cdr(new_cons) = *previous;
               STACK_0 = new_cons; # (CONS ... previous)
@@ -5508,9 +5439,8 @@ LISPFUNN(pathname_match_p,2)
                   index++;
                 }
               # Nächsten Teilstring auf den Stack:
-              pushSTACK(muster); pushSTACK(fixnum(last_index)); pushSTACK(fixnum(index));
-              funcall(L(substring),3); # (SUBSTRING muster last_index index)
-              pushSTACK(value1); stringcount++;
+              pushSTACK(subsstring(muster,last_index,index)); # (SUBSTRING muster last_index index)
+              stringcount++;
               # Fertig?
               if (index == len) break;
               # Wildcard ersetzen:
