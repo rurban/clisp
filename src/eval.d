@@ -1163,24 +1163,6 @@ LISPFUNN(subr_info,1)
       return env;
     }
 
-# Macro: Legt fünf einzelne Environment auf den STACK
-# und bildet daraus ein einzelnes Environment.
-# make_STACK_env(venv,fenv,benv,genv,denv, env5 = );
-# > object venv,fenv,benv,genv,denv: 5 einzelne Environments
-# < environment* env5: Pointer auf im Stack liegendes Environment
-  #ifdef STACK_UP
-    #define make_STACK_env(venv,fenv,benv,genv,denv,env5_zuweisung)  \
-      { pushSTACK(venv); pushSTACK(fenv); pushSTACK(benv); pushSTACK(genv); pushSTACK(denv); \
-        env5_zuweisung &STACKblock_(environment,0);                                           \
-      }
-  #endif
-  #ifdef STACK_DOWN
-    #define make_STACK_env(venv,fenv,benv,genv,denv,env5_zuweisung)  \
-      { pushSTACK(denv); pushSTACK(genv); pushSTACK(benv); pushSTACK(fenv); pushSTACK(venv); \
-        env5_zuweisung &STACKblock_(environment,0);                                           \
-      }
-  #endif
-
 # UP: Nestet die Environments in *env (d.h. schreibt alle Informationen in
 # Stack-unabhängige Strukturen) und schiebt sie auf den STACK.
 # (Die Werte VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV werden nicht

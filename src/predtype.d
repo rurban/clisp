@@ -1291,8 +1291,9 @@ LISPFUNN(coerce,2)
                 goto fehler_object;
               }
             # leeres Environment für get_closure:
-            pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
-           {var environment* env = &STACKblock_(environment,0);
+           {var environment* env;
+            make_STACK_env(NIL,NIL,NIL,NIL,O(top_decl_env), env = );
+            # Closure bilden aus lambdabody = (cdr fun), name = :LAMBDA :
             value1 = get_closure(Cdr(fun),S(Klambda),FALSE,env); mv_count=1; # Closure erzeugen
             skipSTACK(2+5); return;
           }}
