@@ -1,3 +1,7 @@
+1999-03-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * excepsit.tst: Add tests for READER-ERROR.
+
 1999-03-11  Sam Steingold  <sds@gnu.org>
 
 	* loop.tst: check for non-nreversing collecting.

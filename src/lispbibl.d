@@ -11299,6 +11299,8 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
           stream_error,
             # unexpected end of stream
             end_of_file,
+            # parsing/tokenization error during READ
+            reader_error,
           # errors with pathnames, OS level errors with streams
           file_error,
         # "Virtual memory exhausted"

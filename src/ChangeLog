@@ -1,5 +1,15 @@
 1999-03-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (conditiontype): Add reader_error.
+        * conditio.lsp (simple-reader-error): New condition type.
+          (%defclcs call): Add simple-reader-error.
+        * constsym.d (simple_*_error): Add simple_reader_error.
+        * io.d (signal_reader_error): New function.
+          (read_internal): Protect calls to read_rational and read_float with
+          a handler for ARITHMETIC-ERROR.
+
+1999-03-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (make_HANDLER_frame, make_HANDLER_entry_frame,
            unwind_HANDLER_frame): New macros.
         * eval.d (invoke_handlers): Distinguish handler frames with a

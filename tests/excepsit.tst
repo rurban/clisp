@@ -1163,3 +1163,9 @@ type-error
 (zerop 'x)
 type-error
 
+; section 2.3.1.1
+(read-from-string "-35/000")
+reader-error                  ; not division-by-zero!
+(read-from-string "31e300")
+reader-error                  ; not floating-point-overflow!
+
