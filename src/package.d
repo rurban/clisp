@@ -2795,7 +2795,7 @@ local void export_symbol_from (void *data, object sym) {
   skipSTACK(1);
 }
 
-LISPFUNN(reexport,2)
+LISPFUNN(re_export,2)
 # (EXT:RE-EXPORT "FROM-PACK" "TO-PACK")
 # export all external symbols in FROM-PACK from TO-PACK
 {

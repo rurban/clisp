@@ -89,7 +89,7 @@
     _(shadowing_import), _(shadow), _(use_package), _(unuse_package),
     _(make_package), _(pin_package), _(find_all_symbols),
     _(map_symbols), _(map_external_symbols), _(map_all_symbols),
-    _(pfind_package), _(reexport),
+    _(pfind_package), _(re_export),
     # PATHNAME : 27 SUBRs
     _(parse_namestring), _(pathname), _(pathnamehost), _(pathnamedevice),
     _(pathnamedirectory), _(pathnamename), _(pathnametype),
