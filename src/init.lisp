@@ -1545,10 +1545,25 @@
 
 (PROGN
 
+;; The BACKQUOTE macro just calls the backquote expander on its argument.
 (sys::%putd 'sys::backquote
   (sys::make-macro
-    (function sys::backquote
-      (lambda (form &optional env) (declare (ignore env)) (third form)))))
+    (function sys::backquote (lambda (form &optional env)
+      (declare (ignore env))
+      (sys::bq-expand (second form))))))
+
+;; The BQ-NCONC form is a marker used in the backquote-generated code.
+;; It tells the optimizer that the enclosed forms may be combined with
+;; NCONC. By defining BQ-NCONC as a macro, we take care of any `surviving'
+;; occurences that are not removed and processed by the optimizer.
+(sys::%putd 'sys::bq-nconc
+  (sys::make-macro
+   (function sys::bq-nconc (lambda (form &optional env)
+     (declare (ignore env))
+     (if (cddr form)
+         `(nconc ,@(rest form))
+         (second form))))))
+
 
 (VALUES) )
 

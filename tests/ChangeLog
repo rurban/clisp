@@ -1,6 +1,10 @@
+2003-03-31  Kaz Kylheku  <kaz@ashi.footprints.net>
+
+	* backquot.tst: Added many new tests.
+
 2003-03-08  Sam Steingold  <sds@gnu.org>
 
-	* bin-io.tst (list->integer, integer->list): : new functions
+	* bin-io.tst (list->integer, integer->list): new functions
 
 2003-02-14  Sam Steingold  <sds@gnu.org>
 

@@ -1,264 +1,436 @@
-;;; backquote read-macro
-;;; Michael Stoll
-;;; Rewritten in July/August by Bruno Haible.
-;;; Recursive backquote 1989-08-16/17
-;;; Adapted to the standard semantics for recursive backquote on 1992-05-24
-;;; German comments translated by Mirian Lennox <mirian@cosmic.com> 2003-01-18
+;;; Backquote Implementation for CLISP
+;;; Copyright 2003 Kaz Kylheku <kaz@ashi.footprints.net>
+;;; Dedicated to Pei-Yin Lin
+;;;
+;;; LIBERAL FREEWARE LICENSE: This Lisp source code document may be used
+;;; by anyone for any purpose, and freely redistributed alone or in
+;;; combination with other software, provided that the license is not
+;;; violated.  The only possible way to violate the license is to
+;;; redistribute this code in source form, with the copyright notice or
+;;; license removed or altered.  This license applies to this document
+;;; only, not any other software that it is combined with.
 
 (in-package "SYSTEM")
 
+;;; Handle the transformation of [x1] [x2] ... forms as described
+;;; in the HyperSpec. In addition, nested backquotes are handled here.
+(defun bq-transform (form)
+  (if (consp form)
+    (case (first form)
+      ((UNQUOTE) (list 'list (second form)))
+      ((SPLICE) (second form))
+      ;; (BQ-NCONC FORM) serves as a parse tree annotation which
+      ;; tells the optimizer that FORM may be destructively manipulated.
+      ((NSPLICE) (list 'bq-nconc (second form)))
+      ((BACKQUOTE) (list 'list (list 'BACKQUOTE (bq-expand (second form)))))
+      (otherwise (list 'list (bq-expand form))))
+    (list 'list (bq-expand form))))
+
+;;; Handle the transformation of `(x1 x2 x3 ...) as described by HyperSpec
+;;; to produce a list of forms that can be combined into an APPEND form.
+(defun bq-expand-list (form)
+  (cond
+    ((null form) nil)
+    ((consp (rest form))
+       (case (second form)
+         ;; well-defined dotted unquote `( ... . ,form)
+         ((UNQUOTE)
+            (list (bq-transform (first form)) (third form)))
+         ;; undefined dotted splice: `( ... . ,@form)
+         ((SPLICE NSPLICE)
+            (bq-dotted-splice-error (second form)))
+         (otherwise
+            (cons (bq-transform (first form))
+                  (bq-expand-list (rest form))))))
+    ((null (rest form))
+       (list (bq-transform (first form))))
+    (t (list (bq-transform (first form)) (list 'quote (rest form))))))
+
+;;; Handle base cases as describe by HyperSpec, plus nested backquote:
+;;;
+;;; `,form     -->  form
+;;; `,@form    -->  error
+;;; ``form     -->  `form-expanded
+;;; list-form  -->  (append f1 f2 f3 ...) where (f1 f2 f3 ...)
+;;;                 is the output of (bq-expand-list list-form).
+
+(proclaim '(special *backquote-optimize*))
+(setq *backquote-optimize* t)
+
+(defun bq-expand-cons (form)
+  (case (first form)
+    ((UNQUOTE)
+       (second form))
+    ((SPLICE NSPLICE)
+       (bq-non-list-splice-error (second form)))
+    ((BACKQUOTE)
+       (list 'BACKQUOTE (bq-expand (second form))))
+    (otherwise
+       (if *backquote-optimize*
+         (bq-optimize (bq-expand-list form))
+         (cons 'append (bq-expand-list form))))))
+
+;;; Handle vector expansion, along the lines suggested by HyperSpec.
+(defun bq-vec-expand (form)
+  (let ((expanded (bq-expand (map 'list #'identity form))))
+    (if (constantp expanded)
+      (apply #'vector (eval expanded))
+      (list 'apply '#'vector expanded))))
+
+;;; Top level cases
+;;;
+;;; `()        -->  ()
+;;; `cons      -->  result of (bq-expand-cons cons)
+;;; `#( ... )  -->  result of (bq-vec-expand #( ... ))
+;;;  other     -->  'other
+(defun bq-expand (form)
+  ;; we don't have TYPECASE at this stage
+  (cond
+    ((null form) nil)
+    ((consp form) (bq-expand-cons form))
+    ((or (stringp form) (bit-vector-p form)) (list 'quote form))
+    ((vectorp form) (bq-vec-expand form))
+    (t (list 'quote form))))
+
+;;; *unquote-occured* flips to T when a sub-reader encounters the unquote
+;;; syntax. This variable is the basis for a trick by which we diagnose uses of
+;;; the unquote syntax inside forms which are not vectors or lists, such as:
+;;; #`#s(foo-structure :bar #,z) without an cooperation from the readers of
+;;; these forms. In some cases, however, such unquote syntax will cause the
+;;; reader of the subform to raise an error before we catch it.
+(proclaim '(special *unquote-occured*))
+
+;;; *backquote-level* measures the level of backquote nesting that the reader
+;;; is entangled in. It increases by one when reading the backquoted object,
+;;; and decreases by one over reading an unquoted form.
 (proclaim '(special *backquote-level*))
-;; Either NIL or the number of nested backquote expressions permitted.
-;; It is bound at top level in the reader to nil.
 
-(proclaim '(special *nsplice-fun*))
-(setq *nsplice-fun* 'NCONC) ; Function which calls NSPLICE
-;; (Bound to 'APPEND for the production of the output form in
-;; nested backquotes.)
+;;; *reading-array* is normally unbound. When the reader is running, it
+;;; is dynamically bound to NIL, and when a #A array is being read,
+;;; it is bound to T. This lets the comma-reader signal an error when
+;;; unquotes occur in an array.
+(proclaim '(special *reading-array*))
 
-;; Bug: With nested backquotes some partial forms are evaluated several
-;; times (e.g. in the primary evaluation: forms, which are needed for
-;; the interpretation of secondary evaluation forms) and should
-;; therefore be free from side-effects.
+;;; *reading-struct* is analogous to *reading-array*, but for structs.
+(proclaim '(special *reading-struct*))
 
-(defun \`-reader (stream char)
+;;; Handle the ` read syntax.
+(defun backquote-reader (stream char)
   (declare (ignore char))
-  (let* ((*backquote-level* (1+ (or *backquote-level* 0)))
-         (skel (read stream t nil t))
-         (form (list 'BACKQUOTE
-                     (remove-backquote-third skel)
-                     (backquote-1 (unquote-level skel)))))
-    (when (= *backquote-level* 1) (setq form (elim-unquote-dummy form)))
+  (let* ((*unquote-occured* nil)
+         (*reading-array* nil)
+         (*reading-struct* nil)
+         (*backquote-level* (1+ (or *backquote-level* 0)))
+         (object (read stream t nil t)))
+    (unless (or (and (vectorp object)
+                     (not (stringp object))
+                     (not (bit-vector-p object)))
+                (listp object))
+      (when *unquote-occured*
+        (error-of-type 'reader-error
+          (TEXT "~S: unquotes may occur only in (...) or #(...) forms")
+          'read)))
+    (when (consp object)
+      (let ((head (first object)))
+        (when (or (eq head 'SPLICE) (eq head 'NSPLICE))
+          (bq-non-list-splice-error head :in-reader t)))
+      (when (bq-member 'SPLICE object)
+        (bq-dotted-splice-error 'SPLICE :in-reader t))
+      (when (bq-member 'NSPLICE object)
+        (bq-dotted-splice-error 'NSPLICE :in-reader t)))
+    (list 'BACKQUOTE object)))
+
+;;; Handle the read syntax ,
+(defun comma-reader (stream char)
+  (declare (ignore char))
+  (when (null *backquote-level*)
+    (error-of-type 'reader-error
+      (TEXT "~S: comma is illegal outside of backquote")
+      'read))
+  (when (zerop *backquote-level*)
+    (error-of-type 'reader-error
+      (TEXT "~S: more commas out than backquotes in, is illegal")
+      'read))
+  (when *reading-struct*
+    (error-of-type 'reader-error
+      (TEXT "~S: unquotes may not occur in structures")
+      'read))
+  (when *reading-array*
+    (error-of-type 'reader-error
+      (TEXT "~S: unquotes may not occur in arrays")
+      'read))
+  (setq *unquote-occured* t)
+  (let ((*backquote-level* (1- *backquote-level*))
+        (next (peek-char nil stream)))
+    (cond ((char= next #\@)
+           (read-char stream)
+           (list 'SPLICE (read stream t nil t)))
+          ((char= next #\.)
+           (read-char stream)
+           (list 'NSPLICE (read stream t nil t)))
+          (t (list 'UNQUOTE (read stream t nil t))))))
+
+;;; Signal error for `,.form or `,@form. If :in-reader is t, then
+;;; add the prefix "READ: ", to flag the error as coming from the reader.
+(defun bq-non-list-splice-error (sym &key in-reader)
+  (if (eq sym 'SPLICE)
+    (error-of-type 'reader-error
+      (TEXT "~athe syntax `,@form is undefined behavior")
+      (if in-reader "READ: " ""))
+    (error-of-type 'reader-error
+      (TEXT "~athe syntax `,.form is undefined behavior")
+      (if in-reader "READ: " ""))))
+
+;;; Signal error for `(... . ,@form) or `(... . ,.form).
+(defun bq-dotted-splice-error (sym &key in-reader)
+  (if (eq sym 'SPLICE)
+    (error-of-type 'reader-error
+      (TEXT "~athe syntax `( ... . ,@form) is undefined behavior")
+      (if in-reader "READ: " ""))
+    (error-of-type 'reader-error
+      (TEXT "~athe syntax `( ... . ,.form) is undefined behavior")
+      (if in-reader "READ: " ""))))
+
+;;; Like MEMBER but handles improper lists without error.
+(defun bq-member (elem list &key (test #'eql))
+  (do ((list list (rest list)))
+      ((atom list) nil)
+   (when (funcall test (first list) elem)
+     (return list))))
+
+;;;
+;;; Optimizer
+;;;
+
+;;; BQ-OPTIMIZE takes as input a list of forms that are intended to be
+;;; the argument list of an APPEND call.  It tries to optimize the forms
+;;; to generate something more efficient than APPEND, but in the case
+;;; that it does no optimizations, it just returns (cons 'append forms)
+(defun bq-optimize (forms)
+  (bq-reduce-nesting (bq-optimize-append forms)))
+
+;;; Returns true if form evaluates to itself.
+(defun eval-self-p (form)
+  (or (null form)
+      (keywordp form)
+      (not (or (symbolp form)
+               (consp form)))))
+;;; quote if the form does not evaluate to iteself
+(defun maybe-quote (form)
+  (if (eval-self-p form) form (list 'quote form)))
+
+(defun bq-optimize-append (forms)
+  (cond
+    ;; () -> ()
+    ((null forms) nil)
+    ;; ((bq-nconc x1) ... (bq-nconc xn)) -> (bq-nconc x1 .. xn)
+    ((and (rest forms)
+          (every #'(lambda (form)
+                     (and (consp form) (eq (first form) 'bq-nconc)))
+                 forms))
+     (cons 'nconc (mapcar #'second forms)))
+    ;; ((list x1) ... (list xn-1) xn) -> (list* x1 ... xn-1 xn)
+    ((every #'(lambda (form)
+                (and (consp form) (eq (first form) 'list)))
+            (butlast forms))
+     (bq-optimize-list* (append (mapcan #'rest (butlast forms))
+                                (last forms))))
+    ;; ((bq-nconc x) ...) -> (nconc x <recurse (...)>)
+    ((and (consp (first forms))
+          (eq (first (first forms)) 'bq-nconc))
+     (list 'nconc
+           (second (first forms))
+           (bq-optimize-append (rest forms))))
+    ;; ((list ...) ...)
+    ((and (consp (first forms))
+          (memq (first (first forms)) '(list list*)))
+     (let ((form (bq-optimize-list (first forms))))
+       (if (and (eq 'quote (first form))
+                (= (length (second form)) 1))
+         ;; ((list x) ...) -> ('(x) ...) -> (cons x <recurse (...)>)
+         (list 'cons
+               (maybe-quote (first (second form)))
+               (bq-optimize-append (rest forms)))
+         ;; ((list x1 x2 ...) ...) -> (append '(x1 x2) <recurse (...)>)
+         ;;                     or -> (append (list x1 x2) <recurse (...)>)
+         (list 'append
+               form
+               (bq-optimize-append (rest forms))))))
+    ;; (x1 x2 ...) -> (append x1 <recurse (x2 ...)>)
+    (t (list 'append
+             (first forms)
+             (bq-optimize-append (rest forms))))))
+
+;;; BQ-OPTIMIZE-LIST* takes as input a list of forms that are intended
+;;; to be the argument list of an LIST* call.  It tries to optimize the
+;;; forms to generate something more efficient than the implied LIST*,
+;;; but in the case that it does no optimizations, it just returns (cons
+;;; 'list* forms).  This has to be careful to watch for (SPLICE ...) and
+;;; (NSPLICE ...) forms in the last position of the LIST* argument list.
+(defun bq-optimize-list* (forms)
+  (if (= (length forms) 1)
+    ;; ((list x)) -> (list x) [ -> '(x) ]
+    ;; (x) -> x
+    ;; ((SPLICE X)) -> (append X)
+    (if (and (consp (first forms))
+             (memq (first (first forms)) '(SPLICE NSPLICE)))
+      (list 'append (first forms))
+      (bq-optimize-list (first forms)))
+    (let* ((forms (bq-drop-superfluous-quotes forms))
+           (last-opt (bq-optimize-list (first (last forms)))))
+      (cond
+        ;; (... ,@form) -> (list* ... (append form))
+        ((and (consp last-opt)
+              (memq (first last-opt) '(SPLICE NSPLICE))
+          (append '(list*) (butlast forms)
+                  (list (list 'append last-opt)))))
+
+        ;; (... '(x1 x2 ...)) -> (list ... 'x1 'x2 ...)
+        ((and (consp last-opt)
+              (eq (first last-opt) 'quote)
+              (listp (second last-opt)))
+         (bq-optimize-list
+          (append '(list) (butlast forms)
+                  (mapcar #'maybe-quote
+                          (second last-opt)))))
+        ;; (... (list x1 x2 ...)) -> (list ... x1 x2 ...)
+        ;;                      [ -> '(... x1 x2 ...) ]
+        ((and (consp last-opt)
+              (eq (first last-opt) 'list))
+           (bq-optimize-list
+             (append '(list) (butlast forms) (rest last-opt))))
+
+        ;; (... x . nil) -> (list ... x) [ -> '( ... x) ]
+        ((null last-opt)
+           (bq-optimize-list
+             (append '(list) (butlast forms))))
+
+        ;; (... x) -> (list* ... x) [ -> '(... . x) ]
+        (t (bq-optimize-list
+             (append '(list*) (butlast forms) (list last-opt))))))))
+
+;;; BQ-DROP-SUPERFLUOUS-QUOTES reduces every element of the input list
+;;; that is (QUOTE FORM) to FORM, provided that FORM
+;;; evaluates to itself already.
+(defun bq-drop-superfluous-quotes (forms)
+  (mapcar #'(lambda (form)
+              (if (and (consp form)
+                       (eq 'quote (first form))
+                       (eval-self-p (second form)))
+                (second form)
+                form))
+          forms))
+
+;;; BQ-OPTIMIZE-LIST tries to turn a (list ...) or
+;;; (list* ...) form into a '(...) form.
+(defun bq-optimize-list (form)
+  (if (and (consp form)
+           (memq (first form) '(list list*))
+           (every #'constantp (rest form)))
+    (list 'quote (apply (first form)
+                        (mapcar #'eval (rest form))))
     form))
 
-(defun \,-reader (stream char &aux (c (peek-char nil stream)))
-  (declare (ignore char))
-  (cond ((null *backquote-level*)
-         (error-of-type 'error
-           (TEXT "~S: comma is illegal outside of backquote")
-           'read))
-        ((zerop *backquote-level*)
-         (error-of-type 'error
-           (TEXT "~S: more commas out than backquotes in, is illegal")
-           'read))
-        (t (let ((*backquote-level* (1- *backquote-level*)))
-             (cond ((eql c #\@)
-                    (read-char stream)
-                    (list 'SPLICE (list 'UNQUOTE (read stream t nil t))))
-                   ((eql c #\.)
-                    (read-char stream)
-                    (list 'NSPLICE (list 'UNQUOTE (read stream t nil t))))
-                   (t (list 'UNQUOTE (read stream t nil t))))))))
+;;; Reduce nested APPEND, NCONC and CONS expressions.
+;;; This cleans up after the optimizer.
+;;;
+;;; (NCONC X (NCONC ...)) -> (NCONC X ...)
+;;; (APPEND X (APPEND ...)) -> (APPEND X ...)
+;;; (CONS X (CONS Y Z)) -> (LIST* X Y Z)
+;;; (CONS X (LIST* Y ...)) -> (LIST* X Y ...)
+;;; (CONS X (LIST Y ...)) -> (LIST X Y ...)
+(defun bq-reduce-nesting (form)
+  (cond
+    ;; () -> ()
+    ((null form) nil)
+    ;; a -> a
+    ((atom form) form)
+    ;; (cons x y)
+    ((and (eq (first form) 'cons)
+          (cddr form)
+          (not (cdddr form)))
+       (let ((third (bq-reduce-nesting (third form)))
+             (second (bq-reduce-nesting (second form))))
+         (cond
+           ((atom third) (list 'cons second third))
+           ;; (cons x (list ...)) -> (list x ...)
+           ((eq (first third) 'list)
+              (list* 'list second (rest third)))
+           ;; (cons x (list* y ...)) -> (list* x y ...)
+           ;; (cons x (cons y z)) -> (list* x y z)
+           ((or (eq (first third) 'list)
+                (and (eq (first third) 'list*)
+                     (cdr third))
+                (and (eq (first third) 'cons)
+                     (cddr third)
+                     (not (cdddr third))))
+              (list* 'list* second (rest third)))
+          (t (list 'cons second third)))))
+    ;; (append/nconc ...)
+    ((memq (first form) '(append nconc))
+       (cond
+         ;; Four or more argument APPEND or NCONC: don't touch.
+         ((cdddr form) form)
+         ;; Three argument APPEND or NCONC.
+         ((cddr form)
+            (let ((third (bq-reduce-nesting (third form)))
+                  (second (bq-reduce-nesting (second form))))
+              (if (and (consp third)
+                       (eq (first third) (first form)))
+                (list* (first form) second (rest third))
+                (list (first form) second third))))
+         ;; Two-argument APPEND or NCONC
+         ((cdr form)
+            (list (first form) (bq-reduce-nesting (second form))))
+         ;; Zero-argument APPEND or NCONC
+         (t nil)))
+    (t form)))
 
-;;(set-macro-character #\` #'\`-reader)
-;;(set-macro-character #\, #'\,-reader)
-
-;; Helper functions for macros, which are expanded in backquote forms.
-;; (They work only with a single level of backquote nesting.)
+;;; Interfaces used by other modules within CLISP, and possibly
+;;; by CLISP applications.
+;;;
+;;; Note: to dynamically add a variable number of unquotes to a nested
+;;; backquote, consider using the ,,@ syntax:
+;;;
+;;;   (let ((unquote-these-forms '((list 1 2) (list 3 4)))
+;;;     `(outer `(inner ,,@unquote-these-forms))
+;;;
+;;; rather than ADD-BACKQUOTE and ADD-UNQUOTE:
+;;;
+;;;   (let ((unquote-these-forms '((list 1 2) (list 3 4))))
+;;;     `(outer ,(system::add-backquote
+;;;                `(inner ,@(mapcar #'system::add-unquote
+;;;                                  unquote-these-forms)))))
+;;;
+;;; The effect is like `(outer ,(inner ,(list 1 2) ,(list 3 4)))
+;;;
+;;; If you want the effect `(outer ,(inner ,@(list 1 2) ,@(list 3 4)))
+;;; then substitute `(outer `(inner ,@,@unquote-these-forms))
+;;;
+;;; If you think you need ADD-BACKQUOTE and ADD-UNQUOTE, or even
+;;; the nonexistent ADD-SPLICE, it's likely that your requirements
+;;; may be satisfied by the ,,@ and ,@,@ syntax. The distributive
+;;; rule is simple: the right ,@ splices the forms into the list, and the
+;;; left , or ,@ distributes itself over those forms before the next
+;;; expansion round.
+;;;
+;;; There are exceptions, like the more complicated situation in CLISP's
+;;; giant defstruct macro, which prepares a list of nested lists each
+;;; containing a buried unquote forms, and then later encloses it in a
+;;; backquote.
 
 (defun add-backquote (skel)
-  (list 'BACKQUOTE
-        (remove-backquote-third skel)
-        (backquote-1 (unquote-level skel))))
+  (list 'BACKQUOTE skel))
+
 (defun add-unquote (skel)
   (list 'UNQUOTE skel))
 
-;; Interpret ...                                as ...
-;;  (backquote original-form [expanded-form])    `original-form
-;;  (splice (unquote form))                      ,@form
-;;  (splice form)                                ,@'form
-;;  (nsplice (unquote form))                     ,.form
-;;  (nsplice form)                               ,.'form
-;;  (unquote form)                               ,form
+(defun backquote-cons (car cdr)
+  (if *backquote-optimize*
+    (bq-optimize-list* (list car cdr))
+    (list 'cons car cdr)))
 
-;;(defmacro backquote (original-form expanded-form)
-;;  (declare (ignore original-form))
-;;  expanded-form)
-
-(defun remove-backquote-third (skel)
-  (cond ((atom skel)
-         (if (simple-vector-p skel)
-           (map 'vector #'remove-backquote-third skel)
-           skel))
-        ((and (eq (car skel) 'BACKQUOTE) (consp (cdr skel)))
-         (list 'BACKQUOTE (second skel))) ; no third element in the list
-        (t (cons (remove-backquote-third (car skel))
-                 (remove-backquote-third (cdr skel))))))
-
-;; replace UNQUOTE-DUMMY with UNQUOTE.
-(defun elim-unquote-dummy (skel)
-  (if (atom skel)
-    (cond ((eq skel 'UNQUOTE-DUMMY) 'UNQUOTE)
-          ((simple-vector-p skel) (map 'vector #'elim-unquote-dummy skel))
-          (t skel))
-    (let* ((car (car skel)) (newcar (elim-unquote-dummy car))
-           (cdr (cdr skel)) (newcdr (elim-unquote-dummy cdr)))
-      (if (and (eq car newcar) (eq cdr newcdr))
-        skel
-        (cons newcar newcdr)))))
-
-;; converts all UNQUOTEs in "skeleton" skel at level "level+1"
-;; (i.e. inside each UNQUOTE at this level) in UNQUOTE-VALUE.
-
-(defun unquote-level (skel &optional (level 0))
-  (if (atom skel)
-    (if (simple-vector-p skel)
-      (map 'vector #'(lambda (subskel) (unquote-level subskel level)) skel)
-      skel)
-    ;; skel is a cons
-    (cond ((and (eq (first skel) 'UNQUOTE) (consp (rest skel)))
-           (if (zerop level)
-             (list 'UNQUOTE-VALUE (second skel))
-             (let ((following (unquote-level (second skel) (1- level))))
-               ;; Simplify (UNQUOTE following):
-               (if (and (consp following) (eq (car following) 'QUOTE)
-                        (consp (second following))
-                        (eq (car (second following)) 'UNQUOTE-VALUE))
-                 ;;(UNQUOTE (QUOTE (UNQUOTE-VALUE ...))) -> (UNQUOTE-VALUE ...)
-                 (second following)
-                 (list 'UNQUOTE following)))))
-          ((and (eq (first skel) 'BACKQUOTE) (consp (rest skel)))
-           (list* 'BACKQUOTE
-                  (unquote-level (second skel) (1+ level))
-                  (if (consp (cddr skel))
-                    (list (unquote-level (third skel) level))
-                    nil)))
-          (t ; CAR-CDR recursion
-            (cons (unquote-level (car skel) level)
-                  (unquote-level (cdr skel) level))))))
-
-;; Determines whether a form can expand to several forms.
-(defun splicing-p (skel)
-  (and (consp skel)
-       (let ((h (first skel))) (or (eq h 'splice) (eq h 'nsplice)))))
-
-;; Replaces "skeleton" skel (with UNQUOTE-VALUEs etc.) in suitable code.
-(defun backquote-1 (skel)
-  (if (atom skel)
-    (cond ((or (and (symbolp skel) (constantp skel)
-                    (eq skel (symbol-value skel)))
-               (numberp skel)
-               (stringp skel)
-               (bit-vector-p skel))
-           ;; Constants which evaluate to themselves remain unchanged.
-           skel)
-          ((simple-vector-p skel)
-           ;; Vectors
-           ;; #(... item ...) -> (VECTOR ... item ...)
-           ;; #(... ,@form ...) ->
-           ;;   (MULTIPLE-VALUE-CALL #'VECTOR ... (VALUES-LIST form) ...)
-           (if (some #'splicing-p skel)
-             (list* 'MULTIPLE-VALUE-CALL
-                    '(FUNCTION VECTOR)
-                    (map 'list
-                         #'(lambda (subskel)
-                             (if (splicing-p subskel)
-                               (if (and (consp (second subskel))
-                                        (eq (first (second subskel))
-                                            'UNQUOTE-VALUE))
-                                 (list 'VALUES-LIST (backquote-1 (second subskel)))
-                                 ;; save SPLICE resp. NSPLICE for later
-                                 (backquote-cons (backquote-1 (first subskel))
-                                                 (backquote-1 (rest subskel))))
-                               (list 'VALUES (backquote-1 subskel))))
-                         skel))
-             (let ((einzelne (map 'list #'backquote-1 skel)))
-               (if (every #'constantp einzelne)
-                 ;; all components are constant -> concatenate immediately
-                 (list 'QUOTE (map 'vector #'eval einzelne))
-                 (cons 'VECTOR einzelne)))))
-          (t                    ; convert other atoms A into 'A
-           (list 'QUOTE skel)))
-    (cond ((eq (first skel) 'unquote-value)
-           ;; ,form at the correct level becomes form
-           (second skel))
-          ((and (eq (first skel) 'splice) (consp (rest skel)))
-           ;; ,@form is forbidden
-           (error-of-type 'error
-             (TEXT "The syntax ,@form is valid only in lists")))
-          ((and (eq (first skel) 'nsplice) (consp (rest skel)))
-           ;; ,.form is forbidden
-           (error-of-type 'error
-             (TEXT "The syntax ,.form is valid only in lists")))
-          ((and (eq (first skel) 'backquote) (consp (rest skel)))
-           ;; nested backquotes
-           (list* 'LIST
-                  ''BACKQUOTE
-                  (let ((*nsplice-fun* 'APPEND)) (backquote-1 (second skel)))
-                  (if (consp (cddr skel))
-                    (list (backquote-1 (third skel)))
-                    nil)))
-          ((and (consp (first skel))
-                (eq (first (first skel)) 'splice))
-           ;; (  ... ,@EXPR ...  ) handling
-           (if (and (consp (second (first skel)))
-                    (eq (first (second (first skel))) 'UNQUOTE-VALUE))
-             (backquote-append (backquote-1 (second (first skel)))
-                               (backquote-1 (rest skel)))
-             ;; save SPLICE for later
-             (backquote-cons
-               (backquote-cons (backquote-1 (first (first skel)))
-                               (backquote-1 (rest (first skel))))
-               (backquote-1 (rest skel)))))
-          ((and (consp (first skel))
-                (eq (first (first skel)) 'nsplice))
-           ;; handle (  ... ,.EXPR ...  )
-           (if (and (consp (second (first skel)))
-                    (eq (first (second (first skel))) 'UNQUOTE-VALUE))
-             (let ((first (backquote-1 (second (first skel))))
-                   (following (backquote-1 (rest skel))))
-               ;; simplify (NCONC first following)
-               (cond ((null following)
-                      ;; (NCONC expr NIL) -> (NCONC expr) -> expr
-                      (if (splicing-p first)
-                        (list *nsplice-fun* first)
-                        first))
-                     ((and (consp following)
-                           (eq (first following) *nsplice-fun*))
-                      ;; (NCONC expr (NCONC . rest)) -> (NCONC expr . rest)
-                      (list* *nsplice-fun* first (rest following)) )
-                     (t (list *nsplice-fun* first following))))
-             ;; save NSPLICE for later
-             (backquote-cons
-               (backquote-cons (backquote-1 (first (first skel)))
-                               (backquote-1 (rest (first skel))))
-               (backquote-1 (rest skel)))))
-          (t ; combine CAR and CDR
-             (backquote-cons (backquote-1 (first skel))
-                             (backquote-1 (rest skel)))))))
-
-;; Returns the form 'first' appended to 'following'.
-(defun backquote-append (first following)
-  ;; simplify (APPEND first following)
-  (cond ((null following)
-         ;; (APPEND expr NIL) -> (APPEND expr) -> expr
-         (if (splicing-p first)
-           (list 'APPEND first)
-           first))
-        ((and (consp following) (eq (first following) 'append))
-         ;; (APPEND expr (APPEND . rest)) -> (APPEND expr . rest)
-         (list* 'APPEND first (rest following)))
-        (t (list 'APPEND first following))))
-
-;; Returns the form which is the cons of the forms 'first' and 'following'.
-(defun backquote-cons (first following)
-  ;; simplify (CONS first following)
-  (cond ((and (constantp first) (constantp following))
-         ;; both parts are constant -> combine immediately
-         (setq first (eval first))
-         (setq following (eval following))
-         (list 'QUOTE
-           (cons (if (eq first 'UNQUOTE) 'UNQUOTE-DUMMY first) following)))
-        ((null following)
-         ;; (CONS expr NIL) -> (LIST expr)
-         (list 'LIST first))
-        ((atom following)
-         (list 'CONS first following)) ; without simplifying
-        ((eq (first following) 'LIST)
-         ;; (CONS expr (LIST . rest)) -> (LIST expr . rest)
-         (list* 'LIST first (rest following)))
-        ((or (eq (first following) 'LIST*) (eq (first following) 'CONS))
-         ;; (CONS expr (LIST* . rest)) -> (LIST* expr . rest)
-         ;; (CONS expr1 (CONS expr2 expr3)) -> (LIST* expr1 expr2 expr3)
-         (list* 'LIST* first (rest following)))
-        (t (list 'CONS first following)))) ; without simplifying
+(defun backquote-append (left right)
+  (if *backquote-optimize*
+    (bq-optimize (list left right))
+    (list 'append left right)))
