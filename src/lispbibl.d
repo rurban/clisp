@@ -7402,9 +7402,9 @@ nonreturning_function(extern, STACK_ueber, (void));
 
 # Exit the LISP-Interpreter
 # quit();
-# > final_exitcode: 0 for a normal end, 1 for failure
+# > final_exitcode: 0 for a normal end, >0 for failure
 nonreturning_function(extern, quit, (void));
-extern bool final_exitcode;
+extern int final_exitcode;
 # is used by CONTROL
 
 # Error message if an unreachable program part has been reached.

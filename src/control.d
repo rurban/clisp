@@ -4,13 +4,13 @@
 #include "lispbibl.c"
 
 
-LISPFUN(exit,0,1,norest,nokey,0,NIL)
 # (SYSTEM::%EXIT [errorp]) verlässt das System
-  {
-    var object errorp = STACK_0;
-    final_exitcode = ((eq(errorp,unbound) || nullp(errorp)) ? 0 : 1);
-    quit();
-  }
+LISPFUN(exit,0,1,norest,nokey,0,NIL) {
+  var object errorp = STACK_0;
+  final_exitcode = ((eq(errorp,unbound) || nullp(errorp)) ? 0 :
+                    (posfixnump(errorp) ? posfixnum_to_L(errorp) : 1));
+  quit();
+}
 
 LISPSPECFORM(eval_when, 1,0,body)
 # (EVAL-WHEN ({situation}) {form}), CLTL S. 69

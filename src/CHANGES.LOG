@@ -37,6 +37,10 @@ User visible changes
   POSIX:STREAM-LOCK provides an interface to flock(2).
   See <http://clisp.cons.org/impnotes.html#syscalls> for details.
 
+* The user can now control the CLISP exit code better by passing a
+  non-negative integer to EXT:EXIT.
+  See <http://clisp.cons.org/impnotes.html#quit> for details.
+
 * Fixed a bug: Conversion from bytes to string did not work for the encoding
   (MAKE-ENCODING :CHARSET CHARSET:UNICODE-32-LITTLE-ENDIAN
                  :INPUT-ERROR-ACTION :IGNORE).
