@@ -96,10 +96,11 @@ case the &fastcgi-link; server loop should also exit.
 </simpara>
 <para>
 A typical &fastcgi-link; top-level server loop looks like:
-<programlisting>    (do ()
-	((not (fastcgi:accept)))
-	(run-my-script)
-        (fastcgi:finish))
+<programlisting language="lisp">
+(do ()
+    ((not (fastcgi:accept)))
+  (run-my-script)
+  (fastcgi:finish))
 </programlisting>
 
 </para></listitem></varlistentry>
@@ -178,7 +179,8 @@ is useful when building strings in memory for display.
 
 Below is a simple example CGI script using &fastcgi-link;.
 
-<programlisting>#!/usr/local/bin/clisp -q -K full
+<programlisting language="lisp">
+#!/usr/local/bin/clisp -q -K full
 
 (defun newline () (format nil "~%"))
 (do ((count 1 (1+ count)))
@@ -204,7 +206,8 @@ and install it, before building &clisp; with &fastcgi-link; support.
 You also need to upgrade your Web server to speak the &fastcgi-link;
 protocol.  For &apache; this means building in &mod-fastcgi;, either statically
 or dynamically, and then adding a line to your &apache; config like:
-<programlisting>    Addhandler fastcgi-script .fcgi
+<programlisting language="apache">
+     Addhandler fastcgi-script .fcgi
 </programlisting>
 After that, you can convert <filename>foo.cgi</filename> by linking it
 to a script names <filename>foo.fcgi</filename>.  Since a &fastcgi-link;
