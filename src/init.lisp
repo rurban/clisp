@@ -974,14 +974,10 @@
                                   (eq (car declspec) 'SOURCE))))))))
       (values lambdabody nil) ; already expanded -> leave untouched
       (let ((*venv* *venv*))
-        (if blockp
-          (setq lambdabody
-                (cons (first lambdabody)
-                      (add-implicit-block name (rest lambdabody)))))
-        (values (list*
-                 (%expand-lambdalist (first lambdabody))
-                 (list 'DECLARE (list 'SOURCE lambdabody))
-                 (%expand-list (rest lambdabody)))
+        (if blockp (setq lambdabody (add-implicit-block name lambdabody)))
+        (values (list* (%expand-lambdalist (first lambdabody))
+                       (list 'DECLARE (list 'SOURCE lambdabody))
+                       (%expand-list (rest lambdabody)))
                 t)))))
 
 ;; expands a Lambda-list. returns 2 values.
