@@ -6004,8 +6004,6 @@ local uintL low_fill_buffered_handle (object stream) {
 
 # Functions for writing the buffer.
 # low_flush_buffered_handle(stream,bufflen);
-# buffered_full_flush(stream);
-# buffered_half_flush(stream);
 # buffered_flush(stream);
 # These are called only if the buffer is modified.
 # Of course, the buffer is modified only by the WRITE-BYTE/WRITE-CHAR
@@ -6060,28 +6058,12 @@ local void low_flush_buffered_handle (object stream, uintL bufflen) {
     BufferedStreamLow_flush(stream) = &low_flush_buffered_handle; \
   }
 
-# UP: Writes the full modified Buffer back.
-# buffered_full_flush(stream);
+# UP: Writes the modified Buffer back.
+# buffered_flush(stream);
 # > stream : (open) Byte-based File-Stream.
 # < modified_flag of stream : deleted
 # changed in stream: index
-local void buffered_full_flush (object stream) {
-  # first, position back, then write.
-  if (BufferedStream_blockpositioning(stream)) {
-    begin_system_call();
-    handle_lseek(stream,BufferedStream_channel(stream),
-                 -(long)strm_buffered_bufflen,SEEK_CUR,); # positioning back
-    end_system_call();
-  }
-  BufferedStreamLow_flush(stream)(stream,strm_buffered_bufflen);
-}
-
-# UP: Writes the half filled, modified Buffer back.
-# buffered_half_flush(stream);
-# > stream : (open) Byte-based File-Stream.
-# < modified_flag of stream : deleted
-# changed in stream: index
-local void buffered_half_flush (object stream) {
+local void buffered_flush (object stream) {
   if (BufferedStream_blockpositioning(stream)) {
     begin_system_call();
     handle_lseek(stream,BufferedStream_channel(stream),
@@ -6089,19 +6071,6 @@ local void buffered_half_flush (object stream) {
     end_system_call();
   }
   BufferedStreamLow_flush(stream)(stream,BufferedStream_endvalid(stream));
-}
-
-# UP: Writes the modified Buffer back.
-# buffered_flush(stream);
-# > stream : (open) Byte-based File-Stream.
-# < modified_flag of stream : deleted
-# changed in stream: index
-local void buffered_flush (object stream) {
-  if (BufferedStream_endvalid(stream) == strm_buffered_bufflen)
-    # Buffer entirely valid?
-    buffered_full_flush(stream);
-  else
-    buffered_half_flush(stream);
 }
 
 # UP: Positions a Byte-based File-Stream, so the next Byte can be
@@ -6152,7 +6121,7 @@ local uintB* buffered_eofbyte (object stream) {
     # Buffer must be filled newly. Because after that EOF will occur anyway,
     # it is sufficient, to flush the Buffer out:
     if (BufferedStream_modified(stream))
-      buffered_half_flush(stream);
+      buffered_flush(stream);
     BufferedStream_buffstart(stream) += strm_buffered_bufflen;
     BufferedStream_endvalid(stream) = 0;
     BufferedStream_index(stream) = 0; # index := 0
@@ -6331,7 +6300,7 @@ local const uintB* write_byte_array_buffered (object stream,
         # Buffer must be filled newly. After that, EOF arrives anyway,
         # so it is sufficient to flush the buffer:
         if (BufferedStream_modified(stream))
-          buffered_half_flush(stream);
+          buffered_flush(stream);
         BufferedStream_buffstart(stream) += strm_buffered_bufflen;
         BufferedStream_endvalid(stream) = 0;
         BufferedStream_index(stream) = 0; # index := 0
