@@ -26,6 +26,11 @@ User visible changes
   It defaults to :DISCARD which is fully backward compatible.
   See <http://clisp.cons.org/impnotes.html#dir> for details.
 
+* DELETE-FILE no longer calls TRUENAME on its argument, which enables
+  you to delete symbolic links.  This is an incompatible change.
+  You can get the old behavior by doing (DELETE-FILE (TRUENAME path)).
+  See <http://clisp.cons.org/impnotes.html#del-file> for details.
+
 * Fixed a bug in PEEK-CHAR with non-NIL peek-type on ECHO-STREAMS.
 
 
