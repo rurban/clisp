@@ -1,3 +1,122 @@
+2004-12-12  Bruno Haible  <bruno@clisp.org>
+
+	Support for :case-inverted packages and package CS-COMMON-LISP.
+	* lispbibl.d (mark_pack_caseinverted, pack_caseinvertedp): New macros.
+	(mark_pack_locked, mark_pack_unlocked, pack_locked_p): Use bit 2.
+	(invert_case, string_gleich_inverted, string_invertcase): New
+	declarations.
+	(test_stringsymchar_arg, find_external_symbol, intern): Add invert
+	argument.
+	* package.d (string_hashcode): Add invert argument.
+	(newinsert): Update.
+	(symtab_lookup): Add invert argument.
+	(symtab_find, symtab_insert, symtab_delete): Update.
+	(package_lookup_ext, package_lookup_int): Add invert argument.
+	(inherited_lookup): Likewise.
+	(make_package): Likewise.
+	(shadowing_lookup, shadowing_delete): Likewise.
+	(accessiblep): Update.
+	(find_external_symbol, find_symbol, intern): Add invert argument.
+	(intern_keyword): Update.
+	(package_lookup): Add invert argument.
+	(shadowing_import): Update.
+	(do_shadow): Renamed from shadow. Add invert argument.
+	(shadow, cs_shadow): New functions.
+	(unintern, import, export, use_package_aux, test_package_arg): Update.
+	(FIND-PACKAGE): Update.
+	(test_names_args, RENAME-PACKAGE): Update.
+	(EXT:PACKAGE-CASE-INVERTED-P): New function.
+	(do_intern): New function, extracted from INTERN.
+	(INTERN): Call it.
+	(CS-COMMON-LISP:INTERN): New function.
+	(do_find_symbol): New function, extracted from FIND-SYMBOL.
+	(FIND-SYMBOL): Call it.
+	(CS-COMMON-LISP:FIND-SYMBOL): New function.
+	(apply_symbols): Update.
+	(CS-COMMON-LISP:SHADOW): New function.
+	(correct_packname): Update.
+	(in_make_package): Add case_inverted argument.
+	(MAKE-PACKAGE): Add :CASE-INVERTED argument.
+	(CS-COMMON-LISP:MAKE-PACKAGE): New function.
+	(SYSTEM::%IN-PACKAGE): Add :CASE-INVERTED argument.
+	(do_find_all_symbols): New function, extracted from FIND-ALL-SYMBOLS.
+	(FIND-ALL-SYMBOLS): Call it.
+	(CS-COMMON-LISP:FIND-ALL-SYMBOLS): New function.
+	(map_symbols_aux): Update.
+	(SYSTEM::PACKAGE-ITERATE): Update.
+	(init_packages): Reorganize. Creates packages CS-COMMON-LISP and
+	CS-COMMON-LISP-USER too.
+	* charstrg.d (invert_case): New function.
+	(SYS::CHAR-INVERTCASE): New function.
+	(string_eqcomp_inverted, string_gleich_inverted): New functions.
+	(nstring_invertcase, string_invertcase): New functions.
+	(SYS::STRING-INVERTCASE): New function.
+	(test_stringsymchar_arg): Add invert argument.
+	(test_1_stringsym_limits, test_2_stringsym_limits): Likewise.
+	(STRING=): Update.
+	(CS-COMMON-LISP:STRING=): New function.
+	(STRING/=): Update.
+	(CS-COMMON-LISP:STRING/=): New function.
+	(STRING<): Update.
+	(CS-COMMON-LISP:STRING<): New function.
+	(STRING>): Update.
+	(CS-COMMON-LISP:STRING>): New function.
+	(STRING<=): Update.
+	(CS-COMMON-LISP:STRING<=): New function.
+	(STRING>=): Update.
+	(CS-COMMON-LISP:STRING>=): New function.
+	(STRING-EQUAL): Update.
+	(CS-COMMON-LISP:STRING-EQUAL): New function.
+	(STRING-NOT-EQUAL): Update.
+	(CS-COMMON-LISP:STRING-NOT-EQUAL): New function.
+	(STRING-LESSP): Update.
+	(CS-COMMON-LISP:STRING-LESSP): New function.
+	(STRING-GREATERP): Update.
+	(CS-COMMON-LISP:STRING-GREATERP): New function.
+	(STRING-NOT-GREATERP): Update.
+	(CS-COMMON-LISP:STRING-NOT-GREATERP): New function.
+	(STRING-NOT-LESSP): Update.
+	(CS-COMMON-LISP:STRING-NOT-LESSP): New function.
+	(SYS::SEARCH-STRING=): Update.
+	(SYS::SEARCH-STRING-EQUAL): Update.
+	(SYS::STRING-BOTH-TRIM): Add an invertp argument.
+	(STRING-UPCASE, STRING-DOWNCASE, STRING-CAPITALIZE): Update.
+	(STRING): Update.
+	(CS-COMMON-LISP:STRING): New function.
+	(NAME-CHAR): Update.
+	(SUBSTRING): Update.
+	* io.d (read_internal): Use the package's case-inverted bit.
+	(write_sstring_invert): New function.
+	(write_sstring_case_ext): New function, extracted from
+	write_sstring_case, with an added case_inverted argument.
+	(write_sstring_case): Call it.
+	(pr_symbol): Use the package's case-inverted bit.
+	(pr_symbol_part): Add case_inverted argument.
+	(pr_like_symbol): Use the package's case-inverted bit.
+	* symbol.d (CS-COMMON-LISP:SYMBOL-NAME): New function.
+	* spvw.d (init_symbol_tab_2): Support packages CS-COMMON-LISP and
+	CS-COMMON-LISP-USER too.
+	* constpack.d (LISPPACK): Update.
+	* encoding.d (MAKE-ENCODING): Update.
+	* defs1.lisp (string-trim): Update.
+	(cs-cl::string-trim): New function.
+	(string-left-trim): Update.
+	(cs-cl::string-left-trim): New function.
+	(string-right-trim): Update.
+	(cs-cl::string-right-trim): New function.
+	* defpackage.lisp (defpackage): Support case-inverted option.
+	(find-symbol-cerror): Add invert argument.
+	(shadowing-import-cerror, import-cerror, intern-export): Likewise.
+	* case-sensitive.lisp: New file.
+	* init.lisp: Export package-case-inverted-p.
+	Load case-sensitive.lisp.
+	* runprog.lisp (xstring): Handle symbols according to *PRINT-CASE*
+	and its package.
+	* complete.lisp (completion): Reorganize. Support case-inverted
+	packages.
+	* makemake.in (LPARTS): Add case-sensitive.
+	* po/Makefile.devel (LISPSOURCES): Add case-sensitive.
+
 2004-07-14  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (X3J13_161): Undefine.

@@ -5009,11 +5009,14 @@ typedef struct {
 # Some packages are case-sensitive.
 #define mark_pack_casesensitive(obj)  record_flags_set(ThePackage(obj),bit(0))
 #define pack_casesensitivep(obj)      (record_flags(ThePackage(obj)) & bit(0))
+# Some packages are case-inverted.
+#define mark_pack_caseinverted(obj)  record_flags_set(ThePackage(obj),bit(1))
+#define pack_caseinvertedp(obj)      (record_flags(ThePackage(obj)) & bit(1))
 # Some packages, such as COMMON-LISP, are locked.
-#define mark_pack_locked(obj)    record_flags_set(ThePackage(obj),bit(1))
-#define mark_pack_unlocked(obj)  record_flags_clr(ThePackage(obj),bit(1))
-#define pack_locked_p(obj)       (record_flags(ThePackage(obj)) & bit(1))
-# do not do anything with deleted packages.
+#define mark_pack_locked(obj)    record_flags_set(ThePackage(obj),bit(2))
+#define mark_pack_unlocked(obj)  record_flags_clr(ThePackage(obj),bit(2))
+#define pack_locked_p(obj)       (record_flags(ThePackage(obj)) & bit(2))
+# Do not do anything with deleted packages.
 #define mark_pack_deleted(obj)  record_flags_set(ThePackage(obj),bit(7))
 #define pack_deletedp(obj)      (record_flags(ThePackage(obj)) & bit(7))
 
@@ -12321,6 +12324,30 @@ extern maygc object char_name (chart code);
 extern object name_char (object string);
 # is used by IO
 
+/* Converts a character to opposite case.
+ invert_case(ch)
+ > ch: a character
+ < result: a character, either ch or up_case(ch) or down_case(ch)
+ Note that always invert_case(invert_case(ch)) == ch. */
+extern chart invert_case (chart ch);
+/* is used by PACKAGE */
+
+/* UP: compares two strings for equality modulo case-invert
+ string_gleich_inverted(string1,string2)
+ > string1: string
+ > string2: simple-string
+ < result: /=0, if equal modulo case-invert */
+extern bool string_gleich_inverted (object string1, object string2);
+/* is used by PACKAGE */
+
+/* UP: converts a string to opposite case
+ string_invertcase(string)
+ > string: string
+ < result: new normal-simple-string
+ can trigger GC */
+extern object string_invertcase (object string);
+/* is used by SYMBOL, PACKAGE */
+
 /* UP: tests the limits for a String argument
  test_string_limits_ro(&arg)  [for read-only access]
  > STACK_2: String-Argument
@@ -12356,10 +12383,12 @@ extern object test_vector_limits (stringarg* arg);
 /* used by ENCODING */
 
 /* UP: checks a string/symbol/character-argument
+ test_stringsymchar_arg(obj,invert)
  > obj: argument
+ > invert: whether to implicitly case-invert a symbol's printname
  < result: argument as string
  can trigger GC */
-extern maygc object test_stringsymchar_arg (object obj);
+extern maygc object test_stringsymchar_arg (object obj, bool invert);
 /* used by PACKAGE */
 
 # UP: tests two equally long strings for equality
@@ -13319,13 +13348,14 @@ extern bool accessiblep (object sym, object pack);
 extern bool externalp (object sym, object pack);
 # is used by IO
 
-# UP: locates an external symbol with a given printname in a package.
-# find_external_symbol(string,pack,&sym)
-# > string: String
-# > pack: Package
-# < result: true, if an external symbol with that printname has been found in pack.
-# < sym: that symbol, if it's been found.
-extern bool find_external_symbol (object string, object pack, object* sym_);
+/* UP: locates an external symbol with a given printname in a package.
+ find_external_symbol(string,invert,pack,&sym)
+ > string: string
+ > invert: whether to implicitly case-invert the string
+ > pack: package
+ < result: true, if an external symbol with that printname has been found in pack.
+ < sym: this symbol, if found. */
+extern bool find_external_symbol (object string, bool invert, object pack, object* sym_);
 # is used by IO
 
 # UP: locates a package with a given name or nickname
@@ -13336,16 +13366,17 @@ extern object find_package (object string);
 # is used by IO, EVAL
 
 # UP: Interns a symbol with a given printname in a package.
-# intern(string,pack,&sym)
+# intern(string,invert,pack,&sym)
 # > string: String
+# > invert: whether to implicitly case-invert the string
 # > pack: Package
 # < sym: Symbol
 # < result: 0, if not found but newly created
-#             1, if found as external symbol
-#             2, if inherited through use-list
-#             3, if exists as internal symbol
+#           1, if found as external symbol
+#           2, if inherited through use-list
+#           3, if exists as internal symbol
 # can trigger GC
-extern maygc uintBWL intern (object string, object pack, object* sym_);
+extern maygc uintBWL intern (object string, bool invert, object pack, object* sym_);
 # is used by IO, SPVW
 
 # UP: Interns a symbol with a given printname in the Keyword-Package.

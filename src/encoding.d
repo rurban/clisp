@@ -1787,7 +1787,7 @@ LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
     var object arg_upcase = string_upcase(arg);
     var object sym;
     arg = STACK_3; /* refetch */
-    if (find_external_symbol(arg_upcase,O(charset_package),&sym)
+    if (find_external_symbol(arg_upcase,false,O(charset_package),&sym)
         && constantp(TheSymbol(sym)) && encodingp(Symbol_value(sym)))
       arg = Symbol_value(sym);
     #ifdef HAVE_GOOD_ICONV

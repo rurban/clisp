@@ -1032,6 +1032,8 @@ local void init_symbol_tab_2 (void) {
     enum_system_index,
     enum_keyword_index,
     enum_charset_index,
+    enum_cs_lisp_index,
+    enum_cs_user_index,
     #define LISPPACK  LISPPACK_A
     #include "constpack.c"
     #undef LISPPACK
@@ -1068,8 +1070,9 @@ local void init_symbol_tab_2 (void) {
       pushSTACK(symbol_tab_ptr_as_object(ptr)); /* Symbol */
       import(&STACK_0,package_);                /* import normally */
       switch (this_index) {
-        case enum_lisp_index:    /* in #<PACKAGE LISP>? */
+        case enum_lisp_index:    /* in #<PACKAGE COMMON-LISP>? */
         case enum_charset_index: /* in #<PACKAGE CHARSET>? */
+        case enum_cs_lisp_index: /* in #<PACKAGE CS-COMMON-LISP>? */
         case enum_socket_index:
         case enum_custom_index:
           export(&STACK_0,package_); /* also export */
@@ -1519,7 +1522,7 @@ local void init_module_2 (module_t* module) {
                   module->name, packname);
           quit_sofort(1);
         }
-        intern(symname,pack,&symbol);
+        intern(symname,false,pack,&symbol);
       }
       subr_ptr->name = symbol; # complete Subr
       Symbol_function(symbol) = subr_tab_ptr_as_object(subr_ptr); # define function

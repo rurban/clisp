@@ -297,6 +297,13 @@ LISPFUN(symbol_name,seclass_no_se,1,0,norest,nokey,0,NIL)
   VALUES1(Symbol_name(symbol));
 }
 
+/* (CS-COMMON-LISP:SYMBOL-NAME symbol) */
+LISPFUNNR(cs_symbol_name,1)
+{ /* Return the case-inverted symbol name. */
+  var object symbol = check_symbol(popSTACK());
+  VALUES1(string_invertcase(Symbol_name(symbol)));
+}
+
 LISPFUNNR(keywordp,1)
 { /* (KEYWORDP object), CLTL p. 170 */
   var object obj = popSTACK();
