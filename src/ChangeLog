@@ -1,3 +1,9 @@
+2005-02-15  Bruno Haible  <bruno@clisp.org>
+
+	* error.d (write_errorstring): Undo 2004-12-24 change: Don't call
+	elastic_newline here.
+	(end_error): Call elastic_newline here.
+
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (c-error): Fix bug introduced on 2005-01-13.
