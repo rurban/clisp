@@ -1,5 +1,14 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
+	Prepare for non-standard methods.
+	* clos-methcomb2.lisp (method-list-to-continuation,
+	effective-method-code-bricks, build-effective-method-function-form):
+	Protect all calls to std-method-fast-function,
+	std-method-wants-next-method-p with a type check for <standard-method>.
+	* clos-genfun2.lisp (std-add-method): Likewise.
+
+2004-10-10  Bruno Haible  <bruno@clisp.org>
+
 	Optimize type checks.
 	* clos-class3.lisp (compute-slots-<slotted-class>-around): Use
 	typep-class instead of typep.
