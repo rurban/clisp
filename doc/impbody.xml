@@ -3941,11 +3941,11 @@ value of &terminal-io-var;).</para>
 
 </section>
 
-<section id="read-seq"><title>Function &read-sequence;</title>
+<section id="bulk-io"><title>Bulk Input and Output</title>
 
+<formalpara id="read-seq"><title>Function &read-sequence;</title>
 <para>In addition to &read-sequence;, the following two
- functions are provided:</para>
-
+ functions are provided:
 <variablelist>
  <varlistentry id="rd-by-seq"><term>&rd-by-seq;
    performs multiple &read-byte; operations:</term>
@@ -3973,20 +3973,16 @@ value of &terminal-io-var;).</para>
   url="&clhs;/Body/glo_i.html#input">input</ulink> <ulink
   url="&clhs;/Body/glo_s.html#string_stream">string stream</ulink>.
   </simpara></listitem></varlistentry>
-</variablelist>
+</variablelist></para></formalpara>
 
-</section>
-
-<section id="write-seq"><title>Function &write-sequence;</title>
-
+<formalpara id="write-seq"><title>Function &write-sequence;</title>
 <para>In addition to &write-sequence;, the following two
-functions are provided:</para>
-
+functions are provided:
 <variablelist>
  <varlistentry id="wr-by-seq"><term>&wr-by-seq;
    performs multiple &write-byte; operations:</term>
  <listitem><simpara><literal role="sexp">(&wr-by-seq; &sequence-r;
-  &stream-k; &key-amp; &start-k; &end-k;)</literal> outputs the
+  &stream-r; &key-amp; &start-k; &end-k;)</literal> outputs the
   &integer-t;s of the subsequence of &sequence-r; specified by
   &start-k; and &end-k; to &stream-k;. It returns &sequence-r;.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
@@ -3996,14 +3992,24 @@ functions are provided:</para>
 <varlistentry id="wr-ch-seq"><term>&wr-ch-seq;
   performs multiple &write-char; operations:</term>
  <listitem><simpara><literal role="sexp">(&wr-ch-seq; &sequence-r;
-  &stream-k; &key-amp; &start-k; &end-k;)</literal> outputs the
+  &stream-r; &key-amp; &start-k; &end-k;)</literal> outputs the
   characters of the subsequence of &sequence-r; specified by &start-k;
   and &end-k; to &stream-k;.  It returns &sequence-r;.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
   &string-t; and &stream-k; is a &file-pipe-socket; &stream-t;
   with &stream-element-type; &character-t;.
   </simpara></listitem></varlistentry>
-</variablelist>
+</variablelist></para></formalpara>
+
+<formalpara id="builk-io-rationale"><title>Rationale</title>
+<para>The rationale for &rd-ch-seq;, &rd-by-seq;, &wr-ch-seq; and
+ &wr-by-seq; is that some &stream-r;s support both character and binary
+ i/o, and when you read into a &sequence-r; that can hold both (e.g.,
+ &list-t; or &simple-vector-t;) you cannot determine which kind of
+ input to use.  In such situation &read-sequence; and &write-sequence;
+ signal an &error;, while &rd-ch-seq;, &rd-by-seq;, &wr-ch-seq; and
+ &wr-by-seq; work just fine.</para></formalpara>
+
 </section>
 
 <!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY
