@@ -166,7 +166,10 @@ Here is the corresponding analysis:
 
   3. A)   No problem.
      AB') Lines can be unseparated when one switches from convention A to B'.
-     B')  No problem.
+     B')  Lines can be unseparated when one switches from one stream to another
+          without performing a FORCE-OUTPUT. This is a general problem with
+          buffered streams; CLISP's FRESH-LINE contains a workaround that is
+          limited to *STANDARD-OUTPUT* and *ERROR-OUTPUT*.
      B'C) No problem.
      C)   No problem.
 
