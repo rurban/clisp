@@ -1,5 +1,17 @@
 2001-03-27  Sam Steingold  <sds@gnu.org>
 
+	fixed a bug: macros were reported as special forms by funcall &Co
+	* eval.d (fehler_specialform): report special operators as such,
+	not as special forms
+	(coerce_function, funcall, apply): not all orecords are
+	special operators
+	* control.d (FMAKUNBOUND): error message spelling
+	* trave.lisp (trace1): ditto
+	* init.lisp (defun): ditto
+	* defs1.lisp (fbound-string): ditto
+
+2001-03-27  Sam Steingold  <sds@gnu.org>
+
 	* package.d (symtab_lookup, shadowing_lookup):
 	check sym_ for being non-NULL
 	(inherited_lookup, inherited_find): new local functions

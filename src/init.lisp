@@ -1411,7 +1411,7 @@ constant-inline constant-notinline
           ) )
           (when (special-operator-p name)
             (error-of-type 'source-program-error
-              (ENGLISH "~S: special form ~S cannot be redefined.")
+              (ENGLISH "~S: special operator ~S cannot be redefined.")
               'defun name
           ) )
           (multiple-value-bind (body-rest declarations docstring)
