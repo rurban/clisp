@@ -872,10 +872,14 @@ local void init_subr_tab_1 (void) {
        #include "subr.c"
      #undef LISPFUN
   }
-  { # and initialize the keywords-slot temporarily:
+  { # and initialize the GCself and keywords-slot temporarily:
     var subr_t* ptr = (subr_t*)&subr_tab; # traverse subr_tab
     var uintC count = subr_anz;
-    dotimesC(count,subr_anz, { ptr->keywords = NIL; ptr++; });
+    dotimesC(count,subr_anz, {
+      ptr->GCself = subr_tab_ptr_as_object(ptr);
+      ptr->keywords = NIL;
+      ptr++;
+    });
   }
   #endif
   # Because of SPVWTABF all slots except keywords and argtype
@@ -974,8 +978,11 @@ local void init_other_modules_1 (void) {
     if (*module->stab_size > 0) {
       var subr_t* ptr = module->stab;
       var uintC count;
-      dotimespC(count,*module->stab_size,
-      { ptr->name = NIL; ptr->keywords = NIL; ptr++; });
+      dotimespC(count,*module->stab_size, {
+        ptr->GCself = subr_tab_ptr_as_object(ptr);
+        ptr->name = NIL; ptr->keywords = NIL;
+        ptr++;
+      });
     }
     # the pointers in the object-table have already been inizialized
     # by init_object_tab_1().
@@ -1488,8 +1495,11 @@ local void init_module_2 (module_t* module) {
   if (*module->stab_size > 0) {
     var subr_t* ptr = module->stab; # traverse subr_tab
     var uintC count;
-    dotimespC(count,*module->stab_size,
-    { ptr->name = NIL; ptr->keywords = NIL; ptr++; });
+    dotimespC(count,*module->stab_size, {
+      ptr->GCself = subr_tab_ptr_as_object(ptr);
+      ptr->name = NIL; ptr->keywords = NIL;
+      ptr++;
+    });
   }
   if (*module->otab_size > 0) {
     var gcv_object_t* ptr = module->otab; # traverse object_tab
@@ -3253,6 +3263,7 @@ global void dynload_modules (const char * library, uintC modcount,
                 module->stab = newptr;
                 dotimespC(count,count, {
                   *newptr = *oldptr++;
+                  newptr->GCself = subr_tab_ptr_as_object(newptr);
                   newptr->name = NIL; newptr->keywords = NIL; # GC stays possible with it
                   newptr++;
                 });

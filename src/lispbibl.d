@@ -3968,6 +3968,7 @@ typedef xrecord_ *  Xrecord;
          Rectype_Stream,
          #endif
          Rectype_Byte,
+         Rectype_Subr,
          Rectype_Fsubr,
          Rectype_Loadtimeeval,
          Rectype_Symbolmacro,
@@ -5489,16 +5490,17 @@ typedef struct {
 # SUBRs
 # SUBR table entry:
   typedef struct {
-    lisp_function_t function; # function
+    XRECORD_HEADER
     gcv_object_t name     _attribute_aligned_object_; # name
     gcv_object_t keywords _attribute_aligned_object_; # NIL or vector with the keywords
+    lisp_function_t function; # function
     uintW argtype;          # short for the argument-type
     uintW req_anz;          # number of required parameters
     uintW opt_anz;          # number of optional parameters
     uintB rest_flag;        # flag for arbitrary number of arguments
     uintB key_flag;         # flag for keywords
     uintW key_anz;          # number of keyword parameter
-    uintW seclass; /* side-effect class */
+    uintW seclass;          /* side-effect class */
   } subr_t
     #if defined(HEAPCODES) && (alignment_long < 4) && defined(GNU)
       # Force all Subrs to be allocated with a 4-byte alignment. GC needs this.
@@ -5507,8 +5509,8 @@ typedef struct {
     ;
   typedef subr_t *  Subr;
 # GC needs information where objects are in here:
-  #define subr_const_offset  offsetof(subr_t,name)
-  #define subr_const_anz     2
+  #define subr_length  2
+  #define subr_xlength  (sizeof(*(Subr)0)-offsetofa(record_,recdata)-subr_length*sizeof(gcv_object_t))
 # the rest_flag component is a uintB, while we really mean:
   typedef enum {
     subr_norest,
@@ -8938,10 +8940,12 @@ extern struct subr_tab_ {
   #ifdef TYPECODES
     #define subr_tab_ptr_as_object(subr_addr)  (type_constpointer_object(subr_type,subr_addr))
   #else
-    #ifdef WIDE_AUXI
+    #if defined(WIDE_AUXI)
       #define subr_tab_ptr_as_object(subr_addr)  as_object_with_auxi((aint)(subr_addr)+subr_bias)
-    #else
+    #elif defined(OBJECT_STRUCT)
       #define subr_tab_ptr_as_object(subr_addr)  as_object((oint)(subr_addr)+subr_bias)
+    #else
+      #define subr_tab_ptr_as_object(subr_addr)  objectplus(subr_addr,subr_bias)
     #endif
   #endif
   #define L(name)  subr_tab_ptr_as_object(&subr_tab.D_##name)

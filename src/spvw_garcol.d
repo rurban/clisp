@@ -119,12 +119,17 @@ local void gc_markphase (void)
   if (generation > 0) { gc_mark_old_generation(); }
  #endif
   /* mark all program constants: */
-  for_all_subrs(gc_mark(subr_tab_ptr_as_object(ptr));); /* subr_tab */
  #if !defined(GENERATIONAL_GC)
+  for_all_subrs(gc_mark(subr_tab_ptr_as_object(ptr));); /* subr_tab */
   for_all_constsyms(gc_mark(symbol_tab_ptr_as_object(ptr));); /* symbol_tab */
  #else
-  /* because of the macro in_old_generation(), gc_mark() regards all constant
-     symbols as belonging to the old generation and does not peruse them. */
+  /* Because of the macro in_old_generation(), gc_mark() may regard all
+     constant symbols and all subrs as belonging to the old generation and
+     may not walk through their pointers recursively. So do it by hand. */
+  for_all_subrs({ /* peruse subr_tab */
+    gc_mark(ptr->name);
+    gc_mark(ptr->keywords);
+  });
   for_all_constsyms({ /* peruse symbol_tab */
     gc_mark(ptr->symvalue);
     gc_mark(ptr->symfunction);
@@ -166,8 +171,7 @@ local void gc_markphase (void)
         if (in_old_generation(obj,typecode(obj),0)) return true;
         if (marked(ThePointer(obj))) return true; else return false;
       case_subr: # Subr
-        if (marked(pointerplus(TheSubr(obj),subr_const_offset)))
-          return true; else return false;
+        if (marked(TheSubr(obj))) return true; else return false;
       case_machine: # Machine Pointer
       case_char: # Character
       case_system: # Frame-pointer, Read-label, system
@@ -191,8 +195,7 @@ local void gc_markphase (void)
         if (in_old_generation(obj,,1)) return true;
         if (marked(ThePointer(obj))) return true; else return false;
       case subr_bias:
-        if (marked(pointerplus(TheSubr(obj),subr_const_offset)))
-          return true; else return false;
+        if (marked(TheSubr(obj))) return true; else return false;
       default:
         return true;
     }
@@ -204,13 +207,11 @@ local void gc_markphase (void)
 # unmark SUBRs and fixed Symbols:
   local void unmark_fixed_varobjects (void)
   {
-    for_all_subrs( unmark((aint)ptr+subr_const_offset); ); # unmark each Subr
-    #if !defined(GENERATIONAL_GC)
+    /* Even if defined(GENERATIONAL_GC), because the macro in_old_generation()
+       has undefined behaviour for constsyms and subrs, therefore we don't know
+       a priori whether the constsyms and subrs have their mark bit set. */
+    for_all_subrs( unmark(&((Subr)ptr)->GCself); ); # unmark each Subr
     for_all_constsyms( unmark(&((Symbol)ptr)->GCself); ); # unmark each Symbol in symbol_tab
-    #else
-    # As we have not marked the constant Symbols, but only their
-    # content, we do not have to unmark them.
-    #endif
   }
 
 #if !defined(MORRIS_GC)
