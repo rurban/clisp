@@ -129,20 +129,23 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
   (up nil :type (or null inspection)) ; parent
   (num-slots 0 :type fixnum)    ; the number of slots
   (pos nil :type (or null fixnum)) ; pos in parent
-  (nth-slot nil :type (or null (function (integer) (t t)))) ; value & name
+  (nth-slot nil :type (or null (function (integer) (values t t)))) ; val & name
   (set-slot nil :type (or null (function (integer t) t)))) ; set Nth slot
 
 (defun insp-check (insp)
-  ;; this should always be okay
+  ;; this should always be okay, nevertheless
+  ;; we use `warn' instead of `assert' or `error' because
+  ;; the objects being inspected could possibly be modified
+  ;; in another thread
   (let ((up (insp-up insp)) (pos (insp-pos insp)) (id (insp-id insp)))
-    (assert (eq insp (aref *inspect-all* id)) (insp)
-            "~s: ~s is corrupted (~d->~d):~%~s~%~s~%"
+    (unless (eq insp (aref *inspect-all* id))
+      (warn "~s: ~s appears corrupted (~d->~d):~%~s~%~s~%"
             'get-insp '*inspect-all* id (insp-id (aref *inspect-all* id))
-            insp (aref *inspect-all* id))
+            insp (aref *inspect-all* id)))
     (when up
-      (assert (< -1 pos (insp-num-slots up)) (insp)
-              "~s: pos out of range: ~d ~d" 'insp-check pos
-              (insp-num-slots up))
+      (unless (< -1 pos (insp-num-slots up))
+        (warn "~s: pos out of range: ~d ~d~%" 'insp-check pos
+              (insp-num-slots up)))
       (unless (eq (funcall (insp-nth-slot up) pos) (insp-self insp))
         (warn "~s: slot ~d of the ~s has changed:~%~s~%"
               'insp-check pos (insp-self up) up)))))
@@ -317,8 +320,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
                               :up insp :pos com)))))))
 
 ;;;
-;;; To define a frontend, one has to define methods for
-;;;  `print-inspection' and `inspect-frontend'
+;;; frontends - common
 ;;;
 
 (clos:defgeneric print-inspection (insp out frontend)
@@ -356,8 +358,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 
 (clos:defmethod print-inspection ((insp inspection) (out stream)
                              (backend (eql :tty)))
-  (declare (ignore backend))
-  (format out "~s:  ~a~%~{ ~a~%~}" (insp-self insp) (insp-title insp)
+  (format out "~&~s:  ~a~%~{ ~a~%~}" (insp-self insp) (insp-title insp)
           (insp-blurb insp))
   (when (insp-nth-slot insp)
     (loop :for ii :from 0 :to (insp-num-slots-print insp)
@@ -412,7 +413,6 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 
 (clos:defmethod print-inspection ((insp inspection) (raw stream)
                              (backend (eql :http)))
-  (declare (ignore backend))
   (flet ((href (com) (format nil "/~d/~s" (insp-id insp) com)))
     (with-html-output (out raw :title (insp-title insp) :footer nil)
       (with-tag (:h1) (princ (insp-title insp) out))
@@ -452,7 +452,9 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 
 (defun http-command (server &key (debug *inspect-debug*))
   "Accept a connection from the server, return the GET command and the socket."
+  (when (> debug 1) (format t "%s: server: ~s~%" 'http-command server))
   (let ((socket (socket-accept server)))
+    (when (> debug 1) (format t "%s: socket: ~s~%" 'http-command socket))
     (loop (let ((line (read-line socket nil nil)))
             (when (> debug 1) (format t "-> ~a~%" line))
             (when (string-beg-with "GET /" line)
@@ -467,10 +469,10 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
                 (return (values socket id com))))))))
 
 (clos:defmethod inspect-frontend ((insp inspection) (frontend (eql :http)))
-  (declare (ignore backend))
   (do ((server (let ((server (socket-server)))
-                 (browse-url (format nil "http://~a:~d/0/:s"
-                                     (socket-server-host server)
+                 (when (> *inspect-debug* 0)
+                   (format t "~&%s: server: ~s~%" 'inspect-frontend server))
+                 (browse-url (format nil "http://127.0.0.1:~d/0/:s"
                                      (socket-server-port server))
                              :browser *inspect-browser*)
                  server))
@@ -487,11 +489,11 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
                 (format out "error: wrong command: ~:d/~s" id com))
               (with-tag (:p)
                 (princ "either this is an old inspect session, or a " out))
-                (with-tag (:a :href "https://sourceforge.net/bugs/?func=addbug&group_id=1802") (print "bug" out)))))
+              (with-tag (:a :href "https://sourceforge.net/bugs/?func=addbug&group_id=1802") (print "bug" out)))))
     (close sock)
     (when (> *inspect-debug* 0)
       (format t "~s [~s]: cmd:~d/~s id:~d~%" 'inspect-frontend frontend
-                id com (insp-id insp)))))
+              id com (insp-id insp)))))
 
 ;;;
 ;;; the juice
@@ -505,7 +507,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
         #-clisp (*print-lines* *inspect-print-lines*)
         (*print-level* *inspect-print-level*)
         (*print-length* *inspect-print-length*)
-        (*package* (make-package (gensym "INSPECT-TNP-PACKAGE-"))) ; for `read'
+        (*package* (make-package (gensym "INSPECT-TMP-PACKAGE-"))) ; for `read'
         (*inspect-frontend* frontend)
         (*inspect-browser* browser))
     (unwind-protect
