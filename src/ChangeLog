@@ -1,5 +1,9 @@
 2004-09-17  Bruno Haible  <bruno@clisp.org>
 
+	* clos-class3.lisp (define-structure-class): No need to fmakunbound.
+
+2004-09-17  Bruno Haible  <bruno@clisp.org>
+
 	Treat (FUNCTION NIL) correctly.
 	* cmacros.lisp (function-form-funform): Remove function.
 	(function-form-p): New function.
