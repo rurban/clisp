@@ -2,6 +2,7 @@
 
 	* modules/oracle/orafns.c: On SQL error, truncate echoed bind
 	parameters for readability and to avoid buffer overflows.
+	Also grab parse error offset into a ub2, not ub4 (misread docs).
 
 2004-07-14  Sam Steingold  <sds@gnu.org>
 
