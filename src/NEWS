@@ -139,7 +139,7 @@ User visible changes
 
 * ANSI CL compliance issues:
   + Issue <DECLARATION-SCOPE:NO-HOISTING> is implemented: The scope of
-    declarations that don't apply to bindings, such as free SPECIAL, NOTINLINE
+    declarations that do not apply to bindings, such as free SPECIAL, NOTINLINE
     or OPTIMIZE declarations, includes only the body forms and no longer
     includes the initforms of the LAMBDA/LET/LET*/MULTIPLE-VALUE-BIND bindings.
   + Vectors of element type NIL are now strings in all aspects. But the type
