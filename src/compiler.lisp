@@ -10841,6 +10841,12 @@ The function make-closure is required.
                       (if listing-stream
                         (make-broadcast-stream *error-output* listing-stream)
                         *error-output*))
+                    (verbose-out
+                     (when *compile-verbose*
+                       (if listing-stream
+                           (make-broadcast-stream
+                            *standard-output* listing-stream)
+                           *standard-output*)))
                     (*func* nil)
                     (*fenv* nil)
                     (*benv* nil)
@@ -10853,8 +10859,9 @@ The function make-closure is required.
                     (*toplevel-for-value* t)
                     (eof-value "EOF")
                     (form-count 0))
-                (c-comment (concatenate 'string "~%" (TEXT "Compiling file ~A ..."))
-                           file)
+                (when verbose-out
+                  (terpri verbose-out)
+                  (format verbose-out (TEXT ";; Compiling file ~A ...") file))
                 (when *fasoutput-stream*
                   (let ((*package* *keyword-package*))
                     (write `(SYSTEM::VERSION ',(version))
@@ -10896,21 +10903,26 @@ The function make-closure is required.
                       (symbol-suffix form-name (incf form-count)))))
                 (finalize-coutput-file)
                 (setq compilation-successful (zerop *error-count*))
-                (cond (compilation-successful
-                       (c-comment (concatenate 'string "~&~%" (TEXT "Wrote file ~A"))
-                                  output-file)
-                       (when *coutput-stream*
-                         (c-comment (concatenate 'string "~%" (TEXT "Wrote file ~A"))
-                                    *coutput-file*)))
-                      (new-output-stream
-                       (c-comment (concatenate 'string "~&~%" (TEXT "Deleted file ~A"))
-                                  output-file)
-                       (when *coutput-stream*
-                         (c-comment (concatenate 'string "~%" (TEXT "Deleted file ~A"))
-                                    *coutput-file*))))
-                (when new-listing-stream
-                  (c-comment (concatenate 'string "~%" (TEXT "Wrote file ~A"))
-                             listing))
+                (when verbose-out
+                  (cond (compilation-successful
+                         (fresh-line verbose-out) (terpri verbose-out)
+                         (format verbose-out (TEXT ";; Wrote file ~A")
+                                 output-file)
+                         (when *coutput-stream*
+                           (terpri verbose-out)
+                           (format verbose-out (TEXT ";; Wrote file ~A")
+                                   *coutput-file*)))
+                        (new-output-stream
+                         (fresh-line verbose-out) (terpri verbose-out)
+                         (format verbose-out (TEXT ";; Deleted file ~A")
+                                 output-file)
+                         (when *coutput-stream*
+                           (terpri verbose-out)
+                           (format verbose-out (TEXT ";; Deleted file ~A")
+                                   *coutput-file*))))
+                  (when new-listing-stream
+                    (terpri verbose-out)
+                    (format verbose-out (TEXT ";; Wrote file ~A") listing)))
                 (values (if compilation-successful output-file nil)
                         (compile-warnings-p)
                         (compile-failure-p))))
