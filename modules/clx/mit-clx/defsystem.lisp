@@ -174,6 +174,7 @@
        (compile-and-load "resource")
        (compile-and-load "describe")
        (compile-and-load "trace")
+       (compile-and-load "shape")
        ))))
 
 
@@ -243,4 +244,5 @@
       (load-binary "resource")
       (load-binary "describe")
       (load-binary "trace")
+      (load-binary "shape")
       )))
