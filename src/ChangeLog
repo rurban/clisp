@@ -8,6 +8,7 @@
 	(print-tables-1): output flag sets
 	* modules/berkeley-db/bdb.c, modules/pcre/cpcre.c:
 	* modules/rawsock/rawsock.c, modules/regexp/regexi.c: use DEFFLAGSET
+	* genclisph.d (posfixnum_default): new inline function
 
 2004-05-13  Sam Steingold  <sds@gnu.org>
 
