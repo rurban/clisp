@@ -4265,7 +4265,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       DOUT("make-pathname:[name]",STACK_2);
       var object name = STACK_2;
       if (stringp(name))
-        STACK_2 = name = subst_coerce_normal_ss(name);
+        STACK_2 = name = coerce_normal_ss(name);
       if (convert)
         STACK_2 = name = common_case(name);
       if (eq(name,unbound)) {
