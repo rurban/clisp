@@ -5734,19 +5734,26 @@ global Values funcall (object fun, uintC args_on_stack)
         fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__); \
         goto label;                                     \
       } while(0)
-    #define DEBUG_CHECK_BYTEPTR(j) do {                                 \
-      byteptr_bad_jump = j;                                             \
-      if ((byteptr_bad_jump < 0) || (byteptr_bad_jump > byteptr_max)) { \
-        goto fehler_byteptr;                                            \
+    #define DEBUG_CHECK_BYTEPTR(nb) do {                 \
+      var const uintB* b = nb;                           \
+      if ((b < byteptr_min) || (b > byteptr_max)) {     \
+        fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__); \
+        byteptr_bad_jump = b - byteptr;                 \
+        nobject_out(stderr,closure);                    \
+        fprintf(stderr," jump by %d takes %d outside [0;%d]",byteptr_bad_jump,byteptr - byteptr_min,byteptr_max - byteptr_min); \
+        /*goto fehler_byteptr;*/                        \
       }} while(0)
   #else
     #define GOTO_ERROR(label)  goto label
-    #define DEBUG_CHECK_BYTEPTR(j)     do{}while(0)
+    #define DEBUG_CHECK_BYTEPTR(b)     do{}while(0)
   #endif
   local Values interpret_bytecode_ (object closure_in, Sbvector codeptr, const uintB* byteptr_in)
   {
+   #if defined(STACKCHECKC) || defined(DEBUG_BYTECODE)
+    var const uintB* byteptr_min = byteptr_in;
+   #endif
    #ifdef DEBUG_BYTECODE
-    var const uintL byteptr_max = &codeptr->data[sbvector_length(codeptr)-1] - byteptr_in;
+    var const uintB* byteptr_max = &codeptr->data[sbvector_length(codeptr)-1];
     var sintL byteptr_bad_jump;
    #endif
     # situate argument closure in register:
@@ -6595,12 +6602,12 @@ global Values funcall (object fun, uintC args_on_stack)
           }
           goto finished; # return (jump) to caller
         }
-      #define JMP()                                     \
-        { var const uintB* label_byteptr;               \
-          L_operand(label_byteptr);                     \
-          DEBUG_CHECK_BYTEPTR(label_byteptr - byteptr); \
-          byteptr = label_byteptr;                      \
-          goto next_byte;                               \
+      #define JMP()                             \
+        { var const uintB* label_byteptr;       \
+          L_operand(label_byteptr);             \
+          DEBUG_CHECK_BYTEPTR(label_byteptr);   \
+          byteptr = label_byteptr;              \
+          goto next_byte;                       \
         }
       #define NOTJMP()  \
         { L_operand_ignore(); goto next_byte; }
@@ -6655,7 +6662,7 @@ global Values funcall (object fun, uintC args_on_stack)
           if (eq(hashvalue,nullobj))
             goto jmp; # not found -> jump to label
           else { /* interpret found Fixnum as label: */
-            DEBUG_CHECK_BYTEPTR(fixnum_to_L(hashvalue));
+            DEBUG_CHECK_BYTEPTR(byteptr + fixnum_to_L(hashvalue));
             byteptr += fixnum_to_L(hashvalue);
           }
         }
@@ -6669,7 +6676,7 @@ global Values funcall (object fun, uintC args_on_stack)
           if (eq(hashvalue,nullobj))
             goto jmp; # not found -> jump to label
           else { /* interpret found Fixnum as label: */
-            DEBUG_CHECK_BYTEPTR(fixnum_to_L(hashvalue));
+            DEBUG_CHECK_BYTEPTR(byteptr + fixnum_to_L(hashvalue));
             byteptr += fixnum_to_L(hashvalue);
           }
         }
@@ -7141,7 +7148,7 @@ global Values funcall (object fun, uintC args_on_stack)
           popSP(closureptr = (gcv_object_t*) ); popSP(index = );
           closure = *closureptr; # fetch Closure from Stack
           codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          DEBUG_CHECK_BYTEPTR(CODEPTR + index - byteptr);
+          DEBUG_CHECK_BYTEPTR(CODEPTR + index);
           byteptr = CODEPTR + index;
         }
         goto next_byte; # continue interpretation at Label
@@ -7238,7 +7245,7 @@ global Values funcall (object fun, uintC args_on_stack)
           closureptr = (gcv_object_t*) SP_(jmpbufsize+0);
           closure = *closureptr; # fetch Closure from Stack
           codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          DEBUG_CHECK_BYTEPTR(CODEPTR + index - byteptr);
+          DEBUG_CHECK_BYTEPTR(CODEPTR + index);
           byteptr = CODEPTR + index;
         }
         goto next_byte; # continue interpretation at Label i
@@ -7346,7 +7353,7 @@ global Values funcall (object fun, uintC args_on_stack)
           popSP(closureptr = (gcv_object_t*) ); popSP(index = );
           closure = *closureptr; # fetch Closure from Stack
           codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          DEBUG_CHECK_BYTEPTR(CODEPTR + index - byteptr);
+          DEBUG_CHECK_BYTEPTR(CODEPTR + index);
           byteptr = CODEPTR + index;
         }
         goto next_byte; # continue interpretation at Label
@@ -7413,7 +7420,7 @@ global Values funcall (object fun, uintC args_on_stack)
           # execute Cleanup-Forms:
           closure = *closureptr; # fetch Closure from Stack
           codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          DEBUG_CHECK_BYTEPTR(CODEPTR + index - byteptr);
+          DEBUG_CHECK_BYTEPTR(CODEPTR + index);
           byteptr = CODEPTR + index;
         }
         goto next_byte;
@@ -7464,7 +7471,7 @@ global Values funcall (object fun, uintC args_on_stack)
             # jump to this label takes place, if after the execution of
             # the Cleanup-Forms interpretation shall continue at the old
             # location in the same Closure.
-            DEBUG_CHECK_BYTEPTR(CODEPTR + (uintP)arg - byteptr);
+            DEBUG_CHECK_BYTEPTR(CODEPTR + (uintP)arg);
             byteptr = CODEPTR + (uintP)arg;
             goto next_byte;
           }
@@ -7491,7 +7498,7 @@ global Values funcall (object fun, uintC args_on_stack)
           # move all values to the Stack:
           mv_to_STACK();
           # execute Cleanup-Forms:
-          DEBUG_CHECK_BYTEPTR(CODEPTR + index - byteptr);
+          DEBUG_CHECK_BYTEPTR(CODEPTR + index);
           byteptr = CODEPTR + index;
         }
         goto next_byte;
@@ -8383,17 +8390,19 @@ global Values funcall (object fun, uintC args_on_stack)
     }
    #if DEBUG_BYTECODE
    fehler_byteptr:
-    pushSTACK(fixnum(byteptr_max));
-    pushSTACK(fixnum(byteptr));
-    pushSTACK(fixnum(byteptr_bad_jump));
-    fehler(error,GETTEXT("jump by ~ takes ~ outside [0;~]"));
+    pushSTACK(fixnum(byteptr_max - byteptr_min));
+    pushSTACK(fixnum(byteptr - byteptr_min));
+    pushSTACK(sfixnum(byteptr_bad_jump));
+    pushSTACK(closure);
+    fehler(error,GETTEXT("~: jump by ~ takes ~ outside [0;~]"));
    #endif
    fehler_zuviele_werte:
-    fehler(error,GETTEXT("too many return values"));
+    pushSTACK(closure);
+    fehler(error,GETTEXT("~: too many return values"));
    #if STACKCHECKC
    fehler_STACK_putt:
-    pushSTACK(fixnum(byteptr-&codeptr->data[0])); # PC
-    pushSTACK(closure); # FUNC
+    pushSTACK(fixnum(byteptr - byteptr_min)); /* PC */
+    pushSTACK(closure);                       /* FUNC */
     fehler(serious_condition,GETTEXT("Corrupted STACK in ~ at byte ~"));
    #endif
    finished:
