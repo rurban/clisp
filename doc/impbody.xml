@@ -147,27 +147,25 @@
 
 <formalpara id="the-env"><title>Macro &the-env;</title>
 <para>As in Scheme, the macro <literal role="sexp">(&the-env;)</literal>
- returns the current lexical environment.  This works only in
- interpreted code and is not compilable!</para></formalpara>
+ returns the current &lex-env;.  This works only in interpreted code and
+ is not compilable!</para></formalpara>
 
 <formalpara id="eval-env"><title>Function <literal role="sexp">(EXT:EVAL-ENV
  &form-r; &optional-amp; &env-r;)</literal></title>
-<para>evaluates a form in a given lexical environment, just as if the
+<para>evaluates a form in a given &lex-env;, just as if the
  form had been a part of the program that the environment came from.
 </para></formalpara>
 
 </section>
 
-<section><title>Dynamic Variables
+<section id="dyn-var"><title>Dynamic Variables
   <ulink url="&clhs;/Body/sec_3-1-2-1-1-2.html">[CLHS-3.1.2.1.1.2]</ulink></title>
 
-<para>Undefined variables, i.e. variables which are referenced outside
- any lexical binding for a variable of the same name and which are not
- declared &special-dec;, are treated like
- <ulink url="&clhs;/Body/sec_3-1-2-1-1-2.html">dynamic variables</ulink> in the
- <ulink url="&clhs;/Body/sec_3-1-1-1.html">global environment</ulink>.
- The compiler signals a warning when it encounters an undefined variable.
-</para>
+<para><quote>Undefined variables</quote>, i.e. &variable;s which are
+ referenced outside any lexical binding for a variable of the same name
+ and which are not declared &special-dec;, are treated like &dyn-var;s
+ in the &glo-env;.  The compiler &signal;s a &warning-t; when it
+ encounters an undefined variable.</para>
 </section>
 </section>
 
@@ -274,11 +272,11 @@ executes a compiled version of form.</para>
 <para>You can use the function <literal role="sexp">(&spe-var-p;
   &symbol-r; &optional-amp; &env-r;)</literal> to check whether the
  symbol is a special variable.  &env-r; of &nil; or omitted means use
- the global environment, &t; means use current lexical environment.
- You can also obtain the current lexical environment using the macro
+ the &glo-env;, &t; means use current &lex-env;.
+ You can also obtain the current &lex-env; using the macro
  &the-env; (interpreted code only).
  This function will always return &t; for global special
- variables and constants.
+ variables and &constant;s.
  Note that this function will not work in compiled code as you expect:
  when called with &nil; &env-r;, it will be called at <emphasis>run
   time</emphasis> and check for globally special variables,
@@ -4478,12 +4476,12 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  the most recent stack frame but can be moved using the debugger commands
  <command>Up</command> and <command>Down</command>.</para>
 
-<para>Evaluation of forms in a break loop occurs in the lexical
- environment of the current stack frame but in the dynamic environment
- of the debugger's caller.  This means that to inspect or modify a
- lexical variable all you have to do is to move to the current stack
- frame just below the frame that corresponds to the form or the function
- call that binds that variable.</para>
+<para>Evaluation of forms in a break loop occurs &not-e; in the
+ &lex-env; of the current stack frame but in the &dyn-env; of the
+ debugger's caller.  This means that to inspect or modify a &lex-var;
+ all you have to do is to move to the current stack frame just below the
+ frame that corresponds to the form or the function call that binds that
+ variable.</para>
 
 <para>There is a current "stack mode" which defines in how much
  detail the stack is shown by the stack-related debugger commands.</para>
@@ -4509,8 +4507,8 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <row><entry><command>Mode-3</command></entry>
    <entry><command>:m3</command></entry>
    <entry>sets the current mode to 3: only lexical frames (frames that
-    correspond to special forms that modify the lexical
-    environment) are considered.</entry></row>
+    correspond to special forms that modify the &lex-env;) are
+    considered.</entry></row>
  <row><entry><command>Mode-4</command></entry>
    <entry><command>:m4</command></entry>
    <entry>sets the current mode to 4 (the default): only &eval; and
