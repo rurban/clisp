@@ -1057,13 +1057,6 @@ LISPSYM(long_float_digits,"LONG-FLOAT-DIGITS",ext)
 LISPSYM(set_long_float_digits,"%SET-LONG-FLOAT-DIGITS",system)
 LISPSYM(log2,"LOG2",system)
 LISPSYM(log10,"LOG10",system)
-/* ---------- REXX ---------- */
-#ifdef REXX
-LISPSYM(rexx_put,"%REXX-PUT",system)
-LISPSYM(rexx_wait_input,"%REXX-WAIT-INPUT",system)
-LISPSYM(rexx_get,"%REXX-GET",system)
-LISPSYM(rexx_reply,"%REXX-REPLY",system)
-#endif
 /* ---------- FOREIGN ---------- */
 #ifdef DYNAMIC_FFI
 LISPSYM(validp,"VALIDP",ffi)
@@ -1242,11 +1235,6 @@ LISPSYM(Kso_rcvlowat,"SO-RCVLOWAT",keyword)
 LISPSYM(Kso_sndlowat,"SO-SNDLOWAT",keyword)
 LISPSYM(Kso_rcvtimeo,"SO-RCVTIMEO",keyword)
 LISPSYM(Kso_sndtimeo,"SO-SNDTIMEO",keyword)
-#endif
-#ifdef REXX
-LISPSYM(Kresult,"RESULT",keyword)
-LISPSYM(Kstring,"STRING",keyword)
-LISPSYM(Ktoken,"TOKEN",keyword)
 #endif
 #if defined(WIN32_NATIVE)
 LISPSYM(Kwin32,"WIN32",keyword)
