@@ -62,21 +62,17 @@
        ; must not be a reserved word:
        (not (gethash name
                      (load-time-value
-                       (let* ((reserved-list
-                                '("auto" "break" "case" "char" "continue"
-                                  "default" "do" "double" "else" "enum" "extern"
-                                  "float" "for" "goto" "if" "int" "long"
-                                  "register" "return" "short" "sizeof" "static"
-                                  "struct" "switch" "typedef" "union" "unsigned"
-                                  "void" "while"
-                              )  )
-                              (reserved-table (make-hash-table :test #'equal)))
-                         (dolist (w reserved-list)
-                           (setf (gethash w reserved-table) 'T)
-                         )
-                         reserved-table
-       )    )        ) )
-) )
+                      (let* ((reserved-list
+                              '("auto" "break" "case" "char" "continue"
+                                "default" "do" "double" "else" "enum" "extern"
+                                "float" "for" "goto" "if" "int" "long"
+                                "register" "return" "short" "sizeof" "static"
+                                "struct" "switch" "typedef" "union" "unsigned"
+                                "void" "while"))
+                             (reserved-table (make-hash-table :test #'equal)))
+                        (dolist (w reserved-list)
+                          (setf (gethash w reserved-table) 'T))
+                        reserved-table))))))
 
 ; Given a string, return it in C syntax.
 (defun to-c-string (string)
@@ -85,25 +81,18 @@
     (map nil #'(lambda (c)
                  (cond ((eql c #\Null)
                         (error (ENGLISH "Cannot map string ~S to C since it contains a character ~S")
-                               string c
-                       ))
+                               string c))
                        ((eq c #\Newline)
-                        (write-char #\\ s) (write-char #\n s)
-                       )
+                        (write-char #\\ s) (write-char #\n s))
                        ((or (eql c #\") (eql c #\\))
-                        (write-char #\\ s) (write-char c s)
-                       )
-                       (t (write-char c s))
-               ) )
-             string
-    )
-    (write-char #\" s)
-) )
+                        (write-char #\\ s) (write-char c s))
+                       (t (write-char c s))))
+             string)
+    (write-char #\" s)))
 
 #+AMIGA
 (defconstant *registers*
-  '#(:D0 :D1 :D2 :D3 :D4 :D5 :D6 :D7 :A0 :A1 :A2 :A3 :A4 :A5 :A6)
-)
+  '#(:D0 :D1 :D2 :D3 :D4 :D5 :D6 :D7 :A0 :A1 :A2 :A3 :A4 :A5 :A6))
 
 ;; ============================ C types ============================
 
@@ -115,10 +104,8 @@
           '(nil boolean character char uchar short ushort int uint long ulong
             uint8 sint8 uint16 sint16 uint32 sint32 uint64 sint64
             single-float double-float
-            c-pointer c-string
-        )  )
-  (setf (gethash c-type *c-type-table*) c-type)
-)
+            c-pointer c-string))
+  (setf (gethash c-type *c-type-table*) c-type))
 
 ;; parse the components of a C-STRUCT or C-UNION
 (defun parse-components (typespec)
@@ -253,71 +240,54 @@
     (dolist (option options)
       (unless (and (consp option) (member (first option) keywords))
         (error (ENGLISH "Invalid option in ~S: ~S")
-               whole option
-      ) )
+               whole option))
       (when (assoc (first option) alist)
         (error (ENGLISH "Only one ~S option is allowed: ~S")
-              (first option) whole
-      ) )
-      (push option alist)
-    )
-    alist
-) )
+              (first option) whole))
+      (push option alist))
+    alist))
 
 (defun parse-c-function (alist whole)
   (vector
     'C-FUNCTION
     (parse-c-type (or (second (assoc ':return-type alist)) 'nil))
-    (coerce (mapcap #'(lambda (argspec)
-                        (unless (and (listp argspec)
-                                     (symbolp (first argspec))
-                                     (<= 2 (length argspec) #-AMIGA 4 #+AMIGA 5)
-                                )
-                          (error (ENGLISH "Invalid parameter specification in ~S: ~S")
-                                 whole argspec
-                        ) )
-                        (let* ((argtype (parse-c-type (second argspec)))
-                               (argmode (if (cddr argspec) (third argspec) ':IN))
-                               (argalloc (if (cdddr argspec)
-                                           (fourth argspec)
-                                           (if (or (eq argtype 'C-STRING)
-                                                   (and (simple-vector-p argtype)
-                                                        (case (svref argtype 0) ((C-PTR C-PTR-NULL C-ARRAY-PTR) t))
-                                                   )
-                                                   (eq argmode ':OUT)
-                                               )
+    (coerce (mapcap (lambda (argspec)
+                      (unless (and (listp argspec)
+                                   (symbolp (first argspec))
+                                   (<= 2 (length argspec) #-AMIGA 4 #+AMIGA 5))
+                        (error (ENGLISH "Invalid parameter specification in ~S: ~S")
+                               whole argspec))
+                      (let* ((argtype (parse-c-type (second argspec)))
+                             (argmode (if (cddr argspec) (third argspec) ':IN))
+                             (argalloc (if (cdddr argspec)
+                                         (fourth argspec)
+                                         (if (or (eq argtype 'C-STRING)
+                                                 (and (simple-vector-p argtype)
+                                                      (case (svref argtype 0) ((C-PTR C-PTR-NULL C-ARRAY-PTR) t)))
+                                                 (eq argmode ':OUT))
                                              ':ALLOCA
-                                             ':NONE
-                              ))         ) )
-                          (list argtype
-                                (+ (ecase argmode
-                                     ((:IN :READ-ONLY) 0)
-                                     ((:OUT :WRITE-ONLY) ff-flag-out)
-                                     ((:IN-OUT :READ-WRITE) ff-flag-in-out)
-                                   )
-                                   (ecase argalloc
-                                     (:NONE 0)
-                                     (:ALLOCA ff-flag-alloca)
-                                     (:MALLOC-FREE ff-flag-malloc-free)
-                                   )
-                                   #+AMIGA
-                                   (if (cddddr argspec)
-                                     (ash (1+ (position (fifth argspec) *registers*)) 8)
-                                     0
-                                   )
-                      ) ) )     )
-                    (or (rest (assoc ':arguments alist)) '())
-            )
-            'simple-vector
-    )
+                                             ':NONE))))
+                        (list argtype
+                              (+ (ecase argmode
+                                   ((:IN :READ-ONLY) 0)
+                                   ((:OUT :WRITE-ONLY) ff-flag-out)
+                                   ((:IN-OUT :READ-WRITE) ff-flag-in-out))
+                                 (ecase argalloc
+                                   (:NONE 0)
+                                   (:ALLOCA ff-flag-alloca)
+                                   (:MALLOC-FREE ff-flag-malloc-free))
+                                 #+AMIGA
+                                 (if (cddddr argspec)
+                                   (ash (1+ (position (fifth argspec) *registers*)) 8)
+                                   0)))))
+                    (or (rest (assoc ':arguments alist)) '()))
+            'simple-vector)
     (+ (let ((rettype (assoc ':return-type alist)))
          (if (cddr rettype)
            (ecase (third rettype)
              (:NONE 0)
-             (:MALLOC-FREE ff-flag-malloc-free)
-           )
-           0
-       ) )
+             (:MALLOC-FREE ff-flag-malloc-free))
+           0))
        (let ((languages (assoc ':language alist)))
          (if languages
            (reduce #'+ (rest languages)
@@ -327,36 +297,28 @@
                               (:STDC ff-language-ansi-c)
                               (:STDC-STDCALL (+ ff-language-ansi-c ff-language-stdcall))
            )              ) )
-           ff-language-c ; Default is K&R C
-       ) )
-    )
-) )
+           ff-language-c)))))   ; Default is K&R C
 
 (defun parse-foreign-name (name)
   (unless (stringp name)
     (error (ENGLISH "The name must be a string, not ~S")
-           name
-  ) )
+           name))
   (if (c-ident-p name)
     name
     (error (ENGLISH "The name ~S is not a valid C identifier")
-           name
-) ) )
+           name)))
 
 (defun check-symbol (whole &optional (name (second whole)))
   (unless (symbolp name)
     (sys::error-of-type 'sys::source-program-error
       (ENGLISH "~S: this is not a symbol: ~S")
-      (first whole) name
-) ) )
+      (first whole) name)))
 
 (defmacro DEF-C-TYPE (&whole whole name typespec)
   (check-symbol whole)
   `(EVAL-WHEN (LOAD COMPILE EVAL)
      (PARSE-C-TYPE ',typespec ',name)
-     ',name
-   )
-)
+     ',name))
 
 ; Convert back a C type from internal (vector) to external (list)
 ; representation. Both representations may be circular.
@@ -477,26 +439,19 @@
   (object-table (make-hash-table :test #'equal))
   (type-table (make-hash-table :test #'eq))
   (variable-list '())
-  (function-list '())
-)
+  (function-list '()))
 (define-symbol-macro *name*
-          (ffi-module-name *ffi-module*)
-)
+    (ffi-module-name *ffi-module*))
 (define-symbol-macro *c-name*
-          (ffi-module-c-name *ffi-module*)
-)
+    (ffi-module-c-name *ffi-module*))
 (define-symbol-macro *object-table*
-          (ffi-module-object-table *ffi-module*)
-)
+    (ffi-module-object-table *ffi-module*))
 (define-symbol-macro *type-table*
-          (ffi-module-type-table *ffi-module*)
-)
+    (ffi-module-type-table *ffi-module*))
 (define-symbol-macro *variable-list*
-          (ffi-module-variable-list *ffi-module*)
-)
+    (ffi-module-variable-list *ffi-module*))
 (define-symbol-macro *function-list*
-          (ffi-module-function-list *ffi-module*)
-)
+    (ffi-module-function-list *ffi-module*))
 
 ; Convert a file name to a C module name.
 ; This must agree with some sed command in clisp-link.in.
@@ -522,10 +477,8 @@
            #'(lambda (ch)
                (if (and (standard-char-p ch) (alphanumericp ch))
                  (write-char ch s)
-                 (format s "_~2X" (char-code ch))
-             ) )
-           name
-) ) ) )
+                 (format s "_~2X" (char-code ch))))
+           name))))
 
 ; Prepare the conversion of a C type to its C representation.
 ; Calling this will generate a "typedef" declaration for some C types.
@@ -536,13 +489,12 @@
 (defun prepare-c-typedecl (c-type)
   (unless (gethash c-type *type-table*)
     (case (and (simple-vector-p c-type) (plusp (length c-type))
-               (svref c-type 0)
-          )
+               (svref c-type 0))
       ((c-struct c-union c-array c-array-max)
        (let ((new-typename (symbol-name (gensym "g"))))
-         (format *coutput-stream* "~%typedef ~A;~%" (to-c-typedecl c-type new-typename))
-         (setf (gethash c-type *type-table*) new-typename)
-) ) ) ))
+         (format *coutput-stream* "~%typedef ~A;~%"
+                 (to-c-typedecl c-type new-typename))
+         (setf (gethash c-type *type-table*) new-typename))))))
 
 ; Convert a C type to its C representation.
 (defun to-c-typedecl (c-type name)
@@ -610,10 +562,9 @@
     (setq *ffi-module*
           (let ((module-name (pathname-name *coutput-file*)))
             (make-ffi-module :name module-name
-                             :c-name (to-module-name module-name))
-    ) )
-    (format *coutput-stream* "extern object module__~A__object_tab[];~%" *c-name*)
-) )
+                             :c-name (to-module-name module-name))))
+    (format *coutput-stream* "extern object module__~A__object_tab[];~%"
+            *c-name*)))
 (defun finalize-coutput-file ()
   (when *ffi-module*
     (format *coutput-stream* "~%")
@@ -625,106 +576,89 @@
       (if (zerop count)
         (progn
           (format *coutput-stream* "object module__~A__object_tab[1];~%" *c-name*)
-          (format *coutput-stream* "object_initdata module__~A__object_tab_initdata[1];~%" *c-name*)
-        )
+          (format *coutput-stream* "object_initdata module__~A__object_tab_initdata[1];~%" *c-name*))
         (let ((v (make-array count)))
           (format *coutput-stream* "object module__~A__object_tab[~D];~%" *c-name* count)
           (format *coutput-stream* "object_initdata module__~A__object_tab_initdata[~D] = {~%" *c-name* count)
           (dohash (key value *object-table*)
             (declare (ignore key))
-            (setf (svref v (cdr value)) (car value))
-          )
+            (setf (svref v (cdr value)) (car value)))
           (map nil #'(lambda (initstring)
-                       (format *coutput-stream* "  { ~A },~%" (to-c-string initstring))
-                     )
-                   v
-          )
-          (format *coutput-stream* "};~%")
-      ) )
-      (format *coutput-stream* "uintC module__~A__object_tab_size = ~D;~%" *c-name* count)
-    )
+                       (format *coutput-stream* "  { ~A },~%"
+                               (to-c-string initstring)))
+                   v)
+          (format *coutput-stream* "};~%")))
+      (format *coutput-stream* "uintC module__~A__object_tab_size = ~D;~%"
+              *c-name* count))
     (format *coutput-stream* "~%")
-    (setq *variable-list* (nreverse (delete-duplicates *variable-list* :key #'first :test #'equal)))
+    (setq *variable-list*
+          (nreverse (delete-duplicates
+                     *variable-list* :key #'first :test #'equal)))
     (dolist (variable *variable-list*)
       ;(prepare-c-typedecl (second variable))
       (format *coutput-stream* "extern ~A;~%"
-              (to-c-typedecl (second variable) (first variable))
-    ) )
-    (setq *function-list* (nreverse (delete-duplicates *function-list* :key #'first :test #'equal)))
+              (to-c-typedecl (second variable) (first variable))))
+    (setq *function-list*
+          (nreverse (delete-duplicates
+                     *function-list* :key #'first :test #'equal)))
     (dolist (function *function-list*)
       ;(prepare-c-typedecl (svref (second function) 1))
       (format *coutput-stream* "extern ~A;~%"
               (to-c-typedecl (svref (second function) 1)
-                             (format nil "(~A)()" (first function))
-    ) )       )
-    (format *coutput-stream* "
-void module__~A__init_function_1(module)
-  var module_* module;
-{ }~%"
-            *c-name*
-    )
-    (format *coutput-stream* "
-void module__~A__init_function_2(module)
-  var module_* module;
-{~%"
-            *c-name*
-    )
+                             (format nil "(~A)()" (first function)))))
+    (format *coutput-stream* "~%void module__~A__init_function_1(module)
+  var module_* module;~%{ }~%"
+            *c-name*)
+    (format *coutput-stream* "~%void module__~A__init_function_2(module)
+  var module_* module;~%{~%"
+            *c-name*)
     (dolist (variable *variable-list*)
-      (format *coutput-stream* "  register_foreign_variable(&~A,~A,~D,sizeof(~A));~%"
-              (first variable) (to-c-string (first variable)) (third variable) (first variable)
-    ) )
+      (format *coutput-stream*
+              "  register_foreign_variable(&~A,~A,~D,sizeof(~A));~%"
+              (first variable) (to-c-string (first variable))
+              (third variable) (first variable)))
     (dolist (function *function-list*)
       (format *coutput-stream* "  register_foreign_function(&~A,~A,~D);~%"
-              (first function) (to-c-string (first function)) (svref (second function) 3)
-    ) )
-    (format *coutput-stream* "}~%")
-) )
+              (first function) (to-c-string (first function))
+              (svref (second function) 3)))
+    (format *coutput-stream* "}~%")))
 
 ; Allocate a new object in the module's object_tab.
 (defun new-object (read-only-p initstring)
   (when read-only-p
     (let ((h (gethash initstring *object-table*)))
       (when h
-        (return-from new-object (cdr h)) ; no need to allocate a new one
-  ) ) )
+        (return-from new-object (cdr h))))) ; no need to allocate a new one
   (let ((index (hash-table-count *object-table*)))
     (setf (gethash (if read-only-p initstring (gensym)) *object-table*)
-          (cons initstring index)
-    )
-    index
-) )
+          (cons initstring index))
+    index))
 
 ; Pass an object from the compilation environment to the module.
 (defun pass-object (object)
   (new-object t
               (let ((*package* compiler::*keyword-package*))
-                (write-to-string object :readably t :pretty nil)
-) )           )
+                (write-to-string object :readably t :pretty nil))))
 
 ; Convert an object's index to a C lvalue.
 (defun object-to-c-value (index)
-  (format nil "module__~A__object_tab[~D]" *c-name* index)
-)
+  (format nil "module__~A__object_tab[~D]" *c-name* index))
 
 ; Output some C text literally.
 (defmacro C-LINES (format-string &rest args)
   `(EVAL-WHEN (COMPILE)
-     (DO-C-LINES ,format-string ,@args)
-   )
-)
+     (DO-C-LINES ,format-string ,@args)))
 (defun do-c-lines (format-string &rest args)
   (when (compiler::prepare-coutput-file)
     (prepare-module)
-    (apply #'format *coutput-stream* format-string args)
-) )
+    (apply #'format *coutput-stream* format-string args)))
 
 ;; ============================ named C variables ============================
 
 (defun foreign-name (lisp-name name-option)
   (if name-option
     (parse-foreign-name (second name-option))
-    (to-c-name lisp-name)
-) )
+    (to-c-name lisp-name)))
 
 (defmacro DEF-C-VAR (&whole whole name &rest options)
   (check-symbol whole)
@@ -733,19 +667,15 @@ void module__~A__init_function_2(module)
          (type (second (or (assoc ':type alist)
                            (sys::error-of-type 'sys::source-program-error
                                   (ENGLISH "~S: ~S option missing in ~S")
-                                  'def-c-var ':type whole
-         )     )       )   )
+                                  'def-c-var ':type whole))))
          (read-only (second (assoc ':read-only alist)))
          (flags (+ (if read-only fv-flag-readonly 0)
                    (let ((alloc (assoc ':alloc alist)))
                      (if (cdr alloc)
                        (ecase (second alloc)
                          (:NONE 0)
-                         (:MALLOC-FREE fv-flag-malloc-free)
-                       )
-                       0
-                   ) )
-         )      )
+                         (:MALLOC-FREE fv-flag-malloc-free))
+                       0))))
          #|
          (getter-function-name (sys::symbol-suffix name "%GETTER%"))
          (setter-function-name (sys::symbol-suffix name "%SETTER%"))
@@ -765,28 +695,22 @@ void module__~A__init_function_2(module)
        |#
        (SYSTEM::%PUT ',name 'FOREIGN-VARIABLE
          (LOAD-TIME-VALUE
-           (FFI::LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type))
-       ) )
+           (FFI::LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type))))
        (DEFINE-SYMBOL-MACRO ,name
-         (FFI::FOREIGN-VALUE (LOAD-TIME-VALUE (GET ',name 'FOREIGN-VARIABLE)))
-       )
-       ',name
-     )
-) )
+         (FFI::FOREIGN-VALUE (LOAD-TIME-VALUE (GET ',name 'FOREIGN-VARIABLE))))
+       ',name)))
 
 (defun note-c-var (c-name type flags)
   (when (compiler::prepare-coutput-file)
     (prepare-module)
-    (push (list c-name (parse-c-type type) flags) *variable-list*)
-) )
+    (push (list c-name (parse-c-type type) flags) *variable-list*)))
 
 (defsetf ffi::foreign-value ffi::set-foreign-value)
 
 ;; ============================ named C functions ============================
 
 (defmacro DEF-C-CALL-OUT (name &rest options)
-  `(DEF-CALL-OUT ,name ,@options (:LANGUAGE :STDC))
-)
+  `(DEF-CALL-OUT ,name ,@options (:LANGUAGE :STDC)))
 
 (defmacro DEF-CALL-OUT (&whole whole name &rest options)
   (check-symbol whole)
@@ -802,17 +726,13 @@ void module__~A__init_function_2(module)
          (EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',name ',signature))
          (SYSTEM::%PUTD ',name
            (FFI::LOOKUP-FOREIGN-FUNCTION ',c-name
-                                         (PARSE-C-FUNCTION ',alist ',whole)
-       ) ) )
-       ',name
-     )
-) )
+                                         (PARSE-C-FUNCTION ',alist ',whole))))
+       ',name)))
 
 (defun note-c-fun (c-name alist whole)
   (when (compiler::prepare-coutput-file)
     (prepare-module)
-    (push (list c-name (parse-c-function alist whole)) *function-list*)
-) )
+    (push (list c-name (parse-c-function alist whole)) *function-list*)))
 
 #+AMIGA
 (defmacro DEF-LIB-CALL-OUT (&whole whole name library &rest options)
@@ -830,15 +750,11 @@ void module__~A__init_function_2(module)
          (FFI::FOREIGN-LIBRARY-FUNCTION ',c-name
            (FFI::FOREIGN-LIBRARY ',library)
            ',offset
-           (PARSE-C-FUNCTION ',(remove (assoc ':name alist) alist) ',whole)
-       ) )
-       ',name
-     )
-) )
+           (PARSE-C-FUNCTION ',(remove (assoc ':name alist) alist) ',whole)))
+       ',name)))
 
 (defmacro DEF-C-CALL-IN (name &rest options)
-  `(DEF-CALL-IN ,name ,@options (:LANGUAGE :STDC))
-)
+  `(DEF-CALL-IN ,name ,@options (:LANGUAGE :STDC)))
 
 (defmacro DEF-CALL-IN (&whole whole name &rest options)
   (check-symbol whole)
@@ -847,9 +763,7 @@ void module__~A__init_function_2(module)
     (setq alist (remove (assoc ':name alist) alist))
     `(PROGN
        (EVAL-WHEN (COMPILER::COMPILE-ONCE-ONLY) (NOTE-C-CALL-IN ',name ',c-name ',alist ',whole))
-       ',name
-     )
-) )
+       ',name)))
 
 (defun note-c-call-in (name c-name alist whole)
   (when (compiler::prepare-coutput-file)
@@ -861,23 +775,18 @@ void module__~A__init_function_2(module)
            (argtypes (do ((i 0 (+ i 2))
                           (l '()))
                          ((>= i (length args)) (nreverse l))
-                       (push (svref args i) l)
-           )         )
+                       (push (svref args i) l)))
            (argflags (do ((i 1 (+ i 2))
                           (l '()))
                          ((>= i (length args)) (nreverse l))
-                       (push (svref args i) l)
-           )         )
+                       (push (svref args i) l)))
            (argnames (mapcar #'(lambda (argtype) (declare (ignore argtype))
-                                 (symbol-name (gensym "g"))
-                               )
-                             argtypes
-          ))         )
+                                 (symbol-name (gensym "g")))
+                             argtypes)))
       (prepare-c-typedecl rettype)
       ;(mapc #'prepare-c-typedecl argtypes)
       (format *coutput-stream* "~%global ~A "
-              (to-c-typedecl rettype (format nil "(~A)" c-name))
-      )
+              (to-c-typedecl rettype (format nil "(~A)" c-name)))
       (if (not (zerop (logand flags ff-language-ansi-c)))
         ; ANSI C parameter declarations
         (progn
@@ -887,72 +796,60 @@ void module__~A__init_function_2(module)
                  (argnamesr argnames (cdr argnamesr)))
                 ((null argtypesr))
               (format *coutput-stream* "~A" (to-c-typedecl (car argtypesr) (car argnamesr)))
-              (when (cdr argtypesr) (format *coutput-stream* ", "))
-            )
-            (format *coutput-stream* "void")
-          )
-          (format *coutput-stream* ")")
-        )
+              (when (cdr argtypesr) (format *coutput-stream* ", ")))
+            (format *coutput-stream* "void"))
+          (format *coutput-stream* ")"))
         ; K&R C parameter declarations
         (progn
           (format *coutput-stream* "(")
           (do ((argnamesr argnames (cdr argnamesr)))
               ((null argnamesr))
             (format *coutput-stream* "~A" (car argnamesr))
-            (when (cdr argnamesr) (format *coutput-stream* ", "))
-          )
+            (when (cdr argnamesr) (format *coutput-stream* ", ")))
           (format *coutput-stream* ")")
           (do ((argtypesr argtypes (cdr argtypesr))
                (argnamesr argnames (cdr argnamesr)))
               ((null argtypesr))
-            (format *coutput-stream* "~%  ~A;" (to-c-typedecl (car argtypesr) (car argnamesr)))
-        ) )
-      )
+            (format *coutput-stream* "~%  ~A;"
+                    (to-c-typedecl (car argtypesr) (car argnamesr))))))
       (format *coutput-stream* "~%{~%  begin_callback();~%")
       (let ((inargcount 0) (outargcount (if (eq rettype 'NIL) 0 1)))
         (mapc #'(lambda (argtype argflag argname)
                   (when (zerop (logand argflag ff-flag-out))
-                    (format *coutput-stream* "  pushSTACK(convert_from_foreign(~A,&~A));~%" (object-to-c-value (pass-object argtype)) argname)
-                    (incf inargcount)
-                  )
+                    (format *coutput-stream*
+                            "  pushSTACK(convert_from_foreign(~A,&~A));~%"
+                            (object-to-c-value (pass-object argtype)) argname)
+                    (incf inargcount))
                   (unless (zerop (logand argflag (logior ff-flag-out ff-flag-in-out)))
-                    (incf outargcount)
-                ) )
-              argtypes argflags argnames
-        )
-        (format *coutput-stream* "  funcall(~A,~D);~%" (object-to-c-value (pass-object name)) inargcount)
+                    (incf outargcount)))
+              argtypes argflags argnames)
+        (format *coutput-stream* "  funcall(~A,~D);~%"
+                (object-to-c-value (pass-object name)) inargcount)
         (unless (eq rettype 'NIL)
           (format *coutput-stream* " {~%")
           (format *coutput-stream* "  var ~A;~%" (to-c-typedecl rettype "retval"))
           (format *coutput-stream* "  ~A(~A,value1,&retval);~%"
                   (if (zerop (logand flags ff-flag-malloc-free)) "convert_to_foreign_nomalloc" "convert_to_foreign_mallocing")
-                  (object-to-c-value (pass-object rettype))
-        ) )
+                  (object-to-c-value (pass-object rettype))))
         (let ((outargcount (if (eq rettype 'NIL) 0 1)))
           (mapc #'(lambda (argtype argflag argname)
                     (unless (zerop (logand argflag (logior ff-flag-out ff-flag-in-out)))
                       (unless (and (simple-vector-p argtype) (eql (length argtype) 2) (eq (svref argtype 0) 'C-PTR))
                         (error (ENGLISH "~S: :OUT argument is not a pointer: ~S")
-                               'DEF-CALL-IN argtype
-                      ) )
+                               'DEF-CALL-IN argtype))
                       (format *coutput-stream* "  ~A~A(~A,~A,~A);~%"
                               (if (eql outargcount 0) "" (format nil "if (mv_count >= ~D) " (+ outargcount 1)))
                               (if (zerop (logand argflag ff-flag-malloc-free)) "convert_to_foreign_nomalloc" "convert_to_foreign_mallocing")
                               (object-to-c-value (pass-object (svref argtype 1)))
                               (if (eql outargcount 0) "value1" (format nil "mv_space[~D]" outargcount))
-                              argname
-                      )
-                      (incf outargcount)
-                  ) )
-                argtypes argflags argnames
-        ) )
+                              argname)
+                      (incf outargcount)))
+                argtypes argflags argnames))
         (format *coutput-stream* "  end_callback();~%")
         (unless (eq rettype 'NIL)
           (format *coutput-stream* "  return retval;~%")
-          (format *coutput-stream* " }~%")
-      ) )
-      (format *coutput-stream* "}~%")
-) ) )
+          (format *coutput-stream* " }~%")))
+      (format *coutput-stream* "}~%"))))
 
 ;; ===========================================================================
 
@@ -997,41 +894,34 @@ void module__~A__init_function_2(module)
 (flet ((err (whole)
          (sys::error-of-type 'sys::source-program-error
            (ENGLISH "~S is only allowed after ~S: ~S")
-           (first whole) 'FOREIGN-VALUE whole
-      )) )
+           (first whole) 'FOREIGN-VALUE whole)))
   (defmacro element (place &rest indices &environment env)
     (setq place (macroexpand place env))
     (if (and (consp place) (eq (first place) 'FOREIGN-VALUE) (eql (length place) 2))
       `(FOREIGN-VALUE (%ELEMENT ,(second place) ,@indices))
-      (err `(element ,place ,@indices))
-  ) )
+      (err `(element ,place ,@indices))))
   (defmacro deref (place &environment env)
     (setq place (macroexpand place env))
     (if (and (consp place) (eq (first place) 'FOREIGN-VALUE) (eql (length place) 2))
       `(FOREIGN-VALUE (%DEREF ,(second place)))
-      (err `(deref ,place))
-  ) )
+      (err `(deref ,place))))
   (defmacro slot (place slotname &environment env)
     (setq place (macroexpand place env))
     (if (and (consp place) (eq (first place) 'FOREIGN-VALUE) (eql (length place) 2))
       `(FOREIGN-VALUE (%SLOT ,(second place) ,slotname))
-      (err `(slot ,place ,slotname))
-  ) )
+      (err `(slot ,place ,slotname))))
   (defmacro cast (place type &environment env)
     (setq place (macroexpand place env))
     (if (and (consp place) (eq (first place) 'FOREIGN-VALUE) (eql (length place) 2))
       `(FOREIGN-VALUE (%CAST ,(second place) (PARSE-C-TYPE ,type)))
-      (err `(cast ,place ,type))
-  ) )
+      (err `(cast ,place ,type))))
   ; Similarly for TYPEOF.
   ; (typeof (foreign-value x)) --> (deparse-c-type (foreign-type x))
   (defmacro typeof (place &environment env)
     (setq place (macroexpand place env))
     (if (and (consp place) (eq (first place) 'FOREIGN-VALUE) (eql (length place) 2))
       `(DEPARSE-C-TYPE (FOREIGN-TYPE ,(second place)))
-      (err `(typeof ,place))
-  ) )
-)
+      (err `(typeof ,place)))))
 
 ; Similar tricks are being played for SIZEOF, BITSIZEOF. They are macros which
 ; work on <c-place>s. If the argument is not a <c-place>, they behave like
@@ -1047,23 +937,20 @@ void module__~A__init_function_2(module)
     `(%SIZEOF (FOREIGN-TYPE ,(second place)))
     (if (and (consp place) (eq (first place) 'DEPARSE-C-TYPE) (eql (length place) 2))
       `(%SIZEOF ,(second place))
-      `(%SIZEOF (PARSE-C-TYPE ,place))
-) ) )
+      `(%SIZEOF (PARSE-C-TYPE ,place)))))
 (defmacro bitsizeof (place &environment env)
   (setq place (macroexpand place env))
   (if (and (consp place) (eq (first place) 'FOREIGN-VALUE) (eql (length place) 2))
     `(%BITSIZEOF (FOREIGN-TYPE ,(second place)))
     (if (and (consp place) (eq (first place) 'DEPARSE-C-TYPE) (eql (length place) 2))
       `(%BITSIZEOF ,(second place))
-      `(%BITSIZEOF (PARSE-C-TYPE ,place))
-) ) )
+      `(%BITSIZEOF (PARSE-C-TYPE ,place)))))
 
 ;; ===========================================================================
 
 #+UNICODE
 (progn
   (define-symbol-macro *foreign-encoding* (system::foreign-encoding))
-  (defsetf system::foreign-encoding system::set-foreign-encoding)
-)
+  (defsetf system::foreign-encoding system::set-foreign-encoding))
 
 ;; ===========================================================================
