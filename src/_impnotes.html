@@ -3988,6 +3988,63 @@ if both the old and the new element type are either
       <code>(signed-byte <var>n</var>)</code>, with the same <var>n</var>.
 </ul>
 
+<h4>binary input,
+    <a href="CLHSROOT/Body/fun_read-byte.html">
+    read-byte</a></h4>
+
+<p>The function
+<code>(<strong>read-integer</strong> <var>stream</var> <var>element-type</var>
+[<var>endianness</var> [<var>eof-error-p</var> [<var>eof-value</var>]]])</code>
+reads a multi-byte integer from <var>stream</var>.
+<var>stream</var> should be a stream with element-type
+<code>(unsigned-byte 8)</code>.
+<var>element-type</var> should be a type equivalent to
+<code>(unsigned-byte <var>n</var>)</code>, where <var>n</var> is a multiple
+of 8.
+<code>(read-integer <var>stream</var> <var>element-type</var>)</code>
+is like <code>(<a href="CLHSROOT/Body/fun_read-byte.html">read-byte</a>
+<var>stream</var>)</code> if <var>stream</var>'s element type were set
+to <var>element-type</var>, except that <var>stream</var>'s
+<a href="CLHSROOT/Body/fun_file-position.html">file-position</a> will
+increase by <sup><var>n</var></sup>/<sub>8</sub> instead of 1.
+
+<p><var>endianness</var> can be <code>:little</code> or <code>:big</code>.
+The default is <code>:little</code>, which corresponds to the
+<a href="CLHSROOT/Body/fun_read-byte.html"><code>read-byte</code></a>
+behaviour in CLISP.
+
+<p>Together with <code>(setf stream-element-type)</code>, this function
+permits mixed character/binary input from a stream.
+
+<h4>binary output,
+    <a href="CLHSROOT/Body/fun_write-byte.html">
+    write-byte</a></h4>
+
+<p>The function
+<code>(<strong>write-integer</strong> <var>integer</var> <var>stream</var>
+<var>element-type</var> [<var>endianness</var>])</code>
+writes a multi-byte integer to <var>stream</var>.
+<var>stream</var> should be a stream with element-type
+<code>(unsigned-byte 8)</code>.
+<var>element-type</var> should be a type equivalent to
+<code>(unsigned-byte <var>n</var>)</code>, where <var>n</var> is a multiple
+of 8.
+<code>(write-integer <var>integer</var> <var>stream</var>
+<var>element-type</var>)</code>
+is like <code>(<a href="CLHSROOT/Body/fun_write-byte.html">write-byte</a>
+<var>integer</var> <var>stream</var>)</code> if <var>stream</var>'s element
+type were set to <var>element-type</var>, except that <var>stream</var>'s
+<a href="CLHSROOT/Body/fun_file-position.html">file-position</a> will
+increase by <sup><var>n</var></sup>/<sub>8</sub> instead of 1.
+
+<p><var>endianness</var> can be <code>:little</code> or <code>:big</code>.
+The default is <code>:little</code>, which corresponds to the
+<a href="CLHSROOT/Body/fun_write-byte.html"><code>write-byte</code></a>
+behaviour in CLISP.
+
+<p>Together with <code>(setf stream-element-type)</code>, this function
+permits mixed character/binary output to a stream.
+
 <h4><a href="CLHSROOT/Body/fun_close.html">
     close</a></h4>
 
