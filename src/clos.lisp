@@ -1481,7 +1481,8 @@
 
 (defstruct (method (:predicate nil) (:copier nil) (:constructor nil)))
 
-(defstruct (standard-method (:include method) (:conc-name "STD-METHOD-")) ; (:print-object print-std-method)
+(defstruct (standard-method (:include method) (:conc-name "STD-METHOD-")
+                            (:copier nil)) ; (:print-object print-std-method)
   function               ; the function
   wants-next-method-p    ; flag, if the NEXT-METHOD (as function with all
                          ; arguments) resp. NIL is to be passed as first argument
@@ -2620,11 +2621,8 @@ in the generic function instance."
 ;; Add a method to a generic function
 (defun std-add-method (gf method)
   (check-signature-congruence gf method)
-  ;; copy method, so that one can enter gf:
-  (when (std-method-wants-next-method-p method)
-    (setq method (copy-standard-method method))
-    (setf (std-method-function method) nil)
-    (setf (std-method-gf method) gf))
+  (setf (std-method-function method) nil
+        (std-method-gf method) gf)
   ;; determine function from initfunction:
   (when (null (std-method-function method))
     (let ((h (funcall (std-method-initfunction method) method)))
