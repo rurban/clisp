@@ -603,7 +603,7 @@
 # Global register declarations.
 # They must occur before any system include files define any inline function,
 # which is the case on UNIX_DGUX and UNIX_LINUX.
-  #if defined(GNU) && !defined(__cplusplus) && (SAFETY < 2)
+  #if defined(GNU) && !defined(__cplusplus) && !defined(MULTITHREAD) && (SAFETY < 2)
     # Overview of use of registers in gcc terminology:
     # fixed: mentioned in FIXED_REGISTERS
     # used:  mentioned in CALL_USED_REGISTERS but not FIXED_REGISTERS (i.e. caller-saved)
@@ -735,7 +735,11 @@
                  long subr_self_register_contents;
                #endif
              };
-      extern struct registers * callback_saved_registers;
+      #ifndef MULTITHREAD
+        extern struct registers * callback_saved_registers;
+      #else
+        #define callback_saved_registers  (current_thread()->_callback_saved_registers)
+      #endif
       #ifdef STACK_register
         register long STACK_reg __asm__(STACK_register);
         #define SAVE_STACK_register(registers)     registers->STACK_register_contents = STACK_reg;
@@ -1739,6 +1743,10 @@
 
 #include "xthread.c"
 
+#if !(defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))
+  #error "Multithreading requires memory mapping facilities!"
+#endif
+
 #endif
 
 # ##################### Weitere System-Abhängigkeiten ##################### #
@@ -1977,6 +1985,9 @@
 # (Bei WIDE_SOFT ist das Schreiben eines Pointers i.a. keine Elementar-Operation mehr!)
   #if defined(WIDE_SOFT) && !(defined(GNU) && defined(SPARC))
     #define NO_ASYNC_INTERRUPTS
+  #endif
+  #if defined(NO_ASYNC_INTERRUPTS) && defined(MULTITHREAD)
+    #error "No multithreading possible with this memory model!"
   #endif
 # Bei Erweiterung: SPVW erweitern, interruptp() schreiben.
 
@@ -7360,15 +7371,84 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # SP() liefert den aktuellen Wert des SP.
 # setSP(adresse); setzt den SP auf einen gegebenen Wert. Extrem gefährlich!
 # FAST_SP definiert, falls SP-Zugriffe schnell sind.
+  #ifdef GNU
+    # Definition des Registers, in dem SP liegt.
+    #ifdef MC680X0
+      #define SP_register "sp"  # %sp = %a7
+    #endif
+    #ifdef SPARC
+      #define SP_register "%sp"  # %sp = %o6
+    #endif
+    #ifdef HPPA
+      #define SP_register "%r30"  # %sp = %r30
+    #endif
+    #ifdef MIPS
+      #define SP_register "$sp"  # $sp = $29
+    #endif
+    #ifdef M88000
+      #define SP_register "%r31"  # %sp = %r31
+    #endif
+    #ifdef RS6000
+      #define SP_register "r1"
+    #endif
+    #ifdef ARM
+      #define SP_register "%sp"  # %sp = %r13
+    #endif
+    #ifdef CONVEX
+      #define SP_register "sp"  # $sp = $a0
+    #endif
+    #ifdef DECALPHA
+      #define SP_register "$30"  # $sp = $30
+    #endif
+    #ifdef I80386
+      #define SP_register "%esp"
+    #endif
+    #ifdef VAX
+      #define SP_register "sp"
+    #endif
+  #endif
+  #if defined(GNU) && !defined(NO_ASM)
+    # Assembler-Anweisung, die das SP-Register in eine Variable kopiert.
+    #ifdef MC680X0
+      #ifdef __REGISTER_PREFIX__ # GNU C Version >= 2.4 hat %/ und __REGISTER_PREFIX__
+        # Aber der Wert von __REGISTER_PREFIX__ ist unbrauchbar, weil wir evtl.
+        # cross-compilieren.
+        #define REGISTER_PREFIX  "%/"
+      #else
+        #define REGISTER_PREFIX  "" # oder "%%", je nach verwendetem Assembler
+      #endif
+      #define ASM_get_SP_register(resultvar)  ("movel "REGISTER_PREFIX"sp,%0" : "=g" (resultvar) : )
+    #endif
+    #ifdef SPARC
+      #define ASM_get_SP_register(resultvar)  ("mov %%sp,%0" : "=r" (resultvar) : )
+    #endif
+    #ifdef HPPA
+      #define ASM_get_SP_register(resultvar)  ("copy %%r30,%0" : "=r" (resultvar) : )
+    #endif
+    #ifdef MIPS
+      #define ASM_get_SP_register(resultvar)  ("move\t%0,$sp" : "=r" (resultvar) : )
+    #endif
+    #ifdef M88000
+      #define ASM_get_SP_register(resultvar)  ("or %0,#r0,#r31" : "=r" (resultvar) : )
+    #endif
+    #ifdef RS6000
+      #define ASM_get_SP_register(resultvar)  ("mr %0,1" : "=r" (resultvar) : )
+    #endif
+    #ifdef ARM
+      #define ASM_get_SP_register(resultvar)  ("mov\t%0, sp" : "=r" (resultvar) : )
+    #endif
+    #ifdef CONVEX
+      #define ASM_get_SP_register(resultvar)  ("mov sp,%0" : "=r" (resultvar) : )
+    #endif
+    #ifdef DECALPHA
+      #define ASM_get_SP_register(resultvar)  ("bis $30,$30,%0" : "=r" (resultvar) : )
+    #endif
+    #ifdef I80386
+      #define ASM_get_SP_register(resultvar)  ("movl %%esp,%0" : "=g" (resultvar) : )
+    #endif
+  #endif
   #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
     # Zugriff auf eine globale Register"variable" SP
-    #ifdef __REGISTER_PREFIX__ # GNU C Version >= 2.4 hat %/ und __REGISTER_PREFIX__
-      # Aber der Wert von __REGISTER_PREFIX__ ist unbrauchbar, weil wir evtl.
-      # cross-compilieren.
-      #define REGISTER_PREFIX  "%/"
-    #else
-      #define REGISTER_PREFIX  "" # oder "%%", je nach verwendetem Assembler
-    #endif
     #define SP()  \
       ({var aint __SP;                                                          \
         __asm__ __volatile__ ("movel "REGISTER_PREFIX"sp,%0" : "=g" (__SP) : ); \
@@ -7377,48 +7457,6 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     #define setSP(adresse)  \
       ({ __asm__ __volatile__ ("movel %0,"REGISTER_PREFIX"sp" : : "g" ((aint)(adresse)) : "sp" ); })
     #define FAST_SP
-  #elif defined(GNU) && defined(SPARC)
-    # Zugriff auf eine Register"variable" %sp = %o6
-    register __volatile__ aint __SP __asm__("%sp");
-    #define SP()  __SP
-    # Wir dürfen hier kein setSP() durchführen, ohne zu beachten, daß
-    # 1. %sp ein Alignment von 8 Byte beachten muß,
-    # 2. oberhalb von %sp immer 92 Byte frei bleiben müssen (dorthin kommen
-    #    die Registerinhalte, wenn durch ein 'save' in einem Unterprogramm
-    #    ein 'register window overflow trap' ausgelöst wird).
-  #elif defined(GNU) && defined(HPPA)
-    # Zugriff auf eine Register"variable" %sp = %r30
-    register __volatile__ aint __SP __asm__("%r30");
-    #define SP()  __SP
-  #elif defined(GNU) && defined(MIPS)
-    # Zugriff auf eine Register"variable" $sp = $29
-    #if (__GNUC__ >= 2) # ab GNU-C 2.0
-      #define SP_register "$sp"
-    #else
-      #define SP_register "sp"
-    #endif
-    register __volatile__ aint __SP __asm__(SP_register);
-    #define SP()  __SP
-  #elif defined(GNU) && defined(M88000)
-    # Zugriff auf eine Register"variable" %sp = %r31
-    register __volatile__ aint __SP __asm__("%r31");
-    #define SP()  __SP
-  #elif defined(GNU) && defined(ARM)
-    # Zugriff auf eine Register"variable" %sp = %r13
-    register __volatile__ aint __SP __asm__("%sp");
-    #define SP()  __SP
-  #elif defined(GNU) && defined(CONVEX)
-    # Zugriff auf eine Register"variable" $sp = $a0
-    register __volatile__ aint __SP __asm__("sp");
-    #define SP()  __SP
-  #elif defined(GNU) && defined(DECALPHA)
-    # Zugriff auf eine Register"variable" $sp = $30
-    register __volatile__ aint __SP __asm__("$30");
-    #define SP()  __SP
-  #elif defined(GNU) && defined(RS6000)
-    # Zugriff auf eine Register"variable" $sp = $r1
-    register __volatile__ aint __SP __asm__("r1");
-    #define SP()  __SP
   #elif defined(GNU) && defined(I80386) && !defined(NO_ASM)
     # Zugriff auf eine Register"variable" %esp
     #define SP()  \
@@ -7429,6 +7467,16 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     #define setSP(adresse)  \
       ({ __asm__ __volatile__ ("movl %0,%%esp" : : "g" ((aint)(adresse)) : "sp" ); })
     #define FAST_SP
+  #elif defined(GNU) && defined(SP_register)
+    register __volatile__ aint __SP __asm__(SP_register);
+    #define SP()  __SP
+    #if defined(SPARC)
+      # Wir dürfen hier kein setSP() durchführen, ohne zu beachten, daß
+      # 1. %sp ein Alignment von 8 Byte beachten muß,
+      # 2. oberhalb von %sp immer 92 Byte frei bleiben müssen (dorthin kommen
+      #    die Registerinhalte, wenn durch ein 'save' in einem Unterprogramm
+      #    ein 'register window overflow trap' ausgelöst wird).
+    #endif
   #elif defined(WATCOM) && defined(I80386) && !defined(NO_ASM)
     # Zugriff auf ein Register %esp
     #define SP  getSP
@@ -7534,12 +7582,16 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # LISP-Stack: STACK
   #if !defined(STACK_register)
     # eine globale Variable
-    extern object* STACK;
+    #ifndef MULTITHREAD
+      extern object* STACK;
+    #else
+      #define STACK  (current_thread()->_STACK)
+    #endif
   #else
     # eine globale Registervariable
     register object* STACK __asm__(STACK_register);
   #endif
-  #if defined(SPARC) && !defined(GNU) && !defined(__SUNPRO_C) && (SAFETY < 2)
+  #if defined(SPARC) && !defined(GNU) && !defined(__SUNPRO_C) && !defined(MULTITHREAD) && (SAFETY < 2)
     # eine globale Registervariable, aber Zugriffsfunktionen extern in Assembler
     #define STACK  _getSTACK()
     extern_C object* _getSTACK (void);
@@ -7575,7 +7627,11 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 #   end_callback();
 # einzurahmen.
 #ifdef HAVE_SAVED_mv_count
-  extern uintC saved_mv_count;
+  #ifndef MULTITHREAD
+    extern uintC saved_mv_count;
+  #else
+    #define saved_mv_count  (current_thread()->_saved_mv_count)
+  #endif
   #define SAVE_mv_count()     saved_mv_count = mv_count
   #define RESTORE_mv_count()  mv_count = saved_mv_count
 #else
@@ -7583,7 +7639,11 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #define RESTORE_mv_count()
 #endif
 #ifdef HAVE_SAVED_value1
-  extern object saved_value1;
+  #ifndef MULTITHREAD
+    extern object saved_value1;
+  #else
+    #define saved_value1  (current_thread()->_saved_value1)
+  #endif
   #define SAVE_value1()     saved_value1 = value1
   #define RESTORE_value1()  value1 = saved_value1
 #else
@@ -7591,7 +7651,11 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #define RESTORE_value1()
 #endif
 #ifdef HAVE_SAVED_subr_self
-  extern object saved_subr_self;
+  #ifndef MULTITHREAD
+    extern object saved_subr_self;
+  #else
+    #define saved_subr_self  (current_thread()->_saved_subr_self)
+  #endif
   #define SAVE_subr_self()     saved_subr_self = subr_self
   #define RESTORE_subr_self()  subr_self = saved_subr_self
 #else
@@ -7601,7 +7665,11 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 #define SAVE_GLOBALS()     SAVE_mv_count(); SAVE_value1(); SAVE_subr_self();
 #define RESTORE_GLOBALS()  RESTORE_mv_count(); RESTORE_value1(); RESTORE_subr_self();
 #if defined(HAVE_SAVED_STACK)
-  extern object* saved_STACK;
+  #ifndef MULTITHREAD
+    extern object* saved_STACK;
+  #else
+    #define saved_STACK  (current_thread()->_saved_STACK)
+  #endif
   #define begin_call()  SAVE_GLOBALS(); saved_STACK = STACK
   #define end_call()  RESTORE_GLOBALS(); saved_STACK = (object*)NULL
   #define begin_callback()  SAVE_REGISTERS( STACK = saved_STACK; ); end_call()
@@ -7706,7 +7774,11 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
       #endif
     #endif
   #endif
-  extern void* SP_bound;
+  #ifndef MULTITHREAD
+    extern void* SP_bound;
+  #else
+    #define SP_bound  (current_thread()->_SP_bound);
+  #endif
   nonreturning_function(extern, SP_ueber, (void));
   #ifdef UNIX
     #define check_SP_notUNIX()
@@ -7723,7 +7795,11 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #ifdef STACK_UP
     #define STACK_overflow()  ( (aint)STACK > (aint)STACK_bound )
   #endif
-  extern void* STACK_bound;
+  #ifndef MULTITHREAD
+    extern void* STACK_bound;
+  #else
+    #define STACK_bound  (current_thread()->_STACK_bound)
+  #endif
   nonreturning_function(extern, STACK_ueber, (void));
 
 # Testet, ob noch n Bytes auf dem STACK frei sind.
@@ -9270,7 +9346,7 @@ wieder in die zugehörige Top-Level-Schleife einsteigt.
          })
     #endif
   #endif
-  #if defined(SPARC) && !defined(GNU) && !defined(__SUNPRO_C) && (SAFETY < 2)
+  #if defined(SPARC) && !defined(GNU) && !defined(__SUNPRO_C) && !defined(MULTITHREAD) && (SAFETY < 2)
     #undef pushSTACK
     #undef popSTACK
     #undef skipSTACK
@@ -9305,15 +9381,29 @@ wieder in die zugehörige Top-Level-Schleife einsteigt.
   #   Die Werte in mv_space unterliegen nicht der Garbage Collection!
   #if !defined(mv_count_register)
     # eine globale Variable
-    extern uintC mv_count;
+    #ifndef MULTITHREAD
+      extern uintC mv_count;
+    #else
+      #define mv_count  (current_thread()->_mv_count)
+    #endif
   #else
     # ein globales Register
     register uintC mv_count __asm__(mv_count_register);
   #endif
-  extern object mv_space [mv_limit-1];
+  #ifndef MULTITHREAD
+    extern object mv_space [mv_limit-1];
+  #else
+    #define mv_space  (current_thread()->_mv_space)
+  #endif
   # Synonyme:
   #if !defined(value1_register)
-    #define value1  mv_space[0]
+    #ifndef MULTITHREAD
+      #define value1  mv_space[0]
+    #else
+      # Der erste Wert mv_space[0] wird an den Anfang von struct thread_ verschoben:
+      #define value1  (current_thread()->_value1)
+      #define VALUE1_EXTRA # und muß deswegen immer extra behandelt werden...
+    #endif
   #else
     # Der erste Wert mv_space[0] wird permanent in einem Register gelagert:
     register object value1 __asm__(value1_register);
@@ -9329,7 +9419,11 @@ wieder in die zugehörige Top-Level-Schleife einsteigt.
   #define value9  mv_space[8]
 # Zur Übergabe mit setjmp/longjmp braucht man evtl. noch globale Variablen:
   #ifdef NEED_temp_mv_count
-    extern uintC temp_mv_count;
+    #ifndef MULTITHREAD
+      extern uintC temp_mv_count;
+    #else
+      #define temp_mv_count  (current_thread()->_temp_mv_count)
+    #endif
     #define LONGJMP_SAVE_mv_count()  temp_mv_count = mv_count
     #define LONGJMP_RESTORE_mv_count()  mv_count = temp_mv_count
   #else
@@ -9337,7 +9431,11 @@ wieder in die zugehörige Top-Level-Schleife einsteigt.
     #define LONGJMP_RESTORE_mv_count()
   #endif
   #ifdef NEED_temp_value1
-    extern object temp_value1;
+    #ifndef MULTITHREAD
+      extern object temp_value1;
+    #else
+      #define temp_value1  (current_thread()->_temp_value1)
+    #endif
     #define LONGJMP_SAVE_value1()  temp_value1 = value1
     #define LONGJMP_RESTORE_value1()  value1 = temp_value1
   #else
@@ -9481,7 +9579,11 @@ wieder in die zugehörige Top-Level-Schleife einsteigt.
 # (Nur solange gültig, bis ein anderes SUBR oder eine andere Lisp-Funktion
 # aufgerufen wird.)
   #if !defined(subr_self_register)
-    extern object subr_self;
+    #ifndef MULTITHREAD
+      extern object subr_self;
+    #else
+      #define subr_self  (current_thread()->_subr_self)
+    #endif
   #else
     register object subr_self __asm__(subr_self_register);
   #endif
@@ -9541,7 +9643,11 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
         environment;
 
 # Das aktuelle Environment:
-  extern environment aktenv;
+  #ifndef MULTITHREAD
+    extern environment aktenv;
+  #else
+    #define aktenv  (current_thread()->_aktenv)
+  #endif
 
 # Macro: Legt fünf einzelne Environment auf den STACK
 # und bildet daraus ein einzelnes Environment.
@@ -10057,7 +10163,11 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # kann GC auslösen
   typedef /* nonreturning */ void (*restart)(object* upto_frame);
   typedef struct { restart fun; object* upto_frame; } unwind_protect_caller;
-  extern unwind_protect_caller unwind_protect_to_save;
+  #ifndef MULTITHREAD
+    extern unwind_protect_caller unwind_protect_to_save;
+  #else
+    #define unwind_protect_to_save  (current_thread()->_unwind_protect_to_save)
+  #endif
   extern void unwind (void);
 # wird verwendet von CONTROL, DEBUG, SPVW
 
@@ -10098,6 +10208,22 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # invoke_handlers(cond);
 # kann GC auslösen
   extern void invoke_handlers (object cond);
+  typedef struct { object condition; object* stack; SPint* sp; object spdepth; }
+          handler_args_t;
+  #ifndef MULTITHREAD
+    extern handler_args_t handler_args;
+  #else
+    #define handler_args  (current_thread()->_handler_args)
+  #endif
+  typedef struct stack_range { struct stack_range * next;
+                               object* low_limit; object* high_limit;
+                             }
+          stack_range;
+  #ifndef MULTITHREAD
+    extern stack_range* inactive_handlers;
+  #else
+    #define inactive_handlers  (current_thread()->_inactive_handlers)
+  #endif
 # wird verwendet von ERROR
 
 # UP: Stellt fest, ob ein Objekt ein Funktionsname, d.h. ein Symbol oder
@@ -12093,6 +12219,119 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # Schaltet die Grafik auf Text-Modus zurück.
 # switch_text_mode();
   extern void switch_text_mode (void);
+
+#endif
+
+# ######################## THREADBIBL zu THREAD.D ######################### #
+
+#ifdef MULTITHREAD
+
+# Structure containing all the per-thread global variables.
+# (We could use a single instance of this structure also in the single-thread
+# model, but it would make debugging less straightforward.)
+  typedef struct
+    {
+      # Most often used:
+        #if !defined(STACK_register)
+          object* _STACK;
+        #endif
+        #if !defined(mv_count_register)
+          uintC _mv_count;
+        #endif
+        #if !defined(value1_register)
+          object _value1;
+        #endif
+        #if !defined(subr_self_register)
+          object _subr_self;
+        #endif
+      # Less often used:
+        #ifndef NO_SP_CHECK
+          void* _SP_bound;
+        #endif
+        void* _STACK_bound;
+        unwind_protect_caller _unwind_protect_to_save;
+        #ifdef NEED_temp_mv_count
+          uintC _temp_mv_count;
+        #endif
+        #ifdef NEED_temp_value1
+          object _temp_value1;
+        #endif
+        #ifdef HAVE_SAVED_STACK
+          object* _saved_STACK;
+        #endif
+        #ifdef HAVE_SAVED_mv_count
+          uintC _saved_mv_count;
+        #endif
+        #ifdef HAVE_SAVED_value1
+          object _saved_value1;
+        #endif
+        #ifdef HAVE_SAVED_subr_self
+          object _saved_subr_self;
+        #endif
+        #if defined(HAVE_SAVED_REGISTERS)
+          struct registers * _callback_saved_registers;
+        #endif
+        uintC _index; # this thread's index in allthreads[]
+      # Used for exception handling only:
+        handler_args_t _handler_args;
+        stack_range* _inactive_handlers;
+      # Big, rarely used arrays come last:
+        object _mv_space [mv_limit-1];
+      # Now the lisp objects (seen by the GC).
+        # The Lisp object representing this thread:
+        object _lthread;
+        # The lexical environment:
+        environment _aktenv;
+        # The values of per-thread symbols:
+        object _symvalues[unspecified];
+    }
+    thread_;
+  #define thread_size(nsymvalues)  \
+    (offsetofa(thread_,_symvalues)+nsymvalues*sizeof(object))
+  #define thread_objects_offset(nsymvalues)  \
+    (offsetof(thread_,_lthread))
+  #define thread_objects_anz(nsymvalues)  \
+    ((offsetofa(thread_,_symvalues)-offsetof(thread_,_lthread))/sizeof(object)+(nsymvalues))
+
+# Size of a single thread's stack region. Must be a power of 2.
+  #define THREAD_SP_SHIFT  22  # 4 MB should be sufficient, and leaves room
+                               # for about 128 threads.
+  #define THREAD_SP_SIZE  bit(THREAD_SP_SHIFT)
+# Returns the stack pointer, or some address near the stack pointer.
+  # Important for efficiency: Multiple calls to this function within a single
+  # function must be combined to a single, inlined call. To reach this, we
+  # use __asm__, not __asm__ __volatile__, and we don't use a global register
+  # variable.
+  #if defined(ASM_get_SP_register)
+    #define roughly_SP()  \
+      ({ var aint __SP; __asm__ ASM_get_SP_register(__SP); __SP; })
+  #else
+    #define roughly_SP()  (aint)__builtin_frame_address(0)
+    # Note: If (__GNUC__ >= 2) && (__GNUC_MINOR__ >= 8) one can write
+    # #define roughly_SP()  (aint)__builtin_sp()
+    # but this isn't efficient because gcc somehow knows that the stack pointer
+    # varies across the function (maybe because of our register declaration?).
+  #endif
+# Returns a pointer to the thread structure, given the thread's stack pointer.
+  #ifdef SP_DOWN
+    #ifndef MORRIS_GC
+      #define sp_to_thread(sp)  \
+        (thread_*)((aint)(sp) & minus_bit(THREAD_SP_SHIFT))
+    #else
+      # Morris GC doesn't like the backpointers to have garcol_bit set.
+      #define sp_to_thread(sp)  \
+        (thread_*)((aint)(sp) & (minus_bit(THREAD_SP_SHIFT) & ~wbit(garcol_bit_o)))
+    #endif
+  #endif
+  #ifdef SP_UP
+    #define sp_to_thread(sp)  \
+      (thread_*)(((aint)(sp) | (bit(THREAD_SP_SHIFT)-1)) - 0x1FFFF)
+  #endif
+# Returns a pointer to the current thread structure.
+  typedef thread_* current_thread_function (void);
+  extern inline const current_thread_function current_thread;
+  extern inline thread_* current_thread (void)
+  { return sp_to_thread(roughly_SP()); }
 
 #endif
 
