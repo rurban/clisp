@@ -1192,11 +1192,17 @@ error
 (char x 7)
 #\H
 
-(reverse x)   "edcba"
+(reverse x)
+"edcba"
 
-(nreverse x)  "edcba"
+(nreverse x)
+"edcba"
 
-x             "edcba"
+x
+"edcba"
+
+(makunbound 'x)
+X
 
 (let* ((x (make-array 10 :fill-pointer 4 :element-type 'character
                          :initial-element #\space :adjustable t))
