@@ -3070,8 +3070,12 @@ local object test_external_format_arg (object arg) {
       && encodingp(Symbol_value(arg)))
     return Symbol_value(arg);
   #ifdef HAVE_GOOD_ICONV
-  if (stringp(arg)) { # (make-encoding :charset arg)
-    pushSTACK(arg); pushSTACK(unbound); pushSTACK(unbound); pushSTACK(unbound);
+  if (stringp(arg)) {           /* (make-encoding :charset arg) */
+    pushSTACK(arg);             /* :charset */
+    pushSTACK(unbound);         /* :line-terminator */
+    pushSTACK(unbound);         /* :input-error-action */
+    pushSTACK(unbound);         /* :output-error-action */
+    pushSTACK(unbound);         /* :if-does-not-exist */
     C_make_encoding();
     return value1;
   }
@@ -3082,9 +3086,12 @@ local object test_external_format_arg (object arg) {
     return O(default_file_encoding);
  #endif
   if (eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos))) {
-    # (make-encoding :charset default-file-encoding :line-terminator arg)
-    pushSTACK(O(default_file_encoding)); pushSTACK(arg);
-    pushSTACK(unbound); pushSTACK(unbound);
+    /* (make-encoding :charset default-file-encoding :line-terminator arg) */
+    pushSTACK(O(default_file_encoding)); /* :charset */
+    pushSTACK(arg);             /* :line-terminator */
+    pushSTACK(unbound);         /* :input-error-action */
+    pushSTACK(unbound);         /* :output-error-action */
+    pushSTACK(unbound);         /* :if-does-not-exist */
     C_make_encoding();
     return value1;
   }
