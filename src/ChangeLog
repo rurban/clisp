@@ -1,3 +1,12 @@
+2004-06-26  Arseny Slobodjuk  <ampy@ich.dvo.ru>
+
+	Fixed handling of relative shortcuts on mingw.
+	* w32shell.c (augment_relative_pathname): new function.
+	(resolve_shell_shortcut_more): recurrent resolution of
+	shortcuts to symbolic names. Handling of relative shortcuts.
+	(real_path): fixed sharename handling (not tested).
+	* pathname.d (FullName): rewritten to process ".." and ".".
+
 2004-06-09  Bruno Haible  <bruno@clisp.org>
 
 	* clos-methcomb1.lisp (method-combination): Change calling convention
