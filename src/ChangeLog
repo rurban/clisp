@@ -59,6 +59,7 @@
 2002-02-26  Sam Steingold  <sds@gnu.org>
 
 	* error.d (signal_and_debug): avoid a GCC warning
+	(end_error): abort(), not exit() -- for debugging
 
 2002-02-26  Sam Steingold  <sds@gnu.org>
 
