@@ -1,5 +1,10 @@
 2004-11-07  Bruno Haible  <bruno@clisp.org>
 
+	* clos-class6.lisp (class-funcallablep): Fix function name in error
+	message.
+
+2004-11-07  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (Fpointer_value): Cast the conditional expression to void.
 	Avoids a warning with g++-3.4.3.
 
