@@ -1700,6 +1700,38 @@ local void usage (int exit_code)
   quit_sofort (exit_code); # anormales Programmende
 }
 
+# print license and exit
+nonreturning_function (local, license, (int exit_code));
+local void license (int exit_code) 
+{ local const char * const license [] = {
+    "This program is free software; you can redistribute it and/or modify"
+    NLstring,
+    "it under the terms of the GNU General Public License as published by"
+    NLstring,
+    "the Free Software Foundation; either version 2, or (at your option)"
+    NLstring,
+    "any later version." NLstring, NLstring,
+    "This program is distributed in the hope that it will be useful, but"
+    NLstring,
+    "WITHOUT ANY WARRANTY; without even the implied warranty of" NLstring,
+    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU"
+    NLstring,
+    "General Public License for more details." NLstring, NLstring,
+    "You should have received a copy of the GNU General Public License"
+    NLstring,
+    "along with this program; if not, write to the Free Software" NLstring,
+    "Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
+     NLstring, NLstring,
+  };
+  var const char * const * ptr = license;
+  var uintC count;
+  pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
+  dotimesC(count,sizeof(license)/sizeof(license[0]),
+           { write_sstring(&STACK_0,asciz_to_string(*ptr++));});
+  skipSTACK(1);
+  quit_sofort (0);
+}
+
 # print the banner
 local void print_banner ()
 { const char * const banner[] = { # einige Zeilen à 66 Zeichen
@@ -1713,21 +1745,17 @@ local void print_banner ()
    "        |            8     o   8           8     o     8  8" NLstring,
    "  ------+------       ooooo    8oooooo  ooo8ooo   ooooo   8" NLstring,
    NLstring,
-   "                    Copyright (c) Bruno Haible, Michael Stoll 1992, 1993"
+   "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993" NLstring,
+   "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997" NLstring,
+   "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998"
    NLstring,
-   "                    Copyright (c) Bruno Haible, Marcus Daniels 1994-1997"
-   NLstring,
-   "                    Copyright (c) Pierpaolo Bernardi, Sam Steingold 1998"
-   NLstring,
+   "Copyright (c) Bruno Haible, Sam Steingold 1999" NLstring,
    };
   #ifdef AMIGA
   var const char * banner2 =
-    DEUTSCH ?
-    "                    Amiga-Version: Jörg Höhle" NLstring :
-    ENGLISH ?
-    "                    Amiga version: Jörg Höhle" NLstring :
-    FRANCAIS ?
-    "                    version Amiga: Jörg Höhle" NLstring :
+    DEUTSCH ? "                    Amiga-Version: Jörg Höhle" NLstring :
+    ENGLISH ? "                    Amiga version: Jörg Höhle" NLstring :
+    FRANCAIS ? "                    version Amiga: Jörg Höhle" NLstring :
     "";
   #endif
   #ifdef RISCOS
@@ -2778,97 +2806,8 @@ local void print_banner ()
         { argv_quiet = TRUE; } # verhindert die Begrüßung
       if (!(argv_execute_file == NULL)) # Batch-Modus ?
         { argv_quiet = TRUE; } # verhindert die Begrüßung
-      if (!argv_quiet || argv_license)
-        { local const char * const banner[] = { # einige Zeilen à 66 Zeichen
-          #  |Spalte 0           |Spalte 20                                    |Spalte 66
-          # "012345678901234567890123456789012345678901234567890123456789012345678901"
-            "  i i i i i i i       ooooo    o        ooooooo   ooooo   ooooo   " NLstring,
-            "  I I I I I I I      8     8   8           8     8     o  8    8  " NLstring,
-            "  I I I I I I I      8         8           8     8        8    8  " NLstring,
-            "  I I I I I I I      8         8           8      ooooo   8oooo   " NLstring,
-           "  I  \\ `+' /  I      8         8           8           8  8       " NLstring,
-           "   \\  `-+-'  /       8     o   8           8     o     8  8       " NLstring,
-            "    `-__|__-'         ooooo    8oooooo  ooo8ooo   ooooo   8       " NLstring,
-            "        |                                                         " NLstring,
-            "  ------+------     Copyright (c) Bruno Haible, Michael Stoll 1992, 1993" NLstring,
-            "                    Copyright (c) Bruno Haible, Marcus Daniels 1994-1997" NLstring,
-            "                    Copyright (c) Pierpaolo Bernardi, Sam Steingold 1998" NLstring,
-            };
-          #ifdef AMIGA
-          var const char * banner2 =
-            DEUTSCH ?
-            "                    Amiga-Version: Jörg Höhle                     " NLstring :
-            ENGLISH ?
-            "                    Amiga version: Jörg Höhle                     " NLstring :
-            FRANCAIS ?
-            "                    version Amiga: Jörg Höhle                     " NLstring :
-            "";
-          #endif
-          #ifdef RISCOS
-          var const char * banner2 =
-            DEUTSCH ?
-            "                    RISCOS-Portierung: Peter Burwood, Bruno Haible" NLstring :
-            ENGLISH ?
-            "                    RISCOS port: Peter Burwood, Bruno Haible      " NLstring :
-            FRANCAIS ?
-            "                    portage RISCOS: Peter Burwood et Bruno Haible " NLstring :
-            "";
-          #endif
-          #ifdef DJUNIX
-          var const char * banner2 =
-            DEUTSCH ?
-            "                    DOS-Portierung: Jürgen Weber, Bruno Haible    " NLstring :
-            ENGLISH ?
-            "                    DOS port: Jürgen Weber, Bruno Haible          " NLstring :
-            FRANCAIS ?
-            "                    adapté à DOS par Jürgen Weber et Bruno Haible " NLstring :
-            "";
-          #endif
-          var const char * banner3 = NLstring ;
-          var uintL offset = (posfixnum_to_L(Symbol_value(S(prin_linelength))) >= 73 ? 0 : 20);
-          var const char * const * ptr = &banner[0];
-          var uintC count;
-          pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
-          dotimesC(count,sizeof(banner)/sizeof(banner[0]),
-            { write_sstring(&STACK_0,asciz_to_string(&(*ptr++)[offset])); }
-            );
-          #if defined(AMIGA) || defined(RISCOS) || defined(DJUNIX)
-          write_sstring(&STACK_0,asciz_to_string(&banner2[offset]));
-          #endif
-          write_sstring(&STACK_0,asciz_to_string(banner3));
-          skipSTACK(1);
-        }
-      if (argv_license) {
-        local const char * const license [] = {
-         "This program is free software; you can redistribute it and/or modify"
-         NLstring,
-         "it under the terms of the GNU General Public License as published by"
-         NLstring,
-         "the Free Software Foundation; either version 2, or (at your option)"
-         NLstring,
-         "any later version." NLstring, NLstring,
-         "This program is distributed in the hope that it will be useful, but"
-         NLstring,
-         "WITHOUT ANY WARRANTY; without even the implied warranty of"
-         NLstring,
-         "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU"
-         NLstring,
-         "General Public License for more details." NLstring, NLstring,
-         "You should have received a copy of the GNU General Public License"
-         NLstring,
-         "along with this program; if not, write to the Free Software"
-         NLstring,
-         "Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
-          NLstring, NLstring,
-        };
-        var const char * const * ptr = license;
-        var uintC count;
-        pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
-        dotimesC(count,sizeof(license)/sizeof(license[0]),
-                 { write_sstring(&STACK_0,asciz_to_string(*ptr++));});
-        skipSTACK(1);
-        quit_sofort (0);
-      }
+      if (!argv_quiet || argv_license) print_banner();
+      if (argv_license) print_license();
       if ((argv_memfile == NULL) && (argv_expr == NULL))
         # Warnung für Anfänger
         { pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
