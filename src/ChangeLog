@@ -1,5 +1,15 @@
 1998-06-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Make the *print-circle* subroutines multithread-safe.
+        * spvw.d (mlb[0-6], mlbs[0-5], mlb_levels): New macros.
+          (mlbitmap): New struct type.
+          (mlb_alloc, mlb_expand, mlb_add, mlb_free): New functions.
+          (get_circularities, get_circ_mark): New implementations for
+          MULTITHREAD.
+          (subst_circ, subst_circ_mark): New implementations for MULTITHREAD.
+
+1998-06-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * xthread.d: New file.
         * lispbibl.d: Include it if defined(MULTITHREAD).
           (_REENTRANT): Define if defined(MULTITHREAD).
