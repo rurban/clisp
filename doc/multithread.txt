@@ -99,10 +99,25 @@ the results are undefined.
      Program PRELUDE: (defparameter global-ht (make-hash-table))
      Program A: (setf (gethash 'a global-ht) 'aaaa)
      Program B: (setf (gethash 'b global-ht) 'bbbb)
-   The Parallelizability Principle implies that the programmer should
+   The Parallelizability Principle implies that one should
    have an easy way to declare that global-ht is shared, without modifying
-   the programs A and B. The obvious proposal is that he changes the PRELUDE:
+   the programs A and B. The obvious proposal is a change in the PRELUDE:
         (defparameter global-ht (make-hash-table :lockable t))
+   While this automatic locking will indeed work when no keys are shared,
+   this is not a universal solution:
+     Program A: (incf (gethash 10 global-ht 0))
+     Program B: (incf (gethash 10 global-ht 0))
+   It is possible that both GETHASH calls will happen before both
+   PUTHASH calls unless both INCF forms are guarded with a lock.
+   Instead of making GLOBAL-HT an instance of LOCK (and relying on some
+   magic which cannot always work), one needs to create an explicit lock with
+        (defparameter global-ht-lock (ext:make-lock))
+   and wrap all his GLOBAL-HT accesses with
+        (with-lock (global-ht-lock)
+          (incf (gethash 'a global-ht 0)))
+   The bottom line is: programs that use global variables do not fall
+   under the Parallelizability Principle because they share application
+   objects with programs running in other threads.
 --
 Automatic locking will impose an unjustifiable penalty on HASH-TABLEs
 and SEQUENCEs local to threads.
