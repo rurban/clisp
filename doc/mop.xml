@@ -1561,9 +1561,7 @@ any dependents of the class metaobject will be updated by calling
  <listitem><simpara><code>(&setf-class-name; &nname-r;
  &class-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-     <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
+ <listitem><variablelist>&class-mo-arg;
    <varlistentry><term>&nname-r;</term>
     <listitem><simpara>any Lisp object.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
@@ -1733,10 +1731,7 @@ any dependents of the class metaobject will be updated by calling
   <listitem><simpara><code>(&finalize-inheritance;
      &class-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a class metaobject.
-</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
+ <listitem><variablelist>&class-mo-arg;</variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem>&values-unspecified;</listitem></varlistentry>
 <varlistentry><term>Purpose</term>
@@ -1812,9 +1807,7 @@ any dependents of the class metaobject will be updated by calling
   <listitem><simpara><code>(&allocate-instance; &class-r;
      &rest-amp; &initargs-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
+ <listitem><variablelist>&class-mo-arg;
    <varlistentry><term>&initargs-r;</term>
     <listitem><simpara>alternating initialization argument names and
       values.</simpara></listitem></varlistentry>
@@ -1868,9 +1861,7 @@ any dependents of the class metaobject will be updated by calling
  <listitem><simpara><code>(&validate-superclass; &class-r;
     &superclass-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
+ <listitem><variablelist>&class-mo-arg;
    <varlistentry><term>&superclass-r;</term>
     <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
@@ -1918,19 +1909,17 @@ any dependents of the class metaobject will be updated by calling
  compatible.</para></formalpara>
 </section><!-- validate-superclass -->
 
-<section id="compute-dsd-initargs"><title>Generic Function &compute-dsd-initargs;</title>
+<section id="compute-dsd-initargs">
+ <title>Generic Function &compute-dsd-initargs;</title>
+ <subtitle>Implementation dependent: only in &clisp;.</subtitle>
 
-<note>&clisp-only;<para>
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><code>(&compute-dsd-initargs;
-    &class-r; &rest-amp; <replaceable>slot-spec</replaceable>)
- </code></simpara></listitem></varlistentry>
-<varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
-   <varlistentry><term><replaceable>slot-spec</replaceable></term>
-    <listitem><simpara>a &canonical-slot-spec;.</simpara></listitem></varlistentry>
+  <listitem><simpara><code>(&compute-dsd-initargs; &class-r; &rest-amp;
+     &slot-spec-r;)</code></simpara></listitem></varlistentry>
+ <varlistentry><term>Arguments</term>
+  <listitem><variablelist>&class-mo-arg;
+    <varlistentry><term>&slot-spec-r;</term><listitem><simpara>a
+       &canonicalized-slot-spec;.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem><simpara>The value returned by this generic function is a
@@ -1942,23 +1931,19 @@ any dependents of the class metaobject will be updated by calling
    It is called during initialization of a class.  The resulting
    initialization arguments are passed to &dsd-class; and then to
    &make-instance;.</simpara>
-  <simpara>This generic function uses the supplied &canonical-slot-spec;.
+  <simpara>This generic function uses the supplied &canonicalized-slot-spec;.
    The value of &name-k; in the returned initargs is the same as the value
-   of &name-k; in the supplied <replaceable>slot-spec</replaceable>
-   argument.</simpara></listitem></varlistentry></variablelist>
+   of &name-k; in the supplied &slot-spec-r; argument.
+</simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
 <varlistentry><term><literal role="method">(&compute-dsd-initargs;
-   (&class-r; &standard-class;) &rest-amp;
-   <replaceable>slot-spec</replaceable>)</literal></term>
- <term><literal role="method">(&compute-dsd-initargs;
-   (&class-r; &funcallable-standard-class;) &rest-amp;
-   <replaceable>slot-spec</replaceable>)</literal></term>
- <listitem><simpara>This method returns <replaceable>slot-spec</replaceable>
-  unmodified.</simpara>
+   (&class-r; &standard-class;) &rest-amp; &slot-spec-r;)</literal></term>
+ <term><literal role="method">(&compute-dsd-initargs; (&class-r;
+   &funcallable-standard-class;) &rest-amp; &slot-spec-r;)</literal></term>
+ <listitem><simpara>This method returns &slot-spec-r; unmodified.</simpara>
   <simpara>This method can be overridden.</simpara></listitem>
 </varlistentry></variablelist>
-</para></note>
 </section><!-- compute-dsd-initargs -->
 
 <section id="dsd-class"><title>Generic Function &dsd-class;</title>
@@ -1967,9 +1952,7 @@ any dependents of the class metaobject will be updated by calling
  <listitem><simpara><code>(&dsd-class; &class-r; &rest-amp;
     &initargs-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
+ <listitem><variablelist>&class-mo-arg;
    <varlistentry><term>&initargs-r;</term>
     <listitem><simpara>a set of initialization arguments and values.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
@@ -2000,10 +1983,7 @@ any dependents of the class metaobject will be updated by calling
   <listitem><simpara><code>(&compute-cpl;
      &class-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
-</variablelist></listitem></varlistentry>
+ <listitem><variablelist>&class-mo-arg;</variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem><simpara>The value returned by this generic function is a
    list of class metaobjects.</simpara></listitem></varlistentry>
@@ -2041,10 +2021,7 @@ any dependents of the class metaobject will be updated by calling
  <listitem><simpara><code>(&compute-slots; &class-r;)
  </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
-</variablelist></listitem></varlistentry>
+ <listitem><variablelist>&class-mo-arg;</variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem><simpara>The value returned is a set of effective slot
    definition metaobjects.</simpara></listitem></varlistentry>
@@ -2097,9 +2074,7 @@ any dependents of the class metaobject will be updated by calling
  <listitem><simpara><code>(&compute-esd; &class-r; &name-r; &dsds-r;)
  </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
+ <listitem><variablelist>&class-mo-arg;
    <varlistentry><term>&name-r;</term>
     <listitem><simpara>a slot name.</simpara></listitem></varlistentry>
    <varlistentry><term>&dsds-r;</term>
@@ -2152,9 +2127,7 @@ any dependents of the class metaobject will be updated by calling
  <listitem><simpara><code>(&compute-esd-initargs; &class-r; &dsds-r;)
  </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
+ <listitem><variablelist>&class-mo-arg;
    <varlistentry><term>&dsds-r;</term>
     <listitem><simpara>an ordered list of direct slot definition
       metaobjects.  The most specific direct slot definition metaobject
@@ -2192,9 +2165,7 @@ any dependents of the class metaobject will be updated by calling
  <listitem><simpara><code>(&esd-class; &class-r; &rest-amp;
     &initargs-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
+ <listitem><variablelist>&class-mo-arg;
    <varlistentry><term>&initargs-r;</term>
     <listitem><simpara>set of initialization arguments and values.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
@@ -2225,10 +2196,7 @@ any dependents of the class metaobject will be updated by calling
  <listitem><simpara><code>(&compute-default-initargs;
     &class-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
-</variablelist></listitem></varlistentry>
+ <listitem><variablelist>&class-mo-arg;</variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem><simpara>The value returned by this generic function is a
    list of &canonicalized-default-initarg;s.
@@ -4316,9 +4284,7 @@ method during initialization.</para>
  <listitem><simpara><code>(&reader-method-class; &class-r; &dsd-r;
     &rest-amp; &initargs-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
+ <listitem><variablelist>&class-mo-arg;
    <varlistentry><term>&dsd-r;</term>
     <listitem><simpara>a direct slot definition metaobject.
    </simpara></listitem></varlistentry>
@@ -4358,9 +4324,7 @@ method during initialization.</para>
     <replaceable>direct-slot</replaceable> &rest-amp; &initargs-r;)
  </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
+ <listitem><variablelist>&class-mo-arg;
    <varlistentry><term><replaceable>direct-slot</replaceable></term>
     <listitem><simpara>a direct slot definition metaobject.
    </simpara></listitem></varlistentry>
