@@ -3088,16 +3088,16 @@ for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY ; do
   echol
 done
 
-for f in NEWS .gdbinit ; do
-  if [ -n "${SRCDIR}" ] ; then
+if [ -n "${SRCDIR}" ] ; then
+  for f in NEWS .gdbinit ; do
     echol "${f} : ${SRCDIR}${f}"
     if [ $f = .gdbinit -a $LEXE != ".run" ]; then
       echotab "sed 's/lisp.run/lisp$LEXE/g' ${SRCDIR}${f} > ${f}"
     else echotab "-\$(LN_S) ${SRCDIR}${f} ${f}"
     fi
     echol
-  fi
-done
+  done
+fi
 
 if [ $TOS = unix ] ; then
   for f in MAGIC.add ; do
