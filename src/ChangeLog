@@ -1,5 +1,15 @@
 2000-03-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * Version 2000-03-06 released.
+
+2000-03-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * unix.d: Use clock_t instead of CLOCK_T.
+        * encoding.d: Include <string.h>.
+        * hashtabl.d (hashcode4_atom): Add default case to switch statement.
+
+2000-03-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * dutch.lsp: New file, from Tijs van Bakel <smoke@casema.net>.
         * init.lsp: Load it.
         * makemake.in (LPARTS): Add dutch.

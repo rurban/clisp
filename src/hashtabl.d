@@ -1,5 +1,5 @@
 # Hash-Tabellen in CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 #include "arilev0.c" # für Hashcode-Berechnung
@@ -870,6 +870,7 @@
         case_instance: # Instance
           # EQ-Hashcode nehmen
           return hashcode1(obj);
+        default: NOTREACHED
       }
     }
 # Cons -> Inhalt bis zur Tiefe 4 ansehen:

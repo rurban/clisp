@@ -1,7 +1,9 @@
 # Encodings (character sets and conversions) for CLISP
-# Bruno Haible 1998-1999
+# Bruno Haible 1998-2000
 
 #include "lispbibl.c"
+
+#include <string.h> # declares memcpy()
 
 # =============================================================================
 #                             Individual encodings
