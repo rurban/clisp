@@ -73,10 +73,7 @@ int find_executable (const char * program_name) {
    because it is safer: no race condition w.r.t. the file system. It may
    fail, however, if the user has not compiled /proc support into his
    kernel. */
-    char buf[6+10+5];
-    int fd;
-    sprintf(buf,"/proc/%d/exe",getpid());
-    fd = open(buf,O_RDONLY,my_open_mask);
+    int fd = open("/proc/self/exe",O_RDONLY,my_open_mask);
     if (fd >= 0)
       executable_fd = fd;
   }
