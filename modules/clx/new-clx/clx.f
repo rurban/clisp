@@ -499,11 +499,13 @@ nonreturning_function (static, closed_display_error,
 
 /* with_stringable_0 is much like with_string_0, but a symbol is also
  allowed as argument. This macro does type checking and may raise an error. */
-#define with_stringable_0_tc(obj, encoding, cvar, body)    do { \
-    object wsa0_temp = symbolp(obj) ? Symbol_name (obj) : obj;  \
-    if (stringp (wsa0_temp)) {                                  \
-      with_string_0 (wsa0_temp, encoding, cvar, body);          \
-    } else my_type_error(`(OR STRING SYMBOL)`,obj);             \
+#define with_stringable_0_tc(obj, encoding, cvar, body)  \
+  do {                                                                 \
+    object wsa0_temp =                                                 \
+      (symbolp(obj) ? (object)Symbol_name (obj) : (object)(obj));      \
+    if (stringp (wsa0_temp)) {                                         \
+      with_string_0 (wsa0_temp, encoding, cvar, body);                 \
+    } else my_type_error(`(OR STRING SYMBOL)`,obj);                    \
   } while(0)
 
 
@@ -2762,7 +2764,7 @@ DEFUN(XLIB:CREATE-PIXMAP, &key PIXMAP WIDTH HEIGHT DEPTH DRAWABLE)
   X_CALL(pm = XCreatePixmap (dpy, da, width, height, depth));
 
   VALUES1(make_pixmap_2(get_display_obj(STACK_0),pm,
-                        (!missingp(STACK_4) ? STACK_4 : NIL)));
+                        (!missingp(STACK_4) ? (object)STACK_4 : NIL)));
   skipSTACK(5);
   return;
 }
