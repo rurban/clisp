@@ -1,5 +1,22 @@
 2002-10-02  Sam Steingold  <sds@gnu.org>
 
+	removed SYS::%FUNCALL
+	* compiler.lisp (c-form-table): removed SYS::%FUNCALL
+	(c-form, c-HANDLER-BIND, c-FUNCTION-CALL, c-MAP-on-CARs)
+	(c-MAP-on-LISTs, c-MAPC, c-MAPL): use FUNCALL instead of SYS::%FUNCALL
+	* defstruct.lisp (ds-arg-default): ditto
+	* trace.lisp (get-traced-definition, trace-step-apply)
+	(trace-pre-output, trace-post-output, trace-print): do not use
+	SYS::%FUNCALL - call the inlined functions directly
+	(trace-level-inc): removed
+	* constsym.d, subr.d, control.d (pfuncall): removed
+	* spvw.d (*MACROEXPAND-HOOK*): init to FUNCALL, not SYS::%FUNCALL
+	* eval.d (macroexp0): use FUNCALL, not SYS::%FUNCALL
+	(FUNTABR): removed _(pfuncall)
+	* constobj.d (version): bumped (because of FUNTABR)
+
+2002-10-02  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (BUILT-IN-STREAM-ELEMENT-TYPE): resolve synonym streams
 
 2002-10-01  Sam Steingold  <sds@gnu.org>

@@ -1101,7 +1101,7 @@ local void init_symbol_values (void) {
   define_constant(S(multiple_values_limit),fixnum(mv_limit)); # MULTIPLE-VALUES-LIMIT := mv_limit
   define_constant(S(jmpbuf_size),fixnum(jmpbufsize)); # SYS::*JMPBUF-SIZE* := size of a jmp_buf
   define_constant(S(big_endian),(BIG_ENDIAN_P ? T : NIL)); # SYS::*BIG-ENDIAN* := NIL resp. T
-  define_variable(S(macroexpand_hook),L(pfuncall)); # *MACROEXPAND-HOOK* := #'SYS::%FUNCALL
+  define_variable(S(macroexpand_hook),L(funcall)); # *MACROEXPAND-HOOK* := #'FUNCALL
   define_variable(S(evalhookstern),NIL);          # *EVALHOOK*
   define_variable(S(applyhookstern),NIL);         # *APPLYHOOK*
   # for PACKAGE:
