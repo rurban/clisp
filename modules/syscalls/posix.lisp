@@ -30,7 +30,8 @@
 #+unix (progn
 (export
  '(user-data user-data-login-id user-data-passwd user-data-uid user-data-gid
-   user-data-full-name user-data-shell))
+   user-data-full-name user-data-shell
+   crypt encrypt setkey))
 
 (defstruct (user-data (:constructor
                        make-user-data (login-id passwd uid gid full-name

@@ -470,6 +470,7 @@
 <!ENTITY k1-r "<replaceable>k&sub-1;</replaceable>">
 <!ENTITY k2-r "<replaceable>k&sub-2;</replaceable>">
 <!ENTITY kn-r "<replaceable>k&sub-n;</replaceable>">
+<!ENTITY key-r "<replaceable>key</replaceable>">
 <!ENTITY l-r "<replaceable>l</replaceable>">
 <!ENTITY lib-name "<replaceable>library-name</replaceable>">
 <!ENTITY lab-r "<replaceable>label</replaceable>">
