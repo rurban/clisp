@@ -383,6 +383,7 @@ local bool inherited_find (object symbol, object pack) {
  pack_used_by_list       used-by-list, a list of packages
  pack_name               the name, an immutable simple-string
  pack_nicknames          the nicknames, a list of immutable simple-strings
+ pack_docstring          the documentation string or NIL
 
  consistency rules:
  1. All packages are listed in ALL_PACKAGES exactly once.
@@ -430,6 +431,7 @@ local object make_package (object name, object nicknames,
   ThePackage(pack)->pack_used_by_list = NIL;
   ThePackage(pack)->pack_name = popSTACK();
   ThePackage(pack)->pack_nicknames = popSTACK();
+  ThePackage(pack)->pack_docstring = NIL;
   /* and insert in ALL_PACKAGES: */
   pushSTACK(pack);
   var object new_cons = allocate_cons();
@@ -1854,6 +1856,21 @@ LISPFUNNR(package_case_sensitive_p,1)
 { /* (EXT:PACKAGE-CASE-SENSITIVE-P package) */
   var object pack = test_package_arg(popSTACK());
   VALUES_IF(pack_casesensitivep(pack));
+}
+
+/* (SYS::PACKAGE-DOCUMENTATION package) */
+LISPFUNNR(package_documentation,1) {
+  var object pack = test_package_arg(popSTACK());
+  VALUES1(ThePackage(pack)->pack_docstring);
+}
+
+/* ((SETF SYS::PACKAGE-DOCUMENTATION) new-value package) */
+LISPFUNN(set_package_documentation,2) {
+  var object pack = test_package_arg(popSTACK());
+  var object value = popSTACK();
+  if (!(nullp(value) || stringp(value)))
+    fehler_string(value);
+  VALUES1(ThePackage(pack)->pack_docstring = value);
 }
 
 LISPFUNNR(package_lock,1)
