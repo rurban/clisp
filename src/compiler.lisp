@@ -41,7 +41,7 @@
 ;;   - poss. better Optimization by data-flow-analysis
 ;;   - Inline-Compilation of calls of local functions
 
-;; Sam Steingold 1999-2002
+;; Sam Steingold 1999-2003
 ;; German comments translated into English: Stefan Kain 2001-12-18
 ;; "z" at the end of a variable name stands for "zustand" (German for "state")
 
@@ -116,6 +116,7 @@
 ;; The names of functions which contained errors
 (defvar *functions-with-errors* nil)
 ;; The names of functions known up to now, modified by the DEFUN macroexpander
+;; ((name c-source-point signature side-effect-class) ...)
 (defvar *known-functions* nil)
 ;; The names of unknown functions (up to now)
 (defvar *unknown-functions* nil)
@@ -175,8 +176,8 @@ and <http://clisp.cons.org/impnotes.html#bytecode>.
 (defsetf sys::%record-ref sys::%record-store)
 (defsetf closure-name (closure) (new-name)
   `(sys::%record-store ,closure 0 ,new-name))
-(defun make-closure (&key name codevec consts)
-  (sys::%make-closure name (sys::make-code-vector codevec) consts))
+(defun make-closure (&key name codevec consts seclass)
+  (sys::%make-closure name (sys::make-code-vector codevec) consts seclass))
 
 ;; The instruction list is in <doc/impbyte.xml>.
 
@@ -1527,51 +1528,7 @@ for-value   NIL or T
                ,code
                #+CLISP-DEBUG ,stackz)))
 
-#|
-;; A side effect class (SECLASS) is an indicator:
-;; NIL : this ANODE produces no side effects,
-;;       its value cannot be influenced by side effects.
-;; VAL : this ANODE produces no side effects,
-;;       but its value can be influenced by side effects.
-;; T   : this ANODE can produce side effects.
-;; Consequently:
-;;   if the value is uninteresting, an ANODE with SECLASS = NIL/VAL
-;;   can be omitted.
-;;   In the order of evaluation ANODEs may be permuted with
-;;   SECLASS     NIL-NIL, NIL-VAL, NIL-T, VAL-VAL.
-
-;; (seclass-or class1 ... classk) determines the total class of execution
-;; of all classes.
- (defun seclass-or (&rest args)
-  (cond ((memq 'T args) 'T)
-        ((memq 'VAL args) 'VAL)
-        (t 'NIL)))
-;; Ditto, with only 2 Arguments
- (defun seclass-or-2 (seclass1 seclass2)
-  (or (eq seclass1 'T) seclass2 seclass1))
-;; For the List of sub-anodes does not have to be built, however
-;; the side effect class belonging to this list can be calculated:
- (eval-when (compile eval)
-  (defmacro anodes-seclass-or (&rest anodeforms)
-    (reduce #'(lambda (form1 form2) `(SECLASS-OR-2 ,form1 ,form2))
-            (mapcar #'(lambda (anodeform) `(ANODE-SECLASS ,anodeform))
-                    anodeforms)))
-  (define-modify-macro seclass-or-f (anode) seclass-or-anode)
-  (defmacro seclass-or-anode (seclass anode)
-    `(SECLASS-OR-2 ,seclass (ANODE-SECLASS ,anode))))
- (defun anodelist-seclass-or (anodelist)
-  (apply #'seclass-or (mapcar #'anode-seclass anodelist)))
-
-;; Determines, if two Anodes can be permuted in the order of
-;; their evaluation  - provided that the stack states permit this.
- (defun anodes-commute (anode1 anode2)
-  (let ((seclass1 (anode-seclass anode1))
-        (seclass2 (anode-seclass anode2)))
-    (or (eq seclass1 'NIL) (eq seclass2 'NIL)
-        (and (eq seclass1 'VAL) (eq seclass2 'VAL)))))
-|#
-
-;; A Side-Effect-Class (SECLASS) is an Indicator (uses . modifies):
+;; A Side-Effect-Class (SECLASS) is EITHER an Indicator (uses . modifies):
 ;; uses = NIL : this Anode can not be influenced by side-effects,
 ;;        List : this Anode depends on the value of the variables in the list,
 ;;        T : this Anode can possibly be influenced by every side-effect.
@@ -1579,6 +1536,8 @@ for-value   NIL or T
 ;;            list : ... produces side-effects only on the values of the
 ;;                    Variables in the list
 ;;            T : ... produces side-effects of unknown dimension.
+;; OR NIL, which means that the anode is FOLDABLE (see lispbibl & control)
+;;   and may be evaluated at compile-time
 ;; (Here, variables are VAR-Structures for lexical variables and symbols for
 ;; dynamic variables.)
 ;; Consequently:
@@ -1587,32 +1546,32 @@ for-value   NIL or T
 ;;   For ANODEs with SECLASS, whose uses- and modifies-part are disjoint,
 ;;   the order of evaluation may be permuted.
 
-;; (seclass-or class1 ... classk) determines the total class of execution
-;; of all classes.
-(defun seclass-or (&rest args)
-  (if (null args) '(NIL . NIL) (reduce #'seclass-or-2 args)))
-;; Ditto, with only 2 Arguments
-(defun seclass-or-2 (seclass1 seclass2)
-  (cons (if (or (eq (car seclass1) 'T) (eq (car seclass2) 'T))
-          'T
-          (union (car seclass1) (car seclass2)))
-        (if (or (eq (cdr seclass1) 'T) (eq (cdr seclass2) 'T))
-          'T
-          (union (cdr seclass1) (cdr seclass2)))))
+;; FIXME1: foldability of compiled closures is not detected
+;; FIXME2: RETURN-FROM, GO, HANDLER-BIND ==> seclass (T . T)
+
+;; (seclass-or class1 class2) determines the total class of execution
+(defun seclass-or (seclass1 seclass2)
+  (if (and (null seclass1) (null seclass2)) NIL  ; foldable
+    (cons (if (or (eq (car seclass1) 'T) (eq (car seclass2) 'T))
+            'T
+            (union (car seclass1) (car seclass2)))
+          (if (or (eq (cdr seclass1) 'T) (eq (cdr seclass2) 'T))
+            'T
+            (union (cdr seclass1) (cdr seclass2))))))
 
 ;; So that the list of sub-anodes does not have to be calculated, however
 ;; the anode's side-effect-class belonging to this list can be calculated:
 (eval-when (compile eval)
   (defmacro anodes-seclass-or (&rest anodeforms)
-    (reduce #'(lambda (form1 form2) `(SECLASS-OR-2 ,form1 ,form2))
-            (mapcar #'(lambda (anodeform) `(ANODE-SECLASS ,anodeform))
-                    anodeforms)))
+    (reduce #'(lambda (form1 form2) `(SECLASS-OR ,form1 ,form2)) anodeforms
+            :key #'(lambda (anodeform) `(ANODE-SECLASS ,anodeform))
+            :initial-value NIL))
   (define-modify-macro seclass-or-f (anode) seclass-or-anode)
   (defmacro seclass-or-anode (seclass anode)
-    `(SECLASS-OR-2 ,seclass (ANODE-SECLASS ,anode)))
+    `(SECLASS-OR ,seclass (ANODE-SECLASS ,anode)))
 )
 (defun anodelist-seclass-or (anodelist)
-  (apply #'seclass-or (mapcar #'anode-seclass anodelist)))
+  (reduce #'seclass-or anodelist :key #'anode-seclass :initial-value NIL))
 
 ;; side-effects to lexical variables bound further inwards don't count
 ;; and are therefore eliminated:
@@ -1620,8 +1579,9 @@ for-value   NIL or T
   (flet ((bound (var) (memq var varlist))) ; tests, if var is bound
     ;; (dynamic variables are not eliminated; they are contained in varlist
     ;; as VAR-structures and in seclass as symbols.)
-    (cons (if (eq (car seclass) 'T) 'T (remove-if #'bound (car seclass)))
-          (if (eq (cdr seclass) 'T) 'T (remove-if #'bound (cdr seclass))))))
+    (when seclass
+      (cons (if (eq (car seclass) 'T) 'T (remove-if #'bound (car seclass)))
+            (if (eq (cdr seclass) 'T) 'T (remove-if #'bound (cdr seclass)))))))
 
 ;; determines, if the order of evaluation of two anodes can be permuted -
 ;; so long as the stack-states permit this.
@@ -2307,6 +2267,12 @@ for-value   NIL or T
                   :value (system::get-setf-symbol symbol)
                   :form `(SYSTEM::GET-SETF-SYMBOL ',symbol)))))
 
+;; we need to check *known-functions* to make sure that the side-effect
+;; class is computed correctly
+(defun f-side-effect (fun)
+  (let ((kf (assoc fun *known-functions* :test #'equal)))
+    (if kf (fourth kf) (function-side-effect fun))))
+
 ;; global function call, normal (notinline): (fun {form}*)
 (defun c-NORMAL-FUNCTION-CALL (fun) ; fun is a symbol or (SETF symbol)
   (test-list *form* 1)
@@ -2314,6 +2280,7 @@ for-value   NIL or T
          #+CLISP-DEBUG (oldstackz *stackz*)
          (*stackz* *stackz*))
     (do ((formlist (cdr *form*))
+         (seclass (f-side-effect fun))
          #+CLISP-DEBUG (anodelist '())
          (codelist (list '(CALLP))))
         ((null formlist)
@@ -2325,12 +2292,13 @@ for-value   NIL or T
          (make-anode
            :type 'CALL
            :sub-anodes (nreverse anodelist)
-           :seclass '(T . T)
+           :seclass seclass
            :code (nreverse codelist)
            :stackz oldstackz))
       (let* ((formi (pop formlist))
              (anodei (c-form formi 'ONE)))
         #+CLISP-DEBUG (push anodei anodelist)
+        (seclass-or-f seclass anodei)
         (push anodei codelist)
         (push '(PUSH) codelist)
         (push 1 *stackz*)))))
@@ -2516,8 +2484,8 @@ for-value   NIL or T
 ;;                      at the end and which executes the call.
 (defun c-DIRECT-FUNCTION-CALL (args applyargs fun req opt rest-p key-p keylist
                                subr-flag call-code-producer)
-  (multiple-value-bind (reads-p writes-p foldable-p) (function-side-effect fun)
-    (if (and (null *for-value*) (null writes-p))
+  (let ((seclass (f-side-effect fun)))
+    (if (and (null *for-value*) (null (cdr seclass)))
       ;; Do not need to call the function, just evaluate the arguments.
       (progn
         (let ((*no-code* t) (*for-value* 'NIL))
@@ -2525,7 +2493,6 @@ for-value   NIL or T
         (c-form `(PROGN ,@args ,@applyargs)))
       (let ((n (length args))
             (reqopt (+ req opt))
-            (seclass (cons reads-p writes-p))
             (codelist '()))
         (let ((*stackz* *stackz*))
           ;; required and given optional parameters:
@@ -2746,7 +2713,7 @@ for-value   NIL or T
         ;; Constant-Folding: if fun is foldable (i.e.: subr-flag = T and
         ;; key-flag = NIL) and if codelist consists besides the (PUSH)s and the
         ;; Call-Code at the end only of Anodes with code = ((CONST ...)) ?
-        (when (and foldable-p
+        (when (and (null seclass)  ; == foldable-p
                    (every #'(lambda (code)
                               (or (not (anode-p code)) (anode-constantp code)))
                           codelist))
@@ -2868,17 +2835,7 @@ for-value   NIL or T
              (if check ; (and (<= req n) (or rest-p (<= n (+ req opt))))
                ;; we make the call INLINE.
                (let ((sideeffects ; side-effect-class of the function-execution
-                      (case fun
-                        ((NOT NULL CONS VALUES ATOM CONSP EQ LIST LIST*)
-                         '(NIL . NIL))
-                        ((CAR CDR FIRST REST CAAR CADR
-                          CDAR CDDR CAAAR CAADR CADAR CADDR CDAAR CDADR CDDAR
-                          CDDDR SECOND THIRD FOURTH CAAAAR CAAADR CAADAR CAADDR
-                          CADAAR CADADR CADDAR CADDDR CDAAAR CDAADR CDADAR
-                          CDADDR CDDAAR CDDADR CDDDAR CDDDDR VALUES-LIST
-                          SVREF SYMBOL-FUNCTION)
-                         '(T . NIL))
-                        (t '(T . T)))))
+                      (function-side-effect fun)))
                  (if (and (null *for-value*) (null (cdr sideeffects)))
                    ;; don't have to call the function,
                    ;; only evaluate the arguments
@@ -3088,10 +3045,10 @@ for-value   NIL or T
           ;;   functions but not for generic functions defined in this file
           (c-warn (TEXT "Function ~s~% was already defined~a~:[~% with the signature~%~a~% it is being re-defined with a new signature~%~a~;~2*~]")
                   symbol (c-source-point-location (second kf))
-                  (equalp signature (cddr kf))
-                  (sig-to-list (cddr kf))
+                  (equalp signature (third kf))
+                  (sig-to-list (third kf))
                   (sig-to-list signature))))
-      (pushnew (list* symbol (make-c-source-point) signature)
+      (pushnew (list symbol (make-c-source-point) signature '(T . T))
                *known-functions* :test #'equal :key #'car)
       (when lambdabody
         ;; lambdabody given ==> function definition is in the
@@ -3921,21 +3878,22 @@ for-value   NIL or T
                     ,body-anode
                     (UNWIND ,*stackz* ,oldstackz t)
                     ,(if gf-p '(RETGF) '(RET))))
+                 (anode-list `(,@opt-anodes ,@(remove nil opts-anodes)
+                               ,@key-anodes ,@(remove nil keys-anodes)
+                               ,@aux-anodes ,body-anode))
                  (anode
                    (make-anode
                      :type 'LAMBDABODY
                      :source lambdabody
-                     :sub-anodes `(,@opt-anodes ,@(remove nil opts-anodes)
-                                   ,@key-anodes ,@(remove nil keys-anodes)
-                                   ,@aux-anodes ,body-anode)
-                     ;; the side-effect-class of this Anode is irrelevant
-                     :seclass '(T . T)
+                     :sub-anodes anode-list
+                     :seclass nil
                      :stackz oldstackz
                      :code codelist)))
             (closuredummy-add-stack-slot
              closurevars closuredummy-stackz closuredummy-venvc)
             (optimize-var-list (append req-vars opt-vars opts-vars rest-vars
                                        key-vars keys-vars aux-vars))
+            (setf (anode-seclass anode) (anodelist-seclass-or anode-list))
             anode))))
     ;; this was the production of the Anode
     )))
@@ -4414,6 +4372,7 @@ for-value   NIL or T
     ;; (c-form `(FUNCALL ,(second *form*))) ; 0 Arguments for form1
     (c-FUNCTION-CALL (second *form*) '())
     (let* ((anode1 (c-form (second *form*) 'ONE))
+           (seclass (f-side-effect (second *form*)))
            #+CLISP-DEBUG (anodelist (list anode1))
            (codelist '()))
       (push anode1 codelist)
@@ -4427,12 +4386,13 @@ for-value   NIL or T
                                        *stackz*)))
                    (c-form formi 'ALL))))
           #+CLISP-DEBUG (push anodei anodelist)
+          (seclass-or-f seclass anodei)
           (push anodei codelist)
           (push '(MV-TO-STACK) codelist)))
       (push '(MVCALL) codelist)
       (make-anode :type 'MULTIPLE-VALUE-CALL
                   :sub-anodes (nreverse anodelist)
-                  :seclass '(T . T)
+                  :seclass seclass
                   :code (nreverse codelist)))))
 
 ;; compile (MULTIPLE-VALUE-LIST form)
@@ -4555,8 +4515,8 @@ for-value   NIL or T
                      (push setter codelist2)
                      (setf (car *stackz*) 1))) ; need a variable in the stack
               (setq seclass
-                (seclass-or-2 seclass
-                  (seclass-or-2 (anode-seclass anode) (anode-seclass setter))))
+                (seclass-or seclass
+                  (seclass-or (anode-seclass anode) (anode-seclass setter))))
               (setf *stackz* (cdr *stackz*))))
           ;; now *stackz* is again on the old level.
           (when *for-value* (push '(NIL) codelist2))
@@ -5861,6 +5821,7 @@ for-value   NIL or T
   (let* ((anode1 (c-form funform 'ONE))
          (*stackz* (cons 1 *stackz*)))
     (do ((formlistr args (cdr formlistr))
+         (seclass (f-side-effect funform))
          #+CLISP-DEBUG (anodelist (list anode1))
          (codelist (list '(FUNCALLP) anode1)))
         ((null formlistr)
@@ -5868,10 +5829,11 @@ for-value   NIL or T
          (make-anode
            :type 'FUNCALL
            :sub-anodes (nreverse anodelist)
-           :seclass '(T . T)
+           :seclass seclass
            :code (nreverse codelist)))
       (let ((anode (c-form (car formlistr) 'ONE)))
         #+CLISP-DEBUG (push anode anodelist)
+        (seclass-or-f seclass anode)
         (push anode codelist))
       (push '(PUSH) codelist)
       (push 1 *stackz*))))
@@ -6285,6 +6247,7 @@ for-value   NIL or T
                   (c-LOCAL-APPLY f3))))))))
     ;; if none of the optimizations was possible:
     (let* ((anode1 (c-form funform 'ONE))
+           (seclass (f-side-effect funform))
            (*stackz* (cons 1 *stackz*)))
       (do ((formlistr arglist (cdr formlistr))
            #+CLISP-DEBUG (anodelist (list anode1))
@@ -6294,10 +6257,11 @@ for-value   NIL or T
            (make-anode
              :type 'APPLY
              :sub-anodes (nreverse anodelist)
-             :seclass '(T . T)
+             :seclass seclass
              :code (nreverse codelist)))
         (let ((anode (c-form (car formlistr) 'ONE)))
           #+CLISP-DEBUG (push anode anodelist)
+          (seclass-or-f seclass anode)
           (push anode codelist)
           (when (cdr formlistr)
             (push 1 *stackz*) (push '(PUSH) codelist)))))))
@@ -9740,7 +9704,8 @@ The function make-closure is required.
                      (fnode-Consts fnode)))))
           (if (fnode-gf-p fnode)
             (list (coerce l 'simple-vector))
-            l))))
+            l))
+        :seclass (anode-seclass (fnode-code fnode))))
   fnode)
 
 ;; Return the signature of the byte-compiled function object
@@ -9809,6 +9774,10 @@ The function make-closure is required.
       (let ((*fnode-fixup-table* '()))
         (pass2 fnode)
         (pass3))
+      (when *compiling-from-file*
+        (let ((kf (assoc name *known-functions* :test #'equal)))
+          (when kf ; save seclass for other functions in the file
+            (setf (fourth kf) (function-side-effect (fnode-code fnode))))))
       (fnode-code fnode))))
 
 ;; is called for (lambda (...) (declare (compile)) ...) and returns a
@@ -10061,12 +10030,12 @@ The function make-closure is required.
 ;;; for `set-difference'
 (defun match-known-unknown-functions (uf kf)
   ;; uf: (function c-source-point arglist . apply-arglist)
-  ;; kf: (function c-source-point . signature)
+  ;; kf: (function c-source-point signature seclass)
   (when (equal (car uf) (car kf))
     (let ((*compile-file-lineno1* (c-source-point-lineno1 (second uf)))
           (*compile-file-lineno2* (c-source-point-lineno2 (second uf)))
           (*compile-file-truename* (c-source-point-file (second uf)))
-          (known-sig (cddr kf)))
+          (known-sig (third kf)))
       (unless (or (null (cddr uf)) ; nothing to test
                   (test-argument-syntax (caddr uf) (cdddr uf) (car uf)
                                         (sig-req-num  known-sig)

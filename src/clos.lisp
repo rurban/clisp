@@ -1800,7 +1800,7 @@
        (prototype-code (sys::%record-ref prototype 1)))
   (defun %make-gf (name signature argorder methods)
     (sys::%make-closure name prototype-code
-                        (list nil signature argorder methods))))
+                        (list nil signature argorder methods) nil)))
 
 #||
  (defun make-gf (name lambdabody signature argorder methods)
@@ -1809,13 +1809,10 @@
                   (DECLARE (COMPILE))
                   (%GENERIC-FUNCTION-LAMBDA ,@lambdabody)))))
     (sys::%make-closure
-     name
-     (sys::closure-codevec preliminary)
-     (list
-      (sys::%record-ref preliminary 2)
-      signature
-      argorder
-      methods))))
+     name (sys::closure-codevec preliminary)
+     (list (sys::%record-ref preliminary 2)
+           signature argorder methods)
+     nil)))
 ||#
 
 
@@ -1833,7 +1830,7 @@
     (setf (sys::%record-ref final 2) (sys::%record-ref preliminary 2))
     final))
 
-(let* ((prototype
+ (let* ((prototype
          (let ((gf 'magic))
            (declare (compile))
            (%generic-function-lambda (&rest args)
@@ -1850,8 +1847,8 @@
   (defun gf-never-called-p (gf) (eq (sys::%record-ref gf 1) prototype-code))
   (defun warn-if-gf-already-called (gf) ))
 
-;; call of a generic function
-(defun slow-funcall-gf (gf &rest args)
+ ;; call of a generic function
+ (defun slow-funcall-gf (gf &rest args)
   (let ((reqanz (sig-req-num (gf-signature gf)))
         (arg-order (gf-argorder gf))
         (methods (gf-methods gf)))
@@ -2544,6 +2541,10 @@
                     (remove old-method (gf-methods gf)))
                   (gf-methods gf))))
     (finalize-fast-gf gf))
+  (sys::closure-set-seclass gf
+    (sys::seclass-or (sys::function-side-effect gf)
+                     (sys::function-side-effect
+                      (std-method-function method))))
   gf)
 
 ;; removal of a method from a generic function:
@@ -2559,6 +2560,11 @@
             ((eq gf |#'reinitialize-instance|) (note-ri-change method))
             ((eq gf |#'shared-initialize|) (note-si-change method)))
       (setf (gf-methods gf) (remove old-method (gf-methods gf)))
+      (sys::closure-set-seclass gf
+        (reduce #'sys::seclass-or (gf-methods gf)
+                :key (lambda (sm) (sys::function-side-effect
+                                   (std-method-function sm)))
+                :initial-value NIL))
       (finalize-fast-gf gf)))
   gf)
 

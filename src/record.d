@@ -345,10 +345,25 @@ LISPFUNNR(make_code_vector,1) {
   fehler(type_error,GETTEXT("~ is not a valid code-vector byte"));
 }
 
-/* (SYS::%MAKE-CLOSURE name codevec consts) returns a closure with given
-   name (a symbol), given code-vector (a simple-bit-vector) and
-   further given constants. */
-LISPFUNNR(make_closure,3) {
+/* parse the seclass object (NIL or CONS) to a seclass_t */
+local seclass_t parse_seclass (object sec, object closure)
+{
+  if (nullp(sec)) return seclass_foldable;
+  if (!consp(sec)) {
+    pushSTACK(closure); pushSTACK(sec);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~: invalid side-effect class ~ for function ~"));
+  }
+  return (nullp(Car(sec))
+          ? (nullp(Cdr(sec)) ? seclass_no_se : seclass_write)
+          : (nullp(Cdr(sec)) ? seclass_read : seclass_default));
+}
+
+/* (SYS::%MAKE-CLOSURE name codevec consts seclass) returns a closure
+   with given name (a symbol), given code-vector (a simple-bit-vector),
+   given constants, and given side-effect class. */
+LISPFUNNR(make_closure,4) {
+  var seclass_t seclass = parse_seclass(STACK_0,STACK_3); skipSTACK(1);
   /* codevec must be a simple-bit-vector: */
   if (!simple_bit_vector_p(Atype_8Bit,STACK_1)) {
     /* STACK_1 = codevec */
@@ -366,7 +381,7 @@ LISPFUNNR(make_closure,3) {
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: function ~ is too big: ~"));
   }
-  var object closure = allocate_closure(length);
+  var object closure = allocate_closure(length,seclass);
   TheCclosure(closure)->clos_name = STACK_2; /* fill name */
   TheCclosure(closure)->clos_codevec = STACK_1; /* fill codevector */
   { /* fill constants: */
@@ -377,6 +392,17 @@ LISPFUNNR(make_closure,3) {
     }
   }
   VALUES1(closure); skipSTACK(2);
+}
+
+LISPFUNN(closure_set_seclass,2)
+{ /* (CLOSURE-SET-SECLASS closure new-seclass)
+ - for adding methods to generic functions; return the old seclass */
+  var object closure = STACK_1;
+  if (!cclosurep(closure)) fehler_cclosure(closure);
+  var seclass_t new_seclass = parse_seclass(STACK_0,closure);
+  VALUES1(seclass_object(Cclosure_seclass(closure)));
+  Cclosure_set_seclass(closure,new_seclass);
+  skipSTACK(2);
 }
 
 /* (SYS::%COPY-GENERIC-FUNCTION venv closure) copies the closure, which must be
