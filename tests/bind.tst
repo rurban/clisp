@@ -1,7 +1,7 @@
 ;;; -*- Lisp -*-
 ;; test non-global special bindings
 
-;; variable being declared special is bound
+;; variable being declared special is bound - a "bound" declaration
 (let ((x 5)) (let ((x (1+ x))) (declare (special x)) x))
 6
 (let ((x 5)) (let* ((x (1+ x))) (declare (special x)) x))
@@ -11,7 +11,7 @@
 (let ((x 5)) ((lambda (x) (declare (special x)) x)  (1+ x)))
 6
 
-;; variable being declared special is unbound
+;; similarly, without enclosing lexical binding
 (block foo
   (handler-bind ((unbound-variable
                   (lambda (c) (princ-error c) (return-from foo 'good))))
@@ -33,6 +33,16 @@ GOOD
     ((lambda (x) (declare (special x)) x)  (1+ x))))
 GOOD
 
+;; variable being declared special is not being bound - a "free" declaration
+(let ((x 5)) (let ((y (1+ x))) (declare (special x)) y))
+6
+(let ((x 5)) (let* ((y (1+ x))) (declare (special x)) y))
+6
+(let ((x 5)) (multiple-value-bind (y) (1+ x) (declare (special x)) y))
+6
+(let ((x 5)) ((lambda (y) (declare (special x)) y)  (1+ x)))
+6
+
 ;; variable is not being declared special
 (let ((x 5)) (let ((x (1+ x))) x))
 6
@@ -43,7 +53,13 @@ GOOD
 (let ((x 5)) ((lambda (x) x)  (1+ x)))
 6
 
-;; CLHS 3.3.4
+;; CLHS 3.3.4 - a "bound" declaration
+(LET ((X 5))
+  (PROGV '(X) '(20)
+    (LET ((X (1+ X)) (Z (1+ X)))
+      (DECLARE (SPECIAL X))
+      Z)))
+6
 (LET ((X 5))
   (PROGV '(X) '(20)
     (LET* ((X (1+ X)) (Z (1+ X)))
@@ -52,7 +68,39 @@ GOOD
 7
 (LET ((X 5))
   (PROGV '(X) '(20)
+    (MULTIPLE-VALUE-BIND (X Z) (VALUES (1+ X) (1+ X))
+      (DECLARE (SPECIAL X))
+      Z)))
+6
+(LET ((X 5))
+  (PROGV '(X) '(20)
+    ((LAMBDA (&OPTIONAL (X (1+ X)) (Z (1+ X)))
+       (DECLARE (SPECIAL X))
+       Z))))
+7
+
+;; CLHS 3.3.4 - a "free" declaration
+(LET ((X 5))
+  (PROGV '(X) '(20)
+    (LET ((Y (1+ X)) (Z (1+ X)))
+      (DECLARE (SPECIAL X))
+      Z)))
+6
+(LET ((X 5))
+  (PROGV '(X) '(20)
     (LET* ((Y (1+ X)) (Z (1+ X)))
       (DECLARE (SPECIAL X))
       Z)))
-21
+6
+(LET ((X 5))
+  (PROGV '(X) '(20)
+    (MULTIPLE-VALUE-BIND (Y Z) (VALUES (1+ X) (1+ X))
+      (DECLARE (SPECIAL X))
+      Z)))
+6
+(LET ((X 5))
+  (PROGV '(X) '(20)
+    ((LAMBDA (&OPTIONAL (Y (1+ X)) (Z (1+ X)))
+       (DECLARE (SPECIAL X))
+       Z))))
+6
