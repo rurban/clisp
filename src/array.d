@@ -580,6 +580,25 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       }
     }
 
+# Error when attempting to store an invalid value in an array.
+# fehler_store(array,value);
+# > subr_self: Aufrufer (ein SUBR)
+  nonreturning_function(global, fehler_store, (object array, object value));
+  global void fehler_store(array,value)
+    var object array;
+    var object value;
+    {
+      pushSTACK(array);
+      pushSTACK(value); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(array_element_type(array)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_(0+2)); # array
+      pushSTACK(STACK_2); # value
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: ~ does not fit into ~, bad type")
+            );
+    }
+
 # Führt einen STORE-Zugriff aus.
 # storagevector_store(datenvektor,index,element)
 # > datenvektor : ein Datenvektor (simpler Vektor oder semi-simpler Byte-Vektor)
@@ -666,17 +685,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
         default: NOTREACHED
       }
       # Objekt war vom falschen Typ.
-      {
-        # array bereits in STACK_0
-        pushSTACK(element); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(array_element_type(STACK_(0+1))); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-        pushSTACK(STACK_(0+2)); # array
-        pushSTACK(STACK_2); # element
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: ~ does not fit into ~, bad type")
-              );
-      }
+      fehler_store(STACK_0,element);
     }
 
 LISPFUN(aref,1,0,rest,nokey,0,NIL) # (AREF array {subscript}), CLTL S. 290
@@ -1409,6 +1418,119 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
       }
     }
 
+# Function: Copies a slice of a simple-bit-vector into another
+# simple-bit-vector.
+# bit_copy(array1,index1,array2,index2,count);
+# > array1: source simple-bit-vector
+# > index1: absolute index into array1
+# > array2: destination simple-bit-vector
+# > index2: absolute index into array2
+# > count: number of bits to be copied, > 0
+  local void bit_copy (object array1, uintL index1,
+                       object array2, uintL index2,
+                       uintL bitcount);
+  local void bit_copy(array1,index1,array2,index2,bitcount)
+    var object array1;
+    var uintL index1;
+    var object array2;
+    var uintL index2;
+    var uintL bitcount;
+    {
+      var const uint_bitpack* ptr1 = &((uint_bitpack*)(&TheSbvector(array1)->data[0]))[index1/bitpack];
+      var uint_bitpack* ptr2 = &((uint_bitpack*)(&TheSbvector(array2)->data[0]))[index2/bitpack];
+      # ptr1 point to the first affected word in array1.
+      # ptr2 point to the first affected word in array2.
+      index1 = index1 % bitpack; # bit-offset in array1
+      index2 = index2 % bitpack; # bit-offset in array2
+      if (index1 == index2) {
+        # Treat the first word.
+        if (!(index1 == 0)) {
+          var uintL count1 = bitpack - index1;
+          if (count1 >= bitcount) {
+            # copy bits bitpack-index1-1..bitpack-index1-bitcount
+            # from *ptr1 to *ptr2.
+            *ptr2 ^= (bit(count1)-bit(count1-bitcount)) & (*ptr2 ^ *ptr1);
+            return;
+          }
+          *ptr2 ^= (bit(count1)-1) & (*ptr2 ^ *ptr1);
+          ptr1++;
+          ptr2++;
+          bitcount -= count1; # still > 0
+        }
+        # We can now assume index1 = index2 = 0.
+        var uintL bitpackcount = bitcount / bitpack;
+        # bitpackcount = number of complete words
+        var uintL bitcount_rest = bitcount % bitpack;
+        # bitcount_rest = number of remaining bits
+        # simple loop, since all bit offsets are 0.
+        dotimesL(bitpackcount,bitpackcount, {
+          *ptr2++ = *ptr1++;
+        });
+        if (!(bitcount_rest==0))
+          *ptr2 ^= ~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest) & (*ptr2 ^ *ptr1);
+      } else {
+        var uintL bitpackcount = bitcount / bitpack;
+        # bitpackcount = number of complete words
+        var uintL bitcount_rest = bitcount % bitpack;
+        # bitcount_rest = number of remaining bits
+        var uint_2bitpack carry2 =
+          LR_bitpack_0( ( ~ ( (uint_bitpack)(bitm(bitpack)-1) >> index2) ) & *ptr2 );
+        # The upper index2 bits of carry2 are exactly those bits of *ptr2
+        # which must not be modified.
+        # We distinguish two cases in order to avoid a memory overrun bug.
+        # The tighter loop is just an added benefit for speed.
+        if (index1 == 0) {
+          # index1 = 0.
+          loop {
+            # After n>=0 rounds ptr1 has advanced by n words, i.e. it points
+            # to the next word to be read, and ptr2 has advanced by n words, i.e.
+            # it points to the next word to be written. bitpackcount has been
+            # decremented by n.
+            carry2 |= LR_bitpack_0(*ptr1++) >> index2;
+            if (bitpackcount==0)
+              break;
+            *ptr2++ = L_bitpack(carry2);
+            carry2 = LR_bitpack_0(R_bitpack(carry2));
+            bitpackcount--;
+          }
+        } else {
+          # index1 > 0.
+          var uint_2bitpack carry1 = LR_bitpack_0((*ptr1++) << index1);
+          # The upper bitpack-index1 bits of carry1 are the affected bits of
+          # the first word of array1. The other bits in carry1 are zero.
+          loop {
+            # After n>=0 rounds ptr1 has advanced by n+1 words, i.e. it points
+            # to the next word to be read, and ptr2 has advanced by n words, i.e.
+            # it points to the next word to be written. bitpackcount has been
+            # decremented by n.
+            var uint_bitpack temp =
+              (carry1 |= LR_0_bitpack(*ptr1++) << index1, L_bitpack(carry1));
+            carry1 = LR_bitpack_0(R_bitpack(carry1));
+            carry2 |= LR_bitpack_0(temp) >> index2;
+            if (bitpackcount==0)
+              break;
+            *ptr2++ = L_bitpack(carry2);
+            carry2 = LR_bitpack_0(R_bitpack(carry2));
+            bitpackcount--;
+          }
+        }
+        # Special handling for the last word (now containd in the bits
+        # 2*bitpack-index2-1..bitpack-index2 of carry2): Only bitcount_rest
+        # bits must be stored in array2.
+        bitcount_rest = index2+bitcount_rest;
+        var uint_bitpack last_carry;
+        if (bitcount_rest>=bitpack) {
+          *ptr2++ = L_bitpack(carry2);
+          last_carry = R_bitpack(carry2);
+          bitcount_rest -= bitpack;
+        } else {
+          last_carry = L_bitpack(carry2);
+        }
+        if (!(bitcount_rest==0))
+          *ptr2 ^= (*ptr2 ^ last_carry) & (~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest ));
+      }
+    }
+
 # Unterprogramm für Bitvektor-Operationen:
 # bit_op(array1,index1,array2,index2,array3,index3,op,count);
 # > array1: erster Bit-Array,
@@ -2012,6 +2134,1566 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
   }
 
 # ============================================================================
+#                     Polymorphic copying
+
+# Function: Copies a slice of an array array1 into another array array2.
+# elt_copy(dv1,index1,dv2,index2,count);
+# > dv1: source storage-vector
+# > index1: start index in dv1
+# > dv2: destination storage-vector
+# > index2: start index in dv2
+# > count: number of elements to be copied, > 0
+# can trigger GC
+  global void elt_copy (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_T_T (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_Char_T (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_Bit_T (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_2Bit_T (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_4Bit_T (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_8Bit_T (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_16Bit_T (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_32Bit_T (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_T_Char (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_Char_Char (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_T_Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_Bit_Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_2Bit_Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_4Bit_Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_8Bit_Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_16Bit_Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_32Bit_Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_T_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_Bit_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_2Bit_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_4Bit_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_8Bit_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_16Bit_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_32Bit_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_T_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_Bit_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_2Bit_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_4Bit_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_8Bit_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_16Bit_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_32Bit_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_T_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_Bit_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_2Bit_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_4Bit_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_8Bit_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_16Bit_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_32Bit_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_T_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_2Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_4Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_8Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_16Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_32Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_T_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_2Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_4Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_8Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_16Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_32Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_copy_T_T(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const object* ptr1 = &TheSvector(dv1)->data[index1];
+      var object* ptr2 = &TheSvector(dv2)->data[index2];
+      dotimespL(count,count, {
+        *ptr2++ = *ptr1++;
+      });
+    }
+  local void elt_copy_Char_T(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var object* ptr2 = &TheSvector(dv2)->data[index2];
+      SstringDispatch(dv1,
+        {
+          var const chart* ptr1 = &TheSstring(dv1)->data[index1];
+          dotimespL(count,count, {
+            *ptr2++ = code_char(*ptr1); ptr1++;
+          });
+        },
+        {
+          var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+          dotimespL(count,count, {
+            *ptr2++ = code_char(as_chart(*ptr1)); ptr1++;
+          });
+        }
+        );
+    }
+  local void elt_copy_Bit_T(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/8];
+      var object* ptr2 = &TheSvector(dv2)->data[index2];
+      dotimespL(count,count, {
+        *ptr2++ = fixnum((*ptr1 >> ((~index1)%8)) & (bit(1)-1));
+        index1++;
+        ptr1 += ((index1%8)==0);
+      });
+    }
+  local void elt_copy_2Bit_T(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/4];
+      var object* ptr2 = &TheSvector(dv2)->data[index2];
+      dotimespL(count,count, {
+        *ptr2++ = fixnum((*ptr1 >> (2*((~index1)%4))) & (bit(2)-1));
+        index1++;
+        ptr1 += ((index1%4)==0);
+      });
+    }
+  local void elt_copy_4Bit_T(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/2];
+      var object* ptr2 = &TheSvector(dv2)->data[index2];
+      dotimespL(count,count, {
+        *ptr2++ = fixnum((*ptr1 >> (4*((~index1)%2))) & (bit(4)-1));
+        index1++;
+        ptr1 += ((index1%2)==0);
+      });
+    }
+  local void elt_copy_8Bit_T(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1];
+      var object* ptr2 = &TheSvector(dv2)->data[index2];
+      dotimespL(count,count, {
+        *ptr2++ = fixnum(*ptr1++);
+      });
+    }
+  local void elt_copy_16Bit_T(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1];
+      var object* ptr2 = &TheSvector(dv2)->data[index2];
+      dotimespL(count,count, {
+        *ptr2++ = fixnum(*ptr1++);
+      });
+    }
+  local void elt_copy_32Bit_T(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      #if (intLsize<=oint_data_len)
+        # UL_to_I(x) = fixnum(x), cannot trigger GC
+        var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
+        var object* ptr2 = &TheSvector(dv2)->data[index2];
+        dotimespL(count,count, {
+          *ptr2++ = fixnum(*ptr1++);
+        });
+      #else
+        pushSTACK(dv1);
+        pushSTACK(dv2);
+        dotimespL(count,count, {
+          var object x = UL_to_I(((uint32*)&TheSbvector(STACK_1)->data[0])[index1++]);
+          TheSvector(STACK_0)->data[index2++] = x;
+        });
+        skipSTACK(2);
+      #endif
+    }
+  local void elt_copy_T_Char(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const object* ptr1 = &TheSvector(dv1)->data[index1];
+      check_sstring_mutable(dv2);
+      var chart* ptr2 = &TheSstring(dv2)->data[index2];
+      dotimespL(count,count, {
+        var object value = *ptr1++;
+        if (!charp(value)) fehler_store(dv2,value);
+        *ptr2++ = char_code(value);
+      });
+    }
+  local void elt_copy_Char_Char(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      check_sstring_mutable(dv2);
+      var chart* ptr2 = &TheSstring(dv2)->data[index2];
+      SstringDispatch(dv1,
+        {
+          # Equivalent to chartcopy, but we inline it here.
+          var const chart* ptr1 = &TheSstring(dv1)->data[index1];
+          dotimespL(count,count, {
+            *ptr2++ = *ptr1++;
+          });
+        },
+        {
+          # Equivalent to scintcopy, but we inline it here.
+          var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+          dotimespL(count,count, {
+            *ptr2++ = as_chart(*ptr1++);
+          });
+        }
+        );
+    }
+  local void elt_copy_T_Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const object* ptr1 = &TheSvector(dv1)->data[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/8];
+      dotimespL(count,count, {
+        var object value = *ptr1++;
+        if (!uint1_p(value)) fehler_store(dv2,value);
+        *ptr2 ^= (*ptr2 ^ (I_to_uint8(value) << ((~index2)%8))) & ((bit(1)-1) << ((~index2)%8));
+        index2++;
+        ptr2 += ((index2%8)==0);
+      });
+    }
+  #define elt_copy_Bit_Bit(dv1,index1,dv2,index2,count)  \
+    bit_copy(dv1,index1,dv2,index2,count)
+  local void elt_copy_2Bit_Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/4];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/8];
+      dotimespL(count,count, {
+        var uint8 value = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
+        if (!(value < bit(1))) fehler_store(dv2,fixnum(value));
+        *ptr2 ^= (*ptr2 ^ (value << ((~index2)%8))) & ((bit(1)-1) << ((~index2)%8));
+        index1++;
+        ptr1 += ((index1%4)==0);
+        index2++;
+        ptr2 += ((index2%8)==0);
+      });
+    }
+  local void elt_copy_4Bit_Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/2];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/8];
+      dotimespL(count,count, {
+        var uint8 value = (*ptr1 >> (4*((~index1)%2))) & (bit(4)-1);
+        if (!(value < bit(1))) fehler_store(dv2,fixnum(value));
+        *ptr2 ^= (*ptr2 ^ (value << ((~index2)%8))) & ((bit(1)-1) << ((~index2)%8));
+        index1++;
+        ptr1 += ((index1%2)==0);
+        index2++;
+        ptr2 += ((index2%8)==0);
+      });
+    }
+  local void elt_copy_8Bit_Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/8];
+      dotimespL(count,count, {
+        var uint8 value = *ptr1++;
+        if (!(value < bit(1))) fehler_store(dv2,fixnum(value));
+        *ptr2 ^= (*ptr2 ^ (value << ((~index2)%8))) & ((bit(1)-1) << ((~index2)%8));
+        index2++;
+        ptr2 += ((index2%8)==0);
+      });
+    }
+  local void elt_copy_16Bit_Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/8];
+      dotimespL(count,count, {
+        var uint16 value = *ptr1++;
+        if (!(value < bit(1))) fehler_store(dv2,fixnum(value));
+        *ptr2 ^= (*ptr2 ^ (value << ((~index2)%8))) & ((bit(1)-1) << ((~index2)%8));
+        index2++;
+        ptr2 += ((index2%8)==0);
+      });
+    }
+  local void elt_copy_32Bit_Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/8];
+      dotimespL(count,count, {
+        var uint32 value = *ptr1++;
+        if (!(value < bit(1))) {
+          pushSTACK(dv2);
+          var object tmp = UL_to_I(value);
+          fehler_store(popSTACK(),tmp);
+        }
+        *ptr2 ^= (*ptr2 ^ (value << ((~index2)%8))) & ((bit(1)-1) << ((~index2)%8));
+        index2++;
+        ptr2 += ((index2%8)==0);
+      });
+    }
+  local void elt_copy_T_2Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const object* ptr1 = &TheSvector(dv1)->data[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/4];
+      dotimespL(count,count, {
+        var object value = *ptr1++;
+        if (!uint2_p(value)) fehler_store(dv2,value);
+        *ptr2 ^= (*ptr2 ^ (I_to_uint8(value) << (2*((~index2)%4)))) & ((bit(2)-1) << (2*((~index2)%4)));
+        index2++;
+        ptr2 += ((index2%4)==0);
+      });
+    }
+  local void elt_copy_Bit_2Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/8];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/4];
+      dotimespL(count,count, {
+        var uint8 value = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
+        *ptr2 ^= (*ptr2 ^ (value << (2*((~index2)%4)))) & ((bit(2)-1) << (2*((~index2)%4)));
+        index1++;
+        ptr1 += ((index1%8)==0);
+        index2++;
+        ptr2 += ((index2%4)==0);
+      });
+    }
+  #define elt_copy_2Bit_2Bit(dv1,index1,dv2,index2,count)  \
+    bit_copy(dv1,(index1)<<1,dv2,(index2)<<1,(count)<<1)
+  local void elt_copy_4Bit_2Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/2];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/4];
+      dotimespL(count,count, {
+        var uint8 value = (*ptr1 >> (4*((~index1)%2))) & (bit(4)-1);
+        if (!(value < bit(2))) fehler_store(dv2,fixnum(value));
+        *ptr2 ^= (*ptr2 ^ (value << (2*((~index2)%4)))) & ((bit(2)-1) << (2*((~index2)%4)));
+        index1++;
+        ptr1 += ((index1%2)==0);
+        index2++;
+        ptr2 += ((index2%4)==0);
+      });
+    }
+  local void elt_copy_8Bit_2Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/4];
+      dotimespL(count,count, {
+        var uint8 value = *ptr1++;
+        if (!(value < bit(2))) fehler_store(dv2,fixnum(value));
+        *ptr2 ^= (*ptr2 ^ (value << (2*((~index2)%4)))) & ((bit(2)-1) << (2*((~index2)%4)));
+        index2++;
+        ptr2 += ((index2%4)==0);
+      });
+    }
+  local void elt_copy_16Bit_2Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/4];
+      dotimespL(count,count, {
+        var uint16 value = *ptr1++;
+        if (!(value < bit(2))) fehler_store(dv2,fixnum(value));
+        *ptr2 ^= (*ptr2 ^ (value << (2*((~index2)%4)))) & ((bit(2)-1) << (2*((~index2)%4)));
+        index2++;
+        ptr2 += ((index2%4)==0);
+      });
+    }
+  local void elt_copy_32Bit_2Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/4];
+      dotimespL(count,count, {
+        var uint32 value = *ptr1++;
+        if (!(value < bit(2))) {
+          pushSTACK(dv2);
+          var object tmp = UL_to_I(value);
+          fehler_store(popSTACK(),tmp);
+        }
+        *ptr2 ^= (*ptr2 ^ (value << (2*((~index2)%4)))) & ((bit(2)-1) << (2*((~index2)%4)));
+        index2++;
+        ptr2 += ((index2%4)==0);
+      });
+    }
+  local void elt_copy_T_4Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const object* ptr1 = &TheSvector(dv1)->data[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/2];
+      dotimespL(count,count, {
+        var object value = *ptr1++;
+        if (!uint4_p(value)) fehler_store(dv2,value);
+        *ptr2 ^= (*ptr2 ^ (I_to_uint8(value) << (4*((~index2)%2)))) & ((bit(4)-1) << (4*((~index2)%2)));
+        index2++;
+        ptr2 += ((index2%2)==0);
+      });
+    }
+  local void elt_copy_Bit_4Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/8];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/2];
+      dotimespL(count,count, {
+        var uint8 value = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
+        *ptr2 ^= (*ptr2 ^ (value << (4*((~index2)%2)))) & ((bit(4)-1) << (4*((~index2)%2)));
+        index1++;
+        ptr1 += ((index1%8)==0);
+        index2++;
+        ptr2 += ((index2%2)==0);
+      });
+    }
+  local void elt_copy_2Bit_4Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/4];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/2];
+      dotimespL(count,count, {
+        var uint8 value = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
+        *ptr2 ^= (*ptr2 ^ (value << (4*((~index2)%2)))) & ((bit(4)-1) << (4*((~index2)%2)));
+        index1++;
+        ptr1 += ((index1%4)==0);
+        index2++;
+        ptr2 += ((index2%2)==0);
+      });
+    }
+  #define elt_copy_4Bit_4Bit(dv1,index1,dv2,index2,count)  \
+    bit_copy(dv1,(index1)<<2,dv2,(index2)<<2,(count)<<2)
+  local void elt_copy_8Bit_4Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/2];
+      dotimespL(count,count, {
+        var uint8 value = *ptr1++;
+        if (!(value < bit(4))) fehler_store(dv2,fixnum(value));
+        *ptr2 ^= (*ptr2 ^ (value << (4*((~index2)%2)))) & ((bit(4)-1) << (4*((~index2)%2)));
+        index2++;
+        ptr2 += ((index2%2)==0);
+      });
+    }
+  local void elt_copy_16Bit_4Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/2];
+      dotimespL(count,count, {
+        var uint16 value = *ptr1++;
+        if (!(value < bit(4))) fehler_store(dv2,fixnum(value));
+        *ptr2 ^= (*ptr2 ^ (value << (4*((~index2)%2)))) & ((bit(4)-1) << (4*((~index2)%2)));
+        index2++;
+        ptr2 += ((index2%2)==0);
+      });
+    }
+  local void elt_copy_32Bit_4Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/2];
+      dotimespL(count,count, {
+        var uint32 value = *ptr1++;
+        if (!(value < bit(4))) {
+          pushSTACK(dv2);
+          var object tmp = UL_to_I(value);
+          fehler_store(popSTACK(),tmp);
+        }
+        *ptr2 ^= (*ptr2 ^ (value << (4*((~index2)%2)))) & ((bit(4)-1) << (4*((~index2)%2)));
+        index2++;
+        ptr2 += ((index2%2)==0);
+      });
+    }
+  local void elt_copy_T_8Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const object* ptr1 = &TheSvector(dv1)->data[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2];
+      dotimespL(count,count, {
+        var object value = *ptr1++;
+        if (!uint8_p(value)) fehler_store(dv2,value);
+        *ptr2++ = I_to_uint8(value);
+      });
+    }
+  local void elt_copy_Bit_8Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/8];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2];
+      dotimespL(count,count, {
+        *ptr2++ = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
+        index1++;
+        ptr1 += ((index1%8)==0);
+      });
+    }
+  local void elt_copy_2Bit_8Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/4];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2];
+      dotimespL(count,count, {
+        *ptr2++ = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
+        index1++;
+        ptr1 += ((index1%4)==0);
+      });
+    }
+  local void elt_copy_4Bit_8Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/2];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2];
+      dotimespL(count,count, {
+        *ptr2++ = (*ptr1 >> (4*((~index1)%2))) & (bit(4)-1);
+        index1++;
+        ptr1 += ((index1%2)==0);
+      });
+    }
+  local void elt_copy_8Bit_8Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2];
+      dotimespL(count,count, {
+        *ptr2++ = *ptr1++;
+      });
+    }
+  local void elt_copy_16Bit_8Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2];
+      dotimespL(count,count, {
+        var uint16 value = *ptr1++;
+        if (!(value < bit(8))) fehler_store(dv2,fixnum(value));
+        *ptr2++ = value;
+      });
+    }
+  local void elt_copy_32Bit_8Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
+      var uint8* ptr2 = &TheSbvector(dv2)->data[index2];
+      dotimespL(count,count, {
+        var uint32 value = *ptr1++;
+        if (!(value < bit(8))) {
+          pushSTACK(dv2);
+          var object tmp = UL_to_I(value);
+          fehler_store(popSTACK(),tmp);
+        }
+        *ptr2++ = value;
+      });
+    }
+  local void elt_copy_T_16Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const object* ptr1 = &TheSvector(dv1)->data[index1];
+      var uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
+      dotimespL(count,count, {
+        var object value = *ptr1++;
+        if (!uint16_p(value)) fehler_store(dv2,value);
+        *ptr2++ = I_to_uint16(value);
+      });
+    }
+  local void elt_copy_Bit_16Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/8];
+      var uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
+      dotimespL(count,count, {
+        *ptr2++ = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
+        index1++;
+        ptr1 += ((index1%8)==0);
+      });
+    }
+  local void elt_copy_2Bit_16Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/4];
+      var uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
+      dotimespL(count,count, {
+        *ptr2++ = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
+        index1++;
+        ptr1 += ((index1%4)==0);
+      });
+    }
+  local void elt_copy_4Bit_16Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/2];
+      var uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
+      dotimespL(count,count, {
+        *ptr2++ = (*ptr1 >> (4*((~index1)%2))) & (bit(4)-1);
+        index1++;
+        ptr1 += ((index1%2)==0);
+      });
+    }
+  local void elt_copy_8Bit_16Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1];
+      var uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
+      dotimespL(count,count, {
+        *ptr2++ = *ptr1++;
+      });
+    }
+  local void elt_copy_16Bit_16Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1];
+      var uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
+      dotimespL(count,count, {
+        *ptr2++ = *ptr1++;
+      });
+    }
+  local void elt_copy_32Bit_16Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
+      var uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
+      dotimespL(count,count, {
+        var uint32 value = *ptr1++;
+        if (!(value < bit(16))) {
+          pushSTACK(dv2);
+          var object tmp = UL_to_I(value);
+          fehler_store(popSTACK(),tmp);
+        }
+        *ptr2++ = value;
+      });
+    }
+  local void elt_copy_T_32Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const object* ptr1 = &TheSvector(dv1)->data[index1];
+      var uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
+      dotimespL(count,count, {
+        var object value = *ptr1++;
+        if (!uint32_p(value)) fehler_store(dv2,value);
+        *ptr2++ = I_to_uint32(value);
+      });
+    }
+  local void elt_copy_Bit_32Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/8];
+      var uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
+      dotimespL(count,count, {
+        *ptr2++ = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
+        index1++;
+        ptr1 += ((index1%8)==0);
+      });
+    }
+  local void elt_copy_2Bit_32Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/4];
+      var uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
+      dotimespL(count,count, {
+        *ptr2++ = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
+        index1++;
+        ptr1 += ((index1%4)==0);
+      });
+    }
+  local void elt_copy_4Bit_32Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/2];
+      var uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
+      dotimespL(count,count, {
+        *ptr2++ = (*ptr1 >> (4*((~index1)%2))) & (bit(4)-1);
+        index1++;
+        ptr1 += ((index1%2)==0);
+      });
+    }
+  local void elt_copy_8Bit_32Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1];
+      var uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
+      dotimespL(count,count, {
+        *ptr2++ = *ptr1++;
+      });
+    }
+  local void elt_copy_16Bit_32Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1];
+      var uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
+      dotimespL(count,count, {
+        *ptr2++ = *ptr1++;
+      });
+    }
+  local void elt_copy_32Bit_32Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
+      var uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
+      dotimespL(count,count, {
+        *ptr2++ = *ptr1++;
+      });
+    }
+  global void elt_copy(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      switch (Array_type(dv1)) {
+        case Array_type_svector: # Simple-Vector
+          switch (Array_type(dv2)) {
+            case Array_type_svector: # Simple-Vector
+              elt_copy_T_T(dv1,index1,dv2,index2,count); return;
+            case Array_type_sbvector: # Simple-Bit-Vector
+              elt_copy_T_Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb2vector:
+              elt_copy_T_2Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb4vector:
+              elt_copy_T_4Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb8vector:
+              elt_copy_T_8Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb16vector:
+              elt_copy_T_16Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb32vector:
+              elt_copy_T_32Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sstring: # Simple-String
+              elt_copy_T_Char(dv1,index1,dv2,index2,count); return;
+            default: NOTREACHED
+          }
+          break;
+        case Array_type_sbvector: # Simple-Bit-Vector
+          switch (Array_type(dv2)) {
+            case Array_type_svector: # Simple-Vector
+              elt_copy_Bit_T(dv1,index1,dv2,index2,count); return;
+            case Array_type_sbvector: # Simple-Bit-Vector
+              elt_copy_Bit_Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb2vector:
+              elt_copy_Bit_2Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb4vector:
+              elt_copy_Bit_4Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb8vector:
+              elt_copy_Bit_8Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb16vector:
+              elt_copy_Bit_16Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb32vector:
+              elt_copy_Bit_32Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sstring: # Simple-String
+              break; # fehler_store because count > 0
+            default: NOTREACHED
+          }
+          break;
+        case Array_type_sb2vector:
+          switch (Array_type(dv2)) {
+            case Array_type_svector: # Simple-Vector
+              elt_copy_2Bit_T(dv1,index1,dv2,index2,count); return;
+            case Array_type_sbvector: # Simple-Bit-Vector
+              elt_copy_2Bit_Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb2vector:
+              elt_copy_2Bit_2Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb4vector:
+              elt_copy_2Bit_4Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb8vector:
+              elt_copy_2Bit_8Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb16vector:
+              elt_copy_2Bit_16Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb32vector:
+              elt_copy_2Bit_32Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sstring: # Simple-String
+              break; # fehler_store because count > 0
+            default: NOTREACHED
+          }
+          break;
+        case Array_type_sb4vector:
+          switch (Array_type(dv2)) {
+            case Array_type_svector: # Simple-Vector
+              elt_copy_4Bit_T(dv1,index1,dv2,index2,count); return;
+            case Array_type_sbvector: # Simple-Bit-Vector
+              elt_copy_4Bit_Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb2vector:
+              elt_copy_4Bit_2Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb4vector:
+              elt_copy_4Bit_4Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb8vector:
+              elt_copy_4Bit_8Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb16vector:
+              elt_copy_4Bit_16Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb32vector:
+              elt_copy_4Bit_32Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sstring: # Simple-String
+              break; # fehler_store because count > 0
+            default: NOTREACHED
+          }
+          break;
+        case Array_type_sb8vector:
+          switch (Array_type(dv2)) {
+            case Array_type_svector: # Simple-Vector
+              elt_copy_8Bit_T(dv1,index1,dv2,index2,count); return;
+            case Array_type_sbvector: # Simple-Bit-Vector
+              elt_copy_8Bit_Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb2vector:
+              elt_copy_8Bit_2Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb4vector:
+              elt_copy_8Bit_4Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb8vector:
+              elt_copy_8Bit_8Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb16vector:
+              elt_copy_8Bit_16Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb32vector:
+              elt_copy_8Bit_32Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sstring: # Simple-String
+              break; # fehler_store because count > 0
+            default: NOTREACHED
+          }
+          break;
+        case Array_type_sb16vector:
+          switch (Array_type(dv2)) {
+            case Array_type_svector: # Simple-Vector
+              elt_copy_16Bit_T(dv1,index1,dv2,index2,count); return;
+            case Array_type_sbvector: # Simple-Bit-Vector
+              elt_copy_16Bit_Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb2vector:
+              elt_copy_16Bit_2Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb4vector:
+              elt_copy_16Bit_4Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb8vector:
+              elt_copy_16Bit_8Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb16vector:
+              elt_copy_16Bit_16Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb32vector:
+              elt_copy_16Bit_32Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sstring: # Simple-String
+              break; # fehler_store because count > 0
+            default: NOTREACHED
+          }
+          break;
+        case Array_type_sb32vector:
+          switch (Array_type(dv2)) {
+            case Array_type_svector: # Simple-Vector
+              elt_copy_32Bit_T(dv1,index1,dv2,index2,count); return;
+            case Array_type_sbvector: # Simple-Bit-Vector
+              elt_copy_32Bit_Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb2vector:
+              elt_copy_32Bit_2Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb4vector:
+              elt_copy_32Bit_4Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb8vector:
+              elt_copy_32Bit_8Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb16vector:
+              elt_copy_32Bit_16Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sb32vector:
+              elt_copy_32Bit_32Bit(dv1,index1,dv2,index2,count); return;
+            case Array_type_sstring: # Simple-String
+              break; # fehler_store because count > 0
+            default: NOTREACHED
+          }
+          break;
+        case Array_type_sstring: # Simple-String
+          switch (Array_type(dv2)) {
+            case Array_type_svector: # Simple-Vector
+              elt_copy_Char_T(dv1,index1,dv2,index2,count); return;
+            case Array_type_sbvector: # Simple-Bit-Vector
+            case Array_type_sb2vector:
+            case Array_type_sb4vector:
+            case Array_type_sb8vector:
+            case Array_type_sb16vector:
+            case Array_type_sb32vector:
+              break; # fehler_store because count > 0
+            case Array_type_sstring: # Simple-String
+              elt_copy_Char_Char(dv1,index1,dv2,index2,count); return;
+            default: NOTREACHED
+          }
+          break;
+        default: NOTREACHED
+      }
+      pushSTACK(dv2);
+      var object elt1 = storagevector_aref(dv1,index1);
+      fehler_store(popSTACK(),elt1);
+    }
+
+# Function: Copies a slice of an array array1 into another array array2 of
+# the same element type. Handles overlapping arrays correctly.
+# elt_move(dv1,index1,dv2,index2,count);
+# > dv1: source storage-vector
+# > index1: start index in dv1
+# > dv2: destination storage-vector
+# > index2: start index in dv2
+# > count: number of elements to be copied, > 0
+# can trigger GC
+  global void elt_move (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_move_T (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_move_Char (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_move_Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_move_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_move_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_move_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_move_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_move_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local void elt_move_T(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      if (dv1 == dv2 && index1 < index2 && index2 < index1+count) {
+        var const object* ptr1 = &TheSvector(dv1)->data[index1+count];
+        var object* ptr2 = &TheSvector(dv2)->data[index2+count];
+        dotimespL(count,count, {
+          *--ptr2 = *--ptr1;
+        });
+      } else {
+        var const object* ptr1 = &TheSvector(dv1)->data[index1];
+        var object* ptr2 = &TheSvector(dv2)->data[index2];
+        dotimespL(count,count, {
+          *ptr2++ = *ptr1++;
+        });
+      }
+    }
+  local void elt_move_Char(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      check_sstring_mutable(dv2);
+      if (dv1 == dv2 && index1 < index2 && index2 < index1+count) {
+        var const chart* ptr1 = &TheSstring(dv1)->data[index1+count];
+        var chart* ptr2 = &TheSstring(dv2)->data[index2+count];
+        dotimespL(count,count, {
+          *--ptr2 = *--ptr1;
+        });
+      } else {
+        # elt_copy_Char_Char(dv1,index1,dv2,index2,count) inlined:
+        var chart* ptr2 = &TheSstring(dv2)->data[index2];
+        SstringDispatch(dv1,
+          {
+            # Equivalent to chartcopy, but we inline it here.
+            var const chart* ptr1 = &TheSstring(dv1)->data[index1];
+            dotimespL(count,count, {
+              *ptr2++ = *ptr1++;
+            });
+          },
+          {
+            # Equivalent to scintcopy, but we inline it here.
+            var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+            dotimespL(count,count, {
+              *ptr2++ = as_chart(*ptr1++);
+            });
+          }
+          );
+      }
+    }
+  local void elt_move_Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      if (dv1 == dv2 && index1 < index2+64 && index2 < index1+count+64) {
+        if (index1 < index2 && index2 < index1+count) {
+          index1 += count;
+          index2 += count;
+          var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/8];
+          var uint8* ptr2 = &TheSbvector(dv2)->data[index2/8];
+          dotimespL(count,count, {
+            ptr1 -= ((index1%8)==0);
+            index1--;
+            ptr2 -= ((index2%8)==0);
+            index2--;
+            var uint8 value = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
+            *ptr2 ^= (*ptr2 ^ (value << ((~index2)%8))) & ((bit(1)-1) << ((~index2)%8));
+          });
+        } else {
+          var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/8];
+          var uint8* ptr2 = &TheSbvector(dv2)->data[index2/8];
+          dotimespL(count,count, {
+            var uint8 value = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
+            *ptr2 ^= (*ptr2 ^ (value << ((~index2)%8))) & ((bit(1)-1) << ((~index2)%8));
+            index1++;
+            ptr1 += ((index1%8)==0);
+            index2++;
+            ptr2 += ((index2%8)==0);
+          });
+        }
+      } else
+        elt_copy_Bit_Bit(dv1,index1,dv2,index2,count);
+    }
+  local void elt_move_2Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      if (dv1 == dv2 && index1 < index2+32 && index2 < index1+count+32) {
+        if (index1 < index2 && index2 < index1+count) {
+          index1 += count;
+          index2 += count;
+          var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/4];
+          var uint8* ptr2 = &TheSbvector(dv2)->data[index2/4];
+          dotimespL(count,count, {
+            ptr1 -= ((index1%4)==0);
+            index1--;
+            ptr2 -= ((index2%4)==0);
+            index2--;
+            var uint8 value = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
+            *ptr2 ^= (*ptr2 ^ (value << (2*((~index2)%4)))) & ((bit(2)-1) << (2*((~index2)%4)));
+          });
+        } else {
+          var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/4];
+          var uint8* ptr2 = &TheSbvector(dv2)->data[index2/4];
+          dotimespL(count,count, {
+            var uint8 value = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
+            *ptr2 ^= (*ptr2 ^ (value << (2*((~index2)%4)))) & ((bit(2)-1) << (2*((~index2)%4)));
+            index1++;
+            ptr1 += ((index1%4)==0);
+            index2++;
+            ptr2 += ((index2%4)==0);
+          });
+        }
+      } else
+        elt_copy_2Bit_2Bit(dv1,index1,dv2,index2,count);
+    }
+  local void elt_move_4Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      if (dv1 == dv2 && index1 < index2+16 && index2 < index1+count+16) {
+        if (index1 < index2 && index2 < index1+count) {
+          index1 += count;
+          index2 += count;
+          var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/2];
+          var uint8* ptr2 = &TheSbvector(dv2)->data[index2/2];
+          dotimespL(count,count, {
+            ptr1 -= ((index1%2)==0);
+            index1--;
+            ptr2 -= ((index2%2)==0);
+            index2--;
+            var uint8 value = (*ptr1 >> (4*((~index1)%2))) & (bit(4)-1);
+            *ptr2 ^= (*ptr2 ^ (value << (4*((~index2)%2)))) & ((bit(4)-1) << (4*((~index2)%2)));
+          });
+        } else {
+          var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/2];
+          var uint8* ptr2 = &TheSbvector(dv2)->data[index2/2];
+          dotimespL(count,count, {
+            var uint8 value = (*ptr1 >> (4*((~index1)%2))) & (bit(4)-1);
+            *ptr2 ^= (*ptr2 ^ (value << (4*((~index2)%2)))) & ((bit(4)-1) << (4*((~index2)%2)));
+            index1++;
+            ptr1 += ((index1%2)==0);
+            index2++;
+            ptr2 += ((index2%2)==0);
+          });
+        }
+      } else
+        elt_copy_4Bit_4Bit(dv1,index1,dv2,index2,count);
+    }
+  local void elt_move_8Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      if (dv1 == dv2 && index1 < index2 && index2 < index1+count) {
+        var const uint8* ptr1 = &TheSbvector(dv1)->data[index1+count];
+        var uint8* ptr2 = &TheSbvector(dv2)->data[index2+count];
+        dotimespL(count,count, {
+          *--ptr2 = *--ptr1;
+        });
+      } else {
+        var const uint8* ptr1 = &TheSbvector(dv1)->data[index1];
+        var uint8* ptr2 = &TheSbvector(dv2)->data[index2];
+        dotimespL(count,count, {
+          *ptr2++ = *ptr1++;
+        });
+      }
+    }
+  local void elt_move_16Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      if (dv1 == dv2 && index1 < index2 && index2 < index1+count) {
+        var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1+count];
+        var uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2+count];
+        dotimespL(count,count, {
+          *--ptr2 = *--ptr1;
+        });
+      } else {
+        var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1];
+        var uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
+        dotimespL(count,count, {
+          *ptr2++ = *ptr1++;
+        });
+      }
+    }
+  local void elt_move_32Bit(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      if (dv1 == dv2 && index1 < index2 && index2 < index1+count) {
+        var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1+count];
+        var uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2+count];
+        dotimespL(count,count, {
+          *--ptr2 = *--ptr1;
+        });
+      } else {
+        var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
+        var uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
+        dotimespL(count,count, {
+          *ptr2++ = *ptr1++;
+        });
+      }
+    }
+  global void elt_move(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      switch (Array_type(dv1)) {
+        case Array_type_svector: # Simple-Vector
+          elt_move_T(dv1,index1,dv2,index2,count);
+        case Array_type_sbvector: # Simple-Bit-Vector
+          elt_move_Bit(dv1,index1,dv2,index2,count);
+        case Array_type_sb2vector:
+          elt_move_2Bit(dv1,index1,dv2,index2,count);
+        case Array_type_sb4vector:
+          elt_move_4Bit(dv1,index1,dv2,index2,count);
+        case Array_type_sb8vector:
+          elt_move_8Bit(dv1,index1,dv2,index2,count);
+        case Array_type_sb16vector:
+          elt_move_16Bit(dv1,index1,dv2,index2,count);
+        case Array_type_sb32vector:
+          elt_move_32Bit(dv1,index1,dv2,index2,count);
+        case Array_type_sstring: # Simple-String
+          elt_move_Char(dv1,index1,dv2,index2,count);
+        default: NOTREACHED
+      }
+    }
+
+# Function: Fills a slice of an array with an element.
+# elt_fill(dv,index,count,element)
+# > dv: destination storage-vector
+# > index: start index in dv
+# > count: number of elements to be filled
+# < result: TRUE if element does not fit, FALSE when done
+  global boolean elt_fill (object dv, uintL index, uintL count, object element);
+  global boolean elt_fill(dv,index,count,element)
+    var object dv;
+    var uintL index;
+    var uintL count;
+    var object element;
+    {
+      switch (Array_type(dv)) {
+        case Array_type_svector: # Simple-Vector
+          if (count > 0) {
+            var object* ptr = &TheSvector(dv)->data[index];
+            dotimespL(count,count, {
+              *ptr++ = element;
+            });
+          }
+          break;
+       #if 0 # unoptimized
+        case Array_type_sbvector: # Simple-Bit-Vector
+          if (!uint1_p(element)) return TRUE;
+          if (count > 0) {
+            var uint8 x = I_to_uint8(element);
+            var uint8* ptr = &TheSbvector(dv)->data[index/8];
+            dotimespL(count,count, {
+              *ptr ^= (*ptr ^ (x << ((~index)%8))) & ((bit(1)-1) << ((~index)%8));
+              index++;
+              ptr += ((index%8)==0);
+            });
+          }
+          break;
+        case Array_type_sb2vector:
+          if (!uint2_p(element)) return TRUE;
+          if (count > 0) {
+            var uint8 x = I_to_uint8(element);
+            var uint8* ptr = &TheSbvector(dv)->data[index/4];
+            dotimespL(count,count, {
+              *ptr ^= (*ptr ^ (x << (2*((~index)%4)))) & ((bit(2)-1) << (2*((~index)%4)));
+              index++;
+              ptr += ((index%4)==0);
+            });
+          }
+          break;
+        case Array_type_sb4vector:
+          if (!uint4_p(element)) return TRUE;
+          if (count > 0) {
+            var uint8 x = I_to_uint8(element);
+            var uint8* ptr = &TheSbvector(dv)->data[index/2];
+            dotimespL(count,count, {
+              *ptr ^= (*ptr ^ (x << (4*((~index)%2)))) & ((bit(4)-1) << (4*((~index)%2)));
+              index++;
+              ptr += ((index%2)==0);
+            });
+          }
+          break;
+        case Array_type_sb8vector:
+          if (!uint8_p(element)) return TRUE;
+          if (count > 0) {
+            var uint8 x = I_to_uint8(element);
+            var uint8* ptr = &TheSbvector(dv)->data[index];
+            dotimespL(count,count, {
+              *ptr++ = x;
+            });
+          }
+          break;
+        case Array_type_sb16vector:
+          if (!uint16_p(element)) return TRUE;
+          if (count > 0) {
+            var uint16 x = I_to_uint16(element);
+            var uint16* ptr = &((uint16*)&TheSbvector(dv)->data[0])[index];
+            dotimespL(count,count, {
+              *ptr++ = x;
+            });
+          }
+          break;
+        case Array_type_sb32vector:
+          if (!uint32_p(element)) return TRUE;
+          if (count > 0) {
+            var uint32 x = I_to_uint32(element);
+            var uint32* ptr = &((uint32*)&TheSbvector(dv)->data[0])[index];
+            dotimespL(count,count, {
+              *ptr++ = x;
+            });
+          }
+          break;
+       #else # optimized: use 32-bit accesses where possible
+        var uint32 x;
+        case Array_type_sbvector: # Simple-Bit-Vector
+          if (!uint1_p(element)) return TRUE;
+          if (count == 0) break;
+          x = I_to_uint8(element);
+          x |= x << 1;
+          x |= x << 2;
+          x |= x << 4;
+          if (index & 7) {
+            var uint8* ptr = &TheSbvector(dv)->data[index/8];
+            var uintL i = 8-(index&7);
+            if (i >= count) {
+              *ptr ^= (*ptr ^ x) & (bit(i)-bit(i-count));
+              break;
+            }
+            *ptr ^= (*ptr ^ x) & (bit(i)-1);
+            count -= i;
+            index += i;
+          }
+          index = index/8;
+          if (count & 7) {
+            var uint8* ptr = &TheSbvector(dv)->data[index+count/8];
+            *ptr ^= (*ptr ^ x) & (bit(8)-bit(8-(count&7)));
+            count = count & ~7;
+            if (count == 0) break;
+          }
+          count = count/8;
+          goto store8;
+        case Array_type_sb2vector:
+          if (!uint2_p(element)) return TRUE;
+          if (count == 0) break;
+          x = I_to_uint8(element);
+          x |= x << 2;
+          x |= x << 4;
+          if (index & 3) {
+            var uint8* ptr = &TheSbvector(dv)->data[index/4];
+            var uintL i = 4-(index&3);
+            if (i >= count) {
+              *ptr ^= (*ptr ^ x) & (bit(2*i)-bit(2*(i-count)));
+              break;
+            }
+            *ptr ^= (*ptr ^ x) & (bit(2*i)-1);
+            count -= i;
+            index += i;
+          }
+          index = index/4;
+          if (count & 3) {
+            var uint8* ptr = &TheSbvector(dv)->data[index+count/4];
+            *ptr ^= (*ptr ^ x) & (bit(8)-bit(8-2*(count&3)));
+            count = count & ~3;
+            if (count == 0) break;
+          }
+          count = count/4;
+          goto store8;
+        case Array_type_sb4vector:
+          if (!uint4_p(element)) return TRUE;
+          if (count == 0) break;
+          x = I_to_uint8(element);
+          x |= x << 4;
+          if (index & 1) {
+            var uint8* ptr = &TheSbvector(dv)->data[index/2];
+            *ptr ^= (*ptr ^ x) & (bit(4)-1);
+            index++;
+            if (--count == 0) break;
+          }
+          index = index/2;
+          if (count & 1) {
+            var uint8* ptr = &TheSbvector(dv)->data[index+count/2];
+            *ptr ^= (*ptr ^ x) & (bit(8)-bit(4));
+            if (--count == 0) break;
+          }
+          count = count/2;
+          goto store8;
+        case Array_type_sb8vector:
+          if (!uint8_p(element)) return TRUE;
+          if (count == 0) break;
+          x = I_to_uint8(element);
+        store8:
+          if (index & 1) {
+            TheSbvector(dv)->data[index] = x;
+            index++;
+            if (--count == 0) break;
+          }
+          if (count & 1) {
+            TheSbvector(dv)->data[index+count-1] = x;
+            if (--count == 0) break;
+          }
+          count = count/2;
+          index = index/2;
+          x |= x << 8;
+          goto store16;
+        case Array_type_sb16vector:
+          if (!uint16_p(element)) return TRUE;
+          if (count == 0) break;
+          x = I_to_uint16(element);
+        store16:
+          if (index & 1) {
+            ((uint16*)&TheSbvector(dv)->data[0])[index] = x;
+            index++;
+            if (--count == 0) break;
+          }
+          if (count & 1) {
+            ((uint16*)&TheSbvector(dv)->data[0])[index+count-1] = x;
+            if (--count == 0) break;
+          }
+          count = count/2;
+          index = index/2;
+          x |= x << 16;
+          goto store32;
+        case Array_type_sb32vector:
+          if (!uint32_p(element)) return TRUE;
+          if (count == 0) break;
+          x = I_to_uint32(element);
+        store32:
+          {
+            var uint32* ptr = &((uint32*)&TheSbvector(dv)->data[0])[index];
+            dotimespL(count,count, {
+              *ptr++ = x;
+            });
+          }
+          break;
+       #endif
+        case Array_type_sstring: # Simple-String
+          if (!charp(element)) return TRUE;
+          if (count > 0) {
+            check_sstring_mutable(dv);
+            var chart c = char_code(element);
+            var chart* ptr = &TheSstring(dv)->data[index];
+            dotimespL(count,count, {
+              *ptr++ = c;
+            });
+          }
+          break;
+        default: NOTREACHED
+      }
+      return FALSE;
+    }
+
+# ============================================================================
 #                 Fill pointers, extendable vectors
 
 # Function: Tests whether an array has a fill-pointer.
@@ -2196,43 +3878,30 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       var object neuer_datenvektor;
       switch (atype) {
         case Atype_T: # array ist ein General-Vector
-          {
-            neuer_datenvektor = allocate_vector(newlen);
-            array = STACK_0; # array wieder holen
-            var object* ptr2 = &TheSvector(neuer_datenvektor)->data[0];
-            # alten in neuen Datenvektor kopieren:
-            if (len>0) {
-              var uintL index = 0;
-              var object datenvektor = iarray_displace_check(array,len,&index);
-              var const object* ptr1 = &TheSvector(datenvektor)->data[index];
-              var uintL count;
-              dotimespL(count,len, {
-                *ptr2++ = *ptr1++;
-              });
-            }
-            # dann new_element anfügen:
-            *ptr2 = STACK_1;
+          neuer_datenvektor = allocate_vector(newlen);
+          array = STACK_0; # array wieder holen
+          # alten in neuen Datenvektor kopieren:
+          if (len>0) {
+            var uintL index = 0;
+            var object datenvektor = iarray_displace_check(array,len,&index);
+            elt_copy_T_T(datenvektor,index,neuer_datenvektor,0,len);
           }
+          # dann new_element anfügen:
+          TheSvector(neuer_datenvektor)->data[len] = STACK_1;
           break;
         case Atype_Char: # array ist ein String
-          {
-            neuer_datenvektor = allocate_string(newlen);
-            array = STACK_0; # array wieder holen
-            var chart* ptr2 = &TheSstring(neuer_datenvektor)->data[0];
-            # alten in neuen Datenvektor kopieren:
-            if (len>0) {
-              var uintL index = 0;
-              var object datenvektor = iarray_displace_check(array,len,&index);
-              SstringDispatch(datenvektor,
-                { chartcopy(&TheSstring(datenvektor)->data[index],ptr2,len); },
-                { scintcopy(&TheSmallSstring(datenvektor)->data[index],ptr2,len); }
-                );
-            }
-            # dann new_element anfügen:
-            if (!charp(STACK_1))
-              goto fehler_type;
-            ptr2[len] = char_code(STACK_1);
+          neuer_datenvektor = allocate_string(newlen);
+          array = STACK_0; # array wieder holen
+          # alten in neuen Datenvektor kopieren:
+          if (len>0) {
+            var uintL index = 0;
+            var object datenvektor = iarray_displace_check(array,len,&index);
+            elt_copy_Char_Char(datenvektor,index,neuer_datenvektor,0,len);
           }
+          # dann new_element anfügen:
+          if (!charp(STACK_1))
+            goto fehler_type;
+          TheSstring(neuer_datenvektor)->data[len] = char_code(STACK_1);
           break;
         case Atype_Bit: # array ist ein Bit-Vektor
         case Atype_2Bit: case Atype_4Bit: case Atype_8Bit:
@@ -2243,33 +3912,22 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
           if (len>0) {
             var uintL index = 0;
             var object datenvektor = iarray_displace_check(array,len,&index);
-            index = index << atype;
-            var const uint_bitpack* ptr1 = &((uint_bitpack*)(&TheSbvector(datenvektor)->data[0]))[index/bitpack];
-            var uint_bitpack* ptr2 = (uint_bitpack*)(&TheSbvector(neuer_datenvektor)->data[0]);
-            var uintL bitpackcount = ceiling(len<<atype,bitpack); # Anzahl der zu schreibenden Worte
-            # kopiere bitpackcount Words, von ptr1 ab (dabei um
-            # (index mod bitpack) Bits nach links schieben), mit
-            # Ziel ab ptr2. (Eventuell schießt man über den Source-
-            # Datenvektor hinweg, aber das macht nichts.)
-            var uintL shift = index % bitpack;
-            if (shift==0) {
-              # keine Verschiebung nötig
-              var uintL count;
-              dotimespL(count,bitpackcount, {
-                *ptr2++ = *ptr1++;
-              });
-            } else {
-              # beim Kopieren um shift Bits links schieben.
-              ptr1 += bitpackcount; ptr2 += bitpackcount; # von hinten anfangen
-              var uint_2bitpack carry = L_bitpack(LR_0_bitpack(*ptr1)<<shift);
-              var uintL count;
-              dotimespL(count,bitpackcount, {
-                # Hier enthalten die rechten shift Bits von carry
-                # den Übertrag von rechts, sonst Null.
-                carry |= LR_0_bitpack(*--ptr1)<<shift;
-                *--ptr2 = R_bitpack(carry);
-                carry = L_bitpack(carry);
-              });
+            switch (atype) {
+              case Atype_Bit:
+              case Atype_2Bit:
+              case Atype_4Bit:
+                bit_copy(datenvektor,index<<atype,neuer_datenvektor,0<<atype,len<<atype);
+                break;
+              case Atype_8Bit:
+                elt_copy_8Bit_8Bit(datenvektor,index,neuer_datenvektor,0,len);
+                break;
+              case Atype_16Bit:
+                elt_copy_16Bit_16Bit(datenvektor,index,neuer_datenvektor,0,len);
+                break;
+              case Atype_32Bit:
+                elt_copy_32Bit_32Bit(datenvektor,index,neuer_datenvektor,0,len);
+                break;
+              default: NOTREACHED
             }
           }
           # new-element eintragen:
@@ -2545,14 +4203,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         # neuer Simple-8Bit-Vektor der doppelten Länge
         sbvector = popSTACK(); # sbvector zurück
         # Inhalt von sbvector nach neuer_sbvector kopieren:
-        {
-          var uintB* ptr1 = &TheSbvector(sbvector)->data[0];
-          var uintB* ptr2 = &TheSbvector(neuer_sbvector)->data[0];
-          var uintL count;
-          dotimespL(count,Sbvector_length(sbvector), {
-            *ptr2++ = *ptr1++;
-          });
-        }
+        elt_copy_8Bit_8Bit(sbvector,0,neuer_sbvector,0,Sbvector_length(sbvector));
         ssbvector = popSTACK(); # ssbvector zurück
         set_break_sem_1(); # Unterbrechungen verbieten
         TheIarray(ssbvector)->data = neuer_sbvector; # neuen Bit-Vektor als Datenvektor abspeichern
@@ -2705,132 +4356,39 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
     var uintL len;
     var uintB eltype;
     {
+      var object vector;
       switch (eltype) {
         case Atype_T: # Simple-Vector erzeugen
-          {
-            var object vektor = allocate_vector(len);
-            if (!(eq(STACK_4,unbound))) # initial-element angegeben?
-              if (!(len==0)) { # und Länge > 0 ?
-                # ja -> Vektor mit initial-element füllen:
-                var object* ptr = &TheSvector(vektor)->data[0];
-                var object initial_element = STACK_4;
-                dotimespL(len,len, {
-                  *ptr++ = initial_element;
-                });
-              }
-            return vektor;
-          }
-        case Atype_Bit: # Simple-Bit-Vector erzeugen
-          {
-            var object vektor = allocate_bit_vector(Atype_Bit,len);
-            if (!(eq(STACK_4,unbound))) { # initial-element angegeben?
-              # ja -> überprüfen:
-              var uint_bitpack initial_bitpack;
-              if (eq(STACK_4,Fixnum_0))
-                initial_bitpack = (uint_bitpack)0UL; # 0 -> mit Nullword füllen
-              elif (eq(STACK_4,Fixnum_1))
-                initial_bitpack = (uint_bitpack)~0UL; # 1 -> mit Einsenword füllen
-              else
-                goto fehler_init;
-              if (!(len==0)) { # und Länge > 0 ?
-                # ja -> Vektor mit initial-element füllen:
-                var uint_bitpack* ptr = (uint_bitpack*)(&TheSbvector(vektor)->data[0]);
-                dotimespL(len,ceiling(len,bitpack), {
-                  *ptr++ = initial_bitpack;
-                });
-              }
-            }
-            return vektor;
-          }
+          vector = allocate_vector(len);
+          break;
         case Atype_Char: # Normal-Simple-String erzeugen
-          {
-            var object vektor = allocate_string(len);
-            if (!(eq(STACK_4,unbound))) { # initial-element angegeben?
-              # ja -> überprüfen, muss Character sein:
-              if (!charp(STACK_4))
-                goto fehler_init;
-              var chart initial_char = char_code(STACK_4);
-              if (!(len==0)) { # und Länge > 0 ?
-                # ja -> Vektor mit initial-element füllen:
-                var chart* ptr = &TheSstring(vektor)->data[0];
-                dotimespL(len,len, {
-                  *ptr++ = initial_char;
-                });
-              }
-            }
-            return vektor;
-          }
+          vector = allocate_string(len);
+          break;
+        case Atype_Bit:
         case Atype_2Bit:
         case Atype_4Bit:
         case Atype_8Bit:
         case Atype_16Bit:
-        case Atype_32Bit: # simplen Byte-Vektor erzeugen
-          {
-            var object vektor = allocate_bit_vector(eltype,len);
-            if (!(eq(STACK_4,unbound))) { # initial-element angegeben?
-              # ja -> überprüfen, muss passender Integer sein:
-              var uintL wert;
-              if (eltype==Atype_32Bit) {
-                wert = I_to_UL(STACK_4);
-              } else {
-                if (!(posfixnump(STACK_4) && ((wert = posfixnum_to_L(STACK_4)) < bit(bit(eltype)))))
-                  goto fehler_init;
-              }
-              if (!(len==0))
-                switch (eltype) {
-                  case Atype_2Bit:
-                    len = ceiling(len,2); wert |= wert<<2;
-                  case Atype_4Bit:
-                    len = ceiling(len,2); wert |= wert<<4;
-                  case Atype_8Bit:
-                    #if !(varobject_alignment%2 == 0)
-                    {
-                      var uintB* ptr = &TheSbvector(vektor)->data[0];
-                      dotimespL(len,len, {
-                        *ptr++ = wert;
-                      });
-                    }
-                    break;
-                    #else
-                    # Kann mit 16-Bit-Blöcken arbeiten
-                    len = ceiling(len,2); wert |= wert<<8;
-                    #endif
-                  case Atype_16Bit:
-                    #if !(varobject_alignment%4 == 0)
-                    {
-                      var uint16* ptr = (uint16*)(&TheSbvector(vektor)->data[0]);
-                      dotimespL(len,len, {
-                        *ptr++ = wert;
-                      });
-                    }
-                    break;
-                    #else
-                    # Kann mit 32-Bit-Blöcken arbeiten
-                    len = ceiling(len,2); wert |= wert<<16;
-                    #endif
-                  case Atype_32Bit:
-                    {
-                      var uint32* ptr = (uint32*)(&TheSbvector(vektor)->data[0]);
-                      dotimespL(len,len, {
-                        *ptr++ = wert;
-                      });
-                    }
-                    break;
-                }
-            }
-            return vektor;
-          }
+        case Atype_32Bit: # simplen Bit/Byte-Vektor erzeugen
+          vector = allocate_bit_vector(eltype,len);
+          break;
         default: NOTREACHED
-        fehler_init:
-          pushSTACK(STACK_4); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(STACK_(5+1)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-          pushSTACK(STACK_(5+2)); # element-type
-          pushSTACK(STACK_(4+3)); # initial-element
-          pushSTACK(TheSubr(subr_self)->name);
-          fehler(type_error,
-                 GETTEXT("~: the initial-element ~ is not of type ~")
-                );
       }
+      if (!eq(STACK_4,unbound)) # initial-element angegeben?
+        if (!(len==0)) { # und Länge > 0 ?
+          # Fill vector with initial-element:
+          if (elt_fill(vector,0,len,STACK_4)) {
+            pushSTACK(STACK_4); # Wert für Slot DATUM von TYPE-ERROR
+            pushSTACK(STACK_(5+1)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+            pushSTACK(STACK_(5+2)); # element-type
+            pushSTACK(STACK_(4+3)); # initial-element
+            pushSTACK(TheSubr(subr_self)->name);
+            fehler(type_error,
+                   GETTEXT("~: the initial-element ~ is not of type ~")
+                  );
+          }
+        }
+      return vector;
     }
 
 # Hilfsroutine für MAKE-ARRAY und ADJUST-ARRAY:
@@ -3204,10 +4762,10 @@ LISPFUN(make_array,1,0,norest,key,7,\
 # Datenvektors, und zwar so, dass die Elemente zu Indextupeln, die für beide
 # Arrays gültig sind, übereinstimmen.
 # reshape(newvec,newdims,oldvec,olddims,offset,rank,eltype);
-# > newvec: (semi-)simpler Vektor, in den zu füllen ist.
+# > newvec: simpler Vektor, in den zu füllen ist.
 # > newdims: Dimension(en) des Arrays,
 #            in dem newvec Datenvektor ist (mit Offset 0).
-# > oldvec: (semi-)simpler Vektor, aus dem zu füllen ist.
+# > oldvec: simpler Vektor, aus dem zu füllen ist.
 # > olddims: Pointer auf die Dimensionen des Arrays,
 #            in dem oldvec Datenvektor ist (mit Offset offset).
 # > rank: Dimensionszahl von newdims = Dimensionenzahl von olddims.
@@ -3290,6 +4848,11 @@ LISPFUN(make_array,1,0,norest,key,7,\
         } else {
           storagevector_store(newvec,newindex,storagevector_aref(oldvec,oldindex));
         }
+      } elif (depth==1) {
+        # Optimierung: eine ganze Reihe von Elementen kopieren
+        # (beachte: ptr->olddelta = ptr->newdelta = 1).
+        if (ptr->mindim > 0)
+          elt_copy(oldvec,oldindex,newvec,newindex,ptr->mindim);
       } else {
         # Schleife über alle gemeinsamen Indizes:
         ptr->oldindex = oldindex; ptr->newindex = newindex;

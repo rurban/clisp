@@ -4,6 +4,15 @@ User visible changes
 
 * New functions READ-FLOAT and WRITE-FLOAT.
 
+Other modifications
+-------------------
+
+* Speed up some sequence functions when operating on vectors: MAKE-SEQUENCE,
+  CONCATENATE, COPY-SEQ, COERCE, SUBSEQ, REPLACE, FILL, REMOVE[-IF[-NOT]]
+  with :START/:END, SUBSTITUTE[-IF[-NOT]] with :START/:END, SORT.
+
+* Speed up ADJUST-ARRAY.
+
 
 1999-07-22
 ==========

@@ -455,16 +455,33 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 # can trigger GC
   local void copy_seqpart_into (void);
   local void copy_seqpart_into()
-    { # Methode etwa so:
-      # (loop
-      #   (when (zerop count) (return))
-      #   (SEQ2-ACCESS-SET sequence2 pointer2 (SEQ1-ACCESS sequence1 pointer1))
-      #   (setq pointer1 (SEQ1-UPD pointer1))
-      #   (setq pointer2 (SEQ2-UPD pointer2))
-      #   (decf count)
-      # )
-      until (eq(STACK_2,Fixnum_0)) # count (ein Integer) = 0 -> Ende
-        { # (SEQ1-ACCESS seq1 pointer1) bilden:
+    {
+      # Optimization for vectors:
+      if (vectorp(STACK_6) && vectorp(STACK_4) && posfixnump(STACK_2)) {
+        var uintL count = posfixnum_to_L(STACK_2);
+        if (count > 0) {
+          var uintL index1 = posfixnum_to_L(STACK_1);
+          var uintL index2 = posfixnum_to_L(STACK_0);
+          var object dv1 = array_displace_check(STACK_6,count,&index1);
+          var object dv2 = array_displace_check(STACK_4,count,&index2);
+          if (dv1 == dv2)
+            elt_move(dv1,index1,dv2,index2,count);
+          else
+            elt_copy(dv1,index1,dv2,index2,count);
+          STACK_1 = I_I_plus_I(STACK_1,STACK_2);
+          STACK_0 = I_I_plus_I(STACK_0,STACK_2);
+        }
+      } else {
+        # Methode etwa so:
+        # (loop
+        #   (when (zerop count) (return))
+        #   (SEQ2-ACCESS-SET sequence2 pointer2 (SEQ1-ACCESS sequence1 pointer1))
+        #   (setq pointer1 (SEQ1-UPD pointer1))
+        #   (setq pointer2 (SEQ2-UPD pointer2))
+        #   (decf count)
+        # )
+        until (eq(STACK_2,Fixnum_0)) { # count (ein Integer) = 0 -> Ende
+          # (SEQ1-ACCESS seq1 pointer1) bilden:
           pushSTACK(STACK_(6+0)); # seq1
           pushSTACK(STACK_(1+1)); # pointer1
           funcall(seq_access(STACK_(5+2)),2);
@@ -480,6 +497,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
           # count := (1- count) :
           decrement(STACK_2);
         }
+      }
     }
 
 LISPFUNN(sequencep,1)
@@ -892,8 +910,13 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
     # Stackaufbau: typdescr, size, initial-element, updatefun.
    }
     if (!(eq(STACK_1,unbound))) # :initial-element angegeben?
-      if (!(eq(STACK_2,Fixnum_0))) # size (ein Integer) = 0 -> nichts zu tun
-        { pushSTACK(value1);
+      if (!(eq(STACK_2,Fixnum_0))) { # size (ein Integer) = 0 -> nichts zu tun
+        if (eq(STACK_0,unbound)
+            && vectorp(value1) && array_simplep(value1) && posfixnump(STACK_2)) {
+          if (elt_fill(value1,0,posfixnum_to_L(STACK_2),STACK_1))
+            fehler_store(value1,STACK_1);
+        } else {
+          pushSTACK(value1);
           # Stackaufbau: typdescr, count, element, updatefun, seq.
           pushSTACK(STACK_0); funcall(seq_init(STACK_(4+1)),1); # (SEQ-INIT seq)
           pushSTACK(value1);
@@ -914,6 +937,7 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
           skipSTACK(1); # pointer vergessen
           value1 = popSTACK(); # seq
         }
+      }
     mv_count=1; # seq als Wert
     skipSTACK(4);
   }
@@ -1640,14 +1664,24 @@ LISPFUN(fill,2,0,norest,key,2, (kw(start),kw(end)) )
     funcall(seq_init_start(STACK_(0+2)),2); # (SEQ-INIT-START sequence start)
     STACK_2 = value1; # =: pointer
     # Stackaufbau: sequence, item, pointer, count, typdescr.
-    until (eq(STACK_1,Fixnum_0)) # count (ein Integer) = 0 -> fertig
-      { pushSTACK(STACK_4); pushSTACK(STACK_(2+1)); pushSTACK(STACK_(3+2));
+    if (vectorp(STACK_4) && posfixnump(STACK_1)) {
+      var uintL count = posfixnum_to_L(STACK_1);
+      if (count > 0) {
+        var uintL index = posfixnum_to_L(STACK_2);
+        var object dv = array_displace_check(STACK_4,count,&index);
+        if (elt_fill(dv,index,count,STACK_3))
+          fehler_store(STACK_4,STACK_3);
+      }
+    } else {
+      until (eq(STACK_1,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
+        pushSTACK(STACK_4); pushSTACK(STACK_(2+1)); pushSTACK(STACK_(3+2));
         funcall(seq_access_set(STACK_(0+3)),3); # (SEQ-ACCESS-SET sequence pointer item)
         # pointer := (SEQ-UPD sequence pointer) :
         pointer_update(STACK_2,STACK_4,STACK_0);
         # count := (1- count) :
         decrement(STACK_1);
       }
+    }
     skipSTACK(4);
     value1 = popSTACK(); mv_count=1; # sequence als Wert
   }
