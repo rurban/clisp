@@ -1,5 +1,11 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_walk.d: New file.
+        * spvw.d (map_heap_objects): Move out.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_memfile.d: New file.
         * spvw.d (memflags, memdump_header, memdump_page,
            memdump_physpage_state, memdump_reloc_header, page_alignment,
