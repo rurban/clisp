@@ -1,5 +1,10 @@
 2004-10-29  Sam Steingold  <sds@gnu.org>
 
+	* loop.lisp (expand-loop): since RESULTS can contain forms,
+	search the alist with :TEST #'EQUAL
+
+2004-10-29  Sam Steingold  <sds@gnu.org>
+
 	use HASH-TABLEs when possible to speed-up SET functions
 	* defs1.lisp (list-to-ht): new function
 	(union, nunion, intersection, nintersection, set-difference)
