@@ -127,7 +127,7 @@
                                     "backquot"
            #-AKCL                   "characters"
            #+(or CLISP ALLEGRO CMU) "clos"
-          #+CLISP                   "encoding"
+          #+(and CLISP UNICODE)     "encoding"
                                     "eval20"
                                     "floeps"
                                     "format"
