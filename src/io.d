@@ -9464,7 +9464,7 @@ local void pr_closure (const gcv_object_t* stream_, object obj) {
     # compiled Closure
     pr_cclosure(stream_,obj);
   } else {
-    # print interpreted Closure: #<CLOSURE ...>
+    # print interpreted Closure: #<FUNCTION ...>
     # if *PRINT-CLOSURE* /= NIL, print everything, else print Name and
     # (if still existing) Lambdalist and forms:
     CHECK_PRINT_READABLY(obj);
@@ -9476,10 +9476,10 @@ local void pr_closure (const gcv_object_t* stream_, object obj) {
       JUSTIFY_LAST(false);
       write_sstring_case(stream_,O(printstring_closure));
       if (!nullpSv(print_closure)) { # query *PRINT-CLOSURE*
-        # *PRINT-CLOSURE* /= NIL -> print #<CLOSURE komponente1 ...> :
+        # *PRINT-CLOSURE* /= NIL -> print #<FUNCTION komponente1 ...> :
         pr_record_ab(stream_,obj_,0,0); # print the remaining components
       } else {
-        # *PRINT-CLOSURE* = NIL -> print #<CLOSURE name . form> :
+        # *PRINT-CLOSURE* = NIL -> print #<FUNCTION name . form> :
         JUSTIFY_SPACE;
         prin_object(stream_,TheIclosure(*obj_)->clos_name); # print Name
         # print form-list elementwise:
@@ -9506,7 +9506,7 @@ local void pr_cclosure (const gcv_object_t* stream_, object obj) {
     pr_cclosure_lang(stream_,obj);
   } else {
     # *PRINT-CLOSURE* = NIL ->
-    # only print #<COMPILED-CLOSURE name> :
+    # only print #<COMPILED-FUNCTION name> :
     pr_other_obj(stream_,Closure_name(obj),O(printstring_compiled_closure));
   }
 }
