@@ -1,5 +1,16 @@
 2003-07-23  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (reset): updated the prototype
+	* eval.d (reset): accept count arg
+	* control.d (UNWIND-TO-DRIVER): use reset() for everything
+	* spvw_alloca.d (memfile): updated reset() call
+	* spvw_allocate (error_speicher_voll): ditto
+	* spvw.d (SP_ueber, STACK_ueber): ditto
+	* error.d (INVOKE-DEBUGGER): ditto
+	* debug.d (break_driver): ditto
+
+2003-07-23  Sam Steingold  <sds@gnu.org>
+
 	* record.d (fehler_record_length): fixed stack
 
 2003-07-21  Sam Steingold  <sds@gnu.org>

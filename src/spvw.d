@@ -491,7 +491,7 @@ nonreturning_function(global, SP_ueber, (void)) {
   if (!interactive_p) fputs(NLstring,stderr);
   fflush(stderr);
   end_system_call();
-  if (interactive_p) reset();
+  if (interactive_p) reset(1);
   /* non-interactive session: quit */
   else { final_exitcode=1; quit(); }
 }
@@ -502,7 +502,7 @@ nonreturning_function(global, STACK_ueber, (void)) {
   if (!interactive_p) fputs(NLstring,stderr);
   fflush(stderr);
   end_system_call();
-  if (interactive_p) reset();
+  if (interactive_p) reset(1);
   /* non-interactive session: quit */
   else { final_exitcode=1; quit(); }
 }

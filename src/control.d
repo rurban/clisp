@@ -1934,27 +1934,12 @@ LISPFUNN(unwind_to_driver,1)
 { /* (SYS::UNWIND-TO-DRIVER top-p)
      UNWIND to the next Driver-Frame or to the top. */
   var object arg = popSTACK();
-  if (nullp(arg)) {
-    reset();
-  } else if (posfixnump(arg)) {
-    var uintL count = posfixnum_to_L(arg);
-    do { reset(); } while (--count);
-  } else {
-    var gcv_object_t* FRAME = STACK;
-    var gcv_object_t* driver_frame = STACK;
-    while (!eq(FRAME_(0),nullobj)) { /* end of Stack? */
-      if (framecode(FRAME_(0)) & bit(frame_bit_t)) {
-        if (framecode(FRAME_(0)) == DRIVER_frame_info)
-          driver_frame = FRAME;
-        FRAME = topofframe(FRAME_(0));
-      } else
-        FRAME skipSTACKop 1;
-    }
-    unwind_upto(driver_frame);
-    if (eq(FRAME_(1),nullobj)) {
-      driver(); quit(); /* STACK completely gone -> restart */
-    }
-  }
+  if (nullp(arg))
+    reset(1);
+  else if (posfixnump(arg))
+    reset(posfixnum_to_L(arg));
+  else
+    reset(0);
 }
 
 /* Checks an optional macroexpansion-environment in STACK_0.
