@@ -1739,7 +1739,7 @@ interpreter compiler
       (terpri *error-output*)
       (apply #'format *error-output* error-format-string args)
       (terpri *debug-io*)
-      (if (interactive-stream-p *debug-io*)
+      (if (and (interactive-stream-p *debug-io*) *break-driver*)
         (progn
           (write-string (ENGLISH "If you continue (by typing 'continue'): ")
                         *debug-io*
