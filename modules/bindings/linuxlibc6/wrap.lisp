@@ -8,7 +8,8 @@
   (:case-sensitive t)
   (:nicknames "UNIX" "GLIBC")
   (:use)
-  (:export "real-path" "get-host-name" "get-domain-name"))
+  (:export "real-path" "get-host-name" "get-domain-name"
+           "linux-error" "check-res"))
 
 (eval-when (compile load eval)
   (setf (package-lock "SYS") nil))
@@ -19,30 +20,32 @@
   (convert-string-from-bytes (subseq vec 0 (position 0 vec))
                              *foreign-encoding*))
 
-(defun linux-error (caller)
+(defun linux:linux-error (caller)
   (error "~s: ~a" caller (linux::strerror ; linux::errno
                           (linux::__errno_location))))
+(defmacro linux:check-res (res caller)
+  `(unless (zerop ,res) (linux:linux-error ,caller)))
 
 (defun linux:real-path (name)
   (multiple-value-bind (success resolved)
       ;; :out or :in-out parameters are returned via multiple values
       (linux::realpath name)
-    (if success (vec2string resolved)
-        (linux-error 'linux:real-path))))
+    (linux:check-res success 'linux:real-path)
+    (vec2string resolved)))
 
 (defun linux:get-host-name ()
   (multiple-value-bind (success name)
       ;; :out or :in-out parameters are returned via multiple values
       (linux::gethostname linux::MAXHOSTNAMELEN)
-    (if (zerop success) (vec2string name)
-        (linux-error 'linux:get-host-name))))
+    (linux:check-res success 'linux:get-host-name)
+    (vec2string name)))
 
 (defun linux:get-domain-name ()
   (multiple-value-bind (success name)
       ;; :out or :in-out parameters are returned via multiple values
       (linux::getdomainname linux::MAXHOSTNAMELEN)
-    (if (zerop success) (vec2string name)
-	(linux-error 'linux:get-domain-name))))
+    (linux:check-res success 'linux:get-domain-name)
+    (vec2string name)))
 
 (eval-when (compile load eval)
   (setf (package-lock *system-package-list*) t))

@@ -1,6 +1,11 @@
 2002-03-04  Sam Steingold  <sds@gnu.org>
 
 	* foreign1.lisp (to-c-typedecl): c-pointer --> void*, not char*
+	* bindings/linuxlibc6/linux.lisp (flock): new call-out
+	(fcntl2, fcntl3l, fcntl3f): 3 forms of fcntl()
+	(ioctl-set, ioctl-get, ioctl): 3 forms of ioctl()
+	* bindings/linuxlibc6/wrap.lisp (check-res): new macro
+	(real-path, get-host-name, get-domain-name): use it
 
 2002-03-03  Sam Steingold  <sds@gnu.org>
 
@@ -21,7 +26,7 @@
 
 	Compilation on Alpha/Linux
 	* dfloat.d: SAVE_NUM_STACK/RESTORE_NUM_STACK want {} around them
-	* lispbible.d (weakkvt_type): removed extra '|'
+	* lispbibl.d (weakkvt_type): removed extra '|'
 	* spvw_typealloc.d: one cannot use `obj' in allocate() portably
 	(allocate_weakkvt_low): renamed from allocate_weakkvt()
 	(allocate_weakkvt): call allocate_weakkvt_low()
