@@ -1,3 +1,10 @@
+2004-11-22  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Add support for Allegro CL 6.2. Make some tests more
+	portable.
+	* mop.tst: Likewise.
+	* mop-aux.lisp: Add support for Allegro CL.
+
 2004-11-21  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Add support for Lispworks 4.3. Use class name

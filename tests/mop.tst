@@ -14,6 +14,13 @@
 #-(or CLISP ALLEGRO LISPWORKS)
 T
 
+#+ALLEGRO
+(without-package-locks
+  (import 'excl::compute-effective-slot-definition-initargs "CLOS")
+  (export 'excl::compute-effective-slot-definition-initargs "CLOS"))
+#+ALLEGRO
+T
+
 #+CMU
 (export 'pcl::compute-effective-slot-definition-initargs "PCL")
 #+CMU
@@ -47,7 +54,7 @@ T
 #+LISPWORKS
 T
 
-#-(or CMU18 OpenMCL LISPWORKS)
+#-(or ALLEGRO CMU18 OpenMCL LISPWORKS)
 (progn
   (defstruct rectangle1 (x 0.0) (y 0.0))
   (defclass counted1-class (structure-class)
@@ -58,7 +65,7 @@ T
   (slot-value (find-class 'counted1-rectangle) 'counter)
   (make-instance 'counted1-rectangle)
   (slot-value (find-class 'counted1-rectangle) 'counter))
-#-(or CMU18 OpenMCL LISPWORKS)
+#-(or ALLEGRO CMU18 OpenMCL LISPWORKS)
 1
 
 #-CMU18
@@ -85,6 +92,8 @@ T
   (defclass counted-object (counter) ((name :initarg :name)))
   (defmethod initialize-instance :after ((obj counter) &rest args)
     (incf (slot-value obj 'count)))
+  (unless (clos:class-finalized-p (find-class 'counter))
+    (clos:finalize-inheritance (find-class 'counter)))
   (list (how-many (make-instance 'counted-object :name 'foo))
         (how-many (clos:class-prototype (find-class 'counter)))
         (how-many (make-instance 'counted-object :name 'bar))
@@ -92,7 +101,7 @@ T
 (1 1 2 2)
 
 ;; Check that the slot :accessor option works also on structure-class.
-#-(or OpenMCL LISPWORKS)
+#-(or ALLEGRO OpenMCL LISPWORKS)
 (progn
   (defclass structure01 () ((x :initarg :x :accessor structure01-x))
     (:metaclass structure-class))
@@ -100,11 +109,11 @@ T
     (list (typep #'structure01-x 'generic-function)
           (structure01-x object)
           (progn (incf (structure01-x object)) (structure01-x object)))))
-#-(or OpenMCL LISPWORKS)
+#-(or ALLEGRO OpenMCL LISPWORKS)
 (t 17 18)
 
 ;; Check that defstruct and defclass interoperate with each other.
-#-LISPWORKS
+#-(or ALLEGRO LISPWORKS)
 (progn
   (defstruct structure02a
     slot1
@@ -149,13 +158,13 @@ T
           (equalp a (copy-structure a))
           (equalp b (copy-structure b))
           (equalp a b))))
-#-LISPWORKS
+#-(or ALLEGRO LISPWORKS)
 (nil t 3 -44 nil t 9 -88 nil t 20
      t 3 -44     t 9 -88     t 20
  t t nil)
 
 ;; Check that defstruct and defclass interoperate with each other.
-#-LISPWORKS
+#-(or ALLEGRO LISPWORKS)
 (progn
   (defclass structure03a ()
     ((slot1)
@@ -187,7 +196,7 @@ T
           (slot-value b 'slot10)
           (slot-value b 'slot11)
           (equalp b (copy-structure b)))))
-#-LISPWORKS
+#-(or ALLEGRO LISPWORKS)
 (    t 3 -44     t 9 -88     t 20
  t)
 
@@ -229,141 +238,159 @@ AS-STRING
 #-LISPWORKS
 (as-string (allocate-instance (find-class 'clos:specializer)))
 #+CLISP "#<SPECIALIZER >"
+#+ALLEGRO "#<ACLMOP:SPECIALIZER @ >"
 #+CMU "#<PCL:SPECIALIZER {}>"
 #+SBCL "#<SB-MOP:SPECIALIZER {}>"
 #+OpenMCL "#<SPECIALIZER >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #-OpenMCL
 (as-string (allocate-instance (find-class 'class)))
 #+CLISP "#<CLASS #<UNBOUND>>"
+#+ALLEGRO "#<CLASS \"Unnamed\" @ >"
 #+CMU "#<CLASS \"unbound\" {}>"
 #+SBCL "#<CLASS \"unbound\">"
 #+LISPWORKS "#<CLASS  >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #-OpenMCL
 (as-string (allocate-instance (find-class 'standard-class)))
 #+CLISP "#<STANDARD-CLASS #<UNBOUND> :UNINITIALIZED>"
+#+ALLEGRO "#<STANDARD-CLASS \"Unnamed\" @ >"
 #+CMU "#<STANDARD-CLASS \"unbound\" {}>"
 #+SBCL "#<STANDARD-CLASS \"unbound\">"
 #+LISPWORKS "#<STANDARD-CLASS  >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #-OpenMCL
 (as-string (allocate-instance (find-class 'structure-class)))
 #+CLISP "#<STRUCTURE-CLASS #<UNBOUND>>"
+#+ALLEGRO "#<STRUCTURE-CLASS \"Unnamed\" @ >"
 #+CMU "#<STRUCTURE-CLASS \"unbound\" {}>"
 #+SBCL "#<STRUCTURE-CLASS \"unbound\">"
 #+LISPWORKS "#<STRUCTURE-CLASS  >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #-LISPWORKS
 (as-string (allocate-instance (find-class 'clos:eql-specializer)))
 #+CLISP "#<EQL-SPECIALIZER #<UNBOUND>>"
+#+ALLEGRO "#<ACLMOP:EQL-SPECIALIZER #<Printer Error, obj=: #<UNBOUND-SLOT @ #x>>>"
 #+CMU "#<PCL:EQL-SPECIALIZER {}>"
 #+SBCL "#<SB-MOP:EQL-SPECIALIZER {}>"
 #+OpenMCL "#<EQL-SPECIALIZER \"<unbound>\" >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #-OpenMCL
 (as-string (allocate-instance (find-class 'clos:slot-definition)))
 #+CLISP "#<SLOT-DEFINITION #<UNBOUND> >"
+#+ALLEGRO "#<ACLMOP:SLOT-DEFINITION @ >"
 #+CMU "#<SLOT-DEFINITION \"unbound\" {}>"
 #+SBCL "#<SB-MOP:SLOT-DEFINITION \"unbound\">"
 #+LISPWORKS "#<SLOT-DEFINITION >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #-OpenMCL
 (as-string (allocate-instance (find-class 'clos:direct-slot-definition)))
 #+CLISP "#<DIRECT-SLOT-DEFINITION #<UNBOUND> >"
+#+ALLEGRO "#<ACLMOP:DIRECT-SLOT-DEFINITION @ >"
 #+CMU "#<DIRECT-SLOT-DEFINITION \"unbound\" {}>"
 #+SBCL "#<SB-MOP:DIRECT-SLOT-DEFINITION \"unbound\">"
 #+LISPWORKS "#<DIRECT-SLOT-DEFINITION >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #-OpenMCL
 (as-string (allocate-instance (find-class 'clos:effective-slot-definition)))
 #+CLISP "#<EFFECTIVE-SLOT-DEFINITION #<UNBOUND> >"
+#+ALLEGRO "#<ACLMOP:EFFECTIVE-SLOT-DEFINITION @ >"
 #+CMU "#<EFFECTIVE-SLOT-DEFINITION \"unbound\" {}>"
 #+SBCL "#<SB-MOP:EFFECTIVE-SLOT-DEFINITION \"unbound\">"
 #+LISPWORKS "#<EFFECTIVE-SLOT-DEFINITION >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #-OpenMCL
 (as-string (allocate-instance (find-class 'clos:standard-direct-slot-definition)))
 #+CLISP "#<STANDARD-DIRECT-SLOT-DEFINITION #<UNBOUND> >"
+#+ALLEGRO "#<ACLMOP:STANDARD-DIRECT-SLOT-DEFINITION #<Printer Error, obj=: #<UNBOUND-SLOT @ #x>>>"
 #+CMU "#<STANDARD-DIRECT-SLOT-DEFINITION \"unbound\" {}>"
 #+SBCL "#<SB-MOP:STANDARD-DIRECT-SLOT-DEFINITION \"unbound\">"
-#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 #-OpenMCL
 (as-string (allocate-instance (find-class 'clos:standard-effective-slot-definition)))
 #+CLISP "#<STANDARD-EFFECTIVE-SLOT-DEFINITION #<UNBOUND> >"
+#+ALLEGRO "#<ACLMOP:STANDARD-EFFECTIVE-SLOT-DEFINITION #<Printer Error, obj=: #<UNBOUND-SLOT @ #x>>>"
 #+CMU "#<STANDARD-EFFECTIVE-SLOT-DEFINITION \"unbound\" {}>"
 #+SBCL "#<SB-MOP:STANDARD-EFFECTIVE-SLOT-DEFINITION \"unbound\">"
-#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 #-OpenMCL
 (as-string (allocate-instance (find-class 'method-combination)))
 #+CLISP "#<METHOD-COMBINATION #<UNBOUND> >"
+#+ALLEGRO "#<METHOD-COMBINATION @ >"
 #+(or CMU SBCL) "#<METHOD-COMBINATION {}>"
 #+LISPWORKS "#<METHOD-COMBINATION NIL >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (as-string (allocate-instance (find-class 'method)))
 #+CLISP "#<METHOD >"
+#+ALLEGRO "#<METHOD @ >"
 #+(or CMU SBCL) "#<METHOD {}>"
 #+OpenMCL "#<METHOD >"
 #+LISPWORKS "#<METHOD >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #-OpenMCL
 (as-string (allocate-instance (find-class 'standard-method)))
 #+CLISP "#<STANDARD-METHOD :UNINITIALIZED>"
+#+ALLEGRO "#<Printer Error, obj=: #<UNBOUND-SLOT @ #x>>"
 #+CMU "#<#<STANDARD-METHOD {}> {}>"
 #+SBCL "#<STANDARD-METHOD #<STANDARD-METHOD {}> {}>"
 #+LISPWORKS "#<STANDARD-METHOD >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #-OpenMCL
 (as-string (allocate-instance (find-class 'clos:standard-reader-method)))
 #+CLISP "#<STANDARD-READER-METHOD :UNINITIALIZED>"
+#+ALLEGRO "#<Printer Error, obj=: #<UNBOUND-SLOT @ #x>>"
 #+CMU "#<#<#<PCL:STANDARD-READER-METHOD {}> {}> {}>"
 #+SBCL "#<SB-MOP:STANDARD-READER-METHOD #<SB-MOP:STANDARD-READER-METHOD #<SB-MOP:STANDARD-READER-METHOD {}> {}> {}>"
 #+LISPWORKS "#<STANDARD-READER-METHOD >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 #-OpenMCL
 (as-string (allocate-instance (find-class 'clos:standard-writer-method)))
 #+CLISP "#<STANDARD-WRITER-METHOD :UNINITIALIZED>"
+#+ALLEGRO "#<Printer Error, obj=: #<UNBOUND-SLOT @ #x>>"
 #+CMU "#<#<#<PCL:STANDARD-WRITER-METHOD {}> {}> {}>"
 #+SBCL "#<SB-MOP:STANDARD-WRITER-METHOD #<SB-MOP:STANDARD-WRITER-METHOD #<SB-MOP:STANDARD-WRITER-METHOD {}> {}> {}>"
 #+LISPWORKS "#<STANDARD-WRITER-METHOD >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (as-string (allocate-instance (find-class 'clos:funcallable-standard-object)))
 #+CLISP "#<FUNCALLABLE-STANDARD-OBJECT #<UNBOUND>>"
+#+ALLEGRO "#<ACLMOP:FUNCALLABLE-STANDARD-OBJECT @ >"
 #+CMU "#<PCL:FUNCALLABLE-STANDARD-OBJECT {}>"
 #+SBCL "#<SB-MOP:FUNCALLABLE-STANDARD-OBJECT {}>"
 #+OpenMCL "#<CCL::FUNCALLABLE-STANDARD-OBJECT >"
 #+LISPWORKS "#<CLOS:FUNCALLABLE-STANDARD-OBJECT >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (as-string (allocate-instance (find-class 'generic-function)))
 #+CLISP "#<GENERIC-FUNCTION #<UNBOUND>>"
+#+ALLEGRO "#<GENERIC-FUNCTION #<Printer Error, obj=: #<PROGRAM-ERROR @ #x>>>"
 #+(or CMU SBCL) "#<GENERIC-FUNCTION {}>"
 #+OpenMCL "#<GENERIC-FUNCTION >"
 #+LISPWORKS "#<GENERIC-FUNCTION >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (as-string (allocate-instance (find-class 'standard-generic-function)))
 #+CLISP "#<STANDARD-GENERIC-FUNCTION #<UNBOUND>>"
+#+ALLEGRO "#<STANDARD-GENERIC-FUNCTION #<Printer Error, obj=: #<UNBOUND-SLOT @ #x>>>"
 #+CMU "#<STANDARD-GENERIC-FUNCTION \"unbound\" \"?\" {}>"
 #+SBCL "#<STANDARD-GENERIC-FUNCTION \"unbound\" \"?\">"
 #+OpenMCL "#<Anonymous STANDARD-GENERIC-FUNCTION >"
 #+LISPWORKS "#<STANDARD-GENERIC-FUNCTION  >"
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 
 ;; It is possible to redefine a class in a way that makes it non-finalized,
@@ -371,6 +398,8 @@ AS-STRING
 ;; as an instantiation.
 (progn
   (defclass foo135b () ((s :initarg :s :accessor foo135b-s)))
+  (unless (clos:class-finalized-p (find-class 'foo135b))
+    (clos:finalize-inheritance (find-class 'foo135b)))
   (clos:class-prototype (find-class 'foo135b))
   (defclass foo135b (foo135a) ((s :accessor foo135b-s)))
   t)
@@ -434,7 +463,7 @@ ERROR
 (progn
   (defgeneric foo133b (x)
     (:method ((x integer)) x))
-  (clos:add-method #'foo133b
+  (add-method #'foo133b
     (make-instance 'standard-method
       :qualifiers '()
       :lambda-list '(x)
@@ -506,7 +535,7 @@ ERROR
 (progn
   (defgeneric foo134b (x)
     (:method ((x integer)) x))
-  (clos:add-method #'foo134b
+  (add-method #'foo134b
     (make-instance 'standard-method
       :qualifiers '()
       :lambda-list '(x)
@@ -751,7 +780,7 @@ T
 
 
 ;; Check that defgeneric supports user-defined options.
-#-(or CMU SBCL OpenMCL LISPWORKS)
+#-(or ALLEGRO CMU SBCL OpenMCL LISPWORKS)
 (progn
   (defclass option-generic-function (standard-generic-function)
     ((option :accessor gf-option :initarg :my-option))
@@ -773,7 +802,7 @@ T
               (:my-option bar)
               (:other-option baz)
               (:generic-function-class option-generic-function))))))
-#-(or CMU SBCL OpenMCL LISPWORKS)
+#-(or ALLEGRO CMU SBCL OpenMCL LISPWORKS)
 (T (FOO) NIL NIL)
 
 
@@ -1076,7 +1105,7 @@ T
           (push method (car result))
           (push (list method) result)))
       (reduce #'append result)))
-  (defmethod clos:compute-applicable-methods ((gf msl-generic-function) arguments)
+  (defmethod compute-applicable-methods ((gf msl-generic-function) arguments)
     (reverse-method-list (call-next-method)))
   #-LISPWORKS
   (defmethod clos:compute-applicable-methods-using-classes ((gf msl-generic-function) classes)
@@ -1098,7 +1127,7 @@ T
     (remove-if #'(lambda (method)
                    (member (find-class 'number) (clos:method-specializers method)))
                methods))
-  (defmethod clos:compute-applicable-methods ((gf nonumber-generic-function) arguments)
+  (defmethod compute-applicable-methods ((gf nonumber-generic-function) arguments)
     (nonumber-method-list (call-next-method)))
   #-LISPWORKS
   (defmethod clos:compute-applicable-methods-using-classes ((gf nonumber-generic-function) classes)
@@ -1150,6 +1179,8 @@ T
   (defclass testclass13d (testclass13a) () (:metaclass bfs-class))
   (defclass testclass13e (testclass13d) () (:metaclass bfs-class))
   (defclass testclass13f (testclass13c testclass13e) () (:metaclass bfs-class))
+  (unless (clos:class-finalized-p (find-class 'testclass13f))
+    (clos:finalize-inheritance (find-class 'testclass13f)))
   (mapcar #'class-name (subseq (clos:class-precedence-list (find-class 'testclass13f)) 0 6)))
 ;; With the default depth-first / topological-sort search algorithm:
 ;; (testclass13f testclass13c testclass13b testclass13e testclass13d testclass13a)
@@ -1322,7 +1353,7 @@ EXTRA
 
 ;; Check that it's possible to generate initargs automatically and have a
 ;; default initform of 42.
-#-(or OpenMCL LISPWORKS)
+#-(or ALLEGRO OpenMCL LISPWORKS)
 (progn
   (defclass auto-initargs-class (standard-class)
     ())
@@ -1347,7 +1378,7 @@ EXTRA
   (defclass testclass17 () ((x) (y)) (:metaclass auto-initargs-class))
   (let ((inst (make-instance 'testclass17 :x 17)))
     (list (slot-value inst 'x) (slot-value inst 'y))))
-#-(or OpenMCL LISPWORKS)
+#-(or ALLEGRO OpenMCL LISPWORKS)
 (17 42)
 
 
@@ -1356,7 +1387,7 @@ EXTRA
 
 ;; Check that it's possible to generate initargs automatically and have a
 ;; default initform of 42.
-#+(or CLISP CMU SBCL LISPWORKS)
+#+(or CLISP ALLEGRO CMU SBCL LISPWORKS)
 (progn
   (defclass auto-initargs-2-class (standard-class)
     ())
@@ -1380,7 +1411,7 @@ EXTRA
   (defclass testclass17-2 () ((x) (y)) (:metaclass auto-initargs-2-class))
   (let ((inst (make-instance 'testclass17-2 :x 17)))
     (list (slot-value inst 'x) (slot-value inst 'y))))
-#+(or CLISP CMU SBCL LISPWORKS)
+#+(or CLISP ALLEGRO CMU SBCL LISPWORKS)
 (17 42)
 
 
@@ -1699,7 +1730,6 @@ EXTRA
 
 ;; Check that it's possible to create subclasses of generic-function
 ;; that are not instances of funcallable-standard-class.
-#-CLISP
 (progn
   (defmethod clos:validate-superclass ((c1 standard-class) (c2 clos:funcallable-standard-class))
     t)
@@ -1715,8 +1745,8 @@ EXTRA
           (typep inst 'clos:funcallable-standard-object)
           (typep (class-of inst) 'standard-class)
           (typep (class-of inst) 'clos:funcallable-standard-class))))
-#-CLISP
-(T T T NIL)
+#+(or CLISP ALLEGRO) ERROR
+#-(or CLISP ALLEGRO) (T T T NIL)
 
 ;; Check that it's possible to create uncounted subclasses of counted classes.
 (progn
@@ -1746,6 +1776,8 @@ EXTRA
 (let ((*sampclass* (defclass sampclass01 () ())))
   (defmethod clos:class-default-initargs ((c (eql *sampclass*)))
     (call-next-method))
+  (unless (clos:class-finalized-p *sampclass*)
+    (clos:finalize-inheritance *sampclass*))
   (clos:class-default-initargs *sampclass*)
   t)
 T
@@ -1753,6 +1785,8 @@ T
   (let ((badmethod
           (defmethod clos:class-default-initargs ((c (eql *sampclass*)))
             (values (call-next-method) t))))
+    (unless (clos:class-finalized-p *sampclass*)
+      (clos:finalize-inheritance *sampclass*))
     (unwind-protect
       (nth-value 1 (clos:class-default-initargs *sampclass*))
       (remove-method #'clos:class-default-initargs badmethod))))
@@ -1831,7 +1865,8 @@ T
 (let ((*sampclass* (defclass sampclass11 () ())))
   (defmethod clos:class-precedence-list ((c (eql *sampclass*)))
     (call-next-method))
-  (allocate-instance *sampclass*) ; force its finalization
+  (unless (clos:class-finalized-p *sampclass*)
+    (clos:finalize-inheritance *sampclass*))
   (clos:class-precedence-list *sampclass*)
   t)
 T
@@ -1839,7 +1874,8 @@ T
   (let ((badmethod
           (defmethod clos:class-precedence-list ((c (eql *sampclass*)))
             (values (call-next-method) t))))
-    (allocate-instance *sampclass*) ; force its finalization
+    (unless (clos:class-finalized-p *sampclass*)
+      (clos:finalize-inheritance *sampclass*))
     (unwind-protect
       (nth-value 1 (clos:class-precedence-list *sampclass*))
       (remove-method #'clos:class-precedence-list badmethod))))
@@ -1850,6 +1886,8 @@ T
 (let ((*sampclass* (defclass sampclass13 () ())))
   (defmethod clos:class-prototype ((c (eql *sampclass*)))
     (call-next-method))
+  (unless (clos:class-finalized-p *sampclass*)
+    (clos:finalize-inheritance *sampclass*))
   (clos:class-prototype *sampclass*)
   t)
 T
@@ -1857,6 +1895,8 @@ T
   (let ((badmethod
           (defmethod clos:class-prototype ((c (eql *sampclass*)))
             (values (call-next-method) t))))
+    (unless (clos:class-finalized-p *sampclass*)
+      (clos:finalize-inheritance *sampclass*))
     (unwind-protect
       (nth-value 1 (clos:class-prototype *sampclass*))
       (remove-method #'clos:class-prototype badmethod))))
@@ -1867,6 +1907,8 @@ T
 (let ((*sampclass* (defclass sampclass15 () ())))
   (defmethod clos:class-slots ((c (eql *sampclass*)))
     (call-next-method))
+  (unless (clos:class-finalized-p *sampclass*)
+    (clos:finalize-inheritance *sampclass*))
   (clos:class-slots *sampclass*)
   t)
 T
@@ -1874,6 +1916,8 @@ T
   (let ((badmethod
           (defmethod clos:class-slots ((c (eql *sampclass*)))
             (values (call-next-method) t))))
+    (unless (clos:class-finalized-p *sampclass*)
+      (clos:finalize-inheritance *sampclass*))
     (unwind-protect
       (nth-value 1 (clos:class-slots *sampclass*))
       (remove-method #'clos:class-slots badmethod))))
@@ -2321,21 +2365,25 @@ T
 #-CLISP T
 
 ;; Check slot-definition-location.
-(let ((*sampslot*
-        (first (clos:class-slots (defclass sampclass39 () ((x)))))))
-  (defmethod clos:slot-definition-location ((slotdef (eql *sampslot*)))
-    (call-next-method))
-  (clos:slot-definition-location *sampslot*)
-  t)
+(let ((*sampclass* (defclass sampclass39 () ((x)))))
+  (unless (clos:class-finalized-p *sampclass*)
+    (clos:finalize-inheritance *sampclass*))
+  (let ((*sampslot* (first (clos:class-slots *sampclass*))))
+    (defmethod clos:slot-definition-location ((slotdef (eql *sampslot*)))
+      (call-next-method))
+    (clos:slot-definition-location *sampslot*)
+    t))
 T
-(let ((*sampslot*
-        (first (clos:class-slots (defclass sampclass40 () ((x)))))))
-  (let ((badmethod
-          (defmethod clos:slot-definition-location ((slotdef (eql *sampslot*)))
-            (values (call-next-method) t))))
-    (unwind-protect
-      (nth-value 1 (clos:slot-definition-location *sampslot*))
-      (remove-method #'clos:slot-definition-location badmethod))))
+(let ((*sampclass* (defclass sampclass39 () ((x)))))
+  (unless (clos:class-finalized-p *sampclass*)
+    (clos:finalize-inheritance *sampclass*))
+  (let ((*sampslot* (first (clos:class-slots *sampclass*))))
+    (let ((badmethod
+            (defmethod clos:slot-definition-location ((slotdef (eql *sampslot*)))
+              (values (call-next-method) t))))
+      (unwind-protect
+        (nth-value 1 (clos:slot-definition-location *sampslot*))
+        (remove-method #'clos:slot-definition-location badmethod)))))
 #+CLISP ERROR
 #-CLISP T
 
@@ -2500,7 +2548,7 @@ T
   (list
     (testgf31 3)
     (progn
-      (defmethod clos:compute-applicable-methods ((gf customized1-generic-function) args)
+      (defmethod compute-applicable-methods ((gf customized1-generic-function) args)
         (let ((all-applicable (call-next-method)))
           (if all-applicable (list (first all-applicable)) '())))
       #-LISPWORKS
@@ -2945,7 +2993,7 @@ t
     (clos:add-dependent gf *virtual-generic-function-updater*))
 
   ;; Verify that only methods dispatching on the first argument are added.
-  (defmethod clos:add-method ((gf virtual-generic-function) (method method))
+  (defmethod add-method ((gf virtual-generic-function) (method method))
     (let ((<t> (find-class 't)))
       (unless (every #'(lambda (specializer) (eq specializer <t>))
                      (clos:method-specializers method))
