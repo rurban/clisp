@@ -3294,6 +3294,7 @@ fi
 
 { echo "$as_me:$LINENO:  * PARI (Functions):" >&5
 echo "$as_me:  * PARI (Functions):" >&6;}
+# <FIXME>: -L/usr/local/lib should not be necessary
 LIBS="$LIBS -L/usr/local/lib $LTLIBPARI"
 echo "$as_me:$LINENO: checking for library containing pari_kernel_init" >&5
 echo $ECHO_N "checking for library containing pari_kernel_init... $ECHO_C" >&6
