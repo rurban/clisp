@@ -4120,9 +4120,8 @@ typedef symbol_ *  Symbol;
   #define constantp(sym)  \
     (((sym)->header_flags) & bit(constant_bit_hf))
 
-# Tests whethter a symbol is a SPECIAL-proclaimed variable:
-  #define special_var_p(sym)  \
-    (((sym)->header_flags) & bit(special_bit_hf))
+/* Tests whether a symbol is a SPECIAL-proclaimed variable: */
+#define special_var_p(sym)  (((sym)->header_flags) & bit(special_bit_hf))
 
 # Set the constant-flag of a symbol:
   #define set_const_flag(sym)  \
