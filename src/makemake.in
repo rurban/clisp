@@ -2729,10 +2729,10 @@ if [ $CROSS = false ] ; then
   echol
 
   echol "testsuite : ${TESTSDIR} lisp${LEXE} lispinit.mem"
-  echotab "cd ${TESTSDIR} && CLISP_LANGUAGE='' \$(MAKE) LEXE=${LEXE}"
+  echotab "cd ${TESTSDIR} && CLISP_LANGUAGE='' \$(MAKE) SHELL='\$(SHELL)' LEXE=${LEXE}"
   echol
   echol "testsuite-all : ${TESTSDIR} lisp${LEXE} lispinit.mem"
-  echotab "cd ${TESTSDIR} && CLISP_LANGUAGE='' \$(MAKE) LEXE=${LEXE} clean complete compare"
+  echotab "cd ${TESTSDIR} && CLISP_LANGUAGE='' \$(MAKE) SHELL='\$(SHELL)' LEXE=${LEXE} clean complete compare"
   echol
   echol "${TESTSDIR} :"
   echotab "-mkdir ${TESTSDIR}"
