@@ -1,5 +1,9 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * comment5.d (main): Remove a gcc warning.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (strmtype_*): Change the order of stream types.
         * io.d (pr_stream): Likewise.
         * stream.d: Move the OS dependent stream stuff after the portable
