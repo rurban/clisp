@@ -1,5 +1,18 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_sigsegv.d, spvw_sigcld.d, spvw_sigint.d, spvw_sigwinch.d: New
+          files.
+        * spvw.d (gc_signalblock_on, gc_signalblock_off, interrupt_pending,
+           update_linelength, sigwinch_handler, install_sigcld_handler,
+           begin_want_sigcld, end_want_sigcld, interrupt_handler,
+           alarm_handler, sigsegv_handler_failed, sigsegv_handler,
+           install_segv_handler, stackoverflow_handler): Move out.
+          (main): Call install_stackoverflow_handler, install_sigwinch_handler,
+          install_sigint_handler, install_segv_handler, install_sigcld_handler.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_gcstat.d: New file.
         * spvw.d (gc_count, gc_space, gc_time, gc_timer_on, gc_timer_off):
           Move out.
