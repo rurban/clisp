@@ -75,16 +75,20 @@ tests.s : $(srcdir)/tests.c vacall.h
 tests.exe : tests.obj vacall.lib
 	$(CC) $(CFLAGS) tests.obj vacall.lib /Fetests.exe
 
-check : all tests.exe
+uniq-u.exe : $(srcdir)/uniq-u.c
+	$(CC) $(CFLAGS) $(srcdir)/uniq-u.c -Feuniq-u.exe
+	$(RM) uniq-u.obj
+
+check : all tests.exe uniq-u.exe
 	tests.exe > tests.out
-	uniq -u < tests.out > tests.output.$(HOST)
+	uniq-u < tests.out > tests.output.$(HOST)
 
 mostlyclean : clean
 
 clean : force
 	$(RM) *.obj *.lib core
 	$(RM) vacall-i386.s
-	$(RM) tests.obj tests.s tests.exe tests.out
+	$(RM) tests.obj tests.s tests.exe uniq-u.exe tests.out
 
 distclean : clean
 	$(RM) config.status config.log config.cache Makefile vacall.h config.h tests.output.*
