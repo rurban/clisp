@@ -3163,18 +3163,18 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
 
 # check the slots for consistency:
 # remote paths (UNC) must be absolute and not have device
-local void pathname_check_remote (object pathname) {
+# make the path into absolute and kill the device
+# (thus HOST always overrides DEVICE)
+local void pathname_fix_remote (object pathname) {
 #if HAS_HOST
-  if (!nullp(ThePathname(pathname)->pathname_host) &&
-      (!nullp(ThePathname(pathname)->pathname_device) ||
-       (consp(ThePathname(pathname)->pathname_directory) &&
-        !eq(Car(ThePathname(pathname)->pathname_directory),S(Kabsolute))))) {
-    pushSTACK(pathname); # flot PATHNAME of FILE-ERROR
-    pushSTACK(pathname);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(file_error,
-           GETTEXT("~: remote path ~ is invalid")
-           );
+  if (!nullp(ThePathname(pathname)->pathname_host)) {
+    #if HAS_DEVICE
+    if (!nullp(ThePathname(pathname)->pathname_device))
+      ThePathname(pathname)->pathname_device = NIL;
+    #endif
+    if (consp(ThePathname(pathname)->pathname_directory) &&
+        !eq(Car(ThePathname(pathname)->pathname_directory),S(Kabsolute)))
+      Car(ThePathname(pathname)->pathname_directory) = S(Kabsolute);
   }
 #endif
 }
@@ -3189,7 +3189,7 @@ local void pathname_check_remote (object pathname) {
     var object pathname;
     {
       var uintC stringcount;
-      # pathname_check_remote(pathname);
+      pathname_fix_remote(pathname);
       stringcount = host_namestring_parts(pathname); # Strings für den Host
       stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
       stringcount += file_namestring_parts(pathname); # Strings für den Filename
@@ -3227,7 +3227,7 @@ LISPFUNN(file_namestring,1)
 # can trigger GC
 local object namestring_host_dir (object pathname)
 {
-  pathname_check_remote(pathname);
+  pathname_fix_remote(pathname);
   var uintC stringcount = host_namestring_parts(pathname);
   stringcount += directory_namestring_parts(pathname);
   return string_concat(stringcount);
@@ -3656,9 +3656,14 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
       # beide Hosts gleich -> Devices matchen:
       if (equal(p_host,d_host))
         goto match_devices;
-      if (wildp ? FALSE : nullp(p_host)) {
-        # pathname-host nicht angegeben, aber defaults-host angegeben:
-        ThePathname(newp)->pathname_host = d_host; # new-host := defaults-host
+      if (!wildp && nullp(p_host)) {
+        #if HAS_DEVICE
+        if (!nullp(ThePathname(p)->pathname_device))
+          ThePathname(newp)->pathname_host = NIL;
+        else
+        #endif
+          # pathname-host nicht angegeben, aber defaults-host angegeben:
+          ThePathname(newp)->pathname_host = d_host; # new-host := defaults-host
         goto match_devices;
       }
       goto notmatch_devices;
@@ -3674,9 +3679,15 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
       # beide Devices gleich -> Directories matchen:
       if (equal(p_device,d_device))
         goto match_directories;
-      if (called_from_make_pathname ? eq(p_device,unbound) : wildp ? eq(p_device,S(Kwild)) : nullp(p_device)) {
-        # pathname-device nicht angegeben, aber defaults-device angegeben:
-        ThePathname(newp)->pathname_device = d_device; # new-device := defaults-device
+      if (called_from_make_pathname ? eq(p_device,unbound) :
+          (wildp ? eq(p_device,S(Kwild)) : nullp(p_device))) {
+        #if HAS_HOST
+        if(!nullp(ThePathname(p)->pathname_host))
+          ThePathname(newp)->pathname_device = NIL;
+        else
+        #endif
+          # pathname-device nicht angegeben, aber defaults-device angegeben:
+          ThePathname(newp)->pathname_device = d_device; # new-device := defaults-device
         goto match_directories;
       }
       goto notmatch_directories;
@@ -3741,7 +3752,11 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
    notmatch_directories:
     {
       # new-directory := pathname-directory :
-      ThePathname(newp)->pathname_directory = ThePathname(p)->pathname_directory;
+      ThePathname(newp)->pathname_directory =
+        ThePathname(p)->pathname_directory;
+      if (eq(ThePathname(newp)->pathname_directory,unbound))
+        ThePathname(newp)->pathname_directory =
+          ThePathname(d)->pathname_directory;
     }
    directories_OK:
     # Nun sind die Directories OK.
@@ -3779,6 +3794,9 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
     #endif
     #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
     skipSTACK(1);
+    #endif
+    #if HAS_HOST
+    pathname_fix_remote(newp);
     #endif
     # new als Wert:
     value1 = newp; mv_count=1;
@@ -4348,6 +4366,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         #endif
         #if HAS_HOST
         ThePathname(pathname)->pathname_host      = popSTACK();
+        pathname_fix_remote(pathname);
         #else
         skipSTACK(1);
         #endif
