@@ -1177,9 +1177,8 @@
               (do ((pl place-list (cdr pl)))
                   ((endp pl))
                 (multiple-value-bind (temps subforms stores setterform getterform)
-                    (get-setf-expansion (car pl) env)
+                    (get-setf-expansion (car pl))
                   (declare (ignore getterform))
-                  (push (length stores) all-numvalues)
                   (setq all-setter-vars
                         (revappend stores all-setter-vars))
                   (push (wrap-let* (mapcar #'list temps subforms) setterform)
