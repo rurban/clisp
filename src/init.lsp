@@ -222,7 +222,7 @@ interpreter compiler
   ;; Namen von Funktionen und Macros:
   slot-value slot-boundp slot-makunbound slot-exists-p with-slots with-accessors
   find-class class-of defclass defmethod call-next-method next-method-p
-  defgeneric generic-function generic-flet generic-labels
+  defgeneric generic-function
   class-name
   no-applicable-method no-primary-method no-next-method
   find-method add-method remove-method

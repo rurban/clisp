@@ -1,3 +1,9 @@
+1999-02-19  Sam Steingold  <sds@goems.com>
+
+	* defs3.lsp, clos.lsp, init.lsp: do not export `generic-flet',
+	`generic-labels'.
+	* _impnotes.html is now HTML 3.2 compliant.
+
 1999-02-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * makemake.in: Improve parsing of --hyperspec argument.
