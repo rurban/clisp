@@ -54,13 +54,7 @@ CLISP SOURCE(1)                                                CLISP SOURCE(1)
 
                [1mxthread.d      [22minclude file for thread support
 
-               [1mposixmath.d    [22mPOSIX math functions
-
-               [1mposixmisc.d    [22mmisc POSIX (system information etc)
-
                [1mmodules.h      [22mlist of foreign modules
-
-               [1mversion.h      [22mversion of CLISP
 
 
            Modules:
@@ -378,9 +372,6 @@ CLISP SOURCE(1)                                                CLISP SOURCE(1)
 
            [1medit.lisp[0m
                   (optional) the screen editor
-
-           [1mposix.lisp[0m
-                  export POSIX calls
 
            [1mthreads.lisp[0m
                   MT interface

@@ -14,10 +14,8 @@ LISPFUN(lisp_implementation_version,seclass_no_se,0,0,norest,nokey,0,NIL)
 { /* (LISP-IMPLEMENTATION-VERSION), CLTL S. 447 */
   value1 = O(lisp_implementation_version_string);
   if (nullp(value1)) { # noch unbekannt?
-    var int count = 4;
-    pushSTACK(O(lisp_implementation_version_number_string));
-    pushSTACK(ascii_to_string(" (released "));
-    pushSTACK(O(lisp_implementation_version_date_string));
+    var int count = 1;
+    pushSTACK(O(lisp_implementation_package_version));
     funcall(L(machine_instance),0);
     if (nullp(O(memory_image_host)) || equal(value1,O(memory_image_host))) {
       /* the image was dumped on this machine - print time */
@@ -71,21 +69,23 @@ LISPFUN(lisp_implementation_version,seclass_no_se,0,0,norest,nokey,0,NIL)
           O(lisp_implementation_version_built_string) =
             ascii_to_string(build_time);
         }
-        pushSTACK(ascii_to_string(") (built "));
+        pushSTACK(ascii_to_string(" (built "));
         pushSTACK(O(lisp_implementation_version_built_string));
-        count += 2;
+        pushSTACK(ascii_to_string(")"));
+        count += 3;
       }
       if (!nullp(O(memory_image_timestamp))) {
-        pushSTACK(ascii_to_string(") (memory "));
+        pushSTACK(ascii_to_string(" (memory "));
         pushSTACK(O(memory_image_timestamp));
-        count += 2;
+        pushSTACK(ascii_to_string(")"));
+        count += 3;
       }
     } else { /* this image was built on a different machine */
-      pushSTACK(ascii_to_string(") (built on "));
+      pushSTACK(ascii_to_string(" (built on "));
       pushSTACK(O(memory_image_host));
-      count += 2;
+      pushSTACK(ascii_to_string(")"));
+      count += 3;
     }
-    pushSTACK(ascii_to_string(")"));
     value1 = O(lisp_implementation_version_string) = string_concat(count);
   }
   mv_count=1;

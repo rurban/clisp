@@ -21,8 +21,6 @@
 # version
 #include "lispbibl.c"
 
-#include "version.h"
-
 #include <string.h> /* declares strchr() and possibly memset() */
 #ifdef MULTITHREAD
   #define bzero(ptr,len)  memset(ptr,0,len)
@@ -1510,8 +1508,8 @@ local void init_other_modules_2 (void) {
 
 # print usage and exit
 nonreturning_function (local, usage, (int exit_code)) {
-  printf(GETTEXTL("GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp."
-                  NLstring "Usage:  "));
+  printf(PACKAGE_NAME "(" PACKAGE_BUGREPORT ") ");
+  printf(GETTEXTL("is an ANSI Common Lisp." NLstring "Usage:  "));
   printf(program_name);
   printf(GETTEXTL(" [options] [lispfile [argument ...]]" NLstring
                   " When `lispfile' is given, it is loaded and `*ARGS*' is set" NLstring
@@ -2008,7 +2006,7 @@ global int main (argc_t argc, char* argv[]) {
               /* force processing this argument again,
                  but this time as if it came after an '-x' */
               argv_for = for_expr;
-              *--argptr = "(PROGN (PRINC \"GNU CLISP \")"
+              *--argptr = "(PROGN (PRINC \"" PACKAGE_NAME " \")"
                 "(PRINC (LISP-IMPLEMENTATION-VERSION)) (TERPRI)"
                 "(PRINC \"Features"
                #ifdef DEBUG_SPVW
@@ -3257,7 +3255,7 @@ global void dynload_modules (const char * library, uintC modcount,
 # There is a utility, that searches an executable for a version string.
 # Format "name version.revision (date)\r\n"
   global const char version_string[] =
-    "$VER: GNU CLISP"
+    "$VER: " PACKAGE_NAME
     #if defined(WIDE)
       "-wide"
     #elif !defined(TYPECODES)
@@ -3269,7 +3267,7 @@ global void dynload_modules (const char * library, uintC modcount,
     #else
       "-low"
     #endif
-    " " VERSION_NUMBER " (" VERSION_DATE ")\r\n";
+    " " PACKAGE_VERSION "\r\n";
 #endif
 
 # -----------------------------------------------------------------------------

@@ -1,5 +1,25 @@
 2003-09-04  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d: do not include version.h
+	(usage, main/--version, version_string/AMIGA):
+	use PACKAGE_NAME & PACKAGE_BUGREPORT
+	* misc.d (LISP-IMPLEMENTATION-VERSION): use
+	O(lisp_implementation_package_version) instead of
+	O(lisp_implementation_version_number_string) and
+	O(lisp_implementation_version_date_string)
+	* makemake.in: removed version.h
+	* constobj.d (lisp_implementation_package_version):
+	init to PACKAGE_VERSION
+	(lisp_implementation_version_date_string)
+	(lisp_implementation_version_number_string): removed
+	* configure.in (AC_INIT): the master version is now here,
+	not in version.h
+	* version.h: removed
+	* FILES.1: updated
+	* Makefile.devel (src/VERSION): depend on configure, not version.h
+
+2003-09-04  Sam Steingold  <sds@gnu.org>
+
 	* describe.lisp (describe-object) [SOCKETS]: handle SOCKET-SERVER
 	Reported by "John K. Hinsdale" <hin@alma.com>
 	* genclisph.d (Atype_32Bit): export for gdi (Dan Stanger)
