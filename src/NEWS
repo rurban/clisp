@@ -39,6 +39,10 @@ User visible changes
   different break loops.
   See <http://clisp.cons.org/impnotes.html#dribble> for details.
 
+* Weak hash tables can now remove key/value pairs when either or both
+  are garbage collected.
+  See <http://clisp.cons.org/impnotes.html#make-hash> for details.
+
 * ANSI CL compliance issues:
   + MAPC, MAPCAR, MAPCAN, MAPL, MAPLIST, MAPCON now require their list
     arguments to be proper lists;

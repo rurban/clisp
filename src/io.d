@@ -8515,21 +8515,23 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         {
           pushSTACK(obj); # save Hash-Table
           var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
-          if (ht_weak_p(obj)) { # weak ==> #<WEAK-HASH-TABLE ...>
+          if (ht_weak_p(obj)) { # weak ==> #<HASH-TABLE :WEAK ...>
             CHECK_PRINT_READABLY(obj);
             UNREADABLE_START;
             JUSTIFY_LAST(false);
           } else { # non-weak ==> #S(HASH-TABLE ...)
-          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
-          KLAMMER_AUF;
-          INDENT_START(3); # indent by 3 characters, because of '#S('
-          JUSTIFY_START(1);
-          JUSTIFY_LAST(false);
+            write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
+            KLAMMER_AUF;
+            INDENT_START(3); # indent by 3 characters, because of '#S('
+            JUSTIFY_START(1);
+            JUSTIFY_LAST(false);
           }
           prin_object(stream_,S(hash_table)); # print symbol HASH-TABLE
           if (ht_weak_p(*obj_)) {
             JUSTIFY_SPACE; JUSTIFY_LAST(false);
             prin_object(stream_,S(Kweak)); # print :WEAK
+            JUSTIFY_SPACE; JUSTIFY_LAST(false);
+            prin_object(stream_,ht_weak(*obj_)); /*:KEY/:VALUE/:BOTH/:EITHER*/
           }
           obj = *obj_;
           {

@@ -922,7 +922,8 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
     var gcv_object_t* KVptr = # pointer to entries in key-value-vector
       kvt_data + 2*index;
     var object key = KVptr[0];
-    if (!boundp(key)) { /* weak HT - obsolete key and value */
+    if (!boundp(key) || !boundp(KVptr[1])) {
+      /* weak HT - obsolete key and value */
       set_break_sem_2(); # protect from breaks
       TheHashtable(ht)->ht_freelist = *Iptr;
       *Iptr = *Nptr; # shorten "list"
@@ -984,7 +985,7 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
 # decreases STACK by 6
 # can trigger GC
 local uintL prepare_resize (object maxcount, object mincount_threshold,
-                            bool weak) {
+                            gcv_object_t weak) {
   # check, if maxcount is not a too big fixnum >0 :
   if (!posfixnump(maxcount))
     goto fehler_maxcount;
@@ -1006,8 +1007,8 @@ local uintL prepare_resize (object maxcount, object mincount_threshold,
     # allocate new vectors:
     pushSTACK(allocate_vector(sizeL)); # supply index-vector
     pushSTACK(allocate_vector(maxcountL)); # supply next-vector
-    if (weak) # supply key-value-vector
-      pushSTACK(allocate_weakkvt(2*maxcountL));
+    if (!nullp(weak)) # supply key-value-vector
+      pushSTACK(allocate_weakkvt(2*maxcountL,weak));
     else pushSTACK(allocate_vector(2*maxcountL));
     # finished.
     return maxcountL;
@@ -1029,7 +1030,7 @@ local object resize (object ht, object maxcount) {
   pushSTACK(ht);
   var uintL maxcountL =
     prepare_resize(maxcount,TheHashtable(ht)->ht_mincount_threshold,
-                   ht_weak_p(ht));
+                   ht_weak(ht));
   # no GC from now on!
   var object KVvektor = popSTACK(); # new key-value-vector
   var object Nvektor = popSTACK(); # next-vector
@@ -1128,6 +1129,21 @@ local void clrhash (object ht) {
   TheHashtable(ht)->ht_count = Fixnum_0; # COUNT := 0
   mark_ht_invalid(TheHashtable(ht)); # reorganize hashtable later
   clr_break_sem_2(); # allow breaks again
+}
+
+/* check the :WEAK argument and return it */
+local gcv_object_t check_weak (gcv_object_t weak) {
+  if (missingp(weak)) return NIL;
+  if (eq(weak,S(Kkey)) || eq(weak,S(Kvalue)) ||
+      eq(weak,S(Keither)) || eq(weak,S(Kboth)))
+    return weak;
+  /* invalid */
+  pushSTACK(weak);            /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_weak_ht)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(NIL); pushSTACK(S(Kkey)); pushSTACK(S(Kvalue));
+  pushSTACK(S(Keither)); pushSTACK(S(Kboth));
+  pushSTACK(weak); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: argument ~ should be ~, ~, ~, ~ or ~."));
 }
 
 # (MAKE-HASH-TABLE [:test] [:size] [:rehash-size] [:rehash-threshold]
@@ -1281,7 +1297,7 @@ LISPFUN(make_hash_table,0,0,norest,key,6,
   # stack-layout:
   #   weak, initial-contents, test, size, rehash-size, mincount-threshold
   # provide vectors etc., with size as MAXCOUNT: [STACK_5 == weak]
-  prepare_resize(STACK_2,STACK_0,!missingp(STACK_5));
+  prepare_resize(STACK_2,STACK_0,STACK_5 = check_weak(STACK_5));
   var object ht = allocate_hash_table(); # new hash-tabelle
   # fill:
   TheHashtable(ht)->ht_kvtable = popSTACK(); # key-value-vector
@@ -1585,12 +1601,12 @@ LISPFUNN(hash_table_iterate,1) {
 LISPFUNN(hash_table_weak_p,1) {
   var object ht = popSTACK(); # hashtable-argument
   check_hashtable(ht);
-  VALUES_IF(ht_weak_p(ht));
+  VALUES1(ht_weak(ht));
 }
 
 # (SYS::%SET-HASH-TABLE-WEAK-P ht val) == (SETF (HASH-TABLE-WEAK-P ht) val)
 LISPFUNN(set_hash_table_weak_p,2) {
-  var object val = popSTACK(); # weak-p
+  var gcv_object_t val = check_weak(popSTACK()); # weak-p
   var object ht = STACK_0; # hashtable argument
   check_hashtable(ht);
   if (nullp(val) && ht_weak_p(ht)) {
@@ -1601,12 +1617,13 @@ LISPFUNN(set_hash_table_weak_p,2) {
     TheHashtable(STACK_0)->ht_kvtable = vec;
   } else if (!nullp(val) && !ht_weak_p(ht)) {
     var uintL len = Svector_length(TheHashtable(ht)->ht_kvtable);
-    var object wkvt = allocate_weakkvt(len);
+    var object wkvt = allocate_weakkvt(len,val);
     copy_mem_o(TheWeakKVT(wkvt)->data,
                TheSvector(TheHashtable(STACK_0)->ht_kvtable)->data,len);
     TheHashtable(STACK_0)->ht_kvtable = wkvt;
-  }
-  VALUES_IF(ht_weak_p(STACK_0)); skipSTACK(1);
+  } else if (ht_weak_p(ht))
+    TheWeakKVT(TheHashtable(STACK_0)->ht_kvtable)->wkvt_type = val;
+  VALUES1(ht_weak(STACK_0)); skipSTACK(1);
 }
 
 # (CLOS::CLASS-GETHASH ht object) is like (GETHASH (CLASS-OF object) ht).

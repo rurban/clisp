@@ -1,6 +1,23 @@
 2002-12-24  Sam Steingold  <sds@gnu.org>
 
-	* foreign.d (FOREIGN-CALL-OUT): fixed argument ordef in the call
+	added VALUE, EITHER and BOTH weak hash tables
+	* hashtabl.d (prepare_resize): weak argument is now an object
+	(check_weak): new function
+	(MAKE-HASH-TABLE, %SET-HASH-TABLE-WEAK-P): use it
+	(hash_lookup): value may be obsoleted too
+	* constobj.d (type_weak_ht): added
+	* constsym.d (Kboth, Keither, Kvalue): added
+	* io.d (pr_orecord): print ht_weak() for weak hash tables
+	* lispbibl.d (ht_weak): new macro
+	(weakkvt_t): added wkvt_type slot
+	* spvw_garcol.d (gar_col_normal): handle the new types of weak
+	hash tables
+	* spvw_typealloc.d (allocate_weakkvt, allocate_weakkvt_low):
+	accept a second argument - the wkvt_type
+
+2002-12-24  Sam Steingold  <sds@gnu.org>
+
+	* foreign.d (FOREIGN-CALL-OUT): fixed argument order in the call
 	to fehler_too_few_args()
 
 2002-12-23  Sam Steingold  <sds@gnu.org>
