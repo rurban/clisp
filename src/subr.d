@@ -284,6 +284,9 @@ LISPFUNN(show_stack,0)
 LISPFUNN(debug,0)
 LISPFUNN(proom,0)
 LISPFUNN(gc,0)
+# ---------- ENCODING ----------
+LISPFUN(make_encoding,0,0,norest,key,2,
+        (kw(charset),kw(line_terminator)) )
 # ---------- ERROR ----------
 LISPFUN(error,1,0,rest,nokey,0,NIL)
 LISPFUNN(defclcs,1)
@@ -901,6 +904,7 @@ LISPFUNN(output_stream_p,1)
 LISPFUNN(stream_element_type,1)
 LISPFUNN(set_stream_element_type,2)
 LISPFUNN(stream_external_format,1)
+LISPFUNN(set_stream_external_format,2)
 LISPFUNN(interactive_stream_p,1)
 LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
 LISPFUN(read_byte,1,2,norest,nokey,0,NIL)

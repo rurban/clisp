@@ -43,6 +43,8 @@ s(read_char_sequence)
 s(write_char_sequence)
 s(read_byte_sequence)
 s(write_byte_sequence)
+v(2, (kw(charset),kw(line_terminator)) )
+s(make_encoding)
 v(5, (kw(initial_contents),
       kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )
 s(make_hash_table)

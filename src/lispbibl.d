@@ -4451,6 +4451,7 @@ typedef xrecord_ *  Xrecord;
          Rectype_Fsubr,
          Rectype_Loadtimeeval,
          Rectype_Symbolmacro,
+         Rectype_Encoding,
          Rectype_Fpointer,              # only used #ifdef FOREIGN
          #ifdef DYNAMIC_FFI
          Rectype_Faddress,
@@ -5087,6 +5088,13 @@ typedef struct { XRECORD_HEADER
         *  Symbolmacro;
 #define symbolmacro_length  ((sizeof(*(Symbolmacro)0)-offsetofa(record_,recdata))/sizeof(object))
 
+# Encoding
+typedef struct { XRECORD_HEADER
+                 object enc_eol; # line termination, a keyword (:UNIX, :MAC, :DOS)
+               }
+        *  Encoding;
+#define encoding_length  ((sizeof(*(Encoding)0)-offsetofa(record_,recdata))/sizeof(object))
+
 #ifdef FOREIGN
 # Foreign-Pointer-Verpackung
 typedef struct { XRECORD_HEADER
@@ -5310,9 +5318,9 @@ typedef struct {
   # anpassen!
 # weitere typspezifische Komponenten:
   #define strm_eltype          strm_other[0] # CHARACTER or ([UN]SIGNED-BYTE n)
-  #define strm_file_name       strm_other[5] # Filename, ein Pathname oder NIL
-  #define strm_file_truename   strm_other[6] # Truename, ein nicht-Logical Pathname oder NIL
-  #define strm_buffered_channel  strm_other[4] # eingepacktes Handle
+  #define strm_file_name       strm_other[6] # Filename, ein Pathname oder NIL
+  #define strm_file_truename   strm_other[7] # Truename, ein nicht-Logical Pathname oder NIL
+  #define strm_buffered_channel  strm_other[5] # eingepacktes Handle
   #define strm_synonym_symbol  strm_other[0]
   #define strm_broad_list      strm_other[0] # Liste von Streams
   #define strm_concat_list     strm_other[0] # Liste von Streams
@@ -5322,14 +5330,14 @@ typedef struct {
   #define strm_buff_in_fun     strm_other[0] # Lesefunktion
   #define strm_buff_out_fun    strm_other[0] # Ausgabefunktion
   #ifdef PIPES
-  #define strm_pipe_pid        strm_other[5] # Prozess-Id, ein Fixnum >=0
+  #define strm_pipe_pid        strm_other[6] # Prozess-Id, ein Fixnum >=0
   #endif
   #ifdef X11SOCKETS
-  #define strm_x11socket_connect  strm_other[5] # Liste (host display)
+  #define strm_x11socket_connect  strm_other[6] # Liste (host display)
   #endif
   #ifdef SOCKET_STREAMS
-  #define strm_socket_port     strm_other[5] # port, a fixnum >=0
-  #define strm_socket_host     strm_other[6] # host, NIL or a string
+  #define strm_socket_port     strm_other[6] # port, a fixnum >=0
+  #define strm_socket_host     strm_other[7] # host, NIL or a string
   #define strm_twoway_socket_input  strm_other[0] # input side, a socket stream
   #endif
   #ifdef GENERIC_STREAMS
@@ -5680,6 +5688,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #define TheFsubr(obj)  ((Fsubr)(type_pointable(orecord_type,obj)))
   #define TheLoadtimeeval(obj)  ((Loadtimeeval)(type_pointable(orecord_type,obj)))
   #define TheSymbolmacro(obj)  ((Symbolmacro)(type_pointable(orecord_type,obj)))
+  #define TheEncoding(obj)  ((Encoding)(type_pointable(orecord_type,obj)))
   #ifdef FOREIGN
   #define TheFpointer(obj)  ((Fpointer)(type_pointable(orecord_type,obj)))
   #endif
@@ -5763,6 +5772,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #define TheFsubr(obj)  ((Fsubr)(as_oint(obj)-varobject_bias))
   #define TheLoadtimeeval(obj)  ((Loadtimeeval)(as_oint(obj)-varobject_bias))
   #define TheSymbolmacro(obj)  ((Symbolmacro)(as_oint(obj)-varobject_bias))
+  #define TheEncoding(obj)  ((Encoding)(as_oint(obj)-varobject_bias))
   #ifdef FOREIGN
   #define TheFpointer(obj)  ((Fpointer)(as_oint(obj)-varobject_bias))
   #endif
@@ -6214,6 +6224,10 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test auf Symbolmacro
   #define symbolmacrop(obj)  \
     (orecordp(obj) && (Record_type(obj) == Rectype_Symbolmacro))
+
+# Test for Encoding
+  #define encodingp(obj)  \
+    (orecordp(obj) && (Record_type(obj) == Rectype_Encoding))
 
 # Test auf Fpointer
   #define fpointerp(obj)  \
@@ -7919,6 +7933,14 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #define allocate_symbolmacro()  \
     allocate_xrecord(0,Rectype_Symbolmacro,symbolmacro_length,0,orecord_type)
 # wird verwendet von CONTROL, RECORD
+
+# UP, allocates an Encoding
+# allocate_encoding()
+# < result: a fresh Encoding
+# kann GC auslösen
+  #define allocate_encoding()  \
+    allocate_xrecord(0,Rectype_Encoding,encoding_length,0,orecord_type)
+# wird verwendet von ENCODING
 
 #ifdef FOREIGN
 # UP, beschafft Foreign-Pointer-Verpackung
@@ -10269,6 +10291,13 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   nonreturning_function(extern, fehler_undef_function, (object caller, object symbol));
 # wird verwendet von PREDTYPE
 
+# ########################## zu ENCODING.D ################################ #
+
+# Initialize the encodings.
+# init_encodings();
+  extern void init_encodings (void);
+# wird verwendet von SPVW
+
 # ####################### ARRBIBL zu ARRAY.D ############################## #
 
 # ARRAY-TOTAL-SIZE-LIMIT wird so groß gewählt, dass die Total-Size eines
@@ -10760,7 +10789,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
                 statement;                                                  \
         } }   }                                                             \
     }
-# wird verwendet von
+# wird verwendet von IO
 
 # ######################### IOBIBL zu IO.D ############################## #
 
@@ -11550,9 +11579,10 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 
 # UP: erzeugt ein File-Stream
 # make_file_stream(direction,append_flag,handle_fresh)
-# > STACK_4: Filename, ein Pathname oder NIL
-# > STACK_3: Truename, ein Pathname oder NIL
-# > STACK_2: :BUFFERED argument
+# > STACK_5: Filename, ein Pathname oder NIL
+# > STACK_4: Truename, ein Pathname oder NIL
+# > STACK_3: :BUFFERED argument
+# > STACK_2: :EXTERNAL-FORMAT argument
 # > STACK_1: :ELEMENT-TYPE argument
 # > STACK_0: Handle des geöffneten Files
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
