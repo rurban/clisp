@@ -1,3 +1,7 @@
+1999-10-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d: Use __sun, not __sun__, as a test for Solaris.
+
 1999-10-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * array.d (bit_compare, bit_op): Use `const'.
