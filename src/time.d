@@ -1,6 +1,6 @@
 /*
  * Time measuring functions for CLISP
- * Bruno Haible 1990-2002
+ * Bruno Haible 1990-2004
  * Sam Steingold 1998-2003
  */
 
@@ -371,6 +371,7 @@ global void convert_time (const FILETIME* time, decoded_time_t* timepoint)
 }
 #endif
 
+#ifdef TIME_RELATIVE
 /* Converts a decoded time to universal time.
  encode_universal_time(&timepoint)
  > decoded_time_t timepoint: decoded time
@@ -387,6 +388,7 @@ local object encode_universal_time (const decoded_time_t* timepoint)
   funcall(S(encode_universal_time),6);
   return value1;
 }
+#endif
 
 #ifdef UNIX
 /* UP: convert the system time format into lisp universal time.
@@ -396,7 +398,7 @@ local object encode_universal_time (const decoded_time_t* timepoint)
  can trigger GC */
 global object convert_time_to_universal (const time_t* time)
 {
-  /* Since we get the timezone from the OS (sys::defaul-time-zone),
+  /* Since we get the timezone from the OS (sys::default-time-zone),
      we can assume that the OS's timezone and CLISP's timezone agree. */
   return UL_to_I(UNIX_LISP_TIME_DIFF + (uintL)(*time));
 }
