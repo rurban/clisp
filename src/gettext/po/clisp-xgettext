@@ -3,6 +3,7 @@
 ;;; Extraction of internationalized messages (normally done by "xgettext")
 ;;; for clisp.
 ;;; Bruno Haible 26.3.1997, 5.4.1999
+;;; Sam Steingold 2002-01-03
 
 ;; In the clisp sources internationalized messages are recognized through
 ;; the following constructs:
@@ -10,8 +11,10 @@
 ;; 1. In .d files,
 ;;       ENGLISH ? string :
 ;;       ""
-;;    The string may consist of multiple pieces (ANSI C string concatenation),
-;;    and some of the pieces may be the token NLstring (to be replaced by "\n").
+;;    The string may consist of multiple pieces
+;;        (ANSI C string concatenation),
+;;    and some of the pieces may be the token NLstring
+;;        (to be replaced by "\n").
 ;;
 ;;    Alternatively,
 ;;       GETTEXT(string)
@@ -192,8 +195,8 @@
                )
          (cond ((search ".d$" (concatenate 'string filename "$"))
                 ;; Extract strings from a .d file
-                (do-one-file :all-grepper "grep -n '\\(GETTEXT(\\|GETTEXTL(\\|ENGLISH \\*/\\)' "
-                             :keys '("GETTEXT(" "GETTEXTL(" "ENGLISH ")
+                (do-one-file :all-grepper "grep -n '\\(GETTEXT(\\|GETTEXTL(\\|OGETTEXT(\\|ENGLISH \\*/\\)' "
+                             :keys '("GETTEXT(" "GETTEXTL(" "OGETTEXT(" "ENGLISH ")
                              :string-parser #'d-parse-string
                ))
                ((search ".lisp$" (concatenate 'string filename "$"))

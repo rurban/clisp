@@ -7324,6 +7324,8 @@ nonreturning_function(extern, fehler_not_R, (object obj));
     extern object localized_object (object obj);
   #endif
 #endif
+# a message which is made a Lisp Object
+#define OGETTEXT(asciz) asciz_to_string(GETTEXT(asciz),Symbol_value(S(utf_8)))
 # used by all modules
 
 # Prints a constant ASCIZ-String, directly through the operating-system:

@@ -1,3 +1,8 @@
+2002-01-03  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (OGETTEXT): new macro
+	* gettext/po/clisp-xgettext: recongnize the new OGETTEXT macro
+
 2001-12-26   Stefan Kain  <stefan.kain@freenet.de>
 
 	* trace.lisp: translated all comments
