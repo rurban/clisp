@@ -506,7 +506,7 @@
 (defconstant PIPE_BUF 4096)
 )
 
-;;; ----------------------------- <local_lim.h> ---------------------------------
+;;; ----------------------------- <local_lim.h> -------------------------------
 
 (defconstant _POSIX_THREAD_KEYS_MAX 128)
 (defconstant PTHREAD_KEYS_MAX 1024)
@@ -518,7 +518,10 @@
 ;;; ---------------------------- <posix1_lim.h> ------------------------------
 
 (defconstant SSIZE_MAX INT_MAX)
-(defconstant NGROUPS_MAX _POSIX_NGROUPS_MAX)
+;; #ifndef NGROUPS_MAX
+;; # define NGROUPS_MAX _POSIX_NGROUPS_MAX
+;; #endif
+;; (defconstant NGROUPS_MAX _POSIX_NGROUPS_MAX)
 
 ;;; ---------------------------- <posix2_lim.h> ------------------------------
 
