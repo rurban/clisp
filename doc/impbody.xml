@@ -356,7 +356,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
   (#.&most-negative-fixnum;))</literal></simpara></listitem>
  <listitem><simpara>&rational-t;, &short-float-t;, &single-float-t;,
   &double-float-t;, &long-float-t;, &complex-t;</simpara></listitem>
- <listitem><simpara>&character-t;, &base-char-t;</simpara></listitem>
+ <listitem><simpara>&character-t;, &base-char-t;, &standard-char-t;</simpara></listitem>
  <listitem><simpara><literal role="type">(&array-t; &eltype-r;
   &dimensions-r;)</literal>, <literal role="type">(&simple-array-t;
   &eltype-r; &dimensions-r;)</literal></simpara></listitem>
