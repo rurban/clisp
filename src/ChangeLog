@@ -1,5 +1,10 @@
 2002-10-02  Sam Steingold  <sds@gnu.org>
 
+	* control.d (funname_to_symbol): new function
+	(FDEFINITION, FBOUNDP, FMAKUNBOUND): use it
+
+2002-10-02  Sam Steingold  <sds@gnu.org>
+
 	removed SYS::%FUNCALL
 	* compiler.lisp (c-form-table): removed SYS::%FUNCALL
 	(c-form, c-HANDLER-BIND, c-FUNCTION-CALL, c-MAP-on-CARs)

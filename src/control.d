@@ -160,17 +160,23 @@ LISPFUNN(symbol_function,1)
   VALUES1(val);
 }
 
+/* UP: just like GET-FUNNAME-SYMBOL (see init.lisp),
+   except that it does not create the new symbol when there is none yet
+   and does not issue a warning when the SETF symbol is shadowed */
+local object funname_to_symbol (object symbol) {
+  if (!funnamep(symbol))
+    fehler_funname_type(TheSubr(subr_self)->name,symbol);
+  if (!symbolp(symbol)) /* (get ... 'SYS::SETF-FUNCTION) */
+    symbol = get(Car(Cdr(symbol)),S(setf_function));
+  return symbol;
+}
+
 LISPFUNN(fdefinition,1)
 { /* (FDEFINITION funname), CLTL2 p. 120 */
   var object funname = popSTACK();
-  var object symbol = funname;
-  if (!funnamep(symbol))
-    fehler_symbol(symbol);
-  if (!symbolp(symbol)) {
-    symbol = get(Car(Cdr(symbol)),S(setf_function)); /* (get ... 'SYS::SETF-FUNCTION) */
-    if (!symbolp(symbol)) /* should be (uninterned) symbol */
+  var object symbol = funname_to_symbol(funname);
+  if (!symbolp(symbol)) /* should be a symbol */
       fehler_undef_function(S(fdefinition),funname); /* otherwise undefined */
-  }
   var object val = Symbol_function(symbol);
   if (!boundp(val))
     fehler_undef_function(S(fdefinition),funname);
@@ -187,19 +193,9 @@ LISPFUNN(boundp,1)
 
 LISPFUNN(fboundp,1)
 { /* (FBOUNDP symbol), CLTL p. 90, CLTL2 p. 120 */
-  var object symbol = popSTACK();
-  if (!funnamep(symbol))
-    fehler_symbol(symbol);
-  if (!symbolp(symbol)) {
-    symbol = get(Car(Cdr(symbol)),S(setf_function)); /* (get ... 'SYS::SETF-FUNCTION) */
-    if (!symbolp(symbol)) /* should be (uninterned) symbol */
-      goto undef; /* otherwise undefined */
-  }
-  if (!boundp(Symbol_function(symbol))) {
-   undef:
-    VALUES1(NIL);
-  } else
-    VALUES1(T);
+  var object symbol = funname_to_symbol(popSTACK());
+  VALUES_IF(symbolp(symbol) && /* should be a symbol */
+            boundp(Symbol_function(symbol)));
 }
 
 LISPFUNN(special_operator_p,1)
@@ -355,15 +351,10 @@ LISPFUNN(makunbound,1)
 
 LISPFUNN(fmakunbound,1)
 { /* (FMAKUNBOUND symbol), CLTL p. 92, CLTL2 p. 123 */
-  var object funname = popSTACK();
-  var object symbol = funname;
-  if (!funnamep(symbol))
-    fehler_symbol(symbol);
-  if (!symbolp(symbol)) {
-    symbol = get(Car(Cdr(symbol)),S(setf_function)); /* (get ... 'SYS::SETF-FUNCTION) */
-    if (!symbolp(symbol)) /* should be (uninterned) symbol */
+  var object funname = STACK_0;
+  var object symbol = funname_to_symbol(funname);
+  if (!symbolp(symbol)) /* should be a symbol */
       goto undef; /* otherwise undefined */
-  }
   {
     var object obj = Symbol_function(symbol);
     if (fsubrp(obj)) {
