@@ -199,9 +199,6 @@ the actual object #<MACRO expander> for the FENV.
                               %let-list))
                   (setq kwlist (cons kw kwlist)))
                  (t ; subform
-                  (error-of-type 'source-program-error
-                    (TEXT "~S: invalid lambda list element ~S")
-                    name next)
                   (setq kw (caar next))
                   (setq g (gensym))
                   (setq svar (and (cddr next) (symbolp (third next))
