@@ -4827,7 +4827,7 @@ local bool wildcard_match_ab (uintL m_count, const chart* m_ptr,
   var chart c;
   loop {
     if (m_count==0)
-      return (b_count==0 ? true : false); # "" matches only ""
+      return (b_count==0); # "" matches only ""
     m_count--;
     c = *m_ptr++; # next match-character
     if (chareq(c,ascii('?'))) { # wildcard '?'
@@ -6604,7 +6604,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
 	    # resolved to a file ? Only directories allowed - nonmaskable error
 	    if (fileattr == 0xFFFFFFFF || !(fileattr & FILE_ATTRIBUTE_DIRECTORY)) {
 	      SetLastError(ERROR_DIRECTORY);
-	      end_system_call(); OS_file_error(STACK_0);      
+	      end_system_call(); OS_file_error(STACK_0);
 	    }
 	    # have to add '\' to avoid last component loss
 	    strcat(resolved,"\\");

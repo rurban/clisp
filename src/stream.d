@@ -3355,14 +3355,14 @@ local bool regular_handle_p (Handle handle) {
   begin_system_call();
   if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
   end_system_call();
-  return (S_ISREG(statbuf.st_mode) || S_ISBLK(statbuf.st_mode) ? true : false);
+  return (S_ISREG(statbuf.st_mode) || S_ISBLK(statbuf.st_mode));
  #endif
  #if defined(MSDOS) || defined(RISCOS)
   var struct stat statbuf;
   begin_system_call();
   if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
   end_system_call();
-  return (S_ISREG(statbuf.st_mode) ? true : false);
+  return (S_ISREG(statbuf.st_mode));
  #endif
  #ifdef AMIGAOS
   var LONG not_regular_p;
