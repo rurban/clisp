@@ -23,8 +23,8 @@
 
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
-	* spvw.d (init_symbol_values): Initialize *disassemble-use-live-process*
-	with support for FreeBSD.
+	* spvw.d (init_symbol_values): Initialize
+	*disassemble-use-live-process* with support for FreeBSD.
 	* disassem.lisp (*disassemble-use-live-process*): Remove variable.
 
 2004-10-30  Bruno Haible  <bruno@clisp.org>
@@ -41,8 +41,8 @@
 	* configure.in: Invoke CL_POLL.
 	* unixconf.h.in: Regenerated.
 	* unix.d (poll): Comment out declaration.
-	* stream.d (listen_handle): Use poll() when available and is not worse
-	on files than select().
+	* stream.d (listen_handle): Use poll() when available and is not
+	worse on files than select().
 	(rd_ch_keyboard): Use poll() when available.
 
 2004-10-30  Bruno Haible  <bruno@clisp.org>
@@ -51,9 +51,9 @@
 
 2004-10-30  Bruno Haible  <bruno@clisp.org>
 
-	* stream.d (listen_handle, rd_ch_keyboard,
-	low_listen_unbuffered_socket): Rename local variable handle_menge to
-	handle_set.
+	* stream.d (listen_handle, rd_ch_keyboard)
+	(low_listen_unbuffered_socket): Rename local variable handle_menge
+	to handle_set.
 
 2004-10-29  Bruno Haible  <bruno@clisp.org>
 
