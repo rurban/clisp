@@ -1,7 +1,7 @@
 ;;; PostgreSQL demo
 ;;; Based on the examples distributed with PostgreSQL (man libpq)
 ;;;
-;;; Copyright (C) 1999-2003 by Sam Steingold
+;;; Copyright (C) 1999-2005 by Sam Steingold
 ;;; Distributed under the GNU GPL2 <http://www.gnu.org/copyleft/gpl.html>:
 ;;; No warranty; you may copy/modify/redistribute under the same
 ;;; conditions with the source code.
