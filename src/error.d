@@ -1260,7 +1260,7 @@ global object check_fdefinition (object funname, object caller)
     store_p = eq(value2,T);
     /* this is the only place where check_value()'s second value is checked
        for something other than non-NIL */
-    if (eq(value2,Fixnum_0)) { /* CONTINUE restart */
+    if (eq(value2,Fixnum_0)) { /* RETRY restart */
       funname = STACK_0;
       name = (symbolp(funname) ? funname
               : get(Car(Cdr(funname)),S(setf_function)));
