@@ -1,3 +1,9 @@
+1998-07-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * spvw.d (abort): Move to amigaaux.d.
+        * amigaaux.d (abort): Moved here.
+        * amiga.d (abort): Adjust comment.
+
 1998-07-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d: Add a comment about CFLAGS.

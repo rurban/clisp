@@ -41,3 +41,22 @@ global long full_write(handle,bufarea,nbyte)
 
 # ==============================================================================
 
+# Sofortiger Programmabbruch, Sprung in den Debugger
+  global void abort (void);
+  global void abort()
+    {
+      #if defined(GNU) && 0 # Jörg mag das nicht so sehr bis überhaupt nicht
+        __asm__ __volatile__ (" .word 0x4AFC "); # illegaler Befehl
+      #else
+        # Je préfère Wait(0L) car ainsi le programme se met en attente infinie
+        # et on peut essayer de savoir pourquoi en analysant la mémoire. Je ne
+        # considère pas qu'une sortie de programme soit sûre puisque la mémoire
+        # peut se trouver dans un mauvais état, il peut y avoir des fichiers
+        # non fermés, des «Lock» alloués, etc.                    Jörg 7.1.1993
+        asciz_out(NLstring "CLISP panic! (halting)" NLstring);
+        Wait(0L);
+      #endif
+    }
+
+# ==============================================================================
+
