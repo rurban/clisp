@@ -578,6 +578,13 @@ FIXME
 #-CLISP
 FIXME
 
+(logical-pathname ":")
+#+CLISP
+#S(LOGICAL-PATHNAME :HOST "" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
+                    :NAME NIL :TYPE NIL :VERSION NIL)
+#-CLISP
+FIXME
+
 (merge-pathnames (logical-pathname "cl-systems:") "metering.system")
 #+CLISP
 #S(LOGICAL-PATHNAME :HOST "CL-SYSTEMS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
