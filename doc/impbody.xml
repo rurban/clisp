@@ -726,20 +726,21 @@ executes a compiled version of form.</para>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
  <colspec colname="vars"/><colspec colname="b16"/>
  <colspec colname="b32"/><colspec colname="b64"/>
- <spanspec spanname="b32-64" namest="b32" nameend="b64" align="center"/>
- <spanspec spanname="b16-64" namest="b16" nameend="b64" align="center"/>
  <thead><row><entry>CPU type</entry><entry>16-bit CPU</entry>
-             <entry>32-bit CPU</entry> <entry>64-bit CPU</entry></row></thead>
+             <entry>32-bit CPU</entry><entry>64-bit CPU</entry></row></thead>
  <tbody>
   <row><entry>&call-arguments-limit;</entry>
-   <entry>2<superscript>16</superscript>=65536</entry>
-   <entry spanname="b32-64">2<superscript>32</superscript>=4294967296</entry>
+       <entry>2<superscript>16</superscript>=65536</entry>
+       <entry namest="b32" nameend="b64" align="center"
+             >2<superscript>32</superscript>=4294967296</entry>
   </row>
   <row><entry>&multiple-values-limit;</entry>
-       <entry spanname="b16-64">2<superscript>7</superscript>=128</entry></row>
+       <entry namest="b16" nameend="b64" align="center"
+             >2<superscript>7</superscript>=128</entry></row>
   <row><entry>&lambda-parameters-limit;</entry>
-   <entry>2<superscript>16</superscript>=65536</entry>
-   <entry spanname="b32-64">2<superscript>32</superscript>=4294967296</entry>
+       <entry>2<superscript>16</superscript>=65536</entry>
+       <entry namest="b32" nameend="b64" align="center"
+             >2<superscript>32</superscript>=4294967296</entry>
   </row>
 </tbody></tgroup></table>
 
@@ -956,18 +957,24 @@ executes a compiled version of form.</para>
 <chapter id="packages"><title>Packages
    <ulink url="&clhs;/Body/chap-11.html">[CLHS-11]</ulink></title>
 
-<para>The &ansi-cl; packages
-<itemizedlist>
- <listitem><simpara>&cl-pac; with the nicknames <emphasis
-  role="strong"><constant>CL</constant></emphasis> and <emphasis
-  role="strong"><constant>LISP</constant></emphasis>;</simpara></listitem>
- <listitem><simpara>&clu-pac; with the nicknames <emphasis
-  role="strong"><constant>CL-USER</constant></emphasis> and <emphasis
-  role="strong"><constant>USER</constant></emphasis> and</simpara></listitem>
- <listitem><simpara>&kwd-pac;</simpara></listitem>
-</itemizedlist></para>
+<variablelist><title>The &ansi-cl; packages present in &clisp;</title>
+ <varlistentry><term>&cl-pac;</term>
+  <listitem><simpara>with the nicknames
+   <emphasis role="strong"><constant>"CL"</constant></emphasis> and
+   <emphasis role="strong"><constant>"LISP"</constant></emphasis>
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>&clu-pac;</term>
+  <listitem><simpara>with the nicknames
+   <emphasis role="strong"><constant>"CL-USER"</constant></emphasis> and
+   <emphasis role="strong"><constant>"USER"</constant></emphasis>
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>&kwd-pac;</term>
+  <listitem><simpara>with the nickname
+   <emphasis role="strong"><constant>""</constant></emphasis>
+  </simpara></listitem></varlistentry>
+</variablelist>
 
-<para>are implemented. The package &cl-pac; &export;s only those symbols
+<para>The package &cl-pac; &export;s only those symbols
  from the &ansi-cl; that are actually implemented.</para>
 
 <section id="clupack"><title>The COMMON-LISP-USER Package
@@ -1424,16 +1431,17 @@ executes a compiled version of form.</para>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
  <colspec colname="vars"/><colspec colname="b16"/>
  <colspec colname="b32"/><colspec colname="b64"/>
- <spanspec spanname="b16-32" namest="b16" nameend="b32" align="center"/>
  <thead><row><entry>CPU type</entry><entry>16-bit CPU</entry>
              <entry>32-bit CPU</entry><entry>64-bit CPU</entry></row></thead>
  <tbody>
  <row><entry>&most-positive-fixnum;</entry>
- <entry spanname="b16-32">2<superscript>24</superscript>-1 = 16777215</entry>
- <entry>2<superscript>32</superscript>-1 = 4294967295</entry></row>
+      <entry namest="b16" nameend="b32" align="center"
+            >2<superscript>24</superscript>-1 = 16777215</entry>
+      <entry>2<superscript>32</superscript>-1 = 4294967295</entry></row>
  <row><entry>&most-negative-fixnum;</entry>
- <entry spanname="b16-32">-2<superscript>24</superscript> = -16777216</entry>
- <entry>-2<superscript>32</superscript> = -4294967296</entry></row>
+      <entry namest="b16" nameend="b32" align="center"
+            >-2<superscript>24</superscript> = -16777216</entry>
+      <entry>-2<superscript>32</superscript> = -4294967296</entry></row>
 </tbody></tgroup></table>
 
 </section>
@@ -2064,7 +2072,7 @@ are simple characters.</para>
 
 </section>
 
-<section><title>Character Encodings
+<section><title>Documentation of Implementation-Defined Scripts
    <ulink url="&clhs;/Body/sec_13-1-10.html">[CLHS-13.1.10]</ulink></title>
 
 <para>See the description of <link
@@ -2073,7 +2081,7 @@ are simple characters.</para>
 </section>
 
 <section><title>The Characters Dictionary
-   <ulink url="&clhs;/Body/sec_the_chara_s_dictionary.html">[CLHS-13.2.]</ulink></title>
+   <ulink url="&clhs;/Body/sec_the_chara_s_dictionary.html">[CLHS-13.2]</ulink></title>
 
 <para>&char-code; takes values from 0 (inclusive) to
  &char-code-limit; (exclusive), i.e., the implementation
@@ -2085,8 +2093,8 @@ are simple characters.</para>
              <entry>&without; &unicode; support</entry>
              <entry>&with; &unicode; support</entry></row></thead>
  <tbody><row><entry>&char-code-limit;</entry>
-    <entry>2<superscript>8</superscript> = 256</entry>
-    <entry>2<superscript>16</superscript> = 65536</entry></row>
+             <entry>2<superscript>8</superscript> = 256</entry>
+             <entry>2<superscript>16</superscript> = 65536</entry></row>
 </tbody></tgroup></table>
 
 <para>The types <classname>ext:string-char</classname> and
@@ -2424,19 +2432,21 @@ and the international alphabetic characters from the character set:
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
  <colspec colname="vars"/><colspec colname="b16"/>
  <colspec colname="b32"/><colspec colname="b64"/>
- <spanspec spanname="b16-32" namest="b16" nameend="b32" align="center"/>
  <thead><row><entry>CPU type</entry><entry>16-bit CPU</entry>
              <entry>32-bit CPU</entry><entry>64-bit CPU</entry></row></thead>
  <tbody>
  <row><entry>&array-rank-limit;</entry>
- <entry spanname="b16-32">2<superscript>16</superscript> = 65536</entry>
- <entry>2<superscript>32</superscript> = 4294967296</entry></row>
+      <entry namest="b16" nameend="b32" align="center"
+            >2<superscript>16</superscript> = 65536</entry>
+      <entry>2<superscript>32</superscript> = 4294967296</entry></row>
  <row><entry>&array-dimension-limit;</entry>
- <entry spanname="b16-32">2<superscript>24</superscript> = 16777216</entry>
- <entry>2<superscript>32</superscript> = 4294967296</entry></row>
+      <entry namest="b16" nameend="b32" align="center"
+            >2<superscript>24</superscript> = 16777216</entry>
+      <entry>2<superscript>32</superscript> = 4294967296</entry></row>
  <row><entry>&array-total-size-limit;</entry>
- <entry spanname="b16-32">2<superscript>24</superscript> = 16777216</entry>
- <entry>2<superscript>32</superscript> = 4294967296</entry></row>
+      <entry namest="b16" nameend="b32" align="center"
+            >2<superscript>24</superscript> = 16777216</entry>
+      <entry>2<superscript>32</superscript> = 4294967296</entry></row>
 </tbody></tgroup></table>
 
 <para>Note that these constants are not fixnums, contrary to the &ansi-cl;
@@ -2469,14 +2479,15 @@ and the international alphabetic characters from the character set:
 <section><title>The Strings Dictionary
    <ulink url="&clhs;/Body/sec_the_strings_dictionary.html">[CLHS-16.2]</ulink></title>
 
-<formalpara id="string-width"><title>Functions on strings</title>
+<section id="string-width"><title>Functions on strings</title>
 
-<para><literal role="sexp">(<function>ext:string-width</function>
- <replaceable>string</replaceable>)</literal> returns the number of
- screen columns occupied by <replaceable>string</replaceable>.  This is
- computed as the sum of all <link
- linkend="char-width"><function>char-width</function></link>s
- of all of the string's characters.</para></formalpara>
+<formalpara><title><literal role="sexp">(<function>ext:string-width</function>
+ <replaceable>string</replaceable>)</literal></title>
+ <para>returns the number of screen columns occupied by
+ <replaceable>string</replaceable>.
+ This is computed as the sum of all <link
+ linkend="char-width"><function>ext:char-width</function></link>s
+ of all of the string's characters.</para></formalpara></section>
 
 </section>
 </chapter>
@@ -2524,9 +2535,9 @@ and the international alphabetic characters from the character set:
  their argument unchanged, if no element has to be removed.</para>
 
 <para>&delete;, &delete-if;, &delete-if-not;, &delete-duplicates;
- destructively modify their argument: If the argument is a list, the
- &cdr; parts are modified. If the argument is a vector with fill
- pointer, the fill pointer is lowered and the remaining elements are
+ destructively modify their argument: If the argument is a &list-class;,
+ the &cdr; parts are modified.  If the argument is a &vector-class; with
+ fill pointer, the fill pointer is lowered and the remaining elements are
  compacted below the new fill pointer.</para>
 
 <para id="count-ansi">Contrary to the &ansi-cl; issue 283 <ulink
