@@ -1,3 +1,8 @@
+2004-11-26  Sam Steingold  <sds@gnu.org>
+
+	* macro8.tst: check that run-time errors are not turned into
+	compile-time errors
+
 2004-11-20  Bruno Haible  <bruno@clisp.org>
 
 	* mop.tst: Add a test for finalize-inheritance invocations.

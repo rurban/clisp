@@ -864,3 +864,8 @@ NIL
   #+clisp (delete-file (make-pathname :type "lib" :defaults fname))
   (nreverse results))
 (5 4 5 4 5 4)
+
+;; <http://article.gmane.org/gmane.lisp.clisp.devel:13153>
+(defun test-constant-folding () (* 1e30 1e30))  test-constant-folding
+(compile 'test-constant-folding) test-constant-folding
+(test-constant-folding)  error
