@@ -6,6 +6,9 @@
     (gc) (gc)))
 (#S(REGEXP:MATCH :START 0 :END 1) NIL)
 
+(let ((*apropos-matcher* #'regexp:regexp-matcher)) (apropos-list "regexp.*r$"))
+(REGEXP:REGEXP-MATCHER)
+
 ;;; SDS: WARNING: the following tests are checking the underlying regexp
 ;;; implementation rather than CLISP regexp interface.
 ;;; a test failure should be reported to the regexp maintainer.
