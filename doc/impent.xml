@@ -110,6 +110,7 @@
 <!ENTITY lalist "<link linkend='lalist'>lambda list</link>">
 <!ENTITY lfd "<link linkend='lfd'><function>EXT:LONG-FLOAT-DIGITS</function></link>">
 <!ENTITY line-term "<link linkend='newline'>line terminator</link>">
+<!ENTITY mem-image "<link linkend='image'>memory image</link>">
 <!ENTITY match-t "<classname>REGEXP::REGMATCH_T</classname>">
 <!ENTITY parsename "<link linkend='parsename'><varname>CUSTOM:*PARSE-NAMESTRING-ANSI*</varname></link>">
 <!ENTITY pathmerge "<link linkend='pathmerge'><varname>CUSTOM:*MERGE-PATHNAMES-ANSI*</varname></link>">
@@ -265,5 +266,5 @@
 <!ENTITY malloc "<function>malloc()</function>">
 <!ENTITY free "<function>free()</function>">
 <!ENTITY fasl-file "<filename>fas</filename>">
-<!ENTITY lisp-file "<filename>fas</filename>">
-<!ENTITY mem-file "<filename>fas</filename>">
+<!ENTITY lisp-file "<filename>lisp</filename>">
+<!ENTITY mem-file "<filename>mem</filename>">
