@@ -180,7 +180,7 @@
   (setf (sys::%record-ref object *<effective-slot-definition>-efm-smuc-location*) new-value))
 
 ;; Initialization of a <slot-definition> instance.
-(defun initialize-instance-<slot-definition> (slotdef
+(defun initialize-instance-<slot-definition> (slotdef &rest args
                                               &key (name nil name-p)
                                                    (initform nil initform-p)
                                                    (initfunction nil initfunction-p)
@@ -191,6 +191,8 @@
                                                    ((inheritable-initer inheritable-initer) nil)
                                                    ((inheritable-doc inheritable-doc) nil)
                                               &allow-other-keys)
+  (when *classes-finished*
+    (apply #'%initialize-instance slotdef args)) ; == (call-next-method)
   (unless name-p
     (error (TEXT "(~S ~S): The slot name is not specified.")
            'initialize-instance 'slot-definition))
@@ -232,7 +234,9 @@
 (defun initialize-instance-<direct-slot-definition> (slotdef &rest args
                                                      &key (readers '())
                                                           (writers '())
+                                                          ((defclass-form defclass-form))
                                                      &allow-other-keys)
+  (declare (ignore defclass-form))
   (apply #'initialize-instance-<slot-definition> slotdef args)
   (unless (and (proper-list-p readers) (every #'sys::function-name-p readers))
     (error (TEXT "(~S ~S) for slot ~S: The ~S argument should be a proper list of function names, not ~S")
@@ -431,6 +435,25 @@
                          (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
                                 'direct-slot-definition-class (class-name class)
                                 'structure-direct-slot-definition slot-definition-class))))
+                (let ((defclass-form (getf slot-spec 'DEFCLASS-FORM)))
+                  (when defclass-form
+                    ;; Provide good error messages. The error message from
+                    ;; MAKE-INSTANCE later is unintelligible.
+                    (let ((valid-keywords
+                            (class-valid-initialization-keywords slot-definition-class)))
+                      (unless (eq valid-keywords 'T)
+                        ;; The valid-keywords contain at least
+                        ;; :NAME :READERS :WRITERS :ALLOCATION :INITARGS
+                        ;; :INITFORM :INITFUNCTION :TYPE :DOCUMENTATION DEFCLASS-FORM.
+                        (do ((specr slot-spec (cddr specr)))
+                            ((endp specr))
+                          (let ((optionkey (car specr)))
+                            (unless (member optionkey valid-keywords)
+                              (error-of-type 'ext:source-program-error
+                                :form defclass-form
+                                :detail optionkey
+                                (TEXT "~S ~S, slot option for slot ~S: ~S is not a valid slot option")
+                                'defclass (second defclass-form) (getf slot-spec ':NAME) optionkey))))))))
                 (apply (cond ((eq slot-definition-class 'standard-direct-slot-definition)
                               #'make-instance-<standard-direct-slot-definition>)
                              (t #'make-instance))
