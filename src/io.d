@@ -8520,14 +8520,14 @@ LISPFUNN(print_structure,2)
                 pr_record_descr(stream_,*(obj_ STACKop 1),S(pathname),TRUE,
                                 O(pathname_slotlist));
                 JUSTIFY_END_ENG; JUSTIFY_END_ENG;
-                  skipSTACK(1);
+                skipSTACK(1);
               } else {
                 STACK_0 = obj; # String
                 if (test_value(S(print_escape))) { # print "#P"
                   write_schar(stream_,'#'); write_schar(stream_,'P');
                 }
                 pr_string(stream_,STACK_0); # print the string
-                }
+              }
               skipSTACK(1);
             }
             break;
