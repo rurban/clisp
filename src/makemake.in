@@ -29,10 +29,8 @@ options:
             or the value of the environment variable CLHSROOT, if set).
     The following options add support for specific separate packages. See the
     main INSTALL file for how to get them.
-       --with-oldoldreadline   the good old (gdb-4.17 based) readline library
-       --with-oldreadline      the new (bash-1.14.7 based) readline library
-       --with-readline         the newest (readline-4.0 based) readline lib
-       --with-noreadline       no readline library at all
+       --with-readline         the (readline-4.1-beta3 based) readline lib
+       --with-noreadline       no readline library
        --with-gettext          internationalization library gettext-0.10.27
        --with-nogettext        static internationalization (en,de,fr only)
        --with-termcap          termcap-1.3 library (needed only on cygwin32)
@@ -56,10 +54,8 @@ EOP
 # Advanced usage:
 #        ./makemake [--with-PACKAGE] TARGET COMPILER [debug] > Makefile
 #  where PACKAGE is one of
-#        readline         the new (readline-4.0 based) readline library
-#        oldreadline      the new (bash-1.14.7 based) readline library
-#        oldoldreadline   the old (gdb-4.17 based) readline library
-#        noreadline       no readline library at all
+#        readline         the (readline-4.1-beta3 based) readline library
+#        noreadline       no readline library
 #        gettext          internationalization library gettext-0.10.27
 #        nogettext        static internationalization (en,de,fr only)
 #        unicode          Unicode character set
@@ -1169,15 +1165,7 @@ if [ $TOS = unix -o $TOS = os2 ] ; then
   else
     TERMINAL='readline'
     READLINELIB='libreadline.a'
-    if test -n "$with_oldoldreadline"; then
-      READLINEDIR='oldoldreadline'
-    else
-      if test -n "$with_oldreadline"; then
-        READLINEDIR='oldreadline'
-      else
-        READLINEDIR='readline'
-      fi
-    fi
+    READLINEDIR='readline'
     READLINELIB=$READLINEDIR'/'$READLINELIB
     # Don't put "-lreadline" into LIBS for two reasons:
     # 1. The system may have its own libreadline.a.

@@ -44,12 +44,8 @@ Other:
       src/gettext/       internationalization using GNU gettext
       src/termcap/       a GNU termcap library
       ffcall/            a foreign function call library
-      src/oldoldreadline/  a modified GNU readline library,
-                         gdb-4.17 based
-      src/oldreadline/   another modified GNU readline library,
-                         bash-1.14.7 based
-      src/readline/      yet another modified GNU readline library,
-                         readline-4.0 based
+      src/readline/      a modified GNU readline library,
+                         readline-4.1-beta3 based
       modules/clx/       the CLX library, an interface to X11,
                          roughly equivalent to the libX11
       modules/wildcard/  foreign language module for wildcard matching
