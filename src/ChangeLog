@@ -1,5 +1,12 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_space.d: New file.
+        * spvw.d (static_space, used_space, free_space, recalc_space): Move
+          out.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_page.d: New file.
         * spvw_heap.d: New file.
         * spvw_global.d: New file.
