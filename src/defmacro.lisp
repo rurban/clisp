@@ -61,6 +61,8 @@
         %default-form ;; default form for optional and keyword arguments,
                       ;; for which no default form is supplied
                       ;; NIL normally, or (QUOTE *) for DEFTYPE.
+
+        %null-tests   ;; tests for () matches
 ))
 #|
  (ANALYZE1 lambdalist accessexp name wholevar)
@@ -266,6 +268,15 @@ the actual object #<MACRO expander> for the FENV.
    (cons (cdr h) (cdr exp))
    (list 'cdr exp)))
 
+(defun empty-pattern (name accessexp &aux (g (gensym)))
+  (setq %let-list (cons `(,g ,(cons-car accessexp)) %let-list)
+        %null-tests (cons
+                     `(if ,g
+                       (error-of-type 'source-program-error
+                         (TEXT "~S: ~S does not match lambda list element ~:S")
+                         ',name ,g '()))
+                     %null-tests)))
+
 (defun analyze1 (lambdalist accessexp name wholevar)
   (do ((listr lambdalist (cdr listr))
        (within-optional nil)
@@ -320,7 +331,8 @@ the actual object #<MACRO expander> for the FENV.
              (cond ((symbolp item) (setq item (list item %default-form)))
                    ((and (consp item) (eql (length item) 1))
                     (setq item (list (car item) %default-form)))))
-           (cond ((symbolp item)
+           (cond ((null item) (empty-pattern name accessexp))
+                 ((symbolp item)
                   (setq %let-list (cons `(,item ,(cons-car accessexp))
                                         %let-list)))
                  ((atom item)
@@ -357,7 +369,8 @@ the actual object #<MACRO expander> for the FENV.
           (t ; required arguments
            (setq %min-args (1+ %min-args))
            (setq %arg-count (1+ %arg-count))
-           (cond ((symbolp item)
+           (cond ((null item) (empty-pattern name accessexp))
+                 ((symbolp item)
                   (setq %let-list (cons `(,item ,(cons-car accessexp)) %let-list)))
                  ((atom item)
                   #1#) ; (error-of-type ... name item), s.o.
@@ -372,7 +385,7 @@ the actual object #<MACRO expander> for the FENV.
                     (rplaca (cdr (assoc g1 %let-list))
                             `(if ,test
                                  (error-of-type 'source-program-error
-                                   (TEXT "~S: ~S does not match lambda list element ~S")
+                                   (TEXT "~S: ~S does not match lambda list element ~:S")
                                    ',name ,g ',item)
                                  ,g)))))
            (setq accessexp (cons-cdr accessexp))))))
@@ -424,12 +437,13 @@ the actual object #<MACRO expander> for the FENV.
                              (list (cons 'DECLARE declarations))))
       (multiple-value-bind (newlambdalist envvar)
           (remove-env-arg lambdalist name)
-        (let ((%arg-count 0) (%min-args 0) (%restp nil)
+        (let ((%arg-count 0) (%min-args 0) (%restp nil) (%null-tests nil)
               (%let-list nil) (%keyword-tests nil) (%default-form nil))
           (analyze1 newlambdalist '(CDR <MACRO-FORM>) name '<MACRO-FORM>)
           (let ((lengthtest (make-length-test '<MACRO-FORM>))
                 (mainform `(LET* ,(nreverse %let-list)
                              ,@declarations
+                             ,@(nreverse %null-tests)
                              ,@(nreverse %keyword-tests)
                              (BLOCK ,name ,@body-rest))))
             (if lengthtest

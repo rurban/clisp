@@ -176,12 +176,13 @@
   (multiple-value-bind (body-rest declarations docstring)
       (SYSTEM::PARSE-BODY body t)
     (if declarations (setq declarations (list (cons 'DECLARE declarations))))
-    (let ((%arg-count 0) (%min-args 0) (%restp nil)
+    (let ((%arg-count 0) (%min-args 0) (%restp nil) (%null-tests nil)
           (%let-list nil) (%keyword-tests nil) (%default-form '(QUOTE *)))
       (analyze1 lambdalist '(CDR <DEFTYPE-FORM>) name '<DEFTYPE-FORM>)
       (let ((lengthtest (make-length-test '<DEFTYPE-FORM>))
             (mainform `(LET* ,(nreverse %let-list)
                          ,@declarations
+                         ,@(nreverse %null-tests)
                          ,@(nreverse %keyword-tests)
                          (BLOCK ,name ,@body-rest))))
         (if lengthtest

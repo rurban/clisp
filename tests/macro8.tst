@@ -106,6 +106,9 @@ halibut
           (foo))))
 (no yes)
 
+(macrolet ((%m (()) :good)) (%m ())) :GOOD
+(macrolet ((%m (()) :good)) (%m 10)) ERROR
+
 ;; 3.2.2.1 Compiler Macros
 (define-compiler-macro testp () '(progn 2))
 TESTP
