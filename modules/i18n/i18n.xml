@@ -14,6 +14,9 @@ maintainer.</para>
 &i18n-pac; package, which is &re-export;ed from the &ext-pac;
 package.</para>
 
+<simpara>This module is present even in the <command>base</command>
+ &linkset; by default.</simpara>
+
 <variablelist>
  <varlistentry id="gettext"><term><code>(&gettext;
     &msgid; &optional-amp; &domain; &category;)</code></term>
@@ -37,7 +40,8 @@ package.</para>
 is requesting the translation.  The pathname of the message catalog
 depends on the &domain;: usually it is located at
 <filename>TEXTDOMAINDIR/l/LC_MESSAGES/domain.mo</filename>, where
-&l-r; is the ISO 639 code of the language.
+&l-r; is the <ulink url="http://www.loc.gov/standards/iso639-2/">ISO
+ 639-2</ulink> code of the language.
 The notion of &domain; allows several Lisp programs running in the same
 image to request translations independently of each other.</para>
 

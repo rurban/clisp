@@ -11,6 +11,9 @@ Important notes
   '.clisprc' on all platforms.
   If you are using woe32, please rename your Run-Control file.
 
+* Modules i18n, regexp, and syscalls are now present even in the base
+  linking set.  Do not pass, e.g., "--with-module=regexp" to configure.
+
 User visible changes
 --------------------
 
