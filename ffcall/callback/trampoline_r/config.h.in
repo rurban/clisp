@@ -89,11 +89,11 @@
 /* Define as the return type of abort(). */
 #undef RETABORTTYPE
 /* Define as __volatile__ if the declaration of abort() needs it. */
-#define ABORT_VOLATILE
+#undef ABORT_VOLATILE
 
 /* CL_OPEN */
 /* Define as const if the declaration of open() needs const. */
-#define OPEN_CONST
+#undef OPEN_CONST
 /* Define if the declaration of open() needs dots. */
 #undef OPEN_DOTS
 
@@ -135,7 +135,7 @@
 /* Define if you have a working mprotect() function. */
 #undef HAVE_WORKING_MPROTECT
 /* Define as const if the declaration of mprotect() needs const. */
-#define MPROTECT_CONST
+#undef MPROTECT_CONST
 
 /* CL_SHMGET */
 /* Define as the type of `size' in shmget() declaration. */
@@ -145,7 +145,7 @@
 /* Define as the return type of shmat(). */
 #undef RETSHMATTYPE
 /* Define as const if the declaration of shmat() needs const. */
-#define SHMAT_CONST
+#undef SHMAT_CONST
 
 /* CL_SHMCTL */
 /* Define if the declaration of shmctl() needs dots. */

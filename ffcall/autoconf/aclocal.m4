@@ -2,7 +2,7 @@ dnl local autoconf macros
 dnl Bruno Haible 2001-02-04
 dnl Marcus Daniels 1997-04-10
 dnl
-AC_PREREQ(2.12)dnl
+AC_PREREQ(2.52)dnl
 dnl
 dnl without AC_MSG_...:   with AC_MSG_... and caching:
 dnl   AC_TRY_CPP          CL_CPP_CHECK
@@ -139,6 +139,7 @@ AC_SUBST(GCC_X_NONE)dnl
 dnl
 AC_DEFUN(CL_AS_UNDERSCORE,
 [AC_BEFORE([$0], [CL_GLOBAL_CONSTRUCTORS])
+m4_pattern_allow([^AS_UNDERSCORE$])
 AC_CACHE_CHECK(for underscore in external names, cl_cv_prog_as_underscore, [
 cat > conftest.c <<EOF
 int foo() { return 0; }
@@ -284,53 +285,27 @@ LN_S="$cl_cv_prog_LN_S"
 AC_SUBST(LN_S)dnl
 ])dnl
 dnl
+AC_DEFUN(CL_CONFIG_SUBDIRS,
+[dnl No AC_CONFIG_AUX_DIR_DEFAULT, so we don't need install.sh.
+AC_PROVIDE([AC_CONFIG_AUX_DIR_DEFAULT])
+AC_CONFIG_SUBDIRS([$1])dnl
+])dnl
+dnl
 AC_DEFUN(CL_CANONICAL_HOST,
 [AC_REQUIRE([AC_PROG_CC]) dnl Actually: AC_REQUIRE([CL_CC_WORKS])
 dnl Set ac_aux_dir before the cache check, because AM_PROG_LIBTOOL needs it.
 ac_aux_dir=${srcdir}/$1
 dnl A substitute for AC_CONFIG_AUX_DIR_DEFAULT, so we don't need install.sh.
-ac_config_guess=$ac_aux_dir/config.guess
-ac_config_sub=$ac_aux_dir/config.sub
-AC_CACHE_CHECK(host system type, cl_cv_host, [
-dnl Mostly copied from AC_CANONICAL_HOST.
-# Make sure we can run config.sub.
-if ${CONFIG_SHELL-/bin/sh} $ac_config_sub sun4 >/dev/null 2>&1; then :
-else AC_MSG_ERROR(can not run $ac_config_sub)
-fi
-host_alias=$host
-case "$host_alias" in
-NONE)
-  case $nonopt in
-  NONE) dnl config.guess needs to compile things
-        host_alias=`export CC; ${CONFIG_SHELL-/bin/sh} $ac_config_guess` ;;
-  *)    host_alias=$nonopt ;;
-  esac ;;
-esac
-# Don't fail just because the system is not listed in GNU's database.
-if test -n "$host_alias"; then
-  host=`${CONFIG_SHELL-/bin/sh} $ac_config_sub $host_alias`
-else
-  host_alias=unknown
-  host=unknown-unknown-unknown
-fi
-cl_cv_host_alias="$host_alias"
-cl_cv_host="$host"
-])
-host_alias="$cl_cv_host_alias"
-host="$cl_cv_host"
-changequote(,)dnl
-host_cpu=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
-host_vendor=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
-host_os=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
-changequote([,])dnl
-AC_SUBST(host)dnl
-AC_SUBST(host_cpu)dnl
-AC_SUBST(host_vendor)dnl
-AC_SUBST(host_os)dnl
+ac_config_guess="$SHELL $ac_aux_dir/config.guess"
+ac_config_sub="$SHELL $ac_aux_dir/config.sub"
 dnl We have defined $ac_aux_dir.
 AC_PROVIDE([AC_CONFIG_AUX_DIR_DEFAULT])dnl
-dnl We have defined $host_alias and $host.
-AC_PROVIDE([AC_CANONICAL_HOST])dnl
+dnl In autoconf-2.52, a single AC_CANONICAL_HOST has the effect of inserting
+dnl the code of AC_CANONICAL_BUILD *before* CL_CANONICAL_HOST, i.e. before
+dnl ac_aux_dir has been set. To work around this, we list AC_CANONICAL_BUILD
+dnl explicitly.
+AC_CANONICAL_BUILD
+AC_CANONICAL_HOST
 ])dnl
 dnl
 AC_DEFUN(CL_CANONICAL_HOST_CPU_FOR_FFCALL,
@@ -416,7 +391,7 @@ typedef void* y; y a;
 if test -n "$have_void"; then
 CL_COMPILE_CHECK([working \"return void\"], cl_cv_c_return_void,
 [void f() {} typedef void x; x g() { return f(); }], [],
-AC_DEFINE(return_void,[return]))dnl
+AC_DEFINE(return_void,[return]), AC_DEFINE(return_void,[]))dnl
 fi
 ])dnl
 dnl
@@ -1183,7 +1158,7 @@ int main ()
 { int shmid, i; char* addr; char* result;
   if ((shmid = shmget(IPC_PRIVATE,segsize,0400)) < 0) exit(1);
   for (i=0, addr = (char*)0x01000000; i<attaches; i++, addr += segsize)
-    { if ((result = shmat(shmid,addr,SHM_RDONLY)) == (char*)(-1)) break; }
+    if ((result = (char*)shmat(shmid,addr,SHM_RDONLY)) == (char*)(-1)) break;
   for (i=0, addr = (char*)0x01000000; i<attaches; i++, addr += segsize)
     shmdt(addr);
   shmctl(shmid,IPC_RMID,0);

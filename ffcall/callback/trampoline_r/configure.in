@@ -37,8 +37,9 @@ CL_SHMAT
 CL_SHMDT
 CL_SHMCTL
 CL_SHM
-CL_CANONICAL_HOST(../../autoconf)
-CL_CANONICAL_HOST_CPU_FOR_FFCALL
+dnl See above. Avoid duplicate warning.
+dnl CL_CANONICAL_HOST(../../autoconf)
+dnl CL_CANONICAL_HOST_CPU_FOR_FFCALL
 CL_CODEEXEC
 CPU_OBJECTS=''
 if test ${host_cpu} = hppa -o ${host_cpu} = ia64; then

@@ -1,3 +1,16 @@
+2001-08-25  Bruno Haible  <haible@clisp.cons.org>
+
+	Upgrade to autoconf-2.52.
+	* autoconf/autoconf: Upgrade to autoconf-2.52.
+	* autoconf/autoheader: Likewise.
+	* autoconf/acgeneral.m4: Remove file.
+	* autoconf/acspecific.m4: Remove file.
+	* autoconf/autoconf.m4f: New file, from autoconf-2.52.
+	* autoconf/aclocal.m4: Quote first argument of AC_DEFUN.
+	* Makefile.devel (configure): Use autoconf options -A, -l instead of
+	-m.
+	(config.h.in): Use autoheader options -A, -l instead of -m.
+
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
 	* autoconf/acgeneral.m4 (AC_MSG_RESULTPROTO): Remove macro.

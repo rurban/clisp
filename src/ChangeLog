@@ -1,5 +1,43 @@
 2001-08-25  Bruno Haible  <haible@clisp.cons.org>
 
+	Upgrade to autoconf-2.52.
+	* autoconf/autoconf: Upgrade to autoconf-2.52.
+	* autoconf/acgeneral.m4: Remove file.
+	* autoconf/acspecific.m4: Remove file.
+	* autoconf/autoconf.m4f: New file, from autoconf-2.52.
+	* autoconf/aclocal.m4: Require autoconf-2.52.
+	(CL_AS_UNDERSCORE): Avoid stupid autoconf-2.52 error "possibly
+	undefined macro: AS_UNDERSCORE".
+	(CL_CONFIG_SUBDIRS): Rewritten.
+	(CL_CANONICAL_HOST): Call AC_CANONICAL_HOST. Don't cache the result,
+	AC_CANONICAL_HOST does it itself. Add $SHELL in front of
+	$ac_config_guess and $ac_config_sub.
+	(CL_VOID): Define return_void to empty.
+	(CL_DIR_HEADER): Inline the autoconf-2.13 AC_CHECK_HEADERS_DIRENT code.
+	(CL_SIGACTION_REINSTALL): Include <string.h>, for memset declaration.
+	(CL_STAT): Define STAT_INLINE outside of CL_PROTO.
+	(CL_LSTAT): Likewise.
+	(CL_SHM): Cast the shmat return value, to avoid error in C++ mode.
+	* Makefile.devel (AUTOCONF_FILES): Remove acgeneral.m4, acspecific.m4.
+	Add autoconf.m4f.
+	(src/gettext/configure, src/gettext/config.h.in): Likewise.
+	(src/configure): Use autoconf options -A, -l instead of -m.
+	(modules/wildcard/configure): Likewise.
+	(modules/regexp/configure): Likewise.
+	(modules/clx/new-clx/configure): Likewise.
+	(utils/hln/configure): Likewise.
+	* unixconf.h.in (return_void, *_CONST, CONNECT_ADDRLEN_T): Use #undef
+	instead of #define, to work around an autoconf bug.
+	(DIRENT, SYSNDIR, SYSDIR, NDIR): Remove comments after #undef, to work
+	an autoconf-2.52 bug.
+	* configure: Pass --cache-file=config.cache to the main configure, to
+	force a cache file. Needed for grepping cl_cv_prog_cc_cplusplus and
+	also for speed. Don't pass --cache-file=../config.cache to gettext's
+	configure because it uses different CPPFLAGS and LDFLAGS (needed so
+	that gettext gets HAVE_ICONV right).
+
+2001-08-25  Bruno Haible  <haible@clisp.cons.org>
+
 	* makemake.in (gettext_datadirname_sedcommand): Remove.
 	(datadir): Always set to $(prefix)/share.
 	(localesed): Update.
