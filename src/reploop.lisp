@@ -208,8 +208,9 @@ If anything else, printed.")
 (defun commands0 ()
   (list
    (ENGLISH "
-Help (abbrev :h) this list Use the usual editing capabilities.(quit)
-or (exit) leaves CLISP.")
+Help (abbreviated :h) = this list
+Use the usual editing capabilities.
+(quit) or (exit) leaves CLISP.")
 
    (cons "Help"         #'debug-help)
    (cons ":h"           #'debug-help)))
