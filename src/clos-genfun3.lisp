@@ -186,11 +186,15 @@
 
 (defun make-generic-function (generic-function-class funname lambda-list argument-precedence-order method-combo method-class declspecs documentation
                               &rest methods)
-  (let ((gf (make-fast-gf generic-function-class funname lambda-list argument-precedence-order method-class declspecs documentation)))
-    (setf (std-gf-method-combination gf)
-          (coerce-to-method-combination funname method-combo))
+  (let ((gf (make-generic-function-instance generic-function-class
+              :name funname
+              :lambda-list lambda-list
+              :argument-precedence-order argument-precedence-order
+              :method-class method-class
+              :method-combination (coerce-to-method-combination funname method-combo)
+              :declarations declspecs
+              :documentation documentation)))
     (dolist (method methods) (std-add-method gf method))
-    (finalize-fast-gf gf)
     gf))
 
 ;; When this is true, it is possible to replace a non-generic function with
@@ -332,15 +336,13 @@
              'ensure-generic-function-using-class funname result))
     result))
 
-#||  ;; For GENERIC-FLET, GENERIC-LABELS
+#||
+;; For GENERIC-FLET, GENERIC-LABELS
 ;; like make-generic-function, only that the dispatch-code is
 ;; installed immediately.
 (defun make-generic-function-now (generic-function-class funname lambda-list argument-precedence-order method-combo method-class declspecs documentation
                                   &rest methods)
-  (let ((gf (make-fast-gf generic-function-class funname lambda-list argument-precedence-order method-class declspecs documentation)))
-    (setf (std-gf-method-combination gf)
-          (coerce-to-method-combination funname method-combo))
-    (dolist (method methods) (std-add-method gf method))
+  (let ((gf (apply #'make-generic-function generic-function-class funname lambda-list argument-precedence-order method-combo method-class declspecs documentation methods)))
     (install-dispatch gf)
     gf))
 ||#
@@ -375,10 +377,12 @@
                                  (getf method-or-initargs 'signature))
                          (values (std-method-lambda-list method-or-initargs)
                                  (std-method-signature method-or-initargs)))
-                     (let ((req-num (sig-req-num m-signature))
-                           (gf-lambdalist
+                     (let ((gf-lambdalist
                              (gf-lambdalist-from-first-method m-lambdalist m-signature)))
-                       (make-fast-gf <standard-generic-function> funname gf-lambdalist (subseq m-lambdalist 0 req-num) <standard-method> '() nil))))))
+                       (make-generic-function-instance <standard-generic-function>
+                         :name funname
+                         :lambda-list gf-lambdalist
+                         :method-class <standard-method>))))))
          (method
            (if (listp method-or-initargs)
              (apply #'make-method-instance (std-gf-default-method-class gf)

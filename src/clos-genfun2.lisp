@@ -438,15 +438,6 @@
 
 ;; Generic functions with optimized dispatch:
 
-(defun make-fast-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation)
-  (make-generic-function-instance generic-function-class
-    :name name
-    :lambda-list lambda-list
-    :argument-precedence-order argument-precedence-order
-    :method-class method-class
-    :declarations declspecs
-    :documentation documentation))
-
 (let ((prototype-factory-table
         (make-hash-table :key-type '(cons fixnum boolean) :value-type '(cons function (simple-array (unsigned-byte 8) (*)))
                          :test 'ext:stablehash-equal :warn-if-needs-rehash-after-gc t))
