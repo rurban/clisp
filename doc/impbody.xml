@@ -2387,7 +2387,7 @@ and the international alphabetic characters from the character set:
 <programlisting language="lisp">
 (&make-hash-table; &key-amp; :TEST :INITIAL-CONTENTS :SIZE
                  :REHASH-SIZE :REHASH-THRESHOLD
-                 :warn-if-needs-rehash-after-gc :weak)
+                 :WARN-IF-NEEDS-REHASH-AFTER-GC :WEAK)
 </programlisting>
 
 <para>The &test-k; argument can be, other than one of the symbols &eq;,
@@ -2485,13 +2485,15 @@ checks whether the &hash-table-t; is weak.</para>
  <title>Interaction between &hash-table-t;s and &gc;ion.</title>
 
 <para>When a hash table contains keys to be compared by identity - such
- as numbers in hash tables with test &eq;, or conses in hash tables with
- test &eq;, &eql;, or vectors in hash tables with test &eq;, &eql;, &equal;,
- or &standard-object-t; or &structure-object-t; instances in hash tables with
- test &eq;, &eql;, &equal;, &equalp; - the hash code will in general depend
- on the object's address in memory. Therefore it will in general be invalidated
- after a &gc;ion, and the hash table's internal structure must be recomputed
- at the next hash table access.</para>
+ as &number-t;s in &hash-table-t;s with the &hash-table-test; &eq;;
+ or &cons-t;es in tables which test with &eq; or &eql;;
+ or &vector-t;s in tables which test with &eq;, &eql; or &equal;;
+ or &standard-object-t; or &structure-object-t; instances in tables which
+ test with &eq;, &eql;, &equal; or &equalp;;
+ - the hash code will in general depend on the object's address in
+ memory.  Therefore it will in general be invalidated after a &gc;ion,
+ and the hash table's internal structure must be recomputed at the next
+ table access.</para>
 
 <para>While <constant>:WARN-IF-NEEDS-REHASH-AFTER-GC</constant> can help
  checking the efficiency of a particular &hash-table-t;, the variable
@@ -2506,16 +2508,18 @@ checks whether the &hash-table-t; is weak.</para>
  issued that shows the inefficient &hash-table-t;.</para>
 
 <para>What can be done to avoid the inefficiencies detected by these warnings?
- 1. In many cases you can solve the problem by using the STABLEHASH variant
- of the hash test. 2. In other cases, namely &standard-object-t; or
- &structure-object-t; instances, you can solve the problem by making the
- key object classes inherit from &standard-stablehash; or
- &structure-stablehash;, respectively. 3. In the remaining cases, you should
- store a hash key inside the object, of which you can guarantee uniqueness
- through your application (for example the ID of an object in a database, or
- the serial number of an object), and use this key as hash key instead of the
- original object.</para>
-
+ <orderedlist><listitem><simpara>In many cases you can solve the problem
+    by using the <function>STABLEHASH</function> variant of the hash
+    test.</simpara></listitem>
+  <listitem><simpara>In other cases, namely &standard-object-t; or
+    &structure-object-t; instances, you can solve the problem by making
+    the key object classes inherit from &standard-stablehash; or
+    &structure-stablehash;, respectively.</simpara></listitem>
+  <listitem><simpara>In the remaining cases, you should store a hash key
+    inside the object, of which you can guarantee uniqueness through
+    your application (for example the ID of an object in a database, or
+    the serial number of an object), and use this key as hash key
+    instead of the original object.</simpara></listitem></orderedlist></para>
 </section>
 
 </section>
