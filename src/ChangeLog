@@ -1,3 +1,8 @@
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
+	* spvw.d (init_object_tab): Make the :CLISP-DEBUG feature depend on
+	DEBUG_COMPILER, not DEBUG_SPVW.
+
 2004-12-13  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (clear_output_terminal3): fix a GC-safety bug
