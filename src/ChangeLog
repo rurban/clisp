@@ -1,6 +1,12 @@
 2001-11-14  Sam Steingold  <sds@gnu.org>
 
-	* lispbibl.d: envelop all {} macros in "do{}while(0)"
+	* stream.d (init_streamvars): when stdin (resp. stdout) is not a
+	terminal, set *STANDARD-INPUT* (resp. *STANDARD-OUTPUT*) to the
+	actual stream, not *TERMINAL-IO* synonym stream
+
+2001-11-14  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d: envelop all "{}" macros in "do{}while(0)"
 
 2001-11-09  Sam Steingold  <sds@gnu.org>
 
