@@ -1,3 +1,11 @@
+2004-01-15  Sam Steingold  <sds@gnu.org>
+
+	* encoding.d (encoding_from_name): issue a warning (using libc
+	stdio because Lisp i/o is not yet available) if the requested
+	encoding cannot be found
+	default to ASCII for *FOREIGN-ENCODING* and UTF-8 for others
+	(init_dependent_encodings): pass `context' to encoding_from_name()
+
 2004-01-15  Bruno Haible  <bruno@clisp.org>
 
 	* encoding.d (uni16_wcslen, nls_wcslen, nls_asciiext_wcslen): Signal
