@@ -539,21 +539,21 @@ nil
 (make-pathname :defaults "**;*.FASL" :host "CL-LIBRARY")
 #+clisp
 #S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
-   :DIRECTORY (:RELATIVE :WILD-INFERIORS)
+   :DIRECTORY (:ABSOLUTE :WILD-INFERIORS)
    :NAME :WILD :TYPE "FASL" :VERSION NIL)
 
 #+clisp
 (make-pathname :defaults "**/*.FASL" :host "CL-LIBRARY")
 #+clisp
 #S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
-   :DIRECTORY (:RELATIVE :WILD-INFERIORS)
+   :DIRECTORY (:ABSOLUTE :WILD-INFERIORS)
    :NAME :WILD :TYPE "FASL" :VERSION NIL)
 
 #+clisp
 (make-pathname :defaults ";**;*.FASL.*" :host "CL-LIBRARY")
 #+clisp
 #S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
-   :DIRECTORY (:ABSOLUTE :WILD-INFERIORS)
+   :DIRECTORY (:RELATIVE :WILD-INFERIORS)
    :NAME :WILD :TYPE "FASL" :VERSION :WILD)
 
 (make-pathname :defaults "a.b" :name "c" :type nil)
