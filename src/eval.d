@@ -854,22 +854,23 @@ global bool sym_macrop (object sym) {
 /* UP: Sets the value of a Symbol in the current Environment.
  setq(symbol,value);
  > symbol: Symbol, no constant
- > value: desired value of the Symbols in the current Environment */
-global void setq (object sym, object value)
+ > value: desired value of the Symbols in the current Environment
+ < result: value
+ can trigger GC */
+global object setq (object sym, object value)
 {
   if (special_var_p(TheSymbol(sym))) # the same for special declared symbols
     goto global_value;
   { var gcv_object_t *binding = symbol_env_search(sym,aktenv.var_env);
-    if (binding != NULL && !eq(*binding,specdecl)) {
-      *binding = value;
-      return;
-    }
+    if (binding != NULL && !eq(*binding,specdecl))
+      return *binding = value;
   }
  global_value: /* the global (dynamic) value of the Symbol */
   pushSTACK(value); pushSTACK(sym);
   symbol_value_check_lock(S(setq),sym);
   Symbol_value(STACK_0) = STACK_1;
-  skipSTACK(2);
+  skipSTACK(1);
+  return popSTACK();
 }
 
 # UP: returns for a Symbol its function definition in an Environment

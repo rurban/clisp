@@ -1,5 +1,10 @@
 2004-09-28  Sam Steingold  <sds@gnu.org>
 
+	* pack11.tst: package locking should not interfere with SETQ
+	return value
+
+2004-09-28  Sam Steingold  <sds@gnu.org>
+
 	* streams.tst: bind *PRINT-PRETTY* in the FILL-STREAM test so that
 	S-expression output respects *PRINT-RIGHT-MARGIN*
 

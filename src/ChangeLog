@@ -1,7 +1,15 @@
+2004-09-28  Sam Steingold  <sds@gnu.org>
+
+	package locking should not interfere with SETQ return value
+	* control.d (SETQ): restore value1 after setq()
+	* eval.d (setq): return value
+	* lispbibl.d (setq): updated the declaration
+	Reported by Jörg Höhle
+
 2004-09-28  Bruno Haible  <bruno@clisp.org>
 
 	* utils/clispload.lsp (*expected-failures*): Remove DIRECTORY.[67],
-	which are fixed. Remove NAMESTRING.[34], which is commented out. 
+	which are fixed. Remove NAMESTRING.[34], which is commented out.
 
 2004-09-28  Sam Steingold  <sds@gnu.org>
 
