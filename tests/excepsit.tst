@@ -1237,5 +1237,8 @@ program-error
   finally (return foo))
 program-error
 
+(loop 42)
+program-error
+
 (fdefinition (list 'setf (gensym)))
 undefined-function

@@ -8323,9 +8323,8 @@ Simplification-Rules for Operations:
           ;;  ...left.middle.right...
           ;; for-value indicates, which values are needed after
           ;; execution of (car middle), before execution of (car left) .
-          (loop
-            start
-            (when (atom middle) (return))
+          (tagbody start
+            (when (atom middle) (go end))
             (setq right (cdr middle))
             (macrolet ((replace1 (new) ; replace (car middle) with new
                          `(progn
@@ -8506,12 +8505,14 @@ Simplification-Rules for Operations:
                   (LIST* ; rule 7
                    (when (equal (rest (car middle)) '(1))
                      (replace1 '(CONS)))))))
-            (when (atom middle) (return))
+            (when (atom middle) (go end))
             ;; calculate new for-value, depending on (car middle):
             (setq for-value
                   (gethash (first (car middle)) for-value-table for-value))
             ;; advance:
-            (setq left middle middle right))
+            (setq left middle middle right)
+            (go start)
+           end)
           ;; code-part finished: (atom middle)
           (when middle
             ;; middle is the start-label

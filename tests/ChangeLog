@@ -1,3 +1,7 @@
+2004-09-28  Sam Steingold  <sds@gnu.org>
+
+	* excepsit.tst (loop): check that (loop 42) is parsed as extended loop
+
 2004-09-28  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Add a couple of defgeneric tests.
