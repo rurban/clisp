@@ -7,7 +7,14 @@ development environment, using native system calls
 
 2. On a Win32 NFS client, start a console with a shell (ksh for example).
    Make sure that the MSVC4.0 or MSVC5.0 or MSVC6.0 utilities ("cl" etc.)
-   are found in PATH.
+   are found in PATH. For example, I use the following settings:
+
+        set MSDEVDIR=C:\Program Files\Microsoft Visual Studio
+        set Include=%MSDEVDIR%\VC98\include
+        set Lib=%MSDEVDIR%\VC98\lib
+        set PATH=%MSDEVDIR%\VC98\bin;%MSDEVDIR%\Common\MSDev98\Bin;%PATH%
+
+   Then build a few tools and libraries:
 
         cd utils
         cd gcc-cccp
@@ -20,7 +27,7 @@ development environment, using native system calls
         cd ..
 
         cd libiconv
-        nmake -f Makefile.msvc check STATIC=1
+        nmake -f Makefile.msvc check
         cd ..
 
         cd sigsegv
