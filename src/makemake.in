@@ -5,7 +5,7 @@
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
 
-HSDEFAULT="http://www.lisp.org/HyperSpec";
+HSDEFAULT="http://www.lisp.org/HyperSpec/";
 hyperspec=${CLHSROOT:-${HSDEFAULT}}
 
 info_help () {
@@ -233,7 +233,12 @@ while test -z "$endofargs"; do
       esac
       case "$arg" in
         *://*) hyperspec="$arg" ;;
-        /*) hyperspec="file:${arg}" ;;
+        /*) if test -d "$arg" -a -d "$arg/FrontMatter" ; then
+              hyperspec="file:${arg}"
+            else
+              echo "makemake: --hyperspec=${arg} argument ignored, does not point to the Common Lisp HyperSpec" 1>&2
+            fi
+            ;;
         *)  case "$arg" in
               file:*) arg=`echo "$arg" | sed -e 's,^file:,,'` ;;
             esac
@@ -258,6 +263,11 @@ if test -z "$srcdir" ; then
     srcdir='@srcdir@'
   fi
 fi
+
+# Remove trailing slash from hyperspec URL.
+case "$hyperspec" in
+  */) hyperspec=`echo "$hyperspec" | sed -e 's,/$,,'` ;;
+esac
 
 # HSYS, HSYSOS = host system
 # HOS  = host operating system
@@ -2687,7 +2697,7 @@ for f in $LPARTS ; do
     echol "${f}.lisp : ${SRCDIR}${CONFIG}.lisp"
     echotab "\$(CP) ${SRCDIR}${CONFIG}.lisp ${f}.lisp"
     if [ $TOS = unix ] ; then
-      echotab "echo '(setq *clhs-root-default* \"${hyperspec}\")' >> ${f}.lisp"
+      echotab "echo '(setq *clhs-root-default* \"${hyperspec}/\")' >> ${f}.lisp"
     fi
     echol
   else

@@ -36,7 +36,7 @@ options: The following options are recognized:
          --with-export-syscalls export some UNIX syscalls to Lisp
          --with-dir-key        dir-key access (win32 registry, LDAP, Gnome)
          --hyperspec=URL       the path to the Common Lisp HyperSpec
-           (the default is http://www.lisp.org/HyperSpec
+           (the default is http://www.lisp.org/HyperSpec/
             or the value of the environment variable CLHSROOT, if set).
 Example:
          configure --build built-with-gcc

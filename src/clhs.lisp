@@ -72,20 +72,25 @@ The keyword argument OUT specifies the output for log messages."
   "Dump the CLHS doc for the symbol."
   (unless *clhs-table*
     (setq *clhs-table* (read-from-file (clhs-file) :out out)))
-  (do* ((symbol (etypecase symbol-string
-                  (symbol symbol-string)
-                  (string
-                    (let ((pack (find-package "COMMON-LISP")))
-                      (multiple-value-bind (symb found-p)
-                          (find-symbol (string-upcase symbol-string) pack)
-                        (unless (eq found-p ':external)
-                          (error "no symbol named ~s exported from ~s"
-                                 symbol-string pack))
-                        symb)))))
-        (path-list (or (gethash symbol *clhs-table*)
-                       (error "No HyperSpec doc for `~s'" symbol))
-                   (cdr path-list)))
-       ((endp path-list))
-    (browse-url
-     (concatenate 'string (lisp::clhs-root) "/Body/" (car path-list))
-     :browser browser :out out)))
+  (let* ((clhs-root (lisp::clhs-root))
+         (slash (if (and (> (length clhs-root) 0)
+                         (eql (char clhs-root (- (length clhs-root) 1)) #\/))
+                  ""
+                  "/")))
+    (do* ((symbol (etypecase symbol-string
+                    (symbol symbol-string)
+                    (string
+                      (let ((pack (find-package "COMMON-LISP")))
+                        (multiple-value-bind (symb found-p)
+                            (find-symbol (string-upcase symbol-string) pack)
+                          (unless (eq found-p ':external)
+                            (error "no symbol named ~s exported from ~s"
+                                   symbol-string pack))
+                          symb)))))
+          (path-list (or (gethash symbol *clhs-table*)
+                         (error "No HyperSpec doc for `~s'" symbol))
+                     (cdr path-list)))
+         ((endp path-list))
+      (browse-url
+       (concatenate 'string clhs-root slash "Body/" (car path-list))
+       :browser browser :out out))))
