@@ -1,5 +1,10 @@
 2004-08-08  Bruno Haible  <bruno@clisp.org>
 
+	* utils/clispload.lsp (*expected-failures*): Many new failures to be
+	revisited.
+
+2004-08-08  Bruno Haible  <bruno@clisp.org>
+
 	* spvw.d (init_symbol_values): Initialize
 	*DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST* to NIL.
 
