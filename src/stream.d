@@ -4895,7 +4895,7 @@ local bool low_clear_input_unbuffered_handle (object stream) {
     # console, cannot tell when there is an LF pending after the
     # preceding CR has been eaten. Therefore be careful to set
     # UnbufferedStream_ignore_next_LF to true when we read a LF.
-    var uintL c = low_read_unbuffered_handle(stream);
+    var sintL c = low_read_unbuffered_handle(stream);
     if (c >= 0)
       UnbufferedStream_ignore_next_LF(stream) = (c == CR);
     #else
