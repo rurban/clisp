@@ -780,7 +780,7 @@
   (multiple-value-bind (bindings lambdabody) (compute-dispatch gf)
     (let ((preliminary
            (eval `(LET ,bindings
-                    (DECLARE ,@(std-gf-declspecs gf) (COMPILE))
+                    (DECLARE ,@(safe-gf-declspecs gf) (COMPILE))
                      (%GENERIC-FUNCTION-LAMBDA ,@lambdabody)))))
       (assert (<= (sys::%record-length preliminary) 3))
       preliminary)))
