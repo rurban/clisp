@@ -1103,35 +1103,41 @@ object get_font_name (object obj)
 
 #define ENSURE_TYPE(datum,booli,type)  if (!booli) my_type_error(type,datum)
 
+static object get_slot (object obj, object slot)
+{ /* like gethash(): return nullobj on unbound slot and slot value otherwise */
+  pushSTACK(obj); pushSTACK(slot); /* save for SLOT-VALUE */
+  pushSTACK(obj); pushSTACK(slot); funcall(L(slot_boundp),2);
+  if (nullp(value1)) { skipSTACK(2); return nullobj; }
+  funcall(L(slot_value),2); return value1;
+}
+
 static Font get_font (object self)
 { /* Does type-checking. */
-  gcv_object_t *pfid;
-  pushSTACK(self);
-  ENSURE_TYPE (STACK_0, font_p (STACK_0), `XLIB::FONT`);
-  /*self is already on STACK*/ pushSTACK(`XLIB::ID`); pfid = slot_up();
-  if (pfid && boundp(*pfid)) { /* We have already a fid, so return it. */
-    skipSTACK(2);              /* clean up */
-    ASSERT(integerp(*pfid));
-    return (XID)(get_uint29(*pfid));
+  object font_id;
+  pushSTACK(self);              /* save */
+  ENSURE_TYPE (STACK_0, font_p(STACK_0), `XLIB::FONT`);
+  font_id = get_slot(STACK_0,`XLIB::ID`);
+  if (!eq(font_id,nullobj)) { /* We have already a fid, so return it. */
+    skipSTACK(1);               /* clean up */
+    ASSERT(integerp(font_id));
+    return (XID)(get_uint29(font_id));
   } else { /* No font id => lookup the name & open that font */
-    object name = get_font_name(STACK_1/*self*/);
+    object name = get_font_name(STACK_0/*self*/);
     if (boundp(name)) { /* Ok there is a name ... so try to open the font */
-      Font font; Display *dpy = (STACK_0 = STACK_1,pop_display ());
+      Font font; Display *dpy = (pushSTACK(STACK_0),pop_display ());
       with_string_0 (name, GLO(misc_encoding), namez, { /* XXX */
           X_CALL(font = XLoadFont(dpy,namez));
         });
       if (font) { /* Hurra! We got a font id, so enter it */
-        if (pfid) *pfid = make_uint29 (font);
+        pushSTACK(`XLIB::ID`); pushSTACK(make_uint29(font));
+        funcall(L(set_slot_value),3);
         /* XXX -- We should enter it also into the hash table! */
-        skipSTACK(2);           /* clean up */
         return font;            /* all done */
       } else { /* We could not open the font, so emit an error message */
-        skipSTACK(1);                           /* raise self to TOS */
         pushSTACK(TheSubr(subr_self)->name);    /* function name */
         fehler (error, "~: Cannot not open pseudo font ~");
       }
     } else {                 /* We have no name, tell that the luser. */
-      skipSTACK(1);                            /* raise self to TOS */
       pushSTACK(TheSubr(subr_self)->name);     /* function name */
       fehler (error, "~: Cannot not open pseudo font ~, since it has no name associated with it.");
     }
@@ -3064,25 +3070,14 @@ DEFUN(XLIB:GCONTEXT-DASHES, context)
   unused get_gcontext_and_display (STACK_0, 0); /* only type checking here */
 
   /* Now see if there is a %dashes slot? */
-  pushSTACK(STACK_0);           /* the gcontext instance */
-  pushSTACK(`XLIB::%DASHES`);   /* slot */
-  funcall (L(slot_boundp), 2);  /* is it bound? */
-
-  if (nullp (value1))
+  get_slot(STACK_0,`XLIB::%DASHES`);
+  if (eq(value1,nullobj))
     /* Slot unbound --> oops, not set, so return default value */
-    VALUES1(make_uint8 (0));    /* FIXME: right? */
-  else {
-    pushSTACK(STACK_0);         /* the gcontext instance */
-    pushSTACK(`XLIB::%DASHES`); /* slot */
-    funcall(L(slot_value), 2);
-    mv_count = 1;
-
-    /* Simply return what is there.
-     Or better copy it? Well, if the luser fools around with what he has
-     found, he shoot only himself in the foot, not me. So we need no copy here. */
-  }
-
-  /* all done */
+    value1 = make_uint8(0);    /* FIXME: right? */
+  /* mv_count = 1; - done by get_slot() */
+  /* Simply return what is there.  Or better copy it? Well, if the luser
+     fools around with what he has found, he shoot only himself in the
+     foot, not me. So we need not copy here. */
   skipSTACK(1);
 }
 
@@ -3153,20 +3148,10 @@ DEFUN(XLIB:GCONTEXT-CLIP-MASK, context)
 {
   unused get_gcontext_and_display (STACK_0, 0); /* only type checking here */
 
-  pushSTACK(STACK_0);              /* the gcontext instance */
-  pushSTACK(`XLIB::%CLIP-MASK`);   /* slot */
-  funcall (L(slot_boundp), 2);     /* is it bound? */
-
-  if (nullp (value1)) {
-    value1 = `:NONE`;
-    skipSTACK(1);
-  } else { /* the gcontext instance is already on the stack */
-    pushSTACK(`XLIB::%CLIP-MASK`); /* slot */
-    funcall(L(slot_value), 2);
-  }
-
-  /* all done */
-  mv_count = 1;
+  get_slot(STACK_0,`XLIB::%CLIP-MASK`);
+  if (eq(value1,nullobj)) value1 = `:NONE`;
+  skipSTACK(1);
+  /* mv_count = 1; - done by get_slot() */
 }
 
 
