@@ -105,30 +105,78 @@ GOOD
        Z))))
 6
 
-;; interaction with global specials
-(progn (defvar *global-var-for-bind.tst* 123)
- (let ((*global-var-for-bind.tst* 5))
-   (let ((*global-var-for-bind.tst* (1+ *global-var-for-bind.tst*)))
-     (declare (special *global-var-for-bind.tst*))
-     *global-var-for-bind.tst*)))
-6
-(progn (defvar *global-var-for-bind.tst* 123)
- (let ((*global-var-for-bind.tst* 5))
-   (let* ((*global-var-for-bind.tst* (1+ *global-var-for-bind.tst*)))
-     (declare (special *global-var-for-bind.tst*))
-     *global-var-for-bind.tst*)))
-6
-(progn (defvar *global-var-for-bind.tst* 123)
- (let ((*global-var-for-bind.tst* 5))
-   (multiple-value-bind (*global-var-for-bind.tst*)
-       (1+ *global-var-for-bind.tst*)
-     (declare (special *global-var-for-bind.tst*))
-     *global-var-for-bind.tst*)))
-6
-(progn (defvar *global-var-for-bind.tst* 123)
- (let ((*global-var-for-bind.tst* 5))
-   ((lambda (*global-var-for-bind.tst*)
-      (declare (special *global-var-for-bind.tst*))
-      *global-var-for-bind.tst*)
-    (1+ *global-var-for-bind.tst*))))
-6
+;; global special variable with extra redundant special declaration
+(progn
+  (defparameter *global-var-for-bind.tst* 123)
+  (let ((*global-var-for-bind.tst* 5))
+    (list
+      (let ((*global-var-for-bind.tst* (1+ *global-var-for-bind.tst*)))
+        (declare (special *global-var-for-bind.tst*))
+        *global-var-for-bind.tst*)
+      *global-var-for-bind.tst*)))
+(6 5)
+(progn
+  (defparameter *global-var-for-bind.tst* 123)
+  (let ((*global-var-for-bind.tst* 5))
+    (list
+      (let* ((*global-var-for-bind.tst* (1+ *global-var-for-bind.tst*)))
+        (declare (special *global-var-for-bind.tst*))
+        *global-var-for-bind.tst*)
+      *global-var-for-bind.tst*)))
+(6 5)
+(progn
+  (defparameter *global-var-for-bind.tst* 123)
+  (let ((*global-var-for-bind.tst* 5))
+    (list
+      (multiple-value-bind (*global-var-for-bind.tst*)
+          (1+ *global-var-for-bind.tst*)
+        (declare (special *global-var-for-bind.tst*))
+        *global-var-for-bind.tst*)
+      *global-var-for-bind.tst*)))
+(6 5)
+(progn
+  (defparameter *global-var-for-bind.tst* 123)
+  (let ((*global-var-for-bind.tst* 5))
+    (list
+      ((lambda (*global-var-for-bind.tst*)
+         (declare (special *global-var-for-bind.tst*))
+         *global-var-for-bind.tst*)
+       (1+ *global-var-for-bind.tst*))
+      *global-var-for-bind.tst*)))
+(6 5)
+
+;; global special variable without special declaration
+(progn
+  (defparameter *global-var-for-bind.tst* 123)
+  (let ((*global-var-for-bind.tst* 5))
+    (list
+      (let ((*global-var-for-bind.tst* (1+ *global-var-for-bind.tst*)))
+        *global-var-for-bind.tst*)
+      *global-var-for-bind.tst*)))
+(6 5)
+(progn
+  (defparameter *global-var-for-bind.tst* 123)
+  (let ((*global-var-for-bind.tst* 5))
+    (list
+      (let* ((*global-var-for-bind.tst* (1+ *global-var-for-bind.tst*)))
+        *global-var-for-bind.tst*)
+      *global-var-for-bind.tst*)))
+(6 5)
+(progn
+  (defparameter *global-var-for-bind.tst* 123)
+  (let ((*global-var-for-bind.tst* 5))
+    (list
+      (multiple-value-bind (*global-var-for-bind.tst*)
+          (1+ *global-var-for-bind.tst*)
+        *global-var-for-bind.tst*)
+      *global-var-for-bind.tst*)))
+(6 5)
+(progn
+  (defparameter *global-var-for-bind.tst* 123)
+  (let ((*global-var-for-bind.tst* 5))
+    (list
+      ((lambda (*global-var-for-bind.tst*)
+         *global-var-for-bind.tst*)
+       (1+ *global-var-for-bind.tst*))
+      *global-var-for-bind.tst*)))
+(6 5)
