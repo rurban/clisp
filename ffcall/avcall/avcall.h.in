@@ -3,7 +3,7 @@
 /**
   Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
 
-  Copyright 1995-2004 Bruno Haible, <bruno@clisp.org>
+  Copyright 1995-2005 Bruno Haible, <bruno@clisp.org>
 
   This is free software distributed under the GNU General Public
   Licence described in the file COPYING. Contact the author if
@@ -187,12 +187,7 @@ enum __AV_alist_flags
 				  __AV_SUNPROCC_STRUCT_RETURN,
 #else
 #if defined(__PCC_STRUCT_RETURN__) /* defined through configure, see above */
-				  __AV_PCC_STRUCT_RETURN |
-#if defined(__sparc__) && !defined(__sparc64__) && defined(sun) && !(defined(__STDC__) || defined(__GNUC__)) /* sun cc */
-  				  __AV_SUNCC_STRUCT_RETURN,
-#else
-  				  0,
-#endif
+				  __AV_PCC_STRUCT_RETURN,
 #else
 #if defined(__SMALL_STRUCT_RETURN__) || defined(__mipsn32__) || defined(__mips64__) /* defined through configure, see above */
 				  __AV_SMALL_STRUCT_RETURN |
@@ -268,48 +263,13 @@ enum __AV_alist_flags
 
   /* how to pass floats */
   /* ANSI C compilers and GNU gcc pass floats as floats.
-   * K&R C compilers pass floats as doubles.
-   * (Except some compilers like SGI MIPS "cc" and "cc -cckr" if a prototype is
-   * known for the called functions. But to compile a program with prototypes,
-   * "cc -ansi" is better anyway.
+   * K&R C compilers pass floats as doubles. We don't support them any more.
    */
-  __AV_ANSI_FLOAT_ARGS		= 0,    /* pass floats as floats */
-  __AV_TRADITIONAL_FLOAT_ARGS	= 1<<8, /* pass floats as doubles */
-  /* the default way to pass floats */
-  /* This choice here is based on the assumption that the function you are
-   * going to call has been compiled with the same compiler you are using to
-   * include this file.
-   * If you want to call functions with another float passing convention,
-   * just  #define __AV_FLOAT_ARGS ...
-   * before or after #including <avcall.h>.
-   */
-#ifndef __AV_FLOAT_ARGS
-#if defined(__STDC__) || defined(__GNUC__) /* what about hppa "cc -Aa" ?? */
-  __AV_FLOAT_ARGS		= __AV_ANSI_FLOAT_ARGS,
-#else
-  __AV_FLOAT_ARGS		= __AV_TRADITIONAL_FLOAT_ARGS,
-#endif
-#endif
 
   /* how to pass and return small integer arguments */
   __AV_ANSI_INTEGERS		= 0, /* no promotions */
   __AV_TRADITIONAL_INTEGERS	= 0, /* promote [u]char, [u]short to [u]int */
   /* Fortunately these two methods are compatible. Our macros work with both. */
-  /* the default way to pass and return small integer arguments */
-  /* This choice here is based on the assumption that the function you are
-   * going to call has been compiled with the same compiler you are using to
-   * include this file.
-   * If you want to call functions with another float passing convention,
-   * just  #define __AV_INTEGERS ...
-   * before or after #including <avcall.h>.
-   */
-#ifndef __AV_INTEGERS
-#if defined(__STDC__) || defined(__GNUC__)
-  __AV_INTEGERS			= __AV_ANSI_INTEGERS,
-#else
-  __AV_INTEGERS			= __AV_TRADITIONAL_INTEGERS,
-#endif
-#endif
 
   /* stack cleanup policy */
   __AV_CDECL_CLEANUP		= 0, /* caller pops args after return */
@@ -434,7 +394,7 @@ typedef struct
  */
 
 #define __AV_START_FLAGS  \
-  __AV_STRUCT_RETURN | __AV_FLOAT_RETURN | __AV_STRUCT_ARGS | __AV_FLOAT_ARGS | __AV_INTEGERS | __AV_CLEANUP
+  __AV_STRUCT_RETURN | __AV_FLOAT_RETURN | __AV_STRUCT_ARGS | __AV_CLEANUP
 
 #define __av_start(LIST,FUNC,RADDR,RETTYPE)				\
   ((LIST).func = (__avword(*)())(FUNC),					\
@@ -818,14 +778,9 @@ typedef struct
 
 /* floating-point argument types */
 
-#define av_float(LIST,VAL)						\
-  ((LIST).flags & __AV_TRADITIONAL_FLOAT_ARGS				\
-   ? av_double(LIST,(float)(VAL))					\
-   : __av_float(LIST,VAL))
-
 #if defined(__i386__) || defined(__m68k__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__arm__) || defined(__convex__)
 
-#define __av_float(LIST,VAL)						\
+#define av_float(LIST,VAL)						\
   (++(LIST).aptr > __av_eptr(LIST)					\
    ? -1 : (((float*)(LIST).aptr)[-1] = (float)(VAL), 0))
 
@@ -847,7 +802,7 @@ typedef struct
  * registers in case of varargs. For doubles we need to align the aptr
  * to an even boundary.
  */
-#define __av_float(LIST,VAL)						\
+#define av_float(LIST,VAL)						\
   (++(LIST).aptr > __av_eptr(LIST)					\
    ? -1 : ((++(LIST).anum == 1						\
 	    ? ((LIST).flags |= __AV_FLOAT_1,				\
@@ -878,7 +833,7 @@ typedef struct
  * float registers, but we also push them into the corresponding int
  * registers in case of varargs.
  */
-#define __av_float(LIST,VAL)						\
+#define av_float(LIST,VAL)						\
   ((LIST).aptr >= __av_eptr(LIST)					\
    ? -1 : (((LIST).anum < 8						\
 	    ? ((LIST).farg_mask |= (1 << (LIST).anum),			\
@@ -904,7 +859,7 @@ typedef struct
  * float registers, but we also push them into the corresponding int
  * registers in case of varargs.
  */
-#define __av_float(LIST,VAL)						\
+#define av_float(LIST,VAL)						\
   ((LIST).aptr >= __av_eptr(LIST)					\
    ? -1 : (((LIST).anum < 16 && ((LIST).farg_mask |= (1 << (LIST).anum))), \
 	   (*(float*)(LIST).aptr = (float)(VAL)),			\
@@ -928,7 +883,7 @@ typedef struct
   (++(LIST).aptr > __av_eptr(LIST)					\
    ? -1 : (((double*)(LIST).aptr)[-1] = (double)(VAL), 0))
 
-#define __av_float(LIST,VAL)						\
+#define av_float(LIST,VAL)						\
   (++(LIST).aptr > __av_eptr(LIST)					\
    ? -1									\
    : (((LIST).aptr > &(LIST).args[6]					\
@@ -945,7 +900,7 @@ typedef struct
 
 #if defined(__hppa__)
 
-#define __av_float(LIST,VAL)						\
+#define av_float(LIST,VAL)						\
   (--(LIST).aptr < __av_eptr(LIST)					\
    ? -1 : (*(float*)(LIST).aptr = (float)(VAL), 0))
 
@@ -963,7 +918,7 @@ typedef struct
  * registers in case of varargs.
  */
 
-#define __av_float(LIST,VAL)						\
+#define av_float(LIST,VAL)						\
   (++(LIST).aptr > __av_eptr(LIST)					\
    ? -1 : (((float*)(LIST).aptr)[-1] = (float)(VAL),			\
 	   (LIST).faptr < &(LIST).fargs[13] &&				\
@@ -988,7 +943,7 @@ typedef struct
  * float registers, without occupying space in the general registers.
  */
 
-#define __av_float(LIST,VAL)						\
+#define av_float(LIST,VAL)						\
   ((LIST).faptr < &(LIST).fargs[8]					\
    ? ((*(LIST).faptr++ = (double)(float)(VAL)), 0)			\
    : (++(LIST).aptr > __av_eptr(LIST)					\
@@ -1012,7 +967,7 @@ typedef struct
  * float registers, without occupying space in the general registers.
  */
 
-#define __av_float(LIST,VAL)						\
+#define av_float(LIST,VAL)						\
   ((LIST).faptr < &(LIST).fargs[2]					\
    ? (LIST).daptr++, *(LIST).fargsusedptr++ = 1, *(LIST).dargsusedptr++ = 0, ((*(LIST).faptr++ = (float)(VAL)), 0)		\
    : (++(LIST).aptr > __av_eptr(LIST)					\
@@ -1032,7 +987,7 @@ typedef struct
 
 #if defined(__m88k__)
 
-#define __av_float(LIST,VAL)						\
+#define av_float(LIST,VAL)						\
   (++(LIST).aptr > __av_eptr(LIST)					\
    ? -1 : (((float*)(LIST).aptr)[-1] = (float)(VAL), 0))
 
@@ -1049,7 +1004,7 @@ typedef struct
  * float registers, but we also push them into the corresponding int
  * registers in case of varargs.
  */
-#define __av_float(LIST,VAL)						\
+#define av_float(LIST,VAL)						\
   ((LIST).aptr >= __av_eptr(LIST)					\
    ? -1 : ((*(float*)(LIST).aptr = (float)(VAL)),			\
 	   ((LIST).faptr < &(LIST).fargs[8] && (*(LIST).faptr = *(float*)(LIST).aptr, (LIST).faptr++)), \
@@ -1069,7 +1024,7 @@ typedef struct
 
 /* Up to 8 leading float or double args can be passed in float registers.
  */
-#define __av_float(LIST,VAL)						\
+#define av_float(LIST,VAL)						\
   ((LIST).faptr < &(LIST).fargs[8]					\
    ? (*(LIST).faptr = 0.0, *(float*)(LIST).faptr = (float)(VAL),	\
       (LIST).faptr++,							\
@@ -1394,12 +1349,7 @@ typedef struct
  * Miscellaneous declarations.
  */
 
-#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 extern int __builtin_avcall (av_alist* l);
-extern void __structcpy (void* dest, void* src, unsigned long size, unsigned long alignment);
-#else
-extern int __builtin_avcall ();
-extern void __structcpy ();
-#endif
+extern void __structcpy (void* dest, const void* src, unsigned long size, unsigned long alignment);
 
 #endif /*_avcall_h */

@@ -1,7 +1,7 @@
 /* Trampoline construction */
 
 /*
- * Copyright 1995-1999, 2001-2004 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-1999, 2001-2005 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -104,10 +104,8 @@ extern void (*tramp_r) (); /* trampoline prototype */
 #ifdef HAVE_GETPAGESIZE
 #ifdef __cplusplus
 extern "C" RETGETPAGESIZETYPE getpagesize (void);
-#elif defined(__STDC__)
-extern RETGETPAGESIZETYPE getpagesize (void);
 #else
-extern RETGETPAGESIZETYPE getpagesize ();
+extern RETGETPAGESIZETYPE getpagesize (void);
 #endif
 #else
 #ifdef HAVE_SYS_PARAM_H
@@ -330,14 +328,7 @@ extern void __TR_clear_cache();
 static char* freelist = NULL;
 #endif
 
-#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 __TR_function alloc_trampoline_r (__TR_function address, void* data0, void* data1)
-#else
-__TR_function alloc_trampoline_r (address, data0, data1)
-  __TR_function address;
-  void* data0;
-  void* data1;
-#endif
 {
   char* function;
   char* data;
@@ -1168,12 +1159,7 @@ __TR_function alloc_trampoline_r (address, data0, data1)
   return (__TR_function) (function + TRAMP_BIAS);
 }
 
-#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 void free_trampoline_r (__TR_function function)
-#else
-void free_trampoline_r (function)
-  __TR_function function;
-#endif
 {
 #if TRAMP_BIAS
   function = (__TR_function)((char*)function - TRAMP_BIAS);
@@ -1186,12 +1172,7 @@ void free_trampoline_r (function)
 #endif
 }
 
-#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 int is_trampoline_r (void* function)
-#else
-int is_trampoline_r (function)
-  void* function;
-#endif
 {
 #if defined(is_tramp) && defined(tramp_data)
 #ifdef __hppanew__
@@ -1208,12 +1189,7 @@ int is_trampoline_r (function)
 #endif
 }
 
-#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 __TR_function trampoline_r_address (void* function)
-#else
-__TR_function trampoline_r_address (function)
-  void* function;
-#endif
 {
 #ifdef tramp_address
   return (__TR_function)(tramp_address(((char*)function - TRAMP_BIAS)));
@@ -1222,12 +1198,7 @@ __TR_function trampoline_r_address (function)
 #endif
 }
 
-#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 void* trampoline_r_data0 (void* function)
-#else
-void* trampoline_r_data0 (function)
-  void* function;
-#endif
 {
 #ifdef tramp_data
   return ((void**)((char*)function-TRAMP_BIAS+TRAMP_LENGTH))[0];
@@ -1236,12 +1207,7 @@ void* trampoline_r_data0 (function)
 #endif
 }
 
-#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 void* trampoline_r_data1 (void* function)
-#else
-void* trampoline_r_data1 (function)
-  void* function;
-#endif
 {
 #ifdef tramp_data
   return ((void**)((char*)function-TRAMP_BIAS+TRAMP_LENGTH))[1];
