@@ -396,40 +396,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
   #define SPVW_PURE_PAGES
 #endif
 
-# Gesamtspeicheraufteilung:
-# 1. C-Programm. Speicher wird vom Betriebssystem zugeteilt.
-#    Nach Programmstart unverschieblich.
-# 2. C-Stack. Speicher wird vom C-Programm geholt.
-#    Unverschieblich.
-# 3. C-Heap. Hier unbenutzt.
-#ifdef SPVW_MIXED_BLOCKS
-# 4. LISP-Stack und LISP-Daten.
-#    4a. LISP-Stack. Unverschieblich.
-#    4b. Objekte variabler Länge. (Unverschieblich).
-#    4c. Conses u.ä. Verschieblich mit move_conses.
-#    Speicher hierfür wird vom Betriebssystem angefordert (hat den Vorteil,
-#    daß bei EXECUTE dem auszuführenden Fremdprogramm der ganze Speicher
-#    zur Verfügung gestellt werden kann, den LISP gerade nicht braucht).
-#    Auf eine Unterteilung in einzelne Pages wird hier verzichtet.
-#          || LISP-      |Objekte         |->    leer  <-|Conses| Reserve |
-#          || Stack      |variabler Länge !              ! u.ä. |         |
-#          |STACK_BOUND  |         objects.end     conses.start |         |
-#        MEMBOT   objects.start                           conses.end    MEMTOP
-#endif
-#ifdef SPVW_PURE_BLOCKS
-# 4. LISP-Stack. Unverschieblich.
-# 5. LISP-Daten. Für jeden Typ ein großer Block von Objekten.
-#endif
-#ifdef SPVW_MIXED_PAGES
-# 4. LISP-Stack. Unverschieblich.
-# 5. LISP-Daten.
-#    Unterteilt in Pages für Objekte variabler Länge und Pages für Conses u.ä.
-#endif
-#ifdef SPVW_PURE_PAGES
-# 4. LISP-Stack. Unverschieblich.
-# 5. LISP-Daten. Unterteilt in Pages, die nur Objekte desselben Typs enthalten.
-#endif
-
 # Kanonische Adressen:
 # Bei MULTIMAP_MEMORY kann man über verschiedene Pointer auf dieselbe Speicher-
 # stelle zugreifen. Die Verwaltung der Heaps benötigt einen "kanonischen"
@@ -452,9 +418,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 #include "spvw_mmap.c"
 
 #endif # SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY || MULTITHREAD
-
-# Anzahl der möglichen Typcodes überhaupt.
-  #define typecount  bit(oint_type_len<=8 ? oint_type_len : 8)
 
 #ifdef MULTIMAP_MEMORY
 
@@ -671,102 +634,11 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 # ------------------------------------------------------------------------------
 #                           Page-Verwaltung
 
-# Page-Deskriptor:
-typedef struct { aint start;   # Pointer auf den belegten Platz (aligned)
-                 aint end;     # Pointer hinter den belegten Platz (aligned)
-                 union { object firstmarked; uintL l; aint d; void* next; }
-                       gcpriv; # private Variable während GC
-               }
-        _Page;
-
-# Page-Deskriptor samt dazugehöriger Verwaltungsinformation:
-# typedef ... Page;
-# Hat die Komponenten page_start, page_end, page_gcpriv.
-
-# Eine Ansammlung von Pages:
-# typedef ... Pages;
-
-# Eine Ansammlung von Pages und die für sie nötige Verwaltungsinformation:
-# typedef ... Heap;
+#include "spvw_page.c"
+#include "spvw_heap.c"
+#include "spvw_global.c"
 
 #ifdef SPVW_PAGES
-
-#ifndef VIRTUAL_MEMORY
-# Jede Page enthält einen Header für die AVL-Baum-Verwaltung.
-# Das erlaubt es, daß die AVL-Baum-Verwaltung selbst keine malloc-Aufrufe
-# tätigen muß.
-#else # VIRTUAL_MEMORY
-# Bei Virtual Memory ist es schlecht, wenn die GC alle Seiten anfassen muß.
-# Daher sei die AVL-Baum-Verwaltung separat.
-#define AVL_SEPARATE
-#endif
-
-#define AVLID  spvw
-#define AVL_ELEMENT  uintL
-#define AVL_EQUAL(element1,element2)  ((element1)==(element2))
-#define AVL_KEY  AVL_ELEMENT
-#define AVL_KEYOF(element)  (element)
-#define AVL_SIGNED_INT  sintL
-#define AVL_COMPARE(key1,key2)  (sintL)((key1)-(key2))
-#define NO_AVL_MEMBER0
-#define NO_AVL_MEMBER
-#define NO_AVL_INSERT
-#define NO_AVL_DELETE
-
-#include "avl.c"
-
-typedef struct NODE
-               { NODEDATA nodedata;        # NODE für AVL-Baum-Verwaltung
-                 #define page_room  nodedata.value # freier Platz in dieser Page (in Bytes)
-                 _Page page;       # Page-Deskriptor, bestehend aus:
-                 #define page_start  page.start  # Pointer auf den belegten Platz (aligned)
-                 #define page_end    page.end    # Pointer auf den freien Platz (aligned)
-                 #define page_gcpriv page.gcpriv # private Variable während GC
-                 aint m_start;     # von malloc gelieferte Startadresse (unaligned)
-                 aint m_length;    # bei malloc angegebene Page-Länge (in Bytes)
-               }
-        NODE;
-#define HAVE_NODE
-
-#if !defined(AVL_SEPARATE)
-  # NODE innerhalb der Seite
-  #define sizeof_NODE  sizeof(NODE)
-  #define page_start0(page)  round_up((aint)page+sizeof(NODE),varobject_alignment)
-  #define free_page(page)  begin_system_call(); free((void*)page->m_start); end_system_call();
-#else
-  # NODE extra
-  #define sizeof_NODE  0
-  #define page_start0(page)  round_up(page->m_start,varobject_alignment)
-  #define free_page(page)  begin_system_call(); free((void*)page->m_start); free((void*)page); end_system_call();
-#endif
-
-#include "avl.c"
-
-typedef NODE Page;
-
-typedef Page* Pages;
-
-typedef struct { Pages inuse;     # Die gerade benutzten Pages
-                 # _Page reserve; # Eine Reserve-Page ??
-                 # Bei Heap für Objekte fester Länge:
-                 Pages lastused; # Ein Cache für die letzte benutzte Page
-               }
-        Heap;
-
-# Größe einer normalen Page = minimale Pagegröße. Durch sizeof(cons_) teilbar.
-  # Um offset_pages_len (s.u.) nicht zu groß werden zu lassen, darf die
-  # Pagegröße nicht zu klein sein.
-  #if (oint_addr_len<=32)
-    #define oint_addr_relevant_len  oint_addr_len
-  #else
-    #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX))
-      # Alle Adressen liegen zwischen 1*2^32 und 2*2^32. Also faktisch doch
-      # nur ein Adreßraum von 2^32.
-      #define oint_addr_relevant_len  32
-    #endif
-  #endif
-  #define min_page_size_brutto  bit(oint_addr_relevant_len/2)
-  #define std_page_size  round_down(min_page_size_brutto-sizeof_NODE-(varobject_alignment-1),sizeof(cons_))
 
 # Eine Dummy-Page für lastused:
   local NODE dummy_NODE;
@@ -776,302 +648,15 @@ typedef struct { Pages inuse;     # Die gerade benutzten Pages
 
 #ifdef SPVW_BLOCKS
 
-typedef _Page Page;
-#define page_start   start
-#define page_end     end
-#define page_gcpriv  gcpriv
-
-typedef Page Pages;
-
 #ifdef SELFMADE_MMAP
 # Pages from the memfile are read in when they are first used.
 # We manage this ourselves by trapping page faults.
 # Works only with SPVW_PURE_BLOCKS or SPVW_MIXED_BLOCKS_STAGGERED.
-local Handle memfile_handle;
-local boolean memfile_still_being_read;
 #endif
-
-#ifdef GENERATIONAL_GC
-# Für jede physikalische Speicherseite der alten Generation merken wir uns,
-# um auf diese Seite nicht zugreifen zu müssen, welche Pointer auf Objekte
-# der neuen Generation diese enthält.
-# Solange man auf die Seite nicht schreibend zugreift, bleibt diese Information
-# aktuell. Nachdem man auf die Seite aber schreibend zugegriffen hat, muß man
-# diese Information bei der nächsten GC neu erstellen. Dies sollte man aber
-# machen, ohne auf die Seite davor oder danach zugreifen zu müssen.
-typedef struct { object* p; # Adresse des Pointers, innerhalb eines alten Objekts
-                 object o;  # o = *p, Pointer auf ein neues Objekt
-               }
-        old_new_pointer;
-typedef struct { # Durchlaufen der Pointer in der Seite benötigt Folgendes:
-                   # Fortsetzung des letzten Objekts der Seite davor:
-                   object* continued_addr;
-                   uintC continued_count;
-                   # Erstes Objekt, das in dieser Seite (oder später) beginnt:
-                   aint firstobject;
-                 # Der Cache der Pointer auf Objekte der neuen Generation:
-                 int protection; # PROT_NONE : Nur der Cache ist gültig.
-                                 # PROT_READ : Seite und Cache beide gültig.
-                                 # PROT_READ_WRITE : Nur die Seite ist gültig.
-                 uintL cache_size; # Anzahl der gecacheten Pointer
-                 old_new_pointer* cache; # Cache aller Pointer in die neue
-                                         # Generation
-               }
-        physpage_state;
-#endif
-
-typedef struct { Pages pages;
-                 #if defined(SPVW_PURE_BLOCKS) || (defined(SPVW_MIXED_BLOCKS) && defined(TRIVIALMAP_MEMORY))
-                 aint heap_limit;
-                 #if !defined(SPVW_MIXED_BLOCKS_OPPOSITE) # SPVW_PURE_BLOCKS || SPVW_MIXED_BLOCKS_STAGGERED
-                 aint heap_hardlimit;
-                 #endif
-                 #endif
-                 #ifdef SELFMADE_MMAP
-                 uintL memfile_offset;
-                 uintL memfile_numpages;
-                 uintB* memfile_pages;
-                 #endif
-                 #ifdef GENERATIONAL_GC
-                 aint heap_gen0_start;
-                 aint heap_gen0_end;
-                 aint heap_gen1_start;
-                 physpage_state* physpages;
-                 #endif
-               }
-        Heap;
-#define heap_start  pages.page_start
-#define heap_end    pages.page_end
-#if defined(SPVW_PURE_BLOCKS) || (defined(SPVW_MIXED_BLOCKS) && defined(TRIVIALMAP_MEMORY))
-# Stets heap_start <= heap_end <= heap_limit.
-#if defined(SPVW_MIXED_BLOCKS_OPPOSITE)
-# bzw. heap_limit <= heap_start <= heap_end.
-#endif
-# Der Speicher zwischen heap_start und heap_end ist belegt,
-# der Speicher zwischen heap_end (bzw. heap_start) und heap_limit ist frei.
-# heap_limit wird, wenn nötig, vergrößert (bzw. verkleinert).
-#if !defined(SPVW_MIXED_BLOCKS_OPPOSITE)
-# heap_hardlimit ist der größte bzw. kleinste zulässige Wert von heap_limit.
-#endif
-#else # defined(SPVW_MIXED_BLOCKS) && !defined(TRIVIALMAP_MEMORY)
-# Stets heap_start <= heap_end.
-# Der Speicher zwischen heap_start und heap_end ist belegt,
-#endif
-#ifdef GENERATIONAL_GC
-#ifndef SPVW_MIXED_BLOCKS_OPPOSITE
-# Die Generation 0 (ältere Generation) beginnt bei heap_gen0_start,
-#                                      geht bis    heap_gen0_end.
-# Die Generation 1 (neuere Generation) beginnt bei heap_gen1_start,
-#                                      geht bis    heap_end.
-# heap_gen0_start und heap_gen1_start sind durch physpagesize teilbar.
-# Zwischen heap_gen0_end und heap_gen1_start ist eine Lücke von weniger als
-# einer Page.
-# heap_start ist entweder = heap_gen0_start oder = heap_gen1_start.
-#else
-# Die Generation 0 (ältere Generation) beginnt bei heap_gen0_start,
-#                                      geht bis    heap_gen0_end.
-# Bei mem.varobjects:
-#   Generation 1 (neuere Generation) beginnt bei heap_gen1_start,
-#                                    geht bis    heap_end.
-#   heap_gen0_start und heap_gen1_start sind durch physpagesize teilbar.
-#   Zwischen heap_gen0_end und heap_gen1_start ist eine Lücke von weniger als
-#   einer Page.
-#   heap_start ist entweder = heap_gen0_start oder = heap_gen1_start.
-# Bei mem.conses:
-    #define heap_gen1_end  heap_gen1_start
-#   Generation 1 (neuere Generation) beginnt bei heap_start,
-#                                    geht bis    heap_gen1_end.
-#   heap_gen1_end und heap_gen0_end sind durch physpagesize teilbar.
-#   Zwischen heap_gen1_end und heap_gen0_start ist eine Lücke von weniger als
-#   einer Page.
-#   heap_end ist entweder = heap_gen1_end oder = heap_gen0_end.
-#endif
-# Der Status von Adresse addr (heap_gen0_start <= addr < heap_gen0_end) wird
-# von physpages[(addr>>physpageshift)-(heap_gen0_start>>physpageshift)] gegeben.
-# physpages=NULL ist möglich, wenn nicht genügend Platz da war!
-#endif
-
-#endif
-
-#ifdef SPVW_MIXED
-
-# Zwei Heaps: einer für Objekte variabler Länge, einer für Conses u.ä.
-#define heapcount  2
-
-#endif
-
-#ifdef SPVW_PURE
-
-# Ein Heap für jeden möglichen Typcode
-#define heapcount  typecount
-
-#endif
-
-# Für jeden möglichen Heap (0 <= heapnr < heapcount) den Typ des Heaps feststellen:
-# is_cons_heap(heapnr)
-# is_varobject_heap(heapnr)
-# is_heap_containing_objects(heapnr)
-# is_unused_heap(heapnr)
-#ifdef SPVW_MIXED
-  #define is_cons_heap(heapnr)  ((heapnr)==1)
-  #define is_varobject_heap(heapnr)  ((heapnr)==0)
-  #define is_heap_containing_objects(heapnr)  (TRUE)
-  #define is_unused_heap(heapnr)  (FALSE)
-#endif
-#ifdef SPVW_PURE
-  #define is_cons_heap(heapnr)  (mem.heaptype[heapnr] == 0)
-  #define is_varobject_heap(heapnr)  (mem.heaptype[heapnr] > 0)
-  #define is_heap_containing_objects(heapnr)  ((mem.heaptype[heapnr] >= 0) && (mem.heaptype[heapnr] < 2))
-  #define is_unused_heap(heapnr)  (mem.heaptype[heapnr] < 0)
-#endif
-
-# Durchlaufen aller CONS-Pages:
-# for_each_cons_page(page, [statement, das 'var Page* page' benutzt] );
-
-# Durchlaufen aller Pages von Objekten variabler Länge:
-# for_each_varobject_page(page, [statement, das 'var Page* page' benutzt] );
-
-# Durchlaufen aller Pages:
-# for_each_page(page, [statement, das 'var Page* page' benutzt] );
-
-#ifdef SPVW_BLOCKS
-  #define map_heap(heap,pagevar,statement)  \
-    { var Page* pagevar = &(heap).pages; statement; }
-#endif
-#ifdef SPVW_PAGES
-  #define map_heap(heap,pagevar,statement)  \
-    { AVL_map((heap).inuse,pagevar,statement); }
-#endif
-
-#ifdef SPVW_MIXED
-
-#define for_each_cons_heap(heapvar,statement)  \
-  { var Heap* heapvar = &mem.conses; statement; }
-#define for_each_varobject_heap(heapvar,statement)  \
-  { var Heap* heapvar = &mem.varobjects; statement; }
-#define for_each_heap(heapvar,statement)  \
-  { var uintL heapnr;                                        \
-    for (heapnr=0; heapnr<heapcount; heapnr++)               \
-      { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
-  }
-
-#define for_each_cons_page(pagevar,statement)  \
-  map_heap(mem.conses,pagevar,statement)
-#define for_each_cons_page_reversed for_each_cons_page
-#define for_each_varobject_page(pagevar,statement)  \
-  map_heap(mem.varobjects,pagevar,statement)
-#define for_each_page(pagevar,statement)  \
-  { var uintL heapnr;                                \
-    for (heapnr=0; heapnr<heapcount; heapnr++)       \
-      map_heap(mem.heaps[heapnr],pagevar,statement); \
-  }
-
-#endif
-
-#ifdef SPVW_PURE
-
-# Innerhalb der Schleife ist heapnr die Nummer des Heaps.
-
-#define for_each_cons_heap(heapvar,statement)  \
-  { var uintL heapnr;                                          \
-    for (heapnr=0; heapnr<heapcount; heapnr++)                 \
-      if (mem.heaptype[heapnr] == 0)                           \
-        { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
-  }
-#define for_each_varobject_heap(heapvar,statement)  \
-  { var uintL heapnr;                                          \
-    for (heapnr=0; heapnr<heapcount; heapnr++)                 \
-      if (mem.heaptype[heapnr] > 0)                            \
-        { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
-  }
-#define for_each_heap(heapvar,statement)  \
-  { var uintL heapnr;                                          \
-    for (heapnr=0; heapnr<heapcount; heapnr++)                 \
-      if (mem.heaptype[heapnr] >= 0)                           \
-        { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
-  }
-
-#define for_each_cons_page(pagevar,statement)  \
-  { var uintL heapnr;                                  \
-    for (heapnr=0; heapnr<heapcount; heapnr++)         \
-      if (mem.heaptype[heapnr] == 0)                   \
-        map_heap(mem.heaps[heapnr],pagevar,statement); \
-  }
-#define for_each_cons_page_reversed(pagevar,statement)  \
-  { var uintL heapnr;                                  \
-    for (heapnr=heapcount; heapnr-- > 0; )             \
-      if (mem.heaptype[heapnr] == 0)                   \
-        map_heap(mem.heaps[heapnr],pagevar,statement); \
-  }
-#define for_each_varobject_page(pagevar,statement)  \
-  { var uintL heapnr;                                  \
-    for (heapnr=0; heapnr<heapcount; heapnr++)         \
-      if (mem.heaptype[heapnr] > 0)                    \
-        map_heap(mem.heaps[heapnr],pagevar,statement); \
-  }
-#define for_each_page(pagevar,statement)  \
-  { var uintL heapnr;                                  \
-    for (heapnr=0; heapnr<heapcount; heapnr++)         \
-      if (mem.heaptype[heapnr] >= 0)                   \
-        map_heap(mem.heaps[heapnr],pagevar,statement); \
-  }
 
 #endif
 
 # ------------------------------------------------------------------------------
-
-# Speichergrenzen der LISP-Daten:
-  local struct { aint MEMBOT;
-                 # dazwischen der LISP-Stack
-                 Heap heaps[heapcount];
-                 #ifdef SPVW_PURE
-                 sintB heaptype[heapcount];
-                   # zu jedem Typcode: 0 falls Conses u.ä.
-                   #                   1 falls Objekte variabler Länge mit Pointern,
-                   #                   2 falls Objekte variabler Länge ohne Pointer,
-                   #                  -1 falls SUBRs (völlig unverschieblich)
-                   #                  -2 falls unbenutzter Typcode
-                 #endif
-                 #ifdef SPVW_MIXED
-                  #define varobjects  heaps[0] # Objekte variabler Länge
-                  #define conses      heaps[1] # Conses u.ä.
-                 #endif
-                 #if defined(SPVW_MIXED_BLOCKS) && defined(TYPECODES) && defined(GENERATIONAL_GC)
-                 sintB heapnr_from_type[typecount]; # Tabelle type -> heapnr
-                 #endif
-                 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY)
-                  # dazwischen leer, frei für LISP-Objekte
-                 #define MEMRES    conses.heap_end
-                 # dazwischen Reserve
-                 aint MEMTOP;
-                 #endif
-                 #if defined(SPVW_PURE_BLOCKS) || defined(TRIVIALMAP_MEMORY) || defined(GENERATIONAL_GC)
-                 uintL total_room; # wieviel Platz belegt werden darf, ohne daß GC nötig wird
-                 #ifdef GENERATIONAL_GC
-                 boolean last_gc_full; # ob die letzte GC eine volle war
-                 uintL last_gcend_space0; # wieviel Platz am Ende der letzten GC belegt war
-                 uintL last_gcend_space1; # (von Generation 0 bzw. Generation 1)
-                 #endif
-                 #endif
-                 #ifdef SPVW_PAGES
-                 Pages free_pages; # eine Liste freier normalgroßer Pages
-                 uintL total_space; # wieviel Platz die belegten Pages überhaupt enthalten
-                 uintL used_space; # wieviel Platz gerade belegt ist
-                 uintL last_gcend_space; # wieviel Platz am Ende der letzten GC belegt war
-                 boolean last_gc_compacted; # ob die letzte GC schon kompaktiert hat
-                 uintL gctrigger_space; # wieviel Platz belegt werden darf, bis die nächste GC nötig wird
-                 #endif
-               }
-        mem;
-  #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY) && !defined(GENERATIONAL_GC)
-    #define RESERVE       0x00800L  # 2 KByte Speicherplatz als Reserve
-  #else
-    #define RESERVE             0   # brauche keine präallozierte Reserve
-  #endif
-  #define MINIMUM_SPACE 0x10000L  # 64 KByte als minimaler Speicherplatz für LISP-Daten
-  #ifdef TRIVIALMAP_MEMORY
-    #define RESERVE_FOR_MALLOC 0x100000L  # lasse 1 MByte Adreßraum frei, für malloc
-  #endif
 
 # Bei Überlauf eines der Stacks:
   nonreturning_function(global, SP_ueber, (void));
@@ -1092,83 +677,6 @@ typedef struct { Pages pages;
                );
       reset();
     }
-
-# Überprüfung des Speicherinhalts auf GC-Festigkeit:
-  #if defined(SPVW_PAGES) && defined(DEBUG_SPVW)
-    # Überprüfen, ob die Verwaltung der Pages in Ordnung ist:
-      #define CHECK_AVL_CONSISTENCY()  check_avl_consistency()
-      local void check_avl_consistency (void);
-      local void check_avl_consistency()
-        {
-          #ifdef DEBUG_AVL
-          var uintL heapnr;
-          for (heapnr=0; heapnr<heapcount; heapnr++)
-            { AVL(AVLID,check) (mem.heaps[heapnr].inuse); }
-          #endif
-        }
-    # Überprüfen, ob die Grenzen der Pages in Ordnung sind:
-      #define CHECK_GC_CONSISTENCY()  check_gc_consistency()
-      local void check_gc_consistency (void);
-      local void check_gc_consistency()
-        { for_each_page(page,
-            if ((sintL)page->page_room < 0)
-              { asciz_out_1("\nPage bei Adresse 0x%x übergelaufen!!\n",page); abort(); }
-            if (!(page->page_start == page_start0(page)))
-              { asciz_out_1("\nPage bei Adresse 0x%x inkonsistent!!\n",page); abort(); }
-            if (!(page->page_end + page->page_room
-                  == round_down(page->m_start + page->m_length,varobject_alignment)
-               ) )
-              { asciz_out_1("\nPage bei Adresse 0x%x inkonsistent!!\n",page); abort(); }
-            );
-        }
-    # Überprüfen, ob während der kompaktierenden GC
-    # die Grenzen der Pages in Ordnung sind:
-      #define CHECK_GC_CONSISTENCY_2()  check_gc_consistency_2()
-      local void check_gc_consistency_2 (void);
-      local void check_gc_consistency_2()
-        { for_each_page(page,
-            if ((sintL)page->page_room < 0)
-              { asciz_out_1("\nPage bei Adresse 0x%x übergelaufen!!\n",page); abort(); }
-            if (!(page->page_end + page->page_room - (page->page_start - page_start0(page))
-                  == round_down(page->m_start + page->m_length,varobject_alignment)
-               ) )
-              { asciz_out_1("\nPage bei Adresse 0x%x inkonsistent!!\n",page); abort(); }
-            );
-        }
-  #else
-    #define CHECK_AVL_CONSISTENCY()
-    #define CHECK_GC_CONSISTENCY()
-    #define CHECK_GC_CONSISTENCY_2()
-  #endif
-  #ifdef DEBUG_SPVW
-    # Überprüfen, ob die Tabellen der Packages halbwegs in Ordnung sind:
-      #define CHECK_PACK_CONSISTENCY()  check_pack_consistency()
-      global void check_pack_consistency (void);
-      global void check_pack_consistency()
-        { var object plist = O(all_packages);
-          while (consp(plist))
-            { var object pack = Car(plist);
-              var object symtabs[2];
-              var uintC i;
-              symtabs[0] = ThePackage(pack)->pack_external_symbols;
-              symtabs[1] = ThePackage(pack)->pack_internal_symbols;
-              for (i = 0; i < 2; i++)
-                { var object symtab = symtabs[i];
-                  var object table = TheSvector(symtab)->data[1];
-                  var uintL index = Svector_length(table);
-                  until (index==0)
-                    { var object entry = TheSvector(table)->data[--index];
-                      var uintC count = 0;
-                      while (consp(entry))
-                        { if (!symbolp(Car(entry))) abort();
-                          entry = Cdr(entry);
-                          count++; if (count>=10000) abort();
-                }   }   }
-              plist = Cdr(plist);
-        }   }
-  #else
-      #define CHECK_PACK_CONSISTENCY()
-  #endif
 
 # ------------------------------------------------------------------------------
 #                       Speichergröße
@@ -1587,12 +1095,12 @@ local int handle_mmap_fault(offset,address,memfile_page)
       # Page already in memory, nothing to be done.
       return 0;
     # Fetch the page from the file.
-    { var Handle handle = memfile_handle;
+    { var Handle handle = mem.memfile_handle;
       var sintL orig_offset = 0;
       # If loadmem() is still reading from the memfile, we must be careful
       # to restore the handle's file position. (This could be avoided under
       # UNIX by using dup(), but not on WIN32_NATIVE.)
-      if (memfile_still_being_read)
+      if (mem.memfile_still_being_read)
         { orig_offset = lseek(handle,0,SEEK_CUR);
           if (orig_offset < 0)
             { asciz_out("selfmade_mmap: lseek() failed.");
@@ -1624,7 +1132,7 @@ local int handle_mmap_fault(offset,address,memfile_page)
           if (res < 0) errno_out(OS_errno);
           return -1;
         }
-      if (memfile_still_being_read)
+      if (mem.memfile_still_being_read)
         { if (lseek(handle,orig_offset,SEEK_SET) < 0)
             { asciz_out_1("selfmade_mmap: lseek(0x%x) failed.",orig_offset);
               errno_out(OS_errno);
@@ -2979,7 +2487,7 @@ local uintC generation;
       # aus einem Varobject heraus oder aus einem weiter links liegenden
       # Cons auf diese Zelle zeigen.)
       var aint p1 = page->page_start; # untere Grenze
-      var aint p2 = p1 + page->gcpriv.d; # spätere untere Grenze
+      var aint p2 = p1 + page->page_gcpriv.d; # spätere untere Grenze
       var aint p1limit = page->page_end; # obere Grenze
       until (p1==p1limit) # stets p1 <= p2 <= p1limit
         { # Beide Zellen eines Cons werden genau gleich behandelt.
@@ -3171,7 +2679,7 @@ local uintC generation;
       # aus einem Varobject heraus oder aus einem weiter rechts liegenden
       # Cons auf diese Zelle zeigen.)
       var aint p1 = page->page_end; # obere Grenze
-      var aint p2 = p1 - page->gcpriv.d; # spätere obere Grenze
+      var aint p2 = p1 - page->page_gcpriv.d; # spätere obere Grenze
       var aint p1limit = page->page_start; # untere Grenze
       #ifdef DEBUG_SPVW
       until (p1==p1limit)
@@ -3378,7 +2886,7 @@ local uintC generation;
       # aus einem Varobject heraus oder aus einem weiter rechts liegenden
       # Cons auf diese Zelle zeigen.)
       var aint p1 = page->page_end; # obere Grenze
-      var aint p2 = p1 - page->gcpriv.d; # spätere obere Grenze
+      var aint p2 = p1 - page->page_gcpriv.d; # spätere obere Grenze
       var aint p1limit = page->page_start; # untere Grenze
       until (p1==p1limit) # stets p1limit <= p2 <= p1
         { # Beide Zellen eines Cons werden genau gleich behandelt.
@@ -3537,7 +3045,7 @@ local uintC generation;
         # In *last_open_ptr ist stets die Adresse des nächsten markierten
         # Objekts (als oint) einzutragen.
         # Durch verkettete-Liste-Mechanismus: Am Schluß enthält
-        # page->gcpriv.firstmarked die Adresse des 1. markierten Objekts
+        # page->page_gcpriv.firstmarked die Adresse des 1. markierten Objekts
       var aint p2 = page->page_start; # Source-Pointer
       var aint p2end = page->page_end; # obere Grenze des Source-Bereiches
       var aint p1 = p2; # Ziel-Pointer
@@ -9162,49 +8670,11 @@ local uintC generation;
      init_map_pagesize();
      #endif
      #ifdef SPVW_PURE
-     { var uintL heapnr;
-       for (heapnr=0; heapnr<heapcount; heapnr++)
-         { switch (heapnr)
-             { case_sstring:
-               case_sbvector:
-               case_bignum:
-               #ifndef WIDE
-               case_ffloat:
-               #endif
-               case_dfloat:
-               case_lfloat:
-                 mem.heaptype[heapnr] = 2; break;
-               case_ostring:
-               case_obvector:
-               case_vector:
-               case_mdarray:
-               case_record:
-               case_symbol:
-                 mem.heaptype[heapnr] = 1; break;
-               case_pair:
-                 mem.heaptype[heapnr] = 0; break;
-               case_subr:
-                 mem.heaptype[heapnr] = -1; break;
-               default:
-                 mem.heaptype[heapnr] = -2; break;
-         }   }
-     }
+     init_mem_heaptypes();
      init_speicher_laengen();
      #endif
      #if defined(SPVW_MIXED_BLOCKS) && defined(TYPECODES) && defined(GENERATIONAL_GC)
-     { var uintL type;
-       for (type = 0; type < typecount; type++)
-         {
-           #ifdef MULTIMAP_MEMORY
-           switch (type)
-             { MM_TYPECASES break;
-               default: mem.heapnr_from_type[type] = -1; continue;
-             }
-           #endif
-           switch (type)
-             { case_pair: mem.heapnr_from_type[type] = 1; break;
-               default:   mem.heapnr_from_type[type] = 0; break;
-     }   }   }
+     init_mem_heapnr_from_type();
      #endif
      init_modules_0(); # Liste der Module zusammensetzen
      #ifdef MULTITHREAD
@@ -11206,8 +10676,8 @@ local uintC generation;
          #endif
          #if defined(SPVW_PURE_BLOCKS) || defined(SPVW_MIXED_BLOCKS_STAGGERED) # SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY && !SPVW_MIXED_BLOCKS_OPPOSITE
          #ifdef SELFMADE_MMAP
-         memfile_handle = handle;
-         memfile_still_being_read = TRUE;
+         mem.memfile_handle = handle;
+         mem.memfile_still_being_read = TRUE;
          #endif
          # Alignment verwirklichen:
          READ_page_alignment(file_offset);
@@ -11404,7 +10874,7 @@ local uintC generation;
          # File schließen:
          #undef READ
          #ifdef SELFMADE_MMAP
-           memfile_still_being_read = FALSE;
+           mem.memfile_still_being_read = FALSE;
          #else
            begin_system_call();
            #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
