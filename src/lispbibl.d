@@ -10889,7 +10889,7 @@ extern void init_reader (void);
 #    (list* (make-Semi-Simple-String 50)
 #           (cons nl_type *PRIN-INDENTATION*)
 #           (strm-pphelp-strings *stream_)))
-extern object cons_ssstring (const object* stream_,const object nl_type);
+extern object cons_ssstring (const object* stream_, object nl_type);
 # used by io.d and stream.d
 
 # UP: Reads on object.
@@ -11429,7 +11429,7 @@ typedef enum {
   DIRECTION_OUTPUT          = 4,
   DIRECTION_IO              = 5
 } direction_t;
-extern direction_t check_direction (const object dir);
+extern direction_t check_direction (object dir);
 
 # check the :IF-DOES-NOT-EXIST argument
 # return one of the following:
@@ -11439,7 +11439,7 @@ typedef enum {
   IF_DOES_NOT_EXIST_NIL,
   IF_DOES_NOT_EXIST_CREATE
 } if_does_not_exist_t;
-extern if_does_not_exist_t check_if_does_not_exist (const object if_not_exist);
+extern if_does_not_exist_t check_if_does_not_exist (object if_not_exist);
 
 # check the :IF-EXISTS argument
 # return one of the following:
@@ -11453,7 +11453,7 @@ typedef enum {
   IF_EXISTS_APPEND,
   IF_EXISTS_OVERWRITE
 } if_exists_t;
-extern if_exists_t check_if_exists (const object if_exists);
+extern if_exists_t check_if_exists (object if_exists);
 
 # ##################### PREDBIBL zu PREDTYPE.D ############################ #
 
