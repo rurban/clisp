@@ -1,5 +1,9 @@
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
+	* foreign1.lisp: Indentation fixes.
+
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
 	Support multibyte encodings in FFI:*FOREIGN-ENCODING*.
 	* encoding.d (init_dependent_encodings): Remove warning if
 	*FOREIGN-ENCODING* is not 1:1. Initialize O(foreign_8bit_encoding).
