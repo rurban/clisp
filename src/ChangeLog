@@ -1,5 +1,47 @@
 1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (stream_get_read_eval, stream_set_read_eval): New
+          declarations.
+        * stream.d (read_byte, read_byte_array, write_byte, write_byte_array,
+           read_char, unread_char, peek_char, read_char_array, write_char,
+           write_char_array, var_stream): Treat instances of
+          FUNDAMENTAL-STREAM correctly.
+          (listen_generic): Change error message.
+          (terminal_raw, STREAM-EXTERNAL-FORMAT,
+           SYSTEM::SET-STREAM-EXTERNAL-FORMAT, interactive_stream_p,
+           read_line, stream_listen, clear_input, finish_output, force_output,
+           clear_output, get_line_position, stream_line_number): Treat
+          instances of FUNDAMENTAL-STREAM correctly.
+          (stream_get_read_eval, stream_set_read_eval): New functions.
+          (SYS::ALLOW-READ-EVAL): Use them.
+        * io.d (read_eval_reader, load_eval_reader): Use stream_get_read_eval.
+          (READ-CHAR-NO-HANG): Treat instances of FUNDAMENTAL-STREAM
+          correctly.
+          (pr_enter_1, pr_orecord, pr_subr): Use stream_get_read_eval.
+        * compiler.lsp (c-DIRECT-FUNCTION-CALL): Remove SYSTEM::LINE-POSITION
+          from list of side-effect-free functions.
+        * gstream.lsp (fundamental-stream): Add a slot.
+          (fundamental-character-stream, fundamental-binary-stream,
+           fundamental-character-input-stream,
+           fundamental-character-output-stream,
+           fundamental-binary-input-stream, fundamental-binary-output-stream):
+          New classes.
+          (stream-element-type): Add method on fundamental-character-stream.
+          (stream-read-char, stream-unread-char, stream-read-char-no-hang,
+           stream-peek-char, stream-listen, stream-read-char-status,
+           stream-read-char-sequence, stream-read-line, stream-clear-input,
+           stream-write-char, stream-line-column, stream-start-line-p,
+           stream-write-char-sequence, stream-write-string, stream-terpri,
+           stream-fresh-line, stream-finish-output, stream-force-output,
+           stream-clear-output, stream-advance-to-column, stream-read-byte,
+           stream-read-byte-sequence, stream-write-byte,
+           stream-write-byte-sequence): New generic functions.
+        * describe.lsp (describe-object): Call open-stream-p, since
+          input-stream-p and output-stream-p don't tell whether a stream is
+          open.
+
+1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Allows streams to have an unknown line position.
         * lispbibl.d (get_line_position): Can trigger GC. Can return NIL.
         * stream.d (get_line_position): Likewise.

@@ -12142,6 +12142,20 @@ extern object stream_fd (object stream);
   extern object stream_line_number (object stream);
 # wird verwendet von IO
 
+# Function: Returns TRUE if a stream allows read-eval.
+# stream_get_read_eval(stream)
+# > stream: a stream
+# < result: TRUE if read-eval is allowed from the stream, else FALSE
+  extern boolean stream_get_read_eval (object stream);
+# used by IO
+
+# Function: Changes the read-eval state of a stream.
+# stream_set_read_eval(stream,value);
+# > stream: a stream
+# > value: TRUE if read-eval shall be allowed from the stream, else FALSE
+  extern void stream_set_read_eval (object stream, boolean value);
+# used by IO
+
 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS) || defined(RISCOS)
 # UP: Terminal wieder in Normalzustand schalten
 # terminal_sane();
