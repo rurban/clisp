@@ -1,3 +1,78 @@
+;;; Gray streams, following David N. Gray's STREAM-DEFINITION-BY-USER proposal
+
+(in-package "LISP")
+(export '(; Classes:
+          fundamental-stream
+          fundamental-input-stream
+          fundamental-output-stream
+          fundamental-character-stream
+          fundamental-binary-stream
+          fundamental-character-input-stream
+          fundamental-character-output-stream
+          fundamental-binary-input-stream
+          fundamental-binary-output-stream
+          ; Generic functions for character input:
+          stream-read-char
+          stream-unread-char
+          stream-read-char-no-hang
+          stream-peek-char
+          stream-listen
+          stream-read-char-status
+          stream-read-char-sequence
+          stream-read-line
+          stream-clear-input
+          ; Generic functions for character output:
+          stream-write-char
+          stream-line-column
+          stream-start-line-p
+          stream-write-char-sequence
+          stream-write-string
+          stream-terpri
+          stream-fresh-line
+          stream-finish-output
+          stream-force-output
+          stream-clear-output
+          stream-advance-to-column
+          ; Generic functions for binary input:
+          stream-read-byte
+          stream-read-byte-sequence
+          ; Generic functions for binary output:
+          stream-write-byte
+          stream-write-byte-sequence
+          ; Other generic functions:
+          close
+          open-stream-p
+          stream-element-type
+)        )
+
+(in-package "SYSTEM")
+
+;; General generic functions
+
+(clos:defgeneric close (stream &key abort)
+  (:method ((stream stream) &rest args)
+    (apply #'sys::built-in-stream-close stream args)
+  )
+)
+
+(clos:defgeneric open-stream-p (stream)
+  (:method ((stream stream))
+    (sys::built-in-stream-open-p stream)
+  )
+)
+
+(clos:defgeneric stream-element-type (stream)
+  (:method ((stream stream))
+    (sys::built-in-stream-element-type stream)
+  )
+)
+(clos:defgeneric (setf stream-element-type) (new-element-type stream)
+  (:method (new-element-type (stream stream))
+    (sys::built-in-stream-set-element-type stream new-element-type)
+  )
+)
+
+;;; ===========================================================================
 ;;; generic stream default methods
 ;;; Marcus Daniels 16.4.1994
 

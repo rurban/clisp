@@ -1283,8 +1283,8 @@ interpreter compiler
               )
               (go weiter)
             )
-            (or (eq input-stream stream) (close input-stream))
-            (or (eq stream filename) (close stream))
+            (or (eq input-stream stream) (sys::built-in-stream-close input-stream))
+            (or (eq stream filename) (sys::built-in-stream-close stream))
         ) )
         (when verbose
           (fresh-line)

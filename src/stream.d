@@ -968,11 +968,9 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
   local void close_synonym(stream)
     var object stream;
     { check_SP(); check_STACK();
-     {var object symbol = TheStream(stream)->strm_synonym_symbol;
-      pushSTACK(get_synonym_stream(symbol));
-      stream_close(&STACK_0);
-      skipSTACK(1);
-    }}
+      pushSTACK(get_synonym_stream(TheStream(stream)->strm_synonym_symbol));
+      funcall(S(close),1);
+    }
 #endif
 
 # Reads a line of characters from a synonym-stream.
@@ -5904,7 +5902,7 @@ typedef struct strm_i_buffered_extrafields_struct {
           # Um Inkonsistenzen zu vermeiden, muss man das File schlieﬂen.
           BufferedStream_modified(stream) = FALSE; # Hierbei gehen Daten verloren!
           pushSTACK(stream);
-          stream_close(&STACK_0); # File schlieﬂen
+          builtin_stream_close(&STACK_0); # File schlieﬂen
           clr_break_sem_4(); # keine UNIX-Operation mehr aktiv
           # Fehler melden.
           pushSTACK(!nullp(TheStream(STACK_0)->strm_file_truename) ? TheStream(STACK_0)->strm_file_truename : STACK_0); # Wert f¸r Slot PATHNAME von FILE-ERROR
@@ -7635,7 +7633,7 @@ typedef struct strm_i_buffered_extrafields_struct {
                   # File schlieﬂen und Error melden:
                   TheStream(stream)->strmflags &= ~strmflags_wr_by_B; # Stream Read-Only machen
                   pushSTACK(stream);
-                  stream_close(&STACK_0);
+                  builtin_stream_close(&STACK_0);
                   # STACK_0 = Wert f¸r Slot STREAM von STREAM-ERROR
                   pushSTACK(!nullp(TheStream(STACK_0)->strm_file_truename) ? TheStream(STACK_0)->strm_file_truename : STACK_0);
                   fehler(stream_error,
@@ -15280,10 +15278,10 @@ global char* xmalloc(count)
 
 #endif
 
-LISPFUNN(open_stream_p,1)
-# (OPEN-STREAM-P stream), CLtL2 S. 505
+LISPFUNN(built_in_stream_open_p,1)
+# (SYS::BUILT-IN-STREAM-OPEN-P stream)
   { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
+    if (!builtin_stream_p(stream)) { fehler_streamtype(stream,O(type_builtin_stream)); }
     if (TheStream(stream)->strmflags & strmflags_open_B) # Stream offen?
       { value1 = T; mv_count=1; } # Wert T
       else
@@ -15310,12 +15308,12 @@ LISPFUNN(output_stream_p,1)
       { value1 = NIL; mv_count=1; } # Wert NIL
   }
 
-LISPFUNN(stream_element_type,1)
-# (STREAM-ELEMENT-TYPE stream), CLTL S. 332, CLtL2 S. 505
+LISPFUNN(built_in_stream_element_type,1)
+# (SYS::BUILT-IN-STREAM-ELEMENT-TYPE stream)
 # liefert NIL (f¸r geschlossene Streams) oder CHARACTER oder INTEGER oder T
 # oder (spezieller) (UNSIGNED-BYTE n) oder (SIGNED-BYTE n).
   { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
+    if (!builtin_stream_p(stream)) { fehler_streamtype(stream,O(type_builtin_stream)); }
    {var object eltype;
     if ((TheStream(stream)->strmflags & strmflags_open_B) == 0)
       # Stream geschlossen
@@ -15395,10 +15393,10 @@ LISPFUNN(stream_element_type,1)
     value1 = eltype; mv_count=1;
   }}
 
-LISPFUNN(set_stream_element_type,2)
-# (SYSTEM::SET-STREAM-ELEMENT-TYPE stream element-type)
+LISPFUNN(built_in_stream_set_element_type,2)
+# (SYSTEM::BUILT-IN-STREAM-SET-ELEMENT-TYPE stream element-type)
   { var object stream = STACK_1;
-    if (!streamp(stream)) { fehler_stream(stream); }
+    if (!builtin_stream_p(stream)) { fehler_streamtype(stream,O(type_builtin_stream)); }
    {var decoded_eltype eltype;
     test_eltype_arg(&STACK_0,&eltype);
     pushSTACK(canon_eltype(&eltype));
@@ -15444,7 +15442,7 @@ LISPFUNN(set_stream_element_type,2)
                   pushSTACK(TheStream(stream)->strm_eltype);
                   pushSTACK(stream);
                   pushSTACK(S(Kelement_type));
-                  pushSTACK(S(set_stream_element_type));
+                  pushSTACK(O(setf_stream_element_type));
                   fehler(error,
                          GETTEXT("~: The ~ of ~ cannot be changed from ~ to ~.")
                         );
@@ -15514,13 +15512,13 @@ LISPFUNN(set_stream_element_type,2)
         case strmtype_twoway_socket:
           # Apply to the input and output side individually.
           pushSTACK(TheStream(STACK_1)->strm_twoway_socket_input); pushSTACK(STACK_(0+1));
-          funcall(L(set_stream_element_type),2);
+          funcall(L(built_in_stream_set_element_type),2);
           pushSTACK(TheStream(STACK_1)->strm_twoway_socket_output); pushSTACK(STACK_(0+1));
-          funcall(L(set_stream_element_type),2);
+          funcall(L(built_in_stream_set_element_type),2);
           break;
         #endif
         default:
-          fehler_illegal_streamop(S(set_stream_element_type),stream);
+          fehler_illegal_streamop(O(setf_stream_element_type),stream);
       }
     value1 = STACK_1; mv_count=1;
     skipSTACK(3);
@@ -15789,12 +15787,12 @@ LISPFUNN(interactive_stream_p,1)
   }
 
 # UP: Schlieﬂt einen Stream.
-# stream_close(&stream);
-# > stream: Stream
-# < stream: Stream
+# builtin_stream_close(&stream);
+# > stream: Builtin-Stream
+# < stream: Builtin-Stream
 # can trigger GC
-  global void stream_close (const object* stream_);
-  global void stream_close(stream_)
+  global void builtin_stream_close (const object* stream_);
+  global void builtin_stream_close(stream_)
     var const object* stream_;
     { var object stream = *stream_;
       if ((TheStream(stream)->strmflags & strmflags_open_B) == 0) # Stream schon geschlossen?
@@ -15847,8 +15845,8 @@ LISPFUNN(interactive_stream_p,1)
             ChannelStreamLow_close(TheStream(stream)->strm_twoway_socket_input) = &low_close_socket_nop;
             pushSTACK(TheStream(stream)->strm_twoway_socket_input);
             pushSTACK(TheStream(stream)->strm_twoway_socket_output);
-            stream_close(&STACK_1);
-            stream_close(&STACK_0);
+            builtin_stream_close(&STACK_1);
+            builtin_stream_close(&STACK_0);
             skipSTACK(2);
             break;
           #endif
@@ -15872,7 +15870,7 @@ LISPFUNN(interactive_stream_p,1)
 
 # UP: Schlieﬂt eine Liste offener Files.
 # close_some_files(list);
-# > list: Liste von offenen Streams
+# > list: Liste von offenen Builtin-Streams
 # can trigger GC
   global void close_some_files (object list);
   global void close_some_files(list)
@@ -15883,7 +15881,7 @@ LISPFUNN(interactive_stream_p,1)
         { var object streamlist = STACK_0;
           STACK_0 = Cdr(streamlist); # restliche Streams
           STACK_1 = Car(streamlist); # ein Stream aus der Liste
-          stream_close(&STACK_1); # schlieﬂen
+          builtin_stream_close(&STACK_1); # schlieﬂen
         }
       skipSTACK(2);
     }
@@ -15913,12 +15911,12 @@ LISPFUNN(interactive_stream_p,1)
       O(open_files) = NIL; # keine offenen Files mehr
     }
 
-LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
-# (CLOSE stream :abort), CLTL S. 332
+LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
+# (SYS::BUILT-IN-STREAM-CLOSE stream :abort)
   { skipSTACK(1); # :ABORT-Argument ignorieren
    {var object stream = STACK_0; # Argument
-    if (!streamp(stream)) { fehler_stream(stream); } # muss ein Stream sein
-    stream_close(&STACK_0); # schlieﬂen
+    if (!builtin_stream_p(stream)) { fehler_streamtype(stream,O(type_builtin_stream)); } # muss ein Stream sein
+    builtin_stream_close(&STACK_0); # schlieﬂen
     skipSTACK(1);
     value1 = T; mv_count=1; # T als Ergebnis
   }}
