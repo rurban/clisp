@@ -1,5 +1,10 @@
 2004-04-16  Sam Steingold  <sds@gnu.org>
 
+	* iofkts.tst: (WRITE-STRING #A(nil (0))) must return
+	its argument, not NIL
+
+2004-04-16  Sam Steingold  <sds@gnu.org>
+
 	* iofkts.tst (object-out): replaced with a PRINT-OBJECT method;
 	added a "risky test" of printing a list of objects
 

@@ -1,5 +1,10 @@
 2004-04-16  Sam Steingold  <sds@gnu.org>
 
+	* io.d (write_string_up): (WRITE-STRING #A(nil (0))) must return
+	its argument, not NIL
+
+2004-04-16  Sam Steingold  <sds@gnu.org>
+
 	* io.d (test_ostream): accept a gcv_object_t* argument instead of
 	using STACK_0; updated all callers, including...
 	(FORMAT-TABULATE): do not juggle STACK to ensure that the stream
