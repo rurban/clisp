@@ -63,6 +63,8 @@ User visible changes
     keywords still works, but is now special cased in the reader.
   + Class redefinition with DEFCLASS no longer modifies the previous class if
     it doesn't have a "proper name".
+  + Class redefinition with DEFCLASS removes accessor methods that have been
+    installed through the previous DEFCLASS definition of the same class.
   + Generic function redefinition with DEFGENERIC removes methods that have
     been installed through the previous DEFGENERIC definition of the same
     function.
@@ -89,17 +91,23 @@ User visible changes
   + Documentation strings are now attached to class objects, not just to
     their name.
 
-* The interpreter no longer executes the body of (EVAL-WHEN (COMPILE) ...)
-  forms.
+* The behaviour of the function UPGRADED-COMPLEX-PART-TYPE has changed.
 
 * In non-interactive batch mode, *ERROR-OUTPUT* now uses the system's standard
   error stream, instead of the standard output stream.
 
-* Fixes to internationalized error messages.
-
-* The return value of NSTRING-UPCASE, NSTRING-DOWNCASE, NSTRING-CAPITALIZE,
-  WRITE-STRING, WRITE-LINE, when called with a displaced string as argument,
-  was wrong.
+* Bug fixes:
+  + The interpreter no longer executes the body of (EVAL-WHEN (COMPILE) ...)
+    forms.
+  + Fixes to internationalized error messages.
+  + The return value of ASINH was always rounded to a SINGLE-FLOAT.
+  + The return value of NSTRING-UPCASE, NSTRING-DOWNCASE, NSTRING-CAPITALIZE,
+    WRITE-STRING, WRITE-LINE, when called with a displaced string as argument,
+    was wrong.
+  + Passing a package as second argument of RENAME-PACKAGE led to an
+    unjustified error.
+  + Some cases of ,@ inside doubly-nested backquote led to an unjustified
+    error.
 
 Modules
 -------
@@ -123,6 +131,8 @@ Portability
 * Weak pointers now also work on platforms without mmap().
 
 * Fixed a bug in (ASH x MOST-NEGATIVE-FIXNUM) on some platforms.
+
+* Fixed a bug in (SIGNUM negative-single-float) on 64-bit platforms.
 
 * Fixed a bug in (LOGAND fixnum bignum), (LOGNAND fixnum bignum),
   (LOGANDC2 fixnum bignum), (LOGANDC1 bignum fixnum) on some rare platforms.
