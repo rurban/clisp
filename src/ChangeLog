@@ -1,5 +1,10 @@
 2004-04-09  Bruno Haible  <bruno@clisp.org>
 
+	* compiler.lisp (c-constant-number, c-FORMAT): Use c-warn instead of
+	c-error.
+
+2004-04-09  Bruno Haible  <bruno@clisp.org>
+
 	Make REMOVE-DUPLICATES, DELETE-DUPLICATES cons less.
 	* sequence.d (remove_duplicates_list_from_start,
 	delete_duplicates_list_from_start, delete_duplicates_list_from_end):
