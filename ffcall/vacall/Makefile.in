@@ -125,6 +125,20 @@ uninstall : force
 	$(RM) $(mandir)/man3/vacall.3
 	$(RM) $(mandir)/html/vacall.html
 
+minitests.o : $(srcdir)/minitests.c $(srcdir)/tests.c vacall.h
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/minitests.c
+
+minitests.s : $(srcdir)/minitests.c $(srcdir)/tests.c vacall.h
+	$(CC) $(CFLAGS) $(INCLUDES) -S $(srcdir)/minitests.c
+
+minitests : minitests.o $(OBJECTS)
+	$(CC) $(CFLAGS) @GCC_X_NONE@ minitests.o $(OBJECTS) -o minitests
+
+minicheck : all minitests
+	./minitests > minitests.out
+	uniq -u < minitests.out > minitests.output.$(HOST)
+	test '!' -s minitests.output.$(HOST)
+
 tests.o : $(srcdir)/tests.c vacall.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/tests.c
 

@@ -120,6 +120,8 @@ test2 : test2.o $(OBJECTS)
 check1 : all test1
 	./test1
 
+minicheck : check
+
 check : all test1 test2
 	./test1
 	./test2

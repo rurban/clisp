@@ -285,6 +285,7 @@ long long ll_flli _P((a,b,c), float a _ long long b _ int c)
 }
 #endif
 
+#ifndef SKIP_STRUCTS
 Int I_III _P((a,b,c), Int a _ Int b _ Int c)
 {
   Int r;
@@ -344,6 +345,7 @@ X X_BcdB _P((a,b,c,d), B a _ char b _ double c _ B d)
   fflush(out);
   return r;
 }
+#endif
 
 /*
  * The way we run these tests - first call the function directly, then
@@ -762,6 +764,7 @@ void
   T Tr;
   X Xr;
 
+#ifndef SKIP_STRUCTS
   Ir = I_III(I1,I2,I3);
   fprintf(out,"->{%d}\n",Ir.x);
   fflush(out);
@@ -848,6 +851,7 @@ void
   av_call(a);
   fprintf(out,"->{\"%s\",'%c'}\n",Xr.c,Xr.c1);
   fflush(out);
+#endif
 
   return;
 }
