@@ -1582,8 +1582,11 @@ AC_TRY_RUN([
  * Let it fail instead. */
 #error "better fail than hang"
 #endif
-int gotsig=0;
-int wasblocked=0;
+#if !defined(__STDC__) || __STDC__ != 1
+#define volatile
+#endif
+volatile int gotsig=0;
+volatile int wasblocked=0;
 #ifdef __cplusplus
 #ifdef SIGTYPE_DOTS
 typedef RETSIGTYPE (*signal_handler) (...);
@@ -1640,8 +1643,11 @@ AC_TRY_RUN([
  * Let it fail instead. */
 #error "better fail than hang"
 #endif
-int gotsig=0;
-int somewereblocked=0;
+#if !defined(__STDC__) || __STDC__ != 1
+#define volatile
+#endif
+volatile int gotsig=0;
+volatile int somewereblocked=0;
 #ifdef __cplusplus
 #ifdef SIGTYPE_DOTS
 typedef RETSIGTYPE (*signal_handler) (...);
@@ -1775,6 +1781,9 @@ AC_TRY_RUN([
  * Let it fail instead. */
 #error "better fail than hang"
 #endif
+#if !defined(__STDC__) || __STDC__ != 1
+#define volatile
+#endif
 #ifdef __cplusplus
 #ifdef SIGTYPE_DOTS
 typedef RETSIGTYPE (*signal_handler) (...);
@@ -1798,8 +1807,8 @@ signal_handler mysignal (sig, handler)
   if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler)SIG_IGN; }
   return (signal_handler)old_sa.sa_handler;
 }
-int gotsig=0;
-int wasblocked=0;
+volatile int gotsig=0;
+volatile int wasblocked=0;
 RETSIGTYPE sigalrm_handler()
 { gotsig=1;
 #ifdef SIGNAL_NEED_REINSTALL
