@@ -1,5 +1,14 @@
 2005-01-11  Sam Steingold  <sds@gnu.org>
 
+	* socket.d (host_fn_t): new typedef
+	(with_host, string_to_addr1t): new functions
+	(string_to_addr): re-written using them
+	(resolve_host1): simplified
+	(resolve_host): use with_host()
+	(with_host_port): renamed from with_hostname()
+
+2005-01-11  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (array_atype): declare
 
 2005-01-11  Sam Steingold  <sds@gnu.org>
