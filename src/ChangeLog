@@ -1,5 +1,13 @@
 2004-09-08  Sam Steingold  <sds@gnu.org>
 
+	* foreign.d (open_library): since name may be modified by
+	check_string(), it must be passed by reference
+	(update_library, FOREIGN-LIBRARY): pass name to open_library()
+	by reference
+	Reported by Jörg Höhle
+
+2004-09-08  Sam Steingold  <sds@gnu.org>
+
 	* modules/exporting.lisp: PROVIDE "exporting"
 	* modules/bindings/glibc/linux.lisp, modules/bindings/win32/win32.lisp:
 	* modules/matlab/matlab.lisp, modules/netica/netica.lisp:
