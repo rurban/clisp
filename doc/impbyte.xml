@@ -300,8 +300,11 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 
 <para>This method does not work when you need to use some functionality
  not available in &clisp;, e.g., you want to call a &c-lang; function.
- &clisp; comes with an &ffi-pac; which allows you to access &c-lang;
- libraries in an easy way.</para>
+ You are urged to use <link linkend="modules">External Modules</link>
+ instead of adding built-in function.
+ Note that &clisp; comes with an &ffi-pac; which allows you to access
+ &c-lang; libraries in an easy way (including creating
+ &foreign-function;s dynamically).</para>
 
 <section id="add-fun"><title>Adding a built-in function.</title>
 
