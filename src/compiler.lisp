@@ -6361,6 +6361,8 @@ for-value   NIL or T
 
 ;; return two values: the list of numeric constants
 ;; and the list of other forms
+;; This optimization makes compiled code behave differently than interpreted
+;; code, but is allowed by CLHS section 12.1.1.1.
 (defun c-collect-numeric-constants (forms)
   (let ((consts nil) (others nil))
     (dolist (form forms)
@@ -10542,7 +10544,8 @@ The function make-closure is required.
     (let ((const-string-list
             (mapcar #'(lambda (x) (sys::write-to-short-string x 35))
                     const-list))
-          special-vars-read special-vars-write
+          (special-vars-read '())
+          (special-vars-write '())
           (lap-list (disassemble-LAP byte-list const-list)))
       (dolist (L lap-list)
         (when (consp (cdr L))
