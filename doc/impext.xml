@@ -1495,7 +1495,7 @@ returns two lists <literal role="sexp">(1 3 5 7 9)</literal> and
 
 <para>You might want to add a <literal role="sexp">(&load;
  "macros3")</literal> statement to your <ulink
- url="clisp.html#Option -norc"><filename>.clisprc</filename></ulink>
+ url="clisp.html#opt-norc"><filename>.clisprc</filename></ulink>
  file if you do not want to dump your own image.</para>
 
 </section>
@@ -3691,8 +3691,8 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
  <keycombo><keycap>Ctrl</keycap><keysym>C</keysym></keycombo> interrupts
  will terminate the execution of the Lisp script with an error status.
  If you wish the script's contents to be compiled during loading, add
-   <ulink url="clisp.html#Option -C"><option>-C</option></ulink> to the
- <replaceable>interpreter-args</replaceable>.</para>
+   <ulink url="clisp.html#opt-load-comp"><option>-C</option></ulink>
+ to the <replaceable>interpreter-args</replaceable>.</para>
 
 <para>Another, quite inferior, alternative is to put the following into
  a file:</para>
