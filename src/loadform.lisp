@@ -27,13 +27,13 @@
                             slot-names))
             (initialize-instance ,object))))
 
-#|;; <http://www.lisp.org/HyperSpec/Body/stagenfun_make-load-form.html>
-;; "The methods specialized on standard-object, structure-object, and
-;;  condition all signal an error of type error."
- (defgeneric make-load-form (object &optional environment)
-  (:method ((object standard-object) &optional environment)
-    (make-load-form-saving-slots object :environment environment)))
-|#
+(defgeneric make-load-form (object &optional environment)
+  ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_make-load-form.html>
+  ;; "The methods specialized on standard-object, structure-object, and
+  ;;  condition all signal an error of type error."
+  ;;(:method ((object standard-object) &optional environment)
+  ;;  (make-load-form-saving-slots object :environment environment))
+  )
 
 (defun mlf-init-function (object)
   (multiple-value-bind (cre-form ini-form) (make-load-form object)
