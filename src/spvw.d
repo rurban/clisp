@@ -1688,8 +1688,10 @@ global int main (argc_t argc, char* argv[]) {
   __setfpucw(_FPU_IEEE);
  #endif
  #ifdef UNIX
+  begin_system_call();
   user_uid = getuid();
   find_executable(argv[0]);
+  end_system_call();
  #endif
   var uintL argv_memneed = 0;
  #ifndef NO_SP_MALLOC
@@ -2072,6 +2074,7 @@ global int main (argc_t argc, char* argv[]) {
     }
   }
   # fetch memory:
+  begin_system_call();
  #if (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || defined(MULTITHREAD)) && (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))
   mmap_init_pagesize();
  #endif
@@ -2090,6 +2093,7 @@ global int main (argc_t argc, char* argv[]) {
   init_multithread();
   create_thread((void*)roughly_SP());
  #endif
+  end_system_call();
  #ifdef MAP_MEMORY_TABLES
   { # calculate total_subr_anz:
     var uintC total = 0;
