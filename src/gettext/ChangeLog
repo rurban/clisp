@@ -1,3 +1,8 @@
+1999-07-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * po/Makefile.in (distclean): Don't remove *.gmo.
+          (maintainer-clean): Remove *.gmo here.
+
 1999-06-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * intl/libgettext.h: Prepare a __GNUC_MINOR__ conditional for GCC

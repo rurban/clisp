@@ -175,11 +175,12 @@ mostlyclean:
 clean: mostlyclean
 
 distclean: clean
-	rm -f Makefile POTFILES cat-id-tbl.c *.gmo *.mo *.msg *.cat *.cat.m
+	rm -f Makefile POTFILES cat-id-tbl.c *.mo *.msg *.cat *.cat.m
 
 maintainer-clean: distclean
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
+	rm -f *.gmo
 
 
 force:
