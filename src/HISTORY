@@ -1,5 +1,7 @@
 Version  Date            New features
 
+2.27     2001-07-17      install.bat; setfable GETENV
+
 2.26     2001-05-23      dropped CLtL1, #+LISP=CL
                          DEFINE-COMPILER-MACRO, UPGRADED-COMPLEX-PART-TYPE
                          RUN-SHELL-COMMAND, RUN-PROGRAM :WAIT
