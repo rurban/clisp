@@ -270,6 +270,8 @@ LISPFUNN(structure_type_p,2)
 # (SYS::%MAKE-CLOSURE name codevec consts) liefert eine Closure mit gegebenem
 #   Namen (einem Symbol), gegebenem Code-Vektor (einem Simple-Bit-Vector) und
 #   gegebenen weiteren Konstanten.
+# (SYS::%COPY-GENERIC-FUNCTION venv closure) copies the closure, which must be
+#   a generic function with venv slot, copying in the given venv.
 # (SYS::GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION generic-function)
 #   liefert eine Funktion, die die effektiven Methoden liefert, d.h. so dass
 #   (APPLY generic-function arguments)
@@ -405,6 +407,45 @@ LISPFUNN(make_closure,3)
         { *ptr++ = Car(constsr); constsr = Cdr(constsr); }
      }
      value1 = closure; mv_count=1; skipSTACK(2);
+  }}}
+
+LISPFUNN(copy_generic_function,2)
+# (SYS::%COPY-GENERIC-FUNCTION venv closure) copies the closure, which must be
+#   a generic function with venv slot, copying in the given venv.
+  { # Note: closure's clos_consts[0] is a simple-vector #(NIL c1 ... cn) where
+    # c1,...,cn are constant objects, and NIL is the placeholder to be replaced
+    # with the passed venv.
+    var object oldclos = STACK_0;
+    if (!genericfunctionp(oldclos))
+      { pushSTACK(oldclos); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(S(standard_generic_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(oldclos);
+        pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+        fehler(type_error,
+               GETTEXT("~: This is not a generic function: ~")
+              );
+      }
+   {var object vector = TheCclosure(oldclos)->clos_consts[0];
+    if (!(simple_vector_p(vector)
+          && (Svector_length(vector) > 0)
+          && nullp(TheSvector(vector)->data[0])))
+      { pushSTACK(oldclos);
+        pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+        fehler(error,
+               GETTEXT("~: This is not a prototype of a generic function: ~")
+              );
+      }
+    vector = copy_svector(vector); # copy the vector
+    TheSvector(vector)->data[0] = STACK_1; # put in venv
+    STACK_1 = vector;
+    # Copy the function:
+    {var object newclos = allocate_cclosure_copy(STACK_0);
+     oldclos = STACK_0;
+     do_cclosure_copy(newclos,oldclos);
+     # Put in the copied vector with venv:
+     TheCclosure(newclos)->clos_consts[0] = STACK_1;
+     value1 = newclos; mv_count=1;
+     skipSTACK(2);
   }}}
 
 LISPFUNN(generic_function_effective_method_function,1)

@@ -33,7 +33,7 @@ LISPFUN(version,0,1,norest,nokey,0,NIL)
     if (eq(arg,unbound))
       { value1 = O(version); mv_count=1; }
       else
-      { if (equal(arg,O(version)))
+      { if (equal(arg,O(version)) || equal(arg,O(oldversion)))
           { value1 = NIL; mv_count=0; }
           else
           { fehler(error,

@@ -159,8 +159,9 @@
     _(make_random_state), _(fakultaet), _(exquo), _(long_float_digits),
     _(set_long_float_digits), _(log2), _(log10),
     # sonstige:
+    _(copy_generic_function),
     };
-  # Das waren 525-43 SUBRs.
+  # Das waren 525-43+1 SUBRs.
   # Nun FUNTABR :
   local const Subr FUNTABR[] = {
     # SPVW : 0 SUBRs
