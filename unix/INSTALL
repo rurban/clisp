@@ -90,11 +90,9 @@ some platforms can be found in file unix/PLATFORMS.
 
    to build CLISP.
    If you are an expert in building CLISP, you may alternatively do this
-   in seven steps:
+   in eight steps:
          make init                prepares all symbolic links and utilities
          make allc                makes all *.c files
-         make libreadline.a       makes the readline library (not needed
-                                  if --with-noreadline was specified)
          make lisp.run            makes the executable
          make interpreted.mem     a memory image with everything uncompiled
          make halfcompiled.mem    a memory image with compiler.fas and
@@ -104,8 +102,6 @@ some platforms can be found in file unix/PLATFORMS.
          make manual              makes the documentation
          make modular             makes the base module set (only needed
                                   if --with-dynamic-ffi was specified)
-   The sixth step is the most time consuming: it takes an hour on a Sun4 and
-   may take several hours on a slower machine.
 
    If something goes wrong, check and optionally modify the contents of
    the file unixconf.h and retry this step. Yes, there are many warnings,
