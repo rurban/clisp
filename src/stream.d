@@ -666,7 +666,7 @@ global void write_char (const object* stream_, object ch) {
       # Wie wirken sich die Steuerzeichen in der Position aus?
       if (chareq(c,ascii(NL))) { # Newline -> Line Position := 0
         TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      } elif (chareq(c,ascii(BS))) {
+      } else if (chareq(c,ascii(BS))) {
         # Backspace -> Line Position, wenn möglich, decrementieren:
         if (!eq(TheStream(stream)->strm_wr_ch_lpos,Fixnum_0))
           TheStream(stream)->strm_wr_ch_lpos =
@@ -3631,12 +3631,12 @@ global uintL iconv_mblen(encoding,src,srcend)
           if (res == (size_t)(-1) && errno != E2BIG) {
             if (errno == EINVAL) # incomplete input?
               break;
-            elif (errno == EILSEQ) {
+            else if (errno == EILSEQ) {
               ASSERT(insize > 0);
               var object action = TheEncoding(encoding)->enc_towcs_error;
               if (eq(action,S(Kignore))) {
                 inptr++; insize--;
-              } elif (eq(action,S(Kerror))) {
+              } else if (eq(action,S(Kerror))) {
                 iconv_close(cd); errno = EILSEQ; OS_error();
               } else {
                 outptr += sizeof(chart);
@@ -3685,12 +3685,12 @@ global void iconv_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
           if (res == (size_t)(-1)) {
             if (errno == EINVAL) { # incomplete input?
               inptr += insize; break;
-            } elif (errno == EILSEQ) {
+            } else if (errno == EILSEQ) {
               ASSERT(insize > 0);
               var object action = TheEncoding(encoding)->enc_towcs_error;
               if (eq(action,S(Kignore))) {
                 inptr++; insize--;
-              } elif (eq(action,S(Kerror))) {
+              } else if (eq(action,S(Kerror))) {
                 iconv_close(cd); errno = EILSEQ; OS_error();
               } else {
                 if (outsize < sizeof(chart))
@@ -3719,14 +3719,14 @@ global void iconv_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
         if (res == (size_t)(-1)) {
           if (errno == EINVAL) # incomplete input?
             break;
-          elif (errno == E2BIG) # output buffer full?
+          else if (errno == E2BIG) # output buffer full?
             break;
-          elif (errno == EILSEQ) {
+          else if (errno == EILSEQ) {
             ASSERT(insize > 0);
             var object action = TheEncoding(encoding)->enc_towcs_error;
             if (eq(action,S(Kignore))) {
               inptr++; insize--;
-            } elif (eq(action,S(Kerror))) {
+            } else if (eq(action,S(Kerror))) {
               if (inptr > (const char*)*srcp)
                 break;
               OS_error();
@@ -3777,10 +3777,10 @@ global uintL iconv_wcslen(encoding,src,srcend)
               var object action = TheEncoding(encoding)->enc_tombs_error;
               if (eq(action,S(Kignore))) {
                 inptr += sizeof(chart); insize -= sizeof(chart);
-              } elif (uint8_p(action)) {
+              } else if (uint8_p(action)) {
                 outptr++; outsize--;
                 inptr += sizeof(chart); insize -= sizeof(chart);
-              } elif (!eq(action,S(Kerror))) {
+              } else if (!eq(action,S(Kerror))) {
                 var chart c = char_code(action);
                 var const char* inptr1 = (const char*)&c;
                 var size_t insize1 = sizeof(c);
@@ -3798,7 +3798,7 @@ global uintL iconv_wcslen(encoding,src,srcend)
                 end_system_call();
                 fehler_unencodable(encoding,*(const chart*)inptr);
               }
-            } elif (errno == EINVAL) { # incomplete input?
+            } else if (errno == EINVAL) { # incomplete input?
               NOTREACHED;
             } else {
               var int saved_errno = errno;
@@ -3862,10 +3862,10 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
               var object action = TheEncoding(encoding)->enc_tombs_error;
               if (eq(action,S(Kignore))) {
                 inptr += sizeof(chart); insize -= sizeof(chart);
-              } elif (uint8_p(action)) {
+              } else if (uint8_p(action)) {
                 *outptr++ = I_to_uint8(action); outsize--;
                 inptr += sizeof(chart); insize -= sizeof(chart);
-              } elif (!eq(action,S(Kerror))) {
+              } else if (!eq(action,S(Kerror))) {
                 var chart c = char_code(action);
                 var const char* inptr1 = (const char*)&c;
                 var size_t insize1 = sizeof(c);
@@ -3883,9 +3883,9 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
                 end_system_call();
                 fehler_unencodable(encoding,*(const chart*)inptr);
               }
-            } elif (errno == EINVAL) { # incomplete input?
+            } else if (errno == EINVAL) { # incomplete input?
               NOTREACHED;
-            } elif (errno == E2BIG) { # output buffer too small?
+            } else if (errno == E2BIG) { # output buffer too small?
               NOTREACHED;
             } else {
               var int saved_errno = errno;
@@ -3925,12 +3925,12 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
             var object action = TheEncoding(encoding)->enc_tombs_error;
             if (eq(action,S(Kignore))) {
               inptr += sizeof(chart); insize -= sizeof(chart);
-            } elif (uint8_p(action)) {
+            } else if (uint8_p(action)) {
               if (outsize == 0)
                 break;
               *outptr++ = I_to_uint8(action); outsize--;
               inptr += sizeof(chart); insize -= sizeof(chart);
-            } elif (!eq(action,S(Kerror))) {
+            } else if (!eq(action,S(Kerror))) {
               var chart c = char_code(action);
               var const char* inptr1 = (const char*)&c;
               var size_t insize1 = sizeof(c);
@@ -3939,7 +3939,7 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
               } else {
                 if (errno == E2BIG)
                   break;
-                elif (errno != EILSEQ) {
+                else if (errno != EILSEQ) {
                   OS_error();
                 } else {
                   if (inptr > (char*)*srcp)
@@ -3954,9 +3954,9 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
               end_system_call();
               fehler_unencodable(encoding,*(const chart*)inptr);
             }
-          } elif (errno == EINVAL) { # incomplete input?
+          } else if (errno == EINVAL) { # incomplete input?
             NOTREACHED;
-          } elif (errno == E2BIG) { # output buffer full?
+          } else if (errno == E2BIG) { # output buffer full?
             break;
           } else {
             OS_error();
@@ -4008,9 +4008,9 @@ global object iconv_range(encoding,start,end)
                   check_STACK(); count++;
                 }
                 have_i1_i2 = false;
-              } elif (errno == EINVAL) { # incomplete input?
+              } else if (errno == EINVAL) { # incomplete input?
                 NOTREACHED;
-              } elif (errno == E2BIG) { # output buffer too small?
+              } else if (errno == E2BIG) { # output buffer too small?
                 NOTREACHED;
               } else {
                 var int saved_errno = errno;
@@ -4888,7 +4888,7 @@ local signean low_listen_unbuffered_handle (object stream) {
             }
           }
           end_system_call(); return ls_wait;
-        } elif (!(GetLastError()==ERROR_INVALID_HANDLE)) {
+        } else if (!(GetLastError()==ERROR_INVALID_HANDLE)) {
           OS_error();
         }
       }
@@ -6002,7 +6002,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         if (ergebnis<0) # Fehler aufgetreten?                        \
           { end_system_call(); OS_filestream_error(stream); }        \
         if (mode==SEEK_SET) { unused (ergebnis_zuweisung _offset); } \
-        elif (mode==SEEK_CUR) { unused (ergebnis_zuweisung ergebnis+_offset); } \
+        else if (mode==SEEK_CUR) { unused (ergebnis_zuweisung ergebnis+_offset); } \
         else /* mode==SEEK_END */                                    \
           { ergebnis = Seek(TheHandle(handle),0,SEEK_CUR);           \
             if (ergebnis<0) # Fehler aufgetreten?                    \
@@ -7743,7 +7743,7 @@ global object make_file_stream (direction_t direction, bool append_flag,
         position_file_buffered(stream,0); # an Position 0 positionieren
         var uintC count; # und eofposition = 0 herausschreiben
         dotimespC(count,sizeof(uintL), { buffered_writebyte(stream,0); } );
-      } elif (eofposition > (uintL)(bitm(oint_data_len)-1)) {
+      } else if (eofposition > (uintL)(bitm(oint_data_len)-1)) {
        bad_eofposition:
         # Keine gültige EOF-Position.
         # File schließen und Error melden:
@@ -8368,7 +8368,7 @@ local object make_key_event (const key_event* event) {
         var object c;
         if (ch==0) {
           c = make_key_event(&scancode_table[(uintB)_read_kbd(false,true,false)]);
-        } elif ((ch <= 26) && !(ch == BS) && !(ch == CR) && !(ch == TAB)) {
+        } else if ((ch <= 26) && !(ch == BS) && !(ch == CR) && !(ch == TAB)) {
           # Ctrl-A bis Ctrl-Z -> Buchstabe mit CONTROL-Bit draus machen:
           var key_event event;
           event.key = NULL;
@@ -8499,7 +8499,7 @@ local object make_key_event (const key_event* event) {
         var int ch = _read_kbd(false,true,false);
         if (ch==0) {
           c = make_key_event(&scancode_table[(uintB)_read_kbd(false,true,false)]);
-        } elif ((ch <= 26) && !(ch == BS) && !(ch == CR) && !(ch == TAB)) {
+        } else if ((ch <= 26) && !(ch == BS) && !(ch == CR) && !(ch == TAB)) {
           # Ctrl-A bis Ctrl-Z -> Buchstabe mit CONTROL-Bit draus machen:
           var key_event event;
           event.key = NULL;
@@ -8545,8 +8545,8 @@ local object make_key_event (const key_event* event) {
                 event.code = as_chart(code);
                 event.bits = char_hyper_c;
                 c = make_key_event(&event);
-              } elif ((scancode == 14) || (scancode == 28)
-                      || ((scancode == 0xE0) && (code < 32))) {
+              } else if ((scancode == 14) || (scancode == 28)
+                         || ((scancode == 0xE0) && (code < 32))) {
                 # Backspace-Taste, Return-Taste, Enter-Taste
                 var uintB defaultcode = (scancode==14 ? BS : CR);
                 var key_event event;
@@ -10108,24 +10108,21 @@ local char * strip_white (char *string) {
           TheIarray(TheStream(*stream_)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
         }
         if (pos > 0) {
-          SstringDispatch(string,
-            {
-              # ptr points into the string, not GC-safe.
-              var uintL index = start + len - pos;
-              dotimespL(count,pos, {
-                ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
-                                     TheSstring(*chararray_)->data[index]);
-                index++;
-              });
-            },
-            {
-              # ptr points into the stack, not the string, so it's GC-safe.
-              dotimespL(count,pos, {
-                ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
-                                     *ptr++);
-              });
-            }
-            );
+          SstringDispatch(string, {
+            # ptr points into the string, not GC-safe.
+            var uintL index = start + len - pos;
+            dotimespL(count,pos, {
+              ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
+                                   TheSstring(*chararray_)->data[index]);
+              index++;
+            });
+          },{
+            # ptr points into the stack, not the string, so it's GC-safe.
+            dotimespL(count,pos, {
+              ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
+                                   *ptr++);
+            });
+          });
         }
       }
       #endif
@@ -11904,7 +11901,7 @@ local void set_insert_mode (bool flag) {
         } else {
           mx = MX_RI; xycost += cost2;
         }
-      } elif (dx < 0) {
+      } else if (dx < 0) {
         mx = MX_LE; xycost += (-dx) * BCcost;
       }
       if (!(dx==0)) {
@@ -11915,7 +11912,7 @@ local void set_insert_mode (bool flag) {
       }
       if (dy > 0) {
         my = MY_DO; xycost += dy * DOcost;
-      } elif (dy < 0) {
+      } else if (dy < 0) {
         my = MY_UP; xycost += (-dy) * UPcost;
       }
       if (xycost >= CMcost) {
@@ -12296,7 +12293,7 @@ local void set_insert_mode (bool flag) {
     {
       if (curr->y == curr->bot)
         scroll_up();
-      elif (curr->y < rows-1)
+      else if (curr->y < rows-1)
         curr->y++;
       out_capstring(NLcap);
     }
@@ -12311,14 +12308,14 @@ local void set_insert_mode (bool flag) {
         scroll_down();
         if (SRcap) {
           out_capstring(SRcap);
-        } elif (ALcap) {
+        } else if (ALcap) {
           gofromto(curr->top,curr->x,curr->top,0); # Cursor nach links
           out_capstring(ALcap);
           gofromto(curr->top,0,curr->top,curr->x); # Cursor wieder zurück
         } else {
           redisplay();
         }
-      } elif (curr->y > 0) {
+      } else if (curr->y > 0) {
         cursor_up(1);
       }
     }
@@ -12622,7 +12619,7 @@ local void set_insert_mode (bool flag) {
           set_insert_mode(true);
         #endif
         gofromto(y,x+n,y,x);
-      } elif (ICcap || IMcap) {
+      } else if (ICcap || IMcap) {
         #if WANT_INSERT
         if (!curr->insert)
         #endif
@@ -12668,7 +12665,7 @@ local void set_insert_mode (bool flag) {
           dotimespC(count,n, { out_capstring(ALcap); } );
         }
         gofromto(curr->y,0,curr->y,curr->x);
-      } elif (CScap && SRcap) {
+      } else if (CScap && SRcap) {
         out_capstring(tgoto(CScap,curr->bot,curr->top));
         gofromto(-1,-1,curr->top,0);
         {
@@ -12722,7 +12719,7 @@ local void set_insert_mode (bool flag) {
       #endif
       if (CDCcap && ((n>1) || !DCcap)) {
         out_cap1string(CDCcap,n);
-      } elif (DCcap) {
+      } else if (DCcap) {
         var uintC count;
         dotimespC(count,n, { out_capstring(DCcap); } );
       } else {
@@ -12757,7 +12754,7 @@ local void set_insert_mode (bool flag) {
           dotimespC(count,n, { out_capstring(DLcap); } );
         }
         gofromto(curr->y,0,curr->y,curr->x);
-      } elif (CScap) {
+      } else if (CScap) {
         out_capstring(tgoto(CScap,curr->bot,curr->top));
         gofromto(-1,-1,curr->bot,0);
         {
@@ -13244,9 +13241,9 @@ local void set_insert_mode (bool flag) {
           cursor_return(); cursor_linefeed(); # Wrap!
         }
         output_1char(c);
-      } elif (c == NL) {
+      } else if (c == NL) {
         cursor_return(); cursor_linefeed();
-      } elif (c == BS) {
+      } else if (c == BS) {
         var int x0 = curr->x;
         if (x0>0) {
           var int y0 = curr->y;
@@ -13507,7 +13504,7 @@ LISPFUNN(window_cursor_off,1)
       begin_system_call();
       if (graphic_char_p(as_chart(c))) { # nur druckbare Zeichen auf den Bildschirm lassen
         addch(c);
-      } elif (c == NL) { # NL in CR/LF umwandeln
+      } else if (c == NL) { # NL in CR/LF umwandeln
         addch(CR); addch(LF);
       } else { # etwas ausgeben, damit die Cursorposition stimmt
         addch('?');
@@ -15431,7 +15428,7 @@ LISPFUN(socket_connect,1,1,norest,key,3,\
 
     if (eq(STACK_3,unbound) || eq(STACK_3,NIL))
       hostname = "localhost";
-    elif (stringp(STACK_3))
+    else if (stringp(STACK_3))
       hostname = TheAsciz(string_to_asciz(STACK_3,O(misc_encoding)));
     else
       fehler_string(STACK_3);
@@ -16066,7 +16063,7 @@ LISPFUNN(built_in_stream_element_type,1)
             if (nullp(itype)) {
               eltype = otype;
               skipSTACK(2);
-            } elif (nullp(otype) || eq(itype,otype)) {
+            } else if (nullp(otype) || eq(itype,otype)) {
               eltype = itype;
               skipSTACK(2);
             } else {
@@ -17040,7 +17037,7 @@ global signean listen_byte (object stream) {
     pushSTACK(stream); funcall(S(stream_read_byte_lookahead),1);
     if (nullp(value1))
       return ls_wait;
-    elif (eq(value1,S(Keof)))
+    else if (eq(value1,S(Keof)))
       return ls_eof;
     else
       return ls_avail;
@@ -17390,7 +17387,7 @@ LISPFUNN(read_byte_lookahead,1)
     var signean status = listen_byte(stream);
     if (ls_wait_p(status))
       value1 = NIL;
-    elif (ls_eof_p(status))
+    else if (ls_eof_p(status))
       value1 = S(Keof);
     else # ls_avail_p(status)
       value1 = T;
@@ -17805,10 +17802,10 @@ LISPFUN(file_position,1,1,norest,nokey,0,NIL)
         if (eq(position,S(Kstart))) {
           # :START -> an den Anfang positionieren:
           logical_position_file_start(stream);
-        } elif (eq(position,S(Kend))) {
+        } else if (eq(position,S(Kend))) {
           # :END -> ans Ende positionieren:
           logical_position_file_end(stream);
-        } elif (uint32_p(position)) {
+        } else if (uint32_p(position)) {
           # an die angegebene Position positionieren:
           logical_position_file(stream,I_to_UL(position));
         } else {
@@ -17862,7 +17859,7 @@ LISPFUNN(file_string_length,2)
       # we have no way to know for sure how many bytes the string will span.
       if (stringp(obj)) {
         value1 = (vector_length(obj) == 0 ? Fixnum_0 : NIL); mv_count=1;
-      } elif (charp(obj)) {
+      } else if (charp(obj)) {
         value1 = NIL; mv_count=1;
       } else {
         fehler_wr_char(stream,obj);
@@ -17880,7 +17877,7 @@ LISPFUNN(file_string_length,2)
         var uintL offset;
         var object string = unpack_string_ro(obj,&len,&offset);
         unpack_sstring_alloca(string,len,offset, charptr=);
-      } elif (charp(obj)) {
+      } else if (charp(obj)) {
         auxch = char_code(obj); charptr = &auxch; len = 1;
       } else {
         fehler_wr_char(stream,obj);
@@ -17896,7 +17893,7 @@ LISPFUNN(file_string_length,2)
         if (eq(TheEncoding(encoding)->enc_eol,S(Kmac))) {
           static const chart eol_mac[1] = { ascii(CR) };
           eol_charptr = &eol_mac[0]; eol_len = 1;
-        } elif (eq(TheEncoding(encoding)->enc_eol,S(Kdos))) {
+        } else if (eq(TheEncoding(encoding)->enc_eol,S(Kdos))) {
           static const chart eol_dos[2] = { ascii(CR), ascii(LF) };
           eol_charptr = &eol_dos[0]; eol_len = 2;
         } else {
@@ -17938,7 +17935,7 @@ LISPFUNN(file_string_length,2)
       if (stringp(obj)) {
         var uintL result = vector_length(obj);
         value1 = UL_to_I(result*bytes_per_char); mv_count=1; return;
-      } elif (charp(obj)) {
+      } else if (charp(obj)) {
         value1 = fixnum(bytes_per_char); mv_count=1; return;
       } else {
         fehler_wr_char(stream,obj);
@@ -17952,27 +17949,24 @@ LISPFUNN(file_string_length,2)
         var object string = unpack_string_ro(obj,&len,&offset);
         var uintL result = len;
         if (len > 0) {
-          SstringDispatch(string,
-            {
-              var const chart* charptr = &TheSstring(string)->data[offset];
-              var uintL count;
-              dotimespL(count,len, {
-                if (chareq(*charptr++,ascii(NL)))
-                  result++;
-              });
-            },
-            {
-              var const scint* charptr = &TheSmallSstring(string)->data[offset];
-              var uintL count;
-              dotimespL(count,len, {
-                if (chareq(as_chart(*charptr++),ascii(NL)))
-                  result++;
-              });
-            }
-            );
+          SstringDispatch(string,{
+            var const chart* charptr = &TheSstring(string)->data[offset];
+            var uintL count;
+            dotimespL(count,len, {
+              if (chareq(*charptr++,ascii(NL)))
+                result++;
+            });
+          },{
+            var const scint* charptr = &TheSmallSstring(string)->data[offset];
+            var uintL count;
+            dotimespL(count,len, {
+              if (chareq(as_chart(*charptr++),ascii(NL)))
+                result++;
+            });
+          });
         }
         value1 = UL_to_I(result*bytes_per_char); mv_count=1; return;
-      } elif (charp(obj)) {
+      } else if (charp(obj)) {
         var uintL result = 1;
         if (chareq(char_code(obj),ascii(NL)))
           result++;
@@ -18134,24 +18128,22 @@ global object stream_fd (object stream) {
   #endif
 
 # Tabelle aller Pseudofunktionen
-  #define PSEUDO  PSEUDO_C
+#define PSEUDO  PSEUDO_C
+#include "pseudofun.c"
+#undef PSEUDO
+global struct pseudocode_tab_ pseudocode_tab = {
+  #define PSEUDO  PSEUDO_D
   #include "pseudofun.c"
   #undef PSEUDO
-  global struct pseudocode_tab_ pseudocode_tab =
-    {
-      #define PSEUDO  PSEUDO_D
-      #include "pseudofun.c"
-      #undef PSEUDO
-    };
-  global struct pseudodata_tab_ pseudodata_tab =
-    {
-      #define PSEUDO  PSEUDO_E
-      #include "pseudofun.c"
-      #undef PSEUDO
-      #if defined(MICROSOFT) && !defined(UNICODE)
-      (Pseudofun) NULL
-      #endif
-    };
+};
+global struct pseudodata_tab_ pseudodata_tab = {
+  #define PSEUDO  PSEUDO_E
+  #include "pseudofun.c"
+  #undef PSEUDO
+  #if defined(MICROSOFT) && !defined(UNICODE)
+   (Pseudofun) NULL
+  #endif
+};
 
 # =============================================================================
 
