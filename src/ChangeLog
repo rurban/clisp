@@ -1,5 +1,11 @@
 2004-10-11  Bruno Haible  <bruno@clisp.org>
 
+	* clos-genfun4.lisp (generic-function-lambda-list,
+	generic-function-argument-precedence-order): Signal an error if the
+	lambda-list is not yet initialized.
+
+2004-10-11  Bruno Haible  <bruno@clisp.org>
+
 	* describe.lisp (describe-object@generic-function, arglist): For
 	generic functions, use the lambda-list stored in it, instead of a list
 	with artificially constructed variable names.
