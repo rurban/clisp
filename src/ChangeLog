@@ -1,7 +1,10 @@
 2002-12-16  Sam Steingold  <sds@gnu.org>
 
 	* predtype.d (COERCE): accept CLOS class object as a type-spec
-	when cannot coerse, signal a TYPE-ERROR
+	when cannot coerce, signal a TYPE-ERROR
+	when coercing FLOAT to COMPLEX, return (complex x (float 0 x))
+	* compelem.d (F_complex_C): new function
+	* lispbibl.d (F_complex_C): declare it
 
 2002-12-16  Sam Steingold  <sds@gnu.org>
 

@@ -12696,6 +12696,9 @@ extern object c_double_to_DF (const dfloatjanus* val_);
 # converts a double-float obj into an IEEE-double-float val.
 extern void DF_to_c_double (object obj, dfloatjanus* val_);
 
+/* (complex x (float 0 x)) */
+extern object F_complex_C (object x);
+
 # UP: turns a string with Integer syntax into an Integer number
 # Points will be ignored
 # read_integer(base,sign,string,index1,index2)
