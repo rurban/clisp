@@ -1028,6 +1028,19 @@ is the same as
  <replaceable>FROM-PACK</replaceable>; and signals an error otherwise.
 </para></section>
 
+<section id="pack-lock"><title>Function &package-lock;</title>
+
+<para>Packages can be <quote>locked</quote>.
+When a package is locked, attempts to change its symbol table or
+redefine functions which its symbols name result in a continuable error
+(continuing overrides locking for this operation).
+Function <literal role="sexp" >(&package-lock;
+ <replaceable>package</replaceable>)</literal> returns the
+generalized boolean indicating whether the package is locked.
+A package can be locked using <literal role="sexp" >(&setf; (&package-lock;
+ <replaceable>package</replaceable>) &t;)</literal>.
+&clisp; locks its system packages.</para></section>
+
 </section>
 </section>
 </chapter>
