@@ -1170,6 +1170,7 @@ LISPFUNN(deref,1)
 LISPFUNN(slot,2)
 LISPFUNN(cast,2)
 LISPFUNN(offset,3)
+LISPFUN(exec_on_stack,2,1,norest,nokey,0,NIL)
 LISPFUNN(lookup_foreign_function,2)
 LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
 #ifdef AMIGAOS

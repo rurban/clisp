@@ -279,8 +279,9 @@
 <!ENTITY allocation "<link linkend='allocation'><replaceable>ALLOCATION</replaceable></link>">
 <!ENTITY param-mode "<link linkend='param-mode'><replaceable>PARAM-MODE</replaceable></link>">
 <!ENTITY foreign-pointer "<classname>FFI:FOREIGN-POINTER</classname>">
-<!ENTITY foreign-address-null "<link
-linkend='fa-null'><function>FFI:FOREIGN-ADDRESS-NULL</function></link>">
+<!ENTITY foreign-address-null "<link linkend='fa-null'><function>FFI:FOREIGN-ADDRESS-NULL</function></link>">
+<!ENTITY with-foreign-object "<link linkend='foreign-stack'><function>FFI:WITH-FOREIGN-OBJECT</function></link>">
+<!ENTITY with-c-var "<link linkend='foreign-stack'><function>FFI:WITH-C-VAR</function></link>">
 <!ENTITY f-ent "<replaceable>foreign-entity</replaceable>">
 <!ENTITY linkset "<link linkend='modules'>linking set</link>">
 

@@ -2478,6 +2478,66 @@ LISPFUNN(offset,3) {
   skipSTACK(3+1);
 }
 
+# Stack-allocated objects
+
+# (FFI::EXEC-ON-STACK thunk fvd [initarg]) allocates foreign objects
+# on the C stack and executes (funcall thunk (foreign-variable-on-stack)).
+# Calling with initarg is radically different than without one.
+# With an initarg, CLISP allocates an arbitrarily complex structure on the
+# stack. Without one, all it does is like a single calloc(1,sizeof(fvd))!
+LISPFUN(exec_on_stack,2,1,norest,nokey,0,NIL) {
+  if (!functionp(STACK_2)) { fehler_function(STACK_2); }
+  var bool init = !eq(STACK_0,unbound); # Passing NIL is also an initialization
+  var object fvd = STACK_1;
+  foreign_layout(fvd);
+  # Room for top-level structure:
+  var uintL result_size = data_size;
+  var uintL result_alignment = data_alignment;
+  var uintL cumul_size = result_size;
+  var uintL cumul_alignment = result_alignment;
+  cumul_size += (-cumul_size) & (cumul_alignment-1);
+  if (init) {
+    # Room for pointers in argument:
+    convert_to_foreign_needs(fvd,STACK_0);
+    # We assume all alignments are of the form 2^k.
+    cumul_size += (-cumul_size) & (data_alignment-1);
+    cumul_size += data_size;
+    # cumul_alignment = lcm(cumul_alignment,data_alignment);
+    if (data_alignment > cumul_alignment)
+      cumul_alignment = data_alignment;
+  }
+  var DYNAMIC_ARRAY(total_room,char,cumul_size+cumul_alignment/*-1*/);
+  var void* result_address = (void*)((uintP)(total_room+result_alignment-1)
+                                     & -(long)result_alignment);
+  if (init) {
+    allocaing_room_pointer = (void*)((uintP)result_address + result_size);
+    convert_to_foreign_allocaing(fvd,STACK_0,result_address);
+  } else {
+    blockzero(result_address,result_size);
+  }
+  STACK_0 = allocate_fpointer(result_address); # Release initarg early
+  pushSTACK(make_faddress(STACK_0,0));
+  { # Stack layout: thunk fvd fp fa.
+    var object fvar = allocate_fvariable();
+    # TODO better name (subr_self is lost at this point)
+    TheFvariable(fvar)->fv_name    = TheSymbol(S(foreign_variable))->pname;
+    TheFvariable(fvar)->fv_address = popSTACK();
+    var object fp_obj = popSTACK();
+    TheFvariable(fvar)->fv_size    = fixnum(result_size);
+    TheFvariable(fvar)->fv_type    = STACK_0;
+    record_flags_replace(TheFvariable(fvar), 0); # TODO needed?
+    { var object thunk = STACK_1;
+      STACK_1 = fp_obj;
+      STACK_0 = fvar;
+      funcall(thunk,1); # (funcall thunk fvar)
+    }
+    fp_obj = popSTACK();
+    # TODO how to create unwind-protect frame in C?
+    mark_fp_invalid(TheFpointer(fp_obj));
+  }
+  FREE_DYNAMIC_ARRAY(total_room);
+  # values, mv_count are set by funcall
+}
 
 # Error messages.
 nonreturning_function(local, fehler_foreign_function, (object obj)) {

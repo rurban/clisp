@@ -976,11 +976,11 @@ user-defined behavior:
   </simpara></listitem>
 </itemizedlist></para>
 
-<para>The <function>fundamental-stream</function> API is based on the
+<para>The <classname>fundamental-stream</classname> API is based on the
  &gray-streams; proposal by David N. Gray and is supported by most &cl;
  implementations currently in use.
  The <classname>gstream:generic-stream-controller</classname>
- API is &clisp; specific and is now obsolete.</para>
+ API is &clisp;-specific and is now obsolete.</para>
 
 <section id="gray"><title>Gray streams</title>
 
@@ -1407,17 +1407,17 @@ N. Gray to X3J13.</para>
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>gstream:generic-stream-clear-input</function>
-                 <replaceable>controller</replaceable>)</literal>
-  <literal role="sexp"
+                 <replaceable>controller</replaceable>)</literal></term>
+  <term><literal role="sexp"
    >(<function>gstream:generic-stream-clear-output</function>
-     <replaceable>controller</replaceable>)</literal>
-  <literal role="sexp"
+     <replaceable>controller</replaceable>)</literal></term>
+  <term><literal role="sexp"
    >(<function>gstream:generic-stream-finish-output</function>
-     <replaceable>controller</replaceable>)</literal>
-  <literal role="sexp"
+     <replaceable>controller</replaceable>)</literal></term>
+  <term><literal role="sexp"
    >(<function>gstream:generic-stream-force-output</function>
-     <replaceable>controller</replaceable>)</literal>
-  <literal role="sexp"
+     <replaceable>controller</replaceable>)</literal></term>
+  <term><literal role="sexp"
    >(<function>gstream:generic-stream-close</function>
      <replaceable>controller</replaceable>)</literal></term>
   <listitem><simpara>Take one argument, the controller object.
@@ -2246,6 +2246,33 @@ within Lisp (using &setq; or similar).</simpara>
   &f-ent; referes to the &c-NULL; address (and thus &f-ent; should
   probably not be passed to most foreign functions).
  </simpara></listitem></varlistentry>
+
+<varlistentry id="foreign-stack">
+  <term><literal role="sexp">(&with-foreign-object; (&var-r; &ctype-r;
+      [<replaceable>initarg</replaceable>]) &body-r;)</literal></term>
+  <term><literal role="sexp">(&with-c-var; (&var-r; &ctype-r;
+      [<replaceable>initarg</replaceable>]) &body-r;)</literal></term>
+<listitem><simpara>These forms allocate space on the &c-lang; execution
+  stack, bind respectively a <type>FFI:FOREIGN-VARIABLE</type> object or
+  a local &symbol-macro; to &var-r; and execute &body-r;.</simpara>
+  <simpara>When <replaceable>initarg</replaceable> is not supplied,
+  they allocate space only for <literal role="sexp">(&sizeof;
+  &ctype-r;)</literal> bytes.  This space is filled with zeroes.  E.g.,
+  using a &ctype-r; of &c-string; or even <literal role="sexp">(&c-ptr;
+  (&c-array; <type>uint8</type> 32))</literal> (!) both allocate place
+  for a single pointer, initialized to &c-NULL;.</simpara>
+  <para>When <replaceable>initarg</replaceable> is supplied, they
+  allocate space for an arbitrarily complex set of structures rooted in
+  &ctype-r;.  Therefore, &c-array-max;, <literal role="sexp">#()</literal>
+  and <literal role="sexp">""</literal> are your friends for creating a
+  pointer to the empty arrays:
+<programlisting>(with-c-var (v '(c-ptr (c-array-max uint8 32)) #())
+  (setf (element (deref v) 0) 127) v)</programlisting>
+  &ctype-r; is evaluated, making creation of variable sized buffers easy:
+<programlisting>(with-c-var (fv `(c-array uint8 ,(length my-vector)) my-vector)
+  (print fv))</programlisting>
+ </para></listitem></varlistentry>
+
 
 </variablelist>
 
@@ -3497,8 +3524,8 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
      </simpara></listitem></varlistentry>
   </variablelist></listitem></varlistentry>
  <varlistentry id="sost-hopo">
-   <term><literal role="sexp">(&sost-host; &sost-r;)</literal>,
-         <literal role="sexp">(&sost-port; &sost-r;)</literal></term>
+   <term><literal role="sexp">(&sost-host; &sost-r;)</literal></term>
+   <term><literal role="sexp">(&sost-port; &sost-r;)</literal></term>
   <listitem><simpara>These two functions return information about the
    &socket-stream;.  For a server, &sost-host; returns &nil;.
   </simpara></listitem></varlistentry>
@@ -3530,7 +3557,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    asks the OS (and thus returns the correct trusted values) while the
    other two are just accessors to the internal data structure, and
    basically return the arguments given to the function which created
-   the &socket-stream;.</simpara></listitem></varlistentry>
+   the &sost-r;.</simpara></listitem></varlistentry>
  <varlistentry id="sost-shut"><term><literal role="sexp">(&sost-shut;
     &sost-r; <replaceable>direction</replaceable>)</literal></term>
   <listitem><simpara>Some Internet protocols, such as HTTP, provide for
@@ -3616,20 +3643,27 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   <listitem><simpara>Return 3 structs describing the resources usage and
     limits, derived from &getrlimit; and &getrusage;.
   </simpara></listitem></varlistentry>
- <varlistentry><term>
-   <literal role="sexp">(<function>posix:erf</function> &real-r;)</literal>
-   <literal role="sexp">(<function>posix:erfc</function> &real-r;)</literal>
-   <literal role="sexp">(<function>posix:j0</function> &real-r;)</literal>
-   <literal role="sexp">(<function>posix:j1</function> &real-r;)</literal>
-   <literal role="sexp">(<function>posix:jn</function>
-                         &int-r; &real-r;)</literal>
-   <literal role="sexp">(<function>posix:y0</function> &real-r;)</literal>
-   <literal role="sexp">(<function>posix:y1</function> &real-r;)</literal>
-   <literal role="sexp">(<function>posix:yn</function>
-                         &int-r; &real-r;)</literal>
-   <literal role="sexp">(<function>posix:gamma</function> &real-r;)</literal>
-   <literal role="sexp">(<function>posix:lgamma</function>
-                         &real-r;)</literal></term>
+ <varlistentry>
+   <term><literal role="sexp">(<function>POSIX:ERF</function>
+       &real-r;)</literal></term>
+   <term><literal role="sexp">(<function>POSIX:ERFC</function>
+       &real-r;)</literal></term>
+   <term><literal role="sexp">(<function>POSIX:J0</function>
+       &real-r;)</literal></term>
+   <term><literal role="sexp">(<function>POSIX:J1</function>
+       &real-r;)</literal></term>
+   <term><literal role="sexp">(<function>POSIX:JN</function>
+       &int-r; &real-r;)</literal></term>
+   <term><literal role="sexp">(<function>POSIX:Y0</function>
+       &real-r;)</literal></term>
+   <term><literal role="sexp">(<function>POSIX:Y1</function>
+       &real-r;)</literal></term>
+   <term><literal role="sexp">(<function>POSIX:YN</function>
+       &int-r; &real-r;)</literal></term>
+   <term><literal role="sexp">(<function>POSIX:GAMMA</function>
+       &real-r;)</literal></term>
+   <term><literal role="sexp">(<function>POSIX:LGAMMA</function>
+       &real-r;)</literal></term>
  <listitem><simpara>Compute the error functions, Bessel functions and
    Gamma.  These functions are required by the POSIX standard and should
    be available in libm.so.  Please note that these functions do not
