@@ -463,15 +463,15 @@ DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
 DEFUN(BDB:DB-CREATE, dbe &key :XA)
 { /* create database */
   u_int32_t flags = missingp(STACK_0) ? 0 : DB_XA_CREATE;
-  DB_ENV *dbe = object_handle(STACK_1,`BDB::ENV`,false);
+  DB_ENV *dbe = object_handle(STACK_1,`BDB::ENV`,true);
   DB *db;
   SYSCALL(db_create,(&db,dbe,flags));
   skipSTACK(2);
   pushSTACK(allocate_fpointer(db));
-  funcall(`MKDB`,1);
+  funcall(`BDB::MKDB`,1);
 }
 
-DEFUN(BDB:DB-CLOSE, dbe &key :NOSYNC)
+DEFUN(BDB:DB-CLOSE, db &key :NOSYNC)
 { /* Close a database */
   u_int32_t flags = missingp(STACK_0) ? 0 : DB_NOSYNC;
   DB *db = object_handle(STACK_1,`BDB::DB`,false);
