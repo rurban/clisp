@@ -10230,7 +10230,7 @@ extern bool funnamep (object obj);
 # > obj: a Symbol or (SETF symbol)
 # < result: Block-name, a Symbol
 #define funname_blockname(obj)  \
-  (atomp(obj) ? (obj) : Car(Cdr(obj)))
+  (atomp(obj) ? (object)obj : (object)Car(Cdr(obj)))
 
 # UP: Determines, whether a Symbol is a Macro in the current Environment.
 # sym_macrop(symbol)

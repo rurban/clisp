@@ -4650,7 +4650,7 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
     var object array = STACK_6;
     pushSTACK(STACK_1); pushSTACK(STACK_1);
     /* :FILL-POINTER NIL means keep it as it was */
-    STACK_2 = !missingp(STACK_4) ? STACK_4 :
+    STACK_2 = !missingp(STACK_4) ? (object)STACK_4 :
       array_has_fill_pointer_p(array) ? fixnum(*get_fill_pointer(array)) : NIL;
     STACK_3 = STACK_5; STACK_4 = STACK_6; STACK_5 = STACK_7;
     STACK_6 = NIL; /* :ADJUSTABLE NIL */
