@@ -3,6 +3,9 @@
 ;;; The data here comes from the /usr/lib/zoneinfo/ directory of the Linux
 ;;; package util-linux-1.5 and was constrained to the range 1950..2020.
 
+;; see also
+;; <http://www.stopwatchmaps.com/services/products/data/world_tz_dst.htm>
+
 (in-package "SYSTEM")
 
 (defvar *default-time-zone*)
@@ -1192,11 +1195,7 @@
      (Mexico-General () (values 6 #'no-DST-p))
      (NZ () (values -10 #'NZ-DST-p)) ; New Zealand
      (Navajo () (US-Mountain))
-     (PRC () (values -8
-                     (error "Timezone for PRC not implemented -
-Don't forget that 10000 students were murdered by the government
-of the \"People's Republic of China\" in June 1989!"
-     )       )       )
+     (PRC () (values -8 #'no-DST-p))
      (Poland () (values -1 #'West-Europe-DST-p))
      (ROC () (values -8 #'no-DST-p)) ; "Republic of China" aka Taiwan
      (ROK () (values -9 #'ROK-DST-p)) ; "Republic of Korea"
