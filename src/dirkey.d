@@ -6,12 +6,19 @@
 
 #ifdef WIN32_NATIVE
 #include <winreg.h>
+#include <winldap.h>
+#define LDAP
 #endif
-#ifdef LDAP
+#if defined(LDAP) && !defined(WIN32_NATIVE)
 #include <ldap.h>
 #endif
 #ifdef GNOME
 #include <gnome.h>
+#endif
+
+# as per RFC1777 and RFC2255
+#ifndef LDAP_PORT
+#define LDAP_PORT 389
 #endif
 
 #ifdef WIN32_NATIVE
@@ -23,10 +30,11 @@
 #define DIR_KEY_OUTPUT 1
 #define DIR_KEY_IO     2
 #endif
-# :IF_DOES_NOT_EXISTS
+# :IF_DOES_NOT_EXIST
 #define IDNE_ERROR  0
 #define IDNE_NIL    1
 #define IDNE_CREATE 2
+#define IDNE_IGNORE 3 /* used only in `init_iteration_node' */
 # :SCOPE
 #define SCOPE_SELF  0
 #define SCOPE_KIDS  1
@@ -35,7 +43,7 @@
 #ifdef WIN32_NATIVE
 #define SYSCALL_WIN32(call)                                            \
   do {                                                                 \
-    uintL status;                                                      \
+    var uintL status;                                                  \
     begin_system_call();                                               \
     status = call;                                                     \
     if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); } \
@@ -44,14 +52,18 @@
 #endif
 
 #ifdef LDAP
+#ifdef WIN32_NATIVE
+#define SYSCALL_LDAP(call) SYSCALL_WIN32(call)
+#else
 #define SYSCALL_LDAP(call)                                             \
   do {                                                                 \
-    uintL status;                                                      \
+    var uintL status;                                                  \
     begin_system_call();                                               \
     status = call;                                                     \
     if (status != LDAP_SUCCESS) { SetLastError(status); OS_error(); }  \
     end_system_call();                                                 \
   } while(0)
+#endif
 #endif
 
 # check whether the OBJ is a DIR-KEY
@@ -196,7 +208,7 @@ LISPFUNN(dir_key_close,1)
       #endif
       #ifdef LDAP
       if (eq(TheDirKey(dkey)->type,S(Kldap))) {
-        SYSCALL_LDAP(ldap_unbind((LDAP*)TheDirKey(dkey)->handle));
+        SYSCALL_LDAP(ldap_unbind((struct ldap*)(TheDirKey(dkey)->handle)));
       } else
       #endif
       #ifdef GNOME
@@ -296,9 +308,10 @@ local void open_reg_key (HKEY hkey, char* path, REGSAM perms,
   begin_system_call();
   status = RegOpenKeyEx(hkey,path,0,perms,p_hkey);
   if (status != ERROR_SUCCESS) {
-    if ((status == ERROR_FILE_NOT_FOUND) && (if_not_exists != IDNE_ERROR)) {
+    if ((if_not_exists == IDNE_IGNORE) ||
+        (status == ERROR_FILE_NOT_FOUND) && (if_not_exists != IDNE_ERROR)) {
       switch (if_not_exists) {
-        case IDNE_NIL:
+        case IDNE_NIL: case IDNE_IGNORE:
           *p_hkey = NULL; break;
         case IDNE_CREATE:
           status = RegCreateKey(hkey,path,p_hkey);
@@ -395,12 +408,28 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
     }
   } else
   #endif
-  #ifdef OPEN_LDAP
+  #ifdef LDAP
   if (eq(type,S(Kldap))) {
-    ldap_init();
+    if (dir_key_p(root)) {
+      test_dir_key(root,true);
+      with_string_0(path,O(misc_encoding),pathz,{
+        char *host = NULL;
+        begin_system_call();
+        if (ldap_get_option(TheDirKey(root)->handle,LDAP_OPT_HOST_NAME,
+                            (void*)&host))
+          printf("no host!\n");
+        ret_handle = ldap_init((unsigned short*)host,LDAP_PORT);
+        # FIXME: chdir to pathz
+      });
+    } else {
+      with_string_0(path,O(misc_encoding),pathz,{
+        # FIXME: parse the URL `pathz'
+        ret_handle = ldap_init((unsigned short*)pathz,LDAP_PORT);
+      });
+    }
   } else
   #endif
-  #ifdef GNOME_CONF
+  #ifdef GNOME
   if (eq(root,S(Kgnome))) {
     # do nothing - gnome-conf is stateless
   } else
@@ -460,20 +489,20 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
   end_system_call();                                                       \
   if (n_obj > 0) {                                                         \
     var unsigned int ii;                                                   \
-    var char* buf = (char*)alloca(++maxlen); /* one extra byte for '\0' */ \
-    pushSTACK(NIL);                                                        \
+    var char* buf = (char*)alloca(maxlen+1); /* one extra char for '\0' */ \
+    maxlen++; pushSTACK(NIL);                                              \
     for (ii = 0; ii < n_obj; ii++) {                                       \
-      DWORD len = maxlen;                                                  \
-      DWORD status;                                                        \
-      object new_cons;                                                     \
+      var DWORD len = maxlen;                                              \
+      var DWORD status;                                                    \
       begin_system_call();                                                 \
       status = (GET_NEXT_OBJ_EXPR);                                        \
       if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }   \
       end_system_call();                                                   \
-      new_cons = allocate_cons();                                          \
-      Cdr(new_cons) = STACK_0;                                             \
-      STACK_0 = new_cons;                                                  \
-      Car(STACK_0) = asciz_to_string(buf,O(misc_encoding));                \
+      { var object new_cons = allocate_cons();                             \
+        Cdr(new_cons) = STACK_0;                                           \
+        STACK_0 = new_cons; }                                              \
+      { var object string = asciz_to_string(buf,O(misc_encoding));         \
+        Car(STACK_0) = string; }                                           \
     }                                                                      \
     value1 = nreverse(popSTACK());                                         \
   } else                                                                   \
@@ -558,10 +587,11 @@ local int parse_scope (object scope) {
   fehler(type_error,
          GETTEXT("~: ~ is not a ~")
          );
-  return -1;
+  return -1; # just to pacify the MSVC compiler
 }
 
 LISPFUNN(dkey_search_iterator,3)
+# (SYS::DKEY-SEARCH-ITERATOR key path scope)
 # return a simple vector with the iteration state
 # < dkey path scope
 # > #(dkey init-path scope (node ...))
@@ -574,16 +604,16 @@ LISPFUNN(dkey_search_iterator,3)
   ITST_PATH(value1)  = STACK_1;
   ITST_SCOPE(value1) = STACK_0;
   ITST_STACK(value1) = T;
-  STACK_0 = value1;
-  value1 = STACK_0;
   mv_count = 1;
   skipSTACK(3);
 }
 
-local object init_iteration_node (object state,object subkey)
+local void init_iteration_node (object state,object subkey,
+                                object *new_path,object *failed_p)
 # open HANDLE to point to DKEY\\PATH
 # compute KEY_S, ATT_S and DAT_S
 # return the full current path (itst_current)
+# and T/NIL indicating whether OPEN was successful
 # can trigger GC
 {
   pushSTACK(state);
@@ -613,24 +643,31 @@ local object init_iteration_node (object state,object subkey)
   pushSTACK(handle);
   pushSTACK(L(dir_key_close));
   funcall(L(finalize),2); # (FINALIZE handle #'dir-key-close)
-  var object full_path = itst_current(STACK_4); # state
+  *new_path = itst_current(STACK_4); # state
   var Dir_Key dk = TheDirKey(test_dir_key(ITST_DKEY(STACK_4),TRUE)); # state
   var Fpointer fp = TheFpointer(STACK_0); # handle
-  with_string_0(full_path,O(misc_encoding),pathz,{
+  with_string_0(*new_path,O(misc_encoding),pathz,{
     open_reg_key((HKEY)(dk->handle),pathz,parse_direction(&(dk->direction)),
-                 IDNE_ERROR,(HKEY*)&(fp->fp_pointer));
+                 IDNE_IGNORE,(HKEY*)&(fp->fp_pointer));
   });
-  var DWORD k_size;
-  var DWORD a_size;
-  var DWORD d_size;
-  SYSCALL_WIN32(RegQueryInfoKey((HKEY)(fp->fp_pointer),NULL,NULL,NULL,NULL,
-                                &k_size,NULL,NULL,&a_size,&d_size,NULL,NULL));
-  NODE_KEY_S(STACK_1) = fixnum(k_size+1); # node
-  NODE_ATT_S(STACK_1) = fixnum(a_size+1); # node
-  NODE_DAT_S(STACK_1) = fixnum(d_size+1); # node
+  if (fp->fp_pointer) {
+    var DWORD k_size;
+    var DWORD a_size;
+    var DWORD d_size;
+    SYSCALL_WIN32(RegQueryInfoKey((HKEY)(fp->fp_pointer),NULL,NULL,NULL,NULL,
+                                  &k_size,NULL,NULL,&a_size,&d_size,
+                                  NULL,NULL));
+    NODE_KEY_S(STACK_1) = fixnum(k_size+1); # node
+    NODE_ATT_S(STACK_1) = fixnum(a_size+1); # node
+    NODE_DAT_S(STACK_1) = fixnum(d_size+1); # node
+    *failed_p = NIL;
+  } else {
+    NODE_KEY_S(STACK_1) = Fixnum_0; # node
+    NODE_ATT_S(STACK_1) = Fixnum_0; # node
+    NODE_DAT_S(STACK_1) = Fixnum_0; # node
+    *failed_p = T;
+  }
   skipSTACK(5);
-  pushSTACK(full_path);
-  return popSTACK();
 }
 
 local object state_next_key (object state)
@@ -657,8 +694,10 @@ local object state_next_key (object state)
         ITST_STACK(state) = Cdr(stack);
         return NIL;
       }
-    } else
+    } else {
+      ITST_STACK(state) = Cdr(stack);
       return NIL;
+    }
   } else
     return NIL;
 }
@@ -666,6 +705,7 @@ local object state_next_key (object state)
 LISPFUNN(dkey_search_next_key,1)
 # (SYS::DKEY-SEARCH-NEXT-KEY state)
 # return the next key of this iteration
+# and T if open failed
 # can trigger GC
 {
   var object state = STACK_0;
@@ -675,31 +715,36 @@ LISPFUNN(dkey_search_next_key,1)
   switch (scope) {
     case SCOPE_SELF:            # just the top
       if (eq(stack,T))
-        value1 = init_iteration_node(state,NIL); # first call
+        init_iteration_node(state,NIL,&value1,&value2); # first call
       else
-        value1 = NIL;
+        value1 = value2 = NIL;
       break;
     case SCOPE_KIDS:            # the children
-      if (eq(stack,T))
-        init_iteration_node(state,NIL);
-      value1 = state_next_key(STACK_0); # STACK_0 == state
+      if (eq(stack,T)) {
+        init_iteration_node(state,NIL,&value1,&value2);
+        if (nullp(value2))
+          value1 = state_next_key(STACK_0); # STACK_0 == state
+      } else {
+        value1 = state_next_key(STACK_0);
+        value2 = NIL;
+      }
       break;
     case SCOPE_TREE:            # the whole subtree
       if (eq(stack,T))
-        value1 = init_iteration_node(state,NIL); # first call
+        init_iteration_node(state,NIL,&value1,&value2); # first call
       else {                          # find the next node and return it
         pushSTACK(NIL); # STACK_0 == subkey; STACK_1 == state
         do STACK_0 = state_next_key(STACK_1); # subkey==NIL ==> stack popped
         while (eq(STACK_0,NIL) && !eq(ITST_STACK(STACK_1),NIL));
         if (eq(STACK_0,NIL)) value1 = NIL;
-        else value1 = init_iteration_node(STACK_1,STACK_0);
+        else init_iteration_node(STACK_1,STACK_0,&value1,&value2);
         skipSTACK(1);
       }
       break;
     default: NOTREACHED
   }
   skipSTACK(1);
-  mv_count = 1;
+  mv_count = 2;
 }
 
 LISPFUNN(dkey_search_next_att,1)
@@ -783,7 +828,8 @@ LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL)
       }
       SetLastError(status); OS_error();
     }
-    var char* buffer = (char*)alloca(++size); # one extra char for #\Null
+    ++size;                     # one extra char for `\0'
+    var char* buffer = (char*)alloca(size);
     status = RegQueryValueEx((HKEY)(TheDirKey(dkey)->handle),namez,
                              NULL,&type,buffer,&size);
     if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }
@@ -867,7 +913,7 @@ LISPFUNN(dkey_info,1)
 {
   object dkey = test_dir_key(popSTACK(),TRUE);
   var HKEY hkey = (HKEY)(TheDirKey(dkey)->handle);
-  var char* class_name;
+  var char* class_name = NULL;
   var DWORD class_length;
   var DWORD num_sub_keys;
   var DWORD max_sub_key_length;
@@ -879,7 +925,10 @@ LISPFUNN(dkey_info,1)
   var FILETIME write_time;
   SYSCALL_WIN32(RegQueryInfoKey(hkey,NULL,&class_length,NULL,NULL,
                                 NULL,NULL,NULL,NULL,NULL,NULL,NULL));
-  class_name = (class_length>0 ? (char*)alloca(++class_length) : NULL);
+  if (class_length > 0) {
+    class_length++;
+    class_name = (char*)alloca(class_length);
+  }
   SYSCALL_WIN32(RegQueryInfoKey(hkey,class_name,&class_length,NULL,
                                 &num_sub_keys,&max_sub_key_length,
                                 &max_class_length,

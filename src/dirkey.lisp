@@ -28,6 +28,14 @@
 (defmacro with-dir-key-search ((key-iter att-iter dkey path
                                 &key (scope :level))
                                &body body)
+  "Iterate over the subtree of the given `dir-key'.
+Bind `key-iter' to a macro (using `macrolet'), returning the next key
+ and a flag indicating whether the key was opened successfully;
+ returns `nil' when no more keys is available.
+Bind `att-iter' (if non-nil)  to a macro (using `macrolet'),
+ returning the next attribute and its value;
+ returns `nil' when no more attributes is available.
+The search is done according to the `scope', in the sub-`path' of `dkey'."
   (unless (symbolp key-iter)
     (error (ENGLISH "~S: macro name should be a symbol, not ~S")
            'with-dir-key-search key-iter))
@@ -58,19 +66,23 @@
          ((null kk) (nreverse res))
       (push kk res))))
 
-(defun dir-key-dump-tree (dkey path &key (out *standard-output*) (collect t))
+(defun dir-key-dump-tree (dkey path &key (test #'identity)
+                          (out *standard-output*) (collect t))
   "Dump the whole subtree to OUT.
 If collect is non-nil, collect all the keys into an a-list."
   (with-dir-key-search (k-iter v-iter dkey path :scope :tree)
-    (do ((kk (k-iter) (k-iter)) keys (vals nil nil))
-        ((null kk) (nreverse keys))
-      (when out (format out "~%[~s ~s]~2%" (dir-key-path dkey) kk))
-      (loop (multiple-value-bind (att val) (v-iter)
-              (unless att (return))
-              (when collect (push (cons att val) vals))
-              (when out (format out "~s=~s~%" att val))))
-      (when out (terpri out))
-      (when collect (push (cons kk vals) keys)))))
+    (loop (multiple-value-bind (kk denied-p keys) (k-iter)
+            (unless kk (return (nreverse keys)))
+            (when (funcall test kk)
+              (when out (format out "~%[~s ~s~:[~; access denied!~]]~2%"
+                                (dir-key-path dkey) kk denied-p))
+              (let (vals)
+                (loop (multiple-value-bind (att val) (v-iter)
+                        (unless att (return))
+                        (when collect (push (cons att val) vals))
+                        (when out (format out "~s=~s~%" att val))))
+                (when collect (push (cons kk vals) keys)))
+              (when out (terpri out)))))))
 
 ;;; info
 
