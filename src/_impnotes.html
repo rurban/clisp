@@ -8559,7 +8559,7 @@ lisp.
 
 <a name="app-dev"></a><h3>Extensions-2.8. Application delivery with CLISP</h3>
 
-<p>CLISP supports "application delivery" in two forms:
+<p>CLISP supports "application delivery" in three forms:
 <dl>
  <dt><strong>UNIX</strong>
   <dd>CLISP can act as a script interpreter;
@@ -8569,6 +8569,10 @@ lisp.
   <dd>files created with CLISP can be associated with the CLISP
       executables so that clicking on them would make CLISP execute the
       appropriate code.
+ <dt><strong>Linux</strong> with <code>CONFIG_BINFMT_MISC=y</code>
+  <dd>associate the extensions <code>fas</code> and <code>lsp</code>
+      with CLISP; then you can make the files executable and run them
+      from the command line.
 </dl>
 
 <dl>
@@ -8676,7 +8680,41 @@ extension) will load the file (thus executing all the code in the file),
 while clicking on the CLISP's memory image (with <code>mem</code>
 extension) with start clisp with the given <a href="#image">memory
 image</a>.
+<p><br>
 <!-- #endif -->
+
+<dt><em>Platform dependent: <strong>Linux</strong> platforms only.</em>
+
+<dd>You have to build your kernel with <code>CONFIG_BINFMT_MISC=y</code>
+and <code>CONFIG_PROC_FS=y</code>.  Then you will have a
+<code>/proc/sys/fs/binfmt_misc/</code> directory and you will be able to
+do (as <code>root</code>; you might want to put these lines into
+<code>/etc/rc.d/rc.local</code>):
+
+<pre><code><strong>bash#</strong> echo ":CLISP:E::fas::/usr/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
+<strong>bash#</strong> echo ":CLISP:E::lsp::/usr/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register</code></pre>
+
+<p>Then you can do the following:
+<pre><code><strong>bash$</strong> cat &lt;&lt; EOF &gt; hello.lsp
+(print "hello, world!")
+EOF
+<strong>bash$</strong> clisp -c hello.lsp
+
+Compiling file /home/sds/hello.lsp ...
+
+Compilation of file /home/sds/hello.lsp is finished.
+0 errors, 0 warnings
+<strong>bash$</strong> chmod +x hello.fas
+<strong>bash$</strong> hello.fas
+
+"hello, world!"
+<strong>bash$</strong>
+</code></pre>
+
+<p>Please read <code>/usr/src/linux/Documentation/binfmt_misc.txt</code>
+for details.
+
+<p><br>
 </dl>
 
 <a name="shell"></a><h3>Extensions-2.9. Shell</h3>
