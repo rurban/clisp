@@ -1943,7 +1943,17 @@ LISPFUN(find_class,1,2,norest,nokey,0,NIL)
 # > type_spec: Lisp object
 # < result: the expansion (when not a deftyped type, returns the argument)
 extern object expand_deftype (object type_spec, bool once_p) {
+  var uintL max_depth = posfixnump(Symbol_value(S(deftype_depth_limit))) ?
+    posfixnum_to_L(Symbol_value(S(deftype_depth_limit))) :
+    posfixnum_to_L(Symbol_value(S(most_positive_fixnum)));
+  pushSTACK(type_spec);
+  pushSTACK(TheSubr(subr_self)->name);
  start:
+  if (max_depth > 0) max_depth--;
+  else { # too many nested DEFTYPEs
+    # type_spec & TheSubr(subr_self)->name are already on the stack
+    fehler(error,GETTEXT("~: type definition for ~ exceeds depth limit, maybe recursive"));
+  }
   if (symbolp(type_spec)) { # (GET type-spec 'DEFTYPE-EXPANDER)
     var object expander = get(type_spec,S(deftype_expander));
     if (!eq(expander,unbound)) {
@@ -1964,6 +1974,7 @@ extern object expand_deftype (object type_spec, bool once_p) {
       if (!once_p) goto start;
     }
   }
+  skipSTACK(2);
   return type_spec;
 }
 
