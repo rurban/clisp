@@ -1227,7 +1227,7 @@
 (defformat-simple format-character (stream colon-modifier atsign-modifier)
                   (arg)
   (unless (characterp arg)
-    (format-error 'type-error :datum arg :type 'CHARACTER
+    (format-error 'type-error :datum arg :expected-type 'CHARACTER
       *FORMAT-CS* nil
       (TEXT "The ~~C format directive requires a character argument, not ~S")
       arg))
