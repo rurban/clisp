@@ -1104,9 +1104,9 @@ LISPFUNNR(ldiff,2)
 local object check_cons_replacement (object obj) {
   do {
     pushSTACK(NIL);               /* no PLACE */
-    pushSTACK(badobject);         /* TYPE-ERROR slot DATUM */
+    pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
     pushSTACK(S(cons));           /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(badobject); pushSTACK(TheSubr(subr_self)->name);
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a pair"));
     obj = value1;
   } while (atomp(obj));
