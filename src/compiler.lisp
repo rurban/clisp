@@ -6777,12 +6777,14 @@ for-value   NIL or T
 (defun c-EVAL-WHEN (&optional (c #'c-form))
   (test-list *form* 2)
   (test-list (second *form*) 0)
-  (let ((load-flag nil)
+  (let ((load-flag nil) (top-level-p (eq c #'compile-toplevel-form))
         (compile-flag nil))
     (dolist (situation (second *form*))
       (case situation
-        ((LOAD :LOAD-TOPLEVEL) (setq load-flag t))
-        ((COMPILE :COMPILE-TOPLEVEL) (setq compile-flag t))
+        ((LOAD) (setq load-flag t))
+        ((:LOAD-TOPLEVEL) (when top-level-p (setq load-flag t)))
+        ((COMPILE) (setq compile-flag t))
+        ((:COMPILE-TOPLEVEL) (when top-level-p (setq compile-flag t)))
         ((EVAL :EXECUTE))       ; see control.d
         (T (cond ((or (equal situation '(NOT EVAL))
                       (equal situation '(NOT :EXECUTE)))

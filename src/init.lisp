@@ -652,8 +652,7 @@
                ;; as PROGN, return a form, that returns without side-effects
                ;; the same values.
                ;; Else expand all arguments from the second one as forms.
-               (if (or (member 'COMPILE (second form))
-                       (member :COMPILE-TOPLEVEL (second form)))
+               (if (member 'COMPILE (second form)) ; not :COMPILE-TOPLEVEL !
                  (values
                   (list 'values-list
                         (list 'quote
