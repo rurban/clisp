@@ -374,10 +374,11 @@ PC                    BSDI/386 1.1        Atsuo Ohki
 
 Compaq Armada E500 PIII 128MB 700Mhz  Win2000  Cygwin GCC 2.95.3-5
 2002-07-13    Sam Steingold <sds@gnu.org>
-time make check:
-        real    2m47.761s
-        user    1m37.578s
-        sys     0m53.641s
+                      97.6 s user + 53.6 s system
+
+Apple iBook PPC G4    MacOS X 10.3.8  Bruno Haible  <bruno@clisp.org>
+2005-03               54.12 s user +  9.36 s system (without generational GC)
+                      46.41 s user + 13.85 s system (with generational GC)
 
 
 When you install CLISP on a machine not mentioned here, please send us a short
