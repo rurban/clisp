@@ -1,5 +1,15 @@
 1999-04-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * io.d (READ-CHAR-STATUS): Renamed from SYS::REAL-LISTEN.
+        * stream.d (listen_generic): Call GENERIC-STREAM-READ-CHAR-STATUS
+          instead of GENERIC-STREAM-LISTEN. Remove backward compatibility
+          hack.
+        * gstream.lsp (generic-stream-read-char-status): Renamed from
+          generic-stream-listen.
+        * screen.lsp: Likewise.
+
+1999-04-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (ssstring_append_extend): New declaration.
         * array.d (ssstring_append_extend): New function.
         * stream.d (wr_ss_str_out, wr_ss_pphelp): Use it.

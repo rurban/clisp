@@ -4090,12 +4090,13 @@ controller and some number of arguments.
        <a href="CLHSROOT/Body/convar_nil.html">
        <code>nil</code></a> at end of file.
        Takes one argument, the controller object.
-  <dt><a name="generic-stream-listen"></a>
-      <code>(<strong>lisp:generic-stream-listen</strong>
+  <dt><a name="generic-stream-read-char-status"></a>
+      <code>(<strong>lisp:generic-stream-read-char-status</strong>
              <var>controller</var>)</code>
   <dd> This generic function is used to query the stream's input status.
     The possible return values are the same as for the
-    <a href="#real-listen"><code>sys::real-listen</code></a> function.
+    <a href="#read-char-status"><code>lisp:read-char-status</code></a>
+    function.
     <dl compact>
       <dt><code>:eof</code>             <dd>means EOF
       <dt><code>:input-available</code> <dd>means a character (or byte) pending
@@ -4697,9 +4698,9 @@ alternative to the use of <code>readtable-case</code> is the use of the
     read-char-no-hang</a></h4>
 
 <dl>
-  <dt> <a name="real-listen"></a>
-    <code>(<strong>system::real-listen</strong> <var>stream</var>)</code>
-  <dd> <code>sys::real-listen</code> is a variant of the standard
+  <dt> <a name="read-char-status"></a>
+    <code>(lisp:<strong>read-char-status</strong> <var>stream</var>)</code>
+  <dd> <code>lisp:read-char-status</code> is a variant of the standard
     <a href="CLHSROOT/Body/fun_listen.html">
     <code>listen</code></a> function, which returns more detailed information
     about the stream's input status. The return value is one of:
@@ -4709,7 +4710,7 @@ alternative to the use of <code>readtable-case</code> is the use of the
       <dt><code>:wait</code>            <dd>means no input available
     </dl>
     <p> The return values are the same as for the
-    <code><a href="#generic-stream-listen">generic-stream-listen</a></code>
+    <code><a href="#generic-stream-read-char-status">generic-stream-read-char-status</a></code>
     method, so this function is a good fit to define some generic streams
     based upon other CLISP streams.
 </dl>

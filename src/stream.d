@@ -2653,7 +2653,7 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
 
   #   (GENERIC-STREAM-READ-CHAR c)                      --> character or NIL
   #   (GENERIC-STREAM-PEEK-CHAR c)                      --> character or NIL
-  #   (GENERIC-STREAM-LISTEN c)                         --> {0,1,-1}
+  #   (GENERIC-STREAM-READ-CHAR-STATUS c)               --> {:EOF,:INPUT-AVAILABLE,:WAIT}
   #   (GENERIC-STREAM-CLEAR-INPUT c)                    --> {T,NIL}
   #   (GENERIC-STREAM-WRITE-CHAR c ch)                  -->
   #   (GENERIC-STREAM-WRITE-STRING c string start len)  -->
@@ -2694,31 +2694,20 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
     }
 
   # (LISTEN s) ==
-  # (GENERIC-STREAM-LISTEN c)
+  # (GENERIC-STREAM-READ-CHAR-STATUS c)
   local signean listen_generic (object stream);
   local signean listen_generic(stream)
     var object stream;
     { pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_listen),1);
-      if (eq (value1, S(Keof))) return -1;
-      if (eq (value1, S(Kinput_available))) return 0;
-      if (eq (value1, S(Kwait))) return 1;
-      # For compatibility with old code -1,0,+1 are still accepted -- depreciated!
-      if (eq (value1, Fixnum_minus1) ||
-          eq (value1, fixnum (0)) ||
-          eq (value1, fixnum (1)))
-        return I_to_L(value1);
-      # Otherwise raise error:
+      pushSTACK(value1); funcall(S(generic_stream_read_char_status),1);
+      if (eq (value1, S(Keof))) return ls_eof;
+      if (eq (value1, S(Kinput_available))) return ls_avail;
+      if (eq (value1, S(Kwait))) return ls_wait;
       pushSTACK (value1);               # DATUM
-        pushSTACK (S(member));
-        pushSTACK (S(Keof));
-        pushSTACK (S(Kinput_available));
-        pushSTACK (S(Kwait));
-        funcall (L(list),4);
-      pushSTACK (value1);               # EXPECTED-TYPE
-      pushSTACK (value1);               # once again for the error message.
-      pushSTACK (S(generic_stream_listen));
-      pushSTACK (STACK_3);              # DATUM
+      pushSTACK (O(type_read_char_status)); # EXPECTED-TYPE
+      pushSTACK (O(type_read_char_status)); # once again for the error message.
+      pushSTACK (S(generic_stream_read_char_status));
+      pushSTACK (value1);
       fehler (type_error, "Return value, ~, of call to ~ is not of type ~.");
     }
 

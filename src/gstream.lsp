@@ -4,7 +4,7 @@
 (in-package "LISP")
 (export '(generic-stream-read-char
           generic-stream-peek-char
-          generic-stream-listen
+          generic-stream-read-char-status
           generic-stream-clear-input
           generic-stream-write-char
           generic-stream-write-string
@@ -23,7 +23,7 @@
 
 (clos:defgeneric generic-stream-read-char (controller))
 (clos:defgeneric generic-stream-peek-char (controller))
-(clos:defgeneric generic-stream-listen (controller))
+(clos:defgeneric generic-stream-read-char-status (controller))
 (clos:defgeneric generic-stream-clear-input (controller))
 (clos:defgeneric generic-stream-write-char (controller ch))
 (clos:defgeneric generic-stream-write-string (controller string start len))
@@ -42,7 +42,7 @@
   (values (generic-stream-read-char controller) t)
 )
 
-(clos:defmethod generic-stream-listen ((controller generic-stream-controller))
+(clos:defmethod generic-stream-read-char-status ((controller generic-stream-controller))
   (declare (ignore controller))
 )
 
@@ -100,14 +100,14 @@
   (with-slots (orig-stream) controller
     (values (peek-char nil orig-stream nil nil) nil)
 ) )
-(defmethod generic-stream-listen ((controller alias-controller))
+(defmethod generic-stream-read-char-status ((controller alias-controller))
   (with-slots (orig-stream) controller
     (if (listen orig-stream)
-      0 ; something available
+      ':INPUT-AVAILABLE
       (let ((ch (read-char-no-hang orig-stream nil t)))
-        (cond ((eql ch t) -1) ; eof
-              ((null ch) +1) ; nothing available, not EOF
-              (t (unread-char ch orig-stream) 0) ; something available
+        (cond ((eql ch t) ':EOF)
+              ((null ch) ':WAIT) ; nothing available, not EOF
+              (t (unread-char ch orig-stream) ':INPUT-AVAILABLE)
 ) ) ) ) )
 (defmethod generic-stream-clear-input ((controller alias-controller))
   (with-slots (orig-stream) controller

@@ -4695,7 +4695,8 @@ LISPFUN(listen,0,1,norest,nokey,0,NIL)
       { value1 = NIL; mv_count=1; } # Wert NIL
   }
 
-LISPFUNN(real_listen,1)
+LISPFUNN(read_char_status,1)
+# (READ-CHAR-STATUS input-stream)
 # real listen as needed by generic streams -- GB
   { test_istream(&STACK_0); # input-stream überprüfen
     switch (stream_listen(popSTACK()))
