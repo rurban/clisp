@@ -2297,7 +2297,8 @@ global object test_string_limits_ro (stringarg* arg) {
  > STACK_0: optional :end-argument
  < stringarg arg: description of the argument
  < result: string-argument
- increases STACK by 3 */
+ increases STACK by 3
+ can trigger GC */
 local object test_string_limits_rw (stringarg* arg) {
   var object string = test_string_limits_ro(arg);
   if (arg->len > 0) {
