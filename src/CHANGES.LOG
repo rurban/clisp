@@ -19,6 +19,10 @@ User visible changes
 * Implemented ANSI CL function INSPECT,
   and a function LISP:CLHS for access of Common Lisp HyperSpec.
 
+* ANSI CL compliance: CALL-NEXT-METHOD and NEXT-METHOD-P are now implemented
+  as local functions, not local macros. It is now possible to call
+  (APPLY #'CALL-NEXT-METHOD argument-list-of-unknown-length).
+
 * ANSI CL compliance: LOAD has a new keyword argument :EXTERNAL-FORMAT.
 
 * ANSI CL compliance: When an end-of-stream occurs, READ, READ-CHAR, PEEK-CHAR,
