@@ -27,6 +27,7 @@ GROFF = nroff -man
 EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj  \
         --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build  \
         --exclude .cvsignore --exclude \*~ --exclude .\#\* --exclude html \
+	--exclude $(AUTOCONF_CACHE) --exclude tmp \
 	--exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
 
 # GNU tar together with GNU gzip. Good performance.
@@ -129,19 +130,22 @@ configures : ffcall/autoconf/aclocal.m4 sigsegv/autoconf/aclocal.m4 $(CONFIGURES
 src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4)
 	cd src ; aclocal --acdir=m4 --output=autoconf/aclocal.m4
 
-AUTOCONF_FILES = src/autoconf/aclocal.m4 src/autoconf/autoconf.m4f
+AUTOCONF_FILES = src/autoconf/aclocal.m4
+export AUTOCONF_VERSION ?= 2.53
+AUTOCONF = autoconf-$(AUTOCONF_VERSION)
+AUTOCONF_CACHE = autom4te-$(AUTOCONF_VERSION).cache
 
 src/configure : src/configure.in $(AUTOCONF_FILES)
-	cd src ; autoconf/autoconf -A autoconf -l autoconf
+	cd src ; $(AUTOCONF) --include autoconf
 
 modules/wildcard/configure : modules/wildcard/configure.in $(AUTOCONF_FILES)
-	cd modules/wildcard ; ../../src/autoconf/autoconf -A ../../src/autoconf -l ../../src/autoconf
+	cd modules/wildcard ; $(AUTOCONF) --include ../../src/autoconf
 
 modules/regexp/configure : modules/regexp/configure.in $(AUTOCONF_FILES)
-	cd modules/regexp ; ../../src/autoconf/autoconf -A ../../src/autoconf -l ../../src/autoconf
+	cd modules/regexp ; $(AUTOCONF) --include ../../src/autoconf
 
 modules/clx/new-clx/configure : modules/clx/new-clx/configure.in $(AUTOCONF_FILES)
-	cd modules/clx/new-clx ; ../../../src/autoconf/autoconf -A ../../../src/autoconf -l ../../../src/autoconf
+	cd modules/clx/new-clx ; $(AUTOCONF) --include ../../../src/autoconf
 
 ffcall/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
 	cd ffcall ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4
@@ -174,19 +178,20 @@ sigsegv/configure : sigsegv/configure.in sigsegv/autoconf/aclocal.m4 $(AUTOCONF_
 	cd sigsegv ; $(MAKE) -f Makefile.devel configure
 
 utils/hln/configure : utils/hln/configure.in $(AUTOCONF_FILES)
-	cd utils/hln ; ../../src/autoconf/autoconf -A ../../src/autoconf -l ../../src/autoconf
+	cd utils/hln ; $(AUTOCONF) --include ../../src/autoconf
 
 libcharset/configure : libcharset/configure.in libcharset/autoconf/aclocal.m4 $(AUTOCONF_FILES)
 	cd libcharset ; $(MAKE) -f Makefile.devel configure
 
 
-# Syntaxcheck
+# syntax check
 check-configures : $(CONFIGURES)
 	set -e; for f in $(CONFIGURES); do bash -x -n $$f; done
+	rm -rf `find . -name $(AUTOCONF_CACHE)`;
 
 
 potfiles :
-	cd src/po ; $(MAKE) -f Makefile.devel
+	cd src/po ; $(MAKE) -f Makefile.devel ; $(MAKE) -f Makefile.devel clean
 
 
 view-man :
