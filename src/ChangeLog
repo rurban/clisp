@@ -1,5 +1,14 @@
 2003-04-21  Sam Steingold  <sds@gnu.org>
 
+	* spvw_fault.d, spvw_genera1.d, spvw_genera2.d, spvw_genera3.d:
+	* spvw_heap.d, spvw_memfile.d (memdump_header, memdump_page)
+	(memdump_physpage_state, memdump_reloc_header, old_new_pointer)
+	(physpage_state, walkstep_fun, gc_data_list): appended "_t" to
+	type names; use MALLOC
+	* lispbibl.d (MALLOC): new macro
+
+2003-04-21  Sam Steingold  <sds@gnu.org>
+
 	* control.d (KEYWORD-TEST): treat :ALLOW-OTHER-KEYS NIL correctly
 	* record.d (keyword_test): ditto
 	* eval.d (fehler_key_badkw): sync the message with the above

@@ -46,7 +46,7 @@ typedef Page Pages;
 typedef struct {
   gcv_object_t* p; # address of the pointer, within an old object
   object o;  # o = *p, pointer to a new object
-} old_new_pointer;
+} old_new_pointer_t;
 typedef struct {
   # traversal of the pointers in the page requires the following:
     # continuation of the last object on previous page:
@@ -59,8 +59,8 @@ typedef struct {
                   # PROT_READ : both page and cache are valid.
                   # PROT_READ_WRITE : only the page is valid.
   uintL cache_size; # number of cached pointers
-  old_new_pointer* cache; # cache of all pointers into the new generation
-} physpage_state;
+  old_new_pointer_t* cache; # cache of all pointers into the new generation
+} physpage_state_t;
 #endif
 
 typedef struct {
@@ -80,7 +80,7 @@ typedef struct {
   aint heap_gen0_start;
   aint heap_gen0_end;
   aint heap_gen1_start;
-  physpage_state* physpages;
+  physpage_state_t* physpages;
   #endif
 } Heap;
 #define heap_start  pages.page_start

@@ -136,16 +136,16 @@ local int handle_mmap_fault(offset,address,memfile_page)
                        # or      SPVW_MIXED_BLOCKS_OPPOSITE
 
 # subroutine for protection: PROT_NONE -> PROT_READ
-local int handle_read_fault (aint address, physpage_state* physpage);
+local int handle_read_fault (aint address, physpage_state_t* physpage);
 local int handle_read_fault(address,physpage)
   var aint address;
-  var physpage_state* physpage;
+  var physpage_state_t* physpage;
   {
     # bring page up to date with the state of the cache:
     {
       var uintL count = physpage->cache_size;
       if (count > 0) {
-        var old_new_pointer* ptr = physpage->cache;
+        var old_new_pointer_t* ptr = physpage->cache;
         #if !defined(MULTIMAP_MEMORY)
         if (mprotect((MMAP_ADDR_T)address, physpagesize, PROT_READ_WRITE) < 0)
           return -1;
@@ -177,10 +177,10 @@ local int handle_read_fault(address,physpage)
   }
 
 # subroutine for protection: PROT_READ -> PROT_READ_WRITE
-local int handle_readwrite_fault (aint address, physpage_state* physpage);
+local int handle_readwrite_fault (aint address, physpage_state_t* physpage);
 local int handle_readwrite_fault(address,physpage)
   var aint address;
-  var physpage_state* physpage;
+  var physpage_state_t* physpage;
   {
     # superimose page read-write:
     #if !defined(MULTIMAP_MEMORY)
@@ -279,7 +279,7 @@ local handle_fault_result_t handle_fault(address,verbose)
       pageno = (pa_uaddress>>physpageshift)-(heap->heap_gen0_start>>physpageshift);
       #endif
       {
-        var physpage_state* physpage = &heap->physpages[pageno];
+        var physpage_state_t* physpage = &heap->physpages[pageno];
         switch (physpage->protection) {
           case PROT_NONE:
             # protection: PROT_NONE -> PROT_READ
@@ -427,7 +427,7 @@ global bool handle_fault_range(prot,start_address,end_address)
       for (pa_uaddress = start_address & -physpagesize; pa_uaddress < end_address; pa_uaddress += physpagesize)
         if ((heap->heap_gen0_start <= pa_uaddress) && (pa_uaddress < heap->heap_gen0_end)) {
           var uintL pageno = (pa_uaddress>>physpageshift)-(heap->heap_gen0_start>>physpageshift);
-          var physpage_state* physpage = &heap->physpages[pageno];
+          var physpage_state_t* physpage = &heap->physpages[pageno];
           if ((physpage->protection == PROT_NONE) && (prot == PROT_READ || prot == PROT_READ_WRITE)) {
             # protection: PROT_NONE -> PROT_READ
             if (handle_read_fault(pa_uaddress,physpage) < 0)
@@ -456,7 +456,7 @@ local int selfmade_mmap(heap,map_len,offset)
   var uintL offset;
   {
     var uintL pagecount = map_len>>physpageshift;
-    var uintB* pages = (uintB*)malloc(pagecount*sizeof(uintB));
+    var uintB* pages = MALLOC(pagecount,uintB);
     if (pages == NULL)
       return -1;
     heap->memfile_numpages = pagecount;
