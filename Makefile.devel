@@ -125,9 +125,8 @@ src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4)
 	cd src ; aclocal --acdir=m4 --output=autoconf/aclocal.m4
 
 AUTOCONF_FILES = src/autoconf/aclocal.m4
-export AUTOCONF_VERSION ?= 2.53
-AUTOCONF = autoconf-$(AUTOCONF_VERSION)
-AUTOCONF_CACHE = autom4te-$(AUTOCONF_VERSION).cache
+AUTOCONF = autoconf
+AUTOCONF_CACHE = autom4te.cache
 
 src/configure : src/configure.in $(AUTOCONF_FILES)
 	cd src ; $(AUTOCONF) --include autoconf
