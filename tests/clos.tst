@@ -717,6 +717,209 @@ x-y-position
 (X-Y-POSITION 1.0000000000000002d0 1.0d0
               1.4142135623730951d0 0.7853981633974483d0)
 
+
+;; 4.3.6. Redefining Classes
+
+;; Newly added local slot.
+;; 4.3.6.1.: "Local slots specified by the new class definition that are not
+;;            specified as either local or shared by the old class are added."
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo70 () ())
+      (setq i (make-instance 'foo70))
+      (defclass foo70 () ((size :initarg :size :initform 1) (other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(1 NULL)
+
+;; Newly added shared slot.
+;; 4.3.6.: "Newly added shared slots are initialized."
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo71 () ())
+      (setq i (make-instance 'foo71))
+      (defclass foo71 () ((size :initarg :size :initform 1 :allocation :class) (other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(1 NULL)
+
+;; Discarded local slot.
+;; 4.3.6.1.: "Slots not specified as either local or shared by the new class
+;;            definition that are specified as local by the old class are
+;;            discarded."
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo72 () ((size :initarg :size :initform 1)))
+      (setq i (make-instance 'foo72 :size 5))
+      (defclass foo72 () ((other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(NIL SIMPLE-ERROR)
+
+;; Discarded shared slot.
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo73 () ((size :initarg :size :initform 1 :allocation :class)))
+      (setq i (make-instance 'foo73))
+      (defclass foo73 () ((other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(NIL SIMPLE-ERROR)
+
+;; Shared slot remains shared.
+;; 4.3.6.: "The value of a slot that is specified as shared both in the old
+;;          class and in the new class is retained."
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo74 () ((size :initarg :size :initform 1 :allocation :class)))
+      (setq i (make-instance 'foo74))
+      (defclass foo74 () ((size :initarg :size :initform 2 :allocation :class) (other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(1 NULL)
+
+;; Shared slot becomes local.
+;; 4.3.6.1.: "The value of a slot that is specified as shared in the old class
+;;            and as local in the new class is retained."
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo75 () ((size :initarg :size :initform 1 :allocation :class)))
+      (setq i (make-instance 'foo75))
+      (defclass foo75 () ((size :initarg :size :initform 2) (other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(1 NULL)
+
+;; Local slot remains local.
+;; 4.3.6.1.: "The values of local slots specified by both the new and old
+;;            classes are retained."
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo76 () ((size :initarg :size :initform 1)))
+      (setq i (make-instance 'foo76 :size 5))
+      (defclass foo76 () ((size :initarg :size :initform 2) (other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(5 NULL)
+
+;; Local slot becomes shared.
+;; 4.3.6.: "Slots that were local in the old class and that are shared in the
+;;          new class are initialized."
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo77 () ((size :initarg :size :initform 1)))
+      (setq i (make-instance 'foo77 :size 5))
+      (defclass foo77 () ((size :initarg :size :initform 2 :allocation :class) (other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(2 NULL)
+
+
+;; Redefining the superclass of an instance
+
+;; Newly added local slot.
+;; 4.3.6.1.: "Local slots specified by the new class definition that are not
+;;            specified as either local or shared by the old class are added."
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo80a () ())
+      (defclass foo80b (foo80a) ())
+      (setq i (make-instance 'foo80b))
+      (defclass foo80a () ((size :initarg :size :initform 1) (other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(1 NULL)
+
+;; Newly added shared slot.
+;; 4.3.6.: "Newly added shared slots are initialized."
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo81a () ())
+      (defclass foo81b (foo81a) ())
+      (setq i (make-instance 'foo81b))
+      (defclass foo81a () ((size :initarg :size :initform 1 :allocation :class) (other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(1 NULL)
+
+;; Discarded local slot.
+;; 4.3.6.1.: "Slots not specified as either local or shared by the new class
+;;            definition that are specified as local by the old class are
+;;            discarded."
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo82a () ((size :initarg :size :initform 1)))
+      (defclass foo82b (foo82a) ())
+      (setq i (make-instance 'foo82b :size 5))
+      (defclass foo82a () ((other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(NIL SIMPLE-ERROR)
+
+;; Discarded shared slot.
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo83a () ((size :initarg :size :initform 1 :allocation :class)))
+      (defclass foo83b (foo83a) ())
+      (setq i (make-instance 'foo83b))
+      (defclass foo83a () ((other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(NIL SIMPLE-ERROR)
+
+;; Shared slot remains shared.
+;; 4.3.6.: "The value of a slot that is specified as shared both in the old
+;;          class and in the new class is retained."
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo84a () ((size :initarg :size :initform 1 :allocation :class)))
+      (defclass foo84b (foo84a) ())
+      (setq i (make-instance 'foo84b))
+      (defclass foo84a () ((size :initarg :size :initform 2 :allocation :class) (other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(1 NULL)
+
+;; Shared slot becomes local.
+;; 4.3.6.1.: "The value of a slot that is specified as shared in the old class
+;;            and as local in the new class is retained."
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo85a () ((size :initarg :size :initform 1 :allocation :class)))
+      (defclass foo85b (foo85a) ())
+      (setq i (make-instance 'foo85b))
+      (defclass foo85a () ((size :initarg :size :initform 2) (other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(1 NULL)
+
+;; Local slot remains local.
+;; 4.3.6.1.: "The values of local slots specified by both the new and old
+;;            classes are retained."
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo86a () ((size :initarg :size :initform 1)))
+      (defclass foo86b (foo86a) ())
+      (setq i (make-instance 'foo86b :size 5))
+      (defclass foo86a () ((size :initarg :size :initform 2) (other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(5 NULL)
+
+;; Local slot becomes shared.
+;; 4.3.6.: "Slots that were local in the old class and that are shared in the
+;;          new class are initialized."
+(multiple-value-bind (value condition)
+    (ignore-errors
+      (defclass foo87a () ((size :initarg :size :initform 1)))
+      (defclass foo87b (foo87a) ())
+      (setq i (make-instance 'foo87b :size 5))
+      (defclass foo87a () ((size :initarg :size :initform 2 :allocation :class) (other)))
+      (slot-value i 'size))
+  (list value (type-of condition)))
+(2 NULL)
+
+
 ;;; ensure-generic-function
 ;;; <http://www.lisp.org/HyperSpec/Body/fun_ensure-ge_ric-function.html>
 (ensure-generic-function 'car) error

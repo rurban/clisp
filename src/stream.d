@@ -16817,8 +16817,11 @@ global bool stream_get_read_eval (object stream) {
     return ((TheStream(stream)->strmflags & strmflags_reval_B) != 0);
   } else {
     # (SLOT-VALUE stream '$reval):
-    instance_un_realloc(stream);
-    var object clas = TheInstance(stream)->inst_class;
+    var object stream_forwarded = stream;
+    instance_un_realloc(stream_forwarded);
+    instance_update(stream,stream_forwarded);
+    var object cv = TheInstance(stream_forwarded)->inst_class_version;
+    var object clas = TheClassVersion(cv)->cv_class;
     var object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table);
     var object value = TheSrecord(stream)->recdata[posfixnum_to_L(slotinfo)];
     return !nullp(value);
@@ -16837,8 +16840,11 @@ global void stream_set_read_eval (object stream, bool value) {
       TheStream(stream)->strmflags &= ~strmflags_reval_B;
   } else {
     # (SETF (SLOT-VALUE stream '$reval) value):
-    instance_un_realloc(stream);
-    var object clas = TheInstance(stream)->inst_class;
+    var object stream_forwarded = stream;
+    instance_un_realloc(stream_forwarded);
+    instance_update(stream,stream_forwarded);
+    var object cv = TheInstance(stream_forwarded)->inst_class_version;
+    var object clas = TheClassVersion(cv)->cv_class;
     var object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table);
     TheSrecord(stream)->recdata[posfixnum_to_L(slotinfo)] = (value ? T : NIL);
   }

@@ -1,5 +1,9 @@
 2004-04-12  Bruno Haible  <bruno@clisp.org>
 
+	* clos.tst: New tests for class redefinition.
+
+2004-04-12  Bruno Haible  <bruno@clisp.org>
+
 	* tests.lisp (with-ignored-errors): Use portable definition instead of
 	the old CLISP hammer definition.
 	* clos.tst: Remove hack.
