@@ -22,7 +22,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2004-03-12 14:25:22 EST\n"
+"POT-Creation-Date: 2004-03-14 12:10:50 EST\n"
 "PO-Revision-Date: 2000-03-03 15:02+01:00\n"
 "Last-Translator: Tijs van Bakel <smoke@casema.net>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -461,27 +461,27 @@ msgstr "Ik probeer ruimte te maken door een GC...\n"
 msgid "disk full"
 msgstr "schijf vol"
 
-#: spvw_memfile.d:779
+#: spvw_memfile.d:777
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'\n"
 msgstr "besturingssysteem-fout bij het lezen van opstart bestand `%s'\n"
 
-#: spvw_memfile.d:1246
+#: spvw_memfile.d:1244
 #, fuzzy
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "Kan het opstartbestand niet in het geheugen afbeelden."
 
-#: spvw_memfile.d:1514
+#: spvw_memfile.d:1510
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "besturingssysteem-fout bij het lezen van opstart bestand `%s'\n"
 
-#: spvw_memfile.d:1519
+#: spvw_memfile.d:1515
 #, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
 msgstr "opstartbestand was niet gemaakt door deze versie van LISP\n"
 
-#: spvw_memfile.d:1522
+#: spvw_memfile.d:1518
 #, fuzzy
 msgid "%s: not enough memory for initialization\n"
 msgstr "onvoldoende geheugen om te starten\n"
@@ -5168,10 +5168,9 @@ msgstr "WAARSCHUWING:"
 msgid "~S: This is more serious than a warning: ~A"
 msgstr "~S: Dit is meer dan slechts een waarschuwing: ~A"
 
-#: threads.lisp:45
-#, fuzzy
-msgid "~S: ~S does not own ~S"
-msgstr "~S: ~S benoemt geen klasse"
+#: loadform.lisp:42
+msgid "A method on ~S for class ~S is necessary for externalizing the object ~S, according to ANSI CL 3.2.4.4, but no such method is defined."
+msgstr ""
 
 #: xcharin.lisp:35
 msgid "~: argument ~S is not a character"
@@ -5865,6 +5864,11 @@ msgstr "LETF code bevat een dotted lijst, die eindigt met ~S"
 #: macros3.lisp:243
 msgid "illegal syntax in LETF binding: ~S"
 msgstr "ongeldige syntaxis in LETF binding: ~S"
+
+#: threads.lisp:45
+#, fuzzy
+msgid "~S: ~S does not own ~S"
+msgstr "~S: ~S benoemt geen klasse"
 
 #: foreign1.lisp:100
 msgid "Cannot map string ~S to C since it contains a character ~S"

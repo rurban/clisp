@@ -1,14 +1,15 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2004-03-12 14:25:28 EST\n"
-"PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
-"Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
+"Project-Id-Version: clisp 2.32.91\n"
+"POT-Creation-Date: 2004-03-14 12:10:55 EST\n"
+"PO-Revision-Date: 2004-03-14 00:38+0100\n"
+"Last-Translator: Bruno Haible <bruno@clisp.org>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-1\n"
-"Content-Transfer-Encoding: 8-bit\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.0.2\n"
 
 msgid ""
 "\n"
@@ -24,13 +25,11 @@ msgstr ""
 "\n"
 "*** - LISP-Stack-Überlauf: RESET"
 
-#, fuzzy
 msgid "Unknown FSUBR signature: %d %d %d\n"
-msgstr "Unbekannter SUBR-Argumenttyp\n"
+msgstr "Unbekanntes FSUBR-Parameterprofil: %d %d %d\n"
 
-#, fuzzy
 msgid "Unknown SUBR signature: %d %d %d %d"
-msgstr "Unbekannter SUBR-Argumenttyp\n"
+msgstr "Unbekanntes SUBR-Parameterprofil: %d %d %d %d"
 
 msgid "module `%s' requires package %s.\n"
 msgstr "Modul `%s' benötigt Package %s.\n"
@@ -39,6 +38,8 @@ msgid ""
 "is an ANSI Common Lisp.\n"
 "Usage:  "
 msgstr ""
+"ist ein ANSI Common Lisp.\n"
+"Aufruf:  "
 
 msgid ""
 " [options] [lispfile [argument ...]]\n"
@@ -46,117 +47,129 @@ msgid ""
 " to the list of argument strings. Otherwise, an interactive\n"
 " read-eval-print loop is entered.\n"
 msgstr ""
+"[Optionen] [Lisp-Datei [Argument ...]]\n"
+"Wenn eine Lisp-Datei angegeben ist, wird sie geladen und `*ARGS' auf die\n"
+"Liste der Argument-Strings gesetzt. Andernfalls wird eine interaktive\n"
+"Read-Eval-Print-Schleife gestartet.\n"
 
 msgid "Informative output:\n"
-msgstr ""
+msgstr "Informative Ausgabe:\n"
 
 msgid " -h, --help    - print this help and exit\n"
-msgstr ""
+msgstr " -h, --help      Diese Hilfe anzeigen und beenden.\n"
 
 msgid " --version     - print the version information\n"
-msgstr ""
+msgstr " --version       Versionsinformation anzeigen.\n"
 
 msgid " --license     - print the licensing information\n"
-msgstr ""
+msgstr " --license       Lizenz-Information anzeigen.\n"
 
 msgid "Memory image selection:\n"
-msgstr ""
+msgstr "Auswahl des Speicherabbilds:\n"
 
 msgid " -B lisplibdir - set the installation directory\n"
-msgstr ""
+msgstr " -B LispBibVerz  Setzt das Installations-Verzeichnis.\n"
 
 msgid " -K linkingset - use this executable and memory image\n"
-msgstr ""
+msgstr " -K Bausatz      Benutze dieses ausführbare Programm und dieses Speicherabbild.\n"
 
 msgid " -M memfile    - use this memory image\n"
-msgstr ""
+msgstr " -M SpAbbild     Benutze dieses Speicherabbild.\n"
 
 msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
-msgstr ""
+msgstr " -m Größe        Setze Speichergröße (= xxxxxxxB oder xxxxKB oder xMB)\n"
 
 msgid " -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
-msgstr ""
+msgstr " -s Größe        Setze Stapel-Größe (= xxxxxxxB oder xxxxKB oder xMB)\n"
 
 msgid " -t tmpdir     - temporary directory for memmap\n"
-msgstr ""
+msgstr " -t TempVerz     Setze Verzeichnis für eingeblendeten temporären Speicher.\n"
 
 msgid "Internationalization:\n"
-msgstr ""
+msgstr "Internationalisierung:\n"
 
 msgid " -L language   - set user language\n"
-msgstr ""
+msgstr " -L Sprache      Setzt Sprache des Benutzers\n"
 
 msgid " -N nlsdir     - NLS catalog directory\n"
-msgstr ""
+msgstr " -N MSUVerz      Setzte Verzeichnis der Kataloge (Muttersprachen-Übersetzung)\n"
 
 msgid " -Edomain encoding - set encoding\n"
-msgstr ""
+msgstr " -EBereich Kodierung  Setzt eine Kodierung\n"
 
 msgid "Interoperability:\n"
-msgstr ""
+msgstr "Interoperabilität:\n"
 
 msgid ""
 " -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
 "     and *LOAD-PRINT*/*COMPILE-PRINT*\n"
 msgstr ""
+" -q, --quiet, --silent, -v, --verbose   Geschwätzigkeit:\n"
+"                 beeinflusst die Flagge, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
+"                 und *LOAD-PRINT*/*COMPILE-PRINT*.\n"
 
 msgid " -w            - wait for a keypress after program termination\n"
-msgstr ""
+msgstr " -w              Warte auf Tastendruck, nachdem das Programm beendet ist.\n"
 
 msgid " -I            - be ILISP-friendly\n"
-msgstr ""
+msgstr " -I              Sei nett zu ILISP.\n"
 
 msgid "Startup actions:\n"
-msgstr ""
+msgstr "Aktionen bei Programmstart:\n"
 
 msgid " -ansi         - more ANSI CL compliance\n"
-msgstr ""
+msgstr " -ansi           Mehr ANSI CL Gehorsam.\n"
 
 msgid " -traditional  - traditional (undoes -ansi)\n"
-msgstr ""
+msgstr " -traditional    Traditioneller Gehorsam (Gegenteil von -ansi).\n"
 
 msgid " -p package    - start in the package\n"
-msgstr ""
+msgstr " -p Paket        Im gegebenen Paket loslegen.\n"
 
 msgid " -C            - set *LOAD-COMPILING* to T\n"
-msgstr ""
+msgstr " -C              Setze *LOAD-COMPILING* auf T.\n"
 
 msgid " -norc         - do not load the user ~/.clisprc file\n"
-msgstr ""
+msgstr " -norc           Lade das ~/.clisprc des Benutzers nicht.\n"
 
 msgid " -i file       - load initfile (can be repeated)\n"
-msgstr ""
+msgstr " -i Datei        Lade Datei zur Initialisierung. (Mehrfach angebbar.)\n"
 
 msgid "Actions:\n"
-msgstr ""
+msgstr "Aktionen:\n"
 
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
-msgstr ""
+msgstr " -c [-l] LispDatei [-o AusgabeDatei]   Kompiliere LispDatei.\n"
 
 msgid " -x expressions - execute the expressions, then exit\n"
-msgstr ""
+msgstr " -x Ausdrücke    Führe die Ausdrücke aus, und beende dann.\n"
 
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
-msgstr ""
+msgstr " LispDatei [Argument ...]  Lade LispDatei, und beende dann.\n"
 
 msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr ""
+"Diese Aktionen versetzen CLISP in die Betriebsart selbständiger Ausführung\n"
+"(keine Kontrolle durch den Benutzer). Sie kann außer Kraft gesetzt werden\n"
+"durch:\n"
 
 msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
 msgstr ""
+" -interactive-debug  erlaubt Benutzerkontrolle nach fehlgeschlagenen ASSERTs\n"
+"                       u.ä.\n"
 
 msgid " -repl              - enter the interactive read-eval-print loop when done\n"
-msgstr ""
+msgstr " -repl           Startet zum Schluss eine interaktive Read-Eval-Print-Schleife.\n"
 
 msgid "Default action is an interactive read-eval-print loop.\n"
-msgstr ""
+msgstr "Die normale Aktion ist eine interaktive Read-Eval-Print-Schleife.\n"
 
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
 msgstr "Syntax für %s: nnnnnnn oder nnnnKB oder nMB\n"
 
 msgid "%s out of range\n"
-msgstr "%s ist nicht im gültigen Bereich\n"
+msgstr "%s ist nicht im gültigen Bereich.\n"
 
 msgid "memory size"
 msgstr "Speichervorrat"
@@ -165,7 +178,7 @@ msgid "stack size"
 msgstr "Stackspeichervorrat"
 
 msgid "CLISP: -a is deprecated, use -ansi\n"
-msgstr ""
+msgstr "CLISP: Von -a wird abgeraten. Verwenden Sie stattdessen -ansi.\n"
 
 msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
 msgstr "Ergebnis von malloc() = %x ist nicht mit der Typcodeverteilung kompatibel.\n"
@@ -176,9 +189,8 @@ msgstr "Nur %d Bytes verfügbar.\n"
 msgid "Could not determine the end of the SP stack!\n"
 msgstr "Konnte das Ende des SP-Stacks nicht herausfinden!\n"
 
-#, fuzzy
 msgid "%s: Not enough memory for Lisp.\n"
-msgstr "Nicht genug Speicher für LISP\n"
+msgstr "%s: Nicht genug Speicher für Lisp.\n"
 
 msgid ""
 "\n"
@@ -194,9 +206,8 @@ msgstr ""
 "\n"
 "*** - Speicher voll: RESET"
 
-#, fuzzy
 msgid "Cannot map memory to address 0x%x .\n"
-msgstr "Kann keinen Speicher an Adresse 0x%x legen."
+msgstr "Kann keinen Speicher an Adresse 0x%x legen.\n"
 
 msgid "Cannot reserve address range at 0x%x ."
 msgstr "Kann Adressbereich ab 0x%x nicht reservieren."
@@ -219,58 +230,47 @@ msgstr "VirtualFree() scheiterte."
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect() scheiterte."
 
-#, fuzzy
 msgid "Cannot open <%s>."
 msgstr "Kann %s nicht öffnen."
 
-#, fuzzy
 msgid "msync(0x%x,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) scheitert."
 
-#, fuzzy
 msgid "Cannot delete <%s>."
 msgstr "Kann %s nicht löschen."
 
-#, fuzzy
 msgid "** WARNING: ** Too little free disk space for <%s>.\n"
 msgstr "** WARNUNG: ** Zu wenig freier Plattenplatz für %s .\n"
 
-#, fuzzy
 msgid "Please restart LISP with less memory (option -m).\n"
-msgstr "Bitte LISP mit weniger Speicher (Option -m) neu starten.\n"
+msgstr "Bitte Lisp mit weniger Speicher (Option -m) neu starten.\n"
 
-#, fuzzy
 msgid "Cannot make <%s> long enough."
 msgstr "Kann %s nicht aufblähen."
 
-#, fuzzy
 msgid "Cannot fill <%s>."
 msgstr "Kann %s nicht füllen."
 
-#, fuzzy
 msgid "Cannot close <%s>."
 msgstr "Kann %s nicht schließen."
 
 msgid "Recompile your operating system with SYSV IPC support.\n"
 msgstr "Compilieren Sie Ihr Betriebssystem neu mit Unterstützung von SYSV IPC.\n"
 
-#, fuzzy
 msgid "Cannot allocate private shared memory segment of size %d."
-msgstr "Kann kein privates Shared-Memory-Segment aufmachen."
+msgstr "Kann kein privates Shared-Memory-Segment der Größe %d aufmachen."
 
 msgid "Cannot map shared memory to address 0x%x."
 msgstr "Kann kein Shared-Memory an Adresse 0x%x legen."
 
-#, fuzzy
 msgid "%s: Cannot fill shared memory."
-msgstr "Kann Shared Memory nicht füllen."
+msgstr "%s: Kann Shared Memory nicht füllen."
 
 msgid "Cannot remove shared memory segment."
 msgstr "Kann Shared-Memory-Segment nicht entfernen."
 
-#, fuzzy
 msgid "mprotect(0x%x,%d,%d) failed."
-msgstr "mprotect() klappt nicht."
+msgstr "mprotect(0x%x,%d,%d) scheitert."
 
 msgid ""
 "\n"
@@ -282,7 +282,6 @@ msgstr ""
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
 msgstr "Szenario Apollo 13: Stack-Überlauf-Behandlung ging schief. Beim nächsten Stack-Überlauf kracht's!!!\n"
 
-#, fuzzy
 msgid "munmap() failed."
 msgstr "munmap() klappt nicht."
 
@@ -296,25 +295,20 @@ msgstr ""
 msgid "Trying to make room through a GC...\n"
 msgstr "Versuche, durch eine GC Platz zu schaffen...\n"
 
-#, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'\n"
-msgstr "Betriebssystem-Fehler beim Versuch, das Initialisierungsfile `%s' zu laden.\n"
+msgstr "%s: Betriebssystem-Fehler beim Versuch, das Initialisierungsfile »%s« zu laden.\n"
 
-#, fuzzy
 msgid "%s: Cannot map the initialization file `%s' into memory."
-msgstr "Kann das Initialisierungsfile nicht in den Speicher legen."
+msgstr "%s: Kann die Initialisierungs-Datei »%s« nicht in den Speicher legen."
 
-#, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'"
-msgstr "Betriebssystem-Fehler beim Versuch, das Initialisierungsfile `%s' zu laden.\n"
+msgstr "%s: Betriebssystem-Fehler beim Versuch, die Initialisierungs-Datei »%s« zu laden."
 
-#, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
-msgstr "Initialisierungsfile wurde nicht von dieser LISP-Version erzeugt.\n"
+msgstr "%s: Initialisierungs-Datei »%s« wurde nicht von dieser Lisp-Version erzeugt.\n"
 
-#, fuzzy
 msgid "%s: not enough memory for initialization\n"
-msgstr "Speicherplatz reicht für Initialisierung nicht aus.\n"
+msgstr "%s: Speicherplatz reicht für die Initialisierung nicht aus.\n"
 
 msgid "Invalid multibyte or wide character"
 msgstr "Ungültiges Multibyte-Zeichen"
@@ -593,13 +587,10 @@ msgid "Function not implemented"
 msgstr "Funktion ist nicht implementiert"
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
@@ -608,51 +599,32 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
 
-#, fuzzy
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -662,13 +634,10 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 
 
@@ -678,9 +647,7 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -699,17 +666,13 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
 
-#, fuzzy
 
 
 
@@ -717,7 +680,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -738,7 +700,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -760,18 +721,14 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 
 
@@ -784,9 +741,7 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -803,38 +758,28 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
 
-#, fuzzy
 
 
 
@@ -903,20 +848,15 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -927,7 +867,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -963,13 +902,9 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -981,7 +916,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -1004,9 +938,7 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1020,25 +952,21 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
 
 
 
-#, fuzzy
 
 
 
 
 
 
-#, fuzzy
 
 
 
@@ -1064,7 +992,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -1101,38 +1028,27 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1159,7 +1075,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -1169,7 +1084,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -1192,11 +1106,8 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1204,7 +1115,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -1223,19 +1133,14 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1258,18 +1163,13 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
@@ -1278,11 +1178,8 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1290,7 +1187,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -1309,7 +1205,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -1317,7 +1212,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -1331,11 +1225,9 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
@@ -1349,46 +1241,29 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1444,22 +1319,16 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
-#, fuzzy
 
 
 
@@ -1470,34 +1339,24 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1505,16 +1364,12 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
@@ -1529,9 +1384,7 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1539,9 +1392,7 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1552,19 +1403,15 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
@@ -1580,16 +1427,12 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1598,7 +1441,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -1634,48 +1476,33 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
 
-#, fuzzy
 
 
 
 
 
-#, fuzzy
 
 
 
@@ -1686,7 +1513,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -1694,13 +1520,10 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
@@ -1709,7 +1532,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -1720,19 +1542,16 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
 
 
-#, fuzzy
 
 
 
 
 
-#, fuzzy
 
 
 
@@ -1740,19 +1559,13 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
-#, fuzzy
 
 
 
@@ -1760,13 +1573,245 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #, fuzzy
 
 #, fuzzy
+
+
+
+
+
 
+
+
+
+
+
+
+
 #, fuzzy
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1776,6 +1821,14 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
+
+
+
+
+
+
+
+
 #, fuzzy
 
 #, fuzzy
@@ -1785,7 +1838,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -1806,7 +1858,6 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
@@ -1814,17 +1865,14 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
 
 
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
@@ -1844,14 +1892,10 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1860,11 +1904,14 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
+
+
 
 
 
 
+
+
 #, fuzzy
 
 
@@ -1873,7 +1920,15 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
-#, fuzzy
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1894,21 +1949,53 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
+#, fuzzy
 
 #, fuzzy
+
 
 
 
 
 
 #, fuzzy
+
+
 
 
 #, fuzzy
+
+
+
+
 
+
 #, fuzzy
+
+
+
+
+
+
+
 
+
+
+
+
 #, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1921,3 +2008,35 @@ msgstr "Funktion ist nicht implementiert"
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy

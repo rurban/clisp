@@ -14,7 +14,7 @@
 MFLAGS=
 !endif
 
-VERSION=2.32
+VERSION=2.32.94
 CLISP_VERSION=clisp-$(VERSION)
 # Directories used by "make install":
 prefix = 
@@ -649,10 +649,10 @@ varbrace.exe : ..\utils\varbrace.d comment5.exe
 	$(RM) varbrace.c
 
 txt2c.exe : ..\utils\txt2c.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  ..\utils\txt2c.c /Fetxt2c.exe
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) ..\utils\txt2c.c /Fetxt2c.exe
 
 ccmp2c.exe : ..\utils\ccmp2c.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  -I. ..\utils\ccmp2c.c /Feccmp2c.exe
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) ..\utils\ccmp2c.c /Feccmp2c.exe
 
 
 stdbool.h : stdbool.h.in
@@ -1443,17 +1443,17 @@ win32aux.obj : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c const
 	$(RM) win32aux.i.c
 
 genclisph.i : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CPPFLAGS) $(CFLAGS) genclisph.c > genclisph.i
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE genclisph.c > genclisph.i
 
 genclisph.s : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CPPFLAGS) $(CFLAGS) genclisph.c > genclisph.i.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c genclisph.i.c /FAs /Fagenclisph.s
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE genclisph.c > genclisph.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE -c genclisph.i.c /FAs /Fagenclisph.s
 	$(RM) genclisph.i.obj
 	$(RM) genclisph.i.c
 
 genclisph.obj : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h
-	$(CPP) $(CPPFLAGS) $(CFLAGS) genclisph.c > genclisph.i.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c genclisph.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE genclisph.c > genclisph.i.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE -c genclisph.i.c
 	$(RM) genclisph.obj
 	$(MV) genclisph.i.obj genclisph.obj
 	$(RM) genclisph.i.c
@@ -2062,10 +2062,10 @@ lispinit2.mem : lisp.exe $(TESTFASFILES)
 
 
 testsuite : suite lisp.exe lispinit.mem
-	cd suite && $(MAKE) LEXE=.exe
+	cd suite && CLISP_LANGUAGE='' $(MAKE) SHELL='$(SHELL)' LEXE=.exe
 
 testsuite-all : suite lisp.exe lispinit.mem
-	cd suite && $(MAKE) LEXE=.exe clean complete compare
+	cd suite && CLISP_LANGUAGE='' $(MAKE) SHELL='$(SHELL)' LEXE=.exe clean complete compare
 
 suite :
 	-mkdir suite
@@ -2089,7 +2089,7 @@ clisp.h clisp-test.c : genclisph.o unixconf.h  intparam.h floatparam.h
 	(echo; echo '/* 'floatparam.h' */' ; grep '^#' floatparam.h ) >> clisp.h
 	(echo; echo '/* genclisph */' ; genclisph clisp-test.c; echo ; echo '#endif /* _CLISP_H */') >> clisp.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DUSE_CLISP_H=1 clisp-test.c /Feclisp-test-clisp.exe
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DUSE_CLISP_H=0 clisp-test.c /Feclisp-test-lispbibl.exe
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DUSE_CLISP_H=0 -DCOMPILE_STANDALONE clisp-test.c /Feclisp-test-lispbibl.exe
 	clisp-test-clisp > clisp-test-clisp.out
 	clisp-test-lispbibl > clisp-test-lispbibl.out
 	comp clisp-test-clisp.out clisp-test-lispbibl.out
@@ -2134,7 +2134,7 @@ full : modular base $(MODULES)
 	CLISP_LINKKIT=. clisp-link add-module-sets base full $(MODULES) || ($(RMRF) full ; exit 1)
 
 full-check : full clisp
-	for m in $(MODULES); do $(RM) 920m/*.erg; done
+	for m in $(MODULES); do $(RM) 348m/*.erg; done
 	z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -norc -K full -C -i suite/tests -x "(run-some-tests '($$z))"
 
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
@@ -2171,7 +2171,7 @@ SUMMARY : ..\SUMMARY
 
 README : _README lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h _README.de _README.en txt2c.exe
 	$(TXT2C) < _README > txt.c
-	$(CPP) $(CPPFLAGS) $(CFLAGS) txt.c > txt.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE txt.c > txt.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
@@ -2181,7 +2181,7 @@ README : _README lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win
 
 README.de : _README.de lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h txt2c.exe
 	$(TXT2C) < _README.de > txt.c
-	$(CPP) $(CPPFLAGS) $(CFLAGS) txt.c > txt.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE txt.c > txt.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
@@ -2191,7 +2191,7 @@ README.de : _README.de lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj
 
 README.es : _README.es lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h txt2c.exe
 	$(TXT2C) < _README.es > txt.c
-	$(CPP) $(CPPFLAGS) $(CFLAGS) txt.c > txt.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE txt.c > txt.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
@@ -2201,7 +2201,7 @@ README.es : _README.es lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj
 
 clisp.1 : ../doc/_clisp.1 lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h VERSION txt2c.exe
 	$(TXT2C) < ../doc/_clisp.1 > txt.c
-	$(CPP) $(CPPFLAGS) $(CFLAGS) txt.c > txt.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE txt.c > txt.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
@@ -2211,7 +2211,7 @@ clisp.1 : ../doc/_clisp.1 lispbibl.c fsubr.c subr.c pseudofun.c constsym.c const
 
 clisp.html : ../doc/_clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h VERSION txt2c.exe
 	$(TXT2C) < ../doc/_clisp.html > txt.c
-	$(CPP) $(CPPFLAGS) $(CFLAGS) txt.c > txt.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE txt.c > txt.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
@@ -2221,7 +2221,7 @@ clisp.html : ../doc/_clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c
 
 clisp-1.html : ../doc/_clisp-1.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h VERSION txt2c.exe
 	$(TXT2C) < ../doc/_clisp-1.html > txt.c
-	$(CPP) $(CPPFLAGS) $(CFLAGS) txt.c > txt.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE txt.c > txt.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
@@ -2231,7 +2231,7 @@ clisp-1.html : ../doc/_clisp-1.html lispbibl.c fsubr.c subr.c pseudofun.c consts
 
 clisp.c : _clisp.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h txt2c.exe
 	$(TXT2C) < _clisp.c > txt.c
-	$(CPP) $(CPPFLAGS) $(CFLAGS) txt.c > txt.i.c
+	$(CPP) $(CPPFLAGS) $(CFLAGS) -DCOMPILE_STANDALONE txt.c > txt.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
 	$(RM) txt.i.c
 	$(RM) txt.i.obj
