@@ -653,6 +653,13 @@
 	* bindings/linuxlibc6: New module.
 	
 1998-04-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * conditio.lsp (floating-point-inexact,
+          floating-point-invalid-operation): New classes.
+        * init.lsp: Export their names.
+        * defs3.lsp: Likewise.
+
+1998-04-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 	
 	* clos.lsp: Export CLOS:METHOD.
 	  (method): New structure class.
