@@ -571,7 +571,7 @@ __TR_function alloc_trampoline (address, variable, data)
 #ifdef __s390__
   /* function:
 
-	lr	%r0,%r13
+        lr      %r0,%r13
         bras    %r13,.LTN0_0
 .LT0_0:
 .LC0:
@@ -584,7 +584,7 @@ __TR_function alloc_trampoline (address, variable, data)
         l       %r1,.LC0-.LT0_0(%r13)
         mvc     0(4,%r1),.LC1-.LT0_0(%r13)
         l       %r1,.LC2-.LT1_0(%r13)
-	lr	%r13,%r0
+        lr      %r13,%r0
         br      %r1
   */
   /* What about big endian / little endian ?? */
