@@ -1,3 +1,8 @@
+2002-05-07  Bruno Haible  <bruno@clisp.org>
+
+	* compiler.lisp (SP-depth): Insert a verification that each label is a
+	symbol. Fix wrong treatment of JMPIFBOUNDP.
+
 2002-05-07  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (ChannelStream_init): add an end_system_call() for
