@@ -897,24 +897,25 @@ LISPFUN(shared_initialize,2,0,rest,nokey,0,NIL)
       { var object slot = Car(slots);
         slots = Cdr(slots);
         # Suche ob der Slot durch die Initargs initialisiert wird:
-        { var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
-          var object* ptr = rest_args_pointer;
-          var uintC count;
-          dotimesC(count,argcount,
-            { var object initarg = NEXT(ptr);
-              # Suche initarg in l
-              var object lr = l;
-              while (consp(lr))
-                { if (eq(initarg,Car(lr))) goto initarg_found;
-                  lr = Cdr(lr);
-                }
-              NEXT(ptr);
-            });
-          goto initarg_not_found;
-          initarg_found:
-          value1 = NEXT(ptr);
-          goto fill_slot;
-        }
+        if (argcount > 0)
+          { var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
+            var object* ptr = rest_args_pointer;
+            var uintC count;
+            dotimespC(count,argcount,
+              { var object initarg = NEXT(ptr);
+                # Suche initarg in l
+                var object lr = l;
+                while (consp(lr))
+                  { if (eq(initarg,Car(lr))) goto initarg_found;
+                    lr = Cdr(lr);
+                  }
+                NEXT(ptr);
+              });
+            goto initarg_not_found;
+            initarg_found:
+            value1 = NEXT(ptr);
+            goto fill_slot;
+          }
         initarg_not_found:
         # Nicht gefunden -> erst auf (slot-boundp instance slotname) testen:
         { var object slotinfo = TheSvector(slot)->data[2]; # (slotdef-location slot)
@@ -1010,13 +1011,15 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
    {var object fun = Cdr(info);
     if (!eq(fun,L(shared_initialize)))
       { # initargs im Stack um 1 nach unten schieben, dann fun aufrufen:
-        var object* ptr = rest_args_pointer;
         var object last = NIL;
-        var uintC count;
-        dotimesC(count,argcount,
-          { var object next = Next(ptr); NEXT(ptr) = last;
-            last = Next(ptr); NEXT(ptr) = next;
-          });
+        if (argcount > 0)
+          { var object* ptr = rest_args_pointer;
+            var uintC count;
+            dotimespC(count,argcount,
+              { var object next = Next(ptr); NEXT(ptr) = last;
+                last = Next(ptr); NEXT(ptr) = next;
+              });
+          }
         pushSTACK(last);
         funcall(fun,2*argcount+2);
         return;
@@ -1028,26 +1031,27 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
       { var object slot = Car(slots);
         slots = Cdr(slots);
         # Suche ob der Slot durch die Initargs initialisiert wird:
-        { var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
-          var object* ptr = rest_args_pointer;
-          var uintC count;
-          dotimesC(count,argcount,
-            { var object initarg = NEXT(ptr);
-              # Suche initarg in l
-              var object lr = l;
-              while (consp(lr))
-                { if (eq(initarg,Car(lr))) goto initarg_found;
-                  lr = Cdr(lr);
-                }
-              NEXT(ptr);
-            });
-          goto slot_done;
-          initarg_found:
-         {var object value = NEXT(ptr);
-          # Slot mit value initialisieren:
-          {var object slotinfo = TheSvector(slot)->data[2]; # (slotdef-location slot)
-           *ptr_to_slot(Before(rest_args_pointer STACKop 1),slotinfo) = value;
-        }}}
+        if (argcount > 0)
+          { var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
+            var object* ptr = rest_args_pointer;
+            var uintC count;
+            dotimespC(count,argcount,
+              { var object initarg = NEXT(ptr);
+                # Suche initarg in l
+                var object lr = l;
+                while (consp(lr))
+                  { if (eq(initarg,Car(lr))) goto initarg_found;
+                    lr = Cdr(lr);
+                  }
+                NEXT(ptr);
+              });
+            goto slot_done;
+            initarg_found:
+           {var object value = NEXT(ptr);
+            # Slot mit value initialisieren:
+            {var object slotinfo = TheSvector(slot)->data[2]; # (slotdef-location slot)
+             *ptr_to_slot(Before(rest_args_pointer STACKop 1),slotinfo) = value;
+          }}}
         slot_done: ;
   }   }
   value1 = Before(rest_args_pointer); mv_count=1; # Instanz als Wert
@@ -1114,13 +1118,15 @@ local Values do_initialize_instance(info,rest_args_pointer,argcount)
     { var object fun = Cdr(Cdr(info));
       if (!eq(fun,L(shared_initialize)))
         { # initargs im Stack um 1 nach unten schieben, dann fun aufrufen:
-          var object* ptr = rest_args_pointer;
           var object last = T;
-          var uintC count;
-          dotimesC(count,argcount,
-            { var object next = Next(ptr); NEXT(ptr) = last;
-              last = Next(ptr); NEXT(ptr) = next;
-            });
+          if (argcount > 0)
+            { var object* ptr = rest_args_pointer;
+              var uintC count;
+              dotimespC(count,argcount,
+                { var object next = Next(ptr); NEXT(ptr) = last;
+                  last = Next(ptr); NEXT(ptr) = next;
+                });
+            }
           pushSTACK(last);
           funcall(fun,2*argcount+2);
           return;
@@ -1134,24 +1140,25 @@ local Values do_initialize_instance(info,rest_args_pointer,argcount)
         { var object slot = Car(slots);
           slots = Cdr(slots);
           # Suche ob der Slot durch die Initargs initialisiert wird:
-          { var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
-            var object* ptr = rest_args_pointer;
-            var uintC count;
-            dotimesC(count,argcount,
-              { var object initarg = NEXT(ptr);
-                # Suche initarg in l
-                var object lr = l;
-                while (consp(lr))
-                  { if (eq(initarg,Car(lr))) goto initarg_found;
-                    lr = Cdr(lr);
-                  }
-                NEXT(ptr);
-              });
-            goto initarg_not_found;
-            initarg_found:
-            value1 = NEXT(ptr);
-            goto fill_slot;
-          }
+          if (argcount > 0)
+            { var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
+              var object* ptr = rest_args_pointer;
+              var uintC count;
+              dotimespC(count,argcount,
+                { var object initarg = NEXT(ptr);
+                  # Suche initarg in l
+                  var object lr = l;
+                  while (consp(lr))
+                    { if (eq(initarg,Car(lr))) goto initarg_found;
+                      lr = Cdr(lr);
+                    }
+                  NEXT(ptr);
+                });
+              goto initarg_not_found;
+              initarg_found:
+              value1 = NEXT(ptr);
+              goto fill_slot;
+            }
           initarg_not_found:
           # Nicht gefunden -> erst auf (slot-boundp instance slotname) testen:
           { var object slotinfo = TheSvector(slot)->data[2]; # (slotdef-location slot)
@@ -1240,13 +1247,14 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
         l = Cdr(l);
        {var object key = Car(default_initarg);
         # Suche key unter den bisherigen Initargs:
-        { var object* ptr = rest_args_pointer;
-          var uintC count;
-          dotimesC(count,argcount,
-            { if (eq(NEXT(ptr),key)) goto key_found;
-              NEXT(ptr);
-            });
-        }
+        if (argcount > 0)
+          { var object* ptr = rest_args_pointer;
+            var uintC count;
+            dotimespC(count,argcount,
+              { if (eq(NEXT(ptr),key)) goto key_found;
+                NEXT(ptr);
+              });
+          }
         # Nicht gefunden
         pushSTACK(key); # Initarg in den Stack
         { var object init = Cdr(default_initarg);

@@ -708,14 +708,15 @@
             # Rang und Dimensionen, dann komponentenweise ansehen:
             { var uint32 bish_code = 0xF1C90A73UL;
               { var uintC rank = Iarray_rank(obj);
-                var uintL* dimptr = &TheIarray(obj)->dims[0];
-                if (Iarray_flags(obj) & bit(arrayflags_dispoffset_bit))
-                  dimptr++;
-                dotimesC(rank,rank,
-                  { var uint32 next_code = (uint32)(*dimptr++);
-                    bish_code = misch(bish_code,next_code);
-                  });
-              }
+                if (rank > 0)
+                  { var uintL* dimptr = &TheIarray(obj)->dims[0];
+                    if (Iarray_flags(obj) & bit(arrayflags_dispoffset_bit))
+                      dimptr++;
+                    dotimespC(rank,rank,
+                      { var uint32 next_code = (uint32)(*dimptr++);
+                        bish_code = misch(bish_code,next_code);
+                      });
+              }   }
               { var uintL len = TheIarray(obj)->totalsize;
                 var uintL index = 0;
                 var object dv = iarray_displace_check(obj,len,&index);

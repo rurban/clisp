@@ -2534,26 +2534,29 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
       # args_pointer = Pointer über die Argumente
       # Überprüfe, ob es alles Strings sind, und addiere die Längen:
       var uintL total_length = 0;
-      { var object* argptr = args_pointer;
-        var uintC count;
-        dotimesC(count,argcount,
-          { var object arg = NEXT(argptr); # nächstes Argument
-            if (!(stringp(arg))) fehler_string(arg);
-            total_length += vector_length(arg);
-          });
-      }
+      if (argcount > 0)
+        { var object* argptr = args_pointer;
+          var uintC count;
+          dotimespC(count,argcount,
+            { var object arg = NEXT(argptr); # nächstes Argument
+              if (!(stringp(arg))) fehler_string(arg);
+              total_length += vector_length(arg);
+            });
+        }
       # total_length ist jetzt die Gesamtlänge.
       { var object new_string = allocate_string(total_length); # neuer String
-        var chart* charptr2 = &TheSstring(new_string)->data[0];
-        var object* argptr = args_pointer;
-        dotimesC(argcount,argcount,
-          { var object arg = NEXT(argptr); # nächster Argument-String
-            var uintL len; # dessen Länge
-            var const chart* charptr1 = unpack_string_ro(arg,&len);
-            var uintL count;
-            # Kopiere len Characters von charptr1 nach charptr2:
-            dotimesL(count,len, { *charptr2++ = *charptr1++; } );
-          });
+        if (argcount > 0)
+          { var chart* charptr2 = &TheSstring(new_string)->data[0];
+            var object* argptr = args_pointer;
+            dotimespC(argcount,argcount,
+              { var object arg = NEXT(argptr); # nächster Argument-String
+                var uintL len; # dessen Länge
+                var const chart* charptr1 = unpack_string_ro(arg,&len);
+                var uintL count;
+                # Kopiere len Characters von charptr1 nach charptr2:
+                dotimesL(count,len, { *charptr2++ = *charptr1++; } );
+              });
+          }
         set_args_end_pointer(args_pointer); # STACK aufräumen
         return new_string;
     } }

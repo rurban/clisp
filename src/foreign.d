@@ -2260,42 +2260,43 @@ LISPFUN(element,1,0,rest,nokey,0,NIL)
       }
     # Check the subscripts:
     {var uintL row_major_index = 0;
-     {var object* args_pointer = rest_args_pointer;
-      var object* dimptr = &TheSvector(fvd)->data[2];
-      var uintC count;
-      dotimesC(count,argcount,
-        { var object subscriptobj = NEXT(args_pointer);
-          if (!posfixnump(subscriptobj))
-            { var object list = listof(argcount);
-              # STACK_0 is fvar now.
-              pushSTACK(list);
-              pushSTACK(S(element));
-              fehler(error,
-                     DEUTSCH ? "~: Subscripts ~ für ~ sind nicht vom Typ `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))." :
-                     ENGLISH ? "~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))" :
-                     FRANCAIS ? "~: Les indices ~ pour ~ ne sont pas de type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))." :
-                     ""
-                    );
-            }
-         {var uintL subscript = posfixnum_to_L(subscriptobj);
-          var uintL dim = I_to_uint32(*dimptr);
-          if (!(subscript<dim))
-            { var object list = listof(argcount);
-              # STACK_0 is fvar now.
-              pushSTACK(list);
-              pushSTACK(S(element));
-              fehler(error,
-                     DEUTSCH ? "~: Subscripts ~ für ~ liegen nicht im erlaubten Bereich." :
-                     ENGLISH ? "~: subscripts ~ for ~ are out of range" :
-                     FRANCAIS ? "~: Les indices ~ pour ~ ne sont pas dans l'intervalle permis." :
-                     ""
-                    );
-            }
-          # Compute row_major_index := row_major_index*dim+subscript:
-          row_major_index = mulu32_unchecked(row_major_index,dim)+subscript;
-          *dimptr++;
-        }});
-     }
+     if (argcount > 0)
+       { var object* args_pointer = rest_args_pointer;
+         var object* dimptr = &TheSvector(fvd)->data[2];
+         var uintC count;
+         dotimespC(count,argcount,
+           { var object subscriptobj = NEXT(args_pointer);
+             if (!posfixnump(subscriptobj))
+               { var object list = listof(argcount);
+                 # STACK_0 is fvar now.
+                 pushSTACK(list);
+                 pushSTACK(S(element));
+                 fehler(error,
+                        DEUTSCH ? "~: Subscripts ~ für ~ sind nicht vom Typ `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))." :
+                        ENGLISH ? "~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))" :
+                        FRANCAIS ? "~: Les indices ~ pour ~ ne sont pas de type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))." :
+                        ""
+                       );
+               }
+            {var uintL subscript = posfixnum_to_L(subscriptobj);
+             var uintL dim = I_to_uint32(*dimptr);
+             if (!(subscript<dim))
+               { var object list = listof(argcount);
+                 # STACK_0 is fvar now.
+                 pushSTACK(list);
+                 pushSTACK(S(element));
+                 fehler(error,
+                        DEUTSCH ? "~: Subscripts ~ für ~ liegen nicht im erlaubten Bereich." :
+                        ENGLISH ? "~: subscripts ~ for ~ are out of range" :
+                        FRANCAIS ? "~: Les indices ~ pour ~ ne sont pas dans l'intervalle permis." :
+                        ""
+                       );
+               }
+             # Compute row_major_index := row_major_index*dim+subscript:
+             row_major_index = mulu32_unchecked(row_major_index,dim)+subscript;
+             *dimptr++;
+           }});
+       }
      set_args_end_pointer(rest_args_pointer);
      fvd = TheSvector(fvd)->data[1]; # the element's foreign type
      pushSTACK(fvd);

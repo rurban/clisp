@@ -804,14 +804,15 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # > argcount: Anzahl der Argumente
 # > subr_self: Aufrufer (ein SUBR)
   #define test_input_stream_args(args_pointer,argcount)  \
-    { var object* pointer = (args_pointer);          \
-      var uintC count;                               \
-      dotimesC(count,argcount,                       \
-        { var object arg = NEXT(pointer);            \
-          if (!streamp(arg)) { fehler_stream(arg); } \
-          test_input_stream(arg);                    \
-        });                                          \
-    }
+    if (argcount > 0)                                  \
+      { var object* pointer = (args_pointer);          \
+        var uintC count;                               \
+        dotimespC(count,argcount,                      \
+          { var object arg = NEXT(pointer);            \
+            if (!streamp(arg)) { fehler_stream(arg); } \
+            test_input_stream(arg);                    \
+          });                                          \
+      }
 
 # UP: Überprüft Argumente, ob sie Output-Streams sind.
 # test_output_stream_args(args_pointer,argcount);
@@ -819,14 +820,15 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # > argcount: Anzahl der Argumente
 # > subr_self: Aufrufer (ein SUBR)
   #define test_output_stream_args(args_pointer,argcount)  \
-    { var object* pointer = (args_pointer);          \
-      var uintC count;                               \
-      dotimesC(count,argcount,                       \
-        { var object arg = NEXT(pointer);            \
-          if (!streamp(arg)) { fehler_stream(arg); } \
-          test_output_stream(arg);                   \
-        });                                          \
-    }
+    if (argcount > 0)                                  \
+      { var object* pointer = (args_pointer);          \
+        var uintC count;                               \
+        dotimespC(count,argcount,                      \
+          { var object arg = NEXT(pointer);            \
+            if (!streamp(arg)) { fehler_stream(arg); } \
+            test_output_stream(arg);                   \
+          });                                          \
+      }
 
 
 # Synonym-Stream
@@ -11709,18 +11711,18 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
       if (n>0)
         { {var uintB* sp = &curr->image[y][x1];
            var uintC count;
-           dotimesC(count,n, { *sp++ = ' '; } );
+           dotimespC(count,n, { *sp++ = ' '; } );
           }
           #if WANT_ATTR
           {var uintB* ap = &curr->attr[y][x1];
            var uintC count;
-           dotimesC(count,n, { *ap++ = 0; } );
+           dotimespC(count,n, { *ap++ = 0; } );
           }
           #endif
           #if WANT_CHARSET
           {var uintB* fp = &curr->font[y][x1];
            var uintC count;
-           dotimesC(count,n, { *fp++ = 0; } );
+           dotimespC(count,n, { *fp++ = 0; } );
           }
           #endif
           if ((x2==cols) && CEcap)
@@ -11838,25 +11840,27 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
   local void save_line_old (int y);
   local void save_line_old(y)
     var int y;
-    { {var uintB* p1 = &curr->image[y][0];
-       var uintB* p2 = &old_image_y[0];
-       var uintC count;
-       dotimesC(count,cols, { *p2++ = *p1++; } );
-      }
-      #if WANT_ATTR
-      {var uintB* p1 = &curr->attr[y][0];
-       var uintB* p2 = &old_attr_y[0];
-       var uintC count;
-       dotimesC(count,cols, { *p2++ = *p1++; } );
-      }
-      #endif
-      #if WANT_CHARSET
-      {var uintB* p1 = &curr->font[y][0];
-       var uintB* p2 = &old_font_y[0];
-       var uintC count;
-       dotimesC(count,cols, { *p2++ = *p1++; } );
-      }
-      #endif
+    { if (cols > 0)
+        { {var uintB* p1 = &curr->image[y][0];
+           var uintB* p2 = &old_image_y[0];
+           var uintC count;
+           dotimespC(count,cols, { *p2++ = *p1++; } );
+          }
+          #if WANT_ATTR
+          {var uintB* p1 = &curr->attr[y][0];
+           var uintB* p2 = &old_attr_y[0];
+           var uintC count;
+           dotimespC(count,cols, { *p2++ = *p1++; } );
+          }
+          #endif
+          #if WANT_CHARSET
+          {var uintB* p1 = &curr->font[y][0];
+           var uintB* p2 = &old_font_y[0];
+           var uintC count;
+           dotimespC(count,cols, { *p2++ = *p1++; } );
+          }
+          #endif
+        }
     }
 #endif
 

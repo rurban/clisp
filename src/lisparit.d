@@ -571,12 +571,13 @@ LISPFUN(gleich,1,0,rest,nokey,0,NIL)
     # Methode:
     # n+1 Argumente Arg[0..n].
     # for i:=0 to n-1 do ( if Arg[i]/=Arg[i+1] then return(NIL) ), return(T).
-    { var object* arg_i_ptr = args_pointer;
-      dotimesC(argcount,argcount,
-        { var object arg_i = NEXT(arg_i_ptr);
-          if (!N_N_gleich(arg_i,Next(arg_i_ptr))) goto no;
-        });
-    }
+    if (argcount > 0)
+      { var const object* arg_i_ptr = args_pointer;
+        dotimespC(argcount,argcount,
+          { var object arg_i = NEXT(arg_i_ptr);
+            if (!N_N_gleich(arg_i,Next(arg_i_ptr))) goto no;
+          });
+      }
     yes: value1 = T; goto ok;
     no: value1 = NIL; goto ok;
     ok: mv_count=1; set_args_end_pointer(args_pointer);
@@ -592,14 +593,15 @@ LISPFUN(ungleich,1,0,rest,nokey,0,NIL)
     #   for i:=0 to j-1 do
     #     if Arg[i]=Arg[j] then return(NIL),
     # return(T).
-    { var object* arg_j_ptr = rest_args_pointer;
-      dotimesC(argcount,argcount,
-        { var object* arg_i_ptr = args_pointer;
-          do { if (N_N_gleich(NEXT(arg_i_ptr),Next(arg_j_ptr))) goto no; }
-             until (arg_i_ptr==arg_j_ptr);
-          arg_j_ptr skipSTACKop -1;
-        });
-    }
+    if (argcount > 0)
+      { var const object* arg_j_ptr = rest_args_pointer;
+        dotimespC(argcount,argcount,
+          { var const object* arg_i_ptr = args_pointer;
+            do { if (N_N_gleich(NEXT(arg_i_ptr),Next(arg_j_ptr))) goto no; }
+               until (arg_i_ptr==arg_j_ptr);
+            arg_j_ptr skipSTACKop -1;
+          });
+      }
     yes: value1 = T; goto ok;
     no: value1 = NIL; goto ok;
     ok: mv_count=1; set_args_end_pointer(args_pointer);
@@ -612,12 +614,13 @@ LISPFUN(kleiner,1,0,rest,nokey,0,NIL)
     # Methode:
     # n+1 Argumente Arg[0..n].
     # for i:=0 to n-1 do ( if Arg[i]>=Arg[i+1] then return(NIL) ), return(T).
-    { var object* arg_i_ptr = args_pointer;
-      dotimesC(argcount,argcount,
-        { var object arg_i = NEXT(arg_i_ptr);
-          if (R_R_comp(arg_i,Next(arg_i_ptr))>=0) goto no;
-        });
-    }
+    if (argcount > 0)
+      { var const object* arg_i_ptr = args_pointer;
+        dotimespC(argcount,argcount,
+          { var object arg_i = NEXT(arg_i_ptr);
+            if (R_R_comp(arg_i,Next(arg_i_ptr))>=0) goto no;
+          });
+      }
     yes: value1 = T; goto ok;
     no: value1 = NIL; goto ok;
     ok: mv_count=1; set_args_end_pointer(args_pointer);
@@ -630,12 +633,13 @@ LISPFUN(groesser,1,0,rest,nokey,0,NIL)
     # Methode:
     # n+1 Argumente Arg[0..n].
     # for i:=0 to n-1 do ( if Arg[i]<=Arg[i+1] then return(NIL) ), return(T).
-    { var object* arg_i_ptr = args_pointer;
-      dotimesC(argcount,argcount,
-        { var object arg_i = NEXT(arg_i_ptr);
-          if (R_R_comp(arg_i,Next(arg_i_ptr))<=0) goto no;
-        });
-    }
+    if (argcount > 0)
+      { var const object* arg_i_ptr = args_pointer;
+        dotimespC(argcount,argcount,
+          { var object arg_i = NEXT(arg_i_ptr);
+            if (R_R_comp(arg_i,Next(arg_i_ptr))<=0) goto no;
+          });
+      }
     yes: value1 = T; goto ok;
     no: value1 = NIL; goto ok;
     ok: mv_count=1; set_args_end_pointer(args_pointer);
@@ -648,12 +652,13 @@ LISPFUN(klgleich,1,0,rest,nokey,0,NIL)
     # Methode:
     # n+1 Argumente Arg[0..n].
     # for i:=0 to n-1 do ( if Arg[i]>Arg[i+1] then return(NIL) ), return(T).
-    { var object* arg_i_ptr = args_pointer;
-      dotimesC(argcount,argcount,
-        { var object arg_i = NEXT(arg_i_ptr);
-          if (R_R_comp(arg_i,Next(arg_i_ptr))>0) goto no;
-        });
-    }
+    if (argcount > 0)
+      { var const object* arg_i_ptr = args_pointer;
+        dotimespC(argcount,argcount,
+          { var object arg_i = NEXT(arg_i_ptr);
+            if (R_R_comp(arg_i,Next(arg_i_ptr))>0) goto no;
+          });
+      }
     yes: value1 = T; goto ok;
     no: value1 = NIL; goto ok;
     ok: mv_count=1; set_args_end_pointer(args_pointer);
@@ -666,12 +671,13 @@ LISPFUN(grgleich,1,0,rest,nokey,0,NIL)
     # Methode:
     # n+1 Argumente Arg[0..n].
     # for i:=0 to n-1 do ( if Arg[i]<Arg[i+1] then return(NIL) ), return(T).
-    { var object* arg_i_ptr = args_pointer;
-      dotimesC(argcount,argcount,
-        { var object arg_i = NEXT(arg_i_ptr);
-          if (R_R_comp(arg_i,Next(arg_i_ptr))<0) goto no;
-        });
-    }
+    if (argcount > 0)
+      { var const object* arg_i_ptr = args_pointer;
+        dotimespC(argcount,argcount,
+          { var object arg_i = NEXT(arg_i_ptr);
+            if (R_R_comp(arg_i,Next(arg_i_ptr))<0) goto no;
+          });
+      }
     yes: value1 = T; goto ok;
     no: value1 = NIL; goto ok;
     ok: mv_count=1; set_args_end_pointer(args_pointer);

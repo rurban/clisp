@@ -247,9 +247,10 @@
                  ptr->reclength = reclen; ptr->recxlength = recxlen; # Längen eintragen
                 {var object* p = &ptr->recdata[0];
                  dotimesC(reclen,reclen, { *p++ = NIL; } ); # Elemente mit NIL vollschreiben
-                 {var uintB* q = (uintB*)p;
-                  dotimesC(recxlen,recxlen, { *q++ = 0; } ); # Extra-Elemente mit 0 vollschreiben
-               }}}
+                 if (recxlen > 0)
+                   { var uintB* q = (uintB*)p;
+                     dotimespC(recxlen,recxlen, { *q++ = 0; } ); # Extra-Elemente mit 0 vollschreiben
+               }}  }
               )
     }}
   #else
@@ -263,9 +264,10 @@
                { ptr->tfl = (uintL)flags_rectype + ((uintL)reclen << 16) + ((uintL)recxlen << 24); # Flags, Typ, Längen eintragen
                 {var object* p = &ptr->recdata[0];
                  dotimesC(reclen,reclen, { *p++ = NIL; } ); # Elemente mit NIL vollschreiben
-                 {var uintB* q = (uintB*)p;
-                  dotimesC(recxlen,recxlen, { *q++ = 0; } ); # Extra-Elemente mit 0 vollschreiben
-               }}}
+                 if (recxlen > 0)
+                   { var uintB* q = (uintB*)p;
+                     dotimespC(recxlen,recxlen, { *q++ = 0; } ); # Extra-Elemente mit 0 vollschreiben
+               }}  }
               )
     }
   #endif
