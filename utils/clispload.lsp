@@ -69,6 +69,20 @@
   ;; them, arbitrarily.
   HASH-TABLE-TEST.1 HASH-TABLE-TEST.2 HASH-TABLE-TEST.3 HASH-TABLE-TEST.4
 
+  ;; Paul Dietz assumes that any range of floating-point number can be
+  ;; converted to integer, i.e. that the exponent range of integers is
+  ;; bigger than the exponent range of all kinds of floating-point numbers.
+  ;; In CLISP, the range of long-float exponents is bigger than the range
+  ;; of integer exponents (ca. 2^31 versus 2^21).
+  ;; None of these approaches is perfect: Either you cannot assume that
+  ;; conversion from integer to floating-point always works, or you cannot
+  ;; assume that conversion from floating-point to integer always works.
+  BIGNUM.FLOAT.COMPARE.1A BIGNUM.FLOAT.COMPARE.1B BIGNUM.FLOAT.COMPARE.2A
+  BIGNUM.FLOAT.COMPARE.2B BIGNUM.FLOAT.COMPARE.3A BIGNUM.FLOAT.COMPARE.3B
+  BIGNUM.FLOAT.COMPARE.4A BIGNUM.FLOAT.COMPARE.4B BIGNUM.FLOAT.COMPARE.5A
+  BIGNUM.FLOAT.COMPARE.5B BIGNUM.FLOAT.COMPARE.6A BIGNUM.FLOAT.COMPARE.6B
+  BIGNUM.FLOAT.COMPARE.7 BIGNUM.FLOAT.COMPARE.8
+
   ;; In CLISP (atan 1L0) is more than long-float-epsilon apart from (/ pi 4).
   ATAN.11 ATAN.13
 
@@ -101,29 +115,87 @@
   ;; subclasses.
   USER-CLASS-DISJOINTNESS-2 TAC-3.16
 
-  ;; Paul Dietz assumes that multidimensional arrays of element type CHARACTER
-  ;; or BIT are printed like multidimensional arrays of element type T.
-  PRINT.ARRAY.2.12 PRINT.ARRAY.2.14 PRINT.ARRAY.2.16 PRINT.ARRAY.2.18
-  PRINT.ARRAY.2.19
+  ;; Paul Dietz assumes that HOST-NAMESTRING's first value is always a string.
+  ;; In CLISP, on Unix, HOST-NAMESTRING always returns NIL.
+  HOST-NAMESTRING.1 HOST-NAMESTRING.2
 
-  ; To be revisited:
-  BIGNUM.FLOAT.COMPARE.1A BIGNUM.FLOAT.COMPARE.1B BIGNUM.FLOAT.COMPARE.2A
-  BIGNUM.FLOAT.COMPARE.2B BIGNUM.FLOAT.COMPARE.3A BIGNUM.FLOAT.COMPARE.3B
-  BIGNUM.FLOAT.COMPARE.4A BIGNUM.FLOAT.COMPARE.4B BIGNUM.FLOAT.COMPARE.5A
-  BIGNUM.FLOAT.COMPARE.5B BIGNUM.FLOAT.COMPARE.6A BIGNUM.FLOAT.COMPARE.6B
-  BIGNUM.FLOAT.COMPARE.7 BIGNUM.FLOAT.COMPARE.8
-  BIGNUM.SHORT-FLOAT.RANDOM.COMPARE.1 RATIONAL.SHORT-FLOAT.RANDOM.COMPARE.1
-  RATIONAL.SINGLE-FLOAT.RANDOM.COMPARE.1 COPY-PPRINT-DISPATCH.1
-  COPY-PPRINT-DISPATCH.2 COPY-PPRINT-DISPATCH.3 COPY-PPRINT-DISPATCH.4
-  PRINT.ARRAY.2.21 PRINT.ARRAY.2.22 PRINT.ARRAY.2.23 PPRINT-TABULAR.6
+  ;; Paul Dietz assumes that (PARSE-NAMESTRING "") returns a pathname with
+  ;; directory NIL.
+  ;; In CLISP the resulting directory is (:RELATIVE).
+  PARSE-NAMESTRING.1 PARSE-NAMESTRING.2 PARSE-NAMESTRING.3 PARSE-NAMESTRING.4
+
+  ;; Broken test.
+  PRINT-UNREADABLE-OBJECT.2
+
+  ;; Paul Dietz assumes that binding *PRINT-READABLY* to T has no effect on
+  ;; how integers are printed.
+  ;; In CLISP *PRINT-READABLY* = T implies the effects of *PRINT-RADIX* = T.
+  WRITE.2 WRITE.3 WRITE.4 WRITE.5 WRITE.6 WRITE.7 PRINT.2 PRINT.3 PPRINT.2
+  PPRINT.3 PRIN1.2 PRIN1.3 WRITE-TO-STRING.2 WRITE-TO-STRING.3
+  WRITE-TO-STRING.4 PRIN1-TO-STRING.2
+
+  ;; Paul Dietz assumes that the printed representation of unreadable objects
+  ;; stays the same over time.
+  ;; CLISP shows object identity through the memory address, which can vary
+  ;; over time. Thus in RANDOM-PRINT-TEST, we can have
+  ;;   S1 = "((common-lisp:most-positive-fixnum . #\\=) #<array common-lisp:t (11) #x20B62A7E> . #<array common-lisp:t (11) #x208A68FE>)"
+  ;;   S2 = "((common-lisp:most-positive-fixnum . #\\=) #<array common-lisp:t (11) #x208A67EE> . #<array common-lisp:t (11) #x208A68FE>)"
+  PRINT.1 PPRINT.1
+
+  ;; Paul Dietz assumes that structure objects are printed like atoms.
+  ;; CLISP prints them as objects with components, like vectors.
+  PRINT-LEVEL.8 PRINT-LEVEL.9
+
+  ;; Paul Dietz assumes a superficial interpretation of *PRINT-LENGTH* in the
+  ;; context of printing structure objects.
+  ;; CLISP has a structural interpretation of *PRINT-LENGTH*.
+  PRINT-LENGTH.11
+
+  ;; Paul Dietz assumes that FORMAT ~F works like WRITE.
+  ;; CLISP prints 23346.8s0 (exact value is 23346.75) with ~F to "23346.7"
+  ;; and with WRITE to "23346.8s0" (round-to-even). ANSI CL 22.3.3.1 permits
+  ;; this: "When rounding up and rounding down would produce printed values
+  ;; equidistant from the scaled value of arg, then the implementation is free
+  ;; to use either one."
+  FORMAT.F.2 FORMAT.F.3
+
+  ;; Paul Dietz assumes that FORMAT ~S prints characters like FORMAT ~:C.
+  ;; CLISP behaviour for graphic characters with non-standardized names is,
+  ;; however, that FORMAT ~S uses the character's name, whereas FORMAT ~:C
+  ;; doesn't.
+  ;;   (format nil "~S" #\euro_sign)  => "#\\EURO_SIGN"
+  ;;   (format nil "~:C" #\euro_sign) => "€"
+  ;; ANSI CL 22.3.4.2, 22.1.3.2 and 22.3.1.1 allow this.
+  FORMAT.S.8
+
+  ;; Paul Dietz assumes that FORMAT ~10:T does nothing if the stream is not
+  ;; a pretty-printing stream.
+  ;; CLISP honors the FORMAT ~10:T even when the stream is a string-stream.
+  |FORMAT.:T.1| |FORMAT.:T.2| |FORMAT.:T.3|
+
+  ;; Paul Dietz assumes that the FORMAT ~< minpad parameter applies only
+  ;; to the gaps between segments, not to the gap before the first or after
+  ;; the last segment.
+  ;; CLISP treats all gap types equally.
+  FORMAT.JUSTIFY.8
+
+  ; To be fixed:
+  NAMESTRING.3 NAMESTRING.4 PATHNAME-MATCH-P.4
+  PARSE-NAMESTRING.4 ; only the second value can be fixed
+  DIRECTORY.6 DIRECTORY.7
+  PPRINT-TABULAR.6
+
+  ; Requires a rewrite of parts of the pretty-printer.
   PPRINT-TABULAR.7 PPRINT-TABULAR.8 PPRINT-TABULAR.9 PPRINT-TABULAR.10
   PPRINT-TABULAR.11 PPRINT-TABULAR.12 PPRINT-TABULAR.13 PPRINT-TABULAR.14
   PPRINT-TABULAR.15 PPRINT-TABULAR.16 PPRINT-TABULAR.17 PPRINT-TABULAR.18
   PPRINT-TABULAR.19 PPRINT-TABULAR.20 PPRINT-TABULAR.21 PPRINT-TABULAR.22
   PPRINT-TABULAR.24 PPRINT-INDENT.9 PPRINT-INDENT.10 PPRINT-INDENT.19
   PPRINT-INDENT.21 PPRINT-INDENT.22 PPRINT-INDENT.23
-  PPRINT-LOGICAL-BLOCK.ERROR.1 PPRINT-LOGICAL-BLOCK.ERROR.2
-  PPRINT-LOGICAL-BLOCK.ERROR.3 PPRINT-POP.6 PPRINT-POP.7 PPRINT-POP.8
+  PPRINT-LOGICAL-BLOCK.ERROR.1 PPRINT-LOGICAL-BLOCK.ERROR.1-UNSAFE
+  PPRINT-LOGICAL-BLOCK.ERROR.2 PPRINT-LOGICAL-BLOCK.ERROR.2-UNSAFE
+  PPRINT-LOGICAL-BLOCK.ERROR.3 PPRINT-LOGICAL-BLOCK.ERROR.3-UNSAFE
+  PPRINT-POP.6 PPRINT-POP.7 PPRINT-POP.8
   PPRINT-NEWLINE.1 PPRINT-NEWLINE.2 PPRINT-NEWLINE.3 PPRINT-NEWLINE.LINEAR.1
   PPRINT-NEWLINE.LINEAR.2 PPRINT-NEWLINE.LINEAR.6 PPRINT-NEWLINE.LINEAR.7
   PPRINT-NEWLINE.LINEAR.8 PPRINT-NEWLINE.MISER.4 PPRINT-NEWLINE.MISER.6
@@ -136,17 +208,14 @@
   PPRINT-TAB.NON-PRETTY.2 PPRINT-TAB.NON-PRETTY.3 PPRINT-TAB.NON-PRETTY.4
   PPRINT-TAB.NON-PRETTY.5 PPRINT-TAB.NON-PRETTY.6 PPRINT-TAB.NON-PRETTY.7
   PPRINT-TAB.NON-PRETTY.8 PPRINT-TAB.SECTION-RELATIVE.1
-  PRINT-UNREADABLE-OBJECT.2 PRINT-UNREADABLE-OBJECT.3 PATHNAME-MATCH-P.4
-  PARSE-NAMESTRING.1 DIRECTORY.6 DIRECTORY.7
-  PPRINT-LOGICAL-BLOCK.ERROR.1-UNSAFE PPRINT-LOGICAL-BLOCK.ERROR.2-UNSAFE
-  PPRINT-LOGICAL-BLOCK.ERROR.3-UNSAFE WRITE.2 WRITE.3 WRITE.4 WRITE.5 WRITE.6
-  WRITE.7 PRINT.1 PRINT.2 PRINT.3 PPRINT.2 PPRINT.3 PRIN1.2 PRIN1.3
-  WRITE-TO-STRING.2 WRITE-TO-STRING.3 WRITE-TO-STRING.4 PRIN1-TO-STRING.2
-  PRINC-TO-STRING.1 PRINT-LEVEL.8 PRINT-LEVEL.9 PRINT-LENGTH.11 FORMAT.C.4A
-  FORMAT.F.1 FORMAT.F.2 FORMAT.F.3 FORMAT.S.8 FORMAT._.1 FORMAT._.2 FORMAT._.6
-  FORMAT._.7 FORMAT._.8 FORMAT.@_.4 FORMAT.@_.6 FORMAT.@_.7 FORMAT.@_.8
-  FORMAT.@_.9 |FORMAT.:_.1| |FORMAT.:_.2| |FORMAT.:_.3| |FORMAT.:_.4|
-  |FORMAT.:_.5| |FORMAT.:_.6| |FORMAT.:@_.1| |FORMAT.:@_.2| |FORMAT.:@_.3|
+  FORMAT._.1 FORMAT._.2 FORMAT._.6 FORMAT._.7 FORMAT._.8
+  FORMAT.@_.4 FORMAT.@_.6 FORMAT.@_.7 FORMAT.@_.8 FORMAT.@_.9
+  |FORMAT.:T.5| |FORMAT.:T.5A| |FORMAT.:T.7| |FORMAT.:T.8| |FORMAT.:T.9|
+  |FORMAT.:T.10| |FORMAT.:T.12| |FORMAT.:T.ERROR.1| |FORMAT.:T.ERROR.2|
+  |FORMAT.:T.ERROR.3| |FORMAT.:@T.2| |FORMAT.:@T.3| |FORMAT.:@T.4|
+  |FORMAT.:@T.5|
+  |FORMAT.:_.1| |FORMAT.:_.2| |FORMAT.:_.3| |FORMAT.:_.4| |FORMAT.:_.5|
+  |FORMAT.:_.6| |FORMAT.:@_.1| |FORMAT.:@_.2| |FORMAT.:@_.3|
   FORMAT.LOGICAL-BLOCK.ERROR.1 FORMAT.LOGICAL-BLOCK.ERROR.2
   FORMAT.LOGICAL-BLOCK.ERROR.3 FORMAT.LOGICAL-BLOCK.ERROR.4
   FORMAT.LOGICAL-BLOCK.ERROR.5 FORMAT.LOGICAL-BLOCK.ERROR.6
@@ -171,17 +240,12 @@
   FORMAT.I.3 FORMAT.I.4 FORMAT.I.5 FORMAT.I.6 FORMAT.I.7 FORMAT.I.8 FORMAT.I.9
   FORMAT.I.10 FORMAT.I.11 FORMAT.I.12 FORMAT.I.13 FORMAT.I.14 FORMAT.I.15
   FORMAT.I.16 FORMAT./.12 FORMAT./.13 FORMAT./.14 FORMAT./.15 FORMAT./.16
-  FORMAT./.17 FORMAT./.18 |FORMAT.:T.1| |FORMAT.:T.2| |FORMAT.:T.3|
-  |FORMAT.:T.5| |FORMAT.:T.5A| |FORMAT.:T.7| |FORMAT.:T.8| |FORMAT.:T.9|
-  |FORMAT.:T.10| |FORMAT.:T.12| |FORMAT.:T.ERROR.1| |FORMAT.:T.ERROR.2|
-  |FORMAT.:T.ERROR.3| |FORMAT.:@T.2| |FORMAT.:@T.3| |FORMAT.:@T.4|
-  |FORMAT.:@T.5| FORMAT.JUSTIFY.8 FORMAT.JUSTIFY.ERROR.W.1
-  FORMAT.JUSTIFY.ERROR.W.2 FORMAT.JUSTIFY.ERROR.W.3 FORMAT.JUSTIFY.ERROR._.1
-  FORMAT.JUSTIFY.ERROR._.2 FORMAT.JUSTIFY.ERROR._.3 FORMAT.JUSTIFY.ERROR.I.1
-  FORMAT.JUSTIFY.ERROR.I.2 FORMAT.JUSTIFY.ERROR.I.3 WARN.12 WARN.13 WARN.16
-  WARN.17 WARN.18 LOGICAL-PATHNAME.ERROR.2 LOGICAL-PATHNAME.ERROR.3
-  LOGICAL-PATHNAME.ERROR.10 NAMESTRING.3, NAMESTRING.4 HOST-NAMESTRING.1
-  HOST-NAMESTRING.2 PARSE-NAMESTRING.2 PARSE-NAMESTRING.3 PARSE-NAMESTRING.4
+  FORMAT./.17 FORMAT./.18 FORMAT.JUSTIFY.ERROR.W.1 FORMAT.JUSTIFY.ERROR.W.2
+  FORMAT.JUSTIFY.ERROR.W.3 FORMAT.JUSTIFY.ERROR._.1 FORMAT.JUSTIFY.ERROR._.2
+  FORMAT.JUSTIFY.ERROR._.3 FORMAT.JUSTIFY.ERROR.I.1 FORMAT.JUSTIFY.ERROR.I.2
+  FORMAT.JUSTIFY.ERROR.I.3
+
+  ; To be revisited:
   FORMAT.D.18 FORMAT.D.19 FORMAT.D.20 FORMAT.D.21 FORMAT.B.18 FORMAT.B.19
   FORMAT.B.20 FORMAT.B.21 FORMAT.O.18 FORMAT.O.19 FORMAT.O.20 FORMAT.O.21
   FORMAT.X.18 FORMAT.X.19 FORMAT.X.20 FORMAT.X.21
