@@ -1,3 +1,12 @@
+2005-01-30  Sam Steingold  <sds@gnu.org>
+
+	activate SPECDECL bindings
+	* control.d (specdecled_): extracted from make_variable_frame()
+	(specdecled_p, activate_specdecl): new macros
+	(make_variable_frame): also return SPECDECL bindings pointer and count
+	(LET, LET*, LOCALLY, SYMBOL-MACROLET, MULTIPLE-VALUE-BIND):
+	also activate SPECDECL bindings
+
 2005-01-29  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c (fill_dbt): use I_to_LEbytes()
