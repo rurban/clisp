@@ -1,3 +1,11 @@
+2002-02-13  Sam Steingold  <sds@gnu.org>
+
+	* bindings/linuxlibc6/linux.lisp (getdomainname, setdomainname)
+	(gethostname, sethostname, mkstemp, realpath): uncommented and fixed
+	* bindings/linuxlibc6/wrap.lisp: new file
+	* bindings/linuxlibc6/Makefile, bindings/linuxlibc6/link.sh:
+	added wrap.lisp
+
 2002-02-12  Sam Steingold  <sds@gnu.org>
 
 	* lisparit.d (init_arith): define DOUBLE-FLOAT-EPSILON and

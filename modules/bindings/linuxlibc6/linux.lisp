@@ -1,6 +1,7 @@
 ;; Foreign functions provided by the Linux C library version 6,
 ;; i.e. the GNU C library version 2.0.7.
 ;; Bruno Haible 10.4.1998, 19.4.1998
+;; Sam Steingold 2002
 
 (defpackage "LINUX"
   (:case-sensitive t)
@@ -70,6 +71,7 @@
       (linux::c-string . ffi:c-string)
       (linux::c-struct . ffi:c-struct)
       (linux::deref . ffi:deref)
+      (linux::foreign-value . ffi::foreign-value)
       (linux::double-float . ffi:double-float)
       (linux::element . ffi:element)
       (linux::int . ffi:int)
@@ -402,11 +404,195 @@
 (def-c-call-out __errno_location (:arguments)
                                  (:return-type (c-ptr int))
 )
-(define-symbol-macro errno (deref (__errno_location)))
+(define-symbol-macro errno (deref (foreign-value (__errno_location))))
 
 ; ------------------------------ <errno.h> ------------------------------------
 
 ; ============================ <sys/errno.h> ==================================
+
+;;; ============================== <float.h> =================================
+
+(defconstant FLT_RADIX 2)
+(defconstant FLT_MANT_DIG 24)
+(defconstant FLT_DIG 6)
+(defconstant FLT_ROUNDS 1)
+(defconstant FLT_EPSILON 1.19209290f-07)
+(defconstant FLT_MIN_EXP -125)
+(defconstant FLT_MIN 1.17549435f-38)
+(defconstant FLT_MIN_10_EXP -37)
+(defconstant FLT_MAX_EXP 128)
+(defconstant FLT_MAX 3.40282347f+38)
+(defconstant FLT_MAX_10_EXP 38)
+
+(defconstant DBL_MANT_DIG 53)
+(defconstant DBL_DIG 15)
+(defconstant DBL_EPSILON 2.2204460492503131d-16)
+(defconstant DBL_MIN_EXP -1021)
+(defconstant DBL_MIN 2.2250738585072014d-308)
+(defconstant DBL_MIN_10_EXP -307)
+(defconstant DBL_MAX_EXP 1024)
+(defconstant DBL_MAX 1.7976931348623157d+308)
+(defconstant DBL_MAX_10_EXP 308)
+
+(defconstant LDBL_MANT_DIG 64)
+(defconstant LDBL_DIG 18)
+(defconstant LDBL_EPSILON 1.084202172485504434L-19) ; ??
+(defconstant LDBL_MIN_EXP -16381)
+(defconstant LDBL_MIN 3.3621031431120935063L-4932) ; ??
+(defconstant LDBL_MIN_10_EXP -4931)
+(defconstant LDBL_MAX_EXP 16384)
+(defconstant LDBL_MAX 1.189731495357231765L4932) ; ??
+(defconstant LDBL_MAX_10_EXP 4932)
+
+;;; ============================== <limits.h> ================================
+
+;;; ---------------------------- gcc's <limits.h> ----------------------------
+
+(defconstant CHAR_BIT 8)
+(defconstant MB_LEN_MAX 1)
+(defconstant SCHAR_MIN -128)
+(defconstant SCHAR_MAX 127)
+(defconstant UCHAR_MAX 255)
+(defconstant CHAR_MIN -128)
+(defconstant CHAR_MAX 127)
+(defconstant SHRT_MIN -32768)
+(defconstant SHRT_MAX 32767)
+(defconstant USHRT_MAX 65535)
+(defconstant INT_MIN -2147483648)
+(defconstant INT_MAX 2147483647)
+(defconstant UINT_MAX 4294967295)
+(defconstant LONG_MIN -2147483648)
+(defconstant LONG_MAX 2147483647)
+(defconstant ULONG_MAX 4294967295)
+(defconstant LONG_LONG_MIN -9223372036854775808)
+(defconstant LONG_LONG_MAX 9223372036854775807)
+(defconstant ULONG_LONG_MAX 18446744073709551615)
+
+;;; ---------------------------- <posix1_lim.h> ------------------------------
+
+(defconstant _POSIX_ARG_MAX 4096)
+(defconstant _POSIX_CHILD_MAX 6)
+(defconstant _POSIX_LINK_MAX 8)
+(defconstant _POSIX_MAX_CANON 255)
+(defconstant _POSIX_MAX_INPUT 255)
+(defconstant _POSIX_NGROUPS_MAX 0)
+(defconstant _POSIX_OPEN_MAX 16)
+(defconstant _POSIX_FD_SETSIZE _POSIX_OPEN_MAX)
+(defconstant _POSIX_NAME_MAX 14)
+(defconstant _POSIX_PATH_MAX 255)
+(defconstant _POSIX_PIPE_BUF 512)
+(defconstant _POSIX_SSIZE_MAX 32767)
+(defconstant _POSIX_STREAM_MAX 8)
+(defconstant _POSIX_TZNAME_MAX 3)
+(defconstant _POSIX_QLIMIT 1)
+(defconstant _POSIX_HIWAT _POSIX_PIPE_BUF)
+(defconstant _POSIX_UIO_MAXIOV 16)
+(defconstant _POSIX_TTY_NAME_MAX 9)
+(defconstant _POSIX_LOGIN_NAME_MAX 9)
+
+;;; ---------------------------- <linux/limits.h> ----------------------------
+
+(eval-when (load compile eval)
+(defconstant NR_OPEN 256)
+(defconstant NGROUPS_MAX 32)
+(defconstant ARG_MAX 131072)
+(defconstant CHILD_MAX 999)
+(defconstant OPEN_MAX 256)
+(defconstant LINK_MAX 127)
+(defconstant MAX_CANON 255)
+(defconstant MAX_INPUT 255)
+(defconstant NAME_MAX 255)
+(defconstant PATH_MAX 1024)
+(defconstant PIPE_BUF 4096)
+)
+
+;;; ----------------------------- <local_lim.h> ---------------------------------
+
+(defconstant _POSIX_THREAD_KEYS_MAX 128)
+(defconstant PTHREAD_KEYS_MAX 1024)
+(defconstant _POSIX_THREAD_DESTRUCTOR_ITERATIONS 4)
+(defconstant PTHREAD_DESTRUCTOR_ITERATIONS _POSIX_THREAD_DESTRUCTOR_ITERATIONS)
+(defconstant _POSIX_THREAD_THREADS_MAX 64)
+(defconstant PTHREAD_THREADS_MAX 1024)
+
+;;; ---------------------------- <posix1_lim.h> ------------------------------
+
+(defconstant SSIZE_MAX INT_MAX)
+(defconstant NGROUPS_MAX _POSIX_NGROUPS_MAX)
+
+;;; ---------------------------- <posix2_lim.h> ------------------------------
+
+(defconstant _POSIX2_BC_BASE_MAX 99)
+(defconstant _POSIX2_BC_DIM_MAX 2048)
+(defconstant _POSIX2_BC_SCALE_MAX 99)
+(defconstant _POSIX2_BC_STRING_MAX 1000)
+(defconstant _POSIX2_COLL_WEIGHTS_MAX 255)
+(defconstant _POSIX2_EQUIV_CLASS_MAX 255)
+(defconstant _POSIX2_EXPR_NEST_MAX 32)
+(defconstant _POSIX2_LINE_MAX 2048)
+(defconstant _POSIX2_RE_DUP_MAX 255)
+(defconstant _POSIX2_CHARCLASS_NAME_MAX 2048)
+
+(defconstant BC_BASE_MAX _POSIX2_BC_BASE_MAX)
+(defconstant BC_DIM_MAX _POSIX2_BC_DIM_MAX)
+(defconstant BC_SCALE_MAX _POSIX2_BC_SCALE_MAX)
+(defconstant BC_STRING_MAX _POSIX2_BC_STRING_MAX)
+(defconstant COLL_WEIGHTS_MAX _POSIX2_COLL_WEIGHTS_MAX)
+(defconstant EQUIV_CLASS_MAX _POSIX2_EQUIV_CLASS_MAX)
+(defconstant EXPR_NEST_MAX _POSIX2_EXPR_NEST_MAX)
+(defconstant LINE_MAX _POSIX2_LINE_MAX)
+(defconstant RE_DUP_MAX _POSIX2_RE_DUP_MAX)
+(defconstant CHARCLASS_NAME_MAX _POSIX2_CHARCLASS_NAME_MAX)
+
+;;; ----------------------------- <stdio_lim.h> ------------------------------
+
+(defconstant L_tmpnam 19)
+(defconstant TMP_MAX 238328)
+(defconstant L_ctermid 9)
+(defconstant L_cuserid 9)
+(defconstant FILENAME_MAX 1024)
+(defconstant FOPEN_MAX 256)
+
+;;; ----------------------------- <xopen_lim.h> ------------------------------
+
+(defconstant STREAM_MAX FOPEN_MAX)
+(defconstant TZNAME_MAX _POSIX_TZNAME_MAX)
+(defconstant _XOPEN_IOV_MAX _POSIX_UIO_MAXIOV)
+(defconstant IOV_MAX _XOPEN_IOV_MAX)
+(defconstant NL_ARGMAX _POSIX_ARG_MAX)
+(defconstant NL_LANGMAX _POSIX2_LINE_MAX)
+(defconstant NL_MSGMAX INT_MAX)
+(defconstant NL_NMAX INT_MAX)
+(defconstant NL_SETMAX INT_MAX)
+(defconstant NL_TEXTMAX INT_MAX)
+(defconstant NZERO 20)
+
+;;; ============================== <values.h> ================================
+
+(defconstant CHARBITS (bitsizeof 'char))
+(defconstant SHORTBITS (bitsizeof 'short))
+(defconstant INTBITS (bitsizeof 'int))
+(defconstant LONGBITS (bitsizeof 'long))
+(defconstant PTRBITS (bitsizeof 'c-pointer))
+(defconstant DOUBLEBITS (bitsizeof 'double-float))
+(defconstant FLOATBITS (bitsizeof 'single-float))
+(defconstant MINSHORT -32768)
+(defconstant MININT -2147483648)
+(defconstant MINLONG -2147483648)
+(defconstant MAXSHORT 32767)
+(defconstant MAXINT 2147483647)
+(defconstant MAXLONG 2147483647)
+(defconstant HIBITS -32768)
+(defconstant HIBITL -2147483648)
+(defconstant MAXDOUBLE DBL_MAX)
+(defconstant MAXFLOAT FLT_MAX)
+(defconstant MINDOUBLE DBL_MIN)
+(defconstant MINFLOAT FLT_MIN)
+(defconstant DMINEXP DBL_MIN_EXP)
+(defconstant FMINEXP FLT_MIN_EXP)
+(defconstant DMAXEXP DBL_MAX_EXP)
+(defconstant FMAXEXP FLT_MAX_EXP)
+(defconstant BITSPERBYTE CHAR_BIT)
 
 ; ============================== <varargs.h> ==================================
 ; C compiler dependent
@@ -653,12 +839,12 @@
                          (:return-type int)
 )
 
-(def-c-call-out mktemp (:arguments (template c-string :in :alloca)) ; actually :in-out
-                       (:return-type c-string)
-)
-;(def-c-call-out mkstemp (:arguments (template c-string :in :alloca)) ; actually :in-out
-;                        (:return-type int)
-;)
+(def-c-call-out mktemp
+    (:arguments (template c-string :in :alloca)) ; actually :in-out
+  (:return-type c-string))
+(def-c-call-out mkstemp
+    (:arguments (template c-string :in-out :alloca))
+  (:return-type int))
 
 (def-c-call-out system (:arguments (command c-string))
                        (:return-type int)
@@ -672,9 +858,10 @@
                                        (:return-type c-string :malloc-free)
 )
 
-;(def-c-call-out realpath (:arguments (name c-string) (resolved (c-array char ...)))
-;                         (:return-type c-string)
-;)
+(def-c-call-out realpath
+    (:arguments (name c-string)
+                (resolved (c-ptr (c-array char #.PATH_MAX)) :out :alloca))
+  (:return-type (c-ptr (c-array char #.PATH_MAX))))
 
 (def-c-type comparison_fn_t (c-function (:arguments (p1 c-pointer) (p2 c-pointer))
                                         (:return-type int)
@@ -801,190 +988,6 @@
 (def-c-call-out _toupper (:arguments (c int))
                          (:return-type int)
 )
-
-; ============================== <float.h> ====================================
-
-(defconstant FLT_RADIX 2)
-(defconstant FLT_MANT_DIG 24)
-(defconstant FLT_DIG 6)
-(defconstant FLT_ROUNDS 1)
-(defconstant FLT_EPSILON 1.19209290f-07)
-(defconstant FLT_MIN_EXP -125)
-(defconstant FLT_MIN 1.17549435f-38)
-(defconstant FLT_MIN_10_EXP -37)
-(defconstant FLT_MAX_EXP 128)
-(defconstant FLT_MAX 3.40282347f+38)
-(defconstant FLT_MAX_10_EXP 38)
-
-(defconstant DBL_MANT_DIG 53)
-(defconstant DBL_DIG 15)
-(defconstant DBL_EPSILON 2.2204460492503131d-16)
-(defconstant DBL_MIN_EXP -1021)
-(defconstant DBL_MIN 2.2250738585072014d-308)
-(defconstant DBL_MIN_10_EXP -307)
-(defconstant DBL_MAX_EXP 1024)
-(defconstant DBL_MAX 1.7976931348623157d+308)
-(defconstant DBL_MAX_10_EXP 308)
-
-(defconstant LDBL_MANT_DIG 64)
-(defconstant LDBL_DIG 18)
-(defconstant LDBL_EPSILON 1.084202172485504434L-19) ; ??
-(defconstant LDBL_MIN_EXP -16381)
-(defconstant LDBL_MIN 3.3621031431120935063L-4932) ; ??
-(defconstant LDBL_MIN_10_EXP -4931)
-(defconstant LDBL_MAX_EXP 16384)
-(defconstant LDBL_MAX 1.189731495357231765L4932) ; ??
-(defconstant LDBL_MAX_10_EXP 4932)
-
-; ============================== <limits.h> ===================================
-
-; ---------------------------- gcc's <limits.h> -------------------------------
-
-(defconstant CHAR_BIT 8)
-(defconstant MB_LEN_MAX 1)
-(defconstant SCHAR_MIN -128)
-(defconstant SCHAR_MAX 127)
-(defconstant UCHAR_MAX 255)
-(defconstant CHAR_MIN -128)
-(defconstant CHAR_MAX 127)
-(defconstant SHRT_MIN -32768)
-(defconstant SHRT_MAX 32767)
-(defconstant USHRT_MAX 65535)
-(defconstant INT_MIN -2147483648)
-(defconstant INT_MAX 2147483647)
-(defconstant UINT_MAX 4294967295)
-(defconstant LONG_MIN -2147483648)
-(defconstant LONG_MAX 2147483647)
-(defconstant ULONG_MAX 4294967295)
-(defconstant LONG_LONG_MIN -9223372036854775808)
-(defconstant LONG_LONG_MAX 9223372036854775807)
-(defconstant ULONG_LONG_MAX 18446744073709551615)
-
-; ---------------------------- <posix1_lim.h> ---------------------------------
-
-(defconstant _POSIX_ARG_MAX 4096)
-(defconstant _POSIX_CHILD_MAX 6)
-(defconstant _POSIX_LINK_MAX 8)
-(defconstant _POSIX_MAX_CANON 255)
-(defconstant _POSIX_MAX_INPUT 255)
-(defconstant _POSIX_NGROUPS_MAX 0)
-(defconstant _POSIX_OPEN_MAX 16)
-(defconstant _POSIX_FD_SETSIZE _POSIX_OPEN_MAX)
-(defconstant _POSIX_NAME_MAX 14)
-(defconstant _POSIX_PATH_MAX 255)
-(defconstant _POSIX_PIPE_BUF 512)
-(defconstant _POSIX_SSIZE_MAX 32767)
-(defconstant _POSIX_STREAM_MAX 8)
-(defconstant _POSIX_TZNAME_MAX 3)
-(defconstant _POSIX_QLIMIT 1)
-(defconstant _POSIX_HIWAT _POSIX_PIPE_BUF)
-(defconstant _POSIX_UIO_MAXIOV 16)
-(defconstant _POSIX_TTY_NAME_MAX 9)
-(defconstant _POSIX_LOGIN_NAME_MAX 9)
-
-; ---------------------------- <linux/limits.h> -------------------------------
-
-(eval-when (load compile eval)
-(defconstant NR_OPEN 256)
-(defconstant NGROUPS_MAX 32)
-(defconstant ARG_MAX 131072)
-(defconstant CHILD_MAX 999)
-(defconstant OPEN_MAX 256)
-(defconstant LINK_MAX 127)
-(defconstant MAX_CANON 255)
-(defconstant MAX_INPUT 255)
-(defconstant NAME_MAX 255)
-(defconstant PATH_MAX 1024)
-(defconstant PIPE_BUF 4096)
-)
-
-; ----------------------------- <local_lim.h> ---------------------------------
-
-(defconstant _POSIX_THREAD_KEYS_MAX 128)
-(defconstant PTHREAD_KEYS_MAX 1024)
-(defconstant _POSIX_THREAD_DESTRUCTOR_ITERATIONS 4)
-(defconstant PTHREAD_DESTRUCTOR_ITERATIONS _POSIX_THREAD_DESTRUCTOR_ITERATIONS)
-(defconstant _POSIX_THREAD_THREADS_MAX 64)
-(defconstant PTHREAD_THREADS_MAX 1024)
-
-; ---------------------------- <posix1_lim.h> ---------------------------------
-
-(defconstant SSIZE_MAX INT_MAX)
-(defconstant NGROUPS_MAX _POSIX_NGROUPS_MAX)
-
-; ---------------------------- <posix2_lim.h> ---------------------------------
-
-(defconstant _POSIX2_BC_BASE_MAX 99)
-(defconstant _POSIX2_BC_DIM_MAX 2048)
-(defconstant _POSIX2_BC_SCALE_MAX 99)
-(defconstant _POSIX2_BC_STRING_MAX 1000)
-(defconstant _POSIX2_COLL_WEIGHTS_MAX 255)
-(defconstant _POSIX2_EQUIV_CLASS_MAX 255)
-(defconstant _POSIX2_EXPR_NEST_MAX 32)
-(defconstant _POSIX2_LINE_MAX 2048)
-(defconstant _POSIX2_RE_DUP_MAX 255)
-(defconstant _POSIX2_CHARCLASS_NAME_MAX 2048)
-
-(defconstant BC_BASE_MAX _POSIX2_BC_BASE_MAX)
-(defconstant BC_DIM_MAX _POSIX2_BC_DIM_MAX)
-(defconstant BC_SCALE_MAX _POSIX2_BC_SCALE_MAX)
-(defconstant BC_STRING_MAX _POSIX2_BC_STRING_MAX)
-(defconstant COLL_WEIGHTS_MAX _POSIX2_COLL_WEIGHTS_MAX)
-(defconstant EQUIV_CLASS_MAX _POSIX2_EQUIV_CLASS_MAX)
-(defconstant EXPR_NEST_MAX _POSIX2_EXPR_NEST_MAX)
-(defconstant LINE_MAX _POSIX2_LINE_MAX)
-(defconstant RE_DUP_MAX _POSIX2_RE_DUP_MAX)
-(defconstant CHARCLASS_NAME_MAX _POSIX2_CHARCLASS_NAME_MAX)
-
-; ----------------------------- <stdio_lim.h> ---------------------------------
-
-(defconstant L_tmpnam 19)
-(defconstant TMP_MAX 238328)
-(defconstant L_ctermid 9)
-(defconstant L_cuserid 9)
-(defconstant FILENAME_MAX 1024)
-(defconstant FOPEN_MAX 256)
-
-; ----------------------------- <xopen_lim.h> ---------------------------------
-
-(defconstant STREAM_MAX FOPEN_MAX)
-(defconstant TZNAME_MAX _POSIX_TZNAME_MAX)
-(defconstant _XOPEN_IOV_MAX _POSIX_UIO_MAXIOV)
-(defconstant IOV_MAX _XOPEN_IOV_MAX)
-(defconstant NL_ARGMAX _POSIX_ARG_MAX)
-(defconstant NL_LANGMAX _POSIX2_LINE_MAX)
-(defconstant NL_MSGMAX INT_MAX)
-(defconstant NL_NMAX INT_MAX)
-(defconstant NL_SETMAX INT_MAX)
-(defconstant NL_TEXTMAX INT_MAX)
-(defconstant NZERO 20)
-
-; ============================== <values.h> ===================================
-
-(defconstant CHARBITS (bitsizeof 'char))
-(defconstant SHORTBITS (bitsizeof 'short))
-(defconstant INTBITS (bitsizeof 'int))
-(defconstant LONGBITS (bitsizeof 'long))
-(defconstant PTRBITS (bitsizeof 'c-pointer))
-(defconstant DOUBLEBITS (bitsizeof 'double-float))
-(defconstant FLOATBITS (bitsizeof 'single-float))
-(defconstant MINSHORT -32768)
-(defconstant MININT -2147483648)
-(defconstant MINLONG -2147483648)
-(defconstant MAXSHORT 32767)
-(defconstant MAXINT 2147483647)
-(defconstant MAXLONG 2147483647)
-(defconstant HIBITS -32768)
-(defconstant HIBITL -2147483648)
-(defconstant MAXDOUBLE DBL_MAX)
-(defconstant MAXFLOAT FLT_MAX)
-(defconstant MINDOUBLE DBL_MIN)
-(defconstant MINFLOAT FLT_MIN)
-(defconstant DMINEXP DBL_MIN_EXP)
-(defconstant FMINEXP FLT_MIN_EXP)
-(defconstant DMAXEXP DBL_MAX_EXP)
-(defconstant FMAXEXP FLT_MAX_EXP)
-(defconstant BITSPERBYTE CHAR_BIT)
 
 ; =============================== <math.h> ====================================
 
@@ -1880,25 +1883,33 @@
 (def-c-var optopt (:type int))
 (def-c-var optarg (:type c-string))
 
-;(def-c-call-out gethostname (:arguments (name c-pointer) (len size_t)) ; ??
-;                            (:return-type int)
-;)
+;; defined in <asm/param.h>
+(eval-when (load compile eval)
+  (defconstant MAXHOSTNAMELEN 64))
+(def-c-call-out gethostname
+    (:arguments (name (c-ptr (c-array-max char #.MAXHOSTNAMELEN)) :out :alloca)
+                (len size_t))
+  (:return-type int))
 
-;(def-c-call-out sethostname (:arguments (name (c-pointer) (len sizet)) ; ??
-;                            (:return-type int)
-;)
+(def-c-call-out sethostname
+    (:arguments (name c-string) (len size_t))
+  (:return-type int))
 
-(def-c-call-out sethostid (:arguments (id long))
-                          (:return-type int)
-)
+(def-c-call-out gethostid (:arguments)
+  (:return-type long))
 
-;(def-c-call-out getdomainname (:arguments (name c-pointer) (len size_t)) ; ??
-;                              (:return-type int)
-;)
+(def-c-call-out sethostid
+    (:arguments (id long))
+  (:return-type int))
 
-;(def-c-call-out setdomainname (:arguments (name (c-pointer) (len sizet)) ; ??
-;                              (:return-type int)
-;)
+(def-c-call-out getdomainname
+    (:arguments (name (c-ptr (c-array-max char #.MAXHOSTNAMELEN)) :out :alloca)
+                (len size_t))
+  (:return-type int))
+
+(def-c-call-out setdomainname
+    (:arguments (name c-string) (len size_t))
+  (:return-type int))
 
 (def-c-call-out fsync (:arguments (fd int))
                       (:return-type int)
@@ -1940,10 +1951,6 @@
 
 (def-c-call-out daemon (:arguments (nochdir boolean) (noclose boolean))
                        (:return-type int)
-)
-
-(def-c-call-out gethostid (:arguments)
-                          (:return-type long)
 )
 
 (def-c-call-out sync (:arguments)
@@ -2941,18 +2948,8 @@
                       (:return-type int)
 )
 
-#|
-; ============================== <.h> ====================================
-; =============================================================================
-
-(def-c-call-out (:arguments
-                (:return-type
-)
-
-(defconstant )
-|#
-; =============================================================================
-
+;;; ==========================================================================
+;;; clean up
 (lisp:in-package "LISP")
 
 (eval-when (compile eval)
