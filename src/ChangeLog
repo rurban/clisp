@@ -1,5 +1,11 @@
 2002-05-16  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (make_file_stream) [UNIX, RISCOS]: file streams
+	for the /proc filesystem default to unbuffered (it's better
+	not to mess with those files anyway!)
+
+2002-05-16  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (LIBS) [win32]: link with ws2_32 and not wsock32
 	since we are using winwock2.h
 
