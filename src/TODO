@@ -143,6 +143,8 @@ warning. The desired behaviour is:
 A documented API should be provided for the trace wrapper, so that profilers
 etc. can do the same as TRACE without needing to hack clisp's TRACE, COMPILE,
 DISASSEMBLE, DEFUN, DEFGENERIC.
+<http://article.gmane.org/gmane.lisp.clisp.devel:12837>
+<http://www.franz.com/support/documentation/6.2/doc/fwrappers-and-advice.htm>
 
 
 clean up and modularize spvw.d
