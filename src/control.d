@@ -303,7 +303,7 @@ LISPFUNN(makunbound,1)
 
 LISPFUNN(fmakunbound,1)
 { /* (FMAKUNBOUND symbol), CLTL p. 92, CLTL2 p. 123 */
-  var object funname = STACK_0;
+  var object funname = popSTACK();
   var object symbol = funname_to_symbol(funname);
   if (!symbolp(symbol)) /* should be a symbol */
       goto undef; /* otherwise undefined */
