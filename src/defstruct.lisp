@@ -878,11 +878,11 @@
         constructor-option-list))
     ;; constructor-forms = list of forms, that define the constructors.
     (let ((index 5))
-      (mapc #'(lambda (defaultvar slot)
+      (mapc #'(lambda (slot)
                 (setf (clos::structure-effective-slot-definition-initff slot)
                       `(SVREF (GET ',name 'DEFSTRUCT-DESCRIPTION) ,index))
                 (incf index))
-            slotdefaultvars slotdefaultslots))
+            slotdefaultslots))
     ;; now, slotlist contains no more slotdefaultvars.
     `(EVAL-WHEN (LOAD COMPILE EVAL)
        (LET ()
