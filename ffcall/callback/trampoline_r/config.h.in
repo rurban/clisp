@@ -45,6 +45,9 @@
 #ifndef __ia64__
 #undef __ia64__
 #endif
+#ifndef __x86_64__
+#undef __x86_64__
+#endif
 
 
 /* compiler characteristics */

@@ -59,6 +59,9 @@
 #ifndef __ia64__
 #undef __ia64__
 #endif
+#ifndef __x86_64__
+#undef __x86_64__
+#endif
 
 /* Calling convention */
 /* Define if using pcc non-reentrant struct return convention */
@@ -325,7 +328,7 @@ enum __VA_alist_flags
 #endif
 
   /* These are for internal use only */
-#if defined(__i386__) || defined(__m68k__) || defined(__mipsn32__) || defined(__mips64__) || defined(__sparc64__) || defined(__alpha__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__) || defined(__ia64__) || defined(__s390__)
+#if defined(__i386__) || defined(__m68k__) || defined(__mipsn32__) || defined(__mips64__) || defined(__sparc64__) || defined(__alpha__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__) || defined(__ia64__) || defined(__x86_64__) || defined(__s390__)
   __VA_REGISTER_STRUCT_RETURN	= 1<<10,
 #endif
 #if defined(__mips__) && !defined(__mipsn32__)
@@ -429,6 +432,12 @@ typedef struct
   __vaword*      saptr;
   double*        memfargptr;
   double         farg[8];
+#endif
+#if defined(__x86_64__)
+  double*        memfargptr;
+  double         farg[8];
+  __vaword*      memiargptr;
+  __vaword       iarg[6];
 #endif
 } __va_alist;
 
@@ -581,6 +590,16 @@ typedef __va_alist* va_alist;
   ((LIST)->flags |= __VA_REGISTER_STRUCT_RETURN,				\
    0)
 #endif
+#if defined(__x86_64__)
+#define __va_reg_struct_return(LIST,TYPE_SIZE,TYPE_SPLITTABLE)  \
+  ((TYPE_SIZE) <= 16)
+/* Turn on __VA_REGISTER_STRUCT_RETURN if __VA_SMALL_STRUCT_RETURN was set
+ * and the struct will actually be returned in registers.
+ */
+#define __va_start_struct1(LIST,TYPE_SIZE,TYPE_ALIGN,TYPE_SPLITTABLE)  \
+  ((LIST)->flags |= __VA_REGISTER_STRUCT_RETURN,				\
+   0)
+#endif
 /*
  * Preparing structure return in memory.
  */
@@ -611,6 +630,13 @@ typedef __va_alist* va_alist;
    0									\
   )
 #endif
+#if defined(__x86_64__)
+/* Return structure pointer is passed as first arg. */
+#define __va_start_struct2(LIST)  \
+  ((LIST)->raddr = (void *)(*(LIST)->memiargptr++),			\
+   0									\
+  )
+#endif
 #if defined(__m68k__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__hppa__) || defined(__m88k__) || defined(__ia64__)
 /* Return structure pointer is passed in a special register. */
 #define __va_start_struct2(LIST)  \
@@ -625,7 +651,7 @@ typedef __va_alist* va_alist;
 /* Padding of non-struct arguments. */
 #define __va_argsize(TYPE_SIZE)  \
   (((TYPE_SIZE) + sizeof(__vaword)-1) & -(long)sizeof(__vaword))
-#if defined(__i386__) || defined(__m68k__) || defined(__mips__) && !defined(__mipsn32__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__alpha__) || defined(__arm__) || (defined(__rs6000__) && (defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))) || defined(__m88k__) || defined(__convex__) || defined(__ia64__)
+#if defined(__i386__) || defined(__m68k__) || defined(__mips__) && !defined(__mipsn32__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__alpha__) || defined(__arm__) || (defined(__rs6000__) && (defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))) || defined(__m88k__) || defined(__convex__) || defined(__ia64__) || defined(__x86_64__)
 /* args grow up */
 /* small structures < 1 word are adjusted depending on compiler */
 #define __va_arg_leftadjusted(LIST,TYPE_SIZE,TYPE_ALIGN)  \
@@ -726,6 +752,16 @@ typedef __va_alist* va_alist;
 #define __va_arg_adjusted(LIST,TYPE_SIZE,TYPE_ALIGN)  \
   ((LIST)->anum++, __va_arg_rightadjusted(LIST,TYPE_SIZE,TYPE_ALIGN))
 #endif
+#if defined(__x86_64__)
+/* the first 6 argument words are passed in registers */
+#define __va_arg_adjusted(LIST,TYPE_SIZE,TYPE_ALIGN)  \
+  ((LIST)->memiargptr + ((TYPE_SIZE) + sizeof(__vaword)-1) / sizeof(__vaword) <= &(LIST)->iarg[6] \
+   ? ((LIST)->memiargptr += ((TYPE_SIZE) + sizeof(__vaword)-1) / sizeof(__vaword), \
+      (LIST)->memiargptr - ((TYPE_SIZE) + sizeof(__vaword)-1) / sizeof(__vaword) \
+     )									\
+   : (void*)__va_arg_leftadjusted(LIST,TYPE_SIZE,TYPE_ALIGN)		\
+  )
+#endif
 #define __va_arg(LIST,TYPE)  \
   *(TYPE*)__va_arg_adjusted(LIST,sizeof(TYPE),__VA_alignof(TYPE))
 
@@ -741,7 +777,7 @@ typedef __va_alist* va_alist;
 #define va_arg_long(LIST)	__va_arg(LIST,long)
 #define va_arg_ulong(LIST)	__va_arg(LIST,unsigned long)
 
-#if defined(__mips64__) || defined(__sparc64__) || defined(__alpha__) || defined(__ia64__)
+#if defined(__mips64__) || defined(__sparc64__) || defined(__alpha__) || defined(__ia64__) || defined(__x86_64__)
 /* `long long' and `long' are identical. */
 #define va_arg_longlong		va_arg_long
 #define va_arg_ulonglong	va_arg_ulong
@@ -789,7 +825,7 @@ typedef __va_alist* va_alist;
    : __va_arg_float(LIST)						\
   )
 
-#if defined(__i386__) || defined(__m68k__) || defined(__mipsn32__) || defined(__mips64__) || defined(__sparc__) || defined(__sparc64__) || defined(__alpha__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__) || defined(__ia64__) || defined(__s390__)
+#if defined(__i386__) || defined(__m68k__) || defined(__mipsn32__) || defined(__mips64__) || defined(__sparc__) || defined(__sparc64__) || defined(__alpha__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__) || defined(__ia64__) || defined(__x86_64__) || defined(__s390__)
 #define __va_align_double(LIST)
 #endif
 #if defined(__mips__) && !defined(__mipsn32__) || defined(__m88k__)
@@ -999,6 +1035,23 @@ typedef __va_alist* va_alist;
     : *(double*)((LIST)->aptr - sizeof(double))				\
   ))
 #endif
+#if defined(__x86_64__)
+/* The first 8 floating-point args have been stored elsewhere. */
+#define __va_arg_float(LIST)  \
+  ((LIST)->memfargptr < &(LIST)->farg[8]				\
+   ? ((LIST)->memfargptr++,						\
+      *(float*)((LIST)->memfargptr - 1)					\
+     )									\
+   : ((LIST)->aptr += sizeof(__vaword),					\
+      *(float*)((LIST)->aptr - sizeof(__vaword))			\
+  )  )
+#define va_arg_double(LIST)  \
+  ((LIST)->memfargptr < &(LIST)->farg[8]				\
+   ? *(LIST)->memfargptr++						\
+   : ((LIST)->aptr += sizeof(__vaword),					\
+      *(double*)((LIST)->aptr - sizeof(__vaword))			\
+  )  )
+#endif
 #ifndef __va_arg_float
 #define __va_arg_float(LIST)	__va_arg(LIST,float)
 #endif
@@ -1033,7 +1086,7 @@ typedef __va_alist* va_alist;
 #endif
 #define __va_align_struct(LIST,TYPE_SIZE,TYPE_ALIGN)  \
   (LIST)->aptr = ((LIST)->aptr + __va_struct_alignment(TYPE_ALIGN)-1) & -(long)__va_struct_alignment(TYPE_ALIGN),
-#if defined(__i386__) || defined(__m68k__) || defined(__alpha__) || defined(__arm__) || defined(__m88k__) || defined(__convex__)
+#if defined(__i386__) || defined(__m68k__) || defined(__alpha__) || defined(__arm__) || defined(__m88k__) || defined(__convex__) || defined(__x86_64__)
 #define __va_arg_struct(LIST,TYPE_SIZE,TYPE_ALIGN)  \
   (__va_align_struct(LIST,TYPE_SIZE,TYPE_ALIGN)				\
    __va_arg_adjusted(LIST,TYPE_SIZE,TYPE_ALIGN)				\
@@ -1153,7 +1206,7 @@ typedef __va_alist* va_alist;
   (__va_return(LIST,__VAlong), (LIST)->tmp._long = (VAL))
 #define va_return_ulong(LIST,VAL)  \
   (__va_return(LIST,__VAulong), (LIST)->tmp._ulong = (VAL))
-#if defined(__mips64__) || defined(__sparc64__) || defined(__alpha__) || defined(__ia64__)
+#if defined(__mips64__) || defined(__sparc64__) || defined(__alpha__) || defined(__ia64__) || defined(__x86_64__)
 #define va_return_longlong(LIST,VAL)  \
   (__va_return(LIST,__VAlonglong), (LIST)->tmp._long = (VAL))
 #define va_return_ulonglong(LIST,VAL)  \
