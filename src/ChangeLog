@@ -1,5 +1,11 @@
 2002-08-14  Sam Steingold  <sds@gnu.org>
 
+	* io.d (multi_line_sub_block_out): fixed a crash when block
+	contains several indentations
+	Reported by "Ribeiro, Glauber" <glauber.ribeiro@experian.com>
+
+2002-08-14  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (form-name): use WRITE-TO-STRING instead of
 	SYS::WRITE-TO-SHORT-STRING (reversed a major compilation
 	performance hit introduced on 2002-03-11)
@@ -4011,7 +4017,7 @@
 	(pprint_prefix): take an additional `prefix' arg
 	(pphelp_newline): use cons_ssstring() instead of PPHELP_NEW_STRING()
 	(klammer_zu): drop the newline / indentation / tab
-	(mutli_line_sub_block_out): new function
+	(multi_line_sub_block_out): new function
 	(justify_end_eng, justify_end_weit): use it
 	(space_available, pphelp_length, string_fit_line_p): new functions
 	(pr_enter_1): accomodate the new strm_pphelp_strings format
