@@ -907,6 +907,68 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
 #endif  /* fstat lstat fstat */
 
 #if defined(HAVE_STAT) && (defined(HAVE_CHMOD) || defined(HAVE_CHOWN) || defined(HAVE_UTIME))
+/* error-signalling replacement for chmod()
+   STACK_O is the path - for error reporting
+ can trigger GC */
+static void my_chmod (char *path, mode_t mode) {
+#if defined(HAVE_CHMOD)
+  if (chmod(path,mode)) OS_file_error(STACK_0);
+#else
+  end_system_call();
+  pushSTACK(CLSTEXT("~S(~S ~S): this platform lacks ~S"));
+  pushSTACK(TheSubr(subr_self)->name);
+  pushSTACK(`:MODE`); pushSTACK(fixnum(mode));
+  pushSTACK(`"chmod()"`);
+  funcall(S(warn),5);
+  begin_system_call();
+#endif
+}
+/* error-signalling replacement for chown()
+   STACK_O is the path - for error reporting
+ can trigger GC */
+static void my_chown (char *path, uid_t uid, gid_t gid) {
+#if defined(HAVE_CHOWN)
+  if (chown(path,uid,gid)) OS_file_error(STACK_0);
+#else
+  end_system_call();
+  pushSTACK(CLSTEXT("~S(~S ~S ~S ~S): this platform lacks ~S"));
+  pushSTACK(TheSubr(subr_self)->name);
+  pushSTACK(`:UID`); pushSTACK((uid != (uid_t)-1) ? fixnum(uid) : NIL);
+  pushSTACK(`:GID`); pushSTACK((gid != (gid_t)-1) ? fixnum(gid) : NIL);
+  pushSTACK(`"chown()"`);
+  funcall(S(warn),7);
+  begin_system_call();
+#endif
+}
+/* error-signalling replacement for utime()
+   STACK_O is the path - for error reporting
+ can trigger GC */
+static void my_utime (char *path, bool utb_a, bool utb_m, struct utimbuf *utb) {
+  if (utb_a && !utb_m) {
+    struct stat st;
+    if (stat(path,&st) < 0) OS_file_error(STACK_0);
+    utb->modtime = st.st_mtime;
+  }
+  if (utb_m && !utb_a) {
+    struct stat st;
+    if (stat(path,&st) < 0) OS_file_error(STACK_0);
+    utb->actime = st.st_atime;
+  }
+#if defined(HAVE_UTIME)
+  if (utime(path,utb)) OS_file_error(STACK_0);
+#else
+  end_system_call();
+  pushSTACK(CLSTEXT("~S(~S ~S ~S ~S): this platform lacks ~S"));
+  pushSTACK(TheSubr(subr_self)->name);
+  pushSTACK(`:ATIME`);
+  pushSTACK(utb_a ? UL_to_I(utb->actime + UNIX_LISP_TIME_DIFF) : NIL);
+  pushSTACK(`:MTIME`);
+  pushSTACK(utb_m ? UL_to_I(utb->modtime + UNIX_LISP_TIME_DIFF) : NIL);
+  pushSTACK(`"utime()"`);
+  funcall(S(warn),7);
+  begin_system_call();
+#endif
+}
 DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
 { /* interface to chmod(2), chown(2), utime(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/utime.html
@@ -921,8 +983,8 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
   struct utimbuf utb;
   bool utb_a = false, utb_m = false;
   if (!missingp(STACK_0)) {     /* mtime */
-    if (posfixnump(STACK_0))
-      utb.modtime = posfixnum_to_L(STACK_0) - UNIX_LISP_TIME_DIFF;
+    if (integerp(STACK_0))
+      utb.modtime = I_to_L(STACK_0) - UNIX_LISP_TIME_DIFF;
     else if (eq(STACK_0,T)) utb.modtime = time(&utb.modtime);
     else {
       object path = physical_namestring(STACK_0);
@@ -935,8 +997,8 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
   }
   if (!missingp(STACK_1)) {     /* atime */
     if (eq(STACK_0,STACK_1)) utb.actime = utb.modtime;
-    else if (posfixnump(STACK_1))
-      utb.actime = posfixnum_to_L(STACK_0) - UNIX_LISP_TIME_DIFF;
+    else if (integerp(STACK_1))
+      utb.actime = I_to_L(STACK_0) - UNIX_LISP_TIME_DIFF;
     else if (eq(STACK_1,T)) utb.actime = time(&utb.actime);
     else {
       object path = physical_namestring(STACK_1);
@@ -951,20 +1013,9 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
   STACK_0 = physical_namestring(STACK_0);
   with_string_0(STACK_0,GLO(pathname_encoding),path, {
       begin_system_call();
-      if ((mode != -1) && chmod(path,mode)) OS_file_error(STACK_0);
-      if (((uid != (uid_t)-1) || (gid != (gid_t)-1)) && chown(path,uid,gid))
-        OS_file_error(STACK_0);
-      if (utb_a && !utb_m) {
-        struct stat st;
-        if (stat(path,&st) < 0) OS_file_error(STACK_0);
-        utb.modtime = st.st_mtime;
-      }
-      if (utb_m && !utb_a) {
-        struct stat st;
-        if (stat(path,&st) < 0) OS_file_error(STACK_0);
-        utb.actime = st.st_atime;
-      }
-      if ((utb_a || utb_m) && utime(path,&utb)) OS_file_error(STACK_0);
+      if (mode != -1) my_chmod(path,mode);
+      if ((uid != (uid_t)-1) || (gid != (gid_t)-1)) my_chown(path,uid,gid);
+      if (utb_a || utb_m) my_utime(path,utb_a,utb_m,&utb);
       end_system_call();
     });
   VALUES0; skipSTACK(1);
@@ -972,7 +1023,7 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
 #endif  /* chmod chown utime */
 
 /* <http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/stat.h.html> */
-DEFCHECKER(check_chmod_mode,prefix=S_,default=, SUID SGID SVTX \
+DEFCHECKER(check_chmod_mode,prefix=S_,default=, SUID SGID SVTX          \
            RWXU RUSR WUSR XUSR RWXG RGRP WGRP XGRP RWXO ROTH WOTH XOTH)
 
 DEFUN(POSIX::CONVERT-MODE, mode)
