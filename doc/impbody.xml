@@ -1495,6 +1495,13 @@ performance considerations.
    = (+ (* &k1-r; &x1-r;) ... (* &kn-r; &xn-r;))
 </programlisting></para></formalpara>
 
+<formalpara><title>Function <function>EXT:MOD-EXPT</function></title>
+<para><literal role="sexp">(<function>EXT:MOD-EXPT</function>
+ &k-r; &l-r; &m-r;)</literal> is equivalent to
+ <literal role="sexp">(&mod; (&expt; &k-r; &l-r;) &m-r;)</literal>
+ except it is more efficient for very large arguments.
+</para></formalpara>
+
 </section>
 
 <section id="float-notes"><title>Floating Point</title>

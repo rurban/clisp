@@ -404,15 +404,6 @@
 # can trigger GC
   local bool I_isqrt_I (object x)
   {
-    if (R_minusp(x)) {
-      pushSTACK(x); # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(x);
-      pushSTACK(S(isqrt));
-      fehler(type_error,
-             GETTEXT("~ applied to negative number ~")
-            );
-    }
     var uintD* x_MSDptr;
     var uintC x_len;
     var uintD* x_LSDptr;
