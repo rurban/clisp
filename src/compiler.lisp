@@ -2194,14 +2194,14 @@ for-value   NIL or T
 (defun c-NIL ()
   (make-anode :type 'NIL
               :sub-anodes '()
-              :seclass *seclass-pure*
+              :seclass *seclass-foldable*
               :code '((NIL))))
 
 ;; constant as form:
 (defun c-CONST ()
   (make-anode :type 'const
               :sub-anodes '()
-              :seclass *seclass-pure*
+              :seclass (if (c-constantp *form*) *seclass-foldable* *seclass-pure*)
               :code `((CONST ,(new-const *form*)))))
 
 ;; variable as Form:
@@ -4130,7 +4130,7 @@ for-value   NIL or T
     (cond ((null L) (c-NIL)) ; no form -> NIL
           ((null (cdr L)) (c-form (car L))) ; exactly one form
           (t (do (#+CLISP-DEBUG (anodelist '())
-                  (seclass *seclass-pure*)
+                  (seclass *seclass-foldable*)
                   (codelist '())
                   (Lr L)) ; remaining list of forms
                  ((null Lr)
@@ -4220,11 +4220,11 @@ for-value   NIL or T
          (make-anode
            :type 'AND
            :sub-anodes '()
-           :seclass *seclass-pure*
+           :seclass *seclass-foldable*
            :code '((T))))
         ((null (cddr *form*)) (c-form (second *form*))) ; exactly one form
         (t (do (#+CLISP-DEBUG (anodelist '())
-                (seclass *seclass-pure*)
+                (seclass *seclass-foldable*)
                 (codelist '())
                 (Lr (cdr *form*))
                 (label (make-label *for-value*))) ; Label at the end
@@ -4262,11 +4262,11 @@ for-value   NIL or T
          (make-anode
            :type 'OR
            :sub-anodes '()
-           :seclass *seclass-pure*
+           :seclass *seclass-foldable*
            :code '((NIL))))
         ((null (cddr *form*)) (c-form (second *form*))) ; exactly one form
         (t (do (#+CLISP-DEBUG (anodelist '())
-                (seclass *seclass-pure*)
+                (seclass *seclass-foldable*)
                 (codelist '())
                 (Lr (cdr *form*))
                 (label (make-label *for-value*))) ; Label at the end
@@ -4303,7 +4303,7 @@ for-value   NIL or T
   (let ((value (second *form*)))
     (make-anode :type 'QUOTE
                 :sub-anodes '()
-                :seclass *seclass-pure*
+                :seclass *seclass-foldable*
                 :code (if *for-value* `((CONST ,(new-const value))) '()))))
 
 ;; compile (THE type form)
@@ -4525,7 +4525,7 @@ for-value   NIL or T
         (funcall (macro-function 'SETF) (cons 'SETF (cdr *form*)) (env)))
       (do ((L (cdr *form*) (cddr L))
            #+CLISP-DEBUG (anodelist '())
-           (seclass *seclass-pure*)
+           (seclass *seclass-foldable*)
            (codelist '()))
           ((null L)
            (make-anode
@@ -4583,7 +4583,7 @@ for-value   NIL or T
         (let ((codelist1 '())
               (codelist2 '())
               ;; build codelist = (nconc codelist1 (nreverse codelist2))
-              (seclass *seclass-pure*)) ; total side-effect-class of codelist
+              (seclass *seclass-foldable*)) ; total side-effect-class of codelist
           (do ((anodelistr anodelist (cdr anodelistr))
                (setterlistr setterlist (cdr setterlistr)))
               ((null anodelistr))
@@ -4654,7 +4654,7 @@ for-value   NIL or T
               (let ((setter (c-VARSET symbol
                               (make-anode :type 'NOP
                                           :sub-anodes '()
-                                          :seclass *seclass-pure*
+                                          :seclass *seclass-foldable*
                                           :code '())
                               (and *for-value* (null codelist)))))
                 (set-check-lock 'multiple-value-setq symbol)
@@ -4986,7 +4986,7 @@ for-value   NIL or T
            ;; activate Tagbody
            (codelist '())
            #+CLISP-DEBUG (anodelist '())
-           (seclass *seclass-pure*))
+           (seclass *seclass-foldable*))
       ;; compile interior of Tagbody:
       (do ((formlistr (cdr *form*) (cdr formlistr))
            (taglistr taglist)
