@@ -13,8 +13,7 @@
 ;;; Lift the initialization protocol.
 
 (defmethod shared-initialize ((gf generic-function) situation &rest args
-                              &key name
-                              &allow-other-keys)
+                              &key name)
   (declare (ignore name))
   (apply #'shared-initialize-<generic-function> gf situation args))
 
@@ -26,8 +25,7 @@
                                    method-combination
                                    documentation
                                    declarations
-                                   declare
-                                   &allow-other-keys)
+                                   declare)
   (declare (ignore name lambda-list argument-precedence-order method-class
                    method-combination documentation declarations declare))
   (apply #'shared-initialize-<standard-generic-function> gf situation args))

@@ -11,8 +11,7 @@
 
 (defmethod shared-initialize ((class class) situation &rest args
                               &key name direct-superclasses direct-slots
-                                   direct-default-initargs documentation
-                              &allow-other-keys)
+                                   direct-default-initargs documentation)
   (declare (ignore name direct-superclasses direct-slots
                    direct-default-initargs documentation))
   (apply #'shared-initialize-<class> class situation args))
@@ -24,8 +23,7 @@
 ;;; ===========================================================================
 
 (defmethod shared-initialize ((class built-in-class) situation &rest args
-                              &key name direct-superclasses
-                              &allow-other-keys)
+                              &key name direct-superclasses)
   (declare (ignore name direct-superclasses))
   (apply #'shared-initialize-<built-in-class> class situation args))
 
@@ -37,8 +35,7 @@
                                    (generic-accessors t)
                                    ((direct-slots direct-slots-as-metaobjects) '())
                                    ((names names) nil)
-                                   ((slots slots) '()) ((size size) 1)
-                              &allow-other-keys)
+                                   ((slots slots) '()) ((size size) 1))
   (declare (ignore name direct-superclasses direct-slots
                    direct-default-initargs documentation generic-accessors
                    direct-slots-as-metaobjects names slots size))
@@ -50,8 +47,7 @@
                               &key name direct-superclasses direct-slots
                                    direct-default-initargs documentation
                                    (generic-accessors t)
-                                   (fixed-slot-locations nil)
-                              &allow-other-keys)
+                                   (fixed-slot-locations nil))
   (declare (ignore name direct-superclasses direct-slots
                    direct-default-initargs documentation generic-accessors
                    fixed-slot-locations))
@@ -63,8 +59,7 @@
                               &key name direct-superclasses direct-slots
                                    direct-default-initargs documentation
                                    (generic-accessors t)
-                                   (fixed-slot-locations nil)
-                              &allow-other-keys)
+                                   (fixed-slot-locations nil))
   (declare (ignore name direct-superclasses direct-slots
                    direct-default-initargs documentation generic-accessors
                    fixed-slot-locations))
