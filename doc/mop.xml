@@ -82,7 +82,7 @@ reference to the method with the signature shown above is written as:
 <para>The package exporting the &mop; symbols is unspecified.</para>
 
 <note>&clisp-only;<simpara>The symbols specified by the &mop; are
-  exported from the package &clos-pac; and &re-export;ed by the package
+  exported from the package &clos-pac; and &re-export;ed from the package
   &ext-pac;.</simpara></note>
 
 <para>The package exporting the &mop; symbols is different in other
