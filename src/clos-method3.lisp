@@ -59,7 +59,7 @@
     (let ((sig (std-method-signature method)))
       (values (sig-keywords sig) (sig-allow-p sig)))))
 
-;; MOP p. 83
+;; MOP p. 82-83
 (defgeneric accessor-method-slot-definition (method)
   (:method ((method standard-accessor-method))
     (%accessor-method-slot-definition method)))
