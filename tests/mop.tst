@@ -416,6 +416,59 @@ AS-STRING
 (T (FOO) NIL NIL)
 
 
+;; Check that in defgeneric, the default-initargs of the generic-function-class
+;; have precedence over the usual defaults.
+(progn
+  (defclass testmethod50 (standard-method)
+    ())
+  (defclass testgenericfunction50 (standard-generic-function)
+    ()
+    (:default-initargs
+      :method-class (find-class 'testmethod50))
+    (:metaclass clos:funcallable-standard-class))
+  (mapcar #'class-name
+    (mapcar #'clos:generic-function-method-class
+      (list
+        (defgeneric testgf50a (x))
+        (defgeneric testgf50b (x)
+          (:generic-function-class testgenericfunction50))
+        (defgeneric testgf50c (x)
+          (:method-class standard-method)
+          (:generic-function-class testgenericfunction50))
+        (defgeneric testgf50d (x)
+          (:method-class testmethod50)
+          (:generic-function-class testgenericfunction50))))))
+(STANDARD-METHOD TESTMETHOD50 STANDARD-METHOD TESTMETHOD50)
+#|
+; Same thing with generic-flet.
+(progn
+  (defclass testmethod51 (standard-method)
+    ())
+  (defclass testgenericfunction51 (standard-generic-function)
+    ()
+    (:default-initargs
+      :method-class (find-class 'testmethod51))
+    (:metaclass clos:funcallable-standard-class))
+  (mapcar #'class-name
+    (mapcar #'clos:generic-function-method-class
+      (list
+        (generic-flet ((testgf (x)))
+          #'testgf)
+        (generic-flet ((testgf (x)
+                         (:generic-function-class testgenericfunction51)))
+          #'testgf)
+        (generic-flet ((testgf (x)
+                         (:method-class standard-method)
+                         (:generic-function-class testgenericfunction51)))
+          #'testgf)
+        (generic-flet ((testgf (x)
+                         (:method-class testmethod51)
+                         (:generic-function-class testgenericfunction51)))
+          #'testgf)))))
+(STANDARD-METHOD TESTMETHOD50 STANDARD-METHOD TESTMETHOD50)
+|#
+
+
 ;; Check dependents notification on classes.
 (progn
   (defclass dependent05 () ((counter :initform 0)))

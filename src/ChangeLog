@@ -1,5 +1,19 @@
 2004-11-13  Bruno Haible  <bruno@clisp.org>
 
+	* clos-genfun3.lisp (make-generic-function): Add method-class-p,
+	declspecs-p, documentation-p arguments. Put the defaults for
+	:method-class, :declarations, :documentation after the user-defined
+	args, not before.
+	(analyze-defgeneric): Produce additional values method-class-p,
+	declspecs-p, docstring-p.
+	(defgeneric): Put the default key/argument pairs for :method-class,
+	:documentation, :declarations after the default initargs from the
+	generic-function-class, not before.
+	(make-generic-function-form): Update.
+	Reported by Pascal Costanza.
+
+2004-11-13  Bruno Haible  <bruno@clisp.org>
+
 	* clos-class3.lisp (defclass): Put the default key/argument pairs
 	for :direct-default-initargs, :documentation, :generic-accessors
 	after the default initargs from the metaclass, not before.
