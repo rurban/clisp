@@ -10,6 +10,10 @@ Important notes
 User visible changes
 --------------------
 
+* Added a new module - "fastcgi": an interface to the FastCGI
+  Web server CGI-compatible protocol (see http://www.fastcgi.com/)
+  Thanks to John K. Hinsdale <hin@alma.com>.
+
 * LOAD now takes an additional keyword argument :OBSOLETE-ACTION which
   specifies what to do with the obsolete .fas files.
   See <http://clisp.cons.org/impnotes.html#loadfile> for details.
