@@ -1,3 +1,8 @@
+2005-02-28  Sam Steingold  <sds@gnu.org>
+
+	fixed c++ compilation
+	* comptran.d (maybe_rebind): new macro, used throughout
+
 2005-02-28  Bruno Haible  <bruno@clisp.org>
 
 	* pathname.d (find_executable) [WIN32]: Fix malloc usage bug introduced

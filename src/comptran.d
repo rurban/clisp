@@ -40,6 +40,9 @@
     }
   }
 
+/* bind S to NIL or itself, depending on v */
+#define maybe_rebind(s,v)  dynamic_bind(s,v ? NIL : (object)Symbol_value(s))
+
 /* N_exp_N(x) liefert (exp x), wo x eine Zahl ist.
  can trigger GC
  Methode:
@@ -67,8 +70,7 @@ local maygc object N_exp_N (object x, bool start_p, gcv_object_t* end_p)
     /* stack layout: a, exp(a), cos(b), sin(b). */
     var object temp;
     /* Bind variables, to avoid unjustified contagion warnings. */
-    dynamic_bind(S(warn_on_floating_point_contagion),
-                 same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+    maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
     dynamic_bind(S(floating_point_contagion_ansi),NIL);
     temp = R_R_mal_R(STACK_(2+6),STACK_(0+6)); /* (* (exp a) (sin b)) != Fixnum_0 */
     STACK_(0+6) = F_R_float_F(temp,*end_p);
@@ -503,8 +505,7 @@ local maygc object N_sin_N (object x)
       pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
       /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a), resfloat. */
       /* Bind variables, to avoid unjustified contagion warnings. */
-      dynamic_bind(S(warn_on_floating_point_contagion),
-                   same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+      maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
       dynamic_bind(S(floating_point_contagion_ansi),NIL);
       STACK_(1+6) = R_R_mal_R(STACK_(1+6),STACK_(4+6)); /* sin(a)*cosh(b), != Fixnum_0 */
       STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(3+6)); /* cos(a)*sinh(b), != Fixnum_0 */
@@ -547,8 +548,7 @@ local maygc object N_cos_N (object x)
       pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
       /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a), resfloat. */
       /* Bind variables, to avoid unjustified contagion warnings. */
-      dynamic_bind(S(warn_on_floating_point_contagion),
-                   same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+      maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
       dynamic_bind(S(floating_point_contagion_ansi),NIL);
       STACK_(1+6) = R_minus_R(R_R_mal_R(STACK_(1+6),STACK_(3+6))); /* -sin(a)*sinh(b), != Fixnum_0 */
       STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(4+6)); /* cos(a)*cosh(b), != Fixnum_0 */
@@ -593,8 +593,7 @@ local maygc object N_tan_N (object x)
       pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
       /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a), resfloat. */
       /* Bind variables, to avoid unjustified contagion warnings. */
-      dynamic_bind(S(warn_on_floating_point_contagion),
-                   same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+      maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
       dynamic_bind(S(floating_point_contagion_ansi),NIL);
       STACK_(6+6) = R_R_mal_R(STACK_(1+6),STACK_(4+6)); /* sin(a)*cosh(b) */
       var object temp = R_R_mal_R(STACK_(2+6),STACK_(3+6)); /* cos(a)*sinh(b) /= 0 */
@@ -645,8 +644,7 @@ local maygc object N_cis_N (object x)
       pushSTACK(R_R_contagion_R(STACK_3,STACK_4));
       /* stack layout: a, b, cos(a), sin(a), exp(-b), resfloat. */
       /* Bind variables, to avoid unjustified contagion warnings. */
-      dynamic_bind(S(warn_on_floating_point_contagion),
-                   same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+      maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
       dynamic_bind(S(floating_point_contagion_ansi),NIL);
       STACK_(3+6) = R_R_mal_R(STACK_(3+6),STACK_(1+6)); /* (* (exp (- b)) (cos a)) */
       STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(1+6)); /* (* (exp (- b)) (sin a)) */
@@ -691,8 +689,7 @@ local maygc object N_sinh_N (object x)
       pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
       /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a), resfloat. */
       /* Bind variables, to avoid unjustified contagion warnings. */
-      dynamic_bind(S(warn_on_floating_point_contagion),
-                   same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+      maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
       dynamic_bind(S(floating_point_contagion_ansi),NIL);
       STACK_(1+6) = R_R_mal_R(STACK_(1+6),STACK_(4+6)); /* sinh(a)*cos(b) */
       STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(3+6)); /* cosh(a)*sin(b), != Fixnum_0 */
@@ -735,8 +732,7 @@ local maygc object N_cosh_N (object x)
       pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
       /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a), resfloat. */
       /* Bind variables, to avoid unjustified contagion warnings. */
-      dynamic_bind(S(warn_on_floating_point_contagion),
-                   same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+      maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
       dynamic_bind(S(floating_point_contagion_ansi),NIL);
       STACK_(1+6) = R_R_mal_R(STACK_(1+6),STACK_(3+6)); /* sinh(a)*sin(b) */
       STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(4+6)); /* cosh(a)*cos(b) */
@@ -781,8 +777,7 @@ local maygc object N_tanh_N (object x)
       pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
       /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a), resfloat. */
       /* Bind variables, to avoid unjustified contagion warnings. */
-      dynamic_bind(S(warn_on_floating_point_contagion),
-                   same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+      maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
       dynamic_bind(S(floating_point_contagion_ansi),NIL);
       STACK_(6+6) = R_R_mal_R(STACK_(1+6),STACK_(4+6)); /* sinh(a)*cos(b) */
       var object temp = R_R_mal_R(STACK_(2+6),STACK_(3+6)); /* cosh(a)*sin(b) /= Fixnum 0 */
