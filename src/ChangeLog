@@ -1,5 +1,15 @@
 2003-08-15  Sam Steingold  <sds@gnu.org>
 
+	* modules/netica/wrap.lisp (make-node): specify placement
+	(node-info): show parents and children
+	(with-open-dne-file): new macro
+	(read-net): new function
+	* modules/netica/netica.lisp (GetNodeExpectedValue_bn)
+	(GetNodeVisPosition_bn): fixed declarations
+	* modules/netica/demo.lisp: specify placement
+
+2003-08-15  Sam Steingold  <sds@gnu.org>
+
 	* io.d (pr_orecord): print logical pathnames as namestrings (when
 	printing un-readably and ANSI "host:path" is enabled)
 
