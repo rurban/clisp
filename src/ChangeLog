@@ -1,5 +1,10 @@
 2003-04-19  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (main): when loading clisprc, use MAKE-PATHNAME
+	:DEFAULTS instead of MAKE-PATHNAME + MERGE-PATHNAMES
+
+2003-04-19  Sam Steingold  <sds@gnu.org>
+
 	* defmacro.lisp (kwd-arg-form): new function
 	(analyze-key): use it, this fixes the 2003-03-25 patch which
 	treated NIL keyword arguments as unsupplied
