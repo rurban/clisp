@@ -97,11 +97,7 @@ sequence.c
 sfloat.c
 socket.c
 sort.c
-spvw.c
-spvwtabf.c
-spvwtabo.c
-spvwtabs.c
-stream.c
+spvw*.c
 subr.c
 subrkw.c
 symbol.c
