@@ -135,6 +135,7 @@ configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN)
 
 src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4)
 	cd src ; aclocal --acdir=m4 --output=autoconf/aclocal.m4
+	cat src/m4/fnmatch.m4 src/m4/mbstate_t.m4 >> autoconf/aclocal.m4
 
 AUTOCONF_FILES = src/autoconf/aclocal.m4
 AUTOCONF = autoconf
