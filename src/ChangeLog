@@ -1,3 +1,9 @@
+1999-10-22  Sam Steingold  <sds@ksp.com>
+
+	* modules/clx/new-clx/demos/clx-demos.lsp (x-host-display):
+	return 3 values (host, server, screen).
+	Compile `qix' and `socoban' when compiling `clx-demos'.
+
 1999-10-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * array.d (bit_op): Fix memory overrun bug. Require count > 0.
