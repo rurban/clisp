@@ -17,6 +17,12 @@ User visible changes
   a positive multiple of 8. Previously these functions returned streams whose
   element-type was (OR CHARACTER (UNSIGNED-BYTE 8)).
 
+* STREAM-ELEMENT-TYPE is SETFable. The element type of streams created by the
+  functions MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM,
+  MAKE-PIPE-IO-STREAM, SOCKET-ACCEPT, SOCKET-CONNECT can be modified, if both
+  the old and the new element type are equivalent to CHARACTER or
+  (UNSIGNED-BYTE n), (SIGNED-BYTE n), where n is a positive multiple of 8.
+
 * Conforming with ANSI CL, FILE-LENGTH and FILE-POSITION, when called on
   an unbuffered file stream, now return NIL instead of signalling an error.
 

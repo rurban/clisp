@@ -1,3 +1,13 @@
+1999-01-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Mutable STREAM-ELEMENT-TYPE.
+        * stream.d (fill_pseudofuns_unbuffered): New function.
+          (make_unbuffered_stream): Call it. Always initialize lineno.
+          (fill_pseudofuns_buffered): New function.
+          (make_file_stream): Call it. Always initialize lineno.
+          (SYSTEM::SET-STREAM-ELEMENT-TYPE): New function.
+        * places.lsp (stream-element-type): New defsetf.
+
 1999-01-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Treat pipe and socket streams like unbuffered file streams.
