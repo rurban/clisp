@@ -1,3 +1,7 @@
+1999-11-10  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d (TheSarray, TheSbvector, TheCodevec): Fix typo.
+
 1999-11-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * modules/clx/mit-clx/clx.lsp (base-char): Don't redefine in CLISP.
