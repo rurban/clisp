@@ -169,13 +169,6 @@ extern RETGETPAGESIZETYPE getpagesize ();
 #ifdef HAVE_SYS_SYSMACROS_H
 #include <sys/sysmacros.h>
 #endif
-#ifdef __cplusplus
-extern "C" int shmget (key_t key, SHMGET_SIZE_T size, int shmflg);
-#elif defined(__STDC__)
-extern int shmget (key_t key, SHMGET_SIZE_T size, int shmflg);
-#else
-extern int shmget ();
-#endif
 #endif
 
 /* Support for instruction cache flush. */
