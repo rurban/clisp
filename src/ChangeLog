@@ -1,5 +1,12 @@
 2004-03-07  Bruno Haible  <bruno@clisp.org>
 
+	* compiler.lisp (signed-operand-length): New function.
+	(assemble-LAP): Instead of working around the "zero jump of length 2"
+	bug, more generally guarantee that the jump lengths only ever grow and
+	never need to shrink.
+
+2004-03-07  Bruno Haible  <bruno@clisp.org>
+
 	* compiler.lisp (seclass): Update comments.
 	(c-THROW): Reduce the seclass' uses-binding value.
 
