@@ -1,3 +1,18 @@
+2004-04-28  Bruno Haible  <bruno@clisp.org>
+
+	Make weak-pointers work also on SPVW_PAGES platforms.
+	* spvw_update.d (do_update_record): Depending on update_weak_pointers,
+	update also the hidden pointers of Weakpointer and WeakKVT objects.
+	* spvw_garcol.d (gar_col_normal): Define update_weak_pointers to false.
+	(gar_col_compact): Don't call update_weakpointers_mod,
+	update_weakkvtables_mod. Instead, define update_weak_pointers to true.
+	(move_conses): Call update_weakpointers instead of
+	update_weakpointers_mod, update_weakkvtables instead of
+	update_weakkvtables_mod. Define update_weak_pointers to false.
+	* spvw_memfile.d (savemem): Don't call update_weakpointers,
+	update_weakkvtables. Instead, define update_weak_pointers to true.
+	(loadmem_from_handle): Likewise.
+
 2004-04-29  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (PARSE-NAMESTRING): Fix a GC-safety bug.

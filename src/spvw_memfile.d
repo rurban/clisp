@@ -468,6 +468,7 @@ global void savemem (object stream)
      #define update_fpointer_invalid  false
     #endif
     #define update_fsubr_function  true
+    #define update_weak_pointers  true
     #define update(objptr)                                              \
       do { switch (mtypecode(*(gcv_object_t*)objptr)) {                 \
         case_system:                                                    \
@@ -484,8 +485,6 @@ global void savemem (object stream)
     #define update_fs_function(obj)  rheader.fscount++;
     update_conses();
     update_varobjects();
-    update_weakpointers();
-    update_weakkvtables();
     #undef update_fs_function
     #undef update_fp_invalid
     #undef update_ht_invalid
@@ -516,12 +515,11 @@ global void savemem (object stream)
     #define update_fs_function(obj)  *fsbufptr++ = (obj);
     update_conses();
     update_varobjects();
-    update_weakpointers();
-    update_weakkvtables();
     #undef update_fs_function
     #undef update_fp_invalid
     #undef update_ht_invalid
     #undef update
+    #undef update_weak_pointers
     #undef update_fsubr_function
     #undef update_fpointer_invalid
     #undef update_in_unrealloc
@@ -1323,10 +1321,6 @@ local void loadmem_from_handle (Handle handle, const char* filename)
    #endif
     /* traverse all LISP-objects and update: */
     #define update  loadmem_update
-    /* update weak-pointers: */
-    update_weakpointers();
-    /* update weak kvtables: */
-    update_weakkvtables();
     /* update program constants: */
     update_tables();
    #ifdef SINGLEMAP_MEMORY_RELOCATE
@@ -1348,6 +1342,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
          #define update_fpointer_invalid  false
        #endif
        #define update_fsubr_function  true
+       #define update_weak_pointers  true
        #define update_ht_invalid  mark_ht_invalid
        #define update_fp_invalid  mark_fp_invalid
        #define update_fs_function  loadmem_update_fsubr
@@ -1355,6 +1350,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
        #undef update_fs_function
        #undef update_fp_invalid
        #undef update_ht_invalid
+       #undef update_weak_pointers
        #undef update_fsubr_function
        #undef update_fpointer_invalid
        #undef update_in_unrealloc
