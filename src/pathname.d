@@ -1454,7 +1454,7 @@ nonreturning_function(local, fehler_file_stream_unnamed, (object stream)) {
 #endif
 #define colonp(c)    chareq(c,ascii(':'))
 #ifndef LOGICAL_PATHNAMES
-#define slashp(c)    pslashp(c)
+#define lslashp(c)   pslashp(c)
 #endif
 
 # UP: add a character to an ASCII string and return as a Lisp string
@@ -1531,7 +1531,7 @@ typedef struct {
 
 # separator between subdirs
 #define semicolonp(c)  (chareq(c,ascii(';')))
-#define slashp(c)      (semicolonp(c) || pslashp(c))
+#define lslashp(c)     semicolonp(c)
 
 /* copy LEN characters in string ORIG starting at ORIG_OFFSET to string DEST,
    starting at DEST_OFFSET, up-casing all characters */
@@ -1584,7 +1584,7 @@ local object parse_logical_word (zustand* z, bool subdirp) {
   }
   var uintL len = z->index - startz.index;
   if (subdirp) {
-    if ((z->count == 0) || !slashp(ch)) {
+    if ((z->count == 0) || !lslashp(ch)) {
       *z = startz; return NIL; # no ';' -> no subdir
     }
     # skip character ';' :
@@ -1781,7 +1781,7 @@ local uintL parse_logical_pathnamestring (zustand z) {
   # "foo:/bar/baz.zot" is an :ABSOLUTE physical pathname.
   # see "19.3.1.1.3 The Directory part of a Logical Pathname Namestring"
   # http://www.lisp.org/HyperSpec/Body/sec_19-3-1-1-3.html
-  if (Z_AT_SLASH(z,slashp,STACK_2)) {
+  if (Z_AT_SLASH(z,lslashp,STACK_2)) {
     Z_SHIFT(z,1);
     Car(STACK_0) = S(Krelative);
   } else {
@@ -2190,11 +2190,11 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
         # Look for two slashes, then a sequence of characters.
         if (z.count==0) goto no_hostspec;
         ch = TheSstring(STACK_1)->data[z.index];
-        if (!slashp(ch)) goto no_hostspec;
+        if (!pslashp(ch)) goto no_hostspec;
         Z_SHIFT(z,1);
         if (z.count==0) goto no_hostspec;
         ch = TheSstring(STACK_1)->data[z.index];
-        if (!slashp(ch)) goto no_hostspec;
+        if (!pslashp(ch)) goto no_hostspec;
         Z_SHIFT(z,1);
         while (z.count) {
           ch = TheSstring(STACK_1)->data[z.index];
@@ -2492,13 +2492,13 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
             Car(STACK_0) = allocate_string(1);
             TheSstring(Car(STACK_0))->data[0] = ch;
             Z_SHIFT(z,2);
-            if (Z_AT_SLASH(z,slashp,STACK_2)) Z_SHIFT(z,1);
+            if (Z_AT_SLASH(z,pslashp,STACK_2)) Z_SHIFT(z,1);
           } else goto continue_parsing_despite_semicolon;
         } else
         continue_parsing_despite_semicolon:
       #endif
         # if 1st char is a slash, start with :ABSOLUTE (otherwise :RELATIVE):
-        if (Z_AT_SLASH(z,slashp,STACK_2)) {
+        if (Z_AT_SLASH(z,pslashp,STACK_2)) {
           Z_SHIFT(z,1);
           Car(STACK_0) = S(Kabsolute);
         } else {
@@ -2568,7 +2568,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
         }
         # if a '/' resp. '\' follows immediately, then it was a subdirectory,
         # else the pathname is finished:
-        if (!Z_AT_SLASH(z,slashp,STACK_3))
+        if (!Z_AT_SLASH(z,pslashp,STACK_3))
           # no -> it was the name and no subdir.
           break;
         # a '/' resp. '\' follows. skip character:
@@ -2608,7 +2608,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
         if (!nullp(STACK_0)
             && (z.count >= 2)
             && chareq(TheSstring(STACK_3)->data[z.index],ascii('^'))
-            && slashp(TheSstring(STACK_3)->data[z.index+1])) {
+            && pslashp(TheSstring(STACK_3)->data[z.index+1])) {
           # skip both characters:
           Z_SHIFT(z,2);
           pushSTACK(S(Kparent)); # :PARENT
@@ -2635,7 +2635,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
           else
             string = subsstring(STACK_3,z_start_index,z.index);
           # Name finished.
-          if (nullp(STACK_0) || (!Z_AT_SLASH(z,slashp,STACK_3))) {
+          if (nullp(STACK_0) || (!Z_AT_SLASH(z,pslashp,STACK_3))) {
             pushSTACK(string); break;
           }
           # skip character '.' :
@@ -10007,7 +10007,7 @@ local object ensure_last_slash (object dir_string) {
   var uintL len, offset;
   var object str = unpack_string_ro(dir_string,&len,&offset);
   var chart ch = schar(str,len+offset-1);
-  if (!slashp(ch)) {
+  if (!pslashp(ch) && !lslashp(ch)) {
     var char sl = (looks_logical_p(dir_string) ? ';' : slash);
     with_sstring_0(str,O(pathname_encoding),asciz, {
       dir_string = asciz_add_char(asciz,len,sl,O(pathname_encoding));
@@ -10040,7 +10040,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL) {
   change_default(); # set default drive and default directory
   VALUES1(popSTACK()); /* new pathname as the value */
 }
-#undef slashp
+#undef lslashp
 #undef pslashp
 
 # UP: checks a pathname, if both name and type are =NIL ,

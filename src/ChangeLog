@@ -1,3 +1,13 @@
+2003-02-10  Sam Steingold  <sds@gnu.org>
+
+	Do not treat #\/ in logical pathnames as #\;
+	* pathname.d (lslashp): reintroduced
+	(slashp): removed
+	(parse_logical_word, parse_logical_pathnamestring):
+	use lslashp() instead of slashp()
+	(PARSE-NAMESTRING): use pslashp() instead of slashp()
+	(ensure_last_slash): check both pslashp() and lslashp()
+
 2003-02-09  Sam Steingold  <sds@gnu.org>
 
 	* debug.d (break_driver): unbind *TERMINAL-READ-OPEN-OBJECT*,
@@ -144,11 +154,6 @@
 	test_string_limits_ro()
 	(test_string_limits_ro): use it
 	* lispbibl.d (test_vector_limits): declare
-
-2003-01-29  Sam Steingold  <sds@gnu.org>
-
-	* pathname.d (slashp): when *PARSE-NAMESTRING-ANSI* is T,
-	barf on #\/ in logical pathnames instead of equating them with #\;
 
 2003-01-29  Sam Steingold  <sds@gnu.org>
 
@@ -17959,7 +17964,7 @@
 
 1997-10-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
-	* disassem.lsp (disassemble-machine-code for UNIX): Inhibit line
+	* disassem.lsp (disassemble-machine-code) [UNIX]: Inhibit line
 	  breaks, 1 instruction per line, otherwise the instruction gets
 	  filtered away.
 
@@ -18026,7 +18031,7 @@
 1997-09-28  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
 	Use `const' qualifier when possible, especially on constant arrays.
-	This allows constant arrays to be put into the rodata section.
+	This allows constant arrays to be put into the raw data section.
 	* arilev1c.d (copy_loop_up, copy_loop_down, or_loop_up, xor_loop_up)
 	(and_loop_up, eqv_loop_up, nand_loop_up, nor_loop_up, andc2_loop_up)
 	(orc2_loop_up, and_test_loop_up, test_loop_up, compare_loop_up)
