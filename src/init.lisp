@@ -1323,7 +1323,7 @@
                   ((:print *load-print*) *load-print*)
                   (if-does-not-exist t) (external-format ':default)
                   ((:echo *load-echo*) *load-echo*)
-                  ((:compiling *load-compiling*) *load-compiling*)
+                  ((:compiling *load-compiling*) *load-compiling* c-top)
                   ((:obsolete-action *load-obsolete-action*)
                    *load-obsolete-action*)
                   (extra-file-types '())
@@ -1363,12 +1363,19 @@
       (write-string " ..."))
     (when *load-compiling* (compiler::c-reset-globals))
     (sys::allow-read-eval input-stream t)
-    (block nil
+    ;; see `with-compilation-unit' -- `:compiling' sets a compilation unit
+    ;; the user might set `*load-compiling*' to T either directly
+    ;; or using the -C option, so we have to check that
+    ;; `*error-output*' et al are already bound
+    (progv (when (and *load-compiling*
+                      (or c-top (not (boundp '*error-count*))))
+             '(*error-count* *warning-count* *style-warning-count*))
+        '(0 0 0)
       (unwind-protect
            (tagbody weiter
              (when *load-echo* (fresh-line))
              (let ((obj (read input-stream nil end-of-file)))
-               (when (eql obj end-of-file) (return-from nil))
+               (when (eql obj end-of-file) (go done))
                (setq obj (multiple-value-list
                           (cond ((compiled-function-p obj) (funcall obj))
                                 (*load-compiling*
@@ -1376,12 +1383,12 @@
                                            obj)))
                                 (t (eval obj)))))
                (when *load-print* (when obj (print (first obj)))))
-             (go weiter))
+             (go weiter) done)
         (or (eq input-stream stream)
             (sys::built-in-stream-close input-stream))
         (or (eq stream filename)
-            (sys::built-in-stream-close stream))))
-    (when *load-compiling* (compiler::c-report-problems))
+            (sys::built-in-stream-close stream))
+        (when *load-compiling* (compiler::c-report-problems))))
     (when *load-verbose*
       (fresh-line)
       (write-string ";;")

@@ -1,3 +1,8 @@
+2003-09-23  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (load) [:COMPILING]: bind *ERROR-COUNT* *WARNING-COUNT*
+	*STYLE-WARNING-COUNT* like in WITH-COMPILATION-UNIT
+
 2003-09-22  Sam Steingold  <sds@gnu.org>
 
 	* unix.d (SHUT_RD, SHUT_WR, SHUT_RDWR): define when not defined
