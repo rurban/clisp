@@ -45,6 +45,7 @@
 (load "clos-methcomb4")
 (load "clos-genfun5")
 (load "clos-print")
+(load "clos-custom")
 (setq *allow-making-generic* nil)
 (load "documentation")
 

@@ -6624,7 +6624,7 @@ typedef enum {
 # Test for CLOS-class or forward-reference.
 # Our CLOS implements all classes as instances of a
 # (not necessarily direct) subclass of <class>.
-#define if_class_p(obj,statement1,statement2)  \
+#define if_potential_class_p(obj,statement1,statement2)  \
   if (instancep(obj)) {                                               \
     {                                                                 \
       var object obj_forwarded = obj;                                 \
@@ -6640,7 +6640,7 @@ typedef enum {
         goto obj##_classp_yes;                                        \
       /* Now a slow, but general instanceof test. */                  \
       {var object objclas = TheClassVersion(cv)->cv_newest_class;     \
-       if (eq(gethash(O(class_class),TheClass(objclas)->all_superclasses),nullobj)) \
+       if (eq(gethash(O(class_potential_class),TheClass(objclas)->all_superclasses),nullobj)) \
          goto obj##_classp_no;                                        \
     }}}                                                               \
    obj##_classp_yes: statement1;                                      \
