@@ -104,15 +104,8 @@ avcall-mips64.s : $(srcdir)/avcall-mips64.S
 avcall-alpha.lo : $(srcdir)/avcall-alpha.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-alpha.s
 
-avcall-hppa.lo : $(srcdir)/avcall-hppa-hpux.s $(srcdir)/avcall-hppa-linux.s
-	case "$(OS)" in \
-	  hpux*) syntax=hpux;; \
-	  linux*) syntax=linux;; \
-	  *) syntax=unknown;; \
-	esac; \
-	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-hppa-$${syntax}.s ; \
-	cp avcall-hppa-$${syntax}.lo avcall-hppa.lo ; rm -f avcall-hppa-$${syntax}.lo ; \
-	if test -f avcall-hppa-$${syntax}.o; then mv avcall-hppa-$${syntax}.o avcall-hppa.o; fi
+avcall-hppa.lo : $(srcdir)/avcall-hppa.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-hppa.s
 
 avcall-s390.lo : $(srcdir)/avcall-s390.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-s390.s
