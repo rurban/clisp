@@ -1,3 +1,7 @@
+1999-02-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * makemake.in: Improve parsing of --hyperspec argument.
+
 1999-02-18  Sam Steingold  <sds@goems.com>
 
 	* affi.txt, ansicl.txt, cltl2.txt, foreign.txt, module.txt,
