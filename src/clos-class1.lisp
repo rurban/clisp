@@ -43,46 +43,46 @@
 
 (defvar *<class>-defclass*
   '(defclass class (specializer)
-     ((classname           ; (class-name class) = (class-classname class),
+     (($classname          ; (class-name class) = (class-classname class),
                            ; a symbol
         :type symbol
         :initarg :name)
-      (direct-superclasses ; list of all direct superclasses (or their names,
+      ($direct-superclasses ; list of all direct superclasses (or their names,
                            ; while the class is waiting to be finalized)
         :type list
         :initarg :direct-superclasses)
-      (all-superclasses    ; hash table of all superclasses (including
+      ($all-superclasses   ; hash table of all superclasses (including
                            ; the class itself)
         :type hash-table)
-      (precedence-list     ; ordered list of all superclasses (with the class
+      ($precedence-list    ; ordered list of all superclasses (with the class
                            ; itself first), or NIL while the class is waiting
                            ; to be finalized
         :type list)
-      (direct-subclasses   ; set of all direct subclasses, as a weak-list or
+      ($direct-subclasses  ; set of all direct subclasses, as a weak-list or
                            ; weak-hash-table or NIL
         :type (or hash-table weak-list null)
         :initform nil)
-      (direct-slots        ; list of all freshly added slots (as
+      ($direct-slots       ; list of all freshly added slots (as
                            ; direct-slot-definition instances)
         :type list
         :initarg :direct-slots)
-      (slots               ; list of all slots (as effective-slot-definition
+      ($slots              ; list of all slots (as effective-slot-definition
                            ; instances)
         :type list)
-      (slot-location-table ; hash table slotname -> location of the slot
+      ($slot-location-table ; hash table slotname -> location of the slot
         :type hash-table
         :initform empty-ht)
-      (direct-default-initargs ; freshly added default-initargs
+      ($direct-default-initargs ; freshly added default-initargs
                            ; (as alist initarg -> (form function))
         :type list
         :initarg :direct-default-initargs)
-      (default-initargs    ; default-initargs
+      ($default-initargs   ; default-initargs
                            ; (as alist initarg -> (form function))
         )
-      (documentation       ; string or NIL
+      ($documentation      ; string or NIL
         :type (or string null)
         :initarg :documentation)
-      (initialized         ; set to true when the class is initialized
+      ($initialized        ; set to true when the class is initialized
         :type boolean
         :initform nil))
      (:fixed-slot-locations)))
@@ -287,19 +287,19 @@
 
 (defvar *<slotted-class>-defclass*
   '(defclass slotted-class (class)
-     ((subclass-of-stablehash-p ; true if <standard-stablehash> or
+     (($subclass-of-stablehash-p ; true if <standard-stablehash> or
                            ; <structure-stablehash> is among the superclasses
         :type boolean)
-      (generic-accessors   ; flag whether to create the accessors as methods;
+      ($generic-accessors  ; flag whether to create the accessors as methods;
                            ; if false, regular functions are used
         :initform t)
-      (direct-accessors    ; automatically generated accessor methods
+      ($direct-accessors   ; automatically generated accessor methods
                            ; (as plist)
         :type list
         :initform '())
-      (valid-initargs      ; list of valid initargs
+      ($valid-initargs     ; list of valid initargs
         :type list)
-      (instance-size       ; number of local slots of the direct instances + 1
+      ($instance-size      ; number of local slots of the direct instances + 1
         :type (integer 1 *)))
      (:fixed-slot-locations)))
 
@@ -357,7 +357,7 @@
 (defvar <structure-class> 'structure-class)
 (defvar *<structure-class>-defclass*
   '(defclass structure-class (slotted-class)
-     ((names               ; encoding of the include-nesting, a list
+     (($names              ; encoding of the include-nesting, a list
         :type cons))
      (:fixed-slot-locations)))
 (defvar *<structure-class>-class-version* (make-class-version))
@@ -381,20 +381,20 @@
 (defvar <standard-class> 'standard-class)
 (defvar *<standard-class>-defclass*
   '(defclass standard-class (slotted-class)
-     ((current-version     ; most recent class-version, points back to this
+     (($current-version    ; most recent class-version, points back to this
                            ; class
         :type simple-vector)
-      (fixed-slot-locations ; flag whether to guarantee same slot locations
+      ($fixed-slot-locations ; flag whether to guarantee same slot locations
                            ; in all subclasses
         )
-      (instantiated        ; true if an instance has already been created
+      ($instantiated       ; true if an instance has already been created
         :type boolean
         :initform nil)
-      (finalized-direct-subclasses ; set of all finalized direct subclasses,
+      ($finalized-direct-subclasses ; set of all finalized direct subclasses,
                            ; as a weak-list or weak-hash-table or NIL
         :type (or hash-table weak-list null)
         :initform '())
-      (prototype           ; class prototype - an instance or NIL
+      ($prototype          ; class prototype - an instance or NIL
         :type (or standard-object null)))
      (:fixed-slot-locations)))
 (defvar *<standard-class>-class-version* (make-class-version))
