@@ -650,6 +650,27 @@ T
   (eq c1 c2))
 T
 
+;; SUBTYPEP must work on finalized classes.
+(progn
+  (defclass foo62-b (foo62-a) ())
+  (defclass foo62-c (foo62-b) ())
+  (defclass foo62-a () ())
+  (make-instance 'foo62-c)
+  (list (subtypep 'foo62-b 'foo62-b)
+        (subtypep 'foo62-c 'foo62-b)
+        (subtypep 'foo62-b 'foo62-c)))
+(T T NIL)
+
+;; SUBTYPEP must work on non-finalized classes.
+(progn
+  (defclass foo63-b (foo63-a) ())
+  (defclass foo63-c (foo63-b) ())
+  (defclass foo63-a () ())
+  (list (subtypep 'foo63-b 'foo63-b)
+        (subtypep 'foo63-c 'foo63-b)
+        (subtypep 'foo63-b 'foo63-c)))
+(T T NIL)
+
 ;; update-instance-for-redefined-class
 ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_upd_efined-class.html>
 (progn
