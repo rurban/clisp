@@ -2994,7 +2994,7 @@ CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem ${localeflags}${someflags}"
 if [ $CROSS = false ] ; then
 
   echol "# Perform self-tests."
-  echol "check : check-recompile check-tests check-sacla-tests check-ansi-tests"
+  echol "check : check-recompile check-fresh-line check-tests check-sacla-tests check-ansi-tests"
   echodummyrule check
   echol
 
@@ -3080,6 +3080,22 @@ if [ $CROSS = false ] ; then
   echotab "\$(MV) lispimag.mem lispinit2.mem"
   echol
 
+  echol
+
+  # Check that fresh-line works, when clisp is used in batch mode (option -x)
+  # and when the stdout and stderr are the same (2>&1), even when this output
+  # is a pipe.
+  echol "check-fresh-line : lisp${LEXE} lispinit.mem"
+  OBSOLETE="$OBSOLETE fresh-line.out"
+  echotab "-\$(RM) fresh-line.out"
+  echotab "\$(RUN) -q -M lispinit.mem -x '(progn (dolist (s (quote (*terminal-io* *standard-output* *error-output* *query-io* *debug-io* *trace-output*))) (format t \"~S = ~S~%\" s (symbol-value s))) (values))' 2>&1 | cat > fresh-line.out"
+  for stream1 in '*terminal-io*' '*standard-output*' '*error-output*' '*query-io*' '*debug-io*' '*trace-output*'; do
+    for stream2 in '*terminal-io*' '*standard-output*' '*error-output*' '*query-io*' '*debug-io*' '*trace-output*'; do
+      echotab "\$(RUN) -q -M lispinit.mem -x '(progn (format ${stream1} \"~&Line1 to ${stream1}\") (format ${stream2} \"~&Line2 to ${stream2}\") (values))' 2>&1 | cat >> fresh-line.out"
+    done
+  done
+  echotab "if grep 'Line1.*Line2' fresh-line.out > /dev/null; then exit 1; fi"
+  echotab "\$(RM) fresh-line.out"
   echol
 
   echol "check-tests : ${TESTSDIR} lisp${LEXE} lispinit.mem"
