@@ -31,16 +31,27 @@ local object N_exp_N (object x, bool start_p, object* end_p)
     return R_exp_R(x,start_p,end_p);
   } else { /* x=a+bi */
     pushSTACK(TheComplex(x)->c_real); /* save a */
-    R_cos_sin_R_R(TheComplex(x)->c_imag,start_p,NULL); /* (cos b), (sin b) */
-    /* stack layout: a, cos(b), sin(b). */
+    pushSTACK(TheComplex(x)->c_imag); /* save b */
+    pushSTACK(R_R_contagion_R(STACK_0,STACK_1));
+    /* since x is complex, the result is a float anyway */
+    if (R_rationalp(STACK_1)) /* b */
+      STACK_1 = RA_R_float_F(STACK_1,STACK_0);
+    if (R_rationalp(STACK_2)) /* a */
+      STACK_2 = RA_R_float_F(STACK_2,STACK_0);
+    if (start_p) {
+      STACK_1 = F_extend2_F(STACK_1); /* b */
+      STACK_2 = F_extend2_F(STACK_2); /* a */
+    }
+    R_cos_sin_R_R(STACK_1,false,NULL); /* (cos b), (sin b) */
+    /* stack layout: a, b, contagion, cos(b), sin(b). */
     /* b != Fixnum_0 ==> sin(b) ~= Fixnum_0. */
-    STACK_2 = R_exp_R(STACK_2,start_p,NULL); /* (exp a) */
-    /* stack layout: exp(a), cos(b), sin(b). */
+    STACK_2 = R_exp_R(STACK_4,false,NULL); /* (exp a) */
+    /* stack layout: a, exp(a), cos(b), sin(b). */
     STACK_0 = R_R_mal_R(STACK_2,STACK_0); /* (* (exp a) (sin b)) != Fixnum_0 */
     STACK_1 = R_R_mal_R(STACK_2,STACK_1); /* (* (exp a) (cos b)) */
     x = R_R_complex_C(F_R_float_F(STACK_1,*end_p),
                       F_R_float_F(STACK_0,*end_p)); /* (complex ... ...) */
-    skipSTACK(3); return x;
+    skipSTACK(5); return x;
   }
 }
 
