@@ -986,6 +986,9 @@
 ;;;----------------------------------------------------------------------------
 (defsetf system::%structure-ref system::%structure-store)
 ;;;----------------------------------------------------------------------------
+(system::%put 'clos::standard-instance-access 'SYSTEM::SETF-FUNCTION
+              'CLOS::|(SETF STANDARD-INSTANCE-ACCESS)|)
+;;;----------------------------------------------------------------------------
 #+LOGICAL-PATHNAMES
 (defsetf logical-pathname-translations set-logical-pathname-translations)
 ;;;----------------------------------------------------------------------------

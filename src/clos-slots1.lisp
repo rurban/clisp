@@ -214,3 +214,15 @@
                     slot-entries)
            ,@(if declarations `((DECLARE ,@declarations)))
            ,@body-rest)))))
+
+;; Low-level instance access. MOP p. 100, p. 55.
+;; In standard-instance-access and funcallable-standard-instance-access,
+;; - the instance can be any standard-object instance (funcallable or not),
+;; - the instance can be a non-updated obsolete instance,
+;; - the location can refer to a local slot or to a shared slot,
+;; - when the slot is not bound, #<UNBOUND> is returned.
+;; A setter function is also provided.
+(setf (fdefinition 'funcallable-standard-instance-access)
+      #'standard-instance-access)
+(system::%put 'funcallable-standard-instance-access 'SYSTEM::SETF-FUNCTION
+              '|(SETF STANDARD-INSTANCE-ACCESS)|)

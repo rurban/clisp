@@ -1030,6 +1030,64 @@ LISPFUNNR(slot_exists_p,2) {
   VALUES_IF(! eq(slotinfo,nullobj)); skipSTACK(2);
 }
 
+/* (CLOS:STANDARD-INSTANCE-ACCESS instance location)
+   ((SETF CLOS:STANDARD-INSTANCE-ACCESS) new-value instance location)
+   Unlike specified in the MOP, these work for non-updated obsolete instances
+   as well. */
+
+/* UP: visits a slot.
+   slot_access_up()
+   > STACK_1: instance
+   > STACK_0: location
+   < result: pointer to the slot */
+local gcv_object_t* slot_access_up (void) {
+  var object obj = STACK_1;
+  /* Preparations like as in class_of. */
+  if (instancep(obj)) {
+    var object obj_forwarded = obj;
+    instance_un_realloc(obj_forwarded);
+    if ((record_flags(TheInstance(obj_forwarded)) & instflags_beingupdated_B) == 0) {
+      instance_update(obj,obj_forwarded);
+    }
+    var object slotinfo = STACK_0;
+    if (atomp(slotinfo)) {
+      /* local slot, slotinfo is index */
+      var uintL length = srecord_length(TheInstance(obj_forwarded));
+      var uintL index;
+      if (posfixnump(slotinfo) && ((index = posfixnum_to_L(slotinfo)) < length)) {
+        return &((Srecord)TheInstance(obj_forwarded))->recdata[index];
+      } else {
+        fehler_index(length);
+      }
+    } else if (consp(slotinfo)) {
+      /* shared slot, slotinfo is (class-version . index) */
+      return &TheSvector(TheClassVersion(Car(slotinfo))->cv_shared_slots)
+                ->data[posfixnum_to_L(Cdr(slotinfo))];
+    } else {
+      /* location already in STACK_0. */
+      pushSTACK(TheSubr(subr_self)->name); /* function name */
+      fehler(error,GETTEXT("~S: invalid slot location ~S"));
+    }
+  } else {
+    /* instance already in STACK_1. TYPE-ERROR slot DATUM */
+    STACK_0 = S(standard_object); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,GETTEXT("~S: not a CLOS instance: ~S"));
+  }
+}
+
+/* (CLOS:STANDARD-INSTANCE-ACCESS instance location) */
+LISPFUNNR(standard_instance_access,2) {
+  var gcv_object_t* ptr = slot_access_up();
+  VALUES1(*ptr); skipSTACK(2);
+}
+
+/* ((SETF CLOS:STANDARD-INSTANCE-ACCESS) new-value instance location) */
+LISPFUNN(set_standard_instance_access,3) {
+  var gcv_object_t* ptr = slot_access_up();
+  VALUES1(*ptr = STACK_2); skipSTACK(3);
+}
+
 /* (SYS::%UNBOUND) */
 LISPFUNNF(punbound,0) {
   VALUES1(unbound);
