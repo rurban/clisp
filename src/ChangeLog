@@ -1,5 +1,13 @@
 1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (fehler_uint8): Declare always, not only ifdef HAVE_FFI.
+        * error.d (fehler_uint8): Define always, not only ifdef HAVE_FFI.
+
+        * intelem.d (Q_to_I): Define if defined(intQsize), not only if
+          defined(HAVE_FFI) && defined(intQsize). It's needed by DF_to_I.
+
+1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * io.d (klammer_auf, klammer_zu, justify_start, justify_space,
            justify_end_eng, justify_end_weit, indent_start, indent_end,
            indentprep_start, indentprep_end, pr_enter1): Test for

@@ -1065,7 +1065,6 @@
     }
 #endif
 
-#ifdef HAVE_FFI
 #ifdef intQsize
 # Wandelt Quadword in Integer um.
 # Q_to_I(wert)
@@ -1133,7 +1132,6 @@
       #undef FILL_2_DIGITS
       #undef FILL_1_DIGIT
     }
-#endif
 #endif
 
 #if defined(intQsize) || defined(WIDE_HARD)

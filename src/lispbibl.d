@@ -11652,12 +11652,12 @@ typedef struct {
   nonreturning_function(extern, fehler_lambda_expression, (object obj));
 # wird verwendet von EVAL, SYMBOL
 
-#ifdef HAVE_FFI
 # Überprüfung eines Arguments
 # check_...(obj);
 # > obj: Argument
 # > subr_self: Aufrufer (ein SUBR)
 # obj sollte eine Variable sein
+#ifdef HAVE_FFI
   #define check_char(obj)  \
     if (!charp(obj)) { fehler_char(obj); }
   #define check_uint8(obj)  \
@@ -11688,7 +11688,9 @@ typedef struct {
     if (!single_float_p(obj)) { fehler_ffloat(obj); }
   #define check_dfloat(obj)  \
     if (!double_float_p(obj)) { fehler_dfloat(obj); }
+#endif
   nonreturning_function(extern, fehler_uint8, (object obj));
+#ifdef HAVE_FFI
   nonreturning_function(extern, fehler_sint8, (object obj));
   nonreturning_function(extern, fehler_uint16, (object obj));
   nonreturning_function(extern, fehler_sint16, (object obj));
@@ -11702,8 +11704,8 @@ typedef struct {
   nonreturning_function(extern, fehler_slong, (object obj));
   nonreturning_function(extern, fehler_ffloat, (object obj));
   nonreturning_function(extern, fehler_dfloat, (object obj));
-# wird verwendet vom FFI
 #endif
+# wird verwendet von STREAM, vom FFI
 
 # ##################### PACKBIBL zu PACKAGE.D ############################# #
 

@@ -935,8 +935,6 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
             );
     }
 
-#ifdef HAVE_FFI
-
 # Fehler, wenn Argument kein Integer vom Typ `uint8' ist.
 # fehler_uint8(obj);
 # > obj: fehlerhaftes Argument
@@ -952,6 +950,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
              GETTEXT("~: ~ is not an 8-bit number")
             );
     }
+
+#ifdef HAVE_FFI
 
 # Fehler, wenn Argument kein Integer vom Typ `sint8' ist.
 # fehler_sint8(obj);
