@@ -207,12 +207,13 @@ Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
 (defun debug-print-error ()
   ;; condition is local to break-loop so have to go back there
   (throw 'debug 'print-error))
+(defun debug-inspect-error ()
+  (throw 'debug 'inspect-error))
 
 ;;; print it
 (defun print-error (condition)
-  (format *debug-io* (TEXT "~%Recent Error is: >> ~A <<")
+  (format *debug-io* (TEXT "~%Last error is: >> ~A <<")
           (print-condition condition nil)))
-
 
 ;; extended commands
 (defun commands0 ()
@@ -231,7 +232,8 @@ Use the usual editing capabilities.
 Commands may be abbreviated as shown in the second column.
 COMMAND        ABBR             DESCRIPTION
 Help           :h (or ?)        this command list
-Error          :e               Print the recent Error Message
+Error          :e               Print the last error message
+Inspect        :i               Inspect the last error
 Abort          :a               abort to the next recent input loop
 Unwind         :uw              abort to the next recent input loop
 Reset          :re              toggle *PACKAGE* and *READTABLE* between the
@@ -266,6 +268,8 @@ Return         :rt              leave EVAL frame, prescribing the return values"
    (cons "?"            #'debug-help  )
    (cons "Error"        #'debug-print-error)
    (cons ":e"           #'debug-print-error)
+   (cons "Inspect"      #'debug-inspect-error)
+   (cons ":i"           #'debug-inspect-error)
    (cons "Abort"        #'debug-unwind)
    (cons ":a"           #'debug-unwind)
    (cons "Unwind"       #'debug-unwind)
@@ -440,8 +444,8 @@ Continue       :c       switch off single step mode, continue evaluation
   (when condition
     (let ((restarts (remove may-continue (compute-restarts condition)))
           (restarts-help (if may-continue
-                             (TEXT "The following restarts are available, too:")
-                             (TEXT "The following restarts are available:"))))
+                           (TEXT "The following restarts are available, too:")
+                           (TEXT "The following restarts are available:"))))
       (when restarts
         (when interactive-p
           (terpri *debug-io*)
@@ -501,8 +505,8 @@ Continue       :c       switch off single step mode, continue evaluation
                              ;; NIL -> form is already evaluated;
                              ;;        result has been printed
                              (throw 'debug (if may-continue 'quit 'unwind))))))
-             ((print-error)
-              (print-error condition)) ; print the recent error-message
+             ((print-error) (print-error condition))
+             ((inspect-error) (inspect condition))
              ((unwind) (go unwind))
              ((abort-to-top) (go abort-to-top))
              ((quit)            ; reached only if may-continue is T
