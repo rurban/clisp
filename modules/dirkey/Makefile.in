@@ -1,4 +1,4 @@
-# Makefile for CLISP module set wildcard
+# Makefile for CLISP module set dirkey
 
 CC = @CC@
 CFLAGS = @CFLAGS@
