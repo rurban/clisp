@@ -2105,3 +2105,259 @@ T
  x4 y4 z4
  x2 y3 z4
  x3 y3 z4)
+
+
+;;; Application example: Virtual-dispatch generic functions
+
+;; There are two variants:
+;; In C++, each instance contains a virtual function table at a fixed location.
+;; In Java, the virtual function table is a member of the class.
+;; Here we represent the virtual function table as a per-subclass shared slot.
+;; TODO: Needs a little more work to deal with non-finalized classes.
+
+(progn
+
+  ;; Every virtual generic function belongs to a particular "base class";
+  ;; it is only applicable to instances of this base class. Such a base class
+  ;; must be of metaclass virtual-base-class. All subclasses of a class with
+  ;; metaclass virtual-base-class must be of metaclass virtual-class (or
+  ;; a subclass of it, such as virtual-base-class).
+
+  ;; The metaclass of all objects that can be subject to virtual dispatch.
+  (defclass virtual-class (class-supporting-classof-slots standard-class)
+    ())
+  ;; The metaclass of all classes that can be tied to a virtual generic
+  ;; function.
+  (defclass virtual-base-class (virtual-class)
+    ((vt-functions              ; vector of all virtual generic functions
+       :type vector             ; with this base class
+       :accessor vtbase-vt-functions)
+     (vt-slot-name              ; name of virtual table slot in all subclasses
+       :type symbol
+       :accessor vtbase-vt-slot-name)))
+  #-CLISP
+  (defmethod clos:validate-superclass ((c1 virtual-base-class) (c2 standard-class))
+    t)
+  (defmethod clos:validate-superclass ((c1 virtual-class) (c2 virtual-base-class))
+    t)
+
+  ;; Ensure every subclass is equipped with a virtual table.
+  (defmethod initialize-instance ((class virtual-base-class) &rest initargs
+                                  &key (direct-slots '()))
+    (setf (vtbase-vt-functions class) (make-array 10 :adjustable t :fill-pointer 0))
+    (setf (vtbase-vt-slot-name class) (gensym "VTABLE"))
+    (apply #'call-next-method class
+           :direct-slots (cons (list ':name (vtbase-vt-slot-name class)
+                                     ':allocation ':class ':per-subclass t
+                                     ':base-class class)
+                               direct-slots)
+           initargs))
+
+  ;; The virtual table slot in all subclasses needs to have a pointer to the
+  ;; base class where it comes from (for its initialization). Therefore we
+  ;; need to pass the base-class pointer from the (inheritable) direct vt slot
+  ;; to the (not inherited) effective vt slot.
+  (defclass virtual-table-direct-slot-definition (clos:standard-direct-slot-definition classof-direct-slot-definition-mixin)
+    ((base-class :initarg :base-class)))
+  (defclass virtual-table-effective-slot-definition (clos:standard-effective-slot-definition classof-effective-slot-definition-mixin)
+    ((base-class :initarg :base-class)))
+  (defmethod clos:direct-slot-definition-class ((class virtual-base-class) &rest initargs)
+    (if (getf initargs ':base-class)
+      (find-class 'virtual-table-direct-slot-definition)
+      (call-next-method)))
+  (defmethod clos::compute-effective-slot-definition-initargs ((class virtual-class) direct-slot-definitions)
+    (if (typep (first direct-slot-definitions) 'virtual-table-direct-slot-definition)
+      (append (call-next-method)
+              (list ':base-class (slot-value (first direct-slot-definitions) 'base-class)))
+      (call-next-method)))
+  (defmethod clos:effective-slot-definition-class ((class virtual-class) &rest initargs)
+    (if (getf initargs ':base-class)
+      (find-class 'virtual-table-effective-slot-definition)
+      (call-next-method)))
+
+  ;; Computes the effective method (as a function) for executing gf (which
+  ;; must be a virtual generic function) for _direct_ instances of the given
+  ;; class.
+  (defun compute-virtual-generic-function-effective-method (gf class)
+    ;; This relies on the known method specializer format, verified by
+    ;; add-method below.
+    (multiple-value-bind (methods certain)
+        (clos:compute-applicable-methods-using-classes gf
+          (cons class
+                (make-list (1- (length (clos:generic-function-argument-precedence-order gf)))
+                           :initial-element (find-class 't))))
+      (unless certain
+        (error "Problem determining the applicable methods of ~S on ~S" gf class))
+      (clos::compute-effective-method-as-function
+        gf (clos:generic-function-method-combination gf) methods)))
+
+  ;; Initialize the virtual table slot.
+  (defmethod initialize-classof-slot ((class virtual-class) (slot virtual-table-effective-slot-definition))
+    (setf (slot-value (clos:class-prototype class) (clos:slot-definition-name slot))
+          (let* ((base-class (slot-value slot 'base-class))
+                 (current-length (length (vtbase-vt-functions base-class)))
+                 (vtable (make-array current-length :adjustable t :fill-pointer current-length)))
+            (dotimes (i current-length)
+              (setf (aref vtable i)
+                    (compute-virtual-generic-function-effective-method
+                      (aref (vtbase-vt-functions base-class) i)
+                      class)))
+            vtable)))
+
+  ;; Auxiliary function: Return a list of all subclasses of class, including
+  ;; class itself, in an arbitrary order.
+  (defun collect-all-subclasses (class)
+    (let ((result '()) (todo (list class)))
+      (loop
+        (unless todo (return))
+        (let ((last-todo todo))
+          (setq todo '())
+          (dolist (c last-todo)
+            (unless (member c result)
+              (setq todo (revappend (clos:class-direct-subclasses c) todo))
+              (push c result)))))
+      (nreverse result)))
+
+  ;; A virtual generic function is tied to a base-class.
+  (defclass virtual-generic-function (standard-generic-function)
+    ((base-class
+       :type class
+       :accessor vtgf-base-class)
+     (vt-index                  ; index in (vtbase-vt-functions base-class)
+       :type fixnum
+       :accessor vtgf-vt-index))
+    (:metaclass clos:funcallable-standard-class))
+
+  ;; When a new virtual generic function is created, it needs to be registered
+  ;; in its base class.
+  (defmethod shared-initialize ((gf virtual-generic-function) situation &rest args
+                                &key (base-class nil base-class-p))
+    (call-next-method)
+    (when base-class-p
+      (when (consp base-class)
+        (setq base-class (car base-class)))
+      (unless (typep base-class 'class)
+        (setq base-class (find-class base-class)))
+      ; base-class is now a class.
+      (setf (vtgf-base-class gf) base-class)
+      (setf (vtgf-vt-index gf)
+            (or (position gf (vtbase-vt-functions base-class))
+                ; Add gf to the functions in the base-class.
+                (let ((index
+                        (vector-push-extend gf (vtbase-vt-functions base-class)))
+                      (vt-slot-name (vtbase-vt-slot-name base-class)))
+                  (dolist (cl (collect-all-subclasses base-class))
+                    (let ((cl-proto (clos:class-prototype cl)))
+                      #|
+                      (unless (slot-boundp cl-proto vt-slot-name)
+                        (setf (slot-value cl-proto vt-slot-name) (make-array 10 :adjustable t :fill-pointer 0)))
+                      |#
+                      (assert (= (fill-pointer (slot-value cl-proto vt-slot-name))
+                              index))
+                      ;; Preliminary initialization.
+                      (vector-push-extend '#:not-yet-updated (slot-value cl-proto vt-slot-name))))
+                  index))))
+    gf)
+
+  ;; Updates the computed effective methods for the given virtual generic
+  ;; functions, in the vtables of all subclasses of class (including class
+  ;; itself). class may be the gf's base-class or a subclass of it.
+  (defun update-virtual-generic-function (gf &optional (class (vtgf-base-class gf)))
+    (let ((vt-slot-name (vtbase-vt-slot-name (vtgf-base-class gf)))
+          (vt-index (vtgf-vt-index gf)))
+      (dolist (cl (collect-all-subclasses class))
+        (setf (aref (slot-value (clos:class-prototype cl) vt-slot-name) vt-index)
+              (compute-virtual-generic-function-effective-method gf cl)))))
+
+  ;; Notification: When methods are added or removed to a generic function,
+  ;; the computed effective methods in the vtables must be updated. (But the
+  ;; dispatch function remains the same.)
+  (defclass virtual-generic-function-updater ()
+    ())
+  (defparameter *virtual-generic-function-updater*
+    (make-instance 'virtual-generic-function-updater))
+  (defmethod clos:update-dependent ((gf virtual-generic-function) (dependent virtual-generic-function-updater) &rest details)
+    (declare (ignore details))
+    ;; TODO: Exploit the details, to minimize the updates.
+    (update-virtual-generic-function gf))
+
+  ;; When a new virtual generic function is created, it needs to be call
+  ;; update-virtual-generic-function now, and later when the method set changes.
+  (defmethod initialize-instance :after ((gf virtual-generic-function) &rest args)
+    (when (slot-boundp gf 'base-class)
+      (update-virtual-generic-function gf)
+      (clos:add-dependent gf *virtual-generic-function-updater*)))
+
+  ;; Verify that only methods dispatching on the first argument are added.
+  (defmethod clos:add-method ((gf virtual-generic-function) (method method))
+    (let ((<t> (find-class 't)))
+      (unless (every #'(lambda (specializer) (eq specializer <t>))
+                     (clos:method-specializers method))
+        (error "invalid method for ~S: ~S. May only dispatch on the first argument."
+               gf method)))
+    (unless (typep (first (clos:method-specializers method)) 'class)
+      (error "invalid method for ~S: ~S. The specializer on the first argument must be a class."
+             gf method))
+    (call-next-method))
+
+  ;; Computes the dispatch for a virtual generic function.
+  ;; This is the heart of the example.
+  (defmethod clos:compute-discriminating-function ((gf virtual-generic-function))
+    (let ((vt-slot-name (vtbase-vt-slot-name (vtgf-base-class gf)))
+          (vt-index (vtgf-vt-index gf)))
+      (assert (eq (aref (vtbase-vt-functions (vtgf-base-class gf)) vt-index) gf))
+      #'(lambda (first-arg &rest other-args)
+          (apply (aref (slot-value first-arg vt-slot-name) vt-index)
+                 first-arg other-args))))
+
+  ;; Now an example.
+  ;;
+  ;;   f,g - A     C - h
+  ;;         |    /
+  ;;         B   /
+  ;;          \ /
+  ;;           D
+  ;;
+  (defclass testclass30a ()
+    ()
+    (:metaclass virtual-base-class))
+  (defclass testclass30b (testclass30a)
+    ()
+    (:metaclass virtual-class))
+  (defclass testclass30c ()
+    ()
+    (:metaclass virtual-base-class))
+  (defgeneric testgf30f (x)
+    (:method ((x testclass30a))
+      "f on A")
+    (:generic-function-class virtual-generic-function)
+    (:base-class testclass30a))
+  (defgeneric testgf30g (x y)
+    (:method ((x testclass30a) y)
+      (list "g on A" y))
+    (:method ((x testclass30b) y)
+      (list "g on B" y))
+    (:generic-function-class virtual-generic-function)
+    (:base-class testclass30a))
+  (defgeneric testgf30h (x y)
+    (:method ((x testclass30c) y)
+      (list "h on C" y))
+    (:generic-function-class virtual-generic-function)
+    (:base-class testclass30c))
+  (defclass testclass30d (testclass30b testclass30c)
+    ()
+    (:metaclass virtual-class))
+  (defmethod testgf30g ((x testclass30d) y)
+    (list "g on D" y))
+  (defmethod testgf30h ((x testclass30d) y)
+    (list "h on D" y))
+  (let ((insta (make-instance 'testclass30a))
+        (instc (make-instance 'testclass30c))
+        (instd (make-instance 'testclass30d)))
+    (list (testgf30f insta)
+          (testgf30f instd)
+          (testgf30g insta 10)
+          (testgf30g instd 20)
+          (testgf30h instc 30)
+          (testgf30h instd 40))))
+("f on A" "f on A" ("g on A" 10) ("g on D" 20) ("h on C" 30) ("h on D" 40))
