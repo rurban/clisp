@@ -466,7 +466,10 @@
                (eq veltype 'CHARACTER))
            (apply #'write-char-sequence sequence stream rest))
           ((or (subtypep seltype 'INTEGER) (subtypep veltype 'INTEGER))
-           (apply #'write-byte-sequence sequence stream rest))
+           ;; `write-byte-sequence' accepts :NO-HANG and returns an extra value
+           ;; since making `write-char-sequence' do the same would be hairy,
+           ;; we ignore this second return value for the sake of ANSI
+           (values (apply #'write-byte-sequence sequence stream rest)))
           (t
            (error (TEXT "~S: element types of ~S and ~S are ambiguous. Please use ~S or ~S.")
                   'write-sequence sequence stream
