@@ -1517,7 +1517,7 @@ LISPFUNN(charset_range,3)
       define_constant(S(windows_1257),Symbol_value(S(cp1257)));
       define_constant(S(windows_1258),Symbol_value(S(cp1258)));
       #endif
-      # Initialize O(default_encoding):
+      # Initialize O(default_file_encoding):
         #ifdef UNICODE
         #if defined(ISOLATIN_CHS)
         pushSTACK(Symbol_value(S(iso8859_1)));
@@ -1550,4 +1550,93 @@ LISPFUNN(charset_range,3)
       }
       #endif
     }
+
+# =============================================================================
+#                                 Accessors
+
+LISPFUNN(default_file_encoding,0)
+# (SYSTEM::DEFAULT-FILE-ENCODING)
+  { value1 = O(default_file_encoding); mv_count=1; }
+
+LISPFUNN(set_default_file_encoding,1)
+# (SYSTEM::SET-DEFAULT-FILE-ENCODING encoding)
+  { var object encoding = popSTACK();
+    if (!encodingp(encoding)) { fehler_encoding(encoding); }
+    value1 = O(default_file_encoding) = encoding; mv_count=1;
+  }
+
+#ifdef UNICODE
+
+LISPFUNN(pathname_encoding,0)
+# (SYSTEM::PATHNAME-ENCODING)
+  { value1 = O(pathname_encoding); mv_count=1; }
+
+LISPFUNN(set_pathname_encoding,1)
+# (SYSTEM::SET-PATHNAME-ENCODING encoding)
+  { var object encoding = popSTACK();
+    if (!encodingp(encoding)) { fehler_encoding(encoding); }
+    value1 = O(pathname_encoding) = encoding; mv_count=1;
+  }
+
+LISPFUNN(terminal_encoding,0)
+# (SYSTEM::TERMINAL-ENCODING)
+  { value1 = O(terminal_encoding); mv_count=1; }
+
+LISPFUNN(set_terminal_encoding,1)
+# (SYSTEM::SET-TERMINAL-ENCODING encoding)
+  { var object encoding = STACK_0;
+    if (!encodingp(encoding)) { fehler_encoding(encoding); }
+    # Make sure that O(terminal_encoding) = (STREAM-EXTERNAL-FORMAT *TERMINAL-IO*).
+    { # First modify (STREAM-EXTERNAL-FORMAT *TERMINAL-IO*):
+      var object terminal_stream = var_stream(S(terminal_io),0);
+      if (TheStream(terminal_stream)->strmtype == strmtype_terminal
+          && eq(TheStream(terminal_stream)->strm_encoding,O(terminal_encoding))
+         )
+        { # This is the only place which is allowed to modify the terminal
+          # stream's encoding.
+          TheStream(terminal_stream)->strm_encoding = encoding;
+        }
+        else
+        { pushSTACK(terminal_stream); pushSTACK(encoding);
+          funcall(L(set_stream_external_format),2);
+    }   }
+    value1 = O(terminal_encoding) = popSTACK(); mv_count=1;
+  }
+
+#if defined(HAVE_FFI) || defined(HAVE_AFFI)
+
+LISPFUNN(foreign_encoding,0)
+# (SYSTEM::FOREIGN-ENCODING)
+  { value1 = O(foreign_encoding); mv_count=1; }
+
+LISPFUNN(set_foreign_encoding,1)
+# (SYSTEM::SET-FOREIGN-ENCODING encoding)
+  { var object encoding = popSTACK();
+    if (!encodingp(encoding)) { fehler_encoding(encoding); }
+    if (!(TheEncoding(encoding)->max_bytes_per_char == 1))
+      { pushSTACK(encoding); pushSTACK(TheSubr(subr_self)->name);
+        fehler(error,
+               DEUTSCH ? "~: ~ ist kein 1:1 Encoding." :
+               ENGLISH ? "~: ~ is not a 1:1 encoding" :
+               FRANCAIS ? "~ : ~ n'est pas un système de codage 1:1" :
+               ""
+              );
+      }
+    value1 = O(foreign_encoding) = encoding; mv_count=1;
+  }
+
+#endif # HAVE_FFI || HAVE_AFFI
+
+LISPFUNN(misc_encoding,0)
+# (SYSTEM::MISC-ENCODING)
+  { value1 = O(misc_encoding); mv_count=1; }
+
+LISPFUNN(set_misc_encoding,1)
+# (SYSTEM::SET-MISC-ENCODING encoding)
+  { var object encoding = popSTACK();
+    if (!encodingp(encoding)) { fehler_encoding(encoding); }
+    value1 = O(misc_encoding) = encoding; mv_count=1;
+  }
+
+#endif # UNICODE
 

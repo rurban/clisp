@@ -1,5 +1,20 @@
 1999-03-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (strm_encoding): New macro.
+        * stream.d (strm_encoding): Comment out.
+        * encoding.d (SYS::[SET-]DEFAULT-FILE-ENCODING,
+           SYS::[SET-]PATHNAME-ENCODING, SYS::[SET-]TERMINAL-ENCODING,
+           SYS::[SET-]FOREIGN-ENCODING, SYS::[SET-]MISC-ENCODING): New
+          functions.
+        * init.lsp: Export *default-file-encoding*, *pathname-encoding*,
+          *terminal-encoding*, *misc-encoding*.
+        * places.lsp (*default-file-encoding*, *pathname-encoding*,
+           *terminal-encoding*, *misc-encoding*): New settable symbol-macros.
+        * foreign1.lsp (ffi:*foreign-encoding*): New settable symbol-macro.
+        * affi1.lsp (affi:*foreign-encoding*): New settable symbol-macro.
+
+1999-03-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * defs2.lsp (define-symbol-macro, check-not-special-variable-p): Move
           to macros2.lsp.
         * macros2.lsp (define-symbol-macro, check-not-special-variable-p):

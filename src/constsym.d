@@ -254,6 +254,20 @@ LISPSYM(make_encoding,"MAKE-ENCODING",lisp)
 LISPSYM(encodingp,"ENCODINGP",system)
 LISPSYM(charset_typep,"CHARSET-TYPEP",system)
 LISPSYM(charset_range,"CHARSET-RANGE",system)
+LISPSYM(default_file_encoding,"DEFAULT-FILE-ENCODING",system)
+LISPSYM(set_default_file_encoding,"SET-DEFAULT-FILE-ENCODING",system)
+#ifdef UNICODE
+LISPSYM(pathname_encoding,"PATHNAME-ENCODING",system)
+LISPSYM(set_pathname_encoding,"SET-PATHNAME-ENCODING",system)
+LISPSYM(terminal_encoding,"TERMINAL-ENCODING",system)
+LISPSYM(set_terminal_encoding,"SET-TERMINAL-ENCODING",system)
+#if defined(HAVE_FFI) || defined(HAVE_AFFI)
+LISPSYM(foreign_encoding,"FOREIGN-ENCODING",system)
+LISPSYM(set_foreign_encoding,"SET-FOREIGN-ENCODING",system)
+#endif
+LISPSYM(misc_encoding,"MISC-ENCODING",system)
+LISPSYM(set_misc_encoding,"SET-MISC-ENCODING",system)
+#endif
 # ---------- ERROR ----------
 LISPSYM(error,"ERROR",lisp)
 LISPSYM(defclcs,"%DEFCLCS",system)

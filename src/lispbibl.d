@@ -5404,6 +5404,7 @@ typedef struct {
   # anpassen!
 # weitere typspezifische Komponenten:
   #define strm_eltype          strm_other[0] # CHARACTER or ([UN]SIGNED-BYTE n)
+  #define strm_encoding        strm_other[1] # an Encoding
   #define strm_file_name       strm_other[6] # Filename, ein Pathname oder NIL
   #define strm_file_truename   strm_other[7] # Truename, ein nicht-Logical Pathname oder NIL
   #define strm_buffered_channel  strm_other[5] # eingepacktes Handle

@@ -3468,7 +3468,7 @@ LISPFUNN(generic_stream_p,1)
 
   # define strm_eltype   strm_other[0] # CHARACTER or ([UN]SIGNED-BYTE n)
 
-  #define strm_encoding  strm_other[1] # an Encoding
+  # define strm_encoding strm_other[1] # an Encoding
                                        # (used if eltype = CHARACTER only)
 
   #define strm_bitbuffer strm_other[2] # (used if eltype /= CHARACTER only)
