@@ -16,9 +16,10 @@ User visible changes
 
 * New user variable CUSTOM:*PARSE-NAMESTRING-DOT-FILE* controls
   how the file names starting with a dot are parsed.
-  By default, it is set to :NAME, so #P".clisprc" is now
-  #S(PATHNAME :NAME ".clisprc"); to get the old result of
-  #S(PATHNAME :TYPE "clisprc"), set the variable to :TYPE.
+  By default, it is set to :NAME in config.lisp,
+  so #P".clisprc" is now #S(PATHNAME :NAME ".clisprc").
+  To get the old result of #S(PATHNAME :TYPE "clisprc"),
+  set this variable to :TYPE.
   This is an incompatible change.
   See <http://clisp.cons.org/impnotes.html#name-type-split> for details.
 
