@@ -1175,10 +1175,9 @@ N. Gray to X3J13.</para>
     role="sexp">(<function>gray:stream-read-line</function>
                  &stream-r;)</literal></term>
   <listitem><simpara>Reads a line of characters, and return two values:
-   the line (a string, without the terminating
-   <keysym>#\Newline</keysym> character), and a boolean value which is
-   true if the line was terminated by &eos; instead of
-   <keysym>#\Newline</keysym>.
+   the line (a string, without the terminating &nl-c; character), and a
+   boolean value which is true if the line was terminated by &eos;
+   instead of &nl-c;.
    </simpara><simpara>The default method repeatedly calls
    <function>gray:stream-read-char</function>;
    this is always sufficient.
@@ -1255,7 +1254,7 @@ N. Gray to X3J13.</para>
  <varlistentry><term><literal
     role="sexp">(<function>gray:stream-terpri</function>
                  &stream-r;)</literal></term>
-  <listitem><simpara>Outputs a <keysym>#\Newline</keysym> character.
+  <listitem><simpara>Outputs a &nl-c; character.
    </simpara><simpara>The default method calls
    <function>gray:stream-write-char</function>;
    this is always sufficient.
@@ -1263,10 +1262,9 @@ N. Gray to X3J13.</para>
  <varlistentry><term><literal
     role="sexp">(<function>gray:stream-fresh-line</function>
                  &stream-r;)</literal></term>
-  <listitem><simpara>Possibly outputs a <keysym>#\Newline</keysym>
-   character, so as to ensure that the next character would be written
-   at the start of a new line.  Returns true if it did output a
-   <keysym>#\Newline</keysym> character.
+  <listitem><simpara>Possibly outputs a &nl-c; character, so as to ensure
+   that the next character would be written at the start of a new line.
+   Returns true if it did output a &nl-c; character.
    </simpara><simpara>The default method calls
    <function>gray:stream-start-line-p</function> and then
    <function>gray:stream-terpri</function> if necessary;

@@ -68,6 +68,10 @@
 <!ENTITY wild-inferiors-k "<constant>:WILD-INFERIORS</constant>">
 <!ENTITY wild-k "<constant>:WILD</constant>">
 
+<!-- *** characters *** -->
+<!ENTITY nl-c "<keysym>#\Newline</keysym>">
+<!ENTITY ret-c "<keysym>#\Return</keysym>">
+
 <!-- *** packages *** -->
 <!ENTITY ext-pac "<link linkend='ext-pac'><quote>EXT</quote></link>">
 <!ENTITY clos-pac "<link linkend='classes'><quote>CLOS</quote></link>">
