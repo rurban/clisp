@@ -79,7 +79,15 @@
                  (format t "~%ERROR!! ~S should be ~S !" my-result result)
                  (format log "~%Form: ~S~%CORRECT: ~S~%~7A: ~S~%~@[~A~%~]"
                              form result lisp-implementation-type
-                             my-result error-message))))))
+                             my-result error-message)
+                 (when (and (typep result 'sequence)
+                            (typep my-result 'sequence))
+                   (let ((pos (mismatch result my-result :test #'equalp)))
+                     (format log "~%Differ at position ~:D: ~S vs ~S~%CORRECT: ~S~%~7A: ~S~%"
+                             pos (elt result pos) (elt my-result pos)
+                             (subseq result pos (+ pos 10))
+                             lisp-implementation-type
+                             (subseq my-result pos (+ pos 10))))))))))
     (values total-count error-count)))
 
 (defun do-errcheck (stream log &optional ignore-errors)

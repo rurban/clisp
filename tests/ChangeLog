@@ -1,5 +1,10 @@
 2004-10-20  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (do-test): when both the expected and actual results
+	are sequences, print the position at which they differ
+
+2004-10-20  Sam Steingold  <sds@gnu.org>
+
 	* streams.tst: more fill-stream tests
 
 2004-10-10  Bruno Haible  <bruno@clisp.org>
