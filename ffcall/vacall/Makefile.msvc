@@ -72,8 +72,8 @@ tests.obj : $(srcdir)/tests.c vacall.h
 tests.s : $(srcdir)/tests.c vacall.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/tests.c /FAs /Fatests.s
 
-tests.exe : tests.obj $(OBJECTS)
-	$(CC) $(CFLAGS) tests.obj $(OBJECTS) /Fetests.exe
+tests.exe : tests.obj vacall.lib
+	$(CC) $(CFLAGS) tests.obj vacall.lib /Fetests.exe
 
 check : all tests.exe
 	tests.exe > tests.out
