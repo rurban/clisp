@@ -53,8 +53,8 @@
       'defconstant symbol))
   (let ((initial-var (gensym)))
     `(LET ()
-       (EVAL-WHEN (COMPILE)
-         (COMPILER::C-PROCLAIM-CONSTANT ',symbol ',initial-value))
+       (COMPILER::EVAL-WHEN-COMPILE
+        (COMPILER::C-PROCLAIM-CONSTANT ',symbol ',initial-value))
        (LET ((,initial-var ,initial-value))
          (IF (CONSTANTP ',symbol)
            (UNLESS (CONSTANT-EQL ,initial-value ,initial-var
