@@ -19,7 +19,7 @@ options:
        --fsstnd=suse           installation according to SuSE-Linux conventions
     The following options add support for specific separate packages. See the
     main INSTALL file for how to get them.
-       --with-readline         the good old (gdb-4.14 based) readline library
+       --with-readline         the good old (gdb-4.15 based) readline library
        --with-newreadline      the new (bash-1.14.7 based) readline library
        --with-noreadline       no readline library at all
        --with-gettext          internationalization library gettext-0.10.27
@@ -37,7 +37,7 @@ EOP
 #        ./makemake [--with-PACKAGE] TARGET COMPILER [debug] > Makefile
 #  where PACKAGE is one of
 #        newreadline      the new (bash-1.14.7 based) readline library
-#        readline         the old (gdb-4.14 based) readline library
+#        readline         the old (gdb-4.15 based) readline library
 #        noreadline       no readline library at all
 #        gettext          internationalization library gettext-0.10.27
 #        nogettext        static internationalization (en,de,fr only)
