@@ -495,8 +495,7 @@
         (apply si-ef instance 'T initargs)))))
 
 ;; User-defined methods on allocate-instance are now supported.
-(defgeneric allocate-instance
-    (instance &rest initargs &key &allow-other-keys))
+(defgeneric allocate-instance (instance &rest initargs &key &allow-other-keys))
 (setq |#'allocate-instance| #'allocate-instance)
 #||
  (defgeneric allocate-instance (class)
