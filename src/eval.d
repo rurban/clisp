@@ -41,12 +41,13 @@ local const Subr FUNTAB[] = {
   _(nstring_upcase), _(string_upcase), _(nstring_downcase),
   _(string_downcase), _(nstring_capitalize), _(string_capitalize),
   _(string), _(name_char), _(substring),
-  /* CONTROL : 21-2 SUBRs */
+  /* CONTROL : 23-2 SUBRs */
   _(symbol_value), /* _(symbol_function), */ _(boundp), _(fboundp),
   _(special_operator_p), _(set), _(makunbound), _(fmakunbound),
   /* _(values_list), */ _(driver), _(unwind_to_driver), _(macro_function),
   _(macroexpand), _(macroexpand_1), _(proclaim), _(eval),
-  _(evalhook), _(applyhook), _(constantp), _(parse_body), _(keyword_test),
+  _(evalhook), _(applyhook), _(constantp), _(function_side_effect),
+  _(function_name_p),_(parse_body), _(keyword_test),
   /* DEBUG : 0 SUBRs */
   /* ERROR : 1 SUBR */
   _(invoke_debugger),
@@ -164,7 +165,7 @@ local const Subr FUNTAB[] = {
   _(make_random_state), _(fakultaet), _(exquo), _(long_float_digits),
   _(set_long_float_digits), _(log2), _(log10),
   /* other: */
-}; /* that were 527-43 SUBRs. */
+}; /* that were 529-43 SUBRs. */
 /* Now FUNTABR : */
 local const Subr FUNTABR[] = {
   /* SPVW : 0 SUBRs */
