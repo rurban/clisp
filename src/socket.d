@@ -770,6 +770,14 @@ global SOCKET accept_connection (SOCKET socket_handle);
 global SOCKET accept_connection (socket_handle)
   var SOCKET socket_handle;
   {
+#if defined(WIN32_NATIVE)
+# make it interruptible on windows
+# it seems no need implementing interruptible_accept
+    if (!interruptible_socket_wait(socket_handle,socket_wait_read,NULL)) {
+      WSASetLastError(WSAETIMEDOUT); # user-inspired timeout 
+      return INVALID_SOCKET;
+    }
+#endif
     var sockaddr_max addr;
     var SOCKLEN_T addrlen = sizeof(sockaddr_max);
     return accept(socket_handle,(struct sockaddr *)&addr,&addrlen);
