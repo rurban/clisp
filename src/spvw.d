@@ -1250,6 +1250,7 @@
         define_variable(S(print_symbols_long),NIL);     # CUSTOM:*PRINT-SYMBOLS-LONG*
         define_variable(S(print_pathnames_ansi),NIL);   # CUSTOM:*PRINT-PATHNAMES-ANSI*
         define_variable(S(parse_namestring_ansi),NIL);  # CUSTOM:*PARSE-NAMESTRING-ANSI*
+        define_variable(S(deftype_depth_limit),NIL);    # CUSTOM:*DEFTYPE-DEPTH-LIMIT*
         #ifdef WIN32_NATIVE
         define_variable(S(device_prefix),NIL); # CUSTOM:*DEVICE-PREFIX*
         #endif
