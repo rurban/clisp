@@ -1,5 +1,13 @@
 2004-11-02  Sam Steingold  <sds@gnu.org>
 
+	allow the user to define his own init-once function
+	* modprep.lisp (*init-1-name*): new variable
+	(defmodule-p): initialize it
+	(parse): check for it
+	(print-tables-2): use it with writing init-once function
+
+2004-11-02  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (quit): when running as a script, *STANDARD-OUTPUT*,
 	*ERROR-OUTPUT* and *TERMINAL-IO* must be finished separately
 
