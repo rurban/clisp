@@ -16,7 +16,10 @@ options:
        --prefix=PREFIX         sets the installation directory prefix to PREFIX
        --exec-prefix=EXECPREFIX  sets the architecture dependent installation
                                   directory prefix to EXECPREFIX
-       --fsstnd=suse           installation according to SuSE-Linux conventions
+       --fsstnd=std            installation according to FileSystem Standards:
+                               suse - SuSE-Linux conventions
+                               redhat - RedHat
+                               debian - Debian, Slackware.
     The following options add support for specific separate packages. See the
     main INSTALL file for how to get them.
        --with-readline         the good old (gdb-4.17 based) readline library
@@ -141,7 +144,7 @@ hostname=`(hostname || uname -n) 2>/dev/null | sed 1q`
 srcdir=''
 prefix=''
 exec_prefix=''
-fsstnd=gnu_ext # supported styles: gnu, gnu_ext, suse
+fsstnd=gnu_ext # supported styles: gnu, gnu_ext, suse, redhat, debian
 MODULES=''
 CP='cp -p'
 LN_S='ln -s'
@@ -1481,6 +1484,12 @@ echol "mandir = \$(exec_prefix)${NEXT_}man"
 case "$fsstnd" in
   suse)
     echol "docdir = \$(exec_prefix)${NEXT_}doc${NEXT_}packages${NEXT_}clisp"
+    ;;
+  redhat)
+    echol "docdir = \$(exec_prefix)${NEXT_}doc${NEXT_}clisp-`cat src/VERSION | tr "-" "."`"
+    ;;
+  debian)
+    echol "docdir = \$(exec_prefix)${NEXT_}doc${NEXT_}clisp"
     ;;
 esac
 echol "libdir = \$(exec_prefix)${NEXT_}lib"
@@ -2909,7 +2918,7 @@ if [ $CROSS = false ] ; then
       gnu_ext)
         echotab "if [ ! -d \$(mandir)/html ] ; then mkdir \$(mandir)/html ; fi"
         ;;
-      suse)
+      suse|redhat|debian)
         echotab "if [ ! -d \$(docdir) ] ; then mkdir \$(docdir) ; fi"
         echotab "if [ ! -d \$(docdir)/doc ] ; then mkdir \$(docdir)/doc ; fi"
         ;;
@@ -2941,7 +2950,7 @@ if [ $CROSS = false ] ; then
       echotab "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(bindir)/clisp"
     fi
     echol
-    if [ "$fsstnd" = suse ] ; then
+    if [ "$fsstnd" = suse -o "$fsstnd" = redhat -o "$fsstnd" = debian ] ; then
       echol "install-man : \$(READMES) \$(MANUALS) force"
     else
       if [ $TERMINAL = readline ] ; then
@@ -2965,7 +2974,7 @@ if [ $CROSS = false ] ; then
           echotab "\$(INSTALL_DATA) clreadline.html \$(mandir)/html/clreadline.html"
         fi
         ;;
-      suse)
+      suse|redhat|debian)
         echotab "if [ ! -d \$(docdir) ] ; then mkdir \$(docdir) ; fi"
         echotab "if [ ! -d \$(docdir)/doc ] ; then mkdir \$(docdir)/doc ; fi"
         echotab "\$(INSTALL_DATA) \$(READMES) \$(docdir)/"
@@ -3001,7 +3010,7 @@ if [ $CROSS = false ] ; then
           echotab "\$(RM) \$(mandir)/html/clreadline.html"
         fi
         ;;
-      suse)
+      suse|redhat|debian)
         echotab "for f in \$(READMES); do \$(RM) \$(docdir)/\$\$f; done"
         echotab "for f in \$(MANUALS); do \$(RM) \$(docdir)/doc/\$\$f; done"
         ;;
