@@ -1,7 +1,7 @@
 .text
 	.align 2
-	.globl _vacall
-_vacall:
+	.globl ___vacall
+___vacall:
 	mflr r0
 	stmw r29,-12(r1)
 	bcl 20,31,L1$pb
