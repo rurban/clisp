@@ -12877,6 +12877,7 @@ typedef enum {
         type_error, # some datum does not belong to the expected type
           keyword_error, # a keyword is not one of the allowed keywords
           charset_type_error, # a character does not belong to a character set
+          argument_list_dotted, # an argument list in APPLY is dotted
         package_error, # errors during operation on packages
         print_not_readable, # attempted violation of *PRINT-READABLY*
         parse_error, # errors related to parsing
