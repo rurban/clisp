@@ -2226,7 +2226,6 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
  You can write "var gcunsafe_object_t foo;" instead - but then you must not
  trigger GC during the entire lifetime of the variable 'foo'!
 */
-#define maygc
 
 #if !defined(WIDE_SOFT)
 
