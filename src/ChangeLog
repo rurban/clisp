@@ -1,5 +1,13 @@
 1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (strm_file_buffer): A byte vector instead of a string.
+          (b_file_finish_flush, b_file_nextbyte, b_file_eofbyte,
+           write_char_array_ch_file, write_byte_array_iau8_file): Access a
+          byte vector instead of a string.
+          (make_file_stream): Allocate a byte vector instead of a string.
+
+1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (decimal_string): New declaration.
         * lisparit.d (decimal_string): New function.
           (SYS::DECIMAL-STRING): Call it.
