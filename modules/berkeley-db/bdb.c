@@ -481,6 +481,8 @@ DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
     VALUES1(env_data_dirs(dbe));
   } else if (eq(what,`:TMP_DIR`)) {
     VALUES1(env_tmp_dir(dbe));
+  } else if (eq(what,`:DB_XIDDATASIZE`)) {
+    VALUES1(fixnum(DB_XIDDATASIZE));
   } else {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(what); pushSTACK(TheSubr(subr_self)->name);
@@ -529,20 +531,31 @@ static void init_dbt (DBT* p_dbt , u_int32_t flags) {
   p_dbt->flags = flags;
 }
 
-/* fill a DBT with contents of obj (a byte vector)
+/* ensure that the return value is a byte vector of specified length
  can trigger GC */
-static void fill_dbt (object obj, DBT* key)
-{
-  unsigned long idx = 0;
-  while (!bit_vector_p(Atype_8Bit,obj)) {
+static object check_byte_vector (object obj, int length) {
+  while (!bit_vector_p(Atype_8Bit,obj)
+         && (length<0 || length!=vector_length(obj))) {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
     pushSTACK(GLO(type_uint8_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(GLO(type_uint8_vector)); pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not a vector of type ~S"));
+    if (length >= 0) {
+      pushSTACK(fixnum(length));
+      check_value(type_error,GETTEXT("~S: ~S is not a vector of type ~S and length ~S"));
+    } else check_value(type_error,GETTEXT("~S: ~S is not a vector of type ~S"));
     obj = value1;
   }
+  return obj;
+}
+
+/* fill a DBT with contents of obj (a byte vector)
+ can trigger GC */
+static void fill_dbt (object obj, DBT* key)
+{
+  unsigned long idx = 0;
+  obj = check_byte_vector(obj,-1);
   init_dbt(key,DB_DBT_USERMEM);
   key->ulen = key->size = vector_length(obj);
   obj = array_displace_check(obj,key->size,&idx);
@@ -945,4 +958,60 @@ DEFUN(BDB:TXN-ID, txn)
   u_int32_t id;
   begin_system_call(); id = txn->id(txn); end_system_call();
   VALUES1(UL_to_I(id));
+}
+
+DEFFLAGSET(txn_checkpoint_flags, DB_FORCE)
+DEFUN(BDB:TXN-CHECKPOINT, dbe &key :KBYTE :MIN :FORCE)
+{ /* flush the underlying memory pool, write a checkpoint record to the
+     log, and then flush the log. */
+  u_int32_t flags = txn_checkpoint_flags();
+  u_int32_t min = posfixnum_default(popSTACK());
+  u_int32_t kbyte = posfixnum_default(popSTACK());
+  DB_ENV *dbe = object_handle(popSTACK(),`BDB::DBE`,true);
+  SYSCALL(dbe->txn_checkpoint,(dbe,kbyte,min,flags));
+  VALUES0;
+}
+
+DEFUN(BDB:TXN-PREPARE, txn gid)
+{ /* initiate the beginning of a two-phase commit */
+  DB_TXN *txn;
+  unsigned long idx;
+  STACK_0 = check_byte_vector(STACK_0,DB_XIDDATASIZE);
+  txn = object_handle(STACK_1,`BDB::TXN`,true);
+  STACK_0 = array_displace_check(STACK_0,DB_XIDDATASIZE,&idx);
+  SYSCALL(txn->prepare,(txn,TheSbvector(STACK_0)->data+idx));
+  VALUES0; skipSTACK(2);
+}
+
+DEFFLAGSET(txn_recover_flags, DB_FIRST DB_NEXT)
+DEFUN(BDB:TXN-RECOVER, dbe &key :FIRST :NEXT)
+{ /* return a list of prepared but not yet resolved transactions */
+  u_int32_t flags = txn_recover_flags();
+  DB_ENV *dbe = object_handle(popSTACK(),`BDB::DBE`,true);
+  u_int32_t tx_max;
+  DB_PREPLIST *preplist;
+  int status, ii;
+  long retnum;
+  SYSCALL(dbe->get_tx_max,(dbe,&tx_max));
+  preplist = my_malloc(tx_max * sizeof(DB_PREPLIST));
+  begin_system_call();
+  status = dbe->txn_recover(dbe,preplist,tx_max,&retnum,flags);
+  if (status) {
+    free(preplist); end_system_call();
+    error_bdb(status,"dbe->txn_recover");
+  }
+  end_system_call();
+  for (ii=0; ii<retnum; ii++) {
+    pushSTACK(allocate_fpointer(preplist[ii].txn));
+    funcall(`BDB::MKTXN`,1); pushSTACK(value1);
+    pushSTACK(allocate_bit_vector(Atype_8Bit,DB_XIDDATASIZE));
+    begin_system_call();
+    memcpy(TheSbvector(STACK_0)->data,preplist[ii].gid,DB_XIDDATASIZE);
+    end_system_call();
+    value1 = allocate_cons();
+    Cdr(value1) = popSTACK();   /* gid */
+    Car(value1) = popSTACK();   /* txn */
+    pushSTACK(value1);          /* (TXN . GID) */
+  }
+  VALUES1(listof(retnum));
 }
