@@ -225,9 +225,7 @@
   #-CLISP nil
 )
 #+CROSS
-(defun version ()
-  (list '19071996)
-)
+(defun version () (list '20010726))
 
 (defconstant *keyword-package* (find-package "KEYWORD"))
 (defconstant *lisp-package* (find-package "COMMON-LISP"))
