@@ -301,8 +301,8 @@ localized.</para>
  url="clisp.html#opt-lang"><option>-L</option></ulink> start-up option.
  If you wish to change the <ulink url="clisp.html#opt-locale">locale
  directory</ulink> at run time too, you can do that by
- setting <varname>CUSTOM:*CURRENT-LANGUAGE*</varname> to a cons cell,
- whose &car; is the language (a symbol, one of the above), and whose
+ setting <varname>CUSTOM:*CURRENT-LANGUAGE*</varname> to a &cons-t; cell,
+ whose &car; is the language (a &symbol-t;, one of the above), and whose
  &cdr; is the new locale directory.</para>
 
 <para>More languages can be defined through the macro <emphasis
@@ -814,7 +814,7 @@ localized.</para>
 <section id="enc-charset"><title>Function &enc-charset;.</title>
 
 <para>The function <literal role="sexp">(&enc-charset; &encoding-r;)</literal>
- returns the charset of the &encoding-r;, as a symbol or a string.
+ returns the charset of the &encoding-r;, as a &symbol-t; or a &string-t;.
  Note that <literal role="sexp">(&string; (&enc-charset;
  &encoding-r;))</literal> is not necessarily a valid MIME name.</para>
 
@@ -2045,7 +2045,7 @@ containing:</para>
 </tbody></tgroup></table>
 
 <simpara>This form defines a &foreign-variable;.  &name-r; is the Lisp
- name, a regular Lisp symbol.</simpara>
+ name, a regular Lisp &symbol-t;.</simpara>
 
 <simpara>The &name-k; option specifies the name, as seen from &c-lang;,
  as a string.  If not specified, it is derived from the print name of
