@@ -1,3 +1,12 @@
+2001-05-05  Sam Steingold  <sds@gnu.org>
+
+	Made the compiler a little less vociferous
+	* clos.lisp (check-signature-congruence): extracted from
+	STD-ADD-METHOD
+	(std-add-method): use CHECK-SIGNATURE-CONGRUENCE
+	* compiler.lisp (c-DEFUN): do not check signature for generic
+	functions since this is better done at load time
+
 2001-05-04  Sam Steingold  <sds@gnu.org>
 
 	ANSI CL compliance: CHAR does not check for FILL-POINTER, ELT does.
