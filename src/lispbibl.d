@@ -2,6 +2,7 @@
 # Bruno Haible 1990-2001
 # Marcus Daniels 11.11.1994
 # Sam Steingold 1998-2001
+# German comments translated into English: Stefan Kain 2001-09-24
 
 # Flags intended to be set through CFLAGS:
 #   Readline library:

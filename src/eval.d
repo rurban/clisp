@@ -1,5 +1,6 @@
 # EVAL, APPLY and bytecode interpreter for CLISP
 # Bruno Haible 1990-2001
+# German comments translated into English: Stefan Kain 2001-08-13
 
 #include "lispbibl.c"
 
