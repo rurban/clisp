@@ -6475,12 +6475,14 @@ local maygc void pr_enter_1 (const gcv_object_t* stream_, object obj,
         { var object top = Car(STACK_0);
           var object indent = Fixnum_0;
           if (mconsp(top)) { # if :FILL and the next string fits the line
-            STACK_0 = Cdr(STACK_0);
             if (modus_single_p
                 || (eq(PPHELP_NL_TYPE(top),S(Kfill))
-                    && string_fit_line_p(stream_,STACK_0,0)))
+                    && string_fit_line_p(stream_,Cdr(STACK_0),0))) {
+              STACK_0 = Cdr(STACK_0);
               goto skip_NL;
-            indent = PPHELP_INDENTN(top);
+            }
+            indent = PPHELP_INDENTN(Car(STACK_0)/*top*/);
+            STACK_0 = Cdr(STACK_0);
             if (!mconsp(STACK_0)) break; # end of stream
           } else if (!stringp(top)) { # tab - a vector but not a string
             STACK_0 = Cdr(STACK_0);
