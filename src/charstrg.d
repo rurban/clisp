@@ -1352,7 +1352,7 @@ global object char_name (chart code) {
         } else if (code > c) {
           if (i2 == i)
             break;
-          # Note here: i1 < i < i2.
+          # Note here: i1 <= i < i2.
           i2 = i;
         }
       }
@@ -1562,6 +1562,8 @@ global object name_char (object string) {
                   i1 = i;
                   break;
                 } else if (*p > *w) {
+                  if (i2 == i)
+                    goto name_not_found;
                   # Note here: i1 <= i < i2.
                   i2 = i;
                   break;
