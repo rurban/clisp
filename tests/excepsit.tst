@@ -192,9 +192,9 @@ type-error
 (character "")
 type-error
 
-#+ANSI-CL
+#-CLISP ; see custom:*coerce-fixnum-char-ansi* in impnotes
 (character 33)
-#+ANSI-CL
+#-CLISP
 type-error
 
 (clear-input '*terminal-io*)
@@ -571,8 +571,7 @@ type-error
 (imagpart #\c)
 type-error
 
-#-CLISP (in-package "FOO39")
-#+CLISP (common-lisp:in-package "FOO39")
+(in-package "FOO39")
 package-error
 
 (input-stream-p (pathname "abc"))
