@@ -4768,14 +4768,12 @@ for-value   NIL or T
                                     (varlistr varlist (cdr varlistr))
                                     (L '()))
                                    ((null varlistr) (nreverse L))
-                                 (setq L
-                                   (append
-                                     (reverse
-                                       (c-bind-fixed-var
-                                         (car varlistr)
-                                         (car stackvarlistr)
-                                         (car stackzlistr)))
-                                     L)))
+                                 (setq L (revappend
+                                          (c-bind-fixed-var
+                                           (car varlistr)
+                                           (car stackvarlistr)
+                                           (car stackzlistr))
+                                          L)))
                              ,body-anode
                              (UNWIND ,*stackz* ,oldstackz ,*for-value*)))
                          (anode
@@ -5820,8 +5818,8 @@ for-value   NIL or T
 (defun c-WITHOUT-PACKAGE-LOCK  (&optional (c #'c-form))
   (test-list *form* 1)
   (let ((*compiler-unlocked-packages*
-         (append (mapcar #'find-package (second *form*))
-                 *compiler-unlocked-packages*)))
+         (nconc (mapcar #'find-package (second *form*))
+                *compiler-unlocked-packages*)))
     (funcall c (macroexpand *form*))))
 
 
