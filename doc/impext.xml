@@ -1755,14 +1755,15 @@ returns two lists <literal role="sexp">(1 3 5 7 9)</literal> and
   <listitem><simpara><filename>modules.c</filename></simpara></listitem>
   <listitem><simpara><filename>clisp.h</filename></simpara></listitem>
 </itemizedlist>
-<command>clisp-link</command> expects to find these files in a subdirectory
-<filename>linkkit/</filename> of the current directory. This can be overridden
-by the environment variable <envar>CLISP_LINKKIT</envar>.</para>
+<command>clisp-link</command> expects to find these files in a
+subdirectory <filename>linkkit/</filename> of the current directory.
+This can be overridden by the environment
+variable <envar>CLISP_LINKKIT</envar>.</para>
 
-<para><command>clisp-link</command> operates on &clisp; linking sets and
+<para><command>clisp-link</command> operates on &clisp; &linkset;s and
  on module sets.</para>
 
-<para>A <emphasis role="strong">linking set</emphasis> is a directory
+<para>A <emphasis role="strong">&linkset;</emphasis> is a directory
  containing:</para>
 
 <variablelist>
@@ -1792,10 +1793,10 @@ by the environment variable <envar>CLISP_LINKKIT</envar>.</para>
    </simpara></listitem></varlistentry>
   </variablelist></para></listitem></varlistentry>
  <varlistentry><term><filename>modules.h</filename></term>
-  <listitem><simpara>the list of modules contained in this linking set
+  <listitem><simpara>the list of modules contained in this &linkset;
   </simpara></listitem></varlistentry>
  <varlistentry><term><filename>modules.o</filename></term>
-  <listitem><simpara>the compiled list of modules contained in this linking set
+  <listitem><simpara>the compiled list of modules contained in this &linkset;
   </simpara></listitem></varlistentry>
  <varlistentry><term>all the <filename>FILES</filename></term>
   <listitem><simpara>listed in <filename>makevars</filename>
@@ -1806,7 +1807,7 @@ by the environment variable <envar>CLISP_LINKKIT</envar>.</para>
      <listitem><simpara>the &mem-image;</simpara></listitem></varlistentry>
 </variablelist>
 
-<para>To run a &clisp; contained in some linking set
+<para>To run a &clisp; contained in some &linkset;
  <filename>dir</filename>, call
  <command><replaceable>dir</replaceable>/lisp.run -M
  <replaceable>dir</replaceable>/lispinit.mem</command></para>
@@ -1832,12 +1833,12 @@ containing:</para>
 <variablelist>
 <varlistentry><term><envar>NEW_FILES</envar></term>
  <listitem><simpara>the space-separated list of files that
-  belong to the module set and will belong to every new linking set.
+  belong to the module set and will belong to every new &linkset;.
  </simpara></listitem></varlistentry>
 <varlistentry><term><envar>NEW_LIBS</envar></term>
  <listitem><simpara>the space-separated list of files or
   &c-lang; compiler switches that need to be passed to the &c-lang;
-  compiler when linking the lisp.run belonging to a new linking set.
+  compiler when linking the lisp.run belonging to a new &linkset;.
  </simpara></listitem></varlistentry>
 <varlistentry><term><envar>NEW_MODULES</envar></term>
  <listitem><simpara>the space-separated list of the module names
@@ -1846,14 +1847,15 @@ containing:</para>
   from the file name.</simpara></listitem></varlistentry>
 <varlistentry><term><envar>TO_LOAD</envar></term>
  <listitem><simpara>the space-separated list of Lisp files to load
-  before building the &lispinit; belonging to a new linking set.
+  before building the &lispinit; belonging to a new &linkset;.
  </simpara></listitem></varlistentry>
 <varlistentry><term><envar>TO_PRELOAD</envar> (optional)</term>
- <listitem><simpara>the space-separated list of Lisp files to load into
-  an intermediate &lispinit; file, before building the &lispinit;
-  belonging to a new linking set.  This variable is usually used for
-  defining Lisp packages which must be present when the new &c-file;
-  files are initialized.</simpara></listitem></varlistentry>
+ <listitem><simpara>the space-separated list of Lisp files to load
+  into an intermediate &lispinit; file, before building the &lispinit;
+  belonging to a new &linkset;.
+  This variable is usually used for defining Lisp packages which must be
+  present when the new &c-file; files are initialized.
+ </simpara></listitem></varlistentry>
 </variablelist>
 
 <para>The command <command>clisp-link create-module-set
@@ -1866,20 +1868,20 @@ containing:</para>
 <para>The command <command>clisp-link add-module-set
  <replaceable>module-dir</replaceable>
  <replaceable>source-dir</replaceable>
- <replaceable>destination-dir</replaceable></command> combines a linking
- set in <replaceable>source-dir</replaceable> and a module in
- <replaceable>module-dir</replaceable> to a new linking set, in a
+ <replaceable>destination-dir</replaceable></command> combines a
+ &linkset; in <replaceable>source-dir</replaceable> and a module in
+ <replaceable>module-dir</replaceable> to a new &linkset;, in a
  directory <replaceable>destination-dir</replaceable> which is newly
  created.</para>
 
 <para>The command <command>clisp-link run <replaceable>source-dir</replaceable>
- <replaceable>module-dir</replaceable> ...</command> runs the linking
- set in <replaceable>source-dir</replaceable>, with the module in
+ <replaceable>module-dir</replaceable> ...</command> runs the &linkset;
+ in <replaceable>source-dir</replaceable>, with the module in
  <replaceable>module-dir</replaceable> loaded.  More than one module can
  be specified.  If &clisp; has been built with the configuration option
  <option>--with-dynamic-modules</option>, the loading will be performed
  through dynamic loading.  Otherwise - this is much slower - a temporary
- linking set will be created and deleted afterwards.  Note that dynamic
+ &linkset; will be created and deleted afterwards.  Note that dynamic
  loading does not work on all operating systems, and that
  <option>--with-dynamic-modules</option> precludes some efficiency
  optimizations which are on by default.</para>
@@ -1913,7 +1915,7 @@ containing:</para>
 
 <programlisting>$ clisp -c /<replaceable>somewhere</replaceable>/bindings/linux.lisp</programlisting></para></listitem>
 
-<listitem><para>Create a new linking set:
+<listitem><para>Create a new &linkset;:
 <programlisting>$ clisp-link add-module-set linux base base+linux</programlisting></para></listitem>
 
 <listitem><para>Run and try it:
@@ -2014,9 +2016,9 @@ containing:</para>
 <listitem><table frame="all" role="bnf"><title/>
  <tgroup cols="3" colsep="1" rowsep="1" align="left"><thead><row>
  <entry>&option-r; ::==</entry><entry/><entry/></row></thead><tbody>
-<row><entry/><entry/><entry><literal role="sexp">(:name
+<row><entry/><entry/><entry><literal role="sexp">(&name-k;
    &cname-r;)</literal></entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(:type
+<row><entry/><entry>|</entry><entry><literal role="sexp">(&type-k;
   &ctype-r;)</literal></entry></row>
 <row><entry/><entry>|</entry><entry><literal role="sexp">(:read-only
   <replaceable>boolean</replaceable>)</literal></entry></row>
@@ -2027,12 +2029,11 @@ containing:</para>
 <simpara>This form defines a foreign variable.  &name-r; is the Lisp
  name, a regular Lisp symbol.</simpara>
 
-<simpara>The <constant>:name</constant> option specifies the name, as
- seen from &c-lang;, as a string.  If not specified, it is derived from
- the print name of the Lisp name.</simpara>
+<simpara>The &name-k; option specifies the name, as seen from &c-lang;,
+ as a string.  If not specified, it is derived from the print name of
+ the Lisp name.</simpara>
 
-<simpara>The <constant>:type</constant> option specifies the variable's
- foreign type.</simpara>
+<simpara>The &type-k; option specifies the variable's foreign type.</simpara>
 
 <simpara>If the <constant>:read-only</constant> option is specified and
 non-&nil;, it will be impossible to change the variable's value from
@@ -2058,9 +2059,9 @@ within Lisp (using &setq; or similar).</simpara>
  <tgroup cols="3" colsep="1" rowsep="1" align="left">
  <thead><row><entry>&option-r; ::==</entry>
  <entry/><entry/></row></thead><tbody>
-<row><entry/><entry/><entry><literal role="sexp">(:name
+<row><entry/><entry/><entry><literal role="sexp">(&name-k;
    &cname-r;)</literal></entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(:arguments
+<row><entry/><entry>|</entry><entry><literal role="sexp">(&arguments-k;
    {(<replaceable>arg-name</replaceable> &ctype-r;
     [&param-mode; [&allocation;]])}*)</literal></entry></row>
 <row><entry/><entry>|</entry><entry><literal role="sexp">(:return-type
@@ -2081,9 +2082,9 @@ within Lisp (using &setq; or similar).</simpara>
  <tgroup cols="3" colsep="1" rowsep="1" align="left">
  <thead><row><entry>&option-r; ::==</entry>
  <entry/><entry/></row></thead><tbody>
-<row><entry/><entry/><entry><literal role="sexp">(:name
+<row><entry/><entry/><entry><literal role="sexp">(&name-k;
    &cname-r;)</literal></entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(:arguments
+<row><entry/><entry>|</entry><entry><literal role="sexp">(&arguments-k;
    {(<replaceable>arg-name</replaceable> &ctype-r;
     [&param-mode; [&allocation;]])}*)</literal></entry></row>
 <row><entry/><entry>|</entry><entry><literal role="sexp">(:return-type
@@ -2666,8 +2667,7 @@ or (setq my_struct (deref (slot my_struct 'n)))
 
 <example><title>Calling an external function</title>
 
-<para>On ANSI &c-lang; systems, <filename>stdlib.h</filename> contains
-the declarations:
+<para>On &ansi; &c-lang; systems, &stdlib-h; contains the declarations:
 
 <programlisting>
 typedef struct {
@@ -2692,7 +2692,7 @@ Sample call from within Lisp:
 
 <programlisting>
 &gt; (div 20 3)
-#S(DIV :QUOT 6 :REM 2)
+#S(DIV_T :QUOT 6 :REM 2)
 </programlisting></para></example>
 
 <example><title>Another example for calling an external function</title>
@@ -2809,8 +2809,8 @@ This is accompanied by <filename>sort2.lisp</filename>:
 (&defpackage; "FFI-TEST" (:use "LISP" "FFI"))
 (&in-package; "FFI-TEST")
 (def-call-in lispsort_begin (:arguments (n int))
-                            (:return-type nil)
-                            (:language :stdc))
+  (:return-type nil)
+  (:language :stdc))
 (def-c-var lispsort_function (:type c-pointer))
 (defun lispsort_begin (n)
   (setf (cast lispsort_function
@@ -2828,11 +2828,10 @@ To test this, use the following test file <filename>sorttest.lisp</filename>:
 
 <programlisting>
 (def-call-out sort10
-              (:name "lispsort_double")
-              (:language :stdc)
-              (:arguments (n int)
-                          (array (c-ptr (c-array double-float 10))
-                                 :in-out)))
+  (:name "lispsort_double")
+  (:language :stdc)
+  (:arguments (n int)
+              (array (c-ptr (c-array double-float 10)) :in-out)))
 </programlisting>
 
 Now try
