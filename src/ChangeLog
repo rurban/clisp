@@ -1,5 +1,10 @@
 1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * savemem.lsp (saveinitmem): Reindent. Declare *command-index* special,
+          because it is not defvar'ed at this point.
+
+1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * loop.lsp (expand-loop) (collect/append/nconc): Generate forward-
           consing code only for named accumulation variables. Revert to the
           old backward-consing code for unnamed accumulation variables.
