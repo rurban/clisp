@@ -3569,10 +3569,8 @@
 ;; Users want to be able to create instances of subclasses of <standard-class>
 ;; and <structure-class>. So, when creating a class, we now go through
 ;; MAKE-INSTANCE and INITIALIZE-INSTANCE.
-(defun make-instance-standard-class (&rest args)
-  (apply #'make-instance args))
-(defun make-instance-structure-class (&rest args)
-  (apply #'make-instance args))
+(setf (fdefinition 'make-instance-standard-class) #'make-instance)
+(setf (fdefinition 'make-instance-structure-class) #'make-instance)
 (defmethod initialize-instance ((new-class-object standard-class) &rest args
                                 &key name (metaclass <standard-class>)
                                 documentation direct-superclasses direct-slots
