@@ -11285,7 +11285,15 @@ LISPFUNN(dynload_modules,2) {
 
 # file name of the executable
 local char* executable_name = NULL;
+#ifdef UNIX_CYGWIN32
+/* note that up and including win2000, detaching from a process kills it
+ <http://article.gmane.org/gmane.os.cygwin/32245>
+ <http://article.gmane.org/gmane.os.cygwin/32246>
+ <http://article.gmane.org/gmane.os.cygwin/32250> */
+#define default_executable_name  "lisp.exe"
+#else
 #define default_executable_name  "lisp.run"
+#endif
 
 # file descriptor of the executable
 # (Only used to verify that we find the correct executable.)
