@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host loiso.podval.org as the output of the command:
+# This file was created on host glip.premonitia.com as the output of the command:
 # ./makemake acorn gcc
 
 # -------------- Start of configurable section --------------------
@@ -9,6 +9,7 @@
 prefix = 
 exec_prefix = $(prefix)
 bindir  = $(exec_prefix).bin
+shared  = $(prefix).share
 mandir  = $(prefix).man.share
 htmldir = $(prefix).html.share
 dvidir  = $(prefix).dvi.share
@@ -27,7 +28,7 @@ MODULES =
 
 # Programs used by "make":
 CC = gcc
-CFLAGS =  -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -fomit-frame-pointer -mthrowback -O2 -DUNICODE
+CFLAGS =  -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type  -fomit-frame-pointer -mthrowback -O2 -DUNICODE -DNO_SIGSEGV -I.
 CPP = gcc -E
 CLFLAGS = -static -x none -LUnix:o.Unixlib
 LIBS = 
@@ -422,6 +423,7 @@ lisp.gray \
 lisp.german \
 lisp.french \
 lisp.spanish \
+lisp.russian \
 lisp.dutch \
 lisp.deprecated \
 lisp.config
@@ -473,6 +475,7 @@ fas.gray \
 fas.german \
 fas.french \
 fas.spanish \
+fas.russian \
 fas.dutch \
 fas.deprecated \
 fas.config
@@ -529,6 +532,7 @@ stage.lisp.gray \
 stage.lisp.german \
 stage.lisp.french \
 stage.lisp.spanish \
+stage.lisp.russian \
 stage.lisp.dutch \
 stage.lisp.deprecated \
 stage.lisp.config
@@ -580,6 +584,7 @@ stage.fas.gray \
 stage.fas.german \
 stage.fas.french \
 stage.fas.spanish \
+stage.fas.russian \
 stage.fas.dutch \
 stage.fas.deprecated \
 stage.fas.config
@@ -590,9 +595,8 @@ stage.fas.config
 all : init allc allo lisp mem.interpre mem.halfcomp mem.lispinit manual
 	$(TOUCH) all
 
-makemake : in.makemake
-	sh config.status --file=makemake
-	chmod +x makemake
+makemake : in.makemake config.status
+	./config.status --file=makemake
 
 h.unixconf : unixconf.in.h config.status
 	sh config.status --header=h.unixconf
@@ -631,24 +635,14 @@ varbrace : ^.utils.d.varbrace comment5 ansidecl
 	$(CC) $(CFLAGS) $(CLFLAGS) c.varbrace -o varbrace
 	$(RM) c.varbrace
 
-txt2c : ^.utils.c.txt2c ansidecl
-	$(ANSIDECL) < ^.utils.c.txt2c > txt2c.c
-	$(CC) $(CFLAGS) $(CLFLAGS) c.txt2c -o txt2c
-	$(RM) c.txt2c
+txt2c : ^.utils.c.txt2c
+	$(CC) $(CFLAGS) $(CLFLAGS)  ^.utils.c.txt2c -o txt2c
 
-ccmp2c : ^.utils.d.ccmp2c comment5 ansidecl
-	$(COMMENT5) ^.utils.d.ccmp2c > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > ccmp2c.c
-	$(RM) TMPPIPE1
-	$(CC) $(CFLAGS) $(CLFLAGS) -I. c.ccmp2c -o ccmp2c
-	$(RM) c.ccmp2c
+ccmp2c : ^.utils.c.ccmp2c
+	$(CC) $(CFLAGS) $(CLFLAGS)  -I. ^.utils.c.ccmp2c -o ccmp2c
 
-modprep : ^.utils.d.modprep comment5 ansidecl
-	$(COMMENT5) ^.utils.d.modprep > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > modprep.c
-	$(RM) TMPPIPE1
-	$(CC) $(CFLAGS) $(CLFLAGS) c.modprep -o modprep
-	$(RM) c.modprep
+modprep : ^.utils.c.modprep
+	$(CC) $(CFLAGS) $(CLFLAGS)  ^.utils.c.modprep -o modprep
 
 
 h.stdbool : stdbool.in.h
@@ -1557,13 +1551,13 @@ s.sequence : c.sequence c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.const
 o.sequence : c.sequence c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool h.stdint
 	$(CC) $(CFLAGS) -c c.sequence
 
-i.charstrg : c.charstrg c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.uni_upcase c.uni_downcase c.uni_attribute c.uniname h.stdbool h.stdint
+i.charstrg : c.charstrg h.streq h.cjk h.uniwidth c.width h.unitypes h.uniname h.uninames c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.uni_upcase c.uni_downcase c.uni_attribute c.uniname h.stdbool h.stdint
 	$(CPP) $(CFLAGS) c.charstrg > i.charstrg
 
-s.charstrg : c.charstrg c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.uni_upcase c.uni_downcase c.uni_attribute c.uniname h.stdbool h.stdint
+s.charstrg : c.charstrg h.streq h.cjk h.uniwidth c.width h.unitypes h.uniname h.uninames c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.uni_upcase c.uni_downcase c.uni_attribute c.uniname h.stdbool h.stdint
 	$(CC) $(CFLAGS) -S c.charstrg
 
-o.charstrg : c.charstrg c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.uni_upcase c.uni_downcase c.uni_attribute c.uniname h.stdbool h.stdint
+o.charstrg : c.charstrg h.streq h.cjk h.uniwidth c.width h.unitypes h.uniname h.uninames c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.uni_upcase c.uni_downcase c.uni_attribute c.uniname h.stdbool h.stdint
 	$(CC) $(CFLAGS) -c c.charstrg
 
 i.debug : c.debug c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool h.stdint
@@ -1698,16 +1692,13 @@ o.ariarm : s.ariarm
 h.libcharset libcharset.a :
 	builddir="`pwd`"; cd libcharset && $(MAKE) && $(MAKE) install-lib libdir="$$builddir" includedir="$$builddir"
 
-h.sigsegv libsigsegv.a :
-	builddir="`pwd`"; cd sigsegv && $(MAKE) && $(MAKE) check && $(MAKE) install-lib libdir="$$builddir" includedir="$$builddir"
-
 data : ^.utils.unicode.ftp.unicode.org.txt.UnicodeData ^.src.txt.clhs
 	$(RMRF) data
 	mkdir data
 	cd data && $(LN_S) ^.^.utils.unicode.ftp.unicode.org.txt.UnicodeData .
 	cd data && $(LN_S) ^.^.src.txt.clhs .
 
-lisp : $(OBJECTS) o.modules      data
+lisp : $(OBJECTS) o.modules     data
 	$(CC) $(CFLAGS) $(CLFLAGS) $(OBJECTS) o.modules $(LIBS) -o lisp
 
 
@@ -1717,7 +1708,7 @@ alllisp : $(LISPFILES)
 lisp.config : lisp.cfgacorn
 	$(CP) lisp.cfgacorn lisp.config
 
-RUN= /@.lisp -B . -Efile UTF-8 -norc
+RUN= /@.lisp -B . -Efile UTF-8 -Eterminal UTF-8 -norc
 
 mem.interpre : lisp $(LISPFILES)
 	-$(RM) mem.interpre
@@ -1862,6 +1853,9 @@ fas.french : lisp.french lisp mem.halfcomp
 fas.spanish : lisp.spanish lisp mem.halfcomp
 	$(RUN) -m 1000KW -M mem.halfcomp -q -c spanish.lisp
 
+fas.russian : lisp.russian lisp mem.halfcomp
+	$(RUN) -m 1000KW -M mem.halfcomp -q -c russian.lisp
+
 fas.dutch : lisp.dutch lisp mem.halfcomp
 	$(RUN) -m 1000KW -M mem.halfcomp -q -c dutch.lisp
 
@@ -1884,6 +1878,11 @@ mem.lispinit : lisp $(FASFILES)
 # Perform self-tests.
 check : test testsuite
 	$(TOUCH) check
+
+# check the sources: subr.d, fsubr.d, d.subrkw and
+# all the LISPFUNs must add up
+check-sources : # lisp mem.lispinit
+	$(RUN) -M mem.lispinit -C -i lisp.check-lispfun -x '(check-lisp-defs "")'
 
 # Test: recompile $(LISPFILES) and compare their contents.
 test : mem.lispinit stage $(TESTLISPFILES) $(TESTFASFILES)
@@ -2029,6 +2028,9 @@ stage.lisp.french : lisp.french
 
 stage.lisp.spanish : lisp.spanish
 	$(LN_S) lisp.spanish stage
+
+stage.lisp.russian : lisp.russian
+	$(LN_S) lisp.russian stage
 
 stage.lisp.dutch : lisp.dutch
 	$(LN_S) lisp.dutch stage
@@ -2180,6 +2182,9 @@ stage.fas.french : stage.lisp.french lisp stage.mem.testinit
 stage.fas.spanish : stage.lisp.spanish lisp stage.mem.testinit
 	$(RUN) -M stage.mem.testinit -q -c stage.spanish.lisp
 
+stage.fas.russian : stage.lisp.russian lisp stage.mem.testinit
+	$(RUN) -M stage.mem.testinit -q -c stage.russian.lisp
+
 stage.fas.dutch : stage.lisp.dutch lisp stage.mem.testinit
 	$(RUN) -M stage.mem.testinit -q -c stage.dutch.lisp
 
@@ -2196,13 +2201,17 @@ mem.lispinit2 : lisp $(TESTFASFILES)
 
 
 testsuite : suite lisp mem.lispinit
-	LISP="`pwd`.lisp -M `pwd`.mem.lispinit -B `pwd` -Efile UTF-8 -norc"; export LISP; cd suite; $(MAKE) LISP="$$LISP"
+	LISP="`pwd`.lisp -M `pwd`.mem.lispinit -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc"; export LISP; cd suite; $(MAKE) LISP="$$LISP"
 
 suite :
 	-mkdir suite
 	cd suite && $(LN_S) ^.^.tests.Makefile .
 	cd suite && $(LN_S) ^.^.tests.*.lisp .
 	cd suite && $(LN_S) ^.^.tests.*.tst .
+
+
+h.lispbibl : c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool h.stdint
+	(($(CPP) $(CFLAGS) -P c.lispbibl | $(GREP) -v "^ *$$") ; ($(CPP) $(CFLAGS) -P -dM c.lispbibl | sort) ) > h.lispbibl
 
 
 h.clisp : o.genclisph h.unixconf h.intparam
@@ -2224,16 +2233,16 @@ makevars :
 	(echo 'CC='"'"'$(CC)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a '"'") > makevars
 
 clisp-link : in.clisp-link
-	sed -e 's%@with_dynamic_modules@%%' -e 's%@createsharedlib@%%' < in.clisp-link > clisp-link
+	sed -e 's%@with_dynamic_modules@%%' -e 's%@createsharedlib@%%' -e 's%@LEXE@%%' < in.clisp-link > clisp-link
 	chmod a+x clisp-link
 
 base : modular mem.lispinit
-	test -d base || (mkdir base && cd base && for f in lisp.a  h.modules o.modules makevars lisp.run lispinit.mem; do $(LN_S) ^.$$f $$f; done) || ($(RMRF) base ; exit 1)
+	test -d base || (mkdir base && cd base && for f in lisp.a  h.modules o.modules makevars lisp lispinit.mem; do $(LN_S) ^.$$f $$f; done) || ($(RMRF) base ; exit 1)
 
 anymodule $(MODULES) : lisp mem.lispinit force
 	test -d $@ || /@.lndir ^.modules/$@ $@
 	if test -f $@/configure -a '!' -f $@/config.status ; then cd $@ ; ./configure --cache-file=`echo $@/ | sed -e 's,[^/][^/]*//*,^.,g'`config.cache ; fi
-	CLISP="`pwd`.lisp -M `pwd`.mem.lispinit -B `pwd` -Efile UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,^.,g'` ; $(MAKE) clisp-module CC="$(CC)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}c.lispbibl $${dots}c.fsubr $${dots}c.subr $${dots}c.pseudofun $${dots}c.constsym $${dots}c.constobj $${dots}c.acorn $${dots}h.stdbool $${dots}stdint.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
+	CLISP="`pwd`.lisp -M `pwd`.mem.lispinit -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,^.,g'` ; $(MAKE) clisp-module CC="$(CC)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}c.lispbibl $${dots}c.fsubr $${dots}c.subr $${dots}c.pseudofun $${dots}c.constsym $${dots}c.constobj $${dots}c.acorn $${dots}h.stdbool $${dots}stdint.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
 
 full : modular base $(MODULES)
 	test -d full || CLISP_LINKKIT=. /@.clisp-link add-module-sets base full $(MODULES) || ($(RMRF) full ; exit 1)
@@ -2308,6 +2317,13 @@ html.clisp : html._clisp c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.cons
 	$(RM) c.text
 	$(RM) text
 
+c.clisp : c._clisp c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool h.stdint txt2c
+	$(TXT2C) < c._clisp > text.c
+	$(CC) $(CFLAGS) $(CLFLAGS) -O0 c.text -o text
+	/@.text > clisp.c
+	$(RM) c.text
+	$(RM) text
+
 dvi.clisp : 1.clisp
 	$(ROFF_DVI) 1.clisp > dvi.clisp
 
@@ -2323,6 +2339,9 @@ txt.CLOS-guide : ^.doc.txt.CLOS-guide
 txt.editors : ^.doc.txt.editors
 	-$(LN_S) ^.doc.txt.editors txt.editors
 
+
+clisp : c.clisp
+	$(CC) $(CFLAGS) $(CLFLAGS) -DLISPLIBDIR='"/usr/local/src/clisp/current"' -DLOCALEDIR='"/usr/local/src/clisp/current/locale"' c.clisp -o clisp
 
 distrib : force all manualx
 	-cdir ^.!Clisp
@@ -2367,7 +2386,7 @@ distrib : force all manualx
 
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
-	-$(RM) core c.ansidecl c.varbrace c.ccmp2c c.modprep genclisph c.text text
+	-$(RM) core c.ansidecl c.varbrace genclisph c.text text
 	-$(RMRF) linkkit
 
 # clean1 removes everything that becomes obsolete once lisp is recompiled
@@ -2376,7 +2395,7 @@ clean0 : force
 clean1 : clean0
 	-$(RM) h.lispbibl h.clisp *.i *.s *.o *.a lisp clisp-link makevars stage.* suite.*
 	-$(RMRF) base full
-	-$(RM) libsigsegv.* libcharset.* libavcall.* libcallback.*
+	-$(RM) libcharset.* libavcall.* libcallback.*
 	-rmdir stage
 	-rmdir suite
 	-$(RM) README README_de README_es 1.clisp man.clisp dvi.clisp html.clisp $(IMPNOTES) c.clisp distmakefile $(TXTFILES)
@@ -2404,7 +2423,7 @@ clean5 : clean4
 	-$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY
 	-$(RM) lisp.config
 	-$(RMRF) data
-	-$(RM) comment5 ansidecl varbrace ccpaux deema txt2c ccmp2c modprep
+	-$(RM) comment5 ansidecl varbrace ccpaux deema txt2c ccmp2c modprep clisp
 
 # clean6 lets us go back to "makemake > Makefile".
 clean6 : clean5
@@ -2416,7 +2435,6 @@ clean7 : clean6
 	-$(RMRF) avcall
 	-$(RMRF) callback
 	-$(RMRF) libcharset
-	-$(RMRF) sigsegv
 
 # clean8 moreover cleans up the SRCDIR.
 clean8 : clean7

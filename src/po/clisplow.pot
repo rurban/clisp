@@ -3,46 +3,46 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2.28.1\n"
-"POT-Creation-Date: 2002-05-18 10:08:45 EDT\n"
-"PO-Revision-Date: 2002-05-18 10:08:45 EDT\n"
-"Last-Translator: Automatically generated <sds@loiso.podval.org>\n"
+"Project-Id-Version: clisp 2.30\n"
+"POT-Creation-Date: 2002-09-13 10:53:58 EDT\n"
+"PO-Revision-Date: 2002-09-13 10:53:58 EDT\n"
+"Last-Translator: Automatically generated <sds@glip.premonitia.com>\n"
 "Language-Team: Template <xx@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: spvw.d:480
+#: spvw.d:476
 msgid ""
 "\n"
 "*** - Program stack overflow. RESET"
 msgstr ""
 
-#: spvw.d:484
+#: spvw.d:480
 msgid ""
 "\n"
 "*** - Lisp stack overflow. RESET"
 msgstr ""
 
-#: spvw.d:671
+#: spvw.d:667
 msgid "Unknown signature of an FSUBR\n"
 msgstr ""
 
-#: spvw.d:778
+#: spvw.d:774
 msgid "Unknown signature of a SUBR\n"
 msgstr ""
 
-#: spvw.d:1446
+#: spvw.d:1445
 msgid "module `%s' requires package %s.\n"
 msgstr ""
 
-#: spvw.d:1484
+#: spvw.d:1483
 msgid ""
 "GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp.\n"
 "Usage:  "
 msgstr ""
 
-#: spvw.d:1487
+#: spvw.d:1486
 msgid ""
 " [options] [lispfile [argument ...]]\n"
 " When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
@@ -50,171 +50,171 @@ msgid ""
 " read-eval-print loop is entered.\n"
 msgstr ""
 
-#: spvw.d:1491
+#: spvw.d:1490
 msgid "Informative output:\n"
 msgstr ""
 
-#: spvw.d:1492
+#: spvw.d:1491
 msgid " -h, --help    - print this help and exit\n"
 msgstr ""
 
-#: spvw.d:1493
+#: spvw.d:1492
 msgid " --version     - print the version information\n"
 msgstr ""
 
-#: spvw.d:1494
+#: spvw.d:1493
 msgid " --license     - print the licensing information\n"
 msgstr ""
 
-#: spvw.d:1495
+#: spvw.d:1494
 msgid "Memory image selection:\n"
 msgstr ""
 
-#: spvw.d:1496
+#: spvw.d:1495
 msgid " -B lisplibdir - set the installation directory\n"
 msgstr ""
 
-#: spvw.d:1498
+#: spvw.d:1497
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr ""
 
-#: spvw.d:1500
+#: spvw.d:1499
 msgid " -M memfile    - use this memory image\n"
 msgstr ""
 
-#: spvw.d:1501
+#: spvw.d:1500
 msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
-#: spvw.d:1503
+#: spvw.d:1502
 msgid " -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
-#: spvw.d:1506
+#: spvw.d:1505
 msgid " -t tmpdir     - temporary directory for memmap\n"
 msgstr ""
 
-#: spvw.d:1508
+#: spvw.d:1507
 msgid "Internationalization:\n"
 msgstr ""
 
-#: spvw.d:1509
+#: spvw.d:1508
 msgid " -L language   - set user language\n"
 msgstr ""
 
-#: spvw.d:1510
+#: spvw.d:1509
 msgid " -N nlsdir     - NLS catalog directory\n"
 msgstr ""
 
-#: spvw.d:1511
+#: spvw.d:1510
 msgid " -Edomain encoding - set encoding\n"
 msgstr ""
 
-#: spvw.d:1512
+#: spvw.d:1511
 msgid "Interoperability:\n"
 msgstr ""
 
-#: spvw.d:1513
+#: spvw.d:1512
 msgid " -q, --quiet, --silent - do not print the banner\n"
 msgstr ""
 
-#: spvw.d:1514
+#: spvw.d:1513
 msgid " -w            - wait for keypress after program termination\n"
 msgstr ""
 
-#: spvw.d:1515
+#: spvw.d:1514
 msgid " -I            - be ILISP-friendly\n"
 msgstr ""
 
-#: spvw.d:1516
+#: spvw.d:1515
 msgid "Startup actions:\n"
 msgstr ""
 
-#: spvw.d:1517
+#: spvw.d:1516
 msgid " -ansi         - more ANSI CL compliance\n"
 msgstr ""
 
-#: spvw.d:1518
+#: spvw.d:1517
 msgid " -traditional  - traditional (undoes -ansi)\n"
 msgstr ""
 
-#: spvw.d:1519
+#: spvw.d:1518
 msgid " -p package    - start in the package\n"
 msgstr ""
 
-#: spvw.d:1520
+#: spvw.d:1519
 msgid " -C            - set *LOAD-COMPILING* to T\n"
 msgstr ""
 
-#: spvw.d:1521
+#: spvw.d:1520
 msgid " -norc         - do not load the user ~/.clisprc file\n"
 msgstr ""
 
-#: spvw.d:1522
+#: spvw.d:1521
 msgid " -i file       - load initfile (can be repeated)\n"
 msgstr ""
 
-#: spvw.d:1523
+#: spvw.d:1522
 msgid "Actions:\n"
 msgstr ""
 
-#: spvw.d:1524
+#: spvw.d:1523
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 msgstr ""
 
-#: spvw.d:1525
+#: spvw.d:1524
 msgid " -x expression - execute the expression, then exit\n"
 msgstr ""
 
-#: spvw.d:1526
+#: spvw.d:1525
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
 msgstr ""
 
-#: spvw.d:1527
+#: spvw.d:1526
 msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr ""
 
-#: spvw.d:1528
+#: spvw.d:1527
 msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
 msgstr ""
 
-#: spvw.d:1529
+#: spvw.d:1528
 msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr ""
 
-#: spvw.d:1800
+#: spvw.d:1799
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
 msgstr ""
 
-#: spvw.d:1804
+#: spvw.d:1803
 msgid "%s out of range\n"
 msgstr ""
 
-#: spvw.d:1817
+#: spvw.d:1816
 msgid "memory size"
 msgstr ""
 
-#: spvw.d:1828
+#: spvw.d:1827
 msgid "stack size"
 msgstr ""
 
-#: spvw.d:1940
+#: spvw.d:1939
 msgid "CLISP: -a is deprecated, use -ansi\n"
 msgstr ""
 
-#: spvw.d:2176
+#: spvw.d:2164
 msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
 msgstr ""
 
-#: spvw.d:2182
+#: spvw.d:2170
 msgid "Only %d bytes available.\n"
 msgstr ""
 
-#: spvw.d:2425
+#: spvw.d:2413
 msgid "Could not determine the end of the SP stack!\n"
 msgstr ""
 
-#: spvw.d:2882
+#: spvw.d:2877
 msgid "Not enough memory for Lisp.\n"
 msgstr ""
 
@@ -230,7 +230,7 @@ msgid ""
 "*** - Memory exhausted. RESET"
 msgstr ""
 
-#: spvw_mmap.d:67 spvw_mmap.d:219 spvw_mmap.d:396 spvw_multimap.d:175
+#: spvw_mmap.d:67 spvw_mmap.d:219 spvw_mmap.d:396 spvw_multimap.d:172
 msgid "Cannot map memory to address 0x%x ."
 msgstr ""
 
@@ -266,68 +266,68 @@ msgstr ""
 msgid "Cannot open /dev/zero ."
 msgstr ""
 
-#: spvw_multimap.d:145
-msgid "msync(0x%x,0x%x,MS_INVALIDATE) fails."
+#: spvw_multimap.d:143
+msgid "msync(0x%x,0x%x,MS_INVALIDATE) failed."
 msgstr ""
 
-#: spvw_multimap.d:210
+#: spvw_multimap.d:207
 msgid "Cannot open %s ."
 msgstr ""
 
-#: spvw_multimap.d:221
+#: spvw_multimap.d:218
 msgid "Cannot delete %s ."
 msgstr ""
 
-#: spvw_multimap.d:236
+#: spvw_multimap.d:233
 msgid "** WARNING: ** Too few free disk space for %s .\n"
 msgstr ""
 
-#: spvw_multimap.d:239
+#: spvw_multimap.d:236
 msgid "Please restart LISP with fewer memory (option -m).\n"
 msgstr ""
 
-#: spvw_multimap.d:247
+#: spvw_multimap.d:244
 msgid "Cannot make %s long enough."
 msgstr ""
 
-#: spvw_multimap.d:266
+#: spvw_multimap.d:263
 msgid "Cannot fill %s ."
 msgstr ""
 
-#: spvw_multimap.d:283
+#: spvw_multimap.d:280
 msgid "Cannot close %s ."
 msgstr ""
 
-#: spvw_multimap.d:318
+#: spvw_multimap.d:315
 msgid "Cannot close /dev/zero ."
 msgstr ""
 
-#: spvw_multimap.d:354
+#: spvw_multimap.d:351
 msgid "Recompile your operating system with SYSV IPC support.\n"
 msgstr ""
 
-#: spvw_multimap.d:368
+#: spvw_multimap.d:365
 msgid "Cannot allocate private shared memory segment."
 msgstr ""
 
-#: spvw_multimap.d:390
+#: spvw_multimap.d:387
 msgid "Cannot map shared memory to address 0x%x."
 msgstr ""
 
-#: spvw_multimap.d:413
+#: spvw_multimap.d:410
 msgid "Cannot fill shared memory."
 msgstr ""
 
-#: spvw_multimap.d:419
+#: spvw_multimap.d:416
 msgid "Could not fill shared memory."
 msgstr ""
 
-#: spvw_multimap.d:434
+#: spvw_multimap.d:431
 msgid "Cannot remove shared memory segment."
 msgstr ""
 
-#: spvw_fault.d:482
-msgid "mprotect() fails."
+#: spvw_fault.d:477
+msgid "mprotect() failed."
 msgstr ""
 
 #: spvw_sigsegv.d:29
@@ -340,8 +340,8 @@ msgstr ""
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
 msgstr ""
 
-#: spvw_garcol.d:2079
-msgid "munmap() fails."
+#: spvw_garcol.d:2082
+msgid "munmap() failed."
 msgstr ""
 
 #: spvw_allocate.d:49
@@ -746,6 +746,6 @@ msgstr ""
 msgid "Not supported under MS-DOS"
 msgstr ""
 
-#: amigaaux.d:212
+#: amigaaux.d:209
 msgid "This version of CLISP runs only in low address memory.\n"
 msgstr ""

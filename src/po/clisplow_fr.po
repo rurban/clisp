@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2002-05-18 10:08:45 EDT\n"
+"POT-Creation-Date: 2002-09-13 10:53:58 EDT\n"
 "PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -212,7 +212,8 @@ msgstr "VirtualProtect() a échoué."
 msgid "Cannot open /dev/zero ."
 msgstr "Ne peux pas ouvrir /dev/zero ."
 
-msgid "msync(0x%x,0x%x,MS_INVALIDATE) fails."
+#, fuzzy
+msgid "msync(0x%x,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) - erreur."
 
 msgid "Cannot open %s ."
@@ -257,7 +258,8 @@ msgstr "Ne pouvais pas remplir la mémoire partagée."
 msgid "Cannot remove shared memory segment."
 msgstr "Ne peux pas retirer un segment de mémoire partagée."
 
-msgid "mprotect() fails."
+#, fuzzy
+msgid "mprotect() failed."
 msgstr "mprotect() ne fonctionne pas."
 
 msgid ""
@@ -270,7 +272,8 @@ msgstr ""
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
 msgstr "Scénario Apollo 13 : Réparation de débordement de pile a échoué. Au prochain débordement de pile, ça cassera!!!\n"
 
-msgid "munmap() fails."
+#, fuzzy
+msgid "munmap() failed."
 msgstr "munmap() ne fonctionne pas."
 
 msgid ""
@@ -689,10 +692,15 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
+
+#, fuzzy
 
 
 
 
+#, fuzzy
+
 
 
 
@@ -700,6 +708,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
 
 
@@ -721,6 +730,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 #, fuzzy
+
 
 
 
@@ -739,6 +749,9 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
+
+#, fuzzy
 
 
 
@@ -794,10 +807,10 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 #, fuzzy
 
 #, fuzzy
-
 
 
 
+#, fuzzy
 
 
 
@@ -952,7 +965,6 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 #, fuzzy
-
 
 
 
@@ -975,7 +987,9 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1080,7 +1094,6 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
-
 #, fuzzy
 
 
@@ -1105,6 +1118,52 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 #, fuzzy
 
 #, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1133,6 +1192,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+
 #, fuzzy
 
 
@@ -1211,6 +1271,8 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+
+#, fuzzy
 
 #, fuzzy
 
@@ -1249,7 +1311,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
-
+#, fuzzy
 
 
 
@@ -1410,7 +1472,6 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
-#, fuzzy
 
 
 #, fuzzy
@@ -1457,11 +1518,14 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 #, fuzzy
+
 
+#, fuzzy
 
 #, fuzzy
 
 #, fuzzy
+
 
 
 
@@ -1474,6 +1538,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
 
 
@@ -1508,7 +1573,6 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 #, fuzzy
-
 
 
 
@@ -1521,12 +1585,13 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
-
-
+#, fuzzy
 
+#, fuzzy
 
 
 
+#, fuzzy
 
 
 
@@ -1591,10 +1656,13 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 #, fuzzy
@@ -1648,7 +1716,6 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
-
 #, fuzzy
 
 
@@ -1699,6 +1766,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 #, fuzzy
+
 
 
 
@@ -1708,6 +1776,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
 
 
@@ -1736,6 +1805,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
 
 
@@ -1753,7 +1823,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
-
+#, fuzzy
 
 
 
@@ -1774,12 +1844,14 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
 
 #, fuzzy
-
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1827,8 +1899,6 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 #, fuzzy
-
-
 
 
 
@@ -1849,46 +1919,19 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
-
-
-
-
-
 #, fuzzy
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+#, fuzzy
 
 
 
 
 
 
+#, fuzzy
 
 
 
@@ -1902,6 +1945,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
 
 
