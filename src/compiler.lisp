@@ -90,7 +90,6 @@
 (defvar *compile-warnings* t) ; if compiler-warnings are reported
 (defvar *compile-verbose* t) ; if compiler-comments are reported
 (defvar *compile-print* nil) ; if compiler reports, where he currently is
-(defvar *compiling-from-file*) ; NIL or T if called by COMPILE-FILE or LOAD :COMPILE
 (defvar *compile-file-pathname* nil) ; CLtL2 p. 680
 (defvar *compile-file-truename* nil) ; CLtL2 p. 680
 (defvar *compile-file-directory* nil) ; for c-REQUIRE
@@ -104,6 +103,23 @@
 (defvar *known-special-vars* nil)
 ;; The names and values of constants
 (defvar *constant-special-vars* nil)
+
+;; T if called by COMPILE-FILE or LOAD :COMPILE
+(defvar *compiling-from-file*)
+;; how do we determine what will happen with the compiled code,
+;; i.e., will it be evaluated right away or loaded before that?
+;; if we are called by COMPILE-FILE, we are writing to *fasoutput-stream*,
+;;   *compiling-from-file* is T
+;; if we are writing by LOAD :COMPILE, *fasoutput-stream* is nil, but
+;;   *compiling-from-file* is T
+;; if we are called by COMPILE, both *fasoutput-stream* and
+;;   *compiling-from-file* are nil
+;; the last 2 cases are when the code can be evaluated right after
+;;   compilation, so for them LOAD-TIME-VALUE == EVAL,
+;;  ==> defer-eval-after-load == *fasoutput-stream*
+;; on the other hand, what do we do with
+;;  (eval-when (compile) (funcall (compile nil (lambda () (load-time-value)))))
+;;  we need to bind *fasoutput-stream* to NIL in eval-when!
 
 ;;; The variables for COMPILE-FILE:
 ;; The compiler's output file stream, or nil
@@ -4252,7 +4268,7 @@ for-value   NIL or T
      :sub-anodes '()
      :seclass '(NIL . NIL)
      :code (if *for-value*
-               `((CONST ,(if *fasoutput-stream*
+               `((CONST ,(if *fasoutput-stream* ; not called right away
                            (if (and (symbolp form) (c-constantp form))
                              (make-const :horizon ':all :form form
                                          :value (c-constant-value form))
@@ -5581,7 +5597,9 @@ for-value   NIL or T
                     situation))))
     (let ((form `(PROGN ,@(cddr *form*))))
       (when (and compile-p load-p) (c-write-lib form))
-      (when compile-p (eval form))
+      (when compile-p
+        ;; if FORM calls COMPILE, the result may be called right away
+        (let ((*fasoutput-stream* nil)) (eval form)))
       (funcall c (if (or load-p (and execute-p (not top-level-p)))
                      form nil)))))
 
@@ -9692,7 +9710,7 @@ The function make-closure is required.
         (let ((l (append
                    (make-list (fnode-Keyword-Offset fnode))
                    (fnode-keywords fnode)
-                   (if *fasoutput-stream*
+                   (if *fasoutput-stream* ; not called right away
                      (mapcar #'(lambda (value form)
                                  (if form (make-load-time-eval form) value))
                              (fnode-Consts fnode) (fnode-Consts-forms fnode))
