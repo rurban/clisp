@@ -318,6 +318,8 @@
 ;;;----------------------------------------------------------------------------
 (defsetf package-lock SYSTEM::%SET-PACKAGE-LOCK)
 (defsetf hash-table-weak-p SYSTEM::%SET-HASH-TABLE-WEAK-P)
+(defsetf hash-table-warn-if-needs-rehash-after-gc
+    SYSTEM::%SET-HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC)
 (system::%put 'weak-pointer-value 'SYSTEM::SETF-FUNCTION
               'SYSTEM::|(SETF WEAK-POINTER-VALUE)|)
 (system::%put 'weak-list-list 'SYSTEM::SETF-FUNCTION
