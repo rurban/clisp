@@ -2921,7 +2921,7 @@ if [ $CROSS = false ] ; then
       gnu_ext)
         echotab "if [ ! -d \$(mandir)/html ] ; then mkdir \$(mandir)/html ; fi"
         ;;
-      suse|redhat|debian)
+      suse | redhat | debian)
         echotab "if [ ! -d \$(docdir) ] ; then mkdir \$(docdir) ; fi"
         echotab "if [ ! -d \$(docdir)/doc ] ; then mkdir \$(docdir)/doc ; fi"
         ;;
@@ -2983,7 +2983,7 @@ if [ $CROSS = false ] ; then
           echotab "\$(INSTALL_DATA) clreadline.html \$(mandir)/html/clreadline.html"
         fi
         ;;
-      suse|redhat|debian)
+      suse | redhat | debian)
         echotab "if [ ! -d \$(docdir) ] ; then mkdir \$(docdir) ; fi"
         echotab "if [ ! -d \$(docdir)/doc ] ; then mkdir \$(docdir)/doc ; fi"
         echotab "\$(INSTALL_DATA) \$(READMES) \$(docdir)/"
@@ -3021,7 +3021,7 @@ if [ $CROSS = false ] ; then
           echotab "\$(RM) \$(mandir)/html/clreadline.html"
         fi
         ;;
-      suse|redhat|debian)
+      suse | redhat | debian)
         echotab "for f in \$(READMES); do \$(RM) \$(docdir)/\$\$f; done"
         echotab "for f in \$(MANUALS); do \$(RM) \$(docdir)/doc/\$\$f; done"
         ;;

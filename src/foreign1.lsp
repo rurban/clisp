@@ -669,24 +669,24 @@
            (c-struct
              (format nil "struct { ~{~A; ~}} ~A"
                          (mapcar #'(lambda (subtype)
-                                (to-c-typedecl subtype
-                                               (symbol-name (gensym "g"))))
-                            (cdddr (coerce c-type 'list)))
-                    name))
+                                 (to-c-typedecl subtype
+                                                (symbol-name (gensym "g"))))
+                           (cdddr (coerce c-type 'list)))
+                     name))
            (c-union
              (format nil "union { ~{~A; ~}} ~A"
                          (mapcar #'(lambda (subtype)
-                                (to-c-typedecl subtype
-                                               (symbol-name (gensym "g"))))
-                            (cddr (coerce c-type 'list)))
-                    name))
+                                 (to-c-typedecl subtype
+                                                (symbol-name (gensym "g"))))
+                           (cddr (coerce c-type 'list)))
+                     name))
            (c-array
              (to-c-typedecl (svref c-type 1)
-                           (format nil "(~A)~{[~D]~}" name
-                                   (cddr (coerce c-type 'list)))))
+                            (format nil "(~A)~{[~D]~}" name
+                                    (cddr (coerce c-type 'list)))))
            (c-array-max
              (to-c-typedecl (svref c-type 1)
-                           (format nil "(~A)[~D]" name (svref c-type 2))))
+                            (format nil "(~A)[~D]" name (svref c-type 2))))
            ((c-ptr c-ptr-null c-array-ptr)
             (to-c-typedecl (svref c-type 1) (format nil "* ~A" name)))
            (c-function
