@@ -1,5 +1,9 @@
 2004-02-26  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_fault.d (xmmprotect): Fix declaration.
+
+2004-02-26  Bruno Haible  <bruno@clisp.org>
+
 	* flo_konv.d (DF_to_c_double): Use minus_bit instead of -bit. Avoids
 	an "integer overflow" warning on 64-bit platforms.
 
