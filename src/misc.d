@@ -343,6 +343,12 @@ LISPFUNN(set_ansi,1)
   Symbol_value(S(floating_point_contagion_ansi)) = val;
   # (SETQ *MERGE-PATHNAMES-ANSI* val)
   Symbol_value(S(merge_pathnames_ansi)) = val;
+  # (SETQ *PRINT-PATHNAMES-ANSI* val)
+  Symbol_value(S(print_pathnames_ansi)) = val;
+  # (SETQ *SEQUENCE-COUNT-ANSI* val)
+  Symbol_value(S(sequence_count_ansi)) = val;
+  # (SETQ *COERCE-FIXNUM-CHAR-ANSI* val)
+  Symbol_value(S(coerce_fixnum_char_ansi)) = val;
   { # *FEATURES*: PUSHNEW or DELETE
     pushSTACK(S(Kansi_cl)); pushSTACK(Symbol_value(S(features)));
     if (eq(val,T))      # (ADJOIN :ANSI-CL *FEATURES*)

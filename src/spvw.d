@@ -1305,7 +1305,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         # zu SYMBOL:
         define_variable(S(gensym_counter),Fixnum_1);    # *GENSYM-COUNTER* := 1
         # zu PATHNAME:
-        define_variable(S(merge_pathnames_ansi),NIL);   # *MERGE-PATHNAMES-ANSI* := NIL
+        define_variable(S(merge_pathnames_ansi),NIL); # *MERGE-PATHNAMES-ANSI*
         # zu LISPARIT:
         init_arith(); # definiert folgende:
         # define_variable(S(pi),);                      # PI
@@ -1346,6 +1346,9 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         # zu CHARSTRG:
         define_constant(S(char_cod_limit),fixnum(char_code_limit)); # CHAR-CODE-LIMIT
         define_constant(S(base_char_cod_limit),fixnum(base_char_code_limit)); # BASE-CHAR-CODE-LIMIT
+        define_variable(S(coerce_fixnum_char_ansi),NIL); # LISP:*COERCE-FIXNUM-CHAR-ANSI*
+        # zu SEQUENCE:
+        define_variable(S(sequence_count_ansi),NIL); # LISP:*SEQUENCE-COUNT-ANSI*
         # zu DEBUG:
         define_variable(S(plus),NIL);                   # +
         define_variable(S(plus2),NIL);                  # ++
@@ -1410,7 +1413,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         define_variable(S(prin_jbstrings),unbound);     # SYS::*PRIN-JBSTRINGS*
         define_variable(S(prin_jbmodus),unbound);       # SYS::*PRIN-JBMODUS*
         define_variable(S(prin_jblpos),unbound);        # SYS::*PRIN-JBLPOS*
-        define_variable(S(pprint_first_newline),T);     # LISP:*PPRINT-FIRST-NEWLINE*
+        define_variable(S(pprint_first_newline),T);     # LISP::*PPRINT-FIRST-NEWLINE*
+        define_variable(S(print_pathnames_ansi),NIL);   # LISP:*PRINT-PATHNAMES-ANSI*
         # zu EVAL:
         define_variable(S(evalhookstern),NIL);          # *EVALHOOK* := NIL
         define_variable(S(applyhookstern),NIL);         # *APPLYHOOK* := NIL

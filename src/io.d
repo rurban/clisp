@@ -2849,7 +2849,7 @@ LISPFUNN(comment_reader,3) # liest #|
       value1 = NIL; mv_count=0; skipSTACK(2); # keine Werte zurück
   }
 
-# (set-dispatch-macro-character #\# #\\ 
+# (set-dispatch-macro-character #\# #\\
 #   #'(lambda (stream sub-char n)
 #       (let ((token (read-token-1 stream #\\ 'single-escape)))
 #         ; token ist ein String der Länge >=1
@@ -2905,7 +2905,7 @@ LISPFUNN(comment_reader,3) # liest #|
 #                     ) )
 #             ) ) ) )
 # )   ) ) ) )
-LISPFUNN(char_reader,3) # liest #\ 
+LISPFUNN(char_reader,3) # liest #\
   { # Stackaufbau: Stream, sub-char, n.
     var object* stream_ = test_stream_arg(STACK_2);
     # Token lesen, mit Dummy-Character '\' als Token-Anfang:
@@ -8474,7 +8474,8 @@ LISPFUNN(print_structure,2)
               # call (NAMESTRING pathname)
               pushSTACK(obj); funcall(L(namestring),1); obj = value1;
               ASSERT(stringp(obj));
-              if (test_value(S(print_readably)) && !test_value(S(ansi))) {
+              if (test_value(S(print_readably)) &&
+                  !test_value(S(print_pathnames_ansi))) {
                 var object* obj_;
                 pushSTACK(obj); # string
                 obj_ = &STACK_0;

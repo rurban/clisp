@@ -1,5 +1,18 @@
 1999-06-09  Sam Steingold  <sds@goems.com>
 
+	* misc.d (set-ansi): set `*coerce-fixnum-char-ansi*',
+	`*sequence-count-ansi*', and `*print-pathnames-ansi*'.
+	* constsym.d: added `*coerce-fixnum-char-ansi*',
+	`*sequence-count-ansi*', and `*print-pathnames-ansi*'.
+	* spvw.d: added `*coerce-fixnum-char-ansi*',
+	`*sequence-count-ansi*', and `*print-pathnames-ansi*'.
+	* sequence.d (test_count_arg): check `*sequence-count-ansi*'.
+	* io.d (pr_orecord): check `*print-pathnames-ansi*'.
+	* charstrg.d (coerce_char): check `*coerce-fixnum-char-ansi*'.
+	* places.lsp: added documentation for `*ansi*'.
+
+1999-06-09  Sam Steingold  <sds@goems.com>
+
 	Implemented ANSI CL Issue MACRO-FUNCTION-ENVIRONMENT:YES
 	* control.d (macro_function): optional second argument.
 	* subr.d (macro_function): ditto.
