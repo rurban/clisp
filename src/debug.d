@@ -155,9 +155,7 @@
               if ((len <= input_len) && string_eqcomp_ci(line,0,key,0,len)) {
                 if (len == input_len) goto found;
                 # now len < input_len
-                var cint ch;
-                SstringDispatch(line,X,
-                  { ch = ((SstringX)TheVarobject(line))->data[len]; });
+                var cint ch = schar(line,len);
                 if (cint_white_p(ch)) {
                  found:
                   funcall(Cdr(Car(alist)),0); # call the appropriate function

@@ -26,13 +26,8 @@ global void sstring_printf (object sstr, uintL len, uintL offset) {
   ASSERT(simple_string_p(sstr));
   simple_array_to_storage(sstr);
   printf("<%d/%d\"",len,offset);
-  for(idx=offset;idx<len;idx++) {
-    chart ch;
-    SstringDispatch(sstr,X,{
-      ch = as_chart(((SstringX)TheVarobject(sstr))->data[idx]);
-    });
-    printf("%c",as_cint(ch));
-  }
+  for(idx=offset;idx<len;idx++)
+    printf("%c",schar(sstr,idx));
   printf("\">");
 }
 global void string_printf (object str) {

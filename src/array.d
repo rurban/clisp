@@ -556,9 +556,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
         case Array_type_sb32vector:
           return UL_to_I(((uint32*)&TheSbvector(datenvektor)->data[0])[index]);
         case Array_type_sstring: # Simple-String
-          SstringDispatch(datenvektor,X, {
-            return code_char(as_chart(((SstringX)TheVarobject(datenvektor))->data[index]));
-          });
+          return code_char(as_chart(schar(datenvektor,index)));
         default: NOTREACHED;
       }
     }
