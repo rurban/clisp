@@ -94,17 +94,21 @@ if echo 'rs\tuv' | grep t > /dev/null 2> /dev/null; then
     echo "$*"
   }
 else
-  # The "Single Unix Specification" (which also adheres to this broken "echo")
-  # recommends the following workaround.
-  echol () {
-    printf '%s\n' "$*"
-  }
-  # But this one would work, too.
-#echol () {
-#cat <<ECHOVAL_END
-#$*
-#ECHOVAL_END
-#}
+  if false; then
+    # The "Single Unix Specification" (which also adheres to this broken
+    # "echo") recommends the following workaround.
+    # Alas, it doesn't work on OpenStep V4.2, because `print' is missing.
+    echol () {
+      printf '%s\n' "$*"
+    }
+  else
+    # So we use this one.
+echol () {
+cat <<ECHOVAL_END
+$*
+ECHOVAL_END
+}
+  fi
 fi
 
 # Handle --help and --version arguments.
@@ -1424,9 +1428,11 @@ fi
 # lines.
 echolist () {
 line="$1"
+suffix="$3"
+prefix="$4"
 for f in $2 ; do
   echol $line" \\"
-  line="$4${f}$3"
+  line="${prefix}${f}${suffix}"
 done
 echol $line
 }
