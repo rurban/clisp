@@ -49,7 +49,7 @@ CHECK-SUPERCLASSES
 (check-superclasses 'serious-condition '()) T
 (check-superclasses 'error '(serious-condition)) T
 (check-superclasses 'cell-error '(error serious-condition)) T
-#+ANSI-CL (check-superclasses 'parse-error '(error serious-condition)) #+ANSI-CL T
+(check-superclasses 'parse-error '(error serious-condition)) T
 (check-superclasses 'storage-condition '(serious-condition)) T
 (check-superclasses 'simple-error '(simple-condition error serious-condition)) T
 (check-superclasses 'simple-condition '()) T
@@ -60,14 +60,14 @@ CHECK-SUPERCLASSES
 (check-superclasses 'undefined-function '(cell-error error serious-condition)) T
 (check-superclasses 'arithmetic-error '(error serious-condition)) T
 (check-superclasses 'division-by-zero '(arithmetic-error error serious-condition)) T
-#+ANSI-CL (check-superclasses 'floating-point-invalid-operation '(arithmetic-error error serious-condition)) #+ANSI-CL T
-#+ANSI-CL (check-superclasses 'floating-point-inexact '(arithmetic-error error serious-condition)) #+ANSI-CL T
+(check-superclasses 'floating-point-invalid-operation '(arithmetic-error error serious-condition)) T
+(check-superclasses 'floating-point-inexact '(arithmetic-error error serious-condition)) T
 (check-superclasses 'floating-point-overflow '(arithmetic-error error serious-condition)) T
 (check-superclasses 'floating-point-underflow '(arithmetic-error error serious-condition)) T
-#+ANSI-CL (check-superclasses 'unbound-slot '(cell-error error serious-condition)) #+ANSI-CL T
+(check-superclasses 'unbound-slot '(cell-error error serious-condition)) T
 (check-superclasses 'package-error '(error serious-condition)) T
-#+ANSI-CL (check-superclasses 'print-not-readable '(error serious-condition)) #+ANSI-CL T
-#+ANSI-CL (check-superclasses 'reader-error '(parse-error stream-error error serious-condition)) #+ANSI-CL T
+(check-superclasses 'print-not-readable '(error serious-condition)) T
+(check-superclasses 'reader-error '(parse-error stream-error error serious-condition)) T
 (check-superclasses 'stream-error '(error serious-condition)) T
 (check-superclasses 'end-of-file '(stream-error error serious-condition)) T
 (check-superclasses 'unbound-variable '(cell-error error serious-condition)) T
