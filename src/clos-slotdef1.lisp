@@ -360,7 +360,13 @@
 (defvar <structure-effective-slot-definition> 'structure-effective-slot-definition)
 (defvar *<structure-effective-slot-definition>-defclass*
   '(defclass structure-effective-slot-definition (effective-slot-definition)
-     (($initff   :type t       :initarg initff) ; init-function-fetcher
+     (; Inherited slots with different initform.
+      ($efm-svuc  :type function :initform #'%slot-value-using-class)
+      ($efm-ssvuc :type function :initform #'%set-slot-value-using-class)
+      ($efm-sbuc  :type function :initform #'%slot-boundp-using-class)
+      ($efm-smuc  :type function :initform #'%slot-makunbound-using-class)
+      ; New slots:
+      ($initff   :type t       :initarg initff) ; init-function-fetcher
       ($readonly :type boolean :initarg readonly))
      (:fixed-slot-locations)))
 (defvar *<structure-effective-slot-definition>-class-version* (make-class-version))
@@ -380,6 +386,10 @@
                                                                        ((readonly readonly) nil)
                                                                   &allow-other-keys)
   (apply #'initialize-instance-<effective-slot-definition> slotdef args)
+  (setf (slot-definition-efm-svuc slotdef) #'%slot-value-using-class)
+  (setf (slot-definition-efm-ssvuc slotdef) #'%set-slot-value-using-class)
+  (setf (slot-definition-efm-sbuc slotdef) #'%slot-boundp-using-class)
+  (setf (slot-definition-efm-smuc slotdef) #'%slot-makunbound-using-class)
   (setf (structure-effective-slot-definition-initff slotdef) initff)
   (setf (structure-effective-slot-definition-readonly slotdef) readonly)
   slotdef)
