@@ -1,3 +1,9 @@
+2004-04-09  Bruno Haible  <bruno@clisp.org>
+
+	Make REMOVE[-IF[-NOT]], REMOVE-DUPLICATES on lists cons less.
+	* sequence.d (remove_help): For lists, share the tail of the result
+	list with the input list.
+
 2004-03-28  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (expand_deftype): Mark as GC-trigger.
