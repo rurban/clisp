@@ -50,7 +50,8 @@
   (when compiler::*load-forms*
     (multiple-value-bind (form found-p)
         (gethash object compiler::*load-forms*)
-      (if found-p form
+      (if found-p
+          form
           (handler-case
               (setf (gethash object compiler::*load-forms*)
                     `(funcall ,(compile nil (mlf-init-function object))))
