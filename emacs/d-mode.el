@@ -70,7 +70,7 @@ The point should be on the prototype and the definition should follow."
 
 (defvar d-font-lock-extra-types
   '(nconc (list "bool" "object" "chart" "[otac]int" "signean" "scint"
-           "[su]?int[BCL0-9]*" "Values" "fsubr_function" "lisp_function")
+           "[su]?int[BCLPW0-9]*" "Values" "fsubr_function" "lisp_function")
     c-font-lock-extra-types)
   "Extra types to be fontified as such.")
 
