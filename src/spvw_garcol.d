@@ -1796,46 +1796,46 @@ local void gc_unmarkcheck (void) {
           /* kill the key/value pairs where either the key or the value is
              dead */
           var uintL len = Weakkvt_length(Lu);
-          var uintL idx = 0;
+          var uintL index = 0;
           var WeakKVT wt = TheWeakKVT(Lu);
           var gcv_object_t* data = wt->data;
           if (eq(S(Kkey),wt->wkvt_type)) { /* :KEY */
-            for (; idx < len; idx += 2) {
-              var object key = data[idx];
+            for (; index < len; index += 2) {
+              var object key = data[index];
               if (boundp(key)) {
                 if (alive(key)) /* mark value */
-                  GC_MARK(data[idx+1]);
+                  GC_MARK(data[index+1]);
                 else /* drop both key and value from the table */
-                  data[idx] = data[idx+1] = unbound;
+                  data[index] = data[index+1] = unbound;
               }
             }
           } else if (eq(S(Kvalue),wt->wkvt_type)) { /* :VALUE */
-            for (; idx < len; idx += 2) {
-              var object value = data[idx+1];
+            for (; index < len; index += 2) {
+              var object value = data[index+1];
               if (boundp(value)) {
                 if (alive(value)) /* mark key */
-                  GC_MARK(data[idx]);
+                  GC_MARK(data[index]);
                 else /* drop both key and value from the table */
-                  data[idx] = data[idx+1] = unbound;
+                  data[index] = data[index+1] = unbound;
               }
             }
           } else if (eq(S(Keither),wt->wkvt_type)) { /* :EITHER */
-            for (; idx < len; idx += 2) {
-              var object key = data[idx];
-              var object val = data[idx+1];
+            for (; index < len; index += 2) {
+              var object key = data[index];
+              var object val = data[index+1];
               if ((boundp(key) && !alive(key))
                   || (boundp(val) && !alive(val)))
                 /* drop both key and value from the table */
-                data[idx] = data[idx+1] = unbound;
+                data[index] = data[index+1] = unbound;
             }
           } else if (eq(S(Kboth),wt->wkvt_type)) { /* :BOTH */
-            for (; idx < len; idx += 2) {
-              var object key = data[idx];
-              var object val = data[idx+1];
+            for (; index < len; index += 2) {
+              var object key = data[index];
+              var object val = data[index+1];
               if ((boundp(key) && !alive(key))
                   && (boundp(val) && !alive(val)))
                 /* drop both key and value from the table */
-                data[idx] = data[idx+1] = unbound;
+                data[index] = data[index+1] = unbound;
               else {
                 GC_MARK(key);
                 GC_MARK(val);

@@ -23,16 +23,16 @@ global char* clisp_type_of (object o) {
   return TheSbvector(ret)->data;
 }
 global void sstring_printf (object sstr, uintL len, uintL offset) {
-  uintL idx;
+  uintL index;
   ASSERT(simple_string_p(sstr));
   simple_array_to_storage(sstr);
   printf("<%d/%d\"",len,offset);
-  for(idx=offset;idx<len;idx++)
-    printf("%c",as_cint(schar(sstr,idx))); # FIXME: should use terminal_encoding
+  for(index=offset;index<len;index++)
+    printf("%c",as_cint(schar(sstr,index))); # FIXME: should use terminal_encoding
   printf("\">");
 }
 global void string_printf (object str) {
-  uintL len, offset, idx;
+  uintL len, offset, index;
   ASSERT(stringp(str));
   str = unpack_string_ro(str,&len,&offset);
   sstring_printf(str,len,offset);
