@@ -820,7 +820,11 @@ int main(int argc, char* argv[])
   emit_typedef(buf,"complex_");
   emit_typedef("complex_ *","Complex");
 #endif
+#ifdef LINUX_NOEXEC_HEAPCODES
+  sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t symvalue%s; gcv_object_t symfunction%s; gcv_object_t proplist%s; gcv_object_t pname%s; gcv_object_t homepackage%s; gcv_object_t filler%s; }",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
+#else
   sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t symvalue%s; gcv_object_t symfunction%s; gcv_object_t proplist%s; gcv_object_t pname%s; gcv_object_t homepackage%s; }",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
+#endif
   emit_typedef(buf,"symbol_");
   emit_typedef("symbol_ *","Symbol");
   sprintf(buf,"uint%d",char_int_len); emit_typedef(buf,"cint");
