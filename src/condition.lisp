@@ -1199,6 +1199,23 @@
       (let ((*active-restarts* (nconc restarts *active-restarts*)))
         (error condition)))))
 
+(defun retry-function-call (condition function arguments)
+  (with-restarts ((retry
+                   :report (lambda (out)
+                             (format out (TEXT "try calling ~S again")
+                                     (function-name function)))
+                   :interactive assert-restart-no-prompts
+                   () (return-from retry-function-call
+                        (apply function arguments)))
+                  (return
+                   :report (lambda (out)
+                             (format out (TEXT "specify return values")))
+                   :interactive (lambda () (prompt-for-new-value 'VALUES))
+                   (l) (return-from retry-function-call (values-list l))))
+    (with-condition-restarts condition
+        (list (find-restart 'RETRY) (find-restart 'RETURN))
+      (error condition))))
+
 ;;; 29.4.3. Exhaustive Case Analysis
 
 ;; These macros supersede the corresponding ones from macros2.lisp.

@@ -1,5 +1,12 @@
 2004-06-03  Sam Steingold  <sds@gnu.org>
 
+	* condition.lisp (retry-function-call): new function
+	* clos-genfun5.lisp (no-applicable-method, no-primary-method):
+	use RETRY-FUNCTION-CALL to make recoverable
+	(no-next-method): use CERROR to make recoverable
+
+2004-06-03  Sam Steingold  <sds@gnu.org>
+
 	* condition.lisp (check-value): use RETRY restart instead of CONTINUE
 	(retry): new function, invokes RETRY restart (similar to CONTINUE,
 	but is not triggered by EOF/Ctr-D)
