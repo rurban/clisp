@@ -289,42 +289,16 @@ global object reallocate_small_string (object string, sintBWL newtype) {
     ptr = (Siarray)TheRecord(string);
   #endif
   var object mutated_string = bias_type_pointer_object(varobject_bias,Array_type_string,ptr); # mutation!
+  var uintL xlength = /* make sure that objsize(string) == objsize(mutated_string)*/
+    (oldtype == Rectype_S8string ? size_s8string(len) : size_s16string(len))
+    - size_siarray(0);
   ptr->GCself = mutated_string; # works only if SPVW_MIXED!
-  #ifdef TYPECODES
-    ptr->recflags = 0; ptr->rectype = Rectype_reallocstring; ptr->reclength = 1; ptr->recxlength = 0;
-  #else
-    ptr->tfl = xrecord_tfl(Rectype_reallocstring,0,1,0);
-  #endif
+ #ifdef TYPECODES
+  ptr->recflags = 0; ptr->rectype = Rectype_reallocstring; ptr->reclength = 1; ptr->recxlength = xlength;
+ #else
+  ptr->tfl = xrecord_tfl(Rectype_reallocstring,0,1,xlength);
+ #endif
   ptr->data = newstring;
-  var uintL size =
-    (oldtype == Rectype_S8string ? size_s8string(len) : size_s16string(len));
-  if ((oldtype == Rectype_S8string
-       ? size_s8string(1) > size_siarray(0)
-       : size_s16string(1) > size_siarray(0))
-      || size > size_siarray(0)) {
-    if (size >= size_siarray(0) + size_sb8vector(0)) {
-      # Insert a dummy object, so the GC knows where the next object starts.
-      var Sbvector hole = (Sbvector)pointerplus(ptr,size_siarray(0));
-      var uintL holelen = size - size_siarray(0) - size_sb8vector(0);
-      hole->GCself = bias_type_pointer_object(varobject_bias,Array_type_simple_bit_vector(Atype_8Bit),hole); # works only if SPVW_MIXED!
-      #ifdef TYPECODES
-        hole->length = holelen;
-      #else
-        hole->tfl = lrecord_tfl(Rectype_Sbvector+Atype_8Bit,holelen);
-      #endif
-    } else {
-      # The hole is not large enough for a dummy object, so hack the size.
-      # allocate_s8string(), allocate_s16string() and objsize() should
-      # guarantee that size_siarray(0) bytes are available.
-      var uintL xlength = size-size_siarray(0);
-      ASSERT(size_siarray(xlength) == size);
-      #ifdef TYPECODES
-        ptr->recxlength = xlength;
-      #else
-        ptr->tfl = xrecord_tfl(Rectype_reallocstring,0,1,xlength);
-      #endif
-    }
-  }
   clr_break_sem_1(); # permit interrupts again
   return mutated_string;
 }

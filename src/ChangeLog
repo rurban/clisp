@@ -1,7 +1,8 @@
-2003-01-10  Sam Steingold  <sds@gnu.org>
+2003-01-12  Sam Steingold  <sds@gnu.org>
 
-	* spvw_circ.d (get_circ_mark, subst_circ_mark, subst)
-	(subst_circ_unmark): reverted the last patch (not needed)
+	* spvw_typealloc.d (reallocate_small_string): do not create the
+	hole (and do not plug it) because both this object and the
+	possible hole/plug will be collected during the next GC
 
 2003-01-09  John  Hinsdale <hin@alma.com>
 
@@ -22,8 +23,6 @@
 	(case_Rectype_Instance_above): include Rectype_realloc_Instance
 	* hashtabl.d (sxhash_atom): un_realloc instances
 	* predtype.d (TYPE-OF, CLASS-OF): ditto
-	* spvw_circ.d (get_circ_mark, subst_circ_mark, subst)
-	(subst_circ_unmark): ditto
 	* spvw_garcol.d (GC_MARK, down_record): ditto
 	* io.d (pr_orecord): handle Rectype_realloc_Instance
 	* record.d (class_of, ptr_to_slot): make into a function and call
