@@ -1496,7 +1496,7 @@ UnicodeData.txt :
 lisp.exe : $(OBJECTS) modules.obj avcall.lib callback.lib    iconv.lib sigsegv.lib UnicodeData.txt
 	$(RM) lisp.ilk
 	$(CC) $(CFLAGS) $(CLFLAGS) $(OBJECTS) modules.obj $(LIBS) /link /out:lisp.exe
-	editbin /stack:2097152 lisp.exe
+	editbin /stack:3145728 lisp.exe
 
 
 alllisp : $(LISPFILES)
