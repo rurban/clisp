@@ -59,7 +59,9 @@
                              'defclass name superclass))
                          `',superclass)
                        superclass-specs)))
-         (accessor-decl-forms '())
+         (accessor-method-decl-forms '())
+         (accessor-function-decl-forms '())
+         (generic-accessors 'T)
          (slot-forms
            (let ((slot-names '()))
              (unless (listp slot-specs)
@@ -156,12 +158,21 @@
                                        'defclass name slot-name optionkey)))))
                              (setq readers (nreverse readers))
                              (setq writers (nreverse writers))
-                             (dolist (funname readers)
-                               (push `(DECLAIM-METHOD ,funname ((OBJECT ,name)))
-                                     accessor-decl-forms))
-                             (dolist (funname writers)
-                               (push `(DECLAIM-METHOD ,funname (NEW-VALUE (OBJECT ,name)))
-                                     accessor-decl-forms))
+                             (let ((type (if types (first types) 'T)))
+                               (dolist (funname readers)
+                                 (push `(DECLAIM-METHOD ,funname ((OBJECT ,name)))
+                                       accessor-method-decl-forms)
+                                 (push `(PROCLAIM '(FUNCTION ,funname (,name) ,type))
+                                       accessor-function-decl-forms)
+                                 (push `(SYSTEM::EVAL-WHEN-COMPILE (SYSTEM::C-DEFUN ',funname (SYSTEM::LAMBDA-LIST-TO-SIGNATURE '(OBJECT))))
+                                       accessor-function-decl-forms))
+                               (dolist (funname writers)
+                                 (push `(DECLAIM-METHOD ,funname (NEW-VALUE (OBJECT ,name)))
+                                       accessor-method-decl-forms)
+                                 (push `(PROCLAIM '(FUNCTION ,funname (,type ,name) ,type))
+                                       accessor-function-decl-forms)
+                                 (push `(SYSTEM::EVAL-WHEN-COMPILE (SYSTEM::C-DEFUN ',funname (SYSTEM::LAMBDA-LIST-TO-SIGNATURE '(NEW-VALUE OBJECT))))
+                                       accessor-function-decl-forms)))
                              `(LIST
                                 :NAME ',slot-name
                                 ,@(when readers `(:READERS ',readers))
@@ -243,6 +254,11 @@
                               (setq documentation
                                     `(:DOCUMENTATION ',argument)))
                             (return)))
+                         (:GENERIC-ACCESSORS
+                          (when (eql (length option) 2)
+                            (let ((argument (second option)))
+                              (setq generic-accessors argument)
+                              (return))))
                          (:FIXED-SLOT-LOCATIONS
                           (setq fixed-slot-locations `(:FIXED-SLOT-LOCATIONS 'T))
                           (return)))))
@@ -256,8 +272,11 @@
                  ;; See MOP p. 57.
                  ,@(or direct-default-initargs '(:DIRECT-DEFAULT-INITARGS NIL))
                  ,@(or documentation '(:DOCUMENTATION NIL))
+                 :GENERIC-ACCESSORS ',generic-accessors
                  ,@(or fixed-slot-locations '(:FIXED-SLOT-LOCATIONS NIL))))))
-       ,@(nreverse accessor-decl-forms) ; the DECLAIM-METHODs
+       ,@(if generic-accessors
+           (nreverse accessor-method-decl-forms) ; the DECLAIM-METHODs
+           (nreverse accessor-function-decl-forms)) ; the C-DEFUNs
        (FIND-CLASS ',name))))
 
 ;; DEFCLASS execution:
@@ -1147,64 +1166,96 @@
 
 ;; ----------------------------- Accessor Methods -----------------------------
 
+;; Flag to avoid bootstrapping issues with the compiler.
+(defvar *compile-accessor-functions* nil)
+
 ;; Install the accessor methods corresponding to the direct slots of a class.
 (defun install-class-direct-accessors (class)
   (dolist (slot (class-direct-slots class))
     (let ((slot-name (slot-definition-name slot))
           (readers (slot-definition-readers slot))
-          (writers (slot-definition-writers slot)))
+          (writers (slot-definition-writers slot))
+          (generic-p (class-generic-accessors class)))
+      ; Generic accessors are defined as methods and listed in the
+      ; direct-accessors list, so they can be removed upon class redefinition.
+      ; Non-generic accessors are defined as plain functions.
       (dolist (funname readers)
-        (setf (class-direct-accessors class)
-              (list* funname
-                     (do-defmethod funname
-                       (let* ((args
-                                (list
-                                  :initfunction
-                                    (eval
-                                      `#'(LAMBDA (#:SELF)
-                                           (DECLARE (COMPILE))
-                                           (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
+        (if generic-p
+          (setf (class-direct-accessors class)
+                (list* funname
+                       (do-defmethod funname
+                         (let* ((args
+                                  (list
+                                    :initfunction
+                                      (eval
+                                        `#'(LAMBDA (#:SELF)
                                              (DECLARE (COMPILE))
-                                             (SLOT-VALUE OBJECT ',slot-name))))
-                                  :wants-next-method-p t
-                                  :parameter-specializers (list class)
-                                  :qualifiers nil
-                                  :signature (make-signature :req-num 1)
-                                  :slot-definition slot))
-                              (method-class
-                                (apply #'reader-method-class class slot args)))
-                         (unless (and (class-p method-class)
-                                      (subclassp method-class <standard-reader-method>))
-                           (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
-                                  'reader-method-class (class-name class) 'standard-reader-method method-class))
-                         (apply #'make-instance method-class args)))
-                     (class-direct-accessors class))))
+                                             (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
+                                               (DECLARE (COMPILE))
+                                               (SLOT-VALUE OBJECT ',slot-name))))
+                                    :wants-next-method-p t
+                                    :parameter-specializers (list class)
+                                    :qualifiers nil
+                                    :signature (make-signature :req-num 1)
+                                    :slot-definition slot))
+                                (method-class
+                                  (apply #'reader-method-class class slot args)))
+                           (unless (and (class-p method-class)
+                                        (subclassp method-class <standard-reader-method>))
+                             (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                                    'reader-method-class (class-name class) 'standard-reader-method method-class))
+                           (apply #'make-instance method-class args)))
+                       (class-direct-accessors class)))
+          (setf (fdefinition funname)
+                (eval `(FUNCTION ,funname
+                         (LAMBDA (OBJECT)
+                           ,@(if *compile-accessor-functions* '((DECLARE (COMPILE))))
+                           (UNLESS (TYPEP OBJECT ',class)
+                             (ERROR-ACCESSOR-TYPECHECK ',funname OBJECT ',class))
+                           (SLOT-VALUE OBJECT ',slot-name)))))))
       (dolist (funname writers)
-        (setf (class-direct-accessors class)
-              (list* funname
-                     (do-defmethod funname
-                       (let* ((args
-                                (list
-                                  :initfunction
-                                    (eval
-                                      `#'(LAMBDA (#:SELF)
-                                           (DECLARE (COMPILE))
-                                           (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
+        (if generic-p
+          (setf (class-direct-accessors class)
+                (list* funname
+                       (do-defmethod funname
+                         (let* ((args
+                                  (list
+                                    :initfunction
+                                      (eval
+                                        `#'(LAMBDA (#:SELF)
                                              (DECLARE (COMPILE))
-                                             (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))))
-                                  :wants-next-method-p t
-                                  :parameter-specializers (list <t> class)
-                                  :qualifiers nil
-                                  :signature (make-signature :req-num 2)
-                                  :slot-definition slot))
-                              (method-class
-                                (apply #'writer-method-class class slot args)))
-                         (unless (and (class-p method-class)
-                                      (subclassp method-class <standard-writer-method>))
-                           (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
-                                  'writer-method-class (class-name class) 'standard-writer-method method-class))
-                         (apply #'make-instance method-class args)))
-                     (class-direct-accessors class)))))))
+                                             (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
+                                               (DECLARE (COMPILE))
+                                               (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))))
+                                    :wants-next-method-p t
+                                    :parameter-specializers (list <t> class)
+                                    :qualifiers nil
+                                    :signature (make-signature :req-num 2)
+                                    :slot-definition slot))
+                                (method-class
+                                  (apply #'writer-method-class class slot args)))
+                           (unless (and (class-p method-class)
+                                        (subclassp method-class <standard-writer-method>))
+                             (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                                    'writer-method-class (class-name class) 'standard-writer-method method-class))
+                           (apply #'make-instance method-class args)))
+                       (class-direct-accessors class)))
+          (setf (fdefinition funname)
+                (eval `(FUNCTION ,funname
+                         (LAMBDA (NEW-VALUE OBJECT)
+                           ,@(if *compile-accessor-functions* '((DECLARE (COMPILE))))
+                           (UNLESS (TYPEP OBJECT ',class)
+                             (ERROR-ACCESSOR-TYPECHECK ',funname OBJECT ',class))
+                           (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))))))))))
+
+;; Auxiliary function for non-generic accessors.
+(defun error-accessor-typecheck (caller object class)
+  (error-of-type 'type-error
+    :datum object :expected-type class
+    "~S: The argument is not of type ~S: ~S"
+    caller
+    (if (eq (find-class (class-name class) nil) class) (class-name class) class)
+    object))
 
 ;; Remove a set of accessor methods given as a plist.
 (defun remove-accessor-methods (plist)
@@ -1293,6 +1344,7 @@
 (defun shared-initialize-<structure-class> (class situation &rest args
                                             &key (name nil name-p)
                                                  (direct-superclasses '() direct-superclasses-p)
+                                                 (generic-accessors t generic-accessors-p)
                                                  ;; The following keys come from ENSURE-CLASS.
                                                  ((:direct-slots direct-slots-as-lists) '() direct-slots-as-lists-p)
                                                  (direct-default-initargs '() direct-default-initargs-p)
@@ -1304,8 +1356,9 @@
                                                  ((size size) 1)
                                             &allow-other-keys)
   ;; metaclass <= <structure-class>
-  (declare (ignore direct-slots-as-lists direct-slots-as-metaobjects
-                   direct-default-initargs documentation documentation-p))
+  (declare (ignore generic-accessors generic-accessors-p direct-slots-as-lists
+                   direct-slots-as-metaobjects direct-default-initargs
+                   documentation documentation-p))
   (when (or (eq situation 't) direct-superclasses-p)
     (check-metaclass-mix (if name-p name (class-classname class))
                          direct-superclasses
@@ -1391,7 +1444,8 @@
                 'slots slots
                 'size (if all-slots
                         (1+ (slot-definition-location (car (last all-slots))))
-                        1)))))))
+                        1)
+                :generic-accessors nil))))))
 (defun undefine-structure-class (name)
   (setf (find-class name) nil))
 
@@ -1424,13 +1478,15 @@
                                                 ((direct-slots direct-slots-as-metaobjects) '() direct-slots-as-metaobjects-p)
                                                 (direct-default-initargs '() direct-default-initargs-p)
                                                 (documentation nil documentation-p)
+                                                (generic-accessors t generic-accessors-p)
                                                 (fixed-slot-locations nil fixed-slot-locations-p)
                                            &allow-other-keys)
   (declare (ignore direct-superclasses direct-superclasses-p
                    direct-slots-as-lists direct-slots-as-lists-p
                    direct-slots-as-metaobjects direct-slots-as-metaobjects-p
                    direct-default-initargs direct-default-initargs-p
-                   documentation documentation-p))
+                   documentation documentation-p generic-accessors
+                   generic-accessors-p))
   (apply #'shared-initialize-<slotted-class> class situation args)
   (when (eq situation 't)
     (setf (class-current-version class)

@@ -30,12 +30,13 @@
 (defmethod shared-initialize ((class structure-class) situation &rest args
                               &key name direct-superclasses direct-slots
                                    direct-default-initargs documentation
+                                   (generic-accessors t)
                                    ((direct-slots direct-slots-as-metaobjects) '())
                                    ((names names) nil)
                                    ((slots slots) '()) ((size size) 1)
                               &allow-other-keys)
   (declare (ignore name direct-superclasses direct-slots
-                   direct-default-initargs documentation
+                   direct-default-initargs documentation generic-accessors
                    direct-slots-as-metaobjects names slots size))
   (apply #'shared-initialize-<structure-class> class situation args))
 
@@ -44,9 +45,12 @@
 (defmethod shared-initialize ((class standard-class) situation &rest args
                               &key name direct-superclasses direct-slots
                                    direct-default-initargs documentation
+                                   (generic-accessors t)
+                                   (fixed-slot-locations nil)
                               &allow-other-keys)
   (declare (ignore name direct-superclasses direct-slots
-                   direct-default-initargs documentation))
+                   direct-default-initargs documentation generic-accessors
+                   fixed-slot-locations))
   (apply #'shared-initialize-<standard-class> class situation args))
 
 ;;; ===========================================================================

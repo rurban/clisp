@@ -80,6 +80,10 @@
 (defun mac-exp (mac form &optional (env (env)))
   (funcall *macroexpand-hook* mac form env))
 
+;; Avoid bootstrapping issues with CLOS.
+(eval-when (compile load eval)
+  (setq clos::*compile-accessor-functions* nil))
+
 (defconstant *keyword-package* (find-package "KEYWORD"))
 (defconstant *lisp-package* (find-package "COMMON-LISP"))
 
@@ -11012,3 +11016,6 @@ The function make-closure is required.
 ;; compiled form.
 (unless (compiled-function-p #'venv-search)
   (compile 'venv-search))
+
+(eval-when (compile load eval)
+  (setq clos::*compile-accessor-functions* t))

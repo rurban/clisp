@@ -290,6 +290,9 @@
      ((subclass-of-stablehash-p ; true if <standard-stablehash> or
                            ; <structure-stablehash> is among the superclasses
         :type boolean)
+      (generic-accessors   ; flag whether to create the accessors as methods;
+                           ; if false, regular functions are used
+        :initform t)
       (direct-accessors    ; automatically generated accessor methods
                            ; (as plist)
         :type list
@@ -302,15 +305,20 @@
 
 ;; Fixed slot locations.
 (defconstant *<slotted-class>-subclass-of-stablehash-p-location* 16)
-(defconstant *<slotted-class>-direct-accessors-location* 17)
-(defconstant *<slotted-class>-valid-initargs-location* 18)
-(defconstant *<slotted-class>-instance-size-location* 19)
+(defconstant *<slotted-class>-generic-accessors-location* 17)
+(defconstant *<slotted-class>-direct-accessors-location* 18)
+(defconstant *<slotted-class>-valid-initargs-location* 19)
+(defconstant *<slotted-class>-instance-size-location* 20)
 
 ;; Preliminary accessors.
 (defun class-subclass-of-stablehash-p (object)
   (sys::%record-ref object *<slotted-class>-subclass-of-stablehash-p-location*))
 (defun (setf class-subclass-of-stablehash-p) (new-value object)
   (setf (sys::%record-ref object *<slotted-class>-subclass-of-stablehash-p-location*) new-value))
+(defun class-generic-accessors (object)
+  (sys::%record-ref object *<slotted-class>-generic-accessors-location*))
+(defun (setf class-generic-accessors) (new-value object)
+  (setf (sys::%record-ref object *<slotted-class>-generic-accessors-location*) new-value))
 (defun class-direct-accessors (object)
   (sys::%record-ref object *<slotted-class>-direct-accessors-location*))
 (defun (setf class-direct-accessors) (new-value object)
@@ -326,12 +334,15 @@
 
 ;; Initialization of a <slotted-class> instance.
 (defun shared-initialize-<slotted-class> (class situation &rest args
-                                          &key &allow-other-keys)
+                                          &key (generic-accessors t generic-accessors-p)
+                                          &allow-other-keys)
   (apply #'shared-initialize-<class> class situation args)
   (unless *classes-finished*
     ; Bootstrapping: Simulate the effect of #'%shared-initialize.
     (when (eq situation 't) ; called from initialize-instance?
       (setf (class-direct-accessors class) '())))
+  (when (or (eq situation 't) generic-accessors-p)
+    (setf (class-generic-accessors class) generic-accessors))
   ; The following slots are initialized by the subclass' shared-initialize:
   ;   subclass-of-stablehash-p
   ;   valid-initargs
@@ -352,7 +363,7 @@
 (defvar *<structure-class>-class-version* (make-class-version))
 
 ;; Fixed slot locations.
-(defconstant *<structure-class>-names-location* 20)
+(defconstant *<structure-class>-names-location* 21)
 
 ;; Preliminary accessors.
 (defun class-names (object)
@@ -360,7 +371,7 @@
 (defun (setf class-names) (new-value object)
   (setf (sys::%record-ref object *<structure-class>-names-location*) new-value))
 
-(defconstant *<structure-class>-instance-size* 21)
+(defconstant *<structure-class>-instance-size* 22)
 
 ;;; ===========================================================================
 
@@ -389,11 +400,11 @@
 (defvar *<standard-class>-class-version* (make-class-version))
 
 ;; Fixed slot locations.
-(defconstant *<standard-class>-current-version-location* 20)
-(defconstant *<standard-class>-fixed-slot-locations-location* 21)
-(defconstant *<standard-class>-instantiated-location* 22)
-(defconstant *<standard-class>-finalized-direct-subclasses-location* 23)
-(defconstant *<standard-class>-prototype-location* 24)
+(defconstant *<standard-class>-current-version-location* 21)
+(defconstant *<standard-class>-fixed-slot-locations-location* 22)
+(defconstant *<standard-class>-instantiated-location* 23)
+(defconstant *<standard-class>-finalized-direct-subclasses-location* 24)
+(defconstant *<standard-class>-prototype-location* 25)
 
 ;; Preliminary accessors.
 (defun class-current-version (object)
@@ -417,7 +428,7 @@
 (defun (setf class-prototype) (new-value object)
   (setf (sys::%record-ref object *<standard-class>-prototype-location*) new-value))
 
-(defconstant *<standard-class>-instance-size* 25)
+(defconstant *<standard-class>-instance-size* 26)
 
 ;;; ===========================================================================
 
