@@ -1,3 +1,8 @@
+2002-09-30  Sam Steingold  <sds@gnu.org>
+
+	* steele7.tst: avoid local redefinition of system functions, like #'+
+	<http://www.lisp.org/HyperSpec/Body/sec_11-1-2-1-2.html>
+
 2002-09-14  Sam Steingold  <sds@gnu.org>
 
 	* excepsit.tst, streamslong.tst: use "./" instead of "/tmp/"
