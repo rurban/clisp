@@ -264,20 +264,26 @@ AC_SUBST(host_os)dnl
 dnl
 AC_DEFUN(CL_CANONICAL_HOST_CPU_FOR_FFCALL,
 [AC_REQUIRE([CL_CANONICAL_HOST])AC_REQUIRE([AC_PROG_CC])
-if test "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cpu" = i686; then
-  host_cpu=i386
-fi
-if test "$host_cpu" = hppa1.0 -o "$host_cpu" = hppa1.1 -o "$host_cpu" = hppa2.0; then
-  host_cpu=hppa
-fi
-if test "$host_cpu" = powerpc; then
-  host_cpu=rs6000
-fi
-if test "$host_cpu" = c1 -o "$host_cpu" = c2 -o "$host_cpu" = c32 -o "$host_cpu" = c34 -o "$host_cpu" = c38 -o "$host_cpu" = c4; then
-  host_cpu=convex
-fi
-if test "$host_cpu" = mips; then
-  AC_CACHE_CHECK([for 64-bit MIPS], cl_cv_host_mips64, [
+case "$host_cpu" in
+changequote(,)dnl
+  i[4567]86 )
+    host_cpu=i386
+    ;;
+  alphaev[4-7] | alphaev56 | alphapca5[67] )
+    host_cpu=alpha
+    ;;
+  hppa1.0 | hppa1.1 | hppa2.0 )
+    host_cpu=hppa
+    ;;
+  powerpc )
+    host_cpu=rs6000
+    ;;
+  c1 | c2 | c32 | c34 | c38 | c4 )
+    host_cpu=convex
+    ;;
+changequote([,])dnl
+  mips )
+    AC_CACHE_CHECK([for 64-bit MIPS], cl_cv_host_mips64, [
 AC_EGREP_CPP(yes,
 [#if defined(_MIPS_SZLONG)
 #if (_MIPS_SZLONG == 64)
@@ -304,7 +310,8 @@ if test $cl_cv_host_mipsn32 = yes; then
   host_cpu=mipsn32
 fi
 fi
-fi
+    ;;
+esac
 dnl was AC_DEFINE_UNQUOTED(__${host_cpu}__) but KAI C++ 3.2d doesn't like this
 cat >> confdefs.h <<EOF
 #ifndef __${host_cpu}__

@@ -1137,27 +1137,31 @@ host_vendor=`echo $host | sed 's/^\(.*\)-\(.*\)-\(.*\)$/\2/'`
 host_os=`echo $host | sed 's/^\(.*\)-\(.*\)-\(.*\)$/\3/'`
 
 
-if test "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cpu" = i686; then
-  host_cpu=i386
-fi
-if test "$host_cpu" = hppa1.0 -o "$host_cpu" = hppa1.1 -o "$host_cpu" = hppa2.0; then
-  host_cpu=hppa
-fi
-if test "$host_cpu" = powerpc; then
-  host_cpu=rs6000
-fi
-if test "$host_cpu" = c1 -o "$host_cpu" = c2 -o "$host_cpu" = c32 -o "$host_cpu" = c34 -o "$host_cpu" = c38 -o "$host_cpu" = c4; then
-  host_cpu=convex
-fi
-if test "$host_cpu" = mips; then
-  echo $ac_n "checking for 64-bit MIPS""... $ac_c" 1>&6
-echo "configure:1155: checking for 64-bit MIPS" >&5
+case "$host_cpu" in
+  i[4567]86 )
+    host_cpu=i386
+    ;;
+  alphaev[4-7] | alphaev56 | alphapca5[67] )
+    host_cpu=alpha
+    ;;
+  hppa1.0 | hppa1.1 | hppa2.0 )
+    host_cpu=hppa
+    ;;
+  powerpc )
+    host_cpu=rs6000
+    ;;
+  c1 | c2 | c32 | c34 | c38 | c4 )
+    host_cpu=convex
+    ;;
+  mips )
+    echo $ac_n "checking for 64-bit MIPS""... $ac_c" 1>&6
+echo "configure:1159: checking for 64-bit MIPS" >&5
 if eval "test \"`echo '$''{'cl_cv_host_mips64'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   
 cat > conftest.$ac_ext <<EOF
-#line 1161 "configure"
+#line 1165 "configure"
 #include "confdefs.h"
 #if defined(_MIPS_SZLONG)
 #if (_MIPS_SZLONG == 64)
@@ -1184,13 +1188,13 @@ if test $cl_cv_host_mips64 = yes; then
   host_cpu=mips64
 else
   echo $ac_n "checking for MIPS with n32 ABI""... $ac_c" 1>&6
-echo "configure:1188: checking for MIPS with n32 ABI" >&5
+echo "configure:1192: checking for MIPS with n32 ABI" >&5
 if eval "test \"`echo '$''{'cl_cv_host_mipsn32'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   
 cat > conftest.$ac_ext <<EOF
-#line 1194 "configure"
+#line 1198 "configure"
 #include "confdefs.h"
 #if __mips >= 3
   yes
@@ -1214,7 +1218,8 @@ if test $cl_cv_host_mipsn32 = yes; then
   host_cpu=mipsn32
 fi
 fi
-fi
+    ;;
+esac
 cat >> confdefs.h <<EOF
 #ifndef __${host_cpu}__
 #define __${host_cpu}__ 1
@@ -1281,7 +1286,7 @@ ac_prog=ld
 if test "$ac_cv_prog_gcc" = yes; then
   # Check if gcc -print-prog-name=ld gives a path.
   echo $ac_n "checking for ld used by GCC""... $ac_c" 1>&6
-echo "configure:1285: checking for ld used by GCC" >&5
+echo "configure:1290: checking for ld used by GCC" >&5
   ac_prog=`($CC -print-prog-name=ld) 2>&5`
   case "$ac_prog" in
   # Accept absolute paths.
@@ -1299,10 +1304,10 @@ echo "configure:1285: checking for ld used by GCC" >&5
   esac
 elif test "$with_gnu_ld" = yes; then
   echo $ac_n "checking for GNU ld""... $ac_c" 1>&6
-echo "configure:1303: checking for GNU ld" >&5
+echo "configure:1308: checking for GNU ld" >&5
 else
   echo $ac_n "checking for non-GNU ld""... $ac_c" 1>&6
-echo "configure:1306: checking for non-GNU ld" >&5
+echo "configure:1311: checking for non-GNU ld" >&5
 fi
 if eval "test \"`echo '$''{'ac_cv_path_LD'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -1338,7 +1343,7 @@ fi
 test -z "$LD" && { echo "configure: error: no acceptable ld found in \$PATH" 1>&2; exit 1; }
 
 echo $ac_n "checking if the linker ($LD) is GNU ld""... $ac_c" 1>&6
-echo "configure:1342: checking if the linker ($LD) is GNU ld" >&5
+echo "configure:1347: checking if the linker ($LD) is GNU ld" >&5
 if eval "test \"`echo '$''{'ac_cv_prog_gnu_ld'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1353,7 +1358,7 @@ echo "$ac_t""$ac_cv_prog_gnu_ld" 1>&6
 
 
 echo $ac_n "checking for BSD-compatible nm""... $ac_c" 1>&6
-echo "configure:1357: checking for BSD-compatible nm" >&5
+echo "configure:1362: checking for BSD-compatible nm" >&5
 if eval "test \"`echo '$''{'ac_cv_path_NM'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1390,7 +1395,7 @@ echo "$ac_t""$NM" 1>&6
 
 
 echo $ac_n "checking whether ln -s works""... $ac_c" 1>&6
-echo "configure:1394: checking whether ln -s works" >&5
+echo "configure:1399: checking whether ln -s works" >&5
 if eval "test \"`echo '$''{'ac_cv_prog_LN_S'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1426,8 +1431,8 @@ test "$ac_cv_prog_gnu_ld" = yes && libtool_flags="$libtool_flags --with-gnu-ld"
 case "$host" in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 1430 "configure"' > conftest.$ac_ext
-  if { (eval echo configure:1431: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+  echo '#line 1435 "configure"' > conftest.$ac_ext
+  if { (eval echo configure:1436: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
     case "`/usr/bin/file conftest.o`" in
     *32-bit*)
       LD="${LD-ld} -32"
@@ -1457,7 +1462,7 @@ $libtool_flags --no-verify $ac_aux_dir/ltmain.sh $host \
 || { echo "configure: error: libtool configure failed" 1>&2; exit 1; }
 
 echo $ac_n "checking for pcc non-reentrant struct return convention""... $ac_c" 1>&6
-echo "configure:1461: checking for pcc non-reentrant struct return convention" >&5
+echo "configure:1466: checking for pcc non-reentrant struct return convention" >&5
 if eval "test \"`echo '$''{'cl_cv_c_struct_return_static'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1466,7 +1471,7 @@ if test "$cross_compiling" = yes; then
   cl_cv_c_struct_return_static="guessing no"
 else
   cat > conftest.$ac_ext <<EOF
-#line 1470 "configure"
+#line 1475 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -1484,7 +1489,7 @@ int main()
   exit(!(fooptr1 == fooptr2 && fooptr1->c == 5358));
 }
 EOF
-if { (eval echo configure:1488: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:1493: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   cl_cv_c_struct_return_static=yes
 else
@@ -1518,7 +1523,7 @@ EOF
 esac
 
 echo $ac_n "checking whether small structs are returned in registers""... $ac_c" 1>&6
-echo "configure:1522: checking whether small structs are returned in registers" >&5
+echo "configure:1527: checking whether small structs are returned in registers" >&5
 if eval "test \"`echo '$''{'cl_cv_c_struct_return_small'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1527,7 +1532,7 @@ if test "$cross_compiling" = yes; then
   cl_cv_c_struct_return_small="guessing no"
 else
   cat > conftest.$ac_ext <<EOF
-#line 1531 "configure"
+#line 1536 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -1541,7 +1546,7 @@ int main()
   exit(0);
 }
 EOF
-if { (eval echo configure:1545: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:1550: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   cl_cv_c_struct_return_small=yes
 else
@@ -1575,7 +1580,7 @@ EOF
 esac
 
 echo $ac_n "checking whether floats are returned in integer registers""... $ac_c" 1>&6
-echo "configure:1579: checking whether floats are returned in integer registers" >&5
+echo "configure:1584: checking whether floats are returned in integer registers" >&5
 if eval "test \"`echo '$''{'cl_cv_c_float_return_ireg'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1584,7 +1589,7 @@ if test "$cross_compiling" = yes; then
   cl_cv_c_float_return_ireg="guessing no"
 else
   cat > conftest.$ac_ext <<EOF
-#line 1588 "configure"
+#line 1593 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -1597,7 +1602,7 @@ int main()
   exit (!(val == 0x3FC7AE15 || val == 0x15AEC73F));
 }
 EOF
-if { (eval echo configure:1601: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:1606: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   cl_cv_c_float_return_ireg=yes
 else
@@ -1631,7 +1636,7 @@ EOF
 esac
 
 echo $ac_n "checking for long long type""... $ac_c" 1>&6
-echo "configure:1635: checking for long long type" >&5
+echo "configure:1640: checking for long long type" >&5
 if eval "test \"`echo '$''{'cl_cv_c_longlong'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1640,7 +1645,7 @@ if test "$cross_compiling" = yes; then
   cl_cv_c_longlong="guessing no"
 else
   cat > conftest.$ac_ext <<EOF
-#line 1644 "configure"
+#line 1649 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -1664,7 +1669,7 @@ int main()
   }
 }
 EOF
-if { (eval echo configure:1668: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:1673: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   cl_cv_c_longlong=yes
 else
