@@ -217,9 +217,12 @@
 
 ;; Preliminary.
 ;; During bootstrapping, only <standard-method> instances are used.
-(defun make-method-instance (class &rest args
-                             &key &allow-other-keys)
-  (apply #'make-instance-<standard-method> class args))
+(defun allocate-method-instance (class &rest args
+                                 &key &allow-other-keys)
+  (apply #'%allocate-instance class args))
+(defun initialize-method-instance (method &rest args
+                                   &key &allow-other-keys)
+  (apply #'initialize-instance-<standard-method> method args))
 (defun method-function (method)
   (std-method-function-or-substitute method))
 (defun method-qualifiers (method)

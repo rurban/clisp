@@ -424,19 +424,23 @@
                         (MAPCAR #'(LAMBDA (NEXT-METHOD)
                                     (IF (TYPEP-CLASS NEXT-METHOD <METHOD>)
                                       NEXT-METHOD ; no need to quote, since self-evaluating
-                                      (LIST 'MAKE-METHOD-INSTANCE
-                                        '',(std-gf-default-method-class gf)
-                                        ''FAST-FUNCTION
-                                          (LET ((CONT (GENSYM)))
-                                            (LIST 'FUNCTION
-                                              (LIST 'LAMBDA (CONS CONT ',lambdalist)
-                                                (LIST 'DECLARE (LIST 'IGNORABLE CONT))
-                                                (ADD-NEXT-METHOD-LOCAL-FUNCTIONS 'NIL CONT ',req-vars ',rest-var
-                                                  (CDR NEXT-METHOD)))))
-                                        ''WANTS-NEXT-METHOD-P 'T
-                                        ':LAMBDA-LIST '',lambdalist
-                                        ''SIGNATURE ,signature
-                                        ':SPECIALIZERS '',(make-list req-num :initial-element <t>))))
+                                      (LIST 'LET
+                                        (LIST (LIST 'METH
+                                                    (LIST 'ALLOCATE-METHOD-INSTANCE '',(std-gf-default-method-class gf))))
+                                        (LIST 'INITIALIZE-METHOD-INSTANCE
+                                          'METH
+                                          ''FAST-FUNCTION
+                                            (LET ((CONT (GENSYM)))
+                                              (LIST 'FUNCTION
+                                                (LIST 'LAMBDA (CONS CONT ',lambdalist)
+                                                  (LIST 'DECLARE (LIST 'IGNORABLE CONT))
+                                                  (ADD-NEXT-METHOD-LOCAL-FUNCTIONS 'NIL CONT ',req-vars ',rest-var
+                                                    (CDR NEXT-METHOD)))))
+                                          ''WANTS-NEXT-METHOD-P 'T
+                                          ':LAMBDA-LIST '',lambdalist
+                                          ''SIGNATURE ,signature
+                                          ':SPECIALIZERS '',(make-list req-num :initial-element <t>))
+                                        'METH)))
                                 NEXT-METHODS-LIST)))))
                 (LET ((CONT (GENSYM)))
                   (LIST 'LET (LIST (LIST CONT NEXT-METHODS-EM-FORM))
