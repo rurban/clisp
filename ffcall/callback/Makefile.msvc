@@ -12,12 +12,12 @@
 # Makefiles. Therefore we don't need to pass them explicitly to subdirectory
 # Makefiles, but the subdirectory Makefiles need to have the same defaults.
 # Building as a DLL not supported yet.
-STATIC=1
+DLL=0
 !if !defined(DEBUG)
 DEBUG=0
 !endif
 !if !defined(MFLAGS)
-!if $(STATIC)
+!if !$(DLL)
 MFLAGS=
 !else
 MFLAGS=-MD
@@ -108,7 +108,7 @@ trampoline_r/config.h : $(srcdir)/trampoline_r/config.h.msvc
 trampoline_r/trampoline.obj : $(srcdir)/trampoline_r/trampoline.c trampoline_r/trampoline_r.h trampoline_r/config.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/trampoline_r/trampoline.c /Fotrampoline_r/trampoline.obj
 
-!if $(STATIC)
+!if !$(DLL)
 callback.lib : $(OBJECTS)
 	$(RM) callback.lib
 	$(AR) $(AR_FLAGS)callback.lib $(OBJECTS)

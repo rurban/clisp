@@ -12,12 +12,12 @@
 # Makefiles. Therefore we don't need to pass them explicitly to subdirectory
 # Makefiles, but the subdirectory Makefiles need to have the same defaults.
 # Building as a DLL not supported yet.
-STATIC=1
+DLL=0
 !if !defined(DEBUG)
 DEBUG=0
 !endif
 !if !defined(MFLAGS)
-!if $(STATIC)
+!if !$(DLL)
 MFLAGS=
 !else
 MFLAGS=-MD
@@ -90,7 +90,7 @@ misc.obj : $(srcdir)/misc.c vacall.h config.h
 structcpy.obj : $(srcdir)/structcpy.c
 	$(CC) $(CFLAGS) -c $(srcdir)/structcpy.c
 
-!if $(STATIC)
+!if !$(DLL)
 vacall.lib : $(OBJECTS)
 	$(RM) vacall.lib
 	$(AR) $(AR_FLAGS)vacall.lib $(OBJECTS)
