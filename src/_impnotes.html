@@ -2536,6 +2536,16 @@ national rules. Example: <code>"o"</code> &lt;
 <code>nreverse</code></a> on a list swaps the first and the last
 element and reverses the list chaining between them.
 
+<h4><a href="CLHSROOT/Body/fun_revappendcm_nreconc.html">
+    nreconc</a></h4>
+
+<p>The result of <a href="CLHSROOT/Body/fun_revappendcm_nreconc.html">
+<code>nreconc</code></a> is <a href="CLHSROOT/Body/fun_eq.html">
+<code>eq</code></a> to the first argument unless it is
+<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>,
+in which case the result is <a href="CLHSROOT/Body/fun_eq.html">
+<code>eq</code></a> to the second argument.
+
 <h4><a href="CLHSROOT/Body/fun_removecm__elete-if-not.html">
     remove/delete</a></h4>
 
@@ -2562,6 +2572,17 @@ modify their argument: If the argument is a list, the
 <code>cdr</code></a> parts are modified. If the argument is a vector
 with fill pointer, the fill pointer is lowered and the remaining
 elements are compacted below the new fill pointer.
+
+<a name="count-ansi"></a>
+<p>Contrary to the ANSI CL issue 283 <a
+href="CLHSROOT/Issues/iss283.html">
+RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</a>, negative <code>:count</code>
+keyword arguments are not allowed unless you set
+<code><strong>lisp:*sequence-count-ansi*</strong></code> to a non-<a
+href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> value, in
+which case "using a negative integer value is functionally equivalent to
+using a value of zero", as per the ANSI CL issue.
+
 
 <h4><a href="CLHSROOT/Body/fun_sortcm_stable-sort.html">
     sort</a></h4>
@@ -5861,9 +5882,9 @@ specified by the vote.
      QUOTE-SEMANTICS:NO-COPYING</a>                <dd>yes
  <dt><a href="CLHSROOT/Issues/iss283.html">
      RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</a>
-     <dd>yes, when <a name="count-ansi">
-     <code><strong>lisp:*sequence-count-ansi*</strong></code></a> is
-     non-<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>;
+     <dd>yes, when
+     <a href="#count-ansi"><code>lisp:*sequence-count-ansi*</code></a>
+     is non-<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>;
      otherwise negative <code>:count</code> values are not allowed.
  <dt><a href="CLHSROOT/Issues/iss284.html">
      RANGE-OF-START-AND-END-PARAMETERS:INTEGER-AND-INTEGER-NIL</a> <dd>yes
@@ -5887,9 +5908,7 @@ specified by the vote.
  <dt><a href="CLHSROOT/Issues/iss292.html">
      REDUCE-ARGUMENT-EXTRACTION</a>                <dd>yes
  <dt><a href="CLHSROOT/Issues/iss293.html">
-     REMF-DESTRUCTION-UNSPECIFIED:X3J13-MAR-89</a>
-     <dd>no for <a href="CLHSROOT/Body/fun_revappendcm_nreconc.html">
-     <code>nreconc</code></a>, yes for everything else
+     REMF-DESTRUCTION-UNSPECIFIED:X3J13-MAR-89</a> <dd>yes
  <dt><a href="CLHSROOT/Issues/iss294.html">
      REQUIRE-PATHNAME-DEFAULTS-AGAIN:X3J13-DEC-91</a> <dd>yes
  <dt><a href="CLHSROOT/Issues/iss295.html">
@@ -7073,7 +7092,7 @@ command line options:
       <code>fixnum</code></a>s cannot be
       <a href="CLHSROOT/Body/fun_coerce.html">
       <code>coerce</code></a>d to
-      <a href="CLHSROOT/Body/syscla_character.html_character.html">
+      <a href="CLHSROOT/Body/syscla_character.html">
       <code>character</code></a>s (because a
       <a href="CLHSROOT/Body/typ_fixnum.html">
       <code>fixnum</code></a> is not a
@@ -7119,7 +7138,7 @@ command line options:
       <code>fixnum</code></a>s <strong>can</strong> be
       <a href="CLHSROOT/Body/fun_coerce.html">
       <code>coerce</code></a>d to
-      <a href="CLHSROOT/Body/syscla_character.html_character.html">
+      <a href="CLHSROOT/Body/syscla_character.html">
       <code>character</code></a>s
       (via <a href="CLHSROOT/Body/fun_code-char.html">
       <code>code-char</code></a>).
