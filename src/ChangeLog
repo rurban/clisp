@@ -2,6 +2,9 @@
 
 	* control.d (funname_to_symbol): new function
 	(FDEFINITION, FBOUNDP, FMAKUNBOUND): use it
+	(fehler_funsymbol): removed
+	(FUNCTION, FLET, LABELS): use fehler_funname_source() instead of
+	fehler_funsymbol()
 
 2002-10-02  Sam Steingold  <sds@gnu.org>
 
