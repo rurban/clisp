@@ -68,7 +68,8 @@
       (values `(LET* () ,@declare ,@body) t)
     )
     (let ((bind (car bindlist)) place form)
-      (if (atom bind) (setq place bind form nil)
+      (if (atom bind)
+        (setq place bind form nil)
         (if (and (consp (cdr bind)) (null (cddr bind)))
           (progn
             (setq place (car bind) form (cadr bind))
@@ -88,7 +89,9 @@
       ) ) )
       (multiple-value-bind (rest-expanded flag)
           (expand-LETF* (cdr bindlist) declare body whole-form)
-        (if (atom place)
+        (if (and (atom place)
+                 (not (and (symbolp place) (ext:symbol-macro-expand place)))
+            )
           (values
             (if flag
               `(LET* ,(cons (list place form) (cadr rest-expanded))
@@ -98,8 +101,12 @@
             )
             t
           )
-          (if (eq (car place) 'VALUES)
-            (if (every #'symbolp place)
+          (if (and (consp place) (eq (car place) 'VALUES))
+            (if (every #'(lambda (subplace)
+                           (and (symbolp subplace)
+                                (not (ext:symbol-macro-expand subplace))
+                         ) )
+                       place)
               (values
                 `(MULTIPLE-VALUE-BIND ,(cdr place) ,form ,@declare ,rest-expanded)
                 nil
@@ -235,7 +242,8 @@
       (values '() '() '() '())
     )
     (let ((bind (car bindlist)) place form)
-      (if (atom bind) (setq place bind form nil)
+      (if (atom bind)
+        (setq place bind form nil)
         (if (and (consp (cdr bind)) (null (cddr bind)))
           (progn
             (setq place (car bind) form (cadr bind))
@@ -254,12 +262,18 @@
             bind
       ) ) )
       (multiple-value-bind (L1 L2 L3 L4) (expand-LETF (cdr bindlist) whole-form)
-        (if (atom place)
+        (if (and (atom place)
+                 (not (and (symbolp place) (ext:symbol-macro-expand place)))
+            )
           (let ((g (gensym)))
             (values (cons (list g form) L1) (cons (list place g) L2) L3 L4)
           )
-          (if (eq (car place) 'VALUES)
-            (if (every #'symbolp place)
+          (if (and (consp place) (eq (car place) 'VALUES))
+            (if (every #'(lambda (subplace)
+                           (and (symbolp subplace)
+                                (not (ext:symbol-macro-expand subplace))
+                         ) )
+                       place)
               (let ((gs (mapcar #'(lambda (subplace)
                                     (declare (ignore subplace))
                                     (gensym)

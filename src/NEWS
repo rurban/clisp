@@ -277,6 +277,7 @@ User visible changes
   + Passing a displaced vector as argument to REVERSE could lead to an
     unjustified error.
   + Fixed ATANH on complex numbers.
+  + The macros EXT:LETF and EXT:LETF* now work correctly on symbol-macros.
   + Fixed a spurious crash of MULTIPLE-VALUE-SETQ in interpreted code.
   + Fixed a crash of (COPY-READTABLE NIL some-readtable).
   + Fixed a crash when using a hash-table as hash-table key.
