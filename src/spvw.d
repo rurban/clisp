@@ -1770,241 +1770,243 @@ local void print_banner ()
       var enum { for_exec, for_init, for_compile } argv_for = for_exec;
       # Durchlaufen und Optionen abarbeiten, alles Abgearbeitete durch NULL
       # ersetzen:
-      while (argptr < argptr_limit)
-        { var char* arg = *argptr++; # nächstes Argument
-          if ((arg[0] == '-') && !(arg[1] == '\0'))
-            { switch (arg[1])
-                { case 'h': # Help
-                    usage ((arg[2] != 0));
-                  # Liefert nach einem einbuchstabigen Kürzel den Rest der
-                  # Option in arg. Evtl. Space wird übergangen.
-                  #define OPTION_ARG  \
-                    if (arg[2] == '\0') \
-                      { if (argptr < argptr_limit) arg = *argptr++; else usage (1); } \
-                      else { arg = &arg[2]; }
-                  # Parst den Rest einer Option, die eine Byte-Größe angibt.
-                  # Überprüft auch, ob gewisse Grenzen eingehalten werden.
-                  #define SIZE_ARG(docstring,sizevar,limit_low,limit_high)  \
-                    # arg sollte aus einigen Dezimalstellen, dann   \
-                    # evtl. K oder M, dann evtl. B oder W bestehen. \
-                    {var uintL val = 0;                             \
-                     while ((*arg >= '0') && (*arg <= '9'))         \
-                       { val = 10*val + (uintL)(*arg++ - '0'); }    \
-                     switch (*arg)                                  \
-                       { case 'k': case 'K': # Angabe in Kilobytes  \
-                           val = val * 1024; arg++; break;          \
-                         case 'm': case 'M': # Angabe in Megabytes  \
-                           val = val * 1024*1024; arg++; break;     \
-                       }                                            \
-                     switch (*arg)                                  \
-                       { case 'w': case 'W': # Angabe in Worten     \
-                           val = val * sizeof(object);              \
-                         case 'b': case 'B': # Angabe in Bytes      \
-                           arg++; break;                            \
-                       }                                            \
-                     if (!(*arg == '\0')) # Argument zu Ende?       \
-                       { asciz_out_s(GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB" NLstring), docstring); \
-                         usage (1);                                 \
-                       }                                            \
-                     if (!((val >= limit_low) && (val <= limit_high))) \
-                       { asciz_out_s(GETTEXTL("%s out of range" NLstring), docstring); \
-                         usage (1);                                 \
-                       }                                            \
-                     # Bei mehreren -m bzw. -s Argumenten zählt nur das letzte. \
-                     sizevar = val;                                 \
-                    }
-                  case 'm': # Memory size
-                    #ifdef WIN32_NATIVE
-                    if (arg[2]=='m' && arg[3]=='\0') # "-mm" -> print a memory map
-                      { DumpProcessMemoryMap(); quit_sofort(1); }
-                    #endif
-                    OPTION_ARG
-                    SIZE_ARG(GETTEXTL("memory size"),
-                             argv_memneed,100000,
-                             (oint_addr_len+addr_shift < intLsize-1 # memory size begrenzt durch
-                              ? bitm(oint_addr_len+addr_shift)      # Adressraum in oint_addr_len+addr_shift Bits
-                              : (uintL)bit(intLsize-1)-1            # (bzw. große Dummy-Grenze)
-                            ))
-                    break;
-                  #ifndef NO_SP_MALLOC
-                  case 's': # Stack size
-                    OPTION_ARG
-                    SIZE_ARG(GETTEXTL("stack size"),
-                             argv_stackneed,40000,8*1024*1024)
-                    break;
-                  #endif
-                  #ifdef MULTIMAP_MEMORY_VIA_FILE
-                  case 't': # temporäres Directory
-                    OPTION_ARG
-                    if (!(argv_tmpdir == NULL)) usage (1);
-                    argv_tmpdir = arg;
-                    break;
-                  #endif
-                  case 'B': # lisplibdir
-                    OPTION_ARG
-                    if (!(argv_lisplibdir == NULL)) usage (1);
-                    argv_lisplibdir = arg;
-                    break;
-                  case 'W': # WIDE-Version wählen, for backward compatibility
-                    argv_wide = true;
-                    if (!(arg[2] == '\0')) usage (1);
-                    break;
-                  case 'n':
-                    if (asciz_equal(arg,"-norc"))
-                      argv_norc = true;
-                    else
-                      usage (1);
-                    break;
-                  #ifdef UNIX
-                  case 'K': # linKing set
-                    OPTION_ARG
-                    # This option has already been digested by clisp.c.
-                    # We can ignore it.
-                    break;
-                  #endif
-                  case 'M': # MEM-File
-                    OPTION_ARG
-                    # Bei mehreren -M Argumenten zählt nur das letzte.
-                    argv_memfile = arg;
-                    break;
-                  case 'L': # Language
-                    OPTION_ARG
-                    # Bei mehreren -L Argumenten zählt nur das letzte.
-                    argv_language = arg;
-                    break;
-                  case 'N': # NLS-Directory
-                    OPTION_ARG
-                    # Bei mehreren -N Argumenten zählt nur das letzte.
-                    argv_localedir = arg;
-                    break;
-                  case 'E': # encoding
-                    if (!(argptr < argptr_limit)) usage(1);
-                    if (asciz_equal(&arg[2],"file"))
-                      argv_encoding_file = *argptr++;
-                    elif (asciz_equal(&arg[2],"pathname"))
-                      argv_encoding_pathname = *argptr++;
-                    elif (asciz_equal(&arg[2],"terminal"))
-                      argv_encoding_terminal = *argptr++;
-                    elif (asciz_equal(&arg[2],"foreign"))
-                      argv_encoding_foreign = *argptr++;
-                    elif (asciz_equal(&arg[2],"misc"))
-                      argv_encoding_misc = *argptr++;
-                    else
-                      usage(1);
-                    break;
-                  case 'q': # keine Copyright-Meldung
-                    argv_quiet = true;
-                    if (!(arg[2] == '\0')) usage (1);
-                    break;
-                  case 'I': # ILISP-freundlich
-                    ilisp_mode = true;
-                    if (!(arg[2] == '\0')) usage (1);
-                    break;
-                  case 'C': # *LOAD-COMPILING* setzen
-                    argv_load_compiling = true;
-                    if (!(arg[2] == '\0')) usage (1);
-                    break;
-                  case 'i': # Initialisierungs-Files
-                    argv_for = for_init;
-                    if (!(arg[2] == '\0')) usage (1);
-                    break;
-                  case 'c': # Zu compilierende Files
-                    argv_compile = true;
-                    argv_for = for_compile;
-                    if (arg[2] == 'l')
-                      { argv_compile_listing = true;
-                        if (!(arg[3] == '\0')) usage (1);
-                      }
-                      else
-                      { if (!(arg[2] == '\0')) usage (1); }
-                    break;
-                  case 'l': # Compilate und Listings
-                    argv_compile_listing = true;
-                    if (!(arg[2] == '\0')) usage (1);
-                    break;
-                  case 'o': # Ziel für zu compilierendes File
-                    if (!(arg[2] == '\0')) usage (1);
-                    OPTION_ARG
-                    if (!((argv_compile_filecount > 0) && (argv_compile_files[argv_compile_filecount-1].output_file==NULL))) usage (1);
-                    argv_compile_files[argv_compile_filecount-1].output_file = arg;
-                    break;
-                  case 'p': # Package
-                    OPTION_ARG
-                    # Bei mehreren -p Argumenten zählt nur das letzte.
-                    argv_package = arg;
-                    break;
-                  case 'a': # ANSI CL Compliance
-                    if (asciz_equal(arg,"-ansi"))
-                      argv_ansi = 1; # ANSI
-                    else if (!(arg[2] == '\0')) usage (1);
-                    else {
-                      asciz_out(GETTEXTL("CLISP: -a is deprecated, use -ansi"
-                                         NLstring));
-                      argv_ansi = 1; # ANSI
-                    }
-                    break;
-                  case 't': # traditional
-                    if (asciz_equal(arg,"-traditional"))
-                      argv_ansi = 2; # traditional
-                    else usage(1);
-                    break;
-                  case 'x': # LISP-Expression ausführen
-                    OPTION_ARG
-                    if (!(argv_expr == NULL)) usage (1);
-                    argv_expr = arg;
-                    break;
-                  case 'w': # wait for keypress after termination
-                    argv_wait_keypress = true;
-                    if (!(arg[2] == '\0')) usage (1);
-                    break;
-                  case '-': # -- GNU-style long options
-                    if (asciz_equal(&arg[2],"help"))
-                      usage (0);
-                    elif (asciz_equal(&arg[2],"version"))
-                      { if (!(argv_expr == NULL)) usage (1);
-                        argv_quiet = true;
-                        argv_norc = true;
-                        argv_expr = "(PROGN (PRINC \"GNU CLISP \") (PRINC (LISP-IMPLEMENTATION-VERSION)) (SYS::%EXIT))";
-                        break;
-                      }
-                    elif (asciz_equal(&arg[2],"quiet")
-                          || asciz_equal(&arg[2],"silent"))
-                      { argv_quiet = true; break; }
-                    elif (asciz_equal(&arg[2],"license"))
-                      { argv_license = true; break; }
-                    else
-                      usage (1); # unknown option
-                    break;
-                  default: # unknown option
-                    usage (1);
-            }   }
-            else
-            # keine Option,
-            # wird als zu ladendes / zu compilierendes / auszuführendes File
-            # interpretiert.
-            { switch (argv_for)
-                { case for_init:
-                    argv_init_files[argv_init_filecount++] = arg; break;
-                  case for_compile:
-                    argv_compile_files[argv_compile_filecount].input_file = arg;
-                    argv_compile_files[argv_compile_filecount].output_file = NULL;
-                    argv_compile_filecount++;
-                    break;
-                  case for_exec:
-                    argv_execute_file = arg;
-                    # Alle weiteren Argumente sind Argumente zu argv_execute_file.
-                    argv_execute_args = argptr;
-                    argv_execute_arg_count = argptr_limit - argptr;
-                    # Simulate -norc. Batch scripts should be executed in an
-                    # environment which does not depend on files in $HOME, for
-                    # maximum portability.
-                    argv_norc = true;
-                    argptr = argptr_limit; # Schleife abbrechen
-                    break;
-                  default:
-                    NOTREACHED;
-            }   }
+      while (argptr < argptr_limit) {
+        var char* arg = *argptr++; # nächstes Argument
+        if ((arg[0] == '-') && !(arg[1] == '\0')) {
+          switch (arg[1]) {
+            case 'h': # Help
+              usage ((arg[2] != 0));
+              # Liefert nach einem einbuchstabigen Kürzel den Rest der
+              # Option in arg. Evtl. Space wird übergangen.
+              #define OPTION_ARG                                             \
+                if (arg[2] == '\0') {                                        \
+                 if (argptr < argptr_limit) arg = *argptr++; else usage (1); \
+                } else { arg = &arg[2]; }
+              # Parst den Rest einer Option, die eine Byte-Größe angibt.
+              # Überprüft auch, ob gewisse Grenzen eingehalten werden.
+              #define SIZE_ARG(docstring,sizevar,limit_low,limit_high)       \
+                 # arg sollte aus einigen Dezimalstellen, dann               \
+                 # evtl. K oder M, dann evtl. B oder W bestehen.             \
+                 {var uintL val = 0;                                         \
+                  while ((*arg >= '0') && (*arg <= '9'))                     \
+                    val = 10*val + (uintL)(*arg++ - '0');                    \
+                  switch (*arg) {                                            \
+                    case 'k': case 'K': # Angabe in Kilobytes                \
+                      val = val * 1024; arg++; break;                        \
+                    case 'm': case 'M': # Angabe in Megabytes                \
+                      val = val * 1024*1024; arg++; break;                   \
+                  }                                                          \
+                  switch (*arg) {                                            \
+                    case 'w': case 'W': # Angabe in Worten                   \
+                      val = val * sizeof(object);                            \
+                    case 'b': case 'B': # Angabe in Bytes                    \
+                      arg++; break;                                          \
+                  }                                                          \
+                  if (!(*arg == '\0')) { # Argument zu Ende?                 \
+                    asciz_out_s(GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB" NLstring), docstring); \
+                    usage (1);                                               \
+                  }                                                          \
+                  if (!((val >= limit_low) && (val <= limit_high))) {        \
+                    asciz_out_s(GETTEXTL("%s out of range" NLstring),        \
+                                docstring);                                  \
+                    usage (1);                                               \
+                  }                                                          \
+                  # Bei mehreren -m bzw. -s Argumenten zählt nur das letzte. \
+                  sizevar = val;                                             \
+                 }
+            case 'm': # Memory size
+             #ifdef WIN32_NATIVE
+              if (arg[2]=='m' && arg[3]=='\0') # "-mm" -> print a memory map
+                { DumpProcessMemoryMap(); quit_sofort(1); }
+             #endif
+              OPTION_ARG;
+              SIZE_ARG(GETTEXTL("memory size"),
+                       argv_memneed,100000,
+                       (oint_addr_len+addr_shift < intLsize-1 # memory size begrenzt durch
+                        ? bitm(oint_addr_len+addr_shift)      # Adressraum in oint_addr_len+addr_shift Bits
+                        : (uintL)bit(intLsize-1)-1            # (bzw. große Dummy-Grenze)
+                        ))
+                break;
+           #ifndef NO_SP_MALLOC
+            case 's': # Stack size
+              OPTION_ARG;
+              SIZE_ARG(GETTEXTL("stack size"),
+                       argv_stackneed,40000,8*1024*1024)
+                break;
+           #endif
+           #ifdef MULTIMAP_MEMORY_VIA_FILE
+            case 't': # temporäres Directory
+              OPTION_ARG;
+              if (!(argv_tmpdir == NULL)) usage (1);
+              argv_tmpdir = arg;
+              break;
+           #endif
+            case 'B': # lisplibdir
+              OPTION_ARG;
+              if (!(argv_lisplibdir == NULL)) usage (1);
+              argv_lisplibdir = arg;
+              break;
+            case 'W': # WIDE-Version wählen, for backward compatibility
+              argv_wide = true;
+              if (!(arg[2] == '\0')) usage (1);
+              break;
+            case 'n':
+              if (asciz_equal(arg,"-norc"))
+                argv_norc = true;
+              else
+                usage (1);
+              break;
+           #ifdef UNIX
+            case 'K': # linKing set
+              OPTION_ARG;
+              # This option has already been digested by clisp.c.
+              # We can ignore it.
+              break;
+           #endif
+            case 'M': # MEM-File
+              OPTION_ARG;
+              # Bei mehreren -M Argumenten zählt nur das letzte.
+              argv_memfile = arg;
+              break;
+            case 'L': # Language
+              OPTION_ARG;
+              # Bei mehreren -L Argumenten zählt nur das letzte.
+              argv_language = arg;
+              break;
+            case 'N': # NLS-Directory
+              OPTION_ARG;
+              # Bei mehreren -N Argumenten zählt nur das letzte.
+              argv_localedir = arg;
+              break;
+            case 'E': # encoding
+              if (!(argptr < argptr_limit)) usage(1);
+              if (asciz_equal(&arg[2],"file"))
+                argv_encoding_file = *argptr++;
+              else if (asciz_equal(&arg[2],"pathname"))
+                argv_encoding_pathname = *argptr++;
+              else if (asciz_equal(&arg[2],"terminal"))
+                argv_encoding_terminal = *argptr++;
+              else if (asciz_equal(&arg[2],"foreign"))
+                argv_encoding_foreign = *argptr++;
+              else if (asciz_equal(&arg[2],"misc"))
+                argv_encoding_misc = *argptr++;
+              else
+                usage(1);
+              break;
+            case 'q': # keine Copyright-Meldung
+              argv_quiet = true;
+              if (!(arg[2] == '\0')) usage (1);
+              break;
+            case 'I': # ILISP-fiendly
+              ilisp_mode = true;
+              if (!(arg[2] == '\0')) usage (1);
+              break;
+            case 'C': # set *LOAD-COMPILING*
+              argv_load_compiling = true;
+              if (!(arg[2] == '\0')) usage (1);
+              break;
+            case 'i': # initialization files
+              argv_for = for_init;
+              if (!(arg[2] == '\0')) usage (1);
+              break;
+            case 'c': # Zu compilierende Files
+              argv_compile = true;
+              argv_for = for_compile;
+              if (arg[2] == 'l') {
+                argv_compile_listing = true;
+                if (!(arg[3] == '\0')) usage (1);
+              } else {
+                if (!(arg[2] == '\0')) usage (1);
+              }
+              break;
+            case 'l': # Compilate und Listings
+              argv_compile_listing = true;
+              if (!(arg[2] == '\0')) usage (1);
+              break;
+            case 'o': # Ziel für zu compilierendes File
+              if (!(arg[2] == '\0')) usage (1);
+              OPTION_ARG;
+              if (!((argv_compile_filecount > 0) &&
+                    (argv_compile_files[argv_compile_filecount-1].output_file==NULL)))
+                usage (1);
+              argv_compile_files[argv_compile_filecount-1].output_file = arg;
+              break;
+            case 'p': # Package
+              OPTION_ARG;
+              # Bei mehreren -p Argumenten zählt nur das letzte.
+              argv_package = arg;
+              break;
+            case 'a': # ANSI CL Compliance
+              if (asciz_equal(arg,"-ansi"))
+                argv_ansi = 1; # ANSI
+              else if (!(arg[2] == '\0')) usage (1);
+              else {
+                asciz_out(GETTEXTL("CLISP: -a is deprecated, use -ansi"
+                                   NLstring));
+                argv_ansi = 1; # ANSI
+              }
+              break;
+            case 't': # traditional
+              if (asciz_equal(arg,"-traditional"))
+                argv_ansi = 2; # traditional
+              else usage(1);
+              break;
+            case 'x': # LISP-Expression ausführen
+              OPTION_ARG
+                if (!(argv_expr == NULL)) usage (1);
+              argv_expr = arg;
+              break;
+            case 'w': # wait for keypress after termination
+              argv_wait_keypress = true;
+              if (!(arg[2] == '\0')) usage (1);
+              break;
+            case '-': # -- GNU-style long options
+              if (asciz_equal(&arg[2],"help"))
+                usage (0);
+              else if (asciz_equal(&arg[2],"version")) {
+                if (!(argv_expr == NULL)) usage (1);
+                argv_quiet = true;
+                argv_norc = true;
+                argv_expr = "(PROGN (PRINC \"GNU CLISP \") (PRINC (LISP-IMPLEMENTATION-VERSION)) (SYS::%EXIT))";
+                break;
+              } else if (asciz_equal(&arg[2],"quiet")
+                         || asciz_equal(&arg[2],"silent")) {
+                argv_quiet = true; break;
+              } else if (asciz_equal(&arg[2],"license")) {
+                argv_license = true; break;
+              } else
+                usage (1); # unknown option
+              break;
+            default: # unknown option
+              usage (1);
+          }
+        } else {
+          # keine Option,
+          # wird als zu ladendes / zu compilierendes / auszuführendes File
+          # interpretiert.
+          switch (argv_for) {
+            case for_init:
+              argv_init_files[argv_init_filecount++] = arg; break;
+            case for_compile:
+              argv_compile_files[argv_compile_filecount].input_file = arg;
+              argv_compile_files[argv_compile_filecount].output_file = NULL;
+              argv_compile_filecount++;
+              break;
+            case for_exec:
+              argv_execute_file = arg;
+              # Alle weiteren Argumente sind Argumente zu argv_execute_file.
+              argv_execute_args = argptr;
+              argv_execute_arg_count = argptr_limit - argptr;
+              # Simulate -norc. Batch scripts should be executed in an
+              # environment which does not depend on files in $HOME, for
+              # maximum portability.
+              argv_norc = true;
+              argptr = argptr_limit; # Schleife abbrechen
+              break;
+            default: NOTREACHED;
+          }
         }
+      }
       # Optionen semantisch überprüfen und Defaults eintragen:
       if (argv_memneed == 0)
         #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && defined(GENERATIONAL_GC)
@@ -2623,7 +2625,7 @@ local void print_banner ()
         # Warning for beginners
         { pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
           write_sstring(&STACK_0,
-            asciz_to_string(GETTEXT(NLstring "WARNING: No initialisation file specified." NLstring),
+            asciz_to_string(GETTEXT(NLstring "WARNING: No initialization file specified." NLstring),
                             O(internal_encoding)
                            ));
           write_sstring(&STACK_0,
