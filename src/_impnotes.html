@@ -32,7 +32,7 @@
   * All symbols in CLHS are referenced with an "CLHSROOT" hyperlink.
   * All symbols not in COMMON-LISP (as per ANSI CL) are referenced with
     the package prefix, like this: `lisp:space'.
-  * Platform depencencies are emphasized like this:
+  * Platform dependencies are emphasized like this:
        <dl>
         <dt><em>Platform dependent: <strong>UNIX</strong>,
             <strong>DOS</strong>, <strong>OS/2</strong>,
@@ -77,7 +77,7 @@
 <img src="clisp.gif" width=48 height=48 alt="[CLISP icon]">
 </center>
 
-<p>This implementation is mostly conformant to the <a
+<p>This implementation is mostly conforming to the <a
 href="http://www.x3.org/tc_home/j13sd4.htm">ANSI CL standard X3.226-1994
 "Programming Language Common Lisp"</a>, available as <a
 href="http://www.harlequin.com/education/books/HyperSpec/FrontMatter/index.html">
@@ -625,9 +625,10 @@ type.
 
 <p>The CLOS symbols are exported from the package <code>"CLOS"</code>
 and thus normally visible in all user packages. If you do not want them
-(for example, if you want to use the <a href="ftp://parcftp.xerox.com/pub/pcl/">PCL</a> implementation of CLOS instead
-of the native one), do
-<code>(<a href="CLHSROOT/Body/fun_unuse-package.html">unuse-package</a>
+(for example, if you want to use the <a
+href="ftp://parcftp.xerox.com/pub/pcl/">PCL</a> implementation of CLOS
+instead of the native one), do <code>(<a
+href="CLHSROOT/Body/fun_unuse-package.html">unuse-package</a>
 "CLOS")</code>.
 
 <h4>Deviations from ANSI CL:</h4>
@@ -1415,7 +1416,7 @@ The following additional packages exist:
 href="#imppack"><code>USER</code></a> and <a
 href="#clupack"><code>COMMON-LISP-USER</code></a> belong to the
 implementation, in the sense that doing side-effects on them or on their
-symbols causes undefined behaviour.
+symbols causes undefined behavior.
 
 <h3><a href="CLHSROOT/Body/sec_the_packa_s_dictionary.html">
     11.2. The Packages Dictionary</a></h3>
@@ -1655,7 +1656,7 @@ different types. If the imaginary part is <code>eql</code> to
 <code>0</code>, the number is automatically converted to a real number.
 
 <p>This has the advantage that <code>(let ((x (sqrt -9.0))) (* x
-x))</code> - instead of evaluting to <code>#C(-9.0 0.0)</code>, with
+x))</code> - instead of evaluating to <code>#C(-9.0 0.0)</code>, with
 <code>x</code> = <code>#C(0.0 3.0)</code> - evaluates to <code>#C(-9.0
 0)</code> = <code>-9.0</code>, with <code>x</code> = <code>#C(0
 3.0)</code>.
@@ -2175,7 +2176,7 @@ Newlines are written according to the stream's encoding, see the
 function <a href="CLHSROOT/Body/fun_stream-external-format.html">
 <code>stream-external-format</code></a> and the description of <a
 href="#encoding">encodings</a>, in particular, <a href="#newline">line
-terminators</a>.  The default behaviour is as follows:
+terminators</a>.  The default behavior is as follows:
 
 <!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
 <dl>
@@ -2189,7 +2190,7 @@ CR/LF. (This is the usual convention on DOS.) For example,
 
 <p>When reading from a file, CR/LF is converted to <code>#\Newline</code>
 (the usual convention on DOS), and CR not followed by LF is converted to
-<code>#\Newline</code> as well (the usual convertion on MacOS, also used
+<code>#\Newline</code> as well (the usual conversion on MacOS, also used
 by some programs on Win32).
 
 <h3><a href="CLHSROOT/Body/sec_13-1-9.html">
@@ -2489,7 +2490,7 @@ points into void space.  This is not checked at the time
     Chapter 16: Strings</a></h2>
 
 <p>String comparison is based on the function
-<code>char&lt;=</code>. Therefore diphtongs do not obey the usual
+<code>char&lt;=</code>. Therefore diphthongs do not obey the usual
 national rules. Example: <code>"o"</code> &lt;
 <code>"oe"</code> &lt; <code>"z"</code> &lt;
 <code>"&ouml;"</code>.
@@ -2662,10 +2663,10 @@ href="#dir"><code>directory</code>, <code>lisp:dir</code>,
        <td>for a pathname with type <var>yy</var> and no name specified.
 </table>
 
-<p>Hereby <var>xxx</var> denote 1 to 8 characters, and <var>yy</var>
-denote 1 to 3 characters, each of which being either alphanumerical or
-the underscore <code>#\_</code>.  Other properties of pathname syntax
-vary between operating systems.
+<p>Hereby <var>xxx</var> denotes 1 to 8 characters, and <var>yy</var>
+denotes 1 to 3 characters, each of which being either an alphanumeric
+character or the underscore <code>#\_</code>.  Other properties of
+pathname syntax vary between operating systems.
 
 <h3><a href="CLHSROOT/Body/sec_19-2-1.html">
     19.2.1 Pathname Components</a></h3>
@@ -3068,13 +3069,13 @@ contains a dot or whose name contains a dot and whose type is
 NetFS, RamFS, NetPrint) and support for extra file systems (DOSFS,
 ResourceFS and DeviceFS).
 
-<p>A module called FileSwitch is at the centre of all file system
+<p>A module called FileSwitch is at the center of all file system
 operation in RISC OS. FileSwitch provides a common core of functions
 used by all file systems. It only provides the parts of these services
 that are device independent. The device dependent services that control
 the hardware are provided by separate modules, which are the actual
 file systems.  FileSwitch keeps track of active file systems and
-switches betwen them as necessary.
+switches between them as necessary.
 
 <p>One of the file system modules that RISC OS provides is
 FileCore. It takes the normal calls that FileSwitch sends to a file
@@ -3161,7 +3162,7 @@ introduced by a '#' character; a variety of syntaxes are possible:
  The special fields here are all MJHardy, and give the name of the
 fileserver to use. Special fields may use any character except for
 control characters, double quote '&#34;', solidus '|' and space. If a
-special field contains a hypen you may only use the first two syntaxes
+special field contains a hyphen you may only use the first two syntaxes
 given above.
 
  <p><dt>File$Path and Run$Path
@@ -3423,7 +3424,7 @@ Examples:
       <td>illegal here
 </table>
 
-<p>That is, the RISCOS string is the flattenation-concatenation of
+<p>That is, the RISCOS string is the flattening-concatenation of
 
 <pre><code>
   (append
@@ -3917,7 +3918,7 @@ prompt one might output.
       </dl>
 
   <dt>slot <code>char</code>
-    <dd>the Ascii code for standard keys
+    <dd>the ASCII code for standard keys
 
 <!-- #if defined(MSDOS) || defined(WIN32) || defined(AMIGAOS) -->
   <dt><code>:super</code>
@@ -4108,7 +4109,7 @@ by <sup><var>n</var></sup>/<sub>8</sub> instead of 1.
 <p><var>endianness</var> can be <code>:little</code> or <code>:big</code>.
 The default is <code>:little</code>, which corresponds to the
 <a href="CLHSROOT/Body/fun_read-byte.html"><code>read-byte</code></a>
-behaviour in CLISP.
+behavior in CLISP.
 
 <p>Together with <code>(setf <a
 href="CLHSROOT/Body/fun_stream-element-type.html">
@@ -5124,7 +5125,7 @@ garbage collection and its return value has the same meaning as the
 second value of <a href="CLHSROOT/Body/fun_room.html">
 <code>room</code></a>.
 
-<a name="time"><h4><a href="CLHSROOT/Body/mac_time.html">
+<a name="time"></a><h4><a href="CLHSROOT/Body/mac_time.html">
     time</a> macro</h4>
 
 <p>The timing data printed by the macro
@@ -5363,10 +5364,7 @@ specified by the vote.
  <dt><a href="CLHSROOT/Issues/iss053.html">
      CLOSED-STREAM-OPERATIONS:ALLOW-INQUIRY</a>    <dd>yes
  <dt><a href="CLHSROOT/Issues/iss054.html">
-     COERCING-SETF-NAME-TO-FUNCTION:ALL-FUNCTION-NAMES</a>
-     <dd>yes, but <a href="CLHSROOT/Body/fun_set-macro_ro-character.html">
-         <code>set-macro-character</code></a> must be changed to accept
-         function names (e.g. symbols) too
+     COERCING-SETF-NAME-TO-FUNCTION:ALL-FUNCTION-NAMES</a> <dd>yes
  <dt><a href="CLHSROOT/Issues/iss055.html">
      COLON-NUMBER</a>                              <dd>yes
  <dt><a href="CLHSROOT/Issues/iss056.html">
@@ -6275,7 +6273,7 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
   <li><code>CP864-IBM</code>, an IBM variant of <code>CP864</code>.
   <li><code>CP865</code>, a DOS oldie,
       a platform specific extension of the ASCII character set,
-      meant to be suitable for some nordic languages.
+      meant to be suitable for some Nordic languages.
   <li><code>CP865-IBM</code>, an IBM variant of <code>CP865</code>.
   <li><code>CP866</code>, a DOS oldie,
       a platform specific extension of the ASCII character set,
@@ -8371,7 +8369,7 @@ complete set of functions defined in a library file. Symbols are created
 in the package <code>AFFI</code> and imported into the current package.
 
 <p><code>flibcall</code> and <code>mlibcall</code> call library
-functions. <code>mlibcall</code> is a macro that does a few cheks at
+functions. <code>mlibcall</code> is a macro that does a few checks at
 macroexpansion time and allows the compiler to inline the call, not
 requiring the foreign function to be defined again at load or execution
 time. The use of this macro is advertised wherever possible.
@@ -8400,7 +8398,7 @@ in all recognized representations (<a href="CLHSROOT/Body/syscla_null.html">
 referenced, because the library base symbol must be known.
 
 <p><code>open-library</code> tries to open the library referenced by the
-base symbol.  Therefore it must have been preceeded with
+base symbol.  Therefore it must have been preceded with
 <code>declare-library-base</code>. The call returns
 <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> on
 failure. <code>open-library</code> calls nest. Every successful call
@@ -8475,7 +8473,7 @@ regular Common Lisp types or CLOS classes.
 NULL-terminated on the execution stack.  On return, a Lisp string is
 allocated and filled from the address returned (unless NULL). Functions
 with <code>:io</code> parameters are passed the address of the Lisp
-string or unsigned byte vector. These are not NUL-terminated!  This is
+string or unsigned byte vector. These are not NULL-terminated!  This is
 useful for functions like like <code>read()</code> which do not need an
 array at a constant address longer than the dynamic extent of the call
 (it is dangerous to define callback functions with <code>:io</code> (or
@@ -8551,7 +8549,7 @@ resource-tracking on the output side.
 <table>
 <tr>  <td><var>register</var> ::= <td> <code>:d0</code> | <code>:d1</code> | ... | <code>:d7</code> | <code>:a0</code> | ... | <code>:a6</code>
 </table>
-declares a named library funtion for further reference through
+declares a named library function for further reference through
 <code>flibcall</code> and <code>mlibcall</code>.
 
 <p><code>mlibcall</code> should be the preferred way of calling foreign
@@ -8563,9 +8561,9 @@ checks may be performed and the call can be sort of inlined.
 
 <p><code>(mem-read <var>address</var> <var>type</var>
 <var>offset</var>)</code> can read 8, 16 and 32 bit signed or
-unsignedintegers (AFFI types <code>-4</code>, <code>-2</code>,
+unsigned integers (AFFI types <code>-4</code>, <code>-2</code>,
 <code>-1</code>, <code>1</code>, <code>2</code>, <code>4</code>), a
-pointer (<code>*</code>), a NUL-terminated string (<code>string</code>)
+pointer (<code>*</code>), a NULL-terminated string (<code>string</code>)
 or, if the type argument is of type <code>string</code> or unsigned byte
 vector, it can fill this vector. <code>:external</code> is not an
 acceptable type as no object can be created by using
@@ -8588,7 +8586,7 @@ type <code>string</code> or unsigned byte vector).
 file of name derived from thelibrary name and with type
 <code>"affi"</code>. It may be used to import all names into
 the current package or only a given subset identified by string names,
-using the <code>:import</code> keword (recommended use). Some definition
+using the <code>:import</code> keyword (recommended use). Some definition
 files for standard Amiga libraries are provided. See example 1 below.
 
 <p>As <code>require-library-functions</code> loads a global file which
@@ -8625,7 +8623,7 @@ CLISP does not call finalizers when it exits, use
 <h4>Caveats</h4>
 
 <p>You can consider the library bases being symbols in need of being
-importedfrom the package AFFI originating from a brain-damage, causing
+imported from the package AFFI originating from a brain-damage, causing
 the usual symbol headaches when using foreign functions calls within
 macros. Luckily, even if the high-level interface (or its implementation
 in <code>affi1.lsp</code>) were to change, the low-level part
@@ -8760,7 +8758,7 @@ are the up to 15 arguments.
 <a href="CLHSROOT/Body/convar_nil.html">
 <code>nil</code></a> (meaning <code>"REXX"</code>, the default) and <a
 href="CLHSROOT/Body/convar_t.html"> <code>t</code></a> (<code>"AREXX"</code>
-for asynchronouns execution).
+for asynchronous execution).
 
 <p>ARexx server mode: Like Ispell, Csh and SKsh, you can run it in
 server mode by calling <code>(rexx-loop)</code>. You can then only exit
