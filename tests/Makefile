@@ -27,7 +27,7 @@ compare : force
 	(echo *.erg | grep '*' >/dev/null) || (echo "Test failed:" ; ls -l *erg; echo "To see which tests failed, type" ; echo "    cat "`pwd`"/*.erg" ; exit 1)
 	echo "Test passed."
 
-%.erg : %.tst $(BD)lispinit.mem $(BD)lisp$(LEXE)
+%.erg : %.tst
 	$(LISP) -i tests.lisp -x '(run-test "$<")'
 
 force :
