@@ -1,13 +1,19 @@
+2002-06-14  Sam Steingold  <sds@gnu.org>
+
+	* spvw_genera1.d (rebuild_old_generation_cache): fixed last
+	patch: FREE_DYNAMIC_ARRAY should be on the same block level as
+	DYNAMIC_ARRAY
+
 2002-06-14  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
-	Finally catched nines bug #514805
-	On MSVC, also UNIX with HAVE_ALLOCA_H, RISCOS and other
-	DYNAMIC_ARRAY implemented through _alloca(3) so putting it
+	fixed bug #[ 514805 ]: core dump using :rehash-size in 9nines
+	On MSVC, also UNIX with HAVE_ALLOCA_H, RISCOS and others, where
+	DYNAMIC_ARRAY implemented through _alloca(3), putting it
 	into the loop is dangerous: stack is freed only when function
 	returns, not by FREE_DYNAMIC_ARRAY.
 	* spvw_genera1.d (rebuild_old_generation_cache): put allocation
 	of fixed sized block out of loop. May allocate unneeded block,
-	but that case seems rare to me. 
+	but that case seems rare to me.
 
 2002-06-13  Sam Steingold  <sds@gnu.org>
 
