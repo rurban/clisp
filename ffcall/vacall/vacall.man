@@ -61,7 +61,7 @@ DDEESSCCRRIIPPTTIIOONN
 
 
 
-                         25 October 1997                        1
+                         14 January 2001                        1
 
 
 
@@ -117,17 +117,17 @@ NNOOTTEESS
        vvaa__aarrgg__lloonngglloonngg(())  and vvaa__aarrgg__uulloonngglloonngg(()) work only if the
        C compiler has a working lloonngg lloonngg 64-bit integer type.
 
-
-EEXXAAMMPPLLEE
-       This example, a possible implementation of eexxeeccll(3) on top
-       of eexxeeccvv(2) using vvaarraarrggss(3),
-
-       ##iinncclluuddee <<vvaarraarrggss..hh>>
-       ##ddeeffiinnee MMAAXXAARRGGSS 110000
+       The struct types used in vvaa__ssttaarrtt__ssttrruucctt(()) and vvaa__ssttrruucctt(())
+       must  only  contain  (signed  or unsigned) int, long, long
+       long or pointer fields.  Struct types  containing  (signed
+       or  unsigned)  char, short, float, double or other structs
+       are not supported.
 
 
 
-                         25 October 1997                        2
+
+
+                         14 January 2001                        2
 
 
 
@@ -136,6 +136,12 @@ EEXXAAMMPPLLEE
 VACALL(3)                                               VACALL(3)
 
 
+EEXXAAMMPPLLEE
+       This example, a possible implementation of eexxeeccll(3) on top
+       of eexxeeccvv(2) using vvaarraarrggss(3),
+
+       ##iinncclluuddee <<vvaarraarrggss..hh>>
+       ##ddeeffiinnee MMAAXXAARRGGSS 110000
        //** eexxeeccll iiss ccaalllleedd bbyy eexxeeccll((ffiillee,, aarrgg11,, aarrgg22,, ......,, ((cchhaarr **))00));; **//
        iinntt eexxeeccll ((vvaa__aalliisstt))
          vvaa__ddccll
@@ -184,16 +190,10 @@ BBUUGGSS
        bugs.
 
        There  are  typically  built-in  limits on the size of the
-       argument-list, which may also  include  the  size  of  any
-       structure arguments.
-
-       The  decision whether a struct is to be returned in regis-
-       ters or in memory considers only  the  struct's  size  and
-       alignment.  This  is inaccurate: for example, gcc on m68k-
 
 
 
-                         25 October 1997                        3
+                         14 January 2001                        3
 
 
 
@@ -202,6 +202,12 @@ BBUUGGSS
 VACALL(3)                                               VACALL(3)
 
 
+       argument-list, which may also  include  the  size  of  any
+       structure arguments.
+
+       The  decision whether a struct is to be returned in regis-
+       ters or in memory considers only  the  struct's  size  and
+       alignment.  This  is inaccurate: for example, gcc on m68k-
        next returns ssttrruucctt {{  cchhaarr  aa,,bb,,cc;;  }}  in  registers  and
        ssttrruucctt  {{ cchhaarr aa[[33]];; }} in memory, although both types have
        the same size and the same alignment.
@@ -253,12 +259,6 @@ AACCKKNNOOWWLLEEDDGGEEMMEENNTTSS
 
 
 
-
-
-
-
-
-
-                         25 October 1997                        4
+                         14 January 2001                        4
 
 

@@ -61,7 +61,7 @@ DDEESSCCRRIIPPTTIIOONN
 
 
 
-                         25 October 1997                        1
+                         14 January 2001                        1
 
 
 
@@ -127,7 +127,7 @@ NNOOTTEESS
 
 
 
-                         25 October 1997                        2
+                         14 January 2001                        2
 
 
 
@@ -164,6 +164,12 @@ AVCALL(3)                                               AVCALL(3)
        aavv__lloonngglloonngg(())  and  aavv__uulloonngglloonngg(()) work only if the C com-
        piler has a working lloonngg lloonngg 64-bit integer type.
 
+       (4)  The  struct  types  used  in  aavv__ssttaarrtt__ssttrruucctt(())   and
+       aavv__ssttrruucctt(())  must  only  contain (signed or unsigned) int,
+       long, long long or pointer fields.  Struct types  contain-
+       ing  (signed  or  unsigned)  char, short, float, double or
+       other structs are not supported.
+
 
 SSEEEE AALLSSOO
        ssttddaarrgg(3), vvaarraarrggss(3).
@@ -186,20 +192,19 @@ BBUUGGSS
        the same size and the same alignment.
 
 
-NNOONN--BBUUGGSS
-       All  information is passed in CPU registers and the stack.
-       The aavvccaallll package is therefore multithread-safe.
 
-
-
-
-                         25 October 1997                        3
+                         14 January 2001                        3
 
 
 
 
 
 AVCALL(3)                                               AVCALL(3)
+
+
+NNOONN--BBUUGGSS
+       All  information is passed in CPU registers and the stack.
+       The aavvccaallll package is therefore multithread-safe.
 
 
 PPOORRTTIINNGG AAVVCCAALLLL
@@ -254,11 +259,6 @@ AACCKKNNOOWWLLEEDDGGEEMMEENNTTSS
 
 
 
-
-
-
-
-
-                         25 October 1997                        4
+                         14 January 2001                        4
 
 
