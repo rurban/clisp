@@ -1,3 +1,20 @@
+2004-05-15  Bruno Haible  <bruno@clisp.org>
+
+	Add a hash code to symbols.
+	* lispbibl.d (symbol_): Add hashcode field. Disable filler for
+	LINUX_NOEXEC_HEAPCODES.
+	* spvw.d (init_symbol_tab_1): Pre-initialize the symbol's hash code.
+	* spvw_update.d (update_symbol_tab): Update the hashcode as well.
+	* spvw_garcol.d (gc_markphase): Mark the hashcode as well.
+	* spvw_typealloc.d (make_symbol): Pre-initialize the hash code.
+	* constsym.d (LISPSYM_B): Pre-initialize the symbol's hash code.
+	Disable filler for LINUX_NOEXEC_HEAPCODES.
+	* hashtabl.d (hashcode1stable): Handle symbols specially.
+	(gcinvariant_hashcode1stable_p): Return true also for symbols.
+	(gcinvariant_hashcode2stable_p): Likewise.
+	(gcinvariant_hashcode3stable_atom_p): Likewise.
+	* genclisph.d (main): Update symbol_ definition.
+
 2004-05-31  Bruno Haible  <bruno@clisp.org>
 
 	* clos-method1.lisp (lambda-list-keyword-p): Move to clos-method2.lisp.

@@ -156,6 +156,14 @@ global uint32 hashcode1stable (object obj) {
          slots are inherited in DEFSTRUCT. */
       return posfixnum_to_L(TheStructure(obj)->recdata[1]);
     }
+  } else if (symbolp(obj)) {
+    var object hashcode = TheSymbol(obj)->hashcode;
+    if (eq(hashcode,unbound)) {
+      /* The first access to a symbol's hash code computes it. */
+      pushSTACK(unbound); C_random_posfixnum(); hashcode = value1;
+      TheSymbol(obj)->hashcode = hashcode;
+    }
+    return posfixnum_to_L(hashcode);
   }
   return hashcode1(obj);
 }
@@ -178,7 +186,8 @@ local inline bool instance_of_stablehash_p (object obj) {
 /* Tests whether hashcode1stable of an object is guaranteed to be
    GC-invariant. */
 global bool gcinvariant_hashcode1stable_p (object obj) {
-  return gcinvariant_object_p(obj) || instance_of_stablehash_p(obj);
+  return gcinvariant_object_p(obj)
+         || instance_of_stablehash_p(obj) || symbolp(obj);
 }
 
 /* ----------------------------- FASTHASH EQL ----------------------------- */
@@ -391,7 +400,8 @@ global uint32 hashcode2stable (object obj) {
    GC-invariant. */
 global bool gcinvariant_hashcode2stable_p (object obj) {
   return numberp(obj)
-         || gcinvariant_object_p(obj) || instance_of_stablehash_p(obj);
+         || gcinvariant_object_p(obj)
+         || instance_of_stablehash_p(obj) || symbolp(obj);
 }
 
 /* ---------------------------- FASTHASH EQUAL ---------------------------- */
@@ -876,7 +886,7 @@ local bool gcinvariant_hashcode3stable_atom_p (object obj) {
         break;
     }
   #endif
-  return instance_of_stablehash_p(obj);
+  return instance_of_stablehash_p(obj) || symbolp(obj);
 }
 local inline bool gcinvariant_hashcode3stable_cons0_p (object obj) {
   if (atomp(obj))

@@ -2460,12 +2460,12 @@ and the international alphabetic characters from the character set:
      can lead to scalability problems.</simpara></listitem></varlistentry>
   <varlistentry><term>&stablehash-eq;</term>
    <listitem><simpara>This uses a slower hash function that has the
-     property that its hash codes for instances of the classes
+     property that its hash codes for instances of the classes &symbol-t;,
      &standard-stablehash; (subclass of &standard-object-t;) and
      &structure-stablehash; (subclass of &structure-object-t;) are
      stable across GCs.
      This test can thus avoid the scalability problems if all keys,
-     other than &immediate-o;s, are &standard-stablehash; or
+     other than &immediate-o;s, are &symbol-t;, &standard-stablehash; or
      &structure-stablehash; instances.</simpara></listitem></varlistentry>
  </variablelist>
  One can recommend to use &fasthash-eq; for short-lived hash tables.
