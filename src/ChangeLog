@@ -1,3 +1,13 @@
+2004-04-24  Bruno Haible  <bruno@clisp.org>
+
+	* functions.lisp: New file, extracted from trace.lisp, compiler.lisp.
+	* init.lisp: Load it.
+	* trace.lisp (check-function-name): Moved to functions.lisp.
+	* compiler.lisp (signature): Moved to functions.lisp.
+	* clos.lisp: Update.
+	* makemake.in (LPARTS): Add functions.
+	* po/Makefile.devel (LISPSOURCES): Add functions.
+
 2004-04-15  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class2.lisp (ensure-class): Pass the old finalized and

@@ -2375,15 +2375,6 @@ for-value   NIL or T
         (push '(PUSH) codelist)
         (push 1 *stackz*)))))
 
-(defstruct (signature (:type vector) (:conc-name sig-))
-  ;; (name nil     :type (or symbol cons))
-  (req-num 0    :type fixnum)
-  (opt-num 0    :type fixnum)
-  (rest-p nil   :type boolean)
-  (keys-p nil   :type boolean)
-  (keywords nil :type list)
-  (allow-p nil  :type boolean))
-
 ;; Compute the signature of a function object:
 ;; 1. name
 ;; 2. req-num

@@ -1858,6 +1858,8 @@
 #+syscalls
 (in-package "SYSTEM")
 
+(LOAD "functions")              ; function objects
+
 (LOAD "trace")                  ; TRACE
 
 (load "cmacros")                ; compiler macros
