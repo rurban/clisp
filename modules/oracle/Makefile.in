@@ -1,7 +1,7 @@
 #
 # Makefile.in for CLISP module set oracle
 #
-# $Id
+# $Id$
 
 # This will come from the environment
 # ORACLE_HOME = /usr/local/oracle
@@ -9,6 +9,7 @@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
+CLISP = clisp -q -norc
 
 # Get Oracle OCI library headers
 #
@@ -16,7 +17,7 @@ CFLAGS = @CFLAGS@
 # release are below.  $H is the Oracle home.
 #
 #  File       8.0.5               8.1.7
-# 
+#
 #  oci.h      $H/rdbms/demo       $H/rdbms/demo
 #  ociextp.h  $H/plsql/demo       $H/rdbms/public
 #  nzt.h      $H/network/public   $H/rdbms/public
