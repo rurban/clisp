@@ -1,5 +1,10 @@
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
+	* hashtabl.d (clrhash): Reorganize the hash table immediately,
+	instead of delaying the reorganization.
+
+2004-05-15  Bruno Haible  <bruno@clisp.org>
+
 	* io.d (structure_reader): Accept both the new syntax with :TEST and
 	the old syntax.
 	(pr_orecord): For hash tables, make the output in the three possible
