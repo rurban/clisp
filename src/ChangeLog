@@ -1,3 +1,14 @@
+1998-10-28  Sam Steingold  <sds@goems.com>
+
+	* spvw.d (main): added a new command line option -norc; load
+	  ~/.clisprc when it is not given.
+	* _clisp.c (main): ditto.
+	* makemake.in: give lisp.run options -norc on build
+	* user1.lsp (load-rc-file): new function.
+	  (help): more verbose message.
+	* constobj.d: ditto.
+	* _clisp.1: document it.
+
 1998-10-27  Sam Steingold  <sds@goems.com>
 
 	* configure: remind the user to edit config.lsp.

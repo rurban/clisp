@@ -1287,6 +1287,7 @@ LISPSYM(recurse_count_standard_output,"*RECURSE-COUNT-STANDARD-OUTPUT*",system) 
 LISPSYM(recurse_count_debug_io,"*RECURSE-COUNT-DEBUG-IO*",system) # als Variable in DEBUG
 LISPSYM(frame_limit1,"*FRAME-LIMIT1*",system) # als Variable in DEBUG
 LISPSYM(frame_limit2,"*FRAME-LIMIT2*",system) # als Variable in DEBUG
+LISPSYM(load_rc_file,"LOAD-RC-FILE",system) # load ~/.clisprc
 LISPSYM(setf,"SETF",lisp) # als Marker in CONTROL
 LISPSYM(psetf,"PSETF",lisp) # als Marker in CONTROL
 LISPSYM(multiple_value_setf,"MULTIPLE-VALUE-SETF",system) # als Marker in CONTROL

@@ -87,6 +87,16 @@ If anything else, printed.")
     (write-string s #|*debug-io*|#)
 ) )
 
+(defun load-rc-file ()
+  "Load ~/.clisprc"
+  (let ((rc (make-pathname :directory (user-homedir-pathname)
+                           :name ".clisprc")) ff)
+    (when (probe-file rc)
+      (return-from load-rc-file (load rc :print t)))
+    (dolist (ext (append *compiled-file-types* *source-file-types*))
+      (when (probe-file (setq ff (merge-pathnames rc ext)))
+        (return-from load-rc-file (load ff :print t))))))
+
 ; Bausteine der Break-Schleife:
 (defvar *debug-frame*)
 (defvar *debug-mode*)
@@ -176,7 +186,7 @@ If anything else, printed.")
 (defun debug-return ()
   (return-from-eval-frame *debug-frame*
     (read-form (DEUTSCH "Werte: "
-                ENGLISH "values: "
+                ENGLISH "Values: "
                 FRANCAIS "Valeurs : ")
   ) )
   (throw 'debug 'continue)
@@ -187,13 +197,16 @@ If anything else, printed.")
              (list
                (DEUTSCH "
 Help = diese Liste
-Benutzen Sie die üblichen Editiermöglichkeiten."
+Benutzen Sie die üblichen Editiermöglichkeiten.
+(quit) oder ^D (Control-D, oder C-d) vor exit."
                 ENGLISH "
 Help = this list
-Use the usual editing capabilities."
+Use the usual editing capabilities.
+(quit) or ^D (Control-D, or C-d) to exit."
                 FRANCAIS "
 Help = cette liste
-Éditez de la façon habituelle."
+Éditez de la façon habituelle.
+(quit) ou ^D (Control-D, ou C-d) pour exit."
                )
                (cons "Help"   #'debug-help  )
 )            )
