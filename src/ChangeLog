@@ -1,3 +1,8 @@
+1999-12-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * pathname.d (translate_version): Don't access Car(*subst) before
+          checking whether consp(*subst).
+
 1999-12-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * spvw_ctype.d (init_ctype): Recognize more language codes:

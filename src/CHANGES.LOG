@@ -7,7 +7,8 @@ User visible changes
 * Unicode support: The pretty-printer and FORMAT ~T now handle non-spacing and
   double-width Unicode characters correctly. Pretty-printer slows down by 30%.
 
-* Fixed a bug in TRANSLATE-PATHNAME: Substitution of "**" did not work.
+* Fixed two bugs in TRANSLATE-PATHNAME: Substitution of "**" did not work.
+  Substitutions without version into non-logical pathnames crashed.
 
 * When configured with --with-export-syscalls, :SYSCALLS is in *FEATURES*
   and functions POSIX:RESOLVE-IP-ADDR, POSIX:USER-DATA, POSIX:FILE-STAT,
