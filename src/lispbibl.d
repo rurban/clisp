@@ -149,7 +149,6 @@
 # I80386 == all processors of the Intel 8086 series, starting at 80386,
 #           nowadays called IA32
 # VAX == the VAX processor
-# CONVEX == the Convex processor
 # ARM == the ARM processor
 # DECALPHA == the DEC Alpha superchip
 # IA64 == the Intel IA-64 latecomer chip
@@ -209,9 +208,6 @@
   #endif
   #if defined(_IBMR2) || defined(__powerpc) || defined(__ppc) || defined(__ppc__) || defined(__powerpc__)
     #define RS6000
-  #endif
-  #ifdef __convex__
-    #define CONVEX
   #endif
   #ifdef __alpha
     #define DECALPHA
@@ -316,9 +312,6 @@
   #endif
   #ifdef AMIX
     #define UNIX_AMIX  # Amiga UNIX
-  #endif
-  #ifdef __convex__
-    #define UNIX_CONVEX  # ConvexOS
   #endif
   #ifdef __MINT__
     #define UNIX_MINT  # MiNT (UNIXlike on Atari)
@@ -589,7 +582,7 @@
   #define C_CODE_ALIGNMENT  2
   #define log2_C_CODE_ALIGNMENT  1
 #endif
-#if defined(MC680X0) || defined(CONVEX)
+#if defined(MC680X0)
   #define C_CODE_ALIGNMENT  2
   #define log2_C_CODE_ALIGNMENT  1
 #endif
@@ -646,7 +639,6 @@
  M88000        save     save      save
  ARM           save
  DECALPHA      save     save      save
- CONVEX                 used      used     used     (??)
  IA64
  AMD64
  S390          save
@@ -662,8 +654,7 @@
    and restored during end_callback().
  - When the interpreter does a longjmp(), the registers STACK, mv_count,
    value1 may need to be temporarily saved. This is highly machine
-   dependent and is indicated by the NEED_temp_xxxx macros.
- - CONVEX hasn't been tested for a long time. */
+   dependent and is indicated by the NEED_temp_xxxx macros. */
 
   # Register for STACK.
   #if defined(MC680X0)
@@ -719,9 +710,6 @@
     #define mv_count_register  "$10"  # one of the general registers $9..$14
     #define NEED_temp_mv_count
   #endif
-  #if defined(CONVEX)
-    #define mv_count_register  "s5"
-  #endif
   # Register for value1.
   #if !(defined(WIDE) && !defined(WIDE_HARD))
     #if defined(SPARC)
@@ -742,9 +730,6 @@
       #define value1_register  "$11"  # one of the general registers $9..$14
       #define NEED_temp_value1
     #endif
-    #if defined(CONVEX)
-      #define value1_register  "s6"
-    #endif
   #endif
   # Register for back_trace.
   #if !(defined(WIDE) && !defined(WIDE_HARD))
@@ -756,9 +741,6 @@
     #endif
     #if defined(HPPA)
       #define back_trace_register  "%r13"  # one of the general registers  %r5..%r18
-    #endif
-    #if defined(CONVEX)
-      #define back_trace_register  "s7"
     #endif
   #endif
   # Declare the registers now (before any system include file which could
@@ -1061,7 +1043,7 @@
 #define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)
 
 # alloca()
-#if defined(GNU) && !defined(CONVEX)
+#ifdef GNU
   #define alloca  __builtin_alloca
 #elif defined(MICROSOFT)
   #include <malloc.h>
@@ -1279,7 +1261,7 @@ typedef signed int  signean;
 
 # An alloca() replacement, used for DYNAMIC_ARRAY and SAVE_NUM_STACK.
 # See spvw_alloca.d.
-#if !((defined(GNU) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT))
+#if !(defined(GNU) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT))
   #define NEED_MALLOCA
   #include <stdlib.h>
   extern void* malloca (size_t size);
@@ -1438,7 +1420,7 @@ typedef unsigned_int_with_n_bits(pointer_bitsize)  uintP;
   #define intBWsize intBsize
   #define intWLsize intWsize
   #define intBWLsize intBsize
-#elif (defined(MC680X0) && defined(HPUX_ASSEMBLER)) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(CONVEX) || defined(S390)
+#elif (defined(MC680X0) && defined(HPUX_ASSEMBLER)) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(S390)
   # The Sparc-processor computes rather badly with uintB and uintW.
   # Other 32-Bit-processoren have similar weaknesses.
   #define intBWsize intWsize
@@ -1631,7 +1613,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
   #define intDsize 16
   #define intDDsize 32  # = 2*intDsize
   #define log2_intDsize  4  # = log2(intDsize)
-#elif defined(MC680Y0) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(VAX) || defined(CONVEX) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390)
+#elif defined(MC680Y0) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(VAX) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390)
   #define intDsize 32
   #define intDDsize 64  # = 2*intDsize
   #define log2_intDsize  5  # = log2(intDsize)
@@ -2604,7 +2586,6 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 #   defined(M88000)
 #   (defined(RS6000) && !defined(UNIX_AIX) && !defined(UNIX_LINUX))
 #   defined(VAX)
-#   (defined(CONVEX) && !defined(UNIX_CONVEX))
 #elif (defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || (defined(UNIX_FREEBSD) && !defined(UNIX_GNU)))) || defined(TRY_TYPECODES_1)
   # You can add more platforms here provided that
   # 1. you need it,
@@ -3120,7 +3101,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
     #define varobject_alignment  2
   #endif
 #endif
-#if defined(I80386) || defined(RS6000) || defined(CONVEX) || defined(ARM) || defined(S390)
+#if defined(I80386) || defined(RS6000) || defined(ARM) || defined(S390)
   #define varobject_alignment  4
 #endif
 #if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64) || defined(AMD64)
@@ -4202,7 +4183,7 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 #define ascii_char(x)  code_char(ascii(x))
 
 # Whether to use three different kinds of string representations.
-#if !defined(TYPECODES) && defined(SPVW_MIXED) && defined(UNICODE) && ((defined(GNU) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT)) && !defined(NO_SMALL_SSTRING)
+#if !defined(TYPECODES) && defined(SPVW_MIXED) && defined(UNICODE) && (defined(GNU) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT)) && !defined(NO_SMALL_SSTRING)
 #define HAVE_SMALL_SSTRING
 #endif
 
@@ -7254,9 +7235,6 @@ All other long words on the LISP-Stack are LISP-objects.
   #ifdef ARM
     #define SP_register "%sp"  # %sp = %r13
   #endif
-  #ifdef CONVEX
-    #define SP_register "sp"  # $sp = $a0
-  #endif
   #ifdef DECALPHA
     #define SP_register "$30"  # $sp = $30
   #endif
@@ -7305,9 +7283,6 @@ All other long words on the LISP-Stack are LISP-objects.
   #endif
   #ifdef ARM
     #define ASM_get_SP_register(resultvar)  ("mov\t%0, sp" : "=r" (resultvar) : )
-  #endif
-  #ifdef CONVEX
-    #define ASM_get_SP_register(resultvar)  ("mov sp,%0" : "=r" (resultvar) : )
   #endif
   #ifdef DECALPHA
     #define ASM_get_SP_register(resultvar)  ("bis $30,$30,%0" : "=r" (resultvar) : )
