@@ -284,8 +284,8 @@
   global void print_float(z,stream_)
     var object z;
     var const object* stream_;
-    { # Falls SYS::WRITE-FLOAT definiert ist, (SYS::WRITE-FLOAT stream z) aufrufen:
-      var object fun = Symbol_function(S(write_float));
+    { # Falls SYS::WRITE-FLOAT-DECIMAL definiert ist, (SYS::WRITE-FLOAT-DECIMAL stream z) aufrufen:
+      var object fun = Symbol_function(S(write_float_decimal));
       if (!eq(fun,unbound))
         # Funktion aufrufen
         { pushSTACK(*stream_); pushSTACK(z); funcall(fun,2); }

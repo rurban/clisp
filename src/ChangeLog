@@ -1,3 +1,18 @@
+1999-08-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d (check_float_eltype, READ-FLOAT, WRITE-FLOAT): New
+          functions.
+        * lispbibl.d (c_float_to_FF, FF_to_c_float, c_double_to_DF,
+           DF_to_c_double): Declare always, not only if HAVE_FFI.
+        * flo_konv.d (c_float_to_FF, FF_to_c_float, c_double_to_DF,
+           DF_to_c_double): Define always, not only if HAVE_FFI.
+        * floatpri.lsp (write-float-decimal): Renamed from write-float.
+        * lisparit.d (print_float): Call sys::write-float-decimal instead of
+          sys::write-float.
+
+        * type.lsp (canonicalize-type): Call typespec-error if the argument is
+          not a valid typespec.
+
 1999-08-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * aridecl.d (FF_exp_low, FF_exp_mid, FF_exp_high): Always choose the

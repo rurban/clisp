@@ -857,6 +857,7 @@
            )
          #-UNICODE 'CHARACTER
         )
+        (t (typespec-error 'subtypep type))
 ) )
 (defun subtypep (type1 type2)
   (macrolet ((yes () '(return-from subtypep (values t t)))

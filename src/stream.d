@@ -16771,6 +16771,40 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
                 );
     }   }
 
+# UP: Check an element-type for READ-FLOAT/WRITE-FLOAT.
+# check_float_eltype(&eltype)
+# > object eltype: argument (in the STACK)
+# > subr_self: calling function
+# < subr_self: unchanged
+# < result: sizeof(ffloatjanus) or sizeof(dfloatjanus)
+  local uintL check_float_eltype (object* eltype_);
+  local uintL check_float_eltype(eltype_)
+    var object* eltype_;
+    { var object arg = *eltype_;
+      if (eq(arg,S(single_float))) { return sizeof(ffloatjanus); }
+      if (eq(arg,S(double_float))) { return sizeof(dfloatjanus); }
+     {var boolean is_ffloat_subtype;
+      var boolean is_dfloat_subtype;
+      pushSTACK(subr_self); # subr_self retten
+      # Erstmal ein wenig kanonischer machen (damit die verschiedenen
+      # SUBTYPEP dann nicht zweimal dasselbe machen müssen):
+      pushSTACK(arg); funcall(S(canonicalize_type),1); # (SYS::CANONICALIZE-TYPE arg)
+      pushSTACK(value1); # canon-arg retten
+      pushSTACK(STACK_0); pushSTACK(S(single_float)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'SINGLE-FLOAT)
+      is_ffloat_subtype = !nullp(value1);
+      pushSTACK(S(double_float)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'DOUBLE-FLOAT)
+      is_dfloat_subtype = !nullp(value1);
+      subr_self = popSTACK(); # subr_self zurück
+      if (is_ffloat_subtype)
+        { if (!is_dfloat_subtype) { return sizeof(ffloatjanus); } }
+        else
+        { if (is_dfloat_subtype) { return sizeof(dfloatjanus); } }
+      pushSTACK(*eltype_); pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,
+             GETTEXT("~: illegal :ELEMENT-TYPE argument ~")
+            );
+    }}
+
 # UP: Check an endianness argument.
 # test_endianness_arg(arg)
 # > arg: the argument
@@ -17028,6 +17062,87 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
       }
   }}}
 
+LISPFUN(read_float,2,3,norest,nokey,0,NIL)
+# (READ-FLOAT stream element-type [endianness [eof-error-p [eof-value]]])
+# reads a float in IEEE binary representation.
+  { # Stream überprüfen:
+    var object stream = STACK_4;
+    if (!streamp(stream)) { fehler_stream(stream); }
+    # Element-Type überprüfen:
+   {var uintL bytesize = check_float_eltype(&STACK_3);
+    # Endianness überprüfen:
+    var boolean endianness = test_endianness_arg(STACK_2);
+    var DYNAMIC_BIT_VECTOR(bitbuffer,bytesize*8);
+    pushSTACK(bitbuffer);
+    # Stack layout: stream, element-type, endianness, eof-error-p, eof-value, bitbuffer.
+    # Read the data.
+    if (!(read_byte_array(&STACK_5,&STACK_0,0,bytesize) == bytesize)) goto eof;
+    bitbuffer = STACK_0;
+    #if BIG_ENDIAN_P
+    if (!endianness)
+    #else
+    if (endianness)
+    #endif
+      # Byte-Swap the data.
+      { var uintL count = floor(bytesize,2);
+        if (count > 0)
+          { var uintB* ptr1 = &TheSbvector(bitbuffer)->data[0];
+            var uintB* ptr2 = &TheSbvector(bitbuffer)->data[bytesize-1];
+            dotimespL(count,count,
+              { var uintB x1 = *ptr1;
+                var uintB x2 = *ptr2;
+                *ptr1 = x2; *ptr2 = x1;
+                ptr1++; ptr2--;
+              });
+      }   }
+    # The data is now in machine-dependent order. Convert it to a float.
+    switch (bytesize)
+      { case sizeof(ffloatjanus):
+          if (((varobject_alignment % alignof(ffloatjanus)) == 0)
+              && ((offsetofa(sbvector_,data) % alignof(ffloatjanus)) == 0))
+            { value1 = c_float_to_FF((ffloatjanus*)&TheSbvector(bitbuffer)->data[0]); }
+            else
+            { var ffloatjanus tmp;
+              memcpy(&tmp,&TheSbvector(bitbuffer)->data[0],sizeof(ffloatjanus));
+              value1 = c_float_to_FF(&tmp);
+            }
+          break;
+        case sizeof(dfloatjanus):
+          if (((varobject_alignment % alignof(dfloatjanus)) == 0)
+              && ((offsetofa(sbvector_,data) % alignof(dfloatjanus)) == 0))
+            { value1 = c_double_to_DF((dfloatjanus*)&TheSbvector(bitbuffer)->data[0]); }
+            else
+            { var dfloatjanus tmp;
+              memcpy(&tmp,&TheSbvector(bitbuffer)->data[0],sizeof(dfloatjanus));
+              value1 = c_double_to_DF(&tmp);
+            }
+          break;
+        default: NOTREACHED
+      }
+    FREE_DYNAMIC_BIT_VECTOR(STACK_0);
+    mv_count=1;
+    skipSTACK(6);
+    return;
+    # EOF-Behandlung
+    eof:
+    { if (!nullp(STACK_2)) # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
+        # Error melden:
+        { pushSTACK(STACK_5); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(STACK_(5+1)); # Stream
+          pushSTACK(S(read_float));
+          fehler(end_of_file,
+                 GETTEXT("~: input stream ~ has reached its end")
+                );
+        }
+        else
+        # EOF verarzten:
+        { var object eofval = STACK_1;
+          if (eq(eofval,unbound)) { eofval = eof_value; } # Default ist #<EOF>
+          value1 = eofval; mv_count=1; skipSTACK(6); # eofval als Wert
+        }
+    }
+  }}
+
 LISPFUNN(write_byte,2)
 # (WRITE-BYTE integer stream), CLTL S. 385
   { # Stream überprüfen:
@@ -17218,6 +17333,98 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
       value1 = STACK_4; mv_count=1; # obj als Wert
       skipSTACK(5);
   }}}}
+
+LISPFUN(write_float,3,1,norest,nokey,0,NIL)
+# (WRITE-FLOAT float stream element-type [endianness])
+# writes a float in IEEE binary representation.
+  {  # Stream überprüfen:
+     var object stream = STACK_2;
+     if (!streamp(stream)) { fehler_stream(stream); }
+     # Element-Type überprüfen:
+   { var uintL bytesize = check_float_eltype(&STACK_1);
+     # Endianness überprüfen:
+     var boolean endianness = test_endianness_arg(STACK_0);
+     # Float überprüfen:
+     var object obj = STACK_3;
+     switch (bytesize)
+       { case sizeof(ffloatjanus):
+           if (!single_float_p(obj))
+             { pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+               pushSTACK(S(single_float)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+               pushSTACK(STACK_(2+2));
+               pushSTACK(S(single_float));
+               pushSTACK(obj);
+               fehler(type_error,
+                      GETTEXT("~ is not a ~, cannot be output onto ~")
+                     );
+             }
+           break;
+         case sizeof(dfloatjanus):
+           if (!double_float_p(obj))
+             { pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+               pushSTACK(S(double_float)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+               pushSTACK(STACK_(2+2));
+               pushSTACK(S(double_float));
+               pushSTACK(obj);
+               fehler(type_error,
+                      GETTEXT("~ is not a ~, cannot be output onto ~")
+                     );
+             }
+           break;
+         default: NOTREACHED
+       }
+    {var DYNAMIC_BIT_VECTOR(bitbuffer,bytesize*8);
+     pushSTACK(bitbuffer);
+     # Stack layout: obj, stream, element-type, endianness, bitbuffer.
+     obj = STACK_4;
+     # Copy the float's data into the buffer.
+     switch (bytesize)
+       { case sizeof(ffloatjanus):
+           if (((varobject_alignment % alignof(ffloatjanus)) == 0)
+               && ((offsetofa(sbvector_,data) % alignof(ffloatjanus)) == 0))
+             { FF_to_c_float(obj,(ffloatjanus*)&TheSbvector(bitbuffer)->data[0]); }
+             else
+             { var ffloatjanus tmp;
+               FF_to_c_float(obj,&tmp);
+               memcpy(&TheSbvector(bitbuffer)->data[0],&tmp,sizeof(ffloatjanus));
+             }
+           break;
+         case sizeof(dfloatjanus):
+           if (((varobject_alignment % alignof(dfloatjanus)) == 0)
+               && ((offsetofa(sbvector_,data) % alignof(dfloatjanus)) == 0))
+             { DF_to_c_double(obj,(dfloatjanus*)&TheSbvector(bitbuffer)->data[0]); }
+             else
+             { var dfloatjanus tmp;
+               DF_to_c_double(obj,&tmp);
+               memcpy(&TheSbvector(bitbuffer)->data[0],&tmp,sizeof(dfloatjanus));
+             }
+           break;
+         default: NOTREACHED
+       }
+     # The data is now in machine-dependent order.
+     #if BIG_ENDIAN_P
+     if (!endianness)
+     #else
+     if (endianness)
+     #endif
+       # Byte-Swap the data.
+       { var uintL count = floor(bytesize,2);
+         if (count > 0)
+           { var uintB* ptr1 = &TheSbvector(bitbuffer)->data[0];
+             var uintB* ptr2 = &TheSbvector(bitbuffer)->data[bytesize-1];
+             dotimespL(count,count,
+               { var uintB x1 = *ptr1;
+                 var uintB x2 = *ptr2;
+                 *ptr1 = x2; *ptr2 = x1;
+                 ptr1++; ptr2--;
+               });
+       }   }
+     # Write the data.
+     write_byte_array(&STACK_3,&STACK_0,0,bytesize);
+     FREE_DYNAMIC_BIT_VECTOR(STACK_0);
+     value1 = STACK_4; mv_count=1; # obj als Wert
+     skipSTACK(5);
+  }}}
 
 # UP: Überprüft, ob ein Argument ein offener File-Stream ist.
 # check_open_file_stream(obj);
