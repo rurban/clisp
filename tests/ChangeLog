@@ -1,5 +1,9 @@
 2004-08-27  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (run-files): more thorough error reporting
+
+2004-08-27  Sam Steingold  <sds@gnu.org>
+
 	* ffi.tst (c-malloc, c-free): use a full path to /lib/libc.so,
 	it appears that "c" is a cygwin-ism
 
