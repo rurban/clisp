@@ -240,6 +240,8 @@ User visible changes
 * The user commands can now be extended using CUSTOM:*USER-COMMANDS*.
   See <http://clisp.cons.org/impnotes.html#user-commands> for details.
 
+* SET functions (like UNION et al) are now much faster on large lists.
+
 * Bug fixes:
   + The interpreter no longer executes the body of (EVAL-WHEN (COMPILE) ...)
     forms.
