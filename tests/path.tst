@@ -566,14 +566,14 @@ FIXME
 
 (merge-pathnames (logical-pathname "cl-systems:") "metering.system")
 #+CLISP
-#S(lOGICAL-PATHNAME :HOST "CL-SYSTEMS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
+#S(LOGICAL-PATHNAME :HOST "CL-SYSTEMS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
                     :NAME "METERING" :TYPE "SYSTEM" :VERSION :NEWEST)
 #-CLISP
 FIXME
 
 (merge-pathnames (logical-pathname "cl-systems:") #P"metering.system")
 #+CLISP
-#S(lOGICAL-PATHNAME :HOST "CL-SYSTEMS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
+#S(LOGICAL-PATHNAME :HOST "CL-SYSTEMS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
                     :NAME "METERING" :TYPE "SYSTEM" :VERSION :NEWEST)
 #-CLISP
 FIXME
@@ -667,4 +667,12 @@ foo
 t
 
 (foo "C")
+t
+
+(let* ((foo (copy-seq "abcdefghijkl"))
+       (bar (make-array 5 :displaced-to foo :displaced-index-offset 2
+                        :element-type 'character))
+       (path (make-pathname :directory bar)))
+  (setf (aref foo 3) #\/)
+  (equalp path (make-pathname :directory (pathname-directory path))))
 t
