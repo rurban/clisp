@@ -253,7 +253,7 @@
     (function in-package (lambda (form env)
       (declare (ignore env))
       (let ((package-name (string (cadr form))))
-        (list 'EVAL-WHEN '(COMPILE LOAD EVAL)
+        (list 'EVAL-WHEN '(:COMPILE-TOPLEVEL LOAD EVAL)
               (list 'SETQ 'COMMON-LISP::*PACKAGE*
                     (list 'SYS::%FIND-PACKAGE package-name))))))))
 
