@@ -3,19 +3,12 @@
 ;;; GPL2 is applicable
 
 (defpackage "CLX-DEMOS"
-  (:use "COMMON-LISP")
+  (:use "COMMON-LISP" "XLIB" "EXT")
+  (:shadowing-import-from "XLIB" "CHAR-WIDTH") ; EXT has CHAR-WIDTH
+  (:shadow "USAGE")             ; POSIX has USAGE
   (:export "QIX" "SOKOBAN"))
 
 (in-package :clx-demos)
-
-(defun getenv (var)
-  "Return the value of the environment variable."
-  #+cmu (cdr (assoc (string var) *environment-list* :test #'equalp
-                    :key #'string))
-  #-cmu
-  (#+allegro system::getenv #+clisp ext:getenv
-   #+lispworks lw:environment-variable
-   #+lucid lcl:environment-variable #+gcl si:getenv (string var)))
 
 (defun x-host-display (&optional (disp (getenv "DISPLAY")))
   "Parse the DISPLAY environment variable.
@@ -33,11 +26,5 @@ Return 3 values: host, server, screen."
   (multiple-value-bind (host di) (x-host-display)
     (xlib:open-display host :display di)))
 
-(eval-when (compile)
-  (compile-file (merge-pathnames "qix" *compile-file-pathname*))
-  (when (find-package "XPM")
-    (compile-file (merge-pathnames "sokoban" *compile-file-pathname*))))
-
-(load (merge-pathnames "qix" *load-pathname*))
-(when (find-package "XPM")
-  (load (merge-pathnames "sokoban" *load-pathname*)))
+(require "qix")
+(require "sokoban")
