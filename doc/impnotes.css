@@ -12,5 +12,9 @@ dd p { margin: 0pt; }
 /* mark sexps with color */
 .sexp { background-color: lightgray; color: darkblue; }
 
+/* mark types with color */
+.type, .classname, .superclass
+{ background-color: lightcyan; color: darkgreen; }
+
 /* no border for images */
 img { border-width: 0; }

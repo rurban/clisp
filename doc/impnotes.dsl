@@ -44,11 +44,13 @@
       ($italic-seq$)))
 
 (element literal
-  (if (equal? (normalize "sexp") (attribute-string (normalize "role")))
-      (make element gi: "TT"
-            attributes: (list (list "CLASS" (normalize "sexp")))
-            (process-children))
-      ($mono-seq$)))
+  (let ((role (attribute-string (normalize "role"))))
+    (case role
+      (("sexp" "type")
+       (make element gi: "TT" attributes: (list (list "CLASS" role))
+             (process-children)))
+      (else
+       ($mono-seq$)))))
 
 (element (varlistentry term)
   (make sequence
