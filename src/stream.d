@@ -14584,7 +14584,8 @@ LISPFUNN(socket_server_close,1) {
   value1 = NIL; mv_count=1;
 }
 
-extern SOCKET create_server_socket (host_data *hd, SOCKET sock, unsigned int port);
+extern SOCKET create_server_socket (host_data_t *hd, SOCKET sock,
+                                    unsigned int port);
 
 # (SOCKET-SERVER [port-or-sock])
 LISPFUN(socket_server,0,1,norest,nokey,0,NIL) {
@@ -14621,7 +14622,7 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL) {
 
  doit:
   var SOCKET sk;
-  var host_data myname;
+  var host_data_t myname;
   begin_system_call();
   sk = create_server_socket(&myname, sock, port);
   end_system_call();
@@ -15052,15 +15053,15 @@ LISPFUNN(socket_stream_host,1) {
   mv_count=1;
 }
 
-typedef host_data * host_data_fetcher (SOCKET, host_data *, bool);
-extern host_data_fetcher socket_getpeername, socket_getlocalname;
+typedef host_data_t * host_data_fetcher_t (SOCKET, host_data_t *, bool);
+extern host_data_fetcher_t socket_getpeername, socket_getlocalname;
 
-local void publish_host_data (host_data_fetcher* func) {
+local void publish_host_data (host_data_fetcher_t* func) {
   var bool resolve_p = (eq(NIL,STACK_0) || eq(unbound,STACK_0));
   skipSTACK(1);
   var object stream = test_socket_stream(popSTACK(),true);
   var SOCKET sk = SocketChannel(stream);
-  var host_data hd;
+  var host_data_t hd;
 
     begin_system_call();
     if ((*func)(sk,&hd,resolve_p) == NULL) { SOCK_error(); }
