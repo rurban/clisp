@@ -276,7 +276,7 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section id="constantp"><title>Function &constantp;.</title>
+<section id="constantp"><title>Function &constantp;</title>
 
 <para>Function &constantp; fully complies with &ansi-cl;.
 Additionally, some non-trivial forms are identified as constants, e.g.,
