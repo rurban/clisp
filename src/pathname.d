@@ -6291,7 +6291,7 @@ bool resolve_shell_shortcut(LPCSTR filename,
       CLSCTX_INPROC_SERVER, &IID_IShellLink, (LPVOID *) &psl);
   if (FAILED(hres)) return false;
   # Get a pointer to the IPersistFile interface.
-  hres = psl->lpVtbl->QueryInterface(psl, &IID_IPersistFile, &ppf);
+  hres = psl->lpVtbl->QueryInterface(psl, &IID_IPersistFile,(LPVOID *) &ppf);
   if (SUCCEEDED(hres)) {
     var WCHAR wsz[MAX_PATH];
     # Ensure that the string is Unicode.
@@ -6301,8 +6301,7 @@ bool resolve_shell_shortcut(LPCSTR filename,
     if (SUCCEEDED(hres)) {
       # Get the path to the link target.
       hres = psl->lpVtbl->GetPath(psl, resolved,
-               MAX_PATH, (WIN32_FIND_DATA *)&wfd,
-                      SLGP_RAWPATH );
+               MAX_PATH, (WIN32_FIND_DATA *)&wfd, 4 /* SLGP_RAWPATH */);
       if (SUCCEEDED(hres)) result = true;
       if (!*resolved) { # empty string. maybe broken link. try to get description
                         # as cygwin stores filenames there
@@ -6381,7 +6380,9 @@ int TrueName (LPCSTR namein, LPSTR nameout) {
     if (!*nameout) return 0;
     /* skip drive or host or first slash */
     nametocheck = nameout;
-    if (isalpha(*nametocheck) && nametocheck[1] == ':'
+    if ((*nametocheck >= 'a' && *nametocheck <= 'z'
+        || *nametocheck >= 'A' && *nametocheck <= 'Z')
+         && nametocheck[1] == ':'
          && (nametocheck[2] == '/' || nametocheck[2] == '\\'))
       /* drive */
       nametocheck += 3;
