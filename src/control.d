@@ -2335,22 +2335,15 @@ LISPSPECFORM(load_time_value, 1,1,nobody)
         env5->block_env = NIL;
         env5->go_env    = NIL;
         env5->decl_env  = O(top_decl_env);
-      } elif (simple_vector_p(env) && (Svector_length(env) == 5)) {
+      } else if (simple_vector_p(env) && (Svector_length(env) == 5)) {
         # ein Simple-Vector der Länge 5
         env5->var_env   = TheSvector(env)->data[0];
         env5->fun_env   = TheSvector(env)->data[1];
         env5->block_env = TheSvector(env)->data[2];
         env5->go_env    = TheSvector(env)->data[3];
         env5->decl_env  = TheSvector(env)->data[4];
-      } else {
-        pushSTACK(env); # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_svector5)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(env);
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: ~ may not be used as an environment")
-              );
-      }
+      } else
+        fehler_environment(env);
     }
 
 LISPFUN(evalhook,3,1,norest,nokey,0,NIL)
