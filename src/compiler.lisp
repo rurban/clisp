@@ -12310,22 +12310,54 @@ Die Funktion make-closure wird dazu vorausgesetzt.
          (c-report-problems)
          (c-reset-globals)))))
 
-(defun compile-file-pathname-helper
-    (file output-file
-     &aux (true-file (or (first (search-file file *source-file-types*))
-                         (merge-pathnames file (merge-pathnames
-                                                (car *source-file-types*))))))
-  (cond ((eq output-file t)
-         (values (merge-pathnames (car *compiled-file-types*) true-file)
-                 true-file))
-        ((null output-file)
-         (values nil true-file))
-        ((streamp output-file)
-         (values output-file true-file))
-        (t (values (merge-pathnames output-file
-                      (merge-pathnames (car *compiled-file-types*)
-                         (merge-pathnames file)))
-                   true-file))))
+;; Common part of COMPILE-FILE and COMPILE-FILE-PATHNAME.
+;; Returns two values:
+;; 1. the output file (pathname or stream or NIL),
+;; 2. the input file pathname.
+(defun compile-file-pathname-helper (file output-file)
+  (let ((input-file
+          (or (first (search-file file *source-file-types*))
+                     (merge-pathnames file (merge-pathnames '#".lisp")))))
+    (values
+      (if (or (null output-file) (streamp output-file))
+        output-file
+        (let ((tmp (merge-pathnames '#".fas" input-file)))
+          (if (eq output-file 'T)
+            tmp
+            ; Not (merge-pathnames output-file tmp) because that doesn't
+            ; do the right thing when output-file is a relative pathname
+            ; and either *merge-pathnames-ansi* is true or input-file is
+            ; absolute.
+            (let ((output-file (merge-pathnames output-file)))
+              (make-pathname :host (if (pathname-host output-file)
+                                     (pathname-host output-file)
+                                     (pathname-host tmp))
+                             :device (if (pathname-host output-file)
+                                       (pathname-device output-file)
+                                       (if (pathname-host tmp)
+                                         (pathname-device tmp)
+                                         (if (pathname-device output-file)
+                                           (pathname-device output-file)
+                                           (pathname-device tmp))))
+                             :directory (if (pathname-host output-file)
+                                          (pathname-directory output-file)
+                                          (if (pathname-host tmp)
+                                            (pathname-directory tmp)
+                                            (if (pathname-device output-file)
+                                              (pathname-directory output-file)
+                                              (if (pathname-device tmp)
+                                                (pathname-directory tmp)
+                                                (pathname-directory output-file)))))
+                             :name (or (pathname-name output-file)
+                                       (pathname-name tmp))
+                             :type (or (pathname-type output-file)
+                                       (pathname-type tmp))
+                             :version (or (pathname-version output-file)
+                                          (pathname-version tmp))
+            ) )
+      ) ) )
+      input-file
+) ) )
 
 ; Common-Lisp-Funktion COMPILE-FILE
 ; file          sollte ein Pathname/String/Symbol sein.
