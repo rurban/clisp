@@ -6483,11 +6483,24 @@ Input and Output</a>.
 <h4>lisp:make-encoding</h4>
 
 <p>The function <code>(<strong>lisp:make-encoding</strong> &amp;key
-                       :charset :line-terminator)</code>
+                       :charset :line-terminator
+                       :input-error-action :output-error-action)</code>
 returns an encoding. The <code>:charset</code> argument may be an
 encoding, a string, or <code>:default</code>.  The possible values for
 the <code>:line-terminator</code> argument are the keywords
 <code>:unix</code>, <code>:mac</code>, <code>:dos</code>.
+
+<p>The <code>:input-error-action</code> specifies what happens when an
+invalid byte sequence is encountered while converting bytes to characters.
+Its value can be <code>:error</code>, <code>:ignore</code> or a character
+to be used instead. The Unicode character #\uFFFD is typically used to
+indicate an error in the input sequence.
+
+<p>The <code>:output-error-action</code> specifies what happens when an
+invalid character is encountered while converting characters to bytes.
+Its value can be <code>:error</code>, <code>:ignore</code>, a byte to
+be used instead, or a character to be used instead. The Unicode character
+#\uFFFD can be used here only if it is encodable in the character set.
 
 <p>Encodings are types.  As such, they represent the set of characters
 encodable in the character set.  In this context, the way characters are

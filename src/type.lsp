@@ -847,7 +847,7 @@
         ))
         ((encodingp type)
          #+UNICODE
-           (case (sys::%record-ref type 1) ; encoding-charset
+           (case (sys::%record-ref type 3) ; encoding-charset
              ((charset:unicode-16-big-endian charset:unicode-16-little-endian
                charset:unicode-32-big-endian charset:unicode-32-little-endian
                charset:utf-8 charset:java)
@@ -1149,7 +1149,7 @@
               (charset-range (make-encoding :charset charset) (code-char 0) (code-char (1- char-code-limit)))
   ) )   )
   ; Return the character set of an encoding (a symbol or string).
-  (defun encoding-charset (encoding) (sys::%record-ref encoding 1))
+  (defun encoding-charset (encoding) (sys::%record-ref encoding 3))
   ; Fill the cache.
   (do-external-symbols (sym (find-package "CHARSET"))
     (get-charset-range (encoding-charset (symbol-value sym)))

@@ -88,6 +88,8 @@
     LISPOBJ(misc_encoding,".")
   #endif
   LISPOBJ(type_line_terminator,"(MEMBER :DEFAULT :UNIX :MAC :DOS)")
+  LISPOBJ(type_input_error_action,"(OR (MEMBER :ERROR :IGNORE) CHARACTER)")
+  LISPOBJ(type_output_error_action,"(OR (MEMBER :ERROR :IGNORE) CHARACTER (UNSIGNED-BYTE 8))")
 # zu CHARSTRG.D:
   # Bei Änderung der Character-Namen außer CONSTOBJ.D auch
   # CHARSTRG.D, FORMAT.LSP, IMPNOTES.HTML anpassen!
