@@ -387,7 +387,7 @@ she will get the output
   Only in &clisp; built &with; compile-time flag &unicode;.</term>
 <listitem><para>The following character sets are supported, as values
  of the corresponding (constant) symbol in the &charset-pac; package:
-<itemizedlist id="charset-symbol-list">
+<orderedlist id="charset-symbol-list">
  <title>Symbols in package &charset-pac;</title>
  <listitem id="charset-UCS-2"><simpara><literal>UCS-2</literal>
    = <literal>UNICODE-16</literal> = <literal>UNICODE-16-BIG-ENDIAN</literal>,
@@ -721,7 +721,7 @@ she will get the output
  <listitem id="charset-TCVN"><simpara><literal>TCVN</literal>,
    &ascii-iso-ext; Vietnamese. &charset-glibc-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
-</itemizedlist>
+</orderedlist>
 
 <!-- #ifdef /* HAVE_ICONV */ -->
 <variablelist>
