@@ -12,8 +12,89 @@
 /* ----------------------------------------------------------------------- */
 /* Top-Level-Loop */
 
-local Values read_form(void)
-{ /* (SYS::READ-FORM ostream istream prompt [commandlist])
+/* SYS::READ-FORM realizes the following features of the top-level REP loop
+   and of the debug REP loop:
+
+   - The prompt. When the input stream is interactive, a prompt is printed
+     that reminds the user that the system is expecting a Lisp form.
+     "> " or "1. Break> " or something like this.
+     When the input stream is not interactive, such as in "clisp < in.lisp",
+     no prompt is emitted, because these prompt would accumulate on standard
+     output, without being useful.
+     We use the criterion "interactive", not the criterion "output device =
+     input device", because in situations like "clisp | tee logfile", which
+     are interactive but with different devices for input and output, the
+     prompt is desirable.
+
+   - The continuation prompt [not yet implemented]. When the input stream is
+     interactive a short prompt is printed after each newline that reminds
+     the user if the reader is reading a string "..." or symbol |...| which
+     is not yet complete.
+
+   - The key/command bindings. The user can enter some special words like
+     "help", ":q", "continue", "abort", which are recognized as commands.
+     They can be given as argument or via SYS::*KEY-BINDINGS*. (The name of
+     this variable comes from the Atari ST time, when most of the commands
+     were accessible through function keys F1..F10.) Example:
+
+     [1]> (/ 0)
+
+     *** - division by zero
+     The following restarts are available:
+     ABORT          :R1      ABORT
+
+     Break 1 [2]> abort
+
+     [3]> 
+
+   - Support for paste: When a user pastes a couple of forms into the command
+     line, all are executed.
+
+     [1]> (setq x 3) (setq y 4) (setq z (sqrt (+ (* x x) (* y y))))
+     3
+     [2]> 
+     4
+     [3]> 
+     5
+     [4]> 
+
+   - Separation of form input and data input.
+
+     Form input is not mistakenly considered as data. Example:
+
+     [1]> (read-line) (cons 'a 'b)
+     data
+     "data" ;
+     NIL
+     [2]> 
+     (A . B)
+     [3]> 
+
+     *not*
+
+     [1]> (read-line) (cons 'a 'b)
+     "(cons 'a 'b)" ;
+     NIL
+     [2]> 
+
+     Data input is not mistakenly considered as forms. Example:
+
+     [1]> (read-char)
+     abcdef
+     #\a
+     [2]> 
+
+     *not*
+
+     [1]> (read-char)
+     abcdef
+     #\a
+     [2]> 
+     *** - EVAL: variable BCDEF has no value
+
+*/
+
+/* (SYS::READ-FORM ostream istream prompt [commandlist])
  read one form (interactively) from the input stream.
  instead of the form, we also recognize special commands from commandlist
  (a fresh alist) or SYS::*KEY-BINDINGS*
@@ -22,7 +103,9 @@ local Values read_form(void)
  < STACK_1: Output-Stream *standard-output*
  < STACK_0: Input-Stream *standard-input*
  < mv_space/mv_count: value = form, NIL or (on EOF) T, T
- can trigger GC
+ can trigger GC */
+local Values read_form(void)
+{ /*
  (defun read-form (ostream istream prompt &optional (command-list nil))
    (loop
      (let ((raw (terminal-raw istream nil)))
