@@ -10912,11 +10912,11 @@ local void wr_ch_array_window (const gcv_object_t* stream_, const gcv_object_t* 
     chart_str[strindex] = as_chart(0);
   });
  #ifdef UNICODE
-  var char *mb_str = (char*)malloc((len + 1)*sizeof(char)*max_bytes_per_chart);
+  var uintB *mb_str = (char*)malloc((len + 1)*sizeof(char)*max_bytes_per_chart);
   if (mb_str) {
     var object encoding = TheStream(*stream_)->strm_encoding;
     var const chart* cptr = chart_str;
-    var char * bptr       = mb_str;
+    var uintB * bptr      = mb_str;
     memset(mb_str, 0, (len + 1)*sizeof(char)*max_bytes_per_chart);
     Encoding_wcstombs(encoding)
       (encoding,*stream_,&cptr,chart_str+strindex,
