@@ -14,6 +14,12 @@ dd p { margin: 0pt; }
 /* mark sexps with color */
 .sexp { background-color: lightgray; color: darkblue; }
 
+/* literal data */
+.data { background-color: lightblue; color: darkred; }
+
+/* bytecode instructions */
+.byte { background-color: lightgray; color: darkred; }
+
 /* mark types with color */
 .type, .classname, .superclass
 { background-color: lightcyan; color: darkgreen; }

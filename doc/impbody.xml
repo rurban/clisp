@@ -212,9 +212,8 @@ ignored by the interpreter.</para>
 
 <section id="compile-decl"><title>Additional declarations</title>
 
-<para>The declaration <literal role="sexp">(COMPILE)</literal> has the
- effect that the current form is compiled prior to execution.
- Examples:
+<para>The declaration &compile-decl; has the effect that the current
+ form is compiled prior to execution.  Examples:
 <programlisting>
  (&locally; (&declare; (compile)) &form-r;)
 </programlisting>
@@ -1866,25 +1865,25 @@ performance considerations.
        <row><entry>&super-k;</entry><entry>&ch-super;</entry></row>
        <row><entry>&hyper-k;</entry><entry>&ch-hyper;</entry></row>
  </tbody></tgroup></informaltable></para></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(<function>ext:char-font</function>
+ <varlistentry><term><literal role="sexp">(<function>EXT:CHAR-FONT</function>
   &object-r;)</literal> </term>
  <listitem><simpara>returns the font of a &character-t; or &input-char;.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(<function>ext:char-bits</function>
+ <varlistentry><term><literal role="sexp">(<function>EXT:CHAR-BITS</function>
   &object-r;)</literal> </term>
  <listitem><simpara>returns the bits of a &character-t; or &input-char;.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(<function>ext:make-char</function>
+ <varlistentry><term><literal role="sexp">(<function>EXT:MAKE-CHAR</function>
   &ch-r; [<replaceable>bits</replaceable>
             [<replaceable>font</replaceable>]])</literal></term>
  <listitem><simpara>returns a new &input-char;, or &nil; if such a
  character cannot be created.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(<function>ext:char-bit</function>
+ <varlistentry><term><literal role="sexp">(<function>EXT:CHAR-BIT</function>
   &object-r; &name-r;)</literal></term>
  <listitem><simpara>returns &t; if the named bit is set in &object-r;,
   else &nil;.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>ext:set-char-bit</function>
+   role="sexp">(<function>EXT:SET-CHAR-BIT</function>
   &object-r; &name-r; <replaceable>newvalue</replaceable>)</literal></term>
  <listitem><simpara>returns a new &input-char; with the named bit set or
   unset, depending on the boolean <replaceable>newvalue</replaceable>.
@@ -2508,7 +2507,7 @@ printed readably.</para>
 <para>Function &hash-table-test; returns either one of the four standard
  symbols &eq;, &eql;, &equal;, &equalp;, or, for &hash-table-t;s
  created with a user-defined &hash-table-test; (see macro &defhash;),
- a &cons-t; cell <literal role="sexp">(&test-f; . &hash-f;)</literal>.</para>
+ a &cons-t; cell <literal role="data">(&test-f; . &hash-f;)</literal>.</para>
 </section>
 
 <section id="dohash"><title>Macro &dohash;</title>
@@ -2567,10 +2566,10 @@ printed readably.</para>
   translate into the appropriate platform-specific representation,
   so that on &cygwin;,
   <literal role="sexp">(&parse-namestring; "c:/gnu/clisp/")</literal>
-  returns <literal role="sexp">#P"/cygdrive/c/gnu/clisp/"</literal>,
+  returns <filename>#P"/cygdrive/c/gnu/clisp/"</filename>,
   while on &win32;
   <literal role="sexp">(&parse-namestring; "/cygdrive/c/gnu/clisp/")</literal>
-  returns <literal role="sexp">#P"C:/gnu/clisp/"</literal>.
+  returns <filename>#P"C:/gnu/clisp/"</filename>.
   The initial value is <literal>"cygdrive"</literal>, you should edit
   &config-file; to change it.</simpara></listitem></varlistentry>
 <!-- #endif -->
@@ -3025,7 +3024,7 @@ is not a defined logical host yet, we proceed as follows:
   If the <constant>:FULL</constant> argument is non-&nil;,
   additional information is returned: for each matching file you get a
   list of at least four elements <literal
-  role="sexp">(<replaceable>file-pathname</replaceable>
+  role="data">(<replaceable>file-pathname</replaceable>
   <replaceable>file-truename</replaceable>
   <replaceable>file-write-date-as-decoded-time</replaceable>
   <replaceable>file-length</replaceable>)</literal>.</simpara></listitem>
@@ -3713,9 +3712,9 @@ functions are provided:
 
 <para>When &print-readably-var; is true, other vectors are written as
  follows: if the &array-element-type; is &t-t;, the syntax <literal
- role="sexp">#(<replaceable>x<subscript>0</subscript></replaceable>
+ role="data">#(<replaceable>x<subscript>0</subscript></replaceable>
  ... <replaceable>x<subscript>n-1</subscript></replaceable>)</literal>
- is used.  Otherwise, the syntax <literal role="sexp">#A(&eltype-r;
+ is used.  Otherwise, the syntax <literal role="data">#A(&eltype-r;
  &dimensions-r; &cont-r;)</literal> is used.</para>
 
 </section>
@@ -3725,8 +3724,8 @@ functions are provided:
 
 <para>When &print-readably-var; is true, other arrays are written as
  follows: if the &array-element-type; is &t-t;, the syntax <literal
- role="sexp">#<replaceable>rank</replaceable>A &cont-r;</literal> is
- used.  Otherwise, the syntax <literal role="sexp">#A(&eltype-r;
+ role="data">#<replaceable>rank</replaceable>A &cont-r;</literal> is
+ used.  Otherwise, the syntax <literal role="data">#A(&eltype-r;
  &dimensions-r; &cont-r;)</literal> is used.</para>
 
 </section>
@@ -4001,9 +4000,8 @@ functions are provided:
           >[CLHS-24.2]</ulink></title>
 
 <para>The compiler can be called not only by the functions &compile;,
- &compile-file; and &disassemble;, but also by the declaration <link
- linkend="compile-decl"><literal
- role="sexp">(compile)</literal></link>.</para>
+ &compile-file; and &disassemble;, but also by the declaration
+ &compile-decl;.</para>
 
 <section id="compilefile"><title>Function &compile-file;</title>
 
@@ -4157,9 +4155,9 @@ effects when being loaded, this is important as well.
  <varlistentry><term>&extra-file-types-k; &list-t;</term>
   <listitem><simpara>Specifies the additional file types considered for
   loading, in addition to <firstterm>&source-types;</firstterm>
-  (which is initially <literal role="sexp">("lisp" "lsp" "cl")</literal>)
+  (which is initially <literal role="data">("lisp" "lsp" "cl")</literal>)
   and <firstterm>&compiled-types;</firstterm>
-  (which is initially <literal role="sexp">("fas")</literal>).
+  (which is initially <literal role="data">("fas")</literal>).
   </simpara><simpara>When &filename-r; does not spefify a unique file
   (e.g., &filename-r; is &foo-f; and both &foolisp-f;
   and <filename>#P&quot;foo.fas&quot;</filename> are found in the
