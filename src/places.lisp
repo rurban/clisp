@@ -547,30 +547,46 @@
     (declare (ignore optinits optsvars))
     (let ((varlist (append reqvars optvars))
           (restvar (if (not (eql rest 0)) rest nil)))
-      `(DEFMACRO ,name (%REFERENCE ,@lambdalist &ENVIRONMENT ENV) ,docstring
+      `(DEFMACRO ,name (PLACE ,@lambdalist &ENVIRONMENT ENV) ,docstring
          (MULTIPLE-VALUE-BIND (DUMMIES VALS NEWVAL SETTER GETTER)
-             (GET-SETF-METHOD %REFERENCE ENV)
-           (DO ((D DUMMIES (CDR D))
-                (V VALS (CDR V))
-                (LET-LIST NIL (CONS (LIST (CAR D) (CAR V)) LET-LIST)))
-               ((NULL D)
-                (LET ((FUNCTION-APPLICATION
-                        (LIST* ',function GETTER ,@varlist ,restvar)))
-                  (WHEN (SYMBOLP GETTER)
-                    (RETURN
-                      (SUBST FUNCTION-APPLICATION (CAR NEWVAL) SETTER)
-                  ) )
-                  (PUSH
-                    (LIST
-                      (CAR NEWVAL)
-                      (IF (AND (LISTP %REFERENCE) (EQ (CAR %REFERENCE) 'THE))
-                        (LIST 'THE (CADR %REFERENCE) FUNCTION-APPLICATION)
-                        FUNCTION-APPLICATION
-                    ) )
-                    LET-LIST
-                  )
-                  (LIST 'LET* (NREVERSE LET-LIST) SETTER)
-       ) ) )   ))
+             (GET-SETF-METHOD PLACE ENV)
+           ;; ANSI CL 5.1.3. mandates the following evaluation order:
+           ;; First the VALS, then the varlist and restvar, then the GETTER,
+           ;; then the SETTER form.
+           (LET ((LET-LIST (MAPCAR #'LIST DUMMIES VALS)))
+             (IF (AND ,@(mapcar #'(lambda (var) `(CONSTANTP ,var)) varlist)
+                      ,@(when restvar `((EVERY #'CONSTANTP ,restvar))))
+               ;; The varlist and restvar forms are constant forms, therefore
+               ;; may be evaluated after the GETTER instead of before.
+               (LET ((FUNCTION-APPLICATION
+                       (LIST* ',function GETTER ,@varlist ,restvar)))
+                 (IF (SIMPLE-ASSIGNMENT-P SETTER NEWVAL)
+                   (IF (NULL LET-LIST)
+                     (SUBST FUNCTION-APPLICATION (CAR NEWVAL) SETTER)
+                     (LIST 'LET*
+                       LET-LIST
+                       (SUBST FUNCTION-APPLICATION (CAR NEWVAL) SETTER)))
+                   (LIST 'LET*
+                     (NCONC LET-LIST
+                            (LIST (LIST (CAR NEWVAL) FUNCTION-APPLICATION)))
+                     SETTER)))
+               ;; General case.
+               (LET* ((ARGVARS
+                        (MAPCAR #'(LAMBDA (VAR) (DECLARE (IGNORE VAR)) (GENSYM))
+                                (LIST* ,@varlist ,restvar)))
+                      (FUNCTION-APPLICATION
+                        (LIST* ',function GETTER ARGVARS)))
+                 (IF (SIMPLE-ASSIGNMENT-P SETTER NEWVAL)
+                   (LIST 'LET*
+                     (NCONC LET-LIST
+                            (MAPCAR #'LIST ARGVARS (LIST* ,@varlist ,restvar)))
+                     (SUBST FUNCTION-APPLICATION (CAR NEWVAL) SETTER))
+                   (LIST 'LET*
+                     (NCONC LET-LIST
+                            (MAPCAR #'LIST ARGVARS (LIST* ,@varlist ,restvar))
+                            (LIST (LIST (CAR NEWVAL) FUNCTION-APPLICATION)))
+                     SETTER)))
+       ) ) ) )
 ) ) )
 ;;;----------------------------------------------------------------------------
 (define-modify-macro decf (&optional (delta 1)) -)
