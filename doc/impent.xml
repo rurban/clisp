@@ -282,6 +282,7 @@
 <!ENTITY sost-port "<link linkend='sost-hopo'><function>SOCKET:SOCKET-STREAM-PORT</function></link>">
 <!ENTITY sost-shut "<link linkend='sost-shut'><function>SOCKET:SOCKET-STREAM-SHUTDOWN</function></link>">
 <!ENTITY source-types "<link linkend='loadfile'><varname>CUSTOM:*SOURCE-FILE-TYPES*</varname></link>">
+<!ENTITY spacecharprint "<link linkend='spacecharprint'><varname>CUSTOM:*PRINT-SPACE-CHAR-ANSI*</varname></link>">
 <!ENTITY spe-var-p "<link linkend='spe-var-p'><function>EXT:SPECIAL-VARIABLE-P</function></link>">
 <!ENTITY st-lc "<link linkend='st-lc'><function>GRAY:STREAM-LINE-COLUMN</function></link>">
 <!ENTITY st-rb "<link linkend='st-rb'><function>GRAY:STREAM-READ-BYTE</function></link>">
