@@ -199,7 +199,7 @@ extern void rl_digit_loop RL((void));
 extern void rl_reset_terminal RL((char *terminal_name));
 extern void _rl_set_screen_size RL((int tty, int ignore_env));
 extern void init_terminal_io RL((char *terminal_name));
-extern void _rl_output_character_function RL((int c));
+extern int _rl_output_character_function RL((int c));
 extern void _rl_output_some_chars RL((char* string, int count));
 extern void backspace RL((int count));
 extern void cr RL((void));

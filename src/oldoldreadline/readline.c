@@ -89,11 +89,8 @@ extern int errno;
 
 #define digit_value(c) ((c) - '0')
 
-#ifdef MINIMAL
 #ifdef __GO32__
 #include <pc.h>
-#endif
-#undef HANDLE_SIGNALS
 #endif
 
 /* Forward declarations */
@@ -1367,11 +1364,11 @@ init_terminal_io (terminal_name)
 }
 
 /* A function for the use of tputs () */
-void
+int
 _rl_output_character_function (c)
      int c;
 {
-  putc (c, out_stream);
+  return putc (c, out_stream);
 }
 
 /* Write COUNT characters from STRING to the output stream. */
