@@ -1,5 +1,10 @@
 2004-03-14  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (LIBICONV, LIBINTL, LIBSIGSEGV, LIBTERMCAP): On OSF/1,
+	remove any -lc options. Needed for OSF/1 4.0d.
+
+2004-03-14  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (distmakefile): Escape commas in $libs for use on the
 	right-hand side of a sed expression.
 	(distrib): Likewise for $full_libs.
