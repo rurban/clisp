@@ -25,10 +25,18 @@ some platforms can be found in file unix/PLATFORMS.
 
 2. (Recommended)
    Install a few libraries on which CLISP relies:
-   - GNU libsigsegv (highly recommended for C stack overflow detection),
-   - GNU libiconv (not needed on systems with glibc 2.2 or newer),
-   - GNU readline (if you want terminal command line editing),
-   - GNU gettext (if you want to use i18n).
+   - GNU libsigsegv (highly recommended for C stack overflow detection)
+      <ftp://ftp.gnu.org/pub/gnu/libsigsegv/>
+      <http://sourceforge.net/projects/libsigsegv/>
+   - GNU libiconv (not needed on systems with glibc 2.2 or newer)
+      <ftp://ftp.gnu.org:/pub/gnu/libiconv/>
+      <http://sourceforge.net/projects/libiconv/>
+   - GNU readline (if you want terminal command line editing)
+      <ftp://ftp.gnu.org:/pub/gnu/readline/>
+      <http://cnswww.cns.cwru.edu/~chet/readline/rltop.html>
+   - GNU gettext (if you want to use i18n)
+      <ftp://ftp.gnu.org:/pub/gnu/gettext/>
+      <http://www.gnu.org/software/gettext/>
 
 3. Choose the name of a directory in which to build CLISP.
    (This allows you to build CLISP with different compilers on the same
@@ -149,7 +157,7 @@ some platforms can be found in file unix/PLATFORMS.
    To do this, make sure you have executed step 7 above, adjust the definitions
    of ROFF_MAN, PACK, PACKOPT, PACKEXT in the makefile, then type
 
-          make distrib
+         make distrib
 
    to create a binary distribution in a clisp-*.tar.gz file.
    Tell us about your success, and make that file available to us.
@@ -160,6 +168,16 @@ some platforms can be found in file unix/PLATFORMS.
 11. The last thing to do:
 
          cd ..
+
+12. If you are lazy and have too few spare neurons to remember this long
+    process, just use the shortcut, like I do:
+
+         ./configure --with-export-syscalls --with-module=regexp \
+             --build build-dif
+
+    this covers the build process through step 8.
+    You will need to become root to do the install.
+
 
 Authors:
 --------
