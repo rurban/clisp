@@ -1,3 +1,9 @@
+2002-10-25  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (coerce_function): use fehler_function()
+	* sequence.d (seq_boolop): ditto
+	* symbol.d (%PUTD): ditto
+
 2002-10-23  Sam Steingold  <sds@gnu.org>
 
 	* loop.lisp (expand-loop): separated `startup-code' from
