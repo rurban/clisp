@@ -1820,7 +1820,8 @@ global object get_current_package (void) {
  test_package_arg(obj)
  > obj: argument
  > subr_self: caller (a SUBR)
- < result: argument turned into a package */
+ < result: argument turned into a package
+ can trigger GC */
 local object test_package_arg (object obj) {
   if (packagep(obj)) { /* package -> mostly OK */
     if (!pack_deletedp(obj))
@@ -1841,6 +1842,13 @@ local object test_package_arg (object obj) {
   if (symbolp(obj)) { /* symbol -> */
     obj = Symbol_name(obj); goto string; /* use print name */
   }
+  if (charp(obj)) { /* character -> */
+    pushSTACK(obj);
+    { var object new_string = allocate_string(1);
+      TheSstring(new_string)->data[0] = char_code(STACK_0);
+      obj = new_string; }
+    skipSTACK(1); goto string;
+  }
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_packname)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -1857,12 +1865,20 @@ LISPFUNN(make_symbol,1) { /* (MAKE-SYMBOL printname), CLTL p. 168 */
 /* UP: checks a string/symbol-argument
  > obj: argument
  > subr_self: caller (a SUBR)
- < result: argument as string */
+ < result: argument as string
+ can trigger GC */
 local object test_stringsym_arg (object obj) {
   if (stringp(obj)) /* String: return unchanged */
     return obj;
   if (symbolp(obj)) /* symbol: use print name */
     return TheSymbol(obj)->pname;
+  if (charp(obj)) { /* character: singleton string */
+    pushSTACK(obj);
+    { var object new_string = allocate_string(1);
+      TheSstring(new_string)->data[0] = char_code(STACK_0);
+      obj = new_string; }
+    skipSTACK(1); return obj;
+  }
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_stringsym)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -2012,21 +2028,22 @@ LISPFUNN(package_lock,1) {
 
 /* (SYSTEM::%SET-PACKAGE-LOCK package lock) */
 LISPFUNN(set_package_lock,2) {
-  var object lock_p = popSTACK();
-  var object pack = popSTACK();
+  var bool unlock_p = nullp(popSTACK());
+  var object pack = STACK_0;
   if (mconsp(pack)) {
-    while (mconsp(pack)) {
-      var object pa = test_package_arg(Car(pack)); pack = Cdr(pack);
-      if (nullp(lock_p)) mark_pack_unlocked(pa);
-      else                mark_pack_locked(pa);
+    while (mconsp(STACK_0)) {
+      var object pa = test_package_arg(Car(STACK_0)); STACK_0 = Cdr(STACK_0);
+      if (unlock_p) mark_pack_unlocked(pa);
+      else          mark_pack_locked(pa);
     }
   } else if (nullp(pack)) { /* do nothing - package list was empty */
   } else {
     pack = test_package_arg(pack);
-    if (nullp(lock_p)) mark_pack_unlocked(pack);
-    else                mark_pack_locked(pack);
+    if (unlock_p) mark_pack_unlocked(pack);
+    else          mark_pack_locked(pack);
   }
-  VALUES_IF(! nullp(lock_p));
+  skipSTACK(1);
+  VALUES_IF(!unlock_p);
 }
 
 /* barf when SYMBOL is an unaccessible special variable
@@ -2080,7 +2097,8 @@ LISPFUNN(list_all_packages,0) {
  test_optional_package_arg()
  > STACK_0: last argument
  > subr_self: caller (a SUBR)
- < STACK_0: argument transformed into a package */
+ < STACK_0: argument transformed into a package
+ can trigger GC */
 local void test_optional_package_arg (void) {
   var object pack = STACK_0;
   if (!boundp(pack)) {
@@ -2092,7 +2110,8 @@ local void test_optional_package_arg (void) {
 
 /* UP: Check of the arguments of INTERN and FIND-SYMBOL.
  test_intern_args()
- > subr_self: caller (a SUBR) */
+ > subr_self: caller (a SUBR)
+ can trigger GC */
 local void test_intern_args (void) {
   /* test string: */
   if (!stringp(STACK_1))
@@ -2482,6 +2501,12 @@ LISPFUNN(delete_package,1) {
     pack = found;
   } else if (symbolp(pack)) { /* symbol -> */
     pack = Symbol_name(pack); goto string; /* use printname */
+  } else if (charp(pack)) { /* character -> */
+    pushSTACK(pack);
+    { var object new_string = allocate_string(1);
+      TheSstring(new_string)->data[0] = char_code(STACK_0);
+      pack = new_string; }
+    skipSTACK(1); goto string;
   } else {
     pack = test_package_arg(pack); /* report error */
   }

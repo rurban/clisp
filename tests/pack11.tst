@@ -50,6 +50,10 @@ T
 (package-name "SYS")
 "SYSTEM"
 
+(let ((p (make-package #\p)))
+  (prog1 (eq p (find-package #\p))
+    (delete-package p)))
+t
 
 ;;; 11.7 anlegen von paketen, export import ...
 
