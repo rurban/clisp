@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>clisp</title><link rel="stylesheet" href="impnotes.css" type="text/css" /><link rev="made" href="mailto:clisp-list@sf.net" /><meta name="generator" content="DocBook XSL Stylesheets V1.67.0" /></head><body><div class="refentry" lang="en" xml:lang="en"><a id="clisp"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>clisp — ANSI Common Lisp compiler, interpreter and debugger.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">clisp</code>  [[<code class="option"><a href="#opt-help">-h</a></code>] |  [<code class="option"><a href="#opt-help">--help</a></code>]] [<code class="option"><a href="#opt-version">--version</a></code>] [<code class="option"><a href="#opt-license">--license</a></code>] [<code class="option"><a href="#opt-libdir">-B <em class="replaceable"><code>lisp-lib-dir</code></em></a></code>]
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>clisp</title><link rel="stylesheet" href="impnotes.css" type="text/css" /><link rev="made" href="mailto:clisp-list@sf.net" /><meta name="generator" content="DocBook XSL Stylesheets V1.68.0" /></head><body><div class="refentry" lang="en" xml:lang="en"><a id="clisp"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>clisp — ANSI Common Lisp compiler, interpreter and debugger.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">clisp</code>  [[<code class="option"><a href="#opt-help">-h</a></code>] |  [<code class="option"><a href="#opt-help">--help</a></code>]] [<code class="option"><a href="#opt-version">--version</a></code>] [<code class="option"><a href="#opt-license">--license</a></code>] [<code class="option"><a href="#opt-libdir">-B <em class="replaceable"><code>lisp-lib-dir</code></em></a></code>]
 #ifdef UNIX
 [<code class="option"><a href="#opt-link-set">-K
    <em class="replaceable"><code>linking-set</code></em></a></code>]
@@ -12,7 +12,7 @@
 [<code class="option"><a href="#opt-tempdir">-t
    <em class="replaceable"><code>temp-dir</code></em></a></code>]
 #endif
- [<code class="option"><a href="#opt-lang">-L <em class="replaceable"><code>language</code></em></a></code>] [<code class="option"><a href="#opt-locale">-N <em class="replaceable"><code>locale-dir</code></em></a></code>] [<code class="option"><a href="#opt-enc">-E<em class="replaceable"><code>domain</code></em> <em class="replaceable"><code>encoding</code></em></a></code>] [[<code class="option"><a href="#opt-verbose">-q</a></code>] |  [<code class="option"><a href="#opt-verbose">--quiet</a></code>] |  [<code class="option"><a href="#opt-verbose">--silent</a></code>] |  [<code class="option"><a href="clisp.html#opt-verbose" class="olink">-v</a></code>] |  [<code class="option"><a href="#opt-verbose">--verbose</a></code>]] [<code class="option"><a href="#opt-interactive-debug">-interactive-debug</a></code>] [<code class="option"><a href="#opt-repl">-repl</a></code>] [<code class="option"><a href="#opt-wait">-w</a></code>] [<code class="option"><a href="#opt-ilisp">-I</a></code>] [[<code class="option"><a href="#opt-ansi">-ansi</a></code>] |  [<code class="option"><a href="#opt-traditional">-traditional</a></code>]] [<code class="option"><a href="#opt-pack">-p <em class="replaceable"><code>package</code></em></a></code>] [<code class="option"><a href="clisp.html#opt-load-comp" class="olink">-C</a></code>] [<code class="option"><a href="#opt-norc">-norc</a></code>] [<code class="option"><a href="#opt-init">-i
+ [<code class="option"><a href="#opt-lang">-L <em class="replaceable"><code>language</code></em></a></code>] [<code class="option"><a href="#opt-locale">-N <em class="replaceable"><code>locale-dir</code></em></a></code>] [<code class="option"><a href="#opt-enc">-E<em class="replaceable"><code>domain</code></em> <em class="replaceable"><code>encoding</code></em></a></code>] [[<code class="option"><a href="#opt-verbose">-q</a></code>] |  [<code class="option"><a href="#opt-verbose">--quiet</a></code>] |  [<code class="option"><a href="#opt-verbose">--silent</a></code>] |  [<code class="option"><a href="clisp.html#opt-verbose" class="olink">-v</a></code>] |  [<code class="option"><a href="#opt-verbose">--verbose</a></code>]] [<code class="option"><a href="#opt-interactive-debug">-interactive-debug</a></code>] [<code class="option"><a href="#opt-repl">-repl</a></code>] [<code class="option"><a href="#opt-wait">-w</a></code>] [<code class="option"><a href="#opt-ilisp">-I</a></code>] [[<code class="option"><a href="#opt-ansi">-ansi</a></code>] |  [<code class="option"><a href="#opt-traditional">-traditional</a></code>]] [<code class="option"><a href="#opt-modern">-modern</a></code>] [<code class="option"><a href="#opt-pack">-p <em class="replaceable"><code>package</code></em></a></code>] [<code class="option"><a href="clisp.html#opt-load-comp" class="olink">-C</a></code>] [<code class="option"><a href="#opt-norc">-norc</a></code>] [<code class="option"><a href="#opt-init">-i
    <em class="replaceable"><code>init-file</code></em></a></code>...] [<code class="option"><a href="#opt-compile">-c</a></code>
   [<code class="option"><a href="#opt-list">-l</a></code>] <em class="replaceable"><code>lisp-file</code></em>
   [<code class="option"><a href="#opt-out">-o</a>
@@ -134,18 +134,18 @@ compiles the specified lisp files to a platform-independent
    only <span><strong class="command">english</strong></span>.
 
 #else
-   one of <span class="simplelist"><span><strong class="command">english</strong></span>, <span><strong class="command">german</strong></span>, <span><strong class="command">french</strong></span>, <span><strong class="command">spanish</strong></span>, <span><strong class="command">dutch</strong></span>, <span><strong class="command">russian</strong></span></span>.
+   one of <span class="simplelist"><span><strong class="command">english</strong></span>, <span><strong class="command">german</strong></span>, <span><strong class="command">french</strong></span>, <span><strong class="command">spanish</strong></span>, <span><strong class="command">dutch</strong></span>, <span><strong class="command">russian</strong></span>, </span>.
    Other languages may be specified through the <a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html" target="_top">environment variable</a>
    <code class="envar">LANG</code>,
    provided the corresponding message catalog is installed.
 
 #endif
 
-   The language may be changed dynamically using the symbol macro
+   The language may be changed dynamically using the <a href="http://www.lisp.org/HyperSpec/Body/mac_define-symbol-macro.html" target="_top"><code class="classname">SYMBOL-MACRO</code></a>
    <a href="impnotes.html#language" class="olink"><code class="varname">CUSTOM:*CURRENT-LANGUAGE*</code></a>.</p></dd><dt><a id="opt-locale"></a><code class="option">-N</code> <em class="replaceable"><code>locale-dir</code></em></dt><dd>Specifies the base directory of locale files.
   <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> will search its message catalogs in
   <code class="filename"><em class="replaceable"><code>locale-dir</code></em>/<em class="replaceable"><code>language</code></em>/LC_MESSAGES/clisp.mo</code>.
-  This directory may be changed dynamically using the symbol macro
+  This directory may be changed dynamically using the <a href="http://www.lisp.org/HyperSpec/Body/mac_define-symbol-macro.html" target="_top"><code class="classname">SYMBOL-MACRO</code></a>
   <a href="impnotes.html#language" class="olink"><code class="varname">CUSTOM:*CURRENT-LANGUAGE*</code></a>.</dd><dt><a id="opt-enc"></a><code class="option">-E</code><em class="replaceable"><code>domain</code></em> <em class="replaceable"><code>encoding</code></em></dt><dd><p>Specifies the encoding used for the given domain,
    overriding the default which depends on the <a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap08.html" target="_top">environment variable</a>s
    <code class="envar">LC_ALL</code>, <code class="envar">LC_CTYPE</code>, <code class="envar">LANG</code>.
@@ -173,16 +173,15 @@ compiles the specified lisp files to a platform-independent
  <code class="option">-q -q -v -v -v</code> is equivalent to <code class="option">-v</code>.
 </dd><dt><a id="opt-interactive-debug"></a><code class="option">-interactive-debug</code></dt><dd>Override the batch mode imposed by
    <code class="option"><a href="#opt-compile">-c</a></code>, <code class="option"><a href="#opt-exec-expr">-x</a></code>, and <a href="#opt-exec-file"><em class="replaceable"><code>lisp-file</code></em></a>:
-   <a href="http://www.lisp.org/HyperSpec/Body/glo_c.html#continuable" target="_top">continuable</a> <a href="http://www.lisp.org/HyperSpec/Body/contyp_error.html" target="_top"><code class="classname">ERROR</code></a>s are still turned into <a href="http://www.lisp.org/HyperSpec/Body/contyp_warning.html" target="_top"><code class="classname">WARNING</code></a>s (and, in case of
-   <a href="http://www.lisp.org/HyperSpec/Body/mac_assert.html" target="_top"><code class="function">ASSERT</code></a>, you are immeditely asked for new values), but other
-   <a href="http://www.lisp.org/HyperSpec/Body/contyp_error.html" target="_top"><code class="classname">ERROR</code></a>s are handled interactively.
+   <a href="http://www.lisp.org/HyperSpec/Body/glo_c.html#continuable" target="_top">continuable</a> <a href="http://www.lisp.org/HyperSpec/Body/contyp_error.html" target="_top"><code class="classname">ERROR</code></a>s are still turned into <a href="http://www.lisp.org/HyperSpec/Body/contyp_warning.html" target="_top"><code class="classname">WARNING</code></a>s,
+   but other <a href="http://www.lisp.org/HyperSpec/Body/contyp_error.html" target="_top"><code class="classname">ERROR</code></a>s are handled interactively.
 </dd><dt><a id="opt-repl"></a><code class="option">-repl</code></dt><dd>Start an interactive <a href="http://www.lisp.org/HyperSpec/Body/sec_25-1-1.html" target="_top">read-eval-print loop</a> after processing the
    <code class="option"><a href="#opt-compile">-c</a></code>, <code class="option"><a href="#opt-exec-expr">-x</a></code>, and <a href="#opt-exec-file"><em class="replaceable"><code>lisp-file</code></em></a>
    options and on any <a href="http://www.lisp.org/HyperSpec/Body/contyp_error.html" target="_top"><code class="classname">ERROR</code></a> <a href="http://www.lisp.org/HyperSpec/Body/fun_signal.html" target="_top"><code class="function">SIGNAL</code></a>ed during that processing.
 </dd><dt><a id="opt-wait"></a><code class="option">-w</code></dt><dd>Wait for a keypress after program termination.
-</dd><dt><a id="opt-ilisp"></a><code class="option">-I</code></dt><dd>Be <a href="http://ilisp.cons.org/" target="_top">ILISP</a>-friendly.
-   <a href="http://ilisp.cons.org/" target="_top">ILISP</a> is an alternative <a href="http://www.gnu.org/software/emacs/" target="_top">Emacs</a> interface to <a href="http://www.lisp.org" target="_top"><span><strong class="command">Common Lisp</strong></span></a> systems.
-   With this option, <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> interacts in a way that <a href="http://ilisp.cons.org/" target="_top">ILISP</a> can deal with.
+</dd><dt><a id="opt-ilisp"></a><code class="option">-I</code></dt><dd>Be <a href="http://sourceforge.net/projects/ilisp/" target="_top">ILISP</a>-friendly.
+   <a href="http://sourceforge.net/projects/ilisp/" target="_top">ILISP</a> is an alternative <a href="http://www.gnu.org/software/emacs/" target="_top">Emacs</a> interface to <a href="http://www.lisp.org" target="_top"><span><strong class="command">Common Lisp</strong></span></a> systems.
+   With this option, <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> interacts in a way that <a href="http://sourceforge.net/projects/ilisp/" target="_top">ILISP</a> can deal with.
    Currently the only effect of this is that unnecessary prompts are
    not suppressed.
 
@@ -196,11 +195,16 @@ compiles the specified lisp files to a platform-independent
 
 </dd><dt><a id="opt-ansi"></a><code class="option">-ansi</code></dt><dd>Comply with the [<span class="citation"><a href="#ansi-cl">ANSI CL standard</a></span>] specification
    even where <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> has been traditionally different.
-   It sets the symbol macro <a href="impnotes.html#ansi" class="olink"><code class="varname">CUSTOM:*ANSI*</code></a> to <a href="http://www.lisp.org/HyperSpec/Body/convar_t.html" target="_top"><code class="constant">T</code></a>.
+   It sets the <a href="http://www.lisp.org/HyperSpec/Body/mac_define-symbol-macro.html" target="_top"><code class="classname">SYMBOL-MACRO</code></a> <a href="impnotes.html#ansi" class="olink"><code class="varname">CUSTOM:*ANSI*</code></a> to <a href="http://www.lisp.org/HyperSpec/Body/convar_t.html" target="_top"><code class="constant">T</code></a>.
 </dd><dt><a id="opt-traditional"></a><code class="option">-traditional</code></dt><dd>Traditional: reverses the residual effects of
-   <a href="clisp.html#opt-ansi" class="olink"><code class="option">-ansi</code></a> in the saved <a href="impnotes.html#image" class="olink">memory image</a>.</dd><dt><a id="opt-pack"></a><code class="option">-p</code> <em class="replaceable"><code>package</code></em></dt><dd>At startup the value of the variable <a href="http://www.lisp.org/HyperSpec/Body/var_stpackagest.html" target="_top"><code class="varname">*PACKAGE*</code></a>
+   <a href="clisp.html#opt-ansi" class="olink"><code class="option">-ansi</code></a> in the saved <a href="impnotes.html#image" class="olink">memory image</a>.</dd><dt><a id="opt-modern"></a><code class="option">-modern</code></dt><dd>Provides a modern view of symbols: at startup the
+  <a href="http://www.lisp.org/HyperSpec/Body/var_stpackagest.html" target="_top"><code class="varname">*PACKAGE*</code></a> variable will be set to the <a href="impnotes.html#cs-clu" class="olink"><strong class="package">“<span class="quote">CS-COMMON-LISP-USER</span>”</strong></a> package, and the
+  <a href="http://www.lisp.org/HyperSpec/Body/var_stprint-b_rint-radixst.html" target="_top"><code class="varname">*PRINT-BASE*</code></a> will be set to <code class="constant">:DOWNCASE</code>.
+  This has the effect that symbol lookup is case-sensitive (except for
+  keywords and old-style packages) and that keywords and uninterned symbols
+  are printed with lower-case preferrence.</dd><dt><a id="opt-pack"></a><code class="option">-p</code> <em class="replaceable"><code>package</code></em></dt><dd>At startup the value of the variable <a href="http://www.lisp.org/HyperSpec/Body/var_stpackagest.html" target="_top"><code class="varname">*PACKAGE*</code></a>
    will be set to the package named <em class="replaceable"><code>package</code></em>.
-   The default is the package which was active when the image was
+   The default is the value of <a href="http://www.lisp.org/HyperSpec/Body/var_stpackagest.html" target="_top"><code class="varname">*PACKAGE*</code></a> when the image was
    <a href="impnotes.html#image" class="olink">saved</a>,
    normally <a href="http://www.lisp.org/HyperSpec/Body/sec_11-1-2-2.html" target="_top"><strong class="package">“<span class="quote">COMMON-LISP-USER</span>”</strong></a>.</dd><dt><a id="opt-load-comp"></a><code class="option">-C</code></dt><dd>Compile when loading: at startup the value of the
    variable <a href="impnotes.html#loadfile" class="olink"><code class="varname">CUSTOM:*LOAD-COMPILING*</code></a> will be set to <a href="http://www.lisp.org/HyperSpec/Body/convar_t.html" target="_top"><code class="constant">T</code></a>.
@@ -316,7 +320,7 @@ compiles the specified lisp files to a platform-independent
 <dt><span><strong class="command">clisp.bat</strong></span></dt><dd>startup driver</dd>
 #endif
 <dt><a id="runtime"></a><code class="filename">lisp.run</code><br /><code class="filename">lisp.exe</code></dt><dd>main executable (runtime)
-</dd><dt><code class="filename">lispinit.mem</code></dt><dd>initial <a href="impnotes.html#image" class="olink">memory image</a></dd><dt><a id="config-file"></a><code class="filename">config.lisp</code></dt><dd>site-dependent configuration (should have been
+</dd><dt><code class="filename">lispinit.mem</code></dt><dd>initial <a href="impnotes.html#image" class="olink">memory image</a></dd><dt><a id="config-lisp"></a><code class="filename">config.lisp</code></dt><dd>site-dependent configuration (should have been
   customized before <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> was built); see
   <a href="impnotes.html#customize" class="olink">Section 30.12, “Customizing CLISP behavior.”</a>
 </dd><dt><code class="filename">*.lisp</code></dt><dd>lisp source</dd><dt><code class="filename">*.fas</code></dt><dd>lisp code, compiled by <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a>
@@ -326,6 +330,8 @@ compiles the specified lisp files to a platform-independent
 </dd><dt><code class="filename">*.c</code></dt><dd>C code, compiled from lisp source by <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a>
  (see <a href="impnotes.html#dffi" class="olink">Section 31.3, “The Foreign Function Call Facility”</a>)
 </dd></dl></div>
+<p>For the <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> source files,
+ see <a href="impnotes.html#source-files" class="olink">Chapter 33, The source files of CLISP</a>.</p>
 </div>
 #ifdef HAVE_ENVIRONMENT
 <div class="refsection" lang="en" xml:lang="en"><a id="environment"></a><h2>Environment</h2>
@@ -381,9 +387,9 @@ compiles the specified lisp files to a platform-independent
    file is to be held.</dd>
 #endif
 <dt><code class="envar">ORGANIZATION</code></dt><dd>for <a href="http://www.lisp.org/HyperSpec/Body/fun_short-sit_ng-site-name.html" target="_top"><code class="function">SHORT-SITE-NAME</code></a> and <a href="http://www.lisp.org/HyperSpec/Body/fun_short-sit_ng-site-name.html" target="_top"><code class="function">LONG-SITE-NAME</code></a> in
-   <a href="#config-file"><code class="filename">config.lisp</code></a>.</dd><dt><code class="envar">CLHSROOT</code></dt><dd>for <code class="function">clhs-root</code> in
-   <a href="#config-file"><code class="filename">config.lisp</code></a>.</dd><dt><code class="envar">EDITOR</code></dt><dd>for <code class="function">editor-name</code> in
-   <a href="#config-file"><code class="filename">config.lisp</code></a>.</dd><dt><code class="envar">LOGICAL_HOST_<em class="replaceable"><code>host</code></em>_FROM</code><br /><code class="envar">LOGICAL_HOST_<em class="replaceable"><code>host</code></em>_TO</code><br /><code class="envar">LOGICAL_HOST_<em class="replaceable"><code>host</code></em></code></dt><dd>for <a href="impnotes.html#load-lpt" class="olink"><code class="varname">CUSTOM:*LOAD-LOGICAL-PATHNAME-TRANSLATIONS-DATABASE*</code></a></dd></dl></div>
+   <a href="#config-lisp"><code class="filename">config.lisp</code></a>.</dd><dt><code class="envar">CLHSROOT</code></dt><dd>for <code class="function">clhs-root</code> in
+   <a href="#config-lisp"><code class="filename">config.lisp</code></a>.</dd><dt><code class="envar">EDITOR</code></dt><dd>for <code class="function">editor-name</code> in
+   <a href="#config-lisp"><code class="filename">config.lisp</code></a>.</dd><dt><code class="envar">LOGICAL_HOST_<em class="replaceable"><code>host</code></em>_FROM</code><br /><code class="envar">LOGICAL_HOST_<em class="replaceable"><code>host</code></em>_TO</code><br /><code class="envar">LOGICAL_HOST_<em class="replaceable"><code>host</code></em></code></dt><dd>for <a href="impnotes.html#load-lpt" class="olink"><code class="varname">CUSTOM:*LOAD-LOGICAL-PATHNAME-TRANSLATIONS-DATABASE*</code></a></dd></dl></div>
 </div>
 #endif
 <div class="refsection" lang="en" xml:lang="en"><a id="see-also"></a><h2>See also</h2>
@@ -396,7 +402,7 @@ compiles the specified lisp files to a platform-independent
 </div><div class="refsection" lang="en" xml:lang="en"><a id="bugs"></a><h2>Bugs</h2>
 
 <p>When you encounter a bug in <a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a>, please report it to the
- CLISP user mailing list <code class="email">&lt;<a href="mailto:clisp-list/at/sf.net"><a href="http://lists.sourceforge.net/lists/listinfo/clisp-list" target="_top">clisp-list/at/sf.net</a></a>&gt;</code> or the
+ CLISP user mailing list <code class="email">&lt;<a href="mailto:clisp-list/at/lists.sourceforge.net"><a href="http://lists.sourceforge.net/lists/listinfo/clisp-list" target="_top">clisp-list/at/lists.sourceforge.net</a></a>&gt;</code> or the
  <a href="http://sourceforge.net/tracker/?func=add&amp;group_id=1355&amp;atid=101355" target="_top">SourceForge bug tracker</a>.</p>
 
 <p><span class="emphasis"><em>Before</em></span> submitting a bug report, please take
@@ -438,7 +444,7 @@ following information:</p>
 <li>No on-line documentation beyond <a href="http://www.lisp.org/HyperSpec/Body/fun_aproposcm_apropos-list.html" target="_top"><code class="function">APROPOS</code></a>
   and <a href="http://www.lisp.org/HyperSpec/Body/fun_describe.html" target="_top"><code class="function">DESCRIBE</code></a> is available.</li>
 #ifdef UNIX_COHERENT
-<li><a href="impnotes.html#terminal" class="olink"><code class="varname">EXT:*KEYBOARD-INPUT*</code></a> does not
+<li><a href="impnotes.html#with-kbd" class="olink"><code class="varname">EXT:*KEYBOARD-INPUT*</code></a> does not
   recognize <span><strong class="keycap">Control</strong></span>-<span class="keysym">S</span>
   and <span><strong class="keycap">Control</strong></span>-<span class="keysym">Q</span>.</li>
 #endif
@@ -451,10 +457,10 @@ following information:</p>
    threads.</li></ul></div>
 </div><div class="refsection" lang="en" xml:lang="en"><a id="authors"></a><h2>CLISP Authors</h2>
 
-<p><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> project was started in late 1980-ies by <span class="author"><span class="honorific">Dr</span>. <span class="firstname">Bruno</span> <span class="surname">Haible</span></span> and
- <span class="author"><span class="honorific">Dr</span>. <span class="firstname">Michael</span> <span class="surname">Stoll</span></span>, both in Germany.</p>
+<p><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> project was started in late 1980-ies by <span class="author"><span class="firstname">Bruno</span> <span class="surname">Haible</span></span> and
+ <span class="author"><span class="firstname">Michael</span> <span class="surname">Stoll</span></span>, both in Germany.</p>
 
 <p>See <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/clisp/clisp/COPYRIGHT?rev=HEAD&amp;content-type=text/plain" target="_top">COPYRIGHT</a>
 for the list of other contributors and the license.</p>
 
-</div></div><div class="refentryinfo"><hr width="100%" /><table width="100%"><th><td align="left">CLISP version 2.33</td><td align="center">Platform: CYGWIN_NT-5.0</td><td align="right">Last modified: 2004-11-16</td></th></table></div><div class="custom-footer"><hr width="100%" /><table width="100%"><tr><td align="left"><a href="http://clisp.cons.org"><img src="clisp.png" width="48" height="48" alt="[CLISP home]" /></a></td><td align="center"><a href="http://www.gnu.org"><img src="http://www.gnu.org/graphics/gnubanner.jpg" width="468" height="60" alt="[Come and see what GNU creates for YOU]" /></a></td><td align="right"><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=1355&amp;amp;type=2" width="125" height="37" alt="[SourceForge]" /></a></td></tr></table></div></body></html>
+</div></div><div class="refentryinfo"><hr width="100%" /><table width="100%" summary="man page meta info"><th><td align="left"><a href="http://clisp.cons.org" target="_top"><span><strong class="command">CLISP</strong></span></a> version 2.33.83</td><td align="center">Platform: CYGWIN_NT-5.0</td><td align="right">Last modified: 2005-03-14</td></th></table></div><div class="custom-footer"><hr width="100%" /><table width="100%"><tr><td align="left"><a href="http://clisp.cons.org"><img src="clisp.png" width="48" height="48" alt="[CLISP home]" /></a></td><td align="center"><a href="http://www.gnu.org"><img src="http://www.gnu.org/graphics/gnubanner.jpg" width="468" height="60" alt="[Come and see what GNU creates for YOU]" /></a></td><td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page=clisp" /></a></td></tr></table></div></body></html>
