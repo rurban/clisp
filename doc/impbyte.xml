@@ -381,7 +381,8 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
  You will need to add a note to that effect to
  the <filename>#P"NEWS"</filename> file
  and augment the object <literal>version</literal> in
- file <filename>#P"constsym.d"</filename>.</para></warning>
+ file <filename>#P"constsym.d"</filename>.
+  Please try to avoid this as much as possible.</para></warning>
 </section>
 
 </chapter>
