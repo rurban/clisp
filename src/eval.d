@@ -2187,10 +2187,10 @@ local void trace_call (object fun, uintB type_of_call, uintB caller_type)
     return;
   pushSTACK(stream);
   if (cclosurep(fun)) {
-    pushSTACK(TheCclosure(fun)->clos_name);
+    pushSTACK(Closure_name(fun));
     write_ascii_char(&STACK_1,'c');
   } else if (closurep(fun)) {
-    pushSTACK(TheClosure(fun)->clos_name);
+    pushSTACK(TheIclosure(fun)->clos_name);
     write_ascii_char(&STACK_1,'C');
   } else if (subrp(fun)) {
     pushSTACK(TheSubr(fun)->name);
@@ -2679,7 +2679,7 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
   {
     /* halve argcount --> the number of pairs Key.Value: */
     if (argcount%2) /* number was odd -> not paired: */
-      fehler_key_odd(argcount,TheClosure(closure)->clos_name);
+      fehler_key_odd(argcount,Closure_name(closure));
     if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
       fehler_too_many_args(unbound,closure,argcount,ca_limit_1);
     # Due to argcount <= ca_limit_1, all count's fit in a uintC.
@@ -2705,7 +2705,7 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
         }
       check_for_illegal_keywords
         (!((TheCodevec(codevec)->ccv_flags & bit(6)) == 0),
-         TheClosure(closure)->clos_name,
+         Closure_name(closure),
          { pushSTACK(bad_keyword); /* save */
            pushSTACK(bad_value);  /* save */
            pushSTACK(closure); /* save the closure */
@@ -2714,7 +2714,7 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
           {var object kwlist = listof(key_anz);
            closure = popSTACK(); bad_value = popSTACK();
            bad_keyword = popSTACK(); /* report errors: */
-           fehler_key_badkw(TheClosure(closure)->clos_name,
+           fehler_key_badkw(Closure_name(closure),
                             bad_keyword,bad_value,kwlist);}});
       #undef for_every_keyword
     # now assign Arguments and Parameters:
@@ -3835,16 +3835,16 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
     if (!nullp(args)) goto fehler_dotted;
     setSTACK(STACK = STACKbefore); # clean up STACK
     closure = popSTACK();
-    fehler_eval_zuwenig(TheCclosure(closure)->clos_name);
+    fehler_eval_zuwenig(Closure_name(closure));
    fehler_zuviel: # Argument-list args is not NIL at the end
     if (atomp(args)) goto fehler_dotted;
     setSTACK(STACK = STACKbefore); # clean up STACK
     closure = popSTACK();
-    fehler_eval_zuviel(TheCclosure(closure)->clos_name);
+    fehler_eval_zuviel(Closure_name(closure));
    fehler_dotted: # Argument-list args ends with Atom /= NIL
     setSTACK(STACK = STACKbefore); # clean up STACK
     closure = popSTACK();
-    fehler_eval_dotted(TheCclosure(closure)->clos_name);
+    fehler_eval_dotted(Closure_name(closure));
   }
 
 #ifdef DYNAMIC_FFI
@@ -6452,7 +6452,7 @@ global Values funcall (object fun, uintC args_on_stack)
           # The Compiler has already checked, that it's a Symbol.
           if (!boundp(Symbol_value(symbol))) {
             pushSTACK(symbol); # CELL-ERROR slot NAME
-            pushSTACK(symbol); pushSTACK(TheCclosure(closure)->clos_name);
+            pushSTACK(symbol); pushSTACK(Closure_name(closure));
             fehler(unbound_variable,GETTEXT("~S: symbol ~S has no value"));
           }
           VALUES1(Symbol_value(symbol));
@@ -6466,7 +6466,7 @@ global Values funcall (object fun, uintC args_on_stack)
           # The Compiler has already checked, that it's a Symbol.
           if (!boundp(Symbol_value(symbol))) {
             pushSTACK(symbol); # CELL-ERROR slot NAME
-            pushSTACK(symbol); pushSTACK(TheCclosure(closure)->clos_name);
+            pushSTACK(symbol); pushSTACK(Closure_name(closure));
             fehler(unbound_variable,GETTEXT("~S: symbol ~S has no value"));
           }
           pushSTACK(Symbol_value(symbol));
@@ -6479,7 +6479,7 @@ global Values funcall (object fun, uintC args_on_stack)
           var object symbol = TheCclosure(closure)->clos_consts[n];
           # The Compiler has already checked, that it's a Symbol.
           if (constantp(TheSymbol(symbol))) {
-            pushSTACK(symbol); pushSTACK(TheCclosure(closure)->clos_name);
+            pushSTACK(symbol); pushSTACK(Closure_name(closure));
             fehler(error,GETTEXT("~S: assignment to constant symbol ~S is impossible"));
           }
           Symbol_value(symbol) = value1; mv_count=1;

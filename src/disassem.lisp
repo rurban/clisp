@@ -57,7 +57,7 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
     ;; the object is a closure.
     (unless (sys::%compiled-function-p object)
       (setq object
-            (compile-lambda (sys::%record-ref object 0) ; name
+            (compile-lambda (sys::closure-name object) ; name
                             (sys::%record-ref object 1) ; lambdabody
                             (sys::%record-ref object 4) ; venv
                             (sys::%record-ref object 5) ; fenv

@@ -58,20 +58,23 @@ local gcv_object_t* record_up (void) {
   return &TheRecord(record)->recdata[index]; /* record element address */
 }
 
+/* (SYS::%RECORD-REF record index) return the index'th entry in the record */
 LISPFUNNR(record_ref,2)
-{ /* (SYS::%RECORD-REF record index) return the index'th entry in the record */
+{
   VALUES1(*(record_up())); /* record element as value */
 }
 
 /* (SYS::%RECORD-STORE record index value) store value as the index'th
    entry in the record and return value. */
-LISPFUNN(record_store,3) {
+LISPFUNN(record_store,3)
+{
   var object value = popSTACK();
   VALUES1(*(record_up()) = value); /* set record element */
 }
 
+/* (SYS::%RECORD-LENGTH record) return the length of the record. */
 LISPFUNNR(record_length,1)
-{ /* (SYS::%RECORD-LENGTH record) return the length of the record. */
+{
   /* the record must be a Closure/Structure/Stream/OtherRecord: */
   if_recordp(STACK_0, ; , { fehler_record(); } );
   var object record = popSTACK();
@@ -257,8 +260,8 @@ LISPFUNNR(structure_type_p,2) {
  (SYS::CLOSURE-CONSTS closure) returns a list of all constants of a
    compiled closure.
  (SYS::MAKE-CODE-VECTOR list) returns for a list of fixnums >=0, <256
-   a simple-bit-vector of eight fold length, that contains these numbers
-    as bytes.
+   a simple-8bit-vector of the same length, that contains these numbers
+   as bytes.
  (SYS::%MAKE-CLOSURE name codevec consts seclass) returns a closure with given
    name (a symbol), given code-vector (a simple-bit-vector) and
    further given constants.
@@ -273,6 +276,7 @@ LISPFUNNR(structure_type_p,2) {
    (APPLY generic-function arguments)
    == (APPLY (APPLY ergebnis arguments) arguments) .
 */
+
 /* (SYS::CLOSURE-NAME closure) returns the name of a closure. */
 LISPFUNNR(closure_name,1) {
   var object closure = popSTACK();
@@ -282,7 +286,7 @@ LISPFUNNR(closure_name,1) {
     fehler(error, /* type_error ?? */
            GETTEXT("~S: ~S is not a closure"));
   }
-  VALUES1(TheClosure(closure)->clos_name);
+  VALUES1(Closure_name(closure));
 }
 
 /* error, if argument is not a compiled closure */
@@ -336,8 +340,8 @@ LISPFUNNR(closure_consts,1) {
 }
 
 /* (SYS::MAKE-CODE-VECTOR list) returns for a list of fixnums >=0, <256
-   a simple-bit-vector of eight fold length, that contains these
-   numbers as bytes. */
+   a simple-8bit-vector of the same length, that contains these numbers
+   as bytes. */
 LISPFUNNR(make_code_vector,1) {
   var object bv = allocate_bit_vector(Atype_8Bit,llength(STACK_0)); /* simple-8bit-vector */
   /* fill: */
@@ -400,7 +404,7 @@ LISPFUNNR(make_closure,4) {
     fehler(error,GETTEXT("~S: function ~S is too big: ~S"));
   }
   var object closure = allocate_closure(length,seclass);
-  TheCclosure(closure)->clos_name = STACK_2; /* fill name */
+  TheCclosure(closure)->clos_name_or_class_version = STACK_2; /* fill name */
   TheCclosure(closure)->clos_codevec = STACK_1; /* fill codevector */
   { /* fill constants: */
     var object constsr = popSTACK();
@@ -430,7 +434,7 @@ LISPFUNN(constant_initfunction_p,1)
 {
   var object obj = popSTACK();
   VALUES_IF(closurep(obj)
-            && eq(TheClosure(obj)->clos_name,S(constant_initfunction))
+            && eq(TheClosure(obj)->clos_name_or_class_version,S(constant_initfunction))
             && eq(TheClosure(obj)->clos_codevec,O(constant_initfunction_code)));
 }
 
@@ -690,14 +694,16 @@ LISPFUN(finalize,seclass_default,2,1,norest,nokey,0,NIL) {
 /* ===========================================================================
  * CLOS objects: */
 
+/* (CLOS::STRUCTURE-OBJECT-P object) tests if object is a structure. */
 LISPFUNNF(structure_object_p,1)
-{ /* (CLOS::STRUCTURE-OBJECT-P object) checks if object is a structure. */
+{
   var object obj = popSTACK();
   VALUES_IF(structurep(obj));
 }
 
+/* (CLOS::STD-INSTANCE-P object) tests if object is a CLOS-object. */
 LISPFUNNF(std_instance_p,1)
-{ /* (CLOS::STD-INSTANCE-P object) checks if object is a CLOS-object. */
+{
   var object obj = popSTACK();
   VALUES_IF(instancep(obj));
 }
@@ -1232,7 +1238,7 @@ LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL) {
        eval_init:
         /* evaluate the initform: */
         if (closurep(init)
-            && eq(TheClosure(init)->clos_name,S(constant_initfunction))
+            && eq(TheClosure(init)->clos_name_or_class_version,S(constant_initfunction))
             && eq(TheClosure(init)->clos_codevec,O(constant_initfunction_code))) {
           value1 = TheClosure(init)->other[0];
         } else {
@@ -1426,7 +1432,7 @@ local Values do_initialize_instance (object info,
         if (nullp(init))
           goto slot_done;
         if (closurep(init)
-            && eq(TheClosure(init)->clos_name,S(constant_initfunction))
+            && eq(TheClosure(init)->clos_name_or_class_version,S(constant_initfunction))
             && eq(TheClosure(init)->clos_codevec,O(constant_initfunction_code))) {
           value1 = TheClosure(init)->other[0];
         } else {
@@ -1512,7 +1518,7 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
       {
         var object init = Car(Cdr(Cdr(default_initarg)));
         if (closurep(init)
-            && eq(TheClosure(init)->clos_name,S(constant_initfunction))
+            && eq(TheClosure(init)->clos_name_or_class_version,S(constant_initfunction))
             && eq(TheClosure(init)->clos_codevec,O(constant_initfunction_code))) {
           pushSTACK(TheClosure(init)->other[0]); /* default in the stack */
         } else {

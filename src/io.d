@@ -9491,7 +9491,7 @@ local void pr_cclosure (const gcv_object_t* stream_, object obj) {
   } else {
     # *PRINT-CLOSURE* = NIL ->
     # only print #<GENERIC-FUNCTION name> resp. #<COMPILED-CLOSURE name> :
-    pr_other_obj(stream_,TheClosure(obj)->clos_name,
+    pr_other_obj(stream_,Closure_name(obj),
                  (TheCodevec(TheClosure(obj)->clos_codevec)->ccv_flags & bit(4) # generic function?
                   ? O(printstring_generic_function)
                   : O(printstring_compiled_closure)));
@@ -9540,7 +9540,7 @@ local void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
     INDENT_START(3); # indent by 3 characters, because of '#Y('
     JUSTIFY_START(1);
     JUSTIFY_LAST(false);
-    prin_object(stream_,TheClosure(*obj_)->clos_name); # print Name
+    prin_object(stream_,Closure_name(*obj_)); # print Name
     JUSTIFY_SPACE;
     # print Codevector bytewise, treat possible circularity:
     pr_circle(stream_,TheClosure(*obj_)->clos_codevec,&pr_cclosure_codevector);
