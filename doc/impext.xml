@@ -41,21 +41,21 @@ extension, &mem-file; extension is automatically added).
 
 <section id="quit"><title>Extensions-1.2. Quitting &clisp;</title>
 
-<para>The functions <literal role="sexp">(<function>ext:exit</function>
+<para>The functions <literal role="sexp">(<function>EXT:EXIT</function>
  [<replaceable>errorp</replaceable>])</literal>, <literal
- role="sexp">(<function>ext:quit</function>
+ role="sexp">(<function>EXT:QUIT</function>
  [<replaceable>errorp</replaceable>])</literal> and <literal
- role="sexp">(<function>ext:bye</function>
+ role="sexp">(<function>EXT:BYE</function>
  [<replaceable>errorp</replaceable>])</literal> - all synonymous -
  terminate &clisp;.  If <replaceable>errorp</replaceable> is non-&nil;,
- &clisp; aborts with error status, i.e., the environment is informed
- that the &clisp; session did not succeed.</para>
+ &clisp; aborts with the supplied numeric error status, i.e.,
+ the environment is informed that the &clisp; session did not succeed.</para>
 
 </section>
 
 <section id="i18n"><title>Extensions-1.3. Internationalization</title>
 
-<para>Internationalization means to prepare a program so that it can
+<para>"Internationalization" means to prepare a program so that it can
 use multiple national languages and national cultural conventions
 without requiring further source code changes.  Localization means
 providing the data - mostly textual translations - necessary for an

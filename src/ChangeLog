@@ -1,5 +1,13 @@
 2002-06-10  Sam Steingold  <sds@gnu.org>
 
+	user can now control the exit code better
+	* lispbibl.d, spvw.d (final_exitcode): int, not bool (spvw.d
+	and win32aux.d already assign it non-bool values)
+	* control.d (%EXIT): errorp maybe a positive fixnum, in which
+	case we can use its value for final_exitcode
+
+2002-06-10  Sam Steingold  <sds@gnu.org>
+
 	* erramiga.d: do not use /* ENGLISH */ to mark
 	gettext catalog messages
 
