@@ -1,5 +1,13 @@
 1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * constsym.d (*merge-pathnames-ansi*): New variable.
+        * spvw.d (init_symbol_values): Initialize it to NIL.
+          (main): Set it to T, if option -a given.
+        * pathname.d (MERGE-PATHNAMES): If *merge-pathnames-ansi*,
+          concatenate two relative directories. Ignore *ansi*.
+
+1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in (impnotes.html): Only replace <HS> followed by a slash.
 
 1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>

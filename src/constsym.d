@@ -1198,6 +1198,7 @@ LISPSYM(standard_output,"*STANDARD-OUTPUT*",lisp) # als Variable in STREAM
 LISPSYM(error_output,"*ERROR-OUTPUT*",lisp) # als Variable in STREAM
 LISPSYM(trace_output,"*TRACE-OUTPUT*",lisp) # als Variable in STREAM
 LISPSYM(default_pathname_defaults,"*DEFAULT-PATHNAME-DEFAULTS*",lisp) # als Variable in PATHNAME
+LISPSYM(merge_pathnames_ansi,"*MERGE-PATHNAMES-ANSI*",lisp) # als Variable in PATHNAME
 #ifdef LOGICAL_PATHNAMES
 LISPSYM(logpathname_translations,"*LOGICAL-PATHNAME-TRANSLATIONS*",system) # als Variable in PATHNAME
 #endif
