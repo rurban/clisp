@@ -1,5 +1,11 @@
 2003-07-29  Sam Steingold  <sds@gnu.org>
 
+	* genclisph.d (to_time_t_) [UNIX_CYGWIN32]: export
+	* modules/dirkey/dirkey.c (to_time_t_) [UNIX_CYGWIN32]: moved to...
+	* unixaux.d (to_time_t_) [UNIX_CYGWIN32]: here
+
+2003-07-29  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (main): when non-interactive, guard LOAD for "-i" with
 	SYS::BATCHMODE-ERRORS to avoid infinite loop on error
 
