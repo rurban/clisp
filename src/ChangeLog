@@ -1,3 +1,20 @@
+2001-07-21  Sam Steingold  <sds@gnu.org>
+
+	massive reindentations and code re-arrangements
+	* io.d (RTCase): new macro
+	(token_info_t): renamed from token_info
+	(zahl_info_t): renamed from zahl_info
+	(pr_routine_t): renamed from pr_routine
+	(CHECK_PRINT_READABLY): new macro
+	(PPHELP_STREAM_P): new macro
+	(circle_info_t): renamed from circle_info
+	(triple_dots): new function
+	(CHECK_LENGTH_LIMIT): new macro
+	(UNREADABLE_START, UNREADABLE_END): new macros
+	(pr_array_info_t): renamed from pr_array_info
+	(pr_array_elt_routine_t): renamed from pr_array_elt_routine
+	(pr_array_elt_simple): renamed from pr_array_elt_t
+
 2001-07-20  Sam Steingold  <sds@gnu.org>
 
 	* package.d (export_symbol_from): made congruent to
