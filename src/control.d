@@ -142,7 +142,7 @@ LISPFUNN(symbol_value,1)
     if (symbolmacrop(val)) { # Symbol-Macro?
       # ja -> expandieren und evaluieren:
       eval_noenv(TheSymbolmacro(val)->symbolmacro_expansion); mv_count=1;
-    } else 
+    } else
       VALUES1(val);
   }
 
@@ -212,7 +212,7 @@ LISPFUNN(fboundp,1)
   if (!boundp(Symbol_function(symbol))) {
    undef:
     VALUES1(NIL);
-  } else 
+  } else
     VALUES1(T);
 }
 
@@ -2098,25 +2098,31 @@ LISPFUNN(driver,1)
     }
   }
 
-LISPFUNN(unwind_to_driver,0)
-# (SYS::UNWIND-TO-DRIVER) macht ein UNWIND bis zum nächsthöheren Driver-Frame.
-  {
+LISPFUNN(unwind_to_driver,1)
+{ /* (SYS::UNWIND-TO-DRIVER top-p)
+     UNWIND to the next Driver-Frame or to the top. */
+  var object arg = popSTACK();
+  if (nullp(arg)) {
     reset();
-  }
-
-/* (SYS::UNWIND-TO-TOP) unwinds to the top driver frame. */
-LISPFUNN(unwind_to_top,0) {
-  var object* FRAME = STACK;
-  var object* driver_frame = STACK;
-  while (!eq(FRAME_(0),nullobj)) { /* end of Stack? */
-    if (framecode(FRAME_(0)) & bit(frame_bit_t)) {
-      if (framecode(FRAME_(0)) == DRIVER_frame_info)
-        driver_frame = FRAME;
-      FRAME = topofframe(FRAME_(0));
+  } else if (posfixnump(arg)) {
+    var uintL count = posfixnum_to_L(arg);
+    dotimespL(count, count, { reset(); });
+  } else {
+    var object* FRAME = STACK;
+    var object* driver_frame = STACK;
+    while (!eq(FRAME_(0),nullobj)) { /* end of Stack? */
+      if (framecode(FRAME_(0)) & bit(frame_bit_t)) {
+        if (framecode(FRAME_(0)) == DRIVER_frame_info)
+          driver_frame = FRAME;
+        FRAME = topofframe(FRAME_(0));
+      } else
+        FRAME skipSTACKop 1;
+    }
+    if (eq(FRAME_(1),nullobj)) {
+      driver(); quit(); /* STACK completely gone -> restart */
     } else
-      FRAME skipSTACKop 1;
+      unwind_upto(driver_frame);
   }
-  unwind_upto(driver_frame);
 }
 
 # Überprüft ein optionales Macroexpansions-Environment in STACK_0.

@@ -375,11 +375,8 @@
   # The date of the last change of the bytecode interpreter
   # or the arglist of any built-in function in FUNTAB
   /* FIXME/TODO: when you will be modifying this the next time:
-     [2002-06-29]: kill UNWIND-TO-TOP, make UNWIND-TO-DRIVER take an
-      optional(?) argument, fix reploop.lisp appropriately
-     [2002-09-03]: add (memq) to FUNTAB in eval.d;
-      add :TRUNAMEP arg to DIRECTORY */
-  LISPOBJ(version,"(20020129)")
+     [2002-09-03]: add :TRUNAMEP arg to DIRECTORY */
+  LISPOBJ(version,"(20020920)")
   #ifdef MACHINE_KNOWN
     LISPOBJ(machine_type_string,"NIL")
     LISPOBJ(machine_version_string,"NIL")
