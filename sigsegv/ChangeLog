@@ -1,3 +1,25 @@
+1999-05-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * sigsegv.h.in (HAVE_STACK_OVERFLOW_RECOVERY): Also define on Solaris,
+          Irix, OSF/1.
+        * handler.c: Use symbolic UNIX_* macros for various Unix brands.
+          (SIGSEGV_FAULT_HANDLER_ARGLIST, SIGSEGV_ALL_SIGNALS): Define also
+          when HAVE_SIGSEGV_RECOVERY is not defined. Add support for
+          Linux/m68k, Linux/mips, Linux/alpha, Linux/arm.
+          (SIGSEGV_FAULT_CONTEXT, SIGSEGV_FAULT_STACKPOINTER): New macros.
+          (get_vma) [UNIX_LINUX]: No need to initialize prev twice.
+          (reset_onstack_flag) [UNIX_LINUX]: New function.
+          (get_vma, reset_onstack_flag) [UNIX_SUNOS, UNIX_IRIX, UNIX_OSF]: New
+          functions.
+          (sigsegv_leave_handler): If SIGACTION_NEED_UNBLOCK is defined,
+          unblock the signal itself. Call reset_onstack_flag.
+          (stackoverflow_deinstall_handler): Print something if sigaltstack
+          fails.
+        * aclocal.m4 (CL_SIGNAL_UNBLOCK, CL_SIGNAL_BLOCK_OTHERS,
+           CL_SIGACTION_UNBLOCK): Perform the test if either POSIX or BSD
+          signal mask primitives are available. Otherwise,
+          SIGACTION_NEED_UNBLOCK would not be defined on Solaris.
+
 1999-05-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * test3.c (main): Make more verbose.
