@@ -16,7 +16,7 @@
    (eval-when-compile
     (concat "^" (regexp-opt '("LISPFUN" "local " "global "
                               "nonreturning_function") t)))
-   nil t))
+   nil 1))                      ; move to the limit
 
 (defun d-mode-convert-function ()
   "Convert from the old-style to ANSI function definition.
@@ -117,7 +117,7 @@ Beware - this will modify the original C-mode too!"
   (setf (cdr (assq 'cpp-macro c-offsets-alist)) 'd-mode-indent-sharp)
   ;; (setq defun-prompt-regexp
   ;; "^\\(LISPFUNN?(.*) \\|\\(local\\|global\\|nonreturning_function\\) .*\\)")
-  ;; (setq beginning-of-defun-function 'd-mode-beg-of-defun)
+  (setq beginning-of-defun-function 'd-mode-beg-of-defun)
   (when (<= 21 emacs-major-version)
     (set (make-local-variable 'font-lock-defaults)
          d-mode-font-lock-defaults)))
