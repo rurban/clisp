@@ -1,5 +1,10 @@
 2004-04-07  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (main): use UNIXy i/o (*ERROR-OUTPUT* = stderr) in batch
+	mode under the same conditions as *DEBUG-IO* being non-interactive
+
+2004-04-07  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (src/autoconf/aclocal.m4): aclocal 1.8 forbids
 	duplicate AC_CONFIG_HEADERS
 
