@@ -220,7 +220,7 @@
       (not (or (symbolp form)
                (consp form)))))
 
-;;; quote if the form does not evaluate to iteself
+;;; quote if the form does not evaluate to itself
 (defun maybe-quote (form)
   (if (eval-self-p form) form (list 'quote form)))
 
@@ -278,8 +278,9 @@
 ;;; to be the argument list of an LIST* call.  It tries to optimize the
 ;;; forms to generate something more efficient than the implied LIST*,
 ;;; but in the case that it does no optimizations, it just returns (cons
-;;; 'list* forms).  This has to be careful to watch for (SPLICE ...) and
-;;; (NSPLICE ...) forms in the last position of the LIST* argument list.
+;;; 'list* forms).  This has to be careful to watch for splicing unquote
+;;; forms in the last position, and also for a quoted unquote in the
+;;; last position.
 (defun bq-optimize-list* (forms)
   (if (= (length forms) 1)
     ;; ((list x)) -> (list x) [ -> '(x) ]
@@ -299,9 +300,12 @@
                   (list (list 'append last-opt)))))
 
         ;; (... '(x1 x2 ...)) -> (list ... 'x1 'x2 ...)
+        ;; But CAREFUL! Must not rip apart unquotes and splices:
+        ;; (... ',form) -> (list ... 'system::unquote 'form)
         ((and (consp last-opt)
               (eq (first last-opt) 'quote)
-              (listp (second last-opt)))
+              (listp (second last-opt))
+              (not (quoted-bq-operator-p last-opt)))
          (bq-optimize-list
           (append '(list) (butlast forms)
                   (mapcar #'maybe-quote
@@ -322,14 +326,46 @@
         (t (bq-optimize-list
              (append '(list*) (butlast forms) (list last-opt))))))))
 
+;;; Test whether the argument is of the form (QUOTE (<oper> ...))
+;;; where <oper> is one of the backquote operators.
+(defun quoted-bq-operator-p (form)
+  (and (consp form)
+       (eq (first form) 'quote)
+       (consp (second form))
+       (memq (first (second form)) '(UNQUOTE SPLICE NSPLICE BACKQUOTE))))
+
+;;; BQ-CONSTANT-P determines whether the expression may be reduced
+;;; at expansion time by BQ-EVAL, similarly to how CONSTANTP determines
+;;; whether an expression may be reduced by EVAL at compile time.
+(defun bq-constant-p (form)
+  (if (quoted-bq-operator-p form)
+    (case (first (second form))
+      ((UNQUOTE) (bq-constant-p (bq-optimize-list (second (second form)))))
+      (otherwise nil))
+    (constantp form)))
+
+;;; BQ-EVAL implements special evaluation rules for reducing constant
+;;; expressions at backquote expansion time. Most constant expressions
+;;; are reduced by EVAL. But certain ones must be treated specially.
+;;; For instance, an expression like (QUOTE (UNQUOTE X)) must not
+;;; evaluate to (UNQUOTE X). Rather, the two must cancel to just produce
+;;; the value of X. We apply BQ-OPTIMIZE-LIST to create opportunities
+;;; for (LIST ...) or (LIST* ...) forms to be reduced to constants.
+(defun bq-eval (form)
+  (if (quoted-bq-operator-p form)
+    (case (first (second form))
+      ((UNQUOTE) (bq-eval (bq-optimize-list (second (second form)))))
+      (otherwise form))
+    (eval form)))
+
 ;;; BQ-OPTIMIZE-LIST tries to turn a (list ...) or
 ;;; (list* ...) form into a '(...) form.
 (defun bq-optimize-list (form)
   (if (and (consp form)
            (memq (first form) '(list list*))
-           (every #'constantp (rest form)))
+           (every #'bq-constant-p (rest form)))
     (list 'quote (apply (first form)
-                        (mapcar #'eval (rest form))))
+                        (mapcar #'bq-eval (rest form))))
     form))
 
 ;;; Reduce nested APPEND, NCONC and CONS expressions.
