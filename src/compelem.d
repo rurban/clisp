@@ -18,6 +18,17 @@
       return (eq(b,Fixnum_0) ? a : R_R_complex_C(a,b));
     }
 
+/* (complex x (float 0 x)) */
+global object F_complex_C (object x) {
+ #if SAFETY>=1
+  if (!floatp(x)) abort();
+ #endif
+  pushSTACK(x);
+  { var object zero = F_F_float_F(O(DF_zero),STACK_0);
+    return R_R_complex_C(popSTACK(),zero);
+  }
+}
+
 # N_realpart_R(x) liefert den Realteil der Zahl x.
   local object N_realpart_R (object x);
 #if 0
