@@ -9495,8 +9495,8 @@ local void pr_stream (const gcv_object_t* stream_, object obj) {
      #endif
     case strmtype_file: { /* File-Stream */
       var bool fname_p = !nullp(TheStream(*obj_)->strm_file_name);
-      var bool lineno_p = (eq(TheStream(*obj_)->strm_eltype,S(character)) &&
-                           TheStream(*obj_)->strmflags & strmflags_rd_B != 0);
+      var bool lineno_p = eq(TheStream(*obj_)->strm_eltype,S(character)) &&
+        ((TheStream(*obj_)->strmflags & strmflags_rd_B) != 0);
       JUSTIFY_SPACE;
       JUSTIFY_LAST(!fname_p && !lineno_p);
       prin_object(stream_,TheStream(*obj_)->strm_eltype); # Stream-Element-Type
