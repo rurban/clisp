@@ -3624,7 +3624,7 @@
 	* spvw_memfile.d (savemem, loadmem_from_handle):
 	update O(all_weakkvtables)
 	* spvw_objsize.d (objsize, init_objsize_table): handle case_weakkvt
-	* spvw_typealloc (allocate_weakkvt): implemented
+	* spvw_typealloc.d (allocate_weakkvt): implemented
 	* spvw_update.d (update_weakkvtables, update_weakkvtables_mod): added
 	* subr.d (make_hash_table): added :WEAK
 	(hash_table_weak_p, set_hash_table_weak_p): added
