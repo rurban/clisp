@@ -177,7 +177,7 @@ typedef struct {
   #define page_alignment  map_pagesize
   #define WRITE_page_alignment(position)                                \
     do {                                                                \
-      var uintL aligncount = (uintL)(-position) % page_alignment;       \
+      var uintL aligncount = (uintL)(-(position)) % page_alignment;     \
       if (aligncount > 0) { /* get a piece of zeroed memory: */         \
         var DYNAMIC_ARRAY(zeroes,uintB,aligncount);                     \
         var uintB* ptr = &zeroes[0];                                    \
@@ -190,7 +190,7 @@ typedef struct {
     } while(0)
   #define READ_page_alignment(position)                                 \
     do {                                                                \
-      var uintL aligncount = (uintL)(-position) % page_alignment;       \
+      var uintL aligncount = (uintL)(-(position)) % page_alignment;     \
       if (aligncount > 0) {                                             \
         var DYNAMIC_ARRAY(dummy,uintB,aligncount);                      \
         READ(&dummy[0],aligncount);                                     \
@@ -411,17 +411,28 @@ global void savemem (object stream)
   {
     var uintL heapnr;
     for (heapnr=0; heapnr<heapcount; heapnr++) {
+      var uintL misaligned = 0;
+     #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && (defined(HAVE_MMAP) || defined(SELFMADE_MMAP)) && varobjects_misaligned
+      if (is_varobject_heap(heapnr)) {
+        var uintB zeroes[varobjects_misaligned];
+        var uintB* ptr = &zeroes[0];
+        doconsttimes(varobjects_misaligned, { *ptr++ = 0; } );
+        /* write zeroes: */
+        WRITE(&zeroes[0],varobjects_misaligned);
+        misaligned = varobjects_misaligned;
+      }
+     #endif
      #if !defined(GENERATIONAL_GC)
       map_heap(mem.heaps[heapnr],page, {
         var uintL len = page->page_end - page->page_start;
         WRITE(page->page_start,len);
-        WRITE_page_alignment(len);
+        WRITE_page_alignment(misaligned+len);
       });
      #else /* defined(GENERATIONAL_GC) */
       var Heap* heap = &mem.heaps[heapnr];
       var uintL len = heap->heap_gen0_end - heap->heap_gen0_start;
       WRITE(heap->heap_gen0_start,len);
-      WRITE_page_alignment(len);
+      WRITE_page_alignment(misaligned+len);
      #endif
     }
   }
@@ -1151,7 +1162,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
           var uintC pagecount = pagecounts[heapnr];
           while (pagecount!=0) {
             var uintL need = old_page_ptr->_page_end - old_page_ptr->_page_start;
-            var uintL size1 = round_up(need,sizeof(cons_));
+            var uintL misaligned = mem.heaps[heapnr].misaligned;
+            var uintL size1 = round_up(misaligned+need,sizeof(cons_));
             if (size1 < std_page_size) { size1 = std_page_size; }
             {
               var uintL size2 = size1 + sizeof_NODE + (varobject_alignment-1);
@@ -1169,7 +1181,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
               /* get page from operating system. */
               page->m_start = addr; page->m_length = size2;
               /* initialize: */
-              page->page_start = page_start0(page);
+              page->page_start = page_start0(page) + misaligned;
               page->page_end = page->page_start + need;
               page->page_room = size1 - need;
               /* add to this heap: */
@@ -1217,8 +1229,10 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       for (heapnr=0; heapnr<heapcount; heapnr++) {
         var Heap* heapptr = &mem.heaps[heapnr];
         var uintL len = heapptr->heap_end - heapptr->heap_start;
-        var uintL map_len = round_up(len,map_pagesize);
-        heapptr->heap_limit = heapptr->heap_start + map_len;
+        var uintL misaligned =
+          (is_varobject_heap(heapnr) ? varobjects_misaligned : 0);
+        var uintL map_len = round_up(misaligned+len,map_pagesize);
+        heapptr->heap_limit = (heapptr->heap_start-misaligned) + map_len;
         if (map_len > 0) {
           if (heapptr->heap_limit-1 > heapptr->heap_hardlimit-1) goto abort3;
          #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
@@ -1228,7 +1242,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
              the page_alignment is necessary for this purpose! */
           if (use_mmap) {
            #ifdef HAVE_MMAP
-            if (filemap((void*)(heapptr->heap_start),map_len,
+            if (filemap((void*)(heapptr->heap_start-misaligned),map_len,
                         handle,file_offset)
                 != (void*)(-1))
            #endif
@@ -1256,10 +1270,16 @@ local void loadmem_from_handle (Handle handle, const char* filename)
                 if ( lseek(handle,file_offset,SEEK_SET) <0) goto abort1;
             }
           }
-         #endif  /* HAVE_MMAP) || SELFMADE_MMAP */
-          if (zeromap((void*)(heapptr->heap_start),map_len) <0) goto abort3;
+         #endif  /* HAVE_MMAP || SELFMADE_MMAP */
+          if (zeromap((void*)(heapptr->heap_start-misaligned),map_len) <0) goto abort3;
+         #if varobjects_misaligned
+          if (is_varobject_heap(heapnr)) {
+            var uintB dummy[varobjects_misaligned];
+            READ(&dummy[0],varobjects_misaligned);
+          }
+         #endif
           READ(heapptr->heap_start,len);
-          READ_page_alignment(len);
+          READ_page_alignment(misaligned+len);
          block_done: ;
         }
       }
@@ -1281,12 +1301,11 @@ local void loadmem_from_handle (Handle handle, const char* filename)
    #endif  /* SPVW_PURE_BLOCKS) || SPVW_MIXED_BLOCKS_STAGGERED */
    #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
     { /* read objects of variable length: */
-      var uintL len = header._mem_varobjects_end -
-        header._mem_varobjects_start;
+      var uintL len = header._mem_varobjects_end - header._mem_varobjects_start;
      #ifdef TRIVIALMAP_MEMORY
-      var uintL map_len = round_up(len,map_pagesize);
-      mem.varobjects.heap_limit = mem.varobjects.heap_start + map_len;
-      if (zeromap((void*)mem.varobjects.heap_start,map_len) <0) goto abort3;
+      var uintL map_len = round_up(len+varobjects_misaligned,map_pagesize);
+      mem.varobjects.heap_limit = (mem.varobjects.heap_start-varobjects_misaligned) + map_len;
+      if (zeromap((void*)(mem.varobjects.heap_start-varobjects_misaligned),map_len) <0) goto abort3;
      #endif
       READ(mem.varobjects.heap_start,len);
     }
@@ -1439,10 +1458,12 @@ local void loadmem_from_handle (Handle handle, const char* filename)
             = heap->heap_start & -physpagesize;
         } else {
           heap->heap_gen1_start = heap->heap_end
-            = (heap->heap_end + (physpagesize-1)) & -physpagesize;
+            = ((heap->heap_end + (physpagesize-1)) & -physpagesize) + varobjects_misaligned;
+          heap->heap_limit = heap->heap_end;
         }
        #else /* defined(SPVW_PURE_BLOCKS) || defined(SPVW_MIXED_BLOCKS_STAGGERED) */
         heap->heap_gen1_start = heap->heap_end = heap->heap_limit;
+        /* FIXME: varobjects_misaligned ? */
        #endif  /* SPVW_MIXED_BLOCKS_OPPOSITE */
        #ifdef SPVW_PURE_BLOCKS
         /* Don't need to rebuild the cache. */

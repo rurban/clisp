@@ -719,6 +719,13 @@ int main(int argc, char* argv[])
   printf("#define gcinvariant_object_p(obj)  (((as_oint(obj) & 1) == 0) || immediate_object_p(obj))\n");
   printf("#define gcinvariant_bias_p(bias)  ((((bias) & 1) == 0) || ((7 & ~(bias)) == 0))\n");
 #endif
+  printf1("#define varobjects_misaligned  %d\n",varobjects_misaligned);
+#if varobjects_misaligned
+  printf1("#define VAROBJECTS_ALIGNMENT_DUMMY_DECL  char alignment_dummy[%d];\n",varobjects_misaligned);
+#else
+  printf("#define VAROBJECTS_ALIGNMENT_DUMMY_DECL\n");
+#endif
+  printf1("#define varobject_alignment  %d\n",varobject_alignment);
 #ifdef DEBUG_GCSAFETY
   printf("static inline bool gcinvariant_symbol_p (object obj);\n");
   printf("inline gcv_object_t::operator object () const { return (object){ one_o: one_o, allocstamp: alloccount }; }\n");
@@ -1482,6 +1489,7 @@ int main(int argc, char* argv[])
   emit_typedef_f("Values %s(uintC argcount, object* rest_args_pointer)","subr_rest_function_t");
 #endif
   printf("extern struct subr_tab_ {\n");
+  printf("  VAROBJECTS_ALIGNMENT_DUMMY_DECL\n");
   #undef LISPFUN
   #define LISPFUN(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
     printf("  subr_t %s;\n",STRING(D_##name));
@@ -1509,6 +1517,7 @@ int main(int argc, char* argv[])
   printf("#define L(name)  subr_tab_ptr_as_object(&subr_tab_addr->D_##name)\n");
 #endif
   printf("extern struct symbol_tab_ {\n");
+  printf("  VAROBJECTS_ALIGNMENT_DUMMY_DECL\n");
   #define LISPSYM(name,printname,package)  \
     printf("  symbol_ %s;\n",STRING(S_##name));
   #include "constsym.c"

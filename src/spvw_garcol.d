@@ -1818,6 +1818,10 @@ local void gc_unmarkcheck (void) {
                 var aint end = heap->heap_end;
                 heap->heap_gen0_end = end;
                 end = (end + (physpagesize-1)) & -physpagesize;
+                #if varobjects_misaligned
+                if (is_varobject_heap(heapnr))
+                  end += varobjects_misaligned;
+                #endif
                 heap->heap_gen1_start = heap->heap_end = end;
               }
               build_old_generation_cache(heapnr);
@@ -2218,8 +2222,7 @@ local void gc_unmarkcheck (void) {
               free_page_later(page); # return to OS later
             } else {
               # normal large page
-              # initialize again (page->page_room remains the same!):
-              page->page_start = page->page_end = page_start0(page);
+              # keep; page->page_room remains the same!
               # insert into the pool mem.free_pages:
               page->page_gcpriv.next = mem.free_pages;
               mem.free_pages = page;
