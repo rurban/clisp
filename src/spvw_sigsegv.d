@@ -18,6 +18,17 @@
 
 # ------------------------------ Implementation -------------------------------
 
+#if defined(GENERATIONAL_GC) || defined(NOCOST_SP_CHECK)
+local void print_mem_stats (void) {
+  fprintf(stderr,GETTEXTL("Permanently allocated %ld bytes."),static_space());
+  fputs("\n",stderr);
+  fprintf(stderr,GETTEXTL("Currently in use %ld bytes."),used_space());
+  fputs("\n",stderr);
+  fprintf(stderr,GETTEXTL("Free space %ld bytes."),free_space());
+  fputs("\n",stderr);
+}
+#endif
+
 #if defined(GENERATIONAL_GC)
 
 # Put a breakpoint here if you want to catch CLISP just before it dies.
@@ -26,6 +37,7 @@ global void sigsegv_handler_failed (void* address) {
   fprintf(stderr,GETTEXTL("SIGSEGV cannot be cured. Fault address = 0x%lx."),
           address);
   fputs("\n",stderr);
+  print_mem_stats();
 }
 
 # Signal-Handler for signal SIGSEGV or similar:
@@ -60,6 +72,7 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
   if (emergency) {
     fprintf(stderr,GETTEXTL("Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"));
     fputs("\n",stderr);
+    print_mem_stats();
   }
   sigsegv_leave_handler();
  #ifdef HAVE_SAVED_STACK
