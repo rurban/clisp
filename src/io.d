@@ -5603,7 +5603,7 @@ local object right_margin (void) {
   else if (posfixnump(prm))
     ; # okay
   else if (posbignump(prm))
-    prm = fixnum(bit(oint_data_len)-1);
+    prm = fixnum(bitm(oint_data_len)-1);
   else {
     pushSTACK(prm); pushSTACK(S(print_right_margin));
     fehler(error,GETTEXT("~: must be a positive integer or NIL, not ~"));
