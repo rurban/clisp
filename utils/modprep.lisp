@@ -457,7 +457,7 @@ The vector is freshly constructed, but the strings are shared"
   (let ((fd (make-fundef :pack pack :name name :tag
                          (init-to-tag (ext:string-concat pack ":" name)
                                       #'tag-to-fundef "subr_"))))
-    (unless (every #'upper-case-p pack)
+    (when (some #'lower-case-p pack)
       (warn "~S:~D: fixed package case: ~S" *input-file* *lineno* pack)
       (setq pack (string-upcase pack)))
     (unless (every (lambda (c) (or (not (alpha-char-p c)) (upper-case-p c)))
