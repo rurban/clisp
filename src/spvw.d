@@ -2524,8 +2524,11 @@ global int main (argc_t argc, char* argv[]) {
   { /* STACK & SP are settled - check that we have enough STACK */
     var uintL stack_depth =
       STACK_diff((object*)STACK_bound,STACK)/sizeof(*STACK);
-    fprintf(stderr,"STACK depth: %d\nSP depth: %d\n",stack_depth,
+    fprintf(stderr,"STACK depth: %d\n",stack_depth);
+   #ifndef NO_SP_CHECK
+    fprintf(stderr,"SP depth: %d\n",
             STACK_diff((SPint*)SP_bound,(SPint*)SP())/sizeof(SPint));
+   #endif
     if (stack_depth < ca_limit_1) {
       fprintf(stderr,"STACK depth is less than CALL-ARGUMENTS-LIMIT (%d)\n",
               ca_limit_1);
