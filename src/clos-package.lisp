@@ -30,7 +30,7 @@
     ;; Import:
     sys::text                   ; for error messages (i18n.d)
     sys::error-of-type          ; defined in error.d
-    sys::check-function-name    ; defined in init.lisp
+    sys::check-function-name    ; defined in control.d
     sys::function-name-p        ; defined in control.d
     sys::function-block-name    ; defined in eval.d
     sys::memq                   ; defined in list.d
