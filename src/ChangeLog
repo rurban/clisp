@@ -1,5 +1,10 @@
 2004-01-16  Sam Steingold  <sds@gnu.org>
 
+	* defmacro.lisp (kwd-arg-form, analyze-key): do not evaluate the key
+	Reported by Frode Vatvedt Fjeld <frodef@cs.uit.no>
+
+2004-01-16  Sam Steingold  <sds@gnu.org>
+
 	* cpcre.c (PCRE-COMPILE): do not allocate a foreign pointer for
 	NULL study
 	(PCRE-EXEC): pass subject_bytelen instead of subject_len

@@ -252,6 +252,15 @@ x
   (list a b three two one))
 (ALPHA BEE 3 2 1)
 
+;; <http://article.gmane.org/gmane.lisp.clisp.general:7897>
+(defmacro foo (&key ((key var))) `(list ',var))  FOO
+(foo key 42)  (42)
+
+(defun foo (&key ((key var))) `(list ',var))  FOO
+(foo 'key 42)  (list '42)
+
+(fmakunbound 'foo)  FOO
+
 (defmacro m (&key (x x)) `,x)
 m
 
