@@ -1,3 +1,14 @@
+2004-06-08  Arseny Slobodjuk  <ampy@ich.dvo.ru>
+
+	* makemake.in (ARGQ): new variable, shell command
+	argument separator apostrophes. Is empty for command.com.
+	(cflags.h): use it to fix MSVC build.
+	(stdbool.h, stdint.h): use it to shorten the code.
+	(all): make lisp.bsc (source code browser database)
+	when msvc & debug.
+	(lisp.bsc): new target when msvc & debug.
+	(clisp.html): apostrophe problem again.
+
 2004-06-07  Sam Steingold  <sds@gnu.org>
 
 	* .gdbinit (full): do not load NCLX demos
