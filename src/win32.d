@@ -210,10 +210,11 @@ extern_C char *setlocale (int category, const char *locale);
 /* Like ReadConsoleInput with Length==1, but is interruptible by Ctrl-C. */
 extern BOOL ReadConsoleInput1 (HANDLE ConsoleInput, PINPUT_RECORD Buffer, LPDWORD NumberOfEventsRead);
 /* The following functions deal with all kinds of file/pipe/console handles */
-extern int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p);
+extern int read_helper (HANDLE fd, void* buf, int nbyte, bool no_hang);
 #define safe_read(f,b,n)  read_helper(f,b,n,true)
 #define full_read(f,b,n)  read_helper(f,b,n,false)
-extern int full_write (HANDLE fd, const void* buf, int nbyte);
+extern int write_helper (HANDLE fd, const void* buf, int nbyte, bool no_hang);
+#define full_write(f,b,n)  write_helper(f,b,n,false)
 #define read  full_read
 #define write  full_write
 /* Changing the position within a file. */

@@ -1,5 +1,11 @@
 2003-10-09  Sam Steingold  <sds@gnu.org>
 
+	* amiga.d, amigaaux.d, win32.d, win32aux.d (full_write):
+	use write_helper()
+	(write_helper): accept no-hang
+
+2003-10-09  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (const-value-safe): enforce that CONST-VALUE is
 	invalid when CONST-HORIZON is :FORM
 	(anode-constant-value, c-FUNCTION, traverse-anode)

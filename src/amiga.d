@@ -391,10 +391,11 @@ extern Handle stderr_handle;  /* low-level stderr ouput channel */
 # Arbeiten mit offenen Files:
   #define read Read
   # Wrapper um die System-Aufrufe, die Teilergebnisse behandeln:
-  extern long read_helper (Handle handle, void* buf, long nbyte, bool partial_p);
+  extern long read_helper (Handle handle, void* buf, long nbyte, bool _hang);
   #define safe_read(h,b,n)  read_helper(h,b,n,true)
   #define full_read(h,b,n)  read_helper(h,b,n,false)
-  extern long full_write (Handle handle, const void* buf, long nbyte);
+  extern long write_helper (Handle handle, const void* buf, long nbyte, bool _hang);
+  #define full_write(f,b,n)  write_helper(f,b,n,false)
 # wird verwendet von SPVW, STREAM, AMIGAAUX
 
 # ignoriere Ergebnis, was sollen wir tun können?
