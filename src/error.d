@@ -537,7 +537,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
 
 # Fehlermeldung, wenn ein Objekt keine Liste ist.
 # fehler_list(obj);
-# > arg: Nicht-Liste
+# > obj: Nicht-Liste
 # > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(global, fehler_list, (object obj));
   global void fehler_list(obj)
@@ -549,6 +549,24 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
              DEUTSCH ? "~: ~ ist keine Liste." :
              ENGLISH ? "~: ~ is not a list" :
              FRANCAIS ? "~ : ~ n'est pas une liste." :
+             ""
+            );
+    }
+
+# Fehlermeldung, wenn ein Objekt keine echte Liste ist.
+# fehler_proper_list(obj);
+# > obj: Ende der Liste, Nicht-Liste
+# > subr_self: Aufrufer (ein SUBR)
+  nonreturning_function(global, fehler_proper_list, (object obj));
+  global void fehler_proper_list(obj)
+    var object obj;
+    { pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(list)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             DEUTSCH ? "~: Eine echte Liste darf nicht mit ~ aufhören." :
+             ENGLISH ? "~: A true list must not end with ~" :
+             FRANCAIS ? "~ : Une vraie liste ne peut pas se terminer en ~." :
              ""
             );
     }

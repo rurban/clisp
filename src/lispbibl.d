@@ -9375,7 +9375,9 @@ wieder in die zugehörige Top-Level-Schleife einsteigt.
               }                                                                \
               while (consp(l));                                                \
          }                                                                     \
-       mv_fertig: mv_count = count;                                            \
+       mv_fertig:                                                              \
+       if (!nullp(l)) { subr_self = L(values_list); fehler_proper_list(l); }   \
+       mv_count = count;                                                       \
       }
   #else
     #define list_to_mv(lst,fehler_statement)  \
@@ -9393,7 +9395,9 @@ wieder in die zugehörige Top-Level-Schleife einsteigt.
               }                                                                \
               while (consp(l));                                                \
          }}                                                                    \
-       mv_fertig: mv_count = count;                                            \
+       mv_fertig:                                                              \
+       if (!nullp(l)) { subr_self = L(values_list); fehler_proper_list(l); }   \
+       mv_count = count;                                                       \
       }
   #endif
 # wird verwendet von EVAL, CONTROL
@@ -11013,10 +11017,17 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 
 # Fehlermeldung, wenn ein Objekt keine Liste ist.
 # fehler_list(obj);
-# > arg: Nicht-Liste
+# > obj: Nicht-Liste
 # > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(extern, fehler_list, (object obj));
 # wird verwendet von LIST, EVAL
+
+# Fehlermeldung, wenn ein Objekt keine echte Liste ist.
+# fehler_proper_list(obj);
+# > obj: Ende der Liste, Nicht-Liste
+# > subr_self: Aufrufer (ein SUBR)
+  nonreturning_function(extern, fehler_proper_list, (object obj));
+# wird verwendet von LIST
 
 # Fehlermeldung, wenn ein Objekt kein Symbol ist.
 # fehler_kein_symbol(caller,obj);

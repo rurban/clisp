@@ -30,6 +30,8 @@ User visible changes
   MAKE-TWO-WAY-STREAM, MAKE-ECHO-STREAM now verify that their arguments are
   input streams or output streams, respectively.
 
+* The function VALUES-LIST now verifies that its argument is a proper list.
+
 Portability
 -----------
 
