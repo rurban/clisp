@@ -1096,7 +1096,7 @@ global int main()
 #   printf("#define ulong_p  uint64_p\n");
 #   printf("#define slong_p  sint64_p\n");
 # #endif
-  #if defined(GNU) && defined(I80386) && !defined(NO_ASM)
+  #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
     printf("%s\n","#define SP()  ({var aint __SP; __asm__ __volatile__ (\"movl %%esp,%0\" : \"=g\" (__SP) : ); __SP; })");
   #endif
   #if !defined(STACK_register)
