@@ -2220,58 +2220,103 @@ nonreturning_function(global, fehler_both_tests, (void)) {
     # dl=0 -> sequence unverändert zurückgeben:
     if (dl==0)
       return *(stackptr STACKop 0);
-    # neue Sequence allozieren:
-    pushSTACK(I_I_minus_I(STACK_1,fixnum(dl))); # (- l dl)
-    funcall(seq_make(STACK_(2+1)),1); # (SEQ-MAKE (- l dl))
-    pushSTACK(value1);
-    # Stackaufbau: typdescr, l, bv, sequence2.
-    pushSTACK(*(stackptr STACKop 0)); # sequence
-    pushSTACK(STACK_(3+1)); # typdescr
-    pushSTACK(STACK_(0+2)); # sequence2
-    pushSTACK(STACK_(3+3)); # typdescr
-    pushSTACK(*(stackptr STACKop -2)); # start
-    # Stackaufbau: typdescr, l, bv, sequence2,
-    #              seq1, typdescr1, seq2, typdescr2, start.
-    pushSTACK(STACK_4); funcall(seq_init(STACK_(3+1)),1); # (SEQ-INIT sequence)
-    pushSTACK(value1); # =: pointer1
-    pushSTACK(STACK_(2+1)); funcall(seq_init(STACK_(1+1+1)),1); # (SEQ-INIT sequence2)
-    pushSTACK(value1); # =: pointer2
-    # Stackaufbau: typdescr, l, bv, sequence2,
-    #              seq1, typdescr1, seq2, typdescr2, start,
-    #              pointer1, pointer2.
-    {
-      # Vorderes Teilstück:
-      # Elemente mit Index <start von sequence1 nach sequence2
-      # unverändert übertragen:
-      copy_seqpart_into();
-    }
-    {
-      # Mittleres Teilstück: sieben.
-      var uintL bvi = 0;
-      until (bvi==bvl) {
-        if (!(sbvector_btst(STACK_(1+5+2),bvi))) { # (sbit bv bvi) abfragen
-          # Bit ist nicht gesetzt, also Element übernehmen
-          pushSTACK(STACK_(4+2)); pushSTACK(STACK_(1+1));
-          funcall(seq_access(STACK_(3+2+2)),2); # (SEQ-ACCESS seq1 pointer1)
-          pushSTACK(STACK_(2+2)); pushSTACK(STACK_(0+1)); pushSTACK(value1);
-          funcall(seq_access_set(STACK_(1+2+3)),3); # (SEQ-ACCESS-SET seq2 pointer2 ...)
-          # pointer2 := (SEQ-UPD seq2 pointer2) :
-          pointer_update(STACK_0,STACK_(2+2),STACK_(1+2));
+    if (eq(seq_type(STACK_2),S(list))) { # type LIST ?
+      var uintL start = posfixnum_to_L(*(stackptr STACKop -2));
+      var uintL nl;
+      {
+        # Find the highest bit set in the bit vector:
+        var uintL bvi = bvl;
+        for (;;) {
+          bvi--;
+          if (sbvector_btst(STACK_0,bvi))
+            break;
         }
-        # pointer1 := (SEQ-UPD seq1 pointer1) :
-        pointer_update(STACK_1,STACK_(4+2),STACK_(3+2));
-        bvi++;
+        nl = bvi+1;
       }
+      var object result = make_list(start+nl-dl);
+      var object pointer1 = *(stackptr STACKop 0); # sequence
+      var object pointer2 = result;
+      var object lastpointer2 = NIL;
+      # Copy the head part:
+      for (; start > 0; start--) {
+        Car(pointer2) = Car(pointer1);
+        pointer1 = Cdr(pointer1);
+        lastpointer2 = pointer2;
+        pointer2 = Cdr(pointer2);
+      }
+      # Copy the middle part, stopping at index nl:
+      {
+        var uintL bvi;
+        for (bvi = 0; bvi < nl; bvi++) {
+          if (!sbvector_btst(STACK_0,bvi)) {
+            # Bit is zero, keep element.
+            Car(pointer2) = Car(pointer1);
+            lastpointer2 = pointer2;
+            pointer2 = Cdr(pointer2);
+          }
+          pointer1 = Cdr(pointer1);
+        }
+      }
+      # Share the tail parts of the lists:
+      if (!nullp(lastpointer2))
+        Cdr(lastpointer2) = pointer1;
+      else
+        result = pointer1;
+      return result;
+    } else {
+      # neue Sequence allozieren:
+      pushSTACK(I_I_minus_I(STACK_1,fixnum(dl))); # (- l dl)
+      funcall(seq_make(STACK_(2+1)),1); # (SEQ-MAKE (- l dl))
+      pushSTACK(value1);
+      # Stackaufbau: typdescr, l, bv, sequence2.
+      pushSTACK(*(stackptr STACKop 0)); # sequence
+      pushSTACK(STACK_(3+1)); # typdescr
+      pushSTACK(STACK_(0+2)); # sequence2
+      pushSTACK(STACK_(3+3)); # typdescr
+      pushSTACK(*(stackptr STACKop -2)); # start
+      # Stackaufbau: typdescr, l, bv, sequence2,
+      #              seq1, typdescr1, seq2, typdescr2, start.
+      pushSTACK(STACK_4); funcall(seq_init(STACK_(3+1)),1); # (SEQ-INIT sequence)
+      pushSTACK(value1); # =: pointer1
+      pushSTACK(STACK_(2+1)); funcall(seq_init(STACK_(1+1+1)),1); # (SEQ-INIT sequence2)
+      pushSTACK(value1); # =: pointer2
+      # Stackaufbau: typdescr, l, bv, sequence2,
+      #              seq1, typdescr1, seq2, typdescr2, start,
+      #              pointer1, pointer2.
+      {
+        # Vorderes Teilstück:
+        # Elemente mit Index <start von sequence1 nach sequence2
+        # unverändert übertragen:
+        copy_seqpart_into();
+      }
+      {
+        # Mittleres Teilstück: sieben.
+        var uintL bvi = 0;
+        until (bvi==bvl) {
+          if (!(sbvector_btst(STACK_(1+5+2),bvi))) { # (sbit bv bvi) abfragen
+            # Bit ist nicht gesetzt, also Element übernehmen
+            pushSTACK(STACK_(4+2)); pushSTACK(STACK_(1+1));
+            funcall(seq_access(STACK_(3+2+2)),2); # (SEQ-ACCESS seq1 pointer1)
+            pushSTACK(STACK_(2+2)); pushSTACK(STACK_(0+1)); pushSTACK(value1);
+            funcall(seq_access_set(STACK_(1+2+3)),3); # (SEQ-ACCESS-SET seq2 pointer2 ...)
+            # pointer2 := (SEQ-UPD seq2 pointer2) :
+            pointer_update(STACK_0,STACK_(2+2),STACK_(1+2));
+          }
+          # pointer1 := (SEQ-UPD seq1 pointer1) :
+          pointer_update(STACK_1,STACK_(4+2),STACK_(3+2));
+          bvi++;
+        }
+      }
+      {
+        # Hinteres Teilstück:
+        # Elemente mit Index >=end von sequence1 nach sequence2
+        # unverändert übertragen:
+        STACK_(0+2) = I_I_minus_I(STACK_(2+5+2),*(stackptr STACKop -3)); # (- l end)
+        copy_seqpart_into();
+      }
+      skipSTACK(5+2);
+      return popSTACK(); # sequence2 als Ergebnis
     }
-    {
-      # Hinteres Teilstück:
-      # Elemente mit Index >=end von sequence1 nach sequence2
-      # unverändert übertragen:
-      STACK_(0+2) = I_I_minus_I(STACK_(2+5+2),*(stackptr STACKop -3)); # (- l end)
-      copy_seqpart_into();
-    }
-    skipSTACK(5+2);
-    return popSTACK(); # sequence2 als Ergebnis
   }
 
 # UP: Hilfsroutine für DELETE-Funktionen.
