@@ -7,6 +7,7 @@
 
 	* comptran.d (R_R_asinh_R_R): fixed the floating point type of the
 	return value
+	* utils/clispload.lsp: ASINH.5 is now fixed
 
 2004-04-09  Bruno Haible  <bruno@clisp.org>
 
