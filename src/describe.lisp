@@ -467,8 +467,8 @@ to print the corresponding values, or T for all of them.")
       (FUNCTION
        (format stream
                (TEXT "a~:[n interpret~; compil~]ed function.")
-               (compiled-function-p obj))
-       (if (compiled-function-p obj)
+               (sys::%compiled-function-p obj))
+       (if (sys::%compiled-function-p obj)
          (multiple-value-bind (req opt rest-p key-p keywords other-keys-p)
              (sys::signature obj)
            (sys::describe-signature stream req opt rest-p key-p keywords

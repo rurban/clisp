@@ -54,7 +54,7 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
     (unless (sys::closurep object)
       (error-of-type 'error (TEXT "Cannot disassemble ~S") object))
     ;; the object is a closure.
-    (unless (compiled-function-p object)
+    (unless (sys::%compiled-function-p object)
       (setq object
             (compile-lambda (sys::%record-ref object 0) ; name
                             (sys::%record-ref object 1) ; lambdabody
