@@ -41,12 +41,14 @@
 
 
 ;; MOP p. 82
+(fmakunbound 'method-function)
 (defgeneric method-function (method)
   (:method ((method standard-method))
     (std-method-function-or-substitute method)))
 (initialize-extended-method-check #'method-function)
 
 ;; MOP p. 82
+(fmakunbound 'method-qualifiers)
 (defgeneric method-qualifiers (method)
   (:method ((method standard-method))
     (std-method-qualifiers method)))
@@ -54,18 +56,35 @@
 ;(initialize-extended-method-check #'method-qualifiers)
 
 ;; MOP p. 82
+(fmakunbound 'method-lambda-list)
 (defgeneric method-lambda-list (method)
   (:method ((method standard-method))
     (std-method-lambda-list method)))
 (initialize-extended-method-check #'method-lambda-list)
 
+;; Not in MOP.
+(fmakunbound 'method-signature)
+(defgeneric method-signature (method)
+  (:method ((method method))
+    (let ((lambda-list (method-lambda-list method)))
+      (method-lambda-list-to-signature lambda-list
+        #'(lambda (detail errorstring &rest arguments)
+            (declare (ignore detail))
+            (error (TEXT "Invalid ~S result for ~S: ~:S: ~A")
+                   'method-lambda-list method lambda-list
+                   (apply #'format nil errorstring arguments))))))
+  (:method ((method standard-method))
+    (std-method-signature method)))
+
 ;; MOP p. 82
+(fmakunbound 'method-specializers)
 (defgeneric method-specializers (method)
   (:method ((method standard-method))
     (std-method-specializers method)))
 (initialize-extended-method-check #'method-specializers)
 
 ;; MOP p. 82
+(fmakunbound 'method-generic-function)
 (defgeneric method-generic-function (method)
   (:method ((method standard-method))
     (std-method-generic-function method)))

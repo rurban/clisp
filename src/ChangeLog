@@ -1,5 +1,18 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
+	* clos-method1.lisp (method-lambda-list-to-signature): New function,
+	extracted from initialize-instance-<standard-method>.
+	(initialize-instance-<standard-method>): Use it.
+	(method-function, method-qualifiers, method-lambda-list,
+	method-signature, method-specializers, method-generic-function): New
+	preliminary functions.
+	* clos-method3.lisp (method-function, method-qualifiers,
+	method-lambda-list, method-specializers, method-generic-function):
+	Fmakunbound before defgeneric.
+	(method-signature): New generic function.
+
+2004-10-10  Bruno Haible  <bruno@clisp.org>
+
 	Respect user-defined methods on finalize-inheritance.
 	* clos-class3.lisp (finalize-inheritance): New preliminary function.
 	(subclassp, update-subclasses-for-redefined-class,
