@@ -1,3 +1,8 @@
+1999-11-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * autoconf/acgeneral.m4 (AC_ARG_PROGRAM): Create `conftestsed' once
+          only.
+
 1999-11-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * pathname.d (directory_diff_ab): Set new_piece to
