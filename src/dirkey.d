@@ -368,7 +368,7 @@ LISPFUN(dir_key_open,seclass_default,2,0,norest,key,2,
     if_not_exists = (direction == DIRECTION_INPUT ?
                      IF_DOES_NOT_EXIST_ERROR : IF_DOES_NOT_EXIST_CREATE);
   # create the key handle
-  var object type = (dir_key_p(root) ? TheDirKey(root)->type : root);
+  var object type = (dir_key_p(root) ? (object)TheDirKey(root)->type : root);
   #ifdef WIN32_REGISTRY
   if (eq(type,S(Kwin32))) {
     if (dir_key_p(root)) {
@@ -757,7 +757,7 @@ LISPFUNN(dkey_search_next_att,1) {
   var DWORD size;
   var DWORD status = RegEnumValue((HKEY)(fp->fp_pointer),
                                   attnum,att,&attlen,NULL,
-                                  &type,dat,&size);
+                                  &type,(BYTE*)dat,&size);
   if (status == ERROR_SUCCESS) {
     NODE_ATT(node) = fixnum_inc(NODE_ATT(node),1);
     pushSTACK(asciz_to_string(att,O(misc_encoding)));
@@ -798,6 +798,7 @@ LISPFUN(dir_key_value,seclass_default,2,1,norest,nokey,0,NIL) {
     var DWORD status;
     var DWORD type;
     var DWORD size;
+    var char* buffer = NULL;
     begin_system_call();
     status = RegQueryValueEx((HKEY)(TheDirKey(dkey)->handle),namez,
                              NULL,NULL,NULL,&size);
@@ -810,9 +811,9 @@ LISPFUN(dir_key_value,seclass_default,2,1,norest,nokey,0,NIL) {
       SetLastError(status); OS_error();
     }
     ++size;                     # one extra char for `\0'
-    var char* buffer = (char*)alloca(size);
+    buffer = (char*)alloca(size);
     status = RegQueryValueEx((HKEY)(TheDirKey(dkey)->handle),namez,
-                             NULL,&type,buffer,&size);
+                             NULL,&type,(BYTE*)buffer,&size);
     if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }
     end_system_call();
     value1 = registry_value_to_object(type,size,buffer);
@@ -832,12 +833,12 @@ LISPFUNN(set_dkey_value,3) {
     if (stringp(value)) {
       with_string_0(value,O(misc_encoding),valz, {
         SYSCALL_WIN32(RegSetValueEx((HKEY)(TheDirKey(dkey)->handle),namez,0,
-                                    REG_SZ,valz,strlen(valz)));
+                                    REG_SZ,(BYTE*)valz,strlen(valz)));
       });
     } else if (integerp(value)) {
       var DWORD word = I_to_UL(value);
       SYSCALL_WIN32(RegSetValueEx((HKEY)(TheDirKey(dkey)->handle),namez,0,
-                                  REG_DWORD,(char*)&word,sizeof(DWORD)));
+                                  REG_DWORD,(BYTE*)&word,sizeof(DWORD)));
     } else if (bit_vector_p(Atype_8Bit,value)) {
       var uintL idx = 0;
       var uintL len = vector_length(value);
