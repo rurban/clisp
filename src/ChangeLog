@@ -1,3 +1,64 @@
+2004-11-24  Bruno Haible  <bruno@clisp.org>
+
+	Support heaps > 4 GB.
+	* lispbibl.d (intMsize): New macro.
+	(uintM, sintM): New types.
+	(map_heap_function_t): Use uintM.
+	(varobject_bytelength): Return uintM.
+	(uintM_to_I, sintM_to_I): New macros.
+	* spvw.d (argv_initparams): Change type of argv_memneed to uintM.
+	(parse_options): Produce an uintM for argv_memneed. Accept GB as
+	denoting "Giga".
+	(init_memory): Use uintM.
+	(dynload_modules): Likewise.
+	* spvw_mmap.d (mmap_zeromap, mmap_filemap): Take an uintM.
+	(mmap_prepare): Use uintM.
+	* spvw_multimap.d (mmap_interval_t): Change the type of mm_len to
+	uintM.
+	(remember_mmap_interval, fdmap, zeromap, open_temp_fd, fdsave,
+	open_shmid, shmsave): Take an uintM.
+	(multimap): Update.
+	* spvw_singlemap.d (filemap): Take an uintM.
+	* spvw_page.d (_Page): Change type of gcpriv.l to uintM.
+	(spvw AVL_ELEMENT): Use uintM.
+	* spvw_heap.d (Heap): Change the type of misaligned to uintM.
+	* spvw_global.d (mem): Change the type of total_room,
+	last_gcend_space0, last_gcend_space1, total_space, used_space,
+	last_gcend_space, gctrigger_space to uintM.
+	(check_gc_consistency, check_gc_consistency_2): Update.
+	* spvw_gcstat.d (inc_gc_space): Take an uintM.
+	* spvw_space.d (static_space, used_space, free_space): Return uintM.
+	(recalc_space): Update.
+	* spvw_objsize.d (varobject_bytelength): Return uintM.
+	(size_svector): Likewise.
+	(objsize, objsize_symbol, objsize_sbvector, objsize_sb2vector,
+	objsize_sb4vector, objsize_sb8vector, objsize_sb16vector,
+	objsize_sb32vector, objsize_svector, objsize_sxrecord, objsize_lrecord,
+	objsize_bignum, objsize_ffloat, objsize_dfloat, objsize_lfloat,
+	objsize_func_t): Likewise.
+	* spvw_update.d (update_varobject, update_svector): Use uintM.
+	* spvw_fault.d (xmprotect, xmmprotect): Take an uintM.
+	* spvw_garcol.d (gc_sweep1_varobject_page): Update.
+	(move_aligned_p1_p2): Take an uintM.
+	(gc_sweep2_varobject_page, free_some_unused_pages): Update.
+	(gar_col_normal): Update.
+	(spvw SORT_KEY): Use uintM.
+	(gc_compact_from_varobject_page, gc_compact_from_cons_page): Update.
+	(gar_col_compact): Update.
+	(move_conses): Take a sintM.
+	* spvw_weak.d (markwatchset_allocated, markwatchset_size): Change type
+	to uintM.
+	(activate_weak): Update.
+	* spvw_allocate.d (relax_reserve, mymalloc): Take an uintM.
+	(not_enough_room_p, make_space, make_space_gc, make_space_true,
+	make_space_false, make_space_using_malloc): Likewise.
+	* spvw_typealloc.d (allocate_vector): Use uintM.
+	* spvw_walk.d (map_heap_objects): Update.
+	* spvw_memfile.d (savemem, loadmem_from_handle): Use uintM.
+	* predtype.d (hs_record_t): Change type of n_bytes to sintM.
+	(heap_statistics_mapper, heap_statistics_result): Update.
+	* debug.d (SYSTEM::%ROOM): Use uintM and uintM_to_I.
+
 2004-11-24  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (listen_handle) [WIN32_NATIVE]: use full_read() instead

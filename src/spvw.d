@@ -1800,7 +1800,7 @@ struct argv_init_c {
 
 # Parameters needed to initialize Lisp memory.
 struct argv_initparams {
-  uintL argv_memneed;
+  uintM argv_memneed;
  #ifdef MULTIMAP_MEMORY_VIA_FILE
   const char* argv_tmpdir;
  #endif
@@ -1947,15 +1947,17 @@ local inline int parse_options (int argc, const char* const* argv,
             #define SIZE_ARG(docstring,sizevar,limit_low,limit_high)       \
                # arg should consist of a few decimal places, then          \
                # maybe K or M, then maybe B or W.                          \
-              do { # arg: [0-9]+[KM]?[BW]?                                 \
-                var uintL val = 0;                                         \
+              do { # arg: [0-9]+[KMG]?[BW]?                                \
+                var uintM val = 0;                                         \
                 while ((*arg >= '0') && (*arg <= '9'))                     \
-                  val = 10*val + (uintL)(*arg++ - '0');                    \
+                  val = 10*val + (uintM)(*arg++ - '0');                    \
                 switch (*arg) {                                            \
                   case 'k': case 'K': # in kilobytes                       \
                     val = val * 1024; arg++; break;                        \
                   case 'm': case 'M': # in megabytes                       \
                     val = val * 1024*1024; arg++; break;                   \
+                  case 'g': case 'G': # in gigabytes                       \
+                    val = val * 1024*1024*1024; arg++; break;              \
                 }                                                          \
                 switch (*arg) {                                            \
                   case 'w': case 'W': # in words                           \
@@ -1995,7 +1997,7 @@ local inline int parse_options (int argc, const char* const* argv,
                       # address space in oint_addr_len+addr_shift bits
                       ? bitm(oint_addr_len+addr_shift)
                       # (resp. big dummy-limit)
-                      : (uintL)bit(intLsize-1)-1));
+                      : (uintM)bitm(oint_addr_len+addr_shift)-1));
             break;
           case 't': # traditional, temporary directory
             if (asciz_equal(arg,"-traditional"))
@@ -2399,7 +2401,7 @@ local inline int init_memory (const struct argv_initparams *p) {
       teile*varobject_alignment
      #endif
       ;
-    var uintL memneed = p->argv_memneed; # needed memory
+    var uintM memneed = p->argv_memneed; # needed memory
     var aint memblock; # lower address of the provided memory block
    #if !(defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY))
     memneed = teile_STACK*floor(memneed,teile); # do not yet calculate memory for objects
@@ -2421,7 +2423,7 @@ local inline int init_memory (const struct argv_initparams *p) {
     # The only way out is to fetch the necessary memory from far,
     # if possible, out of reach of malloc() .
     {
-      var uintL memhave = round_down(bit(oint_addr_len)-(aint)sbrk(0),SHMLBA);
+      var uintM memhave = round_down(bit(oint_addr_len)-(aint)sbrk(0),SHMLBA);
       if (memhave < memneed) { memneed = memhave; }
       memblock = round_down(bit(oint_addr_len) - memneed,SHMLBA);
     }
@@ -2522,7 +2524,7 @@ local inline int init_memory (const struct argv_initparams *p) {
     # set symbol_tab, subr_tab to address 0:
     # (for this purpose case_symbolflagged must be equivalent to case_symbol!)
     #define map_tab(tab,size)                                                \
-      do { var uintL map_len = round_up(size,map_pagesize);                  \
+      do { var uintM map_len = round_up(size,map_pagesize);                  \
            if ( zeromap(&tab,map_len) <0) return -1;                         \
            mem.heaps[typecode(as_object((oint)&tab))].heap_limit += map_len; \
       } while(0)
@@ -2620,7 +2622,7 @@ local inline int init_memory (const struct argv_initparams *p) {
     }
    #ifdef SINGLEMAP_MEMORY_STACK
     { # initialize STACK:
-      var uintL map_len = round_up(memneed * teile_STACK/teile, map_pagesize);
+      var uintM map_len = round_up(memneed * teile_STACK/teile, map_pagesize);
       # The stack occupies the interval between 0 and map_len
       # for typecode = system_type:
       var aint low = (aint)type_zero_oint(system_type);
@@ -2648,9 +2650,9 @@ local inline int init_memory (const struct argv_initparams *p) {
     init_physpagesize();
    #endif
     { # divide memory block:
-      var uintL free_reserved; # number of reserved bytes
-      var uintL for_STACK; # number of bytes for Lisp-stack
-      var uintL for_objects; # number of bytes for Lisp-objects
+      var uintM free_reserved; # number of reserved bytes
+      var uintM for_STACK; # number of bytes for Lisp-stack
+      var uintM for_objects; # number of bytes for Lisp-objects
       # the STACK needs alignment, because for frame-pointers
       # the last Bit must be =0:
       #define STACK_alignment  bit(addr_shift+1)
@@ -2660,7 +2662,7 @@ local inline int init_memory (const struct argv_initparams *p) {
       free_reserved = round_down(free_reserved,teile*alignment);
       free_reserved = free_reserved - RESERVE;
       {
-        var uintL teil = free_reserved/teile; # a sub block, a 1/16 of the room
+        var uintM teil = free_reserved/teile; # a sub block, a 1/16 of the room
         var aint ptr = memblock;
         mem.MEMBOT = ptr;
           #ifdef UNIX_NEXTSTEP
@@ -2760,7 +2762,7 @@ local inline int init_memory (const struct argv_initparams *p) {
   }
  #ifdef DEBUG_SPVW
   { /* STACK & SP are settled - check that we have enough STACK */
-    var uintL stack_depth =
+    var uintM stack_depth =
       STACK_item_count((gcv_object_t*)STACK_bound,STACK)/sizeof(*STACK);
     fprintf(stderr,"STACK depth: %d\n",stack_depth);
    #ifndef NO_SP_CHECK
@@ -3446,8 +3448,8 @@ global void dynload_modules (const char * library, uintC modcount,
             var uintC count = *module->stab_size;
             if (count > 0) {
               {
-                var uintL old_map_len = round_up(varobjects_misaligned+total_subr_anz*sizeof(subr_t),map_pagesize);
-                var uintL new_map_len = round_up(varobjects_misaligned+(total_subr_anz+count)*sizeof(subr_t),map_pagesize);
+                var uintM old_map_len = round_up(varobjects_misaligned+total_subr_anz*sizeof(subr_t),map_pagesize);
+                var uintM new_map_len = round_up(varobjects_misaligned+(total_subr_anz+count)*sizeof(subr_t),map_pagesize);
                 if (old_map_len < new_map_len) {
                   if (zeromap((void*)((aint)&subr_tab+old_map_len),new_map_len-old_map_len) <0)
                     fehler_dlerror("zeromap",NULL,"out of memory for subr_tab");

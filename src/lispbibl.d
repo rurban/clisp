@@ -2640,6 +2640,25 @@ typedef unsigned_int_with_n_bits(oint_type_len)  tint;
 typedef unsigned_int_with_n_bits(oint_addr_len)  aint;
 typedef signed_int_with_n_bits(oint_addr_len)  saint;
 
+# Integer type used to represent an amount of memory:
+# (This may be larger than size_t or ptrdiff_t: size_t is required by ISO C to
+# be enough for the size of a single memory block; ptrdiff_t is required by
+# ISO C to be enough for the size of a single memory block plus room for a sign
+# bit. But on segmented architectures which allow many medium-sized memory
+# blocks, like the 80286 was, the total available memory size may be bigger.
+# Also, we avoid size_t because it's likely to be wrong on 64-bit Woe32.)
+#if !defined(WIDE_HARD) || ((oint_addr_mask & !0xFFFFFFFFUL) == 0)
+  # A 32-bit integer is sufficient.
+  #define intMsize  intLsize
+  typedef uintL uintM;
+  typedef sintL sintM;
+#else
+  # An integer as wide as a pointer may be required.
+  #define intMsize  pointer_bitsize
+  typedef uintP uintM;
+  typedef sintP sintM;
+#endif
+
 # Number of bits by which an address is finally being shifted:
 #ifndef addr_shift
   #define addr_shift 0
@@ -9085,7 +9104,7 @@ extern object subst_circ (gcv_object_t* ptr, object alist);
 # map_heap_objects(fun,arg);
 # > fun: C-Function
 # > arg: arbitrary given Argument
-typedef void map_heap_function_t (void* arg, object obj, uintL bytelen);
+typedef void map_heap_function_t (void* arg, object obj, uintM bytelen);
 extern void map_heap_objects (map_heap_function_t* fun, void* arg);
 # is used by PREDTYPE
 
@@ -9093,7 +9112,7 @@ extern void map_heap_objects (map_heap_function_t* fun, void* arg);
 # varobject_bytelength(obj)
 # > obj: Heap-object with variable length
 # < result; the number of bytes occupied by it (header included)
-extern uintL varobject_bytelength (object obj);
+extern uintM varobject_bytelength (object obj);
 # is used by PREDTYPE
 
 # Break-Semaphores
@@ -14063,6 +14082,20 @@ extern object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
   #define slong_to_I(val)  sint64_to_I(val)
 #endif
 # is used by MISC, for FFI
+
+# Converts a uintM integer into an Integer.
+#if intMsize <= intLsize
+  #define uintM_to_I(val)  UL_to_I(val)
+#else
+  #define uintM_to_I(val)  UQ_to_I(val)
+#endif
+
+# Converts a sintM integer into an Integer.
+#if intMsize <= intLsize
+  #define sintM_to_I(val)  L_to_I(val)
+#else
+  #define sintM_to_I(val)  Q_to_I(val)
+#endif
 
 # Converts an Integer >=0 into an unsigned longword.
 # I_to_UL(obj)

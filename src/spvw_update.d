@@ -171,7 +171,7 @@
   #define update_varobject(type_expr)                                      \
    do {                                                                    \
      var tint type = (type_expr); # typeinfo                               \
-     var uintL laenge = objsize((Varobject)ptr); # determine length        \
+     var uintM laenge = objsize((Varobject)ptr); # determine length        \
      var aint newptr = ptr+laenge; # pointer to next object                \
      # fall differentiation according to:                                  \
      # symbol; simple-vector; non-simple array;                            \
@@ -212,7 +212,7 @@
  #else # TYPECODES
   #define update_varobject(type_expr)                                      \
    do {                                                                    \
-     var uintL laenge = objsize((Varobject)ptr); # determine length        \
+     var uintM laenge = objsize((Varobject)ptr); # determine length        \
      var aint newptr = ptr+laenge; # pointer to the next object            \
      switch (record_type((Record)ptr)) { # type of the next object         \
        case Rectype_mdarray:                                               \
@@ -281,7 +281,7 @@
    } while(0)
  #define update_svector(type_expr)  # ignores type_expr                 \
    do {                                                                 \
-     var uintL laenge = objsize_svector((void*)ptr); # determine length \
+     var uintM laenge = objsize_svector((void*)ptr); # determine length \
      var aint newptr = ptr+laenge; # pointer to the next object         \
      # Simple-vector: update all pointers                               \
      do_update_svector();                                               \

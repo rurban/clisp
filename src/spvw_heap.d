@@ -24,7 +24,7 @@ typedef struct {
   # _Page reserve; # a reserve-page ??
   # heap for objects of fixed length:
   Pages lastused; # a cache for the last used page
-  uintL misaligned; # a misalignment that must be applied to all objects
+  uintM misaligned; # a misalignment that must be applied to all objects
 } Heap;
 
   #define map_heap(heap,pagevar,statement)  \

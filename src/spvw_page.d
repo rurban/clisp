@@ -14,7 +14,7 @@ typedef struct {
   #else
   union
   #endif
-        { gcv_object_t firstmarked; uintL l; aint d; void* next; }
+        { gcv_object_t firstmarked; uintM l; aint d; void* next; }
         gcpriv; # private variable during GC
 } _Page;
 
@@ -61,7 +61,7 @@ typedef _Page Page;
 #endif
 
 #define AVLID  spvw
-#define AVL_ELEMENT  uintL
+#define AVL_ELEMENT  uintM
 #define AVL_EQUAL(element1,element2)  ((element1)==(element2))
 #define AVL_KEY  AVL_ELEMENT
 #define AVL_KEYOF(element)  (element)
