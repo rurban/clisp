@@ -1,5 +1,11 @@
 2002-02-11  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (strip_white): strip only the CR, not all whitespace,
+	since it breaks READ-LINE on terminals
+	Reported by Peter Wood <peter.wood@worldonline.dk>
+
+2002-02-11  Sam Steingold  <sds@gnu.org>
+
 	ANSI CL 11.1.2.1.2 #9 forbids tracing in COMMON-LISP
 	* trace.lisp (trace1, untrace1): forbid tracing in locked packages
 	* init.lisp (check-redefinition): handle (SETF function-name)

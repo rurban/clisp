@@ -9712,17 +9712,19 @@ local char* lisp_completion_more (char* text, int state) {
     return NULL;
 }
 
-# Strip whitespace from the end of STRING.
+# Strip trailing '\r' from the end of STRING.
 # Returns STRING.
 # Borrowed from BASH 2.05
 # we do not strip the initial whitespace
 # since it is needed for indentation.
+# we do not strip the trailing whitespace since this would break
+# READ-LINE on terminal streams: it must not strip whitespace.
 local char * strip_white (char *string) {
   char *end, *beg=string;
   if (beg == NULL) return NULL;
   # while (ch_blank_p(*beg)) beg++;
   if (*beg == 0) return beg;
-  for (end = beg + strlen (beg) - 1; end > beg && cint_white_p (*end); end--);
+  for (end = beg + strlen (beg) - 1; end > beg && (*end == '\r'); end--);
   *++end = '\0';
   return beg;
 }
