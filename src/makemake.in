@@ -2037,7 +2037,7 @@ if [ $HOS = acorn ] ; then
 fi
 needs="init allc allo lisp${LEXE} $interpreted.mem $halfcompiled.mem lispinit.mem manual"
 if [ $HOS = unix -a $CROSS = false ] ; then
-  needs=$needs' modular $(MODULES) full clisp.c .clisp .gdbinit'
+  needs=".clisp .gdbinit "$needs' modular $(MODULES) full clisp.c'
 fi
 echol "all : $needs"
 echodummyrule all
