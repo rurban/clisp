@@ -1,3 +1,13 @@
+2003-01-19  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	Make clisp compiling on cygwin with g++
+	* avl.d (AVL(AVLID,delete1)): legalize goto for CC=g++
+	* spvw_garcol.d (free_some_unused_pages): explicit typecast
+	* spvw_allocate.d (make_space_gc): explicit typecast
+	* lispbibl.d: don't define setjmp, longjmp as  _setjmp, _longjmp
+	* spvw_memfile (offset_pages_t): new type
+	(loadmem_from handle): use it in explicit typecast
+
 2003-01-16  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (allocate_weakkvt): DON'T USE LOCAL VARIABLES OF TYPE
