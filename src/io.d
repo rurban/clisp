@@ -5886,6 +5886,23 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     }
   }
 
+# Returns the string-width of a PPHELP stream block.
+  local uintL pphelp_string_width (object string);
+  local uintL pphelp_string_width(string)
+    var object string;
+    {
+      var uintL width = 0;
+      var uintL len = TheIarray(string)->dims[1]; # length = fill-pointer
+      if (len > 0) {
+        string = TheIarray(string)->data; # mutable simple-string
+        var const chart* charptr = &TheSstring(string)->data[0];
+        dotimespL(len,len, {
+          width += char_width(*charptr); charptr++;
+        });
+      }
+      return width;
+    }
+
 # UP: Fängt in PPHELP-Stream A5 eine neue Zeile an.
 # pphelp_newline(&stream);
 # > stream: Stream
@@ -6202,11 +6219,11 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             if (atomp(block)) { # ein Mehrzeiler oder Einzeiler?
               # Es ist ein Einzeiler.
               # Passt er noch auf dieselbe Zeile,
-              # d.h. ist  Line-Position + 1 + length(Einzeiler) <= L ?
+              # d.h. ist  Line-Position + 1 + string_width(Einzeiler) <= L ?
               var object linelength = right_margin();
               if (nullp(linelength) # =NIL -> passt
                   || (posfixnum_to_L(TheStream(*stream_)->strm_pphelp_lpos) # Line-Position
-                      + TheIarray(block)->dims[1] # Länge = Fill-Pointer des Einzeilers
+                      + pphelp_string_width(block) # Breite des Einzeilers
                       < posfixnum_to_L(linelength) # < linelength ?
                  )   ) {
                 # Passt noch.
@@ -6271,7 +6288,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # Prüfe, ob die Blöcke in SYS::*PRIN-JBLOCKS*
         # (jeder Block Einzeiler) zusammen einen Einzeiler ergeben können:
         # Ist L=NIL (keine Randbeschränkung) oder
-        # L1 + (Gesamtlänge der Blöcke) + (Anzahl der Blöcke-1) <= L ?
+        # L1 + (Gesamtbreite der Blöcke) + (Anzahl der Blöcke-1) <= L ?
         {
           var object linelength = right_margin();
           if (nullp(linelength)) goto gesamt_einzeiler; # =NIL -> Einzeiler
@@ -6279,10 +6296,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           var object blocks = Symbol_value(S(prin_jblocks)); # SYS::*PRIN-JBLOCKS*
           do { # (nichtleere) Blockliste durchgehen:
             var object block = Car(blocks); # Block (Einzeiler)
-            totalneed += TheIarray(block)->dims[1] + 1; # dessen Länge+1 dazu
+            totalneed += pphelp_string_width(block) + 1; # dessen Breite+1 dazu
             blocks = Cdr(blocks);
           } while (consp(blocks));
-          # totalneed = L1 + (Gesamtlänge der Blöcke) + (Anzahl der Blöcke)
+          # totalneed = L1 + (Gesamtbreite der Blöcke) + (Anzahl der Blöcke)
           # Vergleiche dies mit linelength + 1 :
           if (totalneed <= posfixnum_to_L(linelength)+1)
             goto gesamt_einzeiler;
