@@ -2259,6 +2259,26 @@ LISPFUNNR(function_name_p,1)
   var object arg = popSTACK();
   VALUES_IF(funnamep(arg));
 }
+LISPFUNN(check_function_name,2)
+{ /* (SYS::%CHECK-FUNCTION-NAME caller symbol)
+     signal an error and return the replacement */
+  VALUES1(check_funname(source_program_error,STACK_1,STACK_0));
+  skipSTACK(2);
+}
+LISPFUNN(check_symbol,2)
+{ /* (SYS::%CHECK-SYMBOL caller symbol)
+     signal an error and return the replacement */
+  var gcv_object_t *sym_ = &STACK_0;
+  var gcv_object_t *caller_ = &STACK_1;
+  while (!symbolp(*sym_)) {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(*sym_); pushSTACK(*caller_);
+    check_value(source_program_error,GETTEXT("~S: ~S is not a symbol"));
+    *sym_ = value1;
+  }
+  VALUES1(*sym_);
+  skipSTACK(2);
+}
 
 LISPFUN(parse_body,seclass_default,1,1,norest,nokey,0,NIL)
 { /* (SYS::PARSE-BODY body [docstring-allowed])

@@ -10425,10 +10425,7 @@ The function make-closure is required.
 (defun compile (name &optional (definition nil svar)
                      &aux (macro-flag nil) (trace-flag nil) (save-flag nil)
                 #+clisp-debug (*form* definition))
-  (unless (function-name-p name)
-    (error-of-type 'error
-      (TEXT "Name of function to be compiled must be a symbol, not ~S")
-      name))
+  (check-function-name 'compile name)
   (let ((symbol (get-funname-symbol name)))
     (if svar
       ;; Re-Definition of name as function.

@@ -193,10 +193,7 @@
 ;;; DEFMETHOD
 
 (defmacro defmethod (funname &rest method-description)
-  (unless (function-name-p funname)
-    (error-of-type 'sys::source-program-error
-      (TEXT "~S: the name of a function must be a symbol, not ~S")
-      'defmethod funname))
+  (sys::check-function-name 'defmethod funname)
   (multiple-value-bind (method-initargs-forms signature)
       (analyze-method-description 'defmethod funname method-description)
     `(LET ()
@@ -254,10 +251,7 @@
 ;; (DEFMETHOD function-name qualifier* spec-lambda-list ...)
 
 (defmacro declaim-method (funname &rest method-description)
-  (unless (function-name-p funname)
-    (error-of-type 'sys::source-program-error
-      (TEXT "~S: the name of a function must be a symbol, not ~S")
-      'declaim-method funname))
+  (sys::check-function-name 'declaim-method funname)
   (multiple-value-bind (method-initargs-forms signature)
       (analyze-method-description 'defmethod funname method-description)
     (declare (ignore method-initargs-forms))
@@ -273,10 +267,7 @@
 ;; options: (option*)
 ;; --> signature, argument-precedence-order, method combination, method-forms, docstring
 (defun analyze-defgeneric (caller funname lambdalist options)
-  (unless (function-name-p funname)
-    (error-of-type 'sys::source-program-error
-      (TEXT "~S: the name of a function must be a symbol, not ~S")
-      caller funname lambdalist))
+  (sys::check-function-name caller funname)
   ;; Parse the lambdalist:
   (analyze-defgeneric-lambdalist caller funname lambdalist)
   ;; Process the options:
