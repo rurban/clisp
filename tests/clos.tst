@@ -232,6 +232,13 @@ H
   N-PRIMARY-2 I-PRIMARY-2 N-AFTER I-AFTER N-AROUND-2 I-AROUND-2
 )
 
+;; Keyword checking is enabled even when no method has &key.
+(progn
+  (defgeneric testgf00 (&rest args &key)
+    (:method (&rest args)))
+  (testgf00 'a 'b))
+ERROR
+
 (unintern '<C1>)
 T
 
