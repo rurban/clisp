@@ -1195,8 +1195,8 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
     var uintL index2;
     var uintL bitcount;
     {
-      var uint_bitpack* ptr1 = &((uint_bitpack*)(&TheSbvector(array1)->data[0]))[index1/bitpack];
-      var uint_bitpack* ptr2 = &((uint_bitpack*)(&TheSbvector(array2)->data[0]))[index2/bitpack];
+      var const uint_bitpack* ptr1 = &((uint_bitpack*)(&TheSbvector(array1)->data[0]))[index1/bitpack];
+      var const uint_bitpack* ptr2 = &((uint_bitpack*)(&TheSbvector(array2)->data[0]))[index2/bitpack];
       # ptr1 zeigt auf das erste teilnehmende Word des 1. Bit-Arrays.
       # ptr2 zeigt auf das erste teilnehmende Word des 2. Bit-Arrays.
       var uintL bitpackcount = bitcount / bitpack;
@@ -1309,8 +1309,8 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
     var bit_op_fun* op;
     var uintL bitcount;
     {
-      var uint_bitpack* ptr1 = &((uint_bitpack*)(&TheSbvector(array1)->data[0]))[index1/bitpack];
-      var uint_bitpack* ptr2 = &((uint_bitpack*)(&TheSbvector(array2)->data[0]))[index2/bitpack];
+      var const uint_bitpack* ptr1 = &((uint_bitpack*)(&TheSbvector(array1)->data[0]))[index1/bitpack];
+      var const uint_bitpack* ptr2 = &((uint_bitpack*)(&TheSbvector(array2)->data[0]))[index2/bitpack];
       var uint_bitpack* ptr3 = &((uint_bitpack*)(&TheSbvector(array3)->data[0]))[index3/bitpack];
       # ptr1 zeigt auf das erste teilnehmende Word des 1. Bit-Arrays.
       # ptr2 zeigt auf das erste teilnehmende Word des 2. Bit-Arrays.
