@@ -194,21 +194,21 @@ typedef struct {
   unsigned long index;
   unsigned long size;
   const void* * data;
-} Vector;
+} Vector_t;
 
-static inline void Vector_init (Vector* v)
+static inline void Vector_init (Vector_t* v)
 {
   v->size = 5;
   v->data = (const void* *) xmalloc(v->size * sizeof(const void*));
   v->index = 0;
 }
 
-static inline unsigned long Vector_length (const Vector* v)
+static inline unsigned long Vector_length (const Vector_t* v)
 {
   return v->index;
 }
 
-static void Vector_add (Vector* v, const void* elt)
+static void Vector_add (Vector_t* v, const void* elt)
 {
   if (v->index >= v->size) {
     v->size = 2 * v->size;
@@ -217,7 +217,7 @@ static void Vector_add (Vector* v, const void* elt)
   v->data[v->index++] = elt;
 }
 
-static const void * Vector_element (const Vector* v, unsigned long i)
+static const void * Vector_element (const Vector_t* v, unsigned long i)
 {
   if (!(i < v->index)) {
     fprintf(stderr,"vector index out of bounds");
@@ -226,7 +226,7 @@ static const void * Vector_element (const Vector* v, unsigned long i)
   return v->data[i];
 }
 
-static void Vector_set_element (Vector* v, unsigned long i, const void* elt)
+static void Vector_set_element (Vector_t* v, unsigned long i, const void* elt)
 {
   if (!(i < v->index)) {
     fprintf(stderr,"vector index out of bounds");
@@ -235,7 +235,7 @@ static void Vector_set_element (Vector* v, unsigned long i, const void* elt)
   v->data[i] = elt;
 }
 
-static void Vector_remove_element (Vector* v, unsigned long i)
+static void Vector_remove_element (Vector_t* v, unsigned long i)
 {
   if (!(i < v->index)) {
     fprintf(stderr,"vector index out of bounds");
@@ -247,7 +247,7 @@ static void Vector_remove_element (Vector* v, unsigned long i)
 }
 
 #ifdef unused
-static void Vector_init_clone (Vector* w, const Vector* v)
+static void Vector_init_clone (Vector_t* w, const Vector_t* v)
 {
   w->size = (v->size < 5 ? 5 : v->size);
   w->data = (const void* *) xmalloc(w->size * sizeof(const void*));
@@ -257,9 +257,9 @@ static void Vector_init_clone (Vector* w, const Vector* v)
 #endif
 
 #ifdef unused
-static Vector* Vector_clone (const Vector* v)
+static Vector_t* Vector_clone (const Vector_t* v)
 {
-  Vector* w = (Vector*) xmalloc(sizeof(Vector));
+  Vector_t* w = (Vector_t*) xmalloc(sizeof(Vector_t));
   Vector_init_clone(w,v);
   return w;
 }
@@ -271,11 +271,11 @@ static Vector* Vector_clone (const Vector* v)
 typedef struct {
   long number;
   char* contents;
-} Line;
+} Line_t;
 
-static inline Line* make_Line (long number, char* contents)
+static inline Line_t* make_Line (long number, char* contents)
 {
-  Line* result = (Line*) xmalloc(sizeof(Line));
+  Line_t* result = (Line_t*) xmalloc(sizeof(Line_t));
   result->number = number;
   result->contents = contents;
   return result;
@@ -294,31 +294,33 @@ static long lineno;
 /* A vector of lines. */
 
 typedef struct {
-  Vector rep;
-} VectorLine;
+  Vector_t rep;
+} VectorLine_t;
 
-static inline void VectorLine_init (VectorLine* v)
+static inline void VectorLine_init (VectorLine_t* v)
 {
   Vector_init(&v->rep);
 }
 
-static inline unsigned long VectorLine_length (const VectorLine* v)
+static inline unsigned long VectorLine_length (const VectorLine_t* v)
 {
   return Vector_length(&v->rep);
 }
 
-static inline void VectorLine_add (VectorLine* v, const Line* elt)
+static inline void VectorLine_add (VectorLine_t* v, const Line_t* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-static inline Line* VectorLine_element (const VectorLine* v, unsigned long i)
+static inline Line_t* VectorLine_element (const VectorLine_t* v,
+                                          unsigned long i)
 {
-  return (Line*) Vector_element(&v->rep,i);
+  return (Line_t*) Vector_element(&v->rep,i);
 }
 
 #ifdef unused
-static inline void VectorLine_set_element (VectorLine* v, unsigned long i, const Line* elt)
+static inline void VectorLine_set_element (VectorLine_t* v, unsigned long i,
+                                           const Line_t* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
@@ -330,7 +332,7 @@ static inline void VectorLine_set_element (VectorLine* v, unsigned long i, const
 
 /* The vector of all lines read. */
 
-static VectorLine* lines;
+static VectorLine_t* lines;
 
 
 /* Read a line, or NULL if EOF is encountered. */
@@ -415,14 +417,14 @@ static int decode_line_directive (const char* line)
 static void read_all_input (FILE* fp)
 {
   lineno = 1;
-  lines = (VectorLine*)xmalloc(sizeof(VectorLine)); VectorLine_init(lines);
+  lines = (VectorLine_t*)xmalloc(sizeof(VectorLine_t)); VectorLine_init(lines);
   {
     boolean_t is_continuation_line = FALSE;
     while (1) {
       char* line = get_line(fp);
       if (!line) break;
       if (is_continuation_line) {
-        Line* last = VectorLine_element(lines,VectorLine_length(lines)-1);
+        Line_t* last = VectorLine_element(lines,VectorLine_length(lines)-1);
         char* prev = substring(last->contents,0,strlen(last->contents)-1);
         char* conc = concat2(prev,line);
         xfree(last->contents);
@@ -453,59 +455,63 @@ static void read_all_input (FILE* fp)
 /* A vector of strings. */
 
 typedef struct {
-  Vector rep;
-} VectorString;
+  Vector_t rep;
+} VectorString_t;
 
-static inline void VectorString_init (VectorString* v)
+static inline void VectorString_init (VectorString_t* v)
 {
   Vector_init(&v->rep);
 }
 
-static VectorString* make_VectorString (void)
+static VectorString_t* make_VectorString (void)
 {
-  VectorString* v = (VectorString*) xmalloc(sizeof(VectorString));
+  VectorString_t* v = (VectorString_t*) xmalloc(sizeof(VectorString_t));
   VectorString_init(v);
   return v;
 }
 
-static inline unsigned long VectorString_length (const VectorString* v)
+static inline unsigned long VectorString_length (const VectorString_t* v)
 {
   return Vector_length(&v->rep);
 }
 
-static inline void VectorString_add (VectorString* v, const char* elt)
+static inline void VectorString_add (VectorString_t* v, const char* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-static inline const char* VectorString_element (const VectorString* v, unsigned long i)
+static inline const char* VectorString_element (const VectorString_t* v,
+                                                unsigned long i)
 {
   return (const char*) Vector_element(&v->rep,i);
 }
 
-static inline void VectorString_set_element (VectorString* v, unsigned long i, const char* elt)
+static inline void VectorString_set_element (VectorString_t* v,
+                                             unsigned long i, const char* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
 
 #ifdef unused
-static inline void VectorString_init_clone (VectorString* w, const VectorString* v)
+static inline void VectorString_init_clone (VectorString_t* w,
+                                            const VectorString_t* v)
 {
   Vector_init_clone(&w->rep,&v->rep);
 }
 #endif
 
 #ifdef unused
-static VectorString* VectorString_clone (const VectorString* v)
+static VectorString_t* VectorString_clone (const VectorString_t* v)
 {
-  VectorString* w = (VectorString*) xmalloc(sizeof(VectorString));
+  VectorString_t* w = (VectorString_t*) xmalloc(sizeof(VectorString_t));
   VectorString_init_clone(w,v);
   return w;
 }
 #endif
 
 /* Tests whether v starts with w. */
-static boolean_t VectorString_startsWith (const VectorString* v, const VectorString* w)
+static boolean_t VectorString_startsWith (const VectorString_t* v,
+                                          const VectorString_t* w)
 {
   unsigned long n = VectorString_length(w);
   if (VectorString_length(v) >= n) {
@@ -522,63 +528,69 @@ static boolean_t VectorString_startsWith (const VectorString* v, const VectorStr
 /* A stack of vectors of strings. */
 
 typedef struct {
-  Vector rep;
-} StackVectorString;
+  Vector_t rep;
+} StackVectorString_t;
 
-static inline void StackVectorString_init (StackVectorString* v)
+static inline void StackVectorString_init (StackVectorString_t* v)
 {
   Vector_init(&v->rep);
 }
 
-static StackVectorString* make_StackVectorString (void)
+static StackVectorString_t* make_StackVectorString (void)
 {
-  StackVectorString* v = (StackVectorString*) xmalloc(sizeof(StackVectorString));
+  StackVectorString_t* v =
+    (StackVectorString_t*) xmalloc(sizeof(StackVectorString_t));
   StackVectorString_init(v);
   return v;
 }
 
-static inline unsigned long StackVectorString_length (const StackVectorString* v)
+static inline unsigned long StackVectorString_length
+(const StackVectorString_t* v)
 {
   return Vector_length(&v->rep);
 }
 
 #ifdef unused
-static inline boolean_t StackVectorString_is_empty (const StackVectorString* v)
+static inline boolean_t StackVectorString_is_empty
+(const StackVectorString_t* v)
 {
   return StackVectorString_length(v) == 0;
 }
 #endif
 
-static inline void StackVectorString_push (StackVectorString* v, const VectorString* elt)
+static inline void StackVectorString_push (StackVectorString_t* v,
+                                           const VectorString_t* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-static inline VectorString* StackVectorString_element (const StackVectorString* v, unsigned long i)
+static inline VectorString_t* StackVectorString_element
+(const StackVectorString_t* v, unsigned long i)
 {
-  return (VectorString*) Vector_element(&v->rep,i);
+  return (VectorString_t*) Vector_element(&v->rep,i);
 }
 
-static VectorString* StackVectorString_peek (StackVectorString* v)
+static VectorString_t* StackVectorString_peek (StackVectorString_t* v)
 {
   unsigned long n = StackVectorString_length(v);
   if (n == 0) { fprintf(stderr,"stack empty\n"); exit(1); }
   return StackVectorString_element(v,n-1);
 }
 
-static VectorString* StackVectorString_pop (StackVectorString* v)
+static VectorString_t* StackVectorString_pop (StackVectorString_t* v)
 {
   unsigned long n = StackVectorString_length(v);
   if (n == 0) { fprintf(stderr,"stack empty\n"); exit(1); }
-  { VectorString* result = StackVectorString_element(v,n-1);
-    v->rep.index -= 1;
-    return result;
-} }
+ {VectorString_t* result = StackVectorString_element(v,n-1);
+  v->rep.index -= 1;
+  return result;
+}}
 
 /* Push elt, and optimize: elt can be removed if is starts with an already
 present string sequence. If another element starts with elt, that one can
 be removed. */
-static void StackVectorString_push_optimize (StackVectorString* v, const VectorString* elt)
+static void StackVectorString_push_optimize (StackVectorString_t* v,
+                                             const VectorString_t* elt)
 {
   unsigned long n = StackVectorString_length(v);
   unsigned long i;
@@ -601,20 +613,20 @@ see the corresponding #endif. This is a stack of vector of string, not a
 stack of string, because when a #elif is seen, we add an element to the
 stack without popping the previous one. */
 
-static StackVectorString* ifdef_stack;
+static StackVectorString_t* ifdef_stack;
 
 /* Operations on the #if[def] stack. */
 
 static void do_if (const char * condition)
 {
-  VectorString* v = make_VectorString();
+  VectorString_t* v = make_VectorString();
   VectorString_add(v,condition);
   StackVectorString_push(ifdef_stack,v);
 }
 
 static void do_else (void)
 {
-  VectorString* v = StackVectorString_peek(ifdef_stack);
+  VectorString_t* v = StackVectorString_peek(ifdef_stack);
   unsigned long i = VectorString_length(v) - 1;
   const char* lastcondition = VectorString_element(v,i);
   lastcondition = concat3("!(",lastcondition,")");
@@ -623,7 +635,7 @@ static void do_else (void)
 
 static void do_elif (const char * condition)
 {
-  VectorString* v = StackVectorString_peek(ifdef_stack);
+  VectorString_t* v = StackVectorString_peek(ifdef_stack);
   unsigned long i = VectorString_length(v) - 1;
   const char* lastcondition = VectorString_element(v,i);
   lastcondition = concat3("!(",lastcondition,")");
@@ -640,13 +652,13 @@ static void do_endif (void)
 It is a vector of strings, implicitly combined by &&.
 The vector is freshly constructed, but the strings are shared. */
 
-static VectorString* current_condition (void)
+static VectorString_t* current_condition (void)
 {
-  VectorString* result = make_VectorString();
+  VectorString_t* result = make_VectorString();
   unsigned long n = StackVectorString_length(ifdef_stack);
   unsigned long i;
   for (i = 0; i < n; i++) {
-    const VectorString* v = StackVectorString_element(ifdef_stack,i);
+    const VectorString_t* v = StackVectorString_element(ifdef_stack,i);
     unsigned long m = VectorString_length(v);
     unsigned long j;
     for (j = 0; j < m; j++)
@@ -692,11 +704,11 @@ static const char* is_if (const char* line)
     i += 6;
     for (; i < n && is_whitespace(line[i]); i++);
     for (; n > i && is_whitespace(line[n-1]); n--);
-    { char* term = substring(line,i,n);
-      const char* result = concat3("defined(",term,")");
-      xfree(term);
-      return result;
-  } }
+   {char* term = substring(line,i,n);
+    const char* result = concat3("defined(",term,")");
+    xfree(term);
+    return result;
+  }}
   /* Check for "ifndef". */
   if (i+6 < n
       && line[i+0] == 'i'
@@ -709,11 +721,11 @@ static const char* is_if (const char* line)
     i += 7;
     for (; i < n && is_whitespace(line[i]); i++);
     for (; n > i && is_whitespace(line[n-1]); n--);
-    { char* term = substring(line,i,n);
-      const char* result = concat3("!defined(",term,")");
-      xfree(term);
-      return result;
-  } }
+   {char* term = substring(line,i,n);
+    const char* result = concat3("!defined(",term,")");
+    xfree(term);
+    return result;
+  }}
   return NULL;
 }
 
@@ -799,7 +811,8 @@ static boolean_t is_endif (const char* line)
 
 /* When we see the DEFMODULE(name,package) line, we store the name. */
 static const char* name_defmodule = NULL;
-static unsigned long line_defmodule = 0; /* index of line containing DEFMODULE */
+/* index of line containing DEFMODULE */
+static unsigned long line_defmodule = 0;
 static const char* default_packname = NULL;
 
 static boolean_t is_defmodule (const char* line) {
@@ -851,7 +864,8 @@ static boolean_t is_defmodule (const char* line) {
         }
       }
     }
-    fprintf(stderr,"%s:%ld: invalid DEFMODULE macro syntax: %s\n",file,lineno,line);
+    fprintf(stderr,"%s:%ld: invalid DEFMODULE macro syntax: %s\n",
+            file,lineno,line);
     exit(1);
   }
   return FALSE;
@@ -864,45 +878,47 @@ typedef struct {
   const char* initstring; /* The string that, when read by the Lisp reader, */
                           /* initializes the object. */
   const char* tag;        /* The struct tag we use for this object. */
-  StackVectorString* condition; /* The #if condition of this object. */
-} Objdef;
+  StackVectorString_t* condition; /* The #if condition of this object. */
+} Objdef_t;
 
 
 /* A vector of Objdef. */
 
 typedef struct {
-  Vector rep;
-} VectorObjdef;
+  Vector_t rep;
+} VectorObjdef_t;
 
-static inline void VectorObjdef_init (VectorObjdef* v)
+static inline void VectorObjdef_init (VectorObjdef_t* v)
 {
   Vector_init(&v->rep);
 }
 
-static VectorObjdef* make_VectorObjdef (void)
+static VectorObjdef_t* make_VectorObjdef (void)
 {
-  VectorObjdef* v = (VectorObjdef*) xmalloc(sizeof(VectorObjdef));
+  VectorObjdef_t* v = (VectorObjdef_t*) xmalloc(sizeof(VectorObjdef_t));
   VectorObjdef_init(v);
   return v;
 }
 
-static inline unsigned long VectorObjdef_length (const VectorObjdef* v)
+static inline unsigned long VectorObjdef_length (const VectorObjdef_t* v)
 {
   return Vector_length(&v->rep);
 }
 
-static inline void VectorObjdef_add (VectorObjdef* v, Objdef* elt)
+static inline void VectorObjdef_add (VectorObjdef_t* v, Objdef_t* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-static inline Objdef* VectorObjdef_element (const VectorObjdef* v, unsigned long i)
+static inline Objdef_t* VectorObjdef_element (const VectorObjdef_t* v,
+                                              unsigned long i)
 {
-  return (Objdef*) Vector_element(&v->rep,i);
+  return (Objdef_t*) Vector_element(&v->rep,i);
 }
 
 #ifdef unused
-static inline void VectorObjdef_set_element (VectorObjdef* v, unsigned long i, Objdef* elt)
+static inline void VectorObjdef_set_element (VectorObjdef_t* v,
+                                             unsigned long i, Objdef_t* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
@@ -911,16 +927,16 @@ static inline void VectorObjdef_set_element (VectorObjdef* v, unsigned long i, O
 
 /* The table of all Objdefs. */
 
-static VectorObjdef* objdefs;
+static VectorObjdef_t* objdefs;
 
 /* Looks up an Objdef with a given tag. */
 
-static Objdef* get_objdef_from_tag (const char* tag)
+static Objdef_t* get_objdef_from_tag (const char* tag)
 {
   unsigned long n = VectorObjdef_length(objdefs);
   unsigned long i;
   for (i = 0; i < n; i++) {
-    Objdef* odef = VectorObjdef_element(objdefs,i);
+    Objdef_t* odef = VectorObjdef_element(objdefs,i);
     if (String_equals(odef->tag,tag))
       return odef;
   }
@@ -929,11 +945,11 @@ static Objdef* get_objdef_from_tag (const char* tag)
 
 /* Looks up or creates an Objdef for a given initstring. */
 
-static Objdef* get_objdef_aux (const char* initstring, VectorString* condition)
+static Objdef_t* get_objdef_aux (const char* initstring,
+                                 VectorString_t* condition)
 {
-  Objdef* odef;
-  /* First search in the table. */
-  {
+  Objdef_t* odef;
+  { /* First search in the table. */
     unsigned long n = VectorObjdef_length(objdefs);
     unsigned long i;
     for (i = 0; i < n; i++) {
@@ -942,8 +958,7 @@ static Objdef* get_objdef_aux (const char* initstring, VectorString* condition)
         goto found;
     }
   }
-  /* Create the tag. */
-  {
+  { /* Create the tag. */
     char* tagbuf = (char*) xmalloc(3*strlen(initstring)+10);
     char* q = tagbuf;
     strcpy(q,"object_");
@@ -975,24 +990,23 @@ static Objdef* get_objdef_aux (const char* initstring, VectorString* condition)
           break;
       }
     }
-    /* Found a unique tag. Allocate a new Objdef. */
-    {
+    { /* Found a unique tag. Allocate a new Objdef. */
       char* tag = (char*) xmalloc(strlen(tagbuf)+1);
       strcpy(tag,tagbuf);
       xfree(tagbuf);
-      odef = (Objdef*) xmalloc(sizeof(Objdef));
+      odef = (Objdef_t*) xmalloc(sizeof(Objdef_t));
       odef->initstring = initstring;
       odef->tag = tag;
       odef->condition = make_StackVectorString();
       VectorObjdef_add(objdefs,odef);
     }
   }
-found:
+ found:
   StackVectorString_push_optimize(odef->condition,condition);
   return odef;
 }
 
-static inline Objdef* get_objdef (const char* initstring)
+static inline Objdef_t* get_objdef (const char* initstring)
 {
   return get_objdef_aux(initstring,current_condition());
 }
@@ -1005,13 +1019,14 @@ typedef struct {
   int opt;
   boolean_t rest;
   boolean_t key;
-  VectorObjdef* keywords;
-  StackVectorString* condition; /* The #if condition of this object. */
-} Signature;
+  VectorObjdef_t* keywords;
+  StackVectorString_t* condition; /* The #if condition of this object. */
+} Signature_t;
 
 /* Compares two signatures for equality (without condition). */
 
-static boolean_t Signature_equals (const Signature* sig1, const Signature* sig2)
+static boolean_t Signature_equals (const Signature_t* sig1,
+                                   const Signature_t* sig2)
 {
   if (sig1->req == sig2->req) {
     if (sig1->opt == sig2->opt) {
@@ -1022,7 +1037,8 @@ static boolean_t Signature_equals (const Signature* sig1, const Signature* sig2)
           if (len1 == len2) {
             unsigned long i;
             for (i = 0; i < len1; i++)
-              if (VectorObjdef_element(sig1->keywords,i) != VectorObjdef_element(sig2->keywords,i))
+              if (VectorObjdef_element(sig1->keywords,i) !=
+                  VectorObjdef_element(sig2->keywords,i))
                 return FALSE;
             return TRUE;
           }
@@ -1037,12 +1053,12 @@ static boolean_t Signature_equals (const Signature* sig1, const Signature* sig2)
 in case of syntax error.
 Example for line: "x y [&optional z] [&rest foo | &key a b c]" */
 
-static Signature* parseSignature (const char* line)
+static Signature_t* parseSignature (const char* line)
 {
   int req = 0;
   int opt = 0;
   int rest = 0;
-  VectorObjdef* keywords = make_VectorObjdef();
+  VectorObjdef_t* keywords = make_VectorObjdef();
   boolean_t optional_seen = FALSE;
   boolean_t rest_seen = FALSE;
   boolean_t key_seen = FALSE;
@@ -1079,7 +1095,7 @@ static Signature* parseSignature (const char* line)
         else if (key_seen) {
           char* keyword_name;
           char* keyword_initstring;
-          Objdef* keyword_odef;
+          Objdef_t* keyword_odef;
           if ((keyword_name = strrchr(token,':')) != NULL)
             keyword_name = keyword_name+1;
           else
@@ -1099,7 +1115,7 @@ static Signature* parseSignature (const char* line)
   if (rest_seen && rest != 1)
     return NULL;
   {
-    Signature* sig = (Signature*) xmalloc(sizeof(Signature));
+    Signature_t* sig = (Signature_t*) xmalloc(sizeof(Signature_t));
     sig->req = req;
     sig->opt = opt;
     sig->rest = rest_seen;
@@ -1113,38 +1129,42 @@ static Signature* parseSignature (const char* line)
 /* A vector of Signature. */
 
 typedef struct {
-  Vector rep;
-} VectorSignature;
+  Vector_t rep;
+} VectorSignature_t;
 
-static inline void VectorSignature_init (VectorSignature* v)
+static inline void VectorSignature_init (VectorSignature_t* v)
 {
   Vector_init(&v->rep);
 }
 
-static VectorSignature* make_VectorSignature (void)
+static VectorSignature_t* make_VectorSignature (void)
 {
-  VectorSignature* v = (VectorSignature*) xmalloc(sizeof(VectorSignature));
+  VectorSignature_t* v =
+    (VectorSignature_t*) xmalloc(sizeof(VectorSignature_t));
   VectorSignature_init(v);
   return v;
 }
 
-static inline unsigned long VectorSignature_length (const VectorSignature* v)
+static inline unsigned long VectorSignature_length (const VectorSignature_t* v)
 {
   return Vector_length(&v->rep);
 }
 
-static inline void VectorSignature_add (VectorSignature* v, Signature* elt)
+static inline void VectorSignature_add (VectorSignature_t* v, Signature_t* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-static inline Signature* VectorSignature_element (const VectorSignature* v, unsigned long i)
+static inline Signature_t* VectorSignature_element (const VectorSignature_t* v,
+                                                    unsigned long i)
 {
-  return (Signature*) Vector_element(&v->rep,i);
+  return (Signature_t*) Vector_element(&v->rep,i);
 }
 
 #ifdef unused
-static inline void VectorSignature_set_element (VectorSignature* v, unsigned long i, Signature* elt)
+static inline void VectorSignature_set_element (VectorSignature_t* v,
+                                                unsigned long i,
+                                                Signature_t* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
@@ -1157,47 +1177,51 @@ typedef struct {
   const char* packname;  /* The symbol's package name */
   const char* printname; /* The symbol's print name */
   const char* tag;       /* The struct tag we use for this function */
-  StackVectorString* condition; /* The total #if condition of this function. */
-  VectorSignature* signatures; /* The functions possible signatures, together
-with their individual #if conditions. */
-} Fundef;
+  /* The total #if condition of this function. */
+  StackVectorString_t* condition;
+  /* The functions possible signatures, together
+     with their individual #if conditions. */
+  VectorSignature_t* signatures;
+} Fundef_t;
 
 
 /* A vector of Fundef. */
 
 typedef struct {
-  Vector rep;
-} VectorFundef;
+  Vector_t rep;
+} VectorFundef_t;
 
-static inline void VectorFundef_init (VectorFundef* v)
+static inline void VectorFundef_init (VectorFundef_t* v)
 {
   Vector_init(&v->rep);
 }
 
-static VectorFundef* make_VectorFundef (void)
+static VectorFundef_t* make_VectorFundef (void)
 {
-  VectorFundef* v = (VectorFundef*) xmalloc(sizeof(VectorFundef));
+  VectorFundef_t* v = (VectorFundef_t*) xmalloc(sizeof(VectorFundef_t));
   VectorFundef_init(v);
   return v;
 }
 
-static inline unsigned long VectorFundef_length (const VectorFundef* v)
+static inline unsigned long VectorFundef_length (const VectorFundef_t* v)
 {
   return Vector_length(&v->rep);
 }
 
-static inline void VectorFundef_add (VectorFundef* v, Fundef* elt)
+static inline void VectorFundef_add (VectorFundef_t* v, Fundef_t* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-static inline Fundef* VectorFundef_element (const VectorFundef* v, unsigned long i)
+static inline Fundef_t* VectorFundef_element (const VectorFundef_t* v,
+                                              unsigned long i)
 {
-  return (Fundef*) Vector_element(&v->rep,i);
+  return (Fundef_t*) Vector_element(&v->rep,i);
 }
 
 #ifdef unused
-static inline void VectorFundef_set_element (VectorFundef* v, unsigned long i, Fundef* elt)
+static inline void VectorFundef_set_element (VectorFundef_t* v,
+                                             unsigned long i, Fundef_t* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
@@ -1206,16 +1230,16 @@ static inline void VectorFundef_set_element (VectorFundef* v, unsigned long i, F
 
 /* The table of all Fundefs. */
 
-static VectorFundef* fundefs;
+static VectorFundef_t* fundefs;
 
 /* Looks up an Fundef with a given tag. */
 
-static Fundef* get_fundef_from_tag (const char* tag)
+static Fundef_t* get_fundef_from_tag (const char* tag)
 {
   unsigned long n = VectorFundef_length(fundefs);
   unsigned long i;
   for (i = 0; i < n; i++) {
-    Fundef* fdef = VectorFundef_element(fundefs,i);
+    Fundef_t* fdef = VectorFundef_element(fundefs,i);
     if (String_equals(fdef->tag,tag))
       return fdef;
   }
@@ -1225,9 +1249,10 @@ static Fundef* get_fundef_from_tag (const char* tag)
 /* Looks up or creates a Fundef for a given function name,
    and adds the given signature to it. */
 
-static Fundef* get_fundef_aux (const char* funname, Signature* sig, VectorString* condition)
+static Fundef_t* get_fundef_aux (const char* funname, Signature_t* sig,
+                               VectorString_t* condition)
 {
-  Fundef* fdef;
+  Fundef_t* fdef;
   /* Split the function name into a package name and a print name. */
   const char* packname;
   const char* printname;
@@ -1259,7 +1284,8 @@ static Fundef* get_fundef_aux (const char* funname, Signature* sig, VectorString
     unsigned long i;
     for (i = 0; i < n; i++) {
       fdef = VectorFundef_element(fundefs,i);
-      if (String_equals(fdef->packname,packname) && String_equals(fdef->printname,printname))
+      if (String_equals(fdef->packname,packname) &&
+          String_equals(fdef->printname,printname))
         goto found;
     }
   }
@@ -1303,7 +1329,7 @@ static Fundef* get_fundef_aux (const char* funname, Signature* sig, VectorString
       char* tag = (char*) xmalloc(strlen(tagbuf)+1);
       strcpy(tag,tagbuf);
       xfree(tagbuf);
-      fdef = (Fundef*) xmalloc(sizeof(Fundef));
+      fdef = (Fundef_t*) xmalloc(sizeof(Fundef_t));
       fdef->packname = packname;
       fdef->printname = printname;
       fdef->tag = tag;
@@ -1316,11 +1342,11 @@ found:
   StackVectorString_push_optimize(fdef->condition,condition);
   /* Now add the signature. */
   {
-    VectorSignature* signatures = fdef->signatures;
+    VectorSignature_t* signatures = fdef->signatures;
     unsigned long n = VectorSignature_length(signatures);
     unsigned long i;
     for (i = 0; i < n; i++) {
-      Signature* sig_i = VectorSignature_element(signatures,i);
+      Signature_t* sig_i = VectorSignature_element(signatures,i);
       if (Signature_equals(sig_i,sig)) {
         StackVectorString_push_optimize(sig_i->condition,condition);
         goto done_signature;
@@ -1334,7 +1360,7 @@ done_signature:
   return fdef;
 }
 
-static inline Fundef* get_fundef (const char* funname, Signature* sig)
+static inline Fundef_t* get_fundef (const char* funname, Signature_t* sig)
 {
   return get_fundef_aux(funname,sig,current_condition());
 }
@@ -1342,7 +1368,8 @@ static inline Fundef* get_fundef (const char* funname, Signature* sig)
 
 /* Print a signature in a form suitable as argument list for LISPFUN. */
 
-static char* get_signature_for_LISPFUN (const Fundef* fdef, const Signature* sig)
+static char* get_signature_for_LISPFUN (const Fundef_t* fdef,
+                                        const Signature_t* sig)
 {
   /* sprintf(buffer,"(%s,%d,%d,%s,%s,%lu,NIL)",
              fdef->tag,
@@ -1402,20 +1429,23 @@ static char* is_defun (const char* line) {
           {
             char* funname = substring(line,i1,i2);
             char* lambdalist = substring(line,i3,i4);
-            Signature* signature = parseSignature(lambdalist);
+            Signature_t* signature = parseSignature(lambdalist);
             if (signature == NULL) {
               fprintf(stderr,"%s:%ld: invalid lambdalist syntax for function `%s': %s\n",file,lineno,funname,lambdalist);
               exit(1);
             }
             {
-              Fundef* fdef = get_fundef(funname,signature);
-              return concat4(substring(line,0,i),",",get_signature_for_LISPFUN(fdef,signature),substring(line,i,n));
+              Fundef_t* fdef = get_fundef(funname,signature);
+              return concat4(substring(line,0,i),",",
+                             get_signature_for_LISPFUN(fdef,signature),
+                             substring(line,i,n));
             }
           }
         }
       }
     }
-    fprintf(stderr,"%s:%ld: invalid DEFUN macro syntax: %s\n",file,lineno,line);
+    fprintf(stderr,"%s:%ld: invalid DEFUN macro syntax: %s\n",
+            file,lineno,line);
     exit(1);
   }
   return NULL;
@@ -1426,44 +1456,47 @@ static char* is_defun (const char* line) {
 
 typedef struct {
   const char* tag;              /* The struct tag of this variable. */
-  StackVectorString* condition; /* The total #if condition of this variable. */
-} Vardef;
+  /* The total #if condition of this variable. */
+  StackVectorString_t* condition;
+} Vardef_t;
 
 
 /* A vector of Vardef. */
 
 typedef struct {
-  Vector rep;
-} VectorVardef;
+  Vector_t rep;
+} VectorVardef_t;
 
-static inline void VectorVardef_init (VectorVardef* v)
+static inline void VectorVardef_init (VectorVardef_t* v)
 {
   Vector_init(&v->rep);
 }
 
-static VectorVardef* make_VectorVardef (void)
+static VectorVardef_t* make_VectorVardef (void)
 {
-  VectorVardef* v = (VectorVardef*) xmalloc(sizeof(VectorVardef));
+  VectorVardef_t* v = (VectorVardef_t*) xmalloc(sizeof(VectorVardef_t));
   VectorVardef_init(v);
   return v;
 }
 
-static inline unsigned long VectorVardef_length (const VectorVardef* v)
+static inline unsigned long VectorVardef_length (const VectorVardef_t* v)
 {
   return Vector_length(&v->rep);
 }
 
-static inline void VectorVardef_add (VectorVardef* v, Vardef* elt)
+static inline void VectorVardef_add (VectorVardef_t* v, Vardef_t* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-static inline Vardef* VectorVardef_element (const VectorVardef* v, unsigned long i)
+static inline Vardef_t* VectorVardef_element (const VectorVardef_t* v,
+                                            unsigned long i)
 {
-  return (Vardef*) Vector_element(&v->rep,i);
+  return (Vardef_t*) Vector_element(&v->rep,i);
 }
 
-static inline void VectorVardef_set_element (VectorVardef* v, unsigned long i, Vardef* elt)
+static inline void VectorVardef_set_element (VectorVardef_t* v,
+                                             unsigned long i, Vardef_t* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
@@ -1471,17 +1504,17 @@ static inline void VectorVardef_set_element (VectorVardef* v, unsigned long i, V
 
 /* The table of all Vardefs. */
 
-static VectorVardef* vardefs;
+static VectorVardef_t* vardefs;
 
 
 /* Looks up an Vardef with a given tag. */
 
-static Vardef* get_vardef_from_tag (const char* tag)
+static Vardef_t* get_vardef_from_tag (const char* tag)
 {
   unsigned long n = VectorVardef_length(vardefs);
   unsigned long i;
   for (i = 0; i < n; i++) {
-    Vardef* vdef = VectorVardef_element(vardefs,i);
+    Vardef_t* vdef = VectorVardef_element(vardefs,i);
     if (String_equals(vdef->tag,tag))
       return vdef;
   }
@@ -1490,14 +1523,15 @@ static Vardef* get_vardef_from_tag (const char* tag)
 
 /* Looks up or creates a Vardef for a given variable name. */
 
-static Vardef* get_vardef_aux (const char* varname, VectorString* condition)
+static Vardef_t* get_vardef_aux (const char* varname,
+                                 VectorString_t* condition)
 {
-  Vardef* vdef;
+  Vardef_t* vdef;
   /* First search in the table. */
   vdef = get_vardef_from_tag(varname);
   if (vdef == NULL) {
     /* Allocate a new Vardef. */
-    vdef = (Vardef*) xmalloc(sizeof(Vardef));
+    vdef = (Vardef_t*) xmalloc(sizeof(Vardef_t));
     vdef->tag = varname;
     vdef->condition = make_StackVectorString();
     VectorVardef_add(vardefs,vdef);
@@ -1506,7 +1540,7 @@ static Vardef* get_vardef_aux (const char* varname, VectorString* condition)
   return vdef;
 }
 
-static inline Vardef* get_vardef (const char* varname)
+static inline Vardef_t* get_vardef (const char* varname)
 {
   return get_vardef_aux(varname,current_condition());
 }
@@ -1518,12 +1552,13 @@ static inline Vardef* get_vardef (const char* varname)
 typedef struct {
   const char* tag;         /* The struct tag of this variable. */
   const char* initform;    /* A C expression initializing this variable. */
-  VectorString* condition; /* The #if condition of this initializer. */
-} Varinit;
+  VectorString_t* condition; /* The #if condition of this initializer. */
+} Varinit_t;
 
-static inline Varinit* make_Varinit (const char* tag, const char* initform, VectorString* condition)
+static inline Varinit_t* make_Varinit (const char* tag, const char* initform,
+                                       VectorString_t* condition)
 {
-  Varinit* v = (Varinit*) xmalloc(sizeof(Varinit));
+  Varinit_t* v = (Varinit_t*) xmalloc(sizeof(Varinit_t));
   v->tag = tag;
   v->initform = initform;
   v->condition = condition;
@@ -1534,37 +1569,39 @@ static inline Varinit* make_Varinit (const char* tag, const char* initform, Vect
 /* A vector of Varinit. */
 
 typedef struct {
-  Vector rep;
-} VectorVarinit;
+  Vector_t rep;
+} VectorVarinit_t;
 
-static inline void VectorVarinit_init (VectorVarinit* v)
+static inline void VectorVarinit_init (VectorVarinit_t* v)
 {
   Vector_init(&v->rep);
 }
 
-static VectorVarinit* make_VectorVarinit (void)
+static VectorVarinit_t* make_VectorVarinit (void)
 {
-  VectorVarinit* v = (VectorVarinit*) xmalloc(sizeof(VectorVarinit));
+  VectorVarinit_t* v = (VectorVarinit_t*) xmalloc(sizeof(VectorVarinit_t));
   VectorVarinit_init(v);
   return v;
 }
 
-static inline unsigned long VectorVarinit_length (const VectorVarinit* v)
+static inline unsigned long VectorVarinit_length (const VectorVarinit_t* v)
 {
   return Vector_length(&v->rep);
 }
 
-static inline void VectorVarinit_add (VectorVarinit* v, Varinit* elt)
+static inline void VectorVarinit_add (VectorVarinit_t* v, Varinit_t* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-static inline Varinit* VectorVarinit_element (const VectorVarinit* v, unsigned long i)
+static inline Varinit_t* VectorVarinit_element (const VectorVarinit_t* v,
+                                              unsigned long i)
 {
-  return (Varinit*) Vector_element(&v->rep,i);
+  return (Varinit_t*) Vector_element(&v->rep,i);
 }
 
-static inline void VectorVarinit_set_element (VectorVarinit* v, unsigned long i, Varinit* elt)
+static inline void VectorVarinit_set_element (VectorVarinit_t* v,
+                                              unsigned long i, Varinit_t* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
@@ -1572,7 +1609,7 @@ static inline void VectorVarinit_set_element (VectorVarinit* v, unsigned long i,
 
 /* The list of all variable initializers, as they appear in the source. */
 
-static VectorVarinit* varinits;
+static VectorVarinit_t* varinits;
 
 
 /* Parse a  DEFVAR(varname,initform)  line, and turn it into  DEFVAR(varname).
@@ -1662,7 +1699,7 @@ static char* is_defvar (const char* line) {
                 i++;
               } else {
                 const char* initstring = substring(line,subst_start+1,i);
-                Objdef* odef = get_objdef(initstring);
+                Objdef_t* odef = get_objdef(initstring);
                 line = concat3(substring(line,0,subst_start),odef->tag,substring(line,i+1,n));
                 n = strlen(line);
                 i = subst_start + strlen(odef->tag);
@@ -1699,7 +1736,7 @@ static char* is_defvar (const char* line) {
         while (i1 < i2 && is_whitespace(line[i2-1])) i2--;
         {
           char* varname = substring(line,i1,i2);
-          Vardef* vdef = get_vardef(varname);
+          Vardef_t* vdef = get_vardef(varname);
           VectorVarinit_add(varinits,make_Varinit(vdef->tag,substring(line,i3,i4),current_condition()));
           /* Remove the second macro argument. */
           return concat2(substring(line,0,i3-1),substring(line,i4,n));
@@ -1738,8 +1775,7 @@ static void parse (void)
         /* Check for DEFMODULE. */
         if (is_defmodule(line))
           line_defmodule = j;
-        /* Check for preprocessor commands. */
-        {
+        { /* Check for preprocessor commands. */
           const char* condition;
           if ((condition = is_if(line)) != NULL)
             do_if(condition);
@@ -1750,21 +1786,18 @@ static void parse (void)
           else if (is_endif(line))
             do_endif();
         }
-        /* Check for DEFUN. */
-        {
+        { /* Check for DEFUN. */
           char* expanded_line = is_defun(line);
           if (expanded_line != NULL)
             line = expanded_line;
         }
-        /* Check for DEFVAR. */
-        {
+        { /* Check for DEFVAR. */
           char* expanded_line = is_defvar(line);
           if (expanded_line != NULL)
             line = expanded_line;
         }
       }
-      /* General lexical analysis of the line. */
-      {
+      { /* General lexical analysis of the line. */
         unsigned long n = strlen(line);
         unsigned long i;
         for (i = 0; i < n; ) {
@@ -1800,7 +1833,7 @@ static void parse (void)
               i++;
             } else {
               const char* initstring = substring(line,subst_start+1,i);
-              Objdef* odef = get_objdef(initstring);
+              Objdef_t* odef = get_objdef(initstring);
               line = concat3(substring(line,0,subst_start),odef->tag,substring(line,i+1,n));
               n = strlen(line);
               i = subst_start + strlen(odef->tag);
@@ -1833,7 +1866,8 @@ static void parse (void)
 
 
 /* Print a list (cond1 && cond2 && ...) to a stream. */
-static void print_condition_part (FILE* stream, const VectorString* condition)
+static void print_condition_part (FILE* stream,
+                                  const VectorString_t* condition)
 {
   unsigned long n = VectorString_length(condition);
   if (n == 0) {
@@ -1855,14 +1889,14 @@ static void print_condition_part (FILE* stream, const VectorString* condition)
 }
 
 /* Tests whether a condition is equivalent to 1 (true). */
-static inline boolean_t is_true_condition_part (VectorString* condition)
+static inline boolean_t is_true_condition_part (VectorString_t* condition)
 {
   unsigned long n = VectorString_length(condition);
   return (n == 0);
 }
 
 /* Print a list of lists (cond1 || cond2 || ...) to a stream. */
-static void print_condition (FILE* stream, StackVectorString* condition)
+static void print_condition (FILE* stream, StackVectorString_t* condition)
 {
   unsigned long n = StackVectorString_length(condition);
   if (n == 0) {
@@ -1886,14 +1920,14 @@ static void print_condition (FILE* stream, StackVectorString* condition)
 }
 
 /* Tests whether a condition is equivalent to 0 (false). */
-static inline boolean_t is_false_condition (StackVectorString* condition)
+static inline boolean_t is_false_condition (StackVectorString_t* condition)
 {
   unsigned long n = StackVectorString_length(condition);
   return (n == 0);
 }
 
 /* Tests whether a condition is equivalent to 1 (true). */
-static boolean_t is_true_condition (StackVectorString* condition)
+static boolean_t is_true_condition (StackVectorString_t* condition)
 {
   unsigned long n = StackVectorString_length(condition);
   unsigned long i;
@@ -1928,7 +1962,8 @@ static void output_tables1 (FILE* stream)
 {
   const char* modname = name_defmodule;
   const char* object_tab = concat3("module__",modname,"__object_tab");
-  const char* object_tab_initdata = concat3("module__",modname,"__object_tab_initdata");
+  const char* object_tab_initdata =
+    concat3("module__",modname,"__object_tab_initdata");
   fprintf(stream,"#define O(varname) %s._##varname",object_tab);
   print_nl(stream);
   print_nl(stream);
@@ -1938,7 +1973,7 @@ static void output_tables1 (FILE* stream)
     unsigned long n = VectorObjdef_length(objdefs);
     unsigned long i;
     for (i = 0; i < n; i++) {
-      Objdef* odef = VectorObjdef_element(objdefs,i);
+      Objdef_t* odef = VectorObjdef_element(objdefs,i);
       if (!is_false_condition(odef->condition)) {
         if (!is_true_condition(odef->condition)) {
           fprintf(stream,"#if ");
@@ -1958,7 +1993,7 @@ static void output_tables1 (FILE* stream)
     unsigned long n = VectorVardef_length(vardefs);
     unsigned long i;
     for (i = 0; i < n; i++) {
-      Vardef* vdef = VectorVardef_element(vardefs,i);
+      Vardef_t* vdef = VectorVardef_element(vardefs,i);
       if (!is_false_condition(vdef->condition)) {
         if (!is_true_condition(vdef->condition)) {
           fprintf(stream,"#if ");
@@ -1980,7 +2015,7 @@ static void output_tables1 (FILE* stream)
     unsigned long n = VectorObjdef_length(objdefs);
     unsigned long i;
     for (i = 0; i < n; i++) {
-      Objdef* odef = VectorObjdef_element(objdefs,i);
+      Objdef_t* odef = VectorObjdef_element(objdefs,i);
       if (!is_false_condition(odef->condition)) {
         fprintf(stream,"#define %s  %s._%s",odef->tag,object_tab,odef->tag);
         print_nl(stream);
@@ -1996,7 +2031,7 @@ static void output_tables1 (FILE* stream)
     unsigned long n = VectorObjdef_length(objdefs);
     unsigned long i;
     for (i = 0; i < n; i++) {
-      Objdef* odef = VectorObjdef_element(objdefs,i);
+      Objdef_t* odef = VectorObjdef_element(objdefs,i);
       if (!is_false_condition(odef->condition)) {
         if (!is_true_condition(odef->condition)) {
           fprintf(stream,"#if ");
@@ -2016,7 +2051,7 @@ static void output_tables1 (FILE* stream)
     unsigned long n = VectorVardef_length(vardefs);
     unsigned long i;
     for (i = 0; i < n; i++) {
-      Vardef* vdef = VectorVardef_element(vardefs,i);
+      Vardef_t* vdef = VectorVardef_element(vardefs,i);
       if (!is_false_condition(vdef->condition)) {
         if (!is_true_condition(vdef->condition)) {
           fprintf(stream,"#if ");
@@ -2040,7 +2075,7 @@ static void output_tables1 (FILE* stream)
     unsigned long n = VectorObjdef_length(objdefs);
     unsigned long i;
     for (i = 0; i < n; i++) {
-      Objdef* odef = VectorObjdef_element(objdefs,i);
+      Objdef_t* odef = VectorObjdef_element(objdefs,i);
       if (!is_false_condition(odef->condition)) {
         if (!is_true_condition(odef->condition)) {
           fprintf(stream,"#if ");
@@ -2062,7 +2097,7 @@ static void output_tables1 (FILE* stream)
     unsigned long n = VectorVardef_length(vardefs);
     unsigned long i;
     for (i = 0; i < n; i++) {
-      Vardef* vdef = VectorVardef_element(vardefs,i);
+      Vardef_t* vdef = VectorVardef_element(vardefs,i);
       if (!is_false_condition(vdef->condition)) {
         if (!is_true_condition(vdef->condition)) {
           fprintf(stream,"#if ");
@@ -2092,7 +2127,8 @@ static void output_tables2 (FILE* stream)
 {
   const char* modname = name_defmodule;
   const char* subr_tab = concat3("module__",modname,"__subr_tab");
-  const char* subr_tab_initdata = concat3("module__",modname,"__subr_tab_initdata");
+  const char* subr_tab_initdata =
+    concat3("module__",modname,"__subr_tab_initdata");
   print_nl(stream);
   fprintf(stream,"struct {");
   print_nl(stream);
@@ -2100,7 +2136,7 @@ static void output_tables2 (FILE* stream)
     unsigned long n = VectorFundef_length(fundefs);
     unsigned long i;
     for (i = 0; i < n; i++) {
-      Fundef* fdef = VectorFundef_element(fundefs,i);
+      Fundef_t* fdef = VectorFundef_element(fundefs,i);
       if (!is_false_condition(fdef->condition)) {
         if (!is_true_condition(fdef->condition)) {
           fprintf(stream,"#if ");
@@ -2124,12 +2160,12 @@ static void output_tables2 (FILE* stream)
     unsigned long n = VectorFundef_length(fundefs);
     unsigned long i;
     for (i = 0; i < n; i++) {
-      Fundef* fdef = VectorFundef_element(fundefs,i);
-      VectorSignature* signatures = fdef->signatures;
+      Fundef_t* fdef = VectorFundef_element(fundefs,i);
+      VectorSignature_t* signatures = fdef->signatures;
       unsigned long m = VectorSignature_length(signatures);
       unsigned long j;
       for (j = 0; j < m; j++) {
-        Signature* sig = VectorSignature_element(signatures,j);
+        Signature_t* sig = VectorSignature_element(signatures,j);
         if (!is_false_condition(sig->condition)) {
           if (!is_true_condition(sig->condition)) {
             fprintf(stream,"#if ");
@@ -2159,7 +2195,7 @@ static void output_tables2 (FILE* stream)
     unsigned long n = VectorFundef_length(fundefs);
     unsigned long i;
     for (i = 0; i < n; i++) {
-      Fundef* fdef = VectorFundef_element(fundefs,i);
+      Fundef_t* fdef = VectorFundef_element(fundefs,i);
       if (!is_false_condition(fdef->condition)) {
         if (!is_true_condition(fdef->condition)) {
           fprintf(stream,"#if ");
@@ -2183,7 +2219,7 @@ static void output_tables2 (FILE* stream)
     unsigned long n = VectorFundef_length(fundefs);
     unsigned long i;
     for (i = 0; i < n; i++) {
-      Fundef* fdef = VectorFundef_element(fundefs,i);
+      Fundef_t* fdef = VectorFundef_element(fundefs,i);
       if (!is_false_condition(fdef->condition)) {
         if (!is_true_condition(fdef->condition)) {
           fprintf(stream,"#if ");
@@ -2216,12 +2252,12 @@ static void output_tables2 (FILE* stream)
     unsigned long n = VectorFundef_length(fundefs);
     unsigned long i;
     for (i = 0; i < n; i++) {
-      Fundef* fdef = VectorFundef_element(fundefs,i);
-      VectorSignature* signatures = fdef->signatures;
+      Fundef_t* fdef = VectorFundef_element(fundefs,i);
+      VectorSignature_t* signatures = fdef->signatures;
       unsigned long m = VectorSignature_length(signatures);
       unsigned long j;
       for (j = 0; j < m; j++) {
-        Signature* sig = VectorSignature_element(signatures,j);
+        Signature_t* sig = VectorSignature_element(signatures,j);
         if (sig->key) {
           if (!is_false_condition(sig->condition)) {
             if (!is_true_condition(sig->condition)) {
@@ -2252,7 +2288,7 @@ static void output_tables2 (FILE* stream)
     unsigned long n = VectorVarinit_length(varinits);
     unsigned long i;
     for (i = 0; i < n; i++) {
-      Varinit* vinit = VectorVarinit_element(varinits,i);
+      Varinit_t* vinit = VectorVarinit_element(varinits,i);
       if (!is_true_condition_part(vinit->condition)) {
         fprintf(stream,"#if ");
         print_condition_part(stream,vinit->condition);
@@ -2287,7 +2323,7 @@ static void output (FILE* stream, const char* infilename)
     unsigned long m = VectorLine_length(lines);
     unsigned long j;
     for (j = 0; j < m; j++) {
-      const Line* line = VectorLine_element(lines,j);
+      const Line_t* line = VectorLine_element(lines,j);
       if (line->number != lineno) {
         fprintf(stream,"#line %ld\n",line->number);
         lineno = line->number;
@@ -2313,14 +2349,18 @@ int main (int argc, char* argv[])
   if (argc == 2) {
     infilename = argv[1];
     infile = fopen(infilename,"r");
-    if (infile == NULL)
+    if (infile == NULL) {
+      fprintf(stderr,"%s: cannot open `%s'\n",argv[0],argv[1]);
       exit(1);
+    }
     file = infilename;
   } else if (argc == 1) {
     infilename = NULL;
     infile = stdin;
-  } else
+  } else {
+    fprintf(stderr,"usage: %s [input] > output\n",argv[0]);
     exit(1);
+  }
   outfile = stdout;
   /* Main job. */
   read_all_input(infile);
@@ -2330,6 +2370,7 @@ int main (int argc, char* argv[])
   if (ferror(infile) || ferror(outfile)) {
     fclose(infile);
     fclose(outfile);
+    fprintf(stderr,"%s: i/o error\n",argv[0]);
     exit(1);
   }
   fclose(infile);
