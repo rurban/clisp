@@ -10908,13 +10908,13 @@ local int shell_quote (char * dest, const char * source) {
 }
 
 /* (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error])
-   Launches a program.
-   :arguments : a list of strings
-   :wait - nullp/not nullp - whether to wait for process to finish
-   :input, :output, :error - i/o/e streams for process. basically file-streams
-     or terminal-streams. see stream_lend_handle() in stream.d for full list
-     of supported streams
-     returns: exit code (zero when (nullp wait))  */
+ Launches a program.
+ :arguments : a list of strings
+ :wait - nullp/not nullp - whether to wait for process to finish (default T)
+ :input, :output, :error - i/o/e streams for process. basically file-streams
+   or terminal-streams. see stream_lend_handle() in stream.d for full list
+   of supported streams
+ returns: if wait exit code, child PID otherwise */
 LISPFUN(launch,seclass_default,1,0,norest,key,6,
         (kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
   var object command_arg = check_string(STACK_6);
@@ -10922,7 +10922,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
   var object error_arg = STACK_1;
   var object output_arg = STACK_2;
   var object input_arg = STACK_3;
-  var bool wait_p = !missingp(STACK_4);
+  var bool wait_p = !nullp(STACK_4); /* default: do wait! */
   var object arg_arg = STACK_5;
   var int handletype; # TODO: check it
   var DWORD pry = NORMAL_PRIORITY_CLASS;
@@ -11015,7 +11015,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
 
   end_system_call();
   if (wait_p) VALUES1(sfixnum(exitcode));
-  else VALUES1(NIL);
+  else VALUES1(sfixnum(prochandle));
   skipSTACK(7);
 }
 
@@ -11101,7 +11101,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
   STACK_6 = check_string(STACK_6); /* command_arg */
   var long priority = (integerp(STACK_0) ? I_to_L(STACK_0)
                        : (fehler_posfixnum(STACK_0), 0));
-  var bool wait_p = !missingp(STACK_4);
+  var bool wait_p = !nullp(STACK_4); /* default: do wait! */
   var int handletype;
   var Handle hinput = /* STACK_3 == input_stream_arg */
     handle_dup1((boundp(STACK_3) && !eq(STACK_3,S(Kterminal)))
@@ -11189,7 +11189,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
   FREE_DYNAMIC_ARRAY(argv);
   FREE_DYNAMIC_ARRAY(argvdata);
   if (wait_p) VALUES1(sfixnum(exit_code));
-  else VALUES1(NIL);
+  else VALUES1(sfixnum(child));
   skipSTACK(7);
 }
 
