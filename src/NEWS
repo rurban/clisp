@@ -57,7 +57,7 @@ User visible changes
     and treat NULL as LIST of length 0 and CONS as LIST of positive length;
   + COERCE accepts CLOS class object as a type-spec (second argument) and
     coerces FLOAT to COMPLEX by returning a COMPLEX number;
-  + DEFSETF uses the slot name as is for the accessor when :CONC-NAME
+  + DEFSTRUCT uses the slot name as is for the accessor when :CONC-NAME
     is NIL (i.e., does not intern the name in *PACKAGE*);
   + a character is now accepted as a package designator.
 
