@@ -339,7 +339,7 @@ LISPSYM(structure_reader,"STRUCTURE-READER",system)
 LISPSYM(closure_reader,"CLOSURE-READER",system)
 LISPSYM(clisp_pathname_reader,"CLISP-PATHNAME-READER",system)
 LISPSYM(ansi_pathname_reader,"ANSI-PATHNAME-READER",system)
-#ifdef UNIX
+#if defined(UNIX) || defined(WIN32_NATIVE)
 LISPSYM(unix_executable_reader,"UNIX-EXECUTABLE-READER",system)
 #endif
 LISPSYM(read,"READ",lisp)

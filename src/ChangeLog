@@ -1,5 +1,11 @@
 2002-01-18  Sam Steingold  <sds@gnu.org>
 
+	support #! UNIX scripts on WIN32 too
+	* io.d, constsym.d, spvw.d, subr.d (UNIX-EXECUTABLE-READER):
+	define on WIN32_NATIVE too
+
+2002-01-18  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (SOCKET-STATUS): fix a GC safety bug
 	(handle_isset): mark as GC-unsafe
 	Reported by Todd Sabin <tas@webspan.net>

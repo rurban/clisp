@@ -378,7 +378,7 @@ LISPFUNN(structure_reader,3)
 LISPFUNN(closure_reader,3)
 LISPFUNN(clisp_pathname_reader,3)
 LISPFUNN(ansi_pathname_reader,3)
-#ifdef UNIX
+#if defined(UNIX) || defined(WIN32_NATIVE)
 LISPFUNN(unix_executable_reader,3)
 #endif
 LISPFUN(read,0,4,norest,nokey,0,NIL)
