@@ -2786,8 +2786,13 @@ LISPFUNN(map_all_symbols,1)
     value1 = NIL; mv_count=1; # NIL als Wert
   }
 
-local void export_symbol_from (void *pack, object sym) {
-  export(&sym,(object*)pack);
+# Subroutine for EXT:RE-EXPORT.
+# Exports a single symbol from TO-PACK.
+local void export_symbol_from (void *data, object sym) {
+  var object* pack_ = (object*)data; # points into the STACK
+  pushSTACK(sym);
+  export(&STACK_0,pack_);
+  skipSTACK(1);
 }
 
 LISPFUNN(reexport,2)
