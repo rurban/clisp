@@ -2029,10 +2029,10 @@ if test $ac_cv_header_sys_resource_h = yes; then
 #include <sys/time.h>
 #include <sys/resource.h>
 ],
-[int getrusage (enum __rusage_who who, struct rusage * rusage);],
+[int getrusage (int who, struct rusage * rusage);],
 [int getrusage();],
-[cl_cv_proto_getrusage_arg1="enum __rusage_who"],
-[cl_cv_proto_getrusage_arg1="int"])
+[cl_cv_proto_getrusage_arg1="int"],
+[cl_cv_proto_getrusage_arg1="enum __rusage_who"])
 ], [extern int getrusage ($cl_cv_proto_getrusage_arg1, struct rusage *);])
     AC_DEFINE_UNQUOTED(RUSAGE_WHO_T,$cl_cv_proto_getrusage_arg1)
   fi
