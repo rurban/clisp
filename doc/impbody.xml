@@ -2649,77 +2649,6 @@ and &end-k;:</para>
  <replaceable>name</replaceable> &eq; &nil; may not be allowed
  either.</para>
 
-<!-- #ifdef PATHNAME_MSDOS -->
-<variablelist>
-<varlistentry><term>Platform dependent: &dos; platforms only.</term>
-<listitem>
-<variablelist><title>Pathname components</title>
-<varlistentry><term><replaceable>host</replaceable></term>
- <listitem><simpara>always &nil;</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>device</replaceable></term>
- <listitem><simpara>&nil; or &wild-k; or
-    <filename>A</filename>|...|<filename>Z</filename>
-  </simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>directory</replaceable></term>
- <listitem>
-  <segmentedlist><title><literal
-   role="sexp">(<replaceable>startpoint</replaceable>
-   . <replaceable>subdirs</replaceable>)</literal></title>
-   <segtitle>element</segtitle><segtitle>values</segtitle>
-   <segtitle>meaning</segtitle>
-   <seglistitem><seg><replaceable>startpoint</replaceable></seg>
-        <seg>&relative-k; | &absolute-k;</seg></seglistitem>
-   <seglistitem><seg><replaceable>subdirs</replaceable></seg>
-        <seg><literal role="sexp">()</literal> | <literal
-        role="sexp">(<replaceable>subdir</replaceable>
-        . <replaceable>subdirs</replaceable>)</literal></seg></seglistitem>
-   <seglistitem><seg><replaceable>subdir</replaceable></seg>
-        <seg>&current-k;</seg><seg><filename>.</filename></seg></seglistitem>
-   <seglistitem><seg><replaceable>subdir</replaceable></seg>
-        <seg>&parent-k;</seg><seg><filename>..</filename></seg></seglistitem>
-   <seglistitem><seg><replaceable>subdir</replaceable></seg>
-        <seg>&wild-inferiors-k;</seg><seg><filename>...</filename> -
-        all subdirectories</seg></seglistitem>
-   <seglistitem><seg><replaceable>subdir</replaceable></seg>
-        <seg><literal role="sexp">(<replaceable>name</replaceable>
-             . <replaceable>type</replaceable>)</literal></seg></seglistitem>
-   <seglistitem><seg><replaceable>name</replaceable></seg>
-        <seg>&wild-k; or a &simple-string-type; of length at most
-        8</seg></seglistitem>
-   <seglistitem><seg><replaceable>type</replaceable></seg>
-        <seg>&wild-k; or a &simple-string-type; of length at most
-        3</seg></seglistitem>
- </segmentedlist></listitem></varlistentry>
-<varlistentry><term><replaceable>name</replaceable></term>
- <listitem><simpara>&nil; or &wild-k; or a &simple-string-type; of
- length at most 8</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>type</replaceable></term>
- <listitem><simpara>&nil; or &wild-k; or a &simple-string-type; of
- length at most 3</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>version</replaceable></term>
- <listitem><simpara>always &nil; (may also be specified as
- &wild-k; or &newest-k;)</simpara></listitem></varlistentry>
-</variablelist>
-
-<segmentedlist><title>filename notations</title>
- <segtitle/><segtitle/>
- <seglistitem><seg>External notation:</seg>
-  <seg><filename>A:\sub1.typ\sub2.typ\name.typ</filename></seg></seglistitem>
- <seglistitem><seg>using defaults:</seg>
-  <seg><filename>  \sub1.typ\sub2.typ\name.typ</filename></seg></seglistitem>
- <seglistitem><seg>or</seg>
-  <seg><filename>                     name.typ</filename></seg></seglistitem>
- <seglistitem><seg>or</seg>
-  <seg><filename>*:\sub1.typ\*.*\name.*</filename></seg></seglistitem>
- <seglistitem><seg>or similar.</seg><seg/></seglistitem>
-</segmentedlist>
-
-<para>Instead of <filename>\</filename> one may use
- <filename>/</filename>, as usual for DOS calls.
-</para></listitem></varlistentry>
-</variablelist>
-<!-- #endif -->
-
 <!-- #ifdef PATHNAME_AMIGAOS -->
 <variablelist>
 <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
@@ -2955,13 +2884,12 @@ and &end-k;:</para>
 </listitem></varlistentry></variablelist>
 <!-- #endif -->
 
-<!-- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
+<!-- #if defined(PATHNAME_OS2) -->
 <variablelist>
-<varlistentry><term>Platform dependent: &os2;, &win32; platforms only.</term>
+<varlistentry><term>Platform dependent: &os2; platforms only.</term>
 <listitem><variablelist><title>Pathname components</title>
 <varlistentry><term><replaceable>host</replaceable></term>
- <listitem><simpara>on &os2;: always &nil;; on &win32;: &nil; or
-   &simple-string-type;</simpara></listitem></varlistentry>
+ <listitem><simpara>always &nil;</simpara></listitem></varlistentry>
 <varlistentry><term><replaceable>device</replaceable></term>
  <listitem><simpara>&nil; or &wild-k; or
  <filename>A</filename>|...|<filename>Z</filename>
@@ -3026,6 +2954,90 @@ and &end-k;:</para>
 
 <para>Instead of <filename>'\'</filename> one may use
  <filename>'/'</filename>, as usual for DOS calls.</para>
+</listitem></varlistentry></variablelist>
+<!-- #endif -->
+
+<!-- #if defined(PATHNAME_WIN32) -->
+<variablelist>
+<varlistentry><term>Platform dependent: &win32; platforms only.</term>
+<listitem><variablelist><title>Pathname components</title>
+<varlistentry><term><replaceable>host</replaceable></term>
+ <listitem><simpara>&nil; or &simple-string-type;, wildcard characters may
+   occur but don't act as wildcards</simpara></listitem></varlistentry>
+<varlistentry><term><replaceable>device</replaceable></term>
+ <listitem><simpara>&nil; or &wild-k; or
+ <filename>A</filename>|...|<filename>Z</filename>
+ </simpara></listitem></varlistentry>
+<varlistentry><term><replaceable>directory</replaceable></term>
+ <listitem><segmentedlist><title><literal
+   role="sexp">(<replaceable>startpoint</replaceable>
+   . <replaceable>subdirs</replaceable>)</literal></title>
+   <segtitle>element</segtitle><segtitle>values</segtitle>
+   <segtitle>meaning</segtitle>
+ <seglistitem><seg><replaceable>startpoint</replaceable></seg>
+  <seg>&relative-k; | &absolute-k;</seg><seg/></seglistitem>
+ <seglistitem><seg><replaceable>subdirs</replaceable></seg><seg><literal
+    role="sexp">()</literal> | <literal
+    role="sexp">(<replaceable>subdir</replaceable> .
+   <replaceable>subdirs</replaceable>)</literal></seg><seg/></seglistitem>
+ <seglistitem><seg><replaceable>subdir</replaceable></seg>
+  <seg>&wild-inferiors-k;</seg><seg><filename>**</filename> or
+  <filename>...</filename>, all subdirectories </seg></seglistitem>
+ <seglistitem><seg><replaceable>subdir</replaceable></seg>
+   <seg>&simple-string-type;, may contain wildcard characters
+   <filename>?</filename> and <filename>*</filename></seg>
+   <seg/></seglistitem>
+ </segmentedlist></listitem></varlistentry>
+<varlistentry><term><replaceable>name</replaceable></term>
+ <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
+  characters <filename>?</filename> and <filename>*</filename> (may also
+  be specified as &wild-k;)</simpara></listitem></varlistentry>
+<varlistentry><term><replaceable>type</replaceable></term>
+ <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
+  characters <filename>?</filename> and <filename>*</filename> (may also
+  be specified as &wild-k;)</simpara></listitem></varlistentry>
+<varlistentry><term><replaceable>version</replaceable></term>
+ <listitem><simpara>always &nil; (may also be specified as &wild-k; or
+  &newest-k;)</simpara></listitem></varlistentry>
+</variablelist>
+
+<para>If <replaceable>host</replaceable> is non-&nil;,
+ <replaceable>device</replaceable> must be &nil;.</para>
+
+<para>A &win32; filename is split into name and type according to the
+ following rule:
+<itemizedlist>
+ <listitem><simpara>if there is no <filename>'.'</filename> in the
+  filename, then the <replaceable>name</replaceable> is everything,
+  <replaceable>type</replaceable> is &nil;;</simpara></listitem>
+ <listitem><simpara>if there is a <filename>'.'</filename>, then
+  <replaceable>name</replaceable> is the part before and
+  <replaceable>type</replaceable> the part after the last dot.
+  </simpara></listitem>
+</itemizedlist></para>
+
+<segmentedlist><title>filename notations</title>
+ <segtitle/><segtitle/>
+ <seglistitem><seg>External notation:</seg>
+  <seg><filename>A:\sub1.typ\sub2.typ\name.typ</filename></seg></seglistitem>
+ <seglistitem><seg>using defaults:</seg>
+  <seg><filename>  \sub1.typ\sub2.typ\name.typ</filename></seg></seglistitem>
+ <seglistitem><seg>or</seg>
+  <seg><filename>                     name.typ</filename></seg></seglistitem>
+ <seglistitem><seg>or</seg>
+  <seg><filename>*:\sub1.typ\**\sub3.typ\x*.lsp</filename></seg></seglistitem>
+ <seglistitem><seg>or similar.</seg><seg/></seglistitem>
+</segmentedlist>
+
+<para>Instead of <filename>'\'</filename> one may use
+ <filename>'/'</filename>, as usual for DOS calls.</para>
+
+<para>If <replaceable>host</replaceable> is non-&nil; and the
+ <replaceable>directory</replaceable>'s <replaceable>startpoint</replaceable>
+ is not &absolute-k;, <literal role="sexp">(parse-namestring (namestring
+ <replaceable>pathname</replaceable>))</literal> will not be the same as
+ <replaceable>pathname</replaceable>.</para>
+
 </listitem></varlistentry></variablelist>
 <!-- #endif -->
 
