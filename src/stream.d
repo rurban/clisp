@@ -3075,7 +3075,7 @@ local object test_external_format_arg (object arg) {
   if (symbolp(arg) && constantp(TheSymbol(arg))
       && encodingp(Symbol_value(arg)))
     return Symbol_value(arg);
-  #if defined(GNU_LIBICONV) || defined(HAVE_ICONV)
+  #ifdef HAVE_GOOD_ICONV
   if (stringp(arg)) { # (make-encoding :charset arg)
     pushSTACK(arg); pushSTACK(unbound); pushSTACK(unbound); pushSTACK(unbound);
     C_make_encoding();
@@ -3459,7 +3459,7 @@ typedef struct strm_channel_extrafields_t {
   void (* low_close) (object stream, object handle);
   # Fields used if the element-type is CHARACTER:
   uintL lineno;                        # line number during read, >0
-  #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
+  #if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
   iconv_t iconvdesc;                   # input conversion descriptor and state
   iconv_t oconvdesc;                   # output conversion descriptor and state
   #endif
@@ -3474,7 +3474,7 @@ typedef struct strm_channel_extrafields_t {
 #define ChannelStream_bitsize(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->bitsize
 #define ChannelStreamLow_close(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_close
 #define ChannelStream_lineno(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->lineno
-#if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
+#if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
 #define ChannelStream_iconvdesc(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->iconvdesc
 #define ChannelStream_oconvdesc(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->oconvdesc
 #endif
@@ -3561,7 +3561,7 @@ nonreturning_function(local, fehler_interrupt, (void)) {
 # Here enc_charset is a simple-string, not a symbol. The system decides
 # which encodings are available, and there is no API for getting them all.
 
-#if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
+#if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
 
 # Our internal encoding is UCS-4 with platform dependent endianness.
 #ifdef GNU_LIBICONV
@@ -3595,15 +3595,13 @@ global object iconv_range (object encoding, uintL start, uintL end);
 nonreturning_function(extern, fehler_unencodable, (object encoding, chart ch));
 
 # Avoid annoying warning caused by a wrongly standardized iconv() prototype.
-#ifdef ICONV_CONST # not defined when HAVE_ICONV is not defined
-  #ifdef GNU_LIBICONV
-    #undef iconv
-    #define iconv(cd,inbuf,inbytesleft,outbuf,outbytesleft) \
-      libiconv(cd,(ICONV_CONST char **)(inbuf),inbytesleft,outbuf,outbytesleft)
-  #else
-    #define iconv(cd,inbuf,inbytesleft,outbuf,outbytesleft) \
-      (iconv)(cd,(ICONV_CONST char **)(inbuf),inbytesleft,outbuf,outbytesleft)
-  #endif
+#ifdef GNU_LIBICONV
+  #undef iconv
+  #define iconv(cd,inbuf,inbytesleft,outbuf,outbytesleft) \
+    libiconv(cd,(ICONV_CONST char **)(inbuf),inbytesleft,outbuf,outbytesleft)
+#else
+  #define iconv(cd,inbuf,inbytesleft,outbuf,outbytesleft) \
+    (iconv)(cd,(ICONV_CONST char **)(inbuf),inbytesleft,outbuf,outbytesleft)
 #endif
 
 # open the iconv conversion and signal errors when necessary
@@ -4021,12 +4019,12 @@ global object iconv_range (object encoding, uintL start, uintL end) {
   return stringof(2*count);
 }
 
-#endif # UNICODE && (GNU_LIBICONV || HAVE_ICONV)
+#endif # UNICODE && HAVE_GOOD_ICONV
 
 # Initializes some ChannelStream fields.
 # ChannelStream_init(stream);
 # > stream: channel-stream with encoding
-#if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
+#if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
 local void ChannelStream_init (object stream) {
   var object encoding = TheStream(stream)->strm_encoding;
   if (simple_string_p(TheEncoding(encoding)->enc_charset)) {
@@ -4063,7 +4061,7 @@ local void ChannelStream_init (object stream) {
 
 # Cleans up some ChannelStream fields.
 # ChannelStream_fini(stream);
-#if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
+#if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
 local void ChannelStream_fini (object stream) {
   if (ChannelStream_iconvdesc(stream) != (iconv_t)0) {
     begin_system_call();
@@ -5604,7 +5602,7 @@ local void wr_ch_array_unbuffered_dos (const object* stream_,
 # Unbuffered-Channel-Stream return to the initial state.
 # oconv_unshift_output_unbuffered(stream);
 # > stream: Unbuffered-Channel-Stream
-#if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
+#if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
   #define oconv_unshift_output_unbuffered(stream)               \
       if (ChannelStream_oconvdesc(stream) != (iconv_t)0) {      \
         oconv_unshift_output_unbuffered_(stream);               \
@@ -6841,7 +6839,7 @@ local void wr_ch_array_buffered_dos (const object* stream_,
 # Buffered-Channel-Stream return to the initial state.
 # oconv_unshift_output_buffered(stream);
 # > stream: Buffered-Channel-Stream
-#if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
+#if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
  #define oconv_unshift_output_buffered(stream)  \
       if (ChannelStream_oconvdesc(stream) != (iconv_t)0) { \
         oconv_unshift_output_buffered_(stream);            \
@@ -7884,7 +7882,7 @@ local void closed_buffered (object stream) {
     ChannelStream_bitsize(stream) = 0; # delete bitsize
     TheStream(stream)->strm_bitbuffer = NIL; # free Bitbuffer
   }
-  #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
+  #if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
   ChannelStream_iconvdesc(stream) = (iconv_t)0; # delete iconvdesc
   ChannelStream_oconvdesc(stream) = (iconv_t)0; # delete oconvdesc
   #endif
@@ -17264,7 +17262,7 @@ LISPFUNN(file_string_length,2) {
   if (!(TheStream(stream)->strmflags & strmflags_wr_ch_B))
     fehler_illegal_streamop(S(file_string_length),stream);
   var object encoding = TheStream(stream)->strm_encoding;
- #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
+ #if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
   if (simple_string_p(TheEncoding(encoding)->enc_charset)) {
     # iconv-based encodings have state. Since we cannot duplicate an iconv_t
     # we have no way to know for sure how many bytes the string will span.
