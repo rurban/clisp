@@ -152,34 +152,37 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
   } while(0)
 
 /* ================== arpa/inet.h interface ================== */
-#if defined(HAVE_HTONL)
+/* define even when the OS lacks the C functions; in that case,
+   return the argument on the assumption
+   that the host order is the same as the network order */
 DEFUN(RAWSOCK:HTONL, num) {
   uint32 arg = I_to_uint32(check_uint32(popSTACK()));
+#if defined(HAVE_HTONL)
   begin_system_call(); arg = htonl(arg); end_system_call();
+#endif
   VALUES1(uint32_to_I(arg));
 }
-#endif
-#if defined(HAVE_NTOHL)
 DEFUN(RAWSOCK:NTOHL, num) {
   uint32 arg = I_to_uint32(check_uint32(popSTACK()));
+#if defined(HAVE_NTOHL)
   begin_system_call(); arg = ntohl(arg); end_system_call();
+#endif
   VALUES1(uint32_to_I(arg));
 }
-#endif
-#if defined(HAVE_HTONS)
 DEFUN(RAWSOCK:HTONS, num) {
   uint16 arg = I_to_uint16(check_uint16(popSTACK()));
+#if defined(HAVE_HTONS)
   begin_system_call(); arg = htons(arg); end_system_call();
+#endif
   VALUES1(uint16_to_I(arg));
 }
-#endif
-#if defined(HAVE_NTOHS)
 DEFUN(RAWSOCK:NTOHS, num) {
   uint16 arg = I_to_uint16(check_uint16(popSTACK()));
+#if defined(HAVE_NTOHS)
   begin_system_call(); arg = ntohs(arg); end_system_call();
+#endif
   VALUES1(uint16_to_I(arg));
 }
-#endif
 DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
   int family = check_socket_domain(STACK_1);
   if (stringp(STACK_0)) {
