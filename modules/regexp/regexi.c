@@ -77,12 +77,15 @@ DEFUN(REGEXP::REGEXP-EXEC, pattern string &key BOOLEAN START END NOTBOL NOTEOL)
     : posfixnum_to_L(STACK_3 = check_posfixnum(STACK_3));
   unsigned int end = missingp(STACK_2) ? length
     : posfixnum_to_L(STACK_2 = check_posfixnum(STACK_2));
-  int eflags = 0, status;
+  int eflags = ((missingp(STACK_0) ? 0 : REG_NOTEOL) |
+                (missingp(STACK_1) ? 0 : REG_NOTBOL));
+  int status;
   bool bool_p = !missingp(STACK_4);
   regex_t *re;
   regmatch_t *ret;
-  STACK_6 = check_fpointer(STACK_6,true);
-  string = STACK_5;
+  skipSTACK(5);                 /* drop all options */
+  STACK_1 = check_fpointer(STACK_1,true);
+  string = STACK_0;
   if (end != length || start != 0) {
     pushSTACK(sfixnum((int)(end-start)));
     pushSTACK(`:ELEMENT-TYPE`); pushSTACK(S(character));
@@ -91,9 +94,7 @@ DEFUN(REGEXP::REGEXP-EXEC, pattern string &key BOOLEAN START END NOTBOL NOTEOL)
     funcall(L(make_array),7);
     string = value1;
   }
-  if (!missingp(STACK_0)) eflags |= REG_NOTEOL;
-  if (!missingp(STACK_1)) eflags |= REG_NOTBOL;
-  re = (regex_t*)TheFpointer(STACK_5)->fp_pointer;
+  re = (regex_t*)TheFpointer(STACK_1)->fp_pointer;
   begin_system_call();
   ret = (regmatch_t*)alloca((re->re_nsub+1)*sizeof(regmatch_t));
   end_system_call();
@@ -117,5 +118,5 @@ DEFUN(REGEXP::REGEXP-EXEC, pattern string &key BOOLEAN START END NOTBOL NOTEOL)
       } else pushSTACK(NIL);
     funcall(L(values),re->re_nsub+1);
   }
-  skipSTACK(7);
+  skipSTACK(2);                 /* drop pattern & string */
 }
