@@ -293,6 +293,7 @@
        ($expected-type :initarg :expected-type :reader type-error-expected-type)))
 
       ; when some keyword does not belong to one of the allowed keywords
+      ; ANSI CL 3.5.1.4., 3.5.1.5. want this to be a subclass of PROGRAM-ERROR.
       (define-condition keyword-error (program-error type-error) ())
       ; CLISP specific
 

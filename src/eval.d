@@ -2400,6 +2400,7 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
       if (count>0) {
         if (argcount < count) {
           pushSTACK(TheIclosure(closure)->clos_name);
+          /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
           fehler(program_error,
                  GETTEXT("EVAL/APPLY: too few arguments given to ~S"));
         }
@@ -2482,6 +2483,7 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
       /* yes -> neither &KEY nor &REST specified */
       if (argcount>0) { /* still arguments there? -> Error */
         pushSTACK(TheIclosure(closure)->clos_name);
+        /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
         fehler(program_error,
                GETTEXT("EVAL/APPLY: too many arguments given to ~S"));
       }
@@ -3132,6 +3134,7 @@ nonreturning_function(local, fehler_eval_zuwenig, (object fun)) {
   var object form = STACK_(frame_form); # Form
   pushSTACK(form);
   pushSTACK(fun);
+  /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
   fehler(source_program_error,
          GETTEXT("EVAL: too few arguments given to ~S: ~S"));
 }
@@ -3141,6 +3144,7 @@ nonreturning_function(local, fehler_eval_zuviel, (object fun)) {
   var object form = STACK_(frame_form); # Form
   pushSTACK(form);
   pushSTACK(fun);
+  /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
   fehler(source_program_error,
          GETTEXT("EVAL: too many arguments given to ~S: ~S"));
 }
@@ -3989,6 +3993,7 @@ nonreturning_function(local, fehler_apply_dotted, (object name, object end)) {
 # > name: name of function
 nonreturning_function(local, fehler_apply_zuviel, (object name)) {
   pushSTACK(name);
+  /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
   fehler(program_error,GETTEXT("APPLY: too many arguments given to ~S"));
 }
 
@@ -3996,6 +4001,7 @@ nonreturning_function(local, fehler_apply_zuviel, (object name)) {
 # > name: name fo function
 nonreturning_function(local, fehler_apply_zuwenig, (object name)) {
   pushSTACK(name);
+  /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
   fehler(program_error,GETTEXT("APPLY: too few arguments given to ~S"));
 }
 
@@ -7101,6 +7107,7 @@ global Values funcall (object fun, uintC args_on_stack)
             if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1)) {
               pushSTACK(fun);
               pushSTACK(S(multiple_value_call));
+              /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
               fehler(program_error,
                      GETTEXT("~S: too many arguments given to ~S"));
             }
