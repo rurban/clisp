@@ -1,5 +1,9 @@
 1999-06-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * trace.lsp (untrace1): Don't use replace-in-fenv here either.
+
+1999-06-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in (READLINELIB): Don't pass option "-r" to $(MAKE) for
           building in subdirectory. It doesn't work with Irix 6.5 `make'
           because readline/Makefile.in uses implicit rules.

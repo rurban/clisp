@@ -262,10 +262,7 @@
           (if (and (fboundp symbol)
                    (eq (symbol-function symbol) (get symbol 'sys::tracing-definition))
               )
-            (progn
-              (replace-in-fenv old-definition funname (symbol-function symbol) old-definition)
-              (setf (symbol-function symbol) old-definition)
-            )
+            (setf (symbol-function symbol) old-definition)
             (warn (ENGLISH "~S: ~S was traced and has been redefined!")
                   'untrace funname
           ) )
