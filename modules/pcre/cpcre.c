@@ -294,7 +294,8 @@ DEFUN(PCRE:PCRE-NAME-TO-INDEX,pattern name)
 
 DEFUN(PCRE:PCRE-EXEC,pattern subject &key :OFFSET :ANCHORED :NOTBOL :NOTEOL \
       :NOTEMPTY :NO-UTF8-CHECK)
-{ /* compile the pattern, return PATTERN struct */
+{ /* match the SUBJECT string against a pre-compiled PATTERN;
+     return a vector of MATCH structures or NIL if no matches */
   int options =
     (missingp(STACK_4) ? 0 : PCRE_ANCHORED) |
     (missingp(STACK_3) ? 0 : PCRE_NOTBOL) |
