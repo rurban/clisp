@@ -223,6 +223,7 @@
         (seen-for-as-= nil) ; schon eine FOR-AS-= Klausel gesehen?
         (seen-endtest nil) ; schon eine FOR-AS Klausel mit Abbruchbedingung gesehen?
         (initially-code nil) ; initially-Code (umgedrehte Liste)
+        (startup-code nil) ; forms from for ... = ... then and end conditions
         (stepbefore-code nil) ; Code zum Abbruch vor dem Schleifendurchlauf (umgedrehte Liste)
         (main-code nil) ; Code im Hauptteil der Schleife (umgedrehte Liste)
         (stepafter-code nil) ; Code zur Vorbereitung des nächsten Schleifendurchlaufs (umgedrehte Liste)
@@ -626,13 +627,16 @@
                                      (revappend (destructure pattern first-form)
                                                 bindings))
                                    (setq declspecs (revappend new-declspecs declspecs))
-                                   (unless (and (constantp first-form) (constantp then-form))
+                                   (unless (and (constantp first-form)
+                                                (constantp then-form))
                                      (setq seen-for-as-= t)
-                                     ; Even when first-form is constant but then-form is not,
-                                     ; we must set depends-preceding, because the stepafter-code
-                                     ; depends on the order of the steppings, which forbids
-                                     ; moving some code from initially-code + stepafter-code
-                                     ; to stepbefore-code.
+                                     ;; Even when `first-form' is constant but
+                                     ;; `then-form' is not, we must set
+                                     ;; `depends-preceding', because the
+                                     ;; `stepafter-code' depends on the order of
+                                     ;; the steppings, which forbids moving
+                                     ;; some code from `initially-code' +
+                                     ;; `stepafter-code' to `stepbefore-code.'
                                      (setq depends-preceding t))
                                    (setq stepafter (revappend (destructure pattern then-form) stepafter))))
                                 (ACROSS
@@ -904,11 +908,8 @@
             (when later-depend (setf (li-later-depend initialization) t))
             (when (li-depends-preceding initialization)
               (setq later-depend t))))
-        (setq initializations (nreverse initializations))
-        (loop
-          (when (null initializations) (return))
-          (let* ((initialization (pop initializations))
-                 (everytime (li-everytime initialization))
+        (dolist (initialization (nreverse initializations))
+          (let* ((everytime (li-everytime initialization))
                  (requires-stepbefore (li-requires-stepbefore initialization))
                  (name (li-specform initialization))
                  (bindings (li-bindings initialization))
@@ -933,11 +934,11 @@
                   initializations1)
                 (if everytime
                   (if (li-later-depend initialization)
-                    (progn ; double code: initially-code and stepafter-code
-                      (setq initially-code (revappend endtest-forms (revappend initforms initially-code)))
-                      (setf (cdr everytime) (revappend endtest-forms (revappend initforms (cdr everytime)))))
+                    ;; double code: initially-code and stepafter-code
+                    (setf startup-code (revappend endtest-forms (revappend initforms startup-code))
+                          (cdr everytime) (revappend endtest-forms (revappend initforms (cdr everytime))))
                     (setq stepbefore-code (revappend endtest-forms (revappend initforms stepbefore-code))))
-                  (setq initially-code (revappend endtest-forms (revappend initforms initially-code)))))
+                  (setq startup-code (revappend endtest-forms (revappend initforms startup-code)))))
               ; Initialisierungsklausel nach initializations1 schaffen:
               (progn
                 (push
@@ -952,11 +953,11 @@
                     (setf (cdr everytime) (revappend initforms (cdr everytime)))
                     ; handle the endtest-forms.
                     (if (li-later-depend initialization)
-                      (progn ; double endtest: initially-code and stepafter-code
-                        (setq initially-code (revappend endtest-forms initially-code))
-                        (setf (cdr everytime) (revappend endtest-forms (cdr everytime))))
+                      ;; double endtest: initially-code and stepafter-code
+                      (setf startup-code (revappend endtest-forms startup-code)
+                            (cdr everytime) (revappend endtest-forms (cdr everytime)))
                       (setq stepbefore-code (revappend endtest-forms stepbefore-code))))
-                  (setq initially-code (revappend endtest-forms initially-code)))))))
+                  (setq startup-code (revappend endtest-forms startup-code)))))))
         (push
          (make-loop-init
           :specform 'LET
@@ -971,38 +972,43 @@
         (setq stepafter-code (delete 'NIL stepafter-code))
         ;; If initially-code and stepafter-code both end in the same
         ;; forms, drag these forms across the label to stepbefore-code.
-        (flet ((form-eq (form1 form2) ; Calling EQUAL on user-given forms would be wrong
-                 (or (eql form1 form2)
-                     (and (consp form1) (consp form2)
-                          (eql (length form1) (length form2))
-                          (or (eq (car form1) (car form2))
-                              (and (case (length form1) ((1 3) t))
-                                   (case (car form1) ((SETQ PSETQ) t))
-                                   (case (car form2) ((SETQ PSETQ) t))))
-                          (every #'eq (cdr form1) (cdr form2))))))
-          (loop
-            (unless (and (consp initially-code) (consp stepafter-code)
-                         (form-eq (car initially-code) (car stepafter-code)))
-              (return))
-            (setq stepbefore-code (nconc stepbefore-code (list (pop stepafter-code))))
-            (pop initially-code)))
+        (unless initially-code
+          (flet ((form-eq (form1 form2) ; Calling EQUAL on user-given forms would be wrong
+                   (or (eql form1 form2)
+                       (and (consp form1) (consp form2)
+                            (eql (length form1) (length form2))
+                            (or (eq (car form1) (car form2))
+                                (and (case (length form1) ((1 3) t))
+                                     (case (car form1) ((SETQ PSETQ) t))
+                                     (case (car form2) ((SETQ PSETQ) t))))
+                            (every #'eq (cdr form1) (cdr form2))))))
+            (loop
+              (unless (and (consp startup-code) (consp stepafter-code)
+                           (form-eq (car startup-code) (car stepafter-code)))
+                (return))
+              (setq stepbefore-code
+                    (nconc stepbefore-code (list (pop stepafter-code))))
+              (pop startup-code))))
         ;; Final macroexpansion.
         `(MACROLET ((LOOP-FINISH () (LOOP-FINISH-ERROR)))
            (BLOCK ,block-name
              ,(wrap-initializations initializations1
                 `(MACROLET ((LOOP-FINISH () '(GO END-LOOP)))
                    (TAGBODY
-                     ,@(if initially-code `((PROGN ,@(nreverse initially-code))))
+                     ,@(if startup-code (nreverse startup-code))
+                     ,@(if initially-code (nreverse initially-code))
                      BEGIN-LOOP
-                     ,@(if stepbefore-code `((PROGN ,@(nreverse stepbefore-code))))
+                     ,@(if stepbefore-code (nreverse stepbefore-code))
                      ,(wrap-initializations (nreverse initializations2)
-                        `(PROGN ,@(nreverse main-code)))
-                     ,@(if stepafter-code `((PROGN ,@(nreverse stepafter-code))))
+                        (cons 'PROGN (nreverse main-code)))
+                     ,@(if stepafter-code (nreverse stepafter-code))
                      (GO BEGIN-LOOP)
                      END-LOOP
-                     ,@(mapcar #'(lambda (var) `(SETQ ,var (SYS::LIST-NREVERSE ,var)))
+                     ,@(mapcar #'(lambda (var)
+                                   `(SETQ ,var (SYS::LIST-NREVERSE ,var)))
                                accu-vars-nreverse)
-                     (MACROLET ((LOOP-FINISH () (LOOP-FINISH-WARN) '(GO END-LOOP)))
+                     (MACROLET ((LOOP-FINISH () (LOOP-FINISH-WARN)
+                                  '(GO END-LOOP)))
                        ,@(nreverse finally-code)))))))))))
 
 ;; Der eigentliche Macro:
