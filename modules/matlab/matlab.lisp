@@ -47,15 +47,18 @@
 
 ;;; windows-only
 ;; int engGetVisible(Engine *ep, bool *value);
+#+win32
 (def-call-out engGetVisible
     (:arguments (ep Engine) (value (c-ptr boolean) :out))
   (:return-type int))
 ;; int engSetVisible(Engine *ep, bool value);
+#+win32
 (def-call-out engSetVisible (:arguments (ep Engine) (value boolean))
   (:return-type int))
 
 ;;; windows-only
 ;; Engine *engOpenSingleUse(const char *startcmd, void *dcom, int *retstatus);
+#+win32
 (def-call-out engOpenSingleUse
     (:arguments (startcmd c-string) (dcom c-pointer)
                 (retstatus (c-ptr int) :out))
@@ -272,11 +275,11 @@
 (def-call-out mxGetEps (:return-type double-float) (:arguments))
 
 ;; double *mxGetPr(const mxArray *array_ptr);
-(c-lines "double mx_aref (const mxArray *array_ptr, int i, int j, int n) { return mxGetPr(array_ptr)[i*n+j]; }~%")
+(c-lines "double mx_aref (const mxArray *array_ptr, int i, int j, int n) { return mxGetPr(array_ptr)[i+n*j]; }~%")
 (def-call-out mx-aref (:return-type double-float) (:name "mx_aref")
   (:arguments (array_ptr (c-pointer mxArray))
               (i int) (j int) (n int)))
-(c-lines "void set_mx_aref (const mxArray *array_ptr, int i, int j, int n, double val) { mxGetPr(array_ptr)[i*n+j] = val; }~%")
+(c-lines "void set_mx_aref (const mxArray *array_ptr, int i, int j, int n, double val) { mxGetPr(array_ptr)[i+n*j] = val; }~%")
 (ffi:def-call-out set_mx_aref (:return-type nil)
   (:arguments (array_ptr (c-pointer mxArray)) (i int) (j int) (n int)
               (val double-float)))
