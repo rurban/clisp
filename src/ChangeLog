@@ -8,13 +8,13 @@
 
 2004-09-18  Bruno Haible  <bruno@clisp.org>
 
-	* clos-genfun4.lisp (shared-initialize@generic-function,
-	shared-initialize@standard-generic-function): Remove &allow-other-keys.
+	* clos-genfun4.lisp (shared-initialize@generic-function)
+	(shared-initialize@standard-generic-function): Remove &allow-other-keys.
 	* clos-specializer2.lisp (shared-initialize@eql-specializer): Likewise.
-	* clos-class4.lisp (shared-initialize@class,
-	shared-initialize@built-in-class, shared-initialize@structure-class,
-	shared-initialize@standard-class,
-	shared-initialize@funcallable-standard-class): Likewise.
+	* clos-class4.lisp (shared-initialize@class)
+	(shared-initialize@built-in-class, shared-initialize@structure-class)
+	(shared-initialize@standard-class)
+	(shared-initialize@funcallable-standard-class): Likewise.
 
 2004-09-18  Bruno Haible  <bruno@clisp.org>
 
@@ -32,9 +32,9 @@
 	* lfloat.d (I_to_LF, RA_to_LF): Add signal_overflow argument.
 	* realelem.d (I_F_float_F): Update.
 	(RA_F_float_F): Add signal_overflow argument.
-	(R_F_float_F, R_to_SF, R_to_FF, R_to_DF, R_to_LF,
-	RA_F_exact_contagion_R, I_float_F, RA_float_F, RA_R_float_F,
-	GEN_R_op21): Update.
+	(R_F_float_F, R_to_SF, R_to_FF, R_to_DF, R_to_LF)
+	(RA_F_exact_contagion_R, I_float_F, RA_float_F, RA_R_float_F)
+	(GEN_R_op21): Update.
 	(R_R_comp): Avoid floating-point overflow when comparing float with
 	rational number.
 	* realtran.d (pi_F_float_F, ln2_F_float_F, R_R_log_R): Update.
@@ -108,8 +108,8 @@
 	* cmacros.lisp (function-form-funform): Remove function.
 	(function-form-p): New function.
 	(simple-function-form-p): Update.
-	* compiler.lisp (inline-callable-function-lambda-p,
-	inline-callable-function-p): Update.
+	* compiler.lisp (inline-callable-function-lambda-p)
+	(inline-callable-function-p): Update.
 	* loop.lisp (expand-loop): Update. Optimize #'(setf foo) the same way
 	as #'foo.
 
