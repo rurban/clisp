@@ -3205,7 +3205,7 @@ only.</subtitle>
    internal &c-lang; type descriptor (as obtained from
    <literal role="sexp">(&parse-c-type; '(&c-function; ...))</literal>,
    in which case it is important to specify the &lang-k; because the
-   expressions is likely to be evaluated at run-time, outside the &comp-unit;).
+   expressions are likely to be evaluated at run time, outside the &comp-unit;).
    &name-r;, a &string-t;, is mostly useful for documentation and
    interactive debugging since it appears in the printed representation
    of the &foreign-function-t; object, as in <literal
