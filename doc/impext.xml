@@ -2468,8 +2468,8 @@ bash$ ./build-dir/clisp &opt-K; full
    see <xref linkend="def-c-struct-external"/>
    and <xref linkend="ffi-extern-output"/>.</simpara>
   <para>When &fmt-r; is not a &string-t;, is should be a &symbol-t;,
-   and then then the string <code>(&format; &nil; {&arg-r;}*)</code>
-   is added to the appropriate function:<variablelist>
+   and then the &string-t; <code>(&format; &nil; {&arg-r;}*)</code>
+   is added to the appropriate &c-lang; function:<variablelist>
     <varlistentry><term><constant>:INIT-ALWAYS</constant></term>
      <term><constant>:INIT-ONCE</constant></term>
      <listitem><simpara><link linkend="modinit">initialization
