@@ -1477,9 +1477,9 @@ N. Gray to X3J13.</para>
 <section id="macros3"><title>Extensions-1.10. Additional Fancy Macros</title>
 
 <para>If you uncomment the <literal role="sexp">(&load;
- "macros3")</literal> line in the file <filename>init.lsp</filename>
+ "macros3")</literal> line in the file <filename>init.lisp</filename>
  before doing <command>make</command>, or load the file
- <filename>macros3.lsp</filename>into a running &clisp;, you gain access
+ <filename>macros3.lisp</filename>into a running &clisp;, you gain access
  to the following macros:</para>
 
 <formalpara id="ethe"><title><function>ext:ethe</function></title>
@@ -1838,10 +1838,10 @@ containing:</para>
    with
 <programlisting>TO_LOAD='/<replaceable>somewhere</replaceable>/bindings/linux.fas'</programlisting></para></listitem>
 
-<listitem><para>Compile <function>linux.lsp</function>, creating
+<listitem><para>Compile <function>linux.lisp</function>, creating
   <function>linux.c</function>:
 
-<programlisting>$ clisp -c /<replaceable>somewhere</replaceable>/bindings/linux.lsp</programlisting></para></listitem>
+<programlisting>$ clisp -c /<replaceable>somewhere</replaceable>/bindings/linux.lisp</programlisting></para></listitem>
 
 <listitem><para>Create a new linking set:
 <programlisting>$ clisp-link add-module-set linux base base+linux</programlisting></para></listitem>
@@ -2761,8 +2761,8 @@ struct cfunr * cfun (i,s,r,a)
 </programlisting>
 
 It is possible to call this function from Lisp using the file
-<filename>callcfun.lsp</filename> (do not call it
-<filename>cfun.lsp</filename> - &compile-file; would overwrite
+<filename>callcfun.lisp</filename> (do not call it
+<filename>cfun.lisp</filename> - &compile-file; would overwrite
 <filename>cfun.c</filename>) whose contents is:
 
 <programlisting>
@@ -2787,7 +2787,7 @@ $ cd cfun
 $ ln -s ../cfun.o cfun.o
 Add cfun.o to NEW_LIBS and NEW_FILES in link.sh.
 $ cd ..
-$ base/lisp.run -M base/lispinit.mem -c callcfun.lsp
+$ base/lisp.run -M base/lispinit.mem -c callcfun.lisp
 $ clisp-link add-module-set cfun base base+cfun
 $ base+cfun/lisp.run -M base+cfun/lispinit.mem -i callcfun
 &gt; (test-c-call::call-cfun)
@@ -2846,7 +2846,7 @@ void lispsort_double (int n, double * array)
 }
 </programlisting>
 
-This is accompanied by <filename>sort2.lsp</filename>:
+This is accompanied by <filename>sort2.lisp</filename>:
 
 <programlisting>
 (use-package "FFI")
@@ -2866,7 +2866,7 @@ This is accompanied by <filename>sort2.lsp</filename>:
   (sort v #'&lt;))
 </programlisting>
 
-To test this, use the following test file <filename>sorttest.lsp</filename>:
+To test this, use the following test file <filename>sorttest.lisp</filename>:
 
 <programlisting>
 (def-call-out sort10
@@ -2886,7 +2886,7 @@ $ cd sort
 $ ln -s ../sort1.o sort1.o
 Add sort1.o to NEW_LIBS and NEW_FILES in link.sh.
 $ cd ..
-$ base/lisp.run -M base/lispinit.mem -c sort2.lsp sorttest.lsp
+$ base/lisp.run -M base/lispinit.mem -c sort2.lisp sorttest.lisp
 $ clisp-link add-module-set sort base base+sort
 $ base+sort/lisp.run -M base+sort/lispinit.mem -i sort2 sorttest
 &gt; (sort10 10 '#(0.501d0 0.528d0 0.615d0 0.550d0 0.711d0
@@ -3242,7 +3242,7 @@ file which you, the programmer, may have not defined, you may consider
 declaring every function yourself to be certain what the return and
 argument types are. See example 4 below.</para>
 
-<para>The file <filename>read-fd.lsp</filename> defines the function
+<para>The file <filename>read-fd.lisp</filename> defines the function
 <function>make-partial-fd-file</function> with which the provided
 <filename>.affi</filename> files have been prepared from the original
 Amiga FD files (located in the directory <filename>FD:</filename>).
@@ -3276,7 +3276,7 @@ does not call finalizers when it exits, use &unwind-protect;.</para>
 imported from the package AFFI originating from a brain-damage, causing
 the usual symbol headaches when using foreign functions calls within
 macros.  Luckily, even if the high-level interface (or its
-implementation in <filename>affi1.lsp</filename>) were to change, the
+implementation in <filename>affi1.lisp</filename>) were to change, the
 low-level part (<filename>affi.d</filename>) should remain untouched as
 all it knows are integers and foreign-pointers, no symbols.  The
 difficulty is just to get the library base value at run-time.  Feel free
@@ -3833,14 +3833,14 @@ bash# echo ":CLISP:E::lsp::/usr/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/re
 
 <para>Then you can do the following:
 <screen>
-bash$ cat &lt;&lt; EOF &gt; hello.lsp
+bash$ cat &lt;&lt; EOF &gt; hello.lisp
 (print "hello, world!")
 EOF
-bash$ clisp -c hello.lsp
+bash$ clisp -c hello.lisp
 
-Compiling file /home/sds/hello.lsp ...
+Compiling file hello.lisp ...
 
-Compilation of file /home/sds/hello.lsp is finished.
+Compilation of file hello.lisp is finished.
 0 errors, 0 warnings
 bash$ chmod +x hello.fas
 bash$ hello.fas
