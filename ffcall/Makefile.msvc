@@ -1,4 +1,4 @@
-# Makefile for ffcall
+# -*- Makefile -*- for ffcall
 
 #### Start of system configuration section. ####
 
@@ -11,7 +11,7 @@ includedir = $(prefix)/include
 mandir = $(prefix)/man
 
 # Programs used by "make":
-RM = del
+RM = -del
 
 #### End of system configuration section. ####
 
