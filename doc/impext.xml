@@ -2109,7 +2109,7 @@ DEFUN(MY-PACKAGE:MY-FUNCTION-NAME, arg1 arg2 &key-amp; FOO BAR) {
   if (!boundp(STACK_1)) STACK_1 = fixnum(1); /* FOO */
   pushSTACK(`MY-PACKAGE::SOME-SYMBOL`); /* create a symbol in the package */
   pushSTACK(`#(:THIS :IS :A :VECTOR)`); /* some vector, created once */
-  pushSTACK(``MY-PACKAGE::MY-FUNCTION-NAME``); /* double '' means FUNCTION */
+  pushSTACK(``MY-PACKAGE::MY-FUNCTION-NAME``); /* double `` means FUNCTION */
   VALUES1(listof(7)); /* cons up a new list and clean up the STACK */
 }</programlisting>
 Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
@@ -2168,11 +2168,11 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
       - faster, with additional features, but not quite complete yet.
     </simpara></listitem>
  </itemizedlist></para></listitem></varlistentry>
- <varlistentry><term>oracle</term>
+ <varlistentry><term><link linkend="oracle">oracle</link></term>
   <listitem><simpara>Access
     <ulink url="http://www.oracle.com/">Oracle</ulink> from &clisp;;
     by &hin;.</simpara></listitem></varlistentry>
- <varlistentry><term>fastcgi</term>
+ <varlistentry><term><link linkend="fastcgi">fastcgi</link></term>
   <listitem><simpara>Access
     <ulink url="http://www.fastcgi.com/">FastCGI</ulink> from &clisp;;
     by &hin;.</simpara></listitem></varlistentry>
