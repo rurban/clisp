@@ -1254,6 +1254,149 @@
                'compute-applicable-methods-using-classes gf req-num (length req-arg-classes)
                'compute-applicable-methods-using-classes req-arg-classes)))))
 
+;; compute-applicable-methods-effective-method-for-set
+;; is a generalization of compute-applicable-methods-effective-method.
+;; For each argument position you can specify a set of possible required
+;; arguments through one of:
+;;   (TYPEP class)          [covers direct and indirect instances of class],
+;;   (INSTANCE-OF-P class)  [covers only direct instances of class],
+;;   (EQL object)           [covers the given object only].
+;; Returns either the best possible effective-method, the gf itself otherwise.
+(defun compute-applicable-methods-effective-method-for-set (gf req-arg-specs tentative-args)
+  (when (eq (std-gf-signature gf) (sys::%unbound))
+    ;; gf has uninitialized lambda-list, hence no methods.
+    (return-from compute-applicable-methods-effective-method-for-set
+      (no-method-caller 'no-applicable-method gf)))
+  (let ((req-num (sig-req-num (std-gf-signature gf))))
+    (if (and (= (length req-arg-specs) req-num)
+             (>= (length tentative-args) req-num))
+      (multiple-value-bind (methods certain)
+          (compute-applicable-methods-for-set gf req-arg-specs)
+        (unless certain
+          (return-from compute-applicable-methods-effective-method-for-set gf))
+        (when (null methods)
+          (return-from compute-applicable-methods-effective-method-for-set
+            (no-method-caller 'no-applicable-method gf)))
+        ;; Combine the methods to an effective method:
+        (or (cdr (assoc methods (std-gf-effective-method-cache gf) :test #'equal))
+            (let ((effective-method
+                    (let ((*method-combination-arguments* tentative-args))
+                      (compute-effective-method-as-function gf (std-gf-method-combination gf) methods))))
+              (push (cons methods effective-method) (std-gf-effective-method-cache gf))
+              effective-method)))
+      (error (TEXT "~S: ~S has ~S required argument~:P")
+             'compute-applicable-methods-effective-method-for-set gf req-num))))
+
+;; compute-applicable-methods-for-set
+;; is a generalization of compute-applicable-methods[-using-classes].
+;; For each argument position you can specify a set of possible required
+;; arguments through one of:
+;;   (TYPEP class)          [covers direct and indirect instances of class],
+;;   (INSTANCE-OF-P class)  [covers only direct instances of class],
+;;   (EQL object)           [covers the given object only].
+;; Returns 1. the list of applicable methods and 2. a certainty value.
+(defun compute-applicable-methods-for-set (gf req-arg-specs)
+  (unless (and (proper-list-p req-arg-specs)
+               (every #'(lambda (x) (and (consp x) (memq (car x) '(TYPEP INSTANCE-OF-P EQL))))
+                      req-arg-specs))
+    (error (TEXT "~S: argument should be a proper list of specifiers, not ~S")
+           'compute-applicable-methods-for-set req-arg-specs))
+  (if (eq (std-gf-signature gf) (sys::%unbound))
+    ;; gf has uninitialized lambda-list, hence no methods.
+    '()
+    (let ((req-num (sig-req-num (std-gf-signature gf))))
+      (if (= (length req-arg-specs) req-num)
+        ;; 0. Check the method specializers:
+        (let ((methods (std-gf-methods gf)))
+          (dolist (method methods)
+            (check-method-only-standard-specializers gf method
+              'compute-applicable-methods-for-set))
+          ;; 1. Select the applicable methods:
+          (setq methods
+                (remove-if-not #'(lambda (method)
+                                   (let ((specializers (std-method-specializers method))
+                                         (applicable t) (unknown nil))
+                                     (mapc #'(lambda (arg-spec specializer)
+                                               (ecase (first arg-spec)
+                                                 (TYPEP
+                                                   (if (class-p specializer)
+                                                     ;; For class specializers,
+                                                     ;; (typep arg specializer) is certainly true
+                                                     ;; if the known class of arg is a subclass of
+                                                     ;; the specializer. Otherwise unknown.
+                                                     (unless (subclassp (second arg-spec) specializer)
+                                                       (setq unknown t))
+                                                     ;; For EQL specializers,
+                                                     ;; (typep arg specializer) is certainly false
+                                                     ;; if (eql-specializer-object specializer)
+                                                     ;; doesn't belong to the known class of arg.
+                                                     ;; Otherwise unknown.
+                                                     (if (typep (eql-specializer-object specializer) (second arg-spec))
+                                                       (setq unknown t)
+                                                       (setq applicable nil))))
+                                                 (INSTANCE-OF-P ; see ...-using-classes
+                                                   (if (class-p specializer)
+                                                     ;; For class specializers,
+                                                     ;; (typep arg specializer) is equivalent to
+                                                     ;; (subtypep (class-of arg) specializer).
+                                                     (unless (subclassp (second arg-spec) specializer)
+                                                       (setq applicable nil))
+                                                     ;; For EQL specializers,
+                                                     ;; (typep arg specializer) is certainly false
+                                                     ;; if (class-of arg) and (class-of (eql-specializer-object specializer))
+                                                     ;; differ. Otherwise unknown.
+                                                     (if (eq (second arg-spec) (class-of (eql-specializer-object specializer)))
+                                                       (setq unknown t)
+                                                       (setq applicable nil))))
+                                                 (EQL ; see method-applicable-p
+                                                   (unless (typep (second arg-spec) specializer)
+                                                     (setq applicable nil)))))
+                                           req-arg-specs specializers)
+                                     (when (and applicable unknown)
+                                       (return-from compute-applicable-methods-for-set
+                                         (values nil nil)))
+                                     applicable))
+                               (the list methods)))
+          ;; 2. Sort the applicable methods by precedence order:
+          (let ((argument-order (std-gf-argorder gf)))
+            (values
+              (sort (copy-list methods)
+                    #'(lambda (method1 method2) ; method1 < method2 ?
+                        (let ((specializers1 (std-method-specializers method1))
+                              (specializers2 (std-method-specializers method2)))
+                          (dolist (arg-index argument-order nil)
+                            (let ((arg-spec (nth arg-index req-arg-specs))
+                                  (psp1 (nth arg-index specializers1))
+                                  (psp2 (nth arg-index specializers2)))
+                              (if (eql-specializer-p psp1)
+                                (if (eql-specializer-p psp2)
+                                  nil         ; (EQL x) = (EQL x)
+                                  (return t)) ; (EQL x) < <class>  ==>  method1 < method2
+                                (if (eql-specializer-p psp2)
+                                  (return nil) ; <class> > (EQL x)   ==>  method1 > method2
+                                  ;; two classes: compare the position in the CPL of
+                                  ;; the arg's class, if known:
+                                  (unless (eq psp1 psp2)
+                                    (cond ((eq psp2 <t>) (return t)) ; method1 < method2
+                                          ((eq psp1 <t>) (return nil)) ; method1 > method2
+                                          (t (let* ((arg-class
+                                                      (ecase (first arg-spec)
+                                                        (TYPEP
+                                                          ; The precise arg-class is unknown.
+                                                          (return-from compute-applicable-methods-for-set
+                                                            (values nil nil)))
+                                                        (INSTANCE-OF-P (second arg-spec))
+                                                        (EQL (class-of (second arg-spec)))))
+                                                    (cpl (class-precedence-list arg-class))
+                                                    (pos1 (position psp1 cpl))
+                                                    (pos2 (position psp2 cpl)))
+                                               (cond ((< pos1 pos2) (return t)) ; method1 < method2
+                                                     ((> pos1 pos2) (return nil)) ; method1 > method2
+                                                     ))))))))))))
+              t)))
+        (error (TEXT "~S: ~S has ~S required argument~:P")
+               'compute-applicable-methods-for-set gf req-num)))))
+
 ;; There's no real reason for checking the method specializers in
 ;; compute-applicable-methods, rather than in
 ;; compute-effective-method-as-function, but that's how the MOP specifies it.
