@@ -2630,7 +2630,8 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
              coerce_sequence(TheSubr(fun)->keywords,S(list),true);
              fun = popSTACK(); bad_value = popSTACK();
              bad_keyword = popSTACK();
-             fehler_key_badkw(fun,bad_keyword,bad_value,value1);
+             fehler_key_badkw(TheSubr(fun)->name,bad_keyword,
+                              bad_value,value1);
            });
         #undef for_every_keyword
       # now assign Arguments and Parameters:
@@ -2714,7 +2715,8 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
             {var object kwlist = listof(key_anz);
              closure = popSTACK(); bad_value = popSTACK();
              bad_keyword = popSTACK(); /* report errors: */
-             fehler_key_badkw(closure,bad_keyword,bad_value,kwlist);}});
+             fehler_key_badkw(TheClosure(closure)->clos_name,
+                              bad_keyword,bad_value,kwlist);}});
         #undef for_every_keyword
       # now assign Arguments and Parameters:
         if (key_anz > 0) {
