@@ -755,6 +755,19 @@
                   (PARSE-C-TYPE ,c-type)
                   . ,(if init-p (list init))))
 
+(defmacro with-foreign-string ((foreign-variable char-count byte-count string
+                                &rest keywords
+                                &key encoding null-terminated-p start end)
+                               &body body)
+  (declare (ignore encoding null-terminated-p start end)) ; get them via keywords
+  `((lambda (thunk string &key (encoding custom:*foreign-encoding*)
+                               (null-terminated-p t) (start 0) (end nil))
+      (call-with-foreign-string thunk encoding string start end
+                                (if null-terminated-p
+                                    (sys::encoding-zeroes encoding) 0)))
+    (lambda (,foreign-variable ,char-count ,byte-count) ,@body)
+    ,string .,keywords))
+
 ;; symbol-macro based interface (like DEF-C-VAR)
 (defmacro with-c-var ((var c-type &optional (init nil init-p)) &body body)
   (let ((fv (gensym (symbol-name var))))

@@ -79,7 +79,7 @@
        (cond ((setq f (get y 'TYPE-SYMBOL)) (funcall f x))
              ((setq f (get y 'TYPE-LIST)) (funcall f x))
              ((get y 'DEFSTRUCT-DESCRIPTION) (%STRUCTURE-TYPE-P y x))
-             ((setf f (clos-class y)) (clos::subclassp (clos:class-of x) f))
+             ((setq f (clos-class y)) (clos::subclassp (clos:class-of x) f))
              (t (typespec-error 'typep y))
     )  )
     ((and (consp y) (symbolp (first y)))
@@ -1433,6 +1433,19 @@ head: AND/OR: (head (real lo1 hi1) (real lo2 hi2))"
             (incf jj1 2)
   ) ) ) ) )
 )
+(defun encoding-zeroes (encoding)
+  #+UNICODE
+  ;; this should use min_bytes_per_char for cache, not the hash table
+  (let ((name (ext:encoding-charset encoding))
+        (table #.(make-hash-table :test #'equal
+                                  :initial-contents '(("UTF-7" . 1))))
+        (tester #.(make-string 2 :initial-element (code-char 0))))
+    (or (gethash name table)
+        (setf (gethash name table)
+              (- (length (ext:convert-string-to-bytes tester encoding))
+                 (length (ext:convert-string-to-bytes tester encoding
+                                                      :end 1))))))
+  #-UNICODE 1)
 
 ;; Determines two values low,high such that
 ;;   (subtypep type `(INTEGER ,low ,high))

@@ -1874,21 +1874,11 @@ LISPFUNNF(encodingp,1) {
   VALUES_IF(encodingp(arg));
 }
 
-/* Report an error when the argument is not an encoding:
- > obj: the bad argument */
-nonreturning_function(local, fehler_encoding, (object obj)) {
-  pushSTACK(obj); /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(encoding)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ is not a character set"));
-}
-
 /* (SYSTEM::CHARSET-TYPEP object encoding) tests whether the object
    is a character belonging to the given character set. */
 LISPFUNNR(charset_typep,2) {
   var object encoding = STACK_0;
-  if (!encodingp(encoding))
-    fehler_encoding(encoding);
+  if (!encodingp(encoding)) fehler_encoding(encoding);
   var object obj = STACK_1;
   if (charp(obj)) {
    #ifdef UNICODE
@@ -1907,8 +1897,7 @@ LISPFUNNR(charset_typep,2) {
 /* (EXT:ENCODING-CHARSET encoding) --> charset */
 LISPFUNNR(encoding_charset,1) {
   var object encoding = popSTACK();
-  if (!encodingp(encoding))
-    fehler_encoding(encoding);
+  if (!encodingp(encoding)) fehler_encoding(encoding);
   VALUES1(TheEncoding(encoding)->enc_charset);
 }
 
@@ -1918,12 +1907,9 @@ LISPFUNNR(encoding_charset,1) {
  returns the range of characters in [char1,char2] encodable in the encoding. */
 LISPFUN(charset_range,seclass_read,3,1,norest,nokey,0,NIL) {
   var object encoding = STACK_3;
-  if (!encodingp(encoding))
-    fehler_encoding(encoding);
-  if (!charp(STACK_2))
-    fehler_char(STACK_2);
-  if (!charp(STACK_1))
-    fehler_char(STACK_1);
+  if (!encodingp(encoding)) fehler_encoding(encoding);
+  if (!charp(STACK_2)) fehler_char(STACK_2);
+  if (!charp(STACK_1)) fehler_char(STACK_1);
   var uintL i1 = as_cint(char_code(STACK_2));
   var uintL i2 = as_cint(char_code(STACK_1));
   var uintL maxintervals;
@@ -2453,8 +2439,7 @@ LISPFUNNR(default_file_encoding,0) {
 /* (SYSTEM::SET-DEFAULT-FILE-ENCODING encoding) */
 LISPFUNN(set_default_file_encoding,1) {
   var object encoding = popSTACK();
-  if (!encodingp(encoding))
-    fehler_encoding(encoding);
+  if (!encodingp(encoding)) fehler_encoding(encoding);
   VALUES1(O(default_file_encoding) = encoding);
 }
 
@@ -2468,8 +2453,7 @@ LISPFUNNR(pathname_encoding,0) {
 /* (SYSTEM::SET-PATHNAME-ENCODING encoding) */
 LISPFUNN(set_pathname_encoding,1) {
   var object encoding = popSTACK();
-  if (!encodingp(encoding))
-    fehler_encoding(encoding);
+  if (!encodingp(encoding)) fehler_encoding(encoding);
   VALUES1(O(pathname_encoding) = encoding);
 }
 
@@ -2481,8 +2465,7 @@ LISPFUNNR(terminal_encoding,0) {
 /* (SYSTEM::SET-TERMINAL-ENCODING encoding) */
 LISPFUNN(set_terminal_encoding,1) {
   var object encoding = STACK_0;
-  if (!encodingp(encoding))
-    fehler_encoding(encoding);
+  if (!encodingp(encoding)) fehler_encoding(encoding);
   /* Ensure O(terminal_encoding) = (STREAM-EXTERNAL-FORMAT *TERMINAL-IO*).
      But first modify (STREAM-EXTERNAL-FORMAT *TERMINAL-IO*): */
   set_terminalstream_external_format(var_stream(S(terminal_io),0),encoding);
@@ -2499,8 +2482,7 @@ LISPFUNNR(foreign_encoding,0) {
 /* (SYSTEM::SET-FOREIGN-ENCODING encoding) */
 LISPFUNN(set_foreign_encoding,1) {
   var object encoding = popSTACK();
-  if (!encodingp(encoding))
-    fehler_encoding(encoding);
+  if (!encodingp(encoding)) fehler_encoding(encoding);
   if (!(TheEncoding(encoding)->max_bytes_per_char == 1)) {
     pushSTACK(encoding); pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: ~ is not a 1:1 encoding"));
@@ -2518,8 +2500,7 @@ LISPFUNNR(misc_encoding,0) {
 /* (SYSTEM::SET-MISC-ENCODING encoding) */
 LISPFUNN(set_misc_encoding,1) {
   var object encoding = popSTACK();
-  if (!encodingp(encoding))
-    fehler_encoding(encoding);
+  if (!encodingp(encoding)) fehler_encoding(encoding);
   VALUES1(O(misc_encoding) = encoding);
 }
 

@@ -12141,6 +12141,11 @@ nonreturning_function(extern, fehler_streamtype, (object obj, object type));
 nonreturning_function(extern, fehler_function, (object obj));
 # is used by RECORD
 
+/* Report an error when the argument is not an encoding:
+ > obj: the bad argument */
+nonreturning_function(global, fehler_encoding, (object obj));
+/* used by ENCODING, FOREIGN */
+
 # report errors if the argument is not a function name
 # obj - bad object; caller - the calling function (a symbol)
 nonreturning_function(global, fehler_funname_type,
