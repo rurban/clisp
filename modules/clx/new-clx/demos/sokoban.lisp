@@ -170,26 +170,22 @@
 
 (defun init-sokoban ()
   "Initialized the whole beast, opens display, creates window ..."
-  (let (root-window)
-    (setq *display*     (x-open-display)
-          root-window   (xlib:screen-root (car (xlib:display-roots *display*)))
-          *changes*     (make-array '(20 20))
-          *pixmaps*     (map 'vector
-                             #'(lambda (name)
-                                 (xpm::read-file-to-pixmap root-window (merge-pathnames (make-pathname :name name :type "xpm")
-                                                                                        *xpm-directory*)))
-                             *pixmap-names*)
-          *man-pixmaps* (map 'vector
-                             #'(lambda (name)
-                                 (xpm::read-file-to-pixmap root-window (merge-pathnames (make-pathname :name name :type "xpm")
-                                                                                        *xpm-directory*)))
-                             *man-pixmap-names*)
-          *window*      (xlib:create-window :parent root-window :x 0 :y 0 :width 400 :height 400
-                                            :background (aref *pixmaps* %floor)
-                                            :event-mask '(:exposure
-                                                          :button-press :button-release
-                                                          :key-press :key-release))
-          *gcontext*    (xlib:create-gcontext :drawable *window*))
+  (setq *display* (x-open-display))
+  (let* ((root-window (xlib:screen-root (car (xlib:display-roots *display*))))
+         (make-pixmap (lambda (name)
+                        (xpm::read-file-to-pixmap root-window
+                          (make-pathname :name name :type "xpm"
+                                         :defaults *xpm-directory*)))))
+    (setq *changes* (make-array '(20 20))
+          *pixmaps* (map 'vector make-pixmap *pixmap-names*)
+          *man-pixmaps* (map 'vector make-pixmap *man-pixmap-names*)
+          *window* (xlib:create-window :parent root-window :x 0 :y 0
+                                       :width 400 :height 400
+                                       :background (aref *pixmaps* %floor)
+                                       :event-mask '(:exposure :button-press
+                                                     :button-release
+                                                     :key-press :key-release))
+          *gcontext* (xlib:create-gcontext :drawable *window*))
     (setf (xlib:wm-icon-name *window*) "Sokoban")
     (xlib:map-window *window*)
     (load-state)
@@ -271,22 +267,22 @@
 (defun restart-sokoban ()
   (do ()
       ((null *undos*))
-      (undo)
-      (update)
-      (xlib:display-finish-output *display*)))
+    (undo)
+    (update)
+    (xlib:display-finish-output *display*)))
 
 (defun stats ()
-  (format T "~%; Statistics: You made ~R moves so far." (length *undos*) (length *undos*))
-  (format T "~%;             This is ~:R level." *level*)
-  (format T "~%;             There ~[are~;is~:;are~] ~:*~R ball~:*~P remaining to be goaled."
-          *n-objects*))
+  (format T "~%; Statistics: You made ~R moves so far.
+;             This is ~:R level.
+;             There ~[are~;is~:;are~] ~:*~R ball~:*~P remaining to be goaled."
+          (length *undos*) *level* *n-objects*))
 
 (defun valid-p (x y) (<= 0 x 19) (<= 0 y 19))
 
 (defun find-target (x y pathlen)
-  (cond ((not (valid-p x y)))                   ;we escaped into space
-        ((< (field x y) %floor))                ;we could not walk here
-        ((<= (aref *findmap* x y) pathlen))     ;there is already some better way
+  (cond ((not (valid-p x y)))   ; we escaped into space
+        ((< (field x y) %floor)) ; we could not walk here
+        ((<= (aref *findmap* x y) pathlen)) ; there is already some better way
         (t
          (setf (aref *findmap* x y) pathlen)
          (cond ((and (= x *man-x*) (= y *man-y*))) ;we reached our goal!
@@ -303,34 +299,37 @@
     ;;Flood fill search to find a shortest path to the push point.
     (find-target x y 0)
     (cond ((= (aref *findmap* *man-x* *man-y*) %badmove)
-           ;; if we didn't make it back to the players position, there is no valid path
-           ;; to that place.
+           ;; if we didn't make it back to the players position,
+           ;; there is no valid path to that place.
            nil)
-          (t
-           ;; We made it back, so let's walk the path we just built up
+          (t ;; We made it back, so let's walk the path we just built up
            (push :barrier *undos*)
            (let ((cx *man-x*) (cy *man-y*))
              (do ()
                  ((zerop (aref *findmap* cx cy))
                   (push :barrier *undos*)
                   t)
-                 (cond ((= (aref *findmap* (1- cx) cy) (1- (aref *findmap* cx cy)))
-                        (decf cx)
-                        (move -1 0))
-                       ((= (aref *findmap* (1+ cx) cy) (1- (aref *findmap* cx cy)))
-                        (incf cx)
-                        (move 1 0))
-                       ((= (aref *findmap* cx (1- cy)) (1- (aref *findmap* cx cy)))
-                        (decf cy)
-                        (move 0 -1))
-                       ((= (aref *findmap* cx (1+ cy)) (1- (aref *findmap* cx cy)))
-                        (incf cy)
-                        (move 0 1))
-                       (t
-                        ;;If we get here, something is SERIOUSLY wrong, so we should abort
-                        (error "Ups!")) )
-                 (update)
-                 (xlib:display-finish-output *display*) ) )) )))
+               (cond ((= (aref *findmap* (1- cx) cy)
+                         (1- (aref *findmap* cx cy)))
+                      (decf cx)
+                      (move -1 0))
+                     ((= (aref *findmap* (1+ cx) cy)
+                         (1- (aref *findmap* cx cy)))
+                      (incf cx)
+                      (move 1 0))
+                     ((= (aref *findmap* cx (1- cy))
+                         (1- (aref *findmap* cx cy)))
+                      (decf cy)
+                      (move 0 -1))
+                     ((= (aref *findmap* cx (1+ cy))
+                         (1- (aref *findmap* cx cy)))
+                      (incf cy)
+                      (move 0 1))
+                     (t ;;If we get here, something is SERIOUSLY wrong,
+                      ;; so we should abort
+                      (error "Ups!")) )
+               (update)
+               (xlib:display-finish-output *display*)))))))
 
 (defun usage ()
   "Print a short description on how to play sokoban."
@@ -354,63 +353,76 @@ Other keys:
   q -- quit sokoban; the current state will be saved
   k -- kill sokoban state will *not* be saved
   a -- print current statistics
-  h -- show this brief guide again.
+  h -- show this brief guide again
+  d -- toggle debugging information
 
 If you quit sokoban using 'q' the current state will be saved in
 ~A and recovered next time you play sokoban."
        *sokoban-state-file*))
+
+(defvar *sokoban-debug* t)
 
 (defun sokoban ()
   (unless *display*
     (init-sokoban)
     (usage))
   (block event-loop
-         (xlib:event-case (*display*)
-                          (:button-press (code window x y)
-                                         window
-                                         (case code
-                                           (1 (walk-to x y) nil)
-                                           (3 (undo) (update) nil)
-                                           (otherwise nil)))
-                          (:key-press (code window)
-                                      (case (xlib:keycode->keysym *display* code 0)
-                                        (65361 #|LEFT|#  (move -1 0))
-                                        (65362 #|UP|#    (move 0 -1))
-                                        (65363 #|RIGHT|# (move 1 0))
-                                        (65364 #|DOWN|#  (move 0 1))
-                                        (#o165 #|u|#  (undo))
-                                        (#o166 #|v|# (undo-til-push))
-                                        (#o162 #|r|# (restart-sokoban))
-                                        (#o163 #|s|# (save-state))
-                                        (#o161 #|q|# (return-from event-loop t))
-                                        (#o153 #|k|# (return-from sokoban 'killed))
-                                        (#o141 #|a|# (stats))
-                                        (#o150 #|h|# (usage))
-                                        (#o156 #|n|#
-                                               (cond ((ready-p)
-                                                      (incf *level*)
-                                                      (init-field))
-                                                     (T
-                                                      (format T "~%;You are not yet ready! (consider restart with `r'.)"))))
-                                        (#o146 #|f|# ;force
-                                               (incf *level*)
-                                               (init-field) )
-                                        (otherwise #|(print (xlib:keycode->keysym *display* code 0))|#))
-                                      (update)
-                                      (when (ready-p)
-                                        (unless *said-congrat-p*
-                                          (format T "~%; Congratulations! -- you are ready.~A" (code-char 7))
-                                          (format T "~%; Statistics: You needed ~R moves." (length *undos*))
-                                          (setq *said-congrat-p* t))
-                                        (unless *said-proceed-p*
-                                          (format T "~%; Proceed to next move with 'n'.")
-                                          (setq *said-proceed-p* t)) )
-                                      nil)
-                          (:exposure (x y width height count)
-                                     x y width height count ;This is for the compiler.
-                                     (when (= count 0) (update t))
-                                     nil) ))
-  (save-state))
+    (xlib:event-case (*display*)
+      (:button-press (code window x y)
+        (case code
+          (1 (walk-to x y) nil)
+          (3 (undo) (update) nil)
+          (otherwise
+           (when *sokoban-debug*
+             (format t "~&; ~s: (~s ~s ~s ~s)~%"
+                     :button-press code window x y)))))
+      (:key-press (code window)
+        (case (xlib:keycode->keysym *display* code 0)
+          (65361 #|LEFT|#  (move -1 0))
+          (65362 #|UP|#    (move 0 -1))
+          (65363 #|RIGHT|# (move 1 0))
+          (65364 #|DOWN|#  (move 0 1))
+          (#o165 #|u|# (undo))
+          (#o166 #|v|# (undo-til-push))
+          (#o162 #|r|# (restart-sokoban))
+          (#o163 #|s|# (save-state))
+          (#o161 #|q|# (return-from event-loop t))
+          (#o153 #|k|# (return-from sokoban 'killed))
+          (#o141 #|a|# (stats))
+          (#o144 #|d|# (setq *sokoban-debug* (not *sokoban-debug*)))
+          (#o150 #|h|# (usage))
+          (#o156 #|n|#
+           (cond ((ready-p)
+                  (incf *level*)
+                  (init-field))
+                 (T
+                  (format T "~%;You are not yet ready! (consider restart with `r'.)"))))
+          (#o146 #|f|# ;force
+           (incf *level*)
+           (init-field))
+          (otherwise
+           (when *sokoban-debug*
+             (format t "~&; ~s: ~s ~s/~s~%" :key-press window code
+                     (xlib:keycode->keysym *display* code 0)))))
+        (update)
+        (when (ready-p)
+          (unless *said-congrat-p*
+            (format T "~%; Congratulations! -- you are ready.~A" (code-char 7))
+            (format T "~%; Statistics: You needed ~R moves." (length *undos*))
+            (setq *said-congrat-p* t))
+          (unless *said-proceed-p*
+            (format T "~%; Proceed to next move with 'n'.")
+            (setq *said-proceed-p* t)) )
+        nil)
+      (:exposure (x y width height count)
+        (when *sokoban-debug*
+          (format t "~&; ~s: (~s ~s ~s ~s ~s)~&" :exposure
+                  x y width height count))
+        (when (= count 0) (update t))
+        nil)))
+  (save-state)
+  (xlib:unmap-window *window*)
+  (xlib:close-display *display*))
 
 (defun update (&optional all-p)
   (dotimes (x 20)
@@ -427,8 +439,9 @@ If you quit sokoban using 'q' the current state will be saved in
   (with-open-file (o *sokoban-state-file* :direction :output)
     (with-standard-io-syntax
       (dolist (k *state-vars*)
-        (print `(setq ,k ',(symbol-value k)) o))))
-  (format T "~%;Saved state"))
+        (write `(setq ,k ',(symbol-value k)) :stream o)
+        (terpri o))))
+  (format T "~%; Saved state"))
 
 (defun load-state ()
   (cond ((probe-file *sokoban-state-file*)
@@ -437,13 +450,14 @@ If you quit sokoban using 'q' the current state will be saved in
            (load *sokoban-state-file*))
          (format T "~%;This is the ~:R level, you have made already ~R move~P."
                  *level* (length *undos*) (length *undos*))
-         (setf (xlib:wm-name *window*) (format nil "Sokoban - ~:(~:R~) Level" *level*)))
+         (setf (xlib:wm-name *window*)
+               (format nil "Sokoban - ~:(~:R~) Level" *level*)))
         (t
          (format T "~%;You are beginning fresh.")
          (setq *level* 1)
          (init-field))) )
 
 ;; These functions should realy been compiled:
-'(mapcar #'compile '(init-field ready-p update find-outers field find-target walk-to))
+;; '(mapcar #'compile '(init-field ready-p update find-outers field find-target walk-to))
 
 (format t "~& Call (clx-demos:sokoban).~%")

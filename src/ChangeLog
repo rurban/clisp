@@ -17,6 +17,7 @@
 	(*screen-directory*): use *LOAD-TRUENAME*, not *LOAD-PATHNAME*,
 	and make sure that :NAME and :TYPE are NIL
 	(save-state, load-state): use WITH-STANDARD-IO-SYNTAX
+	(*sokoban-debug*): new variable; `d' - new command
 
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
