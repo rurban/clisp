@@ -757,6 +757,12 @@ global int main()
 # printf("typedef sstring_ *  Sstring;\n");
 # printf("typedef struct { LRECORD_HEADER uintL  length; object data[unspecified]; } svector_;\n");
 # printf("typedef svector_ *  Svector;\n");
+# #ifdef TYPECODES
+#   printf("#define Array_type_simple_bit_vector(atype)  (%d+((atype)<<%d)",Array_type_sbvector,TB0);
+#   if (TB0+1 != TB1) printf("+((atype)&%d)",bit(TB0+1)-bit(TB1));
+#   if (TB1+1 != TB2) printf("+((atype)&%d)",bit(TB1+1)-bit(TB2));
+#   printf(");\n");
+# #endif
 # printf("typedef struct { XRECORD_HEADER object pack_external_symbols; object pack_internal_symbols; object pack_shadowing_symbols; object pack_use_list; object pack_used_by_list; object pack_name; object pack_nicknames; } *  Package;\n");
 # printf("typedef Srecord  Structure;\n");
 # printf("#define structure_types   recdata[0]\n");
@@ -939,12 +945,12 @@ global int main()
 #   printf1("#define stringp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) == %d))\n",19-16);
 # #endif
 # #ifdef TYPECODES
-#   printf1("#define simple_bit_vector_p(atype,obj)  (typecode(obj) == %d+(atype))\n",(tint)sbvector_type);
+#   printf1("#define simple_bit_vector_p(atype,obj)  (typecode(obj) == Array_type_simple_bit_vector(atype))\n");
 # #else
 #   printf1("#define simple_bit_vector_p(atype,obj)  (varobjectp(obj) && (Record_type(obj) == %d+(atype)))\n",Rectype_Sbvector);
 # #endif
 # #ifdef TYPECODES
-#   printf2("#define bit_vector_p(atype,obj)  ((typecode(obj) & ~%d) == %d+(atype))\n",(tint)bit(notsimple_bit_t),(tint)sbvector_type);
+#   printf2("#define bit_vector_p(atype,obj)  ((typecode(obj) & ~%d) == Array_type_simple_bit_vector(atype))\n",(tint)bit(notsimple_bit_t));
 # #else
 #   printf2("#define bit_vector_p(atype,obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d+(atype)))\n",Rectype_Sbvector^Rectype_bvector,Rectype_Sbvector&Rectype_bvector);
 # #endif
