@@ -2933,6 +2933,35 @@ LISPFUNN(generic_stream_p,1)
 # Streams communicating with the exterior world, based on bytes
 # =============================================================
 
+# They can be classified in three ways:
+# According to strmtype:
+#
+#                      file  ----  strmtype_file
+#                    /
+#             handle
+#           /        \           /  strmtype_pipe_in
+#   channel            pipe  -----  strmtype_pipe_out
+#           \
+#             socket  -----   strmtype_x11socket
+#                         \   strmtype_socket
+#
+# According to buffering:
+#
+#             unbuffered
+#           /
+#   channel
+#           \
+#             buffered
+#
+# According to element type:
+#
+#             CHARACTER or ([UN]SIGNED-BYTE n), n a multiple of 8 (setfable!)
+#           /
+#   channel
+#           \
+#             ([UN]SIGNED-BYTE n), n not a multiple of 8 (only if buffered)
+#
+
 # UP: Check a :BUFFERED argument.
 # test_buffered_arg(arg)
 # > object arg: argument
@@ -3364,15 +3393,14 @@ LISPFUNN(generic_stream_p,1)
     }
 
 
-# Handle-Streams
-# ==============
+# Channel-Streams
+# ===============
 
-# Handle streams are a common framework which perform their input/output
-# via a handle from the operating system. Encompasses:
-# Input: Terminal-Stream, File-Handle-Stream, Pipe-Input-Stream, Socket-Stream.
-# Output: File-Handle-Stream, Pipe-Output-Stream, Socket-Stream.
+# Channel streams are a common framework which perform their input/output
+# via a channel from the operating system. Encompasses: terminal stream,
+# file stream, pipe stream, socket stream.
 
-# Because the input side has some non-GCed fields, all handle streams must
+# Because the input side has some non-GCed fields, all channel streams must
 # have the same number of GCed fields.
 
 # Fields used for both the input side and the output side:
@@ -3386,18 +3414,18 @@ LISPFUNN(generic_stream_p,1)
 # Fields used for the input side only:
 
   #define strm_isatty    strm_other[2] # /=NIL or NIL, depending whether the
-                                       # input handle is a tty and therefore
-                                       # needs special treatment in the
-                                       # low_listen function on some OSes
+                                       # input channel is a tty handle and
+                                       # therefore needs special treatment in
+                                       # the low_listen function on some OSes
                                        # (used by unbuffered streams only)
-  #define strm_ihandle   strm_other[3] # the input handle,
-                                       # an encapsulated file descriptor, or, on
+  #define strm_ichannel  strm_other[3] # the input channel,
+                                       # an encapsulated handle, or, on
                                        # WIN32_NATIVE, an encapsulated SOCKET
 
 # Fields used for the output side only:
 
-  #define strm_ohandle   strm_other[4] # the output handle,
-                                       # an encapsulated file descriptor, or, on
+  #define strm_ochannel  strm_other[4] # the output channel,
+                                       # an encapsulated handle, or, on
                                        # WIN32_NATIVE, an encapsulated SOCKET
 
 # Fields reserved for the specialized stream:
@@ -3406,11 +3434,11 @@ LISPFUNN(generic_stream_p,1)
   #define strm_field2    strm_other[6]
 
 # Binary fields start here.
-  #define strm_handle_extrafields  strm_other[7]
-#define strm_handle_len  (strm_len+7)
+  #define strm_channel_extrafields  strm_other[7]
+#define strm_channel_len  (strm_len+7)
 
 # Additional binary (not GCed) fields:
-typedef struct strm_handle_extrafields_struct {
+typedef struct strm_channel_extrafields_struct {
   boolean buffered;                    # FALSE for unbuffered streams,
                                        # TRUE for buffered streams
   void (* low_close) (object stream, object handle);
@@ -3419,11 +3447,21 @@ typedef struct strm_handle_extrafields_struct {
   # Fields used if the element-type is ([UN]SIGNED-BYTE n):
   uintL bitsize;                       # n = number of bits per unit,
                                        # >0, <intDsize*uintWC_max
-} strm_handle_extrafields_struct;
+} strm_channel_extrafields_struct;
+
+# Accessors.
+#define ChannelStream_eltype(stream)  TheStream(stream)->strm_eltype
+#define ChannelStream_isatty(stream)  TheStream(stream)->strm_isatty
+#define ChannelStream_ichannel(stream)  TheStream(stream)->strm_ichannel
+#define ChannelStream_ochannel(stream)  TheStream(stream)->strm_ochannel
+#define ChannelStream_buffered(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->buffered
+#define ChannelStreamLow_close(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_close
+#define ChannelStream_lineno(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->lineno
+#define ChannelStream_bitsize(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->bitsize
 
 # Additional binary (not GCed) fields, used by unbuffered streams only:
-typedef struct strm_u_file_extrafields_struct {
-  strm_handle_extrafields_struct _parent;
+typedef struct strm_unbuffered_extrafields_struct {
+  strm_channel_extrafields_struct _parent;
   # The low_... operations operate on bytes only, and independently of the
   # stream's element type. They cannot cause GC.
   # Fields used for the input side only:
@@ -3444,31 +3482,23 @@ typedef struct strm_u_file_extrafields_struct {
   void         (* low_finish_output) (object stream);
   void         (* low_force_output)  (object stream);
   void         (* low_clear_output)  (object stream);
-} strm_u_file_extrafields_struct;
+} strm_unbuffered_extrafields_struct;
 
 # Accessors.
-#define HandleStream_eltype(stream)  TheStream(stream)->strm_eltype
-#define HandleStream_isatty(stream)  TheStream(stream)->strm_isatty
-#define HandleStream_ihandle(stream)  TheStream(stream)->strm_ihandle
-#define HandleStream_ohandle(stream)  TheStream(stream)->strm_ohandle
-#define HandleStream_buffered(stream)   ((strm_handle_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->buffered
-#define HandleStreamLow_close(stream)   ((strm_handle_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_close
-#define HandleStream_lineno(stream)   ((strm_handle_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->lineno
-#define HandleStream_bitsize(stream)   ((strm_handle_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->bitsize
-#define FileStreamLow_read(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_read
-#define FileStreamLow_listen(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_listen
-#define FileStreamLow_clear_input(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_clear_input
-#define FileStreamLow_read_array(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_read_array
-#define FileStream_status(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->status
-#define FileStream_lastbyte(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->lastbyte
+#define UnbufferedStreamLow_read(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_read
+#define UnbufferedStreamLow_listen(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_listen
+#define UnbufferedStreamLow_clear_input(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_clear_input
+#define UnbufferedStreamLow_read_array(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_read_array
+#define UnbufferedStream_status(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->status
+#define UnbufferedStream_lastbyte(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->lastbyte
 #ifdef AMIGAOS
-#define FileStream_rawp(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->rawp
+#define UnbufferedStream_rawp(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->rawp
 #endif
-#define FileStreamLow_write(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_write
-#define FileStreamLow_write_array(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_write_array
-#define FileStreamLow_finish_output(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_finish_output
-#define FileStreamLow_force_output(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_force_output
-#define FileStreamLow_clear_output(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_clear_output
+#define UnbufferedStreamLow_write(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_write
+#define UnbufferedStreamLow_write_array(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_write_array
+#define UnbufferedStreamLow_finish_output(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_finish_output
+#define UnbufferedStreamLow_force_output(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_force_output
+#define UnbufferedStreamLow_clear_output(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_clear_output
 
 # Error message after user interrupt.
 # fehler_interrupt();
@@ -3705,8 +3735,8 @@ typedef struct strm_u_file_extrafields_struct {
 # > stream : File-Stream für Integers, Art u
 # > obj : auszugebendes Objekt
 # > finisher : Beendigungsroutine
-  local void wr_by_ixu_file (object stream, object obj, wr_by_aux_ix* finisher);
-  local void wr_by_ixu_file(stream,obj,finisher)
+  local void wr_by_ixu_sub (object stream, object obj, wr_by_aux_ix* finisher);
+  local void wr_by_ixu_sub(stream,obj,finisher)
     var object stream;
     var object obj;
     var wr_by_aux_ix* finisher;
@@ -3714,7 +3744,7 @@ typedef struct strm_u_file_extrafields_struct {
       if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
       if (!positivep(obj)) { fehler_bad_integer(stream,obj); }
       # obj ist jetzt ein Integer >=0
-     {var uintL bitsize = HandleStream_bitsize(stream);
+     {var uintL bitsize = ChannelStream_bitsize(stream);
       var uintL bytesize = ceiling(bitsize,8);
       # obj in den Bitbuffer übertragen:
       { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
@@ -3782,15 +3812,15 @@ typedef struct strm_u_file_extrafields_struct {
 # > stream : File-Stream für Integers, Art s
 # > obj : auszugebendes Objekt
 # > finisher : Beendigungsroutine
-  local void wr_by_ixs_file (object stream, object obj, wr_by_aux_ix* finisher);
-  local void wr_by_ixs_file(stream,obj,finisher)
+  local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher);
+  local void wr_by_ixs_sub(stream,obj,finisher)
     var object stream;
     var object obj;
     var wr_by_aux_ix* finisher;
     { # obj überprüfen:
       if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
       # obj ist jetzt ein Integer
-     {var uintL bitsize = HandleStream_bitsize(stream);
+     {var uintL bitsize = ChannelStream_bitsize(stream);
       var uintL bytesize = ceiling(bitsize,8);
       # obj in den Bitbuffer übertragen:
       { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
@@ -3862,14 +3892,14 @@ typedef struct strm_u_file_extrafields_struct {
 # Low-level
 # ---------
 
-  local sintL file_low_read (object stream);
-  local sintL file_low_read(stream)
+  local sintL low_read_unbuffered_handle (object stream);
+  local sintL low_read_unbuffered_handle(stream)
     var object stream;
-    { if (FileStream_status(stream) < 0) # already EOF?
+    { if (UnbufferedStream_status(stream) < 0) # already EOF?
         { return -1; }
-      if (FileStream_status(stream) > 0) # lastbyte valid?
-        { FileStream_status(stream) = 0; return FileStream_lastbyte(stream); }
-      { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
+      if (UnbufferedStream_status(stream) > 0) # lastbyte valid?
+        { UnbufferedStream_status(stream) = 0; return UnbufferedStream_lastbyte(stream); }
+      { var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
         var uintB b;
        restart_it:
         #if defined(AMIGAOS)
@@ -3904,7 +3934,7 @@ typedef struct strm_u_file_extrafields_struct {
           }
         if (result==0)
           # no byte available -> must be EOF
-          { FileStream_status(stream) = -1; return -1; }
+          { UnbufferedStream_status(stream) = -1; return -1; }
           else
           {
             #if defined(AMIGAOS)
@@ -3913,7 +3943,7 @@ typedef struct strm_u_file_extrafields_struct {
             # das Ctrl-C jetzt. Damit das Byte nicht verlorengeht, wird
             # es in lastbyte zurückgelegt.
             interruptp(
-              { FileStream_lastbyte(stream) = b; FileStream_status(stream) = 1;
+              { UnbufferedStream_lastbyte(stream) = b; UnbufferedStream_status(stream) = 1;
                 fehler_interrupt();
               });
             #endif
@@ -3921,19 +3951,19 @@ typedef struct strm_u_file_extrafields_struct {
           }
     } }}
 
-  local signean file_low_listen (object stream);
-  local signean file_low_listen(stream)
+  local signean low_listen_unbuffered_handle (object stream);
+  local signean low_listen_unbuffered_handle(stream)
     var object stream;
-    { if (FileStream_status(stream) < 0) # already EOF?
+    { if (UnbufferedStream_status(stream) < 0) # already EOF?
         { return ls_eof; }
-      if (FileStream_status(stream) > 0) # lastbyte valid?
+      if (UnbufferedStream_status(stream) > 0) # lastbyte valid?
         { return ls_avail; }
       # Method 1: select, see SELECT(2)
       # Method 2: ioctl FIONREAD, see FILIO(4)
       # Method 3: switch temporarily to non-blocking I/O and try read(),
       #           see READ(2V), FILIO(4), or
       #           see READ(2V), FCNTL(2V), FCNTL(5)
-     {var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
+     {var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
       #if defined(MSDOS) && !defined(EMUNIX_PORTABEL)
       { var uintB status;
         begin_system_call();
@@ -3946,7 +3976,7 @@ typedef struct strm_u_file_extrafields_struct {
         { return ls_wait; }
         else
         # File
-        { FileStream_status(stream) = -1; return ls_eof; }
+        { UnbufferedStream_status(stream) = -1; return ls_eof; }
       #elif defined(EMUNIX_PORTABEL)
       { var struct termio oldtermio;
         var struct termio newtermio;
@@ -4029,7 +4059,7 @@ typedef struct strm_u_file_extrafields_struct {
            if (bytes_ready > 0) { return ls_avail; }
            #ifdef HAVE_RELIABLE_FIONREAD
            # else we have reached the file's EOF:
-           FileStream_status(stream) = -1; return ls_eof;
+           UnbufferedStream_status(stream) = -1; return ls_eof;
            #endif
          }
       }
@@ -4081,7 +4111,7 @@ typedef struct strm_u_file_extrafields_struct {
             { return ls_wait; }
             else
             { # Stuff the read byte into the buffer, for next low_read call.
-              FileStream_lastbyte(stream) = b; FileStream_status(stream) = 1;
+              UnbufferedStream_lastbyte(stream) = b; UnbufferedStream_status(stream) = 1;
               return ls_avail;
             }
           # If this doesn't work, should be use a timer 0.1 sec ??
@@ -4099,10 +4129,10 @@ typedef struct strm_u_file_extrafields_struct {
             }
           end_system_call();
           if (result==0)
-            { FileStream_status(stream) = -1; return ls_eof; }
+            { UnbufferedStream_status(stream) = -1; return ls_eof; }
             else
             { # Stuff the read byte into the buffer, for next low_read call.
-              FileStream_lastbyte(stream) = b; FileStream_status(stream) = 1;
+              UnbufferedStream_lastbyte(stream) = b; UnbufferedStream_status(stream) = 1;
               return ls_avail;
             }
         }}
@@ -4123,10 +4153,10 @@ typedef struct strm_u_file_extrafields_struct {
           end_system_call();
           if (result<0) { OS_error(); }
           if (result==0)
-            { FileStream_status(stream) = -1; return ls_eof; }
+            { UnbufferedStream_status(stream) = -1; return ls_eof; }
             else
             { # Stuff the read byte into the buffer, for next low_read call.
-              FileStream_lastbyte(stream) = b; FileStream_status(stream) = 1;
+              UnbufferedStream_lastbyte(stream) = b; UnbufferedStream_status(stream) = 1;
               return ls_avail;
             }
         }
@@ -4197,10 +4227,10 @@ typedef struct strm_u_file_extrafields_struct {
               if (result<0) { OS_error(); }
               end_system_call();
               if (result==0)
-                { FileStream_status(stream) = -1; return ls_eof; }
+                { UnbufferedStream_status(stream) = -1; return ls_eof; }
                 else
                 { # Stuff the read byte into the buffer, for next low_read call.
-                  FileStream_lastbyte(stream) = b; FileStream_status(stream) = 1;
+                  UnbufferedStream_lastbyte(stream) = b; UnbufferedStream_status(stream) = 1;
                   return ls_avail;
                 }
             }
@@ -4217,13 +4247,13 @@ typedef struct strm_u_file_extrafields_struct {
               elif (GetLastError()==ERROR_BROKEN_PIPE)
                 # EOF reached
                 { end_system_call();
-                  FileStream_status(stream) = -1;
+                  UnbufferedStream_status(stream) = -1;
                   return ls_eof;
                 }
               elif (GetLastError()==ERROR_ACCESS_DENIED)
                 # It's a pipe (output). Let's fake EOF.
                 { end_system_call();
-                  FileStream_status(stream) = -1;
+                  UnbufferedStream_status(stream) = -1;
                   return ls_eof;
                 }
               else
@@ -4234,35 +4264,35 @@ typedef struct strm_u_file_extrafields_struct {
       #endif
     }}
 
-  local boolean file_low_clear_input (object stream);
-  local boolean file_low_clear_input(stream)
+  local boolean low_clear_input_unbuffered_handle (object stream);
+  local boolean low_clear_input_unbuffered_handle(stream)
     var object stream;
     { if (nullp(TheStream(stream)->strm_isatty))
         { return FALSE; } # it's a file -> nothing to do
-      FileStream_status(stream) = 0; # forget about past EOF
+      UnbufferedStream_status(stream) = 0; # forget about past EOF
       # Terminal (interactive on AMIGAOS)
-      clear_tty_input(TheHandle(TheStream(stream)->strm_ihandle));
+      clear_tty_input(TheHandle(TheStream(stream)->strm_ichannel));
       # In case this didn't work, and as a general method for platforms on
       # which clear_tty_input() does nothing: read a byte, as long as listen
       # says that a byte is available.
-      while (ls_avail_p(file_low_listen(stream))) { file_low_read(stream); }
+      while (ls_avail_p(low_listen_unbuffered_handle(stream))) { low_read_unbuffered_handle(stream); }
       return TRUE;
     }
 
-  local uintB* file_low_read_array (object stream, uintB* byteptr, uintL len);
-  local uintB* file_low_read_array(stream,byteptr,len)
+  local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr, uintL len);
+  local uintB* low_read_array_unbuffered_handle(stream,byteptr,len)
     var object stream;
     var uintB* byteptr;
     var uintL len;
-    { if (FileStream_status(stream) < 0) # already EOF?
+    { if (UnbufferedStream_status(stream) < 0) # already EOF?
         { return byteptr; }
-      if (FileStream_status(stream) > 0) # lastbyte valid?
-        { FileStream_status(stream) = 0;
-          *byteptr++ = FileStream_lastbyte(stream);
+      if (UnbufferedStream_status(stream) > 0) # lastbyte valid?
+        { UnbufferedStream_status(stream) = 0;
+          *byteptr++ = UnbufferedStream_lastbyte(stream);
           len--;
           if (len == 0) { return byteptr; }
         }
-      { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
+      { var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
         run_time_stop(); # Run-Time-Stoppuhr anhalten
         begin_system_call();
         #ifdef GRAPHICS_SWITCH
@@ -4297,15 +4327,15 @@ typedef struct strm_u_file_extrafields_struct {
 # > stream : File-Stream für Integers, Art a
 # > finisher : Beendigungsroutine
 # < ergebnis : gelesener Integer oder eof_value
-  local object rd_by_aux_iax_handle (object stream, rd_by_ix_I* finisher);
-  local object rd_by_aux_iax_handle(stream,finisher)
+  local object rd_by_aux_iax_unbuffered (object stream, rd_by_ix_I* finisher);
+  local object rd_by_aux_iax_unbuffered(stream,finisher)
     var object stream;
     var rd_by_ix_I* finisher;
-    { var uintL bitsize = HandleStream_bitsize(stream);
+    { var uintL bitsize = ChannelStream_bitsize(stream);
       var uintL bytesize = bitsize/8;
       # genügend viele Bytes in den Bitbuffer übertragen:
      {var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-      if (!(FileStreamLow_read_array(stream)(stream,bitbufferptr,bytesize) == bitbufferptr+bytesize))
+      if (!(UnbufferedStreamLow_read_array(stream)(stream,bitbufferptr,bytesize) == bitbufferptr+bytesize))
         goto eof;
       # in Zahl umwandeln:
       return (*finisher)(stream,bitsize,bytesize);
@@ -4314,122 +4344,123 @@ typedef struct strm_u_file_extrafields_struct {
     }}
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art au :
-  local object rd_by_iau_handle (object stream);
-  local object rd_by_iau_handle(stream)
+  local object rd_by_iau_unbuffered (object stream);
+  local object rd_by_iau_unbuffered(stream)
     var object stream;
-    { return rd_by_aux_iax_handle(stream,&rd_by_iu_I); }
+    { return rd_by_aux_iax_unbuffered(stream,&rd_by_iu_I); }
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art as :
-  local object rd_by_ias_handle (object stream);
-  local object rd_by_ias_handle(stream)
+  local object rd_by_ias_unbuffered (object stream);
+  local object rd_by_ias_unbuffered(stream)
     var object stream;
-    { return rd_by_aux_iax_handle(stream,&rd_by_is_I); }
+    { return rd_by_aux_iax_unbuffered(stream,&rd_by_is_I); }
 
 # READ-BYTE - Pseudofunktion für Handle-Streams, Art au, bitsize = 8 :
-  local object rd_by_iau8_handle (object stream);
-  local object rd_by_iau8_handle(stream)
+  local object rd_by_iau8_unbuffered (object stream);
+  local object rd_by_iau8_unbuffered(stream)
     var object stream;
-    { var sintL b = FileStreamLow_read(stream)(stream);
+    { var sintL b = UnbufferedStreamLow_read(stream)(stream);
       if (b < 0) { return eof_value; }
       return fixnum((uintB)b);
     }
 
 # READ-BYTE-ARRAY - Pseudofunktion für Handle-Streams, Art au, bitsize = 8 :
-  local uintB* rd_by_array_iau8_handle (object stream, uintB* byteptr, uintL len);
-  local uintB* rd_by_array_iau8_handle(stream,byteptr,len)
+  local uintB* rd_by_array_iau8_unbuffered (object stream, uintB* byteptr, uintL len);
+  local uintB* rd_by_array_iau8_unbuffered(stream,byteptr,len)
     var object stream;
     var uintB* byteptr;
     var uintL len;
-    { return FileStreamLow_read_array(stream)(stream,byteptr,len); }
+    { return UnbufferedStreamLow_read_array(stream)(stream,byteptr,len); }
 
 # Character streams
 # -----------------
 
-# READ-CHAR - Pseudofunktion für Handle-Streams:
-  local object rd_ch_handle (const object* stream_);
-  local object rd_ch_handle(stream_)
+# READ-CHAR - Pseudofunktion für Unbuffered-Channel-Streams:
+  local object rd_ch_unbuffered (const object* stream_);
+  local object rd_ch_unbuffered(stream_)
     var const object* stream_;
     {  var object stream = *stream_;
        if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF?
          { return eof_value; }
-     { var sintL b = FileStreamLow_read(stream)(stream);
+     { var sintL b = UnbufferedStreamLow_read(stream)(stream);
        if (b < 0) { return eof_value; }
       {var chart c = as_chart((uintB)b);
        if (chareq(c,ascii(NL)))
          # lineno incrementieren:
-         { HandleStream_lineno(stream) += 1; }
+         { ChannelStream_lineno(stream) += 1; }
        return code_char(c);
     }}}
 
-# Stellt fest, ob ein Handle-Stream ein Zeichen verfügbar hat.
-# listen_handle(stream)
-# > stream: Handle-Stream
+# Stellt fest, ob ein Unbuffered-Channel-Stream ein Zeichen verfügbar hat.
+# listen_unbuffered(stream)
+# > stream: Unbuffered-Channel-Stream
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-  local signean listen_handle (object stream);
-  local signean listen_handle(stream)
+  local signean listen_unbuffered (object stream);
+  local signean listen_unbuffered(stream)
     var object stream;
     { if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
         { return ls_eof; }
-      return FileStreamLow_listen(stream)(stream);
+      return UnbufferedStreamLow_listen(stream)(stream);
     }
 
-# UP: Löscht bereits eingegebenen interaktiven Input von einem Handle-Stream.
-# clear_input_handle(stream);
-# > stream: Handle-Stream
+# UP: Löscht bereits eingegebenen interaktiven Input von einem
+# Unbuffered-Channel-Stream.
+# clear_input_unbuffered(stream);
+# > stream: Unbuffered-Channel-Stream
 # < ergebnis: TRUE falls Input gelöscht wurde, FALSE sonst
-  local boolean clear_input_handle (object stream);
-  local boolean clear_input_handle(stream)
+  local boolean clear_input_unbuffered (object stream);
+  local boolean clear_input_unbuffered(stream)
     var object stream;
     { if (nullp(TheStream(stream)->strm_isatty))
         { return FALSE; } # it's a file -> nothing to do
       TheStream(stream)->strm_rd_ch_last = NIL; # forget about past EOF
-      FileStreamLow_clear_input(stream)(stream);
+      UnbufferedStreamLow_clear_input(stream)(stream);
       return TRUE;
     }
 
-# READ-CHAR-ARRAY - Pseudofunktion für Handle-Streams:
-  local chart* rd_ch_array_handle (object stream, chart* charptr, uintL len);
-  local chart* rd_ch_array_handle(stream,charptr,len)
+# READ-CHAR-ARRAY - Pseudofunktion für Unbuffered-Channel-Streams:
+  local chart* rd_ch_array_unbuffered (object stream, chart* charptr, uintL len);
+  local chart* rd_ch_array_unbuffered(stream,charptr,len)
     var object stream;
     var chart* charptr;
     var uintL len;
-    { var chart* endptr = FileStreamLow_read_array(stream)(stream,charptr,len);
+    { var chart* endptr = UnbufferedStreamLow_read_array(stream)(stream,charptr,len);
       var uintL count = endptr - charptr;
       dotimesL(count,count,
-        { if (chareq(*charptr++,ascii(NL))) { HandleStream_lineno(stream) += 1; } }
+        { if (chareq(*charptr++,ascii(NL))) { ChannelStream_lineno(stream) += 1; } }
         );
       return endptr;
     }
 
-# Initializes the input side fields of a handle stream.
-# HandleStream_input_init(stream);
-  #define HandleStream_input_init(stream)  \
-    { FileStreamLow_read(stream) = &file_low_read;               \
-      FileStreamLow_listen(stream) = &file_low_listen;           \
-      FileStreamLow_clear_input(stream) = &file_low_clear_input; \
-      FileStreamLow_read_array(stream) = &file_low_read_array;   \
-      HandleStream_input_init_data(stream);                      \
+# Initializes the input side fields of an unbuffered stream.
+# UnbufferedHandleStream_input_init(stream);
+  #define UnbufferedHandleStream_input_init(stream)  \
+    { UnbufferedStreamLow_read(stream) = &low_read_unbuffered_handle;               \
+      UnbufferedStreamLow_listen(stream) = &low_listen_unbuffered_handle;           \
+      UnbufferedStreamLow_clear_input(stream) = &low_clear_input_unbuffered_handle; \
+      UnbufferedStreamLow_read_array(stream) = &low_read_array_unbuffered_handle;   \
+      UnbufferedHandleStream_input_init_data(stream);                               \
     }
-  #define HandleStream_input_init_data(stream)  \
-    FileStream_status(stream) = 0;         \
-    HandleStream_input_init_amiga(stream);
+  #define UnbufferedHandleStream_input_init_data(stream)  \
+    UnbufferedStream_status(stream) = 0;             \
+    UnbufferedHandleStream_input_init_amiga(stream);
   #ifdef AMIGAOS
-    #define HandleStream_input_init_amiga(stream)  FileStream_rawp(stream) = 0;
+    #define UnbufferedHandleStream_input_init_amiga(stream)  UnbufferedStream_rawp(stream) = 0;
   #else
-    #define HandleStream_input_init_amiga(stream)
+    #define UnbufferedHandleStream_input_init_amiga(stream)
   #endif
 
-# Schließt einen Handle-Stream.
-# close_ihandle(stream);
-# > stream : Handle-Stream
-  local void close_ihandle (object stream);
-  local void close_ihandle(stream)
+# Schließt einen Channel-Stream.
+# close_ichannel(stream);
+# > stream : Channel-Stream
+  local void close_ichannel (object stream);
+  local void close_ichannel(stream)
     var object stream;
-    { HandleStreamLow_close(stream)(stream,TheStream(stream)->strm_ihandle);
+    { ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ichannel);
       if (TheStream(stream)->strmflags & strmflags_i_B)
-        { HandleStream_bitsize(stream) = 0; # bitsize löschen (unnötig)
+        { ChannelStream_bitsize(stream) = 0; # bitsize löschen (unnötig)
           TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
         }
     }
@@ -4440,11 +4471,11 @@ typedef struct strm_u_file_extrafields_struct {
 # Low-level
 # ---------
 
-  local void file_low_write (object stream, uintB b);
-  local void file_low_write(stream,b)
+  local void low_write_unbuffered_handle (object stream, uintB b);
+  local void low_write_unbuffered_handle(stream,b)
     var object stream;
     var uintB b;
-    { var Handle handle = TheHandle(TheStream(stream)->strm_ohandle);
+    { var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
      restart_it:
       begin_system_call();
       #ifdef GRAPHICS_SWITCH
@@ -4476,12 +4507,12 @@ typedef struct strm_u_file_extrafields_struct {
         { fehler_unwritable(TheSubr(subr_self)->name,stream); }
     }}
 
-  local const uintB* file_low_write_array (object stream, const uintB* byteptr, uintL len);
-  local const uintB* file_low_write_array(stream,byteptr,len)
+  local const uintB* low_write_array_unbuffered_handle (object stream, const uintB* byteptr, uintL len);
+  local const uintB* low_write_array_unbuffered_handle(stream,byteptr,len)
     var object stream;
     var const uintB* byteptr;
     var uintL len;
-    { var Handle handle = TheHandle(TheStream(stream)->strm_ohandle);
+    { var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
       begin_system_call();
       #ifdef GRAPHICS_SWITCH
       if (handle == stdout_handle) switch_text_mode();
@@ -4494,175 +4525,176 @@ typedef struct strm_u_file_extrafields_struct {
       return byteptr+result;
     }}
 
-  local void file_low_finish_output (object stream);
-  local void file_low_finish_output(stream)
+  local void low_finish_output_unbuffered_handle (object stream);
+  local void low_finish_output_unbuffered_handle(stream)
     var object stream;
-    { finish_tty_output(TheHandle(TheStream(stream)->strm_ohandle)); }
+    { finish_tty_output(TheHandle(TheStream(stream)->strm_ochannel)); }
 
-  local void file_low_force_output (object stream);
-  local void file_low_force_output(stream)
+  local void low_force_output_unbuffered_handle (object stream);
+  local void low_force_output_unbuffered_handle(stream)
     var object stream;
-    { force_tty_output(TheHandle(TheStream(stream)->strm_ohandle)); }
+    { force_tty_output(TheHandle(TheStream(stream)->strm_ochannel)); }
 
-  local void file_low_clear_output (object stream);
-  local void file_low_clear_output(stream)
+  local void low_clear_output_unbuffered_handle (object stream);
+  local void low_clear_output_unbuffered_handle(stream)
     var object stream;
-    { clear_tty_output(TheHandle(TheStream(stream)->strm_ohandle)); }
+    { clear_tty_output(TheHandle(TheStream(stream)->strm_ochannel)); }
 
 # Integer streams
 # ---------------
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art a :
 # Schreibt den Bitbuffer-Inhalt aufs File.
-  local void wr_by_aux_ia_handle (object stream, uintL bitsize, uintL bytesize);
-  local void wr_by_aux_ia_handle(stream,bitsize,bytesize)
+  local void wr_by_aux_ia_unbuffered (object stream, uintL bitsize, uintL bytesize);
+  local void wr_by_aux_ia_unbuffered(stream,bitsize,bytesize)
     var object stream;
     var uintL bitsize;
     var uintL bytesize;
     { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-      FileStreamLow_write_array(stream)(stream,bitbufferptr,bytesize);
+      UnbufferedStreamLow_write_array(stream)(stream,bitbufferptr,bytesize);
     }
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art au :
-  local void wr_by_iau_handle (object stream, object obj);
-  local void wr_by_iau_handle(stream,obj)
+  local void wr_by_iau_unbuffered (object stream, object obj);
+  local void wr_by_iau_unbuffered(stream,obj)
     var object stream;
     var object obj;
-    { wr_by_ixu_file(stream,obj,&wr_by_aux_ia_handle); }
+    { wr_by_ixu_sub(stream,obj,&wr_by_aux_ia_unbuffered); }
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art as :
-  local void wr_by_ias_handle (object stream, object obj);
-  local void wr_by_ias_handle(stream,obj)
+  local void wr_by_ias_unbuffered (object stream, object obj);
+  local void wr_by_ias_unbuffered(stream,obj)
     var object stream;
     var object obj;
-    { wr_by_ixs_file(stream,obj,&wr_by_aux_ia_handle); }
+    { wr_by_ixs_sub(stream,obj,&wr_by_aux_ia_unbuffered); }
 
 # WRITE-BYTE - Pseudofunktion für Handle-Streams, Art au, bitsize = 8 :
-  local void wr_by_iau8_handle (object stream, object obj);
-  local void wr_by_iau8_handle(stream,obj)
+  local void wr_by_iau8_unbuffered (object stream, object obj);
+  local void wr_by_iau8_unbuffered(stream,obj)
     var object stream;
     var object obj;
     { # obj überprüfen:
       if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
       if (!(posfixnump(obj) && (posfixnum_to_L(obj) < bit(8))))
         { fehler_bad_integer(stream,obj); }
-      FileStreamLow_write(stream)(stream,posfixnum_to_L(obj));
+      UnbufferedStreamLow_write(stream)(stream,posfixnum_to_L(obj));
     }
 
 # WRITE-BYTE-ARRAY - Pseudofunktion für Handle-Streams, Art au, bitsize = 8 :
-  local const uintB* wr_by_array_iau8_handle (object stream, const uintB* byteptr, uintL len);
-  local const uintB* wr_by_array_iau8_handle(stream,byteptr,len)
+  local const uintB* wr_by_array_iau8_unbuffered (object stream, const uintB* byteptr, uintL len);
+  local const uintB* wr_by_array_iau8_unbuffered(stream,byteptr,len)
     var object stream;
     var const uintB* byteptr;
     var uintL len;
-    { return FileStreamLow_write_array(stream)(stream,byteptr,len); }
+    { return UnbufferedStreamLow_write_array(stream)(stream,byteptr,len); }
 
 # Character streams
 # -----------------
 
-# WRITE-CHAR - Pseudofunktion für Handle-Streams:
-  local void wr_ch_handle (const object* stream_, object ch);
-  local void wr_ch_handle(stream_,ch)
+# WRITE-CHAR - Pseudofunktion für Unbuffered-Channel-Streams:
+  local void wr_ch_unbuffered (const object* stream_, object ch);
+  local void wr_ch_unbuffered(stream_,ch)
     var const object* stream_;
     var object ch;
     { var object stream = *stream_;
       # ch sollte Character sein:
       if (!charp(ch)) { fehler_wr_char(stream,ch); }
      {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
-      FileStreamLow_write(stream)(stream,c);
+      UnbufferedStreamLow_write(stream)(stream,c);
     }}
 
-# WRITE-CHAR-ARRAY - Pseudofunktion für Handle-Streams:
-  local const chart* wr_ch_array_handle (object stream, const chart* charptr, uintL len);
-  local const chart* wr_ch_array_handle(stream,charptr,len)
+# WRITE-CHAR-ARRAY - Pseudofunktion für Unbuffered-Channel-Streams:
+  local const chart* wr_ch_array_unbuffered (object stream, const chart* charptr, uintL len);
+  local const chart* wr_ch_array_unbuffered(stream,charptr,len)
     var object stream;
     var const chart* charptr;
     var uintL len;
-    { var const chart* endptr = FileStreamLow_write_array(stream)(stream,charptr,len);
+    { var const chart* endptr = UnbufferedStreamLow_write_array(stream)(stream,charptr,len);
       wr_ss_lpos(stream,endptr,endptr-charptr); # Line-Position aktualisieren
       return endptr;
     }
 
-# WRITE-SIMPLE-STRING - Pseudofunktion für Handle-Streams:
-  local void wr_ss_handle (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_handle(stream_,string,start,len)
+# WRITE-SIMPLE-STRING - Pseudofunktion für Unbuffered-Channel-Streams:
+  local void wr_ss_unbuffered (const object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_unbuffered(stream_,string,start,len)
     var const object* stream_;
     var object string;
     var uintL start;
     var uintL len;
     { if (len==0) return;
-      wr_ch_array_handle(*stream_,&TheSstring(string)->data[start],len);
+      wr_ch_array_unbuffered(*stream_,&TheSstring(string)->data[start],len);
     }
 
 #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
-# WRITE-CHAR - Pseudofunktion für Handle-Streams, mit NL -> CR/LF - Umwandlung:
-  local void wr_ch_handle_x (const object* stream_, object ch);
-  local void wr_ch_handle_x(stream_,ch)
+# WRITE-CHAR - Pseudofunktion für Unbuffered-Channel-Streams, mit NL -> CR/LF -
+# Umwandlung:
+  local void wr_ch_unbuffered_x (const object* stream_, object ch);
+  local void wr_ch_unbuffered_x(stream_,ch)
     var const object* stream_;
     var object ch;
     { if (eq(ch,code_char(NL)))
         # Newline als CR/LF ausgeben
-        { wr_ch_handle(stream_,code_char(CR));
-          wr_ch_handle(stream_,code_char(LF));
+        { wr_ch_unbuffered(stream_,code_char(CR));
+          wr_ch_unbuffered(stream_,code_char(LF));
         }
         else
         # alle anderen Zeichen unverändert ausgeben
-        { wr_ch_handle(stream_,ch); }
+        { wr_ch_unbuffered(stream_,ch); }
     }
-  #define wr_ch_array_handle_x  wr_ch_array_dummy
-  #define wr_ss_handle_x  wr_ss_dummy
+  #define wr_ch_array_unbuffered_x  wr_ch_array_dummy
+  #define wr_ss_unbuffered_x  wr_ss_dummy
 #else
-  #define wr_ch_handle_x  wr_ch_handle
-  #define wr_ch_array_handle_x  wr_ch_array_handle
-  #define wr_ss_handle_x  wr_ss_handle
+  #define wr_ch_unbuffered_x  wr_ch_unbuffered
+  #define wr_ch_array_unbuffered_x  wr_ch_array_unbuffered
+  #define wr_ss_unbuffered_x  wr_ss_unbuffered
 #endif
 
-# UP: Bringt den wartenden Output eines Handle-Stream ans Ziel.
-# finish_output_handle(stream);
+# UP: Bringt den wartenden Output eines Unbuffered-Channel-Stream ans Ziel.
+# finish_output_unbuffered(stream);
 # > stream: Handle-Stream
 # kann GC auslösen
-  local void finish_output_handle (object stream);
-  local void finish_output_handle(stream)
+  local void finish_output_unbuffered (object stream);
+  local void finish_output_unbuffered(stream)
     var object stream;
-    { FileStreamLow_finish_output(stream)(stream); }
+    { UnbufferedStreamLow_finish_output(stream)(stream); }
 
-# UP: Bringt den wartenden Output eines Handle-Stream ans Ziel.
-# force_output_handle(stream);
+# UP: Bringt den wartenden Output eines Unbuffered-Channel-Stream ans Ziel.
+# force_output_unbuffered(stream);
 # > stream: Handle-Stream
 # kann GC auslösen
-  local void force_output_handle (object stream);
-  local void force_output_handle(stream)
+  local void force_output_unbuffered (object stream);
+  local void force_output_unbuffered(stream)
     var object stream;
-    { FileStreamLow_force_output(stream)(stream); }
+    { UnbufferedStreamLow_force_output(stream)(stream); }
 
-# UP: Löscht den wartenden Output eines Handle-Stream.
-# clear_output_handle(stream);
+# UP: Löscht den wartenden Output eines Unbuffered-Channel-Stream.
+# clear_output_unbuffered(stream);
 # > stream: Handle-Stream
 # kann GC auslösen
-  local void clear_output_handle (object stream);
-  local void clear_output_handle(stream)
+  local void clear_output_unbuffered (object stream);
+  local void clear_output_unbuffered(stream)
     var object stream;
-    { FileStreamLow_clear_output(stream)(stream); }
+    { UnbufferedStreamLow_clear_output(stream)(stream); }
 
-# Initializes the output side fields of a handle stream.
-# HandleStream_output_init(stream);
-  #define HandleStream_output_init(stream)  \
-    { FileStreamLow_write(stream) = &file_low_write;                 \
-      FileStreamLow_write_array(stream) = &file_low_write_array;     \
-      FileStreamLow_finish_output(stream) = &file_low_finish_output; \
-      FileStreamLow_force_output(stream) = &file_low_force_output;   \
-      FileStreamLow_clear_output(stream) = &file_low_clear_output;   \
+# Initializes the output side fields of an unbuffered handle stream.
+# UnbufferedHandleStream_output_init(stream);
+  #define UnbufferedHandleStream_output_init(stream)  \
+    { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_handle;                 \
+      UnbufferedStreamLow_write_array(stream) = &low_write_array_unbuffered_handle;     \
+      UnbufferedStreamLow_finish_output(stream) = &low_finish_output_unbuffered_handle; \
+      UnbufferedStreamLow_force_output(stream) = &low_force_output_unbuffered_handle;   \
+      UnbufferedStreamLow_clear_output(stream) = &low_clear_output_unbuffered_handle;   \
     }
 
-# Schließt einen Handle-Stream.
-# close_ohandle(stream);
-# > stream : Handle-Stream
-  local void close_ohandle (object stream);
-  local void close_ohandle(stream)
+# Schließt einen Channel-Stream.
+# close_ochannel(stream);
+# > stream : Channel-Stream
+  local void close_ochannel (object stream);
+  local void close_ochannel(stream)
     var object stream;
-    { HandleStreamLow_close(stream)(stream,TheStream(stream)->strm_ohandle);
+    { ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ochannel);
       if (TheStream(stream)->strmflags & strmflags_i_B)
-        { HandleStream_bitsize(stream) = 0; # bitsize löschen (unnötig)
+        { ChannelStream_bitsize(stream) = 0; # bitsize löschen (unnötig)
           TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
         }
     }
@@ -4702,21 +4734,21 @@ typedef struct strm_u_file_extrafields_struct {
         { if (eltype->kind==eltype_ch)
             { TheStream(stream)->strm_rd_by = P(rd_by_error);
               TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
-              TheStream(stream)->strm_rd_ch = P(rd_ch_handle);
-              TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_handle);
+              TheStream(stream)->strm_rd_ch = P(rd_ch_unbuffered);
+              TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_unbuffered);
             }
             else
             { TheStream(stream)->strm_rd_by =
                 (eltype->kind == eltype_iu
                  ? (eltype->size == 8
-                    ? P(rd_by_iau8_handle)
-                    : P(rd_by_iau_handle)
+                    ? P(rd_by_iau8_unbuffered)
+                    : P(rd_by_iau_unbuffered)
                    )
-                 : P(rd_by_ias_handle)
+                 : P(rd_by_ias_unbuffered)
                 );
               TheStream(stream)->strm_rd_by_array =
                 ((eltype->kind == eltype_iu) && (eltype->size == 8)
-                 ? P(rd_by_array_iau8_handle)
+                 ? P(rd_by_array_iau8_unbuffered)
                  : P(rd_by_array_dummy)
                 );
               TheStream(stream)->strm_rd_ch = P(rd_ch_error);
@@ -4733,22 +4765,22 @@ typedef struct strm_u_file_extrafields_struct {
         { if (eltype->kind == eltype_ch)
             { TheStream(stream)->strm_wr_by = P(wr_by_error);
               TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
-              TheStream(stream)->strm_wr_ch = P(wr_ch_handle_x);
-              TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_handle_x);
-              TheStream(stream)->strm_wr_ss = P(wr_ss_handle_x);
+              TheStream(stream)->strm_wr_ch = P(wr_ch_unbuffered_x);
+              TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_unbuffered_x);
+              TheStream(stream)->strm_wr_ss = P(wr_ss_unbuffered_x);
             }
             else
             { TheStream(stream)->strm_wr_by =
                 (eltype->kind == eltype_iu
                  ? (eltype->size == 8
-                    ? P(wr_by_iau8_handle)
-                    : P(wr_by_iau_handle)
+                    ? P(wr_by_iau8_unbuffered)
+                    : P(wr_by_iau_unbuffered)
                    )
-                 : P(wr_by_ias_handle)
+                 : P(wr_by_ias_unbuffered)
                 );
               TheStream(stream)->strm_wr_by_array =
                 ((eltype->kind == eltype_iu) && (eltype->size == 8)
-                 ? P(wr_by_array_iau8_handle)
+                 ? P(wr_by_array_iau8_unbuffered)
                  : P(wr_by_array_dummy)
                 );
               TheStream(stream)->strm_wr_ch = P(wr_ch_error);
@@ -4764,7 +4796,7 @@ typedef struct strm_u_file_extrafields_struct {
         }
     }
 
-# UP: erzeugt ein File-Handle-Stream
+# UP: erzeugt ein Unbuffered-Channel-Stream
 # make_unbuffered_stream(type,direction,&eltype,handle_tty)
 # > STACK_1: Element-Type
 # > STACK_0: Handle des geöffneten Files
@@ -4791,27 +4823,27 @@ typedef struct strm_u_file_extrafields_struct {
         else
         { flags &= strmflags_by_B; flags |= strmflags_ia_B; }
      {# Stream allozieren:
-      var object stream = allocate_stream(flags,type,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
+      var object stream = allocate_stream(flags,type,strm_channel_len,sizeof(strm_unbuffered_extrafields_struct));
       # und füllen:
       fill_pseudofuns_unbuffered(stream,eltype);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
       {var object handle = popSTACK();
        if (direction & bit(0))
-         { TheStream(stream)->strm_ihandle = handle; } # Handle eintragen
+         { TheStream(stream)->strm_ichannel = handle; } # Handle eintragen
        if (direction & bit(2))
-         { TheStream(stream)->strm_ohandle = handle; } # Handle eintragen
+         { TheStream(stream)->strm_ochannel = handle; } # Handle eintragen
        if (type == strmtype_file)
-         { TheStream(stream)->strm_file_handle = handle; } # Handle eintragen
+         { TheStream(stream)->strm_buffered_channel = handle; } # Handle eintragen
       }
       # Flag isatty = (handle_tty ? T : NIL) eintragen:
       TheStream(stream)->strm_isatty = (handle_tty ? T : NIL);
       TheStream(stream)->strm_eltype = popSTACK();
-      HandleStream_buffered(stream) = FALSE;
+      ChannelStream_buffered(stream) = FALSE;
       # element-type dependent initializations:
-      HandleStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
+      ChannelStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
       if (!(eltype->kind == eltype_ch))
         # File-Stream für Integers
-        { HandleStream_bitsize(stream) = eltype->size;
+        { ChannelStream_bitsize(stream) = eltype->size;
           # Bitbuffer allozieren:
           pushSTACK(stream);
          {var object bitbuffer = allocate_bit_vector(eltype->size);
@@ -4831,16 +4863,16 @@ typedef struct strm_u_file_extrafields_struct {
 # eine Beschleunigung um einen Faktor 2.7 von 500 sec auf 180 sec.)
 
 # Additional fields:
-  # define strm_file_name       strm_field1   # Filename, a pathname or NIL
-  # define strm_file_truename   strm_field2   # Truename, ein non-logical pathname or NIL
-  # define strm_file_handle     strm_ohandle  # a wrapped Handle
-  #define strm_file_bufflen     4096          # buffer length, a power of 2, <2^16
-  #define strm_file_buffer      strm_buffer   # our own buffer, a simple-bit-vector
-                                              # with strm_file_bufflen bytes
+  # define strm_file_name        strm_field1   # Filename, a pathname or NIL
+  # define strm_file_truename    strm_field2   # Truename, ein non-logical pathname or NIL
+  # define strm_buffered_channel strm_ochannel # a wrapped Handle
+  #define strm_buffered_bufflen  4096          # buffer length, a power of 2, <2^16
+  #define strm_buffered_buffer   strm_buffer   # our own buffer, a simple-bit-vector
+                                               # with strm_buffered_bufflen bytes
 
 # Additional binary (not GCed) fields:
-typedef struct strm_file_extrafields_struct {
-  strm_handle_extrafields_struct _parent;
+typedef struct strm_buffered_extrafields_struct {
+  strm_channel_extrafields_struct _parent;
   uintL (* low_fill)  (object stream);
   void  (* low_flush) (object stream, uintL bufflen);
   uintL buffstart;              # start position of buffer
@@ -4848,32 +4880,32 @@ typedef struct strm_file_extrafields_struct {
                                 # (for recognizing EOF)
   #define eofindex_all_invalid  (-1)
   #define eofindex_all_valid    (-2)
-  uintL index;                  # index into buffer (>=0, <=strm_file_bufflen)
+  uintL index;                  # index into buffer (>=0, <=strm_buffered_bufflen)
   boolean modified : 8;         # TRUE if the buffer contains modified data, else FALSE
   boolean regular : 8;          # whether the handle refers to a regular file
   boolean blockpositioning : 8; # whether the handle refers to a regular file
                                 # and permits to position the buffer at
-                                # buffstart = (sector number) * strm_file_bufflen
+                                # buffstart = (sector number) * strm_buffered_bufflen
   # Three cases:
   #  eofindex = eofindex_all_invalid: buffer contents completely invalid,
   #                                   index = 0.
-  #  eofindex >= 0: 0 <= index <= eofindex <= strm_file_bufflen.
+  #  eofindex >= 0: 0 <= index <= eofindex <= strm_buffered_bufflen.
   #  eofindex = eofindex_all_valid: buffer contents completely valid,
-  #                                 0 <= index <= strm_file_bufflen.
-  # buffstart = (sector number) * strm_file_bufflen, if blockpositioning permitted.
+  #                                 0 <= index <= strm_buffered_bufflen.
+  # buffstart = (sector number) * strm_buffered_bufflen, if blockpositioning permitted.
   # The position of handle, known to the OS, set via lseek, is normally (but
   # not always!) the end of the current buffer:
-  #   if eofindex = eofindex_all_valid: buffstart + strm_file_bufflen,
+  #   if eofindex = eofindex_all_valid: buffstart + strm_buffered_bufflen,
   #   if eofindex >= 0: buffstart + eofindex,
   #   if eofindex = eofindex_all_invalid: buffstart.
 # Up to now a file is considered built from bytes à 8 bits.
 # Logically, it is built up from other units:
   uintL position;               # position in logical units
-} strm_file_extrafields_struct;
+} strm_buffered_extrafields_struct;
 
 # More fields in file streams with element type INTEGER, type ib or ic.
-typedef struct strm_i_file_extrafields_struct {
-  strm_file_extrafields_struct _parent;
+typedef struct strm_i_buffered_extrafields_struct {
+  strm_buffered_extrafields_struct _parent;
   # If bitsize is not a multiple of 8:
   uintL bitindex;               # index in the current byte, >=0, <=8
   # The buffer contains 8*index+bitindex bits. The bits are ordered in the
@@ -4881,37 +4913,37 @@ typedef struct strm_i_file_extrafields_struct {
   # bits) is stored in the first 4 bytes of the files [in little-endian order]
   # when the file is closed. The actual data then begins in the 5th byte.
   uintL eofposition;            # position of logical EOF
-} strm_i_file_extrafields_struct;
+} strm_i_buffered_extrafields_struct;
 
 # In closed file streams only the fields `name' and `truename' are relevant.
 
 # Accessors.
 #define FileStream_name(stream)  TheStream(stream)->strm_file_name
 #define FileStream_truename(stream)  TheStream(stream)->strm_file_truename
-#define FileStream_handle(stream)  TheStream(stream)->strm_file_handle
-#define FileStream_buffer(stream)  TheStream(stream)->strm_file_buffer
-#define FileStreamLow_fill(stream)  \
-  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_fill
-#define FileStreamLow_flush(stream)  \
-  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_flush
-#define FileStream_buffstart(stream)  \
-  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->buffstart
-#define FileStream_eofindex(stream)  \
-  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->eofindex
-#define FileStream_index(stream)  \
-  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->index
-#define FileStream_modified(stream)  \
-  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->modified
-#define FileStream_regular(stream)  \
-  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->regular
-#define FileStream_blockpositioning(stream)  \
-  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->blockpositioning
-#define FileStream_position(stream)  \
-  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->position
-#define FileStream_bitindex(stream)  \
-  ((strm_i_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->bitindex
-#define FileStream_eofposition(stream)  \
-  ((strm_i_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->eofposition
+#define BufferedStream_channel(stream)  TheStream(stream)->strm_buffered_channel
+#define BufferedStream_buffer(stream)  TheStream(stream)->strm_buffered_buffer
+#define BufferedStreamLow_fill(stream)  \
+  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_fill
+#define BufferedStreamLow_flush(stream)  \
+  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_flush
+#define BufferedStream_buffstart(stream)  \
+  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->buffstart
+#define BufferedStream_eofindex(stream)  \
+  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->eofindex
+#define BufferedStream_index(stream)  \
+  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->index
+#define BufferedStream_modified(stream)  \
+  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->modified
+#define BufferedStream_regular(stream)  \
+  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->regular
+#define BufferedStream_blockpositioning(stream)  \
+  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->blockpositioning
+#define BufferedStream_position(stream)  \
+  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->position
+#define BufferedStream_bitindex(stream)  \
+  ((strm_i_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->bitindex
+#define BufferedStream_eofposition(stream)  \
+  ((strm_i_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->eofposition
 
 # File-Stream allgemein
 # =====================
@@ -4927,76 +4959,76 @@ typedef struct strm_i_file_extrafields_struct {
 #   we assume that it makes sense to read a block, modify it, reposition the
 #   handle back to the beginning of the block and write it back.
 # - For regular files opened with O_WRONLY, we use a simple output buffer.
-# - For non-regular files, we don't call file_lseek. Therefore mixed I/O is
+# - For non-regular files, we don't call handle_lseek. Therefore mixed I/O is
 #   not possible. Only input-only and output-only modes are possible.
 
 # Handle positionieren:
-# file_lseek(stream,offset,mode,ergebnis_zuweisung);
+# handle_lseek(stream,handle,offset,mode,ergebnis_zuweisung);
 # > mode: Positionierungsmodus:
 #         SEEK_SET  "absolut"
 #         SEEK_CUR  "relativ"
 #         SEEK_END  "ab Ende"
 # < ergebnis: neue Position
   #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
-    #define file_lseek(stream,offset,mode,ergebnis_zuweisung)  \
-      { var sintL ergebnis =                  \
-          lseek(TheHandle(TheStream(stream)->strm_file_handle), # Handle \
-                offset,                       \
-                mode                          \
-               );                             \
-        if (ergebnis<0) # Fehler aufgetreten? \
+    #define handle_lseek(stream,handle,offset,mode,ergebnis_zuweisung)  \
+      { var sintL ergebnis =                                  \
+          lseek(TheHandle(handle),                            \
+                offset,                                       \
+                mode                                          \
+               );                                             \
+        if (ergebnis<0) # Fehler aufgetreten?                 \
           { end_system_call(); OS_filestream_error(stream); } \
-        unused (ergebnis_zuweisung ergebnis); \
+        unused (ergebnis_zuweisung ergebnis);                 \
       }
   #endif
   #ifdef AMIGAOS
-    #define file_lseek(stream,offset,mode,ergebnis_zuweisung)  \
-      { var uintL _offset = (offset);                          \
-        var sintL ergebnis =                                   \
-          Seek(TheHandle(TheStream(stream)->strm_file_handle), \
-               _offset,                                        \
-               mode                                            \
-              );                                               \
-        if (ergebnis<0) # Fehler aufgetreten?                  \
-          { end_system_call(); OS_filestream_error(stream); }  \
+    #define handle_lseek(stream,handle,offset,mode,ergebnis_zuweisung)  \
+      { var uintL _offset = (offset);                                \
+        var sintL ergebnis =                                         \
+          Seek(TheHandle(handle),                                    \
+               _offset,                                              \
+               mode                                                  \
+              );                                                     \
+        if (ergebnis<0) # Fehler aufgetreten?                        \
+          { end_system_call(); OS_filestream_error(stream); }        \
         if (mode==SEEK_SET) { unused (ergebnis_zuweisung _offset); } \
         elif (mode==SEEK_CUR) { unused (ergebnis_zuweisung ergebnis+_offset); } \
-        else /* mode==SEEK_END */                                      \
-          { ergebnis = Seek(TheHandle(TheStream(stream)->strm_file_handle),0,SEEK_CUR); \
-            if (ergebnis<0) # Fehler aufgetreten?                      \
-              { end_system_call(); OS_filestream_error(stream); }      \
-            unused (ergebnis_zuweisung ergebnis);                      \
+        else /* mode==SEEK_END */                                    \
+          { ergebnis = Seek(TheHandle(handle),0,SEEK_CUR);           \
+            if (ergebnis<0) # Fehler aufgetreten?                    \
+              { end_system_call(); OS_filestream_error(stream); }    \
+            unused (ergebnis_zuweisung ergebnis);                    \
       }   }
     #define SEEK_SET  OFFSET_BEGINNING
     #define SEEK_CUR  OFFSET_CURRENT
     #define SEEK_END  OFFSET_END
   #endif
   #ifdef WIN32_NATIVE
-    #define file_lseek(stream,offset,mode,ergebnis_zuweisung)  \
-      { var DWORD ergebnis =                                   \
-          SetFilePointer(TheHandle(TheStream(stream)->strm_file_handle), # Handle \
-                         offset, NULL,                         \
-                         mode                                  \
-                        );                                     \
-        if (ergebnis == (DWORD)(-1))                           \
-          { end_system_call(); OS_filestream_error(stream); }  \
-        unused (ergebnis_zuweisung ergebnis);                  \
+    #define handle_lseek(stream,handle,offset,mode,ergebnis_zuweisung)  \
+      { var DWORD ergebnis =                                  \
+          SetFilePointer(TheHandle(handle),                   \
+                         offset, NULL,                        \
+                         mode                                 \
+                        );                                    \
+        if (ergebnis == (DWORD)(-1))                          \
+          { end_system_call(); OS_filestream_error(stream); } \
+        unused (ergebnis_zuweisung ergebnis);                 \
        }
   #endif
 
-# UP: Fills the buffer, up to strm_file_bufflen bytes.
-# b_file_fill(stream)
+# UP: Fills the buffer, up to strm_buffered_bufflen bytes.
+# low_fill_buffered_handle(stream)
 # > stream: (open) byte-based file stream
 # < result: number of bytes read
-  local uintL b_file_fill (object stream);
-  local uintL b_file_fill(stream)
+  local uintL low_fill_buffered_handle (object stream);
+  local uintL low_fill_buffered_handle(stream)
     var object stream;
     { var sintL result;
       begin_system_call();
       result = # Buffer füllen
-        full_read(TheHandle(TheStream(stream)->strm_file_handle), # Handle
-                  &TheSbvector(TheStream(stream)->strm_file_buffer)->data[0], # Bufferadresse
-                  strm_file_bufflen
+        full_read(TheHandle(TheStream(stream)->strm_buffered_channel), # Handle
+                  &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferadresse
+                  strm_buffered_bufflen
                  );
       end_system_call();
       if (result<0) { OS_filestream_error(stream); } # Fehler aufgetreten?
@@ -5004,33 +5036,33 @@ typedef struct strm_i_file_extrafields_struct {
     }
 
 # Functions for writing the buffer.
-# b_file_finish_flush(stream,bufflen);
-# b_file_full_flush(stream);
-# b_file_half_flush(stream);
-# b_half_flush(stream);
+# low_flush_buffered_handle(stream,bufflen);
+# buffered_full_flush(stream);
+# buffered_half_flush(stream);
+# buffered_flush(stream);
 # These are called only if the buffer is modified.
 # Of course, the buffer is modified only by the WRITE-BYTE/WRITE-CHAR
 # operations.
 
 # UP: Beendet das Zurückschreiben des Buffers.
-# b_file_finish_flush(stream,bufflen);
+# low_flush_buffered_handle(stream,bufflen);
 # > stream : (offener) Byte-basierter File-Stream.
 # > bufflen : Anzahl der zu schreibenden Bytes
 # < modified_flag von stream : gelöscht
 # verändert in stream: index
-  local void b_file_finish_flush (object stream, uintL bufflen);
-  local void b_file_finish_flush(stream,bufflen)
+  local void low_flush_buffered_handle (object stream, uintL bufflen);
+  local void low_flush_buffered_handle(stream,bufflen)
     var object stream;
     var uintL bufflen;
     { begin_system_call();
      {var sintL ergebnis = # Buffer hinausschreiben
-        full_write(TheHandle(TheStream(stream)->strm_file_handle), # Handle
-                   &TheSbvector(TheStream(stream)->strm_file_buffer)->data[0], # Bufferadresse
+        full_write(TheHandle(TheStream(stream)->strm_buffered_channel), # Handle
+                   &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferadresse
                    bufflen
                   );
       if (ergebnis==bufflen)
         # alles korrekt geschrieben
-        { end_system_call(); FileStream_modified(stream) = FALSE; }
+        { end_system_call(); BufferedStream_modified(stream) = FALSE; }
         else
         # Nicht alles geschrieben
         {
@@ -5051,7 +5083,7 @@ typedef struct strm_i_file_extrafields_struct {
           end_system_call();
           # Nicht alles geschrieben, wohl wegen voller Diskette.
           # Um Inkonsistenzen zu vermeiden, muss man das File schließen.
-          FileStream_modified(stream) = FALSE; # Hierbei gehen Daten verloren!
+          BufferedStream_modified(stream) = FALSE; # Hierbei gehen Daten verloren!
           pushSTACK(stream);
           stream_close(&STACK_0); # File schließen
           clr_break_sem_4(); # keine UNIX-Operation mehr aktiv
@@ -5066,71 +5098,73 @@ typedef struct strm_i_file_extrafields_struct {
                 );
     }}  }
 
-#define HandleStream_init(stream)  \
-  { FileStreamLow_fill(stream) = &b_file_fill;          \
-    FileStreamLow_flush(stream) = &b_file_finish_flush; \
+#define BufferedHandleStream_init(stream)  \
+  { BufferedStreamLow_fill(stream) = &low_fill_buffered_handle;   \
+    BufferedStreamLow_flush(stream) = &low_flush_buffered_handle; \
   }
 
 # UP: Schreibt den vollen, modifizierten Buffer zurück.
-# b_file_full_flush(stream);
+# buffered_full_flush(stream);
 # > stream : (offener) Byte-basierter File-Stream.
 # < modified_flag von stream : gelöscht
 # verändert in stream: index
-  local void b_file_full_flush (object stream);
-  local void b_file_full_flush(stream)
+  local void buffered_full_flush (object stream);
+  local void buffered_full_flush(stream)
     var object stream;
     { # erst zurückpositionieren, dann schreiben.
-      if (FileStream_blockpositioning(stream))
+      if (BufferedStream_blockpositioning(stream))
         { begin_system_call();
-          file_lseek(stream,-(long)strm_file_bufflen,SEEK_CUR,); # Zurückpositionieren
+          handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+                       -(long)strm_buffered_bufflen,SEEK_CUR,); # Zurückpositionieren
           end_system_call();
         }
-      FileStreamLow_flush(stream)(stream,strm_file_bufflen);
+      BufferedStreamLow_flush(stream)(stream,strm_buffered_bufflen);
     }
 
 # UP: Schreibt den halbvollen, modifizierten Buffer zurück.
-# b_file_half_flush(stream);
+# buffered_half_flush(stream);
 # > stream : (offener) Byte-basierter File-Stream.
 # < modified_flag von stream : gelöscht
 # verändert in stream: index
-  local void b_file_half_flush (object stream);
-  local void b_file_half_flush(stream)
+  local void buffered_half_flush (object stream);
+  local void buffered_half_flush(stream)
     var object stream;
-    { if (FileStream_blockpositioning(stream))
+    { if (BufferedStream_blockpositioning(stream))
         { begin_system_call();
-          file_lseek(stream,FileStream_buffstart(stream),SEEK_SET,); # Zurückpositionieren
+          handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+                       BufferedStream_buffstart(stream),SEEK_SET,); # Zurückpositionieren
           end_system_call();
         }
       # eofindex Bytes schreiben:
-      FileStreamLow_flush(stream)(stream,FileStream_eofindex(stream));
+      BufferedStreamLow_flush(stream)(stream,BufferedStream_eofindex(stream));
     }
 
 # UP: Schreibt den modifizierten Buffer zurück.
-# b_file_flush(stream);
+# buffered_flush(stream);
 # > stream : (offener) Byte-basierter File-Stream.
 # < modified_flag von stream : gelöscht
 # verändert in stream: index
-  local void b_file_flush (object stream);
-  local void b_file_flush(stream)
+  local void buffered_flush (object stream);
+  local void buffered_flush(stream)
     var object stream;
-    { if (FileStream_eofindex(stream) == eofindex_all_valid) # Buffer ganz gültig ?
-        { b_file_full_flush(stream); }
+    { if (BufferedStream_eofindex(stream) == eofindex_all_valid) # Buffer ganz gültig ?
+        { buffered_full_flush(stream); }
         else
-        { b_file_half_flush(stream); }
+        { buffered_half_flush(stream); }
     }
 
 # UP: Positioniert einen Byte-basierten File-Stream so, dass das nächste Byte
 # gelesen oder überschrieben werden kann.
-# b_file_nextbyte(stream)
+# buffered_nextbyte(stream)
 # > stream : (offener) Byte-basierter File-Stream.
 # < ergebnis : NULL falls EOF (und dann ist index=eofindex),
 #              sonst: Pointer auf nächstes Byte
 # verändert in stream: index, eofindex, buffstart
-  local uintB* b_file_nextbyte (object stream);
-  local uintB* b_file_nextbyte(stream)
+  local uintB* buffered_nextbyte (object stream);
+  local uintB* buffered_nextbyte(stream)
     var object stream;
-    { var sintL eofindex = FileStream_eofindex(stream);
-      var uintL index = FileStream_index(stream);
+    { var sintL eofindex = BufferedStream_eofindex(stream);
+      var uintL index = BufferedStream_index(stream);
       if (!(eofindex == eofindex_all_valid))
         # Bufferdaten nur halb gültig
         { if (eofindex == eofindex_all_invalid)
@@ -5141,87 +5175,87 @@ typedef struct strm_i_file_extrafields_struct {
             { goto eofsector; }
         }
       # Bufferdaten ganz gültig
-      if (!(index == strm_file_bufflen)) # index = bufflen ?
-        # nein, also 0 <= index < strm_file_bufflen -> OK
-        { return &TheSbvector(TheStream(stream)->strm_file_buffer)->data[index]; }
+      if (!(index == strm_buffered_bufflen)) # index = bufflen ?
+        # nein, also 0 <= index < strm_buffered_bufflen -> OK
+        { return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[index]; }
       # Buffer muss neu gefüllt werden.
-      if (FileStream_modified(stream))
+      if (BufferedStream_modified(stream))
         # Zuvor muss der Buffer hinausgeschrieben werden:
-        { b_file_full_flush(stream); }
-      FileStream_buffstart(stream) += strm_file_bufflen;
+        { buffered_full_flush(stream); }
+      BufferedStream_buffstart(stream) += strm_buffered_bufflen;
       reread: # Ab hier den Buffer neu lesen:
       { var sintL ergebnis;
-        if (FileStream_blockpositioning(stream)
+        if (BufferedStream_blockpositioning(stream)
             || !((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
            )
-          { ergebnis = FileStreamLow_fill(stream)(stream);
-            if (ergebnis==strm_file_bufflen)
+          { ergebnis = BufferedStreamLow_fill(stream)(stream);
+            if (ergebnis==strm_buffered_bufflen)
               # der ganze Buffer wurde gefüllt
-              { FileStream_index(stream) = 0; # Index := 0
-                FileStream_modified(stream) = FALSE; # Buffer unmodifiziert
-                FileStream_eofindex(stream) = eofindex_all_valid; # eofindex := all_valid
-                return &TheSbvector(TheStream(stream)->strm_file_buffer)->data[0];
+              { BufferedStream_index(stream) = 0; # Index := 0
+                BufferedStream_modified(stream) = FALSE; # Buffer unmodifiziert
+                BufferedStream_eofindex(stream) = eofindex_all_valid; # eofindex := all_valid
+                return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0];
               }
           }
           else
           { ergebnis = 0; }
-        # Es wurden ergebnis (< strm_file_bufflen) Bytes gelesen.
+        # Es wurden ergebnis (< strm_buffered_bufflen) Bytes gelesen.
         # Nicht der ganze Buffer wurde gefüllt -> EOF ist erreicht.
-        FileStream_index(stream) = index = 0; # Index := 0
-        FileStream_modified(stream) = FALSE; # Buffer unmodifiziert
-        FileStream_eofindex(stream) = eofindex = ergebnis; # eofindex := ergebnis
+        BufferedStream_index(stream) = index = 0; # Index := 0
+        BufferedStream_modified(stream) = FALSE; # Buffer unmodifiziert
+        BufferedStream_eofindex(stream) = eofindex = ergebnis; # eofindex := ergebnis
       }
       eofsector: # eofindex ist ein Fixnum, d.h. EOF tritt in diesem Sector auf.
       if (index == eofindex)
         { return (uintB*)NULL; } # EOF erreicht
         else
-        { return &TheSbvector(TheStream(stream)->strm_file_buffer)->data[index]; }
+        { return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[index]; }
     }
 
 # UP: Bereitet das Schreiben eines Bytes am EOF vor.
-# b_file_eofbyte(stream);
+# buffered_eofbyte(stream);
 # > stream : (offener) Byte-basierter File-Stream,
-#            bei dem gerade b_file_nextbyte(stream)==NULL ist.
+#            bei dem gerade buffered_nextbyte(stream)==NULL ist.
 # < ergebnis : Pointer auf nächstes (freies) Byte
 # verändert in stream: index, eofindex, buffstart
-  local uintB* b_file_eofbyte (object stream);
-  local uintB* b_file_eofbyte(stream)
+  local uintB* buffered_eofbyte (object stream);
+  local uintB* buffered_eofbyte(stream)
     var object stream;
     { # EOF. Es ist eofindex=index.
-      if (FileStream_eofindex(stream) == strm_file_bufflen)
-        # eofindex = strm_file_bufflen
+      if (BufferedStream_eofindex(stream) == strm_buffered_bufflen)
+        # eofindex = strm_buffered_bufflen
         { # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
           # genügt es, ihn hinauszuschreiben:
-          if (FileStream_modified(stream)) { b_file_half_flush(stream); }
-          FileStream_buffstart(stream) += strm_file_bufflen;
-          FileStream_eofindex(stream) = 0; # eofindex := 0
-          FileStream_index(stream) = 0; # index := 0
-          FileStream_modified(stream) = FALSE; # unmodifiziert
+          if (BufferedStream_modified(stream)) { buffered_half_flush(stream); }
+          BufferedStream_buffstart(stream) += strm_buffered_bufflen;
+          BufferedStream_eofindex(stream) = 0; # eofindex := 0
+          BufferedStream_index(stream) = 0; # index := 0
+          BufferedStream_modified(stream) = FALSE; # unmodifiziert
         }
       # eofindex erhöhen:
-      FileStream_eofindex(stream) += 1;
-      return &TheSbvector(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)];
+      BufferedStream_eofindex(stream) += 1;
+      return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[BufferedStream_index(stream)];
     }
 
 # UP: Schreibt ein Byte auf einen Byte-basierten File-Stream.
-# b_file_writebyte(stream,b);
+# buffered_writebyte(stream,b);
 # > stream : (offener) Byteblock-basierter File-Stream.
 # > b : zu schreibendes Byte
 # verändert in stream: index, eofindex, buffstart
-  local void b_file_writebyte (object stream, uintB b);
-  local void b_file_writebyte(stream,b)
+  local void buffered_writebyte (object stream, uintB b);
+  local void buffered_writebyte(stream,b)
     var object stream;
     var uintB b;
-    { var uintB* ptr = b_file_nextbyte(stream);
+    { var uintB* ptr = buffered_nextbyte(stream);
       if (!(ptr == (uintB*)NULL))
         { if (*ptr == b) goto no_modification; } # keine wirkliche Modifikation?
         else
-        { ptr = b_file_eofbyte(stream); } # EOF -> 1 Byte Platz machen
+        { ptr = buffered_eofbyte(stream); } # EOF -> 1 Byte Platz machen
       # nächstes Byte in den Buffer schreiben:
-      *ptr = b; FileStream_modified(stream) = TRUE;
+      *ptr = b; BufferedStream_modified(stream) = TRUE;
       no_modification:
       # index incrementieren:
-      FileStream_index(stream) += 1;
+      BufferedStream_index(stream) += 1;
     }
 
 # File-Stream, Byte-basiert (b_file)
@@ -5244,96 +5278,98 @@ typedef struct strm_i_file_extrafields_struct {
 
 # UP: Positioniert einen (offenen) Byte-basierten File-Stream an eine
 # gegebene Position.
-# position_b_file(stream,position);
+# position_file_buffered(stream,position);
 # > stream : (offener) Byte-basierter File-Stream.
 # > position : neue Position
 # verändert in stream: index, eofindex, buffstart
-  local void position_b_file (object stream, uintL position);
-  local void position_b_file(stream,position)
+  local void position_file_buffered (object stream, uintL position);
+  local void position_file_buffered(stream,position)
     var object stream;
     var uintL position;
     { # Liegt die neue Position im selben Sector?
-      { var sintL eofindex = FileStream_eofindex(stream);
-        var uintL newindex = position - FileStream_buffstart(stream);
+      { var sintL eofindex = BufferedStream_eofindex(stream);
+        var uintL newindex = position - BufferedStream_buffstart(stream);
         if (newindex
-            <= ((eofindex == eofindex_all_valid) ? strm_file_bufflen :
+            <= ((eofindex == eofindex_all_valid) ? strm_buffered_bufflen :
                 (!(eofindex == eofindex_all_invalid)) ? eofindex :
                 0
            )   )
           { # ja -> brauche nur index zu verändern:
-            FileStream_index(stream) = newindex;
+            BufferedStream_index(stream) = newindex;
             return;
       }   }
       # evtl. Buffer hinausschreiben:
-      if (FileStream_modified(stream)) { b_file_flush(stream); }
+      if (BufferedStream_modified(stream)) { buffered_flush(stream); }
       # Nun ist modified_flag gelöscht.
-      if (!FileStream_blockpositioning(stream))
+      if (!BufferedStream_blockpositioning(stream))
         { # Positionieren:
           begin_system_call();
-          file_lseek(stream,position,SEEK_SET,);
+          handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+                       position,SEEK_SET,);
           end_system_call();
-          FileStream_buffstart(stream) = position;
-          FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
-          FileStream_index(stream) = 0; # index := 0
-          FileStream_modified(stream) = FALSE; # unmodifiziert
+          BufferedStream_buffstart(stream) = position;
+          BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+          BufferedStream_index(stream) = 0; # index := 0
+          BufferedStream_modified(stream) = FALSE; # unmodifiziert
         }
         else
-        { var uintL oldposition = FileStream_buffstart(stream) + FileStream_index(stream);
+        { var uintL oldposition = BufferedStream_buffstart(stream) + BufferedStream_index(stream);
           # Positionieren:
           { var uintL newposition;
             begin_system_call();
-            file_lseek(stream,floor(position,strm_file_bufflen)*strm_file_bufflen,SEEK_SET,newposition=);
+            handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+                         floor(position,strm_buffered_bufflen)*strm_buffered_bufflen,SEEK_SET,newposition=);
             end_system_call();
-            FileStream_buffstart(stream) = newposition;
+            BufferedStream_buffstart(stream) = newposition;
           }
           # Sector lesen:
-          FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
-          FileStream_index(stream) = 0; # index := 0
-          FileStream_modified(stream) = FALSE; # unmodifiziert
-          { var uintL newindex = position % strm_file_bufflen; # gewünschter Index im Sector
+          BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+          BufferedStream_index(stream) = 0; # index := 0
+          BufferedStream_modified(stream) = FALSE; # unmodifiziert
+          { var uintL newindex = position % strm_buffered_bufflen; # gewünschter Index im Sector
             if (!(newindex==0)) # Position zwischen Sectoren -> brauche nichts zu lesen
-              { b_file_nextbyte(stream);
+              { buffered_nextbyte(stream);
                 # Jetzt ist index=0.
                 # index auf (position mod bufflen) setzen, vorher überprüfen:
-               {var sintL eofindex = FileStream_eofindex(stream);
+               {var sintL eofindex = BufferedStream_eofindex(stream);
                 # Es muss entweder eofindex=all_valid oder 0<=newindex<=eofindex sein:
                 if (!((eofindex == eofindex_all_valid) || (newindex <= eofindex)))
                   # Fehler. Aber erst an die alte Position zurückpositionieren:
                   { check_SP();
-                    position_b_file(stream,oldposition); # zurückpositionieren
+                    position_file_buffered(stream,oldposition); # zurückpositionieren
                     fehler_position_beyond_EOF(stream);
                   }
-                FileStream_index(stream) = newindex;
+                BufferedStream_index(stream) = newindex;
         } }   }}
     }
 
 # UP: Liest einen Array von Bytes von einem (offenen) Byte-basierten
 # File-Stream.
-# read_byte_array_b_file(stream,byteptr,len)
+# read_byte_array_buffered(stream,byteptr,len)
 # > stream : (offener) Byte-basierter File-Stream.
 # > byteptr[0..len-1] : Platz
 # > len : > 0
 # < byteptr[0..count-1] : eingelesene Bytes.
 # < result: &byteptr[count] (with count = len, or count < len if EOF reached)
 # verändert in stream: index, eofindex, buffstart
-  local uintB* read_byte_array_b_file (object stream, uintB* byteptr, uintL len);
-  local uintB* read_byte_array_b_file(stream,byteptr,len)
+  local uintB* read_byte_array_buffered (object stream, uintB* byteptr, uintL len);
+  local uintB* read_byte_array_buffered(stream,byteptr,len)
     var object stream;
     var uintB* byteptr;
     var uintL len;
-    { do { var uintB* ptr = b_file_nextbyte(stream);
+    { do { var uintB* ptr = buffered_nextbyte(stream);
            if (ptr == (uintB*)NULL) break;
-          {var sintL eofindex = FileStream_eofindex(stream);
+          {var sintL eofindex = BufferedStream_eofindex(stream);
            var uintL available =
-             (eofindex == eofindex_all_valid ? strm_file_bufflen : eofindex)
-             - FileStream_index(stream);
+             (eofindex == eofindex_all_valid ? strm_buffered_bufflen : eofindex)
+             - BufferedStream_index(stream);
            if (available > len) { available = len; }
            # Alle verfügbaren Bytes kopieren:
            { var uintL count;
              dotimespL(count,available, { *byteptr++ = *ptr++; } );
            }
            # index incrementieren:
-           FileStream_index(stream) += available;
+           BufferedStream_index(stream) += available;
            len -= available;
          }}
          while (len > 0);
@@ -5342,67 +5378,67 @@ typedef struct strm_i_file_extrafields_struct {
 
 # UP: Schreibt einen Array von Bytes auf einen (offenen) Byte-basierten
 # File-Stream.
-# write_byte_array_b_file(stream,byteptr,len)
+# write_byte_array_buffered(stream,byteptr,len)
 # > stream : (offener) Byte-basierter File-Stream.
 # > byteptr[0..len-1] : auszugebende Bytes.
 # > len : > 0
 # < result: &byteptr[len]
 # verändert in stream: index, eofindex, buffstart
-  local const uintB* write_byte_array_b_file (object stream, const uintB* byteptr, uintL len);
-  local const uintB* write_byte_array_b_file(stream,byteptr,len)
+  local const uintB* write_byte_array_buffered (object stream, const uintB* byteptr, uintL len);
+  local const uintB* write_byte_array_buffered(stream,byteptr,len)
     var object stream;
     var const uintB* byteptr;
     var uintL len;
     { var uintL remaining = len;
       var uintB* ptr;
       do # Noch remaining>0 Bytes abzulegen.
-        { ptr = b_file_nextbyte(stream);
+        { ptr = buffered_nextbyte(stream);
           if (ptr == (uintB*)NULL) goto eof_reached;
-         {var sintL eofindex = FileStream_eofindex(stream);
+         {var sintL eofindex = BufferedStream_eofindex(stream);
           var uintL next = # so viel wie noch in den Buffer oder bis EOF passt
-            ((eofindex==eofindex_all_valid) ? strm_file_bufflen : eofindex)
-            - FileStream_index(stream); # > 0 !
+            ((eofindex==eofindex_all_valid) ? strm_buffered_bufflen : eofindex)
+            - BufferedStream_index(stream); # > 0 !
           if (next > remaining) { next = remaining; }
           # next Bytes in den Buffer kopieren:
           {var uintL count;
            dotimespL(count,next,
              { var uintB b = *byteptr++; # nächstes Byte
-               if (!(*ptr == b)) { *ptr = b; FileStream_modified(stream) = TRUE; } # in den Buffer
+               if (!(*ptr == b)) { *ptr = b; BufferedStream_modified(stream) = TRUE; } # in den Buffer
                ptr++;
              });
           }
           remaining = remaining - next;
           # index incrementieren:
-          FileStream_index(stream) += next;
+          BufferedStream_index(stream) += next;
         }}
         until (remaining == 0);
       if (FALSE)
         eof_reached: # Schreiben am EOF, eofindex = index
         do # Noch remaining>0 Bytes abzulegen.
           { var uintL next = # so viel wie noch Platz im Buffer ist
-              strm_file_bufflen - FileStream_index(stream);
+              strm_buffered_bufflen - BufferedStream_index(stream);
             if (next==0)
               { # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
                 # genügt es, ihn hinauszuschreiben:
-                if (FileStream_modified(stream)) { b_file_half_flush(stream); }
-                FileStream_buffstart(stream) += strm_file_bufflen;
-                FileStream_eofindex(stream) = 0; # eofindex := 0
-                FileStream_index(stream) = 0; # index := 0
-                FileStream_modified(stream) = FALSE; # unmodifiziert
+                if (BufferedStream_modified(stream)) { buffered_half_flush(stream); }
+                BufferedStream_buffstart(stream) += strm_buffered_bufflen;
+                BufferedStream_eofindex(stream) = 0; # eofindex := 0
+                BufferedStream_index(stream) = 0; # index := 0
+                BufferedStream_modified(stream) = FALSE; # unmodifiziert
                 # Dann nochmals versuchen:
-                next = strm_file_bufflen;
+                next = strm_buffered_bufflen;
               }
             if (next > remaining) { next = remaining; }
             # next Bytes in den Buffer kopieren:
             {var uintL count;
-             ptr = &TheSbvector(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)];
+             ptr = &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[BufferedStream_index(stream)];
              dotimespL(count,next, { *ptr++ = *byteptr++; } );
-             FileStream_modified(stream) = TRUE;
+             BufferedStream_modified(stream) = TRUE;
             }
             remaining = remaining - next;
             # index und eofindex incrementieren:
-            FileStream_index(stream) += next;
-            FileStream_eofindex(stream) += next;
+            BufferedStream_index(stream) += next;
+            BufferedStream_eofindex(stream) += next;
           }
           until (remaining == 0);
       return byteptr;
@@ -5420,77 +5456,77 @@ typedef struct strm_i_file_extrafields_struct {
 # ----------
 
 # READ-CHAR - Pseudofunktion für File-Streams für Characters
-  local object rd_ch_ch_file (const object* stream_);
-  local object rd_ch_ch_file(stream_)
+  local object rd_ch_buffered (const object* stream_);
+  local object rd_ch_buffered(stream_)
     var const object* stream_;
     { var object stream = *stream_;
-      var uintB* charptr = b_file_nextbyte(stream);
+      var uintB* charptr = buffered_nextbyte(stream);
       if (charptr == (uintB*)NULL) { return eof_value; } # EOF ?
       # nächstes Zeichen holen:
      {var object ch = code_char(as_chart(*charptr)); # Character aus dem Buffer holen
       # index und position incrementieren:
-      FileStream_index(stream) += 1;
-      FileStream_position(stream) += 1;
+      BufferedStream_index(stream) += 1;
+      BufferedStream_position(stream) += 1;
       # ch = nächstes Zeichen
       if (!eq(ch,ascii_char(CR))) # Ist es CR ?
         { # nein -> OK
           if (eq(ch,ascii_char(NL))) # Ist es NL, dann lineno incrementieren
-            { HandleStream_lineno(stream) += 1; }
+            { ChannelStream_lineno(stream) += 1; }
           return ch;
         }
       # ja -> nächstes Zeichen auf LF untersuchen
-      charptr = b_file_nextbyte(stream);
+      charptr = buffered_nextbyte(stream);
       if (charptr == (uintB*)NULL) { return ch; } # EOF -> bleibt CR
       if (!(*charptr == LF)) { return ch; } # kein LF -> bleibt CR
       # LF übergehen, index und position incrementieren:
-      FileStream_index(stream) += 1;
-      FileStream_position(stream) += 1;
+      BufferedStream_index(stream) += 1;
+      BufferedStream_position(stream) += 1;
       # lineno incrementieren:
-      HandleStream_lineno(stream) += 1;
+      ChannelStream_lineno(stream) += 1;
       # NL als Ergebnis:
       return ascii_char(NL);
     }}
 
 # Stellt fest, ob ein File-Stream ein Zeichen verfügbar hat.
-# listen_ch_file(stream)
+# listen_buffered(stream)
 # > stream: File-Stream für Characters
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-  local signean listen_ch_file (object stream);
-  local signean listen_ch_file(stream)
+  local signean listen_buffered (object stream);
+  local signean listen_buffered(stream)
     var object stream;
-    { if (b_file_nextbyte(stream) == (uintB*)NULL)
+    { if (buffered_nextbyte(stream) == (uintB*)NULL)
         { return ls_eof; } # EOF
         else
         { return ls_avail; }
     }
 
 # READ-CHAR-ARRAY - Pseudofunktion für File-Streams für Characters:
-  local chart* rd_ch_array_ch_file (object stream, chart* charptr, uintL len);
-  local chart* rd_ch_array_ch_file(stream,charptr,len)
+  local chart* rd_ch_array_buffered (object stream, chart* charptr, uintL len);
+  local chart* rd_ch_array_buffered(stream,charptr,len)
     var object stream;
     var chart* charptr;
     var uintL len;
-    { do { var uintB* ptr = b_file_nextbyte(stream);
+    { do { var uintB* ptr = buffered_nextbyte(stream);
            if (ptr == (uintB*)NULL) break; # EOF -> fertig
           {var uintB ch = *ptr;
            # index und position incrementieren:
-           FileStream_index(stream) += 1;
-           FileStream_position(stream) += 1;
+           BufferedStream_index(stream) += 1;
+           BufferedStream_position(stream) += 1;
            # CR/LF -> NL umwandeln:
            if (ch==CR)
              { # nächstes Zeichen auf LF untersuchen
-               ptr = b_file_nextbyte(stream);
+               ptr = buffered_nextbyte(stream);
                if (!(ptr == (uintB*)NULL) && (*ptr == LF))
                  { # index und position incrementieren:
-                   FileStream_index(stream) += 1;
-                   FileStream_position(stream) += 1;
+                   BufferedStream_index(stream) += 1;
+                   BufferedStream_position(stream) += 1;
                    ch = NL;
              }   }
            if (ch==NL)
              # lineno incrementieren:
-             { HandleStream_lineno(stream) += 1; }
+             { ChannelStream_lineno(stream) += 1; }
            *charptr++ = as_chart(ch); len--;
          }}
          while (len > 0);
@@ -5501,22 +5537,22 @@ typedef struct strm_i_file_extrafields_struct {
 # -----------
 
 # UP: Schreibt ein Byte auf einen Byte-basierten File-Stream.
-# write_b_file(stream,b);
+# write_byte_buffered(stream,b);
 # > stream : (offener) Byte-basierter File-Stream.
 # > b : zu schreibendes Byte
 # verändert in stream: index, eofindex, buffstart, position
-  local void write_b_file (object stream, uintB b);
-  local void write_b_file(stream,b)
+  local void write_byte_buffered (object stream, uintB b);
+  local void write_byte_buffered(stream,b)
     var object stream;
     var uintB b;
-    { b_file_writebyte(stream,b);
+    { buffered_writebyte(stream,b);
       # position incrementieren:
-      FileStream_position(stream) += 1;
+      BufferedStream_position(stream) += 1;
     }
 
 # WRITE-CHAR - Pseudofunktion für File-Streams für Characters
-  local void wr_ch_ch_file (const object* stream_, object obj);
-  local void wr_ch_ch_file(stream_,obj)
+  local void wr_ch_buffered (const object* stream_, object obj);
+  local void wr_ch_buffered(stream_,obj)
     var const object* stream_;
     var object obj;
     { var object stream = *stream_;
@@ -5526,20 +5562,20 @@ typedef struct strm_i_file_extrafields_struct {
       #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
       if (ch==NL)
         # Newline als CR/LF ausgeben
-        { write_b_file(stream,CR); write_b_file(stream,LF); }
+        { write_byte_buffered(stream,CR); write_byte_buffered(stream,LF); }
         else
         # alle anderen Zeichen unverändert ausgeben
-        { write_b_file(stream,ch); }
+        { write_byte_buffered(stream,ch); }
       #else
-      write_b_file(stream,ch); # unverändert ausgeben
+      write_byte_buffered(stream,ch); # unverändert ausgeben
       #endif
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für File-Streams für Characters:
-  local const chart* wr_ch_array_ch_file (object stream, const chart* strptr, uintL len);
+  local const chart* wr_ch_array_buffered (object stream, const chart* strptr, uintL len);
   #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
   # Wegen NL->CR/LF-Umwandlung keine Optimierung möglich.
-  local inline const chart* wr_ch_array_ch_file(stream,strptr,len)
+  local inline const chart* wr_ch_array_buffered(stream,strptr,len)
     var object stream;
     var const chart* strptr;
     var uintL len;
@@ -5547,10 +5583,10 @@ typedef struct strm_i_file_extrafields_struct {
       do { var cint ch = as_cint(*strptr++);
            if (ch==NL)
              # Newline als CR/LF ausgeben
-             { write_b_file(stream,CR); write_b_file(stream,LF); }
+             { write_byte_buffered(stream,CR); write_byte_buffered(stream,LF); }
              else
              # alle anderen Zeichen unverändert ausgeben
-             { write_b_file(stream,ch); }
+             { write_byte_buffered(stream,ch); }
            remaining--;
          }
          until (remaining == 0);
@@ -5558,19 +5594,19 @@ typedef struct strm_i_file_extrafields_struct {
       return strptr;
     }
   #else
-  local const chart* wr_ch_array_ch_file(stream,strptr,len)
+  local const chart* wr_ch_array_buffered(stream,strptr,len)
     var object stream;
     var const chart* strptr;
     var uintL len;
     {
       #if 1 # FIXME: doesn't work with chart any more
-      write_byte_array_b_file(stream,strptr,len);
+      write_byte_array_buffered(stream,strptr,len);
       # position incrementieren:
-      FileStream_position(stream) += len;
+      BufferedStream_position(stream) += len;
       strptr += len;
       #else
       var uintL remaining = len;
-      do { write_b_file(stream,as_cint(*strptr++));
+      do { write_byte_buffered(stream,as_cint(*strptr++));
            remaining--;
          }
          until (remaining == 0);
@@ -5581,14 +5617,14 @@ typedef struct strm_i_file_extrafields_struct {
   #endif
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für File-Streams für Characters
-  local void wr_ss_ch_file (const object* stream_, object string, uintL start, uintL len);
-  local void wr_ss_ch_file(stream_,string,start,len)
+  local void wr_ss_buffered (const object* stream_, object string, uintL start, uintL len);
+  local void wr_ss_buffered(stream_,string,start,len)
     var const object* stream_;
     var object string;
     var uintL start;
     var uintL len;
     { if (len==0) return;
-      wr_ch_array_ch_file(*stream_,&TheSstring(string)->data[start],len);
+      wr_ch_array_buffered(*stream_,&TheSstring(string)->data[start],len);
     }
 
 # File-Stream, Bit-basiert
@@ -5609,38 +5645,38 @@ typedef struct strm_i_file_extrafields_struct {
 
 # UP: Positioniert einen (offenen) Bit-basierten File-Stream an eine
 # gegebene Position.
-# position_i_file(stream,position);
+# position_file_i_buffered(stream,position);
 # > stream : (offener) Byte-basierter File-Stream.
 # > position : neue (logische) Position
 # verändert in stream: index, eofindex, buffstart, bitindex
-  local void position_i_file (object stream, uintL position);
-  local void position_i_file(stream,position)
+  local void position_file_i_buffered (object stream, uintL position);
+  local void position_file_i_buffered(stream,position)
     var object stream;
     var uintL position;
     { var uintB flags = TheStream(stream)->strmflags;
-      var uintL bitsize = HandleStream_bitsize(stream);
+      var uintL bitsize = ChannelStream_bitsize(stream);
       var uintL position_bits = position * bitsize;
       if ((flags & strmflags_i_B) == strmflags_ib_B)
         { position_bits += sizeof(uintL)*8; } # Header berücksichtigen
       # An Bit Nummer position_bits positionieren.
-      position_b_file(stream,floor(position_bits,8)); # Aufs Byte positionieren
+      position_file_buffered(stream,floor(position_bits,8)); # Aufs Byte positionieren
       if ((flags & strmflags_i_B) == strmflags_ia_B) return; # Bei Art a war's das.
       if (# Liegt die angesprochene Position im ersten Byte nach EOF ?
           ((!((position_bits%8)==0))
-           && (b_file_nextbyte(stream) == (uintB*)NULL)
+           && (buffered_nextbyte(stream) == (uintB*)NULL)
           )
           ||
           # Liegt die angesprochene Position im letzten Byte, aber zu weit?
           (((flags & strmflags_i_B) == strmflags_ib_B)
-           && (position > FileStream_eofposition(stream))
+           && (position > BufferedStream_eofposition(stream))
          ))
         # Fehler. Aber erst an die alte Position zurückpositionieren:
-        { var uintL oldposition = FileStream_position(stream);
+        { var uintL oldposition = BufferedStream_position(stream);
           check_SP();
-          position_i_file(stream,oldposition); # zurückpositionieren
+          position_file_i_buffered(stream,oldposition); # zurückpositionieren
           fehler_position_beyond_EOF(stream);
         }
-      FileStream_bitindex(stream) = position_bits%8;
+      BufferedStream_bitindex(stream) = position_bits%8;
     }
 
 # Input side
@@ -5651,34 +5687,34 @@ typedef struct strm_i_file_extrafields_struct {
 # > stream : File-Stream für Integers, Art a
 # > finisher : Beendigungsroutine
 # < ergebnis : gelesener Integer oder eof_value
-  local object rd_by_aux_iax_file (object stream, rd_by_ix_I* finisher);
-  local object rd_by_aux_iax_file(stream,finisher)
+  local object rd_by_aux_iax_buffered (object stream, rd_by_ix_I* finisher);
+  local object rd_by_aux_iax_buffered(stream,finisher)
     var object stream;
     var rd_by_ix_I* finisher;
-    { var uintL bitsize = HandleStream_bitsize(stream);
+    { var uintL bitsize = ChannelStream_bitsize(stream);
       var uintL bytesize = bitsize/8;
       # genügend viele Bytes in den Bitbuffer übertragen:
      {var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
       #if 0 # equivalent, but slower
       var uintL count;
       dotimespL(count,bytesize,
-        { var uintB* ptr = b_file_nextbyte(stream);
+        { var uintB* ptr = buffered_nextbyte(stream);
           if (ptr == (uintB*)NULL) goto eof;
           # nächstes Byte holen:
           *bitbufferptr++ = *ptr;
           # index incrementieren:
-          FileStream_index(stream) += 1;
+          BufferedStream_index(stream) += 1;
         });
       #else
-      if (!(read_byte_array_b_file(stream,bitbufferptr,bytesize) == bitbufferptr+bytesize))
+      if (!(read_byte_array_buffered(stream,bitbufferptr,bytesize) == bitbufferptr+bytesize))
         goto eof;
       #endif
       # position incrementieren:
-      FileStream_position(stream) += 1;
+      BufferedStream_position(stream) += 1;
       # in Zahl umwandeln:
       return (*finisher)(stream,bitsize,bytesize);
       eof: # EOF erreicht
-      position_b_file(stream,FileStream_position(stream)*bytesize);
+      position_file_buffered(stream,BufferedStream_position(stream)*bytesize);
       return eof_value;
     }}
 
@@ -5687,19 +5723,19 @@ typedef struct strm_i_file_extrafields_struct {
 # > stream : File-Stream für Integers, Art b
 # > finisher : Beendigungsroutine
 # < ergebnis : gelesener Integer oder eof_value
-  local object rd_by_aux_ibx_file (object stream, rd_by_ix_I* finisher);
-  local object rd_by_aux_ibx_file(stream,finisher)
+  local object rd_by_aux_ibx_buffered (object stream, rd_by_ix_I* finisher);
+  local object rd_by_aux_ibx_buffered(stream,finisher)
     var object stream;
     var rd_by_ix_I* finisher;
     { # Nur bei position < eofposition gibt's was zu lesen:
-      if (FileStream_position(stream) == FileStream_eofposition(stream))
+      if (BufferedStream_position(stream) == BufferedStream_eofposition(stream))
         goto eof;
-      { var uintL bitsize = HandleStream_bitsize(stream); # bitsize (>0, <8)
+      { var uintL bitsize = ChannelStream_bitsize(stream); # bitsize (>0, <8)
         # genügend viele Bits in den Bitbuffer übertragen:
-        var uintL bitindex = FileStream_bitindex(stream);
+        var uintL bitindex = BufferedStream_bitindex(stream);
         var uintL count = bitindex + bitsize;
         var uint8 bit_akku;
-        var uintB* ptr = b_file_nextbyte(stream);
+        var uintB* ptr = buffered_nextbyte(stream);
         if (ptr == (uintB*)NULL) goto eof;
         # angefangenes Byte holen:
         bit_akku = (*ptr)>>bitindex;
@@ -5707,9 +5743,9 @@ typedef struct strm_i_file_extrafields_struct {
         # Von bit_akku sind die Bits (bitshift-1)..0 gültig.
         if (count > 8)
           { # index incrementieren, da gerade *ptr verarbeitet:
-            FileStream_index(stream) += 1;
+            BufferedStream_index(stream) += 1;
             count -= 8; # Noch count (>0) Bits zu holen.
-           {var uintB* ptr = b_file_nextbyte(stream);
+           {var uintB* ptr = buffered_nextbyte(stream);
             if (ptr == (uintB*)NULL) goto eof1;
             # nächstes Byte holen:
             # (8-bitindex < 8, da sonst count = 0+bitsize < 8 gewesen wäre!)
@@ -5717,14 +5753,14 @@ typedef struct strm_i_file_extrafields_struct {
           }}# Von bit_akku sind alle 8 Bits gültig.
         # 8 Bit abspeichern:
         TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0] = bit_akku;
-        FileStream_bitindex(stream) = count;
+        BufferedStream_bitindex(stream) = count;
         # position incrementieren:
-        FileStream_position(stream) += 1;
+        BufferedStream_position(stream) += 1;
         # in Zahl umwandeln:
         return (*finisher)(stream,bitsize,1);
         eof1:
           # Wieder zurückpositionieren:
-          position_i_file(stream,FileStream_position(stream));
+          position_file_i_buffered(stream,BufferedStream_position(stream));
       }
       eof: # EOF erreicht gewesen
         return eof_value;
@@ -5735,26 +5771,26 @@ typedef struct strm_i_file_extrafields_struct {
 # > stream : File-Stream für Integers, Art c
 # > finisher : Beendigungsroutine
 # < ergebnis : gelesener Integer oder eof_value
-  local object rd_by_aux_icx_file (object stream, rd_by_ix_I* finisher);
-  local object rd_by_aux_icx_file(stream,finisher)
+  local object rd_by_aux_icx_buffered (object stream, rd_by_ix_I* finisher);
+  local object rd_by_aux_icx_buffered(stream,finisher)
     var object stream;
     var rd_by_ix_I* finisher;
-    { var uintL bitsize = HandleStream_bitsize(stream);
+    { var uintL bitsize = ChannelStream_bitsize(stream);
       var uintL bytesize = ceiling(bitsize,8);
       # genügend viele Bits in den Bitbuffer übertragen:
       var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
       var uintL count = bitsize;
-      var uintL bitshift = FileStream_bitindex(stream);
-      var uintB* ptr = b_file_nextbyte(stream);
+      var uintL bitshift = BufferedStream_bitindex(stream);
+      var uintB* ptr = buffered_nextbyte(stream);
       if (ptr == (uintB*)NULL) goto eof;
       if (bitshift==0)
         { loop
             { *bitbufferptr++ = *ptr; # 8 Bits holen und abspeichern
               # index incrementieren, da gerade *ptr verarbeitet:
-              FileStream_index(stream) += 1;
+              BufferedStream_index(stream) += 1;
               count -= 8;
               # Noch count (>0) Bits zu holen.
-              ptr = b_file_nextbyte(stream);
+              ptr = buffered_nextbyte(stream);
               if (ptr == (uintB*)NULL) goto eof;
               if (count<=8) break; # Sind damit count Bits fertig?
             }
@@ -5769,10 +5805,10 @@ typedef struct strm_i_file_extrafields_struct {
           count -= bitshift;
           loop
             { # index incrementieren, da gerade *ptr verarbeitet:
-              FileStream_index(stream) += 1;
+              BufferedStream_index(stream) += 1;
               # Von bit_akku sind die Bits (bitshift-1)..0 gültig.
               # Noch count (>0) Bits zu holen.
-             {var uintB* ptr = b_file_nextbyte(stream);
+             {var uintB* ptr = buffered_nextbyte(stream);
               if (ptr == (uintB*)NULL) goto eof;
               # nächstes Byte holen:
               bit_akku |= (uint16)(*ptr)<<bitshift;
@@ -5783,62 +5819,62 @@ typedef struct strm_i_file_extrafields_struct {
               bit_akku = bit_akku>>8;
             }
         }
-      FileStream_bitindex(stream) = count;
+      BufferedStream_bitindex(stream) = count;
       # position incrementieren:
-      FileStream_position(stream) += 1;
+      BufferedStream_position(stream) += 1;
       # in Zahl umwandeln:
       return (*finisher)(stream,bitsize,bytesize);
       eof: # EOF erreicht
-      position_i_file(stream,FileStream_position(stream));
+      position_file_i_buffered(stream,BufferedStream_position(stream));
       return eof_value;
     }
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art au :
-  local object rd_by_iau_file (object stream);
-  local object rd_by_iau_file(stream)
+  local object rd_by_iau_buffered (object stream);
+  local object rd_by_iau_buffered(stream)
     var object stream;
-    { return rd_by_aux_iax_file(stream,&rd_by_iu_I); }
+    { return rd_by_aux_iax_buffered(stream,&rd_by_iu_I); }
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art as :
-  local object rd_by_ias_file (object stream);
-  local object rd_by_ias_file(stream)
+  local object rd_by_ias_buffered (object stream);
+  local object rd_by_ias_buffered(stream)
     var object stream;
-    { return rd_by_aux_iax_file(stream,&rd_by_is_I); }
+    { return rd_by_aux_iax_buffered(stream,&rd_by_is_I); }
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art bu :
-  local object rd_by_ibu_file (object stream);
-  local object rd_by_ibu_file(stream)
+  local object rd_by_ibu_buffered (object stream);
+  local object rd_by_ibu_buffered(stream)
     var object stream;
-    { return rd_by_aux_ibx_file(stream,&rd_by_iu_I); }
+    { return rd_by_aux_ibx_buffered(stream,&rd_by_iu_I); }
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art bs :
-  local object rd_by_ibs_file (object stream);
-  local object rd_by_ibs_file(stream)
+  local object rd_by_ibs_buffered (object stream);
+  local object rd_by_ibs_buffered(stream)
     var object stream;
-    { return rd_by_aux_ibx_file(stream,&rd_by_is_I); }
+    { return rd_by_aux_ibx_buffered(stream,&rd_by_is_I); }
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art cu :
-  local object rd_by_icu_file (object stream);
-  local object rd_by_icu_file(stream)
+  local object rd_by_icu_buffered (object stream);
+  local object rd_by_icu_buffered(stream)
     var object stream;
-    { return rd_by_aux_icx_file(stream,&rd_by_iu_I); }
+    { return rd_by_aux_icx_buffered(stream,&rd_by_iu_I); }
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art cs :
-  local object rd_by_ics_file (object stream);
-  local object rd_by_ics_file(stream)
+  local object rd_by_ics_buffered (object stream);
+  local object rd_by_ics_buffered(stream)
     var object stream;
-    { return rd_by_aux_icx_file(stream,&rd_by_is_I); }
+    { return rd_by_aux_icx_buffered(stream,&rd_by_is_I); }
 
 # READ-BYTE - Pseudofunktion für File-Streams für Integers, Art au, bitsize = 8 :
-  local object rd_by_iau8_file (object stream);
-  local object rd_by_iau8_file(stream)
+  local object rd_by_iau8_buffered (object stream);
+  local object rd_by_iau8_buffered(stream)
     var object stream;
-    { var uintB* ptr = b_file_nextbyte(stream);
+    { var uintB* ptr = buffered_nextbyte(stream);
       if (!(ptr == (uintB*)NULL))
         { var object obj = fixnum(*ptr);
           # index und position incrementieren:
-          FileStream_index(stream) += 1;
-          FileStream_position(stream) += 1;
+          BufferedStream_index(stream) += 1;
+          BufferedStream_position(stream) += 1;
           return obj;
         }
         else
@@ -5846,14 +5882,14 @@ typedef struct strm_i_file_extrafields_struct {
     }
 
 # READ-BYTE-SEQUENCE für File-Streams für Integers, Art au, bitsize = 8 :
-  local uintB* read_byte_array_iau8_file (object stream, uintB* byteptr, uintL len);
-  local uintB* read_byte_array_iau8_file(stream,byteptr,len)
+  local uintB* rd_by_array_iau8_buffered (object stream, uintB* byteptr, uintL len);
+  local uintB* rd_by_array_iau8_buffered(stream,byteptr,len)
     var object stream;
     var uintB* byteptr;
     var uintL len;
-    { var uintB* endptr = read_byte_array_b_file(stream,byteptr,len);
+    { var uintB* endptr = read_byte_array_buffered(stream,byteptr,len);
       # position incrementieren:
-      FileStream_position(stream) += (endptr-byteptr);
+      BufferedStream_position(stream) += (endptr-byteptr);
       return endptr;
     }
 
@@ -5862,47 +5898,47 @@ typedef struct strm_i_file_extrafields_struct {
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art a :
 # Schreibt den Bitbuffer-Inhalt aufs File.
-  local void wr_by_aux_ia_file (object stream, uintL bitsize, uintL bytesize);
-  local void wr_by_aux_ia_file(stream,bitsize,bytesize)
+  local void wr_by_aux_ia_buffered (object stream, uintL bitsize, uintL bytesize);
+  local void wr_by_aux_ia_buffered(stream,bitsize,bytesize)
     var object stream;
     var uintL bitsize;
     var uintL bytesize;
     { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
       #if 0 # equivalent, but slow
       var uintL count;
-      dotimespL(count,bytesize, { b_file_writebyte(stream,*bitbufferptr++); } );
+      dotimespL(count,bytesize, { buffered_writebyte(stream,*bitbufferptr++); } );
       #else
-      write_byte_array_b_file(stream,bitbufferptr,bytesize);
+      write_byte_array_buffered(stream,bitbufferptr,bytesize);
       #endif
       # position incrementieren:
-      FileStream_position(stream) += 1;
+      BufferedStream_position(stream) += 1;
     }
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art b :
 # Schreibt den Bitbuffer-Inhalt aufs File.
-  local void wr_by_aux_ib_file (object stream, uintL bitsize, uintL bytesize);
-  local void wr_by_aux_ib_file(stream,bitsize,bytesize)
+  local void wr_by_aux_ib_buffered (object stream, uintL bitsize, uintL bytesize);
+  local void wr_by_aux_ib_buffered(stream,bitsize,bytesize)
     var object stream;
     var uintL bitsize;
     var uintL bytesize;
-    { var uintL bitshift = FileStream_bitindex(stream);
+    { var uintL bitshift = BufferedStream_bitindex(stream);
       var uint16 bit_akku = (uint16)(TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0])<<bitshift;
       var uintL count = bitsize;
-      var uintB* ptr = b_file_nextbyte(stream);
+      var uintB* ptr = buffered_nextbyte(stream);
       # angefangenes Byte holen:
       if (!(ptr == (uintB*)NULL)) { bit_akku |= (*ptr)&(bit(bitshift)-1); }
       count += bitshift;
       # evtl. einzelnes Byte schreiben:
       if (count>=8)
-        { b_file_writebyte(stream,(uint8)bit_akku);
+        { buffered_writebyte(stream,(uint8)bit_akku);
           bit_akku = bit_akku>>8;
           count -= 8;
         }
       # letztes Byte (count Bits) schreiben:
       if (!(count==0))
-        { ptr = b_file_nextbyte(stream);
+        { ptr = buffered_nextbyte(stream);
           if (ptr == (uintB*)NULL) # EOF ?
-            { ptr = b_file_eofbyte(stream); # 1 Byte Platz machen
+            { ptr = buffered_eofbyte(stream); # 1 Byte Platz machen
               *ptr = (uint8)bit_akku; # Byte schreiben
             }
             else
@@ -5911,28 +5947,28 @@ typedef struct strm_i_file_extrafields_struct {
               if (diff == 0) goto no_modification;
               *ptr ^= diff;
             }
-          FileStream_modified(stream) = TRUE;
+          BufferedStream_modified(stream) = TRUE;
           no_modification: ;
         }
-      FileStream_bitindex(stream) = count;
+      BufferedStream_bitindex(stream) = count;
       # position und evtl. eofposition incrementieren:
-      if (FileStream_eofposition(stream) == FileStream_position(stream))
-        { FileStream_eofposition(stream) += 1; }
-      FileStream_position(stream) += 1;
+      if (BufferedStream_eofposition(stream) == BufferedStream_position(stream))
+        { BufferedStream_eofposition(stream) += 1; }
+      BufferedStream_position(stream) += 1;
     }
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art c :
 # Schreibt den Bitbuffer-Inhalt aufs File.
-  local void wr_by_aux_ic_file (object stream, uintL bitsize, uintL bytesize);
-  local void wr_by_aux_ic_file(stream,bitsize,bytesize)
+  local void wr_by_aux_ic_buffered (object stream, uintL bitsize, uintL bytesize);
+  local void wr_by_aux_ic_buffered(stream,bitsize,bytesize)
     var object stream;
     var uintL bitsize;
     var uintL bytesize;
     { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-      var uintL bitshift = FileStream_bitindex(stream);
+      var uintL bitshift = BufferedStream_bitindex(stream);
       var uintL count = bitsize;
       var uint16 bit_akku;
-      var uintB* ptr = b_file_nextbyte(stream);
+      var uintB* ptr = buffered_nextbyte(stream);
       # angefangenes Byte holen:
       bit_akku = (ptr==(uintB*)NULL ? 0 : (*ptr)&(bit(bitshift)-1) );
       count += bitshift;
@@ -5940,16 +5976,16 @@ typedef struct strm_i_file_extrafields_struct {
       loop
         { bit_akku |= (uint16)(*bitbufferptr++)<<bitshift;
           if (count<8) break;
-          b_file_writebyte(stream,(uint8)bit_akku);
+          buffered_writebyte(stream,(uint8)bit_akku);
           bit_akku = bit_akku>>8;
           count -= 8;
           if (count<=bitshift) break;
         }
       # letztes Byte (count Bits) schreiben:
       if (!(count==0))
-        { ptr = b_file_nextbyte(stream);
+        { ptr = buffered_nextbyte(stream);
           if (ptr == (uintB*)NULL) # EOF ?
-            { ptr = b_file_eofbyte(stream); # 1 Byte Platz machen
+            { ptr = buffered_eofbyte(stream); # 1 Byte Platz machen
               *ptr = (uint8)bit_akku; # Byte schreiben
             }
             else
@@ -5958,78 +5994,78 @@ typedef struct strm_i_file_extrafields_struct {
               if (diff == 0) goto no_modification;
               *ptr ^= diff;
             }
-          FileStream_modified(stream) = TRUE;
+          BufferedStream_modified(stream) = TRUE;
           no_modification: ;
         }
-      FileStream_bitindex(stream) = count;
+      BufferedStream_bitindex(stream) = count;
       # position incrementieren:
-      FileStream_position(stream) += 1;
+      BufferedStream_position(stream) += 1;
     }
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art au :
-  local void wr_by_iau_file (object stream, object obj);
-  local void wr_by_iau_file(stream,obj)
+  local void wr_by_iau_buffered (object stream, object obj);
+  local void wr_by_iau_buffered(stream,obj)
     var object stream;
     var object obj;
-    { wr_by_ixu_file(stream,obj,&wr_by_aux_ia_file); }
+    { wr_by_ixu_sub(stream,obj,&wr_by_aux_ia_buffered); }
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art as :
-  local void wr_by_ias_file (object stream, object obj);
-  local void wr_by_ias_file(stream,obj)
+  local void wr_by_ias_buffered (object stream, object obj);
+  local void wr_by_ias_buffered(stream,obj)
     var object stream;
     var object obj;
-    { wr_by_ixs_file(stream,obj,&wr_by_aux_ia_file); }
+    { wr_by_ixs_sub(stream,obj,&wr_by_aux_ia_buffered); }
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art bu :
-  local void wr_by_ibu_file (object stream, object obj);
-  local void wr_by_ibu_file(stream,obj)
+  local void wr_by_ibu_buffered (object stream, object obj);
+  local void wr_by_ibu_buffered(stream,obj)
     var object stream;
     var object obj;
-    { wr_by_ixu_file(stream,obj,&wr_by_aux_ib_file); }
+    { wr_by_ixu_sub(stream,obj,&wr_by_aux_ib_buffered); }
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art bs :
-  local void wr_by_ibs_file (object stream, object obj);
-  local void wr_by_ibs_file(stream,obj)
+  local void wr_by_ibs_buffered (object stream, object obj);
+  local void wr_by_ibs_buffered(stream,obj)
     var object stream;
     var object obj;
-    { wr_by_ixs_file(stream,obj,&wr_by_aux_ib_file); }
+    { wr_by_ixs_sub(stream,obj,&wr_by_aux_ib_buffered); }
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art cu :
-  local void wr_by_icu_file (object stream, object obj);
-  local void wr_by_icu_file(stream,obj)
+  local void wr_by_icu_buffered (object stream, object obj);
+  local void wr_by_icu_buffered(stream,obj)
     var object stream;
     var object obj;
-    { wr_by_ixu_file(stream,obj,&wr_by_aux_ic_file); }
+    { wr_by_ixu_sub(stream,obj,&wr_by_aux_ic_buffered); }
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art cs :
-  local void wr_by_ics_file (object stream, object obj);
-  local void wr_by_ics_file(stream,obj)
+  local void wr_by_ics_buffered (object stream, object obj);
+  local void wr_by_ics_buffered(stream,obj)
     var object stream;
     var object obj;
-    { wr_by_ixs_file(stream,obj,&wr_by_aux_ic_file); }
+    { wr_by_ixs_sub(stream,obj,&wr_by_aux_ic_buffered); }
 
 # WRITE-BYTE - Pseudofunktion für File-Streams für Integers, Art au, bitsize = 8 :
-  local void wr_by_iau8_file (object stream, object obj);
-  local void wr_by_iau8_file(stream,obj)
+  local void wr_by_iau8_buffered (object stream, object obj);
+  local void wr_by_iau8_buffered(stream,obj)
     var object stream;
     var object obj;
     { # obj überprüfen:
       if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
       if (!(posfixnump(obj) && (posfixnum_to_L(obj) < bit(8))))
         { fehler_bad_integer(stream,obj); }
-      write_b_file(stream,posfixnum_to_L(obj));
+      write_byte_buffered(stream,posfixnum_to_L(obj));
     }
  
 # WRITE-BYTE-SEQUENCE für File-Streams für Integers, Art au, bitsize = 8 :
-  local const uintB* write_byte_array_iau8_file (object stream, const uintB* byteptr, uintL len);
-  local const uintB* write_byte_array_iau8_file(stream,byteptr,len)
+  local const uintB* wr_by_array_iau8_buffered (object stream, const uintB* byteptr, uintL len);
+  local const uintB* wr_by_array_iau8_buffered(stream,byteptr,len)
     var object stream;
     var const uintB* byteptr;
     var uintL len;
-    { var const uintB* endptr = write_byte_array_b_file(stream,byteptr,len);
+    { var const uintB* endptr = write_byte_array_buffered(stream,byteptr,len);
       # Now endptr == byteptr+len.
       # position incrementieren:
-      FileStream_position(stream) += len;
+      BufferedStream_position(stream) += len;
       return endptr;
     }
 
@@ -6037,76 +6073,77 @@ typedef struct strm_i_file_extrafields_struct {
 # =====================
 
 # UP: Positioniert einen (offenen) File-Stream an den Anfang.
-# position_file_start(stream);
+# logical_position_file_start(stream);
 # > stream : (offener) File-Stream.
 # verändert in stream: index, eofindex, buffstart, ..., position, rd_ch_last
-  local void position_file_start (object stream);
-  local void position_file_start(stream)
+  local void logical_position_file_start (object stream);
+  local void logical_position_file_start(stream)
     var object stream;
-    { position_b_file(stream,
+    { position_file_buffered(stream,
                       (TheStream(stream)->strmflags & strmflags_i_B) == strmflags_ib_B # Integer-Stream vom Typ b ?
                       ? sizeof(uintL) : 0 # ja -> Position 4, sonst Position 0
                      );
       switch (TheStream(stream)->strmflags & strmflags_i_B)
         { case strmflags_ib_B: case strmflags_ic_B:
             # Integer-Stream der Art b,c
-            FileStream_bitindex(stream) = 0; # bitindex := 0
+            BufferedStream_bitindex(stream) = 0; # bitindex := 0
           default: break;
         }
-      FileStream_position(stream) = 0; # position := 0
+      BufferedStream_position(stream) = 0; # position := 0
       TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
       TheStream(stream)->strmflags &= ~strmflags_unread_B;
     }
 
 # UP: Positioniert einen (offenen) File-Stream an eine gegebene Position.
-# position_file(stream,position);
+# logical_position_file(stream,position);
 # > stream : (offener) File-Stream.
 # > position : neue (logische) Position
 # verändert in stream: index, eofindex, buffstart, ..., position, rd_ch_last
-  local void position_file (object stream, uintL position);
-  local void position_file(stream,position)
+  local void logical_position_file (object stream, uintL position);
+  local void logical_position_file(stream,position)
     var object stream;
     var uintL position;
     { var uintB flags = TheStream(stream)->strmflags;
       if (flags & strmflags_i_B) # Integer-Stream ?
         { if ((flags & strmflags_i_B) == strmflags_ia_B)
             # Art a
-            { var uintL bitsize = HandleStream_bitsize(stream);
-              position_b_file(stream,position*(bitsize/8));
+            { var uintL bitsize = ChannelStream_bitsize(stream);
+              position_file_buffered(stream,position*(bitsize/8));
             }
             else
             # Art b,c
-            { position_i_file(stream,position); }
+            { position_file_i_buffered(stream,position); }
         }
         else
         { # Character-Stream
-          position_b_file(stream,position);
+          position_file_buffered(stream,position);
           TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
           TheStream(stream)->strmflags &= ~strmflags_unread_B;
         }
-      FileStream_position(stream) = position;
+      BufferedStream_position(stream) = position;
     }
 
 # UP: Positioniert einen (offenen) File-Stream ans Ende.
-# position_file_end(stream);
+# logical_position_file_end(stream);
 # > stream : (offener) File-Stream.
 # verändert in stream: index, eofindex, buffstart, ..., position, rd_ch_last
-  local void position_file_end (object stream);
-  local void position_file_end(stream)
+  local void logical_position_file_end (object stream);
+  local void logical_position_file_end(stream)
     var object stream;
     { # evtl. Buffer hinausschreiben:
-      if (FileStream_modified(stream)) { b_file_flush(stream); }
+      if (BufferedStream_modified(stream)) { buffered_flush(stream); }
      {var uintL eofbytes; # EOF-Position, gemessen in Bytes
       # ans Ende positionieren:
       begin_system_call();
-      file_lseek(stream,0,SEEK_END,eofbytes=);
+      handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+                   0,SEEK_END,eofbytes=);
       end_system_call();
       # logische Position berechnen und eofbytes korrigieren:
       { var uintL position; # logische Position
         var uintL eofbits = 0; # Bit-Ergänzung zu eofbytes
         var uintB flags = TheStream(stream)->strmflags;
         if (flags & strmflags_i_B) # Integer-Stream ?
-          { var uintL bitsize = HandleStream_bitsize(stream);
+          { var uintL bitsize = ChannelStream_bitsize(stream);
             if ((flags & strmflags_i_B) == strmflags_ia_B)
               # Art a
               { var uintL bytesize = bitsize/8;
@@ -6117,7 +6154,7 @@ typedef struct strm_i_file_extrafields_struct {
               # Art b
               { eofbytes -= sizeof(uintL); # Header berücksichtigen
                 # Ist die gemerkte EOF-Position plausibel?
-                position = FileStream_eofposition(stream);
+                position = BufferedStream_eofposition(stream);
                 if (!(ceiling(position*bitsize,8)==eofbytes)) # ja -> verwende sie
                   { position = floor(eofbytes*8,bitsize); } # nein -> rechne sie neu aus
                 # Rechne eofbytes und eofbits neu aus:
@@ -6136,42 +6173,43 @@ typedef struct strm_i_file_extrafields_struct {
           { # Character-Stream
             position = eofbytes;
           }
-        if (!FileStream_blockpositioning(stream))
+        if (!BufferedStream_blockpositioning(stream))
           { # Jetzt am Ende positioniert:
-            FileStream_buffstart(stream) = eofbytes;
-            FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
-            FileStream_index(stream) = 0; # index := 0
-            FileStream_modified(stream) = FALSE; # unmodifiziert
+            BufferedStream_buffstart(stream) = eofbytes;
+            BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+            BufferedStream_index(stream) = 0; # index := 0
+            BufferedStream_modified(stream) = FALSE; # unmodifiziert
           }
           else
           { # auf den Anfang des letzten Sectors positionieren:
             { var uintL buffstart;
               begin_system_call();
-              file_lseek(stream,floor(eofbytes,strm_file_bufflen)*strm_file_bufflen,SEEK_SET,buffstart=);
+              handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+                           floor(eofbytes,strm_buffered_bufflen)*strm_buffered_bufflen,SEEK_SET,buffstart=);
               end_system_call();
-              FileStream_buffstart(stream) = buffstart;
+              BufferedStream_buffstart(stream) = buffstart;
             }
             # Sector lesen:
-            FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
-            FileStream_index(stream) = 0; # index := 0
-            FileStream_modified(stream) = FALSE; # unmodifiziert
-            { var uintL eofindex = eofbytes % strm_file_bufflen;
+            BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+            BufferedStream_index(stream) = 0; # index := 0
+            BufferedStream_modified(stream) = FALSE; # unmodifiziert
+            { var uintL eofindex = eofbytes % strm_buffered_bufflen;
               if (!((eofindex==0) && (eofbits==0))) # EOF am Sectorende -> brauche nichts zu lesen
-                { b_file_nextbyte(stream);
+                { buffered_nextbyte(stream);
                   # Jetzt ist index=0. index und eofindex setzen:
-                  FileStream_index(stream) = eofindex;
+                  BufferedStream_index(stream) = eofindex;
                   if (!(eofbits==0)) { eofindex += 1; }
-                  FileStream_eofindex(stream) = eofindex;
+                  BufferedStream_eofindex(stream) = eofindex;
             }   }
           }
         switch (flags & strmflags_i_B)
           { case strmflags_ib_B: case strmflags_ic_B:
               # Integer-Stream der Art b,c
-              FileStream_bitindex(stream) = eofbits;
+              BufferedStream_bitindex(stream) = eofbits;
             default: break;
           }
         # position setzen:
-        FileStream_position(stream) = position;
+        BufferedStream_position(stream) = position;
         TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
         TheStream(stream)->strmflags &= ~strmflags_unread_B;
     }}}
@@ -6188,46 +6226,46 @@ typedef struct strm_i_file_extrafields_struct {
       var uintB art = flags & strmflags_i_B;
       switch (eltype->kind)
         { case eltype_ch:
-            TheStream(stream)->strm_rd_ch = P(rd_ch_ch_file);
+            TheStream(stream)->strm_rd_ch = P(rd_ch_buffered);
             TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-            TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_ch_file);
-            TheStream(stream)->strm_wr_ch = P(wr_ch_ch_file);
-            TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_ch_file);
-            TheStream(stream)->strm_wr_ss = P(wr_ss_ch_file);
+            TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_buffered);
+            TheStream(stream)->strm_wr_ch = P(wr_ch_buffered);
+            TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_buffered);
+            TheStream(stream)->strm_wr_ss = P(wr_ss_buffered);
             break;
           case eltype_iu:
             TheStream(stream)->strm_rd_by =
               (art==strmflags_ia_B
-               ? (eltype->size == 8 ? P(rd_by_iau8_file) : P(rd_by_iau_file))
-               : art==strmflags_ib_B ? P(rd_by_ibu_file) : P(rd_by_icu_file)
+               ? (eltype->size == 8 ? P(rd_by_iau8_buffered) : P(rd_by_iau_buffered))
+               : art==strmflags_ib_B ? P(rd_by_ibu_buffered) : P(rd_by_icu_buffered)
               );
             TheStream(stream)->strm_rd_by_array =
               (art==strmflags_ia_B && (eltype->size == 8)
-               ? P(read_byte_array_iau8_file)
+               ? P(rd_by_array_iau8_buffered)
                : P(rd_by_array_dummy)
               );
             TheStream(stream)->strm_wr_by =
               (art==strmflags_ia_B
-               ? (eltype->size == 8 ? P(wr_by_iau8_file) : P(wr_by_iau_file))
-               : art==strmflags_ib_B ? P(wr_by_ibu_file) : P(wr_by_icu_file)
+               ? (eltype->size == 8 ? P(wr_by_iau8_buffered) : P(wr_by_iau_buffered))
+               : art==strmflags_ib_B ? P(wr_by_ibu_buffered) : P(wr_by_icu_buffered)
               );
             TheStream(stream)->strm_wr_by_array =
               (art==strmflags_ia_B && (eltype->size == 8)
-               ? P(write_byte_array_iau8_file)
+               ? P(wr_by_array_iau8_buffered)
                : P(wr_by_array_dummy)
               );
             break;
           case eltype_is:
             TheStream(stream)->strm_rd_by =
-              (art==strmflags_ia_B ? P(rd_by_ias_file) :
-               art==strmflags_ib_B ? P(rd_by_ibs_file) :
-                                     P(rd_by_ics_file)
+              (art==strmflags_ia_B ? P(rd_by_ias_buffered) :
+               art==strmflags_ib_B ? P(rd_by_ibs_buffered) :
+                                     P(rd_by_ics_buffered)
               );
             TheStream(stream)->strm_rd_by_array = P(rd_by_array_dummy);
             TheStream(stream)->strm_wr_by =
-              (art==strmflags_ia_B ? P(wr_by_ias_file) :
-               art==strmflags_ib_B ? P(wr_by_ibs_file) :
-                                     P(wr_by_ics_file)
+              (art==strmflags_ia_B ? P(wr_by_ias_buffered) :
+               art==strmflags_ib_B ? P(wr_by_ibs_buffered) :
+                                     P(wr_by_ics_buffered)
               );
             TheStream(stream)->strm_wr_by_array = P(wr_by_array_dummy);
             break;
@@ -6266,7 +6304,7 @@ typedef struct strm_i_file_extrafields_struct {
 # > eltype: Element-Type in decoded form
 # > handle_regular: whether the handle refers to a regular file
 # > handle_blockpositioning: whether the handle refers to a regular file which
-#                            can be positioned at n*strm_file_bufflen
+#                            can be positioned at n*strm_buffered_bufflen
 # If direction==5, handle_blockpositioning must be TRUE.
 # < result: buffered file stream, Handle_{input,output}_init still to be called,
 #           for eltype.size<8 also eofposition still to be to determined
@@ -6283,7 +6321,7 @@ typedef struct strm_i_file_extrafields_struct {
           ((direction & bit(0)) ? strmflags_rd_B : 0) # evtl. READ-CHAR, READ-BYTE erlaubt
         | ((direction & bit(2)) ? strmflags_wr_B : 0) # evtl. WRITE-CHAR, WRITE-BYTE erlaubt
         ;
-      var uintC xlen = sizeof(strm_file_extrafields_struct); # Das haben alle File-Streams
+      var uintC xlen = sizeof(strm_buffered_extrafields_struct); # Das haben alle File-Streams
       if (eltype->kind == eltype_ch)
         { flags &= strmflags_ch_B; }
         else
@@ -6291,14 +6329,14 @@ typedef struct strm_i_file_extrafields_struct {
           if ((eltype->size % 8) == 0)
             { flags |= strmflags_ia_B; } # Art a
             else
-            { xlen = sizeof(strm_i_file_extrafields_struct); # Das haben die File-Streams für Integers maximal
+            { xlen = sizeof(strm_i_buffered_extrafields_struct); # Das haben die File-Streams für Integers maximal
               if (eltype->size<8)
                 { flags |= strmflags_ib_B; } # Art b
                 else
                 { flags |= strmflags_ic_B; } # Art c
         }   }
      {# Stream allozieren:
-      var object stream = allocate_stream(flags,type,strm_handle_len,xlen);
+      var object stream = allocate_stream(flags,type,strm_channel_len,xlen);
       # und füllen:
       fill_pseudofuns_buffered(stream,eltype);
       TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
@@ -6306,26 +6344,26 @@ typedef struct strm_i_file_extrafields_struct {
       # Komponenten von File-Streams:
       { var object handle = popSTACK(); # Handle zurück
         TheStream(stream)->strm_eltype = popSTACK(); # Element-Type eintragen
-        HandleStream_buffered(stream) = TRUE;
+        ChannelStream_buffered(stream) = TRUE;
         if (!nullp(handle)) # Handle=NIL -> Rest bereits mit NIL initialisiert, fertig
-          { TheStream(stream)->strm_file_handle = handle; # Handle eintragen
-            FileStream_regular(stream) = handle_regular;
-            FileStream_blockpositioning(stream) = handle_blockpositioning;
-            FileStream_buffstart(stream) = 0; # buffstart := 0
+          { TheStream(stream)->strm_buffered_channel = handle; # Handle eintragen
+            BufferedStream_regular(stream) = handle_regular;
+            BufferedStream_blockpositioning(stream) = handle_blockpositioning;
+            BufferedStream_buffstart(stream) = 0; # buffstart := 0
             # Buffer allozieren:
             pushSTACK(stream);
-           {var object buffer = allocate_bit_vector(strm_file_bufflen*8);
+           {var object buffer = allocate_bit_vector(strm_buffered_bufflen*8);
             stream = popSTACK();
-            TheStream(stream)->strm_file_buffer = buffer;
+            TheStream(stream)->strm_buffered_buffer = buffer;
            }
-            FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
-            FileStream_index(stream) = 0; # index := 0
-            FileStream_modified(stream) = FALSE; # Buffer unmodifiziert
-            FileStream_position(stream) = 0; # position := 0
-            HandleStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
+            BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+            BufferedStream_index(stream) = 0; # index := 0
+            BufferedStream_modified(stream) = FALSE; # Buffer unmodifiziert
+            BufferedStream_position(stream) = 0; # position := 0
+            ChannelStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
             if (!(eltype->kind == eltype_ch))
               # File-Stream für Integers
-              { HandleStream_bitsize(stream) = eltype->size;
+              { ChannelStream_bitsize(stream) = eltype->size;
                 # Bitbuffer allozieren:
                 pushSTACK(stream);
                {var object bitbuffer = allocate_bit_vector(ceiling(eltype->size,8)*8);
@@ -6334,7 +6372,7 @@ typedef struct strm_i_file_extrafields_struct {
                }
                 if (!((eltype->size % 8) == 0))
                   # Arten b,c
-                  { FileStream_bitindex(stream) = 0; } # bitindex := 0
+                  { BufferedStream_bitindex(stream) = 0; } # bitindex := 0
       }   }   }
       return stream;
     }}
@@ -6354,7 +6392,7 @@ typedef struct strm_i_file_extrafields_struct {
 #                 2. if (direction & bit(2)), it is opened for read/write, not
 #                 only for write.
 #                 If the handle refers to a regular file, this together means
-#                 that it supports file_lseek, reading/repositioning/writing
+#                 that it supports handle_lseek, reading/repositioning/writing
 #                 and close/reopen.
 # > subr_self: calling function
 # If direction==5, handle_fresh must be TRUE.
@@ -6405,13 +6443,13 @@ typedef struct strm_i_file_extrafields_struct {
               }
           stream = make_unbuffered_stream(strmtype_file,direction,&eltype,handle_tty);
           # File-Handle-Streams werden für Pathname-Zwecke wie File-Streams behandelt.
-          # Daher ist (vgl. file_write_date) strm_file_handle == strm_ohandle,
+          # Daher ist (vgl. file_write_date) strm_buffered_channel == strm_ochannel,
           # und wir tragen nun die Pathnames ein:
           TheStream(stream)->strm_file_truename = STACK_1; # Truename eintragen
           TheStream(stream)->strm_file_name = STACK_2; # Filename eintragen
-          if (direction & bit(0)) { HandleStream_input_init(stream); }
-          if (direction & bit(2)) { HandleStream_output_init(stream); }
-          HandleStreamLow_close(stream) = &low_close_handle;
+          if (direction & bit(0)) { UnbufferedHandleStream_input_init(stream); }
+          if (direction & bit(2)) { UnbufferedHandleStream_output_init(stream); }
+          ChannelStreamLow_close(stream) = &low_close_handle;
         }}
         else
         { if (direction==5 && !handle_regular)
@@ -6444,14 +6482,17 @@ typedef struct strm_i_file_extrafields_struct {
                                         handle_regular,handle_blockpositioning);
           TheStream(stream)->strm_file_truename = STACK_1; # Truename eintragen
           TheStream(stream)->strm_file_name = STACK_2; # Filename eintragen
-          HandleStream_init(stream);
-          HandleStreamLow_close(stream) = &low_close_handle;
+          BufferedHandleStream_init(stream);
+          ChannelStreamLow_close(stream) = &low_close_handle;
           if (handle_regular && !handle_fresh)
             { var uintL position;
-              file_lseek(stream,0,SEEK_CUR,position=);
-              position_b_file(stream,position);
+              begin_system_call();
+              handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+                           0,SEEK_CUR,position=);
+              end_system_call();
+              position_file_buffered(stream,position);
             }
-          if (!nullp(TheStream(stream)->strm_file_handle)
+          if (!nullp(TheStream(stream)->strm_buffered_channel)
               && !(eltype.kind == eltype_ch)
               && (eltype.size < 8)
              )
@@ -6460,11 +6501,11 @@ typedef struct strm_i_file_extrafields_struct {
               var uintL eofposition = 0;
               var uintC count;
               for (count=0; count < 8*sizeof(uintL); count += 8 )
-                { var uintB* ptr = b_file_nextbyte(stream);
+                { var uintB* ptr = buffered_nextbyte(stream);
                   if (ptr == (uintB*)NULL) goto too_short;
                   eofposition |= ((*ptr) << count);
                   # index incrementieren, da gerade *ptr verarbeitet:
-                  FileStream_index(stream) += 1;
+                  BufferedStream_index(stream) += 1;
                 }
               if (FALSE)
                 { too_short:
@@ -6473,9 +6514,9 @@ typedef struct strm_i_file_extrafields_struct {
                     goto bad_eofposition;
                   # File Read/Write -> setze eofposition := 0
                   eofposition = 0;
-                  position_b_file(stream,0); # an Position 0 positionieren
+                  position_file_buffered(stream,0); # an Position 0 positionieren
                  {var uintC count; # und eofposition = 0 herausschreiben
-                  dotimespC(count,sizeof(uintL), { b_file_writebyte(stream,0); } );
+                  dotimespC(count,sizeof(uintL), { buffered_writebyte(stream,0); } );
                 }}
               elif (eofposition > (uintL)(bitm(oint_data_len)-1))
                 { bad_eofposition:
@@ -6494,7 +6535,7 @@ typedef struct strm_i_file_extrafields_struct {
                         );
                 }
               # Auf die gelesene EOF-Position verlassen wir uns jetzt!
-              FileStream_eofposition(stream) = eofposition;
+              BufferedStream_eofposition(stream) = eofposition;
         }}  }
       skipSTACK(3);
       # Liste der offenen File-Streams um stream erweitern:
@@ -6512,11 +6553,12 @@ typedef struct strm_i_file_extrafields_struct {
         { if (buffered < 0)
             { # ans Ende positionieren:
               begin_system_call();
-              file_lseek(stream,0,SEEK_END,);
+              handle_lseek(stream,TheStream(stream)->strm_ochannel,
+                           0,SEEK_END,);
               end_system_call();
             }
             else
-            { position_file_end(stream); }
+            { logical_position_file_end(stream); }
         }
       # Done.
       return stream;
@@ -6524,50 +6566,50 @@ typedef struct strm_i_file_extrafields_struct {
 
 # UP: Bereitet das Schließen eines File-Streams vor.
 # Dabei wird der Buffer und evtl. eofposition hinausgeschrieben.
-# file_flush(stream);
+# buffered_flush_everything(stream);
 # > stream : (offener) File-Stream.
 # verändert in stream: index, eofindex, buffstart, ...
-  local void file_flush (object stream);
-  local void file_flush(stream)
+  local void buffered_flush_everything (object stream);
+  local void buffered_flush_everything(stream)
     var object stream;
     { # Bei Integer-Streams (Art b) eofposition abspeichern:
       if ((TheStream(stream)->strmflags & strmflags_i_B) == strmflags_ib_B)
         if (TheStream(stream)->strmflags & strmflags_wr_by_B) # nur falls nicht Read-Only
-          { position_b_file(stream,0); # an Position 0 positionieren
-           {var uintL eofposition = FileStream_eofposition(stream);
+          { position_file_buffered(stream,0); # an Position 0 positionieren
+           {var uintL eofposition = BufferedStream_eofposition(stream);
             var uintC count;
             dotimespC(count,sizeof(uintL),
-              { b_file_writebyte(stream,(uintB)eofposition);
+              { buffered_writebyte(stream,(uintB)eofposition);
                 eofposition = eofposition>>8;
               });
           }}
       # evtl. Buffer hinausschreiben:
-      if (FileStream_modified(stream)) { b_file_flush(stream); }
+      if (BufferedStream_modified(stream)) { buffered_flush(stream); }
       # Nun ist das modified_flag gelöscht.
     }
 
 # UP: Bringt den wartenden Output eines File-Stream ans Ziel.
 # Schreibt dazu den Buffer des File-Streams (auch physikalisch) aufs File.
-# finish_output_file(stream);
+# finish_output_buffered(stream);
 # > stream : File-Stream.
 # verändert in stream: handle, index, eofindex, buffstart, ..., rd_ch_last
 # kann GC auslösen
-  local void finish_output_file (object stream);
-  local void finish_output_file(stream)
+  local void finish_output_buffered (object stream);
+  local void finish_output_buffered(stream)
     var object stream;
     { # Handle=NIL (Stream bereits geschlossen) -> fertig:
-      if (nullp(TheStream(stream)->strm_file_handle)) { return; }
+      if (nullp(TheStream(stream)->strm_buffered_channel)) { return; }
       # kein File mit Schreibzugriff -> gar nichts zu tun:
       if (!(TheStream(stream)->strmflags & strmflags_wr_B)) { return; }
       # evtl. Buffer und evtl. eofposition hinausschreiben:
-      file_flush(stream);
+      buffered_flush_everything(stream);
       # Nun ist das modified_flag gelöscht.
-      if (FileStream_regular(stream))
+      if (BufferedStream_regular(stream))
         {
           #ifdef UNIX
            #ifdef HAVE_FSYNC
             begin_system_call();
-            if (!( fsync(TheHandle(TheStream(stream)->strm_file_handle)) ==0))
+            if (!( fsync(TheHandle(TheStream(stream)->strm_buffered_channel)) ==0))
               { end_system_call(); OS_filestream_error(stream); }
             end_system_call();
            #endif
@@ -6576,7 +6618,7 @@ typedef struct strm_i_file_extrafields_struct {
               {
                 #ifdef MSDOS
                   # File-Handle duplizieren und schließen:
-                  { var uintW handle = TheHandle(TheStream(stream)->strm_file_handle);
+                  { var uintW handle = TheHandle(TheStream(stream)->strm_buffered_channel);
                     begin_system_call();
                    {var sintW handle2 = dup(handle);
                     if (handle2 < 0) { end_system_call(); OS_filestream_error(stream); } # Error melden
@@ -6587,7 +6629,7 @@ typedef struct strm_i_file_extrafields_struct {
                 #ifdef RISCOS # || MSDOS, wenn wir da nicht schon was besseres hätten
                   # File schließen (DOS schreibt physikalisch):
                   begin_system_call();
-                  if ( CLOSE(TheHandle(TheStream(stream)->strm_file_handle)) <0)
+                  if ( CLOSE(TheHandle(TheStream(stream)->strm_buffered_channel)) <0)
                     { end_system_call(); OS_filestream_error(stream); }
                   end_system_call();
                   # File neu öffnen:
@@ -6613,7 +6655,7 @@ typedef struct strm_i_file_extrafields_struct {
                    skipSTACK(1);
                    stream = popSTACK(); # stream zurück
                    # neues Handle eintragen:
-                   TheStream(stream)->strm_file_handle = handlobj;
+                   TheStream(stream)->strm_buffered_channel = handlobj;
                  }}
                 #endif
                 #ifdef AMIGAOS
@@ -6621,7 +6663,7 @@ typedef struct strm_i_file_extrafields_struct {
                         # zu- und wieder aufmacht. Z.B. bei Pipes hat das eine besondere
                         # Bedeutung.
                   begin_system_call();
-                  {var Handle handle = TheHandle(TheStream(stream)->strm_file_handle);
+                  {var Handle handle = TheHandle(TheStream(stream)->strm_buffered_channel);
                    if (!IsInteractive(handle))
                      { # File schließen (OS schreibt physikalisch):
                        Close(handle);
@@ -6641,7 +6683,7 @@ typedef struct strm_i_file_extrafields_struct {
                        skipSTACK(1);
                        stream = popSTACK(); # stream zurück
                        # neues Handle eintragen:
-                       TheHandle(TheStream(stream)->strm_file_handle) = handle;
+                       TheHandle(TheStream(stream)->strm_buffered_channel) = handle;
                      }}
                      else
                      { end_system_call(); }
@@ -6652,62 +6694,62 @@ typedef struct strm_i_file_extrafields_struct {
           #endif
         }
       # und neu positionieren:
-     {var uintL position = FileStream_buffstart(stream) + FileStream_index(stream);
-      FileStream_index(stream) = 0; # index := 0
-      FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
-      if (!FileStream_blockpositioning(stream))
-        { FileStream_buffstart(stream) = position; }
+     {var uintL position = BufferedStream_buffstart(stream) + BufferedStream_index(stream);
+      BufferedStream_index(stream) = 0; # index := 0
+      BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+      if (!BufferedStream_blockpositioning(stream))
+        { BufferedStream_buffstart(stream) = position; }
         else
-        { FileStream_buffstart(stream) = 0; # buffstart := 0
-          position_b_file(stream,position);
+        { BufferedStream_buffstart(stream) = 0; # buffstart := 0
+          position_file_buffered(stream,position);
         }
      }# Komponenten position, ..., lastchar bleiben unverändert
     }
 
 # UP: Bringt den wartenden Output eines File-Stream ans Ziel.
 # Schreibt dazu den Buffer des File-Streams (auch physikalisch) aufs File.
-# force_output_file(stream);
+# force_output_buffered(stream);
 # > stream : File-Stream.
 # verändert in stream: handle, index, eofindex, buffstart, ..., rd_ch_last
 # kann GC auslösen
-  #define force_output_file  finish_output_file
+  #define force_output_buffered  finish_output_buffered
 
 # UP: Erklärt einen File-Stream für geschlossen.
-# closed_file(stream);
+# closed_buffered(stream);
 # > stream : (offener) File-Stream.
 # verändert in stream: alle Komponenten außer name und truename
-  local void closed_file (object stream);
-  local void closed_file(stream)
+  local void closed_buffered (object stream);
+  local void closed_buffered(stream)
     var object stream;
-    { TheStream(stream)->strm_file_handle = NIL; # Handle wird ungültig
-      TheStream(stream)->strm_file_buffer = NIL; # Buffer freimachen
-      FileStream_buffstart(stream) = 0; # buffstart löschen (unnötig)
-      FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex löschen (unnötig)
-      FileStream_index(stream) = 0; # index löschen (unnötig)
-      FileStream_modified(stream) = FALSE; # modified_flag löschen (unnötig)
-      FileStream_position(stream) = 0; # position löschen (unnötig)
+    { TheStream(stream)->strm_buffered_channel = NIL; # Handle wird ungültig
+      TheStream(stream)->strm_buffered_buffer = NIL; # Buffer freimachen
+      BufferedStream_buffstart(stream) = 0; # buffstart löschen (unnötig)
+      BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex löschen (unnötig)
+      BufferedStream_index(stream) = 0; # index löschen (unnötig)
+      BufferedStream_modified(stream) = FALSE; # modified_flag löschen (unnötig)
+      BufferedStream_position(stream) = 0; # position löschen (unnötig)
       if (TheStream(stream)->strmflags & strmflags_i_B)
-        { HandleStream_bitsize(stream) = 0; # bitsize löschen (unnötig)
+        { ChannelStream_bitsize(stream) = 0; # bitsize löschen (unnötig)
           TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
         }
     }
 
 # UP: Schließt einen File-Stream.
-# close_file(stream);
+# close_buffered(stream);
 # > stream : File-Stream.
 # verändert in stream: alle Komponenten außer name und truename
-  local void close_file (object stream);
-  local void close_file(stream)
+  local void close_buffered (object stream);
+  local void close_buffered(stream)
     var object stream;
     { # Handle=NIL (Stream bereits geschlossen) -> fertig:
-      if (nullp(TheStream(stream)->strm_file_handle)) { return; }
+      if (nullp(TheStream(stream)->strm_buffered_channel)) { return; }
       # evtl. Buffer und evtl. eofposition hinausschreiben:
-      file_flush(stream);
+      buffered_flush_everything(stream);
       # Nun ist das modified_flag gelöscht.
       # File schließen:
-      HandleStreamLow_close(stream)(stream,TheStream(stream)->strm_file_handle);
+      ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_buffered_channel);
       # Komponenten ungültig machen (close_dummys kommt später):
-      closed_file(stream);
+      closed_buffered(stream);
       # stream aus der Liste aller offenen File-Streams streichen:
       O(open_files) = deleteq(O(open_files),stream);
     }
@@ -6750,18 +6792,18 @@ LISPFUNN(file_stream_p,1)
 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
   # Zusätzliche Komponenten:
   #define strm_keyboard_isatty  strm_isatty   # Flag, ob stdin ein Terminal ist
-  #define strm_keyboard_handle  strm_ihandle  # Handle für listen_handle()
+  #define strm_keyboard_handle  strm_ichannel  # Handle für listen_unbuffered()
   #define strm_keyboard_buffer  strm_field1   # Liste der noch zu liefernden Zeichen
   #define strm_keyboard_keytab  strm_field2   # Liste aller Tastenzuordnungen
                                               # jeweils (char1 ... charn . result)
-  #define strm_keyboard_len  strm_handle_len
-  #define strm_keyboard_xlen  sizeof(strm_u_file_extrafields_struct)
+  #define strm_keyboard_len  strm_channel_len
+  #define strm_keyboard_xlen  sizeof(strm_unbuffered_extrafields_struct)
 #elif defined(WIN32_NATIVE)
   # Zusätzliche Komponenten:
   #define strm_keyboard_isatty  strm_isatty   # Flag, ob stdin ein Terminal ist
-  #define strm_keyboard_handle  strm_ihandle  # Handle für listen_handle()
-  #define strm_keyboard_len  strm_handle_len
-  #define strm_keyboard_xlen  sizeof(strm_u_file_extrafields_struct)
+  #define strm_keyboard_handle  strm_ichannel  # Handle für listen_unbuffered()
+  #define strm_keyboard_len  strm_channel_len
+  #define strm_keyboard_xlen  sizeof(strm_unbuffered_extrafields_struct)
 #else
   # Keine zusätzlichen Komponenten.
   #define strm_keyboard_len  0
@@ -7155,7 +7197,7 @@ local object make_key_event(event)
   local signean listen_keyboard(stream)
     var object stream;
     { var Handle handle = TheHandle(TheStream(stream)->strm_keyboard_handle);
-      # See the implementation of listen_handle() for consoles.
+      # See the implementation of listen_unbuffered() for consoles.
       var DWORD nevents;
       begin_system_call();
       if (!GetNumberOfConsoleInputEvents(handle,&nevents)) { OS_error(); }
@@ -7184,7 +7226,7 @@ local object make_key_event(event)
     }}
   #endif
   #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
-    #define listen_keyboard  listen_handle
+    #define listen_keyboard  listen_unbuffered
   #endif
   #if defined(NEXTAPP)
     #define listen_keyboard(stream)  (stream, ls_eof)
@@ -7485,7 +7527,7 @@ local object make_key_event(event)
 
   #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
 
-  # vgl. rd_ch_handle() :
+  # vgl. rd_ch_unbuffered() :
   local object rd_ch_keyboard(stream_)
     var const object* stream_;
     { restart_it:
@@ -7907,14 +7949,14 @@ local object make_key_event(event)
         s->strm_keyboard_handle = popSTACK();
         s->strm_keyboard_buffer = NIL;
         s->strm_keyboard_keytab = popSTACK();
-        HandleStream_buffered(stream) = FALSE;
-        HandleStream_input_init(stream);
+        ChannelStream_buffered(stream) = FALSE;
+        UnbufferedHandleStream_input_init(stream);
         #endif
         #ifdef WIN32_NATIVE
         s->strm_keyboard_isatty = T;
         s->strm_keyboard_handle = popSTACK();
-        HandleStream_buffered(stream) = FALSE;
-        HandleStream_input_init(stream);
+        ChannelStream_buffered(stream) = FALSE;
+        UnbufferedHandleStream_input_init(stream);
         #endif
       return stream;
     }}
@@ -8131,8 +8173,8 @@ LISPFUNN(make_keyboard_stream,0)
   #          T, EQUAL: stdin ein Terminal
   #          EQUAL: stdin und stdout dasselbe Terminal
   #define strm_terminal_isatty   strm_isatty
-  #define strm_terminal_ihandle  strm_ihandle
-  #define strm_terminal_ohandle  strm_ohandle
+  #define strm_terminal_ihandle  strm_ichannel
+  #define strm_terminal_ohandle  strm_ochannel
 #if defined(HAVE_TERMINAL2) || defined(HAVE_TERMINAL3)
   # Komponenten wegen TERMINAL_LINEBUFFERED:
   # INBUFF : Eingabebuffer, ein Semi-Simple-String
@@ -8146,7 +8188,7 @@ LISPFUNN(make_keyboard_stream,0)
   # OUTBUFF : Ausgabebuffer, ein Semi-Simple-String
   #define strm_terminal_outbuff strm_field2
 #endif
-#define strm_terminal_len  strm_handle_len
+#define strm_terminal_len  strm_channel_len
 
 # Unterscheidung nach Art des Terminal-Streams:
 # terminalcase(stream, statement1,statement2,statement3);
@@ -8213,14 +8255,14 @@ LISPFUNN(make_keyboard_stream,0)
   local object rd_ch_terminal1 (const object* stream_);
   local object rd_ch_terminal1(stream_)
     var const object* stream_;
-    { var object ch = rd_ch_handle(stream_);
+    { var object ch = rd_ch_unbuffered(stream_);
       #ifdef WIN32
       # CR/LF zu NL zusammenfassen.
       # Was soll man machen, wenn nach CR kein LF kommt??
       # Was soll man machen, wenn CR gelesen wurde und das nächste Zeichen
       # noch nicht bereit ist (aber evtl. doch ein LF ist)??
       if (eq(ch,code_char(CR)))
-        { ch = rd_ch_handle(stream_); } # NB: LF == NL
+        { ch = rd_ch_unbuffered(stream_); } # NB: LF == NL
       #endif
       # Wenn stdin und stdout beide dasselbe Terminal sind,
       # und wir lesen ein NL, so können wir davon ausgehen,
@@ -8239,20 +8281,20 @@ LISPFUNN(make_keyboard_stream,0)
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-  #define listen_terminal1  listen_handle
+  #define listen_terminal1  listen_unbuffered
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Terminal-Stream.
 # clear_input_terminal1(stream);
 # > stream: Terminal-Stream
 # < ergebnis: TRUE falls Input gelöscht wurde, FALSE sonst
-  #define clear_input_terminal1  clear_input_handle
+  #define clear_input_terminal1  clear_input_unbuffered
 
 # UP: Ein Zeichen auf einen Terminal-Stream ausgeben.
 # wr_ch_terminal1(&stream,ch);
 # > stream: Terminal-Stream
 # > ch: auszugebendes Zeichen
  #if !defined(AMIGAOS)
-  #define wr_ch_terminal1  wr_ch_handle
+  #define wr_ch_terminal1  wr_ch_unbuffered
  #else # defined(AMIGAOS)
   local void wr_ch_terminal1 (const object* stream_, object ch);
   local void wr_ch_terminal1(stream_,ch)
@@ -8307,13 +8349,13 @@ LISPFUNN(make_keyboard_stream,0)
 # > string: Simple-String
 # > start: Startindex
 # > len: Anzahl der auszugebenden Zeichen
-  #define wr_ss_terminal1  wr_ss_handle
+  #define wr_ss_terminal1  wr_ss_unbuffered
 
 # UP: Löscht den wartenden Output eines Terminal-Stream.
 # clear_output_terminal1(stream);
 # > stream: Terminal-Stream
 # kann GC auslösen
-  #define clear_output_terminal1  clear_output_handle
+  #define clear_output_terminal1  clear_output_unbuffered
 
 #endif # HAVE_TERMINAL1
 
@@ -8323,7 +8365,7 @@ LISPFUNN(make_keyboard_stream,0)
 
 # Lesen eines Zeichens von einem Terminal-Stream.
   local object rd_ch_terminal2 (const object* stream_);
-  # vgl. rd_ch_handle() :
+  # vgl. rd_ch_unbuffered() :
   local object rd_ch_terminal2(stream_)
     var const object* stream_;
     { restart_it:
@@ -8412,7 +8454,7 @@ LISPFUNN(make_keyboard_stream,0)
          )
         # index<count -> Es sind noch Zeichen im Buffer
         { return ls_avail; }
-      return listen_handle(stream);
+      return listen_unbuffered(stream);
     }
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Terminal-Stream.
@@ -8442,7 +8484,7 @@ LISPFUNN(make_keyboard_stream,0)
 # wr_ch_terminal2(&stream,ch);
 # > stream: Terminal-Stream
 # > ch: auszugebendes Zeichen
-  #define wr_ch_terminal2  wr_ch_handle
+  #define wr_ch_terminal2  wr_ch_unbuffered
 
 # UP: Mehrere Zeichen auf einen Terminal-Stream ausgeben.
 # wr_ss_terminal2(&stream,string,start,len);
@@ -8450,13 +8492,13 @@ LISPFUNN(make_keyboard_stream,0)
 # > string: Simple-String
 # > start: Startindex
 # > len: Anzahl der auszugebenden Zeichen
-  #define wr_ss_terminal2  wr_ss_handle
+  #define wr_ss_terminal2  wr_ss_unbuffered
 
 # UP: Löscht den wartenden Output eines Terminal-Stream.
 # clear_output_terminal2(stream);
 # > stream: Terminal-Stream
 # kann GC auslösen
-  #define clear_output_terminal2  clear_output_handle
+  #define clear_output_terminal2  clear_output_unbuffered
 
 #endif # HAVE_TERMINAL2
 
@@ -8498,7 +8540,7 @@ LISPFUNN(make_keyboard_stream,0)
 
 # Lesen eines Zeichens von einem Terminal-Stream.
   local object rd_ch_terminal3 (const object* stream_);
-  # vgl. rd_ch_handle() :
+  # vgl. rd_ch_unbuffered() :
   local object rd_ch_terminal3(stream_)
     var const object* stream_;
     { restart_it:
@@ -8602,7 +8644,7 @@ LISPFUNN(make_keyboard_stream,0)
          )
         # index<count -> Es sind noch Zeichen im Buffer
         { return ls_avail; }
-      return listen_handle(stream);
+      return listen_unbuffered(stream);
     }
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Terminal-Stream.
@@ -8720,7 +8762,7 @@ LISPFUNN(make_keyboard_stream,0)
   local void clear_output_terminal3 (object stream);
   local void clear_output_terminal3(stream)
     var object stream;
-    { clear_output_handle(stream);
+    { clear_output_unbuffered(stream);
       #if TERMINAL_OUTBUFFERED
       TheIarray(TheStream(stream)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
       #endif
@@ -8732,13 +8774,13 @@ LISPFUNN(make_keyboard_stream,0)
 # finish_output_terminal(stream);
 # > stream: Terminal-Stream
 # kann GC auslösen
-  #define finish_output_terminal  finish_output_handle
+  #define finish_output_terminal  finish_output_unbuffered
 
 # UP: Bringt den wartenden Output eines Terminal-Stream ans Ziel.
 # force_output_terminal(stream);
 # > stream: Terminal-Stream
 # kann GC auslösen
-  #define force_output_terminal  force_output_handle
+  #define force_output_terminal  force_output_unbuffered
 
 # Liefert einen interaktiven Terminal-Stream.
 # kann GC auslösen
@@ -8750,7 +8792,7 @@ LISPFUNN(make_keyboard_stream,0)
       { pushSTACK(allocate_handle(stdout_handle));
         pushSTACK(allocate_handle(stdin_handle));
        {var object stream =
-          allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_u_file_extrafields_struct));
+          allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_unbuffered_extrafields_struct));
         # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
         # und füllen:
         var Stream s = TheStream(stream);
@@ -8778,9 +8820,9 @@ LISPFUNN(make_keyboard_stream,0)
           end_system_call();
           s->strm_terminal_ihandle = popSTACK();
           s->strm_terminal_ohandle = popSTACK();
-        HandleStream_buffered(stream) = FALSE;
-        HandleStream_input_init(stream);
-        HandleStream_output_init(stream);
+        ChannelStream_buffered(stream) = FALSE;
+        UnbufferedHandleStream_input_init(stream);
+        UnbufferedHandleStream_output_init(stream);
         return stream;
       }}
      #else
@@ -8843,7 +8885,7 @@ LISPFUNN(make_keyboard_stream,0)
             pushSTACK(allocate_handle(stdin_handle));
             # neuen Stream allozieren:
            {var object stream =
-              allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_u_file_extrafields_struct));
+              allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_unbuffered_extrafields_struct));
               # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
             # und füllen:
             var Stream s = TheStream(stream);
@@ -8860,7 +8902,7 @@ LISPFUNN(make_keyboard_stream,0)
               s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
               s->strm_wr_ss = P(wr_ss_terminal3);
               s->strm_terminal_isatty = S(equal); # stdout=stdin
-              s->strm_terminal_ihandle = popSTACK(); # Handle für listen_handle()
+              s->strm_terminal_ihandle = popSTACK(); # Handle für listen_unbuffered()
               s->strm_terminal_ohandle = popSTACK(); # Handle für Output
               #if 1 # TERMINAL_LINEBUFFERED
               s->strm_terminal_inbuff = popSTACK(); # Zeilenbuffer eintragen, count := 0
@@ -8869,9 +8911,9 @@ LISPFUNN(make_keyboard_stream,0)
               #if 1 # TERMINAL_OUTBUFFERED
               s->strm_terminal_outbuff = popSTACK(); # Zeilenbuffer eintragen
               #endif
-            HandleStream_buffered(stream) = FALSE;
-            HandleStream_input_init(stream);
-            HandleStream_output_init(stream);
+            ChannelStream_buffered(stream) = FALSE;
+            UnbufferedHandleStream_input_init(stream);
+            UnbufferedHandleStream_output_init(stream);
             return stream;
           }}
         #endif
@@ -8883,7 +8925,7 @@ LISPFUNN(make_keyboard_stream,0)
             pushSTACK(allocate_handle(stdin_handle));
             # neuen Stream allozieren:
            {var object stream =
-              allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_u_file_extrafields_struct));
+              allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_unbuffered_extrafields_struct));
               # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
             # und füllen:
             var Stream s = TheStream(stream);
@@ -8900,15 +8942,15 @@ LISPFUNN(make_keyboard_stream,0)
               s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
               s->strm_wr_ss = P(wr_ss_terminal2);
               s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
-              s->strm_terminal_ihandle = popSTACK(); # Handle für listen_handle()
+              s->strm_terminal_ihandle = popSTACK(); # Handle für listen_unbuffered()
               s->strm_terminal_ohandle = popSTACK(); # Handle für Output
               #if 1 # TERMINAL_LINEBUFFERED
               s->strm_terminal_inbuff = popSTACK(); # Zeilenbuffer eintragen, count := 0
               s->strm_terminal_index = Fixnum_0; # index := 0
               #endif
-            HandleStream_buffered(stream) = FALSE;
-            HandleStream_input_init(stream);
-            HandleStream_output_init(stream);
+            ChannelStream_buffered(stream) = FALSE;
+            UnbufferedHandleStream_input_init(stream);
+            UnbufferedHandleStream_output_init(stream);
             return stream;
           }}
         #endif
@@ -8917,7 +8959,7 @@ LISPFUNN(make_keyboard_stream,0)
           pushSTACK(allocate_handle(stdin_handle));
           # neuen Stream allozieren:
          {var object stream =
-            allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_u_file_extrafields_struct));
+            allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_unbuffered_extrafields_struct));
             # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
           # und füllen:
           var Stream s = TheStream(stream);
@@ -8934,11 +8976,11 @@ LISPFUNN(make_keyboard_stream,0)
             s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
             s->strm_wr_ss = P(wr_ss_terminal1);
             s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
-            s->strm_terminal_ihandle = popSTACK(); # Handle für listen_handle()
+            s->strm_terminal_ihandle = popSTACK(); # Handle für listen_unbuffered()
             s->strm_terminal_ohandle = popSTACK(); # Handle für Output
-          HandleStream_buffered(stream) = FALSE;
-          HandleStream_input_init(stream);
-          HandleStream_output_init(stream);
+          ChannelStream_buffered(stream) = FALSE;
+          UnbufferedHandleStream_input_init(stream);
+          UnbufferedHandleStream_output_init(stream);
           return stream;
         }}
       }
@@ -9200,7 +9242,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
     var LONG success;
     if ((TheStream(stream)->strmtype == strmtype_terminal) # der Terminal-Stream
         || (TheStream(stream)->strmtype == strmtype_file # ein ungebufferter File-Stream
-            && !HandleStream_buffered(stream)
+            && !ChannelStream_buffered(stream)
        )   )
       { if (!nullp(TheStream(stream)->strm_isatty))
           { if (TheStream(stream)->strmtype == strmtype_terminal)
@@ -9216,14 +9258,14 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
               }   }
               else
               # unbuffered File-Stream
-              { value1 = (FileStream_rawp(stream) ? T : NIL);
-                if (new_mode == FileStream_rawp(stream))
+              { value1 = (UnbufferedStream_rawp(stream) ? T : NIL);
+                if (new_mode == UnbufferedStream_rawp(stream))
                   { success = TRUE; }
                   else
                   { begin_system_call();
-                    success = SetMode(TheHandle(TheStream(stream)->strm_ihandle),new_mode);
+                    success = SetMode(TheHandle(TheStream(stream)->strm_ichannel),new_mode);
                     end_system_call();
-                    FileStream_rawp(stream) = new_mode;
+                    UnbufferedStream_rawp(stream) = new_mode;
               }   }
           }
           else
@@ -12440,7 +12482,7 @@ LISPFUNN(make_printer_stream,0)
 
 # Low-level.
 
-  #define PipeStream_input_init(stream)  HandleStream_input_init(stream)
+  #define UnbufferedPipeStream_input_init(stream)  UnbufferedHandleStream_input_init(stream)
 
 LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
         (kw(element_type),kw(external_format),kw(buffered)) )
@@ -12568,13 +12610,13 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
     { var object stream;
       if (!eq(STACK_(0+3),T)) # (buffered <= 0) ?
         { stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,FALSE);
-          PipeStream_input_init(stream);
+          UnbufferedPipeStream_input_init(stream);
         }
         else
         { stream = make_buffered_stream(strmtype_pipe_in,1,&eltype,FALSE,FALSE);
-          HandleStream_init(stream);
+          BufferedHandleStream_init(stream);
         }
-      HandleStreamLow_close(stream) = &low_close_pipe;
+      ChannelStreamLow_close(stream) = &low_close_pipe;
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
       skipSTACK(4);
       value1 = stream; mv_count=1; # stream als Wert
@@ -12586,27 +12628,27 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
 
 # Low-level.
 
-  local void pipe_low_finish_output (object stream);
-  local void pipe_low_finish_output(stream)
+  local void low_finish_output_unbuffered_pipe (object stream);
+  local void low_finish_output_unbuffered_pipe(stream)
     var object stream;
     { } # cannot do anything
 
-  local void pipe_low_force_output (object stream);
-  local void pipe_low_force_output(stream)
+  local void low_force_output_unbuffered_pipe (object stream);
+  local void low_force_output_unbuffered_pipe(stream)
     var object stream;
     { } # cannot do anything
 
-  local void pipe_low_clear_output (object stream);
-  local void pipe_low_clear_output(stream)
+  local void low_clear_output_unbuffered_pipe (object stream);
+  local void low_clear_output_unbuffered_pipe(stream)
     var object stream;
     { } # impossible to clear past output
 
-  #define PipeStream_output_init(stream)  \
-    { FileStreamLow_write(stream) = &file_low_write;                 \
-      FileStreamLow_write_array(stream) = &file_low_write_array;     \
-      FileStreamLow_finish_output(stream) = &pipe_low_finish_output; \
-      FileStreamLow_force_output(stream) = &pipe_low_force_output;   \
-      FileStreamLow_clear_output(stream) = &pipe_low_clear_output;   \
+  #define UnbufferedPipeStream_output_init(stream)  \
+    { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_handle;               \
+      UnbufferedStreamLow_write_array(stream) = &low_write_array_unbuffered_handle;   \
+      UnbufferedStreamLow_finish_output(stream) = &low_finish_output_unbuffered_pipe; \
+      UnbufferedStreamLow_force_output(stream) = &low_force_output_unbuffered_pipe;   \
+      UnbufferedStreamLow_clear_output(stream) = &low_clear_output_unbuffered_pipe;   \
     }
 
 LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
@@ -12734,13 +12776,13 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
     { var object stream;
       if (!eq(STACK_(0+3),T)) # (buffered <= 0) ?
         { stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,FALSE);
-          PipeStream_output_init(stream);
+          UnbufferedPipeStream_output_init(stream);
         }
         else
         { stream = make_buffered_stream(strmtype_pipe_out,4,&eltype,FALSE,FALSE);
-          HandleStream_init(stream);
+          BufferedHandleStream_init(stream);
         }
-      HandleStreamLow_close(stream) = &low_close_pipe;
+      ChannelStreamLow_close(stream) = &low_close_pipe;
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
       skipSTACK(4);
       value1 = stream; mv_count=1; # stream als Wert
@@ -12917,13 +12959,13 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
      {var object stream;
       if (!eq(STACK_(0+5),T)) # (buffered <= 0) ?
         { stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,FALSE);
-          PipeStream_input_init(stream);
+          UnbufferedPipeStream_input_init(stream);
         }
         else
         { stream = make_buffered_stream(strmtype_pipe_in,1,&eltype,FALSE,FALSE);
-          HandleStream_init(stream);
+          BufferedHandleStream_init(stream);
         }
-      HandleStreamLow_close(stream) = &low_close_pipe;
+      ChannelStreamLow_close(stream) = &low_close_pipe;
       TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
       STACK_1 = stream;
     }}
@@ -12933,13 +12975,13 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
      {var object stream;
       if (!eq(STACK_(0+5),T)) # (buffered <= 0) ?
         { stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,FALSE);
-          PipeStream_output_init(stream);
+          UnbufferedPipeStream_output_init(stream);
         }
         else
         { stream = make_buffered_stream(strmtype_pipe_out,4,&eltype,FALSE,FALSE);
-          HandleStream_init(stream);
+          BufferedHandleStream_init(stream);
         }
-      HandleStreamLow_close(stream) = &low_close_pipe;
+      ChannelStreamLow_close(stream) = &low_close_pipe;
       TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
       STACK_0 = stream;
     }}
@@ -12990,14 +13032,14 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
 
 #ifdef WIN32_NATIVE
 
-  local sintL socket_low_read (object stream);
-  local sintL socket_low_read(stream)
+  local sintL low_read_unbuffered_socket (object stream);
+  local sintL low_read_unbuffered_socket(stream)
     var object stream;
-    { if (FileStream_status(stream) < 0) # already EOF?
+    { if (UnbufferedStream_status(stream) < 0) # already EOF?
         { return -1; }
-      if (FileStream_status(stream) > 0) # lastbyte valid?
-        { FileStream_status(stream) = 0; return FileStream_lastbyte(stream); }
-      { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
+      if (UnbufferedStream_status(stream) > 0) # lastbyte valid?
+        { UnbufferedStream_status(stream) = 0; return UnbufferedStream_lastbyte(stream); }
+      { var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
         var uintB b;
         begin_system_call();
        {var int result = sock_read(handle,&b,1); # Zeichen lesen versuchen
@@ -13009,19 +13051,19 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
         end_system_call();
         if (result==0)
           # no byte available -> must be EOF
-          { FileStream_status(stream) = -1; return -1; }
+          { UnbufferedStream_status(stream) = -1; return -1; }
           else
           { return b; }
     } }}
 
-  local signean socket_low_listen (object stream);
-  local signean socket_low_listen(stream)
+  local signean low_listen_unbuffered_socket (object stream);
+  local signean low_listen_unbuffered_socket(stream)
     var object stream;
-    { if (FileStream_status(stream) < 0) # already EOF?
+    { if (UnbufferedStream_status(stream) < 0) # already EOF?
         { return ls_eof; }
-      if (FileStream_status(stream) > 0) # lastbyte valid?
+      if (UnbufferedStream_status(stream) > 0) # lastbyte valid?
         { return ls_avail; }
-      { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
+      { var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
         # Use select() with readfds = singleton set {handle}
         # and timeout = zero interval.
         var fd_set handle_menge; # set of handles := {handle}
@@ -13053,36 +13095,36 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
               }
             end_system_call();
             if (result==0)
-              { FileStream_status(stream) = -1; return ls_eof; }
+              { UnbufferedStream_status(stream) = -1; return ls_eof; }
               else
               { # Stuff the read byte into the buffer, for next low_read call.
-                FileStream_lastbyte(stream) = b; FileStream_status(stream) = 1;
+                UnbufferedStream_lastbyte(stream) = b; UnbufferedStream_status(stream) = 1;
                 return ls_avail;
               }
           }}
     } }}
 
-  local boolean socket_low_clear_input (object stream);
-  local boolean socket_low_clear_input(stream)
+  local boolean low_clear_input_unbuffered_socket (object stream);
+  local boolean low_clear_input_unbuffered_socket(stream)
     var object stream;
     { # This is not called anyway, because TheStream(stream)->strm_isatty = NIL.
       return FALSE; # Not sure whether this is the correct behaviour??
     }
 
-  local uintB* socket_low_read_array (object stream, uintB* byteptr, uintL len);
-  local uintB* socket_low_read_array(stream,byteptr,len)
+  local uintB* low_read_array_unbuffered_socket (object stream, uintB* byteptr, uintL len);
+  local uintB* low_read_array_unbuffered_socket(stream,byteptr,len)
     var object stream;
     var uintB* byteptr;
     var uintL len;
-    { if (FileStream_status(stream) < 0) # already EOF?
+    { if (UnbufferedStream_status(stream) < 0) # already EOF?
         { return byteptr; }
-      if (FileStream_status(stream) > 0) # lastbyte valid?
-        { FileStream_status(stream) = 0;
-          *byteptr++ = FileStream_lastbyte(stream);
+      if (UnbufferedStream_status(stream) > 0) # lastbyte valid?
+        { UnbufferedStream_status(stream) = 0;
+          *byteptr++ = UnbufferedStream_lastbyte(stream);
           len--;
           if (len == 0) { return byteptr; }
         }
-      { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
+      { var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
         begin_system_call();
        {var sintL result = sock_read(handle,byteptr,len);
         if (result<0)
@@ -13096,18 +13138,18 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
     } }}
 
 # Initializes the input side fields of a socket stream.
-# SocketStream_input_init(stream);
-  #define SocketStream_input_init(stream)  \
-    { FileStreamLow_read(stream) = &socket_low_read;               \
-      FileStreamLow_listen(stream) = &socket_low_listen;           \
-      FileStreamLow_clear_input(stream) = &socket_low_clear_input; \
-      FileStreamLow_read_array(stream) = &socket_low_read_array;   \
-      HandleStream_input_init_data(stream);                        \
+# UnbufferedSocketStream_input_init(stream);
+  #define UnbufferedSocketStream_input_init(stream)  \
+    { UnbufferedStreamLow_read(stream) = &low_read_unbuffered_socket;               \
+      UnbufferedStreamLow_listen(stream) = &low_listen_unbuffered_socket;           \
+      UnbufferedStreamLow_clear_input(stream) = &low_clear_input_unbuffered_socket; \
+      UnbufferedStreamLow_read_array(stream) = &low_read_array_unbuffered_socket;   \
+      UnbufferedHandleStream_input_init_data(stream);                               \
     }
 
 #else
 
-  #define SocketStream_input_init(stream)  HandleStream_input_init(stream)
+  #define UnbufferedSocketStream_input_init(stream)  UnbufferedHandleStream_input_init(stream)
 
 #endif
 
@@ -13116,11 +13158,11 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
 
 #ifdef WIN32_NATIVE
 
-  local void socket_low_write (object stream, uintB b);
-  local void socket_low_write(stream,b)
+  local void low_write_unbuffered_socket (object stream, uintB b);
+  local void low_write_unbuffered_socket(stream,b)
     var object stream;
     var uintB b;
-    { var SOCKET handle = TheSocket(TheStream(stream)->strm_ohandle);
+    { var SOCKET handle = TheSocket(TheStream(stream)->strm_ochannel);
       begin_system_call();
       # Try to output the byte.
      {var int result = sock_write(handle,&b,1);
@@ -13134,12 +13176,12 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
         { fehler_unwritable(TheSubr(subr_self)->name,stream); }
     }}
 
-  local const uintB* socket_low_write_array (object stream, const uintB* byteptr, uintL len);
-  local const uintB* socket_low_write_array(stream,byteptr,len)
+  local const uintB* low_write_array_unbuffered_socket (object stream, const uintB* byteptr, uintL len);
+  local const uintB* low_write_array_unbuffered_socket(stream,byteptr,len)
     var object stream;
     var const uintB* byteptr;
     var uintL len;
-    { var SOCKET handle = TheSocket(TheStream(stream)->strm_ohandle);
+    { var SOCKET handle = TheSocket(TheStream(stream)->strm_ochannel);
       begin_system_call();
      {var sintL result = sock_write(handle,byteptr,len);
       if (result<0)
@@ -13155,49 +13197,40 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
 
 #endif
 
-  local void socket_low_finish_output (object stream);
-  local void socket_low_finish_output(stream)
+  local void low_finish_output_unbuffered_socket (object stream);
+  local void low_finish_output_unbuffered_socket(stream)
     var object stream;
     { } # cannot do anything
 
-  local void socket_low_force_output (object stream);
-  local void socket_low_force_output(stream)
+  local void low_force_output_unbuffered_socket (object stream);
+  local void low_force_output_unbuffered_socket(stream)
     var object stream;
     { } # cannot do anything
 
-  local void socket_low_clear_output (object stream);
-  local void socket_low_clear_output(stream)
+  local void low_clear_output_unbuffered_socket (object stream);
+  local void low_clear_output_unbuffered_socket(stream)
     var object stream;
     { } # impossible to clear past output
 
 # Initializes the output side fields of a socket stream.
-# SocketStream_output_init(stream);
+# UnbufferedSocketStream_output_init(stream);
 #ifdef WIN32_NATIVE
-  #define SocketStream_output_init(stream)  \
-    { FileStreamLow_write(stream) = &socket_low_write;                 \
-      FileStreamLow_write_array(stream) = &socket_low_write_array;     \
-      FileStreamLow_finish_output(stream) = &socket_low_finish_output; \
-      FileStreamLow_force_output(stream) = &socket_low_force_output;   \
-      FileStreamLow_clear_output(stream) = &socket_low_clear_output;   \
+  #define UnbufferedSocketStream_output_init(stream)  \
+    { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_socket;                 \
+      UnbufferedStreamLow_write_array(stream) = &low_write_array_unbuffered_socket;     \
+      UnbufferedStreamLow_finish_output(stream) = &low_finish_output_unbuffered_socket; \
+      UnbufferedStreamLow_force_output(stream) = &low_force_output_unbuffered_socket;   \
+      UnbufferedStreamLow_clear_output(stream) = &low_clear_output_unbuffered_socket;   \
     }
 #else
-  #define SocketStream_output_init(stream)  \
-    { FileStreamLow_write(stream) = &file_low_write;                   \
-      FileStreamLow_write_array(stream) = &file_low_write_array;       \
-      FileStreamLow_finish_output(stream) = &socket_low_finish_output; \
-      FileStreamLow_force_output(stream) = &socket_low_force_output;   \
-      FileStreamLow_clear_output(stream) = &socket_low_clear_output;   \
+  #define UnbufferedSocketStream_output_init(stream)  \
+    { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_handle;                 \
+      UnbufferedStreamLow_write_array(stream) = &low_write_array_unbuffered_handle;     \
+      UnbufferedStreamLow_finish_output(stream) = &low_finish_output_unbuffered_socket; \
+      UnbufferedStreamLow_force_output(stream) = &low_force_output_unbuffered_socket;   \
+      UnbufferedStreamLow_clear_output(stream) = &low_clear_output_unbuffered_socket;   \
     }
 #endif
-
-# Stellt fest, ob ein Socket-Stream ein Zeichen verfügbar hat.
-# listen_socket(stream)
-# > stream: Socket-Stream
-# < ergebnis: ls_avail if a character is available,
-#             ls_eof   if EOF is reached,
-#             ls_wait  if no character is available, but not because of EOF
-  local signean listen_socket (object stream);
-  #define listen_socket  listen_handle
 
 #endif
 
@@ -13252,9 +13285,9 @@ LISPFUNN(make_x11socket_stream,2)
     # Stream allozieren:
     {var decoded_eltype eltype = { eltype_iu, 8 };
      var object stream = make_unbuffered_stream(strmtype_x11socket,5,&eltype,FALSE);
-     SocketStream_input_init(stream);
-     SocketStream_output_init(stream);
-     HandleStreamLow_close(stream) = &low_close_socket;
+     UnbufferedSocketStream_input_init(stream);
+     UnbufferedSocketStream_output_init(stream);
+     ChannelStreamLow_close(stream) = &low_close_socket;
      TheStream(stream)->strm_x11socket_connect = popSTACK(); # zweielementige Liste
      value1 = stream; mv_count=1; # stream als Wert
   }}}
@@ -13268,7 +13301,7 @@ LISPFUNN(listen_byte,1)
 # (SYS::LISTEN-BYTE stream)
   { var object stream = popSTACK();
     if (!streamp(stream)) { fehler_stream(stream); }
-    if (!eq(TheStream(stream)->strm_rd_by,P(rd_by_iau8_handle)))
+    if (!eq(TheStream(stream)->strm_rd_by,P(rd_by_iau8_unbuffered)))
       { pushSTACK(stream);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
@@ -13278,7 +13311,7 @@ LISPFUNN(listen_byte,1)
                ""
               );
       }
-    value1 = (ls_avail_p(FileStreamLow_listen(stream)(stream)) ? T : NIL);
+    value1 = (ls_avail_p(UnbufferedStreamLow_listen(stream)(stream)) ? T : NIL);
     mv_count=1;
   }
 
@@ -13315,8 +13348,8 @@ LISPFUNN(listen_byte,1)
     var uintL* count_;
     { if (!streamp(STACK_3)) { fehler_stream(STACK_3); }
       {var object stream = STACK_3;
-       if (!(   eq(TheStream(stream)->strm_rd_by,P(rd_by_iau8_handle))
-             && eq(TheStream(stream)->strm_wr_by,P(wr_by_iau8_handle))
+       if (!(   eq(TheStream(stream)->strm_rd_by,P(rd_by_iau8_unbuffered))
+             && eq(TheStream(stream)->strm_wr_by,P(wr_by_iau8_unbuffered))
           ) )
          { pushSTACK(stream);
            pushSTACK(TheSubr(subr_self)->name);
@@ -13398,19 +13431,19 @@ LISPFUNN(write_n_bytes,4)
 
 #ifdef WIN32_NATIVE
 
-# UP: Fills the buffer, up to strm_file_bufflen bytes.
-# b_socket_fill(stream)
+# UP: Fills the buffer, up to strm_buffered_bufflen bytes.
+# low_fill_buffered_socket(stream)
 # > stream: (open) byte-based socket stream
 # < result: number of bytes read
-  local uintL b_socket_fill (object stream);
-  local uintL b_socket_fill(stream)
+  local uintL low_fill_buffered_socket (object stream);
+  local uintL low_fill_buffered_socket(stream)
     var object stream;
     { var sintL result;
       begin_system_call();
       result = # Buffer füllen
-        sock_read(TheSocket(TheStream(stream)->strm_file_handle), # Handle
-                  &TheSbvector(TheStream(stream)->strm_file_buffer)->data[0], # Bufferadresse
-                  strm_file_bufflen
+        sock_read(TheSocket(TheStream(stream)->strm_buffered_channel), # Handle
+                  &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferadresse
+                  strm_buffered_bufflen
                  );
       if (result<0)
         { if (WSAGetLastError()==WSAEINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
@@ -13422,24 +13455,24 @@ LISPFUNN(write_n_bytes,4)
     }
 
 # UP: Beendet das Zurückschreiben des Buffers.
-# b_socket_finish_flush(stream,bufflen);
+# low_flush_buffered_socket(stream,bufflen);
 # > stream : (offener) Byte-basierter File-Stream.
 # > bufflen : Anzahl der zu schreibenden Bytes
 # < modified_flag von stream : gelöscht
 # verändert in stream: index
-  local void b_socket_finish_flush (object stream, uintL bufflen);
-  local void b_socket_finish_flush(stream,bufflen)
+  local void low_flush_buffered_socket (object stream, uintL bufflen);
+  local void low_flush_buffered_socket(stream,bufflen)
     var object stream;
     var uintL bufflen;
     { begin_system_call();
      {var sintL result = # Buffer hinausschreiben
-        full_write(TheSocket(TheStream(stream)->strm_file_handle), # Handle
-                   &TheSbvector(TheStream(stream)->strm_file_buffer)->data[0], # Bufferadresse
+        full_write(TheSocket(TheStream(stream)->strm_buffered_channel), # Handle
+                   &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferadresse
                    bufflen
                   );
       if (result==bufflen)
         # alles korrekt geschrieben
-        { end_system_call(); FileStream_modified(stream) = FALSE; }
+        { end_system_call(); BufferedStream_modified(stream) = FALSE; }
         else
         # Nicht alles geschrieben
         { if (result<0)
@@ -13453,14 +13486,14 @@ LISPFUNN(write_n_bytes,4)
 
 #else
 
-  #define b_socket_fill  b_file_fill
-  #define b_socket_finish_flush  b_file_finish_flush
+  #define low_fill_buffered_socket  low_fill_buffered_handle
+  #define low_flush_buffered_socket  low_flush_buffered_handle
 
 #endif
 
-#define SocketStream_init(stream)  \
-  { FileStreamLow_fill(stream) = &b_socket_fill;          \
-    FileStreamLow_flush(stream) = &b_socket_finish_flush; \
+#define BufferedSocketStream_init(stream)  \
+  { BufferedStreamLow_fill(stream) = &low_fill_buffered_socket;   \
+    BufferedStreamLow_flush(stream) = &low_flush_buffered_socket; \
   }
 
 # Twoway-Socket-Streams are twoway streams with both input and output side
@@ -13492,9 +13525,9 @@ local object make_socket_stream(handle,eltype,buffered,host,port)
    {var object stream;
     if (buffered <= 0)
       { stream = make_unbuffered_stream(strmtype_socket,5,eltype,FALSE);
-        SocketStream_input_init(stream);
-        SocketStream_output_init(stream);
-        HandleStreamLow_close(stream) = &low_close_socket;
+        UnbufferedSocketStream_input_init(stream);
+        UnbufferedSocketStream_output_init(stream);
+        ChannelStreamLow_close(stream) = &low_close_socket;
         TheStream(stream)->strm_socket_port = port;
         TheStream(stream)->strm_socket_host = popSTACK();
       }
@@ -13504,16 +13537,16 @@ local object make_socket_stream(handle,eltype,buffered,host,port)
         stream = make_buffered_stream(strmtype_socket,1,eltype,FALSE,FALSE);
         TheStream(stream)->strm_socket_port = port;
         TheStream(stream)->strm_socket_host = STACK_2;
-        SocketStream_init(stream);
-        HandleStreamLow_close(stream) = &low_close_socket;
+        BufferedSocketStream_init(stream);
+        ChannelStreamLow_close(stream) = &low_close_socket;
         pushSTACK(stream);
         # Output-Stream allozieren:
         pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
         stream = make_buffered_stream(strmtype_socket,4,eltype,FALSE,FALSE);
         TheStream(stream)->strm_socket_port = port;
         TheStream(stream)->strm_socket_host = STACK_(2+1);
-        SocketStream_init(stream);
-        HandleStreamLow_close(stream) = &low_close_socket;
+        BufferedSocketStream_init(stream);
+        ChannelStreamLow_close(stream) = &low_close_socket;
         pushSTACK(stream);
         # Allocate a Two-Way-Socket-Stream:
         stream = allocate_stream(strmflags_open_B,strmtype_twoway_socket,strm_len+2,0);
@@ -13589,7 +13622,7 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
               /*FALLTHROUGH*/
             case strmtype_socket:
               if (TheStream(stream)->strmflags & strmflags_open_B)
-                { sock = TheSocket(TheStream(stream)->strm_ihandle); port = 0; goto doit; }
+                { sock = TheSocket(TheStream(stream)->strm_ichannel); port = 0; goto doit; }
               break;
             default:
               break;
@@ -13846,7 +13879,7 @@ local void publish_host_data (func)
     var host_data hd;
 
     var object stream = test_socket_stream(STACK_0,TRUE);
-    sk = TheSocket(TheStream(stream)->strm_ihandle);
+    sk = TheSocket(TheStream(stream)->strm_ichannel);
 
     begin_system_call();
     if (NULL == (*func)(sk, &hd)) { SOCK_error(); }
@@ -13885,7 +13918,7 @@ LISPFUNN(socket_stream_handle,1)
 # (SOCKET-STREAM-HANDLE socket-stream)
   {
     var object stream = test_socket_stream(STACK_0,TRUE);
-    value1 = fixnum(TheHandle(TheStream(stream)->strm_ihandle));
+    value1 = fixnum(TheHandle(TheStream(stream)->strm_ichannel));
     skipSTACK(1);
     mv_count=1;
   }
@@ -13999,8 +14032,8 @@ LISPFUNN(socket_stream_handle,1)
           pushSTACK(S(character)); pushSTACK(allocate_handle(2));
          {var decoded_eltype eltype = { eltype_ch };
           stream = make_unbuffered_stream(strmtype_file,4,&eltype,FALSE);
-          HandleStream_output_init(stream);
-          HandleStreamLow_close(stream) = &low_close_handle;
+          UnbufferedHandleStream_output_init(stream);
+          ChannelStreamLow_close(stream) = &low_close_handle;
           TheStream(stream)->strm_file_name =
           TheStream(stream)->strm_file_truename = popSTACK();
         }}
@@ -14263,7 +14296,7 @@ LISPFUNN(set_stream_element_type,2)
         #endif
           if (!equal(STACK_0,TheStream(stream)->strm_eltype)) # nothing to change?
             { # Check eltype.
-              if (HandleStream_buffered(stream))
+              if (ChannelStream_buffered(stream))
                 { if (!((((TheStream(stream)->strmflags & strmflags_i_B) == 0)
                          || ((TheStream(stream)->strmflags & strmflags_i_B) == strmflags_ia_B)
                         )
@@ -14297,21 +14330,21 @@ LISPFUNN(set_stream_element_type,2)
                           && (TheStream(stream)->strmflags & strmflags_unread_B)
                          )
                         { var uintB b = as_cint(char_code(TheStream(stream)->strm_rd_ch_last));
-                          if (HandleStream_buffered(stream))
-                            { if ((FileStream_index(stream) > 0)
-                                  && (FileStream_position(stream) > 0)
-                                  && (TheSbvector(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)-1] == b)
+                          if (ChannelStream_buffered(stream))
+                            { if ((BufferedStream_index(stream) > 0)
+                                  && (BufferedStream_position(stream) > 0)
+                                  && (TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[BufferedStream_index(stream)-1] == b)
                                  )
                                 { # index und position decrementieren:
-                                  FileStream_index(stream) -= 1;
-                                  FileStream_position(stream) -= 1;
+                                  BufferedStream_index(stream) -= 1;
+                                  BufferedStream_position(stream) -= 1;
                                   TheStream(stream)->strm_rd_ch_last = NIL;
                                   TheStream(stream)->strmflags &= ~strmflags_unread_B;
                             }   }
                             else
-                            { if (FileStream_status(stream) == 0)
-                                { FileStream_lastbyte(stream) = b;
-                                  FileStream_status(stream) = 1;
+                            { if (UnbufferedStream_status(stream) == 0)
+                                { UnbufferedStream_lastbyte(stream) = b;
+                                  UnbufferedStream_status(stream) = 1;
                                   TheStream(stream)->strm_rd_ch_last = NIL;
                                   TheStream(stream)->strmflags &= ~strmflags_unread_B;
                             }   }
@@ -14327,7 +14360,7 @@ LISPFUNN(set_stream_element_type,2)
                   }
                   else
                   { # New element type is an integer type.
-                    HandleStream_bitsize(stream) = eltype.size;
+                    ChannelStream_bitsize(stream) = eltype.size;
                     # Bitbuffer allozieren:
                     pushSTACK(stream);
                    {var object bitbuffer = allocate_bit_vector(eltype.size);
@@ -14338,7 +14371,7 @@ LISPFUNN(set_stream_element_type,2)
                   }}
                 TheStream(stream)->strmflags = flags;
               }
-              if (HandleStream_buffered(stream))
+              if (ChannelStream_buffered(stream))
                 { fill_pseudofuns_buffered(stream,&eltype); }
                 else
                 { fill_pseudofuns_unbuffered(stream,&eltype); }
@@ -14436,12 +14469,12 @@ LISPFUNN(stream_external_format,1)
           case strmtype_terminal:
           #endif
           case strmtype_file:
-            if (HandleStream_buffered(stream))
+            if (ChannelStream_buffered(stream))
               # Buffered file streams are not considered to be interactive.
               return FALSE;
             if (nullp(TheStream(stream)->strm_isatty))
               # Reguläre Files sind sicher nicht interaktiv.
-              if (regular_handle_p(TheHandle(TheStream(stream)->strm_ihandle)))
+              if (regular_handle_p(TheHandle(TheStream(stream)->strm_ichannel)))
                 return FALSE;
           #ifdef KEYBOARD
           case strmtype_keyboard:
@@ -14516,19 +14549,19 @@ LISPFUNN(interactive_stream_p,1)
           #ifdef SOCKET_STREAMS
           case strmtype_socket:
           #endif
-            if (HandleStream_buffered(stream))
-              { close_file(stream); }
+            if (ChannelStream_buffered(stream))
+              { close_buffered(stream); }
               else
               { if (TheStream(stream)->strmflags & strmflags_wr_B)
-                  close_ohandle(stream);
+                  close_ochannel(stream);
                 else
-                  close_ihandle(stream);
+                  close_ichannel(stream);
               }
             break;
           #ifdef SOCKET_STREAMS
           case strmtype_twoway_socket:
             # Close the two substreams, but close the handle once only.
-            HandleStreamLow_close(TheStream(stream)->strm_twoway_socket_input) = &low_close_socket_nop;
+            ChannelStreamLow_close(TheStream(stream)->strm_twoway_socket_input) = &low_close_socket_nop;
             pushSTACK(TheStream(stream)->strm_twoway_socket_input);
             pushSTACK(TheStream(stream)->strm_twoway_socket_output);
             stream_close(&STACK_1);
@@ -14587,9 +14620,9 @@ LISPFUNN(interactive_stream_p,1)
       while (consp(streamlist))
         { var object stream = Car(streamlist); # ein Stream aus der Liste
           if (TheStream(stream)->strmtype == strmtype_file) # File-Stream ?
-            { if (!nullp(TheStream(stream)->strm_file_handle)) # mit Handle /= NIL ?
+            { if (!nullp(TheStream(stream)->strm_buffered_channel)) # mit Handle /= NIL ?
                 # ja: Stream noch offen
-                { closed_file(stream); }
+                { closed_buffered(stream); }
             }
           close_dummys(stream);
           streamlist = Cdr(streamlist); # restliche Streams
@@ -14656,10 +14689,10 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               case strmtype_socket:
               #endif
                 if (TheStream(stream)->strmflags & strmflags_rd_ch_B)
-                  { if (HandleStream_buffered(stream))
-                      { return listen_ch_file(stream); }
+                  { if (ChannelStream_buffered(stream))
+                      { return listen_buffered(stream); }
                       else
-                      { return listen_handle(stream); }
+                      { return listen_unbuffered(stream); }
                   }
                   else
                   { return ls_eof; } # kein READ-CHAR
@@ -14741,9 +14774,9 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
           case strmtype_socket:
           #endif
             if (TheStream(stream)->strmflags & strmflags_rd_ch_B
-                && !HandleStream_buffered(stream)
+                && !ChannelStream_buffered(stream)
                )
-              { ergebnis = clear_input_handle(stream); }
+              { ergebnis = clear_input_unbuffered(stream); }
               else
               { ergebnis = FALSE; }
             break;
@@ -14814,10 +14847,10 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               #ifdef SOCKET_STREAMS
               case strmtype_socket:
               #endif
-                if (HandleStream_buffered(stream))
-                  { finish_output_file(stream); }
+                if (ChannelStream_buffered(stream))
+                  { finish_output_buffered(stream); }
                   else
-                  { finish_output_handle(stream); }
+                  { finish_output_unbuffered(stream); }
                 break;
               case strmtype_terminal:
                 finish_output_terminal(stream); break;
@@ -14870,10 +14903,10 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               #ifdef SOCKET_STREAMS
               case strmtype_socket:
               #endif
-                if (HandleStream_buffered(stream))
-                  { force_output_file(stream); }
+                if (ChannelStream_buffered(stream))
+                  { force_output_buffered(stream); }
                   else
-                  { force_output_handle(stream); }
+                  { force_output_unbuffered(stream); }
                 break;
               case strmtype_terminal:
                 force_output_terminal(stream); break;
@@ -14930,10 +14963,10 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               #ifdef SOCKET_STREAMS
               case strmtype_socket:
               #endif
-                if (HandleStream_buffered(stream))
+                if (ChannelStream_buffered(stream))
                   {} # File: nichts tun (würde die File-Verwaltung durcheinanderbringen)
                   else
-                  { clear_output_handle(stream); }
+                  { clear_output_unbuffered(stream); }
                 break;
               case strmtype_terminal:
                 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
@@ -15061,7 +15094,7 @@ LISPFUNN(write_byte,2)
         }
       if (!(TheStream(obj)->strmtype == strmtype_file)) goto fehler_bad_obj; # Streamtyp File-Stream ?
       if ((TheStream(obj)->strmflags & strmflags_open_B) == 0) goto fehler_bad_obj; # Stream offen ?
-      if (nullp(TheStream(obj)->strm_file_handle)) goto fehler_bad_obj; # und Handle /= NIL ?
+      if (nullp(TheStream(obj)->strm_buffered_channel)) goto fehler_bad_obj; # und Handle /= NIL ?
       return obj; # ja -> OK
       fehler_bad_obj:
         pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
@@ -15081,23 +15114,23 @@ LISPFUN(file_position,1,1,norest,nokey,0,NIL)
   { var object position = popSTACK();
     var object stream = popSTACK();
     stream = check_open_file_stream(stream); # stream überprüfen
-    if (!HandleStream_buffered(stream))
+    if (!ChannelStream_buffered(stream))
       # Don't know how to deal with the file position on unbuffered streams.
       { value1 = NIL; mv_count=1; }
       else
       { if (eq(position,unbound))
           # position nicht angegeben -> Position als Wert:
-          { value1 = UL_to_I(FileStream_position(stream)); mv_count=1; }
+          { value1 = UL_to_I(BufferedStream_position(stream)); mv_count=1; }
           else
           { if (eq(position,S(Kstart)))
               # :START -> an den Anfang positionieren:
-              { position_file_start(stream); }
+              { logical_position_file_start(stream); }
             elif (eq(position,S(Kend)))
               # :END -> ans Ende positionieren:
-              { position_file_end(stream); }
+              { logical_position_file_end(stream); }
             elif (uint32_p(position))
               # an die angegebene Position positionieren:
-              { position_file(stream,I_to_UL(position)); }
+              { logical_position_file(stream,I_to_UL(position)); }
             else
               # Unzulässiges Position-Argument
               { pushSTACK(position); # Wert für Slot DATUM von TYPE-ERROR
@@ -15120,18 +15153,18 @@ LISPFUNN(file_length,1)
 # (FILE-LENGTH file-stream), CLTL S. 425
   { var object stream = popSTACK();
     stream = check_open_file_stream(stream); # stream überprüfen
-    if (!HandleStream_buffered(stream))
+    if (!ChannelStream_buffered(stream))
       # Don't know how to deal with the file position on unbuffered streams.
       { value1 = NIL; mv_count=1; }
       else
       { # Position merken:
-        var uintL position = FileStream_position(stream);
+        var uintL position = BufferedStream_position(stream);
         # ans Ende positionieren:
-        position_file_end(stream);
+        logical_position_file_end(stream);
         # Ende-Position merken:
-       {var uintL endposition = FileStream_position(stream);
+       {var uintL endposition = BufferedStream_position(stream);
         # an die alte Position zurückpositionieren:
-        position_file(stream,position);
+        logical_position_file(stream,position);
         value1 = UL_to_I(endposition); mv_count=1; # Ende-Position als Wert
       }}
   }
@@ -15143,7 +15176,7 @@ LISPFUNN(file_string_length,2)
     skipSTACK(2);
     if (!(TheStream(stream)->strmflags & strmflags_wr_ch_B))
       { fehler_illegal_streamop(S(file_string_length),stream); }
-    if (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_ch_file)))
+    if (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_buffered)))
       { # Possibly take into account the NL -> CR/LF translation.
         #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
         if (stringp(obj))
@@ -15193,7 +15226,7 @@ LISPFUNN(file_string_length,2)
           #ifdef SOCKET_STREAMS
           case strmtype_socket:
           #endif
-            return HandleStream_buffered(stream);
+            return ChannelStream_buffered(stream);
           #ifdef SOCKET_STREAMS
           case strmtype_twoway_socket:
             return TRUE;
@@ -15212,8 +15245,8 @@ LISPFUNN(file_string_length,2)
     var object stream;
     { return (TheStream(stream)->strmtype == strmtype_file
               && eq(TheStream(stream)->strm_eltype,S(character))
-              ? UL_to_I(HandleStream_lineno(stream)) # aktuelle Zeilennummer
-              : NIL                                  # NIL falls unbekannt
+              ? UL_to_I(ChannelStream_lineno(stream)) # aktuelle Zeilennummer
+              : NIL                                   # NIL falls unbekannt
              );
     }
 

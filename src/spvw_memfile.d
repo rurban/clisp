@@ -192,7 +192,7 @@
       # Wir müssen ihn aber im Fehlerfalle schließen (der Aufrufer macht kein
       # WITH-OPEN-FILE, sondern nur OPEN). Daher bekommen wir den ganzen
       # Stream übergeben, um ihn schließen zu können.
-      var Handle handle = TheHandle(TheStream(stream)->strm_file_handle);
+      var Handle handle = TheHandle(TheStream(stream)->strm_buffered_channel);
       pushSTACK(stream); # Stream retten
       # Erst eine GC ausführen:
       gar_col();
