@@ -1837,7 +1837,7 @@ More precisely, CLISP uses the IBM PC character set (code page 437):
                <td>** <td>** <td>** <td>** <td>** <td> &para; <td> &sect;
   <tr><th>#x10 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
                <td>   <td>   <td>** <td>** <td>   <td>   <td>   <td>
-  <tr><th>#x20 <td> &nbsp; <td> ! <td> &#34; <td> # <td> $ <td> % <td> &amp;
+  <tr><th>#x20 <td> &nbsp; <td> ! <td> &quot; <td> # <td> $ <td> % <td> &amp;
                <td> ' <td> ( <td> ) <td> * <td> + <td> , <td> - <td> . <td> /
   <tr><th>#x30 <td> 0 <td> 1 <td> 2 <td> 3 <td> 4 <td> 5 <td> 6 <td> 7
                <td> 8 <td> 9 <td> : <td> ; <td> &lt; <td> = <td> &gt; <td> ?
@@ -1853,23 +1853,34 @@ More precisely, CLISP uses the IBM PC character set (code page 437):
                <td> &auml; <td> &agrave; <td> &aring; <td> &ccedil;
                <td> &ecirc; <td> &euml; <td> &egrave; <td> &iuml;
                <td> &icirc; <td> &igrave; <td> &Auml; <td> &Aring;
-  <tr><th>#x90 <td> &Eacute; <td> &aelig; <td> &AElig; <td> &ocirc; <td> &ouml;
-               <td> &ograve; <td> &ucirc; <td> &ugrave; <td> &yuml; <td> &Ouml;
-               <td> &Uuml; <td> &cent; <td> &pound; <td> &yen;
+  <tr><th>#x90 <td> &Eacute; <td> &aelig; <td> &AElig; <td> &ocirc;
+               <td> &ouml; <td> &ograve; <td> &ucirc; <td> &ugrave;
+               <td> &yuml; <td> &Ouml; <td> &Uuml; <td> &cent;
+               <td> &pound; <td> &yen; <td> &#8359; <td> &#402;
   <tr><th>#xA0 <td> &aacute; <td> &iacute; <td> &oacute; <td> &uacute;
                <td> &ntilde; <td> &Ntilde; <td> &ordf; <td> &ordm;
-               <td> &iquest; <td>   <td> &not; <td> &frac12; <td> &frac14;
-               <td> &iexcl; <td> &laquo; <td> &raquo;
-  <tr><th>#xB0 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
-               <td>   <td>   <td>   <td>   <td>   <td>   <td>
-  <tr><th>#xC0 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
-               <td>   <td>   <td>   <td>   <td>   <td>   <td>
-  <tr><th>#xD0 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
-               <td>   <td>   <td>   <td>   <td>   <td>   <td>
-  <tr><th>#xE0 <td>   <td> &szlig; <td>   <td>   <td>   <td>   <td> &micro;
-               <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
-  <tr><th>#xF0 <td> <td> &plusmn; <td> <td> <td> <td> <td> &divide; <td>
-               <td> &deg; <td> <td> &middot; <td> <td> <td> &sup2; <td> <td>
+               <td> &iquest; <td> &#8976; <td> &not; <td> &frac12;
+               <td> &frac14; <td> &iexcl; <td> &laquo; <td> &raquo;
+  <tr><th>#xB0 <td> &#9617; <td> &#9618; <td> &#9619; <td> &#9474;
+               <td> &#9508; <td> &#9569; <td> &#9570; <td> &#9558;
+               <td> &#9557; <td> &#9571; <td> &#9553; <td> &#9559;
+               <td> &#9565; <td> &#9564; <td> &#9563; <td> &#9488;
+  <tr><th>#xC0 <td> &#9492; <td> &#9524; <td> &#9516; <td> &#9500;
+               <td> &#9472; <td> &#9532; <td> &#9566; <td> &#9567;
+               <td> &#9562; <td> &#9556; <td> &#9577; <td> &#9574;
+               <td> &#9568; <td> &#9552; <td> &#9580; <td> &#9575;
+  <tr><th>#xD0 <td> &#9576; <td> &#9572; <td> &#9573; <td> &#9561;
+               <td> &#9560; <td> &#9554; <td> &#9555; <td> &#9563;
+               <td> &#9562; <td> &#9496; <td> &#9484; <td> &#9608;
+               <td> &#9604; <td> &#9612; <td> &#9616; <td> &#9600;
+  <tr><th>#xE0 <td> &alpha; <td> &szlig; <td> &Gamma; <td> &pi;
+               <td> &Sigma; <td> &sigma; <td> &micro; <td> &tau;
+               <td> &Phi; <td> &Theta; <td> &Omega; <td> &delta;
+               <td> &infin; <td> &phi; <td> &epsilon; <td> &cap;
+  <tr><th>#xF0 <td> &equiv; <td> &plusmn; <td> &ge; <td> &le;
+               <td> &#8992; <td> &#8993; <td> &divide; <td> &asymp;
+               <td> &deg; <td> &#8729; <td> &middot; <td> &radic;
+               <td> &#8319; <td> &sup2; <td> &#9632; <td> &nbsp;
 </table>
 
 <p>Here ** are control characters, not graphic characters. (The
@@ -1971,26 +1982,30 @@ blank here cannot be represented in this character set).
                <td> &Ocirc; <td> &Otilde; <td> &Ouml; <td> &Ugrave;
                <td> &Uacute; <td> &Ucirc; <td> &Uuml; <td> &Yacute;
                <td> &THORN; <td> &micro; <td> &times; <td> &divide;
-  <tr><th>#xA0 <td> &copy; <td> &iexcl; <td> &cent; <td> &pound; <td>
-               <td> &yen; <td>   <td> &sect; <td> &curren; <td>   <td>
-               <td> &laquo; <td>   <td>   <td>   <td>
-  <tr><th>#xB0 <td> &reg; <td>   <td>   <td>   <td> &middot;
-               <td> &brvbar; <td> &para; <td>   <td>   <td>   <td>
-               <td> &raquo; <td> <td>   <td> &not; <td> &iquest;
-  <tr><th>#xC0 <td> &sup1; <td>   <td> &acute; <td>   <td>   <td> &macr;
-               <td>   <td>   <td> &uml; <td> &sup2; <td> &deg;
-               <td> &cedil; <td> &sup3; <td>   <td>   <td>
-  <tr><th>#xD0 <td>   <td> &plusmn; <td> &frac14; <td> &frac12;
+  <tr><th>#xA0 <td> &copy; <td> &iexcl; <td> &cent; <td> &pound;
+               <td> &#8260; <td> &yen; <td> &fnof; <td> &sect;
+               <td> &curren; <td> &#8217; <td> &ldquo; <td> &laquo;
+               <td> &#8249; <td> &#8250; <td> &#64257; <td> &#64258;
+  <tr><th>#xB0 <td> &reg; <td> &ndash; <td> &dagger; <td> &Dagger;
+               <td> &middot; <td> &brvbar; <td> &para; <td> &bull;
+               <td> &#8218; <td> &#8222; <td> &rdquo; <td> &raquo;
+               <td> &hellip; <td> &permil; <td> &not; <td> &iquest;
+  <tr><th>#xC0 <td> &sup1; <td> &#715; <td> &acute; <td> &circ;
+               <td> &tilde; <td> &macr; <td> &#728; <td> &#729;
+               <td> &uml; <td> &sup2; <td> &#730; <td> &cedil;
+               <td> &sup3; <td> &#733; <td> &#731; <td> &#711;
+  <tr><th>#xD0 <td> &mdash; <td> &plusmn; <td> &frac14; <td> &frac12;
                <td> &frac34; <td> &agrave; <td> &aacute; <td> &acirc;
                <td> &atilde; <td> &auml; <td> &aring; <td> &ccedil;
                <td> &egrave; <td> &eacute; <td> &ecirc; <td> &euml;
   <tr><th>#xE0 <td> &igrave; <td> &AElig; <td> &iacute; <td> &ordf;
-               <td> &icirc; <td> &iuml; <td> &eth; <td> &ntilde; <td>
-               <td> &Oslash; <td>   <td> &ordm; <td> &ograve;
-               <td> &oacute; <td> &ocirc; <td> &otilde;
+               <td> &icirc; <td> &iuml; <td> &eth; <td> &ntilde;
+               <td> &#321; <td> &Oslash; <td> &OElig; <td> &ordm;
+               <td> &ograve; <td> &oacute; <td> &ocirc; <td> &otilde;
   <tr><th>#xF0 <td> &ouml; <td> &aelig; <td> &ugrave; <td> &uacute;
-               <td> &ucirc; <td>   <td> &uuml; <td> &yacute; <td>
-               <td> &oslash; <td>   <td> &szlig; <td> &thorn; <td> &yuml;
+               <td> &ucirc; <td> &#305; <td> &uuml; <td> &yacute;
+               <td> &#322; <td> &oslash; <td> &oelig; <td> &szlig;
+               <td> &thorn; <td> &yuml; <td>  <td>
 </table>
 
 <p>Here ** are control characters, not graphic characters. (The
