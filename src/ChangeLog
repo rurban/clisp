@@ -1,3 +1,9 @@
+2000-03-20  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/Makefile.in:
+	(CLISP): call clisp with '-norc -q'
+	(clx.d): `e2d' bug workaround: remove ^e_$
+
 2000-03-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * autoconf/aclocal.m4 (CL_STRERROR): New macro.
@@ -66,9 +72,9 @@
         * spvw.d (main): Emit warning if run without -B command line argument.
 
 2000-03-08  Sam Steingold  <sds@gnu.org>
- 
+
         * stream.d (socket-server): treat NIL as unbound.
- 
+
 2000-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Remove DOS (EMUNIX && !EMUNIX_PORTABEL, DJUNIX, WATCOM) ports.
