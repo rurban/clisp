@@ -321,9 +321,9 @@ extern signal_handler_t install_signal_handler (int sig, signal_handler_t handle
 #endif
 /* For recovery from the SIGSEGV signal (write attempts to write
    protected ranges). See libsigsegv.
-   Hans-J. Boehm <boehm@parc.xerox.com> says that write accesses from
-   OS calls (e.g. read()) do not protect on many systems against getting
-   a signal. (e.g., Linux) */
+   Watch out: Hans-J. Boehm <boehm@parc.xerox.com> says that write accesses
+   originating from OS calls (e.g. read()) do not trigger a signal on many
+   systems, unexpectedly. (It works on Linux, though) */
 #ifndef SPVW_MIXED_BLOCKS
 /* We are lucky to write with read() only into the C-stack and into strings
    and not into possibly mprotect-protected ranges. */
