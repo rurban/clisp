@@ -1,3 +1,12 @@
+1999-06-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * intelem.d (FN_to_NDS_nocopy, I_to_NDS_nocopy): Expand into more
+          efficient code.
+          (FN_to_NDS_nocopy_): New macro.
+          (BN_to_NDS_nocopy): Add `unused' to avoid gcc warnings.
+        * intdiv.d (I_I_divide_I_I): Put brace around I_to_NDS_nocopy.
+        * intsqrt.d (I_rootp): Put brace around I_to_NDS_nocopy.
+
 1999-06-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * spvw_sigsegv.d (stackoverflow_handler): Restore the STACK on Solaris
