@@ -927,7 +927,7 @@ LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
     begin_system_call();
     he = gethostbyaddr((char*)(&ip),sizeof(uint32),AF_INET);
     end_system_call();
-  } else fehler_string_int(arg);
+  } else fehler_string_integer(arg);
 
   if (NULL == he) {
     pushSTACK(arg);

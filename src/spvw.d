@@ -83,14 +83,14 @@
       }
   #else
     #define for_all_subrs(statement)  \
-      { var module_* module; # modules durchgehen                              \
-        for_modules(all_modules,                                               \
-          { if (module->initialized)                                           \
-              if (*module->stab_size > 0)                                      \
-                { var subr_* ptr = module->stab;                               \
-                  var uintC count;                                             \
-                  dotimespC(count,*module->stab_size, { statement; ptr++; } ); \
-                });                                                            \
+      { var module_* module; # modules durchgehen                             \
+        for_modules(all_modules,                                              \
+          { if (module->initialized)                                          \
+              if (*module->stab_size > 0)                                     \
+                { var subr_* ptr = module->stab;                              \
+                  var uintC count;                                            \
+                  dotimespC(count,*module->stab_size, { statement; ptr++; } );\
+                });                                                           \
       }   }
   #endif
 
@@ -114,14 +114,14 @@
 
 # Durchlaufen durch object_tab:
   #define for_all_constobjs(statement)  \
-    { var module_* module; # modules durchgehen                                 \
-      for_modules(all_modules,                                                  \
-        { if (module->initialized)                                              \
-            if (*module->otab_size > 0)                                         \
-              { var object* objptr = module->otab; # object_tab durchgehen      \
-                var uintC count;                                                \
-                dotimespC(count,*module->otab_size, { statement; objptr++; } ); \
-              });                                                               \
+    { var module_* module; # modules durchgehen                               \
+      for_modules(all_modules,                                                \
+        { if (module->initialized)                                            \
+            if (*module->otab_size > 0)                                       \
+              { var object* objptr = module->otab; # object_tab durchgehen    \
+                var uintC count;                                              \
+                dotimespC(count,*module->otab_size, { statement; objptr++; });\
+              });                                                             \
     }   }
 
 # Semaphoren: entscheiden, ob eine Unterbrechung unwirksam (/=0) oder
@@ -1275,7 +1275,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         define_constant(S(nil),S(nil));                 # NIL := NIL
         define_constant(S(t),S(t));                     # T := T
         define_variable(S(gc_statistics_stern),Fixnum_minus1); # SYS::*GC-STATISTICS* := -1
-        define_variable(S(ansi),S(nil));                # *ANSI* := NIL
+        {pushSTACK(S(nil));                # *ANSI* := NIL
+         funcall(S(set_ansi),1);}
         # zu EVAL/CONTROL:
         define_constant_UL1(S(lambda_parameters_limit),lp_limit_1); # LAMBDA-PARAMETERS-LIMIT := lp_limit_1 + 1
         define_constant_UL1(S(call_arguments_limit),ca_limit_1); # CALL-ARGUMENTS-LIMIT := ca_limit_1 + 1
@@ -1656,7 +1657,7 @@ local void usage (int exit_code)
 
 # print license and exit
 nonreturning_function (local, print_license, (void));
-local void print_license (void) 
+local void print_license (void)
 { local const char * const license [] = {
     "This program is free software; you can redistribute it and/or modify"
     NLstring,
@@ -2768,23 +2769,10 @@ local void print_banner ()
          {var object stream = var_stream(S(query_io),strmflags_wr_ch_B);
           Symbol_value(S(debug_io)) = make_twoway_stream(popSTACK(),stream);
         }}
-      if (argv_ansi)
-        # Maximum ANSI CL compliance, even where it hurts.
-        { # (SETQ *ANSI* T)
-          Symbol_value(S(ansi)) = T;
-          # (SETQ *FLOATING-POINT-CONTAGION-ANSI* T)
-          Symbol_value(S(floating_point_contagion_ansi)) = T;
-          # (SETQ *MERGE-PATHNAMES-ANSI* T)
-          Symbol_value(S(merge_pathnames_ansi)) = T;
-          # (IN-PACKAGE "COMMON-LISP-USER")
-          pushSTACK(O(ansi_user_package_name)); funcall(L(in_package),1);
-          # (PUSHNEW :ANSI-CL *FEATURES*)
-          { pushSTACK(ascii_to_string(":ANSI-CL"));
-            { var object feat = (funcall(L(read_from_string),1), value1);
-              pushSTACK(feat); pushSTACK(Symbol_value(S(features)));
-              funcall(L(adjoin),2);
-              Symbol_value(S(features)) = value1;
-        } } }
+      if (argv_ansi) { # Maximum ANSI CL compliance
+        pushSTACK(T); funcall(L(set_ansi),1);
+        pushSTACK(O(ansi_user_package_name)); funcall(L(in_package),1);
+      }
       if (!(argv_package == NULL))
         # (IN-PACKAGE packagename) ausführen:
         { var object packname = asciz_to_string(argv_package,O(misc_encoding));
