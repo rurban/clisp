@@ -1,5 +1,10 @@
 1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * clos.lsp (install-dispatch): Don't assume the preliminary function
+          has a VENV. Generic functions without any method don't have one.
+
+1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * init.lsp (cerror): Don't go into an interactive reploop if
           *break-driver* is not yet set. This permits typing (load "init.lsp")
           in an interactive lisp.run.
