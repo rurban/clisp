@@ -36,6 +36,7 @@
 	(if_recordp): Rectype_WeakKVT is not a record
 	(allocate_weakkvt): declare
 	(map_hashtable, map_hashtable_nogc): accomodate weak hash-tables
+	(case_array, case_Rectype_array_above): added WeakKVT
 	* places.lisp (hash-table-weak-p): added defsetf
 	* predtype.d (CLASS-OF, TYPE-OF, heap_statistics_mapper):
 	handle Weak KVT
@@ -43,10 +44,11 @@
 	* spvw.d (init_object_tab_1): init O(all_weakkvtables)
 	* spvw_garcol.d (gar_col_normal): mark & update O(all_weakkvtables)
 	(gar_col_compact, move_conses): update O(all_weakkvtables)
+	* spvw_genera1.d (walk_area, build_old_generation_cache): added case_weakkvt
 	* spvw_global.d (init_mem_heaptypes): handle Weak KVT
 	* spvw_memfile.d (savemem, loadmem_from_handle):
 	update O(all_weakkvtables)
-	* spvw_objsize.d (objsize): handle case_weakkvt
+	* spvw_objsize.d (objsize, init_objsize_table): handle case_weakkvt
 	* spvw_typealloc (allocate_weakkvt): implemented
 	* spvw_update.d (update_weakkvtables, update_weakkvtables_mod): added
 	* subr.d (make_hash_table): added :WEAK

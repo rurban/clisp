@@ -340,7 +340,7 @@
             objsize_table[heapnr] = &objsize_sb32vector; break;
           case_sstring:
             objsize_table[heapnr] = &objsize_sstring; break;
-          case_svector:
+          case_svector: case_weakkvt:
             objsize_table[heapnr] = &objsize_svector; break;
           case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector:
             objsize_table[heapnr] = &objsize_iarray; break;
