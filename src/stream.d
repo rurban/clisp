@@ -3584,6 +3584,7 @@ nonreturning_function(local, fehler_iconv_invalid_charset, (object encoding)) {
 nonreturning_function(extern, fehler_unencodable, (object encoding, chart ch));
 
 # Avoid annoying warning caused by a wrongly standardized iconv() prototype.
+#ifdef ICONV_CONST # not defined when HAVE_ICONV is not defined
   #ifdef GNU_LIBICONV
     #undef iconv
     #define iconv(cd,inbuf,inbytesleft,outbuf,outbytesleft) \
@@ -3592,6 +3593,7 @@ nonreturning_function(extern, fehler_unencodable, (object encoding, chart ch));
     #define iconv(cd,inbuf,inbytesleft,outbuf,outbytesleft) \
       (iconv)(cd,(ICONV_CONST char **)(inbuf),inbytesleft,outbuf,outbytesleft)
   #endif
+#endif
 
 # Bytes to characters.
 
