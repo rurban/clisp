@@ -1317,7 +1317,7 @@ local void init_symbol_values (void) {
   define_variable(S(load_print),NIL); /* *LOAD-PRINT* := NIL */
   define_variable(S(compile_print),NIL); /* *COMPILE-PRINT* := NIL */
   define_variable(S(compile_verbose),T); /* *COMPILE-VERBOSE* := T */
-  define_variable(S(defun_accept_spelalist),T); /* *DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST* */
+  define_variable(S(defun_accept_spelalist),NIL); /* CUSTOM:*DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST* := NIL */
   # for FOREIGN:
  #ifdef DYNAMIC_FFI
   define_constant(S(fv_flag_readonly),fixnum(fv_readonly));  # FFI::FV-FLAG-READONLY
