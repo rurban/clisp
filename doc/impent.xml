@@ -128,10 +128,22 @@
 <!ENTITY ch-super "<link linkend='char-bits'><constant>EXT:CHAR-SUPER-BIT</constant></link>">
 <!ENTITY char-width "<link linkend='char-width'><function>EXT:CHAR-WIDTH</function></link>">
 <!ENTITY class-proto "<link linkend='class-proto'><function>CLOS:CLASS-PROTOTYPE</function></link>">
+
+<!ENTITY no-prim "<link linkend='no-prim'><function>CLOS:NO-PRIMARY-METHOD</function></link>">
+<!ENTITY gen-flet "<link linkend='gen-flet'><function>CLOS:GENERIC-FLET</function></link>">
+<!ENTITY gen-labels "<link linkend='gen-labels'><function>CLOS:GENERIC-LABELS</function></link>">
+<!ENTITY class-fin-p "<link linkend='class-fin-p'><function>CLOS:CLASS-FINALIZED-P</function></link>">
+<!ENTITY fin-inher "<link linkend='fin-inher'><function>CLOS:FINALIZE-INHERITANCE</function></link>">
+<!ENTITY symbol-mex "<link linkend='symbol-mex'><function>EXT:SYMBOL-MACRO-EXPAND</function></link>">
+
 <!ENTITY compile-warn "<link linkend='compilefile'><varname>CUSTOM:*COMPILE-WARNINGS*</varname></link>">
 <!ENTITY compiled-types "<link linkend='loadfile'><varname>CUSTOM:*COMPILED-FILE-TYPES*</varname></link>">
 <!ENTITY count-ansi "<link linkend='count-ansi'><varname>CUSTOM:*SEQUENCE-COUNT-ANSI*</varname></link>">
 <!ENTITY curr-lang "<link linkend='language'><varname>CUSTOM:*CURRENT-LANGUAGE*</varname></link>">
+<!ENTITY deflang "<link linkend='deflang'><function>I18N:DEFLANGUAGE</function></link>">
+<!ENTITY def-i-l "<link linkend='def-i-l'><function>I18N:DEFINTERNATIONAL</function></link>">
+<!ENTITY defloc "<link linkend='defloc'><function>I18N:DEFLOCALIZED</function></link>">
+<!ENTITY localized "<link linkend='localized'><function>I18N:LOCALIZED</function></link>">
 <!ENTITY def-file-enc "<link linkend='def-file-enc'><varname>CUSTOM:*DEFAULT-FILE-ENCODING*</varname></link>">
 <!ENTITY default-float-format "<link linkend='default-float-format'><varname>CUSTOM:*DEFAULT-FLOAT-FORMAT*</varname></link>">
 <!ENTITY default-tz "<link linkend='default-tz'><varname>CUSTOM:*DEFAULT-TIME-ZONE*</varname></link>">
@@ -189,6 +201,7 @@
 <!ENTITY mk-pipe-in "<link linkend='pipe'><function>EXT:MAKE-PIPE-INPUT-STREAM</function></link>">
 <!ENTITY mk-pipe-io "<link linkend='pipe'><function>EXT:MAKE-PIPE-IO-STREAM</function></link>">
 <!ENTITY mk-pipe-out "<link linkend='pipe'><function>EXT:MAKE-PIPE-OUTPUT-STREAM</function></link>">
+<!ENTITY mk-xterm-io "<link linkend='separate-io'><function>EXT:MAKE-XTERM-IO-STREAM</function></link>">
 <!ENTITY muffle-cerrors "<link linkend='muffle-cerrors'><function>EXT:MUFFLE-CERRORS</function></link>">
 <!ENTITY need-defmethod "<simpara>You must define a method for this function.</simpara>">
 <!ENTITY no-underflow "<link linkend='no-underflow'><function>EXT:WITHOUT-FLOATING-POINT-UNDERFLOW</function></link>">
@@ -227,6 +240,7 @@
 <!ENTITY re-with-loop-split "<link linkend='re-with-loop-split'><function>REGEXP:WITH-LOOP-SPLIT</function></link>">
 <!ENTITY run-cmd "<link linkend='run-prog'><function>EXT:RUN-SHELL-COMMAND</function></link>">
 <!ENTITY run-prog "<link linkend='run-prog'><function>EXT:RUN-PROGRAM</function></link>">
+<!ENTITY scr-win "<link linkend='screen'><varname>SCREEN:*WINDOW*</varname></link>">
 <!ENTITY service-port "<link linkend='service-port'><function>SOCKET:SOCKET-SERVICE-PORT</function></link>">
 <!ENTITY shell "<link linkend='exec'><function>EXT:SHELL</function></link>">
 <!ENTITY so-accept "<link linkend='so-accept'><function>SOCKET:SOCKET-ACCEPT</function></link>">
@@ -271,6 +285,7 @@
 <!ENTITY wdkey-search "<link linkend='with-dir-key-search'><function>LDAP:WITH-DIR-KEY-SEARCH</function></link>">
 <!ENTITY weak-pointer "<link linkend='weak'><classname>EXT:WEAK-POINTER</classname></link>">
 <!ENTITY with-kbd "<link linkend='terminal'><function>EXT:WITH-KEYBOARD</function></link>">
+<!ENTITY with-print "<link linkend='hardcopy'><function>EXT:WITH-OUTPUT-TO-PRINTER</function></link>">
 <!ENTITY with-restarts "<link linkend='with-restarts'><function>EXT:WITH-RESTARTS</function></link>">
 <!ENTITY wr-by-seq "<link linkend='wr-by-seq'><function>EXT:WRITE-BYTE-SEQUENCE</function></link>">
 <!ENTITY wr-ch-seq "<link linkend='wr-ch-seq'><function>EXT:WRITE-CHAR-SEQUENCE</function></link>">
@@ -453,6 +468,7 @@
 <!ENTITY val-type-r "<replaceable>value-type</replaceable>">
 <!ENTITY value-r "<replaceable>value</replaceable>">
 <!ENTITY var-r "<replaceable>variable</replaceable>">
+<!ENTITY ws-r "<replaceable>window-stream</replaceable>">
 <!ENTITY x-r "<replaceable>x</replaceable>">
 <!ENTITY x1-r "<replaceable>x&sub-1;</replaceable>">
 <!ENTITY xn-r "<replaceable>x&sub-n;</replaceable>">

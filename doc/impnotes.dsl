@@ -41,7 +41,7 @@
 (element emphasis
   (let ((role (attribute-string (normalize "role"))))
     (case role
-      (("strong" "first") ($bold-seq$))
+      (("strong") ($bold-seq$))
       (else ($italic-seq$)))))
 
 (element literal
@@ -67,6 +67,10 @@
     (if (not (last-sibling?))
 	(make empty-element gi: "BR")
 	(literal ""))))
+
+(element (firstterm)
+  (make element gi: "STRONG" attributes: (list (list "CLASS" "FIRST"))
+        (next-match)))
 
 <![%print;[ ;; customize the print stylesheet here
 
