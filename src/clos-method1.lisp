@@ -8,7 +8,7 @@
 
 (defstruct (method (:predicate nil) (:copier nil) (:constructor nil)))
 
-(eval-when (compile load eval) (defparameter <method> (find-class 'method)))
+(defparameter <method> 'method)
 
 (defstruct (standard-method (:include method) (:conc-name "STD-METHOD-")
                             (:copier nil)) ; (:print-object print-std-method)
