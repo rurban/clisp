@@ -1389,12 +1389,12 @@ local void bit_copy (object array1, uintL index1,
  > index3: absoluter Index in array3
  > op: address of the operation
  > count: number of bits to combine, > 0
- bit_op_fun is a function, that combines two bitpack-bit-words: */
-typedef uint_bitpack_t bit_op_fun (uint_bitpack_t x, uint_bitpack_t y);
+ bit_op_fun_t is a function that combines two bitpack-bit-words: */
+typedef uint_bitpack_t bit_op_fun_t (uint_bitpack_t x, uint_bitpack_t y);
 local void bit_op (object array1, uintL index1,
                    object array2, uintL index2,
                    object array3, uintL index3,
-                   bit_op_fun* op, uintL bitcount)
+                   bit_op_fun_t* op, uintL bitcount)
 {
   var const uint_bitpack_t* ptr1 = &((uint_bitpack_t*)(&TheSbvector(array1)->data[0]))[index1/bitpack];
   var const uint_bitpack_t* ptr2 = &((uint_bitpack_t*)(&TheSbvector(array2)->data[0]))[index2/bitpack];
@@ -1615,7 +1615,7 @@ local void bit_op (object array1, uintL index1,
  > op: address of the combination routine
  < value1/mv_count: function value
  tests the arguments, cleans up STACK. */
-local Values bit_up (bit_op_fun* op)
+local Values bit_up (bit_op_fun_t* op)
 {
   /* main distinction: vector / multi-dimensional array */
   var uintL len; /* length (of the 1st array), if vectors */
@@ -1730,8 +1730,7 @@ local Values bit_up (bit_op_fun* op)
     default:
       goto fehler2;
   }
-  /* check bit-array3: */
-  {
+  { /* check bit-array3: */
     var object array3 = STACK_0;
     if (missingp(array3)) { /* unbound or NIL? */
       /* yes -> create new array: */
