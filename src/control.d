@@ -1,7 +1,7 @@
 /*
  * Special Forms, Control Structures, Evaluator Related Stuff for CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2003
+ * Sam Steingold 1998-2005
  * German comments translated into English: Stefan Kain 2002-09-28
  */
 

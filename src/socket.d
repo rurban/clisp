@@ -2,7 +2,7 @@
  * Setting up a connection to an X server, and other socket functions
  * Bruno Haible 19.6.1994, 27.6.1997, 9.3.1999 ... 2003
  * Marcus Daniels 28.9.1995, 9.9.1997
- * Sam Steingold 1998-2002
+ * Sam Steingold 1998-2005
  * German comments translated into English: Stefan Kain 2002-09-11
  */
 

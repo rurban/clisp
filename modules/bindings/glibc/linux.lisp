@@ -1,7 +1,7 @@
 ;; Foreign functions provided by the Linux C library version 6,
 ;; i.e. the GNU C library version 2.0.7.
 ;; Bruno Haible 10.4.1998, 19.4.1998
-;; Sam Steingold 2002-2003
+;; Sam Steingold 2002-2005
 
 (defpackage "LINUX"
   (:modern t)

@@ -1,4 +1,6 @@
-;; Foreign functions provided by PostgreSQL
+;; CLISP interface to PostgreSQL <http://www.postgresql.org/>
+;; Copyright (C) 1999-2005 Sam Steingold
+;; This is free software, distributed under the GNU GPL 2
 
 (pushnew :PostgreSQL *features*)
 
