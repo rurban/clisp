@@ -6,6 +6,9 @@ User visible changes
 
 * Implemented ANSI CL macro WITH-PACKAGE-ITERATOR.
 
+* Conforming to ANSI CL issue <ALLOCATE-INSTANCE:ADD>: New function
+  ALLOCATE-INSTANCE.
+
 * Conforming to ANSI CL issue <GENERIC-FLET-POORLY-DESIGNED:DELETE>: The
   symbols GENERIC-FLET and GENERIC-LABELS are not exported from the
   COMMON-LISP package any more.

@@ -164,11 +164,12 @@ get-decoded-time get-universal-time decode-universal-time encode-universal-time
 get-internal-run-time get-internal-real-time sleep lisp-implementation-type
 lisp-implementation-version machine-type machine-version machine-instance
 software-type software-version short-site-name long-site-name identity
-add-method call-next-method class-name class-of compute-applicable-methods
-find-class find-method function-keywords initialize-instance make-instance
-method-qualifiers next-method-p no-applicable-method no-next-method
-print-object reinitialize-instance remove-method shared-initialize slot-boundp
-slot-exists-p slot-makunbound slot-missing slot-unbound slot-value
+add-method allocate-instance call-next-method class-name class-of
+compute-applicable-methods find-class find-method function-keywords
+initialize-instance make-instance method-qualifiers next-method-p
+no-applicable-method no-next-method print-object reinitialize-instance
+remove-method shared-initialize slot-boundp slot-exists-p slot-makunbound
+slot-missing slot-unbound slot-value
 signal make-condition compute-restarts restart-name find-restart invoke-restart
 invoke-restart-interactively abort continue muffle-warning store-value
 use-value invoke-debugger simple-condition-format-control

@@ -692,7 +692,8 @@ LISPSYM(finalize,"FINALIZE",lisp)
 LISPSYM(structure_object_p,"STRUCTURE-OBJECT-P",clos)
 LISPSYM(std_instance_p,"STD-INSTANCE-P",clos)
 LISPSYM(allocate_std_instance,"ALLOCATE-STD-INSTANCE",clos)
-LISPSYM(allocate_instance,"%ALLOCATE-INSTANCE",clos)
+LISPSYM(old_pallocate_instance,"OLD-%ALLOCATE-INSTANCE",clos)
+LISPSYM(pallocate_instance,"%ALLOCATE-INSTANCE",clos)
 LISPSYM(slot_value,"SLOT-VALUE",clos)
 LISPSYM(set_slot_value,"SET-SLOT-VALUE",clos)
 LISPSYM(slot_boundp,"SLOT-BOUNDP",clos)
@@ -1115,6 +1116,7 @@ LISPSYM(make_instance_table,"*MAKE-INSTANCE-TABLE*",clos) # als Variable für REC
 LISPSYM(initial_reinitialize_instance,"INITIAL-REINITIALIZE-INSTANCE",clos) # als Funktion für RECORD
 LISPSYM(initial_initialize_instance,"INITIAL-INITIALIZE-INSTANCE",clos) # als Funktion für RECORD
 LISPSYM(initial_make_instance,"INITIAL-MAKE-INSTANCE",clos) # als Funktion für RECORD
+LISPSYM(allocate_instance,"ALLOCATE-INSTANCE",clos) # als Funktion für RECORD
 LISPSYM(simple_vector,"SIMPLE-VECTOR",lisp) # als Typ in SEQUENCE, PREDTYPE
 LISPSYM(simple_string,"SIMPLE-STRING",lisp) # als Typ in SEQUENCE, PREDTYPE
 LISPSYM(base_string,"BASE-STRING",lisp) # als Typ in SEQUENCE, PREDTYPE
