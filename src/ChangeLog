@@ -1,5 +1,16 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_typealloc.d: New file.
+        * spvw.d (allocate_cons, make_symbol, allocate_vector,
+           allocate_bit_vector, allocate_string, allocate_iarray,
+           allocate_srecord_, allocate_xrecord_, allocate_stream,
+           allocate_fpointer, allocate_handle, allocate_bignum,
+           allocate_ffloat, allocate_dfloat, allocate_lfloat, make_ratio,
+           make_complex): Move out.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_allocate.d: New file.
         * spvw.d (fehler_speicher_voll, error_speicher_voll, relax_reserve,
            pointable_usable_test, mymalloc, make_space, make_space_gc,
