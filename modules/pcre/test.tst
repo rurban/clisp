@@ -2,7 +2,10 @@
 ;; some tests for PCRE
 ;; clisp -q -norc -K full -i ../tests/tests -x '(run-test "pcre/test")'
 (multiple-value-bind (ve ma mi) (pcre:pcre-version)
-  (format t "~&testing: ~S (~D.~D)~%" ve ma mi))
+  (format t "~&Version: ~S (~D.~D)~%Options:~:{~%  ~25@A  ~S~}~%" ve ma mi
+          (mapcar (lambda (what) (list what (pcre:pcre-config what)))
+                  '(:UTF8 :NEWLINE :LINK-SIZE :POSIX-MALLOC-THRESHOLD
+                    :MATCH-LIMIT))))
 NIL
 
 (setq d (pcre:pcre-compile "(?P<date> (?P<year>(\\d\\d)?\\d\\d) - (?P<month>\\d\\d) - (?P<day>\\d\\d) )" :extended t :study t)
@@ -13,7 +16,7 @@ NIL
   #S(PCRE::MATCH :START 14 :END 16) #S(PCRE::MATCH :START 17 :END 19))
 
 (pcre:pattern-info d :options)
-(:EXTENDED)
+(:EXTENDED :UTF8)
 
 (pcre:pattern-info d :nametable)
 (("date" . 1) ("day" . 5) ("month" . 4) ("year" . 2))
@@ -45,7 +48,7 @@ NIL
 #("abc" "a" NIL "bc")
 
 (pcre:pattern-info p :options)
-NIL
+(:UTF8)
 
 (let ((cp (pcre:pcre-compile "a(a)*b" :extended t)))
   (pcre:pcre-exec cp "ab"))
