@@ -98,7 +98,7 @@ The point should be on the prototype and the definition should follow."
   "Convert the next comment appropriately"
   (interactive)
   (search-forward "# ")
-  (if (looking-at "UP")
+  (if (or (looking-at "UP") (looking-at "Function:"))
       (d-mode-convert-block-comment)
       (d-mode-convert-comment)))
 
