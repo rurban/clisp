@@ -3746,7 +3746,7 @@ functions are provided:
 <section id="pathprint"><title>pathnames</title>
 
 <para>Pathnames are printed as follows: If &print-escape-var; is &nil;,
- only the namestring is printed; otherwise it is printed with
+ only the namestring is printed; otherwise it is printed with the
  <filename>#P""</filename> syntax, as per &ansi-cl; Issue <ulink
  url="&clhs;/Issues/iss276.html">PRINT-READABLY-BEHAVIOR:CLARIFY</ulink>.
  But, if &print-readably-var; is true, we are in trouble as
@@ -3757,7 +3757,7 @@ functions are provided:
 <computeroutput>#-CLISP #P"" #+CLISP #S(PATHNAME ...)</computeroutput>.
  Otherwise, when the variable &pathprint; is non-&nil;, the
  <filename>#P""</filename> notation is used as per <ulink
- url="&clhs;/Body/sec_1-5-1-4.html">1.5.1.4.1 Resolution of Apparent
+ url="&clhs;/Body/sec_1-5-1-4-1.html">1.5.1.4.1 Resolution of Apparent
  Conflicts in Exceptional Situations</ulink>.</para>
 
 </section>
