@@ -43,7 +43,10 @@ local void move_conses (sintL delta);
   - an object of variable length: bit garcol_bit,(X) is set
   - a two-pointer-object: bit garcol_bit,(X) is set
   - a SUBR/FSUBR: bit garcol_bit,(X+const_offset) is set
-  - Character, Short-Float, Fixnum etc.: always. */
+  - Character, Short-Float, Fixnum etc.: always.
+Use GC_MARK when the argument might be a reallocated string */
+#define GC_MARK(o) do {                         \
+  if (arrayp(o)) simple_array_to_storage(o); gc_mark(o); } while(0)
 local void gc_mark (object obj)
 {
   var object dies = obj; /* current object */
@@ -273,6 +276,9 @@ local void gc_mark (object obj)
           down_svector();
         case Rectype_WeakKVT:
           down_weakkvt();
+        case Rectype_reallocstring:
+          simple_array_to_storage(dies);
+          /*FALLTHROUGH*/
         case Rectype_mdarray:
         case Rectype_bvector:
         case Rectype_b2vector:
@@ -280,7 +286,6 @@ local void gc_mark (object obj)
         case Rectype_b8vector:
         case Rectype_b16vector:
         case Rectype_b32vector:
-        case Rectype_reallocstring:
         case Rectype_string:
         case Rectype_vector:
           down_iarray();
@@ -436,7 +441,7 @@ local void gc_mark (object obj)
                    default: break;
                  }
                #endif
-               gc_mark(obj);
+               GC_MARK(*objptr);
                objptr skipSTACKop 1; # advance
       }   }  }
 
