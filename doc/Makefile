@@ -1,6 +1,6 @@
 DTDVER=4.1.2
 IMPNOTES=impnotes.xml cl-ent.xml clhs-ent.xml impbody.xml impent.xml \
-	impext.xml impissue.xml impbyte.xml
+	impext.xml impissue.xml impbyte.xml ../modules/regexp/regexp.xml
 RM=/bin/rm -f
 # DOC=$(shell pwd)
 
@@ -71,5 +71,8 @@ wildcard.html: ../modules/wildcard/wildcard.texinfo $(TEXI2HTML)
 
 clean: force
 	$(RM) impnotes.xml impnotes.texi impnotes.html
+
+count: $(IMPNOTES)
+	wc $^
 
 force:
