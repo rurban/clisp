@@ -460,3 +460,8 @@ otherwise
 (5 B C)
 (the (values) 'a) A
 (multiple-value-list (the (values &rest symbol) (values 'a 'b))) (A B)
+
+(type-of (make-array '(10 3) :element-type nil))
+(SIMPLE-ARRAY NIL (10 3))
+(type-of (make-array 10 :element-type nil))
+(SIMPLE-ARRAY NIL (10))

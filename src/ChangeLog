@@ -1,3 +1,7 @@
+2004-02-11  Sam Steingold  <sds@gnu.org>
+
+	* predtype.d (TYPE-OF): handle (VECTOR NIL)
+
 2004-02-10  Sam Steingold  <sds@gnu.org>
 
 	* lfloat.d (LF_sqrt_LF): fixed a bug with large uexp whereby SQRT
