@@ -2156,17 +2156,19 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 
 # Feature dependent include files.
 
-#if HAVE_ICONV
+#ifdef HAVE_ICONV
   #include <stdlib.h>
   #include <iconv.h>
   #if _LIBICONV_VERSION
     # We use GNU libiconv.
     #define GNU_LIBICONV
+    #define HAVE_GOOD_ICONV
   #elif (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
     # glibc-2.2 iconv is also very reliable. Use it.
+    #define HAVE_GOOD_ICONV
   #else
     # Other iconv implementations are too unreliable.
-    #undef HAVE_ICONV
+    # Don't define HAVE_GOOD_ICONV.
   #endif
 #endif
 

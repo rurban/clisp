@@ -194,7 +194,7 @@ XPSEUDODATA(struct nls_table, nls_cp1258_table)
 XPSEUDODATA(struct nls_table, nls_hp_roman8_table)
 XPSEUDODATA(struct nls_table, nls_nextstep_table)
 XPSEUDODATA(struct nls_table, nls_jisx0201_table)
-#if defined(GNU_LIBICONV) || defined(HAVE_ICONV)
+#ifdef HAVE_GOOD_ICONV
 XPSEUDOCODE(uintL, iconv_mblen, (object encoding, const uintB* src, const uintB* srcend))
 XPSEUDOCODE(void, iconv_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
 XPSEUDOCODE(uintL, iconv_wcslen, (object encoding, const chart* src, const chart* srcend))
