@@ -75,8 +75,8 @@
             (type-of obj))
     (let ((types (butlast (cdr (sys::%record-ref obj 0)))))
       (when types
-        (format stream (ENGLISH "~%As such, it is also a structure of type ~{~S~^, ~}.")
-                types)))
+        (format stream (ENGLISH "~%~v,vtAs such, it is also a structure of type ~{~S~^, ~}.")
+                *describe-nesting* *print-indent-lists* types)))
     (describe-slotted-object obj stream))
   (:method ((obj cons) (stream stream))
     (let ((len ; cf. function list-length in CLtL p. 265
@@ -207,13 +207,16 @@
     #+UNICODE
     (let ((unicode-name (unicode-attributes obj)))
       (if unicode-name
-        (format stream (ENGLISH "~%Unicode name: ~A") unicode-name)
-        (format stream (ENGLISH "~%It is not defined by the Unicode standard."))
-    ) )
-    (format stream (ENGLISH "~%It is a ~:[non-~;~]printable character.")
-            (graphic-char-p obj))
+        (format stream (ENGLISH "~%~v,vtUnicode name: ~A")
+                *describe-nesting* *print-indent-lists* unicode-name)
+        (format stream
+                (ENGLISH "~%~v,vtIt is not defined by the Unicode standard.")
+                *describe-nesting* *print-indent-lists*)))
+    (format stream (ENGLISH "~%~v,vtIt is a ~:[non-~;~]printable character.")
+            *describe-nesting* *print-indent-lists* (graphic-char-p obj))
     (unless (standard-char-p obj)
-      (format stream (ENGLISH "~%Its use is non-portable."))))
+      (format stream (ENGLISH "~%~v,vtIts use is non-portable.")
+              *describe-nesting* *print-indent-lists*)))
   (:method ((obj stream) (stream stream))
     (format stream (ENGLISH "a~:[~:[ closed ~;n output-~]~;~:[n input-~;n input/output-~]~]stream.")
             (input-stream-p obj) (output-stream-p obj)))
@@ -259,7 +262,8 @@
             (sys::logical-pathname-p obj)
             (mapcan #'(lambda (kw component)
                         (when component
-                          (list (format nil "~%~A = ~A"
+                          (list (format nil "~%~v,vt~A = ~A"
+                                        *describe-nesting* *print-indent-lists*
                                         (symbol-name kw)
                                         (make-pathname kw component)))))
                     '(:host :device :directory :name :type :version)
@@ -332,21 +336,22 @@
         ((eq stream 't) (setq stream *terminal-io*)))
   (unless (boundp '*describe-nesting*)
     (setq *describe-nesting* 0 *describe-done* nil))
-  (if (member obj *describe-done* :test #'eq)
-      (format stream (ENGLISH "~%~v,vt~S [see above]")
-              (1+ *describe-nesting*) *print-indent-lists* obj)
-      (let ((*print-circle* t))
-        (incf *describe-nesting*)
-        (push obj *describe-done*)
-        (format stream
-                (ENGLISH "~%~v,vt~a is ")
-                *describe-nesting* *print-indent-lists*
-                (sys::write-to-short-string obj sys::*prin-linelength*))
-        (describe-object obj stream)
-        (decf *describe-nesting*)))
-  (when (= 0 *describe-nesting*)
-    (makunbound '*describe-nesting*)
-    (makunbound '*describe-done*))
+  (unwind-protect
+       (if (member obj *describe-done* :test #'eq)
+           (format stream (ENGLISH "~%~v,vt~S [see above]")
+                   (1+ *describe-nesting*) *print-indent-lists* obj)
+           (let ((*print-circle* t))
+             (incf *describe-nesting*)
+             (push obj *describe-done*)
+             (format stream
+                     (ENGLISH "~%~v,vt~a is ")
+                     *describe-nesting* *print-indent-lists*
+                     (sys::write-to-short-string obj sys::*prin-linelength*))
+             (describe-object obj stream)
+             (decf *describe-nesting*)))
+    (when (= 0 *describe-nesting*)
+      (makunbound '*describe-nesting*)
+      (makunbound '*describe-done*)))
   (values))
 
 ;;-----------------------------------------------------------------------------
