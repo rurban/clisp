@@ -5374,7 +5374,7 @@ DEFUN(XLIB:QUERY-BEST-CURSOR, arg1 arg2 arg3)
 
 /*   XLIB:RECOLOR-CURSOR cursor foreground background
 
- FIXME? Are colour names also o.k here? */
+ FIXME? Are color names also OK here? */
 DEFUN(XLIB:RECOLOR-CURSOR, arg1 arg2 arg3)
 {
   Display *dpy;
@@ -6515,15 +6515,19 @@ DEFUN(XLIB:INPUT-FOCUS, display)
   X_CALL(XGetInputFocus (dpy, &focus, &revert));
 
   /* value1 (= focus) */
-  if (focus == PointerRoot) pushSTACK(`:POINTER-ROOT`);
-  else if (focus == None) pushSTACK(`:NONE`);
-  else pushSTACK(make_window (STACK_0, focus));
+  switch (focus) {
+    case PointerRoot: pushSTACK(`:POINTER-ROOT`); break;
+    case None:        pushSTACK(`:NONE`); break;
+    default:          pushSTACK(make_window (STACK_0, focus));
+  }
 
   /* value2 (= revert) */
-  if (revert == RevertToPointerRoot) pushSTACK(`:POINTER-ROOT`);
-  else if (revert == RevertToParent) pushSTACK(`:PARENT`);
-  else if (revert == RevertToNone) pushSTACK(`:NONE`);
-  else pushSTACK(NIL);          /* safety ... */
+  switch (revert) {
+    case RevertToPointerRoot: pushSTACK(`:POINTER-ROOT`); break;
+    case RevertToParent:      pushSTACK(`:PARENT`); break;
+    case RevertToNone:        pushSTACK(`:NONE`); break;
+    default:                  pushSTACK(NIL);     /* safety ... */
+  }
 
   value2 = popSTACK();
   value1 = popSTACK();
@@ -6537,6 +6541,16 @@ static void ungrab_X (int (*X)(Display *dpy, Time time))
   X_CALL(X (dpy, time));
   VALUES1(NIL);
   skipSTACK(2);
+}
+
+inline static object grab_to_object (int gr) {
+  switch (gr) {
+    case AlreadyGrabbed:  return `:ALREADY-GRABBED`;
+    case GrabFrozen:      return `:FROZEN`;
+    case GrabInvalidTime: return `:INVALID-TIME`;
+    case GrabNotViewable: return `:NOT-VIEWABLE`; /* NIM */
+    default:              return `:SUCCESS`;
+  }
 }
 
 DEFUN(XLIB:GRAB-POINTER, window event-mask &key OWNER-P SYNC-POINTER-P \
@@ -6556,13 +6570,7 @@ DEFUN(XLIB:GRAB-POINTER, window event-mask &key OWNER-P SYNC-POINTER-P \
   X_CALL(r = XGrabPointer (dpy, win, owner_p, event_mask, sync_pointer,
                            sync_keyboard, confine_to, cursor, time));
 
-       if (r == AlreadyGrabbed)  value1 = `:ALREADY-GRABBED`;
-  else if (r == GrabFrozen)      value1 = `:FROZEN`;
-  else if (r == GrabInvalidTime) value1 = `:INVALID-TIME`;
-  else if (r == GrabNotViewable) value1 = `:NOT-VIEWABLE`; /* NIM */
-  else value1 = `:SUCCESS`;
-
-  mv_count = 1;
+  VALUES1(grab_to_object(r));
   skipSTACK(8);
 }
 
@@ -6633,14 +6641,7 @@ DEFUN(XLIB:GRAB-KEYBOARD, window \
 
   X_CALL(r = XGrabKeyboard (dpy, win, owner_p, sync_pointer_p, sync_keyboard_p,
                             time));
-
-       if (r == AlreadyGrabbed)  value1 = `:ALREADY-GRABBED`;
-  else if (r == GrabFrozen)      value1 = `:FROZEN`;
-  else if (r == GrabInvalidTime) value1 = `:INVALID-TIME`;
-  else if (r == GrabNotViewable) value1 = `:NOT-VIEWABLE`;
-  else value1 = `:SUCCESS`;
-
-  mv_count = 1;
+  VALUES1(grab_to_object(r));
   skipSTACK(5);
 }
 
@@ -7382,7 +7383,7 @@ int xlib_error_handler (Display *display, XErrorEvent *event)
     STACK_0 = `XLIB::DEFAULT-ERROR-HANDLER`;
   else if (listp (STACK_0) || vectorp (STACK_0)) { /* sequencep */
     pushSTACK(fixnum(event->error_code));
-    funcall (L(aref), 2);
+    funcall (L(elt), 2);
     pushSTACK(value1);
   }
 
@@ -7535,7 +7536,7 @@ DEFUN(XLIB:SHAPE-COMBINE, destination source \
   } else if (window_p (STACK_5)) {
     /* FIXME -- a :source-kind keyword is missing here. */
     Pixmap src = get_window (STACK_5);
-    XShapeCombineShape (dpy, dest, kind, x_off, y_off, src, kind/*src_kind*/, op);
+    XShapeCombineShape(dpy,dest,kind,x_off,y_off,src,kind/*src_kind*/,op);
   } else if (listp (STACK_5) || vectorp (STACK_5)) {
     int i, nrectangles;
 
