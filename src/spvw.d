@@ -618,6 +618,17 @@ global void* my_malloc (size_t size)
   pushSTACK(TheSubr(subr_self)->name);
   fehler(storage_condition,GETTEXT("~S: malloc() failed"));
 }
+/* realloc() with error check. */
+global void* my_realloc (void* ptr, size_t size)
+{
+  begin_system_call();
+  ptr = realloc(ptr,size);
+  end_system_call();
+  if (ptr)
+    return ptr;
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(storage_condition,GETTEXT("~S: realloc() failed"));
+}
 
 #if (int_bitsize < long_bitsize)
 # passing value from longjmpl() to setjmpl()  :
