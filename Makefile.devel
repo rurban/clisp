@@ -44,19 +44,18 @@ PACKEXT = .tar.gz
 TOPDIR = clisp
 T = $(TOPDIR)
 
-SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/configure #$T/HTML-index.html
+SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/configure #$T/HTML-index.html
 #SOURCES2 = $T/src/*
-# exclude $T/src/g*t $T/src/*ne = $T/src/gettext $T/src/readline
-SOURCES2 = $T/src/*[^et] $T/src/[^g]*t $T/src/*[^n]e $T/src/.??*
+# exclude $T/src/g*t = $T/src/gettext
+SOURCES2 = $T/src/*[^t] $T/src/[^g]*t $T/src/.??*
 # exclude $T/src/gettext/*o/*p = $T/src/gettext/po/tmp
 SOURCES3 = $T/src/gettext/*[^o] $T/src/gettext/po/*[^p]
-#SOURCES4 = $T/modules/*
-# exclude $T/modules/[cqrw]* = $T/modules/queens $T/modules/wildcard $T/modules/regexp $T/modules/clx
-SOURCES4 = $T/modules/[^cqrw]*
-SOURCES5 = $T/ffcall $T/utils $T/unix $T/os2 $T/cygwin32 $T/win32gcc $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
-SOURCES6 = $T/tests $T/emacs $T/doc/*.txt $T/Makefile.devel
+SOURCES4 = $T/ffcall $T/sigsegv $T/libiconv $T/utils 
+SOURCES5 = $T/unix $T/os2 $T/cygwin32 $T/win32gcc $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
+SOURCES6 = $T/modules
+SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
 
-SOURCES = $(SOURCES1) $(SOURCES2) $(SOURCES3) $(SOURCES4) $(SOURCES5) $(SOURCES6)
+SOURCES = $(SOURCES1) $(SOURCES2) $(SOURCES3) $(SOURCES4) $(SOURCES5) $(SOURCES6) $(SOURCES7)
 
 DOSDIR = /c:/clisp/src
 EMXDIR = /c:/emx
@@ -246,11 +245,6 @@ src-distrib : src/FILES src/version.h potfiles force
 src--distrib : force
 	ln -s . $(TOPDIR)
 	$(PACK) $(PACKOPT) /tmp/clispsrc$(PACKEXT) $(SOURCES)
-	$(PACK) $(PACKOPT) /tmp/clispsrc-readline$(PACKEXT) $T/src/readline
-	$(PACK) $(PACKOPT) /tmp/clispsrc-queens$(PACKEXT) $T/modules/queens
-	$(PACK) $(PACKOPT) /tmp/clispsrc-wildcard$(PACKEXT) $T/modules/wildcard
-	$(PACK) $(PACKOPT) /tmp/clispsrc-regexp$(PACKEXT) $T/modules/regexp
-	$(PACK) $(PACKOPT) /tmp/clispsrc-clx$(PACKEXT) $T/modules/clx
 	rm -f $(TOPDIR)
 # No need for this. François Pinard doesn't like CLISP's submissions any more.
 # Doesn't matter; the KDE project's translations work independently too.
