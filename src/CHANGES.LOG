@@ -80,6 +80,8 @@ Portability
 
 * Added support for SPARC running Linux.
 
+* Improved support for m68k running Linux.
+
 * Added build instructions for Win32 using MSVC 6.0.
 
 Other modifications
