@@ -3,9 +3,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2.32.93\n"
-"POT-Creation-Date: 2004-03-12 14:25:23 EST\n"
-"PO-Revision-Date: 2004-03-12 14:25:23 EST\n"
+"Project-Id-Version: clisp 2.32.94\n"
+"POT-Creation-Date: 2004-03-14 12:10:50 EST\n"
+"PO-Revision-Date: 2004-03-14 12:10:51 EST\n"
 "Last-Translator: Automatically generated <@winsteingoldlap>\n"
 "Language-Team: English <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -434,23 +434,23 @@ msgstr "Trying to make room through a GC...\n"
 msgid "disk full"
 msgstr "disk full"
 
-#: spvw_memfile.d:779
+#: spvw_memfile.d:777
 msgid "%s: operating system error during load of initialization file `%s'\n"
 msgstr "%s: operating system error during load of initialization file `%s'\n"
 
-#: spvw_memfile.d:1246
+#: spvw_memfile.d:1244
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "%s: Cannot map the initialization file `%s' into memory."
 
-#: spvw_memfile.d:1514
+#: spvw_memfile.d:1510
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "%s: operating system error during load of initialization file `%s'"
 
-#: spvw_memfile.d:1519
+#: spvw_memfile.d:1515
 msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
 msgstr "%s: initialization file `%s' was not created by this version of CLISP\n"
 
-#: spvw_memfile.d:1522
+#: spvw_memfile.d:1518
 msgid "%s: not enough memory for initialization\n"
 msgstr "%s: not enough memory for initialization\n"
 
@@ -4934,9 +4934,9 @@ msgstr "WARNING:"
 msgid "~S: This is more serious than a warning: ~A"
 msgstr "~S: This is more serious than a warning: ~A"
 
-#: threads.lisp:45
-msgid "~S: ~S does not own ~S"
-msgstr "~S: ~S does not own ~S"
+#: loadform.lisp:42
+msgid "A method on ~S for class ~S is necessary for externalizing the object ~S, according to ANSI CL 3.2.4.4, but no such method is defined."
+msgstr "A method on ~S for class ~S is necessary for externalizing the object ~S, according to ANSI CL 3.2.4.4, but no such method is defined."
 
 #: xcharin.lisp:35
 msgid "~: argument ~S is not a character"
@@ -5641,6 +5641,10 @@ msgstr "LETF code contains a dotted list, ending with ~S"
 #: macros3.lisp:243
 msgid "illegal syntax in LETF binding: ~S"
 msgstr "illegal syntax in LETF binding: ~S"
+
+#: threads.lisp:45
+msgid "~S: ~S does not own ~S"
+msgstr "~S: ~S does not own ~S"
 
 #: foreign1.lisp:100
 msgid "Cannot map string ~S to C since it contains a character ~S"

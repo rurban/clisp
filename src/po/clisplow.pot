@@ -3,9 +3,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2.32.93\n"
-"POT-Creation-Date: 2004-03-12 14:25:28 EST\n"
-"PO-Revision-Date: 2004-03-12 14:25:28 EST\n"
+"Project-Id-Version: clisp 2.32.94\n"
+"POT-Creation-Date: 2004-03-14 12:10:55 EST\n"
+"PO-Revision-Date: 2004-03-14 12:10:55 EST\n"
 "Last-Translator: Automatically generated <@winsteingoldlap>\n"
 "Language-Team: Template <xx@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -349,23 +349,23 @@ msgstr ""
 msgid "Trying to make room through a GC...\n"
 msgstr ""
 
-#: spvw_memfile.d:779
+#: spvw_memfile.d:777
 msgid "%s: operating system error during load of initialization file `%s'\n"
 msgstr ""
 
-#: spvw_memfile.d:1246
+#: spvw_memfile.d:1244
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr ""
 
-#: spvw_memfile.d:1514
+#: spvw_memfile.d:1510
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr ""
 
-#: spvw_memfile.d:1519
+#: spvw_memfile.d:1515
 msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
 msgstr ""
 
-#: spvw_memfile.d:1522
+#: spvw_memfile.d:1518
 msgid "%s: not enough memory for initialization\n"
 msgstr ""
 

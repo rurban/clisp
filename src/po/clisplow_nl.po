@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2004-03-12 14:25:28 EST\n"
+"POT-Creation-Date: 2004-03-14 12:10:55 EST\n"
 "PO-Revision-Date: 2000-03-03 15:02+01:00\n"
 "Last-Translator: Tijs van Bakel <smoke@casema.net>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -1766,118 +1766,11 @@ msgstr "Functie niet geïmplementeerd"
 
 
 
-#, fuzzy
-
-
-
-
-
-#, fuzzy
-
-
-
 
 
 
 
 #, fuzzy
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
 
 
 
@@ -1894,6 +1787,10 @@ msgstr "Functie niet geïmplementeerd"
 
 #, fuzzy
 
+#, fuzzy
+
+
+#, fuzzy
 
 
 
@@ -1903,11 +1800,23 @@ msgstr "Functie niet geïmplementeerd"
 
 #, fuzzy
 
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+
+
+
+
+
 
 
 
 #, fuzzy
 
+#, fuzzy
 
 
 
@@ -1927,6 +1836,97 @@ msgstr "Functie niet geïmplementeerd"
 
 
 
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+#, fuzzy
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
 
 
 

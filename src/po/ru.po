@@ -12,7 +12,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.33\n"
-"POT-Creation-Date: 2004-03-12 14:25:22 EST\n"
+"POT-Creation-Date: 2004-03-14 12:10:50 EST\n"
 "PO-Revision-Date: 1998-09-02 19:50+0600\n"
 "Last-Translator: Arseny Slobodjuck <ampy@ich.dvo.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -446,23 +446,23 @@ msgstr "Освобождаем память - вызываем GC...\n"
 msgid "disk full"
 msgstr "переполнение диска"
 
-#: spvw_memfile.d:779
+#: spvw_memfile.d:777
 msgid "%s: operating system error during load of initialization file `%s'\n"
 msgstr "%s: ошибка операционной системы во время загрузки файла инициализации `%s'\n"
 
-#: spvw_memfile.d:1246
+#: spvw_memfile.d:1244
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "%s: Невозможно разместить файл инициализации `%s' в памяти."
 
-#: spvw_memfile.d:1514
+#: spvw_memfile.d:1510
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "%s: ошибка операционной системы во время загрузки файла инициализации `%s'"
 
-#: spvw_memfile.d:1519
+#: spvw_memfile.d:1515
 msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
 msgstr "%s: файл инициализации `%s' был создан не этой версией CLISP\n"
 
-#: spvw_memfile.d:1522
+#: spvw_memfile.d:1518
 msgid "%s: not enough memory for initialization\n"
 msgstr "%s: недостаточно памяти для инициализации\n"
 
@@ -4948,9 +4948,9 @@ msgstr "ПРЕДУПРЕЖДЕНИЕ:"
 msgid "~S: This is more serious than a warning: ~A"
 msgstr "~S: Это более серьезно, чем предупреждение: ~A"
 
-#: threads.lisp:45
-msgid "~S: ~S does not own ~S"
-msgstr "~S: ~S не владеет ~S"
+#: loadform.lisp:42
+msgid "A method on ~S for class ~S is necessary for externalizing the object ~S, according to ANSI CL 3.2.4.4, but no such method is defined."
+msgstr "Метод ~S для класса ~S необходим для вывода объекта ~S, в соответствии со стандартом ANSI CL 3.2.4.4, но такой метод не определён."
 
 #: xcharin.lisp:35
 msgid "~: argument ~S is not a character"
@@ -5653,6 +5653,10 @@ msgstr "Код LETF содержит точечный список, оканчивающийся на ~S"
 #: macros3.lisp:243
 msgid "illegal syntax in LETF binding: ~S"
 msgstr "некорректный синтаксис в списке связывания LETF: ~S"
+
+#: threads.lisp:45
+msgid "~S: ~S does not own ~S"
+msgstr "~S: ~S не владеет ~S"
 
 #: foreign1.lisp:100
 msgid "Cannot map string ~S to C since it contains a character ~S"
