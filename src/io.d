@@ -572,7 +572,7 @@ LISPFUN(copy_readtable,seclass_read,0,2,norest,nokey,0,NIL)
   } else {
     if (nullp(from_readtable))
       /* instead of NIL take the standard-readtable */
-      from_readtable = O(standard_readtable);
+      from_readtable = STACK_1 = O(standard_readtable);
     else /* check from-readtable: */
       from_readtable = STACK_1 = check_readtable(from_readtable);
     /* from-readtable is OK */
