@@ -1,3 +1,8 @@
+2004-03-03  Bruno Haible  <bruno@clisp.org>
+
+	* foreign.d (ffi_identity): Pass and return an uintP, not just an
+	uintL.
+
 2004-03-02  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (function-signature): check *KNOWN-FUNCTIONS*
