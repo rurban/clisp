@@ -244,7 +244,6 @@
 # wird verwendet von PATHNAME
 
 # Programme aufrufen:
-  #include <stdio.h>
   extern FILE* popen (const char* command, const char* mode);
   extern int pclose (FILE* f);
   extern int fileno (FILE* f);

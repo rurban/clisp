@@ -63,9 +63,9 @@
       end_system_call();
   #else
       var uintC count = reg_num;
-      asciz_out_1("Sprungadresse %x\n",address);
+      fprintf(stderr,"jump address %x\n",address);
       dotimesC(count,count, {
-        asciz_out_2("%d: %x\n",count,regs->reg[count]);
+        fprintf(stderr,"%d: %x\n",count,regs->reg[count]);
       });
       result = regs->reg[0];
   #endif # DEBUG

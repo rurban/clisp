@@ -1482,42 +1482,37 @@ local void gc_mark (object obj)
 #if defined(DEBUG_SPVW) && !defined(GENERATIONAL_GC)
   # check, if everything is really unmarked:
   #define CHECK_GC_UNMARKED()  gc_unmarkcheck()
-  local void gc_unmarkcheck (void);
-  local void gc_unmarkcheck()
-    { for_each_varobject_page(page,
-        # peruse from above:
-        { var aint p1 = page->page_start;
-          var aint p1end = page->page_end;
-          var_prepare_objsize;
-          until (p1==p1end) # lower bound reached -> finished
-            { # next object has address p1
-              if (marked(p1)) # marked?
-                { asciz_out_1("\nObject 0x%x marked!!\n",p1);
-                  abort();
-                }
-              p1 += objsize((Varobject)p1);
-        }   }
-        );
-      for_each_cons_page(page,
-        # peruse from below:
-        { var aint p1 = page->page_start;
-          var aint p1end = page->page_end;
-          until (p1==p1end) # upper bound reached -> finished
-            { # next object has address p1
-              if (marked(p1)) # marked?
-                { asciz_out_1("\nObject 0x%x marked!!\n",p1);
-                  abort();
-                }
-              p1 += sizeof(cons_);
-        }   }
-        );
-    }
+local void gc_unmarkcheck (void) {
+  for_each_varobject_page(page,{ /* peruse from above: */
+    var aint p1 = page->page_start;
+    var aint p1end = page->page_end;
+    var_prepare_objsize;
+    while (p1!=p1end) { /* lower bound reached -> finished */
+      /* next object has address p1 */
+      if (marked(p1)) { /* marked? */
+        fprintf(stderr,"\nObject 0x%x marked!!\n",p1);
+        abort();
+      }
+      p1 += objsize((Varobject)p1);
+    }});
+  for_each_cons_page(page,{ /* peruse from below: */
+    var aint p1 = page->page_start;
+    var aint p1end = page->page_end;
+    while (p1!=p1end) { /* upper bound reached -> finished */
+      /* next object has address p1 */
+      if (marked(p1)) { /* marked? */
+        fprintf(stderr,"\nObject 0x%x marked!!\n",p1);
+        abort();
+      }
+      p1 += sizeof(cons_);
+    }});
+}
 #else
   #define CHECK_GC_UNMARKED()
 #endif
 
 #ifdef DEBUG_SPVW
-  # check agains nullpointer:
+  /* check against nullpointer: */
   #define CHECK_NULLOBJ()  nullobjcheck(false)
   local void nullobjcheck (bool in_gc);
   local void nullobjcheck_range (aint p1, aint p1end, bool in_gc);
@@ -2089,7 +2084,7 @@ local void gc_mark (object obj)
         if (false) {
          munmap_failure:
           end_system_call();
-          asciz_out(GETTEXTL("munmap() failed."));
+          fputs(GETTEXTL("munmap() failed."),stderr);
           errno_out(OS_errno);
           abort();
         }

@@ -13,9 +13,8 @@
 # local void init_physpagesize (void);
 
 # Tries to repair a page fault at a single address.
-  typedef enum { handler_failed, handler_done }
-          handle_fault_result;
-  local handle_fault_result handle_fault (aint address, int verbose);
+typedef enum { handler_failed, handler_done } handle_fault_result_t;
+local handle_fault_result_t handle_fault (aint address, int verbose);
 
 #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
 # Tries to repair a fault spanning a range of pages.
@@ -87,22 +86,23 @@ local int handle_mmap_fault(offset,address,memfile_page)
     if (mem.memfile_still_being_read) {
       orig_offset = lseek(handle,0,SEEK_CUR);
       if (orig_offset < 0) {
-        asciz_out("selfmade_mmap: lseek() failed.");
+        fputs("selfmade_mmap: lseek() failed.",stderr);
         errno_out(OS_errno);
         return -1;
       }
     }
     if (zeromap((void*)address,physpagesize) < 0) {
-      asciz_out("selfmade_mmap: zeromap() failed.");
+      fputs("selfmade_mmap: zeromap() failed.",stderr);
       return -1;
     }
     if (lseek(handle,offset,SEEK_SET) < 0) {
-      asciz_out_1("selfmade_mmap: lseek(0x%x) failed.",offset);
+      fprintf(stderr,"selfmade_mmap: lseek(0x%x) failed.",offset);
       errno_out(OS_errno);
       return -1;
     }
     #ifdef DEBUG_SPVW
-    asciz_out_2("selfmade_mmap: address=0x%x <-- offset=0x%x" NLstring,address,offset);
+    fprintf(stderr,"selfmade_mmap: address=0x%x <-- offset=0x%x\n",
+            address,offset);
     #endif
     var sintL res;
     #ifdef WIN32_NATIVE
@@ -112,14 +112,14 @@ local int handle_mmap_fault(offset,address,memfile_page)
     #else
     res = full_read(handle,(void*)address,physpagesize);
     #endif
-    if (!(res == physpagesize)) {
-      asciz_out_3("selfmade_mmap: full_read(offset=0x%x,count=%d) failed, returned %d.",offset,physpagesize,res);
+    if (res != physpagesize) {
+      fprintf(stderr,"selfmade_mmap: full_read(offset=0x%x,count=%d) failed, returned %d.",offset,physpagesize,res);
       if (res < 0) errno_out(OS_errno);
       return -1;
     }
     if (mem.memfile_still_being_read) {
       if (lseek(handle,orig_offset,SEEK_SET) < 0) {
-        asciz_out_1("selfmade_mmap: lseek(0x%x) failed.",orig_offset);
+        fprintf(stderr,"selfmade_mmap: lseek(0x%x) failed.",orig_offset);
         errno_out(OS_errno);
         return -1;
       }
@@ -211,7 +211,7 @@ local int handle_readwrite_fault(address,physpage)
 
 #endif # GENERATIONAL_GC
 
-local handle_fault_result handle_fault(address,verbose)
+local handle_fault_result_t handle_fault(address,verbose)
   var aint address;
   var int verbose;
   {
@@ -299,49 +299,50 @@ local handle_fault_result handle_fault(address,verbose)
        error6: # handle_read_fault() failed
         if (verbose) {
           var int saved_errno = OS_errno;
-          asciz_out_2(NLstring "*** - " "handle_fault error6 ! mprotect(0x%x,0x%x,...) -> ", address & -physpagesize, physpagesize);
+          fprintf(stderr,"\n*** - " "handle_fault error6 ! mprotect(0x%x,0x%x,...) -> ", address & -physpagesize, physpagesize);
           errno_out(saved_errno);
         }
         goto error;
        error7: # handle_readwrite_fault() failed
         if (verbose) {
           var int saved_errno = OS_errno;
-          asciz_out_3(NLstring "*** - " "handle_fault error7 ! mprotect(0x%x,0x%x,%d) -> ", address & -physpagesize, physpagesize, PROT_READ_WRITE);
+          fprintf(stderr,"\n*** - " "handle_fault error7 ! mprotect(0x%x,0x%x,%d) -> ", address & -physpagesize, physpagesize, PROT_READ_WRITE);
           errno_out(saved_errno);
         }
         goto error;
        error8: # fault on a read-write page
         if (verbose)
-          asciz_out_1(NLstring "*** - " "handle_fault error8 ! protection = %d", physpage->protection);
+          fprintf(stderr,"\n*** - " "handle_fault error8 ! protection = %d", physpage->protection);
         goto error;
        error9: # invalid protection value
         if (verbose)
-          asciz_out_1(NLstring "*** - " "handle_fault error9 ! protection = %d", physpage->protection);
+          fprintf(stderr,"\n*** - " "handle_fault error9 ! protection = %d", physpage->protection);
         goto error;
       }
      error5: # fault on a read-write page with no physpages array
       if (verbose)
-        asciz_out(NLstring "*** - " "handle_fault error5 !");
+        fprintf(stderr,"\n*** - " "handle_fault error5 !");
       goto error;
       #endif
      error1: # A fault was not expected on this type of heap.
       if (verbose)
-        asciz_out(NLstring "*** - " "handle_fault error1 !");
+        fprintf(stderr,"\n*** - " "handle_fault error1 !");
       goto error;
      error2: # The address is outside of the used address range for this heap.
       if (verbose)
-        asciz_out_3(NLstring "*** - " "handle_fault error2 ! address = 0x%x not in [0x%x,0x%x) !", address, heap->heap_mgen_start, heap->heap_mgen_end);
+        fprintf(stderr,"\n*** - " "handle_fault error2 ! address = 0x%x not in [0x%x,0x%x) !", address, heap->heap_mgen_start, heap->heap_mgen_end);
       goto error;
       #ifdef SELFMADE_MMAP
      error3: # handle_mmap_fault() failed
       if (verbose)
-        asciz_out(NLstring "*** - " "handle_fault error3 !");
+        fprintf(stderr,"\n*** - " "handle_fault error3 !");
       goto error;
       #endif
       #if defined(SELFMADE_MMAP) && defined(GENERATIONAL_GC)
      error4: # The page ought not to be read-write, although we just paged it in.
       if (verbose)
-        asciz_out_1(NLstring "*** - " "handle_fault error4 ! protection = %d",heap->physpages[pageno].protection);
+        fprintf(stderr,"\n*** - " "handle_fault error4 ! protection = %d",
+                heap->physpages[pageno].protection);
       goto error;
       #endif
     }
@@ -474,7 +475,7 @@ local int selfmade_mmap(heap,map_len,offset)
 
 local void xmprotect (aint addr, uintL len, int prot) {
   if (mprotect((MMAP_ADDR_T)addr,len,prot) < 0) {
-    asciz_out(GETTEXTL("mprotect() failed."));
+    fprintf(stderr,GETTEXTL("mprotect(0x%x,%d,%d) failed."),addr,len,prot);
     errno_out(OS_errno);
     abort();
   }

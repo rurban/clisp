@@ -1011,13 +1011,6 @@ local void print_back_trace (const object* stream_, struct backtrace_t *bt,
   }
 }
 
-local void back_trace_out (void) {
-  struct backtrace_t *bt = back_trace;
-  var int index = 1;
-  pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
-  for (;bt; bt=bt->next, index++) print_back_trace(&STACK_0,bt,index);
-}
-
 # UP: Gibt das Stackitem FRAME_(0) detailliert auf den Stream aus
 # und liefert den nächsthöheren stackptr.
 # print_stackitem(&stream,FRAME)

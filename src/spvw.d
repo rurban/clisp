@@ -23,8 +23,6 @@
 
 #include "version.h"
 
-#include <stdio.h> # declares sprintf()
-
 #include <string.h> # declares strchr() and possibly memset()
 #ifdef MULTITHREAD
   #ifndef memset
@@ -473,18 +471,18 @@ global bool near_SP_overflow (void) {
 
 # At overflow of one of the stacks:
 nonreturning_function(global, SP_ueber, (void)) {
-  asciz_out(GETTEXTL(NLstring "*** - " "Program stack overflow. RESET"));
+  fputs(GETTEXTL(NLstring "*** - " "Program stack overflow. RESET"),stderr);
   if (interactive_stream_p(Symbol_value(S(debug_io))))
     reset();
   /* non-interactive session: quit */
-  else { asciz_out(NLstring); final_exitcode=1; quit(); }
+  else { fputs(NLstring,stderr); final_exitcode=1; quit(); }
 }
 nonreturning_function(global, STACK_ueber, (void)) {
-  asciz_out(GETTEXTL(NLstring "*** - " "Lisp stack overflow. RESET"));
+  fputs(GETTEXTL(NLstring "*** - " "Lisp stack overflow. RESET"),stderr);
   if (interactive_stream_p(Symbol_value(S(debug_io))))
     reset();
   /* non-interactive session: quit */
-  else { asciz_out(NLstring); final_exitcode=1; quit(); }
+  else { fputs(NLstring,stderr); final_exitcode=1; quit(); }
 }
 
 # ----------------------------------------------------------------------------
@@ -670,7 +668,7 @@ local fsubr_argtype_t fsubr_argtype (uintW req_anz, uintW opt_anz,
     default: goto illegal;
   }
  illegal:
-  asciz_out(GETTEXTL("Unknown signature of an FSUBR" NLstring));
+  fputs(GETTEXTL("Unknown signature of an FSUBR" NLstring),stderr);
   quit_sofort(1);
 }
 
@@ -777,7 +775,7 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
     default: goto illegal;
   }
  illegal:
-  asciz_out(GETTEXTL("Unknown signature of a SUBR" NLstring));
+  fputs(GETTEXTL("Unknown signature of a SUBR" NLstring),stderr);
   quit_sofort(1);
 }
 # set the argtype of a subr_t *ptr
@@ -797,12 +795,13 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
       fehler_code_alignment((uintP)(void*)(ptr),symbol)
 nonreturning_function(local, fehler_code_alignment,
                       (uintP address, object symbol)) {
-  asciz_out("C_CODE_ALIGNMENT is wrong. ");
-  asciz_out_s("&%s",TheAsciz(string_to_asciz(Symbol_name(symbol),O(terminal_encoding))));
-  asciz_out_1(" = 0x%x." NLstring,address);
-  #if (__GNUC__ >= 3)
-    asciz_out_1("Try adding -falign-functions=%d to the CFLAGS in the Makefile." NLstring,C_CODE_ALIGNMENT);
-  #endif
+  fprintf(stderr,"C_CODE_ALIGNMENT is wrong. &%s = 0x%x.\n",
+          TheAsciz(string_to_asciz(Symbol_name(symbol),O(terminal_encoding))),
+          address);
+ #if (__GNUC__ >= 3)
+  fprintf(stderr,"Add -falign-functions=%d to CFLAGS in the Makefile.\n",
+          C_CODE_ALIGNMENT);
+ #endif
   abort();
 }
 #endif
@@ -816,8 +815,7 @@ local void init_subr_tab_1 (void) {
   # But __attribute__((aligned(4))) is ignored for some GCC targets,
   # so we check it here for safety.
   if (alignof(subr_t) < 4) {
-    asciz_out("Alignment of SUBRs is less than 4. NO_TYPECODES requires it to be at least 4." NLstring);
-    asciz_out("Recompile CLISP with -DNO_TYPECODES." NLstring);
+    fprintf(stderr,"Alignment of SUBRs is %d. NO_TYPECODES requires it to be at least 4.\nRecompile CLISP with -DNO_TYPECODES.\n",alignof(subr_t));
     abort();
   }
  #endif
@@ -1451,8 +1449,8 @@ local void init_module_2 (module_t* module) {
         var object pack =
           find_package(asciz_to_string(packname,O(internal_encoding)));
         if (nullp(pack)) { # package not found?
-          asciz_out_ss(GETTEXTL("module `%s' requires package %s." NLstring),
-                       module->name, packname);
+          fprintf(stderr,GETTEXTL("module `%s' requires package %s." NLstring),
+                  module->name, packname);
           quit_sofort(1);
         }
         intern(symname,pack,&symbol);
@@ -1489,52 +1487,52 @@ local void init_other_modules_2 (void) {
 
 # print usage and exit
 nonreturning_function (local, usage, (int exit_code)) {
-  asciz_out(GETTEXTL("GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp." NLstring
-                     "Usage:  "));
-  asciz_out(program_name);
-  asciz_out(GETTEXTL(" [options] [lispfile [argument ...]]" NLstring
-                     " When `lispfile' is given, it is loaded and `*ARGS*' is set" NLstring
-                     " to the list of argument strings. Otherwise, an interactive" NLstring
-                     " read-eval-print loop is entered." NLstring));
-  asciz_out(GETTEXTL("Informative output:" NLstring));
-  asciz_out(GETTEXTL(" -h, --help    - print this help and exit" NLstring));
-  asciz_out(GETTEXTL(" --version     - print the version information" NLstring));
-  asciz_out(GETTEXTL(" --license     - print the licensing information" NLstring));
-  asciz_out(GETTEXTL("Memory image selection:" NLstring));
-  asciz_out(GETTEXTL(" -B lisplibdir - set the installation directory" NLstring));
+  printf(GETTEXTL("GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp."
+                  NLstring "Usage:  "));
+  printf(program_name);
+  printf(GETTEXTL(" [options] [lispfile [argument ...]]" NLstring
+                  " When `lispfile' is given, it is loaded and `*ARGS*' is set" NLstring
+                  " to the list of argument strings. Otherwise, an interactive" NLstring
+                  " read-eval-print loop is entered." NLstring));
+  printf(GETTEXTL("Informative output:" NLstring));
+  printf(GETTEXTL(" -h, --help    - print this help and exit" NLstring));
+  printf(GETTEXTL(" --version     - print the version information" NLstring));
+  printf(GETTEXTL(" --license     - print the licensing information" NLstring));
+  printf(GETTEXTL("Memory image selection:" NLstring));
+  printf(GETTEXTL(" -B lisplibdir - set the installation directory" NLstring));
   #ifdef UNIX
-  asciz_out(GETTEXTL(" -K linkingset - use this executable and memory image" NLstring));
+  printf(GETTEXTL(" -K linkingset - use this executable and memory image" NLstring));
   #endif
-  asciz_out(GETTEXTL(" -M memfile    - use this memory image" NLstring));
-  asciz_out(GETTEXTL(" -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)" NLstring));
+  printf(GETTEXTL(" -M memfile    - use this memory image" NLstring));
+  printf(GETTEXTL(" -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)" NLstring));
   #ifndef NO_SP_MALLOC
-  asciz_out(GETTEXTL(" -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)" NLstring));
+  printf(GETTEXTL(" -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)" NLstring));
   #endif
   #ifdef MULTIMAP_MEMORY_VIA_FILE
-  asciz_out(GETTEXTL(" -t tmpdir     - temporary directory for memmap" NLstring));
+  printf(GETTEXTL(" -t tmpdir     - temporary directory for memmap" NLstring));
   #endif
-  asciz_out(GETTEXTL("Internationalization:" NLstring));
-  asciz_out(GETTEXTL(" -L language   - set user language" NLstring));
-  asciz_out(GETTEXTL(" -N nlsdir     - NLS catalog directory" NLstring));
-  asciz_out(GETTEXTL(" -Edomain encoding - set encoding" NLstring));
-  asciz_out(GETTEXTL("Interoperability:" NLstring));
-  asciz_out(GETTEXTL(" -q, --quiet, --silent - do not print the banner" NLstring));
-  asciz_out(GETTEXTL(" -w            - wait for keypress after program termination" NLstring));
-  asciz_out(GETTEXTL(" -I            - be ILISP-friendly" NLstring));
-  asciz_out(GETTEXTL("Startup actions:" NLstring));
-  asciz_out(GETTEXTL(" -ansi         - more ANSI CL compliance" NLstring));
-  asciz_out(GETTEXTL(" -traditional  - traditional (undoes -ansi)" NLstring));
-  asciz_out(GETTEXTL(" -p package    - start in the package" NLstring));
-  asciz_out(GETTEXTL(" -C            - set *LOAD-COMPILING* to T" NLstring));
-  asciz_out(GETTEXTL(" -norc         - do not load the user ~/.clisprc file" NLstring));
-  asciz_out(GETTEXTL(" -i file       - load initfile (can be repeated)" NLstring));
-  asciz_out(GETTEXTL("Actions:" NLstring));
-  asciz_out(GETTEXTL(" -c [-l] lispfile [-o outputfile] - compile LISPFILE" NLstring));
-  asciz_out(GETTEXTL(" -x expression - execute the expression, then exit" NLstring));
-  asciz_out(GETTEXTL(" lispfile [argument ...] - load lispfile, then exit" NLstring));
-  asciz_out(GETTEXTL("These actions put CLISP into a batch mode, which is overridden by" NLstring));
-  asciz_out(GETTEXTL(" -interactive-debug - allow interaction for failed ASSERT and friends" NLstring));
-  asciz_out(GETTEXTL("Default action is an interactive read-eval-print loop." NLstring));
+  printf(GETTEXTL("Internationalization:" NLstring));
+  printf(GETTEXTL(" -L language   - set user language" NLstring));
+  printf(GETTEXTL(" -N nlsdir     - NLS catalog directory" NLstring));
+  printf(GETTEXTL(" -Edomain encoding - set encoding" NLstring));
+  printf(GETTEXTL("Interoperability:" NLstring));
+  printf(GETTEXTL(" -q, --quiet, --silent - do not print the banner" NLstring));
+  printf(GETTEXTL(" -w            - wait for keypress after program termination" NLstring));
+  printf(GETTEXTL(" -I            - be ILISP-friendly" NLstring));
+  printf(GETTEXTL("Startup actions:" NLstring));
+  printf(GETTEXTL(" -ansi         - more ANSI CL compliance" NLstring));
+  printf(GETTEXTL(" -traditional  - traditional (undoes -ansi)" NLstring));
+  printf(GETTEXTL(" -p package    - start in the package" NLstring));
+  printf(GETTEXTL(" -C            - set *LOAD-COMPILING* to T" NLstring));
+  printf(GETTEXTL(" -norc         - do not load the user ~/.clisprc file" NLstring));
+  printf(GETTEXTL(" -i file       - load initfile (can be repeated)" NLstring));
+  printf(GETTEXTL("Actions:" NLstring));
+  printf(GETTEXTL(" -c [-l] lispfile [-o outputfile] - compile LISPFILE" NLstring));
+  printf(GETTEXTL(" -x expression - execute the expression, then exit" NLstring));
+  printf(GETTEXTL(" lispfile [argument ...] - load lispfile, then exit" NLstring));
+  printf(GETTEXTL("These actions put CLISP into a batch mode, which is overridden by" NLstring));
+  printf(GETTEXTL(" -interactive-debug - allow interaction for failed ASSERT and friends" NLstring));
+  printf(GETTEXTL("Default action is an interactive read-eval-print loop." NLstring));
   quit_sofort (exit_code); # abnormal end of program
 }
 
@@ -1804,13 +1802,13 @@ global int main (argc_t argc, char* argv[]) {
                   case 'b': case 'B': # in bytes                           \
                     arg++; break;                                          \
                 }                                                          \
-                if (!(*arg == '\0')) { # argument finished?                \
-                  asciz_out_s(GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB" NLstring), docstring); \
+                if (*arg != '\0') { # argument finished?                   \
+                  fprintf(stderr,GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB" NLstring), docstring); \
                   usage (1);                                               \
                 }                                                          \
                 if (!((val >= limit_low) && (val <= limit_high))) {        \
-                  asciz_out_s(GETTEXTL("%s out of range" NLstring),        \
-                              docstring);                                  \
+                  fprintf(stderr,GETTEXTL("%s out of range" NLstring),  \
+                          docstring);                                   \
                   usage (1);                                               \
                 }                                                          \
                 # For multiple -m resp. -s arguments, only the last counts.\
@@ -1945,8 +1943,8 @@ global int main (argc_t argc, char* argv[]) {
               argv_ansi = 1; # ANSI
             else if (arg[2] != '\0') usage (1);
             else {
-              asciz_out(GETTEXTL("CLISP: -a is deprecated, use -ansi"
-                                 NLstring));
+              fprintf(stderr,GETTEXTL("CLISP: -a is deprecated, use -ansi"
+                                      NLstring));
               argv_ansi = 1; # ANSI
             }
             break;
@@ -2170,13 +2168,13 @@ global int main (argc_t argc, char* argv[]) {
       begin_system_call();
       memblock = (aint)malloc(1);
       end_system_call();
-      asciz_out_1(GETTEXTL("Return value of malloc() = %x is not compatible with type code distribution." NLstring),
-                  memblock);
+      fprintf(stderr,GETTEXTL("Return value of malloc() = %x is not compatible with type code distribution." NLstring),
+              memblock);
       goto no_mem;
     }
     if (memneed < MINIMUM_SPACE+RESERVE) { # but with less than MINIMUM_SPACE
       # we will not be satisfied:
-      asciz_out_1(GETTEXTL("Only %d bytes available." NLstring),memneed);
+      fprintf(stderr,GETTEXTL("Only %d bytes available." NLstring),memneed);
       goto no_mem;
     }
    #endif
@@ -2419,7 +2417,7 @@ global int main (argc_t argc, char* argv[]) {
             # page is 0x32000-0x32FFF, hence we can set SP_bound = 0x34000.
             { var MEMORY_BASIC_INFORMATION info;
               if (!(VirtualQuery((void*)SP(),&info,sizeof(info)) == sizeof(info))) {
-                asciz_out(GETTEXTL("Could not determine the end of the SP stack!" NLstring));
+                fprintf(stderr,GETTEXTL("Could not determine the end of the SP stack!" NLstring));
                 SP_bound = 0;
               } else { # 0x4000 might be enough, but 0x8000 will be better.
                 SP_bound = (void*)((aint)info.AllocationBase + 0x8000);
@@ -2511,7 +2509,7 @@ global int main (argc_t argc, char* argv[]) {
           #ifdef GNU
             # a little dummy-action, that prevents a delayed clean up of SP
             # at a later date:
-            if (mem.MEMBOT) { asciz_out(""); }
+            if (mem.MEMBOT) { printf(""); }
           #endif
           setSP(initial_SP); # set SP! All local variables get lost!
         #endif
@@ -2883,8 +2881,8 @@ global int main (argc_t argc, char* argv[]) {
   /*NOTREACHED*/
   # if the memory does not suffice:
   no_mem:
-  asciz_out(program_name); asciz_out(": ");
-  asciz_out(GETTEXTL("Not enough memory for Lisp." NLstring));
+  fprintf(stderr,GETTEXTL("%s: Not enough memory for Lisp." NLstring),
+          program_name);
   quit_sofort(1);
   /*NOTREACHED*/
   # termination of program via quit_sofort() (engl. quit_instantly() ):

@@ -75,7 +75,7 @@ local void earlylate_asciz_error (const char * description, bool fatal_p) {
       }
       #endif
       # Initialize COM for shell link resolution
-      if (CoInitialize(NULL) == S_OK) 
+      if (CoInitialize(NULL) == S_OK)
         com_initialized = true;
       # Winsock.
       {
@@ -284,7 +284,7 @@ global void done_win32 (void) {
             SuspendThread(main_thread);
             if (break_sems_cleared()) {
               # OK, the moment has come to hyperjump the main thread.
-              # asciz_out_2("\nHyperjumping! interrupt_pending = %d, waitstate = %d\n",interrupt_pending,waitstate);
+              # printf("\nHyperjumping! interrupt_pending = %d, waitstate = %d\n",interrupt_pending,waitstate);
               var CONTEXT context;
               context.ContextFlags = CONTEXT_CONTROL | CONTEXT_INTEGER;
               GetThreadContext(main_thread,&context);
@@ -790,51 +790,49 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
 
 
 # Print out the memory map of the process.
-  global void DumpProcessMemoryMap (void);
-  global void DumpProcessMemoryMap()
-    {
-      var MEMORY_BASIC_INFORMATION info;
-      var aint address = 0;
-      asciz_out("Memory dump:" NLstring);
-      while (VirtualQuery((void*)address,&info,sizeof(info)) == sizeof(info)) {
-        # Always info.BaseAddress = address.
-        switch (info.State) {
-          case MEM_FREE:    asciz_out("-"); break;
-          case MEM_RESERVE: asciz_out("+"); break;
-          case MEM_COMMIT:  asciz_out("*"); break;
-          default: asciz_out("?"); break;
-        }
-        asciz_out_2(" 0x%x - 0x%x",(aint)info.BaseAddress,
-                                   (aint)info.BaseAddress+info.RegionSize-1);
-        if (!(info.State == MEM_FREE)) {
-          asciz_out_1(" (0x%x) ",(aint)info.AllocationBase);
-          # info.AllocationProtect is apparently irrelevant.
-          switch (info.Protect & ~(PAGE_GUARD|PAGE_NOCACHE)) {
-            case PAGE_READONLY:          asciz_out(" R  "); break;
-            case PAGE_READWRITE:         asciz_out(" RW "); break;
-            case PAGE_WRITECOPY:         asciz_out(" RWC"); break;
-            case PAGE_EXECUTE:           asciz_out("X   "); break;
-            case PAGE_EXECUTE_READ:      asciz_out("XR  "); break;
-            case PAGE_EXECUTE_READWRITE: asciz_out("XRW "); break;
-            case PAGE_EXECUTE_WRITECOPY: asciz_out("XRWC"); break;
-            case PAGE_NOACCESS:          asciz_out("----"); break;
-            default: asciz_out("?"); break;
-          }
-          if (info.Protect & PAGE_GUARD)
-            asciz_out(" PAGE_GUARD");
-          if (info.Protect & PAGE_NOCACHE)
-            asciz_out(" PAGE_NOCACHE");
-          asciz_out(" ");
-          switch (info.Type) {
-            case MEM_IMAGE:   asciz_out("MEM_IMAGE"); break;
-            case MEM_MAPPED:  asciz_out("MEM_MAPPED"); break;
-            case MEM_PRIVATE: asciz_out("MEM_PRIVATE"); break;
-            default:          asciz_out("MEM_?"); break;
-          }
-        }
-        asciz_out(NLstring);
-        address = (aint)info.BaseAddress + info.RegionSize;
-      }
-      asciz_out("End of memory dump." NLstring);
+global void DumpProcessMemoryMap (void)
+{
+  var MEMORY_BASIC_INFORMATION info;
+  var aint address = 0;
+  fputs("Memory dump:\n",stderr);
+  while (VirtualQuery((void*)address,&info,sizeof(info)) == sizeof(info)) {
+    /* Always info.BaseAddress = address. */
+    switch (info.State) {
+      case MEM_FREE:    fputs("-",stderr); break;
+      case MEM_RESERVE: fputs("+",stderr); break;
+      case MEM_COMMIT:  fputs("*",stderr); break;
+      default: fputs("?",stderr); break;
     }
-
+    fprintf(stderr," 0x%x - 0x%x",(aint)info.BaseAddress,
+            (aint)info.BaseAddress+info.RegionSize-1);
+    if (info.State != MEM_FREE) {
+      fprintf(stderr," (0x%x) ",(aint)info.AllocationBase);
+      /* info.AllocationProtect is apparently irrelevant. */
+      switch (info.Protect & ~(PAGE_GUARD|PAGE_NOCACHE)) {
+        case PAGE_READONLY:          fputs(" R  ",stderr); break;
+        case PAGE_READWRITE:         fputs(" RW ",stderr); break;
+        case PAGE_WRITECOPY:         fputs(" RWC",stderr); break;
+        case PAGE_EXECUTE:           fputs("X   ",stderr); break;
+        case PAGE_EXECUTE_READ:      fputs("XR  ",stderr); break;
+        case PAGE_EXECUTE_READWRITE: fputs("XRW ",stderr); break;
+        case PAGE_EXECUTE_WRITECOPY: fputs("XRWC",stderr); break;
+        case PAGE_NOACCESS:          fputs("----",stderr); break;
+        default: fputs("?",stderr); break;
+      }
+      if (info.Protect & PAGE_GUARD)
+        fputs(" PAGE_GUARD",stderr);
+      if (info.Protect & PAGE_NOCACHE)
+        fputs(" PAGE_NOCACHE",stderr);
+      fputs(" ",stderr);
+      switch (info.Type) {
+        case MEM_IMAGE:   fputs("MEM_IMAGE",stderr); break;
+        case MEM_MAPPED:  fputs("MEM_MAPPED",stderr); break;
+        case MEM_PRIVATE: fputs("MEM_PRIVATE",stderr); break;
+        default:          fputs("MEM_?",stderr); break;
+      }
+    }
+    fputs(NLstring,stderr);
+    address = (aint)info.BaseAddress + info.RegionSize;
+  }
+  fputs("End of memory dump.\n",stderr);
+}

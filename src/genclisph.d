@@ -5,8 +5,6 @@
 
 #include "lispbibl.c"
 
-#include <stdio.h>
-
 # Ausgabe von Strings mit eingebetteten Zahlen, wie printf().
 # Nur dass die Zahlen auch vom Typ `unsigned long long' sein können.
 # Wir vermeiden es, <stdarg.h> oder <varargs.h> vorauszusetzen.
@@ -1239,12 +1237,6 @@ global int main()
 #     printf("#define GETTEXT clgettext\n");
 #   #endif
 # #endif
-# printf("extern void asciz_out (const char * asciz);\n");
-# printf("#define dez_out(x)  dez_out_((uintL)(x))\n");
-# printf("extern void dez_out_ (uintL zahl);\n");
-# printf("#define hex_out(x)  hex_out_((uintL)(x))\n");
-# printf("extern void hex_out_ (uintL zahl);\n");
-# printf("extern void mem_hex_out (void* buf, uintL count);\n");
 # printf("extern object allocate_cons (void);\n");
 # printf("extern object make_symbol (object string);\n");
 # printf("extern object allocate_vector (uintL len);\n");

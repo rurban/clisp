@@ -279,15 +279,17 @@
         {
           for_each_page(page,
             if ((sintL)page->page_room < 0) {
-              asciz_out_1("\nPage bei Adresse 0x%x uebergelaufen!!\n",page); abort();
+              fprintf(stderr,"\npage overrun at address 0x%x\n",page); abort();
             }
-            if (!(page->page_start == page_start0(page))) {
-              asciz_out_1("\nPage bei Adresse 0x%x inkonsistent!!\n",page); abort();
+            if (page->page_start != page_start0(page)) {
+              fprintf(stderr,"\ninconsistent page at address 0x%x\n",page);
+              abort();
             }
-            if (!(page->page_end + page->page_room
-                  == round_down(page->m_start + page->m_length,varobject_alignment)
-               ) ) {
-              asciz_out_1("\nPage bei Adresse 0x%x inkonsistent!!\n",page); abort();
+            if (page->page_end + page->page_room
+                != round_down(page->m_start + page->m_length,
+                              varobject_alignment)) {
+              fprintf(stderr,"\ninconsistent page at address 0x%x\n",page);
+              abort();
             }
           );
         }
@@ -299,12 +301,14 @@
         {
           for_each_page(page,
             if ((sintL)page->page_room < 0) {
-              asciz_out_1("\nPage bei Adresse 0x%x uebergelaufen!!\n",page); abort();
+              fprintf(stderr,"\npage overrun at address 0x%x\n",page); abort();
             }
-            if (!(page->page_end + page->page_room - (page->page_start - page_start0(page))
-                  == round_down(page->m_start + page->m_length,varobject_alignment)
-               ) ) {
-              asciz_out_1("\nPage bei Adresse 0x%x inkonsistent!!\n",page); abort();
+            if (page->page_end + page->page_room -
+                (page->page_start - page_start0(page))
+                != round_down(page->m_start + page->m_length,
+                              varobject_alignment)) {
+              fprintf(stderr,"\ninconsistent page at address 0x%x\n",page);
+              abort();
             }
           );
         }

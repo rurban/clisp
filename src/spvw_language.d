@@ -251,7 +251,7 @@ global void init_language (const char* argv_language,
     return translated_msg;
   }
 
-  # Low-level messages, which are output through asciz_out, are
+  # Low-level messages, which are output through fprintf(3), are
   # stored in a separate catalog and returned in locale encoding.
   global const char * clgettextl (const char * msgid) {
     var const char * translated_msg;

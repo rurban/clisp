@@ -75,7 +75,7 @@
 # wird verwendet von PATHNAME, SPVW
 
 
-# Für asciz_out() und *terminal-io*, initialisiert von SPVW:
+# For *terminal-io*, initialized in SPVW:
   extern Handle stdin_handle;     # low-level stdin Eingabekanal
   extern Handle stdout_handle;    # low-level stdout Ausgabekanal
 

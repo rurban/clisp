@@ -7,7 +7,6 @@
  */
 
 #include "lispbibl.c"
-#include <stdio.h>              /* declares fprintf */
 
 /* SYS::*RECURSIVE-ERROR-COUNT* =
    depth of recursion of the output of error messages */

@@ -13,37 +13,15 @@
   #endif
 #endif
 
-#ifdef UNIX_LINUX
-  #include <stdio.h> # declares sprintf()
-#endif
-
 # enable the following #define to debug pathname translations
 # setting DEBUG_TRANSLATE_PATHNAME to a larger value results in more output
 # WARNING: PRIN1 can trigger GC! BEWARE!
 # define DEBUG_TRANSLATE_PATHNAME 1
 #if DEBUG_TRANSLATE_PATHNAME
-#include <stdio.h>
-#define string_concat(x) (asciz_out_2("[%d]string_concat(%d)\n",__LINE__,x),(string_concat)(x))
-local object debug_output (const char* label,object obj,const int pos) {
-  # fprintf(stdout,"[%d] %s: ",pos,label);fflush(stdout);
-  asciz_out_1("[%d] ",pos); asciz_out_s("%s: ",label);
-  pushSTACK(obj);
-  # gar_col();fprintf(stdout,"[gc] ");fflush(stdout);
-  object_out(STACK_1);
-  return popSTACK();
-}
-local void debug_printf (const char* label,object obj,const int pos) {
-  fprintf(stdout,"[%d] %s: %s\n",pos,label,
-          (!boundp(obj) ? "#<UNBOUND>" : nullp(obj) ? "NIL" :
-           eq(obj,T) ? "T" : stringp(obj) ? "string" :
-           logpathnamep(obj) ? "logical pathname" : pathnamep(obj) ? "path" :
-           eq(obj,S(Knewest)) ? ":NEWEST" : symbolp(obj) ? "a symbol" :
-           consp(obj) ? "a list" : numberp(obj) ? "a number" : "???"));
-}
+#define string_concat(x) (printf("[%d]string_concat(%d)\n",__LINE__,x),(string_concat)(x))
 # define DOUT(l,o) printf("[%d] %s %s\n",__LINE__,l,#o);gar_col()
-#define DOUT0(label,object) debug_output(label #object,object,__LINE__)
-#define DOUT(label,object) object=debug_output(label #object,object,__LINE__)
-#define SDOUT(label,object) debug_printf(label #object,object,__LINE__)
+#define DOUT(label,obj)  OBJECT_OUT(obj,label)
+#define SDOUT(label,obj) printf("%d %s %s",__LINE__,label,STRING(obj));nobject_out(stdout,obj)
 #else
 #define DOUT(l,o)
 #define SDOUT(l,o)
@@ -5187,7 +5165,7 @@ local void wildcard_diff (object pattern, object sample,
 # all arguments to *_diff are on stack - this should be safe
 #define DEBUG_DIFF(f)                                         \
   printf("\n* " #f " [logical: %d]\n",logical);               \
-  DOUT("",pattern); DOUT("",sample); DOUT0("",*previous); DOUT("",*solutions)
+  DOUT("",pattern); DOUT("",sample); DOUT("",*previous); DOUT("",*solutions)
 #else
 #define DEBUG_DIFF(f)
 #endif
