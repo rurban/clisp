@@ -5,6 +5,10 @@
 	(standard-accessor-method): Rename slot 'slot-definition' to
 	$slot-definition.
 
+	* clos-slotdef1.lisp (slot-definition): Rename slot 'type' to $type.
+	* clos-slotdef3.lisp (slot-definition-type): Update.
+	Reported by Christophe Rhodes.
+
 2004-07-28  Bruno Haible  <bruno@clisp.org>
 
 	* clos-method2.lisp (analyze-method-description): Complete the test
