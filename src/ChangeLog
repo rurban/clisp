@@ -1,6 +1,7 @@
 2002-12-16  Sam Steingold  <sds@gnu.org>
 
 	* predtype.d (COERCE): accept CLOS class object as a type-spec
+	when cannot coerse, signal a TYPE-ERROR
 
 2002-12-16  Sam Steingold  <sds@gnu.org>
 
