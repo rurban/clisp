@@ -2,6 +2,9 @@
 
 	* time.d (convert_time_from_universal): new function
 	* genclisph.d (main): export it
+	* modules/berkeley-db/bdb.c (ENV-SET-OPTIONS, ENV-GET-OPTIONS):
+	accept :TX_TIMESTAMP and :TX_MAX
+	(BDB:TXN-ID): new function
 
 2004-06-23  Sam Steingold  <sds@gnu.org>
 
