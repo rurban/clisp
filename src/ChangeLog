@@ -1,3 +1,14 @@
+1998-05-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * amiga.d: Assume <stdlib.h> is available.
+        * fsubr.d (LISPSPECFORM_B): Assume ANSI C prototypes, remove support
+          for old C compilers.
+        * subr.d (subr_norest_function_args, subr_rest_function_args):
+          Likewise.
+        * genclisph.d (Lsuffix, ULsuffix, ULLsuffix, main): Likewise.
+        * stream.d (redisplay_help, redisplay_line): Likewise.
+        * unix.d (ioctl): Likewise.
+
 1998-05-19  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * error.d (fehler_proper_list): New function.

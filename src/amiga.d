@@ -41,9 +41,7 @@
 #include <dos/dosextens.h>
 # #include <dos/dostags.h>       # für SystemTags()
 
-#ifdef ANSI
-  #include <stdlib.h>
-#endif
+#include <stdlib.h>
 
 #ifdef GNU
   # Expandiere alle Betriebssystem-Aufrufe inline, mit Kamil Iskra inlines.h
