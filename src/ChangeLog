@@ -153,7 +153,8 @@
 	* encoding.d (n_char_to_string, n_char_to_string_, string_to_asciz_,
 	CONVERT-STRING-FROM-BYTES): Update.
 	* pathname.d (common_case, test_optional_host, copy_upcase, all_digits,
-	PARSE-NAMESTRING, wildcard_match): Update.
+	PARSE-NAMESTRING, MAKE-PATHNAME, wildcard_match, use_default_dir):
+	Update.
 	* stream.d (read_char_array, rd_ch_array_str_in, wr_ch_array_str_out,
 	wr_ch_array_pphelp, rd_ch_array_buffered, lisp_completion,
 	rd_ch_terminal3, wr_ch_array_terminal3): Update.
