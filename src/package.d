@@ -1794,7 +1794,9 @@ LISPFUN(rename_package,seclass_default,2,1,norest,nokey,0,NIL) {
   /* Test, if pack is a package: */
   STACK_2 = test_package_arg(STACK_2);
   check_pack_lock(S(rename_package),STACK_2,STACK_1);
-  /* check name and nicknames: */
+  /* check name and nicknames:
+     name is a package designator here (but not in make-package!) */
+  if (packagep(STACK_1)) STACK_1 = ThePackage(STACK_1)->pack_name;
   pushSTACK(NIL); pushSTACK(NIL); /* dummies on the stack */
   test_names_args();
   skipSTACK(2);
