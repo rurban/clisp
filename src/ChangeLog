@@ -1,5 +1,15 @@
 2001-06-02  Sam Steingold  <sds@gnu.org>
 
+	made GETENV setfable
+	* lispbibl.d: declare clisp_setenv()
+	* subr.d, constsym.d: added SYS::SETENV (set_env)
+	* spvw_language.d: removed mysetenv, use clisp_setenv()
+	* misc.d (clisp_setenv, SETENV): new functions
+	(GETENV): barf on non-string arg instead of returning NIL
+	* places.lisp: defsetf getenv when setenv is present
+
+2001-06-02  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (LPARTS): added dirkey
 
 2001-06-01  Sam Steingold  <sds@gnu.org>
