@@ -48,10 +48,11 @@
 (initialize-extended-method-check #'method-function)
 
 ;; MOP p. 82
-(fmakunbound 'method-qualifiers)
-(defgeneric method-qualifiers (method)
-  (:method ((method standard-method))
-    (std-method-qualifiers method)))
+(let ((*allow-making-generic* t))
+  (defgeneric method-qualifiers (method)
+    (:method ((method standard-method))
+      (std-method-qualifiers method))))
+(setq |#'method-qualifiers| #'method-qualifiers)
 ; No extended method check because this GF is specified in ANSI CL.
 ;(initialize-extended-method-check #'method-qualifiers)
 
