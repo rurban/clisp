@@ -9414,10 +9414,10 @@ local void directory_search_scandir (bool recursively, signean next_task,
                       pushSTACK(timepoint.Tag);
                       pushSTACK(timepoint.Monat);
                       pushSTACK(timepoint.Jahr);
-                      pushSTACK(listof(6)); # build 6-element list
-                                            # as 3th list element
-                      pushSTACK(UL_to_I(entry_size)); # length as 4th list element
-                      STACK_(1) = listof(4);          # build 4-element list
+                      { /* 6-element timestamp ==> the 3rd element */
+                        object timestamp = listof(6); pushSTACK(timestamp); }
+                      pushSTACK(UL_to_I(entry_size)); /* length ==> 4th */
+                      { object fullinfo = listof(4); STACK_1 = fullinfo; }
                     }
                     # now STACK_1 can contain either truename or
                     # list-of-file-information (both for insertion to result-list)
