@@ -2684,7 +2684,23 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
                     end_system_call();
                     if (cap) { keybinding(cap,funkey_tab[i].key); }
               }   }
-              # Spezielle xterm-Behandlung:
+              # Special Linux console handling:
+              begin_system_call();
+              cap = tgetstr("kh",&tp); # Home
+              if (!(cap && (cap[0] == ESC) && (cap[1] == '[') && (cap[2] == '1') && (cap[3] == '~') && (cap[4] == '\0')))
+                goto not_linux;
+              cap = tgetstr("kI",&tp); # Insert
+              if (!(cap && (cap[0] == ESC) && (cap[1] == '[') && (cap[2] == '2') && (cap[3] == '~') && (cap[4] == '\0')))
+                goto not_linux;
+              cap = tgetstr("kD",&tp); # Delete
+              if (!(cap && (cap[0] == ESC) && (cap[1] == '[') && (cap[2] == '3') && (cap[3] == '~') && (cap[4] == '\0')))
+                goto not_linux;
+              end_system_call();
+              keybinding(ESCstring"[4~",17 | char_hyper_c); # #\End
+              if (FALSE)
+                not_linux:
+                { end_system_call(); }
+              # Spezial xterm handling:
               begin_system_call();
               cap = tgetstr("ku",&tp);
               if (!(cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'A') && (cap[3] == '\0')))
@@ -2739,8 +2755,9 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
                 keybinding(ESCstring"[23~",'K' | char_hyper_c); # #\F11
                 keybinding(ESCstring"[24~",'L' | char_hyper_c); # #\F12
               }
-              not_xterm:
-              end_system_call();
+              if (FALSE)
+                not_xterm:
+                { end_system_call(); }
      }  }   }
      #endif
      #ifdef WIN32_NATIVE
