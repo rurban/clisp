@@ -1,5 +1,14 @@
 2001-07-10  Sam Steingold  <sds@gnu.org>
 
+	finished the 2001-06-21 patch
+	* lispbibl.d (make_file_stream): declare direction arg as direction_t
+	* stream.d (make_unbuffered_stream, make_buffered_stream,
+	make_file_stream): ditto
+	* dirkey.d (open_reg_key): declare if_not_exists arg as
+	if_does_not_exist_t
+
+2001-07-10  Sam Steingold  <sds@gnu.org>
+
 	* condition.lisp (appease-cerrors, muffle-cerrors): do not cons
 	up a lambda for handler
 	(exit-on-error, appease-cerrors, muffle-cerrors, batchmode-errors):
