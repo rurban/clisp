@@ -1,5 +1,10 @@
 2005-03-07  Bruno Haible  <bruno@clisp.org>
 
+	* arilev0.d (mulu32_, mulu32_unchecked, divu_3232_3232_,
+	divu_6432_3232_): Use ANSI C function declaration. Needed when CC=g++.
+
+2005-03-07  Bruno Haible  <bruno@clisp.org>
+
 	Make HEAPCODES work on 64-bit platforms.
 	* lispbibl.d (oint_type_shift, oint_type_len, oint_type_mask)
 	(oint_data_shift, oint_data_len, oint_data_mask, garcol_bit_o)
