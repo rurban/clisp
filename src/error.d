@@ -900,17 +900,17 @@ nonreturning_function(global, fehler_vector, (object obj)) {
   fehler(type_error,GETTEXT("~S: ~S is not a vector"));
 }
 
-/* check_array(obj)
- > obj: an object
- < result: an array, either the same as obj or a replacement
+/* check_array_replacement(obj)
+ > obj: not an array
+ < result: an array, a replacement
  can trigger GC */
-extern object check_array_replacement (object obj) {
+global object check_array_replacement (object obj) {
   do {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
     pushSTACK(S(array));        /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: argument ~S should be an array"));
+    check_value(type_error,GETTEXT("~S: argument ~S is not an array"));
     obj = value1;
   } while (!arrayp(obj));
   return obj;
