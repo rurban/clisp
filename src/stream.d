@@ -8731,7 +8731,9 @@ local object make_key_event (const key_event* event) {
               (encoding,*stream_,&bptr,bptr+max_bytes_per_chart,&cptr,cptr+1);
            #else
             var chart c = event.Event.KeyEvent.uAsciiChar;
-            OemToCharBuff((char *)c,(char *)c,1);
+            var cint ci = as_cint(c);
+            OemToCharBuff((char *)&ci,(char *)&ci,1);
+            c = as_chart(ci);
            #endif
             ev.key = NULL;
             ev.code = c;

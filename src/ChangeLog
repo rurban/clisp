@@ -1,3 +1,9 @@
+2001-10-25  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (rd_ch_keyboard) [WIN32_NATIVE !UNICODE]: fixed the
+	call to OemToCharBuff()
+	Suggested by Arseny Slobodjuck <ampy@ich.dvo.ru>
+
 2001-10-24  Sam Steingold  <sds@gnu.org>
 
 	* charstrg.d (char_name, name_char): fixed for --without-unicode
