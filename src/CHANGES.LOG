@@ -2,6 +2,9 @@
 User visible changes
 --------------------
 
+* The variable `*prompt-with-package*' is replaced with `*prompt*',
+  which can be a function.  See the impnotes for further details.
+
 * Conforming with X3J13 writeup <FUNCTION-TYPE:X3J13-MARCH-88>, an error
   is now signalled when a lambda expression (not a function) is passed to
   APPLY, FUNCALL, SETF SYMBOL-FUNCTION, EVERY, SOME, NOTEVERY, NOTANY,
