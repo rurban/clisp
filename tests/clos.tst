@@ -1,8 +1,8 @@
 ;; -*- Lisp -*-
 
-#-(or CMU SBCL OpenMCL)
+#-(or GCL CMU SBCL OpenMCL)
 (use-package "CLOS")
-#-(or CMU SBCL OpenMCL)
+#-(or GCL CMU SBCL OpenMCL)
 T
 
 (unintern '<C1>)
@@ -646,9 +646,9 @@ FOO
     (delete-file file)
     (delete-file c)
     #+clisp (delete-file (make-pathname :type "lib" :defaults file))))
-#+(or CLISP LISPWORKS) #S(FOO :SLOT NIL)
+#+(or CLISP GCL LISPWORKS) #S(FOO :SLOT NIL)
 #+(or ALLEGRO CMU SBCL) ERROR
-#-(or CLISP ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
+#-(or CLISP GCL ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 
 ;; The finalized-direct-subclasses list must be weak.
 #+clisp
@@ -715,8 +715,9 @@ FOO
         (slot-value p2 'name) (slot-value p2 'rho) (slot-value p2 'theta)))
 #+CLISP (FOO 2 0 BAR 1.4142135 0.7853981)
 #+(or ALLEGRO CMU SBCL OpenMCL) (FOO 2.0 0.0 BAR 1.4142135 0.7853982)
+#+GCL (FOO 2.0 0.0 BAR 1.4142135623730951 0.78539816339744828)
 #+LISPWORKS (FOO 2.0 0.0 BAR 1.4142135623730951 0.7853981633974483)
-#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP GCL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (progn
   (defclass c0 () (a b c))
@@ -1918,7 +1919,7 @@ ERROR
   (defmethod test-mc-standard-bad-qualifiers :beffor ((x float) (y float))
     (format t "x = ~S, y = ~S~%" x y))
   t)
-#+(or CLISP CMU LISPWORKS) ERROR #+(or ALLEGRO SBCL OpenMCL) T #-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#+(or CLISP CMU LISPWORKS) ERROR #+(or GCL ALLEGRO SBCL OpenMCL) T #-(or CLISP GCL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (progn
   (defgeneric test-mc-standard-bad1 (x y))
