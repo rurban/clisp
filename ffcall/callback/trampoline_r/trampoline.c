@@ -1,7 +1,7 @@
 /* Trampoline construction */
 
 /*
- * Copyright 1995-1999, 2001-2002 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999, 2001-2003 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -526,17 +526,17 @@ __TR_function alloc_trampoline_r (address, data0, data1)
         br      %r1
   */
   /* What about big endian / little endian ?? */
-  *(unsigned int *) (function + 0) = 0xA7150006;
-  *(unsigned int *) (function + 4) = (unsigned int) data;
-  *(unsigned int *) (function + 8) = (unsigned int) address;
-  *(unsigned int *) (function +12) = 0x58001000;
-  *(unsigned int *) (function +16) = 0x58101004;
+  *(unsigned int *)   (function + 0) = 0xA7150006;
+  *(unsigned int *)   (function + 4) = (unsigned int) data;
+  *(unsigned int *)   (function + 8) = (unsigned int) address;
+  *(unsigned int *)   (function +12) = 0x58001000;
+  *(unsigned int *)   (function +16) = 0x58101004;
   *(unsigned short *) (function +20) = 0x07f1;
 #define is_tramp(function)  \
-  *(unsigned int *)    (function + 0) == 0xA7150006 && \
-  *(unsigned int *)    (function +12) == 0x58001000 && \
-  *(unsigned int *)    (function +16) == 0x58101004 && \
-  *(unsigned short *)  (function +20) == 0x07f1
+  *(int *)            (function + 0) == 0xA7150006 && \
+  *(int *)            (function +12) == 0x58001000 && \
+  *(int *)            (function +16) == 0x58101004 && \
+  *(short *)          (function +20) == 0x07f1
 #define tramp_address(function)  \
   *(unsigned int *) (function +8)
 #define tramp_data(function)  \
