@@ -93,11 +93,8 @@
                           (incf i)
                       ) )
                       (setq new-access-form
-                        (cons (car access-form) (nreverse new-access-form))
-                      )
-                      (let ((newval-vars
-                              (map-into (make-list (cadr plist-info))
-                                        #'gensym)))
+                        (cons (car access-form) (nreverse new-access-form)))
+                      (let ((newval-vars (gensym-list (cadr plist-info))))
                         (values
                           (nreverse tempvars)
                           (nreverse tempforms)
@@ -198,20 +195,16 @@
     (if (simple-assignment-p se sv)
       (subst `(CONS ,item ,ge) (car sv) se)
       (let* ((bindlist (mapcar #'list vr vl))
-             (tempvars (map-into (make-list (length sv)) #'gensym))
+             (tempvars (gensym-list (length sv)))
              (ns (sublis (mapcar #'(lambda (storevar tempvar)
-                                     (cons storevar `(CONS ,storevar ,tempvar))
-                                   )
-                                 sv tempvars
-                         )
-                         se
-            ))   )
+                                     (cons storevar
+                                           `(CONS ,storevar ,tempvar)))
+                                 sv tempvars)
+                         se)))
         `(MULTIPLE-VALUE-BIND ,sv ,item
            (LET* ,bindlist
              (MULTIPLE-VALUE-BIND ,tempvars ,ge
-               ,ns
-         ) ) )
-) ) ) )
+               ,ns)))))))
 ;;;----------------------------------------------------------------------------
 (defmacro define-setf-expander (accessfn lambdalist &body body
                                 &environment env)
@@ -471,20 +464,16 @@
     (if (simple-assignment-p se sv)
       (subst `(ADJOIN ,item ,ge ,@keylist) (car sv) se)
       (let* ((bindlist (mapcar #'list vr vl))
-             (tempvars (map-into (make-list (length sv)) #'gensym))
+             (tempvars (gensym-list (length sv)))
              (ns (sublis (mapcar #'(lambda (storevar tempvar)
-                                     (cons storevar `(ADJOIN ,storevar ,tempvar ,@keylist))
-                                   )
-                                 sv tempvars
-                         )
-                         se
-            ))   )
+                                     (cons storevar `(ADJOIN ,storevar ,tempvar
+                                                      ,@keylist)))
+                                 sv tempvars)
+                         se)))
         `(MULTIPLE-VALUE-BIND ,sv ,item
            (LET* ,bindlist
              (MULTIPLE-VALUE-BIND ,tempvars ,ge
-               ,ns
-         ) ) )
-) ) ) )
+               ,ns)))))))
 ;;;----------------------------------------------------------------------------
 (defmacro remf (place indicator &environment env)
   (multiple-value-bind (SM1 SM2 SM3 SM4 SM5) (get-setf-method place env)

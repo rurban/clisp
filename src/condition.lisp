@@ -530,28 +530,26 @@ abort continue muffle-warning store-value use-value
 |#
 
 ;; HANDLER-BIND, CLtL2 p. 898
-; Since we can build handler frames only in compiled code
-; there is SYS::%HANDLER-BIND which is synonymous to HANDLER-BIND except
-; that SYS::%HANDLER-BIND only occurs in compiled code.
+;; Since we can build handler frames only in compiled code
+;; there is SYS::%HANDLER-BIND which is synonymous to HANDLER-BIND except
+;; that SYS::%HANDLER-BIND only occurs in compiled code.
 (defmacro handler-bind (clauses &body body)
   (let ((typespecs (mapcar #'first clauses))
         (handlers (append (mapcar #'rest clauses) (list body))))
-    (let ((handler-vars (map-into (make-list (length handlers)) #'gensym)))
+    (let ((handler-vars (gensym-list (length handlers))))
       `(LET ,(mapcar #'list
                handler-vars
-               (mapcar #'(lambda (handler) `(FUNCTION (LAMBDA () (PROGN ,@handler))))
-                       handlers
-             ) )
+               (mapcar #'(lambda (handler)
+                           `(FUNCTION (LAMBDA () (PROGN ,@handler))))
+                       handlers))
          (LOCALLY (DECLARE (COMPILE))
            (SYS::%HANDLER-BIND
              ,(mapcar #'(lambda (typespec handler-var)
-                          `(,typespec #'(LAMBDA (CONDITION) (FUNCALL (FUNCALL ,handler-var) CONDITION)))
-                        )
-                      typespecs handler-vars
-              )
-             (FUNCALL ,(car (last handler-vars)))
-       ) ) )
-) ) )
+                          `(,typespec #'(LAMBDA (CONDITION)
+                                          (FUNCALL (FUNCALL ,handler-var)
+                                                   CONDITION))))
+                      typespecs handler-vars)
+             (FUNCALL ,(car (last handler-vars)))))))))
 
 ;; SIGNAL, CLtL2 p. 888
 ; is in error.d

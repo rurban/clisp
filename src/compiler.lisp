@@ -8253,9 +8253,7 @@ der Docstring (oder NIL).
 (defun c-MAP-on-CARs (adjoin-fun funform forms)
   (let ((erg (gensym))
         (blockname (gensym))
-        (restvars
-          (mapcar #'(lambda (form) (declare (ignore form)) (gensym)) forms)
-        )
+        (restvars (gensym-list forms))
         (tag (gensym)))
     `(LET ((,erg NIL))
        (BLOCK ,blockname
@@ -8282,9 +8280,7 @@ der Docstring (oder NIL).
 (defun c-MAP-on-LISTs (adjoin-fun funform forms)
   (let ((erg (gensym))
         (blockname (gensym))
-        (restvars
-          (mapcar #'(lambda (form) (declare (ignore form)) (gensym)) forms)
-        )
+        (restvars (gensym-list forms))
         (tag (gensym)))
     `(LET ((,erg NIL))
        (BLOCK ,blockname
@@ -8312,9 +8308,7 @@ der Docstring (oder NIL).
         (let* ((tempvar (gensym))
                (forms (cons tempvar (cdddr *form*)))
                (blockname (gensym))
-               (restvars
-                 (mapcar #'(lambda (form) (declare (ignore form)) (gensym)) forms)
-               )
+               (restvars (gensym-list forms))
                (tag (gensym)))
           `(LET ((,tempvar ,(third *form*)))
              (BLOCK ,blockname
@@ -8345,9 +8339,7 @@ der Docstring (oder NIL).
         (let* ((tempvar (gensym))
                (forms (cons tempvar (cdddr *form*)))
                (blockname (gensym))
-               (restvars
-                 (mapcar #'(lambda (form) (declare (ignore form)) (gensym)) forms)
-               )
+               (restvars (gensym-list forms))
                (tag (gensym)))
           `(LET ((,tempvar ,(third *form*)))
              (BLOCK ,blockname
