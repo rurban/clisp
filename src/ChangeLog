@@ -1,5 +1,9 @@
 2002-01-07  Sam Steingold  <sds@gnu.org>
 
+	* symbol.d (Symbol_function_checked): use fehler_undef_function()
+
+2002-01-07  Sam Steingold  <sds@gnu.org>
+
 	made problem reporting work with WITH-COMPILATION-UNIT
 	* compiler.lisp (c-source-point): new structure (instead of a cons)
 	(c-source-location): accept a 3rd optional argument - file,
