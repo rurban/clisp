@@ -282,7 +282,8 @@
 (sys::%putd 'bye #'sys::%exit)
 
 (export
- '(re-export make-encoding encoding show-stack gc exit quit bye
+ '(re-export make-encoding encoding encoding-charset
+   show-stack gc exit quit bye
    probe-directory cd make-dir delete-dir default-directory dir
    xgcd exquo ! evalhook applyhook substring string-concat
    string-char make-char string-width char-width

@@ -293,6 +293,7 @@ LISPFUN(make_encoding,0,0,norest,key,4,
         (kw(charset),kw(line_terminator),kw(input_error_action),kw(output_error_action)) )
 LISPFUNN(encodingp,1)
 LISPFUNN(charset_typep,2)
+LISPFUNN(encoding_charset,1)
 #ifdef UNICODE
 LISPFUNN(charset_range,3)
 #endif
