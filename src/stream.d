@@ -754,9 +754,9 @@ global object var_stream (object sym, uintB strmflags) {
     # Only instances of FUNDAMENTAL-INPUT-STREAM can do input.
     # Only instances of FUNDAMENTAL-OUTPUT-STREAM can do output.
     if (((strmflags & strmflags_rd_B)
-         && !instanceof(stream,O(class_fundamental_input_stream))) ||
-        ((strmflags & strmflags_wr_B)
-         && !instanceof(stream,O(class_fundamental_output_stream))))
+         && !instanceof(stream,O(class_fundamental_input_stream)))
+        || ((strmflags & strmflags_wr_B)
+            && !instanceof(stream,O(class_fundamental_output_stream))))
       fehler_value_stream(sym);
   } else {
     fehler_value_stream(sym);
@@ -1792,8 +1792,8 @@ local bool read_line_twoway (object stream, const object* buffer_) {
 # can trigger GC
 global object make_twoway_stream (object input_stream, object output_stream) {
   pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
-  var uintB flags = strmflags_open_B |
-    (TheStream(input_stream)->strmflags & strmflags_immut_B);
+  var uintB flags =
+    strmflags_open_B | (TheStream(input_stream)->strmflags & strmflags_immut_B);
   var object stream = # neuer Stream, alle Operationen erlaubt
     allocate_stream(flags,strmtype_twoway,strm_len+2,0);
   TheStream(stream)->strm_rd_by = P(rd_by_twoway);
@@ -1932,8 +1932,8 @@ local uintL rd_ch_array_echo (const object* stream_, const object* chararray_,
 # can trigger GC
 local object make_echo_stream (object input_stream, object output_stream) {
   pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
-  var uintB flags = strmflags_open_B |
-    (TheStream(input_stream)->strmflags & strmflags_immut_B);
+  var uintB flags =
+    strmflags_open_B | (TheStream(input_stream)->strmflags & strmflags_immut_B);
   var object stream = # neuer Stream, alle Operationen erlaubt
     allocate_stream(flags,strmtype_echo,strm_len+2,0);
   TheStream(stream)->strm_rd_by = P(rd_by_echo);
@@ -2328,11 +2328,11 @@ local void wr_ch_pphelp (const object* stream_, object ch) {
   if (chareq(c,ascii(NL))) {
     TheStream(stream)->strm_pphelp_modus = T;
     cons_ssstring(stream_,NIL);
-  } else if ((chareq(c,ascii(' ')) || chareq(c,ascii('\t'))) &&
-             !nullp(Symbol_value(S(print_pretty_fill)))) {
+  } else if ((chareq(c,ascii(' ')) || chareq(c,ascii('\t')))
+             && !nullp(Symbol_value(S(print_pretty_fill)))) {
     var object list = TheStream(stream)->strm_pphelp_strings;
-    if (!(vector_length(Car(list)) == 0 && mconsp(Cdr(list)) &&
-          mconsp(Car(Cdr(list))) && eq(S(Kfill),Car(Car(Cdr(list)))))) {
+    if (!(vector_length(Car(list)) == 0 && mconsp(Cdr(list))
+          && mconsp(Car(Cdr(list))) && eq(S(Kfill),Car(Car(Cdr(list)))))) {
       ssstring_push_extend(Car(list),c);
       # spaces right after a :FILL newline or multiple spaces are ignored
       cons_ssstring(stream_,S(Kfill));
@@ -2945,8 +2945,8 @@ typedef struct {
 # can trigger GC
 local void test_eltype_arg (object* eltype_, decoded_eltype* decoded) {
   var object arg = *eltype_;
-  if (eq(arg,unbound) || eq(arg,S(character)) || eq(arg,S(string_char)) ||
-      eq(arg,S(Kdefault))) { # CHARACTER, STRING-CHAR, :DEFAULT
+  if (eq(arg,unbound) || eq(arg,S(character)) || eq(arg,S(string_char))
+      || eq(arg,S(Kdefault))) { # CHARACTER, STRING-CHAR, :DEFAULT
     decoded->kind = eltype_ch; decoded->size = 0; return;
   }
   if (eq(arg,S(bit))) { # BIT
@@ -3312,8 +3312,8 @@ local void clear_tty_input (Handle handle) {
   begin_system_call();
   # Maybe it's a serial communication.
   if (!PurgeComm(handle,PURGE_RXABORT|PURGE_RXCLEAR)) {
-    if (!(GetLastError()==ERROR_INVALID_HANDLE ||
-          GetLastError()==ERROR_INVALID_FUNCTION))
+    if (!(GetLastError()==ERROR_INVALID_HANDLE
+          || GetLastError()==ERROR_INVALID_FUNCTION))
       { OS_error(); }
   }
   # Maybe it's a console.
@@ -3338,8 +3338,8 @@ local void clear_tty_output (Handle handle) {
   begin_system_call();
   # Maybe it's a serial communication.
   if (!PurgeComm(handle,PURGE_TXABORT|PURGE_TXCLEAR)) {
-    if (!(GetLastError()==ERROR_INVALID_HANDLE ||
-          GetLastError()==ERROR_INVALID_FUNCTION))
+    if (!(GetLastError()==ERROR_INVALID_HANDLE
+          || GetLastError()==ERROR_INVALID_FUNCTION))
       { OS_error(); }
   }
   end_system_call();
@@ -4225,8 +4225,8 @@ local object bitbuff_is_I (object bitbuffer, uintL bitsize, uintL bytesize) {
     sign = 0;
     *bitbufferptr &= (bitm(signbitnr+1)-1); # High byte sign-extenden
     # normalisieren, höchstes Bit muss 0 bleiben:
-    while ((count>=2) && (*bitbufferptr==0) &&
-           !(*(bitbufferptr-1) & bit(7))) {
+    while ((count>=2) && (*bitbufferptr==0)
+           && !(*(bitbufferptr-1) & bit(7))) {
       count--; bitbufferptr--;
     }
     # Zahl bilden:
@@ -4243,8 +4243,8 @@ local object bitbuff_is_I (object bitbuffer, uintL bitsize, uintL bytesize) {
     sign = -1;
     *bitbufferptr |= minus_bitm(signbitnr+1); # High byte sign-extenden
     # normalisieren, höchstes Bit muss 1 bleiben:
-    while ((count>=2) && (*bitbufferptr==(uintB)(-1)) &&
-           (*(bitbufferptr-1) & bit(7))) {
+    while ((count>=2) && (*bitbufferptr==(uintB)(-1))
+           && (*(bitbufferptr-1) & bit(7))) {
       count--; bitbufferptr--;
     }
     # make number:
@@ -6609,8 +6609,8 @@ local uintL rd_ch_array_buffered (const object* stream_,
           # nächstes Zeichen auf LF untersuchen
           if (ptr1 == charptr) {
             uintB* bufferptr = buffered_nextbyte(stream);
-            if ((bufferptr != NULL) &&
-                chareq(as_chart(*bufferptr),ascii(LF))) {
+            if ((bufferptr != NULL)
+                && chareq(as_chart(*bufferptr),ascii(LF))) {
               # increment index and position
               BufferedStream_index(stream) += 1;
               BufferedStream_position(stream) += 1;
@@ -6979,10 +6979,10 @@ local void position_file_i_buffered (object stream, uintL position) {
     return;
   if (# Is the addressed position situated in the first byte after EOF ?
       ((!((position_bits%8)==0))
-       && (buffered_nextbyte(stream) == (uintB*)NULL)) ||
+       && (buffered_nextbyte(stream) == (uintB*)NULL))
        # Is the addressed position situated in the last byte too far?
-      ((bitsize < 8)
-       && (position > BufferedStream_eofposition(stream)))) {
+      || ((bitsize < 8)
+          && (position > BufferedStream_eofposition(stream)))) {
     # Fehler. Aber erst an die alte Position zurückpositionieren:
     var uintL oldposition = BufferedStream_position(stream);
     check_SP();
@@ -9826,11 +9826,11 @@ LISPFUNN(make_keyboard_stream,0)
     {
       if (((start>=2)
            && (rl_line_buffer[start-2]=='#')
-           && (rl_line_buffer[start-1]== '\"')) ||
-          ((start>=3)
-           && (rl_line_buffer[start-3]=='#')
-           && (rl_line_buffer[start-2]=='P' || rl_line_buffer[start-2]=='p')
-           && (rl_line_buffer[start-1]== '\"'))) {
+           && (rl_line_buffer[start-1]== '\"'))
+          || ((start>=3)
+              && (rl_line_buffer[start-3]=='#')
+              && (rl_line_buffer[start-2]=='P' || rl_line_buffer[start-2]=='p')
+              && (rl_line_buffer[start-1]== '\"'))) {
         # Vervollständigung nach #" oder #P" bezieht sich auf Filenamen:
         want_filename_completion = true; return NULL;
       }
@@ -9962,8 +9962,8 @@ local char * strip_white (char *string) {
           # put into the history if non-empty
           if (line[0] != '\0') {
             HIST_ENTRY *prev = previous_history();
-            if ((prev==NULL) ||
-                eq(Symbol_value(S(terminal_read_open_object)),unbound)) {
+            if ((prev==NULL)
+                || eq(Symbol_value(S(terminal_read_open_object)),unbound)) {
               begin_system_call(); add_history((char*)line); end_system_call();
             } else { # append this line to the previous history entry
               int offset = where_history();
@@ -11376,8 +11376,8 @@ LISPFUNN(set_window_cursor_position,3)
     var COORD pos;
     pos.Y = posfixnum_to_L(STACK_1);
     pos.X = posfixnum_to_L(STACK_0);
-    if ((pos.Y < sz.Y) && (pos.X < sz.X) &&
-        (pos.Y >=   0) && (pos.X >=   0)) {
+    if ((pos.Y < sz.Y) && (pos.X < sz.X)
+        && (pos.Y >= 0) && (pos.X >= 0)) {
       v_move(handle,pos.Y,pos.X);
       ConsolePosS(stream,pos);
     }
@@ -15448,8 +15448,8 @@ local object test_socket_stream(obj,check_open)
           obj = TheStream(obj)->strm_twoway_socket_input;
           /*FALLTHROUGH*/
         case strmtype_socket:
-          if (check_open &&
-              ((TheStream(obj)->strmflags & strmflags_open_B) == 0)) {
+          if (check_open
+              && ((TheStream(obj)->strmflags & strmflags_open_B) == 0)) {
             pushSTACK(obj);       # TYPE-ERROR slot DATUM
             pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
             pushSTACK(obj);
@@ -15513,8 +15513,10 @@ local object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
       return FD_ISSET(handle,readfds) ? T : NIL;
     } else {
       bool wr = WRITE_P(dir) && FD_ISSET(handle,writefds),
-        rd = READ_P(dir) && FD_ISSET(handle,readfds) &&
-        ls_avail_p(stream_char_p(sock)?listen_char(sock):listen_byte(sock));
+        rd = (READ_P(dir) && FD_ISSET(handle,readfds)
+              && ls_avail_p(stream_char_p(sock)
+              ? listen_char(sock)
+              : listen_byte(sock));
       if      ( rd && !wr) return S(Kinput);
       else if (!rd &&  wr) return S(Koutput);
       else if ( rd &&  wr) return S(Kio);
@@ -15545,8 +15547,8 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
     { var fd_set readfds, writefds, errorfds;
       var object all = STACK_2;
       FD_ZERO(&readfds); FD_ZERO(&writefds); FD_ZERO(&errorfds);
-      var bool many_sockets_p = (consp(all) &&
-                                 !(symbolp(Cdr(all)) && keywordp(Cdr(all))));
+      var bool many_sockets_p =
+        (consp(all) && !(symbolp(Cdr(all)) && keywordp(Cdr(all))));
       if (many_sockets_p) {
         var object list = all;
         var int index = 0;
@@ -15841,9 +15843,9 @@ local void fehler_value_stream (object sym) {
     # that might have been a file stream and got closed when the disk
     # became full.)
     stream = make_terminal_stream();
-  } else if (eq(sym,S(query_io)) || eq(sym,S(debug_io)) ||
-             eq(sym,S(standard_input)) || eq(sym,S(standard_output)) ||
-             eq(sym,S(error_output)) || eq(sym,S(trace_output))) {
+  } else if (eq(sym,S(query_io)) || eq(sym,S(debug_io))
+             || eq(sym,S(standard_input)) || eq(sym,S(standard_output))
+             || eq(sym,S(error_output)) || eq(sym,S(trace_output))) {
     # Synonym-Stream auf *TERMINAL-IO* als Default
     stream = make_synonym_stream(S(terminal_io));
   } else {
@@ -15956,10 +15958,11 @@ LISPFUNN(stream_element_type_eq,2)
 #            (eql (cadr t0) (cadr t1)))))
 { object t0 = popSTACK();
   object t1 = popSTACK();
-  if (eq(t0,t1) ||
-      (consp(t0) && consp(t1) && eq(Car(t0),Car(t1)) &&
-       (eq(Car(t0),S(unsigned_byte)) || eq(Car(t0),S(signed_byte))) &&
-       consp(Cdr(t0)) && consp(Cdr(t1)) && eql(Car(Cdr(t0)),Car(Cdr(t1))))) {
+  if (eq(t0,t1)
+      || (consp(t0) && consp(t1) && eq(Car(t0),Car(t1))
+          && (eq(Car(t0),S(unsigned_byte)) || eq(Car(t0),S(signed_byte)))
+          && consp(Cdr(t0)) && consp(Cdr(t1))
+          && eql(Car(Cdr(t0)),Car(Cdr(t1))))) {
     value1 = T; mv_count = 1;
   } else {
     value1 = NIL; mv_count = 1;
