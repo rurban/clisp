@@ -1,5 +1,9 @@
 2004-12-13  Bruno Haible  <bruno@clisp.org>
 
+	* places.lisp (remf): Reorder bindings according to ANSI CL 5.1.3.
+
+2004-12-13  Bruno Haible  <bruno@clisp.org>
+
 	* format.lisp (format-iteration): In the cases without colon, a
 	*FORMAT-UP-AND-OUT* = :TERMINATE terminates the entire construct.
 
