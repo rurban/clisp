@@ -1,4 +1,10 @@
-1998-10-20 Sam Steingold  <sds@goems.com>
+1998-11-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * alltest.tst, characters.tst, format.tst: Remove all tests of
+          characters with font and bits.
+          (iofkts.tst): Reflect change in STREAM-ELEMENT-TYPE.
+
+1998-10-20  Sam Steingold  <sds@goems.com>
 
         * alltest.tst: added tests for `ldiff' and `tailp' handling
 	  of dotted lists (HyperSpec/Body/fun_ldiffcm_tailp.html).
