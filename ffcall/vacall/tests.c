@@ -2,7 +2,7 @@
 
 /*
  * Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
- * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999, 2002 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -120,7 +120,7 @@ Double D1={0.1}, D2={0.2}, D3={0.3}, D4={0.4}, D5={0.5}, D6={0.6}, D7={0.7}, D8=
 A A1={'a',0.1},A2={'b',0.2},A3={'\377',0.3};
 B B1={0.1,{1,2,3}},B2={0.2,{5,4,3}};
 J J1={47,11},J2={73,55};
-T T1={"the"},T2={"fox"};
+T T1={'t','h','e'},T2={'f','o','x'};
 X X1={"abcdefghijklmnopqrstuvwxyzABCDEF",'G'}, X2={"123",'9'}, X3={"return-return-return",'R'};
 
 /* void tests */
@@ -854,7 +854,7 @@ int main ()
   /* void tests */
   v_v();
   clear_traces();
-  current_function = &v_v; (FTYPE(void,(void)) vacall) ();
+  current_function = (void*) &v_v; (FTYPE(void,(void)) vacall) ();
 
   /* int tests */
   { int ir;
@@ -863,7 +863,7 @@ int main ()
     fprintf(out,"->%d\n",ir);
     fflush(out);
     ir = 0; clear_traces();
-    current_function = &i_v; ir = (FTYPE(int,(void)) vacall) ();
+    current_function = (void*) &i_v; ir = (FTYPE(int,(void)) vacall) ();
     fprintf(out,"->%d\n",ir);
     fflush(out);
 
@@ -871,7 +871,7 @@ int main ()
     fprintf(out,"->%d\n",ir);
     fflush(out);
     ir = 0; clear_traces();
-    current_function = &i_i; ir = (FTYPE(int,(int)) vacall) (i1);
+    current_function = (void*) &i_i; ir = (FTYPE(int,(int)) vacall) (i1);
     fprintf(out,"->%d\n",ir);
     fflush(out);
 
@@ -879,7 +879,7 @@ int main ()
     fprintf(out,"->%d\n",ir);
     fflush(out);
     ir = 0; clear_traces();
-    current_function = &i_i2; ir = (FTYPE(int,(int,int)) vacall) (i1,i2);
+    current_function = (void*) &i_i2; ir = (FTYPE(int,(int,int)) vacall) (i1,i2);
     fprintf(out,"->%d\n",ir);
     fflush(out);
 
@@ -887,7 +887,7 @@ int main ()
     fprintf(out,"->%d\n",ir);
     fflush(out);
     ir = 0; clear_traces();
-    current_function = &i_i4; ir = (FTYPE(int,(int,int,int,int)) vacall) (i1,i2,i3,i4);
+    current_function = (void*) &i_i4; ir = (FTYPE(int,(int,int,int,int)) vacall) (i1,i2,i3,i4);
     fprintf(out,"->%d\n",ir);
     fflush(out);
 
@@ -895,7 +895,7 @@ int main ()
     fprintf(out,"->%d\n",ir);
     fflush(out);
     ir = 0; clear_traces();
-    current_function = &i_i8; ir = (FTYPE(int,(int,int,int,int,int,int,int,int)) vacall) (i1,i2,i3,i4,i5,i6,i7,i8);
+    current_function = (void*) &i_i8; ir = (FTYPE(int,(int,int,int,int,int,int,int,int)) vacall) (i1,i2,i3,i4,i5,i6,i7,i8);
     fprintf(out,"->%d\n",ir);
     fflush(out);
 
@@ -903,7 +903,7 @@ int main ()
     fprintf(out,"->%d\n",ir);
     fflush(out);
     ir = 0; clear_traces();
-    current_function = &i_i16; ir = (FTYPE(int,(int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int)) vacall) (i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15,i16);
+    current_function = (void*) &i_i16; ir = (FTYPE(int,(int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int)) vacall) (i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15,i16);
     fprintf(out,"->%d\n",ir);
     fflush(out);
   }
@@ -915,7 +915,7 @@ int main ()
     fprintf(out,"->%g\n",fr);
     fflush(out);
     fr = 0.0; clear_traces();
-    current_function = &f_f; fr = (FTYPE(float,(float)) vacall) (f1);
+    current_function = (void*) &f_f; fr = (FTYPE(float,(float)) vacall) (f1);
     fprintf(out,"->%g\n",fr);
     fflush(out);
 
@@ -923,7 +923,7 @@ int main ()
     fprintf(out,"->%g\n",fr);
     fflush(out);
     fr = 0.0; clear_traces();
-    current_function = &f_f2; fr = (FTYPE(float,(float,float)) vacall) (f1,f2);
+    current_function = (void*) &f_f2; fr = (FTYPE(float,(float,float)) vacall) (f1,f2);
     fprintf(out,"->%g\n",fr);
     fflush(out);
 
@@ -931,7 +931,7 @@ int main ()
     fprintf(out,"->%g\n",fr);
     fflush(out);
     fr = 0.0; clear_traces();
-    current_function = &f_f4; fr = (FTYPE(float,(float,float,float,float)) vacall) (f1,f2,f3,f4);
+    current_function = (void*) &f_f4; fr = (FTYPE(float,(float,float,float,float)) vacall) (f1,f2,f3,f4);
     fprintf(out,"->%g\n",fr);
     fflush(out);
 
@@ -939,7 +939,7 @@ int main ()
     fprintf(out,"->%g\n",fr);
     fflush(out);
     fr = 0.0; clear_traces();
-    current_function = &f_f8; fr = (FTYPE(float,(float,float,float,float,float,float,float,float)) vacall) (f1,f2,f3,f4,f5,f6,f7,f8);
+    current_function = (void*) &f_f8; fr = (FTYPE(float,(float,float,float,float,float,float,float,float)) vacall) (f1,f2,f3,f4,f5,f6,f7,f8);
     fprintf(out,"->%g\n",fr);
     fflush(out);
 
@@ -947,7 +947,7 @@ int main ()
     fprintf(out,"->%g\n",fr);
     fflush(out);
     fr = 0.0; clear_traces();
-    current_function = &f_f16; fr = (FTYPE(float,(float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float)) vacall) (f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16);
+    current_function = (void*) &f_f16; fr = (FTYPE(float,(float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float)) vacall) (f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16);
     fprintf(out,"->%g\n",fr);
     fflush(out);
   }
@@ -959,7 +959,7 @@ int main ()
     fprintf(out,"->%g\n",dr);
     fflush(out);
     dr = 0.0; clear_traces();
-    current_function = &d_d; dr = (FTYPE(double,(double)) vacall) (d1);
+    current_function = (void*) &d_d; dr = (FTYPE(double,(double)) vacall) (d1);
     fprintf(out,"->%g\n",dr);
     fflush(out);
 
@@ -967,7 +967,7 @@ int main ()
     fprintf(out,"->%g\n",dr);
     fflush(out);
     dr = 0.0; clear_traces();
-    current_function = &d_d2; dr = (FTYPE(double,(double,double)) vacall) (d1,d2);
+    current_function = (void*) &d_d2; dr = (FTYPE(double,(double,double)) vacall) (d1,d2);
     fprintf(out,"->%g\n",dr);
     fflush(out);
 
@@ -975,7 +975,7 @@ int main ()
     fprintf(out,"->%g\n",dr);
     fflush(out);
     dr = 0.0; clear_traces();
-    current_function = &d_d4; dr = (FTYPE(double,(double,double,double,double)) vacall) (d1,d2,d3,d4);
+    current_function = (void*) &d_d4; dr = (FTYPE(double,(double,double,double,double)) vacall) (d1,d2,d3,d4);
     fprintf(out,"->%g\n",dr);
     fflush(out);
 
@@ -983,7 +983,7 @@ int main ()
     fprintf(out,"->%g\n",dr);
     fflush(out);
     dr = 0.0; clear_traces();
-    current_function = &d_d8; dr = (FTYPE(double,(double,double,double,double,double,double,double,double)) vacall) (d1,d2,d3,d4,d5,d6,d7,d8);
+    current_function = (void*) &d_d8; dr = (FTYPE(double,(double,double,double,double,double,double,double,double)) vacall) (d1,d2,d3,d4,d5,d6,d7,d8);
     fprintf(out,"->%g\n",dr);
     fflush(out);
 
@@ -991,7 +991,7 @@ int main ()
     fprintf(out,"->%g\n",dr);
     fflush(out);
     dr = 0.0; clear_traces();
-    current_function = &d_d16; dr = (FTYPE(double,(double,double,double,double,double,double,double,double,double,double,double,double,double,double,double,double)) vacall) (d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16);
+    current_function = (void*) &d_d16; dr = (FTYPE(double,(double,double,double,double,double,double,double,double,double,double,double,double,double,double,double,double)) vacall) (d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16);
     fprintf(out,"->%g\n",dr);
     fflush(out);
   }
@@ -1003,7 +1003,7 @@ int main ()
     fprintf(out,"->0x%lx\n",(long)vpr);
     fflush(out);
     vpr = 0; clear_traces();
-    current_function = &vp_vpdpcpsp; vpr = (FTYPE(void*,(void*,double*,char*,Int*)) vacall) (&uc1,&d2,str3,&I4);
+    current_function = (void*) &vp_vpdpcpsp; vpr = (FTYPE(void*,(void*,double*,char*,Int*)) vacall) (&uc1,&d2,str3,&I4);
     fprintf(out,"->0x%lx\n",(long)vpr);
     fflush(out);
   }
@@ -1020,7 +1020,7 @@ int main ()
     fprintf(out,"->%u\n",ucr);
     fflush(out);
     ucr = 0; clear_traces();
-    current_function = &uc_ucsil; ucr = (FTYPE(uchar,(uchar,ushort,uint,ulong)) vacall) (uc1,us2,ui3,ul4);
+    current_function = (void*) &uc_ucsil; ucr = (FTYPE(uchar,(uchar,ushort,uint,ulong)) vacall) (uc1,us2,ui3,ul4);
     fprintf(out,"->%u\n",ucr);
     fflush(out);
 
@@ -1028,7 +1028,7 @@ int main ()
     fprintf(out,"->%g\n",dr);
     fflush(out);
     dr = 0.0; clear_traces();
-    current_function = &d_iidd; dr = (FTYPE(double,(int,int,double,double)) vacall) (i1,i2,d3,d4);
+    current_function = (void*) &d_iidd; dr = (FTYPE(double,(int,int,double,double)) vacall) (i1,i2,d3,d4);
     fprintf(out,"->%g\n",dr);
     fflush(out);
 
@@ -1036,7 +1036,7 @@ int main ()
     fprintf(out,"->%g\n",dr);
     fflush(out);
     dr = 0.0; clear_traces();
-    current_function = &d_idid; dr = (FTYPE(double,(int,double,int,double)) vacall) (i1,d2,i3,d4);
+    current_function = (void*) &d_idid; dr = (FTYPE(double,(int,double,int,double)) vacall) (i1,d2,i3,d4);
     fprintf(out,"->%g\n",dr);
     fflush(out);
 
@@ -1044,7 +1044,7 @@ int main ()
     fprintf(out,"->%u\n",usr);
     fflush(out);
     usr = 0; clear_traces();
-    current_function = &us_cdcd; usr = (FTYPE(ushort,(char,double,char,double)) vacall) (c1,d2,c3,d4);
+    current_function = (void*) &us_cdcd; usr = (FTYPE(ushort,(char,double,char,double)) vacall) (c1,d2,c3,d4);
     fprintf(out,"->%u\n",usr);
     fflush(out);
 
@@ -1053,7 +1053,7 @@ int main ()
     fprintf(out,"->0x%lx%08lx\n",(long)(llr>>32),(long)(llr&0xffffffff));
     fflush(out);
     llr = 0; clear_traces();
-    current_function = &ll_flli; llr = (FTYPE(long long,(float,long long,int)) vacall) (f13,ll1,i13);
+    current_function = (void*) &ll_flli; llr = (FTYPE(long long,(float,long long,int)) vacall) (f13,ll1,i13);
     fprintf(out,"->0x%lx%08lx\n",(long)(llr>>32),(long)(llr&0xffffffff));
     fflush(out);
 #endif
@@ -1073,7 +1073,7 @@ int main ()
     fprintf(out,"->{%d}\n",Ir.x);
     fflush(out);
     Ir.x = 0; clear_traces();
-    current_function = &I_III; Ir = (FTYPE(Int,(Int,Int,Int)) vacall) (I1,I2,I3);
+    current_function = (void*) &I_III; Ir = (FTYPE(Int,(Int,Int,Int)) vacall) (I1,I2,I3);
     fprintf(out,"->{%d}\n",Ir.x);
     fflush(out);
 
@@ -1082,7 +1082,7 @@ int main ()
     fprintf(out,"->{'%c'}\n",Cr.x);
     fflush(out);
     Cr.x = '\0'; clear_traces();
-    current_function = &C_CdC; Cr = (FTYPE(Char,(Char,double,Char)) vacall) (C1,d2,C3);
+    current_function = (void*) &C_CdC; Cr = (FTYPE(Char,(Char,double,Char)) vacall) (C1,d2,C3);
     fprintf(out,"->{'%c'}\n",Cr.x);
     fflush(out);
 
@@ -1090,7 +1090,7 @@ int main ()
     fprintf(out,"->{%g}\n",Fr.x);
     fflush(out);
     Fr.x = 0.0; clear_traces();
-    current_function = &F_Ffd; Fr = (FTYPE(Float,(Float,float,double)) vacall) (F1,f2,d3);
+    current_function = (void*) &F_Ffd; Fr = (FTYPE(Float,(Float,float,double)) vacall) (F1,f2,d3);
     fprintf(out,"->{%g}\n",Fr.x);
     fflush(out);
 
@@ -1098,7 +1098,7 @@ int main ()
     fprintf(out,"->{%g}\n",Dr.x);
     fflush(out);
     Dr.x = 0.0; clear_traces();
-    current_function = &D_fDd; Dr = (FTYPE(Double,(float,Double,double)) vacall) (f1,D2,d3);
+    current_function = (void*) &D_fDd; Dr = (FTYPE(Double,(float,Double,double)) vacall) (f1,D2,d3);
     fprintf(out,"->{%g}\n",Dr.x);
     fflush(out);
 #endif
@@ -1107,7 +1107,7 @@ int main ()
     fprintf(out,"->{%ld,%ld}\n",Jr.l1,Jr.l2);
     fflush(out);
     Jr.l1 = Jr.l2 = 0; clear_traces();
-    current_function = &J_JiJ; Jr = (FTYPE(J,(J,int,J)) vacall) (J1,i2,J2);
+    current_function = (void*) &J_JiJ; Jr = (FTYPE(J,(J,int,J)) vacall) (J1,i2,J2);
     fprintf(out,"->{%ld,%ld}\n",Jr.l1,Jr.l2);
     fflush(out);
 
@@ -1117,7 +1117,7 @@ int main ()
     fprintf(out,"->{\"%c%c%c\"}\n",Tr.c[0],Tr.c[1],Tr.c[2]);
     fflush(out);
     Tr.c[0] = Tr.c[1] = Tr.c[2] = 0; clear_traces();
-    current_function = &T_TcT; Tr = (FTYPE(T,(T,char,T)) vacall) (T1,' ',T2);
+    current_function = (void*) &T_TcT; Tr = (FTYPE(T,(T,char,T)) vacall) (T1,' ',T2);
     fprintf(out,"->{\"%c%c%c\"}\n",Tr.c[0],Tr.c[1],Tr.c[2]);
     fflush(out);
 #endif
@@ -1127,7 +1127,7 @@ int main ()
     fprintf(out,"->{\"%s\",'%c'}\n",Xr.c,Xr.c1);
     fflush(out);
     Xr.c[0]=Xr.c1='\0'; clear_traces();
-    current_function = &X_BcdB; Xr = (FTYPE(X,(B,char,double,B)) vacall) (B1,c2,d3,B2);
+    current_function = (void*) &X_BcdB; Xr = (FTYPE(X,(B,char,double,B)) vacall) (B1,c2,d3,B2);
     fprintf(out,"->{\"%s\",'%c'}\n",Xr.c,Xr.c1);
     fflush(out);
 #endif
