@@ -10615,15 +10615,21 @@ local void mkpipe (Handle * hin, bool dupinp, Handle * hout, bool dupoutp) {
   end_system_call();
 }
 
-/* (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error] [:priority])
+/* (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error]
+     [:element-type] [:external-format] [:buffered] [:priority])
  Launches a program.
  :arguments : a list of strings
  :wait - nullp/not nullp - whether to wait for process to finish (default T)
- :input, :output, :error - i/o/e streams for process. basically file-streams
-   or terminal-streams. see stream_lend_handle() in stream.d for full list
-   of supported streams. Can be NIL (/dev/null) or :terminal.
+ :input, :output, :error - i/o/e streams for process. basically file-streams,
+   pipe streams or terminal-streams. see stream_lend_handle() in stream.d for full list
+   of supported streams. Can be NIL (/dev/null), :pipe (pipe streams are created) or :terminal.
+ :element-type, :external-format, :buffered : parameters for created pipe-stream if
+   one or more of :input, :output, :error is :pipe.
  :priority : on windows : HIGH/LOW/NORMAL on UNIX : fixnum - see nice(2)
- returns: if wait exit code, child PID otherwise */
+ returns: value1: if wait exit code, child PID otherwise
+          value2: NIL or created pipe-output-stream, input stream for child
+          value3: NIL or created pipe-input-stream, output stream for child
+          value4: NIL or created pipe-input-stream, error stream for child  */
 LISPFUN(launch,seclass_default,1,0,norest,key,9,
         (kw(element_type),kw(external_format),kw(buffered),kw(arguments),kw(wait),kw(input),
          kw(output),kw(error),kw(priority))) {
