@@ -257,7 +257,7 @@
          ; Liefert das Variablen-Pattern und eine Liste von declspecs.
          (unless (consp body-rest)
            (error (DEUTSCH "~S: Variable fehlt."
-                   ENGLISH "~S: missing variable"
+                   ENGLISH "~S: missing variable."
                    FRANCAIS "~S : Il manque une variable.")
                   'loop
          ) )
@@ -372,15 +372,14 @@
                       (push accuvar results)
                     )
                     (when (and (consp body-rest)
-                               (not (loop-keywordp (first body-rest)))
-                          )
+                               (or (not (loop-keywordp (first body-rest)))
+                                   (eq (first body-rest) 'of-type)))
                       (let ((type (pop body-rest)))
+                        (when (eq type 'of-type) (setq type (pop body-rest)))
                         (case kw
                           ((MAXIMIZE MAXIMIZING MINIMIZE MINIMIZING)
-                           (setq type `(OR NULL ,type)) ; wegen Startwert NIL
-                        ) )
-                        (push `(TYPE ,type ,accuvar) accu-declarations)
-                    ) )
+                           (setq type `(OR NULL ,type)))) ; wegen Startwert NIL
+                        (push `(TYPE ,type ,accuvar) accu-declarations)))
                     (case kw
                       ((MAXIMIZE MAXIMIZING MINIMIZE MINIMIZING)
                        (push accuvar accu-vars-nil)
