@@ -104,7 +104,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
                                 &body body)
   (let ((out (case stream-symbol
                ((t) '*terminal-io*)
-               ((nil) *standard-output*)
+               ((nil) '*standard-output*)
                (otherwise stream-symbol)))
         (idx (gensym "PPLB-IDX-"))
         (pre (gensym "PPLB-PREF-"))
