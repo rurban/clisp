@@ -96,6 +96,13 @@
       max (eql min max) min max destructuring-form
 ) ) )
 
+;; Like destructuring-bind, except that it works only with ordinary
+;; lambda-lists and generates more efficient code.
+;; Compare   (disassemble #'(lambda (l) (destructuring-bind (&optional (o 'def)) l o)))
+;; with      (disassemble #'(lambda (l) (simple-destructuring-bind (&optional (o 'def)) l o)))
+(defmacro simple-destructuring-bind (lambdalist form &body body)
+  `(APPLY #'(LAMBDA ,lambdalist ,@body) ,form))
+
 ;; ----------------------------------------------------------------------------
 
 ;; X3J13 vote <87>
