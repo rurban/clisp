@@ -575,9 +575,6 @@ The /bin/sh which is used during configuration may complain about
 the config.cache which is generated.  If this happens, start over
 with the variable CONFIG_SHELL exported as a reliable shell, like bash.
 
-You would have to add -DNO_SINGLEMAP -DNO_TRIVIALMAP to the CFLAGS in the
-makefile. But lispbibl.d now already takes care of this.
-
 
 On DEC Alpha AXP running OSF/1 3.2:
 
