@@ -1076,6 +1076,36 @@
                   slots))
       empty-ht)))
 
+;; ----------------------------------------------------------------------------
+;; CLtL2 28.1.3.3., ANSI CL 4.3.4.2. Inheritance of Default-Initargs
+
+(defun compute-default-initargs-<class> (class)
+  (remove-duplicates
+    (mapcap #'class-direct-default-initargs (%class-precedence-list class))
+    :key #'car
+    :from-end t))
+
+;; Preliminary.
+(defun compute-default-initargs (class)
+  (compute-default-initargs-<class> class))
+
+(defun checked-compute-default-initargs (class)
+  (let ((default-initargs (compute-default-initargs class)))
+    ; Some checks, to guarantee that user-defined methods on
+    ; compute-default-initargs don't break our CLOS.
+    (unless (proper-list-p default-initargs)
+      (error (TEXT "Wrong ~S result for class ~S: not a proper list: ~S")
+             'compute-default-initargs (class-name class) default-initargs))
+    (dolist (di default-initargs)
+      (unless (canonicalized-default-initarg-p di)
+        (error (TEXT "Wrong ~S result for class ~S: list element is not a canonicalized default initarg: ~S")
+               'compute-default-initargs (class-name class) di)))
+    (unless (= (length default-initargs)
+               (length (delete-duplicates (mapcar #'first default-initargs))))
+      (error (TEXT "Wrong ~S result for class ~S: list contains duplicate initarg names: ~S")
+             'compute-default-initargs (class-name class) default-initargs))
+    default-initargs))
+
 ;; --------------- Creation of an instance of <built-in-class> ---------------
 
 (defun make-instance-<built-in-class> (metaclass &rest args
@@ -1176,13 +1206,7 @@
       (error-of-type 'error
         (TEXT "(~S ~S): metaclass ~S does not support shared slots")
               'DEFCLASS name 'STRUCTURE-CLASS)))
-  (setf (class-default-initargs class)
-        (remove-duplicates
-          (append direct-default-initargs
-                  (mapcap #'class-default-initargs
-                    (cdr (%class-precedence-list class))))
-          :key #'car
-          :from-end t))
+  (setf (class-default-initargs class) (checked-compute-default-initargs class))
   ; Initialize the remaining <slotted-class> slots:
   (setf (class-subclass-of-stablehash-p class)
         (std-compute-subclass-of-stablehash-p class))
@@ -1344,11 +1368,7 @@
       (setf (cv-shared-slots (class-current-version class))
             (create-shared-slots-vector class shared-size old-slot-location-table))))
   ;; CLtL2 28.1.3.3., ANSI CL 4.3.4.2. Inheritance of Class Options
-  (setf (class-default-initargs class)
-        (remove-duplicates
-          (mapcap #'class-direct-default-initargs (%class-precedence-list class))
-          :key #'car
-          :from-end t))
+  (setf (class-default-initargs class) (checked-compute-default-initargs class))
   (setf (class-valid-initargs class)
         (remove-duplicates (mapcap #'slot-definition-initargs (class-slots class))))
   (system::note-new-standard-class))

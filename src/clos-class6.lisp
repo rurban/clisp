@@ -296,6 +296,12 @@
     (compute-slots-<slotted-class>-around class
       #'(lambda (c) (call-next-method c)))))
 
+;; MOP p. 39
+(fmakunbound 'compute-default-initargs)
+(defgeneric compute-default-initargs (class)
+  (:method ((class class))
+    (compute-default-initargs-<class> class)))
+
 ;;; ===========================================================================
 
 ;;; Class definition customization
