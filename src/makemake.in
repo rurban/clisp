@@ -1,3 +1,4 @@
+# -*- coding: utf-8; mode: shell-script -*-
 # Creation of the Makefile used for compiling CLISP
 # Bruno Haible 2.9.1991, 14.7.1992, 13.9.1992, 12.10.1992, 27.11.1992
 # Sam Steingold 17.2.1999
@@ -778,9 +779,12 @@ esac
 #   # HP 9000 Series 700, 800
 #   cpu=hppa ;;
 # esac
-if [ "$host_cpu" = arm -o $TSYS = acorn ] ; then
+if [ "$TSYS" = acorn ] ; then
   cpu=arm
 fi
+case "$host_cpu" in arm*)
+  cpu=arm ;;
+esac
 
 # Main compiler dependencies:
 
