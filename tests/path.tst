@@ -541,3 +541,6 @@ nil
 #S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
    :DIRECTORY (:RELATIVE :WILD-INFERIORS)
    :NAME :WILD :TYPE "FASL" :VERSION NIL)
+
+(make-pathname :defaults "a.b" :name "c" :type nil)
+#p"c"
