@@ -1,3 +1,10 @@
+2004-11-10  Bruno Haible  <bruno@clisp.org>
+
+	* clos-print.lisp (*print-object-method-warning*): Comment out.
+	(print-object-method-warning): Comment out.
+	(compute-effective-method@(eql #'print-object)): Comment out.
+	Suggested by Jörg Höhle.
+
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
 	Avoid poll(), select() and non-blocking I/O on regular files.
