@@ -541,6 +541,12 @@ LISPFUNN(program_id,0)
 #ifdef MACHINE_KNOWN
 LISPFUNN(machine_instance,0)
 #endif
+#ifdef HAVE_GETHOSTBYNAME
+LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
+#ifdef EXPORT_SYSCALLS
+LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
+#endif
+#endif
 # ---------- TIME ----------
 LISPFUNN(get_universal_time,0)
 #if defined(UNIX) || defined(WIN32)
@@ -917,7 +923,6 @@ LISPFUN(socket_accept,1,0,norest,key,3,\
 LISPFUN(socket_wait,1,2,norest,nokey,0,NIL)
 LISPFUN(socket_connect,1,1,norest,key,3,\
         (kw(element_type),kw(external_format),kw(buffered)) )
-LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 LISPFUNN(socket_stream_port,1)
 LISPFUNN(socket_stream_host,1)
 LISPFUNN(socket_stream_peer,1)
@@ -926,11 +931,6 @@ LISPFUNN(socket_stream_local,1)
 LISPFUNN(socket_stream_handle,1)
 #endif
 #endif
-#ifdef EXPORT_SYSCALLS
-#ifdef HAVE_GETHOSTBYNAME
-LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
-#endif # HAVE_GETHOSTBYNAME
-#endif # EXPORT_SYSCALLS
 LISPFUNN(open_stream_p,1)
 LISPFUNN(input_stream_p,1)
 LISPFUNN(output_stream_p,1)

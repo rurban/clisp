@@ -71,9 +71,10 @@ extern int errno;
 # get_hostname(host =);
 # The name is allocated on the stack, with dynamic extent.
 # < const char* host: The host name.
-# FIXME: It is not clear to me when it is better/preferrable to simply use
+# (Note: In some cases we could get away with less system calls by simply
+# setting
 #   host = "localhost";
-# instead.
+# But this seems not worth the trouble to think about it.)
 # sds: never: you will always get localhost/127.0.0.1 - what's the point?
   #if defined(HAVE_GETHOSTNAME)
     #define get_hostname(host_assignment)  \
@@ -777,64 +778,80 @@ global SOCKET create_client_socket(hostname,port)
     return with_hostname(hostname,port,&connect_via_ip);
   }
 
+# ==================== miscellaneous network related stuff ====================
+
+# Lisp interface to getservbyport(3) and getservbyname(3)
+
 #define ARR_TO_LIST(val,test,expr)                      \
   { int ii; for (ii = 0; test; ii ++) { pushSTACK(expr); } val = listof(ii); }
 
-#ifdef HAVE_STDLIB_H
-  #include <stdlib.h>
-#else
-  extern_C int atoi();
-#endif
+#define SERVENT_TO_STACK(se)                                                \
+  { var object tmp;                                                         \
+    pushSTACK(asciz_to_string(se->s_name,Symbol_value(S(ascii))));          \
+    ARR_TO_LIST(tmp,(se->s_aliases[ii] != NULL),                            \
+                asciz_to_string(se->s_aliases[ii],Symbol_value(S(ascii)))); \
+    pushSTACK(tmp);                                                         \
+    pushSTACK(L_to_I(ntohs(se->s_port)));                                   \
+    pushSTACK(asciz_to_string(se->s_proto,Symbol_value(S(ascii))));         \
+  }
 
-#define SERVENT_TO_STACK(se)                                              \
-  pushSTACK(asciz_to_string(se->s_name,Symbol_value(S(ascii))));          \
-  ARR_TO_LIST(tmp,(NULL != se->s_aliases[ii]),                            \
-              asciz_to_string(se->s_aliases[ii],Symbol_value(S(ascii)))); \
-  pushSTACK(tmp);                                                         \
-  pushSTACK(L_to_I(ntohs(se->s_port)));                                   \
-  pushSTACK(asciz_to_string(se->s_proto,Symbol_value(S(ascii))))
-
-# Lisp interface to getservbyport(3) and getservbyname(3)
 LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 # (LISP:SOCKET-SERVICE-PORT &optional service-name protocol)
+# NB: Previous versions of this functions
+#  - accepted a string containing a number, e.g. "80",
+#  - returned NIL when the port does not belong to a named service.
+# Sam has changed this. Ask him why.
 {
-  var object tmp = popSTACK();
+  var object protocol = popSTACK();
   var object serv = popSTACK();
-  struct servent *se = NULL;
-  char * proto = NULL;
+  var struct servent * se;
+  var const char * proto;
 
-  if (eq(tmp,unbound) || nullp(tmp)) proto = "tcp";
-  else if (stringp(tmp))
-    proto = TheAsciz(string_to_asciz(tmp,Symbol_value(S(ascii))));
-  else fehler_string(tmp);
+  if (eq(protocol,unbound) || nullp(protocol))
+    proto = "tcp";
+  else if (stringp(protocol))
+    proto = TheAsciz(string_to_asciz(protocol,Symbol_value(S(ascii))));
+  else
+    fehler_string(protocol);
 
   if (eq(serv,unbound) || eq(serv,S(Kdefault)) || nullp(serv)) {
-    int count = 0;
+    var uintL count = 0;
     begin_system_call();
     for (; (se = getservent()); count++) {
+      end_system_call();
       SERVENT_TO_STACK(se);
-      funcall(L(vector),4);
-      pushSTACK(value1);
+      pushSTACK(vectorof(4));
+      begin_system_call();
     }
     endservent();
     end_system_call();
     value1 = listof(count); mv_count = 1;
-  } else if (stringp(serv) || posfixnump(serv) || symbolp(serv)) {
-    if (symbolp(serv)) serv = Symbol_name(serv);
-    begin_system_call();
-    se = (fixnump(serv) ? getservbyport(htons(fixnum_to_L(serv)),proto) :
-          getservbyname(TheAsciz(string_to_asciz(serv,Symbol_value(S(ascii)))),
-                        proto));
-    end_system_call();
-    if (NULL == se) { OS_error(); }
+  } elif (stringp(serv)) {
+    with_string_0(serv,Symbol_value(S(ascii)),serv_asciz,
+      { begin_system_call();
+        se = getservbyname(serv_asciz,proto);
+        if (se==NULL) { OS_error(); }
+        end_system_call();
+      });
     SERVENT_TO_STACK(se);
     funcall(L(values),4);
-  } else fehler_string_int(serv);
+  } elif (integerp(serv)) {
+    var uintL port = I_to_UL(serv);
+    begin_system_call();
+    se = getservbyport(htons(port),proto);
+    if (se==NULL) { OS_error(); }
+    end_system_call();
+    SERVENT_TO_STACK(se);
+    funcall(L(values),4);
+  } else
+    fehler_string_integer(serv);
 }
 
 #endif # SOCKET_STREAMS
 
 #ifdef EXPORT_SYSCALLS
+
+# This piece of code is under the responsibility of Sam Steingold.
 
 #define H_ERRMSG \
 	(h_errno == HOST_NOT_FOUND ? "host not found" : \
@@ -844,17 +861,19 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 	    ((h_errno == NO_ADDRESS) || (h_errno == NO_DATA) ? \
 	     "no IP address for this host" : "unknown error")))))
 
-#define HOSTENT_TO_STACK(he)                                               \
-  pushSTACK(ascii_to_string(he->h_name));                                  \
-  ARR_TO_LIST(tmp,(NULL != he->h_aliases[ii]),                             \
-              asciz_to_string(he->h_aliases[ii],O(misc_encoding)));        \
-  pushSTACK(tmp);                                                          \
-  ARR_TO_LIST(tmp,(ii < he->h_length/sizeof(uint32)),                      \
-              asciz_to_string(inet_ntop(he->h_addrtype,he->h_addr_list[ii],\
-                                        buffer,MAXHOSTNAMELEN),            \
-                              O(misc_encoding)));                          \
-  pushSTACK(tmp);                                                          \
-  pushSTACK(fixnum(he->h_addrtype))
+#define HOSTENT_TO_STACK(he)                                                  \
+  { var object tmp;                                                           \
+    pushSTACK(ascii_to_string(he->h_name));                                   \
+    ARR_TO_LIST(tmp,(he->h_aliases[ii] != NULL),                              \
+                asciz_to_string(he->h_aliases[ii],O(misc_encoding)));         \
+    pushSTACK(tmp);                                                           \
+    ARR_TO_LIST(tmp,(ii < he->h_length/sizeof(uint32)),                       \
+                asciz_to_string(inet_ntop(he->h_addrtype,he->h_addr_list[ii], \
+                                          buffer,MAXHOSTNAMELEN),             \
+                                O(misc_encoding)));                           \
+    pushSTACK(tmp);                                                           \
+    pushSTACK(fixnum(he->h_addrtype));                                        \
+  }
 
 # Lisp interface to gethostbyname(3) and gethostbyaddr(3)
 LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
@@ -863,7 +882,6 @@ LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
   var object arg = popSTACK();
   var struct hostent *he = NULL;
   var char buffer[MAXHOSTNAMELEN];
-  var object tmp;
 
   if (nullp(arg)) {
     int count = 0;
