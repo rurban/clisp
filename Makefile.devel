@@ -7,6 +7,7 @@ SHELL = /bin/sh
 MAKE = make
 COMMENT5 = comment5
 PERL = perl
+GROFF = nroff
 
 # Choose one of the packers:
 
@@ -175,7 +176,7 @@ potfiles :
 
 
 view-man :
-	grep -v '^#[ie]' src/_clisp.1 | groff -Tascii -mandoc | less
+	grep -v '^#[ie]' src/_clisp.1 | $(GROFF) -Tascii -mandoc | less
 
 view-html :
 	grep -v '^#[ie]' src/_clisp.html > /tmp/clisp.html
@@ -184,7 +185,7 @@ view-html :
 
 
 src/FILES : src/FILES.1
-	groff -Tascii -mandoc src/FILES.1 > src/FILES
+	$(GROFF) -Tascii -mandoc src/FILES.1 > src/FILES
 
 src/VERSION : src/version.h
 	fgrep _NUMBER src/version.h | sed 's/^.*_NUMBER "\(.*\)"$$/\1/' > src/VERSION
@@ -285,10 +286,10 @@ os2--distrib : force
 	from-ibmpc $(TEMPDIR)/impnotes.html os2/impnotes.html
 	from-ibmpc $(TEMPDIR)/clreadline.3 os2/clreadline.3
 	from-ibmpc $(TEMPDIR)/clreadline.html os2/clreadline.html
-	cd os2 ; groff -Tascii -mandoc clisp.1 > clisp.man
-	cd os2 ; groff -Tdvi -mandoc clisp.1 > clisp.dvi
-	cd os2 ; groff -Tascii -mandoc clreadline.3 > clreadline.man
-	cd os2 ; groff -Tdvi -mandoc clreadline.3 > clreadline.dvi
+	cd os2 ; $(GROFF) -Tascii -mandoc clisp.1 > clisp.man
+	cd os2 ; $(GROFF) -Tdvi -mandoc clisp.1 > clisp.dvi
+	cd os2 ; $(GROFF) -Tascii -mandoc clreadline.3 > clreadline.man
+	cd os2 ; $(GROFF) -Tdvi -mandoc clreadline.3 > clreadline.dvi
 	to-ibmpc os2/clisp.man $(TEMPDIR)/clisp.man
 	cp -p os2/clisp.dvi $(TEMPDIR)/clisp.dvi
 	to-ibmpc os2/clreadline.man $(TEMPDIR)/clreadline.man
