@@ -2979,8 +2979,7 @@ AC_DEFINE_UNQUOTED(GETPWNAM_CONST,$cl_cv_proto_getpwnam_arg1)
 ])dnl
 dnl
 AC_DEFUN(CL_GETPWUID,
-[AC_REQUIRE([AC_TYPE_UID_T])dnl
-CL_PROTO([getpwuid], [
+[CL_PROTO([getpwuid], [
 CL_PROTO_TRY([
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
@@ -3326,8 +3325,6 @@ AC_DEFINE(HAVE_MACH_VM)dnl
 dnl
 AC_DEFUN(CL_MMAP,
 [AC_REQUIRE([CL_OPENFLAGS])dnl
-AC_REQUIRE([AC_TYPE_SIZE_T])dnl On AIX, the mmap() prototype references size_t which is undefined.
-AC_REQUIRE([AC_TYPE_OFF_T])dnl We use off_t below.
 AC_BEFORE([$0], [CL_MUNMAP])AC_BEFORE([$0], [CL_MPROTECT])
 AC_CHECK_HEADER(sys/mman.h, , no_mmap=1)dnl
 if test -z "$no_mmap"; then
