@@ -2562,16 +2562,24 @@ for f in $ARI_ASMS $SP_ASMS ; do
 done
 
 if [ $HOS = unix -o $HSYS = win32gcc ] ; then
+  # on w32 -g, using lisp.o leads to a crash on the first statement in main()
+  test $HSYSOS = win32gcc -o $HSYSOS = cygwin32; no_lisp_o=$?;
+  echo "lisp.o: "$no_lisp_o >&2;
   echol "lisp.a : \$(OBJECTS)"
-  echotab "ld -r -o lisp.o \$(OBJECTS)"
-  echotab "chmod a-x lisp.o"
+  if [ $no_lisp_o = 1 ]; then
+    echotab "ld -r -o lisp.o \$(OBJECTS)"
+    echotab "chmod a-x lisp.o"
+  fi
   if test -z "$LIBGCC"; then
-    echotab "\$(AR) rcv lisp.a lisp.o"
+    if [ $no_lisp_o = 1 ]; then
+      echotab "\$(AR) rcv lisp.a lisp.o"
+    else echotab "\$(AR) rcv lisp.a \$(OBJECTS)"
+    fi
   else
     # Test for libgcc.a because NeXT cc does not have it.
     echotab "if test -f \$(LIBGCC) ; then mkdir libgcc ; (cd libgcc ; \$(AR) xv \$(LIBGCC)) ; \$(AR) rcv lisp.a lisp.o libgcc/*.o* ; \$(RM) -r libgcc ; else \$(AR) rcv lisp.a lisp.o ; fi"
   fi
-  echotab "\$(RM) lisp.o"
+  if [ $no_lisp_o = 1 ]; then echotab "\$(RM) lisp.o"; fi
   echotab "\$(RANLIB) lisp.a"
   echol
   echol "libnoreadline.a : noreadline.o"
