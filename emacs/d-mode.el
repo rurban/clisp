@@ -66,6 +66,14 @@ The point should be on the prototype and the definition should follow."
     (goto-char beg)
     (c-indent-region beg (progn (forward-sexp 3) (point)))))
 
+(defun d-mode-convert-comment ()
+  "Comvert the current comment from # to /**/"
+  (interactive "")
+  (save-excursion
+    (beginning-of-line)
+    (when (search-forward "# " (line-end-position) t)
+      (replace-match "/* ") (end-of-line) (insert " */"))))
+
 (defun d-mode-wrap-do-while ()
   "Wrap this block in do/while(0) [for CPP macros]."
   (interactive)
@@ -78,7 +86,7 @@ The point should be on the prototype and the definition should follow."
 
 (defvar d-font-lock-extra-types
   '(nconc (list "bool" "object" "chart" "[otac]int" "signean" "scint" "Handle"
-           "[csu]?int[BCLPWX0-9]*" "Values" "fsubr_function" "lisp_function"
+           "[csu]?int[BCLPQWX0-9]*" "Values" "fsubr_function" "lisp_function"
            "SOCKET" "stringarg")
     c-font-lock-extra-types)
   "Extra types to be fontified as such.")
