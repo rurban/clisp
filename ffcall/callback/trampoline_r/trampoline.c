@@ -1,7 +1,7 @@
 /* Trampoline construction */
 
 /*
- * Copyright 1995-1997 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1998 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -230,7 +230,7 @@ extern int shmctl ();
 #include <sys/cache.h>
 #endif
 #endif
-#if defined(__mips__) || defined(__mips64__)
+#if defined(__mips__) || defined(__mipsn32__) || defined(__mips64__)
 #ifdef ultrix
 #include <mips/cachectl.h>
 #else
@@ -279,7 +279,11 @@ extern void __TR_clear_cache();
 #define TRAMP_LENGTH 14
 #define TRAMP_ALIGN 16
 #endif
-#ifdef __mips__
+#if defined(__mips__) && !defined(__mipsn32__)
+#define TRAMP_LENGTH 24
+#define TRAMP_ALIGN 4
+#endif
+#ifdef __mipsn32__
 #define TRAMP_LENGTH 24
 #define TRAMP_ALIGN 4
 #endif
@@ -453,7 +457,7 @@ __TR_function alloc_trampoline_r (address, data0, data1)
 #define tramp_data(function)  \
   *(long *)  (function + 2)
 #endif
-#ifdef __mips__
+#if defined(__mips__) && !defined(__mipsn32__)
   /* function:
    *    li $2,<data>&0xffff0000		3C 02 hi16(<data>)
    *    ori $2,$2,<data>&0xffff		34 42 lo16(<data>)
@@ -486,6 +490,32 @@ __TR_function alloc_trampoline_r (address, data0, data1)
   hilo(*(unsigned short *) (function +10), *(unsigned short *) (function +14))
 #define tramp_data(function)  \
   hilo(*(unsigned short *) (function + 2), *(unsigned short *) (function + 6))
+#endif
+#ifdef __mipsn32__
+  /* function:
+   *    lw $2,16($25)			8F 22 00 10
+   *    lw $25,20($25)			8F 39 00 14
+   *    j $25				03 20 00 08
+   *    nop				00 00 00 00
+   *    .word <data>			<data>
+   *    .word <address>			<address>
+   */
+  /* What about big endian / little endian ?? */
+  *(unsigned int *) (function + 0) = 0x8F220010;
+  *(unsigned int *) (function + 4) = 0x8F390014;
+  *(unsigned int *) (function + 8) = 0x03200008;
+  *(unsigned int *) (function +12) = 0x00000000;
+  *(unsigned int *) (function +16) = (unsigned int) data;
+  *(unsigned int *) (function +20) = (unsigned int) address;
+#define is_tramp(function)  \
+  *(int *)          (function + 0) == 0x8F220010 && \
+  *(int *)          (function + 4) == 0x8F390014 && \
+  *(int *)          (function + 8) == 0x03200008 && \
+  *(int *)          (function +12) == 0x00000000
+#define tramp_address(function)  \
+  *(unsigned int *) (function +20)
+#define tramp_data(function)  \
+  *(unsigned int *) (function +16)
 #endif
 #ifdef __mips64old__
   /* function:
@@ -916,7 +946,7 @@ __TR_function alloc_trampoline_r (address, data0, data1)
     );
 #endif
 #endif
-#if defined(__mips__) || defined(__mips64__)
+#if defined(__mips__) || defined(__mipsn32__) || defined(__mips64__)
   cacheflush(function,TRAMP_LENGTH,ICACHE);
   /* gforth-0.3.0 uses BCACHE instead of ICACHE. Why?? */
 #endif

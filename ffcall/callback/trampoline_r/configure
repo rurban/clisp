@@ -3514,6 +3514,37 @@ fi
 echo "$ac_t""$cl_cv_host_mips64" 1>&6
 if test $cl_cv_host_mips64 = yes; then
   host_cpu=mips64
+else
+  echo $ac_n "checking for MIPS with n32 ABI""... $ac_c" 1>&6
+echo "configure:3520: checking for MIPS with n32 ABI" >&5
+if eval "test \"`echo '$''{'cl_cv_host_mipsn32'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  
+cat > conftest.$ac_ext <<EOF
+#line 3526 "configure"
+#include "confdefs.h"
+#if __mips >= 3
+  yes
+#endif
+
+EOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  egrep "yes" >/dev/null 2>&1; then
+  rm -rf conftest*
+  cl_cv_host_mipsn32=yes
+else
+  rm -rf conftest*
+  cl_cv_host_mipsn32=no
+fi
+rm -f conftest*
+
+
+fi
+echo "$ac_t""$cl_cv_host_mipsn32" 1>&6
+if test $cl_cv_host_mipsn32 = yes; then
+  host_cpu=mipsn32
+fi
 fi
 fi
 cat >> confdefs.h <<EOF
@@ -3523,7 +3554,7 @@ cat >> confdefs.h <<EOF
 EOF
 
 echo $ac_n "checking whether code in malloc'ed memory is executable""... $ac_c" 1>&6
-echo "configure:3527: checking whether code in malloc'ed memory is executable" >&5
+echo "configure:3558: checking whether code in malloc'ed memory is executable" >&5
 if eval "test \"`echo '$''{'cl_cv_codeexec'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -3539,7 +3570,7 @@ if test "$cross_compiling" = yes; then
   cl_cv_codeexec="guessing yes"
 else
   cat > conftest.$ac_ext <<EOF
-#line 3543 "configure"
+#line 3574 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -3574,7 +3605,7 @@ main ()
   exit(!((*(int(*)())funcopy)() == 31415926));
 }
 EOF
-if { (eval echo configure:3578: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:3609: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest && (./conftest; exit) 2>/dev/null
 then
   cl_cv_codeexec=yes
 else
@@ -3619,22 +3650,22 @@ if test ${host_cpu} = sparc -o ${host_cpu} = alpha -o ${host_cpu} = hppa -o ${ho
   CPU_OBJECTS="$CPU_OBJECTS "'cache-$(CPU).o'
 fi
 
-if test ${host_cpu} = mips -o ${host_cpu} = mips64; then
+if test ${host_cpu} = mips -o ${host_cpu} = mipsn32 -o ${host_cpu} = mips64; then
 for ac_hdr in sys/cachectl.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:3628: checking for $ac_hdr" >&5
+echo "configure:3659: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 3633 "configure"
+#line 3664 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:3638: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:3669: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -3666,17 +3697,17 @@ for ac_hdr in sys/m88kbcs.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:3670: checking for $ac_hdr" >&5
+echo "configure:3701: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 3675 "configure"
+#line 3706 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:3680: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:3711: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*

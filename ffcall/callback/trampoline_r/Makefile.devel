@@ -6,7 +6,7 @@ ASPREFIX = /usr1/gnu/lib
 RM = rm -f
 ROFF_MAN = groff -Tascii -mandoc
 
-all : proto-i386.s proto-m68k.s proto-mips.s proto-mips64.s proto-sparc.s proto-alpha.s proto-hppa.s proto-arm.s proto-rs6000.s proto-m88k.s proto-convex.s \
+all : proto-i386.s proto-m68k.s proto-mips.s proto-mipsn32.s proto-mips64.s proto-sparc.s proto-alpha.s proto-hppa.s proto-arm.s proto-rs6000.s proto-m88k.s proto-convex.s \
       cache-sparc.S cache-alpha.s cache-hppa.s cache-rs6000.s cache-convex.s \
       trampoline_r.man \
       config.h.msvc
@@ -19,6 +19,9 @@ proto-m68k.s : proto.c
 
 proto-mips.s : proto.c
 	$(GCC) -V 2.6.3 -b mips-sgi $(GCCFLAGS) -D__mips__ -S proto.c -o $@ -mabicalls
+
+proto-mipsn32.s : proto.c
+	$(GCC) -V egcs-2.91.57 -b mips-sgi-irix6 $(GCCFLAGS) -D__mipsn32__ -S proto.c -o $@ -mabicalls
 
 proto-mips64.s : proto64.c
 	$(GCC) -V 2.6.3 -b mips-sgi -mips3 -mlong64 $(GCCFLAGS) -D__mips64__ -S proto64.c -o $@ -mabicalls
