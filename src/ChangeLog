@@ -1,5 +1,6 @@
 2004-04-16  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check-ansi-tests-debug): new target
 	* utils/clispload.lsp: do not call DO-TESTS,
 	leave this to the command line
 
