@@ -2323,7 +2323,7 @@ Ratio and Complex (only if SPVW_MIXED).
 
 #endif
 
-# sizeof(object) = sizeof(oint) must hold true!
+# sizeof(gcv_object_t) = sizeof(oint) must hold true!
 
 # conversion between object and oint:
 # as_oint(expr)   object --> oint
@@ -2981,7 +2981,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #ifdef GENERATIONAL_GC
     # The generational GC can't deal with an object-pointer that points
     # towards two sides.
-    # Thus we enforce alignof(object) = sizeof(object).
+    # Thus we enforce alignof(gcv_object_t) = sizeof(gcv_object_t).
     #define _attribute_aligned_object_  __attribute__ ((aligned(8)))
   #else
     #define _attribute_aligned_object_
@@ -3591,14 +3591,14 @@ typedef object gcv_object_t;
 # Objecs with variable length
 #ifdef TYPECODES
   #define VAROBJECT_HEADER  \
-               union {                                              \
-                 object _GCself;  # Self pointer for GC             \
-                 hfint flags[sizeof(object)/sizeof(hfint)]; # Flags \
+               union {                                                    \
+                 gcv_object_t _GCself;  # Self pointer for GC             \
+                 hfint flags[sizeof(gcv_object_t)/sizeof(hfint)]; # Flags \
                } header;
 #else
   #define VAROBJECT_HEADER  \
-               object GCself;  # Self pointer for GC \
-               uintL tfl;      # type, flags, length
+               gcv_object_t GCself;  # Self pointer for GC \
+               uintL tfl;            # type, flags, length
 #endif
 typedef struct {
   VAROBJECT_HEADER
@@ -3611,7 +3611,7 @@ typedef varobject_ *  Varobject;
     #error "Bogus header_flags -- redefine header_flags!"
   #endif
   #if BIG_ENDIAN_P
-    #define header_flags  header.flags[sizeof(object)/sizeof(hfint)-1-floor(oint_type_shift,hfintsize)]
+    #define header_flags  header.flags[sizeof(gcv_object_t)/sizeof(hfint)-1-floor(oint_type_shift,hfintsize)]
   #else
     #define header_flags  header.flags[floor(oint_type_shift,hfintsize)]
   #endif
@@ -4471,7 +4471,7 @@ typedef struct {
   gcv_object_t pack_name;
   gcv_object_t pack_nicknames;
 } *  Package;
-#define package_length  ((sizeof(*(Package)0)-offsetofa(record_,recdata))/sizeof(object))
+#define package_length  ((sizeof(*(Package)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 # Some packages are case-sensitive.
 #define mark_pack_casesensitive(obj)  record_flags_set(ThePackage(obj),bit(0))
 #define pack_casesensitivep(obj)      (record_flags(ThePackage(obj)) & bit(0))
@@ -4500,7 +4500,7 @@ typedef struct {
   gcv_object_t ht_mincount_threshold;
   gcv_object_t ht_mincount;
 } *  Hashtable;
-#define hashtable_length  ((sizeof(*(Hashtable)0)-offsetofa(record_,recdata))/sizeof(object))
+#define hashtable_length  ((sizeof(*(Hashtable)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 # Mark a Hash Table as new to reorganize
 # mark_ht_invalid(TheHashtable(ht));
 #ifdef GENERATIONAL_GC
@@ -4535,7 +4535,7 @@ typedef struct {
   gcv_object_t readtable_macro_table;
   gcv_object_t readtable_case;
 } *  Readtable;
-#define readtable_length  ((sizeof(*(Readtable)0)-offsetofa(record_,recdata))/sizeof(object))
+#define readtable_length  ((sizeof(*(Readtable)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # Pathnames
 typedef struct {
@@ -4555,7 +4555,7 @@ typedef struct {
     gcv_object_t pathname_version;
   #endif
 } *  Pathname;
-#define pathname_length  ((sizeof(*(Pathname)0)-offsetofa(record_,recdata))/sizeof(object))
+#define pathname_length  ((sizeof(*(Pathname)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 #ifdef LOGICAL_PATHNAMES
 # Logical Pathnames
@@ -4567,7 +4567,7 @@ typedef struct {
   gcv_object_t pathname_type;
   gcv_object_t pathname_version;
 } *  Logpathname;
-#define logpathname_length  ((sizeof(*(Logpathname)0)-offsetofa(record_,recdata))/sizeof(object))
+#define logpathname_length  ((sizeof(*(Logpathname)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 #endif
 
 # Random-States
@@ -4575,7 +4575,7 @@ typedef struct {
   XRECORD_HEADER
   gcv_object_t random_state_seed;
 } *  Random_state;
-#define random_state_length  ((sizeof(*(Random_state)0)-offsetofa(record_,recdata))/sizeof(object))
+#define random_state_length  ((sizeof(*(Random_state)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # Bytes
 typedef struct {
@@ -4583,7 +4583,7 @@ typedef struct {
   gcv_object_t byte_size;
   gcv_object_t byte_position;
 } *  Byte;
-#define byte_length  ((sizeof(*(Byte)0)-offsetofa(record_,recdata))/sizeof(object))
+#define byte_length  ((sizeof(*(Byte)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # Fsubrs
 typedef struct {
@@ -4593,28 +4593,28 @@ typedef struct {
   void* function; # actually a fsubr_function_t*
 } *  Fsubr;
 #define fsubr_length  2
-#define fsubr_xlength  (sizeof(*(Fsubr)0)-offsetofa(record_,recdata)-fsubr_length*sizeof(object))
+#define fsubr_xlength  (sizeof(*(Fsubr)0)-offsetofa(record_,recdata)-fsubr_length*sizeof(gcv_object_t))
 
 # Load-time-evals
 typedef struct {
   XRECORD_HEADER
   gcv_object_t loadtimeeval_form;
 } *  Loadtimeeval;
-#define loadtimeeval_length  ((sizeof(*(Loadtimeeval)0)-offsetofa(record_,recdata))/sizeof(object))
+#define loadtimeeval_length  ((sizeof(*(Loadtimeeval)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # Symbol-macros
 typedef struct {
   XRECORD_HEADER
   gcv_object_t symbolmacro_expansion;
 } *  Symbolmacro;
-#define symbolmacro_length  ((sizeof(*(Symbolmacro)0)-offsetofa(record_,recdata))/sizeof(object))
+#define symbolmacro_length  ((sizeof(*(Symbolmacro)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # Macros
 typedef struct {
   XRECORD_HEADER
   gcv_object_t macro_expander;
 } *  Macro;
-#define macro_length  ((sizeof(*(Macro)0)-offsetofa(record_,recdata))/sizeof(object))
+#define macro_length  ((sizeof(*(Macro)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # FunctionMacros
 typedef struct {
@@ -4622,7 +4622,7 @@ typedef struct {
   gcv_object_t functionmacro_macro_expander;
   gcv_object_t functionmacro_function;
 } *  FunctionMacro;
-#define functionmacro_length  ((sizeof(*(FunctionMacro)0)-offsetofa(record_,recdata))/sizeof(object))
+#define functionmacro_length  ((sizeof(*(FunctionMacro)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # Encoding
 typedef struct {
@@ -4655,7 +4655,7 @@ typedef struct {
 #else
   #define encoding_length  3
 #endif
-#define encoding_xlength  (sizeof(*(Encoding)0)-offsetofa(record_,recdata)-encoding_length*sizeof(object))
+#define encoding_xlength  (sizeof(*(Encoding)0)-offsetofa(record_,recdata)-encoding_length*sizeof(gcv_object_t))
 #ifdef UNICODE
   #define Encoding_mblen(encoding)  ((uintL (*) (object, const uintB*, const uintB*)) ThePseudofun(TheEncoding(encoding)->enc_mblen))
   #define Encoding_mbstowcs(encoding)  ((void (*) (object, object, const uintB**, const uintB*, chart**, chart*)) ThePseudofun(TheEncoding(encoding)->enc_mbstowcs))
@@ -4689,7 +4689,7 @@ typedef struct {
   void* fp_pointer;
 } *  Fpointer;
 #define fpointer_length  0
-#define fpointer_xlength  (sizeof(*(Fpointer)0)-offsetofa(record_,recdata)-fpointer_length*sizeof(object))
+#define fpointer_xlength  (sizeof(*(Fpointer)0)-offsetofa(record_,recdata)-fpointer_length*sizeof(gcv_object_t))
 #define mark_fp_invalid(ptr)  record_flags_set(ptr,bit(7))
 #define mark_fp_valid(ptr)  record_flags_clr(ptr,bit(7))
 #define fp_validp(ptr)  ((record_flags(ptr) & bit(7)) == 0)
@@ -4706,7 +4706,7 @@ typedef struct {
   uintP fa_offset;
 } * Faddress;
 #define faddress_length  1
-#define faddress_xlength  (sizeof(*(Faddress)0)-offsetofa(record_,recdata)-faddress_length*sizeof(object))
+#define faddress_xlength  (sizeof(*(Faddress)0)-offsetofa(record_,recdata)-faddress_length*sizeof(gcv_object_t))
 
 # foreign variables
 typedef struct {
@@ -4716,7 +4716,7 @@ typedef struct {
   gcv_object_t fv_size;
   gcv_object_t fv_type;
 } * Fvariable;
-#define fvariable_length  ((sizeof(*(Fvariable)0)-offsetofa(record_,recdata))/sizeof(object))
+#define fvariable_length  ((sizeof(*(Fvariable)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # foreign functions
 typedef struct {
@@ -4727,7 +4727,7 @@ typedef struct {
   gcv_object_t ff_argtypes;
   gcv_object_t ff_flags;
 } * Ffunction;
-#define ffunction_length  ((sizeof(*(Ffunction)0)-offsetofa(record_,recdata))/sizeof(object))
+#define ffunction_length  ((sizeof(*(Ffunction)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 #endif
 
@@ -4740,7 +4740,7 @@ typedef struct {
 # Both wp_cdr and wp_value are invisible to gc_mark routines.
 # When the weak-pointer becomes inactive, both fields are turned to unbound.
 #define weakpointer_length  0
-#define weakpointer_xlength  (sizeof(*(Weakpointer)0)-offsetofa(record_,recdata)-weakpointer_length*sizeof(object))
+#define weakpointer_xlength  (sizeof(*(Weakpointer)0)-offsetofa(record_,recdata)-weakpointer_length*sizeof(gcv_object_t))
 #define weakpointer_broken_p(wp) (!boundp(TheWeakpointer(wp)->wp_cdr))
 
 # weak key-value table for weak hashtables
@@ -4751,7 +4751,7 @@ typedef struct {
 } weakkvt_t;
 typedef weakkvt_t* WeakKVT;
 # Both wkvt_cdr and data are invisible to gc_mark routines.
-#define weakkvt_non_data ((offsetofa(weakkvt_t,data)-offsetof(weakkvt_t,wkvt_cdr))/sizeof(object))
+#define weakkvt_non_data ((offsetofa(weakkvt_t,data)-offsetof(weakkvt_t,wkvt_cdr))/sizeof(gcv_object_t))
 #define Weakkvt_length(obj)   (Sarray_length(obj)-weakkvt_non_data)
 
 # Finalizer
@@ -4762,7 +4762,7 @@ typedef struct {
   gcv_object_t fin_function; # then this function is called
   gcv_object_t fin_cdr;
 } * Finalizer;
-#define finalizer_length  ((sizeof(*(Finalizer)0)-offsetofa(record_,recdata))/sizeof(object))
+#define finalizer_length  ((sizeof(*(Finalizer)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 #ifdef SOCKET_STREAMS
 # Socket-Server
@@ -4772,7 +4772,7 @@ typedef struct {
   gcv_object_t host; # host string
   gcv_object_t port; # port number
 } * Socket_server;
-#define socket_server_length  ((sizeof(*(Socket_server)0)-offsetofa(record_,recdata))/sizeof(object))
+#define socket_server_length  ((sizeof(*(Socket_server)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # Information about any of the two ends of a socket connection.
 #ifndef MAXHOSTNAMELEN
@@ -4804,7 +4804,7 @@ typedef struct {
 } * Dir_Key;
 # this is the number if OBJECTS inside Dir_Key that the GC must track
 #define dir_key_length 3
-#define dir_key_xlength (sizeof(*(Dir_Key)0)-offsetofa(record_,recdata)-dir_key_length*sizeof(object))
+#define dir_key_xlength (sizeof(*(Dir_Key)0)-offsetofa(record_,recdata)-dir_key_length*sizeof(gcv_object_t))
 #endif
 
 #ifdef YET_ANOTHER_RECORD
@@ -4816,7 +4816,7 @@ typedef struct {
   gcv_object_t yetanother_y;
   gcv_object_t yetanother_z;
 } * Yetanother;
-#define yetanother_length  ((sizeof(*(Yetanother)0)-offsetofa(record_,recdata))/sizeof(object))
+#define yetanother_length  ((sizeof(*(Yetanother)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 #endif
 
@@ -4854,7 +4854,7 @@ typedef struct {
   gcv_object_t strm_other[unspecified]; # type-specific components
 } *  Stream;
 # The macro TheStream actually means TheBuiltinStream.
-#define strm_len  ((sizeof(*(Stream)0)-offsetofa(record_,recdata))/sizeof(object)-unspecified)
+#define strm_len  ((sizeof(*(Stream)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t)-unspecified)
 #define stream_length(ptr)  xrecord_length(ptr)
 #define stream_xlength(ptr)  xrecord_xlength(ptr)
 #define Stream_length(obj)  stream_length(TheStream(obj))
@@ -5050,7 +5050,7 @@ typedef struct {
   gcv_object_t clos_aux_anz;
   gcv_object_t clos_aux_inits;
 } *  Iclosure;
-#define iclos_length  ((sizeof(*(Iclosure)0)-offsetofa(record_,recdata))/sizeof(object))
+#define iclos_length  ((sizeof(*(Iclosure)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 # compiled Closure:
 typedef struct {
   SRECORD_HEADER
@@ -7574,12 +7574,12 @@ extern object allocate_bit_vector (uintB atype, uintL len);
   # pointers to this object untouched.
   #ifdef TYPECODES
     #define DYNAMIC_BIT_VECTOR(objvar,len)  \
-      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+8*offsetofa(sbvector_,data),8*sizeof(object))); \
+      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+8*offsetofa(sbvector_,data),8*sizeof(gcv_object_t))); \
       var object objvar = ((Sbvector)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sbvector_type,(Sbvector)objvar##_storage); \
       ((Sbvector)objvar##_storage)->length = (len);
   #else
     #define DYNAMIC_BIT_VECTOR(objvar,len)  \
-      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+8*offsetofa(sbvector_,data),8*sizeof(object))); \
+      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+8*offsetofa(sbvector_,data),8*sizeof(gcv_object_t))); \
       var object objvar = ((Sbvector)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sbvector_type,(Sbvector)objvar##_storage); \
       ((Sbvector)objvar##_storage)->tfl = lrecord_tfl(Rectype_Sbvector,len);
   #endif
@@ -7688,18 +7688,18 @@ extern object allocate_imm_s32string (uintL len);
   # pointers to this object untouched.
   #ifdef TYPECODES
     #define DYNAMIC_STRING(objvar,len)  \
-      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(object))); \
+      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(gcv_object_t))); \
       var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
       ((Sstring)objvar##_storage)->length = (len);
   #else
     #ifdef UNICODE
       #define DYNAMIC_STRING(objvar,len)  \
-        DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(object))); \
+        DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(gcv_object_t))); \
         var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
         ((Sstring)objvar##_storage)->tfl = lrecord_tfl(Rectype_S32string,len);
     #else
       #define DYNAMIC_STRING(objvar,len)  \
-        DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(object))); \
+        DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(gcv_object_t))); \
         var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
         ((Sstring)objvar##_storage)->tfl = lrecord_tfl(Rectype_S8string,len);
     #endif
@@ -7820,8 +7820,8 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 #define copy_mem_b(dest,orig,len)                       \
     do { begin_system_call(); memcpy(dest,orig,len);    \
          end_system_call(); } while(0)
-#define copy_mem_o(dest,orig,len)                                       \
-    do { begin_system_call(); memcpy(dest,orig,(len)*sizeof(object));   \
+#define copy_mem_o(dest,orig,len)                                           \
+    do { begin_system_call(); memcpy(dest,orig,(len)*sizeof(gcv_object_t)); \
          end_system_call(); } while(0)
 #endif
 
@@ -9044,7 +9044,7 @@ re-enters the corresponding top-level loop.
 #   This pointer must not be assigned to the STACK again!
 # If you store blocks of objects on the STACK and want to get the (n+1)-th block,
 #   you do this:  STACKblock_(type,n). type should be a
-#   struct-type with sizeof(type) a multiple of sizeof(object).
+#   struct-type with sizeof(type) a multiple of sizeof(gcv_object_t).
 
 #ifdef STACK_DOWN
   #define STACK_(n)  (STACK[(sintP)(n)])
@@ -9757,7 +9757,7 @@ typedef struct {
   #define make_framepointer(stack_ptr)  make_machine(stack_ptr)
   #ifdef STACK_UP
     #define topofframe(bottomword)  \
-      (gcv_object_t*)((uintP)(&(bottomword))-(as_oint(bottomword)&(wbit(FB1)-1))+sizeof(object))
+      (gcv_object_t*)((uintP)(&(bottomword))-(as_oint(bottomword)&(wbit(FB1)-1))+sizeof(gcv_object_t))
   #endif
   #ifdef STACK_DOWN
     #define topofframe(bottomword)  \
@@ -12902,11 +12902,11 @@ extern object decimal_string (object x);
       object _symvalues[unspecified];
   } thread_t;
   #define thread_size(nsymvalues)  \
-    (offsetofa(thread_t,_symvalues)+nsymvalues*sizeof(object))
+    (offsetofa(thread_t,_symvalues)+nsymvalues*sizeof(gcv_object_t))
   #define thread_objects_offset(nsymvalues)  \
     (offsetof(thread_t,_lthread))
   #define thread_objects_anz(nsymvalues)  \
-    ((offsetofa(thread_t,_symvalues)-offsetof(thread_t,_lthread))/sizeof(object)+(nsymvalues))
+    ((offsetofa(thread_t,_symvalues)-offsetof(thread_t,_lthread))/sizeof(gcv_object_t)+(nsymvalues))
 
 # Size of a single thread's stack region. Must be a power of 2.
   #define THREAD_SP_SHIFT  22  # 4 MB should be sufficient, and leaves room

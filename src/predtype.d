@@ -2230,7 +2230,7 @@ local void init_hs_locals_rest (hs_locals_t* locals, NODE* free_room)
     });
   }
   /* Prepare for STACK allocation. */
-  get_space_on_STACK(sizeof(object) * (locals->structure_classes.free_count + locals->standard_classes.free_count));
+  get_space_on_STACK(sizeof(gcv_object_t) * (locals->structure_classes.free_count + locals->standard_classes.free_count));
 }
 
 /* This is the function we pass to map_heap_objects(). */

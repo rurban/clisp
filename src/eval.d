@@ -532,7 +532,7 @@ nonreturning_function(global, reset, (void)) {
 # changes STACK
 global void progv (object symlist, object vallist) {
   # demand room on STACK:
-  get_space_on_STACK(llength(symlist)*2*sizeof(object));
+  get_space_on_STACK(llength(symlist)*2*sizeof(gcv_object_t));
   # build frame:
   var gcv_object_t* top_of_frame = STACK; # Pointer to Frame
   var object symlistr = symlist;
@@ -2380,7 +2380,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
         var gcv_object_t* top_of_frame = STACK; # Pointer to Frame
         var object vars = TheIclosure(closure)->clos_vars; # Vector of variable-names
         var uintL var_count = Svector_length(vars); # number of variables
-        get_space_on_STACK(var_count * 2 * sizeof(object)); # reserve space
+        get_space_on_STACK(var_count * 2 * sizeof(gcv_object_t)); # reserve space
         {
           var gcv_object_t* varptr = &TheSvector(vars)->data[0]; # Pointer to variables in vector
           var uintC spec_count = posfixnum_to_L(TheIclosure(closure)->clos_spec_anz);
@@ -3418,7 +3418,7 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
       }
       # Now the general Version:
       # reserve space on the STACK:
-      get_space_on_STACK(sizeof(object) *
+      get_space_on_STACK(sizeof(gcv_object_t) *
                          (uintL)(TheSubr(fun)->req_anz +
                                  TheSubr(fun)->opt_anz +
                                  TheSubr(fun)->key_anz));
@@ -3758,7 +3758,7 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
           var uintL opt_anz = TheCodevec(codevec)->ccv_numopt; # number of optional parameters
           var uintB flags = TheCodevec(codevec)->ccv_flags; # Flags
           # reserve space on STACK:
-          get_space_on_STACK(sizeof(object) * (req_anz+opt_anz));
+          get_space_on_STACK(sizeof(gcv_object_t) * (req_anz+opt_anz));
           # evaluate required parameters and push into Stack:
           {
             var uintC count;
@@ -4280,7 +4280,7 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
             # fewer Arguments there than demanded
             req_anz = req_anz - args_on_stack; # as many as these must go on STACK
             # reserve space on STACK:
-            get_space_on_STACK(sizeof(object) * (uintL)(req_anz + opt_anz + key_anz));
+            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(req_anz + opt_anz + key_anz));
             # store required Parameter in Stack:
             {
               var uintC count;
@@ -4298,7 +4298,7 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
             # Arguments in Stack don't last for the optional ones
             opt_anz = opt_anz - args_on_stack; # as many as these must go on STACK
             # reserve space on STACK:
-            get_space_on_STACK(sizeof(object) * (uintL)(opt_anz + key_anz));
+            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(opt_anz + key_anz));
            optionals_from_list:
             # store optional Parameters on Stack:
             {
@@ -4367,7 +4367,7 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
         # shift down remaining Arguments on STACK and thus
         # create room for the Keyword-Parameters:
         argcount = args_on_stack;
-        get_space_on_STACK(sizeof(object) * (uintL)key_anz);
+        get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_anz);
         {
           var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)key_anz;
           var gcv_object_t* ptr1 = args_end_pointer;
@@ -4673,7 +4673,7 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
               # fewer Arguments than demanded
               req_anz = req_anz - args_on_stack; # as many as these must on STACK
               # reserve space on STACK:
-              get_space_on_STACK(sizeof(object) * (uintL)(req_anz + opt_anz));
+              get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(req_anz + opt_anz));
               # store required Parameters on Stack:
               {
                 var uintC count;
@@ -4691,7 +4691,7 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
               # Argumente in Stack don't last for the optional ones
               opt_anz = opt_anz - args_on_stack; # as many as these must go on STACK
               # reserve space on STACK:
-              get_space_on_STACK(sizeof(object) * (uintL)opt_anz);
+              get_space_on_STACK(sizeof(gcv_object_t) * (uintL)opt_anz);
               optionals_from_list:
               # store optional parameters on Stack:
               {
@@ -4762,7 +4762,7 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
           {
             var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # number of Keyword-parameters
             if (key_anz > 0) {
-              get_space_on_STACK(sizeof(object) * (uintL)key_anz);
+              get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_anz);
               var uintC count;
               dotimespC(count,key_anz, { pushSTACK(unbound); } ); # initialize with #<UNBOUND>
             }
@@ -4781,7 +4781,7 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
             if (flags & bit(0))
               shift++; # poss. 1 more for Rest-Parameter
             argcount = args_on_stack;
-            get_space_on_STACK(sizeof(object) * shift);
+            get_space_on_STACK(sizeof(gcv_object_t) * shift);
             var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)shift;
             var gcv_object_t* ptr1 = args_end_pointer;
             var gcv_object_t* ptr2 = new_args_end_pointer;
@@ -4852,7 +4852,7 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
       } else {
         # closure is an interpreted Closure
         # reserve space on STACK:
-        get_space_on_STACK(sizeof(object) * llength(args));
+        get_space_on_STACK(sizeof(gcv_object_t) * llength(args));
         while (consp(args)) { # Still Arguments in list?
           pushSTACK(Car(args)); # push next Element in STACK
           args = Cdr(args);
@@ -5230,7 +5230,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             opt_anz = opt_anz - args_on_stack; # as many as these must go on STACK
             if (opt_anz + key_anz > 0) {
               # reserve space on STACK:
-              get_space_on_STACK(sizeof(object) * (uintL)(opt_anz + key_anz));
+              get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(opt_anz + key_anz));
               # All further count optional parameters receive the "value"
               # #<UNBOUND>, including the Keyword-parameters:
               var uintC count;
@@ -5264,7 +5264,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         # shift down remaining arguments in STACK and thus
         # create room for the Keyword-parameters:
         argcount = args_on_stack; # (> 0)
-        get_space_on_STACK(sizeof(object) * (uintL)key_anz);
+        get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_anz);
         {
           var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)key_anz;
           var gcv_object_t* ptr1 = args_end_pointer;
@@ -5652,7 +5652,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               opt_anz = opt_anz - args_on_stack; # as many as these must go on STACK
               if (opt_anz > 0) {
                 # reserve space on STACK:
-                get_space_on_STACK(sizeof(object) * (uintL)opt_anz);
+                get_space_on_STACK(sizeof(gcv_object_t) * (uintL)opt_anz);
                 # All further count optional parameters receive the "value"
                 # #<UNBOUND>, the &REST-parameter receives NIL,
                 # the Keyword-parameters receive the value #<UNBOUND> :
@@ -5682,7 +5682,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # number of Keyword-Parameters
             if (key_anz > 0) {
-              get_space_on_STACK(sizeof(object) * (uintL)key_anz);
+              get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_anz);
               var uintC count;
               dotimespC(count,key_anz, { pushSTACK(unbound); } ); # initialize with #<UNBOUND>
             }
@@ -5701,7 +5701,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             if (flags & bit(0))
               shift++; # poss. 1 more for Rest-Parameter
             argcount = args_on_stack;
-            get_space_on_STACK(sizeof(object) * shift);
+            get_space_on_STACK(sizeof(gcv_object_t) * shift);
             var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)shift;
             var gcv_object_t* ptr1 = args_end_pointer;
             var gcv_object_t* ptr2 = new_args_end_pointer;
@@ -7123,7 +7123,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var uintL n;
             U_operand(n);
             # test for Stack-Overflow:
-            get_space_on_STACK(n*sizeof(object));
+            get_space_on_STACK(n*sizeof(gcv_object_t));
             # push n values in the Stack:
             var uintC count = mv_count;
             if (n==0) goto nv_to_stack_end; # no value desired -> finished
@@ -7282,7 +7282,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               var object tag_vector = TheCclosure(closure)->clos_consts[n];
               var uintL m = Svector_length(tag_vector);
               Car(tagbody_cons) = tag_vector;
-              get_space_on_STACK(m*sizeof(object)); # allocate space
+              get_space_on_STACK(m*sizeof(gcv_object_t)); # allocate space
             # push all labeli as Fixnums on the STACK:
               var uintL count;
               dotimespL(count,m, {
