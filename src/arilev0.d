@@ -21,6 +21,8 @@
           " : "=d" (__ergebnis) : "0" (__wert));  \
         __ergebnis;                               \
        })
+  #elif defined(SPARC64)
+    #define sign_of_sint32(wert)  (((sint64)(sint32)(wert)) >> 63)
   #elif defined(SPARC) || defined(ARM)
     #define sign_of_sint32(wert)  (((sint32)(wert)) >> 31)
   #else
@@ -45,6 +47,8 @@
           " : "=d" (__ergebnis) : "0" (__wert));  \
         __ergebnis;                               \
        })
+  #elif defined(SPARC64)
+    #define sign_of_sint16(wert)  (((sint64)(sint16)(wert)) >> 63)
   #elif defined(SPARC) || defined(ARM)
     #define sign_of_sint16(wert)  (((sint32)(sint16)(wert)) >> 31)
   #else
@@ -134,12 +138,21 @@
 # in 68000-Assembler (Input D0.W, D1.W, Output D0.L):
 #   MULU D1,D0
   #ifdef GNU
-    #if defined(SPARC) && defined(FAST_DOUBLE) # Ist das schneller als _mulu16 ??
+    #if defined(SPARC) && !defined(SPARC64) && defined(FAST_DOUBLE) # Ist das schneller als _mulu16 ??
       #define mulu16(arg1,arg2)  \
         ({var union { double f; uint32 i[2]; } __fi; \
           __fi.f = (double)(sint32)(uint16)(arg1)*(double)(sint32)(uint16)(arg2) \
                    + (double)(4503599627370496.0L); # + 2^52, zum Normalisieren  \
           __fi.i[1]; # untere 32 Bit herausholen (benutzt BIG_ENDIAN_P !)        \
+         })
+    #elif defined(SPARC64) && !defined(NO_ASM)
+      #define mulu16(arg1,arg2)  \
+        ({ var register uint64 _result;                         \
+           __asm__("umul %1,%2,%0"                              \
+                   : "=&r" (_result)                            \
+                   : "r" ((uint16)(arg1)), "r" ((uint16)(arg2)) \
+                  );                                            \
+           (uint32)_result;                                     \
          })
     #elif defined(I80386) && !defined(NO_ASM)
       #define mulu16(arg1,arg2)  \
@@ -151,18 +164,9 @@
                   );                                                        \
            highlow32(_hi,_lo);                                              \
          })
-    #elif defined(SPARC64) && !defined(NO_ASM)
-      #define mulu16(arg1,arg2)  \
-        ({ var register uint64 _result;                         \
-           __asm__("umul %1,%2,%0"                              \
-                   : "=&r" (_result)                            \
-                   : "r" ((uint16)(arg1)), "r" ((uint16)(arg2)) \
-                  );                                            \
-           (uint32)_result;                                     \
-         })
     #endif
   #else
-    #if defined(SPARC)
+    #if defined(SPARC) || defined(SPARC64)
       extern_C uint32 mulu16_ (uint16 arg1, uint16 arg2); # extern in Assembler
       #define mulu16  mulu16_
     #endif
@@ -175,7 +179,7 @@
 # mulu24(arg1,arg2,hi=,lo=);
 # > arg1, arg2 : zwei 24-Bit-Zahlen
 # < 2^32*hi+lo : eine 48-Bit-Zahl
-  #if defined(SPARC) && defined(FAST_DOUBLE)
+  #if defined(SPARC) && !defined(SPARC64) && defined(FAST_DOUBLE)
     #define mulu24(x,y,hi_zuweisung,lo_zuweisung)  \
       { var uint32 _x = (x);                                                            \
         var uint32 _y = (y);                                                            \
@@ -336,9 +340,9 @@
   #ifndef mulu32
     #define mulu32(x,y,hi_zuweisung,lo_zuweisung)  \
       { lo_zuweisung mulu32_(x,y); hi_zuweisung mulu32_high; }
-    #if defined(MC680X0) || defined(SPARC) || defined(ARM) || (defined(I80386) && !defined(WATCOM) && !defined(BORLAND)) || defined(MIPS) || defined(HPPA) || defined(VAX)
+    #if defined(MC680X0) || defined(SPARC) || defined(SPARC64) || defined(ARM) || (defined(I80386) && !defined(WATCOM) && !defined(BORLAND)) || defined(MIPS) || defined(HPPA) || defined(VAX)
       # mulu32_ extern in Assembler
-      #if defined(SPARC)
+      #if defined(SPARC) || defined(SPARC64)
         #define mulu32_high  (uint32)(_get_g1()) # Rückgabe im Register %g1
       #elif defined(LISPARIT) && !defined(HPPA) # In arihppa.d ist mulu32_high bereits definiert.
         global uint32 mulu32_high;
@@ -469,7 +473,7 @@
           q_zuweisung (uint16)__q;     \
           r_zuweisung (uint16)__r;     \
          })
-    #elif defined(SPARC)
+    #elif defined(SPARC) || defined(SPARC64)
       #define divu_3216_1616(x,y,q_zuweisung,r_zuweisung)  \
         ({ var uint32 __qr = divu_3216_1616_(x,y); # extern in Assembler \
            q_zuweisung low16(__qr);  \
@@ -516,7 +520,7 @@
     #endif
   #endif
   #ifndef divu_3216_1616
-    #if defined(SPARC)
+    #if defined(SPARC) || defined(SPARC64)
       #define divu_3216_1616(x,y,q_zuweisung,r_zuweisung)  \
         { var uint32 __qr = divu_3216_1616_(x,y); # extern in Assembler \
           q_zuweisung low16(__qr);  \
@@ -599,7 +603,7 @@
         q_zuweisung (uint32)__q;     \
         r_zuweisung (uint16)__r;     \
        })
-  #elif defined(SPARC) || defined(I80386)
+  #elif defined(SPARC) || defined(SPARC64) || defined(I80386)
     #define divu_3216_3216  divu_3232_3232
   #elif 1
     # Methode: (beta = 2^16)
@@ -682,7 +686,7 @@
         q_zuweisung (uint32)__q;     \
         r_zuweisung (uint32)__r;     \
        })
-  #elif defined(SPARC) || defined(I80386) || defined(HPPA_DIV_WORKS)
+  #elif defined(SPARC) || defined(SPARC64) || defined(I80386) || defined(HPPA_DIV_WORKS)
     #define divu_3232_3232(x,y,q_zuweisung,r_zuweisung)  \
       divu_6432_3232(0,x,y,_EMA_ q_zuweisung,_EMA_ r_zuweisung)
     #define divu_3232_3232_(x,y) divu_6432_3232_(0,x,y)
@@ -823,7 +827,7 @@
           q_zuweisung (uint32)__q;     \
           r_zuweisung (uint32)__r;     \
          })
-    #elif defined(SPARC)
+    #elif defined(SPARC) || defined(SPARC64)
       #define divu_6432_3232(xhi,xlo,y,q_zuweisung,r_zuweisung)  \
         ({ var uint32 _q = divu_6432_3232_(xhi,xlo,y); # extern in Assembler \
            var register uint32 _r __asm__("%g1");                            \
@@ -883,9 +887,9 @@
   #ifndef divu_6432_3232
     #define divu_6432_3232(xhi,xlo,y,q_zuweisung,r_zuweisung)  \
       { q_zuweisung divu_6432_3232_(xhi,xlo,y); r_zuweisung divu_32_rest; }
-    #if defined(MC680Y0) || defined(SPARC) || defined(ARM) || (defined(I80386) && !defined(WATCOM) && !defined(BORLAND)) || defined(HPPA)
+    #if defined(MC680Y0) || defined(SPARC) || defined(SPARC64) || defined(ARM) || (defined(I80386) && !defined(WATCOM) && !defined(BORLAND)) || defined(HPPA)
       # divu_6432_3232_ extern in Assembler
-      #if defined(SPARC)
+      #if defined(SPARC) || defined(SPARC64)
         #define divu_32_rest  (uint32)(_get_g1()) # Rückgabe im Register %g1
       #elif defined(LISPARIT)
         global uint32 divu_32_rest;
@@ -1048,7 +1052,7 @@
 # > uint32 xhi,xlo: Radikand x = 2^32*xhi+xlo, >= 2^62, < 2^64
 # < uint32 y: floor(sqrt(x)), >= 2^31, < 2^32
 # < boolean sqrtp: /=0, falls x=y^2
-  #if (defined(SPARC) || defined(MC680Y0) || defined(HPPA))
+  #if (defined(SPARC) || defined(SPARC64) || defined(MC680Y0) || defined(HPPA))
     # Methode:
     # y := 2^32 als Anfangswert,
     # y := floor((y + floor(x/y))/2) als nächster Wert,
