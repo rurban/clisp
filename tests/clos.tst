@@ -706,6 +706,23 @@ T
         (subtypep 'foo63-b 'foo63-c)))
 (T T NIL)
 
+;; Redefining a class can make it (and also its subclasses) non-finalized.
+#+CLISP
+(let (fa fb fc)
+  (defclass foo65a () ())
+  (defclass foo65b (foo65a) ())
+  (defclass foo65c (foo65b) ())
+  (setq fa (clos:class-finalized-p (find-class 'foo65a))
+        fb (clos:class-finalized-p (find-class 'foo65b))
+        fc (clos:class-finalized-p (find-class 'foo65c)))
+  (defclass foo65b (foo65a foo65other) ())
+  (list fa fb fc
+        (clos:class-finalized-p (find-class 'foo65a))
+        (clos:class-finalized-p (find-class 'foo65b))
+        (clos:class-finalized-p (find-class 'foo65c))))
+#+CLISP
+(T T T T NIL NIL)
+
 ;; update-instance-for-redefined-class
 ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_upd_efined-class.html>
 (progn
@@ -959,6 +976,98 @@ x-y-position
       (slot-value i 'size))
   (list value (type-of condition)))
 (2 NULL)
+
+
+;; The clos::list-direct-subclasses function lists only non-finalized direct
+;; subclasses.
+#+CLISP
+(progn
+  (defclass foo88b (foo88a) ((s :initarg :s)))
+  (defclass foo88c (b) ())
+  (defclass foo88a () ())
+  ; Here foo88a is finalized, foo88b and foo88c are not.
+  (list
+    (length (clos::list-direct-subclasses (find-class 'foo88a)))
+    (length (clos::list-direct-subclasses (find-class 'foo88b)))
+    (length (clos::list-direct-subclasses (find-class 'foo88c)))))
+#+CLISP
+(0 0 0)
+#+CLISP
+(progn
+  (defclass foo89b (foo89a) ((s :initarg :s)))
+  (defclass foo89c (b) ())
+  (defclass foo89a () ())
+  (let ((x (make-instance 'foo89b :s 5)))
+    ; Here foo89a and foo89b are finalized, foo89c is not.
+    (list
+      (length (clos::list-direct-subclasses (find-class 'foo89a)))
+      (length (clos::list-direct-subclasses (find-class 'foo89b)))
+      (length (clos::list-direct-subclasses (find-class 'foo89c))))))
+#+CLISP
+(1 0 0)
+
+;; The clos::list-direct-subclasses function must notice when a finalized
+;; direct subclass is redefined in such a way that it is no longer a subclass.
+#+CLISP
+(progn
+  (defclass foo90b (foo90a) ((s :initarg :s)))
+  (defclass foo90c (foo90b) ())
+  (defclass foo90a () ())
+  (let ((x (make-instance 'foo90b :s 5)))
+    ; Here foo90a and foo90b are finalized, foo90c is not.
+    (defclass foo90b () (s))
+    ; Now foo90b is no longer direct subclass of foo90a.
+    (list
+      (length (clos::list-direct-subclasses (find-class 'foo90a)))
+      (length (clos::list-direct-subclasses (find-class 'foo90b)))
+      (length (clos::list-direct-subclasses (find-class 'foo90c))))))
+#+CLISP
+(0 0 0)
+
+;; The clos::list-direct-subclasses function must notice when a finalized
+;; direct subclass is redefined in such a way that it is no longer finalized.
+#+CLISP
+(progn
+  (defclass foo91a () ())
+  (defclass foo91b (foo91a) ())
+  (defclass foo91c (foo91b) ())
+  (defclass foo91b (foo91a foo91other) ())
+  (list
+    (length (clos::list-direct-subclasses (find-class 'foo91a)))
+    (length (clos::list-direct-subclasses (find-class 'foo91b)))
+    (length (clos::list-direct-subclasses (find-class 'foo91c)))))
+#+CLISP
+(0 0 0)
+
+;; make-instances-obsolete causes update-instance-for-redefined-class to
+;; be called on instances of current subclasses.
+(progn
+  (defclass foo92b (foo92a) ((s :initarg :s)))
+  (defclass foo92a () ())
+  (let ((x (make-instance 'foo92b :s 5)) (update-counter 0))
+    (defclass foo92b (foo92a) ((s) (s1) (s2))) ; still subclass of foo92a
+    (slot-value x 's)
+    (defmethod update-instance-for-redefined-class ((object foo92b) added-slots discarded-slots property-list &rest initargs)
+      (incf update-counter))
+    (make-instances-obsolete 'foo92a)
+    (slot-value x 's)
+    update-counter))
+1
+
+;; make-instances-obsolete does not cause update-instance-for-redefined-class
+;; to be called on instances of ancient subclasses.
+(progn
+  (defclass foo93b (foo93a) ((s :initarg :s)))
+  (defclass foo93a () ())
+  (let ((x (make-instance 'foo93b :s 5)) (update-counter 0))
+    (defclass foo93b () ((s) (s1) (s2))) ; no longer a subclass of foo93a
+    (slot-value x 's)
+    (defmethod update-instance-for-redefined-class ((object foo93b) added-slots discarded-slots property-list &rest initargs)
+      (incf update-counter))
+    (make-instances-obsolete 'foo93a)
+    (slot-value x 's)
+    update-counter))
+0
 
 
 ;;; ensure-generic-function

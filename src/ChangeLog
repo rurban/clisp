@@ -1,3 +1,11 @@
+2004-04-15  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class2.lisp (ensure-class): Pass the old finalized and
+	direct-superclasses status to update-subclasses-for-redefined-class.
+	(update-subclasses-for-redefined-class,
+	update-subclasses-for-redefined-class-nonrecursive): Update the
+	direct-subclasses lists of the superclasses correctly.
+
 2004-04-29  Bruno Haible  <bruno@clisp.org>
 
 	* disassem.lisp (*disassemble-use-live-process*): New variable.
