@@ -673,6 +673,15 @@ fi
 # Main target OS dependencies:
 
 OS_INCLUDES=''
+if [ "$TSYSOS" = osf1 ] ; then
+  # On OSF/1 4.0, libtool adds -lc, but this -lc flag causes link errors when
+  # comes anywhere except at the end of the link command line, complaining
+  # about _OtsDivide32, __lc_ctype and others.
+  LIBICONV=`echo " $LIBICONV " | sed -e 's, -lc ,,g' -e 's,^ ,,' -e 's, $,,'`
+  LIBINTL=`echo " $LIBINTL " | sed -e 's, -lc ,,g' -e 's,^ ,,' -e 's, $,,'`
+  LIBSIGSEGV=`echo " $LIBSIGSEGV " | sed -e 's, -lc ,,g' -e 's,^ ,,' -e 's, $,,'`
+  LIBTERMCAP=`echo " $LIBTERMCAP " | sed -e 's, -lc ,,g' -e 's,^ ,,' -e 's, $,,'`
+fi
 if [ $TSYS = master -o $TOS = unix ] ; then
   OS_INCLUDES=$OS_INCLUDES' unix'
   LIBS=$LIBS' '$LIBICONV' '$LIBSIGSEGV
