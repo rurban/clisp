@@ -82,7 +82,7 @@ ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/vacall-i386-msvc.c 
 htmldoc:
 	cd doc && make impnotes.html && make html && cd ..;
 
-makefiles : os2/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc
+makefiles : os2/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32msvc/makefile.msvc5d win32bc/makefile acorn/makefile.cc acorn/makefile.gcc
 
 os2/makefile : makemake
 	./makemake os2 gcc > os2/makefile
@@ -94,6 +94,10 @@ win32msvc/makefile.msvc4 : makemake
 win32msvc/makefile.msvc5 : makemake
 	./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi \
 		win32msvc msvc5 > win32msvc/makefile.msvc5
+
+win32msvc/makefile.msvc5d : makemake
+	./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi \
+		win32msvc msvc5 debug > win32msvc/makefile.msvc5d
 
 win32bc/makefile : makemake
 	./makemake --with-dir-key win32bc bcc32i > win32bc/makefile
