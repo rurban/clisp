@@ -1,5 +1,10 @@
 2002-03-18  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (main): void domain for the -E command line argment
+	means all 5 domains
+
+2002-03-18  Sam Steingold  <sds@gnu.org>
+
 	added CUSTOM:*PARSE-NAMESTRING-DOT-FILE* user option
 	* init.lisp (*source-file-types*, *compiled-file-types*): list
 	strings, not pathnames
