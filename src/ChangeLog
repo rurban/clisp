@@ -2,6 +2,8 @@
 
 	* stream.d (MAKE-WINDOW): do not assume that *TERMINAL-IO* is a
 	terminal-stream
+	(FILE-POSITION): decrement the position if a character has been
+	unread (so that PEEK-CHAR does not modify FILE-POSITION)
 
 2002-12-02  Sam Steingold  <sds@gnu.org>
 
