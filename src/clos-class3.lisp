@@ -14,7 +14,7 @@
 
 ;; CLtL2 28.1.4., ANSI CL 4.3.7. Integrating Types and Classes
 (defun subclassp (class1 class2)
-  (unless (%class-precedence-list class1) (finalize-class class1 t))
+  (unless (>= (class-initialized class1) 4) (finalize-class class1 t))
   (values
     (gethash class2 (class-all-superclasses class1)))) ; T or (default) NIL
 
@@ -495,7 +495,7 @@
                                            (fixed-slot-locations nil fixed-slot-locations-p)
                                       &allow-other-keys
                                       &aux (metaclass (class-of class)))
-  (if (and (%class-precedence-list class) ; already finalized?
+  (if (and (>= (class-initialized class) 4) ; already finalized?
            (subclassp class <metaobject>))
     ;; Things would go awry when we try to redefine <class> and similar.
     (warn (TEXT "Redefining metaobject class ~S has no effect.")
@@ -506,7 +506,7 @@
         ;; the direct-superclasses argument, so that we can compare the two
         ;; lists using EQUAL.
         (when (and (subclassp metaclass <standard-class>)
-                   (null (%class-precedence-list class)))
+                   (< (class-initialized class) 3))
           (do ((l (class-direct-superclasses class) (cdr l)))
               ((atom l))
             (let ((c (car l)))
@@ -535,7 +535,7 @@
               (and fixed-slot-locations-p
                    (not (eq fixed-slot-locations (class-fixed-slot-locations class)))))
         ;; Instances have to be updated:
-        (let* ((was-finalized (%class-precedence-list class))
+        (let* ((was-finalized (>= (class-initialized class) 6))
                (must-be-finalized
                  (and was-finalized
                       (some #'class-instantiated (list-all-finalized-subclasses class))))
@@ -920,7 +920,7 @@
 ;; Determine whether a class inherits from <standard-stablehash> or
 ;; <structure-stablehash>.
 (defun std-compute-subclass-of-stablehash-p (class)
-  (dolist (superclass (%class-precedence-list class) nil)
+  (dolist (superclass (class-precedence-list class) nil)
     (let ((superclassname (class-classname superclass)))
       (when (or (eq superclassname 'standard-stablehash)
                 (eq superclassname 'structure-stablehash))
@@ -1005,7 +1005,7 @@
   ;; Gather all slot-specifiers, ordered by precedence:
   (let ((all-slots
           (mapcan #'(lambda (c) (nreverse (copy-list (class-direct-slots c))))
-                  (%class-precedence-list class))))
+                  (class-precedence-list class))))
     ;; Partition by slot-names:
     (setq all-slots
           (let ((ht (make-hash-table :key-type 'symbol :value-type 't
@@ -1043,7 +1043,7 @@
 ;; Side effects done by this function: The slot-definition-location of the
 ;; slots is determined.
 (defun compute-slots-<slotted-class>-around (class next-method)
-  (let ((cpl (%class-precedence-list class))
+  (let ((cpl (class-precedence-list class))
         (slots (funcall next-method class)))
     ; Some checks, to guarantee that user-defined primary methods on
     ; compute-slots don't break our CLOS.
@@ -1071,7 +1071,7 @@
             (remove-if-not #'(lambda (c)
                                (and (semi-standard-class-p c)
                                     (class-fixed-slot-locations c)))
-                           (cdr (%class-precedence-list class)))))
+                           (cdr (class-precedence-list class)))))
       (when superclasses-with-fixed-slot-locations
         (dolist (slot slots)
           (let ((name (slot-definition-name slot))
@@ -1254,7 +1254,7 @@
 
 (defun compute-default-initargs-<class> (class)
   (remove-duplicates
-    (mapcap #'class-direct-default-initargs (%class-precedence-list class))
+    (mapcap #'class-direct-default-initargs (class-precedence-list class))
     :key #'car
     :from-end t))
 
@@ -1429,11 +1429,17 @@
   (when (or (eq situation 't) direct-superclasses-p)
     (setf (class-precedence-list class)
           (checked-compute-class-precedence-list class))
+    (when (eq situation 't)
+      (setf (class-initialized class) 3))
     (setf (class-all-superclasses class)
-          (std-compute-superclasses (%class-precedence-list class))))
+          (std-compute-superclasses (class-precedence-list class)))
+    (when (eq situation 't)
+      (setf (class-initialized class) 4)))
   (when (eq situation 't)
     (setf (class-slots class) '())
-    (setf (class-default-initargs class) '()))
+    (setf (class-initialized class) 5)
+    (setf (class-default-initargs class) '())
+    (setf (class-initialized class) 6))
   ; Done.
   class)
 
@@ -1495,8 +1501,12 @@
   (when (or (eq situation 't) direct-superclasses-p)
     (setf (class-precedence-list class)
           (checked-compute-class-precedence-list class))
+    (when (eq situation 't)
+      (setf (class-initialized class) 3))
     (setf (class-all-superclasses class)
-          (std-compute-superclasses (%class-precedence-list class))))
+          (std-compute-superclasses (class-precedence-list class)))
+    (when (eq situation 't)
+      (setf (class-initialized class) 4)))
   (when (or (eq situation 't) direct-superclasses-p
             direct-slots-as-lists-p direct-slots-as-metaobjects-p)
     (unless names
@@ -1505,6 +1515,8 @@
         (setq slots (class-slots (first direct-superclasses)))
         (setq size (class-instance-size (first direct-superclasses)))))
     (setf (class-slots class) slots)
+    (when (eq situation 't)
+      (setf (class-initialized class) 5))
     (setf (class-slot-location-table class) (compute-slot-location-table class))
     (setf (class-instance-size class) size)
     (unless names
@@ -1528,6 +1540,8 @@
   (when (or (eq situation 't) direct-superclasses-p direct-default-initargs-p)
     (setf (class-default-initargs class)
           (checked-compute-default-initargs class)))
+  (when (eq situation 't)
+    (setf (class-initialized class) 6))
   ; Initialize the remaining <slotted-class> slots:
   (when (or (eq situation 't) direct-superclasses-p)
     (setf (class-subclass-of-stablehash-p class)
@@ -1603,6 +1617,7 @@
       (setf (class-instantiated class) nil)
       (setf (class-finalized-direct-subclasses-table class) '())))
   ; Initialize the remaining <class> slots:
+  (setf (class-initialized class) 2) ; mark as not yet finalized
   (setf (class-precedence-list class) nil) ; mark as not yet finalized
   (setf (class-all-superclasses class) nil) ; mark as not yet finalized
   ; Initialize the remaining <slotted-class> slots:
@@ -1629,7 +1644,7 @@
                                  ; The stack of classes being finalized now:
                                  (finalizing-now nil))
   (when (or (class-p class) (setq class (find-class class force-p)))
-    (if (%class-precedence-list class) ; already finalized?
+    (if (>= (class-initialized class) 6) ; already finalized?
       class
       (progn
         ;; Here we get only for instances of STANDARD-CLASS, since instances
@@ -1671,8 +1686,12 @@
                          #'semi-standard-class-p 'SEMI-STANDARD-CLASS))
   (setf (class-precedence-list class)
         (checked-compute-class-precedence-list class))
+  (when (< (class-initialized class) 3)
+    (setf (class-initialized class) 3))
   (setf (class-all-superclasses class)
-        (std-compute-superclasses (%class-precedence-list class)))
+        (std-compute-superclasses (class-precedence-list class)))
+  (when (< (class-initialized class) 4)
+    (setf (class-initialized class) 4))
   (dolist (super direct-superclasses)
     (when (semi-standard-class-p super)
       (add-finalized-direct-subclass super class)))
@@ -1686,6 +1705,8 @@
           3  ; see comments in clos-genfun1.lisp
           1)) ; slot 0 is the class_version pointer
   (setf (class-slots class) (checked-compute-slots class))
+  (when (< (class-initialized class) 5)
+    (setf (class-initialized class) 5))
   (setf (class-instance-size class) (compute-instance-size class))
   (setf (class-slot-location-table class) (compute-slot-location-table class))
   (let ((shared-size (compute-shared-size class)))
@@ -1696,6 +1717,8 @@
   (setf (class-default-initargs class) (checked-compute-default-initargs class))
   (setf (class-valid-initargs class)
         (remove-duplicates (mapcap #'slot-definition-initargs (class-slots class))))
+  (when (< (class-initialized class) 6)
+    (setf (class-initialized class) 6))
   (system::note-new-standard-class))
 
 ;; ------------- Redefining an instance of <semi-standard-class> -------------
@@ -1705,14 +1728,14 @@
   (make-instances-obsolete-<semi-standard-class> class))
 
 (defun make-instances-obsolete-<semi-standard-class> (class)
-  (when (%class-precedence-list class) ; nothing to do if not yet finalized
+  (when (>= (class-initialized class) 6) ; nothing to do if not yet finalized
     ;; Recurse to the subclasses. (Even if there are no direct instances of
     ;; this class: the subclasses may have instances.)
     (mapc #'make-instances-obsolete-<semi-standard-class>-nonrecursive
           (list-all-finalized-subclasses class))))
 
 (defun make-instances-obsolete-<semi-standard-class>-nonrecursive (class)
-  (if (and (%class-precedence-list class) ; already finalized?
+  (if (and (>= (class-initialized class) 4) ; already finalized?
            (subclassp class <metaobject>))
     ; Don't obsolete metaobject instances.
     (let ((name (class-name class))
@@ -1752,6 +1775,7 @@
   (when was-finalized ; nothing to do if not finalized before the redefinition
     ;; Handle the class itself specially, because its superclasses list now is
     ;; not the same as before.
+    (setf (class-initialized class) 2) ; mark as not yet finalized
     (setf (class-precedence-list class) nil) ; mark as not yet finalized
     (setf (class-all-superclasses class) nil) ; mark as not yet finalized
     (if must-be-finalized
@@ -1779,7 +1803,8 @@
           (rest (list-all-finalized-subclasses class)))))
 
 (defun update-subclasses-for-redefined-class-nonrecursive (class)
-  (when (%class-precedence-list class) ; nothing to do if not yet finalized
+  (when (>= (class-initialized class) 6) ; nothing to do if not yet finalized
+    (setf (class-initialized class) 2) ; mark as not yet finalized
     (setf (class-precedence-list class) nil) ; mark as not yet finalized
     (setf (class-all-superclasses class) nil) ; mark as not yet finalized
     (if (class-instantiated class)
