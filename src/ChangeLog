@@ -1,3 +1,8 @@
+2002-02-12  Sam Steingold  <sds@gnu.org>
+
+	* package.d (%SET-PACKAGE-LOCK): call test_package_arg() on the
+	single arg
+
 2002-02-11  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (strip_white): strip only the CR, not all whitespace,
