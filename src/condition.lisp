@@ -1205,7 +1205,7 @@
                    (declare (ignore getterform))
                    (setq all-setter-vars
                          (revappend stores all-setter-vars))
-                   (push `(LET* ,(mapcar #'list temps subforms) ,setterform)
+                   (push (wrap-let* (mapcar #'list temps subforms) setterform)
                          all-setter-forms)))))
          (GO ,tag1)
          ,tag2))))
