@@ -142,10 +142,6 @@ link_dep() {
   echol
 }
 
-if [ -f src/VERSION ]; then version=src/VERSION;
-elif [ -f ../src/VERSION ]; then version=../src/VERSION;
-fi
-
 # Handle --help and --version arguments.
 for arg do
   case "$arg" in
@@ -153,9 +149,7 @@ for arg do
       info_help
       exit 0 ;;
     --version | --versio | --versi | --vers | --ver | --ve | --v)
-      if [ -z "$version" ]; then echol "cannot find CLISP version file"
-      else echol "CLISP version "`cat $version`
-      fi
+      echol "CLISP version @PACKAGE_VERSION@"
       exit 0 ;;
   esac
 done
@@ -1827,10 +1821,7 @@ if [ ${TSYS} = win32gcc ]; then
   echol
 fi
 
-if [ -f ${SRCDIR}VERSION ]; then echol "VERSION="`cat ${SRCDIR}VERSION`;
-elif [ -n $version ]; then echol "VERSION="`cat $version`;
-else echol "no CLISP version file" >&2; exit 1;
-fi
+echol "VERSION="`echo '@PACKAGE_VERSION@' | sed -e 's, .*,,'`
 echol "CLISP_VERSION=clisp-\$(VERSION)"
 echol '# Directories used by "make install":'
 echol "prefix = ${PREFIX}"
@@ -2239,17 +2230,14 @@ if [ ! $TSYS = win32msvc ] ; then
   # again and again ... - avoid it
   echotab "touch unixconf.h"
   echol
-  echol "Makefile : makemake VERSION"
+  echol "Makefile : makemake"
   echotab "$0$makemake_args > Makefile.tmp"
   echotab "\$(MV) Makefile Makefile~"
   echotab "\$(MV) Makefile.tmp Makefile"
   OBSOLETE="$OBSOLETE Makefile~"
   echol
-  echol "config.status : configure"
+  echol "config.status : configure ${SRCTOPDIR}version.sh"
   echotab "sh config.status --recheck"
-  echol
-  echol "${SRCDIR}VERSION : ${SRCDIR}configure"
-  echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}VERSION"
   echol
   echol "${SRCDIR}configure : ${SRCDIR}configure.in"
   echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}configure"
@@ -3337,9 +3325,8 @@ for f in $TXT_FILES ; do
   fi
   case $f in
     clisp.html | clisp.1 | clisp-1.html)
-      depends=$depends" VERSION";
-      sourcedir=${SRCDOCDIR}; ;;
-    *) sourcedir=${SRCDIR}; ;;
+      sourcedir=${SRCDOCDIR} ;;
+    *) sourcedir=${SRCDIR} ;;
   esac
   echol "${f} : ${sourcedir}_${f}${TXT_INCLUDES}${depends} txt2c${HEXE}"
   echotab "\$(TXT2C) < ${sourcedir}_${f} > txt.c"
@@ -3545,7 +3532,7 @@ if [ $CROSS = false ] ; then
     esac
     if [ ${HSYSOS} = cygwin ]; then
       echotab_mkdir_maybe "\$(DESTDIR)\$(docdir)/Cygwin"
-      echotab "\$(INSTALL_DATA) cygwin.README \$(DESTDIR)\$(docdir)/Cygwin/clisp-\`cat VERSION\`.README"
+      echotab "\$(INSTALL_DATA) cygwin.README \$(DESTDIR)\$(docdir)/Cygwin/clisp-\$(VERSION).README"
     fi
     echol
     echol
@@ -3559,7 +3546,7 @@ if [ $CROSS = false ] ; then
     echol "uninstall-bin : force"
     echotab "\$(RMRF) \$(DESTDIR)\$(lisplibdir)"
     if [ ${HSYSOS} = cygwin ]; then
-      echotab "\$(RM) \$(DESTDIR)\$(docdir)/Cygwin/clisp-\`cat VERSION\`.README"
+      echotab "\$(RM) \$(DESTDIR)\$(docdir)/Cygwin/clisp-\$(VERSION).README"
       echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp.exe"
     else
       echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp"
@@ -3670,15 +3657,7 @@ PACKDIR = .
 
 !!
 echol "# The distribution's top directory"
-if test -f "${SRCDIR}VERSION"; then
-  echol "TOPDIR=clisp-`cat ${SRCDIR}VERSION`"
-else
-  if test -f "src/VERSION"; then
-    echol "TOPDIR=clisp-`cat src/VERSION`"
-  else
-    echol "TOPDIR=clisp"
-  fi
-fi
+echol "TOPDIR=clisp-"`echo '@PACKAGE_VERSION@' | sed -e 's, .*,,'`
 echol
 echol "# Distribution file"
 PROC=`((uname -p) 2>/dev/null || mach 2>/dev/null) | $tolower`
@@ -3763,7 +3742,7 @@ echol
 elif [ $HOS = win32 ] ; then
   echol "# Distribution, to be executed on a Unix host or using Cygwin."
   echol "distrib : install.lisp install.bat clisp.man clisp.html force"
-  echotab "version=\`cat VERSION\` ; \\"
+  echotab "version=\$(VERSION) ; \\"
   echotab "distdir=clisp-\$\$version ; \\"
   echotab "mkdir \$\$distdir ; \\"
   echotab "for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es install.bat ; do \\"
@@ -3945,7 +3924,7 @@ cat <<!!
 if [ -n "${SRCDIR}" ] ; then
 cat <<!!
 	-\$(RMRF) po
-	-\$(RM) configure unixconf.h.in makemake.in VERSION version.h
+	-\$(RM) configure unixconf.h.in makemake.in version.h
 !!
 fi
 cat <<!!

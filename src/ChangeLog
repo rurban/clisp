@@ -2,9 +2,19 @@
 
 	Simplify the version handling.
 	* version.sh: New file.
-	* src/configure.in: Source the version.sh file. Call AC_INIT without
+	* configure.in: Source the version.sh file. Call AC_INIT without
 	arguments. Set PACKAGE_NAME, PACKAGE_TARNAME, PACKAGE_VERSION,
 	PACKAGE_STRING, PACKAGE_BUGREPORT ourselves.
+	* makemake.in (version): Remove variable.
+	(VERSION): Define using the PACKAGE_VERSION, not the src/VERSION file.
+	(Makefile): Don't depend on VERSION.
+	(config.status): Depend on version.sh.
+	(VERSION): Remove rule.
+	(clisp.html, clisp.1, clisp-1.html): Don't depend on VERSION.
+	(install-doc): Use the VERSION variable from this Makefile.
+	(TOPDIR): Define using the PACKAGE_VERSION, not the src/VERSION file.
+	(distrib): Use the VERSION variable from this Makefile.
+	(clean7): Don't remove VERSION.
 	* Makefile.devel (all): Remove src/VERSION.
 	(src/VERSION): Remove rule.
 	(src/version.h): Generate from version.sh, not using src/configure.
