@@ -874,7 +874,7 @@ is the same as
 
 <section id="class-proto"><title>Generic function &class-proto;.</title>
 <para>The &amop; generic function &class-proto; is implemented.
- This allows non-consing access to slots with
+ This allows non-&consing; access to slots with
  allocation <constant>:CLASS</constant>:
  <programlisting>
   (defclass counter ()
