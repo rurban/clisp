@@ -6724,8 +6724,12 @@ for-value   NIL or T
                             (eq (clos:class-name h) type))
                         (return-from c-TYPEP
                           (c-form
-                            `(CLOS::TYPEP-CLASS ,objform
-                               (LOAD-TIME-VALUE (CLOS:FIND-CLASS ',type))))))))
+                            (if (clos::structure-class-p h)
+                              ;; %STRUCTURE-TYPE-P is a little more efficient
+                              ;; than CLOS::TYPEP-CLASS, so prefer it.
+                              `(%STRUCTURE-TYPE-P ',type ,objform)
+                              `(CLOS::TYPEP-CLASS ,objform
+                                 (LOAD-TIME-VALUE (CLOS:FIND-CLASS ',type)))))))))
               ((and (consp type) (symbolp (first type)))
                 (catch 'c-TYPEP
                   (cond ((and (eq (first type) 'SATISFIES)
