@@ -9300,7 +9300,18 @@ extern
 #ifdef __cplusplus
 "C"
 #endif
+
+#if defined(__STDC__) || defined(__cplusplus)
+
+#ifdef __cplusplus
+size_t strlen(const char *s);
+#else
 size_t strlen();
+#endif
+
+#else
+size_t strlen();
+#endif
 
 #ifdef F77_DUMMY_MAIN
 #  ifdef __cplusplus
@@ -9679,7 +9690,12 @@ extern
 #ifdef __cplusplus
 "C"
 #endif
+
+#if defined(__STDC__) || defined(__cplusplus)
+int free($cl_cv_proto_malloc_ret);
+#else
 int free();
+#endif
 
 #ifdef F77_DUMMY_MAIN
 #  ifdef __cplusplus
@@ -11418,7 +11434,12 @@ extern
 #ifdef __cplusplus
 "C"
 #endif
+
+#if defined(__STDC__) || defined(__cplusplus)
 int abort();
+#else
+int abort();
+#endif
 
 #ifdef F77_DUMMY_MAIN
 #  ifdef __cplusplus
@@ -11467,7 +11488,12 @@ extern
 #ifdef __cplusplus
 "C"
 #endif
+
+#if defined(__STDC__) || defined(__cplusplus)
 $cl_cv_proto_abort_ret abort();
+#else
+$cl_cv_proto_abort_ret abort();
+#endif
 
 #ifdef F77_DUMMY_MAIN
 #  ifdef __cplusplus
@@ -11801,29 +11827,25 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
-
-for ac_func in putenv
-do
-as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $ac_func" >&5
-echo $ECHO_N "checking for $ac_func... $ECHO_C" >&6
-if eval "test \"\${$as_ac_var+set}\" = set"; then
+echo "$as_me:$LINENO: checking for putenv" >&5
+echo $ECHO_N "checking for putenv... $ECHO_C" >&6
+if test "${ac_cv_func_putenv+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  cat >conftest.$ac_ext <<_ACEOF
+
+cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 #include "confdefs.h"
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char $ac_func (); below.  */
-#include <assert.h>
-/* Override any gcc2 internal prototype to avoid an error.  */
+extern
 #ifdef __cplusplus
-extern "C"
+"C"
 #endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char $ac_func ();
-char (*f) ();
+
+#ifdef __cplusplus
+int putenv(char*);
+#else
+int putenv();
+#endif
 
 #ifdef F77_DUMMY_MAIN
 #  ifdef __cplusplus
@@ -11834,15 +11856,7 @@ char (*f) ();
 int
 main ()
 {
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub_$ac_func) || defined (__stub___$ac_func)
-choke me
-#else
-f = $ac_func;
-#endif
-
+putenv("");
   ;
   return 0;
 }
@@ -11859,24 +11873,22 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  eval "$as_ac_var=yes"
+  ac_cv_func_putenv=yes
 else
   echo "$as_me: failed program was:" >&5
 cat conftest.$ac_ext >&5
-eval "$as_ac_var=no"
+ac_cv_func_putenv=no
 fi
 rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
 fi
-echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_var'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_var'}'`" >&6
-if test `eval echo '${'$as_ac_var'}'` = yes; then
-  cat >>confdefs.h <<_ACEOF
-#define `echo "HAVE_$ac_func" | $as_tr_cpp` 1
+echo "$as_me:$LINENO: result: $ac_cv_func_putenv" >&5
+echo "${ECHO_T}$ac_cv_func_putenv" >&6
+if test $ac_cv_func_putenv = yes; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_PUTENV 1
 _ACEOF
 
-fi
-done
-if test $ac_cv_func_putenv = yes; then
 echo "$as_me:$LINENO: checking for putenv declaration" >&5
 echo $ECHO_N "checking for putenv declaration... $ECHO_C" >&6
 if test "${cl_cv_proto_putenv+set}" = set; then
@@ -14866,7 +14878,6 @@ int closedir (DIR* dir);
 int closedir();
 #endif
 
-
 #ifdef F77_DUMMY_MAIN
 #  ifdef __cplusplus
      extern "C"
@@ -16254,29 +16265,26 @@ _ACEOF
 
 fi
 
-
-for ac_func in select
-do
-as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $ac_func" >&5
-echo $ECHO_N "checking for $ac_func... $ECHO_C" >&6
-if eval "test \"\${$as_ac_var+set}\" = set"; then
+echo "$as_me:$LINENO: checking for select" >&5
+echo $ECHO_N "checking for select... $ECHO_C" >&6
+if test "${ac_cv_func_select+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  cat >conftest.$ac_ext <<_ACEOF
+
+cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 #include "confdefs.h"
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char $ac_func (); below.  */
-#include <assert.h>
-/* Override any gcc2 internal prototype to avoid an error.  */
+#include <sys/time.h>
+extern
 #ifdef __cplusplus
-extern "C"
+"C"
 #endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char $ac_func ();
-char (*f) ();
+
+#ifdef __cplusplus
+int select(int, fd_set*, fd_set*, fd_set*, struct timeval *);
+#else
+int select();
+#endif
 
 #ifdef F77_DUMMY_MAIN
 #  ifdef __cplusplus
@@ -16287,15 +16295,7 @@ char (*f) ();
 int
 main ()
 {
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub_$ac_func) || defined (__stub___$ac_func)
-choke me
-#else
-f = $ac_func;
-#endif
-
+select(0,(fd_set*)0,(fd_set*)0,(fd_set*)0,(struct timeval *)0);
   ;
   return 0;
 }
@@ -16312,24 +16312,22 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  eval "$as_ac_var=yes"
+  ac_cv_func_select=yes
 else
   echo "$as_me: failed program was:" >&5
 cat conftest.$ac_ext >&5
-eval "$as_ac_var=no"
+ac_cv_func_select=no
 fi
 rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
 fi
-echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_var'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_var'}'`" >&6
-if test `eval echo '${'$as_ac_var'}'` = yes; then
-  cat >>confdefs.h <<_ACEOF
-#define `echo "HAVE_$ac_func" | $as_tr_cpp` 1
+echo "$as_me:$LINENO: result: $ac_cv_func_select" >&5
+echo "${ECHO_T}$ac_cv_func_select" >&6
+if test $ac_cv_func_select = yes; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_SELECT 1
 _ACEOF
 
-fi
-done
-if test $ac_cv_func_select = yes; then
 echo "$as_me:$LINENO: checking for sys/select.h" >&5
 echo $ECHO_N "checking for sys/select.h... $ECHO_C" >&6
 if test "${cl_cv_header_sys_select_h+set}" = set; then
@@ -19105,7 +19103,12 @@ extern
 #ifdef __cplusplus
 "C"
 #endif
+
+#if defined(__STDC__) || defined(__cplusplus)
 int getpagesize();
+#else
+int getpagesize();
+#endif
 
 #ifdef F77_DUMMY_MAIN
 #  ifdef __cplusplus
@@ -20586,7 +20589,18 @@ extern
 #ifdef __cplusplus
 "C"
 #endif
+
+#if defined(__STDC__) || defined(__cplusplus)
+
+#ifdef __cplusplus
+void* shmat(int, const void *, int);
+#else
 void* shmat();
+#endif
+
+#else
+void* shmat();
+#endif
 
 #ifdef F77_DUMMY_MAIN
 #  ifdef __cplusplus

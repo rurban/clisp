@@ -3201,11 +3201,16 @@ AC_MSG_RESULT([$]{ac_t:-
          }[$]cl_cv_proto_$1)
 ])
 
-dnl CL_PROTO_RET(INCLUDES, DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)
+dnl CL_PROTO_RET(INCLUDES, ANSI-DECL, TRAD-DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)
 AC_DEFUN([CL_PROTO_RET],
 [AC_TRY_COMPILE([$1]
-AC_LANG_EXTERN[$2
-], [], $3="$4", $3="$5")
+AC_LANG_EXTERN
+[#if defined(__STDC__) || defined(__cplusplus)
+$2
+#else
+$3
+#endif
+], [], $4="$5", $4="$6")
 ])
 
 dnl CL_PROTO_TRY(INCLUDES, ANSI-DECL, TRAD-DECL, ACTION-IF-OK, ACTION-IF-FAILS)
@@ -3253,7 +3258,8 @@ CL_PROTO_RET([
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-], [int getpagesize();], cl_cv_proto_getpagesize_ret, int, size_t)
+], [int getpagesize();], [int getpagesize();],
+cl_cv_proto_getpagesize_ret, int, size_t)
 ], [extern $cl_cv_proto_getpagesize_ret getpagesize (void);])
 AC_DEFINE_UNQUOTED(RETGETPAGESIZETYPE,$cl_cv_proto_getpagesize_ret)
 else
@@ -3366,13 +3372,8 @@ CL_PROTO_RET([
 #include <unistd.h>
 #endif
 #include <$ac_header_dirent>
-], [
-#if defined(__STDC__) || defined(__cplusplus)
-int closedir (DIR* dir);
-#else
-int closedir();
-#endif
-], cl_cv_proto_closedir_ret, int, void)],
+], [int closedir (DIR* dir);], [int closedir();],
+cl_cv_proto_closedir_ret, int, void)],
 [extern $cl_cv_proto_closedir_ret closedir (DIR*);])
 AC_DEFINE_UNQUOTED(RETCLOSEDIRTYPE,$cl_cv_proto_closedir_ret)
 if test $cl_cv_proto_closedir_ret = void; then
@@ -3932,6 +3933,12 @@ CL_PROTO_RET([
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+], [
+#ifdef __cplusplus
+void* shmat(int, const void *, int);
+#else
+void* shmat();
+#endif
 ], [void* shmat();],
 cl_cv_proto_shmat_ret, [void*], [char*])
 CL_PROTO_CONST([
@@ -4540,7 +4547,14 @@ if test $cl_cv_proto_strlen_macro = no; then
 CL_PROTO([strlen], [
 CL_PROTO_RET([#define strlen foo
 #include <string.h>
-], [size_t strlen();], cl_cv_proto_strlen_ret, size_t, int)
+], [
+#ifdef __cplusplus
+size_t strlen(const char *s);
+#else
+size_t strlen();
+#endif
+], [size_t strlen();],
+cl_cv_proto_strlen_ret, size_t, int)
 CL_PROTO_CONST([#define strlen foo
 #include <string.h>
 ], [$cl_cv_proto_strlen_ret strlen (char* s);],
@@ -4645,7 +4659,8 @@ CL_PROTO_RET([
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-], [int free();], cl_cv_proto_free_ret, int, void)],
+], [int free($cl_cv_proto_malloc_ret);], [int free();],
+cl_cv_proto_free_ret, int, void)],
 [extern $cl_cv_proto_free_ret free ($cl_cv_proto_malloc_ret);])
 AC_DEFINE_UNQUOTED(RETFREETYPE,$cl_cv_proto_free_ret)
 ])
@@ -4744,7 +4759,14 @@ CL_PROTO_RET(
 #ifdef signal
 #undef signal
 #endif
-], [int (*signal ()) ();], cl_cv_proto_signal_ret, int, void)
+], [
+#ifdef __cplusplus
+int (*signal (int sig, void (*handler)(int))) ();
+#else
+int (*signal ()) ();
+#endif
+], [int (*signal ()) ();],
+cl_cv_proto_signal_ret, int, void)
 AC_MSG_RESULT($cl_cv_proto_signal_ret)
 AC_DEFINE_UNQUOTED(RETSIGTYPE,$cl_cv_proto_signal_ret)
 if test $cl_cv_proto_signal_ret = void; then
@@ -5245,13 +5267,14 @@ CL_PROTO_RET([
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-], [int abort();], cl_cv_proto_abort_ret, int, void)
+], [int abort();], [int abort();], cl_cv_proto_abort_ret, int, void)
 CL_PROTO_RET([
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-], [$cl_cv_proto_abort_ret abort();], cl_cv_proto_abort_vol, [], [__volatile__])
+], [$cl_cv_proto_abort_ret abort();], [$cl_cv_proto_abort_ret abort();],
+cl_cv_proto_abort_vol, [], [__volatile__])
 ], [extern $cl_cv_proto_abort_vol $cl_cv_proto_abort_ret abort (void);])
 AC_DEFINE_UNQUOTED(RETABORTTYPE,$cl_cv_proto_abort_ret)
 AC_DEFINE_UNQUOTED(ABORT_VOLATILE,$cl_cv_proto_abort_vol)
@@ -5346,8 +5369,18 @@ dnl From Bruno Haible, Marcus Daniels.
 AC_PREREQ(2.13)
 
 AC_DEFUN([CL_PUTENV],
-[AC_CHECK_FUNCS(putenv)dnl
+[dnl Not AC_CHECK_FUNCS(putenv) because it doesn't work when CC=g++.
+AC_CACHE_CHECK([for putenv], ac_cv_func_putenv, [
+AC_TRY_LINK(AC_LANG_EXTERN[
+#ifdef __cplusplus
+int putenv(char*);
+#else
+int putenv();
+#endif
+], [putenv("");],
+ac_cv_func_putenv=yes, ac_cv_func_putenv=no)])
 if test $ac_cv_func_putenv = yes; then
+AC_DEFINE(HAVE_PUTENV, 1, [Define if you have the putenv() function.])
 CL_PROTO([putenv], [
 CL_PROTO_CONST([
 #include <stdlib.h>
@@ -6185,8 +6218,19 @@ dnl From Bruno Haible, Marcus Daniels.
 AC_PREREQ(2.13)
 
 AC_DEFUN([RL_SELECT],
-[AC_CHECK_FUNCS(select)dnl
+[dnl Not AC_CHECK_FUNCS(select) because it doesn't work when CC=g++.
+AC_CACHE_CHECK([for select], ac_cv_func_select, [
+AC_TRY_LINK([#include <sys/time.h>
+]AC_LANG_EXTERN[
+#ifdef __cplusplus
+int select(int, fd_set*, fd_set*, fd_set*, struct timeval *);
+#else
+int select();
+#endif
+], [select(0,(fd_set*)0,(fd_set*)0,(fd_set*)0,(struct timeval *)0);],
+ac_cv_func_select=yes, ac_cv_func_select=no)])
 if test $ac_cv_func_select = yes; then
+AC_DEFINE(HAVE_SELECT, 1, [Define if you have the select() function.])
 CL_COMPILE_CHECK([sys/select.h], cl_cv_header_sys_select_h,
 [#ifdef __BEOS__
 #include <sys/socket.h>
@@ -6198,8 +6242,19 @@ fi
 ])
 
 AC_DEFUN([CL_SELECT],
-[AC_CHECK_FUNCS(select)dnl
+[dnl Not AC_CHECK_FUNCS(select) because it doesn't work when CC=g++.
+AC_CACHE_CHECK([for select], ac_cv_func_select, [
+AC_TRY_LINK([#include <sys/time.h>
+]AC_LANG_EXTERN[
+#ifdef __cplusplus
+int select(int, fd_set*, fd_set*, fd_set*, struct timeval *);
+#else
+int select();
+#endif
+], [select(0,(fd_set*)0,(fd_set*)0,(fd_set*)0,(struct timeval *)0);],
+ac_cv_func_select=yes, ac_cv_func_select=no)])
 if test $ac_cv_func_select = yes; then
+AC_DEFINE(HAVE_SELECT, 1, [Define if you have the select() function.])
 CL_COMPILE_CHECK([sys/select.h], cl_cv_header_sys_select_h,
 [#ifdef __BEOS__
 #include <sys/socket.h>

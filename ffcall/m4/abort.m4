@@ -16,13 +16,14 @@ CL_PROTO_RET([
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-], [int abort();], cl_cv_proto_abort_ret, int, void)
+], [int abort();], [int abort();], cl_cv_proto_abort_ret, int, void)
 CL_PROTO_RET([
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-], [$cl_cv_proto_abort_ret abort();], cl_cv_proto_abort_vol, [], [__volatile__])
+], [$cl_cv_proto_abort_ret abort();], [$cl_cv_proto_abort_ret abort();],
+cl_cv_proto_abort_vol, [], [__volatile__])
 ], [extern $cl_cv_proto_abort_vol $cl_cv_proto_abort_ret abort (void);])
 AC_DEFINE_UNQUOTED(RETABORTTYPE,$cl_cv_proto_abort_ret)
 AC_DEFINE_UNQUOTED(ABORT_VOLATILE,$cl_cv_proto_abort_vol)

@@ -19,11 +19,16 @@ AC_MSG_RESULT([$]{ac_t:-
          }[$]cl_cv_proto_$1)
 ])
 
-dnl CL_PROTO_RET(INCLUDES, DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)
+dnl CL_PROTO_RET(INCLUDES, ANSI-DECL, TRAD-DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)
 AC_DEFUN([CL_PROTO_RET],
 [AC_TRY_COMPILE([$1]
-AC_LANG_EXTERN[$2
-], [], $3="$4", $3="$5")
+AC_LANG_EXTERN
+[#if defined(__STDC__) || defined(__cplusplus)
+$2
+#else
+$3
+#endif
+], [], $4="$5", $4="$6")
 ])
 
 dnl CL_PROTO_TRY(INCLUDES, ANSI-DECL, TRAD-DECL, ACTION-IF-OK, ACTION-IF-FAILS)
