@@ -398,7 +398,7 @@ cl_cv_prog_hln="ln"
 if test "$cl_cv_prog_LN_S" = "ln -s"; then
 echo "blabla" > conftest.x
 ln -s conftest.x conftest.y
-ln conftest.y conftest.z
+ln conftest.y conftest.z 2>&AC_FD_CC
 rm -f conftest.x
 if cat conftest.z > /dev/null 2>&1 ; then
   # ln is usable.
