@@ -109,7 +109,7 @@ global unsigned int ualarm (unsigned int value, unsigned int interval) {
 #ifdef UNIX # EMUNIX und RISCOS brauchen das nicht
 
 # Ein Wrapper um die open-Funktion.
-global int nonintr_open (char* path, int flags, mode_t mode)
+global int nonintr_open (const char* path, int flags, mode_t mode)
 {
   var int retval;
   do { retval = open(path,flags,mode);
