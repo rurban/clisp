@@ -119,7 +119,7 @@ X
 (array-element-type `#A((unsigned-byte 8) (3) (1 2 3)))
 (unsigned-byte 8)
 
-;; Backquote macroexpansion must cons as few as possible.
+;; Backquote macroexpansion must cons as little as possible.
 
 ; 1 element
 (macroexpand-1 '`(c1))
