@@ -38,15 +38,20 @@ OBJECTS = handler.o dispatcher.o
 
 all : sigsegv.h libsigsegv.a
 
-SEDPREPARE1 = sharp=`echo x | tr x '\043'` ; if grep "$${sharp}define HAVE_SIGALTSTACK" config.h > /dev/null 2>/dev/null; then sedcommand1='s,^/\* \(.*\) ifdef HAVE_SIGALTSTACK in config.h \*/$$,\1,' ; else sedcommand1='s/x/x/' ; fi
+SEDPREPARE0 = sharp=`echo x | tr x '\043'`
+SEDPREPARE1 = if grep "$${sharp}define HAVE_SIGALTSTACK" config.h > /dev/null 2>/dev/null; then sedcommand1='s,^/\* \(.*\) ifdef HAVE_SIGALTSTACK in config.h \*/$$,\1,' ; else sedcommand1='s/x/x/' ; fi
 SEDCOMMAND1 = -e "$$sedcommand1"
 SEDCOMMAND2 = -e "s,^.*if test1 crashes.*\$$,$${sharp}undef HAVE_SIGSEGV_RECOVERY,"
+SEDCOMMAND3 = -e "s,^.*if test3 crashes.*\$$,$${sharp}undef HAVE_STACK_OVERFLOW_RECOVERY,"
 
 sigsegv.h : config.h
-	$(SEDPREPARE1) ; sed $(SEDCOMMAND1) < $(srcdir)/sigsegv.h.in > sigsegv.h
+	$(SEDPREPARE0) ; $(SEDPREPARE1) ; sed $(SEDCOMMAND1) < $(srcdir)/sigsegv.h.in > sigsegv.h
 	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test1.c $(srcdir)/handler.c -o test1
-	if ./test1 > /dev/null 2> /dev/null ; then : ; else $(SEDPREPARE1) ; sed $(SEDCOMMAND1) $(SEDCOMMAND2) < $(srcdir)/sigsegv.h.in > sigsegv.h ; fi
+	if ./test1 > /dev/null 2> /dev/null ; then : ; else $(SEDPREPARE0) ; sed $(SEDCOMMAND2) < sigsegv.h > sigsegv.tmp ; mv sigsegv.tmp sigsegv.h ; fi
 	$(RM) test1 *.o core
+	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test3.c $(srcdir)/handler.c -o test3
+	if ./test3 > /dev/null 2> /dev/null ; then : ; else $(SEDPREPARE0) ; sed $(SEDCOMMAND3) < sigsegv.h > sigsegv.tmp ; mv sigsegv.tmp sigsegv.h ; fi
+	$(RM) test3 *.o core
 
 handler.o : $(srcdir)/handler.c sigsegv.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/handler.c
@@ -90,7 +95,7 @@ check : all test1 test2 test3
 mostlyclean : clean
 
 clean : force
-	$(RM) sigsegv.h *.o *.a core
+	$(RM) sigsegv.h sigsegv.tmp *.o *.a core
 	$(RM) test1 test2 test3
 
 distclean : clean
