@@ -1,3 +1,8 @@
+1998-10-14  Leigh Smith  <leigh@antechinus.cs.uwa.oz.au>
+
+        * makemake.in (echol): Use `cat', not `printf'.
+          (echoline): Don't access $3 and $4 inside the loop.
+
 1998-10-12  Sam Steingold  <sds@goems.com>
 
 	* utils/modprep.d: #include <errno.h>.
