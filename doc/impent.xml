@@ -599,6 +599,7 @@
 <!ENTITY pack-r "<replaceable>package</replaceable>">
 <!ENTITY path-r "<replaceable>pathname</replaceable>">
 <!ENTITY pattern-r "<replaceable>pattern</replaceable>">
+<!ENTITY pid-r "<replaceable>pid</replaceable>">
 <!ENTITY place-r "<replaceable>place</replaceable>">
 <!ENTITY pred-r "<replaceable>predicate</replaceable>">
 <!ENTITY program-r "<replaceable>program</replaceable>">
