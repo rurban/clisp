@@ -1,38 +1,30 @@
-dnl autoconf script for new-clx
+dnl -*- autoconf -*- script for new-clx
 dnl Gilbert Baumann, 1999-10-11
+dnl Sam Steingold 2002-06-05
 
-dnl Tried with Autoconf version 2.13
-
-dnl we abstract caching a bit
-dnl GB_CHECK(varname, message, instructions) is similar to
-dnl AC_CACHE_CHECK, but with no naming constraints on `varname'
-
-define(GB_CHECK,
- AC_CACHE_CHECK($2,gb_cv_$1,$3 gb_cv_$1=$$1)
- $1=$gb_cv_$1)
-
+dnl Tried with Autoconf version 2.53
 
 AC_INIT(clx.f)
 
 dnl find a path to X11
 dnl this generates X_LIBS, X_CFLAGS and X_PRE_LIBS
-  AC_PATH_XTRA()
+AC_PATH_XTRA()
 
 dnl Look for Xpm
-GB_CHECK(have_xpm, [for Xpm library],
+AC_CACHE_CHECK(for Xpm library, gb_cv_have_xpm,
   [ gb_LIBS_save=$LIBS
     gb_CFLAGS_save=$CFLAGS
     LIBS="$X_LIBS -lXpm $X_PRE_LIBS -lX11 $LIBS"
     CFLAGS="$CFLAGS $X_CFLAGS"
-    AC_TRY_LINK([#include <X11/xpm.h>], 
+    AC_TRY_LINK([#include <X11/xpm.h>],
 		[XpmReadFileToPixmap(0,0,0,0,0,0);],
-      have_xpm=yes, 
-      have_xpm=no)
+      gb_cv_have_xpm=yes,
+      gb_cv_have_xpm=no)
     LIBS=$gb_LIBS_save
     CFLAGS=$gb_CFLAGS_save])
 
 dnl Same thing with XShape
-GB_CHECK(have_xshape, [for X shape extension],
+AC_CACHE_CHECK(for X shape extension, gb_cv_have_xshape,
   [ gb_LIBS_save=$LIBS
     gb_CFLAGS_save=$CFLAGS
     LIBS="$X_LIBS -lXext $X_PRE_LIBS -lX11 $LIBS"
@@ -41,8 +33,8 @@ GB_CHECK(have_xshape, [for X shape extension],
 	         #include <X11/Xutil.h>
 	         #include <X11/extensions/shape.h>],
 	        [XShapeQueryExtension(0,0,0);],
-      have_xshape=yes, 
-      have_xshape=no)
+      gb_cv_have_xshape=yes,
+      gb_cv_have_xshape=no)
     LIBS=$gb_LIBS_save
     CFLAGS=$gb_CFLAGS_save])
 
@@ -52,14 +44,14 @@ AC_SUBST(WANTS)		dnl defines WANTS as output variable
 
 dnl Setup X_LIBS as well as WANTS
 
-if test $have_xpm = "yes"; then
+if test $gb_cv_have_xpm = "yes"; then
     X_LIBS="$X_LIBS -lXpm";
     WANTS="$WANTS -DWANT_XPM=1"
 else
     WANTS="$WANTS -DWANT_XPM=0"
 fi
 
-if test $have_xshape = "yes"; then
+if test $gb_cv_have_xshape = "yes"; then
     X_LIBS="$X_LIBS -lXext";
     WANTS="$WANTS -DWANT_XSHAPE=1"
 else
@@ -68,4 +60,3 @@ fi
 
 dnl And dump what we found:
 AC_OUTPUT(Makefile link.sh)
-
