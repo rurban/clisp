@@ -152,7 +152,7 @@ struct {
   LISPFUN_F(subr_user__fun5,2,0,rest,nokey,0,NIL)
   0
 };
-uintC module__sample__subr_tab_size = ((char*)&module__sample__subr_tab._dummy_to_avoid_trailing_comma_in_initializer-(char*)&module__sample__subr_tab)/sizeof(subr_t);
+uintC module__sample__subr_tab_size = (sizeof(struct module__sample__subr_tab_t)-sizeof(int))/sizeof(subr_t);
 
 struct {
 #if defined(cond0)
