@@ -1908,13 +1908,11 @@ if [ $XCC_ANSI = false ] ; then
   echo "Pre-ANSI-C compilers are not supported." 1>&2
   exit 1
 fi
-NEED_ANSIDECL=true
-XDECL_FILTER="| \$(ANSIDECL)"
-XDECL_DEPENDENCIES=" ansidecl${HEXE}"
+XDECL_FILTER="| \$(ANSIDECL) | \$(VARBRACE)"
+XDECL_DEPENDENCIES=" ansidecl${HEXE} varbrace${HEXE}"
 
-if [ $NEED_ANSIDECL = true ] ; then
-  echol "ANSIDECL = ${HERE}ansidecl"
-fi
+echol "ANSIDECL = ${HERE}ansidecl"
+echol "VARBRACE = ${HERE}varbrace"
 if [ $CC_NEED_CCPAUX = true ] ; then
   CCPAUX='ccpaux'$HEXE
   CCPAUX_FILTER=' | '$HERE'ccpaux'
@@ -2007,6 +2005,7 @@ if [ $NEED_CCPAUX = true ] ; then
 fi
 UTILS=$UTILS' comment5'
 UTILS=$UTILS' ansidecl'
+UTILS=$UTILS' varbrace'
 if [ $XCC_NEED_DEEMA = true -a $HOS != unix ] ; then
   UTILS=$UTILS' deema'
 fi
@@ -2105,7 +2104,7 @@ for util in $UTILS ; do
     echol
     OBSOLETE=$OBSOLETE" ${util}.c"
   fi
-  if [ $util = ccmp2c -o $util = modprep ] ; then
+  if [ $util = varbrace -o $util = ccmp2c -o $util = modprep ] ; then
     flags=''
     if [ $util = ccmp2c ] ; then
       flags=' -I.'
