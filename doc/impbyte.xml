@@ -429,10 +429,9 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 <section id="recompile"><title>Recompilation.</title>
 
 <para><emphasis>Any</emphasis> change that forces <command>make</command>
- to remake <filename>#P"lisp.run"</filename>, will force recompilation
- of all &lisp-file; files and re-dumping of &lispinit;, which may be
- time-consuming.  This is not always necessary, depending on what kind
- of change you introduced.</para>
+ to remake &lisp-run;, will force recompilation of all &lisp-file; files
+ and re-dumping of &lispinit;, which may be time-consuming.  This is not
+ always necessary, depending on what kind of change you introduced.</para>
 
 <para>On the other hand, if you change any of the following files:
  <simplelist>
