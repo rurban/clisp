@@ -836,7 +836,7 @@ if [ $XCC_GCC = true ] ; then
     XCFLAGS=$XCFLAGS'-mthrowback '
   fi
   if [ $TOS = unix -a $CROSS = false ] ; then
-    XCC_GCC_VERSION=`$XCC -v 2>&1 | tail -1 | sed -e 's/.*version //g'`
+    XCC_GCC_VERSION=`$XCC -v 2>&1 | tail -1 | sed -e 's/.*version //g' -e 's/gcc //'`
     case "$XCC_GCC_VERSION" in
       # gcc 2.7 introduced an annoying warning, but gcc 2.8 has a workaround:
       2.[8-9]* | 3.* | egcs-2.*)
@@ -845,57 +845,57 @@ if [ $XCC_GCC = true ] ; then
       * ) ;;
     esac
   fi
- if [ "${DEBUGGING}" != debug ] ; then # no optimizations
-  if [ "$cpu" = i386 ] ; then
-    # gcc <= 2.3.2 may crash when compiling lisparit with -O2
-    # gcc 2.3.3 may produce incorrect code when compiling spvw(SPVW_PURE)
-    # with -O -fomit-frame-pointer
-    if [ $CROSS = false ] ; then
-      XCC_GCC_VERSION=`$XCC -v 2>&1 | tail -1 | sed -e 's/.*version //g'`
-      case "$XCC_GCC_VERSION" in
-        2.7.[0-2] )
-          # gcc-2.7.2 has a strength-reduction bug (fixed in gcc-2.7.2.1,
-          # also fixed through the specs file of some Linux distributions).
-          XCFLAGS=$XCFLAGS'-O2 -fexpensive-optimizations -fno-strength-reduce' ;;
-        3.1 )
-          # gcc-3.1 with -O mis-compiles eval.d, and with -O2 control.d,
-          # record.d and some other ==> no optimizations
-          ;;
-        2.3.[3-9]* | 2.[4-9]* | 3.* | egcs-2.*)
-          # XCFLAGS=$XCFLAGS'-O2 -fno-omit-frame-pointer' ;;
-          # Let's try it nevertheless!
-          XCFLAGS=$XCFLAGS'-O2 -fexpensive-optimizations' ;;
-        * )
-          XCFLAGS=$XCFLAGS'-O' ;;
-      esac
-    else
-      XCFLAGS=$XCFLAGS'-O'
-    fi
-  elif [ "$cpu" = hppa ] ; then
-    # gcc-2.7.2 produces incorrect code when compiling spvw (loadmem routine).
-    XCFLAGS=$XCFLAGS'-O2 -fno-strength-reduce'
-  elif [ "$cpu" = sparc ] ; then
-    if [ $CROSS = false ] ; then
-      XCC_GCC_VERSION=`$XCC -v 2>&1 | tail -1 | sed -e 's/.*version //g'`
-      case "$XCC_GCC_VERSION" in
-        egcs-2.*)
-          # egcs-1.0.3 and egcs-1.1.1 produce incorrect code when compiling
-          # lisparit (function UDS_divide_).
-          XCFLAGS=$XCFLAGS'-O2 -fno-schedule-insns' ;;
-        2.9* | 3.*)
-          # gcc-2.95 produces incorrect code when compiling predtype (function
-          # C_coerce).
-          XCFLAGS=$XCFLAGS'-O2 -fno-schedule-insns -fno-gcse' ;;
-        * )
-          XCFLAGS=$XCFLAGS'-O2' ;;
-      esac
+  if [ "${DEBUGGING}" != debug ] ; then # no optimizations
+    if [ "$cpu" = i386 ] ; then
+      # gcc <= 2.3.2 may crash when compiling lisparit with -O2
+      # gcc 2.3.3 may produce incorrect code when compiling spvw(SPVW_PURE)
+      # with -O -fomit-frame-pointer
+      if [ $CROSS = false ] ; then
+        XCC_GCC_VERSION=`$XCC -v 2>&1 | tail -1 | sed -e 's/.*version //g'`
+        case "$XCC_GCC_VERSION" in
+          2.7.[0-2] )
+            # gcc-2.7.2 has a strength-reduction bug (fixed in gcc-2.7.2.1,
+            # also fixed through the specs file of some Linux distributions).
+            XCFLAGS=$XCFLAGS'-O2 -fexpensive-optimizations -fno-strength-reduce' ;;
+          3.1 )
+            # gcc-3.1 with -O mis-compiles eval.d, and with -O2 control.d,
+            # record.d and some other ==> no optimizations
+            ;;
+          2.3.[3-9]* | 2.[4-9]* | 3.* | egcs-2.*)
+            # XCFLAGS=$XCFLAGS'-O2 -fno-omit-frame-pointer' ;;
+            # Let's try it nevertheless!
+            XCFLAGS=$XCFLAGS'-O2 -fexpensive-optimizations' ;;
+          * )
+            XCFLAGS=$XCFLAGS'-O' ;;
+        esac
+      else
+        XCFLAGS=$XCFLAGS'-O'
+      fi
+    elif [ "$cpu" = hppa ] ; then
+      # gcc-2.7.2 produces incorrect code when compiling spvw (loadmem routine).
+      XCFLAGS=$XCFLAGS'-O2 -fno-strength-reduce'
+    elif [ "$cpu" = sparc ] ; then
+      if [ $CROSS = false ] ; then
+        XCC_GCC_VERSION=`$XCC -v 2>&1 | tail -1 | sed -e 's/.*version //g'`
+        case "$XCC_GCC_VERSION" in
+          egcs-2.*)
+            # egcs-1.0.3 and egcs-1.1.1 produce incorrect code when compiling
+            # lisparit (function UDS_divide_).
+            XCFLAGS=$XCFLAGS'-O2 -fno-schedule-insns' ;;
+          2.9* | 3.*)
+            # gcc-2.95 produces incorrect code when compiling predtype (function
+            # C_coerce).
+            XCFLAGS=$XCFLAGS'-O2 -fno-schedule-insns -fno-gcse' ;;
+          * )
+            XCFLAGS=$XCFLAGS'-O2' ;;
+        esac
+      else
+        XCFLAGS=$XCFLAGS'-O2'
+      fi
     else
       XCFLAGS=$XCFLAGS'-O2'
     fi
-  else
-    XCFLAGS=$XCFLAGS'-O2'
-  fi
- fi # DEBUGGING
+  fi # DEBUGGING
   if [ $TSYS = win32gcc ] ; then
     XCFLAGS=$XCFLAGS' -D_WIN32';
   fi
