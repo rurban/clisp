@@ -1,5 +1,16 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_genera1.d, spvw_genera2.d, spvw_genera3.d: New files.
+        * spvw.d (xfree, xrealloc, prepare_old_generation, in_old_generation,
+           walk_physpage, walk_area, walk_physpage_, walk_area_,
+           update_old_generation, build_old_generation_cache,
+           rebuild_old_generation_cache, gc_cache_check, gc_overall_check,
+           save_gc_data): Move out.
+          (gc_markphase): Call gc_mark_old_generation().
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_fault.d: New file.
         * spvw.d (physpagesize, physpageshift, handle_fault_result,
            handle_mmap_fault, handle_read_fault, handle_readwrite_fault,
