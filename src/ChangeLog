@@ -1,5 +1,16 @@
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * socket.d (atoi): Remove declaration.
+          (SERVENT_TO_STACK): Add `tmp' local variable.
+          (SOCKET-SERVICE-PORT): Don't accept symbols, only strings and
+          integers, as service-name. Don't call fehler_string_integer for
+          non-fixnums. Use with_string_0 instead of TheAsciz(string_to_asciz(.
+          Fix placement of begin_system_call()/end_system_call().
+        * subr.d: Keep in sync.
+        * constsym.d: Likewise.
+
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (FILE-STAT): Move to pathname.d.
         * pathname.d (fehler_pathname_designator): Renamed from
           fehler_pathname_descriptor.
