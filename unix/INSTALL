@@ -134,15 +134,20 @@ some platforms can be found in file unix/PLATFORMS.
    and go back to step 1.
 
 8. (Optionally)
-   Two more tests for CLISP. Let the compiler (now compiled!) recompile itself:
+   Three more tests for CLISP. Let the compiler (now compiled!) recompile
+   itself:
 
-         make test
+         make check-recompile
 
-   Check whether CLISP passes the test suite:
+   Check whether CLISP passes the XCL/CLISP test suite:
 
-         make testsuite
+         make check-tests
 
-   Or run both tests with one shot:
+   Check whether CLISP passes the Dietz/GCL test suite:
+
+         make check-ansi-tests
+
+   Or run all three tests with one shot:
 
          make check
 

@@ -495,8 +495,9 @@ case "$SRCTOPDIR" in
   *)  PARENT_SRCTOPDIR="../${SRCTOPDIR}" ;;
 esac
 
-TESTDIR=stage
-TESTSDIR=suite
+RECOMPILEDIR=stage
+TESTSDIR=tests
+ANSITESTSDIR=ansi-tests
 BENCHDIR=benchmarks
 
 # Main host OS dependencies:
@@ -1907,9 +1908,9 @@ echol
 echolist "TXTFILES =" "$DOC" ".txt"
 echol
 
-echolist "TESTLISPFILES =" "$LPARTS" ".lisp" "${TESTDIR}${NEXT_M}"
+echolist "TESTLISPFILES =" "$LPARTS" ".lisp" "${RECOMPILEDIR}${NEXT_M}"
 echol
-echolist "TESTFASFILES =" "$LPARTS" ".fas" "${TESTDIR}${NEXT_M}"
+echolist "TESTFASFILES =" "$LPARTS" ".fas" "${RECOMPILEDIR}${NEXT_M}"
 echol
 
 echol
@@ -2666,7 +2667,7 @@ CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem ${localeflags}${encflags} -n
 if [ $CROSS = false ] ; then
 
   echol "# Perform self-tests."
-  echol "check : test testsuite"
+  echol "check : check-recompile check-tests check-ansi-tests"
   echodummyrule check
   echol
 
@@ -2680,7 +2681,7 @@ if [ $CROSS = false ] ; then
 
   echol "# Test: recompile \$(LISPFILES) and compare their contents."
 
-  echol "test : lispinit.mem ${TESTDIR} \$(TESTLISPFILES) \$(TESTFASFILES)"
+  echol "check-recompile : lispinit.mem ${RECOMPILEDIR} \$(TESTLISPFILES) \$(TESTFASFILES)"
   if [ $HOS = unix -o $HSYS = win32gcc ] ; then
     # replace GENSYMs with a string
     SEDRE='s/\(#Y([-a-zA-Z:]\{1,\}\)[0-9]\{2,\}\(-*[0-9]*\)/\1<GENSYM>\2/g'
@@ -2689,18 +2690,18 @@ if [ $CROSS = false ] ; then
       # add the lisp files with GENSYMS in FLET here
       if [ ${f} = "threads" ]; then
         echotab "sed '${SEDRE}' ${f}.fas > ${f}.fas1"
-        echotab "sed '${SEDRE}' ${TESTDIR}/${f}.fas > ${TESTDIR}/${f}.fas1"
-        echotab "cmp -s ${f}.fas1 ${TESTDIR}/${f}.fas1 ${FAIL}"
-        echotab "${RM} ${f}.fas1 ${TESTDIR}/${f}.fas1"
+        echotab "sed '${SEDRE}' ${RECOMPILEDIR}/${f}.fas > ${RECOMPILEDIR}/${f}.fas1"
+        echotab "cmp -s ${f}.fas1 ${RECOMPILEDIR}/${f}.fas1 ${FAIL}"
+        echotab "${RM} ${f}.fas1 ${RECOMPILEDIR}/${f}.fas1"
       else
-        echotab "cmp -s ${f}.fas ${TESTDIR}/${f}.fas ${FAIL}"
+        echotab "cmp -s ${f}.fas ${RECOMPILEDIR}/${f}.fas ${FAIL}"
       fi
     done
     echotab 'echo "Test passed."'
     echol
   else
     if [ $HSYS = win32msvc ] ; then
-      echotab "comp *.fas ${TESTDIR}"
+      echotab "comp *.fas ${RECOMPILEDIR}"
       echotab "echo The test passed if only GENSYM differences were found."
       echol
     else
@@ -2709,16 +2710,16 @@ if [ $CROSS = false ] ; then
     fi
   fi
 
-  echol "${TESTDIR} :"
-  echotab "-mkdir ${TESTDIR}"
+  echol "${RECOMPILEDIR} :"
+  echotab "-mkdir ${RECOMPILEDIR}"
   echol
 
   for f in $LPARTS ; do
-    echol "${TESTDIR}${NEXT_M}${f}.lisp : ${f}.lisp"
+    echol "${RECOMPILEDIR}${NEXT_M}${f}.lisp : ${f}.lisp"
     if [ $H_DOS != "true" ] ; then
-      echotab "cd ${TESTDIR} && \$(LN_S) ${PARENT_}${f}.lisp ${f}.lisp"
+      echotab "cd ${RECOMPILEDIR} && \$(LN_S) ${PARENT_}${f}.lisp ${f}.lisp"
     else
-      echotab "\$(LN_S) ${f}.lisp ${TESTDIR}"
+      echotab "\$(LN_S) ${f}.lisp ${RECOMPILEDIR}"
     fi
     echol
   done
@@ -2726,7 +2727,7 @@ if [ $CROSS = false ] ; then
   # have to reset *GENSYM-COUNTER* in the test image since the compiled
   # files can (and some actually do, like threads.lisp) contain GENSYMed
   # FLET locals, whose names are written to the FAS files
-  TESTIMAGE="${TESTDIR}${NEXT_M}testinit.mem"
+  TESTIMAGE="${RECOMPILEDIR}${NEXT_M}testinit.mem"
   echol "${TESTIMAGE}: lispinit.mem"
   # this does not help, unfortunately, since the number of GENSYM calls
   # depends on which files went into halfcompiled.mem as FAS files
@@ -2736,8 +2737,8 @@ if [ $CROSS = false ] ; then
   echol
 
   for f in $LPARTS ; do
-    echol "${TESTDIR}${NEXT_M}${f}.fas : ${TESTDIR}${NEXT_M}${f}.lisp lisp${LEXE} ${TESTIMAGE}"
-    echotab "\$(RUN) -M ${TESTIMAGE} -q -d -c ${TESTDIR}${NEXT_}${f}.lisp"
+    echol "${RECOMPILEDIR}${NEXT_M}${f}.fas : ${RECOMPILEDIR}${NEXT_M}${f}.lisp lisp${LEXE} ${TESTIMAGE}"
+    echotab "\$(RUN) -M ${TESTIMAGE} -q -d -c ${RECOMPILEDIR}${NEXT_}${f}.lisp"
     echol
   done
 
@@ -2747,17 +2748,17 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  echotab '$(RUN) -x "(and (cd \"'"${TESTDIR}${NEXT}"'\") (load \"init.fas\") (cd \"'"${PARENT}"'\") (sys::%saveinitmem) (ext::exit))"'
+  echotab '$(RUN) -x "(and (cd \"'"${RECOMPILEDIR}${NEXT}"'\") (load \"init.fas\") (cd \"'"${PARENT}"'\") (sys::%saveinitmem) (ext::exit))"'
   echotab "-\$(RM) lispinit2.mem"
   echotab "\$(MV) lispimag.mem lispinit2.mem"
   echol
 
   echol
 
-  echol "testsuite : ${TESTSDIR} lisp${LEXE} lispinit.mem"
+  echol "check-tests : ${TESTSDIR} lisp${LEXE} lispinit.mem"
   echotab "cd ${TESTSDIR} && \$(MAKE) SHELL='\$(SHELL)' LEXE=${LEXE}"
   echol
-  echol "testsuite-all : ${TESTSDIR} lisp${LEXE} lispinit.mem"
+  echol "check-tests-all : ${TESTSDIR} lisp${LEXE} lispinit.mem"
   echotab "cd ${TESTSDIR} && \$(MAKE) SHELL='\$(SHELL)' LEXE=${LEXE} clean complete compare"
   echol
   echol "${TESTSDIR} :"
@@ -2766,6 +2767,18 @@ if [ $CROSS = false ] ; then
   for f in Makefile '*.lisp' '*.tst'; do
     echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}tests${NEXT_}${f} ."
   done
+  echol
+
+  echol "check-ansi-tests : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
+  echotab "cd ${ANSITESTSDIR} && ../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale -Efile UTF-8 -Eterminal UTF-8 -norc -ansi -i clispload.lsp -x '(ext:exit (regression-test:pending-tests))' 2>&1 | tee ../ansi-tests-log"
+  echol
+  echol "${ANSITESTSDIR} :"
+  echotab "-mkdir ${ANSITESTSDIR}"
+  # on win32, LN_S=copy and it accepts exactly 2 arguments
+  for f in Makefile '*.lsp'; do
+    echotab "cd ${ANSITESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}ansi-tests${NEXT_}${f} ."
+  done
+  echotab "cd ${ANSITESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}utils${NEXT_}clispload.lsp ."
   echol
 
   # benchmarks are for developers only, and the developers work from the CVS
@@ -3389,7 +3402,7 @@ clean0 : force
 # without changing the bytecode format and the tables in
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
-	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ${TESTDIR}${NEXT_}* ${TESTSDIR}${NEXT_}*
+	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ${RECOMPILEDIR}${NEXT_}* ${TESTSDIR}${NEXT_}* ${ANSITESTSDIR}${NEXT_}* ansi-tests-log
 	-\$(RMRF) base full
 !!
 if [ ${LIB_TYPE} = "win32" ] ; then
@@ -3402,8 +3415,9 @@ cat <<!!
 !!
 fi
 cat <<!!
-	-rmdir ${TESTDIR}
+	-rmdir ${RECOMPILEDIR}
 	-rmdir ${TESTSDIR}
+	-rmdir ${ANSITESTSDIR}
 	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.html \$(IMPNOTES) clisp.c distmakefile \$(TXTFILES)
 
 # clean2 removes everything that becomes obsolete once lisp${LEXE}

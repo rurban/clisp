@@ -34,7 +34,7 @@ in the format
 hardware              OS             compiled by
 date                  test-time      email address
 
-(Test-time is the time needed for "make test". Measure user time.)
+(Test-time is the time needed for "make check-recompile". Measure user time.)
 
 
 PC 486/33, 8 MB RAM   Linux 0.98     Bruno Haible
