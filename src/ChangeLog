@@ -3,6 +3,8 @@
 	* compiler.lisp (c-write-lib): do not write constants; unwrap PROGN
 	* init.lisp (LAMBDA-LIST-TO-SIGNATURE) [!COMPILER]: dummy definition
 	(defun): call LAMBDA-LIST-TO-SIGNATURE at macroexpand time
+	(%expand-macro): new function
+	(%expand-form): use it
 
 2003-08-11  Sam Steingold  <sds@gnu.org>
 
