@@ -836,7 +836,7 @@ local void cerror_package_locked (object func, object pack, object obj) {
   pushSTACK(S(package_error)); # error type
   pushSTACK(S(Kpackage)); # :PACKAGE
   pushSTACK(pack); # PACKAGE-ERROR slot PACKAGE
-  pushSTACK(OGETTEXT("~S(~S): ~S is locked")); # error-format-string
+  pushSTACK(OGETTEXT("~A(~S): ~S is locked")); # error-format-string
   # pushSTACK(OLS(cerror_package_locked_string2));
   pushSTACK(func);
   pushSTACK(obj);
