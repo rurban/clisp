@@ -2030,14 +2030,14 @@
                          (trivial-call)))
                     (FORMAT-PPRINT-NEWLINE         ; #\_
                      (simple-arglist 0)
-                     (push '(pprint-newline (if colon-p
-                                                (if atsign-p :mandatory :fill)
-                                                (if atsign-p :miser :linear))
+                     (push `(pprint-newline ,(if colon-p
+                                               (if atsign-p :mandatory :fill)
+                                               (if atsign-p :miser :linear))
                                             stream)
                            forms))
                     (FORMAT-PPRINT-INDENT          ; #\I
                      (simple-arglist 1)
-                     (push `(pprint-indent (if colon-p :current :block)
+                     (push `(pprint-indent ,(if colon-p :current :block)
                                            (or ,(formatter-next-arg) 1)
                                            stream)
                            forms))
