@@ -1,4 +1,11 @@
+2005-01-01  Bruno Haible  <bruno@clisp.org>
+
+	* condition.lisp (maybe-continue): For a restart that requires user
+	interaction, don't duplicate the break-loop's functionality; let the
+	break-loop do it.
+
 2005-01-17  John Hinsdale  <hin@alma.com>
+
 	* modules/oracle/orafns.c, oracle.lisp: Support RowId data type
 
 2005-01-17  Sam Steingold  <sds@gnu.org>
