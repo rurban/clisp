@@ -7040,7 +7040,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             }
             funcall(L(parse_namestring),1);
             pushSTACK(value1);
-            pathname = copy_pathname(STACK_(0+2));
+            var object pathname = copy_pathname(STACK_(0+2));
             ThePathname(pathname)->pathname_name = NIL;
             ThePathname(pathname)->pathname_type = NIL;
             pushSTACK(pathname);
