@@ -9,8 +9,6 @@ Defstruct accessors are defined twice, which leads to warnings. (Bruno)
 
 Contagion warnings emitted by many floating-point operations. (Bruno)
 
-Review this TODO list and remove obsolete items. (Bruno)
-
 Fix modules/exporting.lisp :
 (eval-when (load compile eval)
   (defconstant FOO 10))
@@ -96,6 +94,11 @@ parse_namestring: split_name_type(1), und bei make_pathname
 Klein->Großschreibung umwandeln, so dass (make-pathname :type "fas") immer geht.
 
 
+If you (TRACE generic-function) and then reload the file defining that
+function, you get an error saying that #<CLOSURE TRACED-xxx> is not a generic
+function.
+
+
 clean up and modularize spvw.d
 
 
@@ -116,57 +119,13 @@ doesn't cons. (vectors only, not lists)
 CLOSE :ABORT T maybe do something on file streams.
 
 
-Emacs interface: How to customize (or fix?) ILISP?
-
-
 Having two different handlings of Ctrl-C (once as a serious-condition, once
 directly through tast_break(), bypassing ERROR and SIGNAL) is horrible.
 Introduce a class of SERIOUS-CONDITION and then remove BATCHMODE-BREAK-DRIVER.
 
 
-On HP-UX (9|10), with (oldoldreadline|oldreadline), there has been the problem
-that Ctrl-C at the line prompt works once, but not a second time. This
-appears fixed on HP-UX 9 with readline.
-
-
-upgrade to newest CLN, but still big-endian and without gmp
-
-intgcd
-
-* Speed up the functions `cl_I gcd (const cl_I&, const cl_I&)' and
-  `cl_I xgcd (const cl_I&, const cl_I&, cl_I*, cl_I*)' by a factor
-  of 1.5. Simple trick.
-Why is there no cl_gcd_double_threshold in xgcd, only in gcd??
-
-lfloat
-
-* Speed up multiplication and division of large long-floats by small integers.
-
-realtran
-
-* Speed up the internal computation of ln(2) and ln(10) by about 20%.
-
-* Speed up the computation of exp (for 1000 digits or more) by about 10%.
-
-* Speed up the computation of the elementary transcendental functions:
-  exp, sinh, cosh, asinh, atanh (for 100 digits) by about 30%,
-  log (for 100 digits) by about 25%,
-  sin, cos (for 1000 or 10000 digits) by about 20%,
-  asin, acos, atan (for 1000 digits) by about 25%.
-
-* Speed up the computation of pi, e, exp, log, sin, cos, tan, sinh, cosh, tanh,
-  asin, acos, atan, asinh, acosh, atanh.
-  All of them are now computed with asymptotically fast algorithms, of
-  bit complexity O(log(N)^2*M(N)) = O(N^(1+epsilon)) for N digits.
-
-
 Distribute impnotes.html in the form of CLAHS, as an annotation against
 Harlequin's HyperSpec. See http://clisp.cons.org/~haible/clahs/.
-
-
-If you (TRACE generic-function) and then reload the file defining that
-function, you get an error saying that #<CLOSURE TRACED-xxx> is not a generic
-function.
 
 
 FFI: Introduce a macro like CMU's FFI:ADDR
@@ -228,58 +187,26 @@ More CLtL2 compliance:
 ;
 ; Number Title                               Status          Files affected
 ;
-;   <8>  array type/element type semantics   yes for arrays  type.lisp
-;                                            no for complex numbers
 ;  <24>  compiler diagnostics                no              compiler.lisp
-;  <55>  DEFSTRUCT :PRINT-FUNCTION inheritance
-;                                            no              defstruct.lisp
-;  <76>  FIXNUM non-portable                 no              array.d
 ;  <85>  FORMAT & pretty print               yes             format.lisp
 ;                                            no: ~E, ~F, ~G, ~$ also bind *PRINT-BASE* to 10 and *PRINT-RADIX* to NIL
-;  <98>  hash-table & package generators     no              hashtabl.d, package.d, defs2.lisp
-; <102>  IMPORT & SETF SYMBOL-PACKAGE        no              package.d
-; <105>  keyword argument name package       no
-; <110>  LOAD & objects                      no
-; <118>  MACRO-FUNCTION environment          no              control.d, compiler.lisp
-; <122>  more character proposal             no              charstrg.d, stream.d
-; <125>  package clutter                     no              init.lisp
+; <110>  LOAD & objects                      no              loadform.lisp
 ; <127>  package function consistency        no              package.d
 ; <129>  pathname: component value           no              pathname.d
-; <131>  pathname: print & read              no              io.d
 ; <133>  pathname: subdirectory list         no              pathname.d
 ; <134>  pathname: symbol                    no              pathname.d, stream.d
 ; <136>  pathname: unspecific component      no              pathname.d
 ; <139>  pretty-print interface              no              xp.lisp
-; <141>  *PRINT-CASE* / *PRINT-ESCAPE* interaction
-;                                            no              io.d
-; <148>  range of :COUNT keyword             no              sequence.d
-; <152>  REDUCE argument extraction          no              sequence.d
 ; <153>  REMF & destruction: unspecified     no for NRECONC  list.d
 ;                                            yes for anything else
-; <158>  sequence type & length              no              sequence.d, predtype.d
-; <162>  sharp-comma confusion               no              io.d
-; <163>  sharpsign-plus/minus package        no              io.d, spvw.d, init.lisp, compiler.lisp
-; <174>  syntactic environment access        no
-; <176>  :TEST-NOT, -IF-NOT                  no              sequence.d, list.d
-
-The general rule:
-If it hurts CLtL1 programs, don't do it. Or put a CLtL1 symbol into
-the LISP package and a CLtL2 symbol into the COMMON-LISP package. (There's
-precedent for it: FLET, LABELS, IN-PACKAGE.)
-If it doesn't hurt CLtL1 programs:
-  If it makes sense and people want it, do it.
-  If it is a bad idea, explain to people.
-  If it is a good idea and people want it, maybe do it.
-  If noone bothers, why?
 
 
 The completion in user2.lisp does bad things with respect to upper case and
 lower case of symbols. Assume the symbols |TMP|, |TMP structure class|
 are interned. Then type a tab in the following situations:
-> (symbol-plist '\tmp
+> (symbol-plist '\Tmp
 > 'tm
 > '|
-> '"tm
 
 
 Optimize the compiler or the LOOP expander so that
@@ -292,6 +219,41 @@ NOT TO DO
 =========
 
 These have been in my mind, but are probably bad ideas.
+
+
+upgrade to newest CLN, but still big-endian and without gmp
+
+intgcd
+
+* Speed up the functions `cl_I gcd (const cl_I&, const cl_I&)' and
+  `cl_I xgcd (const cl_I&, const cl_I&, cl_I*, cl_I*)' by a factor
+  of 1.5. Simple trick.
+Why is there no cl_gcd_double_threshold in xgcd, only in gcd??
+
+lfloat
+
+* Speed up multiplication and division of large long-floats by small integers.
+
+realtran
+
+* Speed up the internal computation of ln(2) and ln(10) by about 20%.
+
+* Speed up the computation of exp (for 1000 digits or more) by about 10%.
+
+* Speed up the computation of the elementary transcendental functions:
+  exp, sinh, cosh, asinh, atanh (for 100 digits) by about 30%,
+  log (for 100 digits) by about 25%,
+  sin, cos (for 1000 or 10000 digits) by about 20%,
+  asin, acos, atan (for 1000 digits) by about 25%.
+
+* Speed up the computation of pi, e, exp, log, sin, cos, tan, sinh, cosh, tanh,
+  asin, acos, atan, asinh, acosh, atanh.
+  All of them are now computed with asymptotically fast algorithms, of
+  bit complexity O(log(N)^2*M(N)) = O(N^(1+epsilon)) for N digits.
+
+It's not worth the effort: Most people really interested in fast numerics are
+already using CLN, NTL, or a similar library. CLISP is already the champion
+among the Common Lisp implementations regarding bignum performance.
 
 
 Declaration  extern maygc ...
@@ -307,20 +269,23 @@ Programs that deal too much with signals tend to be unfriendly. I hate
 programs which stay alive when I try to kill them.
 
 
-Punimax has been reported to dump core on Linux by 2 people.
+CLtL2 issue
+; <162>  sharp-comma confusion               no              io.d
 
-I haven't been able to reproduce it.
-
-
-New memory management model for Sun3: a mixture between SPVW_MIXED_BLOCKS
-and SPVW_PURE_BLOCKS, a mixture between SINGLEMAP_MEMORY and MULTIMAP_MEMORY.
-
-What's the point? Who is using Sun3's any more?
+Backward compatibility to CLtL2. Doesn't cost much.
 
 
-The ONCE-ONLY macro from Norvig's book code does not work in clisp.
-The backquote macro is the problem.
+CLtL2 issue
+; <174>  syntactic environment access        no
 
-I think Norvig's code is broken because it will only work in Steele's
-backquote implementation (CLtL2 appendix).
+It never made it into ANSI CL.
+
+
+CLtL2 issue
+; <176>  :TEST-NOT, -IF-NOT                  no              sequence.d, list.d
+
+It's a bad idea because REMOVE-IF-NOT is a kind of "positive filter", which
+is more confusing when expressed as REMOVE of COMPLEMENT. Also, COMPLEMENT
+is harder to understand than XXX-IF-NOT because COMPLEMENT is a function
+returning a function.
 
