@@ -1,5 +1,10 @@
 2002-09-25  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp: removed the cross-compilation infrastructure,
+	which was not used for over 10 years!
+
+2002-09-25  Sam Steingold  <sds@gnu.org>
+
 	* check-lispfun.lisp (check-lisp-defs): do not need explicit
 	APPEASE-CERRORS
 
