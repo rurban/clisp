@@ -99,7 +99,7 @@ The point should be on the prototype and the definition should follow."
 
 (defvar d-font-lock-extra-types
   '(nconc (list "bool" "object" "chart" "[otac]int" "signean" "\\sw+_T"
-           "s[aco]int" "[csu]?int[BCDLPQWX0-9]*" "hfint" "fcint"
+           "s[aco]int" "[csu]?int[BCDLPQWX0-9]*" "hfint" "fcint" "SPint"
             "[SU]LONG" "[SU]BYTE" "[DSU]WORD" "[SU]LONGLONG"
            "Values" "SOCKET" "Handle" "stringarg" "FILETIME")
     c-font-lock-extra-types)
@@ -118,7 +118,8 @@ The point should be on the prototype and the definition should follow."
 (defvar d-extra-keywords
   (eval-when-compile
    (regexp-opt '("var" "local" "global" "true" "false" "NIL" "T" "loop"
-                 "inline" "NULL" "popSTACK" "pushSTACK" "skipSTACK"
+                 "inline" "NULL" "nullobj"
+                 "popSTACK" "pushSTACK" "skipSTACK" "skipSTACKop" "STACKop"
                  "dotimespC" "dotimesC" "dotimespL" "dotimesL" "dotimespW"
                  "dotimesW" "nonreturning_function" "return_Values"
                  "SstringDispatch" "SstringCase")
