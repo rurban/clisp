@@ -258,7 +258,7 @@ Type
 
          make
 
-#if 0 /* def GNU_READLINE - man muß Makefile verändern */
+#if 0 /* def GNU_READLINE - must change the Makefile */
 If you prefer to resign GNU readline's input editing capabilities, you should
 have previously replaced the "libreadline.a" in the LIBS line of the file
 base/makevars by "libnoreadline.a".
