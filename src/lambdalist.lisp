@@ -138,7 +138,7 @@
               (if (memq item lambda-list-keywords)
                 (check-item item '(&allow-other-keys &aux))
                 (progn
-                  (push (intern (symbol-name item) *keyword-package*) keyword)
+                  (push (symbol-keyword item) keyword)
                   (push item keyvar) (push nil keyinit) (push 0 keysvar)))
               (if (and (consp item)
                        (or (symbolp (car item))
@@ -159,8 +159,7 @@
                       (push (caar item) keyword)
                       (push (cadar item) keyvar))
                     (progn
-                      (push (intern (symbol-name (car item)) *keyword-package*)
-                            keyword)
+                      (push (symbol-keyword (car item)) keyword)
                       (push (car item) keyvar)))
                   (if (consp (cdr item))
                     (progn
@@ -295,7 +294,7 @@
               (if (memq item lambda-list-keywords)
                 (check-item item '(&allow-other-keys))
                 (progn
-                  (push (intern (symbol-name item) *keyword-package*) keyword)
+                  (push (symbol-keyword item) keyword)
                   (push item keyvar)))
               (if (and (consp item)
                        (or (symbolp (car item))
@@ -310,8 +309,7 @@
                       (push (caar item) keyword)
                       (push (cadar item) keyvar))
                     (progn
-                      (push (intern (symbol-name (car item)) *keyword-package*)
-                            keyword)
+                      (push (symbol-keyword (car item)) keyword)
                       (push (car item) keyvar)))
                   (funcall errfunc item
                            (TEXT "Invalid lambda list element ~S. Keyword parameters cannot have default value forms in generic function lambda lists.")
@@ -438,7 +436,7 @@
               (if (memq item lambda-list-keywords)
                 (check-item item '(&allow-other-keys &environment))
                 (progn
-                  (push (intern (symbol-name item) *keyword-package*) keyword)
+                  (push (symbol-keyword item) keyword)
                   (push item keyvar) (push nil keyinit) (push 0 keysvar)))
               (if (and (consp item)
                        (or (symbolp (car item))
@@ -459,8 +457,7 @@
                       (push (caar item) keyword)
                       (push (cadar item) keyvar))
                     (progn
-                      (push (intern (symbol-name (car item)) *keyword-package*)
-                            keyword)
+                      (push (symbol-keyword (car item)) keyword)
                       (push (car item) keyvar)))
                   (if (consp (cdr item))
                     (progn
