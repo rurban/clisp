@@ -1,5 +1,12 @@
 2004-04-22  Bruno Haible  <bruno@clisp.org>
 
+	Restore debuggability during loading of init.lisp.
+	* debug.d (SYS::INITIAL-BREAK-DRIVER): New function.
+	* init.lisp (cerror): Invoke INITIAL-BREAK-DRIVER instead of
+	*BREAK-DRIVER*.
+
+2004-04-22  Bruno Haible  <bruno@clisp.org>
+
 	* macros2.lisp (assert): Fix macro broken on 2003-05-01.
 
 2004-04-13  Bruno Haible  <bruno@clisp.org>

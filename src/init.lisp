@@ -1835,12 +1835,12 @@
       (terpri *error-output*)
       (apply #'format *error-output* error-format-string args)
       (terpri *debug-io*)
-      (if (and (interactive-stream-p *debug-io*) *break-driver*)
+      (if (interactive-stream-p *debug-io*)
         (progn
           (write-string (TEXT "If you continue (by typing 'continue'): ")
                         *debug-io*)
           (apply #'format *debug-io* continue-format-string args)
-          (funcall *break-driver* t))
+          (initial-break-driver t))
         (apply #'format *debug-io* continue-format-string args)))))
 
 ;; this should come before `compiler'

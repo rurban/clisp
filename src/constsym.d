@@ -243,6 +243,7 @@ LISPSYM(xor,"XOR",ext)
 /* ---------- DEBUG ---------- */
 LISPSYM(read_form,"READ-FORM",system)
 LISPSYM(read_eval_print,"READ-EVAL-PRINT",system)
+LISPSYM(initial_break_driver,"INITIAL-BREAK-DRIVER",system)
 LISPSYM(load,"LOAD",lisp)
 LISPSYM(frame_up_1,"FRAME-UP-1",system)
 LISPSYM(frame_up,"FRAME-UP",system)
