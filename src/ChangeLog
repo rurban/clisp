@@ -1,3 +1,7 @@
+2002-06-12  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (schar): match the cast in return the the return type
+
 2002-06-12  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	Fixed win32 build
