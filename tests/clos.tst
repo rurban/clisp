@@ -3465,3 +3465,199 @@ ERROR
  ("xyz" "def" RESULT A NIL :TEST EQ EQ NEQUAL NIL T (A :TEST EQ D :TEST-NOT NEQUAL))
  ("xyz" "def" RESULT A NIL :TEST EQ EQ NEQUAL T T (A :TEST EQ D :TEST EQ :TEST-NOT NEQUAL))
  ("xyz" "def" RESULT A NIL :TEST EQ EQL NEQUAL T T (A :TEST EQ D :TEST-NOT NEQUAL :TEST EQL :TEST-NOT NEQUALP)))
+
+
+;; Method combination with user-defined methods
+
+(progn
+  (defclass user-method (standard-method) (myslot))
+  t)
+T
+
+(defmacro def-user-method (name &rest rest)
+  (let* ((lambdalist-position (position-if #'listp rest))
+         (qualifiers (subseq rest 0 lambdalist-position))
+         (lambdalist (elt rest lambdalist-position))
+         (body (subseq rest (+ lambdalist-position 1)))
+         (required-part (subseq lambdalist 0 (or (position-if #'(lambda (x) (member x lambda-list-keywords)) lambdalist) (length lambdalist))))
+         (specializers (mapcar #'find-class (mapcar #'(lambda (x) (if (consp x) (second x) 't)) required-part)))
+         (unspecialized-required-part (mapcar #'(lambda (x) (if (consp x) (first x) x)) required-part))
+         (unspecialized-lambdalist (append unspecialized-required-part (subseq lambdalist (length required-part)))))
+    `(PROGN
+       (ADD-METHOD #',name
+         (MAKE-INSTANCE 'user-method
+           :QUALIFIERS ',qualifiers
+           :LAMBDA-LIST ',unspecialized-lambdalist
+           :SPECIALIZERS ',specializers
+           :FUNCTION
+             #'(LAMBDA (ARGUMENTS NEXT-METHODS-LIST)
+                 (FLET ((NEXT-METHOD-P () NEXT-METHODS-LIST)
+                        (CALL-NEXT-METHOD (&REST NEW-ARGUMENTS)
+                          (UNLESS NEW-ARGUMENTS (SETQ NEW-ARGUMENTS ARGUMENTS))
+                          (IF (NULL NEXT-METHODS-LIST)
+                            (ERROR "no next method for arguments ~:S" ARGUMENTS)
+                            (FUNCALL (#+SBCL SB-PCL:METHOD-FUNCTION #-SBCL METHOD-FUNCTION
+                                       (FIRST NEXT-METHODS-LIST))
+                                     NEW-ARGUMENTS (REST NEXT-METHODS-LIST)))))
+                   (APPLY #'(LAMBDA ,unspecialized-lambdalist ,@body) ARGUMENTS)))))
+       ',name)))
+DEF-USER-MACRO
+
+; Single method.
+(progn
+  (defgeneric test-um01 (x y))
+  (def-user-method test-um01 ((x symbol) (y symbol)) (list x y (next-method-p)))
+  (test-um01 'a 'b))
+(A B NIL)
+
+; First among three primary methods.
+(progn
+  (defgeneric test-um02 (x))
+  (def-user-method test-um02 ((x integer))
+    (list* 'integer x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um02 ((x rational))
+    (list* 'rational x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um02 ((x real))
+    (list 'real x (not (null (next-method-p)))))
+  (test-um02 17))
+(INTEGER 17 T RATIONAL 17 T REAL 17 NIL)
+
+; Second among three primary methods.
+(progn
+  (defgeneric test-um03 (x))
+  (defmethod test-um03 ((x integer))
+    (list* 'integer x (not (null (next-method-p))) (call-next-method)))
+  (def-user-method test-um03 ((x rational))
+    (list* 'rational x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um03 ((x real))
+    (list 'real x (not (null (next-method-p)))))
+  (test-um03 17))
+(INTEGER 17 T RATIONAL 17 T REAL 17 NIL)
+
+; Last among three primary methods.
+(progn
+  (defgeneric test-um04 (x))
+  (defmethod test-um04 ((x integer))
+    (list* 'integer x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um04 ((x rational))
+    (list* 'rational x (not (null (next-method-p))) (call-next-method)))
+  (def-user-method test-um04 ((x real))
+    (list 'real x (not (null (next-method-p)))))
+  (test-um04 17))
+(INTEGER 17 T RATIONAL 17 T REAL 17 NIL)
+
+; First among two before methods.
+(let ((results nil))
+  (defgeneric test-um05 (x))
+  (defmethod test-um05 (x) (push 'PRIMARY results) (push x results))
+  (def-user-method test-um05 :before ((x integer)) (push 'BEFORE-INTEGER results) (push x results))
+  (defmethod test-um05 :before ((x real)) (push 'BEFORE-REAL results) (push x results))
+  (test-um05 17)
+  (nreverse results))
+(BEFORE-INTEGER 17 BEFORE-REAL 17 PRIMARY 17)
+
+; Last among two before methods.
+(let ((results nil))
+  (defgeneric test-um06 (x))
+  (defmethod test-um06 (x) (push 'PRIMARY results) (push x results))
+  (defmethod test-um06 :before ((x integer)) (push 'BEFORE-INTEGER results) (push x results))
+  (def-user-method test-um06 :before ((x real)) (push 'BEFORE-REAL results) (push x results))
+  (test-um06 17)
+  (nreverse results))
+(BEFORE-INTEGER 17 BEFORE-REAL 17 PRIMARY 17)
+
+; First among two after methods.
+(let ((results nil))
+  (defgeneric test-um07 (x))
+  (defmethod test-um07 (x) (push 'PRIMARY results) (push x results))
+  (defmethod test-um07 :after ((x integer)) (push 'AFTER-INTEGER results) (push x results))
+  (def-user-method test-um07 :after ((x real)) (push 'AFTER-REAL results) (push x results))
+  (test-um07 17)
+  (nreverse results))
+(PRIMARY 17 AFTER-REAL 17 AFTER-INTEGER 17)
+
+; Last among two after methods.
+(let ((results nil))
+  (defgeneric test-um08 (x))
+  (defmethod test-um08 (x) (push 'PRIMARY results) (push x results))
+  (def-user-method test-um08 :after ((x integer)) (push 'AFTER-INTEGER results) (push x results))
+  (defmethod test-um08 :after ((x real)) (push 'AFTER-REAL results) (push x results))
+  (test-um08 17)
+  (nreverse results))
+(PRIMARY 17 AFTER-REAL 17 AFTER-INTEGER 17)
+
+; First among three around methods.
+(progn
+  (defgeneric test-um10 (x))
+  (defmethod test-um10 ((x integer))
+    (list* 'integer x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um10 ((x rational))
+    (list* 'rational x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um10 ((x real))
+    (list 'real x (not (null (next-method-p)))))
+  (defmethod test-um10 :after ((x real)))
+  (def-user-method test-um10 :around ((x integer))
+    (list* 'around-integer x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um10 :around ((x rational))
+    (list* 'around-rational x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um10 :around ((x real))
+    (list* 'around-real x (not (null (next-method-p))) (call-next-method)))
+  (test-um10 17))
+(AROUND-INTEGER 17 T AROUND-RATIONAL 17 T AROUND-REAL 17 T INTEGER 17 T RATIONAL 17 T REAL 17 NIL)
+
+; Second among three around methods.
+(progn
+  (defgeneric test-um11 (x))
+  (defmethod test-um11 ((x integer))
+    (list* 'integer x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um11 ((x rational))
+    (list* 'rational x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um11 ((x real))
+    (list 'real x (not (null (next-method-p)))))
+  (defmethod test-um11 :after ((x real)))
+  (defmethod test-um11 :around ((x integer))
+    (list* 'around-integer x (not (null (next-method-p))) (call-next-method)))
+  (def-user-method test-um11 :around ((x rational))
+    (list* 'around-rational x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um11 :around ((x real))
+    (list* 'around-real x (not (null (next-method-p))) (call-next-method)))
+  (test-um11 17))
+(AROUND-INTEGER 17 T AROUND-RATIONAL 17 T AROUND-REAL 17 T INTEGER 17 T RATIONAL 17 T REAL 17 NIL)
+
+; Third among three around methods.
+(progn
+  (defgeneric test-um12 (x))
+  (defmethod test-um12 ((x integer))
+    (list* 'integer x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um12 ((x rational))
+    (list* 'rational x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um12 ((x real))
+    (list 'real x (not (null (next-method-p)))))
+  (defmethod test-um12 :after ((x real)))
+  (defmethod test-um12 :around ((x integer))
+    (list* 'around-integer x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um12 :around ((x rational))
+    (list* 'around-rational x (not (null (next-method-p))) (call-next-method)))
+  (def-user-method test-um12 :around ((x real))
+    (list* 'around-real x (not (null (next-method-p))) (call-next-method)))
+  (test-um12 17))
+(AROUND-INTEGER 17 T AROUND-RATIONAL 17 T AROUND-REAL 17 T INTEGER 17 T RATIONAL 17 T REAL 17 NIL)
+
+; Second among three around methods, and also a user-defined primary method.
+(progn
+  (defgeneric test-um13 (x))
+  (defmethod test-um13 ((x integer))
+    (list* 'integer x (not (null (next-method-p))) (call-next-method)))
+  (def-user-method test-um13 ((x rational))
+    (list* 'rational x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um13 ((x real))
+    (list 'real x (not (null (next-method-p)))))
+  (defmethod test-um13 :after ((x real)))
+  (defmethod test-um13 :around ((x integer))
+    (list* 'around-integer x (not (null (next-method-p))) (call-next-method)))
+  (def-user-method test-um13 :around ((x rational))
+    (list* 'around-rational x (not (null (next-method-p))) (call-next-method)))
+  (defmethod test-um13 :around ((x real))
+    (list* 'around-real x (not (null (next-method-p))) (call-next-method)))
+  (test-um13 17))
+(AROUND-INTEGER 17 T AROUND-RATIONAL 17 T AROUND-REAL 17 T INTEGER 17 T RATIONAL 17 T REAL 17 NIL)
