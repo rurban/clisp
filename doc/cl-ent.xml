@@ -66,7 +66,6 @@
 <!ENTITY amop "<citation><link linkend='amop'>Metaobject Protocol</link></citation>">
 <!ENTITY amop-bib
   "<biblioentry id='amop'>
-   <abbrev>Metaobject Protocol</abbrev>
    <abbrev>AMOP</abbrev>
    <authorgroup>
     <author><firstname>Gregor</firstname><surname>Kiczales</surname></author>
