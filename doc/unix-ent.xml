@@ -109,6 +109,7 @@
 <!ENTITY iconv-u "<ulink url='&unix-u;/iconv.html'><command>iconv</command></ulink>">
 <!ENTITY ls "<ulink url='&unix-u;/ls.html'><command>ls</command></ulink>">
 <!ENTITY make "<ulink url='&unix-u;/make.html'><command>make</command></ulink>">
+<!ENTITY man "<ulink url='&unix-u;/man.html'><command>man</command></ulink>">
 <!ENTITY sh "<ulink url='&unix-u;/sh.html'><command>/bin/sh</command></ulink>">
 <!ENTITY uname-u "<ulink url='&unix-u;/uname.html'><command>uname</command></ulink>">
 
