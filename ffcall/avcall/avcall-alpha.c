@@ -2,8 +2,7 @@
 #define _avcall_alpha_c
 /**
   Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
-
-  Copyright 1995 Bruno Haible, <haible@clisp.cons.org>
+  Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
 
   This is free software distributed under the GNU General Public
   Licence described in the file COPYING. Contact the author if
@@ -89,60 +88,94 @@ __builtin_avcall(av_alist* l)
 			/* clobber */ "$16", "$17", "$18", "$19", "$20", "$21",
 				     "$f16","$f17","$f18","$f19","$f20","$f21");
 
-  switch (l->rtype)			/* save return value */
-  {
-  case __AVvoid:					break;
-  case __AVword:	RETURN(__avword,	i);	break;
-  case __AVchar:	RETURN(char,		i);	break;
-  case __AVschar:	RETURN(signed char,	i);	break;
-  case __AVuchar:	RETURN(unsigned char,	i);	break;
-  case __AVshort:	RETURN(short,		i);	break;
-  case __AVushort:	RETURN(unsigned short,	i);	break;
-  case __AVint:		RETURN(int,		i);	break;
-  case __AVuint:	RETURN(unsigned int,	i);	break;
-  case __AVlong:	RETURN(long,		i);	break;
-  case __AVulong:	RETURN(unsigned long,	i);	break;
-  case __AVlonglong:	RETURN(long long,	   i);	break;
-  case __AVulonglong:	RETURN(unsigned long long, i);	break;
-  case __AVfloat:	RETURN(float,		fret);	break;
-  case __AVdouble:	RETURN(double,		fret);	break;
-  case __AVvoidp:	RETURN(void*,		i);	break;
-  case __AVstruct:
-    if (l->flags & __AV_PCC_STRUCT_RETURN)
-    { /* pcc struct return convention: need a  *(TYPE*)l->raddr = *(TYPE*)i;  */
-      switch (l->rsize)
-      {
-      case sizeof(char):  RETURN(char,	*(char*)i);	break;
-      case sizeof(short): RETURN(short,	*(short*)i);	break;
-      case sizeof(int):	  RETURN(int,	*(int*)i);	break;
-      case sizeof(long):  RETURN(long,	*(long*)i);	break;
-      default:
-	{
-	  int n = (l->rsize + sizeof(__avword)-1)/sizeof(__avword);
-	  while (--n >= 0)
-	    ((__avword*)l->raddr)[n] = ((__avword*)i)[n];
-	}
-	break;
+  /* save return value */
+  if (l->rtype == __AVvoid) {
+  } else
+  if (l->rtype == __AVword) {
+    RETURN(__avword, i);
+  } else
+  if (l->rtype == __AVchar) {
+    RETURN(char, i);
+  } else
+  if (l->rtype == __AVschar) {
+    RETURN(signed char, i);
+  } else
+  if (l->rtype == __AVuchar) {
+    RETURN(unsigned char, i);
+  } else
+  if (l->rtype == __AVshort) {
+    RETURN(short, i);
+  } else
+  if (l->rtype == __AVushort) {
+    RETURN(unsigned short, i);
+  } else
+  if (l->rtype == __AVint) {
+    RETURN(int, i);
+  } else
+  if (l->rtype == __AVuint) {
+    RETURN(unsigned int, i);
+  } else
+  if (l->rtype == __AVlong) {
+    RETURN(long, i);
+  } else
+  if (l->rtype == __AVulong) {
+    RETURN(unsigned long, i);
+  } else
+  if (l->rtype == __AVlonglong) {
+    RETURN(long long, i);
+  } else
+  if (l->rtype == __AVulonglong) {
+    RETURN(unsigned long long, i);
+  } else
+  if (l->rtype == __AVfloat) {
+    RETURN(float, fret);
+  } else
+  if (l->rtype == __AVdouble) {
+    RETURN(double, fret);
+  } else
+  if (l->rtype == __AVvoidp) {
+    RETURN(void*, i);
+  } else
+  if (l->rtype == __AVstruct) {
+    if (l->flags & __AV_PCC_STRUCT_RETURN) {
+      /* pcc struct return convention: need a  *(TYPE*)l->raddr = *(TYPE*)i;  */
+      if (l->rsize == sizeof(char)) {
+        RETURN(char, *(char*)i);
+      } else
+      if (l->rsize == sizeof(short)) {
+        RETURN(short, *(short*)i);
+      } else
+      if (l->rsize == sizeof(int)) {
+        RETURN(int, *(int*)i);
+      } else
+      if (l->rsize == sizeof(long)) {
+        RETURN(long, *(long*)i);
+      } else {
+        int n = (l->rsize + sizeof(__avword)-1)/sizeof(__avword);
+        while (--n >= 0)
+          ((__avword*)l->raddr)[n] = ((__avword*)i)[n];
+      }
+    } else {
+      /* normal struct return convention */
+      if (l->flags & __AV_REGISTER_STRUCT_RETURN) {
+        if (l->rsize == sizeof(char)) {
+          RETURN(char, i);
+        } else
+        if (l->rsize == sizeof(short)) {
+          RETURN(short, i);
+        } else
+        if (l->rsize == sizeof(int)) {
+          RETURN(int, i);
+        } else
+        if (l->rsize == sizeof(long)) {
+          RETURN(long, i);
+        } else
+        if (l->rsize == 2*sizeof(__avword)) {
+          ((__avword*)l->raddr)[0] = i;
+          ((__avword*)l->raddr)[1] = i2;
+        }
       }
     }
-    else
-    { /* normal struct return convention */
-      if (l->flags & __AV_REGISTER_STRUCT_RETURN)
-	switch (l->rsize)
-	{
-	case sizeof(char):  RETURN(char,  i);	break;
-	case sizeof(short): RETURN(short, i);	break;
-	case sizeof(int):   RETURN(int,   i);	break;
-	case sizeof(long):  RETURN(long,  i);	break;
-	case 2*sizeof(__avword):
-	  ((__avword*)l->raddr)[0] = i;
-	  ((__avword*)l->raddr)[1] = i2;
-	  break;
-	default:				break;
-	}
-    }
-    break;
-  default:					break;
   }
   return 0;
 }
