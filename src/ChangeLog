@@ -1,3 +1,24 @@
+2003-03-28  Sam Steingold  <sds@gnu.org>
+
+	do not print system structure definitions
+	do print full prototype for built-in functions
+	* foreign.d (C_STRUCT_SLOTS): define to 3
+	* foreign1.lisp (parse-components, c-struct-constructor): C-STRUCT
+	now has options, so slots start at CDDDR
+	(parse-c-type): init name and options for C-STRUCT
+	(deparse-c-type): extract name and options for C-STRUCT
+	(to-c-typedecl): structures may be :EXTERNAL and :TYPEDEF
+	(finalize-coutput-file): print full prototype for :BUILT-IN functions
+	(def-call-out): recognize :BUILT-IN keyword
+	(note-c-fun): save :BUILT-IN status
+	* modules/bindings/linuxlibc6/linux.lisp (exporting): struct name
+	maybe a list of name and options
+	(div_t, ldiv_t): :TYPEDEF
+	(cosf, sinf, sqrtf, fabsf): BUILT-IN
+	(passwd): :EXTERNAL after "#include <pwd.h>"
+	(group): :EXTERNAL after #include <grp.h>"
+	Based on a patch by Dan Knapp
+
 2003-03-27  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (history_last): new function
