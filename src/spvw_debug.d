@@ -352,7 +352,7 @@ local object find_pack (char* pack_s) {
   if (pack_s) {
     var uintL pack_s_len = asciz_length(pack_s);
     DYNAMIC_STRING(pack,pack_s_len);
-    var chart* ptr = TheSstring(pack)->data;
+    var chart* ptr = TheSnstring(pack)->data;
     while (pack_s_len--) *ptr++ = as_chart(*pack_s++);
     value1 = find_package(pack);
     FREE_DYNAMIC_STRING(pack);
@@ -365,7 +365,7 @@ local object find_sym (char* name_s, char* pack_s) {
   if (nullp(pack)) return NIL;
   var uintL name_s_len = asciz_length(name_s);
   DYNAMIC_STRING(name,name_s_len);
-  { var chart* ptr = TheSstring(name)->data;
+  { var chart* ptr = TheSnstring(name)->data;
     while (name_s_len--) *ptr++ = as_chart(*name_s++);
   }
   pushSTACK(name); pushSTACK(pack); funcall(L(find_symbol),2);
