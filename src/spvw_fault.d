@@ -472,18 +472,13 @@ local int selfmade_mmap(heap,map_len,offset)
 
 #ifdef GENERATIONAL_GC
 
-local void xmprotect (aint addr, uintL len, int prot);
-local void xmprotect(addr,len,prot)
-  var aint addr;
-  var uintL len;
-  var int prot;
-  {
-    if (mprotect((MMAP_ADDR_T)addr,len,prot) < 0) {
-      asciz_out(GETTEXTL("mprotect() fails."));
-      errno_out(OS_errno);
-      abort();
-    }
+local void xmprotect (aint addr, uintL len, int prot) {
+  if (mprotect((MMAP_ADDR_T)addr,len,prot) < 0) {
+    asciz_out(GETTEXTL("mprotect() failed."));
+    errno_out(OS_errno);
+    abort();
   }
+}
 
 #ifdef MULTIMAP_MEMORY
   local void xmmprotect (Heap* heap, aint addr, uintL len, int prot);

@@ -546,7 +546,7 @@
 
  #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
 
-  # concentrate CONS-cells between page->page_start and page->page_end 
+  # concentrate CONS-cells between page->page_start and page->page_end
   # aloft:
   local void gc_compact_cons_page (Page* page);
   local void gc_compact_cons_page(page)
@@ -1762,7 +1762,7 @@
                 { if (heap->heap_gen0_end < heap->heap_gen1_start)
                     # Luecke    durch  einen Pointer     ueberspringen
                     # (gap n)  (by p)  (a)  (pointer n)  (skip v)
-                    # skip gap by/with a pointer (??, translation unclear) 
+                    # skip gap by/with a pointer (??, translation unclear)
                     { var aint tmp =
                         gc_sweep1_varobject_page(heapnr,
                                                  heap->heap_gen0_start,heap->heap_gen0_end,
@@ -1799,7 +1799,7 @@
             { for_each_varobject_heap(heap,
                 { if (heap->heap_gen0_end < heap->heap_gen1_start)
                     # Luecke durch einen Pointer ueberspringen
-                    # skip gap by/with a pointer (??, translation unclear) 
+                    # skip gap by/with a pointer (??, translation unclear)
                     { var aint tmp =
                         gc_sweep1_varobject_page(heap->heap_gen0_start,heap->heap_gen0_end,
                                                  &heap->pages.page_gcpriv.firstmarked,
@@ -1829,7 +1829,7 @@
       # Now all active objects are prepared for update:
       # For active objects of variable length A2, (A2).L is the address,
       # where the object will be situated after the GC (incl. Typeinfo and
-      # mark bit and poss. symbol-flags). 
+      # mark bit and poss. symbol-flags).
       # For active two-pointer-objects A2, A2 either remains
       # (then the mark bit in (A2) is deleted), or A2 is relocated
       # (then (A2).L is the new address, without typeinfo, but incl.
@@ -2075,13 +2075,13 @@
             }   }
           );
         #endif
-        if (false)
-          munmap_failure:
-          { end_system_call();
-            asciz_out(GETTEXTL("munmap() fails."));
-            errno_out(OS_errno);
-            abort();
-          }
+        if (false) {
+         munmap_failure:
+          end_system_call();
+          asciz_out(GETTEXTL("munmap() failed."));
+          errno_out(OS_errno);
+          abort();
+        }
         end_system_call();
       #endif
       # add time used by this GC to the GC-total-time:
@@ -2348,7 +2348,7 @@
       # 1. For each kind of page:
       #    divide pages in pages to be emptied and pages to be filled and
       #    copy as many data as possible from the to be emptied pages into
-      #    the pages to be filled. If a page cannot be emptied entirely, 
+      #    the pages to be filled. If a page cannot be emptied entirely,
       #    leave it as it is, and within it move the remaining data
       #    just downwards.
       #    return of the completely empty pages.
