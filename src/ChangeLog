@@ -1,7 +1,7 @@
 1999-03-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * encoding.d (nls_mbstowcs, nls_asciiext_mbstowcs, nls_wcstombs,
-          nls_asciiext_wcstombs, nls_range): Use TheMachine, not ThePseudofun.
+           nls_asciiext_wcstombs, nls_range): Use TheMachine, not ThePseudofun.
           Vital for hppa.
           (init_encodings): Use make_machine, not P. Vital for hppa.
           Initialize O(internal_encoding) always to ISO-8859-1, independently
@@ -11,7 +11,7 @@
 1999-03-16  Sam Steingold  <sds@gnu.org>
 
 	implement `with-package-iterator'.
-	* def1.lsp (with-package-iterator): new ANSI CL macro.
+	* defs1.lsp (with-package-iterator): new ANSI CL macro.
 	* defs3.lsp, init.lsp: export it.
 
 1999-03-16  Sam Steingold  <sds@gnu.org>
@@ -209,7 +209,7 @@
 
 1999-03-12  Sam Steingold  <sds@gnu.org>
 
-	* subr.d: arlists for `socket_service_port' and `resolve_host_ipaddr'.
+	* subr.d: arglists for `socket_service_port' and `resolve_host_ipaddr'.
 	* stream.d (socket_service_port): moved from here to socket.d
 	* pathname.d (user_data): use `fehler_string_int'.
         * socket.d (resolve_service): removed.
