@@ -1,5 +1,11 @@
 2002-02-11  Sam Steingold  <sds@gnu.org>
 
+	ANSI CL 11.1.2.1.2 #9 forbids tracing in COMMON-LISP
+	* trace.lisp (trace1, untrace1): forbid tracing in locked packages
+	* init.lisp (check-redefinition): handle (SETF function-name)
+
+2002-02-11  Sam Steingold  <sds@gnu.org>
+
 	fixed the (compile nil (lambda () (flet (())))) bug
 	* compiler.lisp (symbol-suffix): use just the suffix for NIL funname
 
