@@ -770,7 +770,7 @@
     (etypecase format-string
       (string (apply #'format *coutput-stream* format-string args))
       (symbol
-       (let ((code (apply #'format nil format-string args)))
+       (let ((code (apply #'format nil args)))
          (ecase format-string
            (:init-always (push code *init-always*))
            (:init-once (push code *init-once*))
