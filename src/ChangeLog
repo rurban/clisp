@@ -21,6 +21,7 @@
 
 	* makemake.in (XCFLAGS) [debug]: add -DDEBUG_OS_ERROR on all
 	platforms, do not add it on win32 when not debugging
+	also add -DDEBUG_SPVW -DSAFETY=3
 
 2002-05-02  Sam Steingold  <sds@gnu.org>
 
