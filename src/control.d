@@ -655,11 +655,9 @@ LISPSPECFORM(let, 1,0,body)
             var object symbol = *(markptr STACKop varframe_binding_sym); /* variable */
             var object newval = *(markptr STACKop varframe_binding_value); /* new value */
             *(markptr STACKop varframe_binding_value) = TheSymbolflagged(symbol)->symvalue; /* save old value in frame */
-            *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */
             TheSymbolflagged(symbol)->symvalue = newval; /* new value */
-          } else {
-            *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */
           }
+          *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */
         } while (--count);
       }
     }
@@ -696,12 +694,11 @@ LISPSPECFORM(letstern, 1,0,body)
         if (as_oint(*markptr) & wbit(dynam_bit_o)) { /* binding dynamic? */
           var object symbol = *(markptr STACKop varframe_binding_sym); /* variable */
           *initptr = TheSymbolflagged(symbol)->symvalue; /* save old value in frame */
-          *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */
           TheSymbolflagged(symbol)->symvalue = newval; /* new value */
         } else {
           *initptr = newval; /* new value into the frame */
-          *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */
         }
+        *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */
       } while (--count);
     }
     /* interpret body: */
@@ -1752,16 +1749,14 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
     { var gcv_object_t* valptr = &Next(frame_pointer);                  \
       frame_pointer skipSTACKop -varframe_binding_size;                 \
      {var gcv_object_t* markptr = &Before(frame_pointer);               \
-      if (as_oint(*markptr) & wbit(dynam_bit_o)) {                      \
-        /* activate dynamic binding: */                                 \
+       if (as_oint(*markptr) & wbit(dynam_bit_o)) { /* dynamic binding: */ \
         var object sym = *(markptr STACKop varframe_binding_sym); /* var */ \
         *valptr = TheSymbolflagged(sym)->symvalue; /* old val into the frame */ \
-        *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */ \
         TheSymbolflagged(sym)->symvalue = (value); /* new value into the value cell */ \
-      } else { /* activate static binding : */                          \
+      } else /* static binding : */                                     \
         *valptr = (value); /* new value into the frame */               \
-        *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */ \
-      }}}
+      *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */ \
+     }}
     /* bind the r:=bind_count variables to the s:=mv_count values:
        (if there are not enough variables: discard remaining values;
        if there are not enough values:    fill with NIL.)
