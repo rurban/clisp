@@ -1,5 +1,17 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (make_file_stream): Change declaration and calling
+          convention.
+        * stream.d (make_handle_stream): Change calling convention.
+          (test_eltype_arg): New function.
+          (make_file_stream): Change calling convention. Check the
+          :element-type argument here.
+          (make_terminal_io, init_streamvars): Update.
+        * pathname.d (open_file): Change calling convention.
+          (OPEN): Update. Don't check the :element-type argument here.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Support for unbuffered file streams on all platforms.
         * lispbibl.d (HANDLES): Remove macro, assume it to be defined to 1.
           (case_strmtype_file): Remove macro.
