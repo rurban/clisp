@@ -683,29 +683,43 @@
 
 ;; (fenv-assoc s fenv) searches symbol S in function-environment FENV.
 ;; the search routine uses EQUAL
-(defun fenv-assoc (s fenv)
+(defun fenv-assoc (s fenv &optional (from-inside-macrolet nil))
   (if fenv
     (if (simple-vector-p fenv)
       #+COMPILER
       (do ((l (1- (length fenv)))
            (i 0 (+ i 2)))
-          ((= i l) (fenv-assoc s (svref fenv i)))
+          ((= i l) (fenv-assoc s (svref fenv i) from-inside-macrolet))
         (if (equal s (svref fenv i))
-          (return (svref fenv (1+ i)))))
+          (if (and from-inside-macrolet (not (macrop (svref fenv (1+ i)))))
+            (error-of-type 'source-program-error
+              :form (list 'FUNCTION s)
+              :detail s
+              (TEXT "Invalid access to the local function definition of ~S from within a ~S definition")
+              s 'macrolet)
+            (return (svref fenv (1+ i))))))
       #-COMPILER
       (let ((l (1- (length fenv)))
             (i 0))
         (block nil
           (tagbody
-            1 (if (= i l) (return-from nil (fenv-assoc s (svref fenv i))))
+            1 (if (= i l) (return-from nil (fenv-assoc s (svref fenv i) from-inside-macrolet)))
               (if (equal s (svref fenv i))
-                (return-from nil (svref fenv (1+ i))))
+                (if (and from-inside-macrolet (not (macrop (svref fenv (1+ i)))))
+                  (error-of-type 'source-program-error
+                    :form (list 'FUNCTION s)
+                    :detail s
+                    (TEXT "Invalid access to the local function definition of ~S from within a ~S definition")
+                    s 'macrolet)
+                  (return-from nil (svref fenv (1+ i)))))
               (setq i (+ i 2))
               (go 1))))
-      (error-of-type 'type-error
-        :datum fenv :expected-type '(or null simple-vector)
-        (TEXT "~S is an invalid function environment")
-        fenv))
+      (if (and (consp fenv) (eq (car fenv) 'MACROLET))
+        (fenv-assoc s (cdr fenv) t)
+        (error-of-type 'type-error
+          :datum fenv :expected-type '(or null simple-vector (cons (eql macrolet) t))
+          (TEXT "~S is an invalid function environment")
+          fenv)))
     'T)) ; not found
 ;; Determines, if a function-name S in function-environment FENV is not
 ;; defined and thus refers to the global function.
@@ -727,29 +741,46 @@
 ;; Caution: The value can be #<SPECDECL> or #<SYMBOL-MACRO ...> , thus
 ;; may not be temporarily saved in a variable in interpreted Code.
 ;; the search routine uses EQ
-(defun venv-assoc (s venv)
+(defun venv-assoc (s venv &optional (from-inside-macrolet nil))
   (if venv
     (if (simple-vector-p venv)
       #+COMPILER
       (do ((l (1- (length venv)))
            (i 0 (+ i 2)))
-          ((= i l) (venv-assoc s (svref venv i)))
+          ((= i l) (venv-assoc s (svref venv i) from-inside-macrolet))
         (if (eq s (svref venv i))
-          (return (svref venv (1+ i)))))
+          (if (and from-inside-macrolet
+                   (not (eq (svref venv (1+ i)) compiler::specdecl))
+                   (not (symbol-macro-p (svref venv (1+ i)))))
+            (error-of-type 'source-program-error
+              :form s
+              :detail s
+              (TEXT "Invalid access to the value of the lexical variable ~S from within a ~S definition")
+              s 'macrolet)
+            (return (svref venv (1+ i))))))
       #-COMPILER
       (let ((l (1- (length venv)))
             (i 0))
         (block nil
           (tagbody
-            1 (if (= i l) (return-from nil (venv-assoc s (svref venv i))))
+            1 (if (= i l) (return-from nil (venv-assoc s (svref venv i) from-inside-macrolet)))
               (if (eq s (svref venv i))
-                (return-from nil (svref venv (1+ i))))
+                (if (and from-inside-macrolet
+                         (not (symbol-macro-p (svref venv (1+ i)))))
+                  (error-of-type 'source-program-error
+                    :form s
+                    :detail s
+                    (TEXT "Invalid access to the value of the lexical variable ~S from within a ~S definition")
+                    s 'macrolet)
+                  (return-from nil (svref venv (1+ i)))))
               (setq i (+ i 2))
               (go 1))))
-      (error-of-type 'type-error
-        :datum venv :expected-type '(or null simple-vector)
-        (TEXT "~S is an invalid variable environment")
-        venv))
+      (if (and (consp venv) (eq (car venv) 'MACROLET))
+        (venv-assoc s (cdr venv) t)
+        (error-of-type 'type-error
+          :datum venv :expected-type '(or null simple-vector)
+          (TEXT "~S is an invalid variable environment")
+          venv)))
     ; not found
     (if (symbol-macro-expand s)
       (global-symbol-macro-definition (get s 'SYMBOLMACRO))

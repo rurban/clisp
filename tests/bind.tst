@@ -206,3 +206,97 @@ GOOD
        (1+ *global-var-for-bind.tst*))
       *global-var-for-bind.tst*)))
 (6 5)
+
+
+;;; MACROLET and environments.
+
+(eval-when (eval compile load)
+  (defmacro chk-type (form type)
+    (let ((obj (gensym)))
+      `(LET ((,obj ,form)) (ASSERT (TYPEP ,obj ',type)) (THE ,type ,obj)))))
+CHK-TYPE
+
+;; Local macros may reference locally defined symbol macros.
+(symbol-macrolet ((x (list 'symbol)))
+  (macrolet ((foo (form) `(CHK-TYPE ,form ,@x)))
+    (foo 'bar)))
+BAR
+(let ((x 5))
+  (progv '(x) '(20)
+    (symbol-macrolet ((x (list 'symbol)))
+      (macrolet ((foo (form) `(CHK-TYPE ,form ,@x)))
+        (foo 'bar)))))
+BAR
+
+;; Local macros may reference SPECIAL declarations.
+(locally
+  (declare (special symbol-type))
+  (setq symbol-type (list 'symbol)))
+(SYMBOL)
+(locally
+  (declare (special symbol-type))
+  (macrolet ((foo (form) `(CHK-TYPE ,form ,@symbol-type)))
+    (foo 'bar)))
+BAR
+
+;; Local macros may reference global variables.
+;; Careful! In interpreted mode, the value from the dynamic binding is used;
+;; in compiled mode, the original global value is used. (To change this,
+;; one would have to use COMPILER-LET.)
+(defparameter *symbol-type* (list 'symbol))
+*SYMBOL-TYPE*
+(let ((*symbol-type* (list 'symbol)))
+  (macrolet ((foo (form) `(CHK-TYPE ,form ,@*symbol-type*)))
+    (foo 'bar)))
+BAR
+
+;; Local macros must not reference lexical variable bindings.
+(progv '(x) '((symbol))
+  (let ((x (list 'symbol)))
+    (macrolet ((foo (form) `(CHK-TYPE ,form ,@x)))
+      (foo 'bar))))
+ERROR
+(progv '(x) '((symbol))
+  (let ((x (list 'symbol)))
+    (defun testfn ()
+      (macrolet ((foo (form) `(CHK-TYPE ,form ,@x)))
+        (foo 'bar))))
+  (testfn))
+ERROR
+(progv '(x) '((symbol))
+  (let ((x (list 'symbol)))
+    (macrolet ((foo (form) `(CHK-TYPE ,form ,@x)))
+      (defun testfn ()
+        (foo 'bar))))
+  (testfn))
+ERROR
+
+;; Local macros may reference locally defined macros.
+(macrolet ((x () '(list 'symbol)))
+  (macrolet ((foo (form) `(CHK-TYPE ,form ,@(x))))
+    (foo 'bar)))
+BAR
+
+;; Local macros must not reference lexical function bindings.
+(defun symbol-type-fn () (list 'symbol))
+SYMBOL-TYPE-FN
+(flet ((symbol-type-fn () (list 'symbol)))
+  (macrolet ((foo (form) `(CHK-TYPE ,form ,@(symbol-type-fn))))
+    (foo 'bar)))
+ERROR
+(progn
+  (flet ((symbol-type-fn () (list 'symbol)))
+    (defun testfn ()
+      (macrolet ((foo (form) `(CHK-TYPE ,form ,@(symbol-type-fn))))
+        (foo 'bar))))
+  (testfn))
+ERROR
+(progn
+  (flet ((symbol-type-fn () (list 'symbol)))
+    (macrolet ((foo (form) `(CHK-TYPE ,form ,@(symbol-type-fn))))
+      (defun testfn ()
+        (foo 'bar))))
+  (testfn))
+ERROR
+(fmakunbound 'symbol-type-fn)
+SYMBOL-TYPE-FN

@@ -500,13 +500,24 @@ the actual object #<MACRO expander> for the FENV.
                lambdalist
                docstring))))))))
 
+;; Creates a macro expander for MACROLET.
 (defun make-macro-expander (macrodef whole-form
                             &optional
-                            (env (vector (and (boundp '*venv*) *venv*)
-                                         (and (boundp '*fenv*) *fenv*)
-                                         (and (boundp '*benv*) *benv*)
-                                         (and (boundp '*genv*) *genv*)
-                                         (if (boundp '*denv*) *denv*
-                                             *toplevel-denv*))))
-  (make-macro ;; CLTL1: (eval (make-macro-expansion macrodef whole-form))
-   (evalhook (make-macro-expansion macrodef whole-form) nil nil env)))
+                            ;; The environment is tricky: ANSI CL says that
+                            ;; 1. declarations, macros and symbol-macros from
+                            ;; outside can be used in the macro expander,
+                            ;; 2. other variable and function bindings cannot.
+                            ;; 3. It is unclear about BLOCK and TAGBODY tags.
+                            (env (vector (and (boundp '*venv*)
+                                              (cons 'MACROLET *venv*))
+                                         (and (boundp '*fenv*)
+                                              (cons 'MACROLET *fenv*))
+                                         (and (boundp '*benv*)
+                                              *benv*)
+                                         (and (boundp '*genv*)
+                                              *genv*)
+                                         (if (boundp '*denv*)
+                                           *denv*
+                                           *toplevel-denv*))))
+  (make-macro
+    (evalhook (make-macro-expansion macrodef whole-form) nil nil env)))

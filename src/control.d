@@ -1021,6 +1021,16 @@ LISPSPECFORM(macrolet, 1,0,body)
     pushSTACK(NIL);
     {
       aktenv_to_stack();
+      { /* Add a MACROLET cons to the venv part of env: */
+        var object new_cons = allocate_cons();
+        Car(new_cons) = S(macrolet); Cdr(new_cons) = STACK_4;
+        STACK_4 = new_cons;
+      }
+      { /* Add a MACROLET cons to the fenv part of env: */
+        var object new_cons = allocate_cons();
+        Car(new_cons) = S(macrolet); Cdr(new_cons) = STACK_3;
+        STACK_3 = new_cons;
+      }
       var object vec = vectorof(5);
       pushSTACK(vec);
     }
@@ -1081,7 +1091,7 @@ LISPSPECFORM(function_macro_let, 1,0,body)
       Car(macrodef) = STACK_2; Cdr(macrodef) = STACK_0;
       pushSTACK(macrodef); pushSTACK(NIL); funcall(S(make_macro_expander),2);
       pushSTACK(value1); C_macro_expander();
-        STACK_0 = value1;
+      STACK_0 = value1;
     }
     /* collect both: */
     C_make_function_macro();
