@@ -39,7 +39,7 @@
 
 # Warnt, wenn Floats verschiedenen Typs kombiniert werden.
 # warn_floating_point_contagion();
-# kann GC auslösen
+# can trigger GC
   local void warn_floating_point_contagion (void);
   local void warn_floating_point_contagion()
     { # (WARN "Floating point operation combines numbers of different precision.~%See ANSI CL 12.1.4.4 and the CLISP impnotes for details.~%The result's actual precision is controlled by~%~S.~%To shut off this warning, set ~S to ~S." '*FLOATING-POINT-CONTAGION-ANSI* '*WARN-ON-FLOATING-POINT-CONTAGION* 'NIL) :
@@ -63,12 +63,12 @@
       }
 
 # F_minus_F(x) liefert (- x), wo x ein Float ist.
-# kann GC auslösen
+# can trigger GC
   local object F_minus_F (object x);
   GEN_F_op1(minus)
 
 # F_abs_F(x) liefert (abs x), wo x ein Float ist.
-# kann GC auslösen
+# can trigger GC
   local object F_abs_F (object x);
   local object F_abs_F(x)
     var object x;
@@ -78,15 +78,15 @@
   #define SF_square_SF(x)  SF_SF_mal_SF(x,x)
 
 # FF_square_FF(x) liefert (* x x), wo x ein FF ist.
-# kann GC auslösen
+# can trigger GC
   #define FF_square_FF(x)  FF_FF_mal_FF(x,x)
 
 # DF_square_DF(x) liefert (* x x), wo x ein DF ist.
-# kann GC auslösen
+# can trigger GC
   #define DF_square_DF(x)  DF_DF_mal_DF(x,x)
 
 # F_square_F(x) liefert (* x x), wo x ein Float ist.
-# kann GC auslösen
+# can trigger GC
   local object F_square_F (object x);
   GEN_F_op1(square)
 
@@ -94,15 +94,15 @@
   #define SF_durch_SF(x)  SF_SF_durch_SF(SF_1,x)
 
 # FF_durch_FF(x) liefert (/ x), wo x ein FF ist.
-# kann GC auslösen
+# can trigger GC
   #define FF_durch_FF(x)  FF_FF_durch_FF(FF_1,x)
 
 # DF_durch_DF(x) liefert (/ x), wo x ein DF ist.
-# kann GC auslösen
+# can trigger GC
   #define DF_durch_DF(x)  DF_DF_durch_DF(DF_1,x)
 
 # LF_durch_LF(x) liefert (/ x), wo x ein LF ist.
-# kann GC auslösen
+# can trigger GC
   local object LF_durch_LF (object x);
   local object LF_durch_LF(x)
     var object x;
@@ -112,12 +112,12 @@
     }
 
 # F_durch_F(x) liefert (/ x), wo x ein Float ist.
-# kann GC auslösen
+# can trigger GC
   local object F_durch_F (object x);
   GEN_F_op1(durch)
 
 # F_sqrt_F(x) liefert (sqrt x), wo x ein Float >=0 ist.
-# kann GC auslösen
+# can trigger GC
   local object F_sqrt_F (object x);
   GEN_F_op1(sqrt)
 
@@ -300,7 +300,7 @@
     }
 
 # F_F_plus_F(x,y) liefert (+ x y), wo x und y Floats sind.
-# kann GC auslösen
+# can trigger GC
   local object F_F_plus_F (object x, object y);
   local object F_F_plus_F(x,y)
     var object x;
@@ -308,7 +308,7 @@
     { GEN_F_op2(x,y,SF_SF_plus_SF,FF_FF_plus_FF,DF_DF_plus_DF,LF_LF_plus_LF,1,0,return) }
 
 # F_F_minus_F(x,y) liefert (- x y), wo x und y Floats sind.
-# kann GC auslösen
+# can trigger GC
   local object F_F_minus_F (object x, object y);
   local object F_F_minus_F(x,y)
     var object x;
@@ -316,7 +316,7 @@
     { GEN_F_op2(x,y,SF_SF_minus_SF,FF_FF_minus_FF,DF_DF_minus_DF,LF_LF_minus_LF,1,0,return) }
 
 # F_F_mal_F(x,y) liefert (* x y), wo x und y Floats sind.
-# kann GC auslösen
+# can trigger GC
   local object F_F_mal_F (object x, object y);
   local object F_F_mal_F(x,y)
     var object x;
@@ -324,7 +324,7 @@
     { GEN_F_op2(x,y,SF_SF_mal_SF,FF_FF_mal_FF,DF_DF_mal_DF,LF_LF_mal_LF,1,0,return) }
 
 # F_F_durch_F(x,y) liefert (/ x y), wo x und y Floats sind.
-# kann GC auslösen
+# can trigger GC
   local object F_F_durch_F (object x, object y);
   local object F_F_durch_F(x,y)
     var object x;
@@ -333,7 +333,7 @@
 
 # F_F_comp(x,y) vergleicht zwei Floats x und y.
 # Ergebnis: 0 falls x=y, +1 falls x>y, -1 falls x<y.
-# kann GC auslösen
+# can trigger GC
   local signean F_F_comp (object x, object y);
   local signean F_F_comp(x,y)
     var object x;
@@ -356,17 +356,17 @@
   GEN_ffloor(SF)
 
 # FF_ffloor_FF(x) liefert (ffloor x), wo x ein FF ist.
-# kann GC auslösen
+# can trigger GC
   local object FF_ffloor_FF (object x);
   GEN_ffloor(FF)
 
 # DF_ffloor_DF(x) liefert (ffloor x), wo x ein DF ist.
-# kann GC auslösen
+# can trigger GC
   local object DF_ffloor_DF (object x);
   GEN_ffloor(DF)
 
 # LF_ffloor_LF(x) liefert (ffloor x), wo x ein LF ist.
-# kann GC auslösen
+# can trigger GC
   local object LF_ffloor_LF (object x);
   GEN_ffloor(LF)
 
@@ -385,17 +385,17 @@
   GEN_fceiling(SF)
 
 # FF_fceiling_FF(x) liefert (fceiling x), wo x ein FF ist.
-# kann GC auslösen
+# can trigger GC
   local object FF_fceiling_FF (object x);
   GEN_fceiling(FF)
 
 # DF_fceiling_DF(x) liefert (fceiling x), wo x ein DF ist.
-# kann GC auslösen
+# can trigger GC
   local object DF_fceiling_DF (object x);
   GEN_fceiling(DF)
 
 # LF_fceiling_LF(x) liefert (fceiling x), wo x ein LF ist.
-# kann GC auslösen
+# can trigger GC
   local object LF_fceiling_LF (object x);
   GEN_fceiling(LF)
 
@@ -416,19 +416,19 @@
 
 # FF_ffloor_FF_FF(x) liefert (ffloor x), wo x ein FF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void FF_ffloor_FF_FF (object x);
   GEN_fround(FF,floor)
 
 # DF_ffloor_DF_DF(x) liefert (ffloor x), wo x ein DF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void DF_ffloor_DF_DF (object x);
   GEN_fround(DF,floor)
 
 # LF_ffloor_LF_LF(x) liefert (ffloor x), wo x ein LF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void LF_ffloor_LF_LF (object x);
   GEN_fround(LF,floor)
 
@@ -439,19 +439,19 @@
 
 # FF_fceiling_FF_FF(x) liefert (fceiling x), wo x ein FF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void FF_fceiling_FF_FF (object x);
   GEN_fround(FF,ceiling)
 
 # DF_fceiling_DF_DF(x) liefert (fceiling x), wo x ein DF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void DF_fceiling_DF_DF (object x);
   GEN_fround(DF,ceiling)
 
 # LF_fceiling_LF_LF(x) liefert (fceiling x), wo x ein LF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void LF_fceiling_LF_LF (object x);
   GEN_fround(LF,ceiling)
 
@@ -462,19 +462,19 @@
 
 # FF_ftruncate_FF_FF(x) liefert (ftruncate x), wo x ein FF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void FF_ftruncate_FF_FF (object x);
   GEN_fround(FF,truncate)
 
 # DF_ftruncate_DF_DF(x) liefert (ftruncate x), wo x ein DF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void DF_ftruncate_DF_DF (object x);
   GEN_fround(DF,truncate)
 
 # LF_ftruncate_LF_LF(x) liefert (ftruncate x), wo x ein LF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void LF_ftruncate_LF_LF (object x);
   GEN_fround(LF,truncate)
 
@@ -485,19 +485,19 @@
 
 # FF_fround_FF_FF(x) liefert (fround x), wo x ein FF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void FF_fround_FF_FF (object x);
   GEN_fround(FF,round)
 
 # DF_fround_DF_DF(x) liefert (fround x), wo x ein DF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void DF_fround_DF_DF (object x);
   GEN_fround(DF,round)
 
 # LF_fround_LF_LF(x) liefert (fround x), wo x ein LF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void LF_fround_LF_LF (object x);
   GEN_fround(LF,round)
 
@@ -516,19 +516,19 @@
 
 # FF_floor_I_FF(x) liefert (floor x), wo x ein FF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void FF_floor_I_FF (object x);
   GEN_round(FF,floor)
 
 # DF_floor_I_DF(x) liefert (floor x), wo x ein DF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void DF_floor_I_DF (object x);
   GEN_round(DF,floor)
 
 # LF_floor_I_LF(x) liefert (floor x), wo x ein LF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void LF_floor_I_LF (object x);
   GEN_round(LF,floor)
 
@@ -539,19 +539,19 @@
 
 # FF_ceiling_I_FF(x) liefert (ceiling x), wo x ein FF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void FF_ceiling_I_FF (object x);
   GEN_round(FF,ceiling)
 
 # DF_ceiling_I_DF(x) liefert (ceiling x), wo x ein DF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void DF_ceiling_I_DF (object x);
   GEN_round(DF,ceiling)
 
 # LF_ceiling_I_LF(x) liefert (ceiling x), wo x ein LF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void LF_ceiling_I_LF (object x);
   GEN_round(LF,ceiling)
 
@@ -562,19 +562,19 @@
 
 # FF_truncate_I_FF(x) liefert (truncate x), wo x ein FF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void FF_truncate_I_FF (object x);
   GEN_round(FF,truncate)
 
 # DF_truncate_I_DF(x) liefert (truncate x), wo x ein DF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void DF_truncate_I_DF (object x);
   GEN_round(DF,truncate)
 
 # LF_truncate_I_LF(x) liefert (truncate x), wo x ein LF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void LF_truncate_I_LF (object x);
   GEN_round(LF,truncate)
 
@@ -585,19 +585,19 @@
 
 # FF_round_I_FF(x) liefert (round x), wo x ein FF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void FF_round_I_FF (object x);
   GEN_round(FF,round)
 
 # DF_round_I_DF(x) liefert (round x), wo x ein DF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void DF_round_I_DF (object x);
   GEN_round(DF,round)
 
 # LF_round_I_LF(x) liefert (round x), wo x ein LF ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void LF_round_I_LF (object x);
   GEN_round(LF,round)
 
@@ -615,25 +615,25 @@
 
 # F_ffloor_F_F(x) liefert (ffloor x), wo x ein Float ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void F_ffloor_F_F (object x);
   GEN_F_fround(floor)
 
 # F_fceiling_F_F(x) liefert (fceiling x), wo x ein Float ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void F_fceiling_F_F (object x);
   GEN_F_fround(ceiling)
 
 # F_ftruncate_F_F(x) liefert (ftruncate x), wo x ein Float ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void F_ftruncate_F_F (object x);
   GEN_F_fround(truncate)
 
 # F_fround_F_F(x) liefert (fround x), wo x ein Float ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void F_fround_F_F (object x);
   GEN_F_fround(round)
 
@@ -651,25 +651,25 @@
 
 # F_floor_I_F(x) liefert (floor x), wo x ein Float ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void F_floor_I_F (object x);
   GEN_F_round(floor)
 
 # F_ceiling_I_F(x) liefert (ceiling x), wo x ein Float ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void F_ceiling_I_F (object x);
   GEN_F_round(ceiling)
 
 # F_truncate_I_F(x) liefert (truncate x), wo x ein Float ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void F_truncate_I_F (object x);
   GEN_F_round(truncate)
 
 # F_round_I_F(x) liefert (round x), wo x ein Float ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void F_round_I_F (object x);
   GEN_F_round(round)
 
@@ -697,7 +697,7 @@
 
 # F_F_floor_I_F(x,y) liefert (floor x y), wo x und y Floats sind.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void F_F_floor_I_F (object x, object y);
   GEN_F_F_round(floor)
 
@@ -705,19 +705,19 @@
 
 # F_F_ceiling_I_F(x,y) liefert (ceiling x y), wo x und y Floats sind.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void F_F_ceiling_I_F (object x, object y);
   GEN_F_F_round(ceiling)
 
 # F_F_truncate_I_F(x,y) liefert (truncate x y), wo x und y Floats sind.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void F_F_truncate_I_F (object x, object y);
   GEN_F_F_round(truncate)
 
 # F_F_round_I_F(x,y) liefert (round x y), wo x und y Floats sind.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void F_F_round_I_F (object x, object y);
   GEN_F_F_round(round)
 
@@ -737,7 +737,7 @@
     }
 
 # F_to_FF(x) wandelt ein Float x in ein Single-Float um und rundet dabei.
-# kann GC auslösen
+# can trigger GC
   local object F_to_FF (object x);
   local object F_to_FF(x)
     var object x;
@@ -750,7 +750,7 @@
     }
 
 # F_to_DF(x) wandelt ein Float x in ein Double-Float um und rundet dabei.
-# kann GC auslösen
+# can trigger GC
   local object F_to_DF (object x);
   local object F_to_DF(x)
     var object x;
@@ -765,7 +765,7 @@
 # F_to_LF(x,len) wandelt ein Float x in ein Long-Float mit len Digits um
 # und rundet dabei.
 # > uintC len: gewünschte Anzahl Digits, >=LF_minlen
-# kann GC auslösen
+# can trigger GC
   local object F_to_LF (object x, uintC len);
   local object F_to_LF(x,len)
     var object x;
@@ -782,7 +782,7 @@
 # und rundet dabei nötigenfalls.
 # > x,y: Floats
 # < ergebnis: (float x y)
-# kann GC auslösen
+# can trigger GC
   local object F_F_float_F (object x, object y);
   local object F_F_float_F(x,y)
     var object x;
@@ -842,7 +842,7 @@
 # LF(n) -> LF(n+16) für n<=4032
 # LF(n) -> LF(n+32) für n<=16256
 # LF(n) -> LF(n+65) für n<=65535
-# kann GC auslösen
+# can trigger GC
   local object F_extend_F (object x);
   local object F_extend_F(x)
     var object x;
@@ -862,7 +862,7 @@
 # (decode-float x), alle drei Werte in den Stack.
 # x = 0.0 liefert (0.0, 0, 1.0).
 # x = (-1)^s * 2^e * m liefert ((-1)^0 * 2^0 * m, e als Integer, (-1)^s).
-# kann GC auslösen
+# can trigger GC
   local void F_decode_float_F_I_F (object x);
   local void F_decode_float_F_I_F(x)
     var object x;
@@ -1007,7 +1007,7 @@
     }
 
 # FF_I_scale_float_FF(x,delta) liefert x*2^delta, wo x ein FF ist.
-# kann GC auslösen
+# can trigger GC
   local object FF_I_scale_float_FF (object x, object delta);
   # Methode:
   # x=0.0 -> x als Ergebnis
@@ -1052,7 +1052,7 @@
     }
 
 # DF_I_scale_float_DF(x,delta) liefert x*2^delta, wo x ein DF ist.
-# kann GC auslösen
+# can trigger GC
   local object DF_I_scale_float_DF (object x, object delta);
   # Methode:
   # x=0.0 -> x als Ergebnis
@@ -1111,7 +1111,7 @@
     }
 
 # LF_I_scale_float_LF(x,delta) liefert x*2^delta, wo x ein LF ist.
-# kann GC auslösen
+# can trigger GC
   local object LF_I_scale_float_LF (object x, object delta);
   # Methode:
   # delta=0 -> x als Ergebnis
@@ -1223,7 +1223,7 @@
     }}}}
 
 # F_I_scale_float_F(x,delta) liefert x*2^delta, wo x ein Float ist.
-# kann GC auslösen
+# can trigger GC
   local object F_I_scale_float_F (object x, object delta);
   local object F_I_scale_float_F(x,delta)
     var object x;
@@ -1247,7 +1247,7 @@
 #endif
 
 # F_float_sign_F(x) liefert (float-sign x), wo x ein Float ist.
-# kann GC auslösen
+# can trigger GC
   local object F_float_sign_F (object x);
   # Methode: x>=0 -> Ergebnis 1.0; x<0 -> Ergebnis -1.0
   local object F_float_sign_F(x)
@@ -1267,7 +1267,7 @@
     }
 
 # F_F_float_sign_F(x) liefert (float-sign x y), wo x und y Floats sind.
-# kann GC auslösen
+# can trigger GC
   local object F_F_float_sign_F (object x, object y);
   # Methode:
   # Falls x<0 xor y<0, Ergebnis (- y), sonst Ergebnis y.
@@ -1291,7 +1291,7 @@
 
 # F_float_digits_I(x) liefert (float-digits x), wo x ein Float ist.
 # < ergebnis: ein Integer >0
-# kann GC auslösen
+# can trigger GC
   local object F_float_digits_I (object x);
   local object F_float_digits_I(x)
     var object x;
@@ -1310,7 +1310,7 @@
 
 # F_float_precision_I(x) liefert (float-precision x), wo x ein Float ist.
 # < ergebnis: ein Integer >=0
-# kann GC auslösen
+# can trigger GC
   local object F_float_precision_I (object x);
   # Methode: Falls x=0.0, Ergebnis 0, sonst (float-digits x).
   local object F_float_precision_I(x)
@@ -1340,7 +1340,7 @@
 # x = 0.0 liefert (0, 0, 1).
 # x = (-1)^s * 2^e * m bei Float-Precision p liefert
 #   (Mantisse 2^p * m als Integer, e-p als Integer, (-1)^s als Fixnum).
-# kann GC auslösen
+# can trigger GC
   local void F_integer_decode_float_I_I_I (object x);
   local void F_integer_decode_float_I_I_I(x)
     var object x;

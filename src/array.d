@@ -1,22 +1,22 @@
-# Arrayfunktionen von CLISP
-# Bruno Haible 2.9.1997
+# Array functions
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
-#include "arilev0.c" # für bit_op, definiert auch mulu24 und mulu32_unchecked
+#include "arilev0.c" # for bit_op, also defines mulu24 and mulu32_unchecked
 
-# UP: Kopiert einen Simple-Vector
+# Function: Copies a simple-vector.
 # copy_svector(vector)
-# > vector : Simple-Vector
-# < ergebnis : neuer Simple-Vector desselben Inhalts
-# kann GC auslösen
+# > vector: simple-vector
+# < result: fresh simple-vector with the same contents
+# can trigger GC
   global object copy_svector (object vector);
   global object copy_svector(vector)
     var object vector;
     { var uintL length = Svector_length(vector);
       pushSTACK(vector);
-     {var object newvector = allocate_vector(length); # gleichlanger Vektor
+     {var object newvector = allocate_vector(length); # vector of same length
       vector = popSTACK();
-      # Inhalt von vector in newvector kopieren:
+      # copy the contens of vector into newvector:
       if (!(length==0))
         { var object* ptr1 = &TheSvector(vector)->data[0];
           var object* ptr2 = &TheSvector(newvector)->data[0];
@@ -25,17 +25,17 @@
       return newvector;
     }}
 
-# UP: Kopiert einen Simple-Bit-Vector
+# Function: Copies a simple-bit-vector.
 # copy_sbvector(vector)
-# > vector : Simple-Bit-Vector
-# < ergebnis : neuer Simple-Bit-Vector desselben Inhalts
-# kann GC auslösen
+# > vector: simple-bit-vector
+# < result: fresh simple-bit-vector with the same contents
+# can trigger GC
   global object copy_sbvector (object vector);
   global object copy_sbvector(vector)
     var object vector;
     { var uintL length = Sbvector_length(vector);
       pushSTACK(vector);
-     {var object newvector = allocate_bit_vector(length); # gleichlanger Vektor
+     {var object newvector = allocate_bit_vector(length); # vector of same length
       vector = popSTACK();
       if (!(length==0))
         { var const uintB* ptr1 = &TheSbvector(vector)->data[0];
@@ -46,54 +46,54 @@
     }}
 
 LISPFUNN(copy_simple_vector,1)
-# (SYS::%COPY-SIMPLE-VECTOR vector) liefert eine Kopie des Simple-Vektor vector.
+# (SYS::%COPY-SIMPLE-VECTOR vector) returns a copy of the simple-vector vector.
   { var object obj = popSTACK();
     if (!simple_vector_p(obj)) { fehler_kein_svector(S(copy_simple_vector),obj); }
     value1 = copy_svector(obj); mv_count=1;
   }
 
-# UP: Bestimmt die aktive Länge eines Vektors (wie in LENGTH)
+# Function: Returns the active length of a vector (same as LENGTH).
 # vector_length(vector)
-# > vector: ein Vektor
-# < ergebnis: seine Länge als uintL
+# > vector: a vector
+# < result: its length
   global uintL vector_length (object vector);
   global uintL vector_length(vector)
     var object vector;
     { if (array_simplep(vector))
         return Sarray_length(vector);
-      # Nicht-simpler Array
+      # Indirect Array
       { var Iarray addr = TheIarray(vector);
         var uintL offset = offsetofa(iarray_,dims);
         if (iarray_flags(addr) & bit(arrayflags_dispoffset_bit))
           offset += sizeof(uintL);
-        # Bei addr+offset fangen die Dimensionen an.
-        if (iarray_flags(addr) & bit(arrayflags_fillp_bit)) # evtl. Fillpointer
+        # The dimensions start at addr+offset.
+        if (iarray_flags(addr) & bit(arrayflags_fillp_bit)) # possibly fill-pointer
           offset += sizeof(uintL);
         return *(uintL*)pointerplus(addr,offset);
     } }
 
-# Wandelt element-type in einen der Standard-Typen um
-# und liefert seinen Elementtyp-Code.
+# Function: Canonicalizes an array element-type and returns its
+# element type code.
 # eltype_code(element_type)
-# > element_type: Type-Specifier
-# < ergebnis: Elementtyp-Code Atype_xxx
-# Standard-Typen sind die möglichen Ergebnisse von ARRAY-ELEMENT-TYPE
-# (Symbole T, BIT, CHARACTER und Listen (UNSIGNED-BYTE n)).
-# Das Ergebnis ist ein Obertyp von element-type.
-# kann GC auslösen
+# > element_type: type specifier
+# < result: element type code Atype_xxx
+# The canonicalized types are the possible results of ARRAY-ELEMENT-TYPE
+# (symbols T, BIT, CHARACTER and lists (UNSIGNED-BYTE n)).
+# The result type is a supertype of element_type.
+# can trigger GC
   global uintB eltype_code (object element_type);
   global uintB eltype_code(obj)
     var object obj;
-    # Bei jeder Modifikation auch upgraded-array-element-type in type.lsp anpassen!
+    # When this function is changed, also update upgraded-array-element-type in type.lsp!
     {
       # (cond ((eq obj 'BIT) Atype_Bit)
       #       ((eq obj 'CHARACTER) Atype_Char)
       #       ((eq obj 'T) Atype_T)
       #       (t (multiple-value-bind (low high) (sys::subtype-integer obj))
-      #            ; Es gilt (or (null low) (subtypep obj `(INTEGER ,low ,high)))
+      #            ; Now (or (null low) (subtypep obj `(INTEGER ,low ,high)))
       #            (if (and (integerp low) (not (minusp low)) (integerp high))
       #              (let ((l (integer-length high)))
-      #                ; Es gilt (subtypep obj `(UNSIGNED-BYTE ,l))
+      #                ; Now (subtypep obj `(UNSIGNED-BYTE ,l))
       #                (cond ((<= l 1) Atype_Bit)
       #                      ((<= l 2) Atype_2Bit)
       #                      ((<= l 4) Atype_4Bit)
@@ -106,12 +106,12 @@ LISPFUNN(copy_simple_vector,1)
       #                Atype_Char
       #                Atype_T
       # )     )  ) ) )
-      if (eq(obj,S(bit))) { return Atype_Bit; } # Symbol BIT ?
-      elif (eq(obj,S(character))) { return Atype_Char; } # Symbol CHARACTER ?
-      elif (eq(obj,S(t))) { return Atype_T; } # Symbol T ?
-      pushSTACK(obj); pushSTACK(subr_self); # obj und subr_self retten
+      if (eq(obj,S(bit))) { return Atype_Bit; } # symbol BIT ?
+      elif (eq(obj,S(character))) { return Atype_Char; } # symbol CHARACTER ?
+      elif (eq(obj,S(t))) { return Atype_T; } # symbol T ?
+      pushSTACK(obj); pushSTACK(subr_self); # save obj and subr_self
       pushSTACK(obj); funcall(S(subtype_integer),1); # (SYS::SUBTYPE-INTEGER obj)
-      subr_self = popSTACK(); obj = popSTACK(); # obj und subr_self zurück
+      subr_self = popSTACK(); obj = popSTACK(); # restore obj and subr_self
       if ((mv_count>1) && integerp(value1) && positivep(value1) && integerp(value2))
         { var uintL l = I_integer_length(value2); # (INTEGER-LENGTH high)
           if (l<=1) return Atype_Bit;
@@ -126,35 +126,35 @@ LISPFUNN(copy_simple_vector,1)
       return Atype_T;
     }
 
-# UP: erzeugt einen Bytevektor
+# Function: Allocates a byte vector.
 # allocate_byte_vector(atype,len)
 # > uintB atype: Atype_nBit
-# > uintL len: Länge (in n-Bit-Blöcken)
-# < ergebnis: neuer Semi-Simple-Bytevektor dieser Länge
-# kann GC auslösen
+# > uintL len: length (number of n-bit blocks)
+# < result: fresh semi-simple byte-vector of the given length
+# can trigger GC
   global object allocate_byte_vector (uintB atype, uintL len);
   global object allocate_byte_vector(atype,len)
     var uintB atype;
     var uintL len;
     { {var object new_sbvector = allocate_bit_vector(len<<atype);
-       # neuer Simple-Bit-Vektor passender Länge
-       pushSTACK(new_sbvector); # retten
+       # fresh simple-bit-vector of suitable length
+       pushSTACK(new_sbvector); # save it
       }
       {var object new_array = allocate_iarray(atype,1,Array_type_bvector);
-                                   # Flags: keine, Elementtyp Atype_nBit, Rang=1
+                              # flags: none, element-type Atype_nBit, rank=1
        TheIarray(new_array)->totalsize =
-         TheIarray(new_array)->dims[0] = len; # Länge und Total-Size eintragen
-       TheIarray(new_array)->data = popSTACK(); # Datenvektor eintragen
+         TheIarray(new_array)->dims[0] = len; # enter length and total-size
+       TheIarray(new_array)->data = popSTACK(); # enter storage vector
        return new_array;
     } }
 
-# UP: Bildet einen Simple-Vektor mit gegebenen Elementen.
+# Function: Creates a simple-vector with given elements.
 # vectorof(len)
-# > uintC len: gewünschte Vektorlänge
-# > auf STACK: len Objekte, erstes zuoberst
-# < ergebnis: Simple-Vektor mit diesen Objekten
-# Erhöht STACK
-# verändert STACK, kann GC auslösen
+# > uintC len: desired vector length
+# > STACK_(len-1), ..., STACK_(0): len objects
+# < result: simple-vector containing these objects
+# Pops n objects off STACK.
+# can trigger GC
   global object vectorof (uintC len);
   global object vectorof(len)
     var uintC len;
@@ -172,60 +172,62 @@ LISPFUNN(copy_simple_vector,1)
 LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
   { value1 = vectorof(argcount); mv_count=1; }
 
-# Vom Standpunkt der Speicherstruktur her ist "der Datenvektor" eines
-# nicht-simplen Arrays  TheIarray(array)->data.
-# Vom Standpunkt der Arrayfunktionen her bekommt man "den Datenvektor" eines
-# Arrays, indem man so lange  TheIarray(array)->data  nimmt, bis
-# (bei Elementtypen T, BIT, CHARACTER) array ein simpler Vektor oder
-# (bei Byte-Arrays) array ein nicht-simpler Vektor ohne arrayflags_..._bits,
-# aber TheIarray(array)->data ein Simple-Bit-Vektor ist.
+# An indirect array contains a pointer to another array: TheIarray(array)->data.
+# The "storage vector" of an array is the a 1-dimensional array, of the same
+# element type as the original array, without fill-pointer or adjustable bit.
+# In can be obtained by repeatedly taking TheIarray(array)->data, until
+# [for the element types T, BIT, CHARACTER] array satisfies array_simplep, or
+# [for the element types (UNSIGNED-BYTE n)] array is an indirect array without
+# arrayflags_..._bits such that TheIarray(array)->data is a simple-bit-vector.
 
-# UP: verfolgt Kette von displaced-Arrays und addiert displaced-Offsets
-#     für Zugriff auf ein einzelnes Array-Element
-# notsimple_displace(array,&index);
-# > array: Nicht-simpler Array
-# > index: Row-major-index
-# < ergebnis: Datenvektor
-# < index: absoluter Index in den Datenvektor
-# Es wird überprüft, ob das adressierte Array-Element in jedem der Arrays liegt.
-# Es wird nicht überprüft, ob die Kette in einen Zyklus läuft.
-  local object notsimple_displace (object array, uintL* index);
-  local object notsimple_displace(array,index)
+# Function: Follows the TheIarray(array)->data chain until the storage-vector
+# is reached, and thereby sums up displaced-offsets. This function is useful
+# for accessing a single array element.
+# iarray_displace(array,&index);
+# > array: indirect array
+# > index: row-major-index
+# < result: storage-vector
+# < index: absolute index into the storage vector
+# It is checked whether the addressed array element lies within the bounds of
+# every intermediate array.
+# It is not checked whether the chain is ultimately circular.
+  local object iarray_displace (object array, uintL* index);
+  local object iarray_displace(array,index)
     var object array;
     var uintL* index;
     { loop
         { if (*index >= TheIarray(array)->totalsize) goto fehler_bad_index;
           if (!(Iarray_flags(array) & bit(arrayflags_displaced_bit)))
             goto notdisplaced;
-          # Array ist displaced
-          *index += TheIarray(array)->dims[0]; # displaced-Offset addieren
-          array = TheIarray(array)->data; # nächster Array
-          if (array_simplep(array)) goto simple; # nächster Array simple?
+          # array is displaced
+          *index += TheIarray(array)->dims[0]; # add displaced-offset
+          array = TheIarray(array)->data; # next array in the chain
+          if (array_simplep(array)) goto simple; # next array indirect?
         }
       notdisplaced:
-        # Array ist nicht displaced, aber auch nicht simple
+        # array is indirect, but not displaced
         if (Iarray_flags(array) & bit(arrayflags_notbytep_bit))
-          { array = TheIarray(array)->data; # Datenvektor ist garantiert simple
+          { array = TheIarray(array)->data; # next array is the storage-vector
             simple:
-            # Array ist simple
+            # have reached the storage-vector, not indirect
             if (*index >= Sarray_length(array)) goto fehler_bad_index;
             return array;
           }
           else
-          # Byte-Array
+          # byte-array
           { if (!simple_bit_vector_p(TheIarray(array)->data))
               array = TheIarray(array)->data;
-            # letzter Datenvektor erreicht
+            # have reached the storage-vector, indirect
             if (*index >= TheIarray(array)->totalsize) goto fehler_bad_index;
             return array;
           }
       fehler_bad_index:
-        fehler(error, # ausführlicher??
+        fehler(error, # more details??
                GETTEXT("index too large")
               );
     }
 
-# Fehler, wenn ein displaced Array nicht mehr in seinen Ziel-Array passt
+# Error, when a displaced array does not fit into its target array.
   nonreturning_function(local, fehler_displaced_inconsistent, (void));
   local void fehler_displaced_inconsistent()
     { fehler(error,
@@ -233,13 +235,13 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             );
     }
 
-# UP: Liefert zu einem Array gegebener Größe den Datenvektor und den Offset.
-# Überprüft auch, ob alle Elemente des Arrays physikalisch vorhanden sind.
+# Function: For an indirect array, returns the storage vector and the offset.
+# Also verifies that all elements of the array are physically present.
 # iarray_displace_check(array,size,&index)
-# > object array: indirekter Array
-# > uintL size: Größe
-# < ergebnis: Datenvektor
-# < index: wird um den Offset in den Datenvektor erhöht.
+# > object array: indirect array
+# > uintL size: size
+# < result: storage vector
+# < index: is incremented by the offset into the storage vector
   global object iarray_displace_check (object array, uintL size, uintL* index);
   global object iarray_displace_check(array,size,index)
     var object array;
@@ -249,17 +251,17 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
         { if (*index+size > TheIarray(array)->totalsize) goto fehler_bad_index;
           if (!(Iarray_flags(array) & bit(arrayflags_displaced_bit)))
             goto notdisplaced;
-          # Array ist displaced
-          *index += TheIarray(array)->dims[0]; # displaced-Offset addieren
-          array = TheIarray(array)->data; # nächster Array
-          if (array_simplep(array)) goto simple; # nächster Array simple?
+          # array is displaced
+          *index += TheIarray(array)->dims[0]; # add displaced-offset
+          array = TheIarray(array)->data; # next array in the chain
+          if (array_simplep(array)) goto simple; # next array indirect?
         }
       notdisplaced:
-        # Array ist nicht displaced, aber auch nicht simple
+        # array is indirect, but not displaced
         if (Iarray_flags(array) & bit(arrayflags_notbytep_bit))
-          { array = TheIarray(array)->data; # Datenvektor ist garantiert simple
+          { array = TheIarray(array)->data; # next array is the storage-vector
             simple:
-            # Array ist simple
+            # have reached the storage-vector, not indirect
             if (*index+size > Sarray_length(array)) goto fehler_bad_index;
             return array;
           }
@@ -267,7 +269,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
           # Byte-Array
           { if (!simple_bit_vector_p(TheIarray(array)->data))
               array = TheIarray(array)->data;
-            # letzter Datenvektor erreicht
+            # have reached the storage-vector, indirect
             if (*index+size > TheIarray(array)->totalsize) goto fehler_bad_index;
             return array;
           }
@@ -275,34 +277,34 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
         fehler_displaced_inconsistent();
     }
 
-# UP: Liefert zu einem Array gegebener Größe den Datenvektor und den Offset.
-# Überprüft auch, ob alle Elemente des Arrays physikalisch vorhanden sind.
+# Function: For an array, returns the storage vector and the offset.
+# Also verifies that all elements of the array are physically present.
 # array_displace_check(array,size,&index)
-# > object array: Array
-# > uintL size: Größe
-# < ergebnis: Datenvektor
-# < index: wird um den Offset in den Datenvektor erhöht.
+# > object array: array
+# > uintL size: size
+# < result: storage vector
+# < index: is incremented by the offset into the storage vector
   global object array_displace_check (object array, uintL size, uintL* index);
   global object array_displace_check(array,size,index)
     var object array;
     var uintL size;
     var uintL* index;
-    { if (array_simplep(array)) goto simple; # Array simple?
+    { if (array_simplep(array)) goto simple; # array indirect?
       loop
         { if (*index+size > TheIarray(array)->totalsize) goto fehler_bad_index;
           if (!(Iarray_flags(array) & bit(arrayflags_displaced_bit)))
             goto notdisplaced;
-          # Array ist displaced
-          *index += TheIarray(array)->dims[0]; # displaced-Offset addieren
-          array = TheIarray(array)->data; # nächster Array
-          if (array_simplep(array)) goto simple; # nächster Array simple?
+          # array is displaced
+          *index += TheIarray(array)->dims[0]; # add displaced-offset
+          array = TheIarray(array)->data; # next array in the chain
+          if (array_simplep(array)) goto simple; # next array indirect?
         }
       notdisplaced:
-        # Array ist nicht displaced, aber auch nicht simple
+        # array is indirect, but not displaced
         if (Iarray_flags(array) & bit(arrayflags_notbytep_bit))
-          { array = TheIarray(array)->data; # Datenvektor ist garantiert simple
+          { array = TheIarray(array)->data; # next array is the storage-vector
             simple:
-            # Array ist simple
+            # have reached the storage-vector, not indirect
             if (*index+size > Sarray_length(array)) goto fehler_bad_index;
             return array;
           }
@@ -310,7 +312,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
           # Byte-Array
           { if (!simple_bit_vector_p(TheIarray(array)->data))
               array = TheIarray(array)->data;
-            # letzter Datenvektor erreicht
+            # have reached the storage-vector, indirect
             if (*index+size > TheIarray(array)->totalsize) goto fehler_bad_index;
             return array;
           }
@@ -318,41 +320,41 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
         fehler_displaced_inconsistent();
     }
 
-# Fehlermeldung
-# > obj: Nicht-Array
+# Error message.
+# > obj: non-array
 # > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(local, fehler_array, (object obj));
   local void fehler_array(obj)
     var object obj;
-    { pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(array)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+    { pushSTACK(obj); # slot DATUM of TYPE-ERROR
+      pushSTACK(S(array)); # slot EXPECTED-TYPE of TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not an array")
             );
     }
 
-# Überprüft Array-Argument.
-# > object: Argument
-# > subr_self: Aufrufer (ein SUBR)
+# Checks an array argument.
+# > object: argument
+# > subr_self: caller (a SUBR)
 # test_array(object)
-  #define test_array(object_from_test_array)  \
-    if (!arrayp(object_from_test_array)) { fehler_array(object_from_test_array); }
+  #define test_array(object)  \
+    if (!arrayp(object)) { fehler_array(object); }
 
-# Liefert den Rang eines Arrays.
-# > array: ein Array
-# < ergebnis: Rang als Fixnum
+# Returns the rank of an array.
 # arrayrank(array)
+# > array: an array
+# < object result: rank as a fixnum
   #define arrayrank(array)  \
-    (mdarrayp(array)                                         \
-     ? fixnum((uintL)Iarray_rank(array)) # allgemeiner Array \
-     : Fixnum_1 # Vektor hat Rang 1                          \
+    (mdarrayp(array)                                               \
+     ? fixnum((uintL)Iarray_rank(array)) # multi-dimensional array \
+     : Fixnum_1 # vector has rank 1                                \
     )
 
-# Fehlermeldung
-# > array : Array
-# > argcount : (fehlerhafte) Anzahl Subscripts
-# > subr_self: Aufrufer (ein SUBR)
+# Error message
+# > array: array
+# > argcount: (wrong) number of subscripts
+# > subr_self: caller (a SUBR)
   nonreturning_function(local, fehler_subscript_anz, (object array, uintC argcount));
   local void fehler_subscript_anz(array,argcount)
     var object array;
@@ -366,14 +368,16 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             );
     }
 
-# Fehlermeldung
-# > argcount : Anzahl der Subscripts, über ihnen der Array
-# > subr_self: Aufrufer (ein SUBR)
+# Error message
+# > argcount: number of subscripts
+# > STACK_(argcount): array
+# > STACK_(argcount-1),...,STACK_(0): subscripts
+# > subr_self: caller (a SUBR)
   nonreturning_function(local, fehler_subscript_type, (uintC argcount));
   local void fehler_subscript_type(argcount)
     var uintC argcount;
-    { var object list = listof(argcount); # Subscript-Liste
-      # Nun ist STACK_0 der Array.
+    { var object list = listof(argcount); # list of subscripts
+      # STACK_0 is now the array.
       pushSTACK(list);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,
@@ -381,22 +385,24 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             );
     }
 
-# Fehlermeldung
-# > argcount : Anzahl der Subscripts, über ihnen der Array
+# Error message
+# > argcount: number of subscripts
+# > STACK_(argcount): array
+# > STACK_(argcount-1),...,STACK_(0): subscripts
 # > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(local, fehler_subscript_range, (uintC argcount, uintL subscript, uintL bound));
   local void fehler_subscript_range(argcount,subscript,bound)
     var uintC argcount;
     var uintL subscript;
     var uintL bound;
-    { var object list = listof(argcount); # Subscript-Liste
+    { var object list = listof(argcount); # list of subscripts
       pushSTACK(list);
-      # Stackaufbau: Array, subscript-list.
-      pushSTACK(UL_to_I(subscript)); # Wert für Slot DATUM von TYPE-ERROR
+      # On STACK: array, subscript-list.
+      pushSTACK(UL_to_I(subscript)); # slot DATUM of TYPE-ERROR
       { var object tmp;
         pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(bound));
         tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-        pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(tmp); # slot EXPECTED-TYPE of TYPE-ERROR
       }
       pushSTACK(STACK_(1+2));
       pushSTACK(STACK_(0+3));
@@ -530,18 +536,18 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
         { # Subscripts überprüfen, Row-Major-Index errechnen, STACK aufräumen:
           *index_ = test_subscripts(array,argptr,argcount);
           # Datenvektor und absoluten Index holen:
-          return notsimple_displace(array,&(*index_));
+          return iarray_displace(array,&(*index_));
         }
     }
 
-# Führt einen AREF-Zugriff aus.
-# datenvektor_aref(datenvektor,index)
-# > datenvektor : ein Datenvektor (simpler Vektor oder semi-simpler Byte-Vektor)
-# > index : (geprüfter) Index in den Datenvektor
-# < ergebnis : (AREF datenvektor index)
-# kann GC auslösen (nur bei 32Bit-Byte-Vektoren)
-  global object datenvektor_aref (object datenvektor, uintL index);
-  global object datenvektor_aref(datenvektor,index)
+# Function: Performs an AREF access.
+# storagevector_aref(storagevector,index)
+# > storagevector: a storage vector (simple vector or semi-simple byte vector)
+# > index: (already checked) index into the storage vector
+# < result: (AREF storagevector index)
+# can trigger GC (only for element type (UNSIGNED-BYTE 32))
+  global object storagevector_aref (object datenvektor, uintL index);
+  global object storagevector_aref(datenvektor,index)
     var object datenvektor;
     var uintL index;
     { switch (Array_type(datenvektor))
@@ -573,14 +579,14 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
     }   }
 
 # Führt einen STORE-Zugriff aus.
-# datenvektor_store(datenvektor,index,element)
+# storagevector_store(datenvektor,index,element)
 # > datenvektor : ein Datenvektor (simpler Vektor oder semi-simpler Byte-Vektor)
 # > index : (geprüfter) Index in den Datenvektor
 # > element : (ungeprüftes) einzutragendes Objekt
 # > STACK_0 : array (für Fehlermeldung)
 # > subr_self: Aufrufer (ein SUBR)
-  local void datenvektor_store (object datenvektor, uintL index, object element);
-  local void datenvektor_store(datenvektor,index,element)
+  local void storagevector_store (object datenvektor, uintL index, object element);
+  local void storagevector_store(datenvektor,index,element)
     var object datenvektor;
     var uintL index;
     var object element;
@@ -657,7 +663,7 @@ LISPFUN(aref,1,0,rest,nokey,0,NIL) # (AREF array {subscript}), CLTL S. 290
     var uintL index;
     var object datenvektor = subscripts_to_index(array,rest_args_pointer,argcount, &index);
     # Element des Datenvektors holen:
-    value1 = datenvektor_aref(datenvektor,index); mv_count=1;
+    value1 = storagevector_aref(datenvektor,index); mv_count=1;
     skipSTACK(1);
   }
 
@@ -670,7 +676,7 @@ LISPFUN(store,2,0,rest,nokey,0,NIL) # (SYS::STORE array {subscript} object)
     var uintL index;
     var object datenvektor = subscripts_to_index(array,rest_args_pointer,argcount, &index);
     # Element in den Datenvektor eintragen:
-    datenvektor_store(datenvektor,index,element);
+    storagevector_store(datenvektor,index,element);
     value1 = element; mv_count=1;
     skipSTACK(1);
   }}
@@ -727,8 +733,8 @@ LISPFUNN(row_major_aref,2)
     if (!(index < array_total_size(array))) # Index muss kleiner als Größe sein
       fehler_index_range(array_total_size(array));
     if (!array_simplep(array))
-      { array = notsimple_displace(array,&index); }
-    value1 = datenvektor_aref(array,index); mv_count=1;
+      { array = iarray_displace(array,&index); }
+    value1 = storagevector_aref(array,index); mv_count=1;
     skipSTACK(2);
   }}
 
@@ -745,17 +751,17 @@ LISPFUNN(row_major_store,3)
     if (!(index < array_total_size(array))) # Index muss kleiner als Größe sein
       fehler_index_range(array_total_size(array));
     if (!array_simplep(array))
-      { array = notsimple_displace(array,&index); }
-    datenvektor_store(array,index,element);
+      { array = iarray_displace(array,&index); }
+    storagevector_store(array,index,element);
     value1 = element; mv_count=1;
     skipSTACK(2);
   }}
 
-# UP, liefert den Element-Typ eines Arrays
+# Function: Returns the element-type of an array.
 # array_element_type(array)
-# > array : ein Array (simple oder nicht)
-# < ergebnis : Element-Typ, eines der Symbole T, BIT, CHARACTER, oder eine Liste
-# kann GC auslösen
+# > array: an array
+# < result: element-type, one of the symbols T, BIT, CHARACTER, or a list
+# can trigger GC
   global object array_element_type (object array);
   global object array_element_type(array)
     var object array;
@@ -842,11 +848,11 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
             );
   }
 
-# UP, bildet Liste der Dimensionen eines Arrays
+# Function: Returns the list of dimensions of an array.
 # array_dimensions(array)
-# > array: ein Array (simple oder nicht)
-# < ergebnis: Liste seiner Dimensionen
-# kann GC auslösen
+# > array: an array
+# < result: list of its dimensions
+# can trigger GC
   global object array_dimensions (object array);
   global object array_dimensions(array)
     var object array;
@@ -883,13 +889,13 @@ LISPFUNN(array_dimensions,1) # (ARRAY-DIMENSIONS array), CLTL S. 292
     value1 = array_dimensions(array); mv_count=1;
   }
 
-# UP, liefert Dimensionen eines Arrays und ihre Teilprodukte
-# array_dims_sizes(array,&dims_sizes);
-# > array: (echter) Array vom Rang r
-# > struct { uintL dim; uintL dimprod; } dims_sizes[r]: Platz fürs Ergebnis
-# < für i=1,...r:  dims_sizes[r-i] = { Dim_i, Dim_i * ... * Dim_r }
-  global void array_dims_sizes (object array, array_dim_size* dims_sizes);
-  global void array_dims_sizes(array,dims_sizes)
+# Function: Returns the dimensions of an array and their partial products.
+# iarray_dims_sizes(array,&dims_sizes);
+# > array: indirect array of rank r
+# > struct { uintL dim; uintL dimprod; } dims_sizes[r]: room for the result
+# < for i=1,...r:  dims_sizes[r-i] = { Dim_i, Dim_i * ... * Dim_r }
+  global void iarray_dims_sizes (object array, array_dim_size* dims_sizes);
+  global void iarray_dims_sizes(array,dims_sizes)
     var object array;
     var array_dim_size* dims_sizes;
     { var uintC r = Iarray_rank(array); # Rang
@@ -1094,14 +1100,14 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
     #define LR_bitpack_0(x)  LR_2bitpack(x,0)
   #endif
 
-# Unterprogramm für Bitvektor-Vergleich:
+# Function: Compares two slices of simple-bit-vectors.
 # bit_compare(array1,index1,array2,index2,count)
-# > array1: erster Bit-Array,
-# > index1: absoluter Index in array1
-# > array2: zweiter Bit-Array,
-# > index2: absoluter Index in array2
-# > count: Anzahl der zu vergleichenden Bits
-# < ergebnis: TRUE, wenn die Ausschnitte bitweise gleich sind, FALSE sonst.
+# > array1: first simple-bit-vector
+# > index1: absolute index into array1
+# > array2: second simple-bit-vector
+# > index2: absolute index into array2
+# > count: number of bits to be compared
+# < result: TRUE, if both slices are the same, bit for bit, else FALSE.
   global boolean bit_compare (object array1, uintL index1,
                               object array2, uintL index2,
                               uintL bitcount);
@@ -1640,10 +1646,10 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     return_Values bit_up(&bitpack_not);
   }
 
-# UP: Testet, ob ein Array einen Fill-Pointer hat.
+# Function: Tests whether an array has a fill-pointer.
 # array_has_fill_pointer_p(array)
 # > array: ein Array
-# < TRUE, falls ja; FALSE falls nein.
+# < result: TRUE, if it has a fill-pointer, else FALSE.
   global boolean array_has_fill_pointer_p (object array);
   global boolean array_has_fill_pointer_p(array)
     var object array;
@@ -1718,8 +1724,8 @@ LISPFUNN(vector_push,2) # (VECTOR-PUSH new-element vector), CLTL S. 296
       { value1 = NIL; mv_count=1; } # NIL zurück
       else
       { var uintL index = oldfillp;
-        var object datenvektor = notsimple_displace(STACK_0,&index);
-        datenvektor_store(datenvektor,index,STACK_1); # new-element eintragen
+        var object datenvektor = iarray_displace(STACK_0,&index);
+        storagevector_store(datenvektor,index,STACK_1); # new-element eintragen
         (*fillp)++; # Fill-Pointer erhöhen
         value1 = fixnum(oldfillp); mv_count=1;
         # alter Fill-Pointer als Wert
@@ -1739,8 +1745,8 @@ LISPFUNN(vector_pop,1) # (VECTOR-POP vector), CLTL S. 296
       }
       else
       { var uintL index = --(*fillp); # Fill-Pointer erniedrigen
-        var object datenvektor = notsimple_displace(array,&index);
-        value1 = datenvektor_aref(datenvektor,index); mv_count=1; # Element zurück
+        var object datenvektor = iarray_displace(array,&index);
+        value1 = storagevector_aref(datenvektor,index); mv_count=1; # Element zurück
       }
   }
 
@@ -1751,8 +1757,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
     var uintL oldfillp = *fillp; # alter Wert des Fillpointers
     if (oldfillp < fillp[-1]) # Fill-Pointer noch nicht am Ende?
       { var uintL index = oldfillp;
-        var object datenvektor = notsimple_displace(STACK_0,&index);
-        datenvektor_store(datenvektor,index,STACK_1); # new-element eintragen
+        var object datenvektor = iarray_displace(STACK_0,&index);
+        storagevector_store(datenvektor,index,STACK_1); # new-element eintragen
         (*fillp)++; # Fill-Pointer erhöhen
       }
       else
@@ -1885,7 +1891,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                                       });
                       }}  }}
                     # new-element eintragen:
-                    datenvektor_store(neuer_datenvektor,len,STACK_1);
+                    storagevector_store(neuer_datenvektor,len,STACK_1);
                     break;
                   default: NOTREACHED
                   fehler_type:
@@ -1913,11 +1919,11 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
     skipSTACK(2);
   }
 
-# UP: erzeugt einen mit Nullen gefüllten Bitvektor
+# Function: Allocates a new simple-bit-vector, filled with zeroes.
 # allocate_bit_vector_0(len)
-# > uintL len: Länge des Bitvektors (in Bits)
-# < ergebnis: neuer Bitvektor, mit Nullen gefüllt
-# kann GC auslösen
+# > uintL len: length of the desired bit-vector (number of bits)
+# < result: fresh simple-bit-vector, filled with zeroes
+# can trigger GC
   global object allocate_bit_vector_0 (uintL len);
   global object allocate_bit_vector_0(len)
     var uintL len;
@@ -1958,17 +1964,18 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 
 #endif
 
-# Folgende beide Funktionen arbeiten auf "Semi-Simple String"s.
-# Das sind CHARACTER-Arrays mit FILL-POINTER, die aber nicht adjustierbar
-# und nicht displaced sind und deren Datenvektor ein Normal-Simple-String ist.
-# Beim Überschreiten der Länge wird ihre Länge verdoppelt
-# (so dass der Aufwand fürs Erweitern nicht sehr ins Gewicht fällt).
+# The following functions work on "semi-simple string"s.
+# That are CHARACTER arrays with FILL-POINTER, (pro forma) not adjustable and
+# not displaced, whose storagevector is a normal-simple-string. When their
+# length is exceeded, the length is doubled (so that the resizing effort
+# becomes unimportant: adding a character is still O(1) on average.)
 
-# UP: Liefert einen Semi-Simple String gegebener Länge, Fill-Pointer =0.
+# Function: Returns a fresh semi-simple-string of given length, with
+# fill-pointer = 0.
 # make_ssstring(len)
-# > uintL len: Länge >0
-# < ergebnis: neuer Semi-Simple String dieser Länge
-# kann GC auslösen
+# > uintL len: desired length, must be >0
+# < fresh: fresh semi-simple-string of the given length
+# can trigger GC
   global object make_ssstring (uintL len);
   global object make_ssstring(len)
     var uintL len;
@@ -1986,13 +1993,13 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
        return new_array;
     } }
 
-# UP: Schiebt ein Character in einen Semi-Simple String und erweitert ihn
-# dabei eventuell.
+# Function: Adds a character to a semi-simple-string, thereby possibly
+# extending it.
 # ssstring_push_extend(ssstring,ch)
-# > ssstring: Semi-Simple String
-# > ch: Character
-# < ergebnis: derselbe Semi-Simple String
-# kann GC auslösen
+# > ssstring: a semi-simple-string
+# > ch: a character
+# < result: the same semi-simple-string
+# can trigger GC
   global object ssstring_push_extend (object ssstring, chart ch);
   global object ssstring_push_extend(ssstring,ch)
     var object ssstring;
@@ -2023,13 +2030,13 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       return ssstring;
     }
 
-# UP: Stellt sicher, dass ein Semi-Simple String eine bestimmte Länge hat
-# und erweitert ihn dazu eventuell.
+# Function: Ensures that a semi-simple-string has at least a given length,
+# possibly extending it.
 # ssstring_extend(ssstring,size)
-# > ssstring: Semi-Simple String
-# > size: gewünschte Mindestgröße
-# < ergebnis: derselbe Semi-Simple String
-# kann GC auslösen
+# > ssstring: a semi-simple-string
+# > size: desired minimum length
+# < ergebnis: the same semi-simple-string
+# can trigger GC
   global object ssstring_extend (object ssstring, uintL needed_len);
   global object ssstring_extend(ssstring,needed_len)
     var object ssstring;
@@ -2057,17 +2064,18 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       return ssstring;
     }
 
-# Folgende beide Funktionen arbeiten auf "Semi-Simple Byte-Vector"s.
-# Das sind Simple-Bit-Arrays mit Fill-Pointer, die aber nicht adjustierbar
-# und nicht displaced sind und deren Datenvektor ein Simple-Bit-Vektor ist.
-# Beim Überschreiten der Länge wird ihre Länge verdoppelt
-# (so dass der Aufwand fürs Erweitern nicht sehr ins Gewicht fällt).
+# The following functions work on "semi-simple byte-vector"s.
+# That are bit vectors with FILL-POINTER, (pro forma) not adjustable and
+# not displaced, whose storagevector is a simple-bit-vector. When their
+# length is exceeded, the length is doubled (so that the resizing effort
+# becomes unimportant: adding a character is still O(1) on average.)
 
-# UP: Liefert einen Semi-Simple Byte-Vector mit len Bytes, Fill-Pointer =0.
+# Function: Returns a fresh semi-simple byte-vector of given length, with
+# fill-pointer = 0.
 # make_ssbvector(len)
-# > uintL len: Länge (in Bytes!) >0
-# < ergebnis: neuer Semi-Simple Byte-Vector dieser Länge
-# kann GC auslösen
+# > uintL len: length (number of bytes!), must be >0
+# < result: fresh semi-simple byte-vector of the given length
+# can trigger GC
   global object make_ssbvector (uintL len);
   global object make_ssbvector(len)
     var uintL len;
@@ -2082,13 +2090,13 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       return new_array;
     }}
 
-# UP: Schiebt ein Byte in einen Semi-Simple Byte-Vector und erweitert ihn
-# dabei eventuell.
+# Function: Adds a byte to a semi-simple byte vector, thereby possibly
+# extending it.
 # ssbvector_push_extend(ssbvector,b)
-# > ssbvector: Semi-Simple Byte-Vector
-# > b: Byte
-# < ergebnis: derselbe Semi-Simple Byte-Vector
-# kann GC auslösen
+# > ssbvector: a semi-simple byte-vector
+# > b: byte
+# < result: the same semi-simple byte-vector
+# can trigger GC
   global object ssbvector_push_extend (object ssbvector, uintB b);
   global object ssbvector_push_extend(ssbvector,b)
     var object ssbvector;
@@ -2236,14 +2244,14 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 # Hilfsroutine für MAKE-ARRAY und ADJUST-ARRAY:
 # erzeugt einen Datenvektor gegebener Länge
 # und füllt ihn mit initial-element, falls angegeben.
-# make_datenvektor(len,eltype)
+# make_storagevector(len,eltype)
 # > len: Länge
 # > eltype: Elementtyp-Code
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: einfacher Vektor des gegebenen Typs, evtl. gefüllt.
-# kann GC auslösen
-  local object make_datenvektor (uintL len, uintB eltype);
-  local object make_datenvektor(len,eltype)
+# can trigger GC
+  local object make_storagevector (uintL len, uintB eltype);
+  local object make_storagevector(len,eltype)
     var uintL len;
     var uintB eltype;
     { switch (eltype)
@@ -2359,7 +2367,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 # > contents: verschachtelte Sequence-Struktur
 # < ergebnis: derselbe Datenvektor
 # Nicht reentrant!
-# kann GC auslösen
+# can trigger GC
   local object initial_contents (object datenvektor, object dims, uintL rank, object contents);
   typedef struct { object* localptr; # Pointer auf Datenvektor und Dimensionen
                    uintL index; # Index in den Datenvektor
@@ -2412,7 +2420,7 @@ local void initial_contents_aux(arg,obj)
         subr_self = *(localptr STACKop -2);
         pushSTACK(obj);
         pushSTACK(datenvektor);
-        datenvektor_store(datenvektor,locals->index,STACK_1);
+        storagevector_store(datenvektor,locals->index,STACK_1);
         locals->index++;
         skipSTACK(2); # Stack aufräumen
       }
@@ -2582,7 +2590,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
       # Falls nicht displaced, Datenvektor bilden und evtl. füllen:
       if (nullp(STACK_1)) # displaced-to nicht angegeben?
         { # Datenvektor bilden:
-          var object datenvektor = make_datenvektor(totalsize,eltype);
+          var object datenvektor = make_storagevector(totalsize,eltype);
           if (!eq(STACK_3,unbound)) # und falls initial-contents angegeben:
             { datenvektor = initial_contents(datenvektor,STACK_7,rank,STACK_3); } # füllen
           # Falls displaced-to nicht angegeben ist
@@ -2771,7 +2779,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
                     = ((uint32*)&TheSbvector(TheIarray(oldvec)->data)->data[0])[oldindex];
                 }
                 else
-                { datenvektor_store(newvec,newindex,datenvektor_aref(oldvec,oldindex)); }
+                { storagevector_store(newvec,newindex,storagevector_aref(oldvec,oldindex)); }
             }
             else
             { # Schleife über alle gemeinsamen Indizes:
@@ -2868,7 +2876,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
        # Falls nicht displaced, Datenvektor bilden und evtl. füllen:
        if (nullp(STACK_1)) # displaced-to nicht angegeben?
          { # Datenvektor bilden:
-           var object datenvektor = make_datenvektor(totalsize,eltype);
+           var object datenvektor = make_storagevector(totalsize,eltype);
            if (!eq(STACK_3,unbound)) # und falls initial-contents angegeben:
              { # mit dem initial-contents-Argument füllen:
                datenvektor = initial_contents(datenvektor,STACK_7,rank,STACK_3);

@@ -59,7 +59,7 @@
 # > y: Integer Y (>=0)
 # > x: Ziffernwert X (>=0,<10)
 # < ergebnis: Integer Y*10+X (>=0)
-# kann GC auslösen
+# can trigger GC
   global object mal_10_plus_x (object y, uintB x);
   global object mal_10_plus_x(y,x)
     var object y;
@@ -90,7 +90,7 @@
 # > index2: Index nach der letzten Ziffer
 #   (also index2-index1 Ziffern, incl. evtl. Dezimalpunkt am Schluss)
 # < ergebnis: Integer
-# kann GC auslösen
+# can trigger GC
   global object read_integer (uintWL base,
          signean sign, object string, uintL index1, uintL index2);
   global object read_integer(base,sign,string,index1,index2)
@@ -119,7 +119,7 @@
 # > index2: Index nach der letzten Ziffer
 #   (also index3-index1 Zähler-Ziffern, index2-index3-1 Nenner-Ziffern)
 # < ergebnis: rationale Zahl
-# kann GC auslösen
+# can trigger GC
   global object read_rational (uintWL base,
          signean sign, object string, uintL index1, uintL index3, uintL index2);
   global object read_rational(base,sign,string,index1,index3,index2)
@@ -157,7 +157,7 @@
 #    index4+1 = Index des Exponenten-Vorzeichens oder der ersten
 #    Exponenten-Ziffer)
 # < ergebnis: Float
-# kann GC auslösen
+# can trigger GC
   global object read_float (uintWL base,
          signean sign, object string, uintL index1, uintL index4, uintL index2, uintL index3);
   global object read_float(base,sign,string,index1,index4,index2,index3)
@@ -245,7 +245,7 @@
 # > base: Basis (>=2, <=36)
 # > stream: Stream
 # < stream: Stream
-# kann GC auslösen
+# can trigger GC
   global void print_integer (object z, uintWL base, const object* stream_);
   global void print_integer(z,base,stream_)
     var object z;
@@ -280,7 +280,7 @@
 # > z: Float
 # > stream: Stream
 # < stream: Stream
-# kann GC auslösen
+# can trigger GC
   global void print_float (object z, const object* stream_);
   global void print_float(z,stream_)
     var object z;
@@ -436,7 +436,7 @@
 # decimal_string(x)
 # > object x: an integer >= 0
 # < object result: a normal-simple-string containing the digits
-# kann GC auslösen
+# can trigger GC
   global object decimal_string (object x);
   global object decimal_string(x)
     var object x;
@@ -1091,7 +1091,7 @@ LISPFUN(float,1,1,norest,nokey,0,NIL)
 #         FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: (coerce obj type)
-# kann GC auslösen
+# can trigger GC
   global object coerce_float (object obj, object type);
   global object coerce_float(obj,type)
     var object obj;
@@ -1713,7 +1713,7 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
 # - zufällig, falls r=T,
 # - aus Random-State *RANDOM-STATE*, falls r=NIL oder r=unbound,
 # - aus Random-State r selbst, sonst.
-# kann GC auslösen
+# can trigger GC
   local object make_random_state (object r);
   local object make_random_state(r)
     var object r;
@@ -1809,7 +1809,7 @@ LISPFUNN(long_float_digits,0)
 
 # Setzt die Default-Long-Float-Länge auf den Wert len (>= LF_minlen).
 # set_lf_digits(len);
-# kann GC auslösen
+# can trigger GC
   local void set_lf_digits (uintC len);
   local void set_lf_digits(len)
     var uintC len;
@@ -1965,7 +1965,7 @@ LISPFUNN(log10,1)
 
 # UP: Initialisiert die Arithmetik.
 # init_arith();
-# kann GC auslösen
+# can trigger GC
   global void init_arith (void);
   global void init_arith()
     { # verschiedene konstante Zahlen:

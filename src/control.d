@@ -406,7 +406,7 @@ LISPSPECFORM(progn, 0,0,body)
 # implicit_prog();
 # > -(STACK): Formenliste
 # erhöht STACK um 1
-# kann GC auslösen
+# can trigger GC
   #define implicit_prog()  \
     { while (mconsp(STACK_0))                         \
         { var object forms = STACK_0;                 \
@@ -452,7 +452,7 @@ LISPSPECFORM(prog2, 2,0,body)
 # compile_form()
 # > im STACK: EVAL-Frame mit der Form
 # < mv_count/mv_space: Werte
-# kann GC auslösen
+# can trigger GC
   local Values compile_eval_form (void);
   local Values compile_eval_form()
     { # (SYS::COMPILE-FORM form venv fenv benv genv denv) ausführen:
@@ -486,7 +486,7 @@ LISPSPECFORM(prog2, 2,0,body)
 # < object* bind_ptr: Pointer über die erste "richtige" Bindung.
 # < uintC bind_count: Anzahl der "richtigen" Bindungen.
 # verändert STACK
-# kann GC auslösen
+# can trigger GC
   local void make_variable_frame (object caller, object varspecs, object** bind_ptr_, uintC* bind_count_);
   local void make_variable_frame(caller,varspecs,bind_ptr_,bind_count_)
     var object caller;
@@ -890,7 +890,7 @@ LISPSPECFORM(progv, 2,0,body)
 # > top_of_frame: Pointer übern Frame
 # > body: Formenliste
 # < mv_count/mv_space: Werte
-# kann GC auslösen
+# can trigger GC
   local Values finish_flet (object* top_of_frame, object body);
   local Values finish_flet(top_of_frame,body)
     var object* top_of_frame;
@@ -1896,7 +1896,7 @@ LISPFUNN(unwind_to_driver,0)
 # Überprüft ein optionales Macroexpansions-Environment in STACK_0.
 # > STACK_0: Argument
 # < STACK_0: Macroexpansions-Environment #(venv fenv)
-# kann GC auslösen
+# can trigger GC
   local void test_env (void);
   local void test_env()
     { var object arg = STACK_0;

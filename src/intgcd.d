@@ -4,7 +4,7 @@
 # I_I_gcd_I(a,b)
 # > a,b: zwei Integers
 # < ergebnis: (gcd a b), ein Integer >=0
-# kann GC auslösen
+# can trigger GC
   local object I_I_gcd_I (object a, object b);
   #define GCD_ALGO 3  # 1: binär, 2: Schulmethode, 3: Lehmer
 
@@ -13,7 +13,7 @@
 # > a,b: zwei Integers
 # < STACK_2=u, STACK_1=v, STACK_0=g: Integers mit u*a+v*b = g >= 0
 # erniedrigt STACK um 3
-# kann GC auslösen
+# can trigger GC
   local void I_I_xgcd_I_I_I (object a, object b);
   #define XGCD_ALGO 3  # 2: Schulmethode, 3: Lehmer
 # Im Fall A/=0, B/=0 genügt das Ergebnis (g,u,v) den Ungleichungen:
@@ -1147,7 +1147,7 @@
 # I_I_lcm_I(a,b)
 # > a,b: zwei Integers
 # < ergebnis: (lcm a b), ein Integer >=0
-# kann GC auslösen
+# can trigger GC
   local object I_I_lcm_I (object a, object b);
 # Methode:
 # a=0 oder b=0 -> Ergebnis 0.

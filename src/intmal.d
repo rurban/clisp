@@ -224,7 +224,7 @@
     }
 
 # (* x x), wo x ein Integer ist. Ergebnis Integer.
-# kann GC auslösen
+# can trigger GC
   # Methode:
   # x=0 -> Ergebnis 0
   # x Fixnum -> direkt quadrieren
@@ -628,7 +628,7 @@
     }
 
 # (* x y), wo x und y Integers sind. Ergebnis Integer.
-# kann GC auslösen
+# can trigger GC
   # Methode:
   # x=0 oder y=0 -> Ergebnis 0
   # x und y beide Fixnums -> direkt multiplizieren
@@ -673,7 +673,7 @@
     }}
 
 # (EXPT x y), wo x Integer, y Integer >0 ist.
-# kann GC auslösen
+# can trigger GC
   # Methode:
   #   a:=x, b:=y, c:=1. [a^b*c bleibt invariant, = x^y.]
   #   Solange b>1,
@@ -729,7 +729,7 @@
   #endif
 
 # Fakultät (! n), wo n Fixnum >=0 ist. Ergebnis Integer.
-# kann GC auslösen
+# can trigger GC
   # Methode:
   # n <= 10 -> Ergebnis (Fixnum) aus Tabelle
   # Sonst:

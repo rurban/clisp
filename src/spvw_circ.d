@@ -15,7 +15,7 @@
 #           NIL if there are no circularities,
 #           #(0 ...) a vector of length (n+1), containing the integer 0 and
 #                    the n circularities, n>0.
-# kann GC auslösen
+# can trigger GC
   global object get_circularities (object obj, boolean pr_array, boolean pr_closure);
 
 # subst_circ(ptr,alist)

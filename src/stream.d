@@ -396,7 +396,7 @@
 # read_byte(stream)
 # > stream: Stream
 # < ergebnis: gelesener Integer (eof_value bei EOF)
-# kann GC auslösen
+# can trigger GC
   global object read_byte (object stream);
   global object read_byte(stream)
     var object stream;
@@ -421,7 +421,7 @@
 # write_byte(stream,byte);
 # > stream: Stream
 # > byte: auszugebender Integer
-# kann GC auslösen
+# can trigger GC
   global void write_byte (object stream, object byte);
   global void write_byte(stream,byte)
     var object stream;
@@ -448,7 +448,7 @@
 # > stream: Stream
 # < stream: Stream
 # < ergebnis: gelesenes Character (eof_value bei EOF)
-# kann GC auslösen
+# can trigger GC
   global object read_char (const object* stream_);
   global object read_char(stream_)
     var const object* stream_;
@@ -509,7 +509,7 @@
 # > stream: Stream
 # < stream: Stream
 # < ergebnis: gelesenes Character (eof_value bei EOF)
-# kann GC auslösen
+# can trigger GC
   global object peek_char (const object* stream_);
   global object peek_char(stream_)
     var const object* stream_;
@@ -558,7 +558,7 @@
 # > ch: auszugebendes Character
 # > stream: Stream
 # < stream: Stream
-# kann GC auslösen
+# can trigger GC
   global void write_char (const object* stream_, object ch);
   global void write_char(stream_,ch)
     var const object* stream_;
@@ -975,7 +975,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-# kann GC auslösen
+# can trigger GC
   local signean listen_synonym (object stream);
   local signean listen_synonym(stream)
     var object stream;
@@ -988,7 +988,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # clear_input_synonym(stream)
 # > stream: Synonym-Stream
 # < ergebnis: TRUE falls Input gelöscht wurde
-# kann GC auslösen
+# can trigger GC
   local boolean clear_input_synonym (object stream);
   local boolean clear_input_synonym(stream)
     var object stream;
@@ -1000,7 +1000,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # UP: Wartenden Output eines Synonym-Stream ans Ziel bringen.
 # finish_output_synonym(stream);
 # > stream: Synonym-Stream
-# kann GC auslösen
+# can trigger GC
   local void finish_output_synonym (object stream);
   local void finish_output_synonym(stream)
     var object stream;
@@ -1012,7 +1012,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # UP: Wartenden Output eines Synonym-Stream ans Ziel bringen.
 # force_output_synonym(stream);
 # > stream: Synonym-Stream
-# kann GC auslösen
+# can trigger GC
   local void force_output_synonym (object stream);
   local void force_output_synonym(stream)
     var object stream;
@@ -1024,7 +1024,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # UP: Löscht den wartenden Output eines Synonym-Stream.
 # clear_output_synonym(stream);
 # > stream: Synonym-Stream
-# kann GC auslösen
+# can trigger GC
   local void clear_output_synonym (object stream);
   local void clear_output_synonym(stream)
     var object stream;
@@ -1037,7 +1037,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # make_synonym_stream(symbol)
 # > symbol : Symbol
 # < ergebnis : neuer Synonym-Stream
-# kann GC auslösen
+# can trigger GC
   local object make_synonym_stream (object symbol);
   local object make_synonym_stream(symbol)
     var object symbol;
@@ -1194,7 +1194,7 @@ LISPFUNN(synonym_stream_symbol,1)
 # UP: Bringt den wartenden Output eines Broadcast-Stream ans Ziel.
 # finish_output_broad(stream);
 # > stream: Broadcast-Stream
-# kann GC auslösen
+# can trigger GC
   local void finish_output_broad (object stream);
   local void finish_output_broad(stream)
     var object stream;
@@ -1211,7 +1211,7 @@ LISPFUNN(synonym_stream_symbol,1)
 # UP: Bringt den wartenden Output eines Broadcast-Stream ans Ziel.
 # force_output_broad(stream);
 # > stream: Broadcast-Stream
-# kann GC auslösen
+# can trigger GC
   local void force_output_broad (object stream);
   local void force_output_broad(stream)
     var object stream;
@@ -1228,7 +1228,7 @@ LISPFUNN(synonym_stream_symbol,1)
 # UP: Löscht den wartenden Output eines Broadcast-Stream.
 # clear_output_broad(stream);
 # > stream: Broadcast-Stream
-# kann GC auslösen
+# can trigger GC
   local void clear_output_broad (object stream);
   local void clear_output_broad(stream)
     var object stream;
@@ -1247,7 +1247,7 @@ LISPFUNN(synonym_stream_symbol,1)
 # > list : Liste von Streams
 # < ergebnis : Broadcast-Stream
 # Die Liste list wird dabei zerstört.
-# kann GC auslösen
+# can trigger GC
   local object make_broadcast_stream (object list);
   local object make_broadcast_stream(list)
     var object list;
@@ -1289,7 +1289,7 @@ LISPFUNN(synonym_stream_symbol,1)
 # make_broadcast1_stream(stream)
 # > stream : Stream
 # < ergebnis : Broadcast-Stream
-# kann GC auslösen
+# can trigger GC
   global object make_broadcast1_stream (object stream);
   global object make_broadcast1_stream(oldstream)
     var object oldstream;
@@ -1471,7 +1471,7 @@ LISPFUNN(broadcast_stream_streams,1)
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-# kann GC auslösen
+# can trigger GC
   local signean listen_concat (object stream);
   local signean listen_concat(stream)
     var object stream;
@@ -1498,7 +1498,7 @@ LISPFUNN(broadcast_stream_streams,1)
 # clear_input_concat(stream)
 # > stream: Concatenated-Stream
 # < ergebnis: TRUE falls Input gelöscht wurde
-# kann GC auslösen
+# can trigger GC
   local boolean clear_input_concat (object stream);
   local boolean clear_input_concat(stream)
     var object stream;
@@ -1518,7 +1518,7 @@ LISPFUNN(broadcast_stream_streams,1)
 # > list : Liste von Streams
 # < ergebnis : Concatenated-Stream
 # Die Liste list wird dabei zerstört.
-# kann GC auslösen
+# can trigger GC
   local object make_concatenated_stream (object list);
   local object make_concatenated_stream(list)
     var object list;
@@ -1641,7 +1641,7 @@ LISPFUNN(concatenated_stream_streams,1)
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-# kann GC auslösen
+# can trigger GC
   local signean listen_twoway (object stream);
   local signean listen_twoway(stream)
     var object stream;
@@ -1654,7 +1654,7 @@ LISPFUNN(concatenated_stream_streams,1)
 # clear_input_twoway(stream)
 # > stream: Two-Way- oder Echo-Stream
 # < ergebnis: TRUE falls Input gelöscht wurde
-# kann GC auslösen
+# can trigger GC
   local boolean clear_input_twoway (object stream);
   local boolean clear_input_twoway(stream)
     var object stream;
@@ -1665,7 +1665,7 @@ LISPFUNN(concatenated_stream_streams,1)
 # UP: Bringt den wartenden Output eines Two-Way- oder Echo-Stream ans Ziel.
 # finish_output_twoway(stream);
 # > stream: Two-Way- oder Echo-Stream
-# kann GC auslösen
+# can trigger GC
   local void finish_output_twoway (object stream);
   local void finish_output_twoway(stream)
     var object stream;
@@ -1676,7 +1676,7 @@ LISPFUNN(concatenated_stream_streams,1)
 # UP: Bringt den wartenden Output eines Two-Way- oder Echo-Stream ans Ziel.
 # force_output_twoway(stream);
 # > stream: Two-Way- oder Echo-Stream
-# kann GC auslösen
+# can trigger GC
   local void force_output_twoway (object stream);
   local void force_output_twoway(stream)
     var object stream;
@@ -1687,7 +1687,7 @@ LISPFUNN(concatenated_stream_streams,1)
 # UP: Löscht den wartenden Output eines Two-Way- oder Echo-Stream.
 # clear_output_twoway(stream);
 # > stream: Two-Way- oder Echo-Stream
-# kann GC auslösen
+# can trigger GC
   local void clear_output_twoway (object stream);
   local void clear_output_twoway(stream)
     var object stream;
@@ -1754,7 +1754,7 @@ LISPFUNN(concatenated_stream_streams,1)
 # > input_stream : Input-Stream
 # > output_stream : Output-Stream
 # < ergebnis : Two-Way-Stream
-# kann GC auslösen
+# can trigger GC
   global object make_twoway_stream (object input_stream, object output_stream);
   global object make_twoway_stream(input_stream,output_stream)
     var object input_stream;
@@ -1864,7 +1864,7 @@ LISPFUNN(two_way_stream_output_stream,1)
 # > input_stream : Input-Stream
 # > output_stream : Output-Stream
 # < ergebnis : Echo-Stream
-# kann GC auslösen
+# can trigger GC
   local object make_echo_stream (object input_stream, object output_stream);
   local object make_echo_stream(input_stream,output_stream)
     var object input_stream;
@@ -2023,7 +2023,7 @@ LISPFUNN(echo_stream_output_stream,1)
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-# kann GC auslösen
+# can trigger GC
   local signean listen_str_in (object stream);
   local signean listen_str_in(stream)
     var object stream;
@@ -2129,7 +2129,7 @@ LISPFUNN(string_input_stream_index,1)
 
 # Liefert einen String-Output-Stream.
 # make_string_output_stream()
-# kann GC auslösen
+# can trigger GC
   global object make_string_output_stream (void);
   global object make_string_output_stream()
     { # kleinen Semi-Simple-String der Länge 50 allozieren:
@@ -2186,7 +2186,7 @@ LISPFUN(make_string_output_stream,0,0,norest,key,2, (kw(element_type),kw(line_po
 # > stream: String-Output-Stream
 # < stream: geleerter Stream
 # < ergebnis: Angesammeltes, ein Simple-String
-# kann GC auslösen
+# can trigger GC
   global object get_output_stream_string (const object* stream_);
   global object get_output_stream_string(stream_)
     var const object* stream_;
@@ -2337,7 +2337,7 @@ LISPFUNN(string_stream_p,1)
 
 # UP: Liefert einen Pretty-Printer-Hilfs-Stream.
 # make_pphelp_stream()
-# kann GC auslösen
+# can trigger GC
   global object make_pphelp_stream (void);
   global object make_pphelp_stream()
     { # kleinen Semi-Simple-String der Länge 50 allozieren:
@@ -2469,7 +2469,7 @@ LISPFUNN(string_stream_p,1)
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-# kann GC auslösen
+# can trigger GC
   local signean listen_buff_in (object stream);
   local signean listen_buff_in(stream)
     var object stream;
@@ -2501,7 +2501,7 @@ LISPFUNN(string_stream_p,1)
 # clear_input_buff_in(stream)
 # > stream: Buffered-Input-Stream
 # < ergebnis: TRUE falls Input gelöscht wurde
-# kann GC auslösen
+# can trigger GC
   local boolean clear_input_buff_in (object stream);
   local boolean clear_input_buff_in(stream)
     var object stream;
@@ -2577,7 +2577,7 @@ LISPFUNN(buffered_input_stream_index,1)
 # UP: Bringt den wartenden Output eines Buffered-Output-Stream ans Ziel.
 # finish_output_buff_out(stream);
 # > stream: Buffered-Output-Stream
-# kann GC auslösen
+# can trigger GC
   local void finish_output_buff_out (object stream);
   local void finish_output_buff_out(stream)
     var object stream;
@@ -2593,13 +2593,13 @@ LISPFUNN(buffered_input_stream_index,1)
 # UP: Bringt den wartenden Output eines Buffered-Output-Stream ans Ziel.
 # force_output_buff_out(stream);
 # > stream: Buffered-Output-Stream
-# kann GC auslösen
+# can trigger GC
   #define force_output_buff_out  finish_output_buff_out
 
 # UP: Löscht den wartenden Output eines Buffered-Output-Stream.
 # clear_output_buff_out(stream);
 # > stream: Buffered-Output-Stream
-# kann GC auslösen
+# can trigger GC
   local void clear_output_buff_out (object stream);
   local void clear_output_buff_out(stream)
     var object stream;
@@ -2625,7 +2625,7 @@ LISPFUNN(buffered_input_stream_index,1)
 # Schließt einen Buffered-Output-Stream.
 # close_buff_out(stream);
 # > stream : Buffered-Output-Stream
-# kann GC auslösen
+# can trigger GC
   local void close_buff_out (object stream);
   local void close_buff_out(stream)
     var object stream;
@@ -2963,7 +2963,7 @@ LISPFUNN(generic_stream_p,1)
 # > subr_self: calling function
 # < subr_self: unchanged
 # < decoded: decoded eltype
-# kann GC auslösen
+# can trigger GC
   local void test_eltype_arg (object* eltype_, decoded_eltype* decoded);
   local void test_eltype_arg(eltype_,decoded)
     var object* eltype_;
@@ -3057,7 +3057,7 @@ LISPFUNN(generic_stream_p,1)
 # canon_eltype(&decoded)
 # > decoded: decoded eltype
 # < result: either CHARACTER or ([UN]SIGNED-BYTE n)
-# kann GC auslösen
+# can trigger GC
   local object canon_eltype (const decoded_eltype* decoded);
   local object canon_eltype(decoded)
     var const decoded_eltype* decoded;
@@ -3084,7 +3084,7 @@ LISPFUNN(generic_stream_p,1)
 # > subr_self: calling function
 # < subr_self: unchanged
 # < result: an encoding
-# kann GC auslösen
+# can trigger GC
   local object test_external_format_arg (object arg);
   local object test_external_format_arg(arg)
     var object arg;
@@ -3968,7 +3968,7 @@ global object iconv_range(encoding,start,end)
 
 # UP für READ-BYTE auf File-Streams für Integers, Art u :
 # Liefert die im Bitbuffer enthaltenen bytesize Bytes als Integer >=0.
-# kann GC auslösen
+# can trigger GC
   local object rd_by_iu_I (object stream, uintL bitsize, uintL bytesize);
   local object rd_by_iu_I(stream,bitsize,bytesize)
     var object stream;
@@ -4040,7 +4040,7 @@ global object iconv_range(encoding,start,end)
 
 # UP für READ-BYTE auf File-Streams für Integers, Art s :
 # Liefert die im Bitbuffer enthaltenen bytesize Bytes als Integer.
-# kann GC auslösen
+# can trigger GC
   local object rd_by_is_I (object stream, uintL bitsize, uintL bytesize);
   local object rd_by_is_I(stream,bitsize,bytesize)
     var object stream;
@@ -5455,7 +5455,7 @@ global object iconv_range(encoding,start,end)
 # UP: Bringt den wartenden Output eines Unbuffered-Channel-Stream ans Ziel.
 # finish_output_unbuffered(stream);
 # > stream: Handle-Stream
-# kann GC auslösen
+# can trigger GC
   local void finish_output_unbuffered (object stream);
   local void finish_output_unbuffered(stream)
     var object stream;
@@ -5464,7 +5464,7 @@ global object iconv_range(encoding,start,end)
 # UP: Bringt den wartenden Output eines Unbuffered-Channel-Stream ans Ziel.
 # force_output_unbuffered(stream);
 # > stream: Handle-Stream
-# kann GC auslösen
+# can trigger GC
   local void force_output_unbuffered (object stream);
   local void force_output_unbuffered(stream)
     var object stream;
@@ -5473,7 +5473,7 @@ global object iconv_range(encoding,start,end)
 # UP: Löscht den wartenden Output eines Unbuffered-Channel-Stream.
 # clear_output_unbuffered(stream);
 # > stream: Handle-Stream
-# kann GC auslösen
+# can trigger GC
   local void clear_output_unbuffered (object stream);
   local void clear_output_unbuffered(stream)
     var object stream;
@@ -5623,7 +5623,7 @@ global object iconv_range(encoding,start,end)
 # > handle_tty: ob das Handle ein tty ist (nur nötig falls direction & bit(0))
 # < ergebnis: File-Handle-Stream, Handle_{input,output}_init noch aufzurufen
 # < STACK: aufgeräumt
-# kann GC auslösen
+# can trigger GC
   local object make_unbuffered_stream (uintB type, uintB direction, const decoded_eltype* eltype, boolean handle_tty);
   local object make_unbuffered_stream(type,direction,eltype,handle_tty)
     var uintB type;
@@ -7455,7 +7455,7 @@ typedef struct strm_i_buffered_extrafields_struct {
 # < result: buffered file stream, Handle_{input,output}_init still to be called,
 #           for eltype.size<8 also eofposition still to be to determined
 # < STACK: cleaned up
-# kann GC auslösen
+# can trigger GC
   local object make_buffered_stream (uintB type, uintB direction, const decoded_eltype* eltype, boolean handle_regular, boolean handle_blockpositioning);
   local object make_buffered_stream(type,direction,eltype,handle_regular,handle_blockpositioning)
     var uintB type;
@@ -7545,7 +7545,7 @@ typedef struct strm_i_buffered_extrafields_struct {
 # If direction==5, handle_fresh must be TRUE.
 # < ergebnis: File-Stream (oder evtl. File-Handle-Stream)
 # < STACK: aufgeräumt
-# kann GC auslösen
+# can trigger GC
   global object make_file_stream (uintB direction, boolean append_flag, boolean handle_fresh);
   global object make_file_stream(direction,append_flag,handle_fresh)
     var uintB direction;
@@ -7733,7 +7733,7 @@ typedef struct strm_i_buffered_extrafields_struct {
 # finish_output_buffered(stream);
 # > stream : File-Stream.
 # verändert in stream: handle, index, eofindex, buffstart, ..., rd_ch_last
-# kann GC auslösen
+# can trigger GC
   local void finish_output_buffered (object stream);
   local void finish_output_buffered(stream)
     var object stream;
@@ -7851,7 +7851,7 @@ typedef struct strm_i_buffered_extrafields_struct {
 # force_output_buffered(stream);
 # > stream : File-Stream.
 # verändert in stream: handle, index, eofindex, buffstart, ..., rd_ch_last
-# kann GC auslösen
+# can trigger GC
   #define force_output_buffered  finish_output_buffered
 
 # UP: Erklärt einen File-Stream für geschlossen.
@@ -8885,7 +8885,7 @@ local object make_key_event(event)
 
 # Liefert einen Keyboard-Stream.
 # make_keyboard_stream()
-# kann GC auslösen
+# can trigger GC
   local object make_keyboard_stream (void);
   local object make_keyboard_stream()
     {
@@ -9235,7 +9235,7 @@ LISPFUNN(make_keyboard_stream,0)
 # UP: Bringt den wartenden Output eines Terminal-Stream ans Ziel.
 # finish_output_terminal(stream);
 # > stream: Terminal-Stream
-# kann GC auslösen
+# can trigger GC
   local void finish_output_terminal (object stream);
   local void finish_output_terminal(stream)
     var object stream;
@@ -9247,11 +9247,11 @@ LISPFUNN(make_keyboard_stream,0)
 # UP: Bringt den wartenden Output eines Terminal-Stream ans Ziel.
 # force_output_terminal(stream);
 # > stream: Terminal-Stream
-# kann GC auslösen
+# can trigger GC
   #define force_output_terminal(stream)  finish_output_terminal(stream)
 
 # Liefert einen interaktiven Terminal-Stream.
-# kann GC auslösen
+# can trigger GC
   local object make_terminal_stream_ (void);
   local object make_terminal_stream_()
     { # neuen Stream allozieren:
@@ -9501,7 +9501,7 @@ LISPFUNN(make_keyboard_stream,0)
 # UP: Löscht den wartenden Output eines Terminal-Stream.
 # clear_output_terminal1(stream);
 # > stream: Terminal-Stream
-# kann GC auslösen
+# can trigger GC
   #define clear_output_terminal1  clear_output_unbuffered
 
 #endif # HAVE_TERMINAL1
@@ -9613,7 +9613,7 @@ LISPFUNN(make_keyboard_stream,0)
 # UP: Löscht den wartenden Output eines Terminal-Stream.
 # clear_output_terminal2(stream);
 # > stream: Terminal-Stream
-# kann GC auslösen
+# can trigger GC
   #define clear_output_terminal2  clear_output_unbuffered
 
 #endif # HAVE_TERMINAL2
@@ -9877,7 +9877,7 @@ LISPFUNN(make_keyboard_stream,0)
 # UP: Löscht den wartenden Output eines Terminal-Stream.
 # clear_output_terminal3(stream);
 # > stream: Terminal-Stream
-# kann GC auslösen
+# can trigger GC
   local void clear_output_terminal3 (object stream);
   local void clear_output_terminal3(stream)
     var object stream;
@@ -9892,17 +9892,17 @@ LISPFUNN(make_keyboard_stream,0)
 # UP: Bringt den wartenden Output eines Terminal-Stream ans Ziel.
 # finish_output_terminal(stream);
 # > stream: Terminal-Stream
-# kann GC auslösen
+# can trigger GC
   #define finish_output_terminal  finish_output_unbuffered
 
 # UP: Bringt den wartenden Output eines Terminal-Stream ans Ziel.
 # force_output_terminal(stream);
 # > stream: Terminal-Stream
-# kann GC auslösen
+# can trigger GC
   #define force_output_terminal  force_output_unbuffered
 
 # Liefert einen interaktiven Terminal-Stream.
-# kann GC auslösen
+# can trigger GC
   local object make_terminal_stream_ (void);
   local object make_terminal_stream_()
     {
@@ -10424,7 +10424,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
 #endif
 
 # Liefert einen interaktiven Terminal-Stream.
-# kann GC auslösen
+# can trigger GC
   local object make_terminal_stream (void);
   local object make_terminal_stream()
     { var object stream = make_terminal_stream_();
@@ -13487,7 +13487,7 @@ LISPFUNN(window_cursor_off,1)
     }
 
 # UP: Liefert einen Printer-Stream.
-# kann GC auslösen
+# can trigger GC
   local object make_printer_stream (void);
   local object make_printer_stream()
     { pushSTACK(allocate_cons()); # Cons für Liste
@@ -15097,7 +15097,7 @@ LISPFUNN(socket_stream_handle,1)
 # =================
 
 # UP: Return the default value for *terminal-io*.
-# kann GC auslösen
+# can trigger GC
   local object make_terminal_io (void);
   local object make_terminal_io()
     { # If stdin or stdout is a file, use a buffered stream instead of an
@@ -15154,7 +15154,7 @@ LISPFUNN(socket_stream_handle,1)
 # init_streamvars(unixyp);
 # > unixyp: Flag, ob *error-output* nach Unix-Art (vom Standard abweichend)
 #           initialisiert werden soll
-# kann GC auslösen
+# can trigger GC
   global void init_streamvars (boolean unixyp);
   global void init_streamvars(unixyp)
     var boolean unixyp;
@@ -15829,7 +15829,7 @@ LISPFUNN(interactive_stream_p,1)
 # stream_close(&stream);
 # > stream: Stream
 # < stream: Stream
-# kann GC auslösen
+# can trigger GC
   global void stream_close (const object* stream_);
   global void stream_close(stream_)
     var const object* stream_;
@@ -15910,7 +15910,7 @@ LISPFUNN(interactive_stream_p,1)
 # UP: Schließt eine Liste offener Files.
 # close_some_files(list);
 # > list: Liste von offenen Streams
-# kann GC auslösen
+# can trigger GC
   global void close_some_files (object list);
   global void close_some_files(list)
     var object list;
@@ -15927,7 +15927,7 @@ LISPFUNN(interactive_stream_p,1)
 
 # UP: Schließt alle offenen Files.
 # close_all_files();
-# kann GC auslösen
+# can trigger GC
   global void close_all_files (void);
   global void close_all_files()
     { close_some_files(O(open_files)); } # Liste aller offenen File-Streams
@@ -15966,7 +15966,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-# kann GC auslösen
+# can trigger GC
   global signean stream_listen (object stream);
   global signean stream_listen(stream)
     var object stream;
@@ -16055,7 +16055,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
 # clear_input(stream)
 # > stream: Stream
 # < ergebnis: TRUE falls Input gelöscht wurde
-# kann GC auslösen
+# can trigger GC
   global boolean clear_input (object stream);
   global boolean clear_input(stream)
     var object stream;
@@ -16132,7 +16132,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
 # UP: Wartenden Output eines Stream stream ans Ziel bringen.
 # finish_output(stream);
 # > stream: Stream
-# kann GC auslösen
+# can trigger GC
   global void finish_output (object stream);
   global void finish_output(stream)
     var object stream;
@@ -16188,7 +16188,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
 # UP: Wartenden Output eines Stream stream ans Ziel bringen.
 # force_output(stream);
 # > stream: Stream
-# kann GC auslösen
+# can trigger GC
   global void force_output (object stream);
   global void force_output(stream)
     var object stream;
@@ -16244,7 +16244,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
 # UP: Wartenden Output eines Stream stream löschen.
 # clear_output(stream);
 # > stream: Stream
-# kann GC auslösen
+# can trigger GC
   global void clear_output (object stream);
   global void clear_output(stream)
     var object stream;

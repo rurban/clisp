@@ -22,7 +22,7 @@
 # make_symtab(size)
 # > size: gewünschte Größe der Tabelle (ungerade, >0, <2^16)
 # < ergebnis: neue Symboltabelle dieser Größe
-# kann GC auslösen
+# can trigger GC
   local object make_symtab (uintL size);
   local object make_symtab(size)
     var uintL size;
@@ -79,7 +79,7 @@
 # > symtab: Symboltabelle
 # < ergebnis: reorganisierte Symboltabelle (EQ zur ersten).
 # nur bei gesetzter BREAK_SEM_2 aufzurufen
-# kann GC auslösen
+# can trigger GC
   local object rehash_symtab (object symtab);
   #
   # Hilfsfunktionen:
@@ -272,7 +272,7 @@
 # > symtab: Symboltabelle
 # < ergebnis: neue Symboltabelle, EQ zur alten
 # nur bei gesetzter BREAK_SEM_2 aufzurufen
-# kann GC auslösen
+# can trigger GC
   local object symtab_insert (object sym, object symtab);
   local object symtab_insert(sym,symtab)
     var object sym;
@@ -396,7 +396,7 @@
 # > nicknames: Nicknames (eine Liste von immutablen Simple-Strings)
 # > case_sensitive_p: Flag, ob case-sensitive
 # < ergebnis: neue Package
-# kann GC auslösen
+# can trigger GC
   local object make_package (object name, object nicknames, boolean case_sensitive_p);
   local object make_package(name,nicknames,case_sensitive_p)
     var object name;
@@ -481,7 +481,7 @@
 # > pack: Package (im STACK)
 # < sym: Symbol, EQ zum alten
 # < pack: Package, EQ zur alten
-# kann GC auslösen
+# can trigger GC
   local void shadowing_insert (const object* sym_, const object* pack_);
   local void shadowing_insert(sym_,pack_)
     var const object* sym_;
@@ -604,7 +604,7 @@
 #       Liste aus einem Kurz-String (den der Benutzer eintippen soll), einem
 #       Langstring (der der Erläuterung dient) und weiteren Informationen.
 # < ergebnis: Die vom Benutzer angewählte Möglichkeit.
-# kann GC auslösen
+# can trigger GC
   local object query_user (object ml);
   local object query_user(ml)
     var object ml;
@@ -760,7 +760,7 @@
 # > sym: Symbol
 # > pack: Package
 # nur bei gesetzter BREAK_SEM_2 aufzurufen
-# kann GC auslösen
+# can trigger GC
   local void make_present (object sym, object pack);
   local void make_present(sym,pack)
     var object sym;
@@ -785,7 +785,7 @@
 #             1, wenn als externes Symbol vorhanden
 #             2, wenn vererbt über use-list
 #             3, wenn als internes Symbol vorhanden
-# kann GC auslösen
+# can trigger GC
   global uintBWL intern (object string, object pack, object* sym_);
   global uintBWL intern(string,pack,sym_)
     var object string;
@@ -812,7 +812,7 @@
 # intern_keyword(string)
 # > string: String
 # < ergebnis: Symbol, ein Keyword
-# kann GC auslösen
+# can trigger GC
   global object intern_keyword (object string);
   global object intern_keyword(string)
     var object string;
@@ -829,7 +829,7 @@
 # > pack: Package (im STACK)
 # < sym: Symbol, EQ zum alten
 # < pack: Package, EQ zur alten
-# kann GC auslösen
+# can trigger GC
   local void shadowing_import (const object* sym_, const object* pack_);
   local void shadowing_import(sym_,pack_)
     var const object* sym_;
@@ -881,7 +881,7 @@
 #endif
 # > pack: Package (im STACK)
 # < pack: Package, EQ zur alten
-# kann GC auslösen
+# can trigger GC
   local void shadow (const object* sym_, const object* pack_);
   local void shadow(sym_,pack_)
     var const object* sym_;
@@ -923,7 +923,7 @@
 # < sym: Symbol, EQ zum alten
 # < pack: Package, EQ zur alten
 # < ergebnis: T wenn gefunden und gelöscht, NIL falls nichts getan.
-# kann GC auslösen
+# can trigger GC
   local object unintern (const object* sym_, const object* pack_);
   local object unintern(sym_,pack_)
     var const object* sym_;
@@ -1039,7 +1039,7 @@
 # > sym: Symbol (im STACK)
 # > pack: Package (im STACK)
 # < pack: Package, EQ zur alten
-# kann GC auslösen
+# can trigger GC
   global void import (const object* sym_, const object* pack_);
   global void import(sym_,pack_)
     var const object* sym_;
@@ -1174,7 +1174,7 @@
 # > sym: Symbol (im STACK)
 # > pack: Package (im STACK)
 # < pack: Package, EQ zur alten
-# kann GC auslösen
+# can trigger GC
   local void unexport (const object* sym_, const object* pack_);
   local void unexport(sym_,pack_)
     var const object* sym_;
@@ -1223,7 +1223,7 @@
 # make_external(sym,pack);
 # > sym: Symbol
 # > pack: Package, in der das Symbol präsent ist
-# kann GC auslösen
+# can trigger GC
   local void make_external (object sym, object pack);
   local void make_external(sym,pack)
     var object sym;
@@ -1242,7 +1242,7 @@
 # > pack: Package (im STACK)
 # < sym: Symbol, EQ zum alten
 # < pack: Package, EQ zur alten
-# kann GC auslösen
+# can trigger GC
   global void export (const object* sym_, const object* pack_);
   global void export(sym_,pack_)
     var const object* sym_;
@@ -1401,7 +1401,7 @@
 # map_symtab(fun,symtab);
 # > fun: Funktion mit einem Argument
 # > symtab: Symboltabelle
-# kann GC auslösen
+# can trigger GC
   local void map_symtab (object fun, object symtab);
   local void map_symtab(fun,symtab)
     var object fun;
@@ -1441,7 +1441,7 @@
 # > fun: Funktion mit zwei Argumenten, darf GC auslösen
 # > data: erstes Argument für die Funktion
 # > symtab: Symboltabelle
-# kann GC auslösen
+# can trigger GC
   typedef void one_sym_function (void* data, object sym);
   local void map_symtab_c (one_sym_function* fun, void* data, object symtab);
   local void map_symtab_c(fun,data,symtab)
@@ -1481,7 +1481,7 @@
 # > packlist: Liste von Packages, die zu USEn sind
 # > pack: Package
 # Die Liste packlist wird dabei zerstört!
-# kann GC auslösen
+# can trigger GC
   local void use_package (object packlist, object pack);
   local one_sym_function use_package_aux;
   local void use_package(packlist,pack)
@@ -1658,7 +1658,7 @@
 # Hilfsfunktion für use_package:
 # Teste das Argument (ein externes Symbol aus einer der Packages aus
 # packlist), ob es einen Konflikt erzeugt. Wenn ja, erweitere conflicts.
-# kann GC auslösen
+# can trigger GC
 local void use_package_aux (void* data, object sym);
 local void use_package_aux(data,sym)
   var void* data;
@@ -1925,7 +1925,7 @@ LISPFUNN(package_nicknames,1) # (PACKAGE-NICKNAMES package), CLTL S. 184
 # Testet, ob STACK_2 ein Name oder eine Liste von Namen ist, und macht
 # daraus eine neue Liste von immutablen Simple-Strings.
 # > subr-self: Aufrufer (ein SUBR)
-# kann GC auslösen
+# can trigger GC
   local void test_names_args (void);
   local void test_names_args()
     { # name auf String prüfen und zu einem Simple-String machen:
@@ -2124,7 +2124,7 @@ LISPFUN(unintern,1,1,norest,nokey,0,NIL)
 #   < pack: Package, EQ zur alten
 #   kann GC auslösen
 # < STACK: aufgeräumt
-# kann GC auslösen
+# can trigger GC
   typedef void sym_pack_function (const object* sym_, const object* pack_);
   local Values apply_symbols (sym_pack_function* fun);
   local Values apply_symbols(fun)
@@ -2205,7 +2205,7 @@ LISPFUN(shadow,1,1,norest,nokey,0,NIL)
 # Das 1. Argument STACK_1 wird zu einer (neu erzeugten) Liste von Packages
 # gemacht, das 2. Argument STACK_0 wird überprüft.
 # > subr_self: Aufrufer (ein SUBR)
-# kann GC auslösen
+# can trigger GC
   local void prepare_use_package (void);
   local void prepare_use_package()
     { # 2. Argument (Package) überprüfen:
@@ -2259,7 +2259,7 @@ LISPFUN(unuse_package,1,1,norest,nokey,0,NIL)
 # > STACK_1: "Sie dürfen einen neuen (Nick)Name eingeben."
 # > STACK_0: "Bitte neuen Package(nick)name eingeben:"
 # < ergebnis: Noch nicht vorkommender Packagename
-# kann GC auslösen
+# can trigger GC
   local object correct_packname (object name);
   local object correct_packname(name)
     var object name;
@@ -2292,7 +2292,7 @@ LISPFUN(unuse_package,1,1,norest,nokey,0,NIL)
 # > STACK_0: case-sensitive-Argument
 # > subr_self: Aufrufer (ein SUBR)
 # erhöht STACK um 4
-# kann GC auslösen
+# can trigger GC
   local void in_make_package (void);
   local void in_make_package()
     { # name in Simple-String und nicknames in neue Simple-String-Liste umwandeln:
@@ -2487,7 +2487,7 @@ LISPFUNN(delete_package,1)
 
 # Hilfsfunktion für DELETE-PACKAGE:
 # Entferne das Argument (ein präsentes Symbol) aus pack.
-# kann GC auslösen
+# can trigger GC
 local void delete_package_aux (void* data, object sym);
 local void delete_package_aux(data,sym)
   var void* data;
@@ -2556,7 +2556,7 @@ LISPFUNN(map_symbols,2)
 # Hilfsfunktion für map_symbols:
 # Teste, ob das Argument nicht in der gegebenen Package verdeckt ist, und
 # wende dann die gegebene Funktion an.
-# kann GC auslösen
+# can trigger GC
 local void map_symbols_aux (void* data, object sym);
 local void map_symbols_aux(data,sym)
   var void* data;

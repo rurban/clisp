@@ -3,16 +3,16 @@
 # ------------------------------ Specification ---------------------------------
 
 # Execute a simple garbage collection.
-# kann GC auslösen
+# can trigger GC
   local void gar_col_simple (void);
 
 # Execute a full garbage collection.
-# kann GC auslösen
+# can trigger GC
   global void gar_col (void);
 
 #ifdef SPVW_PAGES
 # Supplement a simple garbage collection with a compaction.
-# kann GC auslösen
+# can trigger GC
   local void gar_col_compact (void);
 #endif
 

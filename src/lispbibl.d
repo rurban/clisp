@@ -7201,7 +7201,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # >   timepoint.Monat in {1,...,12},
 # >   timepoint.Jahr in {1980,...,2999},
 # >   jeweils als Fixnums.
-# kann GC auslösen
+# can trigger GC
   extern void set_start_time (const decoded_time* timepoint);
 # wird verwendet von SPVW
 
@@ -7768,13 +7768,13 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 
 # Lisp-Objekt in Lisp-Notation relativ direkt übers Betriebssystem ausgeben:
 # object_out(obj);
-# kann GC auslösen
+# can trigger GC
   extern void object_out (object obj);
 # wird zum Debuggen verwendet
 
 # UP, führt eine Garbage Collection aus
 # gar_col();
-# kann GC auslösen
+# can trigger GC
   extern void gar_col(void);
 # wird verwendet von DEBUG
 
@@ -7787,7 +7787,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft ein Cons
 # allocate_cons()
 # < ergebnis: Pointer auf neues CONS, mit CAR und CDR =NIL
-# kann GC auslösen
+# can trigger GC
   extern object allocate_cons (void);
 # wird verwendet von LIST, SEQUENCE, PACKAGE, EVAL, CONTROL, RECORD,
 #                    PREDTYPE, IO, STREAM, PATHNAME, SYMBOL, ARRAY, LISPARIT
@@ -7796,7 +7796,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # make_symbol(string)
 # > string: immutable Simple-String
 # < ergebnis: neues Symbol mit diesem Namen, mit Home-Package=NIL.
-# kann GC auslösen
+# can trigger GC
   extern object make_symbol (object string);
 # wird verwendet von PACKAGE, IO, SYMBOL
 
@@ -7804,7 +7804,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # allocate_vector(len)
 # > len: Länge des Vektors
 # < ergebnis: neuer Vektor (Elemente werden mit NIL initialisiert)
-# kann GC auslösen
+# can trigger GC
   extern object allocate_vector (uintL len);
 # wird verwendet von ARRAY, IO, EVAL, PACKAGE, CONTROL, HASHTABL
 
@@ -7812,7 +7812,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # allocate_bit_vector(len)
 # > len: Länge des Bitvektors (in Bits)
 # < ergebnis: neuer Bitvektor (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   extern object allocate_bit_vector (uintL len);
 # wird verwendet von ARRAY, IO, RECORD, LISPARIT, STREAM
 
@@ -7820,7 +7820,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # allocate_string(len)
 # > len: Länge des Strings (in Characters)
 # < ergebnis: neuer Normal-Simple-String (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   extern object allocate_string (uintL len);
 # wird verwendet von ARRAY, CHARSTRG, STREAM, PATHNAME
 
@@ -7829,7 +7829,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # allocate_imm_string(len)
 # > len: Länge des Strings (in Characters)
 # < ergebnis: neuer immutabler Normal-Simple-String (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   extern object allocate_imm_string (uintL len);
 # wird verwendet von CHARSTRG
 #endif
@@ -7839,7 +7839,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # allocate_imm_small_string(len)
 # > len: Länge des Strings (in Characters)
 # < ergebnis: neuer immutabler Small-Simple-String (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   extern object allocate_imm_small_string (uintL len);
 # wird verwendet von CHARSTRG
 #endif
@@ -7850,7 +7850,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # > uintC (eigentlich uintWC) rank: Rang
 # > tint type: Typinfo
 # < ergebnis: LISP-Objekt Array
-# kann GC auslösen
+# can trigger GC
   extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # wird verwendet von ARRAY, IO
 
@@ -7861,7 +7861,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # > uintC (eigentlich uintW) reclen: Länge
 # > tint type: Typinfo
 # < ergebnis: LISP-Objekt Record (Elemente werden mit NIL initialisiert)
-# kann GC auslösen
+# can trigger GC
   #ifdef TYPECODES
     #define allocate_srecord(flags,rectype,reclen,type)  \
       allocate_srecord_(                                                    \
@@ -7886,7 +7886,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # > uintC (eigentlich uintB) recxlen: Extra-Länge
 # > tint type: Typinfo
 # < ergebnis: LISP-Objekt Record (Elemente werden mit NIL bzw. 0 initialisiert)
-# kann GC auslösen
+# can trigger GC
   #ifdef TYPECODES
     #define allocate_xrecord(flags,rectype,reclen,recxlen,type)  \
       allocate_xrecord_(                                                    \
@@ -7914,7 +7914,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 
 # Copying a compiled closure:
 # newclos = allocate_cclosure_copy(oldclos);
-# kann GC auslösen
+# can trigger GC
   #define allocate_cclosure_copy(oldclos)  \
     allocate_closure(Cclosure_length(oldclos))
 # do_cclosure_copy(newclos,oldclos);
@@ -7932,7 +7932,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # allocate_structure(reclen)
 # > uintC reclen: Länge
 # < ergebnis: LISP-Objekt Structure (Elemente werden mit NIL initialisiert)
-# kann GC auslösen
+# can trigger GC
   #ifdef case_structure
     #define allocate_structure(reclen)  \
       allocate_srecord(0,Rectype_Structure,reclen,structure_type)
@@ -7949,7 +7949,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # > uintC reclen: Länge in Objekten
 # > uintC recxlen: Extra-Länge in Bytes
 # < ergebnis: LISP-Objekt Stream (Elemente werden mit NIL initialisiert)
-# kann GC auslösen
+# can trigger GC
   #ifdef case_stream
     #define allocate_stream(strmflags,strmtype,reclen,recxlen)  \
       allocate_xrecord(strmflags,strmtype,reclen,recxlen,stream_type)
@@ -7961,7 +7961,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Package
 # allocate_package()
 # < ergebnis: LISP-Objekt Package
-# kann GC auslösen
+# can trigger GC
   #define allocate_package()  \
     allocate_xrecord(0,Rectype_Package,package_length,0,orecord_type)
 # wird verwendet von PACKAGE
@@ -7969,7 +7969,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Hash-Table
 # allocate_hash_table()
 # < ergebnis: LISP-Objekt Hash-Table
-# kann GC auslösen
+# can trigger GC
   #define allocate_hash_table()  \
     allocate_xrecord(0,Rectype_Hashtable,hashtable_length,0,orecord_type)
 # wird verwendet von
@@ -7977,7 +7977,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Readtable
 # allocate_readtable()
 # < ergebnis: LISP-Objekt Readtable
-# kann GC auslösen
+# can trigger GC
   #define allocate_readtable()  \
     allocate_xrecord(0,Rectype_Readtable,readtable_length,0,orecord_type)
 # wird verwendet von IO
@@ -7985,7 +7985,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Pathname
 # allocate_pathname()
 # < ergebnis: LISP-Objekt Pathname
-# kann GC auslösen
+# can trigger GC
   #define allocate_pathname()  \
     allocate_xrecord(0,Rectype_Pathname,pathname_length,0,orecord_type)
 # wird verwendet von PATHNAME
@@ -7994,7 +7994,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Logical Pathname
 # allocate_logpathname()
 # < ergebnis: LISP-Objekt Logical Pathname
-# kann GC auslösen
+# can trigger GC
   #define allocate_logpathname()  \
     allocate_xrecord(0,Rectype_Logpathname,logpathname_length,0,orecord_type)
 # wird verwendet von PATHNAME
@@ -8003,7 +8003,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Random-State
 # allocate_random_state()
 # < ergebnis: LISP-Objekt Random-State
-# kann GC auslösen
+# can trigger GC
   #define allocate_random_state()  \
     allocate_xrecord(0,Rectype_Random_State,random_state_length,0,orecord_type)
 # wird verwendet von IO, LISPARIT
@@ -8011,7 +8011,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Byte
 # allocate_byte()
 # < ergebnis: LISP-Objekt Byte
-# kann GC auslösen
+# can trigger GC
   #define allocate_byte()  \
     allocate_xrecord(0,Rectype_Byte,byte_length,0,orecord_type)
 # wird verwendet von LISPARIT
@@ -8019,7 +8019,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Fsubr
 # allocate_fsubr()
 # < ergebnis: LISP-Objekt Fsubr
-# kann GC auslösen
+# can trigger GC
   #define allocate_fsubr()  \
     allocate_xrecord(0,Rectype_Fsubr,fsubr_length,fsubr_xlength,orecord_type)
 # wird verwendet von SPVW
@@ -8027,7 +8027,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Load-time-Eval
 # allocate_loadtimeeval()
 # < ergebnis: LISP-Objekt Load-time-Eval
-# kann GC auslösen
+# can trigger GC
   #define allocate_loadtimeeval()  \
     allocate_xrecord(0,Rectype_Loadtimeeval,loadtimeeval_length,0,orecord_type)
 # wird verwendet von IO, RECORD
@@ -8035,7 +8035,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Symbol-Macro
 # allocate_symbolmacro()
 # < ergebnis: LISP-Objekt Symbol-Macro
-# kann GC auslösen
+# can trigger GC
   #define allocate_symbolmacro()  \
     allocate_xrecord(0,Rectype_Symbolmacro,symbolmacro_length,0,orecord_type)
 # wird verwendet von CONTROL, RECORD
@@ -8043,7 +8043,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, allocates an Encoding
 # allocate_encoding()
 # < result: a fresh Encoding
-# kann GC auslösen
+# can trigger GC
   #define allocate_encoding()  \
     allocate_xrecord(0,Rectype_Encoding,encoding_length,encoding_xlength,orecord_type)
 # wird verwendet von ENCODING
@@ -8053,7 +8053,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # allocate_fpointer(foreign)
 # > foreign: vom Typ FOREIGN
 # < ergebnis: LISP-Objekt, das foreign enthält
-# kann GC auslösen
+# can trigger GC
   extern object allocate_fpointer (FOREIGN foreign);
 # wird verwendet von REXX
 #endif
@@ -8061,7 +8061,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Foreign-Addresse
 # allocate_faddress()
 # < ergebnis: LISP-Objekt Foreign-Addresse
-# kann GC auslösen
+# can trigger GC
   #define allocate_faddress()  \
     allocate_xrecord(0,Rectype_Faddress,faddress_length,faddress_xlength,orecord_type)
 # wird verwendet von FOREIGN
@@ -8069,7 +8069,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Foreign-Variable
 # allocate_fvariable()
 # < ergebnis: LISP-Objekt Foreign-Variable
-# kann GC auslösen
+# can trigger GC
   #define allocate_fvariable()  \
     allocate_xrecord(0,Rectype_Fvariable,fvariable_length,0,orecord_type)
 # wird verwendet von FOREIGN
@@ -8077,7 +8077,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Foreign-Funktion
 # allocate_ffunction()
 # < ergebnis: LISP-Objekt Foreign-Funktion
-# kann GC auslösen
+# can trigger GC
   #define allocate_ffunction()  \
     allocate_xrecord(0,Rectype_Ffunction,ffunction_length,0,orecord_type)
 # wird verwendet von FOREIGN
@@ -8085,7 +8085,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, allocates a Weakpointer
 # allocate_weakpointer()
 # < result: a fresh weak-pointer
-# kann GC auslösen
+# can trigger GC
   #define allocate_weakpointer()  \
     allocate_xrecord(0,Rectype_Weakpointer,weakpointer_length,weakpointer_xlength,orecord_type)
 # wird verwendet von RECORD
@@ -8093,7 +8093,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Finalisierer
 # allocate_finalizer()
 # < ergebnis: LISP-Objekt Finalisierer
-# kann GC auslösen
+# can trigger GC
   #define allocate_finalizer()  \
     allocate_xrecord(0,Rectype_Finalizer,finalizer_length,0,orecord_type)
 # wird verwendet von RECORD
@@ -8110,7 +8110,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Yetanother
 # allocate_yetanother()
 # < ergebnis: LISP-Objekt Yetanother
-# kann GC auslösen
+# can trigger GC
   #define allocate_yetanother()  \
     allocate_xrecord(0,Rectype_Yetanother,yetanother_length,0,orecord_type)
 # wird verwendet von
@@ -8119,7 +8119,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, beschafft Handle-Verpackung
 # allocate_handle(handle)
 # < ergebnis: LISP-Objekt, das handle enthält
-# kann GC auslösen
+# can trigger GC
   #ifdef FOREIGN_HANDLE
     # kann GC auslösen
     extern object allocate_handle (Handle handle);
@@ -8132,7 +8132,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # > uintC (eigentlich uintWC) len: Länge der Zahl (in Digits)
 # > sintB sign: Flag für Vorzeichen (0 = +, -1 = -)
 # < ergebnis: neues Bignum (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   extern object allocate_bignum (uintC len, sintB sign);
 # wird verwendet von LISPARIT, STREAM
 
@@ -8140,7 +8140,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # allocate_ffloat(value)
 # > ffloat value: Zahlwert (Bit 31 = Vorzeichen)
 # < ergebnis: neues Single-Float (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   extern object allocate_ffloat (ffloat value);
 # wird verwendet von LISPARIT
 
@@ -8149,13 +8149,13 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # allocate_dfloat(value)
 # > dfloat value: Zahlwert (Bit 63 = Vorzeichen)
 # < ergebnis: neues Double-Float (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   extern object allocate_dfloat (dfloat value);
 #else
 # allocate_dfloat(semhi,mlo)
 # > semhi,mlo: Zahlwert (Bit 31 von semhi = Vorzeichen)
 # < ergebnis: neues Double-Float (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   extern object allocate_dfloat (uint32 semhi, uint32 mlo);
 #endif
 # wird verwendet von LISPARIT
@@ -8167,7 +8167,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # > signean sign: Vorzeichen (0 = +, -1 = -)
 # < ergebnis: neues Long-Float, noch ohne Mantisse
 # Ein LISP-Objekt liegt erst dann vor, wenn die Mantisse eingetragen ist!
-# kann GC auslösen
+# can trigger GC
   extern object allocate_lfloat (uintC len, uintL expo, signean sign);
 # wird verwendet von LISPARIT
 
@@ -8176,7 +8176,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # > object num: Zähler (muss Integer /= 0 sein, relativ prim zu den)
 # > object den: Nenner (muss Integer > 1 sein)
 # < ergebnis: Bruch
-# kann GC auslösen
+# can trigger GC
   extern object make_ratio (object num, object den);
 # wird verwendet von LISPARIT
 
@@ -8185,7 +8185,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # > real: Realteil (muss reelle Zahl sein)
 # > imag: Imaginärteil (muss reelle Zahl /= Fixnum 0 sein)
 # < ergebnis: komplexe Zahl
-# kann GC auslösen
+# can trigger GC
   extern object make_complex (object real, object imag);
 # wird verwendet von LISPARIT
 
@@ -8253,7 +8253,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 #             NIL falls keine Zirkularitäten vorhanden,
 #             #(0 ...) ein (n+1)-elementiger Vektor, der die Zahl 0 und die n
 #                      Zirkularitäten als Elemente enthält, n>0.
-# kann GC auslösen
+# can trigger GC
   extern object get_circularities (object obj, boolean pr_array, boolean pr_closure);
 # wird verwendet von IO
 
@@ -8392,7 +8392,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # UP, speichert Speicherabbild auf Diskette
 # savemem(stream);
 # > object stream: offener File-Output-Stream, wird geschlossen
-# kann GC auslösen
+# can trigger GC
   extern void savemem (object stream);
 # wird verwendet von PATHNAME
 
@@ -8404,7 +8404,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # < sintL ergebnis : Falls negativ, Fehlernummer.
 #                    Sonst Returncode des aufgerufenen Programms.
 # STACK wird aufgeräumt
-# kann GC auslösen
+# can trigger GC
   extern sintL execute (uintL memneed);
 # wird verwendet von PATHNAME
 
@@ -8576,7 +8576,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # Abkürzung für von language abhängiges LISP-Objekt mit einem gegebenem Namen:
 # OLS(name)  falls es sich um LISP-Strings handelt, mit LISPOBJ_LS definiert,
 # OL(name)   falls es sich um andere LISP-Objekte handelt, von LISPOBJ_L.
-# kann GC auslösen
+# can trigger GC
   #ifndef GNU_GETTEXT
     #ifdef LANGUAGE_STATIC
       #define OL(name)  O(name)
@@ -9397,7 +9397,7 @@ wieder in die zugehörige Top-Level-Schleife einsteigt.
 
 # Liefert die Liste der Multiple Values auf -(STACK).
 # mv_to_list()
-# kann GC auslösen
+# can trigger GC
   #define mv_to_list()  \
     { mv_to_STACK(); # erst alle Werte auf den Stack               \
       pushSTACK(NIL); # Listenanfang                               \
@@ -9976,7 +9976,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # eval(form);
 # > form: Form
 # < mv_count/mv_space: Werte
-# kann GC auslösen
+# can trigger GC
   extern Values eval (object form);
 # wird verwendet von CONTROL, DEBUG
 
@@ -9989,7 +9989,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > decl_env: Wert für DECL_ENV
 # > form: Form
 # < mv_count/mv_space: Werte
-# kann GC auslösen
+# can trigger GC
   extern Values eval_5env (object form, object var_env, object fun_env, object block_env, object go_env, object decl_env);
 # wird verwendet von
 
@@ -9997,7 +9997,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # eval_noenv(form);
 # > form: Form
 # < mv_count/mv_space: Werte
-# kann GC auslösen
+# can trigger GC
   extern Values eval_noenv (object form);
 # wird verwendet von CONTROL, IO, DEBUG, SPVW
 
@@ -10006,7 +10006,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # eval_no_hooks(form);
 # > form: Form
 # < mv_count/mv_space: Werte
-# kann GC auslösen
+# can trigger GC
   extern Values eval_no_hooks (object form);
 # wird verwendet von CONTROL
 
@@ -10026,7 +10026,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 #   rettet die Werte, klettert STACK und SP hoch
 #   und springt dann unwind_protect_to_save.fun an.
 # verändert STACK
-# kann GC auslösen
+# can trigger GC
   typedef /* nonreturning */ void (*restart)(object* upto_frame);
   typedef struct { restart fun; object* upto_frame; } unwind_protect_caller;
   #ifndef MULTITHREAD
@@ -10058,7 +10058,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > upto: Pointer auf einen Frame (in den Stack, ohne Typinfo).
 # Rettet die Werte mv_count/mv_space.
 # verändert STACK,SP
-# kann GC auslösen
+# can trigger GC
 # Springt dann den gefundenen Frame an.
   nonreturning_function(extern, unwind_upto, (object* upto_frame));
 # wird verwendet von CONTROL, DEBUG
@@ -10072,7 +10072,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # UP: Ruft alle Handler zur Condition cond auf. Kommt nur zurück, wenn keiner
 # dieser Handler sich zuständig fühlt (d.h. wenn jeder Handler zurückkehrt).
 # invoke_handlers(cond);
-# kann GC auslösen
+# can trigger GC
   extern void invoke_handlers (object cond);
   typedef struct { object condition; object* stack; SPint* sp; object spdepth; }
           handler_args_t;
@@ -10135,7 +10135,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # nest_fun(env)
 # > env: FUN-Env
 # < ergebnis: selbes Environment, kein Pointer in den Stack
-# kann GC auslösen
+# can trigger GC
   extern object nest_fun (object env);
 # wird verwendet von CONTROL
 
@@ -10165,7 +10165,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > declspec: Deklarations-Specifier, ein Cons
 # > env: Deklarations-Environment
 # < ergebnis: neues (evtl. augmentiertes) Deklarations-Environment
-# kann GC auslösen
+# can trigger GC
   extern object augment_decl_env (object new_declspec, object env);
 # wird verwendet von CONTROL
 
@@ -10178,7 +10178,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < value1: die Expansion
 # < value2: NIL, wenn nicht expandiert,
 #           T, wenn expandiert wurde
-# kann GC auslösen
+# can trigger GC
   extern void macroexp (object form, object venv, object fenv);
 # wird verwendet von CONTROL
 
@@ -10190,7 +10190,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < value1: die Expansion
 # < value2: NIL, wenn nicht expandiert,
 #           T, wenn expandiert wurde
-# kann GC auslösen
+# can trigger GC
   extern void macroexp0 (object form, object env);
 # wird verwendet von CONTROL
 
@@ -10205,7 +10205,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < value2: Liste der decl-specs
 # < value3: Doc-String oder NIL
 # < ergebnis: TRUE falls eine (COMPILE)-Deklaration vorkam, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   extern boolean parse_dd (object formlist, object venv, object fenv);
 # wird verwendet von CONTROL
 
@@ -10220,7 +10220,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 #        env->block_env = BENV, env->go_env = GENV,
 #        end->decl_env = DENV.
 # < ergebnis: Closure
-# kann GC auslösen
+# can trigger GC
   extern object get_closure (object lambdabody, object name, boolean blockp, environment* env);
 # wird verwendet von CONTROL, SYMBOL, PREDTYPE
 
@@ -10229,7 +10229,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > obj: Objekt
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: Objekt als Funktion (SUBR oder Closure)
-# kann GC auslösen
+# can trigger GC
   extern object coerce_function (object obj);
 # wird verwendet von IO, FOREIGN
 
@@ -10267,7 +10267,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # Führt "implizites PROGN" aus.
 # implicit_progn(body,default)
 # Führt body als implizites PROGN aus. Falls body leer, ist default der Wert.
-# kann GC auslösen
+# can trigger GC
   #define implicit_progn(body,default)  \
     { var object rest = (body);                                          \
       if atomp(rest)                                                     \
@@ -10357,7 +10357,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > uintL len: Länge der Zeichenfolge
 # > object encoding: Encoding
 # < ergebnis: Normal-Simple-String mit den len Zeichen ab charptr als Inhalt
-# kann GC auslösen
+# can trigger GC
   #ifdef UNICODE
     extern object make_string (const uintB* charptr, uintL len, object encoding);
   #else
@@ -10373,7 +10373,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 #       (Adresse einer durch ein Nullbyte abgeschlossenen Zeichenfolge)
 # > object encoding: Encoding
 # < ergebnis: Normal-Simple-String mit der Zeichenfolge (ohne Nullbyte) als Inhalt
-# kann GC auslösen
+# can trigger GC
   #ifdef UNICODE
     extern object asciz_to_string (const char * asciz, object encoding);
   #else
@@ -10390,7 +10390,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < ergebnis: Simple-Bit-Vektor mit denselben Zeichen als Bytes und einem
 #             Nullbyte mehr am Schluss
 # < TheAsciz(ergebnis): Adresse der darin enthaltenen Bytefolge
-# kann GC auslösen
+# can trigger GC
   #ifdef UNICODE
     extern object string_to_asciz (object obj, object encoding);
   #else
@@ -10489,251 +10489,254 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 
 # ####################### ARRBIBL zu ARRAY.D ############################## #
 
-# ARRAY-TOTAL-SIZE-LIMIT wird so groß gewählt, dass die Total-Size eines
-# jeden Arrays ein Fixnum (>=0, <2^oint_data_len) ist:
+# ARRAY-TOTAL-SIZE-LIMIT is chosen as large as possible, respecting the
+# constraint that the total-size of any array is a fixnum
+# (>=0, <2^oint_data_len):
   #define arraysize_limit_1  ((uintL)(bitm(oint_data_len)-1))
 
-# ARRAY-RANK-LIMIT wird so groß gewählt, dass der Rang eines jeden Arrays
-# ein uintWC ist:
+# ARRAY-RANK-LIMIT is chosen as large as possible, respecting the constraint
+# that the rank of any array is an uintWC:
   #define arrayrank_limit_1  ((uintL)(bitm(intWCsize)-1))
 
-# UP: Kopiert einen Simple-Vector
+# Function: Copies a simple-vector.
 # copy_svector(vector)
-# > vector : Simple-Vector
-# < ergebnis : neuer Simple-Vector desselben Inhalts
-# kann GC auslösen
+# > vector: simple-vector
+# < result: fresh simple-vector with the same contents
+# can trigger GC
   extern object copy_svector (object vector);
-# wird verwendet von IO, REXX
+# used by IO
 
-# UP: Kopiert einen Simple-Bit-Vector
+# Function: Copies a simple-bit-vector.
 # copy_sbvector(vector)
-# > vector : Simple-Bit-Vector
-# < ergebnis : neuer Simple-Bit-Vector desselben Inhalts
-# kann GC auslösen
+# > vector: simple-bit-vector
+# < result: fresh simple-bit-vector with the same contents
+# can trigger GC
   extern object copy_sbvector (object vector);
-# wird verwendet von RECORD
+# used by RECORD
 
-# UP: Bestimmt die aktive Länge eines Vektors (wie in LENGTH)
+# Function: Returns the active length of a vector (same as LENGTH).
 # vector_length(vector)
-# > vector: ein Vektor
-# < ergebnis: seine Länge als uintL
+# > vector: a vector
+# < result: its length
   extern uintL vector_length (object vector);
-# wird verwendet von SEQUENCE, CHARSTRG, PREDTYPE, IO, HASHTABL, SPVW
+# used by many modules
 
-# Wandelt element-type in einen der Standard-Typen um
-# und liefert seinen Elementtyp-Code.
+# Function: Canonicalizes an array element-type and returns its
+# element type code.
 # eltype_code(element_type)
-# > element_type: Type-Specifier
-# < ergebnis: Elementtyp-Code Atype_xxx
-# Standard-Typen sind die möglichen Ergebnisse von ARRAY-ELEMENT-TYPE
-# (Symbole T, BIT, CHARACTER und Listen (UNSIGNED-BYTE n)).
-# Das Ergebnis ist ein Obertyp von element-type.
-# kann GC auslösen
+# > element_type: type specifier
+# < result: element type code Atype_xxx
+# The canonicalized types are the possible results of ARRAY-ELEMENT-TYPE
+# (symbols T, BIT, CHARACTER and lists (UNSIGNED-BYTE n)).
+# The result type is a supertype of element_type.
+# can trigger GC
   extern uintB eltype_code (object element_type);
 # wird verwendet von SEQUENCE
 
-# UP: erzeugt einen Bytevektor
+# Function: Allocates a byte vector.
 # allocate_byte_vector(atype,len)
 # > uintB atype: Atype_nBit
-# > uintL len: Länge (in n-Bit-Blöcken)
-# < ergebnis: neuer Semi-Simple-Bytevektor dieser Länge
-# kann GC auslösen
+# > uintL len: length (number of n-bit blocks)
+# < result: fresh semi-simple byte-vector of the given length
+# can trigger GC
   extern object allocate_byte_vector (uintB atype, uintL len);
 # wird verwendet von CLX
 
-# UP: Bildet einen Simple-Vektor mit gegebenen Elementen.
+# Function: Creates a simple-vector with given elements.
 # vectorof(len)
-# > uintC len: gewünschte Vektorlänge
-# > auf STACK: len Objekte, erstes zuoberst
-# < ergebnis: Simple-Vektor mit diesen Objekten
-# Erhöht STACK
-# verändert STACK, kann GC auslösen
+# > uintC len: desired vector length
+# > STACK_(len-1), ..., STACK_(0): len objects
+# < result: simple-vector containing these objects
+# Pops n objects off STACK.
+# can trigger GC
   extern object vectorof (uintC len);
-# wird verwendet von PREDTYPE
+# used by PREDTYPE
 
-# UP: Liefert zu einem Array gegebener Größe den Datenvektor und den Offset.
-# Überprüft auch, ob alle Elemente des Arrays physikalisch vorhanden sind.
+# Function: For an indirect array, returns the storage vector and the offset.
+# Also verifies that all elements of the array are physically present.
 # iarray_displace_check(array,size,&index)
-# > object array: indirekter Array
-# > uintL size: Größe
-# < ergebnis: Datenvektor
-# < index: wird um den Offset in den Datenvektor erhöht.
+# > object array: indirect array
+# > uintL size: size
+# < result: storage vector
+# < index: is incremented by the offset into the storage vector
   extern object iarray_displace_check (object array, uintL size, uintL* index);
-# wird verwendet von IO, CHARSTRG, PREDTYPE, STREAM, SEQUENCE
+# used by IO, CHARSTRG, HASHTABL, PREDTYPE, STREAM, SEQUENCE, AFFI
 
-# UP: Liefert zu einem Array gegebener Größe den Datenvektor und den Offset.
-# Überprüft auch, ob alle Elemente des Arrays physikalisch vorhanden sind.
+# Function: For an array, returns the storage vector and the offset.
+# Also verifies that all elements of the array are physically present.
 # array_displace_check(array,size,&index)
-# > object array: Array
-# > uintL size: Größe
-# < ergebnis: Datenvektor
-# < index: wird um den Offset in den Datenvektor erhöht.
+# > object array: array
+# > uintL size: size
+# < result: storage vector
+# < index: is incremented by the offset into the storage vector
   extern object array_displace_check (object array, uintL size, uintL* index);
-# wird verwendet von PATHNAME, HASHTABL, PREDTYPE, IO
+# used by HASHTABL, PREDTYPE, IO, FOREIGN
 
-# Führt einen AREF-Zugriff aus.
-# datenvektor_aref(datenvektor,index)
-# > datenvektor : ein Datenvektor (simpler Vektor oder semi-simpler Byte-Vektor)
-# > index : (geprüfter) Index in den Datenvektor
-# < ergebnis : (AREF datenvektor index)
-# kann GC auslösen
-  extern object datenvektor_aref (object datenvektor, uintL index);
-# wird verwendet von IO
+# Function: Performs an AREF access.
+# storagevector_aref(storagevector,index)
+# > storagevector: a storage vector (simple vector or semi-simple byte vector)
+# > index: (already checked) index into the storage vector
+# < result: (AREF storagevector index)
+# can trigger GC (only for element type (UNSIGNED-BYTE 32))
+  extern object storagevector_aref (object storagevector, uintL index);
+# used by IO
 
-# UP: fragt ein Bit in einem Simple-Bit-Vector ab
+# Macro: Tests a bit in a simple-bit-vector.
 # if (sbvector_btst(sbvector,index)) ...
-# > sbvector: ein Simple-Bit-Vector
-# > index: Index (Variable, sollte < (length sbvector) sein)
-  #define sbvector_btst(sbvector_from_sbvector_btst,index_from_sbvector_btst)  \
-    ( # im Byte (index div 8) das Bit 7 - (index mod 8) : \
-     TheSbvector(sbvector_from_sbvector_btst)->data[(uintL)(index_from_sbvector_btst)/8] \
-       & bit((~(uintL)(index_from_sbvector_btst)) % 8)    \
+# > sbvector: a simple-bit-vector
+# > index: index (a variable, must be < (length sbvector))
+  #define sbvector_btst(sbvector,index)  \
+    ( # in byte number (index div 8), the bit number 7 - (index mod 8) : \
+     TheSbvector(sbvector)->data[(uintL)(index)/8]                       \
+       & bit((~(uintL)(index)) % 8)                                      \
     )
-# wird verwendet von ARRAY, SEQUENCE, IO
+# used by SEQUENCE, IO
 
-# UP: löscht ein Bit in einem Simple-Bit-Vector
+# Macro: Clears a bit in a simple-bit-vector.
 # sbvector_bclr(sbvector,index);
-# > sbvector: ein Simple-Bit-Vector
-# > index: Index (Variable, sollte < (length sbvector) sein)
-  #define sbvector_bclr(sbvector_from_sbvector_bclr,index_from_sbvector_bclr)  \
-    ( # im Byte (index div 8) das Bit 7 - (index mod 8) löschen: \
-      TheSbvector(sbvector_from_sbvector_bclr)->data[(uintL)(index_from_sbvector_bclr)/8] \
-        &= ~bit((~(uintL)(index_from_sbvector_bclr)) % 8)        \
+# > sbvector: a simple-bit-vector
+# > index: index (a variable, must be < (length sbvector))
+  #define sbvector_bclr(sbvector,index)  \
+    ( # in byte number (index div 8), the bit number 7 - (index mod 8) : \
+      TheSbvector(sbvector)->data[(uintL)(index)/8]                      \
+        &= ~bit((~(uintL)(index)) % 8)                                   \
     )
-# wird verwendet von IO
+# used by IO
 
-# UP: setzt ein Bit in einem Simple-Bit-Vector
+# Macro: Sets a bit in a simple-bit-vector.
 # sbvector_bset(sbvector,index);
-# > sbvector: ein Simple-Bit-Vector
-# > index: Index (Variable, sollte < (length sbvector) sein)
-  #define sbvector_bset(sbvector_from_sbvector_bset,index_from_sbvector_bset)  \
-    ( # im Byte (index div 8) das Bit 7 - (index mod 8) setzen: \
-      TheSbvector(sbvector_from_sbvector_bset)->data[(uintL)(index_from_sbvector_bset)/8] \
-        |= bit((~(uintL)(index_from_sbvector_bset)) % 8)        \
+# > sbvector: a simple-bit-vector
+# > index: index (a variable, must be < (length sbvector))
+  #define sbvector_bset(sbvector,index)  \
+    ( # in byte number (index div 8), the bit number 7 - (index mod 8) : \
+      TheSbvector(sbvector)->data[(uintL)(index)/8]                      \
+        |= bit((~(uintL)(index)) % 8)                                    \
     )
-# wird verwendet von SEQUENCE, IO
+# used by SEQUENCE, IO
 
-# UP, liefert den Element-Typ eines Arrays
+# Function: Returns the element-type of an array.
 # array_element_type(array)
-# > array : ein Array (simple oder nicht)
-# < ergebnis : Element-Typ, eines der Symbole T, BIT, CHARACTER, oder eine Liste
-# kann GC auslösen
+# > array: an array
+# < result: element-type, one of the symbols T, BIT, CHARACTER, or a list
+# can trigger GC
   extern object array_element_type (object array);
-# wird verwendet von PREDTYPE, IO
+# used by PREDTYPE, IO
 
-# UP, bildet Liste der Dimensionen eines Arrays
+# Function: Returns the list of dimensions of an array.
 # array_dimensions(array)
-# > array: ein Array (simple oder nicht)
-# < ergebnis: Liste seiner Dimensionen
-# kann GC auslösen
+# > array: an array
+# < result: list of its dimensions
+# can trigger GC
   extern object array_dimensions (object array);
-# wird verwendet von PREDTYPE, IO
+# used by PREDTYPE, IO
 
-# UP, liefert Dimensionen eines Arrays und ihre Teilprodukte
-# array_dims_sizes(array,&dims_sizes);
-# > array: (echter) Array vom Rang r
-# > struct { uintL dim; uintL dimprod; } dims_sizes[r]: Platz fürs Ergebnis
-# < für i=1,...r:  dims_sizes[r-i] = { Dim_i, Dim_i * ... * Dim_r }
+# Function: Returns the dimensions of an array and their partial products.
+# iarray_dims_sizes(array,&dims_sizes);
+# > array: indirect array of rank r
+# > struct { uintL dim; uintL dimprod; } dims_sizes[r]: room for the result
+# < for i=1,...r:  dims_sizes[r-i] = { Dim_i, Dim_i * ... * Dim_r }
   typedef struct { uintL dim; uintL dimprod; }  array_dim_size;
-  extern void array_dims_sizes (object array, array_dim_size* dims_sizes);
-# wird verwendet von IO
+  extern void iarray_dims_sizes (object array, array_dim_size* dims_sizes);
+# used by IO
 
-# Liefert die Gesamtgröße eines Arrays
+# Macro: Returns the total-size of an array.
 # array_total_size(array)
-# > array: ein Array (simple oder nicht)
-# < uintL ergebnis: seine Gesamtgröße
+# > array: an array (a variable)
+# < uintL result: its total-size
   #define array_total_size(array)  \
-    (array_simplep(array)                                                    \
-      ? Sarray_length(array) # simpler Vektor: Länge                         \
-      : TheIarray(array)->totalsize # nicht-simpler Array enthält Total-Size \
+    (array_simplep(array)                                                \
+      ? Sarray_length(array) # simple vector: total length               \
+      : TheIarray(array)->totalsize # indirect array: contains totalsize \
     )
-# wird verwendet von ARRAY, PREDTYPE, IO, SEQUENCE
+# used by ARRAY, SEQUENCE, FOREIGN
 
-# Unterprogramm für Bitvektor-Vergleich:
+# Function: Compares two slices of simple-bit-vectors.
 # bit_compare(array1,index1,array2,index2,count)
-# > array1: erster Bit-Array,
-# > index1: absoluter Index in array1
-# > array2: zweiter Bit-Array,
-# > index2: absoluter Index in array2
-# > count: Anzahl der zu vergleichenden Bits
-# < ergebnis: TRUE, wenn die Ausschnitte bitweise gleich sind, FALSE sonst.
+# > array1: first simple-bit-vector
+# > index1: absolute index into array1
+# > array2: second simple-bit-vector
+# > index2: absolute index into array2
+# > count: number of bits to be compared
+# < result: TRUE, if both slices are the same, bit for bit, else FALSE.
   extern boolean bit_compare (object array1, uintL index1,
                               object array2, uintL index2,
                               uintL bitcount);
-# wird verwendet von PREDTYPE
+# used by PREDTYPE
 
-# UP: Testet, ob ein Array einen Fill-Pointer hat.
+# Function: Tests whether an array has a fill-pointer.
 # array_has_fill_pointer_p(array)
 # > array: ein Array
-# < TRUE, falls ja; FALSE falls nein.
+# < result: TRUE, if it has a fill-pointer, else FALSE.
   extern boolean array_has_fill_pointer_p (object array);
-# wird verwendet von SEQUENCE, STREAM, IO
+# used by SEQUENCE, STREAM, IO
 
-# UP: erzeugt einen mit Nullen gefüllten Bitvektor
+# Function: Allocates a new simple-bit-vector, filled with zeroes.
 # allocate_bit_vector_0(len)
-# > uintL len: Länge des Bitvektors (in Bits)
-# < ergebnis: neuer Bitvektor, mit Nullen gefüllt
-# kann GC auslösen
+# > uintL len: length of the desired bit-vector (number of bits)
+# < result: fresh simple-bit-vector, filled with zeroes
+# can trigger GC
   extern object allocate_bit_vector_0 (uintL len);
-# wird verwendet von SEQUENCE
+# used by SEQUENCE
 
-# Folgende beide Funktionen arbeiten auf "Semi-Simple String"s.
-# Das sind CHARACTER-Arrays mit FILL-POINTER, die aber nicht adjustierbar
-# und nicht displaced sind und deren Datenvektor ein Normal-Simple-String ist.
-# Beim Überschreiten der Länge wird ihre Länge verdoppelt
-# (so dass der Aufwand fürs Erweitern nicht sehr ins Gewicht fällt).
+# The following functions work on "semi-simple string"s.
+# That are CHARACTER arrays with FILL-POINTER, (pro forma) not adjustable and
+# not displaced, whose storagevector is a normal-simple-string. When their
+# length is exceeded, the length is doubled (so that the resizing effort
+# becomes unimportant: adding a character is still O(1) on average.)
 
-# UP: Liefert einen Semi-Simple String gegebener Länge, Fill-Pointer =0.
+# Function: Returns a fresh semi-simple-string of given length, with
+# fill-pointer = 0.
 # make_ssstring(len)
-# > uintL len: Länge >0
-# < ergebnis: neuer Semi-Simple String dieser Länge
-# kann GC auslösen
+# > uintL len: desired length, must be >0
+# < fresh: fresh semi-simple-string of the given length
+# can trigger GC
   extern object make_ssstring (uintL len);
-# wird verwendet von STREAM, IO
+# used by STREAM, IO
 
-# UP: Schiebt ein Character in einen Semi-Simple String und erweitert ihn
-# dabei eventuell.
+# Function: Adds a character to a semi-simple-string, thereby possibly
+# extending it.
 # ssstring_push_extend(ssstring,ch)
-# > ssstring: Semi-Simple String
-# > ch: Character
-# < ergebnis: derselbe Semi-Simple String
-# kann GC auslösen
+# > ssstring: a semi-simple-string
+# > ch: a character
+# < result: the same semi-simple-string
+# can trigger GC
   extern object ssstring_push_extend (object ssstring, chart ch);
-# wird verwendet von STREAM, IO
+# used by STREAM, IO
 
-# UP: Stellt sicher, dass ein Semi-Simple String eine bestimmte Länge hat
-# und erweitert ihn dazu eventuell.
+# Function: Ensures that a semi-simple-string has at least a given length,
+# possibly extending it.
 # ssstring_extend(ssstring,size)
-# > ssstring: Semi-Simple String
-# > size: gewünschte Mindestgröße
-# < ergebnis: derselbe Semi-Simple String
-# kann GC auslösen
+# > ssstring: a semi-simple-string
+# > size: desired minimum length
+# < ergebnis: the same semi-simple-string
+# can trigger GC
   extern object ssstring_extend (object ssstring, uintL needed_len);
-# wird verwendet von STREAM
+# used by STREAM
 
-# Folgende beide Funktionen arbeiten auf "Semi-Simple Byte-Vector"s.
-# Das sind Simple-Bit-Arrays mit Fill-Pointer, die aber nicht adjustierbar
-# und nicht displaced sind und deren Datenvektor ein Simple-Bit-Vektor ist.
-# Beim Überschreiten der Länge wird ihre Länge verdoppelt
-# (so dass der Aufwand fürs Erweitern nicht sehr ins Gewicht fällt).
+# The following functions work on "semi-simple byte-vector"s.
+# That are bit vectors with FILL-POINTER, (pro forma) not adjustable and
+# not displaced, whose storagevector is a simple-bit-vector. When their
+# length is exceeded, the length is doubled (so that the resizing effort
+# becomes unimportant: adding a character is still O(1) on average.)
 
-# UP: Liefert einen Semi-Simple Byte-Vector mit len Bytes, Fill-Pointer =0.
+# Function: Returns a fresh semi-simple byte-vector of given length, with
+# fill-pointer = 0.
 # make_ssbvector(len)
-# > uintL len: Länge (in Bytes!) >0
-# < ergebnis: neuer Semi-Simple Byte-Vector dieser Länge
-# kann GC auslösen
+# > uintL len: length (number of bytes!), must be >0
+# < result: fresh semi-simple byte-vector of the given length
+# can trigger GC
   extern object make_ssbvector (uintL len);
-# wird verwendet von IO
+# used by IO
 
-# UP: Schiebt ein Byte in einen Semi-Simple Byte-Vector und erweitert ihn
-# dabei eventuell.
+# Function: Adds a byte to a semi-simple byte vector, thereby possibly
+# extending it.
 # ssbvector_push_extend(ssbvector,b)
-# > ssbvector: Semi-Simple Byte-Vector
-# > b: Byte
-# < ergebnis: derselbe Semi-Simple Byte-Vector
-# kann GC auslösen
+# > ssbvector: a semi-simple byte-vector
+# > b: byte
+# < result: the same semi-simple byte-vector
+# can trigger GC
   extern object ssbvector_push_extend (object ssbvector, uintB b);
-# wird verwendet von IO
+# used by IO
 
 # ##################### CHARBIBL zu CHARSTRG.D ############################ #
 
@@ -10869,7 +10872,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # copy_string(string)
 # > string: String
 # < ergebnis: mutable Normal-Simple-String mit denselben Zeichen
-# kann GC auslösen
+# can trigger GC
   extern object copy_string (object string);
 # wird verwendet von IO, PATHNAME
 
@@ -10877,7 +10880,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # coerce_ss(obj)
 # > obj: Lisp-Objekt, sollte ein String sein.
 # < ergebnis: Simple-String mit denselben Zeichen
-# kann GC auslösen
+# can trigger GC
   extern object coerce_ss (object obj);
 # wird verwendet von STREAM, PATHNAME
 
@@ -10885,7 +10888,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # coerce_imm_ss(obj)
 # > obj: Lisp-Objekt, sollte ein String sein.
 # < ergebnis: immutabler Simple-String mit denselben Zeichen
-# kann GC auslösen
+# can trigger GC
   #ifdef TYPECODES
     #define coerce_imm_ss coerce_ss
   #else
@@ -10897,7 +10900,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # coerce_normal_ss(obj)
 # > obj: Lisp-Objekt, sollte ein String sein.
 # < ergebnis: Normal-Simple-String mit denselben Zeichen
-# kann GC auslösen
+# can trigger GC
   #ifndef HAVE_SMALL_SSTRING
     #define coerce_normal_ss coerce_ss
   #else
@@ -10910,7 +10913,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # coerce_imm_normal_ss(obj)
 # > obj: Lisp-Objekt, sollte ein String sein.
 # < ergebnis: immutabler Normal-Simple-String mit denselben Zeichen
-# kann GC auslösen
+# can trigger GC
   #ifndef HAVE_SMALL_SSTRING
     #define coerce_imm_normal_ss coerce_imm_ss
   #else
@@ -11000,7 +11003,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # string_upcase(string)
 # > string: String
 # < ergebnis: neuer Normal-Simple-String, in Großbuchstaben
-# kann GC auslösen
+# can trigger GC
   extern object string_upcase (object string);
 # wird verwendet von MISC, PATHNAME
 
@@ -11008,7 +11011,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # string_downcase(string)
 # > string: String
 # < ergebnis: neuer Normal-Simple-String, in Kleinbuchstaben
-# kann GC auslösen
+# can trigger GC
   extern object string_downcase (object string);
 # wird verwendet von PATHNAME
 
@@ -11036,7 +11039,7 @@ extern object stream_fd (object stream);
 # > subr_self: Aufrufer (ein SUBR) (unnötig, falls alle Argumente Strings sind)
 # < ergebnis: Gesamtstring, neu erzeugt
 # < STACK: aufgeräumt
-# kann GC auslösen
+# can trigger GC
   extern object string_concat (uintC argcount);
 # wird verwendet von PACKAGE, PATHNAME, DEBUG, SYMBOL
 
@@ -11050,7 +11053,7 @@ extern object stream_fd (object stream);
 # Startet einen untergeordneten Driver (Read-Eval-Print-Loop)
 # break_driver(continuable);
 # > continuable: Flag, ob nach Beendigung des Drivers fortgefahren werden kann.
-# kann GC auslösen
+# can trigger GC
   extern void break_driver (object continuable);
 # wird verwendet von ERROR, EVAL
 
@@ -11070,7 +11073,7 @@ extern object stream_fd (object stream);
 # > obj: Objekt
 # > value: neuer Wert
 # < ergebnis: alter Wert
-# kann GC auslösen
+# can trigger GC
   extern object shifthash (object ht, object obj, object value);
 # wird verwendet von SEQUENCE, PATHNAME, FOREIGN
 
@@ -11125,7 +11128,7 @@ extern object stream_fd (object stream);
 
 # UP: Initialisiert den Reader.
 # init_reader();
-# kann GC auslösen
+# can trigger GC
   extern void init_reader (void);
 # wird verwendet von SPVW
 
@@ -11136,7 +11139,7 @@ extern object stream_fd (object stream);
 # > stream: Stream
 # < stream: Stream
 # < ergebnis: gelesenes Objekt (eof_value bei EOF, dot_value bei einzelnem Punkt)
-# kann GC auslösen
+# can trigger GC
   extern object stream_read (const object* stream_, object recursive_p, object whitespace_p);
 # wird verwendet von SPVW, DEBUG
 
@@ -11145,7 +11148,7 @@ extern object stream_fd (object stream);
 # > string: Simple-String
 # > stream: Stream
 # < stream: Stream
-# kann GC auslösen
+# can trigger GC
   extern void write_sstring (const object* stream_, object string);
 # wird verwendet von EVAL, DEBUG, ERROR, PACKAGE, SPVW
 
@@ -11154,7 +11157,7 @@ extern object stream_fd (object stream);
 # > string: String
 # > stream: Stream
 # < stream: Stream
-# kann GC auslösen
+# can trigger GC
   extern void write_string (const object* stream_, object string);
 # wird verwendet von PACKAGE, DEBUG
 
@@ -11163,7 +11166,7 @@ extern object stream_fd (object stream);
 # > obj: Objekt
 # > stream: Stream
 # < stream: Stream
-# kann GC auslösen
+# can trigger GC
   extern void prin1 (const object* stream_, object obj);
 # wird verwendet von EVAL, DEBUG, PACKAGE, ERROR, SPVW
 
@@ -11171,7 +11174,7 @@ extern object stream_fd (object stream);
 # terpri(&stream);
 # > stream: Stream
 # < stream: Stream
-# kann GC auslösen
+# can trigger GC
   # extern void terpri (const object* stream_);
   #define terpri(stream_)  write_ascii_char(stream_,NL)
 # wird verwendet von IO, DEBUG, PACKAGE, ERROR, SPVW
@@ -11182,7 +11185,7 @@ extern object stream_fd (object stream);
 # copy_list(list)
 # > list: Liste
 # < ergebnis: Kopie der Liste
-# kann GC auslösen
+# can trigger GC
   extern object copy_list (object list);
 # wird verwendet von PACKAGE
 
@@ -11190,7 +11193,7 @@ extern object stream_fd (object stream);
 # reverse(list)
 # > list: Liste (x1 ... xm)
 # < ergebnis: umgedrehte Liste (xm ... x1)
-# kann GC auslösen
+# can trigger GC
   extern object reverse (object list);
 # wird verwendet von SEQUENCE, PACKAGE, PATHNAME
 
@@ -11207,7 +11210,7 @@ extern object stream_fd (object stream);
 # > (STACK): Initialisierungswert für die Elemente
 # > uintL len: gewünschte Listenlänge
 # < ergebnis: Liste mit D1.L Elementen
-# kann GC auslösen
+# can trigger GC
   extern object make_list (uintL len);
 # wird verwendet von
 
@@ -11580,7 +11583,7 @@ extern object stream_fd (object stream);
 #             1, wenn als externes Symbol vorhanden
 #             2, wenn vererbt über use-list
 #             3, wenn als internes Symbol vorhanden
-# kann GC auslösen
+# can trigger GC
   extern uintBWL intern (object string, object pack, object* sym_);
 # wird verwendet von IO, SPVW
 
@@ -11588,7 +11591,7 @@ extern object stream_fd (object stream);
 # intern_keyword(string)
 # > string: String
 # < ergebnis: Symbol, ein Keyword
-# kann GC auslösen
+# can trigger GC
   extern object intern_keyword (object string);
 # wird verwendet von IO, EVAL, GRAPH
 
@@ -11598,7 +11601,7 @@ extern object stream_fd (object stream);
 # > pack: Package (im STACK)
 # < sym: Symbol, EQ zum alten
 # < pack: Package, EQ zur alten
-# kann GC auslösen
+# can trigger GC
   extern void import (const object* sym_, const object* pack_);
 # wird verwendet von SPVW
 
@@ -11608,7 +11611,7 @@ extern object stream_fd (object stream);
 # > pack: Package (im STACK)
 # < sym: Symbol, EQ zum alten
 # < pack: Package, EQ zur alten
-# kann GC auslösen
+# can trigger GC
   extern void export (const object* sym_, const object* pack_);
 # wird verwendet von SPVW
 
@@ -11634,13 +11637,13 @@ extern object stream_fd (object stream);
 # < ergebnis:
 #     falls Name=NIL: Directory-Namestring (fürs BS)
 #     falls Name/=NIL: Namestring (für BS, mit Nullbyte am Schluss)
-# kann GC auslösen
+# can trigger GC
   extern object assume_dir_exists (void);
 # wird verwendet von STREAM
 
 # UP: Initialisiert das Pathname-System.
 # init_pathnames();
-# kann GC auslösen
+# can trigger GC
   extern void init_pathnames (void);
 # wird verwendet von SPVW
 
@@ -11686,7 +11689,7 @@ extern object stream_fd (object stream);
 # > obj: Objekt, sollte eine Sequence sein
 # > result_type: Bezeichner (Symbol) des Sequence-Typs
 # < Wert: Sequence vom Typ result_type
-# kann GC auslösen
+# can trigger GC
   extern Values coerce_sequence (object sequence, object result_type);
 # wird verwendet von PREDTYPE, EVAL
 
@@ -11696,7 +11699,7 @@ extern object stream_fd (object stream);
 # > obj: Objekt, sollte eine Sequence sein
 # > fun: Funktion, fun(arg,element) darf GC auslösen
 # > arg: beliebiges vorgegebenes Argument
-# kann GC auslösen
+# can trigger GC
   typedef void map_sequence_function (void* arg, object element);
   extern void map_sequence (object obj, map_sequence_function* fun, void* arg);
 # wird verwendet von ARRAY
@@ -11713,7 +11716,7 @@ extern object stream_fd (object stream);
 # init_streamvars(unixyp);
 # > unixyp: Flag, ob *error-output* nach Unix-Art (vom Standard abweichend)
 #           initialisert werden soll
-# kann GC auslösen
+# can trigger GC
   extern void init_streamvars (boolean unixyp);
 # wird verwendet von SPVW
 
@@ -11728,7 +11731,7 @@ extern object stream_fd (object stream);
 # read_byte(stream)
 # > stream: Stream
 # < ergebnis: gelesener Integer (eof_value bei EOF)
-# kann GC auslösen
+# can trigger GC
   extern object read_byte (object stream);
 # wird verwendet von PATHNAME, SEQUENCE
 
@@ -11736,7 +11739,7 @@ extern object stream_fd (object stream);
 # write_byte(stream,byte);
 # > stream: Stream
 # > byte: auszugebender Integer
-# kann GC auslösen
+# can trigger GC
   extern void write_byte(object stream, object byte);
 # wird verwendet von SEQUENCE
 
@@ -11745,7 +11748,7 @@ extern object stream_fd (object stream);
 # > stream: Stream
 # < stream: Stream
 # < ergebnis: gelesenes Character (eof_value bei EOF)
-# kann GC auslösen
+# can trigger GC
   extern object read_char (const object* stream_);
 # wird verwendet von IO, DEBUG, SEQUENCE
 
@@ -11762,7 +11765,7 @@ extern object stream_fd (object stream);
 # > stream: Stream
 # < stream: Stream
 # < ergebnis: gelesenes Character (eof_value bei EOF)
-# kann GC auslösen
+# can trigger GC
   extern object peek_char (const object* stream_);
 # wird verwendet von IO
 
@@ -11771,7 +11774,7 @@ extern object stream_fd (object stream);
 # > ch: auszugebendes Character
 # > stream: Stream
 # < stream: Stream
-# kann GC auslösen
+# can trigger GC
   extern void write_char (const object* stream_, object ch);
 # wird verwendet von LISPARIT, IO, ERROR, SEQUENCE
 
@@ -11780,7 +11783,7 @@ extern object stream_fd (object stream);
 # > ch: a character
 # > stream: Stream
 # < stream: Stream
-# kann GC auslösen
+# can trigger GC
   # extern void write_code_char (const object* stream_, chart ch);
   #define write_code_char(stream_,ch)  write_char(stream_,code_char(ch))
 # wird verwendet von LISPARIT, IO
@@ -11790,7 +11793,7 @@ extern object stream_fd (object stream);
 # > ch: a standard char, in ASCII encoding
 # > stream: Stream
 # < stream: Stream
-# kann GC auslösen
+# can trigger GC
   # extern void write_ascii_char (const object* stream_, uintB ch);
   #define write_ascii_char(stream_,ch)  write_char(stream_,code_char(as_chart(ch)))
 # wird verwendet von LISPARIT, IO, DEBUG, Macro TERPRI
@@ -11806,20 +11809,20 @@ extern object stream_fd (object stream);
 # stream_close(&stream);
 # > stream: Stream
 # < stream: Stream
-# kann GC auslösen
+# can trigger GC
   extern void stream_close (const object* stream_);
 # wird verwendet von PATHNAME, SPVW, DEBUG, MISC
 
 # UP: Schließt eine Liste offener Files.
 # close_some_files(list);
 # > list: Liste von offenen Streams
-# kann GC auslösen
+# can trigger GC
   extern void close_some_files (object list);
 # wird verwendet von SPVW
 
 # UP: Schließt alle offenen Files.
 # close_all_files();
-# kann GC auslösen
+# can trigger GC
   extern void close_all_files (void);
 # wird verwendet von SPVW
 
@@ -11834,7 +11837,7 @@ extern object stream_fd (object stream);
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-# kann GC auslösen
+# can trigger GC
   extern signean stream_listen (object stream);
   #define ls_avail  0
   #define ls_eof   -1
@@ -11848,28 +11851,28 @@ extern object stream_fd (object stream);
 # clear_input(stream)
 # > stream: Stream
 # < ergebnis: TRUE falls Input gelöscht wurde
-# kann GC auslösen
+# can trigger GC
   extern boolean clear_input (object stream);
 # wird verwendet von IO, DEBUG
 
 # UP: Wartenden Output eines Stream stream ans Ziel bringen.
 # finish_output(stream);
 # > stream: Stream
-# kann GC auslösen
+# can trigger GC
   extern void finish_output (object stream);
 # wird verwendet von IO
 
 # UP: Wartenden Output eines Stream stream ans Ziel bringen.
 # force_output(stream);
 # > stream: Stream
-# kann GC auslösen
+# can trigger GC
   extern void force_output (object stream);
 # wird verwendet von IO, DEBUG
 
 # UP: Wartenden Output eines Stream stream löschen.
 # clear_output(stream);
 # > stream: Stream
-# kann GC auslösen
+# can trigger GC
   extern void clear_output (object stream);
 # wird verwendet von IO
 
@@ -11946,13 +11949,13 @@ extern object stream_fd (object stream);
 # If direction==5, handle_fresh must be TRUE.
 # < ergebnis: File-Stream (oder evtl. File-Handle-Stream)
 # < STACK: aufgeräumt
-# kann GC auslösen
+# can trigger GC
   extern object make_file_stream (uintB direction, boolean append_flag, boolean handle_at_pos_0);
 # wird verwendet von PATHNAME
 
 # Liefert einen Broadcast-Stream zum Stream stream.
 # make_broadcast1_stream(stream)
-# kann GC auslösen
+# can trigger GC
   extern object make_broadcast1_stream (object stream);
 # wird verwendet von IO
 
@@ -11961,13 +11964,13 @@ extern object stream_fd (object stream);
 # > input_stream : Input-Stream
 # > output_stream : Output-Stream
 # < ergebnis : Two-Way-Stream
-# kann GC auslösen
+# can trigger GC
   extern object make_twoway_stream (object input_stream, object output_stream);
 # wird verwendet von SPVW
 
 # Liefert einen String-Output-Stream.
 # make_string_output_stream()
-# kann GC auslösen
+# can trigger GC
   extern object make_string_output_stream (void);
 # wird verwendet von IO, EVAL, DEBUG, ERROR
 
@@ -11976,13 +11979,13 @@ extern object stream_fd (object stream);
 # > stream: String-Output-Stream
 # < stream: geleerter Stream
 # < ergebnis: Angesammeltes, ein Simple-String
-# kann GC auslösen
+# can trigger GC
   extern object get_output_stream_string (const object* stream_);
 # wird verwendet von IO, EVAL, DEBUG, ERROR
 
 # UP: Liefert einen Pretty-Printer-Hilfs-Stream.
 # make_pphelp_stream()
-# kann GC auslösen
+# can trigger GC
   extern object make_pphelp_stream (void);
 # wird verwendet von IO
 
@@ -12029,7 +12032,7 @@ extern object stream_fd (object stream);
 
 # UP: Initialisiert die Arithmetik.
 # init_arith();
-# kann GC auslösen
+# can trigger GC
   extern void init_arith (void);
 # wird verwendet von SPVW
 
@@ -12037,7 +12040,7 @@ extern object stream_fd (object stream);
 # L_to_I(wert)
 # > wert: Wert des Integers, ein signed 32-Bit-Integer.
 # < ergebnis: Integer mit diesem Wert.
-# kann GC auslösen
+# can trigger GC
   extern object L_to_I (sint32 wert);
 # wird verwendet von TIME, REXX
 
@@ -12045,7 +12048,7 @@ extern object stream_fd (object stream);
 # UL_to_I(wert)
 # > wert: Wert des Integers, ein unsigned 32-Bit-Integer.
 # < ergebnis: Integer mit diesem Wert.
-# kann GC auslösen
+# can trigger GC
   #if (intLsize<=oint_data_len)
     #define UL_to_I(wert)  fixnum((uintL)(wert))
   #else
@@ -12057,7 +12060,7 @@ extern object stream_fd (object stream);
 # L2_to_I(wert_hi,wert_lo)
 # > wert_hi|wert_lo: Wert des Integers, ein signed 64-Bit-Integer.
 # < ergebnis: Integer mit diesem Wert.
-# kann GC auslösen
+# can trigger GC
   extern object L2_to_I (sint32 wert_hi, uint32 wert_lo);
 # wird verwendet von TIME, FOREIGN
 
@@ -12066,7 +12069,7 @@ extern object stream_fd (object stream);
 # UL2_to_I(wert_hi,wert_lo)
 # > wert_hi|wert_lo: Wert des Integers, ein unsigned 64-Bit-Integer.
 # < ergebnis: Integer mit diesem Wert.
-# kann GC auslösen
+# can trigger GC
   extern object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
 # wird verwendet von FOREIGN, vom FFI
 #endif
@@ -12076,7 +12079,7 @@ extern object stream_fd (object stream);
 # Q_to_I(wert)
 # > wert: Wert des Integers, ein signed 64-Bit-Integer.
 # < ergebnis: Integer mit diesem Wert.
-# kann GC auslösen
+# can trigger GC
   extern object Q_to_I (sint64 wert);
 # wird verwendet vom FFI
 #endif
@@ -12086,7 +12089,7 @@ extern object stream_fd (object stream);
 # UQ_to_I(wert)
 # > wert: Wert des Integers, ein unsigned 64-Bit-Integer.
 # < ergebnis: Integer mit diesem Wert.
-# kann GC auslösen
+# can trigger GC
   extern object UQ_to_I (uint64 wert);
 # wird verwendet von MISC, TIME, FFI
 #endif
@@ -12203,31 +12206,31 @@ extern object stream_fd (object stream);
 
 # (1+ x), wo x ein Integer ist. Ergebnis Integer.
 # I_1_plus_I(x)
-# kann GC auslösen
+# can trigger GC
   extern object I_1_plus_I (object x);
 # wird verwendet von SEQUENCE, SPVW, SYMBOL
 
 # (1- x), wo x ein Integer ist. Ergebnis Integer.
 # I_minus1_plus_I(x)
-# kann GC auslösen
+# can trigger GC
   extern object I_minus1_plus_I (object x);
 # wird verwendet von SEQUENCE
 
 # (+ x y), wo x und y Integers sind. Ergebnis Integer.
 # I_I_plus_I(x,y)
-# kann GC auslösen
+# can trigger GC
   extern object I_I_plus_I (object x, object y);
 # wird verwendet von SEQUENCE
 
 # (- x y), wo x und y Integers sind. Ergebnis Integer.
 # I_I_minus_I(x,y)
-# kann GC auslösen
+# can trigger GC
   extern object I_I_minus_I (object x, object y);
 # wird verwendet von SEQUENCE
 
 # (ASH x y), wo x und y Integers sind. Ergebnis Integer.
 # I_I_ash_I(x,y)
-# kann GC auslösen
+# can trigger GC
   extern object I_I_ash_I (object x, object y);
 # wird verwendet von SEQUENCE
 
@@ -12239,7 +12242,7 @@ extern object stream_fd (object stream);
 #ifdef HAVE_FFI
 
 # c_float_to_FF(&val) wandelt ein IEEE-Single-Float val in ein Single-Float um.
-# kann GC auslösen
+# can trigger GC
   extern object c_float_to_FF (const ffloatjanus* val_);
 
 # FF_to_c_float(obj,&val);
@@ -12247,7 +12250,7 @@ extern object stream_fd (object stream);
   extern void FF_to_c_float (object obj, ffloatjanus* val_);
 
 # c_double_to_DF(&val) wandelt ein IEEE-Double-Float val in ein Double-Float um.
-# kann GC auslösen
+# can trigger GC
   extern object c_double_to_DF (const dfloatjanus* val_);
 
 # DF_to_c_double(obj,&val);
@@ -12266,7 +12269,7 @@ extern object stream_fd (object stream);
 # > index2: Index nach der letzten Ziffer
 #   (also index2-index1 Ziffern, incl. evtl. Dezimalpunkt am Schluss)
 # < ergebnis: Integer
-# kann GC auslösen
+# can trigger GC
   extern object read_integer (uintWL base,
          signean sign, object string, uintL index1, uintL index2);
 # wird verwendet von IO
@@ -12281,7 +12284,7 @@ extern object stream_fd (object stream);
 # > index2: Index nach der letzten Ziffer
 #   (also index3-index1 Zähler-Ziffern, index2-index3-1 Nenner-Ziffern)
 # < ergebnis: rationale Zahl
-# kann GC auslösen
+# can trigger GC
   extern object read_rational (uintWL base,
          signean sign, object string, uintL index1, uintL index3, uintL index2);
 # wird verwendet von IO
@@ -12301,7 +12304,7 @@ extern object stream_fd (object stream);
 #    index4+1 = Index des Exponenten-Vorzeichens oder der ersten
 #    Exponenten-Ziffer)
 # < ergebnis: Float
-# kann GC auslösen
+# can trigger GC
   extern object read_float (uintWL base,
          signean sign, object string, uintL index1, uintL index4, uintL index2, uintL index3);
 # wird verwendet von IO
@@ -12312,7 +12315,7 @@ extern object stream_fd (object stream);
 # > base: Basis (>=2, <=36)
 # > stream: Stream
 # < stream: Stream
-# kann GC auslösen
+# can trigger GC
   extern void print_integer (object z, uintWL base, const object* stream_);
 # wird verwendet von IO
 
@@ -12321,7 +12324,7 @@ extern object stream_fd (object stream);
 # > z: Float
 # > stream: Stream
 # < stream: Stream
-# kann GC auslösen
+# can trigger GC
   extern void print_float (object z, const object* stream_);
 # wird verwendet von IO
 
@@ -12330,7 +12333,7 @@ extern object stream_fd (object stream);
 # > y: Integer Y (>=0)
 # > x: Ziffernwert X (>=0,<10)
 # < ergebnis: Integer Y*10+X (>=0)
-# kann GC auslösen
+# can trigger GC
   extern object mal_10_plus_x (object y, uintB x);
 # wird verwendet von IO
 
@@ -12348,7 +12351,7 @@ extern object stream_fd (object stream);
 #         FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: (coerce obj type)
-# kann GC auslösen
+# can trigger GC
   extern object coerce_float (object obj, object type);
 # wird verwendet von PREDTYPE
 
@@ -12356,7 +12359,7 @@ extern object stream_fd (object stream);
 # decimal_string(x)
 # > object x: an integer >= 0
 # < object result: a normal-simple-string containing the digits
-# kann GC auslösen
+# can trigger GC
   extern object decimal_string (object x);
 # wird verwendet von PATHNAME
 
@@ -12381,7 +12384,7 @@ extern object stream_fd (object stream);
 # > name: its name
 # > flags: fv_readonly for read-only variables
 # > size: its size in bytes
-# kann GC auslösen
+# can trigger GC
   extern void register_foreign_variable (void* address, const char * name, uintBWL flags, uintL size);
 # Specifies that the variable will not be written to.
 #define fv_readonly  bit(0)
@@ -12394,7 +12397,7 @@ extern object stream_fd (object stream);
 # > address: address of the function in memory
 # > name: its name
 # > flags: its language and parameter passing convention
-# kann GC auslösen
+# can trigger GC
   extern void register_foreign_function (void* address, const char * name, uintWL flags);
 # Flags for language:
 #define ff_lang_asm       bit(8)  # no argument passing conventions
@@ -12417,7 +12420,7 @@ extern object stream_fd (object stream);
 #define ff_inout          bit(5)
 
 # Convert foreign data to Lisp data.
-# kann GC auslösen
+# can trigger GC
   extern object convert_from_foreign (object fvd, const void* data);
 
 # Convert Lisp data to foreign data.

@@ -17,7 +17,7 @@
 # < STACK_1: Output-Stream *standard-output*
 # < STACK_0: Input-Stream *standard-input*
 # < mv_space/mv_count: Werte form, NIL oder (bei EOF) T, T
-# kann GC auslösen
+# can trigger GC
   local Values read_form (void);
 # (defun read-form (ostream istream prompt &optional (command-list nil))
 #   (loop
@@ -319,7 +319,7 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
 # Startet einen untergeordneten Driver (Read-Eval-Print-Loop)
 # break_driver(continuable);
 # > continuable: Flag, ob nach Beendigung des Drivers fortgefahren werden kann.
-# kann GC auslösen
+# can trigger GC
   global void break_driver (object continuable);
   global void break_driver(continuable)
     var object continuable;
@@ -935,7 +935,7 @@ LISPFUNN(return_from_eval_frame,2)
 # UP: Gibt das Stackitem FRAME_(0) detailliert auf den Stream aus
 # und liefert den nächsthöheren stackptr.
 # print_stackitem(&stream,FRAME)
-# kann GC auslösen
+# can trigger GC
   local object* print_stackitem (const object* stream_, object* FRAME);
   local object* print_stackitem(stream_,FRAME)
     var const object* stream_;

@@ -53,7 +53,7 @@
 # > uintQ mant: Mantisse, sollte >= 2^DF_mant_len und < 2^(DF_mant_len+1) sein.
 # < object ergebnis: ein Double-Float
 # Der Exponent wird auf Überlauf/Unterlauf getestet.
-# kann GC auslösen
+# can trigger GC
   #define encode_DF(sign,exp,mant, erg_zuweisung)  \
     { if ((exp) < (sintWL)(DF_exp_low-DF_exp_mid))                  \
         { if (underflow_allowed())                                  \
@@ -80,7 +80,7 @@
 #                        sollte >= 2^DF_mant_len und < 2^(DF_mant_len+1) sein.
 # < object ergebnis: ein Double-Float
 # Der Exponent wird auf Überlauf/Unterlauf getestet.
-# kann GC auslösen
+# can trigger GC
   #define encode2_DF(sign,exp,manthi,mantlo, erg_zuweisung)  \
     { if ((exp) < (sintWL)(DF_exp_low-DF_exp_mid))                       \
         { if (underflow_allowed())                                       \
@@ -183,7 +183,7 @@
 # Liefert zu einem Double-Float x : (ftruncate x), ein DF.
 # DF_ftruncate_DF(x)
 # x wird zur 0 hin zur nächsten ganzen Zahl gerundet.
-# kann GC auslösen
+# can trigger GC
   local object DF_ftruncate_DF (object x);
 # Methode:
 # x = 0.0 oder e<=0 -> Ergebnis 0.0
@@ -239,7 +239,7 @@
 # Liefert zu einem Double-Float x : (futruncate x), ein DF.
 # DF_futruncate_DF(x)
 # x wird von der 0 weg zur nächsten ganzen Zahl gerundet.
-# kann GC auslösen
+# can trigger GC
   local object DF_futruncate_DF (object x);
 # Methode:
 # x = 0.0 -> Ergebnis 0.0
@@ -317,7 +317,7 @@
 # Liefert zu einem Double-Float x : (fround x), ein DF.
 # DF_fround_DF(x)
 # x wird zur nächsten ganzen Zahl gerundet.
-# kann GC auslösen
+# can trigger GC
   local object DF_fround_DF (object x);
 # Methode:
 # x = 0.0 oder e<0 -> Ergebnis 0.0
@@ -478,7 +478,7 @@
 
 # Liefert zu einem Double-Float x : (- x), ein DF.
 # DF_minus_DF(x)
-# kann GC auslösen
+# can trigger GC
   local object DF_minus_DF (object x);
 # Methode:
 # Falls x=0.0, fertig. Sonst Vorzeichenbit umdrehen.
@@ -583,7 +583,7 @@
 
 # Liefert zu zwei Double-Float x und y : (+ x y), ein DF.
 # DF_DF_plus_DF(x,y)
-# kann GC auslösen
+# can trigger GC
   local object DF_DF_plus_DF (object x, object y);
 # Methode (nach [Knuth, II, Seminumerical Algorithms, Abschnitt 4.2.1., S.200]):
 # x1=0.0 -> Ergebnis x2.
@@ -838,7 +838,7 @@
 
 # Liefert zu zwei Double-Float x und y : (- x y), ein DF.
 # DF_DF_minus_DF(x,y)
-# kann GC auslösen
+# can trigger GC
   local object DF_DF_minus_DF (object x, object y);
 # Methode:
 # (- x1 x2) = (+ x1 (- x2))
@@ -884,7 +884,7 @@
 
 # Liefert zu zwei Double-Float x und y : (* x y), ein DF.
 # DF_DF_mal_DF(x,y)
-# kann GC auslösen
+# can trigger GC
   local object DF_DF_mal_DF (object x, object y);
 # Methode:
 # Falls x1=0.0 oder x2=0.0 -> Ergebnis 0.0
@@ -1069,7 +1069,7 @@
 
 # Liefert zu zwei Double-Float x und y : (/ x y), ein DF.
 # DF_DF_durch_DF(x,y)
-# kann GC auslösen
+# can trigger GC
   local object DF_DF_durch_DF (object x, object y);
 # Methode:
 # x2 = 0.0 -> Error
@@ -1261,7 +1261,7 @@
 
 # Liefert zu einem Double-Float x>=0 : (sqrt x), ein DF.
 # DF_sqrt_DF(x)
-# kann GC auslösen
+# can trigger GC
   local object DF_sqrt_DF (object x);
 # Methode:
 # x = 0.0 -> Ergebnis 0.0
@@ -1396,7 +1396,7 @@
 
 # DF_to_I(x) wandelt ein Double-Float x, das eine ganze Zahl darstellt,
 # in ein Integer um.
-# kann GC auslösen
+# can trigger GC
   local object DF_to_I (object x);
 # Methode:
 # Falls x=0.0, Ergebnis 0.
@@ -1434,7 +1434,7 @@
 #endif
 
 # I_to_DF(x) wandelt ein Integer x in ein Double-Float um und rundet dabei.
-# kann GC auslösen
+# can trigger GC
   local object I_to_DF (object x);
 # Methode:
 # x=0 -> Ergebnis 0.0
@@ -1544,7 +1544,7 @@
 
 # RA_to_DF(x) wandelt eine rationale Zahl x in ein Double-Float um
 # und rundet dabei.
-# kann GC auslösen
+# can trigger GC
   local object RA_to_DF (object x);
 # Methode:
 # x ganz -> klar.

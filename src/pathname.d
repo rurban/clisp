@@ -947,7 +947,7 @@
 
 # Wandelt Strings in Normal-Simple-Strings um.
 # subst_coerce_normal_ss(obj)
-# kann GC auslösen
+# can trigger GC
   local object subst_coerce_normal_ss (object obj);
   local object subst_coerce_normal_ss(obj)
     var object obj;
@@ -979,7 +979,7 @@
 # common_case(string)
 # > string: Normal-Simple-String oder Symbol/Zahl
 # < ergebnis: umgewandelter Normal-Simple-String oder dasselbe Symbol/Zahl
-# kann GC auslösen
+# can trigger GC
   local object common_case (object string);
 # Dasselbe, rekursiv wie mit SUBST:
   local object subst_common_case (object obj);
@@ -1087,7 +1087,7 @@ local boolean legal_logical_word_char(ch)
 # > convert: Flag, ob Case-Konversion erwünscht ist
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: gültige Host-Komponente
-# kann GC auslösen
+# can trigger GC
   local object test_optional_host (object host, boolean convert);
   local object test_optional_host(host,convert)
     var object host;
@@ -1133,7 +1133,7 @@ local boolean legal_logical_word_char(ch)
 # > host: Host-Argument
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: gültige Host-Komponente
-# kann GC auslösen
+# can trigger GC
   local object test_optional_host (object host);
   local object test_optional_host(host)
     var object host;
@@ -1284,7 +1284,7 @@ local boolean legal_logical_word_char(ch)
 # test_default_pathname(defaults)
 # > defaults: Defaults-Argument
 # < ergebnis: Wert des Defaults-Arguments, ein Pathname
-# kann GC auslösen
+# can trigger GC
   local object test_default_pathname (object defaults);
   local object test_default_pathname(defaults)
     var object defaults;
@@ -1412,7 +1412,7 @@ local boolean legal_logical_word_char(ch)
 # > zustand z: Start-Zustand
 # < STACK_0: selber Logical Pathname, ausgefüllt
 # < ergebnis: Anzahl der übriggebliebenen Zeichen
-# kann GC auslösen
+# can trigger GC
 local uintL parse_logical_pathnamestring (zustand z);
 
 # Trennzeichen zwischen subdirs
@@ -1631,7 +1631,7 @@ local uintL parse_logical_pathnamestring(z)
 # > z: Zustand
 # < z: Zustand
 # < ergebnis: Namens- oder Typteil (=default, falls leer)
-# kann GC auslösen
+# can trigger GC
   local object parse_name_or_type (zustand* z, uintL stdlen, object def);
   local object parse_name_or_type(z,stdlen,def)
     var zustand* z;
@@ -1686,7 +1686,7 @@ local uintL parse_logical_pathnamestring(z)
 # < STACK_1: Name
 # < STACK_0: Typ
 # Erniedrigt STACK um 1
-# kann GC auslösen
+# can trigger GC
   local void split_name_type (uintL skip);
   local void split_name_type(skip)
     var uintL skip;
@@ -2521,7 +2521,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
 # coerce_xpathname(object)
 # > object: Objekt
 # < ergebnis: (PATHNAME Objekt)
-# kann GC auslösen
+# can trigger GC
   local object coerce_xpathname (object obj);
   local object coerce_xpathname(obj)
     var object obj;
@@ -2826,7 +2826,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
 # coerce_pathname(object)
 # > object: Objekt
 # < ergebnis: (TRANSLATE-LOGICAL-PATHNAME (PATHNAME Objekt))
-# kann GC auslösen
+# can trigger GC
   local object coerce_pathname (object obj);
   local object coerce_pathname(obj)
     var object obj;
@@ -3027,7 +3027,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
 # nametype_namestring_parts(name,type,version)
 # > name, type, evtl. version: Komponenten des Pathname
 # < ergebnis: Anzahl der auf den Stack gelegten Strings
-# kann GC auslösen
+# can trigger GC
 # verändert STACK
   #if HAS_VERSION
   local uintC nametype_namestring_parts (object name, object type, object version);
@@ -3082,7 +3082,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
 # file_namestring_parts(pathname)
 # > pathname: nicht-Logical Pathname
 # < ergebnis: Anzahl der auf den Stack gelegten Strings
-# kann GC auslösen
+# can trigger GC
 # verändert STACK
   local uintC file_namestring_parts (object pathname);
   local uintC file_namestring_parts(pathname)
@@ -3096,7 +3096,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
 # whole_namestring(pathname)
 # > pathname: nicht-Logical Pathname
 # < ergebnis: Normal-Simple-String
-# kann GC auslösen
+# can trigger GC
   local object whole_namestring (object pathname);
   local object whole_namestring(pathname)
     var object pathname;
@@ -3120,7 +3120,7 @@ LISPFUNN(file_namestring,1)
 # > pathname: nicht-Logical Pathname
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: Normal-Simple-String
-# kann GC auslösen
+# can trigger GC
   local object directory_namestring (object pathname);
   local object directory_namestring(pathname)
     var object pathname;
@@ -3253,7 +3253,7 @@ LISPFUNN(host_namestring,1)
 #endif
 # recalc_defaults_pathname();
 # < ergebnis: Wert von *DEFAULT-PATHNAME-DEFAULTS*, ein Pathname
-# kann GC auslösen
+# can trigger GC
   local object recalc_defaults_pathname (void);
   local object recalc_defaults_pathname()
     {
@@ -3273,7 +3273,7 @@ LISPFUNN(host_namestring,1)
 # UP: Liefert den Default-Pathname.
 # defaults_pathname()
 # < ergebnis: Wert von *DEFAULT-PATHNAME-DEFAULTS*, ein Pathname
-# kann GC auslösen
+# can trigger GC
   local object defaults_pathname (void);
   local object defaults_pathname()
     { var object pathname = Symbol_value(S(default_pathname_defaults)); # Wert von *DEFAULT-PATHNAME-DEFAULTS*
@@ -4284,7 +4284,7 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
 # copy_pathname(pathname)
 # > pathname: nicht-Logical Pathname
 # < ergebnis: Kopie des Pathname, mit denselben Komponenten
-# kann GC auslösen
+# can trigger GC
   local object copy_pathname (object pathname);
   local object copy_pathname(pathname)
     var object pathname;
@@ -4993,7 +4993,7 @@ LISPFUNN(pathname_match_p,2)
 
 # UPs: Vergleicht jeweils eine Pathname-Komponente ("Beispiel") und
 # eine Pathname-Komponente ("Muster").
-# kann GC auslösen
+# can trigger GC
   local void host_diff (object muster, object beispiel, boolean logical, const object* previous, object* solutions);
   local void device_diff (object muster, object beispiel, boolean logical, const object* previous, object* solutions);
   local void directory_diff (object muster, object beispiel, boolean logical, const object* previous, object* solutions);
@@ -5307,7 +5307,7 @@ LISPFUNN(pathname_match_p,2)
 # logical_case(string)
 # > string: Normal-Simple-String oder Symbol/Zahl
 # < ergebnis: umgewandelter Normal-Simple-String oder dasselbe Symbol/Zahl
-# kann GC auslösen
+# can trigger GC
   local object logical_case (object string);
 # Dasselbe, rekursiv wie mit SUBST:
   local object subst_logical_case (object obj);
@@ -5350,7 +5350,7 @@ LISPFUNN(pathname_match_p,2)
 # customary_case(string)
 # > string: Normal-Simple-String oder Symbol/Zahl
 # < ergebnis: umgewandelter Normal-Simple-String oder dasselbe Symbol/Zahl
-# kann GC auslösen
+# can trigger GC
   local object customary_case (object string);
 # Dasselbe, rekursiv wie mit SUBST:
   local object subst_customary_case (object obj);
@@ -5865,7 +5865,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # > STACK_0: nicht-Logical Pathname
 # > dir_namestring: Directory-Namestring (für DOS)
 # < ergebnis: Namestring (für DOS)
-# kann GC auslösen
+# can trigger GC
   local object OSnamestring (object dir_namestring);
   local object OSnamestring(dir_namestring)
     var object dir_namestring;
@@ -6079,7 +6079,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # > uintB drive: Laufwerks-(groß-)buchstabe
 # > object pathname: Pathname (für Fehlermeldungszwecke)
 # < ergebnis: aktuelles Directory (als Pathname)
-# kann GC auslösen
+# can trigger GC
   local object default_directory_of (uintB drive, object pathname);
   local object default_directory_of(drive,pathname)
     var uintB drive;
@@ -6129,7 +6129,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # use_default_dir(pathname)
 # > pathname: nicht-Logical Pathname mit Device /= :WILD
 # < ergebnis: neuer absoluter Pathname
-# kann GC auslösen
+# can trigger GC
   local object use_default_dir (object pathname);
   local object use_default_dir(pathname)
     var object pathname;
@@ -6228,7 +6228,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 #     falls Name=NIL: Directory-Namestring (für DOS)
 #     falls Name/=NIL: Namestring (für DOS)
 #     falls tolerantp evtl.: nullobj
-# kann GC auslösen
+# can trigger GC
   local object assure_dir_exists (boolean links_resolved, boolean tolerantp);
   local object assure_dir_exists(links_resolved,tolerantp)
     var boolean links_resolved;
@@ -6305,7 +6305,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # < ergebnis:
 #     falls Name=NIL: Directory-Namestring (für DOS)
 #     falls Name/=NIL: Namestring (für DOS)
-# kann GC auslösen
+# can trigger GC
   global object assume_dir_exists (void);
   global object assume_dir_exists()
     { return assure_dir_exists(TRUE,FALSE); }
@@ -6318,7 +6318,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # > set_break_sem_4(): schon ausgeführt
 # > lock: Directory-Lock, wird freigegeben
 # < ergebnis: Directory (als Pathname)
-# kann GC auslösen
+# can trigger GC
   local object directory_truename (BPTR lock);
   local object directory_truename(lock)
     var BPTR lock;
@@ -6376,7 +6376,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 
 # UP: Liefert das aktuelle Directory.
 # < ergebnis: aktuelles Directory (als Pathname)
-# kann GC auslösen
+# can trigger GC
   local object default_directory (void);
   local object default_directory()
     { # Lock fürs aktuelle Directory holen:
@@ -6399,7 +6399,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # use_default_dir(pathname)
 # > pathname: nicht-Logical Pathname
 # < ergebnis: neuer absoluter Pathname
-# kann GC auslösen
+# can trigger GC
   local object use_default_dir (object pathname);
   local object use_default_dir(pathname)
     var object pathname;
@@ -6432,7 +6432,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 #               Schluss, ein Normal-Simple-String
 # < ergebnis: Namestring zu diesem Directory, im AmigaOS-Format: letzter '/'
 #             gestrichen, falls überflüssig, ein Normal-Simple-String
-# kann GC auslösen
+# can trigger GC
   local object OSdirnamestring (object namestring);
   local object OSdirnamestring(namestring)
     var object namestring;
@@ -6464,7 +6464,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 #     falls tolerantp evtl.: nullobj
 # < filestatus: Falls Name/=NIL: NULL falls das File nicht existiert,
 #                                sonst ein Pointer auf eine STAT-Information.
-# kann GC auslösen
+# can trigger GC
   local var struct FileInfoBlock * filestatus;
   local object assure_dir_exists (boolean links_resolved, boolean tolerantp);
   local object assure_dir_exists(links_resolved,tolerantp)
@@ -6616,7 +6616,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 
 # UP: Liefert das aktuelle Directory.
 # < ergebnis: aktuelles Directory (als Pathname)
-# kann GC auslösen
+# can trigger GC
   local object default_directory (void);
   local object default_directory()
     # Working Directory (von UNIX) ist das aktuelle Directory:
@@ -6649,7 +6649,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # > pathname: nicht-Logical Pathname
 # < ergebnis: neuer Pathname, bei dem Directory kein :RELATIVE enthält.
 #             (kurz: "absoluter Pathname")
-# kann GC auslösen
+# can trigger GC
   local object use_default_dir (object pathname);
   local object use_default_dir(pathname)
     var object pathname;
@@ -6692,7 +6692,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 #     falls tolerantp evtl.: nullobj
 # < filestatus: Falls Name/=NIL: NULL falls das File nicht existiert,
 #                                sonst ein Pointer auf eine STAT-Information.
-# kann GC auslösen
+# can trigger GC
   local var struct stat * filestatus;
   local object assure_dir_exists (boolean links_resolved, boolean tolerantp);
   #ifdef HAVE_LSTAT
@@ -6840,7 +6840,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 
 # UP: Liefert das aktuelle Directory.
 # < ergebnis: aktuelles Directory (als Pathname)
-# kann GC auslösen
+# can trigger GC
   local object default_directory (void);
   local object default_directory()
     # Working Directory (von RISCOS) ist das aufgelöste "@":
@@ -6915,7 +6915,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # > pathname: nicht-Logical Pathname
 # < ergebnis: neuer Pathname, bei dem Directory kein :RELATIVE u.ä. enthält.
 #             (kurz: "absoluter Pathname")
-# kann GC auslösen
+# can trigger GC
   local object use_default_dir (object pathname);
   local object use_default_dir(pathname)
     var object pathname;
@@ -7037,7 +7037,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # > STACK_0: nicht-Logical Pathname
 # > dir_namestring: Directory-Namestring
 # < ergebnis: Namestring (für RISCOS, mit Name/Type vertauscht)
-# kann GC auslösen
+# can trigger GC
   local object OSnamestring (object dir_namestring);
   local object OSnamestring(dir_namestring)
     var object dir_namestring;
@@ -7072,7 +7072,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 #     falls tolerantp evtl.: nullobj
 # < filestatus: Falls Name/=NIL: NULL falls das File nicht existiert,
 #                                sonst ein Pointer auf eine STAT-Information.
-# kann GC auslösen
+# can trigger GC
   local var struct stat * filestatus;
   #define assure_dir_exists(links_resolved,tolerantp)  \
      assure_dir_exists_(links_resolved,tolerantp,FALSE)
@@ -7148,7 +7148,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # werden, muss daher zuerst das Unterverzeichnis "type" erzeugt werden.
 # prepare_create(pathname);
 # > pathname: ein Pathname
-# kann GC auslösen
+# can trigger GC
   local void prepare_create (object pathname);
   local object pathname_add_subdir (void);
   local void prepare_create(pathname)
@@ -7184,7 +7184,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 #               ein Normal-Simple-String
 # < ergebnis: Namestring zu diesem Directory, im DOS-Format: letzter '\'
 #             gestrichen, falls überflüssig, ein Normal-Simple-String
-# kann GC auslösen
+# can trigger GC
   local object OSdirnamestring (object namestring);
   local object OSdirnamestring(namestring)
     var object namestring;
@@ -7206,7 +7206,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # change_default();
 # > STACK_0: absoluter Pathname, bei dem Device ein String ist und Directory
 #     kein :RELATIVE, :CURRENT, :PARENT enthält, und Name und Typ =NIL sind.
-# kann GC auslösen
+# can trigger GC
   local void change_default (void);
   local void change_default()
     { # Default-Directory zu diesem Drive neu setzen:
@@ -7233,7 +7233,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # change_default();
 # > STACK_0: absoluter Pathname, bei dem Directory kein :RELATIVE, :CURRENT,
 #     :PARENT enthält, und Name und Typ =NIL sind.
-# kann GC auslösen
+# can trigger GC
   local void change_default (void);
   extern BPTR orig_dir_lock; # Lock auf das ursprüngliche Verzeichnis
                              # (das gehört nicht uns, nicht freigeben!)
@@ -7265,7 +7265,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # change_default();
 # > STACK_0: absoluter Pathname, bei dem Directory kein :RELATIVE, :CURRENT,
 #     :PARENT enthält, und Name und Typ =NIL sind.
-# kann GC auslösen
+# can trigger GC
   local void change_default (void);
   local void change_default()
     { var uintC stringcount = host_namestring_parts(STACK_0); # Strings für den Host
@@ -7283,7 +7283,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # UP: Setzt das Default-Directory neu.
 # change_default();
 # > STACK_0: absoluter Pathname, bei dem Name und Typ =NIL sind.
-# kann GC auslösen
+# can trigger GC
   local void change_default (void);
   local void change_default()
     { var object pathname = STACK_0;
@@ -7494,7 +7494,7 @@ LISPFUNN(probe_file,1)
 # directory_exists(pathname)
 # > pathname: ein absoluter Pathname ohne Wildcards, mit Name=NIL und Typ=NIL
 # < result: TRUE wenn es ein existierendes Verzeichnis bezeichnet
-# kann GC auslösen
+# can trigger GC
   local boolean directory_exists (object pathname);
   local boolean directory_exists(pathname)
     var object pathname;
@@ -8125,7 +8125,7 @@ LISPFUNN(rename_file,2)
 #         (0 = nichts, 1 = :ERROR, 2 = NIL, 3 = :CREATE)
 # < ergebnis: Stream oder NIL
 # < STACK: aufgeräumt
-# kann GC auslösen
+# can trigger GC
   local object open_file (object filename, uintB direction, uintB if_exists, uintB if_not_exists);
   local object open_file(filename,direction,if_exists,if_not_exists)
     var object filename;
@@ -8424,7 +8424,7 @@ LISPFUN(open,1,0,norest,key,6,\
 #               Write-Date = Datum der Dateierstellung (ss mm hh dd mm yy),
 #                 als Decoded-Time passend für ENCODE-UNIVERSAL-TIME,
 #               Length = Länge der Datei (in Bytes).
-# kann GC auslösen
+# can trigger GC
   local object directory_search (object pathname);
   # Methode: Breadth-first-search, damit nur eine Suchoperation gleichzeitig
   # läuft.
@@ -9877,7 +9877,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
 # < ergebnis: Directory-Namestring (fürs OS, ohne '.' am Schluss, Normal-Simple-String)
 #endif
 # Erniedrigt STACK um 1.
-# kann GC auslösen
+# can trigger GC
   local object shorter_directory (object pathname, boolean resolve_links);
   local object shorter_directory(pathname,resolve_links)
     var object pathname;
@@ -10051,7 +10051,7 @@ local struct passwd * unix_user_pwd()
 
 # UP: Initialisiert das Pathname-System.
 # init_pathnames();
-# kann GC auslösen
+# can trigger GC
   global void init_pathnames (void);
   global void init_pathnames()
     {

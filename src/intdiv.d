@@ -266,7 +266,7 @@
 # < STACK_1: Quotient q
 # < STACK_0: Rest r
 # Erniedrigt STACK um 2
-# kann GC auslösen
+# can trigger GC
   local void I_I_divide_I_I (object x, object y);
   local void I_I_divide_I_I(x,y)
     var object x;
@@ -353,7 +353,7 @@
 # I_I_exquopos_I(x,y)
 # > x,y: Integers >=0
 # < ergebnis: Quotient x/y, ein Integer >=0
-# kann GC auslösen
+# can trigger GC
   local object I_I_exquopos_I (object x, object y);
 # Methode:
 # (exquopos x y) :==
@@ -379,7 +379,7 @@
 # I_I_exquo_I(x,y)
 # > x,y: Integers
 # < ergebnis: Quotient x/y, ein Integer
-# kann GC auslösen
+# can trigger GC
   local object I_I_exquo_I (object x, object y);
 # Methode:
 # (exquo x y) :==
@@ -408,7 +408,7 @@
     }}
 
 # I_I_mod_I(x,y) = (mod x y), wo x,y Integers sind.
-# kann GC auslösen
+# can trigger GC
   local object I_I_mod_I (object x, object y);
 # Methode:
 # (mod x y) :==
@@ -439,7 +439,7 @@
     }}
 
 # I_I_rem_I(x,y) = (rem x y), wo x,y Integers sind.
-# kann GC auslösen
+# can trigger GC
   local object I_I_rem_I (object x, object y);
 # Methode:
 # (rem x y) :==
@@ -471,7 +471,7 @@
 # < STACK_1: Quotient q
 # < STACK_0: Rest r
 # Erniedrigt STACK um 2
-# kann GC auslösen
+# can trigger GC
   local void I_I_floor_I_I (object x, object y);
 # Methode:
 # (floor x y) :==
@@ -519,7 +519,7 @@
 # < STACK_1: Quotient q
 # < STACK_0: Rest r
 # Erniedrigt STACK um 2
-# kann GC auslösen
+# can trigger GC
   local void I_I_ceiling_I_I (object x, object y);
 # Methode:
 # (ceiling x y) :==
@@ -567,7 +567,7 @@
 # < STACK_1: Quotient q
 # < STACK_0: Rest r
 # Erniedrigt STACK um 2
-# kann GC auslösen
+# can trigger GC
   local void I_I_truncate_I_I (object x, object y);
 # Methode:
 # (truncate x y) :==
@@ -606,7 +606,7 @@
 # < STACK_1: Quotient q
 # < STACK_0: Rest r
 # Erniedrigt STACK um 2
-# kann GC auslösen
+# can trigger GC
   local void I_I_round_I_I (object x, object y);
 # Methode:
 # (round x y) :==
