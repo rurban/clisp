@@ -1,18 +1,22 @@
+2004-05-21  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (cflags.h): new target
+
 2004-05-08  Bruno Haible  <bruno@clisp.org>
 
 	New data types containing weak references.
-	* lispbibl.d (Rectype_MutableWeakList, Rectype_MutableWeakAlist,
-	Rectype_Weakmapping, Rectype_WeakList, Rectype_WeakAnd, Rectype_WeakOr,
-	Rectype_WeakAndMapping, Rectype_WeakOrMapping, Rectype_WeakAlist_Key,
-	Rectype_WeakAlist_Value, Rectype_WeakAlist_Either,
-	Rectype_WeakAlist_Both): New enum values.
-	(WeakList, MutableWeakList, WeakAnd, WeakOr, Weakmapping,
-	WeakAndMapping, WeakOrMapping, WeakAlist, MutableWeakAlist): New types.
+	* lispbibl.d (Rectype_MutableWeakList, Rectype_MutableWeakAlist)
+	(Rectype_Weakmapping, Rectype_WeakList, Rectype_WeakAnd, Rectype_WeakOr)
+	(Rectype_WeakAndMapping, Rectype_WeakOrMapping, Rectype_WeakAlist_Key)
+	(Rectype_WeakAlist_Value, Rectype_WeakAlist_Either)
+	(Rectype_WeakAlist_Both): New enum values.
+	(WeakList, MutableWeakList, WeakAnd, WeakOr, Weakmapping)
+	(WeakAndMapping, WeakOrMapping, WeakAlist, MutableWeakAlist): New types.
 	(mutableweaklist_length, weakmapping_length, mutableweakalist_length):
 	New macros.
-	(TheMutableWeakList, TheWeakList, TheWeakAnd, TheWeakOr,
-	TheWeakmapping, TheWeakAndMapping, TheWeakOrMapping,
-	TheMutableWeakAlist, TheWeakAlist): New macros.
+	(TheMutableWeakList, TheWeakList, TheWeakAnd, TheWeakOr)
+	(TheWeakmapping, TheWeakAndMapping, TheWeakOrMapping)
+	(TheMutableWeakAlist, TheWeakAlist): New macros.
 	(SXrecord_nonweak_length, Lrecord_nonweak_length): Return 0 also for
 	the new weak data types.
 	(activate_weak): New declaration.
@@ -32,9 +36,9 @@
 	* spvw.d (main): Initialize markwatchset.
 	* spvw_memfile.d (loadmem_from_handle): Likewise.
 	* weak.d: New file.
-	* record.d (mk_weakpointer, MAKE-WEAK-POINTER, WEAK-POINTER-P,
-	check_weakpointer_replacement, check_weakpointer, WEAK-POINTER-VALUE,
-	SETF WEAK-POINTER-VALUE): Move to weak.d.
+	* record.d (mk_weakpointer, MAKE-WEAK-POINTER, WEAK-POINTER-P)
+	(check_weakpointer_replacement, check_weakpointer, WEAK-POINTER-VALUE)
+	(SETF WEAK-POINTER-VALUE): Move to weak.d.
 	* io.d (pr_orecord): Handle Rectype_MutableWeakList,
 	Rectype_MutableWeakAlist, Rectype_Weakmapping, Rectype_WeakList,
 	Rectype_WeakAnd, Rectype_WeakOr, Rectype_WeakAndMapping,
@@ -43,10 +47,10 @@
 	Rectype_MutableWeakAlist, Rectype_Weakmapping, Rectype_WeakList,
 	Rectype_WeakAnd, Rectype_WeakOr, Rectype_WeakAndMapping,
 	Rectype_WeakOrMapping, Rectype_WeakAlist_*.
-	(enum_hs_weak_list, enum_hs_weak_alist, enum_hs_weakmapping,
-	enum_hs_internal_weak_list, enum_hs_weak_and_relation,
-	enum_hs_weak_or_relation, enum_hs_weak_and_mapping,
-	enum_hs_weak_or_mapping, enum_hs_internal_weak_alist): New enum values.
+	(enum_hs_weak_list, enum_hs_weak_alist, enum_hs_weakmapping)
+	(enum_hs_internal_weak_list, enum_hs_weak_and_relation)
+	(enum_hs_weak_or_relation, enum_hs_weak_and_mapping)
+	(enum_hs_weak_or_mapping, enum_hs_internal_weak_alist): New enum values.
 	(heap_statistics_mapper): Handle Rectype_MutableWeakList,
 	Rectype_MutableWeakAlist, Rectype_Weakmapping, Rectype_WeakList,
 	Rectype_WeakAnd, Rectype_WeakOr, Rectype_WeakAndMapping,
@@ -55,9 +59,9 @@
 	weak-or-relation, weak-mapping, weak-and-mapping, weak-or-mapping,
 	weak-alist from EXT.
 	* places.lisp (setf weak-pointer-value): Define as a function alias.
-	(setf weak-list-list, setf weak-mapping-value,
-	setf weak-and-mapping-value, setf weak-or-mapping-value,
-	setf weak-alist-contents, setf weak-alist-value): New aliases.
+	(setf weak-list-list, setf weak-mapping-value)
+	(setf weak-and-mapping-value, setf weak-or-mapping-value)
+	(setf weak-alist-contents, setf weak-alist-value): New aliases.
 	* makemake.in (CPARTS): Add weak.
 	(SPVW_INCLUDES): Add spvw_gcmark, spvw_weak.
 	* po/Makefile.devel (DSOURCES): Add spvw_gcmark, spvw_weak, weak.
@@ -69,8 +73,8 @@
 	* lispbibl.d (Class): Add documentation field.
 	* clos-class2.lisp (class): Add documentation slot.
 	(ensure-class): Don't call sys::%set-documentation.
-	(initialize-instance-standard-class, initialize-instance-built-in-class,
-	initialize-instance-structure-class): Initialize the documentation
+	(initialize-instance-standard-class, initialize-instance-built-in-class)
+	(initialize-instance-structure-class): Initialize the documentation
 	slot.
 	* documentation.lisp (documentation, (setf documentation)): For
 	classes, use the documentation string in the class. For symbols and
