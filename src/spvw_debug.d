@@ -316,7 +316,7 @@ local int back_trace_depth (const struct backtrace_t *bt) {
  the caller must do begin_system_call()/end_system_call() ! */
 local void bt_out (FILE* out, const struct backtrace_t *bt, uintL bt_index) {
   fprintf(out,"[%d/0x%lx]%s ",bt_index,bt,bt_beyond_stack_p(bt,STACK)?"<":">");
-  nobject_out(out,bt->bt_caller);
+  nobject_out(out,bt->bt_function);
   if (bt->bt_num_arg >= 0)
     fprintf(out," %d args",bt->bt_num_arg);
   if (bt->bt_next)

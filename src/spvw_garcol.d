@@ -147,7 +147,7 @@ local void gc_markphase (void)
      But a few remain unmarked, so make sure all are really marked: */
   for_all_back_traces({
     for (; bt != NULL; bt = bt->bt_next)
-      gc_mark(bt->bt_caller);
+      gc_mark(bt->bt_function);
   });
 }
 

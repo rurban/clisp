@@ -365,4 +365,4 @@
 #define update_back_traces()             \
   for_all_back_traces(                   \
     for (; bt != NULL; bt = bt->bt_next) \
-      update(&bt->bt_caller))
+      update(&bt->bt_function))
