@@ -1,3 +1,15 @@
+2004-07-29  Bruno Haible  <bruno@clisp.org>
+
+	* clos-slotdef1.lisp (slot-definition, direct-slot-definition,
+	effective-slot-definition, structure-direct-slot-definition,
+	structure-effective-slot-definition): Prefix all slot names with $.
+	* clos-stablehash1.lisp (standard-stablehash): Likewise.
+	* clos-specializer1.lisp (specializer, eql-specializer): Likewise.
+	* clos-class1.lisp (class, slotted-class, structure-class,
+	standard-class): Likewise.
+	* clos-method1.lisp (standard-method): Likewise.
+	* clos-print.lisp (print-object@class): Update.
+
 2004-06-05  Bruno Haible  <bruno@clisp.org>
 
 	* clos-method1.lisp (standard-method): Rename slot origin to
@@ -57,7 +69,6 @@
 	$slot-definition.
 
 	* clos-slotdef1.lisp (slot-definition): Rename slot 'type' to $type.
-	* clos-slotdef3.lisp (slot-definition-type): Update.
 	Reported by Christophe Rhodes.
 
 2004-07-28  Bruno Haible  <bruno@clisp.org>

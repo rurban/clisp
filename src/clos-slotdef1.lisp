@@ -65,27 +65,27 @@
 ;; at runtime.
 (defvar *<slot-definition>-defclass*
   '(defclass slot-definition (metaobject)
-     ((name          :type symbol             :initarg :name)
-      (initargs      :type list               :initarg :initargs)
+     (($name         :type symbol             :initarg :name)
+      ($initargs     :type list               :initarg :initargs)
       ($type         :type t                  :initarg :type)
-      (allocation    :type symbol             :initarg :allocation)
-      (inheritable-initer :type #| inheritable-slot-definition-initer |# cons
+      ($allocation   :type symbol             :initarg :allocation)
+      ($inheritable-initer :type #| inheritable-slot-definition-initer |# cons
                                               :initarg inheritable-initer)
-      (inheritable-doc :type #| inheritable-slot-definition-doc |# cons
+      ($inheritable-doc :type #| inheritable-slot-definition-doc |# cons
                                               :initarg inheritable-doc))
      (:fixed-slot-locations)))
 
 ;; Information about a slot, as specified in a DEFCLASS form.
 (defvar *<direct-slot-definition>-defclass*
   '(defclass direct-slot-definition (slot-definition)
-     ((readers       :type list               :initarg :readers)
-      (writers       :type list               :initarg :writers))
+     (($readers      :type list               :initarg :readers)
+      ($writers      :type list               :initarg :writers))
      (:fixed-slot-locations)))
 
 ;; Information about a slot that is still significant at runtime.
 (defvar *<effective-slot-definition>-defclass*
   '(defclass effective-slot-definition (slot-definition)
-     ((location      :type (or null integer cons)
+     (($location     :type (or null integer cons)
                                               :initarg location))
      (:fixed-slot-locations)))
 
@@ -298,7 +298,7 @@
 (defvar <structure-direct-slot-definition> 'structure-direct-slot-definition)
 (defvar *<structure-direct-slot-definition>-defclass*
   '(defclass structure-direct-slot-definition (direct-slot-definition)
-     ((initff   :type t       :initarg initff)) ; init-function-fetcher
+     (($initff  :type t       :initarg initff)) ; init-function-fetcher
      (:fixed-slot-locations)))
 (defvar *<structure-direct-slot-definition>-class-version* (make-class-version))
 
@@ -331,8 +331,8 @@
 (defvar <structure-effective-slot-definition> 'structure-effective-slot-definition)
 (defvar *<structure-effective-slot-definition>-defclass*
   '(defclass structure-effective-slot-definition (effective-slot-definition)
-     ((initff   :type t       :initarg initff) ; init-function-fetcher
-      (readonly :type boolean :initarg readonly))
+     (($initff   :type t       :initarg initff) ; init-function-fetcher
+      ($readonly :type boolean :initarg readonly))
      (:fixed-slot-locations)))
 (defvar *<structure-effective-slot-definition>-class-version* (make-class-version))
 

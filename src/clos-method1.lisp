@@ -19,37 +19,37 @@
     (($function            ; the function
        :type (or null function)
        :accessor std-method-function)
-     (wants-next-method-p  ; flag, if the NEXT-METHOD (as function with all
+     ($wants-next-method-p ; flag, if the NEXT-METHOD (as function with all
                            ; arguments) resp. NIL is to be passed as first
                            ; argument (= NIL for :BEFORE- and :AFTER-methods)
        :type boolean
        :accessor std-method-wants-next-method-p)
-     (specializers         ; list of specializers, e.g. classes or
+     ($specializers        ; list of specializers, e.g. classes or
                            ; eql-specializers
        :type list
        :accessor std-method-specializers)
-     (qualifiers           ; list of non-NIL atoms, e.g. (:before)
+     ($qualifiers          ; list of non-NIL atoms, e.g. (:before)
        :type list
        :accessor std-method-qualifiers)
-     (lambda-list          ; lambda list without specializers
+     ($lambda-list         ; lambda list without specializers
        :type list
        :accessor std-method-lambda-list)
-     (signature            ; signature struct (see functions.lisp)
+     ($signature           ; signature struct (see functions.lisp)
        :type (simple-vector 6)
        :accessor std-method-signature)
-     (documentation        ; string or NIL
+     ($documentation       ; string or NIL
        :type (or string null)
        :accessor std-method-documentation)
-     (gf                   ; the generic function, which this method belongs to
+     ($gf                  ; the generic function, which this method belongs to
                            ; (only for the purpose of CALL-NEXT-METHOD and
                            ; NO-NEXT-METHOD)
        :type (or null generic-function)
        :accessor std-method-generic-function)
-     (initfunction         ; returns - if called - the function
+     ($initfunction        ; returns - if called - the function
                            ; (only for the purpose of ADD-METHOD)
        :type function
        :accessor std-method-initfunction)
-     (from-defgeneric      ; flag, if this method comes from a DEFGENERIC
+     ($from-defgeneric     ; flag, if this method comes from a DEFGENERIC
        :type boolean
        :accessor std-method-from-defgeneric))
     (:fixed-slot-locations)
