@@ -64,7 +64,7 @@
            table))
 
 (defun note-ai-change (method)
-  (let ((specializer (first (std-method-specializers method))))
+  (let ((specializer (first (method-specializers method))))
     (if (eql-specializer-p specializer)
       ;; EQL-method for ALLOCATE-INSTANCE:
       ;; object must be a class, else worthless.
@@ -78,7 +78,7 @@
       (note-i-meta-change specializer *make-instance-table*))))
 
 (defun note-ii-change (method)
-  (let ((specializer (first (std-method-specializers method))))
+  (let ((specializer (first (method-specializers method))))
     ;; EQL-methods for INITIALIZE-INSTANCE are worthless in any case.
     (unless (eql-specializer-p specializer)
       ;; Remove the entries from *make-instance-table* for which the
@@ -86,7 +86,7 @@
       (note-i-change specializer *make-instance-table*))))
 
 (defun note-ri-change (method)
-  (let ((specializer (first (std-method-specializers method))))
+  (let ((specializer (first (method-specializers method))))
     ;; EQL-methods for REINITIALIZE-INSTANCE are essentially worthless.
     (unless (eql-specializer-p specializer)
       ;; Remove the entries from *reinitialize-instance-table* for which the
@@ -94,7 +94,7 @@
       (note-i-change specializer *reinitialize-instance-table*))))
 
 (defun note-uirc-change (method)
-  (let ((specializer (first (std-method-specializers method))))
+  (let ((specializer (first (method-specializers method))))
     ;; EQL-methods for UPDATE-INSTANCE-FOR-REDEFINED-CLASS are essentially
     ;; worthless.
     (unless (eql-specializer-p specializer)
@@ -103,8 +103,8 @@
       (note-i-change specializer *update-instance-for-redefined-class-table*))))
 
 (defun note-uidc-change (method)
-  (let ((specializer1 (first (std-method-specializers method)))
-        (specializer2 (second (std-method-specializers method))))
+  (let ((specializer1 (first (method-specializers method)))
+        (specializer2 (second (method-specializers method))))
     ;; Methods for UPDATE-INSTANCE-FOR-DIFFERENT-CLASS with EQL specializer
     ;; in the first argument are essentially worthless.
     (unless (eql-specializer-p specializer1)
@@ -123,7 +123,7 @@
                    table))))))
 
 (defun note-si-change (method)
-  (let* ((specializers (std-method-specializers method))
+  (let* ((specializers (method-specializers method))
          (specializer1 (first specializers))
          (specializer2 (second specializers)))
     ;; EQL-methods for SHARED-INITIALIZE are essentially worthless.
@@ -186,7 +186,7 @@
      ;; list of all applicable methods from SHARED-INITIALIZE
      (remove-if-not
       #'(lambda (method)
-          (let* ((specializers (std-method-specializers method))
+          (let* ((specializers (method-specializers method))
                  (specializer1 (first specializers))
                  (specializer2 (second specializers)))
             (and (not (eql-specializer-p specializer1))
@@ -196,14 +196,14 @@
      ;; list of all applicable methods from INITIALIZE-INSTANCE
      (remove-if-not
       #'(lambda (method)
-          (let ((specializer (first (std-method-specializers method))))
+          (let ((specializer (first (method-specializers method))))
             (and (not (eql-specializer-p specializer))
                  (subclassp class specializer))))
       (the list (std-gf-methods |#'initialize-instance|)))
      ;; list of all applicable methods from ALLOCATE-INSTANCE
      (remove-if-not
       #'(lambda (method)
-          (let ((specializer (first (std-method-specializers method))))
+          (let ((specializer (first (method-specializers method))))
             (if (eql-specializer-p specializer)
               (eql class (eql-specializer-object specializer))
               (typep-class class specializer)))) ; <==> (typep class specializer)
@@ -226,7 +226,7 @@
       ;; list of all applicable methods from SHARED-INITIALIZE
       (remove-if-not
         #'(lambda (method)
-            (let* ((specializers (std-method-specializers method))
+            (let* ((specializers (method-specializers method))
                    (specializer1 (first specializers))
                    (specializer2 (second specializers)))
               (and (not (eql-specializer-p specializer1))
@@ -236,7 +236,7 @@
       ;; list of all applicable methods from REINITIALIZE-INSTANCE
       (remove-if-not
         #'(lambda (method)
-            (let ((specializer (first (std-method-specializers method))))
+            (let ((specializer (first (method-specializers method))))
               (and (not (eql-specializer-p specializer))
                    (subclassp class specializer))))
         (the list (std-gf-methods |#'reinitialize-instance|))))))
@@ -256,7 +256,7 @@
           ;; list of all applicable methods from SHARED-INITIALIZE
           (remove-if-not
             #'(lambda (method)
-                (let* ((specializers (std-method-specializers method))
+                (let* ((specializers (method-specializers method))
                        (specializer1 (first specializers))
                        (specializer2 (second specializers)))
                   (and (not (eql-specializer-p specializer1))
@@ -270,7 +270,7 @@
           ;; list of all applicable methods from UPDATE-INSTANCE-FOR-REDEFINED-CLASS
           (remove-if-not
             #'(lambda (method)
-                (let* ((specializers (std-method-specializers method))
+                (let* ((specializers (method-specializers method))
                        (specializer1 (first specializers))
                        (specializer2 (second specializers))
                        (specializer3 (third specializers))
@@ -304,7 +304,7 @@
       ;; list of all applicable methods from SHARED-INITIALIZE
       (remove-if-not
         #'(lambda (method)
-            (let* ((specializers (std-method-specializers method))
+            (let* ((specializers (method-specializers method))
                    (specializer1 (first specializers))
                    (specializer2 (second specializers)))
               (and (not (eql-specializer-p specializer1))
@@ -314,7 +314,7 @@
       ;; list of all applicable methods from UPDATE-INSTANCE-FOR-DIFFERENT-CLASS
       (remove-if-not
         #'(lambda (method)
-            (let* ((specializers (std-method-specializers method))
+            (let* ((specializers (method-specializers method))
                    (specializer1 (first specializers))
                    (specializer2 (second specializers)))
               (and (not (eql-specializer-p specializer1))
