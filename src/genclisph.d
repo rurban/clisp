@@ -1471,9 +1471,11 @@ int main(int argc, char* argv[])
 #ifndef LANGUAGE_STATIC
  #ifndef GNU_GETTEXT
   printf("#define GETTEXT(english) english\n");
+  printf("#define CLSTEXT ascii_to_string\n");
  #else
   printf("extern const char * clgettext (const char * msgid);\n");
   printf("#define GETTEXT clgettext\n");
+  printf("extern object CLSTEXT (const char* asciz);\n");
  #endif
 #endif
   printf("extern object allocate_cons (void);\n");
