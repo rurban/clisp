@@ -501,7 +501,7 @@ global void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len) {
  < object result: datastorage vector */
 global object unpack_string_ro (object string, uintL* len, uintL* offset) {
   if (simple_string_p(string)) {
-    simple_array_to_storage(string);
+    sstring_un_realloc(string);
     *len = Sstring_length(string);
     *offset = 0;
     return string;
@@ -579,51 +579,45 @@ global bool string_equal (object string1, object string2) {
  can trigger GC */
 global object sstring_store (object string, uintL index, chart element) {
   var object inner_string = string;
-  simple_array_to_storage(inner_string);
-  switch (Array_type(inner_string)) {
- #ifndef TYPECODES
+  sstring_un_realloc(inner_string);
+  switch (sstring_eltype(TheSstring(inner_string))) {
   #ifdef UNICODE
    #ifdef HAVE_SMALL_SSTRING
-    case Rectype_S8string: /* mutable Simple-String */
+    case Sstringtype_8Bit: /* mutable Simple-String */
       if (as_cint(element) < cint8_limit) {
         TheS8string(inner_string)->data[index] = as_cint(element);
         break;
       }
       ASSERT(eq(string,inner_string));
       if (as_cint(element) < cint16_limit) {
-        string = reallocate_small_string(inner_string,Rectype_S16string);
-        inner_string = TheSiarray(string)->data;
+        string = reallocate_small_string(inner_string,Sstringtype_16Bit);
+        inner_string = TheSistring(string)->data;
         TheS16string(inner_string)->data[index] = as_cint(element);
         break;
       }
-      string = reallocate_small_string(inner_string,Rectype_S32string);
-      inner_string = TheSiarray(string)->data;
+      string = reallocate_small_string(inner_string,Sstringtype_32Bit);
+      inner_string = TheSistring(string)->data;
       TheS32string(inner_string)->data[index] = as_cint(element);
       break;
-    case Rectype_S16string: /* mutable Simple-String */
+    case Sstringtype_16Bit: /* mutable Simple-String */
       if (as_cint(element) < cint16_limit) {
         TheS16string(inner_string)->data[index] = as_cint(element);
         break;
       }
       pushSTACK(string);
-      inner_string = reallocate_small_string(inner_string,Rectype_S32string);
+      inner_string = reallocate_small_string(inner_string,Sstringtype_32Bit);
       string = popSTACK();
-      inner_string = TheSiarray(inner_string)->data;
+      inner_string = TheSistring(inner_string)->data;
       /*FALLTHROUGH*/
    #endif
-    case Rectype_S32string: /* mutable Simple-String */
+    case Sstringtype_32Bit: /* mutable Simple-String */
       TheS32string(inner_string)->data[index] = as_cint(element);
       break;
   #else
-    case Rectype_S8string: /* mutable Simple-String */
+    case Sstringtype_8Bit: /* mutable Simple-String */
       TheS8string(inner_string)->data[index] = as_cint(element);
       break;
   #endif
- #else
-    case Array_type_sstring: /* Simple-String */
-      TheSstring(inner_string)->data[index] = element;
-      break;
- #endif
     default: NOTREACHED;
   }
   return string;
@@ -640,12 +634,11 @@ global object sstring_store_array (object string, uintL offset,
 {
   if (len > 0) {
     var object inner_string = string;
-    simple_array_to_storage(inner_string);
-    switch (Array_type(inner_string)) {
- #ifndef TYPECODES
-  #ifdef UNICODE
-   #ifdef HAVE_SMALL_SSTRING
-      case Rectype_S8string: { /* mutable Simple-String */
+    sstring_un_realloc(inner_string);
+    switch (sstring_eltype(TheSstring(inner_string))) {
+    #ifdef UNICODE
+     #ifdef HAVE_SMALL_SSTRING
+      case Sstringtype_8Bit: { /* mutable Simple-String */
         var bool fits_in_8bit = true;
         var bool fits_in_16bit = true;
         {
@@ -673,8 +666,8 @@ global object sstring_store_array (object string, uintL offset,
         }
         ASSERT(eq(string,inner_string));
         if (fits_in_16bit) {
-          string = reallocate_small_string(inner_string,Rectype_S16string);
-          inner_string = TheSiarray(string)->data;
+          string = reallocate_small_string(inner_string,Sstringtype_16Bit);
+          inner_string = TheSistring(string)->data;
           var const chart* p = charptr;
           var cint16* q = &TheS16string(inner_string)->data[offset];
           do {
@@ -684,8 +677,8 @@ global object sstring_store_array (object string, uintL offset,
           } while (--len);
           break;
         }
-        string = reallocate_small_string(inner_string,Rectype_S32string);
-        inner_string = TheSiarray(string)->data;
+        string = reallocate_small_string(inner_string,Sstringtype_32Bit);
+        inner_string = TheSistring(string)->data;
         var const chart* p = charptr;
         var cint32* q = &TheS32string(inner_string)->data[offset];
         do {
@@ -695,7 +688,7 @@ global object sstring_store_array (object string, uintL offset,
         } while (--len);
       }
         break;
-      case Rectype_S16string: { /* mutable Simple-String */
+      case Sstringtype_16Bit: { /* mutable Simple-String */
         var bool fits_in_16bit = true;
         {
           var uintL n = len;
@@ -719,13 +712,13 @@ global object sstring_store_array (object string, uintL offset,
           break;
         }
         pushSTACK(string);
-        inner_string = reallocate_small_string(inner_string,Rectype_S32string);
+        inner_string = reallocate_small_string(inner_string,Sstringtype_32Bit);
         string = popSTACK();
-        inner_string = TheSiarray(inner_string)->data;
+        inner_string = TheSistring(inner_string)->data;
       }
         /*FALLTHROUGH*/
-   #endif
-      case Rectype_S32string: { /* mutable Simple-String */
+     #endif
+      case Sstringtype_32Bit: { /* mutable Simple-String */
         var const chart* p = charptr;
         var cint32* q = &TheS32string(inner_string)->data[offset];
         do {
@@ -735,8 +728,8 @@ global object sstring_store_array (object string, uintL offset,
         } while (--len);
       }
         break;
-  #else
-      case Rectype_S8string: { /* mutable Simple-String */
+    #else
+      case Sstringtype_8Bit: { /* mutable Simple-String */
         var const chart* p = charptr;
         var cint8* q = &TheS8string(inner_string)->data[offset];
         do {
@@ -746,19 +739,7 @@ global object sstring_store_array (object string, uintL offset,
         } while (--len);
       }
         break;
-  #endif
- #else
-      case Array_type_sstring: { /* Simple-String */
-        var const chart* p = charptr;
-        var cint8* q = &TheS8string(inner_string)->data[offset];
-        do {
-          *q = as_cint(*p);
-          p++;
-          q++;
-        } while (--len);
-      }
-        break;
- #endif
+    #endif
       default: NOTREACHED;
     }
   }
@@ -778,7 +759,7 @@ global object stringof (uintL len) {
   if (len > 0) {
     var gcv_object_t* topargptr = STACK STACKop len;
     var gcv_object_t* argptr = topargptr;
-    var chart* ptr = &TheSstring(new_string)->data[0];
+    var chart* ptr = &TheSnstring(new_string)->data[0];
     do { *ptr++ = char_code(NEXT(argptr));
     } while (--len);
     set_args_end_pointer(topargptr);
@@ -810,8 +791,8 @@ global object copy_string (object string) {
                 { copy_32bit_32bit(&TheS32string(string)->data[offset],
                                    &TheS32string(new_string)->data[0],len); });
    #else
-    copy_8bit_8bit(&TheSstring(string)->data[offset],
-                   &TheSstring(new_string)->data[0],len);
+    copy_8bit_8bit(&TheS8string(string)->data[offset],
+                   &TheS8string(new_string)->data[0],len);
    #endif
   }
   return new_string;
@@ -836,19 +817,18 @@ global object coerce_ss (object obj) {
   switch (0)
  #endif
     {
-     case_sstring:
-      /* Simple-String, returned unchanged */
-      return obj;
-     case_ostring:
-      /* other string, copy it */
-      return copy_string(obj);
-     default:
-       break;
+      case_sstring:
+        /* Simple-String, returned unchanged */
+        return obj;
+      case_ostring:
+        /* other string, copy it */
+        return copy_string(obj);
+      default:
+        break;
     }
   obj = check_string(obj); goto start;
 }
 
-#ifndef TYPECODES
 /* UP: converts a string into an immutable Simple-String.
  coerce_imm_ss(obj)
  > obj: Lisp-object, should be a string.
@@ -857,36 +837,32 @@ global object coerce_ss (object obj) {
 global object coerce_imm_ss (object obj)
 {
  start:
-  if (orecordp(obj))
-    switch (Record_type(obj)) {
-      #ifdef UNICODE
-      #ifdef HAVE_SMALL_SSTRING
-      case Rectype_Imm_S8string:
-      case Rectype_Imm_S16string:
-      #endif
-      case Rectype_Imm_S32string:
-      #else
-      case Rectype_Imm_S8string:
-      #endif
-        /* immutable Simple-String, return unchanged */
-        return obj;
-      #ifdef UNICODE
-      #ifdef HAVE_SMALL_SSTRING
-      case Rectype_reallocstring:
-      case Rectype_S8string:
-      case Rectype_S16string:
-      #endif
-      case Rectype_S32string:
-      #else
-      case Rectype_S8string:
-      #endif
-      case Rectype_string: { /* other string, copy it */
+ #ifdef TYPECODES
+  switch (typecode(obj))
+ #else
+    if (orecordp(obj))
+      switch (Record_type(obj)) {
+        case_Rectype_Sstring_above;
+        case_Rectype_ostring_above;
+        default: break;
+      }
+  switch (0)
+ #endif
+    {
+      case_sstring:
+        /* Simple-String */
+        if (sstring_immutable(TheSstring(obj)))
+          /* already immutable, return unchanged */
+          return obj;
+        /*FALLTHROUGH*/
+      case_ostring:
+        { /* other string, copy it */
           var uintL len;
           var uintL offset;
           var object string = unpack_string_ro(obj,&len,&offset);
           #ifdef UNICODE
           #ifdef HAVE_SMALL_SSTRING
-          if (Record_type(string) == Rectype_S8string) {
+          if (sstring_eltype(TheSstring(string)) == Sstringtype_8Bit) {
             pushSTACK(string);
             var object new_string = allocate_imm_s8string(len);
             string = popSTACK();
@@ -895,7 +871,7 @@ global object coerce_imm_ss (object obj)
                              &TheS8string(new_string)->data[0],len);
             return new_string;
           }
-          if (Record_type(string) == Rectype_S16string) {
+          if (sstring_eltype(TheSstring(string)) == Sstringtype_16Bit) {
             /* Check if all characters fit into an 8-bit character string. */
             var bool fits_in_8bit = true;
             if (len > 0) {
@@ -911,8 +887,9 @@ global object coerce_imm_ss (object obj)
             }
             pushSTACK(string);
             var object new_string =
-              (fits_in_8bit ? allocate_imm_s8string(len) :
-               allocate_imm_s16string(len));
+              (fits_in_8bit
+               ? allocate_imm_s8string(len)
+               : allocate_imm_s16string(len));
             string = popSTACK();
             if (len > 0) {
               if (fits_in_8bit)
@@ -924,7 +901,7 @@ global object coerce_imm_ss (object obj)
             }
             return new_string;
           }
-          ASSERT(Record_type(string) == Rectype_S32string);
+          ASSERT(sstring_eltype(TheSstring(string)) == Sstringtype_32Bit);
           /* We use alloca for small-simple-strings, therefore their length
              should not be too large, or we risk an SP overflow and
              core dump. */
@@ -949,8 +926,9 @@ global object coerce_imm_ss (object obj)
             if (fits_in_16bit) {
               pushSTACK(string);
               var object new_string =
-                (fits_in_8bit ? allocate_imm_s8string(len) :
-                 allocate_imm_s16string(len));
+                (fits_in_8bit
+                 ? allocate_imm_s8string(len)
+                 : allocate_imm_s16string(len));
               string = popSTACK();
               if (len > 0) {
                 if (fits_in_8bit)
@@ -976,8 +954,8 @@ global object coerce_imm_ss (object obj)
           var object new_string = allocate_imm_string(len);
           string = popSTACK();
           if (len > 0)
-            copy_8bit_8bit(&TheSstring(string)->data[offset],
-                           &TheSstring(new_string)->data[0],len);
+            copy_8bit_8bit(&TheS8string(string)->data[offset],
+                           &TheS8string(new_string)->data[0],len);
           return new_string;
           #endif
         }
@@ -986,7 +964,6 @@ global object coerce_imm_ss (object obj)
     }
   obj = check_string(obj); goto start;
 }
-#endif
 
 #ifdef HAVE_SMALL_SSTRING
 /* UP: converts a string into a Normal-Simple-String.
@@ -997,24 +974,27 @@ global object coerce_imm_ss (object obj)
 global object coerce_normal_ss (object obj)
 {
  start:
-  if (orecordp(obj))
-   restart_it:
-    switch (Record_type(obj)) {
-      case Rectype_Imm_S32string:
-      case Rectype_S32string:
-        /* Normal-Simple-String, return unchanged */
-        return obj;
-      case Rectype_Imm_S8string:
-      case Rectype_S8string:
-      case Rectype_Imm_S16string:
-      case Rectype_S16string:
-      case Rectype_string:
+ #ifdef TYPECODES
+  switch (typecode(obj))
+ #else
+    if (orecordp(obj))
+      switch (Record_type(obj)) {
+        case_Rectype_Sstring_above;
+        case_Rectype_ostring_above;
+        default: break;
+      }
+  switch (0)
+ #endif
+    {
+      case_sstring:
+        sstring_un_realloc(obj);
+        if (sstring_eltype(TheSstring(obj)) == Sstringtype_32Bit)
+          /* already a Normal-Simple-String, return unchanged */
+          return obj;
+        /*FALLTHROUGH*/
+      case_ostring:
         /* other string, copy it */
         return copy_string(obj);
-      case Rectype_reallocstring:
-        /* reallocated simple string */
-        obj = TheSiarray(obj)->data;
-        goto restart_it;
       default:
         break;
     }
@@ -1032,18 +1012,26 @@ global object coerce_normal_ss (object obj)
 global object coerce_imm_normal_ss (object obj)
 {
  start:
-  if (orecordp(obj))
-    switch (Record_type(obj)) {
-      case Rectype_Imm_S32string:
-        /* immutable Normal-Simple-String, return unchanged */
-        return obj;
-      case Rectype_Imm_S8string:
-      case Rectype_Imm_S16string:
-      case Rectype_S8string:
-      case Rectype_S16string:
-      case Rectype_S32string:
-      case Rectype_reallocstring:
-      case Rectype_string: { /* other string, copy it */
+ #ifdef TYPECODES
+  switch (typecode(obj))
+ #else
+    if (orecordp(obj))
+      switch (Record_type(obj)) {
+        case_Rectype_Sstring_above;
+        case_Rectype_ostring_above;
+        default: break;
+      }
+  switch (0)
+ #endif
+    {
+      case_sstring:
+        if (sstring_immutable(TheSstring(obj))
+            && sstring_eltype(TheSstring(obj)) == Sstringtype_32Bit)
+          /* immutable Normal-Simple-String, return unchanged */
+          return obj;
+        /*FALLTHROUGH*/
+      case_ostring:
+        { /* other string, copy it */
           var uintL len;
           var uintL offset;
           var object string = unpack_string_ro(obj,&len,&offset);
@@ -1053,11 +1041,11 @@ global object coerce_imm_normal_ss (object obj)
           if (len > 0) {
             SstringCase(string,
               { copy_8bit_32bit(&TheS8string(string)->data[offset],
-                                &TheSstring(new_string)->data[0],len); },
+                                &TheS32string(new_string)->data[0],len); },
               { copy_16bit_32bit(&TheS16string(string)->data[offset],
-                                 &TheSstring(new_string)->data[0],len); },
+                                 &TheS32string(new_string)->data[0],len); },
               { copy_32bit_32bit(&TheS32string(string)->data[offset],
-                                 &TheSstring(new_string)->data[0],len); });
+                                 &TheS32string(new_string)->data[0],len); });
           }
           return new_string;
         }
@@ -1073,31 +1061,16 @@ LISPFUNNR(string_info,1)
 { /* (SYS::STRING-INFO str) => char-len(8/16/32); immutable-p; realloc-p */
   var object str = popSTACK();
   if (stringp(str)) {
-    value3 = value2 = NIL;
-   restart_it:
-    switch (Array_type(str)) {
-     #ifdef TYPECODES
-      case Array_type_string: str = TheIarray(str)->data; goto restart_it;
-      case Array_type_sstring:
-       #ifdef UNICODE
-        value1 = fixnum(32);
-       #else
-        value1 = fixnum(8);
-       #endif
-        break;
-     #else
-      case Rectype_reallocstring: value3 = T; str = TheSiarray(str)->data;
-        goto restart_it;
-      case Rectype_string: str = TheIarray(str)->data; goto restart_it;
-      case Rectype_Imm_S32string: value2 = T; /*FALLTHROUGH*/
-      case Rectype_S32string: value1 = fixnum(32); break;
-      case Rectype_Imm_S16string: value2 = T; /*FALLTHROUGH*/
-      case Rectype_S16string: value1 = fixnum(16); break;
-      case Rectype_Imm_S8string: value2 = T; /*FALLTHROUGH*/
-      case Rectype_S8string: value1 = fixnum(8); break;
-     #endif
-      default: NOTREACHED;
+    value3 = NIL;
+    while (!simple_string_p(str)) {
+      str = TheIarray(str)->data;
     }
+    while (sstring_reallocatedp(TheSstring(str))) {
+      value3 = T;
+      str = TheSistring(str)->data;
+    }
+    value2 = (sstring_immutable(TheSstring(str)) ? T : NIL);
+    value1 = fixnum(8 << sstring_eltype(TheSstring(str)));
   } else
     value1 = value2 = value3 = NIL;
   mv_count = 3;
@@ -1274,7 +1247,7 @@ global object char_name (chart code) {
  #else /* no UNICODE */
   {
     var object name = allocate_string(1);
-    TheSstring(name)->data[0] = ascii(c);
+    TheSnstring(name)->data[0] = ascii(c);
     return name;
   }
  #endif
@@ -2039,7 +2012,7 @@ LISPFUNNR(char,2)
   /* Don't use unpack_string_ro() -- we need (array-dimension string 0),
      not (length string). */
   if (simple_string_p(string)) {
-    simple_array_to_storage(string);
+    sstring_un_realloc(string);
     len = Sstring_length(string);
   } else {
     len = TheIarray(string)->totalsize;
@@ -2055,7 +2028,7 @@ LISPFUNNR(schar,2)
   var object string = STACK_1;
   if (!simple_string_p(string))
     fehler_sstring(string);
-  simple_array_to_storage(string);
+  sstring_un_realloc(string);
   var uintL index = test_index_arg(Sstring_length(string));
   VALUES1(code_char(schar(string,index)));
   skipSTACK(2);
@@ -2072,7 +2045,7 @@ LISPFUNN(store_char,3)
   /* Don't use unpack_string_rw() -- we need (array-dimension string 0),
      not (length string). */
   if (simple_string_p(string)) {
-    simple_array_to_storage(string);
+    sstring_un_realloc(string);
     len = Sstring_length(string);
   } else {
     len = TheIarray(string)->totalsize;
@@ -2092,7 +2065,7 @@ LISPFUNN(store_schar,3)
   var object string = STACK_1; /* string-argument */
   if (!simple_string_p(string)) /* must be a simple-string */
     fehler_sstring(string);
-  simple_array_to_storage(string);
+  sstring_un_realloc(string);
   check_sstring_mutable(string);
   var uintL offset = test_index_arg(Sstring_length(string)); /* go to the element addressed by index */
   sstring_store(string,offset,char_code(newchar)); /* put in the character */
@@ -2156,27 +2129,12 @@ global object test_string_limits_ro (stringarg* arg) {
  < stringarg arg: description of the argument
  < result: string-argument
  increases STACK by 3 */
-#ifdef TYPECODES
-#define test_string_limits_rw(arg)  test_string_limits_ro(arg)
-#else
 local object test_string_limits_rw (stringarg* arg) {
   var object string = test_string_limits_ro(arg);
-  if (arg->len > 0) {
-    switch (Record_type(arg->string)) {
-      case Rectype_Imm_S8string:
-      case Rectype_Imm_S16string:
-      case Rectype_Imm_S32string:
-        fehler_sstring_immutable(string);
-      case Rectype_S8string:
-      case Rectype_S16string:
-      case Rectype_S32string:
-        break;
-      default: NOTREACHED;
-    }
-  }
+  if (arg->len > 0)
+    check_sstring_mutable(arg->string);
   return string;
 }
-#endif
 
 /* UP: checks a string/symbol/character-argument
  > obj: argument
@@ -2190,7 +2148,7 @@ global object test_stringsymchar_arg (object obj) {
     return TheSymbol(obj)->pname;
   if (charp(obj)) { /* character: turn it into a one-element string: */
     var object new_string = allocate_string(1);
-    TheSstring(new_string)->data[0] = char_code(obj);
+    TheSnstring(new_string)->data[0] = char_code(obj);
     return new_string;
   }
   /* (VECTOR NIL) is a string, so #A(NIL (0)) is acceptable instead of "" */
@@ -2844,7 +2802,7 @@ LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
      #else
       new_string = allocate_string(size);
       if (size!=0) {
-        var chart* charptr = &TheSstring(new_string)->data[0];
+        var chart* charptr = &TheSnstring(new_string)->data[0];
         do { *charptr++ = ch; }  while (--size);
       }
      #endif
@@ -2942,8 +2900,8 @@ global void nstring_upcase (object dv, uintL offset, uintL len) {
         dv = sstring_store(dv,offset,up_case(as_chart(TheS8string(dv)->data[offset])));
         offset++;
         len--;
-        if (Record_type(dv) == Rectype_reallocstring) { /* has it been reallocated? */
-          dv = TheSiarray(dv)->data;
+        if (sstring_reallocatedp(TheSstring(dv))) { /* has it been reallocated? */
+          dv = TheSistring(dv)->data;
           goto restart_it;
         }
       } while (len > 0);
@@ -2952,8 +2910,8 @@ global void nstring_upcase (object dv, uintL offset, uintL len) {
         dv = sstring_store(dv,offset,up_case(as_chart(TheS16string(dv)->data[offset])));
         offset++;
         len--;
-        if (Record_type(dv) == Rectype_reallocstring) { /* has it been reallocated? */
-          dv = TheSiarray(dv)->data;
+        if (sstring_reallocatedp(TheSstring(dv))) { /* has it been reallocated? */
+          dv = TheSistring(dv)->data;
           goto restart_it;
         }
       } while (len > 0);
@@ -2974,7 +2932,7 @@ global object string_upcase (object string) {
   pushSTACK(string);
   nstring_upcase(string,0,Sstring_length(string)); /* convert */
   string = popSTACK();
-  simple_array_to_storage(string);
+  sstring_un_realloc(string);
   return string;
 }
 
@@ -2996,7 +2954,7 @@ LISPFUN(string_upcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
   pushSTACK(string);
   nstring_upcase(string,offset,len);
   string = popSTACK();
-  simple_array_to_storage(string);
+  sstring_un_realloc(string);
   VALUES1(string);
 }
 
@@ -3014,8 +2972,8 @@ global void nstring_downcase (object dv, uintL offset, uintL len) {
         dv = sstring_store(dv,offset,down_case(as_chart(TheS8string(dv)->data[offset])));
         offset++;
         len--;
-        if (Record_type(dv) == Rectype_reallocstring) { /* has it been reallocated? */
-          dv = TheSiarray(dv)->data;
+        if (sstring_reallocatedp(TheSstring(dv))) { /* has it been reallocated? */
+          dv = TheSistring(dv)->data;
           goto restart_it;
         }
       } while (len > 0);
@@ -3024,8 +2982,8 @@ global void nstring_downcase (object dv, uintL offset, uintL len) {
         dv = sstring_store(dv,offset,down_case(as_chart(TheS16string(dv)->data[offset])));
         offset++;
         len--;
-        if (Record_type(dv) == Rectype_reallocstring) { /* has it been reallocated? */
-          dv = TheSiarray(dv)->data;
+        if (sstring_reallocatedp(TheSstring(dv))) { /* has it been reallocated? */
+          dv = TheSistring(dv)->data;
           goto restart_it;
         }
       } while (len > 0);
@@ -3046,7 +3004,7 @@ global object string_downcase (object string) {
   pushSTACK(string);
   nstring_downcase(string,0,Sstring_length(string)); /* convert */
   string = popSTACK();
-  simple_array_to_storage(string);
+  sstring_un_realloc(string);
   return string;
 }
 
@@ -3069,7 +3027,7 @@ LISPFUN(string_downcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
   pushSTACK(string);
   nstring_downcase(string,offset,len);
   string = popSTACK();
-  simple_array_to_storage(string);
+  sstring_un_realloc(string);
   VALUES1(string);
 }
 
@@ -3100,9 +3058,9 @@ global void nstring_capitalize (object dv, uintL offset, uintL len) {
     dv = sstring_store(dv,offset,up_case(ch));
     loop {
       offset++;
-      if (Record_type(dv) == Rectype_reallocstring) { /* has it been reallocated? */
-        dv = TheSiarray(dv)->data;
-        SstringCase(dv, abort();, goto in_word_16;, goto in_word_32; );
+      if (sstring_reallocatedp(TheSstring(dv))) { /* has it been reallocated? */
+        dv = TheSistring(dv)->data;
+        SstringCase(dv, NOTREACHED;, goto in_word_16;, goto in_word_32; );
       }
      in_word_8:
       if (--len==0)
@@ -3128,9 +3086,9 @@ global void nstring_capitalize (object dv, uintL offset, uintL len) {
     dv = sstring_store(dv,offset,up_case(ch));
     loop {
       offset++;
-      if (Record_type(dv) == Rectype_reallocstring) { /* has it been reallocated? */
-        dv = TheSiarray(dv)->data;
-        SstringCase(dv, abort();, abort();, goto in_word_32; );
+      if (sstring_reallocatedp(TheSstring(dv))) { /* has it been reallocated? */
+        dv = TheSistring(dv)->data;
+        SstringCase(dv, NOTREACHED;, NOTREACHED;, goto in_word_32; );
       }
     in_word_16:
       if (--len==0)
@@ -3187,7 +3145,7 @@ LISPFUN(string_capitalize,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
   pushSTACK(string);
   nstring_capitalize(string,offset,len);
   string = popSTACK();
-  simple_array_to_storage(string);
+  sstring_un_realloc(string);
   VALUES1(string);
 }
 
@@ -3225,8 +3183,8 @@ global object subsstring (object string, uintL start, uintL end) {
       { copy_32bit_32bit(&TheS32string(string)->data[start],
                          &TheS32string(new_string)->data[0],count); });
    #else
-    copy_8bit_8bit(&TheSstring(string)->data[start],
-                   &TheSstring(new_string)->data[0],count);
+    copy_8bit_8bit(&TheS8string(string)->data[start],
+                   &TheS8string(new_string)->data[0],count);
    #endif
   }
   return new_string;
@@ -3276,8 +3234,8 @@ LISPFUN(substring,seclass_read,2,1,norest,nokey,0,NIL)
       { copy_32bit_32bit(&TheS32string(string)->data[offset+start],
                          &TheS32string(new_string)->data[0],count); });
    #else
-    copy_8bit_8bit(&TheSstring(string)->data[offset+start],
-                   &TheSstring(new_string)->data[0],count);
+    copy_8bit_8bit(&TheS8string(string)->data[offset+start],
+                   &TheS8string(new_string)->data[0],count);
    #endif
   }
   VALUES1(new_string);
@@ -3324,7 +3282,7 @@ global object string_concat (uintC argcount) {
           { copy_32bit_32bit(&TheS32string(string)->data[offset],
                              charptr2,len); });
        #else
-        copy_8bit_8bit(&TheSstring(string)->data[offset],charptr2,len);
+        copy_8bit_8bit(&TheS8string(string)->data[offset],charptr2,len);
        #endif
         charptr2 += len;
       }

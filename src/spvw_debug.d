@@ -50,11 +50,11 @@ local void string_out (FILE* out, object str) {
   var uintL len;
   var uintL offset;
   var object string = unpack_string_ro(str,&len,&offset);
-  var const chart* srcptr= &TheSstring(string)->data[offset];
+  var const chart* srcptr = &TheSnstring(string)->data[offset];
   var DYNAMIC_ARRAY(buffer,uintB,len+1);
   var uintB* destptr = buffer;
   while (len--) *destptr++ = as_cint(*srcptr++);
-  *destptr++ = '\0'; /* append NULL byte */
+  *destptr++ = '\0'; /* append NUL byte */
   fputs((const char*)buffer,out);
   FREE_DYNAMIC_ARRAY(buffer);
 }

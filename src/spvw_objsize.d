@@ -91,10 +91,9 @@
 #define size_svector(length)  # simple-vector                   \
   Varobject_aligned_size(offsetofa(svector_,data),              \
                          sizeof(gcv_object_t),(uintL)(length))
-#ifndef TYPECODES
-#define size_siarray(xlength)  # simple indirect array          \
-  size_xrecord(1,xlength)
-#endif
+#define size_sistring(xlength)  # simple indirect string        \
+  Varobject_aligned_size(offsetof(sistring_,data),sizeof(uintB), \
+                         sizeof(gcv_object_t)/sizeof(uintB)+(uintL)(xlength))
 #define size_iarray(size)  # non-simple array, with                           \
   # size = dimension number + (1 if fill-pointer) + (1 if displaced-offset)   \
   Varobject_aligned_size(offsetofa(iarray_,dims),sizeof(uintL),(uintL)(size))
@@ -124,6 +123,105 @@
       Varobject_aligned_size(offsetofa(lfloat_,data),           \
                              sizeof(uintD),(uintL)(length))
 
+# special functions for each type:
+inline local uintL objsize_iarray (void* addr) { # non-simple array
+  var uintL size;
+  size = (uintL)iarray_rank((Iarray)addr);
+  if (iarray_flags((Iarray)addr) & bit(arrayflags_fillp_bit))
+    size++;
+  if (iarray_flags((Iarray)addr) & bit(arrayflags_dispoffset_bit))
+    size++;
+  # size = dimension number + (1 if fill-pointer) + (1 if displaced-offset)
+  return size_iarray(size);
+}
+
+inline local uintL objsize_s8string (void* addr) { # mutable S8string
+  var uintL len = sstring_length((S8string)addr);
+  var uintL size = size_s8string(len);
+ #ifdef HAVE_SMALL_SSTRING
+  # Some uprounding, for reallocate_small_string to work.
+  if (size_s8string(1) < size_sistring(0)
+      && size < size_sistring(0) && len > 0)
+    size = size_sistring(0);
+ #endif
+  return size;
+}
+
+inline local uintL objsize_s16string (void* addr) { # mutable S16string
+  var uintL len = sstring_length((S16string)addr);
+  var uintL size = size_s16string(len);
+ #ifdef HAVE_SMALL_SSTRING
+  # Some uprounding, for reallocate_small_string to work.
+  if (size_s16string(1) < size_sistring(0)
+      && size < size_sistring(0) && len > 0)
+    size = size_sistring(0);
+ #endif
+  return size;
+}
+
+inline local uintL objsize_s32string (void* addr) { # S32string
+  return size_s32string(sstring_length((S32string)addr));
+}
+
+inline local uintL objsize_sstring (void* addr) { # simple-string
+ #ifdef TYPECODES
+  #ifdef HAVE_SMALL_SSTRING
+  if (sstring_reallocatedp((Sstring)addr)) goto case_sistring;
+  switch ((((Sstring)addr)->tfl >> 3) & 7) {
+    case (Sstringtype_8Bit << 1) + 0: goto case_s8string;
+    case (Sstringtype_8Bit << 1) + 1: goto case_imm_s8string;
+    case (Sstringtype_16Bit << 1) + 0: goto case_s16string;
+    case (Sstringtype_16Bit << 1) + 1: goto case_imm_s16string;
+    case (Sstringtype_32Bit << 1) + 0: goto case_s32string;
+    case (Sstringtype_32Bit << 1) + 1: goto case_s32string;
+    default: /*NOTREACHED*/ abort();
+  }
+  #endif
+ #else
+  switch (record_type((Record)addr)) {
+   #ifdef UNICODE
+    case Rectype_S32string: case Rectype_Imm_S32string:
+      goto case_s32string;
+    #ifdef HAVE_SMALL_SSTRING
+    case Rectype_Imm_S8string:
+      goto case_imm_s8string;
+    case Rectype_S8string:
+      goto case_s8string;
+    case Rectype_Imm_S16string:
+      goto case_imm_s16string;
+    case Rectype_S16string:
+      goto case_s16string;
+    case Rectype_reallocstring:
+      goto case_sistring;
+    #endif
+   #else
+    case Rectype_S8string: case Rectype_Imm_S8string:
+      goto case_s8string;
+   #endif
+    default: /*NOTREACHED*/ abort();
+  }
+ #endif
+ #ifdef UNICODE
+  case_s32string:
+    return size_s32string(sstring_length((S32string)addr));
+  #ifdef HAVE_SMALL_SSTRING
+  case_imm_s8string:
+    return size_s8string(sstring_length((S8string)addr));
+  case_s8string:
+    return objsize_s8string(addr);
+  case_imm_s16string:
+    return size_s16string(sstring_length((S16string)addr));
+  case_s16string:
+    return objsize_s16string(addr);
+  case_sistring:
+    return size_sistring(sstring_length((Sstring)addr));
+  #endif
+ #else
+  case_s8string:
+    return size_s8string(sstring_length((S8string)addr));
+ #endif
+}
+
 #ifdef SPVW_MIXED
 
 local uintL objsize (void* addr) {
@@ -152,35 +250,22 @@ local uintL objsize (void* addr) {
     case_Rectype_Lfloat_above;
    #ifdef UNICODE
     case Rectype_S32string: case Rectype_Imm_S32string:
+      goto case_s32string;
+    #ifdef HAVE_SMALL_SSTRING
+    case Rectype_Imm_S8string:
+      goto case_imm_s8string;
+    case Rectype_S8string:
+      goto case_s8string;
+    case Rectype_Imm_S16string:
+      goto case_imm_s16string;
+    case Rectype_S16string:
+      goto case_s16string;
+    case Rectype_reallocstring:
+      goto case_sistring;
+    #endif
    #else
     case Rectype_S8string: case Rectype_Imm_S8string:
-   #endif
-      goto case_sstring;
-   #ifdef HAVE_SMALL_SSTRING
-    case Rectype_Imm_S8string:
-      return size_s8string(sstring_length((S8string)addr));
-    case Rectype_S8string:
-      {
-        var uintL len = sstring_length((S8string)addr);
-        var uintL size = size_s8string(len);
-        # Some uprounding, for reallocate_small_string to work.
-        if (size_s8string(1) < size_siarray(0)
-            && size < size_siarray(0) && len > 0)
-          size = size_siarray(0);
-        return size;
-      }
-    case Rectype_Imm_S16string:
-      return size_s16string(sstring_length((S16string)addr));
-    case Rectype_S16string:
-      {
-        var uintL len = sstring_length((S16string)addr);
-        var uintL size = size_s16string(len);
-        # Some uprounding, for reallocate_small_string to work.
-        if (size_s16string(1) < size_siarray(0)
-            && size < size_siarray(0) && len > 0)
-          size = size_siarray(0);
-        return size;
-      }
+      goto case_s8string;
    #endif
     default: goto case_record;
   }
@@ -203,24 +288,48 @@ local uintL objsize (void* addr) {
       return size_sb16vector(sbvector_length((Sbvector)addr));
     case_sb32vector: # simple-32bit-vector
       return size_sb32vector(sbvector_length((Sbvector)addr));
+   #ifdef TYPECODES
     case_sstring: # normal-simple-string
-      return size_sstring(sstring_length((Sstring)addr));
+      #ifdef HAVE_SMALL_SSTRING
+      if (sstring_reallocatedp((Sstring)addr)) goto case_sistring;
+      switch ((((Sstring)addr)->tfl >> 3) & 7) {
+        case (Sstringtype_8Bit << 1) + 0: goto case_s8string;
+        case (Sstringtype_8Bit << 1) + 1: goto case_imm_s8string;
+        case (Sstringtype_16Bit << 1) + 0: goto case_s16string;
+        case (Sstringtype_16Bit << 1) + 1: goto case_imm_s16string;
+        case (Sstringtype_32Bit << 1) + 0: goto case_s32string;
+        case (Sstringtype_32Bit << 1) + 1: goto case_s32string;
+        default: /*NOTREACHED*/ abort();
+      }
+      #endif
+   #endif
+    /*FALLTHROUGH*/
+   #ifdef UNICODE
+    case_s32string:
+      return size_s32string(sstring_length((S32string)addr));
+    #ifdef HAVE_SMALL_SSTRING
+    case_imm_s8string:
+      return size_s8string(sstring_length((S8string)addr));
+    case_s8string:
+      return objsize_s8string(addr);
+    case_imm_s16string:
+      return size_s16string(sstring_length((S16string)addr));
+    case_s16string:
+      return objsize_s16string(addr);
+    case_sistring:
+      return size_sistring(sstring_length((Sstring)addr));
+    #endif
+   #else
+    case_s8string:
+      return size_s8string(sstring_length((S8string)addr));
+   #endif
     case_weakkvt: # weak-key-value-table
     case_svector: # simple-vector
       return size_svector(svector_length((Svector)addr));
     case_mdarray: case_obvector: case_ob2vector: case_ob4vector:
     case_ob8vector: case_ob16vector: case_ob32vector: case_ostring:
-    case_ovector: { # non-simple array:
-        var uintL size;
-        size = (uintL)iarray_rank((Iarray)addr);
-        if (iarray_flags((Iarray)addr) & bit(arrayflags_fillp_bit))
-          size++;
-        if (iarray_flags((Iarray)addr) & bit(arrayflags_dispoffset_bit))
-          size++;
-        # size = dimension number + (1 if fill-pointer) +
-        #        (1 if displaced-offset)
-        return size_iarray(size);
-      }
+    case_ovector: # non-simple array
+      return objsize_iarray(addr);
     case_record: # Record
       if (record_type((Record)addr) < rectype_limit)
         return size_srecord(srecord_length((Srecord)addr));
@@ -258,21 +367,9 @@ local uintL objsize (void* addr) {
   }
 }
 
-  #define var_prepare_objsize
+#define var_prepare_objsize
 
 #endif # SPVW_MIXED
-
-# special functions for each type:
-inline local uintL objsize_iarray (void* addr) { # non-simple array
-  var uintL size;
-  size = (uintL)iarray_rank((Iarray)addr);
-  if (iarray_flags((Iarray)addr) & bit(arrayflags_fillp_bit))
-    size++;
-  if (iarray_flags((Iarray)addr) & bit(arrayflags_dispoffset_bit))
-    size++;
-  # size = dimension number + (1 if fill-pointer) + (1 if displaced-offset)
-  return size_iarray(size);
-}
 
 #ifdef SPVW_PURE
 
@@ -296,9 +393,6 @@ inline local uintL objsize_sb16vector (void* addr) { # simple-16bit-vector
 }
 inline local uintL objsize_sb32vector (void* addr) { # simple-32bit-vector
   return size_sb32vector(sbvector_length((Sbvector)addr));
-}
-inline local uintL objsize_sstring (void* addr) { # simple-string
-  return size_sstring(sstring_length((Sstring)addr));
 }
 inline local uintL objsize_svector (void* addr) { # simple-vector
   return size_svector(svector_length((Svector)addr));

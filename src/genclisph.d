@@ -834,12 +834,14 @@ int main(int argc, char* argv[])
   */
   emit_typedef("struct { LRECORD_HEADER uint8  data[unspecified]; }","sbvector_");
   emit_typedef("sbvector_ *","Sbvector");
-#ifdef UNICODE
-  emit_typedef("struct { LRECORD_HEADER uint32  data[unspecified]; }","sstring_");
+#ifdef TYPECODES
+  printf("#define SSTRING_HEADER  VAROBJECT_HEADER uintL tfl;\n");
 #else
-  emit_typedef("struct { LRECORD_HEADER uint8  data[unspecified]; }","sstring_");
+  printf("#define SSTRING_HEADER  VAROBJECT_HEADER\n");
 #endif
+  emit_typedef("struct { SSTRING_HEADER }","sstring_");
   emit_typedef("sstring_ *","Sstring");
+  emit_typedef("struct { SSTRING_HEADER chart data[unspecified]; }","snstring_");
   sprintf(buf,"struct { LRECORD_HEADER gcv_object_t data[unspecified]%s; }",attribute_aligned_object);
   emit_typedef(buf,"svector_");
   emit_typedef("svector_ *","Svector");
@@ -852,8 +854,17 @@ int main(int argc, char* argv[])
   printf("#define Sarray_length(obj)  sarray_length(TheSarray(obj))\n");
   printf("#define sbvector_length(ptr)  sarray_length(ptr)\n");
   printf("#define Sbvector_length(obj)  sbvector_length(TheSbvector(obj))\n");
-  printf("#define sstring_length(ptr)  sarray_length(ptr)\n");
+#ifdef TYPECODES
+  printf("#define sstring_length(ptr)  ((ptr)->tfl >> 6)\n");
+#else
+  printf("#define sstring_length(ptr)  ((ptr)->tfl >> 10)\n");
+#endif
   printf("#define Sstring_length(obj)  sstring_length(TheSstring(obj))\n");
+#ifdef TYPECODES
+  printf("#define sstring_eltype(ptr)  (((ptr)->tfl >> 4) & 3)\n");
+#else
+  printf("#define sstring_eltype(ptr)  ((record_type(ptr) - %d) >> 1)\n",Rectype_S8string);
+#endif
   printf("extern bool string_equal (object string1, object string2);\n");
   /*
   #ifdef TYPECODES
@@ -1634,7 +1645,7 @@ int main(int argc, char* argv[])
   printf("  }} while(0)\n");
   printf("#define with_sstring_0(string,encoding,ascizvar,statement)");
   printf("  do { var object ascizvar##_string = (string);");
-  printf("    simple_array_to_storage(ascizvar##_string);");
+  printf("    sstring_un_realloc(ascizvar##_string);");
   printf("   {var uintL ascizvar##_len = Sstring_length(ascizvar##_string);");
   printf("    var const chart* ptr1;");
   printf("    unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,0, ptr1=);");
@@ -1669,10 +1680,7 @@ int main(int argc, char* argv[])
   emit_typedef("uint8","cint8");
   emit_typedef("uint16","cint16");
   emit_typedef("uint32","cint32");
-  printf("#define STRUCT_SSTRING(cint_type)");  printf("  struct {");
-  printf("    LRECORD_HEADER");
-  printf("    cint_type  data[unspecified];");
-  printf("  }\n");
+  printf("#define STRUCT_SSTRING(cint_type)  struct { SSTRING_HEADER cint_type data[unspecified]; }\n");
   emit_typedef("STRUCT_SSTRING(cint8)","s8string_");
   emit_typedef("s8string_ *","S8string");
   emit_typedef("STRUCT_SSTRING(cint16)","s16string_");
@@ -1681,17 +1689,14 @@ int main(int argc, char* argv[])
   emit_typedef("s32string_ *","S32string");
 
   printf("#define unpack_sstring_alloca(string,len,offset,charptr_assignment)");
-  printf("  if (Record_type(string) == %d",Rectype_S32string);
-  printf("      || Record_type(string) == %d) {",Rectype_Imm_S32string);
+  printf("  if (sstring_eltype(TheSstring(string)) == %d) {",Sstringtype_32Bit);
   printf("    charptr_assignment (const chart*) &TheS32string(string)->data[offset];");
   printf("  } else {");
   printf("    var chart* _unpacked_ = (chart*)alloca((len)*sizeof(chart));");
   printf("    if ((len) > 0) {");
-  printf("      if (Record_type(string) == %d",Rectype_S16string);
-  printf("          || Record_type(string) == %d)",Rectype_Imm_S16string);
+  printf("      if (sstring_eltype(TheSstring(string)) == %d)",Sstringtype_16Bit);
   printf("        copy_16bit_32bit(&TheS16string(string)->data[offset],(cint32*)_unpacked_,len);");
-  printf("      else if (Record_type(string) == %d",Rectype_S8string);
-  printf("               || Record_type(string) == %d)",Rectype_Imm_S8string);
+  printf("      else if (sstring_eltype(TheSstring(string)) == %d)",Sstringtype_8Bit);
   printf("        copy_8bit_32bit(&TheS8string(string)->data[offset],(cint32*)_unpacked_,len);");
   printf("      else");
   printf("        NOTREACHED;");

@@ -1982,7 +1982,7 @@ global object n_char_to_string (const char* srcptr, uintL blen,
   var object obj = allocate_string(clen);
   encoding = popSTACK();
   {
-    var chart* cptr = &TheSstring(obj)->data[0];
+    var chart* cptr = &TheSnstring(obj)->data[0];
     var chart* cendptr = cptr+clen;
     Encoding_mbstowcs(encoding)(encoding,nullobj,&bptr,bendptr,&cptr,cendptr);
     ASSERT(cptr == cendptr);
@@ -1994,7 +1994,7 @@ global object n_char_to_string_ (const char* srcptr, uintL len) {
   var const uintB* bptr = (const uintB*)srcptr;
   var object obj = allocate_string(len);
   if (len > 0) {
-    var chart* ptr = &TheSstring(obj)->data[0];
+    var chart* ptr = &TheSnstring(obj)->data[0];
     /* copy bptr to ptr as characters: */
     dotimespL(len,len, { *ptr++ = as_chart(*bptr++); } );
   }
@@ -2068,7 +2068,7 @@ global object string_to_asciz_ (object obj) {
     var uintL len;
     var uintL offset;
     var object string = unpack_string_ro(obj,&len,&offset);
-    var const chart* sourceptr = &TheSstring(string)->data[offset];
+    var const chart* sourceptr = &TheSnstring(string)->data[offset];
     /* source-string: length in len, bytes at sourceptr */
     var uintB* destptr = &TheSbvector(newasciz)->data[0];
     /* destination-string: bytes at destptr */
@@ -2515,7 +2515,7 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
   var object string = allocate_string(clen);
   if (clen > 0) {
     array = STACK_0;
-    var chart* cptr = &TheSstring(string)->data[0];
+    var chart* cptr = &TheSnstring(string)->data[0];
     var const uintB* bptr = &TheSbvector(array)->data[start];
    #ifdef UNICODE
     var const uintB* bendptr = &TheSbvector(array)->data[end];

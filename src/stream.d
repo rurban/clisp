@@ -728,7 +728,7 @@ global uintL read_char_array (const gcv_object_t* stream_,
     stream = *stream_;
     if (count == len) {
       var object chararray = *chararray_;
-      simple_array_to_storage(chararray);
+      sstring_un_realloc(chararray);
       var chart last_ch = schar(chararray,index-1);
       TheStream(stream)->strm_rd_ch_last = code_char(last_ch);
     } else
@@ -2172,7 +2172,7 @@ local uintL rd_ch_array_str_in (const gcv_object_t* stream_,
       count = len;
     # count = min(len,endindex-index) > 0.
     var object chararray = *chararray_;
-    simple_array_to_storage(chararray);
+    sstring_un_realloc(chararray);
     elt_copy(string,srcoffset+index,chararray,start,count);
     TheStream(stream)->strm_str_in_index = fixnum_inc(TheStream(stream)->strm_str_in_index,count);
     return count;
@@ -2265,7 +2265,7 @@ local void wr_ch_array_str_out (const gcv_object_t* stream_,
                                 uintL start, uintL len) {
   var object ssstring = TheStream(*stream_)->strm_str_out_string; # Semi-Simple-String
   ssstring = ssstring_append_extend(ssstring,*chararray_,start,len);
-  wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len); # update Line-Position
+  wr_ss_lpos(*stream_,(chart*)&TheS32string(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len); # update Line-Position
 }
 
 # Returns a String-Output-Stream.
@@ -2479,7 +2479,7 @@ local void wr_ch_array_pphelp (const gcv_object_t* stream_,
       var uintL count = end-beg;
       var object ssstring = Car(TheStream(*stream_)->strm_pphelp_strings); # Semi-Simple-String
       ssstring = ssstring_append_extend(ssstring,*chararray_,beg,count);
-      if (wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],count)) # update Line-Position
+      if (wr_ss_lpos(*stream_,(chart*)&TheS32string(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],count)) # update Line-Position
         TheStream(*stream_)->strm_pphelp_modus = T; # After NL: Mode := multi-liner
     }
     if (end == start+len)
@@ -6438,7 +6438,7 @@ local uintL rd_ch_array_buffered (const gcv_object_t* stream_,
     # [startindex..currindex).
     {
       var object chararray = *chararray_;
-      simple_array_to_storage(chararray);
+      sstring_un_realloc(chararray);
       SstringDispatch(chararray,X, {
         var cintX* startptr = &((SstringX)TheVarobject(chararray))->data[startindex];
         var cintX* currptr = &((SstringX)TheVarobject(chararray))->data[currindex];
@@ -6476,7 +6476,7 @@ local uintL rd_ch_array_buffered (const gcv_object_t* stream_,
   }
   return currindex - start;
   #else
-  var chart* startptr = &TheSstring(*chararray_)->data[start];
+  var chart* startptr = &TheSnstring(*chararray_)->data[start];
   var chart* charptr = startptr;
   do {
     var uintB* ptr = buffered_nextbyte(stream,false);
@@ -8671,7 +8671,7 @@ global char** lisp_completion (char* text, int start, int end) {
         pushSTACK(mlist);
         fehler(type_error,GETTEXT("Return value ~ of call to ~ contains ~ which is not a ~."));
       }
-      simple_array_to_storage(m);
+      sstring_un_realloc(m);
       var uintL charcount = Sstring_length(m);
       var const chart* ptr1;
       unpack_sstring_alloca(m,charcount,0, ptr1=);

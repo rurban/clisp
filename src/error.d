@@ -967,7 +967,6 @@ nonreturning_function(global, fehler_sstring, (object obj)) {
   fehler(type_error,GETTEXT("~: argument ~ is not a ~"));
 }
 
-#ifndef TYPECODES
 /* error-message, if a Simple-String is immutable:
  fehler_sstring_immutable(obj);
  > obj: the String */
@@ -975,7 +974,6 @@ nonreturning_function(global, fehler_sstring_immutable, (object obj)) {
   pushSTACK(obj);
   fehler(error,GETTEXT("Attempt to modify a read-only string: ~"));
 }
-#endif
 
 /* Error message, if an argument is not of type (OR STRING INTEGER).
  fehler_string_integer(obj)  */
