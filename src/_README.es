@@ -317,16 +317,19 @@ seleccionado. Luego
 
 #endif
 #if defined(UNIX) || defined(WIN32)
+      (without-package-lock ()
         (compile-file "src/config.lisp")
-        (load "src/config.fas")
+        (load "src/config.fas"))
 #else
+      (without-package-lock ()
         (compile-file "config.lisp")
-        (load "config.fas")
+        (load "config.fas"))
 
 y - si modificó el fichero TIMEZONE.LISP -
 
+      (without-package-lock ()
         (compile-file "timezone.lisp")
-        (load "timezone.fas")
+        (load "timezone.fas"))
 #endif
 
 y luego
@@ -394,6 +397,10 @@ Y cree el programa que ejeute lisp:
    ./hardcode -DLISPLIBDIR='/usr/local/lib/lisp' \
               -DLOCALEDIR='/usr/local/share/locale' \
               clisp /usr/local/bin/clisp
+#endif
+#ifdef WIN32_NATIVE
+You can also use file install.bat which creates the driver file
+on your desktop and sets up the registry. [FIXME]
 #endif
 
 #ifdef GNU_READLINE
