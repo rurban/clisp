@@ -744,6 +744,89 @@ DEFUN(BDB:DB-PUT, db key val &key :AUTO-COMMIT :FLAG :TRANSACTION)
   VALUES0; skipSTACK(3);
 }
 
+/* ===== cursors ===== */
+DEFFLAGSET(make_cursor_flags, DB_DIRTY_READ DB_WRITECURSOR)
+DEFUN(BDB:MAKE-CURSOR,db &key :DIRTY_READ :WRITECURSOR :TRANSACTION)
+{ /* create a cursor */
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
+  u_int32_t flags = make_cursor_flags();
+  DB *db = object_handle(popSTACK(),`BDB::DB`,false);
+  DBC *cursor;
+  SYSCALL(db->cursor,(db,txn,&cursor,flags));
+  pushSTACK(allocate_fpointer(cursor));
+  funcall(`BDB::MKCURSOR`,1);
+}
+
+DEFUN(BDB:CURSOR-CLOSE, cursor)
+{ /* close a cursor */
+  DBC *cursor = object_handle(popSTACK(),`BDB::CURSOR`,false);
+  SYSCALL(cursor->c_close,(cursor));
+  VALUES0;
+}
+
+DEFUN(BDB:CURSOR-COUNT, cursor)
+{ /* return a count of the number of data items for the key to which
+     the cursor refers */
+  DBC *cursor = object_handle(popSTACK(),`BDB::CURSOR`,false);
+  db_recno_t count;
+  SYSCALL(cursor->c_count,(cursor,&count,0));
+  VALUES1(UL_to_I(count));
+}
+
+DEFUN(BDB:CURSOR-DEL, cursor)
+{ /* delete the key/data pair to which the cursor refers */
+  DBC *cursor = object_handle(popSTACK(),`BDB::CURSOR`,false);
+  SYSCALL(cursor->c_del,(cursor,0));
+  VALUES0;
+}
+
+DEFFLAGSET(cursor_dup_flags, DB_POSITION)
+DEFUN(BDB:CURSOR-DUP, cursor &key :POSITION)
+{ /* create a new cursor that uses the same transaction and locker ID as
+     the original cursor */
+  u_int32_t flags = cursor_dup_flags();
+  DBC *cursor = object_handle(popSTACK(),`BDB::CURSOR`,false);
+  DBC *new_cursor;
+  SYSCALL(cursor->c_dup,(cursor,&new_cursor,flags));
+  pushSTACK(allocate_fpointer(new_cursor));
+  funcall(`BDB::MKCURSOR`,1);
+}
+
+DEFCHECKER(cursor_get_flag, DB_CURRENT DB_FIRST DB_GET_BOTH            \
+           DB_GET_BOTH_RANGE DB_GET_RECNO DB_JOIN_ITEM DB_LAST DB_NEXT \
+           DB_NEXT_DUP DB_NEXT_NODUP DB_PREV DB_PREV_NODUP DB_SET      \
+           DB_SET_RANGE DB_SET_RECNO DB_DIRTY_READ DB_MULTIPLE)
+DEFUN(BDB:CURSOR-GET, cursor key data flag)
+{ /* retrieve key/data pairs from the database */
+  u_int32_t flag = cursor_get_flag(popSTACK());
+  DBC *cursor = object_handle(STACK_2,`BDB::CURSOR`,false);
+  DBT key, val;
+  if (!nullp(STACK_1)) fill_dbt(STACK_1,&key);
+  else init_dbt(&key,DB_DBT_MALLOC);
+  if (!nullp(STACK_0)) fill_dbt(STACK_0,&val);
+  else init_dbt(&val,DB_DBT_MALLOC);
+  SYSCALL(cursor->c_get,(cursor,&key,&val,flag));
+  pushSTACK(dbt_to_vector(&key));
+  value2 = dbt_to_vector(&val);
+  value1 = popSTACK();
+  mv_count = 2;
+  skipSTACK(3);
+}
+
+DEFCHECKER(cursor_put_flag, DB_AFTER DB_BEFORE DB_CURRENT DB_KEYFIRST \
+           DB_KEYLAST DB_NODUPDATA)
+DEFUN(BDB:CURSOR-PUT, cursor key data flag)
+{ /* retrieve key/data pairs from the database */
+  u_int32_t flag = cursor_put_flag(popSTACK());
+  DBC *cursor = object_handle(STACK_2,`BDB::CURSOR`,false);
+  DBT key, val;
+  fill_dbt(STACK_1,&key);
+  fill_dbt(STACK_0,&val);
+  SYSCALL(cursor->c_put,(cursor,&key,&val,flag));
+  skipSTACK(3);
+  VALUES0;
+}
+
 /* ===== transactions ===== */
 /* not exported:
  DB_TXN->id	Return a transaction's ID
