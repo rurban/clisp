@@ -126,6 +126,13 @@ struct block_list
 #endif	/* have alloca */
 
 
+#if defined(__MSDOS__) || defined(__EMX__) || defined(_WIN32)
+#define PATH_SEPARATOR ';'
+#else
+#define PATH_SEPARATOR ':'
+#endif
+
+
 struct alias_map
 {
   const char *alias;
@@ -190,11 +197,12 @@ _nl_expand_alias (name)
 	{
 	  const char *start;
 
-	  while (locale_alias_path[0] == ':')
+	  while (locale_alias_path[0] == PATH_SEPARATOR)
 	    ++locale_alias_path;
 	  start = locale_alias_path;
 
-	  while (locale_alias_path[0] != '\0' && locale_alias_path[0] != ':')
+	  while (locale_alias_path[0] != '\0'
+		  && locale_alias_path[0] != PATH_SEPARATOR)
 	    ++locale_alias_path;
 
 	  if (start < locale_alias_path)
