@@ -1,5 +1,10 @@
 1999-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * utils/gcc-cccp/cccp.c (output_line_command): In the filename
+          being output, convert backslashes to double backslashes.
+
+1999-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Make sure the default-file-encoding is set to ISO-8859-1 during
         building, even if the user has set a different LC_CTYPE variable.
         * spvw.d (usage): Add -E option.
