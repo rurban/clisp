@@ -1,3 +1,11 @@
+User visible changes
+--------------------
+
+* NO-APPLICABLE-METHOD, NO-PRIMARY-METHOD and NO-NEXT-METHOD now signal
+  METHOD-CALL-ERROR or METHOD-CALL-TYPE-ERROR.
+  See <http://clisp.cons.org/impnotes.html#meth-call-err> for details.
+
+
 2.32 (2003-12-29)
 =================
 
