@@ -541,16 +541,20 @@ that can be executed more efficiently.</para>
 
 <variablelist>
 <!-- #ifdef UNIX -->
-<varlistentry><term><command>clisp</command> on &unix;</term>
+<varlistentry><term><command>clisp</command></term>
  <listitem><simpara>startup driver (a script or an executable)
 </simpara></listitem></varlistentry>
 <!-- #endif -->
+<!-- #if defined(WIN32_NATIVE) -->
+<varlistentry><term><command>clisp.bat</command></term>
+ <listitem><simpara>startup driver</simpara></listitem></varlistentry>
+<!-- #endif -->
 
 <varlistentry id="runtime">
-<!-- #if defined(UNIX) -->
+<!-- #if defined(UNIX) && !defined(UNIX_CYGWIN32) -->
 <term><filename>lisp.run</filename></term>
 <!-- #endif -->
-<!-- #if defined(WIN32_NATIVE) -->
+<!-- #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32) -->
 <term><filename>lisp.exe</filename></term>
 <!-- #endif -->
 <listitem><simpara>main executable (runtime)
