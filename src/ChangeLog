@@ -1,5 +1,14 @@
 2004-03-27  Bruno Haible  <bruno@clisp.org>
 
+	ANSI CL compliance: Fix the short-form method combination.
+	* clos.lisp (standard-method-combination-check-method-qualifiers):
+	Renamed from short-form-method-combination-check-method-qualifiers.
+	(define-method-combination): The qualifier of primary methods is the
+	name of the method combination, not the operator.
+	(short-form-method-combination-check-method-qualifiers): New function.
+
+2004-03-27  Bruno Haible  <bruno@clisp.org>
+
 	ANSI CL compliance: DEFGENERIC must remove methods defined in the
 	previous DEFGENERIC form.
 	* clos.lisp (standard-method): Add slot 'origin'.
