@@ -1,3 +1,9 @@
+2005-01-10  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	* modules/syscalls/calls.c (CRYPT, ENCRYPT, SETKEY): 
+	do not define on WIN32_NATIVE because it makes mingw
+	version depending on cygcrypt-0.dll and cygwin1.dll.
+
 2005-01-10  Bruno Haible  <bruno@clisp.org>
 	    Arseny Slobodyuk  <ampy@ich.dvo.ru>
 
