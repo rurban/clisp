@@ -130,35 +130,6 @@ Better error checking in get-setf-expansion for long defsetf
 for Emacs: GC root macro, YETANOTHER macro
 
 
-(let ((x 0)) (declare (special x)) (let ((x 1)) (let ((y x)) (declare (special x)) y)))
-(let ((x 0)) (declare (special x)) (let ((x 1)) (let ((y x) (x 5)) (declare (special x)) y)))
-(let ((x 0)) (declare (special x)) (let ((x 1)) (let* ((y x) (x 5)) (declare (special x)) y)))
-should all return 1, not 0.
-Scope von declare-special x:
-LET ohne x:  free: only the body, bind last
-LET* ohne x: free: only the body, bind last
-LET mit x:  bound: only the body, bind last
-LET* mit x: bound: ab der nächsten initform, bind after corresponding initform
-LAMBDA: erst alle Argumente auswerten, dann erst die vorhandenen Parameter
-binden, dann jeweils initform und binden.
-<http://groups-beta.google.com/group/comp.lang.lisp/browse_thread/thread/6a9841771d95feb2?tvc=2>
-(setf (symbol-value 'x) 6)
-(defun foo (x)                         ;a lexical binding of x
- (print x)
-  (let ((x (1+ x)))                    ;a special binding of x
-    (declare (special x))              ;and a lexical reference
-    (bar))
- (1+ x))
-(defun bar ()
- (print (locally (declare (special x)) x)))
-(foo 10)
->>                      10 11 =>  11
-in clisp 2.33.1 it is   10 7 => 11
-Another example is:
-(let ((x 5)) (let ((x (1+ x))) (declare (special x)) (print x)))
-should print 6.
-
-
 (directory "/proc/self/*" :full t )
 ((#P"/proc/self/status" #P"/proc/self/status" (6 44 0 1 4 1999) 0)
   (#P"/proc/self/mem" #P"/proc/self/mem" (6 44 0 1 4 1999) 0)
