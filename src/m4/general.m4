@@ -1,4 +1,4 @@
-dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2005 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -132,22 +132,22 @@ AC_DEFUN([CL_CANONICAL_HOST_CPU],
 case "$host_cpu" in
 changequote(,)dnl
   i[4567]86 )
-    host_cpu=i386
+    host_cpu_instructionset=i386
     ;;
   alphaev[4-8] | alphaev56 | alphapca5[67] | alphaev6[78] )
-    host_cpu=alpha
+    host_cpu_instructionset=alpha
     ;;
   hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
-    host_cpu=hppa
+    host_cpu_instructionset=hppa
     ;;
   powerpc )
-    host_cpu=rs6000
+    host_cpu_instructionset=rs6000
     ;;
   c1 | c2 | c32 | c34 | c38 | c4 )
-    host_cpu=convex
+    host_cpu_instructionset=convex
     ;;
   arm* )
-    host_cpu=arm
+    host_cpu_instructionset=arm
     ;;
 changequote([,])dnl
   mips )
@@ -162,7 +162,7 @@ AC_EGREP_CPP(yes,
 ], cl_cv_host_mips64=yes, cl_cv_host_mips64=no)
 ])
 if test $cl_cv_host_mips64 = yes; then
-  host_cpu=mips64
+  host_cpu_instructionset=mips64
 fi
     ;;
 dnl UltraSPARCs running Linux have `uname -m` = "sparc64", but the C compiler
@@ -176,16 +176,19 @@ AC_EGREP_CPP(yes,
 ], cl_cv_host_sparc64=yes, cl_cv_host_sparc64=no)
 ])
 if test $cl_cv_host_sparc64 = yes; then
-  host_cpu=sparc64
+  host_cpu_instructionset=sparc64
 else
-  host_cpu=sparc
+  host_cpu_instructionset=sparc
 fi
+    ;;
+  *)
+    host_cpu_instructionset=$host_cpu
     ;;
 esac
 dnl was AC_DEFINE_UNQUOTED(__${host_cpu}__) but KAI C++ 3.2d doesn't like this
 cat >> confdefs.h <<EOF
-#ifndef __${host_cpu}__
-#define __${host_cpu}__ 1
+#ifndef __${host_cpu_instructionset}__
+#define __${host_cpu_instructionset}__ 1
 #endif
 EOF
 ])
@@ -195,22 +198,22 @@ AC_DEFUN([CL_CANONICAL_HOST_CPU_FOR_FFCALL],
 case "$host_cpu" in
 changequote(,)dnl
   i[4567]86 )
-    host_cpu=i386
+    host_cpu_abi=i386
     ;;
   alphaev[4-8] | alphaev56 | alphapca5[67] | alphaev6[78] )
-    host_cpu=alpha
+    host_cpu_abi=alpha
     ;;
   hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
-    host_cpu=hppa
+    host_cpu_abi=hppa
     ;;
   powerpc )
-    host_cpu=rs6000
+    host_cpu_abi=rs6000
     ;;
   c1 | c2 | c32 | c34 | c38 | c4 )
-    host_cpu=convex
+    host_cpu_abi=convex
     ;;
   arm* )
-    host_cpu=arm
+    host_cpu_abi=arm
     ;;
 changequote([,])dnl
   mips )
@@ -225,7 +228,7 @@ AC_EGREP_CPP(yes,
 ], cl_cv_host_mips64=yes, cl_cv_host_mips64=no)
 ])
 if test $cl_cv_host_mips64 = yes; then
-  host_cpu=mips64
+  host_cpu_abi=mips64
 else
   AC_CACHE_CHECK([for MIPS with n32 ABI], cl_cv_host_mipsn32, [
 dnl Strictly speaking, the MIPS ABI (-32 or -n32) is independent from the CPU
@@ -238,7 +241,7 @@ AC_EGREP_CPP(yes,
 ], cl_cv_host_mipsn32=yes, cl_cv_host_mipsn32=no)
 ])
 if test $cl_cv_host_mipsn32 = yes; then
-  host_cpu=mipsn32
+  host_cpu_abi=mipsn32
 fi
 fi
     ;;
@@ -253,16 +256,20 @@ AC_EGREP_CPP(yes,
 ], cl_cv_host_sparc64=yes, cl_cv_host_sparc64=no)
 ])
 if test $cl_cv_host_sparc64 = yes; then
-  host_cpu=sparc64
+  host_cpu_abi=sparc64
 else
-  host_cpu=sparc
+  host_cpu_abi=sparc
 fi
     ;;
+  *)
+    host_cpu_abi=$host_cpu
+    ;;
 esac
+AC_SUBST(host_cpu_abi)
 dnl was AC_DEFINE_UNQUOTED(__${host_cpu}__) but KAI C++ 3.2d doesn't like this
 cat >> confdefs.h <<EOF
-#ifndef __${host_cpu}__
-#define __${host_cpu}__ 1
+#ifndef __${host_cpu_abi}__
+#define __${host_cpu_abi}__ 1
 #endif
 EOF
 ])
