@@ -1,3 +1,12 @@
+2002-07-15  Bruno Haible  <bruno@clisp.org>
+
+	* sigsegv.h.in (HAVE_STACK_OVERFLOW_RECOVERY): Define also on FreeBSD.
+	(stackoverflow_context_t): Define as 'struct sigcontext *' on FreeBSD.
+	* handler.c (SIGSEGV_ALL_SIGNALS) [FreeBSD]: Add SIGSEGV; this is the
+	signal that gets sent on stack overflow.
+	(get_vma) [FreeBSD]: New.
+	(reset_onstack_flag) [FreeBSD]: New .
+
 2002-05-07  Paolo Bonzini  <bonzini@gnu.org>
 
 	* sigsegv.h.in [__hpux, hpux]: Define HAVE_SIGSEGV_RECOVERY.
