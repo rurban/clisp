@@ -12700,7 +12700,10 @@ typedef enum {
   DIRECTION_INPUT           = 1,
   DIRECTION_INPUT_IMMUTABLE = 3,
   DIRECTION_OUTPUT          = 4,
-  DIRECTION_IO              = 5
+  DIRECTION_IO              = 5,
+  /* Work around a g++-3.4.0 bug, see
+     http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15069 */
+  DIRECTION_DUMMY_TO_AVOID_GXX_BUG = 100
 } direction_t;
 extern direction_t check_direction (object dir);
 
