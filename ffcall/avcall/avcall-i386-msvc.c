@@ -2,6 +2,7 @@
 TEXT()
 	ALIGN(2)
 GLOBL(C(__builtin_avcall))
+	DECLARE_FUNCTION(__builtin_avcall)
 FUNBEGIN(__builtin_avcall)
 	INSN1(push,l	,R(ebp))
 	INSN2(mov,l	,R(esp),R(ebp))
@@ -77,7 +78,7 @@ L10:
 	INSN2(mov,l	,X4 MEM_DISP(esi,12),R(ecx))
 	INSN2(lea,l	,X4 MEM_DISP(ecx,-11),R(eax))
 	INSN2(cmp,l	,NUM(1),R(eax))
-	jbe L64
+	INSN1(jbe,_	,L64)
 	INSN2(cmp,l	,NUM(15),R(ecx))
 	INSN1(je,_	,L61)
 	INSN2(cmp,l	,NUM(16),R(ecx))
@@ -121,13 +122,13 @@ L46:
 	INSN2(mov,l	,R(eax),R(ecx))
 	INSN2(shr,l	,NUM(2),R(ecx))
 	INSN1(dec,l	,R(ecx))
-	js L9
+	INSN1(js,_	,L9)
 L50:
 	INSN2(mov,l	,X4 MEM_DISP(esi,8),R(edx))
 	INSN2(mov,l	,X4 MEM_SHINDEX(ebx,ecx,4),R(eax))
 	INSN2(mov,l	,R(eax),X4 MEM_SHINDEX(edx,ecx,4))
 	INSN1(dec,l	,R(ecx))
-	jns L50
+	INSN1(jns,_	,L50)
 	INSN1(jmp,_	,L9)
 L39:
 	INSN2(test,b	,NUM(2),R(ah))
