@@ -1868,6 +1868,13 @@ CL_COMPILE_CHECK([__setfpucw], cl_cv_func_setfpucw,
 AC_DEFINE(HAVE_SETFPUCW))
 ])dnl
 dnl
+AC_DEFUN(CL_RAISE,
+[CL_LINK_CHECK([raise], cv_cv_func_raise,
+[#include <sys/types.h>
+#include <signal.h>], [raise(6);],
+AC_DEFINE(HAVE_RAISE)dnl
+)])dnl
+dnl
 AC_DEFUN(CL_ABORT,
 [AC_REQUIRE([CL_STDLIB_H])dnl
 CL_PROTO([abort], [
