@@ -5,7 +5,7 @@
 <para>This is an interface to the
  <ulink url="http://norsys.com/netica_c_api.htm">Netica C API</ulink>.
  The package <quote role="package">NETICA</quote> is
- <link linkend="make-pack">case-sensitive</link>, you would write
+ <link linkend="package-case">case-sensitive</link>, you would write
  <code>(netica:GetNodeExpectedUtils_bn ...)</code>
  when you need to call
  <ulink url="&netica-c-api;GetNodeExpectedUtils_bn.html"
@@ -13,8 +13,7 @@
 </para>
 
 <para>Additionally, some higher level functionality is available
- (see <filename>modules/netica/demo.lisp</filename> for a sample
- usage):</para>
+ (see <filename>modules/netica/demo.lisp</filename> for a sample usage):</para>
 
 <variablelist>
 <varlistentry><term><code>(netica:start-netica &key-amp;
