@@ -15110,7 +15110,7 @@ LISPFUNN(socket_server_port,1)
 
 LISPFUNN(socket_server_host,1)
 # (SOCKET-SERVER-HOST socket-server)
-  {test_socket_server(STACK_0,FALSE);
+  { test_socket_server(STACK_0,FALSE);
     value1 = TheSocketServer(STACK_0)->host;
     mv_count = 1;
     skipSTACK(1);
@@ -15335,7 +15335,7 @@ LISPFUNN(socket_stream_handle,1)
 # (SOCKET-STREAM-HANDLE socket-stream)
   {
     var object stream = test_socket_stream(STACK_0,TRUE);
-    value1 = fixnum(TheHandle(TheStream(stream)->strm_ichannel));
+    value1 = fixnum(TheSocket(TheStream(stream)->strm_ichannel));
     skipSTACK(1);
     mv_count=1;
   }

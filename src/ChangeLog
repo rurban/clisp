@@ -1,3 +1,7 @@
+1999-07-09  Jörg Höhle  <hoehle@tzd.telekom.de>
+
+        * stream.d (SOCKET-STREAM-HANDLE): Use TheSocket(), not TheHandle().
+
 1999-07-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * stream.d (low_clear_input_unbuffered_handle) [WIN32]: Set the
