@@ -79,7 +79,6 @@
  <member>&set-pprint-dispatch;</member>
  <member>&update-instance-for-different-class;</member>
  <member>&update-instance-for-redefined-class;</member>
- <member>&upgraded-complex-part-type;</member>
 </simplelist>
 
 </section>
@@ -1294,6 +1293,14 @@ executes a compiled version of form.</para>
 
 <section><title><ulink url="&clhs;/Body/sec_the_numbers_dictionary.html">
     12.2 The Numbers Dictionary</ulink></title>
+
+<section><title>&upgraded-complex-part-type;</title>
+
+<para>&upgraded-complex-part-type; always returns &t;, since a
+ &complex-class; number in &clisp; can always have &realpart; and
+ &imagpart; of any type.</para>
+
+</section>
 
 <section><title>Additional Integer Functions</title>
 
