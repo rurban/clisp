@@ -1,6 +1,9 @@
 User visible changes
 --------------------
- 
+
+* CONCATENATED-STREAM-STREAMS now returns only the remaining streams,
+  as per ANSI CL spec.
+
 * Implemented ANSI CL function INSPECT,
   and a function LISP:CLHS for access of Common Lisp HyperSpec.
 
