@@ -184,14 +184,14 @@
 
 ;; =================== Initialization and Reinitialization ===================
 
-(defun make-generic-function (generic-function-class funname lambda-list argument-precedence-order method-combo method-class declspecs documentation
+(defun make-generic-function (generic-function-class funname lambda-list argument-precedence-order method-combination method-class declspecs documentation
                               &rest methods)
   (let ((gf (make-generic-function-instance generic-function-class
               :name funname
               :lambda-list lambda-list
               :argument-precedence-order argument-precedence-order
               :method-class method-class
-              :method-combination (coerce-to-method-combination funname method-combo)
+              :method-combination method-combination
               :declarations declspecs
               :documentation documentation)))
     (dolist (method methods) (std-add-method gf method))
@@ -340,9 +340,9 @@
 ;; For GENERIC-FLET, GENERIC-LABELS
 ;; like make-generic-function, only that the dispatch-code is
 ;; installed immediately.
-(defun make-generic-function-now (generic-function-class funname lambda-list argument-precedence-order method-combo method-class declspecs documentation
+(defun make-generic-function-now (generic-function-class funname lambda-list argument-precedence-order method-combination method-class declspecs documentation
                                   &rest methods)
-  (let ((gf (apply #'make-generic-function generic-function-class funname lambda-list argument-precedence-order method-combo method-class declspecs documentation methods)))
+  (let ((gf (apply #'make-generic-function generic-function-class funname lambda-list argument-precedence-order method-combination method-class declspecs documentation methods)))
     (install-dispatch gf)
     gf))
 ||#
@@ -414,7 +414,15 @@
 ;; funname: function name, symbol or (SETF symbol)
 ;; lambdalist: lambdalist of the generic function
 ;; options: (option*)
-;; --> generic-function-class-form, signature, argument-precedence-order, method combination, method-class-form, declspecs, docstring, method-forms
+;; Returns 8 values:
+;; 1. generic-function-class-form,
+;; 2. signature,
+;; 3. argument-precedence-order,
+;; 4. method-combination-lambda, to be applied to the generic-function-class,
+;; 5. method-class-form,
+;; 6. declspecs,
+;; 7. docstring,
+;; 8. method-forms.
 (defun analyze-defgeneric (caller whole-form funname lambdalist options)
   (setq funname (sys::check-function-name funname caller))
   ;; Parse the lambdalist:
@@ -422,7 +430,7 @@
   ;; Process the options:
   (let ((generic-function-classes nil)
         (method-forms '())
-        (method-combination 'STANDARD)
+        (method-combinations nil)
         (method-classes nil)
         (argorders nil)
         (declares nil)
@@ -480,19 +488,33 @@
              caller funname ':documentation))
          (setq docstrings (rest option)))
         (:METHOD-COMBINATION
-         ;; The method combination designator must be present and may not be
-         ;; null. Allowed are STANDARD without options, a symbol with options,
-         ;; or, in the case of invocation from ensure-generic-function,
-         ;; a method-combination object with options.
-         (let ((designator (cadr option)))
-           (if (or (typep designator <method-combination>)
-                   (and designator (symbolp designator)))
-             (setq method-combination (rest option))
+         (when method-combinations
+           (error-of-type 'ext:source-program-error
+             :form whole-form
+             :detail options
+             (TEXT "~S ~S: ~S may only be specified once.")
+             caller funname ':method-combination))
+         ;; The syntax for this option is
+         ;;   (method-combination-name method-combination-argument*)
+         ;; CLHS writes "method-combination" here instead of
+         ;; "method-combination-name" but this is most probably a typo.
+         ;; To be liberal, we also allow a method-combination instead of a
+         ;; method-combination-name.
+         (unless (>= (length option) 2)
+           (error-of-type 'ext:source-program-error
+             :form whole-form
+             :detail option
+             (TEXT "~S ~S: A method combination type name must be specified after ~S : ~S")
+             caller funname ':method-combination option))
+         (let ((method-combination-name (second option)))
+           (unless (or (symbolp method-combination-name)
+                       (typep method-combination-name <method-combination>))
              (error-of-type 'ext:source-program-error
                :form whole-form
-               :detail designator
-               (TEXT "~S ~S: Invalid method combination: ~S")
-               caller funname option))))
+               :detail method-combination-name
+               (TEXT "~S ~S: Invalid method combination specification: ~S")
+               caller funname option))
+           (setq method-combinations (rest option))))
         (:GENERIC-FUNCTION-CLASS
          (unless (and (eql (length option) 2) (symbolp (second option)))
            (error-of-type 'ext:source-program-error
@@ -539,6 +561,9 @@
                 (TEXT "~S ~S: ~A")
                 caller funname (apply #'format nil errorstring arguments))))
       (declare (ignore argorder))
+      ;; Default :method-combination is STANDARD:
+      (unless method-combinations
+        (setq method-combinations '(STANDARD)))
       (let ((generic-function-class-form
               (if generic-function-classes
                 `(FIND-CLASS ',(first generic-function-classes))
@@ -550,7 +575,18 @@
         (values generic-function-class-form
                 signature
                 argument-precedence-order
-                method-combination
+                (let ((method-combination-name (car method-combinations))
+                      (options (cdr method-combinations)))
+                  `(LAMBDA (GF-CLASS)
+                     ,(if (symbolp method-combination-name)
+                        ;; We need a preliminary generic function because the
+                        ;; method combination must be passed to
+                        ;; ensure-generic-function, and the GF has not yet been
+                        ;; created and initialized at this moment.
+                        `(FIND-METHOD-COMBINATION
+                           (MAKE-GENERIC-FUNCTION-INSTANCE GF-CLASS :NAME ',funname)
+                           ',method-combination-name ',options)
+                        `(METHOD-COMBINATION-WITH-OPTIONS ',funname ',method-combination-name ',options))))
                 method-class-form
                 ;; list of declspecs
                 (cdr declares)
@@ -583,28 +619,30 @@
 
 (defmacro defgeneric (&whole whole-form
                       funname lambda-list &rest options)
-  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combo method-class-form declspecs docstring method-forms)
+  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combination-lambda method-class-form declspecs docstring method-forms)
       (analyze-defgeneric 'defgeneric whole-form funname lambda-list options)
-    `(LET ()
-       (DECLARE (SYS::IN-DEFUN ,funname))
-       (COMPILER::EVAL-WHEN-COMPILE
-         (COMPILER::C-DEFUN ',funname ',signature nil 'DEFGENERIC))
-       ;; NB: no (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
-       (ENSURE-GENERIC-FUNCTION ',funname
-         ;; Here we pass :GENERIC-FUNCTION-CLASS, :ARGUMENT-PRECEDENCE-ORDER,
-         ;; :METHOD-CLASS, :DOCUMENTATION also if the corresponding option
-         ;; wasn't specified in the DEFGENERIC form, because when a generic
-         ;; function is being redefined, :DOCUMENTATION NIL means to erase
-         ;; the documentation string, while nothing means to keep it!
-         ;; See MOP p. 61.
-         :GENERIC-FUNCTION-CLASS ,generic-function-class-form
-         :LAMBDA-LIST ',lambda-list
-         :ARGUMENT-PRECEDENCE-ORDER ',argument-precedence-order
-         :METHOD-CLASS ,method-class-form
-         :METHOD-COMBINATION (COERCE-TO-METHOD-COMBINATION ',funname ',method-combo)
-         :DOCUMENTATION ',docstring
-         :DECLARATIONS ',declspecs
-         'METHODS (LIST ,@method-forms)))))
+    (let ((generic-function-class-var (gensym)))
+      `(LET ()
+         (DECLARE (SYS::IN-DEFUN ,funname))
+         (COMPILER::EVAL-WHEN-COMPILE
+           (COMPILER::C-DEFUN ',funname ',signature nil 'DEFGENERIC))
+         ;; NB: no (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
+         (LET ((,generic-function-class-var ,generic-function-class-form))
+           (ENSURE-GENERIC-FUNCTION ',funname
+             ;; Here we pass :GENERIC-FUNCTION-CLASS, :ARGUMENT-PRECEDENCE-ORDER,
+             ;; :METHOD-CLASS, :DOCUMENTATION also if the corresponding option
+             ;; wasn't specified in the DEFGENERIC form, because when a generic
+             ;; function is being redefined, :DOCUMENTATION NIL means to erase
+             ;; the documentation string, while nothing means to keep it!
+             ;; See MOP p. 61.
+             :GENERIC-FUNCTION-CLASS ,generic-function-class-var
+             :LAMBDA-LIST ',lambda-list
+             :ARGUMENT-PRECEDENCE-ORDER ',argument-precedence-order
+             :METHOD-CLASS ,method-class-form
+             :METHOD-COMBINATION (,method-combination-lambda ,generic-function-class-var)
+             :DOCUMENTATION ',docstring
+             :DECLARATIONS ',declspecs
+             'METHODS (LIST ,@method-forms)))))))
 
 ;; ============================================================================
 
@@ -618,11 +656,13 @@
     (callinfo reqnum optnum restp keywords allowp)))
 
 (defun make-generic-function-form (caller whole-form funname lambda-list options)
-  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combo method-class-form declspecs docstring method-forms)
+  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combination-lambda method-class-form declspecs docstring method-forms)
       (analyze-defgeneric caller whole-form funname lambda-list options)
     (declare (ignore signature))
-    `(MAKE-GENERIC-FUNCTION ,generic-function-class-form ',funname ',lambda-list ',argument-precedence-order ',method-combo ,method-class-form ',declspecs ',docstring
-                            ,@method-forms)))
+    (let ((generic-function-class-var (gensym)))
+      `(LET ((,generic-function-class-var ,generic-function-class-form))
+         (MAKE-GENERIC-FUNCTION ,generic-function-class-var ',funname ',lambda-list ',argument-precedence-order (,method-combination-lambda ,generic-function-class-var) ,method-class-form ',declspecs ',docstring
+                                ,@method-forms)))))
 
 #| GENERIC-FUNCTION is a TYPE (and a COMMON-LISP symbol) in ANSI CL,
  but not a macro, so this definition violates the standard
