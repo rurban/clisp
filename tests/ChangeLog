@@ -1,3 +1,8 @@
+2004-09-20  Sam Steingold  <sds@gnu.org>
+
+	* path.tst (parse-namestring): check second return value for
+	displaced arguments
+
 2004-08-05  Bruno Haible  <bruno@clisp.org>
 
 	* mop.tst: Disable two tests on LispWorks.
