@@ -6265,7 +6265,7 @@ local uintB* read_byte_array_buffered (object stream, uintB* byteptr,
     if (available > len)
       available = len;
     # copy all available bytes:
-    memcpy(byteptr,ptr,available);
+    copy_mem_b(byteptr,ptr,available);
     byteptr += available;
     # increment index:
     BufferedStream_index(stream) += available;
@@ -6330,9 +6330,9 @@ local const uintB* write_byte_array_buffered (object stream,
       if (next > remaining)
         next = remaining;
       # copy the next bytes in the buffer:
-      memcpy(BufferedStream_buffer_address
-             (stream,BufferedStream_index(stream)),
-             byteptr,next);
+      copy_mem_b(BufferedStream_buffer_address
+                 (stream,BufferedStream_index(stream)),
+                 byteptr,next);
       byteptr += next;
       BufferedStream_modified(stream) = true;
       remaining = remaining - next;
@@ -13524,8 +13524,8 @@ local inline void create_input_pipe (const char* command) {
     # copy command to Stack:
     var uintL command_length = asciz_length(command)+1;
     var DYNAMIC_ARRAY(command_data,char,command_length);
-    memcpy(command_data,command,command_length);
     begin_system_call();
+    memcpy(command_data,command,command_length);
     # build pipe:
     if (!( pipe(handles) ==0)) {
       FREE_DYNAMIC_ARRAY(command_data); OS_error();
@@ -13735,8 +13735,8 @@ local inline void create_output_pipe (const char* command) {
     # copy command to Stack:
     var uintL command_length = asciz_length(command)+1;
     var DYNAMIC_ARRAY(command_data,char,command_length);
-    memcpy(command_data,command,command_length);
     begin_system_call();
+    memcpy(command_data,command,command_length);
     if (!( pipe(handles) ==0)) {
       FREE_DYNAMIC_ARRAY(command_data); OS_error();
     }
@@ -13887,8 +13887,8 @@ local inline void create_io_pipe (const char* command) {
     # copy command to Stack:
     var uintL command_length = asciz_length(command)+1;
     var DYNAMIC_ARRAY(command_data,char,command_length);
-    memcpy(command_data,command,command_length);
     begin_system_call();
+    memcpy(command_data,command,command_length);
     # build Pipes:
     if (!( pipe(in_handles) ==0)) {
       FREE_DYNAMIC_ARRAY(command_data); OS_error();
@@ -17014,7 +17014,7 @@ LISPFUN(read_float,2,3,norest,nokey,0,NIL) {
         value1 = c_float_to_FF((ffloatjanus*)&TheSbvector(bitbuffer)->data[0]);
       } else {
         var ffloatjanus tmp;
-        memcpy(&tmp,&TheSbvector(bitbuffer)->data[0],sizeof(ffloatjanus));
+        copy_mem_b(&tmp,&TheSbvector(bitbuffer)->data[0],sizeof(ffloatjanus));
         value1 = c_float_to_FF(&tmp);
       }
       break;
@@ -17024,7 +17024,7 @@ LISPFUN(read_float,2,3,norest,nokey,0,NIL) {
         value1 = c_double_to_DF((dfloatjanus*)&TheSbvector(bitbuffer)->data[0]);
       } else {
         var dfloatjanus tmp;
-        memcpy(&tmp,&TheSbvector(bitbuffer)->data[0],sizeof(dfloatjanus));
+        copy_mem_b(&tmp,&TheSbvector(bitbuffer)->data[0],sizeof(dfloatjanus));
         value1 = c_double_to_DF(&tmp);
       }
       break;
@@ -17154,7 +17154,7 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL) {
       } else {
         var dfloatjanus tmp;
         DF_to_c_double(obj,&tmp);
-        memcpy(&TheSbvector(bitbuffer)->data[0],&tmp,sizeof(dfloatjanus));
+        copy_mem_b(&TheSbvector(bitbuffer)->data[0],&tmp,sizeof(dfloatjanus));
       }
       break;
     default: NOTREACHED;
@@ -17478,8 +17478,8 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL) {
 # (SYS::%DEFGRAY fundamental-stream-classes)
 # Initializes O(class_fundamental*_stream).
 LISPFUNN(defgray,1) {
-  memcpy(&O(class_fundamental_stream),&TheSvector(STACK_0)->data[0],
-         sizeof(object)*Svector_length(STACK_0));
+  copy_mem_o(&O(class_fundamental_stream),&TheSvector(STACK_0)->data[0],
+             Svector_length(STACK_0));
   value1 = NIL; mv_count=0; skipSTACK(1);
 }
 
