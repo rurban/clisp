@@ -18,6 +18,7 @@
 
 (defun initialize-instance-<method> (method &rest args
                                      &key ((from-defgeneric from-defgeneric) nil)
+                                          ((backpointer backpointer) nil backpointer-p)
                                      &allow-other-keys)
   (if *classes-finished*
     (apply #'%initialize-instance method args) ; == (call-next-method)
@@ -25,6 +26,17 @@
     (apply #'shared-initialize-<standard-stablehash> method 't args))
   ; Fill the slots.
   (setf (method-from-defgeneric method) from-defgeneric)
+  ; Fill the backpointer. This is needed for NO-NEXT-METHOD to work: When
+  ; CALL-NEXT-METHOD is called from within the method function without a next
+  ; method being available, the method function must call NO-NEXT-METHOD with
+  ; the method object as argument. But since the method function is called
+  ; with the argument list and the remaining methods list as arguments, it
+  ; cannot know about the method object to which it belongs. We solve this
+  ; paradoxon by constructing a backpointer cons that the method function
+  ; has access to and that points back to the method object after it has been
+  ; initialized.
+  (when backpointer-p
+    (setf (car backpointer) method))
   method)
 
 ;;; ---------------------------------------------------------------------------
@@ -109,8 +121,9 @@
                                                    ((signature signature) nil signature-p)
                                                    ((gf gf) nil)
                                                    ((from-defgeneric from-defgeneric) nil)
+                                                   ((backpointer backpointer) nil)
                                               &allow-other-keys)
-  (declare (ignore from-defgeneric))
+  (declare (ignore from-defgeneric backpointer))
   (apply #'initialize-instance-<method> method args) ; == (call-next-method)
   ; Check the qualifiers.
   (unless (proper-list-p qualifiers)
@@ -212,12 +225,9 @@
 
 ;; Preliminary.
 ;; During bootstrapping, only <standard-method> instances are used.
-(defun allocate-method-instance (class &rest args ; ABI
-                                 &key &allow-other-keys)
-  (apply #'%allocate-instance class args))
-(defun initialize-method-instance (method &rest args ; ABI
-                                   &key &allow-other-keys)
-  (apply #'initialize-instance-<standard-method> method args))
+(defun make-method-instance (class &rest args ; ABI
+                             &key &allow-other-keys)
+  (apply #'make-instance-<standard-method> class args))
 (defun method-function (method)
   (std-method-function-or-substitute method))
 (defun method-qualifiers (method)

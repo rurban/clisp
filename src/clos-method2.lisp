@@ -67,9 +67,10 @@
 ;; funname: function name, symbol or (SETF symbol)
 ;; description: (qualifier* spec-lambda-list {declaration|docstring}* form*)
 ;; ==>
-;; 1. a function lambda, to be applied to the method object, that returns a
-;;    cons h with (car h) = fast-function, (cadr h) = true if the compiler
-;;    could optimize away the ",cont" variable.
+;; 1. a function lambda, to be applied to a backpointer cons (that will later
+;;    point back to the method object), that returns a cons h with
+;;    (car h) = fast-function,
+;;    (cadr h) = true if the compiler could optimize away the ",cont" variable.
 ;; 2. method-initargs-forms,
 ;; 3. signature
 (defun analyze-method-description (caller whole-form funname description)
@@ -146,7 +147,7 @@
                   (setq weakened-lambda-list
                     `(,@(subseq lambda-list 0 index) &ALLOW-OTHER-KEYS
                       ,@(subseq lambda-list index)))))
-              (let* ((self (gensym))
+              (let* ((backpointer (gensym))
                      (compile nil)
                      (documentation nil)
                      (lambdabody
@@ -174,7 +175,7 @@
                                 ,@req-dummies
                                 ,@(if rest-dummy `(&REST ,rest-dummy) '()))
                                ,(add-next-method-local-functions
-                                  self cont req-dummies rest-dummy
+                                  backpointer cont req-dummies rest-dummy
                                   ;; new body:
                                   (list
                                     (if rest-dummy
@@ -185,7 +186,7 @@
                                           :rest-p restp :keys-p keyp
                                           :keywords keywords :allow-p allowp)))
                 (values
-                  `(LAMBDA (,self)
+                  `(LAMBDA (,backpointer)
                      ,@(if compile '((DECLARE (COMPILE))))
                      (%OPTIMIZE-FUNCTION-LAMBDA (T) ,@lambdabody))
                   `(:QUALIFIERS ',qualifiers
