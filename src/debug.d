@@ -1,237 +1,251 @@
-# Top-Level-Schleife, Hilfsfunktionen für Debugger, Stepper von CLISP
-# Bruno Haible 1990-2002
-# ILISP friendliness: Marcus Daniels 8.4.1994
-# Sam Steingold 2001
+/* top level loop, aux functions for the debugger, stepper for CLISP
+ * Bruno Haible 1990-2002
+ * ILISP friendliness: Marcus Daniels 8.4.1994
+ * Sam Steingold 2001-2003
+ */
 
 #include "lispbibl.c"
 
 
-# ---------------------------------------------------------------------------- #
-#                             Top-Level-Schleifen
+/* ----------------------------------------------------------------------- */
+/* Top-Level-Loop */
 
-# (SYS::READ-FORM ostream istream prompt [commandlist])
-# Liest eine Form (interaktiv) von einem Input-Stream.
-# Statt einer Form kann auch eine Sondertaste aus commandlist (eine frische
-# Aliste) oder SYS::*KEY-BINDINGS* eingegeben werden.
-# > STACK_1: prompt, ein String
-# > STACK_0: Befehlsliste (frische Aliste) oder #<UNBOUND>
-# < STACK_1: Output-Stream *standard-output*
-# < STACK_0: Input-Stream *standard-input*
-# < mv_space/mv_count: Werte form, NIL oder (bei EOF) T, T
-# can trigger GC
-  local Values read_form (void);
-# (defun read-form (ostream istream prompt &optional (command-list nil))
-#   (loop
-#     (let ((raw (terminal-raw istream nil)))
-#       (when (interactive-stream-p istream)
-#         (terpri ostream)
-#         (write-string prompt ostream)
-#         (force-output ostream)
-#       )
-#       (let* ((eof-value "EOF")
-#              (form (let ((*read-suppress* nil)
-#                          (*key-bindings* (nreconc command-list *key-bindings*)))
-#                      (read istream nil eof-value nil)
-#             ))     )
-#         (terminal-raw istream raw)
-#         (if (eql form eof-value)
-#           (progn (clear-input istream) (setq istream *debug-io*))
-#           (progn (clear-input-upto-newline istream) (return (values form nil)))
-# ) ) ) ) )
-  local Values read_form()
-  {
-    pushSTACK(STACK_1); pushSTACK(STACK_1);
-    STACK_3 = var_stream(S(standard_output),strmflags_wr_ch_B); # ostream := Wert von *STANDARD-OUTPUT*
-    STACK_2 = var_stream(S(standard_input),strmflags_rd_ch_B); # istream := Wert von *STANDARD-INPUT*
-    # Stackaufbau: ostream, istream, prompt, command-list.
-    pushSTACK(STACK_2);
-    pushSTACK(STACK_3); pushSTACK(NIL); funcall(L(terminal_raw),2); pushSTACK(value1);
-    # Stackaufbau: ostream, istream, prompt, command-list, inputstream, raw.
-    var signean status = listen_char(STACK_4); # horchen
-    if (ls_eof_p(status) && !boundp(Symbol_value(S(terminal_read_stream))))
-      goto eof;
-    # bereits Zeichen verfügbar (und nicht im ilisp_mode) -> kein Prompt
-    if (ilisp_mode || interactive_stream_p(STACK_4)) {
-      # interaktiver Input-Stream -> Prompt ausgeben:
-      #if 0
-        terpri(&STACK_5); # (TERPRI ostream)
-      #else
-        # Dasselbe mit Abfangen von Endlosrekursion:
-        # (let ((*recurse-count-standard-output* (1+ *recurse-count-standard-output*)))
-        #   (when (> *recurse-count-standard-output* 3)
-        #     (setq *recurse-count-standard-output* 0)
-        #     (makunbound '*standard-output*)
-        #     (let ((*recurse-count-debug-io* (1+ *recurse-count-debug-io*)))
-        #       (when (> *recurse-count-debug-io* 3)
-        #         (setq *recurse-count-debug-io* 0)
-        #         (makunbound '*debug-io*)
-        #         (symbol-stream '*debug-io* :io)
-        #       )
-        #       (symbol-stream '*standard-output* :output)
-        #   ) )
-        #   (terpri *standard-output*)
-        # )
-        dynamic_bind(S(recurse_count_standard_output),fixnum_inc(Symbol_value(S(recurse_count_standard_output)),1)); # sys::*recurse-count-standard-output* erhöhen
-        if (!posfixnump(Symbol_value(S(recurse_count_standard_output)))) # sollte ein Fixnum >=0 sein
-          Symbol_value(S(recurse_count_standard_output)) = Fixnum_0; # sonst Notkorrektur
-        if (posfixnum_to_L(Symbol_value(S(recurse_count_standard_output))) > 3) {
-          # Mehrfach verschachtelte Fehlermeldung.
-          Symbol_value(S(recurse_count_standard_output)) = Fixnum_0;
-          Symbol_value(S(standard_output)) = unbound;
-          dynamic_bind(S(recurse_count_debug_io),fixnum_inc(Symbol_value(S(recurse_count_debug_io)),1)); # sys::*recurse-count-debug-io* erhöhen
-          if (!posfixnump(Symbol_value(S(recurse_count_debug_io)))) # sollte ein Fixnum >=0 sein
-            Symbol_value(S(recurse_count_debug_io)) = Fixnum_0; # sonst Notkorrektur
-          if (posfixnum_to_L(Symbol_value(S(recurse_count_debug_io))) > 3) {
-            # Mehrfach verschachtelte Fehlermeldung.
-            Symbol_value(S(recurse_count_debug_io)) = Fixnum_0;
-            Symbol_value(S(debug_io)) = unbound;
-            var_stream(S(debug_io),strmflags_rd_ch_B|strmflags_wr_ch_B);
-          }
-          STACK_(5+3+3) = var_stream(S(standard_output),strmflags_wr_ch_B); # ostream := Wert von *STANDARD-OUTPUT*
-          dynamic_unbind();
-        }
-        terpri(&STACK_(5+3)); # (TERPRI ostream)
-        dynamic_unbind();
-      #endif
-      write_string(&STACK_5,STACK_3); # (WRITE-STRING prompt ostream)
-      force_output(STACK_5);
+/* (SYS::READ-FORM ostream istream prompt [commandlist])
+ read one form (interactively) from the input stream.
+ instead of the form, we also recognize special commands from commandlist
+ (a fresh alist) or SYS::*KEY-BINDINGS*
+ > STACK_1: prompt, a string
+ > STACK_0: commandlist (fresh aliste) or #<UNBOUND>
+ < STACK_1: Output-Stream *standard-output*
+ < STACK_0: Input-Stream *standard-input*
+ < mv_space/mv_count: value = form, NIL or (on EOF) T, T
+ can trigger GC
+ (defun read-form (ostream istream prompt &optional (command-list nil))
+   (loop
+     (let ((raw (terminal-raw istream nil)))
+       (when (interactive-stream-p istream)
+         (terpri ostream)
+         (write-string prompt ostream)
+         (force-output ostream))
+       (let* ((eof-value "EOF")
+              (form (let ((*read-suppress* nil)
+                          (*key-bindings* (nreconc command-list
+                                                   *key-bindings*)))
+                      (read istream nil eof-value nil))))
+         (terminal-raw istream raw)
+         (if (eql form eof-value)
+           (progn (clear-input istream) (setq istream *debug-io*))
+           (progn (clear-input-upto-newline istream)
+                  (return (values form nil))))))))
+*/
+local Values read_form(void)
+{
+ #if STACKCHECKR
+  var gcv_object_t* STACKbefore = STACK; /* retain STACK for later */
+ #endif
+  pushSTACK(STACK_1); pushSTACK(STACK_1);
+  STACK_3 = var_stream(S(standard_output),strmflags_wr_ch_B); /* ostream := *STANDARD-OUTPUT* */
+  STACK_2 = var_stream(S(standard_input),strmflags_rd_ch_B); /* istream := *STANDARD-INPUT* */
+  /* stack layout: ostream, istream, prompt, command-list. */
+  pushSTACK(STACK_2);
+  pushSTACK(STACK_3); pushSTACK(NIL); funcall(L(terminal_raw),2);
+  pushSTACK(value1);
+  /* stack layout: ostream, istream, prompt, command-list, inputstream, raw. */
+  var signean status = listen_char(STACK_4); # horchen
+  if (ls_eof_p(status) && !boundp(Symbol_value(S(terminal_read_stream))))
+    goto eof;
+  /* already have characters available (and not in ilisp_mode) -> no prompt */
+  if (ilisp_mode || interactive_stream_p(STACK_4)) {
+    /* interactive input-stream -> prompt output: */
+   #if 0
+    terpri(&STACK_5); /* (TERPRI ostream) */
+   #else
+    /* the same, but avoiding infinite recursion
+     (let ((*recurse-count-standard-output*
+            (1+ *recurse-count-standard-output*)))
+       (when (> *recurse-count-standard-output* 3)
+         (setq *recurse-count-standard-output* 0)
+         (makunbound (quote *standard-output*))
+         (let ((*recurse-count-debug-io* (1+ *recurse-count-debug-io*)))
+           (when (> *recurse-count-debug-io* 3)
+             (setq *recurse-count-debug-io* 0)
+             (makunbound (quote *debug-io*))
+             (symbol-stream (quote *debug-io*) :io))
+           (symbol-stream (quote *standard-output*) :output)))
+       (terpri *standard-output*)) */
+    /* (incf sys::*recurse-count-standard-output*) */
+    dynamic_bind(S(recurse_count_standard_output),
+                 fixnum_inc(Symbol_value(S(recurse_count_standard_output)),1));
+    if (!posfixnump(Symbol_value(S(recurse_count_standard_output))))
+      /* should be fixnum >=0; otherwise emergency correction */
+      Symbol_value(S(recurse_count_standard_output)) = Fixnum_0;
+    if (posfixnum_to_L(Symbol_value(S(recurse_count_standard_output))) > 3) {
+      /* too many nested i/o errors. */
+      Symbol_value(S(recurse_count_standard_output)) = Fixnum_0;
+      Symbol_value(S(standard_output)) = unbound;
+       /* (incf sys::*recurse-count-debug-io*): */
+      dynamic_bind(S(recurse_count_debug_io),
+                   fixnum_inc(Symbol_value(S(recurse_count_debug_io)),1));
+      if (!posfixnump(Symbol_value(S(recurse_count_debug_io))))
+        /* should be fixnum >=0; otherwise emergency correction */
+        Symbol_value(S(recurse_count_debug_io)) = Fixnum_0;
+      if (posfixnum_to_L(Symbol_value(S(recurse_count_debug_io))) > 3) {
+        /* too many nested i/o errors. */
+        Symbol_value(S(recurse_count_debug_io)) = Fixnum_0;
+        Symbol_value(S(debug_io)) = unbound;
+        var_stream(S(debug_io),strmflags_rd_ch_B|strmflags_wr_ch_B);
+      }
+      STACK_(5+3+3) = var_stream(S(standard_output),strmflags_wr_ch_B); /* ostream := *STANDARD-OUTPUT* */
+      dynamic_unbind();
     }
-    # Prompt OK
+    terpri(&STACK_(5+3)); /* (TERPRI ostream) */
+    dynamic_unbind();
+   #endif
+    write_string(&STACK_5,STACK_3); /* (WRITE-STRING prompt ostream) */
+    force_output(STACK_5);
+  } /* Prompt OK */
+  {
+    var gcv_object_t* inputstream_ = &STACK_1;
+  #if 0
+    /* That proves nevertheless awkward: If one presses CTRL-C during input,
+       then one has some commands then in the BREAK loop doubly in the list */
     {
-      var gcv_object_t* inputstream_ = &STACK_1;
-      #if 0 # Das erweist sich doch als ungeschickt: Drückt man Ctrl-C während
-            # der Eingabe, so hat man dann in der Break-Schleife manche Kommandos
-            # doppelt in der Liste!
-      {
-        var object list = Symbol_value(S(key_bindings)); # bisherige Key-Bindings
-        if (boundp(STACK_2)) /* command-list supplied? */
-          list = nreconc(STACK_2,list); # ja -> davorhängen
-        dynamic_bind(S(key_bindings),list); # SYS::*KEY-BINDINGS* binden
-      }
-      #else
-      {
-        var object list = (!boundp(STACK_2) ? NIL : (object)STACK_2);
-        dynamic_bind(S(key_bindings),list); /* bind SYS::*KEY-BINDINGS* */
-      }
-      #endif
-      #if !defined(TERMINAL_USES_KEYBOARD) # auf dem Atari ging's über Funktionstasten
-      var bool terminal_read_stream_bound = false;
-      if (!ls_avail_p(status) /* only for interactive input streams */
-          && !boundp(Symbol_value(S(terminal_read_stream)))) {
-        # Erkennung von Kommandos statt Formen:
-        # (multiple-value-bind (line flag) (read-line istream)
-        #   (let ((h (assoc line *key-bindings* :test #'string-equal)))
-        #     (when h (funcall (cdr h)) (return t))
-        #   )
-        #   (setq istream
-        #     (make-concatenated-stream
-        #       (make-string-input-stream
-        #         (if flag line (concatenate 'string line (string #\Newline)))
-        #       )
-        #       istream
-        # ) ) )
-        do {
-          # this loop is for win32 and its C-z RET abomination: after
-          # C-z (EOF) is processed, there is an empty line in the stream
-          pushSTACK(*inputstream_); pushSTACK(NIL); pushSTACK(NIL);
-          funcall(L(read_line),3); # (READ-LINE istream nil nil)
-          if (nullp(value1)) { # EOF am Zeilenanfang?
-            dynamic_unbind(); # S(key_bindings)
-            goto eof;
-          }
-        } while (Sstring_length(value1) == 0);
-        var object line = value1; # non-trivial line
-        # NB: line is a simple-string, due to our particular READ-LINE
-        # implementation.
-        { # search for line in *KEY-BINDINGS*:
-          var object alist = Symbol_value(S(key_bindings));
-          var uintL input_len = Sstring_length(line);
-          for (;consp(alist);alist = Cdr(alist))
-            if (mconsp(Car(alist)) && simple_string_p(Car(Car(alist)))) {
-              var object key = Car(Car(alist));
-              simple_array_to_storage(key);
-              var uintL len = Sstring_length(key);
-              # check whether the line starts with the key and a whitespace
-              if ((len <= input_len) && string_eqcomp_ci(line,0,key,0,len)) {
-                if (len == input_len) goto found;
-                # now len < input_len
-                { var chart ch = schar(line,len);
-                  if (cint_white_p(as_cint(ch))) goto found;
-                }
-                if (false) {
-                 found:
-                  funcall(Cdr(Car(alist)),0); # call the appropriate function
-                  dynamic_unbind(); # S(key_bindings)
-                  goto eof;
-                }
+      var object list = Symbol_value(S(key_bindings)); /* old Key-Bindings */
+      if (boundp(STACK_2)) /* command-list supplied? */
+        list = nreconc(STACK_2,list); /* add in front */
+      dynamic_bind(S(key_bindings),list); /* bind SYS::*KEY-BINDINGS* */
+    }
+   #else
+    {
+      var object list = (!boundp(STACK_2) ? NIL : (object)STACK_2);
+      dynamic_bind(S(key_bindings),list); /* bind SYS::*KEY-BINDINGS* */
+    }
+   #endif
+   #if !defined(TERMINAL_USES_KEYBOARD) /*  Atari - function keys */
+    var bool terminal_read_stream_bound = false;
+    if (!ls_avail_p(status) /* only for interactive input streams */
+        && !boundp(Symbol_value(S(terminal_read_stream)))) {
+      /* look for commands, not forms:
+       (multiple-value-bind (line flag) (read-line istream)
+         (let ((h (assoc line *key-bindings* :test (function string-equal))))
+           (when h (funcall (cdr h)) (return t)))
+         (setq istream
+               (make-concatenated-stream
+                (make-string-input-stream
+                 (if flag line
+                     (concatenate (quote string) line (string #\Newline))))
+                istream))) */
+      do {
+        /* this loop is for win32 and its C-z RET abomination: after
+           C-z (EOF) is processed, there is an empty line in the stream */
+        pushSTACK(*inputstream_); pushSTACK(NIL); pushSTACK(NIL);
+        funcall(L(read_line),3); /* (READ-LINE istream nil nil) */
+        if (nullp(value1)) { /* EOF at line start? */
+          dynamic_unbind(); /* S(key_bindings) */
+          goto eof;
+        }
+      } while (Sstring_length(value1) == 0);
+      var object line = value1; /* non-trivial line */
+      /* NB: READ-LINE returns a SIMPLE-STRING in CLISP, so line is simple */
+      { /* search for line in *KEY-BINDINGS*: */
+        var object alist = Symbol_value(S(key_bindings));
+        var uintL input_len = Sstring_length(line);
+        for (;consp(alist);alist = Cdr(alist))
+          if (mconsp(Car(alist)) && simple_string_p(Car(Car(alist)))) {
+            var object key = Car(Car(alist));
+            simple_array_to_storage(key);
+            var uintL len = Sstring_length(key);
+            /* check whether the line starts with the key and a whitespace */
+            if ((len <= input_len) && string_eqcomp_ci(line,0,key,0,len)) {
+              if (len == input_len) goto found;
+              /* now len < input_len */
+              { var chart ch = schar(line,len);
+                if (cint_white_p(as_cint(ch))) goto found;
+              }
+              if (false) {
+               found:
+                funcall(Cdr(Car(alist)),0); /* call the appropriate function */
+                dynamic_unbind(); /* S(key_bindings) */
+                goto eof;
               }
             }
-        }
-        # create string-input-stream for this line:
-        if (nullp(value2)) {
-          pushSTACK(line); pushSTACK(O(newline_string));
-          line = string_concat(2); # maybe need another Newline
-        }
-        pushSTACK(line); funcall(L(make_string_input_stream),1);
-        # make concatenated-stream:
-        pushSTACK(value1); pushSTACK(*inputstream_);
-        funcall(L(make_concatenated_stream),2);
-        dynamic_bind(S(terminal_read_stream),value1);
-        terminal_read_stream_bound = true;
-        *inputstream_ = Symbol_value(S(terminal_read_stream));
-      } else if (streamp(Symbol_value(S(terminal_read_stream)))) {
-        var object stream = Symbol_value(S(terminal_read_stream));
-        Symbol_value(S(terminal_read_stream)) = unbound;
-        dynamic_bind(S(terminal_read_stream),stream);
-        terminal_read_stream_bound = true;
-        *inputstream_ = Symbol_value(S(terminal_read_stream));
-      }
-      #endif
-      dynamic_bind(S(read_suppress),NIL); # *READ-SUPPRESS* = NIL
-      var object obj = stream_read(inputstream_,NIL,NIL); # read object (recursive-p=NIL, whitespace-p=NIL)
-      dynamic_unbind(); # S(read_suppress)
-      #if !defined(TERMINAL_USES_KEYBOARD)
-      if (streamp(Symbol_value(S(terminal_read_stream)))) {
-        var object stream = Symbol_value(S(terminal_read_stream));
-        var object strm_l = TheStream(stream)->strm_concat_list;
-        if (terminal_read_stream_bound)
-          dynamic_unbind(); /* S(terminal_read_stream) */
-        Symbol_value(S(terminal_read_stream)) =
-          (consp(strm_l) && !nullp(Cdr(strm_l))
-           /* some input on the first line was not processed ? */
-           && (pushSTACK(T), pushSTACK(Car(strm_l)),
-               pushSTACK(NIL), pushSTACK(eof_value),
-               funcall(L(peek_char),4), !eq(value1,eof_value)))
-          ? stream : unbound;
-      }
-      #endif
-      dynamic_unbind(); # S(key_bindings)
-      if (!eq(obj,eof_value)) { # EOF test (after whitespace)
-        pushSTACK(obj);
-        pushSTACK(STACK_(4+1)); pushSTACK(STACK_(0+1+1)); funcall(L(terminal_raw),2);
-        # delete input till EOL
-        if (interactive_stream_p(STACK_(4+1))) {
-          while (ls_avail_p(listen_char(STACK_(4+1)))) {
-            var object ch = peek_char(&STACK_(4+1));
-            if (eq(ch,eof_value))
-              break;
-            read_char(&STACK_(4+1));
-            if (eq(ch,ascii_char(NL)))
-              break;
           }
-        }
-        VALUES2(popSTACK(), NIL); /* (values obj NIL) */
-        skipSTACK(4); return;
       }
+      /* create string-input-stream for this line: */
+      if (nullp(value2)) {
+        pushSTACK(line); pushSTACK(O(newline_string));
+        line = string_concat(2); /* maybe need another Newline */
+      }
+      pushSTACK(line); funcall(L(make_string_input_stream),1);
+      /* make concatenated-stream: */
+      pushSTACK(value1); pushSTACK(*inputstream_);
+      funcall(L(make_concatenated_stream),2);
+      dynamic_bind(S(terminal_read_stream),value1);
+      terminal_read_stream_bound = true;
+      *inputstream_ = Symbol_value(S(terminal_read_stream));
+    } else if (streamp(Symbol_value(S(terminal_read_stream)))) {
+      var object stream = Symbol_value(S(terminal_read_stream));
+      Symbol_value(S(terminal_read_stream)) = unbound;
+      dynamic_bind(S(terminal_read_stream),stream);
+      terminal_read_stream_bound = true;
+      *inputstream_ = Symbol_value(S(terminal_read_stream));
     }
-   eof: # bei EOF angelangt
-    pushSTACK(STACK_4); pushSTACK(STACK_(0+1)); funcall(L(terminal_raw),2);
-    # (clear-input istream) ausführen (um bei interaktivem Stream das EOF zu
-    # schlucken: das fortzusetzende Programm könnte das EOF missverstehen):
-    clear_input(STACK_4);
-    VALUES2(T,T); /* (values T T) */
-    skipSTACK(4); return;
+   #endif  /* !defined(TERMINAL_USES_KEYBOARD) */
+    dynamic_bind(S(read_suppress),NIL); /* *READ-SUPPRESS* = NIL */
+    /* read object (recursive-p=NIL, whitespace-p=NIL): */
+    var object obj = stream_read(inputstream_,NIL,NIL);
+    dynamic_unbind(); /* S(read_suppress) */
+   #if !defined(TERMINAL_USES_KEYBOARD)
+    if (streamp(Symbol_value(S(terminal_read_stream)))) {
+      var object stream = Symbol_value(S(terminal_read_stream));
+      var object strm_l = TheStream(stream)->strm_concat_list;
+      if (terminal_read_stream_bound)
+        dynamic_unbind(); /* S(terminal_read_stream) */
+      Symbol_value(S(terminal_read_stream)) =
+        (consp(strm_l) && !nullp(Cdr(strm_l))
+         /* some input on the first line was not processed ? */
+         && (pushSTACK(T), pushSTACK(Car(strm_l)),
+             pushSTACK(NIL), pushSTACK(eof_value),
+             funcall(L(peek_char),4), !eq(value1,eof_value)))
+        ? stream : unbound;
+    }
+   #endif
+    dynamic_unbind(); /* S(key_bindings) */
+    if (!eq(obj,eof_value)) { /* EOF test (after whitespace) */
+      pushSTACK(obj);
+      pushSTACK(STACK_(4+1)); pushSTACK(STACK_(0+1+1)); funcall(L(terminal_raw),2);
+      /* delete input till EOL */
+      if (interactive_stream_p(STACK_(4+1))) {
+        while (ls_avail_p(listen_char(STACK_(4+1)))) {
+          var object ch = peek_char(&STACK_(4+1));
+          if (eq(ch,eof_value))
+            break;
+          read_char(&STACK_(4+1));
+          if (eq(ch,ascii_char(NL)))
+            break;
+        }
+      }
+      VALUES2(popSTACK(), NIL); /* (values obj NIL) */
+      skipSTACK(4);
+     #if STACKCHECKR
+      if (STACK != STACKbefore) /* verify if Stack is cleaned up */
+        abort(); /* if not --> go to Debugger */
+     #endif
+      return;
+    }
   }
+ eof: /* reached EOF */
+  pushSTACK(STACK_4); pushSTACK(STACK_(0+1)); funcall(L(terminal_raw),2);
+  /* call (CLEAR-INPUT istream) to eat EOF from an interactive stream,
+     because a continuable program could misunderstand the EOF: */
+  clear_input(STACK_4);
+  VALUES2(T,T); /* (values T T) */
+  skipSTACK(4);
+ #if STACKCHECKR
+  if (STACK != STACKbefore) /* verify that STACK is cleaned up */
+    abort(); /* if not --> go to Debugger */
+ #endif
+}
 
 # (SYS::READ-FORM prompt [commandlist])
 # liest eine Form (interaktiv) von *standard-input*.
@@ -240,9 +254,7 @@
 # Aliste) oder SYS::*KEY-BINDINGS* eingegeben werden.
 # Werte: form, NIL oder (bei EOF) T, T
 LISPFUN(read_form,1,1,norest,nokey,0,NIL)
-  {
-    read_form(); skipSTACK(2);
-  }
+{ read_form(); skipSTACK(2); }
 
 # (SYS::READ-EVAL-PRINT prompt [commandlist])
 # liest eine Form, wertet sie aus und gibt die Werte aus.
