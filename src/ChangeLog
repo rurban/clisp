@@ -1,15 +1,18 @@
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
-	* modules/wildcard/Makefile.in (FNMATCH_H): New variable.
-	(wildcard.o): Depend on it.
+	* lispbibl.d (<libintl.h>, array_total_size, instanceof, schar,
+	seclass_object): Omit these when COMPILE_STANDALONE is defined.
+	* makemake.in (txt, genclisph.o, clisp-test-lispbibl): Define
+	COMPILE_STANDALONE.
+	Needed to avoid dependencies to fehler_notreached() etc. with C
+	compilers that don't have 'inline' (such as Solaris cc), and on
+	NetBSD, BeOS, Woe32 with gettext >= 0.13 because <libintl.h> can
+	remap printf() to libintl_printf().
 
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
-	* makemake.in (txt, genclisph, clisp-test-lispbibl): Add ${LIBS} to the
-	link command line. Needed on NetBSD, BeOS, Woe32 with gettext >= 0.13
-	installed, because lispbibl.d include "gettext.h" which can remap
-	printf() to libintl_printf(), leading to link errors if libintl is not
-	part of the link.
+	* modules/wildcard/Makefile.in (FNMATCH_H): New variable.
+	(wildcard.o): Depend on it.
 
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
