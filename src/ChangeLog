@@ -1,3 +1,12 @@
+2004-04-28  Bruno Haible  <bruno@clisp.org>
+
+	Make DEBUG_GCSAFETY work with g++ 3.4.0.
+	* lispbibl.d (INIT_SUBR_TAB, INIT_SYMBOL_TAB, INIT_OBJECT_TAB): Treat
+	g++ 3.4 like g++ 3.3.
+	* spvw_garcol.d (gc_sweep1_sstring_target, gc_sweep1_instance_target):
+	Use assignment instead of initialization. Works around GCC bug #15180,
+	that will be fixed in GCC 3.5.
+
 2004-04-24  Bruno Haible  <bruno@clisp.org>
 
 	* loadform.lisp (mlf-init-function): Return a FUNCTION form with a
