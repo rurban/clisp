@@ -185,6 +185,10 @@ s(rexx_put)
 #endif
 v(1, (kw(verbose)))
 s(ensure_directories_exist)
+v(3, (kw(initial_contents),kw(count),kw(read_only)))
+s(foreign_allocate)
+v(1, (kw(full)))
+s(foreign_free)
 #ifdef DIR_KEY
 v(2, (kw(direction),kw(if_does_not_exist)))
 s(dir_key_open)

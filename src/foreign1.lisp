@@ -11,7 +11,7 @@
 (use-package '("COMMON-LISP" "EXT") "FFI")
 (in-package "FFI")
 
-(export '(def-c-type def-c-var
+(export '(def-c-type def-c-var parse-c-type deparse-c-type
           def-c-call-out def-call-out #+AMIGA def-lib-call-out
           def-c-call-in def-call-in default-foreign-language
           c-lines
@@ -24,6 +24,7 @@
           sizeof bitsizeof c-var-address offset
           validp foreign-address-null
           with-foreign-object with-c-var with-foreign-string
+          foreign-allocate allocate-deep allocate-shallow foreign-free
           foreign-address foreign-variable foreign-function))
 
 (eval-when (load compile eval)
@@ -33,7 +34,6 @@
   (import (intern "FINALIZE-COUTPUT-FILE" "COMPILER"))
   (import (intern "TEXT" "SYSTEM")) ; messages
   (import (intern "CHECK-SYMBOL" "SYSTEM")) ; error checking
-  (import (intern "DEPARSE-C-TYPE" "SYSTEM")) ; called by DESCRIBE
   (import (intern "FOREIGN-FUNCTION-IN-ARG-COUNT" "SYSTEM")) ; called by SYS::FUNCTION-SIGNATURE
 )
 
@@ -761,6 +761,18 @@
       (LAMBDA (,fv) (SYMBOL-MACROLET ((,var (FFI::FOREIGN-VALUE ,fv))) ,@body))
       (PARSE-C-TYPE ,c-type)
       . ,(if init-p (list init)))))
+
+;; ============================ heep allocation ============================
+
+(defmacro allocate-deep (ffi-type initval &rest keywords &key count read-only)
+  (declare (ignore count read-only))	; to be accessed via keywords
+  `(foreign-allocate (parse-c-type ,ffi-type)
+                     :initial-contents ,initval
+                     ,@keywords))
+
+(defmacro allocate-shallow (ffi-type &rest keywords &key count read-only)
+  (declare (ignore count read-only))	; to be accessed via keywords
+  `(foreign-alloc* (parse-c-type ,ffi-type) ,@keywords))
 
 ;; ============================ named C functions ============================
 

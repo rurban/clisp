@@ -2560,6 +2560,111 @@ LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL) {
   # values, mv_count are set by funcall
 }
 
+
+/* (FFI:FOREIGN-ALLOCATE c-type &key initial-contents count read-only)
+ Allocates memory. If initial-contents is set (even NIL), invokes
+ convert_from_foreign() to allocate an arbitrarily nested structure.
+ Otherwise performs a single calloc(). */
+LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
+        (kw(initial_contents),kw(count),kw(read_only)))
+{
+  var object arg_fvd = STACK_3;
+  /* If :COUNT then use c-type (C-ARRAY[-MAX] c-type count) */
+  if (!missingp(STACK_1)) {
+    var object array_fvd = allocate_vector(3);
+    TheSvector(array_fvd)->data[0] =
+      eq(arg_fvd,S(character)) ? S(c_array_max) : S(c_array);
+    TheSvector(array_fvd)->data[1] = arg_fvd;
+    TheSvector(array_fvd)->data[2] = STACK_1; /* count */
+    STACK_3 = arg_fvd = array_fvd;
+  }
+  foreign_layout(arg_fvd);
+  var uintL arg_size = data_size;
+  var uintL arg_alignment = data_alignment;
+  if (arg_size == 0) { fehler_eltype_zero_size(arg_fvd); }
+  /* Perform top-level allocation of sizeof(fvd), sublevel allocations follow */
+  var void* arg_address = xmalloc(arg_size);
+  blockzero(arg_address,arg_size);
+  /* Create FOREIGN-VARIABLE now so that it may be used in error message */
+  pushSTACK(make_faddress(allocate_fpointer(arg_address),0));
+  var object fvar = allocate_fvariable();
+  arg_fvd = STACK_(3+1);
+  TheFvariable(fvar)->fv_name    = TheSubr(subr_self)->name;
+  TheFvariable(fvar)->fv_address = STACK_0;
+  TheFvariable(fvar)->fv_size    = fixnum(arg_size);
+  TheFvariable(fvar)->fv_type    = arg_fvd;
+  { var bool readonly = !missingp(STACK_1);
+    record_flags_replace(TheFvariable(fvar), readonly ? fv_readonly : 0);
+    /* Must not set fv_malloc flag since it applies to sublevel structures only. */
+  }
+  /* Check alignment */
+  if (!(((uintP)arg_address & (arg_alignment-1)) == 0)) {
+    dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
+    pushSTACK(fvar);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
+  }
+  { /* :INITIAL-CONTENTS NIL also causes an initialization! */
+    var object initarg = STACK_3;
+    if (boundp(initarg)) {
+      STACK_0 = fvar;
+      convert_to_foreign_mallocing(arg_fvd,initarg,arg_address);
+      /* subr-self name is lost and GC may happen */
+      fvar = STACK_0;
+    }
+  }
+  /* Must not finalize foreign-pointer since some protocol (witness the
+     :malloc parameter declaration) may require foreign code to call free()
+     However, CormanLisp does finalize! */
+  VALUES1(fvar);
+  skipSTACK(5);
+}
+
+/* (FFI:FOREIGN-FREE foreign &key full)
+ Deallocate callbacks or memory (even recursively),
+ depending on argument type. */
+LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
+{
+  var object obj = popSTACK();
+  var bool full_recurse = !missingp(obj);
+  /* TODO? additional arguments [mark-invalid [silent]] */
+  obj = popSTACK();
+  if (orecordp(obj)) {
+    var void* address;
+    switch (Record_type(obj)) {
+      case Rectype_Ffunction:
+        /* Free callback object */
+        var object addr_obj = TheFfunction(obj)->ff_address;
+        address = Faddress_value(addr_obj);
+        free_foreign_callin(address);
+        VALUES1(NIL);
+        return;
+      case Rectype_Fvariable:
+        var object addr_obj = TheFvariable(obj)->fv_address;
+        address = Faddress_value(addr_obj);
+        if (full_recurse)
+          free_foreign(TheFvariable(obj)->fv_type,address);
+        goto free_address;
+      case Rectype_Faddress:
+        address = Faddress_value(obj);
+        if (full_recurse) {
+          pushSTACK(obj);
+          pushSTACK(TheSubr(subr_self)->name);
+          fehler(error,GETTEXT("~: ~ has no type, :FULL is illegal"));
+        }
+      free_address:
+        begin_system_call();
+        free(address);
+        end_system_call();
+        VALUES1(NIL);
+        return;
+    }
+  }
+  pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~: argument is not a foreign object: ~"));
+}
+
 # Error messages.
 nonreturning_function(local, fehler_foreign_function, (object obj)) {
   pushSTACK(obj);
