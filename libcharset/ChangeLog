@@ -1,3 +1,7 @@
+2002-06-06  Peter Burwood  <clisp@peterb.org.uk>
+
+	* configure.in: Call AC_LIBTOOL_WIN32_DLL.
+
 2001-12-04  Bruno Haible  <bruno@clisp.org>
 
 	* INTEGRATE: Change the install rule to not create $(libdir) if
