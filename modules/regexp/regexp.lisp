@@ -144,7 +144,10 @@ extern const char *mregerror (int errcode, const regex_t *preg);,
 extern void mregfree (regex_t *preg);
 ;|#
 
-(eval-when (compile load eval) (defconstant num-matches 10))
+(eval-when (compile load eval)
+  (defconstant num-matches 10)
+  (setq ffi:*output-c-functions* t ffi:*output-c-variables* t))
+
 (def-call-out mregcomp
     (:arguments (ppreg (c-ptr regex_t-ptr) :out)
                 (pattern c-string)
