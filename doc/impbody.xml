@@ -4195,10 +4195,9 @@ functions are provided:
 
 <para>&open; cannot handle files of size &ge; 4 GB.</para>
 
-<para>&open; accepts three additional keywords: &eltype;, &extfmt;,
-   &buffered;.</para>
+<para>&open; accepts an additional keyword &buffered;.</para>
 
-<variablelist><title>The acceptable values for the
+<variablelist><title>The acceptable values for the arguments to the
    &file-pipe-socket; functions</title>
  <varlistentry id="eltype"><term>&eltype;</term>
   <listitem><simpara>types equivalent to &character-t; or
@@ -4207,8 +4206,8 @@ functions are provided:
    <simpara>If &n-r; is not a multiple of 8, &clisp; will use the
     specified number of bits for i/o, and write the file length
     (as a number of &n-r;-bit bytes) in the preamble.</simpara>
-   <simpara>This is done to ensure the input/output consistency.
-    Suppose you open a file with &eltype; of <literal
+   <simpara>This is done to ensure the input/output consistency:
+    suppose you open a file with &eltype; of <literal
     role="type">(&unsigned-byte-t; 3)</literal> and write 7 bytes
     (i.e., 21 bit) there.
     The underlying OS can do input/output only in whole 8-bit bytes.
@@ -4667,7 +4666,7 @@ functions are provided:
 
 <para><literal role="sexp">(&compile-file;
   <replaceable>input-file</replaceable> &key-amp; &outfile-k;
-  :LISTING &warnings-k; &verbose-k; &print-k;)</literal>
+  :LISTING &warnings-k; &verbose-k; &print-k; &extfmt;)</literal>
 compiles a file to platform-independent bytecode.</para>
 
 <variablelist id="compile-file-arguments">
@@ -4739,16 +4738,17 @@ the first one!</para></warning>
 
 <section id="require"><title>Function &require;</title>
 
-<para>The function &require; receives as the optional argument either a
- pathname or a list of pathnames: files to be loaded if the required
- module is not already loaded.</para>
+<para>The function &require; receives as the optional argument either
+ a &pathname-t; or a &list-t; of &pathname-t;s: files to be &load;ed
+ if the required module is not already present.</para>
 
 <para>At compile time, <literal role="sexp">(&require; &foo-f;)</literal>
-forms are treated specially:  &load-paths; is searched for
+forms are treated specially: &load-paths; is searched for
 &foolisp-f; <emphasis>and</emphasis> <filename>#P"foo.lib"</filename>.
 If the latest such file is a &lisp-file;, it is compiled;
-otherwise the &lib-file; is loaded.
-The &lib-file; is a <quote>header</quote> file which contains the
+otherwise the &lib-file; is loaded.</para>
+
+<para>The &lib-file; is a <quote>header</quote> file which contains the
 constant, variable, inline and macro definitions necessary for
 compilation of the files that &require; this file, but not the function
 definitions and calls that are not necessary for that.
