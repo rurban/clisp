@@ -1650,6 +1650,7 @@ LISPSYM(special,"SPECIAL",lisp) /* declaration-specifier in EVAL */
 LISPSYM(source,"SOURCE",system) /* declaration-specifier in EVAL */
 LISPSYM(optimize,"OPTIMIZE",lisp) /* declaration-specifier in EVAL */
 LISPSYM(declaration,"DECLARATION",lisp) /* declaration-specifier in EVAL */
+LISPSYM(note_optimize,"NOTE-OPTIMIZE",system) /* function for CONTROL */
 LISPSYM(compile_lambda,"COMPILE-LAMBDA",system) /* function for EVAL */
 LISPSYM(expand_lambdabody_main,"%EXPAND-LAMBDABODY-MAIN",system) /* function for EVAL */
 LISPSYM(compile,"COMPILE",lisp) /* declaration-specifier and function for EVAL */

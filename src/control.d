@@ -2146,6 +2146,8 @@ LISPFUNN(proclaim,1)
       pushSTACK(STACK_2)/*decltype*/; funcall(L(put),3);
     }
     skipSTACK(1); /*decltype*/
+  } else if (eq(decltype,S(optimize))) {
+    pushSTACK(Cdr(STACK_0)); funcall(S(note_optimize),1);
   }
   /* the rest is ignored. */
   VALUES1(NIL); skipSTACK(1);
