@@ -403,7 +403,10 @@ Continue       :c       switch off single step mode, continue evaluation
            ;; T -> #<EOF>
            ;; NIL -> form is already evaluated
            ;;        result has been printed
-           (exit))))))
+           (if (interactive-stream-p *standard-input*)
+             (exit)           ; user typed EOF
+             (progn (setq *command-index* 0) ; reset *command-index*
+                    (return-from main-loop)))))))) ; and proceed
 
 (setq *driver* #'main-loop)
 
