@@ -25,14 +25,19 @@
 ;; right now DRIBBLE-STREAM is not a recognizable subtype of TWO-WAY-STREAM.
 ;; should it be?  should is be printed specially?
 (deftype dribble-stream () '(satisfies dribble-stream-p))
+(defun check-dribble-stream (obj caller)
+  (loop
+    (multiple-value-bind (so ta) (dribble-stream obj)
+      (when so (return-from check-dribble-stream (values so ta))))
+    (setq obj (check-value
+               nil (make-condition 'simple-type-error
+                     :format-control (TEXT "~S: ~S should be a ~S")
+                     :format-arguments (list caller obj 'dribble-stream)
+                     :datum obj :expected-type 'dribble-stream)))))
 (defun dribble-stream-source (ds)
-  (let ((so (dribble-stream ds)))
-    (unless so (error 'type-error :datum ds :expected-type 'dribble-stream))
-    so))
+  (check-dribble-stream ds 'dribble-stream-source))
 (defun dribble-stream-target (ds)
-  (let ((ta (nth-value 1 (dribble-stream ds))))
-    (unless ta (error 'type-error :datum ds :expected-type 'dribble-stream))
-    ta))
+  (nth-value 1 (check-dribble-stream ds 'dribble-stream-target)))
 (defun dribble-toggle (stream &optional file)
   (multiple-value-bind (so ta) (dribble-stream stream)
     (if so

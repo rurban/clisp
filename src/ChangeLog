@@ -1,5 +1,10 @@
 2003-05-16  Sam Steingold  <sds@gnu.org>
 
+	* dribble.lisp (check-dribble-stream): new function
+	(dribble-stream-source, dribble-stream-target): use it
+
+2003-05-16  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 737541 ]: describe on unnamed function and on macro
 	* describe.lisp (describe-object): MACRO:
 	suggest (DISASSEMBLE (MACRO-FUNCTION ...))
