@@ -3801,7 +3801,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
       var object p_device = xpathname_device(log2,STACK_2); # pathname-device
       var object d_device = xpathname_device(log1,STACK_1); # defaults-device
       if (equal(p_device,d_device)) { # beide Devices gleich ?
-        SET_NEWP(pathname_device,NIL); # new-device := NIL
+        if (!log2) ThePathname(newp)->pathname_device = NIL;
     #endif
         {
           var object p_directory = xpathname_directory(log2,STACK_2); # pathname-directory
@@ -3855,7 +3855,6 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
         # new-device := pathname-device
         # new-directory := pathname-directory
         if (log2) {
-          TheLogpathname(newp)->pathname_device = p_device;
           TheLogpathname(newp)->pathname_directory =
             TheLogpathname(STACK_2)->pathname_directory;
         } else {
@@ -3874,10 +3873,6 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
         # new-directory := pathname-directory
         if (log2) {
           TheLogpathname(newp)->pathname_host = p_host;
-         #if HAS_DEVICE
-          TheLogpathname(newp)->pathname_device =
-            TheLogpathname(STACK_2)->pathname_device;
-         #endif
           TheLogpathname(newp)->pathname_directory =
             TheLogpathname(STACK_2)->pathname_directory;
         } else {
