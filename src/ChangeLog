@@ -1,3 +1,8 @@
+2004-05-07  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in (CC_CPLUSPLUS): New variable.
+	(XCFLAGS): When using g++ >= 3.4, add -Wno-invalid-offsetof.
+
 2004-05-05  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in: Use "sed -n -e '$p'" instead of "tail -n 1".
