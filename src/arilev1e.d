@@ -50,9 +50,9 @@ extern void not_loop_up (uintD* xptr, uintC count);
 
 #ifdef TEST_LOOPS
 
-extern bool and_test_loop_up (const uintD* xptr, const uintD* yptr, uintC count);
+extern /*bool*/int and_test_loop_up (const uintD* xptr, const uintD* yptr, uintC count);
 
-extern bool test_loop_up (const uintD* ptr, uintC count);
+extern /*bool*/int test_loop_up (const uintD* ptr, uintC count);
 
 extern signean compare_loop_up (const uintD* xptr, const uintD* yptr, uintC count);
 

@@ -254,8 +254,8 @@
 # and_test_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr durch AND
 # und testet, ob sich dabei ein Digit /=0 ergibt. Ergebnis /=0, falls ja.
-  local bool and_test_loop_up (const uintD* xptr, const uintD* yptr, uintC count);
-  inline local bool and_test_loop_up(xptr,yptr,count)
+  local /*bool*/int and_test_loop_up (const uintD* xptr, const uintD* yptr, uintC count);
+  inline local /*bool*/int and_test_loop_up(xptr,yptr,count)
     var const uintD* xptr;
     var const uintD* yptr;
     var uintC count;
@@ -271,8 +271,8 @@
 # test_loop_up(ptr,count)
 # testet count (uintC>=0) Digits aufwärts ab ptr, ob darunter eines /=0 ist.
 # Ergebnis /=0, falls ja.
-  local bool test_loop_up (const uintD* ptr, uintC count);
-  inline local bool test_loop_up(ptr,count)
+  local /*bool*/int test_loop_up (const uintD* ptr, uintC count);
+  inline local /*bool*/int test_loop_up(ptr,count)
     var const uintD* ptr;
     var uintC count;
     {
