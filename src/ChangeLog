@@ -1,3 +1,28 @@
+2002-05-10  Bruno Haible  <bruno@clisp.org>
+
+	* ../configure: Configure libcharset, not libiconv.
+	* configure.in: Call AM_GNU_GETTEXT, in order to get use an external
+	GNU gettext. Call AM_ICONV instead of CL_ICONV.
+	* m4/iconv.m4: Update from GNU gettext 0.11.2.
+	* m4/codeset.m4, m4/gettext.m4, m4/glibc21.m4, m4/isc-posix.m4,
+	m4/lcmessage.m4, m4/lib-ld.m4, m4/lib-link.m4, m4/lib-prefix.m4,
+	m4/progtest.m4: New files, from GNU gettext 0.11.2.
+	* makemake.in: Pay attention to CPPFLAGS. New variable XCPPFLAGS.
+	(USE_LIBICONV, XCL_ICONVLIB): Remove variables.
+	(USE_LIBCHARSET, XCL_CHARSETLIB): New variables.
+	(GETTEXTLIB): Remove variable.
+	(USE_GETTEXT, XCL_GETTEXTLIB): Assume external libintl.
+	(EVERY_INCLUDES_H): Don't include libintl.h and iconv.h, they are
+	external now. Instead include libcharset.h.
+	(${GETTEXTLIB}, libintl.a, libintl.h): Remove targets.
+	(iconv.h, libiconv.a): Remove targets.
+	(libcharset.a): New target.
+	(distmakefile): No need for localesed processing.
+	* lispbibl.d (GNU_LIBICONV): Define only when including <iconv.h>
+	shows that GNU libiconv is used. Otherwise, if not glibc >= 2.2,
+	undefine HAVE_ICONV.
+	* _distmakefile: Use 'share' instead of @DATADIRNAME@.
+
 2002-05-08  Sam Steingold  <sds@gnu.org>
 
 	* gettext/po/Makefile.devel: use msguniq from GNU gettext 0.11

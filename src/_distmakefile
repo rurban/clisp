@@ -26,8 +26,8 @@ lisplibdir = $(libdir)/clisp
 #ifdef GNU_GETTEXT
 # If you have $(exec_prefix) different from $(prefix), and indend to use
 # different versions of CLISP on different architectures, replace the
-# following line with:  datadir = $(exec_prefix)/@DATADIRNAME@
-datadir = $(prefix)/@DATADIRNAME@
+# following line with:  datadir = $(exec_prefix)/share
+datadir = $(prefix)/share
 localedir = $(datadir)/locale
 #endif
 
