@@ -1,5 +1,12 @@
 2004-02-20  Sam Steingold  <sds@gnu.org>
 
+	fixed file renaming on UNIX
+	* pathname.d (rename_file): check that the old name exists and
+	use rename_existing_file() instead of rename_file_to_nonexisting()
+	(rename_file_to_nonexisting): removed
+
+2004-02-20  Sam Steingold  <sds@gnu.org>
+
 	* record.d (SLOT-BOUNDP): when slot is missing, return the
 	boolean equivalent of the return value of SLOT-MISSING, per ANSI
 

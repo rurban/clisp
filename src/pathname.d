@@ -402,28 +402,6 @@ local inline void rename_existing_file (char* old_pathstring,
  #endif
 }
 
-/* Rename a file.
- rename_file_to_nonexisting(old_pathstring,new_pathstring);
- It is known that new_pathstring does not exist.
- > old_pathstring: old file name, ASCIZ-String
- > new_pathstring: new file name, ASCIZ-String
- > STACK_3: old pathname
- > STACK_1: new pathname */
-local inline void rename_file_to_nonexisting (char* old_pathstring,
-                                              char* new_pathstring) {
- #ifdef WIN32_NATIVE
-  begin_system_call();
-  if (! MoveFile(old_pathstring,new_pathstring) ) {
-    if (WIN32_ERROR_NOT_FOUND) {
-      end_system_call(); OS_file_error(STACK_3);
-    } else {
-      end_system_call(); OS_file_error(STACK_1);
-    }
-  }
-  end_system_call();
- #endif
-}
-
 /* ========================================================================
                          P A T H N A M E S */
 
@@ -5960,6 +5938,8 @@ local void rename_file (void) {
     var object old_namestring = true_namestring(oldpathname,true,false);
     if (openp(STACK_0)) /* do not rename open files! */
       { fehler_rename_open(STACK_0); }
+    if (!file_exists(old_namestring))
+      fehler_file_not_exists();
     pushSTACK(old_namestring);
   }
   /* stack layout: filename, newname, oldpathname, newpathname,
@@ -5981,7 +5961,7 @@ local void rename_file (void) {
    now it can be renamed without risk: */
   with_sstring_0(STACK_2,O(pathname_encoding),oldnamestring_asciz, {
     with_sstring_0(STACK_0,O(pathname_encoding),newnamestring_asciz, {
-      rename_file_to_nonexisting(oldnamestring_asciz,newnamestring_asciz);
+      rename_existing_file(oldnamestring_asciz,newnamestring_asciz);
     });
   });
 }
