@@ -217,9 +217,7 @@ static const signed char nonspacing_table_ind[240] = {
 
 /* Determine number of column positions required for UC.  */
 int
-uc_width (uc, encoding)
-     ucs4_t uc;
-     const char *encoding;
+uc_width (ucs4_t uc, const char *encoding)
 {
   /* Test for non-spacing or control character.  */
   if ((uc >> 9) < 240)

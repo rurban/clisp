@@ -14,6 +14,14 @@
 	* m4/signal.m4 (RL_RETSIGTYPE): Make it work better with CC=g++.
 	* m4/strlen.m4 (CL_STRLEN): Make it work better with CC=g++.
 
+	* cjk.h (is_cjk_encoding): Convert declaration to ANSI C.
+	* uniname.c (unicode_name_word, unicode_name_word_lookup,
+	unicode_character_name, unicode_name_character): Convert declaration
+	to ANSI C.
+	* uniname.h (unicode_character_name, unicode_name_character): Convert
+	declaration to ANSI C.
+	* width.c (uc_width): Likewise.
+
 2002-12-01  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (check_wr_char): new macro (used in 18 places)

@@ -26,13 +26,11 @@
 
 /* Looks up the name of a Unicode character, in uppercase ASCII.
    Returns the filled buf, or NULL if the character does not have a name.  */
-extern char *
-       unicode_character_name PARAMS ((ucs4_t uc, char *buf));
+extern char * unicode_character_name (ucs4_t uc, char *buf);
 
 /* Looks up the Unicode character with a given name, in upper- or lowercase
    ASCII.  Returns the character if found, or UNINAME_INVALID if not found.  */
-extern ucs4_t
-       unicode_name_character PARAMS ((const char *name));
+extern ucs4_t unicode_name_character (const char *name);
 #define UNINAME_INVALID ((ucs4_t) 0xFFFF)
 
 #endif /* _UNINAME_H */
