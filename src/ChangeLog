@@ -1,5 +1,11 @@
 1999-01-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * pathname.d (create_new_file, open_input_file, open_output_file): New
+          functions.
+          (open_file): Use them.
+
+1999-01-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (write_byte_array_b_file): New function, renamed from
           write_byte_array_iau8_file.
           (write_char_array_ch_file, write_byte_array_b_file): Use it.
