@@ -1,3 +1,7 @@
+2003-07-28  Stefan Kain  <stefan.kain@freenet.de>
+
+	* flo_rest.d: translated all comments
+
 2003-07-28  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (directory_search) [WIN32_NATIVE]: save some consing
