@@ -1,5 +1,9 @@
 1999-07-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in (clisp.html): Substitute CLHSROOT, like in impnotes.html.
+
+1999-07-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (wr_ch_unbuffered_dos, wr_ch_buffered_dos): Output crlf
           only when obj is #\Newline.
 

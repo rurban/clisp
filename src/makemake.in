@@ -2992,6 +2992,9 @@ for f in $TXT_FILES ; do
       # On Win32, no grep installed. The blank lines don't hurt.
     fi
   fi
+  if [ $f = clisp.html ] ; then
+    line=$line" | sed -e 's,HREF=\"CLHSROOT/,HREF=\"${hyperspec}/,'"
+  fi
   if [ $f = distmakefile ] ; then
     if [ -n "$USE_GETTEXT" ] ; then
       localesed=" -e '${gettext_datadirname_sedcommand}'"
