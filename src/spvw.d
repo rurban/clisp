@@ -1487,6 +1487,9 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             #if (base_char_code_limit == char_code_limit)
               " :BASE-CHAR=CHARACTER"
             #endif
+            #ifdef EXPORT_SYSCALLS
+              " :SYSCALLS"
+            #endif
             #ifdef AMIGA
               " :AMIGA"
             #endif

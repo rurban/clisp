@@ -9,6 +9,9 @@ User visible changes
 
 * Fixed a bug in TRANSLATE-PATHNAME: Substitution of "**" did not work.
 
+* When configured with --with-export-syscalls, :syscalls is in *features* and
+  functions lisp:resolve-ip-addr, lisp:user-data, lisp:file-stat are available.
+
 Other modifications
 -------------------
 
