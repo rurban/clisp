@@ -585,7 +585,7 @@ LISPFUNN(make_macro,1)
   {
     var object m = allocate_macro();
     var object arg = popSTACK();
-    if (!(subrp(arg) || closurep(arg) || ffunctionp(arg))) # Test for FUNCTIONP
+    if (!functionp(arg))
       fehler_function(arg);
     TheMacro(m)->macro_expander = arg;
     value1 = m; mv_count=1;
@@ -628,13 +628,13 @@ LISPFUNN(make_function_macro,2)
     var object m = allocate_functionmacro();
     {
       var object arg = STACK_1;
-      if (!(subrp(arg) || closurep(arg) || ffunctionp(arg))) # Test for FUNCTIONP
+      if (!functionp(arg))
         fehler_function(arg);
       TheFunctionMacro(m)->functionmacro_function = arg;
     }
     {
       var object arg = STACK_0;
-      if (!(subrp(arg) || closurep(arg) || ffunctionp(arg))) # Test for FUNCTIONP
+      if (!functionp(arg))
         fehler_function(arg);
       TheFunctionMacro(m)->functionmacro_macro_expander = arg;
     }
