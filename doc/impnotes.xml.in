@@ -121,6 +121,8 @@
     <row><entry>&lalist; keyword</entry><entry>&key-amp;</entry></row>
     <row><entry>Declaration</entry><entry>&ftype-dec;</entry></row>
     <row><entry>Package</entry><entry>&clu-pac;</entry></row>
+    <row><entry>Real file</entry><entry>&config-lisp;</entry></row>
+    <row><entry>Abstract file</entry><entry>&c-file;</entry></row>
     <row><entry>Code (you are likely to type it)</entry>
      <entry><code>(&cons; 1 2)</code></entry></row>
     <row><entry>Data (&clisp; is likely to print it)</entry>

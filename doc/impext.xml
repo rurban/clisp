@@ -1466,8 +1466,8 @@ In other words, each pair is:
 <section id="macros3"><title>Additional Fancy Macros</title>
 
 <para>&clisp; comes with some extension macros, mostly defined in the
- file <filename>macros3.lisp</filename> and loaded from the file
- <filename>init.lisp</filename> during &make;:</para>
+ file &macros3-lisp; and loaded from the file &init-lisp; during
+ &make;:</para>
 
 <formalpara id="ethe"><title>Macro &ethe;</title>
 <para><code>(&ethe; &val-type-r; &form-r;)</code>
@@ -1563,7 +1563,7 @@ here <function>WITH-FOO</function> does not receive the
 <formalpara id="html-http-output">
      <title>Macros <function>EXT:WITH-HTML-OUTPUT</function> and
                    <function>EXT:WITH-HTTP-OUTPUT</function></title>
-<para>Defined in <filename>inspect.lisp</filename>, these macros are useful
+<para>Defined in &inspect-lisp;, these macros are useful
  for the rudimentary &http; server defined there.</para></formalpara>
 
 </section>

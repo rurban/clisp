@@ -703,11 +703,11 @@
 <!ENTITY mem-file "<filename>#P&quot;.mem&quot;</filename>">
 <!ENTITY c-file "<filename>#P&quot;.c&quot;</filename>">
 <!ENTITY lib-file "<link linkend='require'><filename>#P&quot;.lib&quot;</filename></link>">
-<!ENTITY config-file "<link linkend='customize'><filename>#P&quot;config.lisp&quot;</filename></link>">
-<!ENTITY make-file "<filename>#P&quot;Makefile&quot;</filename>">
-<!ENTITY lispinit "<link linkend='image'><filename>#P&quot;lispinit.mem&quot;</filename></link>">
+<!ENTITY config-file "<link linkend='customize'><filename>config.lisp</filename></link>">
+<!ENTITY make-file "<filename>Makefile</filename>">
+<!ENTITY lispinit "<link linkend='image'><filename>lispinit.mem</filename></link>">
 <!ENTITY lisp-run "<filename>lisp.run</filename>">
-<!ENTITY clisp-h "<link linkend='clisp-h'><filename>#P&quot;clisp.h&quot;</filename></link>">
+<!ENTITY clisp-h "<link linkend='clisp-h'><filename>clisp.h</filename></link>">
 
 <!-- *** pathnames *** -->
 <!ENTITY file-star  "<filename>&quot;*&quot;</filename>">
@@ -755,7 +755,20 @@
 <!ENTITY foo-f "<filename>#P&quot;foo&quot;</filename>">
 <!ENTITY bar-f "<filename>#P&quot;bar&quot;</filename>">
 <!ENTITY foolisp-f "<filename>#P&quot;foo.lisp&quot;</filename>">
-
+<!-- *** clisp sources *** -->
+<!ENTITY bytecode-d "<link linkend='bytecode-d'><filename>bytecode.d</filename></link>">
+<!ENTITY config-lisp "<link linkend='config-lisp'><filename>config.lisp</filename></link>">
+<!ENTITY constobj-d "<link linkend='constobj-d'><filename>constobj.d</filename></link>">
+<!ENTITY constsym-d "<link linkend='constsym-d'><filename>constsym.d</filename></link>">
+<!ENTITY eval-d "<link linkend='eval-d'><filename>eval.d</filename></link>">
+<!ENTITY fsubr-d "<link linkend='fsubr-d'><filename>fsubr.d</filename></link>">
+<!ENTITY init-lisp "<link linkend='init-lisp'><filename>init.lisp</filename></link>">
+<!ENTITY inspect-lisp "<link linkend='inspect-lisp'><filename>inspect.lisp</filename></link>">
+<!ENTITY macros3-lisp "<link linkend='macros3-lisp'><filename>macros3.lisp</filename></link>">
+<!ENTITY news "<link linkend='src-news'><filename>src/NEWS</filename></link>">
+<!ENTITY spvw-d "<link linkend='spvw-d'><filename>spvw.d</filename></link>">
+<!ENTITY subr-d "<link linkend='subr-d'><filename>subr.d</filename></link>">
+<!ENTITY subrkw-d "<link linkend='subrkw-d'><filename>subrkw.d</filename></link>">
 
 <!-- *** shortcuts *** -->
 <!ENTITY signed-byte-16 "<literal role='type'>(&signed-byte-t; 16)</literal>">

@@ -7,19 +7,22 @@
 <section id="scr-file-types"><title>File Types</title>
 
 <variablelist>
-<varlistentry><term><filename>*.d</filename></term>
+<varlistentry><term><filename>#P"*.d"</filename></term>
  <listitem><simpara>The source files for unpreprocessed &c-lang;
    code.</simpara></listitem></varlistentry>
-<varlistentry><term><filename>*.c</filename></term>
+<varlistentry><term>&c-file;</term>
  <listitem><simpara>The &c-lang; code after preprocessing
    by <command>comment5</command> and <command>varbrace</command>.
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>*.lisp</filename></term>
+<varlistentry><term>&lisp-file;</term>
  <listitem><simpara>The source files for Lisp
    code.</simpara></listitem></varlistentry>
-<varlistentry><term><filename>*.fas</filename></term>
+<varlistentry><term><filename>#P"*.fas"</filename></term>
  <listitem><simpara>Compiled lisp code (platform-independent).
 </simpara></listitem></varlistentry>
+<varlistentry><term>&lib-file;</term>
+ <listitem><simpara>Lisp <quote>header</quote>, produced by
+ &compile-file; and used by &require;</simpara></listitem></varlistentry>
 </variablelist>
 </section>
 
@@ -32,10 +35,10 @@
 <variablelist>
 <varlistentry><term><filename>lispbibl.d</filename></term>
  <listitem><simpara>main include file</simpara></listitem></varlistentry>
-<varlistentry><term><filename>fsubr.d</filename></term>
+<varlistentry id="fsubr-d"><term>&fsubr-d;</term>
  <listitem><simpara>list of all built-in special forms
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>subr.d</filename></term>
+<varlistentry id="subr-d"><term>&subr-d;</term>
  <listitem><simpara>list of all built-in functions
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>pseudofun.d</filename></term>
@@ -44,10 +47,10 @@
 <varlistentry><term><filename>constpack.d</filename></term>
  <listitem><simpara>list of packages accessed by &c-lang; code
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>constsym.d</filename></term>
+<varlistentry id="constsym-d"><term>&constsym-d;</term>
  <listitem><simpara>list of symbols accessed by &c-lang; code
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>constobj.d</filename></term>
+<varlistentry id="constobj-d"><term>&constobj-d;</term>
  <listitem><simpara>list of miscellaneous objects accessed by &c-lang; code
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>unix.d</filename></term>
@@ -68,14 +71,14 @@
 <section id="src-modules"><title>Modules</title>
 
 <variablelist>
-<varlistentry><term><filename>spvw.d</filename></term>
+<varlistentry id="spvw-d"><term>&spvw-d;</term>
  <listitem><para>Memory management (&gc;ion), startup; some OS interface.
    <variablelist><varlistentry><term><filename>avl.d</filename></term>
      <listitem><simpara>An implementation of AVL (Adelson-Velskii and
        Landis) trees.</simpara></listitem></varlistentry>
     <varlistentry><term><filename>sort.d</filename></term>
      <listitem><simpara>A sorting routine.</simpara></listitem></varlistentry>
-    <varlistentry><term><filename>subrkw.d</filename></term>
+    <varlistentry id="subrkw-d"><term>&subrkw-d;</term>
      <listitem><simpara>The list of all built-in functions with keywords
        in &lalist;.</simpara></listitem></varlistentry></variablelist>
 </para></listitem></varlistentry>
@@ -88,9 +91,9 @@
 <varlistentry><term><filename>spvwtabo.d</filename></term>
  <listitem><simpara>The table of miscellaneous objects accessed by
    &c-lang; code.</simpara></listitem></varlistentry>
-<varlistentry><term><filename>eval.d</filename></term>
+<varlistentry id="eval-d"><term>&eval-d;</term>
  <listitem><para>Evaluator (form interpreter) and bytecode interpreter.
-   <variablelist><varlistentry><term><filename>bytecode.d</filename></term>
+   <variablelist><varlistentry id="bytecode-d"><term>&bytecode-d;</term>
      <listitem><simpara>List of bytecodes.</simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 <varlistentry><term><filename>control.d</filename></term>
@@ -337,7 +340,7 @@
 <section id="src-lisp"><title>Lisp source files</title>
 
 <variablelist>
-<varlistentry><term><filename>init.lisp</filename></term>
+<varlistentry id="init-lisp"><term>&init-lisp;</term>
  <listitem><simpara>the first file to be loaded during bootstrapping,
  loads everything else</simpara></listitem></varlistentry>
 <varlistentry><term><filename>defseq.lisp</filename></term>
@@ -406,10 +409,10 @@
 <varlistentry><term><filename>trace.lisp</filename></term>
  <listitem><simpara><link linkend="trace">tracer</link>
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>macros3.lisp</filename> (optional)</term>
+<varlistentry id="macros3-lisp"><term>&macros3-lisp; (optional)</term>
  <listitem><simpara>the macros &letf;, &letf-star; and &ethe;
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>config.lisp</filename></term>
+<varlistentry id="config-lisp"><term>&config-lisp;</term>
  <listitem><para>(user written) site-dependent configuration,
    may be a link to one of the following:<variablelist>
     <varlistentry><term><filename>cfgsunux.lisp</filename></term>
@@ -567,6 +570,9 @@
 <varlistentry><term><filename>edit.lisp</filename> (optional)</term>
  <listitem><simpara>the screen editor (&ed;), &uncompile;
 </simpara></listitem></varlistentry>
+<varlistentry id="inspect-lisp"><term>&inspect-lisp;</term>
+ <listitem><simpara>implements &inspect; (tty and &http; frontends)
+</simpara></listitem></varlistentry>
 <varlistentry><term><filename>threads.lisp</filename></term>
  <listitem><simpara>MT interface</simpara></listitem></varlistentry>
 <varlistentry><term><filename>spanish.lisp</filename></term>
@@ -589,7 +595,7 @@
 <section id="src-doc"><title>Documentation</title>
 
 <variablelist>
-<varlistentry><term><filename>src/NEWS</filename></term>
+<varlistentry id="src-news"><term>&news;</term>
  <listitem><simpara>the list of the user-visible changes
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>src/_README</filename></term>
@@ -601,19 +607,19 @@
     </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 <varlistentry><term><filename>doc/clisp.xml.in</filename></term>
- <listitem><simpara>Docbook sources for the &clisp; manual page
+ <listitem><simpara>&docbook;/&xml; sources for the &clisp; manual page
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>src/_clisp.1</filename></term>
- <listitem><simpara>the distribution's manual page,
-   generated from <filename>doc/clisp.xml.in</filename> at build time
-</simpara></listitem></varlistentry>
+ <listitem><simpara>the platform-specific &man; manual page,
+   generated from <filename>doc/clisp.xml.in</filename>
+   at <emphasis>build</emphasis> time</simpara></listitem></varlistentry>
 <varlistentry><term><filename>src/_clisp.html</filename></term>
- <listitem><simpara>the distribution's manual page in HTML format,
-   generated from <filename>doc/clisp.xml.in</filename> at build time
-</simpara></listitem></varlistentry>
+ <listitem><simpara>the platform-specific &html; manual page,
+   generated from <filename>doc/clisp.xml.in</filename>
+   at <emphasis>build</emphasis> time</simpara></listitem></varlistentry>
 <varlistentry><term><filename>doc/impnotes.xml.in</filename></term>
- <listitem><para>the master file for these implementation notes,
-   includes the following files<variablelist>
+ <listitem><para>the master &docbook;/&xml; file for these
+   implementation notes; includes the following files<variablelist>
     <varlistentry><term><filename>doc/cl-ent.xml</filename></term>
      <listitem><simpara>&clisp;-independent general &cl;-related entities
     </simpara></listitem></varlistentry>
@@ -652,9 +658,9 @@
     </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 <varlistentry><term><filename>doc/impnotes.html</filename></term>
- <listitem><simpara>the implementation notes,
-   generated from <filename>doc/impnotes.xml.in</filename> at release time
-</simpara></listitem></varlistentry>
+ <listitem><simpara>these &html; implementation notes,
+   generated from <filename>doc/impnotes.xml.in</filename>
+   at <emphasis>release</emphasis> time</simpara></listitem></varlistentry>
 </variablelist></section>
 
 <section id="src-i18n"><title>Internationalization</title>
@@ -721,8 +727,8 @@
 
 <para>Knowing that most &malloc; implementations are buggy and/or slow,
 and because &clisp; needs to perform &gc;ion, &clisp; has its
-own memory management subsystem in
-files <filename>#P"spvw*.d"</filename>.</para>
+own memory management subsystem in files <filename>spvw*.d</filename>,
+see <xref linkend="src-modules"/>.</para>
 
 </section>
 
@@ -1100,23 +1106,23 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
  <itemizedlist><listitem><simpara>add the <function>LISPFUN</function>
     form and the implementation there;</simpara></listitem>
   <listitem><simpara>add the <function>LISPFUN</function> header to
-    file <filename>#P"subr.d"</filename>;</simpara></listitem>
+    file &subr-d;;</simpara></listitem>
   <listitem><simpara>declare the function name in file
-    <filename>#P"constsym.d"</filename> in the appropriate package
+    &constsym-d; in the appropriate package
     (probably &ext-pac;, if there is no specific package);
   </simpara></listitem>
   <listitem><simpara>if your function accepts keyword arguments,
     then an appropriate pair of forms must be added
-    to <filename>#P"subrkw.d"</filename> and you must make sure that the
-    keyword symbols are declared in <filename>#P"constsym.d"</filename>;
+    to &subrkw-d; and you must make sure that the
+    keyword symbols are declared in &constsym-d;;
   </simpara></listitem>
   <listitem><simpara>export your function name from the appropriate
-    package in file <filename>#P"init.lisp"</filename>;</simpara></listitem>
+    package in file &init-lisp;;</simpara></listitem>
   <listitem><simpara>when you are done, you should run <command>make
      check-sources</command> in your build directory: this will check
     that the definitions (source files) and the declarations
-    (<filename>#P"subr.d"</filename>, <filename>#P"subrkw.d"</filename>
-    and <filename>#P"fsubr.d"</filename>) are in sync.</simpara></listitem>
+    (&subr-d;, &subrkw-d;
+    and &fsubr-d;) are in sync.</simpara></listitem>
 </itemizedlist></para>
 
 <warning><para>Be very careful with the <emphasis>GC-unsafe</emphasis>
@@ -1132,15 +1138,14 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 <para>If you must be able to access the Lisp variable in the &c-lang;
  code, follow these steps:
  <itemizedlist><listitem><simpara>declare the variable name
-    in <filename>#P"constsym.d"</filename> in the appropriate package
+    in &constsym-d; in the appropriate package
     (probably &custom-pac;, if there is no specific package);
   </simpara></listitem>
   <listitem><simpara>add a <function>define_variable()</function> call
     in function <function>init_symbol_values()</function>
-    in file <filename>#P"spvw.d"</filename>;</simpara></listitem>
+    in file &spvw-d;;</simpara></listitem>
   <listitem><simpara>export your variable name from the appropriate
-    package in file <filename>#P"init.lisp"</filename>;
-</simpara></listitem></itemizedlist></para>
+    package in file &init-lisp;;</simpara></listitem></itemizedlist></para>
 </section>
 
 <section id="recompile"><title>Recompilation.</title>
@@ -1153,21 +1158,21 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 
 <para>On the other hand, if you change any of the following files:
  <simplelist>
-  <member><filename>#P"constobj.d"</filename></member>
-  <member><filename>#P"constsym.d"</filename></member>
-  <member><filename>#P"fsubr.d"</filename></member>
-  <member><filename>#P"subr.d"</filename></member>
-  <member><filename>#P"subrkw.d"</filename></member></simplelist>
+  <member>&constobj-d;</member>
+  <member>&constsym-d;</member>
+  <member>&fsubr-d;</member>
+  <member>&subr-d;</member>
+  <member>&subrkw-d;</member></simplelist>
  your &lispinit; will <emphasis>have</emphasis> to be re-dumped.</para>
 
 <warning id="byte-version"><para>If you change the signature of any
  system function mentioned in the <varname>FUNTAB</varname> arrays in
- file <filename>#P"eval.d"</filename>, all the &fasl-file; files will
+ file &eval-d;, all the &fasl-file; files will
  become obsolete and will need to be recompiled.
  You will need to add a note to that effect to
- the <filename>#P"NEWS"</filename> file
+ the &news; file
  and augment the object <literal>version</literal> in
- file <filename>#P"constsym.d"</filename>.
+ file &constsym-d;.
   Please try to avoid this as much as possible.</para></warning>
 </section>
 
@@ -1439,8 +1444,7 @@ nevertheless, through the use of &load-time-value;.)</para>
 some number of operands.</para>
 
 <para>The conversion from a byte (in the range 0..255) to the opcode is
-performed by lookup in the table contained in the file
-<filename>#P"bytecode.d"</filename>.</para>
+performed by lookup in the table contained in the file &bytecode-d;.</para>
 
 <para>There are the following types of operands, denoted by different
 letters:
