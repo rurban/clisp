@@ -646,6 +646,8 @@ global host_data * socket_getlocalname (SOCKET socket_handle, host_data * hd,
     get_hostname(host =); # was: host = "localhost";
     ASSERT(strlen(host) <= MAXHOSTNAMELEN);
     strcpy(hd->truename,host);
+  } else {
+    hd->truename[0] = '\0';
   }
   return hd;
 }
