@@ -1,3 +1,8 @@
+1999-03-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d (SOCKET-SERVICE-PORT): When not found, return NIL instead
+          of -1.
+
 1999-03-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Handle SIGPIPE on Unix.
