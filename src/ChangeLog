@@ -1,3 +1,9 @@
+2004-07-13  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (main): renamed floor() to ifloor() to avoid
+	conflict with POSIX <math.h> floor()
+	Reported by John Hinsdale <hin@alma.com>
+
 2004-07-13  John Hinsdale <hin@alma.com>
 
 	* modules/oracle/orafns.c: Fix bugs in error reporting; use better
