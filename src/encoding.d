@@ -2398,6 +2398,7 @@ global void init_dependent_encodings(void) {
   skipSTACK(1);
 #else /* no UNICODE */
   O(default_file_encoding) = encoding_from_name(NULL,NULL);
+  O(terminal_encoding) = encoding_from_name(NULL,NULL);
 #endif
 }
 
