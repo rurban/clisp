@@ -26,6 +26,8 @@ CLASSPATH=$(XALAN)/bin/xerces.jar$(SEP)$(XALAN)/bin/xalan.jar$(SEP)$(SAXON)/saxo
 
 DBHOME=$(XMLHOME)/db4xml
 
+TEXI2HTML=../src/readline/doc/texi2html
+
 # this is the original DTD
 # DBHOME="http://www.oasis-open.org/docbook/xml/$(DTDVER)"
 
@@ -35,7 +37,7 @@ DBHOME=$(XMLHOME)/db4xml
 #  or
 # http://users.iclway.co.uk/mhkay/saxon/
 
-all: check impnotes.html regexp.html
+all: check impnotes.html regexp.html wildcard.html
 
 impnotes.xml: impnotes.xml.in Makefile
 	$(RM) $@
@@ -60,9 +62,11 @@ impnotes.html: impnotes.xml $(IMPNOTES)
 #		-xsl "file://$(XMLHOME)/docbook.xsl/html/docbook.xsl"
 	tidy -wrap 75 -m impnotes.html || true
 
-regexp.html: ../modules/regexp/regexp.texinfo ../src/readline/doc/texi2html
-	perl ../src/readline/doc/texi2html -monolithic -verbose \
-		../modules/regexp/regexp.texinfo
+regexp.html: ../modules/regexp/regexp.texinfo $(TEXI2HTML)
+	perl $(TEXI2HTML) -monolithic -verbose $<
+
+wildcard.html: ../modules/wildcard/wildcard.texinfo $(TEXI2HTML)
+	perl $(TEXI2HTML) -monolithic -verbose $<
 
 clean: force
 	$(RM) impnotes.xml impnotes.texi impnotes.html
