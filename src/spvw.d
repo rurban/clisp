@@ -3083,19 +3083,21 @@ static struct argv_actions argv2;
   #define argc_t int  # Type of argc is mostly 'int'.
 #endif
 global int main (argc_t argc, char* argv[]) {
-  # initialization of memory management.
-  # overall procedure:
-  # process command-line-options.
-  # determine memory partitioning.
-  # look at command string and either load LISP-data from .MEM-file
-  # or create manually and initialize static LISP-data.
-  # build up interrupt-handler.
-  # print banner.
-  # jump into the driver.
+  /* initialization of memory management.
+   overall procedure:
+   process command-line-options.
+   determine memory partitioning.
+   look at command string and either load LISP-data from .MEM-file
+   or create manually and initialize static LISP-data.
+   build up interrupt-handler.
+   print banner.
+   jump into the driver.
+  This is also described in <doc/impext.xml#cradle-grave>! */
   init_lowest_level(argv);
   var struct argv_init_c argv0;
   {
-    var int parse_result = parse_options(argc,(const char**)argv,&argv0,&argv1,&argv2);
+    var int parse_result =
+      parse_options(argc,(const char**)argv,&argv0,&argv1,&argv2);
     if (parse_result >= 0) {
       exitcode = parse_result;
       goto end_of_main;
