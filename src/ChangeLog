@@ -1,6 +1,7 @@
 2001-03-15  Bruno Haible  <haible@clisp.cons.org>
 
 	* Makefile.devel (all): Depend on src/VERSION instead of src/version.h.
+	(ffcall-i386): New target.
 	* spvw_memfile.d (savemem): Zero-fill the rest of _dumphost.
 	* spvw.d (main): Do complain about missing -B in all cases.
 	(usage): Internationalize.
