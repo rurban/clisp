@@ -472,25 +472,25 @@ if grep 'ac_cv_func_tgetent.*no' $ABS_DIRNAME/config.cache > /dev/null \
   # On Unix systems lacking libtermcap and libncurses (rarely seen), we do not
   # use our included termcap library because the user would have to install
   # /etc/termcap.  The user should better do that before compiling clisp.
-  makemake_args="$makemake_args --with-no-termcap-ncurses --with-noreadline"
+  makemake_args="--with-no-termcap-ncurses --with-noreadline $makemake_args"
 else
   if grep 'cl_cv_prog_cc_cplusplus.*yes' $ABS_DIRNAME/config.cache > /dev/null ; then
-    makemake_args="$makemake_args --with-noreadline"
+    makemake_args="--with-noreadline $makemake_args"
   else
     if test -d $ABS_DIRNAME/readline; then
-      makemake_args="$makemake_args --with-readline"
+      makemake_args="--with-readline $makemake_args"
     else
-      makemake_args="$makemake_args --with-noreadline"
+      makemake_args="--with-noreadline $makemake_args"
     fi
   fi
 fi
 if grep 'cl_cv_prog_cc_cplusplus.*yes' $ABS_DIRNAME/config.cache > /dev/null ; then
-  makemake_args="$makemake_args --with-nogettext"
+  makemake_args="--with-nogettext $makemake_args"
 else
   if test -d $ABS_DIRNAME/po; then
-    makemake_args="$makemake_args --with-gettext"
+    makemake_args="--with-gettext $makemake_args"
   else
-    makemake_args="$makemake_args --with-nogettext"
+    makemake_args="--with-nogettext $makemake_args"
   fi
 fi
 if test -d $ABS_DIRNAME/avcall -a -d $ABS_DIRNAME/callback; then
@@ -498,7 +498,7 @@ if test -d $ABS_DIRNAME/avcall -a -d $ABS_DIRNAME/callback; then
   (cd $ABS_DIRNAME/callback && make) &&
   (cd $ABS_DIRNAME/avcall && make check) &&
   (cd $ABS_DIRNAME/callback && make check) &&
-  makemake_args="$makemake_args --with-dynamic-ffi"
+  makemake_args="--with-dynamic-ffi $makemake_args"
 fi
 
 if test -n "$debug"; then

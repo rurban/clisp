@@ -1,5 +1,10 @@
 2002-07-15  Sam Steingold  <sds@gnu.org>
 
+	* configure: user-specified options (like --with-noreadline)
+	override the default/inferred options
+
+2002-07-15  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (wildcard_match): handle special patterns like
 	:WILD, :WILD-INFERIORS, :UP and :BACK
 
@@ -22,7 +27,7 @@
 
 	ported DIR-KEY to cygwin32
 	* dirkey1.lisp (dir-key): export
-	* dirkey.d (to_time_t_): stole fron cygwin sources
+	* dirkey.d (to_time_t_): stole from cygwin sources
 	* constsym.d (Kwin32) [UNIX_CYGWIN32 DIR_KEY]: define
 
 2002-07-13  Sam Steingold  <sds@gnu.org>
