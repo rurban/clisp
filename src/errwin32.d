@@ -3896,6 +3896,7 @@
           STACK_3 = S(simple_os_error);
         OS_error_internal(errcode);
         end_error(args_end_pointer STACKop 7,true); # Fehlermeldung beenden
+        NOTREACHED;
       }
     nonreturning_function(global, OS_file_error, (object pathname))
       {
@@ -3910,6 +3911,7 @@
           STACK_3 = S(simple_file_error);
         OS_error_internal(errcode);
         end_error(args_end_pointer STACKop 7,true); # Fehlermeldung beenden
+        NOTREACHED;
       }
 
   # Behandlung von Winsock-Fehlern
@@ -4132,6 +4134,7 @@
           write_errorasciz(errormsg);
         }
         end_error(args_end_pointer STACKop 7,true); # Fehlermeldung beenden
+        NOTREACHED;
       }
 
 /* print an error
