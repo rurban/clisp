@@ -1,3 +1,14 @@
+1999-05-13  Gilbert Baumann  <unk6@rz.uni-karlsruhe.de>
+
+        * sequence.d (READ-CHAR-SEQUENCE): Changed calls to
+          `iarray_displace_check' to `array_displace_check'. Adjusted return
+          value: The first position not written is returned.
+          (WRITE-CHAR-SEQUENCE): Likewise, uses `array_displace_check' now.
+          (WRITE-BYTE-SEQUENCE): In case of (VECTOR (UNSIGNED-BYTE 8)) use
+          another indirection via '->data' before calling 'read_byte_array'.
+          (READ-BYTE-SEQUENCE): Likewise. Additionally the first position not
+          written is returned.
+
 1999-05-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * spvw.d (init_symbol_values): Don't call a function here, too early.
