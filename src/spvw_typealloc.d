@@ -81,7 +81,7 @@ global object allocate_vector (uintL len) {
  #ifdef TYPECODES
   #define SETTFL  ptr->length = len
  #else
-  #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Svector,len)
+  #define SETTFL  ptr->tfl = vrecord_tfl(Rectype_Svector,len)
  #endif
   allocate(svector_type,true,need,Svector,ptr,{
     SETTFL;
@@ -106,7 +106,7 @@ local inline object allocate_weakkvt_low (uintL len, object type) {
  #ifdef TYPECODES
   #define SETTFL  ptr->length = len
  #else
-  #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_WeakKVT,len)
+  #define SETTFL  ptr->tfl = vrecord_tfl(Rectype_WeakKVT,len)
  #endif
   allocate(weakkvt_type,true,need,WeakKVT,ptr,{
     SETTFL;
@@ -135,7 +135,7 @@ global object allocate_bit_vector (uintB atype, uintL len) {
  #ifdef TYPECODES
   #define SETTFL  ptr->length = len
  #else
-  #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Sbvector+atype,len)
+  #define SETTFL  ptr->tfl = vrecord_tfl(Rectype_Sbvector+atype,len)
  #endif
   allocate(Array_type_simple_bit_vector(atype),true,need,Sbvector,ptr,
     { SETTFL; }); # no further initialization
