@@ -4679,18 +4679,10 @@ local sintL low_read_unbuffered_handle (object stream) {
  restart_it:
   run_time_stop(); # hold run time clock
   begin_system_call();
-  var int result = read(handle,&b,1); # try to read a byte
+  var int result = full_read(handle,&b,1); # try to read a byte
   end_system_call();
   run_time_restart(); # resume run time clock
   if (result<0) {
-    #if !defined(WIN32_NATIVE)
-    begin_system_call();
-    if (errno==EINTR) { # Interrupt (poss. by Ctrl-C) ?
-      end_system_call();
-      interruptp({ fehler_interrupt(); });
-      goto restart_it;
-    }
-    #endif
     #ifdef WIN32_NATIVE
     begin_system_call();
     if (GetLastError()==ERROR_SIGINT) { # Interrupt by Ctrl-C ?
@@ -5325,17 +5317,8 @@ local void low_write_unbuffered_handle (object stream, uintB b) {
  restart_it:
   begin_system_call();
   # Try to output the byte.
-  var int result = write(handle,&b,1);
-  if (result<0) {
-    #if !defined(WIN32_NATIVE)
-    if (errno==EINTR) { # Interrupt (poss. by Ctrl-C) ?
-      end_system_call();
-      interruptp({ fehler_interrupt(); });
-      goto restart_it;
-    }
-    #endif
-    OS_error();
-  }
+  var int result = full_write(handle,&b,1);
+  if (result<0) { OS_error(); }
   end_system_call();
   if (result==0) # not successful?
     fehler_unwritable(TheSubr(subr_self)->name,stream);
