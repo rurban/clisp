@@ -98,9 +98,10 @@ The point should be on the prototype and the definition should follow."
   (save-excursion (back-to-indentation) (if (looking-at "# ") 0 [0])))
 
 (defvar d-font-lock-extra-types
-  '(nconc (list "bool" "object" "chart" "[otac]int" "signean" "s[co]int"
-           "[csu]?int[BCDLPQWX0-9]*" "Values" "SOCKET" "Handle" "stringarg"
-           "FILETIME")
+  '(nconc (list "bool" "object" "chart" "[otac]int" "signean"
+           "s[aco]int" "[csu]?int[BCDLPQWX0-9]*" "hfint" "fcint"
+            "[SU]LONG" "[SU]BYTE" "[DSU]WORD" "[SU]LONGLONG"
+           "Values" "SOCKET" "Handle" "stringarg" "FILETIME")
     c-font-lock-extra-types)
   "Extra types to be fontified as such.")
 
