@@ -140,3 +140,9 @@
 (defgeneric find-method-combination (generic-function name options)
   (:method ((gf generic-function) (name symbol) options)
     (find-method-combination-<generic-function>-<symbol> gf name options)))
+
+;; MOP p. 41
+(fmakunbound 'compute-effective-method)
+(defgeneric compute-effective-method (gf combination methods)
+  (:method ((gf standard-generic-function) combination methods)
+    (compute-effective-method-<standard-generic-function> gf combination methods)))
