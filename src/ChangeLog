@@ -1,5 +1,11 @@
 2003-05-04  Sam Steingold  <sds@gnu.org>
 
+	* spvw_debug.d (bt_out): extracted from back_trace_out()
+	(back_trace_out): use it
+	(back_trace_depth, back_trace_out): fully check for circularities
+
+2003-05-04  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (var_stream): check whether the stream is open
 	[broken since 2002-04-01]
 
