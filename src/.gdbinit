@@ -66,7 +66,7 @@ document run_all_tests
 end
 
 define ansi_tests
-  run -B . -M lispinit.mem -q -norc -ansi -x "(without-package-lock (sys) (setq system::*disassemble-use-live-process* nil)) (cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (time (regression-test:do-tests))"
+  run -B . -M lispinit.mem -q -norc -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (time (regression-test:do-tests))"
 end
 document ansi_tests
          run the gcl/ansi-test suite
