@@ -865,6 +865,9 @@ nil
                    :finally (pprint (list a b)))))))
 (NIL NIL)
 
+(LET ((I 0)) (LOOP FOR NIL FROM 10 BELOW 15 COLLECT (INCF I)))
+(1 2 3 4 5)
+
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
 ;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)

@@ -1,7 +1,8 @@
 2004-02-19  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 898561 ]: LOOP compilation warnings
-	* loop.lisp (expand-loop): bind *helpvars* first thing
+	* loop.lisp (expand-loop): bind *helpvars* first thing (for 898561)
+	When arithmetic iteration variable is NIL, use a GENSYM
 
 2004-02-19  Sam Steingold  <sds@gnu.org>
 
