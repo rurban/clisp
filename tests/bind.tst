@@ -80,6 +80,7 @@ GOOD
 7
 
 ;; same as above, with LOCALLY
+;; Nice test: it triggers an ACL 6.2 compiler bug :-)
 (let ((x 5))
   (progv '(x y) '(20 120)
     (let ((x (1+ x)) (y (1+ x)) (z (1+ x)))
@@ -307,6 +308,7 @@ ERROR
 (fmakunbound 'symbol-type-fn)
 SYMBOL-TYPE-FN
 
+;; The scope of a "free" declaration in DO* contains the step-forms.
 (block done
   (let ((x :good))
     (declare (special x))
@@ -316,6 +318,7 @@ SYMBOL-TYPE-FN
         (declare (special x))))))
 :GOOD
 
+;; The scope of a "free" declaration in MULTIPLE-VALUE-BIND contains the body.
 (let ((x :good))
   (declare (special x))
   (let ((x :bad))
@@ -324,6 +327,7 @@ SYMBOL-TYPE-FN
       (list a b x))))
 (3 1 :GOOD)
 
+;; The scope of a "free" declaration in DEFUN contains only the body.
 (let ((x 1))
   (declare (special x))
   (let ((x 2))
