@@ -1,3 +1,7 @@
+2003-07-02  Sam Steingold  <sds@gnu.org>
+
+	* control.d (PROCLAIM): fixed STACK indexing for CONSTANT-(NOT)INLINE
+
 2003-07-02  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	* pathname.d (directory_namestring_parts) [WIN32_NATIVE,
