@@ -149,6 +149,8 @@
 <!ENTITY letf-star "<link linkend='letf'><function>EXT:LETF*</function></link>">
 <!ENTITY lfd "<link linkend='lfd'><function>EXT:LONG-FLOAT-DIGITS</function></link>">
 <!ENTITY line-term "<link linkend='newline'>line terminator</link>">
+<!ENTITY load-lpt-db "<link linkend='load-lpt'><varname>CUSTOM:*LOAD-LOGICAL-PATHNAME-TRANSLATIONS-DATABASE*</varname></link>">
+<!ENTITY load-paths "<link linkend='load-paths'><varname>CUSTOM:*LOAD-PATHS*</varname></link>">
 <!ENTITY mapcap "<link linkend='mapcap'><function>EXT:MAPCAP</function></link>">
 <!ENTITY maplap "<link linkend='mapcap'><function>EXT:MAPLAP</function></link>">
 <!ENTITY match-t "<classname>REGEXP::REGMATCH_T</classname>">
