@@ -2820,7 +2820,7 @@ local void print_banner ()
         # )
         # durchführen:
         {
-          #ifdef UNIX
+          #if defined(UNIX) || defined(WIN32_NATIVE)
           # Make clisp ignore the leading #! line.
           pushSTACK(ascii_char('#')); pushSTACK(ascii_char('!'));
           pushSTACK(L(unix_executable_reader));
