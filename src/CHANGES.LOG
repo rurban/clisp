@@ -1,3 +1,18 @@
+User visible changes
+--------------------
+
+* EXT:GETENV is now setfable.
+
+* Hostname resolution is now optional in
+  EXT:SOCKET-STREAM-PEER and EXT:SOCKET-STREAM-LOCAL.
+
+* Added install.bat for win32 installation.
+
+* ANSI CL compliance: more conformant pathname handling.
+
+2.26 (2001-05-23)
+=================
+
 Important notes
 ---------------
 
