@@ -10,6 +10,8 @@ retry, concurrent connections to multiple databases, proper handling
 of &oracle-link; errors, and more.  </para>
 <para>The module can be used to build sophisticated &oracle-link; database
 applications in &cl;.</para>
+<simpara>When this module is present, &features-var; contains the
+ symbol <constant>:ORACLE</constant>.</simpara>
 
 <section id="ora-functionality"><title>Functions and Macros in
   package <quote role="package">ORACLE</quote></title>

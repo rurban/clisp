@@ -29,6 +29,7 @@
 	   "SQLCOL-NAME" "SQLCOL-TYPE" "SQLCOL-SIZE" "SQLCOL-SCALE" "SQLCOL-PRECISION" "SQLCOL-NULL_OK" ))
 
 (in-package "ORACLE")
+(pushnew :oracle *features*)
 
 ; Use "C" as foreign language
 (default-foreign-language :stdc)
@@ -144,8 +145,8 @@ Returns: T if a cached connection was re-used (NIL if a new connection
   ; Set up global connection cache
   (if (null *oracle-connection-cache*)
       (setf *oracle-connection-cache* (make-hash-table :test #'equal)))
- 
-  ; Construct key for connection cache 
+
+  ; Construct key for connection cache
   (let* ((hkey (connection-key user schema server))
          (conn (gethash hkey *oracle-connection-cache*))
          (result t))
@@ -160,7 +161,7 @@ Returns: T if a cached connection was re-used (NIL if a new connection
 		  (remhash hkey *oracle-connection-cache*)
 		  (setf conn nil)
 		  (setf *oracle-connection* nil))))
-    
+
     (when (null conn)
           ; Connect to database
           (let ((handle (oracle_connect user schema password server prefetch-buffer-bytes (c-truth auto-commit) long-len (c-truth truncate-ok))))
@@ -300,10 +301,10 @@ when it is inconvenient of impossible to alias the column with
                                                  (list 'do-rows-index-of (list 'quote v))))
                              vars))
           ; Emit the DO loop itself
-          (append (list 
+          (append (list
                    'do*
                    (append (list `(,fetch-result (fetch 'array) (fetch 'array)))
-                             (map 'list 
+                             (map 'list
                                   #'(lambda (k)
                                       (let ((iter (list 'aref-null fetch-result (gethash (to-string (do-rows-var k)) index-vars))))
                                         (list (do-rows-var k) iter iter)))
@@ -366,7 +367,7 @@ Arguments: none
              oracle-eof))
       ; Do nothing
       )
-       
+
      ; Do a real fetch from Oracle
      (t (let ((fetch_status (oracle_fetch_row (curconn))))
           (cond ((not (lisp-truth fetch_status))
@@ -377,17 +378,17 @@ Arguments: none
                 (t ; Good fetch - get and convert row data
                  (setf result (oracle_row_values (curconn)))
                  (check-success)
-                 
+
                  ; Convert NULL values to NIL
                  (map-into result #'from-sqlval result)
-                   
+
                  ; Convert number and string types to Lisp based on Oracle type
                  (let ((colinfo (oracle_column_info (curconn))))
                    (check-success)
                    (map-into result #'convert-type result colinfo)
                    result))))))
     ; Set the flag that fetch was called at least once.
-    ; This is to avoid further fetch calls to underlying Oracle library 
+    ; This is to avoid further fetch calls to underlying Oracle library
     ; when we are already at EOF.
     (setf (db-fetch-called *oracle-connection*) t)
     (row-to-result result result-type)))
@@ -727,7 +728,7 @@ Argument: none
                                     "~%The allowed column/variable names are:~%~%" (column-names)
                                     "~%")))
      val)))
-                       
+
 ; ROW-TO-RESULT
 ; Convert fetched row array data to result type
 (defun row-to-result (row result-type)
@@ -831,7 +832,7 @@ Argument: none
               (when (not (valid-symbol key)) (db-error (cat "Column or parameter '" key "' is not a valid Lisp symbol name."
                                                          "~%Consider using SELECT ... " key " AS <column alias>")))
               ; Check uniqueness
-              (multiple-value-bind 
+              (multiple-value-bind
                (curval already-there) (gethash key result)
                (when already-there (db-error (cat "Column or parameter '" key
                                                "' appears twice in list of (name, value) pairs,~%first with value '"
@@ -978,7 +979,7 @@ Argument: none
 
 ; CAT
 ; Concatenate strings
-(defun cat (&rest args) 
+(defun cat (&rest args)
   (apply #'concatenate 'string (mapcar #'to-string (flatten args))))
 
 ; ARRAY-TO-HASH

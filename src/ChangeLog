@@ -1,3 +1,11 @@
+2004-01-27  Sam Steingold  <sds@gnu.org>
+
+	* modules/fastcgi/fastcgi.lisp: add :FASTCGI to *FEATURES*
+	* modules/oracle/oracle.lisp: add :ORACLE to *FEATURES*
+	* modules/pcre/pcre.lisp: add :PCRE to *FEATURES*
+	* modules/postgresql/postgresql.lisp: add :POSTGRESQL to *FEATURES*
+	* modules/regexp/regexp.lisp: add :REGEXP to *FEATURES*
+
 2004-01-25  Sam Steingold  <sds@gnu.org>
 
 	new function (MOD-EXPT x y z) = (MOD (EXPT x y) z)
@@ -84,8 +92,8 @@
 
 2004-01-16  Sam Steingold  <sds@gnu.org>
 
-	* cpcre.c (PCRE-COMPILE): do not allocate a foreign pointer for
-	NULL study
+	* modules/pcre/cpcre.c (PCRE-COMPILE): do not allocate a foreign
+	pointer for NULL study
 	(PCRE-EXEC): pass subject_bytelen instead of subject_len
 
 2004-01-15  Bruno Haible  <bruno@clisp.org>
