@@ -432,15 +432,7 @@
 # wird verwendet von PATHNAME, UNIXAUX
 
 # File umbenennen:
-  #ifdef HAVE_RENAME
-    extern_C int rename (RENAME_CONST char* oldpath, RENAME_CONST char* newpath); # siehe RENAME(2V)
-  #else
-    extern_C int link (const char* oldpath, const char* newpath);
-    extern_C int access (const char* path, int mode);
-    # Emuliere rename() in unixaux.d:
-    #define NEED_OWN_RENAME
-    extern int rename (const char* oldpath, const char* newpath); # siehe unixaux.d
-  #endif
+  extern_C int rename (RENAME_CONST char* oldpath, RENAME_CONST char* newpath); # siehe RENAME(2V)
 # wird verwendet von PATHNAME, UNIXAUX
 
 # Directory-Suche:
