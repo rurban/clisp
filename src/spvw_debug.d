@@ -62,7 +62,7 @@ local void string_out (FILE* out, object str) {
 
 /* the recursive helper for nobject_out() which does all the work
  must be enclosed in begin_system_call()/end_system_call() */
-local object nobject_out1 (FILE* out, object obj) {
+local void nobject_out1 (FILE* out, object obj) {
   if (stringp(obj)) {
     fputc('"',out);
     string_out(out,obj);
@@ -360,7 +360,7 @@ FUN(object,oint,as_oint)
 FUN(oint,object,as_object)
 FUN(object,sintB,Record_type)
 FUN(object,uintB,Record_flags)
-FUN(object,uintL,Rrecord_length)
+FUN(object,uintL,Record_length)
 FUN(object,sintB,Array_type)
 FUN(object,uintL,Srecord_length)
 FUN(object,uintL,Xrecord_length)
