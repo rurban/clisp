@@ -1,4 +1,6 @@
-;;;; Common Lisp Object System for CLISP: Classes
+;;;; Common Lisp Object System for CLISP
+;;;; Class metaobjects
+;;;; Part 2: The class namespace.
 ;;;; Bruno Haible 21.8.1993 - 2004
 ;;;; Sam Steingold 1998 - 2004
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
@@ -9,10 +11,10 @@
 ;;; Predefined classes (see ANSI CL 4.3.7.):
 
 ;; Metaclasses:
-(defvar <class>)                       ; here <structure-class>
-(defvar <standard-class>)              ; here <structure-class>
-(defvar <structure-class>)             ; here <structure-class>
-(defvar <built-in-class>)              ; here <structure-class>
+(defvar <class>)                       ; <standard-class>
+(defvar <standard-class>)              ; <standard-class>
+(defvar <structure-class>)             ; <standard-class>
+(defvar <built-in-class>)              ; <standard-class>
 ;; Classes:
 (defvar <standard-object>)             ; <standard-class>
 (defvar <structure-object>)            ; <structure-class>
@@ -56,25 +58,6 @@
 (defvar <t>)                           ; <built-in-class>
 (defvar <vector>)                      ; <built-in-class>
 ;; Condition classes and RESTART are defined later, in condition.lisp.
-
-
-;;; Low-level representation:
-
-;; In the runtime-system, the type "CLOS-instance" exists.
-;; The first component is the class, the rest are the instance slot values.
-
-;; Classes are structures of type CLASS,
-;; The first component is the metaclass, second component is the name.
-
-;; The "value" of a slot that is unbound, is #<UNBOUND> - what else?
-
-;;; see RECORD.D :
-;; (STD-INSTANCE-P obj) tests, if an object is a CLOS-instance.
-;; (ALLOCATE-STD-INSTANCE class n) returns a CLOS-instance with Class class
-;; and n-1 additional slots.
-
-;;; see IO.D :
-;; CLOS-instances are printed via (PRINT-OBJECT object stream) .
 
 
 ;;; Global management of classes and their names:
@@ -124,5 +107,3 @@
   (if new-value
     (setf (get symbol 'CLOSCLASS) new-value)
     (progn (remprop symbol 'CLOSCLASS) nil)))
-
-;; (CLASS-OF object) see PREDTYPE.D, uses property CLOSCLASS.

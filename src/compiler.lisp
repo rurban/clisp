@@ -1003,6 +1003,7 @@ for-value   NIL or T
                     ; return values.
 )
 #-CLISP-DEBUG (remprop 'block 'sys::defstruct-description)
+#-CLISP-DEBUG (remprop 'block 'clos::closclass)
 
 ;; Searches for a block with Name name and returns:
 ;; NIL                          if not found,
@@ -1046,6 +1047,7 @@ for-value   NIL or T
                     ; within another function.
 )
 #-CLISP-DEBUG (remprop 'tagbody 'sys::defstruct-description)
+#-CLISP-DEBUG (remprop 'tagbody 'clos::closclass)
 
 ;; Searches for a tag with Namen name and returns:
 ;; NIL                                         if not found,

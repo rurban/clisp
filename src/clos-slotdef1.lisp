@@ -64,7 +64,7 @@
 ;; Information about a slot, as specified in a DEFCLASS form and kept
 ;; at runtime.
 (defvar *<slot-definition>-defclass*
-  '(defclass slot-definition ()
+  '(defclass slot-definition (metaobject)
      ((name          :type symbol             :initarg :name)
       (initargs      :type list               :initarg :initargs)
       (type          :type t                  :initarg :type)

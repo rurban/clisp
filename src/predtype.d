@@ -1785,11 +1785,16 @@ LISPFUNNR(type_of,1)
   mv_count=1;
 }
 
-LISPFUNN(defclos,2)
-{ /* (CLOS::%DEFCLOS class-type built-in-classes)
+LISPFUNN(defclos,5)
+{ /* (CLOS::%DEFCLOS <standard-class>-version <structure-class>-version
+                     <built-in-class>-version <class>
+                     built-in-classes)
    sets the data needed for CLOS::CLASS-P and CLOS:CLASS-OF. */
   /* for CLOS::CLASS-P : */
-  O(class_structure_types) = STACK_1;
+  O(class_version_standard_class) = STACK_4;
+  O(class_version_structure_class) = STACK_3;
+  O(class_version_built_in_class) = STACK_2;
+  O(class_class) = STACK_1;
   /* for CLOS:CLASS-OF : */
   {
     var gcv_object_t* ptr1 = &TheSvector(STACK_0)->data[0];
@@ -1799,7 +1804,7 @@ LISPFUNN(defclos,2)
       *ptr2++ = *ptr1++;
     });
   }
-  value1 = NIL; mv_count=0; skipSTACK(2);
+  value1 = NIL; mv_count=0; skipSTACK(5);
 }
 
 LISPFUNNR(class_p,1)

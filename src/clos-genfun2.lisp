@@ -213,7 +213,9 @@
       reinitialize-instance remove-method shared-initialize slot-missing
       change-class update-instance-for-different-class
       update-instance-for-redefined-class
-      slot-unbound make-load-form))
+      slot-unbound make-load-form
+      ;; Similar functions from the MOP.
+      validate-superclass))
   (defvar *warn-if-gf-already-called* t)
   (defun need-gf-already-called-warning-p (gf)
     (and *warn-if-gf-already-called* (not (gf-never-called-p gf))

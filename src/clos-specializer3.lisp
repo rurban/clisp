@@ -6,6 +6,10 @@
 (in-package "CLOS")
 
 
+;; Make creation of <specializer> instances customizable.
+(setf (fdefinition 'make-instance-<eql-specializer>) #'make-instance)
+
+
 ;; Optimized accessors, with type checking.
 
 (defun specializer-direct-generic-functions-table (specializer)

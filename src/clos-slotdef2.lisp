@@ -71,7 +71,6 @@
                        *<standard-direct-slot-definition>-class-version*)
 (defmethod initialize-instance ((slotdef standard-direct-slot-definition) &rest args)
   (apply #'initialize-instance-<standard-direct-slot-definition> slotdef args))
-(setf (fdefinition 'make-instance-<standard-direct-slot-definition>) #'make-instance)
 
 ;;; ---------------------------------------------------------------------------
 
@@ -83,7 +82,6 @@
                        *<standard-effective-slot-definition>-class-version*)
 (defmethod initialize-instance ((slotdef standard-effective-slot-definition) &rest args)
   (apply #'initialize-instance-<standard-effective-slot-definition> slotdef args))
-(setf (fdefinition 'make-instance-<standard-effective-slot-definition>) #'make-instance)
 
 ;;; ---------------------------------------------------------------------------
 
@@ -95,7 +93,6 @@
                        *<structure-direct-slot-definition>-class-version*)
 (defmethod initialize-instance ((slotdef structure-direct-slot-definition) &rest args)
   (apply #'initialize-instance-<structure-direct-slot-definition> slotdef args))
-(setf (fdefinition 'make-instance-<structure-direct-slot-definition>) #'make-instance)
 
 ;;; ---------------------------------------------------------------------------
 
@@ -115,7 +112,6 @@
   (setf (slot-value slotdef 'readonly) new-value))
 (defmethod initialize-instance ((slotdef structure-effective-slot-definition) &rest args)
   (apply #'initialize-instance-<structure-effective-slot-definition> slotdef args))
-(setf (fdefinition 'make-instance-<structure-effective-slot-definition>) #'make-instance)
 
 ;;; ===========================================================================
 

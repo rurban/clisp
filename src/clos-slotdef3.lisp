@@ -6,6 +6,13 @@
 (in-package "CLOS")
 
 
+;; Make creation of <slot-definition> instances customizable.
+(setf (fdefinition 'make-instance-<standard-direct-slot-definition>) #'make-instance)
+(setf (fdefinition 'make-instance-<standard-effective-slot-definition>) #'make-instance)
+(setf (fdefinition 'make-instance-<structure-direct-slot-definition>) #'make-instance)
+(setf (fdefinition 'make-instance-<structure-effective-slot-definition>) #'make-instance)
+
+
 #| ;;; Unoptimized slot-definition-xxx accessors.
 
 ;; MOP p. 84

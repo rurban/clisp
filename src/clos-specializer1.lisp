@@ -12,11 +12,11 @@
 ;;; homogenous way.
 
 (defvar *<specializer>-defclass*
-  '(defclass specializer (standard-stablehash)
+  '(defclass specializer (standard-stablehash metaobject)
      ((direct-generic-functions ; weak-list or weak-hash-table of GFs that use
                                 ; this specializer
         :initform nil)
-      (direct-methods           ; weak-list or weak-hash-table of method that
+      (direct-methods           ; weak-list or weak-hash-table of methods that
                                 ; use this specializer
         :initform nil))
      (:fixed-slot-locations)))
