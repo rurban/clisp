@@ -12792,12 +12792,13 @@ extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* b
 /* used by SEQUENCE, PATHNAME */
 
 # Function: Writes several bytes to a stream.
-# write_byte_array(&stream,&bytearray,start,len)
+# write_byte_array(&stream,&bytearray,start,len,no_hang)
 # > stream: Stream (on the STACK)
 # > object bytearray: simple-8bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be written
 # > uintL len: length of byte sequence to be written
-extern void write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len);
+# > bool no_hang: don't block, return #bytes written
+extern uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, bool no_hang);
 # is used by SEQUENCE
 
 # Function: Reads several characters from a stream.

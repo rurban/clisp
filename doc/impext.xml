@@ -1114,7 +1114,7 @@ N. Gray to X3J13.</para>
  <varlistentry><term><literal
     role="sexp">(<function>GRAY:STREAM-WRITE-CHAR-SEQUENCE</function>
                  &stream-r; &sequence-r;
-                 &optional-amp; [&start-r; [&end-r;]])</literal></term>
+                 &optional-amp; [&start-r; [&end-r; ]])</literal></term>
   <listitem><simpara>Outputs the subsequence of &sequence-r; specified
    by &start-k; and &end-k; to &stream-r;.</simpara>
   <simpara>&sequence-r; is an &array-t; of &character-t;s, i.e. a &string-t;.
@@ -1223,8 +1223,8 @@ N. Gray to X3J13.</para>
  </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>GRAY:STREAM-READ-BYTE-SEQUENCE</function>
-                 &stream-r; &sequence-r;
-                 &optional-amp; [&start-r; [&end-r;]])</literal></term>
+                 &stream-r; &sequence-r; &optional-amp;
+                 [&start-r; [&end-r; [&no-hang;]]])</literal></term>
   <listitem><simpara>Fills the subsequence of &sequence-r; specified by
    &start-k; and &end-k; with integers consecutively read from &stream-r;.
    Returns the index of the first element of &sequence-r; that was not
@@ -1247,8 +1247,8 @@ N. Gray to X3J13.</para>
    &need-defmethod;</listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>GRAY:STREAM-WRITE-BYTE-SEQUENCE</function>
-                 &stream-r; &sequence-r;
-                 &optional-amp; [&start-r; [&end-r;]])</literal></term>
+                 &stream-r; &sequence-r; &optional-amp;
+                 [&start-r; [&end-r; [&no-hang;]]])</literal></term>
   <listitem><simpara>Outputs the subsequence of &sequence-r; specified
    by &start-k; and &end-k; to &stream-r;</simpara>
   <simpara>&sequence-r; is an &array-t; of &integer-t;s.

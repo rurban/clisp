@@ -4251,13 +4251,15 @@ LISPFUN(read_byte_sequence,seclass_default,2,0,norest,key,3,
   skipSTACK(6);
 }
 
-LISPFUN(write_byte_sequence,seclass_default,2,0,norest,key,2,
-        (kw(start),kw(end)) )
-{ /* (WRITE-BYTE-SEQUENCE sequence stream [:start] [:end]),
-     it is not clear what this should return when :NO-HANG is T
-     and only a part of the sequence was written!
+LISPFUN(write_byte_sequence,seclass_default,2,0,norest,key,3,
+        (kw(start),kw(end),kw(no_hang)) )
+{ /* (WRITE-BYTE-SEQUENCE sequence stream [:start] [:end] [:no-hang]),
+  2 values: sequence as first value (backward compatible)
+   -  second value is the position of first unwritten byte
+      (sequence length if everything was written, including :no-hang nil)
     cf. dpANS p. 21-27 */
-  /* stack layout: sequence, stream, start, end. */
+  /* stack layout: sequence, stream, start, end, no-hang. */
+  var bool no_hang = !missingp(STACK_0); skipSTACK(1);
   pushSTACK(get_valid_seq_type(STACK_3)); /* sequence check */
   /* stack layout: sequence, stream, start, end, typdescr. */
   if (!streamp(STACK_3)) { fehler_stream(STACK_3); } /* check stream */
@@ -4270,27 +4272,31 @@ LISPFUN(write_byte_sequence,seclass_default,2,0,norest,key,2,
     var uintL end = posfixnum_to_L(STACK_1);
     var uintL index = 0;
     STACK_0 = array_displace_check(STACK_4,end,&index);
-    write_byte_array(&STACK_3,&STACK_0,index+start,end-start);
-    goto done;
-  }
-  /* subtract start and end: */
-  STACK_1 = I_I_minus_I(STACK_1,STACK_2); /* (- end start), an integer >=0 */
-  /* stack layout: sequence, item, start, count, typdescr. */
-  /* determine start pointer: */
-  pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
-  funcall(seq_init_start(STACK_(0+2)),2); /* (SEQ-INIT-START sequence start) */
-  STACK_2 = value1; /* =: pointer */
-  /* stack layout: sequence, stream, pointer, count, typdescr. */
-  while (!eq(STACK_1,Fixnum_0)) { /* count (an integer) = 0 -> done */
+   {var uintL result =
+      write_byte_array(&STACK_3,&STACK_0,index+start,end-start,no_hang);
+    skipSTACK(4);
+    VALUES2(popSTACK(),fixnum(start+result)); }
+  } else {
+    var uintL end = posfixnum_to_L(STACK_1);
+    /* subtract start and end: */
+    STACK_1 = I_I_minus_I(STACK_1,STACK_2); /* (- end start), an integer >=0 */
+    /* stack layout: sequence, item, start, count, typdescr. */
+    /* determine start pointer: */
     pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
-    funcall(seq_access(STACK_(0+2)),2); /* (SEQ-ACCESS sequence pointer) */
-    write_byte(STACK_3,value1); /* output an element  */
-    /* pointer := (SEQ-UPD sequence pointer) : */
-    pointer_update(STACK_2,STACK_4,STACK_0);
-    /* count := (1- count) : */
-    decrement(STACK_1);
+    funcall(seq_init_start(STACK_(0+2)),2); /*(SEQ-INIT-START sequence start)*/
+    STACK_2 = value1; /* =: pointer */
+    /* stack layout: sequence, stream, pointer, count, typdescr. */
+    while (!eq(STACK_1,Fixnum_0)) { /* count (an integer) = 0 -> done */
+      pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
+      funcall(seq_access(STACK_(0+2)),2); /* (SEQ-ACCESS sequence pointer) */
+      /* FIXME: if (!no_hang || !write_byte_will_hang_p(STACK_3)) ... */
+      write_byte(STACK_3,value1); /* output an element  */
+      /* pointer := (SEQ-UPD sequence pointer) : */
+      pointer_update(STACK_2,STACK_4,STACK_0);
+      /* count := (1- count) : */
+      decrement(STACK_1);
+    }
+    skipSTACK(4);
+    VALUES2(popSTACK(),fixnum(end)); /* return sequence */
   }
- done:
-  skipSTACK(4);
-  VALUES1(popSTACK()); /* return sequence */
 }

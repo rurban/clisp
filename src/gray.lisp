@@ -323,13 +323,20 @@
 
 (clos:defgeneric stream-write-byte (stream integer))
 
-(clos:defgeneric stream-write-byte-sequence (stream sequence &optional start end)
-  (:method ((stream fundamental-output-stream) (sequence vector) &optional (start 0) (end nil))
-    ; sequence is a (simple-array (unsigned-byte 8) (*)), and start and end are suitable integers.
+(clos:defgeneric stream-write-byte-sequence (stream sequence
+                                             &optional start end no-hang)
+  (:method ((stream fundamental-output-stream) (sequence vector)
+            &optional (start 0) (end nil) (no-hang nil))
+    ;; sequence is a (simple-array (unsigned-byte 8) (*)),
+    ;; and start and end are suitable integers.
+    ;; if no-hang and you write less than end-start bytes then you should
+    ;; return the first unwritten index as the second value
+    ;; first value should then be sequence argument
+    (when no-hang
+      (error "~S: ~S is not supported by the default method"
+             'stream-write-byte-sequence :NO-HANG))
     (unless end (setq end (length sequence)))
     (do ((index start (1+ index)))
         ((eql index end) nil)
-      (stream-write-byte stream (aref sequence index))
-  ) )
-)
+      (stream-write-byte stream (aref sequence index)))))
 

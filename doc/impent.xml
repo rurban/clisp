@@ -448,6 +448,7 @@
 <!ENTITY maxdim-r "<replaceable>maxdimension</replaceable>">
 <!ENTITY n-r "<replaceable>n</replaceable>">
 <!ENTITY name-r "<replaceable>name</replaceable>">
+<!ENTITY no-hang "<replaceable>no-hang</replaceable>">
 <!ENTITY number-r "<replaceable>number</replaceable>">
 <!ENTITY object-r "<replaceable>object</replaceable>">
 <!ENTITY offset-r "<replaceable>offset</replaceable>">

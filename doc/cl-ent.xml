@@ -133,8 +133,10 @@
 <!ENTITY type-eq "<ulink url='&clhs;/Body/glo_t.html#type_equivalent'>type equivalent</ulink>">
 <!ENTITY symbol-macro "<ulink url='&clhs;/Body/mac_define-symbol-macro.html'><classname>SYMBOL-MACRO</classname></ulink>">
 <!ENTITY eos "<ulink url='&clhs;/Body/glo_e.html#end_of_file'><literal>end-of-stream</literal></ulink>">
-<!ENTITY in-s "<ulink url='&clhs;/Body/glo_i.html#input'>input</ulink> &stream-t;">
-<!ENTITY out-s "<ulink url='&clhs;/Body/glo_o.html#output'>output</ulink> &stream-t;">
+<!ENTITY input-s "<ulink url='&clhs;/Body/glo_i.html#input'>input</ulink>">
+<!ENTITY in-s "&input-s; &stream-t;">
+<!ENTITY output-s "<ulink url='&clhs;/Body/glo_o.html#output'>output</ulink>">
+<!ENTITY out-s "&output-s; &stream-t;">
 <!ENTITY bidi-s "<ulink url='&clhs;/Body/glo_b.html#bidirectional'>bidirectional</ulink> &stream-t;">
 <!ENTITY fresh "<ulink url='&clhs;/Body/glo_f.html#fresh'>fresh</ulink>">
 <!ENTITY constant "<ulink url='&clhs;/Body/glo_c.html#constant_variable'>constant variable</ulink>">

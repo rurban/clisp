@@ -1739,7 +1739,7 @@ int main()
   printf("extern Handle handle_dup (Handle old_handle, Handle new_handle);\n");
   printf("extern Handle stream_lend_handle (object stream, bool inputp, int * handletype);\n");
   printf("extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, bool no_hang);\n");
-  printf("extern void write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len);\n");
+  printf("extern uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, bool no_hang);\n");
   printf("extern void builtin_stream_close (const gcv_object_t* stream_);\n");
   printf("extern object file_stream_truename (object s);\n");
   printf("extern object open_file_stream_handle (object stream, Handle *fd);\n");

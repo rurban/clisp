@@ -4191,8 +4191,7 @@ pointing to non-existent files and can take the following values:
   or &lt; &end-r; if the &stream-r; reached its end).</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
   &string-t; and &stream-k; is a &file-pipe-socket; stream with
-  &stream-element-type; &character-t; or an <ulink
-  url="&clhs;/Body/glo_i.html#input">input</ulink> &string-stream-t;.
+  &stream-element-type; &character-t; or an &input-s; &string-stream-t;.
   </simpara></listitem></varlistentry>
 </variablelist></para></formalpara>
 
@@ -4213,9 +4212,12 @@ functions are provided:
 <varlistentry id="wr-ch-seq"><term>&wr-ch-seq;
   performs multiple &write-char; operations:</term>
  <listitem><simpara><literal role="sexp">(&wr-ch-seq; &sequence-r;
-  &stream-r; &key-amp; &start-k; &end-k;)</literal> outputs the
+  &stream-r; &key-amp; &start-k; &end-k;  :NO-HANG)</literal> outputs the
   characters of the subsequence of &sequence-r; specified by &start-k;
-  and &end-k; to &stream-k;.  It returns &sequence-r;.</simpara>
+  and &end-k; to &stream-k;.
+  When <constant>:NO-HANG</constant> is non-&nil;, does not block.
+  Returns two values: &sequence-r; and the index of the first byte that
+  was not output.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
   &string-t; and &stream-k; is a &file-pipe-socket; &stream-t;
   with &stream-element-type; &character-t;.
