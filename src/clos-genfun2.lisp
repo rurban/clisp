@@ -216,7 +216,7 @@
 
 (let ((prototype-table
         (make-hash-table :key-type '(cons fixnum boolean) :value-type '(simple-array (unsigned-byte 8) (*))
-                         :test #'equal)))
+                         :test #'equal :warn-if-needs-rehash-after-gc t)))
   (defun finalize-fast-gf (gf)
     (let* ((signature (gf-signature gf))
            (reqanz (sig-req-num signature))
@@ -343,7 +343,8 @@
                     (setq ht-init
                           `(MAKE-HASH-TABLE
                              ; :KEY-TYPE '(CONS ... CLASS ...) :VALUE-TYPE 'FUNCTION
-                             :TEST (FUNCTION ,(if (eql n 1) 'EXT:STABLEHASH-EQ 'EQUAL)))
+                             :TEST ',(if (eql n 1) 'EXT:STABLEHASH-EQ 'EXT:STABLEHASH-EQUAL)
+                             :WARN-IF-NEEDS-REHASH-AFTER-GC 'T)
                           ht-key-binding
                           `((,tuple-var
                              ,(let ((tuple-fun (hash-tuple-function n)))
@@ -381,7 +382,8 @@
                         ht-init
                         `(MAKE-HASH-TABLE
                            ; :KEY-TYPE '(CONS ... CLASS ...) :VALUE-TYPE 'FUNCTION
-                           :TEST (FUNCTION ,(if (eql n 1) 'EXT:STABLEHASH-EQ 'EQUAL)))
+                           :TEST ',(if (eql n 1) 'EXT:STABLEHASH-EQ 'EXT:STABLEHASH-EQUAL)
+                           :WARN-IF-NEEDS-REHASH-AFTER-GC 'T)
                         em-expr
                         (if (eql n 1) ; whatever is faster
                           ;; `(GETHASH ,@class-of-exprs ,ht-var) ==
