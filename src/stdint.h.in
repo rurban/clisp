@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2002 Free Software Foundation, Inc.
+/* Copyright (C) 2001-2002, 2004 Free Software Foundation, Inc.
    This file is part of the GNU UniString Library.
 
    The GNU UniString Library is free software; you can redistribute it
@@ -33,14 +33,14 @@
 #if defined(__FreeBSD__)
 # include <sys/inttypes.h>
 #endif
-#if defined(__sun__)
-#  include <sys/int_types.h>
+#if defined(__sun)
+# include <sys/int_types.h>
 #endif
 #if !(defined(UNIX_CYGWIN32) && defined(__BIT_TYPES_DEFINED__))
-#  define NEED_SIGNED_INT_TYPES
+# define NEED_SIGNED_INT_TYPES
 #endif
 
-#if !defined(__sun__)
+#if !defined(__sun)
 
 /* 7.18.1.1. Exact-width integer types */
 
@@ -250,6 +250,6 @@ typedef uint32_t uintmax_t;
 
 #endif
 
-#endif  /* !__sun__ */
+#endif  /* !__sun */
 
 #endif /* _STDINT_H */
