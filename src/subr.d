@@ -503,7 +503,6 @@ LISPFUN(version,0,1,norest,nokey,0,NIL)
 #ifdef MACHINE_KNOWN
 LISPFUNN(machinetype,0)
 LISPFUNN(machine_version,0)
-LISPFUNN(machine_instance,0)
 #endif
 #ifdef HAVE_ENVIRONMENT
 LISPFUNN(get_env,1)
@@ -520,6 +519,10 @@ LISPFUNN(address_of,1)
 #ifdef HAVE_DISASSEMBLER
 LISPFUNN(code_address_of,1)
 LISPFUNN(program_id,0)
+#endif
+# ---------- SOCKET ----------
+#ifdef MACHINE_KNOWN
+LISPFUNN(machine_instance,0)
 #endif
 # ---------- TIME ----------
 LISPFUNN(get_universal_time,0)

@@ -1,13 +1,14 @@
 # Setting up a connection to an X server, and other socket functions
-# Bruno Haible 19.6.1994, 27.6.1997
+# Bruno Haible 19.6.1994, 27.6.1997, 9.3.1999
 # Marcus Daniels 28.9.1995, 9.9.1997
 
-# This code comes from the X11R5 distribution, file mit/X/XConnDis.c,
-# with the following modifications:
+# The code in function connect_to_x_server originally came from the X11R5
+# distribution, file mit/X/XConnDis.c, with the following modifications:
 # - no support for DNETCONN or STREAMSCONN,
 # - display name has already been split into hostname and display number,
 # - doesn't return full host&display name and auth info,
-# - doesn't depend on the X include files.
+# - doesn't depend on the X include files,
+# - support IPv6.
 
 # mit/X/XConnDis.c carries the following copyright notice:
 /*
@@ -38,20 +39,7 @@
 
 #include "lispbibl.c"
 
-# We assume that if we have gethostbyname(), we have a networking Unix.
-# and have either UNIX domain connections or TCP/IP connections.
-#ifdef HAVE_GETHOSTBYNAME
-
-#ifdef HAVE_SYS_UN_H  # have <sys/un.h> and Unix domain sockets?
-  #define UNIXCONN  # use Unix domain sockets
-#endif
-#if defined(HAVE_NETINET_IN_H) || defined(WIN32_NATIVE)  # have <netinet/in.h> ?
-  #define TCPCONN  # use TCP/IP sockets
-#endif
-
-#ifdef TCPCONN
-  #define SOCKET_STREAMS
-#endif
+#if defined(UNIX) || defined(WIN32_NATIVE)
 
 #include <sys/types.h>
 #ifdef HAVE_UNISTD_H
@@ -60,6 +48,323 @@
 
 #include <errno.h>
 extern int errno;
+
+#include <stdio.h>   # declares sprintf()
+#include <string.h>  # declares strcmp(), strlen(), strcpy()
+#ifdef RETSTRLENTYPE /* unless strlen() is a macro */
+  extern_C RETSTRLENTYPE strlen (STRLEN_CONST char* s);
+#endif
+
+# ================ hostnames and IP addresses only (no sockets) ================
+
+#ifndef WIN32
+  #ifdef HAVE_GETHOSTNAME
+    extern_C int gethostname (char* name, GETHOSTNAME_SIZE_T namelen);
+  #endif
+  #ifdef HAVE_SYS_UTSNAME_H
+    #include <sys/utsname.h>
+    extern_C int uname (struct utsname * buf);
+  #endif
+#endif
+
+# Fetches the machine's host name.
+# get_hostname(host =);
+# The name is allocated on the stack, with dynamic extent.
+# < const char* host: The host name.
+# FIXME: It is not clear to me when it is better/preferrable to simply use
+#   host = "localhost";
+# instead.
+  #if defined(HAVE_GETHOSTNAME)
+    #define get_hostname(host_assignment)  \
+      var char hostname[MAXHOSTNAMELEN+1];                                \
+      begin_system_call();                                                \
+      if ( gethostname(&hostname[0],MAXHOSTNAMELEN) <0) { SOCK_error(); } \
+      end_system_call();                                                  \
+      hostname[MAXHOSTNAMELEN] = '\0';                                    \
+      host_assignment &hostname[0];
+  #elif defined(HAVE_SYS_UTSNAME_H)
+    #define get_hostname(host_assignment)  \
+      var struct utsname utsname;              \
+      begin_system_call();                     \
+      if ( uname(&utsname) <0) { OS_error(); } \
+      end_system_call();                       \
+      host_assignment &!utsname.nodename;
+  #else
+    #define get_hostname(host_assignment)  \
+      ??
+  #endif
+
+#ifndef WIN32
+  #if defined(UNIXCONN) || defined(TCPCONN)
+    # include <sys/types.h>
+    #include <sys/socket.h> # declares socket(), connect(), setsockopt(), defines AF_UNIX, AF_INET, AF_INET6
+  #endif
+  #if defined(TCPCONN)
+    #include <netinet/in.h> # declares htons(), defines struct sockaddr_in
+    #ifdef HAVE_ARPA_INET_H
+      #include <arpa/inet.h> # declares inet_addr() and maybe inet_pton(), inet_ntop()
+    #endif
+    #ifdef IPV6_NEED_LINUX_IN6_H
+      #include <linux/in6.h> # defines struct in6_addr, struct sockaddr_in6
+    #endif
+  #endif
+  #ifdef HAVE_GETHOSTBYNAME
+    # include <sys/types.h>
+    #ifdef HAVE_NETDB_H
+      # include <sys/socket.h>
+      # include <netdb.h>
+    #else
+      # include <sun/netdb.h>
+    #endif
+    extern_C struct hostent * gethostbyname (GETHOSTBYNAME_CONST char* name);
+  #endif
+#endif
+
+# Converts an AF_INET address to a printable, presentable format.
+# ipv4_ntop(buffer,addr);
+# > sockaddr_in addr: IPv4 address
+# < char[] buffer: printable address
+# buffer should have at least 15+1 characters.
+#ifdef HAVE_IPV4
+  #ifdef HAVE_INET_NTOP
+    #define ipv4_ntop(buffer,addr)  \
+      inet_ntop(AF_INET,&addr,buffer,15+1);
+  #else
+    #define ipv4_ntop(buffer,addr)  \
+      strcpy(buffer,inet_ntoa(addr));
+  #endif
+#endif
+
+# Converts an AF_INET6 address to a printable, presentable format.
+# ipv6_ntop(buffer,addr);
+# > sockaddr_in6 addr: IPv6 address
+# < char[] buffer: printable address
+# buffer should have at least 45+1 characters.
+#ifdef HAVE_IPV6
+  #ifdef HAVE_INET_NTOP
+    #define ipv6_ntop(buffer,addr)  \
+      inet_ntop(AF_INET6,&addr,buffer,45+1);
+  #else
+    #define ipv6_ntop(buffer,addr)  \
+      sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x", \
+              ntohs((addr).in6_u.u6_addr16[0]), \
+              ntohs((addr).in6_u.u6_addr16[1]), \
+              ntohs((addr).in6_u.u6_addr16[2]), \
+              ntohs((addr).in6_u.u6_addr16[3]), \
+              ntohs((addr).in6_u.u6_addr16[4]), \
+              ntohs((addr).in6_u.u6_addr16[5]), \
+              ntohs((addr).in6_u.u6_addr16[6]), \
+              ntohs((addr).in6_u.u6_addr16[7])  \
+             );
+  #endif
+#endif
+
+#ifdef MACHINE_KNOWN
+
+LISPFUNN(machine_instance,0)
+# (MACHINE-INSTANCE), CLTL S. 447
+  { var object result = O(machine_instance_string);
+    if (nullp(result)) # noch unbekannt?
+      { # ja -> Hostname abfragen und dessen Internet-Adresse holen:
+        # (let* ((hostname (unix:gethostname))
+        #        (address (unix:gethostbyname hostname)))
+        #   (if (or (null address) (zerop (length address)))
+        #     hostname
+        #     (apply #'string-concat hostname " [" (inet-ntop address) "]")
+        # ) )
+        var const char* host;
+        get_hostname(host =);
+        result = asciz_to_string(host,O(misc_encoding)); # Hostname als Ergebnis
+        #ifdef HAVE_GETHOSTBYNAME
+          pushSTACK(result); # Hostname als 1. String
+          { var uintC stringcount = 1;
+            # Internet-Information holen:
+            var struct hostent * h;
+            begin_system_call();
+            h = gethostbyname(host);
+            end_system_call();
+            if (!(h == (struct hostent *)NULL)
+                && !(h->h_addr == (char*)NULL)
+                && (h->h_length > 0)
+               )
+              {
+                #ifdef HAVE_IPV6
+                if (h->h_addrtype == AF_INET6)
+                  { var char buffer[45+1];
+                    ipv6_ntop(buffer,*(const struct in6_addr*)h->h_addr);
+                    pushSTACK(ascii_to_string(" ["));
+                    pushSTACK(asciz_to_string(buffer,O(misc_encoding)));
+                    pushSTACK(ascii_to_string("]"));
+                    stringcount += 3;
+                  }
+                else
+                #endif
+                if (h->h_addrtype == AF_INET)
+                  { var char buffer[15+1];
+                    ipv4_ntop(buffer,*(const struct in_addr*)h->h_addr);
+                    pushSTACK(ascii_to_string(" ["));
+                    pushSTACK(asciz_to_string(buffer,O(misc_encoding)));
+                    pushSTACK(ascii_to_string("]"));
+                    stringcount += 3;
+                  }
+              }
+            # Strings zusammenhängen:
+            result = string_concat(stringcount);
+          }
+        #endif
+        # Das Ergebnis merken wir uns für's nächste Mal:
+        O(machine_instance_string) = result;
+      }
+    value1 = result; mv_count=1;
+  }
+
+#endif # MACHINE_KNOWN
+
+# We assume that if we have gethostbyname(), we have a networking OS
+# (Unix or Win32).
+#ifdef HAVE_GETHOSTBYNAME
+
+# ========================= General socket utilities =========================
+
+#if defined(UNIXCONN) || defined(TCPCONN)
+
+#ifndef WIN32
+  # include <sys/socket.h>
+  extern_C SOCKET socket (int domain, int type, int protocol);
+  #ifndef __GLIBC__ # glibc2 has a very weird declaration of connect(), autoconf cannot help
+    extern_C int connect (SOCKET fd, CONNECT_CONST CONNECT_NAME_T name, CONNECT_ADDRLEN_T namelen);
+  #endif
+  extern_C int setsockopt (SOCKET fd, int level, int optname, SETSOCKOPT_CONST SETSOCKOPT_ARG_T optval, SETSOCKOPT_OPTLEN_T optlen);
+#endif
+
+# A wrapper around the closesocket() function/macro.
+  #define CLOSESOCKET(fd)  while ((closesocket(fd) < 0) && sock_errno_is(EINTR)) ;
+
+# A wrapper around the connect() function.
+  global int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen);
+  global int nonintr_connect(fd,name,namelen)
+    var SOCKET fd;
+    var struct sockaddr * name;
+    var int namelen;
+    { var int retval;
+      do { retval = connect(fd,name,namelen); }
+         while ((retval < 0) && sock_errno_is(EINTR));
+      return retval;
+    }
+  #undef connect  # wg. UNIX_CYGWIN32
+  #define connect nonintr_connect
+
+# Execute a statement, but save sock_errno during it.
+# saving_sock_errno(statement);
+  #ifdef WIN32
+    #define saving_sock_errno(statement)  \
+      { int _olderrno = WSAGetLastError(); statement; WSASetLastError(_olderrno); }
+  #else
+    #define saving_sock_errno(statement)  \
+      { int _olderrno = errno; statement; errno = _olderrno; }
+  #endif
+
+#endif # UNIXCONN || TCPCONN
+
+#if defined(TCPCONN)
+
+extern_C RET_INET_ADDR_TYPE inet_addr (INET_ADDR_CONST char* host);
+
+#if !defined(HAVE_INET_PTON)
+# Newer RPCs specify that FQDNs can start with a digit, but can never consist
+# only of digits and dots, because of the top level domain. Use this criterion
+# to distinguish possible IP addresses from FQDNs.
+local boolean all_digits_dots (const char* host);
+local boolean all_digits_dots(host)
+  var const char* host;
+  { until (*host == '\0')
+      { var char c = *host++;
+        if (!((c >= '0' && c <= '9') || (c == '.'))) return FALSE;
+      }
+    return TRUE;
+  }
+#endif
+
+# Look up a host's IP address, then call a user-defined function taking
+# a `struct sockaddr' and its size, and returning a SOCKET.
+typedef SOCKET (*socket_connect_fn) (struct sockaddr * addr, int addrlen);
+local SOCKET with_hostname (const char* host, unsigned short port, socket_connect_fn connector);
+local SOCKET with_hostname(host,port,connector)
+  var const char* host;
+  var unsigned short port;
+  var socket_connect_fn connector;
+  {
+    #ifdef HAVE_INET_PTON
+    #ifdef HAVE_IPV6
+    { var struct sockaddr_in6 inaddr;
+      if (inet_pton(AF_INET6,host,&inaddr.sin6_addr) > 0)
+        { inaddr.sin6_family = AF_INET6;
+          inaddr.sin6_port = htons(port);
+          return connector((struct sockaddr *) &inaddr, sizeof(struct sockaddr_in6));
+    }   }
+    #endif
+    { var struct sockaddr_in inaddr;
+      if (inet_pton(AF_INET,host,&inaddr.sin_addr) > 0)
+        { inaddr.sin_family = AF_INET;
+          inaddr.sin_port = htons(port);
+          return connector((struct sockaddr *) &inaddr, sizeof(struct sockaddr_in));
+    }   }
+    #else
+    # if numeric host name then try to parse it as such; do the number check
+    # first because some systems return garbage instead of INVALID_INETADDR
+    if (all_digits_dots(host))
+      { var struct sockaddr_in inaddr;
+        var uint32 hostinetaddr = inet_addr(host) INET_ADDR_SUFFIX ;
+        if (!(hostinetaddr == ((uint32) -1)))
+          { inaddr.sin_family = AF_INET;
+            inaddr.sin_addr.s_addr = hostinetaddr;
+            inaddr.sin_port = htons(port);
+            return connector((struct sockaddr *) &inaddr, sizeof(struct sockaddr_in));
+      }   }
+    #endif
+    { var struct hostent * host_ptr; # entry in hosts table
+      if ((host_ptr = gethostbyname(host)) == NULL)
+        { sock_set_errno(EINVAL); return INVALID_SOCKET; } # No such host!
+      # Check the address type for an internet host.
+      #ifdef HAVE_IPV6
+      if (host_ptr->h_addrtype == AF_INET6)
+        { # Set up the socket data.
+          var struct sockaddr_in6 inaddr;
+          inaddr.sin6_family = AF_INET6;
+          inaddr.sin6_addr = *(struct in6_addr *)host_ptr->h_addr;
+          inaddr.sin6_port = htons(port);
+          return connector((struct sockaddr *) &inaddr, sizeof(struct sockaddr_in6));
+        }
+      else
+      #endif
+      if (host_ptr->h_addrtype == AF_INET)
+        { # Set up the socket data.
+          var struct sockaddr_in inaddr;
+          inaddr.sin_family = AF_INET;
+          inaddr.sin_addr = *(struct in_addr *)host_ptr->h_addr;
+          inaddr.sin_port = htons(port);
+          return connector((struct sockaddr *) &inaddr, sizeof(struct sockaddr_in));
+        }
+      else
+        { sock_set_errno(EPROTOTYPE); return INVALID_SOCKET; } # Not an Internet host!
+    }
+  }
+
+extern_C int setsockopt (int fd, int level, int optname, SETSOCKOPT_CONST SETSOCKOPT_ARG_T optval, SETSOCKOPT_OPTLEN_T optlen);
+
+#endif # TCPCONN
+
+# ========================== X server connection ========================
+
+# Attempts to connect to server, given host name and display number.
+# Returns file descriptor (network socket). Returns -1 and sets errno
+# if connection fails.
+# An empty hostname is interpreted as the most efficient local connection to
+# a server on the same machine (usually a UNIX domain socket).
+# hostname="unix" is interpreted as a UNIX domain connection.
+
+global SOCKET connect_to_x_server (const char* host, int display);
+
 #ifndef ENOSYS
   #define ENOSYS  EINVAL
 #endif
@@ -76,44 +381,11 @@ extern int errno;
   #endif
 #endif
 
-#define CLOSESOCKET(fd)  while ((closesocket(fd) < 0) && sock_errno_is(EINTR)) ;
-
 #if defined(UNIXCONN) || defined(TCPCONN)
-
-#ifndef WIN32
-  # include <sys/types.h>
-  #include <sys/socket.h> # declares socket(), connect(), setsockopt(), defines AF_UNIX, AF_INET
-  extern_C SOCKET socket (int domain, int type, int protocol);
-  #ifndef __GLIBC__ # glibc2 has a very weird declaration of connect(), autoconf cannot help
-    extern_C int connect (SOCKET fd, CONNECT_CONST CONNECT_NAME_T name, CONNECT_ADDRLEN_T namelen);
-  #endif
-  extern_C int setsockopt (SOCKET fd, int level, int optname, SETSOCKOPT_CONST SETSOCKOPT_ARG_T optval, SETSOCKOPT_OPTLEN_T optlen);
-#endif
-
-# A wrapper around the connect() function.
-  global int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen);
-  global int nonintr_connect(fd,name,namelen)
-    var SOCKET fd;
-    var struct sockaddr * name;
-    var int namelen;
-    { var int retval;
-      do { retval = connect(fd,name,namelen); }
-         while ((retval < 0) && sock_errno_is(EINTR));
-      return retval;
-    }
-  #undef connect  # wg. UNIX_CYGWIN32
-  #define connect nonintr_connect
-
-extern_C unsigned int sleep (unsigned int seconds);
-
+  extern_C unsigned int sleep (unsigned int seconds);
 #endif
 
 #ifdef UNIXCONN
-  #include <stdio.h>   # declares sprintf()
-  #include <string.h>  # declares strcmp(), strlen()
-  #ifdef RETSTRLENTYPE /* unless strlen() is a macro */
-    extern_C RETSTRLENTYPE strlen (STRLEN_CONST char* s);
-  #endif
   #include <sys/un.h>  # defines struct sockaddr_un
   # set X_UNIX_PATH and - on hpux only - OLD_UNIX_PATH
   #ifndef X_UNIX_PATH
@@ -128,59 +400,53 @@ extern_C unsigned int sleep (unsigned int seconds);
 
 #ifdef TCPCONN
   #ifndef WIN32
-    #ifdef HAVE_GETHOSTNAME
-      extern_C int gethostname (char* name, GETHOSTNAME_SIZE_T namelen);
-    #endif
-    #ifdef HAVE_SYS_UTSNAME_H
-      #include <sys/utsname.h>
-      extern_C int uname (struct utsname * buf);
-    #endif
-    #ifdef HAVE_GETHOSTBYNAME
-      #include <sys/types.h>
-      #ifdef HAVE_NETDB_H
-        # include <sys/socket.h>
-        # include <netdb.h>
-      #else
-        #include <sun/netdb.h>
-      #endif
-      extern_C struct hostent * gethostbyname (GETHOSTBYNAME_CONST char* name);
-    #endif
-  #endif
-  #ifndef MAXHOSTNAMELEN
-    #define MAXHOSTNAMELEN 64
-  #endif
-  #ifndef WIN32
-    #include <netinet/in.h> # declares htons(), defines struct sockaddr_in
-    #ifdef HAVE_ARPA_INET_H
-      #include <arpa/inet.h> # declares inet_addr()
-    #endif
-    extern_C RET_INET_ADDR_TYPE inet_addr (INET_ADDR_CONST char* host);
     #ifdef HAVE_NETINET_TCP_H
       #if defined(__386BSD__) || defined(__NetBSD__)
         #include <machine/endian.h> # needed for <netinet/tcp.h>
       #endif
       #include <netinet/tcp.h> # declares TCP_NODELAY
     #endif
-    extern_C int setsockopt (int fd, int level, int optname, SETSOCKOPT_CONST SETSOCKOPT_ARG_T optval, SETSOCKOPT_OPTLEN_T optlen);
   #endif
+#endif
+
+#ifdef TCPCONN
+local SOCKET connect_to_x_via_ip (struct sockaddr * addr, int addrlen);
+local SOCKET connect_to_x_via_ip(addr,addrlen)
+  var struct sockaddr * addr;
+  var int addrlen;
+  { var SOCKET fd;
+    var int retries = 3; # number of retries on ECONNREFUSED
+    do { if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
+           { return INVALID_SOCKET; }
+         #ifdef TCP_NODELAY
+         # turn off TCP coalescence (the bandwidth saving Nagle algorithm)
+         { int tmp = 1;
+           setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (SETSOCKOPT_ARG_T)&tmp, sizeof(int));
+         }
+         #endif
+         # Connect to the socket.
+         # If there is no X server or if the backlog has been reached,
+         # then ECONNREFUSED will be returned.
+         if (connect(fd, addr, addrlen) >= 0)
+           break;
+         saving_sock_errno(CLOSESOCKET(fd));
+         if (!(sock_errno_is(ECONNREFUSED) && (retries > 0)))
+           { return INVALID_SOCKET; }
+         sleep (1);
+       }
+       while (retries-- > 0);
+    return fd;
+  }
+#endif
+
+#ifdef TCPCONN
   #define X_TCP_PORT  6000  # from <X11/Xproto.h>
 #endif
 
-# ========================== X server connection ========================
-
-# Attempts to connect to server, given host name and display number.
-# Returns file descriptor (network socket). Returns -1 and sets errno
-# if connection fails.
-# An empty hostname is interpreted as the most efficient local connection to
-# a server on the same machine (usually a UNIX domain socket).
-# hostname="unix" is interpreted as a UNIX domain connection.
-
-global SOCKET connect_to_x_server (const char* host, int display);
 global SOCKET connect_to_x_server(host,display)
   var const char* host;  # host of display
   var int display;       # display number (screen number always zero)
 { var SOCKET fd;         # file descriptor to return
-  var int retries = 3; # number of retries on ECONNREFUSED
 
   var int conntype; # type of desired connection
   #define conn_none 0
@@ -210,6 +476,7 @@ global SOCKET connect_to_x_server(host,display)
   #ifdef UNIXCONN
   if (conntype == conn_unix)
     {
+      var int retries = 3; # number of retries on ECONNREFUSED
       var struct sockaddr_un unaddr;          # UNIX socket data block
       var struct sockaddr * addr;             # generic socket pointer
       var int addrlen;                        # length of addr
@@ -243,7 +510,7 @@ global SOCKET connect_to_x_server(host,display)
              { if (connect(fd, addr, addrlen) >= 0)
                  break;
                  else
-                 { int olderrno = errno; CLOSESOCKET(fd); errno = olderrno; }
+                 saving_sock_errno(CLOSESOCKET(fd));
              }
            #ifdef hpux /* this is disgusting */
            if (errno == ENOENT)
@@ -251,7 +518,7 @@ global SOCKET connect_to_x_server(host,display)
                  { if (connect(fd, oaddr, oaddrlen) >= 0)
                      break;
                      else
-                     { int olderrno = errno; CLOSESOCKET(fd); errno = olderrno; }
+                     saving_sock_errno(CLOSESOCKET(fd));
              }   }
            #endif
            if (!((errno == ENOENT) && (retries > 0)))
@@ -266,82 +533,14 @@ global SOCKET connect_to_x_server(host,display)
   #ifdef TCPCONN
   if (conntype == conn_tcp)
     {
-      #if defined(HAVE_GETHOSTNAME)
-      var char hostname[MAXHOSTNAMELEN+1];
-      #elif defined(HAVE_SYS_UTSNAME_H)
-      var struct utsname utsname;
-      #endif
-      var unsigned long hostinetaddr;       # result of inet_addr of arpa addr
-      var struct sockaddr_in inaddr;        # IP socket
-      var struct sockaddr * addr;           # generic socket pointer
-      var int addrlen;                      # length of addr
+      var unsigned short port = X_TCP_PORT+display;
       if (host[0] == '\0')
-        { # get host name
-          #if defined(HAVE_GETHOSTNAME)
-          if (gethostname(&!hostname,MAXHOSTNAMELEN) < 0) { return INVALID_SOCKET; }
-          hostname[MAXHOSTNAMELEN] = '\0';
-          host = &!hostname;
-          #elif defined(HAVE_SYS_UTSNAME_H)
-          if (uname(&utsname) < 0) { return INVALID_SOCKET; }
-          host = &!utsname.nodename;
-          #else
-          ??
-          #endif
-        }
-      # if numeric host name then try to parse it as such; do the number
-      # first because some systems return garbage instead of INVALID_INETADDR
-      #define INVALID_INETADDR  ((unsigned long) -1)
-      if ((host[0] >= '0') && (host[0] <= '9'))
-        { hostinetaddr = inet_addr(host) INET_ADDR_SUFFIX ; }
-        else
-        { hostinetaddr = INVALID_INETADDR; }
-      # try numeric
-      if (hostinetaddr == INVALID_INETADDR)
-        { var struct hostent * host_ptr; # entry in hosts table
-          if ((host_ptr = gethostbyname(host)) == NULL)
-            { sock_set_errno(EINVAL); return INVALID_SOCKET; } # No such host!
-          # Check the address type for an internet host.
-          if (host_ptr->h_addrtype != AF_INET)
-            { sock_set_errno(EPROTOTYPE); return INVALID_SOCKET; } # Not an Internet host!
-          # Set up the socket data.
-          inaddr.sin_family = host_ptr->h_addrtype;
-          inaddr.sin_addr = *(struct in_addr *)host_ptr->h_addr;
+        { get_hostname(host =);
+          fd = with_hostname(host,port,&connect_to_x_via_ip);
         }
         else
-        { inaddr.sin_family = AF_INET;
-          inaddr.sin_addr.s_addr = hostinetaddr;
-        }
-
-      inaddr.sin_port = X_TCP_PORT + display;
-      inaddr.sin_port = htons(inaddr.sin_port);
-      addr = (struct sockaddr *) &inaddr;
-      addrlen = sizeof(struct sockaddr_in);
-
-      # Open the network connection.
-      do { if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
-             { return INVALID_SOCKET; }
-           #ifdef TCP_NODELAY
-           # turn off TCP coalescence
-           { int tmp = 1;
-             setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (SETSOCKOPT_ARG_T)&tmp, sizeof(int));
-           }
-           #endif
-           # Connect to the socket.
-           # If there is no X server or if the backlog has been reached,
-           # then ECONNREFUSED will be returned.
-           if (connect(fd, addr, addrlen) >= 0)
-             break;
-           #ifndef WIN32
-           { int olderrno = errno; CLOSESOCKET(fd); errno = olderrno; }
-           #endif
-           #ifdef WIN32
-           { int olderrno = WSAGetLastError(); CLOSESOCKET(fd); WSASetLastError(olderrno); }
-           #endif
-           if (!(sock_errno_is(ECONNREFUSED) && (retries > 0)))
-             { return INVALID_SOCKET; }
-           sleep (1);
-         }
-         while (retries-- > 0);
+        { fd = with_hostname(host,port,&connect_to_x_via_ip); }
+      if (fd == INVALID_SOCKET) { return INVALID_SOCKET; }
     }
   else
   #endif
@@ -359,30 +558,112 @@ global SOCKET connect_to_x_server(host,display)
 
 # ====================== General socket functions =========================
 
-#ifdef SOCKET_STREAMS
+#ifdef SOCKET_STREAMS # implies TCPCONN
 
-#include <stdio.h>  # declares sprintf()
-#ifdef HAVE_MEMSET
-  #include <string.h>
-  #ifndef memset
-    extern_C RETMEMSETTYPE memset (void* ptr, int c, size_t len); # siehe MEMORY(3)
-  #endif
-  #define bzero(ptr,len)  memset(ptr,0,len)
-  #define bcopy(source,dest,len)  memcpy(dest,source,len)
-#else
-  extern_C void bzero (void* ptr, int len); # siehe BZERO(3)
-  extern_C void bcopy (void* source, void* dest, int len);
-#endif
+# When calling getsockname(), getpeername(), accept(), we need room for
+# either a sockaddr_in or a sockaddr_in6. Since we create only sockets
+# with family AF_INET and AF_INET6, these are the only kinds of sockets
+# we have to deal with (no sockaddr_ipx, sockaddr_un, etc.).
+typedef union {
+                struct sockaddr_in inaddr;
+                #ifdef HAVE_IPV6
+                struct sockaddr_in6 inaddr6;
+                #endif
+              }
+        sockaddr_max;
 
-local void fill_hostname (host_data * hd);
-local void fill_hostname (hd)
+# Auxiliary function:
+# socket_getlocalname(socket_handle,hd)
+# socket_getlocalname_aux(socket_handle,hd)
+# return the IP name of the localhost for the given socket.
+
+# Fills only hd->hostname and hd->port, not hd->truename.
+local host_data * socket_getlocalname_aux (SOCKET socket_handle, host_data * hd);
+local host_data * socket_getlocalname_aux(socket_handle,hd)
+  var SOCKET socket_handle;
   var host_data * hd;
   {
-    sprintf(hd->hostname, "%lu.%lu.%lu.%lu",
-            (hd->host >> 24) & 0xff,
-            (hd->host >> 16) & 0xff,
-            (hd->host >>  8) & 0xff,
-            hd->host & 0xff);
+    var sockaddr_max addr;
+    var int addrlen = sizeof(sockaddr_max);
+    if (getsockname(socket_handle,(struct sockaddr *)&addr,&addrlen) < 0)
+      return NULL;
+    # Fill in hd->hostname and hd->port.
+    switch (((struct sockaddr *)&addr)->sa_family)
+      {
+        #ifdef HAVE_IPV6
+        case AF_INET6:
+          ipv6_ntop(hd->hostname,addr.inaddr6.sin6_addr);
+          hd->port = ntohs(addr.inaddr6.sin6_port);
+          break;
+        #endif
+        case AF_INET:
+          ipv4_ntop(hd->hostname,addr.inaddr.sin_addr);
+          hd->port = ntohs(addr.inaddr.sin_port);
+          break;
+        default: NOTREACHED
+      }
+    return hd;
+  }
+
+# Fills all of *hd.
+global host_data * socket_getlocalname (SOCKET socket_handle, host_data * hd);
+global host_data * socket_getlocalname(socket_handle,hd)
+  var SOCKET socket_handle;
+  var host_data * hd;
+  {
+    if (socket_getlocalname_aux(socket_handle,hd) == NULL)
+      return NULL;
+    # Fill in hd->truename.
+    {
+      var const char* host;
+      get_hostname(host =); # was: host = "localhost";
+      ASSERT(strlen(host) <= MAXHOSTNAMELEN);
+      strcpy(hd->truename,host);
+    }
+    return hd;
+  }
+
+# Auxiliary function:
+# socket_getpeername (socket_handle, hd)
+# returns the name of the host to which IP socket fd is connected.
+
+# Fills all of *hd.
+global host_data * socket_getpeername (SOCKET socket_handle, host_data * hd);
+global host_data * socket_getpeername(socket_handle,hd)
+  var SOCKET socket_handle;
+  var host_data * hd;
+  {
+    var sockaddr_max addr;
+    var int addrlen = sizeof(sockaddr_max);
+    var struct hostent* hp;
+    # Get host's IP address.
+    if (getpeername(socket_handle,(struct sockaddr *)&addr,&addrlen) < 0)
+      return NULL;
+    # Fill in hd->port and hd->hostname, and retrieve hp.
+    switch (((struct sockaddr *)&addr)->sa_family)
+      {
+        #ifdef HAVE_IPV6
+        case AF_INET6:
+          ipv6_ntop(hd->hostname,addr.inaddr6.sin6_addr);
+          hd->port = ntohs(addr.inaddr6.sin6_port);
+          hp = gethostbyaddr((const char *)&addr.inaddr6.sin6_addr,sizeof(struct sockaddr_in6),AF_INET6);
+          break;
+        #endif
+        case AF_INET:
+          ipv4_ntop(hd->hostname,addr.inaddr.sin_addr);
+          hd->port = ntohs(addr.inaddr.sin_port);
+          hp = gethostbyaddr((const char *)&addr.inaddr.sin_addr,sizeof(struct sockaddr_in),AF_INET);
+          break;
+        default: NOTREACHED
+      }
+    # Fill in hd->truename.
+    if (hp)
+      { ASSERT(strlen(hp->h_name) <= MAXHOSTNAMELEN);
+        strcpy(hd->truename,hp->h_name);
+      }
+      else
+      { hd->truename[0] = '\0'; }
+    return hd;
   }
 
 # Creation of sockets on the server side:
@@ -394,72 +675,80 @@ local void fill_hostname (hd)
 #   socket_handle.
 
 global SOCKET create_server_socket (host_data *hd, SOCKET sock, unsigned int port);
+local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen);
+local SOCKET bindlisten_via_ip(addr,addrlen)
+  var struct sockaddr * addr;
+  var int addrlen;
+  { var SOCKET fd;
+    # Get a socket.
+    if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
+      { return INVALID_SOCKET; }
+    # Set an option for the next bind() call: Avoid an EADDRINUSE error
+    # in case there are TIME_WAIT or CLOSE_WAIT sockets hanging around on
+    # the port. (Sockets in LISTEN or ESTABLISHED state on the same port
+    # will still yield an error.)
+    { var unsigned int flag = 1;
+      if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (SETSOCKOPT_ARG_T)&flag, sizeof(flag)) < 0)
+        { saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET; }
+    }
+    # Bind it to the desired port.
+    if (bind(fd, addr, addrlen) >= 0)
+      # Start listening for client connections.
+      if (listen(fd, 1) >= 0)
+        { return fd; }
+    saving_sock_errno(CLOSESOCKET(fd));
+    return INVALID_SOCKET;
+  }
 global SOCKET create_server_socket (hd, sock, port)
   var host_data *hd;
   var SOCKET sock;
   var unsigned int port;
   {
-    var struct sockaddr_in sa;
-    var SOCKET sk;
-    var unsigned int flag = 1;
-    var int addr_len = sizeof (struct sockaddr);
-
-    # Prepare the result.
-    bzero(hd,sizeof(host_data));
-
-    # Get a socket.
-    if ((sk = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+    var SOCKET fd;
+    if (sock == INVALID_SOCKET)
+      {
+        var const char* host;
+        get_hostname(host =); # was: host = "localhost";
+        fd = with_hostname(host,port,&bindlisten_via_ip);
+      }
+      else
+      {
+        var sockaddr_max addr;
+        var int addrlen = sizeof(sockaddr_max);
+        if (getsockname(sock,(struct sockaddr *)&addr,&addrlen) < 0)
+          return INVALID_SOCKET;
+        switch (((struct sockaddr *)&addr)->sa_family)
+          {
+            #ifdef HAVE_IPV6
+            case AF_INET6:
+              addr.inaddr6.sin6_port = htons(0);
+              break;
+            #endif
+            case AF_INET:
+              addr.inaddr.sin_port = htons(0);
+              break;
+            default: NOTREACHED
+          }
+        fd = bindlisten_via_ip((struct sockaddr *)&addr,addrlen);
+      }
+    if (fd == INVALID_SOCKET)
       return INVALID_SOCKET;
-
-    # Set an option for the next bind() call: Avoid an EADDRINUSE error
-    # in case there are TIME_WAIT or CLOSE_WAIT sockets hanging around on
-    # the port. (Sockets in LISTEN or ESTABLISHED state on the same port
-    # will still yield an error.)
-    if (setsockopt(sk, SOL_SOCKET, SO_REUSEADDR, (SETSOCKOPT_ARG_T)&flag, sizeof(flag)) < 0)
-      return INVALID_SOCKET;
-
-    # Bind it to the desired port.
-    bzero((char *) &sa, addr_len);
-    if (INVALID_SOCKET == sock) {
-      var struct hostent *hp;
-
-      if ((hp = gethostbyname("localhost")) == NULL)
-        return INVALID_SOCKET;
-      bcopy(hp->h_addr, (char *) &sa.sin_addr, hp->h_length);
-      sa.sin_family = hp->h_addrtype;
-      sa.sin_port = htons(port);
-    } else {
-      if (-1 == getsockname(sock,(struct sockaddr*)&sa,&addr_len))
-        return INVALID_SOCKET;
-      sa.sin_port=0;
-    }
-
-    if (bind(sk, (struct sockaddr *) &sa, addr_len) < 0)
-      return INVALID_SOCKET;
-
-    if (-1 == getsockname(sk,(struct sockaddr*)&sa,&addr_len))
-      return INVALID_SOCKET;
-
-    # Start listening for client connections.
-    if (listen(sk, 1) < 0)
-      return INVALID_SOCKET;
-
-    hd->port = ntohs(sa.sin_port);
-    hd->host = ntohl(sa.sin_addr.s_addr);
-    hd->truename = NULL;
-    fill_hostname (hd);
-
-    return sk;
+    # Retrieve the assigned port.
+    if (socket_getlocalname_aux(fd,hd) != NULL)
+      return fd;
+    saving_sock_errno(CLOSESOCKET(fd));
+    return INVALID_SOCKET;
   }
 
 global SOCKET accept_connection (SOCKET socket_handle);
 global SOCKET accept_connection (socket_handle)
   var SOCKET socket_handle;
   {
-    var struct sockaddr_in sa;
-    var int alen = sizeof (struct sockaddr);
-
-    return accept(socket_handle,(struct sockaddr *)&sa,&alen);
+    var sockaddr_max addr;
+    var int addrlen = sizeof(sockaddr_max);
+    return accept(socket_handle,(struct sockaddr *)&addr,&addrlen);
+    # We can ignore the contents of addr, because we can retrieve it again
+    # through socket_getpeername() later.
   }
 
 # Creation of sockets on the client side:
@@ -468,39 +757,23 @@ global SOCKET accept_connection (socket_handle)
 #   on the specified host and port).
 
 global SOCKET create_client_socket (const char* hostname, unsigned int port);
+local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen);
+local SOCKET connect_via_ip(addr,addrlen)
+  var struct sockaddr * addr;
+  var int addrlen;
+  { var SOCKET fd;
+    if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
+      { return INVALID_SOCKET; }
+    if (connect(fd, addr, addrlen) >= 0)
+      { return fd; }
+    saving_sock_errno(CLOSESOCKET(fd));
+    return INVALID_SOCKET;
+  }
 global SOCKET create_client_socket(hostname,port)
   var const char* hostname;
   var unsigned int port;
   {
-    var struct sockaddr_in sa;
-    var struct hostent *hp;
-    var SOCKET s;
-    var unsigned long addr;
-
-    bzero(&sa, sizeof(sa));
-    if ((addr = inet_addr(hostname)) != (unsigned long) -1)
-      {
-        # is Internet addr in octet notation
-        bcopy(&addr, (char *) &sa.sin_addr, sizeof(addr)); # set address
-        sa.sin_family = AF_INET;
-      }
-    else
-      {
-        if ((hp = gethostbyname(hostname)) == NULL)
-          return INVALID_SOCKET;
-        bcopy(hp->h_addr, (char *) &sa.sin_addr, hp->h_length);
-        sa.sin_family = hp->h_addrtype;
-      }
-
-    sa.sin_port = htons((u_short) port);
-
-    if ((s = socket(sa.sin_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
-      return INVALID_SOCKET;
-    if (connect(s, (struct sockaddr *)&sa, sizeof(sa)) < 0)
-      { CLOSESOCKET(s);
-        return INVALID_SOCKET;
-      }
-    return s;
+    return with_hostname(hostname,port,&connect_via_ip);
   }
 
 # Auxiliary function:
@@ -555,68 +828,6 @@ global int resolve_service (name_or_number,name)
           *name = servent->s_name;
         return ntohs(servent->s_port);
       }
-  }
-
-# Auxiliary function:
-# socket_getpeername (socket_handle, hd)
-# returns the name of the host to which IP socket fd is connected.
-# Note that hd->truename may point to static data; it must therefore be
-# used immediately and must not be free()d.
-
-global host_data * socket_getpeername (SOCKET socket_handle, host_data * hd);
-global host_data * socket_getpeername (socket_handle, hd)
-  var SOCKET socket_handle;
-  var host_data * hd;
-  {
-    var struct hostent *hostent;
-    var struct sockaddr_in addr_in;
-    var int len = sizeof(addr_in);
-
-    # Prepare the result.
-    bzero(hd,sizeof(host_data));
-
-    # Get host's IP address.
-    if (getpeername(socket_handle, (struct sockaddr *) &addr_in, &len) < 0)
-      return NULL;
-
-    # Convert it to an ASCII host name.
-    hostent = gethostbyaddr ((const char *)&(addr_in.sin_addr.s_addr),
-                             sizeof(addr_in.sin_addr.s_addr),AF_INET);
-
-    # Fill the host_data structure
-    hd->host = ntohl(addr_in.sin_addr.s_addr);
-    hd->port = ntohs(addr_in.sin_port);
-    hd->truename = hostent ? hostent->h_name : NULL;
-    fill_hostname (hd);
-
-    return hd;
-  }
-
-# Auxiliary function:
-# socket_getlocalname(socket_handle, hd)
-# return the IP name of the localhost for the given socket.
-
-global host_data * socket_getlocalname (SOCKET socket_handle, host_data * hd);
-global host_data * socket_getlocalname(socket_handle, hd)
-  var SOCKET socket_handle;
-  var host_data * hd;
-  {
-    var struct sockaddr_in addr_in;
-    var int addr_len = sizeof(addr_in);
-
-    # Prepare the result.
-    bzero(hd,sizeof(host_data));
-
-    if (-1 == getsockname (socket_handle,(struct sockaddr*)&addr_in,&addr_len))
-      return NULL;
-
-    # Fill the host_data structure
-    hd->host = ntohl(addr_in.sin_addr.s_addr);
-    hd->port = ntohs(addr_in.sin_port);
-    hd->truename = "localhost";
-    fill_hostname (hd);
-
-    return hd;
   }
 
 #endif # SOCKET_STREAMS
@@ -684,4 +895,6 @@ LISPFUNN(resolve_host_ipaddr,1)
 #endif # EXPORT_SYSCALLS
 
 #endif # HAVE_GETHOSTBYNAME
+
+#endif # UNIX || WIN32_NATIVE
 

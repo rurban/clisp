@@ -572,6 +572,16 @@
 #undef HAVE_SOCKADDR_UN_LEN
 
 /* CL_TCPCONN */
+/* Define if <sys/socket.h> defines AF_INET. */
+#undef HAVE_IPV4
+/* Define if <sys/socket.h> defines AF_INET6. */
+#undef HAVE_IPV6
+/* Define if you need <linux/in6.h> for the in6_addr and sockaddr_in6 types. */
+#undef IPV6_NEED_LINUX_IN6_H
+/* Define if you have the inet_pton() function. */
+#undef HAVE_INET_PTON
+/* Define if you have the inet_ntop() function. */
+#undef HAVE_INET_NTOP
 /* Define if you have <netinet/in.h>. */
 #undef HAVE_NETINET_IN_H
 /* Define if you have <arpa/inet.h>. */

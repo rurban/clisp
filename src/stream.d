@@ -14778,29 +14778,25 @@ local void publish_host_data (host_data * (*func)());
 local void publish_host_data (func)
   var host_data * (*func)();
   {
-    var SOCKET sk;
+    var object stream = test_socket_stream(popSTACK(),TRUE);
+    var SOCKET sk = TheSocket(TheStream(stream)->strm_ichannel);
     var host_data hd;
-
-    var object stream = test_socket_stream(STACK_0,TRUE);
-    sk = TheSocket(TheStream(stream)->strm_ichannel);
 
     begin_system_call();
     if (NULL == (*func)(sk, &hd)) { SOCK_error(); }
     end_system_call();
-    skipSTACK(1);
-    if (hd.truename == NULL)
+    if (hd.truename[0] == '\0')
       value1 = asciz_to_string(hd.hostname,O(misc_encoding));
     else {
-      var char* tmp_str = malloc (strlen (hd.truename) + strlen (hd.hostname) + 4);
+      var DYNAMIC_ARRAY(tmp_str,char,strlen(hd.truename)+2+strlen(hd.hostname)+1+1);
       strcpy(tmp_str, hd.hostname);
       strcat(tmp_str, " (");
       strcat(tmp_str, hd.truename);
       strcat(tmp_str, ")");
       value1 = asciz_to_string(tmp_str,O(misc_encoding));
-      free (tmp_str);
+      FREE_DYNAMIC_ARRAY(tmp_str);
     }
     value2 = fixnum (hd.port);
-
     mv_count=2;
   }
 
