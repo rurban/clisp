@@ -1,3 +1,8 @@
+New in 1.9:
+
+* Added support for x86_64 (AMD64) Linux.
+* Added support for PowerPC MacOS X.
+
 New in 1.8:
 
 * Added support for IA-64 Linux.
