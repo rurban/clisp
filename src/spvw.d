@@ -1655,6 +1655,26 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           });
       }
 
+# print usage and exit
+nonreturning_function (local, usage, (int exit_code));
+local void usage (int exit_code)
+{
+  asciz_out("Usage:  ");
+  asciz_out(program_name);
+  asciz_out(" [-h] [-m memsize]");
+  #ifndef NO_SP_MALLOC
+  asciz_out(" [-s stacksize]");
+  #endif
+  #ifdef MULTIMAP_MEMORY_VIA_FILE
+  asciz_out(" [-t tmpdir]");
+  #endif
+  asciz_out(" [-W] [-M memfile] [-L language] [-N nlsdir] [-q] [-I] [-C]"
+            " [-norc] [-i initfile ...] [-c [-l] lispfile [-o outputfile] ...]"
+            " [-p packagename] [-a] [-x expression] [lispfile [argument ...]]"
+            NLstring);
+  quit_sofort (exit_code); # anormales Programmende
+}
+
 # Hauptprogramm trägt den Namen 'main'.
   #ifdef NEXTAPP
     # main() existiert schon in Lisp_main.m
@@ -1812,24 +1832,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       # - in den Manual-Pages _clisp.1 und _clisp.html.
       #
       program_name = argv[0]; # argv[0] ist der Programmname
-      if (FALSE)
-        { usage:
-          asciz_out("Usage:  ");
-          asciz_out(program_name);
-          asciz_out(" [-h] [-m memsize]");
-          #ifndef NO_SP_MALLOC
-          asciz_out(" [-s stacksize]");
-          #endif
-          #ifdef MULTIMAP_MEMORY_VIA_FILE
-          asciz_out(" [-t tmpdir]");
-          #endif
-          asciz_out(" [-W] [-M memfile] [-L language] [-N nlsdir] [-q] [-I]"
-                    " [-C] [-norc] [-i initfile ...] [-c [-l] lispfile"
-                    " [-o outputfile] ...] [-p packagename] [-a]"
-                    " [-x expression] [lispfile [argument ...]]"
-                    NLstring);
-          quit_sofort(1); # anormales Programmende
-        }
      {var char** argptr = &argv[1];
       var char** argptr_limit = &argv[argc];
       var enum { for_exec, for_init, for_compile } argv_for = for_exec;
@@ -1840,12 +1842,12 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           if ((arg[0] == '-') && !(arg[1] == '\0'))
             { switch (arg[1])
                 { case 'h': # Help
-                    goto usage;
+                    usage ((arg[2] != 0));
                   # Liefert nach einem einbuchstabigen Kürzel den Rest der
                   # Option in arg. Evtl. Space wird übergangen.
                   #define OPTION_ARG  \
                     if (arg[2] == '\0') \
-                      { if (argptr < argptr_limit) arg = *argptr++; else goto usage; } \
+                      { if (argptr < argptr_limit) arg = *argptr++; else usage (1); } \
                       else { arg = &arg[2]; }
                   # Parst den Rest einer Option, die eine Byte-Größe angibt.
                   # Überprüft auch, ob gewisse Grenzen eingehalten werden.
@@ -1872,14 +1874,14 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                                      ENGLISH ? "Syntax for %s: nnnnnnn or nnnnKB or nMB" NLstring : \
                                      FRANCAIS ? "syntaxe pour %s: nnnnnnn ou nnnnKB ou nMB" NLstring : \
                                      "", docstring);                \
-                         goto usage;                                \
+                         usage (1);                                 \
                        }                                            \
                      if (!((val >= limit_low) && (val <= limit_high))) \
                        { asciz_out_s(DEUTSCH ? "%s ist nicht im gültigen Bereich" NLstring : \
                                      ENGLISH ? "%s out of range" NLstring : \
                                      FRANCAIS ? "%s n'est pas entre les bornes" NLstring : \
                                      "", docstring);                \
-                         goto usage;                                \
+                         usage (1);                                 \
                        }                                            \
                      # Bei mehreren -m bzw. -s Argumenten zählt nur das letzte. \
                      sizevar = val;                                 \
@@ -1913,17 +1915,17 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                   #ifdef MULTIMAP_MEMORY_VIA_FILE
                   case 't': # temporäres Directory
                     OPTION_ARG
-                    if (!(argv_tmpdir == NULL)) goto usage;
+                    if (!(argv_tmpdir == NULL)) usage (1);
                     argv_tmpdir = arg;
                     break;
                   #endif
                   case 'W': # WIDE-Version wählen, for backward compatibility
                     argv_wide = TRUE;
-                    if (!(arg[2] == '\0')) goto usage;
+                    if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'n':
                     if (!strcmp (arg, "-norc")) argv_norc = TRUE;
-                    else goto usage;
+                    else usage (1);
                     break;
                   case 'M': # MEM-File
                     OPTION_ARG
@@ -1942,38 +1944,38 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                     break;
                   case 'q': # keine Copyright-Meldung
                     argv_quiet = TRUE;
-                    if (!(arg[2] == '\0')) goto usage;
+                    if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'I': # ILISP-freundlich
                     ilisp_mode = TRUE;
-                    if (!(arg[2] == '\0')) goto usage;
+                    if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'C': # *LOAD-COMPILING* setzen
                     argv_load_compiling = TRUE;
-                    if (!(arg[2] == '\0')) goto usage;
+                    if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'i': # Initialisierungs-Files
                     argv_for = for_init;
-                    if (!(arg[2] == '\0')) goto usage;
+                    if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'c': # Zu compilierende Files
                     argv_compile = TRUE;
                     argv_for = for_compile;
                     if (arg[2] == 'l')
                       { argv_compile_listing = TRUE;
-                        if (!(arg[3] == '\0')) goto usage;
+                        if (!(arg[3] == '\0')) usage (1);
                       }
                       else
-                      { if (!(arg[2] == '\0')) goto usage; }
+                      { if (!(arg[2] == '\0')) usage (1); }
                     break;
                   case 'l': # Compilate und Listings
                     argv_compile_listing = TRUE;
-                    if (!(arg[2] == '\0')) goto usage;
+                    if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'o': # Ziel für zu compilierendes File
-                    if (!(arg[2] == '\0')) goto usage;
+                    if (!(arg[2] == '\0')) usage (1);
                     OPTION_ARG
-                    if (!((argv_compile_filecount > 0) && (argv_compile_files[argv_compile_filecount-1].output_file==NULL))) goto usage;
+                    if (!((argv_compile_filecount > 0) && (argv_compile_files[argv_compile_filecount-1].output_file==NULL))) usage (1);
                     argv_compile_files[argv_compile_filecount-1].output_file = arg;
                     break;
                   case 'p': # Package
@@ -1983,18 +1985,18 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                     break;
                   case 'a': # ANSI CL Compliance
                     argv_ansi = TRUE;
-                    if (!(arg[2] == '\0')) goto usage;
+                    if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'x': # LISP-Expression ausführen
                     OPTION_ARG
-                    if (!(argv_expr == NULL)) goto usage;
+                    if (!(argv_expr == NULL)) usage (1);
                     argv_expr = arg;
                     break;
                   case '-': # -- Optionen im GNU-Stil
                     if (asciz_equal(&arg[2],"help"))
-                      goto usage;
+                      usage (0);
                     elif (asciz_equal(&arg[2],"version"))
-                      { if (!(argv_expr == NULL)) goto usage;
+                      { if (!(argv_expr == NULL)) usage (0);
                         argv_quiet = TRUE;
                         argv_expr = "(PROGN (FORMAT T \"CLISP ~A\" (LISP-IMPLEMENTATION-VERSION)) (LISP:EXIT))";
                         break;
@@ -2002,10 +2004,10 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                     elif (asciz_equal(&arg[2],"quiet") || asciz_equal(&arg[2],"silent"))
                       { argv_quiet = TRUE; break; }
                     else
-                      goto usage; # Unbekannte Option
+                      usage (1); # Unbekannte Option
                     break;
                   default: # Unbekannte Option
-                    goto usage;
+                    usage (1);
             }   }
             else
             # keine Option,
@@ -2065,11 +2067,11 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       #endif
       if (!argv_compile)
         # Manche Optionen sind nur zusammen mit '-c' sinnvoll:
-        { if (argv_compile_listing) goto usage; }
+        { if (argv_compile_listing) usage (1); }
         else
         # Andere Optionen sind nur ohne '-c' sinnvoll:
-        { if (!(argv_expr == NULL)) goto usage; }
-      if (argv_expr && argv_execute_file) goto usage;
+        { if (!(argv_expr == NULL)) usage (1); }
+      if (argv_expr && argv_execute_file) usage (1);
      }
      # Tabelle von Fehlermeldungen initialisieren:
      if (init_errormsg_table()<0) goto no_mem;
