@@ -136,20 +136,17 @@
         mmap_intervals_ptr->mm_addr = map_addr; mmap_intervals_ptr->mm_len = map_len;
         mmap_intervals_ptr++;
       }
-    local void msync_mmap_intervals (void);
-    local void msync_mmap_intervals()
-      {
-        var mmap_interval* ptr = &mmap_intervals[0];
-        until (ptr==mmap_intervals_ptr) {
-          if (msync((MMAP_ADDR_T)ptr->mm_addr,ptr->mm_len,MS_INVALIDATE) < 0) {
-            asciz_out_2(GETTEXTL("msync(0x%x,0x%x,MS_INVALIDATE) fails."),
-                        ptr->mm_addr, ptr->mm_len
-                       );
-            errno_out(errno);
-          }
-          ptr++;
+    local void msync_mmap_intervals (void) {
+      var mmap_interval* ptr = &mmap_intervals[0];
+      while (ptr != mmap_intervals_ptr) {
+        if (msync((MMAP_ADDR_T)ptr->mm_addr,ptr->mm_len,MS_INVALIDATE) < 0) {
+          asciz_out_2(GETTEXTL("msync(0x%x,0x%x,MS_INVALIDATE) failed."),
+                      ptr->mm_addr, ptr->mm_len);
+          errno_out(errno);
         }
+        ptr++;
       }
+    }
   #else
      #define remember_mmap_interval(map_addr,map_len)
      #define msync_mmap_intervals()
