@@ -9070,7 +9070,7 @@ extern maygc object allocate_iarray (uintB flags, uintC rank, tint type);
 /* used by FFI & modules */
 #endif
 
-# UP: allocates foreign adddress
+# UP: allocates foreign address
 # allocate_faddress()
 # < result: LISP-object foreign address
 # can trigger GC
