@@ -3334,7 +3334,7 @@ $ rm -r base+sort
 <example id="dffi-gethostname"><title>Variable size arguments:
   calling &gethostname; from &clisp;</title>
 
-<para><funcsynopsis><funcprototype>
+<para><funcsynopsis id="gethostname-synopsis"><funcprototype>
    <funcdef><type>int</type> <function>gethostname</function></funcdef>
    <paramdef><type>char*</type> <parameter>name</parameter></paramdef>
    <paramdef><type>size_t</type> <parameter>namelen</parameter></paramdef>
