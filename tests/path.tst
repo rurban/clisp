@@ -784,3 +784,7 @@ NIL
                (remove-if-not #'wild-pathname-p d)))
     (delete-file file)))
 (T NIL)
+
+(first (pathname-directory (translate-pathname
+                            "foo/bar/baz" #p"" #p"" :absolute t)))
+:ABSOLUTE

@@ -36,7 +36,8 @@
   (let* ((socket (socket :AF_UNIX type 0))
          (address (make-sockaddr :AF_UNIX
                                  (ext:convert-string-to-bytes
-                                  (namestring pathname t)
+                                  (namestring (translate-pathname
+                                               pathname #p"" #p"" :absolute t))
                                   ext:*pathname-encoding*))))
     (connect socket address)
     (values socket address)))
