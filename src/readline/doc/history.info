@@ -1,5 +1,5 @@
 This is Info file history.info, produced by Makeinfo version 1.67 from
-the input file /usr/homes/chet/src/bash/readline-2.2/doc/hist.texinfo.
+the input file /usr/homes/chet/src/bash/readline-src/doc/hist.texinfo.
 
 INFO-DIR-SECTION Libraries
 START-INFO-DIR-ENTRY
@@ -10,8 +10,7 @@ END-INFO-DIR-ENTRY
 that provides a consistent user interface for recalling lines of
 previously typed input.
 
-   Copyright (C) 1988, 1991, 1993, 1995, 1996 Free Software Foundation,
-Inc.
+   Copyright (C) 1988-1999 Free Software Foundation, Inc.
 
    Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice pare
@@ -25,7 +24,7 @@ permission notice identical to this one.
    Permission is granted to copy and distribute translations of this
 manual into another language, under the above conditions for modified
 versions, except that this permission notice may be stated in a
-translation approved by the Foundation.
+translation approved by the Free Software Foundation.
 
 
 File: history.info,  Node: Top,  Next: Using History Interactively,  Up: (dir)
@@ -764,26 +763,26 @@ Function and Variable Index
 
 
 Tag Table:
-Node: Top1167
-Node: Using History Interactively1747
-Node: History Interaction2255
-Node: Event Designators3674
-Node: Word Designators4601
-Node: Modifiers5850
-Node: Programming with GNU History6988
-Node: Introduction to History7714
-Node: History Storage9035
-Node: History Functions10128
-Node: Initializing History and State Management11099
-Node: History List Management11891
-Node: Information About the History List13412
-Node: Moving Around the History List14718
-Node: Searching the History List15603
-Node: Managing the History File17435
-Node: History Expansion18941
-Node: History Variables20785
-Node: History Programming Example23103
-Node: Concept Index25707
-Node: Function and Variable Index26193
+Node: Top1162
+Node: Using History Interactively1742
+Node: History Interaction2250
+Node: Event Designators3669
+Node: Word Designators4596
+Node: Modifiers5845
+Node: Programming with GNU History6983
+Node: Introduction to History7709
+Node: History Storage9030
+Node: History Functions10123
+Node: Initializing History and State Management11094
+Node: History List Management11886
+Node: Information About the History List13407
+Node: Moving Around the History List14713
+Node: Searching the History List15598
+Node: Managing the History File17430
+Node: History Expansion18936
+Node: History Variables20780
+Node: History Programming Example23098
+Node: Concept Index25702
+Node: Function and Variable Index26188
 
 End Tag Table

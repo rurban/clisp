@@ -72,6 +72,7 @@ extern char *strchr ();
 #define BAD_WORD_SPEC	1
 #define SUBST_FAILED	2
 #define BAD_MODIFIER	3
+#define NO_PREV_SUBST	4
 
 /* Possible definitions for history starting point specification. */
 #define ANCHORED_SEARCH 1

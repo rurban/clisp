@@ -1,25 +1,50 @@
 <HTML>
 <HEAD>
-<!-- This HTML file has been created by texi2html 1.51
-     from /usr/homes/chet/src/bash/readline-2.2/doc/hist.texinfo on 2 April 1998 -->
+<!-- This HTML file has been created by texi2html 1.52
+     from /usr/homes/chet/src/bash/readline-src/doc/hist.texinfo on 31 December 1998 -->
 
 <TITLE>GNU History Library</TITLE>
 </HEAD>
 <BODY>
 <H1>GNU History Library</H1>
-<H2>Edition 2.1, for <CODE>History Library</CODE> Version 2.1.</H2>
-<H2>March 1996</H2>
+<H2>Edition 4.0, for <CODE>History Library</CODE> Version 4.0.</H2>
+<H2>December 1998</H2>
 <ADDRESS>Brian Fox, Free Software Foundation</ADDRESS>
 <ADDRESS>Chet Ramey, Case Western Reserve University</ADDRESS>
 <P>
 <P><HR><P>
-
-<P>
-@dircategory Libraries
-@direntry
-* History: (history).       The GNU history library API
-
-</P>
+<H1>Table of Contents</H1>
+<UL>
+<LI><A NAME="TOC1" HREF="history.html#SEC1">Using History Interactively</A>
+<UL>
+<LI><A NAME="TOC2" HREF="history.html#SEC2">History Expansion</A>
+<UL>
+<LI><A NAME="TOC3" HREF="history.html#SEC3">Event Designators</A>
+<LI><A NAME="TOC4" HREF="history.html#SEC4">Word Designators</A>
+<LI><A NAME="TOC5" HREF="history.html#SEC5">Modifiers</A>
+</UL>
+</UL>
+<LI><A NAME="TOC6" HREF="history.html#SEC6">Programming with GNU History</A>
+<UL>
+<LI><A NAME="TOC7" HREF="history.html#SEC7">Introduction to History</A>
+<LI><A NAME="TOC8" HREF="history.html#SEC8">History Storage</A>
+<LI><A NAME="TOC9" HREF="history.html#SEC9">History Functions</A>
+<UL>
+<LI><A NAME="TOC10" HREF="history.html#SEC10">Initializing History and State Management</A>
+<LI><A NAME="TOC11" HREF="history.html#SEC11">History List Management</A>
+<LI><A NAME="TOC12" HREF="history.html#SEC12">Information About the History List</A>
+<LI><A NAME="TOC13" HREF="history.html#SEC13">Moving Around the History List</A>
+<LI><A NAME="TOC14" HREF="history.html#SEC14">Searching the History List</A>
+<LI><A NAME="TOC15" HREF="history.html#SEC15">Managing the History File</A>
+<LI><A NAME="TOC16" HREF="history.html#SEC16">History Expansion</A>
+</UL>
+<LI><A NAME="TOC17" HREF="history.html#SEC17">History Variables</A>
+<LI><A NAME="TOC18" HREF="history.html#SEC18">History Programming Example</A>
+</UL>
+<LI><A NAME="TOC19" HREF="history.html#SEC19">Concept Index</A>
+<LI><A NAME="TOC20" HREF="history.html#SEC20">Function and Variable Index</A>
+</UL>
+<P><HR><P>
 
 <P>
 This document describes the GNU History library, a programming tool that
@@ -50,17 +75,17 @@ notice identical to this one.
 Permission is granted to copy and distribute translations of this manual
 into another language, under the above conditions for modified versions,
 except that this permission notice may be stated in a translation approved
-by the Foundation.
+by the Free Software Foundation.
 
 </P>
 <P>
-Copyright (C) 1989, 1991 Free Software Foundation, Inc.
+Copyright (C) 1988-1999 Free Software Foundation, Inc.
 
 </P>
 
 
 
-<H1><A NAME="SEC1" HREF="history_toc.html#TOC1">Using History Interactively</A></H1>
+<H1><A NAME="SEC1" HREF="history.html#TOC1">Using History Interactively</A></H1>
 
 <P>
 This chapter describes how to use the GNU History Library interactively,
@@ -70,9 +95,13 @@ see section <A HREF="history.html#SEC6">Programming with GNU History</A>.
 
 </P>
 
+<UL>
+<LI><A HREF="history.html#SEC2">History Interaction</A>: What it feels like using History as a user.
+</UL>
 
 
-<H2><A NAME="SEC2" HREF="history_toc.html#TOC2">History Expansion</A></H2>
+
+<H2><A NAME="SEC2" HREF="history.html#TOC2">History Expansion</A></H2>
 <P>
 <A NAME="IDX1"></A>
 
@@ -95,8 +124,8 @@ History expansion takes place in two parts.  The first is to determine
 which line from the history list should be used during substitution.
 The second is to select portions of that line for inclusion into the
 current one.  The line selected from the history is called the
-<STRONG>event</STRONG>, and the portions of that line that are acted upon are
-called <STRONG>words</STRONG>.  Various <STRONG>modifiers</STRONG> are available to manipulate
+<EM>event</EM>, and the portions of that line that are acted upon are
+called <EM>words</EM>.  Various <EM>modifiers</EM> are available to manipulate
 the selected words.  The line is broken into words in the same fashion
 that Bash does, so that several words
 surrounded by quotes are considered one word.
@@ -106,8 +135,15 @@ history expansion character, which is <SAMP>`!'</SAMP> by default.
 </P>
 
 
+<UL>
+<LI><A HREF="history.html#SEC3">Event Designators</A>: How to specify which history line to use.
+<LI><A HREF="history.html#SEC4">Word Designators</A>: Specifying which words are of interest.
+<LI><A HREF="history.html#SEC5">Modifiers</A>: Modifying the results of substitution.
+</UL>
 
-<H3><A NAME="SEC3" HREF="history_toc.html#TOC3">Event Designators</A></H3>
+
+
+<H3><A NAME="SEC3" HREF="history.html#TOC3">Event Designators</A></H3>
 <P>
 <A NAME="IDX2"></A>
 
@@ -161,7 +197,7 @@ The entire command line typed so far.
 
 
 
-<H3><A NAME="SEC4" HREF="history_toc.html#TOC4">Word Designators</A></H3>
+<H3><A NAME="SEC4" HREF="history.html#TOC4">Word Designators</A></H3>
 
 <P>
 Word designators are used to select desired words from the event.
@@ -221,7 +257,7 @@ previous command is used as the event.
 </P>
 
 
-<H3><A NAME="SEC5" HREF="history_toc.html#TOC5">Modifiers</A></H3>
+<H3><A NAME="SEC5" HREF="history.html#TOC5">Modifiers</A></H3>
 
 <P>
 After the optional word designator, you can add a sequence of one or more
@@ -275,7 +311,7 @@ or with <SAMP>`&#38;'</SAMP>.
 
 
 
-<H1><A NAME="SEC6" HREF="history_toc.html#TOC6">Programming with GNU History</A></H1>
+<H1><A NAME="SEC6" HREF="history.html#TOC6">Programming with GNU History</A></H1>
 
 <P>
 This chapter describes how to interface programs that you write
@@ -285,9 +321,17 @@ For information on the interactive use of GNU History, see section <A HREF="hist
 
 </P>
 
+<UL>
+<LI><A HREF="history.html#SEC7">Introduction to History</A>: What is the GNU History library for?
+<LI><A HREF="history.html#SEC8">History Storage</A>: How information is stored.
+<LI><A HREF="history.html#SEC9">History Functions</A>: Functions that you can use.
+<LI><A HREF="history.html#SEC17">History Variables</A>: Variables that control behaviour.
+<LI><A HREF="history.html#SEC18">History Programming Example</A>: Example of using the GNU History Library.
+</UL>
 
 
-<H2><A NAME="SEC7" HREF="history_toc.html#TOC7">Introduction to History</A></H2>
+
+<H2><A NAME="SEC7" HREF="history.html#TOC7">Introduction to History</A></H2>
 
 <P>
 Many programs read input from the user a line at a time.  The GNU History
@@ -301,7 +345,7 @@ The programmer using the History library has available functions
 for remembering lines on a history list, associating arbitrary data
 with a line, removing lines from the list, searching through the list
 for a line containing an arbitrary text string, and referencing any line
-in the list directly.  In addition, a history <STRONG>expansion</STRONG> function
+in the list directly.  In addition, a history <EM>expansion</EM> function
 is available which provides for a consistent user interface across
 different programs.
 
@@ -322,7 +366,7 @@ advantage of command line editing.
 </P>
 
 
-<H2><A NAME="SEC8" HREF="history_toc.html#TOC8">History Storage</A></H2>
+<H2><A NAME="SEC8" HREF="history.html#TOC8">History Storage</A></H2>
 
 <P>
 The history list is an array of history entries.  A history entry is
@@ -369,7 +413,7 @@ stifled.
 </P>
 
 
-<H2><A NAME="SEC9" HREF="history_toc.html#TOC9">History Functions</A></H2>
+<H2><A NAME="SEC9" HREF="history.html#TOC9">History Functions</A></H2>
 
 <P>
 This section describes the calling sequence for the various functions
@@ -377,9 +421,27 @@ present in GNU History.
 
 </P>
 
+<UL>
+<LI><A HREF="history.html#SEC10">Initializing History and State Management</A>: Functions to call when you
+						want to use history in a
+						program.
+<LI><A HREF="history.html#SEC11">History List Management</A>: Functions used to manage the list
+					of history entries.
+<LI><A HREF="history.html#SEC12">Information About the History List</A>: Functions returning information about
+					the history list.
+<LI><A HREF="history.html#SEC13">Moving Around the History List</A>: Functions used to change the position
+					in the history list.
+<LI><A HREF="history.html#SEC14">Searching the History List</A>: Functions to search the history list
+					for entries containing a string.
+<LI><A HREF="history.html#SEC15">Managing the History File</A>: Functions that read and write a file
+					containing the history list.
+<LI><A HREF="history.html#SEC16">History Expansion</A>: Functions to perform csh-like history
+					expansion.
+</UL>
 
 
-<H3><A NAME="SEC10" HREF="history_toc.html#TOC10">Initializing History and State Management</A></H3>
+
+<H3><A NAME="SEC10" HREF="history.html#TOC10">Initializing History and State Management</A></H3>
 
 <P>
 This section describes functions used to initialize and manage
@@ -414,7 +476,7 @@ Set the state of the history list according to <VAR>state</VAR>.
 </P>
 
 
-<H3><A NAME="SEC11" HREF="history_toc.html#TOC11">History List Management</A></H3>
+<H3><A NAME="SEC11" HREF="history.html#TOC11">History List Management</A></H3>
 
 <P>
 These functions manage individual entries on the history list, or set
@@ -486,7 +548,7 @@ Returns non-zero if the history is stifled, zero if it is not.
 </P>
 
 
-<H3><A NAME="SEC12" HREF="history_toc.html#TOC12">Information About the History List</A></H3>
+<H3><A NAME="SEC12" HREF="history.html#TOC12">Information About the History List</A></H3>
 
 <P>
 These functions return information about the entire history list or
@@ -543,7 +605,7 @@ history.
 </P>
 
 
-<H3><A NAME="SEC13" HREF="history_toc.html#TOC13">Moving Around the History List</A></H3>
+<H3><A NAME="SEC13" HREF="history.html#TOC13">Moving Around the History List</A></H3>
 
 <P>
 These functions allow the current index into the history list to be
@@ -581,7 +643,7 @@ a <CODE>NULL</CODE> pointer.
 </P>
 
 
-<H3><A NAME="SEC14" HREF="history_toc.html#TOC14">Searching the History List</A></H3>
+<H3><A NAME="SEC14" HREF="history.html#TOC14">Searching the History List</A></H3>
 <P>
 <A NAME="IDX22"></A>
 
@@ -589,7 +651,7 @@ a <CODE>NULL</CODE> pointer.
 <P>
 These functions allow searching of the history list for entries containing
 a specific string.  Searching may be performed both forward and backward
-from the current history position.  The search may be <STRONG>anchored</STRONG>,
+from the current history position.  The search may be <EM>anchored</EM>,
 meaning that the string must match at the beginning of the history entry.
 <A NAME="IDX23"></A>
 
@@ -634,7 +696,7 @@ index of the history element where <VAR>string</VAR> was found, or -1 otherwise.
 </P>
 
 
-<H3><A NAME="SEC15" HREF="history_toc.html#TOC15">Managing the History File</A></H3>
+<H3><A NAME="SEC15" HREF="history.html#TOC15">Managing the History File</A></H3>
 
 <P>
 The History library can read the history from and write it to a file.
@@ -694,7 +756,7 @@ Truncate the history file <VAR>filename</VAR>, leaving only the last
 </P>
 
 
-<H3><A NAME="SEC16" HREF="history_toc.html#TOC16">History Expansion</A></H3>
+<H3><A NAME="SEC16" HREF="history.html#TOC16">History Expansion</A></H3>
 
 <P>
 These functions implement <CODE>csh</CODE>-like history expansion.
@@ -766,7 +828,7 @@ obeyed.
 </P>
 
 
-<H2><A NAME="SEC17" HREF="history_toc.html#TOC17">History Variables</A></H2>
+<H2><A NAME="SEC17" HREF="history.html#TOC17">History Variables</A></H2>
 
 <P>
 This section describes the externally visible variables exported by
@@ -872,7 +934,7 @@ By default, this variable is set to NULL.
 </P>
 
 
-<H2><A NAME="SEC18" HREF="history_toc.html#TOC18">History Programming Example</A></H2>
+<H2><A NAME="SEC18" HREF="history.html#TOC18">History Programming Example</A></H2>
 
 <P>
 The following program demonstrates simple use of the GNU History Library.
@@ -964,17 +1026,24 @@ main ()
 
 
 
-<H1><A NAME="SEC19" HREF="history_toc.html#TOC19">Concept Index</A></H1>
+<H1><A NAME="SEC19" HREF="history.html#TOC19">Concept Index</A></H1>
 <P>
-<H2>a</H2>
+Jump to:
+<A HREF="#a">a</A>
+-
+<A HREF="#e">e</A>
+-
+<A HREF="#h">h</A>
+<P>
+<H2><A NAME="a">a</A></H2>
 <DIR>
 <LI><A HREF="history.html#IDX23">anchored search</A>
 </DIR>
-<H2>e</H2>
+<H2><A NAME="e">e</A></H2>
 <DIR>
 <LI><A HREF="history.html#IDX2">event designators</A>
 </DIR>
-<H2>h</H2>
+<H2><A NAME="h">h</A></H2>
 <DIR>
 <LI><A HREF="history.html#IDX3">history events</A>
 <LI><A HREF="history.html#IDX1">history expansion</A>
@@ -984,23 +1053,46 @@ main ()
 </P>
 
 
-<H1><A NAME="SEC20" HREF="history_toc.html#TOC20">Function and Variable Index</A></H1>
+<H1><A NAME="SEC20" HREF="history.html#TOC20">Function and Variable Index</A></H1>
 <P>
-<H2>a</H2>
+Jump to:
+<A HREF="#a">a</A>
+-
+<A HREF="#c">c</A>
+-
+<A HREF="#g">g</A>
+-
+<A HREF="#h">h</A>
+-
+<A HREF="#m">m</A>
+-
+<A HREF="#n">n</A>
+-
+<A HREF="#p">p</A>
+-
+<A HREF="#r">r</A>
+-
+<A HREF="#s">s</A>
+-
+<A HREF="#u">u</A>
+-
+<A HREF="#w">w</A>
+<P>
+<H2><A NAME="a">a</A></H2>
 <DIR>
 <LI><A HREF="history.html#IDX7">add_history</A>
 <LI><A HREF="history.html#IDX30">append_history</A>
 </DIR>
-<H2>c</H2>
+<H2><A NAME="c">c</A></H2>
 <DIR>
 <LI><A HREF="history.html#IDX10">clear_history</A>
 <LI><A HREF="history.html#IDX16">current_history</A>
 </DIR>
-<H2>g</H2>
+<H2><A NAME="g">g</A></H2>
 <DIR>
 <LI><A HREF="history.html#IDX34">get_history_event</A>
 </DIR>
-<H2>h</H2>
+<H2><A NAME="h">h</A></H2>
 <DIR>
 <LI><A HREF="history.html#IDX33">history_arg_extract</A>
 <LI><A HREF="history.html#IDX36">history_base</A>
@@ -1026,35 +1118,35 @@ main ()
 <LI><A HREF="history.html#IDX18">history_total_bytes</A>
 <LI><A HREF="history.html#IDX31">history_truncate_file</A>
 </DIR>
-<H2>m</H2>
+<H2><A NAME="m">m</A></H2>
 <DIR>
 <LI><A HREF="history.html#IDX38">max_input_history</A>
 </DIR>
-<H2>n</H2>
+<H2><A NAME="n">n</A></H2>
 <DIR>
 <LI><A HREF="history.html#IDX21">next_history</A>
 </DIR>
-<H2>p</H2>
+<H2><A NAME="p">p</A></H2>
 <DIR>
 <LI><A HREF="history.html#IDX20">previous_history</A>
 </DIR>
-<H2>r</H2>
+<H2><A NAME="r">r</A></H2>
 <DIR>
 <LI><A HREF="history.html#IDX27">read_history</A>
 <LI><A HREF="history.html#IDX28">read_history_range</A>
 <LI><A HREF="history.html#IDX8">remove_history</A>
 <LI><A HREF="history.html#IDX9">replace_history_entry</A>
 </DIR>
-<H2>s</H2>
+<H2><A NAME="s">s</A></H2>
 <DIR>
 <LI><A HREF="history.html#IDX11">stifle_history</A>
 </DIR>
-<H2>u</H2>
+<H2><A NAME="u">u</A></H2>
 <DIR>
 <LI><A HREF="history.html#IDX12">unstifle_history</A>
 <LI><A HREF="history.html#IDX4">using_history</A>
 </DIR>
-<H2>w</H2>
+<H2><A NAME="w">w</A></H2>
 <DIR>
 <LI><A HREF="history.html#IDX15">where_history</A>
 <LI><A HREF="history.html#IDX29">write_history</A>
@@ -1062,8 +1154,8 @@ main ()
 
 </P>
 <P><HR><P>
-This document was generated on 2 April 1998 using the
-<A HREF="http://wwwcn.cern.ch/dci/texi2html/">texi2html</A>
-translator version 1.51.</P>
+This document was generated on 31 December 1998 using the
+<A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
+translator version 1.52.</P>
 </BODY>
 </HTML>

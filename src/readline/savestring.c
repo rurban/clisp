@@ -1,4 +1,4 @@
-/* shell.h -- utility functions normally provided by bash. */
+/* savestring.c  */
 
 /* Copyright (C) 1998 Free Software Foundation, Inc.
 
@@ -20,18 +20,14 @@
    have a copy of the license, write to the Free Software Foundation,
    675 Mass Ave, Cambridge, MA 02139, USA. */
 
-#if !defined (_SHELL_H_)
-#define _SHELL_H_
+extern char *strcpy ();
+extern char *xmalloc ();
 
-#if defined (READLINE_LIBRARY)
-#  include "rlstdc.h"
-#else
-#  include <readline/rlstdc.h>
-#endif
-
-extern char *(savestring) _PROTO((char *s));
-extern char *single_quote _PROTO((char *string));
-extern void set_lines_and_columns _PROTO((int lines, int cols));
-extern char *get_env_value _PROTO((char *varname));
-
-#endif /* _SHELL_H_ */
+/* Backwards compatibility, now that savestring has been removed from
+   all `public' readline header files. */
+char *
+savestring (s)
+     char *s;
+{
+  return ((char *)strcpy (xmalloc (1 + (int)strlen (s)), (s)));
+}
