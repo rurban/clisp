@@ -94,7 +94,7 @@ DEFUN(REGEXP::REGEXP-EXEC, pattern string &key START END NOTBOL NOTEOL)
   if (!missingp(STACK_1)) eflags |= REG_NOTBOL;
   re = (regex_t*)TheFpointer(STACK_5)->fp_pointer;
   begin_system_call();
-  ret = (regmatch_t*)calloc(re->re_nsub+1, sizeof(regmatch_t));
+  ret = (regmatch_t*)alloca((re->re_nsub+1)*sizeof(regmatch_t));
   end_system_call();
   if (ret == NULL) OS_error();
   with_string_0(string,GLO(misc_encoding),stringz, {
@@ -103,15 +103,15 @@ DEFUN(REGEXP::REGEXP-EXEC, pattern string &key START END NOTBOL NOTEOL)
     end_system_call();
   });
   if (status) {
-    free(ret);
-    value1 = NIL; mv_count = 0;
+    VALUES0;
   } else {
     int count;
-    for (count = 0; count <= re->re_nsub; count++) {
-      pushSTACK(posfixnum(start+ret[count].rm_so));
-      pushSTACK(posfixnum(start+ret[count].rm_eo));
-      funcall(`REGEXP::MAKE-MATCH-BOA`,2); pushSTACK(value1);
-    }
+    for (count = 0; count <= re->re_nsub; count++)
+      if (ret[count].rm_so >= 0 && ret[count].rm_eo >= 0) {
+        pushSTACK(posfixnum(start+ret[count].rm_so));
+        pushSTACK(posfixnum(start+ret[count].rm_eo));
+        funcall(`REGEXP::MAKE-MATCH-BOA`,2); pushSTACK(value1);
+      } else pushSTACK(NIL);
     funcall(L(values),re->re_nsub+1);
   }
   skipSTACK(6);

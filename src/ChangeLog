@@ -1,5 +1,11 @@
 2004-01-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/regexp/regexi.c (REGEXP): use alloca() instead of calloc();
+	return NIL for non-existent matches (instead of an invalid MATCH)
+	Reported by Wolfgang Jenkner <wjenkner@inode.at>
+
+2004-01-06  Sam Steingold  <sds@gnu.org>
+
 	* defs2.lisp (with-standard-io-syntax): bind *PRINT-SYMBOLS-LONG*
 
 2004-01-06  Bruno Haible  <bruno@clisp.org>
