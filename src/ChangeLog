@@ -49,7 +49,7 @@
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
 	* describe.lisp (apropos): Terminate the output with an elastic-newline,
-	not a fresh-line.
+	not a fresh-line. But output nothing if the symbol list is empty.
 
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
