@@ -1,3 +1,8 @@
+1999-02-12  Sam Steingold  <sds@goems.com>
+
+	* socket.d (create_client_socket): port is unsigned int.
+	* stream.d: declare `create_client_socket' appropriately.
+
 1999-02-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * pseudofun.d: Enclose all XPSEUDOs in #ifdef UNICODE.

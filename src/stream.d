@@ -14535,7 +14535,7 @@ LISPFUN(socket_wait,1,2,norest,nokey,0,NIL)
     skipSTACK(3);
   }
 
-extern SOCKET create_client_socket (const char* host, int port);
+extern SOCKET create_client_socket (const char* host, unsigned int port);
 
 LISPFUN(socket_connect,1,1,norest,key,3,\
         (kw(element_type),kw(external_format),kw(buffered)) )
