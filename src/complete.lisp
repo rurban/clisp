@@ -80,8 +80,10 @@
           known-len (length known-part))
     (funcall mapfun gatherer package)
     (when (null return-list) (return-from completion nil))
-    (when void-completion
-      (let ((sym (find-symbol (car return-list) package)))
+    (when (and void-completion (< end (length string))
+               (whitespacep (schar string end)))
+      (let ((sym (find-symbol (find known-part return-list :test string-cmp)
+                              package)))
         (return-from completion
           (when (and sym (fboundp sym)) ; (null (cdr return-list))
             (cond ((equalp state new-state)

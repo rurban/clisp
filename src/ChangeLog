@@ -1,5 +1,10 @@
 2002-10-22  Sam Steingold  <sds@gnu.org>
 
+	* complete.lisp (completion): call DESCRIBE only if there was
+	something typed and it is in the completions
+
+2002-10-22  Sam Steingold  <sds@gnu.org>
+
 	Make sure COMPILE-FILE-PATHNAME does not barf in SEARCH-FILE
 	* init.lisp (search-file): pass :IF-DOES-NOT-EXIST :IGNORE to DIRECTORY
 	* pathname.d (dir_search_if_none_t): added DIR_IF_NONE_IGNORE
