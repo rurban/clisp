@@ -18,7 +18,7 @@
     order to view this file without sed-processing it, it is sufficient
     to make a symlink for "CLHSROOT" in the current directory.
   * "Whatever is written by a human, is supposed to be read by a human".
-    Please Keep your lines under 79 characters and remember that some
+    Please keep your lines under 79 characters and remember that some
     people will be reading this document with "CLHSROOT" replaced with a
     long URL.
   * If you are using Emacs, do (setq sentence-end-double-space t) and
@@ -9003,10 +9003,10 @@ use this to see who connected.
 
 <p>When CLISP is configured with an option
 <code>--with-export-syscalls</code>, some system calls are available from
-lisp.
+lisp, in package <code>POSIX</code>.
 
 <dl>
- <dt><code>(<strong>lisp:resolve-host-ipaddr </strong>
+ <dt><code>(<strong>posix:resolve-host-ipaddr </strong>
             &amp;optional <var>host</var>)</code>
  <dd>Returns the hostent struct as multiple values (name, list of
      aliases, list of IP addresses as dotted quads (for IPv4) or coloned
@@ -9018,7 +9018,7 @@ lisp.
      vectors of length 4 (this would be the contents of the
      <var>/etc/hosts</var> file on a UNIX system or
      <var>${windir}/system32/etc/hosts</var> on a Win32 system).
- <dt><code>(<strong>lisp:file-stat</strong>
+ <dt><code>(<strong>posix:file-stat</strong>
             <var>file</var> &amp;optional <var>link-p</var>)</code>
  <dd>Return the stat struct as multiple values.  <code>file</code> can
      be a stream, a pathname, a string or a number (on a UNIX system,
@@ -9035,7 +9035,7 @@ lisp.
      <code>nil</code></a> (or the default, like 1 for the number of
      hard links for Win32 or DOS) is returned.
      <br>[UNIX systems only at this time, patches are welcome.]
- <dt><code>(<strong>lisp:user-data</strong>
+ <dt><code>(<strong>posix:user-data</strong>
              &amp;optional <var>user</var>)</code>
  <dd>Return the passwd struct as multiple values (name, encoded
      password, UID, GID, full name, home directory, shell).  When
@@ -9048,6 +9048,22 @@ lisp.
      <a href="CLHSROOT/Body/convar_nil.html">
      <code>nil</code></a> (or the default, like <var>c:\command.com</var>
      for DOS) is returned.
+     <br>[UNIX systems only at this time, patches are welcome.]
+ <dt><code>(<strong>posix:erf</strong> <var>real</var>)<code><br>
+     <code>(<strong>posix:erfc</strong> <var>real</var>)<code><br>
+     <code>(<strong>posix:j0</strong> <var>real</var>)<code><br>
+     <code>(<strong>posix:j1</strong> <var>real</var>)<code><br>
+     <code>(<strong>posix:jn</strong> <var>int</var> <var>real</var>)<code><br>
+     <code>(<strong>posix:y0</strong> <var>real</var>)<code><br>
+     <code>(<strong>posix:y1</strong> <var>real</var>)<code><br>
+     <code>(<strong>posix:yn</strong> <var>int</var> <var>real</var>)<code><br>
+     <code>(<strong>posix:gamma</strong> <var>real</var>)<code><br>
+     <code>(<strong>posix:lgamma</strong> <var>real</var>)<code>
+ <dd>Compute the error functions, Bessel functions and Gamma.
+     These functions are required by the POSIX standard and should be
+     available in libm.so.  Please note that these functions do not
+     provide lisp-style error handling and precision, and all the
+     computations at the double float level.
      <br>[UNIX systems only at this time, patches are welcome.]
 </dl>
 
