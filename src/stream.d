@@ -13191,7 +13191,7 @@ local void wr_ch_window (const object* stream_, object ch) {
 }
 
 LISPFUNN(make_window,0) {
-  finish_output_terminal(var_stream(S(terminal_io),strmflags_wr_ch_B)); # write poss. pending NL now
+  finish_output(var_stream(S(terminal_io),strmflags_wr_ch_B)); # write poss. pending NL now
   var object stream = # Flags: only WRITE-CHAR allowed
     allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+0,0);
   # and fill:
