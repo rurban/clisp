@@ -1,3 +1,9 @@
+2003-10-22  Christophe Rhodes  <csr21@cam.ac.uk>
+	    Sam Steingold  <sds@gnu.org>
+
+	* defstruct.lisp (ds-make-defsetfs): put DEFSTRUCT-WRITER
+	property whenever we do DEFSETF (i.e., COMPILE EVAL LOAD)
+
 2003-10-19  Sam Steingold  <sds@gnu.org>
 
 	* w32shell.c (real-path): avoid gcc -Wall warnings
