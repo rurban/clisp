@@ -313,15 +313,15 @@ as changed bye the `user' and check that this date is in that file's header."
       (save-excursion
         (goto-char 0)
         (while (setq start (re-search-forward re nil t))
-          (setq end (re-search-forward "^[0-9]"))
-          (goto-char start)
-          (while (re-search-forward "^\t\\* " end t)
-            (setq all (nconc (split-string
-                              (buffer-substring-no-properties
-                               (point) (re-search-forward
-                                        "[:()]" (line-end-position) t))
-                              "[ ,():]+" t)
-                             all))))))
+          (let ((end (re-search-forward "^[0-9]")))
+            (goto-char start)
+            (while (re-search-forward "^\t\\* " end t)
+              (setq all (nconc (split-string
+                                (buffer-substring-no-properties
+                                 (point) (re-search-forward
+                                          "[:()]" (line-end-position) t))
+                                "[ ,():]+" t)
+                               all)))))))
     (setq all (delete-dups all))
     (message "clisp-update-dates: %d files: %s" (length all) all)
     (dolist (file all)
