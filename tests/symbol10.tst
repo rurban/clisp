@@ -11,9 +11,10 @@ NIL
          #+XCL (eq (sys::%p-get-cdr var 0) sys::%cdr-specsym) ; specvar
          #+CLISP (and (sys::special-variable-p var) (not (constantp var))) ; specvar
          #+ALLEGRO (and (not (constantp var)) (eval `(let ((,var (list nil))) (and (boundp ',var) (eq (symbol-value ',var) ,var)))))
+         #+CMU (eq (ext:info variable kind var) ':special)
          (and (fboundp var) t)                       ; funktion. Eigenschaft
          (and (fboundp var) (macro-function var) t)  ; Macro?
-         (and (fboundp var) (special-form-p var) t)  ; Spezialform?
+         (and (fboundp var) (#-CMU special-form-p #+CMU special-operator-p var) t)  ; Spezialform?
          #-CLISP (and (symbol-plist var) t)          ; p-Liste?
          #+CLISP (and (or (get var 'i1) (get var 'i2) (get var 'i3)) t) ; p-Liste?
          (get var 'i1)                               ; i1
@@ -29,13 +30,14 @@ testvar
                 (setf (symbol-plist var) '())
          )
    #+ALLEGRO (setf (excl::symbol-bit var 'excl::.globally-special.) nil)
+   #+CMU (setf (ext:info variable kind var) ':global)
    var)
 clrvar
 
-#+(or XCL CLISP ALLEGRO)
+#+(or XCL CLISP ALLEGRO CMU)
 (progn (setf (symbol-function 'setf-get)
-             (symbol-function #+XCL 'sys::setf-get #+CLISP 'sys::%put #+ALLEGRO 'excl::.inv-get)) t)
-#+(or XCL CLISP ALLEGRO)
+             (symbol-function #+XCL 'sys::setf-get #+CLISP 'sys::%put #+ALLEGRO 'excl::.inv-get #+CMU 'cl::%put)) t)
+#+(or XCL CLISP ALLEGRO CMU)
 T
 
 ;;; Begin Breitentest
@@ -133,11 +135,11 @@ val3
 
 ;;; umbinden
 
-(remprop 'v1 'i2)
+(not (null (remprop 'v1 'i2)))
 t
-(remprop 'v1 'i1)
+(not (null (remprop 'v1 'i1)))
 t
-(remprop 'v1 'i3)
+(not (null (remprop 'v1 'i3)))
 t
 (fmakunbound 'v1)
 v1
@@ -190,11 +192,11 @@ v2
 
 (makunbound 'v2)
 v2
-(remprop 'v2 'i1)
+(not (null (remprop 'v2 'i1)))
 t
-(remprop 'v2 'i2)
+(not (null (remprop 'v2 'i2)))
 t
-(remprop 'v2 'i3)
+(not (null (remprop 'v2 'i3)))
 t
 
 (testvar 'v2)
@@ -260,7 +262,7 @@ v3
 ;;; rebind
 
 (makunbound 'v3)
-#+(or XCL ALLEGRO) v3 #+CLISP ERROR
+#+(or XCL ALLEGRO CMU) v3 #+CLISP ERROR
 (fmakunbound 'v3)
 v3
 
@@ -368,9 +370,9 @@ v4
 
 (fmakunbound 'v4)
 v4
-(remprop 'v4 'i1)
+(not (null (remprop 'v4 'i1)))
 t
-(remprop 'v4 'i2)
+(not (null (remprop 'v4 'i2)))
 t
 (testvar 'v4)
 ;geb val  konst svar func mac spec plist i1  i2  i3
@@ -412,9 +414,9 @@ v5
 
 ;;; rebind
 
-(remprop 'v5 'i1)
+(not (null (remprop 'v5 'i1)))
 t
-(remprop 'v5 'i2)
+(not (null (remprop 'v5 'i2)))
 t
 
 (testvar 'v5)
@@ -442,10 +444,10 @@ v5
 ;;; rebind
 
 (makunbound 'v5)
-#+(or XCL ALLEGRO) v5 #+CLISP ERROR
-(remprop 'v5 'i2)
+#+(or XCL ALLEGRO CMU) v5 #+CLISP ERROR
+(not (null (remprop 'v5 'i2)))
 t
-(remprop 'v5 'i1)
+(not (null (remprop 'v5 'i1)))
 t
 
 #+XCL

@@ -364,8 +364,9 @@ nil
          tag0
          (setf a 1)
          )a)
-1
-
+; CMUCL compiles on the fly and therefore signals an error
+#-CMU 1
+#+CMU ERROR
 
 
 

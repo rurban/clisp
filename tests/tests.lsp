@@ -40,16 +40,20 @@
   (let ((b (gensym)))
     `(BLOCK ,b
        (HANDLER-BIND
-         ((ERROR #'(LAMBDA (CONDITION) (RETURN-FROM ,b 'ERROR))))
+         ((ERROR
+            #'(LAMBDA (CONDITION) (DECLARE (IGNORE CONDITION))
+                (RETURN-FROM ,b 'ERROR)
+              )
+         ))
          ,@forms
      ) )
 ) )
 
-#-ALLEGRO
+#-(or ALLEGRO CMU)
 (defun merge-extension (type filename)
   (merge-pathnames type filename)
 )
-#+ALLEGRO
+#+(or ALLEGRO CMU)
 (defun merge-extension (type filename)
   (merge-pathnames (make-pathname :type (subseq (string type) 1)) filename)
 )
@@ -76,10 +80,10 @@
                  (format t "~%EQUALP-OK: ~S" result)
                 )
                 (t
-                 (format t "~%FEHLER!! ~S sollte ~S sein!" my-result result)
-                 (format log "~%Form: ~S~%SOLL: ~S~%~A: ~S~%"
+                 (format t "~%ERROR!! ~S should be ~S !" my-result result)
+                 (format log "~%Form: ~S~%CORRECT: ~S~%~A: ~S~%"
                              form result
-                             #+CLISP "CLISP" #+AKCL "AKCL" #+ALLEGRO "ALLEGRO"
+                             #+CLISP "CLISP" #+AKCL "AKCL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
                              my-result
                 ))
 ) ) ) ) ) )
@@ -98,10 +102,10 @@
                    (format t "~%OK: ~S" errtype)
                   )
                   (t
-                   (format t "~%FEHLER!! ~S statt ~S !" my-result errtype)
-                   (format log "~%Form: ~S~%SOLL: ~S~%~A: ~S~%"
+                   (format t "~%ERROR!! ~S instead of ~S !" my-result errtype)
+                   (format log "~%Form: ~S~%CORRECT: ~S~%~A: ~S~%"
                                form errtype
-                               #+CLISP "CLISP" #+AKCL "AKCL" #+ALLEGRO "ALLEGRO"
+                               #+CLISP "CLISP" #+AKCL "AKCL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
                                my-result
                   ))
 ) ) ) ) ) ) )
@@ -117,6 +121,7 @@
             (*print-pretty* nil))
         (funcall tester s log)
       )
+      #+CMU (finish-output log) ; otherwise (file-length log) may be less than (file-position log)
       (setq log-empty-p (zerop (file-length log)))
   ) )
   (when log-empty-p (delete-file logname))
@@ -125,45 +130,45 @@
 
 (defun run-all-tests ()
   (mapc #'run-test
-        '( #-AKCL               "alltest"
-                                "array"
-                                "backquot"
-           #-AKCL               "characters"
-           #+(or CLISP ALLEGRO) "clos"
-                                "eval20"
-                                "format"
-           #+CLISP              "genstream"
-           #+XCL                "hash"
-                                "hashlong"
-                                "iofkts"
-                                "lambda"
-                                "lists151"
-                                "lists152"
-                                "lists153"
-                                "lists154"
-                                "lists155"
-                                "lists156"
-           #+(or CLISP ALLEGRO) "loop"
-                                "macro8"
-                                "map"
-           #+(or CLISP ALLEGRO) "mop"
-                                "number"
-           #+CLISP              "number2"
-           #-(or AKCL ALLEGRO)  "pack11"
-           #+(or XCL CLISP)     "path"
-           #+XCL                "readtable"
-                                "setf"
-                                "steele7"
-           #-ALLEGRO            "streams"
-                                "streamslong"
-                                "strings"
-           #-AKCL               "symbol10"
-                                "symbols"
-           #+XCL                "tprint"
-           #+XCL                "tread"
-                                "type"
+        '( #-AKCL                   "alltest"
+                                    "array"
+                                    "backquot"
+           #-AKCL                   "characters"
+           #+(or CLISP ALLEGRO CMU) "clos"
+                                    "eval20"
+                                    "format"
+           #+CLISP                  "genstream"
+           #+XCL                    "hash"
+                                    "hashlong"
+                                    "iofkts"
+                                    "lambda"
+                                    "lists151"
+                                    "lists152"
+                                    "lists153"
+                                    "lists154"
+                                    "lists155"
+                                    "lists156"
+           #+(or CLISP ALLEGRO CMU) "loop"
+                                    "macro8"
+                                    "map"
+           #+(or CLISP ALLEGRO CMU) "mop"
+                                    "number"
+           #+CLISP                  "number2"
+           #-(or AKCL ALLEGRO CMU)  "pack11"
+           #+(or XCL CLISP)         "path"
+           #+XCL                    "readtable"
+                                    "setf"
+                                    "steele7"
+           #-ALLEGRO                "streams"
+                                    "streamslong"
+                                    "strings"
+           #-AKCL                   "symbol10"
+                                    "symbols"
+           #+XCL                    "tprint"
+           #+XCL                    "tread"
+                                    "type"
   )      )
-  #+(or CLISP ALLEGRO)
+  #+(or CLISP ALLEGRO CMU)
   (run-test "conditions" #'(lambda (stream log) (do-test stream log nil)))
   (run-test "excepsit" #'do-errcheck)
   t

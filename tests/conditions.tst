@@ -14,11 +14,15 @@
   (clos:finalize-inheritance (find-class class))
   (clos:class-precedence-list (find-class class))
 )
+#+CMU
+(defun my-cpl (class)
+  (pcl:class-precedence-list (find-class class))
+)
 MY-CPL
 
 (defun check-superclasses (class expected)
-  (let ((expected (list* class 't #+CLISP 'clos:standard-object #+ALLEGRO 'standard-object 'condition expected))
-        (super (mapcar #' #+CLISP clos:class-name #+ALLEGRO class-name (my-cpl class))))
+  (let ((expected (list* class 't #+CLISP 'clos:standard-object #+ALLEGRO 'standard-object #+CMU 'instance 'condition expected))
+        (super (mapcar #' #+CLISP clos:class-name #+ALLEGRO class-name #+CMU pcl:class-name (my-cpl class))))
     (and (null (set-difference super expected))
          (null (set-difference expected super)))))
 CHECK-SUPERCLASSES
