@@ -1,5 +1,12 @@
 2001-10-18  Sam Steingold  <sds@gnu.org>
 
+	MAKE-INSTANCE returns the instance,
+	not the return value of INITIALIZE-INSTANCE
+	* clos.lisp (initial-make-instance): save & return instance
+	* record.d (CLOS::%MAKE-INSTANCE): ditto
+
+2001-10-18  Sam Steingold  <sds@gnu.org>
+
 	pass *ARGS* to :INIT-FUNCTION when argv_execute_file is ""
 	* spvw.d (init_symbol_values): define_variable EXT:*ARGS*
 	(main): when argv_execute_file is "", do not call LOAD,
