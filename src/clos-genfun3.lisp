@@ -207,7 +207,7 @@
                        (if (listp method-or-initargs)
                          (values (getf method-or-initargs ':lambda-list)
                                  (getf method-or-initargs 'signature))
-                         (values (std-method-lambda-list method-or-initargs)
+                         (values (method-lambda-list method-or-initargs)
                                  (std-method-signature method-or-initargs)))
                      (let ((gf-lambdalist
                              (gf-lambdalist-from-first-method m-lambdalist m-signature)))
