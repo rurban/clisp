@@ -11751,6 +11751,10 @@ nonreturning_function(extern, fehler_store, (object array, object value));
   )
 # used by SEQUENCE, IO
 
+/* return Atype for the given array */
+global uintBWL array_atype (object array);
+/* used by socket.d and modules */
+
 # Function: Returns the element-type of an array.
 # array_element_type(array)
 # > array: an array
