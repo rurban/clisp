@@ -38,12 +38,10 @@ DSOURCES = \
  lisparit aridecl arilev0 arilev1 arilev1c arilev1e arilev1i intelem \
     intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt \
     intprint intread rational sfloat ffloat dfloat lfloat flo_konv flo_rest \
-    realelem realrand realtran compelem comptran posixmath \
- posixmisc \
+    realelem realrand realtran compelem comptran \
  rexx affi \
  foreign \
- unixaux win32aux acornaux acornsig amigaaux \
- dirkey
+ unixaux win32aux acornaux acornsig amigaaux
 
 LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 \
               timezone places floatprint type defstruct format \
@@ -51,7 +49,7 @@ LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 \
               disassem condition threads gstream xcharin keyboard \
               screen beossock runprog query reploop dribble complete \
               describe room edit macros3 clhs inspect gray \
-              foreign1 posix dirkey1 german french spanish dutch \
+              foreign1 german french spanish dutch \
               affi1 rexx1 amigasock
 
 SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lisp,$(LISPSOURCES))
