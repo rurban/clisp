@@ -1404,7 +1404,7 @@ int main (int argc, char* argv[])
   # Main job.
   convert(infile,outfile,infilename);
   # Clean up.
-  if (ferror(infile) || ferror(outfile)) {
+  if (ferror(infile) || fflush(outfile) || ferror(outfile)) {
     fclose(infile);
     fclose(outfile);
     exit(1);
