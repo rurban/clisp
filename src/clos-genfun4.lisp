@@ -231,7 +231,7 @@
 ;; (Note: "override" means a method that does not (call-next-method).)
 ;;
 ;; "Portable programs may define methods that extend specified methods
-;;  unless the description of the specified method explicitly prohibits this. 
+;;  unless the description of the specified method explicitly prohibits this.
 ;;  Unless there is a specific statement to the contrary, these extending
 ;;  methods must return whatever value was returned by the call to
 ;;  call-next-method."
@@ -420,11 +420,8 @@
       ;; in order to peek into the state of a generic function.
       (block nil
         (sys::%handler-bind
-            ((ERROR #'(lambda (condition)
-                        (declare (ignore condition))
-                        (return t))))
-          (generic-function-lambda-list gf)
-          nil)))
+         #'(lambda () (generic-function-lambda-list gf) nil) 'ERROR
+         #'(lambda (condition) (declare (ignore condition)) (return t)))))
     (:method ((gf standard-generic-function))
       (check-generic-function-initialized gf)
       (std-gf-undeterminedp gf))))

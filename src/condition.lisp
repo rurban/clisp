@@ -561,12 +561,12 @@
                            handlers))
        (LOCALLY (DECLARE (COMPILE))
          (SYS::%HANDLER-BIND
-          ,(mapcar #'(lambda (typespec handler-var)
-                       `(,typespec #'(LAMBDA (CONDITION)
-                                       (FUNCALL (FUNCALL ,handler-var)
-                                                CONDITION))))
-                   typespecs handler-vars)
-          (FUNCALL ,(car (last handler-vars))))))))
+          ,(car (last handler-vars))
+          ,@(mapcan #'(lambda (typespec handler-var)
+                        `(',typespec #'(LAMBDA (CONDITION)
+                                         (FUNCALL (FUNCALL ,handler-var)
+                                                  CONDITION))))
+                    typespecs handler-vars))))))
 
 ;; SIGNAL, CLtL2 p. 888
 ;; is in error.d

@@ -161,12 +161,12 @@
 (defun any-method-combination-check-options (gf-name combination options checker) ; ABI
   (locally (declare (compile))
     (sys::%handler-bind
-        ((program-error
-           #'(lambda (err)
-               (error-of-type 'program-error
-                 (TEXT "~S ~S: Invalid method-combination options ~S for ~S: ~A")
-                 'defgeneric gf-name options combination err))))
-      (apply checker options))))
+     #'(lambda () (apply checker options))
+     'program-error
+     #'(lambda (err)
+         (error-of-type 'program-error
+           (TEXT "~S ~S: Invalid method-combination options ~S for ~S: ~A")
+           'defgeneric gf-name options combination err)))))
 
 ; Check the effective-method option (:ARGUMENTS ...).
 ; Returns two values:
