@@ -1,5 +1,6 @@
 # Makefile for the safe GNU ln.
 # Copyright (C) 1990, 1991, 1992, 1993, 1994 Free Software Foundation, Inc.
+# Copyright (C) 1999 Bruno Haible
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -65,21 +66,65 @@ libfu.a: $(LIBOBJECTS)
 hln : ln.o version.o libfu.a
 	$(CC) $(LDFLAGS) -o $@ ln.o version.o libfu.a $(LIBS)
 
-.SUFFIXES:
-.SUFFIXES: .c .o
-
-.c.o:
+alloca.o : $(srcdir)/alloca.c
 	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
 
-safe-stat.o: safe-stat.h
-safe-lstat.o: safe-lstat.h safe-stat.h
-backupfile.o getversion.o ln.o: backupfile.h
-getopt1.o: getopt.h
-isdir.o: safe-stat.h
+argmatch.o : $(srcdir)/argmatch.c
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
 
-# Make all .o files depend on these files even though there are a few
-# unnecessary dependencies.
-$(OBJECTS): system.h pathmax.h version.h
+backupfile.o : $(srcdir)/backupfile.c $(srcdir)/backupfile.h
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+basename.o : $(srcdir)/basename.c
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+dirname.o : $(srcdir)/dirname.c
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+error.o : $(srcdir)/error.c
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+getopt.o : $(srcdir)/getopt.c $(srcdir)/getopt.h
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+getopt1.o : $(srcdir)/getopt1.c $(srcdir)/getopt.h
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+getversion.o : $(srcdir)/getversion.c $(srcdir)/backupfile.h
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+isdir.o : $(srcdir)/isdir.c $(srcdir)/safe-stat.h
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+ln.o : $(srcdir)/ln.c $(srcdir)/system.h $(srcdir)/pathmax.h $(srcdir)/backupfile.h $(srcdir)/version.h $(srcdir)/safe-lstat.h $(srcdir)/safe-stat.h
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+realpath.o : $(srcdir)/realpath.c $(srcdir)/system.h $(srcdir)/pathmax.h
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+resolve.o : $(srcdir)/resolve.c $(srcdir)/system.h $(srcdir)/pathmax.h
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+safe-lstat.o : $(srcdir)/safe-lstat.c $(srcdir)/safe-lstat.h $(srcdir)/safe-stat.h
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+safe-stat.o : $(srcdir)/safe-stat.c $(srcdir)/safe-stat.h
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+stpcpy.o : $(srcdir)/stpcpy.c
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+stripslash.o : $(srcdir)/stripslash.c
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+version.o : $(srcdir)/version.c $(srcdir)/version.h
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+xmalloc.o : $(srcdir)/xmalloc.c
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+
+yesno.o : $(srcdir)/yesno.c
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
 
 
 installdirs:
