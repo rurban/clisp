@@ -598,10 +598,14 @@
   ;; Apply method combination:
   (let ((ef-fun (compute-effective-method-as-function-form gf combination methods)))
     ;; Evaluate or compile the resulting form:
-    ;; (eval ef-fun)                                 ; interpreted
-    ;; (eval `(LOCALLY (DECLARE (COMPILE)) ,ef-fun)) ; compiled
-    (eval `(LET () (DECLARE (COMPILE) (INLINE FUNCALL APPLY))
-             ,ef-fun))))
+    (if (constantp ef-fun) ; constant or self-evaluating form?
+      ;; No need to invoke the compile for a constant form.
+      ef-fun
+      ;; For a general form:
+      ;; (eval ef-fun)                                 ; interpreted
+      ;; (eval `(LOCALLY (DECLARE (COMPILE)) ,ef-fun)) ; compiled
+      (eval `(LET () (DECLARE (COMPILE) (INLINE FUNCALL APPLY))
+               ,ef-fun)))))
 
 (defun gf-keyword-arguments (restp signature methods)
   ;; CLtL2 28.1.6.4., 28.1.6.5., ANSI CL 7.6.4., 7.6.5.
