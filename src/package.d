@@ -2827,13 +2827,17 @@ global maygc void init_packages (void) {
   { /* #<PACKAGE CS-COMMON-LISP-USER>: */
     pushSTACK(coerce_imm_ss(ascii_to_string("CS-COMMON-LISP-USER")));
     pushSTACK(coerce_imm_ss(ascii_to_string("CS-CL-USER")));
-    var object nicks = listof(1); /* ("CS-CL-USER") */
+    /* Provide nickname "CS-USER" for similarity with package "COMMON-LISP-USER". */
+    pushSTACK(coerce_imm_ss(ascii_to_string("CS-USER")));
+    var object nicks = listof(2); /* ("CS-CL-USER" "CS-USER") */
     make_package(popSTACK(),nicks,true,true); /* "CS-COMMON-LISP-USER" */
   }
   { /* #<PACKAGE CS-COMMON-LISP>: */
     pushSTACK(coerce_imm_ss(ascii_to_string("CS-COMMON-LISP")));
     pushSTACK(coerce_imm_ss(ascii_to_string("CS-CL")));
-    var object nicks = listof(1); /* ("CS-CL") */
+    /* Provide nickname "CS-LISP" for similarity with package "COMMON-LISP". */
+    pushSTACK(coerce_imm_ss(ascii_to_string("CS-LISP")));
+    var object nicks = listof(2); /* ("CS-CL" "CS-LISP") */
     make_package(popSTACK(),nicks,true,true); /* "CS-COMMON-LISP" */
   }
   /* #<PACKAGE CHARSET>: */
