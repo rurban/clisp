@@ -792,16 +792,16 @@ error
      :value-1
      (slot-value c1 'a) (slot-value c1 'b)
      (progn (slot-makunbound c1 'a)
-	    (slot-makunbound c1 'b)
-	    (setf (slot-value c2 'a) 'x))
+            (slot-makunbound c1 'b)
+            (setf (slot-value c2 'a) 'x))
      (setf (slot-value c2 'b) 'y)
      :bound (slot-boundp c1 'a) (slot-boundp c1 'b)
      (slot-boundp c2 'a) (slot-boundp c2 'b)
      :value-2
      (slot-value c2 'a) (slot-value c2 'b)
      (progn (slot-makunbound c2 'a)
-	    (slot-makunbound c2 'b)
-	    nil))))
+            (slot-makunbound c2 'b)
+            nil))))
 (:bound nil nil nil nil
  x y
  :bound t t nil nil
