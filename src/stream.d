@@ -9905,6 +9905,41 @@ local void clear_output_terminal3 (object stream) {
 # can trigger GC
 #define force_output_terminal  force_output_unbuffered
 
+local bool stdio_same_tty_p (void)
+{ /* check that STDIN and STDOUT point to the same TTY */
+#if defined(UNIX) || defined(RISCOS)
+ #if defined(UNIX_CYGWIN32)
+  /* st_ino does not make sense on Cygwin: they are based on
+     filenames, and stdin is CONIN$ while stdout is CONOUT$ */
+  char* res = ttyname(stdin_handle);
+  if (strcmp(res,"/dev/conin")) { /* not a windows console, maybe X? */
+    char tmp[MAXPATHLEN];
+    strcpy(tmp,res);
+    return !strcmp(tmp,ttyname(stdout_handle));
+  } else
+    return !strcmp("/dev/conout",ttyname(stdout_handle));
+ #else  /* ttyname() is rather slow, fstat() is faster. */
+  struct stat stdin_stat;
+  struct stat stdout_stat;
+  return (fstat(stdin_handle,&stdin_stat) >= 0)
+    && (fstat(stdout_handle,&stdout_stat) >= 0)
+    && (stdin_stat.st_dev == stdout_stat.st_dev)
+    && (stdin_stat.st_ino == stdout_stat.st_ino);
+ #endif
+#endif
+#ifdef MSDOS
+  return ((get_handle_info(stdin_handle) & (bit(7)|bit(0)))
+          == (bit(7)|bit(0))) /* stdin == console_input ? */
+    && ((get_handle_info(stdout_handle) & (bit(7)|bit(1)))
+        == (bit(7)|bit(1))); /* stdout == console_output ? */
+#endif
+#ifdef WIN32_NATIVE
+  DWORD console_mode;
+  return GetConsoleMode(stdin_handle,&console_mode)
+    && GetConsoleMode(stdout_handle,&console_mode);
+#endif
+}
+
 # Returns an interactive Terminal-Stream.
 # can trigger GC
 local object make_terminal_stream_ (void) {
@@ -9944,64 +9979,11 @@ local object make_terminal_stream_ (void) {
   }
  #else
   {
-    var int stdin_tty;
-    var int stdout_tty;
-    var int same_tty;
+    bool stdin_tty, stdout_tty, same_tty;
     begin_system_call();
     stdin_tty = isatty(stdin_handle); # stdin a Terminal?
     stdout_tty = isatty(stdout_handle); # stdout a Terminal?
-    same_tty = false; # temporary
-    if (stdin_tty && stdout_tty) { # stdin and stdout Terminals.
-    #if defined(UNIX) || defined(RISCOS)
-     #if 0
-      var const char* result;
-      var object filename;
-      result = ttyname(stdin_handle); # fetch Filename from stdin
-      if (!(result==NULL)) {
-        end_system_call();
-        filename = asciz_to_string(result,O(pathname_encoding));
-        begin_system_call();
-        result = ttyname(stdout_handle); # fetch Filename from stdout
-        if (!(result==NULL)) {
-          end_system_call();
-          pushSTACK(filename);
-          filename = asciz_to_string(result,O(pathname_encoding));
-          if (string_gleich(popSTACK(),filename)) # Filenames equal?
-            same_tty = true;
-        }
-      }
-     #else # ttyname() is rather slow, fstat() is faster.
-      struct stat stdin_stat;
-      struct stat stdout_stat;
-      if ((fstat(stdin_handle,&stdin_stat) >= 0)
-          && (fstat(stdout_handle,&stdout_stat) >= 0))
-        if ((stdin_stat.st_dev == stdout_stat.st_dev)
-           #ifdef UNIX_CYGWIN32
-            /* st_ino does not make sense on Cygwin: they are based on
-               filenames, and stdin is CONIN$ while stdout is CONOUT$ */
-            && (strcmp("/dev/conin", ttyname(stdin_handle))  == 0)
-            && (strcmp("/dev/conout",ttyname(stdout_handle)) == 0)
-           #else
-            && (stdin_stat.st_ino == stdout_stat.st_ino)
-           #endif
-            )
-          same_tty = true;
-     #endif
-    #endif
-    #ifdef MSDOS
-      if (   ((get_handle_info(stdin_handle) & (bit(7)|bit(0)))
-              == (bit(7)|bit(0))) /* stdin == console_input ? */
-          && ((get_handle_info(stdout_handle) & (bit(7)|bit(1)))
-              == (bit(7)|bit(1)))) /* stdout == console_output ? */
-        same_tty = true;
-    #endif
-    #ifdef WIN32_NATIVE
-      var DWORD console_mode;
-      if (   GetConsoleMode(stdin_handle,&console_mode)
-          && GetConsoleMode(stdout_handle,&console_mode))
-        same_tty = true;
-    #endif
-    }
+    same_tty = stdin_tty && stdout_tty && stdio_same_tty_p();
     end_system_call();
    #ifdef HAVE_TERMINAL3
     if (rl_gnu_readline_p && same_tty) { # Build a TERMINAL3-Stream:
