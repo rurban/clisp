@@ -954,21 +954,23 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       });
     }
 
-# Macro: Tests whether an object is an input-stream.
+# Function: Tests whether an object is an input-stream.
 # input_stream_p(stream)
 # > stream: object
-  #define input_stream_p(stream)  \
-    (builtin_stream_p(stream)                                  \
-     ? !((TheStream(stream)->strmflags & strmflags_rd_B) == 0) \
-     : instanceof(stream,O(class_fundamental_input_stream)))
+global inline bool input_stream_p(stream) {
+  return (builtin_stream_p(stream) ?
+          (TheStream(stream)->strmflags & strmflags_rd_B) != 0
+          : instanceof(stream,O(class_fundamental_input_stream)));
+}
 
-# Macro: Tests whether an object is an output-stream.
+# Function: Tests whether an object is an output-stream.
 # output_stream_p(stream)
 # > stream: object
-  #define output_stream_p(stream)  \
-    (builtin_stream_p(stream)                                  \
-     ? !((TheStream(stream)->strmflags & strmflags_wr_B) == 0) \
-     : instanceof(stream,O(class_fundamental_output_stream)))
+global inline bool output_stream_p(stream) {
+  return (builtin_stream_p(stream) ?
+          (TheStream(stream)->strmflags & strmflags_wr_B) != 0
+          : instanceof(stream,O(class_fundamental_output_stream)));
+}
 
 # UP: Überprüft einen Input-Stream.
 # test_input_stream(stream);
@@ -6467,13 +6469,21 @@ global object iconv_range(encoding,start,end)
       }
     }
 
+#define READ_P(dir)  ((dir) & bit(0)) /* readable */
+#define RO_P(dir)    ((dir) & bit(1)) /* immutable */
+#define WRITE_P(dir) ((dir) & bit(2)) /* writable */
+#define DIRECTION_FLAGS(dir)                                                \
+   (READ_P(dir) ? strmflags_rd_B : 0)  /* permits READ-CHAR, READ-BYTE */   \
+ | (WRITE_P(dir) ? strmflags_wr_B : 0) /* permits WRITE-CHAR, WRITE-BYTE */ \
+ | (RO_P(dir) ? strmflags_immut_B : 0) /* immutable object */
+
 # UP: erzeugt ein Unbuffered-Channel-Stream
 # make_unbuffered_stream(type,direction,&eltype,handle_tty)
 # > STACK_2: Encoding
 # > STACK_1: Element-Type
 # > STACK_0: Handle des geöffneten Files
 # > type: stream type
-# > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
+# > direction: direction_t (see lispbibl.d)
 # > eltype: Element-Type in decoded form
 # > handle_tty: ob das Handle ein tty ist (nur nötig falls direction & bit(0))
 # < ergebnis: File-Handle-Stream, Handle_{input,output}_init noch aufzurufen
@@ -6487,11 +6497,7 @@ global object iconv_range(encoding,start,end)
     var bool handle_tty;
     {
       # Flags:
-      var uintB flags =
-          ((direction & bit(0)) ? strmflags_rd_B : 0) # evtl. READ-CHAR, READ-BYTE erlaubt
-        | ((direction & bit(2)) ? strmflags_wr_B : 0) # evtl. WRITE-CHAR, WRITE-BYTE erlaubt
-        | ((direction & bit(1)) ? strmflags_immut_B : 0) # evtl. immutable Objekte
-        ;
+      var uintB flags = DIRECTION_FLAGS(direction);
       if (eltype->kind == eltype_ch)
         flags &= strmflags_ch_B | strmflags_immut_B;
       else
@@ -6505,9 +6511,9 @@ global object iconv_range(encoding,start,end)
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
       {
         var object handle = popSTACK();
-        if (direction & bit(0))
+        if (READ_P(direction))
           TheStream(stream)->strm_ichannel = handle; # Handle eintragen
-        if (direction & bit(2))
+        if (WRITE_P(direction))
           TheStream(stream)->strm_ochannel = handle; # Handle eintragen
         if (type == strmtype_file)
           TheStream(stream)->strm_buffered_channel = handle; # Handle eintragen
@@ -7781,7 +7787,6 @@ typedef struct strm_i_buffered_extrafields_struct {
       #endif
       # position incrementieren:
       BufferedStream_position(stream) += 1;
-      printf("\nA: "); object_out(TheStream(stream)->strm_bitbuffer);
       # in Zahl umwandeln:
       return (*finisher)(stream,bitsize,bytesize);
      eof: # EOF erreicht
@@ -7833,7 +7838,6 @@ typedef struct strm_i_buffered_extrafields_struct {
         BufferedStream_bitindex(stream) = count;
         # position incrementieren:
         BufferedStream_position(stream) += 1;
-        printf("\nB: "); object_out(TheStream(stream)->strm_bitbuffer);
         # in Zahl umwandeln:
         return (*finisher)(stream,bitsize,1);
        eof1:
@@ -7866,7 +7870,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         goto eof;
       if (bitshift==0) {
         loop {
-          *bitbufferptr++ = *ptr; # 8 Bits holen und abspeichern
+          *bitbufferptr++ = *ptr; # get and store 8 Bits
           # index incrementieren, da gerade *ptr verarbeitet:
           BufferedStream_index(stream) += 1;
           count -= 8;
@@ -7878,7 +7882,7 @@ typedef struct strm_i_buffered_extrafields_struct {
             break;
         }
         # Noch count = bitsize mod 8 (>0,<8) Bits zu holen.
-        *bitbufferptr++ = *ptr; # count Bits holen und abspeichern
+        *bitbufferptr++ = *ptr; # get and store count Bits
       } else { # 0<bitindex<8
         var uint16 bit_akku;
         # angefangenes Byte holen:
@@ -7908,7 +7912,6 @@ typedef struct strm_i_buffered_extrafields_struct {
       BufferedStream_bitindex(stream) = count;
       # position incrementieren:
       BufferedStream_position(stream) += 1;
-      printf("\nC: "); object_out(TheStream(stream)->strm_bitbuffer);
       # in Zahl umwandeln:
       return (*finisher)(stream,bitsize,bytesize);
      eof: # EOF erreicht
@@ -8448,12 +8451,12 @@ typedef struct strm_i_buffered_extrafields_struct {
 # > STACK_1: Element-Type
 # > STACK_0: open file handle
 # > type: stream type
-# > direction: mode (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
+# > direction: direction_t (see lispbibl.d)
 # > eltype: Element-Type in decoded form
 # > handle_regular: whether the handle refers to a regular file
 # > handle_blockpositioning: whether the handle refers to a regular file which
 #                            can be positioned at n*strm_buffered_bufflen
-# If direction==5, handle_blockpositioning must be true.
+# If direction==DIRECTION_IO(5), handle_blockpositioning must be true.
 # < result: buffered file stream, Handle_{input,output}_init still to be called,
 #           for eltype.size<8 also eofposition still to be to determined
 # < STACK: cleaned up
@@ -8466,11 +8469,7 @@ typedef struct strm_i_buffered_extrafields_struct {
     var bool handle_regular;
     var bool handle_blockpositioning;
     {
-      var uintB flags =
-          ((direction & bit(0)) ? strmflags_rd_B : 0) # evtl. READ-CHAR, READ-BYTE erlaubt
-        | ((direction & bit(2)) ? strmflags_wr_B : 0) # evtl. WRITE-CHAR, WRITE-BYTE erlaubt
-        | ((direction & bit(1)) ? strmflags_immut_B : 0) # evtl. immutable Objekte
-        ;
+      var uintB flags = DIRECTION_FLAGS(direction);
       var uintC xlen = sizeof(strm_buffered_extrafields_struct); # Das haben alle File-Streams
       if (eltype->kind == eltype_ch) {
         flags &= strmflags_ch_B | strmflags_immut_B;
@@ -8542,7 +8541,7 @@ typedef struct strm_i_buffered_extrafields_struct {
 # > STACK_2: :EXTERNAL-FORMAT argument
 # > STACK_1: :ELEMENT-TYPE argument
 # > STACK_0: Handle des geöffneten Files
-# > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
+# > direction: direction_t (see lispbibl.d)
 # > append_flag: true falls der Stream gleich ans Ende positioniert werden
 #         soll, false sonst
 # > handle_fresh: whether the handle is freshly created.
@@ -8553,7 +8552,7 @@ typedef struct strm_i_buffered_extrafields_struct {
 #                 that it supports handle_lseek, reading/repositioning/writing
 #                 and close/reopen.
 # > subr_self: calling function
-# If direction==5, handle_fresh must be true.
+# If direction==DIRECTION_IO(5), handle_fresh must be true.
 # < ergebnis: File-Stream (oder evtl. File-Handle-Stream)
 # < STACK: aufgeräumt
 # can trigger GC
@@ -8594,7 +8593,7 @@ typedef struct strm_i_buffered_extrafields_struct {
                 );
         }
         var bool handle_tty = false;
-        if (direction & bit(0)) # only needed for input handles
+        if (READ_P(direction)) # only needed for input handles
           if (!handle_regular) { # regular files are certainly not ttys
             begin_system_call();
             handle_tty = isatty(TheHandle(handle));
@@ -8606,15 +8605,15 @@ typedef struct strm_i_buffered_extrafields_struct {
         # und wir tragen nun die Pathnames ein:
         TheStream(stream)->strm_file_truename = STACK_1; # Truename eintragen
         TheStream(stream)->strm_file_name = STACK_2; # Filename eintragen
-        if (direction & bit(0)) {
+        if (READ_P(direction)) {
           UnbufferedHandleStream_input_init(stream);
         }
-        if (direction & bit(2)) {
+        if (WRITE_P(direction)) {
           UnbufferedHandleStream_output_init(stream);
         }
         ChannelStreamLow_close(stream) = &low_close_handle;
       } else {
-        if (direction==5 && !handle_regular) {
+        if (direction==DIRECTION_IO && !handle_regular) {
           # FIXME: Instead of signalling an error, we could return some kind
           # of two-way-stream (cf. make_socket_stream).
           pushSTACK(STACK_4); # Truename, FILE-ERROR slot PATHNAME
@@ -8634,8 +8633,8 @@ typedef struct strm_i_buffered_extrafields_struct {
         # 2. if write access is requested, the handle is known to have
         #    read access as well (O_RDWR vs. O_WRONLY).
         var bool handle_blockpositioning =
-          (handle_regular && (direction & bit(2) ? handle_fresh : true));
-        # Now, if direction==5, handle_blockpositioning is true.
+          (handle_regular && (WRITE_P(direction) ? handle_fresh : true));
+        # Now, if direction==DIRECTION_IO(5), handle_blockpositioning is true.
         # Stream allozieren:
         stream = make_buffered_stream(strmtype_file,direction,&eltype,
                                       handle_regular,handle_blockpositioning);
@@ -16384,7 +16383,8 @@ local object test_socket_stream(obj,check_open)
           obj = TheStream(obj)->strm_twoway_socket_input;
           /*FALLTHROUGH*/
         case strmtype_socket:
-          if (check_open && ((TheStream(obj)->strmflags & strmflags_open_B) == 0)) {
+          if (check_open &&
+              ((TheStream(obj)->strmflags & strmflags_open_B) == 0)) {
             pushSTACK(obj);       # TYPE-ERROR slot DATUM
             pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
             pushSTACK(obj);
@@ -16407,28 +16407,69 @@ local object test_socket_stream(obj,check_open)
           );
   }
 
-#define HANDLE_SET(stream)                                      \
-  { object obj = stream;                                        \
-    test_socket_stream(obj,true);                               \
-    { SOCKET handle = TheSocket(TheStream(obj)->strm_ichannel); \
-      FD_SET(handle,&exceptfds);                                \
-      if (input_stream_p(obj)) FD_SET(handle,&readfds);         \
-      if (output_stream_p(obj)) FD_SET(handle,&writefds); }}
+# check whether the object is a socket (socket-stream or socket-server)
+# and return its socket handle
+local SOCKET socket_handle (object obj,bool check_open) {
+  if (socket_server_p(obj)) {
+    if (check_open) test_socket_server(obj,true);
+    return TheSocket(TheSocketServer(obj)->socket_handle);
+  } else
+    return TheSocket(TheStream(test_socket_stream(obj,true))->strm_ichannel);
+}
 
-#define HANDLE_ISSET(stream,res)                                        \
-  { SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);        \
-    if (FD_ISSET(handle,&exceptfds)) res = S(Kerror);                   \
-    else {                                                              \
-      bool wr = FD_ISSET(handle,&writefds),                             \
-        rd = FD_ISSET(handle,&readfds) &&                               \
-          (!stream_char_p(stream) || ls_avail_p(listen_char(stream)));  \
-      if      ( rd && !wr) res = S(Kinput);                             \
-      else if (!rd &&  wr) res = S(Koutput);                            \
-      else if ( rd &&  wr) res = S(Kio);                                \
-      else                 res = NIL; }}
+# set the appropriate fd_sets for the socket,
+# either a socket-server, a socket-stream or a (socket . direction)
+# see socket_status() for details
+local void handle_set (object socket,fd_set *readfds,fd_set *writefds,
+                       fd_set *errorfds) {
+  object sock = (consp(socket) ? Car(socket) : socket);
+  direction_t dir = (consp(socket)?check_direction(Cdr(socket)):DIRECTION_IO);
+  SOCKET handle = socket_handle(sock,true);
+  FD_SET(handle,errorfds);
+  if (socket_server_p(sock)) {
+    if (READ_P(dir)) FD_SET(handle,readfds);
+  } else { # sock is a socket stream
+    if (READ_P(dir)  && input_stream_p(sock))  FD_SET(handle,readfds);
+    if (WRITE_P(dir) && output_stream_p(sock)) FD_SET(handle,writefds);
+  }
+}
+
+# check the appropriate fd_sets for the socket,
+# either a socket-server, a socket-stream or a (socket . direction)
+# see socket_status() for details
+local object handle_isset (object socket,fd_set *readfds,fd_set *writefds,
+                           fd_set *errorfds) {
+  object sock = (consp(socket) ? Car(socket) : socket);
+  direction_t dir = (consp(socket)?check_direction(Cdr(socket)):DIRECTION_IO);
+  SOCKET handle = socket_handle(sock,true);
+  if (FD_ISSET(handle,errorfds)) return S(Kerror);
+  else {
+    if (socket_server_p(sock)) {
+      return FD_ISSET(handle,readfds) ? T : NIL;
+    } else {
+      bool wr = WRITE_P(dir) && FD_ISSET(handle,writefds),
+        rd = READ_P(dir) && FD_ISSET(handle,readfds) &&
+        (!stream_char_p(sock) || ls_avail_p(listen_char(sock)));
+      if      ( rd && !wr) return S(Kinput);
+      else if (!rd &&  wr) return S(Koutput);
+      else if ( rd &&  wr) return S(Kio);
+      else                 return NIL;
+    }
+  }
+  return NIL;
+}
+#undef READ_P
+#undef WRITE_P
 
 LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
-# (SOCKET-STATUS stream-list [seconds [microseconds]])
+# (SOCKET-STATUS socket-or-list [seconds [microseconds]])
+# socket-or-list should be either
+#   -- socket [socket-stream or socket-server]
+#   -- (socket . direction) [direction is :input or :output or :io (default)]
+#   -- list of the above
+# returns either a single symbol :error/:input/:output/:io
+# (when a single socket was given) or a list of such symbols.
+# will cons the list (and thus can trigger GC) in the latter case.
   {
     #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
     var struct timeval timeout;
@@ -16436,15 +16477,17 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
 
    restart_select:
     begin_system_call();
-    { var fd_set readfds, writefds, exceptfds;
+    { var fd_set readfds, writefds, errorfds;
       var object all = STACK_2;
-      FD_ZERO(&readfds); FD_ZERO(&writefds); FD_ZERO(&exceptfds);
-      if (listp(all)) {
+      FD_ZERO(&readfds); FD_ZERO(&writefds); FD_ZERO(&errorfds);
+      var bool many_sockets_p = (consp(all) &&
+                                 !(symbolp(Cdr(all)) && keywordp(Cdr(all))));
+      if (many_sockets_p) {
         var object list = all;
         var int index = 0;
         for(; !nullp(list); list = Cdr(list)) {
           if (!listp(list)) fehler_list(list);
-          HANDLE_SET(Car(list));
+          handle_set(Car(list),&readfds,&writefds,&errorfds);
           if (++index > FD_SETSIZE) {
             pushSTACK(fixnum(FD_SETSIZE));
             pushSTACK(all);
@@ -16454,24 +16497,22 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
                    );
           }
         }
-      } else {
-        HANDLE_SET(all);
-      }
-      if (select(FD_SETSIZE,&readfds,&writefds,&exceptfds,timeout_ptr) < 0) {
+      } else
+        handle_set(all,&readfds,&writefds,&errorfds);
+      if (select(FD_SETSIZE,&readfds,&writefds,&errorfds,timeout_ptr) < 0) {
         if (sock_errno_is(EINTR)) { end_system_call(); goto restart_select; }
         if (!sock_errno_is(EBADF)) { SOCK_error(); }
       }
-      if (listp(all)) {
+      if (many_sockets_p) {
         var object list = all;
         var int index = 0;
         for(; !nullp(list); list = Cdr(list), index++) {
-          HANDLE_ISSET(Car(list),value1);
-          pushSTACK(value1);
+          object tmp = handle_isset(Car(list),&readfds,&writefds,&errorfds);
+          pushSTACK(tmp);
         }
         value1 = listof(index);
-      } else {
-        HANDLE_ISSET(all,value1);
-      }
+      } else
+        value1 = handle_isset(all,&readfds,&writefds,&errorfds);
       end_system_call();
     }
     #else
@@ -16480,9 +16521,6 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
     mv_count = 1;
     skipSTACK(3);
   }
-
-#undef HANDLE_SET
-#undef HANDLE_ISSET
 
 LISPFUNN(socket_stream_port,1)
 # (SOCKET-STREAM-PORT socket-stream)

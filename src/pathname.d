@@ -1707,7 +1707,7 @@ local uintL parse_logical_pathnamestring(z)
     #  Datenvektor, Pathname, (last (pathname-directory Pathname)).
     # parse subdirectories:
     # If ";" is the first char, it is turned into :RELATIVE
-    # (otherwize :ABSOLUTE) as the first subdir
+    # (otherwise :ABSOLUTE) as the first subdir
     # for a reason that escapes me, ANSI CL specifies that
     # "foo:;bar;baz.zot" is a  :RELATIVE logical pathname while
     # "foo:/bar/baz.zot" is an :ABSOLUTE physical pathname.
@@ -2424,7 +2424,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
           } else
         #endif
         #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-          # if 1st char is a slash, start with :ABSOLUTE (otherwize :RELATIVE):
+          # if 1st char is a slash, start with :ABSOLUTE (otherwise :RELATIVE):
           if (Z_AT_SLASH(z,pslashp,STACK_2)) {
             Z_SHIFT(z,1);
             Car(STACK_0) = S(Kabsolute);
@@ -2433,7 +2433,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
           }
         #endif
         #ifdef PATHNAME_AMIGAOS
-          # if 1st char is a ':', start with :ABSOLUTE (otherwize :RELATIVE):
+          # if 1st char is a ':', start with :ABSOLUTE (otherwise :RELATIVE):
           if (Z_AT_SLASH(z,colonp,STACK_2)) {
             Z_SHIFT(z,1);
             Car(STACK_0) = S(Kabsolute);
@@ -8465,6 +8465,71 @@ LISPFUNN(rename_file,2)
       skipSTACK(1);
     }
 
+# check the :DIRECTION argument
+global direction_t check_direction (const object dir) {
+  if (eq(dir,unbound) || eq(dir,S(Kinput)))
+    return DIRECTION_INPUT;
+  else if (eq(dir,S(Kinput_immutable)))
+    return DIRECTION_INPUT_IMMUTABLE;
+  else if (eq(dir,S(Koutput)))
+    return DIRECTION_OUTPUT;
+  else if (eq(dir,S(Kio)))
+    return DIRECTION_IO;
+  else if (eq(dir,S(Kprobe)))
+    return DIRECTION_PROBE;
+  else {
+    pushSTACK(dir);               # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_direction)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(dir); pushSTACK(S(open));
+    fehler(type_error,GETTEXT("~: illegal :DIRECTION argument ~"));
+  }
+}
+
+# check the :IF-DOES-NOT-EXIST argument
+global if_does_not_exist_t check_if_does_not_exist (const object if_not_exist)
+{
+  if (eq(if_not_exist,unbound))
+    return IF_DOES_NOT_EXIST_UNBOUND;
+  else if (eq(if_not_exist,S(Kerror)))
+    return IF_DOES_NOT_EXIST_ERROR;
+  else if (eq(if_not_exist,NIL))
+    return IF_DOES_NOT_EXIST_NIL;
+  else if (eq(if_not_exist,S(Kcreate)))
+    return IF_DOES_NOT_EXIST_CREATE;
+  else {
+    pushSTACK(if_not_exist);              # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_if_does_not_exist)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(if_not_exist); pushSTACK(S(open));
+    fehler(type_error,GETTEXT("~: illegal :IF-DOES-NOT-EXIST argument ~"));
+  }
+}
+
+# check the :IF-EXISTS argument
+global if_exists_t check_if_exists (const object if_exists) {
+  if (eq(if_exists,unbound))
+    return IF_EXISTS_UNBOUND;
+  else if (eq(if_exists,S(Kerror)))
+    return IF_EXISTS_ERROR;
+  else if (eq(if_exists,NIL))
+    return IF_EXISTS_NIL;
+  else if (eq(if_exists,S(Krename)))
+    return IF_EXISTS_RENAME;
+  else if (eq(if_exists,S(Krename_and_delete)))
+    return IF_EXISTS_RENAME_AND_DELETE;
+  else if (eq(if_exists,S(Knew_version)) || eq(if_exists,S(Ksupersede)))
+    return IF_EXISTS_SUPERSEDE;
+  else if (eq(if_exists,S(Kappend)))
+    return IF_EXISTS_APPEND;
+  else if (eq(if_exists,S(Koverwrite)))
+    return IF_EXISTS_OVERWRITE;
+  else {
+    pushSTACK(if_exists);         # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_if_exists)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(if_exists); pushSTACK(S(open));
+    fehler(type_error,GETTEXT("~: illegal :IF-EXISTS argument ~"));
+  }
+}
+
 # UP: erzeugt ein File-Stream
 # open_file(filename,direction,if_exists,if_not_exists)
 # > STACK_3: original filename (may be logical)
@@ -8472,224 +8537,233 @@ LISPFUNN(rename_file,2)
 # > STACK_1: :EXTERNAL-FORMAT argument
 # > STACK_0: :ELEMENT-TYPE argument
 # > filename: Filename, ein Pathname
-# > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
-# > if_exists: :IF-EXISTS-Argument
-#         (0 = nichts, 1 = :ERROR, 2 = NIL,
-#          3 = :RENAME, 4 = :RENAME-AND-DELETE, 5 = :NEW-VERSION,:SUPERSEDE,
-#          6 = :APPEND, 7 = :OVERWRITE)
-# > if_not_exists: :IF-DOES-NOT-EXIST-Argument
-#         (0 = nichts, 1 = :ERROR, 2 = NIL, 3 = :CREATE)
+# > direction: direction_t (see lispbibl.d)
+# > if_exists: :IF-EXISTS argument if_exists_t (see lispbibl.d)
+# > if_not_exists: :IF-DOES-NOT-EXIST argument (see lispbibl.d)
 # < ergebnis: Stream oder NIL
 # < STACK: aufgeräumt
 # can trigger GC
-  local object open_file (object filename, uintB direction, uintB if_exists, uintB if_not_exists);
-  local object open_file(filename,direction,if_exists,if_not_exists)
-    var object filename;
-    var uintB direction;
-    var uintB if_exists;
-    var uintB if_not_exists;
-    {
-      pushSTACK(STACK_3); # Filename retten
-      check_no_wildcards(filename); # mit Wildcards -> Fehler
-      filename = use_default_dir(filename); # Default-Directory einfügen
-      if (namenullp(filename)) { fehler_noname(filename); } # Kein Name angegeben -> Fehler
-      pushSTACK(filename); # absPathname retten
-      # Stackaufbau: origPathname, absPathname.
-      # Directory muss existieren:
-      var object namestring = # Filename fürs Betriebssystem
-        assure_dir_exists(false,((direction == 0) && (if_not_exists == 0)) || (if_not_exists == 2)); # tolerant only if :PROBE and if_not_exists = 0 or if if_not_exists = 2
-      if (eq(namestring,nullobj))
-        # Pfad zur Datei existiert nicht, und :IF-DOES-NOT-EXIST = nichts oder NIL
-        goto ergebnis_NIL;
-      # Stackaufbau: Pathname, Truename.
-      # Filename überprüfen und Handle holen:
-      var object handle;
-      var bool append_flag = false;
-      switch (direction) {
-        case 0: # Modus ist :PROBE
-          if (!file_exists(namestring)) {
-            # Datei existiert nicht
-            # :IF-DOES-NOT-EXIST-Argument entscheidet:
-            if (if_not_exists==1) # :ERROR -> Error
-              goto fehler_notfound;
-            if (!(if_not_exists==3)) # nichts oder NIL -> NIL
-              goto ergebnis_NIL;
-            # :CREATE -> Datei mit open erzeugen und schließen:
-            with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-              prepare_create(STACK_0);
-              create_new_file(namestring_asciz);
-            });
-          }
-          handle = NIL; # Handle := NIL
-          break;
-        case 1: case 3: # Modus ist :INPUT
-          {
-            var Handle handl;
-            var bool result;
-            #ifdef PATHNAME_RISCOS
-            if (!file_exists(namestring)) {
-              pushSTACK(namestring); prepare_create(STACK_1); namestring = popSTACK();
-            }
-            #endif
-            with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-              result = open_input_file(namestring_asciz,if_not_exists==3,&handl);
-            });
-            if (!result) {
-              # :IF-DOES-NOT-EXIST-Argument entscheidet:
-              if (if_not_exists==2) # NIL -> NIL
-                goto ergebnis_NIL;
-              else # nichts oder :ERROR -> Error
-                goto fehler_notfound;
-            }
-            handle = allocate_handle(handl);
-          }
-          break;
-        default: # Modus ist :OUTPUT oder :IO
-          # Defaultwert für if_not_exists ist von if_exists abhängig:
-          if (if_not_exists==0) { # falls if_not_exists nicht angegeben:
-            if (if_exists<6) # if_exists = :APPEND oder :OVERWRITE -> if_not_exists unverändert
-              if_not_exists = 3; # weder :APPEND noch :OVERWRITE -> Default ist :CREATE
-          }
-          # Defaultwert für if_exists ist :NEW-VERSION :
-          if (if_exists==0)
-            if_exists = 5;
-          #ifdef EMUNIX
-            with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-              # Bei if_exists=5 und if_not_exists=3 kann man sofort
-              # CREAT ansteuern, sonst muss man vorher OPEN versuchen:
-              if (!((if_exists==5) && (if_not_exists==3))) {
-                begin_system_call();
-                var sintW ergebnis = # Datei zu öffnen versuchen
-                  open(namestring_asciz,O_RDWR);
-                if (ergebnis<0) {
-                  if (errno == ENOENT) { # nicht gefunden?
-                    # Datei existiert nicht
-                    end_system_call();
-                    # :IF-DOES-NOT-EXIST-Argument entscheidet:
-                    if (if_not_exists<2) # (Default bei :APPEND oder :OVERWRITE) oder :ERROR ?
-                      goto fehler_notfound;
-                    if (if_not_exists==2) # NIL -> NIL
-                      goto ergebnis_NIL;
-                    # :CREATE
-                  } else {
-                    end_system_call(); OS_file_error(STACK_0); # sonstigen Error melden
-                  }
-                } else {
-                  # Datei existiert, ergebnis ist das Handle
-                  # :IF-EXISTS-Argument entscheidet:
-                  switch (if_exists) {
-                    case 1: # :ERROR -> schließen und Error
-                      if (CLOSE(ergebnis) < 0) {
-                        end_system_call(); OS_file_error(STACK_0); # Error melden
-                      }
-                      end_system_call();
-                      goto fehler_exists;
-                    case 2: # NIL -> schließen und NIL
-                      if (CLOSE(ergebnis) < 0) {
-                        end_system_call(); OS_file_error(STACK_0); # Error melden
-                      }
-                      end_system_call();
-                      goto ergebnis_NIL;
-                    case 6: # :APPEND
-                      append_flag = true; # am Schluss ans Ende positionieren
-                    case 7: # :OVERWRITE -> bestehende Datei benutzen
-                      setmode(ergebnis,O_BINARY);
-                      end_system_call();
-                      handle = allocate_handle(ergebnis);
-                      goto handle_ok;
-                    default: ;
-                      # :RENAME, :RENAME-AND-DELETE -> Datei umbenennen und dann neu eröffnen.
-                      # :NEW-VERSION, :SUPERSEDE -> Datei auf Länge 0 kürzen.
-                  }
-                  # In beiden Fällen erst die Datei schließen:
-                  if (CLOSE(ergebnis) < 0) {
-                    end_system_call(); OS_file_error(STACK_0); # Error melden
-                  }
-                  end_system_call();
-                  if ((if_exists==3) || (if_exists==4)) {
-                    # :RENAME oder :RENAME-AND-DELETE -> umbenennen:
-                    create_backup_file(namestring_asciz,if_exists==4);
-                  }
-                }
-              }
-              # Datei mit CREAT erzeugen:
-              begin_system_call();
-              var sintW ergebnis = # erzeugen
-                creat(namestring_asciz,my_open_mask);
-              if (ergebnis<0) {
-                end_system_call(); OS_file_error(STACK_0); # Error melden
-              }
-              setmode(ergebnis,O_BINARY);
-              end_system_call();
-              # Datei neu erzeugt, ergebnis ist das Handle
-              handle = allocate_handle(ergebnis);
-            });
-          #endif
-          #if defined(UNIX) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
-            with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-              if (file_exists(namestring)) {
-                # Datei existiert
-                # :IF-EXISTS-Argument entscheidet:
-                switch (if_exists) {
-                  case 1: # :ERROR -> Error
-                    goto fehler_exists;
-                  case 2: # NIL -> NIL
-                    goto ergebnis_NIL;
-                  case 3: case 4: # :RENAME oder :RENAME-AND-DELETE -> umbenennen:
-                    create_backup_file(namestring_asciz,if_exists==4);
-                    break;
-                  case 6: # :APPEND
-                    append_flag = true; # am Schluss ans Ende positionieren
-                  default: ;
-                    # :OVERWRITE -> bestehende Datei benutzen
-                    # :NEW-VERSION, :SUPERSEDE -> Datei auf Länge 0 kürzen.
-                }
-              } else {
-                # Datei existiert nicht
-                # :IF-DOES-NOT-EXIST-Argument entscheidet:
-                if (if_not_exists<2) # (Default bei :APPEND oder :OVERWRITE) oder :ERROR ?
-                  goto fehler_notfound;
-                if (if_not_exists==2) # NIL -> NIL
-                  goto ergebnis_NIL;
-                # :CREATE
-              }
-              prepare_create(STACK_0);
-              # Datei mit open öffnen:
-              # if-exists-Handling: bei if_exists<=5 Inhalt löschen,
-              # sonst (bei :APPEND, :OVERWRITE) bestehenden Inhalt lassen.
-              # if-not-exists-Handling: neue Datei erzeugen.
-              var Handle handl = open_output_file(namestring_asciz,if_exists<=5);
-              handle = allocate_handle(handl);
-            });
-          #endif
-          break;
-         fehler_notfound: # Fehler, da Datei nicht gefunden
-          # STACK_0 = Truename, FILE-ERROR slot PATHNAME
-          pushSTACK(STACK_0);
-          fehler(file_error,
-                 GETTEXT("file ~ does not exist")
-                );
-         fehler_exists: # Fehler, da Datei bereits existiert
-          # STACK_0 = Truename, FILE-ERROR slot PATHNAME
-          pushSTACK(STACK_0);
-          fehler(file_error,
-                 GETTEXT("a file named ~ already exists")
-                );
+local object open_file (object filename,direction_t direction,
+                        if_exists_t if_exists,
+                        if_does_not_exist_t if_not_exists) {
+  pushSTACK(STACK_3); # save filename
+  check_no_wildcards(filename); # with wildcards -> error
+  filename = use_default_dir(filename); # insert default-directory
+  if (namenullp(filename)) { fehler_noname(filename); } # no name -> error
+  pushSTACK(filename); # save absPathname
+  # stack layout: origPathname, absPathname.
+  # Directory must exist:
+  var object namestring = # File name for the operating system
+    # tolerant only if :PROBE and if_not_exists = UNBOUND or NIL
+    assure_dir_exists(false,((direction == DIRECTION_PROBE) &&
+                             (if_not_exists == IF_DOES_NOT_EXIST_UNBOUND))
+                      || (if_not_exists == IF_DOES_NOT_EXIST_NIL));
+  if (eq(namestring,nullobj))
+    # path to the file does not exist,
+    # and :IF-DOES-NOT-EXIST = unbound or NIL
+    goto ergebnis_NIL;
+  # stack layout: Pathname, Truename.
+  # check filename and get the handle:
+  var object handle;
+  var bool append_flag = false;
+  switch (direction) {
+    case DIRECTION_PROBE:
+      if (!file_exists(namestring)) { # file does not exist
+        # :IF-DOES-NOT-EXIST decides:
+        if (if_not_exists==IF_DOES_NOT_EXIST_ERROR)
+          goto fehler_notfound;
+        if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND ||
+            if_not_exists==IF_DOES_NOT_EXIST_NIL)
+          goto ergebnis_NIL;
+        # :CREATE -> create the file using open and close:
+        with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+          prepare_create(STACK_0);
+          create_new_file(namestring_asciz);
+        });
       }
-     handle_ok:
-      # handle und append_flag sind jetzt fertig.
-      # Stream erzeugen:
-      pushSTACK(STACK_4); # :BUFFERED argument
-      pushSTACK(STACK_4); # :EXTERNAL-FORMAT argument
-      pushSTACK(STACK_4); # :ELEMENT-TYPE argument
-      pushSTACK(handle);
-      var object stream = make_file_stream(direction,append_flag,true);
-      skipSTACK(4);
-      return stream;
-     ergebnis_NIL: # Ergebnis NIL
-      skipSTACK(6); # beide Pathnames und drei Argumente vergessen
-      return NIL;
+      handle = NIL; # Handle := NIL
+      break;
+    case DIRECTION_INPUT: case DIRECTION_INPUT_IMMUTABLE: { # == :INPUT
+      var Handle handl;
+      var bool result;
+      #ifdef PATHNAME_RISCOS
+      if (!file_exists(namestring)) {
+        pushSTACK(namestring); prepare_create(STACK_1);
+        namestring = popSTACK();
+      }
+      #endif
+      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+        result = open_input_file(namestring_asciz,
+                                 if_not_exists==IF_DOES_NOT_EXIST_CREATE,
+                                 &handl);
+      });
+      if (!result) {
+        # :IF-DOES-NOT-EXIST decides:
+        if (if_not_exists==IF_DOES_NOT_EXIST_NIL)
+          goto ergebnis_NIL;
+        else # UNBOUND or :ERROR -> Error
+          goto fehler_notfound;
+      }
+      handle = allocate_handle(handl);
     }
+      break;
+    default: # DIRECTION is :OUTPUT or :IO
+      # default for if_not_exists depends on if_exists:
+      if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND) {
+        if (if_exists!=IF_EXISTS_APPEND && if_exists!=IF_EXISTS_OVERWRITE)
+          # (if_exists<IF_EXISTS_APPEND)
+          # if_exists = :APPEND or :OVERWRITE -> if_not_exists unchanged,
+          # otherwise :CREATE is the default
+          if_not_exists = IF_DOES_NOT_EXIST_CREATE;
+      }
+      # default for if_exists is :SUPERSEDE (= :NEW-VERSION) :
+      if (if_exists==IF_EXISTS_UNBOUND)
+        if_exists = IF_EXISTS_SUPERSEDE;
+      #ifdef EMUNIX
+      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+        # when if_exists=IF_EXISTS_SUPERSEDE and
+        # if_not_exists=IF_DOES_NOT_EXIST_CREATE we can go for
+        # CREATE right away, otherwise must first try OPEN:
+        if (!((if_exists==IF_EXISTS_SUPERSEDE) &&
+              (if_not_exists==IF_DOES_NOT_EXIST_CREATE))) {
+          begin_system_call(); # try to open file
+          var sintW ergebnis = open(namestring_asciz,O_RDWR);
+          if (ergebnis<0) {
+            if (errno == ENOENT) { # not found?
+              # file does not exist
+              end_system_call();
+              # :IF-DOES-NOT-EXIST decides:
+              if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND ||
+                  if_not_exists==IF_DOES_NOT_EXIST_ERROR)
+                goto fehler_notfound;
+              if (if_not_exists==IF_DOES_NOT_EXIST_NIL)
+                goto ergebnis_NIL;
+              # :CREATE
+            } else { # report error
+              end_system_call(); OS_file_error(STACK_0);
+            }
+          } else {
+            # file exists, return the handle
+            # :IF-EXISTS decides:
+            switch (if_exists) {
+              case IF_EXISTS_ERROR: # close and error
+                if (CLOSE(ergebnis) < 0) {
+                  end_system_call(); OS_file_error(STACK_0);
+                }
+                end_system_call();
+                goto fehler_exists;
+              case IF_EXISTS_NIL: # close and NIL
+                if (CLOSE(ergebnis) < 0) {
+                  end_system_call(); OS_file_error(STACK_0);
+                }
+                end_system_call();
+                goto ergebnis_NIL;
+              case IF_EXISTS_APPEND:
+                append_flag = true; # position at the end
+              case IF_EXISTS_OVERWRITE: # use the existing file
+                setmode(ergebnis,O_BINARY);
+                end_system_call();
+                handle = allocate_handle(ergebnis);
+                goto handle_ok;
+              default: ;
+                # :RENAME :RENAME-AND-DELETE -> rename file; open again
+                # :NEW-VERSION, :SUPERSEDE -> truncate file to 0 length
+            }
+            # in both cases - close the file
+            if (CLOSE(ergebnis) < 0) {
+              end_system_call(); OS_file_error(STACK_0);
+            }
+            end_system_call();
+            if ((if_exists==IF_EXISTS_RENAME) ||
+                (if_exists==IF_EXISTS_RENAME_AND_DELETE)) {
+              # :RENAME or :RENAME-AND-DELETE -> rename:
+              create_backup_file(namestring_asciz,
+                                 if_exists==IF_EXISTS_RENAME_AND_DELETE);
+            }
+          }
+        }
+        # create file
+        begin_system_call();
+        var sintW ergebnis = creat(namestring_asciz,my_open_mask);
+        if (ergebnis<0) {
+          end_system_call(); OS_file_error(STACK_0);
+        }
+        setmode(ergebnis,O_BINARY);
+        end_system_call();
+        # new file created, return the handle
+        handle = allocate_handle(ergebnis);
+      });
+      #endif
+      #if defined(UNIX) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+        if (file_exists(namestring)) {
+          # file exists
+          # :IF-EXISTS decides:
+          switch (if_exists) {
+            case IF_EXISTS_ERROR:
+              goto fehler_exists;
+            case IF_EXISTS_NIL:
+              goto ergebnis_NIL;
+            case IF_EXISTS_RENAME: case IF_EXISTS_RENAME_AND_DELETE:
+              create_backup_file(namestring_asciz,
+                                 if_exists==IF_EXISTS_RENAME_AND_DELETE);
+              break;
+            case IF_EXISTS_APPEND:
+              append_flag = true; # position at the end
+            default: ;
+              # :OVERWRITE -> use the existing file
+              # :NEW-VERSION, :SUPERSEDE -> truncate the file at 0 length
+          }
+        } else {
+          # file does not exist
+          # :IF-DOES-NOT-EXIST decides:
+          if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND ||
+              if_not_exists==IF_DOES_NOT_EXIST_ERROR)
+            goto fehler_notfound;
+          if (if_not_exists==IF_DOES_NOT_EXIST_NIL)
+            goto ergebnis_NIL;
+          # :CREATE
+        }
+        prepare_create(STACK_0);
+        # open file:
+        # if-exists: if if_exists<IF_EXISTS_APPEND delete contents;
+        # othersise (with :APPEND, :OVERWRITE) preserve contents.
+        # if-not-exists: create new file.
+        var Handle handl =
+          open_output_file(namestring_asciz,# if_exists<IF_EXISTS_APPEND
+                           (if_exists!=IF_EXISTS_APPEND &&
+                            if_exists!=IF_EXISTS_OVERWRITE));
+        handle = allocate_handle(handl);
+      });
+      #endif
+      break;
+  fehler_notfound: # error: file not found
+    # STACK_0 = Truename, FILE-ERROR slot PATHNAME
+      pushSTACK(STACK_0);
+      fehler(file_error,
+             GETTEXT("file ~ does not exist")
+             );
+  fehler_exists: # error: file already exists
+    # STACK_0 = Truename, FILE-ERROR slot PATHNAME
+      pushSTACK(STACK_0);
+      fehler(file_error,
+             GETTEXT("a file named ~ already exists")
+             );
+  }
+ handle_ok:
+  # handle and append_flag are done with.
+  # make the Stream:
+  pushSTACK(STACK_4); # :BUFFERED argument
+  pushSTACK(STACK_4); # :EXTERNAL-FORMAT argument
+  pushSTACK(STACK_4); # :ELEMENT-TYPE argument
+  pushSTACK(handle);
+  var object stream = make_file_stream(direction,append_flag,true);
+  skipSTACK(4);
+  return stream;
+ ergebnis_NIL: # return NIL
+  skipSTACK(6); # forget both Pathnames and three arguments
+  return NIL;
+}
 
 LISPFUN(open,1,0,norest,key,6,\
         (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format),kw(buffered)) )
@@ -8714,80 +8788,10 @@ LISPFUN(open,1,0,norest,key,6,\
     }
     # Stack layout: filename-arg, direction, element-type, if-exists, if-does-not-exist, external-format, buffered, origpathname.
     # filename ist jetzt ein Pathname.
-    var uintB direction;
-    var uintB if_exists;
-    var uintB if_not_exists;
-    # :direction überprüfen und in direction übersetzen:
-    {
-      var object arg = STACK_(5+1);
-      if (eq(arg,unbound) || eq(arg,S(Kinput))) {
-        direction = 1;
-      } elif (eq(arg,S(Kinput_immutable))) {
-        direction = 3;
-      } elif (eq(arg,S(Koutput))) {
-        direction = 4;
-      } elif (eq(arg,S(Kio))) {
-        direction = 5;
-      } elif (eq(arg,S(Kprobe))) {
-        direction = 0;
-      } else {
-        pushSTACK(arg);               # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_direction)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(arg); pushSTACK(S(open));
-        fehler(type_error,
-               GETTEXT("~: illegal :DIRECTION argument ~")
-              );
-      }
-    }
+    var uintB direction = check_direction(STACK_(5+1));
+    var uintB if_exists = check_if_exists(STACK_(3+1));
+    var uintB if_not_exists = check_if_does_not_exist(STACK_(2+1));
     # :element-type wird später überprüft.
-    # :if-exists überprüfen und in if_exists übersetzen:
-    {
-      var object arg = STACK_(3+1);
-      if (eq(arg,unbound)) {
-        if_exists = 0;
-      } elif (eq(arg,S(Kerror))) {
-        if_exists = 1;
-      } elif (eq(arg,NIL)) {
-        if_exists = 2;
-      } elif (eq(arg,S(Krename))) {
-        if_exists = 3;
-      } elif (eq(arg,S(Krename_and_delete))) {
-        if_exists = 4;
-      } elif (eq(arg,S(Knew_version)) || eq(arg,S(Ksupersede))) {
-        if_exists = 5;
-      } elif (eq(arg,S(Kappend))) {
-        if_exists = 6;
-      } elif (eq(arg,S(Koverwrite))) {
-        if_exists = 7;
-      } else {
-        pushSTACK(arg);               # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_if_exists)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(arg); pushSTACK(S(open));
-        fehler(type_error,
-               GETTEXT("~: illegal :IF-EXISTS argument ~")
-              );
-      }
-    }
-    # :if-does-not-exist überprüfen und in if_not_exists übersetzen:
-    {
-      var object arg = STACK_(2+1);
-      if (eq(arg,unbound)) {
-        if_not_exists = 0;
-      } elif (eq(arg,S(Kerror))) {
-        if_not_exists = 1;
-      } elif (eq(arg,NIL)) {
-        if_not_exists = 2;
-      } elif (eq(arg,S(Kcreate))) {
-        if_not_exists = 3;
-      } else {
-        pushSTACK(arg);                       # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_if_does_not_exist)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(arg); pushSTACK(S(open));
-        fehler(type_error,
-               GETTEXT("~: illegal :IF-DOES-NOT-EXIST argument ~")
-              );
-      }
-    }
     # :external-format wird später überprüft.
     # :buffered wird später überprüft.
     # File öffnen:

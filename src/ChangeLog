@@ -1,3 +1,30 @@
+2001-06-21  Sam Steingold  <sds@gnu.org>
+
+	SOCKET-STATUS now accepts SOCKET-SERVERs too
+	and the direction of the checks can be specified
+	* lispbibl.d (direction_t, if_does_not_exist_t, if_exists_t):
+	 new enum types
+	(check_direction, check_if_does_not_exist, check_if_exists,
+	input_stream_p, output_stream_p): declare
+	* pathname.d (check_direction, check_if_does_not_exist,
+	check_if_exists): new global functions
+	(OPEN): use them
+	(open_file): use symbolic values for direction,
+	if_exists and if_does_not_exist
+	* stream.d (input_stream_p, output_stream_p): global functions now
+	(READ_P, RO_P, WRITE_P, DIRECTION_FLAGS): new macros on direction_t
+	(make_unbuffered_stream, make_buffered_stream, make_file_stream):
+	 use them
+	(socket_handle): new local function
+	(handle_set, handle_isset): turned into functions
+	(SOCKET-STATUS): accept socket servers too,
+	 allow request specialization (just :INPUT or just :OUTPUT)
+	* io.d (pr_stream): print stream direction
+	* constobj.d (printstring_(input|output|io)): new constants
+	* dirkey.d (DIR_KEY_*, IDNE_*, parse_if_not_exists,
+	parse_direction): removed
+	(open_reg_key): convert from direction_t to REGSAM
+
 2001-06-19  Sam Steingold  <sds@gnu.org>
 
 	* stream.d: use memset(3) and memcpy(3) instead of dotimes

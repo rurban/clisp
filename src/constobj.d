@@ -759,6 +759,9 @@
   LISPOBJ_S(printstring_addon_subr,"ADD-ON-SYSTEM-FUNCTION")
   LISPOBJ_S(printstring_fsubr,"SPECIAL-OPERATOR")
   LISPOBJ_S(printstring_closed,"CLOSED ")
+  LISPOBJ_S(printstring_input,"INPUT ")
+  LISPOBJ_S(printstring_output,"OUTPUT ")
+  LISPOBJ_S(printstring_io,"IO ")
   LISPOBJ_S(printstring_buffered,"BUFFERED ")
   LISPOBJ_S(printstring_unbuffered,"UNBUFFERED ")
     # Namensstring zu jedem Streamtyp, adressiert durch Streamtyp:
