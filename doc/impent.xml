@@ -125,6 +125,7 @@
 <!ENTITY dkey-close "<link linkend='dir-key-close'><function>LDAP:DIR-KEY-CLOSE</function></link>">
 <!ENTITY dkey-open "<link linkend='dir-key-open'><function>LDAP:DIR-KEY-OPEN</function></link>">
 <!ENTITY dk-t "<link linkend='dir-key-type'>directory key type</link>">
+<!ENTITY ds-t "<link linkend='dribble'><classname>EXT:DRIBBLE-STREAM</classname></link>">
 <!ENTITY wdkey-open "<link linkend='with-dir-key-open'><function>LDAP:WITH-DIR-KEY-OPEN</function></link>">
 <!ENTITY wdkey-search "<link linkend='with-dir-key-search'><function>LDAP:WITH-DIR-KEY-SEARCH</function></link>">
 <!ENTITY doseq "<link linkend='doseq'><function>EXT:DOSEQ</function></link>">
@@ -377,11 +378,13 @@
 <!ENTITY size-r "<replaceable>size</replaceable>">
 <!ENTITY sose-r "<replaceable>socket-server</replaceable>">
 <!ENTITY sost-r "<replaceable>socket-stream</replaceable>">
+<!ENTITY source-r "<replaceable>source</replaceable>">
 <!ENTITY start-r "<replaceable>start</replaceable>">
 <!ENTITY stream-r "<replaceable>stream</replaceable>">
 <!ENTITY string-r "<replaceable>string</replaceable>">
 <!ENTITY symbol-r "<replaceable>symbol</replaceable>">
 <!ENTITY tag-r "<replaceable>tag</replaceable>">
+<!ENTITY target-r "<replaceable>target</replaceable>">
 <!ENTITY tbc-r "<replaceable>tagbody-cons</replaceable>">
 <!ENTITY type-r "<replaceable>type</replaceable>">
 <!ENTITY uc-r "<replaceable>uc</replaceable>">

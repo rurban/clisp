@@ -31,6 +31,11 @@ User visible changes
   You can get the old behavior by doing (DELETE-FILE (TRUENAME path)).
   See <http://clisp.cons.org/impnotes.html#del-file> for details.
 
+* DRIBBLE now works by redefining *TERMINAL-IO* instead of a host of
+  i/o variables.  This allows DRIBBLE to be started and stopped in
+  different break loops.
+  See <http://clisp.cons.org/impnotes.html#dribble> for details.
+
 * ANSI CL compliance issues:
   + MAPC, MAPCAR, MAPCAN, MAPL, MAPLIST, MAPCON now require their list
     arguments to be proper lists;
@@ -57,6 +62,7 @@ User visible changes
 
 * Fixed a bug in PEEK-CHAR with non-NIL peek-type on ECHO-STREAMS.
 
+* Fixed a bug in FILE-POSITION after UNREAD-CHAR (or PEEK-CHAR).
 
 
 2.30 (2002-09-15)
@@ -80,7 +86,7 @@ User visible changes
   properly detected and will result in a segfault instead of an error.
   You are urged to download and install GNU libsigsegv from
   <ftp://ftp.gnu.org/pub/gnu/libsigsegv/> or
-  <http://sourceforge.net/projects/libsigsegv>
+  <http://sourceforge.net/projects/libsigsegv/>
   before configuring CLISP.
 
 * Strings can now hold UCS-4 characters, instead of only UCS-2 characters.

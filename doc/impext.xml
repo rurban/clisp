@@ -938,13 +938,13 @@ N. Gray to X3J13.</para>
    It is a subclass of &stream-t; and of &standard-object-t;.
    Its metaclass is &standard-class;.</simpara></listitem></varlistentry>
  <varlistentry id="fu-st-in"><term>&fu-st-in;</term>
-  <listitem><simpara>This is a superclass of all user-defined input streams.
+  <listitem><simpara>This is a superclass of all user-defined &in-s;s.
    It is a subclass of &fu-st;.  The built-in function &input-stream-p;
    returns true on instances of this class.  This means that when you
    define a new stream class capable of doing input, you have to make it
    a subclass of &fu-st-in;.</simpara></listitem></varlistentry>
  <varlistentry id="fu-st-out"><term>&fu-st-out;</term>
-  <listitem><simpara>This is a superclass of all user-defined output streams.
+  <listitem><simpara>This is a superclass of all user-defined &out-s;s.
    It is a subclass of &fu-st;.  The built-in function &output-stream-p;
    returns true on instances of this class.  This means that when you
    define a new stream class capable of doing output, you have to make
@@ -4142,25 +4142,26 @@ bash$
 <listitem><variablelist>
  <varlistentry><term><literal role="sexp">(&mk-pipe-in;
     &command-r; &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
-<listitem><simpara>returns an input stream that will supply the output
+<listitem><simpara>returns an &in-s; that will supply the output
   from the execution of the given operating system command.
   </simpara></listitem></varlistentry>
 
 <varlistentry><term><literal role="sexp">(&mk-pipe-out;
    &command-r; &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
-<listitem><simpara>returns an output stream that will pass its output as
+<listitem><simpara>returns an &out-s; that will pass its output as
    input to the execution of the given operating system command.
   </simpara></listitem></varlistentry>
 
 <!-- #ifdef PIPES2 -->
 <varlistentry><term><literal role="sexp">(&mk-pipe-io;
    &command-r; &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
-<listitem><simpara>returns three values.  The first value is a
-  bidirectional stream that will simultaneously pass its output as input
-  to the execution of the given operating system command and supply the
-  output from this command as input. The second and third value will be
-  the input stream and the output stream that make up the I/O stream,
-  respectively.  Note that they must be closed individually.</simpara>
+<listitem><simpara>returns three values.
+  The first value is a &bidi-s; that will simultaneously pass its output
+  as input to the execution of the given operating system command and
+  supply the output from this command as input.
+  The second and third value will be the &in-s; and the &out-s; that
+  make up the &bidi-s;, respectively.
+  Note that they must be closed individually.</simpara>
 
  <simpara>Warning: Improper use of this function can lead to
   deadlocks.  Use it at your own risk!</simpara>
@@ -4188,7 +4189,7 @@ bash$
   {&declaration-r;}*
   {&form-r;}*)
 </programlisting>
- binds the variable &var-r; to an output stream
+ binds the variable &var-r; to an &out-s;
  that sends its output to the printer.</para>
 </section>
 </section>
