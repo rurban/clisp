@@ -511,12 +511,12 @@ LISPSYM(resolve_host_ipaddr_,"RESOLVE-HOST-IPADDR-INTERNAL",posix)
 #endif
 #endif
 # ---------- TIME ----------
+LISPSYM(get_internal_real_time,"GET-INTERNAL-REAL-TIME",lisp)
+LISPSYM(get_internal_run_time,"GET-INTERNAL-RUN-TIME",lisp)
 LISPSYM(get_universal_time,"GET-UNIVERSAL-TIME",lisp)
 #if defined(UNIX) || defined(WIN32)
 LISPSYM(default_time_zone,"DEFAULT-TIME-ZONE",system)
 #endif
-LISPSYM(get_internal_run_time,"GET-INTERNAL-RUN-TIME",lisp)
-LISPSYM(get_internal_real_time,"GET-INTERNAL-REAL-TIME",lisp)
 LISPSYM(sleep,"%SLEEP",system)
 LISPSYM(time,"%%TIME",system)
 # ---------- PACKAGE ----------

@@ -1,3 +1,15 @@
+2000-11-29  Bruno Haible  <haible@clisp.cons.org>
+
+        * lispbibl.d (set_start_time): Remove declaration.
+        * time.d (internal_time_to_I): New function.
+          (GET-INTERNAL-REAL-TIME, GET-INTERNAL-RUN-TIME): Use
+          internal_time_to_I.
+          (encode_universal_time): New function.
+          (calc_start_UT): Remove function.
+          (get_start_time): New function.
+          (universal_time_sec): New function.
+          (GET-UNIVERSAL-TIME): Call universal_time_sec.
+
 2000-11-25  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (UNIX_LISP_TIME_DIFF): new macro
