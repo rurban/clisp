@@ -109,7 +109,7 @@ The point should be on the prototype and the definition should follow."
 
 (defvar d-mode-font-lock-defaults
   (d-mode-add-font-locking
-   (if sds-xemacs (get 'c-mode 'font-lock-defaults)
+   (if (boundp 'running-xemacs) (get 'c-mode 'font-lock-defaults)
        (cdr (assq 'c-mode font-lock-defaults-alist))))
   "The `font-lock-defaults' for `d-mode'.")
 
@@ -150,7 +150,7 @@ Beware - this will modify the original C-mode too!"
 
 (when window-system
   ;; enable font locking
-  (if sds-xemacs
+  (if (boundp 'running-xemacs)
       (put 'd-mode 'font-lock-defaults d-mode-font-lock-defaults)
       (when (and (> 21 emacs-major-version)
                  (null (assq 'd-mode font-lock-defaults-alist)))
