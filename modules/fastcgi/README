@@ -24,9 +24,14 @@ Each section follows.
 
 You will need to:
 
+    - Know how to compile CLISP from source code (the binaries do
+      not contain the extra modules compiled in).
+
     - Understand FastCGI by reading up on it at http://www.fastcgi.com
 
     - Download the FastCGI developer's kit, build it, and install it
+      See http://www.fastcgi.com  Win32 users should see
+          http://www.caraveo.com/fastcgi/
 
     - Upgrade your Web server to speak FastCGI.  For Apache, this
       means getting and installing the module "mod_fastcgi" and then
@@ -46,13 +51,11 @@ You will need to:
         (2) BUILDING THE MODULE
             -------------------
 
-If your CLISP doesn't come with the FastCGI module built-in (and as of
-this writing it is not distributed with CLISP), you can append the
-code by unpacking the tar archive at the top level of your CLISP
-distribution.  The tarball will expand into a subdirectory,
-"modules/fastcgi" which will exist alongside the other CLISP modules.
+As of ver. 2.31, CLISP comes with module in the source distribution.
+The modules is in the subdirectory "modules/fastcgi".
 
-Re-run CLISP configure, adding the option "--with-module=fastcgi"
+Run (or re-run) CLISP configure, adding the option
+"--with-module=fastcgi"
 
 Re-compile and install CLISP.  Note you have to use the "full" linking
 set to get the extra modules (e.g., "clisp -K full").  You'll know you
@@ -79,7 +82,7 @@ the following channels:
 	    by the Web server and logged in its log files.
 
 The FastCGI module involves replacing calls the standard routines to
-do the above with calls in the FASTCGI pacakge.  These calls will then
+do the above with calls in the FASTCGI package.  These calls will then
 work exactly as before when the program is invoked as a CGI, but will
 also work when invoked as a FastCGI.
 
@@ -89,7 +92,7 @@ Here is how to do each of the above using this module:
             e.g., (setf browser (fastcgi:getenv "HTTP_USER_AGENT"))
             instead of the regular operating system's getenv() call.
 
-	(b) To read the entirety of the standard input, ususally what
+	(b) To read the entirety of the standard input, usually what
 	    one does, use FASTCGI:SLURP-STDIN, e.g.
 	    (setf stdin (fastcgi:slurp-stdin))
 
