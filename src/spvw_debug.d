@@ -199,7 +199,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     fputc(' ',out);
     if (weakpointerp(TheWeakpointer(obj)->wp_cdr)) fputs("#<next wp>",out);
     else XOUT(TheWeakpointer(obj)->wp_cdr);
-    fputc('>',out);
+    fprintf(out," 0x%lx>",as_oint(obj));
   } else if (fpointerp(obj)) {
     fputs("#<",out); string_out(out,O(printstring_fpointer));
     fprintf(out," 0x%lx>",TheFpointer(obj)->fp_pointer);
@@ -210,7 +210,11 @@ local void nobject_out1 (FILE* out, object obj, int level) {
       fputc(' ',out);
       XOUT(TheStructure(obj)->recdata[ii]);
     }
-    fputc('>',out);
+    fprintf(out," 0x%lx>",as_oint(obj));
+  } else if (instancep(obj)) {
+    fputs("#<instance ",out);
+    XOUT(TheInstance(obj)->inst_class_version);
+    fprintf(out," 0x%lx>",as_oint(obj));
   } else if (fixnump(obj)) fprintf(out,"%d",fixnum_to_L(obj));
   else if (eq(obj,unbound))   string_out(out,O(printstring_unbound));
   else if (eq(obj,nullobj))   fputs("#<NULLOBJ>",out);
@@ -249,7 +253,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
       case DRIVER_frame_info: fputs("DRIVER",out); break;
       default: fputs("**UNKNOWN**",out);
     }
-    fprintf(out," 0x%X>",as_oint(obj));
+    fprintf(out," 0x%lx>",as_oint(obj));
   } else if (builtin_stream_p(obj)) {
     fputs("#<built-in-stream",out);
     switch (TheStream(obj)->strmtype) {
@@ -261,14 +265,14 @@ local void nobject_out1 (FILE* out, object obj, int level) {
       default:
         fprintf(out," type=%d",TheStream(obj)->strmtype);
     }
-    fputc('>',out);
+    fprintf(out," 0x%lx>",as_oint(obj));
   }
   #ifndef TYPECODES
   else if (varobjectp(obj))
-    fprintf(out,"#<varobject type=%d address=0x%X>",
+    fprintf(out,"#<varobject type=%d address=0x%lx>",
             varobject_type(TheVarobject(obj)),ThePointer(obj));
   #endif
-  else fprintf(out,"#<huh?! address=0x%X>",ThePointer(obj));
+  else fprintf(out,"#<huh?! address=0x%lx>",ThePointer(obj));
  #undef XOUT
 }
 
@@ -302,7 +306,7 @@ local int back_trace_depth (const struct backtrace_t *bt) {
 /* print a single struct backtrace_t object
  the caller must do begin_system_call()/end_system_call() ! */
 local void bt_out (FILE* out, const struct backtrace_t *bt, uintL bt_index) {
-  fprintf(out,"[%d/0x%X]%s ",bt_index,bt,bt_beyond_stack_p(bt,STACK)?"<":">");
+  fprintf(out,"[%d/0x%lx]%s ",bt_index,bt,bt_beyond_stack_p(bt,STACK)?"<":">");
   nobject_out(out,bt->bt_caller);
   if (bt->bt_num_arg >= 0)
     fprintf(out," %d args",bt->bt_num_arg);
