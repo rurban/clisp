@@ -1234,14 +1234,14 @@ previously stored value is left unchanged.</para>
 <itemizedlist>
  <listitem><simpara>The &direct-default-initargs-k; argument is a list
    of canonicalized default initialization arguments.</simpara>
-  <simpara>An &err-sig; if this value is not a proper list, or if any
+  <simpara>An &err-sig; if this value is not a &proper-list-glo;, or if any
    element of the list is not a canonicalized default initialization
    argument.</simpara>
   <simpara>If the class metaobject is being initialized, this argument
    defaults to the empty list.</simpara></listitem>
  <listitem><simpara> The &direct-slots-k; argument is a list of
    canonicalized slot specifications.</simpara>
-  <simpara>An &err-sig; if this value is not a proper list or if any
+  <simpara>An &err-sig; if this value is not a &proper-list-glo; or if any
    element of the list is not a canonicalized slot specification.
   </simpara><para>After error checking, this value is converted to a
    list of direct slot definition metaobjects before it is associated
@@ -1272,7 +1272,7 @@ previously stored value is left unchanged.</para>
  <listitem><simpara> The &direct-superclasses-k; argument is a list of
    class metaobjects.  Classes which do not support multiple inheritance
    signal an error if the list contains more than one element.</simpara>
-  <simpara>An &err-sig; if this value is not a proper list or if
+  <simpara>An &err-sig; if this value is not a &proper-list-glo; or if
    &validate-superclass; applied to &class-r; and any element of this
    list returns false.</simpara>
   <simpara>When the class metaobject is being initialized, and this
@@ -1509,7 +1509,7 @@ any dependents of the class metaobject will be updated by calling
    <varlistentry><term>&direct-superclasses-k;</term>
     <listitem><simpara>a list of which each element is a class
       metaobject or a class name.  An &err-sig; if this argument is not
-      a proper list.</simpara></listitem></varlistentry>
+      a &proper-list-glo;.</simpara></listitem></varlistentry>
    <varlistentry><term>additional keyword arguments</term>
     <listitem><simpara>See <xref linkend="mop-cl-init-mo"/>
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
@@ -2362,16 +2362,16 @@ portable subclasses of the class &slotdef-t;.</para>
    &err-sig; otherwise.  The &allocation-k; argument defaults to the
    symbol &instance-k;.</simpara></listitem>
  <listitem><simpara>The &initargs-k; argument is a list of symbols.  An
-   &err-sig; if this argument is not a proper list, or if any element of
+   &err-sig; if this argument is not a &proper-list-glo;, or if any element of
    this list is not a symbol.  The &initargs-k; argument defaults to the
    empty list.</simpara></listitem>
  <listitem><simpara>The &readers-k; argument is a list of function
-   names.  An &err-sig; if it is not a proper list, or if any element is
+   names.  An &err-sig; if it is not a &proper-list-glo;, or if any element is
    not a valid function name. It defaults to the empty list.  An
    &err-sig; if this argument is supplied and the metaobject is not a
    direct slot definition.</simpara></listitem>
  <listitem><simpara>The &writers-k; argument is a list of function
-   names.  An &err-sig; if it is not a proper list, or if any element is
+   names.  An &err-sig; if it is not a &proper-list-glo;, or if any element is
    not a valid function name. It defaults to the empty list.  An
    &err-sig; if this argument is supplied and the metaobject is not a
    direct slot definition.</simpara></listitem>
@@ -2705,8 +2705,8 @@ previously stored value is left unchanged.</para>
  <listitem><simpara>The &argument-precedence-order-k; argument is a list
    of symbols.</simpara>
   <simpara>An &err-sig; if this argument appears but the &lambda-list-k;
-   argument does not appear.  An &err-sig; if this value is not a proper
-   list or if this value is not a permutation of the symbols from the
+   argument does not appear.  An &err-sig; if this value is not a &proper-list-glo;
+   or if this value is not a permutation of the symbols from the
    required arguments part of the &lambda-list-k; initialization
    argument.</simpara>
   <simpara>When the generic function is being initialized or
@@ -2717,7 +2717,7 @@ previously stored value is left unchanged.</para>
    argument is supplied, neither are initialized (see the description of
    &lambda-list-k;.)</simpara></listitem>
  <listitem><simpara>The &declarations-k; argument is a list of &declaration-specifier-glo;s.
-  </simpara><simpara>An &err-sig; if this value is not a proper list or
+  </simpara><simpara>An &err-sig; if this value is not a &proper-list-glo; or
    if each of its elements is not a legal &declaration-specifier-glo;.</simpara>
   <simpara>When the generic function is being initialized, and this
    argument is not supplied, it defaults to the empty list.
@@ -3795,7 +3795,7 @@ subclasses of the class &method-t;.</para>
 
 <itemizedlist>
  <listitem><simpara>The &qualifiers-k; argument is a list of method
-   qualifiers.  An &err-sig; if this value is not a proper list, or if
+   qualifiers.  An &err-sig; if this value is not a &proper-list-glo;, or if
    any element of the list is not a non-null atom. This argument
    defaults to the empty list.</simpara></listitem>
  <listitem><simpara>The &lambda-list-k; argument is the unspecialized
@@ -3804,7 +3804,7 @@ subclasses of the class &method-t;.</para>
  </simpara></listitem>
  <listitem><simpara>The &specializers-k; argument is a list of the
    specializer metaobjects for the method.  An &err-sig; if this value
-   is not a proper list, or if the length of the list differs from the
+   is not a &proper-list-glo;, or if the length of the list differs from the
    number of required arguments in the &lambda-list-k; argument, or if
    any element of the list is not a specializer metaobject.  If this
    value is not supplied, an &err-sig;.</simpara></listitem>
