@@ -1,3 +1,7 @@
+2003-09-03  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (distrib) [win32]: distribute both base and full
+
 2003-09-02  Sam Steingold  <sds@gnu.org>
 
 	* version.h: 2.31 is released
