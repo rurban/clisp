@@ -6,12 +6,13 @@
 	* acornaux.d: Remove file.
 	* acornsig.d: Remove file.
 	* cfgacorn.lisp: Remove file.
-	* lispbibl.d, constobj.d, constsym.d, subr.d, subrkw.d, pseudofun.d,
-	spvw.d, spvw_garcol.d, spvw_memfile.d, spvw_sigint.d, io.d, stream.d,
-	pathname.d, record.d, time.d, lisparit.d, aridecl.d, error.d, unixaux.d,
-	genclisph.d, init.lisp, defs1.lisp, edit.lisp, keyboard.lisp,
-	makemake.in, po/Makefile.devel, Makefile.devel,
-	modules/syscalls/calls.c: Remove RISCOS support.
+	* lispbibl.d, constobj.d, constsym.d, subr.d, subrkw.d:
+	* pseudofun.d, spvw.d, spvw_garcol.d, spvw_memfile.d:
+	* spvw_sigint.d, io.d, stream.d, pathname.d, record.d, time.d:
+	* lisparit.d, aridecl.d, error.d, unixaux.d, genclisph.d:
+	* init.lisp, defs1.lisp, edit.lisp, keyboard.lisp, makemake.in:
+	* po/Makefile.devel, Makefile.devel, modules/syscalls/calls.c:
+	Remove RISCOS support.
 
 2004-01-12  Sam Steingold  <sds@gnu.org>
 
