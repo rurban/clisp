@@ -327,15 +327,17 @@
          (CLOSE ,var :ABORT T)))))
 ;; ----------------------------------------------------------------------------
 (defmacro with-output-to-string ((var &optional (string nil)
-                                      &key (element-type ''CHARACTER))
+                                  &key (element-type ''CHARACTER))
                                  &body body)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     (if string
-      `(LET ((,var (SYS::MAKE-STRING-PUSH-STREAM ,string)))
-         (DECLARE (READ-ONLY ,var) ,@declarations)
-         (UNWIND-PROTECT
-           (PROGN ,element-type ,@(or body-rest '(NIL)))
-           (CLOSE ,var)))
+      (let ((ignored-var (gensym)))
+        `(LET ((,var (SYS::MAKE-STRING-PUSH-STREAM ,string))
+               (,ignored-var ,element-type))
+           (DECLARE (READ-ONLY ,var) (IGNORE ,ignored-var) ,@declarations)
+           (UNWIND-PROTECT
+             (PROGN ,@body-rest)
+             (CLOSE ,var))))
       `(LET ((,var (MAKE-STRING-OUTPUT-STREAM :ELEMENT-TYPE ,element-type)))
          (DECLARE (READ-ONLY ,var) ,@declarations)
          (UNWIND-PROTECT
