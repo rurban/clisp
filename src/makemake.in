@@ -1313,6 +1313,13 @@ if [ $TOS = unix -o $TOS = os2 ] ; then
     XCFLAGS=$XCFLAGS' -DNO_READLINE'
   else
     FILES='libnoreadline.a '$FILES
+    if [ "${with_readline}" != "" ]; then
+      # --with-readline was supplied ==> barf when readline is missing
+      if grep "#undef HAVE_READLINE" unixconf.h 2>&1 >/dev/null; then
+        echol "makemake: configure failed to detect readline" >&2;
+        exit 1;
+      fi
+    fi
   fi
 fi
 
