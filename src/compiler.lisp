@@ -3054,8 +3054,11 @@ for-value   NIL or T
                      (c-NORMAL-FUNCTION-CALL fun)))))))
           (c-NORMAL-FUNCTION-CALL fun))))))
 
-;; deprecated by the ANSI CL spec
-(defvar *deprecated-functions-list* '(GENTEMP SET))
+;; Alist mapping a function name to format string and arguments.
+(defvar *deprecated-functions-alist*
+  ;; The deprecated ANSI CL functions. More are added in deprecated.lisp.
+  '((GENTEMP  "This function creates symbols that cannot be garbage-collected. Use ~S instead." gensym)
+    (SET      "This function name is anachronistic. Use ~S ~S instead." setf symbol-value)))
 
 ;; note a global function call
 ;; NAME is function name, ARGS are arguments, APPLY-ARGS are APPLY arguments
@@ -3075,11 +3078,13 @@ for-value   NIL or T
           (push uf *unknown-functions*)))
       (unless (defining-p name)
         (c-warn (TEXT "Function ~s is not defined") name))))
-  (when (memq name *deprecated-functions-list*)
-    (if *compiling-from-file*
+  (let ((deprecation-info (assoc name *deprecated-functions-alist* :test #'eq)))
+    (when deprecation-info
+      (if *compiling-from-file*
         (pushnew name *deprecated-functions* :test #'eq)
-        (c-warn (TEXT "Function ~s is deprecated~@[, use ~s instead~]")
-                name (get name 'deprecated)))))
+        (apply #'c-warn (concatenate 'string
+                          (TEXT "Function ~S is deprecated.") " ~@?")
+                        deprecation-info)))))
 
 ;; auxiliary function: PROCLAIM on file-compilation, cf. function PROCLAIM
 (defun c-PROCLAIM (declspec)
@@ -10684,8 +10689,9 @@ The function make-closure is required.
                  (nreverse too-late-vars))))
   (when *deprecated-functions*
     (c-comment (concatenate 'string "~%"
-                 (TEXT "The following functions were used but are deprecated:~%~:{~<~%~:; ~S~@[ (use ~S instead)~]~>~^~}"))
-               (mapcar (lambda (f) (list f (get f 'deprecated)))
+                 (TEXT "The following functions were used but are deprecated:~%~:{~<~%~:; ~S - ~@?~>~^~}"))
+               (mapcar #'(lambda (funname)
+                           (assoc funname *deprecated-functions-alist* :test #'eq))
                        (nreverse *deprecated-functions*))))
   (when (boundp '*error-count*) ; then `*warning-count*' is bound too
     (c-comment (concatenate 'string "~%"

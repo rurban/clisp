@@ -1,3 +1,13 @@
+2004-11-03  Bruno Haible  <bruno@clisp.org>
+
+	Provide explanations in deprecation warnings.
+	* compiler.lisp (*deprecated-functions-alist*): New variable, replaces
+	*deprecated-functions-list*.
+	(note-function-used, c-report-problems): Update.
+	* deprecated.lisp (deprecate, ffi::foreign-address-null): Provide
+	textual explanation.
+	* describe.lisp (describe-object@symbol): Update.
+
 2004-11-02  Bruno Haible  <bruno@clisp.org>
 
 	* gray.lisp: Use class-name instead of clos::class-classname.
