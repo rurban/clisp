@@ -1,3 +1,9 @@
+2002-04-17  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (low_close_socket) [WIN32_NATIVE]: shutdown the socket
+	before closing it
+	(SOCKET-STREAM-SHUTDOWN): use SOCK_error(), not OS_errno()
+
 2002-04-16  Peter Burwood  <clisp@peterb.org.uk>
 
 	* autoconf/aclocal.m4 (HAVE_GETRUSAGE): check whether getrusage()

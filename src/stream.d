@@ -14119,6 +14119,9 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,
 #if defined(UNIX_BEOS) || defined(WIN32_NATIVE)
 local void low_close_socket (object stream, object handle) {
   begin_system_call();
+ #ifdef WIN32_NATIVE
+  if (shutdown(TheSocket(handle),SHUT_RDWR)) { SOCK_error(); }
+ #endif
   if (!( closesocket(TheSocket(handle)) ==0)) { SOCK_error(); }
   end_system_call();
 }
@@ -15166,7 +15169,7 @@ LISPFUNN(socket_stream_shutdown,2) {
         buffered_flush_everything(STACK_0);
       begin_system_call();
       if (shutdown(ChannelStream_ihandle(STACK_0),shutdown_how))
-        { OS_error(); }
+        { SOCK_error(); }
       end_system_call();
       break;
     default: NOTREACHED;
