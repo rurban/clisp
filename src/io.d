@@ -8144,10 +8144,12 @@ local void pr_instance (const object* stream_, object obj) {
       return;
     }
   }
+  LEVEL_CHECK;
   # execute (CLOS:PRINT-OBJECT obj stream) :
   var uintC count = pr_external_1(*stream_); # instantiate bindings
   pushSTACK(obj); pushSTACK(*stream_); funcall(S(print_object),2);
   pr_external_2(count); # dissolve bindings
+  LEVEL_END;
 }
 
 #                     -------- Structures --------
@@ -8197,6 +8199,7 @@ local void pr_instance (const object* stream_, object obj) {
 # can trigger GC
 local void pr_structure_external (const object* stream_, object structure,
                                   object function) {
+  LEVEL_CHECK;
   var object stream = *stream_;
   var uintC count = pr_external_1(stream); # create bindings
   # (funcall fun Structure Stream SYS::*PRIN-LEVEL*) :
@@ -8205,6 +8208,7 @@ local void pr_structure_external (const object* stream_, object structure,
   pushSTACK(Symbol_value(S(prin_level))); # SYS::*PRIN-LEVEL* = 3rd Argument
   funcall(function,3);
   pr_external_2(count); # dissolve bindings
+  LEVEL_END;
 }
 
 # UP: prints structure to stream.
@@ -8214,21 +8218,17 @@ local void pr_structure_external (const object* stream_, object structure,
 # < stream: stream   :-) (great documentation, right? )
 # can trigger GC
 local void pr_structure (const object* stream_, object structure) {
-  LEVEL_CHECK;
   # determine type of the structure (ref. TYPE-OF):
-  {
-    var object name = Car(TheStructure(structure)->structure_types);
-    # name = (car '(name_1 ... name_i-1 name_i)) = name_1.
-    # execute (GET name 'SYS::STRUCTURE-PRINT) :
-    var object fun = get(name,S(structure_print));
-    if (!eq(fun,unbound)) { # call given print-function:
-      pr_structure_external(stream_,structure,fun);
-    } else { # no given print-function found.
-      # call CLOS:PRINT-OBJECT:
-      pr_instance(stream_,structure);
-    }
+  var object name = Car(TheStructure(structure)->structure_types);
+  # name = (car '(name_1 ... name_i-1 name_i)) = name_1.
+  # execute (GET name 'SYS::STRUCTURE-PRINT) :
+  var object fun = get(name,S(structure_print));
+  if (!eq(fun,unbound)) { # call given print-function:
+    pr_structure_external(stream_,structure,fun);
+  } else { # no given print-function found.
+    # call CLOS:PRINT-OBJECT:
+    pr_instance(stream_,structure);
   }
-  LEVEL_END;
 }
 
 # UP: print structure to stream.
