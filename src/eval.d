@@ -2195,7 +2195,7 @@ local object lambdabody_source (object lambdabody) {
 # > caller: caller (a symbol)
 # > funname: a symbol
 nonreturning_function(local,fehler_specialform,(object caller,object funname));
-local void fehler_specialform(object caller,object funname) {
+local void fehler_specialform (object caller, object funname) {
   pushSTACK(funname); # CELL-ERROR slot NAME
   pushSTACK(funname);
   pushSTACK(caller);
@@ -2208,7 +2208,7 @@ local void fehler_specialform(object caller,object funname) {
 # > caller: caller (a symbol)
 # > funname: a symbol
 nonreturning_function(local, fehler_macro, (object caller, object funname));
-local void fehler_macro(object caller,object funname) {
+local void fehler_macro (object caller, object funname) {
   pushSTACK(funname); # CELL-ERROR slot NAME
   pushSTACK(funname);
   pushSTACK(caller);
@@ -2220,7 +2220,7 @@ local void fehler_macro(object caller,object funname) {
 # > caller: caller (a symbol)
 # > funname: symbol or (SETF symbol)
 nonreturning_function(local,fehler_undefined,(object caller,object funname));
-local void fehler_undefined(object caller,object funname) {
+local void fehler_undefined (object caller, object funname) {
   pushSTACK(funname); # CELL-ERROR slot NAME
   pushSTACK(funname);
   pushSTACK(caller);
@@ -2359,7 +2359,7 @@ local void fehler_key_notkw(object kw) {
 # > kw: illegal keyword
 # > kwlist: list of legal keywords
 nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kwlist));
-local void fehler_key_badkw(object fun,object kw,object kwlist) {
+local void fehler_key_badkw (object fun, object kw, object kwlist) {
   pushSTACK(kw); # KEYWORD-ERROR slot DATUM
   pushSTACK(kwlist);
   pushSTACK(kwlist);

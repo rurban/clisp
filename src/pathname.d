@@ -4497,7 +4497,7 @@ local object copy_pathname (object pathname) {
 # wild_p(object)
 # > object: normal simple-string or symbol
 # < return: true when the object is wild
-local bool wild_p (object obj,bool dirp) {
+local bool wild_p (object obj, bool dirp) {
   if (simple_string_p(obj)) {
     var uintL len = Sstring_length(obj);
     if (len > 0) {
@@ -4520,7 +4520,7 @@ local bool wild_p (object obj,bool dirp) {
 # word_wild_p(object)
 # > object: normal simple-string or symbol
 # < return: true when the object is word-wild
-local bool word_wild_p (object obj,bool dirp) {
+local bool word_wild_p (object obj, bool dirp) {
   if (simple_string_p(obj)) {
     var uintL len = Sstring_length(obj);
     if (len > 0) {
@@ -5665,7 +5665,7 @@ local object translate_version (object* subst, object muster, bool logical) {
 #undef TRIVIAL_P
 #undef RET_POP
 #undef DEBUG_TRAN
-local object translate_pathname(object* subst,object muster) {
+local object translate_pathname (object* subst, object muster) {
   var bool logical = false;
   var object item;
   pushSTACK(*subst); # save subst for the error message
@@ -5860,7 +5860,7 @@ local void fehler_dir_not_exists (object obj) {
 # > caller: Aufrufer (ein Symbol)
 # > pathname: Pathname
 nonreturning_function(local, fehler_file_exists, (object caller, object pathname));
-local void fehler_file_exists (object caller,object pathname) {
+local void fehler_file_exists (object caller, object pathname) {
   pushSTACK(pathname); # FILE-ERROR slot PATHNAME
   pushSTACK(pathname);
   pushSTACK(caller);
@@ -8160,7 +8160,7 @@ global if_exists_t check_if_exists (const object if_exists) {
 # < ergebnis: Stream oder NIL
 # < STACK: aufgeräumt
 # can trigger GC
-local object open_file (object filename,direction_t direction,
+local object open_file (object filename, direction_t direction,
                         if_exists_t if_exists,
                         if_does_not_exist_t if_not_exists) {
   pushSTACK(STACK_3); # save filename
@@ -10846,7 +10846,7 @@ global int my_chdir (const char* path) {
   return erg;
 }
 
-global int my_access (const char* path,int amode) {
+global int my_access (const char* path, int amode) {
   var int erg = access(path,amode);
   if ((erg<0) && (errno==ENAMETOOLONG)) {
     var char* shorter_path = alloca(asciz_length(path)+1);
@@ -10856,7 +10856,7 @@ global int my_access (const char* path,int amode) {
   return erg;
 }
 
-global int my_stat (const char* path,struct stat* buf) {
+global int my_stat (const char* path, struct stat* buf) {
   var int erg = stat(path,buf);
   if ((erg<0) && (errno==ENAMETOOLONG)) {
     var char* shorter_path = alloca(asciz_length(path)+1);
@@ -10876,7 +10876,7 @@ global int my_unlink (const char* path) {
   return erg;
 }
 
-global int my_rename (const char* oldpath,const char* newpath) {
+global int my_rename (const char* oldpath, const char* newpath) {
   var int erg = rename(oldpath,newpath);
   if ((erg<0) && (errno==ENAMETOOLONG)) {
     var char* shorter_oldpath = alloca(asciz_length(oldpath)+1);
@@ -10891,7 +10891,7 @@ global int my_rename (const char* oldpath,const char* newpath) {
   return erg;
 }
 
-global int my___findfirst (const char* path,int attrib,struct ffblk* ffblk) {
+global int my___findfirst (const char* path, int attrib, struct ffblk* ffblk) {
   var int erg = __findfirst(path,attrib,ffblk);
   if ((erg<0) && (errno==ENAMETOOLONG)) {
     var char* shorter_path = alloca(asciz_length(path)+1);
@@ -10901,7 +10901,7 @@ global int my___findfirst (const char* path,int attrib,struct ffblk* ffblk) {
   return erg;
 }
 
-global int my_mkdir (const char* path,long attrib) {
+global int my_mkdir (const char* path, long attrib) {
   var int erg = mkdir(path,attrib);
   if ((erg<0) && (errno==ENAMETOOLONG)) {
     var char* shorter_path = alloca(asciz_length(path)+1);
@@ -10911,7 +10911,7 @@ global int my_mkdir (const char* path,long attrib) {
   return erg;
 }
 
-global int my_open (const char* path,int flags) {
+global int my_open (const char* path, int flags) {
   var int erg = open(path,flags);
   if ((erg<0) && (errno==ENAMETOOLONG)) {
     var char* shorter_path = alloca(asciz_length(path)+1);
@@ -10922,7 +10922,7 @@ global int my_open (const char* path,int flags) {
 }
 
 #define creat(path,mode)  open(path,O_RDWR|O_TRUNC|O_CREAT,mode)
-global int my_creat (const char* path,int pmode) {
+global int my_creat (const char* path, int pmode) {
   var int erg = creat(path,pmode);
   if ((erg<0) && (errno==ENAMETOOLONG)) {
     var char* shorter_path = alloca(asciz_length(path)+1);
@@ -10932,7 +10932,7 @@ global int my_creat (const char* path,int pmode) {
   return erg;
 }
 
-global int my_spawnv (int pmode,CONST char* path,const char* const * argv) {
+global int my_spawnv (int pmode, CONST char* path, const char* const * argv) {
   var int erg = spawnv(pmode,path,argv);
   if ((erg<0) && (errno==ENAMETOOLONG)) {
     var char* shorter_path = alloca(asciz_length(path)+1);
