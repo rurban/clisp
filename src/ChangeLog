@@ -1,5 +1,10 @@
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
+	* foreign1.lisp (with-defining-c-type): Put the declarations from
+	the body at the right place, so they can affect the c-type binding.
+
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
 	* macros2.lisp (with-output-to-string): Evaluate the element-type
 	form outside, not inside, the scope of the declarations.
 	Found by Paul Dietz's ansi-tests test suite.
