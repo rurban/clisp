@@ -801,10 +801,10 @@
                      ;; this might not be good
                      ;; (NOT (AND A B)) ==> (OR (NOT A) (NOT B))
                      ;;(canonicalize-type
-                     ;; (cons (case (car not-type) (AND OR) (OR AND))
+                     ;; (cons (case (car not-type) (AND 'OR) (OR 'AND))
                      ;;       (mapcar (lambda (ty) (list 'NOT ty))
                      ;;               (rest not-type)))))
-                     (list (case (car not-type) (AND OR) (OR AND))))
+                     (list (case (car not-type) (AND 'OR) (OR 'AND))))
                     (t (list 'NOT not-type)))))
            (MOD ; (MOD n)
             (let ((n (second type)))
