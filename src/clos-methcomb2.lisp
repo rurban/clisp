@@ -263,34 +263,19 @@ has already transpired."
       (nreverse after-methods)
       (nreverse around-methods))))
 
-(defun standard-method-combination-expander (gf combination options args)
+(defun standard-method-combination-expander (gf combination methods options)
   (declare (ignore combination))
   (declare (ignore options)) ; already checked in check-options
   (let* ((signature (gf-signature gf))
          (req-num (sig-req-num signature))
          (req-vars (gensym-list req-num))
-         (req-args (subseq args 0 req-num))
          (restp (gf-sig-restp signature))
          (rest-var (if restp (gensym)))
          (apply-fun (if restp 'APPLY 'FUNCALL))
          (apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
-         (lambdalist `(,@req-vars ,@(if restp `(&REST ,rest-var) '())))
-         (arg-order (gf-argorder gf))
-         (methods (gf-methods gf)))
-    ;; Determine the effective method:
-    ;; 1. Select the applicable methods:
-    (setq methods
-          (remove-if-not #'(lambda (method)
-                             (method-applicable-p method req-args))
-                         (the list methods)))
-    (when (null methods)
-      (return-from standard-method-combination-expander
-        (no-method-caller 'no-applicable-method gf)))
+         (lambdalist `(,@req-vars ,@(if restp `(&REST ,rest-var) '()))))
     (multiple-value-bind (opt-vars key-vars lambdalist-keypart)
         (gf-keyword-arguments restp signature methods)
-      ;; 2. Sort the applicable methods by precedence order:
-      (setq methods (sort-applicable-methods methods req-args arg-order))
-      ;; 3. Apply method combination:
       ;; Split up into individual method types.
       (multiple-value-bind
             (primary-methods before-methods after-methods around-methods)
@@ -459,15 +444,8 @@ has already transpired."
               form)))))))
 
 (defun short-form-method-combination-expander
-    (*method-combination-generic-function* *method-combination*
-     options *method-combination-arguments*)
-  (let* ((methods
-          (or (compute-applicable-methods
-               *method-combination-generic-function*
-               *method-combination-arguments*)
-              (no-method-caller 'no-applicable-method
-                                *method-combination-generic-function*)))
-         (em-form (compute-short-form-effective-method-form
+    (*method-combination-generic-function* *method-combination* methods options)
+  (let ((em-form (compute-short-form-effective-method-form
                    *method-combination* options methods)))
     (typecase em-form
       (function em-form)
@@ -505,16 +483,10 @@ has already transpired."
 ;;; ---------------------- Long-Form Method Combination ----------------------
 
 (defun long-form-method-combination-expander
-    (*method-combination-generic-function* *method-combination*
-     options *method-combination-arguments* long-expander)
-  (let* ((methods
-          (or (compute-applicable-methods
-               *method-combination-generic-function*
-               *method-combination-arguments*)
-              (no-method-caller 'no-applicable-method
-                                *method-combination-generic-function*)))
-         (em-form (apply long-expander *method-combination-generic-function*
-                         methods options)))
+    (*method-combination-generic-function* *method-combination* methods options
+     long-expander)
+  (let ((em-form (apply long-expander *method-combination-generic-function*
+                        methods options)))
     (typecase em-form
       (function em-form)
       (list (compute-effective-method-function
@@ -833,7 +805,6 @@ Long-form options are a list of method-group specifiers,
                  (gf-variable (gensym "GF-"))
                  (combination-variable (gensym "COMBINATION-"))
                  (options-variable (gensym "OPTIONS-"))
-                 (args-variable (gensym "ARGUMENTS-"))
                  (methods-variable (gensym "METHODS-"))
                  (method-variable (gensym "METHOD-")))
              (when (and (consp body) (consp (car body))
@@ -901,10 +872,10 @@ Long-form options are a list of method-group specifiers,
                                 (,check-options-lambda)))))
                     :EXPANDER
                       #'(LAMBDA (,gf-variable ,combination-variable
-                                 ,options-variable ,args-variable)
+                                 ,methods-variable ,options-variable)
                           (LONG-FORM-METHOD-COMBINATION-EXPANDER
                             ,gf-variable ,combination-variable
-                            ,options-variable ,args-variable
+                            ,methods-variable ,options-variable
                             #'(LAMBDA (,gf-variable ,methods-variable ,@lambda-list)
                                 (LET (,@(when user-gf-variable `(,user-gf-variable ,gf-variable)))
                                   (,partition-lambda ,methods-variable)))))
