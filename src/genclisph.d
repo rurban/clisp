@@ -1714,7 +1714,7 @@ int main(int argc, char* argv[])
   printf("    if ((len) > 0) fehler_nilarray_retrieve();");
   printf("    charptr_assignment NULL;");
   printf("  } else {");
-  printf("    charptr_assignment (const chart*) &TheSstring(string)->data[offset];");
+  printf("    charptr_assignment (const chart*) &TheSnstring(string)->data[offset];");
   printf("  }\n");
 #endif
 
