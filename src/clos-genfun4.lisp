@@ -22,7 +22,7 @@
 (defun do-defgeneric (funname lambda-list signature argument-precedence-order method-combo &rest methods)
   (if (fboundp funname)
     (let ((gf (fdefinition funname)))
-      (if (clos::generic-function-p gf)
+      (if (typep-class gf <generic-function>)
         ;; redefinition of a generic function
         (progn
           (warn-if-gf-already-called gf)
