@@ -1,6 +1,6 @@
 # Konstruktion des Makefiles fürs Compilieren von CLISP
 # Bruno Haible 2.9.1991, 14.7.1992, 13.9.1992, 12.10.1992, 27.11.1992
-# $Id$
+# Sam Steingold 17.2.1999
 
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
@@ -152,7 +152,7 @@ srcdir=''
 prefix=''
 exec_prefix=''
 fsstnd=gnu_ext # supported styles: gnu, gnu_ext, suse, redhat, debian
-hyperspec=http://www.harlequin.com/education/books/HyperSpec
+hyperspec='http://www.harlequin.com/education/books/HyperSpec'
 MODULES=''
 CP='cp -p'
 LN_S='ln -s'
@@ -223,11 +223,16 @@ while test -z "$endofargs"; do
       shift
       ;;
     --hyperspec=*)
-      hyperspec=`echol "$1" | sed 's/-*hyperspec=//'`
-      case "$hyperspec" in
-        *://*) ;;
-        /*) hyperspec=file:${hyperspec} ;;
-        *)  hyperspec=file:/./${hyperspec} ;;
+      arg=`echol "$1" | sed 's/-*hyperspec=//'`
+      case "$arg" in
+        *://*) hyperspec="$arg" ;;
+        /*) hyperspec="file:${arg}" ;;
+        *)  if test -d "$arg" -a -d "$arg/FrontMatter" ; then
+              hyperspec="file:"`cd "$arg" && pwd`
+            else
+              echo "makemake: --hyperspec=${arg} argument ignored, does not point to the Common Lisp HyperSpec" 1>&2
+            fi
+            ;;
       esac
       shift
       ;;
