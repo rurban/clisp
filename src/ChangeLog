@@ -1,3 +1,9 @@
+2004-10-31  Bruno Haible  <bruno@clisp.org>
+
+	Portability to BeOS.
+	* m4/select.m4 (CL_SELECT): Fix detection test for BeOS, where fd_set
+	is defined in <sys/socket.h>, not <sys/time.h>.
+
 2004-10-30  Bruno Haible  <bruno@clisp.org>
 
 	A third way of reading input.
