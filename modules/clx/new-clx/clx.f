@@ -1809,7 +1809,8 @@ local Time get_timestamp (object obj)
 }
 
 local sint32 get_angle (object ang)
-  /* translates the CLX angle representation in radian to X represent in sixty-fourth of degree */
+/* translates the CLX angle representation in radian to X represent
+   in sixty-fourth of degree */
 {
   sint16 xang;
   /* calcuate (round (* (/ ang pi) (* 180 64))) */
@@ -2418,11 +2419,11 @@ defun XLIB:DISPLAY-RELEASE-NUMBER (1) // OK
 }
 
 defun XLIB:DISPLAY-XID (1)
-     /* This functions seems to return a function to allocate new resource id`s,
-      * so have a closer look at (from Xlib.h):
-      *	#define XAllocID(dpy) ((*((_XPrivDisplay)dpy)->resource_alloc)((dpy)))
-      */
-     {UNDEFINED;}
+/* This functions seems to return a function to allocate new resource id`s,
+ * so have a closer look at (from Xlib.h):
+ *	#define XAllocID(dpy) ((*((_XPrivDisplay)dpy)->resource_alloc)((dpy)))
+ */
+{UNDEFINED;}
 
 defun XLIB:DISPLAY-AFTER-FUNCTION (1) // OK
 {
