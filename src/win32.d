@@ -1,6 +1,6 @@
 /*
  * Include file for WIN32_NATIVE version of CLISP
- * Bruno Haible 1997-2003
+ * Bruno Haible 1997-2004
  * Sam Steingold 1999-2003
  */
 
@@ -39,6 +39,10 @@
  #include <windows.h>
  #define unused_void
 #endif
+
+/* Declaration of operating system types,
+   in particular needed for ssize_t and before <sys/timeb.h> */
+#include <sys/types.h>
 
 /* Shell object handling for shell link resolution */
 #include <objbase.h>
@@ -209,8 +213,6 @@ extern_C char *setlocale (int category, const char *locale);
 #define ERROR_SIGINT ERROR_SUCCESS
 /* Like ReadConsoleInput with Length==1, but is interruptible by Ctrl-C. */
 extern BOOL ReadConsoleInput1 (HANDLE ConsoleInput, PINPUT_RECORD Buffer, LPDWORD NumberOfEventsRead);
-/* definition for ssize_t in mingw */
-#include <sys/types.h>
 /* The following functions deal with all kinds of file/pipe/console handles */
 extern int fd_read_wont_hang_p (HANDLE fd);
 extern ssize_t fd_read (HANDLE fd, void* buf, size_t nbyte, perseverance_t persev);
