@@ -342,6 +342,10 @@ User visible changes
     platforms.
   + Third party code walkers can now handle HANDLER-BIND et al.
 
+* Woe32 distribution now comes with a binary driver clisp.exe.
+  Do not copy it anywhere!  Just create a shortcut to it.
+  Use install.bat to automate shortcut creation.
+
 Modules
 -------
 
