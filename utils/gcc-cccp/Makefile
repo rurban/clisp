@@ -1,16 +1,25 @@
-# Makefile for the GNU C preprocessor
+# -*-Makefile-*- for the GNU C preprocessor
 
+CFLAGS = -I. -Wall -O2 -DOUTPUT_LINE_COMMANDS
+# -DOUTPUT_EXTENDED_LINE_COMMANDS is good for GCC but not for
+# the lousy compilers we are working with here...
+OS=$(shell uname);
+ifneq (,$(filter CYGWIN%,$(OS)))
+CC = gcc -mno-cygwin
+EXE = cccp.exe
+else
 CC = cc
-CFLAGS = -I. -O -DOUTPUT_EXTENDED_LINE_COMMANDS
+EXE = cccp
+endif
 
 # Choose which alloca() function to use.
 # The builtin alloca():
 ALLOCA =
 # The portable alloca() from alloca.c:
-#ALLOCA = alloca.o
+# ALLOCA = alloca.o
 
-cccp : cccp.o cexp.o version.o obstack.o $(ALLOCA)
-	$(CC) $(CFLAGS) cccp.o cexp.o version.o obstack.o $(ALLOCA) -o cccp
+$(EXE) : cccp.o cexp.o version.o obstack.o $(ALLOCA)
+	$(CC) cccp.o cexp.o version.o obstack.o $(ALLOCA) -o $(EXE)
 
 cccp.o : cccp.c config.h
 	$(CC) $(CFLAGS) -c cccp.c
@@ -27,3 +36,5 @@ obstack.o : obstack.c obstack.h
 alloca.o : alloca.c
 	$(CC) $(CFLAGS) -c alloca.c
 
+clean:
+	rm -f *.o $(EXE)
