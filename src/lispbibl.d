@@ -4632,7 +4632,7 @@ typedef struct {
     object enc_wcstombs; # void (*) (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
   # Function to return the set of defined characters in the range [start,end],
   # as a simple-string of intervals #(start1 end1 ... startm endm).
-    object enc_range; # object (*) (object encoding, uintL start, uintL end);
+    object enc_range; # object (*) (object encoding, uintL start, uintL end, uintL maxintervals);
   # An auxiliary pointer.
   object enc_table;
   # Minimum number of bytes needed to represent a character.
@@ -4652,7 +4652,7 @@ typedef struct {
   #define Encoding_mbstowcs(encoding)  ((void (*) (object, object, const uintB**, const uintB*, chart**, chart*)) ThePseudofun(TheEncoding(encoding)->enc_mbstowcs))
   #define Encoding_wcslen(encoding)  ((uintL (*) (object, const chart*, const chart*)) ThePseudofun(TheEncoding(encoding)->enc_wcslen))
   #define Encoding_wcstombs(encoding)  ((void (*) (object, object, const chart**, const chart*, uintB**, uintB*)) ThePseudofun(TheEncoding(encoding)->enc_wcstombs))
-  #define Encoding_range(encoding)  ((object (*) (object, uintL, uintL)) ThePseudofun(TheEncoding(encoding)->enc_range))
+  #define Encoding_range(encoding)  ((object (*) (object, uintL, uintL, uintL)) ThePseudofun(TheEncoding(encoding)->enc_range))
 #endif
 #ifdef UNICODE
   #define cslen(encoding,src,srclen)  \

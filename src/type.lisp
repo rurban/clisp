@@ -1182,17 +1182,19 @@
   |#
   ; Return the definition range of a character set. If necessary, compute it
   ; and store it in the cache.
-  (defun get-charset-range (charset)
+  (defun get-charset-range (charset &optional maxintervals)
     (or (gethash charset table)
         (setf (gethash charset table)
-              (charset-range (make-encoding :charset charset) (code-char 0) (code-char (1- char-code-limit)))
-  ) )   )
+              (charset-range (make-encoding :charset charset)
+                             (code-char 0) (code-char (1- char-code-limit))
+                             maxintervals
+  ) )   )     )
   ; Fill the cache, but cache only the results with small lists of intervals.
   ; Some iconv based encodings have large lists of intervals (up to 5844
   ; intervals for ISO-2022-JP-2) which are rarely used and not worth caching.
   (do-external-symbols (sym (find-package "CHARSET"))
     (let* ((charset (encoding-charset (symbol-value sym)))
-           (computed-range (get-charset-range charset))
+           (computed-range (get-charset-range charset 100))
            (intervals (/ (length computed-range) 2)))
       (when (>= intervals 100) (remhash charset table))
   ) )
