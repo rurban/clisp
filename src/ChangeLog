@@ -1,5 +1,12 @@
 1998-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_module.d: New file.
+        * spvw.d (main_module, last_module, init_modules_0, add_module,
+          for_modules, all_modules, all_other_modules): Move out.
+        * makemake.in (SPVW_MODULES): New variable. Adjust.
+
+1998-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (OS_error): Move declaration.
           (xthread.c): Move #include.
 
