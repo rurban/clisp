@@ -29,6 +29,8 @@
 
 (in-package "ORACLE")
 
+; Use "C" as foreign language
+(default-foreign-language :stdc)
 
 ;; GLOBALS
 
@@ -45,6 +47,7 @@
   connection     ; "C" library handle for Oracle operations
   fetch-called   ; Flag: has fetch been called yet
   pending-row    ; Look-ahead row (for PEEK)
+  colinfo        ; Cache the column info for speed
   hkey           ; Key in global hash (useful for removal)
 )
 
@@ -201,6 +204,7 @@ for SELECT statements.
                    (c-truth (not is-select)))
   (setf (db-fetch-called *oracle-connection*) nil)
   (setf (db-pending-row *oracle-connection*) nil)
+  (setf (db-colinfo *oracle-connection*) nil)
   (check-success)
 
   ; Get the row count for the result
@@ -367,15 +371,19 @@ slots:
 Arguments: none
 "
   (check-connection "get column information")
-  (let ((result (oracle_column_info (curconn))))
-    (check-success)
-    ; Convert C truth to Lisp for export
-    (map-into result
-              #'(lambda (col)
-                  (setf (sqlcol-null_ok col) (lisp-truth (sqlcol-null_ok col)))
-                  col)
-              result)
-    result))
+  (let ((cached-info (db-colinfo *oracle-connection*)))
+    (if cached-info
+        cached-info
+      (let ((result (oracle_column_info (curconn))))
+        (check-success)
+        ; Convert C truth to Lisp for export
+        (map-into result
+                  #'(lambda (col)
+                      (setf (sqlcol-null_ok col) (lisp-truth (sqlcol-null_ok col)))
+                      col)
+                  result)
+        (setf (db-colinfo *oracle-connection*) result)
+        result))))
 
 ;----------------------------------------------
 
@@ -618,7 +626,8 @@ Argument: none
 (defun row-to-result (row result-type)
   (cond ((null row) nil)
         ((eq result-type 'ARRAY) row)
-        ((eq result-type 'HASH) (pairs-to-hash (row-to-result row 'PAIRS)))
+        ; ((eq result-type 'HASH) (pairs-to-hash (row-to-result row 'PAIRS)))
+        ((eq result-type 'HASH) (array-to-hash (row-to-result row 'ARRAY)))
         ((eq result-type 'PAIRS)
          (let ((colinfo (oracle_column_info (curconn))))
            (check-success)
@@ -729,7 +738,7 @@ Argument: none
 ; CHECK-PAIRS
 ; Convert pairs to hash if needed
 (defun check-pairs (p)
-  (cond ((null p) (make-hash-table))
+  (cond ((null p) (make-hash-table :test #'equal))
         ((eq (type-of p) 'HASH-TABLE) p)
         ((eq (type-of p) 'CONS) (pairs-to-hash p))
         (t (error (cat "Invalid type for name -> value map: '" (type-of p) "' - should be hash or list of pairs.")))))
@@ -758,67 +767,67 @@ Argument: none
 ; =-=-=-=-=-=-=-   C WRAPPER FUNCTIONS  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 ; CONNECT
-(def-c-call-out oracle_connect (:arguments (user           c-string)
-                                           (schema         c-string)
-                                           (password       c-string)
-                                           (server         c-string)
-                                           (prefetch_bytes int)
-                                           (auto_commit    int))
-                               (:return-type c-pointer))
+(def-call-out oracle_connect (:arguments (user           c-string)
+					 (schema         c-string)
+					 (password       c-string)
+					 (server         c-string)
+					 (prefetch_bytes int)
+					 (auto_commit    int))
+                             (:return-type c-pointer))
 
 ; DISCONNECT
-(def-c-call-out oracle_disconnect (:arguments (db c-pointer))
-                                  (:return-type int  ))
+(def-call-out oracle_disconnect (:arguments (db c-pointer))
+                                (:return-type int  ))
 
 ; RUN SQL
-(def-c-call-out oracle_exec_sql (:arguments (db         c-pointer)
-                                            (sql        c-string)
-                                            (params     (c-array-ptr (c-ptr sqlparam)))
-                                            (is_command int))
-                                (:return-type int))
-
-; NO. OF COLUMNS
-(def-c-call-out oracle_ncol (:arguments (db c-pointer))
-                            (:return-type int))
-
-; COLUMN INFO
-(def-c-call-out oracle_column_info (:arguments (db c-pointer))
-                                   (:return-type (c-array-ptr (c-ptr sqlcol))))
-
-; FETCH
-(def-c-call-out oracle_fetch_row (:arguments (db c-pointer))
-                                 (:return-type int))
-
-; EOF
-(def-c-call-out oracle_eof (:arguments (db c-pointer))
-                           (:return-type int))
-
-; SUCCESS
-(def-c-call-out oracle_success (:arguments (db c-pointer))
-                               (:return-type int))
-
-; ROW VALUES
-(def-c-call-out oracle_row_values (:arguments (db c-pointer))
-                                  (:return-type (c-array-ptr (c-ptr sqlval))))
-
-; NO. ROWS AFFECTED
-(def-c-call-out oracle_rows_affected (:arguments (db c-pointer))
-                                     (:return-type int))
-
-; COMMIT
-(def-c-call-out oracle_commit (:arguments (db c-pointer))
+(def-call-out oracle_exec_sql (:arguments (db         c-pointer)
+					  (sql        c-string)
+					  (params     (c-array-ptr (c-ptr sqlparam)))
+					  (is_command int))
                               (:return-type int))
 
-(def-c-call-out oracle_rollback (:arguments (db c-pointer))
-                                (:return-type int))
+; NO. OF COLUMNS
+(def-call-out oracle_ncol (:arguments (db c-pointer))
+                          (:return-type int))
 
-(def-c-call-out oracle_set_auto_commit (:arguments (db c-pointer)
-                                                   (auto_commit int))
-                                       (:return-type int))
+; COLUMN INFO
+(def-call-out oracle_column_info (:arguments (db c-pointer))
+                                 (:return-type (c-array-ptr (c-ptr sqlcol))))
+
+; FETCH
+(def-call-out oracle_fetch_row (:arguments (db c-pointer))
+                               (:return-type int))
+
+; EOF
+(def-call-out oracle_eof (:arguments (db c-pointer))
+                         (:return-type int))
+
+; SUCCESS
+(def-call-out oracle_success (:arguments (db c-pointer))
+                             (:return-type int))
+
+; ROW VALUES
+(def-call-out oracle_row_values (:arguments (db c-pointer))
+                                (:return-type (c-array-ptr (c-ptr sqlval))))
+
+; NO. ROWS AFFECTED
+(def-call-out oracle_rows_affected (:arguments (db c-pointer))
+                                   (:return-type int))
+
+; COMMIT
+(def-call-out oracle_commit (:arguments (db c-pointer))
+                            (:return-type int))
+
+(def-call-out oracle_rollback (:arguments (db c-pointer))
+                              (:return-type int))
+
+(def-call-out oracle_set_auto_commit (:arguments (db c-pointer)
+						 (auto_commit int))
+                                     (:return-type int))
 
 ; ERROR
-(def-c-call-out oracle_last_error (:arguments (db c-pointer))
-                                  (:return-type c-string))
+(def-call-out oracle_last_error (:arguments (db c-pointer))
+                                (:return-type c-string))
 
 
 ; =-=-=-=-=-=-=-   LOW LEVEL UTILITY FUNCTIONS  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -830,7 +839,7 @@ Argument: none
 ; NULL-HASH
 ; Map NIL to empty hash table
 (defun null-hash (h)
-  (if-null h (make-hash-table)))
+  (if-null h (make-hash-table :test #'equal)))
 
 ; HASH-COMBINE
 ; Combine two hash table.  Keys of the second hash will overwrite.
@@ -851,12 +860,27 @@ Argument: none
 ; TO-STRING
 ; Convert object to a string; NIL -> ""
 (defun to-string (s)
-  (if (null s) "" (format nil "~A" s)))
+  (cond ((null s) "")
+        ((stringp s) s)
+        ((symbolp s) (symbol-name s))
+        (t (format nil "~A" s))))
 
 ; CAT
 ; Concatenate strings
 (defun cat (&rest args) 
   (apply #'concatenate 'string (mapcar #'to-string (flatten args))))
+
+; ARRAY-TO-HASH
+; Convert array of row values to hash using column info
+(defun array-to-hash (row)
+  (if (null row)
+      nil
+    (let* ((cols (columns))
+           (n (length row))
+           (result (make-hash-table :test #'equal :size n)))
+      (loop for i from 0 to (- n 1) do
+            (setf (gethash (to-string (sqlcol-name (aref cols i))) result) (aref row i)))
+      result)))
 
 ; JOIN
 ; Join a sequence of strings into one, separating with delimeter
