@@ -733,10 +733,12 @@ bar 41
       #'(lambda ()
           (when done (return-from test nil))
           (setq done t)
-          (let ((*debug-io*
-                  (make-two-way-stream (make-string-input-stream "")
-                                       *terminal-io*)))
-            (assert (= 1 2)))))))
+          (handler-bind ; override handler set by EXIT-ON-ERROR
+              ((error (lambda (c) (throw 'sys::done-signaling nil))))
+            (let ((*debug-io*
+                    (make-two-way-stream (make-string-input-stream "")
+                                         *terminal-io*)))
+              (assert (= 1 2))))))))
 nil
 
 ;; check all invocations of correctable-error in package.d
