@@ -1,13 +1,20 @@
+2004-08-18  Bruno Haible  <bruno@clisp.org>
+
+	Make it work with automake-1.9.
+	* Makefile.devel (src/autoconf/aclocal.m4): Also filter out the
+	AC_CONFIG_HEADER and AC_CONFIG_FILES lines.
+	($(CONFIGURES)): Pass a second --include option to autoconf.
+
 2004-08-16  Sam Steingold  <sds@gnu.org>
 
 	* eval.d (eval1): do not ignore the return value of check_fdefinition()
-	Reported by "Слепнев Владимир" <slepnev_v@rambler.ru>
+	Reported by Слепнев Владимир (Vladimir Slepnev) <slepnev_v@rambler.ru>.
 
 2004-08-16  Sam Steingold  <sds@gnu.org>
 
 	* install.lisp (*clisp-runtime*): always enclose pathname in quotes
 	(*clisp-args*): fixed slashes
-	Reported by "Слепнев Владимир" <slepnev_v@rambler.ru>
+	Reported by Слепнев Владимир (Vladimir Slepnev) <slepnev_v@rambler.ru>.
 
 2004-08-16  Sam Steingold  <sds@gnu.org>
 
