@@ -96,6 +96,12 @@
 /* CL_READLINE */
 /* Define if you have <readline/readline.h>. */
 #undef HAVE_READLINE_READLINE_H
+/* Define as const if the declaration of filename_completion_function()
+   needs const in the first argument */
+#undef READLINE_CONST
+/* The readline built-in filename completion function, either
+   rl_filename_completion_function() or filename_completion_function() */
+#undef READLINE_FILE_COMPLETE
 
 /* CL_TERM */
 /* Define if you have <termios.h>. */
