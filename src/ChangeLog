@@ -1,5 +1,10 @@
 2002-11-01  Sam Steingold  <sds@gnu.org>
 
+	* defs1.lisp (do-symbols, do-external-symbols, do-all-symbols):
+	wrap BODY-REST in TAGBODY
+
+2002-11-01  Sam Steingold  <sds@gnu.org>
+
 	* package.d (shadow): accept characters too
 	(test_stringsym_arg): removed
 	(FIND-PACKAGE, test_names_args, %IN-PACKAGE, FIND-ALL-SYMBOLS):
