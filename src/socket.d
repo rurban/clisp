@@ -595,12 +595,11 @@ global SOCKET connect_to_x_server(host,display)
 # with family AF_INET and AF_INET6, these are the only kinds of sockets
 # we have to deal with (no sockaddr_ipx, sockaddr_un, etc.).
 typedef union {
-                struct sockaddr_in inaddr;
-                #ifdef HAVE_IPV6
-                struct sockaddr_in6 inaddr6;
-                #endif
-              }
-        sockaddr_max;
+  struct sockaddr_in inaddr;
+ #ifdef HAVE_IPV6
+  struct sockaddr_in6 inaddr6;
+ #endif
+} sockaddr_max_t;
 
 # Auxiliary function:
 # socket_getlocalname(socket_handle,hd)
@@ -608,35 +607,32 @@ typedef union {
 # return the IP name of the localhost for the given socket.
 
 # Fills only hd->hostname and hd->port, not hd->truename.
-local host_data * socket_getlocalname_aux (SOCKET socket_handle, host_data * hd );
-local host_data * socket_getlocalname_aux(socket_handle,hd)
-  var SOCKET socket_handle;
-  var host_data * hd;
-  {
-    var sockaddr_max addr;
-    var SOCKLEN_T addrlen = sizeof(sockaddr_max);
-    if (getsockname(socket_handle,(struct sockaddr *)&addr,&addrlen) < 0)
-      return NULL;
-    # Fill in hd->hostname and hd->port.
-    switch (((struct sockaddr *)&addr)->sa_family) {
-      #ifdef HAVE_IPV6
-      case AF_INET6:
-        ipv6_ntop(hd->hostname,addr.inaddr6.sin6_addr);
-        hd->port = ntohs(addr.inaddr6.sin6_port);
-        break;
-      #endif
-      case AF_INET:
-        ipv4_ntop(hd->hostname,addr.inaddr.sin_addr);
-        hd->port = ntohs(addr.inaddr.sin_port);
-        break;
-      default: NOTREACHED;
-    }
-    return hd;
+local host_data_t * socket_getlocalname_aux (SOCKET socket_handle,
+                                             host_data_t * hd ) {
+  var sockaddr_max_t addr;
+  var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
+  if (getsockname(socket_handle,(struct sockaddr *)&addr,&addrlen) < 0)
+    return NULL;
+  # Fill in hd->hostname and hd->port.
+  switch (((struct sockaddr *)&addr)->sa_family) {
+   #ifdef HAVE_IPV6
+    case AF_INET6:
+      ipv6_ntop(hd->hostname,addr.inaddr6.sin6_addr);
+      hd->port = ntohs(addr.inaddr6.sin6_port);
+      break;
+   #endif
+    case AF_INET:
+      ipv4_ntop(hd->hostname,addr.inaddr.sin_addr);
+      hd->port = ntohs(addr.inaddr.sin_port);
+      break;
+    default: NOTREACHED;
   }
+  return hd;
+}
 
 # Fills all of *hd.
-global host_data * socket_getlocalname (SOCKET socket_handle, host_data * hd,
-                                        bool resolve_p) {
+global host_data_t * socket_getlocalname (SOCKET socket_handle,
+                                          host_data_t * hd, bool resolve_p) {
   if (socket_getlocalname_aux(socket_handle,hd) == NULL)
     return NULL;
   if (resolve_p) { # Fill in hd->truename.
@@ -655,10 +651,10 @@ global host_data * socket_getlocalname (SOCKET socket_handle, host_data * hd,
 # returns the name of the host to which IP socket fd is connected.
 
 # Fills all of *hd.
-global host_data * socket_getpeername (SOCKET socket_handle, host_data * hd,
-                                       bool resolve_p) {
-  var sockaddr_max addr;
-  var SOCKLEN_T addrlen = sizeof(sockaddr_max);
+global host_data_t * socket_getpeername (SOCKET socket_handle,
+                                         host_data_t * hd, bool resolve_p) {
+  var sockaddr_max_t addr;
+  var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
   var struct hostent* hp = NULL;
   # Get host's IP address.
   if (getpeername(socket_handle,(struct sockaddr *)&addr,&addrlen) < 0)
@@ -701,7 +697,7 @@ global host_data * socket_getpeername (SOCKET socket_handle, host_data * hd,
 #   This can (and should) be done multiple times for the same
 #   socket_handle.
 
-global SOCKET create_server_socket (host_data *hd, SOCKET sock,
+global SOCKET create_server_socket (host_data_t *hd, SOCKET sock,
                                     unsigned int port);
 local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
                                 void* ignore) {
@@ -729,61 +725,54 @@ local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
   saving_sock_errno(CLOSESOCKET(fd));
   return INVALID_SOCKET;
 }
-global SOCKET create_server_socket (hd, sock, port)
-  var host_data *hd;
-  var SOCKET sock;
-  var unsigned int port;
-  {
-    var SOCKET fd;
-    if (sock == INVALID_SOCKET) {
-      # "0.0.0.0" allows connections from any host to our server
-      fd = with_hostname("0.0.0.0",(unsigned short)port,&bindlisten_via_ip,
-                         NULL);
-    } else {
-      var sockaddr_max addr;
-      var SOCKLEN_T addrlen = sizeof(sockaddr_max);
-      if (getsockname(sock,(struct sockaddr *)&addr,&addrlen) < 0)
-        return INVALID_SOCKET;
-      switch (((struct sockaddr *)&addr)->sa_family) {
-        #ifdef HAVE_IPV6
-        case AF_INET6:
-          addr.inaddr6.sin6_port = htons(0);
-          break;
-        #endif
-        case AF_INET:
-          addr.inaddr.sin_port = htons(0);
-          break;
-        default: NOTREACHED;
-      }
-      fd = bindlisten_via_ip((struct sockaddr *)&addr,addrlen,NULL);
-    }
-    if (fd == INVALID_SOCKET)
+global SOCKET create_server_socket (host_data_t *hd, SOCKET sock,
+                                    unsigned int port) {
+  var SOCKET fd;
+  if (sock == INVALID_SOCKET) {
+    # "0.0.0.0" allows connections from any host to our server
+    fd = with_hostname("0.0.0.0",(unsigned short)port,&bindlisten_via_ip,NULL);
+  } else {
+    var sockaddr_max_t addr;
+    var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
+    if (getsockname(sock,(struct sockaddr *)&addr,&addrlen) < 0)
       return INVALID_SOCKET;
-    # Retrieve the assigned port.
-    if (socket_getlocalname_aux(fd,hd) != NULL)
-      return fd;
-    saving_sock_errno(CLOSESOCKET(fd));
+    switch (((struct sockaddr *)&addr)->sa_family) {
+     #ifdef HAVE_IPV6
+      case AF_INET6:
+        addr.inaddr6.sin6_port = htons(0);
+        break;
+     #endif
+      case AF_INET:
+        addr.inaddr.sin_port = htons(0);
+        break;
+      default: NOTREACHED;
+    }
+    fd = bindlisten_via_ip((struct sockaddr *)&addr,addrlen,NULL);
+  }
+  if (fd == INVALID_SOCKET)
+    return INVALID_SOCKET;
+  # Retrieve the assigned port.
+  if (socket_getlocalname_aux(fd,hd) != NULL)
+    return fd;
+  saving_sock_errno(CLOSESOCKET(fd));
+  return INVALID_SOCKET;
+}
+
+global SOCKET accept_connection (SOCKET socket_handle) {
+ #if defined(WIN32_NATIVE)
+  # make it interruptible on windows
+  # it seems no need implementing interruptible_accept
+  if (!interruptible_socket_wait(socket_handle,socket_wait_read,NULL)) {
+    WSASetLastError(WSAETIMEDOUT); # user-inspired timeout
     return INVALID_SOCKET;
   }
-
-global SOCKET accept_connection (SOCKET socket_handle);
-global SOCKET accept_connection (socket_handle)
-  var SOCKET socket_handle;
-  {
-#if defined(WIN32_NATIVE)
-# make it interruptible on windows
-# it seems no need implementing interruptible_accept
-    if (!interruptible_socket_wait(socket_handle,socket_wait_read,NULL)) {
-      WSASetLastError(WSAETIMEDOUT); # user-inspired timeout 
-      return INVALID_SOCKET;
-    }
-#endif
-    var sockaddr_max addr;
-    var SOCKLEN_T addrlen = sizeof(sockaddr_max);
-    return accept(socket_handle,(struct sockaddr *)&addr,&addrlen);
-    # We can ignore the contents of addr, because we can retrieve it again
-    # through socket_getpeername() later.
-  }
+ #endif
+  var sockaddr_max_t addr;
+  var SOCKLEN_T addrlen = sizeof(sockaddr_max_t);
+  return accept(socket_handle,(struct sockaddr *)&addr,&addrlen);
+  # We can ignore the contents of addr, because we can retrieve it again
+  # through socket_getpeername() later.
+}
 
 # Creation of sockets on the client side:
 # SOCKET fd = create_client_socket(hostname,port,void* timeout);

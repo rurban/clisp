@@ -4769,12 +4769,12 @@ typedef struct {
 #ifndef MAXHOSTNAMELEN
   #define MAXHOSTNAMELEN 64
 #endif
-typedef struct host_data {
+typedef struct host_data_t {
   char hostname[45+1];   # IP address in presentable, printable format
                          # (IPv4 max. 15 characters, IPv6 max. 45 characters)
   char truename[MAXHOSTNAMELEN+1]; # hostname, with or without domain name
   unsigned int port;
-} host_data;
+} host_data_t;
 #endif
 
 #ifdef DIR_KEY
