@@ -64,6 +64,7 @@ static int              set_auto_commit(struct db_conn *, int);
 
 /* Purely local routines */
 static void      append_oci_error(char *, void *, int);
+static void      append_indicator(struct db_conn *, char *);
 static int       init_session(struct db_conn *, char *, char *, char *, char*, int);
 static int       get_cols(struct db_conn *);
 static int       get_param_attr(CONST dvoid *, int, struct db_conn *, dvoid *, ub4 *, char *, ub4);
@@ -719,8 +720,9 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
   /* "Prepare" the statement - this rarely returns an error */
   status = OCIStmtPrepare(db->stmt, db->err, sql, strlen(sql), OCI_NTV_SYNTAX, OCI_DEFAULT);
   if ( status != OCI_SUCCESS ) {
-    sprintf(db->errmsg, "Error parsing SQL text:\n%s\n", sql);
+    sprintf(db->errmsg, "Error parsing SQL %s:\n---\n%s\n---\n", is_command ? "command" : "query", sql);
     append_oci_error(db->errmsg, db->err, 0);
+	append_indicator(db, sql);
     return db->success = 0;
   }
 
@@ -780,8 +782,6 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
 
   if ( OCI_SUCCESS != status ) {
 
-    ub2 err_offset = 0;
-
     sprintf(db->errmsg, "Error executing SQL %s:\n---\n%s\n---\n", is_command ? "command" : "query", sql);
 
     /* Also show what params were given.  Since parameter values may be really big, and our error buffer
@@ -811,24 +811,7 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
     }
     
     append_oci_error(db->errmsg, db->err, 0);
-
-    /* Get the parse error offset so we can print an indicator as to
-       where the error occurred */
-    status = OCIAttrGet(db->stmt, OCI_HTYPE_STMT, (dvoid *) &err_offset, (ub4 *) 0, OCI_ATTR_PARSE_ERROR_OFFSET, db->err);
-    if ( OCI_SUCCESS != status ) {
-      strcat(db->errmsg, "Could not get parse error offset:\n");
-      append_oci_error(db->errmsg, db->err, 0);
-    }
-    else {
-      char p[100];
-      sprintf(p, "At character %d, near ==> indicator in:\n----\n", err_offset);
-      strcat(db->errmsg, p);
-
-      strncat(db->errmsg, sql, err_offset);
-      strcat(db->errmsg, "\n==> ");
-      strcat(db->errmsg, sql + err_offset);
-      strcat(db->errmsg, "\n----\n");
-    }
+	append_indicator(db, sql);
     return db->success = 0;
   }
 
@@ -1075,6 +1058,33 @@ static void append_oci_error(char *errbuf, void * err, int isenv)
   }
 
 }
+
+/* ------------------------------------------------------------------------------------------------------------- */
+/* Append error location indicator to error message */
+void append_indicator(struct db_conn * db, char * sql)
+{
+    ub2		err_offset = 0;
+	sword	status  = 0;
+					  
+    /* Get the parse error offset so we can print an indicator as to
+       where the error occurred */
+    status = OCIAttrGet(db->stmt, OCI_HTYPE_STMT, (dvoid *) &err_offset, (ub4 *) 0, OCI_ATTR_PARSE_ERROR_OFFSET, db->err);
+    if ( OCI_SUCCESS != status ) {
+      strcat(db->errmsg, "Could not get parse error offset:\n");
+      append_oci_error(db->errmsg, db->err, 0);
+    }
+    else {
+      char p[100];
+      sprintf(p, "At character %d, near ==> indicator in:\n----\n", err_offset);
+      strcat(db->errmsg, p);
+
+      strncat(db->errmsg, sql, err_offset);
+      strcat(db->errmsg, "\n==> ");
+      strcat(db->errmsg, sql + err_offset);
+      strcat(db->errmsg, "\n----\n");
+    }
+}
+
 
 /* ------------------------------------------------------------------------------------------------------------- */
 
