@@ -23,149 +23,152 @@
 ;;;;  Exports
 ;;;; --------------------------------------------------------------------------
 (export
-  '(*version* access-control access-error access-hosts activate-screen-saver
-    add-access-host add-resource add-to-save-set alist alloc-color
-    alloc-color-cells alloc-color-planes alloc-error allow-events angle
-    arc-seq array-index atom-error atom-name bell bit-gravity bitmap
-    bitmap-format bitmap-format-lsb-first-p bitmap-format-p
-    bitmap-format-pad bitmap-format-unit bitmap-image boole-constant boolean
-    card16 card29 card32 card8 card8->char change-active-pointer-grab
-    change-keyboard-control change-keyboard-mapping change-pointer-control
-    change-property char->card8 char-ascent char-attributes char-descent
-    char-left-bearing char-right-bearing char-width character->keysyms
-    character-in-map-p circulate-window-down circulate-window-up clear-area
-    close-display close-down-mode close-font closed-display color color-blue
-    color-green color-p color-red color-rgb colormap colormap-display
-    colormap-equal colormap-error colormap-id colormap-p colormap-plist
-    colormap-visual-info connection-failure convert-selection copy-area
-    copy-colormap-and-free copy-gcontext copy-gcontext-components copy-image
-    copy-plane create-colormap create-cursor create-gcontext
-    create-glyph-cursor create-image create-pixmap create-window cursor
-    cursor-display cursor-equal cursor-error cursor-id cursor-p cursor-plist
-    cut-buffer declare-event decode-core-error default-error-handler
-    default-keysym-index default-keysym-translate define-error
-    define-extension define-gcontext-accessor define-keysym
-    define-keysym-set delete-property delete-resource destroy-subwindows
-    destroy-window device-busy device-event-mask device-event-mask-class
-    discard-current-event discard-font-info display display-after-function
-    display-authorization-data display-authorization-name
-    display-bitmap-format display-byte-order display-default-screen
-    display-display display-error-handler display-finish-output
-    display-force-output display-host display-image-lsb-first-p
-    display-invoke-after-function display-keycode-range display-max-keycode
-    display-max-request-length display-min-keycode
-    display-motion-buffer-size display-nscreens display-p
-    display-pixmap-formats display-plist display-protocol-major-version
-    display-protocol-minor-version display-protocol-version
-    display-release-number display-report-asynchronous-errors
-    display-resource-id-base display-resource-id-mask display-roots
-    display-vendor display-vendor-name display-xid draw-arc draw-arcs
-    draw-direction draw-glyph draw-glyphs draw-image-glyph draw-image-glyphs
-    draw-line draw-lines draw-point draw-points draw-rectangle
-    draw-rectangles draw-segments drawable drawable-border-width
-    drawable-depth drawable-display drawable-equal drawable-error
-    drawable-height drawable-id drawable-p drawable-plist drawable-root
-    drawable-width drawable-x drawable-y error-key event-case event-cond
-    event-handler event-key event-listen event-mask event-mask-class
-    extension-opcode find-atom font font-all-chars-exist-p font-ascent
-    font-default-char font-descent font-direction font-display font-equal
-    font-error font-id font-max-byte1 font-max-byte2 font-max-char
-    font-min-byte1 font-min-byte2 font-min-char font-name font-p font-path
-    font-plist font-properties font-property fontable force-gcontext-changes
-    free-colormap free-colors free-cursor free-gcontext free-pixmap gcontext
-    gcontext-arc-mode gcontext-background gcontext-cache-p
-    gcontext-cap-style gcontext-clip-mask gcontext-clip-ordering
-    gcontext-clip-x gcontext-clip-y gcontext-dash-offset gcontext-dashes
-    gcontext-display gcontext-equal gcontext-error gcontext-exposures
-    gcontext-fill-rule gcontext-fill-style gcontext-font gcontext-foreground
-    gcontext-function gcontext-id gcontext-join-style gcontext-key
-    gcontext-line-style gcontext-line-width gcontext-p gcontext-plane-mask
-    gcontext-plist gcontext-stipple gcontext-subwindow-mode gcontext-tile
-    gcontext-ts-x gcontext-ts-y get-external-event-code get-image
-    get-property get-raw-image get-resource get-search-resource
-    get-search-table get-standard-colormap get-wm-class
-    global-pointer-position grab-button grab-key grab-keyboard grab-pointer
-    grab-server grab-status icon-sizes iconify-window id-choice-error
-    illegal-request-error image image-blue-mask image-depth image-green-mask
-    image-height image-name image-pixmap image-plist image-red-mask
-    image-width image-x image-x-hot image-x-p image-xy image-xy-bitmap-list
-    image-xy-p image-y-hot image-z image-z-bits-per-pixel image-z-p
-    image-z-pixarray implementation-error input-focus install-colormap
-    installed-colormaps int16 int32 int8 intern-atom invalid-font
-    keyboard-control keyboard-mapping keycode->character keycode->keysym
-    keysym keysym->character keysym->keycodes keysym-in-map-p keysym-set
-    kill-client kill-temporary-clients length-error list-extensions
-    list-font-names list-fonts list-properties lookup-color lookup-error
-    make-color make-event-handlers make-event-keys make-event-mask
-    make-resource-database make-state-keys make-state-mask make-wm-hints
-    make-wm-size-hints map-resource map-subwindows map-window mapping-notify
-    mask16 mask32 match-error max-char-ascent max-char-attributes
-    max-char-descent max-char-left-bearing max-char-right-bearing
-    max-char-width merge-resources min-char-ascent min-char-attributes
-    min-char-descent min-char-left-bearing min-char-right-bearing
-    min-char-width missing-parameter modifier-key modifier-mapping
-    modifier-mask motion-events name-error no-operation open-display
-    open-font pixarray pixel pixmap pixmap-display pixmap-equal pixmap-error
-    pixmap-format pixmap-format-bits-per-pixel pixmap-format-depth
-    pixmap-format-p pixmap-format-scanline-pad pixmap-id pixmap-p
-    pixmap-plist point-seq pointer-control pointer-event-mask
-    pointer-event-mask-class pointer-mapping pointer-position process-event
-    put-image put-raw-image query-best-cursor query-best-stipple
-    query-best-tile query-colors query-extension query-keymap query-pointer
-    query-tree queue-event read-bitmap-file read-resources recolor-cursor
-    rect-seq remove-access-host remove-from-save-set reparent-window
-    repeat-seq reply-length-error reply-timeout request-error
-    reset-screen-saver resource-database resource-database-timestamp
-    resource-error resource-id resource-key rgb-colormaps rgb-val
-    root-resources rotate-cut-buffers rotate-properties screen
-    screen-backing-stores screen-black-pixel screen-default-colormap
-    screen-depths screen-event-mask-at-open screen-height
-    screen-height-in-millimeters screen-max-installed-maps
-    screen-min-installed-maps screen-p screen-plist screen-root
-    screen-root-depth screen-root-visual screen-root-visual-info
-    screen-save-unders-p screen-saver screen-white-pixel screen-width
-    screen-width-in-millimeters seg-seq selection-owner send-event
-    sequence-error set-access-control set-close-down-mode set-input-focus
-    set-modifier-mapping set-pointer-mapping set-screen-saver
-    set-selection-owner set-standard-colormap set-standard-properties
-    set-wm-class set-wm-properties set-wm-resources state-keysym-p
-    state-mask-key store-color store-colors stringable text-extents
-    text-width timestamp transient-for translate-coordinates
-    translate-default translation-function #-cmu type-error undefine-keysym
-    unexpected-reply ungrab-button ungrab-key ungrab-keyboard ungrab-pointer
-    ungrab-server uninstall-colormap unknown-error unmap-subwindows
-    unmap-window value-error visual-info visual-info-bits-per-rgb
-    visual-info-blue-mask visual-info-class visual-info-colormap-entries
-    visual-info-display visual-info-green-mask visual-info-id visual-info-p
-    visual-info-plist visual-info-red-mask warp-pointer
-    warp-pointer-if-inside warp-pointer-relative
-    warp-pointer-relative-if-inside win-gravity window
-    window-all-event-masks window-background window-backing-pixel
-    window-backing-planes window-backing-store window-bit-gravity
-    window-border window-class window-colormap window-colormap-installed-p
-    window-cursor window-display window-do-not-propagate-mask window-equal
-    window-error window-event-mask window-gravity window-id window-map-state
-    window-override-redirect window-p window-plist window-priority
-    window-save-under window-visual window-visual-info with-display
-    with-event-queue with-gcontext with-server-grabbed with-state
-    withdraw-window wm-client-machine wm-colormap-windows wm-command
-    wm-hints wm-hints-flags wm-hints-icon-mask wm-hints-icon-pixmap
-    wm-hints-icon-window wm-hints-icon-x wm-hints-icon-y
-    wm-hints-initial-state wm-hints-input wm-hints-p wm-hints-window-group
-    wm-icon-name wm-name wm-normal-hints wm-protocols wm-resources
-    wm-size-hints wm-size-hints-base-height wm-size-hints-base-width
-    wm-size-hints-height wm-size-hints-height-inc wm-size-hints-max-aspect
-    wm-size-hints-max-height wm-size-hints-max-width
-    wm-size-hints-min-aspect wm-size-hints-min-height
-    wm-size-hints-min-width wm-size-hints-p
-    wm-size-hints-user-specified-position-p
-    wm-size-hints-user-specified-size-p wm-size-hints-width
-    wm-size-hints-width-inc wm-size-hints-win-gravity wm-size-hints-x
-    wm-size-hints-y wm-zoom-hints write-bitmap-file write-resources xatom
+ '(*version* access-control access-error access-hosts activate-screen-saver
+   add-access-host add-resource add-to-save-set alist alloc-color
+   alloc-color-cells alloc-color-planes alloc-error allow-events angle
+   arc-seq array-index atom-error atom-name bell bit-gravity bitmap
+   bitmap-format bitmap-format-lsb-first-p bitmap-format-p
+   bitmap-format-pad bitmap-format-unit bitmap-image boole-constant boolean
+   card16 card29 card32 card8 card8->char change-active-pointer-grab
+   change-keyboard-control change-keyboard-mapping change-pointer-control
+   change-property char->card8 char-ascent char-attributes char-descent
+   char-left-bearing char-right-bearing char-width character->keysyms
+   character-in-map-p circulate-window-down circulate-window-up clear-area
+   close-display close-down-mode close-font closed-display color color-blue
+   color-green color-p color-red color-rgb colormap colormap-display
+   colormap-equal colormap-error colormap-id colormap-p colormap-plist
+   colormap-visual-info connection-failure convert-selection copy-area
+   copy-colormap-and-free copy-gcontext copy-gcontext-components copy-image
+   copy-plane create-colormap create-cursor create-gcontext
+   create-glyph-cursor create-image create-pixmap create-window cursor
+   cursor-display cursor-equal cursor-error cursor-id cursor-p cursor-plist
+   cut-buffer declare-event decode-core-error default-error-handler
+   default-keysym-index default-keysym-translate define-error
+   define-extension define-gcontext-accessor define-keysym
+   define-keysym-set delete-property delete-resource destroy-subwindows
+   destroy-window device-busy device-event-mask device-event-mask-class
+   discard-current-event discard-font-info display display-after-function
+   display-authorization-data display-authorization-name
+   display-bitmap-format display-byte-order display-default-screen
+   display-display display-error-handler display-finish-output
+   display-force-output display-host display-image-lsb-first-p
+   display-invoke-after-function display-keycode-range display-max-keycode
+   display-max-request-length display-min-keycode
+   display-motion-buffer-size display-nscreens display-p
+   display-pixmap-formats display-plist display-protocol-major-version
+   display-protocol-minor-version display-protocol-version
+   display-release-number display-report-asynchronous-errors
+   display-resource-id-base display-resource-id-mask display-roots
+   display-vendor display-vendor-name display-xid draw-arc draw-arcs
+   draw-direction draw-glyph draw-glyphs draw-image-glyph draw-image-glyphs
+   draw-line draw-lines draw-point draw-points draw-rectangle
+   draw-rectangles draw-segments drawable drawable-border-width
+   drawable-depth drawable-display drawable-equal drawable-error
+   drawable-height drawable-id drawable-p drawable-plist drawable-root
+   drawable-width drawable-x drawable-y error-key event-case event-cond
+   event-handler event-key event-listen event-mask event-mask-class
+   extension-opcode find-atom font font-all-chars-exist-p font-ascent
+   font-default-char font-descent font-direction font-display font-equal
+   font-error font-id font-max-byte1 font-max-byte2 font-max-char
+   font-min-byte1 font-min-byte2 font-min-char font-name font-p font-path
+   font-plist font-properties font-property fontable force-gcontext-changes
+   free-colormap free-colors free-cursor free-gcontext free-pixmap gcontext
+   gcontext-arc-mode gcontext-background gcontext-cache-p
+   gcontext-cap-style gcontext-clip-mask gcontext-clip-ordering
+   gcontext-clip-x gcontext-clip-y gcontext-dash-offset gcontext-dashes
+   gcontext-display gcontext-equal gcontext-error gcontext-exposures
+   gcontext-fill-rule gcontext-fill-style gcontext-font gcontext-foreground
+   gcontext-function gcontext-id gcontext-join-style gcontext-key
+   gcontext-line-style gcontext-line-width gcontext-p gcontext-plane-mask
+   gcontext-plist gcontext-stipple gcontext-subwindow-mode gcontext-tile
+   gcontext-ts-x gcontext-ts-y get-external-event-code get-image
+   get-property get-raw-image get-resource get-search-resource
+   get-search-table get-standard-colormap get-wm-class
+   global-pointer-position grab-button grab-key grab-keyboard grab-pointer
+   grab-server grab-status icon-sizes iconify-window id-choice-error
+   illegal-request-error image image-blue-mask image-depth image-green-mask
+   image-height image-name image-pixmap image-plist image-red-mask
+   image-width image-x image-x-hot image-x-p image-xy image-xy-bitmap-list
+   image-xy-p image-y-hot image-z image-z-bits-per-pixel image-z-p
+   image-z-pixarray implementation-error input-focus install-colormap
+   installed-colormaps int16 int32 int8 intern-atom invalid-font
+   keyboard-control keyboard-mapping keycode->character keycode->keysym
+   keysym keysym->character keysym->keycodes keysym-in-map-p keysym-set
+   kill-client kill-temporary-clients length-error list-extensions
+   list-font-names list-fonts list-properties lookup-color lookup-error
+   make-color make-event-handlers make-event-keys make-event-mask
+   make-resource-database make-state-keys make-state-mask make-wm-hints
+   make-wm-size-hints map-resource map-subwindows map-window mapping-notify
+   mask16 mask32 match-error max-char-ascent max-char-attributes
+   max-char-descent max-char-left-bearing max-char-right-bearing
+   max-char-width merge-resources min-char-ascent min-char-attributes
+   min-char-descent min-char-left-bearing min-char-right-bearing
+   min-char-width missing-parameter modifier-key modifier-mapping
+   modifier-mask motion-events name-error no-operation open-display
+   open-font pixarray pixel pixmap pixmap-display pixmap-equal pixmap-error
+   pixmap-format pixmap-format-bits-per-pixel pixmap-format-depth
+   pixmap-format-p pixmap-format-scanline-pad pixmap-id pixmap-p
+   pixmap-plist point-seq pointer-control pointer-event-mask
+   pointer-event-mask-class pointer-mapping pointer-position process-event
+   put-image put-raw-image query-best-cursor query-best-stipple
+   query-best-tile query-colors query-extension query-keymap query-pointer
+   query-tree queue-event read-bitmap-file read-resources recolor-cursor
+   rect-seq remove-access-host remove-from-save-set reparent-window
+   repeat-seq reply-length-error reply-timeout request-error
+   reset-screen-saver resource-database resource-database-timestamp
+   resource-error resource-id resource-key rgb-colormaps rgb-val
+   root-resources rotate-cut-buffers rotate-properties screen
+   screen-backing-stores screen-black-pixel screen-default-colormap
+   screen-depths screen-event-mask-at-open screen-height
+   screen-height-in-millimeters screen-max-installed-maps
+   screen-min-installed-maps screen-p screen-plist screen-root
+   screen-root-depth screen-root-visual screen-root-visual-info
+   screen-save-unders-p screen-saver screen-white-pixel screen-width
+   screen-width-in-millimeters seg-seq selection-owner send-event
+   sequence-error set-access-control set-close-down-mode set-input-focus
+   set-modifier-mapping set-pointer-mapping set-screen-saver
+   set-selection-owner set-standard-colormap set-standard-properties
+   set-wm-class set-wm-properties set-wm-resources state-keysym-p
+   state-mask-key store-color store-colors stringable text-extents
+   text-width timestamp transient-for translate-coordinates
+   translate-default translation-function #-cmu type-error undefine-keysym
+   unexpected-reply ungrab-button ungrab-key ungrab-keyboard ungrab-pointer
+   ungrab-server uninstall-colormap unknown-error unmap-subwindows
+   unmap-window value-error visual-info visual-info-bits-per-rgb
+   visual-info-blue-mask visual-info-class visual-info-colormap-entries
+   visual-info-display visual-info-green-mask visual-info-id visual-info-p
+   visual-info-plist visual-info-red-mask warp-pointer
+   warp-pointer-if-inside warp-pointer-relative
+   warp-pointer-relative-if-inside win-gravity window
+   window-all-event-masks window-background window-backing-pixel
+   window-backing-planes window-backing-store window-bit-gravity
+   window-border window-class window-colormap window-colormap-installed-p
+   window-cursor window-display window-do-not-propagate-mask window-equal
+   window-error window-event-mask window-gravity window-id window-map-state
+   window-override-redirect window-p window-plist window-priority
+   window-save-under window-visual window-visual-info with-display
+   with-event-queue with-gcontext with-server-grabbed with-state
+   withdraw-window wm-client-machine wm-colormap-windows wm-command
+   wm-hints wm-hints-flags wm-hints-icon-mask wm-hints-icon-pixmap
+   wm-hints-icon-window wm-hints-icon-x wm-hints-icon-y
+   wm-hints-initial-state wm-hints-input wm-hints-p wm-hints-window-group
+   wm-icon-name wm-name wm-normal-hints wm-protocols wm-resources
+   wm-size-hints wm-size-hints-base-height wm-size-hints-base-width
+   wm-size-hints-height wm-size-hints-height-inc wm-size-hints-max-aspect
+   wm-size-hints-max-height wm-size-hints-max-width
+   wm-size-hints-min-aspect wm-size-hints-min-height
+   wm-size-hints-min-width wm-size-hints-p
+   wm-size-hints-user-specified-position-p
+   wm-size-hints-user-specified-size-p wm-size-hints-width
+   wm-size-hints-width-inc wm-size-hints-win-gravity wm-size-hints-x
+   wm-size-hints-y wm-zoom-hints write-bitmap-file write-resources xatom
+   x-error
 
-    trace-display suspend-display-tracing resume-display-tracing untrace-display show-trace
-    display-trace ; for backwards compatibility describe-request describe-event describe-reply
-    describe-error describe-trace))
+   trace-display suspend-display-tracing resume-display-tracing
+   untrace-display show-trace
+   display-trace ; for backwards compatibility describe-request describe-event describe-reply
+   closed-display-p
+   describe-error describe-trace))
 
 ;;; SHAPE extension
 (export '(shape-version shape-combine shape-offset shape-extents shape-rectangles))
@@ -308,14 +311,13 @@
 (defstruct pixmap-format depth bits-per-pixel scanline-pad)
 
 (defstruct (color (:constructor make-color-internal (red green blue))
-                  (:copier nil) (:print-function print-color))
+                  (:copier nil))
   ;; Short floats are good enough (no consing)
   (red   0.0s0 :type rgb-val)
   (green 0.0s0 :type rgb-val)
   (blue  0.0s0 :type rgb-val))
 
-(defstruct (visual-info ;(:print-function print-visual)
-                        (:copier nil))
+(defstruct (visual-info (:copier nil))
   id
   class
   red-mask green-mask blue-mask
@@ -326,13 +328,12 @@
   ;; plist display
   )
 
-(defstruct (display (:print-function print-display)
-                    (:predicate nil)
+(defstruct (display (:predicate nil)
                     (:constructor nil)
                     (:copier nil)
                     (:conc-name %display-))
-  foreign-pointer                       ;these two slots are for use in clx.d only.
-  hash-table                            ; .. so leave hands off here!
+  foreign-pointer ;; these two slots are for use in clx.d only.
+  hash-table      ;; .. so leave hands off here!
   plist
   after-function
   error-handler)
@@ -341,7 +342,8 @@
 ;; ... CAUTION ending here.
 ;; ***************************************************************************
 
-(defun make-color (&key (red 1.0s0) (green 1.0s0) (blue 1.0s0) &allow-other-keys)
+(defun make-color (&key (red 1.0s0) (green 1.0s0) (blue 1.0s0)
+                   &allow-other-keys)
   (make-color-internal red green blue))
 
 (defun color-rgb (color)
@@ -371,68 +373,69 @@
 ;;;; --------------------------------------------------------------------------
 ;;;;  Setf Methods
 ;;;; --------------------------------------------------------------------------
-(setf
- (fdefinition '(SETF CLOSE-DOWN-MODE))              #'CLOSE-DOWN-MODE-SETTER
- (fdefinition '(SETF DISPLAY-AFTER-FUNCTION))       #'DISPLAY-AFTER-FUNCTION-SETTER
- (fdefinition '(SETF DISPLAY-ERROR-HANDLER))        #'DISPLAY-ERROR-HANDLER-SETTER
- (fdefinition '(SETF DISPLAY-PLIST))                #'DISPLAY-PLIST-SETTER
- (fdefinition '(SETF DRAWABLE-BORDER-WIDTH))        #'DRAWABLE-BORDER-WIDTH-SETTER
- (fdefinition '(SETF DRAWABLE-HEIGHT))              #'DRAWABLE-HEIGHT-SETTER
- (fdefinition '(SETF DRAWABLE-PLIST))               #'DRAWABLE-PLIST-SETTER
- (fdefinition '(SETF DRAWABLE-WIDTH))               #'DRAWABLE-WIDTH-SETTER
- (fdefinition '(SETF DRAWABLE-X))                   #'DRAWABLE-X-SETTER
- (fdefinition '(SETF DRAWABLE-Y))                   #'DRAWABLE-Y-SETTER
- (fdefinition '(SETF FONT-PATH))                    #'FONT-PATH-SETTER
- (fdefinition '(SETF FONT-PLIST))                   #'FONT-PLIST-SETTER
- (fdefinition '(SETF GCONTEXT-ARC-MODE))            #'GCONTEXT-ARC-MODE-SETTER
- (fdefinition '(SETF GCONTEXT-BACKGROUND))          #'GCONTEXT-BACKGROUND-SETTER
- (fdefinition '(SETF GCONTEXT-CACHE-P))             #'GCONTEXT-CACHE-P-SETTER
- (fdefinition '(SETF GCONTEXT-CAP-STYLE))           #'GCONTEXT-CAP-STYLE-SETTER
- (fdefinition '(SETF GCONTEXT-CLIP-MASK))           #'GCONTEXT-CLIP-MASK-SETTER
- (fdefinition '(SETF GCONTEXT-CLIP-X))              #'GCONTEXT-CLIP-X-SETTER
- (fdefinition '(SETF GCONTEXT-CLIP-Y))              #'GCONTEXT-CLIP-Y-SETTER
- (fdefinition '(SETF GCONTEXT-DASH-OFFSET))         #'GCONTEXT-DASH-OFFSET-SETTER
- (fdefinition '(SETF GCONTEXT-DASHES))              #'GCONTEXT-DASHES-SETTER
- (fdefinition '(SETF GCONTEXT-EXPOSURES))           #'GCONTEXT-EXPOSURES-SETTER
- (fdefinition '(SETF GCONTEXT-FILL-RULE))           #'GCONTEXT-FILL-RULE-SETTER
- (fdefinition '(SETF GCONTEXT-FILL-STYLE))          #'GCONTEXT-FILL-STYLE-SETTER
- (fdefinition '(SETF GCONTEXT-FONT))                #'GCONTEXT-FONT-SETTER
- (fdefinition '(SETF GCONTEXT-FOREGROUND))          #'GCONTEXT-FOREGROUND-SETTER
- (fdefinition '(SETF GCONTEXT-FUNCTION))            #'GCONTEXT-FUNCTION-SETTER
- (fdefinition '(SETF GCONTEXT-JOIN-STYLE))          #'GCONTEXT-JOIN-STYLE-SETTER
- (fdefinition '(SETF GCONTEXT-LINE-STYLE))          #'GCONTEXT-LINE-STYLE-SETTER
- (fdefinition '(SETF GCONTEXT-LINE-WIDTH))          #'GCONTEXT-LINE-WIDTH-SETTER
- (fdefinition '(SETF GCONTEXT-PLANE-MASK))          #'GCONTEXT-PLANE-MASK-SETTER
- (fdefinition '(SETF GCONTEXT-PLIST))               #'GCONTEXT-PLIST-SETTER
- (fdefinition '(SETF GCONTEXT-STIPPLE))             #'GCONTEXT-STIPPLE-SETTER
- (fdefinition '(SETF GCONTEXT-SUBWINDOW-MODE))      #'GCONTEXT-SUBWINDOW-MODE-SETTER
- (fdefinition '(SETF GCONTEXT-TILE))                #'GCONTEXT-TILE-SETTER
- (fdefinition '(SETF GCONTEXT-TS-X))                #'GCONTEXT-TS-X-SETTER
- (fdefinition '(SETF GCONTEXT-TS-Y))                #'GCONTEXT-TS-Y-SETTER
- (fdefinition '(SETF PIXMAP-PLIST))                 #'PIXMAP-PLIST-SETTER
- (fdefinition '(SETF POINTER-MAPPING))              #'POINTER-MAPPING-SETTER
- (fdefinition '(SETF SCREEN-PLIST))                 #'SCREEN-PLIST-SETTER
- (fdefinition '(SETF SELECTION-OWNER))              #'SELECTION-OWNER-SETTER
- (fdefinition '(SETF WINDOW-BACKGROUND))            #'WINDOW-BACKGROUND-SETTER
- (fdefinition '(SETF WINDOW-BACKING-PIXEL))         #'WINDOW-BACKING-PIXEL-SETTER
- (fdefinition '(SETF WINDOW-BACKING-PLANES))        #'WINDOW-BACKING-PLANES-SETTER
- (fdefinition '(SETF WINDOW-BACKING-STORE))         #'WINDOW-BACKING-STORE-SETTER
- (fdefinition '(SETF WINDOW-COLORMAP))              #'WINDOW-COLORMAP-SETTER
- (fdefinition '(SETF WINDOW-CURSOR))                #'WINDOW-CURSOR-SETTER
- (fdefinition '(SETF WINDOW-BIT-GRAVITY))           #'WINDOW-BIT-GRAVITY-SETTER
- (fdefinition '(SETF WINDOW-BORDER))                #'WINDOW-BORDER-SETTER
- (fdefinition '(SETF WINDOW-EVENT-MASK))            #'WINDOW-EVENT-MASK-SETTER
- (fdefinition '(SETF WINDOW-GRAVITY))               #'WINDOW-GRAVITY-SETTER
- (fdefinition '(SETF WINDOW-DO-NOT-PROPAGATE-MASK)) #'WINDOW-DO-NOT-PROPAGATE-MASK-SETTER
- (fdefinition '(SETF WINDOW-OVERRIDE-REDIRECT))     #'WINDOW-OVERRIDE-REDIRECT-SETTER
- (fdefinition '(SETF WINDOW-PLIST))                 #'WINDOW-PLIST-SETTER
- (fdefinition '(SETF WINDOW-PRIORITY))              #'WINDOW-PRIORITY-SETTER
- (fdefinition '(SETF WINDOW-SAVE-UNDER))            #'WINDOW-SAVE-UNDER-SETTER
-)
+(defsetf CLOSE-DOWN-MODE              CLOSE-DOWN-MODE-SETTER)
+(defsetf DISPLAY-AFTER-FUNCTION       DISPLAY-AFTER-FUNCTION-SETTER)
+(defsetf DISPLAY-ERROR-HANDLER        DISPLAY-ERROR-HANDLER-SETTER)
+(defsetf DISPLAY-PLIST                DISPLAY-PLIST-SETTER)
+(defsetf DRAWABLE-BORDER-WIDTH        DRAWABLE-BORDER-WIDTH-SETTER)
+(defsetf DRAWABLE-HEIGHT              DRAWABLE-HEIGHT-SETTER)
+(defsetf DRAWABLE-PLIST               DRAWABLE-PLIST-SETTER)
+(defsetf DRAWABLE-WIDTH               DRAWABLE-WIDTH-SETTER)
+(defsetf DRAWABLE-X                   DRAWABLE-X-SETTER)
+(defsetf DRAWABLE-Y                   DRAWABLE-Y-SETTER)
+(defsetf FONT-PATH                    FONT-PATH-SETTER)
+(defsetf FONT-PLIST                   FONT-PLIST-SETTER)
+(defsetf GCONTEXT-ARC-MODE            GCONTEXT-ARC-MODE-SETTER)
+(defsetf GCONTEXT-BACKGROUND          GCONTEXT-BACKGROUND-SETTER)
+(defsetf GCONTEXT-CACHE-P             GCONTEXT-CACHE-P-SETTER)
+(defsetf GCONTEXT-CAP-STYLE           GCONTEXT-CAP-STYLE-SETTER)
+(defsetf GCONTEXT-CLIP-MASK           GCONTEXT-CLIP-MASK-SETTER)
+(defsetf GCONTEXT-CLIP-X              GCONTEXT-CLIP-X-SETTER)
+(defsetf GCONTEXT-CLIP-Y              GCONTEXT-CLIP-Y-SETTER)
+(defsetf GCONTEXT-DASH-OFFSET         GCONTEXT-DASH-OFFSET-SETTER)
+(defsetf GCONTEXT-DASHES              GCONTEXT-DASHES-SETTER)
+(defsetf GCONTEXT-EXPOSURES           GCONTEXT-EXPOSURES-SETTER)
+(defsetf GCONTEXT-FILL-RULE           GCONTEXT-FILL-RULE-SETTER)
+(defsetf GCONTEXT-FILL-STYLE          GCONTEXT-FILL-STYLE-SETTER)
+(defsetf GCONTEXT-FONT                GCONTEXT-FONT-SETTER)
+(defsetf GCONTEXT-FOREGROUND          GCONTEXT-FOREGROUND-SETTER)
+(defsetf GCONTEXT-FUNCTION            GCONTEXT-FUNCTION-SETTER)
+(defsetf GCONTEXT-JOIN-STYLE          GCONTEXT-JOIN-STYLE-SETTER)
+(defsetf GCONTEXT-LINE-STYLE          GCONTEXT-LINE-STYLE-SETTER)
+(defsetf GCONTEXT-LINE-WIDTH          GCONTEXT-LINE-WIDTH-SETTER)
+(defsetf GCONTEXT-PLANE-MASK          GCONTEXT-PLANE-MASK-SETTER)
+(defsetf GCONTEXT-PLIST               GCONTEXT-PLIST-SETTER)
+(defsetf GCONTEXT-STIPPLE             GCONTEXT-STIPPLE-SETTER)
+(defsetf GCONTEXT-SUBWINDOW-MODE      GCONTEXT-SUBWINDOW-MODE-SETTER)
+(defsetf GCONTEXT-TILE                GCONTEXT-TILE-SETTER)
+(defsetf GCONTEXT-TS-X                GCONTEXT-TS-X-SETTER)
+(defsetf GCONTEXT-TS-Y                GCONTEXT-TS-Y-SETTER)
+(defsetf PIXMAP-PLIST                 PIXMAP-PLIST-SETTER)
+(defsetf POINTER-MAPPING              POINTER-MAPPING-SETTER)
+(defsetf SCREEN-PLIST                 SCREEN-PLIST-SETTER)
+(defsetf SELECTION-OWNER              SELECTION-OWNER-SETTER)
+(defsetf WINDOW-BACKGROUND            WINDOW-BACKGROUND-SETTER)
+(defsetf WINDOW-BACKING-PIXEL         WINDOW-BACKING-PIXEL-SETTER)
+(defsetf WINDOW-BACKING-PLANES        WINDOW-BACKING-PLANES-SETTER)
+(defsetf WINDOW-BACKING-STORE         WINDOW-BACKING-STORE-SETTER)
+(defsetf WINDOW-COLORMAP              WINDOW-COLORMAP-SETTER)
+(defsetf WINDOW-CURSOR                WINDOW-CURSOR-SETTER)
+(defsetf WINDOW-BIT-GRAVITY           WINDOW-BIT-GRAVITY-SETTER)
+(defsetf WINDOW-BORDER                WINDOW-BORDER-SETTER)
+(defsetf WINDOW-EVENT-MASK            WINDOW-EVENT-MASK-SETTER)
+(defsetf WINDOW-GRAVITY               WINDOW-GRAVITY-SETTER)
+(defsetf WINDOW-DO-NOT-PROPAGATE-MASK WINDOW-DO-NOT-PROPAGATE-MASK-SETTER)
+(defsetf WINDOW-OVERRIDE-REDIRECT     WINDOW-OVERRIDE-REDIRECT-SETTER)
+(defsetf WINDOW-PLIST                 WINDOW-PLIST-SETTER)
+(defsetf WINDOW-PRIORITY              WINDOW-PRIORITY-SETTER)
+(defsetf WINDOW-SAVE-UNDER            WINDOW-SAVE-UNDER-SETTER)
 
-(defun set-pointer-mapping (display mapping) (setf (pointer-mapping display) mapping))
-(defun set-close-down-mode (display mode) (setf (close-down-mode display) mode))
-(defun set-selection-owner (display selection owner &optional time) (setf (selection-owner display selection time) owner))
+(defun set-pointer-mapping (display mapping)
+  (setf (pointer-mapping display) mapping))
+(defun set-close-down-mode (display mode)
+  (setf (close-down-mode display) mode))
+(defun set-selection-owner (display selection owner &optional time)
+  (setf (selection-owner display selection time) owner))
 
 
 ;;;; --------------------------------------------------------------------------
@@ -1219,71 +1222,81 @@
 ;;;   illegal, so I save the untraced functions by copying them. This allows me to trace all or arbitrary
 ;;;   xlib functions without getting into infinite recursion.
 
-(setf (symbol-function '%untraced-color-blue) (symbol-function 'color-blue)
-      (symbol-function '%untraced-color-green) (symbol-function 'color-green)
-      (symbol-function '%untraced-color-red) (symbol-function 'color-red)
-      (symbol-function '%untraced-colormap-visual-info) (symbol-function 'colormap-visual-info)
-      (symbol-function '%untraced-display-display) (symbol-function 'display-display)
-      (symbol-function '%untraced-display-host) (symbol-function 'display-host)
-      (symbol-function '%untraced-display-protocol-major-version) (symbol-function 'display-protocol-major-version)
-      (symbol-function '%untraced-display-protocol-minor-version) (symbol-function 'display-protocol-minor-version)
-      (symbol-function '%untraced-display-release-number) (symbol-function 'display-release-number)
-      (symbol-function '%untraced-display-vendor-name) (symbol-function 'display-vendor-name)
-      (symbol-function '%untraced-drawable-width) (symbol-function 'drawable-width)
-      (symbol-function '%untraced-drawable-x) (symbol-function 'drawable-x)
-      (symbol-function '%untraced-visual-info-class) (symbol-function 'visual-info-class))
+(setf (fdefinition '%untraced-color-blue) #'color-blue
+      (fdefinition '%untraced-color-green) #'color-green
+      (fdefinition '%untraced-color-red) #'color-red
+      (fdefinition '%untraced-colormap-visual-info) #'colormap-visual-info
+      (fdefinition '%untraced-display-display) #'display-display
+      (fdefinition '%untraced-display-host) #'display-host
+      (fdefinition '%untraced-display-protocol-major-version)
+      #'display-protocol-major-version
+      (fdefinition '%untraced-display-protocol-minor-version)
+      #'display-protocol-minor-version
+      (fdefinition '%untraced-display-release-number) #'display-release-number
+      (fdefinition '%untraced-display-vendor-name) #'display-vendor-name
+      (fdefinition '%untraced-drawable-height) #'drawable-height
+      (fdefinition '%untraced-drawable-width) #'drawable-width
+      (fdefinition '%untraced-drawable-x) #'drawable-x
+      (fdefinition '%untraced-drawable-y) #'drawable-y
+      (fdefinition '%untraced-visual-info-class) #'visual-info-class)
 
+(defmethod print-object ((color color) (out stream))
+  (if *print-readably* (call-next-method)
+      (print-unreadable-object (color out :type t :identity t)
+        (write (%untraced-color-red color) :stream out)
+        (write-string " " out)
+        (write (%untraced-color-green color) :stream out)
+        (write-string " " out)
+        (write (%untraced-color-blue color) :stream out))))
 
-(defun print-color (color stream depth)
-  (declare (type color color)
-           (ignore depth))
-  (print-unreadable-object (color stream :type t)
-    (prin1 (%untraced-color-red color) stream)
-    (write-string " " stream)
-    (prin1 (%untraced-color-green color) stream)
-    (write-string " " stream)
-    (prin1 (%untraced-color-blue color) stream)))
+(defmethod print-object ((dpy display) (out stream))
+  (if *print-readably* (call-next-method)
+      (print-unreadable-object (dpy out :type t :identity t)
+        (if (closed-display-p dpy)
+            (write 'closed-display :stream out)
+            (format out "~A:~D (~A R~D) X~D.~D"
+                    (%untraced-display-host dpy)
+                    (%untraced-display-display dpy)
+                    (%untraced-display-vendor-name dpy)
+                    (%untraced-display-release-number dpy)
+                    (%untraced-display-protocol-major-version dpy)
+                    (%untraced-display-protocol-minor-version dpy))))))
 
-(defun print-display (obj stream depth)
-  (declare (ignore depth))
-  (format stream "#<~S ~A:~D (~A R~D) X~D.~D protocol>"
-          'display
-          (%untraced-display-host obj)
-          (%untraced-display-display obj)
-          (%untraced-display-vendor-name obj)
-          (%untraced-display-release-number obj)
-          (%untraced-display-protocol-major-version obj)
-          (%untraced-display-protocol-minor-version obj) ))
+(defmethod print-object ((xo xid-object) (out stream))
+  (if *print-readably* (call-next-method)
+      (print-unreadable-object (xo out :type t :identity t)
+        (with-slots (id display) xo
+          (format out "~A #x~8,'0X"
+                  (if (closed-display-p display)
+                      'closed-display
+                      (%untraced-display-host display))
+                  id)))))
 
-(defmethod print-object ((self xid-object) sink)
-  (with-slots (id display) self
-      (format sink "#<~S ~A #x~8,'0X>" (type-of self) (%untraced-display-host display) id)))
+(defmethod print-object ((cm colormap) (out stream))
+  (with-slots (id display) cm
+    (if (or *print-readably* (closed-display-p display)) (call-next-method)
+        (print-unreadable-object (cm out :type t :identity t)
+          (let* ((visinfo (%untraced-colormap-visual-info cm))
+                 (vclass  (if visinfo (%untraced-visual-info-class visinfo)
+                              "unknown visual class")))
+            (format out "~A #x~8,'0X ~A" (%untraced-display-host display)
+                    id vclass))))))
 
-(defmethod print-object ((self colormap) sink)
-  (with-slots (id display) self
-    (let* ((visinfo (%untraced-colormap-visual-info self))
-           (vclass  (if visinfo (%untraced-visual-info-class visinfo) "unknown visual class")))
-      (format sink "#<~S ~A #x~8,'0X ~A>" (type-of self) (%untraced-display-host display) id vclass))) )
+(defmethod print-object ((fo font) (out stream))
+  (with-slots (id name display) fo
+    (if (or *print-readably* (closed-display-p display)) (call-next-method)
+        (print-unreadable-object (fo out :type t :identity t)
+          (format out "~A ~A #x~8,'0X" (%untraced-display-host display)
+                  name id)))))
 
-(defmethod print-object ((self font) sink)
-  (with-slots (id name display) self
-  (format sink "#<~S ~A ~A #x~8,'0X>"
-          'font (%untraced-display-host display) name id)))
-
-'(defmethod print-object ((self drawable) sink)
-  (with-slots (id display) self
-      (format sink "#<~S ~Dx~D+~D+~D ~A #x~8,'0X>"
-              (type-of self)
-              (%untraced-drawable-width self) (%untraced-drawable-height self)
-              (%untraced-drawable-x self) (%untraced-drawable-y self)
-              (%untraced-display-host display) id)))
-
-(defmethod print-object ((self drawable) sink)
-  (with-slots (id display) self
-      (format sink "#<~S ~A #x~8,'0X>"
-              (type-of self)
-              (%untraced-display-host display) id)))
-
+(defmethod print-object ((dr drawable) (out stream))
+  (with-slots (id display) dr
+    (if (or *print-readably* (closed-display-p display)) (call-next-method)
+        (print-unreadable-object (dr out :type t :identity t)
+          (format out "~Dx~D+~D+~D ~A #x~8,'0X"
+                  (%untraced-drawable-width dr) (%untraced-drawable-height dr)
+                  (%untraced-drawable-x dr) (%untraced-drawable-y dr)
+                  (%untraced-display-host display) id)))))
 
 
 ;;;; --------------------------------------------------------------------------
@@ -1304,6 +1317,9 @@
     :FILL-RULE :ARC-MODE :TILE :STIPPLE :TS-X :TS-Y :FONT
     :SUBWINDOW-MODE :EXPOSURES :CLIP-X :CLIP-Y :CLIP-MASK
     :CLIP-ORDERING :DASH-OFFSET :DASHES :CACHE-P))
+(defun make-gcontext (&rest ignore)
+  (warn "~S~@[~S~] is an internal function!" 'make-gcontext ignore)
+  (make-instance 'gcontext))
 
 ;; What has that to do with graphics?!
 (defparameter *keyword-package* (find-package :keyword))
@@ -1475,3 +1491,43 @@
                 (value (format nil "Bad value is ~D" value))
                 (atom-id (format nil "Bad atom ID is #x~8,'0x." atom-id))
                 (t ""))))
+
+(define-condition x-error (error)
+  ((caller :reader x-error-caller :initarg :caller)))
+
+(define-condition closed-display (x-error)
+  ((display :reader closed-display-display :initarg :display))
+  (:report
+   (lambda (condition stream)
+     (format stream "~s: used closed display ~s"
+             (x-error-caller condition)
+             (closed-display-display condition)))))
+
+(define-condition request-error (x-error) ())
+(define-condition resource-error (request-error) ())
+(define-condition access-error (request-error) ())
+(define-condition alloc-error (request-error) ())
+(define-condition atom-error (request-error) ())
+(define-condition colormap-error (resource-error) ())
+(define-condition connection-failure (x-error) ())
+(define-condition cursor-error (resource-error) ())
+(define-condition device-busy (x-error) ())
+(define-condition drawable-error (resource-error) ())
+(define-condition font-error (resource-error) ())
+(define-condition gcontext-error (resource-error) ())
+(define-condition id-choice-error (resource-error) ())
+(define-condition implementation-error (resource-error) ())
+(define-condition length-error (resource-error) ())
+(define-condition lookup-error (x-error) ())
+(define-condition match-error (request-error) ())
+(define-condition missing-parameter (x-error) ())
+(define-condition name-error (request-error) ())
+(define-condition pixmap-error (resource-error) ())
+(define-condition reply-length-error (x-error) ())
+(define-condition reply-timeout (x-error) ())
+(define-condition sequence-error (x-error) ())
+(define-condition server-disconnect (x-error) ())
+(define-condition unexpected-reply (x-error) ())
+(define-condition unknown-error (request-error) ())
+(define-condition value-error (request-error) ())
+(define-condition window-error (resource-error) ())
