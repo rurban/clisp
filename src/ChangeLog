@@ -1,3 +1,106 @@
+2004-05-29  Bruno Haible  <bruno@clisp.org>
+
+	Change the metaclass of CLASS from STRUCTURE-CLASS to STANDARD-CLASS.
+	* lispbibl.d (Class): Change to an extension of Instance. Remove
+	metaclass field. Add direct_generic_functions, direct_methods,
+	initialized fields.
+	(TheClass): Define using TheInstance.
+	(if_classp): Use instancep and test for the three most frequent
+	metaclasses directly.
+	* predtype.d (CLOS::%DEFCLOS): Accept 3 class-versions and <class>.
+	* hashtabl.d (sxhash_atom): For CLOS instances, use the class name,
+	not the class itself.
+	* init.lisp: Export the symbols CLASS, BUILT-IN-CLASS, STRUCTURE-CLASS,
+	STANDARD-CLASS, CLASS-NAME, CLASS-DIRECT-SUPERCLASSES,
+	CLASS-PRECEDENCE-LIST, CLASS-DIRECT-SUBCLASSES, CLASS-DIRECT-SLOTS,
+	CLASS-SLOTS, CLASS-DIRECT-DEFAULT-INITARGS, CLASS-DEFAULT-INITARGS,
+	VALIDATE-SUPERCLASS.
+	Load clos-metaobject1, clos-class1, clos-class2, clos-class3.
+	* type.lisp (def-atomic-type): Don't remove the macro after use.
+	* clos-package.lisp: Export the symbols CLASS, BUILT-IN-CLASS,
+	STRUCTURE-CLASS, STANDARD-CLASS, CLASS-NAME, CLASS-DIRECT-SUPERCLASSES,
+	CLASS-PRECEDENCE-LIST, CLASS-DIRECT-SUBCLASSES, CLASS-DIRECT-SLOTS,
+	CLASS-SLOTS, CLASS-DIRECT-DEFAULT-INITARGS, CLASS-DEFAULT-INITARGS,
+	VALIDATE-SUPERCLASS.
+	* clos-metaobject1.lisp: New file.
+	* clos-slotdef1.lisp (slot-definition): Inherit from metaobject.
+	* clos-specializer1.lisp (specializer): Inherit from metaobject.
+	* clos-class1.lisp: New file.
+	* clos-class2.lisp: Update comments.
+	* clos-class3.lisp (empty-ht): Moved to clos-class1.lisp.
+	(structure-stablehash): Moved to clos-stablehash2.lisp.
+	(class, built-in-class, slotted-class, structure-class, standard-class):
+	Moved to clos-class1.lisp.
+	(%defclos): Pass 3 class-versions and <class>.
+	(ensure-class): Tweaks for bootstrapping. When redefining a metaobject
+	class, warn but don't obsolete the instances. Before changing a member
+	of the class-precedence-list from symbol to class, call
+	check-allowed-superclass. Update defaulting of direct-superclasses.
+	(add-default-superclass): Remove function.
+	(class-name, default-direct-superclasses): New functions.
+	(validate-superclass, check-allowed-superclass): New functions.
+	(std-compute-slots): Remove second argument. Use class-direct-slots
+	for all kinds of superclasses.
+	(make-instance-<built-in-class>): Renamed from
+	make-instance-built-in-class. Don't call check-metaclass-mix here.
+	Use allocate-metaobject-instance.
+	(initialize-instance-<built-in-class>): Renamed from
+	initialize-instance-built-in-class. Call check-metaclass-mix here.
+	Call superclass initializer.
+	(make-instance-<structure-class>): Renamed from
+	make-instance-structure-class. Use allocate-metaobject-instance.
+	(initialize-instance-<structure-class>): Renamed from
+	initialize-instance-structure-class. Call superclass initializer.
+	Lots of changes.
+	(define-structure-class): Update.
+	(make-instance-<standard-class>): Renamed from
+	make-instance-standard-class. Use allocate-metaobject-instance.
+	(initialize-instance-<standard-class>): Renamed from
+	initialize-instance-standard-class. Call superclass initializer.
+	Lots of changes.
+	(finalize-class): Before changing a member of the class-precedence-list
+	from symbol to class, call check-allowed-superclass.
+	(def-unbound): Remove function.
+	(finalize-inheritance-standard-class): Use sys::%unbound.
+	(make-instances-obsolete-standard-class-nonrecursive): For metaobject
+	classes, just warn.
+	(update-subclasses-for-redefined-class): Don't call
+	add-default-superclass.
+	(update-subclasses-for-redefined-class-nonrecursive): Likewise.
+	(list-all-finalized-subclasses): Likewise.
+	Completely revamped bootstrapping.
+	(%defclos): Pass 3 class-versions and <class>.
+	* defstruct.lisp (clos::define-structure-class,
+	clos::undefine-structure-class): Remove preliminary functions.
+	(structure-object): Remove definition, now done in clos-class3.lisp.
+	* clos.lisp: Load clos-class[456] instead of clos-class[235].
+	* clos-slotdef2.lisp: Don't use #'make-instance here.
+	* clos-stablehash2.lisp (<standard-stablehash>): Move definition to
+	clos-class3.lisp.
+	(structure-stablehash): Moved to here.
+	* clos-specializer2.lisp: Don't use #'make-instance here.
+	* clos-class4.lisp: New file.
+	* clos-class5.lisp (class-name, (setf class-name)): Move to
+	clos-class6.lisp.
+	(initialize-instance@standard-class,
+	initialize-instance@structure-class): Move to clos-class3.lisp.
+	(class-prototype, class-finalized-p): Move to clos-class6.lisp.
+	* clos-genfun2.lisp (*dynamically-modifiable-generic-function-names*):
+	Add validate-superclass.
+	* clos-slotdef3.lisp: Use #'make-instance here.
+	* clos-specializer3.lisp: Likewise.
+	* clos-class6.lisp: New file.
+	* clos-print.lisp: Update.
+	* compiler.lisp (block, tagbody): Remove the corresponding classes.
+	* gray.lisp: Customize validate-superclasses.
+	* condition.lisp (define-condition): Update handling of default
+	direct-superclasses.
+	* makemake.in (LPARTS): Add clos-metaobject1, clos-class[123] and
+	clos-class[456].
+	* po/Makefile.devel (LISPSOURCES): Likewise.
+	* utils/clispload.lisp (*expected-failures*): Remove
+	BUILT-IN-CLASS-CPL and STANDARD-CLASS-CPL.
+
 2004-06-23  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/dbi.lisp: export TXN functions

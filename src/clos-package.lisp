@@ -120,7 +120,12 @@
           direct-slot-definition-class effective-slot-definition-class
           ;; MOP for slot access
           ;; MOP for classes
-          class-prototype class-finalized-p finalize-inheritance
+          class built-in-class structure-class standard-class
+          class-name class-direct-superclasses class-precedence-list
+          class-direct-subclasses class-direct-slots class-slots
+          class-direct-default-initargs class-default-initargs class-prototype
+          class-finalized-p finalize-inheritance
+          validate-superclass
           ;; MOP for specializers
           specializer-direct-generic-functions specializer-direct-methods
           eql-specializer-object intern-eql-specializer

@@ -7,10 +7,6 @@
 
 ;;; ===========================================================================
 
-;; Define the class <specializer>.
-(macrolet ((form () *<specializer>-defclass*))
-  (form))
-
 (defmethod initialize-instance ((specializer specializer) &rest args)
   (apply #'initialize-instance-<specializer> specializer args))
 
@@ -33,6 +29,5 @@
                                 &allow-other-keys)
   (declare (ignore singleton))
   (apply #'initialize-instance-<eql-specializer> specializer args))
-(setf (fdefinition 'make-instance-<eql-specializer>) #'make-instance)
 
 ;;; ===========================================================================

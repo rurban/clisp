@@ -484,12 +484,7 @@
                               ',name))))))
     slotlist))
 
-;; Two hooks for CLOS
-(defun clos::define-structure-class (name) ; preliminary
-  (declare (ignore name))
-  (system::note-new-structure-class))
-(defun clos::undefine-structure-class (name) ; preliminary
-  (declare (ignore name)))
+;; A hook for CLOS
 (defun clos::defstruct-remove-print-object-method (name) ; preliminary
   (declare (ignore name))
   nil)
@@ -946,5 +941,3 @@
                     (PROGN ,print-object-option))
                  `(CLOS::DEFSTRUCT-REMOVE-PRINT-OBJECT-METHOD ',name))))
          ',name))))
-
-(defstruct (structure-object (:predicate nil) (:copier nil) (:constructor nil)))

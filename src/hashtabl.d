@@ -3015,7 +3015,8 @@ local uint32 sxhash_atom (object obj) {
       /*instance_update(obj,obj_forwarded); - not needed since we don't access a slot */
       var object cv = TheInstance(obj_forwarded)->inst_class_version;
       var object objclass = TheClassVersion(cv)->cv_newest_class;
-      return sxhash(objclass) + 0x61EFA249;
+      var object objclassname = TheClass(objclass)->classname;
+      return sxhash(objclassname) + 0x61EFA249;
     }
     case_lrecord:               /* Long-Record */
       /* utilize record-type and length */

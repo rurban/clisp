@@ -15,9 +15,7 @@
 ;; em = effective method
 
 ; Now DEFCLASS works (except for accessor methods).
-(load "clos-class2")
 (load "clos-slots1")
-(load "clos-class3")
 (load "clos-method1")
 (load "clos-methcomb1")
 (load "clos-genfun1")
@@ -30,14 +28,16 @@
 (load "clos-genfun5")
 (load "clos-method3")
 (load "clos-slots2")
-(load "clos-class5")
 (load "clos-slotdef2")
 (load "clos-stablehash2")
 (load "clos-specializer2")
+(load "clos-class4")
+(load "clos-class5")
 ; Now instance creation works. Instances can be passed to generic functions.
 (setq *classes-finished* t)
 (load "clos-slotdef3")
 (load "clos-specializer3")
+(load "clos-class6")
 (load "clos-print")
 (load "documentation")
 
