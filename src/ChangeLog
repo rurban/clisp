@@ -1,5 +1,9 @@
 2004-02-11  Sam Steingold  <sds@gnu.org>
 
+	* modules/pcre/cpcre.c: <pcre.h> may be actually <pcre/pcre.h>
+
+2004-02-11  Sam Steingold  <sds@gnu.org>
+
 	* predtype.d (TYPE-OF): handle (VECTOR NIL)
 
 2004-02-10  Sam Steingold  <sds@gnu.org>

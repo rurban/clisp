@@ -6,7 +6,13 @@
  */
 
 #include "config.h"
-#include <pcre.h>
+#if defined(HAVE_PCRE_H)
+# include <pcre.h>
+#elif defined(HAVE_PCRE_PCRE_H)
+# include <pcre/pcre.h>
+#else
+# error No PCRE headers!
+#endif
 
 #include "clisp.h"
 
@@ -15,6 +21,10 @@
 #error REGEXP needs a CLISP built with the foreign pointer datatype support.
 #error Go into the main CLISP makefile and add a -DFOREIGN=void*
 #error to CFLAGS make variable and rebuild CLISP before coming back here.
+#endif
+
+#if defined(STDC_HEADERS)
+# include <string.h>            /* for memcpy(3) */
 #endif
 
 DEFMODULE(pcre,"PCRE");
