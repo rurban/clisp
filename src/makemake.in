@@ -368,7 +368,7 @@ case $# in
      fi
      TSYS=$1
      COMPILER=$2
-     # TSYS should be master or sun3 or sun4 or i[3456]86 or mips or vax or amiga or acorn or os2 or win32gcc or win32msvc or win32bc.
+     # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|amiga|acorn|os2|win32(gcc|msvc|bc)).
      # COMPILER should be gcc or cc
      if [ $TSYS = amiga -o $TSYS = acorn -o $TSYS = os2 ] ; then
        TOS=$TSYS
@@ -478,19 +478,22 @@ if [ $TSYS = win32msvc ] ; then
   # "-Od -Z7" means to compile for debugging.
   # "-O1" means to optimize on msvc4,
   # "-Os -Oy -Ob1 -Gs -Gf -Gy" means to optimize on msvc5
-  # ("-O1" and "-O2" are buggy in msvc5.0).
+  # ("-O1" and "-O2" are buggy in msvc5.0 FIXME: what about msvc7?).
   # -Zi - include debug info (-ZI for debug-and-continue)
   # -GZ - runtime debug checks
-  #
-  if [ $COMPILER = msvc5 ] ; then
-    if [ "$DEBUGGING" != debug ] ; then
-      CFLAGS=$CFLAGS' -G5 -Os -Oy -Ob1 -Gs -Gf -Gy'
-    else
-      CFLAGS=$CFLAGS' -Zi -Od -GZ'
-    fi
-  else
-    CFLAGS=$CFLAGS' -G5 -O1'
-  fi
+  case $COMPILER in
+    msvc4) CFLAGS=${CFLAGS}" -G5 -O1"
+      ;;
+    msvc5 | msvc7)
+      if [ "$DEBUGGING" != debug ] ; then
+        CFLAGS=${CFLAGS}" -G5 -Os -Oy -Ob1 -Gs -Gf -Gy"
+      else
+        CFLAGS=${CFLAGS}" -Zi -Od -GZ"
+      fi
+      ;;
+    *) echol "makemake: unknown compiler [${COMPILER}]" >&2; exit 1
+      ;;
+  esac
 fi
 
 if [ "$srcdir" = . ] ; then
@@ -995,12 +998,18 @@ else
       # -+ means to accept C++ comments in MSVC's include files.
       # _MSC_VER=1000 _M_IX86=500 means to simulate msvc4 on i586.
       # _MSC_VER=1100 _M_IX86=500 means to simulate msvc5 on i586.
-      if [ $COMPILER = msvc4 ] ; then
-        XCPP="$XCPP -+ -D_MSC_VER=1000 -D_M_IX86=500 -D_WIN32 -I\$(MSVCDIR)/include"
-      fi
-      if [ $COMPILER = msvc5 ] ; then
-        XCPP="$XCPP -+ -D_MSC_VER=1100 -D_M_IX86=500 -D_WIN32 -D_INTEGRAL_MAX_BITS=64 -I\$(MSVCDIR)/include"
-      fi
+      # _MSC_VER=1300 _M_IX86=500 means to simulate msvc7 (.NET) on i586.
+      XCPP="$XCPP -+ -D_M_IX86=500 -D_WIN32 -I\$(MSVCDIR)/include"
+      case ${COMPILER} in
+        msvc4) XCPP="$XCPP -D_MSC_VER=1000"
+          ;;
+        msvc5) XCPP="$XCPP -D_MSC_VER=1100 -D_INTEGRAL_MAX_BITS=64"
+          ;;
+        msvc7) XCPP="$XCPP -D_MSC_VER=1300 -D_INTEGRAL_MAX_BITS=64 -I\$(MSVCDIR)/PlatformSDK/include"
+          ;;
+        *) echol "makemake: unknown compiler [${COMPILER}]" >&2; exit 1
+          ;;
+      esac
     fi
     if [ $TSYS = win32bc ] ; then
       # -+ means to accept C++ comments in BC's include files.
@@ -2668,7 +2677,11 @@ else
       # With msvc4/5, need at least 1200 KB stack for creating the first
       # interpreted.mem, but the default stack size is only 1 MB.
       # With msvc6, need more than 2 MB for compiling compiler.lisp.
-      echotab "editbin /stack:3145728 lisp${LEXE}"
+      if [ ${COMPILER} != msvc7 ]; then
+        # Jay Kint <jkint@icosahedron.org> says that msvc7(.NET)
+        # does not need this
+        echotab "editbin /stack:3145728 lisp${LEXE}"
+      fi
     fi
     if [ $HSYS = win32bc ] ; then
       echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} -elisp${LEXE} \$(OBJECTS) modules${TOBJ} ${LIBS}"
