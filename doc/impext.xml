@@ -2065,52 +2065,15 @@ containing:</para>
   <listitem><simpara>Compute the number of solutions to the n-queens
    problem on a n*n checkboard.
   </simpara></listitem></varlistentry>
- <varlistentry id="regexp"><term>regexp</term>
-  <listitem><simpara>The POSIX Regular Expressions matching, compiling,
-    executing.</simpara>
-  <para>The following code computes the number of people who use
-    a particular shell:
-<programlisting>
-(&defpackage; "REGEXP-TEST" (:use "LISP" "REGEXP"))
-(&in-package; "REGEXP-TEST")
-(let ((h (make-hash-table :test #'equal :size 10)) (n 0))
-  (with-open-file (f "/etc/passwd")
-    (with-loop-split (s f ":")
-      (let ((sh (seventh s)))
-        (if (gethash sh h)
-            (incf (gethash sh h))
-            (setf (gethash sh h) 1)))))
-  (with-hash-table-iterator (i h)
-    (loop (multiple-value-bind (r k v) (i)
-            (unless r (return))
-            (format t "[~d] ~s~30t== ~5:d~%" (incf n) k v)))))
-</programlisting></para>
-
-  <para>The same is done by the following Perl:
-<programlisting>
-#!/usr/local/bin/perl -w
-
-use diagnostics;
-use strict;
-
-my $IN = $ARGV[0];
-open(INF,"&lt; $IN") || die "$0: cannot read file [$IN]: $!\n;";
-my %hash;
-while (&lt;INF&gt;) {
-  chop;
-  my @all = split($ARGV[1]);
-  my $shell = ($#all &gt;= 6 ? $all[6] : "");
-  if ($hash{$shell}) { $hash{$shell} ++; }
-  else { $hash{$shell} = 1; }
-}
-my $ii = 0;
-for my $kk (keys(%hash)) {
-  print "[",++$ii,"] \"",$kk,"\"  --  ",$hash{$kk},"\n";
-}
-</programlisting></para></listitem></varlistentry>
- <varlistentry><term>wildcard</term>
+ <varlistentry><term><link linkend="regexp">regexp</link></term>
+  <listitem><simpara>The <ulink url="regexp.html">POSIX Regular
+   Expressions</ulink> matching, compiling, executing.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><ulink url="wildcard.html">wildcard</ulink></term>
   <listitem><simpara>Shell globbing</simpara></listitem></varlistentry>
 </variablelist>
+
+&regexp;
 
 </section>
 </section>
@@ -3198,7 +3161,7 @@ module exit functions.]  Programmers, watch
 
 <para>The following foreign &c-lang; types are used in &affi-pac;.
 They are <emphasis>not</emphasis> regular &cl; types or &clos;
-classes.</para> 
+classes.</para>
 
 <table frame="all"><title>foreign &c-lang; types used in &affi-pac;</title>
  <tgroup cols="5" colsep="1" rowsep="1" align="center">
@@ -4085,7 +4048,7 @@ bash$
 <itemizedlist>
  <listitem><simpara>Programs distributed as Lisp source of
   &fasl-file; files can be distributed without restrictions coming from
-  &clisp;.</simpara></listitem> 
+  &clisp;.</simpara></listitem>
  <listitem><simpara>Programs distributed as &clisp; memory images can be
   distributed only if accompanied with the non-&clisp; &fasl-file; files
   which make up the memory image, and a <filename>Makefile</filename>
