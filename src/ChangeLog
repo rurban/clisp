@@ -1,3 +1,12 @@
+2005-01-02  Bruno Haible  <bruno@clisp.org>
+
+	* lisparit.d (init_arith): Change initial value of
+	*WARN-ON-FLOATING-POINT-CONTAGION* and
+	*WARN-ON-FLOATING-POINT-RATIONAL-CONTAGION* to NIL.
+	* utils/clispload.lsp: Remove setting of
+	*WARN-ON-FLOATING-POINT-CONTAGION* and
+	*WARN-ON-FLOATING-POINT-RATIONAL-CONTAGION*.
+
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp (cerror): Internationalize.

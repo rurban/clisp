@@ -1524,13 +1524,15 @@ can give problems:
 <formalpara id="warn-fpc"><title>Variable &warn-fpc;</title>
 <para>If the variable &warn-fpc; is non-&nil;, a &warning-t; is emitted for
  every coercion involving different floating-point types.
- As explained above, float precision contagion is not a good idea,
- this is why &warn-fpc; is set to &t; initially.
+ As explained above, float precision contagion is not a good idea.
  You can avoid the contagion by doing all your computations with the
  same floating-point type (and using &float; to convert all constants,
- e.g., &pi-v;, to your preferred type).
- Set it to &error; to have &clisp; &signal; an &error-t; on float
- precision contagion.</para></formalpara>
+ e.g., &pi-v;, to your preferred type).</para>
+<para>This variable helps you eliminating all occurrences of float precision
+ contagion: Set it to &t; to have &clisp; show a &warning-t; on float precision
+ contagion. Set it to &error; to have &clisp; &signal; an &error-t; on float
+ precision contagion, so that you can look at the stack backtrace.
+</para></formalpara>
 
 </section>
 
@@ -1556,9 +1558,13 @@ can give problems:
 <formalpara id="warn-fprc"><title>Variable &warn-fprc;</title>
 <para>If the variable &warn-fprc; is non-&nil;, a &warning-t; is emitted for
  every avoidable coercion from a rational number to a floating-point number.
- &warn-fprc; is set to &t; initially. Set it to &error; to have &clisp;
- &signal; an &error-t; on avoidable coercions to a floating-point number
- when a rational number result would be possible.</para></formalpara>
+ You can avoid such coercions by calling &float; to convert the particular
+ rational numbers to your preferred floating-point type.</para>
+<para>This variable helps you eliminating all occurrences of avoidable coercions
+ to a floating-point number when a rational number result would be possible:
+ Set it to &t; to have &clisp; show a &warning-t; in such situations. Set it
+ to &error; to have &clisp; &signal; an &error-t; in such situations, so that
+ you can look at the stack backtrace.</para></formalpara>
 
 <formalpara id="phasecont"><title>Variable &phasecont;</title>
 <para>A similar variable, &phasecont;, controls the return
