@@ -1,3 +1,8 @@
+2002-09-04  Bruno Haible  <bruno@clisp.org>
+
+	* m4/sigsegv.m4 (CL_SIGSEGV): Don't define NO_SIGSEGV.
+	* makemake.in (XCFLAGS): Add -DNO_SIGSEGV if there is no libsigsegv.
+
 2002-09-03  Bruno Haible  <bruno@clisp.org>
 
 	* sigsegv: Remove directory.
