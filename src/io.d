@@ -6803,18 +6803,27 @@ local void pr_symbol_part (const gcv_object_t* stream_, object string,
   # find out, if the name can be printed without |...| surrounding it:
   # This can be done if it:
   # 1. is not empty and
-  # 2. starts with a character with syntax-code Constituent and
-  # 3. consists only of characters  with syntax-code Constituent or
+  # 2. *PRINT-READABLY* is NIL and
+  # 3. starts with a character with syntax-code Constituent and
+  # 4. consists only of characters  with syntax-code Constituent or
   #    Nonterminating Macro and
-  # 4. if it contains no lower-/upper-case letters
+  # 5. if it contains no lower-/upper-case letters
   #    (depending on readtable_case) and no colons and
-  # 5. if it does not have Potential-Number Syntax (with *PRINT-BASE* as base).
+  # 6. if it does not have Potential-Number Syntax (with *PRINT-BASE* as base).
   sstring_un_realloc(string);
   var uintL len = Sstring_length(string); # length
   # check condition 1:
   if (len==0)
     goto surround; # length=0 -> must use |...|
-  # check conditions 2-4:
+  # check condition 2:
+  if (!nullpSv(print_readably))
+    # *PRINT-READABLY* is true -> must use |...| because when read back in, the
+    # (READTABLE-CASE *READTABLE*) could be :PRESERVE or :INVERT, and we don't
+    # know in advance. (Actually, the |...| are only necessary if the symbol
+    # part contains lower- or upper-case letters. But since most nonempty
+    # symbol parts do, it's not worth testing.)
+    goto surround;
+  # check conditions 3-5:
   { # need the attribute-code-table and the current syntaxcode-table:
     var object syntax_table; # syntaxcode-table, with char_code_limit elements
     var uintW rtcase; # readtable-case
@@ -6863,7 +6872,7 @@ local void pr_symbol_part (const gcv_object_t* stream_, object string,
       }
     });
   }
-  # check condition 5:
+  # check condition 6:
   {
     pushSTACK(string); # save string
     get_buffers(); # allocate two buffers, in the STACK
