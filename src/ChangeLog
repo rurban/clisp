@@ -4,8 +4,11 @@
 
 1999-02-17  Sam Steingold  <sds@goems.com>
 
-        * spvw.d: user ascii* instead of asciz* for constant string
+	* spvw.d: user ascii* instead of asciz* for constant string
 	when initializing *features*.
+	* _impnotes.txt, impnotes.html: removed.
+	* _impnotes.html: new file.
+	* makemake.in, ../configure: new option --hyperspec.
 
 1999-02-12  Sam Steingold  <sds@goems.com>
 
