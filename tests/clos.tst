@@ -3501,7 +3501,7 @@ T
                                      NEW-ARGUMENTS (REST NEXT-METHODS-LIST)))))
                    (APPLY #'(LAMBDA ,unspecialized-lambdalist ,@body) ARGUMENTS)))))
        ',name)))
-DEF-USER-MACRO
+DEF-USER-METHOD
 
 ; Single method.
 (progn
