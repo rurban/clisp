@@ -4526,10 +4526,8 @@ bash$ cat &lt;&lt; EOF &gt; hello.lisp
 (print "hello, world!")
 EOF
 bash$ clisp -c hello.lisp
-
-Compiling file hello.lisp ...
-
-Compilation of file hello.lisp is finished.
+;; Compiling file hello.lisp ...
+;; Wrote file hello.lisp
 0 errors, 0 warnings
 bash$ chmod +x hello.fas
 bash$ hello.fas
