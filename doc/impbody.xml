@@ -154,22 +154,20 @@
  referenced outside any lexical binding for a variable of the same name
  and which are not declared &special-dec;, are treated like &dyn-var;s
  in the &glo-env;.  The compiler &signal;s a &warning-t; when it
- encounters an undefined variable.</para>
-</section>
+ encounters an undefined variable.</para></section>
 
 <section id="function-form"><title>Conses as Forms
   <ulink url="&clhs;/Body/sec_3-1-2-1-2.html">[CLHS-3.1.2.1.2]</ulink></title>
-<para>Lists of the form <literal>((&setf; symbol) ...)</literal> are also
+<para>Lists of the form <code>((&setf; &symbol-r;) ...)</code> are also
  treated as function forms. This makes the syntax
- <literal>(function-name arguments...)</literal> consistent with the syntax
- <literal>(&funcall; #'function-name  arguments...)</literal>.
+ <code>(&funcname-r; &args-r; ...)</code> consistent with the syntax
+ <code>(&funcall; #'&funcname-r; &args-r; ...)</code>.
  It implements the item 7 of issue
  <ulink url="&clhs;/Issues/iss174.html">FUNCTION-NAME:LARGE</ulink> and the
  definition of
  <ulink url="&clhs;/Body/glo_f.html#function_form">function form</ulink>s,
- and is consistent with the use of function names elsewhere in Common Lisp.
-</para>
-</section>
+ and is consistent with the use of &funname;s elsewhere in &cl;.
+</para></section>
 </section>
 
 <section id="compilation"><title>Compilation
