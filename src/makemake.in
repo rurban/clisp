@@ -2797,6 +2797,7 @@ for f in $LPARTS ; do
     echol "${f}.lisp : ${SRCDIR}${CONFIG}.lisp"
     echotab "\$(CP) ${SRCDIR}${CONFIG}.lisp ${f}.lisp"
     if [ $TOS = unix ] ; then
+      echotab "chmod +w ${f}.lisp"
       echotab "echo '(setq *clhs-root-default* \"${hyperspec}/\")' >> ${f}.lisp"
     fi
     echol
