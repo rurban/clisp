@@ -236,6 +236,16 @@ NIL
 (x-val (make-instance (find-class '<C1>) :x 10 :y 20))
 10
 
+(progn
+(defmethod initialize-instance ((inst <C1>) &rest ignore)
+  (call-next-method)
+  123)
+nil)
+nil
+
+(x-val (make-instance (find-class '<C1>) :x 101 :y 120))
+101
+
 (unintern '<C1>)
 T
 
@@ -337,7 +347,7 @@ T
 T
 
 ;; make-load-form
-;; from
+;; from kmp
 (progn
   (defclass test-class1 () ((foo :initarg :foo :accessor foo :initform 0)))
   (defclass test-class2 () ((foo :initarg :foo :accessor foo :initform 0)))
