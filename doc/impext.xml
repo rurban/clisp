@@ -117,7 +117,7 @@ image to request translations independently of each other.</para>
 
 <formalpara id="textdomain"><title>Function &textdomain;</title>
 <para><literal role="sexp">(&textdomain;)</literal> is a
-place that returns the default &domain;, used when no &domain;
+&place; that returns the default &domain;, used when no &domain;
 argument is passed to the &gettext; and &ngettext; functions.
 It is &setf;able.
 <literal role="sexp">(&setf; &textdomain;)</literal> is usually used
@@ -129,7 +129,7 @@ need more than one &domain;.</para></formalpara>
 
 <formalpara id="textdomaindir"><title>Function &textdomaindir;</title>
 <para><literal role="sexp">(&textdomaindir; &domain;)</literal>
-is a place that returns the base directory, called
+is a &place; that returns the base directory, called
 <filename>TEXTDOMAINDIR</filename> above, where the message
 catalogs for the given &domain; are assumed to be installed.
 It is &setf;able.
@@ -724,8 +724,7 @@ localized.</para>
  call &make-encoding; with the character set name (a string) as the
  <constant>:CHARSET</constant> argument.</simpara>
 
-<simpara>
- When an &encoding; is available both as a &enc-built-in; and
+<simpara>When an &encoding; is available both as a &enc-built-in; and
  through &iconv;, the &enc-built-in; is used, because it is more
  efficient and available across all platforms.</simpara>
 
@@ -828,7 +827,7 @@ localized.</para>
  the following &symbol-macro; places contain global &encoding;s:</para>
 
 <formalpara id="def-file-enc"><title>Macro &def-file-enc;</title>
-<para>The &symbol-macro; place &def-file-enc; is the encoding used for
+<para>The &symbol-macro; &place; &def-file-enc; is the encoding used for
  new &file-pipe-socket; streams, when no &extfmt; argument was
  specified.</para></formalpara>
 
@@ -2285,18 +2284,18 @@ only.</subtitle>
   &lt; <replaceable>dim&sub-1;</replaceable>, ..., 0
   &le; <replaceable>index&sub-n;</replaceable> &lt;
   <replaceable>dim&sub-n;</replaceable>, this will be
-  the place corresponding to <literal role="sexp">(&aref;
+  the &place; corresponding to <literal role="sexp">(&aref;
   &cplace-r; <replaceable>index&sub-1;</replaceable>
   ... <replaceable>index&sub-n;</replaceable>)</literal> or
   <varname>&cplace-r;[<replaceable>index&sub-1;</replaceable>]...[<replaceable>index&sub-n;</replaceable>]</varname>.
-  It is a place of type &ctype-r;.
+  It is a &place; of type &ctype-r;.
   If &cplace-r; is of foreign type <literal role="type">(&c-array-max;
   &ctype-r; <replaceable>dim</replaceable>)</literal> and 0 &le;
   <replaceable>index</replaceable> &lt; <replaceable>dim</replaceable>,
-  this will be the place corresponding to <literal role="sexp">(&aref;
+  this will be the &place; corresponding to <literal role="sexp">(&aref;
   &cplace-r; <replaceable>index</replaceable>)</literal> or
   <varname>&cplace-r;[<replaceable>index</replaceable>]</varname>.
-  It is a place of type &ctype-r;.
+  It is a &place; of type &ctype-r;.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="deref"><term><literal role="sexp">(&deref;
@@ -2305,8 +2304,8 @@ only.</subtitle>
   &cplace-r; is of foreign type
   <literal role="type">(&c-ptr; &ctype-r;)</literal> or
   <literal role="type">(&c-ptr-null; &ctype-r;)</literal>,
-  this will be the place the pointer points to.
-  It is a place of type &ctype-r;.
+  this will be the &place; the pointer points to.
+  It is a &place; of type &ctype-r;.
   For <literal role="type">(&c-ptr-null; &ctype-r;)</literal>,
   the &cplace-r; may not be &c-NULL;.
 </simpara></listitem></varlistentry>
@@ -2323,13 +2322,13 @@ only.</subtitle>
 
 <varlistentry id="cast"><term><literal role="sexp">(&cast;
            &cplace-r; &ctype-r;)</literal></term>
-<listitem><simpara>Type change: A place denoting the same memory
+<listitem><simpara>Type change: A &place; denoting the same memory
   locations as the original &cplace-r;, but of type &ctype-r;.
  </simpara></listitem></varlistentry>
 
 <varlistentry id="offset"><term><literal role="sexp">(&offset;
            &cplace-r; &offset-r; &ctype-r;)</literal></term>
-<listitem><simpara>Type change and displacement: return a place denoting
+<listitem><simpara>Type change and displacement: return a &place; denoting
   a memory locations displaced from the original &cplace-r; by an
   &offset-r; counted in bytes, with type &ctype-r;.
   This can be used to resize an array, e.g. of &ctype-r;
@@ -2566,7 +2565,7 @@ only.</subtitle>
 <varlistentry id="with-c-place">
  <term><literal role="sexp">(&with-c-place; (&var-r; &f-ent;)
    &body-r;)</literal></term>
- <listitem><simpara>Create a place out of the given &foreign-variable;
+ <listitem><simpara>Create a &place; out of the given &foreign-variable;
   object so operations on places (e.g. &cast;, &deref;, &slot; etc.) can
   be used within &body-r;.  &with-c-var; appears as a composition of
   &with-foreign-object; and &with-c-place;.</simpara>
@@ -2785,8 +2784,7 @@ unit</ulink> (usually a file), a warning is issued and
 <section id="dffi-places"><title>Operations on foreign places</title>
 
 <para>A &foreign-variable; &name-r; defined by &def-c-var;, &with-c-var;
- or &with-c-place; defines a
- <ulink url="&clhs;/Body/glo_p.html#place">place</ulink>,
+ or &with-c-place; defines a &place;,
  i.e., a form which can also be used as argument to &setf;.
  (An "lvalue" in &c-lang; terminology.)
  The following operations are available on foreign places:
