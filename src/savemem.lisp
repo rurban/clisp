@@ -62,7 +62,14 @@
     (savemem fn)
     (when verbose
       (fresh-line)
-      (write-string (TEXT "Wrote the memory image into "))
-      (princ fn)
+      (let* ((msg (TEXT "Wrote the memory image into ~A"))
+             ; We cannot use FORMAT here (bootstrapping constraint).
+             (pos (sys::search-string-equal "~A" msg)))
+        (if pos
+          (progn
+            (write-string (substring msg 0 pos))
+            (princ fn)
+            (write-string (substring msg (+ pos 2))))
+          (write-string msg)))
       (terpri)))
   (room nil))

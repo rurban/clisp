@@ -1,3 +1,64 @@
+2004-03-14  Bruno Haible  <bruno@clisp.org>
+
+	Internationalization fixes:
+	- Use entire sentences instead of pieces of sentences.
+	- Let the translator translate terms like STRING, SYMBOL, INTEGER,
+	  CHARACTER, VECTOR, PACKAGE, STREAM, CLASS. On the other hand, type
+	  names like RANDOM-STATE can remain uninternationalized.
+	- Prefixes like "READ: " must be internationalized as well, because in
+	  French, a space is put before the colon.
+	* charstrg.d (MAKE-STRING): Improve error message.
+	* encoding.d (encoding_from_name): Call GETTEXT for warning message.
+	(init_dependent_encodings): Likewise.
+	* error.d (fehler_list, check_list): Make error message localizable.
+	(check_symbol): Likewise.
+	(fehler_vector): Likewise.
+	(check_integer, check_pos_integer): Likewise.
+	(fehler_char, check_char): Likewise.
+	(check_string): Likewise.
+	(fehler_stream): Likewise.
+	(fehler_key_notkw): Likewise.
+	(check_function): Likewise.
+	* hashtabl.d (check_hashtable): Likewise.
+	* lisparit.d (check_number, check_real, check_float): Likewise.
+	(check_rational): Likewise.
+	* record.d (fehler_record_length): Likewise.
+	(fehler_keine_klasse): Likewise.
+	* stream.d (MAKE-SYNONYM-STREAM): Likewise.
+	(SYSTEM::STRING-INPUT-STREAM-INDEX): Likewise.
+	(GET-OUTPUT-STREAM-STRING): Likewise.
+	(lisp_completion): Likewise.
+	(stream_handles): Likewise.
+	(SOCKET-OPTIONS): Improve error message.
+	(handle_to_stream): Fix order of arguments passed to error message.
+	(MAKE-STREAM): Improve error message.
+	(read_line): Make error message localizable.
+	(check_open_file_stream): Likewise.
+	* spvw.d (usage): Split message into two.
+	* backquote.lisp (bq-non-list-splice-error, bq-dotted-splice-error):
+	Make error message more understandable. Make the prefix localizable.
+	* clos.lisp (make-instances-obsolete): Improve error message.
+	(invalid-method-error): Fix error message: "~:%" is undefined.
+	(method-combination-error): Pass the right arguments to the error
+	message.
+	* compiler.lisp (set-check-lock): Fix error message.
+	(disassemble-closure): Make message localizable. Print the variable
+	lists without surrounding parentheses.
+	* defs1.lisp (load-lpt-many, load-lpt-one): Make the verbose message
+	localizable.
+	* defs2.lisp (define-hash-table-test): Make error message localizable.
+	* describe.lisp (describe-object): Make string description localizable.
+	(describe-signature): Assume stream argument is non-NIL. Make message
+	localizable.
+	* init.lisp (open-for-load): Change error message to reflect the user's
+	point of view, not the implementor's.
+	(load): Make the verbose message localizable.
+	* pprint.lisp (set-pprint-dispatch, pprint-logical-block): Make error
+	message localizable.
+	* savemem.lisp (saveinitmem): Make the verbose message localizable.
+	* trace.lisp (force-cclosure): Improve error message.
+	(%local-set): Pass the right arguments to the error message.
+
 2004-03-26  Will Newton  <will@misconception.org.uk>
 
 	* eval.d (interpret_bytecode_): avoid a compiler warning by

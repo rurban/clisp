@@ -611,8 +611,7 @@
     ;; check-value will be defined in condition.lisp
     (setq name (check-value
                 nil (make-condition 'simple-type-error
-                      :format-control (TEXT "~S: ~S should be a ~S")
-                      :format-arguments
-                      (list 'define-hash-table-test name 'symbol)
+                      :format-control (TEXT "~S: ~S should be a symbol")
+                      :format-arguments (list 'define-hash-table-test name)
                       :datum name :expected-type 'symbol))))
   `(progn (setf (get ',name 'hash-table-test) (cons #',test #',hash)) ',name))

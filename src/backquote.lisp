@@ -174,26 +174,25 @@
            (list 'NSPLICE (read stream t nil t)))
           (t (list 'UNQUOTE (read stream t nil t))))))
 
-;;; Signal error for `,.form or `,@form. If :in-reader is t, then
-;;; add the prefix "READ: ", to flag the error as coming from the reader.
+;;; Signal error for `,.form or `,@form.
+;;; It's undefined behaviour; we signal an error for it.
+;;; If :in-reader is t, then add the prefix "READ: ", to flag the error as
+;;; coming from the reader.
 (defun bq-non-list-splice-error (sym &key in-reader)
-  (if (eq sym 'SPLICE)
-    (error-of-type 'reader-error
-      (TEXT "~athe syntax `,@form is undefined behavior")
-      (if in-reader "READ: " ""))
-    (error-of-type 'reader-error
-      (TEXT "~athe syntax `,.form is undefined behavior")
-      (if in-reader "READ: " ""))))
+  (error-of-type 'reader-error
+    (if in-reader (TEXT "READ: ~@?") "~@?")
+    (if (eq sym 'SPLICE)
+      (TEXT "the syntax `,@form is invalid")
+      (TEXT "the syntax `,.form is invalid"))))
 
 ;;; Signal error for `(... . ,@form) or `(... . ,.form).
+;;; It's undefined behaviour; we signal an error for it.
 (defun bq-dotted-splice-error (sym &key in-reader)
-  (if (eq sym 'SPLICE)
-    (error-of-type 'reader-error
-      (TEXT "~athe syntax `( ... . ,@form) is undefined behavior")
-      (if in-reader "READ: " ""))
-    (error-of-type 'reader-error
-      (TEXT "~athe syntax `( ... . ,.form) is undefined behavior")
-      (if in-reader "READ: " ""))))
+  (error-of-type 'reader-error
+    (if in-reader (TEXT "READ: ~@?") "~@?")
+    (if (eq sym 'SPLICE)
+      (TEXT "the syntax `( ... . ,@form) is invalid")
+      (TEXT "the syntax `( ... . ,.form) is invalid"))))
 
 ;;; Like MEMBER but handles improper lists without error.
 (defun bq-member (elem list &key (test #'eql))
