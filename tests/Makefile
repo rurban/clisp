@@ -1,18 +1,17 @@
-#  the ifneq/else/endif requires GNU Make
-#  and is only necessary for CYGWIN
-#  which cannot accomodate a separate build directory
-# OS=$(shell uname);
-# ifneq (,$(filter CYGWIN%,$(OS)))
-# BD=../src/
-# EXE=$(BD)lisp.exe
-# else
-BD=../build/
-EXE=$(BD)lisp.run
-# endif
+# Makefile for CLISP regression tests
+# ifneq/else/endif requires GNU Make
 
-LISP=$(EXE) -norc -q -B $(BD) -M $(BD)lispinit.mem
+OS=$(shell uname);
+BD=../
+ifneq (,$(filter CYGWIN%,$(OS)))
+RUN=exe
+else
+RUN=run
+endif
 
-# LISP = clisp -norc
+LISP=$(BD)/lisp.$(RUN) -norc -B $(BD) -M $(BD)/lispinit.mem
+# LISP=../clisp -norc
+# LISP=clisp -norc
 
 RM = rm -f
 
@@ -27,6 +26,9 @@ tests : force
 compare : force
 	(echo *.erg | grep '*' >/dev/null) || (echo "Test failed:" ; ls -l *erg; echo "To see which tests failed, type" ; echo "    cat "`pwd`"/*.erg" ; exit 1)
 	echo "Test passed."
+
+%.erg: %.tst $(BD)/lispinit.mem $(BD)/lisp.$(RUN)
+	$(LISP) -i tests.lisp -x '(run-test "$<")'
 
 force :
 
