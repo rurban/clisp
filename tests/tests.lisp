@@ -239,13 +239,13 @@
                   #+XCL             "tread"
                                     "type"
                   #+CLISP           "weak"
-                  #+CLISP           "hashweak"))
+                  #+(or CLISP LISPWORKS) "hashweak"))
       (with-accumulating-errors (error-count total-count) (run-test ff)))
     (with-accumulating-errors (error-count total-count)
       (run-test "bind" :eval-method :eval :logname "bind-eval"))
     (with-accumulating-errors (error-count total-count)
       (run-test "bind" :eval-method :compile :logname "bind-compile"))
-    #+CLISP
+    #+(or CLISP ALLEGRO CMU SBCL LISPWORKS)
     (dotimes (i 20)
       (with-accumulating-errors (error-count total-count)
         (run-test "weakptr")))

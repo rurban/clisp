@@ -1,3 +1,10 @@
+2005-02-31  Bruno Haible  <bruno@clisp.org>
+
+	* weakptr.tst: Portability to ACL 6.2 and LispWorks 4.3.
+	* hashweak.tst: Portability to LispWorks 4.3.
+	* tests.lisp (run-all-tests): Run weakptr.tst also on ACL, CMUCL, SBCL,
+	LispWorks. Run hashweak.tst also on LispWorks.
+
 2005-03-28  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst (c-self): test the :DOCUMENTATION option to DEF-CALL-OUT
