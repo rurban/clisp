@@ -42,10 +42,7 @@ Installation:
 Other:
 
       src/malloc/        a GNU malloc library routine
-      src/gettext/       internationalization using GNU gettext
-      src/termcap/       a GNU termcap library
       ffcall/            a foreign function call library
-      src/readline/      a modified GNU readline library, readline-4.1 based
       modules/clx/       the CLX library, an interface to X11,
                          roughly equivalent to the libX11
       modules/wildcard/  foreign language module for wildcard matching
