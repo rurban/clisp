@@ -525,16 +525,17 @@ LISPFUN(tree_equal,2,0,norest,key,2, (kw(test),kw(test_not)) )
     skipSTACK(4);
   }
 
-# UP: Testet auf Listenende
-# endp(obj)
-# > obj: Objekt
-# > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: true falls obj ein Listenende NIL ist,
-#             false falls obj ein Cons ist.
+/* UP: check whenter OBJ ends a proper list
+ endp(obj)
+ > obj: object
+ > subr_self: caller (a SUBR)
+ < ergebnis: true if obj is the list end NIL,
+             false if obj is a Cons.
+             error otherwise */
 local bool endp (object obj) {
   if (consp(obj))
     return false;
-  elif (nullp(obj))
+  else if (nullp(obj))
     return true;
   else
     fehler_proper_list(obj);
