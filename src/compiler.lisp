@@ -3102,6 +3102,7 @@ der Docstring (oder NIL).
           (FLET . c-FLET)
           (LABELS . c-LABELS)
           (MACROLET . c-MACROLET)
+          (SYSTEM::FUNCTION-MACRO-LET . c-FUNCTION-MACRO-LET)
           (SYMBOL-MACROLET . c-SYMBOL-MACROLET)
           (COMPILER-LET . c-COMPILER-LET)
           (EVAL-WHEN . c-EVAL-WHEN)
@@ -6959,6 +6960,101 @@ der Docstring (oder NIL).
               (optimize-var-list varlist)
               anode
 ) ) ) ) ) ) )
+
+; compiliere (SYSTEM::FUNCTION-MACRO-LET ({(name fun-lambdabody macro-lambdabody)}) {form})
+(defun c-FUNCTION-MACRO-LET ()
+  (test-list *form* 2)
+  (test-list (second *form*) 0)
+  (multiple-value-bind (namelist fnodelist macrolist)
+      (do ((funmacdefsr (second *form*) (cdr funmacdefsr))
+           (L1 '())
+           (L2 '())
+           (L3 '()))
+          ((null funmacdefsr) (values (nreverse L1) (nreverse L2) (nreverse L3)))
+        (let ((funmacdef (car funmacdefsr)))
+          (if (and (consp funmacdef)
+                   (symbolp (car funmacdef))
+                   (consp (cdr funmacdef)) (consp (second funmacdef))
+                   (consp (cddr funmacdef)) (consp (third funmacdef))
+                   (null (cdddr funmacdef))
+              )
+            (let* ((name (car funmacdef))
+                   (fnode (c-lambdabody
+                            (symbol-suffix (fnode-name *func*) name)
+                            (second funmacdef)
+                   )      )
+                   (macro (make-macro-expander (cons name (third funmacdef)))))
+              (push name L1)
+              (push fnode L2)
+              (push macro L3)
+            )
+            (err-syntax 'SYSTEM::FUNCTION-MACRO-LET funmacdef)
+      ) ) )
+    ; namelist = Liste der Namen, fnodelist = Liste der fnodes der Funktionen,
+    ; macrolist = Liste der Macro-Objekte der Funktionen.
+    (let ((oldstackz *stackz*)
+          (*stackz* *stackz*)
+          (*venvc* *venvc*)
+          (*venv* *venv*))
+      (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+      (let ((closuredummy-stackz *stackz*)
+            (closuredummy-venvc *venvc*))
+        (multiple-value-bind (varlist anodelist *fenv*)
+            (do ((namelistr namelist (cdr namelistr))
+                 (fnodelistr fnodelist (cdr fnodelistr))
+                 (macrolistr macrolist (cdr macrolistr))
+                 (varlist '())
+                 (anodelist '())
+                 (fenv '()))
+                ((null namelistr)
+                 (values (nreverse varlist) (nreverse anodelist)
+                         (apply #'vector (nreverse (cons *fenv* fenv)))
+                ))
+              (push (car namelistr) fenv)
+              (let ((fnode (car fnodelistr))
+                    (macro (car macrolistr)))
+                (if (zerop (fnode-keyword-offset fnode))
+                  ; Funktionsdefinition ist autonom
+                  (push (cons macro (cons (list fnode) (make-const :horizont ':value :value fnode))) fenv)
+                  (progn
+                    (push (c-fnode-function fnode) anodelist)
+                    (push 1 *stackz*)
+                    (let ((var (make-var :name (gensym) :specialp nil
+                                 :constantp nil
+                                 :usedp t :for-value-usedp t :really-usedp nil
+                                 :closurep nil ; später evtl. auf T gesetzt
+                                 :stackz *stackz* :venvc *venvc*
+                         ))    )
+                      (push (cons macro (cons (list fnode) var)) fenv)
+                      (push var varlist)
+            ) ) ) ) )
+          (apply #'push-*venv* varlist) ; Hilfsvariablen aktivieren
+          (let* ((body-anode ; restliche Formen compilieren
+                   (c-form `(PROGN ,@(cddr *form*)))
+                 )
+                 (closurevars (checking-movable-var-list varlist anodelist))
+                 (anode
+                   (make-anode
+                     :type 'FUNCTION-MACRO-LET
+                     :sub-anodes `(,@anodelist ,body-anode)
+                     :seclass (seclass-without
+                                (anodelist-seclass-or `(,@anodelist ,body-anode))
+                                varlist
+                              )
+                     :code `(,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
+                             ,@(mapcap #'c-bind-movable-var-anode varlist anodelist)
+                             ,body-anode
+                             (UNWIND ,*stackz* ,oldstackz ,*for-value*)
+                   )        )
+                ))
+            (when closurevars
+              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+              (setf (first closuredummy-venvc)
+                (cons closurevars closuredummy-stackz)
+            ) )
+            (optimize-var-list varlist)
+            anode
+) ) ) ) ) )
 
 ; compiliere (CLOS:GENERIC-FLET ({genfundefs}*) {form}*)
 (defun c-GENERIC-FLET ()
