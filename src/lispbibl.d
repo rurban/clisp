@@ -596,7 +596,7 @@
    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=10684
    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14937
    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14938 */
-#if defined(GNU) && !defined(__APPLE_CC__) && !defined(__cplusplus) && !(__GNUC__ >= 3) && !defined(MULTITHREAD) && (SAFETY < 2)
+#if defined(GNU) && !defined(__APPLE_CC__) && !defined(__cplusplus) && !(__GNUC__ == 3 && __GNUC_MINOR__ < 4) && !defined(MULTITHREAD) && (SAFETY < 2)
 /* Overview of use of registers in gcc terminology:
  fixed: mentioned in FIXED_REGISTERS
  used:  mentioned in CALL_USED_REGISTERS but not FIXED_REGISTERS
