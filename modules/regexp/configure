@@ -2508,7 +2508,8 @@ echo "${ECHO_T}$rl_cv_c_void" >&6
 if test $rl_cv_c_void = yes; then
   :
 else
-  cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define void char
 _ACEOF
 
