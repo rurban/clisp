@@ -1,3 +1,9 @@
+2002-02-12  Sam Steingold  <sds@gnu.org>
+
+	* floeps.tst: new file to test float epsilons
+	based on code from Stefan Kain <smk@users.sourceforge.net>
+	* tests.lisp (run-all-tests): added "floeps"
+
 2002-02-11  Sam Steingold  <sds@gnu.org>
 
 	* alltest.tst: test (compile nil (lambda () (flet (()))))

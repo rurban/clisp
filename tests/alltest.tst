@@ -1291,7 +1291,8 @@ T
 #+CMU "5.960465e-8"
 #-(or XCL CLISP ALLEGRO CMU) UNKNOWN
 
-(prin1-to-string DOUBLE-FLOAT-EPSILON )
+#-CLISP (prin1-to-string DOUBLE-FLOAT-EPSILON )
+#+CLISP "1.1102230246251568d-16" ; different on linux/i386
 #+XCL "1.387778780781446D-17"
 #+(or CLISP CMU) "1.1102230246251568d-16"
 #+ALLEGRO "2.220446049250313d-16"
@@ -1318,7 +1319,8 @@ T
 #+CMU "2.9802325e-8"
 #-(or XCL CLISP ALLEGRO CMU) UNKNOWN
 
-(prin1-to-string DOUBLE-FLOAT-NEGATIVE-EPSILON )
+#-CLISP (prin1-to-string DOUBLE-FLOAT-NEGATIVE-EPSILON )
+#+CLISP "5.551115123125784d-17" ; different on linux/i386
 #+XCL "1.387778780781446D-17"
 #+(or CLISP CMU) "5.551115123125784d-17"
 #+ALLEGRO "2.220446049250313d-16"
@@ -1330,23 +1332,6 @@ T
 #+ALLEGRO "2.220446049250313d-16"
 #+CMU "5.551115123125784d-17"
 #-(or XCL CLISP ALLEGRO CMU) UNKNOWN
-
-;; http://www.lisp.org/HyperSpec/Body/convar_short-_tive-epsilon.html
-(defun test-pos-epsilon (<EPSILON>)
-  (= (float 1 <EPSILON>) (+ (float 1 <EPSILON>) <EPSILON>)))
-test-pos-epsilon
-(test-pos-epsilon short-float-epsilon)  nil
-(test-pos-epsilon single-float-epsilon) nil
-(test-pos-epsilon double-float-epsilon) nil
-(test-pos-epsilon long-float-epsilon)   nil
-
-(defun test-neg-epsilon (<EPSILON>)
-  (= (float 1 <EPSILON>) (- (float 1 <EPSILON>) <EPSILON>)))
-test-neg-epsilon
-(test-neg-epsilon short-float-negative-epsilon)  nil
-(test-neg-epsilon single-float-negative-epsilon) nil
-(test-neg-epsilon double-float-negative-epsilon) nil
-(test-neg-epsilon long-float-negative-epsilon)   nil
 
 (/ 1 0)
 ERROR

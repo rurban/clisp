@@ -134,6 +134,7 @@
            #-AKCL                   "characters"
            #+(or CLISP ALLEGRO CMU) "clos"
                                     "eval20"
+                                    "floeps"
                                     "format"
            #+CLISP                  "genstream"
            #+XCL                    "hash"
