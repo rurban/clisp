@@ -1982,7 +1982,14 @@ for-value   NIL or T
        (FORMAT . c-FORMAT)
        (NTH . c-NTH)
        (SYSTEM::%SETNTH . c-SETNTH)
-       ;; COMPLEMENT tricks
+       ;; Special case for LIST
+       (MAP . c-MAP)
+       (MAP-INTO . c-MAP-INTO)
+       (SOME . c-SOME)
+       (EVERY . c-EVERY)
+       (NOTANY . c-NOTANY)
+       (NOTEVERY . c-NOTEVERY)
+       ;; Special case for LIST, and COMPLEMENT tricks
        (REMOVE-IF . c-REMOVE-IF)
        (REMOVE-IF-NOT . c-REMOVE-IF-NOT)
        (DELETE-IF . c-DELETE-IF)
@@ -1997,6 +2004,7 @@ for-value   NIL or T
        (POSITION-IF-NOT . c-POSITION-IF-NOT)
        (COUNT-IF . c-COUNT-IF)
        (COUNT-IF-NOT . c-COUNT-IF-NOT)
+       ;; COMPLEMENT tricks
        (SUBST-IF . c-SUBST-IF)
        (SUBST-IF-NOT . c-SUBST-IF-NOT)
        (NSUBST-IF . c-NSUBST-IF)
@@ -6521,17 +6529,17 @@ for-value   NIL or T
           (t (c-GLOBAL-FUNCTION-CALL-form `(EQUAL ,arg1 ,arg2))))))
 
 ;; Forms the inner part of a MAPCAR/MAPC/MAPCAN/MAPCAP-Expansion
-(defun c-MAP-on-CARs-inner (innerst-fun blockname restvars
+(defun c-MAP-on-CARs-inner (innerst-fun blockname endp-value restvars
                             &optional (itemvars '()))
   (if (null restvars)
     (funcall innerst-fun (nreverse itemvars))
     (let ((restvar (car restvars))
           (itemvar (gensym)))
       `(IF (ENDP ,restvar)
-         (RETURN-FROM ,blockname)
+         (RETURN-FROM ,blockname ,endp-value)
          (LET ((,itemvar (CAR ,restvar)))
-           ,(c-MAP-on-CARs-inner innerst-fun blockname (cdr restvars)
-                                 (cons itemvar itemvars)))))))
+           ,(c-MAP-on-CARs-inner innerst-fun blockname endp-value
+                                 (cdr restvars) (cons itemvar itemvars)))))))
 
 ;; make shift forms for variables: (a b c) --> (a (cdr a) b (cdr b) c (cdr c))
 (defun shift-vars (restvars)
@@ -6552,7 +6560,8 @@ for-value   NIL or T
            ,@(case adjoin-fun ((CONS)) ((NCONC APPEND) `((,tail nil)))))
        (BLOCK ,blockname
          (LET* ,(mapcar #'list restvars forms)
-           (TAGBODY ,tag
+           (TAGBODY
+             ,tag
              ,(c-MAP-on-CARs-inner
                (case adjoin-fun
                  ((CONS)
@@ -6562,17 +6571,17 @@ for-value   NIL or T
                  ((NCONC)
                   #'(lambda (itemvars)
                       `(let ((,tmp (FUNCALL ,funform ,@itemvars)))
-                         (if (consp ,erg)
-                           (setf ,tail (last ,tail) (cdr ,tail) ,tmp)
-                           (setq ,erg ,tmp ,tail ,erg)))))
+                         (if (CONSP ,erg)
+                           (SETF ,tail (LAST ,tail) (CDR ,tail) ,tmp)
+                           (SETQ ,erg ,tmp ,tail ,erg)))))
                  ((APPEND)
                   #'(lambda (itemvars)
-                      `(let ((,tmp (copy-list-lax
-                                    (FUNCALL ,funform ,@itemvars))))
-                         (if (consp ,erg)
-                           (setf ,tail (last ,tail) (cdr ,tail) ,tmp)
-                           (setq ,erg ,tmp ,tail ,erg))))))
+                      `(let ((,tmp (COPY-LIST-LAX (FUNCALL ,funform ,@itemvars))))
+                         (if (CONSP ,erg)
+                           (SETF ,tail (LAST ,tail) (CDR ,tail) ,tmp)
+                           (SETQ ,erg ,tmp ,tail ,erg))))))
                blockname
+               'NIL
                restvars)
              (SETQ ,@(shift-vars restvars))
              (GO ,tag))))
@@ -6590,7 +6599,8 @@ for-value   NIL or T
            ,@(case adjoin-fun ((CONS)) ((NCONC APPEND) `((,tail nil)))))
        (BLOCK ,blockname
          (LET* ,(mapcar #'list restvars forms)
-           (TAGBODY ,tag
+           (TAGBODY
+             ,tag
              (IF (OR ,@(mapcar #'(lambda (restvar) `(ENDP ,restvar)) restvars))
                (RETURN-FROM ,blockname))
              ,(case adjoin-fun
@@ -6625,10 +6635,12 @@ for-value   NIL or T
           `(LET ((,tempvar ,(third *form*)))
              (BLOCK ,blockname
                (LET* ,(mapcar #'list restvars forms)
-                 (TAGBODY ,tag
+                 (TAGBODY
+                   ,tag
                    ,(c-MAP-on-CARs-inner
                      #'(lambda (itemvars) `(FUNCALL ,funform ,@itemvars))
                      blockname
+                     'NIL
                      restvars)
                    (SETQ ,@(shift-vars restvars))
                    (GO ,tag))))
@@ -6648,7 +6660,8 @@ for-value   NIL or T
           `(LET ((,tempvar ,(third *form*)))
              (BLOCK ,blockname
                (LET* ,(mapcar #'list restvars forms)
-                 (TAGBODY ,tag
+                 (TAGBODY
+                   ,tag
                    (IF (OR ,@(mapcar #'(lambda (restvar) `(ENDP ,restvar))
                                      restvars))
                      (RETURN-FROM ,blockname))
@@ -6867,11 +6880,11 @@ for-value   NIL or T
          (list (macroexpand-form (third *form*)))
          (i-val (and (c-constantp index) (c-constant-value index))))
     (if (simple-index-p i-val 'NTH)
-        (c-GLOBAL-FUNCTION-CALL-form
-         `(,(svref #(FIRST SECOND THIRD FOURTH FIFTH SIXTH SEVENTH EIGHTH
-                     NINTH TENTH) i-val)
-           ,list))
-        (c-GLOBAL-FUNCTION-CALL 'NTH))))
+      (c-GLOBAL-FUNCTION-CALL-form
+        `(,(svref #(FIRST SECOND THIRD FOURTH FIFTH SIXTH SEVENTH EIGHTH
+                    NINTH TENTH) i-val)
+          ,list))
+      (c-GLOBAL-FUNCTION-CALL-form `(NTH ,index ,list)))))
 (defun c-SETNTH ()
   (test-list *form* 4 4)
   (let* ((index (macroexpand-form (second *form*)))
@@ -6879,13 +6892,464 @@ for-value   NIL or T
          (value (macroexpand-form (fourth *form*)))
          (i-val (and (c-constantp index) (c-constant-value index))))
     (if (simple-index-p i-val '(SETF NTH))
-        (c-form
-         `(setf (,(svref #(FIRST SECOND THIRD FOURTH FIFTH SIXTH SEVENTH
-                           EIGHTH NINTH TENTH) i-val) ,list) ,value))
-        (c-GLOBAL-FUNCTION-CALL 'SYSTEM::%SETNTH))))
+      (c-form
+        `(setf (,(svref #(FIRST SECOND THIRD FOURTH FIFTH SIXTH SEVENTH
+                          EIGHTH NINTH TENTH) i-val) ,list) ,value))
+      (c-GLOBAL-FUNCTION-CALL-form `(SYSTEM::%SETNTH ,index ,list ,value)))))
 )
 
-;; c-REMOVE-IF, c-REMOVE-IF-NOT etc.
+;; Tests whether a form is declared to return a list.
+(defun declared-list-form-p (form)
+  ; For the moment, we don't propagate types, therefore the user has to
+  ; write THE explicitly.
+  (and (consp form) (eq (first form) 'THE)
+       (consp (rest form)) (member (second form) '(LIST CONS))
+       (consp (cddr form)) (null (cdddr form))))
+
+(defun c-MAP ()
+  (test-list *form* 4)
+  (let ((restype-form (second *form*))
+        (fun-form (macroexpand-form (third *form*)))
+        (forms (cdddr *form*)))
+    (if (and (c-constantp restype-form)
+             (member (c-constant-value restype-form) '(NIL LIST)) ; restype is NIL or LIST
+             (every #'declared-list-form-p forms) ; all sequences are lists
+             (inline-callable-function-p fun-form (length forms)))
+      (ecase (c-constant-value restype-form)
+        ((NIL) ; like MAPC
+         (c-form
+           (let ((blockname (gensym))
+                 (restvars (gensym-list forms))
+                 (tag (gensym)))
+             `(BLOCK ,blockname
+                (LET* ,(mapcar #'list restvars forms)
+                  (TAGBODY
+                    ,tag
+                    ,(c-MAP-on-CARs-inner
+                      #'(lambda (itemvars) `(FUNCALL ,fun-form ,@itemvars))
+                      blockname
+                      'NIL
+                      restvars)
+                    (SETQ ,@(shift-vars restvars))
+                    (GO ,tag)))))))
+         ((LIST) ; like MAPCAR
+          (c-form (c-MAP-on-CARs 'CONS fun-form forms))))
+      (c-GLOBAL-FUNCTION-CALL-form `(MAP ,restype-form ,fun-form ,@forms)))))
+
+(defun c-MAP-INTO ()
+  (test-list *form* 3)
+  (let ((res-form (second *form*))
+        (fun-form (macroexpand-form (third *form*)))
+        (forms (cdddr *form*)))
+    (if (and (declared-list-form-p res-form)
+             (every #'declared-list-form-p forms) ; all sequences are lists
+             (inline-callable-function-p fun-form (length forms)))
+      (c-form
+        (let ((blockname (gensym))
+              (resultvar (gensym))
+              (resrestvar (gensym))
+              (restvars (gensym-list forms))
+              (tag (gensym)))
+          `(LET* ((,resultvar ,res-form)
+                  (,resrestvar ,resultvar))
+             (BLOCK ,blockname
+               (LET* ,(mapcar #'list restvars forms)
+                 (TAGBODY
+                   ,tag
+                   (IF (ENDP ,resrestvar)
+                     (RETURN-FROM ,blockname NIL)
+                     ,(c-MAP-on-CARs-inner
+                       #'(lambda (itemvars)
+                           `(SETF (CAR ,resrestvar) (FUNCALL ,fun-form ,@itemvars)))
+                       blockname
+                       'NIL
+                       restvars))
+                    (SETQ ,@(shift-vars (cons resrestvar restvars)))
+                    (GO ,tag))))
+             ,resultvar)))
+      (c-GLOBAL-FUNCTION-CALL-form `(MAP-INTO ,res-form ,fun-form ,@forms)))))
+
+(defun c-SOME ()
+  (test-list *form* 3)
+  (let ((pred-form (macroexpand-form (second *form*)))
+        (forms (cddr *form*)))
+    (if (inlinable-function-operation-form-p pred-form 'COMPLEMENT)
+      ;; (SOME (COMPLEMENT fn) ...) --> (NOTEVERY fn ...)
+      (c-form `(NOTEVERY ,(second pred-form) ,@forms))
+      (if (and (every #'declared-list-form-p forms) ; all sequences are lists
+               (inline-callable-function-p pred-form (length forms)))
+        (c-form
+          (let ((restvars (gensym-list forms))
+                (blockname (gensym))
+                (tag (gensym))
+                (tmp (gensym)))
+            `(LET* ,(mapcar #'list restvars forms)
+               (BLOCK ,blockname
+                 (TAGBODY
+                   ,tag
+                   ,(c-MAP-on-CARs-inner
+                     #'(lambda (itemvars)
+                         `(LET ((,tmp (FUNCALL ,pred-form ,@itemvars)))
+                            (IF ,tmp (RETURN-FROM ,blockname ,tmp))))
+                     blockname
+                     'NIL
+                     restvars)
+                   (SETQ ,@(shift-vars restvars))
+                   (GO ,tag))))))
+        (c-GLOBAL-FUNCTION-CALL-form (list* 'SOME pred-form forms))))))
+
+(defun c-EVERY ()
+  (test-list *form* 3)
+  (let ((pred-form (macroexpand-form (second *form*)))
+        (forms (cddr *form*)))
+    (if (inlinable-function-operation-form-p pred-form 'COMPLEMENT)
+      ;; (EVERY (COMPLEMENT fn) ...) --> (NOTANY fn ...)
+      (c-form `(NOTANY ,(second pred-form) ,@forms))
+      (if (and (every #'declared-list-form-p forms) ; all sequences are lists
+               (inline-callable-function-p pred-form (length forms)))
+        (c-form
+          (let ((restvars (gensym-list forms))
+                (blockname (gensym))
+                (tag (gensym)))
+            `(LET* ,(mapcar #'list restvars forms)
+               (BLOCK ,blockname
+                 (TAGBODY
+                   ,tag
+                   ,(c-MAP-on-CARs-inner
+                     #'(lambda (itemvars)
+                         `(IF (NOT (FUNCALL ,pred-form ,@itemvars))
+                            (RETURN-FROM ,blockname NIL)))
+                     blockname
+                     'T
+                     restvars)
+                   (SETQ ,@(shift-vars restvars))
+                   (GO ,tag))))))
+        (c-GLOBAL-FUNCTION-CALL-form (list* 'EVERY pred-form forms))))))
+
+(defun c-NOTANY ()
+  (test-list *form* 3)
+  (let ((pred-form (macroexpand-form (second *form*)))
+        (forms (cddr *form*)))
+    (if (inlinable-function-operation-form-p pred-form 'COMPLEMENT)
+      ;; (NOTANY (COMPLEMENT fn) ...) --> (EVERY fn ...)
+      (c-form `(EVERY ,(second pred-form) ,@forms))
+      (if (and (every #'declared-list-form-p forms) ; all sequences are lists
+               (inline-callable-function-p pred-form (length forms)))
+        (c-form
+          (let ((restvars (gensym-list forms))
+                (blockname (gensym))
+                (tag (gensym)))
+            `(LET* ,(mapcar #'list restvars forms)
+               (BLOCK ,blockname
+                 (TAGBODY
+                   ,tag
+                   ,(c-MAP-on-CARs-inner
+                     #'(lambda (itemvars)
+                         `(IF (FUNCALL ,pred-form ,@itemvars)
+                            (RETURN-FROM ,blockname NIL)))
+                     blockname
+                     'T
+                     restvars)
+                   (SETQ ,@(shift-vars restvars))
+                   (GO ,tag))))))
+        (c-GLOBAL-FUNCTION-CALL-form (list* 'NOTANY pred-form forms))))))
+
+(defun c-NOTEVERY ()
+  (test-list *form* 3)
+  (let ((pred-form (macroexpand-form (second *form*)))
+        (forms (cddr *form*)))
+    (if (inlinable-function-operation-form-p pred-form 'COMPLEMENT)
+      ;; (NOTEVERY (COMPLEMENT fn) ...) --> (AND (SOME fn ...) T)
+      (c-form `(AND (SOME ,(second pred-form) ,@forms) 'T))
+      (if (and (every #'declared-list-form-p forms) ; all sequences are lists
+               (inline-callable-function-p pred-form (length forms)))
+        (c-form
+          (let ((restvars (gensym-list forms))
+                (blockname (gensym))
+                (tag (gensym)))
+            `(LET* ,(mapcar #'list restvars forms)
+               (BLOCK ,blockname
+                 (TAGBODY
+                   ,tag
+                   ,(c-MAP-on-CARs-inner
+                     #'(lambda (itemvars)
+                         `(IF (NOT (FUNCALL ,pred-form ,@itemvars))
+                            (RETURN-FROM ,blockname T)))
+                     blockname
+                     'NIL
+                     restvars)
+                   (SETQ ,@(shift-vars restvars))
+                   (GO ,tag))))))
+        (c-GLOBAL-FUNCTION-CALL-form (list* 'NOTEVERY pred-form forms))))))
+
+(defun c-REMOVE-IF (&optional inverted)
+  (test-list *form* 3)
+  (let ((pred-form (macroexpand-form (second *form*))))
+    (if (inlinable-function-operation-form-p pred-form 'COMPLEMENT)
+      ;; (REMOVE-IF (COMPLEMENT fn) ...) --> (REMOVE-IF-NOT fn ...)
+      ;; (REMOVE-IF-NOT (COMPLEMENT fn) ...) --> (REMOVE-IF fn ...)
+      (c-form (list* (if inverted 'REMOVE-IF 'REMOVE-IF-NOT) (second pred-form)
+                     (cddr *form*)))
+      (if (and (null (cdddr *form*)) ; no keyword arguments
+               (declared-list-form-p (third *form*)) ; sequence a list
+               (inline-callable-function-p pred-form 1))
+        (c-form
+          (let ((result1var (gensym))
+                (result2var (gensym))
+                (listvar (gensym))
+                (starttag (gensym))
+                (endtag (gensym)))
+            `(LET* ((,result1var NIL)
+                    (,result2var ,(third *form*))
+                    (,listvar ,result2var))
+               (DECLARE (LIST ,listvar))
+               (TAGBODY
+                 ,starttag
+                 (IF (ENDP ,listvar) (GO ,endtag))
+                 (IF ,(let ((test `(FUNCALL ,pred-form (CAR ,listvar))))
+                        (when inverted (setq test `(NOT ,test)))
+                        test)
+                   (PROGN
+                     (SETQ ,result1var (NRECONC (LDIFF ,result2var ,listvar) ,result1var))
+                     (SETQ ,result2var (SETQ ,listvar (CDR ,listvar))))
+                   (SETQ ,listvar (CDR ,listvar)))
+                 (GO ,starttag)
+                 ,endtag)
+               (NRECONC ,result1var ,result2var))))
+        (c-GLOBAL-FUNCTION-CALL-form
+          (list* (if inverted 'REMOVE-IF-NOT 'REMOVE-IF) pred-form
+                 (cddr *form*)))))))
+(defun c-REMOVE-IF-NOT ()
+  (c-REMOVE-IF t))
+
+(defun c-DELETE-IF (&optional inverted)
+  (test-list *form* 3)
+  (let ((pred-form (macroexpand-form (second *form*))))
+    (if (inlinable-function-operation-form-p pred-form 'COMPLEMENT)
+      ;; (DELETE-IF (COMPLEMENT fn) ...) --> (DELETE-IF-NOT fn ...)
+      ;; (DELETE-IF-NOT (COMPLEMENT fn) ...) --> (DELETE-IF fn ...)
+      (c-form (list* (if inverted 'DELETE-IF 'DELETE-IF-NOT) (second pred-form)
+                     (cddr *form*)))
+      (if (and (null (cdddr *form*)) ; no keyword arguments
+               (declared-list-form-p (third *form*)) ; sequence a list
+               (inline-callable-function-p pred-form 1))
+        (c-form
+          (let ((resultvar (gensym))
+                (lastvar (gensym))
+                (listvar (gensym))
+                (starttag (gensym))
+                (endtag (gensym)))
+            `(LET* ((,resultvar ,(third *form*))
+                    (,lastvar NIL)
+                    (,listvar ,resultvar))
+               (DECLARE (LIST ,listvar))
+               (TAGBODY
+                 ,starttag
+                 (IF (ENDP ,listvar) (GO ,endtag))
+                 (IF ,(let ((test `(FUNCALL ,pred-form (CAR ,listvar))))
+                        (when inverted (setq test `(NOT ,test)))
+                        test)
+                   (IF ,lastvar
+                     (SETF (CDR ,lastvar) (SETQ ,listvar (CDR ,listvar)))
+                     (SETQ ,resultvar (SETQ ,listvar (CDR ,listvar))))
+                   (PROGN
+                     (SETQ ,lastvar ,listvar)
+                     (SETQ ,listvar (CDR ,listvar))))
+                 (GO ,starttag)
+                 ,endtag)
+               ,resultvar)))
+        (c-GLOBAL-FUNCTION-CALL-form
+          (list* (if inverted 'DELETE-IF-NOT 'DELETE-IF) pred-form
+                 (cddr *form*)))))))
+(defun c-DELETE-IF-NOT ()
+  (c-DELETE-IF t))
+
+(defun c-SUBSTITUTE-IF (&optional inverted)
+  (test-list *form* 4)
+  (let ((pred-form (macroexpand-form (third *form*))))
+    (if (inlinable-function-operation-form-p pred-form 'COMPLEMENT)
+      ;; (SUBSTITUTE-IF y (COMPLEMENT fn) ...) --> (SUBSTITUTE-IF-NOT y fn ...)
+      ;; (SUBSTITUTE-IF-NOT y (COMPLEMENT fn) ...) --> (SUBSTITUTE-IF y fn ...)
+      (c-form (list* (if inverted 'SUBSTITUTE-IF 'SUBSTITUTE-IF-NOT)
+                     (second *form*) (second pred-form) (cdddr *form*)))
+      (if (and (null (cddddr *form*)) ; no keyword arguments
+               (declared-list-form-p (fourth *form*)) ; sequence a list
+               (inline-callable-function-p pred-form 1))
+        (c-form
+          (let ((newitemvar (gensym))
+                (result1var (gensym))
+                (result2var (gensym))
+                (listvar (gensym))
+                (starttag (gensym))
+                (endtag (gensym)))
+            `(LET* ((,newitemvar ,(second *form*))
+                    (,result1var NIL)
+                    (,result2var ,(fourth *form*))
+                    (,listvar ,result2var))
+               (DECLARE (LIST ,listvar))
+               (TAGBODY
+                 ,starttag
+                 (IF (ENDP ,listvar) (GO ,endtag))
+                 (IF ,(let ((test `(FUNCALL ,pred-form (CAR ,listvar))))
+                        (when inverted (setq test `(NOT ,test)))
+                        test)
+                   (PROGN
+                     (SETQ ,result1var (CONS ,newitemvar (NRECONC (LDIFF ,result2var ,listvar) ,result1var)))
+                     (SETQ ,result2var (SETQ ,listvar (CDR ,listvar))))
+                   (SETQ ,listvar (CDR ,listvar)))
+                 (GO ,starttag)
+                 ,endtag)
+               (NRECONC ,result1var ,result2var))))
+        (c-GLOBAL-FUNCTION-CALL-form
+          (list* (if inverted 'SUBSTITUTE-IF-NOT 'SUBSTITUTE-IF)
+                 (second *form*) pred-form (cdddr *form*)))))))
+(defun c-SUBSTITUTE-IF-NOT ()
+  (c-SUBSTITUTE-IF t))
+
+(defun c-NSUBSTITUTE-IF (&optional inverted)
+  (test-list *form* 4)
+  (let ((pred-form (macroexpand-form (third *form*))))
+    (if (inlinable-function-operation-form-p pred-form 'COMPLEMENT)
+      ;; (NSUBSTITUTE-IF y (COMPLEMENT fn) ...) --> (NSUBSTITUTE-IF-NOT y fn ...)
+      ;; (NSUBSTITUTE-IF-NOT y (COMPLEMENT fn) ...) --> (NSUBSTITUTE-IF y fn ...)
+      (c-form (list* (if inverted 'NSUBSTITUTE-IF 'NSUBSTITUTE-IF-NOT)
+                     (second *form*) (second pred-form) (cdddr *form*)))
+      (if (and (null (cddddr *form*)) ; no keyword arguments
+               (declared-list-form-p (fourth *form*)) ; sequence a list
+               (inline-callable-function-p pred-form 1))
+        (c-form
+          (let ((newitemvar (gensym))
+                (wholevar (gensym))
+                (listvar (gensym))
+                (starttag (gensym))
+                (endtag (gensym)))
+            `(LET* ((,newitemvar ,(second *form*))
+                    (,wholevar ,(fourth *form*))
+                    (,listvar ,wholevar))
+               (DECLARE (LIST ,listvar))
+               (TAGBODY
+                 ,starttag
+                 (IF (ENDP ,listvar) (GO ,endtag))
+                 (IF ,(let ((test `(FUNCALL ,pred-form (CAR ,listvar))))
+                        (when inverted (setq test `(NOT ,test)))
+                        test)
+                   (SETF (CAR ,listvar) ,newitemvar))
+                 (SETQ ,listvar (CDR ,listvar))
+                 (GO ,starttag)
+                 ,endtag)
+               ,wholevar)))
+        (c-GLOBAL-FUNCTION-CALL-form
+          (list* (if inverted 'NSUBSTITUTE-IF-NOT 'NSUBSTITUTE-IF)
+                 (second *form*) pred-form (cdddr *form*)))))))
+(defun c-NSUBSTITUTE-IF-NOT ()
+  (c-NSUBSTITUTE-IF t))
+
+(defun c-FIND-IF (&optional inverted)
+  (test-list *form* 3)
+  (let ((pred-form (macroexpand-form (second *form*))))
+    (if (inlinable-function-operation-form-p pred-form 'COMPLEMENT)
+      ;; (FIND-IF (COMPLEMENT fn) ...) --> (FIND-IF-NOT fn ...)
+      ;; (FIND-IF-NOT (COMPLEMENT fn) ...) --> (FIND-IF fn ...)
+      (c-form (list* (if inverted 'FIND-IF 'FIND-IF-NOT) (second pred-form)
+                     (cddr *form*)))
+      (if (and (null (cdddr *form*)) ; no keyword arguments
+               (declared-list-form-p (third *form*)) ; sequence a list
+               (inline-callable-function-p pred-form 1))
+        (c-form
+          (let ((listvar (gensym))
+                (blockname (gensym))
+                (starttag (gensym))
+                (elementvar (gensym)))
+            `(LET ((,listvar ,(third *form*)))
+               (DECLARE (LIST ,listvar))
+               (BLOCK ,blockname
+                 (TAGBODY
+                   ,starttag
+                   (IF (ENDP ,listvar) (RETURN-FROM ,blockname NIL))
+                   (LET ((,elementvar (CAR ,listvar)))
+                     (IF ,(let ((test `(FUNCALL ,pred-form ,elementvar)))
+                            (when inverted (setq test `(NOT ,test)))
+                            test)
+                       (RETURN-FROM ,blockname ,elementvar)))
+                   (SETQ ,listvar (CDR ,listvar))
+                   (GO ,starttag))))))
+        (c-GLOBAL-FUNCTION-CALL-form
+          (list* (if inverted 'FIND-IF-NOT 'FIND-IF) pred-form
+                 (cddr *form*)))))))
+(defun c-FIND-IF-NOT ()
+  (c-FIND-IF t))
+
+(defun c-POSITION-IF (&optional inverted)
+  (test-list *form* 3)
+  (let ((pred-form (macroexpand-form (second *form*))))
+    (if (inlinable-function-operation-form-p pred-form 'COMPLEMENT)
+      ;; (POSITION-IF (COMPLEMENT fn) ...) --> (POSITION-IF-NOT fn ...)
+      ;; (POSITION-IF-NOT (COMPLEMENT fn) ...) --> (POSITION-IF fn ...)
+      (c-form (list* (if inverted 'POSITION-IF 'POSITION-IF-NOT)
+                     (second pred-form) (cddr *form*)))
+      (if (and (null (cdddr *form*)) ; no keyword arguments
+               (declared-list-form-p (third *form*)) ; sequence a list
+               (inline-callable-function-p pred-form 1))
+        (c-form
+          (let ((indexvar (gensym))
+                (listvar (gensym))
+                (blockname (gensym))
+                (starttag (gensym)))
+            `(LET* ((,indexvar 0) (,listvar ,(third *form*)))
+               (DECLARE (INTEGER ,indexvar) (LIST ,listvar))
+               (BLOCK ,blockname
+                 (TAGBODY
+                   ,starttag
+                   (IF (ENDP ,listvar) (RETURN-FROM ,blockname NIL))
+                   (IF ,(let ((test `(FUNCALL ,pred-form (CAR ,listvar))))
+                          (when inverted (setq test `(NOT ,test)))
+                          test)
+                     (RETURN-FROM ,blockname ,indexvar))
+                   (SETQ ,indexvar (+ ,indexvar 1))
+                   (SETQ ,listvar (CDR ,listvar))
+                   (GO ,starttag))))))
+        (c-GLOBAL-FUNCTION-CALL-form
+          (list* (if inverted 'POSITION-IF-NOT 'POSITION-IF) pred-form
+                 (cddr *form*)))))))
+(defun c-POSITION-IF-NOT ()
+  (c-POSITION-IF t))
+
+(defun c-COUNT-IF (&optional inverted)
+  (test-list *form* 3)
+  (let ((pred-form (macroexpand-form (second *form*))))
+    (if (inlinable-function-operation-form-p pred-form 'COMPLEMENT)
+      ;; (COUNT-IF (COMPLEMENT fn) ...) --> (COUNT-IF-NOT fn ...)
+      ;; (COUNT-IF-NOT (COMPLEMENT fn) ...) --> (COUNT-IF fn ...)
+      (c-form (list* (if inverted 'COUNT-IF 'COUNT-IF-NOT) (second pred-form)
+                     (cddr *form*)))
+      (if (and (null (cdddr *form*)) ; no keyword arguments
+               (declared-list-form-p (third *form*)) ; sequence a list
+               (inline-callable-function-p pred-form 1))
+        (c-form
+          (let ((countervar (gensym))
+                (listvar (gensym))
+                (starttag (gensym))
+                (endtag (gensym)))
+            `(LET* ((,countervar 0) (,listvar ,(third *form*)))
+               (DECLARE (INTEGER ,countervar) (LIST ,listvar))
+               (TAGBODY
+                 ,starttag
+                 (IF (ENDP ,listvar) (GO ,endtag))
+                 (IF ,(let ((test `(FUNCALL ,pred-form (CAR ,listvar))))
+                        (when inverted (setq test `(NOT ,test)))
+                        test)
+                   (SETQ ,countervar (+ ,countervar 1)))
+                 (SETQ ,listvar (CDR ,listvar))
+                 (GO ,starttag)
+                 ,endtag)
+               ,countervar)))
+        (c-GLOBAL-FUNCTION-CALL-form
+          (list* (if inverted 'COUNT-IF-NOT 'COUNT-IF) pred-form
+                 (cddr *form*)))))))
+(defun c-COUNT-IF-NOT ()
+  (c-COUNT-IF t))
+
+;; c-SUBST-IF, c-SUBST-IF-NOT etc.
 (macrolet ((c-seqop (op n)
              (let ((op-if (intern (concatenate 'string (string op) "-IF")
                                   *lisp-package*))
@@ -6899,39 +7363,37 @@ for-value   NIL or T
                `(progn
                   (defun ,c-op-if ()
                     (test-list *form* ,(+ 1 n))
-                    (let ((pred-arg (macroexpand-form
-                                      ,(case n (2 `(second *form*))
-                                               (3 `(third *form*))))))
+                    (let ((pred-form (macroexpand-form
+                                       ,(case n (2 `(second *form*))
+                                                (3 `(third *form*))))))
                       (if (inlinable-function-operation-form-p
-                           pred-arg 'COMPLEMENT)
+                           pred-form 'COMPLEMENT)
                         ;; (op-if (complement fn) ...) --> (op-if-not fn ...)
                         (c-form ,(case n (2 `(list* ',op-if-not
-                                              (second pred-arg) (cddr *form*)))
+                                              (second pred-form) (cddr *form*)))
                                          (3 `(list* ',op-if-not (second *form*)
-                                              (second pred-arg)
+                                              (second pred-form)
                                               (cdddr *form*)))))
-                        (c-GLOBAL-FUNCTION-CALL ',op-if))))
+                        (c-GLOBAL-FUNCTION-CALL-form
+                          ,(case n (2 `(list* ',op-if pred-form (cddr *form*)))
+                                   (3 `(list* ',op-if (second *form*) pred-form (cdddr *form*))))))))
                   (defun ,c-op-if-not ()
                     (test-list *form* ,(+ 1 n))
-                    (let ((pred-arg (macroexpand-form
-                                      ,(case n (2 `(second *form*))
-                                               (3 `(third *form*))))))
+                    (let ((pred-form (macroexpand-form
+                                       ,(case n (2 `(second *form*))
+                                                (3 `(third *form*))))))
                       (if (inlinable-function-operation-form-p
-                           pred-arg 'COMPLEMENT)
+                           pred-form 'COMPLEMENT)
                         ;; (op-if-not (complement fn) ...) --> (op-if fn ...)
-                        (c-form ,(case n (2 `(list* ',op-if (second pred-arg)
+                        (c-form ,(case n (2 `(list* ',op-if (second pred-form)
                                               (cddr *form*)))
                                          (3 `(list* ',op-if (second *form*)
-                                              (second pred-arg)
+                                              (second pred-form)
                                               (cdddr *form*)))))
-                        (c-GLOBAL-FUNCTION-CALL ',op-if-not))))))))
-  (c-seqop REMOVE 2)
-  (c-seqop DELETE 2)
-  (c-seqop SUBSTITUTE 3)
-  (c-seqop NSUBSTITUTE 3)
-  (c-seqop FIND 2)
-  (c-seqop POSITION 2)
-  (c-seqop COUNT 2)
+                        (c-GLOBAL-FUNCTION-CALL-form
+                          ,(case n (2 `(list* ',op-if-not pred-form (cddr *form*)))
+                                   (3 `(list* ',op-if-not (second *form*) pred-form (cdddr *form*))))))))))))
+
   (c-seqop SUBST 3)
   (c-seqop NSUBST 3)
   (c-seqop MEMBER 2)
@@ -6974,11 +7436,12 @@ for-value   NIL or T
 
 (defun c-LDB ()
   (test-list *form* 3 3)
-  (let ((arg1 (c-constant-byte-p (macroexpand-form (second *form*)))))
+  (let* ((arg1-form (macroexpand-form (second *form*)))
+         (arg1 (c-constant-byte-p arg1-form)))
     (if arg1
       ;; We optimize (ldb (byte size position) integer) only when position = 0,
       ;; because when position > 0, the expression
-      ;; `(logand ,(1- (ash 1 size)) (ash integer ,(- position))
+      ;; `(logand ,(1- (ash 1 size)) (ash integer ,(- position)))
       ;; is not better and causes more heap allocations than the original
       ;; expression. The expression
       ;; `(ash (logand ,(ash (1- (ash 1 size)) position) integer)
@@ -6993,11 +7456,12 @@ for-value   NIL or T
           `(LOGAND ,(1- (ash 1 (byte-size arg1))) ,(third *form*)))
         (c-GLOBAL-FUNCTION-CALL-form
           `(LDB (QUOTE ,arg1) ,(third *form*))))
-      (c-GLOBAL-FUNCTION-CALL 'LDB))))
+      (c-GLOBAL-FUNCTION-CALL-form `(LDB ,arg1-form ,@(cddr *form*))))))
 
 (defun c-LDB-TEST ()
   (test-list *form* 3 3)
-  (let ((arg1 (c-constant-byte-p (macroexpand-form (second *form*)))))
+  (let* ((arg1-form (macroexpand-form (second *form*)))
+         (arg1 (c-constant-byte-p arg1-form)))
     (if arg1
       ;; The "24" below is an arbitrary limit, to avoid huge integers in
       ;; the code [e.g. for (ldb-test (byte 30000 0) x)].
@@ -7007,11 +7471,12 @@ for-value   NIL or T
            ,(third *form*)))
         (c-GLOBAL-FUNCTION-CALL-form
           `(LDB-TEST (QUOTE ,arg1) ,(third *form*))))
-      (c-GLOBAL-FUNCTION-CALL 'LDB-TEST))))
+      (c-GLOBAL-FUNCTION-CALL-form `(LDB-TEST ,arg1-form ,@(cddr *form*))))))
 
 (defun c-MASK-FIELD ()
   (test-list *form* 3 3)
-  (let ((arg1 (c-constant-byte-p (macroexpand-form (second *form*)))))
+  (let* ((arg1-form (macroexpand-form (second *form*)))
+         (arg1 (c-constant-byte-p arg1-form)))
     (if arg1
       ;; We know that for size+position <= 24, (ash (1- (ash 1 size)) position)
       ;; is a posfixnum, which makes the LOGAND operation more efficient than
@@ -7022,23 +7487,25 @@ for-value   NIL or T
             ,(third *form*)))
         (c-GLOBAL-FUNCTION-CALL-form
           `(MASK-FIELD (QUOTE ,arg1) ,(third *form*))))
-      (c-GLOBAL-FUNCTION-CALL 'MASK-FIELD))))
+      (c-GLOBAL-FUNCTION-CALL-form `(MASK-FIELD ,arg1-form ,@(cddr *form*))))))
 
 (defun c-DPB ()
   (test-list *form* 4 4)
-  (let ((arg2 (c-constant-byte-p (macroexpand-form (third *form*)))))
+  (let* ((arg2-form (macroexpand-form (third *form*)))
+         (arg2 (c-constant-byte-p arg2-form)))
     (if arg2
       (c-GLOBAL-FUNCTION-CALL-form
         `(DPB ,(second *form*) (QUOTE ,arg2) ,(fourth *form*)))
-      (c-GLOBAL-FUNCTION-CALL 'DPB))))
+      (c-GLOBAL-FUNCTION-CALL-form `(DPB ,(second *form*) ,arg2-form ,@(cdddr *form*))))))
 
 (defun c-DEPOSIT-FIELD ()
   (test-list *form* 4 4)
-  (let ((arg2 (c-constant-byte-p (macroexpand-form (third *form*)))))
+  (let* ((arg2-form (macroexpand-form (third *form*)))
+         (arg2 (c-constant-byte-p arg2-form)))
     (if arg2
       (c-GLOBAL-FUNCTION-CALL-form
         `(DEPOSIT-FIELD ,(second *form*) (QUOTE ,arg2) ,(fourth *form*)))
-      (c-GLOBAL-FUNCTION-CALL 'DEPOSIT-FIELD))))
+      (c-GLOBAL-FUNCTION-CALL `(DEPOSIT-FIELD ,(second *form*) ,arg2-form ,@(cdddr *form*))))))
 
 
 
