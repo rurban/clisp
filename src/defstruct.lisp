@@ -1035,14 +1035,11 @@
                                      (if i (nth i slotdefaultvars) nil))))
                              slotlist))
                  (LIST
-                   ,@(mapcan #'(lambda (directslot)
-                                 (if directslot
-                                   (list
-                                     (clos::make-load-form-<structure-direct-slot-definition>
-                                       directslot
-                                       (let ((i (position directslot slotdefaultdirectslots)))
-                                         (if i (nth i slotdefaultvars) nil))))
-                                   '()))
+                   ,@(mapcar #'(lambda (directslot)
+                                 (clos::make-load-form-<structure-direct-slot-definition>
+                                   directslot
+                                   (let ((i (position directslot slotdefaultdirectslots)))
+                                     (if i (nth i slotdefaultvars) nil))))
                              directslotlist)))
               `(CLOS::UNDEFINE-STRUCTURE-CLASS ',name)))
          ,@(if (and named-option predicate-option)
