@@ -1319,7 +1319,7 @@ letters:
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(NOT)</literal></entry>
-      <entry>Inlined call to &not;.</entry>
+      <entry>Inlined call to &not-f;.</entry>
       <entry>&value1; := not(&value1;), &mv-count; := 1.</entry></row>
  <row><entry><literal role="sexp">(EQ)</literal></entry>
       <entry>Inlined call to &eq;.</entry>
