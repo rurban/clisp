@@ -2111,6 +2111,7 @@ LISPFUNN(foreign_address_value,1) {
   if (fvariablep(arg)) arg = TheFvariable(arg)->fv_address;
   else if (ffunctionp(arg)) arg = TheFfunction(arg)->ff_address;
   if (faddressp(arg)) value1 = UL_to_I((uintP)Faddress_value(arg));
+  else if (fpointerp(arg)) value1 = UL_to_I((uintP)Fpointer_value(arg));
   else {
     pushSTACK(arg);
     pushSTACK(TheSubr(subr_self)->name);
