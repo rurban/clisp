@@ -1,5 +1,12 @@
 2004-10-09  Bruno Haible  <bruno@clisp.org>
 
+	Warn about invalid print-object methods.
+	* clos-print.lisp (*print-object-method-warning*): New variable.
+	(print-object-method-warning): New function.
+	(compute-effective-method@(eql #'print-object)): New method.
+
+2004-10-09  Bruno Haible  <bruno@clisp.org>
+
 	* clos-print.lisp (print-object): Return the object as value of all
 	methods, as required by ANSI CL.
 	* condition.lisp (print-object@simple-condition, print-object@restart):

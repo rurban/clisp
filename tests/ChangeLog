@@ -1,5 +1,9 @@
 2004-10-09  Bruno Haible  <bruno@clisp.org>
 
+	* clos.tst: Add test for invalid print-object methods warning.
+
+2004-10-09  Bruno Haible  <bruno@clisp.org>
+
 	* mop.tst: Add tests for print-object on uninitialized metaobjects.
 
 2004-10-07  Bruno Haible  <bruno@clisp.org>
