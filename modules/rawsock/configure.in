@@ -51,6 +51,7 @@ if test "$ac_cv_search_socket" = "no"; then
 fi
 AC_CHECK_FUNCS(socketpair recvmsg sendmsg)
 CL_POLL
+CL_SELECT
 
 AC_MSG_NOTICE([* RAWSOCK (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
