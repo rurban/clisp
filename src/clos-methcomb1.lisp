@@ -25,7 +25,7 @@
 ;; A structure definition is to be preferred, otherwise the compiled
 ;; load fails on type tests as the class can't be defined early enough
 ;; in the file.
-(defstruct (method-combination) ; (:print-object print-method-combination)
+(defstruct (method-combination) ; (:print-object print-object-<method-combination>)
   "The method-combination class models all method combination.
 The variations are handled by binding the expander function to the instance
 and pairing the method-combination definition object with the option list
@@ -66,6 +66,6 @@ in the generic function instance."
   ;; The following slots depend on the particular generic function.
   (options nil))                ; arguments for the method combination
 
-(defun print-method-combination (object stream)
+(defun print-object-<method-combination> (object stream)
   (print-unreadable-object (object stream :identity t :type t)
     (write (method-combination-name object) :stream stream)))

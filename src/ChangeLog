@@ -1,5 +1,11 @@
 2004-06-08  Bruno Haible  <bruno@clisp.org>
 
+	* clos-methcomb1.lisp (print-object-<method-combination>): Renamed from
+	print-method-combination.
+	* clos-print.lisp (print-object): Update.
+
+2004-06-08  Bruno Haible  <bruno@clisp.org>
+
 	* clos-methcomb1.lisp (method-combination): Reorder slots.
 	* clos-methcomb2.lisp (define-method-combination): Don't set
 	:identity-with-one-argument with long-form method-combination.
