@@ -357,77 +357,68 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
       }
     }
 
-# Startet einen untergeordneten Driver (Read-Eval-Print-Loop)
-# break_driver(continuable);
-# > continuable: Flag, ob nach Beendigung des Drivers fortgefahren werden kann.
-# can trigger GC
-  global void break_driver (object continuable);
-  global void break_driver(continuable)
-    var object continuable;
-    {
-      pushSTACK(continuable);
-      var object driverfun = Symbol_value(S(break_driver)); # Wert von *BREAK-DRIVER*
-      if (!nullp(driverfun)) {
-        pushSTACK(STACK_0); funcall(driverfun,1); # mit Argument continuable aufrufen
-        if (nullp(popSTACK())) # nicht continuable?
-          reset(); # -> dann zur nächsten Schleife zurück
-      } else {
-        # Default-Driver:
-        # (CLEAR-INPUT *DEBUG-IO*) ausführen (weil das, was der Benutzer bisher
-        # getippt hat, sicher nicht in Erwartung des Errors getippt wurde):
-        clear_input(var_stream(S(debug_io),strmflags_rd_ch_B|strmflags_wr_ch_B));
-        # SYS::*BREAK-COUNT* erhöhen:
-        dynamic_bind(S(break_count),fixnum_inc(Symbol_value(S(break_count)),1));
-        if (!posfixnump(Symbol_value(S(break_count)))) # sollte ein Fixnum >=0 sein
-          Symbol_value(S(break_count)) = Fixnum_0; # sonst Notkorrektur
-        # *STANDARD-INPUT* und *STANDARD-OUTPUT* an *DEBUG-IO* binden:
-        {
-          var object stream = var_stream(S(debug_io),strmflags_rd_ch_B|strmflags_wr_ch_B);
-          dynamic_bind(S(standard_input),stream);
-          dynamic_bind(S(standard_output),stream);
-        }
-        dynamic_bind(S(print_escape),T); # bind *PRINT-ESCAPE* to T
-        dynamic_bind(S(print_readably),NIL); # bind *PRINT-READABLY* to NIL
-        # Prompt aufbauen:
-        {
-          # (format nil "~S. Break> " SYS::*BREAK-COUNT*)
-          #   ==
-          # (with-output-to-string (s)
-          #   (prin1 SYS::*BREAK-COUNT* s) (write-string ". Break> " s)
-          # )
-          #   ==
-          # (let ((s (make-string-output-stream)))
-          #   (prin1 SYS::*BREAK-COUNT* s) (write-string ". Break> " s)
-          #   (get-output-stream-string s)
-          # )
-          pushSTACK(make_string_output_stream());
-          prin1(&STACK_0,Symbol_value(S(break_count)));
-          write_sstring(&STACK_0,O(breakprompt_string));
-          STACK_0 = get_output_stream_string(&STACK_0);
-        }
-        # Driver-Frame aufbauen:
-        {
-          var object* top_of_frame = STACK; # Pointer übern Frame
-          var sp_jmp_buf returner; # Rücksprungpunkt merken
-          finish_entry_frame(DRIVER,&!returner,,;);
-          # Hier ist der Einsprungpunkt.
-          loop {
-            # (SYS::READ-EVAL-PRINT Prompt) ausführen:
-            pushSTACK(STACK_(0+2)); # Prompt "nnn. Break> "
-            funcall(L(read_eval_print),1);
-            if (eq(value1,T)) # EOF gelesen -> Schleife beenden
-              break;
-          }
-          if (nullp(STACK_(0+4*3+1+2))) { # nicht continuable?
-            unwind(); reset(); # -> dann zur nächsten Schleife zurück
-          }
-          skipSTACK(1+2); # Driver-Frame auflösen, Prompt vergessen
-          dynamic_unbind(); dynamic_unbind(); dynamic_unbind();
-          dynamic_unbind(); dynamic_unbind();
-          skipSTACK(1);
-        }
-      }
+/* Starts a secondary driver (Read-Eval-Print-Loop)
+ break_driver(continuable_p);
+ > continuable_p == can be continued after the driver finishes
+ can trigger GC */
+global void break_driver (bool continuable_p) {
+  var object driverfun = Symbol_value(S(break_driver)); /* *BREAK-DRIVER* */
+  if (!nullp(driverfun)) {
+    pushSTACK(continuable_p ? T : NIL);
+    funcall(driverfun,1); /* call with CONTINUABLE argument */
+    if (!continuable_p) /* not continuable? */
+      reset(); /* -> back to the previous REPLoop */
+  } else {
+    /* Default-Driver: (CLEAR-INPUT *DEBUG-IO*), since whatever has been
+       typed so far, was not typed in anticipation of this error */
+    clear_input(var_stream(S(debug_io),strmflags_rd_ch_B|strmflags_wr_ch_B));
+    /* SYS::*BREAK-COUNT* increase: */
+    dynamic_bind(S(break_count),fixnum_inc(Symbol_value(S(break_count)),1));
+    if (!posfixnump(Symbol_value(S(break_count)))) /* should be Fixnum >=0 */
+      Symbol_value(S(break_count)) = Fixnum_0; /* oops - fix it! */
+    { /* bind *STANDARD-INPUT* and *STANDARD-OUTPUT* to *DEBUG-IO* */
+      var object stream =
+        var_stream(S(debug_io),strmflags_rd_ch_B|strmflags_wr_ch_B);
+      dynamic_bind(S(standard_input),stream);
+      dynamic_bind(S(standard_output),stream);
     }
+    dynamic_bind(S(print_escape),T); # bind *PRINT-ESCAPE* to T
+    dynamic_bind(S(print_readably),NIL); # bind *PRINT-READABLY* to NIL
+    { /* make prompt:
+         (format nil "~S. Break> " SYS::*BREAK-COUNT*)
+         ==
+         (with-output-to-string (s)
+           (prin1 SYS::*BREAK-COUNT* s) (write-string ". Break> " s))
+         ==
+         (let ((s (make-string-output-stream)))
+           (prin1 SYS::*BREAK-COUNT* s) (write-string ". Break> " s)
+           (get-output-stream-string s)) */
+      pushSTACK(make_string_output_stream());
+      prin1(&STACK_0,Symbol_value(S(break_count)));
+      write_sstring(&STACK_0,O(breakprompt_string));
+      STACK_0 = get_output_stream_string(&STACK_0);
+    }
+    { /* make driver-frame: */
+      var object* top_of_frame = STACK; /* pointer over frame */
+      var sp_jmp_buf returner; /* return point */
+      finish_entry_frame(DRIVER,&!returner,,;);
+      /* re-entry point is here */
+      loop {
+        /* (SYS::READ-EVAL-PRINT Prompt) */
+        pushSTACK(STACK_(0+2)); /* Prompt "nnn. Break> " */
+        funcall(L(read_eval_print),1);
+        if (eq(value1,T)) /* EOF -> finish loop */
+          break;
+      }
+      if (!continuable_p) { /* not continuable? */
+        unwind(); reset(); /* -> back to the previous REPLoop */
+      }
+      skipSTACK(1+2); /* dissolve driver frame, forget prompt */
+      dynamic_unbind(); dynamic_unbind(); dynamic_unbind();
+      dynamic_unbind(); dynamic_unbind();
+    }
+  }
+}
 
 LISPFUNN(load,1)
 # (LOAD filename), primitivere Version als in CLTL S. 426

@@ -403,7 +403,7 @@ LISPFUNN(subr_info,1)
                   var object values;
                   mv_to_list(); values = popSTACK(); # pack values into list
                   dynamic_bind(S(trace_values),values); # bind *TRACE-VALUES*
-                  break_driver(T); # call Break-Driver
+                  break_driver(true); /* call break-driver */
                   list_to_mv(Symbol_value(S(trace_values)), # build values again
                              fehler_mv_zuviel(framecode(STACK_(0+3))==TRAPPED_EVAL_frame_info
                                               ? S(eval)
