@@ -26,10 +26,7 @@
  <title>&clisp; version @VERSION@</title>
  <subtitle>Platform: @PLATFORM@</subtitle>
  <date>Last modified: @TODAY@</date>
- <author id="bruno"><honorific>Dr</honorific> <firstname>Bruno</firstname>
-  <surname>Haible</surname></author>
- <author id="sds"><honorific>Dr</honorific> <firstname>Sam</firstname>
-  <surname>Steingold</surname></author>
+ &bruno; &sds;
  <authorblurb><para>Bugs in both this manual page and &clisp; itself
    should be reported to the mailing list &clisp-list;.</para></authorblurb>
  <copyright><year>1992-2004</year><holder>Bruno Haible</holder></copyright>
@@ -718,8 +715,8 @@ following information:</para>
 
 <refsection id="authors"><title>CLISP Authors</title>
 
-<para>&clisp; project was started in late 1980-ies by Bruno Haible and
- Michael Stoll, both in Germany.</para>
+<para>&clisp; project was started in late 1980-ies by &bruno; and
+ &stoll;, both in Germany.</para>
 
 <para>See <ulink url="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/clisp/clisp/COPYRIGHT?rev=HEAD&amp;content-type=text/plain">COPYRIGHT</ulink>
 for the list of other contributors and the license.</para>
