@@ -25,6 +25,7 @@
 
 <refentryinfo>
  <title>&clisp; version @VERSION@</title>
+ <subtitle>Platform: @PLATFORM@</subtitle>
  <date>Last modified: @TODAY@</date>
  <author id="bruno"><honorific>Dr</honorific> <firstname>Bruno</firstname>
   <surname>Haible</surname></author>
