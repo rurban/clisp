@@ -396,8 +396,9 @@ Use the "ulimit -s" command to increase it.
 
 On PC 386 under FreeBSD 4.0:
 
-gcc 2.95.2 miscompiles io.d at optimization level -O2. Replace -O2 with -O
-in the CFLAGS in the makefile.
+gcc 2.95.2 miscompiles the streamp() macro in (at least) io.d at optimization
+level -O2. Replace -O2 with -O in the CFLAGS in the makefile. This is fixed in
+gcc-3.3.1.
 
 
 On BSDI 1.0:
