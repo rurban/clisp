@@ -2194,10 +2194,7 @@ global object test_stringsymchar_arg (object obj) {
     return new_string;
   }
   /* (VECTOR NIL) is a string, so #A(NIL (0)) is acceptable instead of "" */
-  if (vectorp(obj)
-      && (Array_type(obj) == Array_type_nilvector ||
-          Array_type(obj) == Array_type_snilvector)
-      && (vector_length(obj) == 0))
+  if (nil_vector_0_p(obj))
     return O(empty_string);
   pushSTACK(NIL); /* no PLACE */
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
