@@ -215,8 +215,7 @@
                                    ; mit Hilfsvariablen fürs Destructuring
         (*last-it* nil) ; Variable, die das letzte Test-Ergebnis ("it") enthält
         (acculist-var nil) ; Akkumulationsvariable für collect, append etc.
-        (taillist-var nil) ; Akkumulationsvariable für collect, append etc.
-        (accu-tails nil)        ; alist of (accu-var . tail-var)
+        (accuvar-tailvar-alist nil) ; alist of (accu-var . tail-var)
         (accunum-var nil) ; Akkumulationsvariable für count, sum etc.
         (accu-vars-nil nil) ; Akkumulationsvariablen mit Initialwert NIL
         (accu-vars-0 nil) ; Akkumulationsvariablen mit Initialwert 0
@@ -228,6 +227,7 @@
         (stepbefore-code nil) ; Code zum Abbruch vor dem Schleifendurchlauf (umgedrehte Liste)
         (main-code nil) ; Code im Hauptteil der Schleife (umgedrehte Liste)
         (stepafter-code nil) ; Code zur Vorbereitung des nächsten Schleifendurchlaufs (umgedrehte Liste)
+        (accu-vars-nreverse nil) ; Akkumulationsvariablen, die am Schluss umzudrehen sind
         (finally-code nil) ; finally-Code (umgedrehte Liste)
         (results nil) ; Liste von Ergebnisformen (höchstens eine!)
        )
@@ -330,47 +330,59 @@
                (case kw
                  ((COLLECT COLLECTING APPEND APPENDING NCONC NCONCING)
                   (pop body-rest)
+                  ; It seems permitted to write
+                  ;   (loop ...  collect i into c  collect (copy-list c))
+                  ; Therefore we must use forward-consing collection
+                  ; (keeping the tail in a separate variable) if the accumulation
+                  ; variable is named, and can use the more efficient backward-
+                  ; consing (with nreverse at the end) only for unnamed accumulation.
                   (let ((form (parse-form-or-it kw))
-                        (accuvar nil) (tailvar nil)
-                        (com (case kw
-                               ((COLLECT COLLECTING) 'CONS)
-                               ((APPEND APPENDING) 'APPEND)
-                               ((NCONC NCONCING) 'NCONC))))
+                        (accuvar nil)
+                        (accufuncsym
+                          (case kw
+                            ((COLLECT COLLECTING) 'CONS)
+                            ((APPEND APPENDING) 'REVAPPEND)
+                            ((NCONC NCONCING) 'NRECONC))))
                     (when (parse-kw-p 'into)
                       (unless (and (consp body-rest)
                                    (symbolp (setq accuvar (pop body-rest))))
                         (loop-syntax-error 'into)))
                     (if accuvar
-                        (setq tailvar
-                              (cdr (or (assoc accuvar accu-tails)
-                                       (car (setq accu-tails
-                                                  (acons accuvar
-                                                         (gensym (symbol-name
-                                                                  accuvar))
-                                                         accu-tails))))))
+                      ; Named accumulation variable -> forward-consing.
+                      (let ((tailvar
+                              (cdr (or (assoc accuvar accuvar-tailvar-alist)
+                                       (car (setq accuvar-tailvar-alist
+                                                  (acons accuvar (gensym (symbol-name accuvar))
+                                                         accuvar-tailvar-alist))))))
+                            (incrementvar (gensym)))
+                        (push accuvar accu-vars-nil)
+                        (push tailvar accu-vars-nil)
+                        `(LET ((,incrementvar
+                                ,(ecase accufuncsym
+                                   (CONS `(LIST ,form))
+                                   (REVAPPEND `(COPY-LIST ,form))
+                                   (NRECONC `,form))))
+                           (IF ,accuvar
+                             ,(case accufuncsym
+                                (CONS `(SETF ,tailvar (SETF (CDR ,tailvar) ,incrementvar)))
+                                (t `(SETF ,tailvar (LAST (RPLACD ,tailvar ,incrementvar))))
+                              )
+                             ,(case accufuncsym
+                                (CONS `(SETF ,tailvar (SETF ,accuvar ,incrementvar)))
+                                (t `(SETF ,tailvar (LAST (SETF ,accuvar ,incrementvar))))
+                              )
+                         ) )
+                      )
+                      ; Unnamed accumulation variable -> backward-consing.
+                      (progn
                         (setq accuvar
-                          (or acculist-var (setq acculist-var (gensym)))
-                              tailvar
-                              (or taillist-var (setq taillist-var
-                                                     (gensym (symbol-name
-                                                              accuvar))))
-                              results (cons accuvar results)))
-                    (pushnew accuvar accu-vars-nil)
-                    (pushnew tailvar accu-vars-nil)
-                    (case com
-                      (cons `(if ,accuvar
-                              (setf (cdr ,tailvar) (list ,form)
-                               ,tailvar (cdr ,tailvar))
-                              (setq ,tailvar (list ,form) ,accuvar ,tailvar)))
-                      (nconc `(if ,accuvar
-                               (setf (cdr ,tailvar) ,form
-                                ,tailvar (last ,tailvar))
-                               (setq ,accuvar ,form ,tailvar (last ,accuvar))))
-                      (append `(if ,accuvar
-                                (setf (cdr ,tailvar) (copy-list ,form)
-                                 ,tailvar (last ,tailvar))
-                                (setq ,accuvar (copy-list ,form)
-                                 ,tailvar (last ,accuvar)))))))
+                              (or acculist-var (setq acculist-var (gensym)))
+                        )
+                        (push accuvar accu-vars-nil)
+                        (push `(SYS::LIST-NREVERSE ,accuvar) results)
+                        `(SETQ ,accuvar (,accufuncsym ,form ,accuvar))
+                      )
+                 )) )
                  ((COUNT COUNTING SUM SUMMING MAXIMIZE MAXIMIZING
                    MINIMIZE MINIMIZING)
                   (pop body-rest)
@@ -403,9 +415,9 @@
                     ) ) ) )
                     (case kw
                       ((MAXIMIZE MAXIMIZING MINIMIZE MINIMIZING)
-                       (pushnew accuvar accu-vars-nil))
+                       (push accuvar accu-vars-nil))
                       ((COUNT COUNTING SUM SUMMING)
-                       (pushnew accuvar accu-vars-0)))
+                       (push accuvar accu-vars-0)))
                     (case kw
                       ((COUNT COUNTING) `(WHEN ,form (INCF ,accuvar)))
                       ((SUM SUMMING) `(SETQ ,accuvar (+ ,accuvar ,form)))
@@ -1106,8 +1118,9 @@
             :specform 'LET
             :bindings
               `(,@(map 'list #'(lambda (var) `(,var NIL)) *helpvars*)
-                ,@(mapcar #'(lambda (var) `(,var NIL)) accu-vars-nil)
-                ,@(mapcar #'(lambda (var) `(,var 0)) accu-vars-0))
+                ,@(mapcar #'(lambda (var) `(,var NIL)) (delete-duplicates accu-vars-nil))
+                ,@(mapcar #'(lambda (var) `(,var 0)) (delete-duplicates accu-vars-0))
+               )
             :declspecs
               (nreverse accu-declarations)
           )
@@ -1152,6 +1165,9 @@
                      ,@(if stepafter-code `((PROGN ,@(nreverse stepafter-code))))
                      (GO BEGIN-LOOP)
                      END-LOOP
+                     ,@(mapcar #'(lambda (var) `(SETQ ,var (SYS::LIST-NREVERSE ,var)))
+                               accu-vars-nreverse
+                       )
                      (MACROLET ((LOOP-FINISH () (LOOP-FINISH-WARN) '(GO END-LOOP)))
                        ,@(nreverse finally-code)
                  ) ) )
