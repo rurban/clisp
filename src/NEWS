@@ -85,6 +85,7 @@ User visible changes
       MAP-DEPENDENTS.
     New customizable generic functions
       ADD-DEPENDENT, REMOVE-DEPENDENT, UPDATE-DEPENDENT.
+  See <http://clisp.cons.org/impnotes.html#mop-chap> for details.
 
 * Several new datatypes that manage weak references:
     WEAK-LIST, WEAK-AND-RELATION, WEAK-OR-RELATION,
