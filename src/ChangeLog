@@ -1,3 +1,9 @@
+1999-06-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * describe.lsp (describe-object): Put back i18n call around
+          punctuation strings.
+        * socket.d (resolve_host_ipaddr): Likewise.
+
 1999-06-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d, genclisph.d: Prepare for __GNUC__ == 3.
