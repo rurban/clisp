@@ -130,6 +130,8 @@ global void nobject_out (FILE* out, object obj) {
     nobject_out(out,TheFsubr(obj)->name);
     fputc('>',out);
   } else if (fixnump(obj)) fprintf(out,"%d",fixnum_to_L(obj));
+  else if (varobjectp(obj))
+    fprintf(out,"#<varobject type=%d>",varobject_type(TheVarobject(obj)));
   else NOTREACHED; /* FIXME */
 }
 
