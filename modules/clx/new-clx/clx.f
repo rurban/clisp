@@ -4135,7 +4135,6 @@ sorry:
    http://article.gmane.org/gmane.lisp.clisp.general/7587  */
 void dump_image (XImage *image)
 { /* test function to print the contents of the bitmap */
-  char *row;
   int x, y;
   int height = image->height;
   int width  = image->width;
@@ -4145,16 +4144,13 @@ void dump_image (XImage *image)
          ((char*[]){"bitmap","xy-pixmap","z-pixmap"})[image->format],
          width,height,image->depth,line_len,image->bitmap_pad);
   for (y = 0; y < height; y++) {
+    char * row = image->data + y * line_len;
     printf(";|");
-    row = image->data + y * line_len;
-    for (x = 0; x < width; x++) {
-      if (row[x / 8] & (1 << (x % 8)))
-        printf("*");
-      else
-        printf(" ");
-    }
+    for (x = 0; x < width; x++)
+      printf( (row[x / 8] & (1 << (x % 8))) ? "*" : " ");
     printf("|\n");
   }
+  fflush(stdout);
 }
 #define DUMP_IMAGE(im) dump_image(im)
 #else
