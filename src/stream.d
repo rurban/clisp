@@ -10166,7 +10166,8 @@ local char * strip_white (char *string) {
         pushSTACK(allocate_handle(stdout_handle));
         pushSTACK(allocate_handle(stdin_handle));
         var object stream =
-          allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_unbuffered_extrafields_struct));
+          allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,
+                          sizeof(strm_unbuffered_extrafields_struct));
         # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
         # und füllen:
         stream_dummy_fill(stream);
@@ -10253,7 +10254,8 @@ local char * strip_white (char *string) {
           pushSTACK(allocate_handle(stdin_handle));
           # neuen Stream allozieren:
           var object stream =
-            allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_unbuffered_extrafields_struct));
+            allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,
+                            sizeof(strm_unbuffered_extrafields_struct));
             # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
           # und füllen:
           stream_dummy_fill(stream);
@@ -10290,7 +10292,8 @@ local char * strip_white (char *string) {
           pushSTACK(allocate_handle(stdin_handle));
           # neuen Stream allozieren:
           var object stream =
-            allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_unbuffered_extrafields_struct));
+            allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,
+                            sizeof(strm_unbuffered_extrafields_struct));
             # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
           # und füllen:
           stream_dummy_fill(stream);
@@ -10322,7 +10325,8 @@ local char * strip_white (char *string) {
           pushSTACK(allocate_handle(stdin_handle));
           # neuen Stream allozieren:
           var object stream =
-            allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,sizeof(strm_unbuffered_extrafields_struct));
+            allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,
+                            sizeof(strm_unbuffered_extrafields_struct));
             # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
           # und füllen:
           stream_dummy_fill(stream);
@@ -10995,28 +10999,18 @@ LISPFUNN(window_cursor_off,1)
 
 
 # console is a kind of channel stream
-# extra fields in strm_other
-#define strm_console_attrib     strm_other[3]  # attribute index in array
-#define strm_console_size       strm_other[6]  # (uintL)COORD
-#define strm_console_cursor_pos strm_other[7]  # (uintL)COORD
 
-# helpers
-#define UnwrapCoord(obj)  unwrap_coord(posfixnum_to_L(obj))
-#define WrapCoord(coord) fixnum(*((uintL*)&coord))
-
-# accessors that can be used at the Right Side
-#define ConsolePosR(stream)    UnwrapCoord(TheStream(stream)->strm_console_cursor_pos)
-#define ConsoleSizeR(stream)   UnwrapCoord(TheStream(stream)->strm_console_size)
-#define ConsoleAttribR(stream) posfixnum_to_L(TheStream(stream)->strm_console_attrib)
+# accessor that can be used at the Right Side
 #define ConsoleHandleR(stream) TheHandle(TheStream(stream)->strm_ochannel)
 
-# accessors that can be used for field assignment
-#define ConsolePosS(stream,value)    TheStream(stream)->strm_console_cursor_pos = WrapCoord(value)
-#define ConsoleSizeS(stream,value)   TheStream(stream)->strm_console_size = WrapCoord(value)
-#define ConsoleAttribS(stream,value) TheStream(stream)->strm_console_attrib = fixnum(value)
-#define ConsoleHandleS(stream,value) TheStream(stream)->strm_ochannel = allocate_handle(value)
+typedef struct win32_console_extrafields_struct {
+ strm_channel_extrafields_struct channel_fields;
+ COORD cursor_position;
+ COORD console_size;
+ WORD  attribute;
+} win32_console_extrafields_struct;
 
-
+#define ConsoleData(stream) ((win32_console_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)
 
 # The following attribute constants are defined in the <wincon.h> header file:
 # FOREGROUND_BLUE
@@ -11045,12 +11039,6 @@ local WORD attr_table[5] = {
   BACKGROUND_BLUE
   | FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_RED
 };
-
-local COORD unwrap_coord (uintL coord_as_uintl) {
-  var COORD rv = *((COORD *)&coord_as_uintl);
-  return rv;
-}
-
 
 local void move_ccp_by(COORD *pos,COORD sz,int by) {
   int linear_ccp = pos->Y * sz.X + pos->X;
@@ -11140,7 +11128,6 @@ local uintW v_put(HANDLE handle,uintW ch,COORD *pos,COORD sz,uintW attr) {
     pos->Y += 1;
     pos->Y %= sz.Y;
     pos->X = 0;
-    SetConsoleCursorPosition(handle,*pos);
   } else {
     CHAR_INFO c;
     SMALL_RECT rto;
@@ -11154,7 +11141,6 @@ local uintW v_put(HANDLE handle,uintW ch,COORD *pos,COORD sz,uintW attr) {
     p1.X = 1; p1.Y = 1;
     WriteConsoleOutput(handle,&c,p1,p0,&rto);
     move_ccp_by(pos,sz,1);
-    SetConsoleCursorPosition(handle,*pos);
   }
   return ch;
 }
@@ -11213,9 +11199,9 @@ local void v_puts(HANDLE handle,char *s,COORD *pos,COORD sz,uintW attr) {
 local void wr_ch_array_window (const object* stream_,const object* chararray_,
                                uintL start,uintL len) {
   var Handle handle = ConsoleHandleR(*stream_);
-  var COORD  pos    = ConsolePosR(*stream_);
-  var COORD  sz     = ConsoleSizeR(*stream_);
-  var uintW  attr   = attr_table[ConsoleAttribR(*stream_)];
+  var COORD  pos    = ConsoleData(*stream_)->cursor_position;
+  var COORD  sz     = ConsoleData(*stream_)->console_size;
+  var uintW  attr   = attr_table[ConsoleData(*stream_)->attribute];
   var uintL end = start + len;
   var uintL index = start;
   var uintL strindex = 0;
@@ -11255,11 +11241,11 @@ local void wr_ch_array_window (const object* stream_,const object* chararray_,
     char_str[mbpos] = chart_str[mbpos];
   char_str[mbpos] = 0;
   CharToOem(char_str,char_str);
-  v_puts(handle,char_str,pos,sz,attr);
+  v_puts(handle,char_str,&pos,sz,attr);
 #endif
   free(chart_str);
   SetConsoleCursorPosition(handle,pos);
-  ConsolePosS(*stream_,pos);
+  ConsoleData(*stream_)->cursor_position = pos;
 }
 
 # UP: Ein Zeichen auf einen Window-Stream ausgeben.
@@ -11268,9 +11254,9 @@ local void wr_ch_array_window (const object* stream_,const object* chararray_,
 # > ch: auszugebendes Zeichen
 local void wr_ch_window (const object* stream_, object ch) {
   var Handle handle = ConsoleHandleR(*stream_);
-  var COORD  pos    = ConsolePosR(*stream_);
-  var COORD  sz     = ConsoleSizeR(*stream_);
-  var uintW  attr   = attr_table[ConsoleAttribR(*stream_)];
+  var COORD  pos    = ConsoleData(*stream_)->cursor_position;
+  var COORD  sz     = ConsoleData(*stream_)->console_size;
+  var uintW  attr   = attr_table[ConsoleData(*stream_)->attribute];
   if (!charp(ch)) # ch must be a character
     fehler_wr_char(*stream_,ch);
   var chart c = char_code(ch);
@@ -11292,14 +11278,15 @@ local void wr_ch_window (const object* stream_, object ch) {
   CharToOemBuff((char *)&c,(char *)&c,1);
 #endif
   v_put(handle,as_cint(c),&pos,sz,attr);
-  ConsolePosS(*stream_,pos);
+  SetConsoleCursorPosition(handle,pos);
+  ConsoleData(*stream_)->cursor_position = pos;
 }
 
 LISPFUNN(make_window,0)
   {
     var object stream =
       allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_channel_len,
-            sizeof(strm_channel_extrafields_struct));
+                      sizeof(win32_console_extrafields_struct));
     var HANDLE handle =
       CreateConsoleScreenBuffer(GENERIC_READ|GENERIC_WRITE,
                                 0,
@@ -11324,14 +11311,18 @@ LISPFUNN(make_window,0)
     var Stream s = TheStream(stream);
     s->strm_wr_ch       = P(wr_ch_window);       # WRITE-CHAR-Pseudofunktion
     s->strm_wr_ch_array = P(wr_ch_array_window); # WRITE-CHAR-SEQUENCE-Pseudofunktion
+    #ifdef UNICODE
     s->strm_encoding    = O(terminal_encoding);
+    #else
+    s->strm_encoding    = NIL;
+    #endif
     s->strm_isatty      = NIL;
     s->strm_ichannel    = NIL;
-    ConsoleHandleS(stream,handle);
-    ConsolePosS(stream,console_pos);
-    ConsoleAttribS(stream,0);
-    ConsoleSizeS(stream,console_size);
+    TheStream(stream)->strm_ochannel = allocate_handle(handle);
     # non GCted fields
+    ConsoleData(stream)->console_size = console_size;
+    ConsoleData(stream)->cursor_position = console_pos;
+    ConsoleData(stream)->attribute = 0;
     ChannelStream_init(stream);  # iconv extrafields init
     ChannelStream_lineno(stream) = 1;
     ChannelStream_buffered(stream) = false;
@@ -11353,7 +11344,7 @@ LISPFUNN(make_window,0)
 LISPFUNN(window_size,1)
   {
     var object stream = check_window_stream(popSTACK());
-    var COORD  sz     = ConsoleSizeR(stream);
+    var COORD  sz     = ConsoleData(stream)->console_size;
     value1 = fixnum(sz.Y);
     value2 = fixnum(sz.X);
     mv_count=2;
@@ -11362,7 +11353,7 @@ LISPFUNN(window_size,1)
 LISPFUNN(window_cursor_position,1)
   {
     var object stream = check_window_stream(popSTACK());
-    var COORD  pos    = ConsolePosR(stream);
+    var COORD  pos    = ConsoleData(stream)->cursor_position;
     value1 = fixnum(pos.Y);
     value2 = fixnum(pos.X);
     mv_count=2;
@@ -11372,14 +11363,14 @@ LISPFUNN(set_window_cursor_position,3)
   {
     var object stream = check_window_stream(STACK_2);
     var Handle handle = ConsoleHandleR(stream);
-    var COORD  sz     = ConsoleSizeR(stream);
+    var COORD  sz     = ConsoleData(stream)->console_size;
     var COORD pos;
     pos.Y = posfixnum_to_L(STACK_1);
     pos.X = posfixnum_to_L(STACK_0);
     if ((pos.Y < sz.Y) && (pos.X < sz.X)
         && (pos.Y >= 0) && (pos.X >= 0)) {
       v_move(handle,pos.Y,pos.X);
-      ConsolePosS(stream,pos);
+      ConsoleData(stream)->cursor_position = pos;
     }
     value1 = STACK_1; value2 = STACK_0; mv_count=2; skipSTACK(3);
   }
@@ -11388,11 +11379,11 @@ LISPFUNN(clear_window,1)
   {
     var object stream = check_window_stream(popSTACK());
     var Handle handle = ConsoleHandleR(stream);
-    var COORD  pos    = ConsolePosR(stream);
-    var COORD  sz     = ConsoleSizeR(stream);
-    var uintW  attr   = attr_table[ConsoleAttribR(stream)];
+    var COORD  pos    = ConsoleData(stream)->cursor_position;
+    var COORD  sz     = ConsoleData(stream)->console_size;
+    var uintW  attr   = attr_table[ConsoleData(stream)->attribute];
     v_cl(handle,&pos,sz,attr);
-    ConsolePosS(stream,pos);
+    ConsoleData(stream)->cursor_position = pos;
     value1 = NIL; mv_count=0;
   }
 
@@ -11400,9 +11391,9 @@ LISPFUNN(clear_window_to_eot,1)
   {
     var object stream = check_window_stream(popSTACK());
     var Handle handle = ConsoleHandleR(stream);
-    var COORD  pos    = ConsolePosR(stream);
-    var COORD  sz     = ConsoleSizeR(stream);
-    var uintW  attr   = attr_table[ConsoleAttribR(stream)];
+    var COORD  pos    = ConsoleData(stream)->cursor_position;
+    var COORD  sz     = ConsoleData(stream)->console_size;
+    var uintW  attr   = attr_table[ConsoleData(stream)->attribute];
     v_cd(handle,&pos,sz,attr);
     value1 = NIL; mv_count=0;
   }
@@ -11411,9 +11402,9 @@ LISPFUNN(clear_window_to_eol,1)
   {
     var object stream = check_window_stream(popSTACK());
     var Handle handle = ConsoleHandleR(stream);
-    var COORD  pos    = ConsolePosR(stream);
-    var COORD  sz     = ConsoleSizeR(stream);
-    var uintW  attr   = attr_table[ConsoleAttribR(stream)];
+    var COORD  pos    = ConsoleData(stream)->cursor_position;
+    var COORD  sz     = ConsoleData(stream)->console_size;
+    var uintW  attr   = attr_table[ConsoleData(stream)->attribute];
     v_ce(handle,&pos,sz,attr);
     value1 = NIL; mv_count=0;
   }
@@ -11422,9 +11413,9 @@ LISPFUNN(delete_window_line,1)
   {
     var object stream = check_window_stream(popSTACK());
     var Handle handle = ConsoleHandleR(stream);
-    var COORD  pos    = ConsolePosR(stream);
-    var COORD  sz     = ConsoleSizeR(stream);
-    var uintW  attr   = attr_table[ConsoleAttribR(stream)];
+    var COORD  pos    = ConsoleData(stream)->cursor_position;
+    var COORD  sz     = ConsoleData(stream)->console_size;
+    var uintW  attr   = attr_table[ConsoleData(stream)->attribute];
     v_dl(handle,&pos,sz,attr);
     value1 = NIL; mv_count=0;
   }
@@ -11433,9 +11424,9 @@ LISPFUNN(insert_window_line,1)
   {
     var object stream = check_window_stream(popSTACK());
     var Handle handle = ConsoleHandleR(stream);
-    var COORD  pos    = ConsolePosR(stream);
-    var COORD  sz     = ConsoleSizeR(stream);
-    var uintW  attr   = attr_table[ConsoleAttribR(stream)];
+    var COORD  pos    = ConsoleData(stream)->cursor_position;
+    var COORD  sz     = ConsoleData(stream)->console_size;
+    var uintW  attr   = attr_table[ConsoleData(stream)->attribute];
     v_al(handle,&pos,sz,attr);
     value1 = NIL; mv_count=0;
   }
@@ -11443,14 +11434,14 @@ LISPFUNN(insert_window_line,1)
 LISPFUNN(highlight_on,1)
   {
     var object stream = check_window_stream(popSTACK());
-    ConsoleAttribS(stream,1);
+    ConsoleData(stream)->attribute = 1;
     value1 = NIL; mv_count=0;
   }
 
 LISPFUNN(highlight_off,1)
   {
     var object stream = check_window_stream(popSTACK());
-    ConsoleAttribS(stream,0);
+    ConsoleData(stream)->attribute = 0;
     value1 = NIL; mv_count=0;
   }
 
