@@ -24,6 +24,7 @@
 <!ENTITY compiling-k "<constant>:compiling</constant>">
 <!ENTITY count-k "<constant>:count</constant>">
 <!ENTITY current-k "<constant>:current</constant>">
+<!ENTITY direction-k "<constant>:direction</constant>">
 <!ENTITY echo-k "<constant>:echo</constant>">
 <!ENTITY end-k "<constant>:end</constant>">
 <!ENTITY eof-k "<constant>:eof</constant>">
@@ -31,6 +32,7 @@
 <!ENTITY external-k "<constant>:external</constant>">
 <!ENTITY home-k "<constant>:home</constant>">
 <!ENTITY hyper-k "<constant>:hyper</constant>">
+<!ENTITY if-does-not-exist "<constant>:if-does-not-exist</constant>">
 <!ENTITY if-output-exists "<constant>:if-output-exists</constant>">
 <!ENTITY ignore-k "<constant>:ignore</constant>">
 <!ENTITY in-k "<constant>:in</constant>">
