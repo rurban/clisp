@@ -1398,7 +1398,7 @@ LISPFUNNR(type_of,1)
                 eq(Symbol_package(arg),O(keyword_package)) ? S(keyword) :
                 S(symbol));
       break;
-    case_machine: /* maschine pointer -> ADDRESS */
+    case_machine: /* machine pointer -> ADDRESS */
         /* (If not TYPECODES, ADDRESS and FRAME-POINTER
            are not distinguishable.) */
       value1 = S(address); break;
@@ -1923,7 +1923,7 @@ LISPFUNNR(class_of,1)
       break;
     case_char: /* Character -> <character> */
       value1 = O(class_character); break;
-    case_machine: /* maschine pointer -> <t> */
+    case_machine: /* machine pointer -> <t> */
     case_system: /* -> <t> */
       value1 = O(class_t); break;
     case_integer: /* Integer -> <integer> */

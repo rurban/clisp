@@ -1061,7 +1061,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         }
         goto u_end;
       #ifdef TYPECODES
-      case_machine: # Maschine Pointer
+      case_machine: # Machine Pointer
       case_char: # Character
       case_subr: # Subr
       case_system: # Frame-pointer, Read-label, system
@@ -1104,7 +1104,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
     {
       var object obj = *ptr;
       # fall differentiation by type:
-      # Objects without sub-objects (maschine pointers, bit-vectors,
+      # Objects without sub-objects (machine pointers, bit-vectors,
       # strings, characters, subrs, integers, floats) contain no
       # references. The same holds true for Symbols and rational numbers (their
       # sub-objects could not have been entered in #n= - Syntax)
@@ -1294,7 +1294,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
     {
       var object obj = *ptr;
       # fall differentiation by type:
-      # Objects without sub-objects (maschine pointers, bit-vectors,
+      # Objects without sub-objects (machine pointers, bit-vectors,
       # strings, characters, subrs, integers, floats) contain no
       # references. The same holds true for Symbols and rational numbers (their
       # sub-objects could not have been entered in #n= - Syntax)
@@ -1463,7 +1463,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
     {
       var object obj = without_mark_bit(*ptr);
       # fall differentiation by type:
-      # Objects without sub-objects (maschine pointers, bit-vectors,
+      # Objects without sub-objects (machine pointers, bit-vectors,
       # strings, characters, subrs, integers, floats) contain no
       # references. The same holds true for Symbols and rational numbers (their
       # sub-objects could not have been entered in #n= - Syntax)
