@@ -1,3 +1,8 @@
+2004-10-27  Bruno Haible  <bruno@clisp.org>
+
+	* reploop.lisp (break-loop): Change Ctrl-D's behaviour when the
+	CONTINUE restart comes from ASSERT with no places.
+
 2004-10-26  Bruno Haible  <bruno@clisp.org>
 
 	Fix two long-standing bugs whose combination leads to curious effects.

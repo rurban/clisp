@@ -726,6 +726,19 @@ bar 41
   (princ-to-string (make-condition 'xyzzy :f1-is "a silly string")))
 " xyzzy: My f1 is a silly string"
 
+;; Check that after a Ctrl-D (EOF), assert without places is not retried.
+(let ((done nil))
+  (block test
+    (sys::driver
+      #'(lambda ()
+          (when done (return-from test nil))
+          (setq done t)
+          (let ((*debug-io*
+                  (make-two-way-stream (make-string-input-stream "")
+                                       *terminal-io*)))
+            (assert (= 1 2)))))))
+nil
+
 ;; check all invocations of correctable-error in package.d
 (let* ((p1 (make-package "PACK-1" :use nil))
        (p2 (make-package "PACK-2" :use nil))
