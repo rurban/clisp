@@ -1932,10 +1932,9 @@
   (let ((already-searched nil))
     (dolist (dir (cons '#""
                        ;; when filename has "..", ignore *load-paths*
-                       ;; (to avoid errors with ".../../foo"):
-                       (if (member #+(or UNIX WIN32) ".."
-                                   (pathname-directory filename)
-                                   :test #'equal)
+                       ;; (to avoid errors with "**/../foo"):
+                       (if (memq #+(or UNIX WIN32) :UP
+                                 (pathname-directory filename))
                            '()
                            (mapcar #'pathname *load-paths*))))
       (let ((search-filename (merge-pathnames (merge-pathnames filename dir))))
