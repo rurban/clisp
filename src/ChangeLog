@@ -1,5 +1,12 @@
 2001-07-10  Sam Steingold  <sds@gnu.org>
 
+	* condition.lisp (appease-cerrors, muffle-cerrors): do not cons
+	up a lambda for handler
+	(exit-on-error, appease-cerrors, muffle-cerrors, batchmode-errors):
+	turned comments into doc strings
+
+2001-07-10  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (invoke_handlers): do not popSTACK twice!
 
 2001-07-10  Sam Steingold  <sds@gnu.org>

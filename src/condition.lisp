@@ -1567,37 +1567,23 @@ Todo:
 
 ;; Extensions. They assume *USE-CLCS* is T.
 
-; (MUFFLE-CERRORS {form}*) executes the forms, but when a continuable
-; error occurs, the CONTINUE restart is silently invoked.
 (defmacro muffle-cerrors (&body body)
-  `(HANDLER-BIND ((ERROR #'(LAMBDA (CONDITION) (CONTINUE CONDITION))))
-     ,@body
-   )
-)
+  "(MUFFLE-CERRORS {form}*) executes the forms, but when a continuable
+error occurs, the CONTINUE restart is silently invoked."
+  `(HANDLER-BIND ((ERROR #'CONTINUE))
+     ,@body))
 #| ; This works as well, but looks more like a hack.
 (defmacro muffle-cerrors (&body body)
   (let ((old-debugger-hook (gensym)))
     `(LET* ((,old-debugger-hook *DEBUGGER-HOOK*)
             (*DEBUGGER-HOOK*
-              #'(LAMBDA (CONDITION DEBUGGER-HOOK)
-                  (CONTINUE CONDITION)
-                  (WHEN ,old-debugger-hook
-                    (FUNCALL ,old-debugger-hook CONDITION ,old-debugger-hook)
-                ) )
-           ))
-       (PROGN ,@body)
-     )
-) )
+             (LAMBDA (CONDITION DEBUGGER-HOOK)
+               (CONTINUE CONDITION)
+               (WHEN ,old-debugger-hook
+                 (FUNCALL ,old-debugger-hook CONDITION ,old-debugger-hook)))))
+      (PROGN ,@body))))
 |#
 
-; (APPEASE-CERRORS {form}*) executes the forms, but turns continuable errors
-; into warnings. A continuable error is signalled again as a warning, then
-; its CONTINUE restart is invoked.
-(defmacro appease-cerrors (&body body)
-  `(HANDLER-BIND ((ERROR #'(LAMBDA (CONDITION) (APPEASE-CERROR CONDITION))))
-     ,@body
-   )
-)
 (defun appease-cerror (condition)
   (let ((restart (find-restart 'CONTINUE condition)))
     (when restart
@@ -1606,34 +1592,33 @@ Todo:
                    (let ((report-function (restart-report restart)))
                      (when report-function
                        (terpri stream)
-                       (funcall report-function stream)
-      )          ) ) )
-      (invoke-restart restart)
-) ) )
+                       (funcall report-function stream)))))
+      (invoke-restart restart))))
+(defmacro appease-cerrors (&body body)
+  "(APPEASE-CERRORS {form}*) executes the forms, but turns continuable errors
+into warnings. A continuable error is signalled again as a warning, then
+its CONTINUE restart is invoked."
+  `(HANDLER-BIND ((ERROR #'APPEASE-CERROR))
+     ,@body))
 
-; (EXIT-ON-ERROR {form}*) executes the forms, but exits Lisp if a
-; non-continuable error or a Ctrl-C interrupt occurs.
 (defun exitunconditionally (condition)
   (terpri *error-output*)
   (write-string "*** - " *error-output*)
   (print-condition condition *error-output*)
-  (exit t) ; exit Lisp with error
-)
+  (exit t))                     ; exit Lisp with error
 (defun exitonerror (condition)
   (unless (find-restart 'CONTINUE condition)
-    (exitunconditionally condition)
-) )
+    (exitunconditionally condition)))
 (defmacro exit-on-error (&body body)
+  "(EXIT-ON-ERROR {form}*) executes the forms, but exits Lisp if a
+non-continuable error or a Ctrl-C interrupt occurs."
   `(HANDLER-BIND ((INTERRUPT-CONDITION #'EXITUNCONDITIONALLY)
                   (SERIOUS-CONDITION #'EXITONERROR))
-     ,@body
-   )
-)
+    ,@body))
 
-; (SYSTEM::BATCHMODE-ERRORS {form}*) executes the forms, but handles errors
-; just as a batch program should do: continuable errors are signalled as
-; warnings, non-continuable errors and Ctrl-C interrupts cause Lisp to exit.
 (defmacro batchmode-errors (&body body)
-  `(EXIT-ON-ERROR (APPEASE-CERRORS ,@body))
-)
+  "(SYSTEM::BATCHMODE-ERRORS {form}*) executes the forms, but handles errors
+just as a batch program should do: continuable errors are signalled as
+warnings, non-continuable errors and Ctrl-C interrupts cause Lisp to exit."
+  `(EXIT-ON-ERROR (APPEASE-CERRORS ,@body)))
 
