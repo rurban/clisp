@@ -262,6 +262,13 @@ LISPFUNNR(foreign_address,1)
 #   #(c-ptr-null <c-type>)
 #   #(c-array-ptr <c-type>)
 
+#define C_STRUCT_SLOTS         1
+#define C_STRUCT_CONSTRUCTOR   (C_STRUCT_SLOTS+1)
+#define C_STRUCT_C_TYPE_START  (C_STRUCT_CONSTRUCTOR+1)
+
+#define C_UNION_ALT            1
+#define C_UNION_C_TYPE_START   (C_UNION_ALT+1)
+
 # Error message.
 nonreturning_function(local, fehler_foreign_type, (object fvd)) {
   dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
@@ -726,18 +733,19 @@ local void foreign_layout(fvd)
       var uintL fvdlen = Svector_length(fvd);
       if (fvdlen > 0) {
         var object fvdtype = TheSvector(fvd)->data[0];
-        if (eq(fvdtype,S(c_struct)) && (fvdlen > 2)) {
+        if (eq(fvdtype,S(c_struct)) && (fvdlen >= C_STRUCT_C_TYPE_START)) {
           var uintL cumul_size = 0;
           var uintL cumul_alignment = struct_alignment;
           var bool cumul_splittable = true;
           var uintL i;
-          for (i = 3; i < fvdlen; i++) {
+          for (i = C_STRUCT_C_TYPE_START; i < fvdlen; i++) {
             foreign_layout(TheSvector(fvd)->data[i]);
             # We assume all alignments are of the form 2^k.
             cumul_size += (-cumul_size) & (data_alignment-1);
             # cumul_splittable = cumul_splittable AND
             #       (cumul_size..cumul_size+data_size-1) fits in a word;
-            if (floor(cumul_size,sizeof(long)) < floor(cumul_size+data_size-1,sizeof(long)))
+            if (floor(cumul_size,sizeof(long)) <
+                floor(cumul_size+data_size-1,sizeof(long)))
               cumul_splittable = false;
             cumul_size += data_size;
             # cumul_alignment = lcm(cumul_alignment,data_alignment);
@@ -1091,14 +1099,14 @@ global object convert_from_foreign(fvd,data)
       var uintL fvdlen = Svector_length(fvd);
       if (fvdlen > 0) {
         var object fvdtype = TheSvector(fvd)->data[0];
-        if (eq(fvdtype,S(c_struct)) && (fvdlen > 2)) {
+        if (eq(fvdtype,S(c_struct)) && (fvdlen >= C_STRUCT_C_TYPE_START)) {
           pushSTACK(fvd);
           {
             var gcv_object_t* fvd_ = &STACK_0;
             var uintL cumul_size = 0;
             var uintL cumul_alignment = struct_alignment;
             var uintL i;
-            for (i = 3; i < fvdlen; i++) {
+            for (i = C_STRUCT_C_TYPE_START; i < fvdlen; i++) {
               var object fvdi = TheSvector(*fvd_)->data[i];
               foreign_layout(fvdi);
               # We assume all alignments are of the form 2^k.
@@ -1114,7 +1122,8 @@ global object convert_from_foreign(fvd,data)
               pushSTACK(fvdi);
             }
             # Call the constructor.
-            funcall(TheSvector(*fvd_)->data[2],fvdlen-3);
+            funcall(TheSvector(*fvd_)->data[C_STRUCT_CONSTRUCTOR],
+                    fvdlen-C_STRUCT_C_TYPE_START);
           }
           skipSTACK(1);
           return value1;
@@ -1272,9 +1281,9 @@ local bool foreign_with_pointers_p(fvd)
       var uintL fvdlen = Svector_length(fvd);
       if (fvdlen > 0) {
         var object fvdtype = TheSvector(fvd)->data[0];
-        if (eq(fvdtype,S(c_struct)) && (fvdlen > 2)) {
+        if (eq(fvdtype,S(c_struct)) && (fvdlen >= C_STRUCT_C_TYPE_START)) {
           var uintL i;
-          for (i = 3; i < fvdlen; i++)
+          for (i = C_STRUCT_C_TYPE_START; i < fvdlen; i++)
             if (foreign_with_pointers_p(TheSvector(fvd)->data[i]))
               return true;
           return false;
@@ -1328,11 +1337,11 @@ local void walk_foreign_pointers(fvd,data)
       var uintL fvdlen = Svector_length(fvd);
       if (fvdlen > 0) {
         var object fvdtype = TheSvector(fvd)->data[0];
-        if (eq(fvdtype,S(c_struct)) && (fvdlen > 2)) {
+        if (eq(fvdtype,S(c_struct)) && (fvdlen >= C_STRUCT_C_TYPE_START)) {
           var uintL cumul_size = 0;
           var uintL cumul_alignment = struct_alignment;
           var uintL i;
-          for (i = 3; i < fvdlen; i++) {
+          for (i = C_STRUCT_C_TYPE_START; i < fvdlen; i++) {
             var object fvdi = TheSvector(fvd)->data[i];
             foreign_layout(fvdi);
             # We assume all alignments are of the form 2^k.
@@ -1479,176 +1488,178 @@ local var bool walk_lisp_nil_terminates;
 local void (*walk_lisp_pre_hook) (object fvd, object obj);
 local void (*walk_lisp_post_hook) (object fvd, object obj);
 local void (*walk_lisp_function_hook) (object fvd, object obj);
-local void walk_lisp_pointers(fvd,obj)
-  var object fvd;
-  var object obj;
-  {
-    if (!foreign_with_pointers_p(fvd))
+local void walk_lisp_pointers (object fvd, object obj)
+{
+  if (!foreign_with_pointers_p(fvd))
+    return;
+  check_SP();
+  check_STACK();
+  if (symbolp(fvd)) {
+    if (eq(fvd,S(c_string))) {
+      if (walk_lisp_nil_terminates) {
+        /* NIL pointers stop the recursion */
+        if (nullp(obj))
+          return;
+      }
+      if (!stringp(obj)) goto bad_obj;
+      (*walk_lisp_pre_hook)(fvd,obj);
+      (*walk_lisp_post_hook)(fvd,obj);
       return;
-    check_SP();
-    check_STACK();
-    if (symbolp(fvd)) {
-      if (eq(fvd,S(c_string))) {
-        if (walk_lisp_nil_terminates) {
-          # NIL pointers stop the recursion
+    }
+  } else if (simple_vector_p(fvd)) {
+    var uintL fvdlen = Svector_length(fvd);
+    if (fvdlen > 0) {
+      var object fvdtype = TheSvector(fvd)->data[0];
+      if (eq(fvdtype,S(c_struct)) && (fvdlen >= C_STRUCT_C_TYPE_START)) {
+        var object slots = TheSvector(fvd)->data[C_STRUCT_SLOTS];
+        var object constructor = TheSvector(fvd)->data[C_STRUCT_CONSTRUCTOR];
+        if (!(simple_vector_p(slots) &&
+              (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START)))
+          fehler_foreign_type(fvd);
+        if (eq(constructor,L(vector))) {
+          if (!(simple_vector_p(obj) &&
+                (Svector_length(obj)==fvdlen-C_STRUCT_C_TYPE_START)))
+            goto bad_obj;
+        } else if (eq(constructor,L(list))) {
+        } else {
+          if (!(structurep(obj) || instancep(obj)))
+            goto bad_obj;
+        }
+        pushSTACK(constructor);
+        pushSTACK(slots);
+        pushSTACK(fvd);
+        pushSTACK(obj);
+        var uintL cumul_size = 0;
+        var uintL cumul_alignment = struct_alignment;
+        var uintL i;
+        for (i = C_STRUCT_C_TYPE_START; i < fvdlen; i++) {
+          var object obji;
+          if (eq(STACK_3,L(vector))) {
+            obji = TheSvector(STACK_0)->data[i-C_STRUCT_C_TYPE_START];
+          } else if (eq(STACK_3,L(list))) {
+            obji = STACK_0;
+            if (atomp(obji)) goto bad_obj;
+            STACK_0 = Cdr(obji); obji = Car(obji);
+          } else { /* simple_vector_p(slots) &&
+                      (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START) */
+            pushSTACK(STACK_0);
+            pushSTACK(TheSvector(STACK_(2+1))->data[i-C_STRUCT_C_TYPE_START]);
+            funcall(L(slot_value),2); obji = value1;
+          }
+          var object fvdi = TheSvector(STACK_1)->data[i];
+          foreign_layout(fvdi);
+          /* We assume all alignments are of the form 2^k. */
+          cumul_size += (-cumul_size) & (data_alignment-1);
+          cumul_size += data_size;
+          /* cumul_alignment = lcm(cumul_alignment,data_alignment); */
+          if (data_alignment > cumul_alignment)
+            cumul_alignment = data_alignment;
+          /* Now we are finished with data_size and data_alignment.
+             Descend into the structure slot: */
+          walk_lisp_pointers(fvdi,obji);
+        }
+        skipSTACK(4);
+        return;
+      } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
+        /* Use the union's first component. */
+        if (fvdlen > 2)
+          walk_lisp_pointers(TheSvector(fvd)->data[2],obj);
+        return;
+      } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
+        var object eltype = TheSvector(fvd)->data[1];
+        var uintL size = 1;
+        foreign_layout(eltype);
+        {
+          var uintL i;
+          for (i = 2; i < fvdlen; i++) {
+            var object dim = TheSvector(fvd)->data[i];
+            if (!uint32_p(dim))
+              fehler_foreign_type(fvd);
+            size *= I_to_uint32(dim);
+          }
+        }
+        if (!(arrayp(obj) && array_total_size(obj)==size))
+          goto bad_obj;
+        pushSTACK(eltype);
+        pushSTACK(obj);
+        {
+          var uintL i;
+          for (i = 0; i < size; i++) {
+            pushSTACK(STACK_0); pushSTACK(fixnum(i));
+            funcall(L(row_major_aref),2);
+            walk_lisp_pointers(STACK_1,value1);
+          }
+        }
+        skipSTACK(2);
+        return;
+      } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
+        var object eltype = TheSvector(fvd)->data[1];
+        var uintL maxdim = I_to_UL(TheSvector(fvd)->data[2]);
+        foreign_layout(eltype);
+        if (!vectorp(obj))
+          goto bad_obj;
+        var uintL len = vector_length(obj);
+        if (len > maxdim)
+          len = maxdim;
+        pushSTACK(eltype);
+        pushSTACK(obj);
+        {
+          var uintL i;
+          for (i = 0; i < len; i++) {
+            pushSTACK(STACK_0); pushSTACK(fixnum(i));
+            funcall(L(aref),2);
+            walk_lisp_pointers(STACK_1,value1);
+          }
+        }
+        skipSTACK(2);
+        return;
+      } else if (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
+        (*walk_lisp_function_hook)(fvd,obj);
+        return;
+      } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null)))
+                 && (fvdlen == 2)) {
+        if (walk_lisp_nil_terminates || eq(fvdtype,S(c_ptr_null))) {
+          /* NIL pointers stop the recursion */
           if (nullp(obj))
             return;
         }
-        if (!stringp(obj)) goto bad_obj;
         (*walk_lisp_pre_hook)(fvd,obj);
+        pushSTACK(fvd);
+        walk_lisp_pointers(TheSvector(fvd)->data[1],obj);
+        fvd = popSTACK();
+        (*walk_lisp_post_hook)(fvd,obj);
+        return;
+      } else if (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
+        if (walk_lisp_nil_terminates) {
+          /* NIL pointers stop the recursion */
+          if (nullp(obj))
+            return;
+        }
+        if (!vectorp(obj)) goto bad_obj;
+        (*walk_lisp_pre_hook)(fvd,obj);
+        pushSTACK(fvd);
+        pushSTACK(TheSvector(fvd)->data[1]); /* eltype */
+        pushSTACK(obj);
+        {
+          var uintL size = vector_length(obj);
+          var uintL i;
+          for (i = 0; i < size; i++) {
+            pushSTACK(STACK_0); pushSTACK(fixnum(i));
+            funcall(L(aref),2);
+            walk_lisp_pointers(STACK_1,value1);
+          }
+        }
+        skipSTACK(2);
+        fvd = popSTACK();
         (*walk_lisp_post_hook)(fvd,obj);
         return;
       }
-    } else if (simple_vector_p(fvd)) {
-      var uintL fvdlen = Svector_length(fvd);
-      if (fvdlen > 0) {
-        var object fvdtype = TheSvector(fvd)->data[0];
-        if (eq(fvdtype,S(c_struct)) && (fvdlen > 2)) {
-          var object slots = TheSvector(fvd)->data[1];
-          var object constructor = TheSvector(fvd)->data[2];
-          if (!(simple_vector_p(slots) && (Svector_length(slots)==fvdlen-3)))
-            fehler_foreign_type(fvd);
-          if (eq(constructor,L(vector))) {
-            if (!(simple_vector_p(obj) && (Svector_length(obj)==fvdlen-3)))
-              goto bad_obj;
-          } else if (eq(constructor,L(list))) {
-          } else {
-            if (!(structurep(obj) || instancep(obj)))
-              goto bad_obj;
-          }
-          pushSTACK(constructor);
-          pushSTACK(slots);
-          pushSTACK(fvd);
-          pushSTACK(obj);
-          var uintL cumul_size = 0;
-          var uintL cumul_alignment = struct_alignment;
-          var uintL i;
-          for (i = 3; i < fvdlen; i++) {
-            var object obji;
-            if (eq(STACK_3,L(vector))) {
-              obji = TheSvector(STACK_0)->data[i-3];
-            } else if (eq(STACK_3,L(list))) {
-              obji = STACK_0;
-              if (atomp(obji)) goto bad_obj;
-              STACK_0 = Cdr(obji); obji = Car(obji);
-            } else { # simple_vector_p(slots) && (Svector_length(slots)==fvdlen-3)
-              pushSTACK(STACK_0); pushSTACK(TheSvector(STACK_(2+1))->data[i-3]);
-              funcall(L(slot_value),2); obji = value1;
-            }
-            var object fvdi = TheSvector(STACK_1)->data[i];
-            foreign_layout(fvdi);
-            # We assume all alignments are of the form 2^k.
-            cumul_size += (-cumul_size) & (data_alignment-1);
-            cumul_size += data_size;
-            # cumul_alignment = lcm(cumul_alignment,data_alignment);
-            if (data_alignment > cumul_alignment)
-              cumul_alignment = data_alignment;
-            # Now we are finished with data_size and data_alignment.
-            # Descend into the structure slot:
-            walk_lisp_pointers(fvdi,obji);
-          }
-          skipSTACK(4);
-          return;
-        } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
-          # Use the union's first component.
-          if (fvdlen > 2)
-            walk_lisp_pointers(TheSvector(fvd)->data[2],obj);
-          return;
-        } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
-          var object eltype = TheSvector(fvd)->data[1];
-          var uintL size = 1;
-          foreign_layout(eltype);
-          {
-            var uintL i;
-            for (i = 2; i < fvdlen; i++) {
-              var object dim = TheSvector(fvd)->data[i];
-              if (!uint32_p(dim))
-                fehler_foreign_type(fvd);
-              size *= I_to_uint32(dim);
-            }
-          }
-          if (!(arrayp(obj) && array_total_size(obj)==size))
-            goto bad_obj;
-          pushSTACK(eltype);
-          pushSTACK(obj);
-          {
-            var uintL i;
-            for (i = 0; i < size; i++) {
-              pushSTACK(STACK_0); pushSTACK(fixnum(i));
-              funcall(L(row_major_aref),2);
-              walk_lisp_pointers(STACK_1,value1);
-            }
-          }
-          skipSTACK(2);
-          return;
-        } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
-          var object eltype = TheSvector(fvd)->data[1];
-          var uintL maxdim = I_to_UL(TheSvector(fvd)->data[2]);
-          foreign_layout(eltype);
-          if (!vectorp(obj))
-            goto bad_obj;
-          var uintL len = vector_length(obj);
-          if (len > maxdim)
-            len = maxdim;
-          pushSTACK(eltype);
-          pushSTACK(obj);
-          {
-            var uintL i;
-            for (i = 0; i < len; i++) {
-              pushSTACK(STACK_0); pushSTACK(fixnum(i));
-              funcall(L(aref),2);
-              walk_lisp_pointers(STACK_1,value1);
-            }
-          }
-          skipSTACK(2);
-          return;
-        } else if (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
-          (*walk_lisp_function_hook)(fvd,obj);
-          return;
-        } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null)))
-                   && (fvdlen == 2)) {
-          if (walk_lisp_nil_terminates || eq(fvdtype,S(c_ptr_null))) {
-            # NIL pointers stop the recursion
-            if (nullp(obj))
-              return;
-          }
-          (*walk_lisp_pre_hook)(fvd,obj);
-          pushSTACK(fvd);
-          walk_lisp_pointers(TheSvector(fvd)->data[1],obj);
-          fvd = popSTACK();
-          (*walk_lisp_post_hook)(fvd,obj);
-          return;
-        } else if (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
-          if (walk_lisp_nil_terminates) {
-            # NIL pointers stop the recursion
-            if (nullp(obj))
-              return;
-          }
-          if (!vectorp(obj)) goto bad_obj;
-          (*walk_lisp_pre_hook)(fvd,obj);
-          pushSTACK(fvd);
-          pushSTACK(TheSvector(fvd)->data[1]); # eltype
-          pushSTACK(obj);
-          {
-            var uintL size = vector_length(obj);
-            var uintL i;
-            for (i = 0; i < size; i++) {
-              pushSTACK(STACK_0); pushSTACK(fixnum(i));
-              funcall(L(aref),2);
-              walk_lisp_pointers(STACK_1,value1);
-            }
-          }
-          skipSTACK(2);
-          fvd = popSTACK();
-          (*walk_lisp_post_hook)(fvd,obj);
-          return;
-        }
-      }
     }
-    fehler_foreign_type(fvd);
-   bad_obj:
-    fehler_convert(fvd,obj);
   }
+  fehler_foreign_type(fvd);
+ bad_obj:
+  fehler_convert(fvd,obj);
+}
 
 # Determine amount of additional storage needed to convert Lisp data to foreign data.
 # can trigger GC
@@ -1701,395 +1712,396 @@ local void convert_to_foreign_needs(fvd,obj)
 # can trigger GC
 local void convert_to_foreign (object fvd, object obj, void* data);
 local void* (*converter_malloc) (void* old_data, uintL size, uintL alignment);
-local void convert_to_foreign(fvd,obj,data)
-  var object fvd;
-  var object obj;
-  var void* data;
-  {
-    check_SP();
-    check_STACK();
-    if (symbolp(fvd)) {
-      if (eq(fvd,S(nil)))
-        # If we are presented the empty type, we take it as "ignore".
-        return;
-      else if (eq(fvd,S(boolean))) {
-        var int* pdata = (int*)data;
-        if (nullp(obj))
-          *pdata = 0;
-        else if (eq(obj,T))
-          *pdata = 1;
-        else
-          goto bad_obj;
-        return;
-      } else if (eq(fvd,S(character))) {
-        var uintB* pdata = (unsigned char *)data;
-        if (!charp(obj)) goto bad_obj;
-        var chart ch = char_code(obj);
-        #ifdef UNICODE
-        ASSERT(cslen(O(foreign_encoding),&ch,1) == 1);
-        cstombs(O(foreign_encoding),&ch,1,pdata,1);
-        #else
-        *pdata = as_cint(ch);
-        #endif
-        return;
-      } else if (eq(fvd,S(char)) || eq(fvd,S(sint8))) {
-        var sint8* pdata = (sint8*)data;
-        if (!sint8_p(obj)) goto bad_obj;
-        *pdata = I_to_sint8(obj);
-        return;
-      } else if (eq(fvd,S(uchar)) || eq(fvd,S(uint8))) {
-        var uint8* pdata = (uint8*)data;
-        if (!uint8_p(obj)) goto bad_obj;
-        *pdata = I_to_uint8(obj);
-        return;
-      } else if (eq(fvd,S(short)) || eq(fvd,S(sint16))) {
-        var sint16* pdata = (sint16*)data;
-        if (!sint16_p(obj)) goto bad_obj;
-        *pdata = I_to_sint16(obj);
-        return;
-      } else if (eq(fvd,S(ushort)) || eq(fvd,S(uint16))) {
-        var uint16* pdata = (uint16*)data;
-        if (!uint16_p(obj)) goto bad_obj;
-        *pdata = I_to_uint16(obj);
-        return;
-      } else if (eq(fvd,S(sint32))) {
-        var sint32* pdata = (sint32*)data;
-        if (!sint32_p(obj)) goto bad_obj;
-        *pdata = I_to_sint32(obj);
-        return;
-      } else if (eq(fvd,S(uint32))) {
-        var uint32* pdata = (uint32*)data;
-        if (!uint32_p(obj)) goto bad_obj;
-        *pdata = I_to_uint32(obj);
+local void convert_to_foreign (object fvd, object obj, void* data)
+{
+  check_SP();
+  check_STACK();
+  if (symbolp(fvd)) {
+    if (eq(fvd,S(nil)))
+      /* If we are presented the empty type, we take it as "ignore". */
+      return;
+    else if (eq(fvd,S(boolean))) {
+      var int* pdata = (int*)data;
+      if (nullp(obj))
+        *pdata = 0;
+      else if (eq(obj,T))
+        *pdata = 1;
+      else
+        goto bad_obj;
+      return;
+    } else if (eq(fvd,S(character))) {
+      var uintB* pdata = (unsigned char *)data;
+      if (!charp(obj)) goto bad_obj;
+      var chart ch = char_code(obj);
+     #ifdef UNICODE
+      ASSERT(cslen(O(foreign_encoding),&ch,1) == 1);
+      cstombs(O(foreign_encoding),&ch,1,pdata,1);
+     #else
+      *pdata = as_cint(ch);
+     #endif
+      return;
+    } else if (eq(fvd,S(char)) || eq(fvd,S(sint8))) {
+      var sint8* pdata = (sint8*)data;
+      if (!sint8_p(obj)) goto bad_obj;
+      *pdata = I_to_sint8(obj);
+      return;
+    } else if (eq(fvd,S(uchar)) || eq(fvd,S(uint8))) {
+      var uint8* pdata = (uint8*)data;
+      if (!uint8_p(obj)) goto bad_obj;
+      *pdata = I_to_uint8(obj);
+      return;
+    } else if (eq(fvd,S(short)) || eq(fvd,S(sint16))) {
+      var sint16* pdata = (sint16*)data;
+      if (!sint16_p(obj)) goto bad_obj;
+      *pdata = I_to_sint16(obj);
+      return;
+    } else if (eq(fvd,S(ushort)) || eq(fvd,S(uint16))) {
+      var uint16* pdata = (uint16*)data;
+      if (!uint16_p(obj)) goto bad_obj;
+      *pdata = I_to_uint16(obj);
+      return;
+    } else if (eq(fvd,S(sint32))) {
+      var sint32* pdata = (sint32*)data;
+      if (!sint32_p(obj)) goto bad_obj;
+      *pdata = I_to_sint32(obj);
+      return;
+    } else if (eq(fvd,S(uint32))) {
+      var uint32* pdata = (uint32*)data;
+      if (!uint32_p(obj)) goto bad_obj;
+      *pdata = I_to_uint32(obj);
+      return;
+    }
+   #ifdef HAVE_LONGLONG
+    else if (eq(fvd,S(sint64))) {
+      var struct_sint64* pdata = (struct_sint64*)data;
+      if (!sint64_p(obj)) goto bad_obj;
+      var sint64 val = I_to_sint64(obj);
+     #if (long_bitsize<64)
+      pdata->hi = (sint32)(val>>32); pdata->lo = (uint32)val;
+     #else
+      *pdata = val;
+     #endif
+      return;
+    } else if (eq(fvd,S(uint64))) {
+      var struct_uint64* pdata = (struct_uint64*)data;
+      if (!uint64_p(obj)) goto bad_obj;
+      var uint64 val = I_to_uint64(obj);
+     #if (long_bitsize<64)
+      pdata->hi = (uint32)(val>>32); pdata->lo = (uint32)val;
+     #else
+      *pdata = val;
+     #endif
+      return;
+    }
+   #else
+    else if (eq(fvd,S(sint64)) || eq(fvd,S(uint64))) {
+      fehler_64bit(fvd);
+    }
+   #endif
+    else if (eq(fvd,S(int))) {
+      var int* pdata = (int*)data;
+      if (!sint_p(obj)) goto bad_obj;
+      *pdata = I_to_sint(obj);
+      return;
+    } else if (eq(fvd,S(uint))) {
+      var unsigned int * pdata = (unsigned int *)data;
+      if (!uint_p(obj)) goto bad_obj;
+      *pdata = I_to_uint(obj);
+      return;
+    } else if (eq(fvd,S(long))) {
+      var long* pdata = (long*)data;
+      if (!slong_p(obj)) goto bad_obj;
+      *pdata = I_to_slong(obj);
+      return;
+    } else if (eq(fvd,S(ulong))) {
+      var unsigned long * pdata = (unsigned long *)data;
+      if (!ulong_p(obj)) goto bad_obj;
+      *pdata = I_to_ulong(obj);
+      return;
+    } else if (eq(fvd,S(single_float))) {
+      var ffloatjanus* pdata = (ffloatjanus*) data;
+      if (!single_float_p(obj)) goto bad_obj;
+      FF_to_c_float(obj,pdata);
+      return;
+    } else if (eq(fvd,S(double_float))) {
+      var dfloatjanus* pdata = (dfloatjanus*) data;
+      if (!double_float_p(obj)) goto bad_obj;
+      DF_to_c_double(obj,pdata);
+      return;
+    } else if (eq(fvd,S(c_pointer))) {
+      if (!faddressp(obj)) goto bad_obj;
+      *(void**)data = Faddress_value(obj);
+      return;
+    } else if (eq(fvd,S(c_string))) {
+      if (nullp(obj)) {
+        *(char**)data = NULL;
         return;
       }
-      #ifdef HAVE_LONGLONG
-      else if (eq(fvd,S(sint64))) {
-        var struct_sint64* pdata = (struct_sint64*)data;
-        if (!sint64_p(obj)) goto bad_obj;
-        var sint64 val = I_to_sint64(obj);
-        #if (long_bitsize<64)
-        pdata->hi = (sint32)(val>>32); pdata->lo = (uint32)val;
-        #else
-        *pdata = val;
-        #endif
-        return;
-      } else if (eq(fvd,S(uint64))) {
-        var struct_uint64* pdata = (struct_uint64*)data;
-        if (!uint64_p(obj)) goto bad_obj;
-        var uint64 val = I_to_uint64(obj);
-        #if (long_bitsize<64)
-        pdata->hi = (uint32)(val>>32); pdata->lo = (uint32)val;
-        #else
-        *pdata = val;
-        #endif
-        return;
-      }
-      #else
-      else if (eq(fvd,S(sint64)) || eq(fvd,S(uint64))) {
-        fehler_64bit(fvd);
-      }
-      #endif
-      else if (eq(fvd,S(int))) {
-        var int* pdata = (int*)data;
-        if (!sint_p(obj)) goto bad_obj;
-        *pdata = I_to_sint(obj);
-        return;
-      } else if (eq(fvd,S(uint))) {
-        var unsigned int * pdata = (unsigned int *)data;
-        if (!uint_p(obj)) goto bad_obj;
-        *pdata = I_to_uint(obj);
-        return;
-      } else if (eq(fvd,S(long))) {
-        var long* pdata = (long*)data;
-        if (!slong_p(obj)) goto bad_obj;
-        *pdata = I_to_slong(obj);
-        return;
-      } else if (eq(fvd,S(ulong))) {
-        var unsigned long * pdata = (unsigned long *)data;
-        if (!ulong_p(obj)) goto bad_obj;
-        *pdata = I_to_ulong(obj);
-        return;
-      } else if (eq(fvd,S(single_float))) {
-        var ffloatjanus* pdata = (ffloatjanus*) data;
-        if (!single_float_p(obj)) goto bad_obj;
-        FF_to_c_float(obj,pdata);
-        return;
-      } else if (eq(fvd,S(double_float))) {
-        var dfloatjanus* pdata = (dfloatjanus*) data;
-        if (!double_float_p(obj)) goto bad_obj;
-        DF_to_c_double(obj,pdata);
-        return;
-      } else if (eq(fvd,S(c_pointer))) {
-        if (!faddressp(obj)) goto bad_obj;
-        *(void**)data = Faddress_value(obj);
-        return;
-      } else if (eq(fvd,S(c_string))) {
-        if (nullp(obj)) {
-          *(char**)data = NULL;
-          return;
+      if (!stringp(obj)) goto bad_obj;
+      var uintL len;
+      var uintL offset;
+      var object string = unpack_string_ro(obj,&len,&offset);
+      var const chart* ptr1;
+      unpack_sstring_alloca(string,len,offset, ptr1=);
+      var uintL bytelen = cslen(O(foreign_encoding),ptr1,len);
+      var char* asciz = (char*)converter_malloc(*(char**)data,bytelen+1,1);
+      cstombs(O(foreign_encoding),ptr1,len,(uintB*)asciz,bytelen);
+      asciz[bytelen] = '\0';
+      *(char**)data = asciz;
+      return;
+    }
+  } else if (simple_vector_p(fvd)) {
+    var uintL fvdlen = Svector_length(fvd);
+    if (fvdlen > 0) {
+      var object fvdtype = TheSvector(fvd)->data[0];
+      if (eq(fvdtype,S(c_struct)) && (fvdlen >= C_STRUCT_C_TYPE_START)) {
+        var object slots = TheSvector(fvd)->data[C_STRUCT_SLOTS];
+        var object constructor = TheSvector(fvd)->data[C_STRUCT_CONSTRUCTOR];
+        if (!(simple_vector_p(slots) &&
+              (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START)))
+          fehler_foreign_type(fvd);
+        if (eq(constructor,L(vector))) {
+          if (!(simple_vector_p(obj) &&
+                (Svector_length(obj)==fvdlen-C_STRUCT_C_TYPE_START)))
+            goto bad_obj;
+        } else if (eq(constructor,L(list))) {
+        } else {
+          if (!(structurep(obj) || instancep(obj)))
+            goto bad_obj;
         }
-        if (!stringp(obj)) goto bad_obj;
-        var uintL len;
-        var uintL offset;
-        var object string = unpack_string_ro(obj,&len,&offset);
-        var const chart* ptr1;
-        unpack_sstring_alloca(string,len,offset, ptr1=);
-        var uintL bytelen = cslen(O(foreign_encoding),ptr1,len);
-        var char* asciz = (char*)converter_malloc(*(char**)data,bytelen+1,1);
-        cstombs(O(foreign_encoding),ptr1,len,(uintB*)asciz,bytelen);
-        asciz[bytelen] = '\0';
-        *(char**)data = asciz;
+        pushSTACK(constructor);
+        pushSTACK(slots);
+        pushSTACK(fvd);
+        pushSTACK(obj);
+        var uintL cumul_size = 0;
+        var uintL cumul_alignment = struct_alignment;
+        var uintL i;
+        for (i = C_STRUCT_C_TYPE_START; i < fvdlen; i++) {
+          var object obji;
+          if (eq(STACK_3,L(vector))) {
+            obji = TheSvector(STACK_0)->data[i-C_STRUCT_C_TYPE_START];
+          } else if (eq(STACK_3,L(list))) {
+            obji = STACK_0;
+            if (atomp(obji)) goto bad_obj;
+            STACK_0 = Cdr(obji); obji = Car(obji);
+          } else { /* simple_vector_p(slots) &&
+                      (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START) */
+            pushSTACK(STACK_0);
+            pushSTACK(TheSvector(STACK_(2+1))->data[i-C_STRUCT_C_TYPE_START]);
+            funcall(L(slot_value),2); obji = value1;
+          }
+          var object fvdi = TheSvector(STACK_1)->data[i];
+          foreign_layout(fvdi);
+          /* We assume all alignments are of the form 2^k. */
+          cumul_size += (-cumul_size) & (data_alignment-1);
+          var void* pdata = (char*)data + cumul_size;
+          cumul_size += data_size;
+          /* cumul_alignment = lcm(cumul_alignment,data_alignment); */
+          if (data_alignment > cumul_alignment)
+            cumul_alignment = data_alignment;
+          /* Now we are finished with data_size and data_alignment.
+             Descend into the structure slot: */
+          convert_to_foreign(fvdi,obji,pdata);
+        }
+        skipSTACK(4);
         return;
-      }
-    } else if (simple_vector_p(fvd)) {
-      var uintL fvdlen = Svector_length(fvd);
-      if (fvdlen > 0) {
-        var object fvdtype = TheSvector(fvd)->data[0];
-        if (eq(fvdtype,S(c_struct)) && (fvdlen > 2)) {
-          var object slots = TheSvector(fvd)->data[1];
-          var object constructor = TheSvector(fvd)->data[2];
-          if (!(simple_vector_p(slots) && (Svector_length(slots)==fvdlen-3)))
-            fehler_foreign_type(fvd);
-          if (eq(constructor,L(vector))) {
-            if (!(simple_vector_p(obj) && (Svector_length(obj)==fvdlen-3)))
-              goto bad_obj;
-          } else if (eq(constructor,L(list))) {
-          } else {
-            if (!(structurep(obj) || instancep(obj)))
-              goto bad_obj;
-          }
-          pushSTACK(constructor);
-          pushSTACK(slots);
-          pushSTACK(fvd);
-          pushSTACK(obj);
-          var uintL cumul_size = 0;
-          var uintL cumul_alignment = struct_alignment;
+      } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
+        /* Use the union's first component. */
+        convert_to_foreign(fvdlen > 2 ? (object)TheSvector(fvd)->data[2] : NIL,obj,data);
+        return;
+      } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
+        var object eltype = TheSvector(fvd)->data[1];
+        var uintL eltype_size = (foreign_layout(eltype), data_size);
+        var uintL size = 1;
+        {
           var uintL i;
-          for (i = 3; i < fvdlen; i++) {
-            var object obji;
-            if (eq(STACK_3,L(vector))) {
-              obji = TheSvector(STACK_0)->data[i-3];
-            } else if (eq(STACK_3,L(list))) {
-              obji = STACK_0;
-              if (atomp(obji)) goto bad_obj;
-              STACK_0 = Cdr(obji); obji = Car(obji);
-            } else { # simple_vector_p(slots) && (Svector_length(slots)==fvdlen-3)
-              pushSTACK(STACK_0); pushSTACK(TheSvector(STACK_(2+1))->data[i-3]);
-              funcall(L(slot_value),2); obji = value1;
-            }
-            var object fvdi = TheSvector(STACK_1)->data[i];
-            foreign_layout(fvdi);
-            # We assume all alignments are of the form 2^k.
-            cumul_size += (-cumul_size) & (data_alignment-1);
-            var void* pdata = (char*)data + cumul_size;
-            cumul_size += data_size;
-            # cumul_alignment = lcm(cumul_alignment,data_alignment);
-            if (data_alignment > cumul_alignment)
-              cumul_alignment = data_alignment;
-            # Now we are finished with data_size and data_alignment.
-            # Descend into the structure slot:
-            convert_to_foreign(fvdi,obji,pdata);
+          for (i = 2; i < fvdlen; i++) {
+            var object dim = TheSvector(fvd)->data[i];
+            if (!uint32_p(dim))
+              fehler_foreign_type(fvd);
+            size *= I_to_uint32(dim);
           }
-          skipSTACK(4);
-          return;
-        } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
-          # Use the union's first component.
-          convert_to_foreign(fvdlen > 2 ? (object)TheSvector(fvd)->data[2] : NIL,obj,data);
-          return;
-        } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
-          var object eltype = TheSvector(fvd)->data[1];
-          var uintL eltype_size = (foreign_layout(eltype), data_size);
-          var uintL size = 1;
-          {
-            var uintL i;
-            for (i = 2; i < fvdlen; i++) {
-              var object dim = TheSvector(fvd)->data[i];
-              if (!uint32_p(dim))
-                fehler_foreign_type(fvd);
-              size *= I_to_uint32(dim);
-            }
-          }
-          if (!(arrayp(obj) && array_total_size(obj)==size))
-            goto bad_obj;
-          if (eq(eltype,S(character)) && stringp(obj)) {
-            var uintL len;
-            var uintL offset;
-            var object string = unpack_string_ro(obj,&len,&offset);
-            var const chart* ptr1;
-            unpack_sstring_alloca(string,len,offset, ptr1=);
-            ASSERT(cslen(O(foreign_encoding),ptr1,len) == len);
-            cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
-          } else if (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
-            if (size > 0) {
-              var uintL index = 0;
-              obj = array_displace_check(obj,size,&index);
-              var const uint8* ptr1 = &TheSbvector(obj)->data[index];
-              var uint8* ptr2 = (uint8*)data;
-              var uintL count;
-              dotimespL(count,size, { *ptr2++ = *ptr1++; } );
-            }
-          } else if (eq(eltype,S(uint16)) && bit_vector_p(Atype_16Bit,obj)) {
-            if (size > 0) {
-              var uintL index = 0;
-              obj = array_displace_check(obj,size,&index);
-              var const uint16* ptr1 = (uint16*)&TheSbvector(obj)->data[2*index];
-              var uint16* ptr2 = (uint16*)data;
-              var uintL count;
-              dotimespL(count,size, { *ptr2++ = *ptr1++; } );
-            }
-          } else if (eq(eltype,S(uint32)) && bit_vector_p(Atype_32Bit,obj)) {
-            if (size > 0) {
-              var uintL index = 0;
-              obj = array_displace_check(obj,size,&index);
-              var const uint32* ptr1 = (uint32*)&TheSbvector(obj)->data[4*index];
-              var uint32* ptr2 = (uint32*)data;
-              var uintL count;
-              dotimespL(count,size, { *ptr2++ = *ptr1++; } );
-            }
-          } else {
-            pushSTACK(eltype);
-            pushSTACK(obj);
-            {
-              var uintL i;
-              var char* pdata = (char*)data;
-              for (i = 0; i < size; i++, pdata += eltype_size) {
-                # pdata = (char*)data + i*eltype_size
-                pushSTACK(STACK_0); pushSTACK(fixnum(i));
-                funcall(L(row_major_aref),2);
-                convert_to_foreign(STACK_1,value1,pdata);
-              }
-            }
-            skipSTACK(2);
-          }
-          return;
-        } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
-          var object eltype = TheSvector(fvd)->data[1];
-          var uintL eltype_size = (foreign_layout(eltype), data_size);
-          var uintL maxdim = I_to_UL(TheSvector(fvd)->data[2]);
-          if (!vectorp(obj))
-            goto bad_obj;
-          var uintL len = vector_length(obj);
-          if (len > maxdim)
-            len = maxdim;
-          if (eq(eltype,S(character)) && stringp(obj)) {
-            var uintL dummy_len;
-            var uintL offset;
-            var object string = unpack_string_ro(obj,&dummy_len,&offset);
-            var const chart* ptr1;
-            unpack_sstring_alloca(string,len,offset, ptr1=);
-            ASSERT(cslen(O(foreign_encoding),ptr1,len) == len);
-            cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
-            if (len < maxdim)
-              ((uintB*)data)[len] = '\0';
-          } else if (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
+        }
+        if (!(arrayp(obj) && array_total_size(obj)==size))
+          goto bad_obj;
+        if (eq(eltype,S(character)) && stringp(obj)) {
+          var uintL len;
+          var uintL offset;
+          var object string = unpack_string_ro(obj,&len,&offset);
+          var const chart* ptr1;
+          unpack_sstring_alloca(string,len,offset, ptr1=);
+          ASSERT(cslen(O(foreign_encoding),ptr1,len) == len);
+          cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
+        } else if (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
+          if (size > 0) {
+            var uintL index = 0;
+            obj = array_displace_check(obj,size,&index);
+            var const uint8* ptr1 = &TheSbvector(obj)->data[index];
             var uint8* ptr2 = (uint8*)data;
-            if (len > 0) {
-              var uintL index = 0;
-              obj = array_displace_check(obj,len,&index);
-              var const uint8* ptr1 = &TheSbvector(obj)->data[index];
-              var uintL count;
-              dotimespL(count,len, { *ptr2++ = *ptr1++; } );
-            }
-            if (len < maxdim)
-              *ptr2 = 0;
-          } else if (eq(eltype,S(uint16)) && bit_vector_p(Atype_16Bit,obj)) {
+            var uintL count;
+            dotimespL(count,size, { *ptr2++ = *ptr1++; } );
+          }
+        } else if (eq(eltype,S(uint16)) && bit_vector_p(Atype_16Bit,obj)) {
+          if (size > 0) {
+            var uintL index = 0;
+            obj = array_displace_check(obj,size,&index);
+            var const uint16* ptr1 = (uint16*)&TheSbvector(obj)->data[2*index];
             var uint16* ptr2 = (uint16*)data;
-            if (len > 0) {
-              var uintL index = 0;
-              obj = array_displace_check(obj,len,&index);
-              var const uint16* ptr1 = (uint16*)&TheSbvector(obj)->data[2*index];
-              var uintL count;
-              dotimespL(count,len, { *ptr2++ = *ptr1++; } );
-            }
-            if (len < maxdim)
-              *ptr2 = 0;
-          } else if (eq(eltype,S(uint32)) && bit_vector_p(Atype_32Bit,obj)) {
+            var uintL count;
+            dotimespL(count,size, { *ptr2++ = *ptr1++; } );
+          }
+        } else if (eq(eltype,S(uint32)) && bit_vector_p(Atype_32Bit,obj)) {
+          if (size > 0) {
+            var uintL index = 0;
+            obj = array_displace_check(obj,size,&index);
+            var const uint32* ptr1 = (uint32*)&TheSbvector(obj)->data[4*index];
             var uint32* ptr2 = (uint32*)data;
-            if (len > 0) {
-              var uintL index = 0;
-              obj = array_displace_check(obj,len,&index);
-              var const uint32* ptr1 = (uint32*)&TheSbvector(obj)->data[4*index];
-              var uintL count;
-              dotimespL(count,len, { *ptr2++ = *ptr1++; } );
-            }
-            if (len < maxdim)
-              *ptr2 = 0;
-          } else {
-            pushSTACK(eltype);
-            pushSTACK(obj);
-            {
-              var uintL i;
-              var char* pdata = (char*)data;
-              for (i = 0; i < len; i++, pdata += eltype_size) {
-                # pdata = (char*)data + i*eltype_size
-                pushSTACK(STACK_0); pushSTACK(fixnum(i));
-                funcall(L(aref),2);
-                convert_to_foreign(STACK_1,value1,pdata);
-              }
-              if (len < maxdim)
-                blockzero(pdata,eltype_size);
-            }
-            skipSTACK(2);
+            var uintL count;
+            dotimespL(count,size, { *ptr2++ = *ptr1++; } );
           }
-          return;
-        } else if (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
-          if (nullp(obj)) {
-            *(void**)data = NULL;
-          } else {
-            var object ffun =
-              convert_function_to_foreign(obj,
-                                          TheSvector(fvd)->data[1],
-                                          TheSvector(fvd)->data[2],
-                                          TheSvector(fvd)->data[3]
-                                         );
-            *(void**)data = Faddress_value(TheFfunction(ffun)->ff_address);
-          }
-          return;
-        } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null)))
-                   && (fvdlen == 2)) {
-          if (nullp(obj) && eq(fvdtype,S(c_ptr_null))) {
-            *(void**)data = NULL;
-            return;
-          }
-          fvd = TheSvector(fvd)->data[1];
-          foreign_layout(fvd);
-          var void* p = converter_malloc(*(void**)data,data_size,data_alignment);
-          *(void**)data = p;
-          convert_to_foreign(fvd,obj,p);
-          return;
-        } else if (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
-          if (nullp(obj)) {
-            *(void**)data = NULL;
-            return;
-          }
-          if (!vectorp(obj)) goto bad_obj;
-          var uintL len = vector_length(obj);
-          fvd = TheSvector(fvd)->data[1];
-          foreign_layout(fvd);
-          var uintL eltype_size = data_size;
-          var void* p = converter_malloc(*(void**)data,(len+1)*eltype_size,data_alignment);
-          *(void**)data = p;
-          pushSTACK(fvd);
+        } else {
+          pushSTACK(eltype);
           pushSTACK(obj);
           {
             var uintL i;
-            for (i = 0; i < len; i++, p = (void*)((char*)p + eltype_size)) {
+            var char* pdata = (char*)data;
+            for (i = 0; i < size; i++, pdata += eltype_size) {
+              /* pdata = (char*)data + i*eltype_size */
               pushSTACK(STACK_0); pushSTACK(fixnum(i));
-              funcall(L(aref),2);
-              convert_to_foreign(STACK_1,value1,p);
+              funcall(L(row_major_aref),2);
+              convert_to_foreign(STACK_1,value1,pdata);
             }
           }
           skipSTACK(2);
-          blockzero(p,eltype_size);
+        }
+        return;
+      } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
+        var object eltype = TheSvector(fvd)->data[1];
+        var uintL eltype_size = (foreign_layout(eltype), data_size);
+        var uintL maxdim = I_to_UL(TheSvector(fvd)->data[2]);
+        if (!vectorp(obj))
+          goto bad_obj;
+        var uintL len = vector_length(obj);
+        if (len > maxdim)
+          len = maxdim;
+        if (eq(eltype,S(character)) && stringp(obj)) {
+          var uintL dummy_len;
+          var uintL offset;
+          var object string = unpack_string_ro(obj,&dummy_len,&offset);
+          var const chart* ptr1;
+          unpack_sstring_alloca(string,len,offset, ptr1=);
+          ASSERT(cslen(O(foreign_encoding),ptr1,len) == len);
+          cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
+          if (len < maxdim)
+            ((uintB*)data)[len] = '\0';
+        } else if (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
+          var uint8* ptr2 = (uint8*)data;
+          if (len > 0) {
+            var uintL index = 0;
+            obj = array_displace_check(obj,len,&index);
+            var const uint8* ptr1 = &TheSbvector(obj)->data[index];
+            var uintL count;
+            dotimespL(count,len, { *ptr2++ = *ptr1++; } );
+          }
+          if (len < maxdim)
+            *ptr2 = 0;
+        } else if (eq(eltype,S(uint16)) && bit_vector_p(Atype_16Bit,obj)) {
+          var uint16* ptr2 = (uint16*)data;
+          if (len > 0) {
+            var uintL index = 0;
+            obj = array_displace_check(obj,len,&index);
+            var const uint16* ptr1 = (uint16*)&TheSbvector(obj)->data[2*index];
+            var uintL count;
+            dotimespL(count,len, { *ptr2++ = *ptr1++; } );
+          }
+          if (len < maxdim)
+            *ptr2 = 0;
+        } else if (eq(eltype,S(uint32)) && bit_vector_p(Atype_32Bit,obj)) {
+          var uint32* ptr2 = (uint32*)data;
+          if (len > 0) {
+            var uintL index = 0;
+            obj = array_displace_check(obj,len,&index);
+            var const uint32* ptr1 = (uint32*)&TheSbvector(obj)->data[4*index];
+            var uintL count;
+            dotimespL(count,len, { *ptr2++ = *ptr1++; } );
+          }
+          if (len < maxdim)
+            *ptr2 = 0;
+        } else {
+          pushSTACK(eltype);
+          pushSTACK(obj);
+          {
+            var uintL i;
+            var char* pdata = (char*)data;
+            for (i = 0; i < len; i++, pdata += eltype_size) {
+              /* pdata = (char*)data + i*eltype_size */
+              pushSTACK(STACK_0); pushSTACK(fixnum(i));
+              funcall(L(aref),2);
+              convert_to_foreign(STACK_1,value1,pdata);
+            }
+            if (len < maxdim)
+              blockzero(pdata,eltype_size);
+          }
+          skipSTACK(2);
+        }
+        return;
+      } else if (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
+        if (nullp(obj)) {
+          *(void**)data = NULL;
+        } else {
+          var object ffun =
+            convert_function_to_foreign(obj,
+                                        TheSvector(fvd)->data[1],
+                                        TheSvector(fvd)->data[2],
+                                        TheSvector(fvd)->data[3]
+                                        );
+          *(void**)data = Faddress_value(TheFfunction(ffun)->ff_address);
+        }
+        return;
+      } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null)))
+                 && (fvdlen == 2)) {
+        if (nullp(obj) && eq(fvdtype,S(c_ptr_null))) {
+          *(void**)data = NULL;
           return;
         }
+        fvd = TheSvector(fvd)->data[1];
+        foreign_layout(fvd);
+        var void* p = converter_malloc(*(void**)data,data_size,data_alignment);
+        *(void**)data = p;
+        convert_to_foreign(fvd,obj,p);
+        return;
+      } else if (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
+        if (nullp(obj)) {
+          *(void**)data = NULL;
+          return;
+        }
+        if (!vectorp(obj)) goto bad_obj;
+        var uintL len = vector_length(obj);
+        fvd = TheSvector(fvd)->data[1];
+        foreign_layout(fvd);
+        var uintL eltype_size = data_size;
+        var void* p = converter_malloc(*(void**)data,(len+1)*eltype_size,data_alignment);
+        *(void**)data = p;
+        pushSTACK(fvd);
+        pushSTACK(obj);
+        {
+          var uintL i;
+          for (i = 0; i < len; i++, p = (void*)((char*)p + eltype_size)) {
+            pushSTACK(STACK_0); pushSTACK(fixnum(i));
+            funcall(L(aref),2);
+            convert_to_foreign(STACK_1,value1,p);
+          }
+        }
+        skipSTACK(2);
+        blockzero(p,eltype_size);
+        return;
       }
     }
-    fehler_foreign_type(fvd);
-   bad_obj:
-    fehler_convert(fvd,obj);
   }
+  fehler_foreign_type(fvd);
+ bad_obj:
+  fehler_convert(fvd,obj);
+}
 
 # Convert Lisp data to foreign data.
 # The foreign data has dynamic extent.
@@ -2428,18 +2440,20 @@ LISPFUNN(slot,2)
   var object fvd = TheFvariable(fvar)->fv_type;
   var uintL fvdlen;
   if (simple_vector_p(fvd) && ((fvdlen = Svector_length(fvd)) > 0)) {
-    if (eq(TheSvector(fvd)->data[0],S(c_struct)) && (fvdlen > 2)) {
-      var object slots = TheSvector(fvd)->data[1];
-      if (!(simple_vector_p(slots) && (Svector_length(slots)==fvdlen-3)))
+    if (eq(TheSvector(fvd)->data[0],S(c_struct))
+        && (fvdlen >= C_STRUCT_C_TYPE_START)) {
+      var object slots = TheSvector(fvd)->data[C_STRUCT_SLOTS];
+      if (!(simple_vector_p(slots) &&
+            (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START)))
         fehler_foreign_type(fvd);
       var uintL cumul_size = 0;
       var uintL i;
-      for (i = 3; i < fvdlen; i++) {
+      for (i = C_STRUCT_C_TYPE_START; i < fvdlen; i++) {
         var object fvdi = TheSvector(fvd)->data[i];
         foreign_layout(fvdi);
         /* We assume all alignments are of the form 2^k. */
         cumul_size += (-cumul_size) & (data_alignment-1);
-        if (eq(TheSvector(slots)->data[i-3],slot)) {
+        if (eq(TheSvector(slots)->data[i-C_STRUCT_C_TYPE_START],slot)) {
           pushSTACK(fvdi); goto found_struct_slot;
         }
         cumul_size += data_size;
