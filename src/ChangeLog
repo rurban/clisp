@@ -1,5 +1,9 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* foreign.d (FFI::%OFFSET): Fix GC-safety bug introduced on 2003-05-12.
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* debug.d (read_form): Fix GC-safety bug introduced on 2003-01-21.
 
 2004-12-05  Bruno Haible  <bruno@clisp.org>
