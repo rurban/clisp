@@ -24,6 +24,7 @@
 #%define release %(test -f .release || echo 0 >> .release; echo "1 + " `cat .release` | bc > .,release; mv -fv .,release .release; cat .release)
 #%define release %(cat .release)
 %define release 1
+%define modules syscalls berkeley-db pcre regexp bindings/glibc clx/new-clx
 
 Summary:      Common Lisp (ANSI CL) implementation
 Name:         %{name}
@@ -42,6 +43,10 @@ BuildRoot:    %{_tmppath}/%{name}-root
 %description
 %(cat SUMMARY)
 
+This binary distribution was built with the following modules:
+ %{modules}
+
+#     <The following note dates from 1998:>
 # RPM doesn't provide for comfortable operation: when I want to create a
 # package, I have to untar, build and install (--short-circuit works for
 # compilation and installation only, so if I want to build a binary RPM,
@@ -53,6 +58,8 @@ BuildRoot:    %{_tmppath}/%{name}-root
 # Additionally, RPM barfs on rpmrc created with `rpm --showrc > /etc/rpmrc`
 # which is an unspeakable abomination.
 # I reported all these as bugs and was told "it's a feature, not a bug".
+#     <I welcome suggestion on how to make this file useful>
+#     <to me as well as source RPM users>
 
 %prep
 cat <<EOF
@@ -65,9 +72,8 @@ EOF
 %build
 echo "Uncomment 'configure' in 'clisp.spec' if you want to build";
 #rm -rf %{builddir}
-#./configure --prefix=%{prefix} --fsstnd=redhat --with-module=regexp \
-#    --with-module=bindings/glibc --with-module=clx/new-clx \
-#    --with-module=syscalls --with-module=berkeley-db --build %{builddir}
+#MODS=''; for m in %{modules}; do MODS=${MODS}' '--with-module=$m; done
+#./configure --prefix=%{prefix} --fsstnd=redhat ${MODS} --build %{builddir}
 %install
 cd %{builddir}
 make DESTDIR=$RPM_BUILD_ROOT install
