@@ -19,6 +19,12 @@ prople (like myself) than the core developers (like you).
 Right now, genclisph.d produces clisp.h which is
 inconsistent with lispbibl.d when DEBUG_GCSAFETY is enabled.
 
+documentation clarification: is this still true?
+<http://www.podval.org/~sds/clisp/impnotes/dffi.html#param-mode>:
+        "[Currently, only :IN is fully implemented. :OUT works only with
+        ALLOCATION = :ALLOCA.]"
+<http://article.gmane.org/gmane.lisp.clisp.devel:13661>
+
 
 MUST-FIX BEFORE RELEASE 2.35
 ============================
@@ -62,6 +68,32 @@ Embeddability: additional API in spvw.d; global error handler; example.
 
 
 Update PARI module: there is no global precision variable anymore.
+
+
+nested REQUIRE is broken
+<http://article.gmane.org/gmane.lisp.clisp.devel:13691>:
+suppose I have a library which consists of 10 files - which create
+packages, define macros &c.
+I create a special file foo.lisp:
+--- foo ---
+(load "foo0")
+(load "foo1")
+....
+(load "foo9")
+(provide "foo")
+--- foo ---
+then (require "foo") will load the whole library,
+but since foo.lib is _empty_, this won't work:
+--- bar ---
+(require "foo")
+(defun bar () (foo:with-foo (...) ...))
+--- bar ---
+when bar.lisp is compiled, the empty foo.lib is loaded and there is no
+package FOO, no macro WITH-FOO &c.
+to fix this we need to, first, replace LOAD with REQUIRE in foo.lisp,
+and, second, change c-REQUIRE to write the REQUIRE form into *.lib.
+unfortunately, this means that each foo?.lisp must PROVIDE "foo?" which
+is quite ugly.
 
 
 Review all macros and tighten the runtime interface of the macros.
