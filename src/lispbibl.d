@@ -6430,6 +6430,10 @@ typedef struct {
 
 # ####################### TIMEBIBL zu TIME.D ############################## #
 
+# (* 25567 24 60 60) => 2208988800
+# the number of seconds from 1900-01-01 to 1970-01-01
+#define UNIX_LISP_TIME_DIFF 2208988800UL
+
 # Typ, der für 'Internal Time' verwendet wird:
 #ifdef TIME_1
   typedef uintL internal_time;      # abgegriffener Wert des Tick-Zählers
