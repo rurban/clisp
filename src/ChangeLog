@@ -1,5 +1,11 @@
 2002-04-22  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 547046 ]: compiler-macro -> no special-operator
+	* compiler.lisp (c-form): call EXPAND-COMPILER-MACRO before
+	checking C-FORM-TABLE to accomodate expanding to a special form
+
+2002-04-22  Sam Steingold  <sds@gnu.org>
+
 	* cmacros.lisp (define-compiler-macro): call CHECK-REDEFINITION
 
 2002-04-21  Sam Steingold  <sds@gnu.org>
