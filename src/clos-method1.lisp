@@ -157,11 +157,15 @@
 
 (defun print-object-<standard-method> (method stream)
   (print-unreadable-object (method stream :type t)
-    (dolist (q (std-method-qualifiers method))
-      (write q :stream stream)
-      (write-char #\Space stream))
-    (write (mapcar #'specializer-pretty (std-method-specializers method))
-           :stream stream)))
+    (if (and (not (eq (std-method-qualifiers method) (sys::%unbound)))
+             (not (eq (std-method-specializers method) (sys::%unbound))))
+      (progn
+        (dolist (q (std-method-qualifiers method))
+          (write q :stream stream)
+          (write-char #\Space stream))
+        (write (mapcar #'specializer-pretty (std-method-specializers method))
+               :stream stream))
+      (write :uninitialized :stream stream))))
 
 ;;; ---------------------------------------------------------------------------
 
