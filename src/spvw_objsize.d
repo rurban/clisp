@@ -72,12 +72,21 @@
  Varobject_aligned_size(offsetofa(sbvector_,data),2,(uintL)(length))
 #define size_sb32vector(length)  # simple-32bit-vector \
  Varobject_aligned_size(offsetofa(sbvector_,data),4,(uintL)(length))
+#define size_s8string(length)  # simple-8bit-string     \
+ Varobject_aligned_size(offsetofa(s8string_,data),      \
+                        sizeof(cint8),(uintL)(length))
+#define size_s16string(length)  # simple-16bit-string   \
+ Varobject_aligned_size(offsetofa(s16string_,data),     \
+                        sizeof(cint16),(uintL)(length))
+#define size_s32string(length)  # simple-32bit-string   \
+ Varobject_aligned_size(offsetofa(s32string_,data),     \
+                        sizeof(cint32),(uintL)(length))
+#ifdef UNICODE
 #define size_sstring(length)  # normal-simple-string \
- Varobject_aligned_size(offsetofa(sstring_,data),sizeof(chart),(uintL)(length))
-#ifdef HAVE_SMALL_SSTRING
-  #define size_small_sstring(length)  # small-simple-string     \
-    Varobject_aligned_size(offsetofa(small_sstring_,data),      \
-                           sizeof(scint),(uintL)(length))
+  size_s32string(length)
+#else
+#define size_sstring(length)  # normal-simple-string \
+  size_s8string(length)
 #endif
 #define size_svector(length)  # simple-vector                   \
   Varobject_aligned_size(offsetofa(svector_,data),              \
@@ -128,7 +137,6 @@ local uintL objsize (void* addr) {
     case_Rectype_Sb8vector_above;
     case_Rectype_Sb16vector_above;
     case_Rectype_Sb32vector_above;
-    case Rectype_Sstring: case Rectype_Imm_Sstring: goto case_sstring;
     case_Rectype_Svector_above;
     case_Rectype_WeakKVT_above;
     case_Rectype_mdarray_above;
@@ -142,15 +150,33 @@ local uintL objsize (void* addr) {
     case_Rectype_ovector_above;
     case_Rectype_Bignum_above;
     case_Rectype_Lfloat_above;
+   #ifdef UNICODE
+    case Rectype_S32string: case Rectype_Imm_S32string:
+   #else
+    case Rectype_S8string: case Rectype_Imm_S8string:
+   #endif
+      goto case_sstring;
    #ifdef HAVE_SMALL_SSTRING
-    case Rectype_Imm_SmallSstring:
-      return size_small_sstring(sstring_length((SmallSstring)addr));
-    case Rectype_SmallSstring:
+    case Rectype_Imm_S8string:
+      return size_s8string(sstring_length((S8string)addr));
+    case Rectype_S8string:
       {
-        var uintL len = sstring_length((SmallSstring)addr);
-        var uintL size = size_small_sstring(len);
+        var uintL len = sstring_length((S8string)addr);
+        var uintL size = size_s8string(len);
         # Some uprounding, for reallocate_small_string to work.
-        if (size_small_sstring(1) < size_siarray(0)
+        if (size_s8string(1) < size_siarray(0)
+            && size < size_siarray(0) && len > 0)
+          size = size_siarray(0);
+        return size;
+      }
+    case Rectype_Imm_S16string:
+      return size_s16string(sstring_length((S16string)addr));
+    case Rectype_S16string:
+      {
+        var uintL len = sstring_length((S16string)addr);
+        var uintL size = size_s16string(len);
+        # Some uprounding, for reallocate_small_string to work.
+        if (size_s16string(1) < size_siarray(0)
             && size < size_siarray(0) && len > 0)
           size = size_siarray(0);
         return size;

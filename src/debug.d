@@ -1,5 +1,5 @@
 # Top-Level-Schleife, Hilfsfunktionen für Debugger, Stepper von CLISP
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2002
 # ILISP friendliness: Marcus Daniels 8.4.1994
 # Sam Steingold 2001
 
@@ -156,9 +156,8 @@
                 if (len == input_len) goto found;
                 # now len < input_len
                 var cint ch;
-                SstringDispatch(line,
-                 { ch = as_cint(TheSstring(line)->data[len]); },
-                 { ch = as_cint(as_chart(TheSmallSstring(line)->data[len])); });
+                SstringDispatch(line,X,
+                  { ch = ((SstringX)TheVarobject(line))->data[len]; });
                 if (cint_white_p(ch)) {
                  found:
                   funcall(Cdr(Car(alist)),0); # call the appropriate function

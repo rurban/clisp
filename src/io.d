@@ -28,8 +28,9 @@ global void sstring_printf (object sstr, uintL len, uintL offset) {
   printf("<%d/%d\"",len,offset);
   for(idx=offset;idx<len;idx++) {
     chart ch;
-    SstringDispatch(sstr,{ ch=TheSstring(sstr)->data[idx]; },
-                    { ch=as_chart(TheSmallSstring(sstr)->data[idx]); });
+    SstringDispatch(sstr,X,{
+      ch = as_chart(((SstringX)TheVarobject(sstr))->data[idx]);
+    });
     printf("%c",as_cint(ch));
   }
   printf("\">");
@@ -94,6 +95,9 @@ global void pphelp_printf (object pph) {
 # =============================================================================
 # Readtable-functions
 # =============================================================================
+
+# Maximum size of linear per-character arrays.
+#define small_char_code_limit 0x100UL
 
 # Tables indexed by characters.
 # allocate_perchar_table()
@@ -5198,14 +5202,9 @@ local void write_sstring_case (const object* stream_, object string) {
         if (count > 0) {
           var uintL index = 0;
           pushSTACK(string); # save simple-string
-          SstringDispatch(string,{
+          SstringDispatch(string,X, {
             dotimespL(count,count, {
-              write_code_char(stream_,down_case(TheSstring(STACK_0)->data[index]));
-              index++;
-            });
-          },{
-            dotimespL(count,count, {
-              write_code_char(stream_,down_case(as_chart(TheSmallSstring(STACK_0)->data[index])));
+              write_code_char(stream_,down_case(((SstringX)TheVarobject(STACK_0))->data[index]));
               index++;
             });
           });
@@ -5267,22 +5266,11 @@ local void write_sstring_case (const object* stream_, object string) {
           var bool flag = false;
           var uintL index = 0;
           pushSTACK(string); # save simple-string
-          SstringDispatch(string,{
+          SstringDispatch(string,X, {
             dotimespL(count,count, {
               # flag indicates whether within a word
               var bool oldflag = flag;
-              var chart c = TheSstring(STACK_0)->data[index]; # next character
-              if ((flag = alphanumericp(c)) && oldflag)
-                # alphanumeric character in word:
-                c = down_case(c); # upper case --> lower case
-              write_code_char(stream_,c); # and print
-              index++;
-            });
-          },{
-            dotimespL(count,count, {
-              # flag indicates whether within a word
-              var bool oldflag = flag;
-              var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # next character
+              var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # next character
               if ((flag = alphanumericp(c)) && oldflag)
                 # alphanumeric character in word:
                 c = down_case(c); # upper case --> lower case
@@ -5305,14 +5293,9 @@ local void write_sstring_case (const object* stream_, object string) {
         if (count > 0) {
           var uintL index = 0;
           pushSTACK(string); # save simple-string
-          SstringDispatch(string,{
+          SstringDispatch(string,X, {
             dotimespL(count,count, {
-              write_code_char(stream_,up_case(TheSstring(STACK_0)->data[index]));
-              index++;
-            });
-          },{
-            dotimespL(count,count, {
-              write_code_char(stream_,up_case(as_chart(TheSmallSstring(STACK_0)->data[index])));
+              write_code_char(stream_,up_case(as_chart(((SstringX)TheVarobject(STACK_0))->data[index])));
               index++;
             });
           });
@@ -5362,22 +5345,11 @@ local void write_sstring_case (const object* stream_, object string) {
           var bool flag = false;
           var uintL index = 0;
           pushSTACK(string); # save simple-string
-          SstringDispatch(string,{
+          SstringDispatch(string,X, {
             dotimespL(count,count, {
               # flag indicates whether within a word
               var bool oldflag = flag;
-              var chart c = TheSstring(STACK_0)->data[index]; # next character
-              if ((flag = alphanumericp(c)) && !oldflag)
-                # alphanumeric character at the beginning of word:
-                c = up_case(c); # lower case --> upper case
-              write_code_char(stream_,c); # and print
-              index++;
-            });
-          },{
-            dotimespL(count,count, {
-              # flag indicates whether within a word
-              var bool oldflag = flag;
-              var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # next character
+              var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # next character
               if ((flag = alphanumericp(c)) && !oldflag)
                 # alphanumeric character at the beginning of word:
                 c = up_case(c); # lower case --> upper case
@@ -5400,17 +5372,8 @@ local void write_sstring_case (const object* stream_, object string) {
         var bool seen_lowercase = false;
         var uintL count = Sstring_length(string);
         if (count > 0) {
-          SstringDispatch(string,{
-            var const chart* cptr = &TheSstring(string)->data[0];
-            dotimespL(count,count, {
-              var chart c = *cptr++;
-              if (!chareq(c,up_case(c)))
-                seen_lowercase = true;
-              if (!chareq(c,down_case(c)))
-                seen_uppercase = true;
-            });
-          },{
-            var const scint* cptr = &TheSmallSstring(string)->data[0];
+          SstringDispatch(string,X, {
+            var const cintX* cptr = &((SstringX)TheVarobject(string))->data[0];
             dotimespL(count,count, {
               var chart c = as_chart(*cptr++);
               if (!chareq(c,up_case(c)))
@@ -7027,44 +6990,8 @@ local void pr_symbol_part (const object* stream_, object string,
       rtcase = RTCase(readtable);
     }
     # traverse string:
-    SstringDispatch(string,{
-      var const chart* charptr = &TheSstring(string)->data[0];
-      var uintL count = len;
-      var chart c = *charptr++; # first character
-      # its syntaxcode shall be constituent:
-      if (!(syntax_table_get(syntax_table,c) == syntax_constituent))
-        goto surround; # no -> must use |...|
-      loop {
-        if (attribute_of(c) == a_pack_m) # attributcode Package-Marker ?
-          goto surround; # yes -> must use |...|
-        if (!case_sensitive)
-          switch (rtcase) {
-            case case_upcase:
-              if (!chareq(c,up_case(c))) # c was lower-case?
-                goto surround; # yes -> must use |...|
-              break;
-            case case_downcase:
-              if (!chareq(c,down_case(c))) # c was upper-case?
-                goto surround; # yes -> must use |...|
-              break;
-            case case_preserve:
-              break;
-            case case_invert:
-              break;
-            default: NOTREACHED;
-          }
-        count--; if (count == 0) break; # string finished -> end of loop
-        c = *charptr++; # the next character
-        switch (syntax_table_get(syntax_table,c)) { # its syntaxcode
-          case syntax_constituent:
-          case syntax_nt_macro:
-            break;
-          default: # Syntaxcode /= Constituent, Nonterminating Macro
-            goto surround; # -> must use |...|
-        }
-      }
-    },{
-      var const scint* charptr = &TheSmallSstring(string)->data[0];
+    SstringDispatch(string,X, {
+      var const cintX* charptr = &((SstringX)TheVarobject(string))->data[0];
       var uintL count = len;
       var chart c = as_chart(*charptr++); # first Character
       # its syntaxcode shall be Constituent:
@@ -7106,18 +7033,10 @@ local void pr_symbol_part (const object* stream_, object string,
     pushSTACK(string); # save string
     get_buffers(); # allocate two buffers, in the STACK
     # and fill:
-    SstringDispatch(STACK_2,{
+    SstringDispatch(STACK_2,X, {
       var uintL index = 0;
       until (index == len) {
-        var chart c = TheSstring(STACK_2)->data[index]; # the next character
-        ssstring_push_extend(STACK_1,c); # into the character-buffer
-        ssbvector_push_extend(STACK_0,attribute_of(c)); # and into the Attributcode-Buffer
-        index++;
-      }
-    },{
-      var uintL index = 0;
-      until (index == len) {
-        var chart c = as_chart(TheSmallSstring(STACK_2)->data[index]); # the next character
+        var chart c = as_chart(((SstringX)TheVarobject(STACK_2))->data[index]); # the next character
         ssstring_push_extend(STACK_1,c); # into the character-buffer
         ssbvector_push_extend(STACK_0,attribute_of(c)); # und into the Attributcode-Buffer
         index++;
@@ -7151,23 +7070,10 @@ local void pr_symbol_part (const object* stream_, object string,
   pushSTACK(string);
   # stack layout: syntax_table, string.
   write_ascii_char(stream_,'|');
-  SstringDispatch(STACK_0,{
+  SstringDispatch(STACK_0,X, {
     var uintL index = 0;
     until (index == len) {
-      var chart c = TheSstring(STACK_0)->data[index]; # the next character
-      switch (syntax_table_get(STACK_1,c)) { # its Syntaxcode
-        case syntax_single_esc:
-        case syntax_multi_esc: # The Escape-Character c is prepended by '\':
-          write_ascii_char(stream_,'\\');
-        default: ;
-      }
-      write_code_char(stream_,c); # print Character
-      index++;
-    }
-  },{
-    var uintL index = 0;
-    until (index == len) {
-      var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # the next character
+      var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # the next character
       switch (syntax_table_get(STACK_1,c)) { # its Syntaxcode
         case syntax_single_esc:
         case syntax_multi_esc: # The Escape-Character c is prepended by '\':
@@ -7248,18 +7154,9 @@ local void pr_sstring_ab (const object* stream_, object string,
     write_ascii_char(stream_,'"'); # prepend a quotation mark
     string = STACK_0;
 #if 0
-    SstringDispatch(string,{
+    SstringDispatch(string,X, {
       dotimesL(len,len, {
-        var chart c = TheSstring(STACK_0)->data[index]; # next character
-        # if c = #\" or c = #\\ first print a '\':
-        if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
-          write_ascii_char(stream_,'\\');
-        write_code_char(stream_,c);
-        index++;
-      });
-    },{
-      dotimesL(len,len, {
-        var chart c = as_chart(TheSmallSstring(STACK_0)->data[index]); # next character
+        var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # next character
         # if c = #\" or c = #\\ first print a '\':
         if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
           write_ascii_char(stream_,'\\');
@@ -7268,29 +7165,12 @@ local void pr_sstring_ab (const object* stream_, object string,
       });
     });
 #else # the same stuff, a little optimized
-    SstringDispatch(string,{
+    SstringDispatch(string,X, {
       var uintL index0 = index;
       loop { # search the next #\" or #\\ :
         string = STACK_0;
         while (len > 0) {
-          var chart c = TheSstring(string)->data[index];
-          if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
-            break;
-          index++; len--;
-        }
-        if (!(index==index0))
-          write_sstring_ab(stream_,string,index0,index-index0);
-        if (len==0)
-          break;
-        write_ascii_char(stream_,'\\');
-        index0 = index; index++; len--;
-      }
-    },{
-      var uintL index0 = index;
-      loop { # search the next #\" or #\\ :
-        string = STACK_0;
-        while (len > 0) {
-          var chart c = as_chart(TheSmallSstring(string)->data[index]);
+          var chart c = as_chart(((SstringX)TheVarobject(string))->data[index]);
           if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
             break;
           index++; len--;
@@ -8639,8 +8519,9 @@ local void pr_orecord (const object* stream_, object obj) {
   switch (Record_type(obj)) {
 #ifndef TYPECODES
     case Rectype_string: case Rectype_reallocstring:
-    case Rectype_Sstring: case Rectype_Imm_Sstring:
-    case Rectype_SmallSstring: case Rectype_Imm_SmallSstring: # String
+    case Rectype_S8string: case Rectype_Imm_S8string:
+    case Rectype_S16string: case Rectype_Imm_S16string:
+    case Rectype_S32string: case Rectype_Imm_S32string: # String
       pr_string(stream_,obj); break;
     case Rectype_bvector: case Rectype_Sbvector: # bit-vector
       pr_bvector(stream_,obj); break;
