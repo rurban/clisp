@@ -1664,20 +1664,32 @@ here <function>WITH-FOO</function> does not receive the
 
 <section id="code-walk"><title>Code Walker</title>
 
-<para>You can use <function>EXT:EXPAND-FORM</function> to expand all
- the macros, &symbol-macro;s, etc, in a single form:
+<para>You can use function &expand-form; to expand all the macros,
+ &symbol-macro;s, etc, in a single form:
 <programlisting language="lisp">
- (expand-form '(macrolet ((bar (x) `(print ,x)))
-                 (macrolet ((baz (x) `(bar ,x)))
-                   (symbol-macrolet ((z 3))
-                     (baz z)))))
-</programlisting>
-returns two values: <code>(locally (print 3))</code> (the expansion) and
-&t; (an indicator that some expansion has actually been done).</para>
+(&expand-form; '(macrolet ((bar (x) `(print ,x)))
+                    (macrolet ((baz (x) `(bar ,x)))
+                      (symbol-macrolet ((z 3))
+                        (baz z)))))
+<computeroutput>(locally (print 3))</computeroutput> ; the expansion
+<computeroutput>&t;</computeroutput>               ; indicator: some expansion has actually been done
+</programlisting></para>
 
 <para>This is sometimes called a <quote>code walker</quote>,
  except that the code walker would probably leave the &macrolet; and
  &symbol-macrolet; forms intact and just do the expansion.</para>
+
+<warning><para>Function &expand-form; expands forms by assuming the
+  &eval-when; situation <constant>:EXECUTE</constant> and is therefore
+  unsuitable for forms that may later be passed to the compiler:
+<programlisting language="lisp">
+(&expand-form; '(&eval-when; (:COMPILE-TOPLEVEL) (foo)))
+<computeroutput>&nil;</computeroutput> ;
+<computeroutput>&t;</computeroutput>
+(&expand-form; '(&eval-when; (:LOAD-TOPLEVEL) (foo)))
+<computeroutput>&nil;</computeroutput> ;
+<computeroutput>&t;</computeroutput>
+</programlisting></para></warning>
 </section>
 
 </chapter>
