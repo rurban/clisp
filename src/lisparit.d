@@ -448,25 +448,36 @@
 # > subr_self: Aufrufer (ein SUBR)
   #define check_integer(obj)  { if (!integerp(obj)) { fehler_not_I(obj); } }
 
+# UP: Returns the decimal string representation of an integer >= 0.
+# decimal_string(x)
+# > object x: an integer >= 0
+# < object result: a simple-string containing the digits
+# kann GC auslösen
+  global object decimal_string (object x);
+  global object decimal_string(x)
+    var object x;
+    {  SAVE_NUM_STACK # num_stack retten
+       var uintD* MSDptr;
+       var uintC len;
+       I_to_NDS(x, MSDptr=,len=,); # x (>=0) als UDS
+     { var uintL need = digits_need(len,10);
+       var DYNAMIC_ARRAY(ziffern,uintB,need); # Platz für die Ziffern
+       var DIGITS erg; erg.LSBptr = &ziffern[need];
+       UDS_to_DIGITS(MSDptr,len,10,&erg); # Umwandlung in Ziffern
+       RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
+      {var object string = make_string(erg.MSBptr,erg.len); # Ziffern in Simple-String schreiben
+       FREE_DYNAMIC_ARRAY(ziffern);
+       return string;
+    }}}
+
 LISPFUNN(decimal_string,1)
 # (SYS::DECIMAL-STRING integer)
 # liefert zu einem Integer >=0  (write-to-string integer :base 10 :radix nil),
 # also die Ziffernfolge als Simple-String.
   { var object x = popSTACK();
     check_integer(x);
-    { SAVE_NUM_STACK # num_stack retten
-      var uintD* MSDptr;
-      var uintC len;
-      I_to_NDS(x, MSDptr=,len=,); # x (>=0) als UDS
-     {var uintL need = digits_need(len,10);
-      var DYNAMIC_ARRAY(ziffern,uintB,need); # Platz für die Ziffern
-      var DIGITS erg; erg.LSBptr = &ziffern[need];
-      UDS_to_DIGITS(MSDptr,len,10,&erg); # Umwandlung in Ziffern
-      RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-      value1 = make_string(erg.MSBptr,erg.len); # Ziffern in Simple-String schreiben
-      mv_count=1;
-      FREE_DYNAMIC_ARRAY(ziffern);
-  } }}
+    value1 = decimal_string(x); mv_count=1;
+  }
 
 LISPFUNN(zerop,1)
 # (ZEROP number), CLTL S. 195

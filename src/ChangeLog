@@ -1,5 +1,12 @@
 1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (decimal_string): New declaration.
+        * lisparit.d (decimal_string): New function.
+          (SYS::DECIMAL-STRING): Call it.
+        * pathname.d (nametype_namestring_parts, version_diff): Likewise.
+
+1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (stream_line_number): New declaration.
         * stream.d (stream_line_number): New function.
           (SYS::LINE-NUMBER): Call it.
