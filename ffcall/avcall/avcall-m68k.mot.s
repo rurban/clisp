@@ -13,214 +13,213 @@ __builtin_avcall:
 	add.l 20(%a2),%d0
 	sub.l %a2,%d0
 	asr.l #2,%d0
-	sub.l %a1,%a1
-	cmp.l %a1,%d0
-	jble .L3
+	jble .L4
 	move.l %sp,%a3
 	lea (32,%a2),%a0
+	move.l %d0,%a1
 	.align 	2
-.L5:
+.L6:
 	move.l (%a0)+,(%a3)+
-	addq.l #1,%a1
-	cmp.l %a1,%d0
-	jbgt .L5
-.L3:
-	moveq.l #16,%d3
-	cmp.l 12(%a2),%d3
-	jbne .L7
+	subq.l #1,%a1
+	tst.l %a1
+	jbne .L6
+.L4:
+	moveq.l #16,%d0
+	cmp.l 12(%a2),%d0
+	jbne .L8
 #APP
 	move.l 8(%a2),%a1
 #NO_APP
-.L7:
+.L8:
 	move.l (%a2),%a0
 	jbsr (%a0)
 	move.l %d0,%a1
-	move.l 12(%a2),%a0
-	move.l %a0,%d2
-	moveq.l #1,%d3
-	cmp.l %a0,%d3
-	jbeq .L9
-	tst.l %a0
-	jbeq .L68
+	move.l 12(%a2),%d2
+	moveq.l #1,%d1
+	cmp.l %d2,%d1
+	jbeq .L10
+	tst.l %d2
+	jbeq .L69
 	moveq.l #2,%d3
-	cmp.l %a0,%d3
-	jbeq .L69
+	cmp.l %d2,%d3
+	jbeq .L70
 	moveq.l #3,%d3
-	cmp.l %a0,%d3
-	jbeq .L69
+	cmp.l %d2,%d3
+	jbeq .L70
 	moveq.l #4,%d3
-	cmp.l %a0,%d3
-	jbeq .L69
+	cmp.l %d2,%d3
+	jbeq .L70
 	moveq.l #5,%d3
-	cmp.l %a0,%d3
-	jbeq .L70
+	cmp.l %d2,%d3
+	jbeq .L71
 	moveq.l #6,%d3
-	cmp.l %a0,%d3
-	jbeq .L70
+	cmp.l %d2,%d3
+	jbeq .L71
 	moveq.l #7,%d3
-	cmp.l %a0,%d3
-	jbeq .L68
+	cmp.l %d2,%d3
+	jbeq .L69
 	moveq.l #8,%d3
-	cmp.l %a0,%d3
-	jbeq .L68
+	cmp.l %d2,%d3
+	jbeq .L69
 	moveq.l #9,%d3
-	cmp.l %a0,%d3
-	jbeq .L68
+	cmp.l %d2,%d3
+	jbeq .L69
 	moveq.l #10,%d3
-	cmp.l %a0,%d3
-	jbeq .L68
-	moveq.l #-11,%d3
-	add.l %d3,%d2
+	cmp.l %d2,%d3
+	jbeq .L69
+	move.l 12(%a2),%a0
+	moveq.l #-11,%d2
+	add.l %a0,%d2
 	moveq.l #1,%d3
 	cmp.l %d2,%d3
-	jbcc .L71
-	moveq.l #13,%d3
-	cmp.l %a0,%d3
-	jbne .L32
+	jbcc .L72
+	moveq.l #13,%d2
+	cmp.l %a0,%d2
+	jbne .L33
 	move.l 4(%a2),%d2
 	btst #6,%d2
-	jbeq .L33
+	jbeq .L34
 	move.l 8(%a2),%a0
 	fmove.s %fp0,(%a0)
-	jbra .L9
+	jbra .L10
 	.align 	2
-.L33:
+.L34:
 	btst #5,%d2
-	jbeq .L35
+	jbeq .L36
 	move.l 8(%a2),%a0
 	move.l %d1,-(%sp)
 	move.l %d0,-(%sp)
-	fmove.d (%sp)+,%fp1
-	fmove.s %fp1,(%a0)
-	jbra .L9
+	fmove.d (%sp)+,%fp0
+	fmove.s %fp0,(%a0)
+	jbra .L10
 	.align 	2
-.L35:
+.L36:
 	move.l 8(%a2),%a0
 	move.l %d0,(%a0)
-	jbra .L9
+	jbra .L10
 	.align 	2
-.L32:
-	moveq.l #14,%d3
-	cmp.l %a0,%d3
-	jbne .L38
+.L33:
+	moveq.l #14,%d2
+	cmp.l %a0,%d2
+	jbne .L39
 	btst #6,7(%a2)
-	jbeq .L39
+	jbeq .L40
 	move.l 8(%a2),%a0
 	fmove.d %fp0,(%a0)
-	jbra .L9
+	jbra .L10
 	.align 	2
-.L39:
+.L40:
 	move.l 8(%a2),%a0
 	move.l %d0,(%a0)
 	move.l %d1,4(%a0)
-	jbra .L9
+	jbra .L10
 	.align 	2
-.L38:
+.L39:
 	moveq.l #15,%d3
 	cmp.l %a0,%d3
-	jbeq .L68
-	moveq.l #16,%d3
-	cmp.l %a0,%d3
-	jbne .L9
-	move.l 4(%a2),%d2
-	btst #9,%d2
-	jbeq .L45
-	move.l 16(%a2),%d0
+	jbeq .L69
+	moveq.l #16,%d0
+	cmp.l %a0,%d0
+	jbne .L10
+	move.l 4(%a2),%d0
+	btst #9,%d0
+	jbeq .L46
+	move.l 16(%a2),%d2
 	moveq.l #1,%d3
-	cmp.l %d0,%d3
-	jbne .L46
-.L69:
-	move.l 8(%a2),%a0
-	move.w %a1,%d3
-	move.b %d3,(%a0)
-	jbra .L9
-	.align 	2
-.L46:
-	moveq.l #2,%d3
-	cmp.l %d0,%d3
-	jbne .L49
+	cmp.l %d2,%d3
+	jbne .L47
 .L70:
 	move.l 8(%a2),%a0
-	move.w %a1,(%a0)
-	jbra .L9
+	move.w %a1,%d0
+	move.b %d0,(%a0)
+	jbra .L10
 	.align 	2
-.L49:
+.L47:
+	moveq.l #2,%d3
+	cmp.l %d2,%d3
+	jbne .L50
+.L71:
+	move.l 8(%a2),%a0
+	move.w %a1,(%a0)
+	jbra .L10
+	.align 	2
+.L50:
 	moveq.l #4,%d3
-	cmp.l %d0,%d3
-	jbne .L51
-.L68:
+	cmp.l %d2,%d3
+	jbne .L52
+.L69:
 	move.l 8(%a2),%a0
 	move.l %a1,(%a0)
-	jbra .L9
+	jbra .L10
 	.align 	2
-.L51:
+.L52:
 	moveq.l #8,%d3
-	cmp.l %d0,%d3
-	jbne .L45
-.L71:
+	cmp.l %d2,%d3
+	jbne .L46
+.L72:
 	move.l 8(%a2),%a0
 	move.l %a1,(%a0)
 	move.l 8(%a2),%a0
 	move.l %d1,4(%a0)
-	jbra .L9
+	jbra .L10
 	.align 	2
-.L45:
-	btst #0,%d2
-	jbeq .L9
+.L46:
+	btst #0,%d0
+	jbeq .L10
 	move.l 16(%a2),%d0
-	moveq.l #1,%d3
-	cmp.l %d0,%d3
-	jbne .L55
+	moveq.l #1,%d1
+	cmp.l %d0,%d1
+	jbne .L56
 	move.l 8(%a2),%a0
 	move.b (%a1),(%a0)
-	jbra .L9
+	jbra .L10
 	.align 	2
-.L55:
-	moveq.l #2,%d3
-	cmp.l %d0,%d3
-	jbne .L57
+.L56:
+	moveq.l #2,%d2
+	cmp.l %d0,%d2
+	jbne .L58
 	move.l 8(%a2),%a0
 	move.w (%a1),(%a0)
-	jbra .L9
+	jbra .L10
 	.align 	2
-.L57:
+.L58:
 	moveq.l #4,%d3
 	cmp.l %d0,%d3
-	jbne .L59
+	jbne .L60
 	move.l 8(%a2),%a0
 	move.l (%a1),(%a0)
-	jbra .L9
+	jbra .L10
 	.align 	2
-.L59:
-	moveq.l #8,%d3
-	cmp.l %d0,%d3
-	jbne .L61
+.L60:
+	moveq.l #8,%d1
+	cmp.l %d0,%d1
+	jbne .L62
 	move.l 8(%a2),%a0
 	move.l (%a1),(%a0)
 	move.l 8(%a2),%a0
 	move.l 4(%a1),4(%a0)
-	jbra .L9
+	jbra .L10
 	.align 	2
-.L61:
+.L62:
 	addq.l #3,%d0
 	lsr.l #2,%d0
 	subq.l #1,%d0
-	jbmi .L9
+	jbmi .L10
 	lea (%a1,%d0.l*4),%a1
 	.align 	2
-.L65:
+.L66:
 	move.l 8(%a2),%a0
 	move.l (%a1),(%a0,%d0.l*4)
 	subq.l #4,%a1
-	dbra %d0,.L65
+	dbra %d0,.L66
 	clr.w %d0
 	subq.l #1,%d0
-	jbcc .L65
-.L9:
+	jbcc .L66
+.L10:
 	lea (1024,%sp),%sp
 	clr.l %d0
 	movm.l (%sp)+,#0xc0c
 	rts
 .Lfe1:
 	.size	 __builtin_avcall,.Lfe1-__builtin_avcall
-	.ident	"GCC: (GNU) egcs-2.91.57 19980901 (egcs-1.1 release)"
+	.ident	"GCC: (GNU) 2.95.2 19991024 (release)"
