@@ -23,5 +23,5 @@ p
 d
 }
 '
+CL_CONFIG_SUBDIRS(avcall vacall trampoline callback)
 AC_OUTPUT(Makefile)
-AC_OUTPUT_SUBDIRS(avcall vacall trampoline callback)
