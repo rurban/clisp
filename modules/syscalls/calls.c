@@ -427,7 +427,7 @@ DEFUN(POSIX::CONFSTR, &optional what)
        for sizes > BUFSIZ. */                                           \
     char *tmp;                                                          \
     begin_system_call();                                                \
-    tmp = my_malloc(res);                                               \
+    tmp = (char*)my_malloc(res);                                        \
     confstr(cmd,tmp,res);                                               \
     end_system_call();                                                  \
     value1 = asciz_to_string(tmp,GLO(misc_encoding));                   \
@@ -808,22 +808,23 @@ DEFUN(POSIX::CONVERT-MODE, mode)
       else if (eq(type,`:ROTH`)) mode |= S_IROTH;
       else if (eq(type,`:WOTH`)) mode |= S_IWOTH;
       else if (eq(type,`:XOTH`)) mode |= S_IXOTH;
-      else { convert_mode_error:
-        STACK_0 = NIL;          /* no PLACE */
-        pushSTACK(STACK_1);     /* TYPE-ERROR slot DATUM */
-        pushSTACK(`(MEMBER :SUID :SGID :RWXU :RUSR :WUSR :XUSR :RWXG :RGRP :WGRP :XGRP :RWXO :ROTH :WOTH :XOTH :SVTX)`); /* EXPECTED-TYPE */
-        pushSTACK(STACK_0); pushSTACK(STACK_2);
-        pushSTACK(TheSubr(subr_self)->name);
-        check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
-        STACK_0 = value1;
-        goto convert_mode_restart;
+      else {
+        skipSTACK(1);
+        goto convert_mode_error;
       }
     }
     skipSTACK(2);               /* drop the tail and the argument */
     VALUES1(fixnum(mode));
   } else {
+   convert_mode_error:
     pushSTACK(NIL);             /* no PLACE */
-    goto convert_mode_error;
+    pushSTACK(STACK_1);         /* TYPE-ERROR slot DATUM */
+    pushSTACK(`(MEMBER :SUID :SGID :RWXU :RUSR :WUSR :XUSR :RWXG :RGRP :WGRP :XGRP :RWXO :ROTH :WOTH :XOTH :SVTX)`); /* EXPECTED-TYPE */
+    pushSTACK(STACK_0); pushSTACK(STACK_2);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
+    STACK_0 = value1;
+    goto convert_mode_restart;
   }
 }
 

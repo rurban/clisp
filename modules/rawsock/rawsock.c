@@ -132,7 +132,7 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
   STACK_0 = check_buffer_arg(STACK_0);
   buffer_len = Sbvector_length(STACK_0);
   pushSTACK(allocate_bit_vector(Atype_8Bit,sizeof(sa.sa_family)+buffer_len));
-  buffer = (void*)TheSbvector(STACK_0)->data;
+  buffer = (unsigned char *)TheSbvector(STACK_0)->data;
   ((struct sockaddr*)buffer)->sa_family = family;
   begin_system_call();
   memcpy(((struct sockaddr*)buffer)->sa_data,TheSbvector(STACK_1)->data,
