@@ -14251,6 +14251,14 @@ extern uintB stream_isbuffered (object stream);
 extern maygc object stream_line_number (object stream);
 # is used by IO
 
+# Function: Returns the last character read (and not yet unread) from a stream.
+# stream_get_lastchar(stream)
+# > stream: a stream
+# < result: the last character read, or NIL
+# can trigger GC
+extern maygc object stream_get_lastchar (object stream);
+# is used by DEBUG
+
 # Function: Returns true if a stream allows read-eval.
 # stream_get_read_eval(stream)
 # > stream: a stream

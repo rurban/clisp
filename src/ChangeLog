@@ -1,3 +1,14 @@
+2005-03-14  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (stream_get_lastchar): New declaration.
+	* stream.d (stream_get_lastchar, stream_set_lastchar): New functions.
+	(read_char): Update $lastchar after calling STREAM-READ-CHAR.
+	(unread_char): Update $lastchar after calling STREAM-UNREAD-CHAR.
+	(read_char_array): Update $lastchar after calling
+	STREAM-READ-CHAR-SEQUENCE.
+	(read_line): Update $lastchar after calling STREAM-READ-LINE.
+	* gray.lisp (fundamental-character-input-stream): Add slot $lastchar.
+
 2005-03-16  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (STREAM-LOCK): fixed STACK handling
