@@ -5608,6 +5608,9 @@ typedef struct {
   gcv_object_t other[unspecified]       _attribute_aligned_object_;
 } *  Class;
 
+# Length of a <built-in-class>.
+#define built_in_class_length  ((((ULONG)&((Class)0)->initialized-offsetofa(record_,recdata))/sizeof(gcv_object_t))+1)
+
 # Closures
 typedef struct {
   SRECORD_HEADER
