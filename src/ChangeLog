@@ -1,5 +1,59 @@
 1998-06-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
+        * lispbibl.d (OS_file_error, OS_filestream_error): New declarations.
+        * errunix.d (OS_error_internal): New function, extracted from OS_error.
+          (OS_error): Call it.
+          (OS_file_error): New function.
+        * erramiga.d (OS_error_internal): New function, extracted from OS_error.
+          (OS_error): Call it.
+          (OS_file_error): New function.
+        * errwin32.d (OS_error_internal): New function, extracted from OS_error.
+          (OS_error): Call it. Start with an optional end_system_call().
+          (OS_file_error): New function.
+        * errdjgpp.d (OS_error_internal): New function, extracted from OS_error.
+          (OS_error): Call it.
+          (OS_file_error): New function.
+        * error.d (OS_filestream_error): New function.
+        * spvw.d (savemem): Add missing end_system_call(). Call OS_file_error
+          instead of OS_error.
+        * pathname.d (default_directory_of): Add pathname argument. Call
+          OS_file_error instead of OS_error.
+          (use_default_dir): Change accordingly.
+          (assure_dir_exists for DOS/OS2/Win32): Call OS_file_error instead of
+          OS_error.
+          (directory_truename for AMIGAOS): Move end_system_call().
+          (default_directory for AMIGAOS): Add missing end_system_call().
+          (assure_dir_exists for AMIGAOS): Call OS_file_error instead of
+          OS_error.
+          (assure_dir_exists for UNIX): Likewise.
+          (canonicalise_dirname for RISCOS): Likewise.
+          (assure_dir_exists_ for RISCOS): Likewise.
+          (change_default for DOS/OS2/Win32): Likewise.
+          (change_default for AMIGAOS): Likewise.
+          (change_default for UNIX): Likewise.
+          (change_default for RISCOS): Likewise.
+          (file_exists): Force pathname to be in STACK_0.
+          (access0 for Win32): Call OS_file_error instead of OS_error.
+          (directory_exists): Likewise.
+          (DELETE-FILE): Likewise.
+          (rename_file): Adapt to changed file_exists(). Call OS_file_error
+          instead of OS_error.
+          (open_file): Call OS_file_error instead of OS_error.
+          (subdirs, directory_search): Likewise.
+          (shorter_directory): Leave the pathname on the STACK.
+          (make_directory): Force pathname to be in STACK_0. Call
+          OS_file_error instead of OS_error.
+          (MAKE-DIR, DELETE-DIR, ENSURE-DIRECTORIES-EXIST): Change accordingly.
+          Call OS_file_error instead of OS_error.
+          (FILE-WRITE-DATE): Call OS_filestream_error and OS_file_error instead
+          of OS_error.
+          (FILE-AUTHOR): Call OS_file_error instead of OS_error.
+        * stream.d (file_lseek): Call OS_filestream_error instead of OS_error.
+          (b_file_finish_flush, b_file_nextbyte): Likewise.
+          (finish_output_file, close_file): Likewise.
+
+1998-06-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
         * package.d (unintern): Signal a continuable error of type
           PACKAGE-ERROR instead of ERROR.
           (import, export, use_package, correct_packname): Likewise.

@@ -5731,11 +5731,13 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 
 # UP: Liefert das aktuelle Directory auf einem gegebenen Drive.
 # > uintB drive: Laufwerks-(groß-)buchstabe
+# > object pathname: Pathname (für Fehlermeldungszwecke)
 # < ergebnis: aktuelles Directory (als Pathname)
 # kann GC auslösen
-  local object default_directory_of (uintB drive);
-  local object default_directory_of(drive)
+  local object default_directory_of (uintB drive, object pathname);
+  local object default_directory_of(drive,pathname)
     var uintB drive;
+    var object pathname;
     # Working Directory (von DOS) ist das aktuelle Directory:
     {
       #if defined(WIN32_NATIVE)
@@ -5750,11 +5752,11 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         currpath[3] = '\0';
         begin_system_call();
         result = GetFullPathName(currpath,path_buflen,path_buffer,&dummy);
-        if (!result) { OS_error(); }
+        if (!result) { end_system_call(); OS_file_error(pathname); }
         if (result >= path_buflen)
           { path_buflen = result; path_buffer = (char*)alloca(path_buflen+1);
             result = GetFullPathName(currpath,path_buflen,path_buffer,&dummy);
-            if (!result) { OS_error(); }
+            if (!result) { end_system_call(); OS_file_error(pathname); }
           }
         end_system_call();
         # evtl. noch ein '\' am Schluß anfügen:
@@ -5800,7 +5802,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             # ja -> Ersetze :RELATIVE durch das Default-Directory:
             { pushSTACK(Cdr(subdirs));
              {var uintB drive = TheSstring(ThePathname(pathname)->pathname_device)->data[0];
-              var object default_dir = default_directory_of(drive);
+              var object default_dir = default_directory_of(drive,pathname);
               # default_dir (ein Pathname) ist fertig.
               # Ersetze :RELATIVE durch default-subdirs, d.h.
               # bilde  (append default-subdirs (cdr subdirs))
@@ -5912,7 +5914,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                 begin_system_call();
                 if (stat(TheAsciz(dir_namestring),&statbuf) < 0)
                   { if (tolerantp && (errno==ENOENT)) { end_system_call(); return nullobj; }
-                    OS_error();
+                    end_system_call(); OS_file_error(STACK_0);
                   }
                 end_system_call();
                 *endptr = '\\'; # wieder mit '\' abschließen
@@ -5930,7 +5932,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
               if (fileattr == 0xFFFFFFFF)
                 { if (tolerantp && (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND))
                     { end_system_call(); return nullobj; }
-                  OS_error();
+                  end_system_call(); OS_file_error(STACK_0);
                 }
               end_system_call();
               if (!(fileattr & FILE_ATTRIBUTE_DIRECTORY)) # gefundene Datei kein Unterdirectory ?
@@ -5978,8 +5980,8 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           { # Directory selbst ansehen:
             begin_system_call();
            {var LONG ergebnis = Examine(lock,fibptr);
-            end_system_call();
             if (!ergebnis) { UnLock(lock); OS_error(); }
+            end_system_call();
            }
             # seinen Namen verwenden:
            {var object name = asciz_to_string(&fibptr->fib_FileName[0]);
@@ -6033,6 +6035,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
      {var BPTR lock = Lock("",ACCESS_READ);
       if (lock==BPTR_NULL)
         { if (!(IoErr()==ERROR_OBJECT_NOT_FOUND)) { OS_error(); }
+          end_system_call();
           pushSTACK(unbound); # "Wert" für Slot PATHNAME von FILE-ERROR
           fehler(file_error,
                  DEUTSCH ? "Zugriff auf aktuelles Verzeichnis nicht möglich." :
@@ -6162,7 +6165,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                         return namestring;
                       }}
                   default:
-                    OS_error();
+                    OS_file_error(STACK_(0+1));
             }   }
           end_system_call();
           dir_namestring = popSTACK();
@@ -6171,7 +6174,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
             begin_system_call();
            {var LONG ergebnis = Examine(lock,fibptr);
-            if (!ergebnis) { UnLock(lock); OS_error(); }
+            if (!ergebnis) { UnLock(lock); end_system_call(); OS_file_error(STACK_0); }
             if (!(fibptr->fib_DirEntryType >= 0)) # etwa kein Directory?
               { UnLock(lock);
                 end_system_call();
@@ -6208,7 +6211,8 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           begin_system_call();
         { var BPTR lock = Lock(TheAsciz(namestring),ACCESS_READ);
           if (lock==BPTR_NULL)
-            { if (!(IoErr()==ERROR_OBJECT_NOT_FOUND)) { OS_error(); }
+            { if (!(IoErr()==ERROR_OBJECT_NOT_FOUND))
+                { end_system_call(); OS_file_error(STACK_0); }
               end_system_call();
               # File existiert nicht.
               filestatus = (struct FileInfoBlock *)NULL; return namestring;
@@ -6219,7 +6223,8 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
          {local var LONGALIGNTYPE(struct FileInfoBlock) status;
           var struct FileInfoBlock * statusptr = LONGALIGN(&status);
           begin_system_call();
-          if (! Examine(lock,statusptr) ) { UnLock(lock); OS_error(); }
+          if (! Examine(lock,statusptr) )
+            { UnLock(lock); end_system_call(); OS_file_error(STACK_0); }
           UnLock(lock);
           end_system_call();
           if (statusptr->fib_DirEntryType >= 0) # Ist es ein Directory?
@@ -6362,7 +6367,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
               # symbolische Links darin auflösen:
               begin_system_call();
               if ( realpath(TheAsciz(string),&path_buffer[0]) ==NULL)
-                { if (!(errno==ENOENT)) { OS_error(); }
+                { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
                   end_system_call();
                   if (tolerantp) { return nullobj; }
                   fehler_dir_not_exists(asciz_dir_to_pathname(&path_buffer[0])); # fehlerhafte Komponente
@@ -6407,7 +6412,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             local struct stat status;
             begin_system_call();
             if (!( lstat(TheAsciz(namestring),&status) ==0))
-              { if (!(errno==ENOENT)) { OS_error(); }
+              { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
                 # File existiert nicht.
                 end_system_call();
                 filestatus = (struct stat *)NULL; return namestring;
@@ -6429,7 +6434,12 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             elif (S_ISLNK(status.st_mode)) # Ist es ein symbolisches Link?
               # ja -> weiterverfolgen:
               { if (allowed_links==0) # keine Links mehr erlaubt?
-                  { begin_system_call(); errno = ELOOP_VALUE; OS_error(); } # ja -> UNIX-Error ELOOP simulieren
+                  # ja -> UNIX-Error ELOOP simulieren
+                  { begin_system_call();
+                    errno = ELOOP_VALUE;
+                    end_system_call();
+                    OS_file_error(STACK_0);
+                  }
                 allowed_links--; # danach ist ein Link weniger erlaubt
                {var uintL linklen = status.st_size; # vermutliche Länge des Link-Inhalts
                 retry_readlink:
@@ -6441,7 +6451,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                  {var int result = readlink(TheAsciz(namestring),TheAsciz(linkbuf),linklen);
                   end_system_call();
                   if (result<0)
-                    { OS_error(); }
+                    { OS_file_error(STACK_0); }
                   if (!(result == (int)linklen)) # manchmal (AIX, NFS) stimmt status.st_size nicht
                     { linklen = result; goto retry_readlink; }
                   # Daraus ein Pathname machen:
@@ -6519,7 +6529,8 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local object canonicalise_dirname(pathname,dirname)
     var object pathname;
     var object dirname;
-    { var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
+    { pushSTACK(pathname);
+     {var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
       # Device, vgl. directory_namestring_parts():
       { var object device = ThePathname(pathname)->pathname_device;
         if (!(nullp(device))) # NIL -> kein String
@@ -6529,17 +6540,19 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             stringcount += 3; # und mitzählen
       }   }
       pushSTACK(dirname);
-     {var object dir_string = string_concat(stringcount+1);
-      # Punkt am Schluß durch Nullbyte ersetzen:
-      TheSstring(dir_string)->data[Sstring_length(dir_string)-1] = '\0';
-      # absolut machen:
-      { var char path_buffer[MAXPATHLEN];
-        begin_system_call();
-        if ( realpath(TheAsciz(dir_string),&path_buffer[0]) ==NULL) { OS_error(); }
-        end_system_call();
-        # in Pathname umwandeln:
-        return asciz_dir_to_pathname(&path_buffer[0]);
-    }}}
+      {var object dir_string = string_concat(stringcount+1);
+       # Punkt am Schluß durch Nullbyte ersetzen:
+       TheSstring(dir_string)->data[Sstring_length(dir_string)-1] = '\0';
+       # absolut machen:
+       { var char path_buffer[MAXPATHLEN];
+         begin_system_call();
+         if ( realpath(TheAsciz(dir_string),&path_buffer[0]) ==NULL)
+           { end_system_call(); OS_file_error(STACK_0); }
+         end_system_call();
+         skipSTACK(1);
+         # in Pathname umwandeln:
+         return asciz_dir_to_pathname(&path_buffer[0]);
+    }}}}
 
 # UP: Füllt Default-Directory in einen Pathname ein.
 # use_default_dir(pathname)
@@ -6732,7 +6745,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           begin_system_call();
           if (stat(TheAsciz(dir_namestring),&statbuf) < 0)
             { if (tolerantp && (errno==ENOENT)) { end_system_call(); return nullobj; }
-              OS_error();
+              end_system_call(); OS_file_error(STACK_0);
             }
           end_system_call();
           TheSstring(dir_namestring)->data[len-1] = '.'; # '.' wieder zurück
@@ -6749,7 +6762,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           local struct stat status;
           begin_system_call();
           if (stat(TheAsciz(namestring),&status) < 0)
-            { if (!(errno==ENOENT)) { OS_error(); }
+            { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
               # File existiert nicht.
               end_system_call();
               filestatus = (struct stat *)NULL; return namestring;
@@ -6854,10 +6867,12 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         # Default-Directory ändern:
         begin_system_call();
         #ifdef MSDOS
-          if (!( chdir(TheAsciz(string)) ==0)) { OS_error(); }
+          if (!( chdir(TheAsciz(string)) ==0))
+            { end_system_call(); OS_file_error(STACK_0); }
         #endif
         #ifdef WIN32_NATIVE
-          if (!SetCurrentDirectory(TheAsciz(string))) { OS_error(); }
+          if (!SetCurrentDirectory(TheAsciz(string)))
+            { end_system_call(); OS_file_error(STACK_0); }
         #endif
         end_system_call();
       }}
@@ -6885,7 +6900,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       set_break_sem_4();
       begin_system_call();
       {var BPTR lock = Lock(TheAsciz(dir_namestring),ACCESS_READ);
-       if (lock==BPTR_NULL) { OS_error(); }
+       if (lock==BPTR_NULL) { end_system_call(); OS_file_error(STACK_0); }
        lock = CurrentDir(lock); # current directory neu setzen
        # Lock zum alten current directory merken bzw. aufgeben:
        if (orig_dir_lock == BPTR_NONE)
@@ -6911,7 +6926,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
      {var object string = string_concat(stringcount+1); # zusammenhängen
       # Default-Directory ändern:
       begin_system_call();
-      if (!( chdir(TheAsciz(string)) ==0)) { OS_error(); }
+      if (!( chdir(TheAsciz(string)) ==0)) { end_system_call(); OS_file_error(STACK_0); }
       end_system_call();
     }}
 #endif
@@ -6930,7 +6945,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       ASSERT((len > 0) && (TheSstring(dir_namestring)->data[len-1]=='.'));
       TheSstring(dir_namestring)->data[len-1] = '\0'; # '.' am Schluß durch Nullbyte ersetzen
       begin_system_call();
-      if (!( chdir(TheAsciz(dir_namestring)) ==0)) { OS_error(); }
+      if (!( chdir(TheAsciz(dir_namestring)) ==0)) { end_system_call(); OS_file_error(STACK_0); }
       end_system_call();
     }}
 #endif
@@ -6992,7 +7007,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
 # Test, ob ein File existiert:
 # file_exists(namestring)
 # > vorausgegangen: assure_dir_exists()
-# > im STACK: Pathname, wie nach Ausführung von assure_dir_exists(), Name/=NIL
+# > STACK_0: Pathname, wie nach Ausführung von assure_dir_exists(), Name/=NIL
 # > namestring: dessen Namestring als ASCIZ-String
   #ifdef MSDOS
     local int access0 (CONST char* path);
@@ -7016,7 +7031,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
         if (fileattr == 0xFFFFFFFF)
           { if (GetLastError()==ERROR_FILE_NOT_FOUND)
               { end_system_call(); return -1; }
-            OS_error();
+            end_system_call(); OS_file_error(STACK_0);
           }
         end_system_call();
         return 0;
@@ -7151,7 +7166,7 @@ LISPFUNN(probe_file,1)
            {var struct stat statbuf;
             begin_system_call();
             if (stat(TheAsciz(dir_namestring),&statbuf) < 0)
-              { if (!(errno==ENOENT)) { OS_error(); }
+              { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
                 exists = FALSE;
               }
             else
@@ -7169,7 +7184,7 @@ LISPFUNN(probe_file,1)
          {var DWORD fileattr = GetFileAttributes(path);
           if (fileattr == 0xFFFFFFFF)
             { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND))
-                { OS_error(); }
+                { end_system_call(); OS_file_error(STACK_0); }
               exists = FALSE;
             }
           else
@@ -7194,7 +7209,7 @@ LISPFUNN(probe_file,1)
                   exists = FALSE;
                   break;
                 default:
-                  OS_error();
+                  end_system_call(); OS_file_error(STACK_0);
           }   }
         else
           { var LONGALIGNTYPE(struct FileInfoBlock) fib;
@@ -7216,7 +7231,7 @@ LISPFUNN(probe_file,1)
        {var struct stat statbuf;
         begin_system_call();
         if (stat(TheAsciz(dir_namestring),&statbuf) < 0)
-          { if (!(errno==ENOENT)) { OS_error(); }
+          { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
             exists = FALSE;
           }
         else
@@ -7233,7 +7248,7 @@ LISPFUNN(probe_file,1)
         TheSstring(dir_namestring)->data[len-1] = '\0'; # '.' am Schluß durch Nullbyte ersetzen
         begin_system_call();
         if (stat(TheAsciz(dir_namestring),&statbuf) < 0)
-          { if (!(errno==ENOENT)) { OS_error(); }
+          { if (!(errno==ENOENT)) { end_system_call(); OS_error(STACK_0); }
             exists = FALSE;
           }
         else
@@ -7339,13 +7354,13 @@ LISPFUNN(delete_file,1)
     if (!file_exists(namestring))
       { skipSTACK(1); value1 = NIL; mv_count=1; return; } # File existiert nicht -> Wert NIL
     begin_system_call();
-    if (! DeleteFile(TheAsciz(namestring)) ) { OS_error(); }
+    if (! DeleteFile(TheAsciz(namestring)) ) { end_system_call(); OS_file_error(STACK_0); }
     end_system_call();
     #endif
     #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
     begin_system_call();
     if (!( unlink(TheAsciz(namestring)) ==0))
-      { if (!(errno==ENOENT)) { OS_error(); }
+      { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
         end_system_call();
         # File existiert nicht -> Wert NIL
         skipSTACK(1); value1 = NIL; mv_count=1; return;
@@ -7415,9 +7430,12 @@ LISPFUNN(delete_file,1)
       #              oldtruename, oldnamestring, newtruename, newnamestring.
       # 4. Datei umbenennen:
       #if defined(UNIX) || defined(AMIGAOS) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS) || defined(WIN32_NATIVE)
-      if (file_exists(STACK_0))
-        # Datei existiert bereits -> nicht ohne Vorwarnung löschen
-        { fehler_file_exists(S(rename_file),STACK_1); }
+      { var object new_namestring = popSTACK();
+        if (file_exists(new_namestring))
+          # Datei existiert bereits -> nicht ohne Vorwarnung löschen
+          { fehler_file_exists(S(rename_file),STACK_0); }
+        pushSTACK(new_namestring);
+      }
       # Nun kann gefahrlos umbenannt werden:
       #ifdef PATHNAME_RISCOS
       prepare_create(STACK_4);
@@ -7425,13 +7443,23 @@ LISPFUNN(delete_file,1)
       begin_system_call();
       #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
       if (!( rename(TheAsciz(STACK_2),TheAsciz(STACK_0)) ==0))
-        { OS_error(); }
+        { if (errno==ENOENT)
+            { end_system_call(); OS_file_error(STACK_3); }
+            else
+            { end_system_call(); OS_file_error(STACK_1); }
+        }
       #endif
       #ifdef AMIGAOS
-      if (! Rename(TheAsciz(STACK_2),TheAsciz(STACK_0)) ) { OS_error(); }
+      if (! Rename(TheAsciz(STACK_2),TheAsciz(STACK_0)) )
+        { end_system_call(); OS_file_error(STACK_1); }
       #endif
       #ifdef WIN32_NATIVE
-      if (! MoveFile(TheAsciz(STACK_2),TheAsciz(STACK_0)) ) { OS_error(); }
+      if (! MoveFile(TheAsciz(STACK_2),TheAsciz(STACK_0)) )
+        { if (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND)
+            { end_system_call(); OS_file_error(STACK_3); }
+            else
+            { end_system_call(); OS_file_error(STACK_1); }
+        }
       #endif
       end_system_call();
       #endif
@@ -7528,7 +7556,7 @@ LISPFUNN(rename_file,2)
                   var Handle handle;
                   begin_system_call();
                   handle = Open(TheAsciz(namestring),MODE_NEWFILE);
-                  if (handle == Handle_NULL) { OS_error(); } # Error melden
+                  if (handle == Handle_NULL) { end_system_call(); OS_file_error(STACK_0); } # Error melden
                   # Datei wurde erzeugt, handle ist das Handle.
                   # Datei wieder schließen:
                   (void) Close(handle);
@@ -7538,10 +7566,10 @@ LISPFUNN(rename_file,2)
                   var Handle handle;
                   begin_system_call();
                   handle = CreateFile(TheAsciz(namestring), 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-                  if (handle==INVALID_HANDLE_VALUE) { OS_error(); }
+                  if (handle==INVALID_HANDLE_VALUE) { end_system_call(); OS_file_error(STACK_0); }
                   # Datei wurde erzeugt, handle ist das Handle.
                   # Datei wieder schließen:
-                  if (!CloseHandle(handle)) { OS_error(); }
+                  if (!CloseHandle(handle)) { end_system_call(); OS_file_error(STACK_0); }
                   end_system_call();
                   #endif
                   #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
@@ -7549,7 +7577,7 @@ LISPFUNN(rename_file,2)
                   begin_system_call();
                   #if defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM)
                   ergebnis = creat(TheAsciz(namestring),my_open_mask);
-                  if (ergebnis<0) { OS_error(); } # Error melden
+                  if (ergebnis<0) { end_system_call(); OS_file_error(STACK_0); } # Error melden
                   setmode(ergebnis,O_BINARY);
                   #endif
                   #if defined(UNIX) || defined(RISCOS)
@@ -7557,12 +7585,12 @@ LISPFUNN(rename_file,2)
                                   O_WRONLY | O_BINARY | O_CREAT | O_TRUNC,
                                   my_open_mask
                                  );
-                  if (ergebnis<0) { OS_error(); } # Error melden
+                  if (ergebnis<0) { end_system_call(); OS_file_error(STACK_0); } # Error melden
                   #endif
                   # Datei wurde erzeugt, ergebnis ist das Handle.
                   # Datei wieder schließen:
                   ergebnis = CLOSE(ergebnis);
-                  if (!(ergebnis==0)) { OS_error(); } # Error melden
+                  if (!(ergebnis==0)) { end_system_call(); OS_file_error(STACK_0); } # Error melden
                   end_system_call();
                   #endif
                 }}
@@ -7586,10 +7614,10 @@ LISPFUNN(rename_file,2)
                           goto fehler_notfound;
                         # :CREATE -> Datei mit creat erzeugen:
                         ergebnis = creat(TheAsciz(namestring),my_open_mask);
-                        if (ergebnis<0) { OS_error(); }
+                        if (ergebnis<0) { end_system_call(); OS_file_error(STACK_0); }
                       }
                       else
-                      { OS_error(); } # sonstigen Error melden
+                      { end_system_call(); OS_file_error(STACK_0); } # sonstigen Error melden
                   }
                 setmode(ergebnis,O_BINARY);
                 end_system_call();
@@ -7613,8 +7641,8 @@ LISPFUNN(rename_file,2)
                         # :CREATE -> Datei mit Open erzeugen:
                         handl = Open(TheAsciz(namestring),MODE_READWRITE);
                   }   }
-                if (handl==Handle_NULL) { OS_error(); } # Error melden
                 end_system_call();
+                if (handl==Handle_NULL) { OS_file_error(STACK_0); } # Error melden
                 # Datei existiert, handl ist das Handle
                 handle = allocate_handle(handl); # Handle als Lisp-Objekt
               }
@@ -7640,8 +7668,8 @@ LISPFUNN(rename_file,2)
                                 o_flags, # O_RDONLY | O_BINARY bzw. O_RDONLY | O_BINARY | O_CREAT
                                 my_open_mask
                                );
-                if (ergebnis<0) { OS_error(); } # Error melden
                 end_system_call();
+                if (ergebnis<0) { OS_file_error(STACK_0); } # Error melden
                 # Datei existiert, ergebnis ist das Handle
                 handle = allocate_handle(ergebnis); # Handle
               }}
@@ -7661,8 +7689,8 @@ LISPFUNN(rename_file,2)
                {var Handle handl;
                 begin_system_call();
                 handl = CreateFile(TheAsciz(namestring), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL);
-                if (handl==INVALID_HANDLE_VALUE) { OS_error(); }
                 end_system_call();
+                if (handl==INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
                 # Datei existiert, handl ist das Handle
                 handle = allocate_handle(handl); # Handle als Lisp-Objekt
               }}
@@ -7695,19 +7723,19 @@ LISPFUNN(rename_file,2)
                             # :CREATE
                           }
                           else
-                          { OS_error(); } # sonstigen Error melden
+                          { end_system_call(); OS_file_error(STACK_0); } # sonstigen Error melden
                       }
                       else
                       # Datei existiert, ergebnis ist das Handle
                       { # :IF-EXISTS-Argument entscheidet:
                         switch (if_exists)
                           { case 1: # :ERROR -> schließen und Error
-                              { if (CLOSE(ergebnis) < 0) { OS_error(); } # Error melden
+                              { if (CLOSE(ergebnis) < 0) { end_system_call(); OS_file_error(STACK_0); } # Error melden
                                 end_system_call();
                                 goto fehler_exists;
                               }
                             case 2: # NIL -> schließen und NIL
-                              { if (CLOSE(ergebnis) < 0) { OS_error(); } # Error melden
+                              { if (CLOSE(ergebnis) < 0) { end_system_call(); OS_file_error(STACK_0); } # Error melden
                                 end_system_call();
                                 goto ergebnis_NIL;
                               }
@@ -7723,7 +7751,7 @@ LISPFUNN(rename_file,2)
                               # :NEW-VERSION, :SUPERSEDE -> Datei auf Länge 0 kürzen.
                           }
                         # In beiden Fällen erst die Datei schließen:
-                        if (CLOSE(ergebnis) < 0) { OS_error(); } # Error melden
+                        if (CLOSE(ergebnis) < 0) { end_system_call(); OS_file_error(STACK_0); } # Error melden
                         end_system_call();
                         if ((if_exists==3) || (if_exists==4))
                           # :RENAME oder :RENAME-AND-DELETE -> umbenennen:
@@ -7742,23 +7770,23 @@ LISPFUNN(rename_file,2)
                             begin_system_call();
                             if ( unlink(TheAsciz(new_namestring)) <0) # Datei zu löschen versuchen
                               { if (!(errno==ENOENT)) # nicht gefunden -> OK
-                                  { OS_error(); } # sonstigen Error melden
+                                  { end_system_call(); OS_file_error(STACK_0); } # sonstigen Error melden
                               }
                             end_system_call();
                             # Datei vom alten auf diesen Namen umbenennen:
-                            skipSTACK(1);
-                            namestring = popSTACK(); # namestring zurück
+                            namestring = STACK_1; # namestring zurück
                             begin_system_call();
                             if ( rename(TheAsciz(namestring),TheAsciz(new_namestring)) <0) # Datei umbenennen
-                              { OS_error(); } # Error melden
+                              { end_system_call(); OS_file_error(STACK_0); } # Error melden
                             end_system_call();
                             # :RENAME-AND-DELETE -> löschen:
                             if (if_exists==4)
                               { begin_system_call();
                                 if ( unlink(TheAsciz(new_namestring)) <0)
-                                  { OS_error(); } # Error melden
+                                  { end_system_call(); OS_file_error(STACK_0); } # Error melden
                                 end_system_call();
                               }
+                            skipSTACK(2);
                           }}
                       }
                   }}
@@ -7766,7 +7794,7 @@ LISPFUNN(rename_file,2)
                 begin_system_call();
                 { var sintW ergebnis = # erzeugen
                     creat(TheAsciz(namestring),my_open_mask);
-                  if (ergebnis<0) { OS_error(); } # Error melden
+                  if (ergebnis<0) { end_system_call(); OS_file_error(STACK_0); } # Error melden
                   setmode(ergebnis,O_BINARY);
                   end_system_call();
                   # Datei neu erzeugt, ergebnis ist das Handle
@@ -7795,8 +7823,10 @@ LISPFUNN(rename_file,2)
                             pushSTACK(filename); pushSTACK(O(backupextend_string)); # "%"
                             filename = string_concat(2); # dazuhängen
                             pushSTACK(filename); # retten
+                            pushSTACK(filename); # retten
                             filename = coerce_pathname(filename); # wieder als Filename
                             if (openp(filename)) { fehler_delete_open(filename); } # Keine offenen Dateien löschen!
+                            STACK_1 = filename;
                             # Directory existiert schon. Hier keine weiteren Links verfolgen.
                             new_namestring = string_to_asciz(popSTACK()); # Filename als ASCIZ-String
                             #endif
@@ -7811,13 +7841,13 @@ LISPFUNN(rename_file,2)
                             }
                             if (openp(filename)) { fehler_delete_open(filename); } # Keine offenen Dateien löschen!
                             new_namestring = assure_dir_exists(FALSE,FALSE);
-                            skipSTACK(1);
                             #endif
                             # Datei (oder Link) mit diesem Namen löschen, falls vorhanden:
                             #ifdef AMIGAOS
                             begin_system_call();
                             if (! DeleteFile(TheAsciz(new_namestring)) )
-                              { if (!(IoErr()==ERROR_OBJECT_NOT_FOUND)) { OS_error(); } # Error melden
+                              { if (!(IoErr()==ERROR_OBJECT_NOT_FOUND))
+                                  { end_system_call(); OS_file_error(STACK_0); } # Error melden
                                 # nicht gefunden -> OK
                               }
                             end_system_call();
@@ -7825,7 +7855,8 @@ LISPFUNN(rename_file,2)
                             #if (defined(UNIX) && 0) || defined(RISCOS) # Das tut UNIX nachher automatisch, RISCOS aber nicht
                             begin_system_call();
                             if (!( unlink(TheAsciz(new_namestring)) ==0))
-                              { if (!(errno==ENOENT)) { OS_error(); } # Error melden
+                              { if (!(errno==ENOENT))
+                                  { end_system_call(); OS_file_error(STACK_0); } # Error melden
                                 # nicht gefunden -> OK
                               }
                             end_system_call();
@@ -7834,39 +7865,40 @@ LISPFUNN(rename_file,2)
                             begin_system_call();
                             if (! DeleteFile(TheAsciz(new_namestring)) )
                               { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND))
-                                  { OS_error(); } # Error melden
+                                  { end_system_call(); OS_file_error(STACK_0); } # Error melden
                                 # nicht gefunden -> OK
                               }
                             end_system_call();
                             #endif
                             # Datei vom alten auf diesen Namen umbenennen:
-                            namestring = popSTACK(); # namestring zurück
+                            namestring = STACK_1; # namestring zurück
                             begin_system_call();
                             #ifdef AMIGAOS
                             if (! Rename(TheAsciz(namestring),TheAsciz(new_namestring)) )
-                              { OS_error(); }
+                              { end_system_call(); OS_file_error(STACK_0); }
                             #endif
                             #if defined(UNIX) || defined(RISCOS)
                             if (!( rename(TheAsciz(namestring),TheAsciz(new_namestring)) ==0))
-                              { OS_error(); }
+                              { end_system_call(); OS_file_error(STACK_0); }
                             #endif
                             #ifdef WIN32_NATIVE
                             if (! MoveFile(TheAsciz(namestring),TheAsciz(new_namestring)) )
-                              { OS_error(); }
+                              { end_system_call(); OS_file_error(STACK_0); }
                             #endif
                             # :RENAME-AND-DELETE -> löschen:
                             if (if_exists==4)
                               {
                                 #if defined(AMIGAOS) || defined(WIN32_NATIVE)
                                 if (! DeleteFile(TheAsciz(new_namestring)) )
-                                  { OS_error(); }
+                                  { end_system_call(); OS_file_error(STACK_0); }
                                 #endif
                                 #if defined(UNIX) || defined(RISCOS)
                                 if (!( unlink(TheAsciz(new_namestring)) ==0))
-                                  { OS_error(); }
+                                  { end_system_call(); OS_file_error(STACK_0); }
                                 #endif
                               }
                             end_system_call();
+                            skipSTACK(2);
                           }
                           #endif
                           break;
@@ -7898,8 +7930,8 @@ LISPFUNN(rename_file,2)
                   handl = Open(TheAsciz(namestring),
                                (if_exists<=5 ? MODE_NEWFILE : MODE_READWRITE)
                               );
-                  if (handl==Handle_NULL) { OS_error(); } # Error melden
                   end_system_call();
+                  if (handl==Handle_NULL) { OS_file_error(STACK_0); } # Error melden
                   handle = allocate_handle(handl);
                   #endif
                   #if defined(UNIX) || defined(RISCOS)
@@ -7911,8 +7943,8 @@ LISPFUNN(rename_file,2)
                                   ),
                                   my_open_mask
                                  );
-                  if (ergebnis<0) { OS_error(); } # Error melden
                   end_system_call();
+                  if (ergebnis<0) { OS_file_error(STACK_0); } # Error melden
                   # Datei wurde geöffnet, ergebnis ist das Handle.
                   handle = allocate_handle(ergebnis);
                   #endif
@@ -7920,8 +7952,8 @@ LISPFUNN(rename_file,2)
                   var Handle handl;
                   begin_system_call();
                   handl = CreateFile(TheAsciz(namestring), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, (if_exists<=5 ? CREATE_ALWAYS : OPEN_ALWAYS), FILE_ATTRIBUTE_NORMAL, NULL);
-                  if (handl==INVALID_HANDLE_VALUE) { OS_error(); }
                   end_system_call();
+                  if (handl==INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
                   handle = allocate_handle(handl);
                   #endif
                 }
@@ -8238,7 +8270,9 @@ LISPFUN(open,1,0,norest,key,4,\
         # Suchanfang, suche nach Ordnern und normalen Dateien:
         begin_system_call();
         if (findfirst(TheAsciz(pathstring),&DTA_buffer,FA_DIREC|FA_ARCH|FA_RDONLY) <0)
-          { if (!((errno==ENOENT) || (errno==ENOMORE))) { OS_error(); } }
+          { if (!((errno==ENOENT) || (errno==ENOMORE)))
+              { end_system_call(); OS_file_error(STACK_0); }
+          }
           else # Keine Datei gefunden -> Schleife nicht durchlaufen
           loop
             { # Stackaufbau: new-pathname-list, pathname.
@@ -8275,7 +8309,8 @@ LISPFUN(open,1,0,norest,key,4,\
               # nächstes File:
               begin_system_call();
               if (findnext(&DTA_buffer) <0)
-                { if (!((errno==ENOENT) || (errno==ENOMORE))) { OS_error(); }
+                { if (!((errno==ENOENT) || (errno==ENOMORE)))
+                    { end_system_call(); OS_file_error(STACK_0); }
                   break; # Keine weitere Datei -> Schleifenende
                 }
             }
@@ -8433,7 +8468,9 @@ LISPFUN(open,1,0,norest,key,4,\
              # Suchanfang, suche nur nach normalen Dateien:
              begin_system_call();
              if (findfirst(TheAsciz(pathstring),&DTA_buffer,FA_ARCH|FA_RDONLY) <0)
-               { if (!((errno==ENOENT) || (errno==ENOMORE))) { OS_error(); } }
+               { if (!((errno==ENOENT) || (errno==ENOMORE)))
+                   { end_system_call(); OS_file_error(STACK_0); }
+               }
                else # Keine Datei gefunden -> Schleife nicht durchlaufen
                loop
                  { # Stackaufbau: ..., next-pathname.
@@ -8475,7 +8512,8 @@ LISPFUN(open,1,0,norest,key,4,\
                    # nächstes File:
                    begin_system_call();
                    if (findnext(&DTA_buffer) <0)
-                     { if (!((errno==ENOENT) || (errno==ENOMORE))) { OS_error(); }
+                     { if (!((errno==ENOENT) || (errno==ENOMORE)))
+                         { end_system_call(); OS_file_error(STACK_0); }
                        break; # Keine weitere Datei -> Schleifenende
                      }
                  }
@@ -8769,7 +8807,7 @@ LISPFUN(open,1,0,norest,key,4,\
                          {var struct stat status;
                           begin_system_call();
                           if (!( stat(TheAsciz(namestring),&status) ==0))
-                            { if (!(errno==ENOENT)) { OS_error(); }
+                            { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
                               end_system_call();
                               # Subdirectory existiert nicht -> OK.
                             }
@@ -8798,14 +8836,16 @@ LISPFUN(open,1,0,norest,key,4,\
                            begin_system_call();
                           {var BPTR lock = Lock(TheAsciz(namestring),ACCESS_READ);
                            if (lock==BPTR_NULL)
-                             { if (!(IoErr()==ERROR_OBJECT_NOT_FOUND)) { OS_error(); }
+                             { if (!(IoErr()==ERROR_OBJECT_NOT_FOUND))
+                                 { end_system_call(); OS_file_error(STACK_0); }
                                end_system_call();
                                clr_break_sem_4();
                                # Subdirectory existiert nicht -> OK.
                              }
                              else
                              # File existiert.
-                             { if (! Examine(lock,fibptr) ) { UnLock(lock); OS_error(); }
+                             { if (! Examine(lock,fibptr) )
+                                 { UnLock(lock); end_system_call(); OS_file_error(STACK_0); }
                                UnLock(lock);
                                end_system_call();
                                clr_break_sem_4();
@@ -8830,7 +8870,7 @@ LISPFUN(open,1,0,norest,key,4,\
                           fileattr = GetFileAttributes(TheAsciz(namestring));
                           if (fileattr == 0xFFFFFFFF)
                             { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND))
-                                { OS_error(); }
+                                { end_system_call(); OS_file_error(STACK_0); }
                               end_system_call();
                               # Subdirectory existiert nicht -> OK.
                             }
@@ -8871,7 +8911,7 @@ LISPFUN(open,1,0,norest,key,4,\
                      var struct stat status;
                      begin_system_call();
                      if (!( stat(TheAsciz(namestring),&status) ==0)) # Information holen
-                       { if (!(errno==ENOENT)) { OS_error(); }
+                       { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_1); }
                          end_system_call();
                          # Eintrag existiert doch nicht (das kann uns
                          # wohl nur bei symbolischen Links passieren)
@@ -8929,7 +8969,7 @@ LISPFUN(open,1,0,norest,key,4,\
                  #ifdef RISCOS
                  dirp = opendir(TheAsciz(namestring),TheAsciz(wildcard_mask)); # Directory zum Suchen öffnen
                  #endif
-                 if (dirp == (DIR*)NULL) { OS_error(); }
+                 if (dirp == (DIR*)NULL) { end_system_call(); OS_file_error(STACK_1); }
                  end_system_call();
                  loop
                    { var SDIRENT* dp;
@@ -8937,7 +8977,7 @@ LISPFUN(open,1,0,norest,key,4,\
                      errno = 0;
                      dp = readdir(dirp); # nächsten Directory-Eintrag holen
                      if (dp == (SDIRENT*)NULL) # Error oder Directory zu Ende
-                       { if (!(errno==0)) { OS_error(); }
+                       { if (!(errno==0)) { end_system_call(); OS_file_error(STACK_1); }
                          end_system_call();
                          break;
                        }
@@ -8996,7 +9036,7 @@ LISPFUN(open,1,0,norest,key,4,\
                                    || (errno==EACCES)
                                    #endif
                                 ) )
-                               { OS_error(); }
+                               { end_system_call(); OS_file_error(STACK_2); }
                              end_system_call();
                              # Eintrag existiert doch nicht (das kann uns
                              # wohl nur bei symbolischen Links passieren)
@@ -9090,7 +9130,7 @@ LISPFUN(open,1,0,norest,key,4,\
                          skipSTACK(1); # direntry vergessen
                    }}  }}
                  begin_system_call();
-                 if (CLOSEDIR(dirp)) { OS_error(); }
+                 if (CLOSEDIR(dirp)) { end_system_call(); OS_file_error(STACK_1); }
                  end_system_call();
                  clr_break_sem_4();
                }}
@@ -9103,8 +9143,10 @@ LISPFUN(open,1,0,norest,key,4,\
                 {var BPTR lock = Lock(TheAsciz(namestring),ACCESS_READ);
                  var LONGALIGNTYPE(struct FileInfoBlock) fib;
                  var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
-                 if (lock==BPTR_NULL) { OS_error(); }
-                 if (! Examine(lock,fibptr) ) { UnLock(lock); OS_error(); }
+                 if (lock==BPTR_NULL)
+                   { end_system_call(); OS_file_error(STACK_1); }
+                 if (! Examine(lock,fibptr) )
+                   { UnLock(lock); end_system_call(); OS_file_error(STACK_1); }
                  end_system_call();
                  loop
                    { begin_system_call();
@@ -9132,11 +9174,12 @@ LISPFUN(open,1,0,norest,key,4,\
                                     end_system_call();
                                     goto skip_direntry; # direntry vergessen und ignorieren
                                   default:
-                                    OS_error();
+                                    end_system_call(); OS_file_error(STACK_2);
                                 }
                            {var LONGALIGNTYPE(struct FileInfoBlock) direntry_status;
                             var struct FileInfoBlock * statusptr = LONGALIGN(&direntry_status);
-                            if (! Examine(direntry_lock,statusptr) ) { UnLock(direntry_lock); OS_error(); }
+                            if (! Examine(direntry_lock,statusptr) )
+                              { UnLock(direntry_lock); end_system_call(); OS_file_error(STACK_2); }
                             UnLock(direntry_lock);
                             end_system_call();
                             isdir = (statusptr->fib_DirEntryType >= 0);
@@ -9204,7 +9247,8 @@ LISPFUN(open,1,0,norest,key,4,\
                      skipSTACK(1); # direntry vergessen
                    }}
                  UnLock(lock);
-                 if (!(IoErr()==ERROR_NO_MORE_ENTRIES)) { OS_error(); }
+                 if (!(IoErr()==ERROR_NO_MORE_ENTRIES))
+                   { end_system_call(); OS_file_error(STACK_1); }
                  end_system_call();
                  clr_break_sem_4();
                }}
@@ -9232,12 +9276,16 @@ LISPFUN(open,1,0,norest,key,4,\
                 begin_system_call();
                 #ifdef MSDOS
                 if (findfirst(TheAsciz(namestring),&DTA_buffer,FA_DIREC|FA_ARCH|FA_RDONLY) <0)
-                  { if (!((errno==ENOENT) || (errno==ENOMORE))) { OS_error(); } }
+                  { if (!((errno==ENOENT) || (errno==ENOMORE)))
+                      { end_system_call(); OS_file_error(STACK_1); }
+                  }
                 #endif
                 #ifdef WIN32_NATIVE
                 search_handle = FindFirstFile(TheAsciz(namestring),&filedata);
                 if (search_handle==INVALID_HANDLE_VALUE)
-                  { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND)) { OS_error(); } }
+                  { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND))
+                      { end_system_call(); OS_file_error(STACK_1); }
+                  }
                 #endif
                   else # Keine Datei gefunden -> Schleife nicht durchlaufen
                   loop
@@ -9348,14 +9396,17 @@ LISPFUN(open,1,0,norest,key,4,\
                       begin_system_call();
                       #ifdef MSDOS
                       if (findnext(&DTA_buffer) <0)
-                        { if (!((errno==ENOENT) || (errno==ENOMORE))) { OS_error(); }
+                        { if (!((errno==ENOENT) || (errno==ENOMORE)))
+                            { end_system_call(); OS_file_error(STACK_1); }
                           break; # Keine weitere Datei -> Schleifenende
                         }
                       #endif
                       #ifdef WIN32_NATIVE
                       if (!FindNextFile(search_handle,&filedata))
-                        { if (!(GetLastError()==ERROR_NO_MORE_FILES)) { OS_error(); }
-                          if (!FindClose(search_handle)) { OS_error(); }
+                        { if (!(GetLastError()==ERROR_NO_MORE_FILES))
+                            { end_system_call(); OS_file_error(STACK_1); }
+                          if (!FindClose(search_handle))
+                            { end_system_call(); OS_file_error(STACK_1); }
                           break; # Keine weitere Datei -> Schleifenende
                         }
                       #endif
@@ -9468,6 +9519,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
 # shorter_directory(pathname,resolve_links)
 # > pathname : Pathname-Argument
 # > resolve_links : Flag, ob Links aufgelöst werden müssen (normalerweise ja)
+# < -(STACK) : absoluter Pathname
 #if defined(MSDOS) || defined(WIN32_NATIVE)
 # < ergebnis: Directory-Namestring (fürs OS, ASCIZ, ohne '\' am Schluß)
 #endif
@@ -9477,6 +9529,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
 #if defined(RISCOS)
 # < ergebnis: Directory-Namestring (fürs OS, ASCIZ, ohne '.' am Schluß)
 #endif
+# Erniedrigt STACK um 1.
 # kann GC auslösen
   local object shorter_directory (object pathname, boolean resolve_links);
   local object shorter_directory(pathname,resolve_links)
@@ -9527,12 +9580,14 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
          # und kein '/' am Schluß (fürs OS)
          pushSTACK(O(null_string)); # und Nullbyte als letzten String
          {var object dirstring = string_concat(1+stringcount+1); # zusammenhängen
-          skipSTACK(2);
+          skipSTACK(1);
           return dirstring;
     } }}}}
 
 # Legt ein neues Unterdirectory an.
-# make_dir(pathstring);
+# make_directory(pathstring);
+# > pathstring: Ergebnis von shorter_directory(...)
+# > STACK_0: Pathname
   local void make_directory (char* pathstring);
   local void make_directory(pathstring)
     var char* pathstring;
@@ -9541,7 +9596,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
       set_break_sem_4();
       begin_system_call();
       {var BPTR lock = CreateDir(pathstring); # Unterdirectory erzeugen
-       if (lock==BPTR_NULL) { OS_error(); }
+       if (lock==BPTR_NULL) { end_system_call(); OS_file_error(STACK_0); }
        UnLock(lock); # Lock freigeben
       }
       end_system_call();
@@ -9550,52 +9605,54 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
       #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
       begin_system_call();
       if (mkdir(pathstring,0777)) # Unterdirectory erzeugen
-        { OS_error(); }
+        { end_system_call(); OS_file_error(STACK_0); }
       end_system_call();
       #endif
       #ifdef WIN32_NATIVE
       begin_system_call();
       if (! CreateDirectory(pathstring,NULL) ) # Unterdirectory erzeugen
-        { OS_error(); }
+        { end_system_call(); OS_file_error(STACK_0); }
       end_system_call();
       #endif
     }
 
 LISPFUNN(make_dir,1)
 # (MAKE-DIR pathname) legt ein neues Unterdirectory pathname an.
-  { var object pathstring = shorter_directory(popSTACK(),TRUE);
+  { var object pathstring = shorter_directory(STACK_0,TRUE);
     make_directory(TheAsciz(pathstring));
+    skipSTACK(2);
     value1 = T; mv_count=1; # 1 Wert T
   }
 
 LISPFUNN(delete_dir,1)
 # (DELETE-DIR pathname) entfernt das Unterdirectory pathname.
-  { var object pathstring = shorter_directory(popSTACK(),TRUE);
+  { var object pathstring = shorter_directory(STACK_0,TRUE);
     #ifdef AMIGAOS
     # Noch Test, ob's auch ein Directory und kein File ist??
     begin_system_call();
     if (! DeleteFile(TheAsciz(pathstring)) ) # Unterdirectory löschen
-      { OS_error(); }
+      { end_system_call(); OS_file_error(STACK_0); }
     end_system_call();
     #endif
     #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM)
     begin_system_call();
     if (rmdir(TheAsciz(pathstring))) # Unterdirectory löschen
-      { OS_error(); }
+      { end_system_call(); OS_file_error(STACK_0); }
     end_system_call();
     #endif
     #ifdef RISCOS
     begin_system_call();
     if (unlink(TheAsciz(pathstring))) # Unterdirectory löschen
-      { OS_error(); }
+      { end_system_call(); OS_file_error(STACK_0); }
     end_system_call();
     #endif
     #ifdef WIN32_NATIVE
     begin_system_call();
     if (! RemoveDirectory(TheAsciz(pathstring)) ) # Unterdirectory löschen
-      { OS_error(); }
+      { end_system_call(); OS_file_error(STACK_0); }
     end_system_call();
     #endif
+    skipSTACK(2);
     value1 = T; mv_count=1; # 1 Wert T
   }
 
@@ -9658,6 +9715,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
                 # sowieso ab der Wurzel schrittweise vorgeht.
                {var object pathstring = shorter_directory(STACK_2,FALSE);
                 make_directory(TheAsciz(pathstring));
+                skipSTACK(1);
               }}
           }
         skipSTACK(4); value2 = T; # pathspec, T als Werte
@@ -9874,7 +9932,7 @@ LISPFUNN(file_write_date,1)
             var struct stat status;
             begin_system_call();
             if (!( fstat(TheHandle(TheStream(pathname)->strm_file_handle),&status) ==0))
-              { OS_error(); }
+              { end_system_call(); OS_filestream_error(pathname); }
             end_system_call();
             file_datetime = status.st_mtime;
             #endif
@@ -9921,16 +9979,19 @@ LISPFUNN(file_write_date,1)
           begin_system_call();
           { var sintW ergebnis = # Datei zu öffnen versuchen
               open(TheAsciz(namestring),O_RDONLY);
-            if (ergebnis < 0) { OS_error(); } # Error melden
+            if (ergebnis < 0)
+              { end_system_call(); OS_file_error(STACK_0); } # Error melden
             # Nun enthält ergebnis das Handle des geöffneten Files.
             get_file_write_datetime(ergebnis); # Datum/Uhrzeit holen
-            if (CLOSE(ergebnis) < 0) { OS_error(); } # Datei gleich wieder schließen
+            if (CLOSE(ergebnis) < 0) # Datei gleich wieder schließen
+              { end_system_call(); OS_file_error(STACK_0); }
           }
           end_system_call();
          #else # defined(EMUNIX)
           { var struct stat statbuf;
             begin_system_call();
-            if (stat(TheAsciz(namestring),&statbuf) < 0) { OS_error(); }
+            if (stat(TheAsciz(namestring),&statbuf) < 0)
+              { end_system_call(); OS_file_error(STACK_0); }
             end_system_call();
             if (!S_ISREG(statbuf.st_mode)) { fehler_file_not_exists(); } # Datei muß existieren
             file_datetime = statbuf.st_mtime;
@@ -9952,10 +10013,11 @@ LISPFUNN(file_write_date,1)
         search_handle = FindFirstFile(TheAsciz(namestring),&filedata);
         if (search_handle==INVALID_HANDLE_VALUE)
           { if (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND)
-              { fehler_file_not_exists(); }
-            OS_error();
+              { end_system_call(); fehler_file_not_exists(); }
+            end_system_call(); OS_file_error(STACK_0);
           }
-        elif (!FindClose(search_handle)) { OS_error(); }
+        elif (!FindClose(search_handle))
+          { end_system_call(); OS_file_error(STACK_0); }
         end_system_call();
         #endif
         skipSTACK(1);
@@ -10021,15 +10083,18 @@ LISPFUNN(file_author,1)
           begin_system_call();
           { var sintW ergebnis = # Datei zu öffnen versuchen
               open(TheAsciz(namestring),O_RDONLY);
-            if (ergebnis < 0) { OS_error(); } # Error melden
+            if (ergebnis < 0)
+              { end_system_call(); OS_file_error(STACK_0); } # Error melden
             # Nun enthält ergebnis das Handle des geöffneten Files.
-            if (CLOSE(ergebnis) < 0) { OS_error(); } # Datei gleich wieder schließen
+            if (CLOSE(ergebnis) < 0) # Datei gleich wieder schließen
+              { end_system_call(); OS_file_error(STACK_0); }
           }
           end_system_call();
          #else
           { var struct stat statbuf;
             begin_system_call();
-            if (stat(TheAsciz(namestring),&statbuf) < 0) { OS_error(); }
+            if (stat(TheAsciz(namestring),&statbuf) < 0)
+              { end_system_call(); OS_file_error(STACK_0); }
             end_system_call();
             if (!S_ISREG(statbuf.st_mode)) { fehler_file_not_exists(); } # Datei muß existieren
           }
