@@ -155,6 +155,9 @@ error recovery
 <https://sourceforge.net/tracker/index.php?func=detail&aid=946463&group_id=1355&atid=351355>
 
 
+local function (LABEL/FLET) calls waste heap (COPY-CLOSURE).
+ use STACK instead?
+
 
 
 MAYBE
