@@ -1,3 +1,48 @@
+2004-05-14  Bruno Haible  <bruno@clisp.org>
+
+	New hash-table tests FASTHASH-EQL/EQUAL and STABLEHASH-EQL/EQUAL.
+	* lispbibl.d (Hashtable): Add ht_gcinvariantfn field.
+	* spvw.d (init_symbol_values): Initialize *EQL-HASHFUNCTION*,
+	*EQUAL-HASHFUNCTION*.
+	* hashtabl.d (gcinvariant_hashcode1_p): New function.
+	(gcinvariant_hashcode1stable_p): New function.
+	(gcinvariant_hashcode2_p): New function.
+	(hashcode2stable): New function.
+	(gcinvariant_hashcode2stable_p): New function.
+	(hashcode3_cons0, hashcode3_cons1, hashcode3_cons2, hashcode3_cons3):
+	Mark as inline.
+	(gcinvariant_hashcode3_cons0_p, gcinvariant_hashcode3_cons1_p,
+	gcinvariant_hashcode3_cons2_p, gcinvariant_hashcode3_cons3_p,
+	gcinvariant_hashcode3_p): New functions.
+	(hashcode3stable_atom, hashcode3stable_cons0, hashcode3stable_cons1,
+	hashcode3stable_cons2, hashcode3stable_cons3, hashcode3stable): New
+	functions.
+	(gcinvariant_hashcode3stable_atom_p,
+	gcinvariant_hashcode3stable_cons0_p,
+	gcinvariant_hashcode3stable_cons1_p,
+	gcinvariant_hashcode3stable_cons2_p,
+	gcinvariant_hashcode3stable_cons3_p, gcinvariant_hashcode3stable_p):
+	New functions.
+	(gcinvariant_hashcode4_cons0_p, gcinvariant_hashcode4_cons1_p,
+	gcinvariant_hashcode4_cons2_p, gcinvariant_hashcode4_cons3_p,
+	gcinvariant_hashcode4_p): New functions.
+	(gcinvariant_Pseudofun): New type.
+	(gcinvariantfn): New macro.
+	(hashcode_gc_invariant_p): Use an indirection through gcinvariantfn.
+	(get_eql_hashfunction, get_equal_hashfunction): New functions.
+	(MAKE-HASH-TABLE): Recognize the tests {FAST,STABLE}HASH-{EQL,EQUAL}.
+	Store the gcinvariant pseudofunction in the hash table.
+	(hash_table_test): Return FASTHASH-EQL or STABLEHASH-EQL instead of
+	EQL, FASTHASH-EQUAL or STABLEHASH-EQUAL instead of EQUAL.
+	(SYSTEM::FASTHASH-STABLE-P, SYSTEM::STABLEHASH-STABLE-P): Use
+	gcinvariant_hashcode1_p and gcinvariant_hashcode1stable_p, resp.
+	* pseudofun.d: Add hashcode2stable, hashcode3stable, and all
+	gcinvariant_hashcode* functions.
+	* init.lisp: Export fasthash-eql, stablehash-eql, fasthash-equal,
+	stablehash-equal from EXT.
+	* defs1.lisp (ext:fasthash-eql, ext:stablehash-eql, ext:fasthash-equal,
+	ext:stablehash-equal): New function aliases.
+
 2004-05-12  Bruno Haible  <bruno@clisp.org>
 
 	New hash-table tests FASTHASH-EQ and STABLEHASH-EQ.

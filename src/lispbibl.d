@@ -4914,6 +4914,7 @@ typedef struct {
   gcv_object_t ht_lookupfn           _attribute_aligned_object_;
   gcv_object_t ht_hashcodefn         _attribute_aligned_object_;
   gcv_object_t ht_testfn             _attribute_aligned_object_;
+  gcv_object_t ht_gcinvariantfn      _attribute_aligned_object_;
   gcv_object_t ht_rehash_size        _attribute_aligned_object_;
   gcv_object_t ht_mincount_threshold _attribute_aligned_object_;
   gcv_object_t ht_mincount           _attribute_aligned_object_;

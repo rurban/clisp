@@ -1337,6 +1337,12 @@ LISPSYM(constant_initfunction,"CONSTANT-INITFUNCTION",clos) /* marker in RECORD 
 LISPSYM(fasthash_eq,"FASTHASH-EQ",ext) /* test for HASHTABL */
 LISPSYM(stablehash_eq,"STABLEHASH-EQ",ext) /* test for HASHTABL */
 LISPSYM(eq_hashfunction,"*EQ-HASHFUNCTION*",ext) /* variable for HASHTABL */
+LISPSYM(fasthash_eql,"FASTHASH-EQL",ext) /* test for HASHTABL */
+LISPSYM(stablehash_eql,"STABLEHASH-EQL",ext) /* test for HASHTABL */
+LISPSYM(eql_hashfunction,"*EQL-HASHFUNCTION*",ext) /* variable for HASHTABL */
+LISPSYM(fasthash_equal,"FASTHASH-EQUAL",ext) /* test for HASHTABL */
+LISPSYM(stablehash_equal,"STABLEHASH-EQUAL",ext) /* test for HASHTABL */
+LISPSYM(equal_hashfunction,"*EQUAL-HASHFUNCTION*",ext) /* variable for HASHTABL */
 LISPSYM(structure_stablehash,"STRUCTURE-STABLEHASH",clos) /* class for HASHTABL */
 LISPSYM(simple_vector,"SIMPLE-VECTOR",lisp) /* type in SEQUENCE, PREDTYPE */
 LISPSYM(simple_string,"SIMPLE-STRING",lisp) /* type in SEQUENCE, PREDTYPE */
