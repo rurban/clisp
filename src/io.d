@@ -1353,7 +1353,9 @@ local void read_token_1 (const object* stream_, object ch, uintWL scode) {
     read_char_syntax(ch = ,scode = ,stream_); # read next character
   char_read:
     switch(scode) {
-      case syntax_illegal: # illegal -> issue Error:
+      case syntax_illegal:
+        if (multiple_escape_flag) goto escape;
+        # illegal -> issue Error:
         pushSTACK(*stream_); # STREAM-ERROR slot STREAM
         pushSTACK(ch); # character
         pushSTACK(*stream_); # Stream
