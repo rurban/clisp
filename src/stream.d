@@ -3599,12 +3599,13 @@ nonreturning_function(extern, fehler_unencodable, (object encoding, chart ch));
 #endif
 
 # open the iconv conversion and signal errors when necessary
+# skip error when CHARSET is NULLOBJ
 # begin_system_call() must be called before this!!!
 # end_system_call() must be called after this!!!
 local iconv_t open_iconv (const char * to_code, const char * from_code,
                           object charset) {
   var iconv_t cd = iconv_open(to_code,from_code);
-  if (cd == (iconv_t)(-1)) {
+  if ((cd == (iconv_t)(-1)) && (!eq(nullobj,charset))) {
     if (errno == EINVAL) {
       end_system_call();
       pushSTACK(charset);
@@ -3616,13 +3617,23 @@ local iconv_t open_iconv (const char * to_code, const char * from_code,
 }
 
 # check whether the charset is valid
-global void check_charset (const char * code, object charset) {
+# when CHARSET is NULLOBJ, return false instead of signalling an error
+global bool check_charset (const char * code, object charset) {
   begin_system_call();
   var iconv_t cd = open_iconv(CLISP_INTERNAL_CHARSET,code,charset);
-  if (iconv_close(cd) < 0) { OS_error(); }
+  if (cd == (iconv_t)(-1)) return false;
+  if (iconv_close(cd) < 0) {
+    if (eq(nullobj,charset)) return false;
+    OS_error();
+  }
   cd = open_iconv(code,CLISP_INTERNAL_CHARSET,charset);
-  if (iconv_close(cd) < 0) { OS_error(); }
+  if (cd == (iconv_t)(-1)) return false;
+  if (iconv_close(cd) < 0) {
+    if (eq(nullobj,charset)) return false;
+    OS_error();
+  }
   end_system_call();
+  return true;
 }
 
 # Bytes to characters.

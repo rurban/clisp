@@ -12339,7 +12339,9 @@ extern bool terminal_stream_p(object stream);
 #endif # EXPORT_SYSCALLS
 
 # check whether the charset is valid
-global void check_charset (const char * code, object charset);
+# signal an error when code is invalid and charset is not nullobj
+# return false otherwise
+global bool check_charset (const char * code, object charset);
 # used in encoding.d
 
 # ####################### SYMBIBL for SYMBOL.D ############################# #

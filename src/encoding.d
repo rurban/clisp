@@ -1678,12 +1678,14 @@ extern object iconv_range (object encoding, uintL start, uintL end, uintL maxint
 #                              General functions
 
 # (MAKE-ENCODING [:charset] [:line-terminator] [:input-error-action]
-#                [:output-error-action])
+#                [:output-error-action] [:if-does-not-exist])
 # creates a new encoding.
-LISPFUN(make_encoding,0,0,norest,key,4,
+LISPFUN(make_encoding,0,0,norest,key,5,
         (kw(charset),kw(line_terminator),
-         kw(input_error_action),kw(output_error_action))) {
-  var object arg;
+         kw(input_error_action),kw(output_error_action)
+         kw(if_does_not_exist))) {
+  var object arg = popSTACK(); /* :if-does-not-exist */
+  var bool ignore_not_exist = nullp(arg); /* no error */
   # Check the :CHARSET argument.
   arg = STACK_3;
   # string -> symbol in CHARSET
@@ -1704,22 +1706,32 @@ LISPFUN(make_encoding,0,0,norest,key,4,
       arg = Symbol_value(sym);
     #ifdef HAVE_GOOD_ICONV
     else {
-      with_string_0(arg,Symbol_value(S(ascii)),charset_ascii,
-                    { check_charset(charset_ascii,arg); });
-      pushSTACK(coerce_ss(arg));
-      var object encoding = allocate_encoding();
-      TheEncoding(encoding)->enc_eol = S(Kunix);
-      TheEncoding(encoding)->enc_towcs_error = S(Kerror);
-      TheEncoding(encoding)->enc_tombs_error = S(Kerror);
-      TheEncoding(encoding)->enc_charset = popSTACK();
-      TheEncoding(encoding)->enc_mblen    = P(iconv_mblen);
-      TheEncoding(encoding)->enc_mbstowcs = P(iconv_mbstowcs);
-      TheEncoding(encoding)->enc_wcslen   = P(iconv_wcslen);
-      TheEncoding(encoding)->enc_wcstombs = P(iconv_wcstombs);
-      TheEncoding(encoding)->enc_range    = P(iconv_range);
-      TheEncoding(encoding)->min_bytes_per_char = 1;
-      TheEncoding(encoding)->max_bytes_per_char = max_bytes_per_chart; # wild assumption
-      arg = encoding;
+      var bool valid_encoding_p = true;
+      with_string_0(arg,Symbol_value(S(ascii)),charset_ascii,{
+        valid_encoding_p =
+          check_charset(charset_ascii,ignore_not_exist ? nullobj : arg);
+      });
+      /* if :IF-DOES-NOT-EXIST was non-NIL and the encoding was invalid,
+         check_charset() would have signalled an error */
+      if (valid_encoding_p) {
+        pushSTACK(coerce_ss(arg));
+        var object encoding = allocate_encoding();
+        TheEncoding(encoding)->enc_eol = S(Kunix);
+        TheEncoding(encoding)->enc_towcs_error = S(Kerror);
+        TheEncoding(encoding)->enc_tombs_error = S(Kerror);
+        TheEncoding(encoding)->enc_charset = popSTACK();
+        TheEncoding(encoding)->enc_mblen    = P(iconv_mblen);
+        TheEncoding(encoding)->enc_mbstowcs = P(iconv_mbstowcs);
+        TheEncoding(encoding)->enc_wcslen   = P(iconv_wcslen);
+        TheEncoding(encoding)->enc_wcstombs = P(iconv_wcstombs);
+        TheEncoding(encoding)->enc_range    = P(iconv_range);
+        TheEncoding(encoding)->min_bytes_per_char = 1;
+        TheEncoding(encoding)->max_bytes_per_char = max_bytes_per_chart; # wild assumption
+        arg = encoding;
+      } else {
+        ASSERT(ignore_not_exist);
+        arg = NIL;
+      }
     }
     #else
     else
@@ -1767,11 +1779,12 @@ LISPFUN(make_encoding,0,0,norest,key,4,
     fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
   }
   # Create a new encoding.
-  if ((eq(STACK_2,unbound) || eq(STACK_2,TheEncoding(STACK_3)->enc_eol))
-      && (eq(STACK_1,unbound)
-          || eq(STACK_1,TheEncoding(STACK_3)->enc_towcs_error))
-      && (eq(STACK_0,unbound)
-          || eq(STACK_0,TheEncoding(STACK_3)->enc_tombs_error))) {
+  if (nullp(STACK_3) /* illegal charset & :IF-DOES-NOT-EXIST NIL */
+      || ((eq(STACK_2,unbound) || eq(STACK_2,TheEncoding(STACK_3)->enc_eol))
+          && (eq(STACK_1,unbound)
+              || eq(STACK_1,TheEncoding(STACK_3)->enc_towcs_error))
+          && (eq(STACK_0,unbound)
+              || eq(STACK_0,TheEncoding(STACK_3)->enc_tombs_error)))) {
     value1 = STACK_3;
   } else {
     var object encoding = allocate_encoding();
@@ -2151,10 +2164,12 @@ global void init_encodings_2 (void) {
     var object symbol = iconv_first_sym;
     var uintC count;
     dotimesC(count,iconv_num_encodings, {
-      pushSTACK(Symbol_name(symbol));
-      pushSTACK(unbound); pushSTACK(unbound); pushSTACK(unbound);
+      pushSTACK(Symbol_name(symbol)); pushSTACK(unbound);
+      pushSTACK(unbound); pushSTACK(unbound); pushSTACK(NIL);
       C_make_encoding(); # cannot use funcall yet
-      define_constant(symbol,value1);
+      if (nullp(value1)) {
+        pushSTACK(symbol); pushSTACK(O(charset_package)); C_unintern();
+      } else define_constant(symbol,value1);
       symbol = objectplus(symbol,(soint)sizeof(*TheSymbol(symbol))<<(oint_addr_shift-addr_shift));
     });
   }
@@ -2163,10 +2178,11 @@ global void init_encodings_2 (void) {
   define_constant(S(windows_1258),Symbol_value(S(cp1258)));
  #endif
   # Initialize O(internal_encoding):
-  pushSTACK(Symbol_value(S(utf_8)));
-  pushSTACK(S(Kunix));
-  pushSTACK(unbound);
-  pushSTACK(unbound);
+  pushSTACK(Symbol_value(S(utf_8))); /* :charset */
+  pushSTACK(S(Kunix));          /* :line-terminator */
+  pushSTACK(unbound);           /* :input-error-action */
+  pushSTACK(unbound);           /* :output-error-action */
+  pushSTACK(unbound);           /* :if-does-not-exist */
   C_make_encoding();
   O(internal_encoding) = value1;
  #endif
@@ -2306,15 +2322,16 @@ local object encoding_from_name (const char* name) {
   }
  #else
   unused name;
-  pushSTACK(unbound);
+  pushSTACK(unbound);           /* :charset */
  #endif # UNICODE
  #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
-  pushSTACK(S(Kdos));
+  pushSTACK(S(Kdos));           /* :line-terminator */
  #else
-  pushSTACK(S(Kunix));
+  pushSTACK(S(Kunix));          /* :line-terminator */
  #endif
-  pushSTACK(unbound);
-  pushSTACK(unbound);
+  pushSTACK(unbound);           /* :input-error-action */
+  pushSTACK(unbound);           /* :output-error-action */
+  pushSTACK(unbound);           /* :if-does-not-exist */
   C_make_encoding();
   return value1;
 }
