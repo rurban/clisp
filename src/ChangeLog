@@ -1,3 +1,7 @@
+2005-01-09  Bruno Haible  <bruno@clisp.org>
+
+	* po/Makefile.in.in (datadir): Use @datadir@.
+
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
 	* condition.lisp (maybe-continue): Remove useless code.
