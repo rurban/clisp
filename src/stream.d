@@ -4842,46 +4842,39 @@ local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr,
     return byteptr;
   byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
   if (len == 0) return byteptr;
-  if ((persev != persev_immediate && persev != persev_bonus)
-      || ls_avail_p(low_listen_unbuffered_handle(stream))) {
-    /* low_listen_unbuffered_handle could add to bytebuf */
-    byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
-    if (len == 0) return byteptr;
-    var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
-    run_time_stop(); /* hold run time clock */
+  var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
+  run_time_stop(); /* hold run time clock */
+  begin_system_call();
+  var sintL result = fd_read(handle,byteptr,len,persev);
+  end_system_call();
+  run_time_restart(); /* resume run time clock */
+  if (result<0) {
+   #if !defined(WIN32_NATIVE)
     begin_system_call();
-    var sintL result = fd_read(handle,byteptr,len,persev);
-    end_system_call();
-    run_time_restart(); /* resume run time clock */
-    if (result<0) {
-     #if !defined(WIN32_NATIVE)
-      begin_system_call();
-      if (errno==EINTR) /* Interrupt (poss. by Ctrl-C) ? */
-        interruptp({ end_system_call(); fehler_interrupt(); });
-     #endif
-     #ifdef WIN32_NATIVE
-      begin_system_call();
-      if (GetLastError()==ERROR_SIGINT) { /* Interrupt by Ctrl-C ? */
-        end_system_call(); fehler_interrupt();
-      }
-     #endif
-      OS_error();
+    if (errno==EINTR) /* Interrupt (poss. by Ctrl-C) ? */
+      interruptp({ end_system_call(); fehler_interrupt(); });
+   #endif
+   #ifdef WIN32_NATIVE
+    begin_system_call();
+    if (GetLastError()==ERROR_SIGINT) { /* Interrupt by Ctrl-C ? */
+      end_system_call(); fehler_interrupt();
     }
-    if (result==0) {
-      begin_system_call();
-     #if !defined(WIN32_NATIVE)
-      if (errno==ENOENT) /* indicates EOF */
-        UnbufferedStream_status(stream) = -1;
-     #endif
-     #ifdef WIN32_NATIVE
-      if (GetLastError()==ERROR_HANDLE_EOF)
-        UnbufferedStream_status(stream) = -1;
-     #endif
-      end_system_call();
-    }
-    byteptr += result;
+   #endif
+    OS_error();
   }
-  return byteptr;
+  if (result==0) {
+    begin_system_call();
+   #if !defined(WIN32_NATIVE)
+    if (errno==ENOENT) /* indicates EOF */
+      UnbufferedStream_status(stream) = -1;
+   #endif
+   #ifdef WIN32_NATIVE
+    if (GetLastError()==ERROR_HANDLE_EOF)
+      UnbufferedStream_status(stream) = -1;
+   #endif
+    end_system_call();
+  }
+  return byteptr+result;
 }
 
 # Integer streams
@@ -13213,29 +13206,22 @@ local uintB* low_read_array_unbuffered_socket (object stream, uintB* byteptr,
     return byteptr;
   byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
   if (len == 0) return byteptr;
-  if ((persev != persev_immediate && persev != persev_bonus)
-      || ls_avail_p(low_listen_unbuffered_socket(stream))) {
-    /* low_listen_unbuffered_handle could add to bytebuf */
-    byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
-    if (len == 0) return byteptr;
-    var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
-    var int result;
-    SYSCALL(result,sock_read(handle,byteptr,len,persev));
-    if (result==0) {
-      begin_system_call();
-     #if !defined(WIN32_NATIVE)
-      if (errno==ENOENT) /* indicates EOF */
-        UnbufferedStream_status(stream) = -1;
-     #endif
-     #ifdef WIN32_NATIVE
-      if (GetLastError()==ERROR_HANDLE_EOF)
-        UnbufferedStream_status(stream) = -1;
-     #endif
-      end_system_call();
-    }
-    byteptr += result;
+  var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
+  var int result;
+  SYSCALL(result,sock_read(handle,byteptr,len,persev));
+  if (result==0) {
+    begin_system_call();
+   #if !defined(WIN32_NATIVE)
+    if (errno==ENOENT) /* indicates EOF */
+      UnbufferedStream_status(stream) = -1;
+   #endif
+   #ifdef WIN32_NATIVE
+    if (GetLastError()==ERROR_HANDLE_EOF)
+      UnbufferedStream_status(stream) = -1;
+   #endif
+    end_system_call();
   }
-  return byteptr;
+  return byteptr+result;
 }
 
 # Initializes the input side fields of a socket stream.
