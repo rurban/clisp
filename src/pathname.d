@@ -18,12 +18,13 @@
 
 # enable the following #define to debug pathname translations
 # setting DEBUG_TRANSLATE_PATHNAME to a larger value results in more output
-# WARNING: Lisp object output can trigger GC! BEWARE!
+# WARNING: PRIN1 can trigger GC! BEWARE!
 /* #define DEBUG_TRANSLATE_PATHNAME 1 */
-#ifdef DEBUG_TRANSLATE_PATHNAME
-#define DOUT(o) printf(#o ": ");pushSTACK(o);funcall(L(prin1),1);printf("\n")
+#if DEBUG_TRANSLATE_PATHNAME
+#define DOUT(label,object) \
+ printf(#label #object ": ");pushSTACK(object);funcall(L(prin1),1);printf("\n")
 #else
-#define DOUT(o)
+#define DOUT(l,o)
 #endif
 #if DEBUG_TRANSLATE_PATHNAME > 1
 local void show_stack (const char* title,int nn) {
@@ -1550,6 +1551,7 @@ local object parse_logical_word(z,subdirp)
     # und, falls subdirp, ein ';' ?
     var bool last_was_star = false;
     var bool seen_starstar = false;
+    STACK_2 = coerce_normal_ss(STACK_2);
     loop {
       if (z->count == 0)
         break;
@@ -1622,6 +1624,7 @@ local object parse_logical_host_prefix(zp,string)
   var object host;
   var uintL startindex = zp->index;
   var chart ch;
+  string = coerce_normal_ss(string);
   # a sequence of alphanumeric characters and then ':'
   loop {
     if (zp->count==0)
@@ -1924,6 +1927,8 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
         if (!nullp(Symbol_value(S(parse_namestring_ansi)))) {
           var zustand tmp = z;
           var object host = parse_logical_host_prefix(&tmp,string);
+          DOUT("parse-namestring: ",string);
+          DOUT("parse-namestring: ",host);
           if (!nullp(host)
               # Test whether the given hostname is valid. This is not
               # strictly what ANSI specifies, but is better than giving
@@ -4063,6 +4068,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
         return true;
       if (!simple_string_p(obj))
         return false;
+      obj = coerce_normal_ss(obj);
       var uintL len = Sstring_length(obj);
       if (len==0)
         return false; # leeres Word ist verboten
@@ -4096,6 +4102,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
     {
       if (!simple_string_p(obj))
         return false;
+      obj = coerce_normal_ss(obj);
       var uintL len = Sstring_length(obj);
       if (len > 0) {
         var const chart* charptr = &TheSstring(obj)->data[0];
@@ -4114,6 +4121,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
     {
       if (!simple_string_p(obj))
         return false;
+      obj = coerce_normal_ss(obj);
       var uintL len = Sstring_length(obj);
       if (len > 0) {
         var const chart* charptr = &TheSstring(obj)->data[0];
@@ -4895,6 +4903,8 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
     var object muster;
     var object beispiel;
     {
+      muster = coerce_normal_ss(muster);
+      beispiel = coerce_normal_ss(beispiel);
       return wildcard_match_ab(
                                /* m_count = */ Sstring_length(muster),
                                /* m_ptr   = */ &TheSstring(muster)->data[0],
@@ -5238,6 +5248,8 @@ LISPFUNN(pathname_match_p,2)
     var const object* previous;
     var object* solutions;
     {
+      muster = coerce_normal_ss(muster);
+      beispiel = coerce_normal_ss(beispiel);
       wildcard_diff_ab(muster,beispiel,0,0,previous,solutions);
     }
 
@@ -5312,11 +5324,12 @@ LISPFUNN(pathname_match_p,2)
 
 #endif
 
-#ifdef DEBUG_TRANSLATE_PATHNAME
+# DEBUG_TRANSLATE_PATHNAME
+#if 0
 # all arguments to *_diff are on stack - this should be safe
 #define DEBUG_DIFF(f)                                         \
   printf("\n* " #f " [logical: %d]\n",logical);               \
-  DOUT(muster); DOUT(beispiel); DOUT(*previous); DOUT(*solutions)
+  DOUT("",muster); DOUT("",beispiel); DOUT("",*previous); DOUT("",*solutions)
 #else
 #define DEBUG_DIFF(f)
 #endif
@@ -5991,15 +6004,17 @@ LISPFUNN(pathname_match_p,2)
       if (logpathnamep(muster))
         logical = true;
       #endif
-#ifdef DEBUG_TRANSLATE_PATHNAME
+# DEBUG_TRANSLATE_PATHNAME
+# this is _not_ safe! you will get segfault if you enable this!
+#if 0
 #define GET_ITEM(what,xwhat,where,skip)                                 \
  { object xobj = xpathname_##xwhat(logical,where);                      \
    pushSTACK(xobj); /* DOUT can trigger GC! */                          \
    printf("\n *** " #xwhat " [logical: %d]\n",logical);                 \
-   DOUT(*subst); DOUT(where); DOUT(xobj);                               \
+   DOUT("",*subst); DOUT("",where); DOUT("",xobj);                      \
    item = translate_##what(subst,xobj,logical);                         \
    if (eq(item,nullobj)) { skipSTACK(skip+1); goto subst_error; }       \
-   DOUT(item); popSTACK();                                              \
+   DOUT("",item); popSTACK();                                           \
    pushSTACK(S(K##xwhat)); pushSTACK(item); }
 #else
 #define GET_ITEM(what,xwhat,where,skip)                                     \
@@ -11395,5 +11410,5 @@ global int my_spawnv(pmode,path,argv)
 
 #ifdef DEBUG_TRANSLATE_PATHNAME
 #undef DEBUG_TRANSLATE_PATHNAME
-#undef OUT
+#undef DOUT
 #endif
