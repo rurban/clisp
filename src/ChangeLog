@@ -4,8 +4,10 @@
 	this takes care of the item (6) in Issue 76
 	(break): bind *DEBUGGER-HOOK* to NIL
 	this takes care of the Issue 91
-	* clos.lisp (DOCUMENTATION): accept STRUCTURE-OBJECTs and STANDARD-OBJECTs
-	this takes care of the Issue 135
+	* clos.lisp (DOCUMENTATION): accept STRUCTURE-OBJECTs and
+	STANDARD-OBJECTs - this takes care of the Issue 135
+	* compiler.lisp (compile-file): accept :EXTERNAL-FORMAT argument,
+	as per Issue 155
 
 2003-04-18  Sam Steingold  <sds@gnu.org>
 
