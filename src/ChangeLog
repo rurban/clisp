@@ -1,3 +1,8 @@
+2002-04-16  Sam Steingold  <sds@gnu.org>
+
+	* foreign1.lisp (parse-c-function): check :OUT & :IN-OUT args for
+	being pointers, just like in FOREIGN-CALL-OUT in foreign.d
+
 2002-04-16  Joerg-Cyril Hoehle  <Joerg-Cyril.Hoehle@t-systems.com>
 	    Sam Steingold  <sds@gnu.org>
 
