@@ -3526,9 +3526,9 @@ function <a href="CLHSROOT/Body/fun_logical-pathname.html">
 <code>logical-pathname</code></a> can be used.
 
 <p>When both <code>pathname</code> and <code>default-pathname</code> are
-relative pathnames, the behavior depends on <a
-href="#ansi"><code>lisp:*ansi*</code></a>: when it is <code>nil</code>,
-the CLISP retains its traditional behavior:
+relative pathnames, the behavior depends on
+<code><strong>lisp:*merge-pathnames-ansi*</strong></code>: when it is
+<code>nil</code>, then CLISP retains its traditional behavior:
 <pre><code>(merge-pathnames #p"x/" #p"y/")
              ==&gt; #p"x/"</code></pre>
 
@@ -3546,18 +3546,17 @@ with defaults not yet applied".)
 
 <p>Now, <code>(merge-pathnames (merge-pathnames '#p"x/" '#p"y/")
 '#p"y/")</code> and <code>(merge-pathnames '#p"x/" '#p"y/")</code> are
-equal in CLISP (when <a href="#ansi"><code>lisp:*ansi*</code></a> is
+equal in CLISP (when <code>lisp:*merge-pathnames-ansi*</code> is
 <code>nil</code>), but not in implementations that strictly follow the
 Common Lisp spec. In fact, the above twice-default = once-default rule
 holds for all pathnames in CLISP.
 
-<p>When <a href="#ansi"><code>lisp:*ansi*</code></a> is
+<p>When <code><strong>lisp:*merge-pathnames-ansi*</strong></code> is
 non-<code>nil</code>, the normal ANSI CL behavior is exhibited:
 <pre><code>(merge-pathnames #p"x/" #p"y/")
              ==&gt; #p"y/x/"</code></pre>
 
-<p>The rationale is that "merge" is "merge" and not "or", in addition to
-simply being ANSI CL compliant and therefore not surprising to the users.
+<p>The rationale is that "merge" is "merge" and not "or".
 
 <h2><a name="files"></a><a href="CLHSROOT/Body/chap-20.html">
     Chapter 20: Files</a></h2>

@@ -3372,7 +3372,9 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
 #                 (defaults-dir (pathname-directory defaults)))
 #             (if (eq (car pathname-dir) ':RELATIVE)
 #               (cond ((null (cdr pathname-dir)) defaults-dir)
-#                     ((not (eq (car defaults-dir) ':RELATIVE)) ; <----
+#                     ((or *merge-pathnames-ansi*
+#                          (not (eq (car defaults-dir) ':RELATIVE)) ; <----
+#                      )
 #                      (append defaults-dir (cdr pathname-dir))
 #                     )
 #                     (t pathname-dir)
@@ -3604,8 +3606,8 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
             else
             # nein.
             { # Fängt defaults-subdirs mit :RELATIVE an?
-              if (nullp(Symbol_value(S(ansi))) &&
-                  eq(Car(d_directory),S(Krelative)))
+              if (nullp(Symbol_value(S(merge_pathnames_ansi)))
+                  && eq(Car(d_directory),S(Krelative)))
                 # ja -> Ersetzen von :RELATIVE in pathname-subdirs
                 # durch das gesamte defaults-subdirs ist nicht sinnvoll
                 # (da nicht klar ist, auf was das dabei entstehende
