@@ -1963,14 +1963,14 @@ for my $kk (keys(%hash)) {
                 {<replaceable>option</replaceable>}*)</literal></term>
 <listitem><segmentedlist>
  <segtitle><replaceable>option</replaceable> ::==</segtitle>
- <segtitle></segtitle><segtitle></segtitle>
-<seglistitem><seg></seg><seg></seg><seg><literal role="sexp">(:name
+ <segtitle/><segtitle/>
+<seglistitem><seg/><seg/><seg><literal role="sexp">(:name
    <replaceable>c-name</replaceable>)</literal></seg></seglistitem>
-<seglistitem><seg></seg><seg>|</seg><seg><literal role="sexp">(:type
+<seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:type
   <replaceable>c-type</replaceable>)</literal></seg></seglistitem>
-<seglistitem><seg></seg><seg>|</seg><seg><literal role="sexp">(:read-only
+<seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:read-only
   <replaceable>boolean</replaceable>)</literal></seg></seglistitem>
-<seglistitem><seg></seg><seg>|</seg><seg><literal role="sexp">(:alloc
+<seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:alloc
   &allocation;)</literal></seg></seglistitem>
 </segmentedlist>
 
@@ -2011,16 +2011,16 @@ within Lisp (using &setq; or similar).</simpara>
                 {<replaceable>option</replaceable>}*)</literal></term>
 <listitem><segmentedlist>
  <segtitle><replaceable>option</replaceable> ::==</segtitle>
- <segtitle></segtitle><segtitle></segtitle>
-<seglistitem><seg></seg><seg></seg><seg><literal role="sexp">(:name
+ <segtitle/><segtitle/>
+<seglistitem><seg/><seg/><seg><literal role="sexp">(:name
    <replaceable>c-name</replaceable>)</literal></seg></seglistitem>
-<seglistitem><seg></seg><seg><literal role="sexp">(:arguments
+<seglistitem><seg/><seg><literal role="sexp">(:arguments
    {(<replaceable>arg-name</replaceable> <replaceable>c-type</replaceable>
     [&param-mode; [&allocation;]])}*)</literal> |</seg></seglistitem>
-<seglistitem><seg></seg><seg>|</seg><seg><literal role="sexp">(:return-type
+<seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:return-type
    <replaceable>c-type</replaceable>
    [&allocation;])</literal></seg></seglistitem>
-<seglistitem><seg></seg><seg>|</seg><seg><literal role="sexp">(:language
+<seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:language
    <replaceable>language</replaceable>)</literal></seg></seglistitem>
 </segmentedlist>
 
@@ -2043,16 +2043,16 @@ within Lisp (using &setq; or similar).</simpara>
                 {<replaceable>option</replaceable>}*)</literal></term>
 <listitem><segmentedlist>
  <segtitle><replaceable>option</replaceable> ::==</segtitle>
- <segtitle></segtitle><segtitle></segtitle>
-<seglistitem><seg></seg><seg><literal role="sexp">(:name
+ <segtitle/><segtitle/>
+<seglistitem><seg/><seg><literal role="sexp">(:name
    <replaceable>c-name</replaceable>)</literal> |</seg></seglistitem>
-<seglistitem><seg></seg><seg></seg><seg><literal role="sexp">(:arguments
+<seglistitem><seg/><seg/><seg><literal role="sexp">(:arguments
    {(<replaceable>arg-name</replaceable> <replaceable>c-type</replaceable>
     [&param-mode; [&allocation;]])}*)</literal></seg></seglistitem>
-<seglistitem><seg></seg><seg>|</seg><seg><literal role="sexp">(:return-type
+<seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:return-type
    <replaceable>c-type</replaceable>
    [&allocation;])</literal></seg></seglistitem>
-<seglistitem><seg></seg><seg>|</seg><seg><literal role="sexp">(:language
+<seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:language
    <replaceable>language</replaceable>)</literal></seg></seglistitem>
 </segmentedlist>
 
@@ -2243,7 +2243,7 @@ within Lisp (using &setq; or similar).</simpara>
  <segtitle>&c-lang; equivalent</segtitle><segtitle>ILU
  equivalent</segtitle><segtitle>Comment</segtitle>
 <seglistitem><seg>&nil;</seg><seg>&nil;</seg><seg><type>void</type></seg>
-   <seg></seg><seg>as a result type only</seg></seglistitem>
+   <seg/><seg>as a result type only</seg></seglistitem>
 <seglistitem><seg>&boolean-type;</seg><seg>&boolean-type;</seg>
    <seg><type>int</type></seg><seg><type>BOOLEAN</type></seg></seglistitem>
 <seglistitem><seg>&character-class;</seg><seg>&character-class;</seg>
@@ -3058,35 +3058,35 @@ exit functions.]  Programmers, watch
   <seg>as a result type for functions only</seg></seglistitem>
 <seglistitem><seg><type>4</type></seg>
   <seg><literal role="sexp">(&unsigned-byte-type; 32)</literal></seg>
-  <seg><type>unsigned long</type></seg><seg></seg></seglistitem>
+  <seg><type>unsigned long</type></seg><seg/></seglistitem>
 <seglistitem><seg><type>2</type></seg>
   <seg><literal role="sexp">(&unsigned-byte-type; 16)</literal></seg>
-  <seg><type>unsigned short</type></seg><seg></seg></seglistitem>
+  <seg><type>unsigned short</type></seg><seg/></seglistitem>
 <seglistitem><seg><type>1</type></seg>
   <seg><literal role="sexp">(&unsigned-byte-type; 8)</literal></seg>
-  <seg><type>unsigned char</type></seg><seg></seg></seglistitem>
+  <seg><type>unsigned char</type></seg><seg/></seglistitem>
 <seglistitem><seg><type>-4</type></seg>
   <seg><literal role="sexp">(&signed-byte-type; 32)</literal></seg>
-  <seg><type>long</type></seg><seg></seg></seglistitem>
+  <seg><type>long</type></seg><seg/></seglistitem>
 <seglistitem><seg><type>-2</type></seg>
   <seg><literal role="sexp">(&signed-byte-type; 16)</literal></seg>
-  <seg><type>short</type></seg><seg></seg></seglistitem>
+  <seg><type>short</type></seg><seg/></seglistitem>
 <seglistitem><seg><type>-1</type></seg>
   <seg><literal role="sexp">(&signed-byte-type; 8)</literal></seg>
-  <seg><type>signed char</type></seg><seg></seg></seglistitem>
+  <seg><type>signed char</type></seg><seg/></seglistitem>
 <seglistitem><seg><type>0</type></seg><seg>&boolean-type;</seg>
   <seg><type>BOOL</type></seg>
   <seg>as a result type for functions only</seg></seglistitem>
 <seglistitem><seg><type>*</type></seg><seg>opaque</seg>
-  <seg><type>void*</type></seg><seg></seg></seglistitem>
+  <seg><type>void*</type></seg><seg/></seglistitem>
 <seglistitem><seg>&external-k;</seg><seg>opaque</seg>
-  <seg><type>void*</type></seg><seg></seg></seglistitem>
+  <seg><type>void*</type></seg><seg/></seglistitem>
 <seglistitem><seg>&string-class;</seg>
   <seg>&string-class; or &vector-class;</seg>
-  <seg><type>char*</type></seg><seg></seg></seglistitem>
+  <seg><type>char*</type></seg><seg/></seglistitem>
 <seglistitem><seg>&io-k;</seg>
   <seg>&string-class; or &vector-class;</seg>
-  <seg><type>char*</type></seg><seg></seg></seglistitem>
+  <seg><type>char*</type></seg><seg/></seglistitem>
 </segmentedlist>
 
 <para>Objects of type &string-class; are copied and passed
@@ -3158,7 +3158,8 @@ from &nil; for a NULL pointer) and refuses objects of type
 <variablelist>
  <varlistentry><term><replaceable>option</replaceable> ::==</term>
  <listitem><segmentedlist>
-  <seglistitem><seg></seg><seg><literal role="sexp">(:offset
+   <segtitle/><segtitle/>
+  <seglistitem><seg/><seg><literal role="sexp">(:offset
     <replaceable>library-offset</replaceable>)</literal></seg></seglistitem>
   <seglistitem><seg>|</seg><seg><literal role="sexp">(:arguments
     {(<replaceable>arg-name</replaceable>
