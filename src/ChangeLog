@@ -1,5 +1,10 @@
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
+	* init.lisp (load): Don't "return-from load" because defun doesn't
+	establish a block when init.lisp is loaded interpreted.
+
+2004-10-31  Bruno Haible  <bruno@clisp.org>
+
 	* spvw.d (init_symbol_values): Initialize *disassemble-use-live-process*
 	with support for FreeBSD.
 	* disassem.lisp (*disassemble-use-live-process*): Remove variable.
