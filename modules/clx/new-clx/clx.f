@@ -9,6 +9,9 @@
 //
 // --------------------------------------------------------------------------------
 //
+// Revision 1.19  1998-10-19  bruno
+// - Use the macro `nonreturning_function', not `nonreturning'.
+//
 // Revision 1.18  1997-06-22  bruno
 // - replace first preprocessing by CCMP2C; then only comments need to be
 //   stripped before e2d can be applied.
@@ -1407,8 +1410,8 @@ local int get_enum (int n)
   BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
 }
 
-local nonreturning void enum_error (char *name, int value, int count);
-local nonreturning void enum_error (char *name, int value, int count)
+nonreturning_function(local, enum_error, (char *name, int value, int count));
+local void enum_error (char *name, int value, int count)
      // This function should never been called!
 {
   funcall (L(list), count);
