@@ -252,13 +252,8 @@ LISPFUNN(machine_instance,0)
   extern_C int setsockopt (SOCKET fd, int level, int optname, SETSOCKOPT_CONST SETSOCKOPT_ARG_T optval, SETSOCKOPT_OPTLEN_T optlen);
 #endif
 
-# ioctl for sockets
-#ifdef WIN32
-#define ioctl ioctlsocket
-#endif
-
 # A wrapper around the closesocket() function/macro.
-  #define CLOSESOCKET(fd)  while ((closesocket(fd) < 0) && sock_errno_is(EINTR)) ;
+#define CLOSESOCKET(fd)  while ((closesocket(fd) < 0) && sock_errno_is(EINTR))
 
 # A wrapper around the connect() function.
   global int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen);
@@ -278,13 +273,13 @@ LISPFUNN(machine_instance,0)
 
 # Execute a statement, but save sock_errno during it.
 # saving_sock_errno(statement);
-  #ifdef WIN32
-    #define saving_sock_errno(statement)  \
-      { int _olderrno = WSAGetLastError(); statement; WSASetLastError(_olderrno); }
-  #else
-    #define saving_sock_errno(statement)  \
-      { int _olderrno = errno; statement; errno = _olderrno; }
-  #endif
+#ifdef WIN32
+  #define saving_sock_errno(statement)                                    \
+    do { int _olderrno = WSAGetLastError(); statement; WSASetLastError(_olderrno); } while(0)
+#else
+  #define saving_sock_errno(statement)                            \
+    do { int _olderrno = errno; statement; errno = _olderrno; } while(0)
+#endif
 
 #endif # UNIXCONN || TCPCONN
 
@@ -697,23 +692,6 @@ global host_data * socket_getpeername (SOCKET socket_handle, host_data * hd,
   return hd;
 }
 
-#if defined(WIN32_NATIVE)
-# set linger timeout affecting closesocket() graceful behaviour.
-# Default socket option of SO_DONTLINGER seems unacceptable on win32.
-# Who can get that option working as it described
-# in MSDN (immediate return, graceful disconnect) ?
-local int lingerize_socket(SOCKET * socket_handle) {
-  var struct linger li;
-  li.l_onoff = 1;
-  li.l_linger = 30; # 30 seconds to linger - as in Apache
-  if (setsockopt(*socket_handle,SOL_SOCKET,SO_LINGER,
-                 (SETSOCKOPT_ARG_T)&li,sizeof(li)) < 0) {
-    saving_sock_errno(CLOSESOCKET(*socket_handle)); return false;
-  }
-  return true;
-}
-#endif
-
 # Creation of sockets on the server side:
 # SOCKET socket_handle = create_server_socket (&host_data, sock, port);
 #   creates a socket to which other processes can connect.
@@ -825,10 +803,8 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
     var struct timeval *tvp = (struct timeval*)timeout;
     if ((tvp == NULL) || (tvp->tv_sec != 0) || (tvp->tv_usec != 0)) { # wait
      #if defined(WIN32_NATIVE)
-      if (!interruptible_socket_wait(fd,socket_wait_write,tvp)) {
-        CLOSESOCKET(fd); sock_set_errno(ETIMEDOUT);
-        return INVALID_SOCKET;
-      }
+      if (!interruptible_socket_wait(fd,socket_wait_write,tvp))
+        goto timeout;
      #else
      restart_select:
       var fd_set handle_set;
@@ -838,7 +814,8 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
         if (sock_errno_is(EINTR)) goto restart_select;
         saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
       }
-      if (ret == 0) { # timeout
+      if (ret == 0) {
+       timeout:
         CLOSESOCKET(fd); sock_set_errno(ETIMEDOUT);
         return INVALID_SOCKET;
       }
