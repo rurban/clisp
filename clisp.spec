@@ -84,7 +84,6 @@ echo "Uncomment removing builddir in 'clisp.spec' if you want a cleanup"
 %{prefix}/bin/clisp
 %{prefix}/lib/clisp/
 %{prefix}/share/doc/%{name}-%{version}/
-%{prefix}/share/man/man3/clreadline.3
 %{prefix}/share/man/man1/clisp.1
 %{prefix}/share/locale/de/LC_MESSAGES/clisp.mo
 %{prefix}/share/locale/de/LC_MESSAGES/clisplow.mo
