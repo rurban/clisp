@@ -1,3 +1,8 @@
+2004-09-15  Bruno Haible  <bruno@clisp.org>
+
+	* constobj.d (version): Bump because of changes to CLOS macro
+	expansions.
+
 2004-09-12  Bruno Haible  <bruno@clisp.org>
 
 	Implement SLOT-VALUE-USING-CLASS and friends.
