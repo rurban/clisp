@@ -1763,8 +1763,10 @@ LISPFUNNR(class_p,1)
   if_classp(obj, { value1 = T; }, { value1 = NIL; }); mv_count=1;
 }
 
+/* (CLOS:CLASS-OF object), CLTL2 p. 822,783
+   Doesn't trigger GC. */
 LISPFUNNR(class_of,1)
-{ /* (CLOS:CLASS-OF object), CLTL2 p. 822,783 */
+{
   var object arg = popSTACK();
  #ifdef TYPECODES
   switch (typecode(arg))
