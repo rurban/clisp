@@ -30,6 +30,9 @@ User visible changes
   MAKE-TWO-WAY-STREAM, MAKE-ECHO-STREAM now verify that their arguments are
   input streams or output streams, respectively.
 
+* Fixed a bug: Calling the function INTERACTIVE-STREAM-P with a non-stream
+  argument could cause a crash.
+
 * The function VALUES-LIST now verifies that its argument is a proper list.
 
 Portability
