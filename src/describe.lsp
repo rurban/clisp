@@ -118,32 +118,31 @@
            (describe-slotted-object obj stream))
   (:method ((obj cons) (stream stream))
            (let ((len
-                  (do ((n 0 (+ n 2)) (f obj (cddr f)) (s obj (cdr s)))
-                       (nil)
+                  (do ((n 0 (+ n 2)) (f obj (cddr f)) (s obj (cdr s))) (nil)
                     (when (atom f) (return n))
                     (when (atom (cdr f)) (return (1+ n)))
                     (when (eq (cdr f) s) (return nil)))))
-              (if len
-                (if (null (nthcdr len obj))
+             (if len
+                 (if (null (nthcdr len obj))
                      (format stream (DEUTSCH "eine Liste der Länge ~S."
-                             ENGLISH "a list of length ~S."
-                             FRANCAIS "une liste de longueur ~S.")
+                                     ENGLISH "a list of length ~S."
+                                     FRANCAIS "une liste de longueur ~S.")
                              len)
-                  (if (> len 1)
+                     (if (> len 1)
                          (format stream
                                  (DEUTSCH "eine punktierte Liste der Länge ~S."
-                               ENGLISH "a dotted list of length ~S."
-                               FRANCAIS "une liste pointée de longueur ~S.")
+                                  ENGLISH "a dotted list of length ~S."
+                                  FRANCAIS "une liste pointée de longueur ~S.")
                                  len)
                          (format stream (DEUTSCH "ein Cons."
-                               ENGLISH "a cons."
+                                         ENGLISH "a cons."
                                          FRANCAIS "un «cons»."))))
                  (format stream (DEUTSCH "eine zyklische Liste."
-                           ENGLISH "a cyclic list."
+                                 ENGLISH "a cyclic list."
                                  FRANCAIS "une liste circulaire.")))))
   (:method ((obj null) (stream stream))
            (format stream (DEUTSCH "die leere Liste, "
-                       ENGLISH "the empty list, "
+                           ENGLISH "the empty list, "
                            FRANCAIS "la liste vide, "))
            (call-next-method))
   (:method ((obj symbol) (stream stream))
@@ -181,24 +180,24 @@
                          (cdr accessible-packs)
                          (sort (mapcar #'package-name accessible-packs)
                                #'string<))))
-          (when (keywordp obj)
+             (when (keywordp obj)
                (format stream (DEUTSCH ", ist ein Keyword"
                                ENGLISH ", is a keyword"
                                FRANCAIS ", est un mot-clé")))
-          (when (boundp obj)
-            (if (constantp obj)
+             (when (boundp obj)
+               (if (constantp obj)
                    (format stream (DEUTSCH ", eine Konstante"
-                         ENGLISH ", a constant"
+                                   ENGLISH ", a constant"
                                    FRANCAIS ", une constante"))
-              (if (sys::special-variable-p obj)
+                   (if (sys::special-variable-p obj)
                        (format stream
                                (DEUTSCH ", eine SPECIAL-deklarierte Variable"
-                           ENGLISH ", a variable declared SPECIAL"
+                                ENGLISH ", a variable declared SPECIAL"
                                 FRANCAIS ", une variable declarée SPECIAL"))
                        (format stream (DEUTSCH ", eine Variable"
-                           ENGLISH ", a variable"
+                                       ENGLISH ", a variable"
                                        FRANCAIS ", une variable"))))
-            (when (symbol-macro-expand obj)
+               (when (symbol-macro-expand obj)
                  (format stream (DEUTSCH " (Macro: ~s)"
                                  ENGLISH " (macro: ~s)"
                                  FRANCAIS " (macro: ~s)")
@@ -209,47 +208,47 @@
                                FRANCAIS ", valeur : ~s")
                        (symbol-value obj))
                (pushnew (symbol-value obj) mored))
-          (when (fboundp obj)
+             (when (fboundp obj)
                (format stream (DEUTSCH ", benennt "
-                       ENGLISH ", names "
+                               ENGLISH ", names "
                                FRANCAIS ", le nom "))
-            (cond ((special-operator-p obj)
+               (cond ((special-operator-p obj)
                       (format stream (DEUTSCH "eine Special-Form"
-                              ENGLISH "a special form"
+                                      ENGLISH "a special form"
                                       FRANCAIS "d'une forme spéciale"))
-                   (when (macro-function obj)
+                      (when (macro-function obj)
                         (format stream (DEUTSCH " mit Macro-Definition"
-                                ENGLISH " with macro definition"
+                                        ENGLISH " with macro definition"
                                         FRANCAIS ", aussi d'un macro"))))
-                  ((functionp (symbol-function obj))
+                     ((functionp (symbol-function obj))
                       (format stream (DEUTSCH "eine Funktion"
-                              ENGLISH "a function"
+                                      ENGLISH "a function"
                                       FRANCAIS "d'une fonction")))
-                  (t ; (macro-function obj)
+                     (t ; (macro-function obj)
                       (format stream (DEUTSCH "einen Macro"
-                              ENGLISH "a macro"
+                                      ENGLISH "a macro"
                                       FRANCAIS "d'un macro"))))
                (pushnew (symbol-function obj) mored))
-          (when (or (get obj 'system::type-symbol)
-                    (get obj 'system::defstruct-description)
+             (when (or (get obj 'system::type-symbol)
+                       (get obj 'system::defstruct-description)
                        (get obj 'system::deftype-expander))
                (format stream (DEUTSCH ", benennt einen Typ"
-                       ENGLISH ", names a type"
+                               ENGLISH ", names a type"
                                FRANCAIS ", le nom d'un type"))
-            (when (get obj 'system::deftype-expander)
+               (when (get obj 'system::deftype-expander)
                  (push `(type-expand-1 ',obj) moree)))
-          (when (get obj 'clos::closclass)
+             (when (get obj 'clos::closclass)
                (format stream (DEUTSCH ", benennt eine Klasse"
-                       ENGLISH ", names a class"
+                               ENGLISH ", names a class"
                                FRANCAIS ", le nom d'une classe")))
-          (when (symbol-plist obj)
-            (let ((properties
+             (when (symbol-plist obj)
+               (let ((properties
                       (do ((l nil) (pl (symbol-plist obj) (cddr pl)))
-                        ((null pl) (nreverse l))
+                          ((null pl) (nreverse l))
                         (push (car pl) l))))
                  (format stream (DEUTSCH ", hat die Propert~@P ~{~S~^, ~}"
-                         ENGLISH ", has the propert~@P ~{~S~^, ~}"
-                         FRANCAIS ", a ~[~;la propriété~:;les propriétés~] ~{~S~^, ~}")
+                                 ENGLISH ", has the propert~@P ~{~S~^, ~}"
+                                 FRANCAIS ", a ~[~;la propriété~:;les propriétés~] ~{~S~^, ~}")
                          (length properties) properties))
                (push `(symbol-plist ',obj) moree))
              (when moree
@@ -265,92 +264,91 @@
                    (integer-length obj) (type-of obj)))
   (:method ((obj ratio) (stream stream))
            (format stream (DEUTSCH "eine rationale, nicht ganze Zahl."
-                     ENGLISH "a rational, not integral number."
+                           ENGLISH "a rational, not integral number."
                            FRANCAIS "un nombre rationnel mais pas entier.")))
   (:method ((obj float) (stream stream))
            (format stream (DEUTSCH "eine Fließkommazahl mit ~S Mantissenbits (~:(~A~))."
-                     ENGLISH "a float with ~S bits of mantissa (~(~A~))."
-                     FRANCAIS "un nombre à virgule flottante avec une précision de ~S bits (un ~(~A~)).")
+                           ENGLISH "a float with ~S bits of mantissa (~(~A~))."
+                           FRANCAIS "un nombre à virgule flottante avec une précision de ~S bits (un ~(~A~)).")
                    (float-digits obj) (type-of obj)))
   (:method ((obj complex) (stream stream))
            (format stream (DEUTSCH "eine komplexe Zahl "
-                     ENGLISH "a complex number "
+                           ENGLISH "a complex number "
                            FRANCAIS "un nombre complexe "))
-          (let ((x (realpart obj))
-                (y (imagpart obj)))
-            (if (zerop y)
-              (if (zerop x)
+           (let ((x (realpart obj))
+                 (y (imagpart obj)))
+             (if (zerop y)
+                 (if (zerop x)
                      (format stream (DEUTSCH "im Ursprung"
-                           ENGLISH "at the origin"
+                                     ENGLISH "at the origin"
                                      FRANCAIS "à l'origine"))
-                     (format stream (DEUTSCH "auf der ~:[posi~;nega~]tiven reellen Achse"
-                           ENGLISH "on the ~:[posi~;nega~]tive real axis"
-                           FRANCAIS "sur la partie ~:[posi~;nega~]tive de l'axe réelle")
+                     (format stream
+                             (DEUTSCH "auf der ~:[posi~;nega~]tiven reellen Achse"
+                              ENGLISH "on the ~:[posi~;nega~]tive real axis"
+                              FRANCAIS "sur la partie ~:[posi~;nega~]tive de l'axe réelle")
                              (minusp x)))
-              (if (zerop x)
+                 (if (zerop x)
                      (format stream (DEUTSCH "auf der ~:[posi~;nega~]tiven imaginären Achse"
-                           ENGLISH "on the ~:[posi~;nega~]tive imaginary axis"
-                           FRANCAIS "sur la partie ~:[posi~;nega~]tive de l'axe imaginaire")
+                                     ENGLISH "on the ~:[posi~;nega~]tive imaginary axis"
+                                     FRANCAIS "sur la partie ~:[posi~;nega~]tive de l'axe imaginaire")
                              (minusp y))
                      (format stream (DEUTSCH "im ~:[~:[ers~;vier~]~;~:[zwei~;drit~]~]ten Quadranten"
-                           ENGLISH "in ~:[~:[first~;fourth~]~;~:[second~;third~]~] the quadrant"
-                           FRANCAIS "dans le ~:[~:[premier~;quatrième~]~;~:[deuxième~;troisième~]~] quartier")
+                                     ENGLISH "in ~:[~:[first~;fourth~]~;~:[second~;third~]~] the quadrant"
+                                     FRANCAIS "dans le ~:[~:[premier~;quatrième~]~;~:[deuxième~;troisième~]~] quartier")
                              (minusp x) (minusp y)))))
            (format stream (DEUTSCH " der Gaußschen Zahlenebene."
-                     ENGLISH " of the Gaussian number plane."
+                           ENGLISH " of the Gaussian number plane."
                            FRANCAIS " du plan Gaussien.")))
   (:method ((obj character) (stream stream))
            (format stream (DEUTSCH "ein Zeichen"
-                     ENGLISH "a character"
+                           ENGLISH "a character"
                            FRANCAIS "un caractère"))
            (format stream (DEUTSCH "."
-                     ENGLISH "."
+                           ENGLISH "."
                            FRANCAIS "."))
            (format stream
                    (DEUTSCH "~%Es ist ein ~:[nicht ~;~]druckbares Zeichen."
-                     ENGLISH "~%It is a ~:[non-~;~]printable character."
-                     FRANCAIS "~%C'est un caractère ~:[non ~;~]imprimable.")
+                    ENGLISH "~%It is a ~:[non-~;~]printable character."
+                    FRANCAIS "~%C'est un caractère ~:[non ~;~]imprimable.")
                    (graphic-char-p obj))
-          (unless (standard-char-p obj)
+           (unless (standard-char-p obj)
              (format stream
                      (DEUTSCH "~%Seine Verwendung ist nicht portabel."
-                       ENGLISH "~%Its use is non-portable."
+                      ENGLISH "~%Its use is non-portable."
                       FRANCAIS "~%Il n'est pas portable de l'utiliser."))))
   (:method ((obj stream) (stream stream))
            (format stream (DEUTSCH "ein ~:[~:[geschlossener ~;Output-~]~;~:[Input-~;bidirektionaler ~]~]Stream."
-                     ENGLISH "a~:[~:[ closed ~;n output-~]~;~:[n input-~;n input/output-~]~]stream."
-                     FRANCAIS "un «stream» ~:[~:[fermé~;de sortie~]~;~:[d'entrée~;d'entrée/sortie~]~].")
+                           ENGLISH "a~:[~:[ closed ~;n output-~]~;~:[n input-~;n input/output-~]~]stream."
+                           FRANCAIS "un «stream» ~:[~:[fermé~;de sortie~]~;~:[d'entrée~;d'entrée/sortie~]~].")
                    (input-stream-p obj) (output-stream-p obj)))
   (:method ((obj package) (stream stream))
-          (if (package-name obj)
-            (progn
+           (if (package-name obj)
+               (progn
                  (format stream (DEUTSCH "die Package mit Namen ~A"
-                         ENGLISH "the package named ~A"
-                         FRANCAIS "le paquetage de nom ~A")
+                                 ENGLISH "the package named ~A"
+                                 FRANCAIS "le paquetage de nom ~A")
                          (package-name obj))
-              (let ((nicknames (package-nicknames obj)))
-                (when nicknames
+                 (let ((nicknames (package-nicknames obj)))
+                   (when nicknames
                      (format stream
                              (DEUTSCH " und zusätzlichen Namen ~{~A~^, ~}"
-                             ENGLISH ". It has the nicknames ~{~A~^, ~}"
-                             FRANCAIS ". Il porte aussi les noms ~{~A~^, ~}")
+                              ENGLISH ". It has the nicknames ~{~A~^, ~}"
+                              FRANCAIS ". Il porte aussi les noms ~{~A~^, ~}")
                              nicknames)))
-                 (format stream (DEUTSCH "."
-                         ENGLISH "."
-                                 FRANCAIS "."))
-              (let ((use-list (package-use-list obj))
-                    (used-by-list (package-used-by-list obj)))
+                 (format stream ".")
+                 (let ((use-list (package-use-list obj))
+                       (used-by-list (package-used-by-list obj)))
                    (format stream (DEUTSCH "~%~v,vtSie "
                                    ENGLISH "~%~v,vtIt "
                                    FRANCAIS "~%~v,vtIl ")
                            *describe-nesting* lisp:*print-indent-lists*)
-                (when use-list
+                   (when use-list
                      (format stream (DEUTSCH "importiert die externen Symbole der Package~:[~;s~] ~{~A~^, ~} und "
-                             ENGLISH "imports the external symbols of the package~:[~;s~] ~{~A~^, ~} and "
-                             FRANCAIS "importe les symboles externes d~:[u paquetage~;es paquetages~] ~{~A~^, ~} et ")
+                                     ENGLISH "imports the external symbols of the package~:[~;s~] ~{~A~^, ~} and "
+                                     FRANCAIS "importe les symboles externes d~:[u paquetage~;es paquetages~] ~{~A~^, ~} et ")
                              (cdr use-list) (mapcar #'package-name use-list)))
                    (let ((L nil)) ; maybe list all exported symbols
-                            (do-external-symbols (s obj) (push s L))
+                     (do-external-symbols (s obj) (push s L))
                      (setq L (sort L #'string< :key #'symbol-name))
                      (if (= 1 *describe-nesting*)
                          (format stream (DEUTSCH "exportiert ~:[keine Symbole~;die Symbole~:*~{~<~%~:; ~S~>~^~}~%~]"
@@ -361,85 +359,80 @@
                                          ENGLISH "exports ~[no symbols~:;~:*~:d symbols ~]"
                                          FRANCAIS "~[n'exporte pas de symboles~:;exporte~:* ~:d symboles ~]")
                                  (length L))))
-                (when used-by-list
+                   (when used-by-list
                      (format stream
                              (DEUTSCH "an die Package~:[~;s~] ~{~A~^, ~}"
-                             ENGLISH " to the package~:[~;s~] ~{~A~^, ~}"
-                             FRANCAIS " vers le~:[ paquetage~;s paquetages~] ~{~A~^, ~}")
+                              ENGLISH " to the package~:[~;s~] ~{~A~^, ~}"
+                              FRANCAIS " vers le~:[ paquetage~;s paquetages~] ~{~A~^, ~}")
                              (cdr used-by-list)
                              (mapcar #'package-name used-by-list)))
-                   (format stream (DEUTSCH "."
-                           ENGLISH "."
-                                   FRANCAIS "."))))
+                   (format stream ".")))
                (format stream (DEUTSCH "eine gelöschte Package."
-                       ENGLISH "a deleted package."
+                               ENGLISH "a deleted package."
                                FRANCAIS "un paquetage éliminé."))))
   (:method ((obj hash-table) (stream stream))
            (format stream (DEUTSCH "eine Hash-Tabelle mit ~S Eintr~:*~[ägen~;ag~:;ägen~]."
-                     ENGLISH "a hash table with ~S entr~:@P."
-                     FRANCAIS "un tableau de hachage avec ~S entrée~:*~[s~;~:;s~].")
+                           ENGLISH "a hash table with ~S entr~:@P."
+                           FRANCAIS "un tableau de hachage avec ~S entrée~:*~[s~;~:;s~].")
                    (hash-table-count obj)))
   (:method ((obj readtable) (stream stream))
            (format stream (DEUTSCH "~:[eine ~;die Common-Lisp-~]Readtable."
-                     ENGLISH "~:[a~;the Common Lisp~] readtable."
-                     FRANCAIS "~:[un~;le~] tableau de lecture~:*~:[~; de Common Lisp~].")
+                           ENGLISH "~:[a~;the Common Lisp~] readtable."
+                           FRANCAIS "~:[un~;le~] tableau de lecture~:*~:[~; de Common Lisp~].")
                    (equalp obj (copy-readtable))))
   (:method ((obj pathname) (stream stream))
            (format stream (DEUTSCH "ein ~:[~;portabler ~]Pathname~:[.~;~:*, aufgebaut aus:~{~A~}~]"
-                     ENGLISH "a ~:[~;portable ~]pathname~:[.~;~:*, with the following components:~{~A~}~]"
-                     FRANCAIS "un «pathname»~:[~; portable~]~:[.~;~:*, composé de:~{~A~}~]")
-                    (sys::logical-pathname-p obj)
-                    (mapcan #'(lambda (kw component)
-                                (when component
-                                  (list (format nil "~%~A = ~A"
-                                                    (symbol-name kw)
+                           ENGLISH "a ~:[~;portable ~]pathname~:[.~;~:*, with the following components:~{~A~}~]"
+                           FRANCAIS "un «pathname»~:[~; portable~]~:[.~;~:*, composé de:~{~A~}~]")
+                   (sys::logical-pathname-p obj)
+                   (mapcan #'(lambda (kw component)
+                               (when component
+                                 (list (format nil "~%~A = ~A"
+                                               (symbol-name kw)
                                                (make-pathname kw component)))))
-                      '(:host :device :directory :name :type :version)
+                           '(:host :device :directory :name :type :version)
                            (list (pathname-host obj)
-                        (pathname-device obj)
-                        (pathname-directory obj)
-                        (pathname-name obj)
-                        (pathname-type obj)
+                                 (pathname-device obj)
+                                 (pathname-directory obj)
+                                 (pathname-name obj)
+                                 (pathname-type obj)
                                  (pathname-version obj)))))
   (:method ((obj random-state) (stream stream))
            (format stream (DEUTSCH "ein Random-State."
-                     ENGLISH "a random-state."
+                           ENGLISH "a random-state."
                            FRANCAIS "un «random-state».")))
   (:method ((obj array) (stream stream))
-      (let ((rank (array-rank obj))
-            (eltype (array-element-type obj)))
+           (let ((rank (array-rank obj)) (eltype (array-element-type obj)))
              (format stream
                      (DEUTSCH "ein~:[~; einfacher~] ~A-dimensionaler Array"
-                   ENGLISH "a~:[~; simple~] ~A dimensional array"
-                   FRANCAIS "une matrice~:[~; simple~] à ~A dimension~:P")
+                      ENGLISH "a~:[~; simple~] ~A dimensional array"
+                      FRANCAIS "une matrice~:[~; simple~] à ~A dimension~:P")
                      (sys::simple-array-p obj) rank)
-        (when (eql rank 1)
+             (when (eql rank 1)
                (format stream (DEUTSCH " (Vektor)"
-                     ENGLISH " (vector)"
+                               ENGLISH " (vector)"
                                FRANCAIS " (vecteur)")))
-        (unless (eq eltype 'T)
+             (unless (eq eltype 'T)
                (format stream (DEUTSCH " von ~:(~A~)s"
-                     ENGLISH " of ~(~A~)s"
-                     FRANCAIS " de ~(~A~)s")
+                               ENGLISH " of ~(~A~)s"
+                               FRANCAIS " de ~(~A~)s")
                        eltype))
-        (when (adjustable-array-p obj)
+             (when (adjustable-array-p obj)
                (format stream (DEUTSCH ", adjustierbar"
-                     ENGLISH ", adjustable"
+                               ENGLISH ", adjustable"
                                FRANCAIS ", ajustable")))
-        (when (plusp rank)
+             (when (plusp rank)
                (format stream (DEUTSCH ", der Größe ~{~S~^ x ~}"
-                     ENGLISH ", of size ~{~S~^ x ~}"
-                     FRANCAIS ", de grandeur ~{~S~^ x ~}")
+                               ENGLISH ", of size ~{~S~^ x ~}"
+                               FRANCAIS ", de grandeur ~{~S~^ x ~}")
                        (array-dimensions obj))
-          (when (array-has-fill-pointer-p obj)
+               (when (array-has-fill-pointer-p obj)
                  (format stream
                          (DEUTSCH " und der momentanen Länge (Fill-Pointer) ~S"
-                       ENGLISH " and current length (fill-pointer) ~S"
-                       FRANCAIS " et longueur courante (fill-pointer) ~S")
+                          ENGLISH " and current length (fill-pointer) ~S"
+                          FRANCAIS " et longueur courante (fill-pointer) ~S")
                          (fill-pointer obj))))
-             (format stream (DEUTSCH "."
-                   ENGLISH "."
-                             FRANCAIS ".")))))
+             (format stream "."))))
 
 (defmethod describe-object ((obj function) (stream stream))
   (if (eq 'compiled-function (type-of obj))
@@ -516,20 +509,14 @@
 (defun apropos-list (string &optional (package nil))
   (let* ((L nil)
          (fun #'(lambda (sym)
-                  (when
-                      #| (search string (symbol-name sym) :test #'char-equal) |#
-                      (sys::search-string-equal string sym) ; 15 mal schneller!
-                    (push sym L)
-      ) )
-  ) )
+                  #| (search string (symbol-name sym) :test #'char-equal) |#
+                  (when (sys::search-string-equal string sym)
+                    (push sym L)))))
     (if package
-      (system::map-symbols fun package)
-      (system::map-all-symbols fun)
-    )
+        (system::map-symbols fun package)
+        (system::map-all-symbols fun))
     (stable-sort (delete-duplicates L :test #'eq :from-end t)
-                 #'string< :key #'symbol-name
-    )
-  ) )
+                 #'string< :key #'symbol-name)))
 
 (defun apropos (string &optional (package nil))
   (dolist (sym (apropos-list string package))
