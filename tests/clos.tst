@@ -1579,7 +1579,10 @@ error
  (NO-PRIMARY-METHOD ((A . B) (C . D))))
 
 
-;;; method combinations
+;;; Method combinations
+
+;; Standard method combination
+
 (progn
   (defgeneric test-mc-standard (x)
     (:method ((x string)) (cons 'string (call-next-method)))
@@ -1587,6 +1590,8 @@ error
   (list (test-mc-standard 1)
         (test-mc-standard "a")))
 (1 (STRING . "a"))
+
+; See also the hgen test above.
 
 (progn
   (defgeneric test-mc-standard-bad-qualifiers (x y))
@@ -1596,6 +1601,36 @@ error
     (format t "x = ~S, y = ~S~%" x y))
   t)
 #+(or CLISP CMU) ERROR #+SBCL T #-(or CLISP CMU SBCL) UNKNOWN
+
+(progn
+  (defgeneric test-mc-standard-bad1 (x y))
+  (defmethod test-mc-standard-bad1 ((x real) (y real)) (+ x y))
+  (defmethod test-mc-standard-bad1 :after :before ((x integer) (y integer))
+    (* x y)))
+#+(or CLISP CMU) ERROR #+SBCL T #-(or CLISP CMU SBCL) UNKNOWN
+
+(progn
+  (defgeneric test-mc-standard-bad2 (x y))
+  (defmethod test-mc-standard-bad2 ((x real) (y real)) (+ x y))
+  (defmethod test-mc-standard-bad2 :before ((x integer) (y integer))
+    (floor (call-next-method)))
+  (test-mc-standard-bad2 3 4))
+ERROR
+
+(progn
+  (defgeneric test-mc-standard-bad3 (x y))
+  (defmethod test-mc-standard-bad3 ((x real) (y real)) (+ x y))
+  (defmethod test-mc-standard-bad3 :after ((x integer) (y integer))
+    (floor (call-next-method)))
+  (test-mc-standard-bad3 3 4))
+ERROR
+
+(progn
+  (defgeneric test-mc-standard-bad4 (x y)
+    (:method-combination standard :most-specific-last)))
+ERROR
+
+;; Built-in method combination
 
 (progn
   (defgeneric test-mc-progn (x s)
@@ -1612,13 +1647,133 @@ error
           s)))
 (#(NUMBER T) #(STRING T))
 
+; Test checking of qualifiers.
+(progn
+  (defgeneric test-mc-append-1 (x)
+    (:method-combination append)
+    (:method ((x string)) (list (length x)))
+    (:method ((x vector)) (list (array-element-type x)))))
+#+(or CLISP CMU) ERROR #+SBCL T #-(or CLISP CMU SBCL) UNKNOWN
+
+; Test ANSI CL 7.6.6.4.
+(progn
+  (defgeneric test-mc-append-2 (x)
+    (:method-combination append)
+    (:method append ((x string)) (list (length x)))
+    (:method append ((x vector)) (list (type-of (aref x 0))))
+    (:method :around ((x string)) (list #\" (call-next-method) #\"))
+    (:method :around ((x vector)) (coerce (call-next-method) 'vector)))
+  (test-mc-append-2 "abc"))
+(#\" #(3 STANDARD-CHAR) #\")
+
+; Check that :most-specific-last affects only the order of the primary methods.
+(progn
+  (defgeneric test-mc-append-3 (x)
+    (:method-combination append :most-specific-last)
+    (:method append ((x string)) (list (length x)))
+    (:method append ((x vector)) (list (type-of (aref x 0))))
+    (:method :around ((x string)) (list #\" (call-next-method) #\"))
+    (:method :around ((x vector)) (coerce (call-next-method) 'vector)))
+  (test-mc-append-3 "abc"))
+(#\" #(STANDARD-CHAR 3) #\")
+
+;; Short-form method combination
+
+; Syntax
+(define-method-combination mc01 :documentation :operator)
+ERROR
+
+; Syntax
+(define-method-combination mc02 :documentation nil)
+ERROR
+
+; Syntax
+(define-method-combination mc03 :documentation "foo" :documentation "bar")
+ERROR
+
+; Syntax
+(define-method-combination mc04
+  :identity-with-one-argument nil :operator list :documentation)
+ERROR
+
+(define-method-combination mc05
+  :identity-with-one-argument nil :operator list :documentation "test")
+MC05
+
+; Check that the operator is called.
+(progn
+  (defgeneric test-mc05-1 (x)
+    (:method mc05 ((x real)) 'real)
+    (:method mc05 ((x integer)) 'integer)
+    (:method mc05 ((x number)) 'number)
+    (:method-combination mc05))
+  (test-mc05-1 3))
+(INTEGER REAL NUMBER)
+
+; Check that the method-combination arguments are unevaluated.
+(progn
+  (defgeneric test-mc05-2 (x)
+    (:method mc05 ((x real)) 'real)
+    (:method mc05 ((x integer)) 'integer)
+    (:method mc05 ((x number)) 'number)
+    (:method-combination mc05 (intern "MOST-SPECIFIC-LAST" "KEYWORD")))
+  (test-mc05-2 3))
+ERROR
+
+; Check that passing :most-specific-last as method-combination argument works.
+(progn
+  (defgeneric test-mc05-3 (x)
+    (:method mc05 ((x real)) 'real)
+    (:method mc05 ((x integer)) 'integer)
+    (:method mc05 ((x number)) 'number)
+    (:method-combination mc05 :most-specific-last))
+  (test-mc05-3 3))
+(NUMBER REAL INTEGER)
+
+; Check that the operator is also called if there is just one method.
+(progn
+  (defgeneric test-mc05-4 (x)
+    (:method mc05 ((x real)) 'real)
+    (:method-combination mc05 :most-specific-last))
+  (test-mc05-4 3))
+(REAL)
+
+; Check that nil is an invalid method-combination argument.
+(progn
+  (defgeneric test-mc05-5 (x)
+    (:method mc05 ((x real)) 'real)
+    (:method-combination mc05 nil)))
+ERROR
+
+; Check that extra method-combination arguments are rejected.
+(progn
+  (defgeneric test-mc05-6 (x)
+    (:method mc05 ((x real)) 'real)
+    (:method-combination mc05 :most-specific-first junk)))
+ERROR
+
+(define-method-combination mc06
+  :identity-with-one-argument t :operator list :documentation "test")
+MC06
+
+; Check that the operator is not called if there is just one method.
+(progn
+  (defgeneric test-mc06-1 (x)
+    (:method mc06 ((x real)) 'real)
+    (:method-combination mc06 :most-specific-last))
+  (test-mc06-1 3))
+REAL
+
+;; Long-form method combination
+
+; Example from CLHS
 (progn
   (defun positive-integer-qualifier-p (method-qualifiers)
     (and (= (length method-qualifiers) 1)
          (typep (first method-qualifiers) '(integer 0 *))))
   (define-method-combination example-method-combination ()
     ((method-list positive-integer-qualifier-p))
-    `(progn ,@(mapcar #'(lambda (method) `(call-method ,method))
+    `(PROGN ,@(mapcar #'(lambda (method) `(CALL-METHOD ,method))
                       (stable-sort method-list #'<
                                    :key #'(lambda (method)
                                             (first (method-qualifiers
@@ -1626,18 +1781,20 @@ error
   (defgeneric mc-test-piq (p1 p2 s)
     (:method-combination example-method-combination)
     (:method 1 ((p1 t) (p2 t) s) (vector-push-extend (list 1 p1 p2) s))
+    (:method 4 ((p1 t) (p2 t) s) (vector-push-extend (list 4 p1 p2) s))
     (:method 2 ((p1 t) (p2 t) s) (vector-push-extend (list 2 p1 p2) s))
     (:method 3 ((p1 t) (p2 t) s) (vector-push-extend (list 3 p1 p2) s)))
   (let ((s (make-array 10 :adjustable t :fill-pointer 0)))
     (mc-test-piq 1 2 s)
     s))
-#((1 1 2) (2 1 2) (3 1 2))
+#((1 1 2) (2 1 2) (3 1 2) (4 1 2))
 
+; Example with :arguments.
 (progn
   (define-method-combination w-args ()
     ((method-list *))
     (:arguments arg1 arg2 &aux (extra :extra))
-    `(progn ,@(mapcar #'(lambda (method) `(call-method ,method)) method-list)))
+    `(PROGN ,@(mapcar #'(lambda (method) `(CALL-METHOD ,method)) method-list)))
   (defgeneric mc-test-w-args (p1 p2 s)
     (:method-combination w-args)
     (:method ((p1 number) (p2 t) s)
@@ -1649,3 +1806,1642 @@ error
     (mc-test-w-args 1 2 s)
     s))
 #((NUMBER 1 2) (T 1 2))
+
+; Syntax
+(define-method-combination mc11 ())
+ERROR
+
+; Syntax
+(define-method-combination mc12 () ())
+MC12
+
+; Syntax
+(define-method-combination mc13 () () (:arguments order &aux &key))
+ERROR
+
+; Syntax
+(define-method-combination mc14 () () (:arguments &whole))
+ERROR
+
+(define-method-combination mc15 () () (:arguments order))
+MC15
+
+; Syntax
+(define-method-combination mc16 () () (:generic-function))
+ERROR
+
+; Syntax
+(define-method-combination mc17 () () (:generic-function gf1 gf2))
+ERROR
+
+; Syntax
+(define-method-combination mc18 () () (:generic-function (gf)))
+ERROR
+
+(define-method-combination mc19 () () (:generic-function gf))
+MC19
+
+; Syntax
+(define-method-combination mc20 () (a))
+ERROR
+
+; Syntax
+(define-method-combination mc21 () ((3)))
+ERROR
+
+; Syntax
+(define-method-combination mc22 () ((a)))
+ERROR
+
+(define-method-combination mc23 () ((a *)))
+MC23
+
+; Check that it's allowed (although redundant) to have multiple catch-all
+; method groups.
+(define-method-combination mc24 () ((a *) (b *))
+  `(PROGN (CALL-METHOD ,(first a)) (CALL-METHOD ,(first b))))
+MC24
+
+; Check that an error is signaled if there is no applicable method.
+(progn
+  (define-method-combination mc25 () ((all ()))
+    `(LIST 'RESULT ,@(mapcar #'(lambda (method) `(CALL-METHOD ,method)) all)))
+  (defgeneric test-mc25 (x)
+    (:method-combination mc25))
+  (test-mc25 7))
+ERROR
+
+; Check that no error is signaled if there are applicable methods but the
+; method combination chooses to ignore them.
+(progn
+  (define-method-combination mc26 () ((normal ()) (ignored (:ignore)))
+    `(LIST 'RESULT ,@(mapcar #'(lambda (method) `(CALL-METHOD ,method)) normal)))
+  (defgeneric test-mc26 (x)
+    (:method-combination mc26)
+    (:method :ignore ((x number)) (/ 0)))
+  (test-mc26 7))
+(RESULT)
+
+; Check that a qualifier-pattern does not match qualifier lists that are
+; subsets.
+(progn
+  (define-method-combination mc27 () ((normal ()) (ignored (:ignore :unused)))
+    `(LIST 'RESULT ,@(mapcar #'(lambda (method) `(CALL-METHOD ,method)) normal)))
+  (defgeneric test-mc27 (x)
+    (:method-combination mc27)
+    (:method :ignore ((x number)) (/ 0)))
+  (test-mc27 7))
+ERROR
+
+; Check that multiple qualifier-patterns act as an OR.
+(progn
+  (define-method-combination mc28 () ((normal ()) (ignored (:ignore) (:unused)))
+    `(LIST 'RESULT ,@(mapcar #'(lambda (method) `(CALL-METHOD ,method)) normal)))
+  (defgeneric test-mc28 (x)
+    (:method-combination mc28)
+    (:method :ignore ((x number)) (/ 0)))
+  (test-mc28 7))
+(RESULT)
+
+; Check that catch-all method groups don't comprise methods that are already
+; matched by earlier method groups.
+(progn
+  (define-method-combination mc29 () ((ignored (:ignore) (:unused)) (other *))
+    `(LIST 'RESULT ,@(mapcar #'(lambda (method) `(CALL-METHOD ,method)) other)))
+  (defgeneric test-mc29 (x)
+    (:method-combination mc29)
+    (:method :ignore ((x number)) (/ 0)))
+  (test-mc29 7))
+(RESULT)
+
+; Check the simultaneous presence of options and :arguments.
+(define-method-combination mc50 (opt1 opt2) ((all *))
+  (:arguments &whole whole arg1 arg2 &rest more-args)
+  `(LIST ',opt1 ',opt2 'RESULT ,whole ,arg1 ,arg2 ,more-args))
+MC50
+
+(defgeneric test-mc50-1 (x)
+  (:method-combination mc50 xyz))
+ERROR
+
+(progn
+  (defgeneric test-mc50-2 (x)
+    (:method-combination mc50 xyz "foo")
+    (:method ((x integer)) (/ 0)))
+  (test-mc50-2 7))
+(XYZ "foo" RESULT (7) 7 NIL ())
+
+(progn
+  (defgeneric test-mc50-3 (x y z)
+    (:method-combination mc50 xyz "bar")
+    (:method ((x t) (y t) (z t)) (/ 0)))
+  (test-mc50-3 'a 'b 'c))
+(XYZ "bar" RESULT (A B C) A B NIL)
+
+; Check the simultaneous presence of options (with &optional and &rest) and
+; :arguments (with &key).
+(define-method-combination mc51 (opt1 &optional opt2 &rest more-opts) ((all *))
+  (:arguments &whole whole arg1 &key test test-not)
+  `(LIST ',opt1 ',opt2 ',more-opts 'RESULT ,whole ,arg1 ,test ,test-not))
+MC51
+
+(defgeneric test-mc51-1 (x)
+  (:method-combination mc51))
+ERROR
+
+(progn
+  (defgeneric test-mc51-2 (x)
+    (:method-combination mc51 "xyz")
+    (:method ((x integer)) (/ 0)))
+  (test-mc51-2 7))
+("xyz" NIL NIL RESULT (7) 7 NIL NIL)
+
+(progn
+  (defgeneric test-mc51-3 (x)
+    (:method-combination mc51 "xyz" "uvw")
+    (:method ((x integer)) (/ 0)))
+  (test-mc51-3 7))
+("xyz" "uvw" NIL RESULT (7) 7 NIL NIL)
+
+(progn
+  (defgeneric test-mc51-4 (x)
+    (:method-combination mc51 "xyz" "uvw" :foo :bar)
+    (:method ((x integer)) (/ 0)))
+  (test-mc51-4 7))
+("xyz" "uvw" (:FOO :BAR) RESULT (7) 7 NIL NIL)
+
+(progn
+  (defgeneric test-mc51-5 (x &key test test-not key predicate)
+    (:method-combination mc51 "xyz" "uvw" :foo :bar)
+    (:method ((x integer) &key predicate test test-not key) (/ 0)))
+  (test-mc51-5 7 :key 'FIRST :TEST-NOT 'EQUAL))
+("xyz" "uvw" (:FOO :BAR) RESULT (7 :KEY FIRST :TEST-NOT EQUAL) 7 NIL EQUAL)
+
+; Check :arguments with no arguments.
+(define-method-combination mc60 (opt1 &optional (opt2 "def")) ((all *))
+  (:arguments)
+  `(LIST ',opt1 ',opt2 'RESULT (CALL-METHOD ,(first all))))
+MC60
+
+(progn
+  (defgeneric test-mc60-1 ()
+    (:method-combination mc60 "xyz")
+    (:method () '()))
+  (test-mc60-1))
+("xyz" "def" RESULT ())
+
+(progn
+  (defgeneric test-mc60-2 (x y)
+    (:method-combination mc60 "xyz")
+    (:method (x y) (list x y)))
+  (test-mc60-2 'a 'b))
+("xyz" "def" RESULT (A B))
+
+(progn
+  (defgeneric test-mc60-3 (&optional x y)
+    (:method-combination mc60 "xyz")
+    (:method (&optional x y) (list x y)))
+  (test-mc60-3 'a))
+("xyz" "def" RESULT (A NIL))
+
+(progn
+  (defgeneric test-mc60-4 (&rest x)
+    (:method-combination mc60 "xyz")
+    (:method (&rest x) x))
+  (test-mc60-4 'a 'b))
+("xyz" "def" RESULT (A B))
+
+; Check :arguments with only required arguments.
+(define-method-combination mc61 (opt1 &optional (opt2 "def")) ((all *))
+  (:arguments a1 a2)
+  `(LIST ',opt1 ',opt2 'RESULT ,a1 ,a2 (CALL-METHOD ,(first all))))
+MC61
+
+(progn
+  (defgeneric test-mc61-1 (x)
+    (:method-combination mc61 "xyz")
+    (:method (x) (list x)))
+  (test-mc61-1 'a))
+("xyz" "def" RESULT A NIL (A))
+
+(progn
+  (defgeneric test-mc61-2 (x y)
+    (:method-combination mc61 "xyz")
+    (:method (x y) (list x y)))
+  (test-mc61-2 'a 'b))
+("xyz" "def" RESULT A B (A B))
+
+(progn
+  (defgeneric test-mc61-3 (x y z)
+    (:method-combination mc61 "xyz")
+    (:method (x y z) (list x y z)))
+  (test-mc61-3 'a 'b 'c))
+("xyz" "def" RESULT A B (A B C))
+
+(progn
+  (defgeneric test-mc61-4 (x &optional y z)
+    (:method-combination mc61 "xyz")
+    (:method (x &optional y z) (list x y z)))
+  (list (test-mc61-4 'a) (test-mc61-4 'a 'b) (test-mc61-4 'a 'b 'c)))
+(("xyz" "def" RESULT A NIL (A NIL NIL))
+ ("xyz" "def" RESULT A NIL (A B NIL))
+ ("xyz" "def" RESULT A NIL (A B C)))
+
+(progn
+  (defgeneric test-mc61-5 (x y &optional z u)
+    (:method-combination mc61 "xyz")
+    (:method (x y &optional z u) (list x y z u)))
+  (list (test-mc61-5 'a 'b) (test-mc61-5 'a 'b 'c) (test-mc61-5 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A B (A B NIL NIL))
+ ("xyz" "def" RESULT A B (A B C NIL))
+ ("xyz" "def" RESULT A B (A B C D)))
+
+(progn
+  (defgeneric test-mc61-6 (x y z &optional u v)
+    (:method-combination mc61 "xyz")
+    (:method (x y z &optional u v) (list x y z u v)))
+  (list (test-mc61-6 'a 'b 'c) (test-mc61-6 'a 'b 'c 'd) (test-mc61-6 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT A B (A B C NIL NIL))
+ ("xyz" "def" RESULT A B (A B C D NIL))
+ ("xyz" "def" RESULT A B (A B C D E)))
+
+(progn
+  (defgeneric test-mc61-7 (x &rest y)
+    (:method-combination mc61 "xyz")
+    (:method (x &rest y) (list* x y)))
+  (list (test-mc61-7 'a) (test-mc61-7 'a 'b) (test-mc61-7 'a 'b 'c)))
+(("xyz" "def" RESULT A NIL (A))
+ ("xyz" "def" RESULT A NIL (A B))
+ ("xyz" "def" RESULT A NIL (A B C)))
+
+(progn
+  (defgeneric test-mc61-8 (x y &rest z)
+    (:method-combination mc61 "xyz")
+    (:method (x y &rest z) (list* x y z)))
+  (list (test-mc61-8 'a 'b) (test-mc61-8 'a 'b 'c) (test-mc61-8 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A B (A B))
+ ("xyz" "def" RESULT A B (A B C))
+ ("xyz" "def" RESULT A B (A B C D)))
+
+(progn
+  (defgeneric test-mc61-9 (x y z &rest u)
+    (:method-combination mc61 "xyz")
+    (:method (x y z &rest u) (list* x y z u)))
+  (list (test-mc61-9 'a 'b 'c) (test-mc61-9 'a 'b 'c 'd) (test-mc61-9 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT A B (A B C))
+ ("xyz" "def" RESULT A B (A B C D))
+ ("xyz" "def" RESULT A B (A B C D E)))
+
+; Check :arguments with only optional arguments.
+(define-method-combination mc62 (opt1 &optional (opt2 "def")) ((all *))
+  (:arguments &optional (o1 'def1) (o2 'def2))
+  `(LIST ',opt1 ',opt2 'RESULT ,o1 ,o2 (CALL-METHOD ,(first all))))
+MC62
+
+(progn
+  (defgeneric test-mc62-1 (x)
+    (:method-combination mc62 "xyz")
+    (:method (x) (list x)))
+  (test-mc62-1 'a))
+("xyz" "def" RESULT DEF1 DEF2 (A))
+
+(progn
+  (defgeneric test-mc62-2 (x &optional y)
+    (:method-combination mc62 "xyz")
+    (:method (x &optional y) (list x y)))
+  (list (test-mc62-2 'a) (test-mc62-2 'a 'b)))
+(("xyz" "def" RESULT DEF1 DEF2 (A NIL))
+ ("xyz" "def" RESULT B DEF2 (A B)))
+
+(progn
+  (defgeneric test-mc62-3 (x &optional y z)
+    (:method-combination mc62 "xyz")
+    (:method (x &optional y z) (list x y z)))
+  (list (test-mc62-3 'a) (test-mc62-3 'a 'b) (test-mc62-3 'a 'b 'c)))
+(("xyz" "def" RESULT DEF1 DEF2 (A NIL NIL))
+ ("xyz" "def" RESULT B DEF2 (A B NIL))
+ ("xyz" "def" RESULT B C (A B C)))
+
+(progn
+  (defgeneric test-mc62-4 (x &optional y z u)
+    (:method-combination mc62 "xyz")
+    (:method (x &optional y z u) (list x y z u)))
+  (list (test-mc62-4 'a) (test-mc62-4 'a 'b) (test-mc62-4 'a 'b 'c) (test-mc62-4 'a 'b 'c 'd)))
+(("xyz" "def" RESULT DEF1 DEF2 (A NIL NIL NIL))
+ ("xyz" "def" RESULT B DEF2 (A B NIL NIL))
+ ("xyz" "def" RESULT B C (A B C NIL))
+ ("xyz" "def" RESULT B C (A B C D)))
+
+(progn
+  (defgeneric test-mc62-5 (x &rest y)
+    (:method-combination mc62 "xyz")
+    (:method (x &rest y) (list* x y)))
+  (list (test-mc62-5 'a) (test-mc62-5 'a 'b) (test-mc62-5 'a 'b 'c)))
+(("xyz" "def" RESULT DEF1 DEF2 (A))
+ ("xyz" "def" RESULT DEF1 DEF2 (A B))
+ ("xyz" "def" RESULT DEF1 DEF2 (A B C)))
+
+(progn
+  (defgeneric test-mc62-6 (x &optional y &rest z)
+    (:method-combination mc62 "xyz")
+    (:method (x &optional y &rest z) (list* x y z)))
+  (list (test-mc62-6 'a) (test-mc62-6 'a 'b) (test-mc62-6 'a 'b 'c)))
+(("xyz" "def" RESULT DEF1 DEF2 (A NIL))
+ ("xyz" "def" RESULT B DEF2 (A B))
+ ("xyz" "def" RESULT B DEF2 (A B C)))
+
+(progn
+  (defgeneric test-mc62-7 (x &optional y z &rest u)
+    (:method-combination mc62 "xyz")
+    (:method (x &optional y z &rest u) (list* x y z u)))
+  (list (test-mc62-7 'a) (test-mc62-7 'a 'b) (test-mc62-7 'a 'b 'c) (test-mc62-7 'a 'b 'c 'd)))
+(("xyz" "def" RESULT DEF1 DEF2 (A NIL NIL))
+ ("xyz" "def" RESULT B DEF2 (A B NIL))
+ ("xyz" "def" RESULT B C (A B C))
+ ("xyz" "def" RESULT B C (A B C D)))
+
+; Check :arguments with only rest arguments.
+(define-method-combination mc63 (opt1 &optional (opt2 "def")) ((all *))
+  (:arguments &rest r)
+  `(LIST ',opt1 ',opt2 'RESULT ,r (CALL-METHOD ,(first all))))
+MC63
+
+(progn
+  (defgeneric test-mc63-1 ()
+    (:method-combination mc63 "xyz")
+    (:method () '()))
+  (test-mc63-1))
+("xyz" "def" RESULT () ())
+
+(progn
+  (defgeneric test-mc63-2 (x y)
+    (:method-combination mc63 "xyz")
+    (:method (x y) (list x y)))
+  (test-mc63-2 'a 'b))
+("xyz" "def" RESULT () (A B))
+
+(progn
+  (defgeneric test-mc63-3 (&optional x y)
+    (:method-combination mc63 "xyz")
+    (:method (&optional x y) (list x y)))
+  (test-mc63-3 'a))
+("xyz" "def" RESULT () (A NIL))
+
+(progn
+  (defgeneric test-mc63-4 (&rest x)
+    (:method-combination mc63 "xyz")
+    (:method (&rest x) x))
+  (test-mc63-4 'a 'b))
+("xyz" "def" RESULT (A B) (A B))
+
+; Check :arguments with required and optional arguments.
+(define-method-combination mc64 (opt1 &optional (opt2 "def")) ((all *))
+  (:arguments a1 a2 &optional (o1 'def1) (o2 'def2))
+  `(LIST ',opt1 ',opt2 'RESULT ,a1 ,a2 ,o1 ,o2 (CALL-METHOD ,(first all))))
+MC64
+
+(progn
+  (defgeneric test-mc64-1 ()
+    (:method-combination mc64 "xyz")
+    (:method () '()))
+  (test-mc64-1))
+("xyz" "def" RESULT NIL NIL DEF1 DEF2 ())
+
+(progn
+  (defgeneric test-mc64-2 (x)
+    (:method-combination mc64 "xyz")
+    (:method (x) (list x)))
+  (test-mc64-2 'a))
+("xyz" "def" RESULT A NIL DEF1 DEF2 (A))
+
+(progn
+  (defgeneric test-mc64-3 (x y)
+    (:method-combination mc64 "xyz")
+    (:method (x y) (list x y)))
+  (test-mc64-3 'a 'b))
+("xyz" "def" RESULT A B DEF1 DEF2 (A B))
+
+(progn
+  (defgeneric test-mc64-4 (x y z)
+    (:method-combination mc64 "xyz")
+    (:method (x y z) (list x y z)))
+  (test-mc64-4 'a 'b 'c))
+("xyz" "def" RESULT A B DEF1 DEF2 (A B C))
+
+(progn
+  (defgeneric test-mc64-5 (x &optional y)
+    (:method-combination mc64 "xyz")
+    (:method (x &optional y) (list x y)))
+  (list (test-mc64-5 'a) (test-mc64-5 'a 'b)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 (A NIL))
+ ("xyz" "def" RESULT A NIL B DEF2 (A B)))
+
+(progn
+  (defgeneric test-mc64-6 (x y &optional z)
+    (:method-combination mc64 "xyz")
+    (:method (x y &optional z) (list x y z)))
+  (list (test-mc64-6 'a 'b) (test-mc64-6 'a 'b 'c)))
+(("xyz" "def" RESULT A B DEF1 DEF2 (A B NIL))
+ ("xyz" "def" RESULT A B C DEF2 (A B C)))
+
+(progn
+  (defgeneric test-mc64-7 (x y z &optional u)
+    (:method-combination mc64 "xyz")
+    (:method (x y z &optional u) (list x y z u)))
+  (list (test-mc64-7 'a 'b 'c) (test-mc64-7 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A B DEF1 DEF2 (A B C NIL))
+ ("xyz" "def" RESULT A B D DEF2 (A B C D)))
+
+(progn
+  (defgeneric test-mc64-8 (x &optional y z)
+    (:method-combination mc64 "xyz")
+    (:method (x &optional y z) (list x y z)))
+  (list (test-mc64-8 'a) (test-mc64-8 'a 'b) (test-mc64-8 'a 'b 'c)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 (A NIL NIL))
+ ("xyz" "def" RESULT A NIL B DEF2 (A B NIL))
+ ("xyz" "def" RESULT A NIL B C (A B C)))
+
+(progn
+  (defgeneric test-mc64-9 (x y &optional z u)
+    (:method-combination mc64 "xyz")
+    (:method (x y &optional z u) (list x y z u)))
+  (list (test-mc64-9 'a 'b) (test-mc64-9 'a 'b 'c) (test-mc64-9 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A B DEF1 DEF2 (A B NIL NIL))
+ ("xyz" "def" RESULT A B C DEF2 (A B C NIL))
+ ("xyz" "def" RESULT A B C D (A B C D)))
+
+(progn
+  (defgeneric test-mc64-10 (x y z &optional u v)
+    (:method-combination mc64 "xyz")
+    (:method (x y z &optional u v) (list x y z u v)))
+  (list (test-mc64-10 'a 'b 'c) (test-mc64-10 'a 'b 'c 'd) (test-mc64-10 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT A B DEF1 DEF2 (A B C NIL NIL))
+ ("xyz" "def" RESULT A B D DEF2 (A B C D NIL))
+ ("xyz" "def" RESULT A B D E (A B C D E)))
+
+(progn
+  (defgeneric test-mc64-11 (x &optional y z u)
+    (:method-combination mc64 "xyz")
+    (:method (x &optional y z u) (list x y z u)))
+  (list (test-mc64-11 'a) (test-mc64-11 'a 'b) (test-mc64-11 'a 'b 'c) (test-mc64-11 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 (A NIL NIL NIL))
+ ("xyz" "def" RESULT A NIL B DEF2 (A B NIL NIL))
+ ("xyz" "def" RESULT A NIL B C (A B C NIL))
+ ("xyz" "def" RESULT A NIL B C (A B C D)))
+
+(progn
+  (defgeneric test-mc64-12 (x y &optional z u v)
+    (:method-combination mc64 "xyz")
+    (:method (x y &optional z u v) (list x y z u v)))
+  (list (test-mc64-12 'a 'b) (test-mc64-12 'a 'b 'c) (test-mc64-12 'a 'b 'c 'd) (test-mc64-12 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT A B DEF1 DEF2 (A B NIL NIL NIL))
+ ("xyz" "def" RESULT A B C DEF2 (A B C NIL NIL))
+ ("xyz" "def" RESULT A B C D (A B C D NIL))
+ ("xyz" "def" RESULT A B C D (A B C D E)))
+
+(progn
+  (defgeneric test-mc64-13 (x y z &optional u v w)
+    (:method-combination mc64 "xyz")
+    (:method (x y z &optional u v w) (list x y z u v w)))
+  (list (test-mc64-13 'a 'b 'c) (test-mc64-13 'a 'b 'c 'd) (test-mc64-13 'a 'b 'c 'd 'e) (test-mc64-13 'a 'b 'c 'd 'e 'f)))
+(("xyz" "def" RESULT A B DEF1 DEF2 (A B C NIL NIL NIL))
+ ("xyz" "def" RESULT A B D DEF2 (A B C D NIL NIL))
+ ("xyz" "def" RESULT A B D E (A B C D E NIL))
+ ("xyz" "def" RESULT A B D E (A B C D E F)))
+
+(progn
+  (defgeneric test-mc64-14 (x &rest y)
+    (:method-combination mc64 "xyz")
+    (:method (x &rest y) (list* x y)))
+  (list (test-mc64-14 'a) (test-mc64-14 'a 'b) (test-mc64-14 'a 'b 'c)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 (A))
+ ("xyz" "def" RESULT A NIL DEF1 DEF2 (A B))
+ ("xyz" "def" RESULT A NIL DEF1 DEF2 (A B C)))
+
+(progn
+  (defgeneric test-mc64-15 (x y &rest z)
+    (:method-combination mc64 "xyz")
+    (:method (x y &rest z) (list* x y z)))
+  (list (test-mc64-15 'a 'b) (test-mc64-15 'a 'b 'c) (test-mc64-15 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A B DEF1 DEF2 (A B))
+ ("xyz" "def" RESULT A B DEF1 DEF2 (A B C))
+ ("xyz" "def" RESULT A B DEF1 DEF2 (A B C D)))
+
+(progn
+  (defgeneric test-mc64-16 (x y z &rest u)
+    (:method-combination mc64 "xyz")
+    (:method (x y z &rest u) (list* x y z u)))
+  (list (test-mc64-16 'a 'b 'c) (test-mc64-16 'a 'b 'c 'd) (test-mc64-16 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT A B DEF1 DEF2 (A B C))
+ ("xyz" "def" RESULT A B DEF1 DEF2 (A B C D))
+ ("xyz" "def" RESULT A B DEF1 DEF2 (A B C D E)))
+
+(progn
+  (defgeneric test-mc64-17 (x &optional y &rest z)
+    (:method-combination mc64 "xyz")
+    (:method (x &optional y &rest z) (list* x y z)))
+  (list (test-mc64-17 'a) (test-mc64-17 'a 'b) (test-mc64-17 'a 'b 'c) (test-mc64-17 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 (A NIL))
+ ("xyz" "def" RESULT A NIL B DEF2 (A B))
+ ("xyz" "def" RESULT A NIL B DEF2 (A B C))
+ ("xyz" "def" RESULT A NIL B DEF2 (A B C D)))
+
+(progn
+  (defgeneric test-mc64-18 (x &optional y z &rest u)
+    (:method-combination mc64 "xyz")
+    (:method (x &optional y z &rest u) (list* x y z u)))
+  (list (test-mc64-18 'a) (test-mc64-18 'a 'b) (test-mc64-18 'a 'b 'c) (test-mc64-18 'a 'b 'c 'd) (test-mc64-18 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 (A NIL NIL))
+ ("xyz" "def" RESULT A NIL B DEF2 (A B NIL))
+ ("xyz" "def" RESULT A NIL B C (A B C))
+ ("xyz" "def" RESULT A NIL B C (A B C D))
+ ("xyz" "def" RESULT A NIL B C (A B C D E)))
+
+(progn
+  (defgeneric test-mc64-19 (x &optional y z u &rest v)
+    (:method-combination mc64 "xyz")
+    (:method (x &optional y z u &rest v) (list* x y z u v)))
+  (list (test-mc64-19 'a) (test-mc64-19 'a 'b) (test-mc64-19 'a 'b 'c) (test-mc64-19 'a 'b 'c 'd) (test-mc64-19 'a 'b 'c 'd 'e) (test-mc64-19 'a 'b 'c 'd 'e 'f)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 (A NIL NIL NIL))
+ ("xyz" "def" RESULT A NIL B DEF2 (A B NIL NIL))
+ ("xyz" "def" RESULT A NIL B C (A B C NIL))
+ ("xyz" "def" RESULT A NIL B C (A B C D))
+ ("xyz" "def" RESULT A NIL B C (A B C D E))
+ ("xyz" "def" RESULT A NIL B C (A B C D E F)))
+
+; Check :arguments with required and rest arguments.
+(define-method-combination mc65 (opt1 &optional (opt2 "def")) ((all *))
+  (:arguments a1 a2 &rest r)
+  `(LIST ',opt1 ',opt2 'RESULT ,a1 ,a2 ,r (CALL-METHOD ,(first all))))
+MC65
+
+(progn
+  (defgeneric test-mc65-1 ()
+    (:method-combination mc65 "xyz")
+    (:method () '()))
+  (test-mc65-1))
+("xyz" "def" RESULT NIL NIL () ())
+
+(progn
+  (defgeneric test-mc65-2 (x)
+    (:method-combination mc65 "xyz")
+    (:method (x) (list x)))
+  (test-mc65-2 'a))
+("xyz" "def" RESULT A NIL () (A))
+
+(progn
+  (defgeneric test-mc65-3 (x y)
+    (:method-combination mc65 "xyz")
+    (:method (x y) (list x y)))
+  (test-mc65-3 'a 'b))
+("xyz" "def" RESULT A B () (A B))
+
+(progn
+  (defgeneric test-mc65-4 (x y z)
+    (:method-combination mc65 "xyz")
+    (:method (x y z) (list x y z)))
+  (test-mc65-4 'a 'b 'c))
+("xyz" "def" RESULT A B () (A B C))
+
+(progn
+  (defgeneric test-mc65-5 (x &optional y)
+    (:method-combination mc65 "xyz")
+    (:method (x &optional y) (list x y)))
+  (list (test-mc65-5 'a) (test-mc65-5 'a 'b)))
+(("xyz" "def" RESULT A NIL () (A NIL))
+ ("xyz" "def" RESULT A NIL () (A B)))
+
+(progn
+  (defgeneric test-mc65-6 (x y &optional z)
+    (:method-combination mc65 "xyz")
+    (:method (x y &optional z) (list x y z)))
+  (list (test-mc65-6 'a 'b) (test-mc65-6 'a 'b 'c)))
+(("xyz" "def" RESULT A B () (A B NIL))
+ ("xyz" "def" RESULT A B () (A B C)))
+
+(progn
+  (defgeneric test-mc65-7 (x y z &optional u)
+    (:method-combination mc65 "xyz")
+    (:method (x y z &optional u) (list x y z u)))
+  (list (test-mc65-7 'a 'b 'c) (test-mc65-7 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A B () (A B C NIL))
+ ("xyz" "def" RESULT A B () (A B C D)))
+
+(progn
+  (defgeneric test-mc65-8 (x &optional y z)
+    (:method-combination mc65 "xyz")
+    (:method (x &optional y z) (list x y z)))
+  (list (test-mc65-8 'a) (test-mc65-8 'a 'b) (test-mc65-8 'a 'b 'c)))
+(("xyz" "def" RESULT A NIL () (A NIL NIL))
+ ("xyz" "def" RESULT A NIL () (A B NIL))
+ ("xyz" "def" RESULT A NIL () (A B C)))
+
+(progn
+  (defgeneric test-mc65-9 (x y &optional z u)
+    (:method-combination mc65 "xyz")
+    (:method (x y &optional z u) (list x y z u)))
+  (list (test-mc65-9 'a 'b) (test-mc65-9 'a 'b 'c) (test-mc65-9 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A B () (A B NIL NIL))
+ ("xyz" "def" RESULT A B () (A B C NIL))
+ ("xyz" "def" RESULT A B () (A B C D)))
+
+(progn
+  (defgeneric test-mc65-10 (x y z &optional u v)
+    (:method-combination mc65 "xyz")
+    (:method (x y z &optional u v) (list x y z u v)))
+  (list (test-mc65-10 'a 'b 'c) (test-mc65-10 'a 'b 'c 'd) (test-mc65-10 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT A B () (A B C NIL NIL))
+ ("xyz" "def" RESULT A B () (A B C D NIL))
+ ("xyz" "def" RESULT A B () (A B C D E)))
+
+(progn
+  (defgeneric test-mc65-11 (x &optional y z u)
+    (:method-combination mc65 "xyz")
+    (:method (x &optional y z u) (list x y z u)))
+  (list (test-mc65-11 'a) (test-mc65-11 'a 'b) (test-mc65-11 'a 'b 'c) (test-mc65-11 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A NIL () (A NIL NIL NIL))
+ ("xyz" "def" RESULT A NIL () (A B NIL NIL))
+ ("xyz" "def" RESULT A NIL () (A B C NIL))
+ ("xyz" "def" RESULT A NIL () (A B C D)))
+
+(progn
+  (defgeneric test-mc65-12 (x y &optional z u v)
+    (:method-combination mc65 "xyz")
+    (:method (x y &optional z u v) (list x y z u v)))
+  (list (test-mc65-12 'a 'b) (test-mc65-12 'a 'b 'c) (test-mc65-12 'a 'b 'c 'd) (test-mc65-12 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT A B () (A B NIL NIL NIL))
+ ("xyz" "def" RESULT A B () (A B C NIL NIL))
+ ("xyz" "def" RESULT A B () (A B C D NIL))
+ ("xyz" "def" RESULT A B () (A B C D E)))
+
+(progn
+  (defgeneric test-mc65-13 (x y z &optional u v w)
+    (:method-combination mc65 "xyz")
+    (:method (x y z &optional u v w) (list x y z u v w)))
+  (list (test-mc65-13 'a 'b 'c) (test-mc65-13 'a 'b 'c 'd) (test-mc65-13 'a 'b 'c 'd 'e) (test-mc65-13 'a 'b 'c 'd 'e 'f)))
+(("xyz" "def" RESULT A B () (A B C NIL NIL NIL))
+ ("xyz" "def" RESULT A B () (A B C D NIL NIL))
+ ("xyz" "def" RESULT A B () (A B C D E NIL))
+ ("xyz" "def" RESULT A B () (A B C D E F)))
+
+(progn
+  (defgeneric test-mc65-14 (x &rest y)
+    (:method-combination mc65 "xyz")
+    (:method (x &rest y) (list* x y)))
+  (list (test-mc65-14 'a) (test-mc65-14 'a 'b) (test-mc65-14 'a 'b 'c)))
+(("xyz" "def" RESULT A NIL () (A))
+ ("xyz" "def" RESULT A NIL (B) (A B))
+ ("xyz" "def" RESULT A NIL (B C) (A B C)))
+
+(progn
+  (defgeneric test-mc65-15 (x y &rest z)
+    (:method-combination mc65 "xyz")
+    (:method (x y &rest z) (list* x y z)))
+  (list (test-mc65-15 'a 'b) (test-mc65-15 'a 'b 'c) (test-mc65-15 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A B () (A B))
+ ("xyz" "def" RESULT A B (C) (A B C))
+ ("xyz" "def" RESULT A B (C D) (A B C D)))
+
+(progn
+  (defgeneric test-mc65-16 (x y z &rest u)
+    (:method-combination mc65 "xyz")
+    (:method (x y z &rest u) (list* x y z u)))
+  (list (test-mc65-16 'a 'b 'c) (test-mc65-16 'a 'b 'c 'd) (test-mc65-16 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT A B () (A B C))
+ ("xyz" "def" RESULT A B (D) (A B C D))
+ ("xyz" "def" RESULT A B (D E) (A B C D E)))
+
+(progn
+  (defgeneric test-mc65-17 (x &optional y &rest z)
+    (:method-combination mc65 "xyz")
+    (:method (x &optional y &rest z) (list* x y z)))
+  (list (test-mc65-17 'a) (test-mc65-17 'a 'b) (test-mc65-17 'a 'b 'c) (test-mc65-17 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A NIL () (A NIL))
+ ("xyz" "def" RESULT A NIL () (A B))
+ ("xyz" "def" RESULT A NIL (C) (A B C))
+ ("xyz" "def" RESULT A NIL (C D) (A B C D)))
+
+(progn
+  (defgeneric test-mc65-18 (x &optional y z &rest u)
+    (:method-combination mc65 "xyz")
+    (:method (x &optional y z &rest u) (list* x y z u)))
+  (list (test-mc65-18 'a) (test-mc65-18 'a 'b) (test-mc65-18 'a 'b 'c) (test-mc65-18 'a 'b 'c 'd) (test-mc65-18 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT A NIL () (A NIL NIL))
+ ("xyz" "def" RESULT A NIL () (A B NIL))
+ ("xyz" "def" RESULT A NIL () (A B C))
+ ("xyz" "def" RESULT A NIL (D) (A B C D))
+ ("xyz" "def" RESULT A NIL (D E) (A B C D E)))
+
+(progn
+  (defgeneric test-mc65-19 (x &optional y z u &rest v)
+    (:method-combination mc65 "xyz")
+    (:method (x &optional y z u &rest v) (list* x y z u v)))
+  (list (test-mc65-19 'a) (test-mc65-19 'a 'b) (test-mc65-19 'a 'b 'c) (test-mc65-19 'a 'b 'c 'd) (test-mc65-19 'a 'b 'c 'd 'e) (test-mc65-19 'a 'b 'c 'd 'e 'f)))
+(("xyz" "def" RESULT A NIL () (A NIL NIL NIL))
+ ("xyz" "def" RESULT A NIL () (A B NIL NIL))
+ ("xyz" "def" RESULT A NIL () (A B C NIL))
+ ("xyz" "def" RESULT A NIL () (A B C D))
+ ("xyz" "def" RESULT A NIL (E) (A B C D E))
+ ("xyz" "def" RESULT A NIL (E F) (A B C D E F)))
+
+; Check :arguments with optional and rest arguments.
+(define-method-combination mc66 (opt1 &optional (opt2 "def")) ((all *))
+  (:arguments &optional (o1 'def1) (o2 'def2) &rest r)
+  `(LIST ',opt1 ',opt2 'RESULT ,o1 ,o2 ,r (CALL-METHOD ,(first all))))
+MC66
+
+(progn
+  (defgeneric test-mc66-1 ()
+    (:method-combination mc66 "xyz")
+    (:method () '()))
+  (test-mc66-1))
+("xyz" "def" RESULT DEF1 DEF2 () ())
+
+(progn
+  (defgeneric test-mc66-2 (x)
+    (:method-combination mc66 "xyz")
+    (:method (x) (list x)))
+  (test-mc66-2 'a))
+("xyz" "def" RESULT DEF1 DEF2 () (A))
+
+(progn
+  (defgeneric test-mc66-3 (x y)
+    (:method-combination mc66 "xyz")
+    (:method (x y) (list x y)))
+  (test-mc66-3 'a 'b))
+("xyz" "def" RESULT DEF1 DEF2 () (A B))
+
+(progn
+  (defgeneric test-mc66-4 (x y z)
+    (:method-combination mc66 "xyz")
+    (:method (x y z) (list x y z)))
+  (test-mc66-4 'a 'b 'c))
+("xyz" "def" RESULT DEF1 DEF2 () (A B C))
+
+(progn
+  (defgeneric test-mc66-5 (x &optional y)
+    (:method-combination mc66 "xyz")
+    (:method (x &optional y) (list x y)))
+  (list (test-mc66-5 'a) (test-mc66-5 'a 'b)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A NIL))
+ ("xyz" "def" RESULT B DEF2 () (A B)))
+
+(progn
+  (defgeneric test-mc66-6 (x y &optional z)
+    (:method-combination mc66 "xyz")
+    (:method (x y &optional z) (list x y z)))
+  (list (test-mc66-6 'a 'b) (test-mc66-6 'a 'b 'c)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A B NIL))
+ ("xyz" "def" RESULT C DEF2 () (A B C)))
+
+(progn
+  (defgeneric test-mc66-7 (x y z &optional u)
+    (:method-combination mc66 "xyz")
+    (:method (x y z &optional u) (list x y z u)))
+  (list (test-mc66-7 'a 'b 'c) (test-mc66-7 'a 'b 'c 'd)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A B C NIL))
+ ("xyz" "def" RESULT D DEF2 () (A B C D)))
+
+(progn
+  (defgeneric test-mc66-8 (x &optional y z)
+    (:method-combination mc66 "xyz")
+    (:method (x &optional y z) (list x y z)))
+  (list (test-mc66-8 'a) (test-mc66-8 'a 'b) (test-mc66-8 'a 'b 'c)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A NIL NIL))
+ ("xyz" "def" RESULT B DEF2 () (A B NIL))
+ ("xyz" "def" RESULT B C () (A B C)))
+
+(progn
+  (defgeneric test-mc66-9 (x y &optional z u)
+    (:method-combination mc66 "xyz")
+    (:method (x y &optional z u) (list x y z u)))
+  (list (test-mc66-9 'a 'b) (test-mc66-9 'a 'b 'c) (test-mc66-9 'a 'b 'c 'd)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A B NIL NIL))
+ ("xyz" "def" RESULT C DEF2 () (A B C NIL))
+ ("xyz" "def" RESULT C D () (A B C D)))
+
+(progn
+  (defgeneric test-mc66-10 (x y z &optional u v)
+    (:method-combination mc66 "xyz")
+    (:method (x y z &optional u v) (list x y z u v)))
+  (list (test-mc66-10 'a 'b 'c) (test-mc66-10 'a 'b 'c 'd) (test-mc66-10 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A B C NIL NIL))
+ ("xyz" "def" RESULT D DEF2 () (A B C D NIL))
+ ("xyz" "def" RESULT D E () (A B C D E)))
+
+(progn
+  (defgeneric test-mc66-11 (x &optional y z u)
+    (:method-combination mc66 "xyz")
+    (:method (x &optional y z u) (list x y z u)))
+  (list (test-mc66-11 'a) (test-mc66-11 'a 'b) (test-mc66-11 'a 'b 'c) (test-mc66-11 'a 'b 'c 'd)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A NIL NIL NIL))
+ ("xyz" "def" RESULT B DEF2 () (A B NIL NIL))
+ ("xyz" "def" RESULT B C () (A B C NIL))
+ ("xyz" "def" RESULT B C () (A B C D)))
+
+(progn
+  (defgeneric test-mc66-12 (x y &optional z u v)
+    (:method-combination mc66 "xyz")
+    (:method (x y &optional z u v) (list x y z u v)))
+  (list (test-mc66-12 'a 'b) (test-mc66-12 'a 'b 'c) (test-mc66-12 'a 'b 'c 'd) (test-mc66-12 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A B NIL NIL NIL))
+ ("xyz" "def" RESULT C DEF2 () (A B C NIL NIL))
+ ("xyz" "def" RESULT C D () (A B C D NIL))
+ ("xyz" "def" RESULT C D () (A B C D E)))
+
+(progn
+  (defgeneric test-mc66-13 (x y z &optional u v w)
+    (:method-combination mc66 "xyz")
+    (:method (x y z &optional u v w) (list x y z u v w)))
+  (list (test-mc66-13 'a 'b 'c) (test-mc66-13 'a 'b 'c 'd) (test-mc66-13 'a 'b 'c 'd 'e) (test-mc66-13 'a 'b 'c 'd 'e 'f)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A B C NIL NIL NIL))
+ ("xyz" "def" RESULT D DEF2 () (A B C D NIL NIL))
+ ("xyz" "def" RESULT D E () (A B C D E NIL))
+ ("xyz" "def" RESULT D E () (A B C D E F)))
+
+(progn
+  (defgeneric test-mc66-14 (x &rest y)
+    (:method-combination mc66 "xyz")
+    (:method (x &rest y) (list* x y)))
+  (list (test-mc66-14 'a) (test-mc66-14 'a 'b) (test-mc66-14 'a 'b 'c)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A))
+ ("xyz" "def" RESULT DEF1 DEF2 (B) (A B))
+ ("xyz" "def" RESULT DEF1 DEF2 (B C) (A B C)))
+
+(progn
+  (defgeneric test-mc66-15 (x y &rest z)
+    (:method-combination mc66 "xyz")
+    (:method (x y &rest z) (list* x y z)))
+  (list (test-mc66-15 'a 'b) (test-mc66-15 'a 'b 'c) (test-mc66-15 'a 'b 'c 'd)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A B))
+ ("xyz" "def" RESULT DEF1 DEF2 (C) (A B C))
+ ("xyz" "def" RESULT DEF1 DEF2 (C D) (A B C D)))
+
+(progn
+  (defgeneric test-mc66-16 (x y z &rest u)
+    (:method-combination mc66 "xyz")
+    (:method (x y z &rest u) (list* x y z u)))
+  (list (test-mc66-16 'a 'b 'c) (test-mc66-16 'a 'b 'c 'd) (test-mc66-16 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A B C))
+ ("xyz" "def" RESULT DEF1 DEF2 (D) (A B C D))
+ ("xyz" "def" RESULT DEF1 DEF2 (D E) (A B C D E)))
+
+(progn
+  (defgeneric test-mc66-17 (x &optional y &rest z)
+    (:method-combination mc66 "xyz")
+    (:method (x &optional y &rest z) (list* x y z)))
+  (list (test-mc66-17 'a) (test-mc66-17 'a 'b) (test-mc66-17 'a 'b 'c) (test-mc66-17 'a 'b 'c 'd)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A NIL))
+ ("xyz" "def" RESULT B DEF2 () (A B))
+ ("xyz" "def" RESULT B DEF2 (C) (A B C))
+ ("xyz" "def" RESULT B DEF2 (C D) (A B C D)))
+
+(progn
+  (defgeneric test-mc66-18 (x &optional y z &rest u)
+    (:method-combination mc66 "xyz")
+    (:method (x &optional y z &rest u) (list* x y z u)))
+  (list (test-mc66-18 'a) (test-mc66-18 'a 'b) (test-mc66-18 'a 'b 'c) (test-mc66-18 'a 'b 'c 'd) (test-mc66-18 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A NIL NIL))
+ ("xyz" "def" RESULT B DEF2 () (A B NIL))
+ ("xyz" "def" RESULT B C () (A B C))
+ ("xyz" "def" RESULT B C (D) (A B C D))
+ ("xyz" "def" RESULT B C (D E) (A B C D E)))
+
+(progn
+  (defgeneric test-mc66-19 (x &optional y z u &rest v)
+    (:method-combination mc66 "xyz")
+    (:method (x &optional y z u &rest v) (list* x y z u v)))
+  (list (test-mc66-19 'a) (test-mc66-19 'a 'b) (test-mc66-19 'a 'b 'c) (test-mc66-19 'a 'b 'c 'd) (test-mc66-19 'a 'b 'c 'd 'e) (test-mc66-19 'a 'b 'c 'd 'e 'f)))
+(("xyz" "def" RESULT DEF1 DEF2 () (A NIL NIL NIL))
+ ("xyz" "def" RESULT B DEF2 () (A B NIL NIL))
+ ("xyz" "def" RESULT B C () (A B C NIL))
+ ("xyz" "def" RESULT B C () (A B C D))
+ ("xyz" "def" RESULT B C (E) (A B C D E))
+ ("xyz" "def" RESULT B C (E F) (A B C D E F)))
+
+; Check :arguments with required, optional and rest arguments.
+(define-method-combination mc67 (opt1 &optional (opt2 "def")) ((all *))
+  (:arguments a1 a2 &optional (o1 'def1) (o2 'def2) &rest r)
+  `(LIST ',opt1 ',opt2 'RESULT ,a1 ,a2 ,o1 ,o2 ,r (CALL-METHOD ,(first all))))
+MC67
+
+(progn
+  (defgeneric test-mc67-1 ()
+    (:method-combination mc67 "xyz")
+    (:method () '()))
+  (test-mc67-1))
+("xyz" "def" RESULT NIL NIL DEF1 DEF2 () ())
+
+(progn
+  (defgeneric test-mc67-2 (x)
+    (:method-combination mc67 "xyz")
+    (:method (x) (list x)))
+  (test-mc67-2 'a))
+("xyz" "def" RESULT A NIL DEF1 DEF2 () (A))
+
+(progn
+  (defgeneric test-mc67-3 (x y)
+    (:method-combination mc67 "xyz")
+    (:method (x y) (list x y)))
+  (test-mc67-3 'a 'b))
+("xyz" "def" RESULT A B DEF1 DEF2 () (A B))
+
+(progn
+  (defgeneric test-mc67-4 (x y z)
+    (:method-combination mc67 "xyz")
+    (:method (x y z) (list x y z)))
+  (test-mc67-4 'a 'b 'c))
+("xyz" "def" RESULT A B DEF1 DEF2 () (A B C))
+
+(progn
+  (defgeneric test-mc67-5 (x &optional y)
+    (:method-combination mc67 "xyz")
+    (:method (x &optional y) (list x y)))
+  (list (test-mc67-5 'a) (test-mc67-5 'a 'b)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 () (A NIL))
+ ("xyz" "def" RESULT A NIL B DEF2 () (A B)))
+
+(progn
+  (defgeneric test-mc67-6 (x y &optional z)
+    (:method-combination mc67 "xyz")
+    (:method (x y &optional z) (list x y z)))
+  (list (test-mc67-6 'a 'b) (test-mc67-6 'a 'b 'c)))
+(("xyz" "def" RESULT A B DEF1 DEF2 () (A B NIL))
+ ("xyz" "def" RESULT A B C DEF2 () (A B C)))
+
+(progn
+  (defgeneric test-mc67-7 (x y z &optional u)
+    (:method-combination mc67 "xyz")
+    (:method (x y z &optional u) (list x y z u)))
+  (list (test-mc67-7 'a 'b 'c) (test-mc67-7 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A B DEF1 DEF2 () (A B C NIL))
+ ("xyz" "def" RESULT A B D DEF2 () (A B C D)))
+
+(progn
+  (defgeneric test-mc67-8 (x &optional y z)
+    (:method-combination mc67 "xyz")
+    (:method (x &optional y z) (list x y z)))
+  (list (test-mc67-8 'a) (test-mc67-8 'a 'b) (test-mc67-8 'a 'b 'c)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 () (A NIL NIL))
+ ("xyz" "def" RESULT A NIL B DEF2 () (A B NIL))
+ ("xyz" "def" RESULT A NIL B C () (A B C)))
+
+(progn
+  (defgeneric test-mc67-9 (x y &optional z u)
+    (:method-combination mc67 "xyz")
+    (:method (x y &optional z u) (list x y z u)))
+  (list (test-mc67-9 'a 'b) (test-mc67-9 'a 'b 'c) (test-mc67-9 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A B DEF1 DEF2 () (A B NIL NIL))
+ ("xyz" "def" RESULT A B C DEF2 () (A B C NIL))
+ ("xyz" "def" RESULT A B C D () (A B C D)))
+
+(progn
+  (defgeneric test-mc67-10 (x y z &optional u v)
+    (:method-combination mc67 "xyz")
+    (:method (x y z &optional u v) (list x y z u v)))
+  (list (test-mc67-10 'a 'b 'c) (test-mc67-10 'a 'b 'c 'd) (test-mc67-10 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT A B DEF1 DEF2 () (A B C NIL NIL))
+ ("xyz" "def" RESULT A B D DEF2 () (A B C D NIL))
+ ("xyz" "def" RESULT A B D E () (A B C D E)))
+
+(progn
+  (defgeneric test-mc67-11 (x &optional y z u)
+    (:method-combination mc67 "xyz")
+    (:method (x &optional y z u) (list x y z u)))
+  (list (test-mc67-11 'a) (test-mc67-11 'a 'b) (test-mc67-11 'a 'b 'c) (test-mc67-11 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 () (A NIL NIL NIL))
+ ("xyz" "def" RESULT A NIL B DEF2 () (A B NIL NIL))
+ ("xyz" "def" RESULT A NIL B C () (A B C NIL))
+ ("xyz" "def" RESULT A NIL B C () (A B C D)))
+
+(progn
+  (defgeneric test-mc67-12 (x y &optional z u v)
+    (:method-combination mc67 "xyz")
+    (:method (x y &optional z u v) (list x y z u v)))
+  (list (test-mc67-12 'a 'b) (test-mc67-12 'a 'b 'c) (test-mc67-12 'a 'b 'c 'd) (test-mc67-12 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT A B DEF1 DEF2 () (A B NIL NIL NIL))
+ ("xyz" "def" RESULT A B C DEF2 () (A B C NIL NIL))
+ ("xyz" "def" RESULT A B C D () (A B C D NIL))
+ ("xyz" "def" RESULT A B C D () (A B C D E)))
+
+(progn
+  (defgeneric test-mc67-13 (x y z &optional u v w)
+    (:method-combination mc67 "xyz")
+    (:method (x y z &optional u v w) (list x y z u v w)))
+  (list (test-mc67-13 'a 'b 'c) (test-mc67-13 'a 'b 'c 'd) (test-mc67-13 'a 'b 'c 'd 'e) (test-mc67-13 'a 'b 'c 'd 'e 'f)))
+(("xyz" "def" RESULT A B DEF1 DEF2 () (A B C NIL NIL NIL))
+ ("xyz" "def" RESULT A B D DEF2 () (A B C D NIL NIL))
+ ("xyz" "def" RESULT A B D E () (A B C D E NIL))
+ ("xyz" "def" RESULT A B D E () (A B C D E F)))
+
+(progn
+  (defgeneric test-mc67-14 (x &rest y)
+    (:method-combination mc67 "xyz")
+    (:method (x &rest y) (list* x y)))
+  (list (test-mc67-14 'a) (test-mc67-14 'a 'b) (test-mc67-14 'a 'b 'c)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 () (A))
+ ("xyz" "def" RESULT A NIL DEF1 DEF2 (B) (A B))
+ ("xyz" "def" RESULT A NIL DEF1 DEF2 (B C) (A B C)))
+
+(progn
+  (defgeneric test-mc67-15 (x y &rest z)
+    (:method-combination mc67 "xyz")
+    (:method (x y &rest z) (list* x y z)))
+  (list (test-mc67-15 'a 'b) (test-mc67-15 'a 'b 'c) (test-mc67-15 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A B DEF1 DEF2 () (A B))
+ ("xyz" "def" RESULT A B DEF1 DEF2 (C) (A B C))
+ ("xyz" "def" RESULT A B DEF1 DEF2 (C D) (A B C D)))
+
+(progn
+  (defgeneric test-mc67-16 (x y z &rest u)
+    (:method-combination mc67 "xyz")
+    (:method (x y z &rest u) (list* x y z u)))
+  (list (test-mc67-16 'a 'b 'c) (test-mc67-16 'a 'b 'c 'd) (test-mc67-16 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT A B DEF1 DEF2 () (A B C))
+ ("xyz" "def" RESULT A B DEF1 DEF2 (D) (A B C D))
+ ("xyz" "def" RESULT A B DEF1 DEF2 (D E) (A B C D E)))
+
+(progn
+  (defgeneric test-mc67-17 (x &optional y &rest z)
+    (:method-combination mc67 "xyz")
+    (:method (x &optional y &rest z) (list* x y z)))
+  (list (test-mc67-17 'a) (test-mc67-17 'a 'b) (test-mc67-17 'a 'b 'c) (test-mc67-17 'a 'b 'c 'd)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 () (A NIL))
+ ("xyz" "def" RESULT A NIL B DEF2 () (A B))
+ ("xyz" "def" RESULT A NIL B DEF2 (C) (A B C))
+ ("xyz" "def" RESULT A NIL B DEF2 (C D) (A B C D)))
+
+(progn
+  (defgeneric test-mc67-18 (x &optional y z &rest u)
+    (:method-combination mc67 "xyz")
+    (:method (x &optional y z &rest u) (list* x y z u)))
+  (list (test-mc67-18 'a) (test-mc67-18 'a 'b) (test-mc67-18 'a 'b 'c) (test-mc67-18 'a 'b 'c 'd) (test-mc67-18 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 () (A NIL NIL))
+ ("xyz" "def" RESULT A NIL B DEF2 () (A B NIL))
+ ("xyz" "def" RESULT A NIL B C () (A B C))
+ ("xyz" "def" RESULT A NIL B C (D) (A B C D))
+ ("xyz" "def" RESULT A NIL B C (D E) (A B C D E)))
+
+(progn
+  (defgeneric test-mc67-19 (x &optional y z u &rest v)
+    (:method-combination mc67 "xyz")
+    (:method (x &optional y z u &rest v) (list* x y z u v)))
+  (list (test-mc67-19 'a) (test-mc67-19 'a 'b) (test-mc67-19 'a 'b 'c) (test-mc67-19 'a 'b 'c 'd) (test-mc67-19 'a 'b 'c 'd 'e) (test-mc67-19 'a 'b 'c 'd 'e 'f)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 () (A NIL NIL NIL))
+ ("xyz" "def" RESULT A NIL B DEF2 () (A B NIL NIL))
+ ("xyz" "def" RESULT A NIL B C () (A B C NIL))
+ ("xyz" "def" RESULT A NIL B C () (A B C D))
+ ("xyz" "def" RESULT A NIL B C (E) (A B C D E))
+ ("xyz" "def" RESULT A NIL B C (E F) (A B C D E F)))
+
+; Check :arguments with required, optional and key arguments.
+(define-method-combination mc68 (opt1 &optional (opt2 "def")) ((all *))
+  (:arguments a1 a2 &optional (o1 'def1) (o2 'def2) &key (test 'EQ) (test-not 'NEQ))
+  `(LIST ',opt1 ',opt2 'RESULT ,a1 ,a2 ,o1 ,o2 ,test ,test-not (CALL-METHOD ,(first all))))
+MC68
+
+(progn
+  (defgeneric test-mc68-1 (x &optional y)
+    (:method-combination mc68 "xyz")
+    (:method (x &optional y) (list x y)))
+  (list (test-mc68-1 'a) (test-mc68-1 'a 'b)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 EQ NEQ (A NIL))
+ ("xyz" "def" RESULT A NIL B DEF2 EQ NEQ (A B)))
+
+(progn
+  (defgeneric test-mc68-2 (x y z &optional u v w)
+    (:method-combination mc68 "xyz")
+    (:method (x y z &optional u v w) (list x y z u v w)))
+  (list (test-mc68-2 'a 'b 'c) (test-mc68-2 'a 'b 'c 'd) (test-mc68-2 'a 'b 'c 'd 'e) (test-mc68-2 'a 'b 'c 'd 'e 'f)))
+(("xyz" "def" RESULT A B DEF1 DEF2 EQ NEQ (A B C NIL NIL NIL))
+ ("xyz" "def" RESULT A B D DEF2 EQ NEQ (A B C D NIL NIL))
+ ("xyz" "def" RESULT A B D E EQ NEQ (A B C D E NIL))
+ ("xyz" "def" RESULT A B D E EQ NEQ (A B C D E F)))
+
+(progn
+  (defgeneric test-mc68-3 (x &rest y)
+    (:method-combination mc68 "xyz")
+    (:method (x &rest y) (list* x y)))
+  (list (test-mc68-3 'a) (test-mc68-3 'a 'b 'c)
+        (test-mc68-3 'a :test-not 'nequal :test 'eql :test-not 'nequalp)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 EQ NEQ (A))
+ ("xyz" "def" RESULT A NIL DEF1 DEF2 EQ NEQ (A B C))
+ ("xyz" "def" RESULT A NIL DEF1 DEF2 EQL NEQUAL (A :TEST-NOT NEQUAL :TEST EQL :TEST-NOT NEQUALP)))
+
+(progn
+  (defgeneric test-mc68-4 (x &rest y)
+    (:method-combination mc68 "xyz")
+    (:method (x &rest y) (list* x y)))
+  (test-mc68-4 'a 'b))
+ERROR
+
+(progn
+  (defgeneric test-mc68-5 (x y z &rest u)
+    (:method-combination mc68 "xyz")
+    (:method (x y z &rest u) (list* x y z u)))
+  (list (test-mc68-5 'a :test 'eq) (test-mc68-5 'a :test 'eq 'd 'e)
+        (test-mc68-5 'a :test 'eq :test-not 'nequal :test 'eql :test-not 'nequalp)))
+(("xyz" "def" RESULT A :TEST DEF1 DEF2 EQ NEQ (A :TEST EQ))
+ ("xyz" "def" RESULT A :TEST DEF1 DEF2 EQ NEQ (A :TEST EQ D E))
+ ("xyz" "def" RESULT A :TEST DEF1 DEF2 EQL NEQUAL (A :TEST EQ :TEST-NOT NEQUAL :TEST EQL :TEST-NOT NEQUALP)))
+
+(progn
+  (defgeneric test-mc68-6 (x &optional y z u &rest v)
+    (:method-combination mc68 "xyz")
+    (:method (x &optional y z u &rest v) (list* x y z u v)))
+  (list (test-mc68-6 'a) (test-mc68-6 'a 'b 'c)
+        (test-mc68-6 'a :test 'eq 'd :test-not 'nequal :test 'eql :test-not 'nequalp)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 EQ NEQ (A NIL NIL NIL))
+ ("xyz" "def" RESULT A NIL B C EQ NEQ (A B C NIL))
+ ("xyz" "def" RESULT A NIL :TEST EQ EQL NEQUAL (A :TEST EQ D :TEST-NOT NEQUAL :TEST EQL :TEST-NOT NEQUALP)))
+
+; Check :arguments with just &whole.
+(define-method-combination mc69 (opt1 &optional (opt2 "def")) ((all *))
+  (:arguments &whole whole)
+  `(LIST ',opt1 ',opt2 'RESULT ,whole (CALL-METHOD ,(first all))))
+MC69
+
+(progn
+  (defgeneric test-mc69-1 ()
+    (:method-combination mc69 "xyz")
+    (:method () '()))
+  (test-mc69-1))
+("xyz" "def" RESULT () ())
+
+(progn
+  (defgeneric test-mc69-2 (x)
+    (:method-combination mc69 "xyz")
+    (:method (x) (list x)))
+  (test-mc69-2 'a))
+("xyz" "def" RESULT (A) (A))
+
+(progn
+  (defgeneric test-mc69-3 (x y)
+    (:method-combination mc69 "xyz")
+    (:method (x y) (list x y)))
+  (test-mc69-3 'a 'b))
+("xyz" "def" RESULT (A B) (A B))
+
+(progn
+  (defgeneric test-mc69-4 (x y z)
+    (:method-combination mc69 "xyz")
+    (:method (x y z) (list x y z)))
+  (test-mc69-4 'a 'b 'c))
+("xyz" "def" RESULT (A B C) (A B C))
+
+(progn
+  (defgeneric test-mc69-5 (x &optional y)
+    (:method-combination mc69 "xyz")
+    (:method (x &optional y) (list x y)))
+  (list (test-mc69-5 'a) (test-mc69-5 'a 'b)))
+(("xyz" "def" RESULT (A) (A NIL))
+ ("xyz" "def" RESULT (A B) (A B)))
+
+(progn
+  (defgeneric test-mc69-6 (x y &optional z)
+    (:method-combination mc69 "xyz")
+    (:method (x y &optional z) (list x y z)))
+  (list (test-mc69-6 'a 'b) (test-mc69-6 'a 'b 'c)))
+(("xyz" "def" RESULT (A B) (A B NIL))
+ ("xyz" "def" RESULT (A B C) (A B C)))
+
+(progn
+  (defgeneric test-mc69-7 (x y z &optional u)
+    (:method-combination mc69 "xyz")
+    (:method (x y z &optional u) (list x y z u)))
+  (list (test-mc69-7 'a 'b 'c) (test-mc69-7 'a 'b 'c 'd)))
+(("xyz" "def" RESULT (A B C) (A B C NIL))
+ ("xyz" "def" RESULT (A B C D) (A B C D)))
+
+(progn
+  (defgeneric test-mc69-8 (x &optional y z)
+    (:method-combination mc69 "xyz")
+    (:method (x &optional y z) (list x y z)))
+  (list (test-mc69-8 'a) (test-mc69-8 'a 'b) (test-mc69-8 'a 'b 'c)))
+(("xyz" "def" RESULT (A) (A NIL NIL))
+ ("xyz" "def" RESULT (A B) (A B NIL))
+ ("xyz" "def" RESULT (A B C) (A B C)))
+
+(progn
+  (defgeneric test-mc69-9 (x y &optional z u)
+    (:method-combination mc69 "xyz")
+    (:method (x y &optional z u) (list x y z u)))
+  (list (test-mc69-9 'a 'b) (test-mc69-9 'a 'b 'c) (test-mc69-9 'a 'b 'c 'd)))
+(("xyz" "def" RESULT (A B) (A B NIL NIL))
+ ("xyz" "def" RESULT (A B C) (A B C NIL))
+ ("xyz" "def" RESULT (A B C D) (A B C D)))
+
+(progn
+  (defgeneric test-mc69-10 (x y z &optional u v)
+    (:method-combination mc69 "xyz")
+    (:method (x y z &optional u v) (list x y z u v)))
+  (list (test-mc69-10 'a 'b 'c) (test-mc69-10 'a 'b 'c 'd) (test-mc69-10 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT (A B C) (A B C NIL NIL))
+ ("xyz" "def" RESULT (A B C D) (A B C D NIL))
+ ("xyz" "def" RESULT (A B C D E) (A B C D E)))
+
+(progn
+  (defgeneric test-mc69-11 (x &optional y z u)
+    (:method-combination mc69 "xyz")
+    (:method (x &optional y z u) (list x y z u)))
+  (list (test-mc69-11 'a) (test-mc69-11 'a 'b) (test-mc69-11 'a 'b 'c) (test-mc69-11 'a 'b 'c 'd)))
+(("xyz" "def" RESULT (A) (A NIL NIL NIL))
+ ("xyz" "def" RESULT (A B) (A B NIL NIL))
+ ("xyz" "def" RESULT (A B C) (A B C NIL))
+ ("xyz" "def" RESULT (A B C D) (A B C D)))
+
+(progn
+  (defgeneric test-mc69-12 (x y &optional z u v)
+    (:method-combination mc69 "xyz")
+    (:method (x y &optional z u v) (list x y z u v)))
+  (list (test-mc69-12 'a 'b) (test-mc69-12 'a 'b 'c) (test-mc69-12 'a 'b 'c 'd) (test-mc69-12 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT (A B) (A B NIL NIL NIL))
+ ("xyz" "def" RESULT (A B C) (A B C NIL NIL))
+ ("xyz" "def" RESULT (A B C D) (A B C D NIL))
+ ("xyz" "def" RESULT (A B C D E) (A B C D E)))
+
+(progn
+  (defgeneric test-mc69-13 (x y z &optional u v w)
+    (:method-combination mc69 "xyz")
+    (:method (x y z &optional u v w) (list x y z u v w)))
+  (list (test-mc69-13 'a 'b 'c) (test-mc69-13 'a 'b 'c 'd) (test-mc69-13 'a 'b 'c 'd 'e) (test-mc69-13 'a 'b 'c 'd 'e 'f)))
+(("xyz" "def" RESULT (A B C) (A B C NIL NIL NIL))
+ ("xyz" "def" RESULT (A B C D) (A B C D NIL NIL))
+ ("xyz" "def" RESULT (A B C D E) (A B C D E NIL))
+ ("xyz" "def" RESULT (A B C D E F) (A B C D E F)))
+
+(progn
+  (defgeneric test-mc69-14 (x &rest y)
+    (:method-combination mc69 "xyz")
+    (:method (x &rest y) (list* x y)))
+  (list (test-mc69-14 'a) (test-mc69-14 'a 'b) (test-mc69-14 'a 'b 'c)))
+(("xyz" "def" RESULT (A) (A))
+ ("xyz" "def" RESULT (A B) (A B))
+ ("xyz" "def" RESULT (A B C) (A B C)))
+
+(progn
+  (defgeneric test-mc69-15 (x y &rest z)
+    (:method-combination mc69 "xyz")
+    (:method (x y &rest z) (list* x y z)))
+  (list (test-mc69-15 'a 'b) (test-mc69-15 'a 'b 'c) (test-mc69-15 'a 'b 'c 'd)))
+(("xyz" "def" RESULT (A B) (A B))
+ ("xyz" "def" RESULT (A B C) (A B C))
+ ("xyz" "def" RESULT (A B C D) (A B C D)))
+
+(progn
+  (defgeneric test-mc69-16 (x y z &rest u)
+    (:method-combination mc69 "xyz")
+    (:method (x y z &rest u) (list* x y z u)))
+  (list (test-mc69-16 'a 'b 'c) (test-mc69-16 'a 'b 'c 'd) (test-mc69-16 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT (A B C) (A B C))
+ ("xyz" "def" RESULT (A B C D) (A B C D))
+ ("xyz" "def" RESULT (A B C D E) (A B C D E)))
+
+(progn
+  (defgeneric test-mc69-17 (x &optional y &rest z)
+    (:method-combination mc69 "xyz")
+    (:method (x &optional y &rest z) (list* x y z)))
+  (list (test-mc69-17 'a) (test-mc69-17 'a 'b) (test-mc69-17 'a 'b 'c) (test-mc69-17 'a 'b 'c 'd)))
+(("xyz" "def" RESULT (A) (A NIL))
+ ("xyz" "def" RESULT (A B) (A B))
+ ("xyz" "def" RESULT (A B C) (A B C))
+ ("xyz" "def" RESULT (A B C D) (A B C D)))
+
+(progn
+  (defgeneric test-mc69-18 (x &optional y z &rest u)
+    (:method-combination mc69 "xyz")
+    (:method (x &optional y z &rest u) (list* x y z u)))
+  (list (test-mc69-18 'a) (test-mc69-18 'a 'b) (test-mc69-18 'a 'b 'c) (test-mc69-18 'a 'b 'c 'd) (test-mc69-18 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT (A) (A NIL NIL))
+ ("xyz" "def" RESULT (A B) (A B NIL))
+ ("xyz" "def" RESULT (A B C) (A B C))
+ ("xyz" "def" RESULT (A B C D) (A B C D))
+ ("xyz" "def" RESULT (A B C D E) (A B C D E)))
+
+(progn
+  (defgeneric test-mc69-19 (x &optional y z u &rest v)
+    (:method-combination mc69 "xyz")
+    (:method (x &optional y z u &rest v) (list* x y z u v)))
+  (list (test-mc69-19 'a) (test-mc69-19 'a 'b) (test-mc69-19 'a 'b 'c) (test-mc69-19 'a 'b 'c 'd) (test-mc69-19 'a 'b 'c 'd 'e) (test-mc69-19 'a 'b 'c 'd 'e 'f)))
+(("xyz" "def" RESULT (A) (A NIL NIL NIL))
+ ("xyz" "def" RESULT (A B) (A B NIL NIL))
+ ("xyz" "def" RESULT (A B C) (A B C NIL))
+ ("xyz" "def" RESULT (A B C D) (A B C D))
+ ("xyz" "def" RESULT (A B C D E) (A B C D E))
+ ("xyz" "def" RESULT (A B C D E F) (A B C D E F)))
+
+; Check :arguments with &whole and required, optional and rest arguments.
+(define-method-combination mc70 (opt1 &optional (opt2 "def")) ((all *))
+  (:arguments &whole whole a1 a2 &optional (o1 'def1) (o2 'def2) &rest r)
+  `(LIST ',opt1 ',opt2 'RESULT ,whole ,a1 ,a2 ,o1 ,o2 ,r (CALL-METHOD ,(first all))))
+MC70
+
+(progn
+  (defgeneric test-mc70-1 ()
+    (:method-combination mc70 "xyz")
+    (:method () '()))
+  (test-mc70-1))
+("xyz" "def" RESULT () NIL NIL DEF1 DEF2 () ())
+
+(progn
+  (defgeneric test-mc70-2 (x)
+    (:method-combination mc70 "xyz")
+    (:method (x) (list x)))
+  (test-mc70-2 'a))
+("xyz" "def" RESULT (A) A NIL DEF1 DEF2 () (A))
+
+(progn
+  (defgeneric test-mc70-3 (x y)
+    (:method-combination mc70 "xyz")
+    (:method (x y) (list x y)))
+  (test-mc70-3 'a 'b))
+("xyz" "def" RESULT (A B) A B DEF1 DEF2 () (A B))
+
+(progn
+  (defgeneric test-mc70-4 (x y z)
+    (:method-combination mc70 "xyz")
+    (:method (x y z) (list x y z)))
+  (test-mc70-4 'a 'b 'c))
+("xyz" "def" RESULT (A B C) A B DEF1 DEF2 () (A B C))
+
+(progn
+  (defgeneric test-mc70-5 (x &optional y)
+    (:method-combination mc70 "xyz")
+    (:method (x &optional y) (list x y)))
+  (list (test-mc70-5 'a) (test-mc70-5 'a 'b)))
+(("xyz" "def" RESULT (A) A NIL DEF1 DEF2 () (A NIL))
+ ("xyz" "def" RESULT (A B) A NIL B DEF2 () (A B)))
+
+(progn
+  (defgeneric test-mc70-6 (x y &optional z)
+    (:method-combination mc70 "xyz")
+    (:method (x y &optional z) (list x y z)))
+  (list (test-mc70-6 'a 'b) (test-mc70-6 'a 'b 'c)))
+(("xyz" "def" RESULT (A B) A B DEF1 DEF2 () (A B NIL))
+ ("xyz" "def" RESULT (A B C) A B C DEF2 () (A B C)))
+
+(progn
+  (defgeneric test-mc70-7 (x y z &optional u)
+    (:method-combination mc70 "xyz")
+    (:method (x y z &optional u) (list x y z u)))
+  (list (test-mc70-7 'a 'b 'c) (test-mc70-7 'a 'b 'c 'd)))
+(("xyz" "def" RESULT (A B C) A B DEF1 DEF2 () (A B C NIL))
+ ("xyz" "def" RESULT (A B C D) A B D DEF2 () (A B C D)))
+
+(progn
+  (defgeneric test-mc70-8 (x &optional y z)
+    (:method-combination mc70 "xyz")
+    (:method (x &optional y z) (list x y z)))
+  (list (test-mc70-8 'a) (test-mc70-8 'a 'b) (test-mc70-8 'a 'b 'c)))
+(("xyz" "def" RESULT (A) A NIL DEF1 DEF2 () (A NIL NIL))
+ ("xyz" "def" RESULT (A B) A NIL B DEF2 () (A B NIL))
+ ("xyz" "def" RESULT (A B C) A NIL B C () (A B C)))
+
+(progn
+  (defgeneric test-mc70-9 (x y &optional z u)
+    (:method-combination mc70 "xyz")
+    (:method (x y &optional z u) (list x y z u)))
+  (list (test-mc70-9 'a 'b) (test-mc70-9 'a 'b 'c) (test-mc70-9 'a 'b 'c 'd)))
+(("xyz" "def" RESULT (A B) A B DEF1 DEF2 () (A B NIL NIL))
+ ("xyz" "def" RESULT (A B C) A B C DEF2 () (A B C NIL))
+ ("xyz" "def" RESULT (A B C D) A B C D () (A B C D)))
+
+(progn
+  (defgeneric test-mc70-10 (x y z &optional u v)
+    (:method-combination mc70 "xyz")
+    (:method (x y z &optional u v) (list x y z u v)))
+  (list (test-mc70-10 'a 'b 'c) (test-mc70-10 'a 'b 'c 'd) (test-mc70-10 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT (A B C) A B DEF1 DEF2 () (A B C NIL NIL))
+ ("xyz" "def" RESULT (A B C D) A B D DEF2 () (A B C D NIL))
+ ("xyz" "def" RESULT (A B C D E) A B D E () (A B C D E)))
+
+(progn
+  (defgeneric test-mc70-11 (x &optional y z u)
+    (:method-combination mc70 "xyz")
+    (:method (x &optional y z u) (list x y z u)))
+  (list (test-mc70-11 'a) (test-mc70-11 'a 'b) (test-mc70-11 'a 'b 'c) (test-mc70-11 'a 'b 'c 'd)))
+(("xyz" "def" RESULT (A) A NIL DEF1 DEF2 () (A NIL NIL NIL))
+ ("xyz" "def" RESULT (A B) A NIL B DEF2 () (A B NIL NIL))
+ ("xyz" "def" RESULT (A B C) A NIL B C () (A B C NIL))
+ ("xyz" "def" RESULT (A B C D) A NIL B C () (A B C D)))
+
+(progn
+  (defgeneric test-mc70-12 (x y &optional z u v)
+    (:method-combination mc70 "xyz")
+    (:method (x y &optional z u v) (list x y z u v)))
+  (list (test-mc70-12 'a 'b) (test-mc70-12 'a 'b 'c) (test-mc70-12 'a 'b 'c 'd) (test-mc70-12 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT (A B) A B DEF1 DEF2 () (A B NIL NIL NIL))
+ ("xyz" "def" RESULT (A B C) A B C DEF2 () (A B C NIL NIL))
+ ("xyz" "def" RESULT (A B C D) A B C D () (A B C D NIL))
+ ("xyz" "def" RESULT (A B C D E) A B C D () (A B C D E)))
+
+(progn
+  (defgeneric test-mc70-13 (x y z &optional u v w)
+    (:method-combination mc70 "xyz")
+    (:method (x y z &optional u v w) (list x y z u v w)))
+  (list (test-mc70-13 'a 'b 'c) (test-mc70-13 'a 'b 'c 'd) (test-mc70-13 'a 'b 'c 'd 'e) (test-mc70-13 'a 'b 'c 'd 'e 'f)))
+(("xyz" "def" RESULT (A B C) A B DEF1 DEF2 () (A B C NIL NIL NIL))
+ ("xyz" "def" RESULT (A B C D) A B D DEF2 () (A B C D NIL NIL))
+ ("xyz" "def" RESULT (A B C D E) A B D E () (A B C D E NIL))
+ ("xyz" "def" RESULT (A B C D E F) A B D E () (A B C D E F)))
+
+(progn
+  (defgeneric test-mc70-14 (x &rest y)
+    (:method-combination mc70 "xyz")
+    (:method (x &rest y) (list* x y)))
+  (list (test-mc70-14 'a) (test-mc70-14 'a 'b) (test-mc70-14 'a 'b 'c)))
+(("xyz" "def" RESULT (A) A NIL DEF1 DEF2 () (A))
+ ("xyz" "def" RESULT (A B) A NIL DEF1 DEF2 (B) (A B))
+ ("xyz" "def" RESULT (A B C) A NIL DEF1 DEF2 (B C) (A B C)))
+
+(progn
+  (defgeneric test-mc70-15 (x y &rest z)
+    (:method-combination mc70 "xyz")
+    (:method (x y &rest z) (list* x y z)))
+  (list (test-mc70-15 'a 'b) (test-mc70-15 'a 'b 'c) (test-mc70-15 'a 'b 'c 'd)))
+(("xyz" "def" RESULT (A B) A B DEF1 DEF2 () (A B))
+ ("xyz" "def" RESULT (A B C) A B DEF1 DEF2 (C) (A B C))
+ ("xyz" "def" RESULT (A B C D) A B DEF1 DEF2 (C D) (A B C D)))
+
+(progn
+  (defgeneric test-mc70-16 (x y z &rest u)
+    (:method-combination mc70 "xyz")
+    (:method (x y z &rest u) (list* x y z u)))
+  (list (test-mc70-16 'a 'b 'c) (test-mc70-16 'a 'b 'c 'd) (test-mc70-16 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT (A B C) A B DEF1 DEF2 () (A B C))
+ ("xyz" "def" RESULT (A B C D) A B DEF1 DEF2 (D) (A B C D))
+ ("xyz" "def" RESULT (A B C D E) A B DEF1 DEF2 (D E) (A B C D E)))
+
+(progn
+  (defgeneric test-mc70-17 (x &optional y &rest z)
+    (:method-combination mc70 "xyz")
+    (:method (x &optional y &rest z) (list* x y z)))
+  (list (test-mc70-17 'a) (test-mc70-17 'a 'b) (test-mc70-17 'a 'b 'c) (test-mc70-17 'a 'b 'c 'd)))
+(("xyz" "def" RESULT (A) A NIL DEF1 DEF2 () (A NIL))
+ ("xyz" "def" RESULT (A B) A NIL B DEF2 () (A B))
+ ("xyz" "def" RESULT (A B C) A NIL B DEF2 (C) (A B C))
+ ("xyz" "def" RESULT (A B C D) A NIL B DEF2 (C D) (A B C D)))
+
+(progn
+  (defgeneric test-mc70-18 (x &optional y z &rest u)
+    (:method-combination mc70 "xyz")
+    (:method (x &optional y z &rest u) (list* x y z u)))
+  (list (test-mc70-18 'a) (test-mc70-18 'a 'b) (test-mc70-18 'a 'b 'c) (test-mc70-18 'a 'b 'c 'd) (test-mc70-18 'a 'b 'c 'd 'e)))
+(("xyz" "def" RESULT (A) A NIL DEF1 DEF2 () (A NIL NIL))
+ ("xyz" "def" RESULT (A B) A NIL B DEF2 () (A B NIL))
+ ("xyz" "def" RESULT (A B C) A NIL B C () (A B C))
+ ("xyz" "def" RESULT (A B C D) A NIL B C (D) (A B C D))
+ ("xyz" "def" RESULT (A B C D E) A NIL B C (D E) (A B C D E)))
+
+(progn
+  (defgeneric test-mc70-19 (x &optional y z u &rest v)
+    (:method-combination mc70 "xyz")
+    (:method (x &optional y z u &rest v) (list* x y z u v)))
+  (list (test-mc70-19 'a) (test-mc70-19 'a 'b) (test-mc70-19 'a 'b 'c) (test-mc70-19 'a 'b 'c 'd) (test-mc70-19 'a 'b 'c 'd 'e) (test-mc70-19 'a 'b 'c 'd 'e 'f)))
+(("xyz" "def" RESULT (A) A NIL DEF1 DEF2 () (A NIL NIL NIL))
+ ("xyz" "def" RESULT (A B) A NIL B DEF2 () (A B NIL NIL))
+ ("xyz" "def" RESULT (A B C) A NIL B C () (A B C NIL))
+ ("xyz" "def" RESULT (A B C D) A NIL B C () (A B C D))
+ ("xyz" "def" RESULT (A B C D E) A NIL B C (E) (A B C D E))
+ ("xyz" "def" RESULT (A B C D E F) A NIL B C (E F) (A B C D E F)))
+
+; Check :arguments with only optional arguments but with svars.
+(define-method-combination mc71 (opt1 &optional (opt2 "def")) ((all *))
+  (:arguments &optional (o1 'def1 os1) (o2 'def2 os2))
+  `(LIST ',opt1 ',opt2 'RESULT ,o1 ,o2 ,os1 ,os2 (CALL-METHOD ,(first all))))
+MC71
+
+(progn
+  (defgeneric test-mc71-1 (x)
+    (:method-combination mc71 "xyz")
+    (:method (x) (list x)))
+  (test-mc71-1 'a))
+("xyz" "def" RESULT DEF1 DEF2 NIL NIL (A))
+
+(progn
+  (defgeneric test-mc71-2 (x &optional y)
+    (:method-combination mc71 "xyz")
+    (:method (x &optional y) (list x y)))
+  (list (test-mc71-2 'a) (test-mc71-2 'a 'b)))
+(("xyz" "def" RESULT DEF1 DEF2 NIL NIL (A NIL))
+ ("xyz" "def" RESULT B DEF2 T NIL (A B)))
+
+(progn
+  (defgeneric test-mc71-3 (x &optional y z)
+    (:method-combination mc71 "xyz")
+    (:method (x &optional y z) (list x y z)))
+  (list (test-mc71-3 'a) (test-mc71-3 'a 'b) (test-mc71-3 'a 'b 'c)))
+(("xyz" "def" RESULT DEF1 DEF2 NIL NIL (A NIL NIL))
+ ("xyz" "def" RESULT B DEF2 T NIL (A B NIL))
+ ("xyz" "def" RESULT B C T T (A B C)))
+
+(progn
+  (defgeneric test-mc71-4 (x &optional y z u)
+    (:method-combination mc71 "xyz")
+    (:method (x &optional y z u) (list x y z u)))
+  (list (test-mc71-4 'a) (test-mc71-4 'a 'b) (test-mc71-4 'a 'b 'c) (test-mc71-4 'a 'b 'c 'd)))
+(("xyz" "def" RESULT DEF1 DEF2 NIL NIL (A NIL NIL NIL))
+ ("xyz" "def" RESULT B DEF2 T NIL (A B NIL NIL))
+ ("xyz" "def" RESULT B C T T (A B C NIL))
+ ("xyz" "def" RESULT B C T T (A B C D)))
+
+(progn
+  (defgeneric test-mc71-5 (x &rest y)
+    (:method-combination mc71 "xyz")
+    (:method (x &rest y) (list* x y)))
+  (list (test-mc71-5 'a) (test-mc71-5 'a 'b) (test-mc71-5 'a 'b 'c)))
+(("xyz" "def" RESULT DEF1 DEF2 NIL NIL (A))
+ ("xyz" "def" RESULT DEF1 DEF2 NIL NIL (A B))
+ ("xyz" "def" RESULT DEF1 DEF2 NIL NIL (A B C)))
+
+(progn
+  (defgeneric test-mc71-6 (x &optional y &rest z)
+    (:method-combination mc71 "xyz")
+    (:method (x &optional y &rest z) (list* x y z)))
+  (list (test-mc71-6 'a) (test-mc71-6 'a 'b) (test-mc71-6 'a 'b 'c)))
+(("xyz" "def" RESULT DEF1 DEF2 NIL NIL (A NIL))
+ ("xyz" "def" RESULT B DEF2 T NIL (A B))
+ ("xyz" "def" RESULT B DEF2 T NIL (A B C)))
+
+(progn
+  (defgeneric test-mc71-7 (x &optional y z &rest u)
+    (:method-combination mc71 "xyz")
+    (:method (x &optional y z &rest u) (list* x y z u)))
+  (list (test-mc71-7 'a) (test-mc71-7 'a 'b) (test-mc71-7 'a 'b 'c) (test-mc71-7 'a 'b 'c 'd)))
+(("xyz" "def" RESULT DEF1 DEF2 NIL NIL (A NIL NIL))
+ ("xyz" "def" RESULT B DEF2 T NIL (A B NIL))
+ ("xyz" "def" RESULT B C T T (A B C))
+ ("xyz" "def" RESULT B C T T (A B C D)))
+
+; Check :arguments with required, optional and key arguments and key-svars.
+(define-method-combination mc72 (opt1 &optional (opt2 "def")) ((all *))
+  (:arguments a1 a2 &optional (o1 'def1) (o2 'def2) &key (test 'EQ test-p) (test-not 'NEQ test-not-p))
+  `(LIST ',opt1 ',opt2 'RESULT ,a1 ,a2 ,o1 ,o2 ,test ,test-not ,test-p ,test-not-p (CALL-METHOD ,(first all))))
+MC72
+
+(progn
+  (defgeneric test-mc72-1 (x &optional y)
+    (:method-combination mc72 "xyz")
+    (:method (x &optional y) (list x y)))
+  (list (test-mc72-1 'a) (test-mc72-1 'a 'b)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 EQ NEQ NIL NIL (A NIL))
+ ("xyz" "def" RESULT A NIL B DEF2 EQ NEQ NIL NIL (A B)))
+
+(progn
+  (defgeneric test-mc72-2 (x y z &optional u v w)
+    (:method-combination mc72 "xyz")
+    (:method (x y z &optional u v w) (list x y z u v w)))
+  (list (test-mc72-2 'a 'b 'c) (test-mc72-2 'a 'b 'c 'd) (test-mc72-2 'a 'b 'c 'd 'e) (test-mc72-2 'a 'b 'c 'd 'e 'f)))
+(("xyz" "def" RESULT A B DEF1 DEF2 EQ NEQ NIL NIL (A B C NIL NIL NIL))
+ ("xyz" "def" RESULT A B D DEF2 EQ NEQ NIL NIL (A B C D NIL NIL))
+ ("xyz" "def" RESULT A B D E EQ NEQ NIL NIL (A B C D E NIL))
+ ("xyz" "def" RESULT A B D E EQ NEQ NIL NIL (A B C D E F)))
+
+(progn
+  (defgeneric test-mc72-3 (x &rest y)
+    (:method-combination mc72 "xyz")
+    (:method (x &rest y) (list* x y)))
+  (list (test-mc72-3 'a) (test-mc72-3 'a 'b 'c)
+        (test-mc72-3 'a :test-not 'nequal)
+        (test-mc72-3 'a :test 'eq :test-not 'nequal)
+        (test-mc72-3 'a :test-not 'nequal :test 'eql :test-not 'nequalp)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 EQ NEQ NIL NIL (A))
+ ("xyz" "def" RESULT A NIL DEF1 DEF2 EQ NEQ NIL NIL (A B C))
+ ("xyz" "def" RESULT A NIL DEF1 DEF2 EQ NEQUAL NIL T (A :TEST-NOT NEQUAL))
+ ("xyz" "def" RESULT A NIL DEF1 DEF2 EQ NEQUAL T T (A :TEST EQ :TEST-NOT NEQUAL))
+ ("xyz" "def" RESULT A NIL DEF1 DEF2 EQL NEQUAL T T (A :TEST-NOT NEQUAL :TEST EQL :TEST-NOT NEQUALP)))
+
+(progn
+  (defgeneric test-mc72-4 (x &rest y)
+    (:method-combination mc72 "xyz")
+    (:method (x &rest y) (list* x y)))
+  (test-mc72-4 'a 'b))
+ERROR
+
+(progn
+  (defgeneric test-mc72-5 (x y z &rest u)
+    (:method-combination mc72 "xyz")
+    (:method (x y z &rest u) (list* x y z u)))
+  (list (test-mc72-5 'a :test 'eq) (test-mc72-5 'a :test 'eq 'd 'e)
+        (test-mc72-5 'a :test 'eq :test-not 'nequal)
+        (test-mc72-5 'a :test 'eq :test 'eq :test-not 'nequal)
+        (test-mc72-5 'a :test 'eq :test-not 'nequal :test 'eql :test-not 'nequalp)))
+(("xyz" "def" RESULT A :TEST DEF1 DEF2 EQ NEQ NIL NIL (A :TEST EQ))
+ ("xyz" "def" RESULT A :TEST DEF1 DEF2 EQ NEQ NIL NIL (A :TEST EQ D E))
+ ("xyz" "def" RESULT A :TEST DEF1 DEF2 EQ NEQUAL NIL T (A :TEST EQ :TEST-NOT NEQUAL))
+ ("xyz" "def" RESULT A :TEST DEF1 DEF2 EQ NEQUAL T T (A :TEST EQ :TEST EQ :TEST-NOT NEQUAL))
+ ("xyz" "def" RESULT A :TEST DEF1 DEF2 EQL NEQUAL T T (A :TEST EQ :TEST-NOT NEQUAL :TEST EQL :TEST-NOT NEQUALP)))
+
+(progn
+  (defgeneric test-mc72-6 (x &optional y z u &rest v)
+    (:method-combination mc72 "xyz")
+    (:method (x &optional y z u &rest v) (list* x y z u v)))
+  (list (test-mc72-6 'a) (test-mc72-6 'a 'b 'c)
+        (test-mc72-6 'a :test 'eq 'd :test-not 'nequal)
+        (test-mc72-6 'a :test 'eq 'd :test 'eq :test-not 'nequal)
+        (test-mc72-6 'a :test 'eq 'd :test-not 'nequal :test 'eql :test-not 'nequalp)))
+(("xyz" "def" RESULT A NIL DEF1 DEF2 EQ NEQ NIL NIL (A NIL NIL NIL))
+ ("xyz" "def" RESULT A NIL B C EQ NEQ NIL NIL (A B C NIL))
+ ("xyz" "def" RESULT A NIL :TEST EQ EQ NEQUAL NIL T (A :TEST EQ D :TEST-NOT NEQUAL))
+ ("xyz" "def" RESULT A NIL :TEST EQ EQ NEQUAL T T (A :TEST EQ D :TEST EQ :TEST-NOT NEQUAL))
+ ("xyz" "def" RESULT A NIL :TEST EQ EQL NEQUAL T T (A :TEST EQ D :TEST-NOT NEQUAL :TEST EQL :TEST-NOT NEQUALP)))

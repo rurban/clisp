@@ -1,3 +1,7 @@
+2004-06-06  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: 206 new method-combination tests.
+
 2004-06-04  Bruno Haible  <bruno@clisp.org>
 
 	* macro8.tst: Add 3 LOAD-TIME-VALUE tests.
