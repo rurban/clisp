@@ -1,4 +1,4 @@
-dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -31,17 +31,22 @@ AC_CACHE_VAL(cl_cv_path_install,
     /|./|.//|/etc/*|/usr/sbin/*|/usr/etc/*|/sbin/*|/usr/afsws/bin/*|/usr/ucb/*) ;;
     *)
       # OSF1 and SCO ODT 3.0 have their own names for install.
-      # Don't use installbsd from OSF since it installs stuff as root
-      # by default.
-      for ac_prog in ginstall scoinst install; do
+      for ac_prog in ginstall installbsd scoinst install; do
         if test -f $ac_dir/$ac_prog; then
 	  if test $ac_prog = install &&
             grep dspmsg $ac_dir/$ac_prog >/dev/null 2>&1; then
 	    # AIX install.  It has an incompatible calling convention.
+	    # OSF/1 installbsd also uses dspmsg, but is usable.
 	    :
 	  else
-	    cl_cv_path_install="$ac_dir/$ac_prog -c"
-	    break 2
+	    if test $ac_prog = installbsd &&
+	      grep src/bos $ac_dir/$ac_prog >/dev/null 2>&1; then
+	      # AIX installbsd doesn't work without option "-g".
+	      :
+	    else
+	      cl_cv_path_install="$ac_dir/$ac_prog -c"
+	      break 2
+	    fi
 	  fi
 	fi
       done
@@ -49,18 +54,8 @@ AC_CACHE_VAL(cl_cv_path_install,
     esac
   done
   IFS="$ac_save_ifs"
-  # As a last resort, use the absolute pathname of cp.
-  if test -z "$cl_cv_path_install"; then
-    cl_cv_path_install="cp"
-    IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
-    for ac_dir in $PATH; do
-      if test -f $ac_dir/cp; then
-        cl_cv_path_install="$ac_dir/cp"
-        break
-      fi
-    done
-    IFS="$ac_save_ifs"
-  fi
+  # As a last resort, use cp.
+  test -z "$cl_cv_path_install" && cl_cv_path_install="cp"
 ])dnl
   INSTALL="$cl_cv_path_install"
 fi
