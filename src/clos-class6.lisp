@@ -8,8 +8,11 @@
 ;;; ===========================================================================
 
 ;; Make creation of <class> instances customizable.
+(setf (fdefinition 'initialize-instance-<built-in-class>) #'initialize-instance)
 (setf (fdefinition 'make-instance-<built-in-class>) #'make-instance)
+(setf (fdefinition 'initialize-instance-<structure-class>) #'initialize-instance)
 (setf (fdefinition 'make-instance-<structure-class>) #'make-instance)
+(setf (fdefinition 'initialize-instance-<standard-class>) #'initialize-instance)
 (setf (fdefinition 'make-instance-<standard-class>) #'make-instance)
 
 ;;; ===========================================================================

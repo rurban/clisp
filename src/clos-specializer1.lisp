@@ -36,13 +36,14 @@
   (setf (sys::%record-ref object *<specializer>-direct-methods-location*) new-value))
 
 ;; Initialization of a <specializer> instance.
-(defun initialize-instance-<specializer> (specializer &rest args
-                                          &key &allow-other-keys)
-  (apply #'initialize-instance-<standard-stablehash> specializer args)
+(defun shared-initialize-<specializer> (specializer situation &rest args
+                                        &key &allow-other-keys)
+  (apply #'shared-initialize-<standard-stablehash> specializer situation args)
   (unless *classes-finished*
-    ; Bootstrapping: Simulate the effect of #'%initialize-instance.
-    (setf (specializer-direct-generic-functions-table specializer) nil)
-    (setf (specializer-direct-methods-table specializer) nil))
+    ; Bootstrapping: Simulate the effect of #'%shared-initialize.
+    (when (eq situation 't) ; called from initialize-instance?
+      (setf (specializer-direct-generic-functions-table specializer) nil)
+      (setf (specializer-direct-methods-table specializer) nil)))
   specializer)
 
 ;;; ===========================================================================
@@ -66,15 +67,21 @@
   (setf (sys::%record-ref object *<eql-specializer>-singleton-location*) new-value))
 
 ;; Initialization of an <eql-specializer> instance.
-(defun initialize-instance-<eql-specializer> (specializer &rest args
-                                              &key ((singleton singleton) nil singleton-p)
-                                              &allow-other-keys)
-  (apply #'initialize-instance-<specializer> specializer args)
+(defun shared-initialize-<eql-specializer> (specializer situation &rest args
+                                            &key ((singleton singleton) nil singleton-p)
+                                            &allow-other-keys)
+  (apply #'shared-initialize-<specializer> specializer situation args)
   (unless *classes-finished*
-    ; Bootstrapping: Simulate the effect of #'%initialize-instance.
+    ; Bootstrapping: Simulate the effect of #'%shared-initialize.
     (when singleton-p
       (setf (eql-specializer-singleton specializer) singleton)))
   specializer)
+
+(defun initialize-instance-<eql-specializer> (specializer &rest args
+                                              &key &allow-other-keys)
+  ;; Don't add functionality here! This is a preliminary definition that is
+  ;; replaced with #'initialize-instance later.
+  (apply #'shared-initialize-<eql-specializer> specializer 't args))
 
 (defun make-instance-<eql-specializer> (class &rest args
                                         &key &allow-other-keys)

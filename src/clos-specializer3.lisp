@@ -7,6 +7,7 @@
 
 
 ;; Make creation of <specializer> instances customizable.
+(setf (fdefinition 'initialize-instance-<eql-specializer>) #'initialize-instance)
 (setf (fdefinition 'make-instance-<eql-specializer>) #'make-instance)
 
 

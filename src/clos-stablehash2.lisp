@@ -9,9 +9,9 @@
 
 ;;; Lift the initialization protocol.
 
-(defmethod initialize-instance ((object standard-stablehash) &rest args
-                                &key)
-  (apply #'initialize-instance-<standard-stablehash> object args))
+(defmethod shared-initialize ((object standard-stablehash) situation &rest args
+                              &key)
+  (apply #'shared-initialize-<standard-stablehash> object situation args))
 
 ;;; ===========================================================================
 
