@@ -1914,6 +1914,7 @@ int main(int argc, char* argv[])
             " obj = check_string_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("extern object physical_namestring (object obj);\n");
 #if notused
   printf("nonreturning_function(extern, fehler_sstring, (object obj));\n");
 #endif

@@ -36,10 +36,10 @@
 #endif
 
 #include <string.h>             /* for memset() */
+#include <stdio.h>              /* fopen/fclose for db->verify */
 
 /* #define DEBUG */
 #if defined(DEBUG)
-# include <stdio.h>
 extern object nobject_out (FILE* stream, object obj);
 # define XOUT(obj,label)                                                \
   (printf("[%s:%d] %s: %s:\n",__FILE__,__LINE__,STRING(obj),label),     \
@@ -195,9 +195,9 @@ DEFUN(BDB:ENV-DBREMOVE, dbe file database &key :TRANSACTION :AUTO_COMMIT)
   u_int32_t flags = (missingp(STACK_0) ? 0 : DB_AUTO_COMMIT);
   DB_TXN *txn = object_handle(STACK_1,`BDB::TXN`,true);
   DB_ENV *dbe = object_handle(STACK_4,`BDB::ENV`,false);
-  if (!nullp(STACK_2)) STACK_2 = check_string(STACK_2);
-  STACK_3 = check_string(STACK_3);
-  with_string_0(STACK_3,GLO(misc_encoding),file, {
+  if (!nullp(STACK_2)) STACK_2 = check_string(STACK_2); /* DATABASE */
+  STACK_3 = physical_namestring(STACK_3);               /* FILE */
+  with_string_0(STACK_3,GLO(pathname_encoding),file, {
       if (stringp(STACK_2)) {
         with_string_0(STACK_2,GLO(misc_encoding),database, {
             SYSCALL(dbe->dbremove,(dbe,txn,file,database,flags));
@@ -213,7 +213,7 @@ DEFUN(BDB:ENV-DBRENAME, dbe file database newname       \
   u_int32_t flags = (missingp(STACK_0) ? 0 : DB_AUTO_COMMIT);
   DB_TXN *txn = object_handle(STACK_1,`BDB::TXN`,true);
   DB_ENV *dbe = object_handle(STACK_5,`BDB::ENV`,false);
-  with_string_0(check_string(STACK_4),GLO(misc_encoding),file, {
+  with_string_0(physical_namestring(STACK_4),GLO(pathname_encoding),file, {
       with_string_0(check_string(STACK_3),GLO(misc_encoding),database, {
           with_string_0(check_string(STACK_2),GLO(misc_encoding),newname, {
               SYSCALL(dbe->dbrename,(dbe,txn,file,database,newname,flags));
@@ -234,9 +234,8 @@ DEFUN(BDB:ENV-OPEN, dbe &key :HOME :JOINENV :INIT_CDB :INIT_LOCK :INIT_LOG \
   int mode = posfixnum_default(popSTACK());
   u_int32_t flags = env_open_flags();
   DB_ENV *dbe = object_handle(STACK_1,`BDB::ENV`,false);
-  if (!missingp(STACK_0)) STACK_0 = check_string(STACK_0);
-  if (stringp(STACK_0)) {
-    with_string_0(STACK_0,GLO(misc_encoding),home,
+  if (!missingp(STACK_0)) {
+    with_string_0(physical_namestring(STACK_0),GLO(pathname_encoding),home,
                   { SYSCALL(dbe->open,(dbe,home,flags,mode)); });
   } else SYSCALL(dbe->open,(dbe,NULL,flags,mode));
   VALUES0; skipSTACK(2);
@@ -247,9 +246,8 @@ DEFUN(BDB:ENV-REMOVE, dbe &key :HOME :FORCE :USE_ENVIRON :USE_ENVIRON_ROOT)
 { /* destroy an environment */
   u_int32_t flags = env_remove_flags();
   DB_ENV *dbe = object_handle(STACK_1,`BDB::ENV`,false);
-  if (!missingp(STACK_0)) STACK_0 = check_string(STACK_0);
-  if (stringp(STACK_0)) {
-    with_string_0(STACK_0,GLO(misc_encoding),home,
+  if (!missingp(STACK_0)) {
+    with_string_0(physical_namestring(STACK_0),GLO(pathname_encoding),home,
                   { SYSCALL(dbe->remove,(dbe,home,flags)); });
   } else SYSCALL(dbe->remove,(dbe,NULL,flags));
   VALUES0; skipSTACK(2);
@@ -320,12 +318,12 @@ DEFUN(BDB:ENV-SET-OPTIONS, dbe &key :PASSWORD :ENCRYPT                  \
     if (flags_on)  SYSCALL(dbe->set_flags,(dbe,flags_on,1));
   }
   if (!missingp(STACK_0)) {     /* TMP_DIR */
-    with_string_0(check_string(popSTACK()),GLO(misc_encoding),tmp_dir,
-                  { SYSCALL(dbe->set_tmp_dir,(dbe,tmp_dir)); });
+    with_string_0(physical_namestring(popSTACK()),GLO(pathname_encoding),tmpz,
+                  { SYSCALL(dbe->set_tmp_dir,(dbe,tmpz)); });
   } else skipSTACK(1);
   if (!missingp(STACK_0)) {     /* DATA_DIR */
-    with_string_0(check_string(popSTACK()),GLO(misc_encoding),data_dir,
-                  { SYSCALL(dbe->set_data_dir,(dbe,data_dir)); });
+    with_string_0(physical_namestring(popSTACK()),GLO(pathname_encoding),dataz,
+                  { SYSCALL(dbe->set_data_dir,(dbe,dataz)); });
   } else skipSTACK(1);
   if (!missingp(STACK_0)) {     /* TX_MAX */
     u_int32_t tx_max = posfixnum_to_L(check_posfixnum(STACK_0));
@@ -637,7 +635,6 @@ DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
  DB->associate	Associate a secondary index
  DB->err	Error message with error string
  DB->errx	Error message
- DB->verify	Verify/salvage a database
 */
 
 DEFUN(BDB:DB-CREATE, dbe &key :XA)
@@ -874,7 +871,7 @@ DEFUN(BDB:DB-OPEN, db file &key :DATABASE :TYPE :MODE :CREATE :DIRTY_READ \
   int mode = posfixnum_default2(popSTACK(),0644);
   DBTYPE db_type = check_dbtype(popSTACK());
   DB *db = object_handle(STACK_2,`BDB::DB`,false);
-  with_string_0(check_string(STACK_1),GLO(misc_encoding),file, {
+  with_string_0(physical_namestring(STACK_1),GLO(pathname_encoding),file, {
       if (missingp(STACK_0)) {  /* no :DATABASE */
         SYSCALL(db->open,(db,txn,file,NULL,db_type,flags,mode));
       } else {                  /* multiple databases in one file */
@@ -908,7 +905,7 @@ DEFUN(BDB:DB-UPGRADE, db file &key :DUPSORT)
 { /* Upgrade a database */
   u_int32_t flags = (missingp(STACK_0) ? 0 : DB_DUPSORT);
   DB *db = object_handle(STACK_2,`BDB::DB`,false);
-  with_string_0(check_string(STACK_1),GLO(misc_encoding),file, {
+  with_string_0(physical_namestring(STACK_1),GLO(pathname_encoding),file, {
       SYSCALL(db->upgrade,(db,file,flags));
     });
   VALUES0; skipSTACK(3);
@@ -917,7 +914,7 @@ DEFUN(BDB:DB-UPGRADE, db file &key :DUPSORT)
 DEFUN(BDB:DB-RENAME, db file database newname)
 { /* Rename a database */
   DB *db = object_handle(STACK_3,`BDB::DB`,false);
-  with_string_0(check_string(STACK_2),GLO(misc_encoding),file, {
+  with_string_0(physical_namestring(STACK_2),GLO(pathname_encoding),file, {
       with_string_0(check_string(STACK_1),GLO(misc_encoding),database, {
           with_string_0(check_string(STACK_0),GLO(misc_encoding),newname, {
               SYSCALL(db->rename,(db,file,database,newname,0));
@@ -930,7 +927,7 @@ DEFUN(BDB:DB-RENAME, db file database newname)
 DEFUN(BDB:DB-REMOVE, db file database)
 { /* Remove a database */
   DB *db = object_handle(STACK_2,`BDB::DB`,false);
-  with_string_0(check_string(STACK_1),GLO(misc_encoding),file, {
+  with_string_0(physical_namestring(STACK_1),GLO(pathname_encoding),file, {
       with_string_0(check_string(STACK_0),GLO(misc_encoding),database, {
           SYSCALL(db->remove,(db,file,database,0));
         });
@@ -989,10 +986,50 @@ DEFUN(BDB:DB-KEY-RANGE, db key &key :TRANSACTION)
   DB *db = object_handle(STACK_1,`BDB::DB`,false);
   fill_dbt(STACK_0,&key);
   SYSCALL(db->key_range,(db,txn,&key,&key_range,0));
-  pushSTACK(c_double_to_DF(&(key_range.less)));
-  pushSTACK(c_double_to_DF(&(key_range.equal)));
-  pushSTACK(c_double_to_DF(&(key_range.greater)));
+  pushSTACK(c_double_to_DF((dfloatjanus*)&(key_range.less)));
+  pushSTACK(c_double_to_DF((dfloatjanus*)&(key_range.equal)));
+  pushSTACK(c_double_to_DF((dfloatjanus*)&(key_range.greater)));
   VALUES3(STACK_0,STACK_1,STACK_2); skipSTACK(5);
+}
+
+DEFFLAGSET(db_verify_flags, DB_AGGRESSIVE DB_PRINTABLE DB_NOORDERCHK)
+DEFUN(BDB:DB-VERIFY, db file &key :DATABASE :SALVAGE :AGGRESSIVE :PRINTABLE \
+      :NOORDERCHK)
+{ /* Verify/salvage a database */
+  u_int32_t flags = db_verify_flags();
+  DB *db = object_handle(STACK_3,`BDB::DB`,false);
+  FILE *outfile = NULL;
+  int status;
+  if (!missingp(STACK_0)) {     /* SALVAGE */
+    with_string_0(physical_namestring(STACK_0),GLO(pathname_encoding),salvage,{
+        begin_system_call();
+        outfile = fopen(salvage,"w");
+        end_system_call();
+      });
+    flags |= DB_SALVAGE;
+  }
+  STACK_2 = physical_namestring(STACK_2); /* FILE */
+  if (!missingp(STACK_1)) {               /* DATABASE */
+    STACK_1 = check_string(STACK_1);
+    flags |= DB_ORDERCHKONLY;
+  }
+  with_string_0(STACK_2,GLO(pathname_encoding),file,{
+      if (!missingp(STACK_1)) {
+        with_string_0(STACK_1,GLO(misc_encoding),database,{
+            begin_system_call();
+            status = db->verify(db,file,database,outfile,flags);
+            if (outfile) fclose(outfile);
+            end_system_call();
+          });
+      } else {
+        begin_system_call();
+        status = db->verify(db,file,NULL,outfile,flags);
+        if (outfile) fclose(outfile);
+        end_system_call();
+      }
+    });
+  if (status) error_bdb(status,"db->verify");
+  VALUES0; skipSTACK(3);
 }
 
 /* ===== cursors ===== */

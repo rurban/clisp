@@ -703,11 +703,6 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,host)
   funcall(`POSIX::MAKE-HOSTENT`,4);
 }
 
-/* ===== PATH ===== */
-static object whole_namestring (object path) {
-  pushSTACK(path); funcall(L(namestring),1); return value1;
-}
-
 #if defined(UNIX)
 
 #if defined(HAVE_GETLOGIN) && defined(HAVE_GETPWNAM) && defined(HAVE_GETPWUID) && defined(HAVE_GETUID)
@@ -794,7 +789,7 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
     if (fstat(I_to_L(file),&buf) < 0) OS_error();
     end_system_call();
   } else { stat_pathname:
-    file = whole_namestring(file);
+    file = physical_namestring(file);
     with_string_0(file,GLO(pathname_encoding),namez, {
       begin_system_call();
       if ((link_p ? stat(namez,&buf) : lstat(namez,&buf)) < 0)
@@ -967,7 +962,7 @@ DEFUN(POSIX::STAT-VFS, file)
     if (fstatvfs(I_to_L(file),&buf) < 0) OS_error();
     end_system_call();
   } else { stat_pathname:
-    file = whole_namestring(file);
+    file = physical_namestring(file);
     with_string_0(file,GLO(pathname_encoding),namez, {
       begin_system_call();
       if (statvfs(namez,&buf) < 0) OS_error();
@@ -1213,7 +1208,7 @@ static void copy_attributes_and_close () {
     utb[0].tv_usec = 0;
     utb[1].tv_sec = source_sb.st_mtime;
     utb[1].tv_usec = 0;
-    with_string_0(whole_namestring(file_stream_truename(STACK_0)),
+    with_string_0(physical_namestring(file_stream_truename(STACK_0)),
                   GLO(pathname_encoding), dest_asciz,
                   { utimes_ret = utimes(dest_asciz, utb); });
     if (utimes_ret == -1) {
@@ -1421,10 +1416,10 @@ static void copy_one_file (object source, object src_path,
       break;
     case COPY_METHOD_SYMLINK:
 #    if defined(HAVE_SYMLINK)
-      dest = whole_namestring(STACK_1);
+      dest = physical_namestring(STACK_1);
       /* use the original argument, not the truename here,
          so that the user can create relative symlinks */
-      source = stringp(STACK_5) ? (object)STACK_5 : whole_namestring(STACK_4);
+      source = stringp(STACK_5) ? (object)STACK_5:physical_namestring(STACK_4);
       with_string_0(source, GLO(pathname_encoding), source_asciz, {
         with_string_0(dest, GLO(pathname_encoding), dest_asciz,
                       { symlink_file(source_asciz,dest_asciz); });
@@ -1434,8 +1429,8 @@ static void copy_one_file (object source, object src_path,
       /* FALLTHROUGH if no symlinks */
     case COPY_METHOD_HARDLINK:
 #    if defined(HAVE_LINK)
-      dest = whole_namestring(STACK_1);
-      source = whole_namestring(STACK_0);
+      dest = physical_namestring(STACK_1);
+      source = physical_namestring(STACK_0);
       with_string_0(source, GLO(pathname_encoding), source_asciz, {
         with_string_0(dest, GLO(pathname_encoding), dest_asciz,
                       { hardlink_file(source_asciz,dest_asciz); });
@@ -1582,7 +1577,7 @@ DEFUN(POSIX::FILE-INFO, file)
 {
   WIN32_FIND_DATA wfd;
   HANDLE hf;
-  object file = whole_namestring(STACK_0);
+  object file = physical_namestring(STACK_0);
   with_string_0(file, GLO(pathname_encoding), pathz, {
     begin_system_call();
     hf = FindFirstFile(pathz, &wfd);
@@ -1721,7 +1716,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
     });
   }
   skipSTACK(1);                 /* drop WORKING-DIRECTORY */
-  STACK_0 = whole_namestring(STACK_0); /* pathname */
+  STACK_0 = physical_namestring(STACK_0); /* pathname */
 
   begin_system_call();
   hres = psl->lpVtbl->QueryInterface(psl,&IID_IPersistFile,(LPVOID*)&ppf);
@@ -1755,7 +1750,7 @@ DEFUN(POSIX::SHORTCUT-INFO, file)
   int icon_idx, show_cmd;
   WORD hot_key;
 
-  STACK_0 = whole_namestring(STACK_0);
+  STACK_0 = physical_namestring(STACK_0);
 
   /* Get a pointer to the IShellLink interface. */
   begin_system_call();
