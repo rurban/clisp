@@ -1,6 +1,6 @@
 /*
  * Information about the build environment
- * Bruno Haible 2004
+ * Bruno Haible 2004-2005
  * Sam Steingold 2004
  */
 
@@ -11,7 +11,8 @@
 /* Returns a multiline string containing some info about the flags with which
    the executable was built. */
 global const char * built_flags () {
-  return /* string concatenation made by the C compiler */
+  var const char * part1 =
+         /* string concatenation made by the C compiler */
          CC
          " "CFLAGS
          " "CLFLAGS
@@ -64,4 +65,12 @@ global const char * built_flags () {
            " TRIVIALMAP_MEMORY"
          #endif
          ;
+  #ifdef LIBSIGSEGV_VERSION
+  var char* result = malloc (strlen (part1) + 20);
+  sprintf(result, "%s\nlibsigsegv %d.%d",
+          part1, LIBSIGSEGV_VERSION >> 8, LIBSIGSEGV_VERSION & 0xff);
+  return result;
+  #else
+  return part1;
+  #endif
 }
