@@ -477,6 +477,7 @@ Continue       :c       switch off single step mode, continue evaluation
     (makunbound '*terminal-read-open-object*)
     (clear-input *debug-io*) ; because the user did not expect a break loop
     (let* ((*break-count* (1+ *break-count*))
+           (*fasoutput-stream* nil) ; compiled code may be called right away
            (stream (make-synonym-stream '*debug-io*))
            (*standard-input* stream)
            (*standard-output* stream)
