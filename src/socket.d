@@ -837,7 +837,7 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
         saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
       }
       if (ret == 0) { # timeout
-        CLOSESOCKET(fd); errno = ETIMEDOUT;
+        CLOSESOCKET(fd); sock_set_errno(ETIMEDOUT);
         return INVALID_SOCKET;
       }
      #endif

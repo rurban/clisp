@@ -1,11 +1,21 @@
+2002-05-31  Sam Steingold  <sds@gnu.org>
+
+	tweaked the last two win32 patches
+	* socket.d (connect_via_ip): use sock_set_errno() instead of
+	explicit errno= (for the benefit of win32)
+	* win32.d (EINPROGRESS, ETIMEDOUT): removed
+	(earlylate_asciz_error): removed declaration
+	* win32aux.d (earlylate_asciz_error): local, not global
+	if we need such global function in the future,
+	it should probably go into <error.d>
+
 2002-06-01  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
 	Win32 build fixes
 	* win32.d: include <locale.h>
-	(EINPROGRESS, ETIMEDOUT): define to use instead
-	of WSAE*.
-	* spvw_ctype (init_ctype): LC_MESSAGES is not
-	defined in win32, ifdef it.
+	(EINPROGRESS, ETIMEDOUT): define to use instead of WSAE*.
+	* spvw_ctype (init_ctype) [WIN32_NATIVE]: LC_MESSAGES is not
+	defined on win32
 
 2002-05-31  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
@@ -13,12 +23,12 @@
 	(earlylate_asciz_error): new function.
 	* win32aux.d (stderr_handle): define.
 	(winsock_initialized): new static variable.
-	(init_win32): initialize stderr_handle, 
+	(init_win32): initialize stderr_handle,
 	set winsock_initialized, use earlylate_asciz_error
 	(done_win32): use winsock_initialized flag.
 	(earlylate_asciz_error): New function. Prints an
 	error to stderr, optionally exits clisp (the latter
-	is not recommended). Not using clisp internals.
+	is not recommended). Does not use clisp internals.
 
 2002-05-30  Sam Steingold  <sds@gnu.org>
 
