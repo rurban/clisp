@@ -672,7 +672,9 @@ global void unread_char (const gcv_object_t* stream_, object ch) {
         case strmtype_twoway:
           pushSTACK(TheStream(stream)->strm_twoway_input);
         unread_char_recurse:
-          unread_char(&STACK_0,ch); popSTACK();
+          unread_char(&STACK_0,ch);
+          skipSTACK(1);
+          stream = *stream_;
           /*FALLTHROUGH*/
         default:
           TheStream(stream)->strmflags |= strmflags_unread_B; /* set Flagbit */
