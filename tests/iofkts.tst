@@ -705,6 +705,20 @@ t
  |FoObAr|   |FoObAr|    |FoObAr|    FoObAr      foobar      Foobar
  |fOo|      |fOo|       |fOo|       fOo         foo         foo"
 
+;; <http://www.lisp.org/HyperSpec/Body/var_stread-suppressst.html>
+(let ((*read-suppress* t))
+  (mapcar #'read-from-string
+          '("#(foo bar baz)" "#P(:type :lisp)" "#c1.2"
+            "#.(PRINT 'FOO)" "#3AHELLO" "#S(INTEGER)"
+            "#*ABC" "#\\GARBAGE" "#RALPHA" "#3R444")))
+(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
+
+;; <http://www.lisp.org/HyperSpec/Issues/iss288-writeup.html>
+(let ((*read-suppress* t))
+  (mapcar #'read-from-string
+          '("#(foo bar baz)" "#P(:type :lisp)" "#c1.2")))
+(NIL NIL NIL)
+
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
 ;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
