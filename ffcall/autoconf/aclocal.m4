@@ -311,7 +311,7 @@ AC_DEFUN(CL_PCC_STRUCT_RETURN,
 AC_TRY_RUN([typedef struct { int a; int b; int c; int d; int e; } foo;
 foo foofun () { static foo foopi = {3141,5926,5358,9793,2385}; return foopi; }
 foo* (*fun) () = (foo* (*) ()) foofun;
-main()
+int main()
 { foo foo1;
   foo* fooptr1;
   foo foo2;
@@ -336,7 +336,7 @@ AC_DEFUN(CL_SMALL_STRUCT_RETURN,
 AC_TRY_RUN([typedef struct { int x; } foo; int y;
 foo foofun () { foo f; f.x = y; return f; }
 int (*fun) () = (int (*) ()) foofun;
-main()
+int main()
 { y = 37; if ((*fun)() != 37) exit(1);
   y = 55; if ((*fun)() != 55) exit(1);
   exit(0);
@@ -354,7 +354,7 @@ esac
 dnl
 AC_DEFUN(CL_LONGLONG,
 [AC_CACHE_CHECK(for long long type, cl_cv_c_longlong, [
-AC_TRY_RUN([main()
+AC_TRY_RUN([int main()
 {
 /* long longs don't work right with gcc-2.7.2 on m68k */
 /* long longs don't work right with gcc-2.7.2 on rs6000: avcall/tests.c gets
@@ -711,7 +711,7 @@ RETMMAPTYPE mmap (MMAP_ADDR_T addr, MMAP_SIZE_T length, int prot, int flags, int
 #else
 RETMMAPTYPE mmap();
 #endif
-main () {
+int main () {
 '
 mmap_prog_2="#define bits_to_avoid $avoid"'
 #define my_shift 24
@@ -869,7 +869,7 @@ int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
 int mprotect();
 #endif
 char foo;
-main () {
+int main () {
   unsigned long pagesize = getpagesize();
 #define page_align(address)  (char*)((unsigned long)(address) & -pagesize)
 '
@@ -963,7 +963,7 @@ RETMALLOCTYPE malloc();
 #endif
 #endif
 int fun () { return 31415926; }
-main ()
+int main ()
 { long size = (char*)&main - (char*)&fun;
   char* funcopy = (char*) malloc(size);
   int i;
@@ -1133,7 +1133,7 @@ int shmctl();
 #define segsize 0x10000
 #define attaches 128
 #define base_addr 0x01000000
-main ()
+int main ()
 { int shmid, i; char* addr; char* result;
   if ((shmid = shmget(IPC_PRIVATE,segsize,0400)) < 0) exit(1);
   for (i=0, addr = (char*)0x01000000; i<attaches; i++, addr += segsize)
@@ -1172,7 +1172,7 @@ AC_TRY_RUN(
 #if !defined(__STDC__) || __STDC__ != 1
 #define volatile
 #endif
-main() {
+int main() {
   volatile char c = 255; exit(c < 0);
 }], ac_cv_c_char_unsigned=yes, ac_cv_c_char_unsigned=no,
 ac_cv_c_char_unsigned="guessing no")
