@@ -915,13 +915,17 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
 
 <formalpara id="muffle-cerrors"><title>Macro &muffle-cerrors;</title>
 <para>The macro <code>(&muffle-cerrors; {&form-r;}*)</code>
- executes the &form-r;s; when a &cont-err; occurs, no message is printed,
- instead, the &continue; &restart-t; is invoked.</para></formalpara>
+ executes the &form-r;s; when a &cont-err; occurs whose &continue; &restart-t;
+ can be invoked non-interactively (this includes all &cont-err;s signalled
+ by the function &cerror;), no message is printed, instead, the &continue;
+ &restart-t; is invoked.</para></formalpara>
 
 <formalpara id="appease-cerrors"><title>Macro &appease-cerrors;</title>
 <para>The macro <code>(&appease-cerrors; {&form-r;}*)</code>
- executes the &form-r;s; &cont-err;s are reported as &warning-t;s
- and the &continue; &restart-t; is invoked.</para></formalpara>
+ executes the &form-r;s; when a &cont-err; occurs whose &continue; &restart-t;
+ can be invoked non-interactively (this includes all &cont-err;s signalled
+ by the function &cerror;), it is reported as a &warning-t;, and the
+ &continue; &restart-t; is invoked.</para></formalpara>
 
 <formalpara id="exit-on-error"><title>Macro &exit-on-error;</title>
 <para>The macro <code>(&exit-on-error; {&form-r;}*)</code>
