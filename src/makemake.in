@@ -127,7 +127,8 @@ fi
 
 link_dep() {
   echol "$1 : $2";
-  echotab "-\$(LN_S) $2 $1";
+  echotab "-\$(RM) $1"
+  echotab "-\$(LN_S) ${3-$2} $1";
   echol
 }
 
@@ -2085,10 +2086,7 @@ echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}configure"
 echol
 if [ -n "${SRCDIR}" ] ; then
   for f in makemake.in unixconf.h.in configure VERSION; do
-    echol "${f} : ${SRCDIR}${f}"
-    echotab "-\$(RM) ${f}"
-    echotab "-\$(LN_S) ${SRCDIR}${f} ${f}"
-    echol
+    link_dep "${f}" "${SRCDIR}${f}"
   done
 fi
 
@@ -2745,6 +2743,8 @@ for f in ${LUTILS} ; do
   echol "${f}.fas : ${UTILDIR_M}${f}.lisp lisp${LEXE} lispinit.mem"
   echotab "\$(RUN) -M lispinit.mem -q -c ${UTILDIR}${f}.lisp -o ${f}.fas"
   echol
+  link_dep "${f}.lisp" "${UTILDIR_M}${f}.lisp" "${UTILDIR_}${f}.lisp"
+  echol
 done
 
 if [ $CROSS = false ] ; then
@@ -2974,15 +2974,18 @@ done
 echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph ; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
 echotab "\$(RM) genclisph${HEXE}"
 echol
-echol "linkkit : modules.d modules.c clisp.h"
+LINKKIT="modules.d modules.c clisp.h exporting.lisp modprep.lisp"
+echol "linkkit : ${LINKKIT}"
 echotab "-\$(RMRF) linkkit"
 echotab "mkdir linkkit"
-echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.d modules.d"
-echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.c modules.c"
-echotab "cd linkkit && \$(LN_S) ${PARENT_}clisp.h clisp.h"
+for f in ${LINKKIT}; do
+  echotab "cd linkkit && \$(LN_S) ${PARENT_}$f $f"
+done
 echol
 echol "exporting.fas : ${MODULESDIR_M}exporting.lisp lisp${LEXE} lispinit.mem"
 echotab "\$(RUN) -M lispinit.mem -q -c ${MODULESDIR}exporting.lisp -o exporting.fas"
+echol
+link_dep "exporting.lisp" "${MODULESDIR_M}exporting.lisp" "${MODULESDIR_}exporting.lisp"
 echol
 echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars"
 echodummyrule modular
@@ -3219,7 +3222,7 @@ if [ $CROSS = false ] ; then
     echotab "(cd \$(DESTDIR)\$(lisplibdir) && \$(RMRF) base full)"
     echotab "mkdir \$(DESTDIR)\$(lisplibdir)/base"
     echotab "mkdir \$(DESTDIR)\$(lisplibdir)/full"
-    echotab "for f in clisp-link linkkit/modules.d linkkit/modules.c linkkit/clisp.h base/* full/*; do \\"
+    echotab "for f in clisp-link linkkit/* base/* full/*; do \\"
     echotab "  case \$\$f in \\"
     echotab "    */lisp${LEXE}) \$(INSTALL_PROGRAM) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f;; \\"
     echotab "    *) \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f;; \\"
@@ -3443,7 +3446,7 @@ echotab "mkdir \$(TOPDIR)/src"
 echotab "${HLN} \$(LISPFILES) \$(FASFILES) \$(TOPDIR)/src"
 echotab "${HLN} clisp-link \$(TOPDIR)"
 echotab "mkdir \$(TOPDIR)/linkkit"
-echotab "${HLN} modules.d modules.c clisp.h \$(TOPDIR)/linkkit"
+echotab "${HLN} ${LINKKIT} \$(TOPDIR)/linkkit"
 echotab "for module in '' \$(MODULES); do if test -n \"\$\$module\"; then \\"
 echotab "  (dir=\$(TOPDIR)/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module-distrib distribdir=\$\${dots}\$(TOPDIR)/\$\$module LN="`if test "$HLN" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
 echotab "fi; done"
