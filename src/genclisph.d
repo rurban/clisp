@@ -1807,7 +1807,7 @@ int main(int argc, char* argv[])
   printf("#define subr_norest_function_args  (void)\n");
   printf("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
 #ifdef TYPECODES
-  printf4("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { { gcv_nullobj }, %d,%d,%d,%d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", Rectype_Subr, 0, subr_length, subr_xlength);
+  printf4("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { gcv_nullobj, %d,%d,%d,%d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", Rectype_Subr, 0, subr_length, subr_xlength);
 #else
   printf1("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { gcv_nullobj, %d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength));
 #endif
