@@ -79,8 +79,9 @@ User visible changes
   + DEFSTRUCT uses the slot name as is for the accessor when :CONC-NAME
     is NIL (i.e., does not intern the name in *PACKAGE*), and does not
     bind slot names in the arglist of keyword constructors;
+  + MAPCAN and MAPCON now correctly handle functions returning ATOMs;
   + a character is now accepted as a package designator.
-  Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance suite
+  Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance suite.
 
 * FUNCTION-LAMBDA-EXPRESSION now always returns the correct function name.
   See <http://clisp.cons.org/impnotes.html#fle> for details.
