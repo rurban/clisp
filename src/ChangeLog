@@ -1,5 +1,9 @@
 2002-06-20  Sam Steingold  <sds@gnu.org>
 
+	* record.d (COPY-STRUCTURE): use memcpy() instead of dotimespC
+
+2002-06-20  Sam Steingold  <sds@gnu.org>
+
 	* spvw_typealloc.d (reallocate_small_string) [TYPECODES]:
 	fixed a typo
 
