@@ -40,6 +40,8 @@
 #define DEFAULT_PREFETCH_BYTES  65536
 /* Size of per-connection error buffer */
 #define ERRBUF_BYTES            100000
+/* Truncate echoed parameter values to this length */
+#define ERRBUF_PARAM_TRUNC      500
 /* Default size of LONG fetch */
 #define DEFAULT_LONG_LEN		500000
 
@@ -774,16 +776,27 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
 
     sprintf(db->errmsg, "Error executing SQL %s:\n---\n%s\n---\n", is_command ? "command" : "query", sql);
 
-    /* Also show what params were given */
+    /* Also show what params were given.  Since parameter values may be really big, and our error buffer
+	   is fixed, truncate the parameter values to about 500 bytes (while noting the length if they were
+	   truncated).  This will allow them to be displayed in a reasonably readable way, while at the
+	   same time, showing the length will enable the user to diagnose "value too large for column" problems. */
     if ( nparam ) {
       int i;
-      char buf[50000], buf2[10000];
+      char buf[ERRBUF_BYTES], buf2[10000];
 
       sprintf(buf, "SQL bind parameters (%d) given:\n", nparam);
       strcat(db->errmsg, buf);
       params = params_save;
       for (i=0; i < nparam; i++) {
-        sprintf(buf, "'%s' -> '%s'\n", params[i]->name, params[i]->value.data);
+		char * pdata = params[i]->value.data;
+		int plen = strlen(pdata);
+		if ( plen > ERRBUF_PARAM_TRUNC ) {
+		  sprintf(buf2, "[String of length %d (truncated)] ", plen);
+		  strncat(buf2, pdata, ERRBUF_PARAM_TRUNC);
+		  strcat(buf2, "...");
+		  pdata = buf2;
+		}
+        sprintf(buf, "'%s' -> '%s'\n", params[i]->name, pdata);
         strcat(db->errmsg, buf);
       }
       strcat(db->errmsg, "---\n");
