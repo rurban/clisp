@@ -1,3 +1,8 @@
+2001-03-28  Bruno Haible  <linuix.math.u-bordeaux.fr>
+
+	* support/config.guess: Upgrade to GNU version 2001-03-19.
+	* support/config.sub: Likewise.
+
 2001-01-27  Marcin 'Qrczak' Kowalczyk, Ricardas Cepas, Bruno Haible
 
 	* Makefile.in (CSOURCES): Add testUTF8.c.
