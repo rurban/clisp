@@ -1,3 +1,8 @@
+2002-04-12  Sam Steingold  <sds@gnu.org>
+
+	* time.d (DELTA4): work with up to 64-bit return values
+	* lispbibl.d, intelem.d (UL2_to_I): define always
+
 2002-04-11  Peter Burwood  <clisp@peterb.org.uk>
 
 	* errunix.d (get_errormsg): prevent EILSEQ shadowing ENOENT
