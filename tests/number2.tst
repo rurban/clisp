@@ -36,8 +36,6 @@ check-xgcd
 
 ;; transcendental functions
 
-#+clisp (setq *break-on-warnings* t) #+clisp t
-
 (expt -5s0 2s0) #c(25s0 0s0)
 (expt -5f0 2f0) #c(25f0 0f0)
 (expt -5d0 2d0) #c(25d0 0d0)
