@@ -1,5 +1,10 @@
 1999-05-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * configure: In avcall and callback, do "make minicheck" instead of
+          "make check".
+
+1999-05-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * macros2.lsp (check-type): Don't quote the string argument.
         * conditio.lsp (check-type): Likewise.
 
