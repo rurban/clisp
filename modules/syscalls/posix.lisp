@@ -178,9 +178,10 @@ NIL - no such key; T - the parameter is not set.")
 ;;; ============================================================
 #+unix (progn
 (export
- '(rlimit rlimit-soft rlimit-hard
-   limits limits-core limits-cpu limits-heap limits-file-size limits-num-files
-   limits-stack limits-virt-mem limits-rss limits-memlock
+ '(rlimit rlimit-cur rlimit-max
+   limits limits-cpu limits-file-size limits-data-size limits-stack limits-core
+   limits-rss limits-num-files limits-address-space limits-num-proc
+   limits-memlock limits-locks
    usage usage-user-time usage-system-time usage-max-rss
    usage-shared-memory usage-data-memory usage-stack-memory
    usage-minor-page-faults usage-major-page-faults usage-num-swaps
@@ -188,23 +189,26 @@ NIL - no such key; T - the parameter is not set.")
    usage-messages-received usage-signals usage-context-switches-voluntary
    usage-context-switches-involuntary))
 
-(defstruct (rlimit (:constructor make-rlimit (soft hard)))
+(defstruct (rlimit (:constructor make-rlimit (cur max)))
   "see getrlimit(2) for details"
-  (soft nil :type (or null (unsigned-byte 32)) :read-only t)
-  (hard nil :type (or null (unsigned-byte 32)) :read-only t))
+  (cur nil :type (or null (unsigned-byte 32)) :read-only t)
+  (max nil :type (or null (unsigned-byte 32)) :read-only t))
 
-(defstruct (limits (:constructor make-limits (core cpu heap file-size num-files
-                                              stack virt-mem rss memlock)))
+(defstruct (limits (:constructor make-limits (cpu file-size data-size stack
+                                              core rss num-files address-space
+                                              num-proc memlock locks)))
   "see getrlimit(2) for details"
-  (core nil :type (or null rlimit) :read-only t)
-  (cpu  nil :type (or null rlimit) :read-only t)
-  (heap nil :type (or null rlimit) :read-only t)
+  (cpu nil :type (or null rlimit) :read-only t)
   (file-size nil :type (or null rlimit) :read-only t)
-  (num-files nil :type (or null rlimit) :read-only t)
+  (data-size nil :type (or null rlimit) :read-only t)
   (stack nil :type (or null rlimit) :read-only t)
-  (virt-mem nil :type (or null rlimit) :read-only t)
+  (core nil :type (or null rlimit) :read-only t)
   (rss nil :type (or null rlimit) :read-only t)
-  (memlock nil :type (or null rlimit) :read-only t))
+  (num-files nil :type (or null rlimit) :read-only t)
+  (address-space nil :type (or null rlimit) :read-only t)
+  (num-proc nil :type (or null rlimit) :read-only t)
+  (memlock nil :type (or null rlimit) :read-only t)
+  (locks nil :type (or null rlimit) :read-only t))
 
 (defstruct (usage (:constructor
                    make-usage (user-time system-time max-rss
@@ -231,9 +235,7 @@ NIL - no such key; T - the parameter is not set.")
   (signals 0 :type (signed-byte 32) :read-only t)
   (context-switches-voluntary 0 :type (signed-byte 32) :read-only t)
   (context-switches-involuntary 0 :type (signed-byte 32) :read-only t))
-
 )
-
 ;;; ============================================================
 #+(or win32 cygwin) (progn
 (export '(file-info file-info-attributes
