@@ -1,3 +1,7 @@
+1998-08-12  Bruno Haible  <haible@ilog.fr>
+
+        * lispbibl.d (NO_TYPECODES): Don't define if alignment_long < 4.
+
 1998-08-09  Bruno Haible  <haible@ilog.fr>
 
         * spvw.d (copyright_notice): Bump date to 1998.
