@@ -44,18 +44,18 @@
 
 2004-08-08  Bruno Haible  <bruno@clisp.org>
 
-	* io.d (read_token_1, read_macro, read_internal, make_references,
-	read_delimited_list_recursive, rpar_reader, fehler_dispatch_zahl,
-	char_reader, radix_2, radix_reader, complex_reader, uninterned_reader,
-	vector_reader, array_reader, lookup_label, label_definition_reader,
-	label_reference_reader, interpret_feature, structure_reader,
-	fehler_closure_badchar, closure_reader, ansi_pathname_reader): Signal
+	* io.d (read_token_1, read_macro, read_internal, make_references)
+	(read_delimited_list_recursive, rpar_reader, fehler_dispatch_zahl)
+	(char_reader, radix_2, radix_reader, complex_reader, uninterned_reader)
+	(vector_reader, array_reader, lookup_label, label_definition_reader)
+	(label_reference_reader, interpret_feature, structure_reader)
+	(fehler_closure_badchar, closure_reader, ansi_pathname_reader): Signal
 	READER-ERROR instead of STREAM-ERROR in all cases.
 
 2004-08-07  Bruno Haible  <bruno@clisp.org>
 
-	* io.d (read_macro, read_internal, fehler_dot, bit_vector_reader,
-	fehler_read_eval_forbidden, not_readable_reader, syntax_error_reader):
+	* io.d (read_macro, read_internal, fehler_dot, bit_vector_reader)
+	(fehler_read_eval_forbidden, not_readable_reader, syntax_error_reader):
 	Signal READER-ERROR instead of STREAM-ERROR in some cases.
 
 2004-08-07  Bruno Haible  <bruno@clisp.org>
