@@ -1,5 +1,19 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_garcol.d: New file.
+        * spvw.d (gc_mark, mark_stack, gc_markphase, alive,
+           unmark_fixed_varobjects, gc_compact_cons_page, gc_morris1,
+           gc_morris2, gc_morris3, set_GCself, gc_sweep1_varobject_page,
+           update, move_aligned_p1_p2, gc_sweep2_varobject_page,
+           gc_unmarkcheck, nullobjcheck, free_some_unused_pages,
+           gar_col_normal, gar_col_done, free_page_later, free_delayed_pages,
+           gc_compact_from_varobject_page, gc_compact_from_cons_page,
+           gc_compact_heap, gar_col_compact, gar_col_simple, gar_col,
+           move_conses): Move out.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_sigsegv.d, spvw_sigcld.d, spvw_sigint.d, spvw_sigwinch.d: New
           files.
         * spvw.d (gc_signalblock_on, gc_signalblock_off, interrupt_pending,
