@@ -960,8 +960,7 @@ error
         (let ((s (make-array 10 :adjustable t :fill-pointer 0)))
           (test-mc-progn "a" s)
           s)))
-#+CLISP (#(NUMBER T) #(T STRING))
-#+LWW   (#(NUMBER T) #(STRING T))
+(#(NUMBER T) #(STRING T))
 
 (progn
   (defun positive-integer-qualifier-p (method-qualifiers)
@@ -999,5 +998,4 @@ error
   (let ((s (make-array 10 :adjustable t :fill-pointer 0)))
     (mc-test-w-args 1 2 s)
     s))
-#+CLISP #((T 1 2) (NUMBER 1 2))
-#+LWW   #((NUMBER 1 2) (T 1 2))
+#((NUMBER 1 2) (T 1 2))
