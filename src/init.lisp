@@ -1202,14 +1202,15 @@
 (proclaim '(special *load-paths*))
 (setq *load-paths* nil)
 (proclaim '(special *source-file-types*))
-(setq *source-file-types* '(#".lisp" #".lsp" #".cl"))
+(setq *source-file-types* '("lisp" "lsp" "cl"))
 (proclaim '(special *compiled-file-types*))
-(setq *compiled-file-types* '(#".fas"))
+(setq *compiled-file-types* '("fas"))
 
 ;; for the time being the files don't have to be searched:
 (defun search-file (filename extensions)
   (mapcan #'(lambda (extension)
-              (let ((filename (merge-pathnames filename extension)))
+              (let ((filename (merge-pathnames filename
+                                     (make-pathname :type extension))))
                 (if (probe-file filename) (list filename) '())))
           extensions))
 
@@ -1250,8 +1251,7 @@
                      #+UNICODE :external-format
                      #+UNICODE (if (member (pathname-type filename)
                                            *compiled-file-types*
-                                           :test #'string=
-                                           :key #'pathname-type)
+                                           :test #'string=)
                                    charset:utf-8
                                    external-format)
                      :if-does-not-exist nil)
@@ -1270,8 +1270,7 @@
                          #+UNICODE :external-format
                          #+UNICODE (if (member (pathname-type filename)
                                                *compiled-file-types*
-                                               :test #'string=
-                                               :key #'pathname-type)
+                                               :test #'string=)
                                        charset:utf-8
                                        external-format))))))))
     (if stream
@@ -1683,9 +1682,6 @@
 ;; (i.e. from new to old), or NIL if no matching file was found.
 (defun search-file (filename extensions
                     &aux (use-extensions (null (pathname-type filename))) )
-  (when use-extensions
-    (setq extensions ; convert case of the extensions
-          (mapcar #'pathname-type extensions)))
   ;; merge in the defaults:
   (setq filename (merge-pathnames filename '#"*.*"))
   ;; search:

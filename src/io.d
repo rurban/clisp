@@ -8790,33 +8790,31 @@ local void pr_orecord (const object* stream_, object obj) {
           && !test_value(S(print_pathnames_ansi))) {
         pushSTACK(obj); # string
         var object* obj_ = &STACK_0;
-        JUSTIFY_START(0);
-        JUSTIFY_LAST(false);
-        {
+        var bool not_compiling = !test_value(S(compiling));
+        if (not_compiling) {
           JUSTIFY_START(0);
           JUSTIFY_LAST(false);
-          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'-');
-          write_sstring(stream_,O(lisp_implementation_type_string));
+            JUSTIFY_START(0);
+            JUSTIFY_LAST(false);
+            write_ascii_char(stream_,'#'); write_ascii_char(stream_,'-');
+            write_sstring(stream_,O(lisp_implementation_type_string));
+            JUSTIFY_SPACE;
+            JUSTIFY_LAST(true);
+            write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
+            pr_string(stream_,*obj_);
+            JUSTIFY_END_ENG;
           JUSTIFY_SPACE;
           JUSTIFY_LAST(true);
-          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
-          pr_string(stream_,*obj_);
-          JUSTIFY_END_ENG;
+            JUSTIFY_START(0);
+            JUSTIFY_LAST(false);
+            write_ascii_char(stream_,'#'); write_ascii_char(stream_,'+');
+            write_sstring(stream_,O(lisp_implementation_type_string));
+            JUSTIFY_SPACE;
+            JUSTIFY_LAST(true);
         }
-        JUSTIFY_SPACE;
-        JUSTIFY_LAST(true);
-        {
-          JUSTIFY_START(0);
-          JUSTIFY_LAST(false);
-          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'+');
-          write_sstring(stream_,O(lisp_implementation_type_string));
-          JUSTIFY_SPACE;
-          JUSTIFY_LAST(true);
-          pr_record_descr(stream_,*(obj_ STACKop 1),S(pathname),true,
-                          O(pathname_slotlist));
-          JUSTIFY_END_ENG;
-        }
-        JUSTIFY_END_ENG;
+        pr_record_descr(stream_,*(obj_ STACKop 1),S(pathname),true,
+                        O(pathname_slotlist));
+        if (not_compiling) { JUSTIFY_END_ENG; JUSTIFY_END_ENG; }
         skipSTACK(1);
       } else {
         STACK_0 = obj; # String

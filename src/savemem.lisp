@@ -29,7 +29,7 @@
                     &key ((:quiet *quiet*) nil) init-function verbose
                     (locked-packages *system-package-list*))
   (let* ((old-driver *driver*)
-         (fn (merge-pathnames #p".mem" filename))
+         (fn (merge-pathnames filename #.(make-pathname :type "mem")))
          (*driver*
            #'(lambda ()
                ;(declare (special *command-index* *home-package*

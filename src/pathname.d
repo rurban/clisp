@@ -1856,6 +1856,21 @@ local bool logical_host_p (object host) {
 # decrements STACK by 1
 # can trigger GC
 local void split_name_type (uintL skip) {
+  if (skip == 0) {
+    if (eq(Symbol_value(S(parse_namestring_dot_file)),S(Ktype))) { # OK
+    } else if (eq(Symbol_value(S(parse_namestring_dot_file)),S(Kname))) {
+      skip = 1; # always have a name!
+    } else {
+      Symbol_value(S(parse_namestring_dot_file)) = S(Ktype); # CLISP default
+      pushSTACK(NIL);
+      pushSTACK(S(parse_namestring_dot_file));
+      pushSTACK(S(parse_namestring_dot_file));
+      pushSTACK(Symbol_value(S(parse_namestring_dot_file)));
+      STACK_3 = CLSTEXT("The variable ~S had an illegal value." NLstring
+                        "~S has been reset to ~S.");
+      funcall(S(warn),4);
+    }
+  }
   var object string = STACK_0;
   var uintL length = Sstring_length(string);
   # Search for the last dot:

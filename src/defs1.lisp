@@ -516,7 +516,7 @@
                    (progn       ; non-directory
                      (when (load-lpt-many file host) ; successfully defined?
                        (return-from load-logical-pathname-translations t))
-                     (dolist (ff (search-file file '("" ".host")))
+                     (dolist (ff (search-file file '("" "host")))
                        (when (load-lpt-many ff host) ; successfully defined?
                          (return-from load-logical-pathname-translations t))))
                    (progn       ; directory
