@@ -198,6 +198,12 @@
  <listitem><simpara>create a specialized join cursor for use in
    performing equality or natural joins on secondary indices (&DB_join;).
 </simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-KEY-RANGE db key
+   &key-amp; TRANSACTION)</literal></term>
+ <listitem><simpara>return an estimate of the proportion of keys that
+   are less than, equal to, and greater than the specified key
+   (&DB_key_range;).  The underlying database must be of type Btree.
+</simpara></listitem></varlistentry>
 </variablelist>
 </section>
 
