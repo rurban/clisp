@@ -1,6 +1,7 @@
 2004-04-19  Sam Steingold  <sds@gnu.org>
 
 	* strings.tst: add a (NSTRING-UPCASE #A(NIL (0))) test
+	enable string un-realloc test (was risky)
 
 2004-04-10  Bruno Haible  <bruno@clisp.org>
 
