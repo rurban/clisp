@@ -11322,6 +11322,8 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
             reader_error,
           # errors with pathnames, OS level errors with streams
           file_error,
+          # general OS errors
+          os_error,
         # "Virtual memory exhausted"
         storage_condition,
       # conditions for which user notification is appropriate
