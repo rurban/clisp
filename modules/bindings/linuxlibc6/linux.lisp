@@ -62,6 +62,7 @@
       (linux::1- . lisp:1-)
       (linux::bitsizeof . ffi:bitsizeof)
       (linux::boolean . ffi:boolean)
+      (linux::cast . ffi:cast)
       (linux::char . ffi:char)
       (linux::character . ffi:character)
       (linux::c-array . ffi:c-array)
@@ -95,7 +96,8 @@
       (linux::uint32 . ffi:uint32)
       (linux::uint64 . ffi:uint64)
       (linux::ulong . ffi:ulong)
-      (linux::ushort . ffi:ushort))))
+      (linux::ushort . ffi:ushort)
+      (linux::with-c-var . ffi:with-c-var))))
 
 (eval-when (compile eval)
 ; We want to export all the symbols defined in this file.
@@ -143,6 +145,7 @@
     (exporting "defmacro")
     (exporting "define-modify-macro")
     (exporting "define-symbol-macro")
+    (exporting "defsetf")
     (exporting "def-c-type")
     (exporting "def-c-enum")
     (exporting-slots "def-c-struct")
@@ -420,20 +423,32 @@
 (defconstant    ENOMEDIUM       123)    ; No medium found
 (defconstant    EMEDIUMTYPE     124)    ; Wrong medium type
 
-; ------------------------------ <errnos.h> -----------------------------------
+; -------------------------- <bits/errno.h> -----------------------------------
 
-(def-call-out __errno_location (:arguments) (:return-type (c-ptr int)))
-;; both are broken:
-;; (define-symbol-macro errno (deref (foreign-value (__errno_location))))
-;; *** - FFI::%DEREF: argument is not a foreign variable: 22
+;; in GNU, errno is a per-thread variable, so def-c-var is not appropriate
 ;; (def-c-var errno (:type ffi:int))
 ;; link error: "undefined reference to `errno'"
+
+(def-call-out __errno_location (:arguments) (:return-type c-pointer))
+(def-call-out get-errno (:name "__errno_location")
+  (:arguments) (:return-type (c-ptr int)))
+
+(define-symbol-macro errno (get-errno)); not setf-able per se
+(defun set-errno (value)
+  ;; not efficient at all, better redone as LISPFUNN
+  (with-c-var (el 'c-pointer (__errno_location))
+    (setf (cast el '(c-ptr int)) value)))
+(defsetf get-errno set-errno)
+
+;; in some possible future:
+;; (def-call-out __errno_location (:arguments) (:return-type (c-pointer int)))
+;; (define-symbol-macro errno (foreign-value (__errno_location))); setf-able
 
 ; ------------------------------ <errno.h> ------------------------------------
 
 ; ============================ <sys/errno.h> ==================================
 
-;;; ============================== <float.h> =================================
+;;; ============================== <float.h> ==================================
 
 (defconstant FLT_RADIX 2)
 (defconstant FLT_MANT_DIG 24)
@@ -1794,6 +1809,9 @@
 ;;; ------------------------------ <libio.h> ---------------------------------
 
 (def-c-type _IO_pos_t _G_fpos_t)
+(def-c-var _IO_stdin_ (:type c-pointer))
+(def-c-var _IO_stdout_ (:type c-pointer))
+(def-c-var _IO_stderr_ (:type c-pointer))
 
 ; ------------------------------ <stdio.h> ------------------------------------
 
@@ -2405,50 +2423,50 @@
 ;;;  --- Posix sigaction ---
 ;;;  Peter Wood 2002
 
-(defconstant SIGHUP		1) ; Hangup (POSIX).
-(defconstant SIGINT		2) ; Interrupt (ANSI).
-(defconstant SIGQUIT		3) ; quit (POSIX).
-(defconstant SIGILL		4) ; Illegal instruction (ANSI).
-(defconstant SIGTRAP		5) ; Trace trap (POSIX).
-(defconstant SIGABRT		6) ; Abort (ANSI).
-(defconstant SIGIOT		6) ; IOT trap (4.2 BSD).
-(defconstant SIGBUS		7) ; BUS error (4.2 BSD).
-(defconstant SIGFPE		8) ; Floating-point exception (ANSI).
-(defconstant SIGKILL		9) ; Kill, unblockable (POSIX).
-(defconstant SIGUSR1		10) ; User-defined signal 1 (POSIX).
-(defconstant SIGSEGV		11) ; Segmentation violation (ANSI).
-(defconstant SIGUSR2		12) ; User-defined signal 2 (POSIX).
-(defconstant SIGPIPE		13) ; Broken pipe (POSIX).
-(defconstant SIGALRM		14) ; Alarm clock (POSIX).
-(defconstant SIGTERM		15) ; Termination (ANSI).
-(defconstant SIGSTKFLT	        16) ; Stack fault.
-(defconstant SIGCHLD		17) ; Child status has changed (POSIX).
-(defconstant SIGCLD		SIGCHLD) ; Same as SIGCHLD (System V).
-(defconstant SIGCONT		18) ; Continue (POSIX).
-(defconstant SIGSTOP		19) ; Stop, unblockable (POSIX).
-(defconstant SIGTSTP		20) ; Keyboard stop (POSIX).
-(defconstant SIGTTIN		21) ; Background read from tty (POSIX).
-(defconstant SIGTTOU		22) ; Background write to tty (POSIX).
-(defconstant SIGURG		23) ; Urgent condition on socket (4.2 BSD).
-(defconstant SIGXCPU		24) ; CPU limit exceeded (4.2 BSD).
-(defconstant SIGXFSZ		25) ; File size limit exceeded (4.2 BSD).
-(defconstant SIGVTALRM	        26) ; Virtual alarm clock (4.2 BSD).
-(defconstant SIGPROF		27) ; Profiling alarm clock (4.2 BSD).
-(defconstant SIGWINCH	        28) ; Window size change (4.3 BSD, Sun).
-(defconstant SIGIO		29) ; I/O now possible (4.2 BSD).
-(defconstant SIGPOLL		SIGIO) ; Pollable event occurred (System V).
-(defconstant SIGPWR		30) ; Power failure restart (System V).
-(defconstant SIGSYS		31) ; Bad system call.
-(defconstant SIGUNUSED	        31)
+(defconstant SIGHUP             1) ; Hangup (POSIX).
+(defconstant SIGINT             2) ; Interrupt (ANSI).
+(defconstant SIGQUIT            3) ; quit (POSIX).
+(defconstant SIGILL             4) ; Illegal instruction (ANSI).
+(defconstant SIGTRAP            5) ; Trace trap (POSIX).
+(defconstant SIGABRT            6) ; Abort (ANSI).
+(defconstant SIGIOT             6) ; IOT trap (4.2 BSD).
+(defconstant SIGBUS             7) ; BUS error (4.2 BSD).
+(defconstant SIGFPE             8) ; Floating-point exception (ANSI).
+(defconstant SIGKILL            9) ; Kill, unblockable (POSIX).
+(defconstant SIGUSR1            10) ; User-defined signal 1 (POSIX).
+(defconstant SIGSEGV            11) ; Segmentation violation (ANSI).
+(defconstant SIGUSR2            12) ; User-defined signal 2 (POSIX).
+(defconstant SIGPIPE            13) ; Broken pipe (POSIX).
+(defconstant SIGALRM            14) ; Alarm clock (POSIX).
+(defconstant SIGTERM            15) ; Termination (ANSI).
+(defconstant SIGSTKFLT          16) ; Stack fault.
+(defconstant SIGCHLD            17) ; Child status has changed (POSIX).
+(defconstant SIGCLD             SIGCHLD) ; Same as SIGCHLD (System V).
+(defconstant SIGCONT            18) ; Continue (POSIX).
+(defconstant SIGSTOP            19) ; Stop, unblockable (POSIX).
+(defconstant SIGTSTP            20) ; Keyboard stop (POSIX).
+(defconstant SIGTTIN            21) ; Background read from tty (POSIX).
+(defconstant SIGTTOU            22) ; Background write to tty (POSIX).
+(defconstant SIGURG             23) ; Urgent condition on socket (4.2 BSD).
+(defconstant SIGXCPU            24) ; CPU limit exceeded (4.2 BSD).
+(defconstant SIGXFSZ            25) ; File size limit exceeded (4.2 BSD).
+(defconstant SIGVTALRM          26) ; Virtual alarm clock (4.2 BSD).
+(defconstant SIGPROF            27) ; Profiling alarm clock (4.2 BSD).
+(defconstant SIGWINCH           28) ; Window size change (4.3 BSD, Sun).
+(defconstant SIGIO              29) ; I/O now possible (4.2 BSD).
+(defconstant SIGPOLL            SIGIO) ; Pollable event occurred (System V).
+(defconstant SIGPWR             30) ; Power failure restart (System V).
+(defconstant SIGSYS             31) ; Bad system call.
+(defconstant SIGUNUSED          31)
 
 #|
 ;pseudo sigs :-(
 
 I don't know how to do these...
 
-#define SIG_ERR	((__sighandler_t) -1)		/* Error return.  */
-#define SIG_DFL	((__sighandler_t) 0)		/* Default action.  */
-#define SIG_IGN	((__sighandler_t) 1)		/* Ignore signal.  */
+#define SIG_ERR ((__sighandler_t) -1)           /* Error return.  */
+#define SIG_DFL ((__sighandler_t) 0)            /* Default action.  */
+#define SIG_IGN ((__sighandler_t) 1)            /* Ignore signal.  */
 
 But it's not the end of the world, since its easy to accomplish what SIG_DFL
 and SIG_IGN do anyway, by other means ... They are just sugar, really.
