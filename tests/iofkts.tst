@@ -760,7 +760,6 @@ MY-PPRINT-LOGICAL
   (write-to-string '(bar foo :boo 1) :pretty t :escape t))
 "(?BAR? ?FOO? ?:BOO? ?1?)"
 
-#+CLISP
 (progn
  (defclass c1 () ((a :initarg a) (b :initarg b) (c :initarg c)))
  (defclass c2 (c1) ((aa :initarg aa) (bb :initarg bb) (cc :initarg cc)))
@@ -770,7 +769,7 @@ MY-PPRINT-LOGICAL
    (pprint-logical-block (out nil :prefix "#[" :suffix "]")
      (let ((cl (class-of obj)))
        (write (class-name cl) :stream out)
-       (loop :for slotdef :in (clos::class-slots cl)
+       (loop :for slotdef :in (clos:class-slots cl)
          :for slot = (clos:slot-definition-name slotdef)
          :when (and slot (slot-boundp obj slot))
          :do (write-char #\space out) (pprint-newline :fill out)
@@ -778,19 +777,16 @@ MY-PPRINT-LOGICAL
          (write-char #\space out) (pprint-newline :fill out)
          (write (slot-value obj slot) :stream out)))))
  t)
-#+CLISP
 T
 
-#+CLISP
 (write-to-string (make-instance 'c2 'b 123 'cc 42) :pretty t)
-#+CLISP
 "#[C2 B 123 CC 42]"
 
-#+(and CLISP :enable-risky-tests)
+#+:enable-risky-tests
 (write-to-string (list (make-instance 'c2 'a 45 'bb 17 'aa 12)
                        (make-instance 'c2 'b 123 'cc 42))
                  :pretty t)
-#+(and CLISP :enable-risky-tests)
+#+:enable-risky-tests
 "(#[C2 AA 12 BB 17 A 45] #[C2 CC 42 B 123])"
 
 (let ((*print-readably* t))
