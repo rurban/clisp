@@ -1,3 +1,14 @@
+2004-02-09  James Anderson  <james.anderson@setf.de>
+	    Sam Steingold  <sds@gnu.org>
+
+	* clos.lisp (analyze-method-description): always set
+	:WANTS-NEXT-METHOD-P to T because here there is no way to figure
+	out whether it will be actually needed because of METHOD-COMBINATION,
+	and STD-ADD-METHOD will reset it if necessary anyway
+	(standard-method-combination-expander): check for
+	WANTS-NEXT-METHOD-P also in BEFORE-METHODS (EF-2) and
+	AFTER-METHODS (EF-3)
+
 2004-02-09  Sam Steingold  <sds@gnu.org>
 
 	* misc.d (ARGV): return the vector of command-line args to runtime
