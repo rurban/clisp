@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for GNU gettext library for use within CLISP
-dnl Bruno Haible 1.6.1998
+dnl Bruno Haible 3.2.2001
 dnl
 dnl  configure.in ---<autoconf>--->> configure
 dnl  configure.in ---<autoheader>--->> config.h.in
@@ -12,9 +12,9 @@ dnl
 dnl  intl/Makefile ---<make>--->> intl/libintl.a
 
 dnl Process this file with autoconf to produce a configure script.
-AC_PREREQ(2.12)
+AC_PREREQ(2.13)
 AC_INIT(intl/gettext.c)
-AC_PROVIDE([AM_PROG_INSTALL])      dnl We don't need GNU's install-sh.
+AC_CONFIG_AUX_DIR(autoconf)
 AM_INIT_AUTOMAKE(clisp,[`cat ${srcdir}/../VERSION`])
 AM_CONFIG_HEADER(config.h)
 
@@ -39,5 +39,5 @@ dnl These are the only lines required to internationalize the package.
 dnl (OK, not quite, the AC_OUTPUT has also some parts.)
 AM_GNU_GETTEXT
 
-AC_OUTPUT([intl/Makefile intl/intlh.inst po/Makefile])
+AC_OUTPUT([intl/Makefile po/Makefile])
 

@@ -20,11 +20,6 @@
 
 #### Start of system configuration section. ####
 
-# Type of catalogs to install.
-CATOBJEXT = @CATOBJEXT@
-# When installed, they will be renamed to carry this extension.
-INSTOBJEXT = @INSTOBJEXT@
-
 # Directories used by "make":
 
 srcdir = @srcdir@
@@ -34,17 +29,12 @@ top_srcdir = @top_srcdir@
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
-datadir = $(prefix)/@DATADIRNAME@
+datadir = $(prefix)/share
 localedir = $(datadir)/locale
 
 # Programs used by "make":
 
-# Only one of these is needed, depending on $(CATOBJEXT).
-# For CATOBJEXT = .mo :
-MSGFMT = @MSGFMT@
-# For CATOBJEXT = .cat :
-GENCAT = @GENCAT@
-# For CATOBJEXT = .gmo : not needed, since these catalogs are already pre-built.
+# Not needed, since these catalogs are already pre-built.
 #GMSGFMT = @GMSGFMT@
 
 CC = @CC@
@@ -68,9 +58,9 @@ VERSION = @VERSION@
 SHELL = /bin/sh
 
 .SUFFIXES:
-.SUFFIXES: .c .o .po .gmo .mo .msg .cat
+.SUFFIXES: .po .gmo
 
-# List of catalogs to build and install (extension .mo or .gmo or .cat)
+# List of catalogs to build and install (extension .gmo)
 CATALOGS = @CATALOGS@
 
 
@@ -79,27 +69,7 @@ all: all-@USE_NLS@
 all-yes: $(CATALOGS)
 all-no:
 
-# Building the catalogs. The .gmo catalogs are already in the distribution.
-
-.po.mo:
-	$(MSGFMT) -o $@ $<
-
-.po.cat:
-	sed -f ../intl/po2msg.sed < $< > $*.msg \
-	  && rm -f $@ && $(GENCAT) $@ $*.msg
-
 check: all
-
-# Building cat-id-tbl.o.
-
-.c.o:
-	$(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $<
-
-cat-id-tbl.o: cat-id-tbl.c ../intl/libgettext.h
-	$(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) cat-id-tbl.c
-
-cat-id-tbl.c: $(PACKAGE).pot
-	sed -f ../intl/po2tbl.sed < $(PACKAGE).pot > cat-id-tbl.c
 
 # Installing the catalogs.
 
@@ -116,7 +86,7 @@ install-data-yes: all force
 	for cat in $$catalogs; do \
 	  cat=`basename $$cat`; \
 	  destdir=$(localedir); \
-	  lang=`echo $$cat | sed 's/$(CATOBJEXT)$$//'`; \
+	  lang=`echo $$cat | sed 's/\.gmo$$//'`; \
 	  dir="$$destdir/$$lang/LC_MESSAGES"; \
 	  datadir=`echo "$$destdir" | sed -e 's,/[^/]*$$,,'`; \
 	  if [ ! -d "$$datadir" ] ; then mkdir "$$datadir" ; fi; \
@@ -124,20 +94,15 @@ install-data-yes: all force
 	  if [ ! -d "$$destdir/$$lang" ] ; then mkdir "$$destdir/$$lang" ; fi; \
 	  if [ ! -d "$$dir" ] ; then mkdir "$$dir" ; fi; \
 	  if test -r $$cat; then \
-	    echo "installing $$cat as $$dir/$(PACKAGE)$(INSTOBJEXT)"; \
-	    $(INSTALL_DATA) $$cat "$$dir/$(PACKAGE)$(INSTOBJEXT)"; \
+	    echo "installing $$cat as $$dir/$(PACKAGE).mo"; \
+	    $(INSTALL_DATA) $$cat "$$dir/$(PACKAGE).mo"; \
+	    echo "installing clisplow_$$cat as $$dir/clisplow.mo"; \
+	    $(INSTALL_DATA) clisplow_$$cat "$$dir/clisplow.mo"; \
 	  else \
-	    echo "installing $(srcdir)/$$cat as $$dir/$(PACKAGE)$(INSTOBJEXT)"; \
-	    $(INSTALL_DATA) $(srcdir)/$$cat "$$dir/$(PACKAGE)$(INSTOBJEXT)"; \
-	  fi; \
-	  if test -r $$cat.m; then \
-	    echo "installing $$cat.m as $$dir/$(PACKAGE)$(INSTOBJEXT).m"; \
-	    $(INSTALL_DATA) $$cat.m "$$dir/$(PACKAGE)$(INSTOBJEXT).m"; \
-	  else \
-	    if test -r $(srcdir)/$$cat.m ; then \
-	      echo "installing $(srcdir)/$$cat as $$dir/$(PACKAGE)$(INSTOBJEXT).m"; \
-	      $(INSTALL_DATA) $(srcdir)/$$cat.m "$$dir/$(PACKAGE)$(INSTOBJEXT).m"; \
-	    fi; \
+	    echo "installing $(srcdir)/$$cat as $$dir/$(PACKAGE).mo"; \
+	    $(INSTALL_DATA) $(srcdir)/$$cat "$$dir/$(PACKAGE).mo"; \
+	    echo "installing $(srcdir)/clisplow_$$cat as $$dir/clisplow.mo"; \
+	    $(INSTALL_DATA) $(srcdir)/clisplow_$$cat "$$dir/clisplow.mo"; \
 	  fi; \
 	done
 
@@ -149,7 +114,7 @@ installdirs: force
 	for cat in $$catalogs; do \
 	  cat=`basename $$cat`; \
 	  destdir=$(localedir); \
-	  lang=`echo $$cat | sed 's/$(CATOBJEXT)$$//'`; \
+	  lang=`echo $$cat | sed 's/\.gmo$$//'`; \
 	  dir="$$destdir/$$lang/LC_MESSAGES"; \
 	  datadir=`echo "$$destdir" | sed -e 's,/[^/]*,,'`; \
 	  if [ ! -d "$$datadir" ] ; then mkdir "$$datadir" ; fi; \
@@ -163,19 +128,18 @@ uninstall:
 	catalogs='$(CATALOGS)'; \
 	for cat in $$catalogs; do \
 	  cat=`basename $$cat`; \
-	  lang=`echo $$cat | sed 's/$(CATOBJEXT)$$//'`; \
-	  rm -f "$(localedir)/$$lang/LC_MESSAGES/$(PACKAGE)$(INSTOBJEXT)"; \
-	  rm -f "$(localedir)/$$lang/LC_MESSAGES/$(PACKAGE)$(INSTOBJEXT).m"; \
+	  lang=`echo $$cat | sed 's/\.gmo$$//'`; \
+	  rm -f "$(localedir)/$$lang/LC_MESSAGES/$(PACKAGE).mo"; \
+	  rm -f "$(localedir)/$$lang/LC_MESSAGES/clisplow.mo"; \
 	done
 
 mostlyclean:
-	rm -f core core.* *.pox $(PACKAGE).po *.old.po cat-id-tbl.tmp
-	rm -fr *.o
+	rm -f core core.* *.pox $(PACKAGE).po *.old.po
 
 clean: mostlyclean
 
 distclean: clean
-	rm -f Makefile POTFILES cat-id-tbl.c *.mo *.msg *.cat *.cat.m
+	rm -f Makefile POTFILES
 
 maintainer-clean: distclean
 	@echo "This command is intended for maintainers to use;"

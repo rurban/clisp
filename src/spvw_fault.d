@@ -479,7 +479,7 @@ local void xmprotect(addr,len,prot)
   var int prot;
   {
     if (mprotect((MMAP_ADDR_T)addr,len,prot) < 0) {
-      asciz_out(GETTEXT("mprotect() fails."));
+      asciz_out(GETTEXTL("mprotect() fails."));
       errno_out(OS_errno);
       abort();
     }

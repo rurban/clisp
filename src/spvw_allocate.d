@@ -51,7 +51,7 @@
         fehler_speicher_voll();
       } else {
         # ja -> harte Fehlermeldung
-        asciz_out(GETTEXT(NLstring "*** - " "No more room for LISP objects: RESET"));
+        asciz_out(GETTEXTL(NLstring "*** - " "No more room for LISP objects: RESET"));
         reset(); # und zum letzten Driver-Frame zurück
       }
     }
@@ -269,7 +269,7 @@
             end_system_call();
             if (ergebnis >= 0)
               goto sufficient;
-            asciz_out(GETTEXT("Trying to make room through a GC..." NLstring));
+            asciz_out(GETTEXTL("Trying to make room through a GC..." NLstring));
           }
           # nicht erfolgreich
           if (!done_gc)
@@ -334,7 +334,7 @@
             end_system_call();
             if (ergebnis >= 0)
               goto sufficient;
-            asciz_out(GETTEXT("Trying to make room through a GC..." NLstring));
+            asciz_out(GETTEXTL("Trying to make room through a GC..." NLstring));
           }
           # nicht erfolgreich
          failed:
@@ -415,7 +415,7 @@
             end_system_call();
             if (ergebnis >= 0)
               goto sufficient;
-            asciz_out(GETTEXT("Trying to make room through a GC..." NLstring));
+            asciz_out(GETTEXTL("Trying to make room through a GC..." NLstring));
           }
           # nicht erfolgreich
           if (!done_gc)
