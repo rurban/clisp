@@ -5,6 +5,9 @@
 <para>This is the raw socket interface, as described in &socket-h;.
 Sockets are represented by their &fixnum-t; &file-des;s.</para>
 
+<simpara>When this module is present, &features-var; contains the
+ symbol <constant>:RAWSOCK</constant>.</simpara>
+
 <warning id="rawsock-use-sockets"><title>Use &socket-stream; instead!</title>
  <simpara>This interface is very low-level, and you probably do not need
  it - unless you are doing something <emphasis>very</emphasis> unusual.
