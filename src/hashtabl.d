@@ -2197,24 +2197,23 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
 # (SXHASH object), CLTL S. 285
 LISPFUNN(sxhash,1)
 {
-  uint32 sx = sxhash(popSTACK());
+  var uint32 sx = sxhash(popSTACK());
   # ANSI CL (SXHASH doc):
   # For any two objects, x and y, both of which are bit vectors,
   # characters, conses, numbers, pathnames, strings, or symbols, and which
   # are similar, (sxhash x) and (sxhash y) yield the same mathematical
   # value even if x and y exist in different Lisp images of the same
   # implementation.
-  # this means that as long as some CLISPs have 24-bit fixnums,
+  # This means that as long as some CLISPs have 24-bit fixnums,
   # we have to limit SXHASH to 24 bits on all platforms.
   # (assuming that CLISP on Tru64 and CLISP on Win32
   # are the same implementations)
-  # Otherwise, the following could have been used:
-  # (sx & (0xffffffff >> (32-oint_type_len))) ^ (sx >> (32-oint_type_len))
-#if oint_data_len >= 24
-  value1 = fixnum((sx & 0x00ffffff) ^ (sx >> 8));
-#else
-#error "sxhash results do not fit in a fixnum"
-#endif
+  #if oint_data_len >= 24
+    sx = sx % 0xFFFFFF;
+    value1 = fixnum(sx);
+  #else
+    #error "sxhash results do not fit in a fixnum"
+  #endif
   mv_count=1;
 }
 
