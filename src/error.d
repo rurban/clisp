@@ -685,7 +685,7 @@ nonreturning_function(global, fehler_list, (object obj)) {
 }
 
 /* error-message, if an object is not a true list.
- fehler_proper_list(obj);
+ fehler_proper_list(caller,obj);
  > caller: the caller (a symbol)
  > obj: end of the list, non-list */
 nonreturning_function(global, fehler_proper_list, (object caller, object obj))
