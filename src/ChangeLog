@@ -1,3 +1,10 @@
+2004-03-04  Bruno Haible  <bruno@clisp.org>
+            Sam Steingold  <sds@gnu.org>
+
+	* package.d (string_hashcode): Don't ignore the 17th and following
+	characters. Use + instead of |, to maintain statistical
+	equidistribution.
+
 2004-03-03  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (make-anode): avoid compiler warning
