@@ -17677,7 +17677,7 @@ LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
         # EOF verarzten:
         var object eofval = STACK_0;
         if (eq(eofval,unbound))
-          eofval = eof_value; # Default ist #<EOF>
+          eofval = NIL; # Default ist NIL
         value1 = eofval; mv_count=1; skipSTACK(3); # eofval als Wert
       }
     } else {
@@ -17898,7 +17898,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
       # EOF verarzten:
       var object eofval = STACK_1;
       if (eq(eofval,unbound))
-        eofval = eof_value; # Default ist #<EOF>
+        eofval = NIL; # Default ist NIL
       value1 = eofval; mv_count=1; skipSTACK(6); # eofval als Wert
     }
   }
@@ -17978,7 +17978,7 @@ LISPFUN(read_float,2,3,norest,nokey,0,NIL)
       # EOF verarzten:
       var object eofval = STACK_1;
       if (eq(eofval,unbound))
-        eofval = eof_value; # Default ist #<EOF>
+        eofval = NIL; # Default ist NIL
       value1 = eofval; mv_count=1; skipSTACK(6); # eofval als Wert
     }
   }
