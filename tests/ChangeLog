@@ -1,3 +1,7 @@
+2004-10-29  Bruno Haible  <bruno@clisp.org>
+
+	* conditions.tst: Override outermost handlers.
+
 2004-10-17  Bruno Haible  <bruno@clisp.org>
 
 	* type.tst: Add a defstruct test.
