@@ -38,11 +38,13 @@ local int to_int(x)
 #define VAL_ID(func)  \
  double xx=D_S; int nn=I_S; double res=func(nn,xx); N_D(res,value1)
 
+#if !defined(_MSC_VER)
 LISPFUNN(erf,1)
 { VAL_D(erf); mv_count=1; }
 
 LISPFUNN(erfc,1)
 { VAL_D(erfc); mv_count=1; }
+#endif
 
 LISPFUNN(j0,1)
 { VAL_D(j0); mv_count=1; }
@@ -62,12 +64,13 @@ LISPFUNN(y1,1)
 LISPFUNN(yn,2)
 { VAL_ID(yn); mv_count=1; }
 
+#if !defined(_MSC_VER)
 LISPFUNN(gamma,1)
 { VAL_D(gamma); mv_count=1; }
 
 LISPFUNN(lgamma,1)
 {
-#ifdef _REENTRANT
+#if defined(_REENTRANT)
   int sign;
   double res = lgamma_r(D_S,&sign);
   value2 = sfixnum(sign);
@@ -77,6 +80,7 @@ LISPFUNN(lgamma,1)
 #endif
   N_D(res,value1); mv_count=2;
 }
+#endif
 
 #include <time.h>
 

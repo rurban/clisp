@@ -951,6 +951,9 @@ LISPFUN(resolve_host_ipaddr_,1,0,norest,nokey,0,NIL)
   var char buffer[MAXHOSTNAMELEN];
 
   if (nullp(arg)) {
+   #ifdef _MSC_VER
+    value1 = NIL;
+   #else
     int count = 0;
     begin_system_call();
     for (; (he = gethostent()); count++) {
@@ -960,7 +963,9 @@ LISPFUN(resolve_host_ipaddr_,1,0,norest,nokey,0,NIL)
     }
     endhostent();
     end_system_call();
-    value1 = listof(count); mv_count = 1;
+    value1 = listof(count);
+   #endif
+    mv_count = 1;
     return;
   }
 

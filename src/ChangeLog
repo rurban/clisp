@@ -1,3 +1,11 @@
+2000-12-03  Sam Steingold  <sds@gnu.org>
+
+	--with-export-syscalls works on win32 under MSVC5 now
+	* socket.d (resolve-host-ipaddr): MSVC doesn't have `gethostent'
+	* posixmath.d (erf, erfc, gamma, lgamma): MSVC doesn't have these
+	* posixmisc.d: ditto
+	* constsym.d, subr.d: kill the exported calls not found under MSVC
+
 2000-12-02  Sam Steingold  <sds@gnu.org>
 
 	Directory access (LDAP, Win32 registry, gnome config.
