@@ -1,5 +1,14 @@
 2004-08-12  Sam Steingold  <sds@gnu.org>
 
+	standard I/O streams are handle streams in batch mode
+	* stream.d (init_standard_input, init_standard_output): accept
+	second argument batch_p which ensures that the result is not a
+	terminal stream and therefore can be made binary
+	(init_streamvars): pass batch_p to init_standard_i/o
+	* lispbibl.d (init_streamvars): updated comments
+
+2004-08-12  Sam Steingold  <sds@gnu.org>
+
 	* modules/bindings/glibc/Makefile, modules/bindings/win32/Makefile:
 	* modules/fastcgi/Makefile.in, modules/matlab/Makefile:
 	* modules/netica/Makefile, modules/oracle/Makefile.in:
