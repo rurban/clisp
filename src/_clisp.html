@@ -280,8 +280,9 @@ and allow interactive handling of <code>ASSERT</code> and friends.</dd>
  Currently the only effect of this is that unnecessary prompts are not
  suppressed.
 #ifdef GNU_READLINE
- Furthermore, the GNU readline library treats Tab as a
- normal self-inserting character.
+ Furthermore, the GNU readline library treats
+ <a href="#completion">Tab</a> as a normal self-inserting character,
+ so you should always use this option when you invoke CLISP from Emacs.
 #endif
 <p/></dd>
 
