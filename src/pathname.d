@@ -10641,13 +10641,24 @@ local int stringlist_to_asciizlist (object stringlist,
 
 #ifdef WIN32_NATIVE
 
+/* /dev/null on NT/W95. */
+local Handle nullfile () {
+  var Handle result = NULL;
+  begin_system_call();
+  result = CreateFile("NUL", GENERIC_READ | GENERIC_WRITE,
+                    FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                    OPEN_EXISTING, 0, NULL);
+  end_system_call();
+  return result;
+}
+
 /* (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error] [:priority])
  Launches a program.
  :arguments : a list of strings
  :wait - nullp/not nullp - whether to wait for process to finish (default T)
  :input, :output, :error - i/o/e streams for process. basically file-streams
    or terminal-streams. see stream_lend_handle() in stream.d for full list
-   of supported streams
+   of supported streams. Can be NIL (/dev/nul) or :terminal.
  :priority : on windows : HIGH/LOW/NORMAL on UNIX : fixnum - see nice(2)
  returns: if wait exit code, child PID otherwise */
 LISPFUN(launch,seclass_default,1,0,norest,key,6,
@@ -10675,18 +10686,36 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
       goto restart_priority;
     }
   }
+  /* duplicate one /dev/nul handle for all 3 possible destinations and close it */
+  /* need to duplicate it to avoid problems (to make it inheritable) */
+  var Handle hnull = NULL;/* not INVALID_HANDLE_VALUE for easy checking */
   var Handle hinput = /* STACK_3 == input_stream_arg */
-    handle_dup1((boundp(STACK_3) && !eq(STACK_3,S(Kterminal)))
-                ? stream_lend_handle(STACK_3,true,&handletype)
-                : stdin_handle);
+    handle_dup1(boundp(STACK_3) && eq(STACK_3,S(Kterminal)) || !boundp(STACK_3)
+                ? stdin_handle
+                : nullp(STACK_3)
+                  ? (hnull ? hnull : (hnull = nullfile()))
+                  : stream_lend_handle(STACK_3,true,&handletype));
+  if (hinput == INVALID_HANDLE_VALUE) OS_error();
   var Handle houtput = /* STACK_2 == output_stream_arg */
-    handle_dup1((boundp(STACK_2) && !eq(STACK_2,S(Kterminal)))
-                ? stream_lend_handle(STACK_2,false,&handletype)
-                : stdout_handle);
+    handle_dup1(boundp(STACK_2) && eq(STACK_2,S(Kterminal)) || !boundp(STACK_2)
+                ? stdout_handle
+                : nullp(STACK_2)
+                  ? (hnull ? hnull : (hnull = nullfile()))
+                  : stream_lend_handle(STACK_2,false,&handletype));
+  if (houtput == INVALID_HANDLE_VALUE) OS_error();
   var Handle herror = /* STACK_1 == error_stream_arg */
-    handle_dup1((boundp(STACK_1) && !eq(STACK_1,S(Kterminal)))
-                ? stream_lend_handle(STACK_1,false,&handletype)
-                : stderr_handle);
+    handle_dup1(boundp(STACK_1) && eq(STACK_1,S(Kterminal)) || !boundp(STACK_1)
+                ? stderr_handle
+                : nullp(STACK_1)
+                  ? (hnull ? hnull : (hnull = nullfile()))
+                  : stream_lend_handle(STACK_1,false,&handletype));
+  if (herror == INVALID_HANDLE_VALUE) OS_error();
+  if (hnull && hnull != INVALID_HANDLE_VALUE) {
+    begin_system_call();
+    var bool closedp = CloseHandle(hnull);
+    end_system_call();
+    if (!closedp) OS_error();
+  }
   var HANDLE prochandle;
   var object cmdlist_cons = allocate_cons();
   Car(cmdlist_cons) = STACK_6; /* command_arg */
