@@ -2,6 +2,11 @@
 
 	* pathname.d (make-pathname): support string and
 	:wild/:wild-inferiors :directory arg
+	support :UP and :BACK in the directory list
+	coerce name &c to normal simple string
+	(legal_name): accept non-simple strings
+	(subst_up_dotdot): new function
+	* constsym.d (:UP, :BACK): added
 
 2001-10-01  Sam Steingold  <sds@gnu.org>
 

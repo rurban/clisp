@@ -1138,6 +1138,8 @@ LISPSYM(Knicknames,"NICKNAMES",keyword)
 LISPSYM(Kuse,"USE",keyword)
 LISPSYM(Kcase_sensitive,"CASE-SENSITIVE",keyword)
 LISPSYM(Kupdate,"UPDATE",keyword)
+LISPSYM(Kup,"UP",keyword)     # 19.2.2.4.3 - directory component
+LISPSYM(Kback,"BACK",keyword) # (see MAKE-PATHNAME in pathname.d)
 LISPSYM(Kfrom_end,"FROM-END",keyword)
 LISPSYM(Kinitial_value,"INITIAL-VALUE",keyword)
 LISPSYM(Kcount,"COUNT",keyword)

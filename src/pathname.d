@@ -1077,10 +1077,16 @@ local inline void rename_file_to_nonexisting (char* old_pathstring,
 # Wandelt Strings in Normal-Simple-Strings um.
 # subst_coerce_normal_ss(obj)
 # can trigger GC
-local object subst_coerce_normal_ss (object obj);
 local object subst_coerce_normal_ss (object obj) {
   SUBST_RECURSE((stringp(obj) ? coerce_normal_ss(obj) : obj),
                 subst_coerce_normal_ss);
+}
+
+# replace :UP with ".." in the relative pathnames
+# can trigger GC
+local object subst_up_dotdot (object obj) {
+  SUBST_RECURSE((eq(obj,S(Kup)) || eq(obj,S(Kback)) ? O(dotdot_string) : obj),
+                subst_up_dotdot);
 }
 
 # Wandelt Groß-/Klein-Schreibung zwischen :LOCAL und :COMMON um.
@@ -4167,6 +4173,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         goto directory_add_absolute;
       } else if (stringp(directory)) {
         if (!legal_name(directory)) goto directory_bad;
+        STACK_3 = directory = coerce_normal_ss(directory);
       directory_add_absolute:
         pushSTACK(S(Kabsolute));
         pushSTACK(directory);
@@ -4174,6 +4181,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         goto directory_ok;
       } else if (consp(directory)) { # ein Cons?
         STACK_3 = directory = subst_coerce_normal_ss(directory);
+        STACK_3 = directory = subst_up_dotdot(directory);
         if (convert)
           STACK_3 = directory = subst_common_case(directory);
         # Der CAR entweder :RELATIVE oder :ABSOLUTE ?
@@ -4283,6 +4291,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       }
       #endif
       else if (legal_name(name)) { # zulässiger Name ist OK
+        STACK_2 = name = coerce_normal_ss(name);
       } else if (xpathnamep(name)) { # Pathname -> dessen Name
         #ifdef LOGICAL_PATHNAMES
         name = coerce_pathname(name);
@@ -4297,7 +4306,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       DOUT("make-pathname:[type]",STACK_1);
       var object type = STACK_1;
       if (stringp(type))
-        STACK_1 = type = subst_coerce_normal_ss(type);
+        STACK_1 = type = coerce_normal_ss(type);
       if (convert)
         STACK_1 = type = common_case(type);
       if (eq(type,unbound)) {
