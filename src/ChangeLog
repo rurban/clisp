@@ -1,3 +1,7 @@
+2004-03-15  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (anymodule): pass CC to configure
+
 2004-03-15  Bruno Haible  <bruno@clisp.org>
 
 	* control.d (make_variable_frame): Make 2003-05-20 change work on
