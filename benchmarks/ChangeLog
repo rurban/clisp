@@ -1,5 +1,14 @@
 2002-08-11  Sam Steingold  <sds@gnu.org>
 
+	compare benchmarks for different implementations
+	* run-all.lisp (*old-stat*): new parameter
+	(stamp, percent): new functions
+	(benchmarks): do the comparison and save stats readably
+	(comp-benchmarks, eval-benchmarks): subsumed into BENCHMARKS
+	* Makefile: modified accordingly
+
+2002-08-11  Sam Steingold  <sds@gnu.org>
+
 	* fft.lisp (fft): removed unused variable nm1
 	* tprint.lisp (tprint-test): accept optional argument repeat
 	and do output to a temp file (which is removed immediately)
