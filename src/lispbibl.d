@@ -3334,7 +3334,7 @@ typedef object gcv_object_t;
     #undef addressbus_mask
     #define addressbus_mask  0xFFFFFF01FFFFFFFFUL
   #elif !defined(WIDE_SOFT)
-    # Memory-mapping makes the bits 31..24 of an addsress redundant now.
+    # Memory-mapping makes the bits 31..24 of an address redundant now.
     #undef addressbus_mask
     #define addressbus_mask  oint_addr_mask  # most of the time it's = 0x00FFFFFFUL
   #endif
