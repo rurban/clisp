@@ -1533,6 +1533,10 @@
                  (CONS ',form (THE-ENVIRONMENT))))
              ',name))))))
 
+#-compiler
+(defmacro COMPILER::EVAL-WHEN-COMPILE (&body body) ; preliminary
+  `(eval-when (compile) ,@body))
+
 (sys::%putd 'defun
   (sys::make-macro
     (function defun
@@ -1579,16 +1583,16 @@
                                (null compiler::*benv*)
                                (null compiler::*genv*)
                                (eql compiler::*denv* *toplevel-denv*))
-                        `((EVAL-WHEN (COMPILE)
-                            (COMPILER::C-DEFUN
-                             ',name (lambda-list-to-signature ',lambdalist)
-                             ',lambdabody))
+                        `((COMPILER::EVAL-WHEN-COMPILE
+                           (COMPILER::C-DEFUN
+                            ',name (lambda-list-to-signature ',lambdalist)
+                            ',lambdabody))
                           (EVAL-WHEN (LOAD)
                             (SYSTEM::%PUT ,symbolform 'SYSTEM::INLINE-EXPANSION
                                           ',lambdabody)))
-                        `((EVAL-WHEN (COMPILE)
-                            (COMPILER::C-DEFUN
-                             ',name (lambda-list-to-signature ',lambdalist)))))
+                        `((COMPILER::EVAL-WHEN-COMPILE
+                           (COMPILER::C-DEFUN
+                            ',name (lambda-list-to-signature ',lambdalist)))))
                       (if (and (null (svref env 0))  ; venv
                                (null (svref env 1))) ; fenv
                         `((EVAL-WHEN (EVAL)
@@ -1602,9 +1606,9 @@
                                               'SYSTEM::INLINE-EXPANSION
                                               ',lambdabody)))))
                         '()))
-                    `((EVAL-WHEN (COMPILE)
-                        (COMPILER::C-DEFUN
-                         ',name (lambda-list-to-signature ',lambdalist)))))
+                    `((COMPILER::EVAL-WHEN-COMPILE
+                       (COMPILER::C-DEFUN
+                        ',name (lambda-list-to-signature ',lambdalist)))))
                 ,@(if docstring
                     `((SYSTEM::%SET-DOCUMENTATION ,symbolform
                        'FUNCTION ',docstring))
