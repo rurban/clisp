@@ -1,3 +1,8 @@
+2001-10-02  Sam Steingold  <sds@gnu.org>
+
+	* format.lisp (formatter-main-1): fixed quoting (colon-p and
+	atsign-p must be under comma)
+
 2001-10-01  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (make-pathname): support string and
