@@ -6276,6 +6276,24 @@ local void pr_circle (const object* stream_,object obj,pr_routine_t* pr_xxx) {
 
 # ------------------------ Entering the printer -------------------------------
 
+# check whether the object is a valid Dispatch Table and contains some entries
+#define DISPATCH_TABLE_VALID_P(dt)  \
+ (mconsp(dt) && eq(Car(dt),S(print_pprint_dispatch)) && !nullp(Cdr(dt)))
+# call the appropriate function
+local void pretty_print_call (const object* stream_,object obj,
+                              pr_routine_t* pr_xxx_default) {
+  object ppp_disp = Symbol_value(S(print_pprint_dispatch));
+  if (DISPATCH_TABLE_VALID_P(ppp_disp)) {
+    pushSTACK(obj); funcall(S(pprint_dispatch),1);
+    if (nullp(value2)) goto default_printing;
+    pushSTACK(*stream_); pushSTACK(obj); funcall(value1,2);
+  } else {
+  default_printing:
+    (*pr_xxx_default)(stream_,obj);
+  }
+}
+#undef DISPATCH_TABLE_VALID_P
+
 # UP: Binds the variables of the printer and then calls a printer-routine.
 # pr_enter(&stream,obj,&pr_xxx);
 # > obj: object
@@ -6304,7 +6322,10 @@ local void pr_enter_1 (const object* stream_,object obj,pr_routine_t* pr_xxx) {
       if (stream_get_read_eval(*stream_))
         TheStream(STACK_0)->strmflags |= bit(strmflags_reval_bit_B); # adopt READ-EVAL-Bit
       # print object to the new stream:
-      (*pr_xxx)(&STACK_0,STACK_1);
+      pretty_print_call(&STACK_0,STACK_1,pr_xxx);
+      # check out line prefix, if any
+      var object line_prefix = Symbol_value(S(prin_line_prefix));
+      if (!stringp(line_prefix)) line_prefix = NIL;
       { # print content of the new stream to the old stream:
         var object ppstream = popSTACK(); # the new stream
         STACK_0 = nreverse(TheStream(ppstream)->strm_pphelp_strings); # list of output-lines
@@ -6325,6 +6346,7 @@ local void pr_enter_1 (const object* stream_,object obj,pr_routine_t* pr_xxx) {
       }
       do {
         write_ascii_char(stream_,NL); # #\Newline as separating character between the lines
+        if (!nullp(line_prefix)) write_string(stream_,line_prefix);
       skip_first_NL:
         # print non-empty string list STACK_0 to the stream:
         var object list = STACK_0;
@@ -6335,7 +6357,7 @@ local void pr_enter_1 (const object* stream_,object obj,pr_routine_t* pr_xxx) {
       dynamic_unbind();
       dynamic_unbind();
     } else { # already a PPHELP-stream
-      (*pr_xxx)(stream_,obj);
+      pretty_print_call(stream_,obj,pr_xxx);
     }
   } else { # *PRINT-PRETTY* = NIL.
     # if *stream_ is a PPHELP-Stream, it must be replaced by a
@@ -6464,6 +6486,10 @@ local uintC pr_external_1 (object stream) {
     BIND_UNLESS(print_length,NIL);
     # *PRINT-READABLY* enforces *PRINT-LINES* = NIL :
     BIND_UNLESS(print_lines,NIL);
+    # *PRINT-READABLY* enforces *PRINT-MISER-WIDTH* = NIL :
+    BIND_UNLESS(print_miser_width,NIL);
+    # *PRINT-READABLY* enforces *PRINT-PPRINT-DISPATCH* = NIL :
+    BIND_UNLESS(print_pprint_dispatch,NIL);
     # *PRINT-READABLY* enforces *PRINT-GENSYM* = T :
     BIND_UNLESS(print_gensym,T);
     # *PRINT-READABLY* enforces *PRINT-ARRAY* = T :
@@ -9300,7 +9326,6 @@ local void pr_stream (const object* stream_,object obj) {
   skipSTACK(1);
 }
 
-
 # ---------------------- Top-Level-Call of the Printers ----------------------
 
 # UP: prints object to stream.
@@ -9326,8 +9351,7 @@ global void print (const object* stream_, object obj) {
   prin1(stream_,obj); # print Object
 }
 
-
-# ----------------------- LISP-functions of the Printer ----------------------
+# ----------------------- Helper-functions of the Printer --------------------
 
 # UP: Check ein Output-Stream-Argument.
 # The value of *STANDARD-OUTPUT* is default.
@@ -9350,25 +9374,145 @@ local void test_ostream (void) {
   }
 }
 
+# ---------------------- Pretty Printer ----------------------
+
+LISPFUN(pprint_indent,2,1,norest,nokey,0,NIL)
+# (PPRINT-INDENT relative-to n &optional stream) ==> NIL
+# relative-to---either :block or :current.
+# n          ---a real.
+# stream     ---an output stream designator. The default is standard output.
+{
+  test_ostream();
+  # check the indentation increment
+  var int offset=0;
+  if (numberp(STACK_1) && !complexp(STACK_1)) {
+    var object num = STACK_1;
+    if (!integerp(num)) {
+      pushSTACK(num); funcall(L(round),1);
+      num = value1;
+    }
+    if (!fixnump(num)) {
+      pushSTACK(STACK_1);   # TYPE-ERROR slot DATUM
+      pushSTACK(S(fixnum)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(STACK_1); pushSTACK(S(pprint_indent));
+      fehler(type_error,GETTEXT("~: argument ~ is too large"));
+    }
+    offset = fixnum_to_L(num);
+  } else fehler_not_R(STACK_1);
+  # check the relative-to arg
+  if (eq(S(Kblock),STACK_2)) {
+    # which value should be used here, *PRIN-L1* or *PRIN-LM*?
+    if (posfixnump(Symbol_value(S(prin_lm))))
+      offset += posfixnum_to_L(Symbol_value(S(prin_lm)));
+  } else if (eq(S(Kcurrent),STACK_2)) {
+    var object linepos = get_line_position(STACK_0);
+    if (posfixnump(linepos))
+      offset += posfixnum_to_L(linepos);
+  } else { # invalid value
+    pushSTACK(STACK_2);               # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_pprint_indent)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(S(Kblock)); pushSTACK(S(Kcurrent));
+    pushSTACK(STACK_2);
+    pushSTACK(S(pprint_indent));
+    fehler(type_error,GETTEXT("~: argument ~ should be ~ or ~."));
+  }
+  if (PPHELP_STREAM_P(STACK_0) && test_value(S(print_pretty))) {
+    # set indentation
+    if (offset<0) offset = 0;
+    var object new_indent = fixnum(offset);
+    Symbol_value(S(prin_l1)) = new_indent;
+    Symbol_value(S(prin_lm)) = new_indent;
+  }
+  skipSTACK(3);
+  value1=NIL;
+  mv_count=1;
+}
+
+typedef enum {
+  PPRINT_NEWLINE_LINEAR,
+  PPRINT_NEWLINE_FILL,
+  PPRINT_NEWLINE_MISER,
+  PPRINT_NEWLINE_MANDATORY
+} pprint_newline_t;
+
+LISPFUN(pprint_newline,1,1,norest,nokey,0,NIL)
+# (PPRINT-NEWLINE kind &optional stream) ==> NIL
+# kind  ---one of :linear, :fill, :miser, or :mandatory.
+# stream---a stream designator. The default is standard output.
+{
+  test_ostream();
+  var pprint_newline_t ppn_type = PPRINT_NEWLINE_MANDATORY;
+  if (eq(S(Klinear),STACK_1))         ppn_type = PPRINT_NEWLINE_LINEAR;
+  else if (eq(S(Kfill),STACK_1))      ppn_type = PPRINT_NEWLINE_FILL;
+  else if (eq(S(Kmiser),STACK_1))     ppn_type = PPRINT_NEWLINE_MISER;
+  else if (eq(S(Kmandatory),STACK_1)) ppn_type = PPRINT_NEWLINE_MANDATORY;
+  else { # invalid value
+    pushSTACK(STACK_1);                # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_pprint_newline)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(S(Klinear)); pushSTACK(S(Kfill));
+    pushSTACK(S(Kmiser));  pushSTACK(S(Kmandatory));
+    pushSTACK(STACK_1);
+    pushSTACK(S(pprint_newline));
+    fehler(type_error,GETTEXT("~: argument ~ should be ~, ~, ~ or ~."));
+  }
+  switch (ppn_type) {
+    case PPRINT_NEWLINE_LINEAR: # FIXME
+    case PPRINT_NEWLINE_FILL:   # FIXME
+    case PPRINT_NEWLINE_MISER:  # FIXME
+    case PPRINT_NEWLINE_MANDATORY:
+      terpri(&STACK_0);
+      break;
+  }
+  skipSTACK(2);
+  value1=NIL;
+  mv_count=1;
+}
+
+pr_routine_t pprint_lisp;
+# SYS::*PRIN-PPRINTER* == the lisp function
+void pprint_lisp (const object* stream_,object obj) {
+  pushSTACK(*stream_); pushSTACK(obj);
+  funcall(Symbol_value(S(prin_pprinter)),2);
+}
+
+LISPFUNN(ppprint_logical_block,3)
+# (%PPRINT-LOGICAL-BLOCK function object stream)
+{
+  test_ostream();
+  if (listp(STACK_1)) {
+    Symbol_value(S(prin_pprinter))=STACK_2; # SYS::*PRIN-PPRINTER* FIXMI: bind, not set!!!
+    pr_enter(&STACK_0,STACK_1,&pprint_lisp);
+    Symbol_value(S(prin_pprinter))=unbound;
+  } else
+    pr_enter(&STACK_0,STACK_1,&prin_object);
+  skipSTACK(3);
+  value1=NIL;
+  mv_count=1;
+}
+
+# ----------------------- LISP-functions of the Printer ----------------------
+
 # Print-Variables (ref. CONSTSYM.D):
-#   *PRINT-CASE*        --+
-#   *PRINT-LEVEL*         |
-#   *PRINT-LENGTH*        |
-#   *PRINT-GENSYM*        |
-#   *PRINT-ESCAPE*        | order fixed!
-#   *PRINT-RADIX*         | the same order as in CONSTSYM.D
-#   *PRINT-BASE*          | also for the SUBRs WRITE, WRITE-TO-STRING
-#   *PRINT-ARRAY*         |
-#   *PRINT-CIRCLE*        |
-#   *PRINT-PRETTY*        |
-#   *PRINT-CLOSURE*       |
-#   *PRINT-READABLY*      |
-#   *PRINT-LINES*         |
-#   *PRINT-RIGHT-MARGIN* -+
+#   *PRINT-CASE*        ----+
+#   *PRINT-LEVEL*           |
+#   *PRINT-LENGTH*          |
+#   *PRINT-GENSYM*          |
+#   *PRINT-ESCAPE*          | order fixed!
+#   *PRINT-RADIX*           | the same order as in CONSTSYM.D
+#   *PRINT-BASE*            | also for the SUBRs WRITE, WRITE-TO-STRING
+#   *PRINT-ARRAY*           |
+#   *PRINT-CIRCLE*          |
+#   *PRINT-PRETTY*          |
+#   *PRINT-CLOSURE*         |
+#   *PRINT-READABLY*        |
+#   *PRINT-LINES*           |
+#   *PRINT-MISER-WIDTH*     |
+#   *PRINT-PPRINT-DISPATCH* |
+#   *PRINT-RIGHT-MARGIN* ---+
 # first Print-Variable:
 #define first_print_var  S(print_case)
 # number of Print-Variables:
-#define print_vars_anz  14
+#define print_vars_anz  16
 
 # UP: for WRITE and WRITE-TO-STRING
 # > STACK_(print_vars_anz+1): Object
@@ -9399,13 +9543,15 @@ local void write_up (void) {
   dotimesC(bindcount,bindcount, { dynamic_unbind(); } );
 }
 
-LISPFUN(write,1,0,norest,key,15,\
+LISPFUN(write,1,0,norest,key,17,\
         (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),\
          kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),\
-         kw(lines),kw(right_margin),kw(stream)))
+         kw(lines),kw(miser_width),kw(pprint_dispatch),
+         kw(right_margin),kw(stream)))
 # (WRITE object [:stream] [:escape] [:radix] [:base] [:circle] [:pretty]
 #               [:level] [:length] [:case] [:gensym] [:array] [:closure]
-#               [:readably] [:lines] [:right-margin]),
+#               [:readably] [:lines] [:miser-width] [:pprint-dispatch]
+#               [:right-margin]),
 # CLTL p. 382
   {
     # stack layout: object, Print-Variablen-Arguments, Stream-Argument.
@@ -9521,17 +9667,19 @@ LISPFUN(princ,1,1,norest,nokey,0,NIL)
 # (defun write-to-string (object &rest args
 #                                &key escape radix base circle pretty level
 #                                     length case gensym array closure
-#                                     readably lines right-margin)
+#                                     readably lines miser-width
+#                                     pprint-dispatch right-margin)
 #   (with-output-to-string (stream)
 #     (apply #'write object :stream stream args)
 # ) )
-LISPFUN(write_to_string,1,0,norest,key,14,\
+LISPFUN(write_to_string,1,0,norest,key,16,\
         (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),\
          kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),\
-         kw(lines),kw(right_margin)))
+         kw(lines),kw(miser_width),kw(pprint_dispatch),kw(right_margin)))
 # (WRITE-TO-STRING object [:escape] [:radix] [:base] [:circle] [:pretty]
 #                         [:level] [:length] [:case] [:gensym] [:array]
-#                         [:closure] [:readably] [:lines] [:right-margin]),
+#                         [:closure] [:readably] [:lines] [:miser-width]
+#                         [:pprint-dispatch] [:right-margin]),
 # CLTL p. 383
   {
     pushSTACK(make_string_output_stream()); # String-Output-Stream

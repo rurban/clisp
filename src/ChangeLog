@@ -1,5 +1,41 @@
 2001-08-17  Sam Steingold  <sds@gnu.org>
 
+	implemented the ANSI CL pretty-printer
+	* constobj.d (version): bumped
+	(type_pprint_newline, type_pprint_indent): added
+	* constsym.d (PPRINT-DISPATCH, PPRINT-INDENT, PPRINT-NEWLINE,
+	%PPRINT-LOGICAL-BLOCK, :MISER-WIDTH, :PPRINT-DISPATCH, :LINEAR,
+	:FILL, :MISER, :MANDATORY, :BLOCK, :CURRENT, *PRIN-LINE-PREFIX*,
+	*PRIN-MISERP*, *PRIN-PPRINTER*): new symbols
+	* defs2.lisp (with-standard-io-syntax): bind *PRINT-MISER-WIDTH*
+	and *PRINT-PPRINT-DISPATCH*
+	* format.lisp (format-parse-cs): added ~_ and ~I instructions
+	(format-pprint-newline, format-pprint-indent, current-indent):
+	new functions
+	(format-tabulate): do not ignore colon-modifier
+	* init.lisp: export PPRINT symbols; load pprint.lisp
+	* inspect.lisp (with-gensyms): moved to pprint.lisp
+	* io.d (pretty_print_call): look into *PRINT-PPRINT-DISPATCH*
+	(pr_enter_1): call it, instead of calling pr_xxx directly
+	respect *PRIN-LINE-PREFIX*
+	(pr_external_1): bind *PRINT-MISER-WIDTH* and
+	*PRINT-PPRINT-DISPATCH*
+	(PPRINT-INDENT, PPRINT-NEWLINE): implemented
+	(pprint_lisp): new pr_routine_t helper
+	(%PPRINT-LOGICAL-BLOCK): new function
+	(WRITE, WRITE-TO-STRING): accept :MISER-WIDTH and :PPRINT-DISPATCH
+	* lisparit.d (fehler_not_R): made global
+	* lispbibl.d (init): added the prototype
+	* makemake.in (LPARTS): added pprint.lisp
+	* pprint.lisp: new file
+	* spvw.d (init_symbol_values): define *PRINT-MISER-WIDTH*,
+	*PRIN-MISERP*, *PRIN-PPRINTER*, *PRINT-PPRINT-DISPATCH*
+	* subr.d, subrkw.d (write, write_to_string): added kw(miser_width)
+	and kw(pprint_dispatch)
+	* subr.d (pprint_indent, pprint_newline, ppprint_logical_block): added
+
+2001-08-17  Sam Steingold  <sds@gnu.org>
+
 	* charstrg.d (char_name): fix the binary search to always terminate
 
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
