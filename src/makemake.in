@@ -2463,7 +2463,7 @@ fi
 if [ $TERMINAL = readline -a $HOS = unix ] ; then
 
   echol "${READLINELIB} :"
-  echotab "cd ${READLINEDIR} && \$(MAKE) -r CC='${XCC}' CFLAGS='${XCFLAGS} -DCLISP' RANLIB='\$(RANLIB)'"
+  echotab "cd ${READLINEDIR} && \$(MAKE) CC='${XCC}' CFLAGS='${XCFLAGS} -DCLISP' RANLIB='\$(RANLIB)'"
   echol
   echol "libreadline.a : ${READLINELIB}"
   echotab "-\$(LN) ${READLINELIB} libreadline.a"
