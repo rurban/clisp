@@ -1749,6 +1749,8 @@
 #-(or UNIX WIN32)
 (LOAD "timezone")               ; Definition of the time zone
 
+(LOAD "lambdalist")             ; parsing ordinary lambda lists
+
 (LOAD "places")                 ; SETF-places: definitions and macros
 
 ;; from now on SETF etc. are working.
@@ -1758,8 +1760,6 @@
 (LOAD "defpackage")             ; DEFPACKAGE
 
 (LOAD "type")                   ; TYPEP
-
-(LOAD "lambdalist")             ; parsing ordinary lambda lists
 
 (LOAD "clos-package")           ; Early CLOS
 (LOAD "clos-class0")

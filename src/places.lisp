@@ -83,15 +83,14 @@
                           ) )
                           (incf i)
                       ) )
-                      (setq new-access-form
-                        (cons (car access-form) (nreverse new-access-form)))
+                      (setq new-access-form (nreverse new-access-form))
                       (let ((newval-vars (gensym-list (cadr plist-info))))
                         (values
                           (nreverse tempvars)
                           (nreverse tempforms)
                           newval-vars
-                          (apply (cddr plist-info) new-access-form newval-vars)
-                          new-access-form
+                          (apply (cddr plist-info) env (append newval-vars new-access-form))
+                          (cons (car access-form) new-access-form)
                 ) ) ) ) )
             ) )
     ) ) ) )
@@ -265,44 +264,44 @@
         ((and (consp args) (listp (first args)) (consp (cdr args)) (listp (second args)))
          (when (null (second args))
            (error-of-type 'source-program-error
-             (TEXT "~S: Missing store variable.") 'defsetf))
+             (TEXT "~S ~S: Missing store variable.") 'defsetf accessfn))
          (multiple-value-bind (body-rest declarations docstring)
              (system::parse-body (cddr args) t)
            (let* ((storevars (second args))
                   arg-count
                   (setter
-                    (let* ((lambdalist (first args))
-                           (SYSTEM::%ARG-COUNT 0)
-                           (SYSTEM::%MIN-ARGS 0)
-                           (SYSTEM::%RESTP nil)
-                           (SYSTEM::%NULL-TESTS nil)
-                           (SYSTEM::%LET-LIST nil)
-                           (SYSTEM::%KEYWORD-TESTS nil)
-                           (SYSTEM::%DEFAULT-FORM nil))
-                      (SYSTEM::ANALYZE1 lambdalist '(CDR SYSTEM::%ACCESS-ARGLIST)
-                                        accessfn 'SYSTEM::%ACCESS-ARGLIST
-                      )
-                      (setq arg-count (if (member '&KEY lambdalist) SYSTEM::%ARG-COUNT -1))
-                      (when declarations (setq declarations `((DECLARE ,@declarations))))
-                      `(LAMBDA (SYSTEM::%ACCESS-ARGLIST ,@storevars)
-                         ,@(if (null lambdalist)
-                             `((DECLARE (IGNORE SYSTEM::%ACCESS-ARGLIST)))
-                           )
-                         ,@declarations
-                         (LET* ,(nreverse SYSTEM::%LET-LIST)
+                    (let ((lambdalist (first args)))
+                      (multiple-value-bind (reqvars optvars optinits optsvars rest
+                                            keyp keywords keyvars keyinits keysvars
+                                            allowp env)
+                          (analyze-defsetf-lambdalist lambdalist
+                            #'(lambda (errorstring &rest arguments)
+                                (error-of-type 'sys::source-program-error
+                                  (TEXT "~S ~S: invalid ~S lambda-list: ~A")
+                                  'defsetf accessfn 'defsetf
+                                  (apply #'format nil errorstring arguments))))
+                        (declare (ignore optinits optsvars rest keywords keyvars
+                                         keyinits keysvars allowp))
+                        (setq arg-count (if keyp (+ (length reqvars) (length optvars)) -1))
+                        (if (eql env 0)
+                          (setq env (gensym)
+                                declarations (cons `(IGNORE ,env) declarations))
+                          (setq lambdalist
+                                (let ((lr (memq '&ENVIRONMENT lambdalist)))
+                                  (append (ldiff lambdalist lr) (cddr lr)))))
+                        (when declarations (setq declarations `((DECLARE ,@declarations))))
+                        `(LAMBDA (,env ,@storevars ,@lambdalist)
                            ,@declarations
-                           ,@(nreverse SYSTEM::%NULL-TESTS)
-                           ,@(nreverse SYSTEM::%KEYWORD-TESTS)
                            (BLOCK ,accessfn ,@body-rest)
-                       ) )
-                 )) )
+                         )
+                 )) ) )
              `(EVAL-WHEN (LOAD COMPILE EVAL)
                 (LET ()
                   (REMPROP ',accessfn 'SYSTEM::DEFSTRUCT-WRITER)
                   (SYS::CHECK-REDEFINITION
-                   ',accessfn 'DEFSETF
-                   (and (get ',accessfn 'SYSTEM::SETF-EXPANDER)
-                        "SETF expander"))
+                    ',accessfn 'DEFSETF
+                    (AND (GET ',accessfn 'SYSTEM::SETF-EXPANDER)
+                         "SETF expander"))
                   (SYSTEM::%PUT ',accessfn 'SYSTEM::SETF-EXPANDER
                     (LIST* ,arg-count ,(length storevars)
                            (FUNCTION ,(concat-pnames "SETF-" accessfn) ,setter)

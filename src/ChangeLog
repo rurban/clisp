@@ -1,3 +1,13 @@
+2004-06-13  Bruno Haible  <bruno@clisp.org>
+
+	Fixed DEFSETF lambda-list handling.
+	* init.lisp: Load lambdalist.lisp before places.lisp.
+	* lambdalist.lisp: Define PUSH locally.
+	(analyze-defsetf-lambdalist): New function.
+	* places.lisp (get-setf-expansion): Pass environment to defsetf long
+	expander.
+	(defsetf): Use analyze-defsetf-lambdalist and handle &environment.
+
 2004-06-05  Bruno Haible  <bruno@clisp.org>
 
 	* clos-methcomb2.lisp: Reorder.
