@@ -49,6 +49,8 @@
 
 #include "history.h"
 #include "histlib.h"
+#include "xmalloc.h"
+#include "shell.h"
 
 #define HISTORY_WORD_DELIMITERS		" \t\n;&()|<>"
 #define HISTORY_QUOTE_CHARACTERS	"\"'`"
@@ -60,15 +62,10 @@ static char *subst_rhs;
 static int subst_lhs_len;
 static int subst_rhs_len;
 
-static char *get_history_word_specifier ();
-static char *history_find_word ();
+static char *get_history_word_specifier _PROTO((char *spec, char *from, int *caller_index));
+static char *history_find_word _PROTO((char *line, int ind));
 
-extern int history_offset;
-
-extern char *single_quote ();
-static char *quote_breaks ();
-
-extern char *xmalloc (), *xrealloc ();
+static char *quote_breaks _PROTO((char *s));
 
 /* Variables exported by this file. */
 /* The character that represents the start of a history expansion
@@ -200,7 +197,7 @@ get_history_event (string, caller_index, delimiting_quote)
     }
 
   /* Only a closing `?' or a newline delimit a substring search string. */
-  for (local_index = i; c = string[i]; i++)
+  for (local_index = i; (c = string[i]) != '\0'; i++)
     if ((!substring_okay && (whitespace (c) || c == ':' ||
 	(history_search_delimiter_chars && member (c, history_search_delimiter_chars)) ||
 	string[i] == delimiting_quote)) ||

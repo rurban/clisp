@@ -48,22 +48,6 @@
 #endif
 #define abs(x)		(((x) >= 0) ? (x) : -(x))
 
-extern char *xmalloc (), *xrealloc ();
-
-/* Variables imported from readline.c */
-extern int rl_point, rl_end, rl_line_buffer_len;
-extern int rl_editing_mode;
-extern char *rl_prompt;
-extern char *rl_line_buffer;
-extern HIST_ENTRY *saved_line_for_history;
-extern Function *rl_last_func;
-
-/* Functions imported from the rest of the library. */
-extern int _rl_free_history_entry ();
-extern char *_rl_make_prompt_for_search ();
-extern void _rl_restore_prompt ();
-extern void rl_extend_line_buffer ();
-
 static char *noninc_search_string = (char *) NULL;
 static int noninc_history_pos;
 static char *prev_line_found = (char *) NULL;
@@ -175,7 +159,7 @@ noninc_search (dir, pchar)
 #define SEARCH_RETURN _rl_restore_prompt (); return
 
   /* Read the search string. */
-  while (c = rl_read_key ())
+  while ((c = rl_read_key ()) != '\0')
     {
       switch (c)
 	{

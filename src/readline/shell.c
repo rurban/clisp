@@ -45,7 +45,10 @@
 #  include <strings.h>
 #endif /* !HAVE_STRING_H */
 
-extern char *xmalloc (), *xrealloc ();
+#include <stdio.h> /* declares sprintf() */
+
+#include "shell.h"
+#include "xmalloc.h"
 
 #if !defined (SHELL)
 

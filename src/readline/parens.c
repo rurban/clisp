@@ -23,18 +23,6 @@
 
 #include "rlconf.h"
 
-#if !defined (PAREN_MATCHING)
-extern int rl_insert ();
-
-int
-rl_insert_close (count, invoking_key)
-     int count, invoking_key;
-{
-  return (rl_insert (count, invoking_key));
-}
-
-#else /* PAREN_MATCHING */
-
 #if defined (HAVE_CONFIG_H)
 #  include <config.h>
 #endif
@@ -65,7 +53,16 @@ extern char *strchr (), *strrchr ();
 
 #include "readline.h"
 
-extern int rl_explicit_arg;
+#if !defined (PAREN_MATCHING)
+
+int
+rl_insert_close (count, invoking_key)
+     int count, invoking_key;
+{
+  return (rl_insert (count, invoking_key));
+}
+
+#else /* PAREN_MATCHING */
 
 /* Non-zero means try to blink the matching open parenthesis when the
    close parenthesis is inserted. */
@@ -75,7 +72,7 @@ int rl_blink_matching_paren = 1;
 int rl_blink_matching_paren = 0;
 #endif /* !HAVE_SELECT */
 
-static int find_matching_open ();
+static int find_matching_open _PROTO((char *string, int from, int closer));
 
 int
 rl_insert_close (count, invoking_key)

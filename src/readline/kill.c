@@ -46,18 +46,6 @@
 #include "readline.h"
 #include "history.h"
 
-extern int _rl_last_command_was_kill;
-extern int rl_editing_mode;
-extern int rl_explicit_arg;
-extern Function *rl_last_func;
-
-extern void _rl_init_argument ();
-extern int _rl_set_mark_at_pos ();
-extern void _rl_fix_point ();
-extern void _rl_abort_internal ();
-
-extern char *xmalloc (), *xrealloc ();
-
 /* **************************************************************** */
 /*								    */
 /*			Killing Mechanism			    */

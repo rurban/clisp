@@ -62,56 +62,14 @@ extern int errno;
 extern char *strchr (), *strrchr ();
 #endif /* !strchr && !__STDC__ */
 
-extern int _rl_horizontal_scroll_mode;
-extern int _rl_mark_modified_lines;
-extern int _rl_bell_preference;
-extern int _rl_meta_flag;
-extern int _rl_convert_meta_chars_to_ascii;
-extern int _rl_output_meta_chars;
-extern int _rl_complete_show_all;
-extern int _rl_complete_mark_directories;
-extern int _rl_print_completions_horizontally;
-extern int _rl_completion_case_fold;
-extern int _rl_enable_keypad;
-#if defined (PAREN_MATCHING)
-extern int rl_blink_matching_paren;
-#endif /* PAREN_MATCHING */
-#if defined (VISIBLE_STATS)
-extern int rl_visible_stats;
-#endif /* VISIBLE_STATS */
-extern int rl_complete_with_tilde_expansion;
-extern int rl_completion_query_items;
-extern int rl_inhibit_completion;
-extern char *_rl_comment_begin;
-
-extern int rl_explicit_arg;
-extern int rl_editing_mode;
-extern unsigned char _rl_parsing_conditionalized_out;
-extern Keymap _rl_keymap;
-
-extern char *possible_control_prefixes[], *possible_meta_prefixes[];
-
-/* Functions imported from funmap.c */
-extern char **rl_funmap_names ();
-extern int rl_add_funmap_entry ();
-
-/* Functions imported from util.c */
-extern char *_rl_strindex ();
-
-/* Functions imported from shell.c */
-extern char *get_env_value ();
-
 /* Variables exported by this file. */
 Keymap rl_binding_keymap;
 
-/* Forward declarations */
-void rl_set_keymap_from_edit_mode ();
-
-static int _rl_read_init_file ();
-static int glean_key_from_name ();
-static int substring_member_of_array ();
-
-extern char *xmalloc (), *xrealloc ();
+/* Prototype declarations. */
+char *rl_get_keymap_name_from_edit_mode _PROTO((void));
+static int _rl_read_init_file _PROTO((char *filename, int include_level));
+static int glean_key_from_name _PROTO((char *name));
+static int substring_member_of_array _PROTO((char *string, char **array));
 
 /* **************************************************************** */
 /*								    */
@@ -214,6 +172,7 @@ rl_unbind_function_in_map (func, map)
       if (map[i].type == ISFUNC && map[i].function == func)
 	map[i].function = (Function *)NULL;
     }
+  return 0;
 }
 
 int
@@ -222,7 +181,6 @@ rl_unbind_command_in_map (command, map)
      Keymap map;
 {
   Function *func;
-  register int i;
 
   func = rl_named_function (command);
   if (func == 0)
@@ -347,7 +305,7 @@ rl_translate_keyseq (seq, array, len)
 {
   register int i, c, l, temp;
 
-  for (i = l = 0; c = seq[i]; i++)
+  for (i = l = 0; (c = seq[i]) != '\0'; i++)
     {
       if (c == '\\')
 	{
@@ -1018,7 +976,7 @@ rl_parse_and_bind (string)
     {
       int passc = 0;
 
-      for (i = 1; c = string[i]; i++)
+      for (i = 1; (c = string[i]) != '\0'; i++)
 	{
 	  if (passc)
 	    {
@@ -1094,7 +1052,7 @@ rl_parse_and_bind (string)
     {
       int delimiter = string[i++], passc;
 
-      for (passc = 0; c = string[i]; i++)
+      for (passc = 0; (c = string[i]) != '\0'; i++)
 	{
 	  if (passc)
 	    {
@@ -1492,7 +1450,7 @@ _rl_get_keyname (key)
      int key;
 {
   char *keyname;
-  int i, c, v;
+  int i, c;
 
   keyname = (char *)xmalloc (8);
 
@@ -1684,7 +1642,7 @@ rl_function_dumper (print_readably)
 
   fprintf (rl_outstream, "\n");
 
-  for (i = 0; name = names[i]; i++)
+  for (i = 0; (name = names[i]) != (char *)NULL; i++)
     {
       Function *function;
       char **invokers;

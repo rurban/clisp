@@ -25,8 +25,6 @@
 #  include <config.h>
 #endif
 
-extern char *xmalloc (), *xrealloc ();
-
 #if !defined (BUFSIZ)
 #include <stdio.h>
 #endif /* BUFSIZ */
@@ -39,8 +37,6 @@ extern char *xmalloc (), *xrealloc ();
 
 #include "rlconf.h"
 #include "readline.h"
-
-extern int _rl_qsort_string_compare ();
 
 FUNMAP **funmap;
 static int funmap_size;

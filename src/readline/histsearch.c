@@ -47,9 +47,6 @@
 #include "history.h"
 #include "histlib.h"
 
-/* Variables imported from other history library files. */
-extern int history_offset;
-
 /* The list of alternate characters that can delimit a history search
    string. */
 char *history_search_delimiter_chars = (char *)NULL;

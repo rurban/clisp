@@ -71,11 +71,8 @@ extern int errno;
 
 #include "history.h"
 #include "histlib.h"
-
-/* Functions imported from shell.c */
-extern char *get_env_value ();
-
-extern char *xmalloc (), *xrealloc ();
+#include "xmalloc.h"
+#include "shell.h"
 
 /* Return the string that should be used in the place of this
    filename.  This only matters when you don't specify the
@@ -155,7 +152,7 @@ read_history_range (filename, from, to)
     }
 
   buffer = xmalloc (file_size + 1);
-  if (read (file, buffer, file_size) != file_size)
+  if (read (file, buffer, file_size) != (int) file_size)
     {
   error_and_exit:
       if (file >= 0)

@@ -44,13 +44,7 @@
 #include <ctype.h>
 
 #include "rldefs.h"
-
-extern int _rl_convert_meta_chars_to_ascii;
-extern int _rl_output_meta_chars;
-extern int _rl_meta_flag;
-
-/* Functions imported from shell.c */
-extern char *get_env_value ();
+#include "readline.h"
 
 #if !defined (HAVE_SETLOCALE)    
 /* A list of legal values for the LANG or LC_CTYPE environment variables.
@@ -74,8 +68,8 @@ static char *legal_lang_values[] =
   0
 };
 
-static char *normalize_codeset ();
-static char *find_codeset ();
+static char *normalize_codeset _PROTO((char *codeset));
+static char *find_codeset _PROTO((char *name, size_t *lenp));
 #endif /* !HAVE_SETLOCALE */
 
 /* Check for LC_ALL, LC_CTYPE, and LANG and use the first with a value

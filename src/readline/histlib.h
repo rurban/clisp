@@ -34,11 +34,14 @@ typedef char **CPPFunction ();
 #define STREQ(a, b)	(((a)[0] == (b)[0]) && (strcmp ((a), (b)) == 0))
 #define STREQN(a, b, n)	(((a)[0] == (b)[0]) && (strncmp ((a), (b), (n)) == 0))
 
+#if defined (READLINE_LIBRARY)
+#include "xmalloc.h"
 #ifndef savestring
 #  ifndef strcpy
 extern char *strcpy ();
 #  endif
 #define savestring(x) strcpy (xmalloc (1 + strlen (x)), (x))
+#endif
 #endif
 
 #ifndef whitespace
@@ -77,5 +80,8 @@ extern char *strchr ();
 /* Possible definitions for what style of writing the history file we want. */
 #define HISTORY_APPEND 0
 #define HISTORY_OVERWRITE 1
+
+/* Variable declarations. */
+extern int history_offset;
 
 #endif /* !_HISTLIB_H_ */

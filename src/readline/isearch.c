@@ -48,24 +48,7 @@
 #include "readline.h"
 #include "history.h"
 
-/* Variables imported from other files in the readline library. */
-extern Keymap _rl_keymap;
-extern HIST_ENTRY *saved_line_for_history;
-extern int rl_line_buffer_len;
-extern int rl_point, rl_end;
-extern char *rl_line_buffer;
-
-extern void _rl_save_prompt ();
-extern void _rl_restore_prompt ();
-
-extern int rl_execute_next ();
-extern void rl_extend_line_buffer ();
-
-extern int _rl_input_available ();
-
-extern char *xmalloc (), *xrealloc ();
-
-static int rl_search_history ();
+static int rl_search_history _PROTO((int direction, int invoking_key));
 
 /* Last line found by the current incremental search, so we don't `find'
    identical lines many times in a row. */
@@ -415,9 +398,9 @@ rl_search_history (direction, invoking_key)
   free (search_string);
 
   if (last_found_line < orig_line)
-    rl_get_previous_history (orig_line - last_found_line);
+    rl_get_previous_history (orig_line - last_found_line, 0);
   else
-    rl_get_next_history (last_found_line - orig_line);
+    rl_get_next_history (last_found_line - orig_line, 0);
 
   /* If the string was not found, put point at the end of the line. */
   if (line_index < 0)
