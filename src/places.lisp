@@ -190,6 +190,17 @@
               (setq modified t))
             (setq new-form-reversed (cons new-subform new-form-reversed))))))))
 
+; An empty binding list can be optimized away.
+(defun wrap-let* (bindlist form) ; ABI
+  (if (and (null bindlist)
+           ; But don't optimize the LET* away if the form is a PROGN form,
+           ; because when it occurs as a top-level form in a file and refers
+           ; to uninterned symbols, compiling the elements of the PROGN
+           ; separately leads to problems.
+           (not (and (consp form) (eq (first form) 'PROGN))))
+    form
+    `(LET* ,bindlist ,form)))
+
 ; In simple assignments like (SETQ foo #:G0) the #:G0 can be replaced directly.
 (defun simple-assignment-p (store-form stores)
   (and (= (length stores) 1)
@@ -218,9 +229,9 @@
                                          stores tempvars)
                                  setterform)))
         `(MULTIPLE-VALUE-BIND ,stores ,item
-           (LET* ,bindlist
-             (MULTIPLE-VALUE-BIND ,tempvars ,getterform
-               ,ns)))))))
+           ,(wrap-let* bindlist
+              `(MULTIPLE-VALUE-BIND ,tempvars ,getterform
+                 ,ns)))))))
 ;;;----------------------------------------------------------------------------
 (eval-when (load compile eval)
   (defun check-accessor-name (accessfn whole-form)
@@ -477,13 +488,13 @@
       ;; not all of the places evaluate to lists.
       (let ((bindlist (mapcar #'list temps subforms)))
         (if (= (length stores) 1)
-          `(LET* ,(append bindlist (list (list (car stores) getterform)))
-             (PROG1
+          (wrap-let* (nconc bindlist (list (list (car stores) getterform)))
+            `(PROG1
                (CAR ,(car stores))
                ,@(devalue-form (subst-in-form `(CDR ,(car stores)) (car stores) setterform))
-           ) )
-          `(LET* ,bindlist
-             (MULTIPLE-VALUE-BIND ,stores ,getterform
+          )  )
+          (wrap-let* bindlist
+            `(MULTIPLE-VALUE-BIND ,stores ,getterform
                (MULTIPLE-VALUE-PROG1
                  (VALUES ,@(mapcar #'(lambda (storevar) `(CAR ,storevar)) stores))
                  ,@(devalue-form
@@ -504,8 +515,8 @@
                    :detail whole-form
                    (TEXT "~S called with an odd number of arguments: ~S")
                    'psetf whole-form))
-               `(LET* ,(mapcar #'list temps subforms)
-                  (MULTIPLE-VALUE-BIND ,stores ,(second args)
+               (wrap-let* (mapcar #'list temps subforms)
+                 `(MULTIPLE-VALUE-BIND ,stores ,(second args)
                     ,@(when (cddr args) (list (recurse (cddr args))))
                     ,@(devalue-form setterform))))))
     (when args `(,@(recurse args) NIL))))
@@ -523,9 +534,9 @@
                                          stores tempvars)
                          setterform)))
         `(MULTIPLE-VALUE-BIND ,stores ,item
-           (LET* ,bindlist
-             (MULTIPLE-VALUE-BIND ,tempvars ,getterform
-               ,ns)))))))
+           ,(wrap-let* bindlist
+              `(MULTIPLE-VALUE-BIND ,tempvars ,getterform
+                 ,ns)))))))
 ;;;----------------------------------------------------------------------------
 (defmacro remf (place indicator &environment env)
   (multiple-value-bind (temps subforms stores setterform getterform)
@@ -539,8 +550,8 @@
                (,(first stores) ,getterform)))
            (new-plist (gensym))
            (removed-p (gensym)))
-      `(LET* ,bindlist
-         (MULTIPLE-VALUE-BIND (,new-plist ,removed-p)
+      (wrap-let* bindlist
+        `(MULTIPLE-VALUE-BIND (,new-plist ,removed-p)
              (SYSTEM::%REMF ,(first stores) ,indicatorvar)
            (WHEN (AND ,removed-p (ATOM ,new-plist))
              ,(if (simple-assignment-p setterform stores)
@@ -617,12 +628,10 @@
                (LET ((FUNCTION-APPLICATION
                        (LIST* ',function GETTERFORM ,@varlist ,restvar)))
                  (IF (SIMPLE-ASSIGNMENT-P SETTERFORM STORES)
-                   (IF (NULL LET-LIST)
-                     (SUBST-IN-FORM FUNCTION-APPLICATION (CAR STORES) SETTERFORM)
-                     (LIST 'LET*
-                       LET-LIST
-                       (SUBST-IN-FORM FUNCTION-APPLICATION (CAR STORES) SETTERFORM)))
-                   (LIST 'LET*
+                   (WRAP-LET*
+                     LET-LIST
+                     (SUBST-IN-FORM FUNCTION-APPLICATION (CAR STORES) SETTERFORM))
+                   (WRAP-LET*
                      (NCONC LET-LIST
                             (LIST (LIST (CAR STORES) FUNCTION-APPLICATION)))
                      SETTERFORM)))
@@ -633,11 +642,11 @@
                       (FUNCTION-APPLICATION
                         (LIST* ',function GETTERFORM ARGVARS)))
                  (IF (SIMPLE-ASSIGNMENT-P SETTERFORM STORES)
-                   (LIST 'LET*
+                   (WRAP-LET*
                      (NCONC LET-LIST
                             (MAPCAR #'LIST ARGVARS (LIST* ,@varlist ,restvar)))
                      (SUBST-IN-FORM FUNCTION-APPLICATION (CAR STORES) SETTERFORM))
-                   (LIST 'LET*
+                   (WRAP-LET*
                      (NCONC LET-LIST
                             (MAPCAR #'LIST ARGVARS (LIST* ,@varlist ,restvar))
                             (LIST (LIST (CAR STORES) FUNCTION-APPLICATION)))
@@ -681,11 +690,11 @@
                                   (let ((bindlist (mapcar #'list temps subforms)))
                                     (if (= (length stores) 1)
                                       ;; 1 store variable
-                                      `(LET* ,(append bindlist
-                                                 (list `(,(first stores) ,value))
-                                              )
-                                         ,setterform
-                                       )
+                                      (wrap-let* (nconc bindlist
+                                                   (list `(,(first stores) ,value))
+                                                 )
+                                        setterform
+                                      )
                                       ;; mehrere Store-Variable
                                       (if ;; Hat setterform die Gestalt
                                           ;; (VALUES (SETQ v1 store1) ...) ?
@@ -704,10 +713,10 @@
                                              (VALUES ,@vlist)
                                            )
                                         )
-                                        `(LET* ,bindlist
-                                           (MULTIPLE-VALUE-BIND ,stores ,value
+                                        (wrap-let* bindlist
+                                          `(MULTIPLE-VALUE-BIND ,stores ,value
                                              ,setterform
-                                         ) )
+                                        )  )
                                )) ) ) )
                ) ) ) ) ) )
                ;; 2. Schritt: macroexpandieren
@@ -724,9 +733,9 @@
                       (declare (ignore getterform))
                       ; setterform hat die Gestalt `((SETF ,(first place)) ,@stores ,@temps).
                       ; stores ist überflüssig.
-                      `(LET* ,(mapcar #'list temps subforms)
-                         ,(subst-in-form value (first stores) setterform)
-                       )
+                      (wrap-let* (mapcar #'list temps subforms)
+                        (subst-in-form value (first stores) setterform)
+                      )
                    ))
                    (t (error-of-type 'source-program-error
                         :form whole-form
@@ -1132,11 +1141,11 @@
   (multiple-value-bind (temps subforms stores setterforms getterforms)
       (setf-VALUES-aux places env)
     (declare (ignore getterforms))
-    `(LET* ,(mapcar #'list temps subforms)
-       (MULTIPLE-VALUE-BIND ,stores ,form
+    (wrap-let* (mapcar #'list temps subforms)
+      `(MULTIPLE-VALUE-BIND ,stores ,form
          ,@setterforms
          ,(first stores) ; (null stores) -> NIL -> Wert NIL
-     ) )
+    )  )
 ) )
 ;;;----------------------------------------------------------------------------
 ;;;                              Symbol-macros

@@ -1,5 +1,12 @@
 2004-12-19  Bruno Haible  <bruno@clisp.org>
 
+	Optimize away empty LET* in place macro expansions.
+	* places.lisp (wrap-let*): New function.
+	(push, pop, psetf, pushnew, remf, define-modify-macro, setf,
+	multiple-value-setf): Use it.
+
+2004-12-19  Bruno Haible  <bruno@clisp.org>
+
 	get-setf-method must reject dotted lists.
 	* defmacro.lisp (make-length-test): Add optional argument accept-dotted.
 	Use LIST-LENGTH if dotted lists must be rejected.
