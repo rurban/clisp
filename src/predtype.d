@@ -2464,11 +2464,16 @@ LISPFUNNR(coerce,2)
       coerce_sequence_check(type,result_type);
       goto check_return;
     }
-    /* if we got here, we know that type is valid, datum is not of that type
-       and we cannot do the coersion */
-    pushSTACK(STACK_1);     /* TYPE-ERROR slot DATUM (object) */
-    pushSTACK(STACK_(0+1)); /* TYPE-ERROR slot EXPECTED-TYPE (result-type) */
-    goto fehler_object;
+    /* (coerce-sequence object result-type) */
+    coerce_sequence(STACK_1,STACK_0,false);
+    if (eq(value1,nullobj)) { /* failed! */
+      /* If we got here, we know that type is valid, datum is not of that type
+         and we cannot do the coersion. */
+      pushSTACK(STACK_1);     /* TYPE-ERROR slot DATUM (object) */
+      pushSTACK(STACK_(0+1)); /* TYPE-ERROR slot EXPECTED-TYPE (result-type) */
+      goto fehler_object;
+    }
+    skipSTACK(2); return;
   }
  fehler_type:
   /* due to the TYPEP call which checks result-type this should never happen

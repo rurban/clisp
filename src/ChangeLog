@@ -1,5 +1,17 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	Sequence constructing functions must check whether the result belongs
+	to the given type.
+	* sequence.d (valid_type1): Expect the type on the stack. Write back
+	the expanded type.
+	(valid_type): Likewise.
+	(MAKE-SEQUENCE, coerce_sequence, SYSTEM::COERCED-SUBSEQ, CONCATENATE,
+	MAP, MERGE): Update. Invoke SEQTYPE_LENGTH_MATCH only if the
+	type-length is an integer. At the end, verify using TYPEP.
+	* predtype.d (COERCE): Try coerce_sequence also for non-atom types.
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (execute): Remove declaration (leftover from Atari ST).
 
 2004-12-05  Bruno Haible  <bruno@clisp.org>
