@@ -364,6 +364,9 @@
    (readonly nil))                       ; ds-slot-readonly
 ||#
 
+;; The function responsible for a MAKE-INSTANCES-OBSOLETE call.
+(defvar *make-instances-obsolete-caller* 'make-instances-obsolete)
+
 (defun ensure-class (name &rest all-keys
                           &key (metaclass <standard-class>)
                                (direct-superclasses '())
@@ -438,7 +441,8 @@
           ;; Instances have to be updated:
           (progn
             (setf (class-proto class) nil)
-            (make-instances-obsolete class)
+            (let ((*make-instances-obsolete-caller* 'defclass))
+              (make-instances-obsolete class))
             (apply (cond ((eq metaclass <standard-class>)
                           #'initialize-instance-standard-class)
                          ((eq metaclass <built-in-class>)
@@ -911,9 +915,16 @@
 
 (defun make-instances-obsolete-standard-class-nonrecursive (class)
   (when (class-instantiated class) ; don't warn if there are no instances
-    (let ((name (class-name class)))
-      (warn (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
-            'defclass name)))
+    (let ((name (class-name class))
+          (caller *make-instances-obsolete-caller*)
+          ;; Rebind *make-instances-obsolete-caller* because WARN may enter a
+          ;; nested REP-loop.
+          (*make-instances-obsolete-caller* 'make-instances-obsolete))
+      (if (eq caller 'defclass)
+        (warn (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
+              caller name)
+        (warn (TEXT "~S: instances of class ~S are made obsolete")
+              caller name))))
   ;; Create a new class-version. (Even if there are no instances: the
   ;; shared-slots may need change.)
   (let* ((copy (copy-standard-class class))
