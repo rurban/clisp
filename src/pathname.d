@@ -8024,12 +8024,13 @@ local inline Handle open_output_file (char* pathstring,
 }
 #endif
 
-# Create a backup file before opening a file for output.
-# create_backup_file(pathstring,delete_backup_file);
-# > led the way: assure_dir_exists()
-# > pathstring: file name, ASCIZ-String
-# > delete_backup_file: if true, delete the backup file
-# > STACK_0: pathname
+/* Create a backup file before opening a file for output.
+ create_backup_file(pathstring,delete_backup_file);
+ > led the way: assure_dir_exists()
+ > pathstring: file name, ASCIZ-String
+ > delete_backup_file: if true, delete the backup file
+ > STACK_0: pathname
+Can trigger GC */
 local inline void create_backup_file (char* pathstring,
                                       bool delete_backup_file) {
   var object filename = STACK_0;
