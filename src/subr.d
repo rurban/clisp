@@ -946,8 +946,8 @@ LISPFUN(socket_connect,1,1,norest,key,3,\
         (kw(element_type),kw(external_format),kw(buffered)) )
 LISPFUNN(socket_stream_port,1)
 LISPFUNN(socket_stream_host,1)
-LISPFUNN(socket_stream_peer,1)
-LISPFUNN(socket_stream_local,1)
+LISPFUN(socket_stream_peer,1,1,norest,nokey,0,NIL)
+LISPFUN(socket_stream_local,1,1,norest,nokey,0,NIL)
 #ifndef WIN32_NATIVE
 LISPFUNN(socket_stream_handle,1)
 #endif
