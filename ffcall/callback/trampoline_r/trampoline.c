@@ -279,7 +279,7 @@ extern void __TR_clear_cache();
 
 /* Length and alignment of trampoline */
 #ifdef __i386__
-#define TRAMP_LENGTH 12
+#define TRAMP_LENGTH 16
 #define TRAMP_ALIGN 16  /* 4 for a i386, 16 for a i486 */
 #endif
 #ifdef __m68k__
@@ -433,24 +433,28 @@ __TR_function alloc_trampoline_r (address, data0, data1)
    */
 #ifdef __i386__
   /* function:
-   *    movl $<data>,%ecx		B9 <data>
+   *    popl %ecx			59
+   *    pushl $<data>			68 <data>
+   *    pushl %ecx			51
    *    jmp <address>			E9 <address>-<here>
    * here:
    *    nop				90
    *    nop				90
+   *    nop				90
+   *    nop				90
    */
-  *(char *)  (function + 0) = 0xB9;
-  *(long *)  (function + 1) = (long) data;
-  *(char *)  (function + 5) = 0xE9;
-  *(long *)  (function + 6) = (long) address - (long) (function + 10);
-  *(short *) (function +10) = 0x9090;   /* nop nop, for alignment */
+  *(short *) (function + 0) = 0x6859;
+  *(long *)  (function + 2) = (long) data;
+  *(short *) (function + 6) = 0xE951;
+  *(long *)  (function + 8) = (long) address - (long) (function + 12);
+  *(long *)  (function +12) = 0x90909090;   /* nop nop nop nop, for alignment */
 #define is_tramp(function)  \
-  *(unsigned char *)  (function + 0) == 0xB9 && \
-  *(unsigned char *)  (function + 5) == 0xE9
+  *(unsigned short *) (function + 0) == 0x6859 && \
+  *(unsigned short *) (function + 6) == 0xE951
 #define tramp_address(function)  \
-  *(long *)  (function + 6) + (long) (function + 10)
+  *(long *)  (function + 8) + (long) (function + 12)
 #define tramp_data(function)  \
-  *(long *)  (function + 1)
+  *(long *)  (function + 2)
 #endif
 #ifdef __m68k__
   /* function:
