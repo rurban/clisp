@@ -1,5 +1,9 @@
 2004-03-10  Sam Steingold  <sds@gnu.org>
 
+	* configure.in (AC_INIT): pre-release 2.32.92
+
+2004-03-10  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (interpret_bytecode) [__APPLE_CC__]: disabled FAST_DISPATCH
 	* lispbibl.d, genclisph.d (nonreturning_function) [__APPLE_CC__]:
 	use `__dead'
