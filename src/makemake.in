@@ -3009,6 +3009,7 @@ if [ $CROSS = false ] ; then
     echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
     echotab "if [ ! -d \$(libdir) ] ; then mkdir \$(libdir) ; fi"
     echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
+    echotab "if [ ! -d \$(lisplibdir)/linkkit ] ; then mkdir \$(lisplibdir)/linkkit ; fi"
     echotab "if [ ! -d \$(lisplibdir)/base ] ; then mkdir \$(lisplibdir)/base ; fi"
     echotab "if [ ! -d \$(lisplibdir)/full ] ; then mkdir \$(lisplibdir)/full ; fi"
     echotab "if [ ! -d \$(bindir) ] ; then mkdir \$(bindir) ; fi"
@@ -3036,8 +3037,8 @@ if [ $CROSS = false ] ; then
     echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
     echotab "if [ ! -d \$(lisplibdir)/linkkit ] ; then mkdir \$(lisplibdir)/linkkit ; fi"
     echotab "(cd \$(lisplibdir) && rm -rf base full)"
-    echotab "tar cf - clisp-link linkkit/modules.d linkkit/modules.c linkkit/clisp.h) | (cd \$(lisplibdir) && tar xf -)"
-    echotab "(tar cf - base full) | (cd \$(lisplibdir) && tar xf -)"
+    echotab "tar cf - clisp-link linkkit/modules.d linkkit/modules.c linkkit/clisp.h | (cd \$(lisplibdir) && tar xf -)"
+    echotab "tar cf - base full | (cd \$(lisplibdir) && tar xf -)"
     # Don't strip the executables, otherwise (disassemble #'cons) won't work.
     # echotab "strip \$(lisplibdir)/base/lisp${LEXE}"
     if [ -n "$USE_GETTEXT" ] ; then
