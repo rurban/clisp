@@ -4665,9 +4665,9 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
         dimptr = &offset2;
       } else {
         dimptr = &TheIarray(STACK_0)->dims[0];
-        if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
+        if (Iarray_flags(STACK_0) & bit(arrayflags_dispoffset_bit))
           dimptr++;
-        if (Iarray_flags(array) & bit(arrayflags_fillp_bit))
+        if (Iarray_flags(STACK_0) & bit(arrayflags_fillp_bit))
           dimptr++;
       }
       reshape(dv2,STACK_1,dv1,dimptr,offset1,rank,eltype);

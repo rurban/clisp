@@ -987,7 +987,7 @@ global object update_instance (object obj) {
   if (nullp(old_class)) NOTREACHED;
   /* update instance class id to avoid infinite loop/stack overflow */
   TheInstance(obj)->inst_cl_id = TheClass(new_class)->class_id;
-  pushSTACK(obj); /* save */
+  pushSTACK(obj); pushSTACK(old_class); pushSTACK(new_class); /* save */
   { /* compute property-list */
     var object slots_tab = TheClass(old_class)->slot_location_table;
     var uintL index = 2*posfixnum_to_L(TheHashtable(slots_tab)->ht_maxcount);
@@ -1007,18 +1007,18 @@ global object update_instance (object obj) {
     }
     var object property_list = listof(2*num_slots);
     pushSTACK(property_list); /* save */
-  }
+  } /* stack: obj old_class new_class property_list */
   /* change class */
-  pushSTACK(obj); pushSTACK(new_class); pushSTACK(NIL);
-  funcall(L(pchange_class),3);
+  pushSTACK(STACK_3);/*obj*/ pushSTACK(STACK_(1+1));/*new_class*/
+  pushSTACK(NIL); funcall(L(pchange_class),3);
   { /* update-instance-for-redefined-class */
     var object property_list = popSTACK(); /* restore */
-    var object added_discarded = TheClass(old_class)->prototype;
-    pushSTACK(STACK_0); /*obj*/ pushSTACK(Car(added_discarded));
+    var object added_discarded = TheClass(STACK_1)->prototype; /* old_class */
+    pushSTACK(STACK_2); /*obj*/ pushSTACK(Car(added_discarded));
     pushSTACK(Cdr(added_discarded)); pushSTACK(property_list);
     funcall(S(update_instance_frc),4);
   }
-  obj = popSTACK();
+  obj = STACK_2; skipSTACK(3); /* drop new_class, old_class, obj */
  #if defined(STACKCHECKS) || defined(STACKCHECKC)
   if (saved_stack != STACK) abort();
  #endif
