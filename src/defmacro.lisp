@@ -513,7 +513,7 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
 
 (%putd 'make-macro-expansion
   (function make-macro-expansion
-    (lambda (macrodef)
+    (lambda (macrodef &optional pre-process)
       (if (atom macrodef)
         (error-of-type 'source-program-error
           (ENGLISH "Cannot define a macro from that: ~S")
@@ -562,6 +562,9 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                            '((DECLARE (IGNORE <ENV-ARG>)))
                          )
                        ,@(if docstring (list docstring))
+                       ,@(if pre-process
+                             `((setq <MACRO-FORM>
+                                (,pre-process <MACRO-FORM>))))
                        ,mainform
                    ) )
                   name

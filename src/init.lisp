@@ -166,6 +166,7 @@ with-open-stream with-input-from-string with-output-to-string
 with-standard-io-syntax with-open-file define-symbol-macro
 check-type assert etypecase ctypecase ecase ccase trace untrace step time
 formatter
+          compiler-macro compiler-macro-function define-compiler-macro
 ;; sonstige Markierer:
 ; EVAL-WHEN-Situationen:
 eval load compile
@@ -1949,6 +1950,8 @@ space safety compilation-speed debug declaration dynamic-extent compile
 (in-package "SYSTEM")
 
 (LOAD "trace")     ;; TRACE
+
+(load "cmacros")                ; compiler macros
 
 (LOAD "compiler")  ;; Compiler
 

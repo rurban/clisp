@@ -45,7 +45,7 @@
 <section><title>Symbols in the Package &cl-pac;
   <ulink url="&clhs;/Body/sec_1-9.html">[CLHS-1.9]</ulink></title>
 
-<para>31 symbol missing from the &cl-pac; package
+<para>The 28 symbols missing from the &cl-pac; package
  (out of 978 specified by the &ansi-cl;):</para>
 
 <simplelist type="horiz" columns="3">
@@ -54,10 +54,7 @@
  <member>&print-pprint-dispatch-var;</member>
  <member>&call-method;</member>
  <member>&change-class;</member>
- <member>&compiler-macro-function;</member>
- <member>&compiler-macro-doc;</member>
  <member>&copy-pprint-dispatch;</member>
- <member>&define-compiler-macro;</member>
  <member>&define-method-combination;</member>
  <member>&ensure-generic-function;</member>
  <member>&invalid-method-error;</member>
@@ -193,6 +190,14 @@
   <ulink url="&clhs;/Body/sec_3-2-1.html">[CLHS-3.2.1]</ulink></title>
 
 <para>&clisp; compiles to platform-independent byte-code.</para>
+
+</section>
+
+<section><title>Compiler Macros
+  <ulink url="&clhs;/Body/sec_3-2-2-1.html">[CLHS-3.2.2.1]</ulink></title>
+
+<para>Compiler macros are expanded in the compiled code only, and
+ignored by the interpreter.</para>
 
 </section>
 
