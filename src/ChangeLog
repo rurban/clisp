@@ -1,5 +1,10 @@
 1999-06-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (low_flush_buffered_socket): Call sock_write, not
+          full_write.
+
+1999-06-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (create_input_pipe): New function.
           (MAKE-PIPE-INPUT-STREAM): Call it.
           (create_output_pipe): New function.
