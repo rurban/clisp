@@ -2227,9 +2227,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   fi
   if [ $f = foreign ] ; then
     if [ $HOS = win32 ] ; then
-      flags=$flags" ${INCLUDEDIR}${SRCTOPDIR}ffcall${NEXT}avcall ${INCLUDEDIR}${SRCTOPDIR}ffcall${NEXT}callback"
-    else
-      flags=$flags" ${INCLUDEDIR}avcall ${INCLUDEDIR}callback"
+      flags=$flags" ${INCLUDEDIR}${SRCTOPDIR}ffcall"
     fi
   fi
   if [ $f = graph ] ; then
