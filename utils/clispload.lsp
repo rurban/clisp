@@ -159,6 +159,10 @@
   ;; an argument"; so only one argument is consumed (by the V, not by ~[).
   FORMATTER.COND.14 |FORMATTER.COND:.7|
 
+  ;; Paul Dietz assumes that (ROOM NIL) prints non-empty information.
+  ;; In CLISP, it prints an empty information and returns some values.
+  ROOM.2
+
   ; To be fixed:
   PATHNAME-MATCH-P.4
 
@@ -167,6 +171,9 @@
   ; In CLISP the resulting directory is (:RELATIVE).
   ; We have to revise the representation of pathnames on all platforms.
   PARSE-NAMESTRING.1 PARSE-NAMESTRING.2 PARSE-NAMESTRING.3 PARSE-NAMESTRING.4
+
+  ; The interaction between TRACE and generic functions needs to be fixed.
+  TRACE.13 TRACE.14
 
   ; Requires a rewrite of parts of the pretty-printer.
   PPRINT-TABULAR.6 PPRINT-TABULAR.7 PPRINT-TABULAR.8 PPRINT-TABULAR.9
