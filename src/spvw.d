@@ -23,10 +23,6 @@
 
 #include "version.h"
 
-#if defined(UNIX_LINUX) && (defined(FAST_FLOAT) || defined(FAST_DOUBLE)) && defined(HAVE_SETFPUCW)
-  #include <fpu_control.h>
-#endif
-
 #include <stdio.h> # declares sprintf()
 
 #include <string.h> # declares strchr() and possibly memset()
@@ -1682,10 +1678,6 @@ global int main (argc_t argc, char* argv[]) {
       { if (!((errno==ENOTTY)||(errno==EINVAL))) { OS_error(); } }
     end_system_call();
   }
- #endif
- #if defined(UNIX_LINUX) && (defined(FAST_FLOAT) || defined(FAST_DOUBLE)) && !defined(HAVE_FPU_CONTROL_T) && defined(HAVE_SETFPUCW)
-  # For division by 0.0 to deliver NaN and not SIGFPE.
-  __setfpucw(_FPU_IEEE);
  #endif
  #ifdef UNIX
   begin_system_call();
