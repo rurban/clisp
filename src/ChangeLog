@@ -10,6 +10,8 @@
 	removed saving/restoring subr_self throughout
 	(display_hash_table): replace STACK_0 instead of returning a value
 	(make_xid_obj_2): reflect this change
+	* modules/clx/new-clx/clx.lisp (*GCONTEXT-COMPONENTS*):
+	define the constant (required by CLUE)
 	* modules/clx/new-clx/demos/sokoban.lisp (*xpm-directory*)
 	(*screen-directory*): use *LOAD-TRUENAME*, not *LOAD-PATHNAME*,
 	and make sure that :NAME and :TYPE are NIL
