@@ -1,5 +1,10 @@
 1999-10-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * array.d (bit_op): Fix memory overrun bug. Require count > 0.
+          (bit_up): Test for len==0 before calling bit_op.
+
+1999-10-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * array.d (bit_compare): Fix memory overrun bug. Require count > 0.
           Optimize the case index1 == index2 mod 8.
         * lispbibl.d (bit_compare): Require count > 0.
