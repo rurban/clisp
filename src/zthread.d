@@ -1,4 +1,8 @@
-/* thread functions - multiprocessing */
+/*
+ * CLISP thread functions - multiprocessing
+ * Distributed under the GNU GPL as a part of GNU CLISP
+ * Sam Steingold 2003
+ */
 
 #include "lispbibl.c"
 
@@ -28,9 +32,10 @@ local void *exec_call (void *arg)
   /* init the current thread - same "stack group" */
   copy_mem_b(current_thread(),pcd->calling_thread,sizeof(thread_t)); /* ?!! */
   xmutex_unlock(&pcd->mutex); /* allow the main thread to timeout */
-  // pthread_cleanup_push(&unwind_upto,(void*)&STACK[0]);
+  /* unwind if the thread gets cancelled */
+  pthread_cleanup_push(&unwind_upto,(void*)&STACK[0]);
   funcall(STACK_0,argcount); /* run body-function */
-  // pthread_cleanup_pop(0);
+  pthread_cleanup_pop(0);
   xmutex_lock(&pcd->mutex);
   /* copy the return values &c */
   copy_mem_b(pcd->calling_thread,current_thread(),sizeof(thread_t)); /* ?!! */
@@ -42,7 +47,10 @@ local void *exec_call (void *arg)
 
 LISPFUNN(call_with_timeout,3)
 { /* (CALL-WITH-TIMEOUT timeout timeout-function body-function)
-   the return values come either from body-function or from timeout-function */
+ the reason we go with C instead of Lisp is that we save on creating a
+ separate STACK for the body thread (i.e., the waiting thread and the
+ body thread run in the same "stack group").
+ the return values come either from body-function or from timeout-function */
   var struct timeval tv;
   var struct timeval *tvp = sec_usec(STACK_2,unbound,&tv);
   if (tvp) {
