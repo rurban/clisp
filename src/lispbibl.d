@@ -69,6 +69,7 @@
 # IBM-PC/386   beliebig           WinNT/Win95                   Borland 5.0   __WIN32__, _M_IX86, __TURBOC__, __BORLANDC__
 # IBM-PC/386   beliebig           WinNT/Win95 und Cygwin32      GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, __i386__, _X86_, __GNUC__
 # IBM-PC/586   beliebig           BeOS 5                        GNU           __BEOS__, __INTEL__, __i386__, _X86_, __GNUC__
+# IBM-PC/586   beliebig           HP NUE/ski, Linux             GNU           unix, linux, __ia64[__], __GNUC__, __LP64__
 # RM400        Siemens-Nixdorf    SINIX-N 5.42                  c89           unix, mips, MIPSEB, host_mips, sinix, SNI, _XPG_IV
 # Acorn        Risc PC            RISC OS 3.x                   GNU           [__]arm, [__]riscos, __GNUC__
 # Acorn        Risc PC            RISC OS 3.x                   Norcroft      [__]arm, [__]riscos
@@ -141,6 +142,7 @@
 # CONVEX == the Convex processor
 # ARM == the ARM processor
 # DECALPHA == the DEC Alpha superchip
+# IA64 == the Intel IA-64 vaporware chip
 # S390 == the IBM S/390 processor
 #ifdef AMIGA
   #define MC680X0
@@ -202,6 +204,9 @@
   #endif
   #ifdef __alpha
     #define DECALPHA
+  #endif
+  #ifdef __ia64__
+    #define IA64
   #endif
   #ifdef __s390__
     #define S390
@@ -546,7 +551,7 @@
 # Eine Eigenschaft des Prozessors:
 # Die Reihenfolge, in der Worte/Langworte in Bytes abgelegt werden.
   #if defined(short_little_endian) || defined(int_little_endian) || defined(long_little_endian)
-    # Z80, VAX, I80386, DECALPHA, MIPSEL, ...:
+    # Z80, VAX, I80386, DECALPHA, MIPSEL, IA64, ...:
     # Low Byte zuunterst, High Byte an höherer Adresse
     #if defined(BIG_ENDIAN_P)
       #error "Bogus BIG_ENDIAN_P -- BIG_ENDIAN_P neu einstellen!"
@@ -567,6 +572,10 @@
 
 # A property of the processor (and C compiler): The alignment of C functions.
 # (See gcc's machine descriptions, macro FUNCTION_BOUNDARY, for information.)
+  #if defined(IA64)
+    #define C_CODE_ALIGNMENT  16
+    #define log2_C_CODE_ALIGNMENT  4
+  #endif
   #if defined(DECALPHA)
     #define C_CODE_ALIGNMENT  8
     #define log2_C_CODE_ALIGNMENT  3
@@ -611,7 +620,7 @@
 # WIDE_HARD means on a 64-bit platform.
 # WIDE_SOFT means on a 32-bit platform, each object pointer occupies 2 words.
 
-#if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64)
+#if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64)
   #define WIDE_HARD
 #endif
 
@@ -643,6 +652,7 @@
     # ARM           save
     # DECALPHA      save     save      save
     # CONVEX                 used      used     used     (??)
+    # IA64
     # S390          save
     #
     # Special notes:
@@ -1362,7 +1372,7 @@
   #define intLsize 32
   typedef signed_int_with_n_bits(intLsize)    sintL;
   typedef unsigned_int_with_n_bits(intLsize)  uintL;
-  #if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64)
+  #if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64)
     # Maschine hat echte 64-Bit-Zahlen in Hardware.
     #define intQsize 64
     typedef signed_int_with_n_bits(intQsize)    sintQ;
@@ -1408,7 +1418,7 @@
     #define intBWsize intBsize
     #define intWLsize intLsize
     #define intBWLsize intLsize
-  #elif defined(DECALPHA)
+  #elif defined(DECALPHA) || defined(IA64)
     # Auch 64-Bit-Prozessoren können mit uintB und uintW schlecht rechnen.
     #define intBWsize intWsize
     #define intWLsize intLsize
@@ -1583,7 +1593,7 @@
     #define intDsize 16
     #define intDDsize 32  # = 2*intDsize
     #define log2_intDsize  4  # = log2(intDsize)
-  #elif defined(MC680Y0) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(VAX) || defined(CONVEX) || defined(ARM) || defined(DECALPHA) || defined(S390)
+  #elif defined(MC680Y0) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(VAX) || defined(CONVEX) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(S390)
     #define intDsize 32
     #define intDDsize 64  # = 2*intDsize
     #define log2_intDsize  5  # = log2(intDsize)
@@ -1592,7 +1602,7 @@
   #endif
   typedef unsigned_int_with_n_bits(intDsize)  uintD;
   typedef signed_int_with_n_bits(intDsize)    sintD;
-  #if (intDDsize<=32) || ((intDDsize<=64) && (defined(DECALPHA) || defined(MIPS64) || defined(SPARC64)))
+  #if (intDDsize<=32) || ((intDDsize<=64) && (defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64)))
     #define HAVE_DD 1
     typedef unsigned_int_with_n_bits(intDDsize)  uintDD;
     typedef signed_int_with_n_bits(intDDsize)    sintDD;
@@ -2233,22 +2243,22 @@ Ratio and Complex (only if SPVW_MIXED).
 
 # ######################## LISP-Objekte allgemein ######################### #
 
-#if !defined(WIDE)
+#if !defined(WIDE_SOFT)
 
 # Ein Objektpointer ist erst einmal ein leerer Pointer (damit man in C nichts
 # Unbeabsichtigtes mit ihm machen kann):
   #ifdef OBJECT_STRUCT
-    typedef struct { uintL one; } object;
+    typedef struct { uintP one; } object;
   #else
     typedef  void *  object;
   #endif
 # Aber in der Repräsentation steckt eine Adresse und Typbits.
 
 # Ein (unsigned) Integer von der Größe eines Objekts:
-  typedef  uintL  oint;
-  typedef  sintL  soint;
+  typedef  uintP  oint;
+  typedef  sintP  soint;
 
-#else # defined(WIDE)
+#else # defined(WIDE_SOFT)
 
 # Ein Objekt besteht aus getrennten 32 Bit Adresse und 32 Bit Typinfo.
   typedef  uint64  oint;
@@ -2434,6 +2444,39 @@ Ratio and Complex (only if SPVW_MIXED).
       #define oint_addr_shift 0
       #define oint_addr_len 32
       #define oint_addr_mask 0x00000000FFFFFFFFUL
+      #define oint_data_shift 0
+      #define oint_data_len 32
+      #define oint_data_mask 0x00000000FFFFFFFFUL
+    #endif
+  #endif
+  #if defined(IA64) && defined(UNIX_LINUX)
+    # Bits 63..61 = region code,
+    # bits 60..39 all zero or all one,
+    # virtual address limit: R*2^61..R*2^61+2^39, (R+1)*2^61-2^39..(R+1)*2^61.
+    # SHLIB_ADDRESS_RANGE  = 0x2000000000000000UL (region 1)
+    # CODE_ADDRESS_RANGE   = 0x4000000000000000UL (region 2)
+    # MALLOC_ADDRESS_RANGE = 0x6000000000000000UL (region 3)
+    # STACK_ADDRESS_RANGE  = 0x9FFFFFFFFF000000UL (region 4)
+    #if defined(NO_SINGLEMAP)
+      # Wenn MAP_MEMORY nicht gefordert ist, ist das das sicherste.
+      # Bits 63..48 = Typcode, Bits 47..0 = Adresse
+      #define oint_type_shift 48
+      #define oint_type_len 16
+      #define oint_type_mask 0x1FFF000000000000UL
+      #define oint_addr_shift 0
+      #define oint_addr_len 64
+      #define oint_addr_mask 0xE000FFFFFFFFFFFFUL
+      #define oint_data_shift 0
+      #define oint_data_len 32
+      #define oint_data_mask 0x00000000FFFFFFFFUL
+    #else
+      # Bits 63..32 = Typcode, Bits 31..0 = Adresse
+      #define oint_type_shift 32
+      #define oint_type_len 32
+      #define oint_type_mask 0x1FFFFFFF00000000UL
+      #define oint_addr_shift 0
+      #define oint_addr_len 64
+      #define oint_addr_mask 0xE0000000FFFFFFFFUL
       #define oint_data_shift 0
       #define oint_data_len 32
       #define oint_data_mask 0x00000000FFFFFFFFUL
@@ -2911,7 +2954,7 @@ Ratio and Complex (only if SPVW_MIXED).
 #if defined(I80386) || defined(RS6000) || defined(CONVEX) || defined(ARM) || defined(S390)
   #define varobject_alignment  4
 #endif
-#if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(DECALPHA)
+#if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64)
   #define varobject_alignment  8
 #endif
 #if (!defined(TYPECODES) || defined(GENERATIONAL_GC)) && (varobject_alignment < 4)
@@ -3475,7 +3518,7 @@ Ratio and Complex (only if SPVW_MIXED).
 # this first word (except the GC bit, which it temporarily uses).
 
 # Typ der Header-Flags:
-  #if (oint_type_len<=8) && !defined(ARM) && !defined(DECALPHA)
+  #if (oint_type_len<=8) && !defined(ARM) && !defined(DECALPHA) && !defined(IA64)
     # Zugriff auf ein einzelnes Byte möglich
     #define hfintsize  intBsize
     typedef uintB  hfint;
@@ -6763,6 +6806,9 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     #ifdef VAX
       #define SP_register "sp"
     #endif
+    #ifdef IA64
+      #define SP_register "r12"
+    #endif
     #ifdef S390
       #define SP_register "15"
     #endif
@@ -6805,6 +6851,9 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     #endif
     #ifdef I80386
       #define ASM_get_SP_register(resultvar)  ("movl %%esp,%0" : "=g" (resultvar) : )
+    #endif
+    #ifdef IA64
+      #define ASM_get_SP_register(resultvar)  ("mov %0 = r12" : "=r" (resultvar) : )
     #endif
     #ifdef S390
       #define ASM_get_SP_register(resultvar)  ("lr %0,%%r15" : "=r" (resultvar) : )
@@ -6854,7 +6903,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     # Zugriffsfunktion portabel in C
     extern void* SP (void);
   #endif
-#if defined(stack_grows_down) # defined(MC680X0) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(S390) || ...
+#if defined(stack_grows_down) # defined(MC680X0) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64) || defined(S390) || ...
   #define SP_DOWN # SP wächst nach unten
   #define SPoffset 0 # top-of-SP ist *(SP+SPoffset)
 #endif
