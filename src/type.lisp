@@ -22,8 +22,7 @@
 ; vorläufig, solange bis clos.lisp geladen wird:
 (eval-when (eval)
   (defun clos::built-in-class-p (object) (declare (ignore object)) nil))
-(unless (fboundp 'clos::subsclassp)
-  (defun clos::subclassp (class1 class2) (declare (ignore class1 class2)) nil)
+(unless (fboundp 'clos::class-name)
   (defun clos::class-name (c) (declare (ignore c)) nil)
 )
 
@@ -50,7 +49,7 @@
        (cond ((setq f (get y 'TYPE-SYMBOL)) (funcall f x))
              ((setq f (get y 'TYPE-LIST)) (funcall f x))
              ((setq f (get y 'DEFSTRUCT-DESCRIPTION)) (ds-typep x y f))
-             ((setq f (clos-class y)) (clos::subclassp (clos:class-of x) f))
+             ((setq f (clos-class y)) (clos::typep-class x f))
              (t (typespec-error 'typep y))
     )  )
     ((and (consp y) (symbolp (first y)))
@@ -83,7 +82,7 @@
          ((setq f (get (first y) 'TYPE-LIST)) (apply f x (rest y)))
          (t (typespec-error 'typep y))
     )  )
-    ((clos::class-p y) (clos::subclassp (clos:class-of x) y))
+    ((clos::class-p y) (clos::typep-class x y))
     ((encodingp y) (charset-typep x y))
     (t (typespec-error 'typep y))
 ) )

@@ -1,3 +1,21 @@
+2004-04-25  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (fehler_class): New declaration.
+	(typep_class, typep_classname): New declarations.
+	* error.d (fehler_class): New function, moved here from record.d.
+	* record.d (fehler_keine_klasse): Remove function.
+	(CLOS::ALLOCATE-STD-INSTANCE): Use fehler_class instead.
+	* predtype.d (typep_class, CLOS::TYPEP-CLASS, typep_classname): New
+	functions.
+	* genclisph.d (main): Emit typep_class, typep_classname declarations.
+	* type.lisp (clos::subclassp): Remove preliminary definition.
+	(typep): Use clos::typep-class instead of clos::subclassp.
+	(c-TYPEP): Emit call to clos::typep-class instead of clos::subclassp.
+	* clos-class5.lisp (note-i-meta-change, valid-make-instance-keywords):
+	Use clos::typep-class instead of clos::subclassp.
+	* modules/clx/new-clx/clx.f (isa_instance_of_p, isa_struct_p): Remove
+	functions. Use typep_classname instead.
+
 2004-04-13  Bruno Haible  <bruno@clisp.org>
 
 	Let make-instances-obsolete recurse into each subclass only once, even

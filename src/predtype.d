@@ -1982,6 +1982,97 @@ LISPFUN(find_class,seclass_default,1,2,norest,nokey,0,NIL)
   skipSTACK(3);
 }
 
+/* typep_class(obj,clas)
+ > obj: an object
+ > clas: a class object
+ < true if the object is an instance of the class, false otherwise
+ clobbers value1, mv_count */
+global bool typep_class (object obj, object clas) {
+  pushSTACK(obj); C_class_of();
+  var object objclass = value1;
+  /* Look whether clas is a superclass of objclass.
+     Equivalent to (CLOS::SUBCLASSP objclass clas), just a bit faster. */
+  /* Make a distinction between <standard-class> and <structure-class>:
+     Is (class-shared-slots class) a vector or NIL, or is (class-names class)
+     a cons? */
+  if (matomp(TheClass(objclass)->current_version)) {
+    /* <standard-class>. */
+    if (nullp(TheClass(objclass)->precedence_list)) /* not yet finalized? */
+      NOTREACHED; /* shouldn't happen because obj is already an instance */
+    var object superclasses_table = TheClass(objclass)->all_superclasses;
+    if (posfixnum_to_L(TheHashtable(superclasses_table)->ht_count) > 5)
+      return !eq(gethash(clas,superclasses_table),nullobj);
+    /* Few superclasses -> not worth a hash table access. */
+  } else {
+    /* <structure-class>. */
+    /* There are few superclasses. Not worth a hash table access. */
+  }
+  #if 0
+    return !nullp(memq(clas,TheClass(objclass)->precedence_list));
+  #else /* inlined, for performance */
+    var object l;
+    for (l = TheClass(objclass)->precedence_list; consp(l); l = Cdr(l))
+      if (eq(Car(l),clas))
+        return true;
+    return false;
+  #endif
+}
+
+# (CLOS::TYPEP-CLASS object class)
+# == (TYPEP object class) == (CLOS::SUBCLASSP (CLASS-OF object) class)
+LISPFUNN(typep_class,2)
+{
+  var object clas = popSTACK();
+  if_classp(clas, ; , fehler_class(clas); );
+  VALUES_IF(typep_class(popSTACK(),clas));
+}
+
+/* typep_classname(obj,classname)
+ > obj: an object
+ > classname: a symbol expected to name a class with "proper name" classname
+ < true if the object is an instance of the class, false otherwise
+ clobbers value1, mv_count */
+global bool typep_classname (object obj, object classname) {
+  pushSTACK(obj); C_class_of();
+  var object objclass = value1;
+  /* Look whether classname names a superclass of objclass.
+     Equivalent to (CLOS::SUBCLASSP objclass (find-class classname)),
+     just a bit faster. */
+  /* Make a distinction between <standard-class> and <structure-class>:
+     Is (class-shared-slots class) a vector or NIL, or is (class-names class)
+     a cons? */
+  if (matomp(TheClass(objclass)->current_version)) {
+    /* <standard-class>. */
+    if (nullp(TheClass(objclass)->precedence_list)) /* not yet finalized? */
+      NOTREACHED; /* shouldn't happen because obj is already an instance */
+    var object superclasses_table = TheClass(objclass)->all_superclasses;
+    if (posfixnum_to_L(TheHashtable(superclasses_table)->ht_count) > 5) {
+      var object clas = get(classname,S(closclass));
+      return !eq(gethash(clas,superclasses_table),nullobj);
+    }
+    /* Few superclasses -> not worth a hash table access. */
+    var object l;
+    for (l = TheClass(objclass)->precedence_list; consp(l); l = Cdr(l))
+      if (eq(TheClass(Car(l))->classname,classname))
+        return true;
+    return false;
+  } else {
+    /* <structure-class>. */
+    /* There are few superclasses. Not worth a hash table access. */
+    var object objclassnames = TheClass(objclass)->current_version;
+    #if 0
+      return !nullp(memq(classname,objclassnames));
+    #else /* inlined, for performance */
+      var object l;
+      for (l = objclassnames; consp(l); l = Cdr(l))
+        if (eq(Car(l),classname))
+          return true;
+      return false;
+    #endif
+  }
+}
+
+
 /* UP: expand all DEFTYPE definitions in the type spec
  (recursively, unless once_p is true)
  > type_spec: Lisp object

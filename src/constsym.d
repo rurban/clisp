@@ -706,8 +706,9 @@ LISPSYM(defclos,"%DEFCLOS",clos)
 LISPSYM(class_p,"CLASS-P",clos)
 LISPSYM(class_of,"CLASS-OF",clos)
 LISPSYM(find_class,"FIND-CLASS",clos)
+LISPSYM(typep_class,"TYPEP-CLASS",clos)
+LISPSYM(expand_deftype,"EXPAND-DEFTYPE",system)
 LISPSYM(coerce,"COERCE",lisp)
-LISPSYM(coerce_fixnum_char_ansi,"*COERCE-FIXNUM-CHAR-ANSI*",custom)
 LISPSYM(note_new_structure_class,"NOTE-NEW-STRUCTURE-CLASS",system)
 LISPSYM(note_new_standard_class,"NOTE-NEW-STANDARD-CLASS",system)
 LISPSYM(heap_statistics,"HEAP-STATISTICS",system)
@@ -1619,8 +1620,8 @@ LISPSYM(standard_generic_function,"STANDARD-GENERIC-FUNCTION",clos) /* type in P
 LISPSYM(closclass,"CLOSCLASS",clos) /* marker in PREDTYPE */
 LISPSYM(typep,"TYPEP",lisp) /* function for PREDTYPE */
 LISPSYM(deftype_expander,"DEFTYPE-EXPANDER",system) /* property in PREDTYPE */
-LISPSYM(expand_deftype,"EXPAND-DEFTYPE",system) /* function in PREDTYPE */
 LISPSYM(deftype_depth_limit,"*DEFTYPE-DEPTH-LIMIT*",custom) /* PREDTYPE variable */
+LISPSYM(coerce_fixnum_char_ansi,"*COERCE-FIXNUM-CHAR-ANSI*",custom) /* variable for PREDTYPE */
 LISPSYM(gc_statistics_stern,"*GC-STATISTICS*",system) /* variable for PREDTYPE */
 LISPSYM(recurse_count_gc_statistics,"*RECURSE-COUNT-GC-STATISTICS*",system) /* variable in PREDTYPE */
 LISPSYM(traced_definition,"TRACED-DEFINITION",system) /* property in SYMBOL */
