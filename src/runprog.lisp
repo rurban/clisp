@@ -135,6 +135,7 @@
   ) ) )      )
   (defun run-shell-command (command &key (input ':terminal) (output ':terminal)
                                          (if-output-exists ':overwrite)
+                                         (wait t)
                                          #+UNIX (may-exec nil)
                                          #+WIN32 (indirectp nil)
                            )
@@ -172,6 +173,8 @@
          )     )
          #+WIN32 (setq indirectp t)
     ) )
+    (unless wait
+      (setq command (string-concat command " &")))
     #+UNIX
     (when may-exec
       ; Wenn die ausführende Shell die "/bin/sh" ist und command eine
@@ -195,6 +198,7 @@
   (defun run-program (program &key (arguments '())
                                    (input ':terminal) (output ':terminal)
                                    (if-output-exists ':overwrite)
+                                   (wait t)
                                    #+WIN32 (indirectp nil)
                      )
     (run-shell-command
@@ -207,7 +211,7 @@
       )      )
       #+UNIX :may-exec #+UNIX t
       #+WIN32 :indirectp #+WIN32 indirectp
+      :wait wait
       :input input :output output :if-output-exists if-output-exists
   ) )
 )
-
