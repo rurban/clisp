@@ -1,3 +1,7 @@
+1999-04-13  Sam Steingold  <sds@goems.com>
+
+	* link.sh (have_libcrypt): do not quote ${CC}.
+
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * postgresql.lsp: Comments. Don't need to include <stdio.h>.
