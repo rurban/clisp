@@ -127,27 +127,44 @@ global void nobject_out (FILE* out, object obj) {
   else NOTREACHED; /* FIXME */
 }
 
-local uintL back_trace_depth (struct backtrace_t *bt) {
+/* use (struct backtrace_t*) and not p_backtrace_t
+   so that this is useable from the p_backtrace_t C++ definition */
+local int back_trace_depth (const struct backtrace_t *bt) {
   var uintL index = 1;
-  for (bt = (bt ? bt : back_trace); bt; bt=bt->bt_next, index++) BT_CHECK(bt);
+  for (bt = (bt ? bt : back_trace); bt; bt=bt->bt_next, index++)
+    if (bt == bt->bt_next) return -index;
   return index;
 }
 
-local uintL back_trace_out (FILE* out, struct backtrace_t *bt) {
+local uintL back_trace_out (FILE* out, const struct backtrace_t *bt) {
   var uintL index = 1;
   if (out == NULL) out = stdout;
   if (!bt) bt = back_trace;
   for (; bt; bt=bt->bt_next, index++) {
-    fprintf(out,"[%d]> ",index);
+    fprintf(out,"[%d/0x%x]> ",index,bt);
     nobject_out(out,bt->bt_caller);
     if (bt->bt_num_arg >= 0)
       fprintf(out," %d args",bt->bt_num_arg);
     if (bt->bt_next)
-      fprintf(out," %d STACK increment",
-              STACK_diff(bt->bt_stack,bt->bt_next->bt_stack));
+      fprintf(out," delta: STACK=%d; SP=%d",
+              STACK_diff(bt->bt_stack,bt->bt_next->bt_stack),
+              -STACK_diff(bt,bt->bt_next));
     fputc('\n',out);
+    if (bt == bt->bt_next) {
+      fprintf(out,"*** error: circularity detected!\n");
+      break;
+    }
   }
   return index;
+}
+
+global void back_trace_check (const struct backtrace_t *bt,
+                              char* label,char* file,int line) {
+  if (bt && back_trace_depth(bt)<0) {
+    fprintf(stderr,"\n%s:%d:%s: circularity!\n",file,line,label);
+    back_trace_out(stderr,bt);
+    abort();
+  }
 }
 
 #ifdef DEBUG_SPVW

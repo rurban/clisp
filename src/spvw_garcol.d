@@ -1738,7 +1738,7 @@ local void gc_unmarkcheck (void) {
              they refer to subrs and closures that are curently being
              called and therefore cannot possibly be garbage-collected.
              But better safe than sorry, so we mark them here again: */
-          var struct backtrace_t *bt = back_trace;
+          var p_backtrace_t bt = back_trace;
           for (; bt; bt = bt->bt_next) gc_mark(bt->bt_caller);
         }
       # All active objects are marked now:
@@ -1852,7 +1852,7 @@ local void gc_unmarkcheck (void) {
           # update program constants:
             update_tables();
           { /* update back_trace */
-            var struct backtrace_t *bt = back_trace;
+            var p_backtrace_t bt = back_trace;
             for (;bt; bt=bt->bt_next) update(&(bt->bt_caller));
           }
           #ifndef MORRIS_GC
