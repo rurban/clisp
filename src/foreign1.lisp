@@ -17,7 +17,7 @@
           sizeof bitsizeof
           validp
           #+UNICODE *foreign-encoding*
-)        )
+          foreign-address foreign-variable foreign-function))
 
 (eval-when (load compile eval)
   (import (intern "*COUTPUT-FILE*" "COMPILER"))

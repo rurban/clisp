@@ -1,5 +1,16 @@
 2001-06-17  Sam Steingold  <sds@gnu.org>
 
+	some symbols appeared in wrong packages - fix this
+	* compiler.lisp (function-signature): FOREIGN-FUNCTION is in FFI
+	* constobj.d: added package prefixes to non-CL symbols
+	* constsym.d (MACRO): all ttype designators are in EXT
+	* describe.d: FOREIGN-FUNCTION, FOREIGN-VARIABLE, FOREIGN-ADDRESS
+	are in FFI, FOREIGN-POINTER is in EXT
+	* foreign1.lisp: export FOREIGN-* from FFI
+	* init.lisp: export MACRO from EXT
+
+2001-06-17  Sam Steingold  <sds@gnu.org>
+
 	* disassem.lisp (orig-fundef): new aux function
 	(disassemble): moved here and made into a generic function
 	handle SYMBOL-MACROs too
