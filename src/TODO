@@ -58,6 +58,39 @@ appears fixed on HP-UX 9 with readline.
 
 upgrade to newest CLN, but still big-endian and without gmp
 
+intgcd
+
+* Speed up the functions `cl_I gcd (const cl_I&, const cl_I&)' and
+  `cl_I xgcd (const cl_I&, const cl_I&, cl_I*, cl_I*)' by a factor
+  of 1.5. Simple trick.
+Why is there no cl_gcd_double_threshold in xgcd, only in gcd??
+
+lfloat
+
+* Speed up multiplication and division of large long-floats by small integers.
+
+realtran
+
+* Speed up the internal computation of ln(2) and ln(10) by about 20%.
+
+* Speed up the computation of exp (for 1000 digits or more) by about 10%.
+
+* Speed up the computation of the elementary transcendental functions:
+  exp, sinh, cosh, asinh, atanh (for 100 digits) by about 30%,
+  log (for 100 digits) by about 25%,
+  sin, cos (for 1000 or 10000 digits) by about 20%,
+  asin, acos, atan (for 1000 digits) by about 25%.
+
+* Speed up the computation of pi, e, exp, log, sin, cos, tan, sinh, cosh, tanh,
+  asin, acos, atan, asinh, acosh, atanh.
+  All of them are now computed with asymptotically fast algorithms, of
+  bit complexity O(log(N)^2*M(N)) = O(N^(1+epsilon)) for N digits.
+
+
+Distribute impnotes.html as a patch against Harlequin's HyperSpec.
+(We cannot distribute the patched HyperSpec because the copyright
+forbids this.)
+
 
 If you (TRACE generic-function) and then reload the file defining that
 function, you get an error saying that #<CLOSURE TRACED-xxx> is not a generic
@@ -105,27 +138,6 @@ Shift F12 --> F12
 Ctrl-Alt-Q --> nothing at all
 
 
-Browse in dpANS to see which situations require the following conditions:
-    # all kinds of conditions
-    condition,
-      # conditions that require interactive intervention
-      serious_condition,
-        # serious conditions that occur deterministically
-        error,
-          # when some datum does not belong to the expected type
-          type_error,
-          # errors while doing stream I/O
-          stream_error,
-          # errors with pathnames, OS level errors with streams
-          file_error,
-        # "Virtual memory exhausted"
-        storage_condition,
-      # conditions for which user notification is appropriate
-      warning,
-CLISP always issues a condition type that makes sense, but in some case
-dpANS may force us it to switch to a more specific condition type.
-
-
 Looks at GCL CLCS (debugger.lsp top-patches.lsp condition-definitions.lsp)
 whether it contains something clisp could profit from.
 
@@ -147,19 +159,16 @@ More CLtL2 compliance:
 ;   <3>  ADJUST-ARRAY not adjustable         no              array.d
 ;   <8>  array type/element type semantics   yes for arrays  type.lsp
 ;                                            no for complex numbers
-;  <11>  character proposal                  no
 ;  <24>  compiler diagnostics                no              compiler.lsp
 ;  <49>  DEFINE-COMPILER-MACRO               no              defs2.lsp
 ;  <55>  DEFSTRUCT :PRINT-FUNCTION inheritance
 ;                                            no              defstruc.lsp
-;  <57>  DEFSTRUCT slots constraints: name   no              defstruc.lsp
 ;  <73>  EVAL-WHEN non top-level             no              control.d, init.lsp, compiler.lsp
 ;  <76>  FIXNUM non-portable                 no              array.d
 ;  <85>  FORMAT & pretty print               yes             format.lsp
 ;                                            no: ~E, ~F, ~G, ~$ also bind *PRINT-BASE* to 10 and *PRINT-RADIX* to NIL
 ;  <98>  hash-table & package generators     no              hashtabl.d, package.d, defs2.lsp
 ; <102>  IMPORT & SETF SYMBOL-PACKAGE        no              package.d
-; <103>  IN-PACKAGE functionality            no              package.d, compiler.lsp
 ; <105>  keyword argument name package       no
 ; <110>  LOAD & objects                      no
 ; <118>  MACRO-FUNCTION environment          no              control.d, compiler.lsp
@@ -171,7 +180,6 @@ More CLtL2 compliance:
 ; <133>  pathname: subdirectory list         no              pathname.d
 ; <134>  pathname: symbol                    no              pathname.d, stream.d
 ; <136>  pathname: unspecific component      no              pathname.d
-; <138>  PEEK-CHAR, READ-CHAR & echo         no              io.d, stream.d
 ; <139>  pretty-print interface              no              xp.lsp
 ; <141>  *PRINT-CASE* / *PRINT-ESCAPE* interaction
 ;                                            no              io.d
