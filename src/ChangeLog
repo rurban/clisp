@@ -1,3 +1,23 @@
+2004-07-26  Sam Steingold  <sds@gnu.org>
+
+	interface to the LOG subsystem
+	* modules/berkeley-db/bdb.c (BDB:DBE-SET-OPTIONS, BDB:DBE-GET-OPTIONS):
+	handle log options
+	(dbe_get_tmp_dir, dbe_get_tx_max, dbe_get_tx_timestamp): define
+	with DEFINE_DBE_GETTER1
+	(dbe_get_lg_bsize, dbe_get_lg_dir, dbe_get_lg_max)
+	(dbe_get_lg_regionmax, check_lsn, make_lsn): new functions
+	(BDB:DB-STAT, BDB:LOCK-STAT, BDB:TXN-STAT): guard free()
+	with begin_system_call()/end_system_call()
+	(BDB:LOG-ARCHIVE, BDB:LOG-FILE, BDB:LOG-FLUSH, BDB:LOG-PUT)
+	(BDB:LOG-STAT, BDB:LOG-CURSOR, BDB:LOGC-CLOSE, BDB:LOGC-GET)
+	(BDB:LOG-COMPARE): implemented
+	(BDB:TXN-STAT): use make_lsn() and uint32_to_I()
+	* modules/berkeley-db/dbi.lisp: export LOG symbols
+	(db-lock-stat): removed the prefixes from slot names
+	(db-log-stat): new struct
+	(close): added a method for LOGC
+
 2004-07-27  Sam Steingold  <sds@gnu.org>
 
 	* clos-method2.lisp (analyze-method-description): signal an error
@@ -27,8 +47,7 @@
 	set_lk_conflicts() interface
 	* genclisph.d (main): export array_atype()
 	* array.d (array_atype): global, not local
-
-	* genclisph.d (main): Exported array_rank() and get_array_dimensions().
+	* genclisph.d (main): export array_rank() and get_array_dimensions()
 
 2004-07-26  Bruno Haible  <bruno@clisp.org>
 
