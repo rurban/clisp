@@ -94,6 +94,9 @@ typedef struct {
 # the memory between heap_start and heap_end is occupied,
 # the memory between heap_end (resp. heap_start) and heap_limit is free.
 # heap_limit is enlarged (resp. reduced), if necessary.
+# heap_limit is divisible by physpagesize if heap_start < heap_end. If
+# heap_start == heap_end, heap_limit may be equal to heap_end and thus
+# == varobjects_misaligned mod physpagesize.
 #if !defined(SPVW_MIXED_BLOCKS_OPPOSITE)
 # heap_hardlimit is the biggest resp. smallest admissible value of heap_limit.
 #endif

@@ -1749,8 +1749,14 @@ local void gc_unmarkcheck (void) {
                 heap->heap_gen0_end = end;
                 end = (end + (physpagesize-1)) & -physpagesize;
                 #if varobjects_misaligned
-                if (is_varobject_heap(heapnr))
+                if (is_varobject_heap(heapnr)) {
                   end += varobjects_misaligned;
+                  if (heap->heap_limit < end) {
+                    if (end - heap->heap_limit > varobjects_misaligned)
+                      abort();
+                    heap->heap_limit = end;
+                  }
+                }
                 #endif
                 heap->heap_gen1_start = heap->heap_end = end;
               }
@@ -1871,7 +1877,7 @@ local void gc_unmarkcheck (void) {
       #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
       for_each_heap(heap, {
         var aint needed_limit = round_up(heap->heap_end,map_pagesize);
-        if (needed_limit > heap->heap_limit)
+        if (needed_limit > round_up(heap->heap_limit,map_pagesize))
           abort();
         if (needed_limit < heap->heap_limit) {
           if (munmap((void*)needed_limit,heap->heap_limit-needed_limit) < 0)
@@ -1892,7 +1898,7 @@ local void gc_unmarkcheck (void) {
           }
         } else {
           var aint needed_limit = round_up(heap->heap_end,map_pagesize);
-          if (needed_limit > heap->heap_limit)
+          if (needed_limit > round_up(heap->heap_limit,map_pagesize))
             abort();
           if (needed_limit < heap->heap_limit) {
             if (munmap((void*)needed_limit,heap->heap_limit-needed_limit) < 0)
