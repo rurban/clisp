@@ -646,6 +646,10 @@
                      nil
                      `(,@(if direct-slots-p (list 'direct-slots direct-slots) '())
                        ,@all-keys))
+              ;; If the class could be finalized (although not a "must"),
+              ;; keep it finalized and don't unfinalize it.
+              (when (>= (class-initialized class) 6)
+                (setq must-be-finalized t))
               (update-subclasses-for-redefined-class class
                 was-finalized must-be-finalized old-direct-superclasses)))
           (install-class-direct-accessors class))
