@@ -2,6 +2,7 @@
 
 	* makemake.in (distrib) [win32]: distribute both base and full
 	(uninstall): RMRF lispdocdir & lisplibdir
+	(linkkit): added exporting.lisp & modprep.lisp
 
 2003-09-02  Sam Steingold  <sds@gnu.org>
 
