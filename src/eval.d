@@ -763,11 +763,11 @@ local inline gcv_object_t* symbol_env_search (object sym, object venv)
     var uintL count = as_oint(FRAME_(frame_anz)); /* number of bindings */
     if (count > 0) {
       var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); /* 1st binding */
-      dotimespL(count,count, {
+      do {
         if (binds_sym_p(bindingsptr)) /* right symbol & active & static? */
           return bindingsptr STACKop varframe_binding_value;
         bindingsptr skipSTACKop varframe_binding_size; /* no: next binding */
-      });
+      } while (--count);
     }
     venv = FRAME_(frame_next_env);
     goto next_env;
@@ -789,7 +789,7 @@ local inline gcv_object_t* symbol_env_search (object sym, object venv)
       });
       venv = *ptr; /* next environment */
       continue;
-    } elif (consp(venv)) {
+    } else if (consp(venv)) {
       /* environment is a MACROLET capsule */
       ASSERT(eq(Car(venv),S(macrolet)));
       from_inside_macrolet = true;
@@ -962,7 +962,7 @@ global maygc object setq (object sym, object value)
           });
           env = *ptr; # next Environment
           continue;
-        } elif (consp(env)) {
+        } else if (consp(env)) {
           /* environment is a MACROLET capsule */
           ASSERT(eq(Car(env),S(macrolet)));
           from_inside_macrolet = true;
@@ -1420,7 +1420,7 @@ global maygc gcv_environment_t* nest_env (gcv_environment_t* env5)
             funcall(Symbol_value(S(macroexpand_hook)),3);
             value2 = T; # expanded Form as 1. value, T as 2. value
             return;
-          } elif (symbolp(fdef)) {
+          } else if (symbolp(fdef)) {
             # fdef a Symbol
             # Must be expanded to (FUNCALL fdef ...) :
             pushSTACK(Cdr(form)); # (cdr form)
@@ -1439,7 +1439,7 @@ global maygc gcv_environment_t* nest_env (gcv_environment_t* env5)
           }
         }
       }
-    } elif (symbolp(form)) {
+    } else if (symbolp(form)) {
       var object symbolmacro;
       var object val = sym_value(form,TheSvector(env)->data[0],&symbolmacro);
       if (!eq(symbolmacro,nullobj)) { # found Symbol-Macro?
