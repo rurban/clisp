@@ -29,9 +29,6 @@ LISPPACK(screen,"SCREEN")
 #ifdef DYNAMIC_FFI
 LISPPACK(ffi,"FFI")
 #endif
-#ifdef DIR_KEY
-LISPPACK(ldap,"LDAP")
-#endif
 #ifdef EXPORT_SYSCALLS
 LISPPACK(posix,"POSIX")
 #endif

@@ -1,5 +1,18 @@
 2003-07-23  Sam Steingold  <sds@gnu.org>
 
+	Converted dirkey to a module
+	* constobj.d, constpack.d, constsym.d, defs1.lisp, describe.lisp:
+	* init.lisp, io.d, lispbibl.d, predtype.d, spvw.d, subr.d:
+	* subrkw.d, type.lisp: removed dirkey-specific stuff
+	* Makefile.devel (CONFIGURES): added dirkey, oracle, fastcgi
+	* configure, makemake.in (--with-dir-key): removed option
+	* encoding.d (cslen_f, cstombs_f): new functions that enable
+	with_string_0() in modules
+	* genclisph.d: enables a LOT of stuff to support dirkey
+	* modules/dirkey: new directory
+
+2003-07-23  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (reset): updated the prototype
 	* eval.d (reset): accept count arg
 	* control.d (UNWIND-TO-DRIVER): use reset() for everything

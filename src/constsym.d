@@ -1129,26 +1129,6 @@ LISPSYM(foreign_library_variable,"FOREIGN-LIBRARY-VARIABLE",ffi)
 LISPSYM(foreign_library_function,"FOREIGN-LIBRARY-FUNCTION",ffi)
 #endif
 #endif
-/* ---------- DIRKEY ---------- */
-#ifdef DIR_KEY
-LISPSYM(dir_key_type,"DIR-KEY-TYPE",ldap)
-LISPSYM(dir_key_path,"DIR-KEY-PATH",ldap)
-LISPSYM(dir_key_direction,"DIR-KEY-DIRECTION",ldap)
-LISPSYM(dir_key_open_p,"DIR-KEY-OPEN-P",ldap)
-LISPSYM(dir_key_close,"DIR-KEY-CLOSE",ldap)
-LISPSYM(dir_key_open,"DIR-KEY-OPEN",ldap)
-LISPSYM(dir_key_subkeys,"DIR-KEY-SUBKEYS",ldap)
-LISPSYM(dir_key_attributes,"DIR-KEY-ATTRIBUTES",ldap)
-LISPSYM(dkey_search_iterator,"DKEY-SEARCH-ITERATOR",ldap)
-LISPSYM(dkey_search_next_key,"DKEY-SEARCH-NEXT-KEY",ldap)
-LISPSYM(dkey_search_next_att,"DKEY-SEARCH-NEXT-ATT",ldap)
-LISPSYM(dir_key_value,"DIR-KEY-VALUE",ldap)
-LISPSYM(set_dkey_value,"SET-DKEY-VALUE",ldap)
-LISPSYM(dir_key_subkey_delete,"DIR-KEY-SUBKEY-DELETE",ldap)
-LISPSYM(dir_key_value_delete,"DIR-KEY-VALUE-DELETE",ldap)
-LISPSYM(dkey_info,"DKEY-INFO",ldap)
-LISPSYM(dir_key,"DIR-KEY",ldap)
-#endif
 /* ---------- ZTHREAD ---------- */
 #ifdef MULTITHREAD
 LISPSYM(make_process,"MAKE-PROCESS",mt)
@@ -1302,14 +1282,8 @@ LISPSYM(Kresult,"RESULT",keyword)
 LISPSYM(Kstring,"STRING",keyword)
 LISPSYM(Ktoken,"TOKEN",keyword)
 #endif
-#if defined(WIN32_NATIVE) || (defined(UNIX_CYGWIN32) && defined(DIR_KEY))
+#if defined(WIN32_NATIVE)
 LISPSYM(Kwin32,"WIN32",keyword)
-#endif
-#ifdef DIR_KEY
-LISPSYM(Kldap,"LDAP",keyword)
-LISPSYM(Kscope,"SCOPE",keyword)
-LISPSYM(Kself,"SELF",keyword)
-LISPSYM(Ktree,"TREE",keyword)
 #endif
 #if defined(EXPORT_SYSCALLS) && defined(HAVE_FLOCK)
 LISPSYM(Kshared,"SHARED",keyword)

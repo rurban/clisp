@@ -1,0 +1,21 @@
+dnl AUTOCONF configuration for dirkey
+dnl Copyright (C) 2003  Sam Steingold <sds@gnu.org>
+dnl GNU GPL2
+
+AC_PREREQ(2.57)
+AC_INIT(dirkey1.lisp)
+
+{ echo; echo " * Dirkey (Tools):"; } >& AS_MESSAGE_FD
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_GCC_TRADITIONAL
+
+{ echo; echo " * Dirkey (Headers):"; } >& AS_MESSAGE_FD
+AC_HEADER_STDC
+AC_CHECK_HEADERS(ldap.h gnome.h)
+
+{ echo; echo " * Dirkey (Output):"; } >& AS_MESSAGE_FD
+AC_OUTPUT(Makefile)
+AC_CONFIG_HEADER(config.h)
+
+{ echo; echo " * Dirkey (Done)"; echo; } >& AS_MESSAGE_FD

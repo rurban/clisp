@@ -1265,26 +1265,6 @@ LISPFUN(mem_write,seclass_default,3,1,norest,nokey,0,NIL)
 LISPFUN(mem_write_vector,seclass_default,2,1,norest,nokey,0,NIL)
 LISPFUN(affi_nonzerop,seclass_default,1,0,norest,nokey,0,NIL)
 #endif
-/* ---------- DIRECTORY KEY ---------- */
-#ifdef DIR_KEY
-LISPFUNNR(dir_key_type,1)
-LISPFUNNR(dir_key_path,1)
-LISPFUNNR(dir_key_direction,1)
-LISPFUNNR(dir_key_open_p,1)
-LISPFUNN(dir_key_close,1)
-LISPFUN(dir_key_open,seclass_default,2,0,norest,key,2,
-        (kw(direction),kw(if_does_not_exist)))
-LISPFUNN(dir_key_subkeys,1)
-LISPFUNN(dir_key_attributes,1)
-LISPFUNN(dkey_search_iterator,3)
-LISPFUNN(dkey_search_next_key,1)
-LISPFUNN(dkey_search_next_att,1)
-LISPFUN(dir_key_value,seclass_default,2,1,norest,nokey,0,NIL)
-LISPFUNN(set_dkey_value,3)
-LISPFUNN(dir_key_subkey_delete,2)
-LISPFUNN(dir_key_value_delete,2)
-LISPFUNN(dkey_info,1)
-#endif
 /* ---------- ZTHREAD ---------- */
 #ifdef MULTITHREAD
 LISPFUN(make_process,seclass_default,2,0,rest,nokey,0,NIL)
