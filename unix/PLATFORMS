@@ -1,44 +1,18 @@
 This file presents
 * a list of platforms CLISP is known to run on,
 * special hints for the following platforms:
-    386BSD 0.1
-    NetBSD 1.0
-    NetBSD 1.1
     NetBSD/sparc 1.4.1
-    FreeBSD 2.1
     BSDI 1.0
     PC 386 under GNU 0.2
     Sun4 (Sparc) under Linux
-    Sun4 (Sparc) under SunOS 4
-    Sun3 (68020) under SunOS 4
-    Sun4 (Sparc) under SunOS 5.2 or SunOS 5.3
     PC 386 under SunOS 5.4
     HP9000/8xx under HP-UX version 8, 9, 10
-    HP9000/3xx under HP-UX version 8
-    Consensys System V 4.0
-    Consensys System V 4.2
-    386 UHC UNIX System V release 4
-    Onsite System V 4.2
-    UnixWare
-    SINIX-N 5.42
     SINIX-N 5.43
-    IRIX 3.2.1
-    IRIX 4
-    IRIX 5
     IRIX 6.2
     IRIX 6.2 and 6.3
-    DECstation 5000, Ultrix
-    Apple Macintosh, A/UX
-    Amiga running AMIX 2.1 SVR4.0
-    Amiga running NetBSD 1.2
     NeXT running NeXTstep 3.3
     Apple PowerPC running MacOS X Server
     AIX
-    Sequent PTX 2, PTX 4
-    SCO
-    Convex C2 running ConvexOS 10.1
-    Atari ST/TT running MiNT
-    DEC Alpha AXP running OSF/1 1.3 or OSF/1 2.0 or OSF/1 3.0
     DEC Alpha AXP running OSF/1 3.2
     DEC Alpha AXP running OSF/1 4.0b
     IA-64 running Linux, emulated by HP NUE
@@ -412,49 +386,6 @@ Special hints for some platforms:
 ---------------------------------
 
 
-On 386BSD 0.1:
-
-386BSD can't identify itself. Before executing makemake, you need to create a
-program called "arch" that outputs "386BSD". For example:
-  $ cat > /usr/bin/arch <<EOF
-  #!/bin/sh
-  echo 386BSD
-  EOF
-  $ chmod a+x /usr/bin/arch
-
-Add -DNO_MULTIMAP_SHM -DNO_MULTIMAP_FILE to the CFLAGS in the makefile. 386BSD
-declares the shared memory and memory mapping facilities (shm*, mmap too?)
-in the header files, but does not implement them in the kernel.
-
-In unixconf.h change
-  #define IOCTL_REQUEST_T int  to   #define IOCTL_REQUEST_T unsigned long
-  #undef IOCTL_DOTS            to   #define IOCTL_DOTS
-
-
-On NetBSD 1.0:
-
-Add -DNO_MULTIMAP_SHM -DNO_MULTIMAP_FILE to the CFLAGS in the makefile. NetBSD
-has shared memory and memory mapping facilities but they don't work reliably.
-
-In unixconf.h change
-  #define IOCTL_REQUEST_T int  to   #define IOCTL_REQUEST_T unsigned long
-  #undef IOCTL_DOTS            to   #define IOCTL_DOTS
-
-
-On NetBSD 1.1 and FreeBSD 2.1:
-
-Generational GC requires a kernel with an adequate amount of shared memory.
-Adding the line:
-
-options               "SHMSEG=200"
-
-to the kernel config file will do this.  NetBSD 1.1, requires
-a similar change to param.c.  Douglas Crosher <dtc@stan.xx.swin.oz.au>
-provided a patch for NetBSD 1.1 and FreeBSD 2.1 so that the
-address of protection faults is available to CLISP.  See:
-   unix/NetBSD-1.1.diffs
-
-
 On NetBSD/sparc 1.4.1:
 
 The default stack limit is 512 KB, which is not sufficient for building CLISP.
@@ -491,45 +422,6 @@ After configuring, change unixconf.h to contain the lines
   #undef HAVE_MMAP_DEVZERO_SUN4_29
 Otherwise, the poor Sparc1 will freeze up about half way through the compile
 of compiler.lisp. Looks like a kernel problem.
-
-
-On a Sun4 (Sparc) under SunOS 4:
-
-The Sun cc is usable only without the optimization flag "-O". (At least spvw.d
-is compiled incorrectly when -O is used.)
-It is best to get and install GNU gcc. (Gcc version 2.2 or later required.)
-
-
-On a Sun3 (68020) under SunOS 4:
-
-In the makefile, I had to add -DNO_MULTIMAP_FILE -DNO_MULTIMAP_SHM to the
-CFLAGS, and change
-     PACK = tar
-to   PACK = /usr/local/gnu/bin/gtar
-
-
-On a Sun4 (Sparc) under SunOS 5.2 or SunOS 5.3:
-
-For the readline library, you *may* have to add -D_POSIX_VERSION to the CFLAGS
-in the readline/Makefile, and modify the line containing SIGNALBLOCK_POSIX
-in readline/config.h. I cannot tell anything definitely correct about this.
-
-Make sure your PATH contains the X11/bin directory. Especially xmkmf must be
-found. Make sure your LD_RUN_PATH contains the X11/lib directory. Otherwise
-the shared X11 libraries won't be found.
-For example, you may append ":/usr/openwin/lib" to your LD_LIBRARY_PATH and
-replace "-Y P,/usr/ccs/lib:/usr/lib" in the makefile by
-"-Y P,/usr/ccs/lib:/usr/lib:/usr/openwin/lib". To make sure these settings are
-in effect every time clisp is run, it may then be useful to add the lines
-    LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/openwin/lib"
-    export LD_LIBRARY_PATH
-to the /usr/local/bin/clisp script.
-
-Normally, clisp doesn't use shared memory on SunOS 5 because it tries to
-attach more segments that the default limit (6). If you want clisp to use
-shared memory, you have to increase this limit: put the line
-set shminfo_shmseg=200
-into /etc/system, reboot, and continue installing clisp.
 
 
 On a 386 PC under SunOS 5.4 (Solaris 2.4):
@@ -576,97 +468,10 @@ and continue.
 The testsuite causes a failure because of ISQRT. A workaround is not known.
 
 
-On a HP9000/3xx under HP-UX version 8:
-
-If you are using GNU gcc 2.4.5 with the HP-UX assembler, in the makefile add
--DHPUX_ASSEMBLER -DNO_ASM to the CFLAGS and remove -fomit-frame-pointer from
-the CFLAGS. This way the best optimizations are disabled, but otherwise you
-are risking core dumps.
-
-
-On Consensys System V 4.0:
-
-Choose "cc -I/usr/include" as compiler, as described in paragraph 2 of the
-INSTALL file.
-Otherwise /usr/ucbinclude/sys/sysmacros.h will be included instead of
-/usr/include/sys/sysmacros.h, and this lacks the definition of ctob().
-
-Add -DNO_MULTIMAP_SHM to the CFLAGS in the makefile. The shared memory
-facilities of Consensys do not work as expected. This flag prevents CLISP
-from using them.
-
-(*) The lisp.run you get is a program that reliably crashes your machine.
-
-
-On Consensys System V 4.2:
-
-Add -DNO_MULTIMAP_SHM -DSVR4 -DUSL to the CFLAGS in the makefile.
-Use "-O", not "-g", as compiler optimization settings in the CFLAGS,
-otherwise the ISQRT function may not work.
-
-
-On 386 UHC UNIX System V release 4:
-
-Add -DNO_MULTIMAP_SHM -DSVR4 -DUSL to the CFLAGS in the makefile.
-
-
-On Onsite System V 4.2:
-
-Add -DUSL to the CFLAGS in the makefile.
-You may need to add -lnsl to the LIBS in the makefile.
-
-
-On UnixWare:
-
-Add -DNO_MULTIMAP_SHM -DUNIX_SYSV_UHC_1 to the CFLAGS in the makefile.
-This is because shared memory does not work, and malloc() returns
-addresses in the range 0x080xyzzy.
-
-
-On SINIX-N 5.42:
-
-If using c89:
-  Add -Dunix -DSYSTYPE_SYSV to the CFLAGS in the makefile.
-  In /usr/include/sys/signal.h replace the line
-    #if (__STDC__ - 0 == 0) || defined(_POSIX_SOURCE) || defined(_XOPEN_SOURCE) || defined(_KERNEL)
-  by
-    #if defined(__STDC__) || defined(_POSIX_SOURCE) || defined(_XOPEN_SOURCE) || defined(_KERNEL)
-  - otherwise no program can include <signal.h> without error.
-  Set CPP = C89 -P in the makefile.
-
-
 On SINIX-N 5.43:
 
 Choose CC="cc -D_XPG_IV" instead of CC=cc. This avoids a problem with a wrong
 declaration of gettimeofday().
-
-
-On IRIX 3.2.1:
-
-cc is too buggy: it dumps core when compiling spvw.i. You'll see a message
-"Fatal error in: /usr/lib/ccom - core dumped".
-
-Get and install GNU gcc.
-
-
-On IRIX 4:
-
-If you are using cc, choose "cc -ansi" as compiler. cc in non-ANSI mode
-fails to expand macros with arguments within preprocessor directives like #if.
-Since the compiler rejects 8-bit characters in strings, you will have to
-convert the sources to plain ASCII first.
-Add  -Olimit 3000  to the CFLAGS in the makefile. This ensures that the
-bytecode interpreter will get optimized, which is crucial for performance.
-If the compiler signals an internal error in unix.d, pointing to the line
-"extern signal_handler signal (int sig, signal_handler handler);",
-then comment out that line.
-
-
-On IRIX 5:
-
-Add -DNO_MULTIMAP_SHM to the CFLAGS in the makefile.
-With IRIX 5.1(.0.1), it is necessary to add -D_POSIX_4SOURCE to the CFLAGS
-in the makefile.
 
 
 On IRIX 6.2 in 64-bit mode:
@@ -686,34 +491,6 @@ On IRIX 6.2 and 6.3:
 The configuration of ffcall hangs during "checking for working mprotect".
 The running `conftest' process is unkillable. No workaround is known.
 The problem seems to be gone in IRIX 6.4.
-
-
-On DECstation 5000, Ultrix:
-
-/bin/sh apparently doesn't support function definitions. So:
-Set the environment variable CONFIG_SHELL to /usr/bin/ksh.
-After executing "configure ...", change the first line in makemake from
-"#! /bin/sh" to "#! /usr/bin/ksh". After executing "./makemake ...",
-change "./clisp-link" in the makefile to "ksh ./clisp-link".
-
-
-On Apple Macintosh, A/UX:
-
-Add -DNO_MULTIMAP_SHM to the CFLAGS in the makefile. Shared memory
-facilities do not work: even SHMLBA is not defined correctly in <sys/shm.h>.
-
-
-On an Amiga running AMIX 2.1 SVR4.0:
-
-Add -DUSL -DSVR4 -DNO_MULTIMAP_SHM -DNO_MULTIMAP_FILE to the CFLAGS in the
-makefile. If you don't have the GNU assembler gas, then add -DNO_ASM to
-the CFLAGS in the makefile. You may need to add -lnsl to the LIBS in the
-makefile.
-
-
-On an Amiga running NetBSD 1.2:
-
-You can't use gcc-2.7.2 (buggy compiler). Use gcc-2.6.3 or gcc-2.5.8 instead.
 
 
 On NeXT running NeXTstep 3.3:
@@ -761,64 +538,6 @@ with the variable CONFIG_SHELL exported as a reliable shell, like bash.
 
 You would have to add -DNO_SINGLEMAP -DNO_TRIVIALMAP to the CFLAGS in the
 makefile. But lispbibl.d now already takes care of this.
-
-
-On Sequent PTX 2, PTX 4:
-
-Add -linet -lnsl to the LIBS in the makefile.
-
-On Sequent PTX V4 (sysv4), will find many features during autoconfig,
-but during compilation will have trouble with mismatched declarations.
-Avoid all this by running `configure' with "CC=gcc -D__STDC__=0".
-Also be sure that "_SEQUENT_" is being defined by your gcc install.
-
-
-On SCO:
-
-I used gcc and added -DNO_ASM to the CFLAGS in the makefile.
-
-
-On Convex C2 running ConvexOS 10.1:
-
-Add -Dunix to the CFLAGS in the makefile.
-Modify the definitions belonging to CL_MMAP in unixconf.h appropriately.
-
-If you are using gcc and have not -DSAFETY=2 or -DSAFETY=3 set, add
--ffixed-a4 -ffixed-a5 -ffixed-s5 -ffixed-s6 -ffixed-s7
-to the CFLAGS in the makefile. This is needed because eval.d and lispbibl.d
-use the registers a4, a5 and s5, s6, s7 in a special way.
-
-If using gcc-2.6, compile eval.d without optimization flags (otherwise
-eval.d gets miscompiled) and compile io.d without optimization flags
-(otherwise gcc crashes).
-
-
-On Atari ST/TT running MiNT:
-
-Use "gcc -Dunix -U__TOS__" as compiler. The "-Dunix -U__TOS__" flags make
-CLISP forget that it will be running on an Atari. MiNT is treated like any
-other Unix operating system.
-
-If you are on an Atari TT, add -DATARITT to the CFLAGS in the makefile.
-This is because ST and TT have different address space layout.
-
-
-On DEC Alpha AXP running OSF/1 1.3 or OSF/1 2.0 or OSF/1 3.0:
-
-If cc had no bugs:
-  Add  -Olimit 1500  to the CFLAGS in the makefile. This ensures that the
-  bytecode interpreter will get optimized, which is crucial for performance.
-Alas, I didn't succeed in building a working lisp.run with cc. cc cannot
-compile package.d correctly.
-
-So get and install GNU gcc (version 2.5.5 or newer).
-
-On OSF/1 1.3, add -DNO_SINGLEMAP to the CFLAGS in the makefile. The reason is
-this that mmap() is not usable: it returns errno=ENOMEM. (The shared memory
-facility is not usable either: shmget() works only for segsize < 4112 KB,
-shmat() returns errno=EINVAL. But this is automatically detected at
-configuration time.)
-On OSF/1 3.0, mmap() works.
 
 
 On DEC Alpha AXP running OSF/1 3.2:
