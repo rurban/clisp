@@ -31,7 +31,7 @@ extern uintC object_tab_size;
   extern object_initdata_t module__##module_name##__object_tab_initdata[]; \
   extern void module__##module_name##__init_function_1(struct module_t *); \
   extern void module__##module_name##__init_function_2(struct module_t *); \
-  extern void module__##module_name##__exit_function(struct module_t *);
+  extern void module__##module_name##__fini_function(struct module_t *);
  #include "modules.h"
 #undef MODULE
 #ifdef DYNAMIC_MODULES
@@ -56,7 +56,7 @@ module_t modules[] = {
     &module__##module_name##__object_tab_initdata[0],                   \
     &module__##module_name##__init_function_1,                          \
     &module__##module_name##__init_function_2,                          \
-    &module__##module_name##__exit_function                             \
+    &module__##module_name##__fini_function                             \
     _NEXT_NULL                                                          \
   },
   #include "modules.h"
