@@ -82,7 +82,7 @@ public class attribute_table {
         int b = 0;
         for (int i3 = 0; i3 < 4; i3++) {
           int i = 1024*i1 + 4*i2 + i3;
-          b |= attribute[i] << i3;
+          b |= attribute[i] << (2*i3);
         }
         table[i1][i2] = (byte)b;
       }
