@@ -400,6 +400,7 @@ NIL
 
 (multiple-value-list (subtypep '(integer 1 2) '(real 1 2)))  (t t)
 (multiple-value-list (subtypep '(integer 1 2) '(real (1) 2)))  (nil t)
+(multiple-value-list (subtypep '(mod 10) '(or (mod 10) (mod 10))))  (t t)
 
 ;; from GCL ansi-test
 (progn
