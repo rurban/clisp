@@ -35,6 +35,7 @@
   all-superclasses         ; hash table of all superclasses (incl. the class itself)
   precedence-list          ; ordered list of all superclasses (with the class itself first),
                            ; or NIL while the class is waiting to be finalized
+  direct-subclasses-table  ; weak-list or weak-hash-table of all direct subclasses
   direct-slots             ; list of all freshly added slots (as direct-slot-definition instances)
   slots                    ; list of all slots (as effective-slot-definitions)
   (slot-location-table empty-ht) ; hash table slotname -> location of the slot
@@ -358,7 +359,10 @@
               ((atom l))
             (let ((c (car l)))
               (unless (class-p c)
-                (setf (car l) (or (find-class c nil) c))))))
+                (let ((new-c (or (find-class c nil) c)))
+                  (setf (car l) new-c)
+                  (when (class-p new-c) ; changed from symbol to class
+                    (add-direct-subclass new-c class)))))))
         ;; Convert the direct-slots to <direct-slot-definition> instances.
         (setq direct-slots (convert-direct-slots class direct-slots))
         ;; Trivial changes (that can occur when loading the same code twice)
@@ -496,6 +500,35 @@
         'DEFCLASS name (find-if-not metaclass-test direct-superclasses)
         metaclass))))
 
+;;; The direct-subclasses slot can be either
+;;; - NIL or a weak-list (for saving memory when there are few subclasses), or
+;;; - a weak-hash-table (for speed when there are many subclasses).
+#|
+;; Adds a class to the list of direct subclasses.
+(defun add-direct-subclass (class subclass) ...)
+;; Removes a class from the list of direct subclasses.
+(defun remove-direct-subclass (class subclass) ...)
+;; Returns the currently existing direct subclasses, as a freshly consed list.
+(defun list-direct-subclasses (class) ...)
+|#
+(def-weak-set-accessors class-direct-subclasses-table class
+  add-direct-subclass
+  remove-direct-subclass
+  list-direct-subclasses)
+
+(defun update-subclasses-sets (class old-augmented-direct-superclasses new-augmented-direct-superclasses)
+  ;; Drop classes that are not yet defined; they have no subclasses list.
+  (setq old-augmented-direct-superclasses (remove-if #'symbolp old-augmented-direct-superclasses))
+  (setq new-augmented-direct-superclasses (remove-if #'symbolp new-augmented-direct-superclasses))
+  (unless (equal old-augmented-direct-superclasses new-augmented-direct-superclasses)
+    (let ((removed-direct-superclasses
+            (set-difference old-augmented-direct-superclasses new-augmented-direct-superclasses))
+          (added-direct-superclasses
+            (set-difference new-augmented-direct-superclasses old-augmented-direct-superclasses)))
+      (dolist (super removed-direct-superclasses)
+        (removed-direct-subclass super class))
+      (dolist (super added-direct-superclasses)
+        (add-direct-subclass super class)))))
 
 ;; --------------- Creation of an instance of <standard-class> ---------------
 
@@ -519,18 +552,28 @@
                 ((direct-slots direct-slots-as-metaobjects) '() direct-slots-as-metaobjects-p)
                 (direct-default-initargs '()) (documentation nil)
                 (fixed-slot-locations nil)
-           &allow-other-keys)
-  (unless (slot-boundp class 'current-version)
-    (setf (class-current-version class)
-          (make-class-version :newest-class class
-                              :class class
-                              :serial 0))
-    (setf (class-direct-accessors class) '())
-    (setf (class-instantiated class) nil)
-    (setf (class-finalized-direct-subclasses-table class) '()))
+           &allow-other-keys
+           &aux (old-augmented-direct-superclasses '()))
+  (if (slot-boundp class 'current-version)
+    (setq old-augmented-direct-superclasses
+          (add-default-superclass (class-direct-superclasses class)
+                                  <standard-object>))
+    (progn
+      (setf (class-current-version class)
+            (make-class-version :newest-class class
+                                :class class
+                                :serial 0))
+      (setf (class-direct-subclasses-table class) '())
+      (setf (class-direct-accessors class) '())
+      (setf (class-instantiated class) nil)
+      (setf (class-finalized-direct-subclasses-table class) '())))
   (when *classes-finished*
     (apply #'%initialize-instance class args)) ; == (call-next-method)
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
+  (let ((new-augmented-direct-superclasses
+          (add-default-superclass direct-superclasses <standard-object>)))
+    (update-subclasses-sets class old-augmented-direct-superclasses
+                                  new-augmented-direct-superclasses))
   (setf (class-direct-slots class)
         (if direct-slots-as-metaobjects-p
           direct-slots-as-metaobjects
@@ -569,14 +612,17 @@
         (let ((finalizing-now (cons class finalizing-now)))
           (do ((superclassesr (class-direct-superclasses class) (cdr superclassesr)))
               ((endp superclassesr))
-            (let ((finalized-superclass
-                    (finalize-class (car superclassesr) force-p finalizing-now)))
+            (let* ((superclass (car superclassesr))
+                   (finalized-superclass
+                     (finalize-class superclass force-p finalizing-now)))
               (unless finalized-superclass
                 ;; Finalization of a superclass was impossible. force-p must
                 ;; be nil here, otherwise an error was signaled already. So we
                 ;; have to return nil as well.
                 (return-from finalize-class nil))
-              (setf (car superclassesr) finalized-superclass))))
+              (setf (car superclassesr) finalized-superclass)
+              (when (symbolp superclass) ; changed from symbol to class
+                (add-direct-subclass finalized-superclass class)))))
         ;; Now compute the class-precedence-list.
         (finalize-instance-standard-class class)
         class))))
@@ -1208,11 +1254,13 @@
 (defun initialize-instance-built-in-class (class &key direct-superclasses
                                            documentation &allow-other-keys)
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
+  (update-subclasses-sets class '() direct-superclasses)
   (setf (class-documentation class) documentation)
   (setf (class-precedence-list class)
         (std-compute-cpl class direct-superclasses))
   (setf (class-all-superclasses class)
         (std-compute-superclasses (class-precedence-list class)))
+  (setf (class-direct-subclasses-table class) '())
   (setf (class-direct-slots class) '())
   (setf (class-slots class) '())
   class)
@@ -1262,16 +1310,19 @@
   (check-metaclass-mix name direct-superclasses
                        #'structure-class-p 'STRUCTURE-CLASS)
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
-  (setf (class-precedence-list class)
-        (std-compute-cpl class
+  (let ((augmented-direct-superclasses
           (add-default-superclass
             (add-default-superclass direct-superclasses
                                     <structure-object>)
             <t>)))
+    (update-subclasses-sets class '() augmented-direct-superclasses)
+    (setf (class-precedence-list class)
+          (std-compute-cpl class augmented-direct-superclasses)))
   (setf (class-all-superclasses class)
         (std-compute-superclasses (class-precedence-list class)))
   (setf (class-subclass-of-stablehash-p class)
         (std-compute-subclass-of-stablehash-p class))
+  (setf (class-direct-subclasses-table class) '())
   (setf (class-direct-slots class) direct-slots-as-metaobjects)
   ;; When called via ENSURE-CLASS, we have to do inheritance of slots.
   (unless names

@@ -1,3 +1,21 @@
+2004-05-16  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (Class): Add direct_subclasses field.
+	* clos-class2.lisp (class): Add slot direct-subclasses-table.
+	(ensure-class): Call add-direct-subclass when a member of the
+	direct-subclasses list changes from symbol to class.
+	(add-direct-subclass, remove-direct-subclass, list-direct-subclasses):
+	New functions.
+	(update-subclasses-sets): New function.
+	(initialize-instance-standard-class): Initialize
+	direct-subclasses-table. Call update-subclasses-sets.
+	(finalize-class): Call add-direct-subclass when a member of the
+	direct-subclasses list changes from symbol to class.
+	(initialize-instance-built-in-class): Initialize
+	direct-subclasses-table. Call update-subclasses-sets.
+	(initialize-instance-structure-class): Initialize
+	direct-subclasses-table. Call update-subclasses-sets.
+
 2004-06-19  Sam Steingold  <sds@gnu.org>
 
 	* hashtabl.d (HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC): new accessor
