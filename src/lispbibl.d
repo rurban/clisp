@@ -12184,7 +12184,7 @@ static inline object check_symbol (object obj) {
 #endif
 /* used by CONTROL, EVAL, I18N, PACKAGE, PREDTYPE, RECORD, STREAM, SYMBOL */
 
-/* check_symbol_non_constant(obj)
+/* check_symbol_non_constant(obj,caller)
  > obj: an object
  > caller: a symbol
  < result: a non-constant symbol, either the same as obj or a replacement
@@ -12205,18 +12205,31 @@ static inline object check_symbol_non_constant (object obj, object caller) {
 extern object check_symbol_special (object obj, object caller);
 /* used by EVAL, CONTROL */
 
-# Error message, if an object isn't a Simple-Vector.
-# fehler_kein_svector(caller,obj);
-# > caller: caller (a Symbol)
-# > obj: non-Svector
+/* Error message, if an object isn't a Simple-Vector.
+ fehler_kein_svector(caller,obj);
+ > caller: caller (a Symbol)
+ > obj: non-Svector */
 nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));
-# is used by ARRAY, EVAL
+/* is used by ARRAY, EVAL */
 
-# Error message, if an object isn't a vector.
-# fehler_vector(obj);
-# > obj: non-vector
+/* Error message, if an object isn't a vector.
+ fehler_vector(obj);
+ > obj: non-vector */
 nonreturning_function(extern, fehler_vector, (object obj));
-# is used by ARRAY
+/* is used by ARRAY */
+
+/* check_array(obj)
+ > obj: an object
+ < result: an array, either the same as obj or a replacement
+ can trigger GC */
+extern object check_array_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_array (object obj) {
+  if (!arrayp(obj)) obj = check_array_replacement(obj);
+  return obj;
+}
+#endif
+/* used by ARRAY, modules */
 
 /* error-message, if an object is not an environment.
  fehler_environment(obj);
