@@ -580,3 +580,25 @@ nil
  (COMPILE NIL (LAMBDA (A) (UNWIND-PROTECT (BLOCK B2 (RETURN-FROM B2 A)))))
  77759)
 77759
+
+;; <https://sourceforge.net/tracker/index.php?func=detail&aid=860052&group_id=1355&atid=101355>
+(funcall
+ (compile
+  nil
+  (lambda ()
+    (labels ((%f17 (f17-1 f17-2)
+               (multiple-value-prog1 f17-1 f17-2 100 (return-from %f17 12))))
+      (%f17 1 2)))))
+12
+
+(funcall (compile nil (lambda (a)
+                        (block b6
+                          (multiple-value-prog1 a (return-from b6 100)))))
+         :wrong)
+100
+
+(funcall (compile nil (lambda ()
+                        (block b3
+                          (return-from b3 (multiple-value-prog1 10
+                                            (return-from b3 100)))))))
+100
