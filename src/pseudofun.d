@@ -1,5 +1,5 @@
 # List of all relocatable machine pointers
-# Bruno Haible 1990-2002
+# Bruno Haible 1990-2004
 
 # There are three kinds of relocatable pointers:
 #   LPSEUDOCODE(fun)                    local C function defined in stream.d
@@ -34,6 +34,14 @@
 #define XDATA_PSEUDO_D(type,name)
 #define XDATA_PSEUDO_E(type,name)  (Pseudofun)(&name),
 
+
+/* For hashtabl.d. */
+XPSEUDOCODE(bool, eql, (object obj1, object obj2))
+XPSEUDOCODE(bool, equal, (object obj1, object obj2))
+XPSEUDOCODE(bool, equalp, (object obj1, object obj2))
+XPSEUDOCODE(uint32, hashcode2, (object obj))
+XPSEUDOCODE(uint32, hashcode3, (object obj))
+XPSEUDOCODE(uint32, hashcode4, (object obj))
 
 LPSEUDOCODE(rd_by_error) LPSEUDOCODE(rd_by_array_error) LPSEUDOCODE(rd_by_array_dummy)
 LPSEUDOCODE(wr_by_error) LPSEUDOCODE(wr_by_array_error) LPSEUDOCODE(wr_by_array_dummy)
