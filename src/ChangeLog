@@ -1,5 +1,14 @@
 2004-06-09  Bruno Haible  <bruno@clisp.org>
 
+	* clos-methcomb2.lisp (compute-effective-method-<standard-generic-function>):
+	New function, extracted from compute-effective-method-as-function-form.
+	(compute-effective-method): New function.
+	(compute-effective-method-as-function-form): Call
+	compute-effective-method.
+	* clos-genfun5.lisp (compute-effective-method): New generic function.
+
+2004-06-09  Bruno Haible  <bruno@clisp.org>
+
 	* clos-genfun2.lisp (compute-effective-method-as-function): Small
 	optimization.
 
