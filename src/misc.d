@@ -317,6 +317,18 @@ local char * cat_env_var (char * buffer, const char * name, uintL namelen,
 global int clisp_setenv (const char * name, const char * value) {
   var uintL namelen = asciz_length(name);
   var uintL valuelen = (value==NULL ? 0 : asciz_length(value));
+#if defined(WIN32_NATIVE)
+  /* On Woe32, each process has two copies of the environment variables,
+     one managed by the OS and one managed by the C library. We set
+     the value in both locations, so that other software that looks in
+     one place or the other is guaranteed to see the value. Even if it's
+     a bit slow. See also
+     <http://article.gmane.org/gmane.comp.gnu.mingw.user/8272>
+     <http://article.gmane.org/gmane.comp.gnu.mingw.user/8273>
+     <http://www.cygwin.com/ml/cygwin/1999-04/msg00478.html> */
+  if (!SetEnvironmentVariableA(name,value))
+    return -1;
+#endif
 #if defined(HAVE_PUTENV)
   var char* buffer = (char*)malloc(namelen+1+valuelen+1);
   if (!buffer)
@@ -324,10 +336,6 @@ global int clisp_setenv (const char * name, const char * value) {
   return putenv(cat_env_var(buffer,name,namelen,value,valuelen));
 #elif defined(HAVE_SETENV)
   return setenv(name,value,1);
-#elif 0 && defined(WIN32_NATIVE)
-  /* <http://article.gmane.org/gmane.comp.gnu.mingw.user/8272>
-     <http://article.gmane.org/gmane.comp.gnu.mingw.user/8273> */
-  return !SetEnvironmentVariableA(name,value);
 #else
   /* Uh oh, neither putenv() nor setenv(), have to frob the environment
    ourselves. Routine taken from glibc and fixed in several aspects. */
