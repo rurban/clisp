@@ -1,8 +1,10 @@
 2003-05-21  Sam Steingold  <sds@gnu.org>
 
-	* clos.lisp (%no-applicable-method): new function
+	* clos.lisp (no-method-caller): new function
 	(compute-dispatch): use it instead of calling NO-APPLICABLE-METHOD
 	directly to avoid funcalling the return value of NO-APPLICABLE-METHOD
+	(compute-effective-method): ditto for NO-APPLICABLE-METHOD and
+	NO-PRIMARY-METHOD; removed the loop
 
 2003-05-21  Sam Steingold  <sds@gnu.org>
 
