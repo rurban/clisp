@@ -394,6 +394,7 @@ lisp.loop \
 lisp.clos \
 lisp.disassem \
 lisp.condition \
+lisp.loadform \
 lisp.threads \
 lisp.gstream \
 lisp.xcharin \
@@ -441,6 +442,7 @@ fas.loop \
 fas.clos \
 fas.disassem \
 fas.condition \
+fas.loadform \
 fas.threads \
 fas.gstream \
 fas.xcharin \
@@ -493,6 +495,7 @@ stage.lisp.loop \
 stage.lisp.clos \
 stage.lisp.disassem \
 stage.lisp.condition \
+stage.lisp.loadform \
 stage.lisp.threads \
 stage.lisp.gstream \
 stage.lisp.xcharin \
@@ -540,6 +543,7 @@ stage.fas.loop \
 stage.fas.clos \
 stage.fas.disassem \
 stage.fas.condition \
+stage.fas.loadform \
 stage.fas.threads \
 stage.fas.gstream \
 stage.fas.xcharin \
@@ -1728,6 +1732,9 @@ fas.disassem : lisp.disassem lisp mem.halfcomp
 fas.condition : lisp.condition lisp mem.halfcomp
 	$(RUN) -m 1000KW -M mem.halfcomp -q -c condition.lisp
 
+fas.loadform : lisp.loadform lisp mem.halfcomp
+	$(RUN) -m 1000KW -M mem.halfcomp -q -c loadform.lisp
+
 fas.threads : lisp.threads lisp mem.halfcomp
 	$(RUN) -m 1000KW -M mem.halfcomp -q -c threads.lisp
 
@@ -1885,6 +1892,9 @@ stage.lisp.disassem : lisp.disassem
 stage.lisp.condition : lisp.condition
 	$(LN_S) lisp.condition stage
 
+stage.lisp.loadform : lisp.loadform
+	$(LN_S) lisp.loadform stage
+
 stage.lisp.threads : lisp.threads
 	$(LN_S) lisp.threads stage
 
@@ -2022,6 +2032,9 @@ stage.fas.disassem : stage.lisp.disassem lisp stage.mem.testinit
 
 stage.fas.condition : stage.lisp.condition lisp stage.mem.testinit
 	$(RUN) -M stage.mem.testinit -q -c stage.condition.lisp
+
+stage.fas.loadform : stage.lisp.loadform lisp stage.mem.testinit
+	$(RUN) -M stage.mem.testinit -q -c stage.loadform.lisp
 
 stage.fas.threads : stage.lisp.threads lisp stage.mem.testinit
 	$(RUN) -M stage.mem.testinit -q -c stage.threads.lisp
