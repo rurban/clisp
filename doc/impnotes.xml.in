@@ -57,12 +57,12 @@
 
 <preface><title><inlinemediaobject>
  <imageobject>
-  <imagedata fileref="clisp.gif" width="48" depth="48"></imagedata>
+  <imagedata fileref="clisp.gif" width="48" depth="48"/>
  </imageobject>
  <textobject><phrase>[CLISP icon]</phrase></textobject>
 </inlinemediaobject></title>
 
-<subtitle>Last modified: 2000-12-02</subtitle>
+<subtitle>Last modified: 2000-12-06</subtitle>
 
 <para>These notes discuss the &clisp; implementation of &cl; by
 <blockquote><address>
@@ -106,142 +106,142 @@
 <toc>
 <tocpart><tocentry><ulink url="&clhs;/FrontMatter/Chapter-Index.html">CLHS
    Chapters</ulink></tocentry>
- <tocentry><xref linkend="intro"></xref>
+ <tocentry><xref linkend="intro"/>
   <ulink url="&clhs;/Body/chap-1.html">[CLHS-1
    Introduction]</ulink></tocentry>
- <tocentry><xref linkend="syntax"></xref>
+ <tocentry><xref linkend="syntax"/>
   <ulink url="&clhs;/Body/chap-2.html">[CLHS-2
    Syntax]</ulink></tocentry>
- <tocentry><xref linkend="eval"></xref>
+ <tocentry><xref linkend="eval"/>
   <ulink url="&clhs;/Body/chap-3.html">[CLHS-3
    Evaluation and Compilation]</ulink></tocentry>
- <tocentry><xref linkend="types"></xref>
+ <tocentry><xref linkend="types"/>
   <ulink url="&clhs;/Body/chap-4.html">[CLHS-4
    Types and Classes]</ulink></tocentry>
- <tocentry><xref linkend="data"></xref>
+ <tocentry><xref linkend="data"/>
   <ulink url="&clhs;/Body/chap-5.html">[CLHS-5
    Data and Control Flow]</ulink></tocentry>
- <tocentry><xref linkend="iteration"></xref>
+ <tocentry><xref linkend="iteration"/>
   <ulink url="&clhs;/Body/chap-6.html">[CLHS-6
    Iteration]</ulink></tocentry>
- <tocentry><xref linkend="objects"></xref>
+ <tocentry><xref linkend="objects"/>
   <ulink url="&clhs;/Body/chap-7.html">[CLHS-7
    Objects]</ulink></tocentry>
- <tocentry><xref linkend="structures"></xref>
+ <tocentry><xref linkend="structures"/>
   <ulink url="&clhs;/Body/chap-8.html">[CLHS-8
    Structures]</ulink></tocentry>
- <tocentry><xref linkend="conditions"></xref>
+ <tocentry><xref linkend="conditions"/>
   <ulink url="&clhs;/Body/chap-9.html">[CLHS-9
    Conditions]</ulink></tocentry>
- <tocentry><xref linkend="symbols"></xref>
+ <tocentry><xref linkend="symbols"/>
   <ulink url="&clhs;/Body/chap-10.html">[CLHS-10
    Symbols]</ulink></tocentry>
- <tocentry><xref linkend="packages"></xref>
+ <tocentry><xref linkend="packages"/>
   <ulink url="&clhs;/Body/chap-11.html">[CLHS-11
    Packages]</ulink></tocentry>
- <tocentry><xref linkend="numbers"></xref>
+ <tocentry><xref linkend="numbers"/>
   <ulink url="&clhs;/Body/chap-12.html">[CLHS-12
    Numbers]</ulink></tocentry>
- <tocentry><xref linkend="characters"></xref>
+ <tocentry><xref linkend="characters"/>
   <ulink url="&clhs;/Body/chap-13.html">[CLHS-13
    Characters]</ulink></tocentry>
- <tocentry><xref linkend="conses"></xref>
+ <tocentry><xref linkend="conses"/>
   <ulink url="&clhs;/Body/chap-14.html">[CLHS-14
    Conses]</ulink></tocentry>
- <tocentry><xref linkend="arrays"></xref>
+ <tocentry><xref linkend="arrays"/>
   <ulink url="&clhs;/Body/chap-15.html">[CLHS-15
    Arrays]</ulink></tocentry>
- <tocentry><xref linkend="strings"></xref>
+ <tocentry><xref linkend="strings"/>
   <ulink url="&clhs;/Body/chap-16.html">[CLHS-16
    Strings]</ulink></tocentry>
- <tocentry><xref linkend="sequences"></xref>
+ <tocentry><xref linkend="sequences"/>
   <ulink url="&clhs;/Body/chap-17.html">[CLHS-17
    Sequences]</ulink></tocentry>
- <tocentry><xref linkend="hash"></xref>
+ <tocentry><xref linkend="hash"/>
   <ulink url="&clhs;/Body/chap-18.html">[CLHS-18
    Hash Tables]</ulink></tocentry>
- <tocentry><xref linkend="filenames"></xref>
+ <tocentry><xref linkend="filenames"/>
   <ulink url="&clhs;/Body/chap-19.html">[CLHS-19
    Filenames]</ulink></tocentry>
- <tocentry><xref linkend="files"></xref>
+ <tocentry><xref linkend="files"/>
   <ulink url="&clhs;/Body/chap-20.html">[CLHS-20
    Files]</ulink></tocentry>
- <tocentry><xref linkend="streams"></xref>
+ <tocentry><xref linkend="streams"/>
   <ulink url="&clhs;/Body/chap-21.html">[CLHS-21
    Streams]</ulink></tocentry>
- <tocentry><xref linkend="printer"></xref>
+ <tocentry><xref linkend="printer"/>
   <ulink url="&clhs;/Body/chap-22.html">[CLHS-22
    Printer]</ulink></tocentry>
- <tocentry><xref linkend="reader"></xref>
+ <tocentry><xref linkend="reader"/>
   <ulink url="&clhs;/Body/chap-23.html">[CLHS-23
    Reader]</ulink></tocentry>
- <tocentry><xref linkend="system"></xref>
+ <tocentry><xref linkend="system"/>
   <ulink url="&clhs;/Body/chap-24.html">[CLHS-24
    System Construction]</ulink></tocentry>
- <tocentry><xref linkend="environment"></xref>
+ <tocentry><xref linkend="environment"/>
   <ulink url="&clhs;/Body/chap-25.html">[CLHS-25
    Environment]</ulink></tocentry>
- <tocentry><xref linkend="glossary"></xref>
+ <tocentry><xref linkend="glossary"/>
   <ulink url="&clhs;/Body/chap-26.html">[CLHS-26
    Glossary]</ulink></tocentry>
- <tocentry><xref linkend="appendix"></xref>
+ <tocentry><xref linkend="appendix"/>
   <ulink url="&clhs;/Body/chap-a.html">[CLHS-a
    Appendix]</ulink></tocentry>
- <tocentry><xref linkend="issues"></xref>
+ <tocentry><xref linkend="issues"/>
   <ulink url="&clhs;/Issues/Issues-Categorized.html">[CLHS-ic
    X3J13 Issue Index]</ulink></tocentry>
 </tocpart>
 
-<tocpart><tocentry><xref linkend="extensions"></xref></tocentry>
+<tocpart><tocentry><xref linkend="extensions"/></tocentry>
 
- <tocchap><tocentry><xref linkend="p-indep"></xref>
+ <tocchap><tocentry><xref linkend="p-indep"/>
    [Platform-independent Extensions]</tocentry>
-   <tocentry><xref linkend="image"></xref>
+   <tocentry><xref linkend="image"/>
     [Saving an Image]</tocentry>
-   <tocentry><xref linkend="quit"></xref>
+   <tocentry><xref linkend="quit"/>
     [Quitting Lisp]</tocentry>
-   <tocentry><xref linkend="language"></xref>
+   <tocentry><xref linkend="language"/>
     [The Language]</tocentry>
-   <tocentry><xref linkend="encoding"></xref>
+   <tocentry><xref linkend="encoding"/>
     [Encodings]</tocentry>
-   <tocentry><xref linkend="gstream"></xref>
+   <tocentry><xref linkend="gstream"/>
     [Defining new kinds of Streams]</tocentry>
-   <tocentry><xref linkend="weak"></xref>
+   <tocentry><xref linkend="weak"/>
     [Weak Pointers]</tocentry>
-   <tocentry><xref linkend="final"></xref>
+   <tocentry><xref linkend="final"/>
     [Finalization]</tocentry>
-   <tocentry><xref linkend="prompt"></xref>
+   <tocentry><xref linkend="prompt"/>
     [The Prompt]</tocentry>
-   <tocentry><xref linkend="ansi"></xref>
+   <tocentry><xref linkend="ansi"/>
     [Maximum ANSI CL compliance]</tocentry>
-   <tocentry><xref linkend="macros3"></xref>
+   <tocentry><xref linkend="macros3"/>
     [Additional Fancy Macros]</tocentry>
  </tocchap>
- <tocchap><tocentry><xref linkend="platform"></xref>
+ <tocchap><tocentry><xref linkend="platform"/>
    [Platform-specific Extensions]</tocentry>
-   <tocentry><xref linkend="screen"></xref>
+   <tocentry><xref linkend="screen"/>
     [Random Screen Access]</tocentry>
-   <tocentry><xref linkend="modules"></xref>
+   <tocentry><xref linkend="modules"/>
     [External Modules]</tocentry>
-   <tocentry><xref linkend="dffi"></xref>
+   <tocentry><xref linkend="dffi"/>
     [The Foreign Function Call Facility]</tocentry>
-   <tocentry><xref linkend="affi"></xref>
+   <tocentry><xref linkend="affi"/>
     [The Amiga Foreign Function Call Facility]</tocentry>
-   <tocentry><xref linkend="rexx"></xref>
+   <tocentry><xref linkend="rexx"/>
     [ARexx]</tocentry>
-   <tocentry><xref linkend="socket"></xref>
+   <tocentry><xref linkend="socket"/>
     [Socket Streams]</tocentry>
-   <tocentry><xref linkend="syscalls"></xref>
+   <tocentry><xref linkend="syscalls"/>
     [System Calls]</tocentry>
-   <tocentry><xref linkend="quickstart"></xref>
+   <tocentry><xref linkend="quickstart"/>
     [Quickstarting CLISP programs]</tocentry>
-   <tocentry><xref linkend="app-dev"></xref>
+   <tocentry><xref linkend="app-dev"/>
     [Application delivery with CLISP]</tocentry>
-   <tocentry><xref linkend="shell"></xref>
+   <tocentry><xref linkend="shell"/>
     [Shell, Pipes and Printing]</tocentry>
-   <tocentry><xref linkend="dir-key"></xref>
+   <tocentry><xref linkend="dir-key"/>
     [Directory Access]</tocentry>
-   <tocentry><xref linkend="other"></xref>
+   <tocentry><xref linkend="other"/>
     [Other]</tocentry>
  </tocchap>
 </tocpart>
