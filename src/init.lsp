@@ -1736,15 +1736,16 @@ interpreter compiler
   (values)
 )
 
-; Ein Stückchen "DO-WHAT-I-MEAN":
-; Sucht ein Programm-File.
-; Gesucht wird im aktuellen Directory und dann in den Directories
-; aus *load-paths*.
-; Ist eine Extension angegeben, so wird nur nach Files mit genau dieser
-; Extension gesucht. Ist keine Extension angegeben, so wird nur nach Files
-; mit einer Extension aus der gegebenen Liste gesucht.
-; Man erhält alle Files aus dem ersten passenden Directory, als Pathnames,
-; in einer Liste, nach fallendem FILE-WRITE-DATE sortiert, oder NIL.
+; A piece of "DO-WHAT-I-MEAN":
+; Searches a program file.
+; We search in the current directory and then in the directories
+; listed in *load-paths*.
+; If an extension is specified in the filename, we search only for
+; files with this extension. If no extension is specified, we search
+; only for files with an extension from the given list.
+; The return value is a list of all matching files from the first directory
+; containing any matching file, sorted according to decreasing FILE-WRITE-DATE
+; (i.e. from new to old), or NIL if no matching file was found.
 (defun search-file (filename extensions
                     &aux (use-extensions (null (pathname-type filename))) )
   (when use-extensions
