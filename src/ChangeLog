@@ -1,3 +1,8 @@
+2004-11-29  Bruno Haible  <bruno@clisp.org>
+
+	* spvw_memfile.d (loadmem_from_handle): More uses of sintM and ssize_t
+	instead of sintL.
+
 2004-11-29  Sam Steingold  <sds@gnu.org>
 
 	* spvw_memfile.d (loadmem_from_handle): full_read() returns

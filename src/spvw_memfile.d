@@ -232,8 +232,8 @@ global void savemem (object stream)
 #define WRITE(buf,len)                                                  \
   do {                                                                  \
     begin_system_call();                                                \
-    { var sintL ergebnis = full_write(handle,(void*)buf,len);           \
-      if (ergebnis != (sintL)(len)) {                                   \
+    { var ssize_t ergebnis = full_write(handle,(void*)buf,len);         \
+      if (ergebnis != (ssize_t)(len)) {                                 \
         end_system_call();                                              \
         builtin_stream_close(&STACK_0);                                 \
         if (ergebnis<0) /* error occurred? */                           \
@@ -941,9 +941,9 @@ local void loadmem_from_handle (Handle handle, const char* filename)
    #endif
    #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
     { /* calculate offsets (offset = new address - old address): */
-      var sintL offset_varobjects = /* offset for objects of variable length */
+      var sintM offset_varobjects = /* offset for objects of variable length */
         mem.varobjects.heap_start - header._mem_varobjects_start;
-      var sintL offset_conses = /* offset for two-pointer-objects */
+      var sintM offset_conses = /* offset for two-pointer-objects */
         mem.conses.heap_end - header._mem_conses_end;
       /* calculate new memory partitioning: */
       mem.varobjects.heap_end = header._mem_varobjects_end + offset_varobjects;
@@ -1114,7 +1114,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       for (heapnr=0; heapnr<heapcount; heapnr++) {
         map_heap(mem.heaps[heapnr],page, {
           page->page_end = page->page_start + (old_page->_page_end - old_page->_page_start);
-          offset_heaps_o[heapnr] = (oint)(sintL)(page->page_start - old_page->_page_start) << (oint_addr_shift-addr_shift);
+          offset_heaps_o[heapnr] = (oint)(sintM)(page->page_start - old_page->_page_start) << (oint_addr_shift-addr_shift);
           old_page++;
         });
       }
