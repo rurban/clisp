@@ -1,5 +1,13 @@
 2004-04-24  Bruno Haible  <bruno@clisp.org>
 
+	* clos-package.lisp: New file, extracted from clos.lisp.
+	* clos.lisp: Move the package setup away.
+	* init.lisp: Load clos-package before defstruct.lisp.
+	* makemake.in (LPARTS): Add clos-package.
+	* po/Makefile.devel (LISPSOURCES): Add clos-package.
+
+2004-04-24  Bruno Haible  <bruno@clisp.org>
+
 	* places.lisp: Add defsetf for %record-ref and %structure-ref here.
 	* compiler.lisp: Remove defsetf for %record-ref.
 	* defstruct.lisp: Remove defsetf for %structure-ref.
