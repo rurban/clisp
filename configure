@@ -190,7 +190,7 @@ do
         do_ffi="no" ;;
 
       --with-mingw | --with-no-cygwin | --without-cygwin | --with-cygwin=no)
-        CC="gcc -mno-cygwin"; export CC;
+        CC="${CC:-gcc} -mno-cygwin"; export CC;
         makemake_args="$makemake_args --win32gcc" ;;
 
       --with-* | --without-*)
