@@ -1,3 +1,8 @@
+2005-02-11  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (parse-optimize-quality): work in interpreter too
+	* eval.d (parse_dd): call NOTE-OPTIMIZE
+
 2005-01-22  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (c-GLOBAL-FUNCTION-CALL): Generate a SYMBOL-FUNCTION
