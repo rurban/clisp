@@ -2669,11 +2669,12 @@ LISPFUNNR(hash_table_weak_p,1)
 }
 
 LISPFUNN(set_hash_table_weak_p,2)
-{ /* ((SETF HASH-TABLE-WEAK-P) val ht) */
-  var object val = (STACK_1 = check_weak(STACK_1)); /* weak-p */
-  var object ht = (STACK_0 = check_hashtable(STACK_0)); /* hashtable */
+{ /* ((SETF HASH-TABLE-WEAK-P) weak-p ht) */
+  STACK_0 = check_hashtable(STACK_0);
+  var object val = check_weak(STACK_1); /* weak-p */
+  var object ht = STACK_0; /* hashtable argument */
   if (!eq(val,hash_table_weak_type(ht))) {
-    var uintL maxcount = posfixnum_to_L(TheHashtable(STACK_0)->ht_maxcount);
+    var uintL maxcount = posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
     var object new_kvt;
     for (;;) {
       new_kvt = allocate_kvt(val,maxcount);
@@ -2695,7 +2696,7 @@ LISPFUNN(set_hash_table_weak_p,2)
     TheHashedAlist(new_kvt)->hal_freelist = TheHashedAlist(old_kvt)->hal_freelist;
     TheHashtable(ht)->ht_kvtable = new_kvt;
   }
-  VALUES1(hash_table_weak_type(STACK_0)); skipSTACK(2);
+  VALUES1(hash_table_weak_type(ht)); skipSTACK(2);
 }
 
 LISPFUNN(class_gethash,2)
