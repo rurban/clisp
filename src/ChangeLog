@@ -1,5 +1,11 @@
 1999-05-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in (distrib): Reorganize. Distribute the data/ directory
+          and its contents. Distribute the `full' linking set also if
+          BINARY_DISTRIB is set.
+
+1999-05-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Make `clisp' an executable, also in the case of UNIX_BINARY_DISTRIB.
         * _clisp.c [UNIX_BINARY_DISTRIB]
           (room_for_lisplibdir, room_for_localedir): New arrays.
