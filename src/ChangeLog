@@ -1,3 +1,24 @@
+2000-12-05  Bruno Haible  <haible@clisp.cons.org>
+
+        * io.d (JUSTIFY_START): Add argument.
+          (JUSTIFY_LAST): New macro.
+          (justify_start): Add traillength argument. Bind
+          SYS::*PRIN-TRAILLENGTH* and SYS::*PRIN-PREV-TRAILLENGTH*.
+          (justify_end_eng): Respect SYS::*PRIN-PREV-TRAILLENGTH*.
+          Unbind SYS::*PRIN-TRAILLENGTH* and SYS::*PRIN-PREV-TRAILLENGTH*.
+          (justify_end_weit): Likewise.
+          (justify_last): New function.
+          (pr_enter): Bind SYS::*PRIN-TRAILLENGTH* to 0.
+          (pr_cons): Add argument to JUSTIFY_START. Call JUSTIFY_LAST.
+          (pr_number, pr_array_nil, pr_vector, pr_array_rekursion, pr_array,
+           pr_structure_default, pr_hex6_obj, pr_readlabel, pr_record_ab,
+           pr_record_rest, pr_record_descr, pr_orecord, pr_other_obj, pr_subr,
+           pr_closure, pr_cclosure_lang, pr_cclosure_codevector, pr_stream,
+           SYSTEM::WRITE-UNREADABLE): Likewise.
+          (some_printable_slots): New function.
+        * spvw.d (init_symbol_values): Define SYS::*PRIN-TRAILLENGTH* and
+          SYS::*PRIN-PREV-TRAILLENGTH* as special.
+
 2000-12-04  Sam Steingold  <sds@gnu.org>
 
 	* misc.d (registry): do not goto outsize `with_string_0'

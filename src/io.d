@@ -6049,10 +6049,18 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 #     JUSTIFY_END_ENG (fasst auch in Mehrzeilern kurze Blöcke in eine Zeile)
 #     oder
 #     JUSTIFY_END_WEIT (in Mehrzeilern belegt jeder Block eine eigene Zeile).
-  #define JUSTIFY_START     justify_start(stream_);
+  #define JUSTIFY_START(n)  justify_start(stream_,n);
   #define JUSTIFY_SPACE     justify_space(stream_);
   #define JUSTIFY_END_ENG   justify_end_eng(stream_);
   #define JUSTIFY_END_WEIT  justify_end_weit(stream_);
+
+# SYS::*PRIN-TRAILLENGTH* = number of columns that need to be reserved for
+#                           closing parentheses on the current line; bound
+#                           to 0 for all objects immediately followed by
+#                           JUSTIFY_SPACE. Used only if *PRINT-RPARS* = NIL.
+# Preparation of an item to be justified.
+  #define JUSTIFY_LAST(is_last)  \
+    { if (is_last) justify_last(); }
 
 # UP: Leert einen Pretty-Print-Hilfsstream.
 # justify_empty_1(&stream);
@@ -6073,15 +6081,21 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     }
 
 # UP: Beginnt einen Justify-Block.
-# justify_start(&stream);
+# justify_start(&stream,traillength);
 # > stream: Stream
+# > traillength: additional width that needs to be reserved for closing brackets on this level
 # < stream: Stream
 # verändert STACK
-  local void justify_start (const object* stream_);
-  local void justify_start(stream_)
+  local void justify_start (const object* stream_, uintL traillength);
+  local void justify_start(stream_,traillength)
     var const object* stream_;
+    var uintL traillength;
     {
       var object stream = *stream_;
+      # Bind SYS::*PRIN-TRAILLENGTH* to 0 and save its previous value,
+      # incremented by traillength, in SYS::*PRIN-PREV-TRAILLENGTH*.
+      dynamic_bind(S(prin_prev_traillength),fixnum_inc(Symbol_value(S(prin_traillength)),traillength));
+      dynamic_bind(S(prin_traillength),Fixnum_0);
       if (!(builtin_stream_p(stream)
             && (TheStream(stream)->strmtype == strmtype_pphelp)
          ) ) {
@@ -6218,12 +6232,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             block = Car(STACK_0); # nächster Block
             if (atomp(block)) { # ein Mehrzeiler oder Einzeiler?
               # Es ist ein Einzeiler.
-              # Passt er noch auf dieselbe Zeile,
-              # d.h. ist  Line-Position + 1 + string_width(Einzeiler) <= L ?
+              # Passt er noch auf dieselbe Zeile, d.h. ist
+              # Line-Position + 1 + string_width(Einzeiler) + Traillength <= L ?
               var object linelength = right_margin();
               if (nullp(linelength) # =NIL -> passt
                   || (posfixnum_to_L(TheStream(*stream_)->strm_pphelp_lpos) # Line-Position
                       + pphelp_string_width(block) # Breite des Einzeilers
+                      + (nullp(Symbol_value(S(print_rpars))) && matomp(Cdr(STACK_0)) ? posfixnum_to_L(Symbol_value(S(prin_prev_traillength))) : 0) # SYS::*PRIN-PREV-TRAILLENGTH*
                       < posfixnum_to_L(linelength) # < linelength ?
                  )   ) {
                 # Passt noch.
@@ -6248,6 +6263,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         dynamic_unbind();
         dynamic_unbind();
       }
+      # Bindungen von JUSTIFY_START rückgängig machen:
+      dynamic_unbind();
+      dynamic_unbind();
     }
 
 # UP: Beendet einen Justify-Block, bestimmt die Gestalt des Blockes und
@@ -6288,7 +6306,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # Prüfe, ob die Blöcke in SYS::*PRIN-JBLOCKS*
         # (jeder Block Einzeiler) zusammen einen Einzeiler ergeben können:
         # Ist L=NIL (keine Randbeschränkung) oder
-        # L1 + (Gesamtbreite der Blöcke) + (Anzahl der Blöcke-1) <= L ?
+        # L1 + (Gesamtbreite der Blöcke) + (Anzahl der Blöcke-1) + Traillength <= L ?
         {
           var object linelength = right_margin();
           if (nullp(linelength)) goto gesamt_einzeiler; # =NIL -> Einzeiler
@@ -6299,7 +6317,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             totalneed += pphelp_string_width(block) + 1; # dessen Breite+1 dazu
             blocks = Cdr(blocks);
           } while (consp(blocks));
-          # totalneed = L1 + (Gesamtbreite der Blöcke) + (Anzahl der Blöcke)
+          if (nullp(Symbol_value(S(print_rpars))))
+            totalneed += posfixnum_to_L(Symbol_value(S(prin_prev_traillength))); # SYS::*PRIN-PREV-TRAILLENGTH*
+          # totalneed = L1 + (Gesamtbreite der Blöcke) + (Anzahl der Blöcke) + Traillength
           # Vergleiche dies mit linelength + 1 :
           if (totalneed <= posfixnum_to_L(linelength)+1)
             goto gesamt_einzeiler;
@@ -6361,6 +6381,19 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         dynamic_unbind();
         dynamic_unbind();
       }
+      # Bindungen von JUSTIFY_START rückgängig machen:
+      dynamic_unbind();
+      dynamic_unbind();
+    }
+
+# Prepares the justification of the last item in a sequence of JUSTIFY_SPACE
+# separated items.
+# justify_last();
+  local void justify_last (void);
+  local void justify_last()
+    {
+      # SYS::*PRIN-TRAILLENGTH* := SYS::*PRIN-PREV-TRAILLENGTH*
+      Symbol_value(S(prin_traillength)) = Symbol_value(S(prin_prev_traillength));
     }
 
 # Indent
@@ -6857,7 +6890,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         dynamic_bind(S(prin_bqlevel),Fixnum_0); # SYS::*PRIN-BQLEVEL* an 0 binden
         dynamic_bind(S(prin_l1),Fixnum_0); # SYS::*PRIN-L1* an 0 binden (für Pretty-Print)
         dynamic_bind(S(prin_lm),Fixnum_0); # SYS::*PRIN-LM* an 0 binden (für Pretty-Print)
+        dynamic_bind(S(prin_traillength),Fixnum_0); # bind SYS::*PRIN-TRAILLENGTH*
         pr_enter_2(stream_,obj,pr_xxx);
+        dynamic_unbind();
         dynamic_unbind();
         dynamic_unbind();
         dynamic_unbind();
@@ -7642,12 +7677,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         var object* list_ = &STACK_0; # und merken, wo sie sitzt
         KLAMMER_AUF; # '('
         INDENT_START(get_indent_lists()); # um 1 Zeichen einrücken, wegen '('
-        JUSTIFY_START;
+        JUSTIFY_START(1);
         # auf Erreichen von *PRINT-LENGTH* prüfen:
         if (length_limit==0) goto dots;
         loop {
           # ab hier den CAR ausgeben
           list = *list_; *list_ = Cdr(list); # Liste verkürzen
+          JUSTIFY_LAST(nullp(*list_));
           prin_object(stream_,Car(list)); # den CAR ausgeben
           length++; # Länge incrementieren
           # ab hier den Listenrest ausgeben
@@ -7667,11 +7703,14 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             goto dotted_list;
         }
        dotted_list: # Listenrest in Dotted-List-Schreibweise ausgeben:
+        JUSTIFY_LAST(FALSE);
         write_ascii_char(stream_,'.');
         JUSTIFY_SPACE;
+        JUSTIFY_LAST(TRUE);
         prin_object(stream_,*list_);
         goto end_of_list;
        dots: # Listenrest durch '...' abkürzen:
+        JUSTIFY_LAST(TRUE);
         write_ascii_char(stream_,'.');
         write_ascii_char(stream_,'.');
         write_ascii_char(stream_,'.');
@@ -7883,9 +7922,11 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         write_ascii_char(stream_,'#'); write_ascii_char(stream_,'C');
         KLAMMER_AUF;
         INDENT_START(3); # um 3 Zeichen einrücken, wegen '#C('
-        JUSTIFY_START;
+        JUSTIFY_START(1);
+        JUSTIFY_LAST(FALSE);
         pr_real_number(stream_,TheComplex(*number_)->c_real); # Realteil ausgeben
         JUSTIFY_SPACE;
+        JUSTIFY_LAST(TRUE);
         pr_real_number(stream_,TheComplex(*number_)->c_imag); # Imaginärteil ausgeben
         JUSTIFY_END_ENG;
         INDENT_END;
@@ -7910,15 +7951,19 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       var object* obj_ = &STACK_0; # und merken, wo er sitzt
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-      JUSTIFY_START;
+      JUSTIFY_START(1);
+      JUSTIFY_LAST(FALSE);
       write_sstring_case(stream_,O(printstring_array)); # "ARRAY" ausgeben
       JUSTIFY_SPACE;
+      JUSTIFY_LAST(FALSE);
       prin_object_dispatch(stream_,array_element_type(*obj_)); # Elementtyp (Symbol oder Liste) ausgeben
       JUSTIFY_SPACE;
+      JUSTIFY_LAST(!array_has_fill_pointer_p(*obj_));
       pr_list(stream_,array_dimensions(*obj_)); # Dimensionsliste ausgeben
       if (array_has_fill_pointer_p(*obj_)) {
         # Array mit Fill-Pointer -> auch den Fill-Pointer ausgeben:
         JUSTIFY_SPACE;
+        JUSTIFY_LAST(TRUE);
         write_sstring_case(stream_,O(printstring_fill_pointer)); # "FILL-POINTER=" ausgeben
         pr_uint(stream_,vector_length(*obj_)); # Länge (=Fill-Pointer) ausgeben
       }
@@ -8014,12 +8059,15 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'A');
             KLAMMER_AUF; # '(' ausgeben
             INDENT_START(3); # um 3 Zeichen einrücken, wegen '#A('
-            JUSTIFY_START;
+            JUSTIFY_START(1);
+            JUSTIFY_LAST(FALSE);
             prin_object_dispatch(stream_,array_element_type(*sv_)); # Elementtyp ausgeben
             JUSTIFY_SPACE;
+            JUSTIFY_LAST(FALSE);
             pushSTACK(fixnum(len));
             pr_list(stream_,listof(1)); # Liste mit der Länge ausgeben
             JUSTIFY_SPACE;
+            JUSTIFY_LAST(TRUE);
             KLAMMER_AUF; # '('
             INDENT_START(1); # um 1 Zeichen einrücken, wegen '('
           } else {
@@ -8027,24 +8075,26 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             KLAMMER_AUF; # '('
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#('
           }
-          JUSTIFY_START;
-          dotimesL(len,len, {
+          JUSTIFY_START(1);
+          for (; len > 0; len--) {
             # (außer vorm ersten Element) Space ausgeben:
             if (!(length==0))
               JUSTIFY_SPACE;
             # auf Erreichen von *PRINT-LENGTH* prüfen:
             if (length >= length_limit) {
+              JUSTIFY_LAST(TRUE);
               # Rest durch '...' abkürzen:
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
               break;
             }
+            JUSTIFY_LAST(len==1);
             # Vektorelement ausgeben:
             prin_object(stream_,storagevector_aref(*sv_,index));
             length++; # Länge incrementieren
             index++; # dann zum nächsten Vektor-Element
-          });
+          }
           JUSTIFY_END_ENG;
           INDENT_END;
           KLAMMER_ZU;
@@ -8223,20 +8273,22 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         var uintL count = locals->dims_sizes[depth].dim;
         KLAMMER_AUF; # '(' ausgeben
         INDENT_START(1); # um 1 Zeichen einrücken, wegen '('
-        JUSTIFY_START;
+        JUSTIFY_START(1);
         # Schleife über Dimension (r-depth): jeweils einen Teil-Array ausgeben
-        dotimesL(count,count, {
+        for (; count > 0; count--) {
           # (außer vorm ersten Teil-Array) Space ausgeben:
           if (!(length==0))
             JUSTIFY_SPACE;
           # auf Erreichen von *PRINT-LENGTH* prüfen:
           if (length >= locals->length_limit) {
+            JUSTIFY_LAST(TRUE);
             # Rest durch '...' abkürzen:
             write_ascii_char(stream_,'.');
             write_ascii_char(stream_,'.');
             write_ascii_char(stream_,'.');
             break;
           }
+          JUSTIFY_LAST(count==1);
           # Teil-Array ausgeben:
           # (rekursiv, mit verkleinerter depth, und locals->info.index
           # wird ohne weiteres Zutun von einem Aufruf zum nächsten
@@ -8244,7 +8296,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           pr_array_rekursion(locals,depth);
           length++; # Länge incrementieren
           # locals->info.index ist schon incrementiert
-        });
+        }
         JUSTIFY_END_WEIT;
         INDENT_END;
         KLAMMER_ZU; # ')' ausgeben
@@ -8323,11 +8375,14 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'A');
             KLAMMER_AUF; # '(' ausgeben
             INDENT_START(3); # um 3 Zeichen einrücken, wegen '#A('
-            JUSTIFY_START;
+            JUSTIFY_START(1);
+            JUSTIFY_LAST(FALSE);
             prin_object_dispatch(stream_,array_element_type(*obj_)); # Elementtyp (Symbol oder Liste) ausgeben
             JUSTIFY_SPACE;
+            JUSTIFY_LAST(FALSE);
             pr_list(stream_,array_dimensions(*obj_)); # Dimensionsliste ausgeben
             JUSTIFY_SPACE;
+            JUSTIFY_LAST(TRUE);
             pr_array_rekursion(&locals,depth); # Array-Elemente ausgeben
             JUSTIFY_END_ENG;
             INDENT_END;
@@ -8472,6 +8527,19 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # < stream: Stream
 # can trigger GC
   local void pr_structure_default (const object* stream_, object structure);
+  local boolean some_printable_slots (object slotlist);
+  local boolean some_printable_slots(slotlist)
+    var object slotlist;
+    {
+      while (consp(slotlist)) {
+        var object slot = Car(slotlist);
+        if (simple_vector_p(slot) && (Svector_length(slot) >= 7)
+            && !nullp(TheSvector(slot)->data[0]))
+          return TRUE;
+        slotlist = Cdr(slotlist);
+      }
+      return FALSE;
+    }
   local void pr_structure_default(stream_,structure)
     var const object* stream_;
     var object structure;
@@ -8514,9 +8582,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
           INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
         }
-        JUSTIFY_START;
-        prin_object(stream_,*(structure_ STACKop -1)); # name ausgeben
+        JUSTIFY_START(1);
         pushSTACK(TheSvector(*(structure_ STACKop -2))->data[3]);
+        JUSTIFY_LAST(!some_printable_slots(STACK_0));
+        prin_object(stream_,*(structure_ STACKop -1)); # name ausgeben
         # Slot-Liste STACK_0 = (svref description 3) durchlaufen:
         {
           var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
@@ -8534,6 +8603,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               JUSTIFY_SPACE; # Space ausgeben
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) {
+                JUSTIFY_LAST(TRUE);
                 # Rest durch '...' abkürzen:
                 write_ascii_char(stream_,'.');
                 write_ascii_char(stream_,'.');
@@ -8541,8 +8611,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 skipSTACK(1); # slot vergessen
                 break;
               }
+              JUSTIFY_LAST(!some_printable_slots(STACK_1));
               var object* slot_ = &STACK_0; # da sitzt der Slot
-              JUSTIFY_START;
+              JUSTIFY_START(0);
+              JUSTIFY_LAST(FALSE);
               write_ascii_char(stream_,':'); # Keyword-Kennzeichen
               {
                 var object obj = TheSvector(*slot_)->data[0]; # (ds-slot-name slot)
@@ -8550,6 +8622,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 pr_like_symbol(stream_,Symbol_name(obj)); # Symbolnamen der Komponente ausgeben
               }
               JUSTIFY_SPACE;
+              JUSTIFY_LAST(TRUE);
               # (SYS::%%STRUCTURE-REF name Structure (ds-slot-offset slot)) ausführen:
               pushSTACK(*(structure_ STACKop -1)); # name als 1. Argument
               pushSTACK(*(structure_ STACKop 0)); # Structure als 2. Argument
@@ -8577,25 +8650,28 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           fehler_print_readably(*structure_);
         write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
         INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-        JUSTIFY_START;
-        prin_object(stream_,*(structure_ STACKop -1)); # name ausgeben
+        JUSTIFY_START(1);
         var uintC len = Structure_length(*structure_); # Länge der Structure (>=1)
+        JUSTIFY_LAST(len==1);
+        prin_object(stream_,*(structure_ STACKop -1)); # name ausgeben
         var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
         var uintL length = 0; # Index = bisherige Länge := 0
-        dotimesC(len,len-1, {
+        for (len = len-1; len > 0; len--) {
           JUSTIFY_SPACE; # Space ausgeben
           # auf Erreichen von *PRINT-LENGTH* prüfen:
           if (length >= length_limit) {
             # Rest durch '...' abkürzen:
+            JUSTIFY_LAST(TRUE);
             write_ascii_char(stream_,'.');
             write_ascii_char(stream_,'.');
             write_ascii_char(stream_,'.');
             break;
           }
+          JUSTIFY_LAST(len==1);
           length++; # Index erhöhen
           # Komponente ausgeben:
           prin_object(stream_,TheStructure(*structure_)->recdata[length]);
-        });
+        }
         JUSTIFY_END_ENG;
         INDENT_END;
         write_ascii_char(stream_,'>');
@@ -8643,9 +8719,11 @@ LISPFUNN(print_structure,2)
       var object* string_ = &STACK_0; # und merken, wo er sitzt
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-      JUSTIFY_START;
+      JUSTIFY_START(1);
+      JUSTIFY_LAST(FALSE);
       write_sstring_case(stream_,*string_); # String ausgeben
       JUSTIFY_SPACE;
+      JUSTIFY_LAST(TRUE);
       pr_hex6(stream_,obj); # obj als Adresse ausgeben
       JUSTIFY_END_ENG;
       INDENT_END;
@@ -8713,9 +8791,11 @@ LISPFUNN(print_structure,2)
       # #<READ-LABEL ...>
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-      JUSTIFY_START;
+      JUSTIFY_START(1);
+      JUSTIFY_LAST(FALSE);
       write_sstring_case(stream_,O(printstring_read_label)); # "READ-LABEL"
       JUSTIFY_SPACE;
+      JUSTIFY_LAST(TRUE);
       #ifdef TYPECODES
       pr_uint(stream_,(as_oint(obj) >> (oint_addr_shift+1)) & (bit(oint_data_len-2)-1)); # Bits 21..0 dezimal ausgeben
       #else
@@ -8767,12 +8847,14 @@ LISPFUNN(print_structure,2)
         JUSTIFY_SPACE; # Space ausgeben
         # auf Erreichen von *PRINT-LENGTH* prüfen:
         if (length >= length_limit) {
+          JUSTIFY_LAST(TRUE);
           # Rest durch '...' abkürzen:
           write_ascii_char(stream_,'.');
           write_ascii_char(stream_,'.');
           write_ascii_char(stream_,'.');
           break;
         }
+        JUSTIFY_LAST(index+1 >= len);
         # Komponente ausgeben:
         prin_object(stream_,TheRecord(*obj_)->recdata[index]);
         length++; # bisherige Länge erhöhen
@@ -8801,6 +8883,7 @@ LISPFUNN(print_structure,2)
         JUSTIFY_SPACE; # Space ausgeben
         # auf Erreichen von *PRINT-LENGTH* prüfen:
         if (length >= length_limit) {
+          JUSTIFY_LAST(TRUE);
           # Rest durch '...' abkürzen:
           write_ascii_char(stream_,'.');
           write_ascii_char(stream_,'.');
@@ -8810,6 +8893,7 @@ LISPFUNN(print_structure,2)
         {
           var object list = STACK_0;
           STACK_0 = Cdr(list); # Liste verkürzen
+          JUSTIFY_LAST(matomp(STACK_0));
           prin_object(stream_,Car(list)); # Element der Liste ausgeben
         }
         length++; # Länge incrementieren
@@ -8833,7 +8917,8 @@ LISPFUNN(print_structure,2)
     var object name;
     var boolean readable;
     var object slotlist;
-    { LEVEL_CHECK;
+    {
+      LEVEL_CHECK;
       {
         pushSTACK(obj);
         pushSTACK(name);
@@ -8855,9 +8940,10 @@ LISPFUNN(print_structure,2)
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
           INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
         }
-        JUSTIFY_START;
-        prin_object(stream_,*(obj_ STACKop -1)); # name ausgeben
+        JUSTIFY_START(1);
         pushSTACK(*(obj_ STACKop -2));
+        JUSTIFY_LAST(matomp(STACK_0));
+        prin_object(stream_,*(obj_ STACKop -1)); # name ausgeben
         # Slot-Liste STACK_0 = (svref description 3) durchlaufen:
         {
           var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
@@ -8872,18 +8958,22 @@ LISPFUNN(print_structure,2)
             # auf Erreichen von *PRINT-LENGTH* prüfen:
             if (length >= length_limit) {
               # Rest durch '...' abkürzen:
+              JUSTIFY_LAST(TRUE);
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
               skipSTACK(1); # slot vergessen
               break;
             }
+            JUSTIFY_LAST(matomp(STACK_1));
             var object* slot_ = &STACK_0; # da sitzt der Slot
-            JUSTIFY_START;
+            JUSTIFY_START(0);
+            JUSTIFY_LAST(FALSE);
             write_ascii_char(stream_,':'); # Keyword-Kennzeichen
             # (first slot) sollte ein Symbol sein
             pr_like_symbol(stream_,Symbol_name(Car(*slot_))); # Symbolnamen der Komponente ausgeben
             JUSTIFY_SPACE;
+            JUSTIFY_LAST(TRUE);
             pushSTACK(*(obj_ STACKop 0)); # obj als Argument
             funcall(Cdr(*slot_),1); # accessor aufrufen
             prin_object(stream_,value1); # Komponente ausgeben
@@ -8953,10 +9043,12 @@ LISPFUNN(print_structure,2)
               write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
               KLAMMER_AUF;
               INDENT_START(3); # um 3 Zeichen einrücken, wegen '#S('
-              JUSTIFY_START;
+              JUSTIFY_START(1);
+              JUSTIFY_LAST(FALSE);
               prin_object(stream_,S(hash_table)); # Symbol HASH-TABLE ausgeben
               obj = *obj_;
               {
+                var uintL count = posfixnum_to_L(TheHashtable(*obj_)->ht_count);
                 var uintL index = # Index in den Key-Value-Vektor
                   2*posfixnum_to_L(TheHashtable(obj)->ht_maxcount);
                 pushSTACK(TheHashtable(obj)->ht_kvtable); # Key-Value-Vektor
@@ -8966,6 +9058,7 @@ LISPFUNN(print_structure,2)
                 # auf Erreichen von *PRINT-LENGTH* prüfen:
                 if (length >= length_limit)
                   goto dots;
+                JUSTIFY_LAST(count==0);
                 # Hash-Test ausgeben:
                 {
                   var uintB flags = record_flags(TheHashtable(*obj_));
@@ -8991,12 +9084,15 @@ LISPFUNN(print_structure,2)
                   # auf Erreichen von *PRINT-LENGTH* prüfen:
                   if (length >= length_limit) {
                    dots:
+                    JUSTIFY_LAST(TRUE);
                     # Rest durch '...' abkürzen:
                     write_ascii_char(stream_,'.');
                     write_ascii_char(stream_,'.');
                     write_ascii_char(stream_,'.');
                     break;
                   }
+                  count--;
+                  JUSTIFY_LAST(count==0);
                   # Cons (Key . Value) bilden und ausgeben:
                   obj = allocate_cons();
                   {
@@ -9028,11 +9124,13 @@ LISPFUNN(print_structure,2)
             if (!test_value(S(print_readably))) {
               write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
               INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-              JUSTIFY_START;
+              JUSTIFY_START(1);
+              JUSTIFY_LAST(FALSE);
               if (pack_deletedp(*obj_))
                 write_sstring_case(stream_,O(printstring_deleted)); # "DELETED "
               write_sstring_case(stream_,O(printstring_package)); # "PACKAGE"
               JUSTIFY_SPACE;
+              JUSTIFY_LAST(TRUE);
               pr_like_symbol(stream_,ThePackage(*obj_)->pack_name); # Name ausgeben
               JUSTIFY_END_ENG;
               INDENT_END;
@@ -9045,9 +9143,11 @@ LISPFUNN(print_structure,2)
               write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
               KLAMMER_AUF; # '('
               INDENT_START(3); # um 3 Zeichen einrücken, wegen '#.('
-              JUSTIFY_START;
+              JUSTIFY_START(1);
+              JUSTIFY_LAST(FALSE);
               pr_symbol(stream_,S(pfind_package)); # SYSTEM::%FIND-PACKAGE
               JUSTIFY_SPACE;
+              JUSTIFY_LAST(TRUE);
               pr_string(stream_,ThePackage(*obj_)->pack_name); # Name ausgeben
               JUSTIFY_END_ENG;
               INDENT_END;
@@ -9071,19 +9171,33 @@ LISPFUNN(print_structure,2)
               && !test_value(S(print_pathnames_ansi))) {
             pushSTACK(obj); # string
             var object* obj_ = &STACK_0;
-            JUSTIFY_START; JUSTIFY_START;
-            write_ascii_char(stream_,'#'); write_ascii_char(stream_,'-');
-            write_sstring(stream_,O(lisp_implementation_type_string));
+            JUSTIFY_START(0);
+            JUSTIFY_LAST(FALSE);
+            {
+              JUSTIFY_START(0);
+              JUSTIFY_LAST(FALSE);
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'-');
+              write_sstring(stream_,O(lisp_implementation_type_string));
+              JUSTIFY_SPACE;
+              JUSTIFY_LAST(TRUE);
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
+              pr_string(stream_,*obj_);
+              JUSTIFY_END_ENG;
+            }
             JUSTIFY_SPACE;
-            write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
-            pr_string(stream_,*obj_);
-            JUSTIFY_END_ENG; JUSTIFY_SPACE; JUSTIFY_START;
-            write_ascii_char(stream_,'#'); write_ascii_char(stream_,'+');
-            write_sstring(stream_,O(lisp_implementation_type_string));
-            JUSTIFY_SPACE;
-            pr_record_descr(stream_,*(obj_ STACKop 1),S(pathname),TRUE,
-                            O(pathname_slotlist));
-            JUSTIFY_END_ENG; JUSTIFY_END_ENG;
+            JUSTIFY_LAST(TRUE);
+            {
+              JUSTIFY_START(0);
+              JUSTIFY_LAST(FALSE);
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'+');
+              write_sstring(stream_,O(lisp_implementation_type_string));
+              JUSTIFY_SPACE;
+              JUSTIFY_LAST(TRUE);
+              pr_record_descr(stream_,*(obj_ STACKop 1),S(pathname),TRUE,
+                              O(pathname_slotlist));
+              JUSTIFY_END_ENG;
+            }
+            JUSTIFY_END_ENG;
             skipSTACK(1);
           } else {
             STACK_0 = obj; # String
@@ -9110,7 +9224,8 @@ LISPFUNN(print_structure,2)
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
             KLAMMER_AUF;
             INDENT_START(3); # um 3 Zeichen einrücken, wegen '#S('
-            JUSTIFY_START;
+            JUSTIFY_START(1);
+            JUSTIFY_LAST(FALSE);
             prin_object(stream_,S(random_state)); # Symbol RANDOM-STATE ausgeben
             pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
             JUSTIFY_END_ENG;
@@ -9139,7 +9254,8 @@ LISPFUNN(print_structure,2)
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-            JUSTIFY_START;
+            JUSTIFY_START(1);
+            JUSTIFY_LAST(FALSE);
             write_sstring_case(stream_,O(printstring_byte)); # "BYTE"
             pr_record_ab(stream_,obj_,0,0); # Komponenten ausgeben
             JUSTIFY_END_ENG;
@@ -9178,7 +9294,8 @@ LISPFUNN(print_structure,2)
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-            JUSTIFY_START;
+            JUSTIFY_START(1);
+            JUSTIFY_LAST(FALSE);
             write_sstring_case(stream_,O(printstring_symbolmacro)); # "SYMBOL-MACRO"
             pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
             JUSTIFY_END_ENG;
@@ -9198,7 +9315,8 @@ LISPFUNN(print_structure,2)
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-            JUSTIFY_START;
+            JUSTIFY_START(1);
+            JUSTIFY_LAST(FALSE);
             write_sstring_case(stream_,O(printstring_macro)); # "MACRO"
             pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
             JUSTIFY_END_ENG;
@@ -9218,7 +9336,8 @@ LISPFUNN(print_structure,2)
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-            JUSTIFY_START;
+            JUSTIFY_START(1);
+            JUSTIFY_LAST(FALSE);
             write_sstring_case(stream_,O(printstring_functionmacro)); # "FUNCTION-MACRO"
             pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
             JUSTIFY_END_ENG;
@@ -9238,15 +9357,21 @@ LISPFUNN(print_structure,2)
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-            JUSTIFY_START;
+            JUSTIFY_START(1);
+            var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+            #ifdef UNICODE
+            JUSTIFY_LAST(length_limit==0);
+            #else
+            JUSTIFY_LAST(TRUE);
+            #endif
             write_sstring_case(stream_,O(printstring_encoding)); # "ENCODING"
             {
-              var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
               var uintL length = 0; # bisherige Länge := 0
               #ifdef UNICODE
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) goto encoding_end;
               JUSTIFY_SPACE; # Space ausgeben
+              JUSTIFY_LAST(length+1 >= length_limit);
               # Charset ausgeben:
               prin_object(stream_,TheEncoding(*obj_)->enc_charset);
               length++; # bisherige Länge erhöhen
@@ -9254,6 +9379,7 @@ LISPFUNN(print_structure,2)
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) goto encoding_end;
               JUSTIFY_SPACE; # Space ausgeben
+              JUSTIFY_LAST(TRUE);
               # Line-Terminator ausgeben:
               prin_object(stream_,TheEncoding(*obj_)->enc_eol);
               length++; # bisherige Länge erhöhen
@@ -9277,16 +9403,18 @@ LISPFUNN(print_structure,2)
             var uintP val = (uintP)(TheFpointer(obj)->fp_pointer); # Wert holen
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-            JUSTIFY_START;
+            JUSTIFY_START(1);
+            var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+            JUSTIFY_LAST(length_limit==0);
             if (!validp)
               write_sstring_case(stream_,O(printstring_invalid)); # "INVALID "
             write_sstring_case(stream_,O(printstring_fpointer)); # "FOREIGN-POINTER"
             {
-              var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
               var uintL length = 0; # bisherige Länge := 0
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) goto fpointer_end;
               JUSTIFY_SPACE; # Space ausgeben
+              JUSTIFY_LAST(TRUE);
               # Adresse ausgeben:
               pr_hex8(stream_,val);
               length++; # bisherige Länge erhöhen
@@ -9310,16 +9438,18 @@ LISPFUNN(print_structure,2)
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-            JUSTIFY_START;
+            JUSTIFY_START(1);
+            var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+            JUSTIFY_LAST(length_limit==0);
             if (!fp_validp(TheFpointer(TheFaddress(*obj_)->fa_base)))
               write_sstring_case(stream_,O(printstring_invalid)); # "INVALID "
             write_sstring_case(stream_,O(printstring_faddress)); # "FOREIGN-ADDRESS"
             {
-              var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
               var uintL length = 0; # bisherige Länge := 0
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) goto faddress_end;
               JUSTIFY_SPACE; # Space ausgeben
+              JUSTIFY_LAST(TRUE);
               # Adresse ausgeben, vgl. Macro Faddress_value():
               pr_hex8(stream_,(uintP)TheFpointer(TheFaddress(*obj_)->fa_base)->fp_pointer
                               +  TheFaddress(*obj_)->fa_offset
@@ -9344,21 +9474,24 @@ LISPFUNN(print_structure,2)
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-            JUSTIFY_START;
+            JUSTIFY_START(1);
+            var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+            JUSTIFY_LAST(length_limit==0);
             write_sstring_case(stream_,O(printstring_fvariable)); # "FOREIGN-VARIABLE"
             {
-              var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
               var uintL length = 0; # bisherige Länge := 0
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) goto fvariable_end;
               JUSTIFY_SPACE; # Space ausgeben
               # Name ausgeben:
               if (!nullp(TheFvariable(*obj_)->fv_name)) {
+                JUSTIFY_LAST(length+1 >= length_limit);
                 prin_object(stream_,TheFvariable(*obj_)->fv_name);
                 length++; # bisherige Länge erhöhen
                 if (length >= length_limit) goto fvariable_end;
                 JUSTIFY_SPACE; # Space ausgeben
               }
+              JUSTIFY_LAST(TRUE);
               # Adresse ausgeben:
               pr_hex8(stream_,(uintP)Faddress_value(TheFvariable(*obj_)->fv_address));
               length++; # bisherige Länge erhöhen
@@ -9381,21 +9514,24 @@ LISPFUNN(print_structure,2)
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-            JUSTIFY_START;
+            JUSTIFY_START(1);
+            var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+            JUSTIFY_LAST(length_limit==0);
             write_sstring_case(stream_,O(printstring_ffunction)); # "FOREIGN-FUNCTION"
             {
-              var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
               var uintL length = 0; # bisherige Länge := 0
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) goto ffunction_end;
               JUSTIFY_SPACE; # Space ausgeben
               # Name ausgeben:
               if (!nullp(TheFfunction(*obj_)->ff_name)) {
+                JUSTIFY_LAST(length+1 >= length_limit);
                 prin_object(stream_,TheFfunction(*obj_)->ff_name);
                 length++; # bisherige Länge erhöhen
                 if (length >= length_limit) goto ffunction_end;
                 JUSTIFY_SPACE; # Space ausgeben
               }
+              JUSTIFY_LAST(TRUE);
               # Adresse ausgeben:
               pr_hex8(stream_,(uintP)Faddress_value(TheFfunction(*obj_)->ff_address));
               length++; # bisherige Länge erhöhen
@@ -9420,14 +9556,16 @@ LISPFUNN(print_structure,2)
               var object* value_ = &STACK_0; # und merken, wo es sitzt
               write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
               INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-              JUSTIFY_START;
+              JUSTIFY_START(1);
+              var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+              JUSTIFY_LAST(length_limit==0);
               write_sstring_case(stream_,O(printstring_weakpointer)); # "WEAK-POINTER"
               {
-                var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
                 var uintL length = 0; # bisherige Länge := 0
                 # auf Erreichen von *PRINT-LENGTH* prüfen:
                 if (length >= length_limit) goto weakpointer_end;
                 JUSTIFY_SPACE; # Space ausgeben
+                JUSTIFY_LAST(TRUE);
                 prin_object(stream_,*value_); # output value
                 length++; # bisherige Länge erhöhen
               }
@@ -9459,17 +9597,19 @@ LISPFUNN(print_structure,2)
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-            JUSTIFY_START;
+            JUSTIFY_START(1);
+            var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+            JUSTIFY_LAST(length_limit==0);
             # falls geschlossen, "CLOSED " ausgeben:
             if (nullp(TheSocketServer(*obj_)->socket_handle))
               write_sstring_case(stream_,O(printstring_closed));
             write_sstring_case(stream_,O(printstring_socket_server)); # "SOCKET-SERVER"
             {
-              var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
               var uintL length = 0; # bisherige Länge := 0
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) goto socket_server_end;
               JUSTIFY_SPACE; # Space ausgeben
+              JUSTIFY_LAST(TRUE);
               # output host
               write_string(stream_,TheSocketServer(*obj_)->host);
               write_ascii_char(stream_,':'); # Port ausgeben:
@@ -9495,22 +9635,29 @@ LISPFUNN(print_structure,2)
             pushSTACK(obj);
             var object* obj_ = &STACK_0;
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
-            INDENT_START(2); JUSTIFY_START;
+            INDENT_START(2);
+            JUSTIFY_START(1);
+            var uintL length_limit = get_print_length();
+            JUSTIFY_LAST(length_limit==0);
             if (TheDirKey(*obj_)->closed_p)
               write_sstring_case(stream_,O(printstring_closed));
             write_sstring_case(stream_,O(printstring_dir_key));
             {
-              var uintL length_limit = get_print_length();
               var uintL length = 0;
               if (length >= length_limit) goto dir_key_end;
               JUSTIFY_SPACE;
+              JUSTIFY_LAST(length+1 >= length_limit);
               pr_symbol(stream_,TheDirKey(*obj_)->type);
-              if (++length >= length_limit) goto dir_key_end;
+              length++;
+              if (length >= length_limit) goto dir_key_end;
               JUSTIFY_SPACE;
+              JUSTIFY_LAST(TheDirKey(*obj_)->closed_p || (length+1 >= length_limit));
               pr_string(stream_,TheDirKey(*obj_)->path);
               if (!TheDirKey(*obj_)->closed_p) {
-                if (++length >= length_limit) goto dir_key_end;
+                length++;
+                if (length >= length_limit) goto dir_key_end;
                 JUSTIFY_SPACE;
+                JUSTIFY_LAST(TRUE);
                 pr_symbol(stream_,TheDirKey(*obj_)->direction);
               }
             }
@@ -9534,14 +9681,16 @@ LISPFUNN(print_structure,2)
             var object* obj_ = &STACK_0; # und merken, wo es sitzt
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
             INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-            JUSTIFY_START;
+            JUSTIFY_START(1);
+            var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
+            JUSTIFY_LAST(length_limit==0);
             write_sstring_case(stream_,O(printstring_yetanother)); # "YET-ANOTHER"
             {
-              var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
               var uintL length = 0; # bisherige Länge := 0
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit) goto yetanother_end;
               JUSTIFY_SPACE; # Space ausgeben
+              JUSTIFY_LAST(TRUE);
               # x ausgeben:
               pr_hex6(stream_,TheYetanother(*obj_)->yetanother_x);
               length++; # bisherige Länge erhöhen
@@ -9583,9 +9732,11 @@ LISPFUNN(print_structure,2)
       var object* string_ = &STACK_0; # und merken, wo beides sitzt
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-      JUSTIFY_START;
+      JUSTIFY_START(1);
+      JUSTIFY_LAST(FALSE);
       write_sstring_case(stream_,*string_); # String ausgeben
       JUSTIFY_SPACE;
+      JUSTIFY_LAST(TRUE);
       prin_object(stream_,*(string_ STACKop 1)); # other ausgeben
       JUSTIFY_END_ENG;
       INDENT_END;
@@ -9613,9 +9764,11 @@ LISPFUNN(print_structure,2)
         write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
         KLAMMER_AUF; # '('
         INDENT_START(3); # um 3 Zeichen einrücken, wegen '#.('
-        JUSTIFY_START;
+        JUSTIFY_START(1);
+        JUSTIFY_LAST(FALSE);
         pr_symbol(stream_,S(find_subr)); # SYSTEM::%FIND-SUBR
         JUSTIFY_SPACE;
+        JUSTIFY_LAST(TRUE);
         write_ascii_char(stream_,'\'');
         pr_symbol(stream_,TheSubr(*obj_)->name); # Name ausgeben
         JUSTIFY_END_ENG;
@@ -9674,7 +9827,8 @@ LISPFUNN(print_structure,2)
           var object* obj_ = &STACK_0; # und merken, wo sie sitzt
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
           INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-          JUSTIFY_START;
+          JUSTIFY_START(1);
+          JUSTIFY_LAST(FALSE);
           write_sstring_case(stream_,O(printstring_closure));
           if (test_value(S(print_closure))) { # *PRINT-CLOSURE* abfragen
             # *PRINT-CLOSURE* /= NIL -> #<CLOSURE komponente1 ...> ausgeben:
@@ -9763,7 +9917,8 @@ LISPFUNN(print_structure,2)
         write_ascii_char(stream_,'#'); write_ascii_char(stream_,'Y');
         KLAMMER_AUF;
         INDENT_START(3); # um 3 Zeichen einrücken, wegen '#Y('
-        JUSTIFY_START;
+        JUSTIFY_START(1);
+        JUSTIFY_LAST(FALSE);
         prin_object(stream_,TheClosure(*obj_)->clos_name); # Name ausgeben
         JUSTIFY_SPACE;
         # Codevektor byteweise ausgeben, dabei Zirkularität behandeln:
@@ -9809,7 +9964,7 @@ LISPFUNN(print_structure,2)
         }
         KLAMMER_AUF;
         INDENT_START(1); # um 1 Zeichen einrücken, wegen '('
-        JUSTIFY_START;
+        JUSTIFY_START(1);
         {
           var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-Begrenzung
           var uintL length = 0; # Index = bisherige Länge := 0
@@ -9819,12 +9974,14 @@ LISPFUNN(print_structure,2)
               JUSTIFY_SPACE;
             # auf Erreichen von *PRINT-LENGTH* prüfen:
             if (length >= length_limit) {
+              JUSTIFY_LAST(TRUE);
               # Rest durch '...' abkürzen:
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
               write_ascii_char(stream_,'.');
               break;
             }
+            JUSTIFY_LAST(len==1 || length+1 >= length_limit);
             codevec = *codevec_;
             var uintL index = length;
             #if BIG_ENDIAN_P
@@ -9876,7 +10033,8 @@ LISPFUNN(print_structure,2)
       var object* obj_ = &STACK_0; # und merken, wo er sitzt
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-      JUSTIFY_START;
+      JUSTIFY_START(1);
+      JUSTIFY_LAST(FALSE);
       # falls Stream geschlossen, "CLOSED " ausgeben:
       if ((TheStream(*obj_)->strmflags & strmflags_open_B) == 0)
         write_sstring_case(stream_,O(printstring_closed));
@@ -9916,6 +10074,7 @@ LISPFUNN(print_structure,2)
         case strmtype_synonym:
           # Synonym-Stream
           JUSTIFY_SPACE;
+          JUSTIFY_LAST(TRUE);
           prin_object(stream_,TheStream(*obj_)->strm_synonym_symbol); # Symbol ausgeben
           break;
         case strmtype_broad:
@@ -9929,27 +10088,39 @@ LISPFUNN(print_structure,2)
         case strmtype_buff_in:
           # Buffered-Input-Stream
           JUSTIFY_SPACE;
+          JUSTIFY_LAST(TRUE);
           prin_object(stream_,TheStream(*obj_)->strm_buff_in_fun); # Funktion ausgeben
           break;
         case strmtype_buff_out:
           # Buffered-Output-Stream
           JUSTIFY_SPACE;
+          JUSTIFY_LAST(TRUE);
           prin_object(stream_,TheStream(*obj_)->strm_buff_out_fun); # Funktion ausgeben
           break;
         #ifdef GENERIC_STREAMS
         case strmtype_generic:
           # Generic Streams
           JUSTIFY_SPACE;
+          JUSTIFY_LAST(TRUE);
           prin_object(stream_,TheStream(*obj_)->strm_controller_object); # Controller ausgeben
           break;
         #endif
         case strmtype_file:
           # File-Stream
           JUSTIFY_SPACE;
+          JUSTIFY_LAST(nullp(TheStream(*obj_)->strm_file_name) && !eq(TheStream(*obj_)->strm_eltype,S(character)));
           prin_object(stream_,TheStream(*obj_)->strm_eltype); # Stream-Element-Type
           if (!nullp(TheStream(*obj_)->strm_file_name)) {
             JUSTIFY_SPACE;
+            JUSTIFY_LAST(!eq(TheStream(*obj_)->strm_eltype,S(character)));
             prin_object(stream_,TheStream(*obj_)->strm_file_name); # Filename ausgeben
+          }
+          if (eq(TheStream(*obj_)->strm_eltype,S(character))) {
+            JUSTIFY_SPACE;
+            JUSTIFY_LAST(TRUE);
+            # Zeilennummer ausgeben, in der sich der Stream gerade befindet:
+            write_ascii_char(stream_,'@');
+            pr_number(stream_,stream_line_number(*obj_));
           }
           break;
         #ifdef PIPES
@@ -9957,8 +10128,10 @@ LISPFUNN(print_structure,2)
         case strmtype_pipe_out:
           # Pipe-In/Out-Stream
           JUSTIFY_SPACE;
+          JUSTIFY_LAST(FALSE);
           prin_object(stream_,TheStream(*obj_)->strm_eltype); # Stream-Element-Type
           JUSTIFY_SPACE;
+          JUSTIFY_LAST(TRUE);
           pr_uint(stream_,I_to_UL(TheStream(*obj_)->strm_pipe_pid)); # Prozess-Id ausgeben
           break;
         #endif
@@ -9966,6 +10139,7 @@ LISPFUNN(print_structure,2)
         case strmtype_x11socket:
           # X11-Socket-Stream
           JUSTIFY_SPACE;
+          JUSTIFY_LAST(TRUE);
           prin_object(stream_,TheStream(*obj_)->strm_x11socket_connect); # Verbindungsziel ausgeben
           break;
         #endif
@@ -9976,8 +10150,10 @@ LISPFUNN(print_structure,2)
         case strmtype_socket:
           # Socket-Stream
           JUSTIFY_SPACE;
+          JUSTIFY_LAST(FALSE);
           prin_object(stream_,TheStream(*obj_)->strm_eltype); # Stream-Element-Type
           JUSTIFY_SPACE;
+          JUSTIFY_LAST(TRUE);
           {
             var object host = TheStream(*obj_)->strm_socket_host;
             if (!nullp(host))
@@ -9990,12 +10166,6 @@ LISPFUNN(print_structure,2)
         default:
           # sonst keine Zusatzinformation
           break;
-      }
-      if (type==strmtype_file && eq(TheStream(*obj_)->strm_eltype,S(character))) {
-        JUSTIFY_SPACE;
-        # Zeilennummer ausgeben, in der sich der Stream gerade befindet:
-        write_ascii_char(stream_,'@');
-        pr_number(stream_,stream_line_number(*obj_));
       }
       JUSTIFY_END_ENG;
       INDENT_END;
@@ -10408,8 +10578,9 @@ LISPFUN(write_unreadable,3,0,norest,key,2, (kw(type),kw(identity)) )
     var object* stream_ = &STACK_0;
     write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
     INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
-    JUSTIFY_START;
+    JUSTIFY_START(1);
     if (flag_type) {
+      JUSTIFY_LAST(!flag_fun && !flag_id);
       # (TYPE-OF object) ausgeben:
       pushSTACK(*(stream_ STACKop 1)); funcall(L(type_of),1);
       prin1(stream_,value1);
@@ -10417,11 +10588,13 @@ LISPFUN(write_unreadable,3,0,norest,key,2, (kw(type),kw(identity)) )
         JUSTIFY_SPACE;
     }
     if (flag_fun) {
+      JUSTIFY_LAST(!flag_id);
       funcall(*(stream_ STACKop 2),0); # (FUNCALL function)
     }
     if (flag_id) {
       if (flag_fun)
         JUSTIFY_SPACE;
+      JUSTIFY_LAST(TRUE);
       pr_hex6(stream_,*(stream_ STACKop 1));
     }
     JUSTIFY_END_ENG;
