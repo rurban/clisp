@@ -14,13 +14,13 @@ exec_prefix = $(prefix)
 bindir = $(exec_prefix)/bin
 # Directory where manual pages are installed.
 mandir = $(exec_prefix)/man
-# Directory where manual pages in HTML format are installed.
-htmldir = $(exec_prefix)/share/html
-# Directory where manual pages in DVI format are installed.
-dvidir = $(exec_prefix)/share/dvi
 # Directory where documentation is installed.
 docdir = $(exec_prefix)/doc
 lispdocdir = $(docdir)/clisp
+# Directory where manual pages in HTML/DVI/PS format are installed.
+htmldir = $(lispdocdir)
+dvidir = $(lispdocdir)
+psdir = $(lispdocdir)
 libdir = $(exec_prefix)/lib
 lisplibdir = $(libdir)/clisp
 lexe=@@LEXE@@
@@ -107,9 +107,11 @@ install-man : doc/clisp.1 doc/clisp.html force
 	if [ ! -d $(exec_prefix)/share ] ; then mkdir $(exec_prefix)/share ; fi
 	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
 	if [ ! -d $(dvidir) ] ; then mkdir $(dvidir) ; fi
+	if [ ! -d $(psdir) ] ; then mkdir $(psdir) ; fi
 	$(INSTALL_DATA) doc/clisp.1 $(mandir)/man1/clisp.1
 	$(INSTALL_DATA) doc/clisp.html $(htmldir)/clisp.html
-	test ! -f doc/clisp.dvi || $(INSTALL_DATA) doc/clisp.dvi $(dvidir)/clisp.dvi
+	$(INSTALL_DATA) doc/clisp.dvi $(dvidir)/clisp.dvi
+	$(INSTALL_DATA) doc/clisp.ps $(psdir)/clisp.ps
 
 install-doc : force
 	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
