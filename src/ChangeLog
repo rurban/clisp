@@ -1,3 +1,7 @@
+2004-01-07  Bruno Haible  <bruno@clisp.org>
+
+	* misc.d (clisp_setenv) [WIN32_NATIVE]: Call SetEnvironmentVariable.
+
 2004-01-06  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/regexi.c (REGEXP): use alloca() instead of calloc();
