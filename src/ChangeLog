@@ -1,6 +1,12 @@
 2004-05-22  Bruno Haible  <bruno@clisp.org>
 
 	* utils/clispload.lsp (regression-test::*expected-failures*):
+	Add PRINT.ARRAY.2.12, PRINT.ARRAY.2.14, PRINT.ARRAY.2.16,
+	PRINT.ARRAY.2.18, PRINT.ARRAY.2.19.
+
+2004-05-22  Bruno Haible  <bruno@clisp.org>
+
+	* utils/clispload.lsp (regression-test::*expected-failures*):
 	Remove MAKE-INSTANCES-OBSOLETE.2, PRINT.SYMBOL.PREFIX.3. Paul fixed
 	them.
 

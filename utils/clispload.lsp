@@ -105,6 +105,11 @@
   ;; subclasses.
   USER-CLASS-DISJOINTNESS-2 TAC-3.16
 
+  ;; Paul Dietz assumes that multidimensional arrays of element type CHARACTER
+  ;; or BIT are printed like multidimensional arrays of element type T.
+  PRINT.ARRAY.2.12 PRINT.ARRAY.2.14 PRINT.ARRAY.2.16 PRINT.ARRAY.2.18
+  PRINT.ARRAY.2.19
+
   ; To be revisited:
   ; none
 ))
