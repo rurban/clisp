@@ -5303,7 +5303,7 @@ typedef enum {
   seclass_foldable, /* the function allows Constant-Folding:
      two calls with identical arguments give the same result,
      and calls with constant arguments can be evaluated at compile time.
-    In particular, no side effects, do not depend on global variables or such,
+     In particular, no side effects, do not depend on global variables or such,
      do not even look "inside" their arguments */
   seclass_no_se, /* no side effects, do not depend on global variables or such,
      do not even look "inside" their arguments, but not "foldable". */
@@ -5311,7 +5311,7 @@ typedef enum {
      or look "inside" their arguments. */
   seclass_write, /* only side effects: does not read anything,
      just sets some global variables. */
-  seclass_default, /* may do side effects */
+  seclass_default /* may do side effects */
 } seclass_t;
 
 # Read-Label
