@@ -2500,8 +2500,9 @@ echo "$as_me:$LINENO: result: $cl_cv_prog_as_underscore" >&5
 echo "${ECHO_T}$cl_cv_prog_as_underscore" >&6
 if test $cl_cv_prog_as_underscore = yes; then
   AS_UNDERSCORE=true
-  cat >>confdefs.h <<\_ACEOF
-#define ASM_UNDERSCORE 1
+
+cat >>confdefs.h <<\_ACEOF
+#define ASM_UNDERSCORE
 _ACEOF
 
 else
@@ -2754,7 +2755,8 @@ echo "${ECHO_T}$cl_cv_c_void" >&6
 if test $cl_cv_c_void = yes; then
   have_void=1
 else
-  cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define void char
 _ACEOF
 
@@ -2808,17 +2810,17 @@ fi
 echo "$as_me:$LINENO: result: $cl_cv_c_return_void" >&5
 echo "${ECHO_T}$cl_cv_c_return_void" >&6
 if test $cl_cv_c_return_void = yes; then
-  cat >>confdefs.h <<\_ACEOF
-#define return_void return
-_ACEOF
-
+  cl_cv_c_return_void_form=return
 else
-  cat >>confdefs.h <<\_ACEOF
-#define return_void
-_ACEOF
+  cl_cv_c_return_void_form=""
+fi
 
 fi
-fi
+
+cat >>confdefs.h <<_ACEOF
+#define return_void $cl_cv_c_return_void_form
+_ACEOF
+
 
 echo "$as_me:$LINENO: checking for ANSI C header files" >&5
 echo $ECHO_N "checking for ANSI C header files... $ECHO_C" >&6
@@ -3101,7 +3103,7 @@ done
 
 
 
-for ac_header in unistd.h
+for ac_header in unistd_h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
@@ -3241,7 +3243,6 @@ _ACEOF
 fi
 
 done
-
 
 echo "$as_me:$LINENO: checking for malloc declaration" >&5
 echo $ECHO_N "checking for malloc declaration... $ECHO_C" >&6
@@ -3582,9 +3583,11 @@ echo "$as_me:$LINENO: result: ${ac_t:-
 echo "${ECHO_T}${ac_t:-
          }$cl_cv_proto_abort" >&6
 
+
 cat >>confdefs.h <<_ACEOF
 #define RETABORTTYPE $cl_cv_proto_abort_ret
 _ACEOF
+
 
 cat >>confdefs.h <<_ACEOF
 #define ABORT_VOLATILE $cl_cv_proto_abort_vol
@@ -3747,8 +3750,9 @@ fi
 echo "$as_me:$LINENO: result: $cl_cv_func_getpagesize" >&5
 echo "${ECHO_T}$cl_cv_func_getpagesize" >&6
 if test $cl_cv_func_getpagesize = yes; then
-  cat >>confdefs.h <<\_ACEOF
-#define HAVE_GETPAGESIZE 1
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_GETPAGESIZE
 _ACEOF
 
 have_getpagesize=1
@@ -3822,6 +3826,7 @@ echo "$as_me:$LINENO: result: ${ac_t:-
          }$cl_cv_proto_getpagesize" >&5
 echo "${ECHO_T}${ac_t:-
          }$cl_cv_proto_getpagesize" >&6
+
 
 cat >>confdefs.h <<_ACEOF
 #define RETGETPAGESIZETYPE $cl_cv_proto_getpagesize_ret
@@ -4020,8 +4025,9 @@ fi
 echo "$as_me:$LINENO: result: $cl_cv_func_vm" >&5
 echo "${ECHO_T}$cl_cv_func_vm" >&6
 if test $cl_cv_func_vm = yes; then
-  cat >>confdefs.h <<\_ACEOF
-#define HAVE_MACH_VM 1
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_MACH_VM
 _ACEOF
 
 fi
@@ -4230,8 +4236,9 @@ if test $cl_cv_decl_O_RDWR_fcntl_h = yes; then
   openflags_ok=1
 fi
 if test -z "$openflags_ok"; then
+
 cat >>confdefs.h <<\_ACEOF
-#define OPEN_NEEDS_SYS_FILE_H 1
+#define OPEN_NEEDS_SYS_FILE_H
 _ACEOF
 
 fi
@@ -4452,8 +4459,9 @@ else
   no_mmap=1
 fi
 if test -z "$no_mmap"; then
+
 cat >>confdefs.h <<\_ACEOF
-#define HAVE_MMAP 1
+#define HAVE_MMAP
 _ACEOF
 
 echo "$as_me:$LINENO: checking for mmap declaration" >&5
@@ -4538,13 +4546,16 @@ echo "$as_me:$LINENO: result: ${ac_t:-
 echo "${ECHO_T}${ac_t:-
          }$cl_cv_proto_mmap" >&6
 
+
 cat >>confdefs.h <<_ACEOF
 #define RETMMAPTYPE $cl_cv_proto_mmap_ret
 _ACEOF
 
+
 cat >>confdefs.h <<_ACEOF
 #define MMAP_ADDR_T $cl_cv_proto_mmap_arg1
 _ACEOF
+
 
 cat >>confdefs.h <<_ACEOF
 #define MMAP_SIZE_T $cl_cv_proto_mmap_arg2
@@ -4806,26 +4817,30 @@ fi
 echo "$as_me:$LINENO: result: $cl_cv_func_mmap_works" >&5
 echo "${ECHO_T}$cl_cv_func_mmap_works" >&6
 if test "$cl_cv_func_mmap_anon" = yes; then
+
 cat >>confdefs.h <<\_ACEOF
-#define HAVE_MMAP_ANON 1
+#define HAVE_MMAP_ANON
 _ACEOF
 
 fi
 if test "$cl_cv_func_mmap_anonymous" = yes; then
+
 cat >>confdefs.h <<\_ACEOF
-#define HAVE_MMAP_ANONYMOUS 1
+#define HAVE_MMAP_ANONYMOUS
 _ACEOF
 
 fi
 if test "$cl_cv_func_mmap_devzero" = yes; then
+
 cat >>confdefs.h <<\_ACEOF
-#define HAVE_MMAP_DEVZERO 1
+#define HAVE_MMAP_DEVZERO
 _ACEOF
 
 fi
 if test "$cl_cv_func_mmap_devzero_sun4_29" = yes; then
+
 cat >>confdefs.h <<\_ACEOF
-#define HAVE_MMAP_DEVZERO_SUN4_29 1
+#define HAVE_MMAP_DEVZERO_SUN4_29
 _ACEOF
 
 fi
@@ -4987,6 +5002,7 @@ echo "$as_me:$LINENO: result: ${ac_t:-
          }$cl_cv_proto_mprotect" >&5
 echo "${ECHO_T}${ac_t:-
          }$cl_cv_proto_mprotect" >&6
+
 
 cat >>confdefs.h <<_ACEOF
 #define MPROTECT_CONST $cl_cv_proto_mprotect_arg1
@@ -5262,8 +5278,9 @@ fi
 echo "$as_me:$LINENO: result: $cl_cv_func_mprotect_works" >&5
 echo "${ECHO_T}$cl_cv_func_mprotect_works" >&6
 if test $cl_cv_func_mprotect_works = yes; then
-  cat >>confdefs.h <<\_ACEOF
-#define HAVE_WORKING_MPROTECT 1
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_WORKING_MPROTECT
 _ACEOF
 
 fi
@@ -5771,11 +5788,13 @@ echo "$as_me:$LINENO: result: ${ac_t:-
 echo "${ECHO_T}${ac_t:-
          }$cl_cv_proto_shmat" >&6
 
-cat >>confdefs.h <<_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define RETSHMATTYPE $cl_cv_proto_shmat_ret
 _ACEOF
 
-cat >>confdefs.h <<_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define SHMAT_CONST $cl_cv_proto_shmat_arg2
 _ACEOF
 
@@ -6055,8 +6074,9 @@ echo "${ECHO_T}$cl_cv_sys_shm_works" >&6
 fi
 case "$cl_cv_sys_shm_works" in
   *yes) have_shm=1
-        cat >>confdefs.h <<\_ACEOF
-#define HAVE_SHM 1
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_SHM
 _ACEOF
 
 
