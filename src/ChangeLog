@@ -1,3 +1,18 @@
+2004-05-09  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (hash_lookup_builtin, hash_lookup_builtin_with_rehash):
+	New declarations.
+	(set_ht_invalid, set_ht_valid): New macros.
+	* spvw_garcol.d (gar_col_normal, gar_col_compact, move_conses): Use
+	set_ht_invalid instead of mark_ht_invalid.
+	* spvw_memfile.d (loadmem_from_handle): Likewise.
+	* spvw_circ.d (subst_circ_mark): Likewise.
+	* hashtabl.d (rehash): Use set_ht_valid instead of mark_ht_valid.
+	(hash_lookup_builtin): Assume table is valid.
+	(hash_lookup_builtin_with_rehash): New function.
+	(resize, clrhash): Use set_ht_invalid instead of mark_ht_invalid.
+	* pseudofun.d: Add hash_lookup_builtin_with_rehash.
+
 2004-05-30  Sam Steingold  <sds@gnu.org>
 
 	* _distmakefile (clisp) [UNIX_BINARY_DISTRIB]: do not depend on
