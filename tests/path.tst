@@ -676,3 +676,11 @@ t
   (setf (aref foo 3) #\/)
   (equalp path (make-pathname :directory (pathname-directory path))))
 t
+
+; this contradicts the above FOO test
+; KMP wants FOO to return NIL
+; see make-pathname in pathname.d (search for KMP_IS_RIGHT)
+;(string= (namestring (make-pathname :name "FOO" :case :common
+;                                    :defaults #P"/home/kent/"))
+;         (namestring #P"/home/kent/foo"))
+;t
