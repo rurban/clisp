@@ -916,7 +916,7 @@ for-value   NIL oder T
        system::closure-codevec system::closure-consts system::make-code-vector
        system::%make-closure system::make-load-time-eval
        clos::structure-object-p clos::std-instance-p
-       clos::%allocate-instance clos:slot-value clos::set-slot-value
+       clos::old-%allocate-instance clos:slot-value clos::set-slot-value
        clos:slot-boundp clos:slot-makunbound clos:slot-exists-p
        system::sequencep elt system::%setelt subseq copy-seq length reverse
        nreverse make-sequence reduce fill replace remove remove-if remove-if-not
@@ -3683,7 +3683,7 @@ der Docstring (oder NIL).
                  SYSTEM::%RECORD-REF SYSTEM::%RECORD-LENGTH SYSTEM::%STRUCTURE-REF SYSTEM::%MAKE-STRUCTURE
                  COPY-STRUCTURE SYSTEM::%STRUCTURE-TYPE-P SYSTEM::CLOSURE-NAME
                  SYSTEM::CLOSURE-CODEVEC SYSTEM::CLOSURE-CONSTS SYSTEM::MAKE-CODE-VECTOR
-                 SYSTEM::%MAKE-CLOSURE CLOS::%ALLOCATE-INSTANCE CLOS:SLOT-EXISTS-P
+                 SYSTEM::%MAKE-CLOSURE CLOS::OLD-%ALLOCATE-INSTANCE CLOS:SLOT-EXISTS-P
                  SYSTEM::SEQUENCEP ELT SUBSEQ COPY-SEQ LENGTH REVERSE CONCATENATE
                  MAKE-SYNONYM-STREAM SYNONYM-STREAM-SYMBOL MAKE-BROADCAST-STREAM
                  BROADCAST-STREAM-STREAMS MAKE-CONCATENATED-STREAM

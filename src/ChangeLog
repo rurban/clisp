@@ -1,3 +1,40 @@
+1999-05-30  Sam Steingold  <sds@goems.com>
+            Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Implement ALLOCATE-INSTANCE.
+        * record.d (clos::old-%allocate-instance): Renamed from
+          clos::%allocate-instance.
+          (clos::%allocate-instance): New function, with &rest arguments.
+          (do_allocate_instance): New function. Remove unneeded if_classp
+          check.
+          (clos::%initialize-instance): Adapt to new format of
+          *make-instance-table* entries.
+          (clos::%make-instance): Likewise. Call do_allocate_instance, or
+          the effective method for allocate-instance if it is not the default
+          one.
+        * eval.d (FUNTAB): clos::old-%allocate-instance replaces
+          clos::%allocate-instance.
+        * compiler.lsp (funtab, c-DIRECT-FUNCTION-CALL): Likewise.
+        * init.lsp: Export allocate-instance.
+        * defs3.lsp: Likewise.
+        * clos.lsp: Likewise.
+          (*dynamically-modifiable-generic-function-names*): Add
+          `allocate-instance'.
+          (|#'allocate-instance|): New variable.
+          (std-add-method, std-remove-method): When changing allocate-instance,
+          call note-ai-change.
+          (note-i-meta-change, note-ai-change): New functions.
+          (valid-make-instance-keywords): Add the ALLOCATE-INSTANCE keywords.
+          (make-instance-table-entry1): New function.
+          (make-instance-table-entry2): Return 2 values.
+          (initialize-instance@standard-object): Adapt to new format of
+          *make-instance-table* entries.
+          (initial-initialize-instance): Create new-style *make-instance-table*
+          entry.
+          (allocate-instance): New generic function.
+          (initial-make-instance): Call the effective method for
+          allocate-instance. Create new-style *make-instance-table* entry.
+
 1999-05-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * makemake.in: Change a few occurrences of ${NEXT_M} to ${NEXT_}.

@@ -658,12 +658,27 @@ LISPFUNN(allocate_std_instance,2)
     value1 = instance; mv_count=1; # instance als Wert
   }}
 
-LISPFUNN(allocate_instance,1)
-# (CLOS::%ALLOCATE-INSTANCE class) returns an instance of the class.
-# class must be a <standard-class> or <structure-class>.
-  { var object clas = popSTACK();
-    if_classp(clas, ; , fehler_keine_klasse(clas); );
-    # Für allocate-instance zwischen <standard-class> und <structure-class>
+local Values do_allocate_instance (object clas);
+LISPFUNN(old_pallocate_instance,1)
+# (CLOS::OLD-%ALLOCATE-INSTANCE class) returns an instance of the class.
+# For backward compatibility only.
+{ return_Values do_allocate_instance(popSTACK()); }
+LISPFUN(pallocate_instance,1,0,rest,nokey,0,NIL)
+# (CLOS::%ALLOCATE-INSTANCE class &rest initargs) returns an instance of the class.
+# class must be an instance of <standard-class> or <structure-class>.
+{ if (!((argcount%2) == 0))
+    { var object arglist = listof(argcount);
+      pushSTACK(arglist);
+      fehler(program_error,
+             GETTEXT("ALLOCATE-INITIALIZE: keyword argument list ~ has an odd length")
+            );
+    }
+  set_args_end_pointer(rest_args_pointer); # STACK aufräumen
+  return_Values do_allocate_instance(popSTACK());
+}
+local Values do_allocate_instance(clas)
+  var object clas;
+  { # Für allocate-instance zwischen <standard-class> und <structure-class>
     # unterscheiden: (class-shared-slots class) ein Vektor oder NIL, oder
     # (class-names class) ein Cons?
     if (matomp(TheClass(clas)->shared_slots))
@@ -1058,9 +1073,9 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
 # (defmethod initialize-instance ((instance standard-object) &rest initargs)
 #   (let ((h (gethash class *make-instance-table*)))
 #     (if h
-#       (if (not (eq (cddr h) #'clos::%shared-initialize))
+#       (if (not (eq (svref h 3) #'clos::%shared-initialize))
 #         ; effektive Methode von shared-initialize anwenden:
-#         (apply (cddr h) instance 'T initargs)
+#         (apply (svref h 3) instance 'T initargs)
 #         ; clos::%shared-initialize mit slot-names=T lässt sich vereinfachen:
 #         (progn
 #           (dolist (slot (class-slots (class-of instance)))
@@ -1104,7 +1119,7 @@ local Values do_initialize_instance(info,rest_args_pointer,argcount)
   var object* rest_args_pointer;
   var uintC argcount;
   { # Stackaufbau: instance, argcount Initarg/Wert-Paare.
-    { var object fun = Cdr(Cdr(info));
+    { var object fun = TheSvector(info)->data[3];
       if (!eq(fun,L(shared_initialize)))
         { # initargs im Stack um 1 nach unten schieben, dann fun aufrufen:
           var object last = T;
@@ -1199,18 +1214,18 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
 #     (if h
 #       (progn
 #         ; 28.1.9.2. validity of initialization arguments
-#         (let ((valid-keywords (car h)))
+#         (let ((valid-keywords (svref h 0)))
 #           (sys::keyword-test initargs valid-keywords)
 #         )
-#         (let ((instance (allocate-instance class)))
-#           (if (not (eq (cadr h) #'clos::%initialize-instance))
+#         (let ((instance (apply #'allocate-instance class initargs)))
+#           (if (not (eq (svref h 2) #'clos::%initialize-instance))
 #             ; effektive Methode von initialize-instance anwenden:
-#             (apply (cadr h) instance initargs)
+#             (apply (svref h 2) instance initargs)
 #             ; clos::%initialize-instance lässt sich vereinfachen (man braucht
 #             ; nicht nochmal in *make-instance-table* nachzusehen):
-#             (if (not (eq (cddr h) #'clos::%shared-initialize))
+#             (if (not (eq (svref h 3) #'clos::%shared-initialize))
 #               ; effektive Methode von shared-initialize anwenden:
-#               (apply (cddr h) instance 'T initargs)
+#               (apply (svref h 3) instance 'T initargs)
 #               ...
 #             )
 #       ) ) )
@@ -1265,33 +1280,34 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
       { return_Values funcall(S(initial_make_instance),2*argcount+1); }
       else
       { # Keywords überprüfen:
-        keyword_test(S(make_instance),rest_args_pointer,argcount,Car(info));
+        keyword_test(S(make_instance),rest_args_pointer,argcount,TheSvector(info)->data[0]);
+        # Effektive Methode von ALLOCATE-INSTANCE anwenden:
         pushSTACK(info);
-        # Für allocate-instance zwischen <standard-class> und <structure-class>
-        # unterscheiden: (class-shared-slots class) ein Vektor oder NIL, oder
-        # (class-names class) ein Cons?
-        if (matomp(TheClass(clas)->shared_slots))
-          { # class ist eine <standard-class>.
-            # (CLOS::ALLOCATE-STD-INSTANCE class (class-instance-size class))
-            pushSTACK(clas); pushSTACK(TheClass(clas)->instance_size);
-            C_allocate_std_instance();
-          }
-        else
-          { # class ist eine <structure-class>.
-            # (SYS::%MAKE-STRUCTURE (class-names class) (class-instance-size class))
-            pushSTACK(TheClass(clas)->shared_slots); pushSTACK(TheClass(clas)->instance_size);
-            C_make_structure();
-            # Slots der Structure mit #<UNBOUND> füllen, damit nachher
-            # INITIALIZE-INSTANCE die Default-Werte einträgt:
-            {var uintL count = Structure_length(value1)-1;
-             if (count > 0)
-               { var object* ptr = &TheStructure(value1)->recdata[1];
-                 dotimespL(count,count, { *ptr++ = unbound; } );
-          } }  }
+        { var object fun = TheSvector(info)->data[1];
+          if (!eq(fun,L(pallocate_instance)))
+            { var object* ptr = rest_args_pointer STACKop 1;
+              var uintC count;
+              dotimespC(count,2*argcount+1, { pushSTACK(NEXT(ptr)); });
+              funcall(fun,2*argcount+1);
+              pushSTACK(value1); # save instance
+              pushSTACK(value1); C_class_of();
+              if (!eq(value1,Before(rest_args_pointer)))
+                { # instance already in STACK_0
+                  pushSTACK(Before(rest_args_pointer));
+                  pushSTACK(S(allocate_instance));
+                  fehler(error,
+                         GETTEXT("~ method for ~ returned ~")
+                        );
+                }
+              value1 = popSTACK(); # restore instance
+            }
+            else
+            { do_allocate_instance(clas); }
+        }
         info = popSTACK();
         # Effektive Methode von INITIALIZE-INSTANCE anwenden:
         Before(rest_args_pointer) = value1; # instance als 1. Argument statt class
-       {var object fun = Car(Cdr(info));
+       {var object fun = TheSvector(info)->data[2];
         if (!eq(fun,L(initialize_instance)))
           { return_Values funcall(fun,2*argcount+1); }
           else

@@ -69,7 +69,8 @@
   compute-applicable-methods method-qualifiers function-keywords
   slot-missing slot-unbound
   print-object describe-object
-  make-instance initialize-instance reinitialize-instance shared-initialize
+  make-instance allocate-instance initialize-instance reinitialize-instance
+  shared-initialize
   ;; Namen von Klassen:
   standard-class structure-class built-in-class
   standard-object
@@ -2232,10 +2233,11 @@
   (defvar *dynamically-modifiable-generic-function-names*
     ; A list of names of functions, which ANSI CL explicitly denotes as
     ; "Standard Generic Function"s, meaning that the user may add methods.
-    '(add-method class-name describe-object find-method function-keywords
-      initialize-instance make-instance method-qualifiers no-applicable-method
-      no-next-method no-primary-method print-object reinitialize-instance
-      remove-method shared-initialize slot-missing slot-unbound
+    '(add-method allocate-instance class-name describe-object find-method
+      function-keywords initialize-instance make-instance method-qualifiers
+      no-applicable-method no-next-method no-primary-method print-object
+      reinitialize-instance remove-method shared-initialize slot-missing
+      slot-unbound
   )  )
   (defvar *warn-if-gf-already-called* t)
   (defun warn-if-gf-already-called (gf)
@@ -2807,11 +2809,14 @@
 ) ) ) )
 
 
-; Grausamer Hack (28.1.9.2.):
-; MAKE-INSTANCE muss über die Methoden von INITIALIZE-INSTANCE und
-; SHARED-INITIALIZE Bescheid wissen.
-; REINITIALIZE-INSTANCE muss über die Methoden von REINITIALIZE-INSTANCE und
-; SHARED-INITIALIZE Bescheid wissen.
+; Cruel hack (CLtL2 28.1.9.2., ANSI CL 7.1.2.):
+; - MAKE-INSTANCE must be informed about the methods of ALLOCATE-INSTANCE,
+;   INITIALIZE-INSTANCE and SHARED-INITIALIZE.
+; - INITIALIZE-INSTANCE must be informed about the methods of
+;   INITIALIZE-INSTANCE and SHARED-INITIALIZE.
+; - REINITIALIZE-INSTANCE must be informed about the methods of
+;   REINITIALIZE-INSTANCE and SHARED-INITIALIZE.
+(defvar |#'allocate-instance| nil)
 (defvar |#'initialize-instance| nil)
 (defvar |#'reinitialize-instance| nil)
 (defvar |#'shared-initialize| nil)
@@ -2871,7 +2876,8 @@
   ; Methode ist fertig. Eintragen:
   (warn-if-gf-already-called gf)
   (let ((old-method (find method (gf-methods gf) :test #'methods-agree-p)))
-    (cond ((eq gf |#'initialize-instance|) (note-ii-change method))
+    (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
+          ((eq gf |#'initialize-instance|) (note-ii-change method))
           ((eq gf |#'reinitialize-instance|) (note-ri-change method))
           ((eq gf |#'shared-initialize|) (note-si-change method))
     )
@@ -2901,7 +2907,8 @@
       (warn (ENGLISH "Removing method ~S in ~S")
             old-method gf
       )
-      (cond ((eq gf |#'initialize-instance|) (note-ii-change method))
+      (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
+            ((eq gf |#'initialize-instance|) (note-ii-change method))
             ((eq gf |#'reinitialize-instance|) (note-ri-change method))
             ((eq gf |#'shared-initialize|) (note-si-change method))
       )
@@ -3540,22 +3547,25 @@
 
 ;; 28.1.9. Object creation and initialization
 
-; Grausamer Hack (28.1.9.2.):
-; MAKE-INSTANCE muss über die Methoden von INITIALIZE-INSTANCE und
-; SHARED-INITIALIZE Bescheid wissen.
-; REINITIALIZE-INSTANCE muss über die Methoden von REINITIALIZE-INSTANCE und
-; SHARED-INITIALIZE Bescheid wissen.
+; Cruel hack (CLtL2 28.1.9.2., ANSI CL 7.1.2.):
+; - MAKE-INSTANCE must be informed about the methods of ALLOCATE-INSTANCE,
+;   INITIALIZE-INSTANCE and SHARED-INITIALIZE.
+; - INITIALIZE-INSTANCE must be informed about the methods of
+;   INITIALIZE-INSTANCE and SHARED-INITIALIZE.
+; - REINITIALIZE-INSTANCE must be informed about the methods of
+;   REINITIALIZE-INSTANCE and SHARED-INITIALIZE.
 
 (defparameter *make-instance-table* (make-hash-table :test #'eq))
-  ; Hashtabelle, die einer Klasse zuordnet ein List* aus
-  ; - einer Liste der zulässigen Keyword-Argumente,
-  ; - der effektiven Methode von initialize-instance,
-  ; - der effektiven Methode von shared-initialize.
+  ; Hash table, mapping a class to a simple-vector containing
+  ; - a list of valid keyword arguments,
+  ; - the effective method of allocate-instance,
+  ; - the effective method of initialize-instance,
+  ; - the effective method of shared-initialize.
 
 (defparameter *reinitialize-instance-table* (make-hash-table :test #'eq))
-  ; Hashtabelle, die einer Klasse zuordnet ein Cons aus
-  ; - einer Liste der zulässigen Keyword-Argumente,
-  ; - der effektiven Methode von shared-initialize.
+  ; Hash table, mapping a class to a cons containing
+  ; - a list of valid keyword arguments,
+  ; - the effective method of shared-initialize.
 
 (defun note-i-change (specializer table)
   (maphash #'(lambda (class value) (declare (ignore value))
@@ -3564,6 +3574,29 @@
              ) )
            table
 ) )
+(defun note-i-meta-change (meta-specializer table)
+  (maphash #'(lambda (class value) (declare (ignore value))
+               (when (subclassp (class-of class) meta-specializer) ; <==> (typep class meta-specializer)
+                 (remhash class table)
+             ) )
+           table
+) )
+
+(defun note-ai-change (method)
+  (let ((specializer (first (std-method-parameter-specializers method))))
+    (if (consp specializer)
+      ; EQL-Methode auf ALLOCATE-INSTANCE:
+      ; Objekt muss Klasse sein, sonst wertlos
+      (let ((specialized-object (second specializer)))
+        (when (class-p specialized-object)
+          ; Entferne die Einträge von *make-instance-table*, für welche die
+          ; besagte Methode anwendbar wäre:
+          (note-i-change specialized-object *make-instance-table*)
+      ) )
+      ; Entferne die Einträge von *make-instance-table*, für welche die
+      ; besagte Methode anwendbar wäre:
+      (note-i-meta-change specializer *make-instance-table*)
+) ) )
 
 (defun note-ii-change (method)
   (let ((specializer (first (std-method-parameter-specializers method))))
@@ -3630,7 +3663,8 @@
 ; Bei MAKE-INSTANCE sind als Keys gültig:
 ; - die Initargs, die zur Initialisierung von Slots benutzt werden,
 ; - die Keywords von Methoden von SHARED-INITIALIZE,
-; - die Keywords von Methoden von INITIALIZE-INSTANCE.
+; - die Keywords von Methoden von INITIALIZE-INSTANCE,
+; - die Keywords von Methoden von ALLOCATE-INSTANCE.
 (defun valid-make-instance-keywords (class)
   (valid-initarg-keywords
     class
@@ -3654,10 +3688,24 @@
           ) )
         (gf-methods |#'initialize-instance|)
       )
+      ; Liste aller anwendbaren Methoden von ALLOCATE-INSTANCE
+      (remove-if-not
+        #'(lambda (method)
+            (let ((specializer (first (std-method-parameter-specializers method))))
+              (if (consp specializer)
+                (eql class (second specializer))
+                (subclassp (class-of class) specializer) ; <==> (typep class specializer)
+          ) ) )
+        (gf-methods |#'allocate-instance|)
+      )
 ) ) )
+(defun make-instance-table-entry1 (class)
+  (values (valid-make-instance-keywords class)
+          (compute-effective-method |#'allocate-instance| class)
+) )
 (defun make-instance-table-entry2 (instance)
-  (cons (compute-effective-method |#'initialize-instance| instance)
-        (compute-effective-method |#'shared-initialize| instance 'T)
+  (values (compute-effective-method |#'initialize-instance| instance)
+          (compute-effective-method |#'shared-initialize| instance 'T)
 ) )
 
 ; 28.1.9.5., 28.1.9.4.
@@ -3802,9 +3850,9 @@
 (defmethod initialize-instance ((instance standard-object) &rest initargs)
   (let ((h (gethash class *make-instance-table*)))
     (if h
-      (if (not (eq (cddr h) #'clos::%shared-initialize))
+      (if (not (eq (svref h 3) #'clos::%shared-initialize))
         ; effektive Methode von shared-initialize anwenden:
-        (apply (cddr h) instance 'T initargs)
+        (apply (svref h 3) instance 'T initargs)
         ; clos::%shared-initialize mit slot-names=T lässt sich vereinfachen:
         (progn
           (dolist (slot (class-slots (class-of instance)))
@@ -3847,16 +3895,17 @@
     :signature '(1 0 t () () ())
 ) )
 (defun initial-initialize-instance (instance &rest initargs)
-  (let* ((class (class-of instance))
-         (valid-keywords (valid-make-instance-keywords class))
-         (efs (make-instance-table-entry2 instance)))
-    (setf (gethash class *make-instance-table*) (cons valid-keywords efs))
-    ; effektive Methode von SHARED-INITIALIZE anwenden:
-    (apply (cdr efs) instance 'T initargs)
-) )
+  (let ((class (class-of instance)))
+    (multiple-value-bind (valid-keywords ai-ef) (make-instance-table-entry1 class)
+      (multiple-value-bind (ii-ef si-ef) (make-instance-table-entry2 instance)
+        (setf (gethash class *make-instance-table*) (vector valid-keywords ai-ef ii-ef si-ef))
+        ; effektive Methode von SHARED-INITIALIZE anwenden:
+        (apply si-ef instance 'T initargs)
+) ) ) )
 
-; allocate-instance is not exported and not terribly optimized since
-; CLtL2 doesn't document it. User-defined methods on it are not supported.
+; User-defined methods on allocate-instance are now supported.
+(defgeneric allocate-instance (instance &rest initargs))
+(setq |#'allocate-instance| #'allocate-instance)
 #|
 (defgeneric allocate-instance (class)
   (:method ((class standard-class))
@@ -3867,7 +3916,8 @@
 ) )
 |#
 #|
-(defun %allocate-instance (class)
+(defun %allocate-instance (class &rest initargs)
+  (declare (ignore initargs))
   ; Quick and dirty dispatch among <standard-class> and <structure-class>.
   ; (class-shared-slots class) is a simple-vector, (class-names class) a cons.
   (if (atom (class-shared-slots class))
@@ -3875,7 +3925,27 @@
     (sys::%make-structure (class-names class) (class-instance-size class) :initial-element unbound)
 ) )
 |#
-; see record.d
+; die Haupt-Arbeit erledigt ein SUBR:
+(do-defmethod 'allocate-instance
+  (make-standard-method
+    :initfunction #'(lambda (gf) (declare (ignore gf))
+                      (cons #'clos::%allocate-instance '(T))
+                    )
+    :wants-next-method-p nil
+    :parameter-specializers (list (find-class 'standard-class))
+    :qualifiers '()
+    :signature '(1 0 t () () ())
+) )
+(do-defmethod 'allocate-instance
+  (make-standard-method
+    :initfunction #'(lambda (gf) (declare (ignore gf))
+                      (cons #'clos::%allocate-instance '(T))
+                    )
+    :wants-next-method-p nil
+    :parameter-specializers (list (find-class 'structure-class))
+    :qualifiers '()
+    :signature '(1 0 t () () ())
+) )
 
 ; 28.1.9.7.
 (defgeneric make-instance (class &rest initargs)
@@ -3901,7 +3971,7 @@
                      (union (class-valid-initargs class)
                             (applicable-keywords #'initialize-instance class) ; ??
   )                  )
-  (let ((instance (allocate-instance class)))
+  (let ((instance (apply #'allocate-instance class initargs)))
     (apply #'initialize-instance instance initargs)
   )
   |#
@@ -3909,19 +3979,19 @@
     (if h
       (progn
         ; 28.1.9.2. validity of initialization arguments
-        (let ((valid-keywords (car h)))
+        (let ((valid-keywords (svref h 0)))
           (unless (eq valid-keywords 't)
             (sys::keyword-test initargs valid-keywords)
         ) )
-        (let ((instance (allocate-instance class)))
-          (if (not (eq (cadr h) #'clos::%initialize-instance))
+        (let ((instance (apply #'allocate-instance class initargs)))
+          (if (not (eq (svref h 2) #'clos::%initialize-instance))
             ; effektive Methode von initialize-instance anwenden:
-            (apply (cadr h) instance initargs)
+            (apply (svref h 2) instance initargs)
             ; clos::%initialize-instance lässt sich vereinfachen (man braucht
             ; nicht nochmal in *make-instance-table* nachzusehen):
-            (if (not (eq (cddr h) #'clos::%shared-initialize))
+            (if (not (eq (svref h 3) #'clos::%shared-initialize))
               ; effektive Methode von shared-initialize anwenden:
-              (apply (cddr h) instance 'T initargs)
+              (apply (svref h 3) instance 'T initargs)
               ...
             )
       ) ) )
@@ -3950,16 +4020,22 @@
     :signature '(1 0 t () () ())
 ) )
 (defun initial-make-instance (class &rest initargs)
-  (let ((valid-keywords (valid-make-instance-keywords class)))
+  (multiple-value-bind (valid-keywords ai-ef) (make-instance-table-entry1 class)
     ; 28.1.9.2. validity of initialization arguments
     (unless (eq valid-keywords 't)
       (sys::keyword-test initargs valid-keywords)
     )
-    (let ((instance (%allocate-instance class)))
-      (let ((efs (make-instance-table-entry2 instance)))
-        (setf (gethash class *make-instance-table*) (cons valid-keywords efs))
+    ; effektive Methode von ALLOCATE-INSTANCE anwenden:
+    (let ((instance (apply ai-ef class initargs)))
+      (unless (eq (class-of instance) class)
+        (error-of-type 'error
+          (ENGLISH "~S method for ~S returned ~S")
+          'allocate-instance class instance
+      ) )
+      (multiple-value-bind (ii-ef si-ef) (make-instance-table-entry2 instance)
+        (setf (gethash class *make-instance-table*) (vector valid-keywords ai-ef ii-ef si-ef))
         ; effektive Methode von INITIALIZE-INSTANCE anwenden:
-        (apply (car efs) instance initargs)
+        (apply ii-ef instance initargs)
 ) ) ) )
 
 

@@ -115,7 +115,7 @@
     _(structure_type_p), _(closure_name), _(closure_codevec),
     _(closure_consts), _(make_code_vector), _(make_closure),
     _(make_load_time_eval), _(structure_object_p), _(std_instance_p),
-    _(allocate_instance), _(slot_value), _(set_slot_value), _(slot_boundp),
+    _(old_pallocate_instance), _(slot_value), _(set_slot_value), _(slot_boundp),
     _(slot_makunbound), _(slot_exists_p),
     # SEQUENCE : 40 SUBRs
     _(sequencep), _(elt), _(setelt), _(subseq), _(copy_seq), _(length),
