@@ -1,5 +1,12 @@
 1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
+        * defs1.lsp (char-int-limit): New constant.
+        * defs2.lsp (designator): New type. Export it.
+        * charstrg.d (CHARACTER): Signal a TYPE-ERROR instead of ERROR.
+        * predtype.d (COERCE): Likewise.
+
+1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
         * sequence.d (valid_type): Return the desired length on the stack.
           (fehler_seqtype_length): New function.
           (MAKE-SEQUENCE, coerce_sequence, CONCATENATE, MAP, MERGE): Update.

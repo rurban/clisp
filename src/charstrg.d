@@ -1145,9 +1145,11 @@ LISPFUN(make_char,1,2,norest,nokey,0,NIL)
 LISPFUNN(character,1) # (CHARACTER object), CLTL S. 241
   { var object trial = coerce_char(STACK_0); # Argument in Character umwandeln
     if (nullp(trial)) # erfolglos?
-      { # Argument noch in STACK_0
+      { # Argument noch in STACK_0, Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_designator_character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(STACK_1);
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
+        fehler(type_error,
                DEUTSCH ? "~: ~ kann nicht in ein Character umgewandelt werden." :
                ENGLISH ? "~: cannot coerce ~ to a character" :
                FRANCAIS ? "~: ~ ne peut pas être transformé en caractère." :

@@ -1240,12 +1240,20 @@ LISPFUNN(coerce,2)
           goto return_object; # ja -> object als Wert
         if (eq(result_type,S(character))) # result-type = CHARACTER ?
           { var object as_char = coerce_char(STACK_1); # object in Character umzuwandeln versuchen
-            if (nullp(as_char)) goto fehler_object;
+            if (nullp(as_char))
+              { pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
+                pushSTACK(O(type_designator_character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+                goto fehler_object;
+              }
             value1 = as_char; mv_count=1; skipSTACK(2); return;
           }
         if (eq(result_type,S(string_char))) # result-type = STRING-CHAR ?
           { var object as_char = coerce_char(STACK_1); # object in Character umzuwandeln versuchen
-            if (!string_char_p(as_char)) goto fehler_object;
+            if (!string_char_p(as_char))
+              { pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
+                pushSTACK(O(type_designator_string_char)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+                goto fehler_object;
+              }
             value1 = as_char; mv_count=1; skipSTACK(2); return;
           }
         if (   eq(result_type,S(float)) # FLOAT ?
@@ -1260,7 +1268,11 @@ LISPFUNN(coerce,2)
             skipSTACK(2); return;
           }
         if (eq(result_type,S(complex))) # COMPLEX ?
-          { if (!numberp(STACK_1)) goto fehler_object; # object muß eine Zahl sein
+          { if (!numberp(STACK_1)) # object muß eine Zahl sein
+              { pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
+                pushSTACK(S(number)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+                goto fehler_object;
+              }
             goto return_object;
           }
         if (eq(result_type,S(function))) # FUNCTION ?
@@ -1274,7 +1286,10 @@ LISPFUNN(coerce,2)
                 skipSTACK(2); return;
               }
             if (!(consp(fun) && eq(Car(fun),S(lambda)))) # object muß ein Lambda-Ausdruck sein
-              goto fehler_object;
+              { pushSTACK(fun); # Wert für Slot DATUM von TYPE-ERROR
+                pushSTACK(O(type_designator_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+                goto fehler_object;
+              }
             # leeres Environment für get_closure:
             pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
            {var environment* env = &STACKblock_(environment,0);
@@ -1340,7 +1355,10 @@ LISPFUNN(coerce,2)
             # (TYPEP new-object result-type) abfragen:
             pushSTACK(value1); pushSTACK(STACK_(0+1+1)); funcall(S(typep),2);
             if (nullp(value1))
-              { skipSTACK(1); goto fehler_object; }
+              { # STACK_0 = new-object, Wert für Slot DATUM von TYPE-ERROR
+                pushSTACK(STACK_(0+1)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+                goto fehler_object;
+              }
               else
               { value1 = STACK_0; mv_count=1; skipSTACK(3); return; } # new-object
           }
@@ -1362,7 +1380,11 @@ LISPFUNN(coerce,2)
             goto check_return; # und auf result-type überprüfen
           }
         if (eq(type,S(complex))) # COMPLEX ?
-          { if (!numberp(STACK_1)) goto fehler_object; # object muß eine Zahl sein
+          { if (!numberp(STACK_1)) # object muß eine Zahl sein
+              { pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
+                pushSTACK(S(number)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+                goto fehler_object;
+              }
             if (!mconsp(Cdr(result_type))) goto fehler_type; # (rest result-type) muß ein Cons sein
             result_type = Cdr(result_type);
            {var object rtype = Car(result_type); # Typ für den Realteil
@@ -1439,10 +1461,11 @@ LISPFUNN(coerce,2)
              ""
             );
     fehler_object:
-      # result-type in STACK_0
-      pushSTACK(STACK_1); # object
+      # Stackaufbau: object, result-type, type-error-datum, type-error-expected-type.
+      pushSTACK(STACK_2); # result-type
+      pushSTACK(STACK_(3+1)); # object
       pushSTACK(S(coerce));
-      fehler(error,
+      fehler(type_error,
              DEUTSCH ? "~: ~ kann nicht in Typ ~ umgewandelt werden." :
              ENGLISH ? "~: ~ cannot be coerced to type ~" :
              FRANCAIS ? "~ : ~ ne peut pas être transformé en objet de type ~." :

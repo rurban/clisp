@@ -1048,6 +1048,7 @@ LISPSYM(array_rank_limit,"ARRAY-RANK-LIMIT",lisp) # als Konstante in ARRAY
 LISPSYM(array_dimension_limit,"ARRAY-DIMENSION-LIMIT",lisp) # als Konstante in ARRAY
 LISPSYM(array_total_size_limit,"ARRAY-TOTAL-SIZE-LIMIT",lisp) # als Konstante in ARRAY
 LISPSYM(subtype_integer,"SUBTYPE-INTEGER",system) # als Funktion für ARRAY
+LISPSYM(designator,"DESIGNATOR",lisp) # als Typ für CHARSTRG
 LISPSYM(structure_object,"STRUCTURE-OBJECT",lisp) # als Typ für RECORD
 LISPSYM(class,"CLASS",clos) # als Typ für RECORD
 LISPSYM(slot_missing,"SLOT-MISSING",clos) # als Funktion für RECORD

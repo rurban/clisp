@@ -7,7 +7,7 @@
 (export '(nth-value function-lambda-expression defpackage define-symbol-macro
           print-unreadable-object declaim destructuring-bind complement
           constantly with-standard-io-syntax with-hash-table-iterator
-          read-sequence write-sequence
+          read-sequence write-sequence designator
 )        )
 (in-package "SYSTEM")
 
@@ -585,6 +585,124 @@
                   'write-sequence 'stream-element-type stream
                   'write-char-sequence 'write-byte-sequence
 ) ) )     ))
+
+;-------------------------------------------------------------------------------
+
+; ANSI-CL specifies TYPE-ERRORs in many places.
+; Here are the corresponding types.
+
+; (DESIGNATOR thing) is an abbreviation for many terms seen in the CLHS
+; glossary.
+;
+; bounding index sequence    (START-INDEX sequence), (END-INDEX sequence)
+; character                  CHARACTER
+; class                      CLASS
+; condition                  ---
+; extended function          EXTENDED-FUNCTION
+; external file format       ---
+; file position              FILE-POSITION
+; function                   FUNCTION
+; interval                   ---
+; list                       LIST
+; logical-host               LOGICAL-HOST
+; package                    PACKAGE
+; pathname                   PATHNAME
+; readtable                  READTABLE
+; restart                    RESTART
+; spreadable argument list   ---
+; stream                     STREAM
+; stream variable            ---
+; string                     STRING, (STRING length)
+;                            STRING-CHAR
+
+(deftype designator (thing)
+  (cond ((symbolp thing)
+         (case thing
+;          (STRING
+;            `(OR CHARACTER STRING SYMBOL)
+;          )
+           (CHARACTER
+             `(OR CHARACTER
+                  #-ANSI-CL (INTEGER 0 ,(1- char-int-limit))
+                  (DESIGNATOR (STRING 1))
+           )  )
+;          (CLASS `(OR CLOS:CLASS (AND SYMBOL (SATISFIES CLASS-DESIGNATOR-P))))
+;          (EXTENDED-FUNCTION
+;            `(OR (AND (OR SYMBOL CONS) (SATISFIES FUNCTION-NAME-P)) FUNCTION)
+;          )
+;          (FILE-POSITION
+;            `(OR (MEMBER :START :END) (INTEGER 0 *))
+;          )
+;          (FUNCTION
+;            `(OR SYMBOL FUNCTION)
+;          )
+;          (LIST
+;            `T
+;          )
+;          (LOGICAL-HOST
+;            #-LOGICAL-PATHNAMES `NIL
+;            #+LOGICAL-PATHNAMES `(OR STRING LOGICAL-PATHNAME)
+;          )
+;          (PACKAGE
+;            `(OR (DESIGNATOR STRING) PACKAGE)
+;          )
+;          (PATHNAME
+;            `(OR STRING FILE-STREAM PATHNAME)
+;          )
+;          (READTABLE
+;            `(OR NULL READTABLE)
+;          )
+;          (RESTART
+;            `(OR (AND SYMBOL (NOT NULL)) RESTART)
+;          )
+;          (STREAM
+;            `(OR BOOLEAN STREAM)
+;          )
+           (STRING-CHAR
+             `(OR STRING-CHAR
+                  #-ANSI-CL (INTEGER 0 ,(1- char-code-limit))
+                  (DESIGNATOR (STRING 1))
+           )  )
+           (t thing)
+        ))
+        ((consp thing)
+         (case (first thing)
+;          (START-INDEX
+;            (let ((seq (second thing)))
+;              (assert (typep seq 'SEQUENCE))
+;              `(INTEGER 0 ,(length seq))
+;          ) )
+;          (END-INDEX
+;            (let ((seq (second thing)))
+;              (assert (typep seq 'SEQUENCE))
+;              `(OR (INTEGER 0 ,(length (second thing))) NULL)
+;          ) )
+           (STRING
+             (let ((n (second thing)))
+               (assert (typep n '(INTEGER 0 *)))
+               (let ((fun (intern (format nil "SYMBOL-OF-LENGTH-~D" n)
+                                  (find-package "SYSTEM"))))
+                 (unless (fboundp fun)
+                   (setf (symbol-function fun)
+                         #'(lambda (s)
+                             (and (symbolp s) (eql (length (symbol-name s)) n))
+                           )
+                 ) )
+                 `(OR ,@(if (eql n 1) '(STRING-CHAR) '())
+                      (STRING ,n)
+                      (AND SYMBOL (SATISFIES ,fun))
+                  )
+           ) ) )
+           (t thing)
+        ))
+        (t (typespec-error 'designator thing))
+) )
+
+;(defun class-designator-p (sym &aux f)
+;  (and (setq f (get sym 'CLOS::CLOSCLASS))
+;       (clos::class-p f)
+;       (eq (clos:class-name f) sym)
+;) )
 
 ;-------------------------------------------------------------------------------
 

@@ -155,6 +155,8 @@
 (defconstant char-font-limit 16)
 (defconstant char-bits-limit 16)
                    ;; Common LISP, S. 233, 234
+(defconstant char-int-limit (* char-code-limit char-font-limit char-bits-limit))
+                   ;; CLISP specific
 
 (defconstant char-control-bit 1)
 (defconstant char-meta-bit 2)
