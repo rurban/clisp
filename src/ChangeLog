@@ -1,5 +1,10 @@
 2003-04-25  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 726282 ]: read_form() botches STACK
+	* debug.d (read_form): make sure to unbind *TERMINAL-READ-STREAM*
+
+2003-04-25  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (STACKCHECKB): when non-0, check that we are
 	unwinding a binding frame for the correct symbol
 	(dynamic_unbind): accept a symbol argument
