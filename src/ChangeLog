@@ -1,5 +1,14 @@
 1999-03-10  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Fix a bug: clear-input did not kill the EOF condition in terminal2
+        and terminal3 streams.
+        * stream.d (clear_input_keyboard): Use ls_avail_p.
+          (clear_input_terminal2): Call clear_input_unbuffered, don't call
+          clear_tty_input directly. Use ls_avail_p.
+          (clear_input_terminal3): Likewise.
+
+1999-03-10  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Finish implementing the iconv-based encodings.
         * lispbibl.d (Encoding): Add a stream argument to the enc_mbstowcs and
           enc_wcstombs fields.
