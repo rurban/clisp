@@ -1,3 +1,7 @@
+1998-06-21  Gilbert Baumann  <unk6@rz.uni-karlsruhe.de>
+
+        * impnotes.html: Fix a couple of syntax errors.
+
 1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * screen.lsp (generic-stream-listen): Adapt return value.
