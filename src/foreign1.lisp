@@ -1024,7 +1024,7 @@ void module__~A__init_function_2(module)
 ;; ===========================================================================
 
 (defun argvector-to-signature (argvector)
-  (make-signature :req-num (count-inarguments argvector)))
+  (sys::make-signature :req-num (count-inarguments argvector)))
 
 (defun count-inarguments (arg-vector)
   (do* ((l (length arg-vector))
