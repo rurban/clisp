@@ -276,9 +276,7 @@ performed by lookup in the table contained in the file
 <para>There are the following types of operands, denoted by different
 letters:
 <variablelist>
- <varlistentry><term>&k-r;,
-   &n-r;, &m-r;,
-   &l-r;</term>
+ <varlistentry><term>&k-r;, &n-r;, &m-r;, &l-r;</term>
   <listitem><simpara>A (nonnegative) numeric operand.
    The next byte is read.
    If its bit 7 is zero, then the bits 6..0 give the value (7 bits).
@@ -503,74 +501,77 @@ letters:
                      apply &value1; to the &numreq; arguments and the
                            &rest-amp; argument, all still on the &STACK;, and
                            return from the function.</entry></row>
- <row><entry><literal role="sexp">(JMP &l-r;)</literal></entry>
-      <entry>Jump to &l-r;.</entry>
-      <entry>PC := &l-r;.</entry></row>
- <row><entry><literal role="sexp">(JMPIF &l-r;)</literal></entry>
-      <entry>Jump to &l-r;, if &value1; is true.</entry>
-      <entry>If &value1; is not &nil;, PC := &l-r;.</entry></row>
- <row><entry><literal role="sexp">(JMPIFNOT &l-r;)</literal></entry>
-      <entry>Jump to &l-r;, if &value1; is false.</entry>
-      <entry>If &value1; is &nil;, PC := &l-r;.</entry></row>
- <row><entry><literal role="sexp">(JMPIF1 &l-r;)</literal></entry>
-      <entry>Jump to &l-r; and forget secondary values,
+ <row><entry><literal role="sexp">(JMP &lab-r;)</literal></entry>
+      <entry>Jump to &lab-r;.</entry>
+      <entry>PC := &lab-r;.</entry></row>
+ <row><entry><literal role="sexp">(JMPIF &lab-r;)</literal></entry>
+      <entry>Jump to &lab-r;, if &value1; is true.</entry>
+      <entry>If &value1; is not &nil;, PC := &lab-r;.</entry></row>
+ <row><entry><literal role="sexp">(JMPIFNOT &lab-r;)</literal></entry>
+      <entry>Jump to &lab-r;, if &value1; is false.</entry>
+      <entry>If &value1; is &nil;, PC := &lab-r;.</entry></row>
+ <row><entry><literal role="sexp">(JMPIF1 &lab-r;)</literal></entry>
+      <entry>Jump to &lab-r; and forget secondary values,
              if &value1; is true.</entry>
       <entry>If &value1; is not &nil;,
-                &mv-count; := 1, PC := &l-r;.</entry></row>
- <row><entry><literal role="sexp">(JMPIFNOT1 &l-r;)</literal></entry>
-      <entry>Jump to &l-r; and forget secondary values,
+                &mv-count; := 1, PC := &lab-r;.</entry></row>
+ <row><entry><literal role="sexp">(JMPIFNOT1 &lab-r;)</literal></entry>
+      <entry>Jump to &lab-r; and forget secondary values,
              if &value1; is false.</entry>
       <entry>If &value1; is &nil;,
-                &mv-count; := 1, PC := &l-r;.</entry></row>
- <row><entry><literal role="sexp">(JMPIFATOM &l-r;)</literal></entry>
-      <entry>Jump to &l-r;, if &value1; is not a cons.</entry>
-      <entry>If &value1; is not a cons, PC := &l-r;.
+                &mv-count; := 1, PC := &lab-r;.</entry></row>
+ <row><entry><literal role="sexp">(JMPIFATOM &lab-r;)</literal></entry>
+      <entry>Jump to &lab-r;, if &value1; is not a cons.</entry>
+      <entry>If &value1; is not a cons, PC := &lab-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPIFCONSP &l-r;)</literal></entry>
-      <entry>Jump to &l-r;, if &value1; is a cons.</entry>
-      <entry>If &value1; is a cons, PC := &l-r;.
+ <row><entry><literal role="sexp">(JMPIFCONSP &lab-r;)</literal></entry>
+      <entry>Jump to &lab-r;, if &value1; is a cons.</entry>
+      <entry>If &value1; is a cons, PC := &lab-r;.
                 values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPIFEQ &l-r;)</literal></entry>
-      <entry>Jump to &l-r;, if &value1; is &eq; to the top-of-stack.</entry>
-      <entry>If eq(&value1;,*&STACK;++), PC := &l-r;.
+ <row><entry><literal role="sexp">(JMPIFEQ &lab-r;)</literal></entry>
+      <entry>Jump to &lab-r;, if &value1; is &eq; to the top-of-stack.</entry>
+      <entry>If eq(&value1;,*&STACK;++), PC := &lab-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPIFNOTEQ &l-r;)</literal></entry>
-      <entry>Jump to &l-r;, if &value1; is not &eq;
+ <row><entry><literal role="sexp">(JMPIFNOTEQ &lab-r;)</literal></entry>
+      <entry>Jump to &lab-r;, if &value1; is not &eq;
              to the top-of-stack.</entry>
-      <entry>If not eq(&value1;,*&STACK;++), PC := &l-r;.
+      <entry>If not eq(&value1;,*&STACK;++), PC := &lab-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPIFEQTO &n-r; &l-r;)</literal></entry>
-      <entry>Jump to &l-r;, if the top-of-stack is &eq; to a constant.</entry>
-      <entry>If eq(*&STACK;++,&consts;[&n-r;]), PC := &l-r;.
+ <row><entry><literal role="sexp">(JMPIFEQTO &n-r; &lab-r;)</literal></entry>
+      <entry>Jump to &lab-r;,
+             if the top-of-stack is &eq; to a constant.</entry>
+      <entry>If eq(*&STACK;++,&consts;[&n-r;]), PC := &lab-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPIFNOTEQTO &n-r; &l-r;)</literal></entry>
-      <entry>Jump to &l-r;, if the top-of-stack is not &eq;
+ <row><entry><literal role="sexp">(JMPIFNOTEQTO &n-r;
+             &lab-r;)</literal></entry>
+      <entry>Jump to &lab-r;, if the top-of-stack is not &eq;
              to a constant.</entry>
-      <entry>If not eq(*&STACK;++,&consts;[&n-r;]), PC := &l-r;.
+      <entry>If not eq(*&STACK;++,&consts;[&n-r;]), PC := &lab-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPHASH &n-r; &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(JMPHASH &n-r; &lab-r;)</literal></entry>
       <entry>Table-driven jump, depending on &value1;.</entry>
       <entry>Lookup &value1; in the hash table &consts;[&n-r;].
              (The hash table's test is either &eq; or &eql;.)
              If found, the hash table value is a signed &fixnum-type;,
-             jump to it: PC := PC + value.  Else jump to &l-r;.
+             jump to it: PC := PC + value.  Else jump to &lab-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPHASHV &n-r; &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(JMPHASHV &n-r; &lab-r;)</literal></entry>
       <entry>Table-driven jump, depending on &value1;,
              inside a generic function.</entry>
       <entry>Lookup &value1; in the hash table &svref;(&consts;[0],&n-r;).
              (The hash table's test is either &eq; or &eql;.)
              If found, the hash table value is a signed &fixnum-type;,
-             jump to it: PC := PC + value.  Else jump to &l-r;.
+             jump to it: PC := PC + value.  Else jump to &lab-r;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JSR &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(JSR &lab-r;)</literal></entry>
       <entry>Subroutine call.</entry>
       <entry>*--&STACK; := function. Then start interpreting the
-             bytecode at &l-r;, with values undefined.
+             bytecode at &lab-r;, with values undefined.
              When a <literal role="sexp">(RET)</literal> is encountered,
              program execution is resumed at the instruction after
-             <literal role="sexp">(JSR &l-r;)</literal>.</entry></row>
- <row><entry><literal role="sexp">(JMPTAIL &m-r; &n-r; &l-r;)</literal></entry>
+             <literal role="sexp">(JSR &lab-r;)</literal>.</entry></row>
+ <row><entry><literal role="sexp">(JMPTAIL &m-r; &n-r;
+             &lab-r;)</literal></entry>
       <entry>Tail subroutine call.</entry>
       <entry>&n-r; &gt;= &m-r;.
              The &STACK; frame of size &n-r; is reduced to size &m-r;:
@@ -578,7 +579,7 @@ letters:
                {*&STACK;, ..., *(&STACK;+&m-r;-1)}.
              &STACK; += n-m.
              *--&STACK; := function.
-             Then jump to &l-r;, with values undefined.</entry></row>
+             Then jump to &lab-r;, with values undefined.</entry></row>
 </tbody></tgroup></table>
 
 </section>
@@ -731,10 +732,10 @@ letters:
              in this case, *--&STACK; := &unbound;.
              At the end, after &n-r; &cdr;s, *--&STACK; := &value1;.
              values undefined</entry></row>
- <row><entry><literal role="sexp">(JMPIFBOUNDP &n-r; &l-r;)</literal></entry>
-      <entry>Jump to &l-r;, if a local variable is not unbound.</entry>
+ <row><entry><literal role="sexp">(JMPIFBOUNDP &n-r; &lab-r;)</literal></entry>
+      <entry>Jump to &lab-r;, if a local variable is not unbound.</entry>
       <entry>If *(&STACK;+&n-r;) is not &unbound;,
-                &value1; := *(&STACK;+&n-r;), &mv-count; := 1, PC := &l-r;.
+                &value1; := *(&STACK;+&n-r;), &mv-count; := 1, PC := &lab-r;.
              Else: values undefined.</entry></row>
  <row><entry><literal role="sexp">(BOUNDP &n-r;)</literal></entry>
       <entry>Load &t; or &nil; into values, depending on whether a local
@@ -811,13 +812,13 @@ letters:
  <thead><row><entry>mnemonic</entry><entry>description</entry>
              <entry>semantics</entry></row></thead>
 <tbody>
- <row><entry><literal role="sexp">(BLOCK-OPEN &n-r; &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(BLOCK-OPEN &n-r; &lab-r;)</literal></entry>
       <entry>Create a &block; frame.</entry>
       <entry>Create a &block; frame, &STACK; -= 3, &SP; -= 2+&jbs;.
              The topmost (third) object in the block frame is
              &cons;(&consts;[&n-r;],frame-pointer) (its &bc-r;).
              Upon a &return-from; to this frame,
-             execution will continue at &l-r;.</entry></row>
+             execution will continue at &lab-r;.</entry></row>
  <row><entry><literal role="sexp">(BLOCK-CLOSE)</literal></entry>
       <entry>Dissolve a &block; frame.</entry>
       <entry>Dissolve the &block; frame at &STACK;, &STACK; += 3,
@@ -856,7 +857,7 @@ letters:
              Create a &tagbody; frame, &STACK; -= 3+&m-r;, &SP; -= 1+&jbs;.
              The third object in the tagbody frame is
              &cons;(&consts;[&n-r;],frame-pointer) (the &tbc-r;)
-             Upon a &go; to tag &l-r; of this frame, execution
+             Upon a &go; to tag &lab-r; of this frame, execution
              will continue at
               <replaceable>label<subscript>l</subscript></replaceable>.
              values undefined</entry></row>
@@ -871,21 +872,21 @@ letters:
       <entry>Dissolve the tagbody frame at &STACK;,
              &STACK; += 3+&m-r;, &SP; += 1+&jbs;.
              Mark the &tbc-r; as invalid.</entry></row>
- <row><entry><literal role="sexp">(GO &n-r; &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(GO &n-r; &lab-r;)</literal></entry>
       <entry>Jump into a tagbody whose &tbc-r; is given.</entry>
       <entry>&tbc-r; := &consts;[&n-r;].
              If &cdr;(&tbc-r;) = &disabled;, signal an error.
              Else &cdr;(&tbc-r;) is a frame-pointer. Unwind the stack up
-             to this frame, pass it the number &l-r;.</entry></row>
+             to this frame, pass it the number &lab-r;.</entry></row>
  <row><entry><literal
-         role="sexp">(GO-I &k1-r; &k2-r; &n-r; &l-r;)</literal></entry>
+         role="sexp">(GO-I &k1-r; &k2-r; &n-r; &lab-r;)</literal></entry>
       <entry>Jump into a tagbody whose &tbc-r; is indirectly
              accessible.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &tbc-r; := *(*(&SP;+&k-r;)+&n-r;).
              If &cdr;(&tbc-r;) = &disabled;, signal an error.
              Else &cdr;(&tbc-r;) is a frame-pointer. Unwind the stack up
-             to this frame, pass it the number &l-r;.</entry></row>
+             to this frame, pass it the number &lab-r;.</entry></row>
 </tbody></tgroup></table>
 
 </section>
@@ -897,12 +898,12 @@ letters:
  <thead><row><entry>mnemonic</entry><entry>description</entry>
              <entry>semantics</entry></row></thead>
 <tbody>
- <row><entry><literal role="sexp">(CATCH-OPEN &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(CATCH-OPEN &lab-r;)</literal></entry>
       <entry>Create a &catch; frame.</entry>
       <entry>Create a &catch; frame, with &value1; as tag.
              &STACK; -= 3, &SP; -= 2+&jbs;.
              Upon a &throw; to this tag execution continues at
-             &l-r;.</entry></row>
+             &lab-r;.</entry></row>
  <row><entry><literal role="sexp">(CATCH-CLOSE)</literal></entry>
       <entry>Dissolve a &catch; frame.</entry>
       <entry>Dissolve the &catch; frame at &STACK;.
@@ -924,13 +925,14 @@ letters:
  <thead><row><entry>mnemonic</entry><entry>description</entry>
              <entry>semantics</entry></row></thead>
 <tbody>
- <row><entry><literal role="sexp">(UNWIND-PROTECT-OPEN &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(UNWIND-PROTECT-OPEN
+             &lab-r;)</literal></entry>
       <entry>Create an &unwind-protect; frame.</entry>
       <entry>Create an &unwind-protect; frame.
              &STACK; -= 2, &SP; -= 2+&jbs;.
              When the stack will be unwound by a non-local exit,
              values will be saved on &STACK;, and execution will be
-             transferred to &l-r;.</entry></row>
+             transferred to &lab-r;.</entry></row>
  <row><entry><literal
          role="sexp">(UNWIND-PROTECT-NORMAL-EXIT)</literal></entry>
       <entry>Dissolve an &unwind-protect; frame, and start the cleanup
@@ -953,11 +955,11 @@ letters:
       <entry>Dissolve an &unwind-protect; frame, and execute the cleanup
              code like a subroutine call.</entry>
       <entry>Dissolve the &unwind-protect; frame at &STACK;,
-             get &l-r; out of the frame.
+             get &lab-r; out of the frame.
              &STACK; += 2, &SP; += 2+&jbs;.
              *--&SP; := 0, *--&SP; := PC, *--&SP; := &STACK;.
              Save the values on the &STACK;, &STACK; -= &mv-count;.
-             PC := &l-r;.</entry></row>
+             PC := &lab-r;.</entry></row>
 </tbody></tgroup></table>
 
 </section>
@@ -1079,8 +1081,8 @@ generic functions.</para>
  <row><entry><literal role="sexp">(GETVALUE&amp;PUSH &n-r;)</literal></entry>
       <entry><literal role="sexp">(GETVALUE &n-r;) (PUSH)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(JSR&amp;PUSH &l-r;)</literal></entry>
-      <entry><literal role="sexp">(JSR &l-r;) (PUSH)</literal></entry>
+ <row><entry><literal role="sexp">(JSR&amp;PUSH &lab-r;)</literal></entry>
+      <entry><literal role="sexp">(JSR &lab-r;) (PUSH)</literal></entry>
   </row>
  <row><entry><literal role="sexp">(COPY-CLOSURE&amp;PUSH &m-r; &n-r;)</literal></entry>
       <entry><literal role="sexp">(COPY-CLOSURE &m-r; &n-r;) (PUSH)</literal></entry>
@@ -1163,41 +1165,41 @@ generic functions.</para>
  <row><entry><literal role="sexp">(LOAD&amp;CAR&amp;STORE &m-r; &n-r;)</literal></entry>
       <entry><literal role="sexp">(LOAD &m-r;) (CAR) (STORE &n-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALL1&amp;JMPIF &n-r; &l-r;)</literal></entry>
-      <entry><literal role="sexp">(CALL1 &n-r;) (JMPIF &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(CALL1&amp;JMPIF &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="sexp">(CALL1 &n-r;) (JMPIF &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALL1&amp;JMPIFNOT &n-r; &l-r;)</literal></entry>
-      <entry><literal role="sexp">(CALL1 &n-r;) (JMPIFNOT &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(CALL1&amp;JMPIFNOT &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="sexp">(CALL1 &n-r;) (JMPIFNOT &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALL2&amp;JMPIF &n-r; &l-r;)</literal></entry>
-      <entry><literal role="sexp">(CALL2 &n-r;) (JMPIF &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(CALL2&amp;JMPIF &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="sexp">(CALL2 &n-r;) (JMPIF &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALL2&amp;JMPIFNOT &n-r; &l-r;)</literal></entry>
-      <entry><literal role="sexp">(CALL2 &n-r;) (JMPIFNOT &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(CALL2&amp;JMPIFNOT &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="sexp">(CALL2 &n-r;) (JMPIFNOT &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLS1&amp;JMPIF &b-r; &l-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLS1 &b-r;) (JMPIF &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(CALLS1&amp;JMPIF &b-r; &lab-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLS1 &b-r;) (JMPIF &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLS1&amp;JMPIFNOT &b-r; &l-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLS1 &b-r;) (JMPIFNOT &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(CALLS1&amp;JMPIFNOT &b-r; &lab-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLS1 &b-r;) (JMPIFNOT &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLS2&amp;JMPIF &b-r; &l-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLS2 &b-r;) (JMPIF &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(CALLS2&amp;JMPIF &b-r; &lab-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLS2 &b-r;) (JMPIF &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLS2&amp;JMPIFNOT &b-r; &l-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLS2 &b-r;) (JMPIFNOT &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(CALLS2&amp;JMPIFNOT &b-r; &lab-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLS2 &b-r;) (JMPIFNOT &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLSR&amp;JMPIF &m-r; &n-r; &l-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLSR &m-r; &n-r;) (JMPIF &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(CALLSR&amp;JMPIF &m-r; &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLSR &m-r; &n-r;) (JMPIF &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(CALLSR&amp;JMPIFNOT &m-r; &n-r; &l-r;)</literal></entry>
-      <entry><literal role="sexp">(CALLSR &m-r; &n-r;) (JMPIFNOT &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(CALLSR&amp;JMPIFNOT &m-r; &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLSR &m-r; &n-r;) (JMPIFNOT &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;JMPIF &n-r; &l-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &n-r;) (JMPIF &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(LOAD&amp;JMPIF &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &n-r;) (JMPIF &lab-r;)</literal></entry>
   </row>
- <row><entry><literal role="sexp">(LOAD&amp;JMPIFNOT &n-r; &l-r;)</literal></entry>
-      <entry><literal role="sexp">(LOAD &n-r;) (JMPIFNOT &l-r;)</literal></entry>
+ <row><entry><literal role="sexp">(LOAD&amp;JMPIFNOT &n-r; &lab-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &n-r;) (JMPIFNOT &lab-r;)</literal></entry>
   </row>
  <row><entry><literal role="sexp">(LOAD&amp;CAR&amp;PUSH &n-r;)</literal></entry>
       <entry><literal role="sexp">(LOAD &n-r;) (CAR) (PUSH)</literal></entry>

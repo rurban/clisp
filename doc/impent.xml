@@ -79,6 +79,8 @@
 <!ENTITY charset-pac "<link linkend='encoding'><quote>CHARSET</quote></link>">
 <!ENTITY ffi-pac "<link linkend='dffi'><quote>FFI</quote></link>">
 <!ENTITY screen-pac "<link linkend='screen'><quote>SCREEN</quote></link>">
+<!-- * redefines the entity in cl-ent.xml * -->
+<!ENTITY clu-pac "<link linkend='clupack'><quote>COMMON-LISP-USER</quote></link>">
 
 <!-- *** local *** -->
 <!ENTITY ansi "<link linkend='ansi'><varname>custom:*ansi*</varname></link>">
@@ -159,7 +161,10 @@
 <!-- *** variable names *** -->
 <!ENTITY b-r "<replaceable>b</replaceable>">
 <!ENTITY bc-r "<replaceable>block-cons</replaceable>">
+<!ENTITY body-r "<replaceable>body</replaceable>">
 <!ENTITY c-r "<replaceable>c</replaceable>">
+<!ENTITY ctype-r "<replaceable>c-type</replaceable>">
+<!ENTITY ch-r "<replaceable>char</replaceable>">
 <!ENTITY declaration-r "<replaceable>declaration</replaceable>">
 <!ENTITY eltype-r "<replaceable>element-type</replaceable>">
 <!ENTITY end-r "<replaceable>end</replaceable>">
@@ -173,11 +178,15 @@
 <!ENTITY k2-r "<replaceable>k<subscript>2</subscript></replaceable>">
 <!ENTITY kn-r "<replaceable>k<subscript>n</subscript></replaceable>">
 <!ENTITY l-r "<replaceable>l</replaceable>">
+<!ENTITY lab-r "<replaceable>label</replaceable>">
+<!ENTITY len-r "<replaceable>length</replaceable>">
 <!ENTITY m-r "<replaceable>m</replaceable>">
 <!ENTITY n-r "<replaceable>n</replaceable>">
 <!ENTITY name-r "<replaceable>name</replaceable>">
 <!ENTITY object-r "<replaceable>object</replaceable>">
 <!ENTITY option-r "<replaceable>option</replaceable>">
+<!ENTITY path-r "<replaceable>pathname</replaceable>">
+<!ENTITY real-r "<replaceable>real</replaceable>">
 <!ENTITY sequence-r "<replaceable>sequence</replaceable>">
 <!ENTITY start-r "<replaceable>start</replaceable>">
 <!ENTITY stream-r "<replaceable>stream</replaceable>">
