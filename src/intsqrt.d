@@ -397,7 +397,7 @@
 
 # Zieht die Wurzel (ISQRT x) aus einem Integer.
 # I_isqrt_I(x)
-# > x: Integer (sollte >=0 sein)
+# > x: an Integer >=0
 # < STACK_0: (isqrt x)
 # < ergebnis: true falls x Quadratzahl, false sonst
 # erniedrigt STACK um 1
