@@ -188,6 +188,12 @@ global object nobject_out (FILE* out, object obj) {
     fputs("\n  N=",out); nobject_out(out,TheHashtable(obj)->ht_ntable);
     fputs("\n  KV=",out); nobject_out(out,TheHashtable(obj)->ht_kvtable);
     fputc(')',out);
+  } else if (packagep(obj)) {
+    fputs("#<",out);
+    string_out(out,O(printstring_package));
+    fputc(' ',out);
+    string_out(out,ThePackage(obj)->pack_name);
+    fputc('>',out);
   } else if (fixnump(obj)) fprintf(out,"%d",fixnum_to_L(obj));
   else if (eq(obj,unbound))   string_out(out,O(printstring_unbound));
   else if (eq(obj,nullobj))   fputs("#<NULLOBJ>",out);
@@ -297,6 +303,34 @@ global void back_trace_check (const struct backtrace_t *bt,
     back_trace_out(stderr,bt);
     abort();
   }
+}
+
+/* note that the following will _NOT_ work if CLISP uses O(dynamic_string)
+ for DYNAMIC_STRING() because the length of the "dynamic string" will be
+ that of its latest allocation, not value of the second argument!!! */
+local object find_pack (char* pack_s) {
+  if (pack_s) {
+    var uintL pack_s_len = asciz_length(pack_s);
+    DYNAMIC_STRING(pack,pack_s_len);
+    var chart* ptr = TheSstring(pack)->data;
+    while (pack_s_len--) *ptr++ = as_chart(*pack_s++);
+    value1 = find_package(pack);
+    FREE_DYNAMIC_STRING(pack);
+    return value1;
+  } else return O(default_package); /* CL */
+}
+
+local object find_sym (char* name_s, char* pack_s) {
+  var object pack = find_pack(pack_s);
+  if (nullp(pack)) return NIL;
+  var uintL name_s_len = asciz_length(name_s);
+  DYNAMIC_STRING(name,name_s_len);
+  { var chart* ptr = TheSstring(name)->data;
+    while (name_s_len--) *ptr++ = as_chart(*name_s++);
+  }
+  pushSTACK(name); pushSTACK(pack); funcall(L(find_symbol),2);
+  FREE_DYNAMIC_STRING(name);
+  return value1;
 }
 
 #ifdef DEBUG_SPVW
