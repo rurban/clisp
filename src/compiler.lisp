@@ -9320,8 +9320,11 @@ This step works on the code-list and changes is destructively.
                  (setf (car middle) `(UNBIND ,count))
                  (setf (cdr middle) right)
                  (go next))))
-            ;; (RET (ersetze 1 '(SKIP&RET 0))) ; does not occur!
-            ;; (RETGF (ersetze 1 '(SKIP&RETGF 0))) ; does not occur!
+            ; We need these two rules because (RET) and (RETGF) are not always
+            ; preceded by (SKIP n); they can also be preceded by (SKIPI k1 k2 n)
+            ; with n >= 1.
+            (RET (ersetze 1 '(SKIP&RET 0)))
+            (RETGF (ersetze 1 '(SKIP&RETGF 0)))
             (UNWIND-PROTECT-CLOSE (ersetze 1 '(UNWIND-PROTECT-CLOSE)))
             ((JMPIF JMPIFNOT) (ersetze 1 `(,(first item) ,(second item))))
             ((JMPHASH JMPHASHV)
