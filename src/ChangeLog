@@ -2,6 +2,7 @@
 
 	* control.d (KEYWORD-TEST): treat :ALLOW-OTHER-KEYS NIL correctly
 	* record.d (keyword_test): ditto
+	* eval.d (fehler_key_badkw): sync the message with the above
 
 2003-04-21  Sam Steingold  <sds@gnu.org>
 

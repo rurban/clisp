@@ -2219,7 +2219,8 @@ nonreturning_function(local, fehler_key_notkw, (object kw)) {
 # > fun: function
 # > kw: illegal keyword
 # > kwlist: list of legal keywords
-nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kwlist)) {
+nonreturning_function(local, fehler_key_badkw,
+                      (object fun, object kw, object kwlist)) {
   pushSTACK(kw); # KEYWORD-ERROR slot DATUM
   pushSTACK(kwlist);
   pushSTACK(kwlist);
@@ -2231,7 +2232,8 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
     STACK_3 = type; # `(MEMBER ,@kwlist) = KEYWORD-ERROR slot EXPECTED-TYPE
   }
   fehler(keyword_error,
-         GETTEXT("EVAL/APPLY: keyword ~ is illegal for ~. The possible keywords are ~"));
+         GETTEXT("EVAL/APPLY: keyword ~ is illegal for ~."
+                 NLstring "The allowed keywords are ~"));
 }
 
 # Test for illegal keywords
