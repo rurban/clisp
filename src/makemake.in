@@ -2865,7 +2865,7 @@ echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README
 echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}"
 echol
 echol "impnotes.html: ${SRCDIR}_impnotes.html"
-echotab "sed -e 's,<HS>,${hyperspec},' ${SRCDIR}_impnotes.html > impnotes.html"
+echotab "sed -e 's,<HS>/,${hyperspec}/,' ${SRCDIR}_impnotes.html > impnotes.html"
 echol
 echol "manual : \$(READMES) \$(MANUALS)"
 echodummyrule manual
