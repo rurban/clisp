@@ -56,6 +56,13 @@ B
 30
 
 (progn
+  (defgeneric foo041 (x))
+  (defmethod foo041 ((x real)) 'ok)
+  (defmethod foo041 ((x integer)) (call-next-method (sqrt x)))
+  (foo041 2))
+ok
+
+(progn
 (defgeneric f (x y)
   (:method ((x t) (y t))
     (list x y)))
