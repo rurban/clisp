@@ -22,29 +22,17 @@
 #if !defined (_HISTLIB_H_)
 #define _HISTLIB_H_
 
-/* Function pointers can be declared as (Function *)foo. */
-#if !defined (_FUNCTION_DEF)
-#  define _FUNCTION_DEF
-typedef int Function ();
-typedef void VFunction ();
-typedef char *CPFunction ();
-typedef char **CPPFunction ();
-#endif /* _FUNCTION_DEF */
-
 #if !defined (STREQ)
 #define STREQ(a, b)	(((a)[0] == (b)[0]) && (strcmp ((a), (b)) == 0))
 #define STREQN(a, b, n) (((n) == 0) ? (1) \
 				    : ((a)[0] == (b)[0]) && (strncmp ((a), (b), (n)) == 0))
 #endif
 
-#if defined (READLINE_LIBRARY)
-#include "xmalloc.h"
 #ifndef savestring
 #  ifndef strcpy
 extern char *strcpy ();
 #  endif
 #define savestring(x) strcpy (xmalloc (1 + strlen (x)), (x))
-#endif
 #endif
 
 #ifndef whitespace

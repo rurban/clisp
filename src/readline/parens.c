@@ -35,9 +35,6 @@
 #endif
 
 #if defined (HAVE_SELECT)
-#  if defined (__BEOS__)
-#    include <sys/socket.h>
-#  endif
 #  include <sys/time.h>
 #endif /* HAVE_SELECT */
 #if defined (HAVE_SYS_SELECT_H)
@@ -57,7 +54,7 @@ extern char *strchr (), *strrchr ();
 #include "readline.h"
 #include "rlprivate.h"
 
-static int find_matching_open _PROTO((char *string, int from, int closer));
+static int find_matching_open PARAMS((char *, int, int));
 
 /* Non-zero means try to blink the matching open parenthesis when the
    close parenthesis is inserted. */
@@ -66,6 +63,8 @@ int rl_blink_matching_paren = 1;
 #else /* !HAVE_SELECT */
 int rl_blink_matching_paren = 0;
 #endif /* !HAVE_SELECT */
+
+static int _paren_blink_usec = 500000;
 
 /* Change emacs_standard_keymap to have bindings for paren matching when
    ON_OR_OFF is 1, change them back to self_insert when ON_OR_OFF == 0. */
@@ -85,6 +84,18 @@ _rl_enable_paren_matching (on_or_off)
       rl_bind_key_in_map (']', rl_insert, emacs_standard_keymap);
       rl_bind_key_in_map ('}', rl_insert, emacs_standard_keymap);
     }
+}
+
+int
+rl_set_paren_blink_timeout (u)
+     int u;
+{
+  int o;
+
+  o = _paren_blink_usec;
+  if (u > 0)
+    _paren_blink_usec = u;
+  return (o);
 }
 
 int
@@ -111,8 +122,8 @@ rl_insert_close (count, invoking_key)
 
       FD_ZERO (&readfds);
       FD_SET (fileno (rl_instream), &readfds);
-      timer.tv_sec = 1;
-      timer.tv_usec = 0;
+      timer.tv_sec = 0;
+      timer.tv_usec = _paren_blink_usec;
 
       orig_point = rl_point;
       rl_point = match_point;

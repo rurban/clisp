@@ -9689,11 +9689,9 @@ local bool clear_input_terminal2 (object stream) {
 #define TERMINAL_LINEBUFFERED  true
 #define TERMINAL_OUTBUFFERED   true
 
-# Our own completion-function, imitates completion_matches()
-# from readline.c.
-extern_C char* filename_completion_function (char* text, int state); # see readline.c
+extern_C char *filename_completion_function (const char *, int);
 local bool want_filename_completion;
-local char** lisp_completion_matches (char* text, int start, int end) {
+local char** lisp_completion_matches (const char* text, int start, int end) {
   # text[0..end-start-1] = the_line[start..end-1]
   if (((start>=2)
        && (rl_line_buffer[start-2]=='#')
@@ -9712,7 +9710,7 @@ local char** lisp_completion_matches (char* text, int start, int end) {
 
 # If the function above returns NULL (no Matches), the following
 # function is called until it returns NULL on its part.
-local char* lisp_completion_more (char* text, int state) {
+local char* lisp_completion_more (const char* text, int state) {
   if (want_filename_completion)
     return filename_completion_function(text,state);
   else
@@ -9735,6 +9733,14 @@ local char * strip_white (char *string) {
   *++end = '\0';
   return beg;
 }
+
+#ifdef GNU_READLINE
+# prototype here for rd_ch_terminal3()
+# cannot have the whole thing here since they need rl_memory_abort()
+# which calls make_terminal_stream() which is not yet defined
+local char* xmalloc (int count);
+local char* xrealloc (void* ptr, int count);
+#endif
 
 # In the implementation of rd_ch_terminal3 and listen_char_terminal3, we
 # should not use the corresponding rd_ch_unbuffered and listen_char_unbuffered
@@ -9832,10 +9838,11 @@ local object rd_ch_terminal3 (const object* stream_) {
             || eq(Symbol_value(S(terminal_read_open_object)),unbound)) {
           begin_system_call(); add_history((char*)line); end_system_call();
         } else { # append this line to the previous history entry
-          int offset = where_history();
-          HIST_ENTRY *old;
-          char *new_line = (char*)xmalloc(2+strlen(line)+
-                                          strlen(prev->line));
+          begin_system_call();
+          var int offset = where_history();
+          var HIST_ENTRY *old;
+          var char *new_line = (char*)xmalloc(2+strlen(line)+
+                                              strlen(prev->line));
           # strcpy(new_line,prev->line[0]=='\n' ? "" : "\n");
           strcpy(new_line,prev->line);
           strcat(new_line,"\n");
@@ -9845,6 +9852,7 @@ local object rd_ch_terminal3 (const object* stream_) {
             free(old->line);
             free(old);
           }
+          end_system_call();
         }
       }
       # must release the original line
@@ -15302,7 +15310,7 @@ init_standard_io(output)
 global void init_streamvars (bool unixyp) {
   #ifdef GNU_READLINE
   begin_call();
-  rl_readline_name = "CLisp";
+  # rl_readline_name = "CLisp";
   if (ilisp_mode) {
     # Simulate the following instruction in .inputrc:
     #   Control-i: self-insert
@@ -15310,8 +15318,9 @@ global void init_streamvars (bool unixyp) {
   }
   rl_attempted_completion_function = &lisp_completion_matches;
   rl_completion_entry_function = &lisp_completion_more;
-  _rl_comment_begin = ";";
-  _rl_enable_paren_matching(true); # readline-4.1-clisp or newer
+  rl_variable_bind("comment-begin",";");
+  rl_variable_bind("blink-matching-paren","on");
+  # rl_set_paren_blink_timeout(1000000); # = 1 sec [default 0.5 sec]
   rl_add_defun("next-line-virtual",&next_line_virtual,META('n'));
   rl_add_defun("previous-line-virtual",&previous_line_virtual,META('p'));
   end_call();
@@ -15417,9 +15426,7 @@ local void fehler_value_stream (object sym) {
 }
 
 #ifdef GNU_READLINE
-
 # Auxiliary functions for the GNU ReadLine Library:
-
 nonreturning_function(local, rl_memory_abort, (void)) {
   # when there is no more memory for the ReadLine
   # drop it and replace the *TERMINAL-IO* with another
@@ -15428,25 +15435,20 @@ nonreturning_function(local, rl_memory_abort, (void)) {
   begin_callback(); # reset STACK to a reasonable value
   rl_gnu_readline_p = false;
   Symbol_value(S(terminal_io)) = make_terminal_stream();
-  fehler(storage_condition,
-         GETTEXT("readline library: out of memory."));
+  fehler(storage_condition,GETTEXT("readline library: out of memory."));
 }
 
-global char* xmalloc (int count) {
+local char* xmalloc (int count) {
   char* tmp = (char*)malloc(count);
-  if (tmp)
-    return tmp;
-  else
-    rl_memory_abort();
+  if (tmp) return tmp;
+  else     rl_memory_abort();
 }
 
-global char* xrealloc (void* ptr, int count) {
+local char* xrealloc (void* ptr, int count) {
   char* tmp = (ptr==NULL ? (char*)malloc(count) :
                (char*)realloc((char*)ptr,count));
-  if (tmp)
-    return tmp;
-  else
-    rl_memory_abort();
+  if (tmp) return tmp;
+  else     rl_memory_abort();
 }
 #endif
 

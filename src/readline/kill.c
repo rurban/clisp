@@ -70,6 +70,11 @@ static int rl_kill_index;
 /* How many slots we have in the kill ring. */
 static int rl_kill_ring_length;
 
+static int _rl_copy_to_kill_ring PARAMS((char *, int));
+static int region_kill_internal PARAMS((int));
+static int _rl_copy_word_as_kill PARAMS((int, int));
+static int rl_yank_nth_arg_internal PARAMS((int, int, int));
+
 /* How to say that you only want to save a certain amount
    of kill material. */
 int
@@ -129,7 +134,7 @@ _rl_copy_to_kill_ring (text, append)
   if (_rl_last_command_was_kill && rl_editing_mode != vi_mode)
     {
       old = rl_kill_ring[slot];
-      new = xmalloc (1 + strlen (old) + strlen (text));
+      new = (char *)xmalloc (1 + strlen (old) + strlen (text));
 
       if (append)
 	{
@@ -264,7 +269,7 @@ rl_backward_kill_line (direction, ignore)
   else
     {
       if (!rl_point)
-	ding ();
+	rl_ding ();
       else
 	{
 	  rl_beg_of_line (1, ignore);
@@ -299,7 +304,7 @@ rl_unix_word_rubout (count, key)
   int orig_point;
 
   if (rl_point == 0)
-    ding ();
+    rl_ding ();
   else
     {
       orig_point = rl_point;
@@ -331,7 +336,7 @@ rl_unix_line_discard (count, key)
      int count, key;
 {
   if (rl_point == 0)
-    ding ();
+    rl_ding ();
   else
     {
       rl_kill_text (rl_point, 0);
@@ -512,14 +517,14 @@ rl_yank_nth_arg_internal (count, ignore, history_skip)
 
   if (entry == 0)
     {
-      ding ();
+      rl_ding ();
       return -1;
     }
 
   arg = history_arg_extract (count, count, entry->line);
   if (!arg || !*arg)
     {
-      ding ();
+      rl_ding ();
       return -1;
     }
 
@@ -592,7 +597,7 @@ rl_yank_last_arg (count, key)
 }
 
 /* A special paste command for users of Cygnus's cygwin32. */
-#if defined (__CYGWIN32__)
+#if defined (__CYGWIN__)
 #include <windows.h>
 
 int
@@ -612,7 +617,7 @@ rl_paste_from_clipboard (count, key)
       if (ptr)
 	{
 	  len = ptr - data;
-	  ptr = xmalloc (len + 1);
+	  ptr = (char *)xmalloc (len + 1);
 	  ptr[len] = '\0';
 	  strncpy (ptr, data, len);
 	}
@@ -625,4 +630,4 @@ rl_paste_from_clipboard (count, key)
     }
   return (0);
 }
-#endif /* __CYGWIN32__ */
+#endif /* __CYGWIN__ */

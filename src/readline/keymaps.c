@@ -30,6 +30,8 @@
 #  include "ansi_stdlib.h"
 #endif /* HAVE_STDLIB_H */
 
+#include <stdio.h>	/* for FILE * definition for readline.h */
+
 #include "readline.h"
 #include "rlconf.h"
 
@@ -59,7 +61,7 @@ rl_make_bare_keymap ()
   for (i = 0; i < KEYMAP_SIZE; i++)
     {
       keymap[i].type = ISFUNC;
-      keymap[i].function = (Function *)NULL;
+      keymap[i].function = (rl_command_func_t *)NULL;
     }
 
   for (i = 'A'; i < ('Z' + 1); i++)

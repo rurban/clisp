@@ -26,16 +26,13 @@
 
 #include "rlconf.h"	/* for VISIBLE_STATS */
 #include "rlstdc.h"
-#include "posixjmp.h" /* defines procenv_t */
+#include "posixjmp.h"	/* defines procenv_t */
 
 /*************************************************************************
  *									 *
  * Global functions undocumented in texinfo manual and not in readline.h *
  *									 *
  *************************************************************************/
-
-/* terminal.c */
-extern char *rl_get_termcap _PROTO((char *cap));
 
 /*************************************************************************
  *									 *
@@ -51,12 +48,8 @@ extern int rl_visible_stats;
 
 /* readline.c */
 extern int rl_line_buffer_len;
-extern int rl_numeric_arg;
 extern int rl_arg_sign;
-extern int rl_explicit_arg;
-extern int rl_editing_mode;
 extern int rl_visible_prompt_length;
-extern Function *rl_last_func;
 extern int readline_echoing_p;
 extern int rl_key_sequence_length;
 
@@ -73,25 +66,25 @@ extern int rl_blink_matching_paren;
  *************************************************************************/
 
 /* bind.c */
-extern char *rl_untranslate_keyseq _PROTO((int seq));
+extern char *rl_untranslate_keyseq PARAMS((int));
 
 /* kill.c */
-extern int rl_set_retained_kills _PROTO((int num));
+extern int rl_set_retained_kills PARAMS((int));
 
 /* readline.c */
-extern int rl_discard_argument _PROTO((void));
+extern int rl_discard_argument PARAMS((void));
 
 /* rltty.c */
-extern int rl_stop_output _PROTO((int count, int key));
+extern int rl_stop_output PARAMS((int, int));
 
 /* terminal.c */
-extern void _rl_set_screen_size _PROTO((int rows, int cols));
+extern void _rl_set_screen_size PARAMS((int, int));
 
 /* undo.c */
-extern int _rl_fix_last_undo_of_type _PROTO((int type, int start, int end));
+extern int _rl_fix_last_undo_of_type PARAMS((int, int, int));
 
 /* util.c */
-extern char *_rl_savestring _PROTO((char *s));
+extern char *_rl_savestring PARAMS((const char *));
 
 /*************************************************************************
  *									 *
@@ -111,109 +104,115 @@ extern char *_rl_savestring _PROTO((char *s));
 #if defined(READLINE_CALLBACKS)
 
 /* readline.c */
-extern void readline_internal_setup _PROTO((void));
-extern char *readline_internal_teardown _PROTO((int eof));
-extern int readline_internal_char _PROTO((void));
+extern void readline_internal_setup PARAMS((void));
+extern char *readline_internal_teardown PARAMS((int));
+extern int readline_internal_char PARAMS((void));
 
 #endif /* READLINE_CALLBACKS */
 
 /* bind.c */
-extern void _rl_bind_if_unbound _PROTO((char *keyseq, Function *default_func));
+extern void _rl_bind_if_unbound PARAMS((const char *, rl_command_func_t *));
 
 /* display.c */
-extern char *_rl_strip_prompt _PROTO((char *pmt));
-extern void _rl_move_cursor_relative _PROTO((int new, char *data));
-extern void _rl_move_vert _PROTO((int to));
-extern void _rl_save_prompt _PROTO((void));
-extern void _rl_restore_prompt _PROTO((void));
-extern char *_rl_make_prompt_for_search _PROTO((int pchar));
-extern void _rl_erase_at_end_of_line _PROTO((int l));
-extern void _rl_clear_to_eol _PROTO((int count));
-extern void _rl_clear_screen _PROTO((void));
-extern void _rl_update_final _PROTO((void));
-extern void _rl_redisplay_after_sigwinch _PROTO((void));
-extern void _rl_clean_up_for_exit _PROTO((void));
-extern void _rl_erase_entire_line _PROTO((void));
-extern int _rl_currentb_display_line _PROTO((void));
+extern char *_rl_strip_prompt PARAMS((char *));
+extern void _rl_move_cursor_relative PARAMS((int, const char *));
+extern void _rl_move_vert PARAMS((int));
+extern void _rl_save_prompt PARAMS((void));
+extern void _rl_restore_prompt PARAMS((void));
+extern char *_rl_make_prompt_for_search PARAMS((int));
+extern void _rl_erase_at_end_of_line PARAMS((int));
+extern void _rl_clear_to_eol PARAMS((int));
+extern void _rl_clear_screen PARAMS((void));
+extern void _rl_update_final PARAMS((void));
+extern void _rl_redisplay_after_sigwinch PARAMS((void));
+extern void _rl_clean_up_for_exit PARAMS((void));
+extern void _rl_erase_entire_line PARAMS((void));
+extern int _rl_current_display_line PARAMS((void));
 
 /* input.c */
-extern int _rl_any_typein _PROTO((void));
-extern int _rl_input_available _PROTO((void));
-extern void _rl_insert_typein _PROTO((int c));
+extern int _rl_any_typein PARAMS((void));
+extern int _rl_input_available PARAMS((void));
+extern void _rl_insert_typein PARAMS((int));
 
 /* macro.c */
-extern void _rl_with_macro_input _PROTO((char *string));
-extern int _rl_next_macro_key _PROTO((void));
-extern void _rl_push_executing_macro _PROTO((void));
-extern void _rl_pop_executing_macro _PROTO((void));
-extern void _rl_add_macro_char _PROTO((int c));
-extern void _rl_kill_kbd_macro _PROTO((void));
+extern void _rl_with_macro_input PARAMS((char *));
+extern int _rl_next_macro_key PARAMS((void));
+extern void _rl_push_executing_macro PARAMS((void));
+extern void _rl_pop_executing_macro PARAMS((void));
+extern void _rl_add_macro_char PARAMS((int));
+extern void _rl_kill_kbd_macro PARAMS((void));
 
 /* nls.c */
-extern int _rl_init_eightbit _PROTO((void));
+extern int _rl_init_eightbit PARAMS((void));
 
 /* parens.c */
-extern void _rl_enable_paren_matching _PROTO((int on_or_off));
+extern void _rl_enable_paren_matching PARAMS((int));
 
 /* readline.c */
-extern void _rl_init_line_state _PROTO((void));
-extern void _rl_set_the_line _PROTO((void));
-extern int _rl_dispatch _PROTO((int key, Keymap map));
-extern int _rl_init_argument _PROTO((void));
-extern void _rl_fix_point _PROTO((int fix_mark_too));
-extern void _rl_replace_text _PROTO((char *text, int start, int end));
-extern int _rl_char_search_internal _PROTO((int count, int dir, int schar));
-extern int _rl_set_mark_at_pos _PROTO((int position));
+extern void _rl_init_line_state PARAMS((void));
+extern void _rl_set_the_line PARAMS((void));
+extern int _rl_dispatch PARAMS((int, Keymap));
+extern int _rl_init_argument PARAMS((void));
+extern void _rl_fix_point PARAMS((int));
+extern void _rl_replace_text PARAMS((const char *, int, int));
+extern int _rl_char_search_internal PARAMS((int, int, int));
+extern int _rl_set_mark_at_pos PARAMS((int));
+extern int _rl_free_saved_history_line PARAMS((void));
 
 /* rltty.c */
-extern int _rl_disable_tty_signals _PROTO((void));
-extern int _rl_restore_tty_signals _PROTO((void));
+extern int _rl_disable_tty_signals PARAMS((void));
+extern int _rl_restore_tty_signals PARAMS((void));
 
 /* terminal.c */
-extern void _rl_get_screen_size _PROTO((int tty, int ignore_env));
-extern int _rl_init_terminal_io _PROTO((char *terminal_name));
+extern void _rl_get_screen_size PARAMS((int, int));
+extern int _rl_init_terminal_io PARAMS((const char *));
 #ifdef _MINIX
-extern void _rl_output_character_function _PROTO((int c));
+extern void _rl_output_character_function PARAMS((int));
 #else
-extern int _rl_output_character_function _PROTO((int c));
+extern int _rl_output_character_function PARAMS((int));
 #endif
-extern void _rl_output_some_chars _PROTO((char *string, int count));
-extern int _rl_backspace _PROTO((int count));
-extern void _rl_enable_meta_key _PROTO((void));
-extern void _rl_control_keypad _PROTO((int on));
+extern void _rl_output_some_chars PARAMS((const char *, int));
+extern int _rl_backspace PARAMS((int));
+extern void _rl_enable_meta_key PARAMS((void));
+extern void _rl_control_keypad PARAMS((int));
 
 /* util.c */
-extern int alphabetic _PROTO((int c));
-extern int _rl_abort_internal _PROTO((void));
-extern char *_rl_strindex _PROTO((char *s1, char *s2));
-extern int _rl_qsort_string_compare _PROTO((char **s1, char **s2));
-extern int (_rl_uppercase_p) _PROTO((int c));
-extern int (_rl_lowercase_p) _PROTO((int c));
-extern int (_rl_pure_alphabetic) _PROTO((int c));
-extern int (_rl_digit_p) _PROTO((int c));
-extern int (_rl_to_lower) _PROTO((int c));
-extern int (_rl_to_upper) _PROTO((int c));
-extern int (_rl_digit_value) _PROTO((int c));
+extern int rl_alphabetic PARAMS((int));
+extern int _rl_abort_internal PARAMS((void));
+extern char *_rl_strindex PARAMS((const char *, const char *));
+extern int _rl_qsort_string_compare PARAMS((char **, char **));
+extern int (_rl_uppercase_p) PARAMS((int));
+extern int (_rl_lowercase_p) PARAMS((int));
+extern int (_rl_pure_alphabetic) PARAMS((int));
+extern int (_rl_digit_p) PARAMS((int));
+extern int (_rl_to_lower) PARAMS((int));
+extern int (_rl_to_upper) PARAMS((int));
+extern int (_rl_digit_value) PARAMS((int));
 
 /* vi_mode.c */
-extern void _rl_vi_initialize_line _PROTO((void));
-extern void _rl_vi_reset_last _PROTO((void));
-extern void _rl_vi_set_last _PROTO((int key, int repeat, int sign));
-extern int _rl_vi_textmod_command _PROTO((int c));
-extern void _rl_vi_done_inserting _PROTO((void));
+extern void _rl_vi_initialize_line PARAMS((void));
+extern void _rl_vi_reset_last PARAMS((void));
+extern void _rl_vi_set_last PARAMS((int, int, int));
+extern int _rl_vi_textmod_command PARAMS((int));
+extern void _rl_vi_done_inserting PARAMS((void));
 
 /* testUTF8.c */
-extern int is_in_UTF8_mode _PROTO((void));
+extern int is_in_UTF8_mode PARAMS((void));
 
 /*************************************************************************
  * Undocumented private variables					 *
  *************************************************************************/
+
+/* bind.c */
+extern const char *_rl_possible_control_prefixes[];
+extern const char *_rl_possible_meta_prefixes[];
 
 /* complete.c */
 extern int _rl_complete_show_all;
 extern int _rl_complete_mark_directories;
 extern int _rl_print_completions_horizontally;
 extern int _rl_completion_case_fold;
+extern int _rl_match_hidden_files;
 
 /* display.c */
 extern int _rl_vis_botlin;
@@ -221,12 +220,8 @@ extern int _rl_last_c_pos;
 extern int _rl_suppress_redisplay;
 extern char *rl_display_prompt;
 
-/* funmap.c */
-extern char *possible_control_prefixes[];
-extern char *possible_meta_prefixes[];
-
 /* isearch.c */
-extern unsigned char *_rl_isearch_terminators;
+extern char *_rl_isearch_terminators;
 
 /* macro.c */
 extern int _rl_defining_kbd_macro;
@@ -239,6 +234,7 @@ extern int _rl_bell_preference;
 extern int _rl_meta_flag;
 extern int _rl_convert_meta_chars_to_ascii;
 extern int _rl_output_meta_chars;
+extern int _rl_history_preserve_point;
 extern char *_rl_comment_begin;
 extern unsigned char _rl_parsing_conditionalized_out;
 extern Keymap _rl_keymap;
@@ -251,20 +247,20 @@ extern procenv_t readline_top_level;
 /* terminal.c */
 extern int _rl_enable_keypad;
 extern int _rl_enable_meta;
-extern char *term_clreol;
-extern char *term_clrpag;
-extern char *term_im;
-extern char *term_ic;
-extern char *term_ei;
-extern char *term_DC;
-extern char *term_up;
-extern char *term_dc;
-extern char *term_cr;
-extern char *term_IC;
-extern int screenheight;
-extern int screenwidth;
-extern int screenchars;
-extern int terminal_can_insert;
+extern char *_rl_term_clreol;
+extern char *_rl_term_clrpag;
+extern char *_rl_term_im;
+extern char *_rl_term_ic;
+extern char *_rl_term_ei;
+extern char *_rl_term_DC;
+extern char *_rl_term_up;
+extern char *_rl_term_dc;
+extern char *_rl_term_cr;
+extern char *_rl_term_IC;
+extern int _rl_screenheight;
+extern int _rl_screenwidth;
+extern int _rl_screenchars;
+extern int _rl_terminal_can_insert;
 extern int _rl_term_autowrap;
 
 /* undo.c */

@@ -52,7 +52,7 @@
 #  if defined (_SVR4_VDISABLE)
 #    define _POSIX_VDISABLE _SVR4_VDISABLE
 #  else
-#    if defined (_POSIX_VERSION) || defined (__EMX__)
+#    if defined (_POSIX_VERSION)
 #      define _POSIX_VDISABLE 0
 #    else /* !_POSIX_VERSION */
 #      define _POSIX_VDISABLE -1
