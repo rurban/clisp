@@ -342,9 +342,10 @@
 (defconstant *common-lisp-user-package* (find-package "COMMON-LISP-USER"))
 
 (defmacro with-standard-io-syntax (&body body &environment env)
-  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body nil env)
-    ; It would be possible to put all these bindings into a single function,
-    ; but this would force variables into closures.
+  (multiple-value-bind (body-rest declarations)
+      (SYSTEM::PARSE-BODY body nil env)
+    ;; It would be possible to put all these bindings into a single function,
+    ;; but this would force variables into closures.
     `(LET (; printer/reader variables:
            (*PACKAGE*                   *COMMON-LISP-USER-PACKAGE*)
            ; printer variables:
@@ -364,10 +365,10 @@
            (*PRINT-READABLY*            T)
            (*PRINT-RIGHT-MARGIN*        NIL)
            (*PRINT-CLOSURE*             NIL) ; CLISP specific
-           (*PRINT-RPARS*               T) ; CLISP specific
-           (*PRINT-INDENT-LISTS*        2) ; CLISP specific
+           (*PRINT-RPARS*               nil) ; CLISP specific
+           (*PRINT-INDENT-LISTS*        1)   ; CLISP specific
            (SYSTEM::*PRIN-STREAM*       NIL) ; CLISP specific
-           (SYSTEM::*PRIN-LINELENGTH*   79) ; CLISP specific
+           (SYSTEM::*PRIN-LINELENGTH*   79)  ; CLISP specific
            ; reader variables:
            (*READ-BASE*                 10)
            (*READ-DEFAULT-FLOAT-FORMAT* 'SINGLE-FLOAT)
