@@ -374,7 +374,10 @@ local void affi_call_argsa(address, ffinfo, args, count)
                         if (!(accept & ACCEPT_STRING_ARG)) goto bad_arg;
                         # Cf. with_string_0() macro in lispbibl.d
                         { var uintL length;
-                          var const chart* charptr = unpack_string_ro(arg,&length);
+                          var uintL offset;
+                          var object string = unpack_string_ro(arg,&length,&offset);
+                          var const chart* charptr;
+                          unpack_sstring_alloca(string,length,offset, charptr=);
                           if (accept & ACCEPT_MAKE_ASCIZ)
                             { var uintL bytelength = cslen(O(foreign_encoding),charptr,length);
                               var uintB* ptr = alloca(1+bytelength); # TODO Ergebnis testen
@@ -586,11 +589,14 @@ LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
     skipSTACK(3);
     if (stringp(from)) # write a LISP string to memory
       { var uintL length;
-        var const chart* charptr = unpack_string_ro(from,&length);
-        var uintL bytelength = cslen(O(foreign_encoding),charptr,length);
+        var uintL offset;
+        var object string = unpack_string_ro(from,&length,&offset);
+        var const chart* charptr;
+        unpack_sstring_alloca(string,length,offset, charptr=);
+       {var uintL bytelength = cslen(O(foreign_encoding),charptr,length);
         cstombs(O(foreign_encoding),charptr,length,(uintB*)address,bytelength);
         ((uintB*)address)[bytelength] = '\0'; # and zero-terminate memory!
-      }
+      }}
     elif (!bit_vector_p(from) # copy memory into a LISP unsigned-byte vector
           && general_byte_vector_p(from))
       { var uintBWL size = Iarray_flags(from) & arrayflags_atype_mask;

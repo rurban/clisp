@@ -1,3 +1,115 @@
+1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Introduce space-efficient immutable strings.
+        * lispbibl.d (Rectype_Imm_SmallSstring): New enumeration item.
+          (Rectype_mdarray, Rectype_Sbvector, Rectype_bvector, Rectype_Svector,
+           Rectype_vector, Rectype_Sstring, Rectype_string,
+           Rectype_Imm_Sstring):
+          Rearrange and define rectype_unused1 so as to get fast type checks.
+          (HAVE_SMALL_SSTRING): New macro.
+          (small_sstring_, SmallSstring): New types.
+          (Array_type_sstring): Treat Rectype_Imm_SmallSstring like
+          Rectype_Imm_Sstring.
+          (TheSmallSstring): New macro.
+          (vectorp, simplep, array_simplep, general_vector_p, simple_string_p,
+           stringp, byte_vector_p, arrayp): Update and optimize.
+          (if_recordp): Treat Rectype_Imm_SmallSstring like
+          Rectype_Imm_Sstring.
+          (case_Rectype_Sstring_above, case_Rectype_string_above,
+           case_Rectype_array_above): Likewise.
+          (allocate_imm_small_string): New declaration.
+          (with_string_0, with_sstring_0, with_string, with_sstring): Update
+          for unpack_string_ro change. Use unpack_sstring_alloca.
+          (chartcopy, scintcopy): New declarations.
+          (SstringDispatch): New macro.
+          (unpack_sstring_alloca): New macro.
+          (unpack_string_ro): One more argument, change return type.
+          (coerce_normal_ss, coerce_imm_normal_ss): New declarations.
+          (test_string_limits_rw): Remove declaration.
+          (stringarg): New structure type.
+          (test_string_limits_ro): Change calling convention.
+          (string_eqcomp, string_eqcomp_ci): New declarations.
+        * genclisph.d (main): Update vectorp, general_vector_p,
+          simple_string_p, stringp, byte_vector_p, arrayp.
+        * spvw_objsize.d (size_small_sstring): New macro.
+          (objsize): Treat Rectype_Imm_SmallSstring.
+        * spvw_update.d (update_varobject): Treat Rectype_Imm_SmallSstring
+          like Rectype_Imm_Sstring.
+        * spvw_genera1.d (walk_area, build_old_generation_cache): Likewise.
+        * spvw_garcol.d (gc_mark): Likewise.
+        * spvw_typealloc.d (allocate_imm_small_string): New function.
+        * charstrg.d (chartcopy, scintcopy): New functions.
+          (unpack_string_ro): Define always. One more argument, change return
+          type.
+          (string_gleich, string_equal): Mostly rewritten.
+          (copy_string, coerce_imm_ss): Mostly rewritten.
+          (coerce_normal_ss, coerce_imm_normal_ss): New functions.
+          (coerce_char): Update, treat small strings too.
+          (CHAR, SCHAR): Likewise.
+          (test_string_limits_ro): Change calling convention.
+          (test_string_limits_rw): Change calling convention, make local.
+          (test_2_stringsym_limits): Change calling convention.
+          (string_eqcomp, string_comp): Change calling convention. Rewritten,
+          treat small strings too.
+          (STRING=, STRING/=, STRING<, STRING>, STRING<=, STRING>=): Rewritten.
+          (string_eqcomp_ci, string_comp_ci): Change calling convention.
+          Rewritten, treat small strings too.
+          (STRING-EQUAL, STRING-NOT-EQUAL, STRING-LESSP, STRING-GREATERP,
+           STRING-NOT-GREATERP, STRING-NOT-LESSP): Rewritten.
+          (eqcomp_fun): Change function type.
+          (string_search): Change calling convention. Treat len1==0 outside of
+          the loop.
+          (SYS::SEARCH-STRING=, SYS::SEARCH-STRING-EQUAL): Mostly rewritten.
+          (NSTRING-UPCASE, NSTRING-DOWNCASE, NSTRING-CAPITALIZE): Rewritten.
+          (subsstring, SUBSTRING, string_concat): Treat small strings too.
+        * array.d (datenvektor_aref): Treat small strings too.
+          (datenvektor_store): Treat Rectype_Imm_SmallSstring like
+          Rectype_Imm_Sstring.
+          (VECTOR-PUSH-EXTEND): Treat small strings too.
+          (ssstring_push_extend, ssstring_extend): Use chartcopy.
+        * predtype.d (equal): Use string_eqcomp.
+          (elt_compare_T_Char): Treat small strings too.
+          (elt_compare_Char_Char): Use string_eqcomp_ci.
+        * hashtabl.d (hashcode_string): Treat small strings too.
+          (hashcode3_atom): Treat Rectype_Imm_SmallSstring like
+          Rectype_Imm_Sstring.
+          (hashcode4_vector_Char): Treat small strings too.
+        * package.d (string_hashcode): Treat small strings too.
+        * encoding.d (string_to_asciz): Call unpack_sstring_alloca, but call
+          unpack_string_ro only once.
+          (string_to_asciz_): Update.
+        * sequence.d (WRITE-CHAR-SEQUENCE): Call unpack_sstring_alloca.
+        * stream.d (wr_ss_dummy, wr_ss_dummy_nogc): Treat small strings too.
+          (rd_ch_str_in, rd_ch_array_str_in): Likewise.
+          (MAKE-STRING-INPUT-STREAM): Update.
+          (wr_ss_str_out, wr_ss_pphelp): Treat small strings too.
+          (rd_ch_buff_in): Likewise.
+          (wr_ss_generic): Call unpack_sstring_alloca.
+          (wr_ss_unbuffered_unix, wr_ss_unbuffered_mac, wr_ss_unbuffered_dos,
+           wr_ss_buffered_unix, wr_ss_buffered_mac, wr_ss_buffered_dos):
+          Likewise.
+          (lisp_completion): Call unpack_sstring_alloca. Use
+          O(terminal_encoding).
+          (wr_ss_terminal3): Call unpack_sstring_alloca. Treat small strings
+          too.
+          (FILE-STRING-LENGTH): Treat small strings too.
+        * io.d (PARSE-INTEGER): Treat small strings too.
+          (write_sstring_case, pr_symbol_part, pr_sstring_ab): Likewise.
+          (pr_orecord): Treat Rectype_Imm_SmallSstring like
+          Rectype_Imm_Sstring.
+          (write_string_up): Update.
+        * lisparit.d (read_integer): Call unpack_sstring_alloca.
+          (decimal_string): Use chartcopy.
+        * foreign.d (convert_to_foreign): Call unpack_sstring_alloca.
+        * affi.d (affi_call_argsa, SYSTEM::MEM-WRITE-VECTOR): Likewise.
+        * pathname.d (subst_coerce_normal_ss): New function.
+          (test_optional_host): Use coerce_normal_ss instead of coerce_ss.
+          (PARSE-NAMESTRING): When thing is a symbol, do the case conversion
+          on the :start/:end delimited part, not on the entire symbol-name.
+          Accept small strings too, convert them to normal strings.
+          (MAKE-PATHNAME): Call coerce_normal_ss on the device, name and type.
+          Call subst_coerce_normal_ss on the directory.
+
 1999-02-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * package.d (correct_packname): Convert the package name to an

@@ -1760,15 +1760,18 @@ local void convert_to_foreign(fvd,obj,data)
           { if (nullp(obj))
               { *(char**)data = NULL; return; }
             if (!stringp(obj)) goto bad_obj;
-           {var uintL len;
-            var const chart* ptr1 = unpack_string_ro(obj,&len);
-            var uintL bytelen = cslen(O(foreign_encoding),ptr1,len);
-            var char* asciz = converter_malloc(*(char**)data,bytelen+1,1);
-            cstombs(O(foreign_encoding),ptr1,len,(uintB*)asciz,bytelen);
-            asciz[bytelen] = '\0';
-            *(char**)data = asciz;
-            return;
-          }}
+            { var uintL len;
+              var uintL offset;
+              var object string = unpack_string_ro(obj,&len,&offset);
+              var const chart* ptr1;
+              unpack_sstring_alloca(string,len,offset, ptr1=);
+             {var uintL bytelen = cslen(O(foreign_encoding),ptr1,len);
+              var char* asciz = converter_malloc(*(char**)data,bytelen+1,1);
+              cstombs(O(foreign_encoding),ptr1,len,(uintB*)asciz,bytelen);
+              asciz[bytelen] = '\0';
+              *(char**)data = asciz;
+              return;
+          } }}
       }
     elif (simple_vector_p(fvd))
       { var uintL fvdlen = Svector_length(fvd);
@@ -1844,7 +1847,10 @@ local void convert_to_foreign(fvd,obj,data)
                   goto bad_obj;
                 if (eq(eltype,S(character)) && stringp(obj))
                   { var uintL len;
-                    var const chart* ptr1 = unpack_string_ro(obj,&len);
+                    var uintL offset;
+                    var object string = unpack_string_ro(obj,&len,&offset);
+                    var const chart* ptr1;
+                    unpack_sstring_alloca(string,len,offset, ptr1=);
                     ASSERT(cslen(O(foreign_encoding),ptr1,len) == len);
                     cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
                   }
@@ -1909,7 +1915,10 @@ local void convert_to_foreign(fvd,obj,data)
                 if (len > maxdim) { len = maxdim; }
                 if (eq(eltype,S(character)) && stringp(obj))
                   { var uintL dummy_len;
-                    var const chart* ptr1 = unpack_string_ro(obj,&dummy_len);
+                    var uintL offset;
+                    var object string = unpack_string_ro(obj,&dummy_len,&offset);
+                    var const chart* ptr1;
+                    unpack_sstring_alloca(string,len,offset, ptr1=);
                     ASSERT(cslen(O(foreign_encoding),ptr1,len) == len);
                     cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
                     if (len < maxdim) { ((uintB*)data)[len] = '\0'; }

@@ -43,17 +43,34 @@
   local uint16 string_hashcode(string)
     var object string;
     { var uintL len;
-      var const chart* charptr = unpack_string_ro(string,&len);
-      # ab charptr kommen len Zeichen
-      var uint32 hashcode = 0; # Hashcode, nur die unteren 16 Bit sind wesentlich
-      var uintC count;
-      dotimesC(count, (len>16 ? 16 : len), # min(len,16) mal:
-        { # hashcode um 5 Bit nach links rotieren:
-          hashcode = hashcode << 5; hashcode = hashcode | high16(hashcode);
-          # und nächstes Byte dazuXORen:
-          hashcode = hashcode ^ (uint32)as_cint(*charptr++);
-        });
-      return (uint16)hashcode;
+      var uintL offset;
+      string = unpack_string_ro(string,&len,&offset);
+      SstringDispatch(string,
+        { var const chart* charptr = &TheSstring(string)->data[offset];
+          # ab charptr kommen len Zeichen
+          var uint32 hashcode = 0; # Hashcode, nur die unteren 16 Bit sind wesentlich
+          var uintC count;
+          dotimesC(count, (len>16 ? 16 : len), # min(len,16) mal:
+            { # hashcode um 5 Bit nach links rotieren:
+              hashcode = hashcode << 5; hashcode = hashcode | high16(hashcode);
+              # und nächstes Byte dazuXORen:
+              hashcode = hashcode ^ (uint32)as_cint(*charptr++);
+            });
+          return (uint16)hashcode;
+        },
+        { var const scint* charptr = &TheSmallSstring(string)->data[offset];
+          # ab charptr kommen len Zeichen
+          var uint32 hashcode = 0; # Hashcode, nur die unteren 16 Bit sind wesentlich
+          var uintC count;
+          dotimesC(count, (len>16 ? 16 : len), # min(len,16) mal:
+            { # hashcode um 5 Bit nach links rotieren:
+              hashcode = hashcode << 5; hashcode = hashcode | high16(hashcode);
+              # und nächstes Byte dazuXORen:
+              hashcode = hashcode ^ (uint32)(cint)(*charptr++);
+            });
+          return (uint16)hashcode;
+        }
+        );
     }
 
 # UP: Reorganisiert eine Symboltabelle, nachdem sie gewachsen ist, und
@@ -352,8 +369,8 @@
 # pack_shadowing_symbols  Liste der Shadowing-Symbole
 # pack_use_list           Use-List, eine Liste von Packages
 # pack_used_by_list       Used-by-List, eine Liste von Packages
-# pack_name               der Name, ein Simple-String
-# pack_nicknames          die Nicknames, eine Liste von Simple-Strings
+# pack_name               der Name, ein immutable Simple-String
+# pack_nicknames          die Nicknames, eine Liste von immutablen Simple-Strings
 
 # Konsistenzregeln:
 # 1. Alle Packages sind genau einmal in ALL_PACKAGES aufgeführt.
@@ -378,8 +395,8 @@
 
 # UP: Erzeugt eine neue Package, ohne auf Namenskonflikte zu testen.
 # make_package(name,nicknames,case_sensitive_p)
-# > name: Name (ein Simple-String)
-# > nicknames: Nicknames (eine Liste von Simple-Strings)
+# > name: Name (ein immutable Simple-String)
+# > nicknames: Nicknames (eine Liste von immutablen Simple-Strings)
 # > case_sensitive_p: Flag, ob case-sensitive
 # < ergebnis: neue Package
 # kann GC auslösen
@@ -1934,9 +1951,9 @@ LISPFUNN(package_nicknames,1) # (PACKAGE-NICKNAMES package), CLTL S. 184
   }
 
 # UP: Überprüft name und nicknames - Argumente von RENAME-PACKAGE und MAKE-PACKAGE.
-# Testet, ob STACK_3 ein Name ist, und macht daraus einen Simple-String.
+# Testet, ob STACK_3 ein Name ist, und macht daraus einen immutablen Simple-String.
 # Testet, ob STACK_2 ein Name oder eine Liste von Namen ist, und macht
-# daraus eine neue Liste von Simple-Strings.
+# daraus eine neue Liste von immutablen Simple-Strings.
 # > subr-self: Aufrufer (ein SUBR)
 # kann GC auslösen
   local void test_names_args (void);

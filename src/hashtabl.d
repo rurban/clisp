@@ -261,16 +261,29 @@
   local uint32 hashcode_string(obj)
     var object obj;
     { var uintL len;
-      var const chart* ptr = unpack_string_ro(obj,&len); # ab ptr kommen len Zeichen
+      var uintL offset;
+      var object string = unpack_string_ro(obj,&len,&offset);
       var uint32 bish_code = 0x33DAE11FUL + len; # Länge verwerten
       if (len > 0)
-        { bish_code ^= (uint32)as_cint(ptr[len-1]); # letztes Zeichen dazu
-         {var uintC count = (len <= 31 ? len : 31); # min(len,31)
-          dotimespC(count,count,
-            { var uint32 next_code = (uint32)as_cint(*ptr++); # nächstes Zeichen
-              bish_code = misch(bish_code,next_code); # dazunehmen
-            });
-        }}
+        { SstringDispatch(string,
+            { var const chart* ptr = &TheSstring(string)->data[offset];
+              bish_code ^= (uint32)as_cint(ptr[len-1]); # letztes Zeichen dazu
+             {var uintC count = (len <= 31 ? len : 31); # min(len,31)
+              dotimespC(count,count,
+                { var uint32 next_code = (uint32)as_cint(*ptr++); # nächstes Zeichen
+                  bish_code = misch(bish_code,next_code); # dazunehmen
+                });
+            }},
+            { var const scint* ptr = &TheSmallSstring(string)->data[offset];
+              bish_code ^= (uint32)(cint)(ptr[len-1]); # letztes Zeichen dazu
+             {var uintC count = (len <= 31 ? len : 31); # min(len,31)
+              dotimespC(count,count,
+                { var uint32 next_code = (uint32)(cint)(*ptr++); # nächstes Zeichen
+                  bish_code = misch(bish_code,next_code); # dazunehmen
+                });
+            }}
+            );
+        }
       return bish_code;
     }
   # Bit-Vektor -> Länge, erste 16 Bits, letzte 16 Bits verwerten
@@ -405,7 +418,7 @@
           { case_Rectype_number_above;
             case Rectype_Sbvector: case Rectype_bvector:
               return hashcode_bvector(obj);
-            case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_string:
+            case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_string:
               return hashcode_string(obj);
             case Rectype_Pathname:
             #ifdef LOGICAL_PATHNAMES
@@ -537,11 +550,20 @@
     var uintL count;
     var uint32 bish_code;
     { if (count > 0)
-        { var const chart* ptr = &TheSstring(dv)->data[index];
-          dotimespL(count,count,
-            { var uint32 next_code = hashcode4_char(*ptr++); # nächstes Zeichen
-              bish_code = misch(bish_code,next_code); # dazunehmen
-            });
+        { SstringDispatch(dv,
+            { var const chart* ptr = &TheSstring(dv)->data[index];
+              dotimespL(count,count,
+                { var uint32 next_code = hashcode4_char(*ptr++); # nächstes Zeichen
+                  bish_code = misch(bish_code,next_code); # dazunehmen
+                });
+            },
+            { var const scint* ptr = &TheSmallSstring(dv)->data[index];
+              dotimespL(count,count,
+                { var uint32 next_code = hashcode4_char(as_chart(*ptr++)); # nächstes Zeichen
+                  bish_code = misch(bish_code,next_code); # dazunehmen
+                });
+            }
+            );
         }
       return bish_code;
     }

@@ -77,7 +77,7 @@ LISPFUN(make_encoding,0,0,norest,key,2,
 # > uintB* charptr: Adresse einer Zeichenfolge
 # > uintL len: Länge der Zeichenfolge
 # > object encoding: Encoding
-# < ergebnis: Simple-String mit den len Zeichen ab charptr als Inhalt
+# < ergebnis: Normal-Simple-String mit den len Zeichen ab charptr als Inhalt
 # kann GC auslösen
   #ifdef UNICODE
     global object make_string (const uintB* bptr, uintL blen, object encoding);
@@ -118,7 +118,7 @@ LISPFUN(make_encoding,0,0,norest,key,2,
 # > char* asciz: ASCIZ-String
 #       (Adresse einer durch ein Nullbyte abgeschlossenen Zeichenfolge)
 # > object encoding: Encoding
-# < ergebnis: String mit der Zeichenfolge (ohne Nullbyte) als Inhalt
+# < ergebnis: Normal-Simple-String mit der Zeichenfolge (ohne Nullbyte) als Inhalt
 # kann GC auslösen
   #ifdef UNICODE
     global object asciz_to_string (const char * asciz, object encoding);
@@ -163,20 +163,22 @@ LISPFUN(make_encoding,0,0,norest,key,2,
     global object string_to_asciz(obj,encoding)
       var object obj;
       var object encoding;
-      { var uintL len;
-        var const chart* srcptr = unpack_string_ro(obj,&len);
-        var uintL bytelen = cslen(encoding,srcptr,len);
-        pushSTACK(encoding);
-        pushSTACK(obj);
-       {var object newasciz = allocate_bit_vector((bytelen+1)*8);
-        obj = popSTACK();
-        encoding = popSTACK();
-        { var const chart* srcptr = unpack_string_ro(obj,&len);
-          cstombs(encoding,srcptr,len,&TheSbvector(newasciz)->data[0],bytelen);
-          TheSbvector(newasciz)->data[bytelen] = '\0';
-        }
-        return newasciz;
-      }}
+      {  var uintL len;
+         var uintL offset;
+         var object string = unpack_string_ro(obj,&len,&offset);
+         var const chart* srcptr;
+         unpack_sstring_alloca(string,len,offset, srcptr=);
+       { var uintL bytelen = cslen(encoding,srcptr,len);
+         pushSTACK(encoding);
+         pushSTACK(string);
+        {var object newasciz = allocate_bit_vector((bytelen+1)*8);
+         string = popSTACK();
+         encoding = popSTACK();
+         unpack_sstring_alloca(string,len,offset, srcptr=);
+         cstombs(encoding,srcptr,len,&TheSbvector(newasciz)->data[0],bytelen);
+         TheSbvector(newasciz)->data[bytelen] = '\0';
+         return newasciz;
+      }}}
   #else
     global object string_to_asciz_ (object obj);
     global object string_to_asciz_(obj)
@@ -185,7 +187,9 @@ LISPFUN(make_encoding,0,0,norest,key,2,
        {var object newasciz = allocate_bit_vector((vector_length(obj)+1)*8);
         obj = popSTACK(); # String zurück
         { var uintL len;
-          var const chart* sourceptr = unpack_string_ro(obj,&len);
+          var uintL offset;
+          var object string = unpack_string_ro(obj,&len,&offset);
+          var const chart* sourceptr = &TheSstring(string)->data[offset];
           # Source-String: Länge in len, Bytes ab sourceptr
           var uintB* destptr = &TheSbvector(newasciz)->data[0];
           # Destination-String: Bytes ab destptr

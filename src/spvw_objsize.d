@@ -62,8 +62,12 @@
       ( ceiling( (uintL)(length) + 8*offsetofa(sbvector_,data), 8*varobject_alignment ) \
         * varobject_alignment                                                           \
       )
-    #define size_sstring(length)  # simple-string \
+    #define size_sstring(length)  # normal-simple-string \
       Varobject_aligned_size(offsetofa(sstring_,data),sizeof(chart),(uintL)(length))
+    #ifdef HAVE_SMALL_SSTRING
+    #define size_small_sstring(length)  # small-simple-string \
+      Varobject_aligned_size(offsetofa(small_sstring_,data),sizeof(scint),(uintL)(length))
+    #endif
     #define size_svector(length)  # simple-vector \
       Varobject_aligned_size(offsetofa(svector_,data),sizeof(object),(uintL)(length))
     #define size_iarray(size)  # Nicht-simpler Array, mit \
@@ -101,7 +105,7 @@
       #else
       switch (record_type((Record)addr))
         { case_Rectype_Sbvector_above;
-          case_Rectype_Sstring_above;
+          case Rectype_Sstring: case Rectype_Imm_Sstring: goto case_sstring;
           case_Rectype_Svector_above;
           case_Rectype_mdarray_above;
           case_Rectype_obvector_above;
@@ -109,6 +113,10 @@
           case_Rectype_ovector_above;
           case_Rectype_Bignum_above;
           case_Rectype_Lfloat_above;
+          #ifdef HAVE_SMALL_SSTRING
+          case Rectype_Imm_SmallSstring:
+            return size_small_sstring(sstring_length((SmallSstring)addr));
+          #endif
           default: goto case_record;
         }
       switch (0)
@@ -120,7 +128,7 @@
           #endif
           case_sbvector: # simple-bit-vector
             return size_sbvector(sbvector_length((Sbvector)addr));
-          case_sstring: # simple-string
+          case_sstring: # normal-simple-string
             return size_sstring(sstring_length((Sstring)addr));
           case_svector: # simple-vector
             return size_svector(svector_length((Svector)addr));
