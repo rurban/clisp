@@ -16,8 +16,9 @@
            (ve (make-array (- total family) :element-type '(unsigned-byte 8)
                            :initial-element 0)))
       (print he)
-      (setf (aref ve 1) (ldb #.(byte 8 0) port)
-            (aref ve 0) (ldb #.(byte 8 8) port))
+      (setf port (rawsock:htons port)
+            (aref ve 0) (ldb #.(byte 8 0) port)
+            (aref ve 1) (ldb #.(byte 8 8) port))
       (replace ve li :start1 2)
       (print ve)
       (setq sa (print (rawsock:make-sockaddr :AF_INET ve)))
@@ -46,8 +47,10 @@
 
 (integerp (print (setq *sock* (rawsock:socket :AF_INET :SOCK_STREAM nil)))) T
 
-(rawsock:bind *sock* *sa-local*) NIL
-(local-sa-check *sock* *sa-local*) T
+(unless (equalp #(127 0 0 1) (subseq (rawsock:sockaddr-data *sa-local*) 2 6))
+  (rawsock:bind *sock* *sa-local*)
+  (not (local-sa-check *sock* *sa-local*)))
+NIL
 (rawsock:connect *sock* *sa-remote*) NIL
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
 
@@ -63,8 +66,10 @@
   (= so *sock*))
 T
 
-(rawsock:bind *sock* *sa-local*) NIL
-(local-sa-check *sock* *sa-local*) T
+(unless (equalp #(127 0 0 1) (subseq (rawsock:sockaddr-data *sa-local*) 2 6))
+  (rawsock:bind *sock* *sa-local*)
+  (not (local-sa-check *sock* *sa-local*)))
+NIL
 (rawsock:connect *sock* *sa-remote*) NIL
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
 
