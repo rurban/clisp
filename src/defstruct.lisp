@@ -552,7 +552,7 @@
         (initial-offset                    0)
         (docstring                         nil)
         (slotargs                          docstring-and-slotargs)
-        (directslotlist                    nil)
+        (directslotlist                    nil) ; list of (slot . initff)
          size
         (include-skip                      0)
         (inherited-slot-count              0)
@@ -560,7 +560,7 @@
         (slotdefaultvars                   nil)
         (slotdefaultfuns                   nil)
         (slotdefaultslots                  nil)
-        (slotdefaultdirectslots            nil)
+        (slotdefaultdirectslots            nil) ; list of (slot . initff)
          constructor-forms                      )
     ;; check name-and-options:
     (when (listp name-and-options)
@@ -829,17 +829,18 @@
                                :detail slot-keyword
                                (TEXT "~S ~S: ~S is not a slot option.")
                                'defstruct name slot-keyword)))))))
-            (push (clos::make-instance-<structure-direct-slot-definition>
-                    clos::<structure-direct-slot-definition>
-                    :name slotname
-                    :initform (clos:slot-definition-initform slot)
-                    :initfunction (clos:slot-definition-initfunction slot)
-                    :initargs (clos:slot-definition-initargs slot)
-                    :type (clos:slot-definition-type slot)
-                    'clos::inheritable-initer (clos::slot-definition-inheritable-initer slot)
-                    :readers '()
-                    :writers '()
-                    'clos::initff (clos::structure-effective-slot-definition-initff slot))
+            (push (cons
+                    (clos::make-instance-<structure-direct-slot-definition>
+                      clos::<structure-direct-slot-definition>
+                      :name slotname
+                      :initform (clos:slot-definition-initform slot)
+                      :initfunction (clos:slot-definition-initfunction slot)
+                      :initargs (clos:slot-definition-initargs slot)
+                      :type (clos:slot-definition-type slot)
+                      'clos::inheritable-initer (clos::slot-definition-inheritable-initer slot)
+                      :readers '()
+                      :writers '())
+                    (clos::structure-effective-slot-definition-initff slot))
                   directslotlist)))
         (dolist (slot slotlist)
           (let ((initfunction (clos:slot-definition-initfunction slot)))
@@ -951,17 +952,18 @@
             (let ((initer (cons initform initfunction))
                   (initargs (list (intern (symbol-name slotname) *keyword-package*)))
                   (accessorname (ds-accessor-name slotname conc-name-option)))
-              (push (clos::make-instance-<structure-direct-slot-definition>
-                      clos::<structure-direct-slot-definition>
-                      :name slotname
-                      :initform initform
-                      :initfunction initfunction
-                      :initargs initargs
-                      :type type
-                      'clos::inheritable-initer initer
-                      :readers (list accessorname)
-                      :writers (if read-only '() (list `(SETF ,accessorname)))
-                      'clos::initff initfunctionform)
+              (push (cons
+                      (clos::make-instance-<structure-direct-slot-definition>
+                        clos::<structure-direct-slot-definition>
+                        :name slotname
+                        :initform initform
+                        :initfunction initfunction
+                        :initargs initargs
+                        :type type
+                        'clos::inheritable-initer initer
+                        :readers (list accessorname)
+                        :writers (if read-only '() (list `(SETF ,accessorname))))
+                      initfunctionform)
                     directslotlist)
               (push (make-ds-slot slotname
                                   initargs
@@ -1004,8 +1006,7 @@
                 (setf (clos::structure-effective-slot-definition-initff slot)
                       initfunctionform)
                 (when directslot
-                  (setf (clos::structure-direct-slot-definition-initff directslot)
-                        initfunctionform))))
+                  (setf (cdr directslot) initfunctionform))))
           slotdefaultslots slotdefaultdirectslots)
     ;; now, slotlist contains no more slotdefaultvars.
     `(EVAL-WHEN (LOAD COMPILE EVAL)
@@ -1037,9 +1038,9 @@
                  (LIST
                    ,@(mapcar #'(lambda (directslot)
                                  (clos::make-load-form-<structure-direct-slot-definition>
-                                   directslot
+                                   (car directslot)
                                    (let ((i (position directslot slotdefaultdirectslots)))
-                                     (if i (nth i slotdefaultvars) nil))))
+                                     (if i (nth i slotdefaultvars) (cdr directslot)))))
                              directslotlist)))
               `(CLOS::UNDEFINE-STRUCTURE-CLASS ',name)))
          ,@(if (and named-option predicate-option)

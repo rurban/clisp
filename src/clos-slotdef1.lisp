@@ -331,21 +331,14 @@
 (defvar <structure-direct-slot-definition> 'structure-direct-slot-definition)
 (defvar *<structure-direct-slot-definition>-defclass*
   '(defclass structure-direct-slot-definition (direct-slot-definition)
-     (($initff  :type t       :initarg initff)) ; init-function-fetcher
+     ()
      (:fixed-slot-locations t)))
 (defvar *<structure-direct-slot-definition>-class-version* (make-class-version))
 
-(defun structure-direct-slot-definition-initff (object)
-  (sys::%record-ref object 9))
-(defun (setf structure-direct-slot-definition-initff) (new-value object)
-  (setf (sys::%record-ref object 9) new-value))
-
 ;; Initialization of a <structure-direct-slot-definition> instance.
 (defun initialize-instance-<structure-direct-slot-definition> (slotdef &rest args
-                                                               &key ((initff initff) nil)
-                                                               &allow-other-keys)
+                                                               &key &allow-other-keys)
   (apply #'initialize-instance-<direct-slot-definition> slotdef args)
-  (setf (structure-direct-slot-definition-initff slotdef) initff)
   slotdef)
 
 ; ABI
@@ -355,7 +348,7 @@
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'make-instance later.
   (declare (ignore class))
-  (let ((slotdef (allocate-metaobject-instance *<structure-direct-slot-definition>-class-version* 10)))
+  (let ((slotdef (allocate-metaobject-instance *<structure-direct-slot-definition>-class-version* 9)))
     (apply #'initialize-instance-<structure-direct-slot-definition> slotdef args)))
 
 
@@ -514,7 +507,7 @@
        (LAMBDA () ,form))))
 
 ;; Needed by DEFSTRUCT.
-(defun make-load-form-<structure-direct-slot-definition> (object &optional local-initff)
+(defun make-load-form-<structure-direct-slot-definition> (object &optional initff)
   `(make-instance-<structure-direct-slot-definition>
     <structure-direct-slot-definition>
     :name               ',(slot-definition-name object)
@@ -529,11 +522,10 @@
                         ;; classes don't support class redefinition.
                         (make-inheritable-slot-definition-initer
                           ',(slot-definition-initform object)
-                          ,(or local-initff (structure-direct-slot-definition-initff object)))
+                          ,initff)
     'inheritable-doc    ',(slot-definition-inheritable-doc object)
     :readers            ',(slot-definition-readers object)
-    :writers            ',(slot-definition-writers object)
-    'initff             ',(structure-direct-slot-definition-initff object)))
+    :writers            ',(slot-definition-writers object)))
 
 ;; Needed by DEFSTRUCT.
 (defun make-load-form-<structure-effective-slot-definition> (object &optional local-initff)
