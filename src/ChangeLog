@@ -1,6 +1,12 @@
 2003-08-27  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.lisp: merged in signature emulation from e2d.c
+	* Makefile.devel (CONFIG_H_IN): added clx/new-clx/config.h.in
+	* modules/clx/new-clx/config.h.in: new file
+	* modules/clx/new-clx/Makefile.in: use modprep instead of e2d.c
+	* modules/clx/new-clx/e2d.c: removed
+	* modules/clx/new-clx/configure.in: check for XGetAtomNames()
+	* modules/clx/new-clx/clx.f: converted to standard C and modprep.lisp
 
 2003-08-27  John Hinsdale <hin@alma.com>
 	* modules/oracle/README, oracle.lisp - More documentation
