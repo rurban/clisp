@@ -1,4 +1,6 @@
 config.h
+minitests.out
+minitests.output.*
 tests.out
 tests.output.*
 vacall.h
