@@ -336,6 +336,7 @@
   /* #define HAVE_MMAP */
   #define HAVE_MUNMAP
   #define HAVE_WORKING_MPROTECT
+  #define MPROTECT_CONST
   #define MMAP_ADDR_T  void*
   #define MMAP_SIZE_T  DWORD
   #define off_t  _off_t
