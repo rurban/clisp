@@ -509,7 +509,8 @@
    <listitem><simpara>defines the &method-combination-t; class
   </simpara></listitem></varlistentry>
   <varlistentry><term><filename>clos-methcomb2.lisp</filename></term>
-   <listitem><simpara>implements the &define-method-combination; macro
+   <listitem><simpara>implements method combination (part 2 of generic
+     function dispatch and execution) and the &define-method-combination; macro
   </simpara></listitem></varlistentry>
   <varlistentry><term><filename>clos-methcomb3.lisp</filename></term>
    <listitem><simpara>defines &initialize-instance; methods for
