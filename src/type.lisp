@@ -31,6 +31,10 @@
     fun type
 ) )
 
+#+UNICODE
+; Return the character set of an encoding (a symbol or string).
+(defun encoding-charset (encoding) (sys::%record-ref encoding 3))
+
 ;===============================================================================
 
 ;;; TYPEP, CLTL S. 72, S. 42-51
@@ -847,14 +851,21 @@
         ))
         ((encodingp type)
          #+UNICODE
-           (case (sys::%record-ref type 3) ; encoding-charset
-             ((charset:unicode-16-big-endian charset:unicode-16-little-endian
-               charset:unicode-32-big-endian charset:unicode-32-little-endian
-               charset:utf-8 charset:java)
-              'CHARACTER
-             )
-             (t type)
-           )
+           (let ((charset (encoding-charset type)))
+             (case charset
+               ((charset:unicode-16-big-endian charset:unicode-16-little-endian
+                 charset:unicode-32-big-endian charset:unicode-32-little-endian
+                 charset:utf-8 charset:java)
+                'CHARACTER
+               )
+               (t
+                (if (and (stringp charset)
+                         (or (string= charset "UTF-16")
+                             (string= charset "UTF-7")
+                    )    )
+                  'CHARACTER
+                 type
+           ) ) ))
          #-UNICODE 'CHARACTER
         )
         (t (typespec-error 'subtypep type))
@@ -1149,8 +1160,6 @@
         (setf (gethash charset table)
               (charset-range (make-encoding :charset charset) (code-char 0) (code-char (1- char-code-limit)))
   ) )   )
-  ; Return the character set of an encoding (a symbol or string).
-  (defun encoding-charset (encoding) (sys::%record-ref encoding 3))
   ; Fill the cache, but cache only the results with small lists of intervals.
   ; Some iconv based encodings have large lists of intervals (up to 5844
   ; intervals for ISO-2022-JP-2) which are rarely used and not worth caching.

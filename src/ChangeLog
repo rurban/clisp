@@ -1,5 +1,10 @@
 2000-05-20  Bruno Haible  <haible@clisp.cons.org>
 
+        * type.lisp (canonicalize-type): Recognize the encodings UTF-16 and
+          UTF-7 as covering all of Unicode.
+
+2000-05-20  Bruno Haible  <haible@clisp.cons.org>
+
         * type.lisp (subtype-integer): Inline the canonicalize-type call.
 
 2000-05-20  Bruno Haible  <haible@clisp.cons.org>
