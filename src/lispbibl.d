@@ -20,7 +20,11 @@
      DYNAMIC_MODULES
    Safety level:
      SAFETY={0,1,2,3}
-     DEBUG_GCSAFETY
+   Debugging (turned on by --with-debug configure option):
+     DEBUG_GCSAFETY (requires G++)
+     DEBUG_OS_ERROR
+     DEBUG_SPVW
+     DEBUG_BYTECODE
  Flags that may be set through CFLAGS, in order to override the defaults:
    Object representation (on 32-bit platforms only):
      TYPECODES, NO_TYPECODES, WIDE
