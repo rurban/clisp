@@ -1,3 +1,10 @@
+2002-06-26  Sam Steingold  <sds@gnu.org>
+
+	* m4/general.m4 (CL_CANONICAL_HOST_CPU)
+	(CL_CANONICAL_HOST_CPU_FOR_FFCALL): handle hppa64
+	the same way as hppa1 and hppa2
+	Suggested by Will Newton <will@misconception.org.uk>
+
 2002-06-25  Sam Steingold  <sds@gnu.org>
 
 	memcpy() & begin/end_system_call() cleanup
