@@ -988,7 +988,10 @@ global Values coerce_sequence (object sequence, object result_type) {
   pushSTACK(sequence);
   pushSTACK(result_type);
   { # check result-type:
-    var object typdescr2 = valid_type(result_type);
+    var object typdescr2 = valid_type1(result_type);
+    if (eq(NIL,typdescr2)) { # result_type is not a sequence
+      value1 = nullobj; mv_count = 1; skipSTACK(1); return;
+    }
     pushSTACK(typdescr2);
     # Stackaufbau: seq1, result-type, typdescr2-len, typdescr2.
     { var object typdescr1 = get_valid_seq_type(STACK_3); # Typ von seq1
