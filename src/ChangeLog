@@ -1,5 +1,10 @@
 2004-09-17  Bruno Haible  <bruno@clisp.org>
 
+	* clos-genfun4.lisp (shared-initialize@generic-function): New method.
+	(shared-initialize@standard-generic-function): Accept :declare too.
+
+2004-09-17  Bruno Haible  <bruno@clisp.org>
+
 	* clos-class3.lisp (define-structure-class): No need to fmakunbound.
 
 2004-09-17  Bruno Haible  <bruno@clisp.org>
