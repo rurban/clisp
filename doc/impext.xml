@@ -812,6 +812,8 @@ localized.</para>
 </section>
 
 <section id="enc-charset"><title>Function &enc-charset;.</title>
+<subtitle>Platform dependent: Only in &clisp; built
+ &with; compile-time flag &unicode;.</subtitle>
 
 <para>The function <literal role="sexp">(&enc-charset; &encoding-r;)</literal>
  returns the charset of the &encoding-r;, as a &symbol-t; or a &string-t;.
