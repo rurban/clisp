@@ -1,5 +1,14 @@
 2005-01-22  Bruno Haible  <bruno@clisp.org>
 
+	* compiler.lisp: Fix comments that confused the seclass of an anode
+	with the seclass of a function.
+	(declared-optimize): New function.
+	(f-side-effect): If SAFETY = 3, assume the worst.
+	(c-GLOBAL-FUNCTION-CALL): Likewise.
+	Found by Paul Dietz's ansi-tests test suite.
+
+2005-01-22  Bruno Haible  <bruno@clisp.org>
+
 	* compiler.lisp (c-TEST/TEST-NOT): Rewrite. Fixes multiple invalid
 	optimizations.
 	Found by Paul Dietz's ansi-tests test suite.
