@@ -4429,9 +4429,9 @@ functions are provided:</para>
 
 <para>The &format; instruction &format-w; is similar to &format-a; and
  &format-s;, but avoids binding of &print-escape-var;.
- <literal role="sexp">(&format; &stream-k; "~W" &object-r;)</literal> is
- equivalent to <literal role="sexp">(&write; &object-r; :stream
- &stream-k;)</literal>.</para>
+ <literal role="sexp">(&format; &stream-r; "~W" &object-r;)</literal> is
+ equivalent to <literal role="sexp">(&write; &object-r; &stream-k;
+ &stream-r;)</literal>.</para>
 
 <para>The &format; instruction <emphasis
  role="strong"><literal>~!</literal></emphasis> is similar to
@@ -4439,9 +4439,9 @@ functions are provided:</para>
  Thus, even if the function is not interned in the &clu-pac; package,
  you might not need to specify the package.</para>
 
-<para><literal role="sexp">(&format; &stream-k; "~args!" &func-r;
+<para><literal role="sexp">(&format; &stream-r; "~args!" &func-r;
  &object-r;)</literal> is equivalent to <literal role="sexp">(&funcall;
- &func-r; &stream-k; &object-r;
+ &func-r; &stream-r; &object-r;
  <replaceable>colon-modifier-p</replaceable>
  <replaceable>atsign-modifier-p</replaceable>
  <replaceable>args</replaceable>)</literal>.</para>
