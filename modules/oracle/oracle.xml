@@ -572,7 +572,7 @@ SQL*Plus application to test your environment
 At a minimum you will need to set environment variables
 <envar>ORACLE_HOME</envar> to the &oracle-link; base directory and
 <envar>LD_LIBRARY_PATH</envar> to include
-<literal>$<envar>ORACLE_HOME<envar>/lib</literal> and possibly other
+<literal>$<envar>ORACLE_HOME</envar>/lib</literal> and possibly other
 directories.</para>
 
 </section>
