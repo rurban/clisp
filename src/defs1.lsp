@@ -152,6 +152,7 @@
 ;;; Konstanten für Zeichen (Kapitel 13)
 
 (defconstant char-code-limit 256)
+(defconstant base-char-code-limit 256) ; CLISP specific
 
 
 ;;; Funktionen für Sequences (Kapitel 14)

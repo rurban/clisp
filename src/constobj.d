@@ -255,6 +255,9 @@
   LISPOBJ(class_t,"T")                     #    |
   LISPOBJ(class_vector,"VECTOR")           # ---+
   LISPOBJ(type_designator_character,"(DESIGNATOR CHARACTER)")
+  #if (base_char_code_limit < char_code_limit)
+  LISPOBJ(type_designator_base_char,"(DESIGNATOR BASE-CHAR)")
+  #endif
   LISPOBJ(type_designator_function,"(OR FUNCTION SYMBOL (CONS (EQL SETF) (CONS SYMBOL NULL)) (CONS (EQL LAMBDA)))")
   # Upper bound for the number of structure classes present in the system:
   LISPOBJ(structure_class_count_max,"0")

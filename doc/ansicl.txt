@@ -27,28 +27,28 @@
 ; BUTLAST-NEGATIVE:SHOULD-SIGNAL                             yes
 ; CHANGE-CLASS-INITARGS:PERMIT                               no
 ; CHAR-NAME-CASE:X3J13-MAR-91                                yes
-; CHARACTER-LOOSE-ENDS:FIX                                   no
-; CHARACTER-PROPOSAL:2                                       no
-; CHARACTER-PROPOSAL:2-1-1                                   no
-; CHARACTER-PROPOSAL:2-1-2                                   no
-; CHARACTER-PROPOSAL:2-2-1                                   no
-; CHARACTER-PROPOSAL:2-3-1                                   no
-; CHARACTER-PROPOSAL:2-3-2                                   no
-; CHARACTER-PROPOSAL:2-3-3                                   no
-; CHARACTER-PROPOSAL:2-3-4                                   no
-; CHARACTER-PROPOSAL:2-3-5                                   no
-; CHARACTER-PROPOSAL:2-3-6                                   no
-; CHARACTER-PROPOSAL:2-4-1                                   no
-; CHARACTER-PROPOSAL:2-4-2                                   no
-; CHARACTER-PROPOSAL:2-4-3                                   no
-; CHARACTER-PROPOSAL:2-5-2                                   no
-; CHARACTER-PROPOSAL:2-5-6                                   no
-; CHARACTER-PROPOSAL:2-5-7                                   no
-; CHARACTER-PROPOSAL:2-6-1                                   no
-; CHARACTER-PROPOSAL:2-6-2                                   no
-; CHARACTER-PROPOSAL:2-6-3                                   no
-; CHARACTER-PROPOSAL:2-6-5                                   no
-; CHARACTER-VS-CHAR:LESS-INCONSISTENT-SHORT                  no
+; CHARACTER-LOOSE-ENDS:FIX                                   yes
+; CHARACTER-PROPOSAL:2                                       yes
+; CHARACTER-PROPOSAL:2-1-1                                   yes
+; CHARACTER-PROPOSAL:2-1-2                                   yes
+; CHARACTER-PROPOSAL:2-2-1                                   yes
+; CHARACTER-PROPOSAL:2-3-1                                   yes
+; CHARACTER-PROPOSAL:2-3-2                                   yes
+; CHARACTER-PROPOSAL:2-3-3                                   yes
+; CHARACTER-PROPOSAL:2-3-4                                   yes
+; CHARACTER-PROPOSAL:2-3-5                                   yes
+; CHARACTER-PROPOSAL:2-3-6                                   yes
+; CHARACTER-PROPOSAL:2-4-1                                   yes
+; CHARACTER-PROPOSAL:2-4-2                                   yes
+; CHARACTER-PROPOSAL:2-4-3                                   yes
+; CHARACTER-PROPOSAL:2-5-2                                   yes
+; CHARACTER-PROPOSAL:2-5-6                                   yes
+; CHARACTER-PROPOSAL:2-5-7                                   yes
+; CHARACTER-PROPOSAL:2-6-1                                   yes
+; CHARACTER-PROPOSAL:2-6-2                                   yes
+; CHARACTER-PROPOSAL:2-6-3                                   yes
+; CHARACTER-PROPOSAL:2-6-5                                   yes
+; CHARACTER-VS-CHAR:LESS-INCONSISTENT-SHORT                  yes
 ; CLASS-OBJECT-SPECIALIZER:AFFIRM                            yes
 ; CLOS-CONDITIONS-AGAIN:ALLOW-SUBSET                         yes
 ; CLOS-CONDITIONS:INTEGRATE                                  yes
@@ -208,7 +208,7 @@
 ; JUN90-TRIVIAL-ISSUES:9                                     yes
 ; JUN90-TRIVIAL-ISSUES:11                                    yes
 ; JUN90-TRIVIAL-ISSUES:14                                    yes
-; JUN90-TRIVIAL-ISSUES:24                                    no
+; JUN90-TRIVIAL-ISSUES:24                                    yes
 ; JUN90-TRIVIAL-ISSUES:25                                    yes
 ; JUN90-TRIVIAL-ISSUES:27                                    no
 ; KEYWORD-ARGUMENT-NAME-PACKAGE:ANY                          no
@@ -325,7 +325,7 @@
 ; SPECIAL-FORM-P-MISNOMER:RENAME                             yes
 ; SPECIAL-TYPE-SHADOWING:CLARIFY                             yes
 ; STANDARD-INPUT-INITIAL-BINDING:DEFINED-CONTRACTS           yes
-; STANDARD-REPERTOIRE-GRATUITOUS:RENAME                      no
+; STANDARD-REPERTOIRE-GRATUITOUS:RENAME                      yes
 ; STEP-ENVIRONMENT:CURRENT                                   yes
 ; STEP-MINIMAL:PERMIT-PROGN                                  yes
 ; STREAM-ACCESS:ADD-TYPES-ACCESSORS                          yes
@@ -375,8 +375,6 @@
 ; *PRINT-MISER-WIDTH*
 ; *PRINT-PPRINT-DISPATCH*
 ; ALLOCATE-INSTANCE
-; BASE-CHAR
-; BASE-STRING
 ; CALL-METHOD
 ; CHANGE-CLASS
 ; COMPILER-MACRO
@@ -385,8 +383,6 @@
 ; DEFINE-COMPILER-MACRO
 ; DEFINE-METHOD-COMBINATION
 ; ENSURE-GENERIC-FUNCTION
-; EXTENDED-CHAR
-; FILE-STRING-LENGTH
 ; INVALID-METHOD-ERROR
 ; MAKE-INSTANCES-OBSOLETE
 ; MAKE-LOAD-FORM
@@ -405,9 +401,7 @@
 ; PPRINT-TAB
 ; PPRINT-TABULAR
 ; SET-PPRINT-DISPATCH
-; SIMPLE-BASE-STRING
 ; SIMPLE-CONDITION-FORMAT-CONTROL
-; STREAM-EXTERNAL-FORMAT
 ; STYLE-WARNING
 ; UNBOUND-SLOT
 ; UNBOUND-SLOT-INSTANCE

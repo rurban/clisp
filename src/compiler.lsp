@@ -2384,10 +2384,11 @@ der Docstring (oder NIL).
     ignore optimize dynamic-extent ; Compiler-Hinweise
     declaration ; Zusatzdeklarationen
     ; Typen nach Tabelle 4-1 :
-    array atom bignum bit bit-vector boolean character common compiled-function
-    complex cons double-float fixnum float function hash-table integer keyword
-    list long-float nil null number package pathname random-state ratio rational
-    readtable real sequence short-float simple-array simple-bit-vector
+    array atom base-char base-string bignum bit bit-vector boolean character
+    common compiled-function complex cons double-float extended-char fixnum
+    float function hash-table integer keyword list long-float nil null number
+    package pathname random-state ratio rational readtable real sequence
+    short-float simple-array simple-base-string simple-bit-vector
     simple-string simple-vector single-float standard-char stream string
     string-char symbol t vector
     ; zusätzliche Deklarationen:
@@ -8353,6 +8354,7 @@ der Docstring (oder NIL).
 (defconstant c-typep-alist1
   '((ARRAY . arrayp)
     (ATOM . atom)
+    (BASE-STRING . stringp)
     (BIT-VECTOR . bit-vector-p)
     (CHARACTER . characterp)
     (COMMON . commonp)
@@ -8382,6 +8384,7 @@ der Docstring (oder NIL).
     (SEQUENCE . sys::sequencep)
     (SHORT-FLOAT . short-float-p)
     (SIMPLE-ARRAY . sys::simple-array-p)
+    (SIMPLE-BASE-STRING . simple-string-p)
     (SIMPLE-BIT-VECTOR . simple-bit-vector-p)
     (SIMPLE-STRING . simple-string-p)
     (SIMPLE-VECTOR . simple-vector-p)
@@ -8403,9 +8406,11 @@ der Docstring (oder NIL).
     (VECTOR . vectorp)
 )  )
 (defconstant c-typep-alist2
-  '((BIGNUM . ((x) (and (integerp x) (not (fixnump x)))))
+  '((BASE-CHAR . ((x) (and (characterp x) (base-char-p x))))
+    (BIGNUM . ((x) (and (integerp x) (not (fixnump x)))))
     (BIT . ((x) (or (eql x 0) (eql x 1))))
     (BOOLEAN . ((x) (or (eq x 'nil) (eq x 't))))
+    (EXTENDED-CHAR . ((x) (and (characterp x) (not (base-char-p x)))))
     (NIL . ((x) (declare (ignore x)) nil))
     (RATIO . ((x) (and (rationalp x) (not (integerp x)))))
     (STANDARD-CHAR . ((x) (and (characterp x) (standard-char-p x))))
@@ -8571,6 +8576,8 @@ der Docstring (oder NIL).
     (LONG-FLOAT . ,(c-typep-number 'LONG-FLOAT 'LONG-FLOAT-P))
     (STRING . ,(c-typep-vector 'STRINGP))
     (SIMPLE-STRING . ,(c-typep-vector 'SIMPLE-STRING-P))
+    (BASE-STRING . ,(c-typep-vector 'STRINGP))
+    (SIMPLE-BASE-STRING . ,(c-typep-vector 'SIMPLE-STRING-P))
     (BIT-VECTOR . ,(c-typep-vector 'BIT-VECTOR-P))
     (SIMPLE-BIT-VECTOR . ,(c-typep-vector 'SIMPLE-BIT-VECTOR-P))
     (CONS .

@@ -1,3 +1,27 @@
+1998-11-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d (base_char_int_len, base_char_int_limit, bcint,
+          base_char_code_limit, base_char_p): New definitions.
+        * charstrg.d (SYS::BASE-CHAR-P): New function.
+        * predtype.d (TYPE-OF): May return [SIMPLE-]BASE-STRING instead of
+          [SIMPLE-]STRING, and BASE-CHAR instead of CHARACTER.
+          (COERCE): Treat BASE-CHAR, BASE-STRING, SIMPLE-BASE-STRING.
+        * sequence.d (valid_type): Treat BASE-STRING, SIMPLE-BASE-STRING.
+        * defs1.lsp (base-char-code-limit): Define.
+        * defs2.lsp (designator): Recognize (DESIGNATOR BASE-CHAR).
+        * type.lsp: New types BASE-CHAR, EXTENDED-CHAR, BASE-STRING,
+          SIMPLE-BASE-STRING.
+          (canonicalize-type): Force STANDARD-CHAR to be a subtype of
+          BASE-CHAR.
+        * compiler.lsp (*declaration-types*): Add base-char, base-string,
+          extended-char, simple-base-string.
+          (c-typep-alist1): Add base-string, simple-base-string.
+          (c-typep-alist2): Add base-char, extended-char.
+          (c-typep-alist3): Add base-string, simple-base-string.
+        * init.lsp: Export base-char, base-string, extended-char,
+          simple-base-string.
+        * defs3.lsp: Likewise.
+
 1998-11-05  Sam Steingold  <sds@goems.com>
 
         * loop.lsp (expand-loop): allow `by' to precede `upto' &c.

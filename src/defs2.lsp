@@ -595,7 +595,7 @@
 ; glossary.
 ;
 ; bounding index sequence    (START-INDEX sequence), (END-INDEX sequence)
-; character                  CHARACTER
+; character                  CHARACTER, BASE-CHAR
 ; class                      CLASS
 ; condition                  ---
 ; extended function          EXTENDED-FUNCTION
@@ -624,6 +624,11 @@
              `(OR CHARACTER
                   ,@(if (not *ansi*) `((INTEGER 0 ,(1- char-code-limit))))
                   (DESIGNATOR (STRING 1))
+           )  )
+           (BASE-CHAR
+             `(OR BASE-CHAR
+                  ,@(if (not *ansi*) `((INTEGER 0 ,(1- base-char-code-limit))))
+                  (AND (DESIGNATOR (STRING 1)) (SATISFIES BASE-CHAR-DESIGNATOR-P))
            )  )
 ;          (CLASS `(OR CLOS:CLASS (AND SYMBOL (SATISFIES CLASS-DESIGNATOR-P))))
 ;          (EXTENDED-FUNCTION
@@ -691,6 +696,10 @@
         ))
         (t (typespec-error 'designator thing))
 ) )
+
+(defun base-char-designator-p (obj)
+  (base-char-p (char (coerce obj 'string) 0))
+)
 
 ;(defun class-designator-p (sym &aux f)
 ;  (and (setq f (get sym 'CLOS::CLOSCLASS))
