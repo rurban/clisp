@@ -29,11 +29,12 @@ files <filename>#P"spvw*.d"</filename>.</para>
   &malloc;ed memory)</simpara></listitem>
 </itemizedlist>
 
-<para>A &clisp; object is one word, containing a tag (partial type
-information) and either immediate data (e.g. fixnums or short floats) or
-a pointer to storage.  Pointers to &c-lang; data have tag = machine_type
-= 0, pointers to &clisp; stack have tag = system_type, most other pointers
-point to &clisp; data.</para>
+<para>A &clisp; object is one word, containing a tag
+ (partial type information) and either immediate data
+ (e.g. &fixnum-t;s or &short-float-t;s) or a pointer to storage.
+Pointers to &c-lang; data have tag = machine_type = 0,
+pointers to &clisp; stack have tag = system_type,
+most other pointers point to &clisp; data.</para>
 
 <para>Let us turn to these &clisp; objects that consume regular &clisp;
 memory.  Every &clisp; object has a size which is determined when the
@@ -50,8 +51,8 @@ All other &clisp; objects have "varying length" (more precisely,
 not a fixed length) and include a word for garbage collection purposes
 at their beginning.</para>
 
-<para>The garbage collector is invoked when an
-<function>allocate_*()</function> request cannot be fulfilled.
+<para>The garbage collector is invoked by
+ <function>allocate_*()</function> calls according to certain heuristics.
 It marks all objects which are "live" (may be reached from the "roots"),
 compacts these objects and unmarks them.  Non-live objects are lost;
 their storage is reclaimed.</para>
@@ -202,7 +203,7 @@ operating system and is determined at build time.</para>
 only object carried by its pages.
 There are no small objects in pages belonging to a big object.</para>
 
-<para>The following combinations of memory model and mmap tricks are
+<para>The following combinations of memory model and &mmap; tricks are
 possible:</para>
 
 <table id="mem-models-comb-typecodes" frame="all">
@@ -297,7 +298,7 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 <para>In the rare cases when you really need to modify &clisp;
  internals and add a truly built-in function, you should read the
  &clisp; sources for inspiration and enlightenment, choose a file where
- your brand new built-in function should go to, and then ...
+ your brand-new built-in function should go to, and then ...
  <itemizedlist><listitem><simpara>add the <function>LISPFUN</function>
     form and the implementation there;</simpara></listitem>
   <listitem><simpara>add the <function>LISPFUN</function> header to
@@ -403,7 +404,7 @@ of this approach, compared to native code compilation, are:
    &clos; generic functions, which needs to compile small pieces of
    generated code, is not perceived to be slow.</simpara></listitem>
   <listitem><simpara>The compiler is independent from the hardware CPU.
-   Different backends, one for each hardware CPU, are not needed.  As a
+   Different back-ends, one for each hardware CPU, are not needed.  As a
    consequence, the compiler is fairly small (and would have been easily
    maintainable if it were written in a less kludgey way...), and it is
    impossible for the compiler writer to introduce CPU dependent bugs.
@@ -1323,10 +1324,10 @@ letters:
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(NOT)</literal></entry>
-      <entry>Inlined call to NOT.</entry>
+      <entry>Inlined call to &not;.</entry>
       <entry>&value1; := not(&value1;), &mv-count; := 1.</entry></row>
  <row><entry><literal role="sexp">(EQ)</literal></entry>
-      <entry>Inlined call to EQ.</entry>
+      <entry>Inlined call to &eq;.</entry>
       <entry>&value1; := eq(*&STACK;++,&value1;),
              &mv-count; := 1.</entry></row>
  <row><entry><literal role="sexp">(CAR)</literal></entry>
