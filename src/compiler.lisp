@@ -2060,7 +2060,7 @@ for-value   NIL or T
                 ;; no local definition --> expand-compiler-macro
                 (let ((handler
                        (gethash (setq *form* (expand-compiler-macro *form*)
-                                      fun (car *form*))
+                                      fun (and (consp *form*) (car *form*)))
                                 c-form-table)))
                   (if handler ; found handler function?
                     ;; ==> (symbolp fun) = T
