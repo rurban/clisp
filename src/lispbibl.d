@@ -4722,6 +4722,9 @@ typedef struct {
   (weakkvtp(TheHashtable(ht)->ht_kvtable) ? true :              \
    simple_vector_p(TheHashtable(ht)->ht_kvtable) ? false :      \
    (NOTREACHED, false))
+#define ht_weak(ht)                                             \
+  (weakkvtp(TheHashtable(ht)->ht_kvtable)                       \
+   ? TheWeakKVT(TheHashtable(ht)->ht_kvtable)->wkvt_type : (gcv_object_t)NIL)
 # get the kvtable data array
 #define kvtable_data(kvt)                         \
   (weakkvtp(kvt) ? TheWeakKVT(kvt)->data :        \
@@ -4948,10 +4951,11 @@ typedef struct {
 typedef struct {
   LRECORD_HEADER
   gcv_object_t wkvt_cdr;          # active weak-kvts form a chained list
+  gcv_object_t wkvt_type;       /* :KEY :VALUE or :BOTH */
   gcv_object_t data[unspecified]; # elements
 } weakkvt_t;
 typedef weakkvt_t* WeakKVT;
-# Both wkvt_cdr and data are invisible to gc_mark routines.
+# both wkvt_cdr, wkvt_type and data are invisible to gc_mark routines.
 #define weakkvt_non_data ((offsetofa(weakkvt_t,data)-offsetof(weakkvt_t,wkvt_cdr))/sizeof(gcv_object_t))
 #define Weakkvt_length(obj)   (Sarray_length(obj)-weakkvt_non_data)
 
@@ -8370,7 +8374,7 @@ extern object allocate_weakpointer (object obj);
 # > len:    the length of the data vector
 # < result: a fresh weak key-value table
 # can trigger GC
-extern object allocate_weakkvt (uintL len);
+extern object allocate_weakkvt (uintL len, gcv_object_t type);
 # is used by hashtable.d
 
 # UP: allocates finalizer

@@ -1,9 +1,9 @@
 ;; -*- Lisp -*-
 
 (hash-table-weak-p
- (setq tab (make-hash-table :weak t :test 'equal :initial-contents
+ (setq tab (make-hash-table :weak :key :test 'equal :initial-contents
                             '((1 . 2) ("foo" . "bar")))))
-t
+:key
 
 (gethash 1 tab)
 2
@@ -53,11 +53,38 @@ t
 (gethash "foo" tab)
 "bar"
 
-(setf (hash-table-weak-p tab) t)
-t
+(setf (hash-table-weak-p tab) :key)
+:key
 
 (progn (gc) t)
 t
 
 (gethash "foo" tab)
 nil
+
+(setf (hash-table-weak-p tab) :value) :value
+(setf (gethash "foo" tab) 1) 1
+(setf (gethash 1 tab) "bar") "bar"
+(setf (gethash "zoo" tab) "zot") "zot"
+(progn (gc) t) t
+(gethash "foo" tab) 1
+(gethash 1 tab) nil
+(gethash "zoo" tab) nil
+
+(setf (hash-table-weak-p tab) :either) :either
+(setf (gethash "foo" tab) 1) 1
+(setf (gethash 1 tab) "bar") "bar"
+(setf (gethash "zoo" tab) "zot") "zot"
+(progn (gc) t) t
+(gethash "foo" tab) nil
+(gethash 1 tab) nil
+(gethash "zoo" tab) nil
+
+(setf (hash-table-weak-p tab) :both) :both
+(setf (gethash "foo" tab) 1) 1
+(setf (gethash 1 tab) "bar") "bar"
+(setf (gethash "zoo" tab) "zot") "zot"
+(progn (gc) t) t
+(gethash "foo" tab) 1
+(gethash 1 tab) "bar"
+(gethash "zoo" tab) nil

@@ -2456,11 +2456,19 @@ and &end-k;:</para>
  &alist; that is used to initialize the new hash table.
  The <constant>:rehash-threshold</constant> argument is ignored.</para>
 
-<para>The boolean <constant>:weak</constant> argument defaults to &nil;
+<para>The <constant>:WEAK</constant> can take the following values:
+ <simplelist columns="1">
+ <member>&nil; (default)</member>
+ <member>&key-k;</member>
+ <member><constant>VALUE</constant></member>
+ <member><constant>EITHER</constant></member>
+ <member><constant>BOTH</constant></member>
+</simplelist>
 and specifies whether the &hash-table-t; is <emphasis>weak</emphasis>:
-the key is not considered accessible for the &gc;ion purposes, i.e., if
-it is only accessible in the weak &hash-table-t;, it is &gc;ed and
-removed from the weak &hash-table-t;.</para>
+if the key, value, either or both are not accessible for the &gc;ion
+purposes, i.e., if they are only accessible via weak &hash-table-t;s
+and &weak-pointer;s, it is &gc;ed and removed from the weak
+&hash-table-t;.</para>
 
 <para>The &setf;able predicate <function>EXT:HASH-TABLE-WEAK-P</function>
 checks whether the &hash-table-t; is weak.</para>

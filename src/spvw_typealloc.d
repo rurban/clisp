@@ -97,16 +97,17 @@ global object allocate_vector (uintL len) {
 # > len:    the length of the data vector
 # < result: a fresh weak key-value table
 # can trigger GC
-local inline object allocate_weakkvt_low (uintL len) {
-  var uintL need = size_svector(len+1);
+local inline object allocate_weakkvt_low (uintL len, gcv_object_t type) {
+  var uintL need = size_svector(len+weakkvt_non_data);
  #ifdef TYPECODES
-  #define SETTFL  ptr->length = len+1
+  #define SETTFL  ptr->length = len+weakkvt_non_data
  #else
-  #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_WeakKVT,len+1)
+  #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_WeakKVT,len+weakkvt_non_data)
  #endif
   allocate(weakkvt_type,true,need,WeakKVT,ptr,{
     SETTFL;
     ptr->wkvt_cdr = O(all_weakkvtables);
+    ptr->wkvt_type = type;
     if (len > 0) {
       var gcv_object_t* p = ptr->data;
       dotimespL(len,len, { *p++ = unbound; } );
@@ -114,8 +115,8 @@ local inline object allocate_weakkvt_low (uintL len) {
   });
  #undef SETTFL
 }
-global object allocate_weakkvt (uintL len) {
-  return O(all_weakkvtables) = allocate_weakkvt_low(len);
+global object allocate_weakkvt (uintL len, gcv_object_t type) {
+  return O(all_weakkvtables) = allocate_weakkvt_low(len,type);
 }
 
 # Function: Allocates a bit/byte vector.
