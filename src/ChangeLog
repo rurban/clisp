@@ -1,5 +1,10 @@
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (alignof): With g++, use the builtin __alignof__. This
+	avoids an error in alignof(jmp_buf) on FreeBSD that occurred because
+	jmp_buf is defined using an anonymous struct type which makes jmp_buf
+	not suitable as a template argument.
+
 	* spvw_garcol.d (gc_mark): Add DEBUG_GC_MARK debugging facility.
 
 	* lispbibl.d (simple_array_to_storage, simple_array_to_storage1):
