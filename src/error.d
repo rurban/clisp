@@ -638,7 +638,7 @@ LISPFUNN(invoke_debugger,1)
 
 # UP: Führt eine Break-Schleife wegen Tastaturunterbrechung aus.
 # > STACK_0 : aufrufende Funktion
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   global void tast_break (void);
   global void tast_break()
     {

@@ -418,8 +418,8 @@
     var object x;
     {
       if (R_minusp(x)) {
-        pushSTACK(x); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(x); # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(x);
         pushSTACK(S(isqrt));
         fehler(type_error,

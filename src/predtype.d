@@ -1919,8 +1919,8 @@ LISPFUN(find_class,1,2,norest,nokey,0,NIL)
 # ) ) )
   {
     if (!symbolp(STACK_2)) {
-      pushSTACK(STACK_2); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_2); # TYPE-ERROR slot DATUM
+      pushSTACK(S(symbol)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_(2+2));
       pushSTACK(S(find_class));
       fehler(type_error,
@@ -2014,8 +2014,8 @@ LISPFUNN(coerce,2)
          ) { # result-type = CHARACTER oder STRING-CHAR [oder BASE-CHAR] ?
         var object as_char = coerce_char(STACK_1); # object in Character umzuwandeln versuchen
         if (nullp(as_char)) {
-          pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_designator_character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
+          pushSTACK(O(type_designator_character)); # TYPE-ERROR slot EXPECTED-TYPE
           goto fehler_object;
         }
         value1 = as_char; mv_count=1; skipSTACK(2); return;
@@ -2024,8 +2024,8 @@ LISPFUNN(coerce,2)
       if (eq(result_type,S(base_char))) { # result-type = BASE-CHAR ?
         var object as_char = coerce_char(STACK_1); # object in Character umzuwandeln versuchen
         if (!base_char_p(as_char)) {
-          pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_designator_base_char)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
+          pushSTACK(O(type_designator_base_char)); # TYPE-ERROR slot EXPECTED-TYPE
           goto fehler_object;
         }
         value1 = as_char; mv_count=1; skipSTACK(2); return;
@@ -2044,8 +2044,8 @@ LISPFUNN(coerce,2)
       }
       if (eq(result_type,S(complex))) { # COMPLEX ?
         if (!numberp(STACK_1)) { # object muss eine Zahl sein
-          pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(S(number)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
+          pushSTACK(S(number)); # TYPE-ERROR slot EXPECTED-TYPE
           goto fehler_object;
         }
         goto return_object;
@@ -2065,8 +2065,8 @@ LISPFUNN(coerce,2)
           skipSTACK(2); return;
         }
         if (!(consp(fun) && eq(Car(fun),S(lambda)))) { # object muss ein Lambda-Ausdruck sein
-          pushSTACK(fun); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_designator_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(fun); # TYPE-ERROR slot DATUM
+          pushSTACK(O(type_designator_function)); # TYPE-ERROR slot EXPECTED-TYPE
           goto fehler_object;
         }
         # leeres Environment für get_closure:
@@ -2134,8 +2134,8 @@ LISPFUNN(coerce,2)
         # (TYPEP new-object result-type) abfragen:
         pushSTACK(value1); pushSTACK(STACK_(0+1+1)); funcall(S(typep),2);
         if (nullp(value1)) {
-          # STACK_0 = new-object, Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(STACK_(0+1)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          # STACK_0 = new-object, TYPE-ERROR slot DATUM
+          pushSTACK(STACK_(0+1)); # TYPE-ERROR slot EXPECTED-TYPE
           goto fehler_object;
         } else {
           value1 = STACK_0; mv_count=1; skipSTACK(3); return; # new-object
@@ -2162,8 +2162,8 @@ LISPFUNN(coerce,2)
       }
       if (eq(type,S(complex))) { # COMPLEX ?
         if (!numberp(STACK_1)) { # object muss eine Zahl sein
-          pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(S(number)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
+          pushSTACK(S(number)); # TYPE-ERROR slot EXPECTED-TYPE
           goto fehler_object;
         }
         if (!mconsp(Cdr(result_type))) goto fehler_type; # (rest result-type) muss ein Cons sein

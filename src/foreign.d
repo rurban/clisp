@@ -801,7 +801,6 @@ local bool blockzerop(ptr,size)
 # can trigger GC
 global object convert_from_foreign (object fvd, const void* data);
   # Allocate an array corresponding to a foreign array.
-  # kann GC auslösen
   local object convert_from_foreign_array_alloc (object dims, object eltype);
   local object convert_from_foreign_array_alloc(dims,eltype)
     var object dims;

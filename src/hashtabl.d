@@ -1141,8 +1141,8 @@
         return maxcountL;
       }
      fehler_maxcount: # maxcount kein Fixnum oder zu groß
-      pushSTACK(maxcount); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_hashtable_size)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(maxcount); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_hashtable_size)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(maxcount);
       fehler(type_error,
              GETTEXT("Hash table size ~ too large")
@@ -1297,8 +1297,8 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
       elif (eq(test,S(equalp)) || eq(test,L(equalp)))
         flags = bit(3); # EQUALP
       else {
-        pushSTACK(test); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_hashtable_test)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(test); # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_hashtable_test)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(test);
         pushSTACK(S(make_hash_table));
         fehler(type_error,
@@ -1314,8 +1314,8 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
         STACK_2 = Fixnum_1; # 1 als Default
       } else {
         if (!posfixnump(size)) {
-          pushSTACK(size); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(size); # TYPE-ERROR slot DATUM
+          pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(size);
           pushSTACK(S(make_hash_table));
           fehler(type_error,
@@ -1337,8 +1337,8 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
         if (!floatp(STACK_1)) { # Float ist OK
           if (!posfixnump(STACK_1)) { # sonst sollte es ein Fixnum >=0 sein
            fehler_rehash_size:
-            pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-            pushSTACK(O(type_hashtable_rehash_size)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+            pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
+            pushSTACK(O(type_hashtable_rehash_size)); # TYPE-ERROR slot EXPECTED-TYPE
             pushSTACK(STACK_(1+2));
             pushSTACK(S(make_hash_table));
             fehler(type_error,
@@ -1382,8 +1382,8 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
       if (!eq(rehash_threshold,unbound)) { # nicht angegeben -> OK
         if (!floatp(rehash_threshold)) {
          fehler_rehash_threshold:
-          # Argument bereits in STACK_0, Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_hashtable_rehash_threshold)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          # Argument already in STACK_0, TYPE-ERROR slot DATUM
+          pushSTACK(O(type_hashtable_rehash_threshold)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(STACK_1);
           pushSTACK(S(make_hash_table));
           fehler(type_error,
@@ -1501,8 +1501,8 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
   local void fehler_hashtable(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(hash_table)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(hash_table)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,

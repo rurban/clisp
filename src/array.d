@@ -465,8 +465,8 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
   nonreturning_function(local, fehler_index_type, (void));
   local void fehler_index_type()
     {
-      pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_array_index)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_array_index)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_(1+2));
       pushSTACK(STACK_(0+3));
       pushSTACK(TheSubr(subr_self)->name);
@@ -484,10 +484,10 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
     var uintL bound;
     {
       var object tmp;
-      pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
       pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(bound));
       tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-      pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_(1+2));
       pushSTACK(STACK_(0+3));
       pushSTACK(TheSubr(subr_self)->name);
@@ -589,8 +589,8 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
     var object value;
     {
       pushSTACK(array);
-      pushSTACK(value); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(array_element_type(array)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(value); # TYPE-ERROR slot DATUM
+      pushSTACK(array_element_type(array)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_(0+2)); # array
       pushSTACK(STACK_2); # value
       pushSTACK(TheSubr(subr_self)->name);
@@ -904,11 +904,11 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
     }
    fehler_axis:
     pushSTACK(array);
-    pushSTACK(axis_number); # Wert für Slot DATUM von TYPE-ERROR
+    pushSTACK(axis_number); # TYPE-ERROR slot DATUM
     {
       var object tmp;
       pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(arrayrank(array));
-      tmp = listof(1); pushSTACK(tmp); tmp = listof(3); pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      tmp = listof(1); pushSTACK(tmp); tmp = listof(3); pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
     }
     pushSTACK(STACK_2); # array
     pushSTACK(STACK_2); # axis_number
@@ -1120,8 +1120,8 @@ LISPFUNN(array_displacement,1) # (ARRAY-DISPLACEMENT array), CLHS
   nonreturning_function(local, fehler_bit_array, (void));
   local void fehler_bit_array()
     {
-      pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_array_bit)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_array_bit)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_(0+2));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -3987,8 +3987,8 @@ LISPFUNN(array_has_fill_pointer_p,1) # (ARRAY-HAS-FILL-POINTER-P array), CLTL S.
              );
      fehler_fillp:
       # Fehlermeldung:
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_vector_with_fill_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_vector_with_fill_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: vector ~ has no fill pointer")
@@ -4083,8 +4083,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
              || (inc > arraysize_limit_1)
              #endif
            ) {
-          pushSTACK(extension); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_posfixnum1)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(extension); # TYPE-ERROR slot DATUM
+          pushSTACK(O(type_posfixnum1)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(extension); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
                  GETTEXT("~: extension ~ should be a positive fixnum")
@@ -4178,8 +4178,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         fehler_type:
           {
             # Stackaufbau: new-element, vector.
-            pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-            pushSTACK(array_element_type(STACK_(0+1))); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+            pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
+            pushSTACK(array_element_type(STACK_(0+1))); # TYPE-ERROR slot EXPECTED-TYPE
             pushSTACK(STACK_(0+2)); pushSTACK(STACK_(1+3));
             pushSTACK(TheSubr(subr_self)->name);
             fehler(type_error,
@@ -4477,8 +4477,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
   local void fehler_dim_type(dim)
     var object dim;
     {
-      pushSTACK(dim); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_array_index)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(dim); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_array_index)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(dim);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -4620,8 +4620,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         if (!(len==0)) { # und Länge > 0 ?
           # Fill vector with initial-element:
           if (elt_fill(vector,0,len,STACK_4)) {
-            pushSTACK(STACK_4); # Wert für Slot DATUM von TYPE-ERROR
-            pushSTACK(STACK_(5+1)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+            pushSTACK(STACK_4); # TYPE-ERROR slot DATUM
+            pushSTACK(STACK_(5+1)); # TYPE-ERROR slot EXPECTED-TYPE
             pushSTACK(STACK_(5+2)); # element-type
             pushSTACK(STACK_(4+3)); # initial-element
             pushSTACK(TheSubr(subr_self)->name);
@@ -4742,8 +4742,8 @@ local void initial_contents_aux(arg,obj)
       # displaced-to überprüfen, muss ein Array sein:
       var object displaced_to = STACK_1;
       if (!arrayp(displaced_to)) {
-        pushSTACK(displaced_to); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(array)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(displaced_to); # TYPE-ERROR slot DATUM
+        pushSTACK(S(array)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(displaced_to);
         pushSTACK(S(Kdisplaced_to));
         pushSTACK(TheSubr(subr_self)->name);
@@ -4784,8 +4784,8 @@ local void initial_contents_aux(arg,obj)
         # displaced_eltype ist der ATYPE des :displaced-to-Arguments.
         # Gegebenen Elementtyp damit vergleichen:
         if (!(eltype == displaced_eltype)) {
-          pushSTACK(displaced_to); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(S(array)); pushSTACK(STACK_(5+2)); pushSTACK(listof(2)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(displaced_to); # TYPE-ERROR slot DATUM
+          pushSTACK(S(array)); pushSTACK(STACK_(5+2)); pushSTACK(listof(2)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(STACK_(5+2)); # element-type
           pushSTACK(STACK_2); # displaced_to
           pushSTACK(S(Kdisplaced_to));
@@ -4802,8 +4802,8 @@ local void initial_contents_aux(arg,obj)
       elif (posfixnump(STACK_0))
         displaced_index_offset = posfixnum_to_L(STACK_0);
       else {
-        pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_array_index)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_array_index)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(STACK_(0+2));
         pushSTACK(S(Kdisplaced_index_offset));
         pushSTACK(TheSubr(subr_self)->name);
@@ -4841,8 +4841,8 @@ local void initial_contents_aux(arg,obj)
       if (eq(STACK_2,S(t))) { # T angegeben ->
         return totalsize; # Fill-Pointer := Länge = Gesamtgröße
       } elif (!posfixnump(STACK_2)) { # kein Fixnum >=0 -> Fehler
-        pushSTACK(STACK_2); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(STACK_2); # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(STACK_(2+2));
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -4920,8 +4920,8 @@ LISPFUN(make_array,1,0,norest,key,7,\
     # Rang überprüfen:
     #ifndef UNIX_DEC_ULTRIX_GCCBUG
     if (rank > arrayrank_limit_1) {
-      pushSTACK(fixnum(rank)); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_array_rank)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(fixnum(rank)); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_array_rank)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(fixnum(rank));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -5171,8 +5171,8 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
       eltype = eltype_code(STACK_5);
       # mit dem Elementtyp des Array-Arguments vergleichen:
       if (!(eltype == (Iarray_flags(STACK_6) & arrayflags_atype_mask))) {
-        pushSTACK(STACK_6); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(array)); pushSTACK(STACK_(5+2)); pushSTACK(listof(2)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(STACK_6); # TYPE-ERROR slot DATUM
+        pushSTACK(S(array)); pushSTACK(STACK_(5+2)); pushSTACK(listof(2)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(STACK_(5+2)); # element-type
         pushSTACK(STACK_(6+3)); # array
         pushSTACK(TheSubr(subr_self)->name);
@@ -5250,8 +5250,8 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
     if (!nullp(STACK_2)) { # fill-pointer angegeben?
       # array muss Fill-Pointer haben:
       if (!(Iarray_flags(STACK_6) & bit(arrayflags_fillp_bit))) {
-        pushSTACK(STACK_6); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_vector_with_fill_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(STACK_6); # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_vector_with_fill_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(STACK_(6+2));
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -5412,11 +5412,11 @@ LISPFUNN(vector_init_start,2)
       value1 = STACK_0; mv_count=1; skipSTACK(2); # index als Wert
     } else {
       # Stackaufbau: seq, index.
-      pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
       {
         var object tmp;
         pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(len));
-        tmp = listof(3); pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        tmp = listof(3); pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
       }
       pushSTACK(STACK_3); # seq
       pushSTACK(STACK_3); # index
@@ -5448,11 +5448,11 @@ LISPFUNN(vector_fe_init_end,2)
       mv_count=1;
     } else {
       # Stackaufbau: seq, index.
-      pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
       {
         var object tmp;
         pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(len));
-        tmp = listof(3); pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        tmp = listof(3); pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
       }
       pushSTACK(STACK_3); # seq
       pushSTACK(STACK_3); # index
@@ -5466,8 +5466,8 @@ LISPFUNN(make_bit_vector,1)
 # (SYS::MAKE-BIT-VECTOR size) liefert einen Bit-Vector mit size Bits.
   {
     if (!posfixnump(STACK_0)) {
-      # STACK_0 = size, Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      # STACK_0 = size, TYPE-ERROR slot DATUM
+      pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_1); # size
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
