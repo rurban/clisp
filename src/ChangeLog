@@ -1,3 +1,21 @@
+2003-01-31  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 678105 ]: unchecked :start/end in
+	ext:convert-string-from/to-bytes
+	* encoding.d (CONVERT-STRING-FROM-BYTES): use test_vector_limits()
+	to check :START/:END arguments
+	(CONVERT-STRING-TO-BYTES): use test_string_limits_ro()
+	to check :START/:END arguments
+	* charstrg.d (test_vector_limits): extracted from
+	test_string_limits_ro()
+	(test_string_limits_ro): use it
+	* lispbibl.d (test_vector_limits): declare
+
+2003-01-29  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (slashp): when *PARSE-NAMESTRING-ANSI* is T,
+	barf on #\/ in logical pathnames instead of equating them with #\;
+
 2003-01-29  Sam Steingold  <sds@gnu.org>
 
 	SOCKET-STATUS on lists does not have to cons
