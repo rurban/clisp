@@ -5,7 +5,9 @@ if test -f netica.c; then
   mod_list="$mod_list"' netica'
 fi
 netica=/usr/local/netica/
-make clisp-module CC="${CC}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir"
+make clisp-module \
+     CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
+     INCLUDES="$absolute_linkkitdir"
 NEW_FILES="$file_list"
 NEW_LIBS="$file_list ${netica}netica.lib"
 NEW_MODULES="$mod_list"

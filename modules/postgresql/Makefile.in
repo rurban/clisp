@@ -1,6 +1,7 @@
 # Makefile for CLISP module set postgresql
 
 CC = @CC@
+CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 INCLUDES= ../
 
@@ -21,7 +22,7 @@ postgresql.c : postgresql.lisp
 	$(CLISP) -c postgresql.lisp
 
 postgresql.o : postgresql.c
-	$(CC) $(CFLAGS) -I$(INCLUDES) -c postgresql.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c postgresql.c
 
 sql.fas : sql.lisp
 	$(CLISP) -c sql.lisp

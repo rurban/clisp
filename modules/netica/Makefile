@@ -2,6 +2,7 @@
 # <http://norsys.com/netica_c_api.htm>
 
 CC =
+CPPFLAGS =
 CFLAGS =
 INCLUDES =
 NETICA = /usr/local/netica
@@ -22,7 +23,7 @@ netica.c netica.fas : netica.lisp
 	$(CLISP) -c netica.lisp
 
 netica.o : netica.c
-	$(CC) $(CFLAGS) -I$(INCLUDES) -I$(NETICA) -c netica.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I$(NETICA) -c netica.c
 
 %.fas: %.lisp
 	$(CLISP) -c $<
