@@ -203,6 +203,7 @@
 	since (compile-file "foo") clobbers foo.c (because of FFI)
 	* init.lisp: "dirkey1", not "dirkey"
 	* makemake.in (LPARTS): ditto
+	* gettext/po/Makefile.devel (LISPSOURCES): ditto
 	* dirkey1.lisp: renamed from dirkey.lisp
 	do the actual coding in package SYSTEM
 
