@@ -2136,6 +2136,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #define STACKCHECKC  (SAFETY >= 1) # when compiled closures are interpreted
 #define STACKCHECKR  (SAFETY >= 1) # in the reader
 #define STACKCHECKP  (SAFETY >= 1) # in the printer
+#define STACKCHECKB  (SAFETY >= 1) # in the bindings
 # When changed: do nothing
 
 # Whether we try to initialize subr_tab statically.
@@ -10626,16 +10627,31 @@ extern object coerce_function (object obj);
 # is used by IO, EVAL, DEBUG, ERROR
 
 # Unbinds a dynamic variable-bindings frame for one variable.
-# dynamic_unbind()
+# dynamic_unbind_g()  - generic
+# dynamic_unbind(sym) - with an additional check when STACKCHECKB
 # increases STACK by 3 entries
 # modifies STACK
-#define dynamic_unbind()  \
-  do { # write value back:               \
-    Symbol_value(STACK_(1)) = STACK_(2); \
-    # dismantle Frame:                   \
-    skipSTACK(3);                        \
+#if STACKCHECKB
+  #define CHECK_DYNBIND                                                 \
+    if (!((as_oint(STACK_0) & wbit(frame_bit_o)) && framecode(STACK_0))) \
+      abort()
+#else
+  #define CHECK_DYNBIND
+#endif
+#define dynamic_unbind_g()    do {                                      \
+  CHECK_DYNBIND;                                                        \
+  Symbol_value(STACK_(1)) = STACK_(2); /* restore the value */          \
+  skipSTACK(3);    /* dismantle Frame */                                \
+} while(0)
+#if STACKCHECKB
+  #define dynamic_unbind(sym)   do {              \
+    if (!eq(sym,STACK_1)) abort();                \
+    dynamic_unbind_g();                           \
   } while(0)
-# is used by IO, DEBUG
+#else
+  #define dynamic_unbind(sym)   dynamic_unbind_g()
+#endif
+# is used by IO, DEBUG, ERROR, EVAL, PREDTYPE, SPVW
 
 # Executes "implicit PROGN" .
 # implicit_progn(body,default)

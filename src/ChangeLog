@@ -1,3 +1,12 @@
+2003-04-25  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (STACKCHECKB): when non-0, check that we are
+	unwinding a binding frame for the correct symbol
+	(dynamic_unbind): accept a symbol argument
+	(dynamic_unbind_g): same as old dynamic_unbind()
+	* debug.d, error.d, eval.d, io.d, predtype.d, spvw_language.d:
+	pass the symbol argument to dynamic_unbind() whenever possible
+
 2003-04-22  Sam Steingold  <sds@gnu.org>
 
 	* _distmakefile, makemake.in: distribute clisp.ps and put it into

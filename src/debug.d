@@ -96,10 +96,10 @@ local Values read_form(void)
         var_stream(S(debug_io),strmflags_rd_ch_B|strmflags_wr_ch_B);
       }
       STACK_(5+3+3) = var_stream(S(standard_output),strmflags_wr_ch_B); /* ostream := *STANDARD-OUTPUT* */
-      dynamic_unbind();
+      dynamic_unbind(S(recurse_count_debug_io));
     }
     terpri(&STACK_(5+3)); /* (TERPRI ostream) */
-    dynamic_unbind();
+    dynamic_unbind(S(recurse_count_standard_output));
    #endif
     write_string(&STACK_5,STACK_3); /* (WRITE-STRING prompt ostream) */
     force_output(STACK_5);
@@ -141,7 +141,7 @@ local Values read_form(void)
         pushSTACK(*inputstream_); pushSTACK(NIL); pushSTACK(NIL);
         funcall(L(read_line),3); /* (READ-LINE istream nil nil) */
         if (nullp(value1)) { /* EOF at line start? */
-          dynamic_unbind(); /* S(key_bindings) */
+          dynamic_unbind(S(key_bindings));
           goto eof;
         }
       } while (Sstring_length(value1) == 0);
@@ -165,7 +165,7 @@ local Values read_form(void)
               if (false) {
                found:
                 funcall(Cdr(Car(alist)),0); /* call the appropriate function */
-                dynamic_unbind(); /* S(key_bindings) */
+                dynamic_unbind(S(key_bindings));
                 goto eof;
               }
             }
@@ -194,13 +194,13 @@ local Values read_form(void)
     dynamic_bind(S(read_suppress),NIL); /* *READ-SUPPRESS* = NIL */
     /* read object (recursive-p=NIL, whitespace-p=NIL): */
     var object obj = stream_read(inputstream_,NIL,NIL);
-    dynamic_unbind(); /* S(read_suppress) */
+    dynamic_unbind(S(read_suppress));
    #if !defined(TERMINAL_USES_KEYBOARD)
     if (streamp(Symbol_value(S(terminal_read_stream)))) {
       var object stream = Symbol_value(S(terminal_read_stream));
       var object strm_l = TheStream(stream)->strm_concat_list;
       if (terminal_read_stream_bound)
-        dynamic_unbind(); /* S(terminal_read_stream) */
+        dynamic_unbind(S(terminal_read_stream));
       Symbol_value(S(terminal_read_stream)) =
         (consp(strm_l) && !nullp(Cdr(strm_l))
          /* some input on the first line was not processed ? */
@@ -210,7 +210,7 @@ local Values read_form(void)
         ? stream : unbound;
     }
    #endif
-    dynamic_unbind(); /* S(key_bindings) */
+    dynamic_unbind(S(key_bindings));
     if (!eq(obj,eof_value)) { /* EOF test (after whitespace) */
       pushSTACK(obj);
       pushSTACK(STACK_(4+1)); pushSTACK(STACK_(0+1+1)); funcall(L(terminal_raw),2);
@@ -457,8 +457,11 @@ global void break_driver (bool continuable_p) {
         unwind(); reset(); /* -> back to the previous REPLoop */
       }
       skipSTACK(1+2); /* dissolve driver frame, forget prompt */
-      dynamic_unbind(); dynamic_unbind(); dynamic_unbind();
-      dynamic_unbind(); dynamic_unbind();
+      dynamic_unbind(S(print_readably));
+      dynamic_unbind(S(print_escape));
+      dynamic_unbind(S(standard_output));
+      dynamic_unbind(S(standard_input));
+      dynamic_unbind(S(break_count));
     }
     back_trace = bt_save;
   }

@@ -1417,7 +1417,7 @@ local void read_token_1 (const gcv_object_t* stream_, object ch, uintWL scode) {
   O(token_buff_2) = popSTACK(); # Attributecode-Buffer
   O(token_buff_1) = popSTACK(); # Character-Buffer
   if (terminal_stream_p(*stream_))
-    dynamic_unbind(); # S(terminal_read_open_object)
+    dynamic_unbind(S(terminal_read_open_object));
 }
 
 # --------------- READ between token-level and objekt-level ------------------
@@ -2279,8 +2279,8 @@ local object read_recursive (const gcv_object_t* stream_) {
     dynamic_bind(S(read_preserve_whitespace),NIL);
     # and read Objekt:
     var object ergebnis = read_internal(stream_);
-    dynamic_unbind();
-    dynamic_unbind();
+    dynamic_unbind(S(read_preserve_whitespace));
+    dynamic_unbind(S(read_recursive_p));
     return ergebnis;
   }
 }
@@ -2385,12 +2385,12 @@ local object read_top (const gcv_object_t* stream_, object whitespace_p) {
   var object obj = read_internal(stream_);
   # disentangle references:
   obj = make_references(obj);
-  dynamic_unbind();
-  dynamic_unbind();
-  dynamic_unbind();
-  dynamic_unbind();
-  dynamic_unbind();
-  dynamic_unbind();
+  dynamic_unbind(S(reading_struct));
+  dynamic_unbind(S(reading_array));
+  dynamic_unbind(S(backquote_level));
+  dynamic_unbind(S(read_reference_table));
+  dynamic_unbind(S(read_preserve_whitespace));
+  dynamic_unbind(S(read_recursive_p));
 #if STACKCHECKR
   # verify, if Stack is cleaned up:
   if (!(STACK == STACKbefore))
@@ -2455,11 +2455,11 @@ local object read_delimited_list(const gcv_object_t* stream_, object endch,
   } else { # no -> bind SYS::*READ-RECURSIVE-P* to T:
     dynamic_bind(S(read_recursive_p),T);
     ergebnis = read_delimited_list_recursive(stream_,endch,ifdotted);
-    dynamic_unbind();
+    dynamic_unbind(S(read_recursive_p));
   }
   if (terminal_read_open_object_bind)
-    dynamic_unbind(); # S(terminal_read_open_object)
-  dynamic_unbind(); # S(read_line_number)
+    dynamic_unbind(S(terminal_read_open_object));
+  dynamic_unbind(S(read_line_number));
  #if STACKCHECKR
   if (STACK != STACKbefore) /* verify if Stack is cleaned up */
     abort(); /* if not --> go to Debugger */
@@ -2723,14 +2723,14 @@ LISPFUNN(string_reader,2) { # reads "
   }
   if (terminal_stream_p(*stream_)) {
     skipSTACK(2);
-    dynamic_unbind(); # S(terminal_read_open_object)
+    dynamic_unbind(S(terminal_read_open_object));
   }
   skipSTACK(2);
   return;
  fehler_eof:
   if (terminal_stream_p(*stream_)) {
     skipSTACK(2);
-    dynamic_unbind(); # S(terminal_read_open_object)
+    dynamic_unbind(S(terminal_read_open_object));
   }
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(*stream_); # Stream
@@ -3542,7 +3542,7 @@ LISPFUNN(array_reader,3) { # reads #A
     # distinguish #(...) vectors from #1A(...) vectors.
     dynamic_bind(S(reading_array),T);
     var object contents = read_recursive_no_dot(stream_);
-    dynamic_unbind();
+    dynamic_unbind(S(reading_array));
     pushSTACK(contents); pushSTACK(contents);
   }
   STACK_4 = NIL; # dims := '()
@@ -3928,8 +3928,8 @@ local Values feature (uintWL sollwert) {
   dynamic_bind(S(read_suppress),NIL); # bind *READ-SUPPRESS* to NIL
   dynamic_bind(S(packagestern),O(keyword_package)); # bind *PACKAGE* to #<PACKAGE KEYWORD>
   var object expr = read_recursive_no_dot(stream_); # read Feature-Expression
-  dynamic_unbind();
-  dynamic_unbind();
+  dynamic_unbind(S(packagestern));
+  dynamic_unbind(S(read_suppress));
   # interpret Feature-Expression:
   expr = make_references(expr); # first unentangle references
   if (interpret_feature(expr) == sollwert) { # truth value "true"
@@ -3939,7 +3939,7 @@ local Values feature (uintWL sollwert) {
     # bind *READ-SUPPRESS* to T, read Object, comment
     dynamic_bind(S(read_suppress),T);
     read_recursive_no_dot(stream_);
-    dynamic_unbind();
+    dynamic_unbind(S(read_suppress));
     VALUES0;
   }
   skipSTACK(2);
@@ -4029,7 +4029,7 @@ LISPFUNN(structure_reader,3) { # reads #S
   # bind SYS::*READING-STRUCT* to T and read object:
   dynamic_bind(S(reading_struct),T);
   var object args = read_recursive_no_dot(stream_);
-  dynamic_unbind();
+  dynamic_unbind(S(reading_struct));
   # check read List:
   if (atomp(args)) {
     pushSTACK(*stream_); # STREAM-ERROR slot STREAM
@@ -4268,8 +4268,8 @@ LISPFUNN(closure_reader,3) { # read #Y
     dynamic_bind(S(read_suppress),NIL); # bind *READ-SUPPRESS* to NIL
     dynamic_bind(S(packagestern),O(charset_package)); # bind *PACKAGE* to #<PACKAGE CHARSET>
     var object expr = read_recursive_no_dot(stream_); # read expression
-    dynamic_unbind();
-    dynamic_unbind();
+    dynamic_unbind(S(packagestern));
+    dynamic_unbind(S(read_suppress));
     expr = make_references(expr); # unentangle references
     pushSTACK(*stream_); pushSTACK(expr); pushSTACK(S(Kinput));
     funcall(L(set_stream_external_format),3); # (SYS::SET-STREAM-EXTERNAL-FORMAT stream expr :input)
@@ -4555,8 +4555,8 @@ LISPFUN(read_delimited_list,seclass_default,1,2,norest,nokey,0,NIL) {
     dynamic_bind(S(backquote_level),NIL);
     var object obj = read_delimited_list(stream_,ch,eof_value); # read List
     obj = make_references(obj); # unentangle references
-    dynamic_unbind();
-    dynamic_unbind();
+    dynamic_unbind(S(backquote_level));
+    dynamic_unbind(S(read_reference_table));
     VALUES1(obj); # List as value
   } else {
     # recursive call
@@ -5740,8 +5740,7 @@ local void klammer_zu (const gcv_object_t* stream_) {
     hinten: # print parenthesis behind
       write_ascii_char(stream_,')');
     }
-    # unbind SYS::*PRIN-RPAR* :
-    dynamic_unbind();
+    dynamic_unbind(S(prin_rpar));
   }
 }
 
@@ -5943,14 +5942,14 @@ local void justify_end_eng (const gcv_object_t* stream_) {
     }
     skipSTACK(2); # forget empty remaining list and the old line-position
     # unbind bindings of JUSTIFY_START:
-    dynamic_unbind();
-    dynamic_unbind();
-    dynamic_unbind();
-    dynamic_unbind();
+    dynamic_unbind(S(prin_jblocks));
+    dynamic_unbind(S(prin_jblpos));
+    dynamic_unbind(S(prin_jbmodus));
+    dynamic_unbind(S(prin_jbstrings));
   }
   # unbind bindings of JUSTIFY_START:
-  dynamic_unbind(); # SYS::*PRIN-TRAILLENGTH*
-  dynamic_unbind(); # SYS::*PRIN-PREV-TRAILLENGTH*
+  dynamic_unbind(S(prin_traillength));
+  dynamic_unbind(S(prin_prev_traillength));
 }
 
 # UP: finalizes a justify-block, determines the shape of the block and
@@ -6043,14 +6042,14 @@ local void justify_end_weit (const gcv_object_t* stream_) {
   fertig: # line-position is now correct.
     skipSTACK(2); # forget empty remaining list and the old line-position
     # unbind bindings of JUSTIFY_START:
-    dynamic_unbind();
-    dynamic_unbind();
-    dynamic_unbind();
-    dynamic_unbind();
+    dynamic_unbind(S(prin_jblocks));
+    dynamic_unbind(S(prin_jblpos));
+    dynamic_unbind(S(prin_jbmodus));
+    dynamic_unbind(S(prin_jbstrings));
   }
   # unbind bindings of JUSTIFY_START:
-  dynamic_unbind(); # SYS::*PRIN-TRAILLENGTH*
-  dynamic_unbind(); # SYS::*PRIN-PREV-TRAILLENGTH*
+  dynamic_unbind(S(prin_traillength));
+  dynamic_unbind(S(prin_prev_traillength));
 }
 
 
@@ -6099,8 +6098,8 @@ local void indent_end (const gcv_object_t* stream_) {
   if (!PPHELP_STREAM_P(*stream_)) { # normal Stream -> nothing to do
   } else { # Pretty-Print-Help-Stream
     # unbind the two bindings of INDENT_START:
-    dynamic_unbind();
-    dynamic_unbind();
+    dynamic_unbind(S(prin_lm));
+    dynamic_unbind(S(prin_l1));
   }
 }
 
@@ -6196,7 +6195,7 @@ local bool level_check (const gcv_object_t* stream_) {
 # < stream: stream
 # changes STACK
 local void level_end (const gcv_object_t* stream_) {
-  dynamic_unbind();
+  dynamic_unbind(S(prin_level));
 }
 
 # ------------------ sub-routines for *PRINT-LENGTH* ------------------------
@@ -6582,8 +6581,8 @@ local void pr_enter_1 (const gcv_object_t* stream_, object obj,
       #   if (stringp(Car(STACK_0))) write_string(stream_,Car(STACK_0));
       # }
       skipSTACK(1); # strm_pphelp_strings
-      dynamic_unbind(); # SYS::*PRIN-LM*
-      dynamic_unbind(); # SYS::*PRIN-L1*
+      dynamic_unbind(S(prin_lm));
+      dynamic_unbind(S(prin_l1));
     } else { # already a PPHELP-stream
       pretty_print_call(stream_,obj,pr_xxx);
     }
@@ -6615,7 +6614,7 @@ local void pr_enter_2 (const gcv_object_t* stream_, object obj, pr_routine_t* pr
       # can bind *PRINT-CIRCLE* to NIL.
       dynamic_bind(S(print_circle),NIL);
       pr_enter_1(stream_,obj,pr_xxx);
-      dynamic_unbind();
+      dynamic_unbind(S(print_circle));
     } else if (eq(circularities,T)) { # stack overflow occurred
       # handle overflow of the GET_CIRCULARITIES-routine:
       dynamic_bind(S(print_circle),NIL); # bind *PRINT-CIRCLE* to NIL
@@ -6629,11 +6628,11 @@ local void pr_enter_2 (const gcv_object_t* stream_, object obj, pr_routine_t* pr
         # *PRINT-READABLY* enforces *PRINT-CIRCLE* = T
         dynamic_bind(S(print_circle),T);
         pr_enter_1(stream_,obj,pr_xxx);
-        dynamic_unbind();
+        dynamic_unbind(S(print_circle));
       } else {
         pr_enter_1(stream_,obj,pr_xxx);
       }
-      dynamic_unbind();
+      dynamic_unbind(S(print_circle_table));
     }
   } else {
     pr_enter_1(stream_,obj,pr_xxx);
@@ -6663,12 +6662,12 @@ local void pr_enter (const gcv_object_t* stream_, object obj, pr_routine_t* pr_x
     dynamic_bind(S(prin_lm),Fixnum_0); # bind SYS::*PRIN-LM* to 0 (for Pretty-Print)
     dynamic_bind(S(prin_traillength),Fixnum_0); # bind SYS::*PRIN-TRAILLENGTH*
     pr_enter_2(stream_,obj,pr_xxx);
-    dynamic_unbind(); # SYS::*PRIN-TRAILLENGTH*
-    dynamic_unbind(); # SYS::*PRIN-LM*
-    dynamic_unbind(); # SYS::*PRIN-L1*
-    dynamic_unbind(); # SYS::*PRIN-BQLEVEL*
-    dynamic_unbind(); # SYS::*PRIN-LINES*
-    dynamic_unbind(); # SYS::*PRIN-LEVEL*
+    dynamic_unbind(S(prin_traillength)); # SYS::*PRIN-TRAILLENGTH*
+    dynamic_unbind(S(prin_lm)); # SYS::*PRIN-LM*
+    dynamic_unbind(S(prin_l1)); # SYS::*PRIN-L1*
+    dynamic_unbind(S(prin_bqlevel)); # SYS::*PRIN-BQLEVEL*
+    dynamic_unbind(S(prin_lines)); # SYS::*PRIN-LINES*
+    dynamic_unbind(S(prin_level)); # SYS::*PRIN-LEVEL*
 #if STACKCHECKP
     # check, if Stack is cleaned:
     if (!(STACK == STACKbefore))
@@ -6735,7 +6734,7 @@ local uintC pr_external_1 (object stream) {
 # pr_external_2(count);
 # > count: number of dynamic bindungs, that have to be unbound.
 #define pr_external_2(countvar)  \
-    dotimespC(countvar,countvar, { dynamic_unbind(); } );
+    dotimespC(countvar,countvar, { dynamic_unbind_g(); } );
 
 # ------------------------ Main-PRINT-routine --------------------------------
 
@@ -7372,7 +7371,7 @@ local void pr_list_backquote (const gcv_object_t* stream_, object list) {
   INDENT_START(1); # indent by 1 character because of '`'
   prin_object(stream_,list); # print original-form
   INDENT_END;
-  dynamic_unbind();
+  dynamic_unbind(S(prin_bqlevel));
 }
 
 local void pr_list_bothsplice (const gcv_object_t* stream_, object list, object ch) {
@@ -7387,7 +7386,7 @@ local void pr_list_bothsplice (const gcv_object_t* stream_, object list, object 
   INDENT_START(2); # indent by 2 characters because of ",@" resp. ",."
   prin_object(stream_,list); # print form
   INDENT_END;
-  dynamic_unbind();
+  dynamic_unbind(S(prin_bqlevel));
 }
 
 local void pr_list_splice (const gcv_object_t* stream_, object list) {
@@ -7410,7 +7409,7 @@ local void pr_list_unquote (const gcv_object_t* stream_, object list) {
   INDENT_START(1); # indent by 1 character because of ','
   prin_object(stream_,list); # print object
   INDENT_END;
-  dynamic_unbind();
+  dynamic_unbind(S(prin_bqlevel));
 }
 
 #                      -------- Numbers --------
@@ -9766,7 +9765,7 @@ LISPFUNN(ppprint_logical_block,3) {
     var object func = STACK_2;
     dynamic_bind(S(prin_pprinter),func); # *PRIN-PPRINTER*
     pr_enter(stream_,obj,&pprin_object);
-    dynamic_unbind(); # *PRIN-PPRINTER*
+    dynamic_unbind(S(prin_pprinter)); # *PRIN-PPRINTER*
   } else
     pr_enter(&STACK_0,STACK_1,&prin_object);
   VALUES1(NIL); skipSTACK(3);
@@ -9878,7 +9877,7 @@ local void write_up (void) {
     prin1(stream_,obj); # print Object
   }
   # dissolve bindings:
-  dotimesC(bindcount,bindcount, { dynamic_unbind(); } );
+  dotimesC(bindcount,bindcount, { dynamic_unbind_g(); } );
 }
 
 # (WRITE object [:stream] [:escape] [:radix] [:base] [:circle] [:pretty]
@@ -9914,7 +9913,7 @@ local void prin1_up (void) {
   var gcv_object_t* stream_ = &STACK_0;
   dynamic_bind(S(print_escape),T); # bind *PRINT-ESCAPE* to T
   prin1(stream_,obj); # print object
-  dynamic_unbind();
+  dynamic_unbind(S(print_escape));
 }
 
 # (PRIN1 object [stream]), CLTL p. 383
@@ -9961,8 +9960,8 @@ LISPFUN(pprint,seclass_default,1,1,norest,nokey,0,NIL) {
   dynamic_bind(S(print_pretty),T); # bind *PRINT-PRETTY* to T
   dynamic_bind(S(print_escape),T); # bind *PRINT-ESCAPE* to T
   prin1(stream_,obj); # print object
-  dynamic_unbind();
-  dynamic_unbind();
+  dynamic_unbind(S(print_escape));
+  dynamic_unbind(S(print_pretty));
   skipSTACK(2);
   VALUES0; /* no values */
 }
@@ -9985,8 +9984,8 @@ local void princ_up (void) {
   dynamic_bind(S(print_escape),NIL); # bind *PRINT-ESCAPE* to NIL
   dynamic_bind(S(print_readably),NIL); # bind *PRINT-READABLY* to NIL
   prin1(stream_,obj); # print object
-  dynamic_unbind();
-  dynamic_unbind();
+  dynamic_unbind(S(print_readably));
+  dynamic_unbind(S(print_escape));
 }
 
 # (PRINC object [stream]), CLTL p. 383

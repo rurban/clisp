@@ -79,9 +79,9 @@ local void write_errorobject (object obj) {
     dynamic_bind(S(print_escape),T); /* bind *PRINT-ESCAPE* to T */
     dynamic_bind(S(print_readably),NIL); /* bind *PRINT-READABLY* to NIL */
     prin1(&STACK_(0+3+3+3),obj); /* output directly */
-    dynamic_unbind();
-    dynamic_unbind();
-    dynamic_unbind();
+    dynamic_unbind(S(print_readably));
+    dynamic_unbind(S(print_escape));
+    dynamic_unbind(S(prin_stream));
   } else {
     /* push obj onto the argument list: */
     pushSTACK(obj);
@@ -208,7 +208,7 @@ nonreturning_function(local, end_error, (gcv_object_t* stackptr)) {
     skipSTACK(4); /* error message has already been printed */
     /* unbind binding frame for sys::*recursive-error-count*,
        because no error message output is active */
-    dynamic_unbind();
+    dynamic_unbind(S(recursive_error_count));
     set_args_end_pointer(stackptr);
     break_driver(false); /* call break-driver (does not return) */
   } else {
@@ -227,7 +227,7 @@ nonreturning_function(local, end_error, (gcv_object_t* stackptr)) {
       }
       /* unbind binding frame for sys::*recursive-error-count*,
          because no error message output is active */
-      dynamic_unbind();
+      dynamic_unbind(S(recursive_error_count));
       set_args_end_pointer(stackptr);
       break_driver(false); /* call break-driver (does not return) */
     } else {
@@ -236,7 +236,7 @@ nonreturning_function(local, end_error, (gcv_object_t* stackptr)) {
       var object type = STACK_3;
       var object errorstring = STACK_0;
       skipSTACK(4);
-      dynamic_unbind(); /* unbind sys::*recursive-error-count* */
+      dynamic_unbind(S(recursive_error_count));
       /* execute (APPLY #'coerce-to-condition errorstring args
                         'error type keyword-arguments) */
       pushSTACK(errorstring); pushSTACK(arguments);
@@ -394,7 +394,7 @@ LISPFUN(error,seclass_default,1,0,rest,nokey,0,NIL)
       funcall(fun,2+argcount); /* call fun (= FORMAT resp. handler) */
     }
     /* finish error message, cf. end_error(): */
-    dynamic_unbind(); /* no error message output is active */
+    dynamic_unbind(S(recursive_error_count)); /* no error message output is active */
     set_args_end_pointer(rest_args_pointer); /* clean up STACK */
     break_driver(false); /* call break-driver (does not return) */
   } else {
@@ -559,7 +559,7 @@ LISPFUN(error_of_type,seclass_default,2,0,rest,nokey,0,NIL)
       funcall(fun,2+argcount); /* call fun (= FORMAT resp. handler) */
     }
     /* finish error message, cf. end_error(): */
-    dynamic_unbind(); /* no error message output is active */
+    dynamic_unbind(S(recursive_error_count)); /* no error message output is active */
     set_args_end_pointer(rest_args_pointer); /* clean up STACK */
     break_driver(false); /* call break-driver (does not return) */
   } else {
@@ -600,7 +600,7 @@ LISPFUNN(invoke_debugger,1)
     var object condition = STACK_0;
     dynamic_bind(S(debugger_hook),NIL); /* bind *DEBUGGER-HOOK* to NIL */
     pushSTACK(condition); pushSTACK(hook); funcall(hook,2); /* call Debugger-Hook */
-    dynamic_unbind();
+    dynamic_unbind(S(debugger_hook));
   }
   /* *BREAK-DRIVER* can be assumed here as /= NIL. */
   pushSTACK(NIL); pushSTACK(STACK_(0+1)); pushSTACK(T);
