@@ -11389,7 +11389,7 @@ local void copy_one_file (object source, object src_path,
      #ifdef UNIX
       /* use the original argument, not the truename here,
          so that the user can create relative symlinks */
-      source = stringp(STACK_5) ? STACK_5 : whole_namestring(STACK_4);
+      source = stringp(STACK_5) ? (object)STACK_5 : whole_namestring(STACK_4);
       with_sstring_0(source, O(pathname_encoding), source_asciz, {
         with_sstring_0(dest, O(pathname_encoding), dest_asciz, {
           delete_file_if_exists(dest_asciz);

@@ -2527,7 +2527,7 @@ global int main (argc_t argc, char* argv[]) {
  #ifdef DEBUG_SPVW
   { /* STACK & SP are settled - check that we have enough STACK */
     var uintL stack_depth =
-      STACK_diff((object*)STACK_bound,STACK)/sizeof(*STACK);
+      STACK_diff((gcv_object_t*)STACK_bound,STACK)/sizeof(*STACK);
     fprintf(stderr,"STACK depth: %d\n",stack_depth);
    #ifndef NO_SP_CHECK
     fprintf(stderr,"SP depth: %d\n",
