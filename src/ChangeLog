@@ -2,6 +2,10 @@
 
 	Minor code tweaks and simplifications:
 	(analyze-lambdalist): new MACROLET macro PUSH-OPT
+	(closuredummy-add-stack-slot): new function
+	(c-LAMBDABODY, c-LET/LET*, c-MULTIPLE-VALUE-BIND, c-FLET)
+	(c-LABELS, c-FUNCTION-MACRO-LET, c-GENERIC-FLET, c-GENERIC-LABELS)
+	(c-FUNCALL-INLINE): use it
 
 2001-12-20  Sam Steingold  <sds@gnu.org>
 
