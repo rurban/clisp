@@ -72,8 +72,8 @@
 <body>
 <h1 align=center>Implementation Notes for CLISP</h1>
 
-<h4 align=center>Last modified: July 18, 1999.</h4>
 <center>
+<strong>Last modified: 2000-01-07</strong><br>
 <img src="clisp.gif" width=48 height=48 alt="[CLISP icon]">
 </center>
 
@@ -2544,6 +2544,9 @@ of all of the string's characters.
 <h2><a name="sequences"></a><a href="CLHSROOT/Body/chap-17.html">
     Chapter 17: Sequences</a></h2>
 
+<h3><a href="CLHSROOT/Body/sec_the_seque_s_dictionary.html">
+    17.3. The Sequences Dictionary</a></h3>
+
 <h4><a href="CLHSROOT/Body/mac_loop.html">loop</a>,
     <a href="CLHSROOT/Body/fun_map.html">map</a></h4>
 
@@ -2561,9 +2564,6 @@ of all of the string's characters.
 <p><code>lisp:doseq</code> forms are
 <a href="CLHSROOT/Body/glo_i.html#iteration_form">
 <em>iteration forms</em></a>.
-
-<h3><a href="CLHSROOT/Body/sec_the_seque_s_dictionary.html">
-    17.3. The Sequences Dictionary</a></h3>
 
 <h4><a href="CLHSROOT/Body/fun_reversecm_nreverse.html">
     nreverse</a></h4>
@@ -7521,7 +7521,7 @@ while (&lt;INF&gt;) {
 }
 my $ii = 0;
 for my $kk (keys(%hash)) {
-  print "[",++$ii,"] \"",$kk,"\"  --> ",$hash{$kk},"\n";
+  print "[",++$ii,"] \"",$kk,"\"  --  ",$hash{$kk},"\n";
 }</code></pre>
 
  <dt><strong>wildcard</strong>
@@ -9059,16 +9059,18 @@ lisp, in package <code>POSIX</code>.
  <dd><code>(<strong>posix:resource-usage-limits</strong>)</code>
  <dd>Return 3 structs describing the resources usage and limits, derived
      from <code>getrlimit(2)</code> and <code>getrusage(3)</code>.
- <dt><code>(<strong>posix:erf</strong> <var>real</var>)<code><br>
-     <code>(<strong>posix:erfc</strong> <var>real</var>)<code><br>
-     <code>(<strong>posix:j0</strong> <var>real</var>)<code><br>
-     <code>(<strong>posix:j1</strong> <var>real</var>)<code><br>
-     <code>(<strong>posix:jn</strong> <var>int</var> <var>real</var>)<code><br>
-     <code>(<strong>posix:y0</strong> <var>real</var>)<code><br>
-     <code>(<strong>posix:y1</strong> <var>real</var>)<code><br>
-     <code>(<strong>posix:yn</strong> <var>int</var> <var>real</var>)<code><br>
-     <code>(<strong>posix:gamma</strong> <var>real</var>)<code><br>
-     <code>(<strong>posix:lgamma</strong> <var>real</var>)<code>
+ <dt><code>(<strong>posix:erf</strong> <var>real</var>)</code><br>
+     <code>(<strong>posix:erfc</strong> <var>real</var>)</code><br>
+     <code>(<strong>posix:j0</strong> <var>real</var>)</code><br>
+     <code>(<strong>posix:j1</strong> <var>real</var>)</code><br>
+     <code>(<strong>posix:jn</strong> <var>int</var>
+            <var>real</var>)</code><br>
+     <code>(<strong>posix:y0</strong> <var>real</var>)</code><br>
+     <code>(<strong>posix:y1</strong> <var>real</var>)</code><br>
+     <code>(<strong>posix:yn</strong> <var>int</var>
+            <var>real</var>)</code><br>
+     <code>(<strong>posix:gamma</strong> <var>real</var>)</code><br>
+     <code>(<strong>posix:lgamma</strong> <var>real</var>)</code>
  <dd>Compute the error functions, Bessel functions and Gamma.
      These functions are required by the POSIX standard and should be
      available in libm.so.  Please note that these functions do not
@@ -9476,6 +9478,14 @@ at startup.
 
 </body>
 </html>
-<!-- Local variables:
- compile-command: "weblint -d container-whitespace,empty-container _impnotes.html"
- end: -->
+<!--
+Local Variables:
+compile-command: "weblint -d container-whitespace,empty-container _impnotes.html"
+time-stamp-start: "<strong>Last modified: "
+time-stamp-end: "</strong><br>"
+time-stamp-format: "%:y-%02m-%02d"
+time-stamp-line-limit: 100
+eval: (add-hook 'write-file-hooks 'time-stamp)
+end:
+-->
+<strong>Last modified: July 18, 1999.</strong><br>
