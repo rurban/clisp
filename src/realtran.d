@@ -493,79 +493,81 @@ local object pi (object x) {
       return x;
     }}
 
-# R_cos_sin_R_R(x) liefert ((cos x),(sin x)), beide Werte auf dem Stack.
-# can trigger GC
-  local void R_cos_sin_R_R (object x);
-# Methode:
-# x rational -> bei x=0 (1,0) als Ergebnis, sonst x in Float umwandeln.
-# x Float -> Genauigkeit erhöhen,
-#   (q,r) := (round x (float pi/2 x)), so dass |r|<=pi/4.
-#   y:=(sin(r)/r)^2 errechnen.
-#   (cos r) berechnen:
-#     e := Exponent aus (decode-float r), d := (float-digits r)
-#     Bei r=0.0 oder e<=-d/2 liefere 1.0
-#       (denn bei e<=-d/2 ist r^2/2 < 2^(-d)/2 = 2^(-d-1), also
-#       1 >= cos(r) > 1-r^2/2 > 1-2^(-d-1),
-#       also ist cos(r), auf d Bits gerundet, gleich 1.0).
-#     Sonst sqrt(1-r^2*y).
-#   (sin r) berechnen: r*sqrt(y).
-#   Genauigkeit wieder verringern.
-#   Falls q = 0 mod 4: ((cos r), (sin r))
-#   Falls q = 1 mod 4: ((- (sin r)), (cos r))
-#   Falls q = 2 mod 4: ((- (cos r)), (- (sin r)))
-#   Falls q = 3 mod 4: ((sin r), (- (cos r)))
-  local void R_cos_sin_R_R(x)
-    var object x;
-    { if (R_rationalp(x))
-        { if (eq(x,Fixnum_0)) # x=0 -> (1,0) als Ergebnis
-            { pushSTACK(Fixnum_1); pushSTACK(Fixnum_0); return; }
-          x = RA_float_F(x); # sonst in Float umwandeln
-        }
-      # x Float
-      pushSTACK(x); # x retten
-      x = F_extend_F(x); # Rechengenauigkeit erhöhen
-      F_pi2_round_I_F(x); # durch pi/2 dividieren
-      # Stackaufbau: Argument, q, r.
-      pushSTACK(F_sinx_F(STACK_0)); # y := (sin(r)/r)^2
-      # Stackaufbau: Argument, q, r, y.
-      # erste Komponente cos(r) berechnen:
-      {var object x;
-       x = STACK_0;
-       if (R_zerop(x) # r=0.0 -> 1.0
-           || (F_exponent_L(x) <= (sintL)(-F_float_digits(x))>>1) # e <= -d/2 <==> e <= -ceiling(d/2) ?
-          )
-         { x = I_F_float_F(Fixnum_1,STACK_3); } # (cos r) = 1.0
-         else
-         { var object r = STACK_1;
-           r = F_square_F(r); # r^2
-           r = F_F_mal_F(r,STACK_0); # r^2*y
-           r = R_R_minus_R(Fixnum_1,r); # 1-r^2*y
-           r = F_sqrt_F(r); # sqrt(1-r^2*y)
-           x = F_F_float_F(r,STACK_3); # und wieder runden
-         }
-       pushSTACK(x); # cos(r) retten
-      }
-      # zweite Komponente sin(r) berechnen:
-      {var object x = F_sqrt_F(STACK_(0+1)); # Wurzel aus y
-       x = F_F_mal_F(STACK_(1+1),x); # mit r multiplizieren
-       x = F_F_float_F(x,STACK_(3+1)); # und wieder runden
-      # evtl. Vorzeichenwechsel oder Vertauschen:
-       {var object q = STACK_(2+1);
-        switch (I_fixnump(q) # q mod 4, je nachdem ob q Fixnum oder Bignum
-                ? (as_oint(q) >> oint_data_shift) & (bit(2)-1)
-                : TheBignum(q)->data[(uintP)Bignum_length(q)-1] & (bit(2)-1)
-               )
-          { case 0:
-              STACK_(2+1) = x; STACK_(3+1) = STACK_0; break;
-            case 1:
-              STACK_(3+1) = F_minus_F(x); STACK_(2+1) = STACK_0; break;
-            case 2:
-              STACK_(2+1) = F_minus_F(x); STACK_(3+1) = F_minus_F(STACK_0); break;
-            case 3:
-              STACK_(3+1) = x; STACK_(2+1) = F_minus_F(STACK_0); break;
-      }}  }
-      skipSTACK(2+1);
+/* R_cos_sin_R_R(x) places ((cos x),(sin x)), on the Stack.
+ can trigger GC
+ Method:
+ x rational -> if x=0 ==> (1,0), otherwise x ==> float.
+ x float -> increase its accuracy,
+   (q,r) := (round x (float pi/2 x)), so that |r|<=pi/4.
+   e := the exponent from (decode-float r), d := (float-digits r)
+  if r=0.0 or e<=-d/2 then return (1.0 0.0)
+       (since e<=-d/2 , r^2/2 < 2^(-d)/2 = 2^(-d-1), thus
+        1 >= cos(r) > 1-r^2/2 > 1-2^(-d-1),
+        this cos(r), up to d bits, == 1.0
+        similarly sin(r) = r + O(r^3)).
+  else
+   y:=(sin(r/2)/(r/2))^2.
+   (cos r) = 1-r^2*y/2.
+   (sin r) = r*sqrt(y*(1-y*(r/2)^2)).
+   reduce the accuracy
+   if q = 0 mod 4: ((cos r), (sin r))
+   if q = 1 mod 4: ((- (sin r)), (cos r))
+   if q = 2 mod 4: ((- (cos r)), (- (sin r)))
+   if q = 3 mod 4: ((sin r), (- (cos r))) */
+local void R_cos_sin_R_R (object x) {
+  if (R_rationalp(x)) {
+    if (eq(x,Fixnum_0)) # x=0 -> return (1,0)
+      { pushSTACK(Fixnum_1); pushSTACK(Fixnum_0); return; }
+    x = RA_float_F(x); /* otherwise turn into a float */
+  }
+  /* x -- float */
+  pushSTACK(x); /* save x */
+  x = F_extend_F(x); /* increase computational accuracy */
+  F_pi2_round_I_F(x); /* divide by pi/2 */
+  /* stack layout: Argument, q, r. */
+  x = STACK_0;
+  if (R_zerop(x) /* r=0.0 -> cos=1.0+O(r^2), sin=r+O(r^3) */
+      || (F_exponent_L(x) <= (sintL)(-F_float_digits(x))>>1)) { /* e <= -d/2 <==> e <= -ceiling(d/2) ? */
+    pushSTACK(I_F_float_F(Fixnum_1,STACK_2)); /* cos=1 */
+    pushSTACK(F_F_float_F(STACK_1,STACK_3)); /* sin=r */
+  } else {
+    pushSTACK(F_I_scale_float_F(STACK_0,Fixnum_minus1)); /* s := r/2 */
+    pushSTACK(F_sinx_F(STACK_0)); /* y := (sin(s)/s)^2 */
+    /* Stack layout: Argument, q, r, s, y. */
+    x = F_F_mal_F(STACK_0,STACK_1); /* y*s */
+    x = F_F_mal_F(STACK_2,x); /* y*s*r */
+    x = R_R_minus_R(Fixnum_1,x); /* 1-y*s*r */
+    pushSTACK(F_F_float_F(x,STACK_4)); /* scale and save cos(r) */
+    x = F_F_mal_F(STACK_1,STACK_2); /* y*s */
+    x = F_F_mal_F(x,STACK_2); /* y*s*s */
+    x = R_R_minus_R(Fixnum_1,x); /* 1-y*s*s = cos(s)^2 */
+    x = F_F_mal_F(x,STACK_1); /* cos(s)^2*(sin(s)/s)^2 */
+    x = F_sqrt_F(x); /* cos(s)*sin(s)/s */
+    x = F_F_mal_F(x,STACK_2); /* cos(s)*sin(s) */
+    x = F_I_scale_float_F(x,Fixnum_1); /* 2*cos(s)*sin(s) = sin(r) */
+    x = F_F_float_F(x,STACK_5); /* scale sin(r) */
+    STACK_2 = STACK_0;
+    STACK_1 = x;
+    skipSTACK(1);
+  } /* stack layout: argument, q, r, cos(r), sin(r) */
+  { /* compute sign */
+    var object q = STACK_(3);
+    switch (I_fixnump(q) /* q mod 4 whether q is Fixnum or Bignum */
+            ? (as_oint(q) >> oint_data_shift) & (bit(2)-1)
+            : TheBignum(q)->data[(uintP)Bignum_length(q)-1] & (bit(2)-1)) {
+      case 0:
+        STACK_(2+1) = STACK_0; STACK_(3+1) = STACK_1; break;
+      case 1:
+        STACK_(3+1) = F_minus_F(STACK_0); STACK_(2+1) = STACK_1; break;
+      case 2:
+        STACK_(2+1) = F_minus_F(STACK_0);
+        STACK_(3+1) = F_minus_F(STACK_1); break;
+      case 3:
+        STACK_(3+1) = STACK_0; STACK_(2+1) = F_minus_F(STACK_1); break;
     }
+  }
+  skipSTACK(2+1);
+}
 
 # F_lnx_F(x) liefert zu einem Float x (>=1/2, <=2) ln(x) als Float.
 # can trigger GC
