@@ -1,3 +1,8 @@
+2003-08-02  John Hinsdale <hin@alma.com>
+
+	* modules/oracle/orafns.c,oracle.lisp,oiface.h:
+        support access to Oracle's BLOB/CLOB data types
+
 2003-08-01  Sam Steingold  <sds@gnu.org>
 
 	new module for interface to netica <http://norsys.com/netica_c_api.htm>
