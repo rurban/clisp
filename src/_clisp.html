@@ -350,7 +350,7 @@ This results in slower loading, but faster execution.<p/></dd>
 startup (this happens after the <a href="#opt-load-comp"><code>-C</code></a>
 option is processed).
 The file loaded is
-#if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
+#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
 <code>_clisprc.lisp</code> or <code>_clisprc.fas</code> in the home directory
 <code>(user-homedir-pathname)</code>,
 #endif
