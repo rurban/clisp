@@ -753,6 +753,7 @@ DEFUN(POSIX::STAT-VFS, file)
   }
 
   pushSTACK(file);                  /* the object statvfs'ed */
+  /* FIXME: Should use ulong_to_I for most of these, and map -1 to NIL. */
   pushSTACK(UL_to_I(buf.f_bsize));  /* file system block size */
   pushSTACK(UL_to_I(buf.f_frsize)); /* fundamental file system block size */
   pushSTACK(UL_to_I(buf.f_blocks)); /* total # of blocks on file system */
@@ -763,7 +764,13 @@ DEFUN(POSIX::STAT-VFS, file)
   pushSTACK(UL_to_I(buf.f_ffree));  /* total # of free file serial numbers */
   pushSTACK(UL_to_I(buf.f_favail)); /* # of file serial numbers available to
                                        non-privileged processes */
-  pushSTACK(UL_to_I(buf.f_fsid));   /* file system ID */
+#if HAVE_SCALAR_FSID
+  pushSTACK(UL(buf.f_fsid));   /* file system ID */
+#else
+  /* On Linux, f_fsid of 'struct statfs' is a struct consisting of two ints.
+     With glibc <= 2.1, f_fsid of 'struct statvfs' is the same. */
+  pushSTACK(UL_to_I(*(uintL*)&buf.f_fsid));   /* file system ID */
+#endif
   { /* bit mask of f_flag values */
     unsigned long count = 0;
 #  ifdef ST_RDONLY

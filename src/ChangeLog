@@ -1,3 +1,10 @@
+2004-03-11  Bruno Haible  <bruno@clisp.org>
+
+	* modules/syscalls/configure.in: Add a test whether f_fsid in
+	'struct statvfs' is scalar.
+	* modules/syscalls/calls.c (POSIX::STAT-VFS): Use HAVE_SCALAR_FSID.
+	Needed for Linux/x86 with glibc <= 2.1.
+
 2004-03-11  Sam Steingold  <sds@gnu.org>
             Bruno Haible  <bruno@clisp.org>
 
