@@ -140,8 +140,8 @@
         ;; Produce the expansion:
         `(EVAL-WHEN (LOAD COMPILE EVAL)
            (SYSTEM::%IN-PACKAGE ,packname :NICKNAMES ',nickname-list :USE '()
-                                ,@(when case-sensitive `(:CASE-SENSITIVE T))
-                                ,@(when case-inverted `(:CASE-INVERTED T)))
+                                :CASE-SENSITIVE ,case-sensitive
+                                :CASE-INVERTED ,case-inverted)
            ;; Step 1
            ,@(if shadow-list
                `((,(if case-inverted 'CS-CL:shadow 'CL:SHADOW)
