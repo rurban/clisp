@@ -85,6 +85,8 @@ User visible changes
 
 * Readline is now used properly on Cygwin.
 
+* DIR-KEY now works on Cygwin.
+
 Portability
 -----------
 
