@@ -218,7 +218,7 @@ compiles the specified lisp files to a platform-independent
   <replaceable>temp-dir</replaceable></term>
  <listitem><simpara>Specifies the directory where the temporary core
    file is to be held.  This option takes precedence over the
-   environment variable <envar>TMPDIR</envar>.
+   &env-var; <envar>TMPDIR</envar>.
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 
@@ -236,7 +236,7 @@ compiles the specified lisp files to a platform-independent
     <member><command>spanish</command></member>
     <member><command>dutch</command></member>
     <member><command>russian</command></member></simplelist>.
-   Other languages may be specified through the environment variable
+   Other languages may be specified through the &env-var;
    <envar>LANG</envar>,
    provided the corresponding message catalog is installed.
 <!-- #endif -->
@@ -253,7 +253,7 @@ compiles the specified lisp files to a platform-independent
 <varlistentry id="opt-enc">
  <term><option>-E</option>&dom; &encoding-r;</term>
  <listitem><para>Specifies the encoding used for the given domain,
-   overriding the default which depends on the environment variables
+   overriding the default which depends on the &env-var;s
    <envar>LC_ALL</envar>, <envar>LC_CTYPE</envar>, <envar>LANG</envar>.
    &dom; can be
    <variablelist><varlistentry><term><constant>file</constant></term>
@@ -553,14 +553,13 @@ compiles the specified lisp files to a platform-independent
 <!-- #ifdef HAVE_ENVIRONMENT -->
 <refsection id="environment"><title>Environment</title>
 
-<para>All environment variables that &clisp; uses are read
- at most once.</para>
+<para>All &env-var;s that &clisp; uses are read at most once.</para>
 
 <variablelist>
 <varlistentry><term><envar>CLISP_LANGUAGE</envar></term>
  <listitem><simpara>specifies the language &clisp; uses to communicate
    with the user.  The legal values are identical to those of the &opt-L;
-   option which can be used to override this environment variable.
+   option which can be used to override this &env-var;.
 </simpara></listitem></varlistentry>
 
 <!-- #ifdef UNICODE -->
@@ -576,7 +575,7 @@ compiles the specified lisp files to a platform-independent
    <replaceable>charset</replaceable> is an optional character set
    specification, and needs normally not be given because the character
    set can be inferred from the language and country.
-   This environment variable can be overridden with the
+   This &env-var; can be overridden with the
    <option><link linkend="opt-enc">-E</link></option> option.
 </simpara></listitem></varlistentry>
 <!-- #endif -->
@@ -584,11 +583,11 @@ compiles the specified lisp files to a platform-independent
 <varlistentry><term><envar>LANG</envar></term>
  <listitem><simpara>specifies the language &clisp;
    uses to communicate with the user, unless it is already specified
-   through the environment variable <envar>CLISP_LANGUAGE</envar> or the
+   through the &env-var; <envar>CLISP_LANGUAGE</envar> or the
    &opt-L; option.
 <!-- #ifdef UNICODE -->
    It also specifies the locale determining the character set in use, unless
-   already specified through the environment variable <envar>LC_CTYPE</envar>.
+   already specified through the &env-var; <envar>LC_CTYPE</envar>.
 <!-- #endif -->
    The value may begin with a two-letter ISO 639 language code, for example
    <command>en</command>, <command>de</command>, <command>fr</command>.
