@@ -7,7 +7,7 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : avcall-i386.S avcall-i386-msvc.c avcall.h.msvc avcall-m68k.mit.s avcall-m68k.mot.s avcall-m68k-amiga.s avcall-mips.s avcall-mipsn32.s avcall-mips64.s avcall-sparc.S avcall-alpha.s avcall-hppa.s avcall-arm.s avcall-rs6000.s avcall-m88k.s avcall-convex.s avcall.man
+all : avcall-i386.S avcall-i386-msvc.c avcall.h.msvc avcall-m68k.mit.s avcall-m68k.mot.s avcall-m68k-amiga.s avcall-mips.s avcall-mipsn32.s avcall-mips64.s avcall-sparc.S avcall-alpha.s avcall-hppa.s avcall-arm.s avcall-rs6000-aix.old.s avcall-rs6000-aix.new.s avcall-rs6000-sysv4.s avcall-m88k.s avcall-convex.s avcall.man
 
 avcall-i386.S : avcall-i386.c avcall.h.in
 	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -D__i386__ -fno-omit-frame-pointer -S avcall-i386.c -o avcall-i386.s
@@ -60,8 +60,14 @@ avcall-hppa.s : avcall-hppa.c avcall.h.in
 avcall-arm.s : avcall-arm.c avcall.h.in
 	$(GCC) -V 2.6.3 -b arm-acorn-riscix $(GCCFLAGS) -D__arm__ -S avcall-arm.c -o avcall-arm.s
 
-avcall-rs6000.s : avcall-rs6000.c avcall.h.in
-	$(GCC) -V 2.6.3 -b rs6000 $(GCCFLAGS) -D__rs6000__ -S avcall-rs6000.c -o avcall-rs6000.s
+avcall-rs6000-aix.old.s : avcall-rs6000.c avcall.h.in
+	$(GCC) -V egcs-2.91.57 -b rs6000 -mno-power -mno-power2 -mno-powerpc -mold-mnemonics $(GCCFLAGS) -D__rs6000__ -S avcall-rs6000.c -o avcall-rs6000-aix.old.s
+
+avcall-rs6000-aix.new.s : avcall-rs6000.c avcall.h.in
+	$(GCC) -V egcs-2.91.57 -b rs6000 -mno-power -mno-power2 -mno-powerpc -mnew-mnemonics $(GCCFLAGS) -D__rs6000__ -S avcall-rs6000.c -o avcall-rs6000-aix.new.s
+
+avcall-rs6000-sysv4.s : avcall-rs6000.c avcall.h.in
+	$(GCC) -V egcs-2.91.66 -b ppc-linux -mno-power -mno-power2 -mno-powerpc $(GCCFLAGS) -D__rs6000__ -S avcall-rs6000.c -o avcall-rs6000-sysv4.s
 
 avcall-m88k.s : avcall-m88k.c avcall.h.in
 	$(GCC) -V 2.6.3 -b m88k-dgux $(GCCFLAGS) -D__m88k__ -S avcall-m88k.c -o avcall-m88k.s
