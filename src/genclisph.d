@@ -1554,11 +1554,11 @@ global int main()
 # printf("extern Values apply (object fun, uintC args_on_stack, object other_args);\n");
   printf("extern Values funcall (object fun, uintC argcount);\n");
 # printf("extern Values eval (object form);\n");
-  printf("#define LISPFUNN(name,req_anz)  LISPFUN(name,req_anz,0,norest,nokey,0,NIL)\n");
-  printf("#define LISPFUN_B(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  global Values C_##name subr_##rest_flag##_function_args\n");
+  printf("#define LISPFUNN(name,req_anz)  LISPFUN(name,sec,req_anz,0,norest,nokey,0,NIL)\n");
+  printf("#define LISPFUN_B(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  global Values C_##name subr_##rest_flag##_function_args\n");
   printf("#define subr_norest_function_args  (void)\n");
   printf("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
-  printf("#define LISPFUN_F(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { (lisp_function_t)(&C_##name), nullobj, nullobj, 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, },\n");
+  printf("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { (lisp_function_t)(&C_##name), nullobj, nullobj, 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n");
   printf("#define LISPFUN  LISPFUN_B\n");
 # #ifdef UNICODE
 #   printf("extern object n_char_to_string (const char* charptr, uintL len, object encoding);\n");
