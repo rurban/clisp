@@ -15244,14 +15244,22 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
       sock_opt_int(handle,SO_RCVBUF,arg);
     } else if (eq(kwd,S(Kso_sndbuf))) {
       sock_opt_int(handle,SO_SNDBUF,arg);
+   #ifdef SO_RCVLOWAT
     } else if (eq(kwd,S(Kso_rcvlowat))) {
       sock_opt_int(handle,SO_RCVLOWAT,arg);
+   #endif
+   #ifdef SO_SNDLOWAT
     } else if (eq(kwd,S(Kso_sndlowat))) {
       sock_opt_int(handle,SO_SNDLOWAT,arg);
+   #endif
+   #ifdef SO_RCVTIMEO
     } else if (eq(kwd,S(Kso_rcvtimeo))) {
       sock_opt_time(handle,SO_RCVTIMEO,arg);
+   #endif
+   #ifdef SO_SNDTIMEO
     } else if (eq(kwd,S(Kso_sndtimeo))) {
       sock_opt_time(handle,SO_SNDTIMEO,arg);
+   #endif
     } else {
       pushSTACK(kwd);                   /* TYPE-ERROR slot DATUM */
       pushSTACK(O(type_socket_option)); /* TYPE-ERROR slot EXPECTED-TYPE */
