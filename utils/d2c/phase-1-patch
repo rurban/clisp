@@ -113,27 +113,6 @@
     Choose the version you want to build (see README.Amiga or README) and
     create directories like make.typ2/ at the same level as src/.
  
---- clisp-conversion2/modules/clx/new-clx/Makefile.in	Mon Apr  3 05:27:57 2000
-+++ clisp-conversion/modules/clx/new-clx/Makefile.in	Sat Feb 15 16:25:49 2003
-@@ -13,7 +13,7 @@
- ### Custom defs.
- E2D = ./e2d
- CCMP2C = ../../ccmp2c
--COMMENT5 = ../../comment5
-+COMMENT5 = ./comment5
- ANSIDECL = ../../ansidecl
- RM = rm -f
- WANTS = @WANTS@
-@@ -30,6 +30,9 @@
- $(E2D): e2d.c
- 	$(CC) $(CFLAGS) -I$(INCLUDES) -o $(E2D) e2d.c
- 
-+$(COMMENT5): comment5.c
-+	$(CC) $(CFLAGS) -I$(INCLUDES) -o $(COMMENT5) comment5.c
-+
- clx.e: clx.f
- 	$(CCMP2C) clx.f > genclx.c
- 	$(CC) $(CFLAGS) $(WANTS) genclx.c -o genclx
 --- clisp-conversion2/src/makemake.in	Sat Feb 15 17:51:44 2003
 +++ clisp-conversion/src/makemake.in	Sat Feb 15 12:58:42 2003
 @@ -1962,7 +1962,6 @@
