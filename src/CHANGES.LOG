@@ -42,6 +42,8 @@ User visible changes
 * Fixed a bug: A garbage collection during the execution of a foreign function
   callback caused a crash.
 
+* Fixed a bug: For long-floats, (EQL x (- x)) returned true.
+
 * Fixed a bug: (subtypep 'fundamental-stream 'stream) returned NIL.
 
 Portability
