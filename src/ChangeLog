@@ -1,3 +1,7 @@
+2005-01-25  Sam Steingold  <sds@gnu.org>
+
+	* install.lisp: use EXT:STRING-CONCAT instead of CONCATENATE 'STRING
+
 2005-01-25  Bruno Haible  <bruno@clisp.org>
 
 	* i18n/configure.in: Don't test for locale.h and setlocale.
