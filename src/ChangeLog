@@ -1,5 +1,10 @@
 2005-01-04  Sam Steingold  <sds@gnu.org>
 
+	* exporting.lisp (export-acessories): new function
+	(defstruct, def-c-struct): use it
+
+2005-01-04  Sam Steingold  <sds@gnu.org>
+
 	carry predicate with the structure metaobject
 	* clos-class1.lisp (*<structure-class>-defclass*): new slot:
 	$predicate

@@ -1,5 +1,6 @@
-;;; Macros that export their definiendum
+;;; Macros that export their definienda
 ;;; Bruno Haible 2004-12-15
+;;; Sam Steingold 2005
 
 (defpackage "EXPORTING"
   (:use "COMMON-LISP")
@@ -95,48 +96,6 @@
      (EXPORT ',(or name '(NIL)))
      (CL:DEFTYPE ,name ,lambda-list ,@body)))
 
-(cl:defmacro defstruct (name+options &rest slots)
-  (let ((name (if (consp name+options) (first name+options) name+options)))
-    `(PROGN
-       (EXPORT '(,name
-                 ,@(let ((constructor-option-list nil)
-                         (copier-option 0)
-                         (predicate-option 0))
-                     (when (consp name+options)
-                       (dolist (option (rest name+options))
-                         (if (or (eq option ':CONSTRUCTOR) (equal option '(:CONSTRUCTOR)))
-                           (push (sys::concat-pnames "MAKE-" name) constructor-option-list)
-                           (when (and (consp option) (consp (cdr option)))
-                             (case (first option)
-                               (:CONSTRUCTOR (push (second option) constructor-option-list))
-                               (:COPIER (setq copier-option (second option)))
-                               (:PREDICATE (setq predicate-option (second option))))))))
-                     (nconc (if constructor-option-list
-                              (delete 'NIL constructor-option-list)
-                              (list (sys::concat-pnames "MAKE-" name)))
-                            (when copier-option
-                              (list (if (eql copier-option 0)
-                                      (sys::concat-pnames "COPY-" name)
-                                      copier-option)))
-                            (when predicate-option
-                              (list (if (eql predicate-option 0)
-                                      (sys::concat-pnames name "-P")
-                                      predicate-option)))))
-                 ,@(let ((conc-name-option 0))
-                     (when (consp name+options)
-                       (dolist (option (rest name+options))
-                         (when (and (consp option) (consp (cdr option))
-                                    (eq (first option) ':CONC-NAME))
-                           (setq conc-name-option (second option)))))
-                     (when (eql conc-name-option 0)
-                       (setq conc-name-option (sys::string-concat (string name) "-")))
-                     (mapcar #'(lambda (slot-spec)
-                                 (sys::ds-accessor-name
-                                   (if (consp slot-spec) (first slot-spec) slot-spec)
-                                   conc-name-option))
-                             slots))))
-       (CL:DEFSTRUCT ,name+options ,@slots))))
-
 (cl:defun slot-definition-accessor-symbols (slot)
   (mapcar #'sys::function-block-name
           (append (clos:slot-definition-readers slot)
@@ -147,6 +106,18 @@
 
 (cl:defun class-accessor-symbols (class) ; ABI
   (all-accessor-symbols (clos:class-direct-slots class)))
+
+(cl:defun export-acessories (name)
+  (export name)
+  (export (clos::class-kconstructor name))
+  (export (clos::class-predicate name))
+  (export (clos::class-boa-constructors name))
+  (export (class-accessor-symbols name)))
+
+(cl:defmacro defstruct (name+options &rest slots)
+  `(let ((name (CL:DEFSTRUCT ,name+options ,@slots)))
+     (EXPORT-ACESSORIES name)
+     name))
 
 (cl:defmacro defclass (name superclasses slot-specs &rest options)
   `(PROGN
@@ -195,18 +166,9 @@
 
 #+FFI
 (cl:defmacro def-c-struct (name+options &rest slots)
-  (let ((name (if (consp name+options) (first name+options) name+options)))
-    `(PROGN
-       (EXPORT '(,name
-                 ,(sys::concat-pnames "MAKE-" name)
-                 ,(sys::concat-pnames "COPY-" name)
-                 ,(sys::concat-pnames "-P" name)
-                 ,@(let ((concname (sys::string-concat (string name) "-")))
-                     (mapcar #'(lambda (slot)
-                                 (let ((slotname (first slot)))
-                                   (sys::concat-pnames concname slotname)))
-                             slots))))
-       (FFI:DEF-C-STRUCT ,name+options ,@slots))))
+  `(let ((name (FFI:DEF-C-STRUCT ,name+options ,@slots)))
+     (EXPORT-ACESSORIES name)
+     name))
 
 #+FFI
 (cl:defmacro def-c-var (name &rest options)
