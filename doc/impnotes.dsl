@@ -53,6 +53,14 @@
       (else
        ($mono-seq$)))))
 
+(element quote
+   (let ((role (attribute-string (normalize "role"))))
+     (case role
+       (("pacakge")
+        (make element gi: "STRONG" attributes: (list (list "CLASS" role))
+              (next-match)))
+       (else (next-match)))))
+
 (element (varlistentry term)
   (make sequence
     (process-children-trim)

@@ -3317,7 +3317,7 @@ separate.</para>
 
 <para>A library contains a collection of functions.  The library is
 referred to by a symbol referred as library-base at the &affi-pac;
-level.  This symbol is created in the package <quote>&affi-pac;</quote>.
+level.  This symbol is created in the package &affi-pac;.
 The link between this symbol and the OS-level library name is
 established by <function>declare-library-base</function>.  To avoid
 multiple package conflicts, this and only this function requires the
@@ -3338,8 +3338,8 @@ name, the library-base, an offset into the library, a mask (or &nil;)
 for register-based library calls, the result type and all
 parameter-types.  <function>require-library-functions</function> loads
 the complete set of functions defined in a library file. Symbols are
-created in the package <quote>&affi-pac;</quote> and imported into the
-current package.</para>
+created in the package &affi-pac; and imported into the current
+package.</para>
 
 <para><function>flibcall</function> and <function>mlibcall</function>
 call library functions. <function>mlibcall</function> is a macro that
@@ -4359,13 +4359,13 @@ bash$
  under &gnu; &gpl;, depending on their distribution form:
 
 <itemizedlist>
- <listitem><simpara>Programs distributed as Lisp source or
-  &fasl-file; files can be distributed without restrictions coming from
-  &clisp;.</simpara></listitem>
+ <listitem><simpara>Programs distributed as Lisp source or &fasl-file;
+   files can be distributed without restrictions coming from &clisp;.
+ </simpara></listitem>
  <listitem><simpara>Programs distributed as &clisp; &mem-image;s can be
   distributed only if accompanied with the non-&clisp; &fasl-file; files
-  which make up the &mem-image;, and a &make-file;
-  for rebuilding the &mem-image;.</simpara></listitem>
+  which make up the &mem-image;, and a &make-file; for rebuilding the
+  &mem-image;.</simpara></listitem>
  <listitem><simpara>If you need to distribute a modified &clisp;
   executable (for example, incorporating additional modules written in
   &c-lang;), you must distribute its full source under &gnu; &gpl;.

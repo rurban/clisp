@@ -26,7 +26,7 @@
  * format (~S)         == literal
  * lambda-key (&amp;)  == literal
  * declaration (ftype) == literal
- * package (CL-USER)   == quote
+ * package (CL-USER)   == quote role="package"
  a first mention of an object should be marked with <emphasis role="first">
  -->
 
