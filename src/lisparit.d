@@ -930,7 +930,8 @@ LISPFUNNR(exp,1)
   if (complexp(STACK_0))
     pushSTACK(R_R_contagion_R(TheComplex(STACK_0)->c_real,
                               TheComplex(STACK_0)->c_imag));
-  else pushSTACK(STACK_0);
+  else
+    pushSTACK(STACK_0);
   VALUES1(N_exp_N(STACK_1,true,&STACK_0));
   skipSTACK(2);
 }
@@ -953,7 +954,7 @@ LISPFUN(log,seclass_read,1,1,norest,nokey,0,NIL)
       arg = STACK_1;
     } else
       STACK_0 = arg;
-    VALUES1(N_log_N(arg,true,&STACK_0));
+    VALUES1(N_log_N(arg,&STACK_0));
   } else { /* LOG with two arguments */
     base = check_number(base);
     VALUES1(N_N_log_N(STACK_1,base));

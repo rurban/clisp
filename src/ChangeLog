@@ -1,5 +1,13 @@
 2005-02-20  Bruno Haible  <bruno@clisp.org>
 
+	* realtran.d (R_ln_R): Remove start_p argument.
+	(R_R_log_R): Update.
+	* comptran.d (N_log_N, N_N_log_N, R_R_atanh_R_R, R_R_asinh_R_R,
+	N_acos_N, N_acosh_N): Update.
+	* lisparit.d (log_digits): Update.
+
+2005-02-20  Bruno Haible  <bruno@clisp.org>
+
 	* comptran.d (N_log_N): Remove start_p argument.
 	(N_N_log_N, N_N_expt_N): Update.
 	* lisparit.d (LOG): Update.
