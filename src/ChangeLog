@@ -1,3 +1,8 @@
+2000-05-11  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (socket_status): use HANDLE_SET & HANDLE_ISSET macros.
+	* ../doc/impext.xml: document LISP:SOCKET-STATUS.
+
 2000-05-09  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (sec_usec): new helper function.
