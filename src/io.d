@@ -7739,8 +7739,9 @@ local void pr_array_elt_string (const gcv_object_t* stream_, object obj,
 }
 
 # UP: prints part of an array.
-# pr_array_recursion(locals,depth);
-# > depth: recursion-depth
+# pr_array_recursion(locals,depth,rdepth);
+# > depth: recursion-depth relative to the elements/sub-arrays
+# > rdepth: recursion-depth relative to the elements, i.e. rank of this part
 # > locals: Variables:
 #     *(locals->stream_) :   stream
 #     *(locals->obj_) :      data-vector
@@ -7760,7 +7761,7 @@ typedef struct {
   pr_array_info_t info;
   uintL length_limit;
 } pr_array_locals_t;
-local void pr_array_recursion (pr_array_locals_t* locals, uintL depth) {
+local void pr_array_recursion (pr_array_locals_t* locals, uintL depth, uintL rdepth) {
   check_SP(); check_STACK();
   if (depth==0) { # recursion-depth 0 -> start(base) of recursion
     (*(locals->pr_one_elt)) # call function pr_one_elt, with
@@ -7771,6 +7772,7 @@ local void pr_array_recursion (pr_array_locals_t* locals, uintL depth) {
     # This function increases locals->info.index itself.
   } else {
     depth--; # decrease recursion-depth (still >=0)
+    rdepth--; # decrease recursion-depth (still >= depth)
     var const gcv_object_t* stream_ = locals->stream_;
     var uintL length = 0; # previous length := 0
     var uintL endindex = locals->info.index # start-index in data vector
@@ -7794,11 +7796,17 @@ local void pr_array_recursion (pr_array_locals_t* locals, uintL depth) {
       # (recursively, with decreased depth, and locals->info.index
       # is passed from one call to the next call
       # without requiring further action)
-      pr_array_recursion(locals,depth);
+      pr_array_recursion(locals,depth,rdepth);
       length++; # increment length :-)
       # locals->info.index is already incremented
     }
-    JUSTIFY_END_WEIT;
+    # Attempt to put a 1-dimensional group of objects into as few lines as
+    # possible, but don't do so for >=2-dimensional groups of objects.
+    if (rdepth==0) {
+      JUSTIFY_END_ENG;
+    } else {
+      JUSTIFY_END_WEIT;
+    }
     INDENT_END;
     KLAMMER_ZU; # print ')'
     locals->info.index = endindex; # reached end-index
@@ -7878,7 +7886,7 @@ local void pr_array (const gcv_object_t* stream_, object obj) {
         pr_list(stream_,array_dimensions(*obj_)); # print dimension-list
         if (locals.pr_one_elt) { /* not (ARRAY NIL) */
           JUSTIFY_SPACE; JUSTIFY_LAST(true);
-          pr_array_recursion(&locals,depth); # print array-elements
+          pr_array_recursion(&locals,depth,r); # print array-elements
         }
         JUSTIFY_END_ENG;
         INDENT_END;
@@ -7894,7 +7902,7 @@ local void pr_array (const gcv_object_t* stream_, object obj) {
           # then print the array-elements:
           INDENT_START(indent);
         }
-        pr_array_recursion(&locals,depth);
+        pr_array_recursion(&locals,depth,r);
         INDENT_END;
       }
       skipSTACK(2);
