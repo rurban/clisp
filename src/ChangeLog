@@ -12,6 +12,7 @@
 	(sid_cache_get, sid_cache_put) [WIN32_NATIVE]: new local functions.
 	(OS::FILE-OWNER): new DEFUN.
 	* modules/syscalls/posix.lisp: export FILE-OWNER.
+	* modules/syscalls/preload.lisp: set a nickname ("OS") in make-package.
 
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
