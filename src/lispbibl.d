@@ -10942,12 +10942,14 @@ extern bool funnamep (object obj);
 extern bool sym_macrop (object sym);
 # is used by CONTROL
 
-# UP: Sets the value of a Symbol in the current Environment.
-# setq(symbol,value);
-# > symbol: Symbol, no constant
-# > value: desired value of the Symbol in the current Environment
-extern void setq (object sym, object value);
-# is used by CONTROL
+/* UP: Sets the value of a Symbol in the current Environment.
+ setq(symbol,value);
+ > symbol: Symbol, not a constant
+ > value: desired value of the Symbol in the current Environment
+ < result: value
+ can trigger GC */
+extern object setq (object sym, object value);
+/* used by CONTROL */
 
 # UP: Gives the definition of the function for a Symbol in an Environment
 # sym_function(sym,fenv)

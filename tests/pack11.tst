@@ -715,3 +715,9 @@ t)t
 
 (map nil #'print (list-all-packages))
 nil
+
+#+CLISP
+(ext:appease-cerrors
+ (let (SYSTEM::*COUTPUT-STREAM*)
+   (setq SYSTEM::*COUTPUT-STREAM* 123)))
+#+CLISP 123
