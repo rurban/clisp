@@ -1,3 +1,7 @@
+2004-03-16  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in (XCC_UNUSABLE_CPP): Don't use gcc-cccp on AIX != 4.2.
+
 2004-01-20  Bruno Haible  <bruno@clisp.org>
 
 	* spvw_sigsegv.d (stackoverflow_handler) [UNIX_LINUX ARM]: Update for

@@ -873,13 +873,14 @@ if [ $XCC_GCC = true ] ; then
 
 else
 
-  if [ "$TSYSOS" = aix -o "$TSYSOS" = ultrix -o $TSYS = win32msvc ] ; then
+  if { [ "$TSYSOS" = aix ] && { case "$host_os" in aix4.2*) true;; *) false;; esac; }; } || [ "$TSYSOS" = ultrix -o $TSYS = win32msvc ] ; then
     # If one cannot use the default cc preprocessor: Use GNU cpp instead.
     # The Coherent386 cc preprocessor is not usable
     # 1. because of "macro expansion buffer overflow", 2. because it is an
     # ANSI like preprocessor (## and the like) in front of a K&R C compiler.
     # The AIX 4.2 xlc preprocessor is not usable because when avl.c is included
     # twice from spvw.d, the second inclusion produces no expansion at all.
+    # This seems to be fixed in AIX 4.3 and AIX 5.1.
     # The Ultrix cc preprocessor is not usable because it does not
     # expand the `alloc_FNDS_nocopy' macro in lisparit.
     # The MSVC4 preprocessor is not usable because of its treatment of empty
