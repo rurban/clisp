@@ -1,2 +1,2 @@
-#define VERSION_DATE "2003-08-08"
-#define VERSION_NUMBER "2.30.2"
+#define VERSION_DATE "2003-09-01"
+#define VERSION_NUMBER "2.31"

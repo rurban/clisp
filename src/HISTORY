@@ -1,5 +1,9 @@
 Version  Date            New features
 
+2.31     2003-09-01      fastcgi, dirkey, syscalls, bindings/win32;
+                         modules on win32; Unicode 3.2; new BACKQUOTE;
+                         many ANSI compliance fixes; more FFI functionality
+
 2.30     2002-09-15      no libiconv, gettext, readline, libsigsegv
                          UCS-4, *PARSE-NAMESTRING-DOT-FILE*, Oracle,
                          SOCKET-STREAM-SHUTDOWN, STREAM-LOCK, COPY-FILE,
