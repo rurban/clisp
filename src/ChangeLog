@@ -1,3 +1,8 @@
+2002-05-19  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (STACK_register) [S390]: adjusted 2002-03-24 patch
+	to use the register on GCC-3.1 or better
+
 2002-05-18  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (stdbool.h): sed RE depends on TOS: not all systems
