@@ -477,6 +477,24 @@ check-use-value
 (check-use-value intern "BAR" bar :test eq) t
 (check-use-value fboundp cons "CONS") t
 (check-use-value fdefinition cons "CONS") t
+(check-use-value string "123" 123) t
+
+(handler-bind ((type-error
+                (lambda (c)
+                  (princ c) (terpri)
+                  (use-value 7))))
+  (list (digit-char-p #\3 300)
+        (digit-char-p #\8 'digit-char-p)))
+(3 NIL)
+
+(handler-bind ((type-error
+                (lambda (c)
+                  (princ c) (terpri)
+                  (use-value (char (type-error-datum c) 0)))))
+  (list (char= "abc" "a")
+        (char-equal "ABC" "a")))
+(T T)
+
 
 (handler-bind ((undefined-function
                 (lambda (c) (princ c) (terpri)
