@@ -52,6 +52,9 @@
 #if defined(HAVE_CRYPT_H)
 # include <crypt.h>
 #endif
+#if defined(HAVE_UTIME_H)
+# include <utime.h>
+#endif
 
 #include <stdio.h>             /* for BUFSIZ */
 
@@ -733,28 +736,70 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
   funcall(`POSIX::MAKE-FILE-STAT`,14);
 }
 #endif  /* fstat lstat fstat */
-#if defined(HAVE_CHMOD) && defined(HAVE_CHOWN)
-DEFUN(POSIX::SET-FILE-STAT, file &key :MODE :UID :GID)
-{ /* interface to chmod(2) and chown(2)
+#if defined(HAVE_CHMOD) && defined(HAVE_CHOWN) && defined(HAVE_UTIME)
+DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
+{ /* interface to chmod(2), chown(2), utime(2)
+     http://www.opengroup.org/onlinepubs/009695399/functions/utime.html
      http://www.opengroup.org/onlinepubs/009695399/functions/chown.html
      http://www.opengroup.org/onlinepubs/009695399/functions/chmod.html */
   gid_t gid = (missingp(STACK_0) ? skipSTACK(1), (gid_t)-1
                : posfixnum_to_L(check_posfixnum(popSTACK())));
   uid_t uid = (missingp(STACK_0) ? skipSTACK(1), (uid_t)-1
                : posfixnum_to_L(check_posfixnum(popSTACK())));
-  mode_t mode = (missingp(STACK_0) ? skipSTACK(1), -1
+  mode_t mode = (missingp(STACK_0) ? skipSTACK(1), (mode_t)-1
                  : posfixnum_to_L(check_posfixnum(popSTACK())));
-  STACK_0 = check_string(STACK_0);
+  struct utimbuf utb;
+  bool utb_a = false, utb_m = false;
+  if (!missingp(STACK_0)) {     /* mtime */
+    if (posfixnump(STACK_0))
+      utb.modtime = posfixnum_to_L(STACK_0) - UNIX_LISP_TIME_DIFF;
+    else if (eq(STACK_0,T)) utb.modtime = time(&utb.modtime);
+    else {
+      object path = physical_namestring(STACK_0);
+      struct stat st;
+      with_string_0(path,GLO(pathname_encoding),pathz,
+                    { if (stat(pathz,&st) < 0) OS_file_error(path); });
+      utb.modtime = st.st_mtime;
+    }
+    utb_m = true;
+  }
+  if (!missingp(STACK_1)) {     /* atime */
+    if (eq(STACK_0,STACK_1)) utb.actime = utb.modtime;
+    else if (posfixnump(STACK_1))
+      utb.actime = posfixnum_to_L(STACK_0) - UNIX_LISP_TIME_DIFF;
+    else if (eq(STACK_1,T)) utb.actime = time(&utb.actime);
+    else {
+      object path = physical_namestring(STACK_1);
+      struct stat st;
+      with_string_0(path,GLO(pathname_encoding),pathz,
+                    { if (stat(pathz,&st) < 0) OS_file_error(path); });
+      utb.actime = st.st_atime;
+    }
+    utb_a = true;
+  }
+  skipSTACK(2);                 /* drop atime & mtime */
+  STACK_0 = physical_namestring(STACK_0);
   with_string_0(STACK_0,GLO(pathname_encoding),path, {
       begin_system_call();
       if ((mode != -1) && chmod(path,mode)) OS_file_error(STACK_0);
       if (((uid != (uid_t)-1) || (gid != (gid_t)-1)) && chown(path,uid,gid))
         OS_file_error(STACK_0);
+      if (utb_a && !utb_m) {
+        struct stat st;
+        if (stat(path,&st) < 0) OS_file_error(STACK_0);
+        utb.modtime = st.st_mtime;
+      }
+      if (utb_m && !utb_a) {
+        struct stat st;
+        if (stat(path,&st) < 0) OS_file_error(STACK_0);
+        utb.actime = st.st_atime;
+      }
+      if ((utb_a || utb_m) && utime(path,&utb)) OS_file_error(STACK_0);
       end_system_call();
     });
-  VALUES0;
+  VALUES0; skipSTACK(1);
 }
-#endif  /* chmod chown */
+#endif  /* chmod chown utime */
 
 static uintL check_chmod_mode (object type) {
  check_chmod_mode_restart:
@@ -1131,21 +1176,19 @@ static void copy_attributes_and_close () {
     goto close_and_err;
   }
 # endif
-# if defined(HAVE_UTIMES)
+# if defined(HAVE_UTIME)
   { /*** access/mod times ***/
-    struct timeval utb[2];
-    int utimes_ret;
+    struct utimbuf utb;
+    int utime_ret;
     /* first element of the array is access time, second is mod time. set
        both tv_usec to zero since the file system can't gurantee that
        kind of precision anyway. */
-    utb[0].tv_sec = source_sb.st_atime;
-    utb[0].tv_usec = 0;
-    utb[1].tv_sec = source_sb.st_mtime;
-    utb[1].tv_usec = 0;
+    utb.actime  = source_sb.st_atime;
+    utb.modtime = source_sb.st_mtime;
     with_string_0(physical_namestring(file_stream_truename(STACK_0)),
                   GLO(pathname_encoding), dest_asciz,
-                  { utimes_ret = utimes(dest_asciz, utb); });
-    if (utimes_ret == -1) {
+                  { utime_ret = utime(dest_asciz, &utb); });
+    if (utime_ret == -1) {
       pushSTACK(file_stream_truename(STACK_0));
       goto close_and_err;
     }

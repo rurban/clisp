@@ -1,5 +1,12 @@
 2004-12-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (POSIX::SET-FILE-STAT): also set ATIME
+	and MTIME using utime(2)
+	(copy_attributes_and_close): use utime(2) instead of the
+	deprecated utimes(2)
+
+2004-12-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (OS:FILE-PROPERTIES): support cygwin
 	* modules/syscalls/posix.lisp (FILE-PROPERTIES) [win32|cygwin]: export
 	* modules/syscalls/configure.in (LIBS) [win32|cygwin]: added oleaut32

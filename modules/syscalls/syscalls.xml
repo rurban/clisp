@@ -93,10 +93,10 @@
  </simpara></listitem></varlistentry>
  <varlistentry id="set-file-stat">
   <term><code>(<function>POSIX:SET-FILE-STAT</function> &path-r;
-    &key-amp; &mode-r; <replaceable>uid</replaceable>
-    <replaceable>gid</replaceable>)</code></term>
-  <listitem><simpara>Set some file attributes using &chmod; and &chown;.
-   </simpara><simpara>[&unix; systems only at this time, patches ar welcome.]
+    &key-amp; :ATIME :MTIME :MODE :UID :GID)</code></term>
+  <listitem><simpara>Set some file attributes using &chmod;, &chown;,
+    and &utime;.</simpara>
+   <simpara>[&unix; systems only at this time, patches ar welcome.]
  </simpara></listitem></varlistentry>
  <varlistentry id="stat-vfs"><term><code>(<function>POSIX:STAT-VFS</function>
     &path-r;)</code></term>
