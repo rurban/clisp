@@ -281,8 +281,9 @@ case "$1" in
     done
     verbose "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$lispinitdir"/lispinit.mem -norc -q -i $to_load -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
     # Generate new makevars
-    LIBS=`echo $LIBS | sed s/','/'\\,'/g`
-    sed -e "s,^LIBS=.*\$,LIBS='${LIBS}'," -e "s,^FILES=.*\$,FILES='${FILES}'," < "$sourcedir"/makevars > "$destinationdir"/makevars
+    sed_escape_commas='s/,/\\,/g'
+    LIBS_escaped=`echo "$LIBS" | sed -e "$sed_escape_commas"`
+    sed -e "s,^LIBS=.*\$,LIBS='${LIBS_escaped}'," -e "s,^FILES=.*\$,FILES='${FILES}'," < "$sourcedir"/makevars > "$destinationdir"/makevars
     # Done.
     trap '' 1 2 15
     ;;
@@ -420,8 +421,9 @@ case "$1" in
         verbose "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       fi
       # Generate new makevars
-      LIBS=`echo $LIBS | sed s/','/'\\,'/g`
-      sed -e "s,^LIBS=.*\$,LIBS='${LIBS}'," -e "s,^FILES=.*\$,FILES='${FILES}'," < "$sourcedir"/makevars > "$destinationdir"/makevars
+      sed_escape_commas='s/,/\\,/g'
+      LIBS_escaped=`echo "$LIBS" | sed -e "$sed_escape_commas"`
+      sed -e "s,^LIBS=.*\$,LIBS='${LIBS_escaped}'," -e "s,^FILES=.*\$,FILES='${FILES}'," < "$sourcedir"/makevars > "$destinationdir"/makevars
     fi
     # Done.
     trap '' 1 2 15
