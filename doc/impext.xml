@@ -742,20 +742,18 @@ localized.</para>
 
 <!-- #ifdef /* HAVE_ICONV */ -->
 <variablelist>
-<varlistentry id="iconv"><term>
-   &clisp; comes with it own implementation of
-   <function>iconv()</function>, so the following is more or less
-   obsolete now.
+<varlistentry id="iconv"><term>[&clisp; comes with it own implementation
+   of &iconv;, so the following is more or less obsolete now.]
     (Platform dependent: Only on &unix; systems having the &c-lang;
-    library function <emphasis role="strong">iconv()</emphasis>).</term>
+     library function &iconv;).</term>
 <listitem><simpara>The character sets provided by the library function
- iconv() can also be used as encodings.  To create such an encoding,
+ &iconv; can also be used as encodings.  To create such an encoding,
  call &make-encoding; with the character set name (a string) as
  <constant>:charset</constant> argument.</simpara>
 
  <simpara>These encodings are not assigned to global variables, since
  there is no portable way to get the list of all character sets
- supported by <function>iconv()</function>.</simpara>
+ supported by &iconv;.</simpara>
 
  <simpara>On Linux and &gnu; systems, you get this list by calling the
  <emphasis>program</emphasis> iconv: <command>iconv --list</command>.
@@ -792,21 +790,21 @@ localized.</para>
   language.</simpara></listitem>
 </itemizedlist>
 
-<simpara>On Solaris systems, you can forget about iconv-based encodings,
+<simpara>On Solaris systems, you can forget about &iconv;-based encodings,
  because all the possible encodings are already built-in.  (Solaris
  knows about Japanese, Chinese and Korean encodings, but can convert
  them only to/from UTF-8, not to/from UCS-2, which is &clisp;'s internal
  encoding.)</simpara>
 
-<simpara>On IRIX systems, you can forget about iconv-based encodings as
+<simpara>On IRIX systems, you can forget about &iconv;-based encodings as
  well, because all the interesting possible encodings are already
  built-in.</simpara>
 
-<simpara>On OSF/1 systems, iconv-based encodings are not usable at
+<simpara>On OSF/1 systems, &iconv;-based encodings are not usable at
  all.</simpara>
 
 <simpara>When an encoding is available as a built-in (see the list
- above) and through iconv(), the built-in is preferred, because it is
+ above) and through &iconv;, the built-in is preferred, because it is
  more efficient and available across platforms.</simpara>
 
 </listitem></varlistentry></variablelist>
@@ -827,14 +825,14 @@ localized.</para>
             <entry>newline representation</entry></row></thead>
 <tbody>
 <row><entry><constant>:unix</constant></entry>
-     <entry>Newline is represented by the ASCII <keycode>LF</keycode>
+     <entry>Newline is represented by the ASCII &lf-c;
      character (<keycode>U000A</keycode>).</entry></row>
 <row><entry><constant>:mac</constant></entry>
-     <entry>Newline is represented by the ASCII <keycode>CR</keycode>
+     <entry>Newline is represented by the ASCII &cr-c;
      character (<keycode>U000D</keycode>).</entry></row>
 <row><entry><constant>:dos</constant></entry>
-     <entry>Newline is represented by ASCII <keycode>CR</keycode> followed
-     by ASCII <keycode>LF</keycode>.</entry></row>
+     <entry>Newline is represented by the ASCII &cr-c; followed
+     by the ASCII &lf-c;.</entry></row>
 </tbody></tgroup></table>
 
 <para>Windows programs typically use the <constant>:dos</constant> line
@@ -845,16 +843,15 @@ localized.</para>
 <para>The line terminator mode is relevant only for output (writing to a
  &file-pipe-socket;).  During input, all three kinds of line
  terminators are recognized.  If you do not want this, i.e., if you
- really want to distinguish <keycode>LF</keycode>, <keycode>CR</keycode>
- and <keycode>CR</keycode>/<keycode>LF</keycode>, you have to resort to
- binary input (function &read-byte;).</para>
+ really want to distinguish &lf-c;, &cr-c; and &cr-c;/&lf-c;, you have
+ to resort to binary input (function &read-byte;).</para>
 
 <para>See also <link linkend="clhs-newline">13.1.8 Treatment of Newline
  during Input and Output</link>.</para>
 
 </section>
 
-<section id="make-encoding"><title>EXT:MAKE-ENCODING</title>
+<section id="make-encoding"><title>Function &make-encoding;</title>
 
 <para>The function
   <literal role="sexp">(&make-encoding; &key-amp; :charset
@@ -1650,8 +1647,7 @@ N. Gray to X3J13.</para>
  enforces a type check in both interpreted and compiled code.
  </para></formalpara>
 
-<formalpara id="letf"><title><function>ext:letf</function> &amp;
-                             <function>ext:letf*</function></title>
+<formalpara id="letf"><title>Macros &letf; &amp; &letf-star;</title>
 <para>These macros are similar to &let; and &let-star;, respectively,
  except that they can bind places, even places with multiple values.
  Example:
@@ -1890,7 +1886,7 @@ by the environment variable <envar>CLISP_LINKKIT</envar>.</para>
   </simpara></listitem></varlistentry>
  <varlistentry><term><filename>lisp.run</filename></term>
        <listitem><simpara>the executable</simpara></listitem></varlistentry>
- <varlistentry><term><filename>lispinit.mem</filename></term>
+ <varlistentry><term>&lispinit;</term>
      <listitem><simpara>the &mem-image;</simpara></listitem></varlistentry>
 </variablelist>
 
@@ -1929,23 +1925,19 @@ containing:</para>
  </simpara></listitem></varlistentry>
 <varlistentry><term><envar>NEW_MODULES</envar></term>
  <listitem><simpara>the space-separated list of the module names
-  belonging to the module set.  Normally, every <filename>.c</filename>
-  file in the module set defines a module of its own.  The module name
-  is derived from the file name.
- </simpara></listitem></varlistentry>
+  belonging to the module set.  Normally, every &c-file; file in the
+  module set defines a module of its own.  The module name is derived
+  from the file name.</simpara></listitem></varlistentry>
 <varlistentry><term><envar>TO_LOAD</envar></term>
  <listitem><simpara>the space-separated list of Lisp files to load
-  before building the <filename>lispinit.mem</filename> belonging to a
-  new linking set.
+  before building the &lispinit; belonging to a new linking set.
  </simpara></listitem></varlistentry>
 <varlistentry><term><envar>TO_PRELOAD</envar> (optional)</term>
  <listitem><simpara>the space-separated list of Lisp files to load into
-  an intermediate <filename>lispinit.mem</filename> file, before
-  building the <filename>lispinit.mem</filename> belonging to a new
-  linking set.  This variable is usually used for defining Lisp packages
-  which must be present when the new <filename>.c</filename> files are
-  initialized.
- </simpara></listitem></varlistentry>
+  an intermediate &lispinit; file, before building the &lispinit;
+  belonging to a new linking set.  This variable is usually used for
+  defining Lisp packages which must be present when the new &c-file;
+  files are initialized.</simpara></listitem></varlistentry>
 </variablelist>
 
 <para>The command <command>clisp-link create-module-set
@@ -2071,8 +2063,8 @@ containing:</para>
 <subtitle>Platform dependent: many &unix;, &win32; platforms only.</subtitle>
 
 <para>A foreign function description is written as a Lisp file, and when
- compiled it produces a <filename>.c</filename> file which is then
- compiled by the &c-lang; compiler and may be linked together with
+ compiled it produces a &c-file; file which is then compiled by the
+ &c-lang; compiler and may be linked together with
  <filename>lisp.a</filename>.</para>
 
 <para>All symbols relating to the foreign function interface are
@@ -3437,23 +3429,21 @@ have inlined the library function calls.
  </simpara></listitem></varlistentry>
 
 <varlistentry><term><literal role="sexp">(rexx-do-command
-   <replaceable>command</replaceable> &key-amp; :string :result
-   :token :io :host)</literal></term>
+   &command-r; &key-amp; :string :result :token :io :host)</literal></term>
  <listitem><simpara> -&gt; <literal role="sexp">(RC &optional-amp;
   <replaceable>result</replaceable>)</literal>, or &nil; on failure
 </simpara></listitem></varlistentry>
 
 <varlistentry><term><literal role="sexp">(rexx-run-command
-  <replaceable>command</replaceable> &key-amp; :string :token)</literal></term>
+  &command-r; &key-amp; :string :token)</literal></term>
  <listitem><simpara> -&gt; &t;, or &nil; on failure
 </simpara></listitem></varlistentry>
 
 <varlistentry><term><literal role="sexp">(rexx-send-command
-   <replaceable>command</replaceable> &key-amp; :string :result
+   &command-r; &key-amp; :string :result
    :token :io :host)</literal></term>
  <listitem><simpara> -&gt; <replaceable>arexx-msg-handle</replaceable>,
-  or &nil; on failure
-</simpara></listitem></varlistentry>
+  or &nil; on failure</simpara></listitem></varlistentry>
 
 <varlistentry><term><literal role="sexp">(rexx-wait-sent-command
    <replaceable>arexx-msg-handle</replaceable>)</literal></term>
@@ -3468,10 +3458,10 @@ have inlined the library function calls.
 
 </variablelist>
 
-<para><replaceable>command</replaceable> may be a string denoting a
-command with optional arguments or a vector of strings thus denoting an
-ARexx function call. The first element in the vector is the function
-name, the others are the up to 15 arguments.</para>
+<para>&command-r; may be a string denoting a command with optional
+arguments or a vector of strings thus denoting an ARexx function call.
+The first element in the vector is the function name, the others are the
+up to 15 arguments.</para>
 
 <para>Messages may be sent to an arbitrary ARexx host, special cases are
 &nil; (meaning <function>"REXX"</function>, the default) and &t;
@@ -3479,7 +3469,7 @@ name, the others are the up to 15 arguments.</para>
 
 <para>ARexx server mode: Like Ispell, Csh and SKsh, you can run it in
 server mode by calling <literal role="sexp">(rexx-loop)</literal>. You
-can then only exit with the ARexx <function>exit-loop.cl</function>
+can then only exit with the ARexx <filename>exit-loop.cl</filename>
 script.</para>
 
 <para>Restrictions: Currently &clisp; is not able to wait for input from
@@ -3658,11 +3648,11 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    <filename>${windir}/system32/etc/hosts</filename> on a Win32 system).
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>posix:file-stat</function> &path-r;
+      role="sexp">(<function>posix:file-stat</function> &path-r;
       &optional-amp; <replaceable>link-p</replaceable>)</literal></term>
  <listitem><simpara>Return the stat struct.  &path-r; can
    be a &stream-class;, a &pathname-class;, a &string-class; or a
-   &number-class; (on a UNIX system, meaning file descriptor).  The
+   &number-class; (on a &unix; system, meaning file descriptor).  The
    first slot of the struct returned is the string or the number on which
    <function>stat(2)</function>/<function>fstat(2)</function>/<function>lstat(2)</function>
    was called.  The other 13 slots are numbers, members of the stat
@@ -3742,53 +3732,48 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
     url="http://www.gnome.org">GNOME</ulink>, or Windows.</term>
   <listitem><simpara>Files created with &clisp; can be associated with
    the &clisp; executables so that clicking on them would make &clisp;
-   execute the appropriate code.
-  </simpara></listitem></varlistentry>
+   execute the appropriate code.</simpara></listitem></varlistentry>
  <varlistentry><term>Linux kernel with
                <option>CONFIG_BINFMT_MISC=y</option></term>
   <listitem><simpara>Associate the extensions &fasl-file;
    and &lisp-file; with &clisp;; then you can make the
    files executable and run them from the command line.
   </simpara></listitem></varlistentry>
- <varlistentry><term>Amiga</term>
+ <varlistentry><term>&amiga;</term>
   <listitem><simpara>Files created with &clisp; can be associated with a
    Workbench project icon so that clicking on them would make &clisp;
-   execute the appropriate code.  Note that several
-   &fasl-file; files can be concatenated (using
-   <function>Join</function>) into one file.
+   execute the appropriate code.  Note that several &fasl-file; files
+   can be concatenated (using <function>Join</function>) into one file.
   </simpara></listitem></varlistentry>
 </variablelist>
 
-<para>These four techniques apply to a single &lisp-file;
- or &fasl-file; file.  If your application is made up of
- several &lisp-file; or &fasl-file; files, you
- can simply concatenate them (using <function>cat</function>(1)) into
- one file; the techniques then apply to that concatenated file.</para>
+<para>These four techniques apply to a single &lisp-file; or &fasl-file; file.
+ If your application is made up of several &lisp-file; or &fasl-file; files,
+ you can simply concatenate them (using <command>cat</command>(1))
+ into one file; the techniques then apply to that concatenated file.</para>
 
 <variablelist>
 <!-- #ifdef UNIX -->
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
-<listitem><para>On Unix, a text file (&fasl-file; or
- &lisp-file;) can be made executable by adding a first line
- of the form
- <programlisting>#!<replaceable>interpreter</replaceable> [<replaceable>interpreter-args</replaceable>]</programlisting>
+<listitem><para>On Unix, a text file (&fasl-file; or &lisp-file;) can be
+ made executable by adding a first line of the form
+ <programlisting>#!&interp-r; [&interp-args;]</programlisting>
  and using <command>chmod</command>(1) to make the script executable.
  &clisp; can be used as a script interpreter under the following
  circumstances:</para>
 
 <itemizedlist>
-<listitem><simpara>The <replaceable>interpreter</replaceable> must be the
- full pathname of &clisp;.  The recommended path is
- <filename>/usr/local/bin/clisp</filename>, and if &clisp; is actually
- installed elsewhere, making <filename>/usr/local/bin/clisp</filename>
- be a symbolic link to the real &clisp;.</simpara></listitem>
-<listitem><simpara>The <replaceable>interpreter</replaceable> must be a
- real executable, not a script.  Unfortunately, in the binary
- distributions of &clisp; on Solaris, <function>clisp</function> is a
- shell script because a &c-lang; compiler cannot be assumed to be
- installed on this platform.  If you do have a &c-lang; compiler
- installed, build &clisp; from the source yourself; <command>make
- install</command> will install <command>clisp</command> as a real
+<listitem><simpara>The &interp-r; must be the full pathname of &clisp;.
+ The recommended path is <filename>/usr/local/bin/clisp</filename>,
+ and if &clisp; is actually installed elsewhere, making
+ <filename>/usr/local/bin/clisp</filename> be a symbolic link to the
+ real &clisp;.</simpara></listitem>
+<listitem><simpara>The &interp-r; must be a real executable, not a script.
+ Unfortunately, in the binary distributions of &clisp; on Solaris,
+ &clisp-cmd; is a shell script because a &c-lang; compiler cannot be
+ assumed to be installed on this platform.  If you do have a &c-lang;
+ compiler installed, build &clisp; from the source yourself;
+ <command>make install</command> will install &clisp-cmd; as a real
  executable.</simpara></listitem>
 <listitem><para>On some platforms, the first line which specifies the
  interpreter is limited in length:
@@ -3803,15 +3788,13 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    and arguments short.</para></listitem>
 <listitem><simpara>On Solaris and HP-UX, only the first
  <replaceable>interpreter-arg</replaceable> is passed to the
- <replaceable>interpreter</replaceable>.  In order to pass more than one
+ &interp-r;.  In order to pass more than one
  option (for example, <option>-Msomewhere.mem</option> and
  <option>-C</option>) to &clisp;, separate them by hard spaces (ISO
  Latin-1 character 160) instead of normal spaces.  (But the separator
- between <replaceable>interpreter</replaceable> and
- <replaceable>interpreter-args</replaceable> must still be a normal
- space!) &clisp; will split the
- <replaceable>interpreter-args</replaceable> at hard spaces and at
- normal spaces.</simpara></listitem>
+ between &interp-r; and &interp-args; must still be a normal space!)
+ &clisp; will split the &interp-args; at hard spaces and at normal
+ spaces.</simpara></listitem>
 </itemizedlist>
 
 <para>The script should contain Lisp forms, except in the
@@ -3824,11 +3807,11 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
  the Unix standard input and output.  &error-output-var; is bound to the
  Unix error output.  Continuable errors will be turned to warnings.
  Non-continuable errors and
- <keycombo><keycap>Ctrl</keycap><keysym>C</keysym></keycombo> interrupts
+ <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupts
  will terminate the execution of the Lisp script with an error status.
  If you wish the script's contents to be compiled during loading, add
    <ulink url="clisp.html#opt-load-comp"><option>-C</option></ulink>
- to the <replaceable>interpreter-args</replaceable>.</para>
+ to the &interp-args;.</para>
 
 <para>Another, quite inferior, alternative is to put the following into
  a file:</para>
@@ -3856,16 +3839,15 @@ input will be available.</para>
 
 <itemizedlist>
  <listitem><simpara>Associate the &mem-file; extension with
-   <command>c:\clisp\lisp.exe -m 10M -M %s -N c:\clisp\locale</command>.
+   <command>c:\clisp\lisp.exe -B c:\clisp -M %s</command>.
   </simpara></listitem>
  <listitem><simpara>Associate the &fasl-file; extension with
-   <command>c:\clisp\lisp.exe -m 10M -M c:\clisp\lispinit.mem -N
-    c:\clisp\locale -i %s</command>.
+   <command>c:\clisp\lisp.exe -B c:\clisp -M c:\clisp\lispinit.mem
+    -i %s</command>.
     Alternatively, you may want to have a function
-    <function>main</function> in your files and associate the
-    &fasl-file; extension with <command>c:\clisp\lisp.exe
-    -m 10M -M c:\clisp\lispinit.mem -N c:\clisp\locale -i %s -x
-    (main)</command>.
+    <function>main</function> in your &fasl-file; files and associate
+    the &fasl-file; extension with <command>c:\clisp\lisp.exe -B
+    c:\clisp -M c:\clisp\lispinit.mem -i %s -x (main)</command>.
   </simpara></listitem>
 </itemizedlist>
 
@@ -3920,8 +3902,7 @@ bash$
 </listitem></varlistentry>
 
 <!-- #ifdef AMIGAOS -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">Amiga</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &amiga; platforms only.</term>
 
 <listitem><para>Using a Workbench project file, the &mem-image;s,
  source and binary files can be made "executable".
@@ -4018,8 +3999,7 @@ bash$
 <!-- #if defined(UNIX) || defined(MSDOS) || defined(RISCOS) -->
 <varlistentry><term>Platform dependent: &unix;, &acorn;, &dos;, &os2;,
    platforms only.</term>
- <listitem><simpara><literal
-   role="sexp">(<function>EXT:EXECUTE</function>
+ <listitem><simpara><literal role="sexp">(&exec;
        <replaceable>programfile</replaceable>
        <replaceable>arg&sub-1;</replaceable>
        <replaceable>arg&sub-2;</replaceable> ...)</literal>
@@ -4031,53 +4011,40 @@ bash$
 <!-- #endif -->
 <!-- #ifdef AMIGAOS -->
 <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
- <listitem><simpara><literal
-   role="sexp">(<function>ext:execute</function>
-       <replaceable>command</replaceable>)</literal>
-   executes a given <replaceable>command</replaceable> using the
-   operating system's shell.
+ <listitem><simpara><literal role="sexp">(&exec; &command-r;)</literal>
+   executes a given &command-r; using the operating system's shell.
  </simpara></listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #ifdef HAVE_SHELL -->
-<varlistentry><term>Platform dependent: &unix;, &amiga;, &acorn;, &dos;,
-   &os2;, &win32; platforms only.</term>
- <listitem><simpara><literal
-    role="sexp">(<function>ext:shell</function>
-        [<replaceable>command</replaceable>])</literal>
-
-   calls the operating system's shell.  <literal
-   role="sexp">(<function>ext:shell</function>)</literal> calls
-   the shell for interactive use.  <literal
-   role="sexp">(<function>ext:shell</function>
-   <replaceable>command</replaceable>)</literal> calls the shell only
-   for execution of the one given <replaceable>command</replaceable>.
+<varlistentry><term>Platform dependent: &unix;, &amiga;,
+   &acorn;, &dos;, &os2;, &win32; platforms only.</term>
+ <listitem><simpara><literal role="sexp">(&shell; [&command-r;])</literal>
+   calls the operating system's shell. <literal
+   role="sexp">(&shell;)</literal> calls the shell for interactive use.
+   <literal role="sexp">(&shell; &command-r;)</literal> calls the shell
+   only for execution of the one given &command-r;.
  </simpara></listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #ifdef PIPES2 -->
 <varlistentry><term>Platform dependent: &unix;, &os2;, &win32;
    platforms only.</term>
- <listitem><simpara>The functions <emphasis
-   role="strong"><function>ext:run-shell-command</function></emphasis>
-   and <emphasis
-   role="strong"><function>ext:run-program</function></emphasis> are the
-   general interface to <emphasis
-   role="strong"><function>ext:shell</function></emphasis> and the
-   above:</simpara>
+ <listitem><simpara>The functions <function>EXT:RUN-SHELL-COMMAND</function>
+   and <function>EXT:RUN-PROGRAM</function> are the
+   general interface to &shell; and the above:</simpara>
 
-   <simpara><literal
-   role="sexp">(<function>ext:run-shell-command</function>
-   <replaceable>command</replaceable> &input-k; &output-k;
-   &if-output-exists;)</literal> runs a shell command.</simpara>
+   <simpara><literal role="sexp">(<function>EXT:RUN-SHELL-COMMAND</function>
+   &command-r; &key-amp; &input-k; &output-k; &if-output-exists;)</literal>
+   runs a shell command.</simpara>
 
-   <simpara><literal role="sexp">(<function>ext:run-program</function>
-   <replaceable>program</replaceable> <constant>:arguments</constant>
+   <simpara><literal role="sexp">(<function>EXT:RUN-PROGRAM</function>
+   <replaceable>program</replaceable> &key-amp; <constant>:arguments</constant>
    &input-k; &output-k; &if-output-exists;)</literal> runs an external
    program.</simpara>
 
   <variablelist>
-   <varlistentry><term><replaceable>command</replaceable></term>
+   <varlistentry><term>&command-r;</term>
     <listitem><simpara>the shell command.</simpara>
 <!-- #ifdef UNIX -->
      <variablelist>
@@ -4117,11 +4084,9 @@ bash$
 
 <para>If &stream-k; was specified for &input-k; or &output-k;, a Lisp
  stream is returned.  If &stream-k; was specified for &input-k; and
- &output-k;, three Lisp streams are returned, as for the function <link
- linkend="pipe"><function>ext:make-pipe-io-stream</function></link>.
- This use of <function>ext:run-program</function> can cause deadlocks,
- see <link
- linkend="pipe"><function>ext:make-pipe-io-stream</function></link>.</para>
+ &output-k;, three Lisp streams are returned, as for the function
+ &mk-pipe-io;.  This use of <function>ext:run-program</function> can
+ cause deadlocks, see &mk-pipe-io;.</para>
 </listitem></varlistentry>
 <!-- #endif -->
  </variablelist>
@@ -4134,27 +4099,21 @@ bash$
 <varlistentry><term>Platform dependent: &unix;, &os2;, &win32;
     platforms only.</term>
 <listitem><variablelist>
- <varlistentry><term><literal
-    role="sexp">(<function>ext:make-pipe-input-stream</function>
-    <replaceable>command</replaceable> &key-amp; &eltype; &extfmt;
-    &buffered;)</literal></term>
+ <varlistentry><term><literal role="sexp">(&mk-pipe-in;
+    &command-r; &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
 <listitem><simpara>returns an input stream that will supply the output
   from the execution of the given operating system command.
   </simpara></listitem></varlistentry>
 
-<varlistentry><term><literal
-   role="sexp">(<function>ext:make-pipe-output-stream</function>
-   <replaceable>command</replaceable> &key-amp; &eltype; &extfmt;
-   &buffered;)</literal></term>
+<varlistentry><term><literal role="sexp">(&mk-pipe-out;
+   &command-r; &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
 <listitem><simpara>returns an output stream that will pass its output as
    input to the execution of the given operating system command.
   </simpara></listitem></varlistentry>
 
 <!-- #ifdef PIPES2 -->
-<varlistentry><term><literal
-   role="sexp">(<function>ext:make-pipe-io-stream</function>
-   <replaceable>command</replaceable> &key-amp; &eltype; &extfmt;
-   &buffered;)</literal></term>
+<varlistentry><term><literal role="sexp">(&mk-pipe-io;
+   &command-r; &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
 <listitem><simpara>returns three values.  The first value is a
   bidirectional stream that will simultaneously pass its output as input
   to the execution of the given operating system command and supply the
@@ -4162,10 +4121,10 @@ bash$
   the input stream and the output stream that make up the I/O stream,
   respectively.  Note that they must be closed individually.</simpara>
 
-  <simpara>Warning: Improper use of this function can lead to
+ <simpara>Warning: Improper use of this function can lead to
   deadlocks.  Use it at your own risk!</simpara>
 
-  <simpara>A deadlock occurs if the command and your program either both
+ <simpara>A deadlock occurs if the command and your program either both
   try to read from each other at the same time or both try to write to
   each other at the same time. To avoid deadlocks, it is recommended
   that you fix a protocol between the command and your program and avoid
@@ -4182,7 +4141,7 @@ bash$
 <section id="hardcopy"><title>Printing</title>
 
 <para>The macro <emphasis
- role="strong"><function>ext:with-output-to-printer</function></emphasis>:
+ role="strong"><function>EXT:WITH-OUTPUT-TO-PRINTER</function></emphasis>:
 <programlisting>
 (ext:with-output-to-printer (&var-r; [&extfmt;])
   {&declaration-r;}*
@@ -4206,11 +4165,11 @@ bash$
   <listitem><simpara>&win32; registry access
   </simpara></listitem></varlistentry>
  <varlistentry><term>:gnome</term>
-  <listitem><simpara>Gnome-config access
+  <listitem><simpara><ulink url="http://developer.gnome.org/doc/API/libgnome/gnome-gnome-config.html">gnome-config</ulink> access
   </simpara></listitem></varlistentry>
  <varlistentry><term>:ldap</term>
   <listitem><simpara>LDAP interface via
-   <ulink url="http://www.openldap.org">OpenLDAP</ulink>.
+   <ulink url="http://www.openldap.org">OpenLDAP</ulink> or compatible
   </simpara></listitem></varlistentry>
 </variablelist>
 
@@ -4219,111 +4178,79 @@ these features are experimental and the API may be modified in the
 future).</para>
 
 <variablelist>
- <varlistentry id="dir-key-open"><term><literal
-   role="sexp">(<function>ldap:dir-key-open</function>
-                <replaceable>dkey</replaceable>
-                <replaceable>path</replaceable>
-                &key-amp; (&direction-k; &input-k;)
-                          &if-does-not-exist;</literal></term>
-  <listitem><simpara>Open the directory key under
-   <replaceable>dkey</replaceable>, which should be either an open
-   directory key or a valid <link linkend="dir-key-type">directory key
-   type</link>.
+ <varlistentry id="dir-key-open"><term><literal role="sexp">(&dkey-open;
+   &dkey-r; &path-r; &key-amp; (&direction-k; &input-k;)
+   &if-does-not-exist;</literal></term>
+  <listitem><simpara>Open the directory key under &dkey-r;, which should
+   be either an open directory key or a valid &dk-type;.
    The meaning of the &direction-k; and &if-does-not-exist; keyword
    arguments is the same as for &open;.
   </simpara></listitem></varlistentry>
  <varlistentry id="dir-key-close"><term><literal
-   role="sexp">(<function>ldap:dir-key-close</function>
-                <replaceable>dkey</replaceable>)</literal></term>
-  <listitem><simpara>Close the directory key.
-   The preferred way is to use the <link linkend="with-dir-key-open"
-   ><function>ldap:with-dir-key-open</function></link> macro.
-  </simpara></listitem></varlistentry>
+   role="sexp">(&dkey-close; &dkey-r;)</literal></term>
+  <listitem><simpara>Close the directory key.  The preferred way is to
+   use the &wdkey-open; macro.</simpara></listitem></varlistentry>
  <varlistentry id="with-dir-key-open"><term><literal
-   role="sexp">(<function>ldap:with-dir-key-open</function>
-                (&var-r; <replaceable>dkey</replaceable>
-                 <replaceable>path</replaceable>
-                 &rest-amp; <replaceable>options</replaceable>)
-                &body-amp; &body-r;)</literal></term>
-  <listitem><simpara>Open the directory key (by calling <link
-   linkend="dir-key-open"><function>ldap:dir-key-open</function></link>
-   on <replaceable>dkey</replaceable>, <replaceable>path</replaceable>
-   and <replaceable>options</replaceable>), bind it to
-   &var-r;, execute &body-r;, then close it with <link
-   linkend="dir-key-close"><function>ldap:dir-key-close</function></link>.
+   role="sexp">(&wdkey-open; (&var-r; &dkey-r; &path-r; &rest-amp;
+    <replaceable>options</replaceable>) &body-amp; &body-r;)</literal></term>
+  <listitem><simpara>Open the directory key (by calling &dkey-open;
+   on &dkey-r;, &path-r; and <replaceable>options</replaceable>), bind
+   it to &var-r;, execute &body-r;, then close it with &dkey-close;.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp"
+   >(<function>LDAP:DIR-KEY-TYPE</function> &dkey-r;)</literal></term>
+  <listitem><simpara>Return the &dk-type; of the directory key
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>ldap:dir-key-type</function>
-                <replaceable>dkey</replaceable>)</literal></term>
-  <listitem><simpara>Return the <link linkend="dir-key-type">type</link>
-   of the directory key</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-   role="sexp">(<function>ldap:dir-key-path</function>
-                <replaceable>dkey</replaceable>)</literal></term>
+   role="sexp">(<function>LDAP:DIR-KEY-PATH</function>
+                &dkey-r;)</literal></term>
   <listitem><simpara>Return the path of this directory key, which is the
-   <replaceable>path</replaceable> argument of <link
-   linkend="dir-key-open"><function>ldap:dir-key-open</function></link>
-   if <replaceable>dkey</replaceable> was a <link
-   linkend="dir-key-type">type</link> or the concatenation of the
-   <replaceable>path</replaceable> argument and the
-   <function>ldap:dir-key-path</function> of
-   <replaceable>dkey</replaceable>.
+   &path-r; argument of &dkey-open; if &dkey-r; was a &dk-type; or the
+   concatenation of the &path-r; argument and the
+   <function>ldap:dir-key-path</function> of &dkey-r;.
    </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-   role="sexp">(<function>ldap:dir-key-direction</function>
-                <replaceable>dkey</replaceable>)</literal></term>
+ <varlistentry><term><literal role="sexp"
+   >(<function>LDAP:DIR-KEY-DIRECTION</function> &dkey-r;)</literal></term>
   <listitem><simpara>One of &input-k;, &output-k; and &io-k;, indicating
    the permitted operation on this key and its derivatives.
    </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-   role="sexp">(<function>ldap:dir-key-closed-p</function>
-                <replaceable>dkey</replaceable>)</literal></term>
+ <varlistentry><term><literal role="sexp"
+   >(<function>LDAP:DIR-KEY-CLOSED-P</function> &dkey-r;)</literal></term>
   <listitem><simpara>Check whether the key has been closed.
    It is not an error to close a closed key.
    </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>ldap:dir-key-subkey-delete</function>
-                <replaceable>dkey</replaceable>
-                <replaceable>subkey</replaceable>)</literal>
-   <literal role="sexp">(<function>ldap:dir-key-value-delete</function>
-                         <replaceable>dkey</replaceable>
-                         <replaceable>attribute</replaceable>)</literal></term>
+   role="sexp">(<function>LDAP:DIR-KEY-SUBKEY-DELETE</function>
+     &dkey-r; <replaceable>subkey</replaceable>)</literal>
+   <literal role="sexp">(<function>LDAP:DIR-KEY-VALUE-DELETE</function>
+     &dkey-r; <replaceable>attribute</replaceable>)</literal></term>
   <listitem><simpara>Delete the specified subkey or attribute.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-   role="sexp">(<function>ldap:dir-key-subkey</function>
-                <replaceable>dkey</replaceable>)</literal>
-  <literal role="sexp">(<function>ldap:dir-key-attributes</function>
-                <replaceable>dkey</replaceable>)</literal></term>
+ <varlistentry><term><literal role="sexp"
+   >(<function>LDAP:DIR-KEY-SUBKEY</function> &dkey-r;)</literal>
+  <literal role="sexp">(<function>LDAP:DIR-KEY-ATTRIBUTES</function>
+                &dkey-r;)</literal></term>
   <listitem><simpara>Return the list of the subkeys or attributes.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>ldap:dir-key-value</function>
-                <replaceable>dkey</replaceable>
-                <replaceable>attribute</replaceable>
-                &optional-amp; <replaceable>default</replaceable>)
-                </literal></term>
+   role="sexp">(<function>LDAP:DIR-KEY-VALUE</function> &dkey-r;
+    <replaceable>attribute</replaceable> &optional-amp;
+    <replaceable>default</replaceable>)</literal></term>
   <listitem><simpara>Return the value of the specified attribute,
    similar to &gethash; and &setf;able just like &gethash;.
    </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-   role="sexp">(<function>ldap:dir-key-info</function>
-                <replaceable>dkey</replaceable>)</literal></term>
+ <varlistentry><term><literal role="sexp"
+   >(<function>LDAP:DIR-KEY-INFO</function> &dkey-r;)</literal></term>
   <listitem><simpara>Return some information about the directory key.
    This is highly platform-dependent and will probably be removed or
    replaced or modified in the future.</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-   role="sexp">(<function>with-dir-key-search</function>
-                (<replaceable>key-iter</replaceable>
+ <varlistentry id="with-dir-key-search"><term><literal
+   role="sexp">(&wdkey-search; (<replaceable>key-iter</replaceable>
                  <replaceable>atribute-iter</replaceable>
-                 <replaceable>dkey</replaceable>
-                 <replaceable>path</replaceable>
-                 &key-amp; <constant>:scope</constant>)
+                 &dkey-r; &path-r; &key-amp; <constant>:scope</constant>)
                  &body-amp; &body-r;)</literal></term>
   <listitem><simpara>This is the main way to iterate over the subtree
-   under the key
-   <replaceable>dkey</replaceable>+<replaceable>path</replaceable>.
-   </simpara>
+   under the key &dkey-r;+&path-r;.</simpara>
    <simpara><replaceable>key-iter</replaceable> is a non-&nil; symbol
     and is bound via &macrolet; to a macro, each call of which returns
     the next subkey.</simpara>
@@ -4342,10 +4269,10 @@ future).</para>
     <varlistentry><term><constant>:tree</constant></term>
      <listitem><simpara>iterate over the subtree
      </simpara></listitem></varlistentry></variablelist></para>
-   <simpara><function>with-dir-key-search</function> is used to
-    implement <function>dir-key-values</function>,
-    <function>dir-key-childred</function> and
-    <function>dir-key-dump-tree</function> in
+   <simpara>&wdkey-search; is used to implement
+    <function>LDAP:DIR-KEY-VALUES</function>,
+    <function>LDAP:DIR-KEY-CHILDREN</function> and
+    <function>LDAP:DIR-KEY-DUMP-TREE</function> in
     <filename>dirkey.lisp</filename>.
     </simpara></listitem></varlistentry>
 </variablelist>

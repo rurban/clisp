@@ -6,11 +6,10 @@
 <section id="spec-symb"><title>Special Symbols
   <ulink url="&clhs;/Body/sec_1-4-1-3.html">[CLHS-1.4.1.3]</ulink></title>
 
-<para>The final delimiter of an interactive stream: On Unix, the user
- has to type
- <keycombo><keycap>Ctrl</keycap><keycap>D</keycap></keycombo> at the
- beginning of a line. On DOS or Win32, the user has to type
- <keycombo><keycap>Ctrl</keycap><keycap>Z</keycap></keycombo>, followed
+<para>The final delimiter of an interactive stream: On &unix;, the user
+ has to type <keycombo>&ctrl;<keysym>D</keysym></keycombo> at the
+ beginning of a line. On &dos; or &win32;, the user has to type
+ <keycombo>&ctrl;<keysym>Z</keysym></keycombo>, followed
  by <keycap>Return</keycap>.  This final delimiter is never actually
  seen by programs; no need to test for <keysym>#\^D</keysym> or
  <keysym>#\^Z</keysym> - use &read-char-no-hang; to check for end of
@@ -89,8 +88,7 @@
  done whether the package part and the symbol-name part do not have
  number syntax. (What's the purpose of this check?) So we consider
  tokens like <token>USER::</token> or <token>:1</token> or
- <token>LISP::4711</token> or <token>21:3</token> as
- symbols.</para>
+ <token>LISP::4711</token> or <token>21:3</token> as symbols.</para>
 
 </section>
 
@@ -151,10 +149,8 @@
 <section id="eval-environ"><title>Introduction to Environments
   <ulink url="&clhs;/Body/sec_3-1-1.html">[CLHS-3.1.1]</ulink></title>
 
-<formalpara id="the-env">
-    <title><function>EXT:THE-ENVIRONMENT</function></title>
-<para>As in Scheme, the macro <literal
- role="sexp">(<function>ext:the-environment</function>)</literal>
+<formalpara id="the-env"><title>&the-env;</title>
+<para>As in Scheme, the macro <literal role="sexp">(&the-env;)</literal>
  returns the current lexical environment.  This works only in
  interpreted code and is not compilable!</para></formalpara>
 
@@ -237,8 +233,7 @@ executes a compiled version of form.</para>
 
 <para>The type assertion <literal role="sexp">(&the; &val-type-r;
  &form-r;)</literal> enforces a type check in interpreted code.
- No type check is done in compiled code.
- See also the &ethe; macro.</para>
+ No type check is done in compiled code.  See also the &ethe; macro.</para>
 
 </section>
 </section>
@@ -261,13 +256,12 @@ executes a compiled version of form.</para>
 <section id="spec-decl"><title>Declaration &special-dec;</title>
 
 <para><literal role="sexp">(&proclaim; '(&special-dec;
- &var-r;))</literal> declarations may not be
- undone.  The same holds for &defvar;, &defparameter; and &defconstant;
- declarations.</para>
+ &var-r;))</literal> declarations may not be undone.  The same holds for
+ &defvar;, &defparameter; and &defconstant; declarations.</para>
 
-<para>It is an error if a &defconstant; variable is bound at the
- moment the &defconstant; is executed, but
- &defconstant; does not check this.</para>
+<para>It is an error if a &defconstant; variable is bound at the moment
+ the &defconstant; is executed, but &defconstant; does not check
+ this.</para>
 
 <para>Constants may not be bound dynamically or lexically.</para>
 
@@ -295,26 +289,22 @@ executes a compiled version of form.</para>
   <ulink url="&clhs;/Body/sec_4-2-3.html">[CLHS-4.2.3]</ulink></title>
 
 <para>The general form of the &complex-class; type specifier is <literal
- role="sexp">(&complex-class;
- <replaceable>type-of-real-part</replaceable>
+ role="sexp">(&complex-class; <replaceable>type-of-real-part</replaceable>
  <replaceable>type-of-imaginary-part</replaceable>)</literal>.  The type
- specifier <literal role="sexp">(&complex-class;
- &type-r;)</literal> is equivalent to <literal
- role="sexp">(&complex-class; &type-r;
+ specifier <literal role="sexp">(&complex-class; &type-r;)</literal> is
+ equivalent to <literal role="sexp">(&complex-class; &type-r;
  &type-r;)</literal>.</para>
 
 <para>The &ansi-cl; type specifier <literal role="sexp">(&real-class;
- <replaceable>low</replaceable>
- <replaceable>high</replaceable>)</literal> denotes the real numbers
- between <replaceable>low</replaceable> and
+ <replaceable>low</replaceable> <replaceable>high</replaceable>)</literal>
+ denotes the real numbers between <replaceable>low</replaceable> and
  <replaceable>high</replaceable>.</para>
 
 <para>&deftype; &lalist;s are subject to destructuring (nested &lalist;s
  are allowed, as in &defmacro;) and may contain a &whole-amp; marker,
  but not an &environment-amp; marker.</para>
 
-<formalpara><title><literal
- role="sexp">(<function>ext:type-expand</function>
+<formalpara><title><literal role="sexp">(<function>ext:type-expand</function>
  <replaceable>typespec</replaceable> &optional-amp;
  <replaceable>once-p</replaceable>)</literal></title>
 <para>If <replaceable>typespec</replaceable> is a user-defined type,
@@ -336,25 +326,20 @@ executes a compiled version of form.</para>
   &long-float-type;, &complex-class;</simpara></listitem>
  <listitem><simpara>&character-class;, &base-char-type;</simpara></listitem>
  <listitem><simpara><literal role="type">(&array-class; &eltype-r;
-  <replaceable>dimensions</replaceable>)</literal>,
-  <literal role="type">(&simple-array-type; &eltype-r;
-  <replaceable>dimensions</replaceable>)</literal></simpara></listitem>
+  &dimensions-r;)</literal>, <literal role="type">(&simple-array-type;
+  &eltype-r; &dimensions-r;)</literal></simpara></listitem>
  <listitem><simpara><literal role="type">(&vector-class; &t;
-  <replaceable>size</replaceable>)</literal>, <literal
-  role="type">(&simple-vector-type;
-  <replaceable>size</replaceable>)</literal></simpara></listitem>
+  &size-r;)</literal>, <literal role="type">(&simple-vector-type;
+  &size-r;)</literal></simpara></listitem>
  <listitem><simpara><literal role="type">(&string-class;
-  <replaceable>size</replaceable>)</literal>, <literal
-  role="type">(&simple-string-type;
-  <replaceable>size</replaceable>)</literal></simpara></listitem>
+  &size-r;)</literal>, <literal role="type">(&simple-string-type;
+  &size-r;)</literal></simpara></listitem>
  <listitem><simpara><literal role="type">(&base-string-type;
-  <replaceable>size</replaceable>)</literal>, <literal
-  role="type">(&simple-base-string-type;
-  <replaceable>size</replaceable>)</literal></simpara></listitem>
+  &size-r;)</literal>, <literal role="type">(&simple-base-string-type;
+  &size-r;)</literal></simpara></listitem>
  <listitem><simpara><literal role="type">(&bit-vector-class;
-  <replaceable>size</replaceable>)</literal>, <literal
-  role="type">(&simple-bit-vector-type;
-  <replaceable>size</replaceable>)</literal></simpara></listitem>
+  &size-r;)</literal>, <literal role="type">(&simple-bit-vector-type;
+  &size-r;)</literal></simpara></listitem>
  <listitem><simpara>&function-class;,
   &compiled-function-type;</simpara></listitem>
  <listitem><simpara>&stream-class;, &file-stream-class;,
@@ -363,7 +348,7 @@ executes a compiled version of form.</para>
   &echo-stream-class;, &string-stream-class;</simpara></listitem>
  <listitem><simpara>&package-class;, &hash-table-class;, &readtable-class;,
   &pathname-class;, &logical-pathname-class;, &random-state-class;,
-  <classname>byte</classname></simpara></listitem>
+  &byte-t;</simpara></listitem>
  <listitem><simpara><classname>special-operator</classname>,
   <classname>load-time-eval</classname>, &symbol-macro;,
   <link linkend="encoding"><classname>encoding</classname></link>,
@@ -432,7 +417,7 @@ executes a compiled version of form.</para>
  interpreted code.</para>
 
 <para>There is a generic function <emphasis
- role="strong"><function>clos:no-primary-method</function></emphasis>
+ role="strong"><function>CLOS:NO-PRIMARY-METHOD</function></emphasis>
  (similar to &no-applicable-method;) which is called when a generic
  function of the class &standard-generic-function-class; is invoked and
  no primary method on that generic function is applicable.</para>
@@ -589,10 +574,9 @@ is the same as
 <section id="sym-fun"><title>Function &symbol-function;</title>
 
 <para><literal role="sexp">(&setf; (&symbol-function; &symbol-r;)
- &object-r;)</literal> requires
- &object-r; to be either a function, a
+ &object-r;)</literal> requires &object-r; to be either a function, a
  &symbol-function; return value or a &lambda-expr;.  The &lambda-expr;
- is thereby immediately converted to a function.</para>
+ is thereby immediately converted to a &function-class;.</para>
 
 </section>
 
@@ -612,16 +596,14 @@ is the same as
 
  <varlistentry><term>&progn;</term>
   <listitem><simpara>
-   <literal role="sexp">(&setf; (&progn; &form-r; ...
-                                         <replaceable>place</replaceable>)
+   <literal role="sexp">(&setf; (&progn; &form-r; ... &place-r;)
                                 &object-r;)</literal>
   </simpara></listitem></varlistentry>
 
  <varlistentry><term>&locally;</term>
   <listitem><simpara>
    <literal role="sexp">(&setf; (&locally; &declaration-r; ... &form-r; ...
-                                 <replaceable>place</replaceable>)
-                                &object-r;)</literal>
+                                 &place-r;) &object-r;)</literal>
   </simpara></listitem></varlistentry>
 
  <varlistentry><term>&if;</term>
@@ -677,9 +659,7 @@ is the same as
  data.  This check is only performed for strings, not for conses, other
  kinds of arrays, and user-defined data types.</para>
 
-<para>See also the <link
- linkend="letf"><function>ext:letf</function></link> and <link
- linkend="letf"><function>ext:letf*</function></link> macros.</para>
+<para>See also the &letf; and &letf-star; macros.</para>
 
 </section>
 
@@ -740,16 +720,14 @@ is the same as
   <row><entry>&call-arguments-limit;</entry>
        <entry>2<superscript>16</superscript>=65536</entry>
        <entry namest="b32" nameend="b64" align="center"
-             >2<superscript>32</superscript>=4294967296</entry>
-  </row>
+             >2<superscript>32</superscript>=4294967296</entry></row>
   <row><entry>&multiple-values-limit;</entry>
        <entry namest="b16" nameend="b64" align="center"
              >2<superscript>7</superscript>=128</entry></row>
   <row><entry>&lambda-parameters-limit;</entry>
        <entry>2<superscript>16</superscript>=65536</entry>
        <entry namest="b32" nameend="b64" align="center"
-             >2<superscript>32</superscript>=4294967296</entry>
-  </row>
+             >2<superscript>32</superscript>=4294967296</entry></row>
 </tbody></tgroup></table>
 
 </section>
@@ -786,9 +764,7 @@ is the same as
 
 <chapter id="iteration"><title>Iteration
    <ulink url="&clhs;/Body/chap-6.html">[CLHS-6]</ulink></title>
-
 <para>No notes.</para>
-
 </chapter>
 
 <chapter id="objects"><title>Objects
@@ -842,8 +818,8 @@ is the same as
   not recognize how many parentheses you have output. It only counts how
   many times it was called recursively.)</simpara></listitem>
  <listitem><simpara>The value of &print-length-var; must be respected,
-  especially if you are outputting an arbitrary number of
-  components.</simpara></listitem>
+  especially if you are outputting an arbitrary number of components.
+  </simpara></listitem>
  <listitem><simpara>The value of &print-readably-var; must be
   respected. Remember that the values of &print-escape-var;,
   &print-level-var;, &print-length-var; are ignored if
@@ -858,8 +834,7 @@ is the same as
  <listitem><simpara>You need not worry about the values of
   &print-base-var;, &print-radix-var;, &print-case-var;,
   &print-gensym-var;, &print-array-var;, &pr-closure;,
-  &pr-rpars;, &pr-indent;.
-  </simpara></listitem>
+  &pr-rpars;, &pr-indent;.</simpara></listitem>
 </itemizedlist>
 
 <para>The &inherit-k; option is exactly like &include-k; except that it
@@ -894,7 +869,7 @@ is the same as
 <para>The macro <literal
  role="sexp">(<function>EXT:EXIT-ON-ERROR</function>
  {&form-r;}*)</literal> executes the &form-r;s.  When a non-continuable
- error or a <keycombo><keycap>Ctrl</keycap><keysym>C</keysym></keycombo>
+ error or a <keycombo>&ctrl;<keysym>C</keysym></keycombo>
  interrupt occurs, the error is printed and &clisp; terminates with an
  error status.</para></formalpara>
 
@@ -953,9 +928,7 @@ is the same as
 
 <chapter id="symbols"><title>Symbols
    <ulink url="&clhs;/Body/chap-10.html">[CLHS-10]</ulink></title>
-
 <para>No notes.</para>
-
 </chapter>
 
 <chapter id="packages"><title>Packages
@@ -1093,10 +1066,10 @@ is the same as
 <section id="num-concepts"><title>Number Concepts
    <ulink url="&clhs;/Body/sec_12-1.html">[CLHS-12.1]</ulink></title>
 
-<section id="byte-ops"><title>Byte Operations on Integers
+<section id="byte-type"><title>Byte Operations on Integers
    <ulink url="&clhs;/Body/sec_12-1-1-3-2.html">[CLHS-12.1.1.3.2]</ulink></title>
 
-<para>Byte specifiers are objects of built-in type <type>BYTE</type>,
+<para>Byte specifiers are objects of built-in type &byte-t;,
  not &integer-class;s.</para>
 
 </section>
@@ -1105,8 +1078,7 @@ is the same as
    <ulink url="&clhs;/Body/sec_12-1-3-3.html">[CLHS-12.1.3.3]</ulink></title>
 
 <para>When a mathematical function may return an exact (rational) or
- inexact (floating-point) result, it always returns the exact
- result.</para>
+ inexact (floating-point) result, it always returns the exact result.</para>
 
 </section>
 
@@ -1290,8 +1262,7 @@ is the same as
 <formalpara><title>&upgraded-complex-part-type;</title>
 <para>&upgraded-complex-part-type; always returns &t;, since a
  &complex-class; number in &clisp; can always have &realpart; and
- &imagpart; of any type.</para>
-</formalpara>
+ &imagpart; of any type.</para></formalpara>
 
 <formalpara id="default-float-format"><title>&default-float-format;</title>
 <para>When rational numbers are to be converted to floats (due to
@@ -1316,8 +1287,7 @@ is the same as
 <para><literal role="sexp">(<function>ext:exquo</function> &x-r;
  &y-r;)</literal> returns the integer quotient <varname>x/y</varname> of
  two integers &x-r;,&y-r;, and signals an error when the quotient is not
- integer.  (This is more efficient than &slash;.)
-</para></formalpara>
+ integer.  (This is more efficient than &slash;.)</para></formalpara>
 
 <formalpara><title><function>ext:xgcd</function></title>
 <para><literal role="sexp">(<function>ext:xgcd</function>
@@ -1449,61 +1419,26 @@ encoding.</para>
 <variablelist>
 <varlistentry><term>Platform dependent: only in &clisp; built
   &with; the compile-time flag &unicode;.</term>
-<listitem><simpara>More precisely, &clisp; uses the 16-bit
- <ulink url="http://www.unicode.org/">Unicode</ulink> character set (ISO
- 10646, also known as UCS-2).</simpara></listitem></varlistentry>
-</variablelist>
+<listitem><simpara>More precisely, &clisp; uses the 16-bit &unicode;
+ character set (ISO 10646, also known as UCS-2).
+</simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
 <!-- #if defined(IBMPC_CHS) && !defined(UNICODE) -->
 <variablelist>
-<varlistentry><term>Platform dependent: &dos;, &os2;
-   platforms only, and only in &clisp; built
-   &without; compile-time flag &unicode;.</term>
+<varlistentry><term>Platform dependent: &dos;, &os2; platforms only, and
+   only in &clisp; built &without; compile-time flag &unicode;.</term>
 <listitem><para>More precisely, &clisp; uses the IBM PC character set
  (code page 437):
 <table frame="all"><title>the IBM PC character set (code page 437)</title>
  <tgroup cols="17" colsep="1" rowsep="1" align="center">
   &char-table-header;<tbody>
-  <row><entry>#x00</entry><entry>**</entry><entry/><entry/>
-   <entry/><entry/><entry/><entry/>
-   <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry><entry>**</entry><entry>**</entry><entry>&para;</entry>
-   <entry>&sect;</entry></row>
+  <row><entry>#x00</entry>&cc;<entry/><entry/><entry/><entry/><entry/><entry/>
+   &cc;&cc;&cc;&cc;&cc;&cc;&cc;<entry>&para;</entry><entry>&sect;</entry></row>
   <row><entry>#x10</entry><entry/><entry/><entry/>
    <entry/><entry/><entry/><entry/><entry/>
-   <entry/><entry/><entry>**</entry><entry>**</entry>
-   <entry/><entry/><entry/><entry/></row>
-  <row><entry>#x20</entry><entry>&nbsp;</entry><entry>!</entry>
-   <entry>&quot;</entry><entry>#</entry><entry>$</entry><entry>%</entry>
-   <entry>&amp;</entry><entry>'</entry><entry>(</entry><entry>)</entry>
-   <entry>*</entry><entry>+</entry><entry>,</entry><entry>-</entry>
-   <entry>.</entry><entry>/</entry></row>
-  <row><entry>#x30</entry><entry>0</entry><entry>1</entry><entry>2</entry>
-   <entry>3</entry><entry>4</entry><entry>5</entry><entry>6</entry>
-   <entry>7</entry><entry>8</entry><entry>9</entry><entry>:</entry>
-   <entry>;</entry><entry>&lt;</entry><entry>=</entry><entry>&gt;</entry>
-   <entry>?</entry></row>
-  <row><entry>#x40</entry><entry>@</entry><entry>A</entry><entry>B</entry>
-   <entry>C</entry><entry>D</entry><entry>E</entry><entry>F</entry>
-   <entry>G</entry><entry>H</entry><entry>I</entry><entry>J</entry>
-   <entry>K</entry><entry>L</entry><entry>M</entry><entry>N</entry>
-   <entry>O</entry></row>
-  <row><entry>#x50</entry><entry>P</entry><entry>Q</entry><entry>R</entry>
-   <entry>S</entry><entry>T</entry><entry>U</entry><entry>V</entry>
-   <entry>W</entry><entry>X</entry><entry>Y</entry><entry>Z</entry>
-   <entry>[</entry><entry>\</entry><entry>]</entry><entry>^</entry>
-   <entry>_</entry></row>
-  <row><entry>#x60</entry><entry>`</entry><entry>a</entry><entry>b</entry>
-   <entry>c</entry><entry>d</entry><entry>e</entry><entry>f</entry>
-   <entry>g</entry><entry>h</entry><entry>i</entry><entry>j</entry>
-   <entry>k</entry><entry>l</entry><entry>m</entry><entry>n</entry>
-   <entry>o</entry></row>
-  <row><entry>#x70</entry><entry>p</entry><entry>q</entry><entry>r</entry>
-   <entry>s</entry><entry>t</entry><entry>u</entry><entry>v</entry>
-   <entry>w</entry><entry>x</entry><entry>y</entry><entry>z</entry>
-   <entry>{</entry><entry>|</entry><entry>}</entry><entry>~</entry>
-   <entry/></row>
+   <entry/><entry/>&cc;&cc;<entry/><entry/><entry/><entry/></row>
+  &ascii-printable;
   <row><entry>#x80</entry><entry>&Ccedil;</entry><entry>&uuml;</entry>
    <entry>&eacute;</entry><entry>&acirc;</entry><entry>&auml;</entry>
    <entry>&agrave;</entry><entry>&aring;</entry><entry>&ccedil;</entry>
@@ -1553,8 +1488,7 @@ encoding.</para>
    <entry>&radic;</entry><entry>&#8319;</entry><entry>&sup2;</entry>
    <entry>&#9632;</entry><entry>&nbsp;</entry></row>
 </tbody></tgroup></table>
- Here ** are control characters, not graphic characters. (The characters
- left blank here cannot be represented in this character set).
+ &char-table-legend;
 </para></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
@@ -1568,46 +1502,11 @@ encoding.</para>
 <table frame="all"><title>the ISO Latin-1 (ISO 8859-1) character set</title>
   <tgroup cols="17" colsep="1" rowsep="1" align="center">
   &char-table-header;<tbody>
-  <row><entry>#x00</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry></row>
-  <row><entry>#x10</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry></row>
-  <row><entry>#x20</entry><entry>&nbsp;</entry><entry>!</entry>
-   <entry>&#34;</entry><entry>#</entry><entry>$</entry><entry>%</entry>
-   <entry>&amp;</entry><entry>'</entry><entry>(</entry><entry>)</entry>
-   <entry>*</entry><entry>+</entry><entry>,</entry><entry>-</entry>
-   <entry>.</entry><entry>/</entry></row>
-  <row><entry>#x30</entry><entry>0</entry><entry>1</entry><entry>2</entry>
-   <entry>3</entry><entry>4</entry><entry>5</entry><entry>6</entry>
-   <entry>7</entry><entry>8</entry><entry>9</entry><entry>:</entry>
-   <entry>;</entry><entry>&lt;</entry><entry>=</entry><entry>&gt;</entry>
-   <entry>?</entry></row>
-  <row><entry>#x40</entry><entry>@</entry><entry>A</entry><entry>B</entry>
-   <entry>C</entry><entry>D</entry><entry>E</entry><entry>F</entry>
-   <entry>G</entry><entry>H</entry><entry>I</entry><entry>J</entry>
-   <entry>K</entry><entry>L</entry><entry>M</entry><entry>N</entry>
-   <entry>O</entry></row>
-  <row><entry>#x50</entry><entry>P</entry><entry>Q</entry><entry>R</entry>
-   <entry>S</entry><entry>T</entry><entry>U</entry><entry>V</entry>
-   <entry>W</entry><entry>X</entry><entry>Y</entry><entry>Z</entry>
-   <entry>[</entry><entry>\</entry><entry>]</entry><entry>^</entry>
-   <entry>_</entry></row>
-  <row><entry>#x60</entry><entry>`</entry><entry>a</entry><entry>b</entry>
-   <entry>c</entry><entry>d</entry><entry>e</entry><entry>f</entry>
-   <entry>g</entry><entry>h</entry><entry>i</entry><entry>j</entry>
-   <entry>k</entry><entry>l</entry><entry>m</entry><entry>n</entry>
-   <entry>o</entry></row>
-  <row><entry>#x70</entry><entry>p</entry><entry>q</entry><entry>r</entry>
-   <entry>s</entry><entry>t</entry><entry>u</entry><entry>v</entry>
-   <entry>w</entry><entry>x</entry><entry>y</entry><entry>z</entry>
-   <entry>{</entry><entry>|</entry><entry>}</entry><entry>~</entry>
-   <entry/></row>
+  <row><entry>#x00</entry>&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;
+   &cc;&cc;&cc;&cc;&cc;</row>
+  <row><entry>#x10</entry>&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;
+   &cc;&cc;&cc;&cc;&cc;</row>
+  &ascii-printable;
   <row><entry>#x80</entry><entry/><entry/><entry/>
    <entry/><entry/><entry/><entry/><entry>
    </entry><entry/><entry/><entry/><entry/>
@@ -1653,8 +1552,7 @@ encoding.</para>
    <entry>&ucirc;</entry><entry>&uuml;</entry><entry>&yacute;</entry>
    <entry>&thorn;</entry><entry>&yuml;</entry></row>
 </tbody></tgroup></table>
-Here ** are control characters, not graphic characters. (The characters left
-blank here cannot be represented in this character set).
+&char-table-legend;
 </para></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
@@ -1666,46 +1564,11 @@ blank here cannot be represented in this character set).
 <table frame="all"><title>the &nextstep; character set</title>
   <tgroup cols="17" colsep="1" rowsep="1" align="center">
   &char-table-header;<tbody>
-  <row><entry>#x00</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry></row>
-  <row><entry>#x10</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
-   <entry>**</entry></row>
-  <row><entry>#x20</entry><entry>&nbsp;</entry><entry>!</entry>
-   <entry>&#34;</entry><entry>#</entry><entry>$</entry><entry>%</entry>
-   <entry>&amp;</entry><entry>'</entry><entry>(</entry><entry>)</entry>
-   <entry>*</entry><entry>+</entry><entry>,</entry><entry>-</entry>
-   <entry>.</entry><entry>/</entry></row>
-  <row><entry>#x30</entry><entry>0</entry><entry>1</entry><entry>2</entry>
-   <entry>3</entry><entry>4</entry><entry>5</entry><entry>6</entry>
-   <entry>7</entry><entry>8</entry><entry>9</entry><entry>:</entry>
-   <entry>;</entry><entry>&lt;</entry><entry>=</entry><entry>&gt;</entry>
-   <entry>?</entry></row>
-  <row><entry>#x40</entry><entry>@</entry><entry>A</entry><entry>B</entry>
-   <entry>C</entry><entry>D</entry><entry>E</entry><entry>F</entry>
-   <entry>G</entry><entry>H</entry><entry>I</entry><entry>J</entry>
-   <entry>K</entry><entry>L</entry><entry>M</entry><entry>N</entry>
-   <entry>O</entry></row>
-  <row><entry>#x50</entry><entry>P</entry><entry>Q</entry><entry>R</entry>
-   <entry>S</entry><entry>T</entry><entry>U</entry><entry>V</entry>
-   <entry>W</entry><entry>X</entry><entry>Y</entry><entry>Z</entry>
-   <entry>[</entry><entry>\</entry><entry>]</entry><entry>^</entry>
-   <entry>_</entry></row>
-  <row><entry>#x60</entry><entry>`</entry><entry>a</entry><entry>b</entry>
-   <entry>c</entry><entry>d</entry><entry>e</entry><entry>f</entry>
-   <entry>g</entry><entry>h</entry><entry>i</entry><entry>j</entry>
-   <entry>k</entry><entry>l</entry><entry>m</entry><entry>n</entry>
-   <entry>o</entry></row>
-  <row><entry>#x70</entry><entry>p</entry><entry>q</entry><entry>r</entry>
-   <entry>s</entry><entry>t</entry><entry>u</entry><entry>v</entry>
-   <entry>w</entry><entry>x</entry><entry>y</entry><entry>z</entry>
-   <entry>{</entry><entry>|</entry><entry>}</entry><entry>~</entry>
-   <entry/></row>
+  <row><entry>#x00</entry>&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;
+   &cc;&cc;&cc;&cc;&cc;</row>
+  <row><entry>#x10</entry>&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;
+   &cc;&cc;&cc;&cc;&cc;</row>
+  &ascii-printable;
   <row><entry>#x80</entry><entry>&nbsp;</entry><entry>&Agrave;</entry>
    <entry>&Aacute;</entry><entry>&Acirc;</entry><entry>&Atilde;</entry>
    <entry>&Auml;</entry><entry>&Aring;</entry><entry>&Ccedil;</entry>
@@ -1755,8 +1618,7 @@ blank here cannot be represented in this character set).
    <entry>&szlig;</entry><entry>&thorn;</entry><entry>&yuml;</entry>
    <entry/><entry/></row>
   </tbody></tgroup></table>
-Here ** are control characters, not graphic characters. (The characters left
-blank here cannot be represented in this character set).
+&char-table-legend;
 </para></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
@@ -1900,9 +1762,7 @@ blank here cannot be represented in this character set).
 <varlistentry><term>Platform dependent: &unix;, &dos;, &os2;, &win32;, &acorn;
    platforms only.</term>
 <listitem><simpara>The system itself uses this &input-char; type only to
- mention special keys and
- <keycap>Control</keycap>/<keycap>Alternate</keycap>/<keycap>Shift</keycap>
- key status on return from
+ mention special keys and &ctrl;/&alt;/&shift; key status on return from
  <literal role="sexp">(&read-char; &kbd-in;)</literal>.
  </simpara></listitem></varlistentry>
 </variablelist>
@@ -1929,8 +1789,8 @@ are simple characters.</para>
 <section id="graph-char"><title>Graphic Characters
    <ulink url="&clhs;/Body/sec_13-1-4-1.html">[CLHS-13.1.4.1]</ulink></title>
 
-<para>The graphic characters are those Unicode characters which are
- defined by the Unicode standard, excluding the ranges
+<para>The graphic characters are those &unicode; characters which are
+ defined by the &unicode; standard, excluding the ranges
  <keycode>U0000</keycode> &hellip; <keycode>U001F</keycode> and
  <keycode>U007F</keycode> &hellip; <keycode>U009F</keycode>.</para>
 
@@ -1939,15 +1799,15 @@ are simple characters.</para>
 <section id="alpha-char"><title>Alphabetic Characters
    <ulink url="&clhs;/Body/sec_13-1-4-2.html">[CLHS-13.1.4.2]</ulink></title>
 
-<para>The alphabetic characters are those Unicode characters which are
- defined as letters by the Unicode standard.</para>
+<para>The alphabetic characters are those &unicode; characters which are
+ defined as letters by the &unicode; standard.</para>
 
 </section>
 
 <section id="char-ext"><title>Case of Implementation-Defined Characters
    <ulink url="&clhs;/Body/sec_13-1-4-3-4.html">[CLHS-13.1.4.3.4]</ulink></title>
 
-<para>The characters with case are those Unicode characters &c-r;, for
+<para>The characters with case are those &unicode; characters &c-r;, for
  which the upper case mapping &uc-r; and the lower case mapping &lc-r;
  have the following properties:
 <itemizedlist>
@@ -1959,7 +1819,7 @@ are simple characters.</para>
    is &lc-r;</simpara></listitem>
 </itemizedlist></para>
 
-<para>The titlecase property of Unicode characters has no equivalent in
+<para>The titlecase property of &unicode; characters has no equivalent in
  &cl;.</para>
 
 </section>
@@ -1967,15 +1827,15 @@ are simple characters.</para>
 <section id="num-char"><title>Numeric Characters
    <ulink url="&clhs;/Body/sec_13-1-4-4.html">[CLHS-13.1.4.4]</ulink></title>
 
-<para>The numeric characters are those Unicode characters which are
- defined as digits by the Unicode standard.</para>
+<para>The numeric characters are those &unicode; characters which are
+ defined as digits by the &unicode; standard.</para>
 
 </section>
 
 <section id="char-ord"><title>Ordering of Characters
    <ulink url="&clhs;/Body/sec_13-1-6.html">[CLHS-13.1.6]</ulink></title>
 
-<para>The characters are ordered according to their Unicode code.</para>
+<para>The characters are ordered according to their &unicode; code.</para>
 
 </section>
 
@@ -1992,19 +1852,15 @@ are simple characters.</para>
 <varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
    platforms only.</term>
 <listitem><simpara>When writing to a file, &nl-c; is converted to
- <keycode>CR</keycode>/<keycode>LF</keycode>.
- (This is the usual convention on DOS.)
- For example, &ret-c;+&nl-c; is written as
- <keycode>CR</keycode>/<keycode>CR</keycode>/<keycode>LF</keycode>.
+ &cr-c;/&lf-c;. (This is the usual convention on &dos;.)
+ For example, &ret-c;+&nl-c; is written as &cr-c;/&cr-c;/&lf-c;.
 </simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
-<para>When reading from a file,
- <keycode>CR</keycode>/<keycode>LF</keycode> is converted to &nl-c;
- (the usual convention on DOS), and
- <keycode>CR</keycode> not followed by <keycode>LF</keycode> is
- converted to &nl-c; as well (the usual conversion
- on MacOS, also used by some programs on Win32).</para>
+<para>When reading from a file, &cr-c;/&lf-c; is converted to &nl-c;
+ (the usual convention on &dos;), and &cr-c; not followed by &lf-c; is
+ converted to &nl-c; as well (the usual conversion on MacOS, also used
+ by some programs on &win32;).</para>
 
 </section>
 
@@ -2046,8 +1902,8 @@ are simple characters.</para>
 
 <para>The graphic characters have been described above.</para>
 
-<para>The standard characters are &nl-c; and the
- graphic characters with a code between 32 and 126 (inclusive).</para>
+<para>The standard characters are &nl-c; and the graphic characters with
+ a code between 32 and 126 (inclusive).</para>
 
 <para>The alphabetic characters are these characters:
 <literallayout>
@@ -2816,9 +2672,8 @@ and &end-k;:</para>
  <row><entry>or similar.</entry><entry/></row>
 </tbody></tgroup></table>
 
-<para>Instead of <filename>'\'</filename> one may use
- &file-slash;, as usual for DOS calls.</para>
-</listitem></varlistentry></variablelist>
+<para>Instead of &file-bsla; one may use &file-slash;, as usual for DOS
+ calls.</para></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
 <!-- #if defined(PATHNAME_WIN32) -->
@@ -2859,8 +2714,8 @@ and &end-k;:</para>
  <row><entry>or similar.</entry><entry/></row>
 </tbody></tgroup></table>
 
-<para>Instead of <filename>'\'</filename> one may use
- &file-slash;, as usual for DOS calls.</para>
+<para>Instead of &file-bsla; one may use &file-slash;, as usual for DOS
+ calls.</para>
 
 <para>If &host-r; is non-&nil; and the &directory-r;'s &startpoint-r;
  is not &absolute-k;, <literal role="sexp">(&parse-namestring; (&namestring;
@@ -3420,8 +3275,8 @@ and &end-k;:</para>
   <row><entry>[ [drivespec] : ]</entry>
    <entry>a letter &file-star;|&file-letter-lc;|&file-letter-uc;</entry></row>
   <row><entry>{ name [. type] \ }</entry>
-   <entry>each one a subdirectory, &file-bsla; may be
-    replaced by &file-slash;</entry></row>
+   <entry>each one a subdirectory, &file-bsla; may be replaced by
+    &file-slash;</entry></row>
   <row><entry>[ name [. type] ]</entry>
    <entry>filename with type (extension)</entry></row>
 </tbody></tgroup></table>
@@ -3445,8 +3300,7 @@ and &end-k;:</para>
 <listitem><table frame="all"><title/>
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
   <row><entry>[ &file-slash; ]</entry>
-   <entry>&file-slash; denotes absolute
-     pathnames</entry></row>
+   <entry>&file-slash; denotes absolute pathnames</entry></row>
   <row><entry>{ &name-r; &file-slash; }</entry>
    <entry>each one a subdirectory</entry></row>
   <row><entry>[ &name-r; [&file-dot; &type-r;] ]</entry>
@@ -3454,8 +3308,7 @@ and &end-k;:</para>
 </tbody></tgroup></table>
 
 <para>Name and type may be character sequences of any &length;
- (consisting of printing ASCII characters, except
- &file-slash;).</para>
+ (consisting of printing ASCII characters, except &file-slash;).</para>
 </listitem></varlistentry>
 <!-- #endif -->
 
@@ -3473,9 +3326,8 @@ and &end-k;:</para>
 </tbody></tgroup></table>
 
 <para>Name and type may be character sequences of any &length;
- (consisting of printing ASCII characters, except
- &file-slash;, &file-bsla;, &file-colon;).</para>
-</listitem></varlistentry>
+ (consisting of printing ASCII characters, except &file-slash;,
+ &file-bsla;, &file-colon;).</para></listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_RISCOS -->
@@ -3519,8 +3371,7 @@ and &end-k;:</para>
    <ulink url="&clhs;/Body/sec_19-3.html">[CLHS-19.3]</ulink></title>
 
 <para>When the argument of the function &translate-logical-pathname; is
- a string, it is interpreted as a logical pathname string.
-</para>
+ a string, it is interpreted as a logical pathname string.</para>
 
 </section>
 <!-- #endif -->
@@ -3559,11 +3410,10 @@ and &end-k;:</para>
  &logical-pathname; can be used.</para>
 
 <para>The ANSI-mandated behavior of recognizing logical pathnames when
-the &string-r; begins with some alphanumeric
-characters followed by a colon (<keysym>#\:</keysym>) is very confusing
-(cf. <literal>"c:/autoexec.bat"</literal>,
-<literal>"home:.clisprc"</literal> and
-<literal>"prep:/pub/gnu"</literal>) and therefore disabled by default.
+the &string-r; begins with some alphanumeric characters followed by a
+colon (<keysym>#\:</keysym>) is very confusing (cf.
+<literal>"c:/autoexec.bat"</literal>, <literal>"home:.clisprc"</literal>
+and <literal>"prep:/pub/gnu"</literal>) and therefore disabled by default.
 To enable the ANSI standard behavior, you should set &parsename; to
 non-&nil;.</para>
 
@@ -3630,10 +3480,9 @@ non-&nil;.</para>
  its first value.</para></formalpara>
 
 <formalpara><title>&probe-file;</title>
-<para>&probe-file; cannot be used to check whether a directory
- exists. Use the function <link
- linkend="probe-dir"><function>ext:probe-directory</function></link> or
- the function &directory; for this purpose.</para></formalpara>
+<para>&probe-file; cannot be used to check whether a directory exists.
+ Use the function &probe-dir; or the function &directory; for this
+ purpose.</para></formalpara>
 
 <formalpara><title>&file-author;</title>
 <para>&file-author; always returns &nil;, because the operating systems
@@ -3645,9 +3494,9 @@ non-&nil;.</para>
  same; in particular, authorship is preserved by copying, while
  ownership is not.</para></formalpara>
 
-<formalpara id="probe-dir"><title><function>probe-directory</function></title>
-<para><literal role="sexp">(<function>ext:probe-directory</function>
- &path-r;)</literal> tests whether &path-r; exists and is a directory.
+<formalpara id="probe-dir"><title>&probe-dir;</title>
+<para><literal role="sexp">(&probe-dir; &path-r;)</literal> tests
+ whether &path-r; exists and is a directory.
  It will, unlike &probe-file; or &truename;, not signal an error if the
  parent directory of &path-r; does not exist.</para></formalpara>
 
@@ -3683,40 +3532,36 @@ non-&nil;.</para>
  instead of returning them. <literal role="sexp">(ext:dir)</literal>
  shows the contents of the current directory.</para></formalpara>
 
-<variablelist><title><function>ext:cd</function></title>
+<variablelist id="cd"><title>&cd;</title>
 <!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
 <varlistentry><term>Platform dependent: &unix;, &amiga; platforms only.</term>
- <listitem><simpara><literal role="sexp">(<function>ext:cd</function>
-   [&path-r;])</literal>
+ <listitem><simpara><literal role="sexp">(&cd; [&path-r;])</literal>
    manages the current directory.</simpara></listitem></varlistentry>
 <!-- #elif defined(PATHNAME_RISCOS) -->
 <varlistentry><term>Platform dependent: &acorn; platforms only.</term>
- <listitem><simpara><literal role="sexp">(<function>ext:cd</function>
-   [&path-r;])</literal> manages the current host, current device and
-   the current directory.</simpara></listitem></varlistentry>
+ <listitem><simpara><literal role="sexp">(&cd; [&path-r;])</literal>
+   manages the current host, current device and the current directory.
+   </simpara></listitem></varlistentry>
 <!-- #else -->
 <varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
    platforms only.</term>
- <listitem><simpara><literal role="sexp">(<function>ext:cd</function>
-   [&path-r;])</literal> manages the current device and the current
-   directory.</simpara></listitem></varlistentry>
+ <listitem><simpara><literal role="sexp">(&cd; [&path-r;])</literal>
+   manages the current device and the current directory.
+   </simpara></listitem></varlistentry>
 <!-- #endif -->
 </variablelist>
 
-<formalpara><title><function>ext:cd</function></title>
-<para><literal role="sexp">(<function>ext:cd</function>
- &path-r;)</literal> sets it, <literal role="sexp">(ext:cd)</literal>
- returns it.</para></formalpara>
+<formalpara><title>&cd;</title>
+<para><literal role="sexp">(&cd; &path-r;)</literal> sets it, <literal
+ role="sexp">(&cd;)</literal> returns it.</para></formalpara>
 
 <formalpara><title><function>ext:default-directory</function></title>
 <para><literal
  role="sexp">(<function>ext:default-directory</function>)</literal> is
- equivalent to <literal
- role="sexp">(<function>ext:cd</function>)</literal>.  <literal
+ equivalent to <literal role="sexp">(&cd;)</literal>.  <literal
  role="sexp">(&setf; (<function>ext:default-directory</function>)
- &path-r;)</literal> is equivalent to <literal
- role="sexp">(<function>ext:cd</function> &path-r;)</literal>, except
- for the return value.</para></formalpara>
+ &path-r;)</literal> is equivalent to <literal role="sexp">(&cd;
+ &path-r;)</literal>, except for the return value.</para></formalpara>
 
 <formalpara><title><function>ext:make-dir</function></title>
 <para><literal role="sexp">(<function>ext:make-dir</function>
@@ -3873,19 +3718,16 @@ non-&nil;.</para>
   <varlistentry><term><constant>:super</constant></term>
    <listitem><simpara><emphasis>(Platform dependent: &dos;, &os2;,
      &win32;, &amiga; platforms only.)</emphasis>
-  if pressed together with <keycap>Shift</keycap> key(s) and if the
-  keystroke would have been an other without <keycap>Shift</keycap>.
-  </simpara></listitem></varlistentry>
+  if pressed together with &shift; key(s) and if the keystroke would
+  have been an other without &shift;.</simpara></listitem></varlistentry>
 <!-- #endif -->
   <varlistentry><term><constant>:control</constant></term>
-   <listitem><simpara>if pressed together with the
-    <keycap>Control</keycap> key.
+   <listitem><simpara>if pressed together with the &ctrl; key.
    </simpara></listitem></varlistentry>
 <!-- #if defined(MSDOS) || defined(WIN32) -->
   <varlistentry><term><constant>:meta</constant></term>
   <listitem><simpara><emphasis>(Platform dependent: &dos;, &os2;, &win32;
-    platforms only.)</emphasis>
-  if pressed together with the <keycap>Alternate</keycap> key.
+    platforms only.)</emphasis> if pressed together with the &alt; key.
   </simpara></listitem></varlistentry>
 <!-- #endif -->
 </variablelist>
@@ -3905,17 +3747,12 @@ non-&nil;.</para>
 <section id="stream-eltype"><title>Function &stream-element-type;</title>
 
 <para>&stream-element-type; is &setf;able. The &stream-element-type; of
-  &stream-class;s created by the functions &open;,
-<link linkend="pipe"><function>ext:make-pipe-input-stream</function></link>,
-<link linkend="pipe"><function>ext:make-pipe-output-stream</function></link>,
-<link linkend="pipe"><function>ext:make-pipe-io-stream</function></link>,
-<link linkend="socket"><function>socket:socket-accept</function></link>,
-<link linkend="socket"><function>socket:socket-connect</function></link>
+  &stream-class;s created by the functions &open;, &mk-pipe-in;
+  &mk-pipe-out;, &mk-pipe-io;, &socket-accept;, &socket-connect;
   can be modified, if the old and the new &stream-element-type;s are either
 <itemizedlist>
   <listitem><simpara>both equivalent to &character-class; or
-      &unsigned-byte-8; or &signed-byte-8;; or
-    </simpara></listitem>
+      &unsigned-byte-8; or &signed-byte-8;; or</simpara></listitem>
   <listitem><simpara>both equivalent to &unsigned-byte-n; or
       &signed-byte-n;, with the same &n-r;.</simpara></listitem>
 </itemizedlist></para>
@@ -3923,24 +3760,20 @@ non-&nil;.</para>
 </section>
 
 <section id="bin-input"><title>Binary input, &read-byte;,
-  <function>EXT:READ-INTEGER</function> &amp;
-  <function>EXT:READ-FLOAT</function></title>
+  &rd-integer; &amp; &rd-float;</title>
 
-<para>The function <literal
-    role="sexp">(<function>ext:read-integer</function>
-    &stream-r; &eltype-r; &optional-amp; &endianness;
-    &eof-ep; &eof-v;)</literal>
+<para>The function <literal role="sexp">(&rd-integer; &stream-r;
+    &eltype-r; &optional-amp; &endianness; &eof-ep; &eof-v;)</literal>
  reads a multi-byte &integer-class; from &stream-r;.
  &stream-r; should be a stream with &stream-element-type;
  &unsigned-byte-8;.
  &eltype-r; should be a type equivalent to &unsigned-byte-n;, where
  &n-r; is a multiple of 8.</para>
 
-<para><literal role="sexp">(<function>ext:read-integer</function>
- &stream-r; &eltype-r;)</literal> is like <literal
- role="sexp">(&read-byte; &stream-r;)</literal> if &stream-r;'s
- &stream-element-type; were set to &eltype-r;, except that &stream-r;'s
- &file-position; will increase by
+<para><literal role="sexp">(&rd-integer; &stream-r;
+ &eltype-r;)</literal> is like <literal role="sexp">(&read-byte;
+ &stream-r;)</literal> if &stream-r;'s &stream-element-type; were set to
+ &eltype-r;, except that &stream-r;'s &file-position; will increase by
  <superscript>&n-r;</superscript>/<subscript>8</subscript>
  instead of 1.</para>
 
@@ -3953,9 +3786,8 @@ non-&nil;.</para>
  &stream-element-type;)</literal>, this function permits mixed
  character/binary input from a stream.</para>
 
-<para>The function <literal role="sexp">(<function>ext:read-float</function>
-    &stream-r; &eltype-r; &optional-amp; &endianness;
-    &eof-ep; &eof-v;)</literal>
+<para>The function <literal role="sexp">(&rd-float; &stream-r;
+    &eltype-r; &optional-amp; &endianness; &eof-ep; &eof-v;)</literal>
  reads a floating-point number in IEEE binary representation from &stream-r;.
  &stream-r; should be a &stream-class; with &stream-element-type;
  &unsigned-byte-8;.
@@ -3965,11 +3797,9 @@ non-&nil;.</para>
 </section>
 
 <section id="bin-output"><title>Binary output, &write-byte;,
-  <function>EXT:WRITE-INTEGER</function> &amp;
-  <function>EXT:WRITE-FLOAT</function></title>
+  &wr-integer; &amp; &wr-float;</title>
 
-<para>The function <literal
-    role="sexp">(<function>ext:write-integer</function>
+<para>The function <literal role="sexp">(&wr-integer;
     &int-r; &stream-r; &eltype-r; &optional-amp; &endianness;)</literal>
  writes a multi-byte integer to &stream-r;.
  &stream-r; should be a &stream-class; with &stream-element-type;
@@ -3977,20 +3807,18 @@ non-&nil;.</para>
  &eltype-r; should be a type equivalent to &unsigned-byte-n;, where
  &n-r; is a multiple of 8.</para>
 
-<para><literal role="sexp">(<function>ext:write-integer</function>
-    &int-r; &stream-r; &eltype-r;)</literal>
- is like <literal role="sexp">(&write-byte; &int-r; &stream-r;)</literal> if
- &stream-r;'s &stream-element-type; were set to &eltype-r;, except that
- &stream-r;'s &file-position; will increase by
- <superscript>&n-r;</superscript>/<subscript>8</subscript>
+<para><literal role="sexp">(&wr-integer; &int-r; &stream-r;
+ &eltype-r;)</literal> is like <literal role="sexp">(&write-byte;
+ &int-r; &stream-r;)</literal> if &stream-r;'s &stream-element-type;
+ were set to &eltype-r;, except that &stream-r;'s &file-position; will
+ increase by <superscript>&n-r;</superscript>/<subscript>8</subscript>
  instead of 1.</para>
 
 <para>Together with <literal role="sexp">(&setf;
   &stream-element-type;)</literal>, this function permits mixed
   character/binary output to a &stream-class;.</para>
 
-<para>The function <literal
-    role="sexp">(<function>ext:write-float</function>
+<para>The function <literal role="sexp">(&wr-float;
     <replaceable>float</replaceable> &stream-r;
     &eltype-r; &optional-amp; &endianness;)</literal>
  writes a floating-point number in IEEE binary representation to &stream-r;.
@@ -4096,7 +3924,7 @@ functions are provided:</para>
 <listitem><simpara>&file-position; works on any buffered file stream.
   When a &nl-c; is output to (respectively input from) a file stream,
   its file position is increased by 2 since &nl-c; is encoded as
-  <keycode>CR</keycode>/<keycode>LF</keycode> in the file.
+  &cr-c;/&lf-c; in the file.
 </simpara></listitem></varlistentry></variablelist>
 </section>
 <!-- #endif -->
@@ -4116,9 +3944,8 @@ functions are provided:</para>
    stream is to be unbuffered, &n-r; must be a multiple of 8.
    </simpara></listitem></varlistentry>
  <varlistentry id="extfmt"><term>&extfmt;</term>
-  <listitem><simpara>&encoding;s,
-   (constant) &symbol-class;s in the &charset-pac; package,
-   &string-class;s (denoting <link linkend="iconv">iconv()</link> based
+  <listitem><simpara>&encoding;s, (constant) &symbol-class;s in the
+   &charset-pac; package, &string-class;s (denoting &iconv;-based
    encodings), the symbol &default-k;, and the &line-term; keywords
    <constant>:unix</constant>, <constant>:mac</constant>,
    <constant>:dos</constant>.  The default encoding is &def-file-enc;.
@@ -4205,7 +4032,7 @@ functions are provided:</para>
  role="sexp">#(<replaceable>x<subscript>0</subscript></replaceable>
  ... <replaceable>x<subscript>n-1</subscript></replaceable>)</literal>
  is used.  Otherwise, the syntax <literal role="sexp">#A(&eltype-r;
- <replaceable>dimensions</replaceable>
+ &dimensions-r;
  <replaceable>contents</replaceable>)</literal> is used.</para>
 
 </section>
@@ -4218,7 +4045,7 @@ functions are provided:</para>
  role="sexp">#<replaceable>rank</replaceable>A
  <replaceable>contents</replaceable></literal> is used.  Otherwise, the
  syntax <literal role="sexp">#A(&eltype-r;
- <replaceable>dimensions</replaceable>
+ &dimensions-r;
  <replaceable>contents</replaceable>)</literal> is used.</para>
 
 </section>
@@ -4363,8 +4190,7 @@ functions are provided:</para>
   <thead><row><entry>format</entry><entry>meaning</entry></row></thead><tbody>
  <row><entry><literal>#&lt;&type-r; ...&gt;</literal></entry>
     <entry>all structures lacking a keyword constructor</entry></row>
- <row><entry><literal>#&lt;ARRAY &type-r;
-       <replaceable>dimensions</replaceable>&gt;</literal></entry>
+ <row><entry><literal>#&lt;ARRAY &type-r; &dimensions-r;&gt;</literal></entry>
     <entry>all arrays except strings, if &print-array-var; is
        &nil;</entry></row>
  <row><entry><literal>#&lt;SYSTEM-FUNCTION
@@ -4728,27 +4554,18 @@ compiles a file to platform-independent bytecode.</para>
 <row><entry><constant>:LOOP</constant></entry><entry/></row>
 <row><entry><constant>:CLOS</constant></entry><entry/></row>
 <row><entry><constant>:AMIGA</constant></entry>
-   <entry>if <replaceable>hardware</replaceable> = Amiga and
-     <replaceable>operating system</replaceable> =
-     Exec/AmigaDOS</entry></row>
+   <entry>if &hw; = Amiga and &os; = Exec/AmigaDOS</entry></row>
 <row><entry><constant>:DOS</constant></entry>
-   <entry>if <replaceable>hardware</replaceable> = PC (clone) and
-     <replaceable>operating system</replaceable> =
-     DOS</entry></row>
+   <entry>if &hw; = PC (clone) and &os; = DOS</entry></row>
 <row><entry><constant>:OS/2</constant></entry>
-   <entry>if <replaceable>hardware</replaceable> = PC (clone) and
-     <replaceable>operating system</replaceable> =
-     OS/2</entry></row>
+   <entry>if &hw; = PC (clone) and &os; = OS/2</entry></row>
 <row><entry><constant>:WIN32</constant></entry>
-   <entry>if <replaceable>hardware</replaceable> = PC (clone) and
-     <replaceable>operating system</replaceable> = Win32 (Windows
-     95/98/NT)</entry></row>
+   <entry>if &hw; = PC (clone) and
+             &os; = Win32 (Windows 95/98/NT/Me/2000)</entry></row>
 <row><entry><constant>:PC386</constant></entry>
-   <entry>if <replaceable>hardware</replaceable> = PC (clone) with a
-   386/486/586/686 CPU</entry></row>
+   <entry>if &hw; = PC (clone) with a 386/486/586/686 CPU</entry></row>
 <row><entry><constant>:UNIX</constant></entry>
-   <entry>if <replaceable>operating system</replaceable> = Unix
-     (yes, in this case the hardware is irrelevant!)</entry></row>
+   <entry>if &os; = Unix (in this case the &hw; is irrelevant!)</entry></row>
 </tbody></tgroup></table></para>
 
 </section>
@@ -4979,16 +4796,12 @@ compiles a file to platform-independent bytecode.</para>
 
 <!-- #endif -->
 
-<section id="uncompile">
-   <title>Function <function>EXT:UNCOMPILE</function></title>
+<section id="uncompile"><title>Function &uncompile;</title>
 
-<para>The functioneval-wj <emphasis
- role="strong"><function>ext:uncompile</function></emphasis> does the
- converse of &compile;: <literal
- role="sexp">(<function>ext:uncompile</function> &func-r;)</literal>
- reverts an interpreted &func-r; (name), that has been entered or loaded
- in the same session and then compiled, back to its interpreted
- form.</para>
+<para>The function &uncompile; does the converse of &compile;: <literal
+ role="sexp">(&uncompile; &func-r;)</literal> reverts a compiled
+ &func-r; (name), that has been entered or loaded in the same session
+ and then compiled, back to its interpreted form.</para>
 
 </section>
 
@@ -5000,8 +4813,8 @@ compiles a file to platform-independent bytecode.</para>
 <formalpara id="browser"><title><function>ext:clhs</function></title>
 <para>&hyperspec; access is provided via <literal
   role="sexp">(<function>ext:clhs</function> &symbol-r; &key-amp;
-  <literal>:browser</literal> <replaceable>browser</replaceable>)</literal>
-  function which uses your web browser.
+  <literal>:browser</literal>)</literal>
+  function, which uses your web browser.
   <replaceable>browser</replaceable> should be a valid
   keyword in the <varname>custom:*browsers*</varname> &alist;.
 </para></formalpara>
@@ -5021,23 +4834,23 @@ compiles a file to platform-independent bytecode.</para>
 
 <variablelist>
  <varlistentry><term><constant>:suppress-if</constant> &form-r;</term>
-  <listitem><simpara>no trace output as long as
-   &form-r; is true</simpara></listitem></varlistentry>
+  <listitem><simpara>no trace output as long as &form-r; is true
+  </simpara></listitem></varlistentry>
  <varlistentry><term><constant>:step-if</constant> &form-r;</term>
-  <listitem><simpara>invokes the stepper as soon as
-   &form-r; is true</simpara></listitem></varlistentry>
+  <listitem><simpara>invokes the stepper as soon as &form-r; is true
+  </simpara></listitem></varlistentry>
  <varlistentry><term><constant>:pre</constant> &form-r;</term>
-  <listitem><simpara>evaluates &form-r; before
-   calling the function</simpara></listitem></varlistentry>
+  <listitem><simpara>evaluates &form-r; before calling the function
+  </simpara></listitem></varlistentry>
  <varlistentry><term><constant>:post</constant> &form-r;</term>
-  <listitem><simpara>evaluates &form-r; after
-   return from the function</simpara></listitem></varlistentry>
+  <listitem><simpara>evaluates &form-r; after return from the function
+  </simpara></listitem></varlistentry>
  <varlistentry><term><constant>:pre-break-if</constant> &form-r;</term>
   <listitem><simpara>goes into the break loop before calling the
    function if &form-r; is true</simpara></listitem></varlistentry>
  <varlistentry><term><constant>:post-break-if</constant> &form-r;</term>
   <listitem><simpara>goes into the break loop after return from the
-   function if &form-r; is true </simpara></listitem></varlistentry>
+   function if &form-r; is true</simpara></listitem></varlistentry>
  <varlistentry><term><constant>:pre-print</constant> &form-r;</term>
   <listitem><simpara>prints the values of &form-r; before calling the
    function</simpara></listitem></varlistentry>
@@ -5105,8 +4918,8 @@ and you can leave the function call with specified values by using
 <para>The macro &space; is like the macro &time;: <literal
  role="sexp">(&space; &form-r;)</literal>
  evaluates the &form-r;, and, as a side effect, outputs information
- about the memory allocations caused by this evaluation.  It also prints
- everything printed by <link
+ about the memory allocations caused by this evaluation.
+ It also prints everything printed by <link
  linkend="time"><function>TIME</function></link>.</para>
 
 </section>
@@ -5191,7 +5004,7 @@ and you can leave the function call with specified values by using
     platforms only.</term>
  <listitem><simpara>The functions &machine-type;, &machine-version;,
   &machine-instance; and &short-site-name;, &long-site-name; should be
-  defined by every user in his site-specific &config-file; file.
+  defined by every user in his user-specific &config-file; file.
   </simpara></listitem></varlistentry>
 <!-- #endif -->
 </variablelist>
@@ -5231,14 +5044,10 @@ and you can leave the function call with specified values by using
 
 <chapter id="glossary"><title>Glossary
    <ulink url="&clhs;/Body/chap-26.html">[CLHS-26]</ulink></title>
-
 <para>No notes.</para>
-
 </chapter>
 
 <chapter id="appendix"><title>Appendix
    <ulink url="&clhs;/Body/chap-a.html">[CLHS-a]</ulink></title>
-
 <para>No notes.</para>
-
 </chapter>
