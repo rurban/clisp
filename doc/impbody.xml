@@ -1392,14 +1392,14 @@ performance considerations.
  <literal>0.0</literal> (which would mean "approximately 0").</para>
 
 <para>The type specifier for this is <literal
- role="sexp">(&complex-t; &integer-t;
+ role="type">(&complex-t; &integer-t;
  &single-float-t;)</literal>, and <literal
- role="sexp">(&complex-t; <varname>type-of-real-part</varname>
+ role="type">(&complex-t; <varname>type-of-real-part</varname>
  <varname>type-of-imaginary-part</varname>)</literal> in general.</para>
 
-<para>The type specifier <literal role="sexp">(&complex-t;
+<para>The type specifier <literal role="type">(&complex-t;
  &type-r;)</literal> is equivalent to <literal
- role="sexp">(&complex-t; &type-r; &type-r;)</literal>.</para>
+ role="type">(&complex-t; &type-r; &type-r;)</literal>.</para>
 
 </section>
 
