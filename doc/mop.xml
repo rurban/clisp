@@ -170,9 +170,9 @@ effective slot definitions metaobjects:
   that could appear in a &defclass; form.</simpara></listitem>
 <listitem><simpara>The initialization form, if there is one, is
   available as a form that could appear in a &defclass; form.  The
-  initialization form together with its lexical environment is available
+  initialization form together with its &lex-env; is available
   as a function of no arguments which, when called, returns the result
-  of evaluating the initialization form in its lexical environment. This
+  of evaluating the initialization form in its &lex-env;. This
   is called the <firstterm>initfunction</firstterm> of the slot.
 </simpara></listitem>
 <listitem><simpara>The slot filling initialization arguments are
@@ -588,7 +588,7 @@ macro form is evaluated or executed.  Special processing must be done on
 these arguments to ensure that the lexical scope of the forms is
 captured properly.  This is done by building a function of zero
 arguments which, when called, returns the result of evaluating the form
-in the proper lexical environment.</para>
+in the proper &lex-env;.</para>
 
 <para>In the syntax of the &defmethod; macro
 the <replaceable>forms</replaceable> argument is a list of forms that
@@ -609,20 +609,20 @@ been compiled so far.  Among other things, this makes it possible to
 ensure that a global macro definition (&defmacro; form) which appears in
 a file will affect uses of the macro later in that file.  This
 information about the state of the compilation is called the
-<emphasis>compile-file environment</emphasis>.</para>
+<firstterm>&compile-file; environment</firstterm>.</para>
 
 <para>When compiling files containing &clos; definitions, it is useful
-to maintain certain additional information in the compile-file
-environment.  This can make it possible to issue various kinds of
-warnings (e.g., &lalist; congruence) and to do various performance
-optimizations that would not otherwise be possible.</para>
+to maintain certain additional information in the &compile-file; environment.
+This can make it possible to issue various kinds of warnings (e.g.,
+&lalist; congruence) and to do various performance optimizations that
+would not otherwise be possible.</para>
 
 <para>At this time, there is such significant variance in the way
-existing &cl; implementations handle compile-file environments that it
+existing &cl; implementations handle &compile-file; environments that it
 would be premature to specify this mechanism.  Consequently, this
 document specifies only the behavior of evaluating or executing user
 interface macro forms. What functions and generic functions are called
-during compile-file processing of a user interface macro form is not
+during &compile-file; processing of a user interface macro form is not
 specified.  Implementations are free to define and document their own
 behavior.  Users may need to check implementation-specific behavior
 before attempting to compile certain portable programs.</para>
@@ -755,8 +755,8 @@ arguments received by the &ensure-class; function.  Examples of typical
      The value of the &initform-k; property is the
      initialization form.  The value of the &initfunction-k; property is
      a function of zero arguments which, when called, returns the result
-     of evaluating the initialization form in its proper lexical
-     environment.</simpara></listitem>
+     of evaluating the initialization form in its proper &lex-env;.
+   </simpara></listitem>
    <listitem><simpara>If the &initform-k; slot option is not present in
      the slot specification, then either the &initfunction-k; property
      will not appear, or its value will be false.  In such cases, the
@@ -808,11 +808,11 @@ arguments received by the &ensure-class; function.  Examples of typical
   list of &canonicalized-default-initarg-glo;s is the value of the
   &direct-default-initargs-k; keyword argument to &ensure-class;.
  </simpara>
- <simpara id="mop-canonicalized-default-initarg">A canonicalized default initarg is a list of three
-  elements.  The first element is the name; the second is the actual
-  form itself; and the third is a function of zero arguments which, when
-  called, returns the result of evaluating the default value form in its
-  proper lexical environment.</simpara></listitem>
+ <simpara id="mop-canonicalized-default-initarg">A canonicalized default
+  initarg is a list of three elements.  The first element is the name;
+  the second is the actual form itself; and the third is a function of
+  zero arguments which, when called, returns the result of evaluating
+  the default value form in its proper &lex-env;.</simpara></listitem>
 <listitem><simpara>The <replaceable>metaclass</replaceable> class
   option, if it is present in the &defclass; form, becomes the value of
   the &metaclass-k; keyword argument to &ensure-class;.</simpara></listitem>
@@ -2353,7 +2353,7 @@ portable subclasses of the class &slotdef-t;.</para>
    is not supplied.</simpara></listitem>
  <listitem><simpara>The &initfunction-k; argument is a function of zero
    arguments which, when called, evaluates the &initform-k; in the
-   appropriate lexical environment.  The &initfunction-k; argument
+   appropriate &lex-env;.  The &initfunction-k; argument
    defaults to false.  An &err-sig; if the &initfunction-k; argument is
    supplied, but the &initform-k; argument is not supplied.</simpara></listitem>
  <listitem><simpara>The &type-k; argument is a type specifier name.  An
@@ -3605,20 +3605,20 @@ argument is the unspecialized &lalist; from the &defmethod; form.
 argument is a list of the specializers for the method.  For specializers
 which are classes, the specializer is the class metaobject itself.  In
 the case of &eql-t; specializers, it will be an &eql-specializer-t;
-metaobject obtained by calling &intern-eql-specializer; on the
-result of evaluating the &eql-t; specializer form in the lexical
-environment of the &defmethod; form.</simpara></listitem>
+metaobject obtained by calling &intern-eql-specializer; on the result of
+evaluating the &eql-t; specializer form in the &lex-env; of the
+&defmethod; form.</simpara></listitem>
 <listitem><simpara>The value of the &function-k; initialization
 argument is the method function.</simpara></listitem>
 <listitem><simpara>The value of the &declarations-k; initialization
-argument is a list of the &declaration-specifier-glo;s from the &defmethod; form.  If
-there are no declarations in the macro form, this initialization
-argument either doesn't appear, or appears with a value of the empty
-list.</simpara></listitem>
+argument is a list of the &declaration-specifier-glo;s from the
+&defmethod; form.  If there are no declarations in the macro form, this
+initialization argument either does not appear, or appears with a value
+of the empty list.</simpara></listitem>
 <listitem><simpara>The value of the &documentation-k; initialization
 argument is the documentation string from the &defmethod; form.  If
 there is no documentation string in the macro form this initialization
-argument either doesn't appear, or appears with a value of false.
+argument either does not appear, or appears with a value of false.
 </simpara></listitem>
 <listitem><simpara>Any other initialization argument produced in
 conjunction with the method function are also included.</simpara></listitem>
@@ -3692,7 +3692,7 @@ not considered by any of the protocols specified in this document.
     '(lambda (p l &optional-amp; (visiblyp t) &key-amp; color)
        (set-to-origin p)
        (when visiblyp (show-move p 0 color)))
-    <replaceable>environment</replaceable>))
+    &env-r;))
 </programlisting></informalexample>
 
 <para>The first step occurs during macro-expansion of the macro form.
@@ -4515,7 +4515,7 @@ itself.
 </programlisting>
 
 Following is the source code the user of this extension would write.
-Note that because the code above doesn't implement inheritance of
+Note that because the code above does not implement inheritance of
 the <constant>:SLOT-ORDER-K</constant> option, the function
 <function>distance</function> must not be called on instances of
 subclasses of <classname>point</classname>; it can only be called on
