@@ -329,7 +329,7 @@
 (sys::%putd 'bye #'sys::%exit)
 
 (export
- '(re-export make-encoding encoding
+ '(re-export featurep make-encoding encoding
    encoding-line-terminator #+UNICODE encoding-charset
    times show-stack gc exit quit bye expand-form xor mapcap maplap
    proper-list-p elastic-newline absolute-pathname

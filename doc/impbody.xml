@@ -4612,6 +4612,14 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <link linkend="regexp"><constant>:REGEXP</constant></link>,
  <link linkend="pcre"><constant>:PCRE</constant></link>, etc.</para>
 </section>
+
+<section id="featurep"><title>Function <function>EXT:FEATUREP</function>
+  <ulink url="&clrfi;/clrfi-1-featurep">[CLRFI-1]</ulink></title>
+<para><code>(EXT:FEATUREP &form-r;)</code> provides run-time access to
+ the read-time conditionals &sharp-plus; and &sharp-minus;.
+ &form-r; is a &feature-expr;.</para>
+</section>
+
 </section>
 </chapter>
 
