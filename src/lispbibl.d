@@ -10685,21 +10685,20 @@ extern object coerce_function (object obj);
 #define LISPSPECFORM  LISPSPECFORM_B
 # is used by CONTROL
 
-# The macro LISPFUN initiates a declaration of a LISP functions.
-# LISPFUN(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,allow_flag,keywords)
-# > name: the name of the function (a C-Identifier)
-# > req_anz: number of required parameters (a number)
-# > opt_anz: number of optional parameters (a number)
-# > rest_flag: either norest or rest, depending on whether &REST exists or not
-# > key_flag: either nokey or key, depending on whether &KEY exists or not
-# > key_anz: number of keyword-parameters, a number (0 if nokey)
-# > allow_flag: either noallow or allow, depending on whether &ALLOW-OTHER-KEYS
-#               exists after &KEY (noallow if nokey)
-# > keywords: either NIL or an expression of the form
-#             v(kw(keyword1),...,kw(keywordn))   (NIL if nokey)
-# See SUBR.D
+/* The macro LISPFUN initiates a declaration of a LISP functions.
+ LISPFUN(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)
+ > name: the name of the function (a C-Identifier)
+ > req_anz: number of required parameters (a number)
+ > opt_anz: number of optional parameters (a number)
+ > rest_flag: either norest or rest, depending on whether &REST exists or not
+ > key_flag: either nokey or key or key_allow, depending on whether &KEY
+             exists or not and whether &ALLOW-OTHER-KEYS is present
+ > key_anz: number of keyword-parameters, a number (0 if nokey)
+ > keywords: either NIL or an expression of the form
+             v(kw(keyword1),...,kw(keywordn))   (NIL if nokey)
+ See SUBR.D */
 #define LISPFUN  LISPFUN_B
-# is used by all modules
+/* is used by all modules */
 
 # The macro LISPFUNN initiates a simple declaration of a LISP-function.
 # LISPFUNN(name,req_anz)
