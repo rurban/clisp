@@ -1,5 +1,10 @@
 2005-02-28  Sam Steingold  <sds@gnu.org>
 
+	* win32.d (STDC_HEADERS): define to 1 explicitly for compatibility
+	with autoconf
+
+2005-02-28  Sam Steingold  <sds@gnu.org>
+
 	* autoconf/install-sh: added (from autoconf 2.59);
 	required by AC_LIB_LINKFLAGS
 

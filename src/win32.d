@@ -20,7 +20,7 @@
 #endif
 
 /* for _clisp.c */
-#define STDC_HEADERS
+#define STDC_HEADERS 1
 #define HAVE_PERROR_DECL
 
 /* Declaration of operating system functions */
