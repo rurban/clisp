@@ -5283,9 +5283,9 @@ typedef struct {
   # anpassen!
 # weitere typspezifische Komponenten:
   #define strm_eltype          strm_other[0] # CHARACTER or ([UN]SIGNED-BYTE n)
-  #define strm_file_name       strm_other[4] # Filename, ein Pathname oder NIL
-  #define strm_file_truename   strm_other[5] # Truename, ein nicht-Logical Pathname oder NIL
-  #define strm_file_handle     strm_other[3] # eingepacktes Handle
+  #define strm_file_name       strm_other[5] # Filename, ein Pathname oder NIL
+  #define strm_file_truename   strm_other[6] # Truename, ein nicht-Logical Pathname oder NIL
+  #define strm_file_handle     strm_other[4] # eingepacktes Handle
   #define strm_synonym_symbol  strm_other[0]
   #define strm_broad_list      strm_other[0] # Liste von Streams
   #define strm_concat_list     strm_other[0] # Liste von Streams
@@ -5295,14 +5295,14 @@ typedef struct {
   #define strm_buff_in_fun     strm_other[0] # Lesefunktion
   #define strm_buff_out_fun    strm_other[0] # Ausgabefunktion
   #ifdef PIPES
-  #define strm_pipe_pid        strm_other[4] # Prozess-Id, ein Fixnum >=0
+  #define strm_pipe_pid        strm_other[5] # Prozess-Id, ein Fixnum >=0
   #endif
   #ifdef X11SOCKETS
-  #define strm_x11socket_connect  strm_other[4] # Liste (host display)
+  #define strm_x11socket_connect  strm_other[5] # Liste (host display)
   #endif
   #ifdef SOCKET_STREAMS
-  #define strm_socket_port     strm_other[4] # port, a fixnum >=0
-  #define strm_socket_host     strm_other[5] # host, NIL or a string
+  #define strm_socket_port     strm_other[5] # port, a fixnum >=0
+  #define strm_socket_host     strm_other[6] # host, NIL or a string
   #endif
   #ifdef GENERIC_STREAMS
   #define strm_controller_object strm_other[0] # Controller (meist CLOS-Instanz)

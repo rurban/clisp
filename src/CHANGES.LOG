@@ -5,6 +5,10 @@ User visible changes
 * Weak pointers are implemented. New functions MAKE-WEAK-POINTER,
   WEAK-POINTER-P, WEAK-POINTER-VALUE.
 
+* The function OPEN, when creating unbuffered file streams, now supports any
+  of the following :ELEMENT-TYPEs: CHARACTER and ([UN]SIGNED-BYTE n), where n
+  is a multiple of 8.
+
 * Conforming with ANSI CL, FILE-LENGTH and FILE-POSITION, when called on
   an unbuffered file stream, now return NIL instead of signalling an error.
 
