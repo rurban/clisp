@@ -105,8 +105,6 @@ static object make_sockaddr (void) {
   return value1;
 }
 
-static int check_socket_domain (object arg);
-
 DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
   int family = check_socket_domain(STACK_1);
   struct sockaddr sa;
@@ -136,263 +134,22 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
 
 
 /* ================== sys/socket.h interface ================== */
-
-static int check_socket_domain (object arg) {
- restart_check_domain:
-  if (!posfixnump(arg)) {
-    if (nullp(arg)) return 0;
-#  if defined(AF_UNSPEC)
-    else if (eq(arg,`:AF_UNSPEC`))    return AF_UNSPEC;
-#  endif
-#  if defined(AF_UNIX)
-    else if (eq(arg,`:AF_UNIX`))      return AF_UNIX;
-#  endif
-#  if defined(AF_LOCAL)
-    else if (eq(arg,`:AF_LOCAL`))     return AF_LOCAL;
-#  endif
-#  if defined(AF_INET)
-    else if (eq(arg,`:AF_INET`))      return AF_INET;
-#  endif
-#  if defined(AF_AX25)
-    else if (eq(arg,`:AF_AX25`))      return AF_AX25;
-#  endif
-#  if defined(AF_IPX)
-    else if (eq(arg,`:AF_IPX`))       return AF_IPX;
-#  endif
-#  if defined(AF_APPLETALK)
-    else if (eq(arg,`:AF_APPLETALK`)) return AF_APPLETALK;
-#  endif
-#  if defined(AF_NETROM)
-    else if (eq(arg,`:AF_NETROM`))    return AF_NETROM;
-#  endif
-#  if defined(AF_BRIDGE)
-    else if (eq(arg,`:AF_BRIDGE`))    return AF_BRIDGE;
-#  endif
-#  if defined(AF_ATMPVC)
-    else if (eq(arg,`:AF_ATMPVC`))    return AF_ATMPVC;
-#  endif
-#  if defined(AF_X25)
-    else if (eq(arg,`:AF_X25`))       return AF_X25;
-#  endif
-#  if defined(AF_INET6)
-    else if (eq(arg,`:AF_INET6`))     return AF_INET6;
-#  endif
-#  if defined(AF_ROSE)
-    else if (eq(arg,`:AF_ROSE`))      return AF_ROSE;
-#  endif
-#  if defined(AF_DECnet)
-    else if (eq(arg,`:AF_DECNET`))    return AF_DECnet;
-#  endif
-#  if defined(AF_NETBEUI)
-    else if (eq(arg,`:AF_NETBEUI`))   return AF_NETBEUI;
-#  endif
-#  if defined(AF_SECURITY)
-    else if (eq(arg,`:AF_SECURITY`))  return AF_SECURITY;
-#  endif
-#  if defined(AF_KEY)
-    else if (eq(arg,`:AF_KEY`))       return AF_KEY;
-#  endif
-#  if defined(AF_NETLINK)
-    else if (eq(arg,`:AF_NETLINK`))   return AF_NETLINK;
-#  endif
-#  if defined(AF_ROUTE)
-    else if (eq(arg,`:AF_ROUTE`))     return AF_ROUTE;
-#  endif
-#  if defined(AF_PACKET)
-    else if (eq(arg,`:AF_PACKET`))    return AF_PACKET;
-#  endif
-#  if defined(AF_ASH)
-    else if (eq(arg,`:AF_ASH`))       return AF_ASH;
-#  endif
-#  if defined(AF_ECONET)
-    else if (eq(arg,`:AF_ECONET`))    return AF_ECONET;
-#  endif
-#  if defined(AF_ATMSVC)
-    else if (eq(arg,`:AF_ATMSVC`))    return AF_ATMSVC;
-#  endif
-#  if defined(AF_SNA)
-    else if (eq(arg,`:AF_SNA`))       return AF_SNA;
-#  endif
-#  if defined(AF_IRDA)
-    else if (eq(arg,`:AF_IRDA`))      return AF_IRDA;
-#  endif
-#  if defined(AF_PPPOX)
-    else if (eq(arg,`:AF_PPPOX`))     return AF_PPPOX;
-#  endif
-#  if defined(AF_WANPIPE)
-    else if (eq(arg,`:AF_WANPIPE`))   return AF_WANPIPE;
-#  endif
-#  if defined(AF_BLUETOOTH)
-    else if (eq(arg,`:AF_BLUETOOTH`)) return AF_BLUETOOTH;
-#  endif
-    else {
-      arg = my_check_argument(`DOMAIN`,arg);
-      goto restart_check_domain;
-    }
-  } else return posfixnum_to_L(arg);
-}
-static int check_socket_type (object arg) {
- restart_check_type:
-  if (!posfixnump(arg)) {
-    if (nullp(arg)) return 0;
-#  if defined(SOCK_STREAM)
-    else if (eq(arg,`:SOCK_STREAM`))    return SOCK_STREAM;
-#  endif
-#  if defined(SOCK_DGRAM)
-    else if (eq(arg,`:SOCK_DGRAM`))     return SOCK_DGRAM;
-#  endif
-#  if defined(SOCK_RAW)
-    else if (eq(arg,`:SOCK_RAW`))       return SOCK_RAW;
-#  endif
-#  if defined(SOCK_RDM)
-    else if (eq(arg,`:SOCK_RDM`))       return SOCK_RDM;
-#  endif
-#  if defined(SOCK_SEQPACKET)
-    else if (eq(arg,`:SOCK_SEQPACKET`)) return SOCK_SEQPACKET;
-#  endif
-#  if defined(SOCK_PACKET)
-    else if (eq(arg,`:SOCK_PACKET`))    return SOCK_PACKET;
-#  endif
-    else {
-      arg = my_check_argument(`TYPE`,arg);
-      goto restart_check_type;
-    }
-  }
-  else return posfixnum_to_L(arg);
-}
-static int check_socket_protocol (object arg) {
- restart_check_protocol:
-  if (!posfixnump(arg)) {
-    if (nullp(arg)) return 0;
-#  if defined(ETH_P_LOOP)
-    else if (eq(arg,`:ETH_P_LOOP`))      return ETH_P_LOOP;
-#  endif
-#  if defined(ETH_P_PUP)
-    else if (eq(arg,`:ETH_P_PUP`))       return ETH_P_PUP;
-#  endif
-#  if defined(ETH_P_PUPAT)
-    else if (eq(arg,`:ETH_P_PUPAT`))     return ETH_P_PUPAT;
-#  endif
-#  if defined(ETH_P_IP)
-    else if (eq(arg,`:ETH_P_IP`))        return ETH_P_IP;
-#  endif
-#  if defined(ETH_P_X25)
-    else if (eq(arg,`:ETH_P_X25`))       return ETH_P_X25;
-#  endif
-#  if defined(ETH_P_ARP)
-    else if (eq(arg,`:ETH_P_ARP`))       return ETH_P_ARP;
-#  endif
-#  if defined(ETH_P_BPQ)
-    else if (eq(arg,`:ETH_P_BPQ`))       return ETH_P_BPQ;
-#  endif
-#  if defined(ETH_P_IEEEPUP)
-    else if (eq(arg,`:ETH_P_IEEEPUP`))   return ETH_P_IEEEPUP;
-#  endif
-#  if defined(ETH_P_IEEEPUPAT)
-    else if (eq(arg,`:ETH_P_IEEEPUPAT`)) return ETH_P_IEEEPUPAT;
-#  endif
-#  if defined(ETH_P_DEC)
-    else if (eq(arg,`:ETH_P_DEC`))       return ETH_P_DEC;
-#  endif
-#  if defined(ETH_P_DNA_DL)
-    else if (eq(arg,`:ETH_P_DNA_DL`))    return ETH_P_DNA_DL;
-#  endif
-#  if defined(ETH_P_DNA_RC)
-    else if (eq(arg,`:ETH_P_DNA_RC`))    return ETH_P_DNA_RC;
-#  endif
-#  if defined(ETH_P_DNA_RT)
-    else if (eq(arg,`:ETH_P_DNA_RT`))    return ETH_P_DNA_RT;
-#  endif
-#  if defined(ETH_P_LAT)
-    else if (eq(arg,`:ETH_P_LAT`))       return ETH_P_LAT;
-#  endif
-#  if defined(ETH_P_DIAG)
-    else if (eq(arg,`:ETH_P_DIAG`))      return ETH_P_DIAG;
-#  endif
-#  if defined(ETH_P_CUST)
-    else if (eq(arg,`:ETH_P_CUST`))      return ETH_P_CUST;
-#  endif
-#  if defined(ETH_P_SCA)
-    else if (eq(arg,`:ETH_P_SCA`))       return ETH_P_SCA;
-#  endif
-#  if defined(ETH_P_RARP)
-    else if (eq(arg,`:ETH_P_RARP`))      return ETH_P_RARP;
-#  endif
-#  if defined(ETH_P_ATALK)
-    else if (eq(arg,`:ETH_P_ATALK`))     return ETH_P_ATALK;
-#  endif
-#  if defined(ETH_P_AARP)
-    else if (eq(arg,`:ETH_P_AARP`))      return ETH_P_AARP;
-#  endif
-#  if defined(ETH_P_IPX)
-    else if (eq(arg,`:ETH_P_IPX`))       return ETH_P_IPX;
-#  endif
-#  if defined(ETH_P_IPV6)
-    else if (eq(arg,`:ETH_P_IPV6`))      return ETH_P_IPV6;
-#  endif
-#  if defined(ETH_P_PPP_DISC)
-    else if (eq(arg,`:ETH_P_PPP_DISC`))  return ETH_P_PPP_DISC;
-#  endif
-#  if defined(ETH_P_PPP_SES)
-    else if (eq(arg,`:ETH_P_PPP_SES`))   return ETH_P_PPP_SES;
-#  endif
-#  if defined(ETH_P_ATMMPOA)
-    else if (eq(arg,`:ETH_P_ATMMPOA`))   return ETH_P_ATMMPOA;
-#  endif
-#  if defined(ETH_P_ATMFATE)
-    else if (eq(arg,`:ETH_P_ATMFATE`))   return ETH_P_ATMFATE;
-#  endif
-#  if defined(ETH_P_802_3)
-    else if (eq(arg,`:ETH_P_802_3`))     return ETH_P_802_3;
-#  endif
-#  if defined(ETH_P_AX25)
-    else if (eq(arg,`:ETH_P_AX25`))      return ETH_P_AX25;
-#  endif
-#  if defined(ETH_P_ALL)
-    else if (eq(arg,`:ETH_P_ALL`))       return ETH_P_ALL;
-#  endif
-#  if defined(ETH_P_802_2)
-    else if (eq(arg,`:ETH_P_802_2`))     return ETH_P_802_2;
-#  endif
-#  if defined(ETH_P_SNAP)
-    else if (eq(arg,`:ETH_P_SNAP`))      return ETH_P_SNAP;
-#  endif
-#  if defined(ETH_P_DDCMP)
-    else if (eq(arg,`:ETH_P_DDCMP`))     return ETH_P_DDCMP;
-#  endif
-#  if defined(ETH_P_WAN_PPP)
-    else if (eq(arg,`:ETH_P_WAN_PPP`))   return ETH_P_WAN_PPP;
-#  endif
-#  if defined(ETH_P_PPP_MP)
-    else if (eq(arg,`:ETH_P_PPP_MP`))    return ETH_P_PPP_MP;
-#  endif
-#  if defined(ETH_P_LOCALTALK)
-    else if (eq(arg,`:ETH_P_LOCALTALK`)) return ETH_P_LOCALTALK;
-#  endif
-#  if defined(ETH_P_PPPTALK)
-    else if (eq(arg,`:ETH_P_PPPTALK`))   return ETH_P_PPPTALK;
-#  endif
-#  if defined(ETH_P_TR_802_2)
-    else if (eq(arg,`:ETH_P_TR_802_2`))  return ETH_P_TR_802_2;
-#  endif
-#  if defined(ETH_P_MOBITEX)
-    else if (eq(arg,`:ETH_P_MOBITEX`))   return ETH_P_MOBITEX;
-#  endif
-#  if defined(ETH_P_CONTROL)
-    else if (eq(arg,`:ETH_P_CONTROL`))   return ETH_P_CONTROL;
-#  endif
-#  if defined(ETH_P_IRDA)
-    else if (eq(arg,`:ETH_P_IRDA`))      return ETH_P_IRDA;
-#  endif
-#  if defined(ETH_P_ECONET)
-    else if (eq(arg,`:ETH_P_ECONET`))    return ETH_P_ECONET;
-#  endif
-    else {
-      arg = my_check_argument(`PROTOCOL`,arg);
-      goto restart_check_protocol;
-    }
-  } else return posfixnum_to_L(arg);
-}
+DEFCHECKER(check_socket_domain, AF_UNSPEC AF_UNIX AF_LOCAL AF_INET AF_AX25 \
+           AF_IPX AF_APPLETALK AF_NETROM AF_BRIDGE AF_ATMPVC AF_X25 AF_INET6 \
+           AF_ROSE AF_DECnet AF_NETBEUI AF_SECURITY AF_KEY AF_NETLINK   \
+           AF_ROUTE AF_PACKET AF_ASH AF_ECONET AF_ATMSVC AF_SNA AF_IRDA \
+           AF_PPPOX AF_WANPIPE AF_BLUETOOTH)
+DEFCHECKER(check_socket_type, SOCK_STREAM SOCK_DGRAM SOCK_RAW SOCK_RDM \
+           SOCK_SEQPACKET SOCK_PACKET)
+DEFCHECKER(check_socket_protocol, ETH_P_LOOP ETH_P_PUP ETH_P_PUPAT ETH_P_IP \
+           ETH_P_X25 ETH_P_ARP ETH_P_BPQ ETH_P_IEEEPUP ETH_P_IEEEPUPAT  \
+           ETH_P_DEC ETH_P_DNA_DL ETH_P_DNA_RC ETH_P_DNA_RT ETH_P_LAT   \
+           ETH_P_DIAG ETH_P_CUST ETH_P_SCA ETH_P_RARP ETH_P_ATALK ETH_P_AARP \
+           ETH_P_IPX ETH_P_IPV6 ETH_P_PPP_DISC ETH_P_PPP_SES ETH_P_ATMMPOA \
+           ETH_P_ATMFATE ETH_P_802_3 ETH_P_AX25 ETH_P_ALL ETH_P_802_2   \
+           ETH_P_SNAP ETH_P_DDCMP ETH_P_WAN_PPP ETH_P_PPP_MP ETH_P_LOCALTALK \
+           ETH_P_PPPTALK ETH_P_TR_802_2 ETH_P_MOBITEX ETH_P_CONTROL     \
+           ETH_P_IRDA ETH_P_ECONET)
 
 DEFUN(RAWSOCK:SOCKET,domain type protocol) {
   int sock;

@@ -50,6 +50,26 @@ The input file is normal C code, modified like this:
     return ret;
   }}
   it is convenient for parsing flag arguments to DEFUNs
+- DEFCHECKER(c_name,C_CONST1 C_CONST2 C_CONST3)
+  is converted to
+  static uint32 c_name (object arg) {
+   restart_c_name:
+    if (posfixnump(arg)) return posfixnum_to_L(arg);
+    else if (missingp(arg)) return 0;
+   #ifdef C_CONST1
+    else if (eq(arg,`:C_CONST1`)) return C_CONST1;
+   #end
+    ...
+    else {
+      pushSTACK(NIL); pushSTACK(arg);
+      pushSTACK(the_appropriate_error_type);
+      pushSTACK(the_appropriate_error_type); pushSTACK(arg);
+      pushSTACK(TheSubr(subr_self)->name);
+      check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
+      arg = value1;
+      goto restart_c_name;
+    }
+  }
 
 Restrictions and caveats:
 - A module should consist of a single file.
@@ -207,38 +227,59 @@ The vector is freshly constructed, but the strings are shared"
       (values *module-name* *module-package*))))
 
 (defstruct objdef
+  ;; init is either a string or a list of either text-strings or pairs
+  ;; (condition-string . text-string)
   init tag
   (cond-stack (make-array 5 :adjustable t :fill-pointer 0)))
 (defvar *objdefs* (make-array 10 :adjustable t :fill-pointer 0))
 (defun tag-to-objdef (tag)
   (find tag *objdefs* :test #'string= :key #'objdef-tag))
+(defun write-string-c-style (string out)
+  (loop :for cc :across string :and ii :upfrom 0
+    :do (cond ((alphanumericp cc) (write-char (char-downcase cc) out))
+              ((char= cc #\:) (write-char (if (zerop ii) #\K #\_) out))
+              ((or (char= cc #\_) (char= cc #\-)) (write-char #\_ out))
+              (t (format out "_~2,'0x" (char-code cc))))))
 
 (defun init-to-tag (init already-present-p &optional (prefix "object_"))
   (let ((base
          (with-output-to-string (s)
            (when prefix (write-string prefix s))
-           (loop :for cc :across init :and ii :upfrom 0 :do
-             (cond ((alphanumericp cc) (write-char (char-downcase cc) s))
-                   ((char= cc #\:) (write-char (if (zerop ii) #\K #\_) s))
-                   ((or (char= cc #\_) (char= cc #\-)) (write-char #\_ s))
-                   (t (format s "_~2,'0x" (char-code cc))))))))
+           (etypecase init
+             (string (write-string-c-style init s))
+             (list (dolist (el init)
+                     (write-char #\_ s)
+                     (etypecase el
+                       (string (write-string-c-style el s))
+                       (cons (write-string-c-style (car el) s)
+                             (write-char #\_ s)
+                             (write-string-c-style (cdr el) s)))))))))
     (when (funcall already-present-p base)
       (loop :for ii :upfrom 0 :for new = (format nil "~a_~d" base ii)
         :while (funcall already-present-p new)
         :finally (setq base new)))
     base))
 
+(defun string-upcase-verbose (string)
+  (unless (every (lambda (cc) (char= cc (char-upcase cc))) string)
+    (warn "~S:~D: fixed object case ~S" *input-file* *lineno* string)
+    (setq string (string-upcase string)))
+  string)
+
 (defun new-objdef (init)
-  (unless (every (lambda (cc) (char= cc (char-upcase cc))) init)
-    (warn "~S:~D: fixed object case ~S" *input-file* *lineno* init)
-    (setq init (string-upcase init)))
+  (etypecase init
+    (string (setq init (string-upcase-verbose init)))
+    (cons (loop :for tail :on init :do
+            (etypecase (car tail)
+              (string (setf (car tail) (string-upcase-verbose (car tail))))
+              (cons (setf (cdar tail) (string-upcase-verbose (cdar tail))))))))
   (let ((od (make-objdef :init init :tag (init-to-tag init #'tag-to-objdef))))
     (vector-push-extend od *objdefs*)
     od))
 
 (defun init-to-objdef (init &optional (condition (current-condition)))
   "Looks up or creates an Objdef for a given initstring"
-  (let ((odef (or (find init *objdefs* :test #'string= :key #'objdef-init)
+  (let ((odef (or (find init *objdefs* :test #'equal :key #'objdef-init)
                   (new-objdef init))))
     (stack-push-optimize (objdef-cond-stack odef) condition)
     odef))
@@ -353,6 +394,7 @@ The vector is freshly constructed, but the strings are shared"
                    (write-char #\( kwd-s)
                    (loop :for k :in kwds :and firstp = t :then nil :do
                      (unless firstp (write-char #\Space kwd-s))
+                     ;; cannot have conditionals in this init
                      (write-string (objdef-init k) kwd-s))
                    (write-char #\) kwd-s))))
           (format out "{ if (argcount < ~D) { pushSTACK(TheSubr(subr_self)->name); fehler(source_program_error,(\"EVAL/APPLY: too few arguments given to ~~\")); } " min-arg)
@@ -497,31 +539,53 @@ and turn it into DEFUN(funname,lambdalist,signature)."
                    (or cc "") rest)))
         (values all (- (length all) (length rest)))))))
 
-(defstruct flag-set
+(defstruct cpp-helper
   name cpp-names
   (cond-stack (make-array 5 :adjustable t :fill-pointer 0)))
+
+(defstruct (flag-set (:include cpp-helper)))
 (defvar *flag-sets* (make-array 5 :adjustable t :fill-pointer 0))
 (defun new-flag-set (name cpp-names &optional (condition (current-condition)))
   (let ((fs (make-flag-set :name name :cpp-names cpp-names)))
     (vector-push-extend fs *flag-sets*)
     (stack-push-optimize (flag-set-cond-stack fs) condition)
     fs))
-(defun def-flag-set-p (line)
-  "Parse a DEFFLAGSET(c_name,CPP_CONST...) line."
+
+(defstruct (checker (:include cpp-helper)) cpp-odefs type-odef)
+(defvar *checkers* (make-array 5 :adjustable t :fill-pointer 0))
+(defun new-checker (name cpp-names &optional (condition (current-condition)))
+  (setq cpp-names (nreverse cpp-names))
+  (let ((ch (make-checker :name name :cpp-names cpp-names))
+        (type-odef (list "(OR NULL (INTEGER 0) (MEMBER")) cpp-odefs)
+    (vector-push-extend ch *checkers*)
+    (stack-push-optimize (checker-cond-stack ch) condition)
+    (dolist (name cpp-names)
+      (let ((co (ext:string-concat "defined(" name ")")))
+        (push (init-to-objdef (ext:string-concat ":" name)
+                              (concatenate 'vector condition (list co)))
+              cpp-odefs)
+        (push (cons co (ext:string-concat " :" name)) type-odef)))
+    (setf (checker-cpp-odefs ch) (nreverse cpp-odefs)
+          (checker-type-odef ch)
+          (init-to-objdef (nreconc type-odef (list "))"))))
+    ch))
+
+(defun def-something-p (line command constructor)
+  "Parse a COMMAND(c_name,CPP_CONST...) line."
   (let* ((pos (next-non-blank line 0)) (len (length line)) cc comma fname
-         (end (and pos (+ pos #.(length "DEFFLAGSET")))))
+         (end (and pos (+ pos (length command)))))
     (when (and pos (< end len)
-               (string= "DEFFLAGSET" line :start2 pos :end2 end)
+               (string= command line :start2 pos :end2 end)
                (case (setq cc (aref line end))
                  (#\( t)
                  (t (sys::whitespacep cc))))
-      (multiple-value-setq (comma end fname) (parse-name line end "DEFFLAGSET"))
-      (new-flag-set fname
-                    (loop :with l :and pos2 = comma
-                      :for pos1 = (next-non-blank line (1+ pos2))
-                      :while (and pos1 (< pos1 end))
-                      :do (setq pos2 (min end (or (next-blank line pos1) end)))
-                      (push (subseq line pos1 pos2) l) :finally (return l)))
+      (multiple-value-setq (comma end fname) (parse-name line end command))
+      (funcall constructor fname
+               (loop :with l :and pos2 = comma
+                 :for pos1 = (next-non-blank line (1+ pos2))
+                 :while (and pos1 (< pos1 end))
+                 :do (setq pos2 (min end (or (next-blank line pos1) end)))
+                 (push (subseq line pos1 pos2) l) :finally (return l)))
       (ext:string-concat (subseq line 0 pos) (subseq line (1+ end))))))
 
 (defstruct vardef
@@ -687,7 +751,10 @@ commas and parentheses."
       (when (else-p line) (sharp-else))
       (when (setq condition (elif-p line)) (sharp-elif condition))
       (when (endif-p line) (sharp-endif))
-      (setq line (or (defvar-p line) (def-flag-set-p line) line))
+      (setq line (or (defvar-p line)
+                     (def-something-p line "DEFFLAGSET" #'new-flag-set)
+                     (def-something-p line "DEFCHECKER" #'new-checker)
+                     line))
       (multiple-value-bind (l p) (defun-p line)
         (when l (setq line l end (1- p)))))
     (loop (multiple-value-setq (line end status)
@@ -781,7 +848,17 @@ commas and parentheses."
     (newline out) (format out "} ~A = {" object-tab-initdata) (newline out)
     (loop :for od :across *objdefs*
       :do (with-conditional (out (objdef-cond-stack od))
-            (format out "  { ~S }," (objdef-init od))))
+            (let ((init (objdef-init od)))
+              (etypecase init
+                (string (format out "  { ~S }," init))
+                (cons (format out "  {")
+                      (dolist (el init)
+                        (etypecase el
+                          (string (format out " ~S" el) (newline out))
+                          (cons (format out "#  if ~A" (car el)) (newline out)
+                                (format out "    ~S" (cdr el)) (newline out)
+                                (format out "#  endif") (newline out))))
+                      (format out "  },"))))))
     (loop :for vd :across *vardefs*
       :do (with-conditional (out (vardef-cond-stack vd))
             (write-string "  { \"NIL\" }," out)))
@@ -799,15 +876,40 @@ commas and parentheses."
             (newline out)
             (format out " {uintL flags = 0") (newline out)
             (loop :for cpp-name :in (flag-set-cpp-names fs) :for nn :upfrom 0
-              :do (format out "   #ifdef ~A" cpp-name) (newline out)
+              :do (format out "#  ifdef ~A" cpp-name) (newline out)
                   (format out "    | (missingp(STACK_(~D)) ? 0 : ~A)"
                           nn cpp-name) (newline out)
-                  (format out "   #endif") (newline out)
+                  (format out "#  endif") (newline out)
               :finally (progn (format out "   ;") (newline out)
                               (format out "  skipSTACK(~D);" nn)))
             (newline out) (format out "  return flags;") (newline out)
             (format out "}}") (newline out)))
-    (newline out) (newline out)))
+    (newline out)
+    (loop :for ch :across *checkers*
+      :for type-tag = (objdef-tag (checker-type-odef ch))
+      :for c-name = (checker-name ch)
+      :do (with-conditional (out (checker-cond-stack ch))
+            (format out "static uintL ~A (object a) {" c-name)
+            (newline out) (format out " restart_~A:" c-name) (newline out)
+            (format out "  if (missingp(a)) return 0;") (newline out)
+            (format out "  else if (posfixnump(a)) return posfixnum_to_L(a);")
+            (newline out)
+            (loop :for name :in (checker-cpp-names ch)
+              :for odef :in (checker-cpp-odefs ch)
+              :do (format out " #ifdef ~A" name) (newline out)
+                  (format out "  else if (eq(a,O(~A))) return ~A;"
+                          (objdef-tag odef) name) (newline out)
+                  (format out " #endif") (newline out))
+            (format out "  else {") (newline out)
+            (format out "    pushSTACK(NIL); pushSTACK(a);") (newline out)
+            (format out "    pushSTACK(O(~A));" type-tag) (newline out)
+            (format out "    pushSTACK(O(~A));" type-tag) (newline out)
+            (format out "    pushSTACK(a);pushSTACK(TheSubr(subr_self)->name);")
+            (newline out) (format out "    check_value(type_error,GETTEXT(\"~~S: ~~S is not of type ~~S\"));") (newline out)
+            (format out "    a = value1; goto restart_~A;" c-name) (newline out)
+            (format out "  }") (newline out)
+            (format out "}") (newline out)))
+    (newline out)))
 
 (defun print-tables-2 (out)
   "Output the tables at the end of the file"
