@@ -10,6 +10,12 @@
 
 ;;; Lift the initialization protocol.
 
+(defmethod initialize-instance ((method method) &rest args
+                                &key ((from-defgeneric from-defgeneric) nil)
+                                &allow-other-keys)
+  (declare (ignore from-defgeneric))
+  (apply #'initialize-instance-<method> method args))
+
 (defmethod initialize-instance ((method standard-method) &rest args
                                 &key qualifiers
                                      lambda-list
