@@ -259,7 +259,7 @@
      {var uintL index = start;
       pushSTACK(string); # Simple-String retten
       dotimespL(len,len,
-        { write_code_char(stream_,TheSstring(STACK_0)->data[index]);
+        { write_char(stream_,code_char(TheSstring(STACK_0)->data[index]));
           index++;
         });
       skipSTACK(1);
@@ -272,8 +272,8 @@
     var uintL start;
     var uintL len;
     { if (len==0) return;
-     {var uintB* ptr = &TheSstring(string)->data[start];
-      dotimespL(len,len, { write_code_char(stream_,*ptr++); } );
+     {var const chart* ptr = &TheSstring(string)->data[start];
+      dotimespL(len,len, { write_char(stream_,code_char(*ptr++)); } );
     }}
   # Am Ende eines wr_ss die Line-Position aktualisieren:
   # wr_ss_lpos(stream,ptr,len);
@@ -281,10 +281,10 @@
   # > ptr: Pointer ans Ende(!) der bereits auf den Stream ausgegebenen Zeichen
   # > len: Anzahl der Zeichen, >0
   # < ergebnis: TRUE, falls ein NL unter den Zeichen ist, FALSE sonst
-  local boolean wr_ss_lpos (object stream, const uintB* ptr, uintL len);
+  local boolean wr_ss_lpos (object stream, const chart* ptr, uintL len);
   local boolean wr_ss_lpos(stream,ptr,len)
     var object stream;
-    var const uintB* ptr;
+    var const chart* ptr;
     var uintL len;
     {
       #ifdef TERMINAL_USES_KEYBOARD
@@ -295,7 +295,7 @@
      {var boolean result;
       var uintL pos = 0;
       var uintL count;
-      dotimespL(count,len, { if (*--ptr == NL) goto found_NL; pos++; } );
+      dotimespL(count,len, { if (chareq(*--ptr,ascii(NL))) goto found_NL; pos++; } );
       if (FALSE)
         found_NL: # pos Zeichen seit dem letzten NL
         { ptr++; len = pos; pos = 0; result = TRUE; }
@@ -305,12 +305,12 @@
       #ifndef TERMINAL_USES_KEYBOARD
       if (TheStream(stream)->strmtype == strmtype_terminal)
         { dotimesL(count,len,
-            { var uintB c = *ptr++;
+            { var chart c = *ptr++;
               # Wie wirken sich die Steuerzeichen in der Position aus?
               if (graphic_char_p(c))
                 # normales druckendes Zeichen -> Line Position incrementieren:
                 { pos++; }
-              elif (c == BS)
+              elif (chareq(c,ascii(BS)))
                 # Backspace -> Line Position, wenn möglich, decrementieren:
                 { if (pos > 0) { pos--; } }
             });
@@ -438,14 +438,14 @@
   global void write_char(stream_,ch)
     var const object* stream_;
     var object ch;
-    { var uintB c = char_code(ch);
+    { var chart c = char_code(ch);
       # Char schreiben:
       wr_ch(*stream_)(stream_,ch);
       # Line Position aktualisieren:
      {var object stream = *stream_;
       if (!(TheStream(stream)->strmtype == strmtype_terminal))
         # nicht der Terminal-Stream
-        { if (c == NL)
+        { if (chareq(c,ascii(NL)))
             # Nach Newline: Line Position := 0
             { TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; }
             else
@@ -464,10 +464,10 @@
             { TheStream(stream)->strm_wr_ch_lpos =
                 fixnum_inc(TheStream(stream)->strm_wr_ch_lpos,1);
             }
-          elif (c == NL)
+          elif (chareq(c,ascii(NL)))
             # Newline -> Line Position := 0
             { TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; }
-          elif (c == BS)
+          elif (chareq(c,ascii(BS)))
             # Backspace -> Line Position, wenn möglich, decrementieren:
             { if (!eq(TheStream(stream)->strm_wr_ch_lpos,Fixnum_0))
                 { TheStream(stream)->strm_wr_ch_lpos =
@@ -1025,13 +1025,13 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
             # das Ctrl-C jetzt. Damit das Zeichen nicht verlorengeht, wird
             # es wie durch unread_char() zurückgelegt.
             interruptp(
-              { TheStream(stream)->strm_rd_ch_last = code_char(c);
+              { TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
                 TheStream(stream)->strmflags |= strmflags_unread_B;
                 pushSTACK(S(read_char)); tast_break(); # Break-Schleife aufrufen
                 return read_char(stream_);
               });
             #endif
-            return code_char(c);
+            return code_char(as_chart(c));
           }
     }}}}
 
@@ -1206,7 +1206,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
             { return signean_plus; }
             else
             # Zeichen verfügbar
-            { TheStream(stream)->strm_rd_ch_last = code_char(c);
+            { TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
               TheStream(stream)->strmflags |= strmflags_unread_B;
               return signean_null;
             }
@@ -1230,7 +1230,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
               return signean_minus;
             }
             else # Zeichen verfügbar
-            { TheStream(stream)->strm_rd_ch_last = code_char(c);
+            { TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
               TheStream(stream)->strmflags |= strmflags_unread_B;
               return signean_null;
             }
@@ -1257,7 +1257,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
               return signean_minus;
             }
             else # Zeichen verfügbar
-            { TheStream(stream)->strm_rd_ch_last = code_char(c);
+            { TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
               TheStream(stream)->strmflags |= strmflags_unread_B;
               return signean_null;
             }
@@ -1336,7 +1336,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
                   return signean_minus;
                 }
                 else # Zeichen verfügbar
-                { TheStream(stream)->strm_rd_ch_last = code_char(c);
+                { TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
                   TheStream(stream)->strmflags |= strmflags_unread_B;
                   return signean_null;
             }   }
@@ -1417,7 +1417,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     { var Handle handle = TheHandle(TheStream(*stream_)->strm_ohandle);
       # ch sollte Character sein:
       if (!charp(ch)) { fehler_wr_char(*stream_,ch); }
-     {var uintB c = char_code(ch); # Code des Zeichens
+     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
       restart_it:
       begin_system_call();
       #ifdef GRAPHICS_SWITCH
@@ -1450,10 +1450,10 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     }}
 
 # WRITE-CHAR-SEQUENCE für Handle-Streams:
-  local const uintB* write_char_array_handle (object stream, const uintB* ptr, uintL len);
-  local const uintB* write_char_array_handle(stream,ptr,len)
+  local const chart* write_char_array_handle (object stream, const chart* ptr, uintL len);
+  local const chart* write_char_array_handle(stream,ptr,len)
     var object stream;
-    var const uintB* ptr;
+    var const chart* ptr;
     var uintL len;
     { var Handle handle = TheHandle(TheStream(stream)->strm_ohandle);
       begin_system_call();
@@ -1727,9 +1727,13 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # the arguments to MAKE-INPUT-CHARACTER.
 typedef struct {
   const char * key;
-  uintB code;
+  chart code;
   uintB bits;
 } key_event;
+
+# Initializers for the two most common kinds of keyboard events.
+  #define key_ascii(asc)  { NULL, ascii(asc), 0 }
+  #define key_special(name)  { name, ascii(0), char_hyper_c }
 
 # Creates a keyboard event.
 local object make_key_event (const key_event* event);
@@ -2081,7 +2085,7 @@ local object make_key_event(event)
             { # Ctrl-A bis Ctrl-Z -> Buchstabe mit CONTROL-Bit draus machen:
               var key_event event;
               event.key = NULL;
-              event.code = (ch==LF ? CR : (ch | bit(6)));
+              event.code = ascii(ch==LF ? CR : (ch | bit(6)));
               event.bits = char_control_c;
               c = make_key_event(&event);
             }
@@ -2197,7 +2201,7 @@ local object make_key_event(event)
             { # Ctrl-A bis Ctrl-Z -> Buchstabe mit CONTROL-Bit draus machen:
               var key_event event;
               event.key = NULL;
-              event.code = (ch==LF ? CR : (ch | bit(6)));
+              event.code = ascii(ch==LF ? CR : (ch | bit(6)));
               event.bits = char_control_c;
               c = make_key_event(&event);
             }
@@ -2220,7 +2224,7 @@ local object make_key_event(event)
         var uintB scancode = (uintB)(erg>>8); # Scan-Code
         if (scancode == 0)
           # Multikey-Event, z.B. accent+space oder Alt xyz
-          { pushSTACK(code_char(code)); funcall(S(make_char),1); c = value1; }
+          { pushSTACK(code_char(as_chart(code))); funcall(S(make_char),1); c = value1; }
         else
           { if ((code == 0) || (code == 0xE0))
               # Sondertaste
@@ -2237,7 +2241,7 @@ local object make_key_event(event)
                   # Ziffernblocktaste außer Enter (auch nicht F1 bis F12 !)
                   { var key_event event;
                     event.key = NULL;
-                    event.code = code;
+                    event.code = as_chart(code);
                     event.bits = char_hyper_c;
                     c = make_key_event(&event);
                   }
@@ -2248,7 +2252,7 @@ local object make_key_event(event)
                   { var uintB defaultcode = (scancode==14 ? BS : CR);
                     var key_event event;
                     event.key = NULL;
-                    event.code = defaultcode;
+                    event.code = as_chart(defaultcode);
                     event.bits = (scancode == 0xE0 ? char_hyper_c : 0)
                                  | (!(code == defaultcode) ? char_control_c : 0);
                     c = make_key_event(&event);
@@ -2258,13 +2262,13 @@ local object make_key_event(event)
                       { # Ctrl-A bis Ctrl-Z -> Buchstabe mit CONTROL-Bit draus machen:
                         var key_event event;
                         event.key = NULL;
-                        event.code = code | bit(6);
+                        event.code = ascii(code | bit(6));
                         event.bits = char_control_c;
                         c = make_key_event(&event);
                       }
                     else
                       # normales Zeichen
-                      { pushSTACK(code_char(code)); funcall(S(make_char),1); c = value1; }
+                      { pushSTACK(code_char(as_chart(code))); funcall(S(make_char),1); c = value1; }
           }   }   }
         # noch zu behandeln: ??
         # Ctrl-2          0300
@@ -2412,14 +2416,14 @@ local object make_key_event(event)
                 }
                 else
                 { ev.key = NULL;
-                  ev.code = (uintB)event.Event.KeyEvent.uAsciiChar;
+                  ev.code = as_chart((uintB)event.Event.KeyEvent.uAsciiChar);
                   ev.bits = 0;
                   if (event.Event.KeyEvent.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
                     { # c = 'a'..'z' -> translate to 'A'..'Z'
                       # c = 'A'..'Z' -> add "Shift"
                       # c = '<','>' etc. -> don't add "Shift"
                       ev.code = up_case(ev.code);
-                      if (!(ev.code == down_case(ev.code)))
+                      if (!chareq(ev.code,down_case(ev.code)))
                         { if (event.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
                             { ev.bits |= char_super_c; }
                         }
@@ -2469,7 +2473,7 @@ local object make_key_event(event)
         next_char_is_read:
         # Es verlängert den Buffer:
         {var object new_cons = allocate_cons();
-         Car(new_cons) = code_char(c);
+         Car(new_cons) = code_char(as_chart(c));
          stream = *stream_;
          {var object* last_ = &TheStream(stream)->strm_keyboard_buffer;
           while (mconsp(*last_)) { last_ = &Cdr(*last_); }
@@ -2600,14 +2604,14 @@ local object make_key_event(event)
       empty_buffer:
       { var object l = TheStream(stream)->strm_keyboard_buffer;
         TheStream(stream)->strm_keyboard_buffer = Cdr(l);
-       {var uintB c = char_code(Car(l));
+       {var cint c = as_cint(char_code(Car(l)));
         if ((c >= ' ') || (c == ESC) || (c == TAB) || (c == CR) || (c == BS))
-          { pushSTACK(code_char(c)); funcall(S(make_char),1); return value1; }
+          { pushSTACK(code_char(as_chart(c))); funcall(S(make_char),1); return value1; }
           else
           # Taste vermutlich mit Ctrl getippt
           { var key_event event;
             event.key = NULL;
-            event.code = (c == 0 ? ' ' : (c | bit(6)));
+            event.code = ascii(c == 0 ? ' ' : (c | bit(6)));
             event.bits = char_control_c;
             return make_key_event(&event);
           }
@@ -2625,7 +2629,7 @@ local object make_key_event(event)
         pushSTACK(allocate_cons());
         # Liste (char1 ... charn . key) bilden:
         {var uintC count = 0;
-         do { pushSTACK(code_char(*ptr)); ptr++; count++; } until (*ptr=='\0');
+         do { pushSTACK(code_char(as_chart(*ptr))); ptr++; count++; } until (*ptr=='\0');
          pushSTACK(make_key_event(event)); count++;
          funcall(L(liststern),count);
         }
@@ -2633,8 +2637,8 @@ local object make_key_event(event)
         {var object l = popSTACK();
          Car(l) = value1; Cdr(l) = STACK_0; STACK_0 = l;
       } }
-  #define keybinding(cap,ev1,ev2,ev3)  \
-    { var key_event event = ev1,ev2,ev3; add_keybinding(cap,&event); }
+  #define keybinding(cap,initializer)  \
+    { var key_event event = initializer; add_keybinding(cap,&event); }
 
   #endif
 
@@ -2667,64 +2671,64 @@ local object make_key_event(event)
               end_system_call();
               # Backspace:
               begin_system_call(); cap = tgetstr("kb",&tp); end_system_call();
-              if (cap) { keybinding(cap, { NULL, BS, 0 } ); } # #\Backspace
+              if (cap) { keybinding(cap, key_ascii(BS)); } # #\Backspace
               # Insert, Delete:
               begin_system_call(); cap = tgetstr("kI",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "INSERT", 0, char_hyper_c } ); } # #\Insert
+              if (cap) { keybinding(cap, key_special("INSERT")); } # #\Insert
               begin_system_call(); cap = tgetstr("kD",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "DELETE", 0, char_hyper_c } ); } # #\Delete
+              if (cap) { keybinding(cap, key_special("DELETE")); } # #\Delete
               # Pfeiltasten:
               begin_system_call(); cap = tgetstr("ku",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "UP", 0, char_hyper_c } ); } # #\Up
+              if (cap) { keybinding(cap, key_special("UP")); } # #\Up
               if (cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'A') && (cap[3] == '\0'))
-                { keybinding(ESCstring"[A", { "UP", 0, char_hyper_c } ); } # #\Up
+                { keybinding(ESCstring"[A", key_special("UP")); } # #\Up
               begin_system_call(); cap = tgetstr("kd",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "DOWN", 0, char_hyper_c } ); } # #\Down
+              if (cap) { keybinding(cap, key_special("DOWN")); } # #\Down
               if (cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'B') && (cap[3] == '\0'))
-                { keybinding(ESCstring"[B", { "DOWN", 0, char_hyper_c } ); } # #\Down
+                { keybinding(ESCstring"[B", key_special("DOWN")); } # #\Down
               begin_system_call(); cap = tgetstr("kr",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "RIGHT", 0, char_hyper_c } ); } # #\Right
+              if (cap) { keybinding(cap, key_special("RIGHT")); } # #\Right
               if (cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'C') && (cap[3] == '\0'))
-                { keybinding(ESCstring"[C", { "RIGHT", 0, char_hyper_c } ); } # #\Right
+                { keybinding(ESCstring"[C", key_special("RIGHT")); } # #\Right
               begin_system_call(); cap = tgetstr("kl",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "LEFT", 0, char_hyper_c } ); } # #\Left
+              if (cap) { keybinding(cap, key_special("LEFT")); } # #\Left
               if (cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'D') && (cap[3] == '\0'))
-                { keybinding(ESCstring"[D", { "LEFT", 0, char_hyper_c } ); } # #\Left
+                { keybinding(ESCstring"[D", key_special("LEFT")); } # #\Left
               # sonstige Cursorblock-Tasten:
               begin_system_call(); cap = tgetstr("kh",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "HOME", 0, char_hyper_c } ); } # #\Home
+              if (cap) { keybinding(cap, key_special("HOME")); } # #\Home
               begin_system_call(); cap = tgetstr("K1",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "HOME", 0, char_hyper_c } ); } # #\Home
+              if (cap) { keybinding(cap, key_special("HOME")); } # #\Home
               begin_system_call(); cap = tgetstr("KH",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "END", 0, char_hyper_c } ); } # #\End
+              if (cap) { keybinding(cap, key_special("END")); } # #\End
               begin_system_call(); cap = tgetstr("K4",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "END", 0, char_hyper_c } ); } # #\End
+              if (cap) { keybinding(cap, key_special("END")); } # #\End
               begin_system_call(); cap = tgetstr("kP",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "PGUP", 0, char_hyper_c } ); } # #\PgUp
+              if (cap) { keybinding(cap, key_special("PGUP")); } # #\PgUp
               begin_system_call(); cap = tgetstr("K3",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "PGUP", 0, char_hyper_c } ); } # #\PgUp
+              if (cap) { keybinding(cap, key_special("PGUP")); } # #\PgUp
               begin_system_call(); cap = tgetstr("kN",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "PGDN", 0, char_hyper_c } ); } # #\PgDn
+              if (cap) { keybinding(cap, key_special("PGDN")); } # #\PgDn
               begin_system_call(); cap = tgetstr("K5",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "PGDN", 0, char_hyper_c } ); } # #\PgDn
+              if (cap) { keybinding(cap, key_special("PGDN")); } # #\PgDn
               begin_system_call(); cap = tgetstr("K2",&tp); end_system_call();
-              if (cap) { keybinding(cap, { "CENTER", 0, char_hyper_c } ); } # #\Center
+              if (cap) { keybinding(cap, key_special("CENTER")); } # #\Center
               # Funktionstasten:
               { typedef struct { const char* capname; key_event key; } funkey;
                 local var const funkey funkey_tab[] = {
-                  { "k1", { "F1", 0, char_hyper_c } }, # #\F1
-                  { "k2", { "F2", 0, char_hyper_c } }, # #\F2
-                  { "k3", { "F3", 0, char_hyper_c } }, # #\F3
-                  { "k4", { "F4", 0, char_hyper_c } }, # #\F4
-                  { "k5", { "F5", 0, char_hyper_c } }, # #\F5
-                  { "k6", { "F6", 0, char_hyper_c } }, # #\F6
-                  { "k7", { "F7", 0, char_hyper_c } }, # #\F7
-                  { "k8", { "F8", 0, char_hyper_c } }, # #\F8
-                  { "k9", { "F9", 0, char_hyper_c } }, # #\F9
-                  { "k0", { "F10", 0, char_hyper_c } }, # #\F10
-                  { "k;", { "F10", 0, char_hyper_c } }, # #\F10
-                  { "F1", { "F11", 0, char_hyper_c } }, # #\F11
-                  { "F2", { "F12", 0, char_hyper_c } }, # #\F12
+                  { "k1", key_special("F1") }, # #\F1
+                  { "k2", key_special("F2") }, # #\F2
+                  { "k3", key_special("F3") }, # #\F3
+                  { "k4", key_special("F4") }, # #\F4
+                  { "k5", key_special("F5") }, # #\F5
+                  { "k6", key_special("F6") }, # #\F6
+                  { "k7", key_special("F7") }, # #\F7
+                  { "k8", key_special("F8") }, # #\F8
+                  { "k9", key_special("F9") }, # #\F9
+                  { "k0", key_special("F10") }, # #\F10
+                  { "k;", key_special("F10") }, # #\F10
+                  { "F1", key_special("F11") }, # #\F11
+                  { "F2", key_special("F12") }, # #\F12
                   };
                 var uintL i;
                 for (i=0; i < sizeof(funkey_tab)/sizeof(funkey); i++)
@@ -2745,7 +2749,7 @@ local object make_key_event(event)
               if (!(cap && (cap[0] == ESC) && (cap[1] == '[') && (cap[2] == '3') && (cap[3] == '~') && (cap[4] == '\0')))
                 goto not_linux;
               end_system_call();
-              keybinding(ESCstring"[4~", { "END", 0, char_hyper_c } ); # #\End
+              keybinding(ESCstring"[4~", key_special("END")); # #\End
               if (FALSE)
                 not_linux:
                 { end_system_call(); }
@@ -2765,8 +2769,8 @@ local object make_key_event(event)
                 goto not_xterm;
               end_system_call();
               { # Insert, Delete:
-                keybinding(ESCstring"[2~", { "INSERT", 0, char_hyper_c } ); # #\Insert
-                keybinding(ESCstring"[3~", { "DELETE", 0, char_hyper_c } ); # #\Delete
+                keybinding(ESCstring"[2~", key_special("INSERT")); # #\Insert
+                keybinding(ESCstring"[3~", key_special("DELETE")); # #\Delete
               }
               { # Application Keypad: ESC O M -> Return,
                 # ESC O k -> +, ESC O m -> -, ESC O j -> *, ESC O o -> /
@@ -2776,45 +2780,45 @@ local object make_key_event(event)
                 # ESC O p -> Insert, ESC O l -> Delete.
                 var char cap[4];
                 cap[0] = ESC; cap[1] = 'O'; cap[3] = '\0';
-                cap[2] = 'M'; keybinding(&!cap, { NULL, 'M'-64, 0 } );
-                cap[2] = '+'+64; keybinding(&!cap, { NULL, '+', 0 } );
-                cap[2] = '-'+64; keybinding(&!cap, { NULL, '-', 0 } );
-                cap[2] = '*'+64; keybinding(&!cap, { NULL, '*', 0 } );
-                cap[2] = '/'+64; keybinding(&!cap, { NULL, '/', 0 } );
-                cap[2] = '8'+64; keybinding(&!cap, { "UP", 0, char_hyper_c } ); # #\Up
-                cap[2] = '2'+64; keybinding(&!cap, { "DOWN", 0, char_hyper_c } ); # #\Down
-                cap[2] = '6'+64; keybinding(&!cap, { "RIGHT", 0, char_hyper_c } ); # #\Right
-                cap[2] = '4'+64; keybinding(&!cap, { "LEFT", 0, char_hyper_c } ); # #\Left
-                cap[2] = '0'+64; keybinding(&!cap, { "INSERT", 0, char_hyper_c } ); # #\Insert
-                cap[2] = '.'+64; keybinding(&!cap, { "DELETE", 0, char_hyper_c } ); # #\Delete
-                cap[2] = ','+64; keybinding(&!cap, { "DELETE", 0, char_hyper_c } ); # #\Delete
+                cap[2] = 'M'; keybinding(&!cap, key_ascii('M'-64));
+                cap[2] = '+'+64; keybinding(&!cap, key_ascii('+'));
+                cap[2] = '-'+64; keybinding(&!cap, key_ascii('-'));
+                cap[2] = '*'+64; keybinding(&!cap, key_ascii('*'));
+                cap[2] = '/'+64; keybinding(&!cap, key_ascii('/'));
+                cap[2] = '8'+64; keybinding(&!cap, key_special("UP")); # #\Up
+                cap[2] = '2'+64; keybinding(&!cap, key_special("DOWN")); # #\Down
+                cap[2] = '6'+64; keybinding(&!cap, key_special("RIGHT")); # #\Right
+                cap[2] = '4'+64; keybinding(&!cap, key_special("LEFT")); # #\Left
+                cap[2] = '0'+64; keybinding(&!cap, key_special("INSERT")); # #\Insert
+                cap[2] = '.'+64; keybinding(&!cap, key_special("DELETE")); # #\Delete
+                cap[2] = ','+64; keybinding(&!cap, key_special("DELETE")); # #\Delete
                 # "7" -> #\Home, "1" -> #\End, "9" -> #\PgUp, "3" -> #\PgDn,
                 # "5" -> #\Center are already handled above.
               }
               xterm:
               { # Pfeiltasten s.o.
                 # sonstige Cursorblock-Tasten:
-                keybinding(ESCstring"[5~", { "PGUP", 0, char_hyper_c } ); # #\PgUp
-                keybinding(ESCstring"[6~", { "PGDN", 0, char_hyper_c } ); # #\PgDn
-                keybinding(ESCstring"[7~", { "HOME", 0, char_hyper_c } ); # #\Home
-                keybinding(ESCstring"[8~", { "END", 0, char_hyper_c } ); # #\End
-                keybinding(ESCstring"OH", { "HOME", 0, char_hyper_c } ); # #\Home
-                keybinding(ESCstring"[H", { "HOME", 0, char_hyper_c } ); # #\Home
-                keybinding(ESCstring"OF", { "END", 0, char_hyper_c } ); # #\End
-                keybinding(ESCstring"[F", { "END", 0, char_hyper_c } ); # #\End
+                keybinding(ESCstring"[5~", key_special("PGUP")); # #\PgUp
+                keybinding(ESCstring"[6~", key_special("PGDN")); # #\PgDn
+                keybinding(ESCstring"[7~", key_special("HOME")); # #\Home
+                keybinding(ESCstring"[8~", key_special("END")); # #\End
+                keybinding(ESCstring"OH", key_special("HOME")); # #\Home
+                keybinding(ESCstring"[H", key_special("HOME")); # #\Home
+                keybinding(ESCstring"OF", key_special("END")); # #\End
+                keybinding(ESCstring"[F", key_special("END")); # #\End
                 # Funktionstasten:
-                keybinding(ESCstring"[11~", { "F1", 0, char_hyper_c } ); # #\F1
-                keybinding(ESCstring"[12~", { "F2", 0, char_hyper_c } ); # #\F2
-                keybinding(ESCstring"[13~", { "F3", 0, char_hyper_c } ); # #\F3
-                keybinding(ESCstring"[14~", { "F4", 0, char_hyper_c } ); # #\F4
-                keybinding(ESCstring"[15~", { "F5", 0, char_hyper_c } ); # #\F5
-                keybinding(ESCstring"[17~", { "F6", 0, char_hyper_c } ); # #\F6
-                keybinding(ESCstring"[18~", { "F7", 0, char_hyper_c } ); # #\F7
-                keybinding(ESCstring"[19~", { "F8", 0, char_hyper_c } ); # #\F8
-                keybinding(ESCstring"[20~", { "F9", 0, char_hyper_c } ); # #\F9
-                keybinding(ESCstring"[21~", { "F10", 0, char_hyper_c } ); # #\F10
-                keybinding(ESCstring"[23~", { "F11", 0, char_hyper_c } ); # #\F11
-                keybinding(ESCstring"[24~", { "F12", 0, char_hyper_c } ); # #\F12
+                keybinding(ESCstring"[11~", key_special("F1")); # #\F1
+                keybinding(ESCstring"[12~", key_special("F2")); # #\F2
+                keybinding(ESCstring"[13~", key_special("F3")); # #\F3
+                keybinding(ESCstring"[14~", key_special("F4")); # #\F4
+                keybinding(ESCstring"[15~", key_special("F5")); # #\F5
+                keybinding(ESCstring"[17~", key_special("F6")); # #\F6
+                keybinding(ESCstring"[18~", key_special("F7")); # #\F7
+                keybinding(ESCstring"[19~", key_special("F8")); # #\F8
+                keybinding(ESCstring"[20~", key_special("F9")); # #\F9
+                keybinding(ESCstring"[21~", key_special("F10")); # #\F10
+                keybinding(ESCstring"[23~", key_special("F11")); # #\F11
+                keybinding(ESCstring"[24~", key_special("F12")); # #\F12
               }
               if (FALSE)
                 not_xterm:
@@ -2894,7 +2898,7 @@ LISPFUNN(make_keyboard_stream,0)
        {var char** ptr = array;
         while (consp(mlist))
           { var uintC count = Sstring_length(Car(mlist));
-            var uintB* ptr1 = &TheSstring(Car(mlist))->data[0];
+            var const chart* ptr1 = &TheSstring(Car(mlist))->data[0];
             var char* ptr2 = (char*) malloc((count+1)*sizeof(char));
             if (ptr2==NULL) # malloc scheitert -> alles zurückgeben
               { until (ptr==array) { free(*--ptr); }
@@ -2902,7 +2906,7 @@ LISPFUNN(make_keyboard_stream,0)
                 return NULL;
               }
             *ptr++ = ptr2;
-            dotimesC(count,count, { *ptr2++ = *ptr1++; });
+            dotimesC(count,count, { *ptr2++ = as_cint(*ptr1++); });
             *ptr2 = '\0';
             mlist = Cdr(mlist);
           }
@@ -2929,7 +2933,7 @@ LISPFUNN(make_keyboard_stream,0)
       ch = nxterminal_read_char(&linepos);
       end_call();
       TheStream(*stream_)->strm_wr_ch_lpos = fixnum(linepos);
-      return code_char(ch);
+      return code_char(as_cint(ch));
     }
 
 # Stellt fest, ob ein Terminal-Stream ein Zeichen verfügbar hat.
@@ -3165,7 +3169,7 @@ LISPFUNN(make_keyboard_stream,0)
       # Wenn stdin und stdout beide dasselbe Terminal sind,
       # und wir lesen ein NL, so können wir davon ausgehen,
       # dass der Cursor danach in Spalte 0 steht.
-      if (eq(ch,code_char(NL)))
+      if (eq(ch,ascii_char(NL)))
         { var object stream = *stream_;
           if (eq(TheStream(stream)->strm_terminal_isatty,S(equal)))
             { TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; }
@@ -3317,7 +3321,7 @@ LISPFUNN(make_keyboard_stream,0)
        }
        #if TERMINAL_LINEBUFFERED
        # Zeichen c zur Eingabezeile dazunehmen, evtl. die Zeile vergrößern:
-       ssstring_push_extend(TheStream(stream)->strm_terminal_inbuff,c);
+       ssstring_push_extend(TheStream(stream)->strm_terminal_inbuff,as_chart(c));
        stream = *stream_;
        #endif
        # Wenn stdin und stdout beide dasselbe Terminal sind,
@@ -3507,8 +3511,8 @@ LISPFUNN(make_keyboard_stream,0)
         # gelesene Zeile zur Eingabezeile dazunehmen:
         {var uintB* ptr = line;
          until (*ptr == '\0')
-           { ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,*ptr++); }
-         ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,NL);
+           { ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,as_chart(*ptr++)); }
+         ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,ascii(NL));
         }
         # und in die History übernehmen, falls nicht leer:
         if (!(line[0]=='\0'))
@@ -3577,12 +3581,12 @@ LISPFUNN(make_keyboard_stream,0)
     var const object* stream_;
     var object ch;
     { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
-     {var uintB c = char_code(ch); # Code des Zeichens
+     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
       #if TERMINAL_OUTBUFFERED
       if (c==NL)
         TheIarray(TheStream(*stream_)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
         else
-        ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,c);
+        ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,as_chart(c));
       #endif
       restart_it:
       begin_system_call();
@@ -3617,7 +3621,7 @@ LISPFUNN(make_keyboard_stream,0)
     var uintL start;
     var uintL len;
     { if (len==0) return;
-     {var uintB* ptr = &TheSstring(string)->data[start];
+     {var const chart* ptr = &TheSstring(string)->data[start];
       begin_system_call();
       #ifdef GRAPHICS_SWITCH
       switch_text_mode();
@@ -3633,7 +3637,7 @@ LISPFUNN(make_keyboard_stream,0)
       # Zeichen seit dem letzten NL in den Buffer:
       { var uintL pos = 0; # zähle die Zahl der Zeichen seit dem letzten NL
         var uintL count;
-        dotimespL(count,len, { if (*--ptr == NL) goto found_NL; pos++; } );
+        dotimespL(count,len, { if (chareq(*--ptr,ascii(NL))) goto found_NL; pos++; } );
         if (FALSE)
           found_NL: # pos Zeichen seit dem letzten NL
           { ptr++;
@@ -4669,7 +4673,7 @@ uintW v_put(ch)
     var const object* stream_;
     var object ch;
     { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
-     {var uintB c = char_code(ch); # Code des Zeichens
+     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
       # Code c übers BIOS auf den Bildschirm ausgeben:
       v_put(c);
     }}
@@ -4826,7 +4830,7 @@ local int COLS;  # Anzahl Spalten, Anzahl Zeichen pro Zeile
     var const object* stream_;
     var object ch;
     { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
-     {var uintB c = char_code(ch); # Code des Zeichens
+     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
       # Code c über die Video-Library auf den Bildschirm ausgeben:
       if (c==NL)
         { v_putc(c); }
@@ -6662,9 +6666,9 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
     var const object* stream_;
     var object ch;
     { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
-     {var uintB c = char_code(ch); # Code des Zeichens
+     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
       begin_system_call();
-      if (graphic_char_p(c))
+      if (graphic_char_p(as_chart(c)))
         { if (curr->x == cols) { cursor_return(); cursor_linefeed(); } # Wrap!
           output_1char(c);
         }
@@ -6891,9 +6895,9 @@ LISPFUNN(window_cursor_off,1)
     var const object* stream_;
     var object ch;
     { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
-     {var uintB c = char_code(ch); # Code des Zeichens
+     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
       begin_system_call();
-      if (graphic_char_p(c)) # nur druckbare Zeichen auf den Bildschirm lassen
+      if (graphic_char_p(as_chart(c))) # nur druckbare Zeichen auf den Bildschirm lassen
         { addch(c); }
       elif (c == NL) # NL in CR/LF umwandeln
         { addch(CR); addch(LF); }
@@ -7077,7 +7081,7 @@ LISPFUNN(window_cursor_off,1)
     var const object* stream_;
     var object ch;
     { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
-     {var uintB c = char_code(ch); # Code des Zeichens
+     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
       ??
     }}
 
@@ -7740,14 +7744,14 @@ typedef struct strm_i_file_extrafields_struct {
       var uintB* charptr = b_file_nextbyte(stream);
       if (charptr == (uintB*)NULL) { return eof_value; } # EOF ?
       # nächstes Zeichen holen:
-     {var object ch = code_char(*charptr); # Character aus dem Buffer holen
+     {var object ch = code_char(as_chart(*charptr)); # Character aus dem Buffer holen
       # index und position incrementieren:
       FileStream_index(stream) += 1;
       FileStream_position(stream) += 1;
       # ch = nächstes Zeichen
-      if (!eq(ch,code_char(CR))) # Ist es CR ?
+      if (!eq(ch,ascii_char(CR))) # Ist es CR ?
         { # nein -> OK
-          if (eq(ch,code_char(NL))) # Ist es NL, dann lineno incrementieren
+          if (eq(ch,ascii_char(NL))) # Ist es NL, dann lineno incrementieren
             { FileStream_lineno(stream) += 1; }
           return ch;
         }
@@ -7761,7 +7765,7 @@ typedef struct strm_i_file_extrafields_struct {
       # lineno incrementieren:
       FileStream_lineno(stream) += 1;
       # NL als Ergebnis:
-      return code_char(NL);
+      return ascii_char(NL);
     }}
 
 # Stellt fest, ob ein File-Stream ein Zeichen verfügbar hat.
@@ -7801,7 +7805,7 @@ typedef struct strm_i_file_extrafields_struct {
     { var object stream = *stream_;
       # obj muss ein Character sein:
       if (!charp(obj)) { fehler_wr_char(stream,obj); }
-     {var uintB ch = char_code(obj);
+     {var cint ch = as_cint(char_code(obj));
       #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
       if (ch==NL)
         # Newline als CR/LF ausgeben
@@ -7815,15 +7819,15 @@ typedef struct strm_i_file_extrafields_struct {
     }}
 
 # WRITE-CHAR-SEQUENCE für File-Streams für Characters:
-  local const uintB* write_char_array_ch_file (object stream, const uintB* strptr, uintL len);
+  local const chart* write_char_array_ch_file (object stream, const chart* strptr, uintL len);
   #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
   # Wegen NL->CR/LF-Umwandlung keine Optimierung möglich.
-  local inline const uintB* write_char_array_ch_file(stream,strptr,len)
+  local inline const chart* write_char_array_ch_file(stream,strptr,len)
     var object stream;
-    var const uintB* strptr;
+    var const chart* strptr;
     var uintL len;
     { var uintL remaining = len;
-      do { var uintB ch = *strptr++;
+      do { var cint ch = as_cint(*strptr++);
            if (ch==NL)
              # Newline als CR/LF ausgeben
              { write_b_file(stream,CR); write_b_file(stream,LF); }
@@ -7837,12 +7841,21 @@ typedef struct strm_i_file_extrafields_struct {
       return strptr;
     }
   #else
-  local const uintB* write_char_array_ch_file(stream,strptr,len)
+  local const chart* write_char_array_ch_file(stream,strptr,len)
     var object stream;
-    var const uintB* strptr;
+    var const chart* strptr;
     var uintL len;
-    { write_byte_array_b_file(stream,strptr,len);
+    {
+      #if 1 # FIXME: doesn't work with chart any more
+      write_byte_array_b_file(stream,strptr,len);
       strptr += len;
+      #else
+      var uintL remaining = len;
+      do { write_b_file(stream,as_cint(*strptr++));
+           remaining--;
+         }
+         until (remaining == 0);
+      #endif
       wr_ss_lpos(stream,strptr,len); # Line-Position aktualisieren
       return strptr;
     }
@@ -10102,7 +10115,7 @@ LISPFUNN(echo_stream_output_stream,1)
         else
         # index < eofindex
         { var uintL len;
-          var uintB* charptr = unpack_string(TheStream(stream)->strm_str_in_string,&len);
+          var const chart* charptr = unpack_string(TheStream(stream)->strm_str_in_string,&len);
           # Ab charptr kommen len Zeichen.
           if (index >= len) # Index zu groß ?
             { fehler_str_in_adjusted(stream); }
@@ -10222,9 +10235,9 @@ LISPFUNN(string_input_stream_index,1)
           srcstring = popSTACK();
         }
       # Zeichen hineinschieben:
-      {var uintB* srcptr = &TheSstring(srcstring)->data[start];
+      {var const chart* srcptr = &TheSstring(srcstring)->data[start];
        var uintL count;
-       {var uintB* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
+       {var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
         dotimespL(count,len, { *ptr++ = *srcptr++; } );
        }
        # und Fill-Pointer erhöhen:
@@ -10407,9 +10420,9 @@ LISPFUNN(string_stream_p,1)
     { var object stream = *stream_;
       # ch sollte Character sein:
       if (!charp(ch)) { fehler_wr_char(stream,ch); }
-     {var uintB c = char_code(ch); # Character
+     {var chart c = char_code(ch); # Character
       # Bei NL: Ab jetzt  Modus := Mehrzeiler
-      if (c == NL) { TheStream(stream)->strm_pphelp_modus = T; }
+      if (chareq(c,ascii(NL))) { TheStream(stream)->strm_pphelp_modus = T; }
       # Character in den ersten String schieben:
       ssstring_push_extend(Car(TheStream(stream)->strm_pphelp_strings),c);
     }}
@@ -10430,9 +10443,9 @@ LISPFUNN(string_stream_p,1)
           srcstring = popSTACK();
         }
       # Zeichen hineinschieben:
-      {var uintB* srcptr = &TheSstring(srcstring)->data[start];
+      {var const chart* srcptr = &TheSstring(srcstring)->data[start];
        var uintL count;
-       {var uintB* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
+       {var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
         dotimespL(count,len, { *ptr++ = *srcptr++; } );
        }
        # und Fill-Pointer erhöhen:
@@ -10535,7 +10548,7 @@ LISPFUNN(string_stream_p,1)
         }}
       # index < eofindex
       { var uintL len;
-        var uintB* charptr = unpack_string(TheStream(stream)->strm_buff_in_string,&len);
+        var const chart* charptr = unpack_string(TheStream(stream)->strm_buff_in_string,&len);
         # Ab charptr kommen len Zeichen.
         if (index >= len) # Index zu groß ?
           { pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
@@ -10721,7 +10734,7 @@ LISPFUNN(buffered_input_stream_index,1)
       # Character in den String schieben:
       ssstring_push_extend(TheStream(stream)->strm_buff_out_string,char_code(ch));
       # Nach #\Newline den Buffer durchreichen:
-      if (char_code(ch) == NL) { force_output_buff_out(*stream_); }
+      if (chareq(char_code(ch),ascii(NL))) { force_output_buff_out(*stream_); }
     }
 
 # Schließt einen Buffered-Output-Stream.
@@ -10781,7 +10794,7 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
       # ch sollte Character sein:
       if (!charp(ch)) { fehler_wr_char(stream,ch); }
       begin_system_call();
-     {var uintB c = char_code(ch);
+     {var uintB c = as_cint(char_code(ch));
       var long ergebnis = # Zeichen auszugeben versuchen
         Write(TheHandle(TheStream(stream)->strm_printer_handle),&c,1L);
       end_system_call();
@@ -11436,7 +11449,7 @@ LISPFUNN(make_pipe_io_stream,1)
             # kein Zeichen verfügbar -> muss EOF sein
             { return eof_value; }
             else
-            { return code_char(c); }
+            { return code_char(as_chart(c)); }
       }}}}
   #else
     #define rd_ch_socket  rd_ch_handle
@@ -11504,7 +11517,7 @@ LISPFUNN(make_pipe_io_stream,1)
                 return signean_minus;
               }
               else # Zeichen verfügbar
-              { TheStream(stream)->strm_rd_ch_last = code_char(c);
+              { TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
                 TheStream(stream)->strmflags |= strmflags_unread_B;
                 return signean_null;
               }
@@ -11524,7 +11537,7 @@ LISPFUNN(make_pipe_io_stream,1)
        {  var SOCKET handle = TheSocket(TheStream(*stream_)->strm_ohandle);
           # ch sollte Character sein:
           if (!charp(ch)) { fehler_wr_char(*stream_,ch); }
-        { var uintB c = char_code(ch); # Code des Zeichens
+        { var uintB c = as_cint(char_code(ch)); # Code des Zeichens
           begin_system_call();
          {var int ergebnis = sock_write(handle,&c,1); # Zeichen auszugeben versuchen
           if (ergebnis<0)
@@ -11545,16 +11558,17 @@ LISPFUNN(make_pipe_io_stream,1)
 
 # WRITE-CHAR-SEQUENCE für X11-Socket-Streams:
   #ifdef WIN32_NATIVE
-    local const uintB* write_char_array_socket (object stream, const uintB* ptr, uintL len);
-    local const uintB* write_char_array_socket(stream,ptr,len)
+    local const chart* write_char_array_socket (object stream, const chart* ptr, uintL len);
+    local const chart* write_char_array_socket(stream,ptr,len)
       var object stream;
-      var const uintB* ptr;
+      var const chart* ptr;
       var uintL len;
       { var SOCKET handle = TheSocket(TheStream(stream)->strm_ohandle);
         var uintL remaining = len;
         begin_system_call();
         # This loop is probably not needed, because sock_write() returns
         # only when done or EOF. Keep it nevertheless.
+        # FIXME: Transform this into a as_cint(...) loop.
         loop
           { var int ergebnis = sock_write(handle,ptr,remaining); # Zeichen auszugeben versuchen
             if (ergebnis<0) { SOCK_error(); } # Error melden
@@ -13485,13 +13499,13 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
 # UP: Liest mehrere Characters von einem Stream.
 # read_char_array(stream,charptr,len)
 # > stream: Stream
-# > uintB* charptr: Adresse der zu füllenden Zeichenfolge
+# > chart* charptr: Adresse der zu füllenden Zeichenfolge
 # > uintL len: Länge der zu füllenden Zeichenfolge
-# < uintB* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
-  global uintB* read_char_array (object stream, uintB* charptr, uintL len);
-  global uintB* read_char_array(stream,charptr,len)
+# < chart* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
+  global chart* read_char_array (object stream, chart* charptr, uintL len);
+  global chart* read_char_array(stream,charptr,len)
     var object stream;
-    var uintB* charptr;
+    var chart* charptr;
     var uintL len;
     { if (len==0) { return charptr; }
      {var object lastchar = TheStream(stream)->strm_rd_ch_last;
@@ -13504,7 +13518,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
       if (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_synonym))) # synonym
         { var object substream = get_synonym_stream(TheStream(stream)->strm_synonym_symbol);
           check_SP();
-         {var uintB* endptr =
+         {var chart* endptr =
             (TheStream(stream)->strmflags & strmflags_unread_B
              ? read_char_array(substream,charptr+1,len-1)
              : read_char_array(substream,charptr,len)
@@ -13520,7 +13534,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
       elif (eq(TheStream(stream)->strm_rd_ch,P(rd_ch_twoway))) # twoway
         { var object substream = TheStream(stream)->strm_twoway_input;
           check_SP();
-         {var uintB* endptr =
+         {var chart* endptr =
             (TheStream(stream)->strmflags & strmflags_unread_B
              ? read_char_array(substream,charptr+1,len-1)
              : read_char_array(substream,charptr,len)
@@ -13538,6 +13552,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
         { if (TheStream(stream)->strmflags & strmflags_unread_B)
             { *charptr++ = char_code(lastchar); len--; }
           if (len>0)
+            # FIXME: Transform this into a as_chart(...) loop.
             { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
               run_time_stop(); # Run-Time-Stoppuhr anhalten
               begin_system_call();
@@ -13583,6 +13598,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               begin_system_call();
               # This loop is probably not needed, because sock_read() returns
               # only when done or EOF. Keep it nevertheless, for the sake of EINTR.
+              # FIXME: Transform this into a as_chart(...) loop.
               loop
                 { var sintL ergebnis = sock_read(handle,charptr,len);
                   if (ergebnis<0)
@@ -13635,7 +13651,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               if (ch==NL)
                 # lineno incrementieren:
                 { FileStream_lineno(stream) += 1; }
-              *charptr++ = ch; len--;
+              *charptr++ = as_chart(ch); len--;
             }}
           TheStream(stream)->strm_rd_ch_last =
             (len==0 ? code_char(charptr[-1]) : eof_value);
@@ -13650,7 +13666,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
               if (index < endindex)
                 { var uintL srclen;
-                  var uintB* srcptr = unpack_string(TheStream(stream)->strm_str_in_string,&srclen);
+                  var const chart* srcptr = unpack_string(TheStream(stream)->strm_str_in_string,&srclen);
                   # Ab srcptr kommen srclen Zeichen.
                   if (srclen < endindex) { fehler_str_in_adjusted(stream); }
                   srcptr += index;
@@ -13672,13 +13688,13 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
 # UP: Schreibt mehrere Characters auf einen Stream.
 # write_char_array(stream,charptr,len)
 # > stream: Stream
-# > uintB* charptr: Adresse der zu schreibenden Zeichenfolge
+# > chart* charptr: Adresse der zu schreibenden Zeichenfolge
 # > uintL len: Länge der zu schreibenden Zeichenfolge
-# < uintB* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-  global const uintB* write_char_array (object stream, const uintB* charptr, uintL len);
-  global const uintB* write_char_array(stream,charptr,len)
+# < chart* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
+  global const chart* write_char_array (object stream, const chart* charptr, uintL len);
+  global const chart* write_char_array(stream,charptr,len)
     var object stream;
-    var const uintB* charptr;
+    var const chart* charptr;
     var uintL len;
     { if (len==0) { return charptr; }
       start:
@@ -13847,10 +13863,10 @@ LISPFUNN(file_string_length,2)
         #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
         if (stringp(obj))
           { var uintL len;
-            var uintB* charptr = unpack_string(obj,&len);
+            var chart* charptr = unpack_string(obj,&len);
             var uintL result = len;
             var uintL count;
-            dotimesL(count,len, { if (*charptr++ == NL) result++; } );
+            dotimesL(count,len, { if (chareq(*charptr++,ascii(NL))) result++; } );
             value1 = UL_to_I(result); mv_count=1; return;
           }
         elif (charp(obj))

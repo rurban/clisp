@@ -5,6 +5,10 @@ User visible changes
 * The function XGCD now really always returns coefficients of smallest
   possible absolute value.
 
+* Fixed a bug: Calling (GET-DISPATCH-MACRO-CHARACTER disp-char sub-char) would
+  crash, instead of returning NIL, if there is no macro-character function
+  associated with sub-char after disp-char.
+
 Portability
 -----------
 

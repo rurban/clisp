@@ -135,7 +135,7 @@
                               if (mypath[0] == '/')
                                 # ersetzt den path:
                                 { from_ptr = &mypath[0]; to_ptr = resolved_path;
-                                  while (*to_ptr++ = *from_ptr++);
+                                  while ((*to_ptr++ = *from_ptr++));
                                   from_ptr = resolved_path;
                                 }
                                 else
@@ -918,12 +918,12 @@
       # Suche, ob Groß- oder Kleinbuchstaben (oder beides) vorkommen:
       var boolean all_upper = TRUE;
       var boolean all_lower = TRUE;
-      { var uintB* ptr = &TheSstring(string)->data[0];
+      { var const chart* ptr = &TheSstring(string)->data[0];
         var uintL count;
         dotimesL(count,len,
-          { var uintB ch = *ptr++;
-            if (!(ch == up_case(ch))) { all_upper = FALSE; }
-            if (!(ch == down_case(ch))) { all_lower = FALSE; }
+          { var chart ch = *ptr++;
+            if (!chareq(ch,up_case(ch))) { all_upper = FALSE; }
+            if (!chareq(ch,down_case(ch))) { all_lower = FALSE; }
             if (!all_upper && !all_lower) break;
           });
       }
@@ -967,18 +967,19 @@
 
 #ifdef LOGICAL_PATHNAMES
 
-local boolean legal_logical_word_char (uintB ch);
+local boolean legal_logical_word_char (chart ch);
 local boolean legal_logical_word_char(ch)
-  var uintB ch;
+  var chart ch;
   { ch = up_case(ch);
-    if (((ch >= 'A') && (ch <= 'Z'))
-        || ((ch >= '0') && (ch <= '9'))
-        || (ch == '-')
+   {var cint c = as_cint(ch);
+    if (((c >= 'A') && (c <= 'Z'))
+        || ((c >= '0') && (c <= '9'))
+        || (c == '-')
        )
       return TRUE;
       else
       return FALSE;
-  }
+  }}
 
 #endif
 
@@ -987,17 +988,20 @@ local boolean legal_logical_word_char(ch)
 # UP: Stellt fest, ob ein Character als Zeichen im Host-Teil eines Namestring
 # erlaubt ist.
 # legal_hostchar(ch)
-# > uintB ch: Character-Code
+# > chart ch: Character-Code
 # < ergebnis: TRUE falls erlaubt, FALSE sonst
-  local boolean legal_hostchar (uintB ch);
+  local boolean legal_hostchar (chart ch);
 # NB: legal_logical_word_char(ch) impliziert legal_hostchar(ch).
   local boolean legal_hostchar(ch)
-    var uintB ch;
+    var chart ch;
     {
       #ifdef PATHNAME_RISCOS
-      return (graphic_char_p(ch) && !(ch==':') && !(ch=='"') && !(ch=='|'));
+      return (graphic_char_p(ch)
+              && !chareq(ch,ascii(':'))
+              && !chareq(ch,ascii('"'))
+              && !chareq(ch,ascii('|')));
       #else
-      return alphanumericp(ch) || (ch=='-');
+      return alphanumericp(ch) || chareq(c,ascii('-'));
       #endif
     }
 
@@ -1030,9 +1034,9 @@ local boolean legal_logical_word_char(ch)
       host = coerce_ss(host); # als Simple-String
       if (convert) { host = common_case(host); }
       { var uintL len = Sstring_length(host);
-        var uintB* charptr = &TheSstring(host)->data[0];
+        var const chart* charptr = &TheSstring(host)->data[0];
         dotimesL(len,len,
-          { var uintB ch = *charptr++;
+          { var chart ch = *charptr++;
             if (!legal_hostchar(ch)) goto badhost;
           });
       }
@@ -1079,9 +1083,9 @@ local boolean legal_logical_word_char(ch)
         }
       host = coerce_ss(host); # als Simple-String
       { var uintL len = Sstring_length(host);
-        var uintB* charptr = &TheSstring(host)->data[0];
+        var const chart* charptr = &TheSstring(host)->data[0];
         dotimesL(len,len,
-          { var uintB ch = *charptr++;
+          { var chart ch = *charptr++;
             if (!legal_logical_word_char(ch)) goto badhost;
           });
       }
@@ -1131,50 +1135,52 @@ local boolean legal_logical_word_char(ch)
 
 # Stellt fest, ob zwei Characters als Zeichen in Pathnames als gleich gelten.
 # equal_pathchar(ch1,ch2)
-# > uintB ch1,ch2: Character-Codes
+# > chart ch1,ch2: Character-Codes
 # < ergebnis: TRUE falls gleich, FALSE sonst
   #if !(defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32))
-    #define equal_pathchar(ch1,ch2)  ((ch1)==(ch2))
+    #define equal_pathchar(ch1,ch2)  chareq(ch1,ch2)
   #else # defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
     # Case-insensitive, aber normalerweise ohne Konversion
-    #define equal_pathchar(ch1,ch2)  (up_case(ch1)==up_case(ch2))
+    #define equal_pathchar(ch1,ch2)  chareq(up_case(ch1),up_case(ch2))
   #endif
 
 # UP: Stellt fest, ob ein Character als Zeichen im Namens-/Typ-Teil eines
 # Namestring erlaubt ist.
 # legal_namechar(ch)
-# > uintB ch: Character-Code
+# > chart ch: Character-Code
 # < ergebnis: TRUE falls erlaubt, FALSE sonst
-  local boolean legal_namechar (uintB ch);
+  local boolean legal_namechar (chart ch);
   local boolean legal_namechar(ch)
-    var uintB ch;
-    {
+    var chart ch;
+    { var cint c = as_cint(ch);
       #ifdef VALID_FILENAME_CHAR # defined in unixconf.h
+      #define ch c
       return VALID_FILENAME_CHAR || (ch=='*') || (ch=='?');
+      #undef ch
       #else
       #ifdef PATHNAME_MSDOS
       # Leo Sarasua says that "%*+,;<=>[]| are invalid.
-      return (alphanumericp(ch) || (ch=='_')
-              || (ch=='!') || (ch=='#') || (ch=='$') || (ch=='&') || (ch=='\'')
-              || (ch=='(') || (ch==')') || (ch=='-') || (ch=='?') || (ch=='@')
-              || (ch=='^') || (ch=='`') || (ch=='{') || (ch=='}') || (ch=='~'));
+      return (alphanumericp(ch) || (c=='_')
+              || (c=='!') || (c=='#') || (c=='$') || (c=='&') || (c=='\'')
+              || (c=='(') || (c==')') || (c=='-') || (c=='?') || (c=='@')
+              || (c=='^') || (c=='`') || (c=='{') || (c=='}') || (c=='~'));
       #endif
       #ifdef PATHNAME_AMIGAOS
-      return (graphic_char_p(ch) && !(ch=='/') && !(ch==':'));
+      return (graphic_char_p(ch) && !(c=='/') && !(c==':'));
       #endif
       #ifdef PATHNAME_UNIX
-      return ((ch>=' ') && (ch<='~') && !(ch=='/'));
+      return ((c>=' ') && (c<='~') && !(c=='/'));
       #endif
       #ifdef PATHNAME_OS2
-      return (graphic_char_p(ch) && !(ch=='\\') && !(ch=='/') && !(ch==':'));
+      return (graphic_char_p(ch) && !(c=='\\') && !(c=='/') && !(c==':'));
       #endif
       #ifdef PATHNAME_WIN32
-      return (ch >= 1) && (ch <= 127) && (ch != 34) /*&& (ch != 42)*/ && (ch != 47) && (ch != 58) && (ch != 60) && (ch != 62) /*&& (ch != 63)*/ && (ch != 92) || (ch == 131) || (ch >= 160) && (ch != 197) && (ch != 206);
+      return ((c >= 1) && (c <= 127) && (c != 34) /*&& (c != 42)*/ && (c != 47) && (c != 58) && (c != 60) && (c != 62) /*&& (c != 63)*/ && (c != 92)) || (c == 131) || ((c >= 160) && (c != 197) && (c != 206));
       #endif
       #ifdef PATHNAME_RISCOS
-      return (graphic_char_p(ch) && !(ch==':') && !(ch=='.')
-              && !(ch=='$') && !(ch=='&') && !(ch=='@')
-              && !(ch=='^') && !(ch=='%') && !(ch=='\\')
+      return (graphic_char_p(ch) && !(c==':') && !(c=='.')
+              && !(c=='$') && !(c=='&') && !(c=='@')
+              && !(c=='^') && !(c=='%') && !(c=='\\')
               # Wild Characters '*' '#' '?' sind hier erlaubt.
              );
       #endif
@@ -1184,12 +1190,12 @@ local boolean legal_logical_word_char(ch)
 # Stellt fest, ob ein Character ein Wildcard-Platzhalter für ein einzelnes
 # Zeichen ist.
 # singlewild_char_p(ch)
-# > uintB ch: Character-Code
+# > chart ch: Character-Code
 # < ergebnis: TRUE falls ja, FALSE sonst
   #if !defined(PATHNAME_RISCOS)
-    #define singlewild_char_p(ch)  ((ch)=='?')
+    #define singlewild_char_p(ch)  chareq(ch,ascii('?'))
   #else # defined(PATHNAME_RISCOS)
-    #define singlewild_char_p(ch)  (((ch)=='?') || ((ch)=='#'))
+    #define singlewild_char_p(ch)  (chareq(ch,ascii('?')) || chareq(ch,ascii('#')))
   #endif
 
 # Wandelt ein Objekt in einen Pathname um.
@@ -1340,7 +1346,7 @@ local boolean legal_logical_word_char(ch)
 local uintL parse_logical_pathnamestring (zustand z);
 
 # Trennzeichen zwischen subdirs
-#define slashp(c)  ((c) == ';')
+#define slashp(c)  chareq(c,ascii(';'))
 
 # Parst Name/Type/Version-Teil (subdirp=FALSE) bzw. subdir-Teil (subdirp=TRUE).
 # Liefert Simple-String oder :WILD oder :WILD-INFERIORS oder NIL.
@@ -1349,7 +1355,7 @@ local object parse_logical_word(z,subdirp)
   var zustand* z;
   var boolean subdirp;
   { var zustand startz; startz = *z; # Start-Zustand
-   {var uintB ch;
+   {var chart ch;
     # Kommt eine Folge von alphanumerischen Zeichen oder '*',
     # keine zwei '*' adjazent (ausgenommen "**", falls subdirp),
     # und, falls subdirp, ein ';' ?
@@ -1359,7 +1365,7 @@ local object parse_logical_word(z,subdirp)
       { if (z->count == 0) break;
         ch = TheSstring(STACK_2)->data[z->index]; # nächstes Character
         if (!legal_logical_word_char(ch))
-          { if (ch == '*')
+          { if (chareq(ch,ascii('*')))
               { if (last_was_star)
                   { if (subdirp && (z->index - startz.index == 1))
                       seen_starstar = TRUE;
@@ -1384,15 +1390,15 @@ local object parse_logical_word(z,subdirp)
        }
      if (len==0)
        { return NIL; }
-     elif ((len==1) && (TheSstring(STACK_2)->data[startz.index]=='*'))
+     elif ((len==1) && chareq(TheSstring(STACK_2)->data[startz.index],ascii('*')))
        { return S(Kwild); }
      elif ((len==2) && seen_starstar)
        { return S(Kwild_inferiors); }
      else # String bilden:
        { var object result = allocate_string(len);
          # und füllen:
-         {var uintB* ptr1 = &TheSstring(STACK_2)->data[startz.index];
-          var uintB* ptr2 = &TheSstring(result)->data[0];
+         {var const chart* ptr1 = &TheSstring(STACK_2)->data[startz.index];
+          var chart* ptr2 = &TheSstring(result)->data[0];
           dotimespL(len,len, { *ptr2++ = up_case(*ptr1++); });
          }
          return result;
@@ -1403,11 +1409,12 @@ local object parse_logical_word(z,subdirp)
 local boolean all_digits (object string);
 local boolean all_digits(string)
   var object string;
-  { var uintB* charptr = &TheSstring(string)->data[0];
+  { var const chart* charptr = &TheSstring(string)->data[0];
     var uintL len = Sstring_length(string);
     dotimesL(len,len,
-      { var uintB ch = *charptr++;
-        if (!((ch >= '0') && (ch <= '9'))) return FALSE;
+      { var chart ch = *charptr++;
+        var cint c = as_cint(ch);
+        if (!((c >= '0') && (c <= '9'))) return FALSE;
       });
     return TRUE;
   }
@@ -1417,7 +1424,7 @@ local uintL parse_logical_pathnamestring(z)
   { # Host-Specification parsen:
     {  var object host;
        var zustand startz; startz = z; # Start-Zustand
-     { var uintB ch;
+     { var chart ch;
        # Kommt eine Folge von alphanumerischen Zeichen und dann ein ':' ?
        loop
          { if (z.count==0) goto no_hostspec; # String schon zu Ende -> kein Host
@@ -1426,13 +1433,13 @@ local uintL parse_logical_pathnamestring(z)
            # alphanumerisches Character übergehen:
            z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
          }
-       if (!(ch==':')) goto no_hostspec; # kein ':' -> kein Host
+       if (!chareq(ch,ascii(':'))) goto no_hostspec; # kein ':' -> kein Host
        # Host-String bilden:
        { var uintL len = z.index - startz.index;
          host = allocate_string(len);
          # und füllen:
-        {var uintB* ptr1 = &TheSstring(STACK_1)->data[startz.index];
-         var uintB* ptr2 = &TheSstring(host)->data[0];
+        {var const chart* ptr1 = &TheSstring(STACK_1)->data[startz.index];
+         var chart* ptr2 = &TheSstring(host)->data[0];
          dotimesL(len,len, { *ptr2++ = up_case(*ptr1++); });
        }}
        # Character ':' übergehen:
@@ -1477,7 +1484,7 @@ local uintL parse_logical_pathnamestring(z)
     # Name parsen:
     { var object name = parse_logical_word(&z,FALSE);
       TheLogpathname(STACK_1)->pathname_name = name;
-      if ((z.count > 0) && (TheSstring(STACK_2)->data[z.index]=='.'))
+      if ((z.count > 0) && chareq(TheSstring(STACK_2)->data[z.index],ascii('.')))
         { var zustand z_name; z_name = z;
           # Character '.' übergehen:
           z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
@@ -1485,7 +1492,7 @@ local uintL parse_logical_pathnamestring(z)
          {var object type = parse_logical_word(&z,FALSE);
           TheLogpathname(STACK_1)->pathname_type = type;
           if (!nullp(type))
-            { if ((z.count > 0) && (TheSstring(STACK_2)->data[z.index]=='.'))
+            { if ((z.count > 0) && chareq(TheSstring(STACK_2)->data[z.index],ascii('.')))
                 { var zustand z_type; z_type = z;
                   # Character '.' übergehen:
                   z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
@@ -1559,12 +1566,12 @@ local uintL parse_logical_pathnamestring(z)
     var object def;
     { var uintL z_start_index = z->index; # Index beim Start des Namens
       loop
-        { var uintB ch;
+        { var chart ch;
           if (z->count == 0) break;
           ch = TheSstring(STACK_3)->data[z->index]; # nächstes Character
           ch = up_case(ch); # als Großbuchstabe
-          if (ch == '.') break;
-          if (ch == '*')
+          if (chareq(ch,ascii('.'))) break;
+          if (chareq(ch,ascii('*')))
             # '*' angetroffen.
             { # nicht am Anfang des Namens -> beendet den Namen:
               if (!(z->index == z_start_index)) break;
@@ -1589,8 +1596,8 @@ local uintL parse_logical_pathnamestring(z)
       #endif
       {var object string = allocate_string(len); # String der Länge len
        # füllen:
-       var uintB* ptr1 = &TheSstring(STACK_3)->data[z_start_index];
-       var uintB* ptr2 = &TheSstring(string)->data[0];
+       var const chart* ptr1 = &TheSstring(STACK_3)->data[z_start_index];
+       var chart* ptr2 = &TheSstring(string)->data[0];
        dotimespL(len,len, { *ptr2++ = up_case(*ptr1++); });
        # Name fertig.
        return string;
@@ -1614,9 +1621,9 @@ local uintL parse_logical_pathnamestring(z)
       var uintL length = Sstring_length(string);
       # Nach dem letzten Punkt suchen:
       var uintL index = length;
-      { var uintB* ptr = &TheSstring(string)->data[index];
+      { var const chart* ptr = &TheSstring(string)->data[index];
         while (index>skip)
-          { if (*--ptr == '.') goto punkt;
+          { if (chareq(*--ptr,ascii('.'))) goto punkt;
             index--;
       }   }
       # kein Punkt gefunden -> Typ := NIL
@@ -1750,16 +1757,16 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               # If the string starts with a system variable in <...> syntax,
               # then perform the substitution
               # (string-concat "<" var ">" tail) --> (string-concat (sys::getenv var) tail).
-              if ((!(z.count==0)) && (TheSstring(STACK_0)->data[z.index] == '<'))
+              if ((!(z.count==0)) && chareq(TheSstring(STACK_0)->data[z.index],ascii('<')))
                 { var zustand startz = z; # Start-Zustand
-                  var uintB ch;
+                  var chart ch;
                   # Character '<' übergehen:
                   z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                   loop
                     { if (z.count==0) goto no_envvar;
                       ch = TheSstring(STACK_0)->data[z.index]; # nächstes Character
-                      if (ch=='>') break;
-                      if (!(graphic_char_p(ch) && !(ch=='*') && !(ch=='#'))) goto no_envvar;
+                      if (chareq(ch,ascii('>'))) break;
+                      if (!(graphic_char_p(ch) && !chareq(ch,ascii('*')) && !chareq(ch,ascii('#')))) goto no_envvar;
                       # gültiges Character übergehen:
                       z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                     }
@@ -1810,19 +1817,19 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               # Host-Specification parsen:
               {var object host;
                { var zustand startz = z; # Start-Zustand
-                 var uintB ch;
+                 var chart ch;
                  #if defined(PATHNAME_RISCOS)
                    # Kommt eine Folge von Zeichen, eingeschlossen in '-',
                    # oder eine Folge von Zeichen und dann eine ':' ?
                    if (z.count==0) goto no_hostspec; # String schon zu Ende -> kein Host
                    ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
-                   if (ch=='-')
+                   if (chareq(ch,ascii('-')))
                      { # '-' übergehen:
                        z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                        loop
                          { if (z.count==0) goto no_hostspec; # String schon zu Ende -> kein Host
                            ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
-                           if (ch=='-') break;
+                           if (chareq(ch,ascii('-'))) break;
                            if (!legal_hostchar(ch)) goto no_hostspec;
                            # gültiges Character übergehen:
                            z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
@@ -1838,7 +1845,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                            z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                            if (z.count==0) goto no_hostspec; # String schon zu Ende -> kein Host
                            ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
-                           if (ch==':') break;
+                           if (chareq(ch,ascii(':'))) break;
                          }
                        # Host-String bilden:
                        host = subsstring(STACK_1,startz.index,z.index);
@@ -1855,7 +1862,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                        # alphanumerisches Character übergehen:
                        z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                      }
-                   if (!(ch==':')) goto no_hostspec; # kein ':' -> kein Host
+                   if (!chareq(ch,ascii(':'))) goto no_hostspec; # kein ':' -> kein Host
                    # Host-String bilden:
                    host = subsstring(STACK_1,startz.index,z.index);
                    # Character ':' übergehen:
@@ -1878,14 +1885,14 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                # Drive-Specification parsen:
                # Kommt ein Buchstabe ('*','A'-'Z','a'-'z') und dann ein ':' ?
                { var zustand startz = z; # Start-Zustand
-                 var uintB ch;
+                 var chart ch;
                  if (z.count==0) goto no_drivespec; # String schon zu Ende ?
                  ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
                  ch = up_case(ch); # als Großbuchstabe
-                 if (ch == '*')
+                 if (chareq(ch,ascii('*')))
                    # ch = '*' -> Device := :WILD
                    { device = S(Kwild); }
-                 elif ((ch >= 'A') && (ch <= 'Z'))
+                 elif ((as_cint(ch) >= 'A') && (as_cint(ch) <= 'Z'))
                    # 'A' <= ch <= 'Z' -> Device := "ch"
                    { var object string = allocate_string(1); # String der Länge 1
                      TheSstring(string)->data[0] = ch; # mit ch als einzigem Buchstaben
@@ -1899,7 +1906,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                  ch = up_case(ch); # als Großbuchstabe
                  no_device:
                  # mit Doppelpunkt abgeschlossen?
-                 if (!(ch == ':')) goto no_drivespec;
+                 if (!chareq(ch,ascii(':'))) goto no_drivespec;
                  # Character übergehen:
                  z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                  goto drivespec_ok;
@@ -1917,7 +1924,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               {var object device;
                # Kommt eine nichtleere Folge von alphanumerischen Zeichen und dann ein ':' ?
                { var zustand startz = z; # Start-Zustand
-                 var uintB ch;
+                 var chart ch;
                  loop
                    { if (z.count==0) goto no_devicespec; # String schon zu Ende -> kein Device
                      ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
@@ -1925,7 +1932,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                      # alphanumerisches Character übergehen:
                      z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                    }
-                 if (!(ch==':')) goto no_devicespec; # kein ':' -> kein Device
+                 if (!chareq(ch,ascii(':'))) goto no_devicespec; # kein ':' -> kein Device
                  if (z.index==startz.index) goto no_devicespec; # ':' am Anfang ist kein Device
                  # Device-String bilden:
                  device = subsstring(STACK_1,startz.index,z.index);
@@ -1945,20 +1952,20 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               {var object device;
                # Kommt ein ':', eine nichtleere Folge von Zeichen und dann ein '.' ?
                { var zustand startz = z; # Start-Zustand
-                 var uintB ch;
+                 var chart ch;
                  if (z.count==0) goto no_devicespec; # String schon zu Ende -> kein Device
                  ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
-                 if (!(ch==':')) goto no_devicespec; # kein ':' -> kein Device
+                 if (!chareq(ch,ascii(':'))) goto no_devicespec; # kein ':' -> kein Device
                  # Character ':' übergehen:
                  z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                  loop
                    { if (z.count==0) goto no_devicespec; # String schon zu Ende -> kein Device
                      ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
-                     if (!(legal_namechar(ch) && !(ch=='*') && !singlewild_char_p(ch))) break;
+                     if (!(legal_namechar(ch) && !chareq(ch,ascii('*')) && !singlewild_char_p(ch))) break;
                      # gültiges Character übergehen:
                      z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                    }
-                 if (!(ch=='.')) goto no_devicespec; # kein '.' -> kein Device
+                 if (!chareq(ch,ascii('.'))) goto no_devicespec; # kein '.' -> kein Device
                  # Device-String bilden:
                  if (z.index - startz.index - 1 == 0) goto no_devicespec;
                  device = subsstring(STACK_1,startz.index+1,z.index);
@@ -1984,29 +1991,29 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
             # Subdirectories parsen:
             # Trennzeichen zwischen subdirs ist unter MSDOS sowohl '\' als auch '/':
             #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-             #define slashp(c)  (((c) == '\\') || ((c) == '/'))
+             #define slashp(c)  (chareq(c,ascii('\\')) || chareq(c,ascii('/')))
             #endif
             #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
-             #define slashp(c)  ((c) == '/')
+             #define slashp(c)  chareq(c,ascii('/'))
             #endif
             #ifdef PATHNAME_RISCOS
-             #define slashp(c)  ((c) == '.')
+             #define slashp(c)  chareq(c,ascii('.'))
             #endif
             {
               #if defined(USER_HOMEDIR) && defined(PATHNAME_UNIX)
               # Falls sofort ein '~' kommt, wird bis zum nächsten '/' oder Stringende
               # ein Username gelesen und das Home-Directory dieses Users eingesetzt:
-              if ((!(z.count == 0)) && (TheSstring(STACK_2)->data[z.index] == '~'))
+              if ((!(z.count == 0)) && chareq(TheSstring(STACK_2)->data[z.index],ascii('~')))
                 # Es kommt sofort ein '~'.
                 { # Character übergehen:
                   z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                  {var object userhomedir; # Pathname des User-Homedir
                   # nächsten '/' suchen:
-                  var uintB* charptr = &TheSstring(STACK_2)->data[z.index];
+                  var const chart* charptr = &TheSstring(STACK_2)->data[z.index];
                   var uintL charcount = 0;
                   { var uintL count;
                     dotimesL(count,z.count,
-                      { if (*charptr++ == '/') break;
+                      { if (chareq(*charptr++,ascii('/'))) break;
                         charcount++;
                       });
                   }
@@ -2058,17 +2065,17 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               #if defined(PATHNAME_UNIX) && 0 # Wozu braucht man das, außer für $HOME ?
               # Falls sofort ein '$' kommt, wird bis zum nächsten '/' oder Stringende
               # eine Environment-Variable gelesen und ihr Wert eingesetzt:
-              if ((!(z.count == 0)) && (TheSstring(STACK_2)->data[z.index] == '$'))
+              if ((!(z.count == 0)) && chareq(TheSstring(STACK_2)->data[z.index],ascii('$')))
                 # Es kommt sofort ein '$'.
                 { # Character übergehen:
                   z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                  {var object envval_dir;
                   # nächsten '/' suchen:
-                  var uintB* charptr = &TheSstring(STACK_2)->data[z.index];
+                  var const chart* charptr = &TheSstring(STACK_2)->data[z.index];
                   var uintL charcount = 0;
                   { var uintL count;
                     dotimesL(count,z.count,
-                      { if (*charptr++ == '/') break;
+                      { if (chareq(*charptr++,ascii('/'))) break;
                         charcount++;
                       });
                   }
@@ -2125,7 +2132,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               #ifdef PATHNAME_AMIGAOS
               # Falls sofort ein ':' kommt, wird er übergangen, und es kommt
               # :ABSOLUTE (sonst :RELATIVE) als erstes subdir:
-              if ((!(z.count == 0)) && (TheSstring(STACK_2)->data[z.index] == ':'))
+              if ((!(z.count == 0)) && chareq(TheSstring(STACK_2)->data[z.index],ascii(':')))
                 # Es kommt sofort ein ':'.
                 { # Character übergehen:
                   z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
@@ -2137,8 +2144,8 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               #endif
               #ifdef PATHNAME_RISCOS
               # Präfix '$.' oder '&.' oder '@.' oder '%.' oder '\.' parsen.
-              if ((z.count >= 2) && (TheSstring(STACK_2)->data[z.index+1] == '.'))
-                { switch (TheSstring(STACK_2)->data[z.index])
+              if ((z.count >= 2) && chareq(TheSstring(STACK_2)->data[z.index+1],ascii('.')))
+                { switch (as_cint(TheSstring(STACK_2)->data[z.index]))
                     { case '$': Car(STACK_0) = S(Kroot); break; # directory = (:ABSOLUTE :ROOT)
                       case '&': Car(STACK_0) = S(Khome); break; # directory = (:ABSOLUTE :HOME)
                       case '@': Car(STACK_0) = S(Kcurrent); break; # directory = (:ABSOLUTE :CURRENT)
@@ -2162,17 +2169,17 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                 { # Versuche, ein weiteres Unterdirectory zu parsen.
                   #ifdef PATHNAME_EXT83
                     # Kommt '.\' oder '..\' oder '...\' ?
-                    if ((!(z.count == 0)) && (TheSstring(STACK_2)->data[z.index] == '.'))
+                    if ((!(z.count == 0)) && chareq(TheSstring(STACK_2)->data[z.index],ascii('.')))
                       { # nächstes Character ist ein '.'.
                         var zustand subdirz = z; # Zustand beim Start des Subdirectories
                         # Character übergehen:
                         z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                         if (z.count == 0) goto no_dots; # String schon zu Ende ?
-                       {var uintB ch = TheSstring(STACK_2)->data[z.index]; # nächstes Character
+                       {var chart ch = TheSstring(STACK_2)->data[z.index]; # nächstes Character
                         if (slashp(ch))
                           # '.\' angetroffen -> (cons :CURRENT NIL) bauen
                           { pushSTACK(S(Kcurrent)); goto dots; }
-                        if (!(ch == '.')) goto no_dots;
+                        if (!chareq(ch,ascii('.'))) goto no_dots;
                         # zweites Character war auch ein '.'.
                         # Character übergehen:
                         z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
@@ -2181,7 +2188,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                         if (slashp(ch))
                           # '..\' angetroffen -> (cons :PARENT NIL) bauen
                           { pushSTACK(S(Kparent)); goto dots; }
-                        if (!(ch == '.')) goto no_dots;
+                        if (!chareq(ch,ascii('.'))) goto no_dots;
                         # drittes Character war auch ein '.'.
                         # Character übergehen:
                         z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
@@ -2208,7 +2215,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                     }
                     # Versuche, '.typ'-Syntax zu parsen:
                     { var object type;
-                      if ((!(z.count==0)) && (TheSstring(STACK_3)->data[z.index] == '.'))
+                      if ((!(z.count==0)) && chareq(TheSstring(STACK_3)->data[z.index],ascii('.')))
                         { # Es kommt ein '.'. Character übergehen:
                           z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                           # Typ, hat max. 3 Buchstaben:
@@ -2241,7 +2248,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                   #ifdef PATHNAME_NOEXT
                     { var uintL z_start_index = z.index; # Index beim Start
                       loop
-                        { var uintB ch;
+                        { var chart ch;
                           if (z.count == 0) break;
                           ch = TheSstring(STACK_2)->data[z.index]; # nächstes Character
                           if (!legal_namechar(ch)) break; # gültiges Character ?
@@ -2296,7 +2303,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                   # Kommt '^.' ?
                   if (!nullp(STACK_0)
                       && (z.count >= 2)
-                      && (TheSstring(STACK_3)->data[z.index] == '^')
+                      && chareq(TheSstring(STACK_3)->data[z.index],ascii('^'))
                       && slashp(TheSstring(STACK_3)->data[z.index+1])
                      )
                     { # beide Characters übergehen:
@@ -2307,7 +2314,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                     # Versuche, normale  { legal-wild char }+  Syntax zu parsen:
                     { var uintL z_start_index = z.index; # Index beim Start des Namens
                       loop
-                        { var uintB ch;
+                        { var chart ch;
                           if (z.count == 0) break;
                           ch = TheSstring(STACK_3)->data[z.index]; # nächstes Character
                           if (!legal_namechar(ch)) break; # gültiges Character ?
@@ -3749,12 +3756,12 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
       if (!simple_string_p(obj)) { return FALSE; }
      {var uintL len = Sstring_length(obj);
       if (len==0) { return FALSE; } # leeres Word ist verboten
-      {var uintB* charptr = &TheSstring(obj)->data[0];
+      {var const chart* charptr = &TheSstring(obj)->data[0];
        var boolean last_was_star = FALSE;
        dotimespL(len,len,
-         { var uintB ch = *charptr++;
-           if (!(legal_logical_word_char(ch) || (ch=='*'))) { return FALSE; }
-           if (ch=='*')
+         { var chart ch = *charptr++;
+           if (!(legal_logical_word_char(ch) || chareq(ch,ascii('*')))) { return FALSE; }
+           if (chareq(ch,ascii('*')))
              { if (last_was_star) return FALSE; # adjazente '*' sind verboten
                last_was_star = TRUE;
              }
@@ -3782,11 +3789,11 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
       if (!(len <= stdlen)) { return FALSE; } # und Länge <=stdlen ?
       #endif
       # Jedes einzelne Zeichen überprüfen:
-      {var uintB* ptr = &TheSstring(obj)->data[0];
+      {var const chart* ptr = &TheSstring(obj)->data[0];
        dotimesL(len,len,
-         { var uintB ch = *ptr++;
+         { var chart ch = *ptr++;
            if (!(legal_namechar(ch) # zulässiges Zeichen ?
-                 && (up_case(ch)==ch) # und Großbuchstabe ?
+                 && chareq(up_case(ch),ch) # und Großbuchstabe ?
               ) )
              { return FALSE; }
          });
@@ -3816,7 +3823,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
     var object obj;
     { if (!simple_string_p(obj)) { return FALSE; }
      {var uintL len = Sstring_length(obj);
-      var uintB* charptr = &TheSstring(obj)->data[0];
+      var const chart* charptr = &TheSstring(obj)->data[0];
       dotimesL(len,len, { if (!legal_namechar(*charptr++)) { return FALSE; } } );
       return TRUE;
     }}
@@ -3830,10 +3837,10 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
     var object obj;
     { if (!simple_string_p(obj)) { return FALSE; }
      {var uintL len = Sstring_length(obj);
-      var uintB* charptr = &TheSstring(obj)->data[0];
+      var const chart* charptr = &TheSstring(obj)->data[0];
       dotimesL(len,len,
-        { var uintB ch = *charptr++;
-          if ((ch=='.') || (!legal_namechar(ch))) { return FALSE; }
+        { var chart ch = *charptr++;
+          if (chareq(ch,ascii('.')) || !legal_namechar(ch)) { return FALSE; }
         });
       return TRUE;
     }}
@@ -3887,14 +3894,14 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
           elif (eq(device,S(Kwild))) goto device_ok; # = :WILD ?
           elif (simple_string_p(device)) # Simple-String ?
             { if (Sstring_length(device) == 1) # der Länge 1 ?
-                { var uintB ch = TheSstring(device)->data[0];
-                  if ((ch >= 'A') && (ch <= 'Z')) # mit Buchstaben >='A' und <='Z' ?
+                { var chart ch = TheSstring(device)->data[0];
+                  if ((as_cint(ch) >= 'A') && (as_cint(ch) <= 'Z')) # mit Buchstaben >='A' und <='Z' ?
                     goto device_ok;
             }   }
           #endif
           #ifdef PATHNAME_AMIGAOS
           elif (simple_string_p(device)) # Simple-String ?
-            { var uintB* ptr = &TheSstring(device)->data[0];
+            { var const chart* ptr = &TheSstring(device)->data[0];
               var uintL count;
               dotimesL(count,Sstring_length(device),
                 { if (!legal_namechar(*ptr++)) goto device_not_ok; }
@@ -3905,11 +3912,11 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
           #endif
           #ifdef PATHNAME_RISCOS
           elif (simple_string_p(device)) # Simple-String ?
-            { var uintB* ptr = &TheSstring(device)->data[0];
+            { var const chart* ptr = &TheSstring(device)->data[0];
               var uintL count;
               dotimesL(count,Sstring_length(device),
-                { var uintB ch = *ptr++;
-                  if (!(legal_namechar(ch) && !(ch=='*') && !singlewild_char_p(ch)))
+                { var chart ch = *ptr++;
+                  if (!(legal_namechar(ch) && !chareq(ch,ascii('*')) && !singlewild_char_p(ch)))
                     goto device_not_ok;
                 });
               goto device_ok;
@@ -4251,10 +4258,10 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
   local boolean has_wildcards(string)
     var object string;
     { var uintL len = Sstring_length(string);
-      var uintB* charptr = &TheSstring(string)->data[0];
+      var const chart* charptr = &TheSstring(string)->data[0];
       dotimesL(len,len,
-        { var uintB ch = *charptr++;
-          if ((ch=='*') # Wildcard für beliebig viele Zeichen
+        { var chart ch = *charptr++;
+          if (chareq(ch,ascii('*')) # Wildcard für beliebig viele Zeichen
               || singlewild_char_p(ch) # Wildcard für genau ein Zeichen
              )
             { return TRUE; }
@@ -4272,8 +4279,8 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
   local boolean has_word_wildcards(string)
     var object string;
     { var uintL len = Sstring_length(string);
-      var uintB* charptr = &TheSstring(string)->data[0];
-      dotimesL(len,len, { if (*charptr++ == '*') { return TRUE; } } );
+      var const chart* charptr = &TheSstring(string)->data[0];
+      dotimesL(len,len, { if (chareq(*charptr++,ascii('*'))) { return TRUE; } } );
       return FALSE;
     }
 #endif
@@ -4523,7 +4530,7 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
   # > beispiel: Simple-String, der damit zu matchen ist
   local boolean wildcard_match (object muster, object beispiel);
   # rekursive Implementation wegen Backtracking:
-  local boolean wildcard_match_ab (uintL m_count, uintB* m_ptr, uintL b_count, uintB* b_ptr);
+  local boolean wildcard_match_ab (uintL m_count, const chart* m_ptr, uintL b_count, const chart* b_ptr);
   local boolean wildcard_match(muster,beispiel)
     var object muster;
     var object beispiel;
@@ -4536,20 +4543,20 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
     }
   local boolean wildcard_match_ab(m_count,m_ptr,b_count,b_ptr)
     var uintL m_count;
-    var uintB* m_ptr;
+    var const chart* m_ptr;
     var uintL b_count;
-    var uintB* b_ptr;
-    { var uintB c;
+    var const chart* b_ptr;
+    { var chart c;
       loop
         { if (m_count==0)
             { return (b_count==0 ? TRUE : FALSE); } # "" matcht nur ""
           m_count--;
           c = *m_ptr++; # nächstes Match-Zeichen
-          if (c=='?') # Wildcard '?'
+          if (chareq(c,ascii('?'))) # Wildcard '?'
             { if (b_count==0) return FALSE; # mindestens ein Zeichen muss noch kommen
               b_count--; b_ptr++; # es wird ignoriert
             }
-          elif (c=='*') break; # Wildcard '*' später
+          elif (chareq(c,ascii('*'))) break; # Wildcard '*' später
           else # alles andere muss genau matchen:
             { if (b_count==0) return FALSE;
               b_count--; if (!equal_pathchar(*b_ptr++,c)) return FALSE;
@@ -4563,11 +4570,11 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
         { if (m_count==0) return TRUE; # Wildcard am Ende matcht den Rest.
           m_count--;
           c = *m_ptr++; # nächstes Match-Zeichen
-          if (c=='?') # Fragezeichen: nach vorne ziehen, sofort abarbeiten
+          if (chareq(c,ascii('?'))) # Fragezeichen: nach vorne ziehen, sofort abarbeiten
             { if (b_count==0) return FALSE;
               b_count--; b_ptr++;
             }
-          elif (!(c=='*')) break;
+          elif (!chareq(c,ascii('*'))) break;
         }
       # c = nächstes non-Wildcard-Zeichen. Suche es.
       loop
@@ -4866,7 +4873,7 @@ LISPFUNN(pathname_match_p,2)
     var uintL b_index;
     var const object* previous;
     var object* solutions;
-    { var uintB c;
+    { var chart c;
       loop
         { if (m_index == Sstring_length(muster))
             { if (b_index == Sstring_length(beispiel))
@@ -4874,9 +4881,9 @@ LISPFUNN(pathname_match_p,2)
               return;
             }
           c = TheSstring(muster)->data[m_index++];
-          if (c=='*') break;
+          if (chareq(c,ascii('*'))) break;
           if (b_index == Sstring_length(beispiel)) return;
-          if (c=='?')
+          if (chareq(c,ascii('?')))
             { # wildcard_diff_ab() rekursiv aufrufen, mit erweitertem previous:
               c = TheSstring(beispiel)->data[b_index++];
               pushSTACK(muster); pushSTACK(beispiel);
@@ -4904,7 +4911,7 @@ LISPFUNN(pathname_match_p,2)
           if (m_index == Sstring_length(muster)
               ? b_index == Sstring_length(beispiel)
               : (c = TheSstring(muster)->data[m_index],
-                 (c=='*') || (c=='?')
+                 chareq(c,ascii('*')) || chareq(c,ascii('?'))
                  || (b_index < Sstring_length(beispiel)
                      && equal_pathchar(TheSstring(beispiel)->data[b_index],c)
              )  )   )
@@ -5423,13 +5430,13 @@ LISPFUNN(pathname_match_p,2)
           var uintL stringcount = 0; # Anzahl der Strings auf dem Stack
           loop
             { var uintL last_index = index;
-              var uintB c;
+              var chart c;
               # Suche nächstes Wildcard-Zeichen:
               muster = *muster_;
               loop
                 { if (index == len) break;
                   c = TheSstring(muster)->data[index];
-                  if (((c=='*') # Wildcard für beliebig viele Zeichen
+                  if ((chareq(c,ascii('*')) # Wildcard für beliebig viele Zeichen
                        || (!logical && singlewild_char_p(c)) # Wildcard für genau ein Zeichen
                       )
                       && mconsp(*subst)
@@ -6097,7 +6104,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           if (eq(Car(subdirs),S(Krelative)))
             # ja -> Ersetze :RELATIVE durch das Default-Directory:
             { pushSTACK(Cdr(subdirs));
-             {var uintB drive = TheSstring(ThePathname(pathname)->pathname_device)->data[0];
+             {var uintB drive = as_cint(TheSstring(ThePathname(pathname)->pathname_device)->data[0]);
               var object default_dir = default_directory_of(drive,pathname);
               # default_dir (ein Pathname) ist fertig.
               # Ersetze :RELATIVE durch default-subdirs, d.h.
@@ -6397,11 +6404,11 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var object namestring;
     { var uintL len = Sstring_length(namestring);
       if (len==0) goto ok; # Leerstring -> nichts streichen
-     {var uintB ch = TheSstring(namestring)->data[len-1];
-      if (!(ch=='/')) goto ok; # kein '/' am Schluss -> nichts streichen
+     {var chart ch = TheSstring(namestring)->data[len-1];
+      if (!chareq(ch,ascii('/'))) goto ok; # kein '/' am Schluss -> nichts streichen
       if (len==1) goto ok; # "/" bedeutet Parent -> nicht streichen
       ch = TheSstring(namestring)->data[len-2];
-      if ((ch=='/') || (ch==':')) # davor ein '/' oder ':'
+      if (chareq(ch,ascii('/')) || chareq(ch,ascii(':'))) # davor ein '/' oder ':'
         goto ok; # -> bedeutet Parent -> nicht streichen
       # '/' am Schluss streichen:
         namestring = subsstring(namestring,0,len-1);
@@ -7172,11 +7179,11 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var object namestring;
     { var uintL len = Sstring_length(namestring);
       if (len==0) goto ok; # Leerstring -> nichts streichen
-     {var uintB ch = TheSstring(namestring)->data[len-1];
-      if (!(ch=='\\')) goto ok; # kein '\' am Schluss -> nichts streichen
+     {var chart ch = TheSstring(namestring)->data[len-1];
+      if (!chareq(ch,ascii('\\'))) goto ok; # kein '\' am Schluss -> nichts streichen
       if (len==1) goto ok; # "\" bedeutet Root -> nicht streichen
       ch = TheSstring(namestring)->data[len-2];
-      if ((ch=='\\') || (ch==':')) # davor ein '\' oder ':'
+      if (chareq(ch,ascii('\\')) || chareq(ch,ascii(':'))) # davor ein '\' oder ':'
         goto ok; # -> bedeutet Parent -> nicht streichen
       # '\' am Schluss streichen:
         namestring = subsstring(namestring,0,len-1);
@@ -10842,7 +10849,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
         if ((_osmode == DOS_MODE) && (_osmajor < 4))
           { var uintB swchar = _swchar();
             if (swchar) # evtl. "/C" durch etwas anderes ersetzen
-              { TheSstring(STACK_0)->data[0] = swchar; } # (destruktiv)
+              { TheSstring(STACK_0)->data[0] = ascii(swchar); } # (destruktiv)
           }
         #endif
         pushSTACK(command);

@@ -7,9 +7,9 @@
 #     und Ziffern/Buchstaben mit Wert < base.
 # < ergebnis: der dargestellte Integer >=0
 # kann GC auslösen
-  local object DIGITS_to_I (uintB* MSBptr, uintL len, uintD base);
+  local object DIGITS_to_I (const chart* MSBptr, uintL len, uintD base);
   local object DIGITS_to_I(MSBptr,len,base)
-    var uintB* MSBptr;
+    var const chart* MSBptr;
     var uintL len;
     var uintD base;
     { SAVE_NUM_STACK # num_stack retten
@@ -66,17 +66,18 @@
       # Ziffern einzeln draufaddieren:
       dotimesL(len,len,
         { # erg_MSDptr/erg_len/erg_LSDptr ist eine NUDS, erg_len < need.
-          var uintB ch = *MSBptr++; # nächstes Character
-          if (!(ch=='.')) # Punkt überlesen
-            { # Wert von ch ('0'-'9','A'-'Z','a'-'z') bilden:
-              ch = ch - '0';
-              if (ch > '9'-'0') # keine Ziffer?
-                { ch = ch+'0'-'A'+10;
-                  if (ch > 'Z'-'A'+10) # kein Großbuchstabe?
-                    { ch = ch+'A'-'a'; } # dann ein Kleinbuchstabe
+          var chart ch = *MSBptr++; # nächstes Character
+          var cint c = as_cint(ch);
+          if (!(c=='.')) # Punkt überlesen
+            { # Wert von c ('0'-'9','A'-'Z','a'-'z') bilden:
+              c = c - '0';
+              if (c > '9'-'0') # keine Ziffer?
+                { c = c+'0'-'A'+10;
+                  if (c > 'Z'-'A'+10) # kein Großbuchstabe?
+                    { c = c+'A'-'a'; } # dann ein Kleinbuchstabe
                 }
               # multipliziere erg mit base und addiere ch:
-             {var uintD carry = mulusmall_loop_down(base,erg_LSDptr,erg_len,ch);
+             {var uintD carry = mulusmall_loop_down(base,erg_LSDptr,erg_len,c);
               if (!(carry==0))
                 # muss NUDS vergrößern:
                 { *--erg_MSDptr = carry; erg_len++; }

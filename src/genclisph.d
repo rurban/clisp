@@ -693,8 +693,17 @@ global int main()
   #else
     printf("#define char_int(char_from_char_int)  ((cint)as_oint(char_from_char_int))\n");
   #endif
-  printf("#define code_char(code_from_code_char)  int_char((cint)(code_from_code_char))\n");
-  printf("#define char_code(char_from_char_code)  ((uintB)(char_int(char_from_char_code)))\n");
+  #ifdef CHART_STRUCT
+    printf("typedef struct { cint one; } chart;\n");
+    printf("#define as_cint(ch)  ((ch).one)\n");
+    printf("#define as_chart(c)  ((chart){one:(c)})\n");
+  #else
+    printf("typedef cint chart;\n");
+    printf("#define as_cint(ch)  (ch)\n");
+    printf("#define as_chart(c)  (c)\n");
+  #endif
+  printf("#define code_char(ch)  int_char(as_cint(ch))\n");
+  printf("#define char_code(obj)  as_chart(char_int(obj))\n");
   printf1("#define fixnum(x)  type_data_object(%d,x)\n",(tint)fixnum_type);
 # printf("#define Fixnum_0  fixnum(0)\n");
 # printf("#define Fixnum_1  fixnum(1)\n");

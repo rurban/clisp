@@ -261,13 +261,13 @@
   local uint32 hashcode_string(obj)
     var object obj;
     { var uintL len;
-      var uintB* ptr = unpack_string(obj,&len); # ab ptr kommen len Zeichen
+      var const chart* ptr = unpack_string(obj,&len); # ab ptr kommen len Zeichen
       var uint32 bish_code = 0x33DAE11FUL + len; # Länge verwerten
       if (len > 0)
-        { bish_code ^= (uint32)(ptr[len-1]); # letztes Zeichen dazu
+        { bish_code ^= (uint32)as_cint(ptr[len-1]); # letztes Zeichen dazu
          {var uintC count = (len <= 31 ? len : 31); # min(len,31)
           dotimespC(count,count,
-            { var uint32 next_code = (uint32)(*ptr++); # nächstes Zeichen
+            { var uint32 next_code = (uint32)as_cint(*ptr++); # nächstes Zeichen
               bish_code = misch(bish_code,next_code); # dazunehmen
             });
         }}
@@ -501,7 +501,7 @@
   local uint32 hashcode4 (object obj);
 # Hilfsfunktionen bei bekanntem Typ:
   # Character -> case-insensitive.
-  #define hashcode4_char(c)  (0xCAAEACEFUL + (uint32)up_case(c))
+  #define hashcode4_char(c)  (0xCAAEACEFUL + (uint32)as_cint(up_case(c)))
   # Number: Mischung aus Exponent, Länge, erste 32 Bit
   extern uint32 hashcode4_real (object obj); # siehe REALELEM.D
   extern uint32 hashcode4_uint32 (uint32 x); # siehe REALELEM.D
@@ -537,7 +537,7 @@
     var uintL count;
     var uint32 bish_code;
     { if (count > 0)
-        { var const uintB* ptr = &TheSstring(dv)->data[index];
+        { var const chart* ptr = &TheSstring(dv)->data[index];
           dotimespL(count,count,
             { var uint32 next_code = hashcode4_char(*ptr++); # nächstes Zeichen
               bish_code = misch(bish_code,next_code); # dazunehmen

@@ -1653,6 +1653,7 @@
     #if (__GNUC_MINOR__ >= 7) # gcc-2.6.3 Bug umgehen
       # Typüberprüfungen durch den C-Compiler
       #define OBJECT_STRUCT
+      #define CHART_STRUCT
     #endif
   #endif
 #endif
@@ -4548,14 +4549,15 @@ typedef symbol_ *  Symbol;
 
 # Characters
 
-# Integer, der die Daten eines Character ganz fasst:
+# Integer type holding the data of a character:
   #define char_int_len 8
   #define char_int_limit  (1UL<<char_int_len)
   typedef unsigned_int_with_n_bits(char_int_len)  cint;
-# Aus einem Integer-Code ein Character machen:
+  #define char_code_limit  char_int_limit
+# Converting an integral code to a character:
   #define int_char(int_from_int_char)  \
     type_data_object(char_type,(aint)(cint)(int_from_int_char))
-# Aus einem Character seinen Integer-Code herausziehen:
+# Converting a character to an integral code:
   #if !((oint_data_shift==0) && (char_int_len<=oint_data_len) && (exact_uint_size_p(char_int_len)))
     #ifdef TYPECODES
       #define char_int(char_from_char_int)  \
@@ -4565,22 +4567,50 @@ typedef symbol_ *  Symbol;
         ((cint)(as_oint(char_from_char_int)>>oint_data_shift))
     #endif
   #else
-    # Falls oint_data_shift=0, braucht untype nicht zu shiften;
-    # falls auch char_int_len<=oint_data_len und ein cint genau char_int_len
-    # Bits hat, braucht untype nicht zu ANDen.
+    # If oint_data_shift=0, untype needs not to shift. If also
+    # char_int_len<=oint_data_len, and if a cint has exactly char_int_len
+    # bits, untype needs not to AND.
     #define char_int(char_from_char_int)  \
       ((cint)as_oint(char_from_char_int))
   #endif
-# Characters können somit mit EQ auf Gleichheit verglichen werden,
-# das ist ein oint-Vergleich bzw. (unter Characters) sogar ein
-# cint-Vergleich ihrer Integer-Codes.
+# Characters can therefore be compared for equality using EQ, this is an
+# oint comparison, among the characters a comparison of their integral code.
 
-# Die Daten eines Character bestehen nur aus dem Code.
-  #define char_code_limit  char_int_limit
-# Aus dem Code ein Character machen:
-  #define code_char(code_from_code_char)  int_char((cint)(code_from_code_char))
-# Aus einem Character den Code extrahieren:
-  #define char_code(char_from_char_code)  ((uintB)(char_int(char_from_char_code)))
+# A standalone character. Prefer `chart' to `cint' wherever possible because
+# it is typesafe. sizeof(chart) = sizeof(cint).
+  #ifdef CHART_STRUCT
+    typedef struct { cint one; } chart;
+  #else
+    typedef cint chart;
+  #endif
+# Conversions between both:
+# as_cint(ch)   chart --> cint
+# as_chart(c)   cint --> chart
+  #ifdef CHART_STRUCT
+    #define as_cint(ch)  ((ch).one)
+    #if 1
+      #define as_chart(c)  ((chart){one:(c)})
+    #else
+      extern __inline__ chart as_chart (register cint c)
+        { register chart ch; ch.one = c; return ch; }
+    #endif
+  #else
+    #define as_cint(ch)  (ch)
+    #define as_chart(c)  (c)
+  #endif
+# Conversion chart --> object.
+  #define code_char(ch)  int_char(as_cint(ch))
+# Conversion object --> chart.
+  #define char_code(obj)  as_chart(char_int(obj))
+# Comparison operations.
+  #define chareq(ch1,ch2)  (as_cint(ch1) == as_cint(ch2))
+  #define charlt(ch1,ch2)  (as_cint(ch1) < as_cint(ch2))
+  #define chargt(ch1,ch2)  (as_cint(ch1) > as_cint(ch2))
+
+# Conversion standard char (in ASCII encoding) --> chart.
+  #define ascii(x)  as_chart((uintB)(x))
+# Conversion standard char (in ASCII encoding) --> object.
+  #define ascii_char(x)  code_char(ascii(x))
 
 # Base characters are those whose code is < base_char_code_limit.
   #define base_char_int_len 8
@@ -4806,7 +4836,7 @@ typedef sbvector_ *  Sbvector;
 
 # Simple-String
 typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bytes
-                 uintB  data[unspecified]; # Characters
+                 chart  data[unspecified]; # Characters
                }
         sstring_;
 typedef sstring_ *  Sstring;
@@ -8111,33 +8141,33 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #define with_sstring_0  with_string_0
 #else
   #define with_string_0(string,ascizvar,statement)  \
-    { var uintL ascizvar##_len;                                  \
-      var uintB* ptr1 = unpack_string(string,&ascizvar##_len);   \
-     {var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_len+1); \
-      {var uintB* ptr2 = &ascizvar##_data[0];                    \
-       var uintL count;                                          \
-       dotimesL(count,ascizvar##_len, { *ptr2++ = *ptr1++; } );  \
-       *ptr2 = '\0';                                             \
-      }                                                          \
-      {var char* ascizvar = (char*) &ascizvar##_data[0];         \
-       statement                                                 \
-      }                                                          \
-      FREE_DYNAMIC_ARRAY(ascizvar##_data);                       \
+    { var uintL ascizvar##_len;                                          \
+      var const chart* ptr1 = unpack_string(string,&ascizvar##_len);     \
+     {var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_len+1);         \
+      {var uintB* ptr2 = &ascizvar##_data[0];                            \
+       var uintL count;                                                  \
+       dotimesL(count,ascizvar##_len, { *ptr2++ = as_cint(*ptr1++); } ); \
+       *ptr2 = '\0';                                                     \
+      }                                                                  \
+      {var char* ascizvar = (char*) &ascizvar##_data[0];                 \
+       statement                                                         \
+      }                                                                  \
+      FREE_DYNAMIC_ARRAY(ascizvar##_data);                               \
     }}
   #define with_sstring_0(string,ascizvar,statement)  \
-    { var object ascizvar##_string = (string);                      \
-      var uintL ascizvar##_len = Sstring_length(ascizvar##_string); \
-      var uintB* ptr1 = &TheSstring(ascizvar##_string)->data[0];    \
-     {var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_len+1);    \
-      {var uintB* ptr2 = &ascizvar##_data[0];                       \
-       var uintL count;                                             \
-       dotimesL(count,ascizvar##_len, { *ptr2++ = *ptr1++; } );     \
-       *ptr2 = '\0';                                                \
-      }                                                             \
-      {var char* ascizvar = (char*) &ascizvar##_data[0];            \
-       statement                                                    \
-      }                                                             \
-      FREE_DYNAMIC_ARRAY(ascizvar##_data);                          \
+    { var object ascizvar##_string = (string);                           \
+      var uintL ascizvar##_len = Sstring_length(ascizvar##_string);      \
+      var const chart* ptr1 = &TheSstring(ascizvar##_string)->data[0];   \
+     {var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_len+1);         \
+      {var uintB* ptr2 = &ascizvar##_data[0];                            \
+       var uintL count;                                                  \
+       dotimesL(count,ascizvar##_len, { *ptr2++ = as_cint(*ptr1++); } ); \
+       *ptr2 = '\0';                                                     \
+      }                                                                  \
+      {var char* ascizvar = (char*) &ascizvar##_data[0];                 \
+       statement                                                         \
+      }                                                                  \
+      FREE_DYNAMIC_ARRAY(ascizvar##_data);                               \
     }}
 #endif
 # wird verwendet von PATHNAME, MISC, FOREIGN
@@ -8156,31 +8186,31 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # binds the variable charptr pointing to it and the variable len to its length,
 # and executes the statement.
   #define with_string(string,charptrvar,lenvar,statement)  \
-    { var uintL lenvar;                                      \
-      var uintB* ptr1 = unpack_string(string,&lenvar);       \
-     {var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);     \
-      {var uintB* ptr2 = &charptrvar##_data[0];              \
-       var uintL count;                                      \
-       dotimesL(count,lenvar, { *ptr2++ = *ptr1++; } );      \
-      }                                                      \
-      {var char* charptrvar = (char*) &charptrvar##_data[0]; \
-       statement                                             \
-      }                                                      \
-      FREE_DYNAMIC_ARRAY(charptrvar##_data);                 \
+    { var uintL lenvar;                                          \
+      var const chart* ptr1 = unpack_string(string,&lenvar);     \
+     {var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);         \
+      {var uintB* ptr2 = &charptrvar##_data[0];                  \
+       var uintL count;                                          \
+       dotimesL(count,lenvar, { *ptr2++ = as_cint(*ptr1++); } ); \
+      }                                                          \
+      {var char* charptrvar = (char*) &charptrvar##_data[0];     \
+       statement                                                 \
+      }                                                          \
+      FREE_DYNAMIC_ARRAY(charptrvar##_data);                     \
     }}
   #define with_sstring(string,charptrvar,lenvar,statement)  \
-    { var object charptrvar##_string = (string);                        \
-      var uintL charptrvar##_len = Sstring_length(charptrvar##_string); \
-      var uintB* ptr1 = &TheSstring(charptrvar##_string)->data[0];      \
-     {var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                \
-      {var uintB* ptr2 = &charptrvar##_data[0];                         \
-       var uintL count;                                                 \
-       dotimesL(count,lenvar, { *ptr2++ = *ptr1++; } );                 \
-      }                                                                 \
-      {var char* charptrvar = (char*) &charptrvar##_data[0];            \
-       statement                                                        \
-      }                                                                 \
-      FREE_DYNAMIC_ARRAY(charptrvar##_data);                            \
+    { var object charptrvar##_string = (string);                         \
+      var uintL charptrvar##_len = Sstring_length(charptrvar##_string);  \
+      var const chart* ptr1 = &TheSstring(charptrvar##_string)->data[0]; \
+     {var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                 \
+      {var uintB* ptr2 = &charptrvar##_data[0];                          \
+       var uintL count;                                                  \
+       dotimesL(count,lenvar, { *ptr2++ = as_cint(*ptr1++); } );         \
+      }                                                                  \
+      {var char* charptrvar = (char*) &charptrvar##_data[0];             \
+       statement                                                         \
+      }                                                                  \
+      FREE_DYNAMIC_ARRAY(charptrvar##_data);                             \
     }}
 # wird verwendet von PATHNAME
 
@@ -10433,7 +10463,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > ch: Character
 # < ergebnis: derselbe Semi-Simple String
 # kann GC auslösen
-  extern object ssstring_push_extend (object ssstring, uintB ch);
+  extern object ssstring_push_extend (object ssstring, chart ch);
 # wird verwendet von STREAM, IO
 
 # UP: Stellt sicher, dass ein Semi-Simple String eine bestimmte Länge hat
@@ -10486,34 +10516,34 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 
 # Wandelt Byte ch in einen Großbuchstaben
 # up_case(ch)
-  extern uintB up_case (uintB ch);
+  extern chart up_case (chart ch);
 # wird verwendet von IO, PREDTYPE, PATHNAME
 
 # Wandelt Byte ch in einen Kleinbuchstaben
 # down_case(ch)
-  extern uintB down_case (uintB ch);
+  extern chart down_case (chart ch);
 # wird verwendet von IO, PATHNAME
 
 # Stellt fest, ob ein Character alphanumerisch ist.
 # alphanumericp(ch)
 # > ch: Character-Code
 # < ergebnis: TRUE falls alphanumerisch, FALSE sonst.
-  extern boolean alphanumericp (uintB ch);
+  extern boolean alphanumericp (chart ch);
 # wird verwendet von IO, PATHNAME
 
 # Stellt fest, ob ein Character ein Graphic-Character ("druckend") ist.
 # graphic_char_p(ch)
 # > ch: Character-Code
 # < ergebnis: TRUE falls druckend, FALSE sonst.
-  extern boolean graphic_char_p (uintB ch);
+  extern boolean graphic_char_p (chart ch);
 # wird verwendet von STREAM, PATHNAME
 
 # UP: verfolgt einen String.
 # unpack_string(string,&len)
 # > object string: ein String.
 # < uintL len: Anzahl der Zeichen des Strings.
-# < uintB* ergebnis: Anfangsadresse der Bytes
-  extern uintB* unpack_string (object string, uintL* len);
+# < chart* ergebnis: Anfangsadresse der Characters
+  extern chart* unpack_string (object string, uintL* len);
 # wird verwendet von STREAM, HASHTABL, PACKAGE, SPVW, GRAPH
 
 # UP: vergleicht zwei Strings auf Gleichheit
@@ -10557,9 +10587,9 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 
 # UP: Liefert den Namen eines Zeichens.
 # char_name(code)
-# > uintB code: Ascii-Code eines Zeichens
+# > chart code: Code eines Zeichens
 # < ergebnis: Simple-String (Name dieses Zeichens) oder NIL
-  extern object char_name (uintB code);
+  extern object char_name (chart code);
 # wird verwendet von IO
 
 # UP: Bestimmt das Character mit einem gegebenen Namen
@@ -10578,31 +10608,31 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < object string: String
 # < uintL start: Wert des :start-Arguments
 # < uintL len: Anzahl der angesprochenen Characters
-# < uintB* ergebnis: Ab hier kommen die angesprochenen Characters
+# < chart* ergebnis: Ab hier kommen die angesprochenen Characters
 # erhöht STACK um 3
-  extern uintB* test_string_limits (object* string_, uintL* start_, uintL* len_);
+  extern chart* test_string_limits (object* string_, uintL* start_, uintL* len_);
 # wird verwendet von STREAM, PATHNAME, IO
 
 # UP: wandelt die Characters eines Stringstücks in Großbuchstaben
 # nstring_upcase(charptr,len);
-# > uintB* charptr: Ab hier kommen die angesprochenen Characters
+# > chart* charptr: Ab hier kommen die angesprochenen Characters
 # > uintL len: Anzahl der angesprochenen Characters
-  extern void nstring_upcase (uintB* charptr, uintL len);
+  extern void nstring_upcase (chart* charptr, uintL len);
 # wird verwendet von
 
 # UP: wandelt die Characters eines Stringstücks in Kleinbuchstaben
 # nstring_downcase(charptr,len);
-# > uintB* charptr: Ab hier kommen die angesprochenen Characters
+# > chart* charptr: Ab hier kommen die angesprochenen Characters
 # > uintL len: Anzahl der angesprochenen Characters
-  extern void nstring_downcase (uintB* charptr, uintL len);
+  extern void nstring_downcase (chart* charptr, uintL len);
 # wird verwendet von PATHNAME
 
 # UP: wandelt die Worte eines Stringstücks in solche, die
 # mit Großbuchstaben anfangen und mit Kleinbuchstaben weitergehen.
 # nstring_capitalize(charptr,len);
-# > uintB* charptr: Ab hier kommen die angesprochenen Characters
+# > chart* charptr: Ab hier kommen die angesprochenen Characters
 # > uintL len: Anzahl der angesprochenen Characters
-  extern void nstring_capitalize (uintB* charptr, uintL len);
+  extern void nstring_capitalize (chart* charptr, uintL len);
 # wird verwendet von PATHNAME
 
 # UP: wandelt einen String in Großbuchstaben
@@ -11369,7 +11399,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < stream: Stream
 # kann GC auslösen
   # extern void write_ascii_char (const object* stream_, uintB ch);
-  #define write_ascii_char(stream_,ch)  write_char(stream_,code_char(ch))
+  #define write_ascii_char(stream_,ch)  write_char(stream_,code_char(as_chart(ch)))
 # wird verwendet von LISPARIT, IO, DEBUG, Macro TERPRI
 
 # UP: Stellt fest, ob ein Stream "interaktiv" ist, d.h. ob Input vom Stream
@@ -11472,19 +11502,19 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # UP: Liest mehrere Characters von einem Stream.
 # read_char_array(stream,charptr,len)
 # > stream: Stream
-# > uintB* charptr: Adresse der zu füllenden Zeichenfolge
+# > chart* charptr: Adresse der zu füllenden Zeichenfolge
 # > uintL len: Länge der zu füllenden Zeichenfolge
-# < uintB* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
-  extern uintB* read_char_array (object stream, uintB* charptr, uintL len);
+# < chart* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
+  extern chart* read_char_array (object stream, chart* charptr, uintL len);
 # wird verwendet von SEQUENCE
 
 # UP: Schreibt mehrere Characters auf einen Stream.
 # write_char_array(stream,charptr,len)
 # > stream: Stream
-# > uintB* charptr: Adresse der zu schreibenden Zeichenfolge
+# > chart* charptr: Adresse der zu schreibenden Zeichenfolge
 # > uintL len: Länge der zu schreibenden Zeichenfolge
-# < uintB* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-  extern const uintB* write_char_array (object stream, const uintB* charptr, uintL len);
+# < chart* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
+  extern const chart* write_char_array (object stream, const chart* charptr, uintL len);
 # wird verwendet von SEQUENCE
 
 # UP: Liefert den Stream, der der Wert einer Variablen ist.
