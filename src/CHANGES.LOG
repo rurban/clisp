@@ -1,3 +1,10 @@
+
+User visible changes
+--------------------
+
+* New functions READ-FLOAT and WRITE-FLOAT.
+
+
 1999-07-22
 ==========
 

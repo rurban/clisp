@@ -12442,8 +12442,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   extern uintL I_integer_length (object x);
 # wird verwendet von ARRAY
 
-#ifdef HAVE_FFI
-
 # c_float_to_FF(&val) wandelt ein IEEE-Single-Float val in ein Single-Float um.
 # can trigger GC
   extern object c_float_to_FF (const ffloatjanus* val_);
@@ -12459,8 +12457,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # DF_to_c_double(obj,&val);
 # wandelt ein Double-Float obj in ein IEEE-Double-Float val um.
   extern void DF_to_c_double (object obj, dfloatjanus* val_);
-
-#endif
 
 # UP: Wandelt eine Zeichenkette mit Integer-Syntax in ein Integer um.
 # Punkte werden überlesen.

@@ -855,8 +855,10 @@ LISPSYM(interactive_stream_p,"INTERACTIVE-STREAM-P",lisp)
 LISPSYM(built_in_stream_close,"BUILT-IN-STREAM-CLOSE",system)
 LISPSYM(read_byte,"READ-BYTE",lisp)
 LISPSYM(read_integer,"READ-INTEGER",lisp)
+LISPSYM(read_float,"READ-FLOAT",lisp)
 LISPSYM(write_byte,"WRITE-BYTE",lisp)
 LISPSYM(write_integer,"WRITE-INTEGER",lisp)
+LISPSYM(write_float,"WRITE-FLOAT",lisp)
 LISPSYM(file_position,"FILE-POSITION",lisp)
 LISPSYM(file_length,"FILE-LENGTH",lisp)
 LISPSYM(file_string_length,"FILE-STRING-LENGTH",lisp)
@@ -1477,7 +1479,7 @@ LISPSYM(double_float_negative_epsilon,"DOUBLE-FLOAT-NEGATIVE-EPSILON",lisp) # al
 LISPSYM(long_float_negative_epsilon,"LONG-FLOAT-NEGATIVE-EPSILON",lisp) # als Variable in LISPARIT
 LISPSYM(default_float_format,"*DEFAULT-FLOAT-FORMAT*",lisp) # als Variable in LISPARIT
 LISPSYM(read_default_float_format,"*READ-DEFAULT-FLOAT-FORMAT*",lisp) # als Variable in LISPARIT
-LISPSYM(write_float,"WRITE-FLOAT",system) # als Funktion für LISPARIT
+LISPSYM(write_float_decimal,"WRITE-FLOAT-DECIMAL",system) # als Funktion für LISPARIT
 LISPSYM(random_state_stern,"*RANDOM-STATE*",lisp) # als Variable in LISPARIT
 #ifdef UNICODE
 LISPSYM(unicode_16,"UNICODE-16",charset)

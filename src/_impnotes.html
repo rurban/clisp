@@ -4162,6 +4162,23 @@ href="CLHSROOT/Body/fun_stream-element-type.html">
 stream-element-type</a>)</code>, this function permits mixed
 character/binary input from a stream.
 
+<p>The function
+<code>(<strong>lisp:read-float</strong> <var>stream</var>
+       <var>element-type</var> &amp;optional <var>endianness</var>
+       <var>eof-error-p</var> <var>eof-value</var>)</code>
+reads a floating-point number in IEEE binary representation from
+<var>stream</var>.  <var>stream</var> should be a stream with element-type
+<code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a> 8)</code>.
+<var>element-type</var> should be a type equivalent to
+<code><a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">single-float</a></code>
+or
+<code><a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">double-float</a></code>.
+
+<p><var>endianness</var> can be <code>:little</code> or <code>:big</code>.
+The default is <code>:little</code>, which corresponds to the
+<a href="CLHSROOT/Body/fun_read-byte.html"><code>read-byte</code></a>
+behavior in CLISP.
+
 <h4>Binary output, <a href="CLHSROOT/Body/fun_write-byte.html">
     write-byte</a></h4>
 
@@ -4193,6 +4210,23 @@ behaviour in CLISP.
 href="CLHSROOT/Body/fun_stream-element-type.html">
 stream-element-type</a>)</code>, this function
 permits mixed character/binary output to a stream.
+
+<p>The function
+<code>(<strong>lisp:write-float</strong> <var>float</var>
+       <var>stream</var> <var>element-type</var>
+       &amp;optional <var>endianness</var>)</code>
+writes a floating-point number in IEEE binary representation to
+<var>stream</var>.  <var>stream</var> should be a stream with element-type
+<code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a> 8)</code>.
+<var>element-type</var> should be a type equivalent to
+<code><a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">single-float</a></code>
+or
+<code><a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">double-float</a></code>.
+
+<p><var>endianness</var> can be <code>:little</code> or <code>:big</code>.
+The default is <code>:little</code>, which corresponds to the
+<a href="CLHSROOT/Body/fun_write-byte.html"><code>write-byte</code></a>
+behaviour in CLISP.
 
 <h4><a href="CLHSROOT/Body/fun_read-sequence.html">
     read-sequence</a></h4>
@@ -4492,7 +4526,7 @@ Conflicts in Exceptional Situations</a>.
 <code>*print-case*</code></a> controls the output not only of symbols,
 but also of characters and some <code>#&lt;...&gt;</code> objects.
 
-<p>In the absence of <code><strong>sys::write-float</strong></code>,
+<p>In the absence of <code><strong>sys::write-float-decimal</strong></code>,
 floating point numbers are output in radix 2.  This function is defined
 in <code>floatpri.lsp</code> and is not available if you run CLISP
 without a memory image.
