@@ -211,6 +211,10 @@ Modules
   Thanks to Fred and Don Cohens.
   See <http://clisp.cons.org/impnotes.html#rawsock> for details.
 
+* New module zlib interfaces to <http://www.zlib.org> and allows
+  compression and uncompression of vectors.
+  See <http://clisp.cons.org/impnotes.html#zlib> for details.
+
 * Module syscalls now exports functions POSIX:CRYPT, POSIX:ENCRYPT,
   POSIX:SETKEY, POSIX:SET-FILE-STAT, POSIX:CONVERT-MODE, POSIX:UMASK,
   POSIX:MKNOD.

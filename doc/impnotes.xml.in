@@ -24,6 +24,7 @@
   <!ENTITY pcre SYSTEM "../modules/pcre/pcre.xml">
   <!ENTITY rawsock SYSTEM "../modules/rawsock/rawsock.xml">
   <!ENTITY syscalls SYSTEM "../modules/syscalls/syscalls.xml">
+  <!ENTITY zlib SYSTEM "../modules/zlib/zlib.xml">
   <!ENTITY gfdl-text SYSTEM "http://www.gnu.org/licenses/fdl.xml">
   <!ENTITY gpl-text SYSTEM "http://www.gnu.org/licenses/gpl.xml">
 ]>
