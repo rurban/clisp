@@ -1814,10 +1814,10 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
     host_was_null = true;
     #endif
     # 4. thing muss ein String sein:
-    var object thing = STACK_4;
     DOUT("parse-namestring:[thng]",STACK_4);
     DOUT("parse-namestring:[host]",STACK_3);
     DOUT("parse-namestring:[dflt]",STACK_2);
+    var object thing = STACK_4;
     if (xpathnamep(thing)) { # Pathname?
       value1 = thing; # 1. Wert thing
      fertig:
@@ -2527,15 +2527,19 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
           var object dir = ThePathname(pathname)->pathname_directory;
           var object dev = Symbol_value(S(device_prefix));
           if (nullp(ThePathname(pathname)->pathname_device) &&
-              eq(Car(dir),S(Kabsolute)) && !nullp(Cdr(Cdr(dir))) &&
+              # actually, we already know that dir is a cons
+              consp(dir) && eq(Car(dir),S(Kabsolute)) &&
+              # Cdr(dir) might not be a cons, e.g., "/foo" ==
+              # #S(pathname :directory (:absolute) :name "foo")
+              consp(Cdr(dir)) && !nullp(Cdr(Cdr(dir))) &&
               stringp(dev) &&
               string_eqcomp_ci(Car(Cdr(dir)),0,dev,0,vector_length(dev))) {
             # path = (:ABSOLUTE "cygdrive" "drive" "dir1" ...) ===>
             # path = (:ABSOLUTE "dir1" ...); device = "DRIVE"
-            ThePathname(pathname)->pathname_device = Car(Cdr(Cdr(dir)));
+            var object device = Car(Cdr(Cdr(dir)));
             Cdr(dir) = Cdr(Cdr(Cdr(dir)));
-            ThePathname(pathname)->pathname_device =
-              string_upcase(ThePathname(pathname)->pathname_device);
+            device = string_upcase(device);
+            ThePathname(STACK_0)->pathname_device = device;
           }
         #endif
       }
