@@ -3571,7 +3571,7 @@ If you want all the files and subdirectories in all the subdirectories
 under the current directory
 (similar to the &ls; <option>-R</option> &unix; command),
 use <literal role="sexp">(&nconc; (&directory; "**/")
- (&directory; "**/*"))</literal>
+ (&directory; "**/*"))</literal>.
 
 <!-- #ifdef UNIX -->
 <variablelist>
@@ -3590,7 +3590,6 @@ use <literal role="sexp">(&nconc; (&directory; "**/")
  shows the contents of the current directory.</para></formalpara>
 
 <formalpara id="cd"><title>&cd;</title>
-
 <para><literal role="sexp">(&cd; &path-r;)</literal> sets it,
  <literal role="sexp">(&cd;)</literal> returns it.
 <variablelist>
@@ -3622,8 +3621,8 @@ use <literal role="sexp">(&nconc; (&directory; "**/")
 
 <formalpara><title><function>EXT:MAKE-DIR</function></title>
 <para><literal role="sexp">(<function>EXT:MAKE-DIR</function>
- <replaceable>directory-pathname</replaceable>)</literal> creates a new
- subdirectory.</para></formalpara>
+ <replaceable>directory-pathname</replaceable>)</literal>
+ creates a new subdirectory.</para></formalpara>
 
 <formalpara><title><function>EXT:DELETE-DIR</function></title>
 <para><literal role="sexp">(<function>EXT:DELETE-DIR</function>
@@ -3639,7 +3638,7 @@ use <literal role="sexp">(&nconc; (&directory; "**/")
    <ulink url="&clhs;/Body/chap-21.html">[CLHS-21]</ulink></title>
 
 <section id="streams-interactive"><title>Interactive Streams
-   <ulink url="&clhs;/Body/sec_21-1-1-1-3.html">[CLHS-21.1.1.1.3]</ulink></title>
+ <ulink url="&clhs;/Body/sec_21-1-1-1-3.html">[CLHS-21.1.1.1.3]</ulink></title>
 
 <para>Interactive streams are those whose next input might depend on a
  prompt one might output.</para>
