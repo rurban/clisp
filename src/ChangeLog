@@ -1,3 +1,13 @@
+2004-09-14  Sam Steingold  <sds@gnu.org>
+
+	support libsigsegv-2.1 on cygwin,
+	which includes <windows.h> from <sigsegv.h>
+	* lispbibl.d [UNIX_CYGWIN32]: undefine WIN32 and
+	INVALID_HANDLE_VALUE after including <sigsegv.h>
+	define unused after including <sigsegv.h> because it is used by woe32
+	* pathname.d [UNIX_CYGWIN32]: do not redefine *_PRIORITY_CLASS
+	* spvw_sigsegv.d (stackoverflow_handler) [UNIX_CYGWIN32]: use Ebx
+
 2004-09-14  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (c-report-problems): When reporting unknown functions,
