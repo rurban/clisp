@@ -122,13 +122,13 @@ changequote([,]))])
 # but which still want to provide support for the GNU gettext functionality.
 # Please note that the actual code is *not* freely available.
 
-# serial 8
+# serial 9
 
 dnl Usage: AM_WITH_NLS([TOOLSYMBOL], [NEEDSYMBOL], [LIBDIR]).
 dnl If TOOLSYMBOL is specified and is 'use-libtool', then a libtool library
 dnl    $(top_builddir)/intl/libintl.la will be created (shared and/or static,
 dnl    depending on --{enable,disable}-{shared,static} and on the presence of
-dnl    AM_DISABLE_SHARED). Otherwise, a static library
+dnl    AM-DISABLE-SHARED). Otherwise, a static library
 dnl    $(top_builddir)/intl/libintl.a will be created.
 dnl If NEEDSYMBOL is specified and is 'need-ngettext', then GNU gettext
 dnl    implementations (in libc or libintl) without the ngettext() function
@@ -212,21 +212,21 @@ return (int) gettext ("")]ifelse([$2], need-ngettext, [ + (int) ngettext ("", ""
 
 	   if test "$gt_cv_func_gnugettext_libc" = "yes" \
 	      || test "$gt_cv_func_gnugettext_libintl" = "yes"; then
-	      AC_DEFINE(HAVE_GETTEXT, 1,
-                [Define if the GNU gettext() function is already present or preinstalled.])
-	      AM_PATH_PROG_WITH_TEST(MSGFMT, msgfmt,
-		[test -z "`$ac_dir/$ac_word -h 2>&1 | grep 'dv '`"], no)dnl
-	      if test "$MSGFMT" != "no"; then
-		AC_CHECK_FUNCS(dcgettext)
-		AC_PATH_PROG(GMSGFMT, gmsgfmt, $MSGFMT)
-		AM_PATH_PROG_WITH_TEST(XGETTEXT, xgettext,
-		  [test -z "`$ac_dir/$ac_word -h 2>&1 | grep '(HELP)'`"], :)
-		CATOBJEXT=.gmo
-	      fi
-	      if test "$gt_cv_func_gnugettext_libintl" = "yes"; then
-		INTLLIBS="-lintl"
-	      fi
-	    fi
+	     AC_DEFINE(HAVE_GETTEXT, 1,
+               [Define if the GNU gettext() function is already present or preinstalled.])
+	     AC_CHECK_FUNCS(dcgettext)
+	     AM_PATH_PROG_WITH_TEST(MSGFMT, msgfmt,
+	       [test -z "`$ac_dir/$ac_word -h 2>&1 | grep 'dv '`"], no)dnl
+	     if test "$MSGFMT" != "no"; then
+	       AC_PATH_PROG(GMSGFMT, gmsgfmt, $MSGFMT)
+	     fi
+	     AM_PATH_PROG_WITH_TEST(XGETTEXT, xgettext,
+	       [test -z "`$ac_dir/$ac_word -h 2>&1 | grep '(HELP)'`"], :)
+	     CATOBJEXT=.gmo
+	     if test "$gt_cv_func_gnugettext_libintl" = "yes"; then
+	       INTLLIBS="-lintl"
+	     fi
+	   fi
 	])
 
         if test "$CATOBJEXT" = "NONE"; then
@@ -275,8 +275,9 @@ return (int) gettext ("")]ifelse([$2], need-ngettext, [ + (int) ngettext ("", ""
       POSUB=po
     fi
     AC_OUTPUT_COMMANDS(
-     [case " $CONFIG_FILES " in *" po/Makefile.in "* | *" po/Makefile.in:"*)
+     [case " "$CONFIG_FILES" " in *" po/Makefile.in "* | *" po/Makefile.in:"*)
         sed -e "/POTFILES =/r po/POTFILES" po/Makefile.in > po/Makefile
+        ;;
       esac])
 
 
