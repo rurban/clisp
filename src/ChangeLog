@@ -1,5 +1,9 @@
 1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * conditio.lsp (break): Use ANSI CL `:format-control' initarg.
+
+1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Make read_line recurse through some kinds of streams.
         * lispbibl.d (read_line): New declaration.
         * stream.d (read_line_synonym, read_line_twoway, read_line): New
