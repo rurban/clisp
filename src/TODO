@@ -11,6 +11,11 @@ Contagion warnings emitted by many floating-point operations. (Bruno)
 
 Review this TODO list and remove obsolete items (Bruno).
 
+Fix modules/exporting.lisp :
+(eval-when (load compile eval)
+  (defconstant FOO 10))
+does not export FOO
+
 
 MUST-FIX BEFORE RELEASE 2.35
 ============================
