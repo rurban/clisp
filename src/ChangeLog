@@ -1,5 +1,18 @@
 1998-07-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_multimap.d: New file.
+        * spvw.d (map_pagesize, MM_TYPECASES, combine, mm_types_count,
+           initmap, remember_mmap_interval, msync_mmap_intervals, fdmap,
+           zeromap, open_temp_fd, fdsave, close_temp_fd, open_shmid, idmap,
+           shmsave, close_shmid, open_mapid, map_mapid, close_mapid, multimap1,
+           done_mapid, exitmap, multimap): Move out.
+          (main): Call init_map_pagesize() and use map_pagesize.
+          (main): Don't close zero_fd, it might be needed in the case of
+          DYNAMIC_MODULES.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_mmap.d (mmap_zero_fd): Renamed from zero_fd.
 
 1998-07-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
