@@ -997,8 +997,7 @@ implementation.</para>
 
 <!-- begin class basic introspection -->
 
-<simplesect id="class-name">
- <title>Generic Function &class-name;</title>
+<section id="class-name"><title>Generic Function &class-name;</title>
  <subtitle><code>(&class-name; &class-r;)</code></subtitle>
 
 <para>Returns the name of &class-r;.  This value can be any Lisp object,
@@ -1006,9 +1005,9 @@ but is usually a symbol, or &nil; if the class has no name.  This is the
 defaulted value of the &name-k; initialization argument that was
 associated with the class during initialization or reinitialization.
 (Also see &setf-class-name;.)
-</para></simplesect>
+</para></section>
 
-<simplesect id="class-direct-superclasses">
+<section id="class-direct-superclasses">
  <title>Generic Function &class-direct-superclasses;</title>
  <subtitle><code>(&class-direct-superclasses; &class-r;)</code></subtitle>
 
@@ -1023,9 +1022,9 @@ with the class during initialization or reinitialization.
  the returned list may contain symbols as placeholder for classes that
  were not yet defined when finalization of the class was last attempted.
   <xref linkend="no-forward-referenced-class"/>.</simpara></note>
-</simplesect>
+</section>
 
-<simplesect id="class-direct-slots">
+<section id="class-direct-slots">
  <title>Generic Function &class-direct-slots;</title>
  <subtitle><code>(&class-direct-slots; &class-r;)</code></subtitle>
 
@@ -1034,9 +1033,9 @@ this set are direct slot definition metaobjects.  If the class has no
 direct slots, the empty set is returned.  This is the defaulted value of
 the &direct-slots-k; initialization argument that was associated with
 the class during initialization and reinitialization.
-</para></simplesect>
+</para></section>
 
-<simplesect id="class-direct-default-initargs">
+<section id="class-direct-default-initargs">
  <title>Generic Function &class-direct-default-initargs;</title>
  <subtitle><code>(&class-direct-default-initargs; &class-r;)</code></subtitle>
 
@@ -1046,9 +1045,9 @@ The empty list is returned if &class-r; has no
 direct default initialization arguments.  This is the defaulted value of
 the &direct-default-initargs-k; initialization argument that was
 associated with the class during initialization or reinitialization.
-</para></simplesect>
+</para></section>
 
-<simplesect id="cpl"><title>Generic Function &cpl;</title>
+<section id="cpl"><title>Generic Function &cpl;</title>
  <subtitle><code>(&cpl; &class-r;)</code></subtitle>
 
 <para>Returns the class precedence list of &class-r;.  The elements of
@@ -1060,9 +1059,9 @@ value is associated with the class metaobject and is returned by &cpl;.
 </para>
 
 <para>This generic function &sig-err; if &class-r; has not been finalized.
-</para></simplesect>
+</para></section>
 
-<simplesect id="class-direct-subclasses">
+<section id="class-direct-subclasses">
  <title>Generic Function &class-direct-subclasses;</title>
  <subtitle><code>(&class-direct-subclasses; &class-r;)</code></subtitle>
 
@@ -1077,10 +1076,9 @@ no direct subclasses.  This value is maintained by the generic functions
  internally managed as a &weak-list;. Therefore the existence of
  the &class-direct-subclasses; function does not prevent otherwise
  unreferenced classes from being &gc;ed.</simpara></note>
-</simplesect>
+</section>
 
-<simplesect id="class-slots">
- <title>Generic Function &class-slots;</title>
+<section id="class-slots"><title>Generic Function &class-slots;</title>
  <subtitle><code>(&class-slots; &class-r;)</code></subtitle>
 
 <para>Returns a possibly empty set of the slots accessible in instances
@@ -1093,9 +1091,9 @@ associated with the class metaobject and is returned by &class-slots;.
 </para>
 
 <para>This generic function &sig-err; if &class-r; has not been finalized.
-</para></simplesect>
+</para></section>
 
-<simplesect id="class-default-initargs">
+<section id="class-default-initargs">
  <title>Generic Function &class-default-initargs;</title>
  <subtitle><code>(&class-default-initargs; &class-r;)</code></subtitle>
 
@@ -1110,23 +1108,21 @@ arguments for the class.  That value is associated with the class
 metaobject and is returned by &class-default-initargs;.</para>
 
 <para>This generic function &sig-err; if &class-r; has not been
-finalized.</para>
-</simplesect>
+finalized.</para></section>
 
 <!-- end class basic introspection -->
 
 <!-- begin class advanced introspection -->
 
-<simplesect id="class-finalized-p">
+<section id="class-finalized-p">
  <title>Generic Function &class-finalized-p;</title>
  <subtitle><code>(&class-finalized-p; &class-r;)</code></subtitle>
 
 <para>Returns true if &class-r; has been finalized.  Returns false
-otherwise.  Also returns false if the class has not been initialized.
-</para></simplesect>
+otherwise.  Also returns false if the &class-r; has not been initialized.
+</para></section>
 
-<simplesect id="class-prototype">
- <title>Generic Function &class-prototype;</title>
+<section id="class-prototype"><title>Generic Function &class-prototype;</title>
  <subtitle><code>(&class-prototype; &class-r;)</code></subtitle>
 
 <para>Returns a prototype instance of &class-r;.  Whether the instance
@@ -1158,11 +1154,11 @@ portable program modifies the binding of any slot of a prototype instance.
 (HOW-MANY (&class-prototype; (&find-class; 'counter)))
 <computeroutput>2</computeroutput>
 </programlisting></para>
-</informalexample></simplesect>
+</informalexample></section>
 
 <!-- end class advanced introspection -->
 
-<simplesect id="mop-cl-readers-methods"><title>Methods</title>
+<section id="mop-cl-readers-methods"><title>Methods</title>
 
 <para>The specified methods for the class metaobject reader generic
 functions are presented below.</para>
@@ -1246,7 +1242,7 @@ descriptions appear after the table.<informaltable>
    This method can be overridden only if those methods are overridden as
    well.</simpara></listitem>
  <listitem id="CRM-10">&no-extra-spec;</listitem></orderedlist>
-</simplesect>
+</section><!-- mop-cl-readers-methods -->
 </section><!-- mop-cl-readers -->
 
 <section id="mop-cl-finalization"><title>Class Finalization Protocol</title>
@@ -1463,7 +1459,7 @@ user, an &err-sig; if &initialize-instance; or &reinitialize-instance;
 are called to initialize or reinitialize a derived instance of the class
 &built-in-class;.</para>
 
-<simplesect id="class-mo-init-methods"><title>Methods</title>
+<section id="class-mo-init-methods"><title>Methods</title>
 
 <para>It is not specified which methods provide the initialization and
 reinitialization behavior described above.  Instead, the information
@@ -1488,9 +1484,9 @@ initialization has taken effect.</para>
    &init-method-restrictions;</para></listitem>
 </itemizedlist>
 &else-undefined;
-</simplesect>
+</section><!-- class-mo-init-methods -->
 
-<simplesect id="mop-cl-init-anon">
+<section id="mop-cl-init-anon">
  <title>Initialization of Anonymous Classes</title>
 
 <para>Class metaobjects created with &make-instance; are usually
@@ -1534,7 +1530,7 @@ arguments accepted by the &ensure-class; function.</para>
                      :writers ((setf position-y))))
     :direct-default-initargs `((:engine *propellor* ,#'propellor))))
 </programlisting></para>
-</simplesect>
+</section><!-- mop-cl-init-anon -->
 </section><!-- mop-cl-init-mo -->
 
 <section id="mop-cl-reinit-mo">
@@ -2357,8 +2353,7 @@ implementation.</para>
 
 <section id="mop-sd-readers-GFs"><title>Generic Functions</title>
 
-<simplesect id="slotdef-name">
- <title>Generic Function &slotdef-name;</title>
+<section id="slotdef-name"><title>Generic Function &slotdef-name;</title>
  <subtitle><code>(&slotdef-name; &slot-r;)</code></subtitle>
 
 <para>Returns the name of &slot-r;.  This value is a symbol that can be
@@ -2368,18 +2363,18 @@ metaobject during initialization.</para>
 
 <note>&clisp-only;<simpara>The slot name does not need to be usable as a
   variable name. Slot names like &nil; or &t; are perfectly valid.
-</simpara></note></simplesect>
+</simpara></note></section>
 
-<simplesect id="slotdef-allocation">
+<section id="slotdef-allocation">
  <title>Generic Function &slotdef-allocation;</title>
  <subtitle><code>(&slotdef-allocation; &slot-r;)</code></subtitle>
 
 <para>Returns the allocation of &slot-r;.  This is a symbol.  This is
 the defaulted value of the &allocation-k; initialization argument that
 was associated with the slot definition metaobject during
-initialization.</para></simplesect>
+initialization.</para></section>
 
-<simplesect id="slotdef-initform">
+<section id="slotdef-initform">
  <title>Generic Function &slotdef-initform;</title>
  <subtitle><code>(&slotdef-initform; &slot-r;)</code></subtitle>
 
@@ -2388,9 +2383,9 @@ form.  This is the defaulted value of the &initform-k; initialization
 argument that was associated with the slot definition metaobject during
 initialization.  When &slot-r; has no initialization form, the value
 returned is unspecified (however, &slotdef-initfunction; is guaranteed
-to return &nil;).</para></simplesect>
+to return &nil;).</para></section>
 
-<simplesect id="slotdef-initfunction">
+<section id="slotdef-initfunction">
  <title>Generic Function &slotdef-initfunction;</title>
  <subtitle><code>(&slotdef-initfunction; &slot-r;)</code></subtitle>
 
@@ -2398,25 +2393,25 @@ to return &nil;).</para></simplesect>
 either a function of no arguments, or &nil;, indicating that the slot
 has no initialization function.  This is the defaulted value of the
 &initfunction-k; initialization argument that was associated with the
-slot definition metaobject during initialization.</para></simplesect>
+slot definition metaobject during initialization.</para></section>
 
-<simplesect id="slotdef-type">
+<section id="slotdef-type">
  <title>Generic Function &slotdef-type;</title>
  <subtitle><code>(&slotdef-type; &slot-r;)</code></subtitle>
 
 <para>Returns the type of &slot-r;.  This is a type specifier
 name.  This is the defaulted value of the &type-k; initialization
 argument that was associated with the slot definition metaobject during
-initialization.</para></simplesect>
+initialization.</para></section>
 
-<simplesect id="slotdef-initargs">
+<section id="slotdef-initargs">
  <title>Generic Function &slotdef-initargs;</title>
  <subtitle><code>(&slotdef-initargs; &slot-r;)</code></subtitle>
 
 <para>Returns the set of initialization argument keywords for &slot-r;.
 This is the defaulted value of the &initargs-k; initialization argument
 that was associated with the slot definition metaobject during
-initialization.</para></simplesect>
+initialization.</para></section>
 </section><!-- mop-sd-readers-GFs -->
 
 <section id="slotd-mo-readers-methods"><title>Methods</title>
@@ -2445,16 +2440,16 @@ initialization.</para></simplesect>
 <para>The following additional reader generic functions are defined for
  direct slot definition metaobjects.</para>
 
-<simplesect id="slotdef-readers">
+<section id="slotdef-readers">
  <title>Generic Function &slotdef-readers;</title>
  <subtitle><code>(&slotdef-readers; &dsd-r;)</code></subtitle>
 
 <para>Returns a (possibly empty) set of readers of the &dsd-r;.  This
 value is a list of function names.  This is the defaulted value of the
 &readers-k; initialization argument that was associated with the direct
-slot definition metaobject during initialization.</para></simplesect>
+slot definition metaobject during initialization.</para></section>
 
-<simplesect id="slotdef-writers">
+<section id="slotdef-writers">
  <title>Generic Function &slotdef-writers;</title>
  <subtitle><code>(&slotdef-writers; &dsd-r;)</code></subtitle>
 
@@ -2468,7 +2463,7 @@ slot definition metaobject during initialization.
   <term><literal role="method">(&slotdef-writers;
     (&dsd-r; &standard-dsd-t;))</literal></term>
   <listitem>&no-extra-specs;</listitem></varlistentry></variablelist>
-</para></simplesect>
+</para></section>
 
 </section><!-- slotd-mo-readers-dsd -->
 
@@ -2482,7 +2477,7 @@ slot definition metaobject during initialization.
 <para>The following reader generic function is defined for effective
  slot definition metaobjects.</para>
 
-<simplesect id="slotdef-location">
+<section id="slotdef-location">
  <title>Generic Function &slotdef-location;</title>
  <subtitle><code>(&slotdef-location; &esd-r;)</code></subtitle>
 
@@ -2497,7 +2492,7 @@ slot definition metaobject during initialization.
      (&standard-class;)</literal> and
     <literal role="method">&compute-slots; <constant>:AROUND</constant>
      (&funcallable-standard-class;)</literal>.
-</simpara></listitem></varlistentry></variablelist></simplesect>
+</simpara></listitem></varlistentry></variablelist></section>
 
 </section><!-- slotd-mo-readers-esd -->
 
@@ -2611,7 +2606,7 @@ as follows:
    <row><entry>&documentation-k;</entry><entry>&documentation;</entry></row>
 </tbody></tgroup></table></para>
 
-<simplesect id="slotdef-mo-methods"><title>Methods</title>
+<section id="slotdef-mo-methods"><title>Methods</title>
 
 <para>It is not specified which methods provide the initialization and
 reinitialization behavior described above.  Instead, the information
@@ -2636,7 +2631,7 @@ restrictions.</para>
    &init-method-restrictions;</para></listitem>
 </itemizedlist>
 &else-undefined;
-</simplesect>
+</section><!-- slotdef-mo-methods -->
 
 </section><!-- mop-sd-init -->
 </section><!-- mop-sd -->
@@ -2671,36 +2666,33 @@ implementation.</para>
 
 <!-- begin generic-function basic introspection -->
 
-<simplesect id="gf-name">
- <title>Generic Function &gf-name;</title>
+<section id="gf-name"><title>Generic Function &gf-name;</title>
  <subtitle><code>(&gf-name; &gf-r;)</code></subtitle>
 
 <para>Returns the name of the generic function, or &nil; if the generic
 function has no name.  This is the defaulted value of the &name-k;
 initialization argument that was associated with the generic function
 metaobject during initialization or reinitialization.  (See also
-&setf-gf-name;.)</para></simplesect>
+&setf-gf-name;.)</para></section>
 
-<simplesect id="gf-methods">
- <title>Generic Function &gf-methods;</title>
+<section id="gf-methods"><title>Generic Function &gf-methods;</title>
  <subtitle><code>(&gf-methods; &gf-r;)</code></subtitle>
 
 <para>Returns the set of methods currently connected to the generic
 function.  This is a set of method metaobjects.  This value is
 maintained by the generic functions &add-method; and &remove-method;.
-</para></simplesect>
+</para></section>
 
-<simplesect id="gf-lambda-list">
- <title>Generic Function &gf-lambda-list;</title>
+<section id="gf-lambda-list"><title>Generic Function &gf-lambda-list;</title>
  <subtitle><code>(&gf-lambda-list; &gf-r;)</code></subtitle>
 
 <para>Returns the &lalist; of the generic function.  This is the
 defaulted value of the &lambda-list-k; initialization argument that was
 associated with the generic function metaobject during initialization or
 reinitialization.  An &err-sig; if the &lalist; has yet to be
-supplied.</para></simplesect>
+supplied.</para></section>
 
-<simplesect id="gf-argument-precedence-order">
+<section id="gf-argument-precedence-order">
  <title>Generic Function &gf-argument-precedence-order;</title>
  <subtitle><code>(&gf-argument-precedence-order; &gf-r;)</code></subtitle>
 
@@ -2713,14 +2705,13 @@ initialization or reinitialization.
 </para>
 
 <note>&clisp-only;<simpara>An &err-sig; if the &lalist; has not yet been
-  supplied.</simpara></note></simplesect>
+  supplied.</simpara></note></section>
 
 <!-- end generic-function basic introspection -->
 
 <!-- begin generic-function advanced introspection -->
 
-<simplesect id="gf-declarations">
- <title>Generic Function &gf-declarations;</title>
+<section id="gf-declarations"><title>Generic Function &gf-declarations;</title>
  <subtitle><code>(&gf-declarations; &gf-r;)</code></subtitle>
 
 <para>Returns a possibly empty list of the <quote>declarations</quote>
@@ -2728,19 +2719,18 @@ of the generic function.  The elements of this list are
 &declaration-specifier-glo;s.  This list is the defaulted value of the
 &declarations-k; initialization argument that was associated with the
 generic function metaobject during initialization or
-reinitialization.</para></simplesect>
+reinitialization.</para></section>
 
-<simplesect id="gf-method-class">
- <title>Generic Function &gf-method-class;</title>
+<section id="gf-method-class"><title>Generic Function &gf-method-class;</title>
  <subtitle><code>(&gf-method-class; &gf-r;)</code></subtitle>
 
 <para>Returns the default method class of the generic function.  This
 class must be a subclass of the class &method-t;.  This is the defaulted
 value of the &method-class-k; initialization argument that was
 associated with the generic function metaobject during initialization or
-reinitialization.</para></simplesect>
+reinitialization.</para></section>
 
-<simplesect id="gf-method-combination">
+<section id="gf-method-combination">
  <title>Generic Function &gf-method-combination;</title>
  <subtitle><code>(&gf-method-combination; &gf-r;)</code></subtitle>
 
@@ -2748,11 +2738,11 @@ reinitialization.</para></simplesect>
 method combination metaobject.  This is the defaulted value of the
 &method-combination-k; initialization argument that was associated with
 the generic function metaobject during initialization or reinitialization.
-</para></simplesect>
+</para></section>
 
 <!-- end generic-function advanced introspection -->
 
-<simplesect id="gf-name-methods"><title>Methods</title>
+<section id="gf-name-methods"><title>Methods</title>
 
 <variablelist><title>The specified methods for the generic function
   metaobject reader generic functions.</title>
@@ -2779,7 +2769,7 @@ the generic function metaobject during initialization or reinitialization.
    <literal role="method">&remove-method;(&standard-generic-function-t;
     &standard-method-t;)</literal>.</simpara></listitem></varlistentry>
 </variablelist>
-</simplesect>
+</section><!-- gf-name-methods -->
 </section><!-- mop-gf-readers -->
 
 <section id="mop-gf-init"><title>Initialization of Generic Functions</title>
@@ -3007,7 +2997,7 @@ as follows:
    <row><entry>&name-k;</entry><entry>&gf-name;</entry></row>
 </tbody></tgroup></table></para>
 
-<simplesect id="gf-mo-init-methods"><title>Methods</title>
+<section id="gf-mo-init-methods"><title>Methods</title>
 
 <para>It is not specified which methods provide the initialization and
 reinitialization behavior described above.  Instead, the information
@@ -3032,7 +3022,7 @@ restrictions.</para>
    &init-method-restrictions;</para></listitem>
 </itemizedlist>
 &else-undefined;
-</simplesect>
+</section><!-- gf-mo-init-methods -->
 </section><!-- mop-gf-init-mo -->
 </section><!-- mop-gf-init -->
 
@@ -3341,9 +3331,9 @@ restrictions.</para>
     (&standard-generic-function-t; &t-t;)</literal>.
 </simpara></listitem></varlistentry></variablelist>
 
-<simplesect id="mop-cam-remarks"><title>Remarks</title> <!-- sds -->
+<formalpara id="mop-cam-remarks"><title>Remarks</title> <!-- sds -->
 <para>See also the &ansi-cl; function &compute-applicable-methods;.
-</para></simplesect>
+</para></formalpara>
 </section><!-- compute-applicable-methods -->
 
 <section id="compute-applicable-methods-UC">
@@ -3755,39 +3745,38 @@ if the method metaobject has not been initialized.</para>
 
 <!-- begin method basic introspection -->
 
-<simplesect id="method-specializers">
+<section id="method-specializers">
  <title>Generic Function &method-specializers;</title>
  <subtitle><code>(&method-specializers; &method-r;)</code></subtitle>
 
 <para>Returns a list of the specializers of &method-r;.  This value is a
 list of specializer metaobjects.  This is the value of the
 &specializers-k; initialization argument that was associated with the
-method during initialization.</para></simplesect>
+method during initialization.</para></section>
 
-<simplesect id="method-qualifiers">
+<section id="method-qualifiers">
  <title>Generic Function &method-qualifiers;</title>
  <subtitle><code>(&method-qualifiers; &method-r;)</code></subtitle>
 
 <para>Returns a (possibly empty) list of the qualifiers of &method-r;.
 This value is a list of non-&nil; atoms.  This is the defaulted value of
 the &qualifiers-k; initialization argument that was associated with the
-method during initialization.</para></simplesect>
+method during initialization.</para></section>
 
-<simplesect id="method-lambda-list">
+<section id="method-lambda-list">
  <title>Generic Function &method-lambda-list;</title>
  <subtitle><code>(&method-lambda-list; &method-r;)</code></subtitle>
 
 <para>Returns the (unspecialized) &lalist; of &method-r;.  This value
 is a &cl; &lalist;.  This is the value of the &lambda-list-k;
 initialization argument that was associated with the method during
-initialization.</para></simplesect>
+initialization.</para></section>
 
 <!-- end method basic introspection -->
 
 <!-- begin method advanced introspection -->
 
-<simplesect id="method-gf">
- <title>Generic Function &method-gf;</title>
+<section id="method-gf"><title>Generic Function &method-gf;</title>
  <subtitle><code>(&method-gf; &method-r;)</code></subtitle>
 
 <para>Returns the generic function that &method-r; is currently
@@ -3795,19 +3784,19 @@ connected to, or &nil; if it is not currently connected to any generic
 function.  This value is either a generic function metaobject or &nil;.
 When a method is first created it is not connected to any generic
 function.  This connection is maintained by the generic functions
-&add-method; and &remove-method;.</para></simplesect>
+&add-method; and &remove-method;.</para></section>
 
-<simplesect id="method-function">
+<section id="method-function">
  <title>Generic Function &method-function;</title>
  <subtitle><code>(&method-function; &method-r;)</code></subtitle>
 
 <para>Returns the method function of &method-r;.  This is the
 value of the &function-k; initialization argument that was associated
-with the method during initialization.</para></simplesect>
+with the method during initialization.</para></section>
 
 <!-- end method advanced introspection -->
 
-<simplesect id="mop-meth-mo-readers-methods"><title>Methods</title>
+<section id="mop-meth-mo-readers-methods"><title>Methods</title>
 
 <variablelist>
  <title>The specified methods for the method metaobject readers.</title>
@@ -3829,7 +3818,7 @@ with the method during initialization.</para></simplesect>
    &standard-method-t;)</literal> and
   <literal role="method">&remove-method;(&standard-generic-function-t;
    &standard-method-t;)</literal>.</simpara></listitem></varlistentry>
-</variablelist></simplesect>
+</variablelist></section><!-- mop-meth-mo-readers-methods -->
 </section><!-- mop-meth-mo-readers -->
 
 
@@ -4141,7 +4130,7 @@ follows:
 </tbody></tgroup></table></para>
 
 
-<simplesect id="mop-meth-init-mo-method"><title>Methods</title>
+<section id="mop-meth-init-mo-method"><title>Methods</title>
 
 <para>It is not specified which methods provide the initialization
 behavior described above.  Instead, the information needed to allow
@@ -4166,7 +4155,7 @@ restrictions.</para>
    &init-method-restrictions;</para></listitem>
 </itemizedlist>
 &else-undefined;
-</simplesect>
+</section><!-- mop-meth-init-mo-method -->
 </section><!-- mop-meth-init-mo -->
 </section><!-- mop-meth-init -->
 
@@ -4259,7 +4248,7 @@ restrictions.</para>
 
 <!-- begin accessor-method basic introspection -->
 
-<simplesect id="accessor-method-slotdef">
+<section id="accessor-method-slotdef">
  <title>Generic Function &accessor-method-slotdef;</title>
  <subtitle><code>(&accessor-method-slotdef; &method-r;)</code></subtitle>
 
@@ -4273,7 +4262,7 @@ method during initialization.</para>
 <varlistentry><term><literal role="method">(&accessor-method-slotdef;
    (&method-r; &standard-accessor-method-t;))</literal></term>
  <listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
-</simplesect>
+</section>
 
 <!-- end accessor-method basic introspection -->
 
