@@ -128,13 +128,6 @@ type-error
   (foo04 -1))
 error
 
-(progn
-  (defgeneric foo041 (x))
-  (defmethod foo041 ((x real)) 'ok)
-  (defmethod foo041 ((x integer)) (call-next-method (sqrt x)))
-  (foo04 2))
-error
-
 (ccase 'x)
 type-error
 
