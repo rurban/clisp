@@ -288,6 +288,9 @@ User visible changes
 * The second, optional argument of EXT:SPECIAL-VARIABLE-P can no longer be T;
   please use (THE-ENVIRONMENT) instead.
 
+* New function FEATUREP - the run-time version of read-time #+/#-.
+  See <http://clisp.cons.org/impnotes.html#featurep> for details.
+
 * Bug fixes:
   + The interpreter no longer executes the body of (EVAL-WHEN (COMPILE) ...)
     forms.
