@@ -193,3 +193,12 @@
     (:generic-accessors nil)))
 
 ;; ============================================================================
+
+;; Generic functions which are used in implementing the generic function
+;; dispatch and execution.
+(defvar |#'compute-discriminating-function| nil)
+(defvar |#'compute-applicable-methods| nil)
+(defvar |#'compute-applicable-methods-using-classes| nil)
+(defvar |#'compute-effective-method| nil)
+
+;; ============================================================================
