@@ -9,7 +9,7 @@ Description:    GNU CLISP is an ANSI Common Lisp implementation.
                 Packages running in CLISP include Maxima, ACL2,
                 CLX, Garnet, CLUE/CLIO.
 Keywords:       Lisp, Common Lisp, CLISP, computer algebra, compiler.
-Author:         haible@clisp.org (Bruno Haible),
+Author:         bruno@clisp.org (Bruno Haible),
                 michael@rhein.iam.uni-bonn.de (Michael Stoll),
                 marcus@sysc.pdx.edu (Marcus Daniels),
                 sds@gnu.org (Sam Steingold)
@@ -17,7 +17,7 @@ Maintained-by:  sds@gnu.org (Sam Steingold)
 Primary-site:   ftp://sunsite.unc.edu:/pub/Linux/devel/lang/lisp/
                 clisp-2.32.tar.bz2
                 clisp-2.32.tar.gz
-Alternate-site: ftp://ftp.gnu.org/pub/clisp/
+Alternate-site: http://ftp.gnu.org/gnu/clisp/
 Original-site:  http://clisp.cons.org
 Platforms:      C/C++ compiler on Unix, OS/2, Win32, Amiga, Acorn.
 Copying-policy: GNU GPL
