@@ -1,3 +1,8 @@
+1999-06-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+	SOCK_error() generates an error of type `os-error'.
+	* errwin32.d (SOCK_error): use `simple_os_error'.
+
 1999-06-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Make DEFUN behave the same way w.r.t. inlining, whether executing
