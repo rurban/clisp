@@ -48,46 +48,46 @@ vacall.o : vacall-$(CPU).o
 	$(LN) vacall-$(CPU).o vacall.o
 
 vacall-i386.o : vacall-i386.s
-	$(CC) -c vacall-i386.s
+	$(CC) @GCC_X_NONE@ -c vacall-i386.s
 
 vacall-i386.s : $(srcdir)/vacall-i386.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-i386.S | grep -v '^ *#line' | grep -v '^#ident' | grep -v '^#' | sed -e 's,% ,%,g' > vacall-i386.s
 
 vacall-sparc.o : vacall-sparc.s
-	$(CC) -c vacall-sparc.s
+	$(CC) @GCC_X_NONE@ -c vacall-sparc.s
 
 vacall-sparc.s : $(srcdir)/vacall-sparc.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-sparc.S > vacall-sparc.s
 
 vacall-m68k.o : $(srcdir)/vacall-m68k.mit.s $(srcdir)/vacall-m68k.mot.s
-	if test @AS_UNDERSCORE@ = true; then syntax=mit; else syntax=mot; fi; $(CC) -c $(srcdir)/vacall-m68k.$${syntax}.s ; mv vacall-m68k.$${syntax}.o vacall-m68k.o
+	if test @AS_UNDERSCORE@ = true; then syntax=mit; else syntax=mot; fi; $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-m68k.$${syntax}.s ; mv vacall-m68k.$${syntax}.o vacall-m68k.o
 
 vacall-mips.o : $(srcdir)/vacall-mips.s
-	$(CC) -c $(srcdir)/vacall-mips.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-mips.s
 
 vacall-mipsn32.o : $(srcdir)/vacall-mipsn32.s
-	$(CC) -c $(srcdir)/vacall-mipsn32.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-mipsn32.s
 
 vacall-mips64.o : $(srcdir)/vacall-mips64.s
-	$(CC) -c $(srcdir)/vacall-mips64.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-mips64.s
 
 vacall-alpha.o : $(srcdir)/vacall-alpha.s
-	$(CC) -c $(srcdir)/vacall-alpha.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-alpha.s
 
 vacall-hppa.o : $(srcdir)/vacall-hppa.s
-	$(CC) -c $(srcdir)/vacall-hppa.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-hppa.s
 
 vacall-arm.o : $(srcdir)/vacall-arm.s
-	$(CC) -c $(srcdir)/vacall-arm.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-arm.s
 
 vacall-rs6000.o : $(srcdir)/vacall-rs6000.s
-	$(CC) -c $(srcdir)/vacall-rs6000.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-rs6000.s
 
 vacall-m88k.o : $(srcdir)/vacall-m88k.s
-	$(CC) -c $(srcdir)/vacall-m88k.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-m88k.s
 
 vacall-convex.o : $(srcdir)/vacall-convex.s
-	$(CC) -c $(srcdir)/vacall-convex.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-convex.s
 
 misc.o : $(srcdir)/misc.c vacall.h config.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/misc.c
@@ -131,7 +131,7 @@ tests.s : $(srcdir)/tests.c vacall.h
 	$(CC) $(CFLAGS) $(INCLUDES) -S $(srcdir)/tests.c
 
 tests : tests.o $(OBJECTS)
-	$(CC) $(CFLAGS) tests.o $(OBJECTS) -o tests
+	$(CC) $(CFLAGS) @GCC_X_NONE@ tests.o $(OBJECTS) -o tests
 
 check : all tests
 	./tests > tests.out

@@ -413,6 +413,12 @@ if test -n "$do_config"; then
   ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args $subdir_configure_args
   for subdir in oldoldreadline oldreadline readline gettext; do
     if test -d $subdir; then
+      # readline is not even configurable in C++ mode.
+      if test $subdir = readline; then
+        if grep 'cl_cv_prog_cc_cplusplus.*yes' $ABS_DIRNAME/config.cache > /dev/null ; then
+          continue;
+        fi
+      fi
       echo "executing $DIRNAME/$subdir/configure ..."
       cd $subdir
       if test -n "$INPLACE" -o $subdir = oldreadline -o $subdir = readline -o $subdir = gettext; then
@@ -428,7 +434,7 @@ if test -n "$do_config"; then
       ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args \
          `if test $subdir = gettext; then echo "--with-included-gettext"; fi` \
          $subdir_configure_args $subdir_cache_args
-    cd ..
+      cd ..
     fi
   done
   for subdir in avcall callback; do
