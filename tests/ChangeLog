@@ -1,3 +1,7 @@
+2004-09-03  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst (c-malloc, c-free): :LIBRARY argument is now evaluated
+
 2004-08-31  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst (c-malloc, c-free) [win32]: use :DEFAULT
