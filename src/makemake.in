@@ -1269,10 +1269,8 @@ if [ $TOS = unix ] || [ $TOS = os2 ] ; then
       else
         use_included_libintl=''
       fi
-      gettext_datadirname_sedcommand=`grep @DATADIRNAME@ gettext/config.status`
     else
       use_included_libintl=yes
-      gettext_datadirname_sedcommand='s%@DATADIRNAME@%share%g'
     fi
     # Do we build libintl.a, or is it already contained in the system libraries?
     if [ -n "$use_included_libintl" ] ; then
@@ -1663,7 +1661,7 @@ esac
 echol "libdir = \$(exec_prefix)${NEXT_}lib"
 echol "lisplibdir = \$(libdir)${NEXT_}clisp"
 if [ -n "$USE_GETTEXT" ] ; then
-  echol "datadir = \$(prefix)/@DATADIRNAME@" | sed -e "$gettext_datadirname_sedcommand"
+  echol "datadir = \$(prefix)/share"
   echol "localedir = \$(datadir)/locale"
 fi
 echol "# The value of following variable is prepended to all the paths for"
@@ -3103,7 +3101,7 @@ for f in $TXT_FILES ; do
   fi
   if [ $f = distmakefile ] ; then
     if [ -n "$USE_GETTEXT" ] ; then
-      localesed=" -e '${gettext_datadirname_sedcommand}'"
+      localesed=" -e 's%@DATADIRNAME@%share%g'"
     else
       localesed=""
     fi
@@ -3663,7 +3661,7 @@ fi
 if [ $TOS = unix ] ; then
   echotab "-\$(RM) MAGIC.add"
 fi
-echotab "-\$(RM) comment5${HEXE} ansidecl${HEXE} ccpaux${HEXE} deema${HEXE} txt2c${HEXE} ccmp2c${HEXE} modprep${HEXE}"
+echotab "-\$(RM) comment5${HEXE} ansidecl${HEXE} varbrace${HEXE} ccpaux${HEXE} deema${HEXE} txt2c${HEXE} ccmp2c${HEXE} modprep${HEXE}"
 echol
 cat <<!!
 # clean6 lets us go back to "makemake > Makefile".
