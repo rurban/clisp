@@ -8560,8 +8560,8 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #endif
 
 #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-# handle_fault_range(PROT_READ,start,end) macht einen Adressbereich lesbar,
-# handle_fault_range(PROT_READ_WRITE,start,end) macht ihn schreibbar.
+# handle_fault_range(PROT_READ,start,end) makes an address range readable.
+# handle_fault_range(PROT_READ_WRITE,start,end) makes an address range writable.
   extern boolean handle_fault_range (int prot, aint start_address, aint end_address);
 #endif
 

@@ -1,3 +1,11 @@
+1999-02-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * unixaux.d (full_read): Call handle_fault_range before the system
+          call, in order to avoid EFAULT.
+          (full_write): Likewise.
+        * win32aux.d (lowlevel_full_read, full_write, lowlevel_sock_read,
+           lowlevel_sock_write): Likewise.
+
 1999-02-05  Sam Steingold  <sds@goems.com>
 
 	* spvw.d (usage): added the URL and replaced "oder" with "or".

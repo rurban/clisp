@@ -265,12 +265,17 @@
     { var char* buf = (char*) bufarea;
       var RETRWTYPE retval;
       var RW_SIZE_T done = 0;
-      #if ((defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)) && defined(UNIX_SUNOS4)
-      # Unter SunOS4 muss der Speicher-Schreibschutz vorher behandelt werden,
-      # ansonsten verfängt sich der read()-Aufruf in einer Endlosschleife,
-      # statt mit EFAULT abzubrechen.
+      #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+      # Must adjust the memory permissions before calling read().
+      # - On SunOS4 a missing write permission causes the read() call to hang
+      #   in an endless loop.
+      # - With Linux 2.2 the read call returns with errno=EFAULT, but with
+      #   unpredictable side side effects: If fd refers to a socket, some of
+      #   the socket data gets lost.
+      # The SunOS4 behaviour is clearly a bug, but the Linux 2.2 behaviour is
+      # not. The POSIX spec says that read() returns with errno=EFAULT, but
+      # does not specify anything about possible side effects.
       handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
-      #define full_read_fault_handled
       #endif
       until (nbyte==0)
         { retval = read(fd,buf,nbyte);
@@ -280,10 +285,7 @@
               #ifdef EINTR
               if (!(errno == EINTR))
               #endif
-                #if ((defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)) && !defined(full_read_fault_handled)
-                if (!((errno == EFAULT) && handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte)))
-                #endif
-                  return retval;
+                return retval;
             }
           else { buf += retval; done += (RW_SIZE_T)retval; nbyte -= (RW_SIZE_T)retval; }
         }
@@ -299,6 +301,10 @@
     { var WRITE_CONST char* buf = (WRITE_CONST char*) bufarea;
       var RETRWTYPE retval;
       var RW_SIZE_T done = 0;
+      #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+      # Must adjust the memory permissions before calling write().
+      handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
+      #endif
       until (nbyte==0)
         { retval = write(fd,buf,nbyte);
           if (retval == 0) break;
@@ -307,10 +313,7 @@
               #ifdef EINTR
               if (!(errno == EINTR))
               #endif
-                #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-                if (!((errno == EFAULT) && handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte)))
-                #endif
-                  return retval;
+                return retval;
             }
           else { buf += retval; done += (RW_SIZE_T)retval; nbyte -= (RW_SIZE_T)retval; }
         }
