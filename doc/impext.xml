@@ -2593,7 +2593,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  the full list of internal lisp objects available in &c-lang; code
  are additionally returned for the total of 5 values.</para>
 
-<para>When &name; is <constant>:FFI</constant>, returns the list of
+<para>When &name-r; is <constant>:FFI</constant>, returns the list of
  shared libraries opened using &library-k;.
  When <replaceable>verbose</replaceable> is non-&nil;, return the
  &alist; of DLL names and all foreign objects associated with it.</para>
