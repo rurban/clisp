@@ -23,6 +23,7 @@
 (unless (fboundp 'clos::built-in-class-p)
   (defun clos::built-in-class-p (object) (declare (ignore object)) nil)
   (defun clos::subclassp (class1 class2) (declare (ignore class1 class2)) nil)
+  (defun clos::class-name (c) (declare (ignore c)) nil)
 )
 
 (defun typespec-error (fun type)
@@ -1670,3 +1671,6 @@ referring to circular lists.
             (t (typespec-error 'type-expand typespec))))))
 
 ;; ============================================================================
+
+(unless (clos::generic-function-p #'clos::class-name)
+  (fmakunbound 'clos::class-name))

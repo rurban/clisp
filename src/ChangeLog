@@ -1,3 +1,45 @@
+2003-02-27  Sam Steingold  <sds@gnu.org>
+
+	detect side-effect class of some compiled closures
+	* lispbibl.d (cclosure_flags, Cclosure_flags, Cclosure_seclass)
+	(Cclosure_set_seclass): new macros
+	(seclass_t): new enum class (instead of sclass_* bits)
+	(allocate_closure): accept flags argument
+	(allocate_cclosure_copy): ditto
+	(seclass_object): map seclass_t to seclass_* objects
+	* record.d (parse_seclass): new function
+	(%make-closure): accept 4th argument - seclass
+	(CLOSURE-SET-SECLASS): new function for updating the side-effect
+	class of generic functions
+	* constsym.d, subr.d (closure_set_seclass): added
+	* clos.lisp (%make-gf): pass seclass to %MAKE-CLOSURE
+	(std-add-method, std-remove-method): update the side-effect class
+	of the generic function
+	* compiler.lisp (make-closure): pass seclass to %MAKE-CLOSURE
+	(seclass-or): removed
+	(seclass-or-2): renamed to SECLASS-OR, handle NIL
+	(seclass-without): handle NIL
+	(anodes-seclass-or, anodelist-seclass-or): reduce consing
+	(f-side-effect): new function: look at *known-functions*
+	before fdefiniton
+	(c-DIRECT-FUNCTION-CALL): updated FUNCTION-SIDE-EFFECT call
+	(c-GLOBAL-FUNCTION-CALL): use FUNCTION-SIDE-EFFECT instead of a table
+	(c-NORMAL-FUNCTION-CALL, c-LAMBDABODY, c-MULTIPLE-VALUE-CALL)
+	(c-FUNCALL-NOTINLINE, c-APPLY): check the side-effect class
+	(c-DEFUN, compile-lambdabody, match-known-unknown-functions):
+	keep seclass in *known-functions*
+	(create-fun-obj): pass seclass to MAKE-CLOSURE
+	* type.lisp (class-name): added a temporary definition
+	* control.d (form_constant_p): handle cclosures
+	(FUNCTION-SIDE-EFFECT): return seclass object instead of 3 values;
+	never signal an error, just return (T . T)
+	* eval.d (get_closure): pass the extra arg to allocate_closure()
+	* io.d (CLOSURE-READER): expect seclass before constants
+	(pr_cclosure_lang): print seclass before constants
+	* VERSION, version.h: bump
+	* constobj.d (version): bump (because of %MAKE-CLOSURE)
+	(seclass_no_se, seclass_read, seclass_write, seclass_default): added
+
 2003-02-24  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-DIRECT-FUNCTION-CALL): use

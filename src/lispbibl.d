@@ -5278,6 +5278,14 @@ typedef struct {
 } *  Cclosure;
 #define cclosure_length(ptr)  srecord_length(ptr)
 #define Cclosure_length(obj)  cclosure_length(TheCclosure(obj))
+#ifdef TYPECODES
+  #define cclosure_flags(ptr)  ((ptr)->flags)
+#else
+  #define cclosure_flags(ptr)  record_flags(ptr)
+#endif
+#define Cclosure_flags(obj)  cclosure_flags(TheCclosure(obj))
+#define Cclosure_seclass(obj)  Cclosure_flags(obj)
+#define Cclosure_set_seclass(cc,se)  record_flags_replace(TheCclosure(cc),se)
 #define clos_venv  clos_consts[0]
 typedef struct {
   LRECORD_HEADER # self-pointer for GC, length in bits
@@ -5426,25 +5434,21 @@ typedef struct {
 # Conversion: see SPVW:
 # extern subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz, subr_rest_t rest_flag, subr_key_t key_flag);
 
-/* side-effect class:
- read_bit IS NOT SET when the function looks only at its arguments
-  (pointers, content only for numbers or similar unmodifiable data-structures)
-  and does not read any global variables.
-  such a function, if called twice with the same arguments
-  always returns the same result (according to EQL).
- write_bit IS NOT SET when the function may modify the contents
-  of its arguments or values of global variables.
- foldable IS SET when the function allows Constant-Folding:
-  two calls with identical arguments give the same result, and calls with
-  constant arguments can be evaluated at compile time.
-  foldable ==> not read_bit && not write_bit */
-#define seclass_foldable  (1<<0)
-#define seclass_read      (1<<1)
-#define seclass_write     (1<<2)
-/* by default, the function may do all nasty things */
-#define seclass_default   (seclass_read | seclass_write)
-/* no side effects, but not foldable */
-#define seclass_no_se     0
+/* side-effect class is really seclass_t: */
+typedef enum {
+  seclass_foldable, /* the function allows Constant-Folding:
+     two calls with identical arguments give the same result,
+     and calls with constant arguments can be evaluated at compile time.
+    In particular, no side effects, do not depend on global variables or such,
+     do not even look "inside" their arguments */
+  seclass_no_se, /* no side effects, do not depend on global variables or such,
+     do not even look "inside" their arguments, but not "foldable". */
+  seclass_read, /* no side effects, but depend on global variables
+     or look "inside" their arguments. */
+  seclass_write, /* only side effects: does not read anything,
+     just sets some global variables. */
+  seclass_default, /* may do side effects */
+} seclass_t;
 
 # Read-Label
 #ifdef TYPECODES
@@ -8174,8 +8178,8 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # allocate_closure(reclen)
 # > uintC reclen: length
 # < result: LISP-object Closure (elements are initialized with NIL)
-#define allocate_closure(reclen)  \
-  allocate_srecord(0,Rectype_Closure,reclen,closure_type)
+#define allocate_closure(reclen,flags)                               \
+  allocate_srecord(flags,Rectype_Closure,reclen,closure_type)
 # is used by EVAL, RECORD
 
 /* copy a section of memory */
@@ -8206,7 +8210,7 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # newclos = allocate_cclosure_copy(oldclos);
 # can trigger GC
 #define allocate_cclosure_copy(oldclos)  \
-  allocate_closure(Cclosure_length(oldclos))
+  allocate_closure(Cclosure_length(oldclos),Cclosure_flags(oldclos))
 # do_cclosure_copy(newclos,oldclos);
 #define do_cclosure_copy(newclos,oldclos)               \
   copy_mem_o(((Srecord)TheCclosure(newclos))->recdata,  \
@@ -10652,6 +10656,20 @@ nonreturning_function(extern, fehler_block_left, (object name));
 # > symbol: Symbol or (SETF symbol)
 nonreturning_function(extern, fehler_undef_function, (object caller, object symbol));
 # is used by PREDTYPE
+
+/* convert the numeric side-effect class as stored in subr_t or cclosure_t
+ to the object - CONS or NIL - as used in compiler.lisp and for #Y i/o */
+static inline object seclass_object (seclass_t sec) {
+  switch (sec) {
+    case seclass_foldable: return NIL;
+    case seclass_no_se:    return O(seclass_no_se);
+    case seclass_read:     return O(seclass_read);
+    case seclass_write:    return O(seclass_write);
+    case seclass_default:  return O(seclass_default);
+    default: NOTREACHED;
+  }
+}
+/* used by IO and CONTROL */
 
 # ########################## for ENCODING.D ################################ #
 

@@ -8,7 +8,7 @@
    LISPFUN(name,seclass,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)
  in this file.
  > name: the function name (a C-identifier)
- > seclass: the side-effect class (foldable, no_read, no_write)
+ > seclass: the side-effect class (seclass_t, see lispbibl.d)
  > req_anz: the number of required-parameters (a number)
  > opt_anz: the number of optional parameters (a number)
  > rest_flag: either norest or rest
@@ -818,7 +818,8 @@ LISPFUNNR(closure_name,1)
 LISPFUNNR(closure_codevec,1)
 LISPFUNNR(closure_consts,1)
 LISPFUNNR(make_code_vector,1)
-LISPFUNNR(make_closure,3)
+LISPFUNNR(make_closure,4)
+LISPFUNN(closure_set_seclass,2)
 LISPFUNN(copy_generic_function,2)
 LISPFUNN(generic_function_effective_method_function,1)
 LISPFUN(make_load_time_eval,seclass_no_se,1,0,norest,nokey,0,NIL)

@@ -2196,7 +2196,8 @@ local bool form_constant_p (object form) {
     if (eq(head,S(quote))) return true;
     if (!funnamep(head)) return false;  /* what's this form? */
     var object fdef = Symbol_function(funname_to_symbol(head));
-    if (subrp(fdef) && (TheSubr(fdef)->seclass & seclass_foldable)) {
+    if ((cclosurep(fdef) && (Cclosure_seclass(fdef) == seclass_foldable))
+        || (subrp(fdef) && (TheSubr(fdef)->seclass == seclass_foldable))) {
       loop {
         form = Cdr(form);
         if (nullp(form)) return true;  /* list is over */
@@ -2217,15 +2218,20 @@ LISPFUN(constantp,seclass_read,1,1,norest,nokey,0,NIL)
 }
 
 LISPFUNNR(function_side_effect,1)
-{ /* (FUNCTION-SIDE-EFFECT fun) -> read-p, write-p, foldable-p, */
-  var object fdef = Symbol_function(funname_to_symbol(popSTACK()));
-  if (subrp(fdef)) {
-    var uintW seclass = TheSubr(fdef)->seclass;
-    VALUES3(seclass & seclass_read     ? T : NIL,
-            seclass & seclass_write    ? T : NIL,
-            seclass & seclass_foldable ? T : NIL);
-  } else
-    VALUES3(T,T,NIL);
+{ /* (FUNCTION-SIDE-EFFECT fun) -> seclass
+ this function is called at compile time, so the argument does not have to
+ be a function, it may be a variable name whose value will be some function
+ at run time, therefore we never signal errors, just return (T . T) */
+  var object fdef = popSTACK();
+  if (consp(fdef) && (eq(S(quote),Car(fdef)) || eq(S(function),Car(fdef))))
+    fdef = Car(Cdr(fdef));
+  if (funnamep(fdef)) fdef = funname_to_symbol(fdef);
+  if (symbolp(fdef)) fdef = Symbol_function(fdef);
+  /* if the argument was a constant function, then we have it now */
+  var seclass_t seclass = seclass_default;
+  if (subrp(fdef)) seclass = TheSubr(fdef)->seclass;
+  else if (cclosurep(fdef)) seclass = Cclosure_seclass(fdef);
+  VALUES1(seclass_object(seclass));
 }
 
 LISPFUNNR(function_name_p,1)
