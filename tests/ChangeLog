@@ -1,3 +1,8 @@
+2001-08-27  Sam Steingold  <sds@gnu.org>
+
+	* alltest.tst (defstruct ice-cream-factory): added a keyword
+	argument with no defaults to the BOA constructor
+
 2001-08-17  Sam Steingold  <sds@gnu.org>
 
 	* symbols.tst: pretty-printer symbols are now present in CLISP
