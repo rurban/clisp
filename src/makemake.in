@@ -2958,7 +2958,7 @@ for f in $TXT_FILES ; do
     else
       localesed=""
     fi
-    line=$line" | (libs=''; for f in lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; wlibs=''; for f in wlisp.a \$(LIBS); do case \$\$f in -*) wlibs=\"\$\$wlibs \$\$f\";; *) wlibs=\"\$\$wlibs\"' base/'\"\$\$f\";; esac; done; files=''; for f in ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed$localesed -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
+    line=$line" | (libs=''; for f in lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; files=''; for f in ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed$localesed -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
   fi
   echotabpipe "${line} > ${f}"
   echotab "\$(RM) $txt.c"
