@@ -242,8 +242,7 @@
         #+CLISP
         '(call-method define-method-combination
           ensure-generic-function invalid-method-error method-combination
-          method-combination-error make-instances-obsolete make-method
-          update-instance-for-redefined-class)
+          method-combination-error make-method)
         #-CLISP nil)
        (known-extra
         #+CMU

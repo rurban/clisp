@@ -769,6 +769,7 @@ LISPSYM(make_instance,"MAKE-INSTANCE",clos) /* error reporting in record.d */
 LISPSYM(shared_initialize,"SHARED-INITIALIZE",clos) /* ditto */
 LISPSYM(reinitialize_instance,"REINITIALIZE-INSTANCE",clos) /* ditto */
 LISPSYM(initialize_instance,"INITIALIZE-INSTANCE",clos) /* ditto */
+LISPSYM(update_instance_frc,"UPDATE-INSTANCE-FOR-REDEFINED-CLASS",clos)
 /* ---------- SEQUENCE ---------- */
 LISPSYM(sequencep,"SEQUENCEP",system)
 LISPSYM(defseq,"%DEFSEQ",system)

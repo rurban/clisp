@@ -5222,6 +5222,7 @@ typedef Srecord  Structure;
 typedef struct {
   SRECORD_HEADER
   gcv_object_t structure_types_2;   # list (metaclass <class>)
+  gcv_object_t class_id;  /* keep instances in sync with redefined classes */
   gcv_object_t metaclass;           # a subclass of <class>
   gcv_object_t classname;           # a symbol
   gcv_object_t direct_superclasses; # direct superclasses
@@ -5238,7 +5239,9 @@ typedef struct {
   gcv_object_t shared_slots;
   gcv_object_t direct_slots;
   gcv_object_t direct_default_initargs;
-  gcv_object_t prototype;
+  gcv_object_t previous_definition; /* previous definitions as a list */
+  gcv_object_t prototype; /* class prototype - an instance or NIL
+      or (added . discarded) slots for old definitions */
   gcv_object_t other[unspecified];
 } *  Class;
 
@@ -5246,8 +5249,16 @@ typedef struct {
 typedef struct {
   SRECORD_HEADER
   gcv_object_t inst_class; # a CLOS-class
+  gcv_object_t inst_cl_id; /* the class_id of inst_class */
   gcv_object_t other[unspecified];
 } *  Instance;
+
+#define instance_valid_p(o) \
+  eq(TheInstance(o)->inst_cl_id,TheClass(TheInstance(o)->inst_class)->class_id)
+/* update-instance-for-redefined-class
+ can trigger GC */
+extern object update_instance (object o);
+#define check_instance(o)  if (!instance_valid_p(o)) o=update_instance(o)
 
 # Closures
 typedef struct {
@@ -11727,6 +11738,7 @@ extern object gethash (object obj, object ht);
 static inline bool instanceof (object obj, object clas) {
   if (!instancep(obj)) return false;
   instance_un_realloc(obj);
+  check_instance(obj);
   return !eq(gethash(clas,TheClass(TheInstance(obj)->inst_class)->all_superclasses),nullobj);
 }
 
