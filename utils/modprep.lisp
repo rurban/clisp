@@ -50,17 +50,18 @@ The input file is normal C code, modified like this:
     return ret;
   }}
   it is convenient for parsing flag arguments to DEFUNs
-- DEFCHECKER(c_name,C_CONST1 C_CONST2 C_CONST3)
+- DEFCHECKER(c_name,C_CONST1 C_CONST2 C_CONST3) or
+  DEFCHECKER(c_name,enum_type, C_CONST1 C_CONST2 C_CONST3)
   is converted to
-  static uint32 c_name (object arg) {
+  static struct { int c_const, gcv_object_t *l_const; } c_name_table[] = ...
+  static enum_type c_name (object arg) {
    restart_c_name:
     if (posfixnump(arg)) return posfixnum_to_L(arg);
     else if (missingp(arg)) return 0;
-   #ifdef C_CONST1
-    else if (eq(arg,`:C_CONST1`)) return C_CONST1;
-   #end
-    ...
     else {
+      for (index = 0; index < c_name_table_size; index++)
+        if (eq(a,*c_name_table[index].l_const))
+          return c-name_table[index].c_const;
       pushSTACK(NIL); pushSTACK(arg);
       pushSTACK(the_appropriate_error_type);
       pushSTACK(the_appropriate_error_type); pushSTACK(arg);
@@ -69,6 +70,14 @@ The input file is normal C code, modified like this:
       arg = value1;
       goto restart_c_name;
     }
+  }
+  static object c_name_reverse (enum_type a) {
+    int index;
+    for (index = 0; index < c_name_table_size; index++)
+      if (a == c_name_table[index].c_const)
+        return *c_name_table[index].l_const;
+    if (a == 0) return NIL;
+    NOTREACHED;
   }
 
 Restrictions and caveats:
@@ -553,27 +562,45 @@ and turn it into DEFUN(funname,lambdalist,signature)."
     (stack-push-optimize (flag-set-cond-stack fs) condition)
     fs))
 
-(defstruct (checker (:include cpp-helper)) cpp-odefs type-odef)
+;; type is the enum type name (if it is an enum typedef) and NIL otherwise
+;; since enum constants cannot be checked by CPP, we do not ifdef them
+(defstruct (checker (:include cpp-helper)) type cpp-odefs type-odef)
 (defvar *checkers* (make-array 5 :adjustable t :fill-pointer 0))
-(defun new-checker (name cpp-names &optional (condition (current-condition)))
+(defun new-checker (name cpp-names &optional type
+                    (condition (current-condition)))
   (setq cpp-names (nreverse cpp-names))
-  (let ((ch (make-checker :name name :cpp-names cpp-names))
-        (type-odef (list "(OR NULL (INTEGER 0) (MEMBER")) cpp-odefs)
+  (let ((ch (make-checker :type type :name name :cpp-names cpp-names))
+        (type-odef "(OR NULL (INTEGER 0) (MEMBER") cpp-odefs)
     (vector-push-extend ch *checkers*)
     (stack-push-optimize (checker-cond-stack ch) condition)
-    (dolist (name cpp-names)
-      (let ((co (ext:string-concat "defined(" name ")")))
-        (push (init-to-objdef (ext:string-concat ":" name)
-                              (concatenate 'vector condition (list co)))
-              cpp-odefs)
-        (push (cons co (ext:string-concat " :" name)) type-odef)))
-    (setf (checker-cpp-odefs ch) (nreverse cpp-odefs)
-          (checker-type-odef ch)
-          (init-to-objdef (nreconc type-odef (list "))"))))
+    (cond (type
+           (dolist (name cpp-names)
+             (push (init-to-objdef (ext:string-concat ":" name) condition)
+                   cpp-odefs)
+             (setq type-odef (ext:string-concat type-odef " :" name)))
+           (setf (checker-type-odef ch)
+                 (init-to-objdef (ext:string-concat type-odef "))"))))
+          (t
+           (setq type-odef (list type-odef))
+           (dolist (name cpp-names)
+             (let ((co (ext:string-concat "defined(" name ")")))
+               (push (init-to-objdef (ext:string-concat ":" name)
+                                     (concatenate 'vector condition (list co)))
+                     cpp-odefs)
+               (push (cons co (ext:string-concat " :" name)) type-odef)))
+           (setf (checker-type-odef ch)
+                 (init-to-objdef (nreconc type-odef (list "))"))))))
+    (setf (checker-cpp-odefs ch) (nreverse cpp-odefs))
     ch))
 
+(defun word-list (line start end)
+  (loop :with l :and pos2 = start
+    :for pos1 = (next-non-blank line (1+ pos2))
+    :while (and pos1 (< pos1 end))
+    :do (setq pos2 (min end (or (next-blank line pos1) end)))
+    (push (subseq line pos1 pos2) l) :finally (return l)))
 (defun def-something-p (line command constructor)
-  "Parse a COMMAND(c_name,CPP_CONST...) line."
+  "Parse a COMMAND(c_name,[type,]CPP_CONST...) line."
   (let* ((pos (next-non-blank line 0)) (len (length line)) cc comma fname
          (end (and pos (+ pos (length command)))))
     (when (and pos (< end len)
@@ -582,12 +609,12 @@ and turn it into DEFUN(funname,lambdalist,signature)."
                  (#\( t)
                  (t (sys::whitespacep cc))))
       (multiple-value-setq (comma end fname) (parse-name line end command))
-      (funcall constructor fname
-               (loop :with l :and pos2 = comma
-                 :for pos1 = (next-non-blank line (1+ pos2))
-                 :while (and pos1 (< pos1 end))
-                 :do (setq pos2 (min end (or (next-blank line pos1) end)))
-                 (push (subseq line pos1 pos2) l) :finally (return l)))
+      (setq cc (position #\, line :start (1+ comma)))
+      (if cc
+          (funcall constructor fname (word-list line cc end)
+                   (let ((beg (next-non-blank line (1+ comma))))
+                     (subseq line beg (min cc (next-blank line beg)))))
+          (funcall constructor fname (word-list line comma end)))
       (ext:string-concat (subseq line 0 pos) (subseq line (1+ end))))))
 
 (defstruct vardef
@@ -877,7 +904,7 @@ commas and parentheses."
       :do (with-conditional (out (flag-set-cond-stack fs))
             (format out "static uintL ~A (void) {" (flag-set-name fs))
             (newline out)
-            (format out " {uintL flags = 0") (newline out)
+            (format out "  uintL flags = 0") (newline out)
             (loop :for cpp-name :in (flag-set-cpp-names fs) :for nn :upfrom 0
               :do (format out "#  ifdef ~A" cpp-name) (newline out)
                   (format out "    | (missingp(STACK_(~D)) ? 0 : ~A)"
@@ -886,24 +913,39 @@ commas and parentheses."
               :finally (progn (format out "   ;") (newline out)
                               (format out "  skipSTACK(~D);" nn)))
             (newline out) (format out "  return flags;") (newline out)
-            (format out "}}") (newline out)))
+            (format out "}") (newline out)))
     (newline out)
-    (loop :for ch :across *checkers*
+    (loop :with table-struct-printed-p = nil :for ch :across *checkers*
       :for type-tag = (objdef-tag (checker-type-odef ch))
-      :for c-name = (checker-name ch)
+      :for c-name = (checker-name ch) :for c-type = (checker-type ch)
       :do (with-conditional (out (checker-cond-stack ch))
-            (format out "static uintL ~A (object a) {" c-name)
-            (newline out) (format out " restart_~A:" c-name) (newline out)
-            (format out "  if (missingp(a)) return 0;") (newline out)
-            (format out "  else if (posfixnump(a)) return posfixnum_to_L(a);")
+            (unless table-struct-printed-p
+              (setq table-struct-printed-p t)
+              (format out "struct c_lisp_pair {int c_const; gcv_object_t *l_const;};")
+              (newline out) (newline out))
+            (format out "static struct c_lisp_pair ~A_table[] = {" c-name)
             (newline out)
             (loop :for name :in (checker-cpp-names ch)
               :for odef :in (checker-cpp-odefs ch)
-              :do (format out " #ifdef ~A" name) (newline out)
-                  (format out "  else if (eq(a,O(~A))) return ~A;"
-                          (objdef-tag odef) name) (newline out)
-                  (format out " #endif") (newline out))
-            (format out "  else {") (newline out)
+              :do (unless c-type (format out " #ifdef ~A" name) (newline out))
+                  (format out "  { ~A, &(O(~A)) }," name (objdef-tag odef))
+                  (newline out)
+                  (unless c-type (format out " #endif") (newline out)))
+            (format out "  { 0, NULL }") (newline out)
+            (format out "};") (newline out)
+            (format out "const uintL ~A_table_size = ((sizeof(~A_table)-1)/sizeof(struct c_lisp_pair));" c-name c-name) (newline out)
+            (format out "static ~A ~A (object a) {" (or c-type "int") c-name)
+            (newline out) (format out "  int index;") (newline out)
+            (format out " restart_~A:" c-name) (newline out)
+            (format out "  if (missingp(a)) return 0;") (newline out)
+            (format out "  else if (integerp(a)) return I_to_L(a);")
+            (newline out) (format out "  else {") (newline out)
+            (format out "    for (index = 0; index < ~A_table_size; index++)"
+                    c-name) (newline out)
+            (format out "      if (eq(a,*~A_table[index].l_const))" c-name)
+            (newline out)
+            (format out "        return ~A_table[index].c_const;" c-name)
+            (newline out)
             (format out "    pushSTACK(NIL); pushSTACK(a);") (newline out)
             (format out "    pushSTACK(O(~A));" type-tag) (newline out)
             (format out "    pushSTACK(O(~A));" type-tag) (newline out)
@@ -911,6 +953,18 @@ commas and parentheses."
             (newline out) (format out "    check_value(type_error,GETTEXT(\"~~S: ~~S is not of type ~~S\"));") (newline out)
             (format out "    a = value1; goto restart_~A;" c-name) (newline out)
             (format out "  }") (newline out)
+            (format out "}") (newline out)
+            (format out "static object ~A_reverse (~A a) {"
+                    c-name (or c-type "int"))
+            (newline out) (format out "  int index;") (newline out)
+            (format out "  for (index = 0; index < ~A_table_size; index++)"
+                    c-name) (newline out)
+            (format out "    if (a == ~A_table[index].c_const)" c-name)
+            (newline out)
+            (format out "      return *~A_table[index].l_const;" c-name)
+            (newline out)
+            (format out "  if (a == 0) return NIL;") (newline out)
+            (format out "  NOTREACHED;") (newline out)
             (format out "}") (newline out)))
     (newline out)))
 

@@ -1,3 +1,8 @@
+2004-07-23  Sam Steingold  <sds@gnu.org>
+
+	* modprep.lisp: DEFCHECKER can now handle constants that come
+	from "enum" and therefore not available to CPP
+
 2004-07-22  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (main): export CLSTEXT
