@@ -1,3 +1,10 @@
+2004-04-21  Bruno Haible  <bruno@clisp.org>
+
+	* pathname.d (file_namestring_parts, namestring_correctly_parseable_p):
+	Don't lose support for platforms which have versions in the filesystem.
+
+	* stream.d (handle_to_stream): Fix begin/end_system_call() calls.
+
 2004-04-21  Don & Fred Cohens  <fc@all.net, don-sourceforge@isis.cs3-inc.com>
 	    Sam Steingold  <sds@gnu.org>
 
