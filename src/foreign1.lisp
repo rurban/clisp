@@ -308,6 +308,11 @@
                                                  (eq argmode ':OUT))
                                              ':ALLOCA
                                              ':NONE))))
+                        ;; see FOREIGN-CALL-OUT in foreign.d
+                        (when (and (or (eq argmode :OUT) (eq argmode :IN-OUT))
+                                   (not (eq (ctype-type argtype) 'C-PTR)))
+                          (warn (TEXT "~s argument ~s is not a pointer in ~s")
+                                argmode argtype whole))
                         (list argtype
                               (+ (ecase argmode
                                    ((:IN :READ-ONLY) 0)
