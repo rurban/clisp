@@ -1,5 +1,5 @@
 // -*- mode: c++ -*-
-// Copyright (c) 1996-1997 by Gilbert Baumann, distributed under GPL
+// Copyright (c) 1996-1999 by Gilbert Baumann, distributed under GPL
 // --------------------------------------------------------------------------------
 //
 //    Title: 	C implementation of CLX utilizing the Xlib
@@ -9,12 +9,16 @@
 //
 // --------------------------------------------------------------------------------
 //
+// Revision 1.23  1999-10-11  gilbert
+// - get_font_info_and_display: XGetAtomNames is a new X11R6 addition, use
+//   XGetAtomName instead.
+//
 // Revision 1.22  1999-06-06  bruno
 // - get_font_info_and_display now optionally returns the Lisp font. It also
 //   fills in the font's encoding.
 // - New function to_XChar2b, used to convert a character sequence to a font
-//   index sequence. Works for linear non-iso8859-1 fonts. Still needs work
-//   for chinese or japanese fonts.
+//   index sequence. Works for linear non-iso8859-1 fonts (unlike Motif!).
+//   Still needs work for chinese or japanese fonts.
 //
 // Revision 1.21  1999-05-30  bruno
 // - Add missing begin_callback() in `xlib_io_error_handler'.
@@ -38,8 +42,6 @@
 // - allocate_byte_array is now exported from array.d
 // - typos and spaces here and there
 //
-// $Id$
-// $Log$
 // Revision 1.18  1997/06/12  00:23:35  gilbert
 // - nothing special
 //
@@ -1283,12 +1285,24 @@ XFontStruct *get_font_info_and_display (object obj, object* fontf, Display **dpy
                   {
                     Atom xatoms[2];
                     char* names[2];
+                    int status;
 
                     xatoms[0] = rgstry;
                     xatoms[1] = encdng;
                     names[0] = NULL;
                     names[1] = NULL;
-                    if (XGetAtomNames (dpy, xatoms, 2, names))
+                    // XGetAtomNames is an X11R6 addition and not present in
+                    // X11R5; Using XGetAtomNames saves a round trip for us,
+                    // but I think it is not worth the hassle we impose on users.
+                    // So unless I find out how to test for X11R6, this #if sticks.
+                    #if 1
+                      names[0] = XGetAtomName (dpy, xatom[0]);
+                      names[1] = XGetAtomName (dpy, xatom[1]);
+                      status = names[0] && names[1];
+                    #else
+                      status = XGetAtomNames (dpy, xatoms, 2, names);
+                    #endif
+                    if (status)
                       {
                         end_call();
                         pushSTACK (asciz_to_string (names[0], misc_encoding ()));
