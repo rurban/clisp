@@ -1,5 +1,9 @@
 2001-04-18  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (main): quote load_extra_file_types for `clisp file`
+
+2001-04-18  Sam Steingold  <sds@gnu.org>
+
 	Move EXECUTE from COMMON-LISP to EXT
 	* constsym.d (EXECUTE): in EXT, not LISP
 	* init.lisp (export): export EXECUTE from EXT
