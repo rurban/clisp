@@ -542,35 +542,55 @@ LISPFUNN(endp,1)
   VALUES_IF(endp(popSTACK()));
 }
 
-LISPFUNN(list_length,1) # (LIST-LENGTH list), CLTL S. 265
-  # (defun list-length (list)  ; vgl. CLTL, S. 265
-  #   (do ((n 0 (+ n 2))
-  #        (fast list (cddr fast))
-  #        (slow list (cdr slow))
-  #       )
-  #       (nil)
-  #     (when (endp fast) (return n))
-  #     (when (endp (cdr fast)) (return (1+ n)))
-  #     (when (eq (cdr fast) slow) (return nil))
-  # ) )
-  {
-    var object fast = popSTACK();
-    var object slow = fast;
-    var uintL n = 0;
-    loop {
-      if (endp(fast))
-        break;
-      fast = Cdr(fast); n++;
-      if (endp(fast))
-        break;
-      if (eq(fast,slow)) { # (eq (cdr fast) slow)
-        VALUES1(NIL); return;
-      }
-      fast = Cdr(fast); n++;
-      slow = Cdr(slow);
-    }
-    VALUES1(fixnum(n)); # n als Fixnum
+/* find the length of a possibly circular or dotted list
+ returns the length (fixnum or NIL for circular lists) and
+ the last atom, i.e., the indicator whether the list is dotted
+   (defun list-length (list)
+     (do ((n 0 (+ n 2))
+          (fast list (cddr fast))
+          (slow list (cdr slow)))
+         (nil)
+       (when (endp fast) (return n))
+       (when (endp (cdr fast)) (return (1+ n)))
+       (when (eq (cdr fast) slow) (return nil))))
+ (see CLtL p 265) */
+local inline object list_length (object list, object *dottedp) {
+  var object fast = list;
+  var object slow = fast;
+  var uintL n = 0;
+  loop {
+    if (atomp(fast))
+      break;
+    fast = Cdr(fast); n++;
+    if (atomp(fast))
+      break;
+    if (eq(fast,slow))
+      return NIL;
+    fast = Cdr(fast); n++;
+    slow = Cdr(slow);
   }
+  *dottedp = fast;
+  return fixnum(n);
+}
+
+LISPFUNN(list_length,1)
+{ /* (LIST-LENGTH list), CLTL p. 265 */
+  var object tail = NIL;
+  var object len = list_length(popSTACK(),&tail);
+  if (nullp(tail)) VALUES1(len);
+  else fehler_proper_list(S(list_length),tail);
+}
+
+LISPFUNN(list_length_dotted,1)
+{ /* traverses the list just once, otherwise equivalent to
+   (defun list-length-dotted (l)
+     (let ((ll (list-length l)))
+       (when ll (values ll (cdr (last l)))))) */
+  var object tail = NIL;
+  var object len = list_length(popSTACK(),&tail);
+  if (nullp(len)) VALUES1(NIL);
+  else VALUES2(len,tail);
+}
 
 # Fehlermeldung für NTH und NTHCDR
 # fehler_nth()
