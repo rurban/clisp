@@ -45,14 +45,16 @@
                               ))))))))))
 
 
-;;; ----------------------- General Method Combination -----------------------
+;;; ------------- Error Messages for Long Form Method Combination -------------
 
-(defvar *method-combination-arguments* nil
-  "The actual generic function call arguments (in compute-effective-method)" )
-(defvar *method-combination-generic-function* nil
-  "The generic function applied (in compute-effective-method)")
-(defvar *method-combination* nil
-  "The generic function's method combination (in compute-effective-method)")
+;; Context about the method combination call, set during the execution of a
+;; long-expander.
+; The actual generic function call arguments (in compute-effective-method).
+(defvar *method-combination-arguments* nil)
+; The generic function applied (in compute-effective-method).
+(defvar *method-combination-generic-function* nil)
+; The generic function's method combination (in compute-effective-method).
+(defvar *method-combination* nil)
 
 ;; Error about a method whose qualifiers don't fit with a method-combination.
 ;; This is specified to be a function, not a condition type, because it is
@@ -82,6 +84,8 @@
   (method-combination-error
     (TEXT "The value of ~S is ~S, should be :MOST-SPECIFIC-FIRST or :MOST-SPECIFIC-LAST.")
     order-form order-value))
+
+;;; ----------------------- General Method Combination -----------------------
 
 (defun invalid-sort-order-error (order-form order-value)
   (error-of-type 'sys::source-program-error
@@ -251,13 +255,13 @@
                     (ADD-NEXT-METHOD-LOCAL-FUNCTIONS 'NIL CONT ',req-vars ',rest-var
                       (CDR METHOD))))))))))))
 
+;; Given the generic function, its combination, and the effective method form
+;; and the arguments-lambda-list specifying variables for it, constructs the
+;; function form for the effective method, including correct arguments and with
+;; the next-method support.
 (defun build-effective-method-function-form (generic-function combination methods
                                              effective-method-form
                                              combination-arguments-lambda-list)
-  "Given the generic function, its combination, and the effective method form
-and the arguments-lambda-list specifying variables for it, constructs the
-function form for the effective method, including correct arguments and with
-the next-method support."
   (multiple-value-bind (lambdalist lambdalist-keypart firstforms apply-fun apply-args macrodefs)
       (effective-method-code-bricks generic-function methods)
     (declare (ignore lambdalist-keypart))
@@ -687,12 +691,12 @@ the next-method support."
                              "~@{ ~S~}"))))))
     (mapcar #'normalize-group method-groups)))
 
+;; Given the normalized method group specifiers, computes
+;; 1. a function without arguments, that checks the options,
+;; 2. a function to be applied to a list of methods to produce the effective
+;;    method function's body. The group variables are bound in the body.
+;; 3. a function to be applied to a single method to produce a qualifiers check.
 (defun compute-method-partition-lambdas (method-groups body)
-  "Given the normalized method group specifiers, computes
-1. a function without arguments, that checks the options,
-2. a function to be applied to a list of methods to produce the effective
-method function's body. The group variables are bound in the body.
-3. a function to be applied to a single method to produce a qualifiers check."
   (let ((order-bindings nil))
     (labels (;; Returns a form that tests whether a list of qualifiers, assumed
              ;; to be present in the variable QUALIFIERS, matches the given pattern.
