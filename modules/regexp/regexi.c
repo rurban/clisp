@@ -12,10 +12,6 @@
 
 DEFMODULE(regexp,"REGEXP");
 
-#if CLISP_UNICODE
-object misc_encoding (void) {funcall(L(misc_encoding),0); return value1;}
-#endif
-
 DEFUN(REGEXP::REGEXP-COMPILE, pattern &key EXTENDED IGNORE-CASE NEWLINE NOSUB)
 { /* compile the pattern into a regular expression */
   object pattern = check_string(STACK_4);
@@ -30,7 +26,7 @@ DEFUN(REGEXP::REGEXP-COMPILE, pattern &key EXTENDED IGNORE-CASE NEWLINE NOSUB)
   re = (regex_t*)malloc(sizeof(regex_t));
   end_system_call();
   if (re == NULL) OS_error();
-  with_string_0(pattern,misc_encoding(),patternz, {
+  with_string_0(pattern,GLO(misc_encoding),patternz, {
     begin_system_call();
     status = regcomp(re,patternz,cflags);
     end_system_call();
@@ -42,7 +38,7 @@ DEFUN(REGEXP::REGEXP-COMPILE, pattern &key EXTENDED IGNORE-CASE NEWLINE NOSUB)
     free(re);
     end_system_call();
     pushSTACK(NIL); /* no PLACE */
-    pushSTACK(asciz_to_string(buf,misc_encoding()));
+    pushSTACK(asciz_to_string(buf,GLO(misc_encoding)));
     pushSTACK(pattern); pushSTACK(TheSubr(subr_self)->name);
     check_value(error,"~ (~): ~");
     pattern = value1;
@@ -94,7 +90,7 @@ DEFUN(REGEXP::REGEXP-EXEC, pattern string &key START END NOTBOL NOTEOL)
   ret = (regmatch_t*)calloc(re->re_nsub+1, sizeof(regmatch_t));
   end_system_call();
   if (ret == NULL) OS_error();
-  with_string_0(string,misc_encoding(),stringz, {
+  with_string_0(string,GLO(misc_encoding),stringz, {
     begin_system_call();
     status = regexec(re,stringz,re->re_nsub+1,ret,eflags);
     end_system_call();
