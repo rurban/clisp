@@ -8,6 +8,8 @@
 	(c-FUNCALL-INLINE): use it
 	(lambda-form-p): new function
 	(c-form, inline-callable-function-lambda-p, c-FUNCTION): use it
+	(shift-vars): new function
+	(c-MAP-on-CARs, c-MAP-on-LISTs, c-MAPC, c-MAPL): use it
 
 2001-12-20  Sam Steingold  <sds@gnu.org>
 
