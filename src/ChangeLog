@@ -1,6 +1,7 @@
 1999-01-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * spvw.d (main): Option --version implies -norc.
+          A batch file argument implies -norc as well.
 
 1999-01-10  Michael Somos  <somos@grail.cba.csuohio.edu>
 
