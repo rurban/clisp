@@ -2604,9 +2604,10 @@ else
       # MSVC's incremental linking is buggy, avoid it.
       echotab "\$(RM) lisp.ilk"
       echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} /link /out:lisp${LEXE}"
-      # Need at least 1200 KB stack for creating the first interpreted.mem,
-      # but the default stack size is only 1 MB.
-      echotab "editbin /stack:2097152 lisp${LEXE}"
+      # With msvc4/5, need at least 1200 KB stack for creating the first
+      # interpreted.mem, but the default stack size is only 1 MB.
+      # With msvc6, need more than 2 MB for compiling compiler.lisp.
+      echotab "editbin /stack:3145728 lisp${LEXE}"
     fi
     if [ $HSYS = win32bc ] ; then
       echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} -elisp${LEXE} \$(OBJECTS) modules${TOBJ} ${LIBS}"
