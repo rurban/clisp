@@ -85,7 +85,8 @@ CSOURCES = $(srcdir)/readline.c $(srcdir)/funmap.c $(srcdir)/keymaps.c \
 	   $(srcdir)/callback.c $(srcdir)/terminal.c $(srcdir)/xmalloc.c \
 	   $(srcdir)/history.c $(srcdir)/histsearch.c $(srcdir)/histexpand.c \
 	   $(srcdir)/histfile.c $(srcdir)/nls.c $(srcdir)/search.c \
-	   $(srcdir)/shell.c $(srcdir)/savestring.c $(srcdir)/tilde.c
+	   $(srcdir)/shell.c $(srcdir)/savestring.c $(srcdir)/tilde.c \
+	   $(srcdir)/testUTF8.c
 
 # The header files for this library.
 HSOURCES = readline.h rldefs.h chardefs.h keymaps.h history.h histlib.h \
@@ -97,7 +98,7 @@ TILDEOBJ = tilde.o
 OBJECTS = readline.o vi_mode.o funmap.o keymaps.o parens.o search.o \
 	  rltty.o complete.o bind.o isearch.o display.o signals.o \
 	  util.o kill.o undo.o macro.o input.o callback.o terminal.o \
-	  nls.o xmalloc.o $(HISTOBJ) $(TILDEOBJ)
+	  nls.o xmalloc.o testUTF8.o $(HISTOBJ) $(TILDEOBJ)
 
 # The texinfo files which document this library.
 DOCSOURCE = doc/rlman.texinfo doc/rltech.texinfo doc/rluser.texinfo
@@ -319,6 +320,9 @@ signals.o: $(srcdir)/signals.c rldefs.h ${BUILD_DIR}/config.h rlconf.h readline.
 	$(CC) -c $(CCFLAGS) $<
 
 terminal.o: $(srcdir)/terminal.c rldefs.h ${BUILD_DIR}/config.h rlconf.h tcap.h readline.h keymaps.h chardefs.h tilde.h history.h posixstat.h rlprivate.h rlshell.h
+	$(CC) -c $(CCFLAGS) $<
+
+testUTF8.o: $(srcdir)/testUTF8.c
 	$(CC) -c $(CCFLAGS) $<
 
 tilde.o: $(srcdir)/tilde.c ansi_stdlib.h ${BUILD_DIR}/config.h tilde.h
