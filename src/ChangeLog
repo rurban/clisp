@@ -1,3 +1,15 @@
+1999-01-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Introduce symbolic codes for the `listen' return value.
+        * lispbibl.d (ls_avail, ls_eof, ls_wait): New macros.
+          (ls_avail_p, ls_eof_p, ls_wait_p): New macros.
+        * stream.d (listen_concat, listen_str_in, listen_buff_in,
+           listen_handle, listen_ch_file, listen_keyboard, listen_terminal,
+           listen_terminal2, listen_terminal3, listen_socket, stream_listen):
+          Use the new ls_* macros.
+        * io.d (LISTEN, READ-CHAR-NO-HANG): Likewise.
+        * debug.d (read_form): Likewise.
+
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Merge handle streams and file streams. Add line number information to

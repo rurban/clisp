@@ -4687,7 +4687,7 @@ LISPFUN(peek_char,0,5,norest,nokey,0,NIL)
 LISPFUN(listen,0,1,norest,nokey,0,NIL)
 # (LISTEN [input-stream]), CLTL S. 380
   { test_istream(&STACK_0); # input-stream überprüfen
-    if (stream_listen(popSTACK()) == 0) # Zeichen verfügbar?
+    if (ls_avail_p(stream_listen(popSTACK())))
       { value1 = T; mv_count=1; } # Wert T
       else
       { value1 = NIL; mv_count=1; } # Wert NIL
@@ -4698,9 +4698,9 @@ LISPFUNN(real_listen,1)
   { test_istream(&STACK_0); # input-stream überprüfen
     switch (stream_listen(popSTACK()))
     {
-      case -1: value1 = S(Keof); break;
-      case  0: value1 = S(Kinput_available); break;
-      case  1: value1 = S(Kwait); break;
+      case ls_eof:   value1 = S(Keof); break;
+      case ls_avail: value1 = S(Kinput_available); break;
+      case ls_wait:  value1 = S(Kwait); break;
       default: NOTREACHED;
     }
     mv_count=1;
@@ -4716,16 +4716,16 @@ LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
     if (!(TheStream(stream)->strmflags & bit(strmflags_rd_ch_bit_B)))
       { fehler_illegal_streamop(S(read_char_no_hang),stream); }
     { var signean status = stream_listen(stream);
-      if (status < 0) # EOF ?
+      if (ls_eof_p(status)) # EOF ?
         { return_Values eof_handling(); }
-      elif (status == 0) # Zeichen verfügbar
+      elif (ls_avail_p(status)) # Zeichen verfügbar
         { var object ch = read_char(stream_); # Character lesen
           if (eq(ch,eof_value)) # sicherheitshalber nochmals auf EOF abfragen
             { return_Values eof_handling(); }
             else
             { value1 = ch; mv_count=1; skipSTACK(4); return; } # ch als Wert
         }
-      else # (status > 0) # kein Zeichen verfügbar
+      else # ls_wait_p(status) # kein Zeichen verfügbar
         # statt zu warten, sofort NIL als Wert:
         { value1 = NIL; mv_count=1; skipSTACK(4); return; }
   }}}

@@ -995,9 +995,9 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # Stellt fest, ob ein Synonym-Stream ein Zeichen verfügbar hat.
 # listen_synonym(stream)
 # > stream : Synonym-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
 # kann GC auslösen
   local signean listen_synonym (object stream);
   local signean listen_synonym(stream)
@@ -1494,9 +1494,9 @@ LISPFUNN(broadcast_stream_streams,1)
 # Stellt fest, ob ein Concatenated-Stream ein Zeichen verfügbar hat.
 # listen_concat(stream)
 # > stream : Concatenated-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
 # kann GC auslösen
   local signean listen_concat (object stream);
   local signean listen_concat(stream)
@@ -1506,14 +1506,14 @@ LISPFUNN(broadcast_stream_streams,1)
       var signean ergebnis;
       while (consp(streamlist))
         { ergebnis = stream_listen(Car(streamlist));
-          if (ergebnis>=0) { goto OK; } # nicht EOF ?
+          if (!ls_eof_p(ergebnis)) { goto OK; } # nicht EOF ?
           # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
           stream = STACK_0;
           streamlist =
           TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
         }
       # alle Streams verbraucht -> liefere EOF:
-      ergebnis = signean_minus;
+      ergebnis = ls_eof;
       OK: # ergebnis fertig
       skipSTACK(1);
       return ergebnis;
@@ -1664,9 +1664,9 @@ LISPFUNN(concatenated_stream_streams,1)
 # Stellt fest, ob ein Two-Way- oder Echo-Stream ein Zeichen verfügbar hat.
 # listen_twoway(stream)
 # > stream : Two-Way- oder Echo-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
 # kann GC auslösen
   local signean listen_twoway (object stream);
   local signean listen_twoway(stream)
@@ -2039,9 +2039,9 @@ LISPFUNN(echo_stream_output_stream,1)
 # Stellt fest, ob ein String-Input-Stream ein Zeichen verfügbar hat.
 # listen_str_in(stream)
 # > stream : String-Input-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
 # kann GC auslösen
   local signean listen_str_in (object stream);
   local signean listen_str_in(stream)
@@ -2049,9 +2049,9 @@ LISPFUNN(echo_stream_output_stream,1)
     { var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
       var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
       if (index >= endindex)
-        { return signean_minus; } # EOF erreicht
+        { return ls_eof; } # EOF erreicht
         else
-        { return signean_null; }
+        { return ls_avail; }
     }
 
 LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL)
@@ -2500,34 +2500,34 @@ LISPFUNN(string_stream_p,1)
 # Stellt fest, ob ein Buffered-Input-Stream ein Zeichen verfügbar hat.
 # listen_buff_in(stream)
 # > stream : Buffered-Input-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
 # kann GC auslösen
   local signean listen_buff_in (object stream);
   local signean listen_buff_in(stream)
     var object stream;
     { var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index); # Index
       var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_buff_in_endindex);
-      if (index < endindex) { return signean_null; }
+      if (index < endindex) { return ls_avail; }
      {var object mode = TheStream(stream)->strm_buff_in_mode;
       if (eq(mode,S(nil)))
         { pushSTACK(stream);
           mode = peek_char(&STACK_0); # peek_char macht read_char, ruft fun auf
           skipSTACK(1);
           if (eq(mode,eof_value))
-            { return signean_minus; } # EOF erreicht
+            { return ls_eof; } # EOF erreicht
             else
-            { return signean_null; }
+            { return ls_avail; }
         }
       elif (eq(mode,S(t)))
-        { return signean_null; }
+        { return ls_avail; }
       else
         { funcall(mode,0); # mode aufrufen
           if (nullp(value1)) # keine Strings mehr zu erwarten?
-            { return signean_minus; } # ja -> EOF erreicht
+            { return ls_eof; } # ja -> EOF erreicht
             else
-            { return signean_null; }
+            { return ls_avail; }
         }
     }}
 
@@ -3355,14 +3355,14 @@ typedef struct strm_u_file_extrafields_struct {
 # Stellt fest, ob ein Handle-Stream ein Zeichen verfügbar hat.
 # listen_handle(stream)
 # > stream: Handle-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
   local signean listen_handle (object stream);
   local signean listen_handle(stream)
     var object stream;
     { if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
-        { return signean_minus; }
+        { return ls_eof; }
       # Methode 1: select, siehe SELECT(2)
       # Methode 2: ioctl FIONREAD, siehe FILIO(4)
       # Methode 3: kurzzeitig auf non-blocking I/O schalten und read versuchen,
@@ -3374,16 +3374,16 @@ typedef struct strm_u_file_extrafields_struct {
         begin_system_call();
         get_handle_input_status(handle,status);
         end_system_call();
-        if (status) { return signean_null; } # Zeichen verfügbar
+        if (status) { return ls_avail; } # Zeichen verfügbar
       }
       if (!nullp(TheStream(stream)->strm_isatty))
         # Terminal
-        { return signean_plus; } # kein Zeichen verfügbar
+        { return ls_wait; } # kein Zeichen verfügbar
         else
         # File
         # kein Zeichen verfügbar -> EOF erkennen
         { TheStream(stream)->strm_rd_ch_last = eof_value;
-          return signean_minus;
+          return ls_eof;
         }
       #elif defined(EMUNIX_PORTABEL)
       { var struct termio oldtermio;
@@ -3403,7 +3403,7 @@ typedef struct strm_u_file_extrafields_struct {
         end_system_call();
         if (result == 0)
           # Abfrage gelungen
-          { if (chars_ready > 0) { return signean_null; } } # welche verfügbar?
+          { if (chars_ready > 0) { return ls_avail; } } # welche verfügbar?
         begin_system_call();
         if (!isatty(handle))
           { result = eof(handle);
@@ -3412,12 +3412,12 @@ typedef struct strm_u_file_extrafields_struct {
               else
               { end_system_call();
                 if (result>0) # EOF erreicht?
-                  { return signean_minus; }
+                  { return ls_eof; }
                   else
-                  { return signean_null; }
+                  { return ls_avail; }
           }   }
         end_system_call();
-        return signean_plus; # offenbar kein Zeichen verfügbar
+        return ls_wait; # offenbar kein Zeichen verfügbar
       }}
       #elif !(defined(AMIGAOS) || defined(WIN32_NATIVE))
       #ifdef HAVE_SELECT
@@ -3441,11 +3441,11 @@ typedef struct strm_u_file_extrafields_struct {
             # ergebnis = Anzahl der Handles in handle_menge, bei denen read
             # sofort ein Ergebnis liefern würde.
             if (ergebnis==0)
-              { return signean_plus; } # kein Zeichen verfügbar
+              { return ls_wait; } # kein Zeichen verfügbar
             # ergebnis=1
             # Wenn read() sofort ein Ergebnis liefern würde, kann das auch EOF
             # sein! (Beispiel: Linux und Pipes.) Wir hüten uns daher vor
-            # einem  { return signean_null; }  und versuchen stattdessen
+            # einem  { return ls_avail; }  und versuchen stattdessen
             # erst noch Methoden 2 und 3.
       }}  }
       #endif
@@ -3466,11 +3466,11 @@ typedef struct strm_u_file_extrafields_struct {
          else
          # Abfrage gelungen, also war's ein File
          { end_system_call();
-           if (chars_ready > 0) { return signean_null; } # welche verfügbar?
+           if (chars_ready > 0) { return ls_avail; } # welche verfügbar?
            #ifdef HAVE_RELIABLE_FIONREAD
            # sonst EOF des File erkennen:
            TheStream(stream)->strm_rd_ch_last = eof_value;
-           return signean_minus;
+           return ls_eof;
            #endif
          }
       }
@@ -3514,18 +3514,18 @@ typedef struct strm_u_file_extrafields_struct {
                   #endif
                  )
               #endif
-                { return signean_plus; } # kein Zeichen verfügbar
+                { return ls_wait; } # kein Zeichen verfügbar
               OS_error();
             }
           end_system_call();
           if (ergebnis==0)
             # kein Zeichen verfügbar
-            { return signean_plus; }
+            { return ls_wait; }
             else
             # Zeichen verfügbar
             { TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
               TheStream(stream)->strmflags |= strmflags_unread_B;
-              return signean_null;
+              return ls_avail;
             }
           # Sollte das nicht gehen, einen Timer von 1/10 sec verwenden??
         }
@@ -3544,7 +3544,7 @@ typedef struct strm_u_file_extrafields_struct {
           if (ergebnis==0)
             # kein Zeichen verfügbar -> EOF erkennen
             { TheStream(stream)->strm_rd_ch_last = eof_value;
-              return signean_minus;
+              return ls_eof;
             }
             else # Zeichen verfügbar
             { if (c == NL)
@@ -3552,7 +3552,7 @@ typedef struct strm_u_file_extrafields_struct {
                 { HandleStream_lineno(stream) += 1; }
               TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
               TheStream(stream)->strmflags |= strmflags_unread_B;
-              return signean_null;
+              return ls_avail;
             }
         }}
       #elif defined(AMIGAOS)
@@ -3560,9 +3560,9 @@ typedef struct strm_u_file_extrafields_struct {
       if (!nullp(TheStream(stream)->strm_isatty))
         # interaktiv
         { if (WaitForChar(handle,0L)) # 0 usec auf ein Zeichen warten
-            { end_system_call(); return signean_null; } # eins da
+            { end_system_call(); return ls_avail; } # eins da
             else
-            { end_system_call(); return signean_plus; } # keins da
+            { end_system_call(); return ls_wait; } # keins da
         }
         else
         # nicht interaktiv
@@ -3574,7 +3574,7 @@ typedef struct strm_u_file_extrafields_struct {
           if (ergebnis==0)
             # kein Zeichen verfügbar -> EOF erkennen
             { TheStream(stream)->strm_rd_ch_last = eof_value;
-              return signean_minus;
+              return ls_eof;
             }
             else # Zeichen verfügbar
             { if (c == NL)
@@ -3582,7 +3582,7 @@ typedef struct strm_u_file_extrafields_struct {
                 { HandleStream_lineno(stream) += 1; }
               TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
               TheStream(stream)->strmflags |= strmflags_unread_B;
-              return signean_null;
+              return ls_avail;
             }
         }
       #elif defined(WIN32_NATIVE)
@@ -3599,7 +3599,7 @@ typedef struct strm_u_file_extrafields_struct {
                 # It's a console.
                 { if (nevents==0)
                     # kein Zeichen verfügbar
-                    { end_system_call(); return signean_plus; }
+                    { end_system_call(); return ls_wait; }
                  {var INPUT_RECORD* events = (INPUT_RECORD*)alloca(nevents*sizeof(INPUT_RECORD));
                   var DWORD nevents_read;
                   var DWORD mode;
@@ -3607,7 +3607,7 @@ typedef struct strm_u_file_extrafields_struct {
                     { OS_error(); }
                   if (nevents_read==0)
                     # kein Zeichen verfügbar
-                    { end_system_call(); return signean_plus; }
+                    { end_system_call(); return ls_wait; }
                   if (!GetConsoleMode(handle,&mode)) { OS_error(); }
                   if (mode & ENABLE_LINE_INPUT)
                     { # Look out for a Key-Down event corresponding to CR/LF.
@@ -3630,7 +3630,7 @@ typedef struct strm_u_file_extrafields_struct {
                             goto peek_one;
                     }   }
                   # kein Zeichen verfügbar
-                  end_system_call(); return signean_plus;
+                  end_system_call(); return ls_wait;
                 }}
               elif (!(GetLastError()==ERROR_INVALID_HANDLE)) { OS_error(); }
             }
@@ -3641,7 +3641,7 @@ typedef struct strm_u_file_extrafields_struct {
                   break;
                 case WAIT_TIMEOUT:
                   # kein Zeichen verfügbar
-                  end_system_call(); return signean_plus;
+                  end_system_call(); return ls_wait;
                 default:
                   OS_error();
               }
@@ -3657,7 +3657,7 @@ typedef struct strm_u_file_extrafields_struct {
               if (ergebnis==0)
                 # kein Zeichen verfügbar -> EOF erkennen
                 { TheStream(stream)->strm_rd_ch_last = eof_value;
-                  return signean_minus;
+                  return ls_eof;
                 }
                 else # Zeichen verfügbar
                 { if (c == NL)
@@ -3665,7 +3665,7 @@ typedef struct strm_u_file_extrafields_struct {
                     { HandleStream_lineno(stream) += 1; }
                   TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
                   TheStream(stream)->strmflags |= strmflags_unread_B;
-                  return signean_null;
+                  return ls_avail;
             }   }
           case FILE_TYPE_PIPE:
             { var DWORD nchars;
@@ -3674,22 +3674,22 @@ typedef struct strm_u_file_extrafields_struct {
                 { end_system_call();
                   if (nchars > 0)
                     # Zeichen verfügbar
-                    return signean_null;
+                    return ls_avail;
                   else
                     # kein Zeichen verfügbar
-                    return signean_plus;
+                    return ls_wait;
                 }
               elif (GetLastError()==ERROR_BROKEN_PIPE)
                 # EOF reached
                 { end_system_call();
                   TheStream(stream)->strm_rd_ch_last = eof_value;
-                  return signean_minus;
+                  return ls_eof;
                 }
               elif (GetLastError()==ERROR_ACCESS_DENIED)
                 # It's a pipe (output). Let's fake EOF.
                 { end_system_call();
                   TheStream(stream)->strm_rd_ch_last = eof_value;
-                  return signean_minus;
+                  return ls_eof;
                 }
               else
                 # What about sockets??
@@ -4722,16 +4722,16 @@ typedef struct strm_i_file_extrafields_struct {
 # Stellt fest, ob ein File-Stream ein Zeichen verfügbar hat.
 # listen_ch_file(stream)
 # > stream: File-Stream für Characters
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
   local signean listen_ch_file (object stream);
   local signean listen_ch_file(stream)
     var object stream;
     { if (b_file_nextbyte(stream) == (uintB*)NULL)
-        { return signean_minus; } # EOF
+        { return ls_eof; } # EOF
         else
-        { return signean_null; }
+        { return ls_avail; }
     }
 
 # READ-CHAR-ARRAY - Pseudofunktion für File-Streams für Characters:
@@ -6674,9 +6674,9 @@ local object make_key_event(event)
 # Stellt fest, ob der Keyboard-Stream ein Zeichen verfügbar hat.
 # listen_keyboard(stream)
 # > stream: Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
   local signean listen_keyboard (object stream);
   #ifdef MSDOS
   local signean listen_keyboard(stream)
@@ -6686,7 +6686,7 @@ local object make_key_event(event)
       if (!(_osmode == DOS_MODE))
         # OS/2
         { var int ch = _read_kbd(FALSE,FALSE,FALSE);
-          if (ch < 0) { return signean_plus; } # nein
+          if (ch < 0) { return ls_wait; } # nein
           pushSTACK(stream);
          {var object c;
           if (ch==0)
@@ -6704,15 +6704,15 @@ local object make_key_event(event)
           stream = popSTACK();
           TheStream(stream)->strm_rd_ch_last = c;
           TheStream(stream)->strmflags |= strmflags_unread_B;
-          return signean_null;
+          return ls_avail;
         }}
         else
       #endif
       # DOS
       if (kbhit()) # inzwischen wieder Tasten gedrückt?
-        { return signean_null; } # ja
+        { return ls_avail; } # ja
         else
-        { return signean_plus; } # nein
+        { return ls_wait; } # nein
     }
   #endif
   #ifdef WIN32_NATIVE
@@ -6726,14 +6726,14 @@ local object make_key_event(event)
       # It's a console.
       if (nevents==0)
         # kein Zeichen verfügbar
-        { end_system_call(); return signean_plus; }
+        { end_system_call(); return ls_wait; }
      {var INPUT_RECORD* events = (INPUT_RECORD*)alloca(nevents*sizeof(INPUT_RECORD));
       var DWORD nevents_read;
       if (!PeekConsoleInput(handle,events,nevents,&nevents_read))
         { OS_error(); }
       if (nevents_read==0)
         # kein Zeichen verfügbar
-        { end_system_call(); return signean_plus; }
+        { end_system_call(); return ls_wait; }
       { # Look out for any Key-Down event.
         var DWORD i;
         for (i = 0; i < nevents_read; i++)
@@ -6741,17 +6741,17 @@ local object make_key_event(event)
                 && events[i].Event.KeyEvent.bKeyDown
                 && events[i].Event.KeyEvent.uAsciiChar != 0)
               # Zeichen verfügbar
-              { end_system_call(); return signean_null; }
+              { end_system_call(); return ls_avail; }
       }   }
       # kein Zeichen verfügbar
-      end_system_call(); return signean_plus;
+      end_system_call(); return ls_wait;
     }}
   #endif
   #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
     #define listen_keyboard  listen_handle
   #endif
   #if defined(NEXTAPP)
-    #define listen_keyboard(stream)  (stream, signean_minus)
+    #define listen_keyboard(stream)  (stream, ls_eof)
   #endif
 
 # UP: Löscht bereits eingegebenen interaktiven Input vom Keyboard-Stream.
@@ -7557,15 +7557,15 @@ LISPFUNN(make_keyboard_stream,0)
 # Stellt fest, ob ein Terminal-Stream ein Zeichen verfügbar hat.
 # listen_terminal(stream)
 # > stream: Terminal-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
   local signean listen_terminal (object stream);
   local signean listen_terminal(stream)
     var object stream;
     { var signean result;
       begin_call();
-      result = (nxterminal_listen() ? signean_null : signean_plus);
+      result = (nxterminal_listen() ? ls_avail : ls_wait);
       end_call();
       return result;
     }
@@ -7800,9 +7800,9 @@ LISPFUNN(make_keyboard_stream,0)
 # Stellt fest, ob ein Terminal-Stream ein Zeichen verfügbar hat.
 # listen_terminal1(stream)
 # > stream: Terminal-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
   #define listen_terminal1  listen_handle
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Terminal-Stream.
@@ -7963,19 +7963,19 @@ LISPFUNN(make_keyboard_stream,0)
 # Stellt fest, ob ein Terminal-Stream ein Zeichen verfügbar hat.
 # listen_terminal2(stream)
 # > stream: Terminal-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
   local signean listen_terminal2 (object stream);
   local signean listen_terminal2(stream)
     var object stream;
     { if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
-        { return signean_minus; }
+        { return ls_eof; }
       if (posfixnum_to_L(TheStream(stream)->strm_terminal_index)
           < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]
          )
         # index<count -> Es sind noch Zeichen im Buffer
-        { return signean_null; }
+        { return ls_avail; }
       return listen_handle(stream);
     }
 
@@ -8153,19 +8153,19 @@ LISPFUNN(make_keyboard_stream,0)
 # Stellt fest, ob ein Terminal-Stream ein Zeichen verfügbar hat.
 # listen_terminal3(stream)
 # > stream: Terminal-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
   local signean listen_terminal3 (object stream);
   local signean listen_terminal3(stream)
     var object stream;
     { if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
-        { return signean_minus; }
+        { return ls_eof; }
       if (posfixnum_to_L(TheStream(stream)->strm_terminal_index)
           < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]
          )
         # index<count -> Es sind noch Zeichen im Buffer
-        { return signean_null; }
+        { return ls_avail; }
       return listen_handle(stream);
     }
 
@@ -12011,9 +12011,9 @@ LISPFUNN(make_printer_stream,0)
 # Stellt fest, ob ein Pipe-Input-Stream ein Zeichen verfügbar hat.
 # listen_pipe_in(stream)
 # > stream : Pipe-Input-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
 # kann GC auslösen
   #define listen_pipe_in  listen_handle
 
@@ -12599,9 +12599,9 @@ LISPFUNN(make_pipe_io_stream,1)
 # Stellt fest, ob ein Socket-Stream ein Zeichen verfügbar hat.
 # listen_socket(stream)
 # > stream : Socket-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
 # kann GC auslösen
   #ifdef WIN32_NATIVE
     local signean listen_socket (object stream);
@@ -12609,7 +12609,7 @@ LISPFUNN(make_pipe_io_stream,1)
       var object stream;
       { restart_it:
         if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
-          { return signean_minus; }
+          { return ls_eof; }
        {var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
         # Verwende select mit readfds = einelementige Menge {handle}
         # und timeout = Null-Zeitintervall.
@@ -12634,7 +12634,7 @@ LISPFUNN(make_pipe_io_stream,1)
           { # ergebnis = Anzahl der Handles in handle_menge, bei denen read
             # sofort ein Ergebnis liefern würde.
             if (ergebnis==0)
-              { end_system_call(); return signean_plus; } # kein Zeichen verfügbar
+              { end_system_call(); return ls_wait; } # kein Zeichen verfügbar
             # ergebnis=1
             # Wenn read() sofort ein Ergebnis liefern würde, kann das auch EOF
             # sein!
@@ -12655,12 +12655,12 @@ LISPFUNN(make_pipe_io_stream,1)
             if (ergebnis==0)
               # kein Zeichen verfügbar -> EOF erkennen
               { TheStream(stream)->strm_rd_ch_last = eof_value;
-                return signean_minus;
+                return ls_eof;
               }
               else # Zeichen verfügbar
               { TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
                 TheStream(stream)->strmflags |= strmflags_unread_B;
-                return signean_null;
+                return ls_avail;
               }
           }}
       }}
@@ -13771,7 +13771,7 @@ LISPFUNN(stream_external_format,1)
 # interactive_stream_p(stream)
 # > stream: Stream
 # NB: Relation zwischen clear_input, listen, interactive_stream_p:
-#   Wenn nach clear_input(stream) stream_listen(stream) > 0 ist
+#   Wenn nach clear_input(stream) ls_wait_p(stream_listen(stream)) ist
 #   (d.h. kein Zeichen mehr verfügbar und nicht EOF), dann ist
 #   interactive_stream_p(stream) TRUE.
 #   (Denn dann ist stream effektiv ein Keyboard-Stream, Terminal-Stream,
@@ -13784,7 +13784,7 @@ LISPFUNN(stream_external_format,1)
 #   Aber nicht umgekehrt: Bei Streams vom Typ strmtype_pipe_in,
 #   strmtype_x11socket, strmtype_socket (die interactive_stream_p(stream)
 #   erfüllen) tut clear_input(stream) nichts, und stream_listen(stream) kann
-#   0 liefern.
+#   ls_avail liefern.
   global boolean interactive_stream_p (object stream);
   global boolean interactive_stream_p(stream)
     var object stream;
@@ -14000,16 +14000,16 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
 # UP: Stellt fest, ob im Stream stream ein Zeichen sofort verfügbar ist.
 # stream_listen(stream)
 # > stream: Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
 # kann GC auslösen
   global signean stream_listen (object stream);
   global signean stream_listen(stream)
     var object stream;
     { check_SP(); check_STACK();
       if (TheStream(stream)->strmflags & strmflags_unread_B) # Char nach UNREAD ?
-        { return signean_null; } # ja -> verfügbar
+        { return ls_avail; } # ja -> verfügbar
         else
         # sonst nach Streamtyp verzweigen.
         # Jede Einzelroutine darf GC auslösen. Außer beim Keyboard-Stream
@@ -14017,16 +14017,16 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
         { switch (TheStream(stream)->strmtype)
             {
               case strmtype_synonym:  return listen_synonym(stream);
-              case strmtype_broad:    return signean_minus; # kein READ-CHAR
+              case strmtype_broad:    return ls_eof; # kein READ-CHAR
               case strmtype_concat:   return listen_concat(stream);
               case strmtype_twoway:   return listen_twoway(stream);
               case strmtype_echo:     return listen_twoway(stream);
               case strmtype_str_in:   return listen_str_in(stream);
-              case strmtype_str_out:  return signean_minus; # kein READ-CHAR
-              case strmtype_str_push: return signean_minus; # kein READ-CHAR
-              case strmtype_pphelp:   return signean_minus; # kein READ-CHAR
+              case strmtype_str_out:  return ls_eof; # kein READ-CHAR
+              case strmtype_str_push: return ls_eof; # kein READ-CHAR
+              case strmtype_pphelp:   return ls_eof; # kein READ-CHAR
               case strmtype_buff_in:  return listen_buff_in(stream);
-              case strmtype_buff_out: return signean_minus; # kein READ-CHAR
+              case strmtype_buff_out: return ls_eof; # kein READ-CHAR
               #ifdef GENERIC_STREAMS
               case strmtype_generic:  return listen_generic(stream);
               #endif
@@ -14038,7 +14038,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                       { return listen_handle(stream); }
                   }
                   else
-                  { return signean_minus; } # kein READ-CHAR
+                  { return ls_eof; } # kein READ-CHAR
               #ifdef KEYBOARD
               case strmtype_keyboard: return listen_keyboard(stream);
               #endif
@@ -14055,14 +14055,14 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 #endif
                 NOTREACHED
               #ifdef SCREEN
-              case strmtype_window:   return signean_minus; # kein READ-CHAR
+              case strmtype_window:   return ls_eof; # kein READ-CHAR
               #endif
               #ifdef PRINTER
-              case strmtype_printer:  return signean_minus; # kein READ-CHAR
+              case strmtype_printer:  return ls_eof; # kein READ-CHAR
               #endif
               #ifdef PIPES
               case strmtype_pipe_in:  return listen_pipe_in(stream);
-              case strmtype_pipe_out: return signean_minus; # kein READ-CHAR
+              case strmtype_pipe_out: return ls_eof; # kein READ-CHAR
               #endif
               #ifdef X11SOCKETS
               case strmtype_x11socket:   return listen_x11socket(stream);
@@ -14076,12 +14076,12 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                    {var object nextchar = peek_char(&STACK_0);
                     skipSTACK(1);
                     if (eq(nextchar,eof_value))
-                      { return signean_minus; } # EOF erreicht
+                      { return ls_eof; } # EOF erreicht
                       else
-                      { return signean_null; }
+                      { return ls_avail; }
                   }}
                   else
-                  { return signean_minus; } # kein READ-CHAR
+                  { return ls_eof; } # kein READ-CHAR
     }   }   }
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Stream stream.
