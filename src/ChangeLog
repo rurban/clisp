@@ -1,3 +1,8 @@
+2004-09-02  Sam Steingold  <sds@gnu.org>
+
+	new module for interface to ZLIB http://www.zlib.org
+	* modules/zlib: new directory
+
 2004-07-10  Bruno Haible  <bruno@clisp.org>
 
 	* clos-methcomb2.lisp (method-combination-with-options): New function.
