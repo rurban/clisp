@@ -3351,7 +3351,6 @@ restrictions.</para>
 
 <section id="intern-eql-specializer">
  <title>Function &intern-eql-specializer;</title>
-<simpara></simpara>
 
 <variablelist><varlistentry><term>Syntax</term>
  <listitem><simpara><literal role="sexp">(&intern-eql-specializer;
@@ -3377,7 +3376,6 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 </section>
 
 <section id="mop-make-instance"><title>Generic Function &make-instance;</title>
-<simpara></simpara>
 
 <variablelist><varlistentry><term>Syntax</term>
  <listitem><simpara><literal role="sexp">(&make-instance;
@@ -3545,7 +3543,6 @@ override the system's definitions.</para>
 </section>
 
 <section id="map-dependents"><title>Generic Function &map-dependents;</title>
-<simpara></simpara>
 
 <variablelist><varlistentry><term>Syntax</term>
  <listitem><simpara><literal role="sexp">(&map-dependents;
@@ -3621,7 +3618,6 @@ the use of this facility.</para></formalpara>
 <!-- *** READERS *** -->
 
 <section id="class-mo-readers"><title>Readers for Class Metaobjects</title>
-<simpara></simpara>
 
 <para>In this and the immediately following sections,
 the <quote>reader</quote> generic functions which simply return
