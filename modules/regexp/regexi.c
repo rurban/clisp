@@ -81,7 +81,7 @@ DEFUN(REGEXP::REGEXP-EXEC, pattern string &key BOOLEAN START END NOTBOL NOTEOL)
   regex_t *re;
   regmatch_t *ret;
   skipSTACK(5);                 /* drop all options */
-  while(1) {
+  for (;;) {
     STACK_1 = check_fpointer(STACK_1,true);
     re = (regex_t*)TheFpointer(STACK_1)->fp_pointer;
     if (re != NULL) break;
