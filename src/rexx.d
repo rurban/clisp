@@ -404,10 +404,16 @@ LISPFUNN(rexx_wait_input,0)
                       O(rexx_inmsg_list) = new_cons;
                       O(rexx_prefetch_inmsg) = NIL;
                       # Resource-tracking beendet, ab hier wieder GC möglich
-                      # Ergebnis ist zweielementige Liste (Msg-ID "Msg-string")
+                      # Ergebnis ist 2/3-elementige Liste (Msg-ID "Msg-string" [:RESULT])
                       pushSTACK(Car(new_cons));
                       pushSTACK(make_string(rexxmsg->rm_Args[0],LengthArgstring(rexxmsg->rm_Args[0]),O(misc_encoding)));
-                      return listof(2);
+                      if (rexxmsg->rm_Action & RXFF_RESULT)
+                        # Client is actually interested in RESULT string
+                        { pushSTACK(S(Kresult));
+                          return listof(3);
+                        }
+                        else
+                        { return listof(2); }
                     }
                 }
             }
