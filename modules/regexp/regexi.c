@@ -15,6 +15,15 @@ int mregcomp (regex_t* * ppreg, const char * pattern, int cflags) {
   return regcomp(preg,pattern,cflags);
 }
 
+regmatch_t* mregexec (const regex_t *preg, const char *string, int eflags)
+{
+  regmatch_t *ret = (regex_t*)calloc(preg->re_nsub+2, sizeof(regmatch_t));
+  if (regexec(preg,string,preg->re_nsub+1,ret,eflags)) {
+    free(ret);
+    return NULL;
+  } else return ret;
+}
+
 const char * mregerror (int errcode, const regex_t * preg) {
   size_t errbuf_size = 80; /* This will be enough. */
   char* errbuf = (char*) malloc(errbuf_size);
