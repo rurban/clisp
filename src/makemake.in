@@ -3301,7 +3301,7 @@ for f in ${IMPNOTES_FILES} ; do
   echotab "\$(LN_S) ${SRCDOCDIR_M}${f} ${f}"
   echol
 done
-EMACS_FILES="clisp-coding.el clisp-indent.el clisp-indent.lisp"
+EMACS_FILES="clhs.el clisp-coding.el clisp-indent.el clisp-indent.lisp clisp-ffi.el"
 
 # On Unix, clisp.dvi, clisp.ps, clisp.pdf must be built by "make all",
 # because "make install" needs it and "make install" must not create files in
