@@ -1,5 +1,11 @@
 2004-05-16  Bruno Haible  <bruno@clisp.org>
 
+	Fix (SIGNUM negative-single-float) on 64-bit machines.
+	* aridecl.d (make_FF) [IMMEDIATE_FFLOAT]: Cast the data to 32 bits,
+	otherwise a negative sign overflows into the type bits.
+
+2004-05-16  Bruno Haible  <bruno@clisp.org>
+
 	* genclisph.d (main) [TYPECODES && HAVE_SMALL_SSTRING]: Fix the
 	definition of TheS8string, TheS16string, TheS32string.
 
