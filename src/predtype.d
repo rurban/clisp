@@ -1680,8 +1680,6 @@ LISPFUNNR(type_of,1)
         case Rectype_WeakAlist_Either:
         case Rectype_WeakAlist_Both: /* Weak-Alist */
           value1 = S(internal_weak_alist); break;
-        case Rectype_WeakKVT: /* Weak-Key-Value-Table */
-          value1 = S(weak_kvtable); break;
         default: goto unknown;
       }
       break;
@@ -1954,7 +1952,6 @@ LISPFUNNR(class_of,1)
         case Rectype_WeakAlist_Value: /* Weak-Alist -> <t> */
         case Rectype_WeakAlist_Either: /* Weak-Alist -> <t> */
         case Rectype_WeakAlist_Both: /* Weak-Alist -> <t> */
-        case Rectype_WeakKVT: /* Weak-Key-Value-Table -> <t> */
           value1 = O(class_t); break;
         default: goto unknown;
       }
@@ -2571,7 +2568,6 @@ enum { /* The values of this enumeration are 0,1,2,...
   enum_hs_weak_and_mapping,
   enum_hs_weak_or_mapping,
   enum_hs_internal_weak_alist,
-  enum_hs_weakkvt,
   enum_hs_system_function,
   enum_hs_bignum,
   enum_hs_ratio,
@@ -2928,9 +2924,6 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
         case Rectype_WeakAlist_Either:
         case Rectype_WeakAlist_Both: /* Weak-Alist */
           pighole = &locals->builtins[(int)enum_hs_internal_weak_alist]; break;
-        case Rectype_WeakKVT: /* Weak-Key-Value-Table */
-          pighole = &locals->builtins[(int)enum_hs_weakkvt];
-          break;
         default:
           pighole = &locals->builtins[(int)enum_hs_t]; break;
       }
