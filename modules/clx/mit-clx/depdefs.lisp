@@ -97,6 +97,10 @@
     (:big-endian)
     (:little-endian (pushnew :clx-little-endian *features*))))
 
+#+CLISP
+(eval-when (:compile-toplevel :execute :load-toplevel)
+  (unless system::*big-endian* (pushnew :clx-little-endian *features*)))
+
 (deftype buffer-bytes () `(simple-array (unsigned-byte 8) (*)))
 
 ;;; This defines a type which is a subtype of the integers.
