@@ -1487,8 +1487,9 @@ LISPSYM(cp1253,"CP1253",charset)
 LISPSYM(cp1254,"CP1254",charset)
 LISPSYM(cp1255,"CP1255",charset)
 LISPSYM(cp1256,"CP1256",charset)
-LISPSYM(cp1257,"CP1257",charset) #                          |
+LISPSYM(cp1257,"CP1257",charset)
 LISPSYM(cp1258,"CP1258",charset) #                          |
+LISPSYM(hp_roman8,"HP-ROMAN8",charset) #                    |
 LISPSYM(nextstep,"NEXTSTEP",charset) # ---------------------+
 #endif
 LISPSYM(english,"ENGLISH",lisp) # als Language für MISC
