@@ -1,3 +1,20 @@
+2001-03-23  Sam Steingold  <sds@gnu.org>
+
+	Removed the obsolete `COMMON' type (not in ANSI)
+	* constsym.d (commonp): removed
+	* eval.d (FUNTAB): removed `commonp'
+	* predtype.d (commonp): removed
+	* subr.d (commonp): removed
+	* compiler.lisp (subrinfo, c-DIRECT-FUNCTION-CALL): removed `commonp'
+	(*declaration-types*): removed `common'
+	* init.lisp (commonp, common): removed
+	* type.lisp (common): removed
+	(canonicalize-type): removed `common'
+
+2001-04-06  Sam Steingold  <sds@gnu.org>
+
+	* version.h: 2.25.1 is released
+
 2001-04-06  Sam Steingold  <sds@gnu.org>
 
 	fixed the --without-unicode build

@@ -940,7 +940,7 @@ for-value   NIL oder T
        realp complexp streamp random-state-p readtablep hash-table-p pathnamep
        system::logical-pathname-p characterp functionp clos::generic-function-p
        packagep arrayp system::simple-array-p bit-vector-p vectorp
-       simple-vector-p simple-string-p simple-bit-vector-p commonp type-of
+       simple-vector-p simple-string-p simple-bit-vector-p type-of
        clos:class-of clos:find-class coerce
        system::%record-ref system::%record-store system::%record-length
        system::%structure-ref system::%structure-store system::%make-structure
@@ -1169,7 +1169,6 @@ for-value   NIL oder T
           (code-char 1 0 nil nil nil)
           (coerce 2 0 nil nil nil)
           (system::comment-reader 3 0 nil nil nil)
-          (commonp 1 0 nil nil nil)
           (compiled-function-p 1 0 nil nil nil)
           (complex 1 1 nil nil nil)
           (system::complex-reader 3 0 nil nil nil)
@@ -2446,7 +2445,7 @@ der Docstring (oder NIL).
     declaration ; Zusatzdeklarationen
     ; Typen nach Tabelle 4-1 :
     array atom base-char base-string bignum bit bit-vector boolean character
-    common compiled-function complex cons double-float extended-char fixnum
+    compiled-function complex cons double-float extended-char fixnum
     float function hash-table integer keyword list long-float nil null number
     package pathname random-state ratio rational readtable real sequence
     short-float simple-array simple-base-string simple-bit-vector
@@ -3740,7 +3739,7 @@ der Docstring (oder NIL).
                  DIRECTORY-NAMESTRING HOST-NAMESTRING MERGE-PATHNAMES ENOUGH-NAMESTRING
                  MAKE-PATHNAME NAMESTRING TRUENAME PROBE-FILE DIRECTORY FILE-WRITE-DATE
                  FILE-AUTHOR
-                 EQUAL EQUALP COMPILED-FUNCTION-P CLOS::GENERIC-FUNCTION-P COMMONP
+                 EQUAL EQUALP COMPILED-FUNCTION-P CLOS::GENERIC-FUNCTION-P 
                  TYPE-OF CLOS::CLASS-P CLOS:CLASS-OF COERCE
                  SYSTEM::%RECORD-REF SYSTEM::%RECORD-LENGTH SYSTEM::%STRUCTURE-REF SYSTEM::%MAKE-STRUCTURE
                  COPY-STRUCTURE SYSTEM::%STRUCTURE-TYPE-P SYSTEM::CLOSURE-NAME

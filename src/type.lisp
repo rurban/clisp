@@ -218,7 +218,6 @@
   (lambda (x) (or (eq x 'nil) (eq x 't)))
 )
 (def-atomic-type CHARACTER characterp)
-(def-atomic-type COMMON commonp)
 (def-atomic-type COMPILED-FUNCTION compiled-function-p)
 (def-atomic-type COMPLEX complexp)
 (def-atomic-type CONS consp)
@@ -734,10 +733,6 @@
                (BIGNUM '(AND INTEGER (NOT FIXNUM)))
                (BIT '(INTEGER 0 1))
                (BOOLEAN '(MEMBER NIL T))
-               (COMMON '(OR CONS SYMBOL NUMBER ARRAY STANDARD-CHAR
-                         STREAM PACKAGE HASH-TABLE READTABLE PATHNAME RANDOM-STATE
-                         STRUCTURE
-               )        )
                (EXTENDED-CHAR #+BASE-CHAR=CHARACTER 'NIL
                               #-BASE-CHAR=CHARACTER '(AND CHARACTER (NOT (SATISFIES BASE-CHAR-P)))
                )
