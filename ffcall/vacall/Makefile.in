@@ -120,6 +120,9 @@ vacall-m88k.o : $(srcdir)/vacall-m88k.s
 vacall-convex.o : $(srcdir)/vacall-convex.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-convex.s
 
+vacall-ia64.o : $(srcdir)/vacall-ia64.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-ia64.s
+
 misc.o : $(srcdir)/misc.c vacall.h config.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/misc.c
 
