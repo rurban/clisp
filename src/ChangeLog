@@ -1,3 +1,17 @@
+2002-08-06  Sam Steingold  <sds@gnu.org>
+
+	rewrote the last patch to accept wildcards
+	* pathname.d (check_copy_method, hardlink_file, symlink_file)
+	(true_namestring): new functions
+	(copy_method_t): new typedef
+	(TRUENAME, PROBE-FILE, DELETE-FILE, rename_file, open_file, CD)
+	(FILE-WRITE-DATE, FILE-AUTHOR, EXECUTE): use true_namestring()
+	(NAMESTRING2, FILENAME_ACTION): removed
+	(copy_attributes_and_close): converted from copy_attributes()
+	(copy_file_low): do NOT do pathname mergind and resolving
+	(copy_one_file): do it here
+	(COPY-FILE): return 2 values: file count and byte count
+
 2002-08-05  Marco Baringer <empb@bese.it>
 	    Sam Steingold  <sds@gnu.org>
 
