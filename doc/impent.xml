@@ -81,6 +81,7 @@
 <!ENTITY ffi-pac "<link linkend='dffi'><quote>FFI</quote></link>">
 <!ENTITY affi-pac "<link linkend='affi'><quote>AFFI</quote></link>">
 <!ENTITY screen-pac "<link linkend='screen'><quote>SCREEN</quote></link>">
+<!ENTITY regexp-pac "<link linkend='regexp'><quote>REGEXP</quote></link>">
 <!-- * redefines the entity in cl-ent.xml * -->
 <!ENTITY clu-pac "<link linkend='clupack'><quote>COMMON-LISP-USER</quote></link>">
 
@@ -103,6 +104,7 @@
 <!ENTITY lalist "<link linkend='lalist'>lambda list</link>">
 <!ENTITY lfd "<link linkend='lfd'><function>ext:long-float-digits</function></link>">
 <!ENTITY line-term "<link linkend='newline'>line terminator</link>">
+<!ENTITY match-t "<classname>match</classname>">
 <!ENTITY parsename "<link linkend='parsename'><varname>custom:*parse-namestring-ansi*</varname></link>">
 <!ENTITY pathmerge "<link linkend='pathmerge'><varname>custom:*merge-pathnames-ansi*</varname></link>">
 <!ENTITY pathprint "<link linkend='pathprint'><varname>custom:*print-pathnames-ansi*</varname></link>">
@@ -110,6 +112,15 @@
 <!ENTITY pr-indent "<link linkend='pr-indent'><varname>custom:*print-indent-lists*</varname></link>">
 <!ENTITY pr-rpars "<link linkend='pr-rpars'><varname>custom:*print-rpars*</varname></link>">
 <!ENTITY re-export "<link linkend='re-export'><function>re-export</function></link>">
+<!ENTITY re-match "<link linkend='re-match'><function>regexp:match</function></link>">
+<!ENTITY re-match-start "<link linkend='re-match-start'><function>regexp:match-start</function></link>">
+<!ENTITY re-match-end "<link linkend='re-match-end'><function>regexp:match-end</function></link>">
+<!ENTITY re-match-string "<link linkend='re-match-string'><function>regexp:match-string</function></link>">
+<!ENTITY re-regexp-quote "<link linkend='re-regexp-quote'><function>regexp:regexp-quote</function></link>">
+<!ENTITY re-regexp-compile "<link linkend='re-regexp-compile'><function>regexp:regexp-compile</function></link>">
+<!ENTITY re-regexp-exec "<link linkend='re-regexp-exec'><function>regexp:regexp-exec</function></link>">
+<!ENTITY re-regexp-split "<link linkend='re-regexp-split'><function>regexp:regexp-split</function></link>">
+<!ENTITY re-with-loop-split "<link linkend='re-with-loop-split'><function>regexp:with-loop-split</function></link>">
 <!ENTITY socket-server "<link linkend='socket'><classname>socket-server</classname></link>">
 <!ENTITY socket-stream "<link linkend='socket'><classname>socket-stream</classname></link>">
 <!ENTITY warn-fpc "<link linkend='warn-fpc'><varname>custom:*warn-on-floating-point-contagion*</varname></link>">
@@ -181,6 +192,7 @@
 <!ENTITY bc-r "<replaceable>block-cons</replaceable>">
 <!ENTITY body-r "<replaceable>body</replaceable>">
 <!ENTITY c-r "<replaceable>c</replaceable>">
+<!ENTITY case-sensitive-r "<replaceable>case-sensitive</replaceable>">
 <!ENTITY cname-r "<replaceable>c-name</replaceable>">
 <!ENTITY cplace-r "<replaceable>c-place</replaceable>">
 <!ENTITY ctype-r "<replaceable>c-type</replaceable>">
@@ -203,11 +215,13 @@
 <!ENTITY lab-r "<replaceable>label</replaceable>">
 <!ENTITY len-r "<replaceable>length</replaceable>">
 <!ENTITY m-r "<replaceable>m</replaceable>">
+<!ENTITY match-r "<replaceable>match</replaceable>">
 <!ENTITY n-r "<replaceable>n</replaceable>">
 <!ENTITY name-r "<replaceable>name</replaceable>">
 <!ENTITY object-r "<replaceable>object</replaceable>">
 <!ENTITY option-r "<replaceable>option</replaceable>">
 <!ENTITY path-r "<replaceable>pathname</replaceable>">
+<!ENTITY pattern-r "<replaceable>pattern</replaceable>">
 <!ENTITY real-r "<replaceable>real</replaceable>">
 <!ENTITY sequence-r "<replaceable>sequence</replaceable>">
 <!ENTITY start-r "<replaceable>start</replaceable>">
