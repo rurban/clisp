@@ -9047,6 +9047,8 @@ LISPFUNN(print_structure,2)
             case strmtype_pipe_out:
               # Pipe-In/Out-Stream
               JUSTIFY_SPACE;
+              prin_object(stream_,TheStream(*obj_)->strm_eltype); # Stream-Element-Type
+              JUSTIFY_SPACE;
               pr_uint(stream_,I_to_UL(TheStream(*obj_)->strm_pipe_pid)); # Prozess-Id ausgeben
               break;
             #endif
@@ -9060,6 +9062,8 @@ LISPFUNN(print_structure,2)
             #ifdef SOCKET_STREAMS
             case strmtype_socket:
               # Socket-Stream
+              JUSTIFY_SPACE;
+              prin_object(stream_,TheStream(*obj_)->strm_eltype); # Stream-Element-Type
               JUSTIFY_SPACE;
               { var object host = TheStream(*obj_)->strm_socket_host;
                 if (!nullp(host))

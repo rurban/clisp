@@ -64,8 +64,4 @@ PSEUDOFUN(wr_ch_window)
 #ifdef PRINTER
 PSEUDOFUN(wr_ch_printer)
 #endif
-#ifdef PIPES
-PSEUDOFUN(rd_ch_pipe_in) PSEUDOFUN(rd_ch_array_pipe_in)
-PSEUDOFUN(wr_ch_pipe_out) PSEUDOFUN(wr_ch_array_pipe_out) PSEUDOFUN(wr_ss_pipe_out)
-#endif
 
