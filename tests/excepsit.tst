@@ -398,6 +398,9 @@ file-error
 (destructuring-bind (a) '(1 2) a)
 error
 
+(destructuring-bind ((a b c)) '((1)) `(,a ,b ,b))
+error
+
 ; directory - no way to make a directory search fail
 
 #-CLISP ; documented behaviour of DISASSEMBLE
@@ -863,6 +866,9 @@ error
 
 (let ((*print-readably* t)) (print-unreadable-object (nil *standard-output*)))
 print-not-readable
+
+(print 1 2)
+type-error
 
 (probe-file "*")
 file-error
