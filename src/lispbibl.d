@@ -5212,6 +5212,7 @@ typedef struct {
   gcv_object_t all_superclasses        _attribute_aligned_object_; # all superclasses, including itself
   gcv_object_t precedence_list         _attribute_aligned_object_; # ordered list of all superclasses
   gcv_object_t slot_location_table     _attribute_aligned_object_; # hashtable slotname -> where the slot is located
+  gcv_object_t documentation           _attribute_aligned_object_; # string or NIL
   # from here on only for metaclass = <standard-class> or metaclass = <structure-class>
   gcv_object_t slots                   _attribute_aligned_object_;
   gcv_object_t default_initargs        _attribute_aligned_object_;

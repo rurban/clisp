@@ -1284,6 +1284,17 @@ ERROR
           '(a b c d e f g)))
 (1 2 3 foo108b foo108a 4 foo108b)
 
+;; Check that two classes with the same name can have different documentation
+;; strings.
+(let ((class1 (defclass foo109 () () (:documentation "first"))))
+  (cons (documentation class1 't)
+        (progn
+          (setf (find-class 'foo109) nil)
+          (let ((class2 (defclass foo109 () () (:documentation "second"))))
+            (list (documentation class1 't)
+                  (documentation class2 't))))))
+("first" "first" "second")
+
 
 ;;; ensure-generic-function
 ;;; <http://www.lisp.org/HyperSpec/Body/fun_ensure-ge_ric-function.html>
