@@ -316,6 +316,14 @@
            (PROGN ,@body-rest (GET-OUTPUT-STREAM-STRING ,var))
            (CLOSE ,var))))))
 ;; ----------------------------------------------------------------------------
+;; X3J13 vote <40>
+(defmacro print-unreadable-object
+          ((&whole args object stream &key type identity) &body body)
+  (declare (ignore object stream type identity))
+  `(SYSTEM::WRITE-UNREADABLE
+     ,(if body `(FUNCTION (LAMBDA () ,@body)) 'NIL)
+     ,@args))
+;; ----------------------------------------------------------------------------
 (in-package "EXT")
 (export '(space with-output-to-printer))
 (in-package "SYSTEM")
