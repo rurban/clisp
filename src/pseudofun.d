@@ -21,10 +21,10 @@ PSEUDOFUN(rd_ch_handle) PSEUDOFUN(wr_ch_handle_x) PSEUDOFUNSS(wr_ss_handle_x) PS
 #if defined(KEYBOARD) || defined(MAYBE_NEXTAPP)
 PSEUDOFUN(rd_ch_keyboard)
 #endif
-#if defined(WINDOWS) || defined(MAYBE_NEXTAPP)
+#if defined(MAYBE_NEXTAPP)
 PSEUDOFUN(wr_ch_terminal) PSEUDOFUN(rd_ch_terminal)
 #endif
-#if (defined(UNIX) || (defined(MSDOS) && !defined(WINDOWS)) || defined(AMIGAOS) || defined(RISCOS))
+#if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
 PSEUDOFUN(wr_ch_terminal1) PSEUDOFUN(rd_ch_terminal1) PSEUDOFUNSS(wr_ss_terminal1)
 #ifdef MSDOS
 PSEUDOFUN(wr_ch_terminal2) PSEUDOFUN(rd_ch_terminal2) PSEUDOFUNSS(wr_ss_terminal2)

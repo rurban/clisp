@@ -820,11 +820,7 @@
   LISPOBJ(user_shell,"\"/bin/csh\"") # User-Shell als String
  #endif
  #ifdef MSDOS
-  #if !defined(WINDOWS)
   LISPOBJ(command_shell,"\"\\\\COMMAND.COM\"") # Kommandointerpreter als String
-  #else # defined(WINDOWS)
-  LISPOBJ(command_shell,"\"DOSPRMPT.PIF\"") # Kommandointerpreter als String
-  #endif
   LISPOBJ(command_shell_option,"\"/C\"") # Kommandointerpreter-Option für Kommando
  #endif
  #ifdef WIN32_NATIVE

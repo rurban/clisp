@@ -179,6 +179,8 @@ Portability
 
 * Added support for PowerPC running MkLinux.
 
+* Removed (incomplete) support for MS Windows 3.1.
+
 Other modifications
 -------------------
 

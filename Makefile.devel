@@ -53,7 +53,7 @@ SOURCES3 = $T/src/gettext/*[^o] $T/src/gettext/po/*[^p]
 #SOURCES4 = $T/modules/*
 # exclude $T/modules/[cqrw]* = $T/modules/queens $T/modules/wildcard $T/modules/regexp $T/modules/clx
 SOURCES4 = $T/modules/[^cqrw]*
-SOURCES5 = $T/ffcall $T/utils $T/unix $T/dos $T/dosdjgpp $T/doswatcom $T/windows $T/windowswatcom $T/os2 $T/cygwin32 $T/win32gcc $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
+SOURCES5 = $T/ffcall $T/utils $T/unix $T/dos $T/dosdjgpp $T/doswatcom $T/os2 $T/cygwin32 $T/win32gcc $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
 SOURCES6 = $T/tests $T/emacs $T/doc/*.txt $T/Makefile.devel
 
 SOURCES = $(SOURCES1) $(SOURCES2) $(SOURCES3) $(SOURCES4) $(SOURCES5) $(SOURCES6)
@@ -64,9 +64,9 @@ RSXDIR = /c:/rsx
 TEMPDIR = /tmp/clispdos
 
 
-all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src/intparam.c src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/vacall/vacall-i386-msvc.c ffcall/trampoline/config.h.msvc src/winabout.c src/wincopyr.c doc/vgagraph.txt acorn/pathname.txt hardlink-surrogate-hack
+all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src/intparam.c src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/vacall/vacall-i386-msvc.c ffcall/trampoline/config.h.msvc doc/vgagraph.txt acorn/pathname.txt hardlink-surrogate-hack
 
-makefiles : dos/makefile dosdjgpp/makefile doswatcom/makefile windows/makefile windowswatcom/makefile os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc src/readline/Makefile.dos src/readline/Makefile.os2 src/readline/Makefile.go32 src/newreadline/Makefile.dos src/newreadline/Makefile.os2 src/newreadline/Makefile.go32
+makefiles : dos/makefile dosdjgpp/makefile doswatcom/makefile os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc src/readline/Makefile.dos src/readline/Makefile.os2 src/readline/Makefile.go32 src/newreadline/Makefile.dos src/newreadline/Makefile.os2 src/newreadline/Makefile.go32
 
 dos/makefile : makemake
 	makemake dos gcc > dos/makefile.tmp
@@ -79,14 +79,6 @@ dosdjgpp/makefile : makemake
 doswatcom/makefile : makemake
 	makemake doswatcom wcl386 > doswatcom/makefile.tmp
 	utils/move-if-change doswatcom/makefile.tmp doswatcom/makefile
-
-windows/makefile : makemake
-	makemake windows gcc > windows/makefile.tmp
-	utils/move-if-change windows/makefile.tmp windows/makefile
-
-windowswatcom/makefile : makemake
-	makemake windowswatcom wcl386 > windowswatcom/makefile.tmp
-	utils/move-if-change windowswatcom/makefile.tmp windowswatcom/makefile
 
 os2/makefile : makemake
 	makemake os2 gcc > os2/makefile.tmp
@@ -250,12 +242,6 @@ ffcall/vacall/vacall-i386-msvc.c : ffcall/vacall/vacall-i386.S ffcall/vacall/asm
 
 ffcall/trampoline/config.h.msvc : ffcall/trampoline/config.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel trampoline/config.h.msvc
-
-src/winabout.c : src/winabout.txt
-	sed -e 's/"/\\"/g' -e 's/^/"/' -e 's/$$/" CRLFstring/' < src/winabout.txt > src/winabout.c
-
-src/wincopyr.c : COPYRIGHT
-	sed -e 's/"/\\"/g' -e 's/^/"/' -e 's/$$/" CRLFstring/' < COPYRIGHT > src/wincopyr.c
 
 doc/vgagraph.txt : src/graph.d
 	cat src/graph.d | sed -e '1,/^\/\*$$/d' | sed -e '/^\*\//,$$d' > doc/vgagraph.txt

@@ -5527,7 +5527,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       return string_concat(1+stringcount+1); # zusammenhängen
     }
 
-#if !((defined(WATCOM) && defined(WINDOWS)) || defined(WIN32_NATIVE))
+#if !defined(WIN32_NATIVE)
 
 # Working Directory auf einem gegebenen Drive abfragen:
 # getwdof(&buf,drive)
@@ -5574,7 +5574,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     #define getwd_of(path,drive)  _getcwd1(path,drive)
   #endif
 
-#endif # !((WATCOM && WINDOWS) || WIN32_NATIVE)
+#endif # !WIN32_NATIVE
 
 # UP: Stellt fest, ob ein Laufwerk existiert.
 # > uintB drive: Laufwerks-(groß-)buchstabe
@@ -5759,37 +5759,13 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         { var char* path_end = &path_buffer[asciz_length(path_buffer)];
           if (!(path_end[-1]=='\\')) { path_end[0] = '\\'; path_end[1] = '\0'; }
         }
-      #elif !(defined(WATCOM) && defined(WINDOWS))
+      #else
         var char path_buffer[3+MAXPATHLEN]; # vgl. GETWD(3)
         path_buffer[0] = drive; path_buffer[1] = ':';
         # Working Directory in path_buffer ablegen:
         begin_system_call();
         getwd_of(&path_buffer[2],drive);
         end_system_call();
-      #else # defined(WATCOM) && defined(WINDOWS)
-        # Methode:
-        # 1. save current drive  (INT 0x21,0x19)
-        # 2. set current drive  (INT 0x21,0xE)
-        # 3. get current directory on current drive  (getcwd)
-        # 4. reset original drive  (INT 0x21,0xE)
-        var char path_buffer[3+MAXPATHLEN]; # vgl. GETWD(3)
-        { var union REGS in;
-          var union REGS out;
-          var uintB orig_drive;
-          begin_system_call();
-          in.regB.ah = 0x19; intdos(&in,&out); orig_drive = out.regB.al; # 1.
-          in.regB.ah = 0x0E; in.regB.dl = drive-'A'+1; intdos(&in,&out); # 2.
-          getcwd(&path_buffer[0],sizeof(path_buffer));                   # 3.
-          in.regB.ah = 0x0E; in.regB.dl = orig_drive; intdos(&in,&out);  # 4.
-          end_system_call();
-        }
-        ASSERT(path_buffer[0]==drive);
-        ASSERT(path_buffer[1]==':');
-        ASSERT(path_buffer[2]=='\\');
-        # evtl. noch ein '\' am Schluß anfügen:
-        { var char* path_end = &path_buffer[asciz_length(path_buffer)];
-          if (!(path_end[-1]=='\\')) { path_end[0] = '\\'; path_end[1] = '\0'; }
-        }
       #endif
       # Hack von DJ (siehe GO32/EXPHDLR.C) und EM (siehe LIB/MISC/_GETCWD1.C):
       # wandelt alle '\' in '/' und alle Groß- in Kleinbuchstaben (nur Kosmetik,
@@ -10096,7 +10072,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
           *arg_ = string_to_asciz(value1); # und ASCIZ-String umwandeln
         });
    }}
-   #if defined(EMUNIX_PORTABEL) || (defined(WATCOM) && defined(WINDOWS))
+   #if defined(EMUNIX_PORTABEL)
    # (Unter OS/2 scheint system() sicherer zu sein als spawnv(). Warum?)
    # Alle Argumente (nun ASCIZ-Strings) zusammenhängen, mit Spaces dazwischen:
    {var object* argptr = args_pointer; # Pointer über die Argumente
@@ -10115,7 +10091,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
      value1 = (ergebnis==0 ? T : NIL); mv_count=1;
    }}
    #endif
-   #if defined(DJUNIX) || (defined(EMUNIX) && !defined(EMUNIX_PORTABEL)) || (defined(WATCOM) && !defined(WINDOWS))
+   #if defined(DJUNIX) || (defined(EMUNIX) && !defined(EMUNIX_PORTABEL)) || defined(WATCOM)
    {# argv-Array aufbauen:
     var DYNAMIC_ARRAY(argv,char*,1+(uintL)argcount+1);
     { var object* argptr = args_pointer;
