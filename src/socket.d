@@ -47,7 +47,6 @@
 #endif
 
 #include <errno.h>
-extern int errno;
 
 #include <stdio.h>   # declares sprintf()
 #include <string.h>  # declares strcmp(), strlen(), strcpy()

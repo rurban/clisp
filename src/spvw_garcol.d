@@ -1406,7 +1406,7 @@
   #else
     #error "Unbekannter Wert von 'varobject_alignment'!"
   #endif
-  #ifdef GNU # so lässt sich's besser optimieren
+  #if defined(GNU) && !defined(__cplusplus) # so lässt sich's besser optimieren
     #ifdef fast_dotimesL
       #define move_aligned_p1_p2(count)  \
         dotimespL(count,count/varobject_alignment, *((uintV*)p2)++ = *((uintV*)p1)++; )

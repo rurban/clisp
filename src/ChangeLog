@@ -1,5 +1,43 @@
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
+	Make it possible again to build clisp with the CFLAGS option "-x c++".
+	* autoconf/acspecific.m4 (AC_C_INLINE): Add explicit return type to
+	declaration.
+	* lispbibl.d (export): Define.
+	(strmflags_rd_by_bit_B, strmflags_wr_by_bit_B, strmflags_rd_by_B,
+	strmflags_wr_by_B, strmflags_rd_B, strmflags_wr_B): New macros, moved
+	from stream.d.
+	(input_stream_p, output_stream_p): Remove declarations.
+	* spvwtabs.d (export): Undefine.
+	* stream.d (strmflags_rd_by_bit_B, strmflags_wr_by_bit_B,
+	strmflags_rd_by_B, strmflags_wr_by_B, strmflags_rd_B, strmflags_wr_B):
+	Commented out. Now in lispbibl.d.
+	(input_stream_p, output_stream_p): Make local.
+	(rd_by_aux_icx_buffered): Bracify so that 'goto eof' doesn't jump into
+	uninitialized variables.
+	(MAKE-PIPE-INPUT-STREAM): Pass a real direction_t to
+	make_unbuffered_stream and make_buffered_stream.
+	(MAKE-PIPE-OUTPUT-STREAM): Likewise.
+	(MAKE-PIPE-IO-STREAM): Likewise.
+	(SYS::MAKE-SOCKET-STREAM): Likewise.
+	(make_socket_stream): Likewise.
+	(sec_usec): Fix declaration so that "ansidecl" recognizes it.
+	(make_terminal_io): Pass a real direction_t to make_file_stream.
+	(init_streamvars): Pass a real direction_t to make_unbuffered_stream.
+	* io.d (pr_stream): Don't use input_stream_p, output_stream_p.
+	* unix.d (getpid): Declare only once.
+	* socket.d (errno): Remove superfluous declaration.
+	* misc.d (clisp_setenv): Cast malloc return value.
+	(SYS::SETENV): Rename local variable 'error' to 'ret'. Ensure it is
+	always initialized.
+	* pathname.d (open_file): Bracify so that 'goto ergebnis_NIL' doesn't
+	jump into uninitialized variables.
+	* spvw_garcol.d (move_aligned_p1_p2): Don't use the gcc extension if
+	compiling in C++ mode.
+	* stdbool.h.in (_Bool): Define differently in C++ mode.
+
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
 	* lispbibl.d (pathname_to_OSdir, OSdir_to_pathname): New declarations.
 	* pathname.d (pathname_to_OSdir, OSdir_to_pathname): New functions.
 	* spvw_ctype.d (init_ctype): Call setlocale for all standard categories
