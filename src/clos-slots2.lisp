@@ -20,8 +20,11 @@
     (declare (ignore class))
     (multiple-value-bind (new-value store-p)
         (sys::check-value `(slot-value ,instance ',slot-name)
-                          (make-condition 'unbound-slot :name slot-name
-                                          :instance instance))
+          (make-condition 'sys::simple-unbound-slot
+            :name slot-name
+            :instance instance
+            :format-control (TEXT "~S: The slot ~S of ~S has no value")
+            :format-arguments (list 'slot-value slot-name instance)))
       (when store-p
         (setf (slot-value instance slot-name) new-value))
       new-value)))
