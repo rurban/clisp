@@ -1,5 +1,10 @@
 2000-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * Makefile.devel, configure, makemake.in: Drop oldoldreadline and
+          oldreadline.
+
+2000-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw.d (main): Emit warning if run without -B command line argument.
 
 2000-03-08  Sam Steingold  <sds@gnu.org>
