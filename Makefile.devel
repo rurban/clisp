@@ -276,15 +276,48 @@ ffcall/callback/trampoline_r/config.h.msvc : ffcall/callback/trampoline_r/config
 
 # Build and test all essential memory models on a Linux/x86 machine.
 MULTIBUILD_OPTIONS =
+MULTIBUILD_CFLAGS = -g
 multibuild-linux-x86:
-	CFLAGS="-O -g -falign-functions=4" CPPFLAGS="" \
-	  ./configure --build $(MULTIBUILD_OPTIONS) build-spvw_mixed_blocks
-	CFLAGS="-O -g -falign-functions=4" CPPFLAGS="-DWIDE" \
-	  ./configure --build $(MULTIBUILD_OPTIONS) build-wide
-	CFLAGS="-O -g -falign-functions=4" CPPFLAGS="-DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_MULTIMAP_FILE -DNO_MULTIMAP_SHM" \
-	  ./configure --build $(MULTIBUILD_OPTIONS) build-spvw_mixed_pages
-	CFLAGS="-O -g -falign-functions=4" CPPFLAGS="-DTYPECODES" \
-	  ./configure --build $(MULTIBUILD_OPTIONS) build-spvw_pure_blocks
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSTANDARD_HEAPCODES -DCONS_HEAP_GROWS_UP" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-standard-spvw_mixed_blocks-staggered
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSTANDARD_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-standard-spvw_mixed_blocks-opposite
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-standard-spvw_mixed_blocks-opposite-fixedmemsize
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_MULTIMAP_FILE -DNO_MULTIMAP_SHM" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-standard-spvw_mixed_pages
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DCONS_HEAP_GROWS_UP" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-noexec-spvw_mixed_blocks-staggered
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-noexec-spvw_mixed_blocks-opposite
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-noexec-spvw_mixed_blocks-opposite-fixedmemsize
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_MULTIMAP_FILE -DNO_MULTIMAP_SHM" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-noexec-spvw_mixed_pages
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DTYPECODES" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-spvw_pure_blocks
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DWIDE" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) \
+	              build-wide
 
 
 distrib : linux-distrib src-distrib
