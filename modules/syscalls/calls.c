@@ -622,7 +622,7 @@ DEFCHECKER(getrlimit_arg,prefix=RLIMIT, CPU FSIZE DATA STACK CORE RSS NOFILE \
 # define rlim_to_I_0(lim) uint32_to_I(lim)
 # define I_to_rlim_0(lim) I_to_uint32(check_uint32(lim))
 #endif
-static inline object rlim_to_I (rlim_t lim)
+static /* maygc */ inline object rlim_to_I (rlim_t lim)
 { return lim == RLIM_INFINITY ? NIL : rlim_to_I_0(lim); }
 static /* maygc */ inline rlim_t I_to_rlim (object lim)
 { return missingp(lim) ? RLIM_INFINITY : I_to_rlim_0(lim); }
@@ -651,6 +651,7 @@ DEFUN(POSIX::RLIMIT, &optional what)
     }
     VALUES1(listof(2*getrlimit_arg_table_size));
   }
+#undef RLIM
 }
 #endif /* HAVE_GETRLIMIT */
 #if defined(HAVE_SETRLIMIT)
