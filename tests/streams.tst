@@ -768,6 +768,17 @@ T
            (describe (make-array nil :element-type nil) s)))
 T
 
+(WITH-INPUT-FROM-STRING (*S* "abcde")
+  (DECLARE (SPECIAL *S*))
+  (LET ((SS (MAKE-SYNONYM-STREAM '*S*)))
+    (ASSERT (TYPEP SS 'STREAM)) (ASSERT (TYPEP SS 'SYNONYM-STREAM))
+    (ASSERT (INPUT-STREAM-P SS)) (ASSERT (NOT (OUTPUT-STREAM-P SS)))
+    (ASSERT (OPEN-STREAM-P SS)) (ASSERT (STREAMP SS))
+    (ASSERT (STREAM-ELEMENT-TYPE SS))
+    (list (READ-CHAR *S*) (READ-CHAR SS) (READ-CHAR *S*) (READ-CHAR SS)
+          (READ-CHAR SS))))
+(#\a #\b #\c #\d #\e)
+
 (progn
 (makunbound 's)
 (makunbound 's1)
