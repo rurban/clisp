@@ -64,7 +64,7 @@ RSXDIR = /c:/rsx
 TEMPDIR = /tmp/clispdos
 
 
-all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src/intparam.c src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/vacall/vacall-i386-msvc.c ffcall/trampoline/config.h.msvc doc/vgagraph.txt acorn/pathname.txt hardlink-surrogate-hack
+all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src/intparam.c src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/vacall/vacall-i386-msvc.c ffcall/trampoline/config.h.msvc doc/vgagraph.txt acorn/pathname.txt
 
 makefiles : dos/makefile dosdjgpp/makefile doswatcom/makefile os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc src/readline/Makefile.dos src/readline/Makefile.os2 src/readline/Makefile.go32 src/newreadline/Makefile.dos src/newreadline/Makefile.os2 src/newreadline/Makefile.go32
 
@@ -361,18 +361,6 @@ os2--distrib : force
 	cp -p $(EMXDIR)/etc/termcap.dat $(TEMPDIR)
 	cd $(TEMPDIR) ; $(PACK) $(PACKOPT) /tmp/clisp$(PACKEXT) *
 	rm -rf $(TEMPDIR)
-
-hardlink-surrogate-hack : force
-	cp -f src/autoconf/acspecific.m4 src/gettext/autoconf/acspecific.m4
-	chmod a-w src/gettext/autoconf/acspecific.m4
-	cp -f src/asmi386.h ffcall/avcall/asmi386.h
-	chmod a-w ffcall/avcall/asmi386.h
-	cp -f src/asmi386.sh ffcall/avcall/asmi386.sh
-	chmod a-w ffcall/avcall/asmi386.sh
-	cp -f src/asmi386.sh ffcall/vacall/asmi386.sh
-	chmod a-w ffcall/vacall/asmi386.sh
-	cp -f src/asmi386.sh ffcall/callback/vacall_r/asmi386.sh
-	chmod a-w ffcall/callback/vacall_r/asmi386.sh
 
 update-version : force
 	date +%Y-%m-%d >src/VERSION
