@@ -2896,16 +2896,16 @@ global int main (argc_t argc, char* argv[]) {
   terminal_sane(); # switch terminal again in normal mode
  #endif
  #if defined(UNIX) || defined(RISCOS)
-   exit(exitcode); # Calling exit(), not _exit(), allows profiling to work.
+  exit(exitcode); # Calling exit(), not _exit(), allows profiling to work.
  #endif
  #if defined(MSDOS) || defined(WIN32_NATIVE)
-   _exit(exitcode);
+  _exit(exitcode);
  #endif
  #ifdef AMIGAOS
-   exit_amiga(exitcode ? RETURN_ERROR : RETURN_OK);
+  exit_amiga(exitcode ? RETURN_ERROR : RETURN_OK);
  #endif
-   # if that did not help:
-   return exitcode;
+  # if that did not help:
+  return exitcode;
 }
 
 # leave LISP-interpreter
@@ -2946,6 +2946,9 @@ nonreturning_function(global, quit, (void)) {
   close_all_files(); # close all files
  #ifdef DYNAMIC_FFI
   exit_ffi(); # close FFI
+ #endif
+ #ifdef WIN32_NATIVE
+  done_win32();
  #endif
  #ifdef REXX
   close_rexx(); # close Rexx-communication
