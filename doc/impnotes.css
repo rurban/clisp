@@ -4,6 +4,7 @@
  * Covered by the GNU GPL <http://www.gnu.org/copyleft/gpl.html>
  */
 
+
 body { background-color: white; color: black; }
 
 /* reduce the whitespace (see also clisp.css) */
@@ -14,7 +15,7 @@ dd p { margin: 0pt; }
 /* mark sexps with color */
 .sexp { background-color: lightgray; color: darkblue; }
 
-/* mark methods with color */
+/* mark methods with color - same background as type! */
 .method { background-color: lightcyan; color: darkblue; }
 
 /* literal data */
@@ -23,7 +24,7 @@ dd p { margin: 0pt; }
 /* bytecode instructions */
 .byte { background-color: lightgray; color: darkred; }
 
-/* mark types with color */
+/* mark types with color - same background as method! */
 .type, .classname, .superclass
 { background-color: lightcyan; color: darkgreen; }
 
