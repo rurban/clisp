@@ -223,7 +223,7 @@ src/sp80386.msvc.c : src/sp80386.d src/asmi386.sh
 ffcall/avcall/avcall.h.msvc : ffcall/avcall/avcall.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel avcall/avcall.h.msvc
 
-ffcall/avcall/avcall-i386-msvc.c : ffcall/avcall/avcall-i386.S ffcall/avcall/asmi386.sh
+ffcall/avcall/avcall-i386-msvc.c : ffcall/avcall/avcall-i386-macro.S ffcall/avcall/asmi386.sh
 	cd ffcall ; $(MAKE) -f Makefile.devel avcall/avcall-i386-msvc.c
 
 ffcall/vacall/config.h.msvc : ffcall/vacall/config.h.in
@@ -232,7 +232,7 @@ ffcall/vacall/config.h.msvc : ffcall/vacall/config.h.in
 ffcall/vacall/vacall.h.msvc : ffcall/vacall/vacall.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel vacall/vacall.h.msvc
 
-ffcall/vacall/vacall-i386-msvc.c : ffcall/vacall/vacall-i386.S ffcall/vacall/asmi386.sh
+ffcall/vacall/vacall-i386-msvc.c : ffcall/vacall/vacall-i386-macro.S ffcall/vacall/asmi386.sh
 	cd ffcall ; $(MAKE) -f Makefile.devel vacall/vacall-i386-msvc.c
 
 ffcall/trampoline/config.h.msvc : ffcall/trampoline/config.h.in
@@ -244,7 +244,7 @@ ffcall/callback/vacall_r/config.h.msvc : ffcall/callback/vacall_r/config.h.in
 ffcall/callback/vacall_r/vacall_r.h.msvc : ffcall/callback/vacall_r/vacall_r.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/vacall_r.h.msvc
 
-ffcall/callback/vacall_r/vacall-i386-msvc.c : ffcall/callback/vacall_r/vacall-i386.S ffcall/callback/vacall_r/asmi386.sh
+ffcall/callback/vacall_r/vacall-i386-msvc.c : ffcall/callback/vacall_r/vacall-i386-macro.S ffcall/callback/vacall_r/asmi386.sh
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/vacall-i386-msvc.c
 
 ffcall/callback/trampoline_r/config.h.msvc : ffcall/callback/trampoline_r/config.h.in
