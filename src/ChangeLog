@@ -1,6 +1,10 @@
+2001-05-27  Sam Steingold  <sds@gnu.org>
+
+	* regexp.lisp (mregerror): FINALIZE is in EXT
+
 2001-05-25  Sam Steingold  <sds@gnu.org>
 
-	* install.lisp, install.bat: bind LISP, FAS and MEM file with CLISP
+	* install.lisp, install.bat: bind LISP, FAS and MEM files with CLISP
 	* makemake.in: added install.* to the win32 binary distribution
 
 2001-05-25  Sam Steingold  <sds@gnu.org>

@@ -193,7 +193,7 @@ extern void mregfree (regex_t *preg);
             "~s: ~a" 'regexp-compile (mregerror errcode compiled-pattern))
     ;; Arrange that when compiled-pattern is garbage-collected,
     ;; mregfree will be called.
-    (finalize compiled-pattern #'mregfree-finally)
+    (ext:finalize compiled-pattern #'mregfree-finally)
     compiled-pattern))
 
 (setf (fdefinition 'match-start) (fdefinition 'regmatch_t-rm_so))
