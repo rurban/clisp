@@ -5588,10 +5588,11 @@ LISPFUNN(pathname_match_p,2)
             pushSTACK(m_list); pushSTACK(b_list);
             pushSTACK(STACK_2); pushSTACK(b_list);
             funcall(L(ldiff),2); # (LDIFF b_start_list b_list)
-            pushSTACK(S(Kdirectory)); pushSTACK(value1);
+            pushSTACK(value1);
             {
-              var object new_piece = listof(2); # (:DIRECTORY subdir1 ... subdirn)
-              pushSTACK(new_piece);
+              var object new_piece = allocate_cons(); # (:DIRECTORY subdir1 ... subdirn)
+              Car(new_piece) = S(Kdirectory); Cdr(new_piece) = STACK_0;
+              STACK_0 = new_piece;
             }
             {
               var object new_cons = allocate_cons();
