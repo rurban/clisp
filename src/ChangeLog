@@ -1,5 +1,11 @@
 2003-05-14  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (handle_dup): new global function
+	(LAUNCH, DUPLICATE-HANDLE): use it
+	* lispbibl.d (handle_dup1): new macro
+
+2003-05-14  Sam Steingold  <sds@gnu.org>
+
 	* constobj.d (type_priority) [WIN32_NATIVE]: added
 	* pathname.d (LAUNCH) [WIN32_NATIVE]: use it (GC-safety bug fix!)
 	(allocate_cons_v): removed
