@@ -460,7 +460,8 @@ LISPFUNN(set_funcallable_instance_function,2)
   var object venv;
   if (cclosurep(function) && Cclosure_length(function) <= 3) {
     codevec = TheCclosure(function)->clos_codevec;
-    venv = (Cclosure_length(function) >= 3 ? TheCclosure(function)->clos_venv : NIL);
+    venv = (Cclosure_length(function) >= 3
+            ? (object)TheCclosure(function)->clos_venv : NIL);
   } else {
     codevec = (pushSTACK(function), funcall(S(make_trampoline),1), value1);
     venv = STACK_0;
