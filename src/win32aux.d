@@ -371,12 +371,14 @@ global BOOL ReadConsoleInput1 (HANDLE ConsoleInput, PINPUT_RECORD Buffer,
 /* Reading from a file/pipe/console handle.
  This is the non-interruptible routine. */
 local int read_helper_low (HANDLE fd, void* bufarea, size_t nbyte, perseverance_t persev) {
+  if (nbyte == 0)
+    return 0;
  #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ_WRITE,(aint)bufarea,(aint)bufarea+nbyte);
  #endif
   var char* buf = (char*) bufarea;
   var int done = 0;
-  while (nbyte != 0) {
+  do {
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
     var OVERLAPPED overlap;
     var DWORD nchars;
@@ -421,7 +423,7 @@ local int read_helper_low (HANDLE fd, void* bufarea, size_t nbyte, perseverance_
       break;
     if (persev == persev_partial)
       persev = persev_bonus;
-  }
+  } while (nbyte != 0);
  #ifndef UNICODE
   /* Possibly translate characters. */
   if (done > 0) {
@@ -479,6 +481,8 @@ global int read_helper (HANDLE fd, void* buf, size_t nbyte, perseverance_t perse
 /* Writing to a file/pipe/console handle. */
 global int write_helper (HANDLE fd, const void* b, size_t nbyte, perseverance_t persev)
 {
+  if (nbyte == 0)
+    return 0;
 #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ,(aint)b,(aint)b+nbyte);
 #endif
@@ -508,7 +512,7 @@ global int write_helper (HANDLE fd, const void* b, size_t nbyte, perseverance_t 
   }
 #endif
   var int done = 0;
-  while (nbyte) {
+  do {
     /* Possibly check for Ctrl-C here ?? */
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
     var OVERLAPPED overlap;
@@ -549,7 +553,7 @@ global int write_helper (HANDLE fd, const void* b, size_t nbyte, perseverance_t 
       break;
     if (persev == persev_partial)
       persev = persev_bonus;
-  }
+  } while (nbyte != 0);
   return done;
 }
 
@@ -557,12 +561,35 @@ global int write_helper (HANDLE fd, const void* b, size_t nbyte, perseverance_t 
    This is the non-interruptible routine. */
 local int lowlevel_sock_read (SOCKET fd, void* b, size_t nbyte, perseverance_t persev)
 {
+  if (nbyte == 0)
+    return 0;
 #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ_WRITE,(aint)b,(aint)b+nbyte);
 #endif
   var char* buf = (char*) b;
   var int done = 0;
-  while (nbyte!=0) {
+  do {
+    if (persev == persev_immediate || persev == persev_bonus) {
+      # Use select() with readfds = singleton set {fd}
+      # and timeout = zero interval.
+      var fd_set handle_set; # set of handles := {fd}
+      var struct timeval zero_time; # time interval := 0
+      FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+     restart_select:
+      zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+      var int result = select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time);
+      if (result<0) {
+        if (sock_errno_is(EINTR))
+          goto restart_select;
+        SOCK_error();
+      } else {
+        # result = number of handles in handle_set for which read() would
+        # return without blocking.
+        if (result==0)
+          break;
+      }
+      # Now we know that recv() will return immediately.
+    }
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
     var int retval = recv(fd,buf,limited_nbyte,0);
     if (retval == 0)
@@ -576,7 +603,7 @@ local int lowlevel_sock_read (SOCKET fd, void* b, size_t nbyte, perseverance_t p
       if (persev == persev_partial)
         persev = persev_bonus;
     }
-  }
+  } while (nbyte != 0);
   return done;
 }
 /* Then we make it interruptible. */
@@ -615,12 +642,35 @@ global int sock_read (SOCKET fd, void* buf, size_t nbyte, perseverance_t persev)
    This is the non-interruptible routine. */
 local int lowlevel_sock_write (SOCKET fd, const void* b, size_t nbyte, perseverance_t persev)
 {
+  if (nbyte == 0)
+    return 0;
 #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ,(aint)b,(aint)b+nbyte);
 #endif
   var const char* buf = (const char*) b;
   var int done = 0;
-  while (nbyte) {
+  do {
+    if (persev == persev_immediate || persev == persev_bonus) {
+      # Use select() with writefds = singleton set {fd}
+      # and timeout = zero interval.
+      var fd_set handle_set; # set of handles := {fd}
+      var struct timeval zero_time; # time interval := 0
+      FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+     restart_select:
+      zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+      var int result = select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time);
+      if (result<0) {
+        if (sock_errno_is(EINTR))
+          goto restart_select;
+        SOCK_error();
+      } else {
+        # result = number of handles in handle_set for which write() would
+        # return without blocking.
+        if (result==0)
+          break;
+      }
+      # Now we know that send() will return immediately.
+    }
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
     var int retval = send(fd,buf,limited_nbyte,0);
     if (retval == 0)
@@ -634,7 +684,7 @@ local int lowlevel_sock_write (SOCKET fd, const void* b, size_t nbyte, persevera
       if (persev == persev_partial)
         persev = persev_bonus;
     }
-  }
+  } while (nbyte != 0);
   return done;
 }
 /* Then we make it interruptible. */
