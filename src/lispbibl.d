@@ -3153,10 +3153,12 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
       #define immediate_object_p(obj)  \
         ((0xC0000003 & ~as_oint(obj)) == 0x00000003)
 
-    # Test for gc-invariant object. (This includes immediate, machine, subr.)
+    # Test for gc-invariant object. (This includes immediate, machine.)
     # gcinvariant_object_p(obj)
       #define gcinvariant_object_p(obj)  \
         ((as_oint(obj) & bit(1)) == 0)
+    # NB: Subrs are not included in this test, because subrp(obj) require a
+    # memory access.
 
     # Test for gc-invariant object, given only the bias.
       #define gcinvariant_bias_p(bias)  \
@@ -3570,8 +3572,13 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 
 #ifdef DEBUG_GCSAFETY
 
-  # Forward declaration.
+  # Forward declarations.
   static inline bool gcinvariant_symbol_p (object obj);
+  #ifdef LINUX_NOEXEC_HEAPCODES
+  static inline bool nonimmsubrp (object obj);
+  #else
+  #define nonimmsubrp(obj)  false
+  #endif
 
   # When a gcv_object_t is fetched from a GC visible location (in the heap or
   # on the STACK) we can assume that GC has updated it.
@@ -3584,7 +3591,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   # while a memory allocation was made.
   inline gcv_object_t::gcv_object_t (object obj) {
     if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj)
-          || obj.allocstamp == alloccount))
+          || obj.allocstamp == alloccount || nonimmsubrp(obj)))
       abort();
     one_o = as_oint(obj);
   }
@@ -5745,7 +5752,7 @@ typedef enum {
     }
     static inline aint pgci_pointable (object obj) {
       if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj)
-            || obj.allocstamp == alloccount))
+            || obj.allocstamp == alloccount || nonimmsubrp(obj)))
         abort();
       return obj.one_o;
     }
@@ -5754,7 +5761,7 @@ typedef enum {
     }
     static inline aint ngci_pointable (object obj) {
       if (!(gcinvariant_symbol_p(obj)
-            || obj.allocstamp == alloccount))
+            || obj.allocstamp == alloccount || nonimmsubrp(obj)))
         abort();
       return obj.one_o;
     }
@@ -6382,6 +6389,12 @@ typedef enum {
   #ifdef LINUX_NOEXEC_HEAPCODES
     #define subrp(obj)  (orecordp(obj) && (Record_type(obj) == Rectype_Subr))
     #define immsubrp(obj)  false
+    #ifdef DEBUG_GCSAFETY
+      # This is used by pgci_pointable, so it cannot use pgci_pointable itself.
+      static inline bool nonimmsubrp (object obj) {
+        return (varobjectp(obj) && (varobject_type((Record)(cgci_pointable(obj)-varobject_bias)) == Rectype_Subr));
+      }
+    #endif
   #endif
 #endif
 
