@@ -185,14 +185,6 @@ T
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
-    (:arguments (obj (c-union (c1 (c-ptr character))
-                              (s (c-array-ptr character)))))
-    (:return-type (c-ptr character)) (:language :stdc))
-  (c-self #\w))
-#\w
-
-(progn
-  (def-call-out c-self (:name "ffi_identity")
     (:arguments (first boolean)
                 (obj (c-ptr (c-union (c character)
                                      (b boolean)
@@ -201,18 +193,6 @@ T
     (:return-type nil) (:language :stdc))
   (c-self t #\j))
 #\j
-
-(progn
-  (def-call-out c-self (:name "ffi_identity")
-    (:arguments (first (c-union (c1 (c-ptr character))
-                                (s (c-array-ptr character))))
-                (obj (c-ptr (c-union (c character)
-                                     (b boolean)
-                                     (p c-pointer)))
-                     :in-out))
-    (:return-type (c-ptr character)) (:language :stdc))
-  (multiple-value-list (c-self #\w #\j)))
-(#\w #\j)
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
