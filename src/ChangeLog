@@ -5,6 +5,8 @@
 	(device_diff): when HAS_DEVICE, push `:device' onto solutions
 	(translate_host): respect and expect `:host' in `subst'
 	(translate_device): respect and expect `:device' in `subst'
+	also, added a pathname translation debugging infrastructure
+	also, translated some German coments
 
 2001-03-09  Sam Steingold  <sds@gnu.org>
 
