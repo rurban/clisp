@@ -1811,7 +1811,7 @@ struct argv_actions {
   uintL argv_expr_count;
   const char **argv_exprs; # stored backwards!
   const char* argv_execute_file;
-  const char** argv_execute_args;
+  const char* const* argv_execute_args;
   uintL argv_execute_arg_count;
   bool argv_batchmode_p;
   bool argv_license;
@@ -1820,7 +1820,7 @@ struct argv_actions {
 
 # Parse the command-line options.
 # Returns -1 on normal termination, or an exit code >= 0 for immediate exit.
-local inline int parse_options (int argc, const char* argv[],
+local inline int parse_options (int argc, const char* const* argv,
                                 struct argv_init_c* p0,
                                 struct argv_initparams* p1,
                                 struct argv_actions* p2) {
@@ -1900,8 +1900,8 @@ local inline int parse_options (int argc, const char* argv[],
 
   program_name = argv[0]; # argv[0] is the program name
   {
-    var const char** argptr = &argv[1];
-    var const char** argptr_limit = &argv[argc];
+    var const char* const* argptr = &argv[1];
+    var const char* const* argptr_limit = &argv[argc];
     var enum { for_exec, for_init, for_compile, for_expr } argv_for = for_exec;
     # loop and process options, replace processed options with NULL:
     while (argptr < argptr_limit) {
@@ -2186,10 +2186,9 @@ local inline int parse_options (int argc, const char* argv[],
               p2->argv_verbose = 1;
               p2->argv_norc = true;
               p2->argv_repl = false;
-              /* force processing this argument again,
-                 but this time as if it came after an '-x' */
-              argv_for = for_expr;
-              *--argptr = "(PROGN (PRINC \"" PACKAGE_NAME " \")"
+              p2->argv_exprs[-1-(sintP)(p2->argv_expr_count++)] =
+                /* FIXME: i18n */
+                "(PROGN (PRINC \"" PACKAGE_NAME " \")"
                 "(PRINC (LISP-IMPLEMENTATION-VERSION)) (TERPRI)"
                 "(PRINC \"Software: \") (PRINC (SOFTWARE-VERSION))"
                 "(PRINC \" \") (PRINC (SOFTWARE-TYPE)) (TERPRI)"
@@ -2230,7 +2229,7 @@ local inline int parse_options (int argc, const char* argv[],
         p2->argv_execute_arg_count = argptr_limit - argptr;
         argptr = argptr_limit; /* abort loop */
       } else {
-        # no option is interpreted as file to be loaded / compiled / executed
+        # no option -> is interpreted as file to be loaded / compiled / executed
         switch (argv_for) {
           case for_init:
             p2->argv_init_files[p2->argv_init_filecount++] = arg;
@@ -2787,7 +2786,7 @@ local inline void main_actions (struct argv_actions *p) {
   if (p->argv_license)
     print_license();
   if (p->argv_execute_arg_count > 0) {
-    var const char** execute_arg_ptr = p->argv_execute_args;
+    var const char* const* execute_arg_ptr = p->argv_execute_args;
     var uintL count = p->argv_execute_arg_count;
     do { pushSTACK(asciz_to_string(*execute_arg_ptr++,O(misc_encoding))); }
     while (--count);
