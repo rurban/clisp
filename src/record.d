@@ -215,13 +215,10 @@ LISPFUNN(copy_structure,1) {
     fehler(type_error,GETTEXT("~: ~ is not a structure"));
   }
   var uintC length = Structure_length(STACK_0);
-  var object new_structure = allocate_structure(length); # new structure
-  { # fill:
-    var object* old_ptr = &TheStructure(popSTACK())->structure_types;
-    var object* new_ptr = &TheStructure(new_structure)->structure_types;
-    dotimespC(length,length, { *new_ptr++ = *old_ptr++; });
-  }
-  # return as value:
+  var object new_structure = allocate_structure(length);
+  memcpy(&TheStructure(new_structure)->structure_types,
+         &TheStructure(popSTACK())->structure_types,
+         length*sizeof(object));
   value1 = new_structure; mv_count=1;
 }
 
