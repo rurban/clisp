@@ -451,7 +451,11 @@ local object R_sin_R (object x)
     switch (mod4) {
       case 0: x = F_F_float_F(STACK_0,STACK_2); /* (sin x) = r */ break;
       case 1: x = I_F_float_F(Fixnum_1,STACK_2); /* (sin x) = 1 */ break;
-      case 2: x = F_F_float_F(F_minus_F(STACK_0),STACK_2); /*sin(x)=-r*/ break;
+      case 2: { /* sin(x) = -r */
+        var object minus_r = F_minus_F(STACK_0);
+        x = F_F_float_F(minus_r,STACK_2);
+        break;
+      }
       case 3: x = I_F_float_F(Fixnum_minus1,STACK_2); /* (sin x) = -1 */ break;
     }
   else
@@ -491,7 +495,11 @@ local object R_cos_R (object x)
       || (F_exponent_L(x) <= (sintL)(-F_float_digits(x))>>1)) /* e <= -d/2 <==> e <= -ceiling(d/2) ? */
     switch (mod4) {
       case 0: x = I_F_float_F(Fixnum_1,STACK_2); /* (cos x) = 1.0 */ break;
-      case 1: x = F_F_float_F(F_minus_F(STACK_0),STACK_2);/*cos(x)=-r*/ break;
+      case 1: {/* cos(x) = -r */
+        var object minus_r = F_minus_F(STACK_0);
+        x = F_F_float_F(minus_r,STACK_2);
+        break;
+      }
       case 2: x = I_F_float_F(Fixnum_minus1,STACK_2); /* (cos x) = -1 */ break;
       case 3: x = F_F_float_F(STACK_0,STACK_2); /* (cos x) = r */ break;
     }
@@ -1069,8 +1077,8 @@ local object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
           pushSTACK(temp = R_exp_R(x,true,NULL)); /* y:=exp(x) */
           temp = F_durch_F(temp); # (/ y)
           temp = F_F_minus_F(popSTACK(),temp); # von y subtrahieren
-          return F_F_float_F(F_I_scale_float_F(temp,Fixnum_minus1),
-                             popSTACK()); /* (scale-float ... -1) */
+          temp = F_I_scale_float_F(temp,Fixnum_minus1); /* (scale-float -1) */
+          return F_F_float_F(temp,popSTACK());
     }   }
 
 # R_cosh_R(x) liefert zu einer reellen Zahl x die Zahl cosh(x).
@@ -1103,8 +1111,8 @@ local object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
            pushSTACK(temp = R_exp_R(x,true,NULL)); /* y:=exp(x) */
            temp = F_durch_F(temp); # (/ y)
            temp = F_F_plus_F(popSTACK(),temp); # zu y addieren
-           return F_F_float_F(F_I_scale_float_F(temp,Fixnum_minus1),
-                              popSTACK()); /* (scale-float ... -1) */
+           temp = F_I_scale_float_F(temp,Fixnum_minus1); /* (scale-float -1) */
+           return F_F_float_F(temp,popSTACK());
          }
          else
          # e<=0

@@ -1666,10 +1666,11 @@ local object parse_logical_host_prefix (zustand* zp, object string) {
     return NIL; # no ':' -> no host
   { # make host-string:
     var uintL len = zp->index - startindex;
+    pushSTACK(string);
     host = allocate_string(len);
     # and fill it:
     if (len > 0)
-      copy_upcase(host,0,string,startindex,len);
+      copy_upcase(host,0,popSTACK()/* ==string */,startindex,len);
   }
   # skip ':'
   Z_SHIFT(*zp,1);
