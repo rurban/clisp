@@ -6,7 +6,6 @@
 (in-package "CLOS")
 
 
-(fmakunbound 'print-object)
 (defgeneric print-object (object stream)
   (:method ((object standard-object) stream)
     (if *print-readably*

@@ -16,7 +16,6 @@
 #| ;;; Unoptimized slot-definition-xxx accessors.
 
 ;; MOP p. 84
-(fmakunbound 'slot-definition-name)
 (defgeneric slot-definition-name (slotdef)
   (:method ((slotdef slot-definition))
     (slot-value slotdef '$name)))
@@ -29,7 +28,6 @@
   (slot-value slotdef '$inheritable-initer))
 
 ;; MOP p. 84
-(fmakunbound 'slot-definition-initform)
 (defgeneric slot-definition-initform (slotdef)
   (:method ((slotdef slot-definition))
     (inheritable-slot-definition-initform (slot-value slotdef '$inheritable-initer))))
@@ -38,7 +36,6 @@
   (setf (inheritable-slot-definition-initform (slot-value slotdef '$inheritable-initer)) new-value))
 
 ;; MOP p. 84
-(fmakunbound 'slot-definition-initfunction)
 (defgeneric slot-definition-initfunction (slotdef)
   (:method ((slotdef slot-definition))
     (inheritable-slot-definition-initfunction (slot-value slotdef '$inheritable-initer))))
@@ -47,7 +44,6 @@
   (setf (inheritable-slot-definition-initfunction (slot-value slotdef '$inheritable-initer)) new-value))
 
 ;; MOP p. 84
-(fmakunbound 'slot-definition-initargs)
 (defgeneric slot-definition-initargs (slotdef)
   (:method ((slotdef slot-definition))
     (slot-value slotdef '$initargs)))
@@ -56,7 +52,6 @@
   (setf (slot-value slotdef '$initargs) new-value))
 
 ;; MOP p. 85
-(fmakunbound 'slot-definition-type)
 (defgeneric slot-definition-type (slotdef)
   (:method ((slotdef slot-definition))
     (slot-value slotdef '$type)))
@@ -65,7 +60,6 @@
   (setf (slot-value slotdef '$type) new-value))
 
 ;; MOP p. 84
-(fmakunbound 'slot-definition-allocation)
 (defgeneric slot-definition-allocation (slotdef)
   (:method ((slotdef slot-definition))
     (slot-value slotdef '$allocation)))
@@ -85,7 +79,6 @@
   (setf (inheritable-slot-definition-documentation (slot-value slotdef '$inheritable-doc)) new-value))
 
 ;; MOP p. 85
-(fmakunbound 'slot-definition-readers)
 (defgeneric slot-definition-readers (slotdef)
   (:method ((slotdef direct-slot-definition))
     (slot-value slotdef '$readers)))
@@ -94,7 +87,6 @@
   (setf (slot-value slotdef '$readers) new-value))
 
 ;; MOP p. 85
-(fmakunbound 'slot-definition-writers)
 (defgeneric slot-definition-writers (slotdef)
   (:method ((slotdef direct-slot-definition))
     (slot-value slotdef '$writers)))
@@ -103,7 +95,6 @@
   (setf (slot-value slotdef '$writers) new-value))
 
 ;; MOP p. 86
-(fmakunbound 'slot-definition-location)
 (defgeneric slot-definition-location (slotdef)
   (:method ((slotdef effective-slot-definition))
     (slot-value slotdef '$location)))
@@ -117,7 +108,6 @@
 ;;; These are possible thanks to the :fixed-slot-locations class option.
 
 ;; MOP p. 84
-(fmakunbound 'slot-definition-name)
 (defgeneric slot-definition-name (slotdef)
   (:method ((slotdef slot-definition))
     (sys::%record-ref slotdef *<slot-definition>-name-location*)))
@@ -135,7 +125,6 @@
   (setf (sys::%record-ref slotdef *<slot-definition>-inheritable-initer-location*) new-value))
 
 ;; MOP p. 84
-(fmakunbound 'slot-definition-initform)
 (defgeneric slot-definition-initform (slotdef)
   (:method ((slotdef slot-definition))
     (inheritable-slot-definition-initform (sys::%record-ref slotdef *<slot-definition>-inheritable-initer-location*))))
@@ -145,7 +134,6 @@
   (setf (inheritable-slot-definition-initform (sys::%record-ref slotdef *<slot-definition>-inheritable-initer-location*)) new-value))
 
 ;; MOP p. 84
-(fmakunbound 'slot-definition-initfunction)
 (defgeneric slot-definition-initfunction (slotdef)
   (:method ((slotdef slot-definition))
     (inheritable-slot-definition-initfunction (sys::%record-ref slotdef *<slot-definition>-inheritable-initer-location*))))
@@ -155,7 +143,6 @@
   (setf (inheritable-slot-definition-initfunction (sys::%record-ref slotdef *<slot-definition>-inheritable-initer-location*)) new-value))
 
 ;; MOP p. 84
-(fmakunbound 'slot-definition-initargs)
 (defgeneric slot-definition-initargs (slotdef)
   (:method ((slotdef slot-definition))
     (sys::%record-ref slotdef *<slot-definition>-initargs-location*)))
@@ -165,7 +152,6 @@
   (setf (sys::%record-ref slotdef *<slot-definition>-initargs-location*) new-value))
 
 ;; MOP p. 85
-(fmakunbound 'slot-definition-type)
 (defgeneric slot-definition-type (slotdef)
   (:method ((slotdef slot-definition))
     (sys::%record-ref slotdef *<slot-definition>-type-location*)))
@@ -175,7 +161,6 @@
   (setf (sys::%record-ref slotdef *<slot-definition>-type-location*) new-value))
 
 ;; MOP p. 84
-(fmakunbound 'slot-definition-allocation)
 (defgeneric slot-definition-allocation (slotdef)
   (:method ((slotdef slot-definition))
     (sys::%record-ref slotdef *<slot-definition>-allocation-location*)))
@@ -201,7 +186,6 @@
   (setf (inheritable-slot-definition-documentation (sys::%record-ref slotdef *<slot-definition>-inheritable-doc-location*)) new-value))
 
 ;; MOP p. 85
-(fmakunbound 'slot-definition-readers)
 (defgeneric slot-definition-readers (slotdef)
   (:method ((slotdef direct-slot-definition))
     (sys::%record-ref slotdef *<direct-slot-definition>-readers-location*)))
@@ -211,7 +195,6 @@
   (setf (sys::%record-ref slotdef *<direct-slot-definition>-readers-location*) new-value))
 
 ;; MOP p. 85
-(fmakunbound 'slot-definition-writers)
 (defgeneric slot-definition-writers (slotdef)
   (:method ((slotdef direct-slot-definition))
     (sys::%record-ref slotdef *<direct-slot-definition>-writers-location*)))
@@ -221,7 +204,6 @@
   (setf (sys::%record-ref slotdef *<direct-slot-definition>-writers-location*) new-value))
 
 ;; MOP p. 86
-(fmakunbound 'slot-definition-location)
 (defgeneric slot-definition-location (slotdef)
   (:method ((slotdef effective-slot-definition))
     (sys::%record-ref slotdef *<effective-slot-definition>-location-location*)))
@@ -232,7 +214,6 @@
 
 
 ;; MOP p. 45
-(fmakunbound 'direct-slot-definition-class)
 (defgeneric direct-slot-definition-class (class &rest initargs)
   (:method ((class semi-standard-class) &rest initargs)
     (declare (ignore initargs))
@@ -242,7 +223,6 @@
     <structure-direct-slot-definition>))
 
 ;; MOP p. 45
-(fmakunbound 'effective-slot-definition-class)
 (defgeneric effective-slot-definition-class (class &rest initargs)
   (:method ((class semi-standard-class) &rest initargs)
     (declare (ignore initargs))

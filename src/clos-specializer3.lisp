@@ -36,13 +36,11 @@
 
 
 ;; MOP p. 103
-(fmakunbound 'specializer-direct-generic-functions)
 (defgeneric specializer-direct-generic-functions (specializer)
   (:method ((specializer specializer))
     (list-direct-generic-functions specializer)))
 
 ;; MOP p. 103
-(fmakunbound 'specializer-direct-methods)
 (defgeneric specializer-direct-methods (specializer)
   (:method ((specializer specializer))
     (list-direct-methods specializer)))

@@ -10,7 +10,6 @@
 (setf (fdefinition 'make-instance-<method-combination>) #'make-instance)
 
 ;; MOP p. 54
-(let ((*allow-making-generic* t))
-  (defgeneric find-method-combination (generic-function name options)
-    (:method ((gf generic-function) (name symbol) options)
-      (find-method-combination-<generic-function>-<symbol> gf name options))))
+(defgeneric find-method-combination (generic-function name options)
+  (:method ((gf generic-function) (name symbol) options)
+    (find-method-combination-<generic-function>-<symbol> gf name options)))

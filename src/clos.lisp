@@ -35,6 +35,7 @@
 (load "clos-class5")
 ; Now instance creation works. Instances can be passed to generic functions.
 (setq *classes-finished* t)
+(setq *allow-making-generic* t)
 (load "clos-slotdef3")
 (load "clos-specializer3")
 (load "clos-class6")
@@ -42,6 +43,7 @@
 (load "clos-methcomb4")
 (load "clos-genfun5")
 (load "clos-print")
+(setq *allow-making-generic* nil)
 (load "documentation")
 
 
