@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2000-03-09\n"
-"POT-Creation-Date: 2001-02-06 17:23:55 CET\n"
-"PO-Revision-Date: 2001-02-06 17:23:55 CET\n"
+"Project-Id-Version: clisp 2.25\n"
+"POT-Creation-Date: 2001-03-15 19:39:51 CET\n"
+"PO-Revision-Date: 2001-03-15 19:39:51 CET\n"
 "Last-Translator: Automatically generated <haible@honolulu>\n"
 "Language-Team: Template <xx@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -133,93 +133,45 @@ msgstr ""
 msgid "~S: ~S is used by ~{~S~^, ~}."
 msgstr ""
 
-#: constobj.d:458
-msgid "January"
-msgstr ""
-
-#: constobj.d:462
-msgid "February"
-msgstr ""
-
-#: constobj.d:466
-msgid "March"
-msgstr ""
-
-#: constobj.d:470
-msgid "April"
-msgstr ""
-
-#: constobj.d:474
-msgid "May"
-msgstr ""
-
-#: constobj.d:478
-msgid "June"
-msgstr ""
-
-#: constobj.d:482
-msgid "July"
-msgstr ""
-
-#: constobj.d:486
-msgid "August"
-msgstr ""
-
-#: constobj.d:490
-msgid "September"
-msgstr ""
-
-#: constobj.d:494
-msgid "October"
-msgstr ""
-
-#: constobj.d:498
-msgid "November"
-msgstr ""
-
-#: constobj.d:502
-msgid "December"
-msgstr ""
-
-#: constobj.d:516
+#: constobj.d:472
 msgid "ANSI C program"
 msgstr ""
 
-#: constobj.d:520
+#: constobj.d:476
 msgid "GNU C++ "
 msgstr ""
 
-#: constobj.d:523
+#: constobj.d:479
 msgid "GNU C "
 msgstr ""
 
-#: constobj.d:530
+#: constobj.d:486
 msgid "C++ compiler"
 msgstr ""
 
-#: constobj.d:533
+#: constobj.d:489
 msgid "C compiler"
 msgstr ""
 
-#: constobj.d:538
+#: constobj.d:494
 msgid "ENGLISH"
 msgstr ""
 
-#: constobj.d:701
+#: constobj.d:657
 msgid "The value of ~S was not a pathname. ~:*~S is being reset."
 msgstr ""
 
-#: constobj.d:706
+#: constobj.d:662
 msgid "Creating directory: "
 msgstr ""
 
-#: constobj.d:860
+#: constobj.d:819
 msgid ""
 "The variable ~S had an illegal value.\n"
 "~S has been reset to ~S."
 msgstr ""
 
-#: constobj.d:862
+#: constobj.d:821
 msgid ""
 "Floating point operation combines numbers of different precision.\n"
 "See ANSI CL 12.1.4.4 and the CLISP impnotes for details.\n"
@@ -228,234 +180,368 @@ msgid ""
 "To shut off this warning, set ~S to ~S."
 msgstr ""
 
-#: constobj.d:877
+#: constobj.d:836
 msgid "Bye."
 msgstr ""
 
-#: constobj.d:879
+#: constobj.d:838
 msgid "Press a key to terminate..."
 msgstr ""
 
-#: constobj.d:884
+#: constobj.d:843
 msgid ""
 "\n"
 "  Next environment: "
 msgstr ""
 
-#: constobj.d:886
+#: constobj.d:845
 msgid ""
 "\n"
 "APPLY frame with breakpoint for call "
 msgstr ""
 
-#: constobj.d:888
+#: constobj.d:847
 msgid ""
 "\n"
 "APPLY frame for call "
 msgstr ""
 
-#: constobj.d:890
+#: constobj.d:849
 msgid ""
 "\n"
 "EVAL frame with breakpoint for form "
 msgstr ""
 
-#: constobj.d:892
+#: constobj.d:851
 msgid ""
 "\n"
 "EVAL frame for form "
 msgstr ""
 
-#: constobj.d:894
+#: constobj.d:853
 msgid ""
 "\n"
 "frame binding variables (~ = dynamically):"
 msgstr ""
 
-#: constobj.d:897
+#: constobj.d:856
 msgid ""
 "\n"
 "CALLBACK frame"
 msgstr ""
 
-#: constobj.d:900
+#: constobj.d:859
 msgid ""
 "\n"
 "frame binding variables "
 msgstr ""
 
-#: constobj.d:902
+#: constobj.d:861
 msgid ""
 "\n"
 "frame binding functions "
 msgstr ""
 
-#: constobj.d:904
+#: constobj.d:863
 msgid " binds (~ = dynamically):"
 msgstr ""
 
-#: constobj.d:907
+#: constobj.d:866
 msgid ""
 "\n"
 "block frame "
 msgstr ""
 
-#: constobj.d:909
+#: constobj.d:868
 msgid ""
 "\n"
 "nested block frame "
 msgstr ""
 
-#: constobj.d:911
+#: constobj.d:870
 msgid " for "
 msgstr ""
 
-#: constobj.d:913
+#: constobj.d:872
 msgid ""
 "\n"
 "compiled block frame for "
 msgstr ""
 
-#: constobj.d:915
+#: constobj.d:874
 msgid ""
 "\n"
 "tagbody frame "
 msgstr ""
 
-#: constobj.d:917
+#: constobj.d:876
 msgid ""
 "\n"
 "nested tagbody frame "
 msgstr ""
 
-#: constobj.d:919
+#: constobj.d:878
 msgid " for"
 msgstr ""
 
-#: constobj.d:922
+#: constobj.d:881
 msgid ""
 "\n"
 "compiled tagbody frame for "
 msgstr ""
 
-#: constobj.d:924
+#: constobj.d:883
 msgid ""
 "\n"
 "catch frame for tag "
 msgstr ""
 
-#: constobj.d:926
+#: constobj.d:885
 msgid ""
 "\n"
 "handler frame for conditions"
 msgstr ""
 
-#: constobj.d:928
+#: constobj.d:887
 msgid ""
 "\n"
 "unwind-protect frame"
 msgstr ""
 
-#: constobj.d:930
+#: constobj.d:889
 msgid ""
 "\n"
 "\n"
 "driver frame"
 msgstr ""
 
-#: constobj.d:932
+#: constobj.d:891
 msgid ""
 "\n"
 "frame binding environments"
 msgstr ""
 
-#: spvw.d:593
+#: spvw.d:595
 msgid "could not make symbol value per-thread"
 msgstr ""
 
-#: spvw.d:657
+#: spvw.d:659
 msgid ""
 "\n"
 "*** - Program stack overflow. RESET"
 msgstr ""
 
-#: spvw.d:662
+#: spvw.d:664
 msgid ""
 "\n"
 "*** - Lisp stack overflow. RESET"
 msgstr ""
 
-#: spvw.d:799
+#: spvw.d:801
 msgid ""
 "internal error: statement in file ~, line ~ has been reached!!\n"
 "Please send the authors of the program a description how you produced this error!"
 msgstr ""
 
-#: spvw.d:861
+#: spvw.d:863
 msgid "Unknown signature of an FSUBR\n"
 msgstr ""
 
-#: spvw.d:970
+#: spvw.d:972
 msgid "Unknown signature of a SUBR\n"
 msgstr ""
 
-#: spvw.d:1612
+#: spvw.d:1614
 msgid "module `%s' requires package %s.\n"
 msgstr ""
 
-#: spvw.d:1753
+#: spvw.d:1655
+msgid ""
+"GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp.\n"
+"Usage:  "
+msgstr ""
+
+#: spvw.d:1658
+msgid ""
+" [options] [lispfile [argument ...]]\n"
+" When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
+" to the list of argument strings. Otherwise, an interactive\n"
+" read-eval-print loop is entered.\n"
+msgstr ""
+
+#: spvw.d:1662
+msgid "Informative output:\n"
+msgstr ""
+
+#: spvw.d:1663
+msgid " -h, --help  - print this help and exit\n"
+msgstr ""
+
+#: spvw.d:1664
+msgid " --version   - print the version information\n"
+msgstr ""
+
+#: spvw.d:1665
+msgid " --license   - print the licensing information\n"
+msgstr ""
+
+#: spvw.d:1666
+msgid "Memory image selection:\n"
+msgstr ""
+
+#: spvw.d:1667
+msgid " -B lisplibdir - set the installation directory\n"
+msgstr ""
+
+#: spvw.d:1669
+msgid " -K linkingset - use this executable and memory image\n"
+msgstr ""
+
+#: spvw.d:1671
+msgid " -M memfile  - use this memory image\n"
+msgstr ""
+
+#: spvw.d:1672
+msgid " -m size     - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgstr ""
+
+#: spvw.d:1674
+msgid " -s size     - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgstr ""
+
+#: spvw.d:1677
+msgid " -t tmpdir   - temporary directory for memmap\n"
+msgstr ""
+
+#: spvw.d:1679
+msgid "Internationalization:\n"
+msgstr ""
+
+#: spvw.d:1680
+msgid " -L language - set user language\n"
+msgstr ""
+
+#: spvw.d:1681
+msgid " -N nlsdir   - NLS catalog directory\n"
+msgstr ""
+
+#: spvw.d:1682
+msgid " -Edomain encoding - set encoding\n"
+msgstr ""
+
+#: spvw.d:1683
+msgid "Interoperability:\n"
+msgstr ""
+
+#: spvw.d:1684
+msgid " -q, --quiet, --silent - do not print the banner\n"
+msgstr ""
+
+#: spvw.d:1685
+msgid " -w          - wait for keypress after program termination\n"
+msgstr ""
+
+#: spvw.d:1686
+msgid " -I          - be ILISP-friendly\n"
+msgstr ""
+
+#: spvw.d:1687
+msgid "Startup actions:\n"
+msgstr ""
+
+#: spvw.d:1688
+msgid " -a          - more ANSI CL compliance\n"
+msgstr ""
+
+#: spvw.d:1689
+msgid " -p package  - start in the package\n"
+msgstr ""
+
+#: spvw.d:1690
+msgid " -C          - set *LOAD-COMPILING* to T\n"
+msgstr ""
+
+#: spvw.d:1691
+msgid " -norc       - do not load the user ~/.clisprc file\n"
+msgstr ""
+
+#: spvw.d:1692
+msgid " -i file     - load initfile (can be repeated)\n"
+msgstr ""
+
+#: spvw.d:1693
+msgid "Actions:\n"
+msgstr ""
+
+#: spvw.d:1694
+msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
+msgstr ""
+
+#: spvw.d:1695
+msgid " -x expression - execute the expression, then exit\n"
+msgstr ""
+
+#: spvw.d:1696
+msgid " lispfile [argument ...] - load lispfile, then exit\n"
+msgstr ""
+
+#: spvw.d:1697
+msgid "Default action is an interactive read-eval-print loop.\n"
+msgstr ""
+
+#: spvw.d:1755
 msgid "                    Amiga version: Joerg Hoehle\n"
 msgstr ""
 
-#: spvw.d:1757
+#: spvw.d:1759
 msgid "                    RISCOS port: Peter Burwood, Bruno Haible\n"
 msgstr ""
 
-#: spvw.d:1968
+#: spvw.d:1970
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
 msgstr ""
 
-#: spvw.d:1972
+#: spvw.d:1974
 msgid "%s out of range\n"
 msgstr ""
 
-#: spvw.d:1984
+#: spvw.d:1986
 msgid "memory size"
 msgstr ""
 
-#: spvw.d:1994
+#: spvw.d:1996
 msgid "stack size"
 msgstr ""
 
-#: spvw.d:2315
+#: spvw.d:2317
 msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
 msgstr ""
 
-#: spvw.d:2322
+#: spvw.d:2324
 msgid "Only %d bytes available.\n"
 msgstr ""
 
-#: spvw.d:2556
+#: spvw.d:2558
 msgid "Couldn't determine the end of the SP stack!\n"
 msgstr ""
 
-#: spvw.d:2777
+#: spvw.d:2779
 msgid ""
 "\n"
 "WARNING: No initialisation file specified.\n"
 msgstr ""
 
-#: spvw.d:2781 spvw.d:2796
+#: spvw.d:2783 spvw.d:2798
 msgid "Please try: "
 msgstr ""
 
-#: spvw.d:2795
+#: spvw.d:2797
 msgid ""
 "\n"
 "WARNING: No installation directory specified.\n"
 msgstr ""
 
-#: spvw.d:3000
+#: spvw.d:3002
 msgid "Not enough memory for Lisp.\n"
 msgstr ""
 
@@ -603,27 +689,27 @@ msgstr ""
 msgid "Trying to make room through a GC...\n"
 msgstr ""
 
-#: spvw_memfile.d:218
+#: spvw_memfile.d:234
 msgid "disk full"
 msgstr ""
 
-#: spvw_memfile.d:744
+#: spvw_memfile.d:763
 msgid "operating system error during load of initialisation file `%s'\n"
 msgstr ""
 
-#: spvw_memfile.d:1216
+#: spvw_memfile.d:1235
 msgid "Cannot map the initialisation file into memory."
 msgstr ""
 
-#: spvw_memfile.d:1480
+#: spvw_memfile.d:1513
 msgid "operating system error during load of initialisation file\n"
 msgstr ""
 
-#: spvw_memfile.d:1486
+#: spvw_memfile.d:1519
 msgid "initialisation file was not created by this version of LISP\n"
 msgstr ""
 
-#: spvw_memfile.d:1490
+#: spvw_memfile.d:1523
 msgid "not enough memory for initialisation\n"
 msgstr ""
 
@@ -735,91 +821,87 @@ msgstr ""
 msgid "EVAL/APPLY: too few arguments given to ~"
 msgstr ""
 
-#: eval.d:3165
+#: eval.d:3148
 msgid "EVAL: variable ~ has no value"
 msgstr ""
 
-#: eval.d:3190
-msgid "EVAL: illegal form ~"
-msgstr ""
-
-#: eval.d:3274 eval.d:4299 eval.d:5227 control.d:109
+#: eval.d:3248 eval.d:4273 eval.d:5201 control.d:109
 msgid "~: ~ is not a function name"
 msgstr ""
 
-#: eval.d:3353
+#: eval.d:3327
 msgid "EVAL: too few parameters for special-form ~: ~"
 msgstr ""
 
-#: eval.d:3367
+#: eval.d:3341
 msgid "EVAL: too many parameters for special-form ~: ~"
 msgstr ""
 
-#: eval.d:3380
+#: eval.d:3354
 msgid "EVAL: dotted parameter list for special form ~: ~"
 msgstr ""
 
-#: eval.d:3447
+#: eval.d:3421
 msgid "EVAL: too few arguments given to ~: ~"
 msgstr ""
 
-#: eval.d:3460
+#: eval.d:3434
 msgid "EVAL: too many arguments given to ~: ~"
 msgstr ""
 
-#: eval.d:3473
+#: eval.d:3447
 msgid "EVAL: argument list given to ~ is dotted: ~"
 msgstr ""
 
-#: eval.d:4312
+#: eval.d:4286
 msgid "APPLY: argument list given to ~ is dotted"
 msgstr ""
 
-#: eval.d:4324
+#: eval.d:4298
 msgid "APPLY: too many arguments given to ~"
 msgstr ""
 
-#: eval.d:4336
+#: eval.d:4310
 msgid "APPLY: too few arguments given to ~"
 msgstr ""
 
-#: eval.d:6795 eval.d:6811
+#: eval.d:6769 eval.d:6785
 msgid "symbol ~ has no value"
 msgstr ""
 
-#: eval.d:6826
+#: eval.d:6800
 msgid "assignment to constant symbol ~ is impossible"
 msgstr ""
 
-#: eval.d:7452 control.d:2415
+#: eval.d:7426 control.d:2415
 msgid "~: too many arguments given to ~"
 msgstr ""
 
-#: eval.d:7630 eval.d:7667
+#: eval.d:7604 eval.d:7641
 msgid "(~ ~): the tagbody of the tags ~ has already been left"
 msgstr ""
 
-#: eval.d:7731 control.d:2108
+#: eval.d:7705 control.d:2108
 msgid "~: there is no CATCHer for tag ~"
 msgstr ""
 
-#: eval.d:7756
+#: eval.d:7730
 msgid "STACK corrupted"
 msgstr ""
 
-#: eval.d:8140
+#: eval.d:8114
 msgid "~: ~ is not a correct index into ~"
 msgstr ""
 
-#: eval.d:8752
+#: eval.d:8726
 msgid "undefined bytecode in ~ at byte ~"
 msgstr ""
 
-#: eval.d:8762
+#: eval.d:8736
 msgid "too many return values"
 msgstr ""
 
-#: eval.d:8769
+#: eval.d:8743
 msgid "Corrupted STACK in ~ at byte ~"
 msgstr ""
 
@@ -1031,447 +1113,455 @@ msgstr ""
 msgid "~: ~ is not a 1:1 encoding"
 msgstr ""
 
-#: pathname.d:1184 pathname.d:1235
+#: pathname.d:1208 pathname.d:1259
 msgid "~: host should be NIL or a string, not ~"
 msgstr ""
 
-#: pathname.d:1206 pathname.d:1255
+#: pathname.d:1230 pathname.d:1279
 msgid "~: illegal hostname ~"
 msgstr ""
 
-#: pathname.d:1277
+#: pathname.d:1301
 msgid "~: host should be NIL, not ~"
 msgstr ""
 
-#: pathname.d:1396
+#: pathname.d:1420
 msgid "~: argument should be a string, symbol, file stream or pathname, not ~"
 msgstr ""
 
-#: pathname.d:1439
+#: pathname.d:1463
 msgid "~: filename for ~ is unknown"
 msgstr ""
 
-#: pathname.d:1969 pathname.d:2333
+#: pathname.d:1865
+msgid "~(~ ~ ~): a logical pathname must contain host"
+msgstr ""
+
+#: pathname.d:2002 pathname.d:2366
 msgid "~: there is no environment variable ~"
 msgstr ""
 
-#: pathname.d:2276
+#: pathname.d:2309
 msgid "~: there is no user named ~"
 msgstr ""
 
-#: pathname.d:2583
+#: pathname.d:2616
 msgid "~: syntax error in filename ~ at position ~"
 msgstr ""
 
-#: pathname.d:2600 pathname.d:2615
+#: pathname.d:2633 pathname.d:2648
 msgid "~: hosts ~ and ~ of ~ should coincide"
 msgstr ""
 
-#: pathname.d:2857
+#: pathname.d:2890
 msgid "~: argument ~ is not a logical pathname, string, stream or symbol"
 msgstr ""
 
-#: pathname.d:2913
+#: pathname.d:2946
 msgid "~: endless loop while resolving ~"
 msgstr ""
 
-#: pathname.d:2935
+#: pathname.d:2968
 msgid "~: unknown logical host ~ in ~"
 msgstr ""
 
-#: pathname.d:2947
+#: pathname.d:2980
 msgid "~: No replacement rule for ~ is known."
 msgstr ""
 
-#: pathname.d:3341
+#: pathname.d:3374
 msgid "~: :VERSION-argument should be NIL or a positive fixnum or :WILD or :NEWEST, not ~"
 msgstr ""
 
-#: pathname.d:3368
+#: pathname.d:3401
 msgid "~: :VERSION-argument should be NIL or :WILD or :NEWEST, not ~"
 msgstr ""
 
-#: pathname.d:4205
+#: pathname.d:4238
 msgid "~: on host ~, device ~ is invalid, should be NIL"
 msgstr ""
 
-#: pathname.d:4455
+#: pathname.d:4488
 msgid "~: illegal ~ argument ~"
 msgstr ""
 
-#: pathname.d:4801
+#: pathname.d:4834
 msgid "wildcards are not allowed here: ~"
 msgstr ""
 
-#: pathname.d:4838
+#: pathname.d:4871
 msgid "~: argument ~ should be ~, ~, ~, ~, ~, ~ or ~"
 msgstr ""
 
-#: pathname.d:5960
+#: pathname.d:6036
 msgid "~: replacement pieces ~ do not fit into ~"
 msgstr ""
 
-#: pathname.d:6027
+#: pathname.d:6129
 msgid "~: ~ is not a specialization of ~"
 msgstr ""
 
-#: pathname.d:6078
+#: pathname.d:6180
 msgid "(~ ~ ~ ~) is ambiguous: ~"
 msgstr ""
 
-#: pathname.d:6104
+#: pathname.d:6206
 msgid "nonexistent directory: ~"
 msgstr ""
 
-#: pathname.d:6120
+#: pathname.d:6222
 msgid "~: File ~ already exists"
 msgstr ""
 
-#: pathname.d:6398 pathname.d:7254
+#: pathname.d:6500 pathname.d:7356
 msgid "no directory ~ above ~"
 msgstr ""
 
-#: pathname.d:6406
+#: pathname.d:6508
 msgid "\"..\\\\\" after \"...\\\\\" is invalid: ~"
 msgstr ""
 
-#: pathname.d:6611
+#: pathname.d:6713
 msgid "Couldn't access current directory"
 msgstr ""
 
-#: pathname.d:6761
+#: pathname.d:6863
 msgid "~: ~ names a file, not a directory"
 msgstr ""
 
-#: pathname.d:6809 pathname.d:7006 pathname.d:7373
+#: pathname.d:6911 pathname.d:7108 pathname.d:7475
 msgid "~: ~ names a directory, not a file"
 msgstr ""
 
-#: pathname.d:6855
+#: pathname.d:6957
 msgid "UNIX error while GETWD: ~"
 msgstr ""
 
-#: pathname.d:6864
+#: pathname.d:6966
 msgid "UNIX GETWD returned ~"
 msgstr ""
 
-#: pathname.d:6966
+#: pathname.d:7068
 msgid "UNIX REALPATH returned ~"
 msgstr ""
 
-#: pathname.d:7188
+#: pathname.d:7290
 msgid "~: If a device is specified, the directory must begin with ~: ~"
 msgstr ""
 
-#: pathname.d:7580
+#: pathname.d:7682
 msgid "no file name given: ~"
 msgstr ""
 
-#: pathname.d:7594
+#: pathname.d:7696
 msgid "not a directory: ~"
 msgstr ""
 
-#: pathname.d:7663
+#: pathname.d:7765
 msgid "~: file ~ does not exist"
 msgstr ""
 
-#: pathname.d:7692
+#: pathname.d:7794
 msgid "~: pathname with type but without name makes no sense: ~"
 msgstr ""
 
-#: pathname.d:7923
+#: pathname.d:8025
 msgid "cannot delete file ~ since there is file stream open to it"
 msgstr ""
 
-#: pathname.d:7985
+#: pathname.d:8087
 msgid "cannot rename file ~ since there is file stream open to it"
 msgstr ""
 
-#: pathname.d:8579
+#: pathname.d:8681
 msgid "file ~ does not exist"
 msgstr ""
 
-#: pathname.d:8585
+#: pathname.d:8687
 msgid "a file named ~ already exists"
 msgstr ""
 
-#: pathname.d:8647
+#: pathname.d:8749
 msgid "~: illegal :DIRECTION argument ~"
 msgstr ""
 
-#: pathname.d:8676
+#: pathname.d:8778
 msgid "~: illegal :IF-EXISTS argument ~"
 msgstr ""
 
-#: pathname.d:8696
+#: pathname.d:8798
 msgid "~: illegal :IF-DOES-NOT-EXIST argument ~"
 msgstr ""
 
-#: pathname.d:9894
+#: pathname.d:9996
 msgid "~: cannot change default directory on remote host: ~"
 msgstr ""
 
-#: pathname.d:9940
+#: pathname.d:10042
 msgid "root directory not allowed here: ~"
 msgstr ""
 
-#: pathname.d:10612 pathname.d:10659 pathname.d:10719
+#: pathname.d:10714 pathname.d:10761 pathname.d:10821
 msgid "~: the command should be a string, not ~"
 msgstr ""
 
-#: pathname.d:10977
+#: pathname.d:11079
 msgid "~: library directory is not known, use a command line option to specify it"
 msgstr ""
 
-#: stream.d:222 stream.d:15815
+#: stream.d:223 stream.d:16246
 msgid "~ on ~ is illegal"
 msgstr ""
 
-#: stream.d:508 stream.d:719
+#: stream.d:509 stream.d:720
 msgid "Return value ~ of call to ~ should be an integer between ~ and ~."
 msgstr ""
 
-#: stream.d:618
+#: stream.d:619
 msgid "~: the last character read from ~ was not ~"
 msgstr ""
 
-#: stream.d:626
+#: stream.d:627
 msgid "~ from ~ without ~ before it"
 msgstr ""
 
-#: stream.d:896
+#: stream.d:897
 msgid "~: cannot output to ~"
 msgstr ""
 
-#: stream.d:912
+#: stream.d:913
 msgid "~ is not a character, cannot be output onto ~"
 msgstr ""
 
-#: stream.d:928
+#: stream.d:929
 msgid "~ is not an integer, cannot be output onto ~"
 msgstr ""
 
-#: stream.d:943
+#: stream.d:944
 msgid "integer ~ is out of range, cannot be output onto ~"
 msgstr ""
 
-#: stream.d:996
+#: stream.d:997
 msgid "~: argument ~ should be an input stream"
 msgstr ""
 
-#: stream.d:1014
+#: stream.d:1015
 msgid "~: argument ~ should be an output stream"
 msgstr ""
 
-#: stream.d:1353
+#: stream.d:1354
 msgid "~: argument should be a symbol, not ~"
 msgstr ""
 
-#: stream.d:2396 stream.d:2889
+#: stream.d:2397 stream.d:2890
 msgid "~ is beyond the end because the string ~ has been adjusted"
 msgstr ""
 
-#: stream.d:2527
+#: stream.d:2528
 msgid "~: ~ is not a string input stream"
 msgstr ""
 
-#: stream.d:2620 charstrg.d:3322
+#: stream.d:2621 charstrg.d:3322
 msgid "~: ~ argument must be a subtype of ~, not ~"
 msgstr ""
 
-#: stream.d:2657
+#: stream.d:2658
 msgid "~: ~ is not a string output stream"
 msgstr ""
 
-#: stream.d:2699
+#: stream.d:2700
 msgid "~: argument ~ should be a string with fill pointer"
 msgstr ""
 
-#: stream.d:3001
+#: stream.d:3002
 msgid "~: ~ is not a buffered input stream"
 msgstr ""
 
-#: stream.d:3328
+#: stream.d:3329
 msgid "~: stream must be a generic-stream, not ~"
 msgstr ""
 
-#: stream.d:3420
+#: stream.d:3421
 msgid "~: illegal :BUFFERED argument ~"
 msgstr ""
 
-#: stream.d:3536 stream.d:17966
+#: stream.d:3537 stream.d:18398
 msgid "~: illegal :ELEMENT-TYPE argument ~"
 msgstr ""
 
-#: stream.d:3606
+#: stream.d:3607
 msgid "~: illegal :EXTERNAL-FORMAT argument ~"
 msgstr ""
 
-#: stream.d:4047
+#: stream.d:4048
 msgid "~: Ctrl-C: User break"
 msgstr ""
 
-#: stream.d:4099
+#: stream.d:4100
 msgid "unknown character set ~"
 msgstr ""
 
-#: stream.d:6392
+#: stream.d:6393
 msgid "Unbuffered streams need an ~ with a bit size being a multiple of 8, not ~"
 msgstr ""
 
-#: stream.d:6784
+#: stream.d:6785
 msgid "Closed ~ because disk is full."
 msgstr ""
 
-#: stream.d:6972
+#: stream.d:6973
 msgid "cannot position ~ beyond EOF"
 msgstr ""
 
-#: stream.d:8599
+#: stream.d:8600
 msgid "~: argument ~ ~ was specified, but ~ is not a regular file."
 msgstr ""
 
-#: stream.d:8634
+#: stream.d:8635
 msgid "~: arguments ~ ~ and ~ ~ were specified, but ~ is not a regular file."
 msgstr ""
 
-#: stream.d:8696
+#: stream.d:8697
 msgid "file ~ is not an integer file"
 msgstr ""
 
-#: stream.d:10553
+#: stream.d:10272 stream.d:17792
+msgid "Return value ~ of call to ~ is not a ~."
+msgstr ""
+
+#: stream.d:10295
+msgid "Return value ~ of call to ~ contains ~ which is not a ~."
+msgstr ""
+
+#: stream.d:10614
 msgid "character ~ contains bits, cannot be output onto ~"
 msgstr ""
 
-#: stream.d:11292
+#: stream.d:11353
 msgid "RAW mode not supported on ~"
 msgstr ""
 
-#: stream.d:11724
+#: stream.d:11785
 msgid "~: argument ~ should be a window stream"
 msgstr ""
 
-#: stream.d:12009
+#: stream.d:12440
 msgid "cannot output to standard output"
 msgstr ""
 
-#: stream.d:13405
+#: stream.d:13836
 msgid "environment has no TERM variable"
 msgstr ""
 
-#: stream.d:13410
+#: stream.d:13841
 msgid "terminal type ~ unknown to termcap"
 msgstr ""
 
-#: stream.d:13435
+#: stream.d:13866
 msgid "insufficient terminal: hardcopy terminal"
 msgstr ""
 
-#: stream.d:13439
+#: stream.d:13870
 msgid "insufficient terminal: overstrikes, cannot clear output"
 msgstr ""
 
-#: stream.d:13443
+#: stream.d:13874
 msgid "insufficient terminal: cannot scroll"
 msgstr ""
 
-#: stream.d:13448
+#: stream.d:13879
 msgid "insufficient terminal: cannot clear screen"
 msgstr ""
 
-#: stream.d:13452
+#: stream.d:13883
 msgid "insufficient terminal: cannot position cursor randomly"
 msgstr ""
 
-#: stream.d:13964
+#: stream.d:14395
 msgid "~: package SCREEN is not implemented"
 msgstr ""
 
-#: stream.d:15493
+#: stream.d:15924
 msgid "host should be string, not ~"
 msgstr ""
 
-#: stream.d:15501
+#: stream.d:15932
 msgid "display should be a nonnegative fixnum, not ~"
 msgstr ""
 
-#: stream.d:15569
+#: stream.d:16000
 msgid "~: stream must be a socket-stream, not ~"
 msgstr ""
 
-#: stream.d:15582
+#: stream.d:16013
 msgid "~: argument ~ should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))"
 msgstr ""
 
-#: stream.d:15606 stream.d:18008 stream.d:18082 stream.d:18300 stream.d:18380 io.d:1042
+#: stream.d:16037 stream.d:18440 stream.d:18514 stream.d:18732 stream.d:18812 io.d:1042
 msgid "~: input stream ~ has reached its end"
 msgstr ""
 
-#: stream.d:15808
+#: stream.d:16239
 msgid "~: ~ is not a SOCKET-SERVER"
 msgstr ""
 
-#: stream.d:15874
+#: stream.d:16305
 msgid "~: argument ~ is neither an open SOCKET-STREAM nor a positive FIXNUM"
 msgstr ""
 
-#: stream.d:16068
+#: stream.d:16499
 msgid "~: argument ~ is not an open SOCKET-STREAM"
 msgstr ""
 
-#: stream.d:16081
+#: stream.d:16512
 msgid "~: argument ~ is not a SOCKET-STREAM"
 msgstr ""
 
-#: stream.d:16127
+#: stream.d:16558
 msgid "~: list ~ is too long (~ maximum)"
 msgstr ""
 
-#: stream.d:16399
+#: stream.d:16830
 msgid "The value of ~ is not a stream: ~"
 msgstr ""
 
-#: stream.d:16403
+#: stream.d:16834
 msgid "The value of ~ is not an appropriate stream: ~"
 msgstr ""
 
-#: stream.d:16417
+#: stream.d:16848
 msgid "The value of ~ was not a stream: ~. It has been changed to ~."
 msgstr ""
 
-#: stream.d:16436
+#: stream.d:16867
 msgid "readline library: out of memory."
 msgstr ""
 
-#: stream.d:16740
+#: stream.d:17171
 msgid "~: The ~ of ~ cannot be changed from ~ to ~."
 msgstr ""
 
-#: stream.d:17360
-msgid "Return value ~ of call to ~ is not a string."
-msgstr ""
-
-#: stream.d:17906
+#: stream.d:18338
 msgid "Return value ~ of call to ~ is not a fixnum >= 0 or NIL."
 msgstr ""
 
-#: stream.d:17925
+#: stream.d:18357
 msgid "~ needs an ~ with a bit size being a multiple of 8, not ~"
 msgstr ""
 
-#: stream.d:17987
+#: stream.d:18419
 msgid "~: illegal endianness argument ~"
 msgstr ""
 
-#: stream.d:18623 stream.d:18635
+#: stream.d:19055 stream.d:19067
 msgid "~ is not a ~, cannot be output onto ~"
 msgstr ""
 
-#: stream.d:18722
+#: stream.d:19154
 msgid "~: argument ~ is not an open file stream"
 msgstr ""
 
-#: stream.d:18756
+#: stream.d:19188
 msgid "~: position argument should be ~ or ~ or a nonnegative integer, not ~"
 msgstr ""
 
@@ -3044,11 +3134,11 @@ msgstr ""
 msgid "Winsock error "
 msgstr ""
 
-#: misc.d:44
+#: misc.d:106
 msgid "This file was produced by another lisp version, must be recompiled."
 msgstr ""
 
-#: misc.d:261
+#: misc.d:323
 msgid "~: type of attribute ~ is unsupported"
 msgstr ""
 
@@ -3432,11 +3522,11 @@ msgstr ""
 msgid "code after SYMBOL-MACROLET contains a dotted list, ending with ~S"
 msgstr ""
 
-#: init.lisp:824 compiler.lisp:7293
+#: init.lisp:824 compiler.lisp:7284
 msgid "~S: symbol ~S must not be declared SPECIAL and a macro at the same time"
 msgstr ""
 
-#: init.lisp:839 compiler.lisp:7288
+#: init.lisp:839 compiler.lisp:7279
 msgid "~S: symbol ~S is declared special and must not be declared a macro"
 msgstr ""
 
@@ -3564,7 +3654,7 @@ msgstr ""
 msgid "The macro ~S may not be called with ~S arguments: ~S"
 msgstr ""
 
-#: defmacro.lisp:125 defmacro.lisp:150 defmacro.lisp:295
+#: defmacro.lisp:125 defmacro.lisp:150 defmacro.lisp:301
 msgid "The rest of the lambda list will be ignored."
 msgstr ""
 
@@ -3580,7 +3670,7 @@ msgstr ""
 msgid "The lambda list of macro ~S contains a dot after &KEY."
 msgstr ""
 
-#: defmacro.lisp:160 defmacro.lisp:178 defmacro.lisp:374 defmacro.lisp:390 defmacro.lisp:395
+#: defmacro.lisp:160 defmacro.lisp:178 defmacro.lisp:380 defmacro.lisp:396 defmacro.lisp:401
 msgid "It will be ignored."
 msgstr ""
 
@@ -3604,63 +3694,63 @@ msgstr ""
 msgid "The lambda list of macro ~S is missing a variable after &REST/&BODY."
 msgstr ""
 
-#: defmacro.lisp:286
+#: defmacro.lisp:292
 msgid "The lambda list of macro ~S contains an illegal variable after &REST/&BODY: ~S"
 msgstr ""
 
-#: defmacro.lisp:296
+#: defmacro.lisp:302
 msgid "The lambda list of macro ~S contains a misplaced dot."
 msgstr ""
 
-#: defmacro.lisp:301
+#: defmacro.lisp:307
 msgid "They will be ignored."
 msgstr ""
 
-#: defmacro.lisp:302
+#: defmacro.lisp:308
 msgid "The lambda list of macro ~S contains superfluous elements: ~S"
 msgstr ""
 
-#: defmacro.lisp:355
+#: defmacro.lisp:361
 msgid "The lambda list of macro ~S contains an illegal &REST variable: ~S"
 msgstr ""
 
-#: defmacro.lisp:369
+#: defmacro.lisp:375
 msgid "The lambda list of macro ~S contains an invalid &WHOLE: ~S"
 msgstr ""
 
-#: defmacro.lisp:375
+#: defmacro.lisp:381
 msgid "The lambda list of macro ~S contains a superfluous ~S."
 msgstr ""
 
-#: defmacro.lisp:391
+#: defmacro.lisp:397
 msgid "The lambda list of macro ~S contains ~S before &KEY."
 msgstr ""
 
-#: defmacro.lisp:396
+#: defmacro.lisp:402
 msgid "The lambda list of macro ~S contains ~S which is illegal here."
 msgstr ""
 
-#: defmacro.lisp:415
+#: defmacro.lisp:421
 msgid "The lambda list of macro ~S contains an invalid element ~S"
 msgstr ""
 
-#: defmacro.lisp:429
+#: defmacro.lisp:435
 msgid "The lambda list of macro ~S contains an invalid supplied-variable ~S"
 msgstr ""
 
-#: defmacro.lisp:491
+#: defmacro.lisp:497
 msgid "In the lambda list of macro ~S, &ENVIRONMENT must be followed by a non-NIL symbol: ~S"
 msgstr ""
 
-#: defmacro.lisp:513
+#: defmacro.lisp:519
 msgid "Cannot define a macro from that: ~S"
 msgstr ""
 
-#: defmacro.lisp:518
+#: defmacro.lisp:524
 msgid "The name of a macro must be a symbol, not ~S"
 msgstr ""
 
-#: defmacro.lisp:523
+#: defmacro.lisp:529
 msgid "Macro ~S is missing a lambda list."
 msgstr ""
 
@@ -3708,7 +3798,7 @@ msgstr ""
 msgid "COND code contains a dotted list, ending with ~S"
 msgstr ""
 
-#: macros1.lisp:411 compiler.lisp:7344
+#: macros1.lisp:411 compiler.lisp:7335
 msgid "COND clause without test: ~S"
 msgstr ""
 
@@ -3928,6 +4018,10 @@ msgstr ""
 msgid "SETF FUNCALL is only defined for functions of the form #'symbol."
 msgstr ""
 
+#: places.lisp:1004
+msgid "SETF place ~S expects different numbers of values in the true and branches (~D vs. ~D values)."
+msgstr ""
+
 #: floatprint.lisp:341
 msgid "argument is not a float: ~S"
 msgstr ""
@@ -3936,7 +4030,7 @@ msgstr ""
 msgid "~S: invalid type specification ~S"
 msgstr ""
 
-#: type.lisp:61 compiler.lisp:8485
+#: type.lisp:61 compiler.lisp:8476
 msgid "~S: argument to SATISFIES must be a symbol: ~S"
 msgstr ""
 
@@ -4238,305 +4332,301 @@ msgstr ""
 msgid "Form too long, too many arguments: ~S"
 msgstr ""
 
-#: compiler.lisp:3199
-msgid "Invalid form: ~S"
-msgstr ""
-
-#: compiler.lisp:3251
+#: compiler.lisp:3242
 msgid "Not the name of a function: ~S"
 msgstr ""
 
-#: compiler.lisp:3332 compiler.lisp:3412
+#: compiler.lisp:3323 compiler.lisp:3403
 msgid ""
 "~S is neither declared nor bound,~@\n"
 "                        it will be treated as if it were declared SPECIAL."
 msgstr ""
 
-#: compiler.lisp:3429
+#: compiler.lisp:3420
 msgid ""
 "The constant ~S may not be assigned to.~@\n"
 "                                                  The assignment will be ignored."
 msgstr ""
 
-#: compiler.lisp:3571
+#: compiler.lisp:3562
 msgid "argument list to function ~S is dotted: ~S"
 msgstr ""
 
-#: compiler.lisp:3577
+#: compiler.lisp:3568
 msgid ""
 "~S called with ~S~:[~; or more~] arguments, but it requires ~\n"
 "                        ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] arguments."
 msgstr ""
 
-#: compiler.lisp:3590
+#: compiler.lisp:3581
 msgid "keyword arguments to function ~S should occur pairwise: ~S"
 msgstr ""
 
-#: compiler.lisp:3601
+#: compiler.lisp:3592
 msgid ""
 "keyword ~S is not allowed for function ~S.~\n"
 "                              ~%The only allowed keyword~:[s are ~{~S~#[~; and ~S~:;, ~]~}~; is ~{~S~}~]."
 msgstr ""
 
-#: compiler.lisp:3613
+#: compiler.lisp:3604
 msgid "argument ~S to function ~S is not a symbol"
 msgstr ""
 
-#: compiler.lisp:4282
+#: compiler.lisp:4273
 msgid ""
 "~S called with ~S arguments, but it requires ~\n"
 "                                   ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] arguments."
 msgstr ""
 
-#: compiler.lisp:4462
+#: compiler.lisp:4453
 msgid "Illegal syntax in LET/LET*: ~S"
 msgstr ""
 
-#: compiler.lisp:4499
+#: compiler.lisp:4490
 msgid "Lambda list marker ~S not allowed here."
 msgstr ""
 
-#: compiler.lisp:4505
+#: compiler.lisp:4496
 msgid "Missing &REST parameter in lambda list ~S"
 msgstr ""
 
-#: compiler.lisp:4511
+#: compiler.lisp:4502
 msgid "Lambda list element ~S is superfluous."
 msgstr ""
 
-#: compiler.lisp:4686
+#: compiler.lisp:4677
 msgid "Lambda lists with dots are only allowed in macros, not here: ~S"
 msgstr ""
 
-#: compiler.lisp:4702
+#: compiler.lisp:4693
 msgid "Illegal lambda list element ~S"
 msgstr ""
 
-#: compiler.lisp:4798
+#: compiler.lisp:4789
 msgid "Binding variable ~S can cause side effects despite of IGNORE declaration~%since it is declared SPECIAL."
 msgstr ""
 
-#: compiler.lisp:4802
+#: compiler.lisp:4793
 msgid "variable ~S is used despite of IGNORE declaration."
 msgstr ""
 
-#: compiler.lisp:4813
+#: compiler.lisp:4804
 msgid "variable ~S is not used.~%Misspelled or missing IGNORE declaration?"
 msgstr ""
 
-#: compiler.lisp:4819
+#: compiler.lisp:4810
 msgid "The variable ~S is assigned to, despite of READ-ONLY declaration."
 msgstr ""
 
-#: compiler.lisp:4865 compiler.lisp:5001
+#: compiler.lisp:4856 compiler.lisp:4992
 msgid "Constant ~S cannot be bound."
 msgstr ""
 
-#: compiler.lisp:5749
+#: compiler.lisp:5740
 msgid "Misplaced declaration: ~S"
 msgstr ""
 
-#: compiler.lisp:5961
+#: compiler.lisp:5952
 msgid "Odd number of arguments to SETQ: ~S"
 msgstr ""
 
-#: compiler.lisp:5998 compiler.lisp:6035 compiler.lisp:6133
+#: compiler.lisp:5989 compiler.lisp:6026 compiler.lisp:6124
 msgid "Cannot assign to non-symbol ~S."
 msgstr ""
 
-#: compiler.lisp:6010
+#: compiler.lisp:6001
 msgid "Odd number of arguments to PSETQ: ~S"
 msgstr ""
 
-#: compiler.lisp:6271
+#: compiler.lisp:6262
 msgid "Only symbols may be used as variables, not ~S"
 msgstr ""
 
-#: compiler.lisp:6376
+#: compiler.lisp:6367
 msgid "Illegal syntax in COMPILER-LET: ~S"
 msgstr ""
 
-#: compiler.lisp:6384
+#: compiler.lisp:6375
 msgid "Block name must be a symbol, not ~S"
 msgstr ""
 
-#: compiler.lisp:6433
+#: compiler.lisp:6424
 msgid "RETURN-FROM block ~S is impossible from here."
 msgstr ""
 
-#: compiler.lisp:6504
+#: compiler.lisp:6495
 msgid "Only numbers and symbols are valid tags, not ~S"
 msgstr ""
 
-#: compiler.lisp:6575
+#: compiler.lisp:6566
 msgid "Tag must be a symbol or a number, not ~S"
 msgstr ""
 
-#: compiler.lisp:6580
+#: compiler.lisp:6571
 msgid "GO to tag ~S is impossible from here."
 msgstr ""
 
-#: compiler.lisp:6682
+#: compiler.lisp:6673
 msgid "~S is not a function. It is a locally defined macro."
 msgstr ""
 
-#: compiler.lisp:6698
+#: compiler.lisp:6689
 msgid "Only symbols and lambda expressions are function names, not ~S"
 msgstr ""
 
-#: compiler.lisp:6749
+#: compiler.lisp:6740
 msgid "Illegal function definition syntax in ~S: ~S"
 msgstr ""
 
-#: compiler.lisp:7282
+#: compiler.lisp:7273
 msgid "Illegal syntax in SYMBOL-MACROLET: ~S"
 msgstr ""
 
-#: compiler.lisp:7323
+#: compiler.lisp:7314
 msgid "EVAL-WHEN situation must be EVAL or LOAD or COMPILE, but not ~S"
 msgstr ""
 
-#: compiler.lisp:7366
+#: compiler.lisp:7357
 msgid "CASE clause without objects: ~S"
 msgstr ""
 
-#: compiler.lisp:7376
+#: compiler.lisp:7367
 msgid "~S: the ~S clause must be the last one: ~S"
 msgstr ""
 
-#: compiler.lisp:7386
+#: compiler.lisp:7377
 msgid "Duplicate ~S label ~S : ~S"
 msgstr ""
 
-#: compiler.lisp:7648
+#: compiler.lisp:7639
 msgid "Too many arguments to ~S"
 msgstr ""
 
-#: compiler.lisp:7663
+#: compiler.lisp:7654
 msgid "Too few arguments to ~S"
 msgstr ""
 
-#: compiler.lisp:8554
+#: compiler.lisp:8545
 msgid "The ~S destination is invalid (not NIL or T or a stream or a string with fill-pointer): ~S"
 msgstr ""
 
-#: compiler.lisp:12038
+#: compiler.lisp:12029
 msgid "Name of function to be compiled must be a symbol, not ~S"
 msgstr ""
 
-#: compiler.lisp:12049
+#: compiler.lisp:12040
 msgid "~S: redefining ~S; it was traced!"
 msgstr ""
 
-#: compiler.lisp:12057 compiler.lisp:12090
+#: compiler.lisp:12048 compiler.lisp:12081
 msgid "~S is already compiled."
 msgstr ""
 
-#: compiler.lisp:12078 compiler.lisp:12688
+#: compiler.lisp:12069 compiler.lisp:12679
 msgid "Undefined function ~S"
 msgstr ""
 
-#: compiler.lisp:12099
+#: compiler.lisp:12090
 msgid "Not a lambda expression nor a function: ~S"
 msgstr ""
 
-#: compiler.lisp:12285
+#: compiler.lisp:12276
 msgid "~%There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}"
 msgstr ""
 
-#: compiler.lisp:12290
+#: compiler.lisp:12281
 msgid "~%The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}"
 msgstr ""
 
-#: compiler.lisp:12297
+#: compiler.lisp:12288
 msgid "~%The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}"
 msgstr ""
 
-#: compiler.lisp:12300
+#: compiler.lisp:12291
 msgid "~%The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}"
 msgstr ""
 
-#: compiler.lisp:12303
+#: compiler.lisp:12294
 msgid "~%The following functions were used but are deprecated:~%~{~<~%~:; ~S~>~^~}"
 msgstr ""
 
-#: compiler.lisp:12387
+#: compiler.lisp:12378
 msgid "~&Listing of compilation of file ~A~%on ~@? by ~A, version ~A"
 msgstr ""
 
-#: compiler.lisp:12419
+#: compiler.lisp:12410
 msgid "~%Compiling file ~A ..."
 msgstr ""
 
-#: compiler.lisp:12469
+#: compiler.lisp:12460
 msgid "~&~%Compilation of file ~A is finished."
 msgstr ""
 
-#: compiler.lisp:12471
+#: compiler.lisp:12462
 msgid "~%~D error~:P, ~D warning~:P"
 msgstr ""
 
-#: compiler.lisp:12532
+#: compiler.lisp:12523
 msgid "~%~%Disassembly of function ~S"
 msgstr ""
 
-#: compiler.lisp:12543
+#: compiler.lisp:12534
 msgid "~%~S required arguments"
 msgstr ""
 
-#: compiler.lisp:12546
+#: compiler.lisp:12537
 msgid "~%~S optional arguments"
 msgstr ""
 
-#: compiler.lisp:12549
+#: compiler.lisp:12540
 msgid "~%~:[No rest parameter~;Rest parameter~]"
 msgstr ""
 
-#: compiler.lisp:12554
+#: compiler.lisp:12545
 msgid "~%~S keyword parameter~:P: ~{~S~^, ~}."
 msgstr ""
 
-#: compiler.lisp:12558
+#: compiler.lisp:12549
 msgid "~%Other keywords are allowed."
 msgstr ""
 
-#: compiler.lisp:12560
+#: compiler.lisp:12551
 msgid "~%No keyword parameters"
 msgstr ""
 
-#: compiler.lisp:12577
+#: compiler.lisp:12568
 msgid "Disassembly of function "
 msgstr ""
 
-#: compiler.lisp:12595
+#: compiler.lisp:12586
 msgid " required arguments"
 msgstr ""
 
-#: compiler.lisp:12600
+#: compiler.lisp:12591
 msgid " optional arguments"
 msgstr ""
 
-#: compiler.lisp:12605
+#: compiler.lisp:12596
 msgid "Rest parameter"
 msgstr ""
 
-#: compiler.lisp:12608
+#: compiler.lisp:12599
 msgid "No rest parameter"
 msgstr ""
 
-#: compiler.lisp:12615
+#: compiler.lisp:12606
 msgid " keyword parameter~P: "
 msgstr ""
 
-#: compiler.lisp:12625
+#: compiler.lisp:12616
 msgid "Other keywords are allowed."
 msgstr ""
 
-#: compiler.lisp:12630
+#: compiler.lisp:12621
 msgid "No keyword parameters"
 msgstr ""
 
-#: compiler.lisp:12711
+#: compiler.lisp:12702
 msgid "Cannot disassemble ~S"
 msgstr ""
 

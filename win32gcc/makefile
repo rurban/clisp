@@ -6,7 +6,7 @@
 # -------------- Start of configurable section --------------------
 
 # Directories used by "make install":
-prefix =
+prefix = 
 exec_prefix = $(prefix)
 bindir = $(exec_prefix)\bin
 mandir = $(exec_prefix)\man
@@ -24,15 +24,15 @@ DESTDIR =
 # queens               the queens function as a separate module
 # clx/mit-clx          classical X11 interface
 # If you change this after doing "make", you have to "rm -r full; make".
-MODULES =
+MODULES =  
 
 # Programs used by "make":
 CC = gcc
 CFLAGS = -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -fomit-frame-pointer -O2 -fexpensive-optimizations -D_NO_OLDNAMES -DUNICODE -DDIR_KEY -DNO_GETTEXT
 CPP = gcc -E
 CLFLAGS =  -x none
-LIBS = sigsegv.lib iconv.lib  -luser32 -lwsock32 -lole32
-X_LIBS =
+LIBS = sigsegv.lib iconv.lib  -luser32 -lwsock32 -lole32 -lwldap32
+X_LIBS = 
 
 MAKE = make
 RM = del
@@ -513,7 +513,6 @@ stage/foreign1.lisp \
 stage/defs3.lisp \
 stage/clhs.lisp \
 stage/inspect.lisp \
-stage/dirkey.lisp \
 stage/german.lisp \
 stage/french.lisp \
 stage/spanish.lisp \
@@ -561,7 +560,6 @@ stage/foreign1.fas \
 stage/defs3.fas \
 stage/clhs.fas \
 stage/inspect.fas \
-stage/dirkey.fas \
 stage/german.fas \
 stage/french.fas \
 stage/spanish.fas \
@@ -925,7 +923,7 @@ modules.c : modules.d comment5.exe ansidecl.exe varbrace.exe
 noreadline.c : noreadline.d comment5.exe ansidecl.exe varbrace.exe
 	$(COMMENT5) noreadline.d | $(ANSIDECL) | $(VARBRACE) > noreadline.c
 
-ari80386.c : ari80386.d comment5.exe
+ari80386.c : ari80386.d comment5.exe 
 	$(COMMENT5) ari80386.d > ari80386.c
 
 ari80386.s : ari80386.c
@@ -1682,8 +1680,8 @@ lispinit2.mem : lisp.exe $(TESTFASFILES)
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 MANUALS = clisp.1 clisp.html $(TXTFILES) impnotes.html clisp.gif
 
-impnotes.html : _impnotes.html
-	$(CP) _impnotes.html impnotes.html
+impnotes.html : ../doc/impnotes.html
+	$(CP) ../doc/impnotes.html impnotes.html
 
 manual : $(READMES) $(MANUALS)
 
@@ -1752,11 +1750,9 @@ editors.txt : ../doc/editors.txt
 	-$(LN_S) ..\doc\editors.txt editors.txt
 
 
-# Distribution, to be executed on the NFS host (a Unix host).
+# Distribution, to be executed on a Unix host or using Cygwin.
 distrib : force
 	nroff -man clisp.1 > clisp.man
-	sed -e 's,HREF="CLHSROOT/,HREF="http://www.lisp.org/HyperSpec/,' < impnotes.html > impnotes.html.new
-	mv impnotes.html.new impnotes.html
 	sed -e 's,HREF="CLHSROOT/,HREF="http://www.lisp.org/HyperSpec/,' < clisp.html > clisp.html.new
 	mv clisp.html.new clisp.html
 	version=`cat VERSION` ; \

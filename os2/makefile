@@ -1659,8 +1659,8 @@ lispinit2.mem : lisp.exe $(TESTFASFILES)
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 MANUALS = clisp.1 clisp.html $(TXTFILES) impnotes.html clisp.gif clreadline.3 clreadline.html clreadline.dvi readline.dvi
 
-impnotes.html : _impnotes.html
-	sed -e 's,href="CLHSROOT/,href="http://www.lisp.org/HyperSpec/,' _impnotes.html > impnotes.html
+impnotes.html : ../doc/impnotes.html
+	$(CP) ../doc/impnotes.html impnotes.html
 
 manual : $(READMES) $(MANUALS)
 
