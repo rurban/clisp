@@ -2,7 +2,7 @@ file_list=''
 mod_list=''
 file_list="$file_list"' clx.o'
 mod_list="$mod_list"' clx'
-make clisp-module CC="${CC}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir"
+make clisp-module CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir"
 NEW_FILES="$file_list"
 NEW_LIBS="$file_list @X_LIBS@ @X_PRE_LIBS@ -lX11"
 NEW_MODULES="$mod_list"

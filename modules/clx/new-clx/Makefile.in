@@ -1,6 +1,7 @@
 # Makefile for CLISP module set clx
 
 CC = @CC@
+CPPFLAGS = @CPPFLAGS@
 CFLAGS = -O
 INCLUDES= ../../
 CLISP = clisp -q -norc
@@ -27,7 +28,7 @@ image.fas: image.lisp clx.lib
 
 clx.e: clx.f
 	$(CCMP2C) clx.f > genclx.c
-	$(CC) $(CFLAGS) $(WANTS) genclx.c -o genclx
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(WANTS) genclx.c -o genclx
 	./genclx -l -o clx.e > clx.e
 	$(RM) genclx.c
 	$(RM) genclx
@@ -37,7 +38,7 @@ clx.c: clx.e $(MODPREP)
 	$(CLISP) $(MODPREP) clx.d clx.c
 
 clx.o: clx.c
-	$(CC) $(CFLAGS) $(X_CFLAGS) -I$(INCLUDES) -c clx.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) -I$(INCLUDES) -c clx.c
 
 # Make a module
 clisp-module : clx.fas image.fas clx.o
