@@ -1,3 +1,7 @@
+2004-02-18  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (DELETE-FILE): in ANSI mode, return T, as per ANSI spec
+
 2004-02-17  Sam Steingold  <sds@gnu.org>
 
 	permit lists of uint32 length, the old limit was FIXNUM
