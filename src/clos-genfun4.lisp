@@ -6,9 +6,9 @@
 (in-package "CLOS")
 
 
-(defun make-generic-function (funname lambda-list argument-precedence-order method-combo
+(defun make-generic-function (funname lambda-list argument-precedence-order method-combo method-class
                               &rest methods)
-  (let ((gf (make-fast-gf funname lambda-list argument-precedence-order)))
+  (let ((gf (make-fast-gf funname lambda-list argument-precedence-order method-class)))
     (setf (std-gf-method-combination gf)
           (coerce-to-method-combination funname method-combo))
     (dolist (method methods) (std-add-method gf method))
@@ -19,7 +19,7 @@
 ;; a generic function through DEFGENERIC.
 (defparameter *allow-making-generic* nil)
 
-(defun do-defgeneric (funname lambda-list signature argument-precedence-order method-combo &rest methods)
+(defun do-defgeneric (funname lambda-list signature argument-precedence-order method-combo method-class &rest methods)
   (if (fboundp funname)
     (let ((gf (fdefinition funname)))
       (if (typep-class gf <generic-function>)
@@ -41,7 +41,8 @@
             (setf (std-gf-signature gf) signature))
           (shared-initialize-<standard-generic-function> gf nil
             :lambda-list lambda-list
-            :argument-precedence-order argument-precedence-order)
+            :argument-precedence-order argument-precedence-order
+            :method-class method-class)
           (let ((method-combo (coerce-to-method-combination funname method-combo)))
             (unless (eq method-combo (std-gf-method-combination gf))
               (dolist (method (std-gf-methods gf))
@@ -56,18 +57,18 @@
             'defgeneric funname)
           (setf (fdefinition funname)
                 (apply #'make-generic-function funname lambda-list argument-precedence-order
-                       method-combo methods)))))
+                       method-combo method-class methods)))))
     (setf (fdefinition funname)
           (apply #'make-generic-function funname lambda-list argument-precedence-order
-                 method-combo methods))))
+                 method-combo method-class methods))))
 
 
 #||  ;; For GENERIC-FLET, GENERIC-LABELS
 ;; like make-generic-function, only that the dispatch-code is
 ;; installed immediately.
- (defun make-generic-function-now (funname lambda-list argument-precedence-order method-combo
+ (defun make-generic-function-now (funname lambda-list argument-precedence-order method-combo method-class
                                    &rest methods)
-  (let ((gf (make-fast-gf funname lambda-list argument-precedence-order)))
+  (let ((gf (make-fast-gf funname lambda-list argument-precedence-order method-class)))
     (setf (std-gf-method-combination gf)
           (coerce-to-method-combination funname method-combo))
     (dolist (method methods) (std-add-method gf method))
@@ -79,10 +80,10 @@
 ;; For GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS
 
 (defun make-generic-function-form (caller funname lambda-list options)
-  (multiple-value-bind (signature argument-precedence-order method-combo method-forms)
+  (multiple-value-bind (signature argument-precedence-order method-combo method-class-form method-forms)
       (analyze-defgeneric caller funname lambda-list options)
     (declare (ignore signature))
-    `(MAKE-GENERIC-FUNCTION ',funname ',lambda-list ',argument-precedence-order ',method-combo
+    `(MAKE-GENERIC-FUNCTION ',funname ',lambda-list ',argument-precedence-order ',method-combo ,method-class-form
                             ,@method-forms)))
 
 #| GENERIC-FUNCTION is a TYPE (and a COMMON-LISP symbol) in ANSI CL,
