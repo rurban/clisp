@@ -1,3 +1,8 @@
+2002-11-27  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 644353 ]: Segfault when overriding stdin
+	* stream.d (read_line): call ssstring_append_extend() only when len>0
+
 2002-11-26  Sam Steingold  <sds@gnu.org>
 
 	* list.d (list_length): new function

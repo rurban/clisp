@@ -16354,7 +16354,8 @@ global bool read_line (const object* stream_, const object* buffer_) {
     var uintL len;
     var uintL offset;
     var object srcstring = unpack_string_ro(value1,&len,&offset);
-    ssstring_append_extend(*buffer_,srcstring,offset,len);
+    if (len > 0)
+      ssstring_append_extend(*buffer_,srcstring,offset,len);
     return eofp;
   }
 }

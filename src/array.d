@@ -3877,7 +3877,7 @@ global object ssstring_extend (object ssstring, uintL needed_len) {
  > ssstring: a semi-simple-string
  > sstring: a simple-string
  > start: the start index into the sstring
- > len: the number of characters to be pushed, starting from start
+ > len: the number of characters to be pushed, starting from start; >0
  < result: the same semi-simple-string
  can trigger GC */
 global object ssstring_append_extend (object ssstring, object srcstring,
