@@ -846,6 +846,7 @@
                                        step-start-form
                                        step-end-form
                                        step-by-form
+                                       step-end-preposition
                                        dir)
                                    (loop
                                      (cond ((and (not step-start-p)
@@ -866,6 +867,7 @@
                                                              ((DOWNTO ABOVE) 'down)
                                                              (t nil))))
                                             (setq step-end-p dir)
+                                            (setq step-end-preposition preposition)
                                             (pop body-rest)
                                             (setq step-end-form (parse-form preposition))
                                             (unless (constantp step-end-form)
@@ -922,8 +924,8 @@
                                      (when step-end-p
                                        (let* ((compfun
                                                 (if (eq step-direction 'up)
-                                                  (if (eq preposition 'below) '>= '>) ; up
-                                                  (if (eq preposition 'above) '<= '<) ; down
+                                                  (if (eq step-end-preposition 'below) '>= '>) ; up
+                                                  (if (eq step-end-preposition 'above) '<= '<) ; down
                                               ) )
                                               (endtest
                                                 (if (and (constantp step-end-form) (zerop (eval step-end-form)))
