@@ -1,5 +1,14 @@
 2003-08-07  Sam Steingold  <sds@gnu.org>
 
+	LOAD :COMPILING T: handle errors just like with COMPILE-FILE
+	* init.lisp (load): bind compiler::*c-error-output*;
+	when *load-compiling*, call compiler::c-reset-globals before loading
+	and compiler::c-report-problems after loading
+	* compiler.lisp (compile-lambda-helper): extracted from compile-lambda
+	(compile-lambda, compile-form-in-toplevel-environment): call it
+
+2003-08-07  Sam Steingold  <sds@gnu.org>
+
 	track the current source file consistently
 	* init.lisp (*current-source-file*): new variable
 	(load): bind it
