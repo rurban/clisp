@@ -1,3 +1,7 @@
+2004-08-29  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst (c-malloc, c-free) [cygwin]: use cygwin1.dll
+
 2004-08-27  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (run-files): more thorough error reporting
