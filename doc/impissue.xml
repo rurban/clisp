@@ -381,7 +381,7 @@
  <varlistentry id="iss346"><term><ulink url="&clhs;/Issues/iss346.html">TEST-NOT-IF-NOT:FLUSH-ALL</ulink></term>
     <listitem><simpara>yes, but no warning</simpara></listitem></varlistentry>
  <varlistentry id="iss347"><term><ulink url="&clhs;/Issues/iss347.html">THE-AMBIGUITY:FOR-DECLARATION</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss348"><term><ulink url="&clhs;/Issues/iss348.html">THE-VALUES:RETURN-NUMBER-RECEIVED</ulink></term>&no;</varlistentry>
+ <varlistentry id="iss348"><term><ulink url="&clhs;/Issues/iss348.html">THE-VALUES:RETURN-NUMBER-RECEIVED</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss349"><term><ulink url="&clhs;/Issues/iss349.html">TIME-ZONE-NON-INTEGER:ALLOW</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss350"><term><ulink url="&clhs;/Issues/iss350.html">TYPE-DECLARATION-ABBREVIATION:ALLOW-ALL</ulink></term>&no;</varlistentry>
  <varlistentry id="iss351"><term><ulink url="&clhs;/Issues/iss351.html">TYPE-OF-AND-PREDEFINED-CLASSES:TYPE-OF-HANDLES-FLOATS</ulink></term>&yes;</varlistentry>
