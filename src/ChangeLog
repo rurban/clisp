@@ -1,5 +1,12 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_language.d: New file.
+        * spvw.d (mysetenv, language, init_language_from, init_language,
+           cvgettext, clgettext, localized_string, localized_object): Move out.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_typealloc.d: New file.
         * spvw.d (allocate_cons, make_symbol, allocate_vector,
            allocate_bit_vector, allocate_string, allocate_iarray,
