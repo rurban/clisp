@@ -95,7 +95,7 @@
   #ifdef TYPECODES
     #define P(fun)  (type_constpointer_object(machine_type,(Pseudofun)&(fun)))
   #else
-    #define P(fun)  make_machine((Pseudofun)&(fun))
+    #define P(fun)  make_machine_code((Pseudofun)&(fun))
   #endif
 
 # Spezifikation der vier Typen von Pseudofunktionen:

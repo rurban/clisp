@@ -11055,6 +11055,26 @@ local uintC generation;
         quit_sofort(1);
     }
 
+# Verify that a code address has the C_CODE_ALIGNMENT.
+# This is important for calling make_machine_code, but it's easiest verified
+# on Fsubrs and Subrs.
+#ifdef TYPECODES
+  #define verify_code_alignment(ptr,symbol)  # not needed
+#else
+  #define verify_code_alignment(ptr,symbol)  \
+    if ((uintP)(void*)(ptr) & (C_CODE_ALIGNMENT-1))     \
+      fehler_code_alignment((uintP)(void*)(ptr),symbol)
+  nonreturning_function(local, fehler_code_alignment, (uintP address, object symbol));
+  local void fehler_code_alignment(address,symbol)
+    var uintP address;
+    var object symbol;
+    { asciz_out("C_CODE_ALIGNMENT is wrong. ");
+      asciz_out_s("&%s",TheAsciz(string_to_asciz(Symbol_name(symbol))));
+      asciz_out_1(" = 0x%x." NLstring,address);
+      abort();
+    }
+#endif
+
 # Initialisierungs-Routinen für die Tabellen
 # während des 1. Teils der Initialisierungsphase:
   # subr_tab initialisieren:
@@ -11303,6 +11323,7 @@ local uintC generation;
             TheFsubr(obj)->argtype = fixnum((uintW)fsubr_argtype(ptr2->req_anz,ptr2->opt_anz,(fsubr_body_t)(ptr2->body_flag)));
             TheFsubr(obj)->function = (void*)(*ptr1);
             Symbol_function(sym) = obj;
+            verify_code_alignment(*ptr1,sym);
             ptr1++; ptr2++;
           });
        }
@@ -11311,6 +11332,7 @@ local uintC generation;
         var uintC count;
         dotimesC(count,subr_anz,
           { Symbol_function(ptr->name) = subr_tab_ptr_as_object(ptr);
+            verify_code_alignment(ptr->function,ptr->name);
             ptr++;
           });
       }}
