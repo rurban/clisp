@@ -2124,6 +2124,22 @@ local object parse_as_logical (object obj) {
   return value1;
 }
 
+/* Handler: Signals a TYPE-ERROR with the same error message as the current
+   condition. */
+local void signal_type_error (void* sp, gcv_object_t* frame, object label,
+                              object condition) {
+  var gcv_object_t* thing_ = (gcv_object_t*)sp;
+  /* (SYS::ERROR-OF-TYPE 'TYPE-ERROR
+        :DATUM thing
+        :EXPECTED-TYPE '(AND STRING (SATISFIES SYSTEM::VALID-LOGICAL-PATHNAME-STRING-P))
+        "~A" condition) */
+  pushSTACK(S(type_error));
+  pushSTACK(S(Kdatum)); pushSTACK(*thing_);
+  pushSTACK(S(Kexpected_type)); pushSTACK(O(type_logical_pathname_string));
+  pushSTACK(O(tildeA)); pushSTACK(condition);
+  funcall(L(error_of_type),7);
+}
+
 LISPFUNNR(logical_pathname,1)
 { /* (LOGICAL-PATHNAME thing), CLtL2 p. 631 */
   var object thing = STACK_0;
@@ -2150,7 +2166,11 @@ LISPFUNNR(logical_pathname,1)
     }
     VALUES1(pathname);
   } else {
+    /* ANSI CL requires that we transform PARSE-ERROR into TYPE-ERROR. */
+    var gcv_object_t* thing_ = &STACK_0;
+    make_HANDLER_frame(O(handler_for_parse_error), &signal_type_error,thing_);
     var object pathname = parse_as_logical(thing);
+    unwind_HANDLER_frame();
     /* Check that a host was given. This makes it hard to create relative
        logical pathnames, but it is what ANSI CL specifies. */
     if (nullp(TheLogpathname(pathname)->pathname_host)) {

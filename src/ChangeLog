@@ -1,3 +1,10 @@
+2004-09-18  Bruno Haible  <bruno@clisp.org>
+
+	* pathname.d (signal_type_error): New function.
+	(LOGICAL-PATHNAME): Signal an error of type TYPE-ERROR if the parsing
+	leads to a PARSE-ERROR.
+	* condition.lisp (valid-logical-pathname-string-p): New function.
+
 2004-09-20  Bruno Haible  <bruno@clisp.org>
 
 	Treat the DEFCLASS :fixed-slot-locations option like user-defined
