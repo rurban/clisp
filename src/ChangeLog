@@ -1,5 +1,10 @@
 2002-01-10  Sam Steingold  <sds@gnu.org>
 
+	* package.d (cerror_package_locked): error-format-string: print
+	func with ~A so that "DEFUN/DEFMACRO" is printed without quotes
+
+2002-01-10  Sam Steingold  <sds@gnu.org>
+
 	fixed a bug in the 2001-11-09 patch
 	* pathname.d (CD): slashp expects a chart, not cint
 
