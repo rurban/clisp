@@ -1,5 +1,9 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d: Move the file-streams next to the handle-streams.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (make_file_stream): Change declaration and calling
           convention.
         * stream.d (make_handle_stream): Change calling convention.
