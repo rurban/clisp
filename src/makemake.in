@@ -3369,8 +3369,8 @@ if [ ${HSYSOS} = cygwin ]; then
   echol "full/lisp.exe : full"
   echol
   echol "setup.hint : full/lisp.exe"
-  echotab "echo 'sdesc: an ANSI Common Lisp implementation' > setup.hint"
-  echotab "echo 'category: devel interpreters math shells' >> setup.hint"
+  echotab "echo 'sdesc: \"an ANSI Common Lisp implementation\"' > setup.hint"
+  echotab "echo 'category: Devel Interpreters Math Shells' >> setup.hint"
   echotab 'REQ=''; for f in `cygcheck full/lisp.exe`; do echo "* "$$f; f=`cygpath -u $$f`; REQ=$${REQ}" "`cygcheck -f $$f|sed "s/-.*//"`; done; echo "="$${REQ}; echo "requires:"$${REQ} >> setup.hint'
   echotab "echo 'ldesc: \"' >> setup.hint"
   echotab "cat SUMMARY >> setup.hint"
@@ -3408,7 +3408,7 @@ if [ ${HSYSOS} = cygwin ]; then
   echotab "echo 'cd build-cygwin' >> ${CLISP_SCRIPT}"
   echotab "echo 'make distrib' >> ${CLISP_SCRIPT}"
   echotab "ln -s \$(TAR_SRC) ${CLISP_VERSION}.tar.bz2"
-  echotab "tar cvfjh ${CLISP_VERSION}-1.src.tar.bz2 ${CLISP_VERSION}.tar.bz2 ${CLISP_SCRIPT} ${CLISP_VERSION}-1.patch setup.hint cygwin.README"
+  echotab "tar cvfjh ${CLISP_VERSION}-1-src.tar.bz2 ${CLISP_VERSION}.tar.bz2 ${CLISP_SCRIPT} ${CLISP_VERSION}-1.patch setup.hint cygwin.README"
   echotab "\$(RMRF) ${CLISP_VERSION}.tar.bz2 ${CLISP_SCRIPT} ${CLISP_VERSION}-1.patch"
   echol
 elif [ ${HOS} = unix ] ; then   # but not cygwin!
