@@ -945,7 +945,8 @@ removes the symbol macro definition.
 </dl>
 
 <p><table border=1>
- <tr><th>CPU word size <th>16-bit <th>32-bit <th>64-bit
+ <tr><th><em>Platform dependent:</em>
+     <th>16-bit CPU <th>32-bit CPU <th>64-bit CPU
  <tr><th><a href="CLHSROOT/Body/convar_call-a_uments-limit.html">
      <code>call-arguments-limit</code></a>
      <td>2<sup>16</sup>=65536
@@ -1639,30 +1640,31 @@ with at least <var>digits</var> mantissa digits. The following holds:
 <h4><a href="CLHSROOT/Body/convar_boole-_cm_boole-xor.html">
     boolean operations</a></h4>
 
-<table border=1>
-  <tr><th><code>boole-clr</code>   <td align=right> 0
-  <tr><th><code>boole-set</code>   <td align=right>15
-  <tr><th><code>boole-1</code>     <td align=right>10
-  <tr><th><code>boole-2</code>     <td align=right>12
-  <tr><th><code>boole-c1</code>    <td align=right> 5
-  <tr><th><code>boole-c2</code>    <td align=right> 3
-  <tr><th><code>boole-and</code>   <td align=right> 8
-  <tr><th><code>boole-ior</code>   <td align=right>14
-  <tr><th><code>boole-xor</code>   <td align=right> 6
-  <tr><th><code>boole-eqv</code>   <td align=right> 9
-  <tr><th><code>boole-nand</code>  <td align=right> 7
-  <tr><th><code>boole-nor</code>   <td align=right> 1
-  <tr><th><code>boole-andc1</code> <td align=right> 4
-  <tr><th><code>boole-andc2</code> <td align=right> 2
-  <tr><th><code>boole-orc1</code>  <td align=right>13
-  <tr><th><code>boole-orc2</code>  <td align=right>11
+<table>
+  <tr><th align=left><code>boole-clr</code>   <td>= <td align=right> 0
+  <tr><th align=left><code>boole-set</code>   <td>= <td align=right>15
+  <tr><th align=left><code>boole-1</code>     <td>= <td align=right>10
+  <tr><th align=left><code>boole-2</code>     <td>= <td align=right>12
+  <tr><th align=left><code>boole-c1</code>    <td>= <td align=right> 5
+  <tr><th align=left><code>boole-c2</code>    <td>= <td align=right> 3
+  <tr><th align=left><code>boole-and</code>   <td>= <td align=right> 8
+  <tr><th align=left><code>boole-ior</code>   <td>= <td align=right>14
+  <tr><th align=left><code>boole-xor</code>   <td>= <td align=right> 6
+  <tr><th align=left><code>boole-eqv</code>   <td>= <td align=right> 9
+  <tr><th align=left><code>boole-nand</code>  <td>= <td align=right> 7
+  <tr><th align=left><code>boole-nor</code>   <td>= <td align=right> 1
+  <tr><th align=left><code>boole-andc1</code> <td>= <td align=right> 4
+  <tr><th align=left><code>boole-andc2</code> <td>= <td align=right> 2
+  <tr><th align=left><code>boole-orc1</code>  <td>= <td align=right>13
+  <tr><th align=left><code>boole-orc2</code>  <td>= <td align=right>11
 </table>
 
 <h4><a href="CLHSROOT/Body/convar_most-p_ative-fixnum.html">
     fixnum limits</a></h4>
 
 <table border=1>
- <tr><th>CPU word size<th>16-bit <th>32-bit <th>64-bit
+ <tr><th><em>Platform dependent:</em>
+     <th>16-bit CPU <th>32-bit CPU <th>64-bit CPU
  <tr><th><code>most-positive-fixnum</code>
      <td colspan=2 align=center>2<sup>24</sup>-1 = 16777215
      <td align=right>2<sup>32</sup>-1 = 4294967295
@@ -1891,23 +1893,23 @@ characters left blank here cannot be represented in this character set).
 
 The following are standard characters:
 <table border=1>
-  <tr><th><code>#\Space</code>              <td> #x20
-  <tr><th><code>#\Newline</code>            <td> #x0A
+  <tr><th align=left><code>#\Space</code>              <td> #x20
+  <tr><th align=left><code>#\Newline</code>            <td> #x0A
 </table>
 The following are semi-standard characters:
 <table border=1>
-  <tr><th><code>#\Backspace</code>          <td> #x08
-  <tr><th><code>#\Tab</code>                <td> #x09
-  <tr><th><code>#\Linefeed</code>           <td> #x0A
-  <tr><th><code>#\Page</code>               <td> #x0C
-  <tr><th><code>#\Return</code>             <td> #x0D
+  <tr><th align=left><code>#\Backspace</code>          <td> #x08
+  <tr><th align=left><code>#\Tab</code>                <td> #x09
+  <tr><th align=left><code>#\Linefeed</code>           <td> #x0A
+  <tr><th align=left><code>#\Page</code>               <td> #x0C
+  <tr><th align=left><code>#\Return</code>             <td> #x0D
 </table>
 <!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
 <dl>
 <dt><em>Platform dependent: DOS, OS/2, Win32 platforms only.</em>
 <dd>
 <table border=1>
-  <tr><th><code>#\Rubout</code>             <td> #x08
+  <tr><th align=left><code>#\Rubout</code>             <td> #x08
 </table>
 </dl>
 <!-- #endif -->
@@ -1917,7 +1919,7 @@ The following are semi-standard characters:
 <dt><em>Platform dependent: UNIX, Amiga, Acorn platforms only.</em>
 <dd>
 <table border=1>
-  <tr><th><code>#\Rubout</code>             <td> #x7F
+  <tr><th align=left><code>#\Rubout</code>             <td> #x7F
 </table>
 </dl>
 <!-- #endif -->
@@ -1930,21 +1932,21 @@ lines</a>.
 <p>There are the following additional characters with names:
 
 <table border=1>
-  <tr><th><code>#\Null</code>               <td> #x00
-  <tr><th><code>#\Bell</code>               <td> #x07
-  <tr><th><code>#\Escape</code>             <td> #x1B
+  <tr><th align=left><code>#\Null</code>               <td> #x00
+  <tr><th align=left><code>#\Bell</code>               <td> #x07
+  <tr><th align=left><code>#\Escape</code>             <td> #x1B
 </table>
 
 <p> Additionally, the following syntax is defined for characters with code
 from #x00 to #x1F:
 <table border=1>
-  <tr><th><code>#\^@</code>                      <td> #x00
-  <tr><th><code>#\^A</code> .. <code>#\^Z</code> <td> #x01 .. #x1A
-  <tr><th><code>#\^[</code>                      <td> #x1B
-  <tr><th><code>#\^\</code>                      <td> #x1C
-  <tr><th><code>#\^]</code>                      <td> #x1D
-  <tr><th><code>#\^^</code>                      <td> #x1E
-  <tr><th><code>#\^_</code>                      <td> #x1F
+  <tr><th align=left><code>#\^@</code>                      <td> #x00
+  <tr><th align=left><code>#\^A</code> .. <code>#\^Z</code> <td> #x01 .. #x1A
+  <tr><th align=left><code>#\^[</code>                      <td> #x1B
+  <tr><th align=left><code>#\^\</code>                      <td> #x1C
+  <tr><th align=left><code>#\^]</code>                      <td> #x1D
+  <tr><th align=left><code>#\^^</code>                      <td> #x1E
+  <tr><th align=left><code>#\^_</code>                      <td> #x1F
 </table>
 
 <p> See also the section <a HREF="#chario">character i/o</a>.
@@ -2269,11 +2271,11 @@ have names:
 
 <h3>obsolete constants</h3>
 
-<table border=1>
- <tr><th><code>lisp:char-control-bit</code> <td> 1
- <tr><th><code>lisp:char-meta-bit</code>    <td> 2
- <tr><th><code>lisp:char-super-bit</code>   <td> 4
- <tr><th><code>lisp:char-hyper-bit</code>   <td> 8
+<table>
+ <tr><th align=left><code>lisp:char-control-bit</code> <td>= <td> 1
+ <tr><th align=left><code>lisp:char-meta-bit</code>    <td>= <td> 2
+ <tr><th align=left><code>lisp:char-super-bit</code>   <td>= <td> 4
+ <tr><th align=left><code>lisp:char-hyper-bit</code>   <td>= <td> 8
 </table>
 
 
@@ -2329,7 +2331,8 @@ href="CLHSROOT/Body/syscla_character.html_character.html">
     15.1.1 Array Elements</a></h3>
 
 <p><table border=1>
-<tr><th>CPU word size <th>16-bit <th>32-bit <th>64-bit
+<tr><th><em>Platform dependent:</em>
+    <th>16-bit CPU <th>32-bit CPU <th>64-bit CPU
 <tr><th><a href="CLHSROOT/Body/convar_array-rank-limit.html">
     <code>array-rank-limit</code></a>
     <td colspan=2 align=center>2<sup>16</sup>=65536
@@ -4433,49 +4436,49 @@ the specified or current directory - by <code>load</code>,
 
 <p>The variable <code>*features*</code> initially contains the symbols
 <table border=1>
- <tr><th><code>:CLISP</code>
+ <tr><th align=left><code>:CLISP</code>
      <td> the name of this implementation
- <tr><th><code>:ANSI-CL</code>
-     <td> if invoked with <a href="#ansi">-a</a>
+ <tr><th align=left><code>:ANSI-CL</code>
+     <td> if invoked with <a href="#ansi"><code>-a</code></a>
      <a href="#options">command line option.</a>
- <tr><th><code>:COMMON-LISP</code>
- <tr><th><code>:CLTL2</code>
- <tr><th><code>:INTERPRETER</code>
- <tr><th><code>:COMPILER</code>
+ <tr><th align=left><code>:COMMON-LISP</code>
+ <tr><th align=left><code>:CLTL2</code>
+ <tr><th align=left><code>:INTERPRETER</code>
+ <tr><th align=left><code>:COMPILER</code>
 <!-- #ifdef LOGICAL_PATHNAMES -->
- <tr><th><code>:LOGICAL-PATHNAMES</code>
+ <tr><th align=left><code>:LOGICAL-PATHNAMES</code>
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
- <tr><th><code>:FFI</code>
+ <tr><th align=left><code>:FFI</code>
      <td> if a foreign function interface is supported <em>(Platform
      dependent: many UNIX, Win32 platforms only)</em>
 <!-- #endif -->
 <!-- #ifdef GNU_GETTEXT -->
- <tr><th><code>:GETTEXT</code>
+ <tr><th align=left><code>:GETTEXT</code>
      <td> if internationalization using the GNU gettext package is
      supported <em>(Platform dependent: most UNIX platforms only)</em>
 <!-- #endif -->
 <!-- #ifdef UNICODE -->
- <tr><th><code>:UNICODE</code>
+ <tr><th align=left><code>:UNICODE</code>
      <td> if Unicode (ISO 10646) characters are supported
 <!-- #endif -->
- <tr><th><code>:LOOP</code>
- <tr><th><code>:CLOS</code>
- <tr><th><code>:AMIGA</code>
+ <tr><th align=left><code>:LOOP</code>
+ <tr><th align=left><code>:CLOS</code>
+ <tr><th align=left><code>:AMIGA</code>
      <td> if <var>hardware</var> = Amiga and
      <var>operating system</var> = Exec/AmigaDOS
- <tr><th><code>:DOS</code>
+ <tr><th align=left><code>:DOS</code>
      <td> if <var>hardware</var> = PC (clone) and
      <var>operating system</var> = DOS
- <tr><th><code>:OS/2</code>
+ <tr><th align=left><code>:OS/2</code>
      <td> if <var>hardware</var> = PC (clone) and
      <var>operating system</var> = OS/2
- <tr><th><code>:WIN32</code>
+ <tr><th align=left><code>:WIN32</code>
      <td> if <var>hardware</var> = PC (clone) and
      <var>operating system</var> = Win32 (Windows 95/98/NT)
- <tr><th><code>:PC386</code>
+ <tr><th align=left><code>:PC386</code>
      <td> if <var>hardware</var> = PC (clone) with a 386/486/586/686 CPU
- <tr><th><code>:UNIX</code>
+ <tr><th align=left><code>:UNIX</code>
      <td> if <var>operating system</var> = Unix
      (yes, in this case the hardware is irrelevant!)
 </table>
@@ -4506,16 +4509,16 @@ literally, without surrounding quotes or white space.
 
 <p>Commands common to the main loop, the debugger and the stepper:
 <table border=1>
- <tr>  <td width=100><code>Help</code>
+ <tr>  <th align=left width=100><code>Help</code>
   <td>prints a list of available commands.
 </table>
 
 <p>Commands common to the debugger and the stepper:
 <table border=1>
- <tr>  <td width=100><code>Abort</code>
+ <tr>  <th align=left width=100><code>Abort</code>
   <td>abort to the next most recent
   <a href="CLHSROOT/Body/sec_25-1-1.html">read-eval-print loop</a>.
- <tr>  <td width=100><code>Unwind</code>
+ <tr>  <th align=left width=100><code>Unwind</code>
   <td>abort to the next most recent
    <a href="CLHSROOT/Body/sec_25-1-1.html">read-eval-print loop</a>.
 </table>
@@ -4546,41 +4549,41 @@ detail the stack is shown by the stack related debugger commands.
 
 <p>Commands common to the debugger and the stepper:
 <table border=1>
- <tr><th width=100><code>Mode-1</code>
+ <tr><th align=left width=100><code>Mode-1</code>
      <td>sets the current mode to 1: all the stack elements are
          considered. This mode is fine for debugging compiled functions.
- <tr><th width=100><code>Mode-2</code>
+ <tr><th align=left width=100><code>Mode-2</code>
      <td>sets the current mode to 2: all the frames are considered.
- <tr><th width=100><code>Mode-3</code>
+ <tr><th align=left width=100><code>Mode-3</code>
      <td>sets the current mode to 3: only lexical frames (frames that
          correspond to special forms that modify the lexical environment)
          are considered.
- <tr><th width=100><code>Mode-4</code>
+ <tr><th align=left width=100><code>Mode-4</code>
      <td>sets the current mode to 4 (the default): only <code>eval</code>
          and <code>apply</code> frames are considered. Every evaluation
          of a form in the interpreter corresponds to an EVAL frame.
- <tr><th width=100><code>Mode-5</code>
+ <tr><th align=left width=100><code>Mode-5</code>
      <td>sets the current mode to 5: only <code>apply</code> frames are
          considered. Every invocation of an interpreted function
          corresponds to one <code>apply</code> frame.
- <tr><th width=100><code>Where</code>
+ <tr><th align=left width=100><code>Where</code>
      <td>shows the current stack frame.
- <tr><th width=100><code>Up</code>
+ <tr><th align=left width=100><code>Up</code>
      <td>goes up one frame, i.e. to the caller if in mode-5
- <tr><th width=100><code>Down</code>
+ <tr><th align=left width=100><code>Down</code>
      <td>does down one frame, i.e. to the callee if in mode-5
- <tr><th width=100><code>Top</code>
+ <tr><th align=left width=100><code>Top</code>
      <td>goes to top frame, i.e. to the top-level form if in mode-4
- <tr><th width=100><code>Bottom</code>
+ <tr><th align=left width=100><code>Bottom</code>
      <td>goes to bottom (most recent) frame, i.e. most probably to the
          form or function that caused the debugger to be entered.
- <tr><th width=100><code>Backtrace</code>
+ <tr><th align=left width=100><code>Backtrace</code>
      <td>lists the stack in current mode, bottom frame first, top frame last.
- <tr><th width=100><code>Backtrace-1</code> <td>lists the stack in mode 1.
- <tr><th width=100><code>Backtrace-2</code> <td>lists the stack in mode 2.
- <tr><th width=100><code>Backtrace-3</code> <td>lists the stack in mode 3.
- <tr><th width=100><code>Backtrace-4</code> <td>lists the stack in mode 4.
- <tr><th width=100><code>Backtrace-5</code> <td>lists the stack in mode 5.
+ <tr><th align=left width=100><code>Backtrace-1</code> <td>lists the stack in mode 1.
+ <tr><th align=left width=100><code>Backtrace-2</code> <td>lists the stack in mode 2.
+ <tr><th align=left width=100><code>Backtrace-3</code> <td>lists the stack in mode 3.
+ <tr><th align=left width=100><code>Backtrace-4</code> <td>lists the stack in mode 4.
+ <tr><th align=left width=100><code>Backtrace-5</code> <td>lists the stack in mode 5.
 </table>
 
 <p>If the current stack frame is an <a href="CLHSROOT/Body/fun_eval.html">
@@ -4588,18 +4591,18 @@ detail the stack is shown by the stack related debugger commands.
 <code>apply</code></a> frame, the following commands are available as well:
 
 <table border=1>
-<tr><th width=100><code>Break+</code>
+<tr><th align=left width=100><code>Break+</code>
     <td>sets a breakpoint in the current frame. When the corresponding
      form or function will be left, the debugger will be entered again,
      with the variable <code>*trace-values*</code> containing a list of
      its values.
-<tr><th width=100><code>Break-</code>
+<tr><th align=left width=100><code>Break-</code>
     <td>removes a breakpoint from the current frame.
-<tr><th width=100><code>Redo</code>
+<tr><th align=left width=100><code>Redo</code>
     <td>re-evaluates the corresponding form or function call. This
      command can be used to restart parts of a computation without
      aborting it entirely.
-<tr><th width=100><code>Return</code>
+<tr><th align=left width=100><code>Return</code>
     <td>leaves the current frame. You will be prompted for the return
      values.
 </table>
@@ -4607,20 +4610,20 @@ detail the stack is shown by the stack related debugger commands.
 <p>Commands specific to the debugger:
 
 <table border=1>
-<tr><th width=100><code>Continue</code>
+<tr><th align=left width=100><code>Continue</code>
     <td>continues evaluation of the program.
 </table>
 
 <p>Commands specific to the stepper:
 
 <table border=1>
-<tr><th width=100><code>Step</code>
+<tr><th align=left width=100><code>Step</code>
     <td>step into a form: evaluate this form in single step mode
-<tr><th width=100><code>Next</code>
+<tr><th align=left width=100><code>Next</code>
     <td>step over a form: evaluate this form at once
-<tr><th width=100><code>Over</code>
+<tr><th align=left width=100><code>Over</code>
     <td>step over this level: evaluate at once up to the next return
-<tr><th width=100><code>Continue</code>
+<tr><th align=left width=100><code>Continue</code>
     <td>switch off single step mode, continue evaluation
 </table>
 
@@ -6973,10 +6976,10 @@ effectively ignored.
 
 <table border=1>
  <tr><th><var>allocation</var> <th> meaning
- <tr><th><code>:none</code> <td>no storage is allocated.
- <tr><th><code>:alloca</code>
+ <tr><th align=left><code>:none</code> <td>no storage is allocated.
+ <tr><th align=left><code>:alloca</code>
      <td>allocation of storage on the stack, which has dynamic extent.
- <tr><th><code>:malloc-free</code>
+ <tr><th align=left><code>:malloc-free</code>
      <td>storage will be allocated via <code>malloc()</code>
          and freed via <code>free()</code>.
 </table>
