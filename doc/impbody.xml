@@ -3728,12 +3728,11 @@ use <literal role="sexp">(&nconc; (&directory; "**/")
    &win32;, &amiga; platforms only.)</emphasis>
    if a non-standard key.  These keys are:
 <!-- #if defined(MSDOS) || defined(WIN32) -->
-   Function keys, cursor keypads, numeric keypad <emphasis>(Platform
-   dependent: &dos;, &os2;, &win32; platforms only)</emphasis>.
+   <emphasis>[&dos;, &os2;, &win32;]:</emphasis>
+   Function keys, cursor keypads, numeric keypad.
 <!-- #endif -->
 <!-- #ifdef AMIGAOS -->
-     Function keys, cursor keypad <emphasis>(Platform dependent:
-     &amiga; platforms only)</emphasis>.
+   <emphasis>[&amiga;]:</emphasis>Function keys, cursor keypad.
 <!-- #endif -->
    </simpara></listitem></varlistentry>
 <!-- #endif -->
@@ -3863,8 +3862,8 @@ use <literal role="sexp">(&nconc; (&directory; "**/")
 </itemizedlist></para>
 
 <para>Note that you cannot change &stream-element-type; for some
-built-in streams, such as terminal streams (which is normally the
-value of &terminal-io-var;).</para>
+ built-in streams, such as <link linkend="terminal">terminal streams</link>
+ (which is normally the value of &terminal-io-var;).</para>
 
 </section>
 
