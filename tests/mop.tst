@@ -2,7 +2,7 @@
 ;; Test some MOP-like CLOS features
 
 ; Make the MOP symbols accessible from package CLOS.
-#-(or CLISP ALLEGRO LISPWORKS)
+#-(or CLISP GCL ALLEGRO LISPWORKS)
 (let ((packname
          #+SBCL "SB-PCL" ; or "SB-MOP"?
          #+CMU "PCL" ; or "MOP"?
@@ -11,7 +11,7 @@
   #+SBCL (unlock-package packname)
   (rename-package packname packname (cons "CLOS" (package-nicknames packname)))
   t)
-#-(or CLISP ALLEGRO LISPWORKS)
+#-(or CLISP GCL ALLEGRO LISPWORKS)
 T
 
 #+ALLEGRO

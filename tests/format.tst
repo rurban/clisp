@@ -49,8 +49,8 @@
 
 (format nil "~12<~S~;~^~S~;~^~S~>" 'foo 'bar 'baz)
 #+(or CLISP ALLEGRO OpenMCL) "foo  bar baz"
-#+(or CMU SBCL) "foo bar  baz"
-#-(or CLISP ALLEGRO CMU SBCL OpenMCL) UNKNOWN
+#+(or GCL CMU SBCL) "foo bar  baz"
+#-(or CLISP GCL ALLEGRO CMU SBCL OpenMCL) UNKNOWN
 
 (progn
 (setq liste '(aaaaaaa bbbbbb cccccccccccc dddddddddddddd eeee fffffffff

@@ -74,7 +74,7 @@ nil
          (nreverse noticed))
       (delete-file file-written))))
 (0 2
- #+(or CLISP OpenMCL) 1 #+(or CMU SBCL) T #-(or CLISP CMU SBCL OpenMCL) UNKNOWN
+ #+(or CLISP OpenMCL) 1 #+(or GCL CMU SBCL) T #-(or CLISP GCL CMU SBCL OpenMCL) UNKNOWN
  2 0 2 5 7)
 
 (let ((s (make-string-input-stream
@@ -100,8 +100,9 @@ nil
             (get-output-stream-string s))
     (close s)))
 #+CLISP (#\a #\b 2 "ab" "foo" 1 #\z "fz" 0 #\u 1 #\w "uw")
+#+GCL (#\a #\b 2 "ab" "foo" T #\z "fz" T #\u T #\w "uw")
 #+SBCL (#\a #\b 2 "ab" "foo" 1 #\z "fzo" 0 #\u 1 #\w "uw")
-#-(or CLISP SBCL) UNKNOWN
+#-(or CLISP GCL SBCL) UNKNOWN
 
 (let ((v (make-array 3 :adjustable t :fill-pointer 0
                      :element-type 'character)))
