@@ -747,7 +747,18 @@ LISPFUN(clcs_signal,seclass_default,1,0,rest,nokey,0,NIL)
     funcall(Symbol_value(S(break_driver)),3);
   }
   var object condition = popSTACK(); /* condition back */
-  invoke_handlers(condition); /* call handler */
+  /* (CATCH 'SYS::DONE-SIGNALING ...). This can be used by handlers to override
+     all other applicable handlers.
+     Build CATCH frame: */
+  pushSTACK(S(done_signaling));
+  var gcv_object_t* top_of_frame = STACK STACKop 1; /* pointer above frame */
+  var sp_jmp_buf returner; /* memorize return point */
+  finish_entry_frame(CATCH,returner,, goto catch_return; );
+  /* Call handlers: */
+  invoke_handlers(condition);
+ catch_return: /* we jump to this label, if the catch-frame built
+                  above has caught a throw. */
+  skipSTACK(3); /* unwind CATCH-frame */
   VALUES1(NIL);
 }
 

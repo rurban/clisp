@@ -1424,6 +1424,7 @@ LISPSYM(prompt_for_new_value,"PROMPT-FOR-NEW-VALUE",system) /* function for ERRO
 LISPSYM(continue,"CONTINUE",lisp) /* restart for ERROR */
 LISPSYM(break_on_signals,"*BREAK-ON-SIGNALS*",lisp) /* variable for ERROR */
 LISPSYM(safe_typep,"SAFE-TYPEP",system) /* function for ERROR */
+LISPSYM(done_signaling,"DONE-SIGNALING",system) /* catch-tag for ERROR */
 LISPSYM(stream_read_byte,"STREAM-READ-BYTE",gray)
 LISPSYM(stream_read_byte_lookahead,"STREAM-READ-BYTE-LOOKAHEAD",gray)
 LISPSYM(stream_read_byte_sequence,"STREAM-READ-BYTE-SEQUENCE",gray)
