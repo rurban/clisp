@@ -40,7 +40,7 @@
 ;;
 
 (defvar *all-languages* nil)
-(defun assert-language (lang)
+(defun assert-language (lang) ; ABI
   (let ((h (assoc lang *all-languages*)))
     (unless h
       (error-of-type 'error
@@ -49,7 +49,7 @@
     ) )
     (cdr h)
 ) )
-(defun ensure-language (lang parent-lang)
+(defun ensure-language (lang parent-lang) ; ABI
   (let ((h (assoc lang *all-languages*)))
     (if h
       (unless (eq (cdr h) parent-lang)
@@ -123,7 +123,7 @@
 ) ) )
 ;; Default defaulter: Look up for another language.
 (defvar *localized-recursion* nil)
-(defun definternational-default (symbol default-language)
+(defun definternational-default (symbol default-language) ; ABI
   #'(lambda (language)
       (if (eq *localized-recursion* symbol) ; catch endless recursion
         (error-of-type 'error

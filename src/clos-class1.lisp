@@ -473,7 +473,7 @@
 ;;; The class <standard-class> represents classes with the "default" CLOS
 ;;; behaviour.
 
-(defvar <standard-class> 'standard-class)
+(defvar <standard-class> 'standard-class) ; ABI
 (defvar *<standard-class>-defclass*
   '(defclass standard-class (semi-standard-class)
      ()
@@ -483,7 +483,7 @@
 (defconstant *<standard-class>-instance-size* 27)
 
 ;; For DEFCLASS macro expansions.
-(defconstant *<standard-class>-valid-initialization-keywords*
+(defconstant *<standard-class>-valid-initialization-keywords* ; ABI
              '(:name :direct-superclasses :direct-slots :direct-default-initargs
                :documentation :generic-accessors :fixed-slot-locations))
 (defconstant *<standard-class>-default-initargs* '(:fixed-slot-locations nil))
@@ -501,7 +501,7 @@
 
 ;;; Type tests.
 
-(defun built-in-class-p (object)
+(defun built-in-class-p (object) ; ABI
   (and (std-instance-p object)
        (let ((cv (sys::%record-ref object 0)))
          ; Treat the most frequent cases first, for speed and bootstrapping.
@@ -512,7 +512,7 @@
                  (gethash <built-in-class>
                           (class-all-superclasses (class-of object))))))))
 
-(defun structure-class-p (object)
+(defun structure-class-p (object) ; ABI
   (and (std-instance-p object)
        (let ((cv (sys::%record-ref object 0)))
          ; Treat the most frequent cases first, for speed and bootstrapping.
@@ -534,7 +534,7 @@
                  (gethash <semi-standard-class>
                           (class-all-superclasses (class-of object))))))))
 
-(defun standard-class-p (object)
+(defun standard-class-p (object) ; ABI
   (and (std-instance-p object)
        (let ((cv (sys::%record-ref object 0)))
          ; Treat the most frequent cases first, for speed and bootstrapping.

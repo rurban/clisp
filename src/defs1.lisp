@@ -95,11 +95,11 @@
            'with-package-iterator ':internal ':external ':inherited
            symboltype))))
   (let ((iterfun (gensym "WPI")))
-    `(let ((,iterfun (package-iterator-function
-                      ,pack-list ',(remove-duplicates types))))
-       (macrolet ((,name () '(funcall ,iterfun)))
+    `(LET ((,iterfun (PACKAGE-ITERATOR-FUNCTION
+                       ,pack-list ',(remove-duplicates types))))
+       (MACROLET ((,name () '(FUNCALL ,iterfun)))
          ,@body))))
-(defun package-iterator-function (pack-list symbol-types)
+(defun package-iterator-function (pack-list symbol-types) ; ABI
   (let ((iterstates
           (mapcar #'(lambda (pack) (sys::package-iterator pack symbol-types))
                   (if (listp pack-list) pack-list (list pack-list)))))
@@ -116,7 +116,7 @@
 
 ;; The list of packages that will be locked by SAVEINITMEM.
 ;; Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.
-(defvar *system-package-list*
+(defvar *system-package-list* ; ABI
   '("SYSTEM" "LISP" "EXT" "CUSTOM" "I18N" "GRAY" "CHARSET" "CLOS"
     #+sockets "SOCKET" #+generic-streams "GSTREAM" #+syscalls "POSIX"
     #+ffi "FFI" #+(or) "AFFI" #+screen "SCREEN"))
@@ -492,7 +492,7 @@
 
 ;;; functions for time (Chapter 25.4.1)
 
-;; help function for macro TIME
+;; help function for macro TIME ; ABI
 (defun %time (new-real1 new-real2 new-run1 new-run2 new-gc1 new-gc2
               new-space1 new-space2 new-gccount
               old-real1 old-real2 old-run1 old-run2 old-gc1 old-gc2

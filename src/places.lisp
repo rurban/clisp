@@ -17,7 +17,7 @@
         (make-symbol name))))
 ;;;----------------------------------------------------------------------------
 ;; Returns the symbol which is on the property list at SYSTEM::SETF-FUNCTION
-(defun get-setf-symbol (symbol)
+(defun get-setf-symbol (symbol) ; ABI
   (or (get symbol 'SYSTEM::SETF-FUNCTION)
       (progn
         (when (get symbol 'SYSTEM::SETF-EXPANDER)
@@ -356,7 +356,7 @@
 (defsetf aref (array &rest indices) (value)
   `(SYSTEM::STORE ,array ,@indices ,value))
 ;;;----------------------------------------------------------------------------
-(defun SYSTEM::%SETNTH (index list value)
+(defun SYSTEM::%SETNTH (index list value) ; ABI
   (let ((pointer (nthcdr index list)))
     (if (null pointer)
       (error-of-type 'error
@@ -495,8 +495,8 @@
              (sys::%remf ,(first SM3) ,indicatorvar)
            (when (and ,removed-p (atom ,new-plist))
              ,(if (simple-assignment-p SM4 SM3)
-                  (subst new-plist (first SM3) SM4)
-                  `(PROGN (SETQ ,(first SM3) ,new-plist) ,SM4)))
+                (subst new-plist (first SM3) SM4)
+                `(PROGN (SETQ ,(first SM3) ,new-plist) ,SM4)))
            ,removed-p)))))
 ;;;----------------------------------------------------------------------------
 (export 'ext::remove-plist "EXT")
@@ -752,7 +752,7 @@
 ;;;----------------------------------------------------------------------------
 (defsetf SYMBOL-PLIST SYSTEM::%PUTPLIST)
 ;;;----------------------------------------------------------------------------
-(defun SYSTEM::SET-FDEFINITION (name value)
+(defun SYSTEM::SET-FDEFINITION (name value) ; ABI
   (setf (symbol-function (get-funname-symbol name)) value)
 )
 (defsetf FDEFINITION SYSTEM::SET-FDEFINITION)

@@ -106,7 +106,7 @@
             :format-arguments (list 'no-applicable-method gf args)))
         gf args))))
 
-(defgeneric missing-required-method (gf combination group-name group-filter &rest args)
+(defgeneric missing-required-method (gf combination group-name group-filter &rest args) ; ABI
   (:method ((gf t) (combination method-combination) (group-name symbol) (group-filter function) &rest args)
     (let* ((methods (remove-if-not group-filter (safe-gf-methods gf)))
            (dispatching-arg
@@ -151,7 +151,7 @@
             :format-arguments (list 'no-primary-method gf args)))
         gf args))))
 
-(defun %no-next-method (method &rest args)
+(defun %no-next-method (method &rest args) ; ABI
   (apply #'no-next-method (method-generic-function method) method args))
 (defgeneric no-next-method (gf method &rest args)
   (:method ((gf standard-generic-function) (method method) &rest args

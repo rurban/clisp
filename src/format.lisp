@@ -1100,7 +1100,7 @@
 
 ;;; ---------------------------------------------------------------------------
 
-;; ~A, CLTL p.387-388, CLtL2 p. 584
+;; ~A, CLTL p.387-388, CLtL2 p. 584, ABI
 (defformat-simple format-ascii (stream colon-modifier atsign-modifier
                   (mincol 0) (colinc 1) (minpad 0) (padchar #\Space))
                   (arg)
@@ -1117,7 +1117,7 @@
   (declare (ignore stream)) *print-right-margin*)
 (defun stream-end-s-expression (stream) (declare (ignore stream)))
 
-;; ~S, CLTL p.388, CLtL2 p. 584
+;; ~S, CLTL p.388, CLtL2 p. 584, ABI
 (defformat-simple format-s-expression (stream colon-modifier atsign-modifier
                   (mincol 0) (colinc 1) (minpad 0) (padchar #\Space))
                   (arg)
@@ -1132,7 +1132,7 @@
         stream)))
   (stream-end-s-expression stream))
 
-;; ~W
+;; ~W, ABI
 (defformat-simple format-write (stream colon-modifier atsign-modifier
                   (mincol 0) (colinc 1) (minpad 0) (padchar #\Space))
                   (arg)
@@ -1144,7 +1144,7 @@
       (write-to-string arg)
       stream)))
 
-;; ~D, CLTL p.388, CLtL2 p. 585
+;; ~D, CLTL p.388, CLtL2 p. 585, ABI
 (defformat-simple format-decimal (stream colon-modifier atsign-modifier
                   (mincol 0) (padchar #\Space) (commachar #\,)
                   (commainterval 3))
@@ -1152,7 +1152,7 @@
   (format-base 10 stream colon-modifier atsign-modifier mincol
                padchar commachar commainterval arg))
 
-;; ~B, CLTL p.388, CLtL2 p. 585
+;; ~B, CLTL p.388, CLtL2 p. 585, ABI
 (defformat-simple format-binary (stream colon-modifier atsign-modifier
                   (mincol 0) (padchar #\Space) (commachar #\,)
                   (commainterval 3))
@@ -1160,7 +1160,7 @@
   (format-base 2 stream colon-modifier atsign-modifier mincol
                padchar commachar commainterval arg))
 
-;; ~O, CLTL p.388, CLtL2 p. 585
+;; ~O, CLTL p.388, CLtL2 p. 585, ABI
 (defformat-simple format-octal (stream colon-modifier atsign-modifier
                   (mincol 0) (padchar #\Space) (commachar #\,)
                   (commainterval 3))
@@ -1168,7 +1168,7 @@
   (format-base 8 stream colon-modifier atsign-modifier mincol
                padchar commachar commainterval arg))
 
-;; ~X, CLTL p.388-389, CLtL2 p. 586
+;; ~X, CLTL p.388-389, CLtL2 p. 586, ABI
 (defformat-simple format-hexadecimal (stream colon-modifier atsign-modifier
                   (mincol 0) (padchar #\Space) (commachar #\,)
                   (commainterval 3))
@@ -1176,7 +1176,7 @@
   (format-base 16 stream colon-modifier atsign-modifier mincol
                padchar commachar commainterval arg))
 
-;; ~R, CLTL p.389, CLtL2 p. 586-587
+;; ~R, CLTL p.389, CLtL2 p. 586-587, ABI
 (defformat-simple format-radix (stream colon-modifier atsign-modifier
                   (radix nil) (mincol 0) (padchar #\Space) (commachar #\,)
                   (commainterval 3))
@@ -1197,7 +1197,7 @@
         (format-ordinal arg stream)
         (format-cardinal arg stream)))))
 
-;; ~P, CLTL p. 389, CLtL2 p. 587-588
+;; ~P, CLTL p. 389, CLtL2 p. 587-588, ABI
 (defun format-plural (stream colon-modifier atsign-modifier)
   (when colon-modifier (format-goto-new-arg t 1))
   (let ((singular (eql (next-arg) 1)))
@@ -1205,7 +1205,7 @@
       (write-string (if singular "y" "ies") stream)
       (unless singular (write-char #\s stream)))))
 
-;; ~C, CLTL p.389-390, CLtL2 p. 588
+;; ~C, CLTL p.389-390, CLtL2 p. 588, ABI
 (defformat-simple format-character (stream colon-modifier atsign-modifier)
                   (arg)
   (unless (characterp arg)
@@ -1228,7 +1228,7 @@
           (write-string name stream)
           (write-char arg stream))))))
 
-;; ~F, CLTL p.390-392, CLtL2 p. 588-590
+;; ~F, CLTL p.390-392, CLtL2 p. 588-590, ABI
 (defformat-simple format-fixed-float (stream colon-modifier atsign-modifier
                   (w nil) (d nil) (k 0) (overflowchar nil) (padchar #\Space))
                   (arg)
@@ -1240,7 +1240,7 @@
       (format-padded-string w 1 0 padchar t (princ-to-string arg) stream)
       (format-ascii-decimal arg stream))))
 
-;; ~E, CLTL p.392-395, CLtL2 p. 590-593
+;; ~E, CLTL p.392-395, CLtL2 p. 590-593, ABI
 (defformat-simple format-exponential-float (stream
                   colon-modifier atsign-modifier
                   (w nil) (d nil) (e nil) (k 1)
@@ -1255,7 +1255,7 @@
       (format-padded-string w 1 0 padchar t (princ-to-string arg) stream)
       (format-ascii-decimal arg stream))))
 
-;; ~G, CLTL p.395-396, CLtL2 p. 594-595
+;; ~G, CLTL p.395-396, CLtL2 p. 594-595, ABI
 (defformat-simple format-general-float (stream colon-modifier atsign-modifier
                   (w nil) (d nil) (e nil) (k 1)
                   (overflowchar nil) (padchar #\Space) (exponentchar nil))
@@ -1286,7 +1286,7 @@
       (format-padded-string w 1 0 padchar t (princ-to-string arg) stream)
       (format-ascii-decimal arg stream))))
 
-;; ~$, CLTL p.396-397, CLtL2 p. 595-596
+;; ~$, CLTL p.396-397, CLtL2 p. 595-596, ABI
 (defformat-simple format-dollars-float (stream colon-modifier atsign-modifier
                   (d 2) (n 1) (w 0) (padchar #\Space))
                   (arg)
@@ -1311,7 +1311,7 @@
       (format-padded-string d 1 0 padchar t (princ-to-string arg) stream)
       (format-ascii-decimal arg stream))))
 
-;; ~%, CLTL p.397, CLtL2 p. 596
+;; ~%, CLTL p.397, CLtL2 p. 596, ABI
 (defun format-terpri (stream colon-modifier atsign-modifier &optional (count 1))
   (declare (ignore colon-modifier atsign-modifier))
   (if (null count) (setq count 1))
@@ -1328,7 +1328,7 @@
   (declare (ignore atsign-modifier))
   (pprint-indent (if colon-modifier :current :block) (or count 1) stream))
 
-;; ~&, CLTL p.397, CLtL2 p. 596
+;; ~&, CLTL p.397, CLtL2 p. 596, ABI
 (defun format-fresh-line (stream colon-modifier atsign-modifier
                           &optional (count 1))
   (declare (ignore colon-modifier atsign-modifier))
@@ -1337,20 +1337,20 @@
     (fresh-line stream)
     (dotimes (i (1- count)) (terpri stream))))
 
-;; ~|, CLTL p.397, CLtL2 p. 596
+;; ~|, CLTL p.397, CLtL2 p. 596, ABI
 (defun format-page (stream colon-modifier atsign-modifier &optional (count 1))
   (declare (ignore colon-modifier atsign-modifier))
   (if (null count) (setq count 1))
   (dotimes (i count) (write-char #\Page stream)))
 
-;; ~~, CLTL p.397, CLtL2 p. 596
+;; ~~, CLTL p.397, CLtL2 p. 596, ABI
 (defun format-tilde (stream colon-modifier atsign-modifier &optional (count 1))
   (declare (ignore colon-modifier atsign-modifier))
   (if (null count) (setq count 1))
   (dotimes (i count) (write-char #\~ stream)))
 
 #| have to support PPHELP streams separately, so this is in io.d now
-;; ~T, CLTL p.398-399, CLtL2 p. 597-598
+;; ~T, CLTL p.398-399, CLtL2 p. 597-598, ABI
  (defun format-tabulate (stream colon-modifier atsign-modifier
                         &optional (colnum 1) (colinc 1))
   (if (null colnum) (setq colnum 1))
@@ -1401,12 +1401,12 @@
             (apply node stream *FORMAT-NEXT-ARG*))))
       (let ((arglistarg (next-arg)))
         (do-format-indirection-2 stream node arglistarg arglistarg)))))
-(defun do-format-indirection (stream csarg arguments)
+(defun do-format-indirection (stream csarg arguments) ; ABI
   (unless (or (stringp csarg) (functionp csarg))
     (format-indirection-cserror csarg))
   (unless (listp arguments) (format-indirection-lerror arguments))
   (format-apply stream csarg arguments))
-(defun do-format-indirection-1 (csarg)
+(defun do-format-indirection-1 (csarg) ; ABI
   (cond ((stringp csarg)
          (let ((node (list csarg)))
            (format-parse-cs csarg 0 node nil)
@@ -1414,7 +1414,7 @@
         ((functionp csarg)
          csarg)
         (t (format-indirection-cserror csarg))))
-(defun do-format-indirection-2 (stream node arglistarg wholelistarg)
+(defun do-format-indirection-2 (stream node arglistarg wholelistarg) ; ABI
   (unless (listp arglistarg) (format-indirection-lerror arglistarg))
   (if (consp node)
     (let* ((*FORMAT-CS*         (car node))
@@ -1457,7 +1457,7 @@
       (if atsign-modifier
         (write-string (nstring-capitalize1 tempstr) stream)
         (write-string (nstring-downcase tempstr) stream)))))
-(defun nstring-capitalize1 (string)
+(defun nstring-capitalize1 (string) ; ABI
   (setq string (nstring-downcase string))
   (dotimes (i (length string)) ; make first character Upcase
     (when (both-case-p (schar string i))
@@ -1625,7 +1625,7 @@
 (defun do-format-justification (stream colon-modifier atsign-modifier
                                 mincol colinc minpad padchar
                                 pos check-on-line-overflow firstpiece
-                                supplementary-need line-length piecelist)
+                                supplementary-need line-length piecelist) ; ABI
   (if (null mincol) (setq mincol 0))
   (if (null colinc) (setq colinc 1))
   (if (null minpad) (setq minpad 0))
@@ -1698,7 +1698,7 @@
   (if (up-and-out-p a b c
         (if colon-modifier *FORMAT-NEXT-ARGLIST* *FORMAT-NEXT-ARG*))
     (setq *FORMAT-UP-AND-OUT* (if colon-modifier ':TERMINATE-ALL ':TERMINATE))))
-(defun up-and-out-p (a b c &optional args)
+(defun up-and-out-p (a b c &optional args) ; ABI
   (cond ((and (null a) (null b) (null c)) ; no parameters
          (null args))
         ((and (null b) (null c)) (eql a 0)) ; one parameter
@@ -1716,7 +1716,7 @@
 
 
 ;; Fall-back function if control-string cannot be compiled.
-(defun formatter-hairy (control-string)
+(defun formatter-hairy (control-string) ; ABI
   ;; control-string is known to be a string
   #'(lambda (stream &rest args)
       (let ((node (list control-string)))
@@ -2008,7 +2008,7 @@
         (progn
           (formatter-stop-linear)
           `((SETQ ,*args* (NTHCDR ,n ,*args*))))))))
-(defun list-backward (n whole-list list)
+(defun list-backward (n whole-list list) ; ABI
   (nthcdr (max (- (length whole-list) (length list) n) 0) whole-list))
 
 ;; Fetches a Form, that returns a Directive-Argument.
@@ -2151,16 +2151,16 @@
                         (trivial-call)))
                      (FORMAT-PPRINT-NEWLINE         ; #\_
                       (simple-arglist 0)
-                      (push `(pprint-newline ,(if colon-p
+                      (push `(PPRINT-NEWLINE ,(if colon-p
                                                 (if atsign-p :mandatory :fill)
                                                 (if atsign-p :miser :linear))
-                                             stream)
+                                             STREAM)
                             forms))
                      (FORMAT-PPRINT-INDENT          ; #\I
                       (simple-arglist 1)
-                      (push `(pprint-indent ,(if colon-p :current :block)
+                      (push `(PPRINT-INDENT ,(if colon-p :current :block)
                                             ,(or (first arglist) 0)
-                                            stream)
+                                            STREAM)
                             forms))
                      (FORMAT-FRESH-LINE             ; #\&
                       (simple-arglist 1)

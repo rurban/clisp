@@ -22,17 +22,17 @@
                      condclauselist))))
     `(LET ((,tempvar ,keyform)) (COND ,@(nreverse condclauselist)))))
 ;; ----------------------------------------------------------------------------
-(defun type-error-string ()
+(defun type-error-string () ; ABI
   (TEXT "~A~%The value is: ~S"))
-(defun check-type-error-string (place string typespec)
+(defun check-type-error-string (place string typespec) ; ABI
   (format nil
     (TEXT "The value of ~S should be ~:[of type ~S~;~:*~A~].")
     place string typespec))
-(defun report-one-new-value-string ()
+(defun report-one-new-value-string () ; ABI
   (TEXT "You may input a new value for ~S."))
 (defun report-one-new-value-string-instead ()
   (TEXT "You may input a value to be used instead~@[ of ~S~]."))
-(defun prompt-for-new-value-string ()
+(defun prompt-for-new-value-string () ; ABI
   (concatenate 'string "~%" (TEXT "New ~S: ")))
 (defmacro check-type (place typespec &optional (string nil))
   (let ((tag1 (gensym))
@@ -49,11 +49,11 @@
        (GO ,tag1)
        ,tag2)))
 ;; ----------------------------------------------------------------------------
-(defun report-no-new-value-string ()
+(defun report-no-new-value-string () ; ABI
   (TEXT "Retry"))
-(defun report-new-values-string ()
+(defun report-new-values-string () ; ABI
   (TEXT "You may input new values for ~S."))
-(defun assert-error-string (test-form)
+(defun assert-error-string (test-form) ; ABI
   (format nil
     (TEXT "~S must evaluate to a non-NIL value.")
     test-form))
@@ -79,11 +79,11 @@
        (GO ,tag1)
        ,tag2)))
 ;; ----------------------------------------------------------------------------
-(defun typecase-error-string (keyform typelist)
+(defun typecase-error-string (keyform typelist) ; ABI
   (format nil
     (TEXT "The value of ~S must be of one of the types ~{~S~^, ~}")
     keyform typelist))
-(defun case-error-string (keyform caselist)
+(defun case-error-string (keyform caselist) ; ABI
   (format nil
     (TEXT "The value of ~S must be one of ~{~S~^, ~}")
     keyform caselist))
@@ -206,7 +206,7 @@
                  (LAMBDA (<DEFTYPE-FORM>) ,mainform)))
              (SYS::%SET-DOCUMENTATION ',name 'TYPE ',docstring)
              ',name))))))
-(defun type-call-error (deftype-form)
+(defun type-call-error (deftype-form) ; ABI
   (error-of-type 'error
     (TEXT "The deftype expander for ~S may not be called with ~S arguments.")
     (car deftype-form) (1- (length deftype-form))))
@@ -227,7 +227,7 @@
        (SYSTEM::SET-SYMBOL-VALUE ',symbol
                                  (SYSTEM::MAKE-SYMBOL-MACRO ',expansion)))
      ',symbol))
-(defun check-not-special-variable-p (symbol)
+(defun check-not-special-variable-p (symbol) ; ABI
   (when (special-variable-p symbol)
     (error-of-type 'program-error
       (TEXT "~S: the symbol ~S names a global variable")
@@ -339,10 +339,10 @@
          (PROGN ,@body-rest)
          (CLOSE ,var)))))
 #+UNIX
-(defun make-printer-stream (&key (external-format :default))
+(defun make-printer-stream (&key (external-format :default)) ; ABI
   (make-pipe-output-stream "lpr" :external-format external-format))
 #+WIN32
-(defun make-printer-stream (&key (external-format :default))
+(defun make-printer-stream (&key (external-format :default)) ; ABI
   (open "prn" :direction :output :external-format external-format))
 ;; ----------------------------------------------------------------------------
 (in-package "EXT")

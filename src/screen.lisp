@@ -35,7 +35,7 @@
           *new-window*
 )        )
 
-(proclaim '(special *window*))
+(proclaim '(special *window*)) ; ABI
 
 (defun read-keyboard-char (stream)
   (declare (ignore stream))

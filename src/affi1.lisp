@@ -57,7 +57,7 @@
       (error (TEXT "Unknown library: ~S") symbol)))
 
 ;;TODO? library version
-(defun open-library (symbol)
+(defun open-library (symbol) ; ABI
   "Returns library address or NIL if it failed. The library must be known."
   ;;CLISP won't close libraries for you...
   (let ((found (check-library-base symbol)))
@@ -76,7 +76,7 @@
            (prog1 (setf (symbol-value (first found)) base)
              (setf (second found) 1)))))))) ; field might have been invalid
 
-(defun close-library (symbol)
+(defun close-library (symbol) ; ABI
   (let ((found (check-library-base symbol)))
     (cond
       ((not (boundp symbol))
@@ -166,7 +166,7 @@ be a string, which must be the name of a known library."
 
 ;; ATTENTION: AFFI.D depends on this format!
 
-(defun defflibfun (name library offset mask result-type &rest arg-types)
+(defun defflibfun (name library offset mask result-type &rest arg-types) ; ABI
   (check-library-base library)
   (unless (typep offset 'fixnum)        ;TODO not only reg calls
     (error (TEXT "Offset must be a fixnum: ~S") offset))

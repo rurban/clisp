@@ -3125,7 +3125,7 @@ for-value   NIL or T
                                        :test #'eq)))))))
 
 ;; DEFCONSTANT when compiling
-(defun c-PROCLAIM-CONSTANT (symbol initial-value-form)
+(defun c-PROCLAIM-CONSTANT (symbol initial-value-form) ; ABI
   (when *compiling-from-file*
     (pushnew symbol *known-special-vars* :test #'eq)
     (when (c-constantp initial-value-form)
@@ -3133,7 +3133,7 @@ for-value   NIL or T
             *constant-special-vars*))))
 
 ;; DEFUN when compiling
-(defun c-DEFUN (symbol signature &optional lambdabody (type 'defun))
+(defun c-DEFUN (symbol signature &optional lambdabody (type 'defun)) ; ABI
   (when *compiling* ; c-DEFUN can also be called by the Expander!
     (when *compiling-from-file*
       (let ((kf (assoc symbol *known-functions* :test #'equal)))
@@ -6430,7 +6430,7 @@ for-value   NIL or T
         (argvar1 (gensym)) (argvar2 (gensym)))
     (c-form
       `(LET* ((,argvar1 ,arg1) (,argvar2 ,arg2))
-         (sys::%svstore ,arg3 ,argvar1 ,argvar2)))))
+         (SYS::%SVSTORE ,arg3 ,argvar1 ,argvar2)))))
 
 (defun c-EQ ()
   (test-list *form* 3 3)
@@ -6497,7 +6497,7 @@ for-value   NIL or T
   (mapcap #'(lambda (restvar) `(,restvar (CDR ,restvar))) restvars))
 
 (proclaim '(inline copy-list-lax))
-(defun copy-list-lax (obj)
+(defun copy-list-lax (obj) ; ABI
   "Like COPY-LIST, but return the argument when it is not a LIST."
   (if (consp obj) (copy-list obj) obj))
 
@@ -6521,14 +6521,14 @@ for-value   NIL or T
                                                ,erg))))
                  ((NCONC)
                   #'(lambda (itemvars)
-                      `(let ((,tmp (FUNCALL ,funform ,@itemvars)))
-                         (if (CONSP ,erg)
+                      `(LET ((,tmp (FUNCALL ,funform ,@itemvars)))
+                         (IF (CONSP ,erg)
                            (SETF ,tail (LAST ,tail) (CDR ,tail) ,tmp)
                            (SETQ ,erg ,tmp ,tail ,erg)))))
                  ((APPEND)
                   #'(lambda (itemvars)
-                      `(let ((,tmp (COPY-LIST-LAX (FUNCALL ,funform ,@itemvars))))
-                         (if (CONSP ,erg)
+                      `(LET ((,tmp (COPY-LIST-LAX (FUNCALL ,funform ,@itemvars))))
+                         (IF (CONSP ,erg)
                            (SETF ,tail (LAST ,tail) (CDR ,tail) ,tmp)
                            (SETQ ,erg ,tmp ,tail ,erg))))))
                blockname
@@ -6558,15 +6558,15 @@ for-value   NIL or T
                ((CONS)
                 `(SETQ ,erg (,adjoin-fun (FUNCALL ,funform ,@restvars) ,erg)))
                ((NCONC)
-                `(let ((,tmp (FUNCALL ,funform ,@restvars)))
-                   (if (consp ,erg)
-                     (setf ,tail (last ,tail) (cdr ,tail) ,tmp)
-                     (setq ,erg ,tmp ,tail ,erg))))
+                `(LET ((,tmp (FUNCALL ,funform ,@restvars)))
+                   (IF (CONSP ,erg)
+                     (SETF ,tail (LAST ,tail) (CDR ,tail) ,tmp)
+                     (SETQ ,erg ,tmp ,tail ,erg))))
                ((APPEND)
-                `(let ((,tmp (copy-list-lax (FUNCALL ,funform ,@restvars))))
-                   (if (consp ,erg)
-                     (setf ,tail (last ,tail) (cdr ,tail) ,tmp)
-                     (setq ,erg ,tmp ,tail ,erg)))))
+                `(LET ((,tmp (COPY-LIST-LAX (FUNCALL ,funform ,@restvars))))
+                   (IF (CONSP ,erg)
+                     (SETF ,tail (LAST ,tail) (CDR ,tail) ,tmp)
+                     (SETQ ,erg ,tmp ,tail ,erg)))))
              (SETQ ,@(shift-vars restvars))
              (GO ,tag))))
        ,(case adjoin-fun
@@ -6726,9 +6726,9 @@ for-value   NIL or T
                             (clos::class-p h)
                             (eq (clos:class-name h) type))
                         (return-from c-TYPEP
-                          (c-form `(CLOS::TYPEP-CLASS ,objform
-                                    (LOAD-TIME-VALUE (CLOS:FIND-CLASS
-                                                      ',type))))))))
+                          (c-form
+                            `(CLOS::TYPEP-CLASS ,objform
+                               (LOAD-TIME-VALUE (CLOS:FIND-CLASS ',type))))))))
               ((and (consp type) (symbolp (first type)))
                 (catch 'c-TYPEP
                   (cond ((and (eq (first type) 'SATISFIES)
@@ -6848,7 +6848,7 @@ for-value   NIL or T
          (i-val (and (c-constantp index) (c-constant-value index))))
     (if (simple-index-p i-val '(SETF NTH))
       (c-form
-        `(setf (,(svref #(FIRST SECOND THIRD FOURTH FIFTH SIXTH SEVENTH
+        `(SETF (,(svref #(FIRST SECOND THIRD FOURTH FIFTH SIXTH SEVENTH
                           EIGHTH NINTH TENTH) i-val) ,list) ,value))
       (c-GLOBAL-FUNCTION-CALL-form `(SYSTEM::%SETNTH ,index ,list ,value)))))
 )

@@ -348,6 +348,7 @@
   (setf (structure-direct-slot-definition-initff slotdef) initff)
   slotdef)
 
+; ABI
 (defun make-instance-<structure-direct-slot-definition> (class &rest args
                                                          &key &allow-other-keys)
   ;; class = <structure-direct-slot-definition>
@@ -398,6 +399,7 @@
   (setf (structure-effective-slot-definition-readonly slotdef) readonly)
   slotdef)
 
+; ABI
 (defun make-instance-<structure-effective-slot-definition> (class &rest args
                                                             &key &allow-other-keys)
   ;; class = <structure-effective-slot-definition>

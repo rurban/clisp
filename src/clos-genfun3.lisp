@@ -9,7 +9,7 @@
 ;; ============================= Runtime support =============================
 
 ;; Runtime support for CALL-NEXT-METHOD.
-(defun %call-next-method (method next-methods original-args new-args)
+(defun %call-next-method (method next-methods original-args new-args) ; ABI
   (let* ((gf (method-generic-function method))
          (emf (sys::generic-function-effective-method-function gf))
          (original-em (apply emf original-args))
@@ -25,7 +25,7 @@
 
 ;; =================== Initialization and Reinitialization ===================
 
-(defun make-generic-function (generic-function-class caller whole-form funname lambda-list argument-precedence-order method-combination method-class declspecs documentation user-defined-args
+(defun make-generic-function (generic-function-class caller whole-form funname lambda-list argument-precedence-order method-combination method-class declspecs documentation user-defined-args ; ABI
                               &rest methods)
   (when user-defined-args
     ;; Provide good error messages. The error message from
@@ -198,7 +198,7 @@
 ;; Installs a method. Can be called in two ways:
 ;; (do-defmethod funname method)
 ;; (do-defmethod funname fast-function-factory method-initargs)
-(defun do-defmethod (funname arg1 &optional (arg2 nil must-build-method))
+(defun do-defmethod (funname arg1 &optional (arg2 nil must-build-method)) ; ABI
   (let* ((gf
            (if (fboundp funname)
              (let ((gf (fdefinition funname)))

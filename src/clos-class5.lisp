@@ -642,7 +642,7 @@
 
 ;; Returns the valid initialization arguments of a class, or T if any symbol
 ;; is allowed.
-(defun class-valid-initialization-keywords (class)
+(defun class-valid-initialization-keywords (class) ; ABI
   (let ((entry (gethash class *make-instance-table*)))
     (if entry
       ;; Get it from the cache.

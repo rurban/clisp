@@ -133,7 +133,7 @@
 ;; (but yet uninitialized) method.
 ;; h = (funcall fast-function-factory method)
 ;; Returns a freshly allocated list.
-(defun method-function-initargs (method h)
+(defun method-function-initargs (method h) ; ABI
   (if (typep-class method <standard-method>)
     (list 'fast-function (car h)
           'wants-next-method-p (null (cadr h)))
@@ -144,11 +144,11 @@
 ;; Context about the method combination call, set during the execution of a
 ;; long-expander.
 ; The actual generic function call arguments (in compute-effective-method).
-(defvar *method-combination-arguments* nil)
+(defvar *method-combination-arguments* nil) ; ABI
 ; The generic function applied (in compute-effective-method).
-(defvar *method-combination-generic-function* nil)
+(defvar *method-combination-generic-function* nil) ; ABI
 ; The generic function's method combination (in compute-effective-method).
-(defvar *method-combination* nil)
+(defvar *method-combination* nil) ; ABI
 
 ;; Error about a method whose qualifiers don't fit with a method-combination.
 ;; This is specified to be a function, not a condition type, because it is
@@ -174,7 +174,7 @@
     *method-combination*
     format-string args))
 
-(defun invalid-method-sort-order-error (order-form order-value)
+(defun invalid-method-sort-order-error (order-form order-value) ; ABI
   (method-combination-error
     (TEXT "The value of ~S is ~S, should be :MOST-SPECIFIC-FIRST or :MOST-SPECIFIC-LAST.")
     order-form order-value))
@@ -188,12 +188,12 @@
 
 ;;; ----------------------- General Method Combination -----------------------
 
-(defun invalid-sort-order-error (order-form order-value)
+(defun invalid-sort-order-error (order-form order-value) ; ABI
   (error-of-type 'program-error
     (TEXT "The value of ~S is ~S, should be :MOST-SPECIFIC-FIRST or :MOST-SPECIFIC-LAST.")
     order-form order-value))
 
-(defun any-method-combination-check-options (gf-name combination options checker)
+(defun any-method-combination-check-options (gf-name combination options checker) ; ABI
   (locally (declare (compile))
     (sys::%handler-bind
         ((program-error
@@ -784,14 +784,14 @@
 
 ;;; ---------------------- Short-Form Method Combination ----------------------
 
-(defun short-form-method-combination-check-options (gf-name combination options)
+(defun short-form-method-combination-check-options (gf-name combination options) ; ABI
   (any-method-combination-check-options gf-name combination options
     (function method-combination-option-checker
       (lambda (&optional (order ':most-specific-first))
         (unless (memq order '(:most-specific-first :most-specific-last))
           (invalid-sort-order-error 'order order))))))
 
-(defun short-form-method-combination-expander (gf combination options methods)
+(defun short-form-method-combination-expander (gf combination options methods) ; ABI
   (sys::simple-destructuring-bind (&optional (order ':most-specific-first)) options
     (let ((operator (method-combination-operator combination)))
       (multiple-value-bind (primary around)
@@ -823,7 +823,7 @@
           (values form '()))))))
 
 (defun short-form-method-combination-check-method-qualifiers
-    (gf method-combo method)
+    (gf method-combo method) ; ABI
   (standard-method-combination-check-method-qualifiers gf method-combo method)
   (let ((qualifiers (method-qualifiers method)))
     (when (null qualifiers)
@@ -832,7 +832,7 @@
         (method-combination-name method-combo) gf method))))
 
 (defun short-form-method-combination-call-next-method-allowed
-    (gf method-combo method)
+    (gf method-combo method) ; ABI
   (declare (ignore gf method-combo))
   (let ((qualifiers (method-qualifiers method)))
     (equal qualifiers '(:around))))
@@ -854,7 +854,7 @@
 ;;; ---------------------- Long-Form Method Combination ----------------------
 
 (defun long-form-method-combination-expander
-    (*method-combination-generic-function* *method-combination* options methods)
+    (*method-combination-generic-function* *method-combination* options methods) ; ABI
   (multiple-value-bind (effective-method-form duplicates)
       (apply (method-combination-long-expander *method-combination*)
              *method-combination-generic-function* methods options)
@@ -863,7 +863,7 @@
       `((:ARGUMENTS ,@(method-combination-arguments-lambda-list *method-combination*))
         (:DUPLICATES ,@duplicates)))))
 
-(defun long-form-method-combination-call-next-method-allowed (gf method-combo method)
+(defun long-form-method-combination-call-next-method-allowed (gf method-combo method) ; ABI
   (declare (ignore gf method-combo method))
   t)
 
@@ -875,7 +875,7 @@
 ;; of each method group for duplicates. We don't signal an error on them
 ;; immediately, because they could be ignored, but instead let CALL-METHOD
 ;; signal an error on them.
-(defun long-form-method-combination-collect-duplicates (methods groupname)
+(defun long-form-method-combination-collect-duplicates (methods groupname) ; ABI
   (let ((duplicates '())
         (last-was-duplicate nil))
     (do ((l methods (cdr l)))
@@ -1312,7 +1312,7 @@ Long-form options are a list of method-group specifiers,
 
 ;; DEFINE-METHOD-COMBINATION execution.
 ;; Performs the instantiation and registration and returns the name.
-(defun do-define-method-combination (name &rest initargs)
+(defun do-define-method-combination (name &rest initargs) ; ABI
   (let ((method-combination
           (apply #'make-instance-<method-combination> <method-combination>
                  :name name initargs)))
@@ -1321,7 +1321,7 @@ Long-form options are a list of method-group specifiers,
 
 ;;; ---------------------------------- Misc ----------------------------------
 
-(defun method-combination-with-options (gf-name combination options)
+(defun method-combination-with-options (gf-name combination options) ; ABI
   (funcall (method-combination-check-options combination)
            gf-name combination options)
   (when options

@@ -29,7 +29,7 @@
 
 ;;; ---------------------------------------------------------------------------
 
-(defparameter <standard-method>
+(defparameter <standard-method> ; ABI
   (defclass standard-method (method)
     (($fast-function       ; the function with fast calling conventions, i.e.
                            ; argument list (&rest arguments) or
@@ -212,10 +212,10 @@
 
 ;; Preliminary.
 ;; During bootstrapping, only <standard-method> instances are used.
-(defun allocate-method-instance (class &rest args
+(defun allocate-method-instance (class &rest args ; ABI
                                  &key &allow-other-keys)
   (apply #'%allocate-instance class args))
-(defun initialize-method-instance (method &rest args
+(defun initialize-method-instance (method &rest args ; ABI
                                    &key &allow-other-keys)
   (apply #'initialize-instance-<standard-method> method args))
 (defun method-function (method)

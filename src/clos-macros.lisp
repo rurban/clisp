@@ -77,7 +77,7 @@
      (ERROR-ACCESSOR-TYPECHECK ,caller ,object ,class)))
 
 ;; Auxiliary function for non-generic accessors.
-(defun error-accessor-typecheck (caller object class)
+(defun error-accessor-typecheck (caller object class) ; ABI
   (error-of-type 'type-error
     :datum object :expected-type class
     "~S: The argument is not of type ~S: ~S"

@@ -15,5 +15,5 @@
 (setf (fdefinition 'make-instance-<standard-writer-method>) #'make-instance)
 
 ;; Make creation of method instances customizable.
-(setf (fdefinition 'allocate-method-instance) #'allocate-instance)
-(setf (fdefinition 'initialize-method-instance) #'initialize-instance)
+(setf (fdefinition 'allocate-method-instance) #'allocate-instance) ; ABI
+(setf (fdefinition 'initialize-method-instance) #'initialize-instance) ; ABI

@@ -312,7 +312,7 @@
 (def-atomic-type SIMPLE-STRING simple-string-p)
 (def-atomic-type SIMPLE-VECTOR simple-vector-p)
 (def-atomic-type SINGLE-FLOAT single-float-p)
-(defun %standard-char-p (x) (and (characterp x) (standard-char-p x)))
+(defun %standard-char-p (x) (and (characterp x) (standard-char-p x))) ; ABI
 (def-atomic-type STANDARD-CHAR %standard-char-p)
 (def-atomic-type CLOS:STANDARD-OBJECT clos::std-instance-p)
 (def-atomic-type STREAM streamp)
@@ -438,8 +438,8 @@
 (def-compound-type ARRAY (&optional (el-type '*) (dims '*)) (x)
   (unless (eq dims '*)
     (if (numberp dims)
-        (ensure-rank ARRAY dims)
-        (dolist (dim dims) (ensure-dim ARRAY dim))))
+      (ensure-rank ARRAY dims)
+      (dolist (dim dims) (ensure-dim ARRAY dim))))
   (and (arrayp x)
        (or (eq el-type '*)
            (equal (array-element-type x) (upgraded-array-element-type el-type))
@@ -456,8 +456,8 @@
 (def-compound-type SIMPLE-ARRAY (&optional (el-type '*) (dims '*)) (x)
   (unless (eq dims '*)
     (if (numberp dims)
-        (ensure-rank SIMPLE-ARRAY dims)
-        (dolist (dim dims) (ensure-dim SIMPLE-ARRAY dim))))
+      (ensure-rank SIMPLE-ARRAY dims)
+      (dolist (dim dims) (ensure-dim SIMPLE-ARRAY dim))))
   (and (simple-array-p x)
        (or (eq el-type '*)
            (equal (array-element-type x) (upgraded-array-element-type el-type))
@@ -692,7 +692,7 @@
 ) )
 
 ; Testet eine Liste von Werten auf Erfüllen eines Type-Specifiers. Für THE.
-(defun %the (values type)
+(defun %the (values type) ; ABI
   (macrolet ((near-typep (objform typform)
                ;; near-typep ist wie typep, nur dass das Objekt auch ein
                ;; Read-Label sein darf. Das tritt z.B. auf bei
