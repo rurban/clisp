@@ -45,11 +45,6 @@ vacall:
 	stfd 6,88(1)
 	stfd 7,96(1)
 	stfd 8,104(1)
-	stfd 9,112(1)
-	stfd 10,120(1)
-	stfd 11,128(1)
-	stfd 12,136(1)
-	stfd 13,144(1)
 	stw 0,8(1)
 	stw 0,16(1)
 	blrl
