@@ -76,6 +76,14 @@
 /* __builtin_strlen() is compiled inline (not a call to strlen()) */
 #undef HAVE_BUILTIN_STRLEN
 
+/* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
+   CoreFoundation framework. */
+#undef HAVE_CFLOCALECOPYCURRENT
+
+/* Define to 1 if you have the MacOS X function CFPreferencesCopyAppValue in
+   the CoreFoundation framework. */
+#undef HAVE_CFPREFERENCESCOPYAPPVALUE
+
 /* Define to 1 if you have the `connect' function. */
 #undef HAVE_CONNECT
 
@@ -190,9 +198,6 @@
 
 /* Define to 1 if you have the `sun' library (-lsun). */
 #undef HAVE_LIBSUN
-
-/* compiler supports the `long long' type */
-#undef HAVE_LONGLONG
 
 /* have lstat()? */
 #undef HAVE_LSTAT
