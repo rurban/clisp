@@ -2663,12 +2663,12 @@ LISPFUNN(call_with_foreign_string,6)
   }
   { var object pointer_base = allocate_fpointer((void*)&stack_data[0]);
     pushSTACK(pointer_base);
-    var object* top_of_frame = STACK;
+    var gcv_object_t* top_of_frame = STACK;
     var sp_jmp_buf returner;
     finish_entry_frame(UNWIND_PROTECT,&!returner,, {
       /* UNWIND-PROTECT case: (MARK-INVALID-FOREIGN pointer_base) */
       var restartf_t fun = unwind_protect_to_save.fun;
-      var object* arg = unwind_protect_to_save.upto_frame;
+      var gcv_object_t* arg = unwind_protect_to_save.upto_frame;
       skipSTACK(2); /* unwind Unwind-Protect-Frame */
       pointer_base = popSTACK();
       mark_fp_invalid(TheFpointer(pointer_base));
