@@ -32,7 +32,7 @@ made in the way methods are presented.</para>
 <para>The following is an example of the format for the syntax
 description of a generic function:
 <programlisting>
-<literal role="sexp">(<function>gf1</function> &x-r; &y-r; &optional-amp; &y-r; &key-amp; &k-r;)</literal>
+<literal role="sexp">(<function>gf1</function> &x-r; &y-r; &optional-amp; &v-r; &key-amp; &k-r;)</literal>
 </programlisting></para>
 
 <para>This description indicates that <function>gf1</function> is a
@@ -55,7 +55,7 @@ of these methods, a <firstterm>method signature</firstterm> is used to
 describe the parameters and parameter specializers of each method. The
 following is an example of the format for a method signature:
 <programlisting>
-<literal role="method">(<function>gf1</function> (&x-r; &class;) &y-r; &optional-amp; &y-r; &key-amp; &k-r;)</literal>
+<literal role="method">(<function>gf1</function> (&x-r; &class;) &y-r; &optional-amp; &v-r; &key-amp; &k-r;)</literal>
 </programlisting></para>
 
 <para>This signature indicates that this primary method on the generic
@@ -863,7 +863,7 @@ section.</para>
 
 <para>Each of the reader generic functions for class metaobjects has the
 same syntax, accepting one required argument called &class-r;, which
-must be an class metaobject; otherwise, an &err-sig;.  An error is also
+must be a class metaobject; otherwise, an &err-sig;.  An error is also
 signaled if the class metaobject has not been initialized.</para>
 
 <para>These generic functions can be called by the user or the
