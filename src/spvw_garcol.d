@@ -29,7 +29,13 @@ local void move_conses (sintL delta);
     calculation of displacement of objects of variable length.
  3. update of pointers.
  4. perform the displacements of objects of variable length.
- 5. relallocated objects are made to refer to the new location
+#if GC_UNREALLOC
+ 5. reallocated objects are made to refer to the new location:
+    first, UNREALLOC is called when marking, i.e.,
+     the new objects are marked instead of the re-allocated ones
+    second, UNREALLOC is called when updating, i.e.,
+     the new object is used instead of the re-allocated one
+#endif
 */
 
 #include "spvw_genera1.c"
@@ -46,26 +52,36 @@ local void move_conses (sintL delta);
   - Character, Short-Float, Fixnum etc.: always.
 Use GC_MARK when the argument might be a reallocated object */
 #ifdef DEBUG_SPVW
- #define UNREALLOC(o)                                      \
-  if (instancep(o)) {                                        \
-    if (Record_type(o) == Rectype_realloc_Instance) {        \
-      fprintf(stderr,"realloc instance: %d",as_oint(o));     \
-      instance_un_realloc(o);                                \
-      fprintf(stderr," --> %d\n",as_oint(o));                \
-    }                                                        \
-  } else if (arrayp(o)) {                                    \
-    if (Record_type(o) == Rectype_reallocstring) {           \
-      fprintf(stderr,"realloc string: %d",as_oint(o));       \
-      simple_array_to_storage(o);                            \
-      fprintf(stderr," --> %d\n",as_oint(o));                \
-    }                                                        \
-  }
+ #define UNREALLOC(o)  do { if (orecordp(o))                  \
+   switch (Record_type(o)) {                                  \
+     case Rectype_realloc_Instance:                           \
+       fprintf(stderr,"[%s:%d] realloc instance: %d",         \
+               __FILE__,__LINE__,as_oint(o));                 \
+       instance_un_realloc(o);                                \
+       fprintf(stderr," --> %d\n",as_oint(o));                \
+       break;                                                 \
+     case Rectype_reallocstring:                              \
+       fprintf(stderr,"[%s:%d] realloc string: %d",           \
+               __FILE__,__LINE__,as_oint(o));                 \
+       simple_array_to_storage(o);                            \
+       fprintf(stderr," --> %d\n",as_oint(o));                \
+       break;                                                 \
+   }} while(0)
 #else
- #define UNREALLOC(o)                            \
-  if (instancep(o)) instance_un_realloc(o);             \
-  else if (arrayp(o)) simple_array_to_storage(o);
+ #define UNREALLOC(o)  do { if (orecordp(o))                            \
+   switch (Record_type(o)) {                                            \
+     case Rectype_realloc_Instance: instance_un_realloc(o); break;      \
+     case Rectype_reallocstring: simple_array_to_storage(o); break;     \
+   }} while(0)
 #endif
-#define GC_MARK(o) do { /*UNREALLOC(o)*/ gc_mark(o); } while(0)
+/* do we want GC to un-realloc strings and instances? */
+#define GC_UNREALLOC 0
+#if GC_UNREALLOC
+ #define GC_MARK(o) do { UNREALLOC(o); gc_mark(o); } while(0)
+#else
+ #define GC_MARK    gc_mark
+#endif
+
 #if DEBUG_GC_MARK
   #define IF_DEBUG_GC_MARK(statement)  statement
 #else
@@ -133,7 +149,7 @@ local void gc_mark (object obj)
   { var object dies_ = objectplus(dies,(soint)(iarray_data_offset)<<(oint_addr_shift-addr_shift)); \
     /* data vector is the first and only pointer */                     \
     var object nachf = *(gcv_object_t*)TheIarray(dies_); /* successor */ \
-    *(gcv_object_t*)TheIarray(dies_) = vorg; /* stor predecessor */     \
+    *(gcv_object_t*)TheIarray(dies_) = vorg; /* store predecessor */    \
     mark(TheIarray(dies_)); /* mark first and only pointer */           \
     vorg = dies_; /* current object becomes new predecessor */          \
     dies = nachf; /* predecessor becomes current object */              \
@@ -180,7 +196,6 @@ local void gc_mark (object obj)
     vorg = vorvorg; goto up; /* go further up */ \
   }
 #define down_record()                                                   \
-  /*instance_un_realloc(dies);*/                                        \
   if (in_old_generation(dies,typecode(dies),0))                         \
     goto up; /* do not mark older generation */                         \
   { var gcv_object_t* dies_ = (gcv_object_t*)TheRecord(dies);           \
@@ -307,7 +322,10 @@ local void gc_mark (object obj)
         case Rectype_WeakKVT:
           down_weakkvt();
         case Rectype_reallocstring:
-          /*simple_array_to_storage(dies);*/
+         #if GC_UNREALLOC && 0
+          /* this breaks the relationship between dies & vorg */
+          simple_array_to_storage(dies);
+         #endif
           /*FALLTHROUGH*/
         case Rectype_mdarray:
         case Rectype_bvector:
@@ -320,6 +338,12 @@ local void gc_mark (object obj)
         case Rectype_nilvector: /* (VECTOR NIL) */
         case Rectype_vector:
           down_iarray();
+        case Rectype_realloc_Instance:
+         #if GC_UNREALLOC && 0
+          /* this breaks the relationship between dies & vorg */
+          instance_un_realloc(dies);
+         #endif
+          /*FALLTHROUGH*/
         default: /* Srecord/Xrecord */
           down_record();
       }
@@ -502,14 +526,14 @@ local void gc_markphase (void)
   /* because of the macro in_old_generation(), gc_mark() regards all constant
      symbols as belonging to the old generation and does not peruse them. */
   for_all_constsyms({ /* peruse symbol_tab */
-    gc_mark(ptr->symvalue);
+    GC_MARK(ptr->symvalue);
     gc_mark(ptr->symfunction);
     gc_mark(ptr->proplist);
     gc_mark(ptr->pname);
     gc_mark(ptr->homepackage);
   });
  #endif
-  for_all_constobjs( gc_mark(*objptr); ); /* object_tab */
+  for_all_constobjs( GC_MARK(*objptr); ); /* object_tab */
   for_all_threadobjs( gc_mark(*objptr); ); /* threads */
 }
 
@@ -1342,7 +1366,7 @@ local void gc_markphase (void)
   # update of an object *objptr :
     #if !defined(MORRIS_GC)
       #ifdef TYPECODES
-        #define update(objptr)  \
+        #define update1(objptr)  \
           { var tint type = mtypecode(*(gcv_object_t*)objptr);               \
             if (!gcinvariant_type_p(type)) # un-movable -> do nothing        \
               { var object obj = *(gcv_object_t*)objptr; # object            \
@@ -1356,7 +1380,7 @@ local void gc_markphase (void)
                       type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
           }   }
       #else
-        #define update(objptr)  \
+        #define update1(objptr)  \
           { var object obj = *(gcv_object_t*)objptr; # object               \
             if (!gcinvariant_object_p(obj)) # un-movable -> do nothing      \
               if (!in_old_generation(obj,,))                                \
@@ -1371,7 +1395,7 @@ local void gc_markphase (void)
     #else # defined(MORRIS_GC)
       #if defined(SPVW_MIXED_BLOCKS)
         #ifdef TYPECODES
-          #define update(objptr)  \
+          #define update1(objptr)  \
             { var tint type = mtypecode(*(gcv_object_t*)objptr);            \
               if (!gcinvariant_type_p(type)) # un-movable -> do nothing     \
                 switch (type)                                               \
@@ -1392,7 +1416,7 @@ local void gc_markphase (void)
                       break;                                                \
             }     }
         #else
-          #define update(objptr)  \
+          #define update1(objptr)  \
             { var object obj = *(gcv_object_t*)objptr; # object             \
               if (!gcinvariant_object_p(obj))                               \
                 { if (consp(obj))                                           \
@@ -1411,7 +1435,7 @@ local void gc_markphase (void)
             }   }
         #endif
       #else # defined(SPVW_PURE_BLOCKS) # && defined(SINGLEMAP_MEMORY)
-        #define update(objptr)  \
+        #define update1(objptr)  \
           { var tint type = mtypecode(*(gcv_object_t*)objptr);              \
             if (!is_unused_heap(type)) # unmovable -> do nothing            \
               { var object obj = *(gcv_object_t*)objptr; # object           \
@@ -1449,6 +1473,11 @@ local void gc_markphase (void)
       #define update_stackobj(objptr)  \
         update(objptr);
     #endif
+#if GC_UNREALLOC
+ #define update(objptr) do { UNREALLOC(*objptr); update1(objptr); } while(0)
+#else
+ #define update         update1
+#endif
   # update of old generation:
     #include "spvw_genera3.c"
 
@@ -2638,7 +2667,7 @@ local void gc_unmarkcheck (void) {
         # are replaced with new ones.
         # update of an object *objptr :
           #ifdef TYPECODES
-            #define update(objptr)  \
+            #define update1(objptr)  \
               { switch (mtypecode(*(gcv_object_t*)(objptr)))                  \
                   { case_pair: # Two-Pointer-Object?                          \
                       *(gcv_object_t*)(objptr) = as_object(as_oint(*(gcv_object_t*)(objptr)) + odelta); \
@@ -2646,7 +2675,7 @@ local void gc_unmarkcheck (void) {
                     default: break;                                           \
               }   }
           #else
-            #define update(objptr)  \
+            #define update1(objptr)  \
               { if (consp(*(gcv_object_t*)(objptr)))                          \
                   *(gcv_object_t*)(objptr) = as_object(as_oint(*(gcv_object_t*)(objptr)) + odelta); \
               }
