@@ -1331,7 +1331,7 @@ global object char_name (chart code) {
      printer errors). */
   /* if (!graphic_char_p(code)) */
   {
-    local char hex_table[] = "0123456789ABCDEF";
+    local const char hex_table[] = "0123456789ABCDEF";
     if (c < 0x10000) {
       var object name = allocate_s8string(5);
       TheS8string(name)->data[0] = as_cint(ascii('U'));

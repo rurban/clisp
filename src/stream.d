@@ -8495,7 +8495,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
       }
       if ((uintB)event.Event.KeyEvent.uAsciiChar <= ' ') {
         # Translate Virtual Keycode.
-        local struct { WORD vkcode; key_event_t myevent; } vktable[] = {
+        local const struct { WORD vkcode; key_event_t myevent; } vktable[] = {
           VK_BACK,    { NULL,  BS, 0 },               # #\Backspace
           VK_TAB,     { NULL, TAB, 0 },               # #\Tab
           VK_RETURN,  { NULL,  CR, 0 },               # #\Return
@@ -10542,7 +10542,7 @@ local object check_window_stream (object stream) {
 
 local uintL screentype; # 0 = monochrome, 1 = color
 
-local uintB attr_table[2][5] = {
+local const uintB attr_table[2][5] = {
   # monochrome:
   { /* no standout   */  BW_NORMAL,
     /* standout      */  BW_REVERSE,
@@ -10741,7 +10741,7 @@ typedef struct win32_console_extrafields_t {
 # BACKGROUND_RED
 # BACKGROUND_INTENSITY
 
-local WORD attr_table[5] = {
+local const WORD attr_table[5] = {
   /* no standout   */
   BACKGROUND_BLUE
   | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED,
@@ -10915,7 +10915,8 @@ local void v_puts(HANDLE handle,char *s,COORD *pos,COORD sz,uintW attr) {
 
 # Lisp functions:
 
-local void wr_ch_array_window (const gcv_object_t* stream_, const gcv_object_t* chararray_,
+local void wr_ch_array_window (const gcv_object_t* stream_,
+                               const gcv_object_t* chararray_,
                                uintL start, uintL len) {
   var Handle handle = ConsoleHandleR(*stream_);
   var COORD  pos    = ConsoleData(*stream_)->cursor_position;
