@@ -192,14 +192,14 @@
             (and (not (eql-specializer-p specializer1))
                  (subclassp class specializer1)
                  (typep 'T specializer2))))
-      (the list (std-gf-methods |#'shared-initialize|)))
+      (the list (generic-function-methods |#'shared-initialize|)))
      ;; list of all applicable methods from INITIALIZE-INSTANCE
      (remove-if-not
       #'(lambda (method)
           (let ((specializer (first (method-specializers method))))
             (and (not (eql-specializer-p specializer))
                  (subclassp class specializer))))
-      (the list (std-gf-methods |#'initialize-instance|)))
+      (the list (generic-function-methods |#'initialize-instance|)))
      ;; list of all applicable methods from ALLOCATE-INSTANCE
      (remove-if-not
       #'(lambda (method)
@@ -207,7 +207,7 @@
             (if (eql-specializer-p specializer)
               (eql class (eql-specializer-object specializer))
               (typep-class class specializer)))) ; <==> (typep class specializer)
-      (the list (std-gf-methods |#'allocate-instance|))))))
+      (the list (generic-function-methods |#'allocate-instance|))))))
 (defun make-instance-table-entry1 (class)
   (values (valid-make-instance-keywords class)
           (compute-applicable-methods-effective-method |#'allocate-instance| class)))
@@ -232,14 +232,14 @@
               (and (not (eql-specializer-p specializer1))
                    (subclassp class specializer1)
                    (typep 'NIL specializer2))))
-        (the list (std-gf-methods |#'shared-initialize|)))
+        (the list (generic-function-methods |#'shared-initialize|)))
       ;; list of all applicable methods from REINITIALIZE-INSTANCE
       (remove-if-not
         #'(lambda (method)
             (let ((specializer (first (method-specializers method))))
               (and (not (eql-specializer-p specializer))
                    (subclassp class specializer))))
-        (the list (std-gf-methods |#'reinitialize-instance|))))))
+        (the list (generic-function-methods |#'reinitialize-instance|))))))
 
 ;; For UPDATE-INSTANCE-FOR-REDEFINED-CLASS the following is necessary as keys:
 ;; - the initargs that are used for the initialization of slots,
@@ -266,7 +266,7 @@
                                    (eq specializer2 <null>))
                            (setq independent nil))
                          (typep added-slots specializer2)))))
-            (the list (std-gf-methods |#'shared-initialize|)))
+            (the list (generic-function-methods |#'shared-initialize|)))
           ;; list of all applicable methods from UPDATE-INSTANCE-FOR-REDEFINED-CLASS
           (remove-if-not
             #'(lambda (method)
@@ -290,7 +290,7 @@
                          (and (typep added-slots specializer2)
                               (typep discarded-slots specializer3)
                               (typep property-list specializer4))))))
-            (the list (std-gf-methods |#'update-instance-for-redefined-class|)))))
+            (the list (generic-function-methods |#'update-instance-for-redefined-class|)))))
       independent)))
 
 ;; For UPDATE-INSTANCE-FOR-DIFFERENT-CLASS the following is necessary as keys:
@@ -310,7 +310,7 @@
               (and (not (eql-specializer-p specializer1))
                    (subclassp new-class specializer1)
                    (typep added-slots specializer2))))
-        (the list (std-gf-methods |#'shared-initialize|)))
+        (the list (generic-function-methods |#'shared-initialize|)))
       ;; list of all applicable methods from UPDATE-INSTANCE-FOR-DIFFERENT-CLASS
       (remove-if-not
         #'(lambda (method)
@@ -321,7 +321,7 @@
                    (subclassp old-class specializer1)
                    (not (eql-specializer-p specializer2))
                    (subclassp new-class specializer2))))
-        (the list (std-gf-methods |#'update-instance-for-different-class|))))))
+        (the list (generic-function-methods |#'update-instance-for-different-class|))))))
 
 ;; Also in record.d.
 (defun check-initialization-argument-list (initargs caller)
