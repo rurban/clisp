@@ -9714,9 +9714,7 @@ local void pr_stream (const gcv_object_t* stream_, object obj) {
     case strmtype_twoway_socket:
    #endif
       write_sstring_case(stream_,
-                         stream_isbuffered(*obj_)
-                         ? O(printstring_buffered)
-                         : O(printstring_unbuffered));
+                         (&O(printstring_buffered_00))[stream_isbuffered(*obj_)]);
       break;
     default:
       break;

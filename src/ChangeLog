@@ -1,3 +1,20 @@
+2004-11-01  Bruno Haible  <bruno@clisp.org>
+
+	Change the meaning of :BUFFERED :DEFAULT to mean T on the input side.
+	* lispbibl.d (stream_isbuffered): Change return type to uintB.
+	* stream.d (MAKE-PIPE-INPUT-STREAM): Treat buffered = 0 like
+	buffered > 0.
+	(MAKE-PIPE-OUTPUT-STREAM): Nop.
+	(mkips_from_handles): Treat buffered = 0 like buffered > 0.
+	(MAKE-PIPE-IO-STREAM): On the input side, treat buffered = 0 like
+	buffered > 0.
+	(make_socket_stream): If buffered = 0, combine a buffered input stream
+	with an unbuffered output stream.
+	(stream_isbuffered): Change return value to be the combination of
+	two bits.
+	* io.d (pr_stream): Print "INPUT-BUFFERED" if the stream combines a
+	buffered input stream with an unbuffered output stream.
+
 2004-10-27  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp: Export compute-direct-slot-definition-initargs.

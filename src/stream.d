@@ -12579,7 +12579,7 @@ LISPFUN(make_pipe_input_stream,seclass_default,1,0,norest,key,3,
   # Check and canonicalize the :ELEMENT-TYPE argument:
   test_eltype_arg(&STACK_2,&eltype);
   STACK_2 = canon_eltype(&eltype);
-  if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
+  if (buffered < 0) { check_unbuffered_eltype(&eltype); }
   # Check and canonicalize the :EXTERNAL-FORMAT argument:
   STACK_1 = test_external_format_arg(STACK_1);
   # Now create the pipe.
@@ -12588,7 +12588,7 @@ LISPFUN(make_pipe_input_stream,seclass_default,1,0,norest,key,3,
   });
   # allocate Stream:
   var object stream;
-  if (!eq(STACK_(0+4),T)) { # (buffered <= 0) ?
+  if (buffered < 0) {
     stream = make_unbuffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
                                     &eltype,false,false);
     UnbufferedPipeStream_input_init(stream);
@@ -12796,7 +12796,7 @@ LISPFUN(make_pipe_output_stream,seclass_default,1,0,norest,key,3,
   });
   # allocate Stream:
   var object stream;
-  if (!eq(STACK_(0+4),T)) { # (buffered <= 0) ?
+  if (buffered <= 0) {
     stream = make_unbuffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
                                     &eltype,false,false);
     UnbufferedPipeStream_output_init(stream);
@@ -12861,11 +12861,11 @@ void mkips_from_handles (Handle ipipe, int process_id) {
   # Check and canonicalize the :ELEMENT-TYPE argument:
   test_eltype_arg(&STACK_1,&eltype);
   STACK_1 = canon_eltype(&eltype);
-  if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
+  if (buffered < 0) { check_unbuffered_eltype(&eltype); }
   # Check and canonicalize the :EXTERNAL-FORMAT argument:
   STACK_2 = test_external_format_arg(STACK_2);
   STACK_0 = allocate_handle(ipipe);
-  if (buffered > 0) {
+  if (buffered >= 0) {
     pushSTACK(make_buffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
                                   &eltype,false,false));
     BufferedPipeStream_init(STACK_0);
@@ -13047,7 +13047,7 @@ LISPFUN(make_pipe_io_stream,seclass_default,1,0,norest,key,3,
     pushSTACK(STACK_(2+3+1)); # eltype
     pushSTACK(STACK_(1+2));
     var object stream;
-    if (!eq(STACK_(0+6),T)) { # (buffered <= 0) ?
+    if (buffered < 0) {
       stream = make_unbuffered_stream(strmtype_pipe_in,DIRECTION_INPUT,
                                       &eltype,false,false);
       UnbufferedPipeStream_input_init(stream);
@@ -13066,7 +13066,7 @@ LISPFUN(make_pipe_io_stream,seclass_default,1,0,norest,key,3,
     pushSTACK(STACK_(2+3+1)); # eltype
     pushSTACK(STACK_(0+2));
     var object stream;
-    if (!eq(STACK_(0+6),T)) { # (buffered <= 0) ?
+    if (buffered <= 0) {
       stream = make_unbuffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,
                                       &eltype,false,false);
       UnbufferedPipeStream_output_init(stream);
@@ -13571,7 +13571,7 @@ local object make_socket_stream (SOCKET handle, decoded_el_t* eltype,
   pushSTACK(allocate_socket(handle));
   # allocate stream:
   var object stream;
-  if (buffered <= 0) {
+  if (buffered < 0) {
     stream = make_unbuffered_stream(strmtype_socket,DIRECTION_IO,
                                     eltype,false,false);
     UnbufferedSocketStream_input_init(stream);
@@ -13591,9 +13591,15 @@ local object make_socket_stream (SOCKET handle, decoded_el_t* eltype,
     pushSTACK(stream);
     # allocate Output-Stream:
     pushSTACK(STACK_(2+1)); pushSTACK(STACK_(1+2)); pushSTACK(STACK_(0+3));
-    stream = make_buffered_stream(strmtype_socket,DIRECTION_OUTPUT,
-                                  eltype,false,false);
-    BufferedSocketStream_init(stream);
+    if (buffered <= 0) {
+      stream = make_unbuffered_stream(strmtype_socket,DIRECTION_OUTPUT,
+                                      eltype,false,false);
+      UnbufferedSocketStream_output_init(stream);
+    } else {
+      stream = make_buffered_stream(strmtype_socket,DIRECTION_OUTPUT,
+                                    eltype,false,false);
+      BufferedSocketStream_init(stream);
+    }
     ChannelStreamLow_close(stream) = &low_close_socket;
     TheStream(stream)->strm_socket_port = port;
     TheStream(stream)->strm_socket_host = STACK_(3+1);
@@ -13799,7 +13805,7 @@ LISPFUN(socket_accept,seclass_default,1,0,norest,key,4,
   test_socket_server(STACK_3,true);
 
   # Check and canonicalize the :BUFFERED argument:
-  buffered = test_buffered_arg(STACK_0); # default is NIL
+  buffered = test_buffered_arg(STACK_0);
 
   # Check and canonicalize the :ELEMENT-TYPE argument:
   test_eltype_arg(&STACK_2,&eltype);
@@ -13858,7 +13864,7 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
     fehler_posfixnum(STACK_4);
 
   # Check and canonicalize the :BUFFERED argument:
-  buffered = test_buffered_arg(STACK_0); # default is NIL
+  buffered = test_buffered_arg(STACK_0);
 
   # Check and canonicalize the :ELEMENT-TYPE argument:
   test_eltype_arg(&STACK_2,&eltype);
@@ -16975,8 +16981,9 @@ LISPFUNN(file_string_length,2)
 # UP: Tells whether a stream is buffered.
 # stream_isbuffered(stream)
 # > stream: a channel or socket stream
-# < result: true if stream is buffered, else false
-global bool stream_isbuffered (object stream) {
+# < result: bit(1) set if input side is buffered,
+#           bit(0) set if output side is buffered
+global uintB stream_isbuffered (object stream) {
   switch (TheStream(stream)->strmtype) {
     case strmtype_file:
     #ifdef PIPES
@@ -16989,13 +16996,14 @@ global bool stream_isbuffered (object stream) {
     #ifdef SOCKET_STREAMS
     case strmtype_socket:
     #endif
-      return ChannelStream_buffered(stream);
+      return (ChannelStream_buffered(stream) ? bit(1)|bit(0) : 0);
     #ifdef SOCKET_STREAMS
     case strmtype_twoway_socket:
-      return true;
+      return (ChannelStream_buffered(TheStream(stream)->strm_twoway_socket_input) ? bit(1) : 0)
+             | (ChannelStream_buffered(TheStream(stream)->strm_twoway_socket_output) ? bit(0) : 0);
     #endif
     default:
-      return false;
+      return 0;
   }
 }
 
