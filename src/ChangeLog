@@ -1,3 +1,7 @@
+2004-10-27  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: the correct redirection order is ">/dev/null 2>&1"
+
 2004-10-27  Bruno Haible  <bruno@clisp.org>
 
 	* Makefile.devel (DOCBOOK_XML_DOWNLOAD): New variable.
