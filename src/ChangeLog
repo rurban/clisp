@@ -1,5 +1,9 @@
 2004-12-19  Bruno Haible  <bruno@clisp.org>
 
+	* places.lisp (remove-plist): Use more built-in functions.
+
+2004-12-19  Bruno Haible  <bruno@clisp.org>
+
 	* places.lisp (simple-assignment-p): Add env argument. Recognize
 	assignments to symbol-macros.
 	(push, pop, pushnew, remf, define-modify-macro, setf): Pass environment

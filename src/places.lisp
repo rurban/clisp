@@ -561,16 +561,22 @@
            ,removed-p)))))
 ;;;----------------------------------------------------------------------------
 (export 'ext::remove-plist "EXT")
+;; Remove the keys from the plist.
+;; Useful for re-using the &REST arg after removing some options.
 (defun remove-plist (plist &rest keys)
-  ;; Remove the keys from the plist.
-  ;; Useful for re-using the &REST arg after removing some options.
-  (do (copy rest)
-      ((null (setq rest (nth-value 2 (get-properties plist keys))))
-       (nreconc copy plist))
-    (do () ((eq plist rest))
-      (push (pop plist) copy)
-      (push (pop plist) copy))
-    (setq plist (cddr plist))))
+  ;; This implementation is
+  ;; 1. minimal-consing, non-consing if possible,
+  ;; 2. O(L*K) where L = (length plist), K = (length keys).
+  ;; Remove the first occurring key first, then the second occurring key, etc.
+  ;; This allows us to use the built-in GET-PROPERTIES function.
+  ;; Another O(L*K) algorithm is remove the keys in the order in which they
+  ;; occur in keys, keeping track how much of the list has already been copied.
+  (do ((copy '()))
+      (nil)
+    (let ((rest (nth-value 2 (get-properties plist keys))))
+      (unless rest (return (nreconc copy plist)))
+      (setq copy (nreconc (ldiff plist rest) copy))
+      (setq plist (cddr rest)))))
 ;;;----------------------------------------------------------------------------
 (defmacro rotatef (&rest args &environment env)
   (when (null args) (return-from rotatef NIL))
