@@ -256,7 +256,7 @@ LISPFUNNR(structure_type_p,2) {
 
  (SYS::CLOSURE-NAME closure) returns the name of a closure.
  (SYS::CLOSURE-CODEVEC closure) returns the code-vector of a compiled
-   closure as a list of fixnums >=0, <256.
+   closure as an array of fixnums >=0, <256.
  (SYS::CLOSURE-CONSTS closure) returns a list of all constants of a
    compiled closure.
  (SYS::MAKE-CODE-VECTOR list) returns for a list of fixnums >=0, <256
@@ -300,24 +300,12 @@ nonreturning_function(local, fehler_cclosure, (object obj)) {
 }
 
 /* (SYS::CLOSURE-CODEVEC closure) returns the code-vector of a compiled
-   closure, as list of fixnums >=0, <256. */
+   closure, as an array of fixnums >=0, <256. */
 LISPFUNNR(closure_codevec,1) {
   var object closure = popSTACK();
   if (!(cclosurep(closure))) fehler_cclosure(closure);
   var object codevec = TheCclosure(closure)->clos_codevec;
-  var uintL index = Sbvector_length(codevec); /* index := length in bytes */
-  /* step through codevector codevec from behind and push bytes onto a list: */
-  pushSTACK(codevec); /* codevector */
-  pushSTACK(NIL); /* list := () */
-  while (index != 0) {
-    index--; /* decrement index */
-    /* put new cons in front of the list: */
-    var object new_cons = allocate_cons();
-    Cdr(new_cons) = popSTACK();
-    Car(new_cons) = fixnum((uintL)(TheSbvector(STACK_0)->data[index])); /* fetch byte */
-    pushSTACK(new_cons);
-  }
-  VALUES1(STACK_0); skipSTACK(2); /* list as value */
+  VALUES1(codevec);
 }
 
 /* (SYS::CLOSURE-CONSTS closure) returns a list of all constants of a
