@@ -447,33 +447,32 @@ local void gc_mark (object obj)
 
   #include "spvw_genera2.c"
 
-  local void gc_markphase (void);
-  local void gc_markphase()
-    {
-      # Mark all the STACKs
-      for_all_STACKs(gc_mark_stack(objptr));
-      #ifdef GENERATIONAL_GC
-      # mark old generation, whereas it is perused sparingly:
-      if (generation > 0) { gc_mark_old_generation(); }
-      #endif
-      # mark all program constants:
-      for_all_subrs( gc_mark(subr_tab_ptr_as_object(ptr)); ); # peruse subr_tab
-      #if !defined(GENERATIONAL_GC)
-      for_all_constsyms( gc_mark(symbol_tab_ptr_as_object(ptr)); ); # peruse symbol_tab
-      #else
-      # because of the macro in_old_generation(), gc_mark() regards all constant
-      # symbols as belonging to the old generation and does not peruse them.
-      for_all_constsyms( # peruse symbol_tab
-        { gc_mark(ptr->symvalue);
-          gc_mark(ptr->symfunction);
-          gc_mark(ptr->proplist);
-          gc_mark(ptr->pname);
-          gc_mark(ptr->homepackage);
-        });
-      #endif
-      for_all_constobjs( gc_mark(*objptr); ); # peruse object_tab
-      for_all_threadobjs( gc_mark(*objptr); ); # peruse threads
-    }
+local void gc_markphase (void)
+{
+  /* Mark all the STACKs */
+  for_all_STACKs(gc_mark_stack(objptr));
+ #ifdef GENERATIONAL_GC
+  /* mark old generation, whereas it is perused sparingly: */
+  if (generation > 0) { gc_mark_old_generation(); }
+ #endif
+  /* mark all program constants: */
+  for_all_subrs(gc_mark(subr_tab_ptr_as_object(ptr));); /* subr_tab */
+ #if !defined(GENERATIONAL_GC)
+  for_all_constsyms(gc_mark(symbol_tab_ptr_as_object(ptr));); /* symbol_tab */
+ #else
+  /* because of the macro in_old_generation(), gc_mark() regards all constant
+     symbols as belonging to the old generation and does not peruse them. */
+  for_all_constsyms({ /* peruse symbol_tab */
+    gc_mark(ptr->symvalue);
+    gc_mark(ptr->symfunction);
+    gc_mark(ptr->proplist);
+    gc_mark(ptr->pname);
+    gc_mark(ptr->homepackage);
+  });
+ #endif
+  for_all_constobjs( gc_mark(*objptr); ); /* object_tab */
+  for_all_threadobjs( gc_mark(*objptr); ); /* threads */
+}
 
 # UP: Determine, if an object is still "live".
 # I.e. if the mark bit is set after the marking phase.
@@ -1735,15 +1734,13 @@ local void gc_unmarkcheck (void) {
           while (!eq(L,Fixnum_0))
             { gc_mark(L); L = TheWeakKVT(L)->wkvt_cdr; }
         }
-       #ifdef DEBUG_SPVW
-        { /* the callers in back_trace must all be already marked */
+        { /* the callers in back_trace must all be already marked:
+             they refer to subrs and closures that are curently being
+             called and therefore cannot possibly be garbage-collected.
+             But better safe than sorry, so we mark them here again: */
           var struct backtrace_t *bt = back_trace;
-          for (; bt; bt = bt->bt_next)
-            if (!gcinvariant_object_p(bt->bt_caller) &&
-                !marked(ThePointer(bt->bt_caller)))
-              abort();
+          for (; bt; bt = bt->bt_next) gc_mark(bt->bt_caller);
         }
-       #endif
       # All active objects are marked now:
       # active objects of variable length and active two-pointer-objects carry
       # in their first byte a set mark bit, active SUBRs carry
