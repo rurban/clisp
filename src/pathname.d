@@ -10796,6 +10796,56 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   VALUES_IF(exitcode == 0);
 }
 
+#else # UNIX || MSDOS || ...
+
+LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
+  var object command = popSTACK();
+  if (missingp(command)) {
+    # execute (EXECUTE shell) :
+   #ifdef UNIX
+    pushSTACK(O(user_shell)); # Shell-Name
+   #else # MSDOS
+    pushSTACK(O(command_shell)); # Shell-Name
+   #endif
+    funcall(L(execute),1);
+  } else {
+   #if defined(MSDOS) || defined(RISCOS)
+    # the command has to be passed already split into single parts at
+    # the white spaces to the DOS command-interpreter. The function
+    # system() does this job for us, fortunately.
+    command = check_string(command);
+    with_string_0(command,O(misc_encoding),command_asciz, {
+      begin_system_call();
+      # call program:
+      var int ergebnis = system(command_asciz);
+      end_system_call();
+      # utilize return value: =0 (OK) -> T, >0 (not OK) -> NIL :
+      VALUES_IF(ergebnis == 0);
+    });
+   #else
+    # call (EXECUTE shell "-c" command):
+    pushSTACK(O(command_shell)); # shell name
+    pushSTACK(O(command_shell_option)); # shell option "-c"
+    #ifdef EMUNIX
+    # On DOS 2.x, 3.x the options-character can be a different one!
+    if ((_osmode == DOS_MODE) && (_osmajor < 4)) {
+      var uintB swchar = _swchar();
+      if (swchar) # pss. replace "/C" with something else
+        sstring_store(STACK_0,0,ascii(swchar)); # (destructive)
+    }
+    #endif
+    pushSTACK(command);
+    funcall(L(execute),3);
+   #endif
+  }
+}
+
+#endif
+
+#endif
+
+#ifdef WIN32_NATIVE
+
 /* shell_quote - surrounds dangerous strings with double quotes. quotes quotes.
  dest should be twice as large as source + 2 (for quotes) + 1 for zero byte
  + 1 for poss endslash */
@@ -10827,14 +10877,14 @@ local int shell_quote (char * dest, const char * source,
   return dcp - dest;
 }
 
-# (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error])
-# Launches a program.
-# :arguments : a list of strings
-# :wait - nullp/not nullp - whether to wait for process to finish
-# :input, :output, :error - i/o/e streams for process. basically file-streams
-#   or terminal-streams. see stream_lend_handle() in stream.d for full list
-#   of supported streams
-# returns: exit code (zero when (nullp wait))
+/* (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error])
+   Launches a program.
+   :arguments : a list of strings
+   :wait - nullp/not nullp - whether to wait for process to finish
+   :input, :output, :error - i/o/e streams for process. basically file-streams
+     or terminal-streams. see stream_lend_handle() in stream.d for full list
+     of supported streams
+     returns: exit code (zero when (nullp wait))  */
 LISPFUN(launch,seclass_default,1,0,norest,key,6,
         (kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
   var object command_arg = check_string(STACK_6);
@@ -10844,7 +10894,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
   var object input_arg = STACK_3;
   var object wait_arg = STACK_4;
   var object arg_arg = STACK_5;
-  var int handletype; # todo: check it
+  var int handletype; # TODO: check it
   var DWORD pry = NORMAL_PRIORITY_CLASS;
   if (boundp(priority_arg))
     if (eq(priority_arg,S(Khigh))) pry = HIGH_PRIORITY_CLASS;
@@ -10935,55 +10985,96 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
   if (houtput!=stderr_handle && !CloseHandle(herror)) { end_system_call(); OS_error(); }
 
   end_system_call();
-  VALUES1((exitcode == 0xFFFFFFFF)?negfixnum(-1):fixnum(exitcode));
+  VALUES1(sfixnum(exitcode));
   skipSTACK(7);
 }
 
-#else # UNIX || MSDOS || ...
+#endif 
 
-LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
-  var object command = popSTACK();
-  if (missingp(command)) {
-    # execute (EXECUTE shell) :
-   #ifdef UNIX
-    pushSTACK(O(user_shell)); # Shell-Name
-   #else # MSDOS
-    pushSTACK(O(command_shell)); # Shell-Name
-   #endif
-    funcall(L(execute),1);
-  } else {
-   #if defined(MSDOS) || defined(RISCOS)
-    # the command has to be passed already split into single parts at
-    # the white spaces to the DOS command-interpreter. The function
-    # system() does this job for us, fortunately.
-    command = check_string(command);
-    with_string_0(command,O(misc_encoding),command_asciz, {
-      begin_system_call();
-      # call program:
-      var int ergebnis = system(command_asciz);
-      end_system_call();
-      # utilize return value: =0 (OK) -> T, >0 (not OK) -> NIL :
-      VALUES_IF(ergebnis == 0);
-    });
-   #else
-    # call (EXECUTE shell "-c" command):
-    pushSTACK(O(command_shell)); # shell name
-    pushSTACK(O(command_shell_option)); # shell option "-c"
-    #ifdef EMUNIX
-    # On DOS 2.x, 3.x the options-character can be a different one!
-    if ((_osmode == DOS_MODE) && (_osmajor < 4)) {
-      var uintB swchar = _swchar();
-      if (swchar) # pss. replace "/C" with something else
-        sstring_store(STACK_0,0,ascii(swchar)); # (destructive)
-    }
-    #endif
-    pushSTACK(command);
-    funcall(L(execute),3);
-   #endif
+#if defined(UNIX) || defined(RISCOS)
+
+LISPFUN(launch,seclass_default,1,0,norest,key,6,
+        (kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
+  var object command_arg = STACK_6;
+  var object priority_arg = STACK_0;
+  var object error_arg = STACK_1;
+  var object output_arg = STACK_2;
+  var object input_arg = STACK_3;
+  var object wait_arg = STACK_4;
+  var object arg_arg = STACK_5;
+  var int handletype;
+  if (!boundp(wait_arg)) wait_arg = S(t);
+  if (!boundp(arg_arg)) arg_arg = S(nil);
+  var Handle hinput = handle_dup1((boundp(input_arg) && !eq(input_arg,S(Kterminal)))?
+    stream_lend_handle(input_arg,true,&handletype):0);
+  var Handle houtput = handle_dup1((boundp(output_arg) && !eq(output_arg,S(Kterminal)))?
+    stream_lend_handle(output_arg,false,&handletype):1);
+  var Handle herror = handle_dup1((boundp(error_arg) && !eq(error_arg,S(Kterminal)))?
+    stream_lend_handle(error_arg,false,&handletype):2);
+  var int exit_code = -1;
+  pushSTACK(command_arg);
+  command_arg = string_to_asciz(popSTACK(),O(pathname_encoding)); 
+  var int command_arg_len = Sbvector_length(command_arg);
+  var int argbuf_len = command_arg_len+1,arglist_count = 0;
+  var object curcons = arg_arg;
+  /* will be new asciiz (command + args) list */
+  pushSTACK(allocate_cons());
+  var object curtail = STACK_0;
+  Car(STACK_0) = command_arg;
+  while (consp(curcons)) {
+    curtail = Cdr(curtail) = allocate_cons();
+    /* convert next argument into a string */
+    pushSTACK(Car(curcons)); funcall(L(string),1); 
+    Car(curtail) = string_to_asciz(value1,O(misc_encoding));
+    argbuf_len += Sbvector_length(Car(curtail)) + 1;
+    arglist_count++;
+    curcons = Cdr(curcons);
   }
+  var DYNAMIC_ARRAY(argv,char*,1+(uintL)arglist_count+1);
+  var DYNAMIC_ARRAY(argvdata,char,argbuf_len);
+  curcons = STACK_0;
+  var char** argvptr = &argv[0];
+  var char* argvdataptr = &argvdata[0];
+  while (consp(curcons)) {
+    var uintL len = Sbvector_length(Car(curcons));
+    var char* ptr = TheAsciz(Car(curcons));  
+    *argvptr++ = argvdataptr; /* fill into argv */
+    dotimespL(len,len, { *argvdataptr++ = *ptr++; } ); /* and copy */
+    curcons = Cdr(curcons);
+  };
+  *argvptr = NULL; /* and conclude with nullpointer */
+  skipSTACK(1);
+  begin_system_call();
+  begin_want_sigcld();
+  var int child = vfork();
+  if (child == 0) {/* What ?! I am a clone ?! */
+    if (dup2(hinput,0) < 0) _exit(-1);
+    if (hinput > 2) close(hinput);
+    if (dup2(houtput,1) < 0) _exit(-1);
+    if (houtput > 2) close(houtput);
+    if (dup2(herror,2) < 0) _exit(-1);
+    if (herror > 2) close(herror);
+    execvp(*argv,argv);
+    perror("Unable to start program");
+    _exit(-1);
+  } else if (child < 0) {
+  /* TODO:
+     FIXME: no easy way to be aware of dup2 or
+     exec failures */
+    OS_error();
+  }
+  if (!nullp(wait_arg)) {
+    var int status = wait2(child);
+    exit_code = WEXITSTATUS(status);
+  }
+  curcons = STACK_0;
+  end_want_sigcld();
+  end_system_call();
+  FREE_DYNAMIC_ARRAY(argv);
+  FREE_DYNAMIC_ARRAY(argvdata);
+  VALUES1(sfixnum(exit_code));
+  skipSTACK(7);
 }
-
-#endif
 
 #endif
 
