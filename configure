@@ -594,7 +594,6 @@ if test -n "$do_config"; then
         $subdir_configure_args --cache-file=../config.cache
     fi
   done
-  rm -f config.cache; # avoid problems with stale caches
   cd ..
 fi
 

@@ -2249,6 +2249,7 @@ if [ ! $TSYS = win32msvc ] ; then
   OBSOLETE="$OBSOLETE Makefile~"
   echol
   echol "config.status : configure ${SRCTOPDIR}version.sh"
+  echotab "\$(RM) config.cache"
   echotab "sh config.status --recheck"
   echol
   echol "${SRCDIR}configure : ${SRCDIR}configure.in"
