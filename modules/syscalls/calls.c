@@ -526,7 +526,8 @@ DEFUN(POSIX::LIMITS, &optional what)
 #if defined(HAVE_SETRLIMIT)
 DEFUN(POSIX::SET-LIMITS, what cur max)
 { /* setrlimit(3) */
-  NOTREACHED;
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~S: not yet implemented"));
 }
 #endif /* HAVE_SETRLIMIT */
 
