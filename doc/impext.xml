@@ -2706,9 +2706,11 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
 </section>
 
 <section id="included-modules">
-   <title>Modules included in the distribution.</title>
+   <title>Modules included in the source distribution.</title>
 
-<para>The following modules come with the distribution of &clisp;:</para>
+<para>The following modules come with the <emphasis>source</emphasis>
+ distribution of &clisp; (but are not necessarily built in a
+ particular <emphasis>binary</emphasis> distribution):</para>
 
 <variablelist>
  <varlistentry><term>bindings</term>
