@@ -1,3 +1,9 @@
+2004-09-17  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp (remove-old-definitions, open-for-load,
+	specialized-lambda-list-to-ordinary, defun): Fix indentation. Use
+	'when' instead of 'if' without else-branch.
+
 2004-09-16  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp: Export metaobject, specializer, eql-specializer,
