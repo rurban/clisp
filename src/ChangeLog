@@ -1,3 +1,11 @@
+1999-03-10  Sam Steingold  <sds@gnu.org>
+
+	* clos.lsp: moved `describe-slotted-object' and `describe-object'
+	from here to describe.lsp.
+	* describe.lsp: moved the bulk from `describe' to `describe-object'.
+	added variables `*describe-nesting*' and `*describe-done*'.
+	`describe' now calls `describe-object' and is ANSI compliant.
+
 1999-03-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * readline/: Upgrade to readline-4.0.

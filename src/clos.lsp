@@ -3682,40 +3682,6 @@
     (when method (remove-method #'print-object method))
 ) )
 
-(defun describe-slotted-object (object s)
-  (let ((slotnames (mapcar #'slotdef-name (class-slots (class-of object)))))
-    (if slotnames
-      (let* ((slotstrings (mapcar #'write-to-string slotnames))
-             (tabpos (+ 4 (reduce #'max (mapcar #'length slotstrings)))))
-        (format s (DEUTSCH "~%Slots:"
-                   ENGLISH "~%Slots:"
-                   FRANCAIS "~%Composants:")
-        )
-        (mapc #'(lambda (slotname slotstring)
-                  (format s "~%  ~A~VT" slotstring tabpos)
-                  (if (slot-boundp object slotname)
-                    (format s "=  ~S" (slot-value object slotname))
-                    (format s (DEUTSCH "ohne Wert"
-                               ENGLISH "unbound"
-                               FRANCAIS "aucune valeur")
-                ) ) )
-              slotnames slotstrings
-      ) )
-      (format s (DEUTSCH "~%Keine Slots."
-                 ENGLISH "~%No slots."
-                 FRANCAIS "~%Aucun composant.")
-) ) ) )
-
-(defgeneric describe-object (object stream)
-  (:method ((object standard-object) stream)
-    (describe-slotted-object object stream)
-  )
-  (:method ((object structure-object) stream) ; CLISP specific
-    (describe-slotted-object object stream)
-  )
-)
-
-
 ;; 28.1.9. Object creation and initialization
 
 ; Grausamer Hack (28.1.9.2.):
