@@ -2239,6 +2239,10 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
   <listitem><simpara>The <ulink url="regexp.html">POSIX Regular
    Expressions</ulink> matching, compiling, executing.
  </simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="pari">pari</link></term>
+  <listitem><simpara>Interface to the computer algebra system
+    <ulink url="http://pari.math.u-bordeaux.fr/">PARI</ulink>.
+ </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="pcre">pcre</link></term>
   <listitem><simpara>The <ulink url="http://www.pcre.org/">Perl
      Compatible Regular Expressions</ulink> matching, compiling,

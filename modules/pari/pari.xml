@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<section id="pari"><title>Computer Algebra System PARI.</title>
+
+<para>This is an interface to
+ <ulink url="http://pari.math.u-bordeaux.fr/">PARI</ulink>.</para>
+<simpara>When this module is present, &features-var; contains the
+ symbol <constant>:PARI</constant>.</simpara>
+
+</section>
