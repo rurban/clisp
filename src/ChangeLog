@@ -1,3 +1,11 @@
+1999-01-26  Sam Steingold  <sds@goems.com>
+
+	MT-safe get_real_time:
+	* time.d (get_real_time): take pointer argument; no internal
+	statics.
+	* lisparit.d: fix calls to `get_real_time'.
+	* lispbibl.d: fix declaration of `get_real_time'.
+
 1999-01-25  Sam Steingold  <sds@goems.com>
 
 	* spvw.d: expanded --help, added --license, removed trailing
