@@ -3713,7 +3713,7 @@ local void* object_handle (object library, gcv_object_t *name, bool retry_p)
     if (retry_p)
       check_value(error,GETTEXT("~S: no dynamic object named ~S in library ~S"));
     else fehler(error,GETTEXT("~S: no dynamic object named ~S in library ~S"));
-    *name = value1; library = popSTACK();
+    *name = check_string(value1); library = popSTACK();
     goto object_handle_restart;
   }
   return address;
