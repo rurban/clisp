@@ -2576,8 +2576,11 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   if [ $f = foreign ] ; then
     dependsc=$dependsc' avcall.h callback.h'
   fi
-  if [ $f = pathname -a ${TOS} = win32 ]; then
-    dependsc=$dependsc' w32shell.c execname.c'
+  if [ $f = pathname ] ; then
+    dependsc=$dependsc' execname.c'
+    if [ ${TOS} = win32 ]; then
+      dependsc=$dependsc' w32shell.c'
+    fi
   fi
   if [ $f = built ] ; then
     dependsc=${dependsc}' cflags.h'

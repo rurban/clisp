@@ -1,5 +1,9 @@
 2005-03-15  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (pathname): Depend on execname.c also on Unix.
+
+2005-03-15  Bruno Haible  <bruno@clisp.org>
+
 	* modules/regexp/regex.c: Upgrade from gnulib.
 
 2005-03-14  Sam Steingold  <sds@gnu.org>
