@@ -164,7 +164,8 @@
         }
         if (asciz_equal(langname,"FRANCAIS") || asciz_equal(langname,"francais")
             #ifndef ASCII_CHS
-            || asciz_equal(langname,"FRANÇAIS") || asciz_equal(langname,"français")
+            || asciz_equal(langname,"FRAN\307AIS") || asciz_equal(langname,"FRAN\303\207AIS") # FRAN�AIS
+            || asciz_equal(langname,"fran\347ais") || asciz_equal(langname,"fran\303\247ais") # français
             #endif
             || asciz_equal(langname,"FRENCH") || asciz_equal(langname,"french")
            ) {
@@ -172,7 +173,8 @@
         }
         if (asciz_equal(langname,"ESPANOL") || asciz_equal(langname,"espanol")
             #ifndef ASCII_CHS
-            || asciz_equal(langname,"ESPAÑOL") || asciz_equal(langname,"español")
+            || asciz_equal(langname,"ESPA\321OL") || asciz_equal(langname,"ESPA\303\221OL") # ESPA�OL
+            || asciz_equal(langname,"espa\361ol") || asciz_equal(langname,"espa\303\261ol") # español
             #endif
             || asciz_equal(langname,"SPANISH") || asciz_equal(langname,"spanish")
            ) {
