@@ -1523,7 +1523,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
       string = arg.string;
       z.index = arg.offset+arg.index; /* z.index = start-argument, */
       z.count = arg.len;           /* z.count = number of characters. */
-      z.FNindex = fixnum(z.index); /* z.FNindex = start-Index as Fixnum. */
+      z.FNindex = fixnum(arg.index); /* z.FNindex = start-Index as Fixnum. */
     }
    #ifdef LOGICAL_PATHNAMES
     if (!parse_logical) {
