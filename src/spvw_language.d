@@ -240,15 +240,15 @@
             # before the gettext library opens the catalog file, we have to
             # convert argv_localedir to be an absolute pathname, if possible.
             #ifdef UNIX
-            if (!(argv_localedir == NULL))
+            if (argv_localedir != NULL)
               if (argv_localedir[0] != '\0' && argv_localedir[0] != '/')
                 { var char currdir[MAXPATHLEN];
-                  if (!(getwd(currdir) == NULL))
+                  if (getcwd(currdir,MAXPATHLEN) != NULL)
                     { var uintL currdirlen = asciz_length(currdir);
                       if (currdirlen > 0 && currdir[0] == '/')
                         { var uintL len = currdirlen + 1 + asciz_length(argv_localedir) + 1;
                           var char* abs_localedir = (char*)malloc(len*sizeof(char));
-                          if (!(abs_localedir == NULL))
+                          if (abs_localedir != NULL)
                             { # Append currdir, maybe '/', and argv_localedir into abs_localedir:
                               var char* ptr = abs_localedir;
                               { var const char * srcptr = currdir;
