@@ -5088,6 +5088,7 @@ local signean listen_char_unbuffered (object stream) {
       if (UnbufferedStream_ignore_next_LF(stream) && chareq(c,ascii(NL))) {
         # Move the remainder of the buffer into bytebuf.
         UnbufferedStreamLow_pushfront_bytes(stream,bptr,&buf[buflen]-bptr);
+        buflen--; /* discard the NL from buf */
         UnbufferedStream_ignore_next_LF(stream) = false;
       } else {
         # Move the buffer into bytebuf.
