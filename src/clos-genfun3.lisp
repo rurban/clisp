@@ -332,54 +332,6 @@
              'ensure-generic-function-using-class funname result))
     result))
 
-(defun do-defgeneric (funname generic-function-class lambda-list signature argument-precedence-order method-combo method-class declspecs documentation &rest methods)
-  (if (fboundp funname)
-    (let ((gf (fdefinition funname)))
-      (if (typep-class gf <generic-function>)
-        ;; Redefinition of a generic function.
-        (progn
-          ;; Take into account the new generic-function-class.
-          (unless (eq (class-of gf) generic-function-class)
-            (change-class gf generic-function-class))
-          (warn-if-gf-already-called gf)
-          ;; Remove the old defgeneric-originated methods. Instead of calling
-          ;; std-remove-method on each such method, while inhibiting warnings,
-          ;; we can just as well remove the methods directly.
-          (setf (std-gf-methods gf)
-                (remove-if #'(lambda (method)
-                               (when (std-method-from-defgeneric method)
-                                 (setf (std-method-generic-function method) nil)
-                                 t))
-                           (std-gf-methods gf)))
-          (unless (equalp signature (std-gf-signature gf))
-            (dolist (method (std-gf-methods gf))
-              (check-signature-congruence gf method signature))
-            (setf (std-gf-signature gf) signature))
-          (shared-initialize-<standard-generic-function> gf nil
-            :lambda-list lambda-list
-            :argument-precedence-order argument-precedence-order
-            :method-class method-class
-            :declarations declspecs
-            :documentation documentation)
-          (let ((method-combo (coerce-to-method-combination funname method-combo)))
-            (unless (eq method-combo (std-gf-method-combination gf))
-              (dolist (method (std-gf-methods gf))
-                (check-method-qualifiers gf method method-combo))
-              (setf (std-gf-method-combination gf) method-combo)))
-          (dolist (method methods) (std-add-method gf method))
-          (finalize-fast-gf gf)
-          gf)
-        (if (not *allow-making-generic*)
-          (error-of-type 'program-error
-            (TEXT "~S: ~S does not name a generic function")
-            'defgeneric funname)
-          (setf (fdefinition funname)
-                (apply #'make-generic-function generic-function-class funname lambda-list argument-precedence-order
-                       method-combo method-class declspecs documentation methods)))))
-    (setf (fdefinition funname)
-          (apply #'make-generic-function generic-function-class funname lambda-list argument-precedence-order
-                 method-combo method-class declspecs documentation methods))))
-
 #||  ;; For GENERIC-FLET, GENERIC-LABELS
 ;; like make-generic-function, only that the dispatch-code is
 ;; installed immediately.
@@ -634,8 +586,21 @@
        (COMPILER::EVAL-WHEN-COMPILE
          (COMPILER::C-DEFUN ',funname ',signature nil 'DEFGENERIC))
        ;; NB: no (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
-       (DO-DEFGENERIC ',funname ,generic-function-class-form ',lambda-list ',signature ',argument-precedence-order ',method-combo ,method-class-form ',declspecs ',docstring
-                      ,@method-forms))))
+       (ENSURE-GENERIC-FUNCTION ',funname
+         ;; Here we pass :GENERIC-FUNCTION-CLASS, :ARGUMENT-PRECEDENCE-ORDER,
+         ;; :METHOD-CLASS, :DOCUMENTATION also if the corresponding option
+         ;; wasn't specified in the DEFGENERIC form, because when a generic
+         ;; function is being redefined, :DOCUMENTATION NIL means to erase
+         ;; the documentation string, while nothing means to keep it!
+         ;; See MOP p. 61.
+         :GENERIC-FUNCTION-CLASS ,generic-function-class-form
+         :LAMBDA-LIST ',lambda-list
+         :ARGUMENT-PRECEDENCE-ORDER ',argument-precedence-order
+         :METHOD-CLASS ,method-class-form
+         :METHOD-COMBINATION (COERCE-TO-METHOD-COMBINATION ',funname ',method-combo)
+         :DOCUMENTATION ',docstring
+         :DECLARATIONS ',declspecs
+         'METHODS (LIST ,@method-forms)))))
 
 ;; ============================================================================
 
