@@ -10931,8 +10931,9 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
   while (consp(STACK_0)) {
     Car(STACK_0) = check_string(Car(STACK_0));
     /* sum max estimates of quoted lenghts:
-       1/space + 1/poss. endslash + 2/quotes + length * 2/quoting of quotes */
-    command_len += vector_length(Car(STACK_0))*2 + 1 + 1 + 2;
+       1/space + 1/poss. endslash + 2/quotes + length * 2/quoting of quotes +
+       length * 4/encoding */
+    command_len += vector_length(Car(STACK_0))*2*4 + 1 + 1 + 2;
     STACK_0 = Cdr(STACK_0);
   }
   cmdlist_cons = STACK_1; skipSTACK(2);
