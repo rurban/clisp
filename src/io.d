@@ -4050,7 +4050,7 @@ LISPFUNN(structure_reader,3) { # reads #S
         if (boundp(description)) {
           /* description must be a Simple-Vector of length 6: */
           if (simple_vector_p(description)
-              && (Svector_length(description) == 6)) {
+              && (Svector_length(description) == 7)) {
             /* fetch constructor-function: */
             constructor =       /* (svref description 2) */
               TheSvector(description)->data[2];

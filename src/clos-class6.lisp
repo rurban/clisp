@@ -135,6 +135,11 @@
   (:method ((class defined-class))
     (check-class-initialized class 2)
     (sys::%record-ref class *<defined-class>-direct-slots-location*))
+  (:method ((class symbol))
+    (let ((descriptor (get class 'SYS::DEFSTRUCT-DESCRIPTION)))
+      (if descriptor
+          (svref descriptor sys::*defstruct-description-slots-location*)
+          (class-direct-slots (find-class class)))))
   (:method ((class forward-reference-to-class))
     ;; Broken MOP. Any use of this method is a bug.
     (warn (TEXT "~S being called on ~S, but class ~S is not yet defined.")
@@ -142,9 +147,21 @@
     '()))
 (initialize-extended-method-check #'class-direct-slots)
 ;; Not in MOP.
-(defun (setf class-direct-slots) (new-value class)
-  (accessor-typecheck class 'defined-class '(setf class-direct-slots))
-  (setf (sys::%record-ref class *<defined-class>-direct-slots-location*) new-value))
+(defgeneric (setf class-direct-slots) (new-value class)
+  (:method (new-value (class defined-class))
+    (accessor-typecheck class 'defined-class '(setf class-direct-slots))
+    (setf (sys::%record-ref class *<defined-class>-direct-slots-location*) new-value))
+  (:method (new-value (class symbol))
+    (let ((descriptor (get class 'SYS::DEFSTRUCT-DESCRIPTION)))
+      (setf (if descriptor
+                (svref descriptor sys::*defstruct-description-slots-location*)
+                (class-direct-slots (find-class class)))
+            new-value)))
+  (:method (new-value (class forward-reference-to-class))
+    ;; Broken MOP. Any use of this method is a bug.
+    (warn (TEXT "~S being called on (~S ~S), but class ~S is not yet defined.")
+          '(setf class-direct-slots) new-value class (class-name class))
+    '()))
 
 ;; MOP p. 77
 (defgeneric class-slots (class)
@@ -338,6 +355,27 @@
       (setf (if descriptor
                 (svref descriptor sys::*defstruct-description-copier-location*)
                 (class-copier (find-class class)))
+            new-value))))
+
+;; Not in MOP.
+(defgeneric class-predicate (class)
+  (:method ((class defined-class))
+    (accessor-typecheck class 'structure-class 'class-predicate)
+    (sys::%record-ref class *<structure-class>-predicate-location*))
+  (:method ((class symbol))
+    (let ((descriptor (get class 'SYS::DEFSTRUCT-DESCRIPTION)))
+      (if descriptor
+          (svref descriptor sys::*defstruct-description-predicate-location*)
+          (class-predicate (find-class class))))))
+(defgeneric (setf class-predicate) (new-value class)
+  (:method (new-value (class defined-class))
+    (accessor-typecheck class 'structure-class '(setf class-predicate))
+    (setf (sys::%record-ref class *<structure-class>-predicate-location*) new-value))
+  (:method (new-value (class symbol))
+    (let ((descriptor (get class 'SYS::DEFSTRUCT-DESCRIPTION)))
+      (setf (if descriptor
+                (svref descriptor sys::*defstruct-description-predicate-location*)
+                (class-predicate (find-class class)))
             new-value))))
 
 ;; Not in MOP.
