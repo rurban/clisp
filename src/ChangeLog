@@ -1,5 +1,10 @@
 2002-05-28  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (XCC_GCC_VERSION): Update for gcc 3.1.
+	(XCFLAGS): With gcc 3.1, add -fno-gcse.
+
+2002-05-28  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (setSP, FAST_SP) [I80386]: Don't define when using
 	gcc-3.1.
 
