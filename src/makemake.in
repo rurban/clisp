@@ -26,7 +26,7 @@ options:
                                suse - SuSE-Linux conventions
                                redhat - RedHat
                                debian - Debian, Slackware
-                               netbsd - NetBSD
+                               *bsd - NetBSD, OpenBSD, FreeBSD
        --hyperspec=URL         the path to the Common Lisp HyperSpec
            (the default is ${HSDEFAULT}
             or the value of the environment variable CLHSROOT, if set).
@@ -159,7 +159,7 @@ hostname=`(hostname || uname -n) 2>/dev/null | sed 1q`
 srcdir=''
 prefix=''
 exec_prefix=''
-fsstnd=gnu_ext # supported styles: gnu, gnu_ext, suse, redhat, debian, netbsd
+fsstnd=gnu_ext # supported styles: gnu, gnu_ext, suse, redhat, debian, *bsd
 MODULES=''
 CP='cp -p'
 LN_S='ln -s'
@@ -1672,7 +1672,7 @@ case "$fsstnd" in
   redhat)
     echol "lispdocdir = \$(docdir)${NEXT_}clisp-`cat ../src/VERSION`"
     ;;
-  debian | gnu_ext | netbsd)
+  debian | gnu_ext | *bsd)
     echol "lispdocdir = \$(docdir)${NEXT_}clisp"
     ;;
 esac
@@ -3157,14 +3157,14 @@ if [ $CROSS = false ] ; then
         echotab_mkdir_maybe "\$(DESTDIR)\$(htmldir)"
         echotab_mkdir_maybe "\$(DESTDIR)\$(dvidir)"
         ;;
-      netbsd)
+      *bsd)
         echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)"
         ;;
     esac
     echotab_mkdir_maybe "\$(DESTDIR)\$(docdir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)"
     case "$fsstnd" in
-      netbsd)
+      *bsd)
         ;;
       *)
         echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)/doc"
@@ -3217,7 +3217,7 @@ if [ $CROSS = false ] ; then
           echotab "\$(INSTALL_DATA) clisp.dvi \$(DESTDIR)\$(dvidir)/clisp.dvi"
         fi
         ;;
-      netbsd)
+      *bsd)
         echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)"
         echotab "\$(INSTALL_DATA) clisp.html \$(DESTDIR)\$(lispdocdir)/clisp.html"
         ;;
@@ -3230,7 +3230,7 @@ if [ $CROSS = false ] ; then
     echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)"
     echotab "\$(INSTALL_DATA) \$(READMES) \$(DESTDIR)\$(lispdocdir)/"
     case "$fsstnd" in
-      netbsd)
+      *bsd)
         echotab "\$(INSTALL_DATA) \$(MANUALS)${manual_dvi} \$(DESTDIR)\$(lispdocdir)/"
         ;;
       *)
@@ -3264,13 +3264,13 @@ if [ $CROSS = false ] ; then
         echotab "\$(RM) \$(DESTDIR)\$(htmldir)/clisp.html"
         echotab "\$(RM) \$(DESTDIR)\$(dvidir)/clisp.dvi"
         ;;
-      netbsd)
+      *bsd)
         echotab "\$(RM) \$(DESTDIR)\$(lispdocdir)/clisp.html"
         ;;
     esac
     echotab "for f in \$(READMES); do \$(RM) \$(DESTDIR)\$(lispdocdir)/\$\$f; done"
     case "$fsstnd" in
-      netbsd)
+      *bsd)
         echotab "for f in \$(MANUALS)${manual_dvi}; do \$(RM) \$(DESTDIR)\$(lispdocdir)/\$\$f; done"
         ;;
       *)
