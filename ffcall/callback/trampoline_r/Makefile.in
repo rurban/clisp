@@ -49,31 +49,31 @@ trampoline.o : $(srcdir)/trampoline.c trampoline_r.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/trampoline.c
 
 tramp-hppa.o : $(srcdir)/tramp-hppa.s
-	$(CC) -c $(srcdir)/tramp-hppa.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/tramp-hppa.s
 
 tramp-rs6000.o : tramp-rs6000.s
-	$(CC) -c tramp-rs6000.s
+	$(CC) @GCC_X_NONE@ -c tramp-rs6000.s
 
 tramp-rs6000.s : $(srcdir)/tramp-rs6000.S
 	$(CPP) $(srcdir)/tramp-rs6000.S > tramp-rs6000.s
 
 cache-sparc.o : cache-sparc.s
-	$(CC) -c cache-sparc.s
+	$(CC) @GCC_X_NONE@ -c cache-sparc.s
 
 cache-sparc.s : $(srcdir)/cache-sparc.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/cache-sparc.S > cache-sparc.s
 
 cache-alpha.o : $(srcdir)/cache-alpha.s
-	$(CC) -c $(srcdir)/cache-alpha.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-alpha.s
 
 cache-hppa.o : $(srcdir)/cache-hppa.s
-	$(CC) -c $(srcdir)/cache-hppa.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-hppa.s
 
 cache-rs6000.o : $(srcdir)/cache-rs6000.s
-	$(CC) -c $(srcdir)/cache-rs6000.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-rs6000.s
 
 cache-convex.o : $(srcdir)/cache-convex.s
-	$(CC) -c $(srcdir)/cache-convex.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-convex.s
 
 libtrampoline.a : $(OBJECTS)
 	$(RM) libtrampoline.a
@@ -108,13 +108,13 @@ test1.o : $(srcdir)/test1.c trampoline_r.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/test1.c
 
 test1 : test1.o $(OBJECTS)
-	$(CC) $(CFLAGS) test1.o $(OBJECTS) -o test1
+	$(CC) $(CFLAGS) @GCC_X_NONE@ test1.o $(OBJECTS) -o test1
 
 test2.o : $(srcdir)/test2.c trampoline_r.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/test2.c
 
 test2 : test2.o $(OBJECTS)
-	$(CC) $(CFLAGS) test2.o $(OBJECTS) -o test2
+	$(CC) $(CFLAGS) @GCC_X_NONE@ test2.o $(OBJECTS) -o test2
 
 check1 : all test1
 	./test1

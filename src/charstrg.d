@@ -2589,9 +2589,11 @@ LISPFUN(string_not_lessp,2,0,norest,key,4,\
         { if ((*eqcomp)(string1,offset1,string2,offset2,len1)) goto found; # vergleichen
           offset2++;
         });
-      notfound: return NIL;
+      goto notfound;
       found: return fixnum(offset2 - arg2->offset);
-    }}
+     }
+      notfound: return NIL;
+    }
 
 LISPFUN(search_string_gleich,2,0,norest,key,4,\
         (kw(start1),kw(end1),kw(start2),kw(end2)) )

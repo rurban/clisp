@@ -64,7 +64,7 @@ typedef int  boolean;
 extern "C" void exit(int);
 #endif
 
-#ifndef __GNUC__
+#if !(defined(__GNUC__) && !defined(__STRICT_ANSI__))
 #define inline
 #endif
 
@@ -187,9 +187,9 @@ local boolean String_equalsIgnoreCase (const char* str1, const char* str2)
   while (*str1 != '\0' && *str2 != '\0') {
     var unsigned char c1 = (unsigned char)(*str1++);
     var unsigned char c2 = (unsigned char)(*str2++);
-    if (isascii(c1))
+    if (c1 < 0x80) /* isascii(c1) */
       c1 = toupper(c1);
-    if (isascii(c2))
+    if (c2 < 0x80) /* isascii(c2) */
       c2 = toupper(c2);
     if (c1 != c2)
       return FALSE;

@@ -1,7 +1,7 @@
 /* Trampoline accessor test */
 
 /*
- * Copyright 1995-1997 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -15,8 +15,12 @@
 
 typedef int (*function)();
 
+#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
+int f (int x)
+#else
 int f (x)
   int x;
+#endif
 { return x; }
 
 #define MAGIC1  0x9db9af42
