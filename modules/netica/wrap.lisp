@@ -5,8 +5,8 @@
 
 (defpackage "NETICA"
   (:export "*verbose*" "*env*" "*license*" "error-category" "error-message"
-           "check-errors" "start-netica" "close-netica" "save-net"
-           "make-net" "net-info" "make-node" "node-info"
+           "check-errors" "start-netica" "close-netica" "save-net" "read-net"
+           "with-open-dne-file" "make-net" "net-info" "make-node" "node-info"
            "get-beliefs" "enter-finding"))
 
 (in-package "SYS")
@@ -159,8 +159,7 @@ Sets netica:*env* to NIL when it was closed."
   (let* ((nodes (netica::GetNetNodes_bn net))
          (count (netica::LengthNodeList_bn nodes)))
     (dotimes (ii count)
-      (format t " * [~:d] " ii)
-      (netica:node-info (netica::NthNode_bn nodes ii))))
+      (netica:node-info (netica::NthNode_bn nodes ii) :header ii)))
   (netica:check-errors))
 
 (defun netica:make-node (&key (name (symbol-name (gensym)))
@@ -169,7 +168,7 @@ Sets netica:*env* to NIL when it was closed."
                          (levels nil) (states nil)
                          (num-states (if levels 0 (length states)))
                          (title nil) (comment nil)
-                         (parents nil) (cpt nil)
+                         (parents nil) (cpt nil) x y
                          ((:env netica:*env*) netica:*env*)
                          ((:verbose netica:*verbose*) netica:*verbose*))
   "Make a network node with the given parameters and return it.
@@ -182,7 +181,8 @@ where parent-state-vector is a vector of parent states,
  its length being (length parents);
 and node-state-probability-vector is a vector of corresponding node state
  probabilities, its length being (length states).
-When LEVELS is supplied, the node is continuous."
+When LEVELS is supplied, the node is continuous.
+X & Y are coordinates; both or neither must be supplied."
   (let ((node (netica::NewNode_bn name num-states net)))
     (when netica:*verbose*
       (format netica:*verbose* "~&;; new node ~s: ~s~%" name node))
@@ -215,27 +215,55 @@ When LEVELS is supplied, the node is continuous."
                                     (car probs) parents)
                                (cdr probs))
       (netica:check-errors))
+    (when (or x y)
+      (if (and x y)
+          (netica::SetNodeVisPosition_bn node nil x y)
+          (cerror "ignore the supplied argument"
+                  "If one of X (~S) and Y (~S) is supplied, both must be"
+                  x y)))
     (netica:check-errors)
     node))
 
-(defun netica:node-info (node)
+(defun netica:node-info (node &key header)
   "Print information about the node."
-  (format t "~&node: ~s (net: ~s)~%name: ~s~%type: ~s~%" node
-          (netica::GetNodeNet_bn node) (netica::GetNodeName_bn node)
+  (format t "~&~@[ * [~s] ~]node: ~s (net: ~s)~%name: ~s   (~s ~s)~%"
+          header node (netica::GetNodeNet_bn node)
+          (netica::GetNodeName_bn node)
           (ffi:enum-from-value 'netica::nodetype_bn
-                               (netica::GetNodeType_bn node)))
+                               (netica::GetNodeType_bn node))
+          (ffi:enum-from-value 'netica::nodekind_bn
+                               (netica::GetNodeKind_bn node)))
   (let ((title (netica::GetNodeTitle_bn node)))
     (unless (zerop (length title))
       (format t "title: ~s~%" title)))
+  (multiple-value-bind (x y) (netica::GetNodeVisPosition_bn node nil)
+    (format t "position: (~s ~s)~%" x y))
   (let ((count (netica::GetNodeNumberStates_bn node)))
-    (format t "state count: ~s~%" count)
+    (format t "state count: ~:d~%" count)
     (dotimes (state count)
-      (format t "[~d] name: ~s  title: ~s~%" state
-              (netica::GetNodeStateName_bn node state)
-              (netica::GetNodeStateTitle_bn node state))))
+      (let ((title (netica::GetNodeStateTitle_bn node state)))
+        (format t "[~:d] name: ~s~[~:;  title: ~s~]~%" state
+                (netica::GetNodeStateName_bn node state)
+                (length title) title))))
+  (let* ((nodes (netica::GetNodeChildren_bn node))
+         (count (netica::LengthNodeList_bn nodes)))
+    (if (zerop count) (format t "no children~%")
+        (loop :initially (format t "~:d ~:*~[~;child~:;children~]:~%" count)
+          :for ii :from 0 :to (1- count)
+          :for child = (netica::NthNode_bn nodes ii)
+          :do (format t "[~:d] ~s (~s)~%" ii
+                      (netica::GetNodeName_bn child) child))))
+  (let* ((nodes (netica::GetNodeParents_bn node))
+         (count (netica::LengthNodeList_bn nodes)))
+    (if (zerop count) (format t "no parents~%")
+        (loop :initially (format t "~:d parent~:p:~%" count)
+          :for ii :from 0 :to (1- count)
+          :for parent = (netica::NthNode_bn nodes ii)
+          :do (format t "[~:d] ~s (~s)~%" ii
+                      (netica::GetNodeName_bn parent) parent))))
   (let ((levels (netica::GetNodeLevels node)))
     (dotimes (ii (length levels))
-      (format t "[~d] level: ~s~%" ii (aref levels ii))))
+      (format t "[~:d] level: ~s~%" ii (aref levels ii))))
   (netica:check-errors))
 
 (defun netica:get-beliefs (node &key
@@ -263,10 +291,8 @@ When LEVELS is supplied, the node is continuous."
     (when netica:*verbose*
       (format netica:*verbose* "~&;; ~s: set to ~s~%" node state))))
 
-(defun netica:save-net (file net &key
-                        ((:env netica:*env*) netica:*env*)
-                        ((:verbose netica:*verbose*) netica:*verbose*))
-  "Save the network to the file."
+(defun open-dne-file (file &key ((:env netica:*env*) netica:*env*)
+                       ((:verbose netica:*verbose*) netica:*verbose*))
   (let ((out (netica::NewStreamFile_ns
               (namestring (translate-logical-pathname
                            (merge-pathnames
@@ -275,11 +301,32 @@ When LEVELS is supplied, the node is continuous."
     (when netica:*verbose*
       (format netica:*verbose* "~&;; new stream: ~s~&" out))
     (netica:check-errors)
+    out))
+
+(defmacro netica:with-open-dne-file
+    ((var file &rest opts &key &allow-other-keys) &body body)
+  `(let ((,var (open-dne-file ,file ,@opts)))
+     (unwind-protect (progn ,@body)
+       (netica::DeleteStream_ns ,var)
+       (netica:check-errors))))
+
+(defun netica:save-net (net &key (file (netica::GetNetFileName_bn net))
+                        ((:env netica:*env*) netica:*env*)
+                        ((:verbose netica:*verbose*) netica:*verbose*))
+  "Save the network to the file."
+  (netica:with-open-dne-file (out file)
     (netica::WriteNet_bn net out)
     (netica:check-errors)
     (when netica:*verbose*
       (format netica:*verbose* ";; saved ~s to ~s~%" net
               (netica::GetNetFileName_bn net)))))
+
+(defun netica:read-net (file &key ((:env netica:*env*) netica:*env*)
+                        ((:verbose netica:*verbose*) netica:*verbose*))
+  (netica:with-open-dne-file (in file)
+    (let ((net (netica::ReadNet_bn in netica::NO_WINDOW)))
+      (netica:check-errors)
+      net)))
 
 (push "NETICA" ext:*system-package-list*)
 (eval-when (compile load)
