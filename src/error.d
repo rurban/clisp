@@ -950,6 +950,54 @@ global object check_encoding (object arg, const gcv_object_t *e_default,
   goto restart;
 }
 
+/* error-message for non-paired keyword-arguments
+ fehler_key_odd(argcount,caller);
+ > argcount: the number of arguments on the STACK
+ > caller: function */
+nonreturning_function(global, fehler_key_odd, (uintC argcount, object caller))
+{
+  var object arglist = listof(argcount);
+  pushSTACK(arglist); pushSTACK(caller);
+  fehler(program_error,
+         GETTEXT("~: keyword arguments in ~ should occur pairwise"));
+}
+
+/* error-message for flawed keyword
+ fehler_key_notkw(kw);
+ > kw: Non-Symbol
+ > caller: function */
+nonreturning_function(global, fehler_key_notkw, (object kw, object caller)) {
+  pushSTACK(kw); /* KEYWORD-ERROR slot DATUM */
+  pushSTACK(S(symbol)); /* KEYWORD-ERROR slot EXPECTED-TYPE */
+  pushSTACK(S(symbol)); pushSTACK(kw); pushSTACK(S(LLkey)); pushSTACK(caller);
+  fehler(keyword_error,
+         GETTEXT("~: ~ marker ~ is not a ~"));
+}
+
+/* error-message for flawed keyword
+ fehler_key_badkw(fun,kw,kwlist);
+ > fun: function
+ > key: illegal keyword
+ > val: its value
+ > kwlist: list of legal keywords */
+nonreturning_function(global, fehler_key_badkw,
+                      (object fun, object key, object val, object kwlist)) {
+  pushSTACK(key); /* KEYWORD-ERROR slot DATUM */
+  pushSTACK(kwlist);
+  pushSTACK(kwlist);
+  pushSTACK(val);
+  pushSTACK(key);
+  pushSTACK(fun);
+  { /* `(MEMBER ,@kwlist) = KEYWORD-ERROR slot EXPECTED-TYPE */
+    var object type = allocate_cons();
+    Car(type) = S(member); Cdr(type) = STACK_4;
+    STACK_4 = type;
+  }
+  fehler(keyword_error,
+         GETTEXT("~: illegal keyword/value pair ~, ~ in argument list."
+                 NLstring "The allowed keywords are ~"));
+}
+
 /* error-message, if an argument is not a Function:
  fehler_function(obj);
  > obj: the erroneous argument */
