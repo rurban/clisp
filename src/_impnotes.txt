@@ -2139,29 +2139,29 @@ site-specific CONFIG.LSP file.
 #endif
 
 The variable *FEATURES* initially contains the symbols
-   CLISP            ; this implementation
-   COMMON-LISP
-   CLTL2
-   INTERPRETER
-   COMPILER
+  :CLISP            ; this implementation
+  :COMMON-LISP
+  :CLTL2
+  :INTERPRETER
+  :COMPILER
 #ifdef LOGICAL_PATHNAMES
-   LOGICAL-PATHNAMES
+  :LOGICAL-PATHNAMES
 #endif
 #ifdef DYNAMIC_FFI
-   FFI
+  :FFI
 #endif
 #ifdef GNU_GETTEXT
-   GETTEXT
+  :GETTEXT
 #endif
-   LOOP
-   CLOS
-   AMIGA            ; if hardware = Amiga and operating system = Exec/AmigaDOS
-   DOS              ; if hardware = PC (clone) and operating system = DOS
-   OS/2             ; if hardware = PC (clone) and operating system = OS/2
-   WIN32            ; if hardware = PC (clone) and operating system = Win32
+  :LOOP
+  :CLOS
+  :AMIGA            ; if hardware = Amiga and operating system = Exec/AmigaDOS
+  :DOS              ; if hardware = PC (clone) and operating system = DOS
+  :OS/2             ; if hardware = PC (clone) and operating system = OS/2
+  :WIN32            ; if hardware = PC (clone) and operating system = Win32
                     ;                               (Windows NT or Windows 95)
-   PC386            ; if hardware = PC (clone) with a 386/486/586/686
-   UNIX             ; if                            operating system = Unix
+  :PC386            ; if hardware = PC (clone) with a 386/486/586/686
+  :UNIX             ; if                            operating system = Unix
                     ;                               (yes, in this case the
                     ;                               hardware is irrelevant!)
 

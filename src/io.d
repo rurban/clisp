@@ -3830,7 +3830,7 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
 #   (flet ((eqs (x y) (and (symbolp x) (symbolp y)
 #                          (string= (symbol-name x) (symbol-name y))
 #         ))          )
-#     (cond ((symbolp feature) (member feature *features* :test #'eqs))
+#     (cond ((symbolp feature) (member feature *features* :test #'eq))
 #           ((atom feature)
 #            (error "~: Als Feature ist ~ nicht erlaubt." 'read feature)
 #           )
@@ -3857,13 +3857,9 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
     { check_SP();
       if (symbolp(expr))
         # expr Symbol, in *FEATURES* suchen:
-        { var object pname = Symbol_name(expr); # dem Namen nach suchen
-          var object list = Symbol_value(S(features)); # Wert von *FEATURES*
+        { var object list = Symbol_value(S(features)); # Wert von *FEATURES*
           while (consp(list))
-            { if (symbolp(Car(list))
-                  && string_gleich(Symbol_name(Car(list)),pname)
-                 )
-                goto ja;
+            { if (eq(Car(list),expr)) goto ja;
               list = Cdr(list);
             }
           goto nein;
@@ -3927,7 +3923,9 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
     var uintWL sollwert;
     { var object* stream_ = test_no_infix(); # n muﬂ NIL sein
       dynamic_bind(S(read_suppress),NIL); # *READ-SUPPRESS* an NIL binden
+      dynamic_bind(S(packagestern),O(keyword_package)); # bind *PACKAGE* to #<PACKAGE KEYWORD>
      {var object expr = read_recursive_no_dot(stream_); # Feature-Ausdruck lesen
+      dynamic_unbind();
       dynamic_unbind();
       # Feature-Ausdruck interpretieren:
       expr = make_references(expr); # zuvor Verweise entflechten

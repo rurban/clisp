@@ -1498,37 +1498,37 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             };
         # *FEATURES* initialisieren:
         { var const char * features_initstring =
-            "(CLISP CLTL2 COMMON-LISP INTERPRETER"
+            "(:CLISP :CLTL2 :COMMON-LISP :INTERPRETER"
             #ifdef LOGICAL_PATHNAMES
-              " LOGICAL-PATHNAMES"
+              " :LOGICAL-PATHNAMES"
             #endif
             #ifdef DYNAMIC_FFI
-              " FFI"
+              " :FFI"
             #endif
             #ifdef GNU_GETTEXT
-              " GETTEXT"
+              " :GETTEXT"
             #endif
             #ifdef AMIGA
-              " AMIGA"
+              " :AMIGA"
             #endif
             #ifdef PC386
-              " PC386"
+              " :PC386"
             #endif
             #ifdef MSDOS
              #ifdef OS2
-              " OS/2"
+              " :OS/2"
              #else
-              " DOS"
+              " :DOS"
              #endif
             #endif
             #ifdef RISCOS
-              " ACORN-RISCOS"
+              " :ACORN-RISCOS"
             #endif
             #ifdef UNIX
-              " UNIX"
+              " :UNIX"
             #endif
             #ifdef WIN32
-              " WIN32"
+              " :WIN32"
             #endif
             ")"
             ;

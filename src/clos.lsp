@@ -5,8 +5,7 @@
 
 
 (in-package "LISP")
-(export '(clos))
-(pushnew 'clos *features*)
+(pushnew ':clos *features*)
 
 
 (in-package "SYSTEM") ; Trotz DEFPACKAGE nötig!

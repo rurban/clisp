@@ -51,8 +51,8 @@
 ; #-CROSS impliziert #+CLISP.
 
 #-CROSS (in-package "LISP")
-#-CROSS (export '(compiler compile compile-file disassemble))
-#-CROSS (pushnew 'compiler *features*)
+#-CROSS (export '(compile compile-file disassemble))
+#-CROSS (pushnew ':compiler *features*)
 
 #-CROSS (in-package "COMPILER")
 #+CROSS (in-package "CROSS" :nicknames '("CLISP"))

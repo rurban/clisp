@@ -207,8 +207,6 @@ interpreter compiler
 (export 'the-environment)
 
 (proclaim '(special *features*))
-(import *features*)
-(export *features*)
 
 (in-package "SYSTEM" :nicknames '("SYS" "COMPILER") :use '("LISP"))
 (proclaim '(special compiler::*compiling*))
