@@ -2194,9 +2194,6 @@ local void print_banner ()
       init_language(argv_language,argv_localedir);
       #endif
      }
-     # Initialize the table of error messages.
-     # (This must come after init_language.)
-     if (init_errormsg_table()<0) goto no_mem;
      # Initialize the table of relocatable pointers:
      { var object* ptr2 = &pseudofun_tab.pointer[0];
        { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudocode_tab;

@@ -164,6 +164,8 @@ CL_ABORT
                       dnl DEFS RETABORTTYPE, ABORT_VOLATILE
 CL_PERROR
                       dnl DEFS HAVE_PERROR_DECL
+CL_STRERROR
+                      dnl DEFS HAVE_STRERROR
 CL_SYS_ERRLIST
                       dnl DEFS SYS_ERRLIST_CONST
 CL_GETENV
