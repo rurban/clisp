@@ -5,6 +5,7 @@
 ;;; FRANCAIS: Fonctions dépendantes de l'installation
 
 (in-package "LISP")
+(export '(clhs-root *clhs-root-default*))
 (mapcar #'fmakunbound '(machine-type machine-version machine-instance
                         short-site-name long-site-name
                         editor-name editor-tempfile edit-file))
