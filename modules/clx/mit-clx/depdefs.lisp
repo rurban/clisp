@@ -97,13 +97,13 @@
 (declaim (declaration ignorable))
 
 ;;; ARRAY-REGISTER var1 var2 ... -- The variables mentioned are locals (not
-;;; args) that hold vectors.  
+;;; args) that hold vectors.
 
-#-Genera 
+#-Genera
 (declaim (declaration array-register))
 
 ;;; INDENTATION argpos1 arginden1 argpos2 arginden2 --- Tells the lisp editor how to
-;;; indent calls to the function or macro containing the declaration.  
+;;; indent calls to the function or macro containing the declaration.
 
 #-genera
 (declaim (declaration indentation))
@@ -243,7 +243,7 @@
 
 (defun make-index-op (operator args)
   `(the array-index
-	(values 
+	(values
 	  ,(case (length args)
 	     (0 `(,operator))
 	     (1 `(,operator
@@ -424,14 +424,16 @@
 
 (eval-when (eval compile load)
 (defvar *def-clx-class-use-defclass* #+Genera t #-Genera nil
-  "Controls whether DEF-CLX-CLASS uses DEFCLASS.  
+  "Controls whether DEF-CLX-CLASS uses DEFCLASS.
    If it is a list, it is interpreted by DEF-CLX-CLASS to be a list of type names
-   for which DEFCLASS should be used. 
+   for which DEFCLASS should be used.
    If it is not a list, then DEFCLASS is always used.
    If it is NIL, then DEFCLASS is never used, since NIL is the empty list.")
 
 ;;************
-#-(and (or CLISP AKCL) (not PCL)) ;; You may remove this line for CLISP with native CLOS.
+;; CLUE requires that WINDOW is a STANDARD-OBJECT
+;; CLISP with native CLOS can handle DEFCLASS
+#-(and (or (and CLISP (not CLOS)) AKCL) (not PCL))
 (setq *def-clx-class-use-defclass* '(window drawable pixmap))
 #+pcl (setq pcl::*defclass-times*   '(compile load eval))
 )
@@ -596,7 +598,7 @@
   (dead nil :type (or null (not null)))
   ;; T makes buffer-flush a noop.  Manipulated with with-buffer-flush-inhibited.
   (flush-inhibit nil :type (or null (not null)))
-  
+
   ;; Change these functions when using shared memory buffers to the server
   ;; Function to call when writing the buffer
   (write-function 'buffer-write-default)
@@ -612,7 +614,7 @@
   (listen-function 'buffer-listen-default)
 
   #+Genera (debug-io nil :type (or null stream))
-  ) 
+  )
 
 ;;-----------------------------------------------------------------------------
 ;; Printing routines.
@@ -645,7 +647,7 @@
   )
   (princ ">" stream)
   nil)
-  
+
 #-(or clx-ansi-common-lisp Genera CMU (and CLISP have-print-unreadable-object))
 (defmacro print-unreadable-object
 	  ((object stream &key type identity) &body body)
@@ -689,7 +691,7 @@
 
 #+lcl3.0
 (lucid::def-foreign-function
-    (connect-to-server 
+    (connect-to-server
       (:language :c)
       (:return-type :signed-32bit))
   (host :simple-string)
