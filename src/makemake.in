@@ -1047,23 +1047,6 @@ if [ "$cpu" = i386 -o $TSYS = sun4 ] && [ $CROSS = false ] ; then
   # Distinguish good SunOS 4 from the SunOS 5 garbage called "Solaris 2":
   case "$host_os" in
     solaris*)
-      if [ "$cpu" = i386 ] ; then
-        # The Solaris assembler /usr/ccs/bin/as seems incompatible.
-        if [ $XCC_GCC = true ] ; then
-          echol > conftest.c
-          if $XCC $XCFLAGS -v -c conftest.c 2>&1 | grep 'GNU assembler' > /dev/null; then
-            : # gcc with gas - this is ok
-          else
-            NOASM=true
-          fi
-          rm -f conftest*
-        else
-          NOASM=true
-        fi
-        if test -n "$NOASM"; then
-          XCFLAGS=$XCFLAGS' -DNO_ASM -DNO_ARI_ASM'
-        fi
-      fi
       # We need a lot of libraries. To check which libraries are necessary, do
       #   % cd /usr/lib
       #   % foreach f (lib*.a)
@@ -1299,13 +1282,8 @@ if [ "$cpu" = mips64 ] ; then
 fi
 if [ "$cpu" = i386 ] ; then
   if [ $TSYS != win32bc ] ; then
-    case "$NOASM $host_os" in
-      "true solaris"*) ;; # The Solaris assembler /usr/ccs/bin/as chokes on it.
-      *)
-        ARI_ASMD=$ARI_ASMD' ari80386'
-        ARI_ASMS=$ARI_ASMS' ari80386'
-        ;;
-    esac
+    ARI_ASMD=$ARI_ASMD' ari80386'
+    ARI_ASMS=$ARI_ASMS' ari80386'
   fi
 fi
 if [ "$cpu" = hppa ] ; then
@@ -1337,13 +1315,8 @@ if [ $XCC_GCC = false ] ; then
   fi
   if [ "$cpu" = i386 ] ; then
     if [ $TSYS != win32bc ] ; then
-      case "$NOASM $host_os" in
-        "true solaris"*) ;; # The Solaris assembler /usr/ccs/bin/as chokes on it.
-        *)
-          SP_ASMD=$SP_ASMD' sp80386'
-          SP_ASMS=$SP_ASMS' sp80386'
-          ;;
-      esac
+      SP_ASMD=$SP_ASMD' sp80386'
+      SP_ASMS=$SP_ASMS' sp80386'
     fi
   fi
 fi
@@ -2031,8 +2004,9 @@ if [ $TSYS != win32msvc ] ; then
     ASMFLAGS="$ASMFLAGS"' -Xs'
   fi
   if [ $XCC_GCC = false -a $HOS != acorn ] ; then
-    # Remove the line number information etc. and convert "% ecx" back to "%ecx":
-    ASM_FILTER=" | \$(GREP) -v '^#' | \$(GREP) -v '^ *#line' | sed 's,% ,%,g'"
+    # Remove the line number information etc. and convert "% ecx" back to "%ecx"
+    # and ". align" to ".align" and ". Lxxx" to ".Lxxx":
+    ASM_FILTER=" | \$(GREP) -v '^#' | \$(GREP) -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\\. ,.,g'"
   else
     if [ $HOS = acorn ] ; then
       ASM_FILTER=" | \$(SED) -f ${PARENT}acorn${NEXT}asmfilter.sed"

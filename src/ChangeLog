@@ -1,3 +1,8 @@
+1998-08-03  Bruno Haible  <haible@ilog.fr>
+
+        * makemake.in (NOASM): Don't define on Solaris/x86.
+          (ASM_FILTER): Fix so it works on Solaris/x86.
+
 1998-08-01  Bruno Haible  <haible@ilog.fr>
 
         * lispbibl.d (C_CODE_ALIGNMENT): Define to 2 for HPPA.
