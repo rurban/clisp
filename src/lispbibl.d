@@ -2683,18 +2683,6 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #endif
 
 
-# Way to read the.mem-Files.
-#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) /* || defined(TRIVIALMAP_MEMORY) */) && !defined(HAVE_MMAP) && defined(HAVE_SIGSEGV_RECOVERY) && (SAFETY < 3) && !defined(NO_SELFMADE_MMAP)
-  # The .mem-file will be read in, by pages, if required, between the program
-  # start and the first full GC. You can do that without mmap() if you
-  # catch the SIGSEGV yourself.
-  # This works with SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY, but will only bring
-  # a real benefit with SINGLEMAP_MEMORY. (With TRIVIALMAP_MEMORY loadmem
-  # has to read in the whole mem-file to relocate all pointers.)
-  #define SELFMADE_MMAP
-#endif
-
-
 # Flavor of the garbage collection: normal or generational.
 #if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || (defined(MULTIMAP_MEMORY) && (defined(UNIX_LINUX) || defined(UNIX_FREEBSD)))) && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) && !defined(UNIX_IRIX) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
   # "generational garbage collection" has some requirements.
@@ -3702,11 +3690,8 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #if (defined(SPVW_BLOCKS) && (defined(SPVW_PURE) || defined(SPVW_MIXED))) < defined(GENERATIONAL_GC)
   #error "GENERATIONAL_GC ==> SPVW_PURE_BLOCKS or SPVW_MIXED_BLOCKS_STAGGERED or SPVW_MIXED_BLOCKS_OPPOSITE!"
 #endif
-#if (defined(SPVW_BLOCKS) && (defined(SPVW_PURE) || defined(SPVW_MIXED))) < defined(SELFMADE_MMAP)
-  #error "SELFMADE_MMAP ==> SPVW_PURE_BLOCKS or SPVW_MIXED_BLOCKS_STAGGERED!"
-#endif
 
-# Algortihm by Morris, that compacts Conses without mixing them up:
+# Algorithm by Morris, that compacts Conses without mixing them up:
 #if defined(SPVW_BLOCKS) && defined(VIRTUAL_MEMORY) && !defined(NO_MORRIS_GC)
   # Morris-GC is recommended, as it preserves the locality.
   #define MORRIS_GC
@@ -9281,7 +9266,7 @@ extern struct object_tab_ {
 # Abbreviation for other LISP-object with a given Name:
 #define O(name)  (object_tab.name)
 
-#if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+#if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined()
 # handle_fault_range(PROT_READ,start,end) makes an address range readable.
 # handle_fault_range(PROT_READ_WRITE,start,end) makes an address range writable.
   extern bool handle_fault_range (int prot, aint start_address, aint end_address);

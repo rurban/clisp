@@ -1,3 +1,19 @@
+2004-05-21  Bruno Haible  <bruno@clisp.org>
+
+	Remove SELFMADE_MMAP.
+	* lispbibl.d: Remove SELFMADE_MMAP functionality.
+	* spvw.d: Likewise.
+	* spvw_heap.d: Likewise.
+	* spvw_global.d: Likewise.
+	* spvw_fault.d: Likewise.
+	* spvw_sigsegv.d: Likewise.
+	* spvw_garcol.d: Likewise.
+	* spvw_genera1.d: Likewise.
+	* spvw_memfile.d: Likewise.
+	* unixaux.d: Likewise.
+	* win32aux.d: Likewise.
+	* pathname.d: Likewise.
+
 2004-05-23  Bruno Haible  <bruno@clisp.org>
 
 	* backquote.lisp (bq-expand): Use APPEND, not NCONC, to concatenate

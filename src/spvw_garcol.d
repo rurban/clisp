@@ -1596,13 +1596,10 @@ local void gc_unmarkcheck (void) {
                                            heap->heap_gen0_start,heap->heap_gen0_end,
                                            &heap->pages.page_gcpriv.firstmarked,
                                            heap->heap_gen0_start);
-                var aint gen0_end = heap->heap_gen0_end;
-                heap->heap_gen0_end = heap->heap_gen1_start; # temporary - for handle_fault() if SELFMADE_MMAP
                 gc_sweep1_varobject_page(heapnr,
                                          heap->heap_gen1_start,heap->heap_end,
                                          (gcv_object_t*)gen0_end,
                                          tmp);
-                heap->heap_gen0_end = gen0_end; # temporary - end
               } else {
                 # no gap
                 gc_sweep1_varobject_page(heapnr,

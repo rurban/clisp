@@ -184,7 +184,7 @@ local int exitcode;
     # Blocks grow like this:         |******-->     <--****|
     #define SPVW_MIXED_BLOCKS_OPPOSITE
   #else # defined(TRIVIALMAP_MEMORY)
-    #if (!defined(WIDE_SOFT) || defined(CONS_HEAP_GROWS_DOWN)) && !defined(CONS_HEAP_GROWS_UP) && !defined(SELFMADE_MMAP)
+    #if (!defined(WIDE_SOFT) || defined(CONS_HEAP_GROWS_DOWN)) && !defined(CONS_HEAP_GROWS_UP)
       # Blocks grow like this:       |******-->     <--****|
       #define SPVW_MIXED_BLOCKS_OPPOSITE
     #else
@@ -458,16 +458,6 @@ local uintL make_symvalue_perthread (object value) {
 
 #endif
 
-#ifdef SPVW_BLOCKS
-
-#ifdef SELFMADE_MMAP
-# Pages from the memfile are read in when they are first used.
-# We manage this ourselves by trapping page faults.
-# Works only with SPVW_PURE_BLOCKS or SPVW_MIXED_BLOCKS_STAGGERED.
-#endif
-
-#endif
-
 # -----------------------------------------------------------------------------
 
 #if defined(NOCOST_SP_CHECK) && !defined(WIN32_NATIVE)
@@ -537,11 +527,11 @@ nonreturning_function(global, STACK_ueber, (void)) {
 # -----------------------------------------------------------------------------
 #                      Page Fault and Protection Handling
 
-#if defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
+#if defined(GENERATIONAL_GC)
 
 #include "spvw_fault.c"
 
-#endif # SELFMADE_MMAP || GENERATIONAL_GC
+#endif # GENERATIONAL_GC
 
 # -----------------------------------------------------------------------------
 #                      Signal handlers
@@ -2239,7 +2229,7 @@ global int main (argc_t argc, char* argv[]) {
     var uintL pagesize = # size of a page
      #if defined(MULTIMAP_MEMORY)
       map_pagesize
-     #elif defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
+     #elif defined(GENERATIONAL_GC)
       mmap_pagesize
      #else # if the system-pagesize does not play a role
       teile*varobject_alignment
@@ -2462,11 +2452,6 @@ global int main (argc_t argc, char* argv[]) {
         }
        #endif
         heapptr->heap_end = heapptr->heap_start;
-       #ifdef SELFMADE_MMAP
-        heapptr->memfile_numpages = 0;
-        # heapptr->memfile_pages = NULL; # irrelevant
-        # heapptr->memfile_offset = 0; # irrelevant
-       #endif
        #ifdef GENERATIONAL_GC
         heapptr->heap_gen0_start = heapptr->heap_gen0_end =
           heapptr->heap_gen1_start = heapptr->heap_start;
@@ -2500,7 +2485,7 @@ global int main (argc_t argc, char* argv[]) {
     #endif
    #endif # SINGLEMAP_MEMORY_STACK
    #endif # SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY
-   #if defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
+   #if defined(GENERATIONAL_GC)
     init_physpagesize();
    #endif
     { # divide memory block:
@@ -2727,7 +2712,7 @@ global int main (argc_t argc, char* argv[]) {
   # install Ctrl-C-Handler:
   install_sigint_handler();
  #endif
- #if defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
+ #if defined(GENERATIONAL_GC)
   # insatll Page-Fault-Handler:
   install_segv_handler();
  #endif
