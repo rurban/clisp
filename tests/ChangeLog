@@ -1,3 +1,7 @@
+2002-02-11  Sam Steingold  <sds@gnu.org>
+
+	* alltest.tst: test (compile nil (lambda () (flet (()))))
+
 2001-12-22  Sam Steingold  <sds@gnu.org>
 
 	* alltest.tst (test-pos-epsilon, test-neg-epsilon): new functions
