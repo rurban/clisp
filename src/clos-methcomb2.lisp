@@ -110,8 +110,8 @@ effective method form, in which case the applicable-method computation
 has already transpired."
   (declare (ignore methods))
   (let* ((signature (gf-signature generic-function))
-         (req-anz (sig-req-num signature))
-         (req-vars (gensym-list req-anz))
+         (req-num (sig-req-num signature))
+         (req-vars (gensym-list req-num))
          (restp (gf-sig-restp signature))
          (rest-var (if restp (gensym)))
          (apply-fun (if restp 'APPLY 'FUNCALL))
@@ -134,7 +134,7 @@ has already transpired."
       ;; to fabricate a whole binding.
       (when whole-var
         ;; Pick off the initial whole parameter.
-        (setf combination-arguments (nthcdr 2 combination-arguments)))
+        (setf combination-arguments (cddr combination-arguments)))
       (multiple-value-bind (positional opt opt-i opt-p rest num-req)
           ;; FIXME: combination-arguments is a 3.4.10 lambda list, not an
           ;; 3.4.1 ordinary lambda list.
@@ -267,9 +267,9 @@ has already transpired."
   (declare (ignore combination))
   (declare (ignore options)) ; already checked in check-options
   (let* ((signature (gf-signature gf))
-         (req-anz (sig-req-num signature))
-         (req-vars (gensym-list req-anz))
-         (req-args (subseq args 0 req-anz))
+         (req-num (sig-req-num signature))
+         (req-vars (gensym-list req-num))
+         (req-args (subseq args 0 req-num))
          (restp (gf-sig-restp signature))
          (rest-var (if restp (gensym)))
          (apply-fun (if restp 'APPLY 'FUNCALL))
