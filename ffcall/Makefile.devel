@@ -1,10 +1,10 @@
-# This is the developer's makefile, not the user's makefile.
-# Don't use it unless you know exactly what you do!
+# This is the developer's -*-Makefile-*-, not the user's makefile.
+# Do not use it unless you know exactly what you do!
 
 SHELL = /bin/sh
 MAKE = make
 
-all : autoconf/aclocal.m4 configures avcall/avcall.h.msvc avcall/avcall-i386-msvc.c vacall/config.h.msvc vacall/vacall.h.msvc vacall/vacall-i386-msvc.c trampoline/config.h.msvc callback/vacall_r/config.h.msvc callback/vacall_r/vacall_r.h.msvc callback/vacall_r/vacall-i386-msvc.c callback/trampoline_r/config.h.msvc
+all : autoconf/aclocal.m4 configures avcall/avcall.h.msvc avcall/avcall.h.mingw32 avcall/avcall-i386-msvc.c avcall/avcall-i386-mingw32.c vacall/config.h.msvc vacall/config.h.mingw32 vacall/vacall.h.msvc vacall/vacall.h.mingw32 vacall/vacall-i386-msvc.c vacall/vacall-i386-mingw32.c trampoline/config.h.msvc trampoline/config.h.mingw32 callback/vacall_r/config.h.msvc callback/vacall_r/config.h.mingw32 callback/vacall_r/vacall_r.h.msvc callback/vacall_r/vacall_r.h.mingw32 callback/vacall_r/vacall-i386-msvc.c callback/trampoline_r/config.h.msvc callback/trampoline_r/config.h.mingw32
 
 CONFIGURES = configure avcall/configure vacall/configure trampoline/configure callback/configure callback/vacall_r/configure callback/trampoline_r/configure
 CONFIGURES_IN = configure.in avcall/configure.in vacall/configure.in trampoline/configure.in callback/configure.in callback/vacall_r/configure.in callback/trampoline_r/configure.in
@@ -48,32 +48,62 @@ check-configures : $(CONFIGURES)
 avcall/avcall.h.msvc : avcall/avcall.h.in
 	cd avcall ; $(MAKE) -f Makefile.devel avcall.h.msvc
 
+avcall/avcall.h.mingw32 : avcall/avcall.h.in
+	cd avcall ; $(MAKE) -f Makefile.devel avcall.h.mingw32
+
 avcall/avcall-i386-msvc.c : avcall/avcall-i386-macro.S avcall/asmi386.sh
 	cd avcall ; $(MAKE) -f Makefile.devel avcall-i386-msvc.c
+
+avcall/avcall-i386-mingw32.c : avcall/avcall-i386-macro.S avcall/asmi386.sh
+	cd avcall ; $(MAKE) -f Makefile.devel avcall-i386-mingw32.c
 
 vacall/config.h.msvc : vacall/config.h.in
 	cd vacall ; $(MAKE) -f Makefile.devel config.h.msvc
 
+vacall/config.h.mingw32 : vacall/config.h.in
+	cd vacall ; $(MAKE) -f Makefile.devel config.h.mingw32
+
 vacall/vacall.h.msvc : vacall/vacall.h.in
 	cd vacall ; $(MAKE) -f Makefile.devel vacall.h.msvc
+
+vacall/vacall.h.mingw32 : vacall/vacall.h.in
+	cd vacall ; $(MAKE) -f Makefile.devel vacall.h.mingw32
 
 vacall/vacall-i386-msvc.c : vacall/vacall-i386-macro.S vacall/asmi386.sh
 	cd vacall ; $(MAKE) -f Makefile.devel vacall-i386-msvc.c
 
+vacall/vacall-i386-mingw32.c : vacall/vacall-i386-macro.S vacall/asmi386.sh
+	cd vacall ; $(MAKE) -f Makefile.devel vacall-i386-mingw32.c
+
 trampoline/config.h.msvc : trampoline/config.h.in
 	cd trampoline ; $(MAKE) -f Makefile.devel config.h.msvc
+
+trampoline/config.h.mingw32 : trampoline/config.h.in
+	cd trampoline ; $(MAKE) -f Makefile.devel config.h.mingw32
 
 callback/vacall_r/config.h.msvc : callback/vacall_r/config.h.in
 	cd callback ; $(MAKE) -f Makefile.devel vacall_r/config.h.msvc
 
+callback/vacall_r/config.h.mingw32 : callback/vacall_r/config.h.in
+	cd callback ; $(MAKE) -f Makefile.devel vacall_r/config.h.mingw32
+
 callback/vacall_r/vacall_r.h.msvc : callback/vacall_r/vacall_r.h.in
 	cd callback ; $(MAKE) -f Makefile.devel vacall_r/vacall_r.h.msvc
+
+callback/vacall_r/vacall_r.h.mingw32 : callback/vacall_r/vacall_r.h.in
+	cd callback ; $(MAKE) -f Makefile.devel vacall_r/vacall_r.h.mingw32
 
 callback/vacall_r/vacall-i386-msvc.c : callback/vacall_r/vacall-i386-macro.S callback/vacall_r/asmi386.sh
 	cd callback ; $(MAKE) -f Makefile.devel vacall_r/vacall-i386-msvc.c
 
+callback/vacall_r/vacall-i386-mingw32.c : callback/vacall_r/vacall-i386-macro.S callback/vacall_r/asmi386.sh
+	cd callback ; $(MAKE) -f Makefile.devel vacall_r/vacall-i386-mingw32.c
+
 callback/trampoline_r/config.h.msvc : callback/trampoline_r/config.h.in
 	cd callback ; $(MAKE) -f Makefile.devel trampoline_r/config.h.msvc
+
+callback/trampoline_r/config.h.mingw32 : callback/trampoline_r/config.h.in
+	cd callback ; $(MAKE) -f Makefile.devel trampoline_r/config.h.mingw32
 
 COMPILERS="cc -O" "gcc -freg-struct-return" "gcc -fpcc-struct-return"
 
