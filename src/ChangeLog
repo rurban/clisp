@@ -54,8 +54,8 @@
 
 2005-01-27  Bruno Haible  <bruno@clisp.org>
 
-	* makemake.in (interpreted.mem, halfcompiled.mem, lispinit.mem,
-	lispinit2.mem): Exit with error code if an error occurs.
+	* makemake.in (interpreted.mem, halfcompiled.mem, lispinit.mem)
+	(lispinit2.mem): Exit with error code if an error occurs.
 
 2005-01-27  Bruno Haible  <bruno@clisp.org>
 
@@ -64,9 +64,9 @@
 	* defstruct.lisp (structure-undefine-accessories): Remove preliminary
 	definition.
 	(defstruct): Update.
-	(structure-slots, structure-instance-size, structure-kconstructor,
-	structure-boa-constructors, structure-copier, structure-predicate): New
-	functions.
+	(structure-slots, structure-instance-size, structure-kconstructor)
+	(structure-boa-constructors, structure-copier, structure-predicate):
+	New functions.
 	(structure-undefine-accessories): Moved here from clos-class3.lisp.
 	Do nothing if name is not currently defined as a structure type.
 	* clos-class6.lisp (class-direct-slots@symbol): Remove method.
