@@ -1,3 +1,8 @@
+2005-01-26  Bruno Haible  <bruno@clisp.org>
+
+	* places.lisp (setf): Handle (SETF (VALUES-LIST ...) ...) correctly,
+	although there can be no SETF expander for VALUES-LIST.
+
 2005-01-25  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (MAKE-STREAM): handle_to_stream() already duplicates
