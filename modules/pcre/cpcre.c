@@ -91,7 +91,7 @@ DEFUN(PCRE::PCRE-FREE,fp)
   } else VALUES1(NIL);
 }
 
-DEFFLAGSET(pcre_compile_flags,  PCRE_CASELESS PCRE_MULTILINE PCRE_DOTALL \
+DEFFLAGSET(pcre_compile_flags, PCRE_CASELESS PCRE_MULTILINE PCRE_DOTALL \
            PCRE_EXTENDED PCRE_ANCHORED PCRE_DOLLAR_ENDONLY PCRE_EXTRA   \
            PCRE_NOTBOL PCRE_NOTEOL PCRE_UNGREEDY PCRE_NOTEMPTY          \
            PCRE_NO_AUTO_CAPTURE)
@@ -338,7 +338,7 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :BOOLEAN                      \
   end_system_call();
   if (ret < 0) pcre_error(ret);
   ovector_size = 3 * (capture_count + 1);
-  ovector = alloca(ovector_size);
+  ovector = alloca(sizeof(int)*ovector_size);
   with_string_0(check_string(STACK_0),Symbol_value(S(utf_8)),subject, {
       begin_system_call();
       /* subject_bytelen is the length of subject in bytes,
@@ -347,12 +347,12 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :BOOLEAN                      \
                       ovector,ovector_size);
       end_system_call();
     });
-  if (ovector == NULL) fehler(error,"internal pcre library bug: pcre_exec/alloca interaction; report it to http://pcre.org");
   if (ret == PCRE_ERROR_NOMATCH) VALUES1(NIL);
   else if (ret > 0) {
     if (bool_p) VALUES1(T); /* success indicator */
     else { /* return a vector */
       int pos, ov_pos;
+      ASSERT(ret <= ovector_size);
       pushSTACK(allocate_vector(ret)); /* return value */
       for (pos = ov_pos = 0; pos < ret; pos++, ov_pos+=2)
         if (ovector[ov_pos] >= 0) {

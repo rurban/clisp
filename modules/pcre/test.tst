@@ -71,7 +71,8 @@ NIL
 (defun re-test (pattern string) ;sds
   (map 'list (lambda (match)
                (and match (pcre:match-substring match string)))
-       (pcre:pcre-exec (pcre:pcre-compile pattern :extended t) string)))
+       (pcre:pcre-exec (pcre:pcre-compile pattern :extended nil :dotall t)
+                       string)))
 RE-TEST
 
 ;; *******************************************************
@@ -249,14 +250,14 @@ ERROR ; (")("): "Unmatched ( or \\("
 (re-test "(bc+d$|ef*g.|h?i(j|k))" "bcdd") ()
 (re-test "(bc+d$|ef*g.|h?i(j|k))" "reffgz") ("effgz" "effgz")
 
-;; crash in PCRE 4.5
-;(re-test "((((((((((a))))))))))" "a") ("a" "a" "a" "a" "a" "a" "a" "a" "a" "a" "a")
-;(re-test "(((((((((a)))))))))" "a") ("a" "a" "a" "a" "a" "a" "a" "a" "a" "a")
+(re-test "((((((((((a))))))))))" "a") ("a" "a" "a" "a" "a" "a" "a" "a" "a" "a" "a")
+(re-test "(((((((((a)))))))))" "a") ("a" "a" "a" "a" "a" "a" "a" "a" "a" "a")
 (re-test "multiple words of text" "uh-uh") ()
-;; PCRE 4.5 is broken - does not match!
-;;(re-test "multiple words" "multiple words, yeah") ("multiple words")
+;; with :extended t, does NOT match!
+(re-test "multiple words" "multiple words, yeah") ("multiple words")
 (re-test "(.*)c(.*)" "abcde") ("abcde" "ab" "de")
-(re-test "\\((.*), (.*)\\)" "(a, b)") ("(a, b)" "a" " b")
+;; with :extended t, " b" instead of "b"
+(re-test "\\((.*), (.*)\\)" "(a, b)") ("(a, b)" "a" "b")
 (re-test "[k]" "ab") ()
 (re-test "abcd" "abcd") ("abcd")
 (re-test "a(bc)d" "abcd") ("abcd" "bc")
@@ -313,10 +314,10 @@ A. Monk (Ed.)} \n\t foo: 2") ()
 (re-test "c[0-9]?r" "crxx") ("cr")
 (re-test "a|b" "a") ("a")
 (re-test "ab.yz" "ab yz") ("ab yz")
-;; PCRE 4.5 is broken: does not match!
-;;(re-test "ab.yz"   "ab
-;;yz") "ab
-;;yz"
+;; PCRE: need :DOTALL to match here
+(re-test "ab.yz"   "ab
+yz") ("ab
+yz")
 
 (re-test "(abc){1,2}" "abcabc") ("abcabc" "abc")
 (re-test "(abc){1,2}x*(def)y*def" "abcabcxxxxdefyyyyyyydef$%%%%%")
