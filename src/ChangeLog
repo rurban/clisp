@@ -1,3 +1,19 @@
+2004-09-19  Bruno Haible  <bruno@clisp.org>
+
+	Support for user-defined DEFCLASS slot options.
+	* clos-slotdef1.lisp (initialize-instance-<slot-definition>): Call
+	%initialize-instance, to initialize user-defined slots.
+	(initialize-instance-<direct-slot-definition>): Accept defclass-form
+	argument.
+	(convert-direct-slots): Do slot option checking here.
+	* clos-slotdef2.lisp (initialize-instance@direct-slot-definition):
+	Accept defclass-form argument.
+	* clos-slotdef3.lisp (slot-equal-using-class): Don't constrain the
+	direct-slot-definition subclass.
+	* clos-class3.lisp (defclass): Accept slot options that depend on the
+	direct-slot-definition class. Remove the slot option checking from
+	here.
+
 2004-09-26  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/win32/win32.lisp, modules/bindings/glibc/linux.lisp:

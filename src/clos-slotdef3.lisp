@@ -293,14 +293,14 @@
 
 ;; Customizable function used to compare two slots of given objects belonging
 ;; to the same class.
-;; Arguments: class is a class,
+;; Arguments: class is a subclass of <direct-slot-definition>,
 ;;            (class-of object1) = class,
 ;;            (class-of object2) = class,
 ;;            slot is a slot of class,
 ;;            value1 = (slot-value object1 (slot-definition-name slot)),
 ;;            value2 = (slot-value object2 (slot-definition-name slot)).
 (defgeneric slot-equal-using-class (class object1 object2 slot value1 value2)
-  (:method ((class (eql <standard-direct-slot-definition>)) (object1 standard-direct-slot-definition) (object2 standard-direct-slot-definition) slot value1 value2)
+  (:method (class (object1 standard-direct-slot-definition) (object2 standard-direct-slot-definition) slot value1 value2)
     (declare (ignore object1 object2 slot))
     (equal value1 value2)))
 

@@ -101,7 +101,8 @@
                                  (initargs '())
                                  (initform nil) (initfunction nil)
                                  (types '())
-                                 (documentation nil))
+                                 (documentation nil)
+                                 (user-defined-args nil))
                              (when (oddp (length slot-options))
                                (error-of-type 'ext:source-program-error
                                  :form whole-form
@@ -192,13 +193,19 @@
                                         'defclass name slot-name argument))
                                     (setq documentation argument))
                                    (t
-                                     (error-of-type 'ext:source-program-error
-                                       :form whole-form
-                                       :detail optionkey
-                                       (TEXT "~S ~S, slot option for slot ~S: ~S is not a valid slot option")
-                                       'defclass name slot-name optionkey)))))
+                                     (if (symbolp optionkey)
+                                       (let ((acons (assoc optionkey user-defined-args)))
+                                         (if acons
+                                           (push argument (cdr acons))
+                                           (push (list optionkey argument) user-defined-args)))
+                                       (error-of-type 'ext:source-program-error
+                                         :form whole-form
+                                         :detail optionkey
+                                         (TEXT "~S ~S, slot option for slot ~S: ~S is not a valid slot option")
+                                         'defclass name slot-name optionkey))))))
                              (setq readers (nreverse readers))
                              (setq writers (nreverse writers))
+                             (setq user-defined-args (nreverse user-defined-args))
                              (let ((type (if types (first types) 'T)))
                                (dolist (funname readers)
                                  (push `(DECLAIM-METHOD ,funname ((OBJECT ,name)))
@@ -222,7 +229,20 @@
                                 ,@(when initargs `(:INITARGS ',(nreverse initargs)))
                                 ,@(when initform `(:INITFORM ',initform :INITFUNCTION ,initfunction))
                                 ,@(when types `(:TYPE ',(first types)))
-                                ,@(when documentation `(:DOCUMENTATION ',documentation))))))
+                                ,@(when documentation `(:DOCUMENTATION ',documentation))
+                                ,@(when user-defined-args
+                                    ;; For error-checking purposes:
+                                    `('DEFCLASS-FORM ',whole-form))
+                                ,@(mapcan #'(lambda (option)
+                                              (list `',(car option)
+                                                    ;; If there are multiple occurrences
+                                                    ;; of the same option, the values are
+                                                    ;; passed as a list. Otherwise a single
+                                                    ;; value is passed (not a 1-element list)!
+                                                    `',(if (cddr option)
+                                                         (nreverse (cdr option))
+                                                         (cadr option))))
+                                          user-defined-args)))))
                      slot-specs)))
          (metaclass nil)
          (direct-default-initargs nil)
