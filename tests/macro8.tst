@@ -566,3 +566,8 @@ dm2b
     #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
   nil)
 nil
+
+(FUNCALL
+ (COMPILE NIL (LAMBDA (A) (UNWIND-PROTECT (BLOCK B2 (RETURN-FROM B2 A)))))
+ 77759)
+77759

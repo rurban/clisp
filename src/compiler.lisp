@@ -4307,12 +4307,12 @@ for-value   NIL or T
 ;; compile (UNWIND-PROTECT form1 {form}*)
 (defun c-UNWIND-PROTECT ()
   (test-list *form* 2)
-  (let* ((anode1 (let ((*stackz* (cons 'UNWIND-PROTECT *stackz*)))
-                   (c-form (second *form*))))
-         (anode2 (let ((*stackz* (cons 'CLEANUP *stackz*)) (*for-value* nil))
-                   (c-form `(PROGN ,@(cddr *form*)) 'NIL)))
-         (label (make-label 'NIL)))
+  (let ((anode2 (let ((*stackz* (cons 'CLEANUP *stackz*)) (*for-value* nil))
+                  (c-form `(PROGN ,@(cddr *form*)) 'NIL))))
     (if (cdr (anode-seclass anode2)) ; cleanup forms have side effects
+      (let ((anode1 (let ((*stackz* (cons 'UNWIND-PROTECT *stackz*)))
+                      (c-form (second *form*))))
+            (label (make-label 'NIL)))
         (make-anode :type 'UNWIND-PROTECT
                     :sub-anodes (list anode1 anode2)
                     :seclass (anodes-seclass-or anode1 anode2)
@@ -4325,8 +4325,9 @@ for-value   NIL or T
                         (UNWIND-PROTECT-NORMAL-EXIT)
                         ,label
                         ,anode2
-                        (UNWIND-PROTECT-CLOSE ,label)))
-        anode1))) ; cleanup forms are side-effect free ==> ignore them
+                        (UNWIND-PROTECT-CLOSE ,label))))
+      ;; cleanup forms are side-effect free ==> ignore them
+      (c-form (second *form*)))))
 
 ;; compile (PROGV form1 form2 {form}*)
 (defun c-PROGV ()
