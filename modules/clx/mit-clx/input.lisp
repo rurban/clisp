@@ -752,7 +752,7 @@
 			    :event-key (the keyword ,event-key)
 			    :event-code (the card8 (logand #x7f (read-card8 0)))
 			    :send-event-p (the boolean (logbitp 7 (read-card8 0)))
-			    ,@',(mapcar #'macroexpand get-code))
+			    ,@(mapcar #'macroexpand get-code))
 			  variable)))
 
 	   (defun ,get-function (display event handler)
@@ -1393,7 +1393,7 @@
     ;;  (component-key ((event-key event-key ...) . extraction-code)
     ;;		       ((event-key event-key ...) . extraction-code) ...)
     ;; There should probably be accessor macros for this, instead of things like cdadr.
-    (let ((vars (mapcar #'(lambda (var) (list var)) value-list))
+    (let ((vars (mapcar #'list value-list))
 	  (multiple-p nil))
       ;; Fill in the VARS alist with event-keys and extraction-code
       (do ((keys event-keys (cdr keys))

@@ -1,6 +1,11 @@
+2004-02-24  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/mit-clx/input.lisp (declare-event): fixed a
+	compilation error
+
 2004-02-24  Bruno Haible  <bruno@clisp.org>
 
-	* loadform.lisp (missing-load-form): Fix mistake in last patch,
+	* loadform.lisp (missing-load-form): Fix mistake in the last patch.
 
 2004-02-24  Bruno Haible  <bruno@clisp.org>
 
