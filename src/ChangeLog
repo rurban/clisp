@@ -1,3 +1,7 @@
+2003-09-30  Bruno Haible  <bruno@clisp.org>
+
+	* stream.d (socket_options): Avoid warnings from ansidecl.
+
 2003-09-29  Sam Steingold  <sds@gnu.org>
 
 	* foreign.d (update_library): avoid an infinite loop
