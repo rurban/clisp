@@ -1,5 +1,9 @@
 2005-01-22  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (pr_readlabel): Use oint_data_shift, not oint_addr_shift.
+
+2005-01-22  Bruno Haible  <bruno@clisp.org>
+
 	* compiler.lisp: Indentation fixes.
 
 2005-01-22  Bruno Haible  <bruno@clisp.org>
