@@ -3818,15 +3818,15 @@ bash$
  system.</para>
 
 <para>&clisp; extensions, i.e. programs which need to access
- non-portable &clisp; internal symbols (in the packages
- <quote>SYSTEM</quote>, <quote>COMPILER</quote>, <quote>CLOS</quote>,
- &ffi-pac;, ...), must be covered by &gnu; &gpl; as well.</para>
+ non-portable &clisp; internal symbols (in the packages &sys-pac;,
+ &clos-pac;, &ffi-pac;, ...), must be covered by &gnu; &gpl; as
+ well.</para>
 
 <para>Other programs running in &clisp; have to or need not to be placed
  under &gnu; &gpl;, depending on their distribution form:
 
 <itemizedlist>
- <listitem><simpara>Programs distributed as Lisp source of
+ <listitem><simpara>Programs distributed as Lisp source or
   &fasl-file; files can be distributed without restrictions coming from
   &clisp;.</simpara></listitem>
  <listitem><simpara>Programs distributed as &clisp; &mem-image;s can be
