@@ -1156,7 +1156,8 @@
           ((ext:weak-list-p direct-subclasses)
            (ext:weak-list-list direct-subclasses))
           (t (let ((l '()))
-               (maphash #'(lambda (x y) (push x l)) direct-subclasses)
+               (maphash #'(lambda (x y) (declare (ignore y)) (push x l))
+                        direct-subclasses)
                l)))))
 
 ;; Returns the currently existing subclasses, in top-down order, including the
