@@ -571,6 +571,7 @@
   #endif
   #ifdef IOCTL_DOTS
     extern_C int ioctl (int fd, IOCTL_REQUEST_T request, ...); # siehe IOCTL(2)
+    #define IOCTL_ARGUMENT_T  CADDR_T
   #else
     extern_C int ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg); # siehe IOCTL(2)
     # 3. Argument stets zum Typ IOCTL_ARGUMENT_T (meist CADDR_T) casten:
