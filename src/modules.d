@@ -28,8 +28,8 @@ global var uintC module_count =
     extern uintC module__##module_name##__object_tab_size; \
     extern subr_initdata module__##module_name##__subr_tab_initdata[]; \
     extern object_initdata module__##module_name##__object_tab_initdata[]; \
-    extern void module__##module_name##__init_function_1(); \
-    extern void module__##module_name##__init_function_2();
+    extern void module__##module_name##__init_function_1(struct module_ *); \
+    extern void module__##module_name##__init_function_2(struct module_ *);
   #include "modules.h"
   #undef MODULE
   #ifdef DYNAMIC_MODULES
