@@ -2683,8 +2683,9 @@ This translates to
 (def-c-struct div_t
   (quot int)
   (rem int))
-(def-c-call-out div (:arguments (numer int) (denom int))
-                    (:return-type div_t))
+(default-foreign-language :stdc)
+(def-call-out div (:arguments (numer int) (denom int))
+  (:return-type div_t))
 </programlisting>
 
 Sample call from within Lisp:
@@ -2725,11 +2726,13 @@ It is possible to call this function from Lisp using the file
 (&defpackage; "TEST-C-CALL" (:use "LISP" "FFI"))
 (&in-package; "TEST-C-CALL")
 (def-c-struct cfunr (x int) (s c-string))
-(def-c-call-out cfun (:arguments (i int)
-                                 (s c-string)
-                                 (r (c-ptr cfunr) :in :alloca)
-                                 (a (c-ptr (c-array int 10)) :in :alloca))
-                     (:return-type (c-ptr cfunr)))
+(default-foreign-language :stdc)
+(def-call-out cfun
+    (:arguments (i int)
+                (s c-string)
+                (r (c-ptr cfunr) :in :alloca)
+                (a (c-ptr (c-array int 10)) :in :alloca))
+  (:return-type (c-ptr cfunr)))
 (defun call-cfun ()
   (cfun 5 "A Lisp string" (make-cfunr :x 10 :s "Another Lisp string")
         '#(0 1 2 3 4 5 6 7 8 9)))
