@@ -3,53 +3,12 @@
 
 This is a small survey of editors available with Lisp support.
 
-1. clisp's built-in editor
-2. vi
-3. axe
-4. Emacs
+1. vi
+2. axe
+3. Emacs
 
 
-1. CLISP's built-in editor
-   -----------------------
-
-Platforms: Unix, DOS, OS/2, Atari, Amiga.
-
-Characteristics:
-- Text mode editor, no mouse support.
-- Written entirely in clisp.
-
-Features:
-- Multiple overlapping windows on the screen. But no mouse support (use the
-  function keys to select the topmost window).
-- Good integration with clisp.
-
-Drawbacks:
-- Slow.
-- Homebrew user interface, keybindings not Emacs-compatible.
-- No parentheses matching.
-- Confused by tabs in files.
-- Doesn't react if the window containing the terminal emulator is resized.
-
-Lisp support:
-- Key binding for eval-toplevel-form.
-
-Recommended in the following situations:
-- Non-Unix platform without even "vi", e.g. Atari ST, or DOS.
-
-Discussion:
-
-Normally CLISP's ED function calls the editor you specified in config.lsp.
-However, after you did
-
-    (load "editor")
-
-it invokes a builtin screen editor. It is a bit Emacs-like: you can evaluate
-lisp expressions from within the editor, and the result is pasted into the
-editor buffer. Type the help key (Alt-H on DOS, Ctrl-G on Unix, Help on
-Atari-ST) to see the full set of commands.
-
-
-2. vi
+1. vi
    --
 
 Platforms: Unix, DOS, and probably others.
@@ -76,7 +35,7 @@ Recommended in the following situations:
 - Non-Unix platform.
 
 
-3. axe
+2. axe
    ---
 
 Platforms: Unix X11.
@@ -122,7 +81,7 @@ Recommended in the following situations:
   (/usr/X11R6/lib/X11/fonts or something like that).
 
 
-4. emacs, xemacs
+3. emacs, xemacs
    -------------
 
 Platforms: Unix, OS/2, Win32.
