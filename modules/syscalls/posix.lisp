@@ -52,7 +52,7 @@
  '(file-stat file-stat-file file-stat-dev file-stat-ino file-stat-mode
    file-stat-nlink file-stat-uid file-stat-gid file-stat-rdev
    file-stat-size file-stat-blksize file-stat-blocks file-stat-atime
-   file-stat-mtime file-stat-ctime))
+   file-stat-mtime file-stat-ctime set-file-stat mknod convert-mode umask))
 
 (defstruct (file-stat
              (:constructor

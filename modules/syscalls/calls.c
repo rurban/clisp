@@ -237,7 +237,7 @@ DEFUN(POSIX::CRYPT, key salt) {
           end_system_call();
         });
     });
-  if (result == NULL) OS_error;
+  if (result == NULL) OS_error();
   VALUES1(asciz_to_string(result,GLO(misc_encoding)));
   skipSTACK(2);
 }
@@ -259,7 +259,7 @@ static void get_block (char block[64], object vector) {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(vector);          /* TYPE-ERROR slot DATUM */
     pushSTACK(`(VECTOR (UNSIGNED-BYTE 8) 8)`); /* EXPECTED-TYPE */
-    pushSTACK(`(VECTOR (UNSIGNED-BYTE 8) 8)`); pushSTACK(vector);
+    pushSTACK(STACK_0); pushSTACK(vector);
     pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
     vector = value1;
@@ -762,7 +762,6 @@ DEFUN(POSIX::USER-DATA, user)
 #endif  /* getlogin getpwent getpwnam getpwuid getuid */
 
 #if defined(HAVE_FSTAT) && defined(HAVE_LSTAT) && defined(HAVE_STAT)
-
 DEFUN(POSIX::FILE-STAT, file &optional linkp)
 { /* Lisp interface to stat(2), lstat(2) and fstat(2)
  the first arg can be a pathname designator or a file descriptor designator
@@ -810,6 +809,144 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
   funcall(`POSIX::MAKE-FILE-STAT`,14);
 }
 #endif  /* fstat lstat fstat */
+#if defined(HAVE_CHMOD) && defined(HAVE_CHOWN)
+DEFUN(POSIX::SET-FILE-STAT, file &key :MODE :UID :GID)
+{ /* interface to chmod(2) and chown(2)
+     http://www.opengroup.org/onlinepubs/009695399/functions/chown.html
+     http://www.opengroup.org/onlinepubs/009695399/functions/chmod.html */
+  gid_t gid = (missingp(STACK_0) ? skipSTACK(1), (gid_t)-1
+               : posfixnum_to_L(check_posfixnum(popSTACK())));
+  uid_t uid = (missingp(STACK_0) ? skipSTACK(1), (uid_t)-1
+               : posfixnum_to_L(check_posfixnum(popSTACK())));
+  mode_t mode = (missingp(STACK_0) ? skipSTACK(1), -1
+                 : posfixnum_to_L(check_posfixnum(popSTACK())));
+  STACK_0 = check_string(STACK_0);
+  with_string_0(STACK_0,GLO(pathname_encoding),path, {
+      begin_system_call();
+      if ((mode != -1) && chmod(path,mode)) OS_file_error(STACK_0);
+      if (((uid != (uid_t)-1) || (gid != (gid_t)-1)) && chown(path,uid,gid))
+        OS_file_error(STACK_0);
+      end_system_call();
+    });
+  VALUES0;
+}
+#endif  /* chmod chown */
+
+DEFUN(POSIX::CONVERT-MODE, mode)
+{ /* convert between symbolic and numeric permissions */
+ convert_mode_retsart:
+  if (posfixnump(STACK_0)) {
+    mode_t mode = posfixnum_to_L(check_posfixnum(popSTACK()));
+    int count = 0;
+    if (mode & S_ISUID)         /* Set user ID on execution. */
+      { pushSTACK(`:SUID`); count++; }
+    if (mode & S_ISGID)         /* Set group ID on execution. */
+      { pushSTACK(`:SGID`); count++; }
+    if (mode & S_ISVTX)  /* On directories, restricted deletion flag, on files,
+                            sticky bit: save swapped text even after use */
+      { pushSTACK(`:SVTX`); count++; }
+    if (mode & S_IRUSR)         /* Read by owner. */
+      { pushSTACK(`:RUSR`); count++; }
+    if (mode & S_IWUSR)         /* Write by owner. */
+      { pushSTACK(`:WUSR`); count++; }
+    if (mode & S_IXUSR)         /* Execute (search) by owner. */
+      { pushSTACK(`:XUSR`); count++; }
+    if (mode & S_IRGRP)         /* Read by group. */
+      { pushSTACK(`:RGRP`); count++; }
+    if (mode & S_IWGRP)         /* Write by group. */
+      { pushSTACK(`:WGRP`); count++; }
+    if (mode & S_IXGRP)         /* Execute (search) by group. */
+      { pushSTACK(`:XGRP`); count++; }
+    if (mode & S_IROTH)         /* Read by others. */
+      { pushSTACK(`:ROTH`); count++; }
+    if (mode & S_IWOTH)         /* Write by others. */
+      { pushSTACK(`:WOTH`); count++; }
+    if (mode & S_IXOTH)         /* Execute (search) by others. */
+      { pushSTACK(`:XOTH`); count++; }
+    VALUES1(listof(count));
+  } else if (listp(STACK_0)) {
+    mode_t mode = 0;
+    pushSTACK(STACK_0);
+    while (consp(STACK_0)) {
+      object type = Car(STACK_0); STACK_0 = Cdr(STACK_0);
+           if (eq(type,`:SUID`)) mode |= S_ISUID;
+      else if (eq(type,`:SGID`)) mode |= S_ISGID;
+      else if (eq(type,`:SVTX`)) mode |= S_ISVTX;
+      else if (eq(type,`:RWXU`)) mode |= S_IRWXU; /* owner: Read Write eXec */
+      else if (eq(type,`:RUSR`)) mode |= S_IRUSR;
+      else if (eq(type,`:WUSR`)) mode |= S_IWUSR;
+      else if (eq(type,`:XUSR`)) mode |= S_IXUSR;
+      else if (eq(type,`:RWXG`)) mode |= S_IRWXG; /* group: Read Write eXec */
+      else if (eq(type,`:RGRP`)) mode |= S_IRGRP;
+      else if (eq(type,`:WGRP`)) mode |= S_IWGRP;
+      else if (eq(type,`:XGRP`)) mode |= S_IXGRP;
+      else if (eq(type,`:RWXO`)) mode |= S_IRWXO; /* others: Read Write eXec */
+      else if (eq(type,`:ROTH`)) mode |= S_IROTH;
+      else if (eq(type,`:WOTH`)) mode |= S_IWOTH;
+      else if (eq(type,`:XOTH`)) mode |= S_IXOTH;
+      else { convert_mode_error:
+        STACK_0 = NIL;          /* no PLACE */
+        pushSTACK(STACK_1);     /* TYPE-ERROR slot DATUM */
+        pushSTACK(`(MEMBER :SUID :SGID :RWXU :RUSR :WUSR :XUSR :RWXG :RGRP :WGRP :XGRP :RWXO :ROTH :WOTH :XOTH :SVTX)`); /* EXPECTED-TYPE */
+        pushSTACK(STACK_0); pushSTACK(STACK_2);
+        pushSTACK(TheSubr(subr_self)->name);
+        check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
+        STACK_0 = value1;
+        goto convert_mode_retsart;
+      }
+    }
+    skipSTACK(2);               /* drop the tail and the argument */
+    VALUES1(fixnum(mode));
+  } else {
+    pushSTACK(NIL);             /* no PLACE */
+    goto convert_mode_error;
+  }
+}
+
+#if defined(HAVE_UMASK)
+DEFUN(POSIX::UMASK, cmask)
+{ /* lisp interface to mknod(2)
+     http://www.opengroup.org/onlinepubs/009695399/functions/umask.html */
+  mode_t cmask = posfixnum_to_L(check_posfixnum(popSTACK()));
+  begin_system_call();
+  cmask = umask(cmask);
+  end_system_call();
+  VALUES1(fixnum(cmask));
+}
+#endif  /* umask */
+
+#if defined(HAVE_MKNOD)
+DEFUN(POSIX::MKNOD, path type mode)
+{ /* lisp interface to mknod(2)
+     http://www.opengroup.org/onlinepubs/009695399/functions/mknod.html */
+  mode_t mode = posfixnum_to_L(check_posfixnum(popSTACK()));
+ mknod_restart_type_check:
+  if (eq(STACK_0,`:FIFO`)) mode |= S_IFIFO;
+  else if (eq(STACK_0,`:SOCK`)) mode |= S_IFSOCK;
+  else if (eq(STACK_0,`:CHR`)) mode |= S_IFCHR;
+  else if (eq(STACK_0,`:DIR`)) mode |= S_IFDIR;
+  else if (eq(STACK_0,`:BLK`)) mode |= S_IFBLK;
+  else if (eq(STACK_0,`:REG`)) mode |= S_IFREG;
+  else {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(STACK_1);         /* TYPE-ERROR slot DATUM */
+    pushSTACK(`(MEMBER :FIFO :SOCK :CHR :DIR :BLK :REG)`); /* EXPECTED-TYPE */
+    pushSTACK(STACK_0); pushSTACK(STACK_2);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
+    STACK_0 = value1;
+    goto mknod_restart_type_check;
+  }
+  skipSTACK(1);                 /* drop type from STACK */
+  funcall(L(namestring),1);     /* drop path from STACK */
+  with_string_0(value1,GLO(pathname_encoding),path, {
+      begin_system_call();
+      if (mknod(path,mode,0)) OS_file_error(value1);
+      end_system_call();
+    });
+  VALUES0;
+}
+#endif  /* mknod */
 
 #if defined(HAVE_FSTATVFS) && defined(HAVE_STATVFS)
 /* there is also a legacy interface (f)statfs()

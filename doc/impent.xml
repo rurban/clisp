@@ -480,6 +480,7 @@
 <!ENTITY m-r "<replaceable>m</replaceable>">
 <!ENTITY match-r "<replaceable>match</replaceable>">
 <!ENTITY maxdim-r "<replaceable>maxdimension</replaceable>">
+<!ENTITY mode-r "<replaceable>mode</replaceable>">
 <!ENTITY n-r "<replaceable>n</replaceable>">
 <!ENTITY name-r "<replaceable>name</replaceable>">
 <!ENTITY no-hang "<replaceable>no-hang</replaceable>">

@@ -80,6 +80,10 @@
 <!ENTITY wcstombs "<ulink url='&unix-f;/wcstombs.html'><function>wcstombs</function></ulink>">
 <!ENTITY wctomb "<ulink url='&unix-f;/wctomb.html'><function>wctomb</function></ulink>">
 <!ENTITY write-c "<ulink url='&unix-f;/write.html'><function>write</function></ulink>">
+<!ENTITY umask "<ulink url='&unix-f;/umask.html'><function>umask</function></ulink>">
+<!ENTITY mknod "<ulink url='&unix-f;/mknod.html'><function>mknod</function></ulink>">
+<!ENTITY chmod "<ulink url='&unix-f;/chmod.html'><function>chmod</function></ulink>">
+<!ENTITY chown "<ulink url='&unix-f;/chown.html'><function>chown</function></ulink>">
 
 <!-- header files -->
 <!ENTITY unix-b "&unix-top;/basedefs">
