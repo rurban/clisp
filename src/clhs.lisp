@@ -24,6 +24,7 @@
 (defvar *browsers*              ; alist of browsers & commands
   '((:netscape "netscape" "-remote" "openURL(~a,new-window)")
     (:lynx "xterm" "-e" "lynx" "~a")
+    (:w3m "xterm" "-e" "w3m" "~a")
     (:mmm "mmm" "-external" "~a")
     (:mosaic "xmosaic" "~a")
     (:emacs-w3 "gnudoit" "-q" "(w3-fetch \"~a\")")))
