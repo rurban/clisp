@@ -1,5 +1,7 @@
 Version  Date            New features
 
+2.29     2002-07-25      bug-fix/portability: gcc 3.1 &c
+
 2.28     2002-03-03      ANSI CL Pretty-Printer
                          MAKE-LOAD-FORM, MAKE-LOAD-FORM-SAVING-SLOTS
                          weak hash-tables; FCASE, GETTEXT
