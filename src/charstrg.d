@@ -9,36 +9,36 @@
 
 /* character conversion tables: */
 #if defined(UNICODE)
- # here are the registered bijective case (small<-->CAP) transformations
- # for Unicode.
+/* here are the registered bijective case (small<-->CAP) transformations
+ for Unicode. */
 #elif defined(ISOLATIN_CHS)
- # here are the registered bijective case (small<-->CAP) transformations
- #  small 61 ... 7A E0 ... F6 F8 ... FE
- #  CAP   41 ... 5A C0 ... D6 D8 ... DE
- #  both  aA ... zZ àÀ ... öÖ øØ ... þÞ
+/* here are the registered bijective case (small<-->CAP) transformations
+  small 61 ... 7A E0 ... F6 F8 ... FE
+  CAP   41 ... 5A C0 ... D6 D8 ... DE
+  both  aA ... zZ àÀ ... öÖ øØ ... þÞ */
 #elif defined(HPROMAN8_CHS)
- # here are the registered bijective case (small<-->CAP) transformations
- #  small 61 ... 7A C4 C5 D5 C6 C7 B2 C0 C1 D1 C2 C3 C8 C9 D9 CA CB
- #  CAP   41 ... 5A E0 DC E5 E7 ED B1 A2 A4 A6 DF AE A1 A3 E6 E8 AD
- #  which aA ... zZ áÁ éÉ íÍ óÓ úÚ ýÝ âÂ êÊ îÎ ôÔ ûÛ àÀ èÈ ìÌ òÒ ùÙ
- #  small CC CD DD CE CF EF E2 B7 EA D4 D7 D6 B5 EC E4 F1
- #  CAP   D8 A5 A7 DA DB EE E1 B6 E9 D0 D3 D2 B4 EB E3 F0
- #  which äÄ ëË ïÏ öÖ üÜ ÿŸ ãÃ ñÑ õÕ åÅ æÆ øØ çÇ šŠ ðÐ þÞ
+/* here are the registered bijective case (small<-->CAP) transformations
+  small 61 ... 7A C4 C5 D5 C6 C7 B2 C0 C1 D1 C2 C3 C8 C9 D9 CA CB
+  CAP   41 ... 5A E0 DC E5 E7 ED B1 A2 A4 A6 DF AE A1 A3 E6 E8 AD
+  which aA ... zZ áÁ éÉ íÍ óÓ úÚ ýÝ âÂ êÊ îÎ ôÔ ûÛ àÀ èÈ ìÌ òÒ ùÙ
+  small CC CD DD CE CF EF E2 B7 EA D4 D7 D6 B5 EC E4 F1
+  CAP   D8 A5 A7 DA DB EE E1 B6 E9 D0 D3 D2 B4 EB E3 F0
+  which äÄ ëË ïÏ öÖ üÜ ÿŸ ãÃ ñÑ õÕ åÅ æÆ øØ çÇ šŠ ðÐ þÞ */
 #elif defined(NEXTSTEP_CHS)
- # here are the registered bijective case (small<-->CAP) transformations
- #  small 61 ... 7A D5 ... E0 E2 E4 ... E7 EC ... F0 F1 F2 .. F4 F6 F7 F9 FA FC
- #  CAP   41 ... 5A 81 ... 8C 8D 8E ... 91 92 ... 96 E1 97 .. 99 9A 9B E9 EA 9C
- #  which aA ... zZ àÀ ... ìÌ íÍ îÎ ... ñÑ òÒ ... öÖ æÆ ùÙ .. ûÛ üÜ ýÝ øØ œŒ þÞ
+/* here are the registered bijective case (small<-->CAP) transformations
+ small 61 ... 7A D5 ... E0 E2 E4 ... E7 EC ... F0 F1 F2 .. F4 F6 F7 F9 FA FC
+ CAP   41 ... 5A 81 ... 8C 8D 8E ... 91 92 ... 96 E1 97 .. 99 9A 9B E9 EA 9C
+ which aA ... zZ àÀ ... ìÌ íÍ îÎ ... ñÑ òÒ ... öÖ æÆ ùÙ .. ûÛ üÜ ýÝ øØ œŒ þÞ */
 #elif defined(IBMPC_CHS)
- # here are the registered bijective case (small<-->CAP) transformations
- #  small 61 ... 7A 87 81 82 84 86 91 94 A4
- #  CAP   41 ... 5A 80 9A 90 8E 8F 92 99 A5
- #  both  aA ... zZ çÇ üÜ éÉ äÄ åÅ æÆ öÖ ñÑ
-#else # defined(ASCII_CHS)
- # here are the registered bijective case (small<-->CAP) transformations
- #  small 61 ... 7A
- #  CAP   41 ... 5A
- #  both  aA ... zZ
+/* here are the registered bijective case (small<-->CAP) transformations
+  small 61 ... 7A 87 81 82 84 86 91 94 A4
+  CAP   41 ... 5A 80 9A 90 8E 8F 92 99 A5
+  both  aA ... zZ çÇ üÜ éÉ äÄ åÅ æÆ öÖ ñÑ */
+#else /* defined(ASCII_CHS) */
+/* here are the registered bijective case (small<-->CAP) transformations
+  small 61 ... 7A
+  CAP   41 ... 5A
+  both  aA ... zZ */
 #endif
 
 #ifdef UNICODE
