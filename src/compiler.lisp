@@ -3142,10 +3142,10 @@ for-value   NIL or T
                         (c-GLOBAL-FUNCTION-CALL fun)))
                     ;; no -> not a special-form anyway
                     ;; (all those are in the `c-form-table')
-                    (progn
-                      (setq *form* (expand-compiler-macro *form*)
-                            fun (first *form*))
-                      (if (and (symbolp fun) (macro-function fun))
+                    (if (atom (setq *form* (expand-compiler-macro *form*)))
+                      (c-form *form*)
+                      (if (and (symbolp (setq fun (first *form*)))
+                               (macro-function fun))
                         ;; global macro
                         (c-form (mac-exp (macro-function fun) *form*))
                         ;; global function
