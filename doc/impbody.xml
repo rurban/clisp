@@ -19,7 +19,7 @@
  </varlistentry></variablelist>
  This final delimiter is never actually seen by programs; no need to
  test for <keysym>#\^D</keysym> or <keysym>#\^Z</keysym> - use
- &read-char-no-hang; to check for end of stream.
+ &read-char-no-hang; to check for &eos;.
  Calling &clear-input; on the stream removes the &eos; state,
  thus making it available for further input.</para>
 
@@ -4188,8 +4188,7 @@ warning, you need to fix the source code of the incriminated method.</para>
 <section id="print-misc"><title>Miscellaneous Issues</title>
 
 <para>&print-case-var; controls the output not only of symbols, but also
- of characters and some unreadable
- <computeroutput>#&lt;...&gt;</computeroutput> objects.</para>
+ of characters and some unreadable &sharp-lt; objects.</para>
 
 <para>In the absence of
  <firstterm><ulink url="&clhs;/Body/sec_22-1-3-1-3.html"
@@ -4282,11 +4281,10 @@ warning, you need to fix the source code of the incriminated method.</para>
  <row><entry><literal>#&lt;DOT&gt;</literal></entry>
   <entry>internal &read; result for <quote>.</quote></entry></row>
  <row><entry><literal>#&lt;END OF FILE&gt;</literal></entry>
-  <entry>internal &read; result, when the end of file is reached
+  <entry>internal &read; result, when the &eos; is reached
  </entry></row>
  <row><entry><literal>#&lt;READ-LABEL ...&gt;</literal></entry>
-  <entry>intermediate &read; result for <literal>#n#</literal>
- </entry></row>
+  <entry>intermediate &read; result for &sharp-sharp;</entry></row>
  <row><entry><literal>#&lt;ADDRESS #x...&gt;</literal></entry>
   <entry>machine address, should not occur</entry></row>
  <row><entry><literal>#&lt;SYSTEM-POINTER #x...&gt;</literal></entry>
@@ -4403,8 +4401,7 @@ warning, you need to fix the source code of the incriminated method.</para>
  <row><entry>&c-lang; output file</entry>
    <entry>only if &outfile-k; is not &nil;</entry>
    <entry><filename>#P".c"</filename></entry>
-   <entry>foreign function interface; this file is deleted if it is
-    empty</entry></row>
+   <entry>&ffi-pac;; this file is deleted if it is empty</entry></row>
 </tbody></tgroup></informaltable></para>
 
 <warning id="c-file-overwrite"><para>If you have two files in the same
