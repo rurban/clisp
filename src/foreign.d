@@ -162,7 +162,7 @@ LISPFUNN(validp,1)
 
 # A foreign value descriptor describes an item of foreign data.
 # <c-type> ::=
-#   <simple-c-type>   as described in foreign.txt
+#   <simple-c-type>   as described in impnotes.html#dffi
 #   c-pointer
 #   c-string
 #   #(c-struct slots constructor <c-type>*)

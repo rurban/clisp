@@ -542,22 +542,10 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                   master  for  the  distribution's manual page in
                   HTML format
 
-           __iimmppnnootteess..ttxxtt
+           __iimmppnnootteess..hhttmmll
                   master for  the  distribution's  implementation
                   notes
 
-           ....//ddoocc//ccllttll22..ttxxtt
-                  list of X3J13 votes and their current status in
-                  CLISP
-
-           ....//ddoocc//ffoorreeiiggnn..ttxxtt
-                  how to call foreign functions from within CLISP
-
-           ....//ddoocc//mmoodduullee..ttxxtt
-                  how to link external add-on modules to CLISP
-
-           iimmppnnootteess..hhttmmll
-                  implementation notes in HTML format
 
 
        Internationalization:
@@ -585,19 +573,6 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            ccoonnffiigguurree..iinn
                   lists the features to be checked
 
-
-
-
-
-                         19 January 1999                        9
-
-
-
-
-
-CLISP SOURCE(1)                                   CLISP SOURCE(1)
-
-
            aauuttooccoonnff//aauuttooccoonnff
                   the main program of GNU autoconf-2.13
 
@@ -611,6 +586,18 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
            aauuttooccoonnff//aaccssppeecciiffiicc..mm44
                   macros that test for  some  standard  features.
+
+
+
+                         19 January 1999                        9
+
+
+
+
+
+CLISP SOURCE(1)                                   CLISP SOURCE(1)
+
+
                   Part of GNU autoconf-2.13
 
            aauuttooccoonnff//aaccllooccaall..mm44
@@ -640,6 +627,19 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
            __ddiissttmmaakkeeffiillee
                   master for the distribution's Makefile
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

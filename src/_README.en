@@ -54,7 +54,6 @@ It consists of the following files:
    doc/clisp.man          manual page
    doc/clisp.html         manual page in HTML format
    doc/impnotes.html      implementation notes
-   doc/cltl2.txt          notes about the relation of CLISP to CLtL2
 #ifdef GNU_READLINE
    doc/clreadline.3       line editing manual page in Unix man format
    doc/clreadline.man     line editing manual page
@@ -120,7 +119,6 @@ or
       clisp.dvi          manual page in dvi format
 #endif
       impnotes.html      implementation notes
-      cltl2.txt          notes about the relation of CLISP to CLtL2
 #ifdef GNU_READLINE
       clreadline.3       line editing manual page in Unix man format
       clreadline.man     line editing manual page

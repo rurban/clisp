@@ -64,7 +64,7 @@ RSXDIR = /c:/rsx
 TEMPDIR = /tmp/clispdos
 
 
-all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src/intparam.c src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/vacall/vacall-i386-msvc.c ffcall/trampoline/config.h.msvc doc/vgagraph.txt acorn/pathname.txt
+all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src/intparam.c src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/vacall/vacall-i386-msvc.c ffcall/trampoline/config.h.msvc acorn/pathname.txt
 
 makefiles : dos/makefile dosdjgpp/makefile doswatcom/makefile os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc src/readline/Makefile.dos src/readline/Makefile.os2 src/readline/Makefile.go32 src/newreadline/Makefile.dos src/newreadline/Makefile.os2 src/newreadline/Makefile.go32
 
@@ -239,9 +239,6 @@ ffcall/vacall/vacall-i386-msvc.c : ffcall/vacall/vacall-i386.S ffcall/vacall/asm
 ffcall/trampoline/config.h.msvc : ffcall/trampoline/config.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel trampoline/config.h.msvc
 
-doc/vgagraph.txt : src/graph.d
-	cat src/graph.d | sed -e '1,/^\/\*$$/d' | sed -e '/^\*\//,$$d' > doc/vgagraph.txt
-
 acorn/pathname.txt : src/pathname.d
 	cat src/pathname.d | sed -e '1,/Burwood/d' | sed -e '/Komponenten/,$$d' | sed -e 's/^# //g' -e 's/^#$$//g' > acorn/pathname.txt
 
@@ -306,7 +303,7 @@ dos--distrib : force
 	cp -p dos/clisp.dvi $(TEMPDIR)/clisp.dvi
 	to-ibmpc dos/clreadline.man $(TEMPDIR)/clreadline.man
 	cp -p dos/clreadline.dvi $(TEMPDIR)/clreadline.dvi
-	cd doc ; for f in CLOS-guide.txt LISP-tutorial.txt cltl2.txt editors.txt; do to-ibmpc $$f $(TEMPDIR)/$$f; done
+	cd doc ; for f in CLOS-guide.txt LISP-tutorial.txt editors.txt; do to-ibmpc $$f $(TEMPDIR)/$$f; done
 	cd src/readline/doc ; $(MAKE) rluserman.dvi
 	cp -p src/readline/doc/rluserman.dvi $(TEMPDIR)/readline.dvi
 	cp -p $(EMXDIR)/bin/emx.exe $(TEMPDIR)/emx.exe
@@ -347,7 +344,7 @@ os2--distrib : force
 	cp -p os2/clisp.dvi $(TEMPDIR)/clisp.dvi
 	to-ibmpc os2/clreadline.man $(TEMPDIR)/clreadline.man
 	cp -p os2/clreadline.dvi $(TEMPDIR)/clreadline.dvi
-	cd doc ; for f in CLOS-guide.txt LISP-tutorial.txt cltl2.txt editors.txt; do to-ibmpc $$f $(TEMPDIR)/$$f; done
+	cd doc ; for f in CLOS-guide.txt LISP-tutorial.txt editors.txt; do to-ibmpc $$f $(TEMPDIR)/$$f; done
 	cd src/readline/doc ; $(MAKE) rluserman.dvi
 	cp -p src/readline/doc/rluserman.dvi $(TEMPDIR)/readline.dvi
 	cp -p $(EMXDIR)/bin/emx.exe $(TEMPDIR)/emx.exe
