@@ -1,3 +1,16 @@
+2004-03-28  Bruno Haible  <bruno@clisp.org>
+
+	Integrate the ansi-tests from Paul Dietz.
+	* utils/clispload.lsp: New file.
+	* makemake.in (RECOMPILEDIR): Renamed from TESTDIR.
+	(TESTSDIR): Change to 'tests'.
+	(ANSITESTSDIR): New variable.
+	(check-recompile): Renamed from test.
+	(check-tests): Renamed from testsuite.
+	(check-ansi-tests): New target.
+	(check): Depend on it.
+	(clean1): Remove also ANSITESTSDIR.
+
 2004-04-15  Sam Steingold  <sds@gnu.org>
 
 	new module for interface to MATLAB
