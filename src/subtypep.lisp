@@ -1050,6 +1050,7 @@
   (if (encodingp type)
     (let ((charset (encoding-charset type)))
       (case charset
+        #+UNICODE
         ((charset:unicode-16-big-endian charset:unicode-16-little-endian
           charset:unicode-32-big-endian charset:unicode-32-little-endian
           charset:utf-8 charset:java)
