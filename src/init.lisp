@@ -311,7 +311,7 @@
    #+(or UNIX OS/2 WIN32) make-pipe-input-stream
    #+(or UNIX OS/2 WIN32) make-pipe-io-stream
    make-buffered-input-stream make-buffered-output-stream
-   define-setf-method get-setf-method
+   get-setf-method
    compiler-let load-time-eval)
  "EXT")
 
