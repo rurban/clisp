@@ -3664,6 +3664,10 @@ pointing to non-existent files and can take the following values:
    (this roughly corresponds to the <literal role="sexp">(&directory;
     ... <constant>:TRUNAMEP</constant> &nil;)</literal> call in &cmucl;)
 </simpara></listitem></varlistentry>
+<varlistentry><term><constant>:IGNORE</constant></term>
+ <listitem><simpara>Similar to <constant>:DISCARD</constant>, but also
+   do not signal an error when a directory is unaccessible (contrary to
+   the &ansi-cl; specification).</simpara></listitem></varlistentry>
 </variablelist>
 
 </para>

@@ -6367,7 +6367,7 @@ shell_shortcut_target_t
 
   resolvedp = resolve_shell_shortcut(filename,pathname);
   /* handle links to links. cygwin can do such */
-  while (resolvedp 
+  while (resolvedp
      && try_counter--
      && (l=strlen(pathname))>4
      && stricmp(pathname+l-4,".lnk") == 0
@@ -6387,11 +6387,11 @@ shell_shortcut_target_t
 }
 
 # UP: ultimate shortcut megaresolver
-#   style inspired by directory_search_scandir 
+#   style inspired by directory_search_scandir
 # > namein: filename pointing to file or directory
 #            wildcards (only asterisk) may appear only as filename
 # < nameout: filename with directory and file shortcuts resolved
-#             on failure holds filename resolved so far 
+#             on failure holds filename resolved so far
 # < result:  true if resolving succeeded
 int TrueName (LPCSTR namein, LPSTR nameout) {
   var WIN32_FIND_DATA wfd;
@@ -6400,7 +6400,7 @@ int TrueName (LPCSTR namein, LPSTR nameout) {
   var char * nametocheck_end;
 /*  drive|dir1|dir2|name
           ^nametocheck
-              ^nametocheck_end */  
+              ^nametocheck_end */
   var char saved_char;
   var int next_name = 0;/* if we found an lnk and need to start over */
   var int try_counter = 33;
@@ -6617,7 +6617,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
           substitute = true;
       }
     } else {
-      if (TrueName(path,resolved)) 
+      if (TrueName(path,resolved))
         substitute = true;
       else error = true;
     }
@@ -8742,7 +8742,7 @@ LISPFUN(open,1,0,norest,key,6,
  Method: Breadth-first-search (=> only one search operation runs at a time)
  can trigger GC */
 typedef enum {
-  DIR_IF_NONE_DISCARD, DIR_IF_NONE_ERROR, DIR_IF_NONE_KEEP
+  DIR_IF_NONE_DISCARD, DIR_IF_NONE_ERROR, DIR_IF_NONE_KEEP, DIR_IF_NONE_IGNORE
 } dir_search_if_none_t;
 typedef struct {
   dir_search_if_none_t if_none;
@@ -9031,7 +9031,7 @@ local void directory_search_1subdir (object subdir, object namestring) {
 # can trigger GC
 
 #ifdef UNIX
-# return (cons drive inode) 
+# return (cons drive inode)
 local object directory_search_hashcode (void) {
   pushSTACK(STACK_0); # Directory-Name
   pushSTACK(O(dot_string)); # and "."
@@ -9040,7 +9040,6 @@ local object directory_search_hashcode (void) {
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     begin_system_call();
     if (!( stat(namestring_asciz,&status) ==0)) { # get information
-      if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_1); }
       end_system_call();
       FREE_DYNAMIC_ARRAY(namestring_asciz);
       return nullobj;
@@ -9133,7 +9132,10 @@ local void directory_search_scandir (bool recursively, signean next_task,
       });
     });
    #endif
-    if (dirp == (DIR*)NULL) { OS_file_error(STACK_1); }
+    if (dirp == (DIR*)NULL) {
+      if (dsp->if_none == DIR_IF_NONE_IGNORE) return;
+      else OS_file_error(STACK_1);
+    }
     loop {
       var SDIRENT* dp;
       begin_system_call();
@@ -9199,7 +9201,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
                   goto push_matching_subdir;
               } else
                 switch (dsp->if_none) {
-                  case DIR_IF_NONE_DISCARD: break;
+                  case DIR_IF_NONE_IGNORE: case DIR_IF_NONE_DISCARD: break;
                   case DIR_IF_NONE_ERROR:
                     pushSTACK(namestring);
                     fehler_file_not_exists();
@@ -9217,7 +9219,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
                   goto push_matching_file;
               } else
                 switch (dsp->if_none) {
-                  case DIR_IF_NONE_DISCARD: break;
+                  case DIR_IF_NONE_IGNORE: case DIR_IF_NONE_DISCARD: break;
                   case DIR_IF_NONE_ERROR:
                     pushSTACK(namestring);
                     fehler_file_not_exists();
@@ -9333,7 +9335,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
             }
           } else
             switch (dsp->if_none) {
-              case DIR_IF_NONE_DISCARD: break;
+              case DIR_IF_NONE_IGNORE: case DIR_IF_NONE_DISCARD: break;
               case DIR_IF_NONE_ERROR:
                 pushSTACK(namestring);
                 fehler_file_not_exists();
@@ -9361,10 +9363,14 @@ local void directory_search_scandir (bool recursively, signean next_task,
       var LONGALIGNTYPE(struct FileInfoBlock) fib;
       var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
       if (lock==BPTR_NULL) {
-        end_system_call(); OS_file_error(STACK_1);
+        end_system_call();
+        if (dsp->if_none == DIR_IF_NONE_IGNORE) return;
+        else OS_file_error(STACK_1);
       }
       if (! Examine(lock,fibptr) ) {
-        UnLock(lock); end_system_call(); OS_file_error(STACK_1);
+        UnLock(lock); end_system_call();
+        if (dsp->if_none == DIR_IF_NONE_IGNORE) return;
+        else OS_file_error(STACK_1);
       }
       loop {
         if (! ExNext(lock,fibptr) ) # error or directory finished?
@@ -9501,9 +9507,11 @@ local void directory_search_scandir (bool recursively, signean next_task,
       begin_system_call();
       do {
         # readdir in resolved directory. directory was resolved earlier
-        READDIR_findfirst(namestring_asciz,
-        { end_system_call(); OS_file_error(STACK_1); },
-                          break; );
+        READDIR_findfirst(namestring_asciz,{
+          end_system_call();
+          if (dsp->if_none == DIR_IF_NONE_IGNORE) return;
+          else OS_file_error(STACK_1);
+        }, break; );
         loop {
           end_system_call();
           # convert directory-entry into string:
@@ -9531,7 +9539,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
               ThePathname(STACK_(3))->pathname_type = STACK_0; # insert type
               ThePathname(STACK_(3))->pathname_name = STACK_1; # insert name
             }
-                   
+
             # try to resolve .lnk files
             if (!READDIR_entry_ISDIR() && !nullp(STACK_0)
                 && string_equal(STACK_0,ascii_to_string("lnk")))
@@ -9540,7 +9548,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
               var char * full_resolved = resolved;
               with_sstring_0(whole_namestring(STACK_(3)),O(pathname_encoding),linkfile_asciiz, {
                 rresolved =
-                  resolve_shell_shortcut_more(linkfile_asciiz,resolved); 
+                  resolve_shell_shortcut_more(linkfile_asciiz,resolved);
                 if (rresolved != shell_shortcut_notresolved) {
                   var char resolved_f[MAX_PATH];
                   if (FullName(resolved,resolved_f))
@@ -9548,7 +9556,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
                   STACK_(2) = coerce_pathname(asciz_to_string(full_resolved,O(pathname_encoding)));
                 }
               });
-            } 
+            }
 
             if (rresolved == shell_shortcut_notresolved) {
               # truename is the pathname itself
@@ -9566,7 +9574,8 @@ local void directory_search_scandir (bool recursively, signean next_task,
                   fehler_file_not_exists();
 
             if (rresolved != shell_shortcut_notexists
-                || dsp->if_none != DIR_IF_NONE_DISCARD) {
+                || (dsp->if_none != DIR_IF_NONE_DISCARD &&
+                    dsp->if_none != DIR_IF_NONE_IGNORE)) {
               if (READDIR_entry_ISDIR() || rresolved == shell_shortcut_directory) {
                 if (recursively) { # all recursive subdirectories wanted?
                   # yes -> push truename onto
@@ -9748,7 +9757,7 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
       if (nullp(nametype)) # name=NIL and type=NIL -> do not search files
         next_task = 0;
      #if !(defined(MSDOS) || defined(WIN32_NATIVE))
-      else if (!wild_p(nametype,false))
+      else if (!wild_p(nametype,false) && (dsp->if_none != DIR_IF_NONE_IGNORE))
         # === !(wild_p(name) || ((!nullp(type)) && wild_p(type)))
         next_task = 1; # search file
      #endif
@@ -9804,7 +9813,7 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
         if (!recursively) {
           switch (next_task) {
             case 0: # return this pathname
-             #if defined(UNIX) || defined(WIN32_NATIVE) 
+             #if defined(UNIX) || defined(WIN32_NATIVE)
               assure_dir_exists(false,false); # first resolve links
              #endif
               { # and push STACK_0 in front of result-list:
@@ -9833,7 +9842,7 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
               assure_dir_exists_(true,false,type_is_wild); # resolve links, search file
               if (file_exists(_EMA_) && !S_ISDIR(filestatus->st_mode)) # if file exists and is no directory
              #else
-                assure_dir_exists(true,false); # resolve links, search file
+              assure_dir_exists(true,false); # resolve links, search file
               if (file_exists(_EMA_)) # if file exists
              #endif
                 {
@@ -9851,7 +9860,7 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
            #endif
            #ifndef MSDOS
             case -1: # search for a subdirectory in this pathname
-              {                                        
+              {
                 var object namestring = assure_dir_exists(true,false); # resolve links, directory-namestring
                 pushSTACK(namestring); # directory-namestring
 
@@ -9885,9 +9894,12 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
         }
         # in order to finish the task, all entries in this directory
         # have to be scanned:
-        
-        {                                              
+        {
           var object dir_namestring = assure_dir_exists(true,false); # resolve links, form directory-name
+          if (!file_exists(_EMA_)) {
+            skipSTACK(1);
+            goto next_pathname;
+          }
           pushSTACK(dir_namestring); # save
         }
         # stack layout: ..., pathname, dir_namestring.
@@ -9957,6 +9969,8 @@ LISPFUN(directory,0,1,norest,key,3,(kw(if_does_not_exist),kw(circle),kw(full)))
     dsp.if_none = DIR_IF_NONE_ERROR;
   else if (eq(STACK_2,S(Kkeep)))
     dsp.if_none = DIR_IF_NONE_KEEP;
+  else if (eq(STACK_2,S(Kignore)))
+    dsp.if_none = DIR_IF_NONE_IGNORE;
   else {
     pushSTACK(STACK_2); /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_directory_not_exist)); /* TYPE-ERROR slot EXPECTED-TYPE */
