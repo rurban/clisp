@@ -1609,16 +1609,8 @@ N. Gray to X3J13.</para>
 
 <itemizedlist>
  <listitem><simpara>Setting &pathprint; to &t;.</simpara></listitem>
- <listitem><simpara>Setting <emphasis
-  role="strong"><varname>custom:*coerce-fixnum-char-ansi*</varname></emphasis>
-  to &t; so that &fixnum-type;s cannot be &coerce;d to
-  &character-class;s (because a &fixnum-type; is not a <ulink
-  url="&clhs;/Body/glo_c.html#character_designator">character
-  designator</ulink> in &ansi-cl;.)</simpara></listitem>
- <listitem><simpara>Setting &count-ansi; to &t; so that negative
-  &count-k; keyword parameter is equivalent to 0 as per the <ulink
-  url="&clhs;/Issues/iss283.html">RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</ulink>
-  &ansi-cl; Issue 283.</simpara></listitem>
+ <listitem><simpara>Setting &fixnum-char-ansi; to &t;.</simpara></listitem>
+ <listitem><simpara>Setting &count-ansi; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &pathmerge; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &parsename; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &flocont; to &t;.</simpara></listitem>
@@ -1634,14 +1626,8 @@ N. Gray to X3J13.</para>
 
 <itemizedlist>
  <listitem><simpara>Setting &pathprint; to &nil;.</simpara></listitem>
- <listitem><simpara>Setting <emphasis
-  role="strong"><varname>custom:*coerce-fixnum-char-ansi*</varname></emphasis>
-  to &nil; so that &fixnum-type;s <emphasis>can</emphasis> be &coerce;d
-  to &character-class;s (via &code-char;).</simpara></listitem>
- <listitem><simpara>Setting &count-ansi; to &nil; to signal an error on
-  negative &count-k; keyword parameter, contrary to the <ulink
-  url="&clhs;/Issues/iss283.html">RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</ulink>
-  &ansi-cl; Issue 283.</simpara></listitem>
+ <listitem><simpara>Setting &fixnum-char-ansi; to &nil;.</simpara></listitem>
+ <listitem><simpara>Setting &count-ansi; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &pathmerge; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &parsename; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &flocont; to &nil;.</simpara></listitem>
