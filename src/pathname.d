@@ -4999,6 +4999,24 @@ nonreturning_function(local, fehler_file_exists, (void)) {
  with further restrictions. */
 #endif
 
+/* UP for assure_dir_exists
+   (MERGE-PATHNAMES (PARSE-NAMESTRING namestring) pathname-without-name&type)
+ > namestring: just resolved directory namestring
+ > STACK_0: the pathname being resolved
+ < STACK_0: merge of namestring and STACK_0
+ can trigger GC */
+local maygc void substitute_resolved_path (object namestring) {
+  pushSTACK(namestring); funcall(L(parse_namestring),1);
+  pushSTACK(value1);            /* parsed namestring */
+  { var object pathname = copy_pathname(STACK_(0+1));
+    ThePathname(pathname)->pathname_name = NIL;
+    ThePathname(pathname)->pathname_type = NIL;
+    pushSTACK(pathname);        /* the original pathname */
+  }
+  funcall(L(merge_pathnames),2);
+  STACK_0 = value1;
+}
+
 #ifdef PATHNAME_WIN32
 
 /* An "absolute pathname" is a pathname, whose device is a checked
@@ -5449,12 +5467,11 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
       fehler_dir_not_exists(popSTACK());
     }
     if (substitute) {
-      var object resolved_string = asciz_to_string(resolved,O(pathname_encoding));
-      STACK_0 = coerce_pathname(resolved_string);
+      substitute_resolved_path(asciz_to_string(resolved,O(pathname_encoding)));
       nnullp = namenullp(STACK_0);
     }
     { var object dns = directory_namestring(STACK_0);
-      return nnullp?dns:OSnamestring(dns); }
+      return nnullp ? dns : OSnamestring(dns); }
   });
 }
 #endif
@@ -5642,8 +5659,7 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
         }
         allowed_links--; /* after that, one link less is allowed */
         var uintL linklen = status.st_size; /* presumed length of the link-content */
-      retry_readlink:
-        {
+       retry_readlink: {
           var DYNAMIC_ARRAY(linkbuf,char,linklen+1); /* buffer for the Link-content */
           /* read link-content: */
           begin_system_call();
@@ -5656,19 +5672,11 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
               FREE_DYNAMIC_ARRAY(linkbuf); linklen = result; goto retry_readlink;
             }
           }
-          /* turn it into a pathname:
-             (MERGE-PATHNAMES (PARSE-NAMESTRING linkbuf) pathname-without-name&type) */
-          pushSTACK(n_char_to_string(linkbuf,linklen,O(pathname_encoding)));
+          /* turn it into a pathname: */
+          substitute_resolved_path(n_char_to_string(linkbuf,linklen,
+                                                    O(pathname_encoding)));
           FREE_DYNAMIC_ARRAY(linkbuf);
         }
-        funcall(L(parse_namestring),1);
-        pushSTACK(value1);
-        var object pathname = copy_pathname(STACK_(0+1));
-        ThePathname(pathname)->pathname_name = NIL;
-        ThePathname(pathname)->pathname_type = NIL;
-        pushSTACK(pathname);
-        funcall(L(merge_pathnames),2);
-        STACK_0 = value1;
       }
      ) /* HAVE_LSTAT */
       else { /* normal file */
@@ -7170,8 +7178,10 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                   /* what to use as a result */
                   if (rresolved == shell_shortcut_notexists)
                     STACK_(2) = STACK_(3); /* use symbolic names as a result when target is not found */
-                  else
+                  else {
                     STACK_(2) = coerce_pathname(asciz_to_string(full_resolved,O(pathname_encoding)));
+                    ThePathname(STACK_(2))->pathname_version = DEFAULT_VERSION;
+                  }
                 }
               });
             }
