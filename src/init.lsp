@@ -193,6 +193,7 @@ interpreter compiler
     short-float-epsilon short-float-negative-epsilon
     single-float-epsilon single-float-negative-epsilon
     double-float-epsilon double-float-negative-epsilon
+    char-code-limit
     array-total-size-limit array-dimension-limit array-rank-limit
     internal-time-units-per-second
 )  )

@@ -1383,6 +1383,9 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         define_constant_UL1(S(array_total_size_limit),arraysize_limit_1); # ARRAY-TOTAL-SIZE-LIMIT := arraysize_limit_1 + 1
         define_constant_UL1(S(array_dimension_limit),arraysize_limit_1); # ARRAY-DIMENSION-LIMIT := arraysize_limit_1 + 1
         define_constant_UL1(S(array_rank_limit),arrayrank_limit_1); # ARRAY-RANK-LIMIT := arrayrank_limit_1 + 1
+        # zu CHARSTRG:
+        define_constant(S(char_cod_limit),fixnum(char_code_limit)); # CHAR-CODE-LIMIT
+        define_constant(S(base_char_cod_limit),fixnum(base_char_code_limit)); # BASE-CHAR-CODE-LIMIT
         # zu DEBUG:
         define_variable(S(plus),NIL);                   # +
         define_variable(S(plus2),NIL);                  # ++
