@@ -583,6 +583,10 @@
   LISPOBJ_S(leer_string,"")
   LISPOBJ_S(wild_string,"*")
   LISPOBJ_S(doppelpunkt_string,":")
+ #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
+  LISPOBJ_S(semicolon_string,";")
+  LISPOBJ_S(zero_string,"0")
+ #endif
  #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
   LISPOBJ(backslash_string,"\"\\\\\"")
  #endif
