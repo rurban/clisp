@@ -551,10 +551,13 @@ nonreturning_function (static, closed_display_error,
 #define I_to_uint29 I_to_UL     /* XXX ditto */
 
 #define DEFINE_INTEGER_GETTER(type, lspnam)                     \
-  type get_##type (object obj) {                                \
+  static inline type get_##type (object obj) {                  \
     if (type##_p (obj))                                         \
       return I_to_##type (obj);                                 \
     else my_type_error(lspnam,obj);                             \
+  }                                                             \
+  static inline type get_##type##_0 (object obj) {              \
+    return missingp(obj) ? 0 : get_##type(obj);                 \
   }
 
 DEFINE_INTEGER_GETTER (uint8,  `XLIB::CARD8`)
@@ -1183,7 +1186,7 @@ DEFCHECKER(get_top_or_bottom,default=,TOP=PlaceOnTop BOTTOM=PlaceOnBottom)
 DEFCHECKER(get_new_value_or_deleted,default=, \
            NEW-VALUE=PropertyNewValue DELETED=PropertyDelete)
 #define make_new_value_or_deleted get_new_value_or_deleted_reverse
-DEFCHECKER(get_ordering,default=, UNSORTED=Unsorted Y-SORTED=YSorted \
+DEFCHECKER(get_ordering,default=Unsorted, UNSORTED=Unsorted Y-SORTED=YSorted \
            YX-SORTED=YXSorted YX-BANDED=YXBanded)
 DEFCHECKER(get_mapping_request,default=, MODIFIER=MappingModifier \
            KEYBOARD=MappingKeyboard POINTER=MappingPointer)
@@ -1316,8 +1319,7 @@ DEFCHECKER(check_modifier, default=, bitmasks=both, type=unsigned int,  \
 
 static unsigned int get_modifier_mask (object obj)
 {
-  unsigned int mask = 0;
-
+  if (!boundp(obj)) return 0;
   if (eq (obj, `:ANY`)) return AnyModifier;
   if (integerp (obj)) return get_uint16 (obj);
   if (listp(obj)) return check_modifier_from_list(obj);
@@ -2984,7 +2986,7 @@ DEFUN(XLIB:SET-GCONTEXT-CLIP-MASK, clip-mask gcontext &optional ordering)
             in the gcontext.
             We should think about the portability of using a halfword-vector
             and then beam the data directly into the rectangles vector. */
-    int ordering = (missingp(STACK_0) ? Unsorted : get_ordering (STACK_0));
+    int ordering = get_ordering(STACK_0);
     int n = get_sint32(funcall1(L(length),STACK_2));
 
     /* See if length is a multiple of 4? */
@@ -3264,10 +3266,10 @@ DEFUN(XLIB:CLEAR-AREA, drawable &key X Y WIDTH HEIGHT EXPOSURES-P)
 {
   Display *dpy;
   Window win      = get_drawable_and_display (STACK_5, &dpy);
-  int x           = missingp(STACK_4) ? 0 : get_sint16 (STACK_4);
-  int y           = missingp(STACK_3) ? 0 : get_sint16 (STACK_3);
-  int w           = missingp(STACK_1) ? 0 : get_uint16 (STACK_2);
-  int h           = missingp(STACK_1) ? 0 : get_uint16 (STACK_1);
+  int x           = get_sint16_0 (STACK_4);
+  int y           = get_sint16_0 (STACK_3);
+  int w           = get_uint16_0 (STACK_2);
+  int h           = get_uint16_0 (STACK_1);
   int exposures_p = !missingp(STACK_0);
 
   X_CALL(XClearArea (dpy, win, x,y,w,h, exposures_p));
@@ -3985,8 +3987,8 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
 { /* This is a *VERY* silly implementation.
    XXX see that the keyword arguments are actually given */
   Display *dpy;
-  int src_x         = boundp(STACK_6) ? get_sint32(STACK_6) : 0;
-  int src_y         = boundp(STACK_5) ? get_sint32(STACK_5) : 0;
+  int src_x         = get_sint32_0(STACK_6);
+  int src_y         = get_sint32_0(STACK_5);
   int x             = get_sint32 (STACK_4);
   int y             = get_sint32 (STACK_3);
   int w             = get_sint32 (STACK_2);
@@ -4480,7 +4482,7 @@ DEFUN(XLIB:TEXT-EXTENTS, font obj &key START END TRANSLATE)
   if (simple_string_p (STACK_3)) {
     object font;
     XFontStruct *font_info = get_font_info_and_display (STACK_4, &font, 0);
-    int start = missingp(STACK_2) ? 0 : get_uint16 (STACK_2);
+    int start = get_uint16_0 (STACK_2);
     int end   = missingp(STACK_1) ? vector_length (STACK_3) : get_uint16 (STACK_1);
     int dir;
     int font_ascent, font_descent;
@@ -4541,7 +4543,7 @@ DEFUN(XLIB:TEXT-WIDTH, font sequence &key START END TRANSLATE)
   /* First fetch the quite common special case where sequence
      is a simple string: */
   if (simple_string_p (STACK_3)) {
-    int start = missingp(STACK_2) ? 0 : get_uint16 (STACK_2);
+    int start = get_uint16_0 (STACK_2);
     int end   = missingp(STACK_1) ? vector_length (STACK_3) : get_uint16 (STACK_1);
     int w;
 
@@ -4570,7 +4572,7 @@ DEFUN(XLIB:TEXT-WIDTH, font sequence &key START END TRANSLATE)
   else if (vectorp (STACK_3)) {
     /* Generic case for vectors.
      XXX faked. */
-    int start = missingp(STACK_2) ? 0 : get_uint16 (STACK_2);
+    int start = get_uint16_0 (STACK_2);
     int end   = missingp(STACK_1) ? vector_length (STACK_3) : get_uint16 (STACK_1);
     VALUES2(make_sint32(0),NIL);
   } else
@@ -4763,7 +4765,7 @@ DEFUN(XLIB:ALLOC-COLOR-CELLS, colormap colors \
   Display         *dpy;
   Colormap          cm = get_colormap_and_display (STACK_4, &dpy);
   unsigned int npixels = get_uint32 (STACK_3);
-  unsigned int nplanes = boundp(STACK_2) ? get_uint32(STACK_2) : 0;
+  unsigned int nplanes = get_uint32_0(STACK_2);
   Bool    contiguous_p = !missingp(STACK_1);
   gcv_object_t *res_type = &STACK_0;
 
@@ -4813,9 +4815,9 @@ DEFUN(XLIB:ALLOC-COLOR-PLANES, colormap colors \
   Display         *dpy;
   Colormap          cm = get_colormap_and_display (STACK_6, &dpy);
   unsigned int ncolors = get_uint32 (STACK_5);
-  unsigned int   nreds = boundp(STACK_4) ? get_uint32(STACK_4) : 0;
-  unsigned int ngreens = boundp(STACK_3) ? get_uint32(STACK_3) : 0;
-  unsigned int  nblues = boundp(STACK_2) ? get_uint32(STACK_2) : 0;
+  unsigned int   nreds = get_uint32_0(STACK_4);
+  unsigned int ngreens = get_uint32_0(STACK_3);
+  unsigned int  nblues = get_uint32_0(STACK_2);
   Bool    contiguous_p = !missingp(STACK_1);
   unsigned long red_mask, green_mask, blue_mask;
   gcv_object_t *res_type = &STACK_0;
@@ -5178,7 +5180,7 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
   Atom     type = get_xatom (dpy, STACK_5);
   int    format = get_uint8 (STACK_4);
   int      mode = check_propmode(STACK_3);
-  int     start = (missingp(STACK_2) ? 0 : get_uint32 (STACK_2));
+  int     start = get_uint32_0 (STACK_2);
   int       end;
   int         i;
   int       len;
@@ -5279,7 +5281,7 @@ DEFUN(XLIB:GET-PROPERTY,window property                         \
 
   /* How is :start/:end counted?
    CLX counts the same way libX counts [This should be documented.] */
-  long_offset = (missingp(STACK_4) ? 0 : get_uint32 (STACK_4));
+  long_offset = get_uint32_0 (STACK_4);
   long_length = (missingp(STACK_3) ? 0x7FFFFFFF : (get_uint32(STACK_3) - long_offset));
   delete_p = (missingp(STACK_2) ? 0 : 1);
   req_type = (missingp(STACK_5) ? AnyPropertyType : get_xatom (display, STACK_5));
@@ -6154,20 +6156,19 @@ DEFUN(XLIB:WARP-POINTER-RELATIVE, display delta-x delta-y)
 DEFUN(XLIB:WARP-POINTER-IF-INSIDE, destination destination-x destination-y \
       source source-x source-y &optional source-width source-height)
 {
+  int src_h = get_sint16_0(popSTACK());
+  int src_w = get_sint16_0(popSTACK());
+  int src_y = get_sint16 (popSTACK());
+  int src_x = get_sint16 (popSTACK());
+  Window src = get_window (popSTACK());
+  int dest_y = get_sint16 (popSTACK());
+  int dest_x = get_sint16 (popSTACK());
   Display *dpy;
-  Window dest = get_window_and_display (STACK_7, &dpy);
-  int dest_x = get_sint16 (STACK_6);
-  int dest_y = get_sint16 (STACK_5);
-  Window src = get_window (STACK_4);
-  int src_x = get_sint16 (STACK_3);
-  int src_y = get_sint16 (STACK_2);
-  int src_w = (boundp(STACK_1) ? get_sint16(STACK_1) : 0);
-  int src_h = (boundp(STACK_0) ? get_sint16(STACK_0) : 0);
+  Window dest = get_window_and_display (popSTACK(), &dpy);
 
   X_CALL(XWarpPointer(dpy,src,dest,src_x,src_y,src_w,src_h,dest_x,dest_y));
 
   VALUES1(NIL);
-  skipSTACK(8);
 }
 
 /*  XLIB:WARP-POINTER-RELATIVE-IF-INSIDE x-offset y-offset source
@@ -6175,19 +6176,18 @@ DEFUN(XLIB:WARP-POINTER-IF-INSIDE, destination destination-x destination-y \
 DEFUN(XLIB:WARP-POINTER-RELATIVE-IF-INSIDE, x-offset y-offset source \
       source-x source-y &optional source-width source-height)
 {
-  int x_off = get_sint16 (STACK_6);
-  int y_off = get_sint16 (STACK_5);
+  int src_h = get_sint16_0(popSTACK());
+  int src_w = get_sint16_0(popSTACK());
+  int src_y = get_sint16 (popSTACK());
+  int src_x = get_sint16 (popSTACK());
   Display *dpy;
-  Window src = get_window_and_display (STACK_4, &dpy);
-  int src_x = get_sint16 (STACK_3);
-  int src_y = get_sint16 (STACK_2);
-  int src_w = boundp(STACK_1) ? get_sint16(STACK_1) : 0;
-  int src_h = boundp(STACK_0) ? get_sint16(STACK_0) : 0;
+  Window src = get_window_and_display (popSTACK(), &dpy);
+  int y_off = get_sint16 (popSTACK());
+  int x_off = get_sint16 (popSTACK());
 
   X_CALL(XWarpPointer(dpy,src,None,src_x,src_y,src_w,src_h,x_off,y_off));
 
   VALUES1(NIL);
-  skipSTACK(7);
 }
 
 /* 12.7  Managing Input Focus */
@@ -6304,7 +6304,7 @@ DEFUN(XLIB:GRAB-BUTTON, window button event-mask &key MODIFIERS \
   Window               win = get_window_and_display (STACK_8, &dpy);
   int               button = !(eq (STACK_7, `:ANY`) ? AnyButton : get_uint8 (STACK_7));
   unsigned long event_mask = get_event_mask (STACK_6);
-  unsigned int   modifiers = boundp(STACK_0) ? get_modifier_mask(STACK_5) : 0;
+  unsigned int   modifiers = get_modifier_mask(STACK_5);
   Bool             owner_p = !missingp(STACK_4);
   Bool        sync_pointer = missingp(STACK_3);
   Bool       sync_keyboard = missingp(STACK_2);
@@ -6323,7 +6323,7 @@ DEFUN(XLIB:UNGRAB-BUTTON, window code &key MODIFIERS)
   Display           *dpy;
   Window             win = get_window_and_display (STACK_2, &dpy);
   int               code = (eq (STACK_1, `:ANY`) ? AnyKey : get_uint8(STACK_1));
-  unsigned int modifiers = (boundp(STACK_0) ? get_modifier_mask(STACK_0) : 0);
+  unsigned int modifiers = get_modifier_mask(STACK_0);
 
   X_CALL(XUngrabButton (dpy, code, modifiers, win));
 
@@ -6361,7 +6361,7 @@ DEFUN(XLIB:GRAB-KEY, window key &key MODIFIERS OWNER-P SYNC-POINTER-P \
   Display           *dpy;
   Window             win = get_window_and_display (STACK_5, &dpy);
   int            keycode = get_uint8 (STACK_4);
-  unsigned int modifiers = (boundp(STACK_3) ? get_modifier_mask(STACK_3) : 0);
+  unsigned int modifiers = get_modifier_mask(STACK_3);
   Bool           owner_p = !missingp(STACK_2);
   Bool    sync_pointer_p = missingp(STACK_1) ? GrabModeAsync : GrabModeSync;
   Bool   sync_keyboard_p = missingp(STACK_0) ? GrabModeAsync : GrabModeSync;
@@ -6378,7 +6378,7 @@ DEFUN(XLIB:UNGRAB-KEY, window code &key MODIFIERS)
   Display *dpy;
   Window  win = get_window_and_display (STACK_2, &dpy);
   int    code = (eq (STACK_1, `:ANY`) ? AnyKey : get_uint8(STACK_1));
-  unsigned int modifiers = (boundp(STACK_0) ? get_modifier_mask(STACK_0) : 0);
+  unsigned int modifiers = get_modifier_mask(STACK_0);
 
   X_CALL(XUngrabKey (dpy, code, modifiers, win));
 
@@ -6618,10 +6618,8 @@ DEFUN(XLIB:SET-POINTER-MAPPING, arg1 arg2)
 /* 14.3  Keyboard Control */
 DEFUN(XLIB:BELL, display &optional percent)
 {
-  int percent = (!missingp(STACK_0) ? get_sint16(STACK_0) : 0);
-  Display *dpy;
-  skipSTACK(1);
-  dpy = pop_display ();
+  int percent = get_sint16_0(popSTACK());
+  Display *dpy = pop_display ();
 
   X_CALL(XBell (dpy, percent));
 
@@ -7136,8 +7134,9 @@ int xlib_after_function (Display *display)
 
 /* First three little enums (three? I can only see two!) */
 
-DEFCHECKER(get_shape_kind,default=, BOUNDING=ShapeBounding CLIP=ShapeClip)
-DEFCHECKER(get_shape_operation,default=, SET=ShapeSet UNION=ShapeUnion  \
+DEFCHECKER(get_shape_kind,default=ShapeBounding,        \
+           BOUNDING=ShapeBounding CLIP=ShapeClip)
+DEFCHECKER(get_shape_operation,default=ShapeSet, SET=ShapeSet UNION=ShapeUnion \
            INTERSECT=ShapeIntersect SUBTRACT=ShapeSubtract INVERT=ShapeInvert)
 
 static Bool ensure_shape_extension (Display *dpy, object dpy_obj, int error_p)
@@ -7184,15 +7183,15 @@ DEFUN(XLIB:SHAPE-VERSION, display)
 DEFUN(XLIB:SHAPE-COMBINE, destination source \
       &key KIND X-OFFSET Y-OFFSET OPERATION ORDERING)
 {
+  int ordering = get_ordering(popSTACK());
+  int       op = get_shape_operation(popSTACK());
+  int    y_off = get_sint16_0(popSTACK());
+  int    x_off = get_sint16_0(popSTACK());
+  int     kind = get_shape_kind(popSTACK());
   Display *dpy;
-  Window  dest = get_window_and_display (STACK_6, &dpy);
-  int     kind = boundp(STACK_4) ? get_shape_kind(STACK_4) : ShapeBounding;
-  int    x_off = boundp(STACK_3) ? get_sint16(STACK_3) : 0;
-  int    y_off = boundp(STACK_2) ? get_sint16(STACK_2) : 0;
-  int       op = boundp(STACK_1) ? get_shape_operation(STACK_1) : ShapeSet;
-  int ordering = boundp(STACK_0) ? get_ordering(STACK_0) : Unsorted;
+  Window  dest = get_window_and_display (STACK_1, &dpy);
 
-  (void)ensure_shape_extension (dpy, get_display_obj (STACK_6), 1);
+  (void)ensure_shape_extension (dpy, get_display_obj (STACK_1), 1);
 
   /* Now we have to select on the second arg, which operation is
      actually wanted:
@@ -7203,19 +7202,19 @@ DEFUN(XLIB:SHAPE-COMBINE, destination source \
    FIXME: Should we emit an error message if we get keywords, which are
    not applicable? */
 
-  if (pixmap_p (STACK_5)) {
-    Pixmap src = get_pixmap (STACK_5);
+  if (pixmap_p (STACK_0)) {
+    Pixmap src = get_pixmap (STACK_0);
     XShapeCombineMask (dpy, dest, kind, x_off, y_off, src, op);
-  } else if (window_p (STACK_5)) {
+  } else if (window_p (STACK_0)) {
     /* FIXME -- a :source-kind keyword is missing here. */
-    Pixmap src = get_window (STACK_5);
+    Pixmap src = get_window (STACK_0);
     XShapeCombineShape(dpy,dest,kind,x_off,y_off,src,kind/*src_kind*/,op);
-  } else if (listp (STACK_5) || vectorp (STACK_5)) {
-    int i, nrectangles = get_uint32(funcall1(L(length),STACK_5));
+  } else if (listp (STACK_0) || vectorp (STACK_0)) {
+    int i, nrectangles = get_uint32(funcall1(L(length),STACK_0));
     DYNAMIC_ARRAY (rectangles, XRectangle, nrectangles);
 
     for (i = 0; i < nrectangles; i++) {
-      pushSTACK(STACK_5);     /* rectangles */
+      pushSTACK(STACK_0);     /* rectangles */
       pushSTACK(fixnum(i));   /* index */
       funcall (L(elt), 2);
       pushSTACK(value1);      /* save element */
@@ -7241,7 +7240,7 @@ DEFUN(XLIB:SHAPE-COMBINE, destination source \
   }
 
   VALUES1(NIL);
-  skipSTACK(7);                /* all done */
+  skipSTACK(2);                /* all done */
 }
 
 DEFUN(XLIB:SHAPE-OFFSET, destination kind x-offset y-offset)
