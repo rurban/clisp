@@ -68,9 +68,15 @@ install : install-bin install-man
 install-bin : $(fromdir)/lisp.run $(fromdir)/lispinit.mem force
 	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
 	if [ ! -d $(lisplibdir) ] ; then mkdir $(lisplibdir) ; fi
+	if [ ! -d $(lisplibdir)/full ] ; then mkdir $(lisplibdir)/full ; fi
+	rm -f $(lisplibdir)/lisp.run
 	$(INSTALL_PROGRAM) $(fromdir)/lisp.run $(lisplibdir)/lisp.run
 	rm -f $(lisplibdir)/lispinit.mem
 	$(INSTALL_DATA) $(fromdir)/lispinit.mem $(lisplibdir)/lispinit.mem
+	rm -f $(lisplibdir)/full/lisp.run
+	$(INSTALL_PROGRAM) $(fromdir)/full/lisp.run $(lisplibdir)/full/lisp.run
+	rm -f $(lisplibdir)/full/lispinit.mem
+	$(INSTALL_DATA) $(fromdir)/full/lispinit.mem $(lisplibdir)/full/lispinit.mem
 #ifdef GNU_GETTEXT
 	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
 	if [ ! -d $(localedir) ] ; then mkdir $(localedir) ; fi
