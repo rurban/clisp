@@ -15,7 +15,7 @@
 (defvar *debug-print-frame-limit* nil)
 
 
-;; Counter to avoid infinite recursion due to*error-output
+;; Counter to avoid infinite recursion due to *error-output*
 (defvar *recurse-count-error-output* 0)
 
 ;; Counter to avoid infinite recursion due to *debug-io*
@@ -398,12 +398,14 @@ Continue       :c      switch off single step mode, continue evaluation
           (write-string (ENGLISH "Unprintable error message.")
                         *error-output*))
         (sys::print-condition condition *error-output*)))
-    (symbol-stream '*debug-io* :io)
 
+    ;; Now the error message is on the screen; give the user some information
+    ;; how to continue from continuable errors.
+    (symbol-stream '*debug-io* :io)
     (when may-continue
       (if continuable
         (when interactive-p
-          (terpri *error-output*)
+          (terpri *debug-io*)
           (write-string (ENGLISH "You can continue (by typing 'continue').")
                         *debug-io*))
         (progn

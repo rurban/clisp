@@ -1,3 +1,7 @@
+2000-05-17  Bruno Haible  <haible@clisp.cons.org>
+
+        * reploop.lisp (break-loop): terpri to *debug-io*, not *error-output*.
+
 2000-05-16  Sam Steingold  <sds@gnu.org>
 
 	* reploop.lisp (break-loop): terpri *debug-io* even when it is
