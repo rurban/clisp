@@ -1,3 +1,18 @@
+2001-12-12  Sam Steingold  <sds@gnu.org>
+
+	simplify pathname directory lists
+	* pathname.d (subst_coerce_normal_ss, subst_up_dotdot): folded
+	into simplify_directory()
+	(simplify_directory): new function: coerce to normal simple
+	strings, replace ".." with :UP and collapse "foo/../"
+	(parse_logical_pathnamestring, PARSE-NAMESTRING, merge_dirs): call it
+	(subdir_namestring_parts): handle :UP
+	(directory_list_valid_p): extracted from MAKE-PATHNAME
+	(MAKE-PATHNAME): call simplify_directory() and
+	directory_list_valid_p();
+	Also: reverted the 2001-08-29 change: do NOT return a logical
+	pathname when defaults is logical, but `logical' is false
+
 2001-12-11  Sam Steingold  <sds@gnu.org>
 
 	* socket.d (socket_getlocalname): when not resolving, init
