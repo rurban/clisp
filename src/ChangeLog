@@ -1,3 +1,22 @@
+2002-05-18  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+	    Sam Steingold  <sds@gnu.org>
+
+	graceful disconnect and interruptible wait in win32
+	* stream.d (low_close_socket) [WIN32_NATIVE]: do not shutdown
+	a socket: shutdown does not respect the linger option.
+	To use shutdown for graceful disconnect, one should implement
+	a kind of protocol, i.e. shutdown SEND and wait for client
+	acknowledgment (client should support that protocol).
+	(SOCKET-WAIT) [WIN32_NATIVE]: use interruptible_wait()
+	(SOCKET-STREAM-SHUTDOWN): explicitly cast handle to stream
+	* socket.d (lingerize_socket): new function: set SO_LINGER to 30sec
+	(bindlisten_via_ip, connect_via_ip) [WIN32_NATIVE]: use it
+	* spvw.d (main) [WIN32_NATIVE]: call done_win32() to finalize sockets
+	* win32.d (done_win32, interruptible_wait): declare new functions
+	* win32aux.d (done_win32): new function: finalizes socket library
+	(do_wait): new thread function for DoInterruptible
+	(interruptible_wait): new global function
+
 2002-05-18  Sam Steingold  <sds@gnu.org>
 
 	kill src/gettext; POs are now in src/po

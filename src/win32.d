@@ -64,6 +64,7 @@
   extern Handle stdin_handle;  # see win32aux.d
   extern Handle stdout_handle; # see win32aux.d
   extern void init_win32 (void);
+  extern void done_win32 (void);
 # used by spvw.d, stream.d
 
 # Signal handling
@@ -241,6 +242,8 @@
   # Reading and writing from a socket
   extern int sock_read (SOCKET fd, void* buf, int nbyte);
   extern int sock_write (SOCKET fd, const void* buf, int nbyte);
+  # Interruptible wait
+  extern int interruptible_wait(SOCKET socket_handle,struct timeval * timeout_ptr);
   # Wrapping and unwrapping of a socket in a Lisp object
   #define allocate_socket(fd)  allocate_handle((Handle)(fd))
   #define TheSocket(obj)  (SOCKET)TheHandle(obj)
