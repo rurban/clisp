@@ -3871,19 +3871,31 @@ LISPFUNN(not_feature_reader,3) { # reads #-
 #             (if (consp args)
 #               (let ((name (first args)))
 #                 (if (symbolp name)
-#                   (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
-#                     (if desc
-#                       (if (svref desc 3)
+#                   (let ((class (get name 'CLOS::CLOSCLASS)))
+#                     (if (typep class clos::<structure-class>)
+#                       (if (clos::class-kconstructor class)
 #                         (values
-#                           (apply (svref desc 3) ; der Konstruktor
+#                           (apply (clos::class-kconstructor class)
 #                                  (structure-arglist-expand name (cdr args))
 #                         ) )
 #                         (error "~S: Structures of type ~S cannot be read (constructor function unknown)"
 #                                'read name
 #                       ) )
-#                       (error "~S: No structure of type ~S has been defined"
-#                              'read name
-#                   ) ) )
+#                       ; Support #S syntax also for defstruct types of :type
+#                       ; VECTOR or LIST. A CLISP extension.
+#                       (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+#                         (if desc
+#                           (if (svref desc 3)
+#                             (values
+#                               (apply (svref desc 3)
+#                                      (structure-arglist-expand name (cdr args))
+#                             ) )
+#                             (error "~S: Structures of type ~S cannot be read (constructor function unknown)"
+#                                    'read name
+#                           ) )
+#                           (error "~S: No structure of type ~S has been defined"
+#                                  'read name
+#                   ) ) ) ) )
 #                   (error "~S: The type of a structure must be a symbol, not ~S"
 #                          'read name
 #               ) ) )
@@ -4005,29 +4017,49 @@ LISPFUNN(structure_reader,3) { # reads #S
       pushSTACK(S(make_byte));
     }
     else {
-      # execute (GET name 'SYS::DEFSTRUCT-DESCRIPTION):
-      var object description = get(name,S(defstruct_description));
-      if (!boundp(description)) { /* nothing found? */
-        # Structure of this Type undefined
-        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-        pushSTACK(name);
-        pushSTACK(*stream_); # Stream
-        pushSTACK(S(read));
-        fehler(reader_error,
-               GETTEXT("~S from ~S: no structure of type ~S has been defined"));
+      var object constructor;
+      { # execute (GET name 'CLOS::CLOSCLASS):
+        var object clas = get(name,S(closclass));
+        if (boundp(clas)) {
+          # clas must be a <structure-class> instance:
+          if_classp(clas, {
+            if (srecord_length(TheClass(clas)) > built_in_class_length)
+              if (mconsp(TheClass(clas)->current_version)) {
+                # fetch constructor-function:
+                constructor = # (clos::class-kconstructor class)
+                  (&TheClass(clas)->current_version)[1];
+                goto found_constructor;
+              }
+          }, ; );
+        }
       }
-      # description must be a Simple-Vector of length >=5:
-      if (!(simple_vector_p(description) && (Svector_length(description) >= 6))) {
-        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-        pushSTACK(name);
-        pushSTACK(S(defstruct_description));
-        pushSTACK(*stream_); # Stream
-        pushSTACK(S(read));
-        fehler(reader_error,GETTEXT("~S from ~S: bad ~S for ~S"));
+      { # execute (GET name 'SYS::DEFSTRUCT-DESCRIPTION):
+        var object description = get(name,S(defstruct_description));
+        if (boundp(description)) {
+          # description must be a Simple-Vector of length >=6:
+          if (simple_vector_p(description) && (Svector_length(description) >= 6)) {
+            # fetch constructor-function:
+            constructor = # (svref description 3)
+              TheSvector(description)->data[3];
+            goto found_constructor;
+          } else {
+            pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+            pushSTACK(name);
+            pushSTACK(S(defstruct_description));
+            pushSTACK(*stream_); # Stream
+            pushSTACK(S(read));
+            fehler(reader_error,GETTEXT("~S from ~S: bad ~S for ~S"));
+          }
+        }
       }
-      # fetch constructor-function:
-      var object constructor = # (svref description 3)
-        TheSvector(description)->data[3];
+      # Structure of this Type undefined
+      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+      pushSTACK(name);
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(reader_error,
+             GETTEXT("~S from ~S: no structure of type ~S has been defined"));
+     found_constructor:
       if (nullp(constructor)) {
         pushSTACK(*stream_); # STREAM-ERROR slot STREAM
         pushSTACK(name);
@@ -8000,18 +8032,17 @@ local void pr_instance (const gcv_object_t* stream_, object obj) {
 #   (print-structure structure stream)
 # )
 # (defun print-structure (structure stream)
-#   (let ((description (get name 'DEFSTRUCT-DESCRIPTION)))
-#     (if description
-#       (let ((readable (svref description 3)))
+#   (let ((class (get name 'CLOS::CLOSCLASS)))
+#     (if class
+#       (let ((readable (clos::class-kconstructor class)))
 #         (write-string (if readable "#S(" "#<") stream)
 #         (prin1 name stream)
-#         (dolist (slot (svref description 3))
-#           (when (first slot)
-#             (write-char #\space stream)
-#             (prin1 (intern (symbol-name (first slot)) *KEYWORD-PACKAGE*) stream)
-#             (write-char #\space stream)
-#             (prin1 (%structure-ref name structure (second slot)) stream)
-#         ) )
+#         (dolist (slot (clos:class-slots class))
+#           (write-char #\space stream)
+#           (prin1 (intern (symbol-name (clos:slot-definition-name slot)) *KEYWORD-PACKAGE*) stream)
+#           (write-char #\space stream)
+#           (prin1 (%structure-ref name structure (slot:slot-definition-location slot)) stream)
+#         )
 #         (write-string (if readable ")" ">") stream)
 #       )
 #       (progn
@@ -8072,16 +8103,6 @@ local void pr_structure (const gcv_object_t* stream_, object structure) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local bool some_printable_slots (object slotlist) {
-  while (consp(slotlist)) {
-    var object slot = Car(slotlist);
-    if (instancep(slot) && (Srecord_length(slot) >= 8)
-        && !nullp(TheSlotDefinition(slot)->slotdef_initargs))
-      return true;
-    slotlist = Cdr(slotlist);
-  }
-  return false;
-}
 local void pr_structure_default (const gcv_object_t* stream_, object structure)
 {
   var object name = Car(TheStructure(structure)->structure_types);
@@ -8091,21 +8112,23 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure)
   var gcv_object_t* structure_ = &STACK_1;
   # it is  *(structure_ STACKop 0) = structure
   # and    *(structure_ STACKop -1) = name .
-  # execute (GET name 'SYS::DEFSTRUCT-DESCRIPTION) :
-  var object description = get(name,S(defstruct_description));
-  if (boundp(description)) { /* print structure with slot-name: */
-    pushSTACK(description);
-    # stack layout: structure, name, description.
-    # description must be a simple-vector of length >=5 !
-    if (!(simple_vector_p(description)
-          && (Svector_length(description) >= 6))) {
-    bad_description:
-      pushSTACK(S(defstruct_description));
+  # execute (GET name 'CLOS::CLOSCLASS) :
+  var object clas = get(name,S(closclass));
+  if (boundp(clas)) { /* print structure with slot-name: */
+    pushSTACK(clas);
+    # stack layout: structure, name, clas.
+    # clas must be an instance of <structure-class> !
+    if_classp(clas, ; , goto bad_clas; );
+    if (srecord_length(TheClass(clas)) <= built_in_class_length) goto bad_clas;
+    if (matomp(TheClass(clas)->current_version)) {
+     bad_clas:
       pushSTACK(S(print));
-      fehler(error,GETTEXT("~S: bad ~S"));
+      fehler(error,GETTEXT("~S: bad class"));
     }
-    var bool readable = # true if (svref description 3) /= NIL
-      !nullp(TheSvector(description)->data[3]);
+    var object constructor = # (clos::class-kconstructor class)
+      (&TheClass(clas)->current_version)[1];
+    var bool readable = # true if (clos::class-kconstructor class) /= NIL
+      !nullp(constructor);
     if (readable) { # print structure re-readably:
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
       KLAMMER_AUF;
@@ -8115,10 +8138,10 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure)
       CHECK_PRINT_READABLY(*structure_);
       UNREADABLE_START;
     }
-    pushSTACK(TheSvector(*(structure_ STACKop -2))->data[4]);
-    JUSTIFY_LAST(!some_printable_slots(STACK_0));
+    pushSTACK(TheClass(*(structure_ STACKop -2))->slots);
+    JUSTIFY_LAST(matomp(STACK_0));
     prin_object(stream_,*(structure_ STACKop -1)); # print name
-    # loop through slot-list STACK_0 = (svref description 4) :
+    # loop through slot-list STACK_0 = (clos:class-slots clas) :
     {
       var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
       var uintL length = 0; # previous length := 0
@@ -8127,38 +8150,35 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure)
         STACK_0 = Cdr(slot); # shorten list
         slot = Car(slot); # a single slot
         if (!(instancep(slot) && Srecord_length(slot) >= 8))
-          goto bad_description; /* should be a <structure-effective-slot-definition> */
-        # Test for real slot: (clos:slot-definition-initargs slot)
-        if (!nullp(TheSlotDefinition(slot)->slotdef_initargs)) { # see defstruct.lisp
-          pushSTACK(slot); # save slot
-          JUSTIFY_SPACE; # print Space
-          # check for attaining of *PRINT-LENGTH* :
-          CHECK_LENGTH_LIMIT(length >= length_limit,
-                             skipSTACK(1); # forget slot
-                             break);
-          # test for attaining of *PRINT-LINES* :
-          CHECK_LINES_LIMIT(skipSTACK(1);break);
-          JUSTIFY_LAST(!some_printable_slots(STACK_1));
-          var gcv_object_t* slot_ = &STACK_0; # there is the slot
-          JUSTIFY_START(0);
-          JUSTIFY_LAST(false);
-          write_ascii_char(stream_,':'); # keyword-mark
-          { # Print (symbol-name (clos:slot-definition-name slot)):
-            var object obj = TheSlotDefinition(*slot_)->slotdef_name;
-            if (!symbolp(obj)) goto bad_description;
-            pr_like_symbol(stream_,Symbol_name(obj)); # print symbolname of component
-          }
-          JUSTIFY_SPACE;
-          JUSTIFY_LAST(true);
-          # (SYS::%%STRUCTURE-REF name Structure (slot-definition-location slot)):
-          pushSTACK(*(structure_ STACKop -1)); # name as 1. Argument
-          pushSTACK(*(structure_ STACKop 0)); # Structure as 2. Argument
-          pushSTACK(TheSlotDefinition(*slot_)->slotdef_location); # (slot-definition-location slot) as 3. Argument
-          funcall(L(pstructure_ref),3);
-          prin_object(stream_,value1); # print component
-          JUSTIFY_END_FILL;
-          skipSTACK(1); # forget slot
+          goto bad_clas; /* should be a <structure-effective-slot-definition> */
+        pushSTACK(slot); # save slot
+        JUSTIFY_SPACE; # print Space
+        # check for attaining of *PRINT-LENGTH* :
+        CHECK_LENGTH_LIMIT(length >= length_limit,
+                           skipSTACK(1); # forget slot
+                           break);
+        # test for attaining of *PRINT-LINES* :
+        CHECK_LINES_LIMIT(skipSTACK(1);break);
+        JUSTIFY_LAST(matomp(STACK_1));
+        var gcv_object_t* slot_ = &STACK_0; # there is the slot
+        JUSTIFY_START(0);
+        JUSTIFY_LAST(false);
+        write_ascii_char(stream_,':'); # keyword-mark
+        { # Print (symbol-name (clos:slot-definition-name slot)):
+          var object obj = TheSlotDefinition(*slot_)->slotdef_name;
+          if (!symbolp(obj)) goto bad_clas;
+          pr_like_symbol(stream_,Symbol_name(obj)); # print symbolname of component
         }
+        JUSTIFY_SPACE;
+        JUSTIFY_LAST(true);
+        # (SYS::%%STRUCTURE-REF name Structure (slot-definition-location slot)):
+        pushSTACK(*(structure_ STACKop -1)); # name as 1. Argument
+        pushSTACK(*(structure_ STACKop 0)); # Structure as 2. Argument
+        pushSTACK(TheSlotDefinition(*slot_)->slotdef_location); # (slot-definition-location slot) as 3. Argument
+        funcall(L(pstructure_ref),3);
+        prin_object(stream_,value1); # print component
+        JUSTIFY_END_FILL;
+        skipSTACK(1); # forget slot
       }
     }
     skipSTACK(1);
@@ -8399,7 +8419,7 @@ local void pr_record_descr (const gcv_object_t* stream_, object obj,
     pushSTACK(*(obj_ STACKop -2));
     JUSTIFY_LAST(matomp(STACK_0));
     prin_object(stream_,*(obj_ STACKop -1)); # print name
-    # loop over slot-list STACK_0 = (svref description 3) :
+    # loop over slot-list STACK_0 :
     {
       var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
       var uintL length = 0; # previous length := 0

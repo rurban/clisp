@@ -154,8 +154,9 @@
            (eval `(FUNCTION
                    (LAMBDA ,vars
                     (DECLARE (COMPILE))
-                    ,(if (and (setq h (get class 'sys::defstruct-description))
-                              (setq h (svref h 3)))
+                    ,(if (and (setq h (get class 'clos::closclass))
+                              (typep h clos::<structure-class>)
+                              (setq h (clos::class-kconstructor h)))
                          ;; h is the keyword constructor for the structure
                          `(,h ,@(mapcan #'(lambda (s v)
                                             (list (intern (symbol-name s) compiler::*keyword-package*)
