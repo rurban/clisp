@@ -35,6 +35,9 @@
 #endif
 
 #if defined (HAVE_SELECT)
+#  if defined (__BEOS__)
+#    include <sys/socket.h>
+#  endif
 #  include <sys/time.h>
 #endif /* HAVE_SELECT */
 #if defined (HAVE_SYS_SELECT_H)
