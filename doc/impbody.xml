@@ -3384,8 +3384,8 @@ pointing to non-existent files and can take the following values:
  you will need to open the standard input in the binary mode:
 <programlisting>
 (let ((buf (&make-array; (&parse-integer; (&getenv; "CONTENT_LENGTH"))
-                       :element-type &unsigned-byte-8;)))
-  (&with-open-stream; (in (&make-stream; &input-k; &eltype; &unsigned-byte-8;))
+                       :element-type '&unsigned-byte-8;)))
+  (&with-open-stream; (in (&make-stream; &input-k; &eltype; '&unsigned-byte-8;))
     (&read-sequence; buf in))
   buf)
 </programlisting></para>
@@ -3426,10 +3426,10 @@ pointing to non-existent files and can take the following values:
 <para>The function <literal role="sexp">(&rd-integer; &stream-r;
     &eltype-r; &optional-amp; &endianness; &eof-ep; &eof-v;)</literal>
  reads a multi-byte &integer-t; from &stream-r;.
- &stream-r; should be a stream with &stream-element-type;
+ &stream-r; should be a &stream-t; with &stream-element-type;
  &unsigned-byte-8;.
- &eltype-r; should be &type-eq; to &unsigned-byte-n;, where
- &n-r; is a multiple of 8.</para>
+ &eltype-r; should be &type-eq; to &unsigned-byte-n;,
+ where &n-r; is a multiple of 8.</para>
 
 <para><literal role="sexp">(&rd-integer; &stream-r;
  &eltype-r;)</literal> is like <literal role="sexp">(&read-byte;
