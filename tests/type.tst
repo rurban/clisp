@@ -438,3 +438,23 @@ otherwise
 
 (typecase 'foo (otherwise :wrong) (symbol :right) (t :wrong2))
 :right
+
+;; <http://www.lisp.org/HyperSpec/Body/speope_the.html>
+(the fixnum (+ 5 7)) 12
+(multiple-value-list (the (values) (truncate 3.2 2))) (1 1.2)
+(multiple-value-list (the integer (truncate 3.2 2)))  (1 1.2)
+(multiple-value-list (the (values integer) (truncate 3.2 2)))       (1 1.2)
+(multiple-value-list (the (values integer float) (truncate 3.2 2))) (1 1.2)
+(multiple-value-list (the (values integer float symbol) (truncate 3.2 2)))
+(1 1.2)
+(multiple-value-list (the (values integer float symbol t null list)
+                       (truncate 3.2 2)))
+(1 1.2)
+(let ((i 100)) (declare (fixnum i)) (the fixnum (1+ i)))
+101
+(let* ((x (list 'a 'b 'c)) (y 5))
+  (setf (the fixnum (car x)) y)
+  x)
+(5 B C)
+(the (values) 'a) A
+(multiple-value-list (the (values &rest symbol) (values 'a 'b))) (A B)
