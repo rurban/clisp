@@ -3203,10 +3203,9 @@ only.</subtitle>
  <listitem><simpara>This constructor creates a &foreign-function-t;
    from the given &foreign-address-t; or &foreign-function-t; and the
    internal &c-lang; type descriptor (as obtained from
-   <literal role="sexp">(&parse-c-type; '(&c-function; ...))</literal>, in
-   which case it is important to specify the &lang-k; because the expressions
-   is likely to be evaluated at run-time, outside a <ulink
-   url="&clhs;/Body/glo_c.html#compilation_unit">compilation unit</ulink>).
+   <literal role="sexp">(&parse-c-type; '(&c-function; ...))</literal>,
+   in which case it is important to specify the &lang-k; because the
+   expressions is likely to be evaluated at run-time, outside the &comp-unit;).
    &name-r;, a &string-t;, is mostly useful for documentation and
    interactive debugging since it appears in the printed representation
    of the &foreign-function-t; object, as in <literal
@@ -3620,9 +3619,8 @@ and possibly the calling convention.</para>
 
 <para>The default language is set using the macro
  <function>FFI:DEFAULT-FOREIGN-LANGUAGE</function>.
-If this macro has not been called in the current
- <ulink url="&clhs;/Body/glo_c.html#compilation_unit">compilation
-unit</ulink> (usually a file), a warning is issued and
+If this macro has not been called in the current &comp-unit;
+ (usually a file), a warning is issued and
 &stdc-k; is used for the rest of the unit.</para></section>
 
 <section id="dffi-variables"><title>Foreign variables</title>
