@@ -1,5 +1,13 @@
 2004-03-27  Bruno Haible  <bruno@clisp.org>
 
+	ANSI CL compliance: DEFGENERIC must remove methods defined in the
+	previous DEFGENERIC form.
+	* clos.lisp (standard-method): Add slot 'origin'.
+	(analyze-method-description): Add value for :ORIGIN.
+	(do-defgeneric): Remove old methods that came from a DEFGENERIC form.
+
+2004-03-27  Bruno Haible  <bruno@clisp.org>
+
 	ANSI CL compliance: Improved argument list checking.
 	* record.d (check_keywords): Remove macro.
 	(check_initialization_argument_list): New function.
