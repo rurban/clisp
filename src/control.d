@@ -2228,10 +2228,18 @@ local bool form_constant_p (object form) {
     var object head = Car(form);
     if (eq(head,S(quote))) return true;
     if (!funnamep(head)) return false;  /* what's this form? */
-    /* head is funname ==> funname_to_symbol() will _NOT_ cons! */
-    var object fdef = Symbol_function(funname_to_symbol(head));
+    /* cf. funname_to_symbol */
+    var object fdef = head;
+    if (!symbolp(fdef))
+      /* (get ... 'SYS::SETF-FUNCTION) */
+      fdef = get(Car(Cdr(fdef)),S(setf_function));
+    if (!symbolp(fdef))
+      /* Use of (setf foo) before it's defined. */
+      return false;
+    fdef = Symbol_function(fdef);
     if ((cclosurep(fdef) && (Cclosure_seclass(fdef) == seclass_foldable))
         || (subrp(fdef) && (TheSubr(fdef)->seclass == seclass_foldable))) {
+      check_SP();
       loop {
         form = Cdr(form);
         if (nullp(form)) return true;  /* list is over */
@@ -2263,7 +2271,10 @@ LISPFUNNR(function_side_effect,1)
     fdef = Car(Cdr(fdef));
   if (funnamep(fdef)) {
     name = fdef;
-    fdef = funname_to_symbol(fdef);  /* cannot trigger GC here! */
+    /* cf. funname_to_symbol */
+    if (!symbolp(fdef))
+      /* (get ... 'SYS::SETF-FUNCTION) */
+      fdef = get(Car(Cdr(fdef)),S(setf_function));
   }
   if (symbolp(fdef))
     fdef = Symbol_function(fdef);

@@ -1,5 +1,12 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* control.d (form_constant_p): Inline the useful part of
+	funname_to_symbol. Handle the case of an undefined function (setf foo).
+	Call check_SP.
+	(FUNCTION-SIDE-EFFECT): Inline the useful part of funname_to_symbol.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (stream_get_read_eval, stream_set_read_eval): Use the
 	forwarded instance for the access. Fixes bug introduced on 2004-04-12.
 
