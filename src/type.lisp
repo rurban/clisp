@@ -763,12 +763,25 @@
       (and (consp hilo) (null (cdr hilo))
            (funcall test (car hilo)))))
 
-(defun interval-mix (lo1 hi1 lo2 hi2 head)
-  "join (and/or) intervals; when disjoint or not intersecting, return nil"
+(defun interval-mix (lo1 hi1 lo2 hi2 type head)
+  "join (and/or) intervals; when disjoint or not intersecting, return nil
+head: AND/OR: (head (real lo1 hi1) (real lo2 hi2))"
   ;; (int [lo1 hi1] [lo2 hi2]) ==
   ;; (int [lo1 *] [* hi1] [lo2 *] [* hi2]) ==
   ;; (int [(max lo1 lo2) *] [* (min hi1 h2)]) ==
   ;; [(max lo1 lo2) (min hi1 hi2)]
+  (when (eq type 'INTEGER)
+    (case head
+      ((AND) ; make boundaries inclusive
+       (when (consp lo1) (setq lo1 (1+ (car lo1))))
+       (when (consp hi1) (setq hi1 (1- (car hi1))))
+       (when (consp lo2) (setq lo2 (1+ (car lo2))))
+       (when (consp hi2) (setq hi2 (1- (car hi2)))))
+      ((OR) ; make boundaries exclusive
+       (when (integerp lo1) (setq lo1 (list (1- lo1))))
+       (when (integerp hi1) (setq hi1 (list (1+ hi1))))
+       (when (integerp lo2) (setq lo2 (list (1- lo2))))
+       (when (integerp hi2) (setq hi2 (list (1+ hi2)))))))
   (let* ((le1 (consp lo1)) (ln1 (if le1 (car lo1) lo1))
          (le2 (consp lo2)) (ln2 (if le2 (car lo2) lo2))
          (he1 (consp hi1)) (hn1 (if he1 (car hi1) hi1))
@@ -803,6 +816,101 @@
              ;; the interval union is an interval too
              (values bot top))))))))
 
+(defun interval-mix-not (yy nl nh)
+  "(and yy (not (real nl nh)))"
+  (let* ((nle (consp nl)) (nln (if nle (car nl) nl))
+         (nhe (consp nh)) (nhn (if nhe (car nh) nh))
+         (n1 (if (eq nln '*) nil `(,(car yy) * ,(if nle nln `(,nln)))))
+         (n2 (if (eq nhn '*) nil `(,(car yy) ,(if nhe nhn `(,nhn)) *))))
+    (canonicalize-type `(or (and ,yy ,n1) (and ,yy ,n2)))))
+
+(defun simplify-and-or (head ta1 ta2 &aux (t1 (car ta1)) (t2 (car ta2)))
+  "simplify (head t1 t2)"
+  (when (and (eq head 'AND)
+             (or (subtypep t1 `(not ,t2))
+                 (subtypep t2 `(not ,t1))))
+    ;; (AND disjoint types) ==> NIL
+    (return-from simplify-and-or nil))
+  (when (and (eq head 'OR)
+             (or (subtypep `(not ,t2) t1)
+                 (subtypep `(not ,t1) t2)))
+    ;; (OR complementary types) ==> T
+    (return-from simplify-and-or t))
+  ;; eliminate redredundant redundancies
+  (cond ((subtypep t1 t2)
+         (case head
+           (AND (setf (car ta2) t))
+           (OR (setf (car ta1) nil)))
+         (return-from simplify-and-or head))
+        ((subtypep t2 t1)
+         (case head
+           (AND (setf (car ta1) t))
+           (OR (setf (car ta2) nil)))
+         (return-from simplify-and-or head))
+        ((and (consp t1) (consp t2)
+              (eq (car t1) (car t2)))
+         ;; what about (and (integer 1 10) (real 1.5 6.4)) ?!
+         (case (car t1)
+           ((REAL INTEGER RATIONAL FLOAT SHORT-FLOAT
+             SINGLE-FLOAT DOUBLE-FLOAT LONG-FLOAT)
+            (multiple-value-bind (top bot)
+                (interval-mix (second t1) (third t1) (second t2) (third t2)
+                              (car t1) head)
+              (if top
+                (progn
+                  (setf (car ta1) `(,(car t1) ,top ,bot)
+                        (car ta2) `(,head))
+                  (return-from simplify-and-or head))
+                (when (eq head 'and)
+                  (return-from simplify-and-or nil))))))))
+  (when (and (consp t1) (eq (car t1) 'MEMBER)
+             (consp t2) (eq (car t2) 'MEMBER))
+    (case head
+      ((AND) (setf (car ta1) (cons 'member (intersection (cdr t1) (cdr t2)))))
+      ((OR) (setf (car ta1) (cons 'member (union (cdr t1) (cdr t2))))))
+    (setf (car ta2) `(,head))
+    (return-from simplify-and-or head))
+  ;; wrong!
+  ;;(when (and (consp t1) (eq (car t1) 'CONS)
+  ;;           (consp t2) (eq (car t2) 'CONS))
+  ;;  (setf (car ta1)
+  ;;        `(CONS ,(canonicalize-type `(,head ,(second t1) ,(second t2)))
+  ;;               ,(canonicalize-type `(,head ,(third t1) ,(third t2))))
+  ;;        (car ta2) `(,head))
+  ;;  (return-from simplify-and-or head))
+  (let (yy nn hh)
+    (when (and (eq head 'and) (consp t1) (consp t2)
+               (or (and (eq (car t1) 'NOT)
+                        (consp (second t1))
+                        (eq (car (second t1)) (car t2))
+                        (setq yy t2 nn (second t1)
+                              hh (car t2)))
+                   (and (eq (car t2) 'NOT)
+                        (consp (second t2))
+                        (eq (car (second t2)) (car t1))
+                        (setq yy t1 nn (second t2)
+                              hh (car t1))))
+               (memq hh '(REAL INTEGER RATIONAL FLOAT SHORT-FLOAT
+                          SINGLE-FLOAT DOUBLE-FLOAT LONG-FLOAT)))
+      ;; (and (real ? ?) (not (real ? ?))) ==>
+      ;; (or (real ? ?) (real ? ?))
+      (setf (car ta1) (interval-mix-not yy (second nn) (third nn))
+            (car ta2) `(,head))
+      (return-from simplify-and-or head)))
+  (when (eq head 'and)
+    ;; (and class1 class2) ==>
+    ;; (or common subclasses of class1 and class2)
+    (if (and (clos::class-p t1) (clos::class-p t2))
+        `(or ,(clos::class-and t1 t2))
+        (let ((c1 (type-class t1)) (c2 (type-class t2)))
+          (when (or (and (clos::class-p c1) (clos::class-p c2)
+                         (null (clos::class-and c1 c2)))
+                    (and (clos::class-p c1) (symbolp c2))
+                    (and (clos::class-p c2) (symbolp c1)))
+            (return-from simplify-and-or nil)))))
+  ;; can do nothing!
+  head)
+
 ;;; SUBTYPEP, the provisional version
 (defvar *canonicalize-type-prefer-clos* nil)
 (defun canonicalize-type (type &optional (*canonicalize-type-prefer-clos*
@@ -815,7 +923,7 @@
            (ATOM '(NOT CONS))
            (BASE-CHAR #+BASE-CHAR=CHARACTER 'CHARACTER
                       #-BASE-CHAR=CHARACTER '(AND CHARACTER (SATISFIES BASE-CHAR-P)))
-           (BIGNUM '(AND INTEGER (NOT FIXNUM)))
+           (BIGNUM  '(AND INTEGER (NOT FIXNUM)))
            (BIT '(INTEGER 0 1))
            (BOOLEAN '(MEMBER NIL T))
            (EXTENDED-CHAR #+BASE-CHAR=CHARACTER '(OR) ; NIL
@@ -863,14 +971,23 @@
         ((and (consp type) (symbolp (setq head (first type))))
          (case head
            (MEMBER ; (MEMBER &rest objects)
-            (if (null (rest type)) '(OR) type))
+            (if (null (rest type)) '(OR)
+              (let* ((new-rest (remove-duplicates (rest type)))
+                     (same-p (eq new-rest (rest type))))
+                (if (every #'integerp new-rest)
+                  ;; (member 1 2 3 4 5) ==> (integer 1 5)
+                  (do* ((sorted (sort (if same-p (copy-list new-rest) new-rest)
+                                      #'<))
+                        (ta sorted (cdr ta)) (pos (car sorted) (1+ pos)))
+                       ((endp ta) (list 'INTEGER (car sorted) (1- pos)))
+                    (unless (= pos (car ta)) (return (cons 'MEMBER sorted))))
+                  (if same-p type (cons 'MEMBER new-rest))))))
            (EQL ; (EQL object)
             `(MEMBER ,(second type)))
            ((AND OR) ; (AND type*), (OR type*) - may be able to simplify
             (if (null (cdr type)) type ; itself: (or), (and)
               (let ((terms (delete-duplicates
-                            (mapcar #'canonicalize-type (rest type))
-                            :test #'equal)))
+                            (mapcar #'canonicalize-type (rest type)))))
                 (cond ((null (cdr terms)) (car terms)) ; (or type), (and type)
                       ((and (eq head 'and) ; (and ... nil ...) => nil
                             (member '(or) terms :test #'equal))
@@ -885,62 +1002,21 @@
                                          (if (and (consp ty)
                                                   (eq (first ty) head))
                                              (rest ty) (list ty)))
-                                       terms)
-                               :test #'equal)))
-                         (do ((ta1 new-rest (cdr ta1)) t1) ((endp ta1))
-                           (setq t1 (car ta1))
-                           (do ((ta2 (cdr ta1) (cdr ta2)) t2) ((endp ta2))
-                             (setq t2 (car ta2))
-                             ;; can we simplify this combination?
-                             (when (and (eq head 'and)
-                                        (or (subtypep t1 `(not ,t2))
-                                            (subtypep t2 `(not ,t1))))
-                               ;; (AND disjoint types) ==> NIL
-                               (return-from canonicalize-type '(OR)))
-                             ;; eliminate redredundant redundancies
-                             (cond ((subtypep t1 t2)
-                                    (case head
-                                      (AND (setf (car ta2) t))
-                                      (OR (setf (car ta1) nil))))
-                                   ((subtypep t2 t1)
-                                    (case head
-                                      (AND (setf (car ta1) t))
-                                      (OR (setf (car ta2) nil))))
-                                   ((and (consp t1) (consp t2)
-                                         (eq (car t1) (car t2)))
-                                    (case (car t1)
-                                      ((REAL INTEGER RATIONAL FLOAT SHORT-FLOAT
-                                        SINGLE-FLOAT DOUBLE-FLOAT LONG-FLOAT)
-                                       (multiple-value-bind (top bot)
-                                           (interval-mix (second t1) (third t1)
-                                                         (second t2) (third t2)
-                                                         head)
-                                         (if top
-                                           (setf (cdr t1) `(,top ,bot)
-                                                 (car ta2) `(,head))
-                                           (when (eq head 'and)
-                                             (return-from canonicalize-type
-                                               '(OR)))))))))
-                             (when (eq head 'and)
-                               (let ((c1 (type-class t1)) (c2 (type-class t2)))
-                                 ;; FIXME: remember the list of subclasses for
-                                 ;; all classes and check them here!
-                                 (when (or (and (clos::class-p c1)
-                                                (clos::class-p c2)
-                                                (null (clos::class-and c1 c2)))
-                                           (and (clos::class-p c1)
-                                                (symbolp c2))
-                                           (and (clos::class-p c2)
-                                                (symbolp c1)))
-                                   (return-from canonicalize-type '(OR)))))))
+                                       terms))))
+                         (do ((ta1 new-rest (cdr ta1))) ((endp ta1))
+                           (do ((ta2 (cdr ta1) (cdr ta2))) ((endp ta2))
+                             (case (simplify-and-or head ta1 ta2)
+                               ((NIL) (return-from canonicalize-type '(OR)))
+                               ((T) (return-from canonicalize-type '(AND))))))
                          (if (equal new-rest (rest type)) type
                            (canonicalize-type
                             (cons head new-rest)))))))))
            (NOT                 ; (NOT type)
+            (when (cddr type) (typespec-error 'subtypep type))
             (let ((not-type (canonicalize-type (second type))))
               (cond ((and (consp not-type) (eq (car not-type) 'NOT))
                      (second not-type)) ; (NOT (NOT A)) ==> A
-                    ((and (consp not-type) (member (car not-type) '(AND OR))
+                    ((and (consp not-type) (memq (car not-type) '(AND OR))
                           (null (cdr not-type))) ; i.e., '(AND) or '(OR)
                      ;; this might not be good
                      ;; (NOT (AND A B)) ==> (OR (NOT A) (NOT B))
@@ -1006,6 +1082,9 @@
               (unless (and (valid-interval-designator-p lo test)
                            (valid-interval-designator-p hi test))
                 (typespec-error 'subtypep type))
+              (when (eq head 'INTEGER) ; ==> (integer low high)
+                (when (consp hi) (setq hi (1- (car hi))))
+                (when (consp lo) (setq lo (1+ (car lo)))))
               `(,head ,lo ,hi)))
            ((CONS)
             (let ((car (if (consp (cdr type)) (canonicalize-type (cadr type))
@@ -1051,9 +1130,10 @@
     (setq type2 (canonicalize-type type2))
     ;; canonicalize-type: T ==> (AND),  NIL ==> (OR)
     (when (or (equal '(OR) type1) (equal '(AND) type2)) (yes))
-    (when (equal type1 type2) (yes)) ; (subtypep type type) always true
-                                     ; equal on MEMBER and EQL is forbidden!!??
-    (when (equal '(OR) type2) (no))
+    (when (eql type1 type2) (yes)) ; (subtypep type type) always true
+    (when (equal '(OR) type2)
+      (if (and (consp type1) (memq (car type1) '(AND MEMBER NOT OR SATISFIES)))
+          (unknown) (no)))
     (when (consp type1)
       (cond ;; über SATISFIES-Typen kann man nichts aussagen
             ;((and (eq (first type1) 'SATISFIES) (eql (length type1) 2))
@@ -1253,7 +1333,7 @@
                      t
                 )) )
                 ((not integer-flag1) (no))
-                ((and (symbolp type2) (not (member type2 '(COMPLEX REAL INTEGER RATIONAL FLOAT SHORT-FLOAT SINGLE-FLOAT DOUBLE-FLOAT LONG-FLOAT)))) (no))
+                ((and (symbolp type2) (not (memq type2 '(COMPLEX REAL INTEGER RATIONAL FLOAT SHORT-FLOAT SINGLE-FLOAT DOUBLE-FLOAT LONG-FLOAT)))) (no))
                 (t (unknown))
       ) ) )
       (CONS
