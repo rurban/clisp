@@ -1,3 +1,13 @@
+2002-08-01  Sam Steingold  <sds@gnu.org>
+
+	cygwin: understand win32 "c:" pathnames
+	* pathname.d (PARSE-NAMESTRING) [UNIX_CYGWIN32]: use
+	*DEVICE-PREFIX* to parse "c:/gnu/" --> "/cygdrive/c/gnu/"
+	* constsym.d (*DEVICE-PREFIX*) [UNIX_CYGWIN32]: added
+	* spvw.d (init_symbol_values) [UNIX_CYGWIN32]: defvar *DEVICE-PREFIX*
+	* makemake.in [UNIX_CYGWIN32]: better cygwin32 canonicalization;
+	less special treatment; add SETQ *DEVICE-PREFIX* to config.lisp
+
 2002-07-31  Sam Steingold  <sds@gnu.org>
 
 	* utils/ccmp2c.c, utils/modprep.c: added
@@ -4538,11 +4548,11 @@
 2001-07-25  Sam Steingold  <sds@gnu.org>
 
 	Win32: understand Cygwin's /cygdrive/[letter] pathnames
-	* pathname.d (parse_namestring): translate :directory (:absolute
-	*device-prefix* "c" ...) to :device "C" :device (:absolute ...)
+	* pathname.d (parse_namestring): translate :DIRECTORY (:ABSOLUTE
+	*DEVICE-PREFIX* "c" ...) to :DEVICE "C" :DIRECTORY (:ABSOLUTE ...)
 	* cfgwin32.lisp (*device-prefix*): set to "cygdrive"
 	* constsym.lisp (*device-prefix*): added
-	* spvw.d (*device-prefix*): defined
+	* spvw.d (init_symbol_values): defvar *DEVICE-PREFIX*
 	* spvw_memfile.d (loadmem): check the path for "cygdrive" prefix
 	and modify it if necessary in place
 

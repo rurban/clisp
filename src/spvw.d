@@ -1238,7 +1238,7 @@ local void init_symbol_values (void) {
   define_variable(S(parse_namestring_dot_file),S(Ktype)); # CUSTOM:*PARSE-NAMESTRING-DOT-FILE*
  #endif
   define_variable(S(deftype_depth_limit),NIL);    # CUSTOM:*DEFTYPE-DEPTH-LIMIT*
- #ifdef WIN32_NATIVE
+ #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
   define_variable(S(device_prefix),NIL); # CUSTOM:*DEVICE-PREFIX*
  #endif
   # for EVAL:

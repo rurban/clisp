@@ -2476,6 +2476,20 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
         } else
      #endif /* PATHNAME_UNIX & 0 */
      #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+      #if defined(UNIX_CYGWIN32)
+        if (z.count > 1 && !nullp(Symbol_value(S(device_prefix)))
+            && chareq(schar(STACK_2,z.index+1),ascii(':'))) {
+          /* if string starts with 'x:', treat it as a device */
+          var chart ch = down_case(schar(STACK_2,z.index));
+          if ((as_cint(ch) >= 'a') && (as_cint(ch) <= 'z')) {
+            Car(STACK_0) = allocate_string(1);
+            TheSstring(Car(STACK_0))->data[0] = ch;
+            Z_SHIFT(z,2);
+            if (Z_AT_SLASH(z,slashp,STACK_2)) Z_SHIFT(z,1);
+          } else goto continue_parsing_despite_semicolon;
+        } else
+        continue_parsing_despite_semicolon:
+      #endif
         # if 1st char is a slash, start with :ABSOLUTE (otherwise :RELATIVE):
         if (Z_AT_SLASH(z,slashp,STACK_2)) {
           Z_SHIFT(z,1);
@@ -2698,6 +2712,17 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
         Cdr(dir) = Cdr(Cdr(Cdr(dir)));
         device = string_upcase(device);
         ThePathname(STACK_0)->pathname_device = device;
+      }
+     #endif
+     #ifdef UNIX_CYGWIN32
+      var object dir = ThePathname(STACK_0)->pathname_directory;
+      if (consp(dir) && stringp(Car(dir))) {
+        /* dir = ("c" ...) --> (:absolute *device-prefix* "c" ...)*/
+        pushSTACK(S(Kabsolute));
+        pushSTACK(Symbol_value(S(device_prefix)));
+        dir = listof(2);
+        Cdr(Cdr(dir)) = ThePathname(STACK_0)->pathname_directory;
+        ThePathname(STACK_0)->pathname_directory = dir;
       }
      #endif
       ThePathname(STACK_0)->pathname_directory =
@@ -4312,7 +4337,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,
       if (!directory_list_valid_p(logical,directory))
         goto directory_bad;
       else
-          goto directory_ok;
+        goto directory_ok;
     }
    #ifdef LOGICAL_PATHNAMES
     else if (logical) {
