@@ -678,6 +678,17 @@
   (let ((previous (%change-class instance new-class)))
     ;; previous = a copy of instance
     ;; instance = mutated instance, with new class, slots unbound
+    ;; When the instance was used in an EQL specializer, the instance
+    ;; could be used as index in a generic function's dispatch table. Need
+    ;; to invalidate all the affected generic functions' dispatch tables.
+    (let ((specializer (existing-eql-specializer instance)))
+      (when specializer
+        (dolist (gf (specializer-direct-generic-functions specializer))
+          (when (typep-class gf <standard-generic-function>)
+            ;; Clear the discriminating function.
+            ;; The effective method cache does not need to be invalidated.
+            #|(setf (std-gf-effective-method-cache gf) '())|#
+            (finalize-fast-gf gf)))))
     ;; Copy identically named slots:
     (let ((old-slots (class-slots (class-of previous)))
           (new-slots (class-slots new-class)))

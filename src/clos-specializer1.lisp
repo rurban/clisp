@@ -161,6 +161,12 @@
               (make-instance-<eql-specializer> <eql-specializer>
                 'singleton object)))))
 
+;; Returns the eql-specializer for the given object only if it already exists,
+;; otherwise nil.
+(defun existing-eql-specializer (object)
+  (let ((table (if (numberp object) *eql-specializer-table* *eq-specializer-table*)))
+    (gethash object table)))
+
 ;; MOP p. 52
 (defun eql-specializer-object (specializer)
   (eql-specializer-singleton specializer))

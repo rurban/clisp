@@ -1,5 +1,10 @@
 2004-11-07  Bruno Haible  <bruno@clisp.org>
 
+	* clos.tst: Add a test for notification of generic functions from
+	change-class.
+
+2004-11-07  Bruno Haible  <bruno@clisp.org>
+
 	* mop.tst: Add test for notification upon change-class of a
 	generic-function.
 
