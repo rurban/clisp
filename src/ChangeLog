@@ -1,3 +1,8 @@
+2002-02-11  Sam Steingold  <sds@gnu.org>
+
+	fixed the (compile nil (lambda () (flet (())))) bug
+	* compiler.lisp (symbol-suffix): use just the suffix for NIL funname
+
 2002-02-5  Sam Steingold  <sds@gnu.org>
 
 	* foreign1.lisp, affi1.lisp: moved *FOREIGN-ENCODING* to the
