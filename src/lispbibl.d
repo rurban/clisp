@@ -19,6 +19,7 @@
 #     DYNAMIC_MODULES
 #   Safety level:
 #     SAFETY={0,1,2,3}
+#     DEBUG_GCSAFETY
 # Flags that may be set through CFLAGS, in order to override the defaults:
 #   Object representation (on 32-bit platforms only):
 #     TYPECODES, NO_TYPECODES, WIDE
@@ -2290,6 +2291,29 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 
 # ######################## LISP-objects in general ######################### #
 
+#if defined(DEBUG_GCSAFETY)
+  #ifndef __cplusplus
+    #error "DEBUG_GCSAFETY works only with a C++ compiler! Reconfigure with CC=g++."
+  #endif
+  #if defined(WIDE_SOFT) || defined(WIDE_AUXI)
+    #error "DEBUG_GCSAFETY cannot be used together with WIDE_SOFT or WIDE_AUXI (not yet implemented)!"
+  #endif
+  # The 'gcv_object_t' and 'object' types share the major part of their innards.
+  #ifndef OBJECT_STRUCT
+    #define OBJECT_STRUCT
+  #endif
+#endif
+
+# The type 'object' denotes an object in registers or in memory that is
+# not seen by the GC.
+
+# The type `gcv_object_t' denotes a GC visible object, i.e. a slot inside
+# a heap-allocated object or a STACK slot. If its value is not an immediate
+# object, any call that can trigger GC can modify the pointer value.
+# NEVER write "var gcv_object_t foo;" - this is forbidden!
+# You can write "var gcunsafe_object_t foo;" instead - but then you must not
+# trigger GC during the entire lifetime of the variable 'foo'!
+
 #if !defined(WIDE_SOFT)
 
   # An object pointer is an empty pointer to begin with (so you cannot do
@@ -2298,28 +2322,25 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     # Make room for an auxiliary word in every object.
     # The struct around the union is needed to work around a gcc-2.95 bug.
     #if BIG_ENDIAN_P
-      #define TYPEDEF_OBJECT \
-        typedef  struct {                                 \
-          union {                                         \
-            struct { uintP auxi_ob; uintP one_ob; } both; \
-            oint align_o _attribute_aligned_object_;      \
-          } u;                                            \
-        } object;
+      #define INNARDS_OF_GCV_OBJECT  \
+        union {                                         \
+          struct { uintP auxi_ob; uintP one_ob; } both; \
+          oint align_o _attribute_aligned_object_;      \
+        } u;
     #else
-      #define TYPEDEF_OBJECT \
-        typedef  struct {                                 \
-          union {                                         \
-            struct { uintP one_ob; uintP auxi_ob; } both; \
-            oint align_o _attribute_aligned_object_;      \
-          } u;                                            \
-        } object;
+      #define INNARDS_OF_GCV_OBJECT  \
+        union {                                         \
+          struct { uintP one_ob; uintP auxi_ob; } both; \
+          oint align_o _attribute_aligned_object_;      \
+        } u;
     #endif
     #define one_o  u.both.one_ob
     #define auxi_o  u.both.auxi_ob
   #elif defined(OBJECT_STRUCT)
-    typedef struct { uintP one_o; } object;
+    #define INNARDS_OF_GCV_OBJECT  \
+      uintP one_o;
   #else
-    typedef  void *  object;
+    typedef  void *  gcv_object_t;
   #endif
   # But there is an address and type bits in the representation.
 
@@ -2340,40 +2361,38 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #ifdef WIDE_STRUCT
     # The struct around the union is needed to work around a gcc-2.95 bug.
     #if BIG_ENDIAN_P==WIDE_ENDIANNESS
-      #define TYPEDEF_OBJECT                                               \
-        typedef  struct {                                                  \
-          union {                                                          \
-            struct { /* tint */ uintL type; /* aint */ uintL addr; } both; \
-            oint one_u _attribute_aligned_object_;                         \
-          } u;                                                             \
-        } object;
+      #define INNARDS_OF_GCV_OBJECT                                      \
+        union {                                                          \
+          struct { /* tint */ uintL type; /* aint */ uintL addr; } both; \
+          oint one_u _attribute_aligned_object_;                         \
+        } u;
     #else
-      #define TYPEDEF_OBJECT                                               \
-        typedef  struct {                                                  \
-          union {                                                          \
-            struct { /* aint */ uintL addr; /* tint */ uintL type; } both; \
-            oint one_u _attribute_aligned_object_;                         \
-          } u;                                                             \
-        } object;
+      #define INNARDS_OF_GCV_OBJECT                                      \
+        union {                                                          \
+          struct { /* aint */ uintL addr; /* tint */ uintL type; } both; \
+          oint one_u _attribute_aligned_object_;                         \
+        } u;
     #endif
     #define one_o  u.one_u
   #else
-    typedef  oint  object;
+    typedef  oint  gcv_object_t;
   #endif
 
 #endif
 
 # sizeof(gcv_object_t) = sizeof(oint) must hold true!
 
-# conversion between object and oint:
-# as_oint(expr)   object --> oint
-# as_object(x)    oint --> object
+# conversion between gcv_object_t/object and oint:
+# as_oint(expr)   gcv_object_t/object --> oint
+# as_object(x)    oint --> gcv_object_t
+# The conversion  gcv_object_t --> object
+# is implicit.
 #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
   #define as_oint(expr)  ((expr).one_o)
   #if defined(WIDE_STRUCT)
-    #define as_object(o)  ((object){u:{one_u:(o)}})
+    #define as_object(o)  ((object){u:{one_u:(o)}INIT_ALLOCSTAMP})
   #elif defined(OBJECT_STRUCT)
-    #define as_object(o)  ((object){one_o:(o)})
+    #define as_object(o)  ((object){one_o:(o)INIT_ALLOCSTAMP})
   #else
     extern __inline__ object as_object (register oint o)
       { register object obj; obj.one_o = o; return obj; }
@@ -2381,11 +2400,11 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 #elif defined(WIDE_AUXI)
   #define as_oint(expr)  ((expr).u.align_o)
   # These could store arbitrary information in auxi_o.
-  #define as_object_with_auxi(o)  ((object){u:{both:{ one_ob: (o), auxi_ob: 0 }}})
-  #define as_object(o)  ((object){u:{align_o:(o)}})
+  #define as_object_with_auxi(o)  ((object){u:{both:{ one_ob: (o), auxi_ob: 0 }} INIT_ALLOCSTAMP })
+  #define as_object(o)  ((object){u:{align_o:(o)}INIT_ALLOCSTAMP})
 #else
   #define as_oint(expr)  (oint)(expr)
-  #define as_object(o)  (object)(o)
+  #define as_object(o)  (gcv_object_t)(o)
 #endif
 
 # Separation of an oint in type bits and address:
@@ -2751,32 +2770,82 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #endif
 
 
-# Complete the definition of the type 'object'.
-#if defined(WIDE_AUXI) || defined(WIDE_STRUCT)
-  #ifdef GENERATIONAL_GC
-    # The generational GC can't deal with an object-pointer that points
-    # towards two memory pages.
-    # Thus we enforce alignof(gcv_object_t) = sizeof(gcv_object_t).
-    #define _attribute_aligned_object_  __attribute__ ((aligned(8)))
-  #else
-    #define _attribute_aligned_object_
+# Complete the definition of the type 'gcv_object_t'.
+#if defined(WIDE_AUXI) || defined(OBJECT_STRUCT) || defined(WIDE_STRUCT)
+  #if defined(WIDE) && !defined(WIDE_HARD)
+    #ifdef GENERATIONAL_GC
+      # The generational GC can't deal with an object-pointer that points
+      # towards two memory pages.
+      # Thus we enforce alignof(gcv_object_t) = sizeof(gcv_object_t).
+      #define _attribute_aligned_object_  __attribute__ ((aligned(8)))
+    #else
+      #define _attribute_aligned_object_
+    #endif
   #endif
-  TYPEDEF_OBJECT
+  #ifdef DEBUG_GCSAFETY
+    struct object;
+    struct gcv_object_t {
+      INNARDS_OF_GCV_OBJECT
+      # Conversion to object.
+      operator object () const;
+      # Conversion from object.
+      gcv_object_t (object obj);
+      # Conversion from fake_gcv_object.
+      gcv_object_t (struct fake_gcv_object obj);
+      # Uninitialized object.
+      gcv_object_t ();
+    };
+  #else
+    typedef struct { INNARDS_OF_GCV_OBJECT } gcv_object_t;
+  #endif
 #endif
 
 
-# The type `gcv_object_t' denotes a GC visible object, i.e. a slot inside
-# a heap-allocated object or a STACK slot. If its value is not an immediate
-# object, any call that can trigger GC can modify the pointer value.
-# NEVER write "var gcv_object_t foo;" - this is forbidden!
-typedef object gcv_object_t;
+# Define the type 'object'.
+#ifdef DEBUG_GCSAFETY
+  # A counter that is incremented each time an allocation occurs that could
+  # trigger GC.
+  extern uintL alloccount;
+
+  # A register-allocated object contains, if not GC-invariant, the timestamp
+  # of when it was fetched from a GC-visible location.
+  struct object {
+    INNARDS_OF_GCV_OBJECT
+    uintL allocstamp;
+  };
+  # Always initialize allocstamp with the current(!) value of alloccount.
+  #define INIT_ALLOCSTAMP  , allocstamp: alloccount
+#else
+  typedef gcv_object_t object;
+  #define INIT_ALLOCSTAMP
+#endif
 
 # fake_gcv_object(value)
 # creates a gcv_object that is actually not seen by GC,
 # for use as second word in SKIP2 frames.
-#define fake_gcv_object(value)  as_object(value)
+#ifdef DEBUG_GCSAFETY
+  struct fake_gcv_object {
+    oint fake_value;
+    fake_gcv_object (oint value) : fake_value (value) {}
+  };
+#else
+  #define fake_gcv_object(value)  as_object(value)
+#endif
 
-typedef gcv_object_t gcunsafe_object_t;
+# Hack for use only in areas where no GC can be triggered.
+#ifdef DEBUG_GCSAFETY
+  struct gcunsafe_object_t : gcv_object_t {
+    uintL allocstamp;
+    # Conversion from object.
+    gcunsafe_object_t (object obj);
+    # Conversion from gcv_object_t.
+    gcunsafe_object_t (gcv_object_t obj);
+    # Verification that no GC has been triggered.
+    ~gcunsafe_object_t ();
+  };
+#else
+  typedef gcv_object_t gcunsafe_object_t;
+#endif
 
 
 # mask of those bits of a tint, which really belong to the type:
@@ -2893,9 +2962,9 @@ typedef gcv_object_t gcunsafe_object_t;
   # type_untype_object(type,address)
   #if defined(WIDE) && defined(WIDE_STRUCT)
     #if BIG_ENDIAN_P==WIDE_ENDIANNESS
-      #define type_untype_object(type,address)  ((object){{(tint)(type),(aint)(address)}})
+      #define type_untype_object(type,address)  ((object){{(tint)(type),(aint)(address)}INIT_ALLOCSTAMP})
     #else
-      #define type_untype_object(type,address)  ((object){{(aint)(address),(tint)(type)}})
+      #define type_untype_object(type,address)  ((object){{(aint)(address),(tint)(type)}INIT_ALLOCSTAMP})
     #endif
   #elif !(oint_addr_shift==0)
     #define type_untype_object(type,address)  \
@@ -2925,9 +2994,9 @@ typedef gcv_object_t gcunsafe_object_t;
   # type_data_object(type,data)
   #if defined(WIDE) && defined(WIDE_STRUCT)
     #if BIG_ENDIAN_P==WIDE_ENDIANNESS
-      #define type_data_object(type,data)  ((object){{(tint)(type),(aint)(data)}})
+      #define type_data_object(type,data)  ((object){{(tint)(type),(aint)(data)}INIT_ALLOCSTAMP})
     #else
-      #define type_data_object(type,data)  ((object){{(aint)(data),(tint)(type)}})
+      #define type_data_object(type,data)  ((object){{(aint)(data),(tint)(type)}INIT_ALLOCSTAMP})
     #endif
   #elif !(oint_addr_shift==0)
     #define type_data_object(type,data)  \
@@ -3055,6 +3124,10 @@ typedef gcv_object_t gcunsafe_object_t;
 # gcinvariant_object_p(obj)
   #define gcinvariant_object_p(obj)  \
     (((as_oint(obj) & 1) == 0) || immediate_object_p(obj))
+
+# Test for gc-invariant object, given only the bias.
+  #define gcinvariant_bias_p(bias)  \
+    ((((bias) & 1) == 0) || ((7 & ~(bias)) == 0))
 
 #endif # TYPECODES
 
@@ -3442,6 +3515,49 @@ typedef gcv_object_t gcunsafe_object_t;
 #endif
 #ifdef NO_symbolflags
   #define oint_symbolflags_shift  -1 # invalid value
+#endif
+
+
+#ifdef DEBUG_GCSAFETY
+
+  # Forward declaration.
+  static inline bool gcinvariant_symbol_p (object obj);
+
+  # When a gcv_object_t is fetched from a GC visible location (in the heap or
+  # on the STACK) we can assume that GC has updated it.
+  inline gcv_object_t::operator object () const {
+    return (object){ one_o: one_o INIT_ALLOCSTAMP };
+  }
+
+  # When an object is put into a GC visible location (in the heap or
+  # on the STACK) we check that it has not been held in a GC-unsafe variable
+  # while a memory allocation was made.
+  inline gcv_object_t::gcv_object_t (object obj) {
+    if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj)
+          || obj.allocstamp == alloccount))
+      abort();
+    one_o = as_oint(obj);
+  }
+  # The only exception are fake gcv_objects.
+  inline gcv_object_t::gcv_object_t (fake_gcv_object obj) {
+    one_o = obj.fake_value;
+  }
+
+  # Uninitialized.
+  inline gcv_object_t::gcv_object_t () {
+  }
+
+  # Start of an area where no GC can be triggered.
+  inline gcunsafe_object_t::gcunsafe_object_t (object obj)
+    : gcv_object_t (obj), allocstamp (alloccount) {}
+  inline gcunsafe_object_t::gcunsafe_object_t (gcv_object_t obj)
+    : gcv_object_t (obj), allocstamp (alloccount) {}
+  # End of an area where no GC can be triggered.
+  inline gcunsafe_object_t::~gcunsafe_object_t () {
+    if (!(allocstamp == alloccount))
+      abort();
+  }
+
 #endif
 
 
@@ -5367,11 +5483,25 @@ typedef struct {
       #define pointable(obj)  ((void*)(aint)as_oint(obj))
     #endif
   #endif
+  #ifdef DEBUG_GCSAFETY
+    # Check that obj has not been held in a GC-unsafe variable while a
+    # memory allocation was made.
+    static inline void* gcsafety_pointable (gcv_object_t obj) {
+      return pointable(obj);
+    }
+    static inline void* gcsafety_pointable (object obj) {
+      return pointable((gcv_object_t)obj); # The cast does the check.
+    }
+    #undef pointable
+    #define pointable gcsafety_pointable
+  #endif
 
 # If you want to access an object with a known type-info whose
 # set typebits are being swallowed by the address bus (the
 # typebits, that are =0 don't matter), you can do without 'untype':
-  #if defined(WIDE_STRUCT)
+  #if defined(DEBUG_GCSAFETY)
+    #define type_pointable(type,obj)  pointable(obj)
+  #elif defined(WIDE_STRUCT)
     #define type_pointable(type,obj)  ((void*)((obj).u.both.addr))
   #elif !((oint_addr_shift==0) && (addr_shift==0) && (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0))
     #if (addr_shift==0)
@@ -5521,7 +5651,32 @@ typedef struct {
   # cgci_pointable(obj)  converts a certainly GC-invariant object to an aint.
   # pgci_pointable(obj)  converts a possibly GC-invariant object to an aint.
   # ngci_pointable(obj)  converts a not GC-invariant object to an aint.
-  #if defined(WIDE_AUXI)
+  #if defined(DEBUG_GCSAFETY)
+    static inline aint cgci_pointable (object obj) {
+      return obj.one_o;
+    }
+    static inline aint cgci_pointable (gcv_object_t obj) {
+      return obj.one_o;
+    }
+    static inline aint pgci_pointable (object obj) {
+      if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj)
+            || obj.allocstamp == alloccount))
+        abort();
+      return obj.one_o;
+    }
+    static inline aint pgci_pointable (gcv_object_t obj) {
+      return obj.one_o;
+    }
+    static inline aint ngci_pointable (object obj) {
+      if (!(gcinvariant_symbol_p(obj)
+            || obj.allocstamp == alloccount))
+        abort();
+      return obj.one_o;
+    }
+    static inline aint ngci_pointable (gcv_object_t obj) {
+      return obj.one_o;
+    }
+  #elif defined(WIDE_AUXI)
     #define cgci_pointable(obj)  (obj).one_o
     #define pgci_pointable(obj)  (obj).one_o
     #define ngci_pointable(obj)  (obj).one_o
@@ -5645,7 +5800,9 @@ typedef struct {
 # eq(obj1,obj2)
 # > obj1,obj2: Lisp-objects
 # < result: true, if objects are equal
-#if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
+#if defined(DEBUG_GCSAFETY)
+  #define eq(obj1,obj2)  (pgci_pointable(obj1) == pgci_pointable(obj2))
+#elif defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
   #define eq(obj1,obj2)  (as_oint(obj1) == as_oint(obj2))
 #elif defined(WIDE_AUXI)
   #define eq(obj1,obj2)  ((obj1).one_o == (obj2).one_o)
@@ -8638,7 +8795,7 @@ extern struct symbol_tab_ {
   #include "constsym.c"
 } symbol_tab_data;
 #undef LISPSYM
-# is used by Macro S
+# is used by Macro S, gcinvariant_symbol_p
 
 # Abbreviation for LISP-Symbol with a given name: S(name)
 #define S(name)  S_help_(S_##name)
@@ -8672,6 +8829,37 @@ extern struct symbol_tab_ {
 
 #define NIL  S(nil)
 #define T    S(t)
+
+#if defined(DEBUG_GCSAFETY)
+# gcinvariant_symbol_p(obj)
+# > obj: an object
+# < result: true if obj is a symbol in symbol_tab
+static inline bool gcinvariant_symbol_p (object obj) {
+  if (
+      #ifdef TYPECODES
+        symbolp(obj)
+      #else
+        varobjectp(obj)
+      #endif
+      &&
+      (
+       #if !defined(MAP_MEMORY_TABLES)
+         #ifdef TYPECODES
+           (as_oint(obj) >> (oint_addr_shift-addr_shift)) - ((aint)(tint)symbol_type<<oint_type_shift)
+         #else
+           as_oint(obj) - varobject_bias
+         #endif
+       #else
+         # FIXME: MAP_MEMORY_TABLES possibly uses MULTIMAP_MEMORY_SYMBOL_TAB.
+         as_oint(obj)
+       #endif
+       - (aint)&symbol_tab < sizeof(symbol_tab))
+     )
+    return true;
+  else
+    return false;
+}
+#endif
 
 # The macro NIL_IS_CONSTANT tells , whether NIL is recognized
 # as 'constant expression' by the C-Compiler. If so, tables can
