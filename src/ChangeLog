@@ -1,5 +1,10 @@
 2005-01-27  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (interpreted.mem, halfcompiled.mem, lispinit.mem,
+	lispinit2.mem): Exit with error code if an error occurs.
+
+2005-01-27  Bruno Haible  <bruno@clisp.org>
+
 	* clos-class3.lisp (structure-undefine-accessories): Remove function,
 	moved to defstruct.lisp.
 	* defstruct.lisp (structure-undefine-accessories): Remove preliminary
