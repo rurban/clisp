@@ -1,3 +1,10 @@
+2003-05-16  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 737541 ]: describe on unnamed function and on macro
+	* describe.lisp (describe-object): MACRO:
+	suggest (DISASSEMBLE (MACRO-FUNCTION ...))
+	FUNCTION: do not suggest disassembling anonymous function
+
 2003-05-13  Sam Steingold  <sds@gnu.org>
 
 	DEFINE-HASH-TABLE-TEST: user-defined hash table tests
