@@ -1,7 +1,24 @@
 # Generated automatically from Makefile.in by configure.
 # This makefile for Readline library documentation is in -*- text -*- mode.
 # Emacs likes it that way.
-top_srcdir = ..
+
+# Copyright (C) 1996 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
+
+topdir = ..
 srcdir = .
 VPATH = .:.
 
@@ -9,10 +26,18 @@ prefix = /usr/local
 infodir = ${prefix}/info
 
 mandir = ${prefix}/man
-man3dir = $(mandir)/man3
+manpfx = man
+
+man1ext = 1
+man1dir = $(mandir)/$(manpfx)$(man1ext)
+man3ext = 3
+man3dir = $(mandir)/$(manpfx)$(man3ext)
 
 SHELL = /bin/sh
 RM = rm -f
+
+INSTALL = /usr/bin/install -c
+INSTALL_DATA = ${INSTALL} -m 644
 
 TEXINPUTDIR = $(srcdir)
 
@@ -20,14 +45,13 @@ MAKEINFO    = LANGUAGE= makeinfo
 TEXI2DVI    = $(srcdir)/texi2dvi
 TEXI2HTML   = $(srcdir)/texi2html
 QUIETPS     = #set this to -q to shut up dvips
-DVIPS       = dvips -D600 $(QUIETPS) -o $@     # tricky
-
-INSTALL = /usr/bin/install -c
-INSTALL_PROGRAM = ${INSTALL}
-INSTALL_DATA = ${INSTALL} -m 644
+PAPERSIZE   = a4
+PSDPI       = 600
+DVIPS       = dvips -D $(PSDPI) $(QUIETPS) -t $(PAPERSIZE) -o $@     # tricky
 
 RLSRC = $(srcdir)/rlman.texinfo $(srcdir)/rluser.texinfo \
-	$(srcdir)/rltech.texinfo $(srcdir)/manvers.texinfo
+	$(srcdir)/rltech.texinfo $(srcdir)/manvers.texinfo \
+	$(srcdir)/rluserman.texinfo
 HISTSRC = $(srcdir)/hist.texinfo $(srcdir)/hsuser.texinfo \
 	  $(srcdir)/hstech.texinfo $(srcdir)/manvers.texinfo
 
@@ -41,12 +65,11 @@ DVIOBJ = readline.dvi history.dvi rluserman.dvi
 INFOOBJ = readline.info history.info rluserman.info
 PSOBJ = readline.ps history.ps rluserman.ps
 HTMLOBJ = readline.html history.html rluserman.html
-HTMLTOC = readline_toc.html history_toc.html rluserman_toc.html
 TEXTOBJ = readline.0
 
-INTERMEDIATE_OBJ = rlman.dvi hist.dvi
+INTERMEDIATE_OBJ = rlman.dvi hist.dvi rluserman.dvi
 
-CREATED_DOCS = $(DVIOBJ) $(INFOOBJ) $(PSOBJ) $(HTMLOBJ) $(HTMLTOC) $(TEXTOBJ)
+CREATED_DOCS = $(DVIOBJ) $(INFOOBJ) $(PSOBJ) $(HTMLOBJ) $(TEXTOBJ)
 
 .SUFFIXES:      .0 .3 .ps .txt .dvi
 
@@ -64,6 +87,12 @@ readline.dvi: $(RLSRC)
 readline.info: $(RLSRC)
 	$(MAKEINFO) --no-split -I $(TEXINPUTDIR) -o $@ $(srcdir)/rlman.texinfo
 
+rluserman.dvi: $(RLSRC)
+	TEXINPUTS=.:$(TEXINPUTDIR):$$TEXINPUTS $(TEXI2DVI) $(srcdir)/rluserman.texinfo
+
+rluserman.info: $(RLSRC)
+	$(MAKEINFO) --no-split -I $(TEXINPUTDIR) -o $@ $(srcdir)/rluserman.texinfo
+
 history.dvi: ${HISTSRC}
 	TEXINPUTS=.:$(TEXINPUTDIR):$$TEXINPUTS $(TEXI2DVI) $(srcdir)/hist.texinfo
 	mv hist.dvi history.dvi
@@ -71,36 +100,30 @@ history.dvi: ${HISTSRC}
 history.info: ${HISTSRC}
 	$(MAKEINFO) --no-split -I $(TEXINPUTDIR) -o $@ $(srcdir)/hist.texinfo
 
-rluserman.dvi: $(RLSRC)
-	TEXINPUTS=.:$(TEXINPUTDIR):$$TEXINPUTS $(TEXI2DVI) $(srcdir)/rluserman.texinfo
-
-rluserman.info: $(RLSRC)
-	$(MAKEINFO) --no-split -I $(TEXINPUTDIR) -o $@ $(srcdir)/rluserman.texinfo
-
 readline.ps:	readline.dvi
 	$(RM) $@
 	$(DVIPS) readline.dvi
-
-history.ps:	history.dvi
-	$(RM) $@
-	$(DVIPS) history.dvi
 
 rluserman.ps:	rluserman.dvi
 	$(RM) $@
 	$(DVIPS) rluserman.dvi
 
+history.ps:	history.dvi
+	$(RM) $@
+	$(DVIPS) history.dvi
+
 readline.html:	${RLSRC}
 	$(TEXI2HTML) -menu -monolithic -I $(TEXINPUTDIR) $(srcdir)/rlman.texinfo
-	sed -e 's:rlman.html:readline.html:' rlman.html > readline.html
+	sed -e 's:rlman.html:readline.html:g' rlman.html > readline.html
 	$(RM) rlman.html
-
-history.html:	${HISTSRC}
-	$(TEXI2HTML) -menu -monolithic -I $(TEXINPUTDIR) $(srcdir)/hist.texinfo
-	sed -e 's:hist.html:history.html:' hist.html > history.html
-	$(RM) hist.html
 
 rluserman.html:	${RLSRC}
 	$(TEXI2HTML) -menu -monolithic -I $(TEXINPUTDIR) $(srcdir)/rluserman.texinfo
+
+history.html:	${HISTSRC}
+	$(TEXI2HTML) -menu -monolithic -I $(TEXINPUTDIR) $(srcdir)/hist.texinfo
+	sed -e 's:hist.html:history.html:g' hist.html > history.html
+	$(RM) hist.html
 
 info:	$(INFOOBJ)
 dvi:	$(DVIOBJ)
@@ -112,7 +135,7 @@ readline.0: readline.3
 
 clean:
 	$(RM) *.aux *.cp *.fn *.ky *.log *.pg *.toc *.tp *.vr *.cps *.pgs \
-	      *.fns *.kys *.tps *.vrs *.o core
+	      *.fns *.kys *.tps *.vrs *.bt *.o core
 
 distclean: clean
 	$(RM) $(CREATED_DOCS)
@@ -126,8 +149,8 @@ maintainer-clean: clean
 	$(RM) $(INTERMEDIATE_OBJ)
 	$(RM) Makefile
 
-installdirs:	$(top_srcdir)/support/mkdirs
-	-$(SHELL) $(top_srcdir)/support/mkdirs $(infodir) $(man3dir)
+installdirs:	$(topdir)/support/mkdirs
+	-$(SHELL) $(topdir)/support/mkdirs $(infodir) $(man3dir)
 
 install:	installdirs
 	if test -f readline.info; then \
@@ -135,12 +158,17 @@ install:	installdirs
 	else \
 		${INSTALL_DATA} $(srcdir)/readline.info $(infodir)/readline.info; \
 	fi
+	if test -f rluserman.info; then \
+		${INSTALL_DATA} rluserman.info $(infodir)/rluserman.info; \
+	else \
+		${INSTALL_DATA} $(srcdir)/rluserman.info $(infodir)/rluserman.info; \
+	fi
 	if test -f history.info; then \
 		${INSTALL_DATA} history.info $(infodir)/history.info; \
 	else \
 		${INSTALL_DATA} $(srcdir)/history.info $(infodir)/history.info; \
 	fi
-	if $(SHELL) -c 'install-info --version' >/dev/null 2>&1; then \
+	-if $(SHELL) -c 'install-info --version' >/dev/null 2>&1; then \
 		install-info --dir-file=$(infodir)/dir $(infodir)/readline.info ; \
 		install-info --dir-file=$(infodir)/dir $(infodir)/history.info ; \
 	else true; fi
@@ -148,5 +176,6 @@ install:	installdirs
 
 uninstall:
 	$(RM) $(infodir)/readline.info
+	$(RM) $(infodir)/rluserman.info
 	$(RM) $(infodir)/history.info
 	$(RM) $(man3dir)/readline.3

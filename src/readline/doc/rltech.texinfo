@@ -167,6 +167,13 @@ programs.  This section describes the various functions and variables
 defined within the Readline library which allow a user program to add
 customized functionality to Readline.
 
+Before declaring any functions that customize Readline's behavior, or
+using any functionality Readline provides in other code, an
+application writer should include the file @code{<readline/readline.h>}
+in any file that uses Readline's features.  Since some of the definitions
+in @code{readline.h} use the @code{stdio} library, the file
+@code{<stdio.h>} should be included before @code{readline.h}.
+
 @menu
 * The Function Type::	C declarations to make code readable.
 * Function Writing::	Variables and calling conventions.
@@ -280,6 +287,16 @@ the beginning of the newly-blank line.
 @deftypevar {char *} rl_prompt
 The prompt Readline uses.  This is set from the argument to
 @code{readline ()}, and should not be assigned to directly.
+@end deftypevar
+
+@deftypevar int rl_already_prompted
+If an application wishes to display the prompt itself, rather than have
+Readline do it the first time @code{readline()} is called, it should set
+this variable to a non-zero value after displaying the prompt.
+The prompt must also be passed as the argument to @code{readline()} so
+the redisplay functions can update the display properly.
+The calling application is responsible for managing the value; Readline
+never sets it.
 @end deftypevar
 
 @deftypevar {char *} rl_library_version
@@ -446,6 +463,13 @@ several internal keymaps: @code{emacs_standard_keymap},
 @code{vi_movement_keymap}, and @code{vi_insertion_keymap}.
 @code{emacs_standard_keymap} is the default, and the examples in
 this manual assume that.
+
+Since @code{readline} installs a set of default key bindings the first
+time it is called, there is always the danger that a custom binding
+installed before the first call to @code{readline} will be overridden.
+An alternate mechanism is to install custom key bindings in an
+initialization function assigned to the @code{rl_startup_hook} variable
+(@pxref{Readline Variables}).
 
 These functions manage key bindings.
 
@@ -615,8 +639,17 @@ Readline thinks the screen display is correct.
 @end deftypefun
 
 @deftypefun int rl_on_new_line ()
-Tell the update routines that we have moved onto a new (empty) line,
+Tell the update functions that we have moved onto a new (empty) line,
 usually after ouputting a newline.
+@end deftypefun
+
+@deftypefun int rl_on_new_line_with_prompt ()
+Tell the update functions that we have moved onto a new line, with
+@var{rl_prompt} already displayed.
+This could be used by applications that want to output the prompt string
+themselves, but still need Readline to know the prompt string length for
+redisplay.
+It should be used after setting @var{rl_already_prompted}.
 @end deftypefun
 
 @deftypefun int rl_reset_line_state ()
@@ -1106,7 +1139,7 @@ for subsequent calls.
 
 @deftypevar {Function *} rl_completion_entry_function
 A pointer to the generator function for @code{completion_matches ()}.
-@code{NULL} means to use @code{filename_entry_function ()}, the default
+@code{NULL} means to use @code{filename_completion_function ()}, the default
 filename completer.
 @end deftypevar
 

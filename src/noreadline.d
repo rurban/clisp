@@ -16,7 +16,7 @@ typedef void VFunction ();
 typedef char *CPFunction ();
 typedef char **CPPFunction ();
 
-global int rl_present_p = 0; # readline()-Library nicht vorhanden
+global int rl_gnu_readline_p = 0; # readline()-Library nicht vorhanden
 
 global char* rl_readline_name;
 global CPPFunction* rl_attempted_completion_function;

@@ -113,7 +113,7 @@ static void rl_change_case RL((int count, int op));
 static char *LibraryVersion = "2.07 (Haible)";
 
 /* Always true. */
-int rl_present_p = 1;
+int rl_gnu_readline_p = 1;
 
 /* A pointer to the keymap that is currently in use.
    By default, it is the standard emacs keymap. */

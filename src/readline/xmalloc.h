@@ -1,13 +1,13 @@
-/* xmalloc.h -- failsafe memory allocation. */
+/* xmalloc.h -- memory allocation that aborts on errors. */
 
-/* Copyright (C) 1998 Free Software Foundation, Inc.
+/* Copyright (C) 1999 Free Software Foundation, Inc.
 
    This file is part of the GNU Readline Library, a library for
    reading lines of text with interactive input and history editing.
 
    The GNU Readline Library is free software; you can redistribute it
    and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 1, or
+   as published by the Free Software Foundation; either version 2, or
    (at your option) any later version.
 
    The GNU Readline Library is distributed in the hope that it will be
@@ -18,7 +18,7 @@
    The GNU General Public License is often shipped with GNU software, and
    is generally kept in a file called COPYING or LICENSE.  If you do not
    have a copy of the license, write to the Free Software Foundation,
-   675 Mass Ave, Cambridge, MA 02139, USA. */
+   59 Temple Place, Suite 330, Boston, MA 02111 USA. */
 
 #if !defined (_XMALLOC_H_)
 #define _XMALLOC_H_
@@ -29,8 +29,18 @@
 #  include <readline/rlstdc.h>
 #endif
 
-extern char *xmalloc _PROTO((int bytes));
-extern char *xrealloc _PROTO((void *pointer, int bytes));
-extern void xfree _PROTO((char *string));
+#ifndef PTR_T
+
+#ifdef __STDC__
+#  define PTR_T	void *
+#else
+#  define PTR_T	char *
+#endif
+
+#endif /* !PTR_T */
+
+extern char *xmalloc _PROTO((int));
+extern char *xrealloc _PROTO((PTR_T, int));
+extern void xfree _PROTO((PTR_T));
 
 #endif /* _XMALLOC_H_ */

@@ -212,7 +212,7 @@ extern int rl_getc RL((FILE* stream));
 /* **************************************************************** */
 
 /* Always true. */
-extern int rl_present_p;
+extern int rl_gnu_readline_p;
 
 /* The name of the calling program.  You should initialize this to
    whatever was in argv[0].  It is used when parsing conditionals. */

@@ -8,7 +8,7 @@
 
    The GNU Readline Library is free software; you can redistribute it
    and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 1, or
+   as published by the Free Software Foundation; either version 2, or
    (at your option) any later version.
 
    The GNU Readline Library is distributed in the hope that it will be
@@ -19,7 +19,7 @@
    The GNU General Public License is often shipped with GNU software, and
    is generally kept in a file called COPYING or LICENSE.  If you do not
    have a copy of the license, write to the Free Software Foundation,
-   675 Mass Ave, Cambridge, MA 02139, USA. */
+   59 Temple Place, Suite 330, Boston, MA 02111 USA. */
 #define READLINE_LIBRARY
 
 #if defined (HAVE_CONFIG_H)
@@ -47,7 +47,6 @@
 #  include <locale.h>
 #endif
 
-#include <signal.h>
 #include <stdio.h>
 #include "posixjmp.h"
 
@@ -58,8 +57,12 @@
 #include "readline.h"
 #include "history.h"
 
+#include "rlprivate.h"
+#include "rlshell.h"
+#include "xmalloc.h"
+
 #undef RL_LIBRARY_VERSION
-#define RL_LIBRARY_VERSION "4.0-clisp"
+#define RL_LIBRARY_VERSION "4.1-clisp"
 
 /* Evaluates its arguments multiple times. */
 #define SWAP(s, e)  do { int t; t = s; s = e; e = t; } while (0)
@@ -67,24 +70,13 @@
 /* Forward declarations used in this file. */
 void _rl_free_history_entry _PROTO((HIST_ENTRY *entry));
 
-int _rl_dispatch _PROTO((int key, Keymap map));
-int _rl_init_argument _PROTO((void));
-
 static char *readline_internal _PROTO((void));
 static void readline_initialize_everything _PROTO((void));
 static void start_using_history _PROTO((void));
 static void bind_arrow_keys _PROTO((void));
 static int rl_change_case _PROTO((int count, int op));
 
-#if !defined (__GO32__)
 static void readline_default_bindings _PROTO((void));
-#endif /* !__GO32__ */
-
-#if defined (__GO32__)
-#  include <go32.h>
-#  include <pc.h>
-#  undef HANDLE_SIGNALS
-#endif /* __GO32__ */
 
 /* **************************************************************** */
 /*								    */
@@ -94,8 +86,7 @@ static void readline_default_bindings _PROTO((void));
 
 char *rl_library_version = RL_LIBRARY_VERSION;
 
-/* Always true. */
-int rl_present_p = 1;
+int rl_gnu_readline_p = 1;
 
 /* A pointer to the keymap that is currently in use.
    By default, it is the standard emacs keymap. */
@@ -159,7 +150,8 @@ int readline_echoing_p = 1;
 char *rl_prompt;
 int rl_visible_prompt_length = 0;
 
-/* Whether the prompt has already been output by the caller. */
+/* Set to non-zero by calling application if it has already printed rl_prompt
+   and does not want readline to do it the first time. */
 int rl_already_prompted = 0;
 
 /* The number of characters read in order to type this complete command. */
@@ -206,6 +198,10 @@ Keymap rl_executing_keymap;
 
 /* Non-zero means to erase entire line, including prompt, on empty input lines. */
 int rl_erase_empty_line = 0;
+
+/* Non-zero means to read only this many characters rather than up to a
+   character bound to accept-line. */
+int rl_num_chars_to_read;
 
 /* Line buffer and maintenence. */
 char *rl_line_buffer = (char *)NULL;
@@ -293,6 +289,8 @@ static int readline_internal_charloop _PROTO((void));
 STATIC_CALLBACK void
 readline_internal_setup ()
 {
+  char *nprompt;
+
   _rl_in_stream = rl_instream;
   _rl_out_stream = rl_outstream;
 
@@ -301,10 +299,12 @@ readline_internal_setup ()
 
   if (readline_echoing_p == 0)
     {
-      if (rl_prompt && !rl_already_prompted)
+      if (rl_prompt && rl_already_prompted == 0)
 	{
-	  fprintf (_rl_out_stream, "%s", rl_prompt);
+	  nprompt = _rl_strip_prompt (rl_prompt);
+	  fprintf (_rl_out_stream, "%s", nprompt);
 	  fflush (_rl_out_stream);
+	  free (nprompt);
 	}
     }
   else
@@ -404,7 +404,7 @@ readline_internal_charloop ()
 	}
 
       lastc = c;
-      _rl_dispatch (c, _rl_keymap);
+      _rl_dispatch ((unsigned char)c, _rl_keymap);
 
       /* If there was no change in _rl_last_command_was_kill, then no kill
 	 has taken place.  Note that if input is pending we are reading
@@ -418,6 +418,12 @@ readline_internal_charloop ()
       if (rl_editing_mode == vi_mode && _rl_keymap == vi_movement_keymap)
 	rl_vi_check ();
 #endif /* VI_MODE */
+
+      if (rl_num_chars_to_read && rl_end >= rl_num_chars_to_read)
+        {
+          (*rl_redisplay_function) ();
+          rl_newline (1, '\n');
+        }
 
       if (rl_done == 0)
 	(*rl_redisplay_function) ();
@@ -643,10 +649,8 @@ readline_initialize_everything ()
   /* Initialize the terminal interface. */
   _rl_init_terminal_io ((char *)NULL);
 
-#if !defined (__GO32__)
   /* Bind tty characters to readline functions. */
   readline_default_bindings ();
-#endif /* !__GO32__ */
 
   /* Initialize the function names. */
   rl_initialize_funmap ();
@@ -695,6 +699,17 @@ bind_arrow_keys_internal ()
 {
   Function *f;
 
+#if defined (__MSDOS__)
+  f = rl_function_of_keyseq ("\033[0A", _rl_keymap, (int *)NULL);
+  if (!f || f == rl_do_lowercase_version)
+    {
+       _rl_bind_if_unbound ("\033[0A", rl_get_previous_history);
+       _rl_bind_if_unbound ("\033[0B", rl_backward);
+       _rl_bind_if_unbound ("\033[0C", rl_forward);
+       _rl_bind_if_unbound ("\033[0D", rl_get_next_history);
+    }
+#endif
+	
   f = rl_function_of_keyseq ("\033[A", _rl_keymap, (int *)NULL);
   if (!f || f == rl_do_lowercase_version)
     {
@@ -1019,6 +1034,10 @@ rl_forward (count, key)
       else
 	rl_point = end;
     }
+
+  if (rl_end < 0)
+    rl_end = 0;
+
   return 0;
 }
 
@@ -1153,35 +1172,14 @@ int
 rl_refresh_line (ignore1, ignore2)
      int ignore1, ignore2;
 {
-  int curr_line, nleft;
+  int curr_line;
 
-  /* Find out whether or not there might be invisible characters in the
-     editing buffer. */
-  if (rl_display_prompt == rl_prompt)
-    nleft = _rl_last_c_pos - screenwidth - rl_visible_prompt_length;
-  else
-    nleft = _rl_last_c_pos - screenwidth;
-
-  if (nleft > 0)
-    curr_line = 1 + nleft / screenwidth;
-  else
-    curr_line = 0;
+  curr_line = _rl_current_display_line ();
 
   _rl_move_vert (curr_line);
   _rl_move_cursor_relative (0, the_line);   /* XXX is this right */
 
-#if defined (__GO32__)
-  {
-    int row, col, width, row_start;
-
-    ScreenGetCursor (&row, &col);
-    width = ScreenCols ();
-    row_start = ScreenPrimary + (row * width);
-    memset (row_start + col, 0, (width - col) * 2);
-  }
-#else /* !__GO32__ */
   _rl_clear_to_eol (0);		/* arg of 0 means to not use spaces */
-#endif /* !__GO32__ */
 
   rl_forced_update_display ();
   rl_display_fixed = 1;
@@ -1319,7 +1317,14 @@ rl_quoted_insert (count, key)
 {
   int c;
 
+#if defined (HANDLE_SIGNALS)
+  _rl_disable_tty_signals ();
+#endif
   c = rl_read_key ();
+#if defined (HANDLE_SIGNALS)
+  _rl_restore_tty_signals ();
+#endif
+
   return (rl_insert (count, c));  
 }
 

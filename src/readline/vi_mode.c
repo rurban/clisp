@@ -8,7 +8,7 @@
 
    The GNU Readline Library is free software; you can redistribute it
    and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 1, or
+   as published by the Free Software Foundation; either version 2, or
    (at your option) any later version.
 
    The GNU Readline Library is distributed in the hope that it will be
@@ -19,7 +19,7 @@
    The GNU General Public License is often shipped with GNU software, and
    is generally kept in a file called COPYING or LICENSE.  If you do not
    have a copy of the license, write to the Free Software Foundation,
-   675 Mass Ave, Cambridge, MA 02139, USA. */
+   59 Temple Place, Suite 330, Boston, MA 02111 USA. */
 #define READLINE_LIBRARY
 
 /* **************************************************************** */
@@ -53,6 +53,9 @@
 #include "rldefs.h"
 #include "readline.h"
 #include "history.h"
+
+#include "rlprivate.h"
+#include "xmalloc.h"
 
 #ifndef _rl_digit_p
 #define _rl_digit_p(c)  ((c) >= '0' && (c) <= '9')
@@ -1024,7 +1027,7 @@ rl_vi_char_search (count, key)
       if (vi_redoing)
 	target = _rl_vi_last_search_char;
       else
-	_rl_vi_last_search_char = target = rl_getc (rl_instream);
+	_rl_vi_last_search_char = target = (*rl_getc_function) (rl_instream);
 
       switch (key)
         {
@@ -1140,7 +1143,7 @@ rl_vi_change_char (count, key)
   if (vi_redoing)
     c = _rl_vi_last_replacement;
   else
-    _rl_vi_last_replacement = c = rl_getc (rl_instream);
+    _rl_vi_last_replacement = c = (*rl_getc_function) (rl_instream);
 
   if (c == '\033' || c == CTRL ('C'))
     return -1;

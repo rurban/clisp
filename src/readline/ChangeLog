@@ -1,3 +1,7 @@
+2000-01-23  Bruno Haible  <linuix.math.u-bordeaux.fr>
+
+        Upgrade to readline-4.1-beta3.
+
 1999-04-03  Bruno Haible  <linuix.math.u-bordeaux.fr>
 
         * doc/rluserman.texinfo: New file, derived from doc/rlman.texinfo.
