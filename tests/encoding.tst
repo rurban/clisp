@@ -1,6 +1,6 @@
 ;; -*- Lisp -*-
 
-(defvar *no-iconv-p* (null (ignore-errors (make-encoding :charset "ASCII"))))
+(defvar *no-iconv-p* (null (ignore-errors (make-encoding :charset "utf-16"))))
 *no-iconv-p*
 
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=543072&group_id=1355&atid=101355
