@@ -100,12 +100,13 @@ int main (int argc, char* argv[]) {
     L1:  /* innerhalb einer Zeile, vor Kommentar */
          c = fgetc(infile) ;
     L1a: if (c==EOF){ goto L3; }
-         if (!(c=='#')) { fputc(c,outfile); goto L1; }
+         if (!(c=='#')) goto L4a;
          /* innerhalb einer Zeile, nach '#', vor ' ' */
          c = fgetc(infile) ;
          if (!(c==' ')) { fputc('#',outfile); goto L1a; }
          fput_startcomment(outfile);
     L2:  /* innerhalb eines Kommentars */
+         /* inside '#' comment */
          c = fgetc(infile) ;
     L2a: if (c==EOF) { fput_endcomment(outfile); goto L3; }
          if (c=='\n') { fput_endcomment(outfile); fputc(c,outfile); goto L1; }
@@ -115,6 +116,26 @@ int main (int argc, char* argv[]) {
          if (!(c=='\n')) { fputc('\\',outfile); goto L2a; }
          fput_endcomment(outfile); fputc('\\',outfile); fputc(c,outfile);
          goto L1;
+    L4a: /* possibly start of '/*' comment */
+         /* EOF impossible */
+         fputc(c,outfile);
+         if (!(c=='/')) {  goto L1; } 
+         c = fgetc(infile) ;
+         if (c==EOF){ goto L3; }
+         fputc(c,outfile);
+         if (!(c=='*')) goto L1;
+    L5:  /* Inside '/*' comment */
+         c = fgetc(infile) ;
+    L5a: if (c==EOF){ goto L3; } /* do not fix programmer errors */
+         fputc(c,outfile);
+         if (c=='*') goto L6;
+         goto L5;
+    L6:  /* after asterisk in '/*' comment */
+         c = fgetc(infile) ;
+    L6a: if (c==EOF){ goto L3; }
+         fputc(c,outfile);
+         if (c=='/') goto L1;
+         goto L5;
     L3:  ; /* am File-Ende */
   }
   /* error checking should work after file closing, but it does not */
