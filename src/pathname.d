@@ -3426,11 +3426,11 @@ local object merge_dirs (object p_directory, object d_directory, bool p_log,
                          bool wildp, bool called_from_make_pathname) {
   var object new_subdirs = p_directory;
 #if DEBUG_TRANSLATE_PATHNAME
-  printf("merge_dirs: log: %d; wild: %d; cfmp: %d\n",p_log,wildp,
-         called_from_make_pathname);
+  printf("[%d] merge_dirs: log: %d; wild: %d; cfmp: %d\n",
+         __LINE__,p_log,wildp,called_from_make_pathname);
 #endif
-  SDOUT("merge_dirs",p_directory);
-  SDOUT("merge_dirs",d_directory);
+  SDOUT("merge_dirs:",p_directory);
+  SDOUT("merge_dirs:",d_directory);
   if (called_from_make_pathname) {
     if (eq(p_directory,unbound)) # pathname-subdirs not given?
       new_subdirs = d_directory; # use defaults-subdirs
