@@ -200,6 +200,6 @@ v(2, (kw(shared),kw(block)))
 s(stream_lock)
 #endif
 #ifdef WIN32_NATIVE
-v(4, (kw(wait),kw(input),kw(output),kw(error)))
+v(6, (kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority)))
 s(launch)
 #endif
