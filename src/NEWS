@@ -22,7 +22,7 @@ User visible changes
 * External modules now work on win32 (when used with cygwin or mingw).
   See <http://clisp.cons.org/impnotes.html#mod-win32> for details.
 
-* DIRKEY is now a standard module - use `--with-module=dirkey'
+* DIRKEY is now a standard module: use `--with-module=dirkey'
   instead of `--with-dir-key' when configuring.
   See <http://clisp.cons.org/impnotes.html#dirkey> for details.
 
@@ -191,6 +191,9 @@ User visible changes
 * CLISP/MIT-CLX now compiles CLOCC CLUE/CLIO.
   See <http://clocc.sourceforge.net/clocc/src/gui/clue/> and
   <http://clisp.cons.org/impnotes.html#included-modules>.
+
+* CLISP/NEW-CLX on win32 with Cygwin X server compiles garnet.
+  See <http://article.gmane.org/gmane.lisp.clisp.devel/10093>.
 
 * Command line interface: allow multiple -x options.
   New options -repl <http://clisp.cons.org/clisp.html#opt-repl>
