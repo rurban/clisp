@@ -1,3 +1,9 @@
+2005-01-05  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/test.tst (host->sa): call RAWSOCK:HTONS on PORT
+	do not call RAWSOCK:BIND when local host is resolved to 127.0.0.1
+	now the test passes on Linux too, in addition to Cygwin and Solaris
+
 2005-01-05  Bruno Haible  <bruno@clisp.org>
 
 	* autoconf/config.rpath: Upgrade to current copy from GNU gettext.
