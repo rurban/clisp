@@ -2698,6 +2698,24 @@ printed readably.</para>
  characters are allowed in the strings, and &name-r; &eq; &nil; may not
  be allowed either.</para>
 
+<section id="path-dir-canon"><title>Directory canonicalization.</title>
+<para>As permitted by the &make-pathname; secification, the &pathname-t;
+ directory component is canonicalized when the pathname is constructed:
+ <orderedlist>
+  <listitem><simpara><filename>""</filename> and
+    <filename>"."</filename> are removed</simpara></listitem>
+  <listitem><simpara><filename>".."</filename>,
+    <filename>"*"</filename>, and <filename>"**"</filename> are converted
+    to <constant>:UP</constant>, &wild-k; and &wild-inferiors-k;,
+    respectively</simpara></listitem>
+  <listitem><simpara>patterns <filename>foo/../</filename> are
+    collapsed</simpara></listitem>
+ </orderedlist>
+</para>
+</section>
+
+<section><title>Platform-specific issues.</title>
+
 <!-- #ifdef PATHNAME_AMIGAOS -->
 <variablelist>
 <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
@@ -3443,6 +3461,7 @@ printed readably.</para>
 </listitem></varlistentry></variablelist>
 </listitem></varlistentry></variablelist>
 <!-- #endif -->
+</section>
 
 </section>
 
