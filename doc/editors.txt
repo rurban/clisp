@@ -194,9 +194,11 @@ Discussion:
   with support for Hebrew(?) and Asian languages).
 
   - On Unix without X11, I recommend GNU Emacs v19.
+    Available from ftp://prep.ai.mit.edu/pub/gnu/.
   - On Unix with X11, I recommend XEmacs v19.
   - On OS/2, I recommend GNU Emacs patched for emx+gcc by Eberhard Mattes.
   - On Win32, I recommend GNU Emacs 19.34.6.
+    Available from http://www.cs.washington.edu/homes/voelker/ntemacs.html.
 
 * How to customize Emacs in general?
 

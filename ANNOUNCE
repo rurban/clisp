@@ -6,8 +6,9 @@ CLISP is mostly CLtL2 / ANSI CL compliant, including a CLOS implementation.
 FTP resources
 =============
 
-The newest versions will always be available via anonymous ftp from
-ftp2.cons.org, directory /pub/lisp/clisp/.
+CLISP is available via anonymous ftp from ftp2.cons.org, directory
+/pub/lisp/clisp/.
+
 This directory is mirrored by the following FTP sites:
   Europe:
      rs104.hrz.th-darmstadt.de [130.83.47.112]
@@ -15,11 +16,14 @@ This directory is mirrored by the following FTP sites:
   USA:
      gatekeeper.dec.com [16.1.0.2]
        pub/plan/lisp/clisp/
+
+Other ftp sites, carrying old versions of CLISP, are
   New Zealand, Australia:
      ftp.math.waikato.ac.nz [130.217.237.9]
        /pub/clisp-mirror
-Another ftp site, carrying old versions of CLISP, is
-ftp.cs.cmu.edu [128.2.206.173], directory user/ai/lang/lisp/impl/clisp/.
+  USA:
+     ftp.cs.cmu.edu [128.2.206.173]
+       user/ai/lang/lisp/impl/clisp/
 
 
 WWW resources
@@ -27,22 +31,22 @@ WWW resources
 
 * About CLISP:
 
+  Homepage
+  http://clisp.cons.org/~haible/clisp.html
+  [Bruno Haible]
+
   Source
   ftp://ftp2.cons.org/pub/lisp/clisp/source/
   http://clisp.cons.org/~haible/clisp/source/
   [Bruno Haible]
 
-  Binaries for different Unix, DOS, OS/2, Amiga, Acorn platforms
+  Binaries for different Unix, DOS, OS/2, Win32, Amiga, Acorn platforms
   ftp://ftp2.cons.org/pub/lisp/clisp/binaries/
   http://clisp.cons.org/~haible/clisp/binaries/
   [Bruno Haible]
 
   Binaries for i386-linux also at
   ftp://sunsite.unc.edu/pub/Linux/devel/lang/lisp/
-
-  Binaries for Win32 (Win95 and WinNT)
-  http://sayre.sysc.pdx.edu:8001/clisp/
-  [Marcus Daniels]
 
   Survey about possible use of CLISP together with Emacs (see also
   the file doc/editors.txt)
