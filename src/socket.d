@@ -308,74 +308,76 @@ local bool all_digits_dots(host)
 
 # Look up a host's IP address, then call a user-defined function taking
 # a `struct sockaddr' and its size, and returning a SOCKET.
-typedef SOCKET (*socket_connect_fn) (struct sockaddr * addr, int addrlen);
-local SOCKET with_hostname (const char* host, unsigned short port, socket_connect_fn connector);
-local SOCKET with_hostname(host,port,connector)
-  var const char* host;
-  var unsigned short port;
-  var socket_connect_fn connector;
+typedef SOCKET (*socket_connect_fn_t) (struct sockaddr * addr, int addrlen,
+                                       void* opts);
+local SOCKET with_hostname (const char* host, unsigned short port,
+                            socket_connect_fn_t connector, void* opts) {
+#ifdef HAVE_INET_PTON
+ #ifdef HAVE_IPV6
   {
-    #ifdef HAVE_INET_PTON
-    #ifdef HAVE_IPV6
-    {
-      var struct sockaddr_in6 inaddr;
-      if (inet_pton(AF_INET6,host,&inaddr.sin6_addr) > 0) {
-        inaddr.sin6_family = AF_INET6;
-        inaddr.sin6_port = htons(port);
-        return connector((struct sockaddr *) &inaddr, sizeof(struct sockaddr_in6));
-      }
-    }
-    #endif
-    {
-      var struct sockaddr_in inaddr;
-      if (inet_pton(AF_INET,host,&inaddr.sin_addr) > 0) {
-        inaddr.sin_family = AF_INET;
-        inaddr.sin_port = htons(port);
-        return connector((struct sockaddr *) &inaddr, sizeof(struct sockaddr_in));
-      }
-    }
-    #else
-    # if numeric host name then try to parse it as such; do the number check
-    # first because some systems return garbage instead of INVALID_INETADDR
-    if (all_digits_dots(host)) {
-      var struct sockaddr_in inaddr;
-      var uint32 hostinetaddr = inet_addr(host) INET_ADDR_SUFFIX ;
-      if (!(hostinetaddr == ((uint32) -1))) {
-        inaddr.sin_family = AF_INET;
-        inaddr.sin_addr.s_addr = hostinetaddr;
-        inaddr.sin_port = htons(port);
-        return connector((struct sockaddr *) &inaddr, sizeof(struct sockaddr_in));
-      }
-    }
-    #endif
-    {
-      var struct hostent * host_ptr; # entry in hosts table
-      if ((host_ptr = gethostbyname(host)) == NULL) {
-        sock_set_errno(EINVAL); return INVALID_SOCKET; # No such host!
-      }
-      # Check the address type for an internet host.
-      #ifdef HAVE_IPV6
-      if (host_ptr->h_addrtype == AF_INET6) {
-        # Set up the socket data.
-        var struct sockaddr_in6 inaddr;
-        inaddr.sin6_family = AF_INET6;
-        inaddr.sin6_addr = *(struct in6_addr *)host_ptr->h_addr;
-        inaddr.sin6_port = htons(port);
-        return connector((struct sockaddr *) &inaddr, sizeof(struct sockaddr_in6));
-      } else
-      #endif
-      if (host_ptr->h_addrtype == AF_INET) {
-        # Set up the socket data.
-        var struct sockaddr_in inaddr;
-        inaddr.sin_family = AF_INET;
-        inaddr.sin_addr = *(struct in_addr *)host_ptr->h_addr;
-        inaddr.sin_port = htons(port);
-        return connector((struct sockaddr *) &inaddr, sizeof(struct sockaddr_in));
-      } else {
-        sock_set_errno(EPROTOTYPE); return INVALID_SOCKET; # Not an Internet host!
-      }
+    var struct sockaddr_in6 inaddr;
+    if (inet_pton(AF_INET6,host,&inaddr.sin6_addr) > 0) {
+      inaddr.sin6_family = AF_INET6;
+      inaddr.sin6_port = htons(port);
+      return connector((struct sockaddr *) &inaddr,
+                       sizeof(struct sockaddr_in6), opts);
     }
   }
+ #endif
+  {
+    var struct sockaddr_in inaddr;
+    if (inet_pton(AF_INET,host,&inaddr.sin_addr) > 0) {
+      inaddr.sin_family = AF_INET;
+      inaddr.sin_port = htons(port);
+      return connector((struct sockaddr *) &inaddr,
+                       sizeof(struct sockaddr_in), opts);
+    }
+  }
+#else
+  # if numeric host name then try to parse it as such; do the number check
+  # first because some systems return garbage instead of INVALID_INETADDR
+  if (all_digits_dots(host)) {
+    var struct sockaddr_in inaddr;
+    var uint32 hostinetaddr = inet_addr(host) INET_ADDR_SUFFIX ;
+    if (!(hostinetaddr == ((uint32) -1))) {
+      inaddr.sin_family = AF_INET;
+      inaddr.sin_addr.s_addr = hostinetaddr;
+      inaddr.sin_port = htons(port);
+      return connector((struct sockaddr *) &inaddr,
+                       sizeof(struct sockaddr_in), opts);
+    }
+  }
+#endif
+  {
+    var struct hostent * host_ptr; # entry in hosts table
+    if ((host_ptr = gethostbyname(host)) == NULL) {
+      sock_set_errno(EINVAL); return INVALID_SOCKET; # No such host!
+    }
+    # Check the address type for an internet host.
+   #ifdef HAVE_IPV6
+    if (host_ptr->h_addrtype == AF_INET6) {
+      # Set up the socket data.
+      var struct sockaddr_in6 inaddr;
+      inaddr.sin6_family = AF_INET6;
+      inaddr.sin6_addr = *(struct in6_addr *)host_ptr->h_addr;
+      inaddr.sin6_port = htons(port);
+      return connector((struct sockaddr *) &inaddr,
+                       sizeof(struct sockaddr_in6), opts);
+    } else
+   #endif
+    if (host_ptr->h_addrtype == AF_INET) {
+      # Set up the socket data.
+      var struct sockaddr_in inaddr;
+      inaddr.sin_family = AF_INET;
+      inaddr.sin_addr = *(struct in_addr *)host_ptr->h_addr;
+      inaddr.sin_port = htons(port);
+      return connector((struct sockaddr *) &inaddr,
+                       sizeof(struct sockaddr_in), opts);
+    } else { # Not an Internet host!
+      sock_set_errno(EPROTOTYPE); return INVALID_SOCKET;
+    }
+  }
+}
 
 #endif # TCPCONN
 
@@ -435,35 +437,33 @@ global SOCKET connect_to_x_server (const char* host, int display);
 #endif
 
 #ifdef TCPCONN
-local SOCKET connect_to_x_via_ip (struct sockaddr * addr, int addrlen);
-local SOCKET connect_to_x_via_ip(addr,addrlen)
-  var struct sockaddr * addr;
-  var int addrlen;
-  {
-    var SOCKET fd;
-    var int retries = 3; # number of retries on ECONNREFUSED
-    do {
-      if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
-        return INVALID_SOCKET;
-      #ifdef TCP_NODELAY
-        # turn off TCP coalescence (the bandwidth saving Nagle algorithm)
-        {
-          int tmp = 1;
-          setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (SETSOCKOPT_ARG_T)&tmp, sizeof(int));
-        }
-      #endif
-      # Connect to the socket.
-      # If there is no X server or if the backlog has been reached,
-      # then ECONNREFUSED will be returned.
-      if (connect(fd, addr, addrlen) >= 0)
-        break;
-      saving_sock_errno(CLOSESOCKET(fd));
-      if (!(sock_errno_is(ECONNREFUSED) && (retries > 0)))
-        return INVALID_SOCKET;
-      sleep (1);
-    } while (retries-- > 0);
-    return fd;
-  }
+local SOCKET connect_to_x_via_ip (struct sockaddr * addr, int addrlen,
+                                  void* ignore) {
+  var SOCKET fd;
+  var int retries = 3; # number of retries on ECONNREFUSED
+  (void)(ignore); # no options -- ignore
+  do {
+    if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
+      return INVALID_SOCKET;
+   #ifdef TCP_NODELAY
+    { # turn off TCP coalescence (the bandwidth saving Nagle algorithm)
+      int tmp = 1;
+      setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (SETSOCKOPT_ARG_T)&tmp,
+                 sizeof(int));
+    }
+   #endif
+    # Connect to the socket.
+    # If there is no X server or if the backlog has been reached,
+    # then ECONNREFUSED will be returned.
+    if (connect(fd, addr, addrlen) >= 0)
+      break;
+    saving_sock_errno(CLOSESOCKET(fd));
+    if (!(sock_errno_is(ECONNREFUSED) && (retries > 0)))
+      return INVALID_SOCKET;
+    sleep (1);
+  } while (retries-- > 0);
+  return fd;
+}
 #endif
 
 #ifdef TCPCONN
@@ -562,9 +562,9 @@ global SOCKET connect_to_x_server(host,display)
     var unsigned short port = X_TCP_PORT+display;
     if (host[0] == '\0') {
       get_hostname(host =);
-      fd = with_hostname(host,port,&connect_to_x_via_ip);
+      fd = with_hostname(host,port,&connect_to_x_via_ip,NULL);
     } else {
-      fd = with_hostname(host,port,&connect_to_x_via_ip);
+      fd = with_hostname(host,port,&connect_to_x_via_ip,NULL);
     }
     if (fd == INVALID_SOCKET)
       return INVALID_SOCKET;
@@ -717,37 +717,37 @@ local int lingerize_socket(SOCKET * socket_handle) {
 #   This can (and should) be done multiple times for the same
 #   socket_handle.
 
-global SOCKET create_server_socket (host_data *hd, SOCKET sock, unsigned int port);
-local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen);
-local SOCKET bindlisten_via_ip(addr,addrlen)
-  var struct sockaddr * addr;
-  var int addrlen;
-  {
-    var SOCKET fd;
-    # Get a socket.
-    if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
-      return INVALID_SOCKET;
-    # Set an option for the next bind() call: Avoid an EADDRINUSE error
-    # in case there are TIME_WAIT or CLOSE_WAIT sockets hanging around on
-    # the port. (Sockets in LISTEN or ESTABLISHED state on the same port
-    # will still yield an error.)
-    {
-      var unsigned int flag = 1;
-      if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (SETSOCKOPT_ARG_T)&flag, sizeof(flag)) < 0) {
-        saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
-      }
-    }
-   #ifdef WIN32_NATIVE
-    if (!lingerize_socket(&fd)) return INVALID_SOCKET;
-   #endif
-    # Bind it to the desired port.
-    if (bind(fd, addr, addrlen) >= 0)
-      # Start listening for client connections.
-      if (listen(fd, 1) >= 0)
-        return fd;
-    saving_sock_errno(CLOSESOCKET(fd));
+global SOCKET create_server_socket (host_data *hd, SOCKET sock,
+                                    unsigned int port);
+local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
+                                void* ignore) {
+  var SOCKET fd;
+  (void)(ignore); # no options -- ignore
+  # Get a socket.
+  if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
     return INVALID_SOCKET;
+  # Set an option for the next bind() call: Avoid an EADDRINUSE error
+  # in case there are TIME_WAIT or CLOSE_WAIT sockets hanging around on
+  # the port. (Sockets in LISTEN or ESTABLISHED state on the same port
+  # will still yield an error.)
+  {
+    var unsigned int flag = 1;
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (SETSOCKOPT_ARG_T)&flag,
+                   sizeof(flag)) < 0) {
+      saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
+    }
   }
+ #ifdef WIN32_NATIVE
+  if (!lingerize_socket(&fd)) return INVALID_SOCKET;
+ #endif
+  # Bind it to the desired port.
+  if (bind(fd, addr, addrlen) >= 0)
+    # Start listening for client connections.
+    if (listen(fd, 1) >= 0)
+      return fd;
+  saving_sock_errno(CLOSESOCKET(fd));
+  return INVALID_SOCKET;
+}
 global SOCKET create_server_socket (hd, sock, port)
   var host_data *hd;
   var SOCKET sock;
@@ -756,7 +756,8 @@ global SOCKET create_server_socket (hd, sock, port)
     var SOCKET fd;
     if (sock == INVALID_SOCKET) {
       # "0.0.0.0" allows connections from any host to our server
-      fd = with_hostname("0.0.0.0",(unsigned short)port,&bindlisten_via_ip);
+      fd = with_hostname("0.0.0.0",(unsigned short)port,&bindlisten_via_ip,
+                         NULL);
     } else {
       var sockaddr_max addr;
       var SOCKLEN_T addrlen = sizeof(sockaddr_max);
@@ -773,7 +774,7 @@ global SOCKET create_server_socket (hd, sock, port)
           break;
         default: NOTREACHED;
       }
-      fd = bindlisten_via_ip((struct sockaddr *)&addr,addrlen);
+      fd = bindlisten_via_ip((struct sockaddr *)&addr,addrlen,NULL);
     }
     if (fd == INVALID_SOCKET)
       return INVALID_SOCKET;
@@ -796,33 +797,61 @@ global SOCKET accept_connection (socket_handle)
   }
 
 # Creation of sockets on the client side:
-# SOCKET fd = create_client_socket(hostname,port);
+# SOCKET fd = create_client_socket(hostname,port,void* timeout);
 #   creates a connection to a server (which must be waiting
 #   on the specified host and port).
 
-global SOCKET create_client_socket (const char* hostname, unsigned int port);
-local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen);
-local SOCKET connect_via_ip(addr,addrlen)
-  var struct sockaddr * addr;
-  var int addrlen;
-  {
-    var SOCKET fd;
-    if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
-      return INVALID_SOCKET;
-   #ifdef WIN32_NATIVE
-    if (!lingerize_socket(&fd)) return INVALID_SOCKET;
-   #endif
-    if (connect(fd, addr, addrlen) >= 0)
-      return fd;
-    saving_sock_errno(CLOSESOCKET(fd));
+global SOCKET create_client_socket (const char* hostname, unsigned int port,
+                                    void* timeout);
+local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
+                             void* timeout) {
+  # <http://cr.yp.to/docs/connect.html>:
+  # - make a non-blocking socket, connect(), select() for WR
+  var SOCKET fd;
+  if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
     return INVALID_SOCKET;
+ #ifdef WIN32_NATIVE
+  if (!lingerize_socket(&fd)) return INVALID_SOCKET;
+ #endif
+ #ifdef FIONBIO
+  if (timeout) {
+    var int non_blocking_io = 1;
+    if (ioctl(fd,FIONBIO,&non_blocking_io) != 0) { return INVALID_SOCKET; }
   }
-global SOCKET create_client_socket(hostname,port)
-  var const char* hostname;
-  var unsigned int port;
-  {
-    return with_hostname(hostname,(unsigned short)port,&connect_via_ip);
+ #endif
+  if (connect(fd, addr, addrlen) >= 0)
+    return fd;
+ #ifdef FIONBIO
+  if (sock_errno_is(EINPROGRESS)) {
+   restart_select:
+    var fd_set handle_set;
+    FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+    var int ret = select(FD_SETSIZE,NULL,&handle_set,NULL,
+                         (struct timeval*)timeout);
+    if (ret < 0) {
+      if (sock_errno_is(EINTR)) goto restart_select;
+      saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
+    }
+    if (ret == 0) { # timeout
+      CLOSESOCKET(fd); errno = ETIMEDOUT;
+      return INVALID_SOCKET;
+    }
+    if (connect(fd, addr, addrlen) >= 0) {
+      # connected - restore blocking IO
+      var int non_blocking_io = 0;
+      if (ioctl(fd,FIONBIO,&non_blocking_io) == 0)
+        return fd;
+    }
   }
+ #endif
+  saving_sock_errno(CLOSESOCKET(fd));
+  return INVALID_SOCKET;
+}
+global SOCKET create_client_socket (const char*hostname, unsigned intport,
+                                    void* timeout) {
+  return with_hostname(hostname,(unsigned short)intport,
+                       &connect_via_ip,timeout);
+}
 
 # ==================== miscellaneous network related stuff ====================
 

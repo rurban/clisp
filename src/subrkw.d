@@ -167,7 +167,7 @@ s(make_pipe_io_stream)
 #endif
 #endif
 #ifdef SOCKET_STREAMS
-v(3, (kw(element_type),kw(external_format),kw(buffered)) )
+v(4, (kw(element_type),kw(external_format),kw(buffered),kw(timeout)) )
 s(socket_accept)
 s(socket_connect)
 #endif
