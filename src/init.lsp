@@ -168,8 +168,8 @@ check-type assert etypecase ctypecase ecase ccase trace untrace step time space
 formatter
 english deutsch francais
 ;; Symbol-Macros:
-*default-file-encoding*
 *ansi*
+*default-file-encoding*
 #+UNICODE *pathname-encoding*
 #+UNICODE *terminal-encoding*
 #+UNICODE *misc-encoding*
