@@ -12,12 +12,12 @@
 # Makefiles. Therefore we don't need to pass them explicitly to subdirectory
 # Makefiles, but the subdirectory Makefiles need to have the same defaults.
 # Building as a DLL not supported yet.
-STATIC=1
+DLL=0
 !if !defined(DEBUG)
 DEBUG=0
 !endif
 !if !defined(MFLAGS)
-!if $(STATIC)
+!if !$(DLL)
 MFLAGS=
 !else
 MFLAGS=-MD
@@ -83,7 +83,7 @@ avcall-i386.obj : $(srcdir)/avcall-i386-msvc.c
 structcpy.obj : $(srcdir)/structcpy.c
 	$(CC) $(CFLAGS) -c $(srcdir)/structcpy.c
 
-!if $(STATIC)
+!if !$(DLL)
 avcall.lib : $(OBJECTS)
 	$(RM) avcall.lib
 	$(AR) $(AR_FLAGS)avcall.lib $(OBJECTS)
