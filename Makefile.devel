@@ -84,19 +84,19 @@ win32gcc/makefile : makemake
 	./makemake win32gcc gcc > win32gcc/makefile
 
 win32msvc/makefile.msvc4 : makemake
-	./makemake --with-dynamic-ffi win32msvc msvc4 > win32msvc/makefile
+	./makemake --with-dynamic-ffi win32msvc msvc4 > win32msvc/makefile.msvc4
 
 win32msvc/makefile.msvc5 : makemake
-	./makemake --with-dynamic-ffi win32msvc msvc5 > win32msvc/makefile
+	./makemake --with-dynamic-ffi win32msvc msvc5 > win32msvc/makefile.msvc5
 
 win32bc/makefile : makemake
 	./makemake win32bc bcc32i > win32bc/makefile
 
 acorn/makefile.cc : makemake src/VERSION
-	./makemake acorn ansi | acorn/swap-ext.pl > acorn/makefile
+	./makemake acorn ansi | acorn/swap-ext.pl > acorn/makefile.cc
 
 acorn/makefile.gcc : makemake src/VERSION
-	./makemake acorn gcc | acorn/swap-ext.pl > acorn/makefile
+	./makemake acorn gcc | acorn/swap-ext.pl > acorn/makefile.gcc
 
 makemake : src/makemake.in
 	(echo "#!/bin/sh" ; cat src/makemake.in) > makemake
