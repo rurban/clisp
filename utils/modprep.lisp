@@ -16,6 +16,9 @@ The input file is normal C code, modified like this:
     pushSTACK(`:TEST`);
     value1 = `#()`;
   The backquoted strings are read in at module load time.
+- The module SUBRs can be referred to using double backquote syntax:
+    pushSTACK(``FOO:BAR``);
+  means the same as L(bar) in the CLISP sources
 - The definition of Lisp functions is done using the macro
     DEFUN(function_name, lambda_list)
   for example
@@ -38,6 +41,13 @@ Restrictions and caveats:
 - #if conditions are assumed to be constant from the DEFMODULE call to
   the end of the file. All necessary #define's should therefore be done
   before the DEFMODULE call.
+- DEFUN and DEFVAR statements must take one CPP line
+  (can be continued with backslashes):
+     DEFUN (FOO:BAR,               ; BAD
+             zot quux)
+     DEFUN (FOO:BAR,             \
+             zot quux)             ; GOOD
+
 |#
 
 (in-package "CL-USER")
