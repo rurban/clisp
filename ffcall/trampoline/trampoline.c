@@ -134,15 +134,6 @@ extern RETGETPAGESIZETYPE getpagesize ();
 #else
 #include <sys/types.h>
 #include <sys/mman.h>
-#if !defined(__convex__)
-#ifdef __cplusplus
-extern "C" int mprotect (MPROTECT_CONST void* addr, size_t len, int prot);
-#elif defined(__STDC__)
-extern int mprotect (MPROTECT_CONST void* addr, size_t len, int prot);
-#else
-extern int mprotect ();
-#endif
-#endif
 #endif
 #endif
 #endif
