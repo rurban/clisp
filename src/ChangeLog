@@ -1,5 +1,9 @@
 2004-09-16  Bruno Haible  <bruno@clisp.org>
 
+	* clos-slotdef1.lisp (structure-effective-slot-definition): Provide
+	different initforms for efm-svuc etc.
+	(initialize-instance-<structure-effective-slot-definition>): Initialize
+	the slots efm-svuc etc.
 	* clos-class3.lisp (compute-slot-location-table-entry): Make it work
 	for STRUCTURE-CLASS classes.
 
