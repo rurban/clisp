@@ -1,3 +1,20 @@
+2004-06-20  Bruno Haible  <bruno@clisp.org>
+
+	Implement the :generic-function-class option.
+	* clos-genfun2.lisp (make-generic-function-instance): New function.
+	(%make-gf, make-fast-gf): Accept a generic-function-class argument.
+	* clos-genfun3.lisp (do-defmethod): Update.
+	(analyze-defgeneric): Return also a generic-function-class-form value.
+	(defgeneric): Pass the generic-function-class to do-defgeneric.
+	(ensure-generic-function): Likewise.
+	* clos-genfun4.lisp (make-generic-function): Accept a
+	generic-function-class argument.
+	(do-defgeneric): Likewise. Call change-class if the old generic
+	function's class is different.
+	(make-generic-function-form): Update.
+	* clos-genfun6.lisp (make-generic-function-instance): Replace with
+	make-instance.
+
 2004-08-23  Sam Steingold  <sds@gnu.org>
 
 	* modules/pcre/cpcre.c (PCRE-EXEC): allocate ovector of proper size

@@ -237,7 +237,7 @@
                                                      '()))))
                          ; gf-lambdalist's signature is
                          ; (make-signature :req-num req-num :opt-num opt-num :rest-p rest-p).
-                         (make-fast-gf funname gf-lambdalist (subseq m-lambdalist 0 req-num) <standard-method>))))))
+                         (make-fast-gf <standard-generic-function> funname gf-lambdalist (subseq m-lambdalist 0 req-num) <standard-method>))))))
          (method
            (if (listp method-or-initargs)
              (apply #'make-method-instance (std-gf-default-method-class gf)
@@ -267,13 +267,14 @@
 ;; funname: function name, symbol or (SETF symbol)
 ;; lambdalist: lambdalist of the generic function
 ;; options: (option*)
-;; --> signature, argument-precedence-order, method combination, method-class-form, method-forms, docstring
+;; --> generic-function-class-form, signature, argument-precedence-order, method combination, method-class-form, method-forms, docstring
 (defun analyze-defgeneric (caller whole-form funname lambdalist options)
   (setq funname (sys::check-function-name funname caller))
   ;; Parse the lambdalist:
   (analyze-defgeneric-lambdalist caller whole-form funname lambdalist)
   ;; Process the options:
-  (let ((method-forms '())
+  (let ((generic-function-classes nil)
+        (method-forms '())
         (method-combination 'STANDARD)
         (method-classes nil)
         (argorders nil)
@@ -331,13 +332,19 @@
                (TEXT "~S ~S: Invalid method combination: ~S")
                caller funname option))))
         (:GENERIC-FUNCTION-CLASS
-         ;; the class of the generic function is being ignored.
-         (unless (equal (rest option) '(STANDARD-GENERIC-FUNCTION))
+         (unless (and (eql (length option) 2) (symbolp (second option)))
            (error-of-type 'ext:source-program-error
              :form whole-form
              :detail option
-             (TEXT "~S ~S: The only valid generic function class name is ~S : ~S")
-             caller funname 'standard-generic-function option)))
+             (TEXT "~S ~S: A class name must be specified after ~S : ~S")
+             caller funname ':generic-function-class option))
+         (when generic-function-classes
+           (error-of-type 'ext:source-program-error
+             :form whole-form
+             :detail options
+             (TEXT "~S ~S: Only one ~S option is allowed.")
+             caller funname ':generic-function-class))
+         (setq generic-function-classes (rest option)))
         (:METHOD-CLASS
          (unless (and (eql (length option) 2) (symbolp (second option)))
            (error-of-type 'ext:source-program-error
@@ -370,11 +377,16 @@
                 (TEXT "~S ~S: ~A")
                 caller funname (apply #'format nil errorstring arguments))))
       (declare (ignore argorder))
-      (let ((method-class-form
+      (let ((generic-function-class-form
+              (if generic-function-classes
+                `(FIND-CLASS ',(first generic-function-classes))
+                '<STANDARD-GENERIC-FUNCTION>))
+            (method-class-form
               (if method-classes
                 `(FIND-CLASS ',(first method-classes))
                 '<STANDARD-METHOD>)))
-        (values signature
+        (values generic-function-class-form
+                signature
                 argument-precedence-order
                 method-combination
                 method-class-form
@@ -414,7 +426,7 @@
 
 (defmacro defgeneric (&whole whole-form
                       funname lambda-list &rest options)
-  (multiple-value-bind (signature argument-precedence-order method-combo method-class-form method-forms docstring)
+  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combo method-class-form method-forms docstring)
       (analyze-defgeneric 'defgeneric whole-form funname lambda-list options)
     `(LET ()
        (DECLARE (SYS::IN-DEFUN ,funname))
@@ -429,7 +441,7 @@
                                         ',(second funname))))))
              `((SYSTEM::%SET-DOCUMENTATION ,symbolform 'FUNCTION
                                            ',docstring))))
-       (DO-DEFGENERIC ',funname ',lambda-list ',signature ',argument-precedence-order ',method-combo ,method-class-form
+       (DO-DEFGENERIC ',funname ,generic-function-class-form ',lambda-list ',signature ',argument-precedence-order ',method-combo ,method-class-form
                       ,@method-forms))))
 
 (defun ensure-generic-function (function-name &key argument-precedence-order
@@ -437,7 +449,7 @@
                                 generic-function-class lambda-list
                                 method-class method-combination)
   (declare (ignore environment))
-  (multiple-value-bind (signature argument-precedence-order method-combo method-class-form)
+  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combo method-class-form)
       (analyze-defgeneric
        'defgeneric function-name lambda-list
        `(,@(if declare `(:declare ,declare))
@@ -451,4 +463,4 @@
                       generic-function-class)))
          ,@(if method-combination `(:method-combination ,method-combination))
          ,@(if method-class `(:method-class ,method-class))))
-    (do-defgeneric function-name lambda-list signature argument-precedence-order method-combo (eval method-class-form))))
+    (do-defgeneric function-name (eval generic-function-class-form) lambda-list signature argument-precedence-order method-combo (eval method-class-form))))
