@@ -1,5 +1,10 @@
 2004-08-30  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/configure.in: check for <winsock2.h> only when
+	<sys/socket.h> is not found to avoid confusion on cygwin
+
+2004-08-30  Sam Steingold  <sds@gnu.org>
+
 	* foreign.d (open_library): accept :DEFAULT and :NEXT when
 	RTLD_DEFAULT and RTLD_NEXT are defined
 	(FOREIGN-LIBRARY): do not check that the library name is a string:
