@@ -31,36 +31,6 @@
   #define LISPOBJ_S(name,initstring)  \
     LISPOBJ(name,"\"" initstring "\"")
 
-# The macro LISPOBJ_L declares a language-dependent LISP object.
-# LISPOBJ_L(name,english_initstring)
-# > name: object is addressable as OL(name)
-# > english_initstring: initialization-string for ENGLISH
-  #ifdef LANGUAGE_STATIC
-    #define LISPOBJ_L(name,english)  \
-      LISPOBJ(name,english)
-  #else
-    #ifndef GNU_GETTEXT
-      #define LISPOBJ_L(name,english)  \
-        LISPOBJ(name,english)
-    #else # GNU_GETTEXT
-      #define LISPOBJ_L(name,english)  \
-        LISPOBJ(name,"@"english)
-    #endif
-  #endif
-
-# The macro LISPOBJ_LS declares a language-dependent LISP string.
-# LISPOBJ_LS(name,english_initstring)
-# > name: object is addressable as OLS(name)
-# > english_initstring: initialization-string for ENGLISH
-# the initstring in C-syntax, may not contain backslashes.
-  #ifndef GNU_GETTEXT
-    #define LISPOBJ_LS(name,english)  \
-      LISPOBJ_L(name, "\""english"\"")
-  #else # GNU_GETTEXT
-    #define LISPOBJ_LS(name,english)  \
-      LISPOBJ(name,"\""english"\"")
-  #endif
-
 # for SPVW.D:
   # chained list of all active weak-pointers:
   LISPOBJ(all_weakpointers,"0")
@@ -374,76 +344,11 @@
   # the default-package for *PACKAGE*:
   LISPOBJ(default_package,".")
   # various strings and lists for interactive conflict resolution:
-  LISPOBJ_LS(query_string1,
-    /* ENGLISH */ "Please choose:")
-  LISPOBJ_S(query_string2,"          ")
-  LISPOBJ_S(query_string3,"  --  ")
-  LISPOBJ_LS(query_string4,
-    /* ENGLISH */ "Please choose one of ~:{~A~:^, ~} .")
-  LISPOBJ_S(query_string5,">> ")
-  LISPOBJ_LS(unint_string1,
-    /* ENGLISH */ "symbol ~A from #<PACKAGE ~A> will become a shadowing symbol")
-  LISPOBJ_LS(unint_string2,
-    /* ENGLISH */ "You may choose the symbol in favour of which to resolve the conflict.")
-  LISPOBJ_LS(unint_string3,
-    /* ENGLISH */ "uninterning ~S from ~S uncovers a name conflict.")
-  LISPOBJ_LS(import_string1,
-    /* ENGLISH */ "You may choose how to proceed.")
-  LISPOBJ_LS(import_string2,
-    /* ENGLISH */ "importing ~S into ~S produces a name conflict with ~S.")
-  LISPOBJ_LS(import_string3,
-    /* ENGLISH */ "importing ~S into ~S produces a name conflict with ~S and other symbols.")
-  LISPOBJ_L(import_list1,
-    /* ENGLISH */ "((\"I\" \"import it and unintern the other symbol\" T)"
-                  " (\"N\" \"do not import it, leave undone\" NIL))")
-  LISPOBJ_L(import_list2,
-    /* ENGLISH */ "((\"I\" \"import it, unintern one other symbol and shadow the other symbols\" T)"
-                  " (\"N\" \"do not import it, leave undone\" NIL))")
-  LISPOBJ_L(import_list3,
-    /* ENGLISH */ "((\"I\" \"import it and shadow the other symbol\" T) (\"N\" \"do nothing\" NIL))")
-  LISPOBJ_LS(export_string1,
-    /* ENGLISH */ "You may choose how to proceed.")
-  LISPOBJ_LS(export_string2,
-    /* ENGLISH */ "symbol ~S should be imported into ~S before being exported.")
-  LISPOBJ_L(export_list1,
-    /* ENGLISH */ "((\"I\" \"import the symbol first\" T)"
-                  " (\"N\" \"do nothing, do not export the symbol\" NIL))")
-  LISPOBJ_LS(export_string3,
-    /* ENGLISH */ "You may choose in favour of which symbol to resolve the conflict.")
-  LISPOBJ_LS(export_string4,
-    /* ENGLISH */ "exporting ~S from ~S produces a name conflict with ~S from ~S.")
-  LISPOBJ_LS(export_string5,
-    /* ENGLISH */ "Which symbol should be accessible in ~S ?")
-  LISPOBJ_S(export_string6,"1")
-  LISPOBJ_S(export_string7,"2")
-  LISPOBJ_LS(export_string8,
-    /* ENGLISH */ "the symbol to export, ")
-  LISPOBJ_LS(export_string9,
-    /* ENGLISH */ "the old symbol, ")
-  LISPOBJ_LS(usepack_string1,
-    /* ENGLISH */ "You may choose for every conflict in favour of which symbol to resolve it.")
-  LISPOBJ_LS(usepack_string2,
-    /* ENGLISH */ "~S name conflicts while executing USE-PACKAGE of ~S into package ~S.")
-  LISPOBJ_LS(usepack_string3,
-    /* ENGLISH */ "which symbol with name ~S should be accessible in ~S ?")
-  LISPOBJ_LS(makepack_string1,
-    /* ENGLISH */ "You can input another name.")
-  LISPOBJ_LS(makepack_string2,
-    /* ENGLISH */ "You can input another nickname.")
-  LISPOBJ_LS(makepack_string3,
-    /* ENGLISH */ "a package with name ~S already exists.")
-  LISPOBJ_LS(makepack_string4,
-    /* ENGLISH */ "Please input new package name:")
-  LISPOBJ_LS(makepack_string5,
-    /* ENGLISH */ "Please input new package nickname:")
-  LISPOBJ_LS(delpack_string1,
-    /* ENGLISH */ "Ignore.")
-  LISPOBJ_LS(delpack_string2,
-    /* ENGLISH */ "~S: There is no package with name ~S.")
-  LISPOBJ_LS(delpack_string3,
-    /* ENGLISH */ "~*Nevertheless delete ~S.")
-  LISPOBJ_LS(delpack_string4,
-    /* ENGLISH */ "~S: ~S is used by ~{~S~^, ~}.")
+  LISPOBJ_S(query_string_10sp,"          ")
+  LISPOBJ_S(query_string_2dash,"  --  ")
+  LISPOBJ_S(query_string_prompt,">> ")
+  LISPOBJ_S(export_string_1,"1")
+  LISPOBJ_S(export_string_2,"2")
   # default-use-list:
   LISPOBJ(use_default,"(\"COMMON-LISP\")")
   # default-package for ANSI-CL-compliance:
@@ -472,30 +377,12 @@
     LISPOBJ(machine_version_string,"NIL")
     LISPOBJ(machine_instance_string,"NIL")
   #endif
-  LISPOBJ_LS(software_type_string,
-    /* ENGLISH */ "ANSI C program")
  #if defined(GNU)
-  #if defined(__cplusplus)
-  LISPOBJ_LS(c_compiler_name,
-    /* ENGLISH */ "GNU C++ ")
-  #else
-  LISPOBJ_LS(c_compiler_name,
-    /* ENGLISH */ "GNU C ")
-  #endif
   LISPOBJ_S(c_compiler_version,__VERSION__)
-  LISPOBJ(software_version_string,"NIL") # cache
- #else
-  #if defined(__cplusplus)
-  LISPOBJ_LS(software_version_string,
-    /* ENGLISH */ "C++ compiler")
-  #else
-  LISPOBJ_LS(software_version_string,
-    /* ENGLISH */ "C compiler")
-  #endif
  #endif
 # for I18N.D:
- #ifdef GNU_GETTEXT
   LISPOBJ(current_language,".")
+ #ifdef GNU_GETTEXT
   LISPOBJ(type_category,"(MEMBER :LC_MESSAGES :LC_CTYPE :LC_TIME :LC_COLLATE :LC_MONETARY)")
  #endif
   LISPOBJ(ansi,"NIL")
@@ -509,11 +396,6 @@
   LISPOBJ_S(error_string1,"*** - ")
   # vector with conditions and simple-conditions:
   LISPOBJ(error_types,"#()")
-  # interrupt handling:
-  LISPOBJ_LS(continue_interrupt,
-    /* ENGLISH */ "Continue execution")
-  LISPOBJ_LS(user_break,
-    /* ENGLISH */ "~S: User break")
   # for errors of type TYPE-ERROR:
   LISPOBJ(type_uint8,"(INTEGER 0 255)") # or "(UNSIGNED-BYTE 8)"
   LISPOBJ(type_sint8,"(INTEGER -128 127)") # or "(SIGNED-BYTE 8)"
@@ -668,13 +550,8 @@
   # argumentlist for WRITE-TO-STRING :
   LISPOBJ(base10_radixnil,"(:BASE 10 :RADIX NIL)")
   # defaults-warning-string:
-  LISPOBJ_LS(defaults_warn_string,
-    /* ENGLISH */ "The value of ~S was not a pathname. ~:*~S is being reset.")
   # default value for :DIRECTORY-argument:
   LISPOBJ(directory_default,"(:RELATIVE)")
-  # message-string:
-  LISPOBJ_LS(mkdirp_string,
-    /* ENGLISH */ "Creating directory: ")
   # defaults for COMPILE-FILE-call in SPVW:
   LISPOBJ(source_file_type,"#\".lisp\"")
   LISPOBJ(compiled_file_type,"#\".fas\"")
@@ -831,11 +708,6 @@
   LISPOBJ(LF_pi,".")   # value of pi, so exact as known
   LISPOBJ(LF_ln2,".")  # value of ln 2, so exact as known
   LISPOBJ(LF_ln10,".") # value of ln 10, so exact as known
-  # warning-strings:
-  LISPOBJ_LS(default_float_format_warnung_string,
-    /* ENGLISH */ "The variable ~S had an illegal value." NLstring "~S has been reset to ~S.")
-  LISPOBJ_LS(fpcontagion_warn_string,
-     /* ENGLISH */ "Floating point operation combines numbers of different precision." NLstring "See ANSI CL 12.1.4.4 and the CLISP impnotes for details." NLstring "The result's actual precision is controlled by" NLstring "~S." NLstring "To shut off this warning, set ~S to ~S.")
 # for EVAL.D:
   # toplevel-declaration-environment:
   LISPOBJ(top_decl_env,"(NIL)") # list of O(declaration_types) (is initialized later)
@@ -848,64 +720,11 @@
   # prompts:
   LISPOBJ_S(prompt_string,"> ")
   LISPOBJ_S(breakprompt_string,". Break> ")
-  # Good-Bye-string:
-  LISPOBJ_LS(bye_string,
-    /* ENGLISH */ "Bye.")
-  LISPOBJ_LS(keypress_string,
-    /* ENGLISH */ "Press a key to terminate...")
   # various strings for description of the stack:
   LISPOBJ_S(showstack_string_lisp_obj,NLstring "- ")
   LISPOBJ_S(showstack_string_bindung,NLstring "  | ")
-  LISPOBJ_LS(showstack_string_next_env,
-    /* ENGLISH */ NLstring "  Next environment: ")
-  LISPOBJ_LS(showstack_string_TRAPPED_APPLY_frame,
-    /* ENGLISH */ NLstring "APPLY frame with breakpoint for call ")
-  LISPOBJ_LS(showstack_string_APPLY_frame,
-    /* ENGLISH */ NLstring "APPLY frame for call ")
-  LISPOBJ_LS(showstack_string_TRAPPED_EVAL_frame,
-    /* ENGLISH */ NLstring "EVAL frame with breakpoint for form ")
-  LISPOBJ_LS(showstack_string_EVAL_frame,
-    /* ENGLISH */ NLstring "EVAL frame for form ")
-  LISPOBJ_LS(showstack_string_DYNBIND_frame,
-    /* ENGLISH */ NLstring "frame binding variables (~ = dynamically):")
-  #ifdef HAVE_SAVED_REGISTERS
-  LISPOBJ_LS(showstack_string_CALLBACK_frame,
-    /* ENGLISH */ NLstring "CALLBACK frame")
-  #endif
-  LISPOBJ_LS(showstack_string_VAR_frame,
-    /* ENGLISH */ NLstring "frame binding variables ")
-  LISPOBJ_LS(showstack_string_FUN_frame,
-    /* ENGLISH */ NLstring "frame binding functions ")
-  LISPOBJ_LS(showstack_string_binds,
-    /* ENGLISH */ " binds (~ = dynamically):")
   LISPOBJ_S(showstack_string_zuord," <--> ")
-  LISPOBJ_LS(showstack_string_IBLOCK_frame,
-    /* ENGLISH */ NLstring "block frame ")
-  LISPOBJ_LS(showstack_string_NESTED_IBLOCK_frame,
-    /* ENGLISH */ NLstring "nested block frame ")
-  LISPOBJ_LS(showstack_string_for1,
-    /* ENGLISH */ " for ")
-  LISPOBJ_LS(showstack_string_CBLOCK_frame,
-    /* ENGLISH */ NLstring "compiled block frame for ")
-  LISPOBJ_LS(showstack_string_ITAGBODY_frame,
-    /* ENGLISH */ NLstring "tagbody frame ")
-  LISPOBJ_LS(showstack_string_NESTED_ITAGBODY_frame,
-    /* ENGLISH */ NLstring "nested tagbody frame ")
-  LISPOBJ_LS(showstack_string_for2,
-    /* ENGLISH */ " for")
   LISPOBJ_S(showstack_string_zuordtag," --> ")
-  LISPOBJ_LS(showstack_string_CTAGBODY_frame,
-    /* ENGLISH */ NLstring "compiled tagbody frame for ")
-  LISPOBJ_LS(showstack_string_CATCH_frame,
-    /* ENGLISH */ NLstring "catch frame for tag ")
-  LISPOBJ_LS(showstack_string_HANDLER_frame,
-    /* ENGLISH */ NLstring "handler frame for conditions")
-  LISPOBJ_LS(showstack_string_UNWIND_PROTECT_frame,
-    /* ENGLISH */ NLstring "unwind-protect frame")
-  LISPOBJ_LS(showstack_string_DRIVER_frame,
-    /* ENGLISH */ NLstring NLstring "driver frame")
-  LISPOBJ_LS(showstack_string_ENV_frame,
-    /* ENGLISH */ NLstring "frame binding environments")
   LISPOBJ_S(showstack_string_VENV_frame,NLstring "  VAR_ENV <--> ")
   LISPOBJ_S(showstack_string_FENV_frame,NLstring "  FUN_ENV <--> ")
   LISPOBJ_S(showstack_string_BENV_frame,NLstring "  BLOCK_ENV <--> ")

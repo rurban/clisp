@@ -3439,8 +3439,7 @@ local object defaults_pathname (void) {
     return pathname;
   } else { # else warning:
     pushSTACK(subr_self); # save subr_self (for subsequent error-messages)
-    # (WARN "The value of ~S was no pathname. ~:*~S is being reset." ...)
-    pushSTACK(OLS(defaults_warn_string));
+    pushSTACK(CLSTEXT("The value of ~S was not a pathname. ~:*~S is being reset."));
     pushSTACK(S(default_pathname_defaults));
     funcall(S(warn),2);
     # and re-calculate:
@@ -9672,7 +9671,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose))) {
       if (!directory_exists(STACK_2)) {
         if (!eq(STACK_3,unbound) && !nullp(STACK_3)) { # Verbose?
           funcall(L(fresh_line),0); # (FRESH-LINE [*standard-output*])
-          pushSTACK(OLS(mkdirp_string)); funcall(L(write_string),1); # (WRITE-STRING "..." [*standard-output*])
+          pushSTACK(CLSTEXT("Creating directory: ")); funcall(L(write_string),1); # (WRITE-STRING "..." [*standard-output*])
           pushSTACK(STACK_2); funcall(L(princ),1); # (PRINC pathname [*standard-output*])
           funcall(L(terpri),0); # (TERPRI [*standard-output*])
         }

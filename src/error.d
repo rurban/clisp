@@ -657,13 +657,12 @@ LISPFUNN(invoke_debugger,1)
         terpri(&STACK_0); # neue Zeile
         write_sstring(&STACK_0,O(error_string1)); # "*** - " ausgeben
         # String ausgeben, Aufrufernamen verbrauchen, STACK aufräumen:
-        set_args_end_pointer(
-          write_errorstring(GETTEXT("~: User break")));
+        set_args_end_pointer(write_errorstring(GETTEXT("~: User break")));
         break_driver(T); # Break-Driver aufrufen
       } else {
-        pushSTACK(OLS(continue_interrupt)); # "Continue execution"
+        pushSTACK(CLSTEXT("Continue execution"));
         pushSTACK(S(simple_interrupt_condition)); # SYSTEM::[SIMPLE-]INTERRUPT-CONDITION
-        pushSTACK(OLS(user_break)); # "~S: User break"
+        pushSTACK(CLSTEXT("~S: User break"));
         pushSTACK(STACK_(0+3)); # caller
         funcall(L(cerror_of_type),4); # (SYS::CERROR-OF-TYPE "..." 'SYSTEM::[SIMPLE-]INTERRUPT-CONDITION "..." caller)
         skipSTACK(1);

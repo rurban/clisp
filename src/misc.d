@@ -458,33 +458,32 @@ LISPFUNN(registry,2)
 
 #endif
 
-LISPFUNN(software_type,0)
-# (SOFTWARE-TYPE), CLTL S. 448
-  {
-    value1 = OLS(software_type_string); mv_count=1;
-  }
+LISPFUNN(software_type,0) { # (SOFTWARE-TYPE), CLTL p. 448
+  value1 = CLSTEXT("ANSI C program"); mv_count=1;
+}
 
-LISPFUNN(software_version,0)
-# (SOFTWARE-VERSION), CLTL S. 448
-  {
-    #if defined(GNU)
-      value1 = O(software_version_string);
-      if (nullp(value1)) { # noch unbekannt?
-        pushSTACK(OLS(c_compiler_name));
-        pushSTACK(O(c_compiler_version));
-        value1 = O(software_version_string) = string_concat(2);
-      }
-    #else
-      value1 = OLS(software_version_string);
-    #endif
-    mv_count=1;
-  }
+LISPFUNN(software_version,0) { # (SOFTWARE-VERSION), CLTL p. 448
+#if defined(GNU)
+ #if defined(__cplusplus)
+  pushSTACK(CLSTEXT("GNU C++ "));
+ #else
+  pushSTACK(CLSTEXT("GNU C "));
+ #endif
+  pushSTACK(O(c_compiler_version));
+  value1 = string_concat(2);
+#else
+ #if defined(__cplusplus)
+  value1 = CLSTEXT("C++ compiler");
+ #else
+  value1 = CLSTEXT("C compiler");
+ #endif
+#endif
+  mv_count=1;
+}
 
-LISPFUNN(identity,1)
-# (IDENTITY object), CLTL S. 448
-  {
-    value1 = popSTACK(); mv_count=1;
-  }
+LISPFUNN(identity,1) { # (IDENTITY object), CLTL p. 448
+  value1 = popSTACK(); mv_count=1;
+}
 
 LISPFUNN(address_of,1)
 # (SYS::ADDRESS-OF object) liefert die Adresse von object

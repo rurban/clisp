@@ -635,18 +635,18 @@ local object* prepare_query_user (void) {
 local object query_user (object ml) {
   pushSTACK(ml);
   var object* stream_ = prepare_query_user(); # Stream *QUERY-IO*
-  write_sstring(stream_,OLS(query_string1));
+  write_sstring(stream_,CLSTEXT("Please choose:"));
   { # print options:
     var object mlistr = STACK_1; # remaining options
     while (consp(mlistr)) {
       pushSTACK(mlistr);
       terpri(stream_);
-      write_sstring(stream_,O(query_string2)); # "          "
+      write_sstring(stream_,O(query_string_10sp)); # "          "
       {
         var object moeglichkeit = Car(STACK_0); # next option
         pushSTACK(Car(Cdr(moeglichkeit))); # save long-string
         write_string(stream_,Car(moeglichkeit)); # print short-string
-        write_sstring(stream_,O(query_string3)); # "  --  "
+        write_sstring(stream_,O(query_string_2dash)); # "  --  "
         write_string(stream_,popSTACK()); # print long-string
       }
       mlistr = popSTACK();
@@ -657,7 +657,7 @@ local object query_user (object ml) {
   terpri(stream_);
   # read response from user:
   loop {
-    write_sstring(stream_,O(query_string5)); # ">> "
+    write_sstring(stream_,O(query_string_prompt)); # ">> "
     pushSTACK(*stream_); funcall(L(read_line),1); # call (READ-LINE stream)
     pushSTACK(value1); # save answer
     # stack-layout: options, stream, answer
@@ -686,7 +686,7 @@ local object query_user (object ml) {
     skipSTACK(1); # forget answer
     # no correct answer, yet
     pushSTACK(*stream_);
-    pushSTACK(OLS(query_string4));
+    pushSTACK(CLSTEXT("Please choose one of ~:{~A~:^, ~} ."));
     pushSTACK(STACK_(1+2)); # options
     funcall(S(format),3); # (FORMAT stream ... option-list)
     terpri(stream_);
@@ -780,8 +780,8 @@ local void cerror_package_locked (object func, object pack, object obj) {
   pushSTACK(func);             # 2
   pushSTACK(obj);              # 1
   pushSTACK(pack);             # 0
-  STACK_7 = OGETTEXT("Ignore the lock and proceed"); # continue-format-string
-  STACK_3 = OGETTEXT("~A(~S): ~S is locked"); # error-format-string
+  STACK_7 = CLSTEXT("Ignore the lock and proceed"); # continue-format-string
+  STACK_3 = CLSTEXT("~A(~S): ~S is locked"); # error-format-string
   funcall(L(cerror_of_type),8);
 }
 # check the package lock
@@ -986,12 +986,10 @@ local object unintern (const object* sym_, const object* pack_) {
           pushSTACK(temp=ThePackage(pack)->pack_name); # name of pack
           pushSTACK(othersym); # symbol
           pushSTACK(NIL);
-          # "symbol ~A from #<PACKAGE ~A> will be
-          # declared as shadowing."
-          pushSTACK(NIL);
+          pushSTACK(NIL); # "symbol ~A from ~A will become a shadowing symbol"
           pushSTACK(Symbol_name(othersym)); # symbolname
-          pushSTACK(temp); # packagename
-          STACK_2 = OLS(unint_string1);
+          pushSTACK(pack); # package
+          STACK_2 = CLSTEXT("symbol ~A from ~A will become a shadowing symbol");
           # (FORMAT NIL "..." symbolname packagename)
           funcall(S(format),4);
           temp = value1;
@@ -1020,11 +1018,11 @@ local object unintern (const object* sym_, const object* pack_) {
       # if (length OL) >= 2, there's a conflict:
       if (mconsp(STACK_0) && mconsp(Cdr(STACK_0))) {
         # raise Continuable Error:
-        pushSTACK(OLS(unint_string2));
+        pushSTACK(CLSTEXT("You may choose the symbol in favour of which to resolve the conflict."));
         pushSTACK(S(package_error)); # PACKAGE-ERROR
         pushSTACK(S(Kpackage)); # :PACKAGE
         pushSTACK(*pack_); # package
-        pushSTACK(OLS(unint_string3));
+        pushSTACK(CLSTEXT("uninterning ~S from ~S uncovers a name conflict."));
         pushSTACK(*sym_); # symbol
         pushSTACK(*pack_); # package
         # (SYS::CERROR-OF-TYPE "..." 'PACKAGE-ERROR :PACKAGE package
@@ -1073,6 +1071,46 @@ local object unintern (const object* sym_, const object* pack_) {
     return NIL;
 }
 
+# UP: raise a continuable error and query the user about how to proceed
+# return true when an abort was requested
+# dialog_type == 0 or 1 or 2
+# can trigger GC
+local bool query_intern_conflict (object pack, object sym, object other,
+                                  int dialog_type) {
+  pushSTACK(NIL);              # 7 continue-format-error
+  pushSTACK(S(package_error)); # 6 error type
+  pushSTACK(S(Kpackage));      # 5 :PACKAGE
+  pushSTACK(pack);             # 4 PACKAGE-ERROR slot PACKAGE
+  pushSTACK(NIL);              # 3 error-format-string
+  pushSTACK(sym);              # 2
+  pushSTACK(pack);             # 1
+  pushSTACK(other);            # 0
+  STACK_7 = CLSTEXT("You may choose how to proceed.");
+  STACK_3 = (dialog_type == 1
+             ? CLSTEXT("importing ~S into ~S produces a name conflict with ~S and other symbols.")
+             : CLSTEXT("importing ~S into ~S produces a name conflict with ~S."));
+  funcall(L(cerror_of_type),8);
+  # get the answer from the user:
+  var object ml; # option-list (("I" ... T) ("N" ... NIL))
+  switch (dialog_type) {
+    case 0: # conflict
+      ml =  CLOTEXT("((\"I\" \"import it and unintern the other symbol\" T)"
+                    " (\"N\" \"do not import it, leave undone\" NIL))");
+      break;
+    case 1: # conflict & shadowing
+      ml = CLOTEXT("((\"I\" \"import it, unintern one other symbol and shadow the other symbols\" T)"
+                   " (\"N\" \"do not import it, leave undone\" NIL))");
+      break;
+    case 2: # shadowing
+      ml = CLOTEXT("((\"I\" \"import it and shadow the other symbol\" T)"
+                   " (\"N\" \"do nothing\" NIL))");
+      break;
+    default: NOTREACHED;
+  }
+  var object reply = query_user(ml);
+  return nullp(Car(Cdr(Cdr(reply)))); # NIL-option selected?
+}
+
 # UP: Imports a symbol into a package and does conflict resolution
 # in case, that a name conflict arises either with a symbol
 # inherited from anotherpackage or with an already present symbol
@@ -1083,6 +1121,8 @@ local object unintern (const object* sym_, const object* pack_) {
 # < pack: package, EQ to the old
 # can trigger GC
 global void import (const object* sym_, const object* pack_) {
+  #define CONFLICT1
+  #define CONFLICT2
   var object sym = *sym_;
   var object pack = *pack_;
   var object string = Symbol_name(sym);
@@ -1105,31 +1145,8 @@ global void import (const object* sym_, const object* pack_) {
     var bool inheritedp = inherited_lookup(string,pack,NULL);
     # stack-layout: symbol-name, othersym, othersymtab.
     # raise Continuable Error:
-    # "You may decide over the procedure."
-    pushSTACK(OLS(import_string1));
-    pushSTACK(S(package_error)); # PACKAGE-ERROR
-    pushSTACK(S(Kpackage)); # :PACKAGE
-    pushSTACK(*pack_); # package
-    pushSTACK(!inheritedp # for inheritedp=false the short message
-              # "By importing ~S in ~S a name conflict arises with ~S."
-              ? OLS(import_string2)
-              # "By importing ~S in ~S ... name conflict with ~S
-              # and other symbols."
-              : OLS(import_string3)
-              );
-    pushSTACK(*sym_); # symbol
-    pushSTACK(*pack_); # package
-    pushSTACK(STACK_8); # othersym
-    # (SYS::CERROR-OF-TYPE String1 'PACKAGE-ERROR :PACKAGE pack
-    # String2/3 sym pack othersym)
-    funcall(L(cerror_of_type),8);
-    { # get the answer from the user:
-      var object ml = # option-list (("I" ... T) ("N" ... NIL))
-        (!inheritedp ? OL(import_list1) : OL(import_list2));
-      var object antwort = query_user(ml);
-      if (nullp(Car(Cdr(Cdr(antwort))))) { # NIL-option selected?
-        skipSTACK(3); return; # yes -> do not import, finished
-      }
+    if (query_intern_conflict(*pack_,*sym_,othersym,inheritedp ? 1 : 0)) {
+      skipSTACK(3); return; # yes -> do not import, finished
     }
     # import:
     set_break_sem_2();
@@ -1162,25 +1179,8 @@ global void import (const object* sym_, const object* pack_) {
       clr_break_sem_2();
     } else {
       # no -> raise Continuable Error and query user:
-      pushSTACK(NIL); # "You may decide over the procedure."
-      pushSTACK(S(package_error)); # PACKAGE-ERROR
-      pushSTACK(S(Kpackage)); # :PACKAGE
-      pushSTACK(pack); # package
-      # "By importing ~S in ~S a name conflict arises with ~S."
-      pushSTACK(NIL);
-      pushSTACK(sym); # symbol
-      pushSTACK(pack); # package
-      pushSTACK(otherusedsym); # otherusedsym
-      STACK_7 = OLS(import_string1);
-      STACK_3 = OLS(import_string2);
-      # (SYS::CERROR-OF-TYPE String1 'PACKAGE-ERROR :PACKAGE pack
-      # String2 sym pack otherusedsym)
-      funcall(L(cerror_of_type),8);
-      {
-        var object antwort = query_user(OL(import_list3));
-        if (nullp(Car(Cdr(Cdr(antwort))))) # NIL-option selected?
-          return; # yes -> do not import, finished
-      }
+      if (query_intern_conflict(pack,sym,otherusedsym,2))
+        return; # yes -> do not import, finished
       # import:
       set_break_sem_2();
       # insert sym in pack:
@@ -1282,14 +1282,15 @@ global void export (const object* sym_, const object* pack_) {
     pushSTACK(NIL);
     pushSTACK(sym); # symbol
     pushSTACK(pack); # package
-    STACK_6 = OLS(export_string1);
-    STACK_2 = OLS(export_string2);
+    STACK_6 = CLSTEXT("You may choose how to proceed.");
+    STACK_2 = CLSTEXT("symbol ~S should be imported into ~S before being exported.");
     # (SYS::CERROR-OF-TYPE "You may choose, ..."
     # 'PACKAGE-ERROR :PACKAGE Package "..." Symbol Package)
     funcall(L(cerror_of_type),7);
-    # query the user:
-    {
-      var object antwort = query_user(OL(export_list1));
+    { # query the user:
+      var object antwort
+        = query_user(CLOTEXT("((\"I\" \"import the symbol first\" T)"
+                             " (\"N\" \"do nothing, do not export the symbol\" NIL))"));
       if (nullp(Car(Cdr(Cdr(antwort))))) # NIL-option selected?
         return; # yes -> do not export, finished
     }
@@ -1324,21 +1325,21 @@ global void export (const object* sym_, const object* pack_) {
         pushSTACK(*pack_); # package
         pushSTACK(othersym); # other symbol
         pushSTACK(usingpack); # USE-ing package
-        STACK_8 = OLS(export_string3);
-        STACK_4 = OLS(export_string4);
+        STACK_8 = CLSTEXT("You may choose in favour of which symbol to resolve the conflict.");
+        STACK_4 = CLSTEXT("exporting ~S from ~S produces a name conflict with ~S from ~S.");
         # (CERROR "..." 'PACKAGE-ERROR :PACKAGE pack "..." sym pack
         # othersym usingpack)
         funcall(L(cerror_of_type),9);
         # print introduction:
         prepare_query_user(); # pushSTACK(stream *QUERY-IO*)
         # "Which symbol should take precedence in ~S?"
-        pushSTACK(OLS(export_string5));
+        pushSTACK(CLSTEXT("Which symbol should be accessible in ~S ?"));
         pushSTACK(STACK_2); # usingpack
         funcall(S(format),3); # (FORMAT stream "..." usingpack)
         { # construct options-list:
           var object temp;
-          pushSTACK(O(export_string6)); # "1"
-          pushSTACK(OLS(export_string8));
+          pushSTACK(O(export_string_1)); # "1"
+          pushSTACK(CLSTEXT("the symbol to export, "));
           pushSTACK(*sym_); # symbol
           funcall(L(prin1_to_string),1); # (prin1-to-string Symbol)
           pushSTACK(value1);
@@ -1349,8 +1350,8 @@ global void export (const object* sym_, const object* pack_) {
           pushSTACK(T);
           temp = listof(3); # (list "1" (string-concat ...) 'T)
           pushSTACK(temp);
-          pushSTACK(O(export_string7)); # "2"
-          pushSTACK(OLS(export_string9)); # "The old symbol "
+          pushSTACK(O(export_string_2)); # "2"
+          pushSTACK(CLSTEXT("the old symbol, "));
           pushSTACK(STACK_4); # other symbol
           # (prin1-to-string anderesSymbol)
           funcall(L(prin1_to_string),1);
@@ -1604,11 +1605,11 @@ local void use_package (object packlist, object pack) {
     # treat conflicts with user-queries:
     if (!nullp(STACK_1)) { # only necessary for conflicts/=NIL
       # raise Continuable Error:
-      pushSTACK(OLS(usepack_string1));
+      pushSTACK(CLSTEXT("You may choose for every conflict in favour of which symbol to resolve it."));
       pushSTACK(S(package_error)); # PACKAGE-ERROR
       pushSTACK(S(Kpackage)); # :PACKAGE
       pushSTACK(STACK_6); # pack
-      pushSTACK(OLS(usepack_string2));
+      pushSTACK(CLSTEXT("~S name conflicts while executing USE-PACKAGE of ~S into package ~S."));
       pushSTACK(fixnum(llength(STACK_6))); # (length conflicts)
       pushSTACK(STACK_8); # packlist
       pushSTACK(STACK_(10)); # pack
@@ -1620,7 +1621,7 @@ local void use_package (object packlist, object pack) {
         while (mconsp(STACK_0)) {
           pushSTACK(Car(STACK_0)); # conflict
           prepare_query_user(); # pushSTACK(stream *QUERY-IO*)
-          pushSTACK(OLS(usepack_string3));
+          pushSTACK(CLSTEXT("which symbol with name ~S should be accessible in ~S ?"));
           # (cdr (cdr (car conflict))) =
           # (cdr (cdr '("1" packname1 . sym1))) = sym1
           # print its name
@@ -2348,7 +2349,7 @@ local object correct_packname (object name) {
     pushSTACK(name); # package-name
     pushSTACK(NIL); # "A package with the name ~S exists already."
     pushSTACK(name);
-    STACK_1 = OLS(makepack_string3);
+    STACK_1 = CLSTEXT("a package with name ~S already exists.");
     # (SYS::CERROR-OF-TYPE "You may ..." 'PACKAGE-ERROR :PACKAGE name
     # "package ~S exists" name)
     funcall(L(cerror_of_type),6);
@@ -2374,8 +2375,8 @@ local void in_make_package (void) {
   # nicknames into a new simple-string-list:
   test_names_args();
   { # check name and maybe adjust:
-    pushSTACK(OLS(makepack_string1));
-    pushSTACK(OLS(makepack_string4));
+    pushSTACK(CLSTEXT("You can input another name."));
+    pushSTACK(CLSTEXT("Please input new package name:"));
     STACK_(3+2) = correct_packname(STACK_(3+2));
     skipSTACK(2);
   }
@@ -2383,8 +2384,8 @@ local void in_make_package (void) {
     pushSTACK(STACK_2); # traverse nicknames
     while (mconsp(STACK_0)) {
       var object nickname;
-      pushSTACK(OLS(makepack_string2));
-      pushSTACK(OLS(makepack_string5));
+      pushSTACK(CLSTEXT("You can input another nickname."));
+      pushSTACK(CLSTEXT("Please input new package nickname:"));
       nickname = Car(STACK_2); # pick nickname
       nickname = correct_packname(nickname); # adjust
       skipSTACK(2);
@@ -2514,8 +2515,8 @@ LISPFUNN(delete_package,1) {
       pushSTACK(NIL); # "~S: A package with name ~S does not exist."
       pushSTACK(S(delete_package));
       pushSTACK(pack);
-      STACK_6 = OLS(delpack_string1);
-      STACK_2 = OLS(delpack_string2);
+      STACK_6 = CLSTEXT("Ignore.");
+      STACK_2 = CLSTEXT("~S: There is no package with name ~S.");
       # (SYS::CERROR-OF-TYPE "..." 'PACKAGE-ERROR :PACKAGE pack "..."
       # 'DELETE-PACKAGE pack)
       funcall(L(cerror_of_type),7);
@@ -2539,8 +2540,8 @@ LISPFUNN(delete_package,1) {
     pushSTACK(S(delete_package));
     pushSTACK(pack);
     pushSTACK(ThePackage(pack)->pack_used_by_list);
-    STACK_7 = OLS(delpack_string3);
-    STACK_3 = OLS(delpack_string4);
+    STACK_7 = CLSTEXT("~*Nevertheless delete ~S.");
+    STACK_3 = CLSTEXT("~S: ~S is used by ~{~S~^, ~}.");
     # (SYS::CERROR-OF-TYPE "..." 'PACKAGE-ERROR :PACKAGE pack "..."
     # 'DELETE-PACKAGE pack used-by-list)
     funcall(L(cerror_of_type),8);
