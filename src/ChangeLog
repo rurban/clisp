@@ -22,6 +22,7 @@
 2004-06-22  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (fehler_string): removed again
+	* error.d (fehler_string): ditto
 	* package.d ((SETF PACKAGE-DOCUMENTATION)): use check_string()
 
 2004-06-22  Bruno Haible  <bruno@clisp.org>
