@@ -49,7 +49,7 @@
   [ <a href="#opt-version"><code>--version</code></a> ]
   [ <a href="#opt-license"><code>--license</code></a> ]
   [ <a href="#opt-libdir"><code>-B</code> <var>lisplibdir</var></a> ]
-#ifdef UNIX
+#if defined(UNIX) || defined(WIN32_NATIVE)
   [ <a href="#opt-link-set"><code>-K</code> <var>linking-set</var></a> ]
 #endif
   [ <a href="#opt-memfile"><code>-M</code> <var>memfile</var></a> ]
@@ -129,7 +129,7 @@ Directory <var>lisplibdir</var> can be changed dynamically using the
 symbol-macro <code>*lib-directory*</code>.
 <p/></dd>
 
-#ifdef UNIX
+#if defined(UNIX) || defined(WIN32_NATIVE)
 <dt id="opt-link-set"><strong><code>-K</code>
     <var>linking-set</var></strong></dt>
 <dd>Specifies the linking set to be run.
