@@ -1,3 +1,8 @@
+1998-11-06  Sam Steingold  <sds@goems.com>
+
+        * type.tst: added a test for (un)signed-byte as sybtype of
+          integer.
+
 1998-11-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * alltest.tst, characters.tst, format.tst: Remove all tests of

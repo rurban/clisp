@@ -356,3 +356,5 @@ NIL
 (subtypep 'bit-vector 'vector) t
 (subtypep 'simple-bit-vector 'simple-vector) nil
 
+(subtypep 'unsigned-byte 'integer) t
+(subtypep 'signed-byte 'integer) t
