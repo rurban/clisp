@@ -11739,7 +11739,7 @@ echo "${ECHO_T}$cl_cv_header_alloca_h" >&6
 if test $cl_cv_header_alloca_h = yes; then
 
 cat >>confdefs.h <<\_ACEOF
-#define HAVE_ALLOCA_H
+#define HAVE_ALLOCA_H 1
 _ACEOF
 
 fi
