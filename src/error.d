@@ -1081,157 +1081,255 @@ nonreturning_function(global, fehler_too_few_args,
 }
 
 /* error, if argument is not an integer of type `uint8' .
- fehler_uint8(obj);
- > obj: erroneous argument */
-nonreturning_function(global, fehler_uint8, (object obj)) {
-  pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_uint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not an 8-bit number"));
+ check_uint8(obj);
+ > obj: an object
+ < obj: uint8
+ can trigger GC */
+global object check_uint8 (object obj) {
+  while (!uint8_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_uint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not an 8-bit number"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error, if argument is not an integer of type `sint8' .
- fehler_sint8(obj);
- > obj: erroneous argument */
-nonreturning_function(global, fehler_sint8, (object obj)) {
-  pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_sint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not an 8-bit number"));
+ check_sint8(obj);
+ > obj: an object
+ < obj: sint8
+ can trigger GC */
+global object check_sint8 (object obj) {
+  while (!sint8_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_sint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not an 8-bit number"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error, if argument is not an integer of type `uint16' .
- fehler_uint16(obj);
- > obj: erroneous argument */
-nonreturning_function(global, fehler_uint16, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_uint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a 16-bit number"));
+ check_uint16(obj);
+ > obj: an object
+ < obj: uint16
+ can trigger GC */
+global object check_uint16 (object obj) {
+  while (!uint16_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_uint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a 16-bit number"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error, if argument is not an integer of type `sint16' .
- fehler_sint16(obj);
- > obj: erroneous argument */
-nonreturning_function(global, fehler_sint16, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_sint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a 16-bit number"));
+ check_sint16(obj);
+ > obj: an object
+ < obj: sint16
+ can trigger GC */
+global object check_sint16 (object obj) {
+  while (!sint16_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_sint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a 16-bit number"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error, if argument is not an integer of type `uint32' .
- fehler_uint32(obj);
- > obj: erroneous argument */
-nonreturning_function(global, fehler_uint32, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not an 32-bit number"));
+ check_uint32(obj);
+ > obj: an object
+ < obj: uint32
+ can trigger GC */
+global object check_uint32 (object obj) {
+  while (!uint32_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not an 32-bit number"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error, if argument is not an integer of type `sint32' .
- fehler_sint32(obj);
- > obj: erroneous argument */
-nonreturning_function(global, fehler_sint32, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not an 32-bit number"));
+ check_sint32(obj);
+ > obj: an object
+ < obj: sint32
+ can trigger GC */
+global object check_sint32 (object obj) {
+  while (!sint32_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not an 32-bit number"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error, if argument is not an integer of type `uint64' .
- fehler_uint64(obj);
- > obj: erroneous argument */
-nonreturning_function(global, fehler_uint64, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not an 64-bit number"));
+ check_uint64(obj);
+ > obj: an object
+ < obj: uint64
+ can trigger GC */
+global object check_uint64 (object obj) {
+  while (!uint64_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not an 64-bit number"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error, if argument is not an integer of type `sint64' .
- fehler_sint64(obj);
- > obj: erroneous argument */
-nonreturning_function(global, fehler_sint64, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not an 64-bit number"));
+ check_sint64(obj);
+ > obj: an object
+ < obj: sint64
+ can trigger GC */
+global object check_sint64 (object obj) {
+  while (!sint64_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not an 64-bit number"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error, if argument is not an integer of type `uint' .
- fehler_uint(obj);
- > obj: erroneous argument */
-nonreturning_function(global, fehler_uint, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
- #if (int_bitsize==16)
-  pushSTACK(O(type_uint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
- #else /* (int_bitsize==32) */
-  pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
- #endif
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not an `unsigned int' number"));
+ check_uint(obj);
+ > obj: an object
+ < obj: uint
+ can trigger GC */
+global object check_uint (object obj) {
+  while (!uint_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+   #if (int_bitsize==16)
+    pushSTACK(O(type_uint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
+   #else /* (int_bitsize==32) */
+    pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
+   #endif
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not an `unsigned int' number"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error, if argument is not an integer of type `sint' .
- fehler_sint(obj);
- > obj: erroneous argument */
-nonreturning_function(global, fehler_sint, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
- #if (int_bitsize==16)
-  pushSTACK(O(type_sint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
- #else /* (int_bitsize==32) */
-  pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
- #endif
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not an `int' number"));
+ check_sint(obj);
+ > obj: an object
+ < obj: sint
+ can trigger GC */
+global object check_sint (object obj) {
+  while (!sint_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+   #if (int_bitsize==16)
+    pushSTACK(O(type_sint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
+   #else /* (int_bitsize==32) */
+    pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
+   #endif
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not an `int' number"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error, if argument is not an integer of type `ulong' .
- fehler_ulong(obj);
- > obj: erroneous argument */
-nonreturning_function(global, fehler_ulong, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
- #if (long_bitsize==32)
-  pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
- #else /* (long_bitsize==64) */
-  pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
- #endif
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a `unsigned long' number"));
+ check_ulong(obj);
+ > obj: an object
+ < obj: ulong
+ can trigger GC */
+global object check_ulong (object obj) {
+  while (!ulong_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+   #if (long_bitsize==32)
+    pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
+   #else /* (long_bitsize==64) */
+    pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
+   #endif
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a `unsigned long' number"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error, if argument is not an integer of type `slong' .
- fehler_slong(obj);
- > obj: erroneous argument */
-nonreturning_function(global, fehler_slong, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
- #if (long_bitsize==32)
-  pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
- #else /* (long_bitsize==64) */
-  pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
- #endif
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a `long' number"));
+ check_slong(obj);
+ > obj: an object
+ < obj: slong
+ can trigger GC */
+global object check_slong (object obj) {
+  while (!slong_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
+   #if (long_bitsize==32)
+    pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
+   #else /* (long_bitsize==64) */
+    pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
+   #endif
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a `long' number"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error, if argument is not a Single-Float.
- fehler_ffloat(obj);
- > obj: erroneous argument */
-nonreturning_function(global, fehler_ffloat, (object obj)) {
-  pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(single_float)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a single-float"));
+ check_ffloat(obj);
+ > obj: an object
+ < obj: Single-Float
+ can trigger GC */
+global object check_ffloat (object obj) {
+  while (!single_float_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(single_float)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a single-float"));
+    obj = value1;
+  }
+  return obj;
 }
 
 /* error, if argument is not a Double-Float.
- fehler_dfloat(obj);
- > obj: erroneous argument */
-nonreturning_function(global, fehler_dfloat, (object obj)) {
-  pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(double_float)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a double-float"));
+ check_dfloat(obj);
+ > obj: an object
+ < obj: Double-Float
+ can trigger GC */
+global object check_dfloat (object obj) {
+  while (!double_float_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(double_float)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a double-float"));
+    obj = value1;
+  }
+  return obj;
 }
