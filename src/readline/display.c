@@ -362,8 +362,7 @@ rl_redisplay ()
 	      _rl_output_some_chars (rl_display_prompt, prompt_this_line - rl_display_prompt);
 	      /* Make sure we are at column zero even after a newline,
 		 regardless of the state of terminal output processing. */
-	      if (prompt_this_line[-2] != '\r')
-		cr ();
+	      cr ();
 	    }
 	}
 
@@ -975,6 +974,82 @@ rl_on_new_line ()
   _rl_vis_botlin = last_lmargin = 0;
   if (vis_lbreaks)
     vis_lbreaks[0] = vis_lbreaks[1] = 0;
+  visible_wrap_offset = 0;
+  return 0;
+}
+
+/* Tell the update routines that we have moved onto a new line
+   with the prompt already displayed. */
+int
+rl_on_new_line_with_prompt ()
+{
+  int prompt_size, i, l, real_screenwidth, newlines;
+  char *prompt_last_line;
+
+  /* Initialize visible_line and invisible_line. */
+  prompt_size = strlen(rl_prompt) + 1;
+  if (invisible_line == 0)
+    {
+      if (line_size < prompt_size)
+        line_size = prompt_size;
+      visible_line = xmalloc (line_size);
+      invisible_line = xmalloc (line_size);
+    }
+  else if (line_size < prompt_size)
+    {
+      line_size *= 2;
+      if (line_size < prompt_size)
+        line_size = prompt_size;
+      visible_line = xrealloc (visible_line, line_size);
+      invisible_line = xrealloc (invisible_line, line_size);
+    }
+
+  for (i = prompt_size; i < line_size; i++)
+    {
+      visible_line[i] = 0;
+      invisible_line[i] = 1;
+    }
+
+  strcpy(visible_line,rl_prompt);
+  strcpy(invisible_line,rl_prompt);
+
+  /* Initialize vis_lbreaks and inv_lbreaks. */
+  if (!vis_lbreaks)
+    {
+      /* should be enough, but then again, this is just for testing. */
+      inv_lbreaks = (int *)malloc (256 * sizeof (int));
+      vis_lbreaks = (int *)malloc (256 * sizeof (int));
+      inv_lbreaks[0] = vis_lbreaks[0] = 0;
+    }
+
+  /* If the prompt contains newlines, take the last tail. */
+  prompt_last_line = strrchr (rl_prompt, '\n');
+  if (!prompt_last_line)
+    prompt_last_line = rl_prompt;
+
+  l = strlen(prompt_last_line);
+  _rl_last_c_pos = l;
+
+  /* Dissect prompt_last_line into screen lines. Note that here we have
+     to use the real screenwidth. Readline's notion of screenwidth might be
+     one less, see terminal.c. */
+  real_screenwidth = screenwidth + (_rl_term_autowrap ? 0 : 1);
+  _rl_last_v_pos = l / real_screenwidth;
+  /* If the prompt length is a multiple of real_screenwidth, we don't know
+     whether the cursor is at the end of the last line, or already at the
+     beginning of the next line. Output a newline just to be safe. */
+  if (l > 0 && (l % real_screenwidth) == 0)
+    _rl_output_some_chars ("\n", 1);
+  last_lmargin = 0;
+
+  newlines = 0; i = 0;
+  while (i <= l)
+    {
+      _rl_vis_botlin = newlines;
+      vis_lbreaks[newlines++] = i;
+      i += real_screenwidth;
+    }
+  vis_lbreaks[newlines] = l;
   visible_wrap_offset = 0;
   return 0;
 }
