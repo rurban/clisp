@@ -1,3 +1,7 @@
+;;; Copyright (C) 2001 by Sam Steingold
+;;; released under the GNU GPL <http://www.gnu.org/copyleft/gpl.html>
+;;; as a part of CLISP <http://clisp.cons.org>
+;;;
 ;;; the mode for editing CLISP *.d files
 ;;; add the following to your ~/.emacs.el
 ;;; (setq auto-mode-alist (cons '("\\.d\\'" . d-mode) auto-mode-alist))
