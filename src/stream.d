@@ -8980,7 +8980,7 @@ local object rd_ch_terminal2 (const gcv_object_t* stream_) {
     posfixnum_to_L(TheStream(stream)->strm_terminal_index); # Index
   TheStream(stream)->strm_terminal_index =
     fixnum_inc(TheStream(stream)->strm_terminal_index,1); # increase Index
-  return code_char(TheSstring(TheIarray(TheStream(stream)->strm_terminal_inbuff)->data)->data[index]); # next Character
+  return code_char(TheS32string(TheIarray(TheStream(stream)->strm_terminal_inbuff)->data)->data[index]); # next Character
 }
 
 # Determines, if a character is available on a Terminal-Stream.
