@@ -71,11 +71,6 @@
           uintL gctrigger_space; # how much space may be occupied, until the next GC becomes necessary
         #endif
 
-        #ifdef SELFMADE_MMAP
-          Handle memfile_handle;
-          bool memfile_still_being_read;
-        #endif
-
       }
       mem;
 

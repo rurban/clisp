@@ -72,11 +72,6 @@ typedef struct {
   aint heap_hardlimit;
   #endif
   #endif
-  #ifdef SELFMADE_MMAP
-  off_t memfile_offset;
-  uintL memfile_numpages;
-  uintB* memfile_pages;
-  #endif
   #ifdef GENERATIONAL_GC
   aint heap_gen0_start;
   aint heap_gen0_end;

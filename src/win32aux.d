@@ -371,7 +371,7 @@ global BOOL ReadConsoleInput1 (HANDLE ConsoleInput, PINPUT_RECORD Buffer,
 /* Reading from a file/pipe/console handle.
  This is the non-interruptible routine. */
 local int read_helper_low (HANDLE fd, void* bufarea, int nbyte, bool no_hang) {
- #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+ #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ_WRITE,(aint)bufarea,(aint)bufarea+nbyte);
  #endif
   var char* buf = (char*) bufarea;
@@ -475,7 +475,7 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool no_hang) {
 /* Writing to a file/pipe/console handle. */
 global int write_helper (HANDLE fd, const void* b, int nbyte, bool no_hang)
 {
-#if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+#if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ,(aint)b,(aint)b+nbyte);
 #endif
   var const char* buf = (const char*) b;
@@ -547,7 +547,7 @@ global int write_helper (HANDLE fd, const void* b, int nbyte, bool no_hang)
    This is the non-interruptible routine. */
 local int lowlevel_sock_read (SOCKET fd, void* b, int nbyte)
 {
-#if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+#if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ_WRITE,(aint)b,(aint)b+nbyte);
 #endif
   var char* buf = (char*) b;
@@ -601,7 +601,7 @@ global int sock_read (SOCKET fd, void* buf, int nbyte)
 local int lowlevel_sock_write (SOCKET fd, const void* b, int nbyte,
                                bool no_hang)
 {
-#if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+#if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   handle_fault_range(PROT_READ,(aint)b,(aint)b+nbyte);
 #endif
   var const char* buf = (const char*) b;

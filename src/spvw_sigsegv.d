@@ -2,12 +2,12 @@
 
 # ------------------------------ Specification --------------------------------
 
-#if defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
+#if defined(GENERATIONAL_GC)
 
 # Install the signal handler for catching page faults.
   local void install_segv_handler (void);
 
-#endif # SELFMADE_MMAP || GENERATIONAL_GC
+#endif # GENERATIONAL_GC
 
 #ifdef NOCOST_SP_CHECK
 
@@ -22,7 +22,7 @@
 
 # ------------------------------ Implementation -------------------------------
 
-#if defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
+#if defined(GENERATIONAL_GC)
 
 # Put a breakpoint here if you want to catch CLISP just before it dies.
 global void sigsegv_handler_failed (void* address) {
@@ -56,7 +56,7 @@ local void install_segv_handler (void) {
   sigsegv_install_handler(&sigsegv_handler);
 }
 
-#endif # SELFMADE_MMAP || GENERATIONAL_GC
+#endif # GENERATIONAL_GC
 
 #ifdef NOCOST_SP_CHECK
 

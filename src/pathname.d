@@ -8473,11 +8473,6 @@ LISPFUNN(savemem,1) {
   pushSTACK(S(Krename_and_delete)); /* :RENAME-AND-DELETE as 5. Argument */
   funcall(L(open),5);
  #else
-  #ifdef SELFMADE_MMAP
-  /* With selfmade_mmap the existing .mem-file has to be completely loaded
-   into memory first. Other running Lisp-processes will crash, however. */
-  gar_col();
-  #endif
   funcall(L(open),3);
  #endif
   /* write memory image into the file:
