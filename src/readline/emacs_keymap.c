@@ -33,7 +33,11 @@
 KEYMAP_ENTRY_ARRAY emacs_standard_keymap = {
 
   /* Control keys. */
+#if defined(__MSDOS__) || defined(__EMX__)
+  { ISKMAP, (Function *)emacs_dos_keymap }, /* prefix of special keys */
+#else
   { ISFUNC, rl_set_mark },		/* Control-@ */
+#endif
   { ISFUNC, rl_beg_of_line },		/* Control-a */
   { ISFUNC, rl_backward },		/* Control-b */
   { ISFUNC, (Function *)0x0 },		/* Control-c */
@@ -883,3 +887,178 @@ KEYMAP_ENTRY_ARRAY emacs_ctlx_keymap = {
   { ISFUNC, (Function *)0x0 }
 #endif /* KEYMAP_SIZE > 128 */
 };
+
+#if defined(__MSDOS__) || defined(__EMX__)
+
+KEYMAP_ENTRY_ARRAY emacs_dos_keymap = {
+  { ISFUNC, (Function *)0x0 },      	/*   0 */
+  { ISFUNC, (Function *)0x0 },      	/*   1: <Alt>+<Esc>    [DOS] */
+  { ISFUNC, (Function *)0x0 },      	/*   2: <Ctrl>+<Space> [OS2] */
+  { ISFUNC, (Function *)0x0 },      	/*   3: <Ctrl>+<@> */
+  { ISFUNC, (Function *)0x0 },      	/*   4: <Shift>+<Ins>  [OS2] */
+  { ISFUNC, (Function *)0x0 },      	/*   5: <Shift>+<Del>  [OS2] */
+  { ISFUNC, (Function *)0x0 },      	/*   6 */
+  { ISFUNC, (Function *)0x0 },      	/*   7 */
+  { ISFUNC, (Function *)0x0 },      	/*   8 */
+  { ISFUNC, (Function *)0x0 },      	/*   9 */
+  { ISFUNC, (Function *)0x0 },      	/*  10 */
+  { ISFUNC, (Function *)0x0 },      	/*  11 */
+  { ISFUNC, (Function *)0x0 },      	/*  12 */
+  { ISFUNC, (Function *)0x0 },      	/*  13 */
+  { ISFUNC, (Function *)0x0 },      	/*  14: <Alt>+<Backspace> */
+  { ISFUNC, (Function *)0x0 },      	/*  15: <Shift>+<Tab> */
+  { ISFUNC, (Function *)0x0 },      	/*  16: <Alt>+<Q> */
+  { ISFUNC, (Function *)0x0 },      	/*  17: <Alt>+<W> */
+  { ISFUNC, (Function *)0x0 },      	/*  18: <Alt>+<E> */
+  { ISFUNC, (Function *)0x0 },      	/*  19: <Alt>+<R> */
+  { ISFUNC, (Function *)0x0 },      	/*  20: <Alt>+<T> */
+  { ISFUNC, (Function *)0x0 },      	/*  21: <Alt>+<Y> */
+  { ISFUNC, (Function *)0x0 },      	/*  22: <Alt>+<U> */
+  { ISFUNC, (Function *)0x0 },      	/*  23: <Alt>+<I> */
+  { ISFUNC, (Function *)0x0 },      	/*  24: <Alt>+<O> */
+  { ISFUNC, (Function *)0x0 },      	/*  25: <Alt>+<P> */
+  { ISFUNC, (Function *)0x0 },      	/*  26: <Alt>+<[> */
+  { ISFUNC, (Function *)0x0 },      	/*  27: <Alt>+<]> */
+  { ISFUNC, (Function *)0x0 },      	/*  28: <Alt>+<Return> */
+  { ISFUNC, (Function *)0x0 },      	/*  29 */
+  { ISFUNC, (Function *)0x0 },      	/*  30: <Alt>+<A> */
+  { ISFUNC, (Function *)0x0 },      	/*  31: <Alt>+<S> */
+  { ISFUNC, (Function *)0x0 },      	/*  32: <Alt>+<D> */
+  { ISFUNC, (Function *)0x0 },      	/*  33: <Alt>+<F> */
+  { ISFUNC, (Function *)0x0 },      	/*  34: <Alt>+<G> */
+  { ISFUNC, (Function *)0x0 },      	/*  35: <Alt>+<H> */
+  { ISFUNC, (Function *)0x0 },      	/*  36: <Alt>+<J> */
+  { ISFUNC, (Function *)0x0 },      	/*  37: <Alt>+<K> */
+  { ISFUNC, (Function *)0x0 },      	/*  38: <Alt>+<L> */
+  { ISFUNC, (Function *)0x0 },      	/*  39: <Alt>+<;> */
+  { ISFUNC, (Function *)0x0 },      	/*  40: <Alt>+<'> */
+  { ISFUNC, (Function *)0x0 },      	/*  41: <Alt>+<`> */
+  { ISFUNC, (Function *)0x0 },      	/*  42 */
+  { ISFUNC, (Function *)0x0 },      	/*  43: <Alt>+<\> */
+  { ISFUNC, (Function *)0x0 },      	/*  44: <Alt>+<Z> */
+  { ISFUNC, (Function *)0x0 },      	/*  45: <Alt>+<X> */
+  { ISFUNC, (Function *)0x0 },      	/*  46: <Alt>+<C> */
+  { ISFUNC, (Function *)0x0 },      	/*  47: <Alt>+<V> */
+  { ISFUNC, (Function *)0x0 },      	/*  48: <Alt>+<B> */
+  { ISFUNC, (Function *)0x0 },      	/*  49: <Alt>+<N> */
+  { ISFUNC, (Function *)0x0 },      	/*  50: <Alt>+<M> */
+  { ISFUNC, (Function *)0x0 },      	/*  51: <Alt>+<,> */
+  { ISFUNC, (Function *)0x0 },      	/*  52: <Alt>+<.> */
+  { ISFUNC, (Function *)0x0 },      	/*  53: <Alt>+</> */
+  { ISFUNC, (Function *)0x0 },      	/*  54 */
+  { ISFUNC, (Function *)0x0 },      	/*  55: <Alt>+<*> (numeric keypad) */
+  { ISFUNC, (Function *)0x0 },      	/*  56 */
+  { ISFUNC, (Function *)0x0 },      	/*  57: <Alt>+<Space>  [OS2] */
+  { ISFUNC, (Function *)0x0 },      	/*  58 */
+  { ISFUNC, (Function *)0x0 },      	/*  59: <F1> */
+  { ISFUNC, (Function *)0x0 },      	/*  60: <F2> */
+  { ISFUNC, (Function *)0x0 },      	/*  61: <F3> */
+  { ISFUNC, (Function *)0x0 },      	/*  62: <F4> */
+  { ISFUNC, (Function *)0x0 },      	/*  63: <F5> */
+  { ISFUNC, (Function *)0x0 },      	/*  64: <F6> */
+  { ISFUNC, (Function *)0x0 },      	/*  65: <F7> */
+  { ISFUNC, (Function *)0x0 },      	/*  66: <F8> */
+  { ISFUNC, (Function *)0x0 },      	/*  67: <F9> */
+  { ISFUNC, (Function *)0x0 },      	/*  68: <F10> */
+  { ISFUNC, (Function *)0x0 },      	/*  69 */
+  { ISFUNC, (Function *)0x0 },      	/*  70 */
+  { ISFUNC, (Function *) rl_beg_of_line }, /*  71: <Home> */
+  { ISFUNC, (Function *) rl_get_previous_history }, /*  72: <Up arrow> */
+  { ISFUNC, (Function *) rl_beginning_of_history }, /*  73: <Page up> */
+  { ISFUNC, (Function *)0x0 },      	/*  74: <Alt>+<-> (numeric keypad) */
+  { ISFUNC, (Function *) rl_backward }, /*  75: <Left arrow> */
+  { ISFUNC, (Function *)0x0 },      	/*  76: center cursor */
+  { ISFUNC, (Function *) rl_forward },  /*  77: <Right arrow> */
+  { ISFUNC, (Function *)0x0 },      	/*  78: <Alt>+<+> (numeric keypad) */
+  { ISFUNC, (Function *) rl_end_of_line }, /*  79: <End> */
+  { ISFUNC, (Function *) rl_get_next_history }, /*  80: <Down arrow> */
+  { ISFUNC, (Function *) rl_end_of_history }, /*  81: <Page down> */
+  { ISFUNC, (Function *)0x0 },      	/*  82: <Ins> */
+  { ISFUNC, (Function *) rl_delete },   /*  83: <Del> */
+  { ISFUNC, (Function *)0x0 },      	/*  84: <Shift>+<F1> */
+  { ISFUNC, (Function *)0x0 },      	/*  85: <Shift>+<F2> */
+  { ISFUNC, (Function *)0x0 },      	/*  86: <Shift>+<F3> */
+  { ISFUNC, (Function *)0x0 },      	/*  87: <Shift>+<F4> */
+  { ISFUNC, (Function *)0x0 },      	/*  88: <Shift>+<F5> */
+  { ISFUNC, (Function *)0x0 },      	/*  89: <Shift>+<F6> */
+  { ISFUNC, (Function *)0x0 },      	/*  90: <Shift>+<F7> */
+  { ISFUNC, (Function *)0x0 },      	/*  91: <Shift>+<F8> */
+  { ISFUNC, (Function *)0x0 },      	/*  92: <Shift>+<F9> */
+  { ISFUNC, (Function *)0x0 },      	/*  93: <Shift>+<F10> */
+  { ISFUNC, (Function *)0x0 },      	/*  94: <Ctrl>+<F1> */
+  { ISFUNC, (Function *)0x0 },      	/*  95: <Ctrl>+<F2> */
+  { ISFUNC, (Function *)0x0 },      	/*  96: <Ctrl>+<F3> */
+  { ISFUNC, (Function *)0x0 },      	/*  97: <Ctrl>+<F4> */
+  { ISFUNC, (Function *)0x0 },      	/*  98: <Ctrl>+<F5> */
+  { ISFUNC, (Function *)0x0 },      	/*  99: <Ctrl>+<F6> */
+  { ISFUNC, (Function *)0x0 },      	/* 100: <Ctrl>+<F7> */
+  { ISFUNC, (Function *)0x0 },      	/* 101: <Ctrl>+<F8> */
+  { ISFUNC, (Function *)0x0 },      	/* 102: <Ctrl>+<F9> */
+  { ISFUNC, (Function *)0x0 },      	/* 103: <Ctrl>+<F10> */
+  { ISFUNC, (Function *)0x0 },      	/* 104: <Alt>+<F1> */
+  { ISFUNC, (Function *)0x0 },      	/* 105: <Alt>+<F2> */
+  { ISFUNC, (Function *)0x0 },      	/* 106: <Alt>+<F3> */
+  { ISFUNC, (Function *)0x0 },      	/* 107: <Alt>+<F4> */
+  { ISFUNC, (Function *)0x0 },      	/* 108: <Alt>+<F5> */
+  { ISFUNC, (Function *)0x0 },      	/* 109: <Alt>+<F6> */
+  { ISFUNC, (Function *)0x0 },      	/* 110: <Alt>+<F7> */
+  { ISFUNC, (Function *)0x0 },      	/* 111: <Alt>+<F8> */
+  { ISFUNC, (Function *)0x0 },      	/* 112: <Alt>+<F9> */
+  { ISFUNC, (Function *)0x0 },      	/* 113: <Alt>+<F10> */
+  { ISFUNC, (Function *)0x0 },      	/* 114: <Ctrl>+<PrtSc> */
+  { ISFUNC, (Function *) rl_backward_word }, /* 115: <Ctrl>+<Left arrow> */
+  { ISFUNC, (Function *) rl_forward_word }, /* 116: <Ctrl>+<Right arrow> */
+  { ISFUNC, (Function *) rl_kill_line },/* 117: <Ctrl>+<End> */
+  { ISFUNC, (Function *)0x0 },      	/* 118: <Ctrl>+<Page down> */
+  { ISFUNC, (Function *) rl_backward_kill_line },/* 119: <Ctrl>+<Home> */
+  { ISFUNC, (Function *)0x0 },      	/* 120: <Alt>+<1> */
+  { ISFUNC, (Function *)0x0 },      	/* 121: <Alt>+<2> */
+  { ISFUNC, (Function *)0x0 },      	/* 122: <Alt>+<3> */
+  { ISFUNC, (Function *)0x0 },      	/* 123: <Alt>+<4> */
+  { ISFUNC, (Function *)0x0 },      	/* 124: <Alt>+<5> */
+  { ISFUNC, (Function *)0x0 },      	/* 125: <Alt>+<6> */
+  { ISFUNC, (Function *)0x0 },      	/* 126: <Alt>+<7> */
+  { ISFUNC, (Function *)0x0 },      	/* 127: <Alt>+<8> */
+  { ISFUNC, (Function *)0x0 },      	/* 128: <Alt>+<9> */
+  { ISFUNC, (Function *)0x0 },      	/* 129: <Alt>+<0> */
+  { ISFUNC, (Function *)0x0 },      	/* 130: <Alt>+<-> */
+  { ISFUNC, (Function *)0x0 },      	/* 131: <Alt>+<=> */
+  { ISFUNC, (Function *)0x0 },      	/* 132: <Ctrl>+<Page up> */
+  { ISFUNC, (Function *)0x0 },      	/* 133: <F11> */
+  { ISFUNC, (Function *)0x0 },      	/* 134: <F12> */
+  { ISFUNC, (Function *)0x0 },      	/* 135: <Shift>+<F11> */
+  { ISFUNC, (Function *)0x0 },      	/* 136: <Shift>+<F12> */
+  { ISFUNC, (Function *)0x0 },      	/* 137: <Ctrl>+<F11> */
+  { ISFUNC, (Function *)0x0 },      	/* 138: <Ctrl>+<F12> */
+  { ISFUNC, (Function *)0x0 },      	/* 139: <Alt>+<F11> */
+  { ISFUNC, (Function *)0x0 },      	/* 140: <Alt>+<F12> */
+  { ISFUNC, (Function *)0x0 },      	/* 141: <Ctrl>+<Up arrow> */
+  { ISFUNC, (Function *)0x0 },      	/* 142: <Ctrl>+<-> (numeric keypad) */
+  { ISFUNC, (Function *)0x0 },      	/* 143: <Ctrl>+<Center> */
+  { ISFUNC, (Function *)0x0 },      	/* 144: <Ctrl>+<+> (numeric keypad) */
+  { ISFUNC, (Function *)0x0 },      	/* 145: <Ctrl>+<Down arrow> */
+  { ISFUNC, (Function *)0x0 },      	/* 146: <Ctrl>+<Ins> */
+  { ISFUNC, (Function *)0x0 },      	/* 147: <Ctrl>+<Del> */
+  { ISFUNC, (Function *)0x0 },      	/* 148: <Ctrl>+<Tab> */
+  { ISFUNC, (Function *)0x0 },      	/* 149: <Ctrl>+</> (numeric keypad) */
+  { ISFUNC, (Function *)0x0 },      	/* 150: <Ctrl>+<*> (numeric keypad) */
+  { ISFUNC, (Function *)0x0 },      	/* 151: <Alt>+<Home> */
+  { ISFUNC, (Function *)0x0 },      	/* 152: <Alt>+<Up arrow> */
+  { ISFUNC, (Function *)0x0 },      	/* 153: <Alt>+<Page up> */
+  { ISFUNC, (Function *)0x0 },      	/* 154 */
+  { ISFUNC, (Function *)0x0 },      	/* 155: <Alt>+<Left arrow> */
+  { ISFUNC, (Function *)0x0 },      	/* 156 */
+  { ISFUNC, (Function *)0x0 },      	/* 157: <Alt>+<Right arrow> */
+  { ISFUNC, (Function *)0x0 },      	/* 158 */
+  { ISFUNC, (Function *)0x0 },      	/* 159: <Alt>+<End> */
+  { ISFUNC, (Function *)0x0 },      	/* 160: <Alt>+<Down arrow> */
+  { ISFUNC, (Function *)0x0 },      	/* 161: <Alt>+<Page down> */
+  { ISFUNC, (Function *)0x0 },      	/* 162: <Alt>+<Ins> */
+  { ISFUNC, (Function *)0x0 },      	/* 163: <Alt>+<Del> */
+  { ISFUNC, (Function *)0x0 },      	/* 164: <Alt>+</> (numeric keypad) */
+  { ISFUNC, (Function *)0x0 },      	/* 165: <Alt>+<Tab>  [DOS] */
+  { ISFUNC, (Function *)0x0 },      	/* 166: <Alt>+<Enter> (numeric keypad) */
+  { ISFUNC, (Function *)0x0 },      	/* 167 */
+};
+
+#endif
