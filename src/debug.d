@@ -137,10 +137,11 @@
           dynamic_unbind(); # S(key_bindings)
           goto eof;
         }
+        # NB: line is a simple-string, due to our particular READ-LINE
+        # implementation.
         # search for line in *KEY-BINDINGS*:
         {
           var object alist = Symbol_value(S(key_bindings));
-          # BUG: line may be a non-simple string
           var uintL input_len = Sstring_length(line);
           for (;consp(alist);alist = Cdr(alist))
             if (mconsp(Car(alist)) && simple_string_p(Car(Car(alist)))) {
