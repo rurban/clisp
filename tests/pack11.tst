@@ -381,6 +381,34 @@ error
 cl-user::e
 #+XCL 5 #-XCL shadow-test-e
 
+;; unintern a shadowing symbol
+(progn
+  (setq pg3 (make-package "G3") pg1 (make-package "G1" :use (list pg3))
+        pg2 (make-package "G2" :use (list pg3))
+        ph (make-package "H" :use (list pg1 pg2)))
+  (shadow "FOO" ph))
+t
+
+(setq gsym (intern "FOO" pg3))   g3::foo
+
+(export gsym pg3)                t
+(export gsym pg1)                t
+(export gsym pg2)                t
+
+(multiple-value-list (setf (values sym access) (find-symbol "FOO" ph)))
+(h::foo :internal)
+
+(package-shadowing-symbols ph)   (h::foo)
+(eq sym gsym)                    nil
+(equal (symbol-package sym) ph)  t
+
+(unintern sym ph)                t
+
+(delete-package ph)              t
+(delete-package pg1)             t
+(delete-package pg2)             t
+(delete-package pg3)             t
+
 ; use-package | unuse-package
 
 (and (make-package 'use-test) (in-package "USE-TEST") t)
