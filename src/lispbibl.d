@@ -2411,7 +2411,7 @@ Ratio and Complex (only if SPVW_MIXED).
 # and oint_type_mask should have at least 8 bits set and at most one bit in
 # common with oint_addr_mask.
 #elif defined(WIDE_HARD)
-  #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX))
+  #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX) || defined(UNIX_FREEBSD))
     # UNIX_OSF:
     #   Ordinary pointers are in the range 1*2^32..2*2^32.
     #   Code address range:    0x000000012xxxxxxx
@@ -2423,6 +2423,11 @@ Ratio and Complex (only if SPVW_MIXED).
     #                    and:  0x0000015555xxxxxx
     #   Shared libraries:      0x0000015555xxxxxx
     #   Virtual address limit: 0x0000040000000000
+    # UNIX_FREEBSD
+    #   Code address range:    0x0000000120000000
+    #   Malloc address range:  0x0000000120000000
+    #   Shared libraries:      0x0000000160000000
+    #   Stack address range:   0x0000000011000000
     #if defined(NO_SINGLEMAP)
       # If MAP_MEMORY is not demanded, this is the safest.
       # Bits 63..48 = type code, Bits 47..0 = address

@@ -1,3 +1,8 @@
+2002-06-17  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d [DECALPHA/UNIX_FREEBSD]: treat just like Linux
+	Verified by Jeffrey Katcher <jmkatcher@yahoo.com>.
+
 2002-06-15  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/mit-clx/input.lisp (:configure-request): use
