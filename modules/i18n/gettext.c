@@ -75,12 +75,14 @@ DEFUNR(I18N:GETTEXT, msgid &optional domain category)
   with_string_0(msgid,Symbol_value(S(ascii)),msgid_asciz, {
     object domain = STACK_1;
     if (missingp(domain)) {
-      int category = check_locale_category(STACK_0);
+      int category =
+        (missingp(STACK_0) ? LC_MESSAGES : check_locale_category(STACK_0));
       VALUES1(do_gettext(msgid_asciz,NULL,category));
     } else {
       domain = check_string(domain);
       with_string_0(domain,Symbol_value(S(ascii)),domain_asciz, {
-        int category = check_locale_category(STACK_0);
+        int category =
+          (missingp(STACK_0) ? LC_MESSAGES : check_locale_category(STACK_0));
         VALUES1(do_gettext(msgid_asciz,domain_asciz,category));
       });
     }
@@ -94,39 +96,46 @@ DEFUNR(I18N:GETTEXT, msgid &optional domain category)
 DEFUNR(I18N:NGETTEXT,msgid msgid_plural n &optional domain category)
 { /* returns the plural form of the translation for of msgid and n in
      the given domain, depending on the given category. */
-  object msgid = (STACK_4 = check_string(STACK_4));
-  object msgid_plural = (STACK_3 = check_string(STACK_3));
-  object arg = (STACK_2 = check_pos_integer(STACK_2));
-  uint32 n;
-  if (posfixnump(arg))
-    n = posfixnum_to_L(arg);
-  else {
-    /* arg is a Bignum. Plural form depends only on (mod arg 1000000). */
-    pushSTACK(arg); pushSTACK(fixnum(1000000)); funcall(L(mod),2);
-    n = 1000000 + posfixnum_to_L(value1);
-  }
-  msgid = STACK_4; msgid_plural = STACK_3;
- #ifdef GNU_GETTEXT
-  with_string_0(msgid,Symbol_value(S(ascii)),msgid_asciz, {
-    with_string_0(msgid_plural,Symbol_value(S(ascii)),msgid_plural_asciz, {
-      object domain = STACK_1;
-      if (missingp(domain)) {
-        int category = check_locale_category(STACK_0);
-        VALUES1(do_ngettext(msgid_asciz,msgid_plural_asciz,NULL,
-                           n,category));
-      } else {
-        domain = check_string(domain);
-        with_string_0(domain,Symbol_value(S(ascii)),domain_asciz, {
-          int category = check_locale_category(STACK_0);
-          VALUES1(do_ngettext(msgid_asciz,msgid_plural_asciz,domain_asciz,
-                             n,category));
+  STACK_4 = check_string(STACK_4); /* msgid */
+  STACK_3 = check_string(STACK_3); /* msgid_plural */
+  {
+    object arg = check_pos_integer(STACK_2);
+    uint32 n;
+    if (posfixnump(arg))
+      n = posfixnum_to_L(arg);
+    else {
+      /* arg is a Bignum. Plural form depends only on (mod arg 1000000). */
+      pushSTACK(arg); pushSTACK(fixnum(1000000)); funcall(L(mod),2);
+      n = 1000000 + posfixnum_to_L(value1);
+    }
+    {
+      object msgid = STACK_4;
+      object msgid_plural = STACK_3;
+     #ifdef GNU_GETTEXT
+      with_string_0(msgid,Symbol_value(S(ascii)),msgid_asciz, {
+        with_string_0(msgid_plural,Symbol_value(S(ascii)),msgid_plural_asciz, {
+          object domain = STACK_1;
+          if (missingp(domain)) {
+            int category =
+              (missingp(STACK_0) ? LC_MESSAGES : check_locale_category(STACK_0));
+            VALUES1(do_ngettext(msgid_asciz,msgid_plural_asciz,NULL,
+                                n,category));
+          } else {
+            domain = check_string(domain);
+            with_string_0(domain,Symbol_value(S(ascii)),domain_asciz, {
+              int category =
+                (missingp(STACK_0) ? LC_MESSAGES : check_locale_category(STACK_0));
+              VALUES1(do_ngettext(msgid_asciz,msgid_plural_asciz,domain_asciz,
+                                  n,category));
+            });
+          }
         });
-      }
-    });
-  });
- #else
-  VALUES1(n == 1 ? msgid : msgid_plural);
- #endif
+      });
+     #else
+      VALUES1(n == 1 ? msgid : msgid_plural);
+     #endif
+    }
+  }
   skipSTACK(5);
 }
 
