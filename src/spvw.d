@@ -1636,7 +1636,7 @@ local void arg_error (const char *error_message, const char *arg) {
   fprintf(stderr,GETTEXTL("%s: use '-h' for help"),PACKAGE_NAME);
   fputs("\n",stderr);
 }
-#define ILLEGAL_ARG(a)  arg_error(GETTEXTL("illegal argument"),a)
+#define INVALID_ARG(a)  arg_error(GETTEXTL("invalid argument"),a)
 
 # print license
 nonreturning_function (local, print_license, (void)) {
@@ -1977,7 +1977,7 @@ local inline int parse_options (int argc, const char* const* argv,
                 if (argptr < argptr_limit)      \
                   arg = *argptr++;              \
                 else {                          \
-                  ILLEGAL_ARG(arg);             \
+                  INVALID_ARG(arg);             \
                   return 1;                     \
                 }                               \
               } else {                          \
@@ -2054,7 +2054,7 @@ local inline int parse_options (int argc, const char* const* argv,
               }
               p1->argv_tmpdir = arg;
              #else
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
              #endif
             }
@@ -2062,7 +2062,7 @@ local inline int parse_options (int argc, const char* const* argv,
           case 'd': /* developer mode */
             p2->argv_developer = true;
             if (arg[2] != '\0') {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             break;
@@ -2078,7 +2078,7 @@ local inline int parse_options (int argc, const char* const* argv,
             if (asciz_equal(arg,"-norc"))
               p2->argv_norc = true;
             else {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             break;
@@ -2122,35 +2122,35 @@ local inline int parse_options (int argc, const char* const* argv,
                 argv_encoding_terminal = argv_encoding_foreign =
                 argv_encoding_misc = *argptr++;
             else {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             break;
           case 'q':             /* verbosity level */
             p2->argv_verbose--;
             if (arg[2] != '\0') {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             break;
           case 'v':             /* verbosity level */
             p2->argv_verbose++;
             if (arg[2] != '\0') {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             break;
           case 'I': # ILISP-friendly
             ilisp_mode = true;
             if (arg[2] != '\0') {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             break;
           case 'C': # set *LOAD-COMPILING*
             p2->argv_load_compiling = true;
             if (arg[2] != '\0') {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             break;
@@ -2158,7 +2158,7 @@ local inline int parse_options (int argc, const char* const* argv,
             if (asciz_equal(&arg[1],"repl"))
               p2->argv_repl = true;
             else {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             break;
@@ -2168,7 +2168,7 @@ local inline int parse_options (int argc, const char* const* argv,
             else if (asciz_equal(&arg[1],"interactive-debug"))
               p2->argv_interactive_debug = true;
             else {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             break;
@@ -2178,12 +2178,12 @@ local inline int parse_options (int argc, const char* const* argv,
             if (arg[2] == 'l') {
               p2->argv_compile_listing = true;
               if (arg[3] != '\0') {
-                ILLEGAL_ARG(arg);
+                INVALID_ARG(arg);
                 return 1;
               }
             } else {
               if (arg[2] != '\0') {
-                ILLEGAL_ARG(arg);
+                INVALID_ARG(arg);
                 return 1;
               }
             }
@@ -2191,19 +2191,19 @@ local inline int parse_options (int argc, const char* const* argv,
           case 'l': # compilation listings
             p2->argv_compile_listing = true;
             if (arg[2] != '\0') {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             break;
           case 'o': # target for files to be compiled
             if (arg[2] != '\0') {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             OPTION_ARG;
             if (!((p2->argv_compile_filecount > 0)
                   && (p2->argv_compile_files[p2->argv_compile_filecount-1].output_file==NULL))) {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             p2->argv_compile_files[p2->argv_compile_filecount-1].output_file = arg;
@@ -2216,13 +2216,13 @@ local inline int parse_options (int argc, const char* const* argv,
             if (asciz_equal(arg,"-ansi"))
               p2->argv_ansi = 1; # ANSI
             else {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             break;
           case 'x': # execute LISP-expression
             if (arg[2] != '\0') {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             argv_for = for_expr;
@@ -2230,7 +2230,7 @@ local inline int parse_options (int argc, const char* const* argv,
           case 'w': # wait for keypress after termination
             p2->argv_wait_keypress = true;
             if (arg[2] != '\0') {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             break;
@@ -2238,7 +2238,7 @@ local inline int parse_options (int argc, const char* const* argv,
             if (arg[2] == 0) /* "--" ==> end of options */
               goto done_with_argv;
             else if (asciz_equal(&arg[2],"help")) {
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 0;
             } else if (asciz_equal(&arg[2],"version")) {
               p2->argv_expr_count = 0;  /* discard previous -x */
@@ -2273,12 +2273,12 @@ local inline int parse_options (int argc, const char* const* argv,
               p2->argv_license = true;
               break;
             } else {            /* unknown option */
-              ILLEGAL_ARG(arg);
+              INVALID_ARG(arg);
               return 1;
             }
             break;
           default:              /* unknown option */
-            ILLEGAL_ARG(arg);
+            INVALID_ARG(arg);
             return 1;
         }
       } else if (arg[0] == 0) {  /* done with the arguments */
@@ -2344,18 +2344,18 @@ local inline int parse_options (int argc, const char* const* argv,
     if (!p2->argv_compile) {
       # Some options are useful only together with '-c' :
       if (p2->argv_compile_listing) {
-        arg_error(GETTEXTL("-l without -c is illegal"),NULL);
+        arg_error(GETTEXTL("-l without -c is invalid"),NULL);
         return 1;
       }
     } else {
       # Other options are useful only without '-c' :
       if (p2->argv_expr_count) {
-        arg_error(GETTEXTL("-x with -c is illegal"),NULL);
+        arg_error(GETTEXTL("-x with -c is invalid"),NULL);
         return 1;
       }
     }
     if (p2->argv_expr_count && p2->argv_execute_file) {
-      arg_error(GETTEXTL("-x with lisp-file is illegal"),p2->argv_execute_file);
+      arg_error(GETTEXTL("-x with lisp-file is invalid"),p2->argv_execute_file);
       return 1;
     }
   }
