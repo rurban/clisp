@@ -944,13 +944,13 @@ control.s : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.
 control.o : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c libintl.h
 	$(CC) $(CFLAGS) -c control.c
 
-encoding.i : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_14.c nls_iso8859_15.c nls_koi8_r.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c libintl.h
+encoding.i : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_koi8_r.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c libintl.h
 	$(CPP) $(CFLAGS) encoding.c > encoding.i
 
-encoding.s : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_14.c nls_iso8859_15.c nls_koi8_r.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c libintl.h
+encoding.s : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_koi8_r.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c libintl.h
 	$(CC) $(CFLAGS) -S encoding.c
 
-encoding.o : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_14.c nls_iso8859_15.c nls_koi8_r.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c libintl.h
+encoding.o : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_koi8_r.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c libintl.h
 	$(CC) $(CFLAGS) -c encoding.c
 
 pathname.i : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c libintl.h
@@ -1181,132 +1181,132 @@ config.lsp : cfgdos.lsp
 
 interpreted.mem : lisp.exe $(LSPFILES)
 	-$(RM) interpreted.mem
-	lisp.exe -m 750KW -B . -N locale -norc < interpreted.in
+	lisp.exe -m 750KW -B . -N locale -Efile ISO-8859-1 -norc < interpreted.in
 	$(MV) lispimag.mem interpreted.mem
 
 init.fas : init.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c init.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c init.lsp
 
 defseq.fas : defseq.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c defseq.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c defseq.lsp
 
 backquot.fas : backquot.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c backquot.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c backquot.lsp
 
 defmacro.fas : defmacro.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c defmacro.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c defmacro.lsp
 
 macros1.fas : macros1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c macros1.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c macros1.lsp
 
 macros2.fas : macros2.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c macros2.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c macros2.lsp
 
 defs1.fas : defs1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c defs1.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c defs1.lsp
 
 timezone.fas : timezone.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c timezone.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c timezone.lsp
 
 places.fas : places.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c places.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c places.lsp
 
 floatpri.fas : floatpri.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c floatpri.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c floatpri.lsp
 
 type.fas : type.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c type.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c type.lsp
 
 defstruc.fas : defstruc.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c defstruc.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c defstruc.lsp
 
 format.fas : format.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c format.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c format.lsp
 
 savemem.fas : savemem.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c savemem.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c savemem.lsp
 
 trace.fas : trace.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c trace.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c trace.lsp
 
 compiler.fas : compiler.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c compiler.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c compiler.lsp
 
 disassem.fas : disassem.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c disassem.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c disassem.lsp
 
 defs2.fas : defs2.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c defs2.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c defs2.lsp
 
 loop.fas : loop.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c loop.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c loop.lsp
 
 clos.fas : clos.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c clos.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c clos.lsp
 
 conditio.fas : conditio.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c conditio.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c conditio.lsp
 
 gstream.fas : gstream.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c gstream.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c gstream.lsp
 
 xcharin.fas : xcharin.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c xcharin.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c xcharin.lsp
 
 keyboard.fas : keyboard.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c keyboard.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c keyboard.lsp
 
 screen.fas : screen.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c screen.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c screen.lsp
 
 runprog.fas : runprog.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c runprog.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c runprog.lsp
 
 query.fas : query.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c query.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c query.lsp
 
 reploop.fas : reploop.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c reploop.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c reploop.lsp
 
 dribble.fas : dribble.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c dribble.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c dribble.lsp
 
 complete.fas : complete.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c complete.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c complete.lsp
 
 describe.fas : describe.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c describe.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c describe.lsp
 
 room.fas : room.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c room.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c room.lsp
 
 edit.fas : edit.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c edit.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c edit.lsp
 
 macros3.fas : macros3.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c macros3.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c macros3.lsp
 
 foreign1.fas : foreign1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c foreign1.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c foreign1.lsp
 
 defs3.fas : defs3.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c defs3.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c defs3.lsp
 
 german.fas : german.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c german.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c german.lsp
 
 french.fas : french.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c french.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c french.lsp
 
 spanish.fas : spanish.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c spanish.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c spanish.lsp
 
 config.fas : config.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -norc -q -c config.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c config.lsp
 
 halfcompiled.mem : lisp.exe $(LSPFILES) compiler.fas
 	-$(RM) interpreted.mem
-	lisp.exe -m 750KW -B . -N locale -norc < interpreted.in
+	lisp.exe -m 750KW -B . -N locale -Efile ISO-8859-1 -norc < interpreted.in
 	$(MV) lispimag.mem interpreted.mem
 	$(TOUCH) interpreted.mem
 	$(TOUCH) compiler.fas
@@ -1314,7 +1314,7 @@ halfcompiled.mem : lisp.exe $(LSPFILES) compiler.fas
 
 lispinit.mem : lisp.exe $(FASFILES)
 	-$(RM) lispinit.mem
-	lisp.exe -B . -N locale -norc < lispinit.in
+	lisp.exe -B . -N locale -Efile ISO-8859-1 -norc < lispinit.in
 	$(MV) lispimag.mem lispinit.mem
 
 
@@ -1450,127 +1450,127 @@ stage\config.lsp : config.lsp
 	$(LN) config.lsp stage
 
 stage\init.fas : stage\init.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/init.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/init.lsp
 
 stage\defseq.fas : stage\defseq.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/defseq.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/defseq.lsp
 
 stage\backquot.fas : stage\backquot.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/backquot.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/backquot.lsp
 
 stage\defmacro.fas : stage\defmacro.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/defmacro.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/defmacro.lsp
 
 stage\macros1.fas : stage\macros1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/macros1.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/macros1.lsp
 
 stage\macros2.fas : stage\macros2.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/macros2.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/macros2.lsp
 
 stage\defs1.fas : stage\defs1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/defs1.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/defs1.lsp
 
 stage\timezone.fas : stage\timezone.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/timezone.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/timezone.lsp
 
 stage\places.fas : stage\places.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/places.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/places.lsp
 
 stage\floatpri.fas : stage\floatpri.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/floatpri.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/floatpri.lsp
 
 stage\type.fas : stage\type.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/type.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/type.lsp
 
 stage\defstruc.fas : stage\defstruc.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/defstruc.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/defstruc.lsp
 
 stage\format.fas : stage\format.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/format.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/format.lsp
 
 stage\savemem.fas : stage\savemem.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/savemem.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/savemem.lsp
 
 stage\trace.fas : stage\trace.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/trace.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/trace.lsp
 
 stage\compiler.fas : stage\compiler.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/compiler.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/compiler.lsp
 
 stage\disassem.fas : stage\disassem.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/disassem.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/disassem.lsp
 
 stage\defs2.fas : stage\defs2.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/defs2.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/defs2.lsp
 
 stage\loop.fas : stage\loop.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/loop.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/loop.lsp
 
 stage\clos.fas : stage\clos.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/clos.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/clos.lsp
 
 stage\conditio.fas : stage\conditio.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/conditio.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/conditio.lsp
 
 stage\gstream.fas : stage\gstream.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/gstream.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/gstream.lsp
 
 stage\xcharin.fas : stage\xcharin.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/xcharin.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/xcharin.lsp
 
 stage\keyboard.fas : stage\keyboard.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/keyboard.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/keyboard.lsp
 
 stage\screen.fas : stage\screen.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/screen.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/screen.lsp
 
 stage\runprog.fas : stage\runprog.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/runprog.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/runprog.lsp
 
 stage\query.fas : stage\query.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/query.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/query.lsp
 
 stage\reploop.fas : stage\reploop.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/reploop.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/reploop.lsp
 
 stage\dribble.fas : stage\dribble.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/dribble.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/dribble.lsp
 
 stage\complete.fas : stage\complete.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/complete.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/complete.lsp
 
 stage\describe.fas : stage\describe.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/describe.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/describe.lsp
 
 stage\room.fas : stage\room.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/room.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/room.lsp
 
 stage\edit.fas : stage\edit.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/edit.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/edit.lsp
 
 stage\macros3.fas : stage\macros3.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/macros3.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/macros3.lsp
 
 stage\foreign1.fas : stage\foreign1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/foreign1.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/foreign1.lsp
 
 stage\defs3.fas : stage\defs3.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/defs3.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/defs3.lsp
 
 stage\german.fas : stage\german.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/german.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/german.lsp
 
 stage\french.fas : stage\french.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/french.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/french.lsp
 
 stage\spanish.fas : stage\spanish.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/spanish.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/spanish.lsp
 
 stage\config.fas : stage\config.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -norc -q -c stage/config.lsp
+	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/config.lsp
 
 lispinit2.mem : lisp.exe $(TESTFASFILES)
-	lisp.exe -B . -N locale -norc -x "(cd \"stage/\") (load \"init.fas\") (cd \"../\") (sys::%saveinitmem) (exit)"
+	lisp.exe -B . -N locale -Efile ISO-8859-1 -norc -x "(cd \"stage/\") (load \"init.fas\") (cd \"../\") (sys::%saveinitmem) (exit)"
 	-$(RM) lispinit2.mem
 	$(MV) lispimag.mem lispinit2.mem
 
