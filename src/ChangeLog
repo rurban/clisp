@@ -3,6 +3,7 @@
 	* po/Makefile.devel (LISPSOURCES): removed `threads' (mentioned
 	twice), added `russian'
 	* Makefile.devel (all): `check-configures', not `configures'
+	* configure.in (AC_INIT): pre-release 2.32.91
 
 2004-03-10  Sam Steingold  <sds@gnu.org>
 
