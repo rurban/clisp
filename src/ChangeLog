@@ -3,6 +3,8 @@
 	* modules/berkeley-db/bdb.c (fill_dbt): do not allocate data on
 	stack when DBT size is divisible by sizeof(uintD)
 	(BDB:CURSOR-GET, BDB:CURSOR-PUT): pass DBC->dbp to record_length()
+	(BDB:DB-SET-OPTIONS, BDB:DB-GET-OPTIONS): handle BT_MINKEY,
+	H_FFACTOR, H_NELEM and Q_EXTENTSIZE
 
 2004-05-30  Bruno Haible  <bruno@clisp.org>
 

@@ -1307,14 +1307,9 @@ DEFUN(BDB:DB-VERIFY, db file &key :DATABASE :SALVAGE :AGGRESSIVE :PRINTABLE \
 Btree/Recno Configuration
  DB->set_append_recno	Set record append callback
  DB->set_bt_compare	Set a Btree comparison function
- DB->set_bt_minkey	Set the minimum number of keys per Btree page
  DB->set_bt_prefix	Set a Btree prefix comparison function
 Hash Configuration
- DB->set_h_ffactor	Set the Hash table density
  DB->set_h_hash	Set a hashing function
- DB->set_h_nelem	Set the Hash table size
-Queue Configuration
- DB->set_q_extentsize	Set Queue database extent size
 */
 
 /* convert a Lisp integer to a pair of (Giga-bytes bytes)
@@ -1355,12 +1350,12 @@ static object db_get_flags_list (DB *db) {
 }
 
 DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :PASSWORD :ENCRYPTION      \
-      :NCACHE :CACHESIZE :CACHE :LORDER :PAGESIZE :RE_DELIM :RE_LEN   \
-      :RE_PAD :RE_SOURCE                                              \
+      :NCACHE :CACHESIZE :CACHE :LORDER :PAGESIZE :BT_MINKEY :H_FFACTOR \
+      :H_NELEM :Q_EXTENTSIZE :RE_DELIM :RE_LEN :RE_PAD :RE_SOURCE       \
       :CHKSUM :ENCRYPT :TXN_NOT_DURABLE :DUP :DUPSORT :RECNUM         \
       :REVSPLITOFF :RENUMBER :SNAPSHOT)
 { /* set database options */
-  DB *db = object_handle(STACK_(21),`BDB::DB`,OH_VALID);
+  DB *db = object_handle(STACK_(25),`BDB::DB`,OH_VALID);
   { /* flags */
     u_int32_t flags_on = 0, flags_off = 0;
     set_flags(popSTACK(),&flags_on,&flags_off,DB_SNAPSHOT);
@@ -1402,6 +1397,26 @@ DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :PASSWORD :ENCRYPTION      \
   if (!missingp(STACK_0)) {     /* RE_DELIM */
     int re_delim = I_to_uint8(check_uint8(STACK_0));
     SYSCALL(db->set_re_delim,(db,re_delim));
+  }
+  skipSTACK(1);
+  if (!missingp(STACK_0)) {     /* Q_EXTENTSIZE */
+    u_int32_t q_extentsize = I_to_uint32(check_uint32(STACK_0));
+    SYSCALL(db->set_q_extentsize,(db,q_extentsize));
+  }
+  skipSTACK(1);
+  if (!missingp(STACK_0)) {     /* H_NELEM */
+    u_int32_t h_nelem = I_to_uint32(check_uint32(STACK_0));
+    SYSCALL(db->set_h_nelem,(db,h_nelem));
+  }
+  skipSTACK(1);
+  if (!missingp(STACK_0)) {     /* H_FFACTOR */
+    u_int32_t h_ffactor = I_to_uint32(check_uint32(STACK_0));
+    SYSCALL(db->set_h_ffactor,(db,h_ffactor));
+  }
+  skipSTACK(1);
+  if (!missingp(STACK_0)) {     /* BT_MINKEY */
+    u_int32_t bt_minkey = I_to_uint32(check_uint32(STACK_0));
+    SYSCALL(db->set_bt_minkey,(db,bt_minkey));
   }
   skipSTACK(1);
   if (!missingp(STACK_0)) {     /* PAGESIZE */
@@ -1481,6 +1496,10 @@ DEFINE_DB_GETTER1(get_pagesize,u_int32_t,UL_to_I(value))
     } else                                              \
       return finish;                                    \
   }
+DEFINE_DB_GETTER2(get_bt_minkey,u_int32_t,UL_to_I(value))
+DEFINE_DB_GETTER2(get_h_ffactor,u_int32_t,UL_to_I(value))
+DEFINE_DB_GETTER2(get_h_nelem,u_int32_t,UL_to_I(value))
+DEFINE_DB_GETTER2(get_q_extentsize,u_int32_t,UL_to_I(value))
 DEFINE_DB_GETTER2(get_re_delim,int,L_to_I(value))
 DEFINE_DB_GETTER2(get_re_len,u_int32_t,UL_to_I(value))
 DEFINE_DB_GETTER2(get_re_pad,int,L_to_I(value))
@@ -1503,6 +1522,10 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     pushSTACK(value1); count++;
     pushSTACK(`:LORDER`); pushSTACK(db_get_lorder(db)); count++;
     pushSTACK(`:PAGESIZE`); pushSTACK(db_get_pagesize(db)); count++;
+    pushSTACK(`:BT_MINKEY`); pushSTACK(db_get_bt_minkey(db,false)); count++;
+    pushSTACK(`:H_FFACTOR`); pushSTACK(db_get_h_ffactor(db,false)); count++;
+    pushSTACK(`:H_NELEM`); pushSTACK(db_get_h_nelem(db,false)); count++;
+    pushSTACK(`:Q_EXTENTSIZE`);pushSTACK(db_get_q_extentsize(db,false));count++;
     pushSTACK(`:RE_DELIM`); pushSTACK(db_get_re_delim(db,false)); count++;
     pushSTACK(`:RE_LEN`); pushSTACK(db_get_re_len(db,false)); count++;
     pushSTACK(`:RE_PAD`); pushSTACK(db_get_re_pad(db,false)); count++;
@@ -1522,6 +1545,14 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     VALUES1(db_get_errfile(db));
   } else if (eq(what,`:PAGESIZE`)) {
     VALUES1(db_get_pagesize(db));
+  } else if (eq(what,`:BT_MINKEY`)) {
+    VALUES1(db_get_bt_minkey(db,true));
+  } else if (eq(what,`:H_FFACTOR`)) {
+    VALUES1(db_get_h_ffactor(db,true));
+  } else if (eq(what,`:H_NELEM`)) {
+    VALUES1(db_get_h_nelem(db,true));
+  } else if (eq(what,`:Q_EXTENTSIZE`)) {
+    VALUES1(db_get_q_extentsize(db,true));
   } else if (eq(what,`:RE_DELIM`)) {
     VALUES1(db_get_re_delim(db,true));
   } else if (eq(what,`:RE_LEN`)) {
