@@ -731,13 +731,14 @@ DEFUN(BDB:DB-FD, db)
   VALUES1(fixnum(fd));
 }
 
-DEFFLAGSET(db_get_flags,  DB_CONSUME DB_CONSUME_WAIT DB_DIRTY_READ DB_RMW)
-DEFUN(BDB:DB-GET, db key &key :CONSUME :CONSUME_WAIT :DIRTY_READ :RMW \
+DEFCHECKER(db_get_action, DB_CONSUME DB_CONSUME_WAIT DB_GET_BOTH DB_SET_RECNO)
+DEFFLAGSET(db_get_options, DB_AUTO_COMMIT DB_DIRTY_READ DB_MULTIPLE DB_RMW)
+DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO_COMMIT :DIRTY_READ :MULTIPLE :RMW \
       :TRANSACTION :ERROR)
 { /* Get items from a database */
   int no_error = nullp(popSTACK());
   DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
-  u_int32_t flags = db_get_flags();
+  u_int32_t flags = db_get_options() | db_get_action(popSTACK());
   DB *db = object_handle(STACK_1,`BDB::DB`,false);
   DBT key, val;
   int status;
@@ -1032,6 +1033,39 @@ DEFUN(BDB:DB-VERIFY, db file &key :DATABASE :SALVAGE :AGGRESSIVE :PRINTABLE \
   VALUES0; skipSTACK(3);
 }
 
+/* ===== Database Configuration ===== */
+/* not exported:
+ DB->set_alloc	Set local space allocation functions
+ DB->set_cachesize	Set the database cache size
+ DB->set_dup_compare	Set a duplicate comparison function
+ DB->set_encrypt	Set the database cryptographic key
+ DB->set_errcall	Set error message callback
+ DB->set_errfile	Set error message FILE
+ DB->set_errpfx	Set error message prefix
+ DB->set_feedback	Set feedback callback
+ DB->set_flags	General database configuration
+ DB->set_lorder	Set the database byte order
+ DB->set_pagesize	Set the underlying database page size
+ DB->set_paniccall	Set panic callback
+Btree/Recno Configuration
+ DB->set_append_recno	Set record append callback
+ DB->set_bt_compare	Set a Btree comparison function
+ DB->set_bt_minkey	Set the minimum number of keys per Btree page
+ DB->set_bt_prefix	Set a Btree prefix comparison function
+ DB->set_re_delim	Set the variable-length record delimiter
+ DB->set_re_len	Set the fixed-length record length
+ DB->set_re_pad	Set the fixed-length record pad byte
+ DB->set_re_source	Set the backing Recno text file
+Hash Configuration
+ DB->set_h_ffactor	Set the Hash table density
+ DB->set_h_hash	Set a hashing function
+ DB->set_h_nelem	Set the Hash table size
+Queue Configuration
+ DB->set_q_extentsize	Set Queue database extent size
+*/
+
+
+
 /* ===== cursors ===== */
 DEFFLAGSET(make_cursor_flags, DB_DIRTY_READ DB_WRITECURSOR)
 DEFUN(BDB:MAKE-CURSOR,db &key :DIRTY_READ :WRITECURSOR :TRANSACTION)
@@ -1082,14 +1116,15 @@ DEFUN(BDB:CURSOR-DUP, cursor &key :POSITION)
   wrap_finalize(cursor,&`BDB::MKCURSOR`,&``BDB::CURSOR-CLOSE``);
 }
 
-DEFCHECKER(cursor_get_flag, DB_CURRENT DB_FIRST DB_GET_BOTH            \
+DEFCHECKER(cursor_get_action, DB_CURRENT DB_FIRST DB_GET_BOTH          \
            DB_GET_BOTH_RANGE DB_GET_RECNO DB_JOIN_ITEM DB_LAST DB_NEXT \
            DB_NEXT_DUP DB_NEXT_NODUP DB_PREV DB_PREV_NODUP DB_SET      \
-           DB_SET_RANGE DB_SET_RECNO DB_DIRTY_READ DB_MULTIPLE)
-DEFUN(BDB:CURSOR-GET, cursor key data flag &key :ERROR)
+           DB_SET_RANGE DB_SET_RECNO)
+DEFFLAGSET(cursor_get_options, DB_DIRTY_READ DB_MULTIPLE DB_MULTIPLE_KEY DB_RMW)
+DEFUN(BDB:CURSOR-GET, cursor key data action &key :DIRTY_READ :MULTIPLE :ERROR)
 { /* retrieve key/data pairs from the database */
   int no_error = nullp(popSTACK());
-  u_int32_t flag = cursor_get_flag(popSTACK());
+  u_int32_t flag = cursor_get_options() | cursor_get_action(popSTACK());
   DBC *cursor = object_handle(STACK_2,`BDB::CURSOR`,false);
   DBT key, val;
   int status;
