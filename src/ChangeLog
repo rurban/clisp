@@ -1,5 +1,12 @@
 2004-03-14  Bruno Haible  <bruno@clisp.org>
 
+	Modernize PO file header.
+	* po/po_header.txt: Add license clause and Report-Msgid-Bugs-To field.
+	* po/po_header: Likewise. Use the official format for the timezone in
+	the header. Make it work with newer versions of GNU ls.
+
+2004-03-14  Bruno Haible  <bruno@clisp.org>
+
 	Internationalization fixes:
 	- Use entire sentences instead of pieces of sentences.
 	- Let the translator translate terms like STRING, SYMBOL, INTEGER,
