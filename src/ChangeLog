@@ -1,5 +1,14 @@
 2004-08-05  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/configure.in: check
+	for <sys/utsname.h> with CL_UTSNAME,
+	for getrusage() with CL_RUSAGE, and
+	for lstat() with CL_LSTAT
+	this avoids compile warnings by defining the corresponding
+	constants identically in syscalls/config.h and unixconf.h
+
+2004-08-05  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/bdb.c: use DB.dbenv when practical
 	(close_errfile, reset_errfile): functions, not macros
 	(close_errpfx): new function
