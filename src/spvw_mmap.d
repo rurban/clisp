@@ -40,7 +40,9 @@
   global int munmap (MMAP_ADDR_T addr, MMAP_SIZE_T len);
 
 # Changes the access protection for a memory range.
-  global int mprotect (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
+#if 0 /* Already declared in <sys/mman.h> on those platforms that have it. */
+  global int mprotect ([const] MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
+#endif
 
 # ------------------------------ Implementation -------------------------------
 
