@@ -114,7 +114,15 @@ avcall-arm.s : $(srcdir)/avcall-arm.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/avcall-arm.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//,@,g' -e 's,\$$,#,g' > avcall-arm.s
 
 avcall-rs6000.lo : $(srcdir)/avcall-rs6000-aix.old.s $(srcdir)/avcall-rs6000-aix.new.s $(srcdir)/avcall-rs6000-sysv4.s
-	case "$(OS)" in aix3*) syntax=aix.old;; aix*) syntax=aix.new;; *) syntax=sysv4;; esac; $(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-rs6000-$${syntax}.s ; cp avcall-rs6000-$${syntax}.lo avcall-rs6000.lo ; rm -f avcall-rs6000-$${syntax}.lo ; if test -f avcall-rs6000-$${syntax}.o; then mv avcall-rs6000-$${syntax}.o avcall-rs6000.o; fi
+	case "$(OS)" in \
+	  aix3*) syntax=aix.old;; \
+	  aix*) syntax=aix.new;; \
+	  linux*) syntax=linux;; \
+	  *) syntax=sysv4;; \
+	esac; \
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-rs6000-$${syntax}.s ; \
+	cp avcall-rs6000-$${syntax}.lo avcall-rs6000.lo ; rm -f avcall-rs6000-$${syntax}.lo ; \
+	if test -f avcall-rs6000-$${syntax}.o; then mv avcall-rs6000-$${syntax}.o avcall-rs6000.o; fi
 
 avcall-m88k.lo : $(srcdir)/avcall-m88k.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-m88k.s

@@ -334,7 +334,7 @@ typedef struct
   unsigned long		rsize;
   /* current pointer into the args[] array */
   __avword*		aptr;
-#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__)
+#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__) || (defined(__rs6000__) && !defined(_AIX))
   /* limit pointer into the args[] array */
   __avword*		eptr;
 #endif
@@ -384,7 +384,7 @@ typedef struct
 } av_alist;
 
 /* The limit for the pointer into the args[] array. */
-#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__)
+#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__) || (defined(__rs6000__) && !defined(_AIX))
 #define __av_eptr(LIST)	((LIST).eptr)
 #else
 #define __av_eptr(LIST)	(&(LIST).args[__AV_ALIST_WORDS])
@@ -440,9 +440,16 @@ typedef struct
    (LIST).eptr = &(LIST).args[0],
 #endif
 #if defined(__rs6000__)
+#if defined(_AIX)
 #define __av_start1(LIST)						\
    (LIST).aptr = &(LIST).args[0],					\
    (LIST).faptr = &(LIST).fargs[0],
+#else
+#define __av_start1(LIST)						\
+   (LIST).aptr = &(LIST).args[0],					\
+   (LIST).faptr = &(LIST).fargs[0],                                     \
+   (LIST).eptr = &(LIST).args[__AV_ALIST_WORDS],
+#endif
 #endif
 
 #define av_start_void(LIST,FUNC)		__av_start(LIST,FUNC,0,    __AVvoid)
