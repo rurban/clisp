@@ -1,6 +1,6 @@
 ! Trampoline for sparc CPU
 
-! Copyright 1995-1997 Bruno Haible, <haible@clisp.cons.org>
+! Copyright 1995-1997 Bruno Haible, <bruno@clisp.org>
 !
 ! This is free software distributed under the GNU General Public Licence
 ! described in the file COPYING. Contact the author if you don't have this

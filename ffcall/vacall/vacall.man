@@ -234,7 +234,7 @@ PPOORRTTIINNGG
 
 
 AAUUTTHHOORR
-       Bruno Haible <haible@clisp.cons.org>
+       Bruno Haible <bruno@clisp.org>
 
 
 AACCKKNNOOWWLLEEDDGGEEMMEENNTTSS

@@ -1,7 +1,7 @@
 /* Trampoline for s390 CPU */
 
 /*
- * Copyright 1995 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995 Bruno Haible, <bruno@clisp.org>
  * Copyright 2001 Gerhard Tonn, <gt@debian.org>
  *
  * This is free software distributed under the GNU General Public Licence
