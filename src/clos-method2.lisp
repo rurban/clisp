@@ -41,7 +41,7 @@
                    (if (atom item)
                      (progn (push item req-vars) 't)
                      (progn
-                       (when (cddr item)
+                       (unless (and (consp (cdr item)) (null (cddr item)))
                          (error-of-type 'source-program-error
                            (TEXT "~S ~S: invalid specialized lambda list entry ~S")
                            caller funname item))

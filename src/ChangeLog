@@ -1,3 +1,8 @@
+2004-07-28  Bruno Haible  <bruno@clisp.org>
+
+	* clos-method2.lisp (analyze-method-description): Complete the test
+	whether a lambda-list entry is invalid.
+
 2004-06-04  Bruno Haible  <bruno@clisp.org>
 
 	Use specializers in methods.
