@@ -10890,8 +10890,16 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
     if (i) { # string is ready
       /* Start new process. */
       var PROCESS_INFORMATION pinfo;
+      var STARTUPINFO sinfo;
       begin_system_call();
-      if (!MyCreateProcess(command_data,hinput,houtput,herror,&pinfo))
+      memset(&sinfo,0,sizeof(sinfo));
+      sinfo.cb = sizeof(STARTUPINFO);
+      sinfo.dwFlags = STARTF_USESTDHANDLES;
+      sinfo.hStdInput = hinput;
+      sinfo.hStdOutput = houtput;
+      sinfo.hStdError = herror;
+      if (!CreateProcess(NULL, command_data, NULL, NULL, true, pry,
+                         NULL, NULL, &sinfo, &pinfo))
         { end_system_call(); OS_error(); }
       if (pinfo.hThread /* zero for 16 bit programs in NT */
            && !CloseHandle(pinfo.hThread)) { end_system_call(); OS_error(); }
