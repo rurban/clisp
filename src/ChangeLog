@@ -1,5 +1,7 @@
 2001-01-03  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (use_default_dir win32): do not use `default_drive'
+	or `default_directory_of' for UNC paths
 	* inspect.lisp (inspect-frontend): bind `keep-alive'
 
 2001-01-03  Bruno Haible  <haible@clisp.cons.org>
