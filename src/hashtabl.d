@@ -1612,7 +1612,7 @@ LISPFUNNR(hash_table_count,1)
 { /* (HASH-TABLE-COUNT hashtable), CLTL p. 285, CLtL2 p. 439 */
   var object ht = check_hashtable(popSTACK()); /* hashtable argument */
   if (ht_weak_p(ht) && !ht_validp(TheHashtable(ht)))
-    rehash(ht); /* update count after GC */
+    ht = rehash(ht); /* update count after GC */
   VALUES1(TheHashtable(ht)->ht_count); /* fixnum COUNT as value */
 }
 
