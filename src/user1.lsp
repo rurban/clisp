@@ -36,30 +36,34 @@
 (defun package-short-name (pkg)
   "Return the shortest (nick)name of the package."
   (declare (type package pkg))
-  (reduce (lambda (st0 st1)
-            (declare (simple-string st0 st1))
-            (if (> (length st0) (length st1)) st1 st0))
-          (package-nicknames pkg) :initial-value (package-name pkg)))
+  (let ((name (reduce (lambda (st0 st1)
+                        (declare (simple-string st0 st1))
+                        (if (> (length st0) (length st1)) st1 st0))
+                      (package-nicknames pkg) :initial-value
+                      (package-name pkg))))
+    (case *print-case*
+      (:upcase (string-upcase name))
+      (:downcase (string-downcase name))
+      (:capitalize (string-capitalize name))
+      (t name))))
 
-(let ((index 0))
-  (defun prompt-index ()
-    "Return the index of the prompt."
-    (incf index)))
+(defvar *command-index* 0 "The number of commands received so far.")
+(defun prompt-index ()
+  "Return the index of the prompt."
+  (incf *command-index*))
 
-(let (home-package)
-  (defun prompt-new-package ()
-    "Return the current package or \"\" if it never changed."
-    (unless home-package
-      (setq home-package *package*))
-    (unless (eq home-package *package*)
-      *package*)))
+(defvar *home-package* nil "The starting package of this session.")
+(defun prompt-new-package ()
+  "Return the current package or NIL if it never changed."
+  (unless *home-package* (setq *home-package* *package*))
+  (unless (eq *home-package* *package*) *package*))
 
 (defvar *prompt*
   #'(lambda ()
       ;; prompt with *package* when it is different from the initial one
       ;; or when it doesn't contain standard LISP symbols, like T.
       (if (and (packagep *package*) (package-name *package*))
-          (format nil "~@[~(~a~)~][~:d]"
+          (format nil "~@[~a~][~:d]"
                   (if (or (not (find-symbol "T" *package*))
                           (prompt-new-package))
                       (package-short-name *package*))
@@ -435,7 +439,7 @@ Continue = continuer l'évaluation"
            (prompt (with-output-to-string (s)
                       (write-string (prompt-string1) s)
                       (write *break-count* :stream s)
-                      (write-string ". Break" s)
+                      (write-string ". Break " s)
                       (write-string (prompt-string2) s)
                       (write-string (prompt-string3) s)
            )       )
