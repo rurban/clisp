@@ -1,3 +1,8 @@
+2001-07-21  Bruno Haible  <haible@clisp.cons.org>
+
+	* po/clisp-msguniq: Update comments.
+	(main): Omit the newline after the last hunk.
+
 2001-06-08  Bruno Haible <haible@clisp.cons.org>
 
 	* intl/*: Upgrade from 0.10.37 to 0.10.38.
