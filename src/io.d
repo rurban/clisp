@@ -343,7 +343,8 @@
       # token_buff_1 und token_buff_2 initialisieren:
         O(token_buff_1) = NIL;
         # token_buff_1 und token_buff_2 werden beim ersten Aufruf von
-        # get_buffers (s.u.) mit zwei Semi-Simple-Strings initialisiert.
+        # get_buffers (s.u.) mit einem Semi-Simple-String und einem
+        # Semi-Simple-Byte-Vektor initialisiert.
       # Displaced-String initialisieren:
         # neuer Array (mit Datenvektor NIL), Displaced, Rang=1
         O(displaced_string) =
@@ -782,9 +783,9 @@ LISPFUNN(set_readtable_case,2)
 # im Token ein Attribut a_xxxx zugeordnet.
 # O(token_buff_1) ist ein Semi-Simple-String, der die Characters des
 # gerade eingelesenen Extended-Tokens enthält.
-# O(token_buff_2) ist ein Semi-Simple-String, der die Attribute des
+# O(token_buff_2) ist ein Semi-Simple-Byte-Vektor, der die Attribute des
 # gerade eingelesenen Extended-Tokens enthält.
-# Beide haben dieselbe Länge.
+# Beide haben dieselbe Länge (in Characters bzw. Bytes).
 
 # Spezielle Objekte, die bei READ als Ergebnis kommen können:
 #   eof_value: spezielles Objekt, das EOF anzeigt
@@ -1072,14 +1073,15 @@ LISPFUNN(set_readtable_case,2)
 # werden sie entnommen. Sonst werden neue alloziert.
 # Werden die Buffer nicht mehr gebraucht, so können sie in
 # O(token_buff_1) und O(token_buff_2) geschrieben werden.
-# < -(STACK),-(STACK): zwei Semi-Simple Strings mit Fill-Pointer 0
+# < STACK_1: ein Semi-Simple String mit Fill-Pointer 0
+# < STACK_0: ein Semi-Simple Byte-Vektor mit Fill-Pointer 0
 # < STACK: um 2 erniedrigt
 # kann GC auslösen
   local void get_buffers (void);
   local void get_buffers()
     { # Mechanismus:
-      # In O(token_buff_1) und O(token_buff_2) stehen zwei
-      # Semi-Simple-Strings, die bei Bedarf entnommen (und mit
+      # In O(token_buff_1) und O(token_buff_2) stehen ein Semi-Simple-String
+      # und ein Semi-Simple-Byte-Vektor, die bei Bedarf entnommen (und mit
       # O(token_buff_1) := NIL als entnommen markiert) und nach Gebrauch
       # wieder hineingesetzt werden können. Reentrant!
       var object buff_1 = O(token_buff_1);
@@ -1095,7 +1097,7 @@ LISPFUNN(set_readtable_case,2)
         else
         # Buffer sind gerade entnommen und müssen neu alloziert werden:
         { pushSTACK(make_ssstring(50)); # neuer Semi-Simple-String mit Fill-Pointer=0
-          pushSTACK(make_ssstring(50)); # neuer Semi-Simple-String mit Fill-Pointer=0
+          pushSTACK(make_ssbvector(50)); # neuer Semi-Simple-Byte-Vektor mit Fill-Pointer=0
         }
     }
 
@@ -1148,7 +1150,7 @@ LISPFUNN(set_readtable_case,2)
       goto char_read;
       loop
         { # Hier wird das Token in STACK_1 (Semi-Simple-String für Characters)
-          # und STACK_0 (Semi-Simple-String für Attributcodes) aufgebaut.
+          # und STACK_0 (Semi-Simple-Byte-Vektor für Attributcodes) aufgebaut.
           # Multiple-Escape-Flag zeigt an, ob man sich zwischen |...| befindet.
           # Escape-Flag zeigt an, ob ein Escape-Character vorgekommen ist.
           read_char_syntax(ch = ,scode = ,stream_); # nächstes Zeichen lesen
@@ -1187,7 +1189,7 @@ LISPFUNN(set_readtable_case,2)
                 # nach Escape-Zeichen:
                 # Zeichen unverändert ins Token übernehmen
                 ssstring_push_extend(STACK_1,char_code(ch));
-                ssstring_push_extend(STACK_0,a_escaped);
+                ssbvector_push_extend(STACK_0,a_escaped);
                 break;
               case syntax_multi_esc:
                 # Multiple-Escape-Zeichen
@@ -1202,7 +1204,7 @@ LISPFUNN(set_readtable_case,2)
                 # ins Token übernehmen (Groß-/Klein-Umwandlung kommt später):
                 {var uintB c = char_code(ch);
                  ssstring_push_extend(STACK_1,c);
-                 ssstring_push_extend(STACK_0,attribute_table[c]);
+                 ssbvector_push_extend(STACK_0,attribute_table[c]);
                 }
                 break;
               case syntax_whitespace:
@@ -1293,13 +1295,11 @@ LISPFUNN(set_readtable_case,2)
       var uintB* attrptr0; # Pointer auf die Attribute
       var uintL len; # Länge des Token
       # initialisieren:
-      { var object buff = O(token_buff_1); # erster Semi-Simple String
+      { var object buff = O(token_buff_1); # Semi-Simple String
         len = TheIarray(buff)->dims[1]; # Länge = Fill-Pointer
-        buff = TheIarray(buff)->data; # Simple-String
-        charptr0 = &TheSstring(buff)->data[0]; # ab hier kommen die Characters
-        buff = O(token_buff_2); # zweiter Semi-Simple String
-        buff = TheIarray(buff)->data; # Simple-String
-        attrptr0 = &TheSstring(buff)->data[0]; # ab hier kommen die Attributcodes
+        charptr0 = &TheSstring(TheIarray(buff)->data)->data[0]; # ab hier kommen die Characters
+        buff = O(token_buff_2); # Semi-Simple Byte-Vektor
+        attrptr0 = &TheSbvector(TheIarray(buff)->data)->data[0]; # ab hier kommen die Attributcodes
       }
       # 1. Suche, ob ein Punkt vorkommt:
       { var uintB* attrptr = attrptr0;
@@ -1625,10 +1625,9 @@ LISPFUNN(set_readtable_case,2)
   local boolean test_dots (void);
   local boolean test_dots()
     { # Suche nach Attributcode /= a_dot:
-      var object string = O(token_buff_2); # Semi-Simple-String
-      var uintL len = TheIarray(string)->dims[1]; # Fill-Pointer
-      string = TheIarray(string)->data; # Simple-String
-     {var uintB* attrptr = &TheSstring(string)->data[0];
+      var object bvec = O(token_buff_2); # Semi-Simple-Byte-Vektor
+      var uintL len = TheIarray(bvec)->dims[1]/8; # Fill-Pointer
+      var uintB* attrptr = &TheSbvector(TheIarray(bvec)->data)->data[0];
       var uintL count;
       dotimesL(count,len,
         { if (!(*attrptr++ == a_dot)) # Attributcode /= a_dot gefunden?
@@ -1636,7 +1635,7 @@ LISPFUNN(set_readtable_case,2)
         });
       # alles Dots.
       return TRUE;
-    }}
+    }
 
 # UP: Wandelt ein Zahl-Token in Großbuchstaben um.
 # upcase_token();
@@ -1646,10 +1645,9 @@ LISPFUNN(set_readtable_case,2)
   local void upcase_token()
     { var object string = O(token_buff_1); # Semi-Simple-String
       var uintL len = TheIarray(string)->dims[1]; # Fill-Pointer
-      string = TheIarray(string)->data; # Simple-String
-     {var uintB* charptr = &TheSstring(string)->data[0];
+      var uintB* charptr = &TheSstring(TheIarray(string)->data)->data[0];
       dotimesL(len,len, { *charptr = up_case(*charptr); charptr++; } );
-    }}
+    }
 
 # UP: Wandelt ein Stück des gelesenen Tokens in Groß- oder Kleinbuchstaben um.
 # case_convert_token(start_index,end_index,direction);
@@ -1664,7 +1662,7 @@ LISPFUNN(set_readtable_case,2)
     var uintL end_index;
     var uintW direction;
     { var uintB* charptr = &TheSstring(TheIarray(O(token_buff_1))->data)->data[start_index];
-      var uintB* attrptr = &TheSstring(TheIarray(O(token_buff_2))->data)->data[start_index];
+      var uintB* attrptr = &TheSbvector(TheIarray(O(token_buff_2))->data)->data[start_index];
       var uintL len = end_index - start_index;
       if (len == 0) return;
       switch (direction)
@@ -1969,10 +1967,10 @@ LISPFUNN(set_readtable_case,2)
           direction = (uintW)posfixnum_to_L(TheReadtable(readtable)->readtable_case);
         }
        {var object buff_2 = O(token_buff_2); # Attributcode-Buffer
-        var uintL len = TheIarray(buff_2)->dims[1]; # Länge = Fill-Pointer
-        var uintB* attrptr = &TheSstring(TheIarray(buff_2)->data)->data[0];
+        var uintL len = TheIarray(buff_2)->dims[1]/8; # Länge = Fill-Pointer
+        var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
         var uintL index = 0;
-        # stets attrptr = &TheSstring(...)->data[index].
+        # stets attrptr = &TheSbvector(...)->data[index].
         # Token wird in Packagenamen und Namen zerhackt:
         var uintL pack_end_index;
         var uintL name_start_index;
@@ -2537,7 +2535,7 @@ LISPFUNN(string_reader,2) # liest "
       else
       # nein -> String wirklich lesen
       { get_buffers(); # zwei leere Buffer auf den Stack
-        # Stackaufbau: stream, char, andererBuffer, Buffer.
+        # Stackaufbau: stream, char, Buffer, andererBuffer.
         loop
           { # nächstes Zeichen lesen:
             var object ch;
@@ -2551,10 +2549,10 @@ LISPFUNN(string_reader,2) # liest "
                 if (scode == syntax_eof) goto fehler_eof; # EOF -> Fehler
               }
             # Zeichen ch in den Buffer schieben:
-            ssstring_push_extend(STACK_0,char_code(ch));
+            ssstring_push_extend(STACK_1,char_code(ch));
           }
         # Buffer kopieren und dabei in Simple-String umwandeln:
-        value1 = copy_string(STACK_0);
+        value1 = copy_string(STACK_1);
         # Buffer zur Wiederverwendung freigeben:
         O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
       }
@@ -3148,8 +3146,8 @@ LISPFUNN(uninterned_reader,3) # liest #:
      var object string = copy_string(O(token_buff_1));
      # Auf Package-Marker testen:
      {var object buff_2 = O(token_buff_2); # Attributcode-Buffer
-      var uintL len = TheIarray(buff_2)->dims[1]; # Länge = Fill-Pointer
-      var uintB* attrptr = &TheSstring(TheIarray(buff_2)->data)->data[0];
+      var uintL len = TheIarray(buff_2)->dims[1]/8; # Länge = Fill-Pointer
+      var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
       # Teste, ob einer der len Attributcodes ab attrptr ein a_pack_m ist:
       dotimesL(len,len, { if (*attrptr++ == a_pack_m) goto fehler_dopp; } );
      }
@@ -4562,18 +4560,18 @@ LISPFUN(read_line,0,4,norest,nokey,0,NIL)
         if (!charp(ch)) { subr_self = L(read_line); fehler_char(ch); }
         if (eq(ch,code_char(NL))) goto eol; # NL -> End of Line
         # sonstiges Character in den Buffer schreiben:
-        ssstring_push_extend(STACK_0,char_code(ch));
+        ssstring_push_extend(STACK_1,char_code(ch));
       }
     eol: # End of Line
     { # Buffer kopieren und dabei in Simple-String umwandeln:
-      value1 = copy_string(STACK_0);
+      value1 = copy_string(STACK_1);
       # Buffer zur Wiederverwendung freigeben:
       O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
       value2 = NIL; mv_count=2; # NIL als 2. Wert
       skipSTACK(4); return;
     }
     eof: # End of File
-    { var object buff = STACK_0; # Buffer
+    { var object buff = STACK_1; # Buffer
       # Buffer zur Wiederverwendung freigeben:
       O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
       # Buffer leer ?
@@ -6690,7 +6688,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           until (index == len)
             { var uintB c = TheSstring(STACK_2)->data[index]; # nächstes Character
               ssstring_push_extend(STACK_1,c); # in den Character-Buffer
-              ssstring_push_extend(STACK_0,attribute_table[c]); # und in den Attributcode-Buffer
+              ssbvector_push_extend(STACK_0,attribute_table[c]); # und in den Attributcode-Buffer
               index++;
         }   }
         O(token_buff_2) = popSTACK(); # Attributcode-Buffer

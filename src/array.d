@@ -2105,6 +2105,72 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       return ssstring;
     }
 
+# Folgende beide Funktionen arbeiten auf "Semi-Simple Byte-Vector"s.
+# Das sind Simple-Bit-Arrays mit Fill-Pointer, die aber nicht adjustierbar
+# und nicht displaced sind und deren Datenvektor ein Simple-Bit-Vektor ist.
+# Beim Überschreiten der Länge wird ihre Länge verdoppelt
+# (so dass der Aufwand fürs Erweitern nicht sehr ins Gewicht fällt).
+
+# UP: Liefert einen Semi-Simple Byte-Vector mit len Bytes, Fill-Pointer =0.
+# make_ssbvector(len)
+# > uintL len: Länge (in Bytes!) >0
+# < ergebnis: neuer Semi-Simple Byte-Vector dieser Länge
+# kann GC auslösen
+  global object make_ssbvector (uintL len);
+  global object make_ssbvector(len)
+    var uintL len;
+    { pushSTACK(allocate_bit_vector(len*8));
+     {var object new_array =
+        allocate_iarray(bit(arrayflags_fillp_bit)|bit(arrayflags_notbytep_bit)|Atype_Bit,1,Array_type_bvector);
+        # Flags: nur FILL_POINTER_BIT, Elementtyp BIT, Rang=1
+      TheIarray(new_array)->dims[1] = 0; # Fill-Pointer := 0
+      TheIarray(new_array)->totalsize =
+        TheIarray(new_array)->dims[0] = len*8; # Länge und Total-Size eintragen
+      TheIarray(new_array)->data = popSTACK(); # Datenvektor eintragen
+      return new_array;
+    }}
+
+# UP: Schiebt ein Byte in einen Semi-Simple Byte-Vector und erweitert ihn
+# dabei eventuell.
+# ssbvector_push_extend(ssbvector,b)
+# > ssbvector: Semi-Simple Byte-Vector
+# > b: Byte
+# < ergebnis: derselbe Semi-Simple Byte-Vector
+# kann GC auslösen
+  global object ssbvector_push_extend (object ssbvector, uintB b);
+  global object ssbvector_push_extend(ssbvector,b)
+    var object ssbvector;
+    var uintB b;
+    { var object sbvector = TheIarray(ssbvector)->data; # Datenvektor (ein Simple-Bit-Vektor)
+      if (TheIarray(ssbvector)->dims[1] # Fill-Pointer
+          >= Sbvector_length(sbvector) ) # >= Länge ?
+        { # ja -> Bit-Vektor wird um den Faktor 2 länger gemacht
+          pushSTACK(ssbvector); # ssbvector retten
+          pushSTACK(sbvector); # Datenvektor ebenfalls retten
+         {var object neuer_sbvector = allocate_bit_vector(2 * Sbvector_length(sbvector));
+          # neuer Simple-Bit-Vektor der doppelten Länge
+          sbvector = popSTACK(); # sbvector zurück
+          # Inhalt von sbvector nach neuer_sbvector kopieren:
+          { var uintB* ptr1 = &TheSbvector(sbvector)->data[0];
+            var uintB* ptr2 = &TheSbvector(neuer_sbvector)->data[0];
+            var uintL count;
+            dotimespL(count,Sbvector_length(sbvector)/8, { *ptr2++ = *ptr1++; } );
+          }
+          ssbvector = popSTACK(); # ssbvector zurück
+          set_break_sem_1(); # Unterbrechungen verbieten
+          TheIarray(ssbvector)->data = neuer_sbvector; # neuen Bit-Vektor als Datenvektor abspeichern
+          TheIarray(ssbvector)->totalsize =
+            TheIarray(ssbvector)->dims[0] = Sbvector_length(neuer_sbvector); # neue Länge eintragen
+          clr_break_sem_1(); # Unterbrechungen wieder zulassen
+          sbvector = neuer_sbvector;
+        }}
+      # Nun ist wieder sbvector der Datenvektor, und es gilt
+      # Fill-Pointer < Länge(Datenvektor).
+      # Character hineinschieben und Fill-Pointer erhöhen:
+      TheSbvector(sbvector)->data[ ((TheIarray(ssbvector)->dims[1] += 8) - 8)/8 ] = b;
+      return ssbvector;
+    }
+
 
 # Stackaufbau bei MAKE-ARRAY :
 #   dims, adjustable, element-type, initial-element, initial-contents,

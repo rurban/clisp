@@ -10412,6 +10412,30 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   extern object ssstring_extend (object ssstring, uintL needed_len);
 # wird verwendet von STREAM
 
+# Folgende beide Funktionen arbeiten auf "Semi-Simple Byte-Vector"s.
+# Das sind Simple-Bit-Arrays mit Fill-Pointer, die aber nicht adjustierbar
+# und nicht displaced sind und deren Datenvektor ein Simple-Bit-Vektor ist.
+# Beim Überschreiten der Länge wird ihre Länge verdoppelt
+# (so dass der Aufwand fürs Erweitern nicht sehr ins Gewicht fällt).
+
+# UP: Liefert einen Semi-Simple Byte-Vector mit len Bytes, Fill-Pointer =0.
+# make_ssbvector(len)
+# > uintL len: Länge (in Bytes!) >0
+# < ergebnis: neuer Semi-Simple Byte-Vector dieser Länge
+# kann GC auslösen
+  extern object make_ssbvector (uintL len);
+# wird verwendet von IO
+
+# UP: Schiebt ein Byte in einen Semi-Simple Byte-Vector und erweitert ihn
+# dabei eventuell.
+# ssbvector_push_extend(ssbvector,b)
+# > ssbvector: Semi-Simple Byte-Vector
+# > b: Byte
+# < ergebnis: derselbe Semi-Simple Byte-Vector
+# kann GC auslösen
+  extern object ssbvector_push_extend (object ssbvector, uintB b);
+# wird verwendet von IO
+
 # ##################### CHARBIBL zu CHARSTRG.D ############################ #
 
 # Spezielle Characters: (siehe auch oben)
