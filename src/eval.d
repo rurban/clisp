@@ -2296,29 +2296,29 @@ LISPFUNN(subr_info,1)
       pushSTACK(stream);
       if (cclosurep(fun))
         { pushSTACK(TheCclosure(fun)->clos_name);
-          write_schar(&STACK_1,'c');
+          write_ascii_char(&STACK_1,'c');
         }
       elif (closurep(fun))
         { pushSTACK(TheClosure(fun)->clos_name);
-          write_schar(&STACK_1,'C');
+          write_ascii_char(&STACK_1,'C');
         }
       elif (subrp(fun))
         { pushSTACK(TheSubr(fun)->name);
-          write_schar(&STACK_1,'S');
+          write_ascii_char(&STACK_1,'S');
         }
       elif (fsubrp(fun))
         { pushSTACK(TheFsubr(fun)->name);
-          write_schar(&STACK_1,'F');
+          write_ascii_char(&STACK_1,'F');
         }
       else
         { pushSTACK(NIL);
-          write_schar(&STACK_1,'?');
+          write_ascii_char(&STACK_1,'?');
         }
-      write_schar(&STACK_1,type_of_call); # output type of call
-      write_schar(&STACK_1,caller_type);  # output caller
-      write_schar(&STACK_1,'[');
+      write_ascii_char(&STACK_1,type_of_call); # output type of call
+      write_ascii_char(&STACK_1,caller_type);  # output caller
+      write_ascii_char(&STACK_1,'[');
       prin1(&STACK_1,STACK_0);            # output function name
-      write_schar(&STACK_1,']');
+      write_ascii_char(&STACK_1,']');
       terpri(&STACK_1);
       skipSTACK(2);
     }
