@@ -74,10 +74,6 @@
   DEFGENERIC-METHOD-COMBINATION.PROGN.10
   DEFGENERIC-METHOD-COMBINATION.PROGN.11
 
-  ;; ANSI CL 12.1.4.4. implies that (ATAN 0 1.0) is 0.0.
-  ;; In CLISP it is the exact 0.
-  ATAN.4
-
   ;; In CLISP (atan 1L0) is more than long-float-epsilon apart from (/ pi 4).
   ATAN.11 ATAN.13
 
@@ -85,22 +81,9 @@
   ;; to be different from #C(1.0s0 0.0s0).
   /.8
 
-  ;; ANSI CL 12.1.4.4. implies that (EXPT any-single-float 0) is 1.0.
-  ;; In CLISP it is the exact 1.
-  EXPT.3 EXPT.4 EXPT.5 EXPT.6
-
-  ;; ANSI CL 12.1.4.4. implies assumes that (EXPT any-complex-single-float 0)
-  ;; is #c(1.0 0.0).
-  ;; In CLISP it is the exact 1.
-  EXPT.8 EXPT.9 EXPT.10 EXPT.11
-
   ;; CLISP supports complex numbers with realpart and imagpart of different
   ;; type.
   COMPLEX.2 COMPLEX.4 COMPLEX.5
-
-  ;; ANSI CL 12.1.4.4. implies that (PHASE any-nonnegative-real-number) is 0.0.
-  ;; In CLISP it is the exact 0.
-  PHASE.1 PHASE.2 PHASE.3 PHASE.4 PHASE.5 PHASE.6 PHASE.7
 
   ;; In CLISP the classes CLASS and METHOD are implemented as structures.
   TYPES.3 BUILT-IN-CLASS-CPL STANDARD-CLASS-CPL STANDARD-METHOD-CPL
