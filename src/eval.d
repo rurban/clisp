@@ -5734,8 +5734,8 @@ global Values funcall (object fun, uintC args_on_stack)
         fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__); \
         goto label;                                     \
       } while(0)
-    #define DEBUG_CHECK_BYTEPTR(nb) do {                 \
-      var const uintB* b = nb;                           \
+    #define DEBUG_CHECK_BYTEPTR(nb) do {                \
+      var const uintB* b = nb;                          \
       if ((b < byteptr_min) || (b > byteptr_max)) {     \
         fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__); \
         byteptr_bad_jump = b - byteptr;                 \
@@ -5750,7 +5750,7 @@ global Values funcall (object fun, uintC args_on_stack)
   local Values interpret_bytecode_ (object closure_in, Sbvector codeptr, const uintB* byteptr_in)
   {
    #if defined(STACKCHECKC) || defined(DEBUG_BYTECODE)
-    var const uintB* byteptr_min = byteptr_in;
+    var const uintB* byteptr_min = &codeptr->data[codeptr->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY];
    #endif
    #ifdef DEBUG_BYTECODE
     var const uintB* byteptr_max = &codeptr->data[sbvector_length(codeptr)-1];
