@@ -347,7 +347,8 @@ DEFUN(POSIX::UNAME,)
 #endif /* HAVE_UNAME */
 
 #if defined(HAVE_SYSCONF)
-DEFCHECKER(sysconf_arg,"_SC", AIO-LISTIO-MAX AIO-MAX AIO-PRIO-DELTA-MAX \
+DEFCHECKER(sysconf_arg,prefix=_SC,default=,                             \
+           AIO-LISTIO-MAX AIO-MAX AIO-PRIO-DELTA-MAX                    \
            ARG-MAX ATEXIT-MAX BC-BASE-MAX BC-DIM-MAX BC-SCALE-MAX       \
            BC-STRING-MAX CHILD-MAX CLK-TCK COLL-WEIGHTS-MAX DELAYTIMER-MAX \
            EXPR-NEST-MAX HOST-NAME-MAX IOV-MAX LINE-MAX LOGIN-NAME-MAX  \
@@ -400,7 +401,7 @@ DEFUN(POSIX::SYSCONF, &optional what)
 #endif /* HAVE_SYSCONF */
 
 #if defined(HAVE_CONFSTR)
-DEFCHECKER(confstr_arg,"_CS",PATH POSIX-V6-ILP32-OFF32-CFLAGS           \
+DEFCHECKER(confstr_arg,prefix=_CS,PATH POSIX-V6-ILP32-OFF32-CFLAGS      \
            POSIX-V6-ILP32-OFF32-LDFLAGS POSIX-V6-ILP32-OFF32-LIBS       \
            POSIX-V6-ILP32-OFFBIG-CFLAGS POSIX-V6-ILP32-OFFBIG-LDFLAGS   \
            POSIX-V6-ILP32-OFFBIG-LIBS POSIX-V6-LP64-OFF64-CFLAGS        \
@@ -493,7 +494,7 @@ DEFUN(POSIX::USAGE,)
 #endif /* HAVE_GETRUSAGE */
 
 #if defined(HAVE_GETRLIMIT)
-DEFCHECKER(getrlimit_arg,"RLIMIT", CPU FSIZE DATA STACK CORE RSS NOFILE \
+DEFCHECKER(getrlimit_arg,prefix=RLIMIT, CPU FSIZE DATA STACK CORE RSS NOFILE \
            AS NPROC MEMLOCK LOCKS)
 DEFUN(POSIX::LIMITS, &optional what)
 { /* getrlimit(3) */
@@ -881,7 +882,8 @@ DEFUN(POSIX::UMASK, cmask)
 #endif  /* umask */
 
 #if defined(HAVE_MKNOD)
-DEFCHECKER(mknod_type_check,"S",IFIFO IFSOCK IFCHR IFDIR IFBLK IFREG)
+DEFCHECKER(mknod_type_check,prefix=S,default=,          \
+           IFIFO IFSOCK IFCHR IFDIR IFBLK IFREG)
 DEFUN(POSIX::MKNOD, path type mode)
 { /* lisp interface to mknod(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/mknod.html */

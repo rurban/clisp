@@ -210,13 +210,14 @@ DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
 }
 
 /* ================== sys/socket.h interface ================== */
-DEFCHECKER(check_socket_domain,"AF",UNSPEC UNIX LOCAL INET AX25 \
-           IPX APPLETALK NETROM BRIDGE ATMPVC X25 INET6 \
-           ROSE DECnet NETBEUI SECURITY KEY NETLINK   \
-           ROUTE PACKET ASH ECONET ATMSVC SNA IRDA \
+DEFCHECKER(check_socket_domain,prefix=AF,UNSPEC UNIX LOCAL INET AX25    \
+           IPX APPLETALK NETROM BRIDGE ATMPVC X25 INET6                 \
+           ROSE DECnet NETBEUI SECURITY KEY NETLINK                     \
+           ROUTE PACKET ASH ECONET ATMSVC SNA IRDA                      \
            PPPOX WANPIPE BLUETOOTH)
-DEFCHECKER(check_socket_type,"SOCK", STREAM DGRAM RAW RDM SEQPACKET PACKET)
-DEFCHECKER(check_socket_protocol,"ETH_P", LOOP PUP PUPAT IP X25 ARP BPQ \
+DEFCHECKER(check_socket_type,prefix=SOCK, STREAM DGRAM RAW RDM SEQPACKET PACKET)
+DEFCHECKER(check_socket_protocol,prefix=ETH_P, default=0,               \
+           LOOP PUP PUPAT IP X25 ARP BPQ                                \
            IEEEPUP IEEEPUPAT DEC DNA-DL DNA-RC DNA-RT LAT DIAG CUST SCA \
            RARP ATALK AARP IPX IPV6 PPP-DISC PPP-SES ATMMPOA ATMFATE 802-3 \
            AX25 ALL 802-2 SNAP DDCMP WAN-PPP PPP-MP LOCALTALK PPPTALK   \

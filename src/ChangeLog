@@ -1,5 +1,19 @@
 2005-02-16  Sam Steingold  <sds@gnu.org>
 
+	DEFCHECKER now accepts option-like arguments foo=bar
+	* utils/modprep.lisp (split-option): new function
+	(split-command): use it
+	(new-flag-set): do not accept :TYPE and :PREFIX
+	(checker): new slots ENUM-P and DEFAULT
+	(new-checker): accept :DEFAULT and :ENUM
+	(def-something-p): simplified
+	(formatln): new macro
+	(print-tables-1): reinstated defaults
+	* modules/berkeley-db/bdb.c, modules/i18n/gettext.c:
+	* modules/rawsock/rawsock.c, modules/syscalls/calls.c: updated
+
+2005-02-16  Sam Steingold  <sds@gnu.org>
+
 	* modules/regexp/regexi.c (regexp_exec_flags): new DEFFLAGSET
 	(REGEXP-EXEC): use it and posfixnum_default2()
 
