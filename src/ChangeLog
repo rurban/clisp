@@ -1,3 +1,10 @@
+2004-05-17  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (main): do not print memory model information here
+	* misc.d (SOFTWARE-TYPE): return O(software_type)
+	instead of "ANSI C program"
+	* constobj.d (software_type): memory model information
+
 2004-05-16  Bruno Haible  <bruno@clisp.org>
 
 	Fix (SIGNUM negative-single-float) on 64-bit machines.
