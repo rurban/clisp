@@ -118,3 +118,12 @@ nil
  0 "zot" (3 . "zot")
  3 "plonk" (8 . "zotplonk")
  "zotplonk")
+
+;; <https://sourceforge.net/tracker/?func=detail&aid=959549&group_id=1355&atid=101355>
+(let ((f "foo") (s "12345") l)
+  (with-open-file (o f :direction :output) (write-string s o))
+  (with-open-file (i f :buffered t) (listen i) (push (read-char i) l))
+  (with-open-file (i f :buffered nil) (listen i) (push (read-char i) l))
+  (delete-file f)
+  l)
+(#\1 #\1)
