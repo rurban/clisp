@@ -41,3 +41,17 @@
       (write q :stream stream)
       (write-char #\Space stream))
     (write (std-method-parameter-specializers method) :stream stream)))
+
+(defstruct (standard-accessor-method (:include standard-method)
+                                     (:conc-name "%ACCESSOR-METHOD-")
+                                     (:copier nil))
+  slot-definition        ; direct slot definition responsible for this method
+)
+
+(defstruct (standard-reader-method (:include standard-accessor-method)
+                                   (:copier nil))
+)
+
+(defstruct (standard-writer-method (:include standard-accessor-method)
+                                   (:copier nil))
+)

@@ -231,6 +231,22 @@
        ((eql count 0) l)))
 
 
+;;; (DECLAIM-METHOD function-name qualifier* spec-lambda-list)
+;; does the compile-time side effects of
+;; (DEFMETHOD function-name qualifier* spec-lambda-list ...)
+
+(defmacro declaim-method (funname &rest method-description)
+  (unless (function-name-p funname)
+    (error-of-type 'sys::source-program-error
+      (TEXT "~S: the name of a function must be a symbol, not ~S")
+      'declaim-method funname))
+  (multiple-value-bind (method sig)
+      (analyze-method-description 'defmethod funname method-description)
+    (declare (ignore method))
+    `(COMPILER::EVAL-WHEN-COMPILE
+       (COMPILER::C-DEFUN ',funname ,sig nil 'defmethod))))
+
+
 ;;; For DEFGENERIC, GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS,
 ;;;     WITH-ADDED-METHODS
 ;; caller: symbol
