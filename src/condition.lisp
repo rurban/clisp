@@ -1513,7 +1513,7 @@ Todo:
 |#
 
 
-;; Miscellaneous functions that condition macros.
+;; Miscellaneous functions that use condition macros.
 
 #+LOGICAL-PATHNAMES
 (defun valid-logical-pathname-string-p (string)
