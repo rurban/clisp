@@ -164,6 +164,7 @@
   LISPOBJ(class_version_standard_class,"#()")
   LISPOBJ(class_version_structure_class,"#()")
   LISPOBJ(class_version_built_in_class,"#()")
+  LISPOBJ(class_defined_class,"CLOS::DEFINED-CLASS")
   LISPOBJ(class_class,"CLOS::CLASS")
   # some built-in-classes, are filled by CLOS::%DEFCLOS
   LISPOBJ(class_array,"ARRAY")             # ---+

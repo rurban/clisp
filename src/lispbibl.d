@@ -5604,10 +5604,11 @@ typedef struct {
   gcv_object_t hashcode                 _attribute_aligned_object_; # GC invariant hash code
   gcv_object_t direct_methods           _attribute_aligned_object_; # set of methods that use this specializer
   gcv_object_t classname                _attribute_aligned_object_; # a symbol
+  gcv_object_t direct_subclasses        _attribute_aligned_object_; # weak-list or weak-hash-table of all direct subclasses
+  # from here on only for metaclass ⊆ <defined-class>
   gcv_object_t direct_superclasses      _attribute_aligned_object_; # direct superclasses
   gcv_object_t all_superclasses         _attribute_aligned_object_; # all superclasses, including itself
   gcv_object_t precedence_list          _attribute_aligned_object_; # ordered list of all superclasses
-  gcv_object_t direct_subclasses        _attribute_aligned_object_; # weak-list or weak-hash-table of all direct subclasses
   gcv_object_t direct_slots             _attribute_aligned_object_;
   gcv_object_t slots                    _attribute_aligned_object_;
   gcv_object_t slot_location_table      _attribute_aligned_object_; # hashtable slotname -> where the slot is located
@@ -6620,10 +6621,10 @@ typedef enum {
 #define funcallable_instance_p(obj)  \
   (closurep(obj) && Closure_instancep(obj))
 
-# Test for CLOS-class
+# Test for CLOS-class or forward-reference.
 # Our CLOS implements all classes as instances of a
 # (not necessarily direct) subclass of <class>.
-#define if_classp(obj,statement1,statement2)  \
+#define if_class_p(obj,statement1,statement2)  \
   if (instancep(obj)) {                                               \
     {                                                                 \
       var object obj_forwarded = obj;                                 \
@@ -6640,6 +6641,33 @@ typedef enum {
       /* Now a slow, but general instanceof test. */                  \
       {var object objclas = TheClassVersion(cv)->cv_newest_class;     \
        if (eq(gethash(O(class_class),TheClass(objclas)->all_superclasses),nullobj)) \
+         goto obj##_classp_no;                                        \
+    }}}                                                               \
+   obj##_classp_yes: statement1;                                      \
+  } else {                                                            \
+   obj##_classp_no: statement2;                                       \
+  }
+
+# Test for CLOS-class.
+# Our CLOS implements all classes as instances of a
+# (not necessarily direct) subclass of <defined-class>.
+#define if_defined_class_p(obj,statement1,statement2)  \
+  if (instancep(obj)) {                                               \
+    {                                                                 \
+      var object obj_forwarded = obj;                                 \
+      instance_un_realloc(obj_forwarded);                             \
+      /*instance_update(obj,obj_forwarded); - not needed since we don't access a slot */ \
+     {var object cv = TheInstance(obj_forwarded)->inst_class_version; \
+      /* Treat the most frequent cases first, for speed. */           \
+      if (eq(cv,O(class_version_standard_class))) # direct instance of STANDARD-CLASS? \
+        goto obj##_classp_yes;                                        \
+      if (eq(cv,O(class_version_structure_class))) # direct instance of STRUCTURE-CLASS? \
+        goto obj##_classp_yes;                                        \
+      if (eq(cv,O(class_version_built_in_class))) # direct instance of BUILT-IN-CLASS? \
+        goto obj##_classp_yes;                                        \
+      /* Now a slow, but general instanceof test. */                  \
+      {var object objclas = TheClassVersion(cv)->cv_newest_class;     \
+       if (eq(gethash(O(class_defined_class),TheClass(objclas)->all_superclasses),nullobj)) \
          goto obj##_classp_no;                                        \
     }}}                                                               \
    obj##_classp_yes: statement1;                                      \

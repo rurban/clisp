@@ -24,6 +24,7 @@
   *<standard-class>-class-version*
   *<structure-class>-class-version*
   *<built-in-class>-class-version*
+  'defined-class
   'class
   ;; built-in-classes for CLASS-OF
   (vector 'array 'bit-vector 'character 'complex 'cons 'float 'function
@@ -436,7 +437,7 @@
   (unless (symbolp name)
     (error (TEXT "~S: class name ~S should be a symbol")
            'ensure-class-using-class name))
-  (unless (class-p metaclass)
+  (unless (defined-class-p metaclass)
     (if (symbolp metaclass)
       (setq metaclass
             (cond ((eq metaclass 'standard-class) <standard-class>) ; for bootstrapping
@@ -490,13 +491,13 @@
     ;; See which direct superclasses are already defined.
     (setq direct-superclasses
           (mapcar #'(lambda (c)
-                      (if (class-p c)
+                      (if (defined-class-p c)
                         c
                         (or (find-class c (not a-semi-standard-class-p)) c)))
                   direct-superclasses))
     (if class
       ;; Modify the class and return the modified class.
-      (apply #'reinitialize-instance ; => #'reinitialize-instance-<class>
+      (apply #'reinitialize-instance ; => #'reinitialize-instance-<defined-class>
              class
              :direct-superclasses direct-superclasses
              all-keys)
@@ -548,7 +549,7 @@
           (apply #'ensure-class-using-class (find-class name nil) name args)))
     ; A check, to verify that user-defined methods on ensure-class-using-class
     ; work as they should.
-    (unless (class-p result)
+    (unless (defined-class-p result)
       (error (TEXT "Wrong ~S result for ~S: not a class: ~S")
              'ensure-class-using-class name result))
     result))
@@ -563,15 +564,15 @@
 
 ;; ---------------------------- Class redefinition ----------------------------
 
-(defun reinitialize-instance-<class> (class &rest all-keys
-                                      &key (name nil name-p)
-                                           (direct-superclasses '() direct-superclasses-p)
-                                           (direct-slots '() direct-slots-p)
-                                           (direct-default-initargs '() direct-default-initargs-p)
-                                           (documentation nil documentation-p)
-                                           (fixed-slot-locations nil fixed-slot-locations-p)
-                                      &allow-other-keys
-                                      &aux (metaclass (class-of class)))
+(defun reinitialize-instance-<defined-class> (class &rest all-keys
+                                              &key (name nil name-p)
+                                                   (direct-superclasses '() direct-superclasses-p)
+                                                   (direct-slots '() direct-slots-p)
+                                                   (direct-default-initargs '() direct-default-initargs-p)
+                                                   (documentation nil documentation-p)
+                                                   (fixed-slot-locations nil fixed-slot-locations-p)
+                                              &allow-other-keys
+                                              &aux (metaclass (class-of class)))
   (if (and (>= (class-initialized class) 4) ; already finalized?
            (subclassp class <metaobject>))
     ;; Things would go awry when we try to redefine <class> and similar.
@@ -587,12 +588,12 @@
           (do ((l (class-direct-superclasses class) (cdr l)))
               ((atom l))
             (let ((c (car l)))
-              (unless (class-p c)
+              (unless (defined-class-p c)
                 (let ((new-c (or (find-class c nil) c)))
                   (unless (symbolp new-c)
                     (check-allowed-superclass class new-c))
                   (setf (car l) new-c)
-                  (when (class-p new-c) ; changed from symbol to class
+                  (when (defined-class-p new-c) ; changed from symbol to defined-class
                     (add-direct-subclass new-c class))))))))
       (when direct-slots-p
         ;; Convert the direct-slots to <direct-slot-definition> instances.
@@ -737,7 +738,7 @@
            (eq (car (first initargs1)) (car (first initargs2)))
            (equal-default-initargs (cdr initargs1) (cdr initargs2)))))
 
-(defun map-dependents-<class> (class function)
+(defun map-dependents-<defined-class> (class function)
   (dolist (dependent (class-listeners class))
     (funcall function dependent)))
 
@@ -821,7 +822,7 @@
       (error (TEXT "Wrong ~S result for class ~S: not a proper list: ~S")
              'class-direct-subclasses (class-name class) result))
     (dolist (c result)
-      (unless (class-p c)
+      (unless (defined-class-p c)
         (error (TEXT "Wrong ~S result for class ~S: list element is not a class: ~S")
                'class-direct-subclasses (class-name class) c))
       (unless (memq class (class-direct-superclasses c))
@@ -991,12 +992,12 @@
           direct-superclasses)
     L))
 
-(defun compute-class-precedence-list-<class> (class)
+(defun compute-class-precedence-list-<defined-class> (class)
   (std-compute-cpl class (class-direct-superclasses class)))
 
 ;; Preliminary.
 (defun compute-class-precedence-list (class)
-  (compute-class-precedence-list-<class> class))
+  (compute-class-precedence-list-<defined-class> class))
 
 (defun checked-compute-class-precedence-list (class)
   (let ((cpl (compute-class-precedence-list class))
@@ -1007,7 +1008,7 @@
       (error (TEXT "Wrong ~S result for class ~S: not a proper list: ~S")
              'compute-class-precedence-list name cpl))
     (dolist (c cpl)
-      (unless (class-p c)
+      (unless (defined-class-p c)
         (error (TEXT "Wrong ~S result for class ~S: list element is not a class: ~S")
                'compute-class-precedence-list name c)))
     (unless (eq (first cpl) class)
@@ -1055,7 +1056,7 @@
 ;; ----------------------------------------------------------------------------
 ;; CLtL2 28.1.3.2., ANSI CL 7.5.3. Inheritance of Slots and Slot Options
 
-(defun compute-effective-slot-definition-initargs-<class> (class directslotdefs)
+(defun compute-effective-slot-definition-initargs-<defined-class> (class directslotdefs)
   (declare (ignore class))
   (unless (and (proper-list-p directslotdefs) (consp directslotdefs))
     (error (TEXT "~S: argument should be a non-empty proper list, not ~S")
@@ -1116,9 +1117,9 @@
 
 ;; Preliminary.
 (defun compute-effective-slot-definition-initargs (class direct-slot-definitions)
-  (compute-effective-slot-definition-initargs-<class> class direct-slot-definitions))
+  (compute-effective-slot-definition-initargs-<defined-class> class direct-slot-definitions))
 
-(defun compute-effective-slot-definition-<class> (class name directslotdefs)
+(defun compute-effective-slot-definition-<defined-class> (class name directslotdefs)
   (let ((args (compute-effective-slot-definition-initargs class directslotdefs)))
     ; Some checks, to guarantee that user-defined primary methods on
     ; compute-effective-slot-definition-initargs don't break our CLOS.
@@ -1138,13 +1139,13 @@
       (cond ((semi-standard-class-p class)
              (unless (or ; for bootstrapping
                          (eq slot-definition-class 'standard-effective-slot-definition)
-                         (and (class-p slot-definition-class)
+                         (and (defined-class-p slot-definition-class)
                               (subclassp slot-definition-class <standard-effective-slot-definition>)))
                (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
                       'effective-slot-definition-class (class-name class)
                       'standard-effective-slot-definition slot-definition-class)))
             ((structure-class-p class)
-             (unless (and (class-p slot-definition-class)
+             (unless (and (defined-class-p slot-definition-class)
                           (subclassp slot-definition-class <structure-effective-slot-definition>))
                (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
                       'effective-slot-definition-class (class-name class)
@@ -1156,9 +1157,9 @@
 
 ;; Preliminary.
 (defun compute-effective-slot-definition (class slotname direct-slot-definitions)
-  (compute-effective-slot-definition-<class> class slotname direct-slot-definitions))
+  (compute-effective-slot-definition-<defined-class> class slotname direct-slot-definitions))
 
-(defun compute-slots-<class>-primary (class)
+(defun compute-slots-<defined-class>-primary (class)
   ;; Gather all slot-specifiers, ordered by precedence:
   (let ((all-slots
           (mapcan #'(lambda (c) (nreverse (copy-list (class-direct-slots c))))
@@ -1328,7 +1329,7 @@
 
 ;; Preliminary.
 (defun compute-slots (class)
-  (compute-slots-<slotted-class>-around class #'compute-slots-<class>-primary))
+  (compute-slots-<slotted-class>-around class #'compute-slots-<defined-class>-primary))
 
 (defun checked-compute-slots (class)
   (let ((slots (compute-slots class)))
@@ -1462,7 +1463,7 @@
 ;; ----------------------------------------------------------------------------
 ;; CLtL2 28.1.3.3., ANSI CL 4.3.4.2. Inheritance of Default-Initargs
 
-(defun compute-default-initargs-<class> (class)
+(defun compute-default-initargs-<defined-class> (class)
   (remove-duplicates
     (mapcap #'class-direct-default-initargs (class-precedence-list class))
     :key #'car
@@ -1470,7 +1471,7 @@
 
 ;; Preliminary.
 (defun compute-default-initargs (class)
-  (compute-default-initargs-<class> class))
+  (compute-default-initargs-<defined-class> class))
 
 (defun checked-compute-default-initargs (class)
   (let ((default-initargs (compute-default-initargs class)))
@@ -1541,7 +1542,7 @@
                                         :slot-definition slot))
                                     (method-class
                                       (apply #'reader-method-class class slot args)))
-                               (unless (and (class-p method-class)
+                               (unless (and (defined-class-p method-class)
                                             (subclassp method-class <standard-reader-method>))
                                  (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
                                         'reader-method-class (class-name class) 'standard-reader-method method-class))
@@ -1576,7 +1577,7 @@
                                         :slot-definition slot))
                                     (method-class
                                       (apply #'writer-method-class class slot args)))
-                               (unless (and (class-p method-class)
+                               (unless (and (defined-class-p method-class)
                                             (subclassp method-class <standard-writer-method>))
                                  (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
                                         'writer-method-class (class-name class) 'standard-writer-method method-class))
@@ -1643,7 +1644,7 @@
     (check-metaclass-mix (if name-p name (class-classname class))
                          direct-superclasses
                          #'built-in-class-p 'built-in-class))
-  (apply #'shared-initialize-<class> class situation args)
+  (apply #'shared-initialize-<defined-class> class situation args)
   ; Initialize the remaining <class> slots:
   (when (or (eq situation 't) direct-superclasses-p)
     (setf (class-precedence-list class)
@@ -1738,7 +1739,7 @@
     (unless names
       (setf (class-instance-size class) 1)
       (setf (class-slots class)
-            (compute-slots-<slotted-class>-around class #'compute-slots-<class>-primary))
+            (compute-slots-<slotted-class>-around class #'compute-slots-<defined-class>-primary))
       (setf (class-instance-size class) (max size (compute-instance-size class)))
       (when (class-slots class)
         (let ((ht (class-slot-location-table class)))
@@ -1863,7 +1864,7 @@
                        &optional force-p
                                  ; The stack of classes being finalized now:
                                  (finalizing-now nil))
-  (when (or (class-p class) (setq class (find-class class force-p)))
+  (when (or (defined-class-p class) (setq class (find-class class force-p)))
     (if (>= (class-initialized class) 6) ; already finalized?
       class
       (progn
@@ -2385,14 +2386,19 @@
         (macrolet ((form () *<class>-defclass*))
           (form)))
 
-  ;; 7. Define the class <built-in-class>.
+  ;; 7. Define the class <defined-class>.
+  (setq <defined-class>
+        (macrolet ((form () *<defined-class>-defclass*))
+          (form)))
+
+  ;; 8. Define the class <built-in-class>.
   (setq <built-in-class>
         (macrolet ((form () *<built-in-class>-defclass*))
           (form)))
   (replace-class-version <built-in-class>
                          *<built-in-class>-class-version*)
 
-  ;; 8. Define the classes <slotted-class>, <semi-standard-class>,
+  ;; 9. Define the classes <slotted-class>, <semi-standard-class>,
   ;; <standard-class>, <structure-class>.
   (macrolet ((form () *<slotted-class>-defclass*))
     (form))
@@ -2410,7 +2416,7 @@
   (replace-class-version <structure-class>
                          *<structure-class>-class-version*)
 
-  ;; 9. Define the class <structure-object>.
+  ;; 10. Define the class <structure-object>.
   (setq <structure-object>
         (let ((*allow-mixing-metaclasses* t))
           (make-instance-<structure-class> <structure-class>
@@ -2421,7 +2427,7 @@
             'names (list 'structure-object))))
   (setf (find-class 'structure-object) <structure-object>)
 
-  ;; 10. Define other classes whose definition was delayed.
+  ;; 11. Define other classes whose definition was delayed.
 
   ;; Define the class <slot-definition>.
   (macrolet ((form () *<slot-definition>-defclass*))
@@ -2475,6 +2481,10 @@
           (form)))
   (replace-class-version (find-class 'eql-specializer)
                          *<eql-specializer>-class-version*)
+
+  ;; Define the class <forward-referenced-class>.
+  (macrolet ((form () *<forward-referenced-class>-defclass*))
+               (form))
 
 );progn
 
@@ -2530,6 +2540,7 @@
   *<standard-class>-class-version*
   *<structure-class>-class-version*
   *<built-in-class>-class-version*
+  <defined-class>
   <class>
   ;; built-in-classes for CLASS-OF
   (vector <array> <bit-vector> <character> <complex> <cons> <float> <function>

@@ -82,7 +82,7 @@
     :datum object :expected-type class
     "~S: The argument is not of type ~S: ~S"
     caller
-    (if (and (class-p class) (eq (find-class (class-name class) nil) class))
+    (if (and (defined-class-p class) (eq (find-class (class-name class) nil) class))
       (class-name class)
       class)
     object))

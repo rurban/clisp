@@ -830,7 +830,7 @@ LISPFUNN(allocate_std_instance,2) {
   { /* Fetch the class-version now, before any possible GC, at which the
        user could redefine the class of which we are creating an instance. */
     var object clas = STACK_0;
-    if_classp(clas, ; , fehler_class(clas); );
+    if_defined_class_p(clas, ; , fehler_class(clas); );
     TheClass(clas)->instantiated = T;
     STACK_0 = TheClass(clas)->current_version;
   }
@@ -857,7 +857,7 @@ LISPFUNN(allocate_funcallable_instance,2) {
   { /* Fetch the class-version now, before any possible GC, at which the
        user could redefine the class of which we are creating an instance. */
     var object clas = STACK_0;
-    if_classp(clas, ; , fehler_class(clas); );
+    if_defined_class_p(clas, ; , fehler_class(clas); );
     TheClass(clas)->instantiated = T;
     STACK_0 = TheClass(clas)->current_version;
   }

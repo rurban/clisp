@@ -37,7 +37,7 @@
 ;; return the CLOS class named by TYPESPEC or NIL
 (defun clos-class (typespec)
   (let ((cc (get typespec 'CLOS::CLOSCLASS)))
-    (when (and cc (clos::class-p cc) (eq (clos:class-name cc) typespec))
+    (when (and cc (clos::defined-class-p cc) (eq (clos:class-name cc) typespec))
       cc)))
 
 ;;; TYPEP, CLTL S. 72, S. 42-51
@@ -84,7 +84,7 @@
          ((setq f (get (first y) 'TYPE-LIST)) (apply f x (rest y)))
          (t (typespec-error 'typep y))
     )  )
-    ((clos::class-p y) (clos::typep-class x y))
+    ((clos::defined-class-p y) (clos::typep-class x y))
     ((clos::eql-specializer-p y) (eql x (clos::eql-specializer-singleton y)))
     ((encodingp y) (charset-typep x y))
     (t (typespec-error 'typep y))
@@ -978,7 +978,7 @@
                         (let ((low 0) (high (1- n)))
                           (yes)))))))
              (t (no))))
-          ((clos::class-p type)
+          ((clos::defined-class-p type)
            (if (and (clos::built-in-class-p type)
                     (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type))
              (return-from subtype-integer
@@ -1089,7 +1089,7 @@ Henry Baker:
               (typespec-error 'subtypep type))
             'LIST)
            (t 'NIL)))
-        ((clos::class-p type)
+        ((clos::defined-class-p type)
          (if (and (clos::built-in-class-p type)
                   (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type))
            (subtype-sequence (clos:class-name type))
@@ -1163,7 +1163,7 @@ Henry Baker:
                (t (cond ((get (first typespec) 'TYPE-LIST)
                          (values typespec nil))
                         (t (typespec-error 'type-expand typespec))))))
-            ((clos::class-p typespec) (values typespec nil))
+            ((clos::defined-class-p typespec) (values typespec nil))
             (t (typespec-error 'type-expand typespec))))))
 
 ;; ============================================================================

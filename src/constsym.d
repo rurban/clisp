@@ -722,6 +722,7 @@ LISPSYM(simple_bit_vector_p,"SIMPLE-BIT-VECTOR-P",lisp)
 LISPSYM(type_of,"TYPE-OF",lisp)
 LISPSYM(defclos,"%DEFCLOS",clos)
 LISPSYM(class_p,"CLASS-P",clos) /* ABI */
+LISPSYM(defined_class_p,"DEFINED-CLASS-P",clos) /* ABI */
 LISPSYM(class_of,"CLASS-OF",clos)
 LISPSYM(find_class,"FIND-CLASS",clos)
 LISPSYM(typep_class,"TYPEP-CLASS",clos) /* ABI */

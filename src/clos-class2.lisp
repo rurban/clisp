@@ -12,6 +12,7 @@
 
 ;; Metaclasses:
 (defvar <class>)                       ; <standard-class>
+(defvar <defined-class>)               ; <standard-class>
 (defvar <standard-class>)              ; <standard-class>
 (defvar <funcallable-standard-class>)  ; <standard-class>
 (defvar <structure-class>)             ; <standard-class>
@@ -76,7 +77,7 @@
        (TEXT "~S: argument ~S is not a symbol")
        'find-class symbol))
    (let ((class (get symbol 'CLOSCLASS)))
-     (if (not (class-p class))
+     (if (not (defined-class-p class))
        (if errorp
          (error-of-type 'error
            (TEXT "~S: ~S does not name a class")
@@ -93,13 +94,13 @@
       :datum symbol :expected-type 'symbol
       (TEXT "~S: argument ~S is not a symbol")
       '(setf find-class) symbol))
-  (unless (or (null new-value) (class-p new-value))
+  (unless (or (null new-value) (defined-class-p new-value))
     (error-of-type 'type-error
       :datum new-value :expected-type 'class
       (TEXT "~S: ~S is not a class")
       '(setf find-class) new-value))
   (let ((h (get symbol 'CLOSCLASS)))
-    (when (class-p h)
+    (when (defined-class-p h)
       (when (and (built-in-class-p h) (eq (class-name h) symbol)) ; protect structure classes, too??
         (error-of-type 'error
           (TEXT "~S: cannot redefine built-in class ~S")
@@ -107,7 +108,7 @@
     ;; Should we do (setf (class-name h) nil) ? No, because CLHS of FIND-CLASS
     ;; says that "the class object itself is not affected".
     (sys::check-redefinition symbol '(setf find-class)
-                             (and (class-p h) "class")))
+                             (and (defined-class-p h) "class")))
   (if new-value
     (setf (get symbol 'CLOSCLASS) new-value)
     (progn (remprop symbol 'CLOSCLASS) nil)))
