@@ -1452,8 +1452,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         #endif
         # zu PATHNAME:
         #ifdef LOGICAL_PATHNAMES
-        { # SYS::*LOGICAL-PATHNAME-TRANSLATIONS* := (MAKE-HASH-TABLE :TEST #'EQUAL)
-          pushSTACK(S(Ktest)); pushSTACK(L(equal)); funcall(L(make_hash_table),2);
+        { # SYS::*LOGICAL-PATHNAME-TRANSLATIONS* := (MAKE-HASH-TABLE :TEST #'EQUALP)
+          pushSTACK(S(Ktest)); pushSTACK(L(equalp)); funcall(L(make_hash_table),2);
           define_variable(S(logpathname_translations),value1);
         }
         O(empty_logical_pathname) = allocate_logpathname();

@@ -1722,7 +1722,7 @@ local uintL parse_logical_pathnamestring(z)
 # Erkennung eines logischen Hosts, vgl. CLtL2 S. 631
 # (defun logical-host-p (host)
 #   (and (simple-string-p host)
-#        (gethash host sys::*logical-pathname-translations*)
+#        (gethash host sys::*logical-pathname-translations*) ; :test #'equalp !
 #        t
 # ) )
   local boolean logical_host_p (object host);
@@ -1730,7 +1730,7 @@ local uintL parse_logical_pathnamestring(z)
     var object host;
     {
       return (simple_string_p(host)
-              # Fehlt host = string_upcase(host); ??
+              # No need to string-upcase host, because it's tested via EQUALP.
               && !eq(gethash(host,Symbol_value(S(logpathname_translations))),
                      nullobj
              )      );
