@@ -7711,7 +7711,7 @@ extern object allocate_imm_s32string (uintL len);
     #define DYNAMIC_STRING(objvar,len)  \
       DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(object))); \
       var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
-      ((Sstring)objvar##_storage)->tfl = lrecord_tfl(Rectype_Sstring,len);
+      ((Sstring)objvar##_storage)->tfl = lrecord_tfl(Rectype_S8string,len);
   #endif
   #define FREE_DYNAMIC_STRING(objvar)  \
     FREE_DYNAMIC_ARRAY(objvar##_storage)
