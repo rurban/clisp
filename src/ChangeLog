@@ -1,3 +1,86 @@
+2004-06-13  Bruno Haible  <bruno@clisp.org>
+
+	Make GENERIC-FUNCTION a subclass of FUNCALLABLE-STANDARD-OBJECT.
+	* spvw_debug.d (nobject_out1): Print FUNCALLABLE-STANDARD-OBJECTs
+	specially, instead of the old GENERIC-FUNCTIONs.
+	* io.d (pr_cclosure): Remove special case of old generic-functions.
+	* predtype.d (COMPILED-FUNCTION-P): Exclude all
+	FUNCALLABLE-STANDARD-OBJECTs instead of the old GENERIC-FUNCTIONs.
+	(TYPE-OF, CLOS:CLASS-OF): Remove special case of old generic-functions.
+	(enum_hs_standard_generic_function): Remove enumeration item.
+	(heap_statistics_mapper): Remove special case of old generic-functions.
+	* subtypep.lisp (STANDARD-OBJECT, type-category): Remove special casing
+	of GENERIC-FUNCTION and STANDARD-GENERIC-FUNCTION.
+	(canonicalize-type): Convert FUNCTION to a class.
+	* clos-class3.lisp: Don't pass <standard-generic-function> to %defclos.
+	(<generic-function>, <standard-generic-function>): Don't initialize as
+	built-in classes.
+	* clos-genfun1.lisp (generic-function): New class.
+	(<generic-function>): New variable.
+	(shared-initialize-<generic-function>): New function.
+	(standard-generic-function): New class.
+	(<standard-generic-function>): New variable.
+	(std-gf-signature): Renamed from gf-signature.
+	(std-gf-argorder): Renamed from gf-argorder.
+	(std-gf-methods): Renamed from gf-methods.
+	(std-gf-method-combination): Renamed from gf-method-combination.
+	(std-gf-default-method-class, std-gf-lambda-list, std-gf-documentation,
+	std-gf-declspecs, std-gf-initialized): New accessors.
+	* clos-methcomb2.lisp (call-method-duplicates-error,
+	effective-method-code-bricks, build-effective-method-function-form):
+	Update.
+	* clos-genfun2.lisp (countup): New function, moved here from
+	clos-genfun3.lisp.
+	(check-gf-lambdalist+argorder): New function, partially extracted from
+	analyze-defgeneric.
+	(shared-initialize-<standard-generic-function>): New function.
+	(initialize-instance-<standard-generic-function>): New function.
+	(make-instance-<standard-generic-function>): New function.
+	(%make-gf): Use make-instance-<standard-generic-function>.
+	(make-fast-gf): Take a lambda-list and argument-precedence-order as
+	arguments.
+	(finalize-fast-gf, gf-never-called-p, compute-dispatch,
+	compute-applicable-methods-effective-method): Update.
+	* clos-method2.lisp (analyze-method-description): Update.
+	* clos-genfun3.lisp (check-signature-congruence,
+	check-method-qualifiers, std-add-method, std-remove-method,
+	std-find-method): Update.
+	(do-defmethod): Create a GF lambda-list, not just a GF signature,
+	from the initial method.
+	(countup): Moved to clos-genfun2.lisp.
+	(analyze-defgeneric): Change the second return value from argorder to
+	an argument-precendence-order list. Use check-gf-lambdalist+argorder.
+	(defgeneric): Update. Pass the argument-precendence-order and also the
+	lambda-list to do-defgeneric.
+	(ensure-generic-function): Likewise.
+	* clos-genfun4.lisp (make-generic-function): Take a lambda-list and
+	argument-precedence-order as arguments.
+	(do-defgeneric): Likewise. Use
+	shared-initialize-<standard-generic-function> to change an existing
+	generic function.
+	(make-generic-function-form): Update. Pass a lambda-list and
+	argument-precedence-order to make-generic-function.
+	* clos-genfun5.lisp (shared-initialize@generic-function,
+	shared-initialize@standard-generic-function): New functions.
+	(no-applicable-method, missing-required-method, no-primary-method,
+	no-next-method): Update.
+	(check-generic-function-initialized): New function.
+	(generic-function-name, generic-function-methods,
+	generic-function-method-class, generic-function-lambda-list,
+	generic-function-method-combination,
+	generic-function-argument-precedence-order,
+	generic-function-declarations): New generic functions.
+	(compute-applicable-methods): Update.
+	* clos-class5.lisp (valid-make-instance-keywords,
+	valid-reinitialize-instance-keywords,
+	valid-update-instance-for-redefined-class-keywords,
+	valid-update-instance-for-different-class-keywords): Update.
+	* clos-genfun6.lisp: New file.
+	* clos.lisp: Load it.
+	* describe.lisp (describe-object@generic-function): Update.
+	* makemake.in (LPARTS): Add clos-genfun6.
+	* po/Makefile.devel (LISPSOURCES): Likewise.
+
 2004-08-04  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c: include <time.h> and/or <sys/time.h>

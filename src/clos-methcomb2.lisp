@@ -156,7 +156,7 @@
 
 (defun call-method-duplicates-error (gf method+groupname)
   (let ((*method-combination-generic-function* gf)
-        (*method-combination* (gf-method-combination gf)))
+        (*method-combination* (std-gf-method-combination gf)))
     (method-combination-error
       (TEXT "Method ~S has the same specializers and different qualifiers than other methods in method group ~S, and is actually used in the effective method.")
             (car method+groupname) (cdr method+groupname))))
@@ -331,7 +331,7 @@
 ;; 5. a list of forms representing the arguments to pass to methods.
 ;; 6. a set of macro definitions that defines local macros.
 (defun effective-method-code-bricks (gf methods duplicates)
-  (let* ((signature (gf-signature gf))
+  (let* ((signature (std-gf-signature gf))
          (req-num (sig-req-num signature))
          (req-vars (gensym-list req-num))
          (restp (gf-sig-restp signature))
@@ -477,7 +477,7 @@
                                          (subseq combination-arguments-lambda-list i)))))
                        (let* ((ll-req-num (length reqvars))
                               (ll-opt-num (length optvars))
-                              (signature (gf-signature generic-function))
+                              (signature (std-gf-signature generic-function))
                               (gf-req-num (sig-req-num signature))
                               (gf-opt-num (sig-opt-num signature)))
                          ;; "If the section of the :arguments lambda-list is

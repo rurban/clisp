@@ -6,10 +6,10 @@
 (in-package "CLOS")
 
 
-(defun make-generic-function (funname signature argorder method-combo
+(defun make-generic-function (funname lambda-list argument-precedence-order method-combo
                               &rest methods)
-  (let ((gf (make-fast-gf funname signature argorder)))
-    (setf (gf-method-combination gf)
+  (let ((gf (make-fast-gf funname lambda-list argument-precedence-order)))
+    (setf (std-gf-method-combination gf)
           (coerce-to-method-combination funname method-combo))
     (dolist (method methods) (std-add-method gf method))
     (finalize-fast-gf gf)
@@ -19,7 +19,7 @@
 ;; a generic function through DEFGENERIC.
 (defparameter *allow-making-generic* nil)
 
-(defun do-defgeneric (funname signature argorder method-combo &rest methods)
+(defun do-defgeneric (funname lambda-list signature argument-precedence-order method-combo &rest methods)
   (if (fboundp funname)
     (let ((gf (fdefinition funname)))
       (if (clos::generic-function-p gf)
@@ -29,22 +29,24 @@
           ;; Remove the old defgeneric-originated methods. Instead of calling
           ;; std-remove-method on each such method, while inhibiting warnings,
           ;; we can just as well remove the methods directly.
-          (setf (gf-methods gf)
+          (setf (std-gf-methods gf)
                 (remove-if #'(lambda (method)
                                (when (std-method-from-defgeneric method)
                                  (setf (std-method-generic-function method) nil)
                                  t))
-                           (gf-methods gf)))
-          (unless (equalp signature (gf-signature gf))
-            (dolist (method (gf-methods gf))
+                           (std-gf-methods gf)))
+          (unless (equalp signature (std-gf-signature gf))
+            (dolist (method (std-gf-methods gf))
               (check-signature-congruence gf method signature))
-            (setf (gf-signature gf) signature))
-          (setf (gf-argorder gf) argorder)
+            (setf (std-gf-signature gf) signature))
+          (shared-initialize-<standard-generic-function> gf nil
+            :lambda-list lambda-list
+            :argument-precedence-order argument-precedence-order)
           (let ((method-combo (coerce-to-method-combination funname method-combo)))
-            (unless (eq method-combo (gf-method-combination gf))
-              (dolist (method (gf-methods gf))
+            (unless (eq method-combo (std-gf-method-combination gf))
+              (dolist (method (std-gf-methods gf))
                 (check-method-qualifiers gf method method-combo))
-              (setf (gf-method-combination gf) method-combo)))
+              (setf (std-gf-method-combination gf) method-combo)))
           (dolist (method methods) (std-add-method gf method))
           (finalize-fast-gf gf)
           gf)
@@ -53,20 +55,20 @@
             (TEXT "~S: ~S does not name a generic function")
             'defgeneric funname)
           (setf (fdefinition funname)
-                (apply #'make-generic-function funname signature argorder
+                (apply #'make-generic-function funname lambda-list argument-precedence-order
                        method-combo methods)))))
     (setf (fdefinition funname)
-          (apply #'make-generic-function funname signature argorder
+          (apply #'make-generic-function funname lambda-list argument-precedence-order
                  method-combo methods))))
 
 
 #||  ;; For GENERIC-FLET, GENERIC-LABELS
 ;; like make-generic-function, only that the dispatch-code is
 ;; installed immediately.
- (defun make-generic-function-now (funname signature argorder method-combo
+ (defun make-generic-function-now (funname lambda-list argument-precedence-order method-combo
                                    &rest methods)
-  (let ((gf (make-fast-gf funname signature argorder)))
-    (setf (gf-method-combination gf)
+  (let ((gf (make-fast-gf funname lambda-list argument-precedence-order)))
+    (setf (std-gf-method-combination gf)
           (coerce-to-method-combination funname method-combo))
     (dolist (method methods) (std-add-method gf method))
     (install-dispatch gf)
@@ -77,9 +79,10 @@
 ;; For GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS
 
 (defun make-generic-function-form (caller funname lambda-list options)
-  (multiple-value-bind (signature argorder method-combo method-forms)
+  (multiple-value-bind (signature argument-precedence-order method-combo method-forms)
       (analyze-defgeneric caller funname lambda-list options)
-    `(MAKE-GENERIC-FUNCTION ',funname ',signature ',argorder ',method-combo
+    (declare (ignore signature))
+    `(MAKE-GENERIC-FUNCTION ',funname ',lambda-list ',argument-precedence-order ',method-combo
                             ,@method-forms)))
 
 #| GENERIC-FUNCTION is a TYPE (and a COMMON-LISP symbol) in ANSI CL,
