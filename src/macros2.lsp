@@ -504,6 +504,7 @@
 (in-package "SYSTEM")
 (defmacro with-output-to-printer ((var &rest options &key external-format)
                                   &body body &environment env)
+  (declare (ignore external-format))
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body nil env)
     (if declarations
       (setq declarations (list (cons 'DECLARE declarations)))
