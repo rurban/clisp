@@ -1,3 +1,60 @@
+1999-01-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d (strm_file_name, strm_file_truename, strm_file_handle,
+           strm_pipe_pid, strm_x11socket_connect, strm_socket_port,
+           strm_socket_host): Offset by 1.
+        * stream.d (strm_bitbuffer): New macro, replaces strm_file_bitbuffer.
+          (strm_isatty, strm_ihandle, strm_ohandle, strm_field1, strm_field2):
+          Offset by 1.
+          (strm_field3): Remove macro.
+          (strm_handle_extrafields_struct): New field bitsize.
+          (HandleStream_bitsize): New macro, replaces FileStream_bitsize.
+          (rd_by_iu_I, rd_by_is_I): Update.
+          (wr_by_aux_ix): Renamed from wr_by_ix.
+          (wr_by_ixu_file, wr_by_ixs_file): Update.
+          (rd_by_aux_iax_handle, rd_by_iau_handle, rd_by_ias_handle): New
+          functions.
+          (rd_by_iau8_handle): Renamed from rd_by_handle.
+          (rd_by_array_iau8_handle): Renamed from rd_by_array_handle.
+          (close_ihandle): Free the bitbuffer.
+          (wr_by_aux_ia_handle, wr_by_iau_handle, wr_by_ias_handle): New
+          functions.
+          (wr_by_iau8_handle): Renamed from wr_by_handle.
+          (wr_by_array_iau8_handle): Renamed from wr_by_array_handle.
+          (close_ohandle): Free the bitbuffer.
+          (make_unbuffered_file_stream): Add arguments type, eltype_size.
+          Create a stream with proper element type, not (OR CHARACTER INTEGER).
+          (strm_i_file_extrafields_struct): Remove field bitsize.
+          (strm_file_bitbuffer, FileStream_bitsize): Remove macros.
+          (position_i_file): Update.
+          (rd_by_aux_iax_file): Renamed from rd_by_iax_file. Update.
+          (rd_by_aux_ibx_file): Renamed from rd_by_ibx_file. Update.
+          (rd_by_aux_icx_file): Renamed from rd_by_icx_file. Update.
+          (rd_by_iau_file, rd_by_ias_file, rd_by_ibu_file, rd_by_ibs_file,
+           rd_by_icu_file, rd_by_ics_file): Update.
+          (rd_by_iau8_file): New function, for symmetry with the unbuffered
+          case.
+          (wr_by_aux_ia_file): Renamed from wr_by_ia. Update.
+          (wr_by_aux_ib_file): Renamed from wr_by_ib. Update.
+          (wr_by_aux_ic_file): Renamed from wr_by_ic. Update.
+          (wr_by_iau_file, wr_by_ias_file, wr_by_ibu_file, wr_by_ibs_file,
+           wr_by_icu_file, wr_by_ics_file): Update.
+          (wr_by_iau8_file): New function, for symmetry with the unbuffered
+          case.
+          (position_file, position_file_end): Update.
+          (make_file_stream): For the unbuffered case, accept any bitsize
+          which is a multiple of 8. Use {rd,wr}_by_iau8_file when possible.
+          (strm_terminal_index, strm_terminal_outbuff): Change.
+          (terminalcase): Update.
+          (rd_by_pipe_in, rd_by_array_pipe_in): Update.
+          (wr_by_pipe_out, wr_by_array_pipe_out): Update.
+          (SYS::MAKE-SOCKET-STREAM, SYS::LISTEN-BYTE, test_n_bytes_args,
+           make_socket_stream, init_streamvars): Update.
+        * pseudofun.d: Update accordingly.
+
+        * stream.d (rd_by_*, wr_by_*): Move some functions.
+        * pseudofun.d: Update accordingly.
+
 1999-01-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Optimize read-byte and write-byte for integer streams of type ia.
