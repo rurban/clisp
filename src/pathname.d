@@ -5302,20 +5302,14 @@ local void subdir_diff (object pattern, object sample, bool logical,
       push_solution();
     return;
   }
- #ifdef LOGICAL_PATHNAMES
-  if (logical) {
-    if (eq(pattern,S(Kwild))) {
-      var object string = wild2string(sample);
-      push_solution_with(string);
-      return;
-    }
-    if (eq(sample,S(Kwild))) return;
-    if (!simple_string_p(pattern) || !simple_string_p(sample)) return;
-    wildcard_diff(pattern,sample,previous,solutions);
+ #if defined(LOGICAL_PATHNAMES) || defined(PATHNAME_NOEXT)
+  unused(logical);
+  if (eq(pattern,S(Kwild))) {
+    var object string = wild2string(sample);
+    push_solution_with(string);
     return;
   }
- #endif
- #ifdef PATHNAME_NOEXT
+  if (eq(sample,S(Kwild))) return;
   if (!simple_string_p(pattern) || !simple_string_p(sample)) return;
   wildcard_diff(pattern,sample,previous,solutions);
  #endif
