@@ -9,41 +9,6 @@
 
 ;;; ---------------------------- Method Selection ----------------------------
 
-;; CLtL2 28.1.6.2., ANSI CL 7.6.2. Applicable methods
-(defun method-applicable-p (method required-arguments gf)
-  (every #'typep required-arguments (safe-method-specializers method gf)))
-
-;; CLtL2 28.1.7.1., ANSI CL 7.6.6.1.2.
-;; Sorting the applicable methods by precedence order
-;; > methods: A list of methods from the same generic function that are
-;;            already known to be applicable for the given required-arguments.
-;; > required-argument-classes: the list of classes the required arguments are
-;;                              direct instances of.
-;; > argument-order: A list of indices in the range 0..req-num-1 that
-;;                   determines the argument order.
-(defun sort-applicable-methods (methods required-argument-classes argument-order gf)
-  (sort (copy-list methods)
-        #'(lambda (method1 method2) ; method1 < method2 ?
-            (let ((specializers1 (safe-method-specializers method1 gf))
-                  (specializers2 (safe-method-specializers method2 gf)))
-              (dolist (arg-index argument-order nil)
-                (let ((arg-class (nth arg-index required-argument-classes))
-                      (psp1 (nth arg-index specializers1))
-                      (psp2 (nth arg-index specializers2)))
-                  (if (eql-specializer-p psp1)
-                    (if (eql-specializer-p psp2)
-                      nil         ; (EQL x) = (EQL x)
-                      (return t)) ; (EQL x) < <class>  ==>  method1 < method2
-                    (if (eql-specializer-p psp2)
-                      (return nil) ; <class> > (EQL x)   ==>  method1 > method2
-                      ;; two classes: compare the position in the CPL of arg-class:
-                      (let* ((cpl (class-precedence-list arg-class))
-                             (pos1 (position psp1 cpl))
-                             (pos2 (position psp2 cpl)))
-                        (cond ((< pos1 pos2) (return t)) ; method1 < method2
-                              ((> pos1 pos2) (return nil)) ; method1 > method2
-                              ))))))))))
-
 ;; CLtL2 28.1.6.3., ANSI CL 7.6.3.
 ;; Agreement on Parameter Specializers and Qualifiers
 (defun specializers-agree-p (specializers1 specializers2)
