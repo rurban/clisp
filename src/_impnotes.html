@@ -382,11 +382,15 @@ functions written in C, compiled functions (both of type
 <h3><a href="CLHSROOT/Body/sec_3-1-1.html">
     3.1.1 Introduction to Environments</a></h3>
 
-<p>As in Scheme, the macro <code>(lisp:the-environment)</code> returns
-the current lexical environment. This works only in interpreted code and
-is not compilable!
+<h4>the-environment</h4>
 
-<p><code>(lisp:eval-env <var>form</var> [<var>env</var>])</code>
+<p>As in Scheme, the macro <code>(<strong>lisp:the-environment</strong>)</code>
+returns the current lexical environment. This works only in interpreted code
+and is not compilable!
+
+<h4>eval-env</h4>
+
+<p><code>(<strong>lisp:eval-env</strong> <var>form</var> [<var>env</var>])</code>
 evaluates a form in a given lexical environment, just if the form had
 been part of the program text that environment came from.
 
@@ -783,8 +787,14 @@ implemented.
 <code>multiple-value-setq</code></a> are implemented as special operators
 and, as such, rather efficient.
 
+<h4><a href="CLHSROOT/Body/mac_destructuring-bind.html">
+    destructuring-bind</a></h4>
+
 <p>The ANSI CL macro <a href="CLHSROOT/Body/mac_destructuring-bind.html">
 <code>destructuring-bind</code></a> does not perform full error checking.
+
+<h4><a href="CLHSROOT/Body/fun_compiled-function-p.html">
+    compiled-function-p</a></h4>
 
 <p><a href="CLHSROOT/Body/fun_compiled-function-p.html">
 <code>compiled-function-p</code></a> returns <code>t</code> on built-in
@@ -793,6 +803,9 @@ handlers. Therefore <a href="CLHSROOT/Body/typ_compiled-function.html">
 <code>compiled-function</code></a> is not a subtype of
 <a href="CLHSROOT/Body/syscla_function.html">
 <code>function</code></a>.
+
+<h4><a href="CLHSROOT/Body/fun_eq.html">
+    eq</a></h4>
 
 <p><a href="CLHSROOT/Body/fun_eq.html">
 <code>eq</code></a> compares characters and fixnums as
@@ -804,6 +817,9 @@ and numbers. Nevertheless, one should use
 
 <p><code>(let ((x y)) (eq x x))</code> always returns <code>t</code>,
 regardless of <code>y</code>.
+
+<h4><a href="CLHSROOT/Body/acc_symbol-function.html">
+    symbol-function</a></h4>
 
 <p><code>(setf (<a
 href="CLHSROOT/Body/acc_symbol-function.html">symbol-function</a>
@@ -877,6 +893,9 @@ and quoted constants loaded from files are considered read-only
 data. This check is only performed for strings, not for conses, other kinds
 of arrays, and user-defined data types.
 
+<h4><a href="CLHSROOT/Body/speope_function.html">
+    function</a></h4>
+
 <p><code>(<a href="CLHSROOT/Body/speope_function.html">function</a>
 <var>symbol</var>)</code> returns the local function
 definition established by <code>flet</code> or <code>labels</code>, if
@@ -889,6 +908,9 @@ it returns <code>t</code>, then <code>(<a
 href="CLHSROOT/Body/acc_symbol-function.html">symbol-function</a>
 <var>symbol</var>)</code> returns the (useless) special operator
 handler.
+
+<h4><a href="CLHSROOT/Body/mac_define-symbol-macro.html">
+    define-symbol-macro</a></h4>
 
 <p>The macro <a href="CLHSROOT/Body/mac_define-symbol-macro.html">
 <code><strong>define-symbol-macro</strong></code></a>
@@ -919,6 +941,9 @@ macro returns the value of the expansion. Calling
 <p>Calling <a href="CLHSROOT/Body/fun_makunbound.html">
 <code>makunbound</code></a> on a symbol defined as symbol macro
 removes the symbol macro definition.
+
+<h4><a href="CLHSROOT/Body/mac_setfcm_psetf.html">setf</a>,
+    <a href="CLHSROOT/Body/speope_letcm_letst.html">let, let*</a></h4>
 
 <p><dl>
 <dt><em>If using the optional package <code>macros3</code>:</em>
@@ -968,6 +993,10 @@ removes the symbol macro definition.
     <code>(&amp;optional &amp;rest &amp;key &amp;allow-other-keys
     &amp;aux &amp;body &amp;whole &amp;environment)</code>
 
+<h4><a href="CLHSROOT/Body/mac_defun.html">
+    defun</a> &amp; <a href="CLHSROOT/Body/mac_defmacro.html">
+    defmacro</a></h4>
+
 <p><a href="CLHSROOT/Body/mac_defun.html">
 <code>defun</code></a> and
 <a href="CLHSROOT/Body/mac_defmacro.html">
@@ -997,6 +1026,9 @@ definition of <code>gensym</code>:
 ) ) )
 </code></pre>
 
+<h4><a href="CLHSROOT/Body/dec_special.html">
+    special</a></h4>
+
 <code>(proclaim '(<a href="CLHSROOT/Body/dec_special.html">special</a>
 <var>var</var>))</code> declarations may not be undone. The same holds
 for <a href="CLHSROOT/Body/mac_defparametercm_defvar.html">
@@ -1012,6 +1044,9 @@ moment the <code>defconstant</code> is executed, but
 <code>defconstant</code> does not check this.
 
 <p>Constants may not be bound dynamically or lexically.
+
+<h4><a href="CLHSROOT/Body/speope_eval-when.html">
+    eval-when</a></h4>
 
 <a href="CLHSROOT/Body/speope_eval-when.html">
 <code>eval-when</code></a> also accepts the situations <code>(not
@@ -1244,6 +1279,9 @@ an object that requires newlines when pretty printing is enabled is undefined.
 <h3><a href="CLHSROOT/Body/sec_the_condi_s_dictionary.html">
     9.2. The Conditions Dictionary</a></h3>
 
+<h4><a href="CLHSROOT/Body/fun_signal.html">
+    signal</a></h4>
+
 The default condition type for conditions created by
 <a href="CLHSROOT/Body/fun_signal.html">
 <code>signal</code></a>
@@ -1251,6 +1289,9 @@ is <a href="CLHSROOT/Body/contyp_simple-condition.html">
 <code>simple-condition</code></a>, not
 <a href="CLHSROOT/Body/contyp_simple-error.html">
 <code>simple-error</code></a>.
+
+<h4><a href="CLHSROOT/Body/mac_restart-case.html">
+    restart-case</a></h4>
 
 <p>In <a href="CLHSROOT/Body/mac_restart-case.html">
 <code>restart-case</code></a> clauses the argument list can also
@@ -1268,6 +1309,9 @@ with
    value</var>}* <var>arglist</var> {<var>form</var>}*<code>)</code>
 </table>
 
+<h4><a href="CLHSROOT/Body/sec_the_condi_s_dictionary.html">
+    compute-restarts</a></h4>
+
 <p><a href="CLHSROOT/Body/fun_compute-restarts.html">
 <code>compute-restarts</code></a> and
 <a href="CLHSROOT/Body/fun_find-restart.html">
@@ -1280,6 +1324,9 @@ it, but to hide it from other conditions. This makes the syntax
 dependent implicit association performed by
 <a href="CLHSROOT/Body/mac_restart-case.html">
 <code>restart-case</code></a> nearly obsolete.
+
+<h4><a href="CLHSROOT/Body/fun_warn.html">
+    warn</a></h4>
 
 <p>The default condition type for conditions created by
 <a href="CLHSROOT/Body/fun_warn.html">
@@ -1585,15 +1632,17 @@ x))</code> - instead of evaluting to <code>#C(-9.0 0.0)</code>, with
 <h3><a href="CLHSROOT/Body/sec_the_numbers_dictionary.html">
     12.2 The Numbers Dictionary</a></h3>
 
-<p><code>(lisp:! <var>n</var>)</code> returns the factorial of
-<var>n</var>, <var>n</var> a nonnegative integer.
+<h4>Functions on integers</h4>
 
-<p><code>(lisp:exquo <var>x</var> <var>y</var>)</code> returns the
-quotient <var>x/y</var> of two integers <var>x</var>,<var>y</var>, and
-checks that it is an integer. (This is more efficient than
+<p><code>(<strong>lisp:!</strong> <var>n</var>)</code> returns the factorial
+of <var>n</var>, <var>n</var> a nonnegative integer.
+
+<p><code>(<strong>lisp:exquo</strong> <var>x</var> <var>y</var>)</code>
+returns the quotient <var>x/y</var> of two integers <var>x</var>,<var>y</var>,
+and checks that it is an integer. (This is more efficient than
 <code>/</code>.)
 
-<p><code>(lisp:xgcd <var>x<sub>1</sub></var>
+<p><code>(<strong>lisp:xgcd</strong> <var>x<sub>1</sub></var>
 ... <var>x<sub>n</sub></var>)</code> returns the values <var>g</var>,
 <var>c<sub>1</sub></var>, ..., <var>c<sub>n</sub></var>, where
 <var>g</var> is the greatest common divisor of the integers
@@ -1606,13 +1655,21 @@ coefficients such that
 <var>c<sub>1</sub></var> <var>x<sub>1</sub></var>) ... (*
 <var>c<sub>n</sub></var> <var>x<sub>n</sub></var>))</code></center>
 
+<h4><a href="CLHSROOT/Body/fun_expcm_expt.html">
+    expt</a></h4>
+
 <p><code>(<a href="CLHSROOT/Body/fun_expcm_expt.html">expt</a>
           <var>base</var> <var>exponent</var>)</code>
 is not very precise if exponent has large absolute value.
 
+<h4><a href="CLHSROOT/Body/fun_log.html">
+    log</a></h4>
+
 <p><code>(<a href="CLHSROOT/Body/fun_log.html">log</a>
           <var>number</var> <var>base</var>)</code>
 signals an error if <var>base</var> = 1.
+
+<h4><a href="CLHSROOT/Body/convar_pi.html">pi</a></h4>
 
 <p>The value of <a href="CLHSROOT/Body/convar_pi.html">
 <code>pi</code></a> is a long float with the precision given
@@ -1621,6 +1678,9 @@ precision is changed, the value of <a href="CLHSROOT/Body/convar_pi.html">
 <code>pi</code></a> is automatically
 recomputed. Therefore <a href="CLHSROOT/Body/convar_pi.html">
 <code>pi</code></a> is a variable, not a constant.
+
+<h4><a href="CLHSROOT/Body/fun_decode-fl_decode-float.html">
+    float decoding</a></h4>
 
 <p><a href="CLHSROOT/Body/fun_decode-fl_decode-float.html">
 <code>float-radix</code></a> always returns <code>2</code>.
@@ -1665,10 +1725,12 @@ with at least <var>digits</var> mantissa digits. The following holds:
 <table border=1>
  <tr><th><em>Platform dependent:</em>
      <th>16-bit CPU <th>32-bit CPU <th>64-bit CPU
- <tr><th><code>most-positive-fixnum</code>
+ <tr><th><a href="CLHSROOT/Body/convar_most-p_ative-fixnum.html">
+         <code>most-positive-fixnum</code></a>
      <td colspan=2 align=center>2<sup>24</sup>-1 = 16777215
      <td align=right>2<sup>32</sup>-1 = 4294967295
- <tr><th><code>most-negative-fixnum</code>
+ <tr><th><a href="CLHSROOT/Body/convar_most-p_ative-fixnum.html">
+         <code>most-negative-fixnum</code></a>
      <td colspan=2 align=center>-2<sup>24</sup> = -16777216
      <td align=right>-2<sup>32</sup> = -4294967296
 </table>
@@ -1697,11 +1759,15 @@ with at least <var>digits</var> mantissa digits. The following holds:
 href="#lfd"><code>(lisp:long-float-digits)</code></a> is changed. They
 are variables, not constants.
 
-<p>Conditions
-<a href="CLHSROOT/Body/contyp_floati_id-operation.html">
-floating-point-invalid-operation</a>
-<a href="CLHSROOT/Body/contyp_floati_oint-inexact.html">
-floating-point-inexact</a> are never signaled by CLISP.
+<h4><a href="CLHSROOT/Body/contyp_floati_id-operation.html">
+    floating-point-invalid-operation</a></h4>
+
+<p>This condition is never signaled by CLISP.
+
+<h4><a href="CLHSROOT/Body/contyp_floati_oint-inexact.html">
+    floating-point-inexact</a></h4>
+
+<p>This condition is never signaled by CLISP.
 
 <h2><a name="characters"></a><a href="CLHSROOT/Body/chap-13.html">
     Chapter 13: Characters</a></h2>
@@ -2285,9 +2351,16 @@ have names:
 <h3><a href="CLHSROOT/Body/sec_the_conses_dictionary.html">
     14.2 The Conses Dictionary</a></h3>
 
-<p><code>sublis</code> and <code>nsublis</code> apply the
-<code>:key</code> argument to the nodes of the cons tree and not to the
-keys of the alist.
+<h4><a href="CLHSROOT/Body/fun_subliscm_nsublis.html">sublis</a>,
+    <a href="CLHSROOT/Body/fun_subliscm_nsublis.html">nsublis</a></h4>
+
+<p><a href="CLHSROOT/Body/fun_subliscm_nsublis.html"><code>sublis</code></a>
+and <a href="CLHSROOT/Body/fun_subliscm_nsublis.html"><code>nsublis</code></a>
+apply the <code>:key</code> argument to the nodes of the cons tree and not
+to the keys of the alist.
+
+<h4><a href="CLHSROOT/Body/fun_mapccm_ma_istcm_mapcon.html">
+    mapcar, mapcan, maplist, mapcon, ...</a></h4>
 
 <p>The function <code><strong>lisp:mapcap</strong></code> is like
 <code>mapcan</code>, except that it concatenates the resulting lists
@@ -2373,6 +2446,9 @@ national rules. Example: <code>&#34;o&#34;</code> &lt;
 <h2><a name="sequences"></a><a href="CLHSROOT/Body/chap-17.html">
     Chapter 17: Sequences</a></h2>
 
+<h4><a href="CLHSROOT/Body/mac_loop.html">loop</a>,
+    <a href="CLHSROOT/Body/fun_map.html">map</a></h4>
+
 <p>For iteration through a sequence, a macro
 <code><strong>lisp:doseq</strong></code>, analogous to
 <a href="CLHSROOT/Body/mac_dolist.html">
@@ -2451,6 +2527,9 @@ subsequence denoted by the <code>:start</code> and <code>:end</code> arguments.
 <h3><a href="CLHSROOT/Body/sec_the_hash__s_dictionary.html">
     18.2. The Hash Tables Dictionary</a></h3>
 
+<h4><a href="CLHSROOT/Body/fun_make-hash-table.html">
+    make-hash-table</a></h4>
+
 <p><a href="CLHSROOT/Body/fun_make-hash-table.html">
 <code>make-hash-table</code></a> has an additional keyword
 <code>:initial-contents</code>:
@@ -2462,6 +2541,9 @@ subsequence denoted by the <code>:start</code> and <code>:end</code> arguments.
 <p>The <code>:initial-contents</code> argument is an alist that is used
 to initialize the new hash table.  The <code>:rehash-threshold</code>
 argument is ignored.
+
+<h4><a href="CLHSROOT/Body/mac_loop.html">loop</a>,
+    <a href="CLHSROOT/Body/fun_maphash.html">maphash</a></h4>
 
 <p>For iteration through a hash table, a macro
 <code><strong>lisp:dohash</strong></code>, analogous to
@@ -3419,6 +3501,11 @@ href="CLHSROOT/Body/fun_pathname-match-p.html">pathname-match-p</a>
 pieces of <var>to-pathname</var> are not replaced by corresponding
 pieces of <var>source</var>.
 
+<br>This function seems to be currently buggy, sorry.
+
+<h4><a href="CLHSROOT/Body/fun_parse-namestring.html">
+    parse-namestring</a></h4>
+
 <p><code>(<a href="CLHSROOT/Body/fun_parse-namestring.html">parse-namestring</a>
           <var>string</var> [<var>host</var> [<var>defaults</var>]])</code>
 returns a logical pathname only if host is a logical host or host is
@@ -3478,15 +3565,24 @@ simply being ANSI CL compliant and therefore not surprising to the users.
 <h3><a href="CLHSROOT/Body/sec_the_files_dictionary.html">
     20.2 The Files Dictionary.</a></h3>
 
+<h4><a href="CLHSROOT/Body/fun_rename-file.html">
+    rename-file</a></h4>
+
 <p><a href="CLHSROOT/Body/fun_rename-file.html">
 <code>rename-file</code></a> always returns a non-logical pathname as
 its first value.
+
+<h4><a href="CLHSROOT/Body/fun_probe-file.html">
+    probe-file</a></h4>
 
 <p><a href="CLHSROOT/Body/fun_probe-file.html">
 <code>probe-file</code></a> can not be used to check whether a directory
 exists. Use the function <code>lisp:probe-directory</code> or the
 function <a href="CLHSROOT/Body/fun_directory.html">
 <code>directory</code></a> for this purpose.
+
+<h4><a href="CLHSROOT/Body/fun_file-author.html">
+    file-author</a></h4>
 
 <p><a href="CLHSROOT/Body/fun_file-author.html">
 <code>file-author</code></a> always returns <code>nil</code>, because the
@@ -3871,6 +3967,9 @@ controller and some number of arguments.
 <h3><a href="CLHSROOT/Body/sec_the_streams_dictionary.html">
     21.2. The Streams Dictionary</a></h3>
 
+<h4><a href="CLHSROOT/Body/fun_stream-element-type.html">
+    stream-element-type</a></h4>
+
 <p><a href="CLHSROOT/Body/fun_stream-element-type.html">
 <code>stream-element-type</code></a> is
 <a href="CLHSROOT/Body/mac_setfcm_psetf.html">
@@ -3889,6 +3988,9 @@ if both the old and the new element type are either
   <li>both equivalent to <code>(unsigned-byte <var>n</var>)</code> or
       <code>(signed-byte <var>n</var>)</code>, with the same <var>n</var>.
 </ul>
+
+<h4><a href="CLHSROOT/Body/fun_close.html">
+    close</a></h4>
 
 <p><a href="CLHSROOT/Body/fun_close.html">
 <code>close</code></a> ignores its <code>:abort</code> argument.
@@ -4282,6 +4384,9 @@ string and <var>stream</var> is a
 <a href="#open">file</a>/<a href="#pipe">pipe</a>/<a href="#socket">socket</a>
 with element type <code>character</code> or a string input stream.
 </dl>
+
+<h4><a href="CLHSROOT/Body/fun_listen.html">listen</a>,
+    <a href="CLHSROOT/Body/fun_read-char-no-hang.html">read-char-no-hang</a></h4>
 
 <dl>
   <dt> <a name=real-listen></a>
