@@ -539,18 +539,24 @@ LISPFUNN(defseq,1)
     value1 = seq_type(popSTACK()); mv_count=1;
   }
 
-local void seq_check_index (object seq,object typdescr,object index) {
+# Check the index argument for ELT and SETF ELT.
+# > seq: the sequence
+# > index: the index argument
+local void seq_check_index (object seq, object index) {
   if (!(posfixnump(index))) {
-    pushSTACK(STACK_0);           # TYPE-ERROR slot DATUM
+    pushSTACK(index);             # TYPE-ERROR slot DATUM
     pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(STACK_(0+2)); pushSTACK(S(elt));
+    pushSTACK(index); pushSTACK(S(elt));
     fehler(type_error,GETTEXT("~: the index should be a fixnum >=0, not ~"));
   }
-  if (vectorp(seq) && # vector ==> check length
-      (posfixnum_to_L(index) >= vector_length(seq))) {
-    pushSTACK(seq);
-    pushSTACK(index);
-    fehler_index_range(posfixnum_to_L(index));
+  if (vectorp(seq)) { # vector ==>
+    # check index against active length (may be smaller than total size)
+    var uintL len = vector_length(seq);
+    if (posfixnum_to_L(index) >= len) {
+      pushSTACK(seq);
+      pushSTACK(index);
+      fehler_index_range(len);
+    }
   }
 }
 
@@ -559,7 +565,7 @@ LISPFUNN(elt,2) # (ELT sequence index), CLTL S. 248
   { # check sequence:
     var object typdescr = get_valid_seq_type(STACK_1);
     # check index:
-    seq_check_index(STACK_1,typdescr,STACK_0);
+    seq_check_index(STACK_1,STACK_0);
     # call SEQ-ELT:
     funcall(seq_elt(typdescr),2); # (SEQ-ELT sequence index)
     # value1 als Wert
@@ -569,7 +575,7 @@ LISPFUNN(setelt,3) # (SYSTEM::%SETELT sequence index value), vgl. CLTL S. 248
   { # check sequence:
     var object typdescr = get_valid_seq_type(STACK_2);
     # check index:
-    seq_check_index(STACK_2,typdescr,STACK_1);
+    seq_check_index(STACK_2,STACK_1);
     # call SEQ-SET-ELT:
     pushSTACK(STACK_(2+0)); # sequence
     pushSTACK(STACK_(1+1)); # index
