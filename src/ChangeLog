@@ -1,5 +1,10 @@
 2002-02-01  Sam Steingold  <sds@gnu.org>
 
+	* spvw_update.d (update_weakpointer): new macro
+	(update_weakpointers, update_weakpointers_mod): use it
+
+2002-02-01  Sam Steingold  <sds@gnu.org>
+
 	* io.d (pr_array_nil): print array address too
 	(pr_hex6_obj): save the object
 	(pr_orecord): print HASH-TABLE with TEST and COUNT
