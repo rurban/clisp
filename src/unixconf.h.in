@@ -361,11 +361,9 @@
 /* Define if you have <sys/times.h>. */
 #undef HAVE_SYS_TIMES_H
 
-/* CL_GETWD */
-/* Define if you have the getwd() function. */
-#undef HAVE_GETWD
-
 /* CL_GETCWD */
+/* Define if you have the getcwd() function. */
+#undef HAVE_GETCWD
 /* Define as the type of `bufsize' in getcwd() declaration. */
 #undef GETCWD_SIZE_T
 

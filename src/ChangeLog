@@ -1,3 +1,14 @@
+1999-01-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        When getwd and getcwd both exist, prefer getcwd.
+        * aclocal.m4 (CL_GETWD): Remove macro.
+          (CL_GETCWD): First, check for getcwd.
+        * configure.in (CL_GETWD): Remove call.
+        * unixconf.h.in (HAVE_GETWD): Remove.
+          (HAVE_GETCWD): New macro.
+        * unix.d: Test for HAVE_GETCWD, not HAVE_GETWD.
+        * spvw_language.d (init_language): Revert last patch.
+
 1999-01-04  Sam Steingold  <sds@goems.com>
 
 	* socket.d (socket_getlocalname): declare return value to be 

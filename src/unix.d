@@ -358,7 +358,7 @@
   #ifndef MAXPATHLEN
     #define MAXPATHLEN  1024  # siehe <sys/param.h>
   #endif
-  #ifndef HAVE_GETWD
+  #ifdef HAVE_GETCWD
     extern_C char* getcwd (char* buf, GETCWD_SIZE_T bufsize);
     #define getwd(buf)  getcwd(buf,MAXPATHLEN)
   #else

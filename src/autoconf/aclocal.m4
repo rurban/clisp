@@ -2079,20 +2079,14 @@ if test $ac_cv_header_sys_resource_h = yes; then
 fi
 ])dnl
 dnl
-AC_DEFUN(CL_GETWD,
-[AC_BEFORE([$0], [CL_GETCWD])
-CL_LINK_CHECK([getwd], cl_cv_func_getwd, [
+AC_DEFUN(CL_GETCWD,
+[CL_LINK_CHECK([getcwd], cl_cv_func_getcwd, [
 #ifdef HAVE_UNISTD_H
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-], [getwd((char*)0);], AC_DEFINE(HAVE_GETWD),)]
-)dnl
-dnl
-AC_DEFUN(CL_GETCWD,
-[AC_REQUIRE([CL_GETWD])dnl
-if test $cl_cv_func_getwd = no; then
-dnl HAVE_GETWD undefined
+], [getcwd((char*)0,1024);], AC_DEFINE(HAVE_GETCWD),)
+if test $cl_cv_func_getcwd = yes; then
 CL_PROTO([getcwd], [
 CL_PROTO_TRY([
 #if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
