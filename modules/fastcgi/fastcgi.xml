@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<section id="fastcgi"><title>&fastcgi-link; Interface</title>
+<section id="fastcgi"><title>The &fastcgi-link; Interface</title>
 
-<para>
+<simpara>
 The &fastcgi-link; module speeds up &clisp; CGI
 scripts launched by a Web server.  Working with a
 &fastcgi-link;-enabled Web server such as &apache; with
@@ -12,40 +12,40 @@ The performance improvements stem from the fact that the script's
 process remains running across &http; requests, eliminating startup
 overhead and allowing for caching of data structures and other resources.  This
 is the same approach used is in other languages (e.g., <ulink
-url="http://perl.apache.org">mod_perl</ulink> for Perl).  </para>
+url="http://perl.apache.org">mod_perl</ulink> for Perl).  </simpara>
 
 <section><title>Overview of &fastcgi-link;</title>
-<para>
 
+<para>
 Traditional CGI programs work by doing input/output with the Web
 server via the following channels:
 <orderedlist>
-<listitem><para>
+<listitem><simpara>
 Examining environment variables; e.g., "HTTP_USER_AGENT" is the
 variable set by the Web server to name the browser used
-</para></listitem>
-<listitem><para>
+</simpara></listitem>
+<listitem><simpara>
 Reading from standard input.  E.g., to get input data in a "method=POST" request
-</para></listitem>
-<listitem><para>
+</simpara></listitem>
+<listitem><simpara>
 Writing an &http; response document (usually "Content-type:
 text/html") to the standard output, for eventual transmission
 back to the browser client
-</para></listitem>
-<listitem><para>
+</simpara></listitem>
+<listitem><simpara>
 Writing error messages to the standard error, usually captured
 by the Web server and logged in its log files.
-</para></listitem>
+</simpara></listitem>
 </orderedlist>
 </para>
 
-<para>
+<simpara>
 &fastcgi-link; involves replacing calls the standard routines to do
 the above with calls in the <quote role="package">FASTCGI</quote> package.  These calls will then
 work exactly as before when the program is invoked as a CGI, but will
 also work when invoked by a &fastcgi-link;-enabled Web server.
-</para>
-<para>
+</simpara>
+<simpara>
 &fastcgi-link; programs persist across &http; requests, and thus incur
 startup overhead costs only once.  For Lisp Web programs, this overhead
 can be substantial: code must be
@@ -54,7 +54,7 @@ because the program stays running from &http; request to &http; request,
 it can cache information in memory such as database connections
 or large in-memory data structures.
 
-</para>
+</simpara>
 
 </section>
 
@@ -107,16 +107,18 @@ A typical &fastcgi-link; top-level server loop looks like:
 <replaceable>varname</replaceable>)</literal></term>
 <listitem>
 <simpara>
-Use in place of <function>EXT:GETENV</function> to get the value of
-the environment variable named <replaceable>varname</replaceable>,
-which should be a string.  Returns &nil; if
-<replaceable>varname</replaceable> is not defined in the operating
-system environment.  See <ulink
+Use in place of &getenv; to get the value of the environment variable
+named <replaceable>varname</replaceable>, which should be a string.
+Unlike &getenv;, which accesses the actual host operating system environment,
+<function>FASTCGI:GETENV</function> obtains its environment via
+the Web server, over its FastCGI communications channel.  For more information,
+see the &fastcgi-link; Web site.
+Returns &nil; if <replaceable>varname</replaceable> is not defined in
+the operating system environment.  See <ulink
 url="http://www.cgi101.com/class/ch3/text.html">here</ulink> for a
-list of useful variables.
-You must first have called <function>ACCEPT</function> and not yet have
-called <function>FINISH</function>.
-</simpara></listitem></varlistentry>
+list of useful variables.  You must first have called
+<function>ACCEPT</function> and not yet have called
+<function>FINISH</function>.  </simpara></listitem></varlistentry>
 
 	<!-- WRITE-STDOUT -->
 <varlistentry><term><literal role="sexp">(FASTCGI:WRITE-STDOUT
