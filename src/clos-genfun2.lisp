@@ -434,13 +434,25 @@
 
 ;; Installs the final dispatch-code into a generic function.
 (defun install-dispatch (gf)
+  (set-funcallable-instance-function gf
+    (funcall (cond ((or (eq gf #'compute-discriminating-function) ; for bootstrapping
+                        (eq gf #'compute-applicable-methods-using-classes))
+                    #'compute-discriminating-function-<standard-generic-function>)
+                   (t #'compute-discriminating-function))
+             gf)))
+
+;; Preliminary.
+(defun compute-discriminating-function (gf)
+  (compute-discriminating-function-<standard-generic-function> gf))
+
+(defun compute-discriminating-function-<standard-generic-function> (gf)
   (multiple-value-bind (bindings lambdabody) (compute-dispatch gf)
     (let ((preliminary
            (eval `(LET ,bindings
                     (DECLARE (COMPILE))
                      (%GENERIC-FUNCTION-LAMBDA ,@lambdabody)))))
       (assert (<= (sys::%record-length preliminary) 3))
-      (set-funcallable-instance-function gf preliminary))))
+      preliminary)))
 
 ;; Calculates the dispatch-code of a generic function.
 ;; It looks as follows:
