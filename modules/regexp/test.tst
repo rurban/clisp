@@ -1,5 +1,5 @@
 ;; -*- Lisp -*-
-;; clisp -q -norc -K full -i ../tests/tests -x '(run-test "regexp/test")'
+;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "regexp/test")'
 
 (let ((rc (regexp:regexp-compile "a(a)*" :extended t)))
   (prog1 (multiple-value-list (regexp:regexp-exec rc "a"))
@@ -13,6 +13,15 @@
 ;;; implementation rather than CLISP regexp interface.
 ;;; a test failure should be reported to the regexp maintainer.
 ;;; a segmentation fault should be reported to <clisp-list>
+
+;;; note also that some original tests had empty alternatives in grouping
+;;; which is forbidden by POSIX
+;;; <http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap09.html>:
+;;; "A vertical-line appearing first or last in an ERE, or immediately
+;;;  following a vertical-line or a left-parenthesis, or immediately
+;;;  preceding a right-parenthesis, produces undefined results."
+;;; "Outside a bracket expression, a left-parenthesis immediately
+;;;  followed by a right-parenthesis produces undefined results."
 
 ;; The following list of tests is taken from regexp-test-suite.lisp in
 ;; Kenneth Parker's regex package
@@ -196,14 +205,14 @@ RE-TEST
 (re-test "a**" "-") ("")
 (re-test "(a*)*" "-") ("" "")
 (re-test "(a*)+" "-") ("" "")
-(re-test "(a|)*" "-") ("" "")
+;; non-POSIX (re-test "(a|)*" "-") ("" "")
 (re-test "(a*|b)*" "-") ("" "")
 (re-test "(a+|b)*" "ab") ("ab" #-:regex-left "b" #+:regex-left "a")
 (re-test "(a+|b)+" "ab") ("ab" #-:regex-left "b" #+:regex-left "a")
 (re-test "(a+|b)?" "ab") ("a"  "a")
 (re-test "[^ab]*" "cde") ("cde")
 (re-test "(^)*" "-") ("" "")
-(re-test "(ab|)*" "-") ("" "")
+;; non-POSIX (re-test "(ab|)*" "-") ("" "")
 (re-test ")(" "-") ; ()
 ERROR ; (")("): "Unmatched ( or \\("
 (re-test "" "abc") ("")
@@ -220,7 +229,7 @@ ERROR ; (")("): "Unmatched ( or \\("
 (re-test "(ab|cd)e" "abcde") ("cde" "cd")
 (re-test "[abhgefdc]ij" "hij") ("hij")
 (re-test "^(ab|cd)e" "abcde") ()
-(re-test "(abc|)ef" "abcdef") ("ef" "")
+;; non-POSIX (re-test "(abc|)ef" "abcdef") ("ef" "")
 (re-test "(a|b)c*d" "abcd") ("bcd" "b")
 (re-test "(ab|ab*)bc" "abc") ("abc" "a")
 (re-test "a([bc]*)c*" "abc") ("abc"  "bc")
@@ -438,7 +447,7 @@ yz")
 (re-test ".+" "aa") ("aa")
 
 ;; alternate
-(re-test "(hello|man|)" "") ("" "")
+;; non-POSIX (re-test "(hello|man|)" "") ("" "")
 (re-test "(a+|b)" "aaa") ("aaa" "aaa")
 (re-test "(a+|b)" "b") ("b" "b")
 

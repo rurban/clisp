@@ -1,3 +1,7 @@
+2004-06-07  Sam Steingold  <sds@gnu.org>
+
+	* modules/regexp/test.tst: commented out non-POSIX regexps
+
 2004-06-07  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp (open-for-load): Use uppercase ~S in format strings so that
