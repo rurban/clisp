@@ -43,25 +43,25 @@ define xout
        echo \n
 end
 document xout
-         print the specified object with PRIN1
+         print the specified object with nobject_out()
 end
 
 define run_test
-       run -B . -M lispinit.mem -q -norc -C -i suite/tests.lisp -x '(run-test "suite/'$arg0'.tst")'
+       run -B . -M lispinit.mem -q -norc -C -i suite/tests.lisp -x "(run-test \"suite/$arg0.tst\")"
 end
 document run_test
          run the specified test in the test suite
 end
 
 define run_all_tests
-       run -B . -M lispinit.mem -q -norc -C -i suite/tests.lisp -x '(cd "suite/") (run-all-tests)'
+       run -B . -M lispinit.mem -q -norc -C -i suite/tests.lisp -x "(cd \"suite/\") (run-all-tests)"
 end
 document run_all_tests
          run the specified test in the test suite
 end
 
 define ansi_tests
-       run -B . -M lispinit.mem -q -norc -ansi -x '(cd "../../../gcl/ansi-tests/") (load "gclload")'
+       run -B . -M lispinit.mem -q -norc -ansi -x "(cd \"../../../gcl/ansi-tests/\") (load \"gclload\")"
 end
 document ansi_tests
          run the gcl/ansi-test suite
