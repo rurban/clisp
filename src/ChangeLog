@@ -1,3 +1,7 @@
+2005-01-05  Bruno Haible  <bruno@clisp.org>
+
+	* configure: Unset CDPATH in a more robust way.
+
 2004-01-05  Bruno Haible  <bruno@clisp.org>
 
 	* utils/clispload.lsp (*expected-failures*): Update.
