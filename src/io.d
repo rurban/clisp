@@ -5,7 +5,6 @@
 #include "lispbibl.c"
 #include "arilev0.c" # for Division in pr_uint
 
-
 # =============================================================================
 # Readtable-functions
 # =============================================================================
@@ -6432,14 +6431,15 @@ local void pr_enter (const object* stream_,object obj,pr_routine_t* pr_xxx) {
 # < result: number of dynamic bindings, that have to be unbound.
 local uintC pr_external_1 (object stream) {
   var uintC count = 1;
+  # bind SYM to VAL unless already bound to it
+#define BIND_UNLESS(sym,val)                       \
+    if (!eq(Symbol_value(S(sym)),val)) { dynamic_bind(S(sym),val); count++; }
   # obey *PRINT-CIRCLE*:
   if (!test_value(S(print_circle))) { # *PRINT-CIRCLE* = NIL ->
     # in case, that *PRINT-CIRCLE* will be bound to T,
     # SYS::*PRINT-CIRCLE-TABLE* must be bound to #<UNBOUND>
     # (unless, it is already = #<UNBOUND>).
-    if (!eq(Symbol_value(S(print_circle_table)),unbound)) {
-      dynamic_bind(S(print_circle_table),unbound); count++;
-    }
+    BIND_UNLESS(print_circle_table,unbound);
   }
   # obey *PRINT-READABLY*:
   if (test_value(S(print_readably))) {
@@ -6447,46 +6447,27 @@ local uintC pr_external_1 (object stream) {
     # of *PRINT-READABLY*, to behave accordingly,
     # we bind the other printer-variables appropriately:
     # *PRINT-READABLY* enforces *PRINT-ESCAPE* = T :
-    if (!test_value(S(print_escape))) {
-      dynamic_bind(S(print_escape),T); count++;
-    }
+    BIND_UNLESS(print_escape,T);
     # *PRINT-READABLY* enforces *PRINT-BASE* = 10 :
-    if (!eq(Symbol_value(S(print_base)),fixnum(10))) {
-      dynamic_bind(S(print_base),fixnum(10)); count++;
-    }
+    BIND_UNLESS(print_base,fixnum(10));
     # *PRINT-READABLY* enforces *PRINT-RADIX* = T :
-    if (!test_value(S(print_radix))) {
-      dynamic_bind(S(print_radix),T); count++;
-    }
+    BIND_UNLESS(print_radix,T);
     # *PRINT-READABLY* enforces *PRINT-CIRCLE* = T :
-    if (!test_value(S(print_circle))) {
-      dynamic_bind(S(print_circle),T); count++;
-    }
+    BIND_UNLESS(print_circle,T);
     # *PRINT-READABLY* enforces *PRINT-LEVEL* = NIL :
-    if (test_value(S(print_level))) {
-      dynamic_bind(S(print_level),NIL); count++;
-    }
+    BIND_UNLESS(print_level,NIL);
     # *PRINT-READABLY* enforces *PRINT-LENGTH* = NIL :
-    if (test_value(S(print_length))) {
-      dynamic_bind(S(print_length),NIL); count++;
-    }
+    BIND_UNLESS(print_length,NIL);
     # *PRINT-READABLY* enforces *PRINT-LINES* = NIL :
-    if (test_value(S(print_lines))) {
-      dynamic_bind(S(print_lines),NIL); count++;
-    }
+    BIND_UNLESS(print_lines,NIL);
     # *PRINT-READABLY* enforces *PRINT-GENSYM* = T :
-    if (!test_value(S(print_gensym))) {
-      dynamic_bind(S(print_gensym),T); count++;
-    }
+    BIND_UNLESS(print_gensym,T);
     # *PRINT-READABLY* enforces *PRINT-ARRAY* = T :
-    if (!test_value(S(print_array))) {
-      dynamic_bind(S(print_array),T); count++;
-    }
+    BIND_UNLESS(print_array,T);
     # *PRINT-READABLY* enforces *PRINT-CLOSURE* = T :
-    if (!test_value(S(print_closure))) {
-      dynamic_bind(S(print_closure),T); count++;
-    }
+    BIND_UNLESS(print_closure,T);
   }
+#undef BIND_UNLESS
   # SYS::*PRIN-STREAM* an stream binden:
   dynamic_bind(S(prin_stream),stream);
   return count;
@@ -6548,7 +6529,7 @@ local void prin_object (const object* stream_,object obj) {
  restart_it:
   # test for keyboard-interrupt:
   interruptp({
-    pushSTACK(obj); # save obj, in the STACK the stream is secure
+    pushSTACK(obj); # save obj in the STACK; the stream is safe
     pushSTACK(S(print)); tast_break(); # PRINT call break-loop
     obj = popSTACK(); # move obj back
     goto restart_it;
@@ -6562,7 +6543,7 @@ local void prin_object_dispatch (const object* stream_,object obj) {
   # branch according to type-info:
 #ifdef TYPECODES
   switch (typecode(obj)) {
-    case_machine: # maschine pointer
+    case_machine: # machine pointer
       pr_machine(stream_,obj); break;
     case_string: # String
       pr_string(stream_,obj); break;
@@ -7776,6 +7757,15 @@ local void pr_array (const object* stream_,object obj) {
 
 #                    -------- CLOS-instances --------
 
+local void pr_sharp_dot (const object* stream_,object obj) {
+  pushSTACK(obj); # save form
+  write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
+  obj = popSTACK(); # recall form
+  INDENT_START(2); # indent by 2 characters, because of '#.'
+  prin_object(stream_,obj); # print form
+  INDENT_END;
+}
+
 # UP: prints CLOS-instance to stream.
 # pr_instance(&stream,obj);
 # > obj: CLOS-Instance
@@ -7783,22 +7773,18 @@ local void pr_array (const object* stream_,object obj) {
 # < stream: stream
 # can trigger GC
 local void pr_instance (const object* stream_,object obj) {
-  var uintC count = pr_external_1(*stream_); # instantiate bindings
   if (test_value(S(compiling))) { # compiling - use MAKE-LOAD-FORM (clos.lisp)
     pushSTACK(obj); # save obj
     pushSTACK(obj); funcall(S(make_init_form),1);
-    if (nullp(value1)) goto print_object; # obj is on the stack already!
-    STACK_0 = value1; # save form, discard obj
-    write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
-    obj = popSTACK(); # recall form
-    INDENT_START(2); # indent by 2 characters, because of '#.'
-    prin_object(stream_,obj); # print form
-    INDENT_END;
-  } else { # execute (CLOS:PRINT-OBJECT obj stream) :
-    pushSTACK(obj);
-  print_object:
-    pushSTACK(*stream_); funcall(S(print_object),2);
+    obj = popSTACK(); # recall obj
+    if (!nullp(value1)) {
+      pr_sharp_dot(stream_,value1);
+      return;
+    }
   }
+  # execute (CLOS:PRINT-OBJECT obj stream) :
+  var uintC count = pr_external_1(*stream_); # instantiate bindings
+  pushSTACK(obj); pushSTACK(*stream_); funcall(S(print_object),2);
   pr_external_2(count); # dissolve bindings
 }
 
@@ -8527,12 +8513,7 @@ local void pr_orecord (const object* stream_,object obj) {
       if (test_value(S(print_readably)))
         if (!(test_value(S(read_eval)) || stream_get_read_eval(*stream_)))
           fehler_print_readably(obj);
-      pushSTACK(TheLoadtimeeval(obj)->loadtimeeval_form); # save form
-      write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
-      obj = popSTACK();
-      INDENT_START(2); # indent by 2 characters, because of '#.'
-      prin_object(stream_,obj); # print form
-      INDENT_END;
+      pr_sharp_dot(stream_,TheLoadtimeeval(obj)->loadtimeeval_form);
       break;
     case Rectype_Symbolmacro: # #<SYMBOL-MACRO expansion>
       CHECK_PRINT_READABLY(obj);

@@ -1,5 +1,14 @@
 2001-08-14  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #448817
+	* io.d (pr_external_1): use new macro BIND_UNLESS
+	(pr_sharp_dot): new local function
+	(pr_instance): use it
+	do not call pr_external_[12] around a call to prin_object()
+	(pr_orecord): use pr_sharp_dot() when printing Rectype_Loadtimeeval
+
+2001-08-14  Sam Steingold  <sds@gnu.org>
+
 	* .gdbinit: set args and define zout
 
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
