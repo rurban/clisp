@@ -1357,8 +1357,8 @@ initialization has taken effect.</para>
  <title>Initialization of Anonymous Classes</title>
 
 <para>Class metaobjects created with &make-instance; are
-usually <firstterm>anonymous</firstterm>; that is, they have no proper
-name.  An anonymous class metaobject can be given a proper name using
+usually <firstterm>anonymous</firstterm>; that is, they have no &proper-name-glo;.
+An anonymous class metaobject can be given a &proper-name-glo; using
 <literal role="sexp">(&setf; &find-class;)</literal> and
 <literal role="sexp">(&setf; &class-name;)</literal>.</para>
 
@@ -1537,8 +1537,8 @@ any dependents of the class metaobject will be updated by calling
        <listitem><simpara>If the element names a class, that class
          metaobject is used.</simpara></listitem>
        <listitem><simpara>Otherwise an instance of the class
-         &forward-referenced-class; is created and used.  The proper
-         name of the newly created forward referenced class metaobject
+         &forward-referenced-class; is created and used.  The &proper-name-glo;
+         of the newly created forward referenced class metaobject
          is set to &name-r;.</simpara></listitem></itemizedlist>
     </para></listitem>
     <listitem><simpara>All other keyword arguments are included directly
@@ -1547,7 +1547,7 @@ any dependents of the class metaobject will be updated by calling
   <simpara>If the &class-r; argument is &nil;, a new class metaobject is
    created by calling the &make-instance; generic function with the
    value of the &metaclass-k; argument as its first argument, and the
-   previously computed initialization arguments.  The proper name of the
+   previously computed initialization arguments.  The &proper-name-glo; of the
    newly created class metaobject is set to &name-r;.  The newly created
    class metaobject is returned.</simpara>
   <simpara>If the &class-r; argument is a forward referenced class,

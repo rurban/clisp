@@ -777,6 +777,7 @@
 <!ENTITY program-error-t "<ulink url='&clhs;/Body/contyp_program-error.html'><classname>PROGRAM-ERROR</classname></ulink>">
 <!ENTITY progv "<ulink url='&clhs;/Body/speope_progv.html'><function>PROGV</function></ulink>">
 <!ENTITY proper-list-glo "<ulink url='&clhs;/Body/glo_p.html#proper_list'>proper list</ulink>">
+<!ENTITY proper-name-glo "<ulink url='&clhs;/Body/glo_p.html#proper_name'>proper name</ulink>">
 <!ENTITY provide "<ulink url='&clhs;/Body/fun_providecm_require.html'><function>PROVIDE</function></ulink>">
 <!ENTITY psetf "<ulink url='&clhs;/Body/mac_setfcm_psetf.html'><function>PSETF</function></ulink>">
 <!ENTITY psetq "<ulink url='&clhs;/Body/mac_psetq.html'><function>PSETQ</function></ulink>">
