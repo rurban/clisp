@@ -1,5 +1,10 @@
 2004-03-13  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_memfile.d (savemem, loadmem_from_handle): Remove calls to
+	update_back_traces().
+
+2004-03-13  Bruno Haible  <bruno@clisp.org>
+
 	* pathname.d (DELETE-FILE): Fix stack layout when the function returns
 	NIL.
 
