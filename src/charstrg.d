@@ -3399,7 +3399,8 @@ LISPFUNNR(name_char,1)
  > uintL end: end index
  with 0 <= start <= end <= Sstring_length(string)
  < object result: (subseq string start end),
-           a freshly created normal-simple-string */
+           a freshly created normal-simple-string
+ can trigger GC */
 global object subsstring (object string, uintL start, uintL end) {
   var uintL count = end - start;
   pushSTACK(string);

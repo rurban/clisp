@@ -19,10 +19,12 @@
 
 # Returns the translation of string according to the current interface
 # language. A string is returned.
+# can trigger GC
 global object CLSTEXT (const char*);
 
 # Returns the translated value of obj. obj is translated, then
 # READ-FROM-STRING is applied to the result.
+# can trigger GC
 global object CLOTEXT (const char*);
 
 
