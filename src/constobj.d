@@ -936,7 +936,3 @@
   LISPOBJ(foreign_callin_table,"#.(make-hash-table :test #'eq)")
   LISPOBJ(foreign_callin_vector,"#.(let ((array (make-array 1 :adjustable t :fill-pointer 1))) (sys::store array 0 0) array)")
  #endif
-# for posixmath.d
-#ifdef EXPORT_SYSCALLS
-  LISPOBJ(posix_package,".")
-#endif
