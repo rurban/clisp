@@ -1,6 +1,6 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host honolulu as the output of the command:
+# This file was created on host david as the output of the command:
 # ./makemake acorn gcc
 
 # -------------- Start of configurable section --------------------
@@ -412,6 +412,7 @@ lisp.foreign1 \
 lisp.defs3 \
 lisp.clhs \
 lisp.inspect \
+lisp.gray \
 lisp.german \
 lisp.french \
 lisp.spanish \
@@ -459,6 +460,7 @@ fas.foreign1 \
 fas.defs3 \
 fas.clhs \
 fas.inspect \
+fas.gray \
 fas.german \
 fas.french \
 fas.spanish \
@@ -511,6 +513,7 @@ stage.lisp.foreign1 \
 stage.lisp.defs3 \
 stage.lisp.clhs \
 stage.lisp.inspect \
+stage.lisp.gray \
 stage.lisp.german \
 stage.lisp.french \
 stage.lisp.spanish \
@@ -558,6 +561,7 @@ stage.fas.foreign1 \
 stage.fas.defs3 \
 stage.fas.clhs \
 stage.fas.inspect \
+stage.fas.gray \
 stage.fas.german \
 stage.fas.french \
 stage.fas.spanish \
@@ -1774,6 +1778,9 @@ fas.clhs : lisp.clhs lisp mem.interpre
 fas.inspect : lisp.inspect lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c inspect.lisp
 
+fas.gray : lisp.gray lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c gray.lisp
+
 fas.german : lisp.german lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c german.lisp
 
@@ -1934,6 +1941,9 @@ stage.lisp.clhs : lisp.clhs
 stage.lisp.inspect : lisp.inspect
 	$(LN_S) lisp.inspect stage
 
+stage.lisp.gray : lisp.gray
+	$(LN_S) lisp.gray stage
+
 stage.lisp.german : lisp.german
 	$(LN_S) lisp.german stage
 
@@ -2068,6 +2078,9 @@ stage.fas.clhs : stage.lisp.clhs lisp mem.lispinit
 
 stage.fas.inspect : stage.lisp.inspect lisp mem.lispinit
 	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.inspect.lisp
+
+stage.fas.gray : stage.lisp.gray lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.gray.lisp
 
 stage.fas.german : stage.lisp.german lisp mem.lispinit
 	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.german.lisp

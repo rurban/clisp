@@ -1,6 +1,6 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host honolulu as the output of the command:
+# This file was created on host david as the output of the command:
 # ./makemake os2 gcc
 
 # -------------- Start of configurable section --------------------
@@ -409,6 +409,7 @@ foreign1.lisp \
 defs3.lisp \
 clhs.lisp \
 inspect.lisp \
+gray.lisp \
 german.lisp \
 french.lisp \
 spanish.lisp \
@@ -456,6 +457,7 @@ foreign1.fas \
 defs3.fas \
 clhs.fas \
 inspect.fas \
+gray.fas \
 german.fas \
 french.fas \
 spanish.fas \
@@ -508,6 +510,7 @@ stage\foreign1.lisp \
 stage\defs3.lisp \
 stage\clhs.lisp \
 stage\inspect.lisp \
+stage\gray.lisp \
 stage\german.lisp \
 stage\french.lisp \
 stage\spanish.lisp \
@@ -555,6 +558,7 @@ stage\foreign1.fas \
 stage\defs3.fas \
 stage\clhs.fas \
 stage\inspect.fas \
+stage\gray.fas \
 stage\german.fas \
 stage\french.fas \
 stage\spanish.fas \
@@ -1340,6 +1344,9 @@ clhs.fas : clhs.lisp lisp.exe interpreted.mem
 inspect.fas : inspect.lisp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c inspect.lisp
 
+gray.fas : gray.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c gray.lisp
+
 german.fas : german.lisp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c german.lisp
 
@@ -1500,6 +1507,9 @@ stage\clhs.lisp : clhs.lisp
 stage\inspect.lisp : inspect.lisp
 	$(LN_S) inspect.lisp stage
 
+stage\gray.lisp : gray.lisp
+	$(LN_S) gray.lisp stage
+
 stage\german.lisp : german.lisp
 	$(LN_S) german.lisp stage
 
@@ -1634,6 +1644,9 @@ stage\clhs.fas : stage\clhs.lisp lisp.exe lispinit.mem
 
 stage\inspect.fas : stage\inspect.lisp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/inspect.lisp
+
+stage\gray.fas : stage\gray.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/gray.lisp
 
 stage\german.fas : stage\german.lisp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/german.lisp
