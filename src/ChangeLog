@@ -83,6 +83,15 @@
         * compiler.lsp (compile-file): in ANSI CL, compile-file is
           required to return 3 values.
 
+1998-06-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Since keywordp is not called in funcall/apply/interpret_bytecode any
+        more, it doesn't need to occupy a bit in the symbol flags.
+        * lispbibl.d (keyword_bit_t, keyword_bit_f, keyword_bit_hf): Remove.
+          (keywordp): Rewrite.
+        * spvw.d (case_symbolwithflags): Remove cases with keyword_bit.
+        * package.d (make_present): Don't set keyword_bit.
+
 1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d: Define NO_TYPECODES by default for 32-bit machines.

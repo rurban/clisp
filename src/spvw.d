@@ -2771,10 +2771,8 @@ typedef struct { Pages pages;
   #define case_symbolwithflags  \
     case symbol_type:                                        \
     case symbol_type|bit(constant_bit_t):                    \
-    case symbol_type|bit(keyword_bit_t)|bit(constant_bit_t): \
     case symbol_type|bit(special_bit_t):                     \
-    case symbol_type|bit(special_bit_t)|bit(constant_bit_t): \
-    case symbol_type|bit(special_bit_t)|bit(keyword_bit_t)|bit(constant_bit_t)
+    case symbol_type|bit(special_bit_t)|bit(constant_bit_t)
 
 #endif
 
