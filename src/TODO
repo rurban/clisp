@@ -7,11 +7,12 @@ Should handle these soon.
 
 
 Documentation:
-- Mention ANSI CL in impnotes.
 - Mention app delivery with concatenated fas files, and with mem files.
   Refer to copyright notice.
-- Document Gray streams.
 - Impnotes section command-line: refer to clisp.html.
+
+
+Better error checking in get-setf-expansion for long defsetf
 
 
 for Emacs: GC root macro, YETANOTHER macro
