@@ -1816,31 +1816,58 @@ int main(int argc, char* argv[])
   printf("extern object memq (const object obj, const object lis);\n");
   printf("typedef enum { condition=%d, serious_condition=%d, error=%d, program_error=%d, source_program_error=%d, control_error=%d, arithmetic_error=%d, division_by_zero=%d, floating_point_overflow=%d, floating_point_underflow=%d, cell_error=%d, unbound_variable=%d, undefined_function=%d, unbound_slot=%d, type_error=%d, keyword_error=%d, charset_type_error=%d, package_error=%d, print_not_readable=%d, parse_error=%d, stream_error=%d, end_of_file=%d, reader_error=%d, file_error=%d, os_error=%d, storage_condition=%d, interrupt_condition=%d, warning=%d } condition_t;\n",condition, serious_condition, error, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, os_error, storage_condition, interrupt_condition, warning);
   printf("nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));\n");
+  printf("extern void check_value (condition_t errortype, const char * errorstring);\n");
   printf("nonreturning_function(extern, OS_error, (void));\n");
   printf("nonreturning_function(extern, OS_file_error, (object pathname));\n");
   printf("nonreturning_function(extern, OS_filestream_error, (object stream));\n");
+ #ifdef FOREIGN
+  printf("extern object check_fpointer_replacement (object obj, bool restart_p);\n");
+  printf("static inline object check_fpointer (object obj, bool restart_p) {"
+          " if (!(fpointerp(obj) && fp_validp(TheFpointer(obj))))"
+            " obj = check_fpointer_replacement(obj,restart_p);"
+          " return obj;"
+        " }\n");
+ #endif
 #if notused
   printf("nonreturning_function(extern, fehler_list, (object obj));\n");
+  printf("extern object check_list_replacement (object obj);\n");
+  printf("static inline object check_list (object obj) {"
+          " if (!listp(obj))"
+            " obj = check_list_replacement(obj);"
+          " return obj;"
+        " }\n");
+#endif
+  printf("nonreturning_function(extern, fehler_proper_list, (object caller, object obj));\n");
+#if notused
   printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");
   printf("nonreturning_function(extern, fehler_vector, (object obj));\n");
+#endif
+  printf("extern object check_posfixnum_replacement (object obj);\n");
+  printf("static inline object check_posfixnum (object obj) {"
+          " if (!posfixnump(obj))"
+            " obj = check_posfixnum_replacement(obj);"
+          " return obj;"
+        " }\n");
+#if notused
   printf("extern object check_char_replacement (object obj);\n");
   printf("static inline object check_char (object obj) {"
           " if (!charp(obj))"
             " obj = check_char_replacement(obj);"
           " return obj;"
         " }\n");
+#endif
+  printf("extern object check_string_replacement (object obj);\n");
+  printf("static inline object check_string (object obj) {"
+          " if (!stringp(obj))"
+            " obj = check_string_replacement(obj);"
+          " return obj;"
+        " }\n");
+#if notused
   printf("nonreturning_function(extern, fehler_sstring, (object obj));\n");
 #endif
   printf("nonreturning_function(extern, fehler_string_integer, (object obj));\n");
-  printf("nonreturning_function(extern, fehler_proper_list, (object caller, object obj));\n");
   printf("nonreturning_function(extern, fehler_key_odd, (uintC argcount, object caller));\n");
   printf("nonreturning_function(extern, fehler_key_badkw, (object fun, object key, object val, object kwlist));\n");
-  printf("extern void check_value (condition_t errortype, const char * errorstring);\n");
-  printf("extern object check_posfixnum_replacement (object obj);\n");
-  printf("extern object check_string_replacement (object obj);\n");
- #ifdef FOREIGN
-  printf("extern object check_fpointer_replacement (object obj, bool restart_p);\n");
- #endif
   printf("extern object check_uint8_replacement (object obj);\n");
   printf("static inline object check_uint8 (object obj) {"
           " if (!uint8_p(obj))"
