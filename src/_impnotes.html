@@ -165,6 +165,7 @@ details.
    <li><a href="#image">Saving an Image</a>
    <li><a href="#quit">Quitting Lisp</a>
    <li><a href="#language">The Language</a>
+   <li><a href="#encoding">Encodings</a>
    <li><a href="#weak">Weak Pointers</a>
    <li><a href="#final">Finalization</a>
    <li><a href="#prompt">The Prompt</a>
@@ -2106,6 +2107,11 @@ The characters are ordered according to their Unicode code.
 <h3><a href="CLHSROOT/Body/sec_13-1-8.html">
     13.1.8 Treatment of Newline during Input and Output</a></h3>
 
+Newlines are written according to the stream's encoding, see the function
+<a href="CLHSROOT/Body/fun_stream-external-format.html"><code>stream-external-format</code></a>
+and the description of <a href="#encoding">encodings</a>. The default
+behaviour is as follows:
+
 <!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
 <DL>
 <DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM>
@@ -2130,7 +2136,7 @@ is the same as the character's code.
 <h3><a href="CLHSROOT/Body/sec_13-1-10.html">
     13.1.10 Character Encodings</a></h3>
 
-<!-- TODO Lots of stuff to be added here -->
+See the description of <a href="#encoding">encodings</a>.
 
 <h3><a href="CLHSROOT/Body/sec_the_chara_s_dictionary.html">
     13.2. The Characters Dictionary</a></h3>
@@ -3492,9 +3498,13 @@ This keyboard input is not echoed on the screen.  During execution of a
        <code>(lisp:with-output-to-printer (<var>var</var> [:external-format])
          {<var>declaration</var>}* {<var>form</var>}*)</code>
 binds the variable <var>var</var> to an output stream that sends its
-output to the printer. Possible <code>:external-format</code> values are
-encodings and the line terminator keywords <code>:unix</code>,
-<code>:mac</code>, <code>:dos</code>.
+output to the printer.
+<br>Possible <code>:external-format</code> values are encodings,
+(constant) symbols in the <code>CHARSET</code> package, strings
+(denoting iconv() based encodings), the symbol <code>:default</code>,
+and the line terminator keywords <code>:unix</code>, <code>:mac</code>,
+<code>:dos</code>.
+
 <!-- #ifdef PIPES -->
 
 <P><DL>
@@ -3510,8 +3520,10 @@ operating system command.
 <code>(signed-byte <var>n</var>)</code>; if the stream is to be
 unbuffered, <var>n</var> must be a multiple of 8.
 
-<br>Possible <code>:external-format</code> values are encodings and the
-line terminator keywords <code>:unix</code>, <code>:mac</code>,
+<br>Possible <code>:external-format</code> values are encodings,
+(constant) symbols in the <code>CHARSET</code> package, strings
+(denoting iconv() based encodings), the symbol <code>:default</code>,
+and the line terminator keywords <code>:unix</code>, <code>:mac</code>,
 <code>:dos</code>.
 
 <br>Possible <code>:buffered</code> values are <code>nil</code>,
@@ -3530,8 +3542,10 @@ operating system command.
 <code>(signed-byte <var>n</var>)</code>; if the stream is to be
 unbuffered, <var>n</var> must be a multiple of 8.
 
-<br>Possible <code>:external-format</code> values are encodings and the
-line terminator keywords <code>:unix</code>, <code>:mac</code>,
+<br>Possible <code>:external-format</code> values are encodings,
+(constant) symbols in the <code>CHARSET</code> package, strings
+(denoting iconv() based encodings), the symbol <code>:default</code>,
+and the line terminator keywords <code>:unix</code>, <code>:mac</code>,
 <code>:dos</code>.
 
 <br>Possible <code>:buffered</code> values are <code>nil</code>,
@@ -3555,8 +3569,10 @@ must be closed individually.
 <code>(signed-byte <var>n</var>)</code>; if the stream is to be
 unbuffered, <var>n</var> must be a multiple of 8.
 
-<br>Possible <code>:external-format</code> values are encodings and the
-line terminator keywords <code>:unix</code>, <code>:mac</code>,
+<br>Possible <code>:external-format</code> values are encodings,
+(constant) symbols in the <code>CHARSET</code> package, strings
+(denoting iconv() based encodings), the symbol <code>:default</code>,
+and the line terminator keywords <code>:unix</code>, <code>:mac</code>,
 <code>:dos</code>.
 
 <BR>Possible <code>:buffered</code> values are <code>nil</code>,
@@ -3713,9 +3729,11 @@ if both the old and the new element type are either
 <p><code>open</code> cannot handle files of size &gt;= 4 GB.
 
 <p>Possible values for the <code>:external-format</code> argument of the
-function <code>open</code> are: encodings, the line terminator keywords
-<code>:unix</code>, <code>:mac</code>, <code>:dos</code>, and
-<code>:default</code>.
+function <code>open</code> are: encodings,
+(constant) symbols in the <code>CHARSET</code> package, strings
+(denoting iconv() based encodings), the symbol <code>:default</code>,
+and the line terminator keywords <code>:unix</code>, <code>:mac</code>,
+<code>:dos</code>.
 
 <p><code>open</code> has an additional keyword argument
 <code>:buffered</code>. It determines whether the file stream returned
@@ -3724,13 +3742,6 @@ is buffered or not. Possible values for it are <code>nil</code>,
 <code>:default</code>, buffered file streams will be returned for
 regular files and (on Unix) block-devices, and unbuffered file streams
 for special files.
-
-<p>The function <code>(<STRONG>lisp:make-encoding</STRONG> [:charset]
-[:line-terminator])</code> returns an encoding.  The
-<code>:charset</code> argument may be an encoding, or
-<code>:default</code>. Possible values for the
-<code>:line-terminator</code> argument are the keywords
-<code>:unix</code>, <code>:mac</code>, <code>:dos</code>.
 
 <h4><a href="CLHSROOT/Body/syscla_broadcast-stream.html">
     broadcast-stream</a></h4>
@@ -5363,7 +5374,304 @@ the localized value through the function call
   [<var>language</var>])</code>.
 
 
-<H3><a name="weak">Extensions-1.4. Weak Pointers</a></H3>
+<H3><a name="encoding">Extensions-1.4. Encodings</a></H3>
+
+<p>An <em>encoding</em> describes the correspondence between characters and
+raw bytes during input/output via streams with element-type
+<a href="CLHSROOT/Body/syscla_character.html"><code>character</code></a>.
+
+<p>An encoding is an object composed of the following facets:
+<ul>
+  <li>A <em>character set</em>. This denotes both the set of characters that
+      can be represented and passed through the I/O channel, and the way these
+      characters translate into raw bytes. In this context, for example,
+      "UTF-8" and "UCS-4" are considered different, although they can represent
+      the same set of characters.
+  <li>A <em>line terminator mode</em>. This denotes the way newline characters
+      are represented.
+</ul>
+
+<DL>
+<!-- #ifndef UNICODE -->
+<DT><EM>Platform dependent: Only in clisp binaries built without
+        compile-time flag <code>UNICODE</code>.</EM>
+<DD>
+Only one character set is understood: the platform's native (8-bit) character
+set. See <a href="#characters">chapter 13</a>.
+<!-- #else -->
+<DT><EM>Platform dependent: Only in clisp binaries built with
+        compile-time flag <code>UNICODE</code>.</EM>
+<DD>
+The following character sets are supported, as values of the corresponding
+(constant) symbol in the <code>CHARSET</code> package.
+<ul>
+  <li><code>UCS-2</code> = <code>UNICODE-16</code>
+      = <code>UNICODE-16-BIG-ENDIAN</code>,
+      the 16-bit Unicode character set. Every character is represented as
+      two bytes.
+  <li><code>UNICODE-16-LITTLE-ENDIAN</code>
+  <li><code>UCS-4</code> = <code>UNICODE-32</code>
+      = <code>UNICODE-32-BIG-ENDIAN</code>,
+      the 32-bit Unicode character set. Every character is represented as
+      four bytes. Note that clisp understands only those characters which
+      are already contained in the 16-bit Unicode character set.
+  <li><code>UNICODE-32-LITTLE-ENDIAN</code>
+  <li><code>UTF-8</code>,
+      the 16-bit Unicode character set. Every character is represented as
+      one to three bytes. ASCII characters represent themselves and need
+      one byte per character. Most Latin/Greek/Cyrillic/Hebrew characters
+      need two bytes per character, and the remaining characters need three
+      bytes per character. This is therefore, in general, the most
+      space-efficient encoding of all of Unicode-16.
+  <li><code>JAVA</code>,
+      the 16-bit Unicode character set. ASCII characters represent themselves
+      and need one byte per character. All other characters are represented
+      by \u<var>nnnn</var> sequences (<var>nnnn</var> a hexadecimal number)
+      and need 6 bytes per character. While this encoding is very comfortable
+      for editing Unicode files using only ASCII aware tools and editors, it
+      cannot faithfully represent all Unicode text. Only text which does not
+      contain \u (backslash followed by lowercase Latin u) can be faithfully
+      represented by this encoding.
+  <li><code>ASCII</code>,
+      the well-known US centric 7-bit character set.
+  <li><code>ISO-8859-1</code>,
+      an extension of the ASCII character set, suitable for the languages
+      Albanian, Catalan, Danish, Dutch, English, Faeroese, Finnish, French,
+      Galician, German, Icelandic, Irish, Italian, Norwegian, Portuguese,
+      Spanish, Swedish.
+  <li><code>ISO-8859-2</code>,
+      an extension of the ASCII character set, suitable for the languages
+      Czech, German, Hungarian, Polish, Rumanian, Croatian, Slovak, Slovene.
+  <li><code>ISO-8859-3</code>,
+      an extension of the ASCII character set, suitable for the languages
+      Esperanto, Galician, Maltese, Turkish.
+  <li><code>ISO-8859-4</code>,
+      an extension of the ASCII character set, suitable for the languages
+      Estonian, Latvian, Lithuanian.
+  <li><code>ISO-8859-5</code>,
+      an extension of the ASCII character set, suitable for the language
+      Russian.
+  <li><code>ISO-8859-6</code>,
+      suitable for the language Arabic.
+  <li><code>ISO-8859-7</code>,
+      an extension of the ASCII character set, suitable for the language
+      Greek.
+  <li><code>ISO-8859-8</code>,
+      an extension of the ASCII character set, suitable for the language
+      Hebrew (without punctuation).
+  <li><code>ISO-8859-9</code>,
+      an extension of the ASCII character set, suitable for the ISO-8859-1
+      languages, plus Turkish.
+  <li><code>ISO-8859-14</code>,
+      an extension of the ASCII character set, suitable for the languages
+      Inuit (Greenlandic), Sami (Lappish). (??)
+  <li><code>ISO-8859-15</code>,
+      an extension of the ASCII character set, suitable for the ISO-8859-1
+      languages, with improvements for French and the Euro.
+  <li><code>KOI8-R</code>,
+      an extension of the ASCII character set,
+      a popular character set for the language Russian.
+  <li><code>MAC-ARABIC</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>MAC-CENTRAL-EUROPE</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>MAC-CROATIAN</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>MAC-CYRILLIC</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>MAC-DINGBAT</code>,
+      a platform specific character set.
+  <li><code>MAC-GREEK</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>MAC-HEBREW</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>MAC-ICELAND</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>MAC-ROMAN</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>MAC-ROMANIA</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>MAC-SYMBOL</code>,
+      a platform specific character set.
+  <li><code>MAC-THAI</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>MAC-TURKISH</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>MAC-UKRAINE</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>CP437</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set.
+  <li><code>CP437-IBM</code>, an IBM variant of <code>CP437</code>.
+  <li><code>CP737</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set,
+      meant to be suitable for the language Greek.
+  <li><code>CP775</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set,
+      meant to be suitable for some Baltic languages.
+  <li><code>CP850</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set.
+  <li><code>CP852</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set.
+  <li><code>CP852-IBM</code>, an IBM variant of <code>CP852</code>.
+  <li><code>CP855</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set,
+      meant to be suitable for the language Russian.
+  <li><code>CP857</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set,
+      meant to be suitable for the language Turkish.
+  <li><code>CP860</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set,
+      meant to be suitable for the language Portuguese.
+  <li><code>CP860-IBM</code>, an IBM variant of <code>CP860</code>.
+  <li><code>CP861</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set,
+      meant to be suitable for the language Icelandic.
+  <li><code>CP861-IBM</code>, an IBM variant of <code>CP861</code>.
+  <li><code>CP862</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set,
+      meant to be suitable for the language Hebrew.
+  <li><code>CP862-IBM</code>, an IBM variant of <code>CP862</code>.
+  <li><code>CP863</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set.
+  <li><code>CP863-IBM</code>, an IBM variant of <code>CP863</code>.
+  <li><code>CP864</code>, a DOS oldie,
+      meant to be suitable for the language Arabic.
+  <li><code>CP864-IBM</code>, an IBM variant of <code>CP864</code>.
+  <li><code>CP865</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set,
+      meant to be suitable for some nordic languages.
+  <li><code>CP865-IBM</code>, an IBM variant of <code>CP865</code>.
+  <li><code>CP866</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set,
+      meant to be suitable for the language Russian.
+  <li><code>CP869</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set,
+      meant to be suitable for the language Greek.
+  <li><code>CP869-IBM</code>, an IBM variant of <code>CP869</code>.
+  <li><code>CP874</code>, a DOS oldie,
+      a platform specific extension of the ASCII character set,
+      meant to be suitable for the language Thai.
+  <li><code>CP874-IBM</code>, an IBM variant of <code>CP874</code>.
+  <li><code>WINDOWS-1250</code> = <code>CP1250</code>,
+      a platform specific extension of the ASCII character set,
+      heavily incompatible with ISO-8859-2.
+  <li><code>WINDOWS-1251</code> = <code>CP1251</code>,
+      a platform specific extension of the ASCII character set,
+      heavily incompatible with ISO-8859-5,
+      meant to be suitable for the language Russian.
+  <li><code>WINDOWS-1252</code> = <code>CP1252</code>,
+      a platform specific extension of the ISO-8859-1 character set.
+  <li><code>WINDOWS-1253</code> = <code>CP1253</code>,
+      a platform specific extension of the ASCII character set,
+      gratuitously incompatible with ISO-8859-7,
+      meant to be suitable for the language Greek.
+  <li><code>WINDOWS-1254</code> = <code>CP1254</code>,
+      a platform specific extension of the ISO-8859-9 character set.
+  <li><code>WINDOWS-1255</code> = <code>CP1255</code>,
+      a platform specific extension of the ASCII character set,
+      gratuitously incompatible with ISO-8859-8,
+      meant to be suitable for the language Hebrew.
+  <li><code>WINDOWS-1256</code> = <code>CP1256</code>,
+      a platform specific extension of the ASCII character set,
+      meant to be suitable for the language Arabic.
+  <li><code>WINDOWS-1257</code> = <code>CP1257</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>WINDOWS-1258</code> = <code>CP1258</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>HP-ROMAN8</code>,
+      a platform specific extension of the ASCII character set.
+  <li><code>NEXTSTEP</code>,
+      a platform specific extension of the ASCII character set.
+</ul>  
+
+<p>
+<!-- #ifdef HAVE_ICONV -->
+<DL>
+<DT><EM>Platform dependent: Only on Unix systems having the C library
+        function iconv().</EM>
+<DD>
+The character sets provided by the library function iconv() can also
+be used as encodings. To create such an encoding, call
+<code>make-encoding</code> with the character set name (a string) as
+<code>:charset</code> argument.
+<p>These encodings are not assigned to global variables, since there
+is no portable way to get the list of all character sets supported
+by iconv(). On Linux and GNU systems, you get this list by calling
+the <em>program</em> iconv: <code>iconv --list</code>. GNU glibc-2.1
+supports in particular, among others:
+<ul>
+  <li><code>EUC-JP</code> and <code>SHIFT-JIS</code>, for the Japanese language,
+  <li><code>EUC-TW</code>, <code>BIG5</code> and <code>GB</code>, for the
+      Chinese language,
+  <li><code>EUC-KR</code> and <code>ISO-2022-KR</code>, for the Korean language.
+</ul>
+<p>When an encoding is available as a built-in (see the list above) and
+through iconv(), the built-in is preferred, because it is more efficient
+and available across platforms.
+</DL>
+<!-- #endif /* HAVE_ICONV */ -->
+
+<!-- #endif /* UNICODE */ -->
+</DL>
+
+<p>The line terminator mode can be one of the following three keywords:
+<ul>
+  <li><code>:unix</code>.<br> Newline is represented by the ASCII LF character
+      (U000A).
+  <li><code>:mac</code>.<br> Newline is represented by the ASCII CR character
+      (U000D).
+  <li><code>:dos</code>.<br> Newline is represented by ASCII CR followed by
+      ASCII LF.
+</ul>
+Windows programs typically use the <code>:dos</code> line terminator,
+sometimes they also accept <code>:unix</code> line terminators or produce
+<code>:mac</code> line terminators.
+
+<p>The line terminator mode is relevant only for output (writing to a file,
+pipe or socket). During input, all three kinds of line terminators are
+recognized. If you don't want this, i.e. if you really want to distinguish
+LF, CR and CR/LF, you have to resort to binary input (function
+<a href="CLHSROOT/Body/fun_read-byte.html"><code>read-byte</code></a>).
+
+<p>The function <code>(<STRONG>lisp:make-encoding</STRONG> [:charset]
+[:line-terminator])</code> returns an encoding. The
+<code>:charset</code> argument may be an encoding, a string, or
+<code>:default</code>. The possible values for the
+<code>:line-terminator</code> argument are the keywords
+<code>:unix</code>, <code>:mac</code>, <code>:dos</code>.
+
+<p>Encodings are types. As such, they represent the set of characters
+encodable in the character set. In this context, the way characters are
+translated into raw bytes is ignored, and the line terminator mode is
+ignored as well. <a href="CLHSROOT/Body/fun_typep.html"><code>typep</code></a>
+and <a href="CLHSROOT/Body/fun_subtypep.html"><code>subtypep</code></a> can
+be used on encodings.
+
+<p>Besides every file/pipe/socket stream containing an encoding, the following
+symbol-macro places contain global encodings.
+
+<p><strong><code>*default-file-encoding*</code></strong> is the encoding
+used for new file/pipe/socket streams, when no <code>:external-format</code>
+argument was specified.
+
+<!-- #ifdef UNICODE -->
+<DL>
+<DT><EM>Platform dependent: Only in clisp binaries built with
+        compile-time flag <code>UNICODE</code>.</EM>
+<DD>
+<p><strong><code>*pathname-encoding*</code></strong> is the encoding used
+for pathnames in the file system. Normally, this is a 1:1 encoding. Its
+line terminator mode is ignored.
+<p><strong><code>*terminal-encoding*</code></strong> is the encoding used
+for communication with the terminal, in particular by *terminal-io*.
+<p><strong><code>*misc-encoding*</code></strong> is the encoding used for
+access to environment variables, command line options, and the like. Its
+line terminator mode is ignored.
+</DL>
+<!-- #endif -->
+
+
+<H3><a name="weak">Extensions-1.5. Weak Pointers</a></H3>
 
 <p>A weak pointer is an object holding a reference to a given object,
 without keeping the latter from being garbage-collected.
@@ -5380,7 +5688,7 @@ returns true if the <var>object</var> is of type
 and <code>t</code>, if the value has not yet been garbage collected,
 else <code>nil</code> and <code>nil</code>.
 
-<H3><a name="final">Extensions-1.5. Finalization</a></H3>
+<H3><a name="final">Extensions-1.6. Finalization</a></H3>
 
 <p>Calling <code>(<STRONG>finalize</STRONG> <var>object</var>
 <var>function</var>)</code> has the effect that when the specified
@@ -5405,7 +5713,7 @@ again.
 
 <P>No finalization request will be executed more than once.
 
-<H3><a name="prompt">Extensions-1.6. The Prompt</a></H3>
+<H3><a name="prompt">Extensions-1.7. The Prompt</a></H3>
 
 <p>The variable <code>sys::*prompt*</code> controls the appearance of
 the prompt.  When its value is a function, it is called and it's value
@@ -6322,6 +6630,18 @@ via pointers) is only possible to the extent the C compiler supports
 it. Most C compilers do it right, but some C compilers (such as gcc on
 hppa) have problems with this.
 
+<!-- #ifdef UNICODE -->
+<DL>
+<DT><EM>Platform dependent: Only in clisp binaries built with
+        compile-time flag <code>UNICODE</code>.</EM>
+<DD>
+A symbol-macro place <strong><code>*foreign-encoding*</code></strong> contains
+the encoding for characters and strings passed through the FFI. Its value
+must be a 1:1 encoding, i.e. an encoding in which every character is
+represented by one byte.
+</DL>
+<!-- #endif -->
+
 <H4>Examples</H4>
 
 Ex. 1: The C declaration
@@ -6727,6 +7047,18 @@ array at a constant address longer than the dynamic extent of the call
 <code>integer</code> and <code>foreign-pointer</code> are always
 acceptable where a <code>string</code> or <code>:io</code> type is
 specified.
+
+<!-- #ifdef UNICODE -->
+<DL>
+<DT><EM>Platform dependent: Only in clisp binaries built with
+        compile-time flag <code>UNICODE</code>.</EM>
+<DD>
+A symbol-macro place <strong><code>*foreign-encoding*</code></strong> contains
+the encoding for characters and strings passed through the FFI. Its value
+must be a 1:1 encoding, i.e. an encoding in which every character is
+represented by one byte.
+</DL>
+<!-- #endif -->
 
 <P>To meet the design goals, predefined types and objects were used. As
 such, pointers were represented as integers. Now that there is the
