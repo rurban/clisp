@@ -95,9 +95,10 @@ global object allocate_vector (uintL len) {
 
 # allocate and init the weak kvtable
 # > len:    the length of the data vector
+# > type:   ???
 # < result: a fresh weak key-value table
 # can trigger GC
-local inline object allocate_weakkvt_low (uintL len, gcv_object_t type) {
+local inline object allocate_weakkvt_low (uintL len, object type) {
   var uintL need = size_svector(len+weakkvt_non_data);
  #ifdef TYPECODES
   #define SETTFL  ptr->length = len+weakkvt_non_data
@@ -115,7 +116,7 @@ local inline object allocate_weakkvt_low (uintL len, gcv_object_t type) {
   });
  #undef SETTFL
 }
-global object allocate_weakkvt (uintL len, gcv_object_t type) {
+global object allocate_weakkvt (uintL len, object type) {
   return O(all_weakkvtables) = allocate_weakkvt_low(len,type);
 }
 
