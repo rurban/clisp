@@ -1,3 +1,8 @@
+1999-02-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d (init_streamvars): Initialize the keyboard stream after
+          the standard streams, not before them.
+
 1999-02-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * autoconf/aclocal.m4 (CL_IREG_FLOAT_RETURN): New macro.

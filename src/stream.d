@@ -14279,17 +14279,6 @@ LISPFUNN(socket_stream_handle,1)
   global void init_streamvars(unixyp)
     var boolean unixyp;
     {
-     #ifdef KEYBOARD
-      #if defined(UNIX) || defined(RISCOS)
-       # Building the keyboard stream is a costly operation. Delay it
-       # until we really need it.
-       define_variable(S(keyboard_input),NIL);     # *KEYBOARD-INPUT*
-      #else
-       {var object stream = make_keyboard_stream();
-        define_variable(S(keyboard_input),stream); # *KEYBOARD-INPUT*
-       }
-      #endif
-     #endif
      #ifdef GNU_READLINE
      begin_call();
      rl_readline_name = "Clisp";
@@ -14326,7 +14315,22 @@ LISPFUNN(socket_stream_handle,1)
         }}
       #endif
       define_variable(S(error_output),stream);     # *ERROR-OUTPUT*
-    }}
+     }
+     #ifdef KEYBOARD
+      # Initialize the *KEYBOARD-INPUT* stream. This can fail in some cases,
+      # therefore we do it after the standard streams are in place, so that
+      # the user will get a reasonable error message.
+      #if defined(UNIX) || defined(RISCOS)
+       # Building the keyboard stream is a costly operation. Delay it
+       # until we really need it.
+       define_variable(S(keyboard_input),NIL);     # *KEYBOARD-INPUT*
+      #else
+       {var object stream = make_keyboard_stream();
+        define_variable(S(keyboard_input),stream); # *KEYBOARD-INPUT*
+       }
+      #endif
+     #endif
+    }
 
 # Liefert Fehlermeldung, wenn der Wert des Symbols sym kein Stream ist.
   local void fehler_value_stream(sym)
