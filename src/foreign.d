@@ -2104,12 +2104,21 @@ LISPFUNN(lookup_foreign_variable,2)
     value1 = fvar; mv_count=1;
   }
 
-# (FFI::FOREIGN-ADDRESS-VALUE foreign-address)
-# returns the value of the foreign address
-LISPFUNN(foreign_address_value,1) {
+# (FFI:UNSIGNED-FOREIGN-ADDRESS integer)
+# makes a FOREIGN-ADDRESS object out of an unsigned integer
+LISPFUNN(unsigned_foreign_address,1) {
+  value1 = make_faddress(O(fp_zero),I_to_UL(popSTACK()));
+  mv_count = 1;
+}
+
+# (FFI::FOREIGN-ADDRESS-UNSIGNED foreign-address)
+# returns the unsigned integer value of the FOREIGN-ADDRESS
+LISPFUNN(foreign_address_unsigned,1) {
   var object arg = popSTACK();
+  # arg --> address
   if (fvariablep(arg)) arg = TheFvariable(arg)->fv_address;
   else if (ffunctionp(arg)) arg = TheFfunction(arg)->ff_address;
+  # address --> integer
   if (faddressp(arg)) value1 = UL_to_I((uintP)Faddress_value(arg));
   else if (fpointerp(arg)) value1 = UL_to_I((uintP)Fpointer_value(arg));
   else {
