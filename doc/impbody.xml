@@ -4705,6 +4705,47 @@ functions are provided:</para>
 </variablelist>
 
 </section>
+
+<section><title>&read-byte;</title>
+
+<variablelist>
+ <varlistentry><term><literal
+    role="sexp">(<function>lisp:read-byte-lookahead</function>
+                 <replaceable>stream</replaceable>)</literal></term>
+  <listitem><simpara>To be called only if
+   <replaceable>stream</replaceable>'s element-type is
+   <literal role="sexp">(unsigned-byte 8)</literal> or
+   <literal role="sexp">(signed-byte 8)</literal>. Returns &t; if
+   &read-byte; would return immediately with an integer result.
+   Returns &eof-k; if the &eos; is already known to be reached.
+   If &read-byte;'s value is not available immediately, returns &nil;
+   instead of waiting.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+  role="sexp">(<function>lisp:read-byte-will-hang-p</function>
+              <replaceable>stream</replaceable>)</literal></term>
+  <listitem><simpara>To be called only if
+   <replaceable>stream</replaceable>'s element-type is
+   <literal role="sexp">(unsigned-byte 8)</literal> or
+   <literal role="sexp">(signed-byte 8)</literal>. Returns &nil; if
+   &read-byte; will return immediately. Otherwise it returns true.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+    role="sexp">(<function>lisp:read-byte-no-hang</function>
+                 <replaceable>stream</replaceable> &optional-amp;
+                 <replaceable>eof-error-p</replaceable>
+                 <replaceable>eof-value</replaceable>)</literal></term>
+  <listitem><simpara>To be called only if
+   <replaceable>stream</replaceable>'s element-type is
+   <literal role="sexp">(unsigned-byte 8)</literal> or
+   <literal role="sexp">(signed-byte 8)</literal>. Returns an integer or
+   does &eos; handling, like &read-byte;, if that would return immediately.
+   If &read-byte;'s value is not available immediately, returns &nil;
+   instead of waiting.
+   </simpara></listitem></varlistentry>
+</variablelist>
+
+</section>
 </chapter>
 
 
