@@ -190,13 +190,13 @@ DEFUN(BDB:DBE-CREATE,&key :PASSWORD :ENCRYPT    \
   DB_ENV *dbe, *dbe_cl;
   bool remote_p = boundp(STACK_2); /* host ==> remote */
   int status, cl_timeout = 0, sv_timeout = 0;
- #if defined(DB_RPCCLIENT)      /* 4.2 and later */
+# if defined(DB_RPCCLIENT)      /* 4.2 and later */
   SYSCALL(db_env_create,(&dbe,remote_p ? DB_RPCCLIENT : 0));
- #elif defined(DB_CLIENT)       /* 4.1 and before */
+# elif defined(DB_CLIENT)       /* 4.1 and before */
   SYSCALL(db_env_create,(&dbe,remote_p ? DB_CLIENT : 0));
- #else
-  #error "how does your Berkeley DB create a remote client?"
- #endif
+# else
+#  error "how does your Berkeley DB create a remote client?"
+# endif
   if (remote_p) {
     if (posfixnump(STACK_0)) sv_timeout = posfixnum_to_L(STACK_0);
     if (posfixnump(STACK_1)) cl_timeout = posfixnum_to_L(STACK_1);
@@ -234,11 +234,19 @@ DEFUN(BDB:DBE-CREATE,&key :PASSWORD :ENCRYPT    \
   wrap_finalize(dbe,NIL,`BDB::MKDBE`,``BDB::DBE-CLOSE``);
 }
 
+#define CLOSE_ERRFILE(o)     do {                               \
+    FILE *errfile;                                              \
+    begin_system_call(); o->get_errfile(o,&errfile);            \
+    if (errfile && (errfile != stdout) && (errfile != stderr))  \
+      fclose(errfile);                                          \
+    end_system_call();                                          \
+  } while(0)
 DEFUN(BDB:DBE-CLOSE, dbe)
 { /* close DB environment */
   DB_ENV *dbe = bdb_handle(STACK_0,`BDB::DBE`,BH_INVALIDATE);
   if (dbe) {
     funcall(`BDB::KILL-HANDLE`,1);
+    CLOSE_ERRFILE(dbe);
     SYSCALL(dbe->close,(dbe,0));
     VALUES1(T);
   } else { skipSTACK(1); VALUES1(NIL); }
@@ -332,13 +340,11 @@ static FILE* my_fopen (object path) {
 /* removes ERRFILE from STACK */
 #define RESET_ERRFILE(o)     do {                                       \
     if (boundp(STACK_0)) {                                              \
-      FILE *errfile;                                                    \
-      begin_system_call(); o->get_errfile(o,&errfile); end_system_call(); \
-      if (errfile) fclose(errfile);                                     \
+      CLOSE_ERRFILE(o);                                                 \
       if (nullp(STACK_0)) {                                             \
         begin_system_call(); o->set_errfile(o,NULL); end_system_call(); \
       } else {                                                          \
-        errfile = my_fopen(STACK_0);                                    \
+        FILE *errfile = my_fopen(STACK_0);                              \
         begin_system_call(); o->set_errfile(o,errfile); end_system_call(); \
       }                                                                 \
     }                                                                   \
@@ -842,6 +848,7 @@ DEFUN(BDB:DB-CLOSE, db &key :NOSYNC)
   DB *db = bdb_handle(STACK_1,`BDB::DB`,BH_INVALIDATE);
   if (db) {
     pushSTACK(STACK_1); funcall(`BDB::KILL-HANDLE`,1);
+    CLOSE_ERRFILE(db);
     SYSCALL(db->close,(db,flags));
     VALUES1(T);
   } else VALUES1(NIL);
@@ -890,6 +897,7 @@ static dbt_o_t check_dbt_type (object obj) {
   obj = value1;
   goto restart_check_dbt_type;
 }
+
 /* check that the argument can be converted to a DBT
  can trigger GC */
 static object check_dbt_object (object obj) {
