@@ -4320,6 +4320,7 @@ typedef symbol_ *  Symbol;
   typedef int symbol_size_check[1 - 2 * (int)(sizeof(symbol_) % varobject_alignment)];
 #endif
 #define symbol_objects_offset  offsetof(symbol_,symvalue)
+#define symbol_length  6
 
 # Every keyword is a constant.
 
