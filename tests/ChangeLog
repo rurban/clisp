@@ -1,3 +1,8 @@
+2001-08-17  Sam Steingold  <sds@gnu.org>
+
+	* symbols.tst: pretty-printer symbols are now present in CLISP
+	* excepsit.tst: ditto
+
 2001-08-16  Sam Steingold  <sds@gnu.org>
 
 	* loop.tst: one more test
