@@ -187,6 +187,7 @@
 <!ENTITY fu-st-char "<link linkend='fu-st-char'><classname>GRAY:FUNDAMENTAL-CHARACTER-STREAM</classname></link>">
 <!ENTITY fu-st-in "<link linkend='fu-st-in'><classname>GRAY:FUNDAMENTAL-INPUT-STREAM</classname></link>">
 <!ENTITY fu-st-out "<link linkend='fu-st-out'><classname>GRAY:FUNDAMENTAL-OUTPUT-STREAM</classname></link>">
+<!ENTITY fill-stream "<link linkend='fill-stream'><classname>EXT:FILL-STREAM</classname></link>">
 <!ENTITY gc "<link linkend='gc'>garbage-collect</link>">
 <!ENTITY getenv "<link linkend='getenv'><function>EXT:GETENV</function></link>">
 <!ENTITY input-char "<link linkend='input-char'><classname>SYS::INPUT-CHARACTER</classname></link>">
