@@ -8,7 +8,6 @@
 
 	Fixed cygwin build
 	* pathname.d (LAUNCH): declared exit_code.
-	* unix.d: fixed a typo.
 
 2004-02-27  Peter Seibel  <peter@javamonkey.com>
 
