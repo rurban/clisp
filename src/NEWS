@@ -138,6 +138,10 @@ User visible changes
   + DEFSETF lambda-lists now support &ENVIRONMENT.
   + DEFSETF lambda-lists are no longer destructuring lambda-lists.
   + NAMESTRING no longer accepts an optional second argument.
+  Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance
+  suite, which helped detect some of these deficiencies.
+  Thanks to Yuji Minejima <ggb01164@nifty.ne.jp> and his ANSI compliance
+  suite, which helped detect some of these deficiencies.
 
 * TRANSLATE-PATHNAME and TRANSLATE-LOGICAL-PATHNAME accept a new keyword
   argument :ABSOLUTE which makes them convert their return values to

@@ -1,3 +1,11 @@
+2004-08-07  Bruno Haible  <bruno@clisp.org>
+
+	* sacla-tests: New directory.
+	* makemake.in (SACLATESTSDIR): New variable.
+	(check-sacla-tests, ${SACLATESTSDIR}): New targets.
+	(check): Depend on sacla-tests.
+	(clean1): Remove also the sacla-tests files.
+
 2004-08-06  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (make-trampoline): Make it work with #+CLISP-DEBUG too.
