@@ -113,7 +113,7 @@
 # eqv_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch EQV (NOT XOR).
-  local void eqv_loop_up (uintD* xptr, uintD* const yptr, uintC count);
+  local void eqv_loop_up (uintD* xptr, const uintD* yptr, uintC count);
   local void eqv_loop_up(xptr,yptr,count)
     var uintD* xptr;
     var const uintD* yptr;
@@ -127,7 +127,7 @@
 # nand_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch NAND (NOT AND).
-  local void nand_loop_up (uintD* xptr, uintD* const yptr, uintC count);
+  local void nand_loop_up (uintD* xptr, const uintD* yptr, uintC count);
   local void nand_loop_up(xptr,yptr,count)
     var uintD* xptr;
     var const uintD* yptr;

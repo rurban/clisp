@@ -1,3 +1,7 @@
+1998-06-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * arilev1c.d (eqv_loop_up, nand_loop_up): Fix typo in declaration.
+
 1998-06-10  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 	
 	* io.d (pr_enter_1, pr_enter_2, pr_enter): New functions, generalizing
