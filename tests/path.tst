@@ -858,7 +858,10 @@ T
   (or (null home) (not (not (pathnamep home)))))
 T
 
-(let* ((n "abazonk") (f (ext:string-concat n ".lisp"))
+;; Check that LOAD can load a file "abazonk.lisp" even if a
+;; directory "abazonk" exists.
+(let* ((n "abazonk")
+       (f (ext:string-concat n ".lisp"))
        (d (ext:string-concat n "/")))
   (with-open-file (s f :direction :output)
     (prin1 `(ext:delete-dir ,d) s))

@@ -1249,6 +1249,7 @@ global object coerce_char (object obj) {
       /* obj is a fixnum >=0, < char_code_limit */
       return code_char(as_chart(code));
   } else if (typep_classname(obj,S(input_character))) {
+    /* obj is an INPUT-CHARACTER. Call (SYS::INPUT-CHARACTER-CHAR obj): */
     pushSTACK(obj); funcall(S(input_character_char),1);
     return charp(value1) ? value1 : NIL;
   }
