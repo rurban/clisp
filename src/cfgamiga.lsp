@@ -48,4 +48,12 @@
 ;;          auf die bei Ihnen gültige Zeitzone.
 ;; FRANCAIS: Dans TIMEZONE.LSP, affectez à *default-time-zone* la valeur
 ;;           correspondante à votre fuseau horaire.
+;; (setq *default-time-zone* 0)
 
+;; ENGLISH: Common Lisp HyperSpec access
+(defvar *clhs-root-default*)
+(defun clhs-root ()
+  "This returns the root URL for the Common Lisp HyperSpec.
+You can set the environment variable `CLHSROOT' or redefine this function
+in ~/.clisprc.  On win32 you can also use the Registry."
+  (or (sys::getenv "CLHSROOT") *clhs-root-default*))

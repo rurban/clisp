@@ -1,3 +1,9 @@
+1999-06-04  Sam Steingold  <sds@goems.com>
+
+	* makemake.in: setq `*clhs-root-default*' in config.lsp.
+	* cfg*.lsp (clhs-root): new function.
+	(*clhs-root-default*): new variable.
+
 1999-06-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * trace.lsp (untrace1): Don't use replace-in-fenv here either.
