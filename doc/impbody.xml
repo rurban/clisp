@@ -3330,6 +3330,14 @@ printed readably.</para>
 
 </section>
 
+<section id="unspecific"><title>:UNSPECIFIC as a Component Value
+ <ulink url="&clhs;/Body/sec_19-2-2-2-3.html">[CLHS-19.2.2.2.3]</ulink></title>
+
+<para>The symbol <constant>:UNSPECIFIC</constant> is not permitted as a
+ pathname component for any slot of any pathname.
+ It is also illegal to pass it as an argument to &make-pathname;.</para>
+</section>
+
 <section id="path-external-notation"><title>External notation.</title>
 
 <para>External notation of pathnames (cf. &parse-namestring; and
