@@ -120,208 +120,133 @@
   (setf (gethash c-type *c-type-table*) c-type)
 )
 
-; Parse a C type specification. If name is /= NIL, it will be assigned to name.
+;; parse the components of a C-STRUCT or C-UNION
+(defun parse-components (typespec)
+  (let* ((form-type (first typespec))
+         (spec-list
+          (ecase form-type
+            (C-STRUCT (cddr typespec))
+            (C-UNION (cdr typespec)))))
+    (mapcar (lambda (subspec)
+              (unless (and (consp subspec)
+                           (eql (length subspec) 2)
+                           (symbolp (first subspec)))
+                (error (ENGLISH "Invalid ~S component: ~S")
+                       form-type subspec))
+              (parse-c-type (second subspec)))
+            spec-list)))
+
+;; return the constructor function for this structure
+(defun c-struct-constructor (typespec)
+  (let ((class (second typespec)))
+    (case class
+      (VECTOR #'vector)
+      (LIST #'list)
+      (t (let* ((slots (mapcar #'first (cddr typespec)))
+                (vars (mapcar #'(lambda (x) (gensym (symbol-name x)))
+                              slots))
+                h)
+           (eval `(FUNCTION
+                   (LAMBDA ,vars
+                    (DECLARE (COMPILE))
+                    ,(if (and (setq h (get class 'sys::defstruct-description))
+                              (setq h (svref h 2)))
+                         ;; h is the keyword constructor for the structure
+                         `(,h ,@(mapcan #'(lambda (s v)
+                                            (list (intern (symbol-name s) compiler::*keyword-package*)
+                                                  v))
+                                        slots vars))
+                         ;; no keyword constructor found ->
+                         ;; use CLOS:SLOT-VALUE instead
+                         (let ((ivar (gensym)))
+                           `(LET ((,ivar (CLOS:MAKE-INSTANCE ',class)))
+                             ,@(mapcar #'(lambda (s v)
+                                           `(SETF (CLOS:SLOT-VALUE ,ivar ', s)
+                                             ,v))
+                                       slots vars)
+                             ,ivar)))))))))))
+
+(defmacro with-defining-c-type ((name c-type len) &body body)
+  `(let ((,c-type (make-array ,len)))
+    (unwind-protect
+         (progn (when ,name (setf (gethash ,name *c-type-table*) ,c-type))
+                ,@body)
+      (when ,name (setf (gethash ,name *c-type-table*) nil)))
+    (when ,name (setf (gethash ,name *c-type-table*) ,c-type))
+    ,c-type))
+
+;; Parse a C type specification.
+;; If name is non-NIL, it will be assigned to name.
 (defun parse-c-type (typespec &optional (name nil))
   (if (atom typespec)
     (if (symbolp typespec)
       (multiple-value-bind (c-type found) (gethash typespec *c-type-table*)
         (unless found
           (error (ENGLISH "Incomplete FFI type ~S is not allowed here.")
-                 typespec
-        ) )
+                 typespec))
         (when name (setf (gethash name *c-type-table*) c-type))
-        c-type
-      )
+        c-type)
       (error (ENGLISH "FFI type should be a symbol, not ~S")
-             typespec
-    ) )
+             typespec))
     (flet ((invalid (typespec)
              (error (ENGLISH "Invalid FFI type: ~S")
-                    typespec
-          )) )
+                    typespec))
+           (dimp (dim) (typep dim '(integer 0 *))))
       (case (first typespec)
         (C-STRUCT
-          (let* ((n (- (length typespec) 2))
-                 (c-type (make-array (+ n 3))))
-            (unwind-protect
-              (progn
-                (when name (setf (gethash name *c-type-table*) c-type))
-                (setf (svref c-type 0) (first typespec))
-                (setf (subseq c-type 3)
-                      (mapcar #'(lambda (subspec)
-                                  (unless (and (consp subspec)
-                                               (eql (length subspec) 2)
-                                               (symbolp (first subspec))
-                                          )
-                                    (error (ENGLISH "Invalid ~S component: ~S")
-                                           'c-struct subspec
-                                  ) )
-                                  (parse-c-type (second subspec))
-                                )
-                              (cddr typespec)
-                )     )
-                (setf (svref c-type 1) ; slots
-                      (map 'vector #'first (cddr typespec))
-                )
-                (setf (svref c-type 2) ; constructor
-                      (let ((class (second typespec)))
-                        (case (second typespec)
-                          (VECTOR #'vector)
-                          (LIST #'list)
-                          (t (let* ((slots (mapcar #'first (cddr typespec)))
-                                    (vars (mapcar #'(lambda (x) (declare (ignore x)) (gensym)) slots))
-                                    h
-                                   )
-                               (eval `(FUNCTION
-                                        (LAMBDA ,vars
-                                          (DECLARE (COMPILE))
-                                          ,(if (and (setq h (get class 'sys::defstruct-description))
-                                                    (setq h (svref h 2))
-                                               )
-                                             ; h is the keyword constructor for the structure
-                                             `(,h ,@(mapcan #'(lambda (s v)
-                                                                (list (intern (symbol-name s) compiler::*keyword-package*)
-                                                                      v
-                                                              ) )
-                                                            slots vars
-                                                    )
-                                              )
-                                             ; no keyword constructor found -> use CLOS:SLOT-VALUE instead
-                                             (let ((ivar (gensym)))
-                                               `(LET ((,ivar (CLOS:MAKE-INSTANCE ',class)))
-                                                  ,@(mapcar #'(lambda (s v)
-                                                                `(SETF (CLOS:SLOT-VALUE ,ivar ',s) ,v)
-                                                              )
-                                                            slots vars
-                                                    )
-                                                  ,ivar
-                                                )
-                                           ) )
-                                      ) )
-                )     ) ) )  ) )
-              )
-              (when name (setf (gethash name *c-type-table*) nil))
-            )
-            (when name (setf (gethash name *c-type-table*) c-type))
-            c-type
-        ) )
+         (with-defining-c-type (name c-type (1+ (length typespec)))
+           (setf (svref c-type 0) (first typespec))
+           (setf (svref c-type 1) (map 'vector #'first (cddr typespec)))
+           (setf (svref c-type 2) ; constructor
+                 (c-struct-constructor typespec))
+           (setf (subseq c-type 3) (parse-components typespec))))
         (C-UNION
-          (let* ((n (1- (length typespec)))
-                 (c-type (make-array (+ n 2))))
-            (unwind-protect
-              (progn
-                (when name (setf (gethash name *c-type-table*) c-type))
-                (setf (svref c-type 0) (first typespec))
-                (setf (subseq c-type 2)
-                      (mapcar #'(lambda (subspec)
-                                  (unless (and (consp subspec)
-                                               (eql (length subspec) 2)
-                                               (symbolp (first subspec))
-                                          )
-                                    (error (ENGLISH "Invalid ~S component: ~S")
-                                           'c-union subspec
-                                  ) )
-                                  (parse-c-type (second subspec))
-                                )
-                              (rest typespec)
-                )     )
-                (setf (svref c-type 1) (map 'vector #'first (rest typespec)))
-              )
-              (when name (setf (gethash name *c-type-table*) nil))
-            )
-            (when name (setf (gethash name *c-type-table*) c-type))
-            c-type
-        ) )
+         (with-defining-c-type (name c-type (1+ (length typespec)))
+           (setf (svref c-type 0) (first typespec))
+           (setf (svref c-type 1) (map 'vector #'first (rest typespec)))
+           (setf (subseq c-type 2) (parse-components typespec))))
         (C-ARRAY
           (unless (eql (length typespec) 3) (invalid typespec))
           (let ((dimensions (third typespec)))
             (unless (listp dimensions) (setq dimensions (list dimensions)))
-            (unless (every #'(lambda (dim) (typep dim '(integer 0 *))) dimensions)
-              (invalid typespec)
-            )
-            (let ((c-type (make-array (+ 2 (length dimensions)))))
-              (unwind-protect
-                (progn
-                  (when name (setf (gethash name *c-type-table*) c-type))
-                  (setf (svref c-type 0) 'C-ARRAY)
-                  (setf (svref c-type 1) (parse-c-type (second typespec)))
-                  (setf (subseq c-type 2) dimensions)
-                )
-                (when name (setf (gethash name *c-type-table*) nil))
-              )
-              (when name (setf (gethash name *c-type-table*) c-type))
-              c-type
-        ) ) )
+            (unless (every #'dimp dimensions)
+              (invalid typespec))
+            (with-defining-c-type (name c-type (+ 2 (length dimensions)))
+              (setf (svref c-type 0) 'C-ARRAY)
+              (setf (svref c-type 1) (parse-c-type (second typespec)))
+              (setf (subseq c-type 2) dimensions))))
         (C-ARRAY-MAX
           (unless (eql (length typespec) 3) (invalid typespec))
           (let ((maxdim (third typespec)))
-            (unless (typep maxdim '(integer 0 *)) (invalid typespec))
-            (let ((c-type (make-array 3)))
-              (unwind-protect
-                (progn
-                  (when name (setf (gethash name *c-type-table*) c-type))
-                  (setf (svref c-type 0) 'C-ARRAY-MAX)
-                  (setf (svref c-type 1) (parse-c-type (second typespec)))
-                  (setf (svref c-type 2) maxdim)
-                )
-                (when name (setf (gethash name *c-type-table*) nil))
-              )
-              (when name (setf (gethash name *c-type-table*) c-type))
-              c-type
-        ) ) )
+            (unless (dimp maxdim) (invalid typespec))
+            (with-defining-c-type (name c-type 3)
+              (setf (svref c-type 0) 'C-ARRAY-MAX)
+              (setf (svref c-type 1) (parse-c-type (second typespec)))
+              (setf (svref c-type 2) maxdim))))
         (C-FUNCTION
-          (let ((c-type (parse-c-function
-                          (parse-options (rest typespec) '(:arguments :return-type :language) typespec)
-                          typespec
-               ))       )
+         (let ((c-type (parse-c-function
+                        (parse-options (rest typespec)
+                                       '(:arguments :return-type :language)
+                                       typespec)
+                        typespec)))
             (when name (setf (gethash name *c-type-table*) c-type))
-            c-type
-        ) )
+            c-type))
         (C-PTR
-          (unless (eql (length typespec) 2) (invalid typespec))
-          (let ((c-type (make-array 2)))
-            (unwind-protect
-              (progn
-                (when name (setf (gethash name *c-type-table*) c-type))
-                (setf (svref c-type 0) 'C-PTR)
-                (setf (svref c-type 1) (parse-c-type (second typespec)))
-              )
-              (when name (setf (gethash name *c-type-table*) nil))
-            )
-            (when name (setf (gethash name *c-type-table*) c-type))
-            c-type
-        ) )
+         (unless (eql (length typespec) 2) (invalid typespec))
+         (with-defining-c-type (name c-type 2)
+           (setf (svref c-type 0) 'C-PTR)
+           (setf (svref c-type 1) (parse-c-type (second typespec)))))
         (C-PTR-NULL
           (unless (eql (length typespec) 2) (invalid typespec))
-          (let ((c-type (make-array 2)))
-            (unwind-protect
-              (progn
-                (when name (setf (gethash name *c-type-table*) c-type))
-                (setf (svref c-type 0) 'C-PTR-NULL)
-                (setf (svref c-type 1) (parse-c-type (second typespec)))
-              )
-              (when name (setf (gethash name *c-type-table*) nil))
-            )
-            (when name (setf (gethash name *c-type-table*) c-type))
-            c-type
-        ) )
+          (with-defining-c-type (name c-type 2)
+            (setf (svref c-type 0) 'C-PTR-NULL)
+            (setf (svref c-type 1) (parse-c-type (second typespec)))))
         (C-ARRAY-PTR
           (unless (eql (length typespec) 2) (invalid typespec))
-          (let ((c-type (make-array 2)))
-            (unwind-protect
-              (progn
-                (when name (setf (gethash name *c-type-table*) c-type))
-                (setf (svref c-type 0) 'C-ARRAY-PTR)
-                (setf (svref c-type 1) (parse-c-type (second typespec)))
-              )
-              (when name (setf (gethash name *c-type-table*) nil))
-            )
-            (when name (setf (gethash name *c-type-table*) c-type))
-            c-type
-        ) )
-        (t (invalid typespec))
-      )
-) ) )
+          (with-defining-c-type (name c-type 2)
+            (setf (svref c-type 0) 'C-ARRAY-PTR)
+            (setf (svref c-type 1) (parse-c-type (second typespec)))))
+        (t (invalid typespec))))))
 
 (defun parse-options (options keywords whole)
   (let ((alist '()))
@@ -642,35 +567,42 @@
     ((c-pointer c-string) (format nil "char* ~A" name))
     (t (if (gethash c-type *type-table*)
          (format nil "~A ~A" (gethash c-type *type-table*) name)
-         (case (and (simple-vector-p c-type) (plusp (length c-type))
-                    (svref c-type 0))
-           (c-struct
-             (format nil "struct { ~{~A; ~}} ~A"
-                         (mapcar #'(lambda (subtype)
-                                 (to-c-typedecl subtype
-                                                (symbol-name (gensym "g"))))
-                           (cdddr (coerce c-type 'list)))
-                     name))
-           (c-union
-             (format nil "union { ~{~A; ~}} ~A"
-                         (mapcar #'(lambda (subtype)
-                                 (to-c-typedecl subtype
-                                                (symbol-name (gensym "g"))))
-                           (cddr (coerce c-type 'list)))
-                     name))
-           (c-array
-             (to-c-typedecl (svref c-type 1)
-                            (format nil "(~A)~{[~D]~}" name
-                                    (cddr (coerce c-type 'list)))))
-           (c-array-max
-             (to-c-typedecl (svref c-type 1)
-                            (format nil "(~A)[~D]" name (svref c-type 2))))
-           ((c-ptr c-ptr-null c-array-ptr)
-            (to-c-typedecl (svref c-type 1) (format nil "* ~A" name)))
-           (c-function
-            (to-c-typedecl (svref c-type 1) (format nil "~A ()" name)))
-           (t (error (ENGLISH "illegal foreign data type ~S")
-                     c-type)))))))
+         (macrolet ((with-to-c ((typename) &body body)
+                      `(let ((,typename (symbol-name (gensym "t"))))
+                        (unwind-protect
+                             (progn (setf (gethash c-type *type-table*)
+                                          ,typename)
+                                    ,@body)
+                          (setf (gethash c-type *type-table*) nil)))))
+           (case (and (simple-vector-p c-type) (plusp (length c-type))
+                      (svref c-type 0))
+             (c-struct
+              (with-to-c (type)
+                (format nil "struct ~a { ~{~A; ~}} ~A"
+                        type (map 'list #'to-c-typedecl
+                                  (cdddr (coerce c-type 'list))
+                                  (svref c-type 1))
+                        name)))
+             (c-union
+              (with-to-c (type)
+                (format nil "union ~A { ~{~A; ~}} ~A"
+                        type (map 'list #'to-c-typedecl
+                                  (cddr (coerce c-type 'list))
+                                  (svref c-type 1))
+                        name)))
+             (c-array
+              (to-c-typedecl (svref c-type 1)
+                             (format nil "(~A)~{[~D]~}" name
+                                     (cddr (coerce c-type 'list)))))
+             (c-array-max
+              (to-c-typedecl (svref c-type 1)
+                             (format nil "(~A)[~D]" name (svref c-type 2))))
+             ((c-ptr c-ptr-null c-array-ptr)
+              (to-c-typedecl (svref c-type 1) (format nil "* ~A" name)))
+             (c-function
+              (to-c-typedecl (svref c-type 1) (format nil "~A ()" name)))
+             (t (error (ENGLISH "illegal foreign data type ~S")
+                       c-type))))))))
 
 (defun prepare-module ()
   (unless *ffi-module*
@@ -1046,20 +978,16 @@ void module__~A__init_function_2(module)
     (dolist (item items)
       (when (consp item)
         (when (rest item) (setq next-value (second item)))
-        (setq item (first item))
-      )
+        (setq item (first item)))
       (push `(DEFCONSTANT ,item ,next-value) forms)
-      (setq next-value `(1+ ,item))
-    )
-    `(PROGN ,@(nreverse forms) ',name)
-) )
+      (setq next-value `(1+ ,item)))
+    (setf (gethash name *c-type-table*) 'int)
+    `(PROGN ,@(nreverse forms) ',name)))
 
 (defmacro def-c-struct (name &rest slots)
   `(PROGN
      (DEFSTRUCT ,name ,@(mapcar #'first slots))
-     (DEF-C-TYPE ,name (C-STRUCT ,name ,@slots))
-   )
-)
+     (DEF-C-TYPE ,name (C-STRUCT ,name ,@slots))))
 
 ; In order for ELEMENT, DEREF, SLOT to be SETFable, I make them macros.
 ; (element (foreign-value x) ...) --> (foreign-value (%element x ...))
