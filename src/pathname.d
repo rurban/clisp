@@ -1445,12 +1445,10 @@ nonreturning_function(local, fehler_file_stream_unnamed, (object stream)) {
 # physical slash
 #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
  #define pslashp(c)  (chareq(c,ascii('\\')) || chareq(c,ascii('/')))
-#endif
-#if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
- #define pslashp(c)  chareq(c,ascii('/'))
-#endif
-#ifdef PATHNAME_RISCOS
- #define pslashp(c)  chareq(c,ascii('.'))
+ #define cpslashp(c) ((c) == '\\' || (c) == '/')
+#else /* PATHNAME_UNIX PATHNAME_AMIGAOS PATHNAME_RISCOS */
+ #define pslashp(c)  chareq(c,ascii(slash))
+ #define cpslashp(c) ((c) == slash)
 #endif
 #define colonp(c)    chareq(c,ascii(':'))
 #ifndef LOGICAL_PATHNAMES
@@ -1489,14 +1487,9 @@ local object asciz_dir_to_pathname_(const char* path)
 #endif
 {
   var object pathname;
-  var const char* pathptr = path;
-  var uintL len = 0; # string length
-  # ASCIZ-Stringende suchen:
-  until (*pathptr == 0) {
-    pathptr++; len++;
-  }
-  # as long as the String does not end with '/' already, a '/' is added:
-  if ((len>0) && (pathptr[-1] == slash))
+  var uintL len = asciz_length(path); /* string length */
+  /* if the String does not end with a '/' already, a '/' is added: */
+  if ((len>0) && cpslashp(path[len-1]))
     pathname = n_char_to_string(path,len,encoding);
   else
     pathname = asciz_add_char(path,len,slash,encoding);
@@ -5116,7 +5109,8 @@ LISPFUNNR(pathname_match_p,2)
 # recursive implementation because of backtracking:
 local void wildcard_diff_ab (object pattern, object sample,
                              uintL m_index, uintL b_index,
-                             const gcv_object_t* previous, gcv_object_t* solutions) {
+                             const gcv_object_t* previous,
+                             gcv_object_t* solutions) {
   var chart cc;
   loop {
     if (m_index == Sstring_length(pattern)) {
@@ -5178,7 +5172,8 @@ local void wildcard_diff_ab (object pattern, object sample,
 }
 
 local void wildcard_diff (object pattern, object sample,
-                          const gcv_object_t* previous, gcv_object_t* solutions) {
+                          const gcv_object_t* previous,
+                          gcv_object_t* solutions) {
   ASSERT(sstring_normal_p(pattern));
   ASSERT(sstring_normal_p(sample));
   wildcard_diff_ab(pattern,sample,0,0,previous,solutions);
@@ -5276,7 +5271,8 @@ local void device_diff (object pattern, object sample, bool logical,
  #endif
 }
 local void nametype_diff_aux (object pattern, object sample, bool logical,
-                              const gcv_object_t* previous, gcv_object_t* solutions) {
+                              const gcv_object_t* previous,
+                              gcv_object_t* solutions) {
  #if defined(LOGICAL_PATHNAMES) || defined(PATHNAME_NOEXT)
   unused(logical);
   if (eq(pattern,S(Kwild))) {
@@ -5296,7 +5292,8 @@ local void nametype_diff_aux (object pattern, object sample, bool logical,
  #endif
 }
 local void subdir_diff (object pattern, object sample, bool logical,
-                        const gcv_object_t* previous, gcv_object_t* solutions) {
+                        const gcv_object_t* previous, gcv_object_t* solutions)
+{
   DEBUG_DIFF(subdir_diff);
   if (eq(pattern,sample)) {
     if (eq(sample,S(Kwild)))
@@ -5325,7 +5322,8 @@ local void subdir_diff (object pattern, object sample, bool logical,
 }
 # recursive implementation because of backtracking:
 local void directory_diff_ab (object m_list, object b_list, bool logical,
-                              const gcv_object_t* previous, gcv_object_t* solutions) {
+                              const gcv_object_t* previous,
+                              gcv_object_t* solutions) {
   # algorithm analogous to wildcard_diff_ab.
   var object item;
   if (atomp(m_list)) {
@@ -5383,7 +5381,8 @@ local void directory_diff_ab (object m_list, object b_list, bool logical,
 #define SAMPLE_UNBOUND_CHECK \
   if (!boundp(sample)) { push_solution_with(pattern); return; }
 local void directory_diff (object pattern, object sample, bool logical,
-                           const gcv_object_t* previous, gcv_object_t* solutions) {
+                           const gcv_object_t* previous,
+                           gcv_object_t* solutions) {
   DEBUG_DIFF(directory_diff);
   SAMPLE_UNBOUND_CHECK;
   # compare pattern with O(directory_default) :
@@ -5401,7 +5400,8 @@ local void directory_diff (object pattern, object sample, bool logical,
   directory_diff_ab(pattern,sample,logical,previous,solutions);
 }
 local void nametype_diff (object pattern, object sample, bool logical,
-                          const gcv_object_t* previous, gcv_object_t* solutions) {
+                          const gcv_object_t* previous,
+                          gcv_object_t* solutions) {
   DEBUG_DIFF(nametype_diff);
   SAMPLE_UNBOUND_CHECK;
   if (nullp(pattern)) {
@@ -5412,7 +5412,8 @@ local void nametype_diff (object pattern, object sample, bool logical,
   nametype_diff_aux(pattern,sample,logical,previous,solutions);
 }
 local void version_diff (object pattern, object sample, bool logical,
-                         const gcv_object_t* previous, gcv_object_t* solutions) {
+                         const gcv_object_t* previous, gcv_object_t* solutions)
+{
   DEBUG_DIFF(version_diff);
   SAMPLE_UNBOUND_CHECK;
  #ifdef LOGICAL_PATHNAMES
@@ -6255,7 +6256,7 @@ bool FullName (LPCSTR shortname, LPSTR fullname) {
   strcpy(current,shortname);
   do {
     var int l = strlen(current);
-    if (l>0 && (current[l-1]=='\\'|| current[l-1]=='/')) {
+    if (l>0 && cpslashp(current[l-1])) {
       if (!*fullname) *savedslash = current[l-1];
       current[l-1] = 0; /* remove trailing slash */
     }
@@ -6391,32 +6392,27 @@ global bool TrueName (LPCSTR namein, LPSTR nameout) {
     /* skip drive or host or first slash */
     nametocheck = nameout;
     if ((*nametocheck >= 'a' && *nametocheck <= 'z'
-        || *nametocheck >= 'A' && *nametocheck <= 'Z')
-         && nametocheck[1] == ':'
-         && (nametocheck[2] == '/' || nametocheck[2] == '\\'))
+         || *nametocheck >= 'A' && *nametocheck <= 'Z')
+        && nametocheck[1] == ':' && cpslashp(nametocheck[2]))
       /* drive */
       nametocheck += 3;
-    else
-    if (*nametocheck == '\\' && nametocheck[1] == '\\') {
+    else if (cpslashp(*nametocheck)) {
       int i;
       /* host */
       nametocheck+=2;
       for (i=0;i<2;i++) {/* skip host and sharename */
-        while (*nametocheck && *nametocheck!='\\' && *nametocheck!='/')
+        while (*nametocheck && !cpslashp(*nametocheck))
           nametocheck++;
         if (*nametocheck) nametocheck++; else return false;
       }
-    } else
-    if (*nametocheck == '\\' || *nametocheck == '/') nametocheck++;
-    /* prefix skipped start checking */
+    } else if (cpslashp(*nametocheck)) nametocheck++;
+    /* prefix skipped; start checking */
     do {/* each component after just skipped */
       var int dots_only = 0;
       var int have_stars = 0;
       /* separate a component */
       for (nametocheck_end = nametocheck;
-           *nametocheck_end
-             && *nametocheck_end!='\\'
-             && *nametocheck_end!='/';
+           *nametocheck_end && !cpslashp(*nametocheck_end);
            nametocheck_end++);
       if (*nametocheck_end && nametocheck_end == nametocheck)
         return false;/* two slashes one after another */
@@ -7810,7 +7806,7 @@ local bool directory_exists (object pathname) {
   with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
     if (!nullp(Cdr(ThePathname(STACK_0)->pathname_directory))) {
       var uintL len = Sstring_length(dir_namestring);
-      ASSERT((len > 0) && (dir_namestring_asciz[len-1] == '\\'));
+      ASSERT((len > 0) && cpslashp(dir_namestring_asciz[len-1]));
       dir_namestring_asciz[len-1] = '\0'; # replace '\' at the end with nullbyte
     }
     begin_system_call();
@@ -7933,20 +7929,14 @@ global object pathname_to_OSdir (object pathname, bool use_default) {
       asciz[len-1] = '\0';
     }
   #endif
-  #ifdef WIN32_NATIVE
+  #if defined(WIN32_NATIVE) || defined(UNIX)
     if (!nullp(Cdr(ThePathname(STACK_0)->pathname_directory))) {
-      ASSERT((len > 0) && (asciz[len-1] == '\\'));
-      asciz[len-1] = '\0';
-    }
-  #endif
-  #ifdef UNIX
-    if (!nullp(Cdr(ThePathname(STACK_0)->pathname_directory))) {
-      ASSERT((len > 0) && (asciz[len-1] == '/'));
+      ASSERT((len > 0) && cpslashp(asciz[len-1]));
       asciz[len-1] = '\0';
     }
   #endif
   #ifdef PATHNAME_RISCOS
-    ASSERT((len > 0) && (asciz[len-1]=='.'));
+    ASSERT((len > 0) && cpslashp(asciz[len-1]));
     asciz[len-1] = '\0';
   #endif
   skipSTACK(1); # forget pathname
@@ -8504,7 +8494,7 @@ local object open_file (object filename, direction_t direction,
   var object handle;
  {var bool append_flag = false;
  {switch (direction) {
-    case DIRECTION_PROBE: /* open, the close */
+    case DIRECTION_PROBE: /* open, then close */
     case DIRECTION_INPUT: case DIRECTION_INPUT_IMMUTABLE: { # == :INPUT
       var Handle handl;
       var bool result;
