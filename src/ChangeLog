@@ -1,5 +1,10 @@
 2004-03-10  Bruno Haible  <bruno@clisp.org>
 
+	* arisparc.d: Don't use the gas syntax for labels (1b, 1f). Needed
+	for building with Solaris cc.
+
+2004-03-10  Bruno Haible  <bruno@clisp.org>
+
 	Don't use features unique to GCC. Needed for Solaris cc and HP-UX cc.
 	* stream.d (key_ascii, key_special): Use portable initializer syntax.
 	(add_keybinding): Renamed from keybinding. Change argument type from
