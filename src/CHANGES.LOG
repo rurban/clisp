@@ -44,6 +44,10 @@ User visible changes
 
 * Fixed a bug: For long-floats, (EQL x (- x)) returned true.
 
+* Fixed a bug: OPEN now returns NIL when the filename's directory does not
+  exist and :IF-DOES-NOT-EXIST NIL was specified. Previously, an error was
+  signalled except when :DIRECTION was :PROBE.
+
 * Fixed a bug: (subtypep 'fundamental-stream 'stream) returned NIL.
 
 Portability

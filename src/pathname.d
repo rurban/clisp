@@ -8207,16 +8207,16 @@ LISPFUNN(rename_file,2)
       # Stackaufbau: Pathname, absPathname.
       # Directory muss existieren:
       var object namestring = # Filename fürs Betriebssystem
-        assure_dir_exists(FALSE,(direction == 0) && ((if_not_exists % 2) == 0)); # tolerant nur bei :PROBE und if_not_exists = 0 oder 2
+        assure_dir_exists(FALSE,((direction == 0) && (if_not_exists == 0)) || (if_not_exists == 2)); # tolerant only if :PROBE and if_not_exists = 0 or if if_not_exists = 2
+      if (eq(namestring,nullobj))
+        # Pfad zur Datei existiert nicht, und :IF-DOES-NOT-EXIST = nichts oder NIL
+        goto ergebnis_NIL;
       # Stackaufbau: Pathname, Truename.
       # Filename überprüfen und Handle holen:
       var object handle;
       var boolean append_flag = FALSE;
       switch (direction) {
         case 0: # Modus ist :PROBE
-          if (eq(namestring,nullobj))
-            # Pfad zur Datei existiert nicht, und :IF-DOES-NOT-EXIST = nichts oder NIL
-            goto ergebnis_NIL;
           if (!file_exists(namestring)) {
             # Datei existiert nicht
             # :IF-DOES-NOT-EXIST-Argument entscheidet:
@@ -8373,9 +8373,6 @@ LISPFUNN(rename_file,2)
             });
           #endif
           break;
-         ergebnis_NIL: # Ergebnis NIL
-          skipSTACK(5); # beide Pathnames und drei Argumente vergessen
-          return NIL;
          fehler_notfound: # Fehler, da Datei nicht gefunden
           # STACK_0 = Truename, Wert für Slot PATHNAME von FILE-ERROR
           pushSTACK(STACK_0);
@@ -8399,6 +8396,9 @@ LISPFUNN(rename_file,2)
       var object stream = make_file_stream(direction,append_flag,TRUE);
       skipSTACK(3);
       return stream;
+     ergebnis_NIL: # Ergebnis NIL
+      skipSTACK(5); # beide Pathnames und drei Argumente vergessen
+      return NIL;
     }
 
 LISPFUN(open,1,0,norest,key,6,\
