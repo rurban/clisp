@@ -1702,8 +1702,7 @@ interpreter compiler
   (formatter "~1{~3@*~D.~4@*~D.~5@*~D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}")
 )
 (deflocalized date-format ENGLISH
-  (formatter "~1{~5@*~D/~4@*~D/~3@*~D ~2@*~2,'0D.~1@*~2,'0D.~0@*~2,'0D~:}")
-)
+  (formatter "~1{~5@*~D-~4@*~2,'0D-~3@*~2,'0D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}"))
 (deflocalized date-format FRANCAIS
   (formatter "~1{~3@*~D/~4@*~D/~5@*~D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}")
 )
