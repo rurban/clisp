@@ -1,5 +1,13 @@
 2004-06-01  Sam Steingold  <sds@gnu.org>
 
+	more errors are recoverable
+	* list.d (COPY-LIST, NRECONC): use check_list() instead of fehler_list()
+	(fehler_cons): replaced with check_cons_replacement() and check_cons()
+	(RPLACA, %RPLACA, RPLACD, %RPLACD, LIST-ACCESS, LIST-ACCESS-SET):
+	use check_cons()
+
+2004-06-01  Sam Steingold  <sds@gnu.org>
+
 	* list.d (check_list_length): to check that the argument is a
 	non-circular list and compute its length
 	(BUTLAST, NBUTLAST): use it
