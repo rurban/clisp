@@ -22441,8 +22441,9 @@ fi
   echo "$as_me:$LINENO: result: $cl_cv_cc_float_divbyzero" >&5
 echo "${ECHO_T}$cl_cv_cc_float_divbyzero" >&6
   if test "$cl_cv_cc_float_divbyzero" = yes; then
-    cat >>confdefs.h <<\_ACEOF
-#define FLOAT_DIV0_EXCEPTION Define to 1 if 'float' division by zero raises an exception.
+
+cat >>confdefs.h <<\_ACEOF
+#define FLOAT_DIV0_EXCEPTION 1
 _ACEOF
 
   fi
@@ -22505,8 +22506,9 @@ fi
   echo "$as_me:$LINENO: result: $cl_cv_cc_float_overflow" >&5
 echo "${ECHO_T}$cl_cv_cc_float_overflow" >&6
   if test "$cl_cv_cc_float_overflow" = yes; then
-    cat >>confdefs.h <<\_ACEOF
-#define FLOAT_OVERFLOW_EXCEPTION Define to 1 if 'float' overflow raises an exception.
+
+cat >>confdefs.h <<\_ACEOF
+#define FLOAT_OVERFLOW_EXCEPTION 1
 _ACEOF
 
   fi
@@ -22569,8 +22571,9 @@ fi
   echo "$as_me:$LINENO: result: $cl_cv_cc_float_underflow" >&5
 echo "${ECHO_T}$cl_cv_cc_float_underflow" >&6
   if test "$cl_cv_cc_float_underflow" = yes; then
-    cat >>confdefs.h <<\_ACEOF
-#define FLOAT_UNDERFLOW_EXCEPTION Define to 1 if 'float' underflow raises an exception.
+
+cat >>confdefs.h <<\_ACEOF
+#define FLOAT_UNDERFLOW_EXCEPTION 1
 _ACEOF
 
   fi
@@ -22632,8 +22635,9 @@ fi
   echo "$as_me:$LINENO: result: $cl_cv_cc_float_inexact" >&5
 echo "${ECHO_T}$cl_cv_cc_float_inexact" >&6
   if test "$cl_cv_cc_float_inexact" = yes; then
-    cat >>confdefs.h <<\_ACEOF
-#define FLOAT_INEXACT_EXCEPTION Define to 1 if a 'float' inexact operation raises an exception.
+
+cat >>confdefs.h <<\_ACEOF
+#define FLOAT_INEXACT_EXCEPTION 1
 _ACEOF
 
   fi
@@ -22696,8 +22700,9 @@ fi
   echo "$as_me:$LINENO: result: $cl_cv_cc_double_divbyzero" >&5
 echo "${ECHO_T}$cl_cv_cc_double_divbyzero" >&6
   if test "$cl_cv_cc_double_divbyzero" = yes; then
-    cat >>confdefs.h <<\_ACEOF
-#define DOUBLE_DIV0_EXCEPTION Define to 1 if 'double' division by zero raises an exception.
+
+cat >>confdefs.h <<\_ACEOF
+#define DOUBLE_DIV0_EXCEPTION 1
 _ACEOF
 
   fi
@@ -22760,8 +22765,9 @@ fi
   echo "$as_me:$LINENO: result: $cl_cv_cc_double_overflow" >&5
 echo "${ECHO_T}$cl_cv_cc_double_overflow" >&6
   if test "$cl_cv_cc_double_overflow" = yes; then
-    cat >>confdefs.h <<\_ACEOF
-#define DOUBLE_OVERFLOW_EXCEPTION Define to 1 if 'double' overflow raises an exception.
+
+cat >>confdefs.h <<\_ACEOF
+#define DOUBLE_OVERFLOW_EXCEPTION 1
 _ACEOF
 
   fi
@@ -22824,8 +22830,9 @@ fi
   echo "$as_me:$LINENO: result: $cl_cv_cc_double_underflow" >&5
 echo "${ECHO_T}$cl_cv_cc_double_underflow" >&6
   if test "$cl_cv_cc_double_underflow" = yes; then
-    cat >>confdefs.h <<\_ACEOF
-#define DOUBLE_UNDERFLOW_EXCEPTION Define to 1 if 'double' underflow raises an exception.
+
+cat >>confdefs.h <<\_ACEOF
+#define DOUBLE_UNDERFLOW_EXCEPTION 1
 _ACEOF
 
   fi
@@ -22887,8 +22894,9 @@ fi
   echo "$as_me:$LINENO: result: $cl_cv_cc_double_inexact" >&5
 echo "${ECHO_T}$cl_cv_cc_double_inexact" >&6
   if test "$cl_cv_cc_double_inexact" = yes; then
-    cat >>confdefs.h <<\_ACEOF
-#define DOUBLE_INEXACT_EXCEPTION Define to 1 if a 'double' inexact operation raises an exception.
+
+cat >>confdefs.h <<\_ACEOF
+#define DOUBLE_INEXACT_EXCEPTION 1
 _ACEOF
 
   fi
