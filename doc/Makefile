@@ -10,17 +10,19 @@ NSGMLS=/cygdrive/c/gnu/sp/bin/nsgmls.exe
 XMLSOC=c:/gnu/sp/pubtext/xml.soc
 JAVAXML=c:/java
 JAVA=/cygdrive/c/java/jdk1.3/bin/java.exe
+SEP=;
 else
 XMLHOME=/usr/local/src/xml
 NSGMLS=nsgmls
 XMLSOC=/usr/local/src/sp/pubtext/xml.soc
 JAVAXML=/usr/local/src/xml
 JAVA=java
+SEP=:
 endif
 
 XALAN=$(JAVAXML)/xalan-j_2_0_0
 SAXON=$(JAVAXML)/saxon
-CLASSPATH=$(XALAN)/bin/xerces.jar;$(XALAN)/bin/xalan.jar;$(SAXON)/saxon.jar
+CLASSPATH=$(XALAN)/bin/xerces.jar$(SEP)$(XALAN)/bin/xalan.jar$(SEP)$(SAXON)/saxon.jar
 
 DBHOME=$(XMLHOME)/db4xml
 
@@ -48,7 +50,8 @@ impnotes.texi: $(IMPNOTES)
 
 impnotes.html: impnotes.xml $(IMPNOTES)
 	$(JAVA) -classpath "$(CLASSPATH)" com.icl.saxon.StyleSheet \
-		-t -dt -o $@ $< $(XMLHOME)/docbook.xsl/html/docbook.xsl
+		-t -dt -o $@ $< $(XMLHOME)/docbook.xsl/html/docbook.xsl \
+		process.source.toc=1
 #	$(JAVA) -classpath "$(CLASSPATH)" \
 #		org.apache.xalan.xslt.Process \
 #		-diag -edump -in $< -out $@ \
