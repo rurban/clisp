@@ -1,3 +1,8 @@
+2004-12-01  Sam Steingold  <sds@gnu.org>
+
+	* describe.lisp (arglist): COERCE the argument to FUNCTION
+	so that (ARGLIST 'PRINT-OBJECT) returns meaningful variable names
+
 2004-11-29  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (low_read_array_unbuffered_handle)
