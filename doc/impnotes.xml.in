@@ -48,10 +48,11 @@
    implementation.</para>
   <para>Bugs both in these notes and in &clisp; itself should be
    reported to the mailing list &clisp-list;.</para></abstract>
- <copyright><year>1992-2004</year><holder>Bruno Haible</holder></copyright>
- <copyright><year>1998-2004</year><holder>Sam Steingold</holder></copyright>
+ <copyright><year>1992-2005</year><holder>Bruno Haible</holder></copyright>
+ <copyright><year>1998-2005</year><holder>Sam Steingold</holder></copyright>
 
- <legalnotice id="legalese">
+ <legalnotice id="legalese"><title>Legal Status of the &clisp;
+   Implementation Notes</title>
   <para>These notes are dually licensed under &gnu; &gfdl; and &gnu; &gpl;.
    This means that you can redistribute this document under
    either of these two licenses, at your choice.</para>
