@@ -123,9 +123,9 @@
     }
 
   #ifdef HAVE_MSYNC
-    typedef struct { void* mm_addr; uintL mm_len; } mmap_interval;
-    local mmap_interval mmap_intervals[256]; # 256 is abundant.
-    local mmap_interval* mmap_intervals_ptr = &mmap_intervals[0];
+    typedef struct { void* mm_addr; uintL mm_len; } mmap_interval_t;
+    local mmap_interval_t mmap_intervals[256]; # 256 is abundant.
+    local mmap_interval_t* mmap_intervals_ptr = &mmap_intervals[0];
     local void remember_mmap_interval (void* map_addr, uintL map_len);
     local void remember_mmap_interval(map_addr,map_len)
       var void* map_addr;
@@ -137,7 +137,7 @@
         mmap_intervals_ptr++;
       }
     local void msync_mmap_intervals (void) {
-      var mmap_interval* ptr = &mmap_intervals[0];
+      var mmap_interval_t* ptr = &mmap_intervals[0];
       while (ptr != mmap_intervals_ptr) {
         if (msync((MMAP_ADDR_T)ptr->mm_addr,ptr->mm_len,MS_INVALIDATE) < 0) {
           fprintf(stderr,GETTEXTL("msync(0x%x,0x%x,MS_INVALIDATE) failed."),
