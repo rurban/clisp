@@ -2364,7 +2364,10 @@ Ratio and Complex (only if SPVW_MIXED).
     # For pointers, the address takes the full word (with type info in the
     # lowest two bits). For immediate objects, we use 24 bits for the data
     # (but exclude the highest available bit, which is the garcol_bit).
-    #if !((defined(MC680X0) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_BEOS)) || (defined(SPARC) && defined(UNIX_LINUX)))
+    #if defined(SPARC) && defined(UNIX_LINUX) && (__GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2))
+      #define LINUX_SPARC_OLD_GLIBC
+    #endif
+    #if !((defined(MC680X0) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_BEOS)) || defined(LINUX_SPARC_OLD_GLIBC))
       #define oint_type_shift 0
       #define oint_type_len 8
       #define oint_type_mask 0x0000007FUL
@@ -2382,9 +2385,10 @@ Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_len 24
       #define oint_data_mask 0x3FFFFFC0UL
       #define garcol_bit_o 30
-    #elif (defined(MC680X0) && defined(UNIX_LINUX)) || (defined(SPARC) && defined(UNIX_LINUX))
-      # On Sparc-Linux, malloc()ed addresses are of the form 0x0....... or
-      # 0xe........ Bits 31..29 are therefore part of an address and cannot
+    #elif (defined(MC680X0) && defined(UNIX_LINUX)) || defined(LINUX_SPARC_OLD_GLIBC))
+      # On Sparc-Linux with glibc 2.1 and older:
+      # malloc()ed addresses are of the form 0x0....... or 0xe........
+      # Bits 31..29 are therefore part of an address and cannot
       # be used as garcol_bit. We therefore choose bit 28 as garcol_bit.
       # Now, the 24 data bits of an immediate value must not intersect the
       # garcol_bit, so we use bits 27..4 for that (we could use bits 26..3
@@ -2850,7 +2854,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define immediate_bias  7  # mod 8
 
 # Immediate objects have a second type field.
-  #if defined(SPARC) && defined(UNIX_LINUX)
+  #if defined(LINUX_SPARC_OLD_GLIBC)
     #define imm_type_shift  29
   #else
     #define imm_type_shift  3
