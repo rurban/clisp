@@ -140,7 +140,7 @@
   ;; over time. Thus in RANDOM-PRINT-TEST, we can have
   ;;   S1 = "((common-lisp:most-positive-fixnum . #\\=) #<array common-lisp:t (11) #x20B62A7E> . #<array common-lisp:t (11) #x208A68FE>)"
   ;;   S2 = "((common-lisp:most-positive-fixnum . #\\=) #<array common-lisp:t (11) #x208A67EE> . #<array common-lisp:t (11) #x208A68FE>)"
-  PRINT.1 PPRINT.1 WRITE-TO-STRING.1
+  PRINT.1 PPRINT.1 PRIN1.1 PRINC-TO-STRING.1 WRITE-TO-STRING.1
 
   ;; Paul Dietz assumes that structure objects are printed like atoms.
   ;; CLISP prints them as objects with components, like vectors.
@@ -180,12 +180,10 @@
   FORMAT.JUSTIFY.8
 
   ; To be fixed:
-  NAMESTRING.3 NAMESTRING.4 PATHNAME-MATCH-P.4
-  PARSE-NAMESTRING.4 ; only the second value can be fixed
-  DIRECTORY.6 DIRECTORY.7
-  PPRINT-TABULAR.6
+  PATHNAME-MATCH-P.4
 
   ; Requires a rewrite of parts of the pretty-printer.
+  PPRINT-TABULAR.6
   PPRINT-TABULAR.7 PPRINT-TABULAR.8 PPRINT-TABULAR.9 PPRINT-TABULAR.10
   PPRINT-TABULAR.11 PPRINT-TABULAR.12 PPRINT-TABULAR.13 PPRINT-TABULAR.14
   PPRINT-TABULAR.15 PPRINT-TABULAR.16 PPRINT-TABULAR.17 PPRINT-TABULAR.18
@@ -249,7 +247,7 @@
   FORMAT.D.18 FORMAT.D.19 FORMAT.D.20 FORMAT.D.21 FORMAT.B.18 FORMAT.B.19
   FORMAT.B.20 FORMAT.B.21 FORMAT.O.18 FORMAT.O.19 FORMAT.O.20 FORMAT.O.21
   FORMAT.X.18 FORMAT.X.19 FORMAT.X.20 FORMAT.X.21
-  PRIN1.1 PRINC-TO-STRING.1
+  PARSE-NAMESTRING.4
 ))
 
 ;; A few tests call DISASSEMBLE. Make it work without user intervention.

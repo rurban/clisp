@@ -1,3 +1,8 @@
+2004-09-28  Bruno Haible  <bruno@clisp.org>
+
+	* utils/clispload.lsp (*expected-failures*): Remove DIRECTORY.[67],
+	which are fixed. Remove NAMESTRING.[34], which is commented out. 
+
 2004-09-28  Sam Steingold  <sds@gnu.org>
 
 	* fill-out.lisp (fill-stream-flush-buffer): even when BUFFER is
