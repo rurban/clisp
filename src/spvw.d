@@ -1,24 +1,26 @@
-# (SPVW = Speicherverwaltung): Memory Management for CLISP
-# Bruno Haible 1990-2003
-# Sam Steingold 1998-2003
-# German comments translated into English: Stefan Kain 2002-03-24
+/*
+ * (SPVW = Speicherverwaltung): Memory Management for CLISP
+ * Bruno Haible 1990-2004
+ * Sam Steingold 1998-2004
+ * German comments translated into English: Stefan Kain 2002-03-24
+ */
 
-# Content:
-# module management
-# debug utilities
-# memory size
-# object size determination
-# Page Fault and Protection handling
-# Garbage Collection
-# memory provision functions
-# cycle test
-# memory walk
-# elementary string functions
-# other global auxiliary functions
-# initialization
-# loading and storing MEM-files
-# dynamic loading of modules
-# version
+/* Content:
+ module management
+ debug utilities
+ memory size
+ object size determination
+ Page Fault and Protection handling
+ Garbage Collection
+ memory provision functions
+ cycle test
+ memory walk
+ elementary string functions
+ other global auxiliary functions
+ initialization
+ loading and storing MEM-files
+ dynamic loading of modules
+ version */
 #include "lispbibl.c"
 
 #include <string.h> /* declares strchr() and possibly memset() */
@@ -1629,7 +1631,7 @@ local void print_banner ()
    "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993\n",
    "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997\n",
    "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998\n",
-   "Copyright (c) Bruno Haible, Sam Steingold 1999-2003\n",
+   "Copyright (c) Bruno Haible, Sam Steingold 1999-2004\n",
   };
   var const char * banner2 = "\n";
   var int candles = 0;
