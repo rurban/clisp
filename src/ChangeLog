@@ -1,5 +1,13 @@
 2003-10-25  Bruno Haible  <bruno@clisp.org>
 
+	Portability to Solaris cc. Don't assume more than ANSI C.
+	* lispbibl.d (with_saved_back_trace): Use ANSI C syntax for
+	initializing a 'struct backtrace_t' on the stack.
+	* spvw.d (main): Likewise.
+	* debug.d (driver, break_driver): Likewise.
+
+2003-10-25  Bruno Haible  <bruno@clisp.org>
+
 	Restore the behaviour of "make init" and "make allc".
 	* makemake.in (init): Don't depend on modprep.fas.
 	(clean3): Clean modprep.fas here...
