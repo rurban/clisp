@@ -684,6 +684,8 @@
   LISPOBJ(fp_zero,"NIL")
   LISPOBJ(foreign_variable_table,"#.(make-hash-table :test #'equal)")
   LISPOBJ(foreign_function_table,"#.(make-hash-table :test #'equal)")
+  LISPOBJ(type_foreign_variable,"(OR FFI::FOREIGN-VARIABLE FFI::FOREIGN-ADDRESS)")
+  LISPOBJ(type_foreign_function,"(OR FFI::FOREIGN-FUNCTION FFI::FOREIGN-ADDRESS)")
  #if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
   LISPOBJ(foreign_libraries,"NIL")
  #endif

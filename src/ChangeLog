@@ -1,3 +1,11 @@
+2004-10-05  Sam Steingold  <sds@gnu.org>
+
+	* constobj.d (type_foreign_variable, type_foreign_function):
+	new constants
+	* foreign.d (FOREIGN-VARIABLE, FOREIGN-FUNCTION): use them instead
+	of the illegal form pushSTACK(listof(3))
+	(FOREIGN-FUNCTION): made argument type check restartable
+
 2004-10-05  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* foreign.d (FOREIGN-VARIABLE, FOREIGN-FUNCTION):
