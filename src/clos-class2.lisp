@@ -11,7 +11,7 @@
 ;;; Predefined classes (see ANSI CL 4.3.7.):
 
 ;; Metaclasses:
-(defvar <class>)                       ; <standard-class>
+(defvar <potential-class>)             ; <standard-class>
 (defvar <forward-referenced-class>)    ; <standard-class>
 (defvar <defined-class>)               ; <standard-class>
 (defvar <standard-class>)              ; <standard-class>

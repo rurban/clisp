@@ -7,7 +7,7 @@
 
 ;;; ===========================================================================
 
-;; Make creation of <class> instances customizable.
+;; Make creation of <defined-class> instances customizable.
 
 ;; Installing the accessor methods can only be done after a class has been
 ;; initialized, but must be done in a _primary_ initialize-instance method,
@@ -46,11 +46,11 @@
 
 ;; Not in MOP.
 (defun class-classname (class)
-  (accessor-typecheck class 'class 'class-classname)
-  (sys::%record-ref class *<class>-classname-location*))
+  (accessor-typecheck class 'potential-class 'class-classname)
+  (sys::%record-ref class *<potential-class>-classname-location*))
 (defun (setf class-classname) (new-value class)
-  (accessor-typecheck class 'class '(setf class-classname))
-  (setf (sys::%record-ref class *<class>-classname-location*) new-value))
+  (accessor-typecheck class 'potential-class '(setf class-classname))
+  (setf (sys::%record-ref class *<potential-class>-classname-location*) new-value))
 ;; MOP p. 76
 (defgeneric class-name (class)
   (:method ((class defined-class))
@@ -62,7 +62,7 @@
 ;(initialize-extended-method-check #'class-name)
 ;; MOP p. 92
 (defgeneric (setf class-name) (new-value class)
-  (:method (new-value (class class))
+  (:method (new-value (class potential-class))
     (unless (symbolp new-value)
       (error-of-type 'type-error
         :datum new-value :expected-type 'symbol
@@ -78,11 +78,11 @@
 
 ;; Not in MOP.
 (defun class-direct-subclasses-table (class)
-  (accessor-typecheck class 'class 'class-direct-subclasses-table)
-  (sys::%record-ref class *<class>-direct-subclasses-location*))
+  (accessor-typecheck class 'potential-class 'class-direct-subclasses-table)
+  (sys::%record-ref class *<potential-class>-direct-subclasses-location*))
 (defun (setf class-direct-subclasses-table) (new-value class)
-  (accessor-typecheck class 'class '(setf class-direct-subclasses-table))
-  (setf (sys::%record-ref class *<class>-direct-subclasses-location*) new-value))
+  (accessor-typecheck class 'potential-class '(setf class-direct-subclasses-table))
+  (setf (sys::%record-ref class *<potential-class>-direct-subclasses-location*) new-value))
 ;; MOP p. 76
 (defgeneric class-direct-subclasses (class)
   (:method ((class defined-class))
@@ -415,14 +415,14 @@
                                            ; CLISP specific extension:
                                            fixed-slot-locations
                                       &allow-other-keys)
-  (:method ((class class) name &rest args)
+  (:method ((class potential-class) name &rest args)
     (apply #'ensure-class-using-class-<t> class name args))
   (:method ((class null) name &rest args)
     (apply #'ensure-class-using-class-<t> class name args)))
 
 ;; MOP p. 102
 (defgeneric validate-superclass (class superclass)
-  (:method ((class class) (superclass class))
+  (:method ((class potential-class) (superclass potential-class))
     (or (eq superclass <t>)
         (eq (class-of class) (class-of superclass))
         (and (eq (class-of class) <funcallable-standard-class>)
@@ -446,12 +446,12 @@
 
 ;; MOP p. 32
 (defgeneric add-direct-subclass (class subclass)
-  (:method ((class class) (subclass class))
+  (:method ((class potential-class) (subclass potential-class))
     (add-direct-subclass-internal class subclass)))
 
 ;; MOP p. 90
 (defgeneric remove-direct-subclass (class subclass)
-  (:method ((class class) (subclass class))
+  (:method ((class potential-class) (subclass potential-class))
     (remove-direct-subclass-internal class subclass)))
 
 ;;; ===========================================================================

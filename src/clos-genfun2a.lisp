@@ -185,7 +185,7 @@
                                    (let ((specializers (safe-method-specializers method gf))
                                          (applicable t) (unknown nil))
                                      (mapc #'(lambda (arg-class specializer)
-                                               (if (class-p specializer)
+                                               (if (defined-class-p specializer)
                                                  ;; For class specializers,
                                                  ;; (typep arg specializer) is equivalent to
                                                  ;; (subtypep (class-of arg) specializer).
@@ -244,7 +244,7 @@
                                      (mapc #'(lambda (arg-spec specializer)
                                                (ecase (first arg-spec)
                                                  (TYPEP
-                                                   (if (class-p specializer)
+                                                   (if (defined-class-p specializer)
                                                      ;; For class specializers,
                                                      ;; (typep arg specializer) is certainly true
                                                      ;; if the known class of arg is a subclass of
@@ -260,7 +260,7 @@
                                                        (setq unknown t)
                                                        (setq applicable nil))))
                                                  (INSTANCE-OF-P ; see ...-using-classes
-                                                   (if (class-p specializer)
+                                                   (if (defined-class-p specializer)
                                                      ;; For class specializers,
                                                      ;; (typep arg specializer) is equivalent to
                                                      ;; (subtypep (class-of arg) specializer).

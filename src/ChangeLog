@@ -1,3 +1,70 @@
+2004-11-18  Bruno Haible  <bruno@clisp.org>
+
+	Repair part of the forward-referenced-class misdesign.
+	* lispbibl.d (if_potential_class_p): Renamed from if_class_p.
+	* predtype.d (CLOS::%DEFCLOS): Update.
+	(CLOS::POTENTIAL-CLASS-P): Renamed from CLOS::CLASS-P.
+	* clos-class1.lisp (potential-class): Renamed from class.
+	(*<potential-class>-defclass*): Renamed from *<class>-defclass*.
+	(*<potential-class>-...-location*): Renamed from *<class>-...-location*.
+	(class-classname, class-direct-subclasses-table): Update.
+	(shared-initialize-<potential-class>): Renamed from
+	shared-initialize-<class>.
+	(forward-referenced-class, defined-class): Update.
+	(shared-initialize-<defined-class>): Update. Use potential-class-p
+	instead of class-p.
+	(potential-class type): Renamed from class.
+	(print-object-<potential-class>): Renamed from print-object-<class>.
+	(print-object): Use potential-class-p instead of class-p.
+	* clos-class2.lisp (<potential-class>): Renamed from <class>.
+	* clos-class3.lisp (ensure-class-using-class-<t>): Use defined-class
+	instead of class, potential-class-p instead of class-p.
+	(reinitialize-instance-<defined-class>): Use potential-class-p instead
+	of class-p.
+	(std-compute-superclasses): Update.
+	(finalize-class): Use potential-class-p instead of class-p.
+	(list-all-finalized-subclasses): Update.
+	Define <potential-class> instead of <class>.
+	Update %defclos call.
+	* clos-genfun1.lisp (print-object): Use potential-class-p instead of
+	class-p.
+	* clos-genfun2a.lisp
+	(compute-applicable-methods-using-classes-<generic-function>): Use
+	defined-class-p instead of class-p.
+	(compute-applicable-methods-for-set): Likewise.
+	* clos-slots2.lisp (invalidate-slot-value-info): Use defined-class-p
+	instead of class-p.
+	* clos-class4.lisp (shared-initialize@potential-class): Renamed from
+	shared-initialize@class.
+	* clos-class5.lisp (*make-instance-table*,
+	*reinitialize-instance-table*,
+	*update-instance-for-redefined-class-table*): Update.
+	(note-ai-change): Use defined-class-p instead of class-p.
+	(update-instance-for-different-class@potential-class@standard-object):
+	Renamed from update-instance-for-different-class@class@standard-object.
+	* clos-class6.lisp (class-classname): Update.
+	((setf class-name)@potential-class): Renamed from
+	(setf class-name)@potential-class.
+	(class-direct-subclasses-table): Update.
+	(ensure-class-using-class@potential-class): Renamed from
+	ensure-class-using-class@class.
+	(validate-superclass@potential-class@potential-class): Renamed from
+	validate-superclass@class@class.
+	(add-direct-subclass@potential-class@potential-class): Renamed from
+	add-direct-subclass@class@class.
+	(remove-direct-subclass@potential-class@potential-class): Renamed from
+	remove-direct-subclass@class@class.
+	* clos-print.lisp (print-object@potential-class): Renamed from
+	print-object@class.
+	* clos-custom.lisp: New file.
+	* documentation.lisp (documentation, (setf documentation)): Use
+	defined-class instead of class.
+	* loadform.lisp (make-load-form@defined-class): Renamed from
+	make-load-form@class.
+	* clos.lisp: Load clos-custom.
+	* makemake.in (LPARTS): Add clos-custom.
+	* po/Makefile.devel (LISPSOURCES): Add clos-custom.
+
 2004-11-23  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (PC386) [AMD64]: define

@@ -40,11 +40,11 @@
 
 ;;; ===========================================================================
 
-;;; The abstract class <class> allows defined classes and forward-references
-;;; to classes to be treated in a homogenous way.
+;;; The abstract class <potential-class> allows defined classes and
+;;; forward-references to classes to be treated in a homogenous way.
 
-(defvar *<class>-defclass*
-  '(defclass class (specializer)
+(defvar *<potential-class>-defclass*
+  '(defclass potential-class (specializer)
      (($classname          ; (class-name class) = (class-classname class),
                            ; a symbol
         :type symbol
@@ -56,23 +56,23 @@
      (:fixed-slot-locations t)))
 
 ;; Fixed slot locations.
-(defconstant *<class>-classname-location* 3)
-(defconstant *<class>-direct-subclasses-location* 4)
+(defconstant *<potential-class>-classname-location* 3)
+(defconstant *<potential-class>-direct-subclasses-location* 4)
 
 ;; Preliminary accessors.
 (predefun class-classname (object)
-  (sys::%record-ref object *<class>-classname-location*))
+  (sys::%record-ref object *<potential-class>-classname-location*))
 (predefun (setf class-classname) (new-value object)
-  (setf (sys::%record-ref object *<class>-classname-location*) new-value))
+  (setf (sys::%record-ref object *<potential-class>-classname-location*) new-value))
 (predefun class-direct-subclasses-table (object)
-  (sys::%record-ref object *<class>-direct-subclasses-location*))
+  (sys::%record-ref object *<potential-class>-direct-subclasses-location*))
 (predefun (setf class-direct-subclasses-table) (new-value object)
-  (setf (sys::%record-ref object *<class>-direct-subclasses-location*) new-value))
+  (setf (sys::%record-ref object *<potential-class>-direct-subclasses-location*) new-value))
 
-;; Initialization of a <class> instance.
-(defun shared-initialize-<class> (class situation &rest args
-                                  &key (name nil name-p)
-                                  &allow-other-keys)
+;; Initialization of a <potential-class> instance.
+(defun shared-initialize-<potential-class> (class situation &rest args
+                                            &key (name nil name-p)
+                                            &allow-other-keys)
   (apply #'shared-initialize-<specializer> class situation args)
   (unless *classes-finished*
     ; Bootstrapping: Simulate the effect of #'%shared-initialize.
@@ -116,7 +116,7 @@
 ;;;
 ;;; This is also backed by the fact that this MOP implementation has three
 ;;; times more tests for <defined-class> (i.e. for <class> without
-;;; <forward-referenced-class>) than for <class> itself.
+;;; <forward-referenced-class>) than for <potential-class>.
 ;;;
 ;;; A better design would be to define an abstract class <superclass> and
 ;;; let <forward-referenced-class> inherit from it:
@@ -127,7 +127,7 @@
 ;;; <superclass> instances.
 
 (defvar *<forward-referenced-class>-defclass*
-  '(defclass forward-referenced-class (class)
+  '(defclass forward-referenced-class (potential-class)
      ()
      (:fixed-slot-locations t)))
 
@@ -137,7 +137,7 @@
 ;;; objects and proxies to external worlds to be treated in a homogenous way.
 
 (defvar *<defined-class>-defclass*
-  '(defclass defined-class (class)
+  '(defclass defined-class (potential-class)
      (($direct-superclasses ; list of all direct superclasses (or their names,
                            ; while the class is waiting to be finalized)
         :type list
@@ -275,7 +275,7 @@
         (if (eq situation 't) ; called from initialize-instance?
           '()
           (sys::%record-ref class *<defined-class>-direct-superclasses-location*)))
-  (apply #'shared-initialize-<class> class situation args)
+  (apply #'shared-initialize-<potential-class> class situation args)
   (unless *classes-finished*
     ; Bootstrapping: Simulate the effect of #'%shared-initialize.
     (when (eq situation 't) ; called from initialize-instance?
@@ -283,7 +283,7 @@
       (setf (class-listeners class) nil)
       (setf (class-initialized class) 0)))
   (when (eq situation 't)
-    ; shared-initialize-<class> has initialized the name.
+    ; shared-initialize-<potential-class> has initialized the name.
     (setf (class-initialized class) 1))
   ; Get the name, for error message purposes.
   (setq name (class-classname class))
@@ -293,7 +293,7 @@
       (error (TEXT "(~S ~S) for class ~S: The ~S argument should be a proper list, not ~S")
              (if (eq situation 't) 'initialize-instance 'shared-initialize)
              'class name ':direct-superclasses direct-superclasses))
-    (unless (every #'class-p direct-superclasses)
+    (unless (every #'potential-class-p direct-superclasses)
       (error (TEXT "(~S ~S) for class ~S: The direct-superclasses list should consist of classes, not ~S")
              (if (eq situation 't) 'initialize-instance 'shared-initialize)
              'class name direct-superclasses))
@@ -626,7 +626,7 @@
                  (gethash <standard-class>
                           (class-all-superclasses (class-of object))))))))
 
-(sys::def-atomic-type class class-p)
+(sys::def-atomic-type potential-class potential-class-p)
 (sys::def-atomic-type defined-class defined-class-p)
 (sys::def-atomic-type built-in-class built-in-class-p)
 (sys::def-atomic-type structure-class structure-class-p)
@@ -641,7 +641,7 @@
     (dotimes (i n) (setf (sys::%record-ref copy i) (sys::%record-ref class i)))
     copy))
 
-(defun print-object-<class> (object stream)
+(defun print-object-<potential-class> (object stream)
   (if (and *print-readably* (defined-class-p object))
     ; Only defined-class instances can be restored through FIND-CLASS.
     (write (sys::make-load-time-eval `(FIND-CLASS ',(class-classname object)))
@@ -670,5 +670,5 @@
 ;; Preliminary.
 ;; Now we can at least print classes.
 (predefun print-object (object stream)
-  (cond ((class-p object) (format stream "#<CLASS ~S>" (class-classname object)))
+  (cond ((potential-class-p object) (format stream "#<CLASS ~S>" (class-classname object)))
         (t (write-string "#<UNKNOWN>" stream))))
