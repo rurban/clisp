@@ -3,20 +3,12 @@
 (pushnew :PostgreSQL *features*)
 
 (defpackage "SQL"
-  (:case-sensitive t)
   (:nicknames "POSTGRES" "POSTGRESQL")
-  (:use))
-
-(eval-when (compile eval)
-  (require "exporting" "../exporting")
-  (make-exporting "SQL"
-    cl:compile cl:eval cl:load cl:defconstant
-    ffi:bitsizeof ffi:boolean ffi:char ffi:character ffi:c-array
-    ffi:c-array-max ffi:c-array-ptr ffi:c-function ffi:c-ptr ffi:c-pointer
-    ffi:c-string ffi:c-struct ffi:deref ffi:double-float ffi:element ffi:int
-    ffi:long ffi:nil ffi:short ffi:sint8 ffi:sint16 ffi:sint32 ffi:sint64
-    ffi:single-float ffi:sizeof ffi:slot ffi:uchar ffi:uint ffi:uint8
-    ffi:uint16 ffi:uint32 ffi:uint64 ffi:ulong ffi:ushort))
+  (:case-sensitive t) (:case-inverted t)
+  (:use "CS-COMMON-LISP" "FFI")
+  (:shadowing-import-from "EXPORTING"
+           #:defconstant #:defun #:defmacro
+           #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out))
 
 (in-package "SQL")
 
@@ -396,5 +388,4 @@
 ;; Get encoding id from environment variable PGCLIENTENCODING
 (def-call-out PQenv2encoding (:return-type int) (:arguments))
 
-(cl:in-package "CL-USER")
 (provide "postgresql")

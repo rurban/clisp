@@ -4,29 +4,20 @@
 ;; Sam Steingold 2002-2003
 
 (defpackage "LINUX"
-  (:case-sensitive t)
+  (:case-sensitive t) (:case-inverted t)
   (:nicknames "UNIX" "GLIBC")
-  (:use))
+  (:use "CS-COMMON-LISP" "FFI")
+  (:shadowing-import-from "EXPORTING"
+           #:defconstant #:defun #:defmacro #:define-modify-macro
+           #:define-symbol-macro #:defsetf
+           #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out)
+  (:shadow read write random abort abs acos asin atan cos sin tan cosh sinh tanh
+           acosh asinh atanh exp log sqrt floor truncate ftruncate open close
+           remove sleep))
 
 ;; This requires linking with NEW_LIBS='linux.o -lm'.
 
 (ffi:default-foreign-language :stdc)
-
-(eval-when (compile eval)
-  ;; so that we don't need to prefix everything with "lisp:" or "ffi:".
-  (require "exporting" "../../exporting")
-  (make-exporting "LINUX"
-    cl:aref cl:ash cl:coerce cl:compile cl:defconstant cl:dotimes cl:eval
-    cl:fill cl:floor cl:gensym cl:let cl:load cl:load-time-value cl:logand
-    cl:logbitp cl:logior cl:lognot cl:mod cl:multiple-value-bind cl:not
-    cl:or cl:&rest cl:progn cl:setf cl:t cl:zerop cl:+ cl:- cl:* cl:= cl:1-
-    ffi:bitsizeof ffi:boolean ffi:cast ffi:char ffi:character ffi:c-array
-    ffi:c-array-max ffi:c-array-ptr ffi:c-function ffi:c-ptr ffi:c-ptr-null
-    ffi:c-pointer ffi:c-string ffi:c-struct ffi:deref ffi::foreign-value
-    ffi:double-float ffi:element ffi:int ffi:long ffi:nil ffi:short ffi:sint8
-    ffi:sint16 ffi:sint32 ffi:sint64 ffi:single-float ffi:sizeof ffi:slot
-    ffi:uchar ffi:uint ffi:uint8 ffi:uint16 ffi:uint32 ffi:uint64 ffi:ulong
-    ffi:ushort ffi:with-c-var))
 
 (in-package "LINUX")
 
@@ -2465,6 +2456,5 @@ and SIG_IGN do anyway, by other means ... They are just sugar, really.
   (:return-type int))
 
 ;;; ==========================================================================
-;;; clean up
-(cl:in-package "CL-USER")
+
 (provide "linux")

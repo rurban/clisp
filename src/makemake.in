@@ -1472,7 +1472,7 @@ LPARTS=$LPARTS' case-sensitive'
 if [ $TSYS = master -o "${with_dynamic_ffi}" != no ] ; then
   LPARTS=$LPARTS' foreign1'
 fi
-LPARTS=$LPARTS' german'
+LPARTS=$LPARTS' exporting german'
 if [ "${with_unicode}" != no ] ; then
   LPARTS=$LPARTS' french spanish russian'
 fi
@@ -2925,18 +2925,13 @@ fi
 echotab "\$(RM) genclisph${HEXE} clisp-test-clisp${HEXE} clisp-test-lispbibl${HEXE} clisp-test-clisp.out clisp-test-lispbibl.out"
 OBSOLETE="$OBSOLETE clisp-test.c"
 echol
-LINKKIT="modules.d modules.c clisp.h exporting.lisp modprep.lisp"
+LINKKIT="modules.d modules.c clisp.h modprep.lisp"
 echol "linkkit : ${LINKKIT}"
 echotab "-\$(RMRF) linkkit"
 echotab "mkdir linkkit"
 for f in ${LINKKIT}; do
   echotab "cd linkkit && \$(LN_S) ${PARENT_}$f $f"
 done
-echol
-echol "exporting.fas : ${MODULESDIR_M}exporting.lisp lisp${LEXE} lispinit.mem"
-echotab "\$(RUN) -M lispinit.mem -q -c ${MODULESDIR}exporting.lisp -o exporting.fas"
-echol
-link_dep "exporting.lisp" "${MODULESDIR_M}exporting.lisp" "${MODULESDIR_}exporting.lisp"
 echol
 echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars"
 echodummyrule modular
@@ -2955,7 +2950,7 @@ echol "base : modular lispinit.mem"
 echotab "test -d base || (mkdir base && cd base && for f in ${FILES} modules.h modules.o makevars lisp${LEXE} lispinit.mem; do \$(LN_S) ${PARENT_}\$\$f \$\$f; done) || (\$(RMRF) base ; exit 1)"
 echol
 # Some "make"s don't support empty target lists. Hence the "anymodule".
-echol "anymodule \$(MODULES) : lisp${LEXE} lispinit.mem force modprep.fas exporting.fas clisp.h"
+echol "anymodule \$(MODULES) : lisp${LEXE} lispinit.mem force modprep.fas clisp.h"
 echotab "test -d \$@ || ${SRCDIR:-${HERE}}lndir ${SRCTOPDIR_}modules/\$@ \$@"
 echotab "if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; CC=\"\$(CC)\" ./configure --cache-file="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache ; fi"
 EVERY_INCLUDES_DOTS_C=''
@@ -3585,7 +3580,7 @@ if [ -n "${SRCDIR}" ] ; then
     line="$line ${f}.c"
   done
   line="$line modules.h"${UNICODE_EXTRA}
-  line="$line \$(LISPFILES) exporting.lisp modprep.lisp NEWS clisp.png"
+  line="$line \$(LISPFILES) modprep.lisp NEWS clisp.png"
   if [ ${HOS} = win32 ]; then
     line="$line clisp.ico"
   fi
