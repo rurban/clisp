@@ -1,3 +1,11 @@
+2003-02-15  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	* src/makemake.in (CFLAGS) [win32msvc]: do not use optimization
+	when debugging. Use enviroinment variable MSVCDIR to avoid manual
+	editing.
+        * win32msvc/makefile.msvc5d - new file - MSVC debug makefile.
+	* Makefile.devel (win32msvc/makefile.msvc5d): new target.
+
 2003-02-14  Sam Steingold  <sds@gnu.org>
 
 	never compare types using EQUAL!
