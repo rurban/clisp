@@ -330,19 +330,19 @@ if test -n "$do_config"; then
     export CC
   fi
   if test -z "$INPLACE"; then
-    # Create subdirectories for: readline gettext termcap,
+    # Create subdirectories for: readline po termcap,
     # and fill them.
-    # - termcap: Because the Makefile carefully uses $(srcdir), only
+    # - termcap, po: Because the Makefile carefully uses $(srcdir), only
     #   a few files need to be linked over.
-    # - readline, gettext: The Makefiles use VPATH=$(srcdir), which
+    # - readline: The Makefiles use VPATH=$(srcdir), which
     #   is not portable, hence all files need to be linked over.
-    for subdir in readline gettext termcap; do
+    for subdir in readline po termcap; do
       if [ -d src/$subdir ] ; then
         maybe_mkdir "${ABS_DIRNAME}/${subdir}";
       fi
     done
     for f in readline readline/doc readline/examples readline/support \
-             readline/shlib gettext gettext/autoconf gettext/po
+             readline/shlib po
     do
       if [ -d src/$f ] ; then
         maybe_mkdir "${ABS_DIRNAME}/${f}";
@@ -415,7 +415,7 @@ if test -n "$do_config"; then
   fi
   ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args \
       $subdir_configure_args --cache-file=config.cache
-  for subdir in readline gettext; do
+  for subdir in readline; do
     if test -d $subdir; then
       # readline is not even configurable in C++ mode.
       if test $subdir = readline; then
@@ -424,25 +424,18 @@ if test -n "$do_config"; then
         fi
       fi
       echo "executing $DIRNAME/$subdir/configure ..."
-      (if test $subdir = gettext; then
-         CPPFLAGS="$CPPFLAGS -I${ABS_DIRNAME}"
-         export CPPFLAGS
-         LDFLAGS="$LDFLAGS -L${ABS_DIRNAME}"
-         export LDFLAGS
-       fi
-       cd $subdir
-       if test -n "$INPLACE" -o $subdir = readline -o $subdir = gettext; then
+      (cd $subdir
+       if test -n "$INPLACE" -o $subdir = readline; then
          subdir_srcdir_args=''
        else
          subdir_srcdir_args="--srcdir=$RREL_SRCDIR/src/$subdir"
        fi
-       if test $subdir = readline -o $subdir = gettext; then
+       if test $subdir = readline; then
          subdir_cache_args=''
        else
          subdir_cache_args="--cache-file=../config.cache"
        fi
        ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args \
-          `if test $subdir = gettext; then echo "--with-included-gettext"; fi` \
           $subdir_configure_args $subdir_cache_args
        cd ..
       )
@@ -494,7 +487,7 @@ fi
 if grep 'cl_cv_prog_cc_cplusplus.*yes' $ABS_DIRNAME/config.cache > /dev/null ; then
   makemake_args="$makemake_args --with-nogettext"
 else
-  if test -d $ABS_DIRNAME/gettext; then
+  if test -d $ABS_DIRNAME/po; then
     makemake_args="$makemake_args --with-gettext"
   else
     makemake_args="$makemake_args --with-nogettext"
