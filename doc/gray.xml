@@ -9,8 +9,9 @@ It is based on the proposal &gray-streams; of David N. Gray to X3J13
 and is supported by most &cl; implementations currently in use.</para>
 
 <para>All symbols defined by this interface, starting with the prefix
- "fundamental-" or "stream-", are exported from the package
- &gray-pac; and re-exported from &ext-pac;.</para>
+ <literal>FUNDAMENTAL-</literal> or <literal>STREAM-</literal>,
+ are exported from the package &gray-pac;
+ and &re-export;ed from &ext-pac;.</para>
 
 <variablelist><title>Defined classes</title>
  <varlistentry id="fu-st"><term>&fu-st;</term>
