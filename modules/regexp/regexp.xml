@@ -46,7 +46,7 @@ info pages.</para>
   The index of the first character of the string is 0, the index of the
   second character is 1, and so on.
   The next values are &match-t; structures for every
-  <replaceable>\(...\)</replaceable> contruct in &pattern-r;, in the
+  <replaceable>\(...\)</replaceable> construct in &pattern-r;, in the
   order that the open parentheses appear in &pattern-r;.
  </para></listitem></varlistentry>
 
@@ -87,7 +87,7 @@ info pages.</para>
 <varlistentry id="re-regexp-compile"><term><literal
     role="sexp">(&re-regexp-compile; &string-r; &optional-amp;
      (&case-sensitive-r; t))</literal></term>
- <listitem><simpara>Commpile the regular expression &string-r; into an
+ <listitem><simpara>Compile the regular expression &string-r; into an
   object suitable for &re-regexp-exec;.</simpara></listitem></varlistentry>
 
 <varlistentry id="re-regexp-exec"><term><literal
@@ -133,7 +133,7 @@ info pages.</para>
             (format t "[~d] ~s~30t== ~5:d~%" (incf n) k v)))))
 </programlisting></para>
 
-<para>The same is done by the following Perl:
+<para>The same is done by the following &perl;:
 <programlisting>
 #!/usr/local/bin/perl -w
 
