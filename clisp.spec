@@ -29,7 +29,7 @@ Icon:         clisp.gif
 Copyright:    GPL
 Group:        development/languages
 Source:       ftp://seagull.cdrom.com/pub/lisp/clisp/source/clispsrc.tar.gz
-URL:          http://clisp.cons.org/~haible/clisp.html
+URL:          http://clisp.cons.org
 Packager:     Red Hat Contrib|Net <rhcn-bugs@redhat.com>
 Provides:     clisp, ansi-cl
 Distribution: Red Hat Contrib|Net
@@ -89,7 +89,7 @@ EOF
 ./configure --prefix=/usr --fsstnd=redhat --with-module=wildcard \
     --with-module=regexp --with-module=bindings/linuxlibc6 \
     --with-module=clx/new-clx --with-module=postgresql \
-    --export-syscalls --build %{clisp_build}
+    --with-export-syscalls --build %{clisp_build}
 %install
 cd %{clisp_build}
 # make install
