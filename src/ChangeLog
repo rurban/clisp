@@ -1,3 +1,11 @@
+2004-02-02  Bruno Haible  <bruno@clisp.org>
+
+	* Makefile.devel (%/configure.in, %/config.h.in): Restrict the rule
+	to not match files in ffcall and libcharset.
+	(ffcall/vacall/config.h.in, ffcall/trampoline/config.h.in,
+	ffcall/callback/vacall_r/vacall_r.h.in,
+	ffcall/callback/trampoline_r/config.h.in): Remove empty rules.
+
 2004-02-02  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 889037 ]: Incorrect value returned by compiled function
