@@ -1,3 +1,7 @@
+2004-10-13  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in (XCFLAGS): Don't add -fsingle when using a C++ compiler.
+
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
 	Check that user-defined methods on many MOP generic functions behave

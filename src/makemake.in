@@ -994,7 +994,10 @@ else
     TXT2CFLAGS="${TXT2CFLAGS} -DQUOTE_QUOTES"
   esac
   if [ $TSYS = sun4 ] ; then
-    XCFLAGS=$XCFLAGS' -dalign -fsingle'
+    XCFLAGS=$XCFLAGS' -dalign'
+    if [ $CC_CPLUSPLUS = false ] ; then
+      XCFLAGS=$XCFLAGS' -fsingle'
+    fi
     XCLFLAGS=$XCLFLAGS' -Bstatic'
   fi
   XCC_NOOPTFLAGS=''
