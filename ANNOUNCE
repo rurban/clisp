@@ -11,7 +11,7 @@ CLISP is available via anonymous ftp from ftp2.cons.org, directory
 
 This directory is mirrored by the following FTP site:
   Europe:
-     rs104.hrz.th-darmstadt.de [130.83.47.112]
+     ftp.hrz.tu-darmstadt.de [130.83.47.112]
        /pub/programming/languages/lisp/clisp
 
 Other ftp sites, carrying old versions of CLISP, are
