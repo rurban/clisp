@@ -348,6 +348,7 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :BOOLEAN                      \
                       ovector,ovector_size);
       end_system_call();
     });
+  if (ovector == NULL) fehler(error,"internal pcre library bug: pcre_exec/alloca interaction; report it to http://pcre.org");
   if (ret == PCRE_ERROR_NOMATCH) VALUES1(NIL);
   else if (ret > 0) {
     if (bool_p) VALUES1(T); /* success indicator */

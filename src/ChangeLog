@@ -1,5 +1,10 @@
 2004-06-23  Sam Steingold  <sds@gnu.org>
 
+	* modules/pcre/cpcre.c (PCRE:PCRE-EXEC): signal an error
+	instead of crashing on a pcre library bug
+
+2004-06-23  Sam Steingold  <sds@gnu.org>
+
 	* time.d (convert_time_from_universal): new function
 	* genclisph.d (main): export it
 	* modules/berkeley-db/bdb.c (ENV-SET-OPTIONS, ENV-GET-OPTIONS):
