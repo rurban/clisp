@@ -1,5 +1,9 @@
 1999-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * aclocal.m4 (CL_FPU_CONTROL): Fix the "checking for" messages.
+
+1999-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * aclocal.m4 (CL_MEMSET): Undefine memset, so we get correct types
           with glibc-2.1.
 
