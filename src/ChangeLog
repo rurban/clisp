@@ -1,5 +1,10 @@
 1998-09-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * pathname.d (legal_namechar): On DOS, accept more misc characters
+          as valid.
+
+1998-09-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (const, __const): Define to empty when using gcc-2.7.x.
 
 1998-09-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
