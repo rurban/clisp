@@ -1,3 +1,8 @@
+1999-06-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * intl/libgettext.h: Prepare a __GNUC_MINOR__ conditional for GCC
+          version 3, consistently with intl/intlh.inst.in.
+
 1999-04-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * po/Makefile.devel (DSOURCES): Add amigaaux.

@@ -213,7 +213,7 @@ global int main()
   printf("#define global\n");
 # printf("#define local  static\n");
   #ifdef GNU
-    #if (__GNUC__ == 2) && (__GNUC_MINOR__ >= 90)
+    #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 90))
       printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
       printf("  storclass void funname arguments __attribute__((__noreturn__))\n");
     #else
