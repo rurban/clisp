@@ -76,7 +76,7 @@ LISPSPECFORM(function, 1,1,nobody)
         # Symbol im aktuellen Funktions-Environment suchen:
         var object fun = sym_function(funname,aktenv.fun_env);
         # SUBR oder Closure oder Foreign-Function zurückgeben, sonst Fehler:
-        if (!(subrp(fun) || closurep(fun) || ffunctionp(fun))) {
+        if (!functionp(fun)) {
           if (functionmacrop(fun))
             fun = TheFunctionMacro(fun)->functionmacro_function;
           else {
