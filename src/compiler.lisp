@@ -1689,7 +1689,10 @@ for-value   NIL or T
 ;; issue additional information from the compiler (via FORMAT).
 (defun c-comment (cstring &rest args)
   (let ((dest (if *compile-verbose* *c-error-output* *c-listing-output*)))
-    (when dest (apply #'format dest cstring args))))
+    (when dest
+      (fresh-line dest)
+      (apply #'format dest cstring args)
+      (elastic-newline dest))))
 
 (defstruct c-source-point
   (lineno1 *compile-file-lineno1*)
@@ -1736,7 +1739,7 @@ for-value   NIL or T
 (defun c-warn (cstring &rest args)
   (incf *warning-count*)
   (apply #'c-comment
-         (concatenate 'string "~&" (TEXT "WARNING~@[ in ~A~]~A :") "~." cstring)
+         (concatenate 'string (TEXT "WARNING~@[ in ~A~]~A :") "~%" cstring)
          (current-function) (c-source-location)
          args))
 
@@ -1756,9 +1759,12 @@ for-value   NIL or T
     (when in-function
       (when *compiling-from-file*
         (pushnew in-function *functions-with-errors*)))
-    (format *c-error-output*
-            (concatenate 'string "~&" (TEXT "ERROR~@[ in ~S~]~A :") "~%~?~.")
-            in-function (c-source-location) cstring args))
+    (fresh-line *c-error-output*)
+    (format *c-error-output* (TEXT "ERROR~@[ in ~S~]~A :")
+            in-function (c-source-location))
+    (terpri *c-error-output*)
+    (format *c-error-output* cstring args)
+    (elastic-newline *c-error-output*))
   (throw 'c-error
     (make-anode :source NIL
                 :type 'ERROR
@@ -10668,24 +10674,20 @@ The function make-closure is required.
                                         (sig-keywords known-sig)
                                         (sig-allow-p  known-sig))
                   (null (c-source-point-file (second kf))))
-        (c-comment (concatenate 'string "~&" (TEXT "[~s was defined~a]") "~.")
+        (c-comment (TEXT "[~s was defined~a]")
                    (car kf) (c-source-point-location (second kf))))
       t)))
 
 ;; report the compilation problems accumulated so far and reset them
 (defun c-report-problems ()
   (when *functions-with-errors*
-    (c-comment (concatenate 'string "~&"
-                 (TEXT "There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}")
-                 "~.")
+    (c-comment (TEXT "There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}")
                (nreverse *functions-with-errors*)))
   (setq *unknown-functions*
         (nset-difference *unknown-functions* *known-functions*
                          :test #'match-known-unknown-functions))
   (when *unknown-functions*
-    (c-comment (concatenate 'string "~&"
-                 (TEXT "The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}")
-                 "~.")
+    (c-comment (TEXT "The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}")
                (delete-duplicates (mapcar #'car (nreverse *unknown-functions*))
                                   :test #'equal)))
   (let ((unknown-vars (set-difference *unknown-free-vars*
@@ -10693,26 +10695,18 @@ The function make-closure is required.
         (too-late-vars (intersection *unknown-free-vars*
                                      *known-special-vars*)))
     (when unknown-vars
-      (c-comment (concatenate 'string "~&"
-                   (TEXT "The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}")
-                   "~.")
+      (c-comment (TEXT "The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}")
                  (nreverse unknown-vars)))
     (when too-late-vars
-      (c-comment (concatenate 'string "~&"
-                   (TEXT "The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}")
-                   "~.")
+      (c-comment (TEXT "The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}")
                  (nreverse too-late-vars))))
   (when *deprecated-functions*
-    (c-comment (concatenate 'string "~&"
-                 (TEXT "The following functions were used but are deprecated:~%~:{~<~%~:; ~S - ~@?~>~^~}")
-                 "~.")
+    (c-comment (TEXT "The following functions were used but are deprecated:~%~:{~<~%~:; ~S - ~@?~>~^~}")
                (mapcar #'(lambda (funname)
                            (assoc funname *deprecated-functions-alist* :test #'eq))
                        (nreverse *deprecated-functions*))))
   (when (boundp '*error-count*) ; then `*warning-count*' is bound too
-    (c-comment (concatenate 'string "~&"
-                 (TEXT "~D error~:P, ~D warning~:P")
-                 "~.")
+    (c-comment (TEXT "~D error~:P, ~D warning~:P")
                *error-count* *warning-count*))
   ;; clean-up for the next compilation unit
   (c-reset-globals))
