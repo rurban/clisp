@@ -101,6 +101,10 @@ User visible changes
 * In non-interactive batch mode, *ERROR-OUTPUT* now uses the system's standard
   error stream, instead of the standard output stream.
 
+* LOAD :OBSOLETE-ACTION can now also be :COMPILE to automatically
+  recompile the obsolete *.fas file.
+  See <http://clisp.cons.org/impnotes.html#loadfile> for details.
+
 * Bug fixes:
   + The interpreter no longer executes the body of (EVAL-WHEN (COMPILE) ...)
     forms.
