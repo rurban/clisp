@@ -143,6 +143,7 @@
 <!ENTITY out-s "&output-s; &stream-t;">
 <!ENTITY bidi-s "<ulink url='&clhs;/Body/glo_b.html#bidirectional'>bidirectional</ulink> &stream-t;">
 <!ENTITY fresh "<ulink url='&clhs;/Body/glo_f.html#fresh'>fresh</ulink>">
+<!ENTITY consing "<ulink url='&clhs;/Body/glo_c.html#cons'>consing[3]</ulink>">
 <!ENTITY constant "<ulink url='&clhs;/Body/glo_c.html#constant_variable'>constant variable</ulink>">
 <!ENTITY variable "<ulink url='&clhs;/Body/glo_v.html#variable'>variable</ulink>">
 <!ENTITY recog-subt "<ulink url='&clhs;/Body/glo_r.html#recognizable_subtype'>recognizable subtype</ulink>">
