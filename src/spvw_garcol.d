@@ -48,7 +48,7 @@ Use GC_MARK when the argument might be a reallocated string */
 #define GC_MARK(o) do {                         \
   if (instancep(o)) instance_un_realloc(o);     \
   if (arrayp(o)) simple_array_to_storage(o); gc_mark(o); } while(0)
-#if DEBUG_GC_MARK
+#if DEBUG_GC_MARK || 1
   #define IF_DEBUG_GC_MARK(statement)  statement
 #else
   #define IF_DEBUG_GC_MARK(statement)  /*nop*/
@@ -58,7 +58,7 @@ local void gc_mark (object obj)
 {
   var object dies = obj; /* current object */
   var object vorg = nullobj; /* predecessor-object */
-  IF_DEBUG_GC_MARK(fprintf(stderr,"gc_mark obj = 0x%llx\n", as_oint(obj)));
+  IF_DEBUG_GC_MARK(fprintf(stderr,"gc_mark obj = 0x%lx\n", as_oint(obj)));
 
 #define down_pair()                                                     \
   if (in_old_generation(dies,typecode(dies),1))                         \
@@ -212,7 +212,7 @@ local void gc_mark (object obj)
  down: /* entry for further descent.
           dies = object to be marked (engl. this),
           vorg = its predecessor */
-  IF_DEBUG_GC_MARK(fprintf(stderr,"down: vorg = 0x%llx, dies = 0x%llx\n",
+  IF_DEBUG_GC_MARK(fprintf(stderr,"down: vorg = 0x%lx, dies = 0x%lx\n",
                            as_oint(vorg), as_oint(dies)));
  #ifdef TYPECODES
   switch (typecode(dies)) {
@@ -314,7 +314,7 @@ local void gc_mark (object obj)
  #endif
  up: /* entry for ascent.
         dies = currently marked object, vorg = its predecessor */
-  IF_DEBUG_GC_MARK(fprintf(stderr,"up:   vorg = 0x%llx, dies = 0x%llx\n",
+  IF_DEBUG_GC_MARK(fprintf(stderr,"up:   vorg = 0x%lx, dies = 0x%lx\n",
                            as_oint(vorg), as_oint(dies)));
   if (eq(vorg,nullobj)) /* ending flag reached? */
     return; /* yes -> finished */

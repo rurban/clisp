@@ -979,13 +979,14 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
 # prepare_resize(maxcount,mincount_threshold)
 # > maxcount: wished new size MAXCOUNT
 # > mincount_threshold: short-float MINCOUNT-THRESHOLD
+# > weak: ???
 # < result: maxcount
 # < stack-layout: MAXCOUNT, SIZE, MINCOUNT,
 #                index-vector, next-vector, key-value-vector.
 # decreases STACK by 6
 # can trigger GC
 local uintL prepare_resize (object maxcount, object mincount_threshold,
-                            gcv_object_t weak) {
+                            object weak) {
   # check, if maxcount is not a too big fixnum >0 :
   if (!posfixnump(maxcount))
     goto fehler_maxcount;
