@@ -5093,11 +5093,11 @@ global object iconv_range(encoding,start,end)
       #if defined(AMIGAOS)
       interruptp({ fehler_interrupt(); });
       #endif
-      run_time_stop(); # Run-Time-Stoppuhr anhalten
+      run_time_stop(); # hold run time clock
       begin_system_call();
-      var int result = read(handle,&b,1); # Zeichen lesen versuchen
+      var int result = read(handle,&b,1); # try to read chars
       end_system_call();
-      run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
+      run_time_restart(); # resume run time clock
       if (result<0) {
         #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
         begin_system_call();
@@ -5522,11 +5522,11 @@ global object iconv_range(encoding,start,end)
           return byteptr;
       }
       var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
-      run_time_stop(); # Run-Time-Stoppuhr anhalten
+      run_time_stop(); # hold run time clock
       begin_system_call();
       var sintL result = full_read(handle,byteptr,len);
       end_system_call();
-      run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
+      run_time_restart(); # resume run time clock
       if (result<0) {
         #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
         begin_system_call();
@@ -9453,7 +9453,7 @@ local object make_key_event(event)
     {
       if (!(_osmode == DOS_MODE)) {
         # OS/2
-        run_time_stop(); # Run-Time-Stoppuhr anhalten
+        run_time_stop(); # hold run time clock
         var object c;
         var int ch = _read_kbd(false,true,false);
         if (ch==0) {
@@ -9471,12 +9471,12 @@ local object make_key_event(event)
         # noch zu behandeln: ??
         # Ctrl-2 -> #\Control-2, Ctrl-6 -> #\Code30, Ctrl-ß -> #\Code28,
         # Ctrl-+ -> #\Code29, Ctrl-ü -> #\Code27 = #\Escape
-        run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
+        run_time_restart(); # resume run time clock
         return c;
       } else {
         # DOS
         var object c;
-        run_time_stop(); # Run-Time-Stoppuhr anhalten
+        run_time_stop(); # hold run time clock
         {
           # Tastendruck abwarten, nichts ausgeben:
           var uintW erg = getch();
@@ -9536,7 +9536,7 @@ local object make_key_event(event)
           # Ctrl-ß          0C1C
           # Ctrl--          0C1F
         }
-        run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
+        run_time_restart(); # resume run time clock
         return c;
       }
     }
@@ -9718,11 +9718,11 @@ local object make_key_event(event)
         var uintB c;
        read_next_char:
         {
-          run_time_stop(); # Run-Time-Stoppuhr anhalten
+          run_time_stop(); # hold run time clock
           begin_system_call();
-          var int ergebnis = read(stdin_handle,&c,1); # Zeichen lesen versuchen
+          var int ergebnis = read(stdin_handle,&c,1); # try to read chars
           end_system_call();
-          run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
+          run_time_restart(); # resume run time clock
           if (ergebnis<0) {
             begin_system_call();
             if (errno==EINTR) { # Unterbrechung (evtl. durch Ctrl-C) ?
@@ -9794,12 +9794,12 @@ local object make_key_event(event)
           FD_ZERO(&handle_menge); FD_SET(stdin_handle,&handle_menge);
           restart_select:
           small_time.tv_sec = 0; small_time.tv_usec = 1000000/10; # 1/10 sec
-          run_time_stop(); # Run-Time-Stoppuhr anhalten
+          run_time_stop(); # hold run time clock
           begin_system_call();
           var int ergebnis;
           ergebnis = select(FD_SETSIZE,&handle_menge,NULL,NULL,&small_time);
           end_system_call();
-          run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
+          run_time_restart(); # resume run time clock
           if (ergebnis<0) {
             begin_system_call();
             if (errno==EINTR) {
@@ -9828,7 +9828,7 @@ local object make_key_event(event)
           var struct termio oldtermio;
           var struct termio newtermio;
           #endif
-          run_time_stop(); # Run-Time-Stoppuhr anhalten
+          run_time_stop(); # hold run time clock
           begin_system_call();
           #ifdef UNIX_TERM_TERMIOS
           if (!( tcgetattr(stdin_handle,&oldtermio) ==0)) {
@@ -9845,7 +9845,7 @@ local object make_key_event(event)
           # 2. stdin_handle und stdout_handle beide dasselbe Terminal sind. ??
           newtermio = oldtermio;
           newtermio.c_cc[VMIN] = 0;
-          newtermio.c_cc[VTIME] = 1; # 1/10 Sekunde Timeout
+          newtermio.c_cc[VTIME] = 1; # 1/10 second timeout
           #ifdef UNIX_TERM_TERMIOS
           if (!( TCSETATTR(stdin_handle,TCSANOW,&newtermio) ==0)) {
             if (!(errno==ENOTTY)) { OS_error(); }
@@ -9855,7 +9855,7 @@ local object make_key_event(event)
             if (!(errno==ENOTTY)) { OS_error(); }
           }
           #endif
-          var int ergebnis = read(stdin_handle,&c,1); # Zeichen lesen versuchen, mit Timeout
+          var int ergebnis = read(stdin_handle,&c,1); # try to read chars, with timeout
           #ifdef UNIX_TERM_TERMIOS
           if (!( TCSETATTR(stdin_handle,TCSANOW,&oldtermio) ==0)) {
             if (!(errno==ENOTTY)) { OS_error(); }
@@ -9866,7 +9866,7 @@ local object make_key_event(event)
           }
           #endif
           end_system_call();
-          run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
+          run_time_restart(); # resume run time clock
           if (ergebnis<0) {
             begin_system_call();
             if (errno==EINTR) { # Unterbrechung (evtl. durch Ctrl-C) ?
@@ -10549,7 +10549,7 @@ LISPFUNN(make_keyboard_stream,0)
 
 #ifdef HAVE_TERMINAL1
 
-# Lesen eines Zeichens von einem Terminal-Stream.
+# read a character from a terminal-stream.
   local object rd_ch_terminal1 (const object* stream_);
   local object rd_ch_terminal1(stream_)
     var const object* stream_;
@@ -10662,7 +10662,7 @@ LISPFUNN(make_keyboard_stream,0)
 
 #define TERMINAL_LINEBUFFERED  true
 
-# Lesen eines Zeichens von einem Terminal-Stream.
+# read a character from a terminal-stream.
   local object rd_ch_terminal2 (const object* stream_);
   local object rd_ch_terminal2(stream_)
     var const object* stream_;
@@ -10672,7 +10672,7 @@ LISPFUNN(make_keyboard_stream,0)
         return eof_value;
       if (!(posfixnum_to_L(TheStream(stream)->strm_terminal_index)
             < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])) {
-        # index=count -> muss eine ganze Zeile von Tastatur lesen:
+        # index=count -> must read a whole line from the keyboard:
         TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
         TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] = 0; # count := 0
         loop {
@@ -10699,7 +10699,7 @@ LISPFUNN(make_keyboard_stream,0)
                < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]
               );
       }
-      # index<count -> Es sind noch Zeichen im Buffer
+      # index<count -> there are still characters in the Buffer
       var uintL index =
         posfixnum_to_L(TheStream(stream)->strm_terminal_index); # Index
       TheStream(stream)->strm_terminal_index =
@@ -10721,7 +10721,7 @@ LISPFUNN(make_keyboard_stream,0)
         return ls_eof;
       if (posfixnum_to_L(TheStream(stream)->strm_terminal_index)
           < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])
-        # index<count -> Es sind noch Zeichen im Buffer
+        # index<count -> there are still characters in the Buffer
         return ls_avail;
       return listen_char_unbuffered(stream);
     }
@@ -10834,7 +10834,7 @@ LISPFUNN(make_keyboard_stream,0)
 # MAKE-PIPE-INPUT-STREAM might need to be modified to temporarily turn off
 # readline.
 
-# Lesen eines Zeichens von einem Terminal-Stream.
+# read a character from a terminal-stream.
   local object rd_ch_terminal3 (const object* stream_);
   # vgl. rd_ch_unbuffered() :
   local object rd_ch_terminal3(stream_)
@@ -10845,7 +10845,7 @@ LISPFUNN(make_keyboard_stream,0)
         return eof_value;
       if (!(posfixnum_to_L(TheStream(stream)->strm_terminal_index)
             < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])) {
-        # index=count -> muss eine ganze Zeile von Tastatur lesen:
+        # index=count -> must read a whole line from the keyboard:
         TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
         TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] = 0; # count := 0
         # Pass bytes that we have already read down into readline's buffer.
@@ -10854,49 +10854,31 @@ LISPFUNN(make_keyboard_stream,0)
           begin_system_call(); rl_stuff_char(b); end_system_call();
         }
         {
-          var char* prompt; # Prompt: letzte bisher ausgegebene Zeile
+          var char* prompt; # Prompt: last output line
           {
             var object lastline = string_to_asciz(TheStream(stream)->strm_terminal_outbuff,TheStream(stream)->strm_encoding);
             begin_system_call();
             prompt = (char*) malloc(Sbvector_length(lastline)+1);
-            if (!(prompt==NULL)) {
+            if (prompt!=NULL)
               strcpy(prompt,TheAsciz(lastline));
-              #ifndef NO_MATCH  # not needed any more in readline-2.2-clisp or newer
-              # Die readline()-Library arbeitet mit einer anderen Bildschirmbreite,
-              # als sie bei der Ausgabe des Prompts benutzt wurde. Bei Prompts
-              # länger als eine Bildschirmzeile gibt das Probleme. Wir behelfen
-              # uns, indem wir an passender Stelle ein '\n' einfügen.
-              {
-                var uintL prompt_length = asciz_length(prompt);
-                var uintL screenwidth = posfixnum_to_L(Symbol_value(S(prin_linelength)))+1;
-                if (prompt_length >= screenwidth) {
-                  var uintL insertpos = round_down(prompt_length,screenwidth);
-                  var uintL i;
-                  for (i = prompt_length; i >= insertpos; i--)
-                    prompt[i+1] = prompt[i];
-                  prompt[insertpos] = '\n';
-                }
-              }
-              #endif
-            }
             end_system_call();
           }
-          # Lexem-trennende Characters: die mit Syntaxcode whsp,tmac,nmac
-          # (siehe IO.D, eigentlich von der Readtable abhängig):
+          # lexema-separating characters: with syntax code whsp,tmac,nmac
+          # (see IO.D, actually depends on the current *READTABLE*):
           rl_basic_word_break_characters = "\t" NLstring " \"#'(),;`";
           rl_basic_quote_characters = "\"|";
           rl_completer_quote_characters = "\\|";
-          run_time_stop(); # Run-Time-Stoppuhr anhalten
+          run_time_stop(); # hold run time clock
           begin_call();
           rl_already_prompted = true;
-          var uintB* line = (uintB*)readline(prompt==NULL ? "" : prompt); # Zeile lesen
+          var uintB* line = (uintB*)readline(prompt==NULL ? "" : prompt);
           end_call();
-          run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
+          run_time_restart(); # resume run time clock
           if (!(prompt==NULL)) {
             begin_system_call(); free(prompt); end_system_call();
           }
           if (line==NULL)
-            # EOF (am Zeilenanfang) erkennen
+            # detect EOF (at the start of line)
             return eof_value;
           # gelesene Zeile zur Eingabezeile dazunehmen:
           #ifdef UNICODE
@@ -10942,7 +10924,7 @@ LISPFUNN(make_keyboard_stream,0)
                < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]
               );
       }
-      # index<count -> Es sind noch Zeichen im Buffer
+      # index<count -> there are still characters in the Buffer
       var uintL index =
         posfixnum_to_L(TheStream(stream)->strm_terminal_index); # Index
       TheStream(stream)->strm_terminal_index =
@@ -10964,7 +10946,7 @@ LISPFUNN(make_keyboard_stream,0)
         return ls_eof;
       if (posfixnum_to_L(TheStream(stream)->strm_terminal_index)
           < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])
-        # index<count -> Es sind noch Zeichen im Buffer
+        # index<count -> there are still characters in the Buffer
         return ls_avail;
       return listen_char_unbuffered(stream);
     }
@@ -15585,7 +15567,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
       var uintB b;
       begin_system_call();
-      var int result = sock_read(handle,&b,1); # Zeichen lesen versuchen
+      var int result = sock_read(handle,&b,1); # try to read chars
       if (result<0) {
         #ifdef WIN32_NATIVE
         if (WSAGetLastError()==WSAEINTR) { # Unterbrechung durch Ctrl-C ?
@@ -16671,10 +16653,8 @@ LISPFUNN(socket_stream_handle,1)
       }
       rl_attempted_completion_function = &lisp_completion_matches;
       rl_completion_entry_function = &lisp_completion_more;
-      #ifdef NO_MATCH  # readline-2.2-clisp or newer
       _rl_comment_begin = ";";
       _rl_enable_paren_matching(true); # readline-4.1-clisp or newer
-      #endif
       end_call();
       #endif
       {
@@ -16781,60 +16761,37 @@ LISPFUNN(socket_stream_handle,1)
 
 #ifdef GNU_READLINE
 
-# Hilfsfunktionen für die GNU readline Library:
+# Auxiliary functions for the GNU ReadLine Library:
 
 nonreturning_function(local, rl_memory_abort, (void));
-local void rl_memory_abort()
-  {
-    # Wenn für die Readline-Library der Speicher nicht mehr reicht,
-    # schmeißen wir sie raus und ersetzen den Terminal-Stream durch einen,
-    # der ohne sie auskommt.
-    rl_deprep_terminal(); # alle komischen ioctl()s rückgängig machen
-    begin_callback(); # STACK wieder auf einen vernünftigen Wert setzen
-    rl_gnu_readline_p = false;
-    Symbol_value(S(terminal_io)) = make_terminal_stream();
-    fehler(storage_condition,
-           GETTEXT("readline library: out of memory.")
-          );
-  }
+local void rl_memory_abort() {
+  # when there is no more memory for the ReadLine
+  # drop it and replace the *TERMINAL-IO* with another
+  # terminal-stream without ReadLine
+  rl_deprep_terminal(); # cancel all ioctl()s
+  begin_callback(); # reset STACK to a reasonable value
+  rl_gnu_readline_p = false;
+  Symbol_value(S(terminal_io)) = make_terminal_stream();
+  fehler(storage_condition,
+         GETTEXT("readline library: out of memory."));
+}
 
-global char* xmalloc (int count);
-global char* xmalloc(count)
-  var int count;
-  {
-    var char* tmp = (char*)malloc(count);
-    if (tmp)
-      return tmp;
-    else
-      rl_memory_abort();
-  }
+global char* xmalloc (int count) {
+  char* tmp = (char*)malloc(count);
+  if (tmp)
+    return tmp;
+  else
+    rl_memory_abort();
+}
 
-#ifdef NO_MATCH  # readline-2.2-clisp or newer
-  global char* xrealloc (void* ptr, int count);
-  global char* xrealloc(ptr,count)
-    var void* ptr;
-    var int count;
-    {
-      var char* tmp = (ptr==NULL ? (char*)malloc(count) : (char*)realloc((char*)ptr,count));
-      if (tmp)
-        return tmp;
-      else
-        rl_memory_abort();
-    }
-#else
-  global char* xrealloc (char* ptr, int count);
-  global char* xrealloc(ptr,count)
-    var char* ptr;
-    var int count;
-    {
-      var char* tmp = (ptr==NULL ? (char*)malloc(count) : (char*)realloc(ptr,count));
-      if (tmp)
-        return tmp;
-      else
-        rl_memory_abort();
-    }
-#endif
-
+global char* xrealloc (void* ptr, int count) {
+  char* tmp = (ptr==NULL ? (char*)malloc(count) :
+               (char*)realloc((char*)ptr,count));
+  if (tmp)
+    return tmp;
+  else
+    rl_memory_abort();
+}
 #endif
 
 LISPFUNN(built_in_stream_open_p,1)
