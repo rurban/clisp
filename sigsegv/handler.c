@@ -102,7 +102,7 @@
 #if defined(UNIX_FREEBSD)
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, void* scp, char* addr
 #define SIGSEGV_FAULT_ADDRESS  addr
-#define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGBUS)
+#define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV) FAULT_HANDLER(SIGBUS)
 #endif
 #if defined(UNIX_SUNOS) && defined(HAVE_VADVISE) /* SunOS 4 */
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, void* scp, char* addr
@@ -205,6 +205,48 @@ static void reset_onstack_flag ()
 {
   /* Nothing to do. sigaltstack() simply looks at the stack pointer,
    * therefore SS_ONSTACK is not sticky. */
+}
+#endif
+#if defined(__FreeBSD__) /* FreeBSD */
+#include <stdio.h> /* sprintf */
+#include <signal.h> /* sigaltstack */
+static int get_vma (unsigned long address, vma_struct* vma)
+{
+  FILE* f = fopen("/proc/curproc/map","r");
+  /* The stack appears as multiple adjacents segments, therefore we
+     merge adjacent segments.  */
+  unsigned long next_start, next_end, curr_start, curr_end, prev_end;
+  int c;
+  if (!f) return -1;
+  for (prev_end = 0, curr_start = curr_end = 0; ;) {
+    if (fscanf(f,"0x%lx 0x%lx",&next_start,&next_end) != 2) break;
+    if (next_start == curr_end) {
+      /* Merge adjacent segments.  */
+      curr_end = next_end;
+    } else {
+      if (address >= curr_start && address <= curr_end-1) {
+        vma->start = curr_start; vma->end = curr_end; vma->prev_end = prev_end;
+        fclose(f); return 0;
+      }
+      prev_end = curr_end;
+      curr_start = next_start; curr_end = next_end;
+    }
+    while (c = getc(f), c != EOF && c != '\n') continue;
+  }
+  fclose(f);
+  if (address >= curr_start && address <= curr_end-1) {
+    vma->start = curr_start; vma->end = curr_end; vma->prev_end = prev_end;
+    return 0;
+  }
+  return -1;
+}
+static void reset_onstack_flag ()
+{
+  struct sigaltstack ss;
+  if (sigaltstack(NULL,&ss) >= 0) {
+    ss.ss_flags &= ~SS_ONSTACK;
+    sigaltstack(&ss,NULL);
+  }
 }
 #endif
 #if defined(UNIX_SUNOS) || defined(UNIX_IRIX) || defined(UNIX_OSF) /* SunOS, Irix, OSF/1 */
