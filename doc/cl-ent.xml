@@ -124,6 +124,7 @@
 <!ENTITY http "<ulink url='http://www.w3.org/Protocols/'><command>HTTP</command></ulink>">
 <!ENTITY gcc "<ulink url='http://gcc.gnu.org/'><command>gcc</command></ulink>">
 <!ENTITY gdb "<ulink url='http://sources.redhat.com/gdb/'><command>gdb</command></ulink>">
+<!ENTITY apache "<ulink url='http://www.apache.org/'>Apache</ulink>">
 
 <!-- *** CLHS - Common Lisp HyperSpec *** -->
 
