@@ -3074,7 +3074,7 @@ for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY ; do
   echol
 done
 
-for f in NEWS clisp.png .clisp .gdbinit ; do
+for f in NEWS .clisp .gdbinit ; do
   if [ -n "${SRCDIR}" ] ; then
     echol "${f} : ${SRCDIR}${f}"
     echotab "-\$(LN_S) ${SRCDIR}${f} ${f}"
