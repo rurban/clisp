@@ -1,3 +1,7 @@
+2001-05-10  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: more tests
+
 2001-05-09  Sam Steingold  <sds@gnu.org>
 
 	* symbols.tst: CLISP now implements compiler macros
