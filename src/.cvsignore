@@ -4,6 +4,7 @@
 *.opt
 *.pdb
 *.sbr
+autom4te.cache
 avcall
 avcall.h
 callback
