@@ -1676,7 +1676,7 @@ fi
 
 # echotab_mkdir_maybe dir
 # make the directory if it is not there
-echotab_mkdir_maybe () { echotab "test -d $1 || mkdir $1"; }
+echotab_mkdir_maybe () { echotab "test -d $1 || mkdir -p $1"; }
 
 echol "# -*- Makefile -*- for the CLISP binaries"
 echol "# DO NOT EDIT! GENERATED AUTOMATICALLY!"
@@ -1704,6 +1704,7 @@ echol '# Directories used by "make install":'
 echol "prefix = ${PREFIX}"
 echol "exec_prefix = ${EXEC_PREFIX}"
 echol "bindir  = \$(exec_prefix)${NEXT_}bin"
+echol "shared  = \$(prefix)${NEXT_}share"
 echol "mandir  = \$(prefix)${NEXT_}share${NEXT_}man"
 echol "htmldir = \$(prefix)${NEXT_}share${NEXT_}html"
 echol "dvidir  = \$(prefix)${NEXT_}share${NEXT_}dvi"
@@ -3251,6 +3252,7 @@ if [ $CROSS = false ] ; then
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd po && \$(MAKE) installdirs prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
     fi
+    echotab_mkdir_maybe "\$(DESTDIR)\$(shared)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man1"
     if [ $TERMINAL = readline ] ; then
@@ -3258,7 +3260,6 @@ if [ $CROSS = false ] ; then
     fi
     case "$fsstnd" in
       gnu_ext)
-        echotab_mkdir_maybe "\$(DESTDIR)\$(exec_prefix)/share"
         echotab_mkdir_maybe "\$(DESTDIR)\$(htmldir)"
         echotab_mkdir_maybe "\$(DESTDIR)\$(dvidir)"
         ;;
@@ -3313,6 +3314,7 @@ if [ $CROSS = false ] ; then
     fi
     echotab_mkdir_maybe "\$(DESTDIR)\$(prefix)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(exec_prefix)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(shared)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man1"
     echotab "\$(INSTALL_DATA) clisp.1 \$(DESTDIR)\$(mandir)/man1/clisp.1"
@@ -3322,7 +3324,6 @@ if [ $CROSS = false ] ; then
     fi
     case "$fsstnd" in
       gnu_ext)
-        echotab_mkdir_maybe "\$(DESTDIR)\$(exec_prefix)/share"
         echotab_mkdir_maybe "\$(DESTDIR)\$(htmldir)"
         echotab "\$(INSTALL_DATA) clisp.html \$(DESTDIR)\$(htmldir)/clisp.html"
         if [ $TERMINAL = readline ] ; then
