@@ -145,6 +145,31 @@ is what the GNU standards recommend:
 
 Use `emacs/clisp-indent.el' to make Emacs indent your *.d files.
 
+                               Comments
+                               --------
+
+Comments in front of a function definition describe the function's
+specification, i.e. all a caller of the function needs to know. Describe
+the function's behaviour in form a sentence with implicit subject "this
+function", not as a command. For algorithmic functions with non obvious
+complexity, the (worst-case) complexity (= running time) is part of the
+function's specification.
+
+Comments about the inner working of a function belong inside the function.
+
+Example:
+
+      ;; (isqrt x) returns the largest integer <= x^(1/2).
+      ;; x must be an integer >= 0.
+      ;; Complexity: O(M(n) log n) if x has n digits.
+      (defun isqrt (x)
+        ;; Use Newton's algorithm.
+        (let ((y (ash 1 (ash (integer-length x) -1))))
+          (loop (when (= y (setq y (ash (+ y (floor x y)) -1))) (return)))
+          y))
+
+Comments about a variable belong in front of the variable.
+
                             German comments
                             ---------------
 
@@ -152,4 +177,39 @@ When CLISP was written, it was not anticipated to have wide distribution.
 We are sorry about the German comments. If you are a native German speaker,
 you are welcome to faithfully translate them to English. If not, then
 please leave them alone and wait for someone to translate them to English.
+
+                            Variable names
+                            --------------
+
+Use descriptive variable names. Don't use names like "ll", "tem", "stri",
+"comp"; if you want to participate in an obfuscated Lisp code contest, you
+may, but don't put the resulting code into CLISP.
+
+                         Variable initializations
+                         ------------------------
+
+If you want to access a variable's value, first initialize it.
+
+In Lisp, to initialize a list to be empty, write
+
+      (let ((l '()))
+not
+      (let ((l nil)) ; this doesn't tell whether l is a list, boolean etc.
+or
+      (let (l) ; worse - looks like an uninitialized variable.
+
+In Lisp, if keyword arguments have a non-obvious default, write it down:
+
+      (defun f (sequence &key (start 0) (end nil))
+not
+      (defun f (sequence &key (start 0) end)
+
+In C, to initialize a static variable to 0, write
+
+             static int flag = 0;
+not
+             static int flag;
+
+To many people this advice seems obvious; I am sorry that I have to repeat
+it here.
 
