@@ -47,28 +47,67 @@
 
 (in-package "SYSTEM")
 
+;; Classes
+
+(eval-when (compile load eval)
+  (let ((clos::*allow-mixing-metaclasses* t))
+    (clos:defclass fundamental-stream (stream clos:standard-object)
+      (($open :type boolean :initform t)) ; whether the stream is open
+) ) )
+
+(clos:defclass fundamental-input-stream (fundamental-stream)
+  ()
+)
+
+(clos:defclass fundamental-output-stream (fundamental-stream)
+  ()
+)
+
+; Stuff these classes into the runtime system.
+(%defgray
+  (vector
+    (clos:find-class 'fundamental-stream)        ; for STREAMP to work
+    (clos:find-class 'fundamental-input-stream)  ; for INPUT-STREAM-P to work
+    (clos:find-class 'fundamental-output-stream) ; for OUTPUT-STREAM-P to work
+) )
+
 ;; General generic functions
 
 (clos:defgeneric close (stream &key abort)
   (:method ((stream stream) &rest args)
     (apply #'sys::built-in-stream-close stream args)
   )
+  (:method ((stream fundamental-stream) &rest more-args)
+    (declare (ignore more-args))
+    (clos:with-slots ($open) stream
+      (prog1 $open (setq $open nil))
+  ) )
 )
 
 (clos:defgeneric open-stream-p (stream)
   (:method ((stream stream))
     (sys::built-in-stream-open-p stream)
   )
+  (:method ((stream fundamental-stream))
+    (clos:with-slots ($open) stream
+      $open
+  ) )
 )
 
 (clos:defgeneric stream-element-type (stream)
   (:method ((stream stream))
     (sys::built-in-stream-element-type stream)
   )
+  (:method ((stream fundamental-stream))
+    (clos:no-applicable-method #'stream-element-type stream)
+  )
 )
 (clos:defgeneric (setf stream-element-type) (new-element-type stream)
   (:method (new-element-type (stream stream))
     (sys::built-in-stream-set-element-type stream new-element-type)
+  )
+  (:method (new-element-type (stream fundamental-stream))
+    (clos:no-applicable-method #'(setf stream-element-type) new-element-type stream)
   )
 )
 
