@@ -1,6 +1,7 @@
 2002-03-03  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (data, clean1, ${TESTDIR}): use the appropriate slashes
+	(RM) [win32]: set to 'del /q' (~ rm -f)
 
 2002-03-02  Sam Steingold  <sds@gnu.org>
 
