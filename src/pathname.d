@@ -4721,15 +4721,22 @@ local object translate_pathname (gcv_object_t* subst, object pattern) {
 #undef GET_ITEM
 #undef GET_ITEM_S
 
-/* (TRANSLATE-PATHNAME sample pattern1 pattern2 [:all] [:merge]), CLtL2 p. 624
+/* forward declaration */
+local object use_default_dir (object pathname);
+
+/* (TRANSLATE-PATHNAME sample pattern1 pattern2 [:all] [:merge] [:absolute]),
+   CLtL2 p. 624
+ :absolute = T --> convert the resulting pathnames to absolute
  :all = T --> return a list of all fitting pathnames
  :all = NIL --> Error, if more than one pathname fits
  :merge = NIL --> skip last MERGE-PATHNAMES step */
-LISPFUN(translate_pathname,seclass_default,3,0,norest,key,2,
-        (kw(all),kw(merge)))
-{ /* stack layout: sample, pattern1, pattern2, all, merge. */
-  var bool logical = false; /* sample and pattern are logical pathnames */
+LISPFUN(translate_pathname,seclass_default,3,0,norest,key,3,
+        (kw(all),kw(merge),kw(absolute)))
+{ /* stack layout: sample, pattern1, pattern2, all, merge, absolute. */
+  var bool absolute_p = !missingp(STACK_0);
+  var bool logical = false;  /* sample and pattern are logical pathnames */
   var bool logical2 = false; /* pattern2 is a logical pathname */
+  skipSTACK(1);              /* drop absolute */
   STACK_4 = coerce_xpathname(STACK_4);
   STACK_3 = coerce_xpathname(STACK_3);
   STACK_2 = coerce_xpathname(STACK_2);
@@ -4819,13 +4826,21 @@ LISPFUN(translate_pathname,seclass_default,3,0,norest,key,2,
       STACK_0 = translate_pathname(&STACK_0,STACK_(2+1+2));
     }
     /* 3. step: (MERGE-PATHNAMES modified_pattern2 sample :WILD T) */
-    if (!nullp(STACK_(0+1+2))) /* query :MERGE-Argument */
-      if (has_some_wildcards(STACK_0)) {/*MERGE-PATHNAMES may be unnecessary*/
-        pushSTACK(STACK_(4+1+2)); pushSTACK(unbound);
-        pushSTACK(S(Kwild)); pushSTACK(T);
-        funcall(L(merge_pathnames),5);
-        pushSTACK(value1);
-      }
+    if (!nullp(STACK_(0+1+2)) /* query :MERGE-Argument */
+        && has_some_wildcards(STACK_0)) {/*MERGE-PATHNAMES may be unnecessary*/
+      pushSTACK(STACK_(4+1+2)); pushSTACK(unbound);
+      pushSTACK(S(Kwild)); pushSTACK(T);
+      funcall(L(merge_pathnames),5);
+      pushSTACK(value1);
+    }
+    /* step 4: merge in default pathname */
+   #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
+    if (absolute_p) {
+      STACK_0 = use_default_dir(STACK_0); /* insert default-directory */
+      /* (because Unix does not know the default-directory of LISP
+         and Win32 is multitasking) */
+    }
+   #endif
     { /* (PUSH pathname pathnames) */
       var object new_cons = allocate_cons();
       Car(new_cons) = popSTACK(); Cdr(new_cons) = STACK_0;
@@ -5543,22 +5558,8 @@ local void change_default (void) {
 }
 #endif
 
-/* (NAMESTRING pathname), CLTL p. 417
- (NAMESTRING pathname t) -> namestring in external format
-   Unix: with default-directory */
-LISPFUN(namestring,seclass_read,1,1,norest,nokey,0,NIL) {
-  var object flag = popSTACK(); /* optional argument flag */
+LISPFUNNR(namestring,1) { /* (NAMESTRING pathname), CLTL p. 417 */
   var object pathname = coerce_xpathname(popSTACK());
- #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
-  if (!missingp(flag)) {
-    /* flag /= NIL -> for the operating system: */
-    pathname = coerce_pathname(pathname);
-    check_no_wildcards(pathname); /* with wildcards -> error */
-    pathname = use_default_dir(pathname); /* insert default-directory */
-    /* (because Unix does not know the default-directory of LISP
-     and Win32 is multitasking) */
-  }
- #endif
   VALUES1(whole_namestring(pathname));
 }
 
@@ -8487,9 +8488,10 @@ LISPFUNN(savemem,1) {
 /* (SYSTEM::DYNLOAD-MODULES pathname stringlist)
  loads a shared library, containing a number of modules. */
 LISPFUNN(dynload_modules,2) {
-  /* convert pathname into string: (NAMESTRING pathname T) */
-  pushSTACK(STACK_1); pushSTACK(T); funcall(L(namestring),2);
-  STACK_1 = value1;
+  /* convert pathname into string */
+  STACK_1 = coerce_pathname(STACK_1);
+  check_no_wildcards(STACK_1);
+  STACK_1 = whole_namestring(use_default_dir(STACK_1));
   /* check strings and store in the stack: */
   var uintL stringcount = llength(STACK_0);
   var gcv_object_t* arg_ = &STACK_0;

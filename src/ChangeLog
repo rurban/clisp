@@ -1,3 +1,16 @@
+2004-06-03  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 956755 ]: NAMESTRING's second arg is non-compliant
+	* pathname.d (TRANSLATE-PATHNAME): accept :ABSOLUTE argument to
+	merge in the OS default pathname
+	((NAMESTRING): do not accept a second optional argument, as per ANSI
+	(DYNLOAD-MODULES): do not call NAMESTRING with 2 arguments
+	* cfgwin32.lisp, edit.lisp (edit-file): call TRANSLATE-PATHNAME
+	:ABSOLUTE T instead of NAMESTRING with 2 arguments
+	* runprog.lisp (xstring): ditto
+	* constobj.d (version): bump because of NAMESTRING signature change
+	* subr.d, subrkw.d (namestring, translate_pathname): updated
+
 2004-05-30  Bruno Haible  <bruno@clisp.org>
 
 	* record.d (do_allocate_instance): Call FINALIZE-INHERITANCE instead
@@ -27,7 +40,7 @@
 	the freelist here.
 	(hash_prepare_store, clrhash): Update.
 	(MAKE-HASH-TABLE): Store the new itable in the kvtable. No need to
-	initialize the freelist here. Fix GC-safety bug before an error 
+	initialize the freelist here. Fix GC-safety bug before an error
 	message.
 	(REMHASH, MAPHASH, SYS::HASH-TABLE-ITERATE): Update.
 	(SYS::%SET-HASH-TABLE-WEAK-P): Copy also the itable and freelist from

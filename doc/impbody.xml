@@ -2813,11 +2813,6 @@ checks whether the &hash-table-t; is weak.</para>
 
 </variablelist>
 
-<para>&namestring; has an optional flag argument: <literal
- role="sexp">(&namestring; &path-r; &t;)</literal> returns an external
- notation suitable for passing to the operating system or other
- programs.</para>
-
 <!-- #if !defined(USER_HOMEDIR) -->
 <variablelist>
 <varlistentry><term>Platform dependent: unknown platforms only.</term>
@@ -2857,19 +2852,27 @@ checks whether the &hash-table-t; is weak.</para>
 
 <section id="translate-pathname"><title>Function &translate-pathname;</title>
 
-<para>&translate-pathname; has two additional keywords: <literal
+<para>&translate-pathname; has three additional keywords: <literal
  role="sexp">(&translate-pathname; &source-r;
  <replaceable>from-wildname</replaceable>
  <replaceable>to-wildname</replaceable> &key-amp; &all-k;
- &merge-k;)</literal></para>
+ &merge-k; &absolute-k;)</literal></para>
 
 <para>If &all-k; is specified and non-&nil;, a list of all resulting
  pathnames, corresponding to all matches of <literal
  role="sexp">(&pathname-match-p; &source-r;
- <replaceable>from-wildname</replaceable>)</literal>, is returned.  If
- &merge-k; is specified and &nil;, unspecified pieces of
+ <replaceable>from-wildname</replaceable>)</literal>, is returned.</para>
+
+<para>If &merge-k; is specified and &nil;, unspecified pieces of
  <replaceable>to-pathname</replaceable> are not replaced by
  corresponding pieces of &source-r;.</para>
+
+<para>If &absolute-k; is specified and non-&nil;, the returned
+ pathnames are converted to absolute by merging in the current process
+ directory, therefore rendering pathnames suitable for the OS and
+ external programs.  So, to pass a pathname to an external program, you
+ do <literal role="sexp">(&namestring; (&translate-pathname; &path-r;
+ #p"" #p"" &absolute-k; &t;))</literal>.</para>
 
 </section>
 
@@ -2900,8 +2903,8 @@ checks whether the &hash-table-t; is weak.</para>
 <para><literal role="sexp">(&merge-pathnames; &path-r;
    [<replaceable>default-pathname</replaceable>])</literal> returns a
    logical pathname only if
- <replaceable>default-pathname</replaceable> is a logical pathname.
- To construct a logical pathname from a string, the function
+ <replaceable>default-pathname</replaceable> is a &logical-pathname-t;.
+ To construct a logical pathname from a &string-t;, the function
  &logical-pathname; can be used.</para>
 
 <para>When both &path-r; and <replaceable>default-pathname</replaceable>
@@ -2933,7 +2936,7 @@ checks whether the &hash-table-t; is weak.</para>
  strictly follow the &ansi-cl; spec.  In fact, the above twice-default =
  once-default rule holds for all pathnames in &clisp;.</para>
 
-<para>Reversely, when &pathmerge; is non-&nil;,
+<para>Conversely, when &pathmerge; is non-&nil;,
  the normal &ansi-cl; behavior is exhibited:
  <literal role="sexp">(&merge-pathnames; #P"x/" #P"y/")</literal>
  evaluates to <filename>#P"y/x/"</filename>.</para>
