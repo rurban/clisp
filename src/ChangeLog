@@ -1,5 +1,13 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_allocate.d: New file.
+        * spvw.d (fehler_speicher_voll, error_speicher_voll, relax_reserve,
+           pointable_usable_test, mymalloc, make_space, make_space_gc,
+           allocate): Move out.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_garcol.d: New file.
         * spvw.d (gc_mark, mark_stack, gc_markphase, alive,
            unmark_fixed_varobjects, gc_compact_cons_page, gc_morris1,
