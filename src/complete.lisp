@@ -66,8 +66,21 @@
     (unless quotedp
       (let ((colon (position #\: string :start start :end end)))
         (when colon
-          (unless (setq package (find-package (string-upcase
-                                               (subseq string start colon))))
+          (let ((packname (subseq string start colon)))
+            (case (readtable-case *readtable*)
+              (:UPCASE (setq packname (string-upcase packname)))
+              (:DOWNCASE (setq packname (string-downcase packname)))
+              (:INVERT
+                (setq packname
+                  (map 'string
+                       #'(lambda (c)
+                           (cond ((lower-case-p c) (char-upcase c))
+                                 ((upper-case-p c) (char-downcase c))
+                                 (t c)))
+                       packname))))
+            (when (equal packname "") (setq packname "KEYWORD"))
+            (setq package (find-package packname)))
+          (unless package
             (return-from completion nil))
           (incf colon)
           (if (and (< colon end) (eql (char string colon) #\:))
