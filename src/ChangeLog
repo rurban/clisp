@@ -1,3 +1,9 @@
+2003-03-01  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: fixed the 1.269 (2002-07-19) patch: check
+	LIBTERMCAP and --with-termcap-ncurses after XCFLAGS is set,
+	so that -DNO_TERMCAP_NCURSES is not overridden
+
 2003-02-28  Sam Steingold  <sds@gnu.org>
 
 	ANSI CL compliance issues

@@ -716,11 +716,6 @@ if [ -z "$INSTALL" ] ; then
   INSTALL_DATA='$(INSTALL)'
 fi
 
-if [ "${with_termcap_ncurses}" = "0" -o "${LIBTERMCAP}" = "broken" ] ; then
-  XCFLAGS=$XCFLAGS' -DNO_TERMCAP_NCURSES'
-  LIBTERMCAP="";
-fi
-
 # Main target OS dependencies:
 
 OS_INCLUDES=''
@@ -1248,6 +1243,11 @@ if [ "${with_unicode}" != "0" ]; then
 fi
 if [ -n "${with_threads}" -a "${with_threads}" != "0" ]; then
   XCFLAGS="$XCFLAGS -DMULTITHREAD -D${with_threads}"
+fi
+
+if [ "${with_termcap_ncurses}" = "0" -o "${LIBTERMCAP}" = "broken" ] ; then
+  XCFLAGS=$XCFLAGS' -DNO_TERMCAP_NCURSES'
+  LIBTERMCAP="";
 fi
 
 # the type of library naming
