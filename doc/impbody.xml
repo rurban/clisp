@@ -1341,23 +1341,23 @@ is the same as
 
 <table frame="all"><title>Boolean Operations</title>
 <tgroup cols="2" colsep="1" rowsep="1" align="left">
-<thead><row><entry>constant name</entry><entry>value</entry></row></thead><tbody>
- <row><entry><function>boole-clr</function></entry><entry>0</entry></row>
- <row><entry><function>boole-set</function></entry><entry>15</entry></row>
- <row><entry><function>boole-1</function></entry><entry>10</entry></row>
- <row><entry><function>boole-2</function></entry><entry>12</entry></row>
- <row><entry><function>boole-c1</function></entry><entry>5</entry></row>
- <row><entry><function>boole-c2</function></entry><entry>3</entry></row>
- <row><entry><function>boole-and</function></entry><entry>8</entry></row>
- <row><entry><function>boole-ior</function></entry><entry>14</entry></row>
- <row><entry><function>boole-xor</function></entry><entry>6</entry></row>
- <row><entry><function>boole-eqv</function></entry><entry>9</entry></row>
- <row><entry><function>boole-nand</function></entry><entry>7</entry></row>
- <row><entry><function>boole-nor</function></entry><entry>1</entry></row>
- <row><entry><function>boole-andc1</function></entry><entry>4</entry></row>
- <row><entry><function>boole-andc2</function></entry><entry>2</entry></row>
- <row><entry><function>boole-orc1</function></entry><entry>13</entry></row>
- <row><entry><function>boole-orc2</function></entry><entry>11</entry></row>
+<thead><row><entry>constant</entry><entry>value</entry></row></thead><tbody>
+ <row><entry>&boole-clr;</entry><entry>0</entry></row>
+ <row><entry>&boole-set;</entry><entry>15</entry></row>
+ <row><entry>&boole-1;</entry><entry>10</entry></row>
+ <row><entry>&boole-2;</entry><entry>12</entry></row>
+ <row><entry>&boole-c1;</entry><entry>5</entry></row>
+ <row><entry>&boole-c2;</entry><entry>3</entry></row>
+ <row><entry>&boole-and;</entry><entry>8</entry></row>
+ <row><entry>&boole-ior;</entry><entry>14</entry></row>
+ <row><entry>&boole-xor;</entry><entry>6</entry></row>
+ <row><entry>&boole-eqv;</entry><entry>9</entry></row>
+ <row><entry>&boole-nand;</entry><entry>7</entry></row>
+ <row><entry>&boole-nor;</entry><entry>1</entry></row>
+ <row><entry>&boole-andc1;</entry><entry>4</entry></row>
+ <row><entry>&boole-andc2;</entry><entry>2</entry></row>
+ <row><entry>&boole-orc1;</entry><entry>13</entry></row>
+ <row><entry>&boole-orc2;</entry><entry>11</entry></row>
 </tbody></tgroup></table>
 
 </section>
@@ -1723,14 +1723,10 @@ encoding.</para>
   <listitem><table frame="all"><title>The following bits are defined:</title>
    <tgroup cols="2" colsep="1" rowsep="1" align="center">
     &key-value-header;<tbody>
-   <row><entry>&control-k;</entry>
-             <entry><varname>ext:char-control-bit</varname></entry></row>
-   <row><entry>&meta-k;</entry>
-             <entry><varname>ext:char-meta-bit</varname></entry></row>
-   <row><entry>&super-k;</entry>
-             <entry><varname>ext:char-super-bit</varname></entry></row>
-   <row><entry>&hyper-k;</entry>
-             <entry><varname>ext:char-hyper-bit</varname></entry></row>
+   <row><entry>&control-k;</entry><entry>&ch-ctrl;</entry></row>
+   <row><entry>&meta-k;</entry><entry>&ch-meta;</entry></row>
+   <row><entry>&super-k;</entry><entry>&ch-super;</entry></row>
+   <row><entry>&hyper-k;</entry><entry>&ch-hyper;</entry></row>
   </tbody></tgroup></table></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(<function>ext:char-font</function>
   &object-r;)</literal> </term>
@@ -2146,19 +2142,15 @@ and the international alphabetic characters from the character set:
 
 </section>
 
-<section id="char-const-obsolete"><title>Obsolete Constants</title>
+<section id="char-bits"><title>Obsolete Constants</title>
 
 <table frame="all"><title>obsolete constants</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
  <thead><row><entry>constant</entry><entry>value</entry></row></thead><tbody>
- <row><entry><constant>ext:char-control-bit</constant></entry>
-          <entry>1</entry></row>
- <row><entry><constant>ext:char-meta-bit</constant></entry>
-          <entry>2</entry></row>
- <row><entry><constant>ext:char-super-bit</constant></entry>
-          <entry>4</entry></row>
- <row><entry><constant>ext:char-hyper-bit</constant></entry>
-          <entry>8</entry></row>
+ <row><entry>&ch-ctrl;</entry><entry>1</entry></row>
+ <row><entry>&ch-meta;</entry><entry>2</entry></row>
+ <row><entry>&ch-super;</entry><entry>4</entry></row>
+ <row><entry>&ch-hyper;</entry><entry>8</entry></row>
 </tbody></tgroup></table>
 </section>
 
@@ -3947,8 +3939,7 @@ functions are provided:</para>
   <listitem><simpara>&encoding;s, (constant) &symbol-class;s in the
    &charset-pac; package, &string-class;s (denoting &iconv;-based
    encodings), the symbol &default-k;, and the &line-term; keywords
-   <constant>:unix</constant>, <constant>:mac</constant>,
-   <constant>:dos</constant>.  The default encoding is &def-file-enc;.
+   &unix-k;, &mac-k;, &dos-k;.  The default encoding is &def-file-enc;.
   </simpara></listitem></varlistentry>
  <varlistentry id="buffered"><term>&buffered;</term>
   <listitem><para>&nil;, &t;, or &default-k;.
@@ -4032,8 +4023,7 @@ functions are provided:</para>
  role="sexp">#(<replaceable>x<subscript>0</subscript></replaceable>
  ... <replaceable>x<subscript>n-1</subscript></replaceable>)</literal>
  is used.  Otherwise, the syntax <literal role="sexp">#A(&eltype-r;
- &dimensions-r;
- <replaceable>contents</replaceable>)</literal> is used.</para>
+ &dimensions-r; &cont-r;)</literal> is used.</para>
 
 </section>
 
@@ -4042,11 +4032,9 @@ functions are provided:</para>
 
 <para>When &print-readably-var; is true, other arrays are written as
  follows: if the &array-element-type; is &t-class;, the syntax <literal
- role="sexp">#<replaceable>rank</replaceable>A
- <replaceable>contents</replaceable></literal> is used.  Otherwise, the
- syntax <literal role="sexp">#A(&eltype-r;
- &dimensions-r;
- <replaceable>contents</replaceable>)</literal> is used.</para>
+ role="sexp">#<replaceable>rank</replaceable>A &cont-r;</literal> is
+ used.  Otherwise, the syntax <literal role="sexp">#A(&eltype-r;
+ &dimensions-r; &cont-r;)</literal> is used.</para>
 
 </section>
 
@@ -4564,7 +4552,7 @@ compiles a file to platform-independent bytecode.</para>
              &os; = Win32 (Windows 95/98/NT/Me/2000)</entry></row>
 <row><entry><constant>:PC386</constant></entry>
    <entry>if &hw; = PC (clone) with a 386/486/586/686 CPU</entry></row>
-<row><entry><constant>:UNIX</constant></entry>
+<row><entry>&unix-k;</entry>
    <entry>if &os; = Unix (in this case the &hw; is irrelevant!)</entry></row>
 </tbody></tgroup></table></para>
 
