@@ -1,3 +1,8 @@
+2002-10-10  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (lisp-implementation-type): new variable
+	(do-test, do-errcheck): use it
+
 2002-09-30  Sam Steingold  <sds@gnu.org>
 
 	* steele7.tst: avoid local redefinition of system functions, like #'+

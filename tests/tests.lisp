@@ -39,6 +39,12 @@
 (defun merge-extension (type filename)
   (make-pathname :type type :defaults filename))
 
+;; (lisp-implementation-type) may return something quite long, e.g.,
+;; on CMUCL it returns "CMU Common Lisp".
+(defvar lisp-implementation-type
+  #+CLISP "CLISP" #+AKCL "AKCL" #+ECL "ECL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
+  #-(or CLISP AKCL ECL ALLEGRO CMU) (lisp-implementation-type))
+
 (defun do-test (stream log &optional (ignore-errors t))
   (let ((eof "EOF"))
     (loop
@@ -58,9 +64,8 @@
                  (format t "~%EQUALP-OK: ~S" result))
                 (t
                  (format t "~%ERROR!! ~S should be ~S !" my-result result)
-                 (format log "~%Form: ~S~%CORRECT: ~S~%~A: ~S~%"
-                             form result
-                             #+CLISP "CLISP" #+AKCL "AKCL" #+ECL "ECL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
+                 (format log "~%Form: ~S~%CORRECT: ~S~%~7A: ~S~%"
+                             form result lisp-implementation-type
                              my-result))))))))
 
 (defun do-errcheck (stream log &optional ignore-errors)
@@ -78,9 +83,8 @@
                    (format t "~%OK: ~S" errtype))
                   (t
                    (format t "~%ERROR!! ~S instead of ~S !" my-result errtype)
-                   (format log "~%Form: ~S~%CORRECT: ~S~%~A: ~S~%"
-                               form errtype
-                               #+CLISP "CLISP" #+AKCL "AKCL" #+ECL "ECL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
+                   (format log "~%Form: ~S~%CORRECT: ~S~%~7A: ~S~%"
+                               form errtype lisp-implementation-type
                                my-result)))))))))
 
 (defun run-test (testname
