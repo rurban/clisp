@@ -1,8 +1,9 @@
 2003-05-24  Sam Steingold  <sds@gnu.org>
 
-	* pathname.d (stringlist_to_asciizlist): always defined
+	* pathname.d (stringlist_to_asciizlist): always defined;
 	fixed GC-safety errors
-	(LAUNCH) [UNIX/RISCOS]: fixed GC-safety errors
+	(LAUNCH): return NIL when :WAIT was NIL
+	[UNIX/RISCOS]: fixed GC-safety errors; handle :PRIORITY argument
 
 2003-05-24  Sam Steingold  <sds@gnu.org>
 

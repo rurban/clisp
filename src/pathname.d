@@ -11014,7 +11014,8 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
     { end_system_call(); OS_error(); }
 
   end_system_call();
-  VALUES1(sfixnum(exitcode));
+  if (wait_p) VALUES1(sfixnum(exitcode));
+  else VALUES1(NIL);
   skipSTACK(7);
 }
 
@@ -11098,7 +11099,8 @@ LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
 LISPFUN(launch,seclass_default,1,0,norest,key,6,
         (kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
   STACK_6 = check_string(STACK_6); /* command_arg */
-  var object priority_arg = STACK_0;
+  var long priority = (integerp(STACK_0) ? I_to_L(STACK_0)
+                       : (fehler_posfixnum(STACK_0), 0));
   var bool wait_p = !missingp(STACK_4);
   var int handletype;
   var Handle hinput = /* STACK_3 == input_stream_arg */
@@ -11113,7 +11115,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
     handle_dup1((boundp(STACK_1) && !eq(STACK_1,S(Kterminal)))
                 ? stream_lend_handle(STACK_1,false,&handletype)
                 : stderr_handle);
-  var int exit_code = -1;
+  var int exit_code = 0;
   pushSTACK(allocate_cons());
   Car(STACK_0) = string_to_asciz(STACK_(6+1)/*command_arg*/,
                                  O(pathname_encoding));
@@ -11150,29 +11152,44 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
   begin_want_sigcld();
   var int child = vfork();
   if (child == 0) {/* What ?! I am the clone ?! */
-    if (dup2(hinput,0) < 0) _exit(-1);
-    if (hinput > 2) close(hinput);
-    if (dup2(houtput,1) < 0) _exit(-1);
-    if (houtput > 2) close(houtput);
-    if (dup2(herror,2) < 0) _exit(-1);
-    if (herror > 2) close(herror);
+   #define CHILD_DUP(from,to)                                           \
+    if (handle_dup(from,to) == (Handle)-1) {                            \
+        fprintf(stderr,"clisp/child: cannot duplicate %d to %d: %s\n",  \
+                from,to,sys_errlist[errno]);                            \
+        _exit(-1);                                                      \
+      }                                                                 \
+      if (from>2) close(from)
+    CHILD_DUP(hinput,0);
+    CHILD_DUP(houtput,1);
+    CHILD_DUP(herror,2);
+   #undef CHILD_DUP
+   #ifdef HAVE_NICE
+    errno = 0; nice(priority);
+    if (errno) {
+      fprintf(stderr,"clisp/child: cannot set priority to %d: %s\n",
+              priority,sys_errlist[errno]);
+      _exit(-1);
+    }
+   #endif
     execvp(*argv,argv);
-    perror("Unable to start program");
+    fprintf(stderr,"clisp/child: execvp failed: %s\n",sys_errlist[errno]);
     _exit(-1);
   } else if (child < 0) {
     /* TODO: FIXME: no easy way to be aware of dup2 or exec failures */
+    end_want_sigcld();
+    end_system_call();
     OS_error();
   }
   if (wait_p) {
     var int status = wait2(child);
     exit_code = WEXITSTATUS(status);
   }
-  curcons = STACK_0;
   end_want_sigcld();
   end_system_call();
   FREE_DYNAMIC_ARRAY(argv);
   FREE_DYNAMIC_ARRAY(argvdata);
-  VALUES1(sfixnum(exit_code));
+  if (wait_p) VALUES1(sfixnum(exit_code));
+  else VALUES1(NIL);
   skipSTACK(7);
 }
 
