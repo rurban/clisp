@@ -377,6 +377,7 @@ DEFCHECKER(check_lk_detect,DB_LOCK_DEFAULT DB_LOCK_EXPIRE DB_LOCK_MAXLOCKS \
 DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       :ERRFILE :PASSWORD :ENCRYPT :LOCK_TIMEOUT :TXN_TIMEOUT :TIMEOUT   \
       :SHM_KEY :TAS_SPINS :TX_TIMESTAMP :TX_MAX :DATA_DIR :TMP_DIR      \
+      :LG_BSIZE :LG_DIR :LG_MAX :LG_REGIONMAX                           \
       :LK_CONFLICTS :LK_DETECT :LK_MAX_LOCKERS :LK_MAX_LOCKS :LK_MAX_OBJECTS \
       :AUTO_COMMIT :CDB_ALLDB :DIRECT_DB :DIRECT_LOG :NOLOCKING         \
       :NOMMAP :NOPANIC :OVERWRITE :PANIC_ENVIRONMENT :REGION_INIT       \
@@ -384,7 +385,7 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       :VERB_CHKPOINT :VERB_DEADLOCK :VERB_RECOVERY :VERB_REPLICATION    \
       :VERB_WAITSFOR :VERBOSE)
 { /* set many options */
-  DB_ENV *dbe = object_handle(STACK_(36),`BDB::DBE`,OH_VALID);
+  DB_ENV *dbe = object_handle(STACK_(40),`BDB::DBE`,OH_VALID);
   { /* verbose */
     object verbosep = popSTACK(); /* :VERBOSE - all */
     set_verbose(dbe,verbosep,DB_VERB_WAITSFOR);
@@ -453,6 +454,13 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
     }
   }
   skipSTACK(1);
+  DBE_SET(lg_regionmax,u_int32_t,I_to_uint32(check_uint32(STACK_0)));
+  DBE_SET(lg_max,u_int32_t,I_to_uint32(check_uint32(STACK_0)));
+  if (!missingp(STACK_0)) {     /* LG_DIR */
+    with_string_0(physical_namestring(popSTACK()),GLO(pathname_encoding),dirz,
+                  { SYSCALL(dbe->set_lg_dir,(dbe,dirz)); });
+  } else skipSTACK(1);
+  DBE_SET(lg_bsize,u_int32_t,I_to_uint32(check_uint32(STACK_0)));
   if (!missingp(STACK_0)) {     /* TMP_DIR */
     with_string_0(physical_namestring(popSTACK()),GLO(pathname_encoding),tmpz,
                   { SYSCALL(dbe->set_tmp_dir,(dbe,tmpz)); });
@@ -521,13 +529,6 @@ static object dbe_get_verbose (DB_ENV *dbe) {
   if (onoffp) { pushSTACK(`:VERB_CHKPOINT`); count++; }
   return listof(count);
 }
-/* get the tmp directory
- can trigger GC */
-static object dbe_get_tmp_dir (DB_ENV *dbe) {
-  const char *dir;
-  SYSCALL(dbe->get_tmp_dir,(dbe,&dir));
-  return dir ? asciz_to_string(dir,GLO(pathname_encoding)) : NIL;
-}
 /* get the data directory list
  can trigger GC */
 static object dbe_get_data_dirs (DB_ENV *dbe) {
@@ -538,19 +539,6 @@ static object dbe_get_data_dirs (DB_ENV *dbe) {
       pushSTACK(asciz_to_string(dirs[ii],GLO(pathname_encoding)));
     return listof(ii);
   } else return NIL;
-}
-/* get the max number of transactions */
-static object dbe_get_tx_max (DB_ENV *dbe) {
-  u_int32_t tx_max;
-  SYSCALL(dbe->get_tx_max,(dbe,&tx_max));
-  return fixnum(tx_max);
-}
-/* get the transaction timestamp
- can trigger GC */
-static object dbe_get_tx_timestamp (DB_ENV *dbe) {
-  time_t tx_timestamp;
-  SYSCALL(dbe->get_tx_timestamp,(dbe,&tx_timestamp));
-  return convert_time_to_universal(&tx_timestamp);
 }
 /* get the home directory
    return T when DBE is not yet open and a list otherwise
@@ -636,6 +624,15 @@ DEFINE_DBE_GETTER1(get_lk_detect,u_int32_t,check_lk_detect_reverse(value))
 DEFINE_DBE_GETTER1(get_lk_max_lockers,u_int32_t,UL_to_I(value))
 DEFINE_DBE_GETTER1(get_lk_max_locks,u_int32_t,UL_to_I(value))
 DEFINE_DBE_GETTER1(get_lk_max_objects,u_int32_t,UL_to_I(value))
+DEFINE_DBE_GETTER1(get_lg_bsize,u_int32_t,UL_to_I(value))
+DEFINE_DBE_GETTER1(get_lg_dir,const char *,
+                   value ? asciz_to_string(value,GLO(pathname_encoding)) : NIL)
+DEFINE_DBE_GETTER1(get_lg_max,u_int32_t,UL_to_I(value))
+DEFINE_DBE_GETTER1(get_lg_regionmax,u_int32_t,UL_to_I(value))
+DEFINE_DBE_GETTER1(get_tmp_dir,const char *,
+                   value ? asciz_to_string(value,GLO(pathname_encoding)) : NIL)
+DEFINE_DBE_GETTER1(get_tx_max,u_int32_t,UL_to_I(value))
+DEFINE_DBE_GETTER1(get_tx_timestamp,time_t,convert_time_to_universal(&value))
 
 /* get timeout values for locks or transactions in the database environment */
 static object dbe_get_timeout (DB_ENV *dbe, u_int32_t which) {
@@ -695,6 +692,10 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     pushSTACK(`:ERRFILE`); pushSTACK(dbe_get_errfile(dbe)); count++;
     pushSTACK(`:TIMEOUT`); value1 = dbe_get_timeouts(dbe);
     pushSTACK(value1); count++;
+    pushSTACK(`:LG_BSIZE`); pushSTACK(dbe_get_lg_bsize(dbe)); count++;
+    pushSTACK(`:LG_DIR`); pushSTACK(dbe_get_lg_dir(dbe)); count++;
+    pushSTACK(`:LG_MAX`); pushSTACK(dbe_get_lg_max(dbe)); count++;
+    pushSTACK(`:LG_REGIONMAX`); pushSTACK(dbe_get_lg_regionmax(dbe)); count++;
     pushSTACK(`:LK_CONFLICTS`); pushSTACK(dbe_get_lk_conflicts(dbe)); count++;
     pushSTACK(`:LK_DETECT`); pushSTACK(dbe_get_lk_detect(dbe)); count++;
     pushSTACK(`:LK_MAX_LOCKERS`);pushSTACK(dbe_get_lk_max_lockers(dbe));count++;
@@ -752,6 +753,14 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_CDB_ALLDB);
   } else if (eq(what,`:AUTO_COMMIT`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_AUTO_COMMIT);
+  } else if (eq(what,`:LG_BSIZE`)) {
+    VALUES1(dbe_get_lg_bsize(dbe));
+  } else if (eq(what,`:LG_DIR`)) {
+    VALUES1(dbe_get_lg_dir(dbe));
+  } else if (eq(what,`:LG_MAX`)) {
+    VALUES1(dbe_get_lg_max(dbe));
+  } else if (eq(what,`:LG_REGIONMAX`)) {
+    VALUES1(dbe_get_lg_regionmax(dbe));
   } else if (eq(what,`:LK_CONFLICTS`)) {
     VALUES1(dbe_get_lk_conflicts(dbe));
   } else if (eq(what,`:LK_DETECT`)) {
@@ -1092,7 +1101,7 @@ DEFUN(BDB:DB-STAT, db &key :FAST_STAT)
       STAT_SLOT_FAST(hash_stat->hash_dup);
       STAT_SLOT_FAST(hash_stat->hash_dup_free);
       funcall(`BDB::MKDBSTAT-HASH`,count);
-      free(hash_stat);
+      begin_system_call(); free(hash_stat); end_system_call();
     } break;
     case DB_BTREE: case DB_RECNO: {
       DB_BTREE_STAT *btree_stat;
@@ -1116,7 +1125,7 @@ DEFUN(BDB:DB-STAT, db &key :FAST_STAT)
       STAT_SLOT_FAST(btree_stat->bt_dup_pgfree);
       STAT_SLOT_FAST(btree_stat->bt_over_pgfree);
       funcall(`BDB::MKDBSTAT-BTREE`,count);
-      free(btree_stat);
+      begin_system_call(); free(btree_stat); end_system_call();
     } break;
     case DB_QUEUE: {
       DB_QUEUE_STAT *queue_stat;
@@ -1134,7 +1143,7 @@ DEFUN(BDB:DB-STAT, db &key :FAST_STAT)
       STAT_SLOT(queue_stat->qs_first_recno);
       STAT_SLOT(queue_stat->qs_cur_recno);
       funcall(`BDB::MKDBSTAT-QUEUE`,count);
-      free(queue_stat);
+      begin_system_call(); free(queue_stat); end_system_call();
     } break;
     default: NOTREACHED;
 #undef STAT_SLOT
@@ -1824,7 +1833,7 @@ DEFUN(BDB:LOCK-ID, dbe)
   VALUES1(uint32_to_I(id));
 }
 DEFUN(BDB:LOCK-ID-FREE, dbe id)
-{ /*  Release a locker ID */
+{ /* Release a locker ID */
   u_int32_t id = I_to_uint32(check_uint32(popSTACK()));
   DB_ENV *dbe = object_handle(popSTACK(),`BDB::DBE`,OH_VALID);
   SYSCALL(dbe->lock_id_free,(dbe,id));
@@ -1891,7 +1900,171 @@ DEFUN(BDB:LOCK-STAT,dbe &key :STAT_CLEAR)
   pushSTACK(uint32_to_I(ls->st_region_wait));
   pushSTACK(uint32_to_I(ls->st_region_nowait));
   funcall(`BDB::MKLOCKSTAT`,24);
-  free(ls);
+  begin_system_call(); free(ls); end_system_call();
+}
+
+/* ===== logs ===== */
+
+DEFFLAGSET(log_archive_flags,DB_ARCH_ABS DB_ARCH_DATA DB_ARCH_LOG \
+           DB_ARCH_REMOVE)
+DEFUN(BDB:LOG-ARCHIVE, dbe &key :ARCH_ABS :ARCH_DATA :ARCH_LOG :ARCH_REMOVE)
+{ /* return a list of log or database filenames. */
+  u_int32_t flags = log_archive_flags();
+  DB_ENV *dbe = object_handle(popSTACK(),`BDB::DBE`,OH_VALID);
+  char **list = NULL;
+  SYSCALL(dbe->log_archive,(dbe,&list,flags));
+  if (list) {
+    int count = 0;
+    for (; *list; list++, count++)
+      pushSTACK(asciz_to_string(*list,GLO(pathname_encoding)));
+    begin_system_call(); free(list); end_system_call();
+    VALUES1(listof(count));
+  } else VALUES0;
+}
+
+/* extract the DB_LSN data from the object
+ can trigger GC */
+static void check_lsn (gcv_object_t *obj_, DB_LSN *lsn) {
+  *obj_ = check_classname(*obj_,`BDB::LSN`);
+  lsn->file = I_to_uint32(TheStructure(*obj_)->recdata[1]);
+  lsn->offset = I_to_uint32(TheStructure(*obj_)->recdata[2]);
+}
+
+DEFUN(BDB:LOG-FILE, dbe lsn)
+{ /* return the name of the file containing the record named by lsn. */
+  DB_LSN lsn;
+  DB_ENV *dbe = object_handle(STACK_1,`BDB::DBE`,OH_VALID);
+  char path[MAX_PATH];
+  check_lsn(&STACK_0,&lsn);
+  SYSCALL(dbe->log_file,(dbe,&lsn,path,MAX_PATH));
+  VALUES1(asciz_to_string(path,GLO(pathname_encoding)));
+  skipSTACK(2);
+}
+
+DEFUN(BDB:LOG-FLUSH, dbe lsn)
+{ /* flush log records to disk */
+  DB_LSN lsn;
+  DB_ENV *dbe = object_handle(STACK_1,`BDB::DBE`,OH_VALID);
+  check_lsn(&STACK_0,&lsn);
+  SYSCALL(dbe->log_flush,(dbe,&lsn));
+  VALUES0;
+  skipSTACK(2);
+}
+
+/* convert C srtuct DB_LSN to Lisp structure LSN
+ can trigger GC */
+static object make_lsn (DB_LSN *lsn) {
+  pushSTACK(uint32_to_I(lsn->file));
+  pushSTACK(uint32_to_I(lsn->offset));
+  funcall(`BDB::MKLSN`,2);
+  return value1;
+}
+
+DEFFLAGSET(log_put_flags, DB_FLUSH)
+DEFUN(BDB:LOG-PUT, dbe data &key FLUSH)
+{ /* write a log record */
+  u_int32_t flags = log_put_flags();
+  DB_LSN lsn;
+  DB_ENV *dbe = object_handle(STACK_1,`BDB::DBE`,OH_VALID);
+  DBT data;
+  fill_dbt(STACK_0,&data,0); skipSTACK(2);
+  SYSCALL1(dbe->log_put,(dbe,&lsn,&data,flags),{free(data.data);});
+  make_lsn(&lsn);
+}
+
+DEFUN(BDB:LOG-STAT, dbe &key :STAT_CLEAR)
+{ /* logging subsystem statistics */
+  u_int32_t flags = stat_flags();
+  DB_ENV *dbe = object_handle(popSTACK(),`BDB::DBE`,OH_VALID);
+  DB_LOG_STAT *stat;
+  SYSCALL(dbe->log_stat,(dbe,&stat,flags));
+  pushSTACK(uint32_to_I(stat->st_magic));
+  pushSTACK(uint32_to_I(stat->st_version));
+  pushSTACK(uint32_to_I(stat->st_mode));
+  pushSTACK(uint32_to_I(stat->st_lg_bsize));
+  pushSTACK(uint32_to_I(stat->st_lg_size));
+  pushSTACK(uint32_to_I(stat->st_w_mbytes));
+  pushSTACK(uint32_to_I(stat->st_w_bytes));
+  pushSTACK(uint32_to_I(stat->st_wc_mbytes));
+  pushSTACK(uint32_to_I(stat->st_wc_bytes));
+  pushSTACK(uint32_to_I(stat->st_wcount));
+  pushSTACK(uint32_to_I(stat->st_wcount_fill));
+  pushSTACK(uint32_to_I(stat->st_scount));
+  pushSTACK(uint32_to_I(stat->st_cur_file));
+  pushSTACK(uint32_to_I(stat->st_cur_offset));
+  pushSTACK(uint32_to_I(stat->st_disk_file));
+  pushSTACK(uint32_to_I(stat->st_disk_offset));
+  pushSTACK(uint32_to_I(stat->st_maxcommitperflush));
+  pushSTACK(uint32_to_I(stat->st_mincommitperflush));
+  pushSTACK(uint32_to_I(stat->st_regsize));
+  pushSTACK(uint32_to_I(stat->st_region_wait));
+  pushSTACK(uint32_to_I(stat->st_region_nowait));
+  funcall(`BDB::MKLOGSTAT`,21);
+  begin_system_call(); free(stat); end_system_call();
+}
+
+DEFUN(BDB:LOG-CURSOR, dbe)
+{ /* create a log cursor. */
+  DB_ENV *dbe = object_handle(STACK_0,`BDB::DBE`,OH_VALID);
+  DB_LOGC *cursor;
+  SYSCALL(dbe->log_cursor,(dbe,&cursor,0));
+  wrap_finalize(cursor,STACK_0,`BDB::MKLOGC`,``BDB::LOGC-CLOSE``);
+}
+
+DEFUN(BDB:LOGC-CLOSE, logc)
+{ /* discard the log cursor. */
+  DB_LOGC *logc = object_handle(STACK_0,`BDB::LOGC`,OH_INVALIDATE);
+  if (logc) {
+    funcall(`BDB::KILL-HANDLE`,1);
+    SYSCALL(logc->close,(logc,0));
+    VALUES1(T);
+  } else { skipSTACK(1); VALUES1(NIL); }
+}
+
+DEFCHECKER(logc_get_action, DB_CURRENT DB_FIRST DB_LAST DB_NEXT DB_PREV)
+DEFUN(BDB:LOGC-GET, logc action &key :TYPE :ERROR)
+{ /* return records from the log. */
+  int no_error = nullp(popSTACK());
+  dbt_o_t out_type = check_dbt_type(popSTACK());
+  DB_LOGC *logc = object_handle(STACK_1,`BDB::LOGC`,OH_VALID);
+  DB_LSN lsn;
+  u_int32_t action;
+  DBT data;
+  int status;
+  if (symbolp(STACK_0) || fixnump(STACK_0)) {
+    action = logc_get_action(STACK_0);
+  } else {
+    action = DB_SET;
+    check_lsn(&STACK_0,&lsn);
+  }
+  init_dbt(&data,DB_DBT_MALLOC);
+  begin_system_call();
+  status = logc->get(logc,&lsn,&data,action);
+  end_system_call();
+  if (status) {
+    if (no_error) {
+      switch (status) {
+        case DB_NOTFOUND: VALUES1(`:NOTFOUND`); error_message_reset(); return;
+      }
+    }
+    error_bdb(status,"dbc->c_get");
+  }
+  if (action == DB_SET) {       /* STACK_0 is the LSN */
+  } else STACK_0 = make_lsn(&lsn);
+  VALUES2(dbt_to_object(&data,out_type),popSTACK());
+  free_dbt(&data);
+  skipSTACK(1);
+}
+
+DEFUN(BDB:LOG-COMPARE, lsn1 lsn2)
+{ /* Compare two Log Sequence Numbers */
+  DB_LSN lsn1, lsn2;
+  int value;
+  check_lsn(&STACK_1,&lsn1);
+  check_lsn(&STACK_0,&lsn2);
+  begin_system_call(); value = log_compare(&lsn1,&lsn2); end_system_call();
+  VALUES1(fixnum(value));
+  skipSTACK(2);
 }
 
 /* ===== transactions ===== */
@@ -2040,38 +2213,34 @@ DEFUN(BDB:TXN-STAT, dbe &key :STAT_CLEAR)
   DB_ENV *dbe = object_handle(popSTACK(),`BDB::DBE`,OH_VALID);
   DB_TXN_STAT *stat;
   SYSCALL(dbe->txn_stat,(dbe,&stat,flags));
-  pushSTACK(UL_to_I(stat->st_last_ckp.file));
-  pushSTACK(UL_to_I(stat->st_last_ckp.offset));
-  funcall(`BDB::MKLSM`,2); pushSTACK(value1);
+  pushSTACK(make_lsn(&(stat->st_last_ckp)));
   pushSTACK(convert_time_to_universal(&(stat->st_time_ckp)));
-  pushSTACK(UL_to_I(stat->st_last_txnid));
-  pushSTACK(UL_to_I(stat->st_maxtxns));
-  pushSTACK(UL_to_I(stat->st_nactive));
-  pushSTACK(UL_to_I(stat->st_maxnactive));
-  pushSTACK(UL_to_I(stat->st_nbegins));
-  pushSTACK(UL_to_I(stat->st_naborts));
-  pushSTACK(UL_to_I(stat->st_ncommits));
-  pushSTACK(UL_to_I(stat->st_nrestores));
-  pushSTACK(UL_to_I(stat->st_regsize));
-  pushSTACK(UL_to_I(stat->st_region_wait));
-  pushSTACK(UL_to_I(stat->st_region_nowait));
+  pushSTACK(uint32_to_I(stat->st_last_txnid));
+  pushSTACK(uint32_to_I(stat->st_maxtxns));
+  pushSTACK(uint32_to_I(stat->st_nactive));
+  pushSTACK(uint32_to_I(stat->st_maxnactive));
+  pushSTACK(uint32_to_I(stat->st_nbegins));
+  pushSTACK(uint32_to_I(stat->st_naborts));
+  pushSTACK(uint32_to_I(stat->st_ncommits));
+  pushSTACK(uint32_to_I(stat->st_nrestores));
+  pushSTACK(uint32_to_I(stat->st_regsize));
+  pushSTACK(uint32_to_I(stat->st_region_wait));
+  pushSTACK(uint32_to_I(stat->st_region_nowait));
   { /* txnarray */
     int ii, size = stat->st_nactive;
     DB_TXN_ACTIVE *txn_active = stat->st_txnarray;
     for (ii=0; ii<size; ii++) {
-      pushSTACK(UL_to_I(txn_active->txnid));
-      pushSTACK(UL_to_I(txn_active->parentid));
-      pushSTACK(UL_to_I(txn_active->lsn.file));
-      pushSTACK(UL_to_I(txn_active->lsn.offset));
-      funcall(`BDB::MKLSM`,2); pushSTACK(value1);
-      pushSTACK(UL_to_I(txn_active->xa_status));
+      pushSTACK(uint32_to_I(txn_active->txnid));
+      pushSTACK(uint32_to_I(txn_active->parentid));
+      pushSTACK(make_lsn(&(txn_active->lsn)));
+      pushSTACK(uint32_to_I(txn_active->xa_status));
       pushSTACK(gid_to_vector(txn_active->xid));
       funcall(`BDB::MKTXNACTIVE`,5); pushSTACK(value1);
     }
     value1 = vectorof(size); pushSTACK(value1);
   }
   funcall(`BDB::MKTXNSTAT`,14);
-  free(stat);
+  begin_system_call(); free(stat); end_system_call();
 }
 
 void module__bdb__init_function_2 (module_t* module)

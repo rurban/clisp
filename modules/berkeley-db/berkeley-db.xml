@@ -72,12 +72,12 @@
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:DBE-SET-OPTIONS dbe
    &key-amp; ERRFILE PASSWORD ENCRYPT LOCK_TIMEOUT TXN_TIMEOUT SHM_KEY
-   TAS_SPINS TX_TIMESTAMP TX_MAX DATA_DIR TMP_DIR LK_CONFLICTS LK_DETECT
-   LK_MAX_LOCKERS LK_MAX_LOCKS LK_MAX_OBJECTS AUTO_COMMIT CDB_ALLDB
-   DIRECT_DB DIRECT_LOG NOLOCKING NOMMAP NOPANIC OVERWRITE
-   PANIC_ENVIRONMENT REGION_INIT TXN_NOSYNC TXN_WRITE_NOSYNC YIELDCPU
-   VERB_CHKPOINT VERB_DEADLOCK VERB_RECOVERY VERB_REPLICATION
-   VERB_WAITSFOR VERBOSE)</literal></term>
+   TAS_SPINS TX_TIMESTAMP TX_MAX DATA_DIR TMP_DIR LG_BSIZE LG_DIR LG_MAX
+   LG_REGIONMAX LK_CONFLICTS LK_DETECT LK_MAX_LOCKERS LK_MAX_LOCKS
+   LK_MAX_OBJECTS AUTO_COMMIT CDB_ALLDB DIRECT_DB DIRECT_LOG NOLOCKING
+   NOMMAP NOPANIC OVERWRITE PANIC_ENVIRONMENT REGION_INIT TXN_NOSYNC
+   TXN_WRITE_NOSYNC YIELDCPU VERB_CHKPOINT VERB_DEADLOCK VERB_RECOVERY
+   VERB_REPLICATION VERB_WAITSFOR VERBOSE)</literal></term>
  <listitem><para>Set some environment options using <simplelist columns="4">
     <member>&DBE_set_flags;</member>
     <member>&DBE_set_verbose;</member>
@@ -90,6 +90,10 @@
     <member>&DBE_set_timeout;</member>
     <member>&DBE_set_encrypt;</member>
     <member>&DBE_set_errfile;</member>
+    <member>&DBE_set_lg_bsize;</member>
+    <member>&DBE_set_lg_dir;</member>
+    <member>&DBE_set_lg_max;</member>
+    <member>&DBE_set_lg_regionmax;</member>
     <member>&DBE_set_lk_conflicts;</member>
     <member>&DBE_set_lk_detect;</member>
     <member>&DBE_set_lk_max_lockers;</member>
@@ -140,6 +144,18 @@
      <listitem><simpara>a &boolean-t; indicator of whether this
        option is set or not (&DBE_get_verbose; and &DBE_get_flags;).
     </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:LG_BSIZE</constant></term>
+     <listitem><simpara>log buffer size
+       (&DBE_get_lg_bsize;)</simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:LG_DIR</constant></term>
+     <listitem><simpara>logging directory
+       (&DBE_get_lg_dir;)</simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:LG_MAX</constant></term>
+     <listitem><simpara>log file size
+       (&DBE_get_lg_max;)</simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:LG_REGIONMAX</constant></term>
+     <listitem><simpara>logging region size
+       (&DBE_get_lg_regionmax;)</simpara></listitem></varlistentry>
     <varlistentry><term><constant>:LK_CONFLICTS</constant></term>
      <listitem><simpara>lock conflicts matrix
        (&DBE_get_lk_conflicts;)</simpara></listitem></varlistentry>
@@ -418,7 +434,7 @@
     and then use the database handle to open a database of different type
     (e.g., <constant>:QUEUE</constant>).</para></warning>
 </listitem></varlistentry>
-</variablelist>
+</variablelist></section>
 
 <section id="bdb-cursor"><title>Database Cursor Operations</title>
 <!--
@@ -550,11 +566,27 @@
  DB_ENV->log_stat	Return log subsystem statistics
  -->
 <variablelist>
-<varlistentry><term><literal role="sexp">()</literal></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:LOG-ARCHIVE dbe
+   &key-amp; :ARCH_ABS :ARCH_DATA :ARCH_LOG :ARCH_REMOVE)</literal></term>
+ <listitem><simpara>Return a list of log or database filenames
+   (&DBE_log_archive;).</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:LOG-FILE dbe lsn)</literal></term>
+ <listitem><simpara>Return the name of the file containing the record
+   named by <replaceable>lsn</replaceable> (&DBE_log_file;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:LOG-FLUSH dbe
+   lsn)</literal></term>
+ <listitem><simpara>Flush log records to disk (&DBE_log_flush;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:LOG-PUT dbe data
+   &key-amp; :FLUSH)</literal></term>
+ <listitem><simpara>Write a log record (&DBE_log_put;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:LOG-STAT dbe
+   &key-amp; STAT_CLEAR)</literal></term>
+ <listitem><simpara>Logging subsystem statistics (&DBE_log_stat;).
+</simpara></listitem></varlistentry>
 </variablelist>
-</section>
-
 
 <section id="bdb-log-cursor"><title>Log Cursor Operations</title>
 <!--
@@ -563,22 +595,47 @@
  DB_LOGC->get	Retrieve a log record
  -->
 <variablelist>
-<varlistentry><term><literal role="sexp">()</literal></term>
- <listitem><simpara></simpara></listitem></varlistentry>
-</variablelist>
-</section>
+<varlistentry><term><literal role="sexp">(BDB:LOG-CURSOR dbe)</literal></term>
+ <listitem><simpara>Create a log cursor handle
+   (&DBE_log_cursor;).</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:LOGC-CLOSE logc)</literal></term>
+ <listitem><simpara>Close a log cursor handle
+   (&LOGC_close;).</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:LOGC-GET logc action
+   &key-amp; TYPE ERROR)</literal></term>
+ <listitem><para>Retrieve a log record (&LOGC_get;).
+   If &error-k; is &nil; and the record is not found, no &err-sig;,
+   <constant>:NOTFOUND</constant> is returned instead.
+   <variablelist><title>Valid <replaceable>action</replaceable>s</title>
+    <varlistentry><term><constant>:DB_CURRENT</constant></term>
+     <term><constant>:DB_FIRST</constant></term>
+     <term><constant>:DB_LAST</constant></term>
+     <term><constant>:DB_NEXT</constant></term>
+     <term><constant>:DB_PREV</constant></term>
+     <listitem><simpara>Retrieve the appropriate record.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><type>DB:LSN</type></term>
+     <listitem><simpara>Retrieve the specified record, as
+       with <constant>DB_SET</constant>.
+   </simpara></listitem></varlistentry></variablelist>
+   Returns two values: the datum of type specified by the &type-k;
+   argument and the <type>DB:LSN</type> value of the record retrieved
+   (when <replaceable>action</replaceable> is a <type>DB:LSN</type>, it
+   is returned unchanged).
+</para></listitem></varlistentry>
+</variablelist></section>
 
 
 <section id="bdb-log-seq"><title>Log Sequence Numbers</title>
 
-<para>Use &equalp; to compare <type>BDB::LSN</type> objects.</para>
+<para>Use &equalp; to check similarity of <type>BDB:LSN</type> objects.</para>
 
-<!-- log_compare	Compare two Log Sequence Numbers
 <variablelist>
-<varlistentry><term><literal role="sexp">()</literal></term>
- <listitem><simpara></simpara></listitem></varlistentry>
-</variablelist> -->
-
+<varlistentry><term><literal role="sexp">(BDB:LOG-COMPARE
+   lsn1 lsn2)</literal></term>
+ <listitem><simpara>Compare two Log Sequence Numbers (&db_log_compare;).
+</simpara></listitem></varlistentry>
+</variablelist></section>
 </section>
 
 <section id="bdb-mem-pool"><title>Memory Pool Subsystem</title>
@@ -683,20 +740,5 @@ Memory Pool Files
  <listitem><simpara></simpara></listitem></varlistentry>
 </variablelist>
 </section>
-
-
-<!--
-<section id="bdb-"><title></title>
-
-<variablelist>
-<varlistentry><term><literal role="sexp">()</literal></term>
- <listitem><simpara></simpara></listitem></varlistentry>
-</variablelist>
-</section>
-
--->
-
-
-
 
 </section>
