@@ -7,6 +7,7 @@
 	* modules/clx/new-clx/e2d.c: removed
 	* modules/clx/new-clx/configure.in: check for XGetAtomNames()
 	* modules/clx/new-clx/clx.f: converted to standard C and modprep.lisp
+	* genclisph.d: export much stuff necessary for new-clx
 
 2003-08-27  John Hinsdale <hin@alma.com>
 	* modules/oracle/README, oracle.lisp - More documentation
