@@ -258,28 +258,69 @@
 ;; The function responsible for a MAKE-INSTANCES-OBSOLETE call.
 (defvar *make-instances-obsolete-caller* 'make-instances-obsolete)
 
-(defun ensure-class (name &rest all-keys
-                          &key (metaclass <standard-class>)
-                               (direct-superclasses '())
-                               (direct-slots '())
-                               (direct-default-initargs '())
-                               (documentation nil)
-                               (fixed-slot-locations nil)
-                          &allow-other-keys)
+(defun ensure-class-using-class-<t> (class name &rest all-keys
+                                     &key (metaclass <standard-class>)
+                                          (direct-superclasses '())
+                                          (direct-slots '())
+                                          (direct-default-initargs '())
+                                          (documentation nil)
+                                          (fixed-slot-locations nil)
+                                     &allow-other-keys)
+  ;; Argument checks.
+  (unless (symbolp name)
+    (error (TEXT "~S: class name ~S should be a symbol")
+           'ensure-class-using-class name))
+  (unless (class-p metaclass)
+    (if (symbolp metaclass)
+      (setq metaclass
+            (cond ((eq metaclass 'standard-class) <standard-class>) ; for bootstrapping
+                  (t (find-class metaclass))))
+      (error (TEXT "~S for class ~S: metaclass ~S is neither a class or a symbol")
+             'ensure-class-using-class name metaclass)))
+  (unless (or (eq metaclass <standard-class>) ; for bootstrapping
+              (subclassp metaclass <class>))
+    (error (TEXT "~S for class ~S: metaclass ~S is not a subclass of CLASS")
+           'ensure-class-using-class name metaclass))
+  (unless (proper-list-p direct-superclasses)
+    (error (TEXT "~S for class ~S: The ~S argument should be a proper list, not ~S")
+           'ensure-class-using-class name ':direct-superclasses direct-superclasses))
+  (unless (every #'(lambda (x) (or (class-p x) (symbolp x))) direct-superclasses)
+    (error (TEXT "~S for class ~S: The direct-superclasses list should consist of classes and symbols, not ~S")
+           'ensure-class-using-class name direct-superclasses))
+  ;; Ignore the old class if the given name is not its "proper name".
+  ;; (This is an ANSI CL requirement; it's not clear whether it belongs
+  ;; here or in ENSURE-CLASS.)
+  (when (and class (not (eq (class-name class) name)))
+    (return-from ensure-class-using-class-<t>
+      (apply #'ensure-class-using-class nil name all-keys)))
+  ;; Decide whether to modify the given class or ignore it.
   (let ((a-standard-class-p (or (eq metaclass <standard-class>)
-                                (subclassp metaclass <standard-class>)))
-        (class (find-class name nil)))
-    (when (and class (not (eq (class-name class) name)))
-      ;; Ignore the old class if the given name is not its "proper name".
-      (setq class nil))
-    (when (and class (not (and a-standard-class-p
-                               (eq metaclass (class-of class)))))
-      (unless (eq metaclass (class-of class)) ; mixing DEFSTRUCT & DEFCLASS
-        (warn (TEXT "Cannot redefine ~S with a different metaclass ~S")
-              class metaclass))
-      ;; DEFSTRUCT -> (DEFCLASS ... (:METACLASS STRUCTURE-CLASS))
-      ;; ==> no warning, just discard the old definition, like with DEFSTRUCT
-      (setq class nil))
+                                (subclassp metaclass <standard-class>))))
+    (when class
+      (cond ((not (eq metaclass (class-of class)))
+             ;; This can occur when mixing DEFSTRUCT and DEFCLASS.
+             ;; MOP p. 48 says "If the class of the class argument is not the
+             ;; same as the class specified by the :metaclass argument, an
+             ;; error is signalled." But we can do better: ignore the old
+             ;; class, warn and proceed. The old instances will thus keep
+             ;; pointing to the old class.
+             (warn (TEXT "Cannot redefine ~S with a different metaclass ~S")
+                   class metaclass)
+             (setq class nil))
+            ((not a-standard-class-p)
+             ;; This can occur when redefining a class defined through
+             ;; (DEFCLASS ... (:METACLASS STRUCTURE-CLASS)), which is
+             ;; equivalent to re-executed DEFSTRUCT.
+             ;; Only <standard-class> subclasses support making instances
+             ;; obsolete. Ignore the old class and proceed. The old instances
+             ;; will thus keep pointing to the old class.
+             (setq class nil)))
+      (unless class
+        (return-from ensure-class-using-class-<t>
+          (apply #'ensure-class-using-class nil name all-keys))))
+    ;; Preparation of class initialization arguments.
+    (setq all-keys (copy-list all-keys))
+    (remf all-keys ':metaclass)
     ;; See which direct superclasses are already defined.
     (setq direct-superclasses
           (mapcar #'(lambda (c)
@@ -484,6 +525,42 @@
       (and (consp initargs1) (consp initargs2)
            (eq (car (first initargs1)) (car (first initargs2)))
            (equal-default-initargs (cdr initargs1) (cdr initargs2)))))
+
+;; Preliminary.
+(defun ensure-class-using-class (class name &rest args
+                                 &key (metaclass <standard-class>)
+                                      (direct-superclasses '())
+                                      (direct-slots '())
+                                      (direct-default-initargs '())
+                                      (documentation nil)
+                                      (fixed-slot-locations nil)
+                                 &allow-other-keys)
+  (declare (ignore metaclass direct-superclasses direct-slots
+                   direct-default-initargs documentation fixed-slot-locations))
+  (apply #'ensure-class-using-class-<t> class name args))
+
+;; MOP p. 46
+(defun ensure-class (name &rest args
+                     &key (metaclass <standard-class>)
+                          (direct-superclasses '())
+                          (direct-slots '())
+                          (direct-default-initargs '())
+                          (documentation nil)
+                          (fixed-slot-locations nil)
+                     &allow-other-keys)
+  (declare (ignore metaclass direct-superclasses direct-slots
+                   direct-default-initargs documentation fixed-slot-locations))
+  (unless (symbolp name)
+    (error (TEXT "~S: class name ~S should be a symbol")
+           'ensure-class name))
+  (let ((result
+          (apply #'ensure-class-using-class (find-class name nil) name args)))
+    ; A check, to verify that user-defined methods on ensure-class-using-class
+    ; work as they should.
+    (unless (class-p result)
+      (error (TEXT "Wrong ~S result for ~S: not a class: ~S")
+             'ensure-class-using-class name result))
+    result))
 
 ;; Preliminary.
 (defun reader-method-class (class direct-slot &rest initargs)
