@@ -2253,7 +2253,7 @@ fi
 # SunOS /usr/etc/install
 # IRIX /sbin/install
 # AIX /bin/install
-# AFS /usr/afsws/bin/install, which mishandles nonexistent args
+# AFS /usr/afsws/bin/install, which mis-handles nonexistent args
 # SVR4 /usr/ucb/install, which tries to use the nonexistent group "staff"
 # ./install, which can be erroneously created by make from ./install.sh.
 echo "$as_me:2259: checking for a BSD compatible install" >&5

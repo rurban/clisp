@@ -173,7 +173,7 @@ AC_DEFUN(CL_PROG_INSTALL,
 # SunOS /usr/etc/install
 # IRIX /sbin/install
 # AIX /bin/install
-# AFS /usr/afsws/bin/install, which mishandles nonexistent args
+# AFS /usr/afsws/bin/install, which mis-handles nonexistent args
 # SVR4 /usr/ucb/install, which tries to use the nonexistent group "staff"
 # ./install, which can be erroneously created by make from ./install.sh.
 AC_MSG_CHECKING(for a BSD compatible install)
@@ -215,7 +215,7 @@ AC_CACHE_VAL(cl_cv_path_install,
   INSTALL="$cl_cv_path_install"
 fi
 dnl We do special magic for INSTALL instead of AC_SUBST, to get
-dnl relative paths right. 
+dnl relative paths right.
 AC_MSG_RESULT($INSTALL)
 AC_SUBST(INSTALL)dnl
 # Use test -z because SunOS4 sh mishandles braces in ${var-val}.
