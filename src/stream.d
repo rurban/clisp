@@ -1,6 +1,7 @@
 # Streams für CLISP
 # Bruno Haible 1990-2001
 # Generic Streams: Marcus Daniels 8.4.1994
+# SCREEN package for Win32: Arseny Slobodjuck 2001-02-14
 
 #include "lispbibl.c"
 #include "arilev0.c" # für R_sign
@@ -11930,6 +11931,376 @@ LISPFUNN(window_cursor_off,1)
   }
 
 #endif # EMUNIX
+
+#ifdef WIN32_NATIVE
+
+# Implementation on top of the Win32 console.
+# Contributed by Arseny Slobodjuck <ampy@crosswinds.net>, 2001-02-14.
+
+# The API is documented at
+# http://www.msdn.microsoft.com/library/psdk/winbase/conchar_4svm.htm
+# (Platform SDK documentation -> Base Services -> Files and I/O ->
+#  Consoles and Character-Mode Support -> About Character Mode Support ->
+#  Consoles)
+
+local HANDLE console_handle = INVALID_HANDLE_VALUE;
+local COORD console_size;
+local COORD console_cursor_pos;
+local bool console_needtoclose;
+local uintW screenattr; # screen attribute index
+
+# Documentation of attributes:
+# bit 7    : foreground character blinking,
+# bit 6..4 : background color,
+# bit 3    : foreground intensity,
+# bit 2..0 : foreground color,
+# color table:
+#   0 black, 1 blue, 2 green, 3 cyan, 4 red, 5 magenta, 6 brown, 7 lightgray,
+# and as foreground color with intensity bit set, it is light:
+#   8 darkgray, ..., E yelloe, F white.
+  #define col_black    0
+  #define col_blue     1
+  #define col_green    2
+  #define col_cyan     3
+  #define col_red      4
+  #define col_magenta  5
+  #define col_brown    6
+  #define col_white    7
+  #define col_light(x)  (8 | (x))
+  #define FG(x)  (x)         # foreground color
+  #define BG(x)  ((x) << 4)  # background color
+
+# The following attribute constants are defined in the <wincon.h> header file: 
+# FOREGROUND_BLUE 
+# FOREGROUND_GREEN 
+# FOREGROUND_RED 
+# FOREGROUND_INTENSITY 
+# BACKGROUND_BLUE 
+# BACKGROUND_GREEN 
+# BACKGROUND_RED 
+# BACKGROUND_INTENSITY 
+
+local WORD attr_table[5] = {
+  /* no standout   */
+  BACKGROUND_BLUE
+  | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED,
+  /* standout      */
+  BACKGROUND_BLUE
+  | FOREGROUND_INTENSITY | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED,
+  /* visible bell  */
+  BACKGROUND_BLUE
+  | FOREGROUND_INTENSITY | FOREGROUND_RED,
+  /* underline     */
+  BACKGROUND_BLUE
+  | FOREGROUND_INTENSITY | FOREGROUND_GREEN,
+  /* alt. char set */
+  BACKGROUND_BLUE
+  | FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_RED
+};
+
+local WORD attr; # = attr_table[screenattr];
+
+local void InitConsole (void);
+local void InitConsole()
+  {
+    CONSOLE_SCREEN_BUFFER_INFO info;
+
+    console_needtoclose = false;
+    console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (console_handle == INVALID_HANDLE_VALUE) {
+      console_handle = CreateConsoleScreenBuffer(GENERIC_READ|GENERIC_WRITE,0,NULL,CONSOLE_TEXTMODE_BUFFER,NULL);
+      if (console_handle == INVALID_HANDLE_VALUE)
+        return;
+      SetConsoleActiveScreenBuffer(console_handle);
+      console_needtoclose = true;
+    }
+
+    if (GetConsoleScreenBufferInfo(console_handle,&info))
+      console_size = info.dwSize;
+    else {
+      console_size.X = 80; console_size.Y = 25;
+    }
+
+    screenattr = 0; attr = attr_table[screenattr];
+  }
+
+local void DoneConsole (void);
+local void DoneConsole()
+  {
+    if (console_needtoclose) {
+      CloseHandle(console_needtoclose);
+      console_needtoclose = false;
+    }
+  }
+
+local void v_up (void)
+  {
+    if (console_cursor_pos.Y > 0)
+      console_cursor_pos.Y--;
+    SetConsoleCursorPosition(console_handle,console_cursor_pos);
+  }
+
+local void v_cb (void)
+  {
+    # cursor have 50 percent fill and visibility
+    CONSOLE_CURSOR_INFO ci = { 50, 1 };
+    SetConsoleCursorInfo(console_handle,&ci);
+  }
+
+local void v_cs (void)
+  {
+    # cursor have 10 percent fill and 0 visibility
+    CONSOLE_CURSOR_INFO ci = { 10, 0 };
+    SetConsoleCursorInfo(console_handle,&ci);
+  }
+
+local void v_ce (void)
+  {
+    # clear to end: get cursor position and emit the aproppriate number
+    # of spaces, without moving cursor. attr of spaces set to default.
+    int nspaces = console_size.X - console_cursor_pos.X;
+    int i;
+    FillConsoleOutputAttribute(console_handle,attr,nspaces,console_cursor_pos,&i);
+    FillConsoleOutputCharacter(console_handle,' ',nspaces,console_cursor_pos,&i);
+  }
+
+local void v_cl (void)
+  {
+    int nspaces = console_size.X * console_size.Y;
+    int i;
+    console_cursor_pos.X = 0; console_cursor_pos.Y = 0;
+    FillConsoleOutputAttribute(console_handle,attr,nspaces,console_cursor_pos,&i);
+    FillConsoleOutputCharacter(console_handle,' ',nspaces,console_cursor_pos,&i);
+    SetConsoleCursorPosition(console_handle,console_cursor_pos);
+  }
+
+local void v_cd (void)
+  {
+    # clear to bottom: get position, clear to eol, clear next line to end
+    int nspaces = (console_size.Y - console_cursor_pos.Y) * console_size.X - console_cursor_pos.X;
+    int i;
+    FillConsoleOutputAttribute(console_handle,attr,nspaces,console_cursor_pos,&i);
+    FillConsoleOutputCharacter(console_handle,' ',nspaces,console_cursor_pos,&i);
+  }
+
+local void v_scroll (int ax, int ay, int bx, int by, int n)
+  {
+    CHAR_INFO c;
+    SMALL_RECT r1:
+    SMALL_RECT r2;
+    COORD p;
+    c.Char.AsciiChar = ' '; c.Attributes = attr;
+    r1.Left = ax; r1.Top = ay; r1.Right = bx; r1.Bottom = by;
+    r2 = r1;
+    p.X = ax; p.Y = ay + n;
+    ScrollConsoleScreenBuffer(console_handle,&r1,&r2,p,&c);
+  }
+
+local void v_al (void)
+  {
+    # add line: scroll rest of screen down
+    v_scroll(0,console_cursor_pos.Y+1,console_size.X-1,console_size.Y-1,1);
+  }
+
+local void v_dl (void)
+  {
+    # delete line: scroll rest up
+    v_scroll(0,console_cursor_pos.Y,console_size.X-1,console_size.Y-1,-1);
+  }
+
+local void v_su (void)
+  {
+    # scroll up: scroll whole screen
+    v_scroll(0,0,console_size.X-1,console_size.Y-1,-1);
+  }
+
+local void v_move(y,x)
+  var uintW y;
+  var uintW x)
+  {
+    # set cursor
+    console_cursor_pos.X = x; console_cursor_pos.Y = y;
+    SetConsoleCursorPosition(console_handle,console_cursor_pos);
+  }
+
+local uintW v_put(ch)
+  var uintW ch;
+  {
+    # put character:
+    # put attribute and char (no scroll!), then update cursor position.
+    ch &= 0xff;
+    if (ch==NL) {
+      if (console_cursor_pos.Y == console_size.Y - 1)
+        v_su();
+      else
+        console_cursor_pos.Y++;
+      console_cursor_pos.X = 0;
+      SetConsoleCursorPosition(console_handle,console_cursor_pos);
+    } else {
+      if (!(console_cursor_pos.X == console_size.X-1
+            && console_cursor_pos.Y == console_size.Y-1)) {
+        CHAR_INFO c;
+        SMALL_RECT rto;
+        COORD p0;
+        COORD p1;
+        c.Char.AsciiChar = ch;c.Attributes = attr;
+        rto.Left = console_cursor_pos.X; rto.Top = console_cursor_pos.Y;
+        rto.Right = console_cursor_pos.X+1; rto.Bottom = console_cursor_pos.Y+1;
+        p0.X = 0; p0.Y = 0;
+        p1.X = 1; p1.Y = 1;
+        WriteConsoleOutput(console_handle,&c,p1,p0,&rto);
+        if (console_cursor_pos.X == console_size.X-1) {
+          console_cursor_pos.X = 0; console_cursor_pos.Y++:
+        } else {
+          console_cursor_pos.X++;
+        }
+      }
+    }
+    return ch;
+  }
+
+# UP: Ein Zeichen auf einen Window-Stream ausgeben.
+# wr_ch_window(&stream,ch);
+# > stream: Window-Stream
+# > ch: auszugebendes Zeichen
+  local void wr_ch_window (const object* stream_, object ch);
+  local void wr_ch_window(stream_,ch)
+    var const object* stream_;
+    var object ch;
+    {
+      if (!charp(ch)) # ch sollte Character sein
+        fehler_wr_char(*stream_,ch);
+      var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
+      # Code c auf den Bildschirm ausgeben:
+      v_put(c);
+    }
+
+LISPFUNN(make_window,0)
+  {
+    var object stream =
+      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+0,0);
+      # Flags: nur WRITE-CHAR erlaubt
+    # und füllen:
+    var Stream s = TheStream(stream);
+      s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
+      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
+      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
+      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
+      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR unmöglich
+      s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
+      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR unmöglich
+      s->strm_rd_ch_last = NIL; # Lastchar := NIL
+      s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
+      s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
+      s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
+    InitConsole(); # Initialisieren
+    v_move(0,0);
+    v_cs();
+    value1 = stream; mv_count=1;
+  }
+
+# Schließt einen Window-Stream.
+  local void close_window (object stream);
+  local void close_window(stream)
+    var object stream;
+    {
+      v_cs();
+      attr = FOREGROUND_INTENSITY | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
+      v_cl(); # clear screen black
+      DoneConsole();
+    }
+
+LISPFUNN(window_size,1)
+  {
+    check_window_stream(popSTACK());
+    value1 = fixnum(console_size.Y);
+    value2 = fixnum(console_size.X);
+    mv_count=2;
+  }
+
+LISPFUNN(window_cursor_position,1)
+  {
+    check_window_stream(popSTACK());
+    value1 = fixnum(console_cursor_pos.Y);
+    value2 = fixnum(console_cursor_pos.X);
+    mv_count=2;
+  }
+
+LISPFUNN(set_window_cursor_position,3)
+  {
+    check_window_stream(STACK_2);
+    var uintL line = posfixnum_to_L(STACK_1);
+    var uintL column = posfixnum_to_L(STACK_0);
+    if ((line < (uintL)console_size.Y) && (column < (uintL)console_size.X))
+      v_move(line,column);
+    value1 = STACK_1; value2 = STACK_0; mv_count=2; skipSTACK(3);
+  }
+
+LISPFUNN(clear_window,1)
+  {
+    check_window_stream(popSTACK());
+    v_cl();
+    value1 = NIL; mv_count=0;
+  }
+
+LISPFUNN(clear_window_to_eot,1)
+  {
+    check_window_stream(popSTACK());
+    v_cd();
+    value1 = NIL; mv_count=0;
+  }
+
+LISPFUNN(clear_window_to_eol,1)
+  {
+    check_window_stream(popSTACK());
+    v_ce();
+    value1 = NIL; mv_count=0;
+  }
+
+LISPFUNN(delete_window_line,1)
+  {
+    check_window_stream(popSTACK());
+    v_dl();
+    value1 = NIL; mv_count=0;
+  }
+
+LISPFUNN(insert_window_line,1)
+  {
+    check_window_stream(popSTACK());
+    v_al();
+    value1 = NIL; mv_count=0;
+  }
+
+LISPFUNN(highlight_on,1)
+  {
+    check_window_stream(popSTACK());
+    screenattr = 1; attr = attr_table[screenattr];
+    value1 = NIL; mv_count=0;
+  }
+
+LISPFUNN(highlight_off,1)
+  {
+    check_window_stream(popSTACK());
+    screenattr = 0; attr = attr_table[screenattr];
+    value1 = NIL; mv_count=0;
+  }
+
+LISPFUNN(window_cursor_on,1)
+  {
+    check_window_stream(popSTACK());
+    v_cb();
+    value1 = NIL; mv_count=0;
+  }
+
+LISPFUNN(window_cursor_off,1)
+  {
+    check_window_stream(popSTACK());
+    v_cs();
+    value1 = NIL; mv_count=0;
+  }
+
+
+#endif # WIN32_NATIVE
 
 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
 

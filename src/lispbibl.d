@@ -1846,7 +1846,7 @@
 # Bei Erweiterung: READLINE erweitern.
 
 # Ob es Window-Streams und eine Package SCREEN gibt:
-  #if defined(MSDOS) || ((defined(UNIX) && !defined(NEXTAPP) || defined(MAYBE_NEXTAPP)) && !defined(NO_TERMCAP_NCURSES))
+  #if defined(MSDOS) || defined(WIN32_NATIVE) || ((defined(UNIX) && !defined(NEXTAPP) || defined(MAYBE_NEXTAPP)) && !defined(NO_TERMCAP_NCURSES))
     #define SCREEN
   #endif
 # Bei Erweiterung: STREAM erweitern (viel Arbeit!).

@@ -1,3 +1,14 @@
+2001-02-17  Arseny Slobodjuck <ampy@crosswinds.net>
+            Bruno Haible  <haible@clisp.cons.org>
+
+        * lispbibl.d (SCREEN): Also define on WIN32_NATIVE.
+        * stream.d [WIN32_NATIVE]: Implement window streams for SCREEN package.
+          (console_handle, console_size, console_cursor_pos,
+           console_needtoclose, screenattr, attr_table, attr): New variables.
+          (InitConsole, DoneConsole, v_up, v_cb, v_cs, v_ce, v_cl, v_cd,
+           v_scroll, v_al, v_dl, v_su, v_move, v_put, wr_ch_window,
+           MAKE-WINDOW, close_window, WINDOW-*): New functions.
+
 2001-02-08  Bruno Haible  <haible@clisp.cons.org>
 
         * cfgunix.lisp: Mark the file as being UTF-8 encoded, so it can be
