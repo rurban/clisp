@@ -1,0 +1,70 @@
+Installation on DOS using DJGPP:
+--------------------------------
+
+** WARNING **:
+The preferred DOS extender for CLISP is EMX. According to Ryu Young,
+<ryoung@utdallas.edu>, CLISP built with DJGPP exhibits the following problems:
+* Ctrl-C aborts the program ungracefully.
+* Running CLISP under Desqview/X results in a segment violation error and
+  halts the system.
+Additionally, I have observed the following problem:
+* If a program built with DJGPP is running at midnight, the DOS clock wraps
+  back by 24 hours (time switches back to 00:00 but the date doesn't advance).
+
+1. Get and install DJGPP.
+   DJGPP is D.J. Delorie's 32-bit extender. You can get it by anonymous ftp
+   from omnigate.clarkson.edu. You will need DJGPP 1.12 or newer.
+
+   Install the real-mode C:\DJGPP\UTILS\GCC-RM\GCC.EXE as C:\DJGPP\BIN\GCC.EXE.
+   The 32-bit mode (default) gcc.exe has proved unusable for me.
+
+2. Make sure that \DJGPP\BIN is in your path, before any directory that
+   contains programs named CPP.EXE or AS.EXE. Set the environment variables
+   COMPILER_PATH, C_INCLUDE_PATH, LIBRARY_PATH and TEMP, GO32TMP, GO32, 387.
+   For example:
+
+         PATH=C:\DJGPP\BIN;%PATH%
+         set COMPILER_PATH=c:/djgpp/bin
+         set C_INCLUDE_PATH=c:/djgpp/include
+         set LIBRARY_PATH=c:/djgpp/lib
+         set TEMP=c:/temp
+         set GO32TMP=c:/temp
+         set GO32=ansi driver c:\djgpp\drivers\tseng4k.grd gw 1024 gh 768 tw 132 th 43 nc 256
+         set 387=YES
+
+   This must be done before executing ANY executable produced by DJGPP.
+
+3. Choose a directory for Clisp, say \CLISP.
+
+         CD \CLISP
+
+   Unpack the sources in this directory:
+
+         PKUNZIP -d CLISP.ZIP
+   or
+         TAR xvf CLISP.TAR
+
+4. Convert the sources to the IBM PC character set.
+   They are distributed in ISO Latin-1 character set.
+
+         cd dos
+         gcc -O cv_lt_pc.c -o cv_lt_pc
+         copy /b c:\djgpp\bin\go32.exe + cv_lt_pc cv_lt_pc.exe
+         del cv_lt_pc
+         cv_lt_pc < convert.bax > convert.bat
+         convert.bat
+         cd ..
+
+   Edit DOSDJGPP\MAKEFILE and adjust the path c:\djgpp\bin\ therein
+   to fit your setup.
+
+   Copy some DOSDJGPP specific files into SRC:
+
+         DOSDJGPP\COPYX.BAT
+
+   You may then delete unnecessary files:
+
+         DOS\DELX.BAT
+
+5.-9. Proceed as described in dos/INSTALL 5.-9.
+

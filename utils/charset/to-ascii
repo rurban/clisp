@@ -1,0 +1,8 @@
+#!/bin/sh
+# Usage: to-ascii <isolatin-file> <ascii-file>
+if test $# != 2; then
+  echo "Usage: ${CHARSETBINDIR}to-ascii <isolatin-file> <ascii-file>"
+  exit 1
+fi
+${CHARSETBINDIR}cv-to-ascii < "$1" > "$2"
+${CHARSETBINDIR}touchr "$1" "$2"

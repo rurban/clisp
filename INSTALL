@@ -1,0 +1,107 @@
+This is the source distribution of CLISP, a Common Lisp implementation.
+Available via anonymous FTP from
+ftp2.cons.org:/pub/lisp/clisp/source/clispsrc.tar.gz.
+
+Contents:
+---------
+
+It consists of the following directories and files:
+
+Documentation:
+
+      INSTALL            this text
+      SUMMARY            description, summary
+      ANNOUNCE           announcement
+      COPYRIGHT          copyright notice
+      GNU-GPL            free software license
+
+Source:
+
+      src/FILES.1        source documentation
+      src/_README        README master
+      src/_clisp.1       manual page master
+      src/_impnotes.txt  implementation documentation master
+      src/*.d            C source files
+      src/*.il           auxiliary file
+      src/*.lsp          Lisp source files
+      doc/*              documentation
+
+Installation:
+
+      configure          main configuration script
+      src/configure      auxiliary configuration script
+      src/machine.*      auxiliary program
+      src/*.in           auxiliary files
+      utils/*            auxiliary programs
+      unix/              installing on Unix 
+      dos/               installing on DOS, using EMX
+      dosdjgpp/          installing on DOS, using DJGPP
+      doswatcom/         installing on DOS, using WATCOM
+      os2/               installing on OS/2
+      win32msvc/         installing on Win32, using MSVC
+      win32bc/           installing on Win32, using Borland C/C++
+      amiga/             installing on Amiga
+
+Other:
+
+      src/malloc/        a GNU malloc library routine
+      src/gettext/       internationalization using GNU gettext
+      src/termcap/       a GNU termcap library
+      ffcall/            a foreign function call library
+
+Related packages:
+
+  Recommended:
+
+      src/readline/      a modified GNU readline library,
+                         gdb-4.13 based
+      FTP: /pub/lisp/clisp/source/clispsrc-readline.tar.gz
+
+  Optional:
+
+      modules/clx/       the CLX library, an interface to X11,
+                         roughly equivalent to the libX11
+      FTP: /pub/lisp/clisp/source/clispsrc-clx.tar.gz
+
+      modules/wildcard/  foreign language module for wildcard matching
+      FTP: /pub/lisp/clisp/source/clispsrc-wildcard.tar.gz
+
+      modules/regexp/    foreign language module for Unix-style regular
+                         expression matching and searching
+      FTP: /pub/lisp/clisp/source/clispsrc-regexp.tar.gz
+
+      src/newreadline/   another modified GNU readline library,
+                         bash-1.14.7 based
+      FTP: /pub/lisp/clisp/source/clispsrc-newreadline.tar.gz
+
+      modules/queens/    sample external module for CLISP
+      FTP: /pub/lisp/clisp/source/clispsrc-queens.tar.gz
+
+
+Installation:
+-------------
+
+For instruction on how to install CLISP
+* on Unix: see file unix/INSTALL.
+* on Amiga (AmigaOS): see file amiga/INSTALL.
+* on DOS:  see files dos/INSTALL, dosdjgpp/INSTALL and doswatcom/INSTALL.
+* on OS/2: see file os2/INSTALL,
+* on Win32 (WinNT, Win95): see files win32msvc/INSTALL and win32bc/INSTALL.
+
+
+Authors:
+--------
+
+        Bruno Haible
+        Michael Stoll
+
+Email: <haible@clisp.cons.org>
+       <michael@rhein.iam.uni-bonn.de>
+
+Maintainer:
+-----------
+
+        Marcus Daniels
+
+Email: <marcus@sysc.pdx.edu>
+

@@ -1,0 +1,18 @@
+$ grep -v fehler /tmp/clisp/gettext | grep -v msg_table|more
+makemake.in:       --disable-nls           don't use gettext
+makemake.in:  echo "gettext_: $XCL_INTLLIB $XCL_NLSUTLIB"
+makemake.in:  echodummyrule gettext_
+makemake.in:  # `src/gettext/intl', there is potential for `make' thinking that
+makemake.in:  echotab "cd intl && \$(MAKE) VPATH=${ABS_SRCDIR}gettext/intl:${ABS_SRCDIR}po CC='${XCC}' CFLAGS='${XCFLAGS} -DDISALLOW_MMAP'"
+makemake.in:  echotab "cd gettext && \$(MAKE)"
+makemake.in:  # top_srcdir used so that gettext's mkinstalldirs can be found
+makemake.in:  echotab "cd po && \$(MAKE) top_srcdir=${ABS_SRCDIR}gettext datadir=. install"
+makemake.in:      echotab "cd po && \$(MAKE) -r top_srcdir=${ABS_SRCDIR}gettext prefix=\$(prefix) install"
+
+    echotab "chmod a+x \$(bindir)/clisp"
+    if test -n "$enable_nls" ; then
+      echotab "cd po && \$(MAKE) -r top_srcdir=${ABS_SRCDIR}gettext prefix=\$(prefix) install"
+    fi
+    echo
+    if [ $TERMINAL = readline ] ; then
+

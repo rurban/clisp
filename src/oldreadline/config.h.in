@@ -1,0 +1,113 @@
+/* config.h.in.  Generated automatically from configure.in by autoheader.  */
+
+#ifndef _RL_CONFIG_H
+#define _RL_CONFIG_H
+
+/* Define this as `char' if your compiler doesn't understand the void type. */
+#undef void
+
+/* Define if you have strcasecmp.  */
+#undef HAVE_STRCASECMP
+
+/* Define if you have select.  */
+#undef HAVE_SELECT
+
+/* Define if you have strpbrk.  */
+#undef HAVE_STRPBRK
+
+/* Define if you have the <unistd.h> header file.  */
+#undef HAVE_UNISTD_H
+
+/* Define if you have the <stdlib.h> header file.  */
+#undef HAVE_STDLIB_H
+
+/* Define if you have the <varargs.h> header file.  */
+#undef HAVE_VARARGS_H
+
+/* Define if you have the <string.h> header file.  */
+#undef HAVE_STRING_H
+
+/* Define if you have alloca.h and it should be used (not Ultrix).  */
+#undef HAVE_ALLOCA_H
+
+/* Define if you have the <dirent.h> header file.  */
+#undef HAVE_DIRENT_H
+
+/* Define if you have the <sys/ptem.h> header file.  */
+#undef HAVE_SYS_PTEM_H
+
+/* Define if you have the <sys/pte.h> header file.  */
+#undef HAVE_SYS_PTE_H
+
+/* Define if you have the <sys/stream.h> header file.  */
+#undef HAVE_SYS_STREAM_H
+
+/* Define if you have the <termcap.h> header file.  */
+#undef HAVE_TERMCAP_H
+
+/* Define if you have the <sys/select.h> header file.  */
+#undef HAVE_SYS_SELECT_H
+
+/* Define if you need <sys/file.h> for using open() flags like O_RDWR. */
+#undef OPEN_NEEDS_SYS_FILE_H
+
+/* Define if you have <dirent.h>. */
+#undef DIRENT   /* use <dirent.h> */
+/* Define if you don't have <dirent.h>, but have <sys/ndir.h>. */
+#undef SYSNDIR  /* use <sys/ndir.h> */
+/* Define if you don't have <dirent.h>, but have <sys/dir.h>. */
+#undef SYSDIR   /* use <sys/dir.h> */
+/* Define if you don't have <dirent.h>, but have <ndir.h>. */
+#undef NDIR     /* use <ndir.h> */
+
+/* Define if you have <termios.h>. */
+#undef HAVE_TERMIOS_H
+/* Define if you have the tcgetattr() function. */
+#undef HAVE_TCGETATTR
+/* Define if you have the tcflow() function. */
+#undef HAVE_TCFLOW
+/* Define if you have <termio.h>. */
+#undef HAVE_TERMIO_H
+/* Define if you have <sys/termio.h>. */
+#undef HAVE_SYS_TERMIO_H
+/* Define if you have <sgtty.h>. */
+#undef HAVE_SGTTY_H
+/* Define if you have <sys/stream.h>. */
+#undef HAVE_SYS_STREAM_H
+/* Define if you have <sys/ptem.h>. */
+#undef HAVE_SYS_PTEM_H
+/* Define if you have <sys/pte.h>. */
+#undef HAVE_SYS_PTE_H
+/* Define if you have the FIONREAD ioctl(). */
+#undef HAVE_FIONREAD
+/* Define if you need <sys/filio.h> for using ioctl's like FIONREAD. */
+#undef NEED_SYS_FILIO_H
+/* Define if you need <sys/ioctl.h> for using ioctl's like FIONREAD. */
+#undef NEED_SYS_IOCTL_H
+
+/* Define if your system defines TIOCGWINSZ in sys/ioctl.h.  */
+#undef GWINSZ_IN_SYS_IOCTL
+
+#undef HAVE_GETPW_DECLS
+
+/* Define if using alloca.c.  */
+#undef C_ALLOCA
+/* Define to one of _getb67, GETB67, getb67 for Cray-2 and Cray-YMP systems.
+   This function is required for alloca.c support on those systems.  */
+#undef CRAY_STACKSEG_END
+/* If using the C implementation of alloca, define if you know the
+   direction of stack growth for your system; otherwise it will be
+   automatically deduced at run-time.
+	STACK_DIRECTION > 0 => grows toward higher addresses
+	STACK_DIRECTION < 0 => grows toward lower addresses
+	STACK_DIRECTION = 0 => direction of growth unknown
+ */
+#undef STACK_DIRECTION
+
+/* CL_SIGNALBLOCK */
+/* how to block and unblock signals */
+#undef SIGNALBLOCK_SYSV
+#undef SIGNALBLOCK_POSIX
+#undef SIGNALBLOCK_BSD
+
+#endif

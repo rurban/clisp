@@ -1,0 +1,52 @@
+Installation on DOS using WATCOM C 9.5:
+---------------------------------------
+
+** WARNING **:
+The preferred DOS extender for CLISP is EMX. CLISP built with WATCOM C will
+exhibits the following problems:
+* The readline editing capabilities are not built in.
+* Ctrl-C aborts the program ungracefully.
+* It is slower.
+
+1. Get and install the WATCOM C/C++^32 9.5 compiler. It is commercial
+   software; you cannot get it by anonymous ftp.
+   Only the C, 386, non-Windows part of the development system will be needed.
+   The C++, 8086, 286, Windows parts of the development system can be removed.
+
+2. Make sure WATCOM's \BIN are \BINB directories are in your path. Set the
+   environment variables WATCOM and INCLUDE. For example:
+
+         PATH=C:\WATCOM95\BIN;C:\WATCOM95\BINB;C:\WATCOM95\BINW;%PATH%
+         set WATCOM=C:\WATCOM95
+         set INCLUDE=C:\WATCOM95\H
+         set DOS4G=QUIET
+
+3. Choose a directory for Clisp, say \CLISP.
+
+         CD \CLISP
+
+   Unpack the sources in this directory:
+
+         PKUNZIP -d CLISP.ZIP
+   or
+         TAR xvf CLISP.TAR
+
+4. Convert the sources to the IBM PC character set.
+   They are distributed in ISO Latin-1 character set.
+
+         cd dos
+         wcl386 -ox cv_lt_pc.c
+         cv_lt_pc < convert.bax > convert.bat
+         convert.bat
+         cd ..
+
+   Copy some DOS or WATCOM specific files into SRC:
+
+         DOSWATCOM\COPYX.BAT
+
+   You may then delete unnecessary files:
+
+         DOS\DELX.BAT
+
+5.-10. Proceed as described in dos/INSTALL 5. and 7.-10.
+

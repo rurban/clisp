@@ -1,0 +1,711 @@
+/* Bruno Haible 16.7.1997 */
+
+#define UNIXCONF
+
+
+/* UNIX variants */
+
+/* AC_AIX */
+/* Define if on AIX 3. */
+#ifndef _ALL_SOURCE
+#undef _ALL_SOURCE
+#endif
+
+/* AC_ISC_POSIX */
+/* Define if you need to in order for stat and other things to work. */
+#ifndef _POSIX_SOURCE
+#undef _POSIX_SOURCE
+#endif
+
+/* AC_MINIX */
+/* Define if you need to in order for stat and other things to work. */
+#ifndef _POSIX_SOURCE
+#undef _POSIX_SOURCE
+#endif
+/* Define if the system does not provide POSIX.1 features except
+   with this defined. */
+#ifndef _POSIX_1_SOURCE
+#undef _POSIX_1_SOURCE
+#endif
+/* Define if on MINIX. */
+#undef _MINIX
+
+/* CL_AS_UNDERSCORE */
+/* Define if C symbols are prefixed by an underscore in assembly language. */
+#undef ASM_UNDERSCORE
+
+/* CL_SHELLARGS */
+/* Define if /bin/sh is broken and /bin/ksh should be used instead. */
+#undef UNIX_USE_KSH
+/* Define if /bin/sh is broken and /bin/ksh is not available. */
+#undef UNIX_BROKEN_SH
+
+
+/* compiler characteristics */
+
+/* AC_C_CONST */
+/* Define this as empty if your compiler doesn't support the `const' keyword. */
+#undef const
+
+/* AC_C_INLINE */
+/* Define as __inline if that's what the C compiler calls it. */
+#undef inline
+
+/* CL_NOWARN */
+/* Define this as empty if your compiler doesn't support the `__nowarn__' keyword. */
+#undef __nowarn__
+
+/* CL_VOID */
+/* Define this as `char' if your compiler doesn't understand the void type. */
+#undef void
+/* Define this as `return' if your compiler allows returning expressions of
+   type `void' from functions. */
+#define return_void
+
+/* CL_LONGLONG */
+/* Define if your compiler supports the `long long' type. */
+#undef HAVE_LONGLONG
+
+
+/* header files */
+
+/* CL_STDC_HEADERS */
+/* Define if you have the ANSI C header files
+   <stdlib.h>, <stdarg.h>, <string.h>, <float.h>, <limits.h>. */
+#undef STDC_HEADERS
+
+/* CL_STDLIB_H */
+/* Define if you have <stdlib.h>. */
+#undef HAVE_STDLIB_H
+
+/* CL_STDDEF_H */
+/* Define if you have <stddef.h>. */
+#undef HAVE_STDDEF_H
+
+/* CL_OFFSETOF */
+/* Define if you have <stddef.h> and it defines the offsetof macro. */
+#undef HAVE_OFFSETOF
+
+/* CL_LOCALE_H */
+/* Define if you have <locale.h>. */
+#undef HAVE_LOCALE_H
+
+/* CL_UNISTD_H */
+/* Define if you have <unistd.h>. */
+#undef HAVE_UNISTD_H
+
+/* CL_ACCESSFLAGS */
+/* Define if you need <sys/file.h> for using access() flags like R_OK. */
+#undef ACCESS_NEEDS_SYS_FILE_H
+
+/* CL_OPENFLAGS */
+/* Define if you need <sys/file.h> for using open() flags like O_RDWR. */
+#undef OPEN_NEEDS_SYS_FILE_H
+
+/* CL_DIR_HEADER, CL_DIRENT_WITHOUT_NAMLEN */
+/* How to read directories: */
+/* Define if you have <dirent.h>. */
+#undef DIRENT   /* use <dirent.h> */
+#undef DIRENT_WITHOUT_NAMLEN
+/* Define if you don't have <dirent.h>, but have <sys/ndir.h>. */
+#undef SYSNDIR  /* use <sys/ndir.h> */
+/* Define if you don't have <dirent.h>, but have <sys/dir.h>. */
+#undef SYSDIR   /* use <sys/dir.h> */
+/* Define if you don't have <dirent.h>, but have <ndir.h>. */
+#undef NDIR     /* use <ndir.h> */
+
+/* CL_UTSNAME */
+/* Define if you have <sys/utsname.h> and it defines struct utsname. */
+#undef HAVE_SYS_UTSNAME_H
+
+/* CL_NETDB */
+/* Define if you have <netdb.h>. */
+#undef HAVE_NETDB_H
+
+/* CL_TERM */
+/* Define if you have <termios.h>. */
+#undef HAVE_TERMIOS_H
+/* Define if you have tcgetattr(),
+   either as a function or as a macro defined by <termios.h>. */
+#undef HAVE_TCGETATTR
+/* Define as const if the declaration of tcsetattr() needs const. */
+#define TCSETATTR_CONST
+/* Define if <termios.h> defines TCSAFLUSH. */
+#undef HAVE_TCSAFLUSH
+/* Define if you have <termios.h> but need <sys/ptem.h> for `struct winsize'. */
+#undef NEED_SYS_PTEM_H
+/* Define if you have <termio.h>. */
+#undef HAVE_TERMIO_H
+/* Define if you have <sys/termio.h>. */
+#undef HAVE_SYS_TERMIO_H
+/* Define if you have <sgtty.h>. */
+#undef HAVE_SGTTY_H
+
+/* CL_FIND_X */
+/* Define if you have the X11 Window System. */
+#undef HAVE_X11
+
+
+/* typedefs */
+
+/* AC_TYPE_SIZE_T */
+#ifndef size_t
+#undef size_t
+#endif
+
+/* AC_TYPE_PID_T */
+#ifndef pid_t
+#undef pid_t
+#endif
+
+/* AC_TYPE_UID_T */
+#ifndef uid_t
+#undef uid_t
+#endif
+
+/* AC_TYPE_OFF_T */
+#ifndef off_t
+#undef off_t
+#endif
+
+/* CL_CADDR_T */
+#undef CADDR_T
+
+/* CL_CLOCK_T */
+#undef CLOCK_T
+
+
+/* structures and structure members */
+
+/* CL_STRUCT_TM */
+/* Define if <sys/time.h> is enough and <time.h> is unneeded
+   in order to declare struct tm. */
+#undef TM_IN_SYS_TIME
+
+
+/* functions and declarations */
+
+/* CL_STRLEN */
+/* Define as the return type of strlen().
+   Don't define if strlen() is a macro. */
+#undef RETSTRLENTYPE
+/* Define as const if the declaration of strlen() needs const. */
+#define STRLEN_CONST
+
+/* CL_MEMSET */
+/* Define if you have the memset() function. */
+#undef HAVE_MEMSET
+/* Define as the return type of memset(). */
+#undef RETMEMSETTYPE
+
+/* CL_MALLOC */
+/* Define as the return type of malloc(). */
+#undef RETMALLOCTYPE
+/* Define as the type of `size' in malloc() declaration. */
+#undef MALLOC_SIZE_T
+
+/* CL_FREE */
+/* Define as the return type of free(). */
+#undef RETFREETYPE
+
+/* CL_ALLOCA */
+/* Define if you have <alloca.h> and it should be used (not Ultrix). */
+#undef HAVE_ALLOCA_H
+/* Define if you need to link with an external alloca.o when using alloca(). */
+#undef NO_ALLOCA
+
+/* CL_SETJMP */
+/* Define if you have _setjmp() and _longjmp(). */
+#undef HAVE__JMP
+/* Define if longjmp() may return. */
+#undef LONGJMP_RETURNS
+
+/* CL_TYPE_SIGNAL */
+/* Define as the return type of signal handlers (int or void). */
+#define RETSIGTYPE void
+/* Define if the declaration of the signal handler function type needs dots. */
+#undef SIGTYPE_DOTS
+
+/* CL_SIGNALBLOCK */
+/* how to block and unblock signals */
+#undef SIGNALBLOCK_SYSV
+#undef SIGNALBLOCK_POSIX
+#undef SIGNALBLOCK_BSD
+
+/* CL_SIGPROCMASK */
+/* Define as const if the declaration of sigprocmask() needs const. */
+#define SIGPROCMASK_CONST
+
+/* CL_SIGNAL_REINSTALL */
+/* Define if signal handlers need to be reinstalled when they are activated. */
+#undef SIGNAL_NEED_REINSTALL
+
+/* CL_SIGNAL_UNBLOCK */
+/* Define if SIGNALBLOCK_BSD is defined above and
+   signals need to be unblocked when signal handlers are left. */
+#undef SIGNAL_NEED_UNBLOCK
+
+/* CL_SIGNAL_BLOCK_OTHERS */
+/* Define if SIGNALBLOCK_BSD is defined above and
+   other signals need to be unblocked when signal handlers are left. */
+#undef SIGNAL_NEED_UNBLOCK_OTHERS
+
+/* CL_SIGACTION */
+/* Define if you have the sigaction() function. */
+#undef HAVE_SIGACTION
+
+/* CL_SIGACTION_REINSTALL */
+/* Define if signal handlers installed via sigaction()
+   need to be reinstalled when they are activated. */
+#undef SIGACTION_NEED_REINSTALL
+
+/* CL_SIGACTION_UNBLOCK */
+/* Define if signals need to be unblocked
+   when signal handlers installed via sigaction() are left. */
+#undef SIGACTION_NEED_UNBLOCK
+
+/* CL_SIGINTERRUPT */
+/* Define if you have the siginterrupt() function. */
+#undef HAVE_SIGINTERRUPT
+/* Define if you don't have siginterrupt() or sigaction(), but sigvec(). */
+#undef HAVE_SIGVEC
+
+/* CL_FPU_CONTROL */
+/* Define if you have <fpu_control.h> and the __setfpucw() function. */
+#undef HAVE_SETFPUCW
+
+/* CL_ABORT */
+/* Define as the return type of abort(). */
+#undef RETABORTTYPE
+/* Define as __volatile__ if the declaration of abort() needs it. */
+#define ABORT_VOLATILE
+
+/* CL_PERROR */
+/* Define if <errno.h> or <stdio.h> contains a declaration for perror(). */
+#undef HAVE_PERROR_DECL
+
+/* CL_SYS_ERRLIST */
+/* Define as const if the declaration type of sys_errlist needs const. */
+#define SYS_ERRLIST_CONST
+
+/* CL_GETENV */
+/* Define as const if the declaration of getenv() needs const. */
+#define GETENV_CONST
+
+/* CL_PUTENV */
+/* Define if you have the putenv() function. */
+#undef HAVE_PUTENV
+/* Define as const if the declaration of putenv() needs const. */
+#define PUTENV_CONST
+/* Define if you have the setenv() function but not the putenv() function. */
+#undef HAVE_SETENV
+
+/* CL_SETLOCALE */
+/* Define as const if the declaration of setlocale() needs const. */
+#define SETLOCALE_CONST
+
+/* CL_RLIMIT */
+/* Define if you have the setrlimit() function. */
+#undef HAVE_SETRLIMIT
+/* Define as the type of `resource' in setrlimit() declaration. */
+#undef RLIMIT_RESOURCE_T
+/* Define as const if the declaration of setrlimit() needs const. */
+#define SETRLIMIT_CONST
+
+/* AC_FUNC_VFORK */
+/* Define if you have <vfork.h>. */
+#undef HAVE_VFORK_H
+/* Define as fork if you have no working vfork(). */
+#undef vfork
+
+/* CL_VFORK */
+/* Define as the return type of vfork(). */
+#undef RETVFORKTYPE
+
+/* CL_SETSID */
+/* Define if you have the setsid() function. */
+#undef HAVE_SETSID
+/* Define if you have the setpgid() function. */
+#undef HAVE_SETPGID
+
+/* CL_EXECV */
+/* Define as const if the declaration of execv() needs const
+   in the first argument. */
+#define EXECV_CONST
+/* Define as const if the second argument of execv() needs to be declared
+   as an array of pointers to constant data. */
+#define EXECV1_CONST
+/* Define as const if the second argument of execv() needs to be declared
+   as an array of constant pointers. */
+#define EXECV2_CONST
+
+/* CL_EXECL */
+/* Define if the declaration of execl() needs dots. */
+#undef EXECL_DOTS
+/* Define as const if the declaration of execl() needs const
+   in the second argument. */
+#define EXECL_CONST
+
+/* CL_WAITPID */
+/* Define if you have the waitpid() function. */
+#undef HAVE_WAITPID
+/* Define as the type of `pid' in waitpid() declaration. */
+#undef PID_T
+/* Define if you have <sys/wait.h> but not the waitpid() function. */
+#undef HAVE_SYS_WAIT_H
+
+/* CL_RUSAGE */
+/* Define if you have <sys/resource.h>. */
+#undef HAVE_SYS_RESOURCE_H
+/* Define if you also have <sys/time.h>, the getrusage() function,
+   the struct rusage type, and <sys/resource.h> defines RUSAGE_SELF. */
+#undef HAVE_GETRUSAGE
+/* Define as the type of `who' in getrusage() declaration. */
+#undef RUSAGE_WHO_T
+/* Define if you have <sys/times.h>. */
+#undef HAVE_SYS_TIMES_H
+
+/* CL_GETWD */
+/* Define if you have the getwd() function. */
+#undef HAVE_GETWD
+
+/* CL_GETCWD */
+/* Define as the type of `bufsize' in getcwd() declaration. */
+#undef GETCWD_SIZE_T
+
+/* CL_CHDIR */
+/* Define as const if the declaration of chdir() needs const. */
+#define CHDIR_CONST
+
+/* CL_MKDIR */
+/* Define as const if the declaration of mkdir() needs const. */
+#define MKDIR_CONST
+/* Define as the type of `mode' in mkdir(), open() declaration. */
+#undef MODE_T
+
+/* CL_RMDIR */
+/* Define as const if the declaration of rmdir() needs const. */
+#define RMDIR_CONST
+
+/* AC_HEADER_STAT */
+/* Define if the `S_IS*' macros in <sys/stat.h> do not work properly. */
+#undef STAT_MACROS_BROKEN
+
+/* CL_FSTAT */
+/* Define if the fstat() function doesn't have C linkage. */
+#undef FSTAT_INLINE
+
+/* CL_STAT */
+/* Define as const if the declaration of stat() needs const. */
+#define STAT_CONST
+/* Define if the stat() function doesn't have C linkage. */
+#undef STAT_INLINE
+
+/* CL_LSTAT */
+/* Define if you have the lstat() function. */
+#undef HAVE_LSTAT
+/* Define as const if the declaration of lstat() needs const. */
+#define LSTAT_CONST
+/* Define if the lstat() function doesn't have C linkage. */
+#undef LSTAT_INLINE
+
+/* CL_READLINK */
+/* Define if you have the readlink() function. */
+#undef HAVE_READLINK
+/* Define as const if the declaration of readlink() needs const. */
+#define READLINK_CONST
+/* Define as the type of `buf' in readlink() declaration. */
+#undef READLINK_BUF_T
+/* Define as the type of `bufsiz' in readlink() declaration. */
+#undef READLINK_SIZE_T
+
+/* CL_ELOOP */
+/* Define as the real value of ELOOP even if it is hidden in <errno.h>. */
+#undef ELOOP_VALUE
+
+/* CL_OPENDIR */
+/* Define as const if the declaration of opendir() needs const. */
+#define OPENDIR_CONST
+
+/* CL_CLOSEDIR */
+/* Define as the return type of closedir(). */
+#undef RETCLOSEDIRTYPE
+/* Define if the closedir() function's return value is void or unusable. */
+#undef VOID_CLOSEDIR
+
+/* CL_OPEN */
+/* Define as const if the declaration of open() needs const. */
+#define OPEN_CONST
+/* Define if the declaration of open() needs dots. */
+#undef OPEN_DOTS
+
+/* CL_READ_WRITE */
+/* Define as the return type of read(), write(). */
+#undef RETRWTYPE
+/* Define as the type of `buf' in read(), write() declaration. */
+#undef RW_BUF_T
+/* Define as the type of `count' in read(), write() declaration. */
+#undef RW_SIZE_T
+
+/* CL_WRITE */
+/* Define as const if the declaration of write() needs const. */
+#define WRITE_CONST
+
+/* CL_RENAME */
+/* Define if you have the rename() function. */
+#undef HAVE_RENAME
+/* Define as const if the declaration of rename() needs const. */
+#define RENAME_CONST
+
+/* CL_UNLINK */
+/* Define as const if the declaration of unlink() needs const. */
+#define UNLINK_CONST
+
+/* CL_FSYNC */
+/* Define if you have the fsync() system call. */
+#undef HAVE_FSYNC
+
+/* CL_IOCTL */
+/* Define as the type of `request' in ioctl() declaration. */
+#undef IOCTL_REQUEST_T
+/* Define if the declaration of ioctl() needs dots. */
+#undef IOCTL_DOTS
+/* Define if you have the FIONREAD ioctl(). */
+#undef HAVE_FIONREAD
+/* Define if you need <sys/filio.h> for using ioctl's like FIONREAD. */
+#undef NEED_SYS_FILIO_H
+/* Define if you need <sys/ioctl.h> for using ioctl's like FIONREAD. */
+#undef NEED_SYS_IOCTL_H
+/* Define if you have the FIONREAD ioctl() and it works reliably on files. */
+#undef HAVE_RELIABLE_FIONREAD
+
+/* CL_FCNTL */
+/* Define if the declaration of fcntl() needs dots. */
+#undef FCNTL_DOTS
+
+/* CL_SELECT */
+/* Define if you have the select() system call. */
+#undef HAVE_SELECT
+/* Define if you also have <sys/select.h>
+   and it may be included after <sys/time.h> (not SCO). */
+#undef HAVE_SYS_SELECT_H
+/* Define as the type of `width' in select() declaration. */
+#undef SELECT_WIDTH_T
+/* Define as the type of `* readfds', `* writefds', `* exceptfds'
+   in select() declaration. */
+#undef SELECT_SET_T
+/* Define as const if the declaration of select() needs const
+   in the fifth argument. */
+#define SELECT_CONST
+/* Define if you have the poll() system call but not select(). */
+#undef HAVE_POLL
+
+/* CL_UALARM */
+/* Define if you have the ualarm() function. */
+#undef HAVE_UALARM
+
+/* CL_SETITIMER */
+/* Define if you have the setitimer() function. */
+#undef HAVE_SETITIMER
+/* Define as const if the declaration of setitimer() needs const. */
+#define SETITIMER_CONST
+
+/* CL_USLEEP */
+/* Define if you have the usleep() function. */
+#undef HAVE_USLEEP
+
+/* CL_LOCALTIME */
+/* Define as const if the declaration of localtime() needs const. */
+#define LOCALTIME_CONST
+
+/* CL_GETTIMEOFDAY */
+/* Define if you have the gettimeofday() function. */
+#undef HAVE_GETTIMEOFDAY
+/* Define if the declaration of gettimeofday() needs dots. */
+#undef GETTIMEOFDAY_DOTS
+/* Define as the type of `tzp' in gettimeofday() declaration. */
+#undef GETTIMEOFDAY_TZP_T
+
+/* CL_FTIME */
+/* Define if you have the ftime() function. */
+#undef HAVE_FTIME
+
+/* CL_TIMES_CLOCK */
+/* Define if you have the times() function and it returns the real time,
+   but don't have the gettimeofday() or ftime() function. */
+#undef HAVE_TIMES_CLOCK
+
+/* CL_GETPWNAM */
+/* Define as const if the declaration of getpwnam() needs const. */
+#define GETPWNAM_CONST
+
+/* CL_GETPWUID */
+/* Define as the type of `uid' in getpwuid() declaration. */
+#undef GETPWUID_UID_T
+
+/* CL_GETHOSTNAME */
+/* Define if you have the gethostname() function. */
+#undef HAVE_GETHOSTNAME
+/* Define as the type of `namelen' in gethostname() declaration. */
+#undef GETHOSTNAME_SIZE_T
+
+/* CL_GETHOSTBYNAME */
+/* Define if you have gethostbyname() and either <netdb.h> or <sun/netdb.h>. */
+#undef HAVE_GETHOSTBYNAME
+/* Define as const if the declaration of gethostbyname() needs const. */
+#define GETHOSTBYNAME_CONST
+
+/* CL_CONNECT */
+/* Define as the type of `name' in connect() declaration. */
+#undef CONNECT_NAME_T
+/* Define as const if the declaration of connect() needs const. */
+#define CONNECT_CONST
+/* Define as the type of `addrlen' in connect() declaration. */
+#define CONNECT_ADDRLEN_T
+
+/* CL_UNIXCONN */
+/* Define if you have <sys/un.h>. */
+#undef HAVE_SYS_UN_H
+/* Define if the `struct sockaddr_un' from <sys/un.h> has a `sun_len' field. */
+#undef HAVE_SOCKADDR_UN_LEN
+
+/* CL_TCPCONN */
+/* Define if you have <netinet/in.h>. */
+#undef HAVE_NETINET_IN_H
+/* Define if you have <arpa/inet.h>. */
+#undef HAVE_ARPA_INET_H
+/* Define as the return type of inet_addr(). */
+#undef RET_INET_ADDR_TYPE
+/* Define as .s_addr if the return type of inet_addr() is a struct type,
+   as empty if it is a scalar type. */
+#undef INET_ADDR_SUFFIX
+/* Define as const if the declaration of inet_addr() needs const. */
+#define INET_ADDR_CONST
+/* Define if you have <netinet/tcp.h>. */
+#undef HAVE_NETINET_TCP_H
+/* Define as const if the declaration of setsockopt() needs const. */
+#define SETSOCKOPT_CONST
+/* Define as the type of `optval' in setsockopt() declaration. */
+#undef SETSOCKOPT_ARG_T
+/* Define as the type of `optlen' in setsockopt() declaration. */
+#undef SETSOCKOPT_OPTLEN_T
+
+/* CL_ADDRESS_RANGE */
+/* Define as the address range of program code (text+data+bss). */
+#define CODE_ADDRESS_RANGE 0
+/* Define as the address range of malloc'ed memory. */
+#define MALLOC_ADDRESS_RANGE 0
+/* Define as the address range of shared library code, if present. */
+#define SHLIB_ADDRESS_RANGE 0
+
+/* CL_GETPAGESIZE */
+/* Define if you have getpagesize(). */
+#undef HAVE_GETPAGESIZE
+/* Define as the return type of getpagesize(). */
+#undef RETGETPAGESIZETYPE
+
+/* CL_VADVISE */
+/* Define if you have the vadvise() system call. */
+#undef HAVE_VADVISE
+
+/* CL_MACH_VM */
+/* Define if you have the vm_allocate() and task_self() functions. */
+#undef HAVE_MACH_VM
+
+/* CL_MMAP */
+/* Define if you have <sys/mman.h> and the mmap() function. */
+#undef HAVE_MMAP
+/* Define as the return type of mmap(). */
+#undef RETMMAPTYPE
+/* Define as the type of `addr' in mmap() declaration. */
+#undef MMAP_ADDR_T
+/* Define as the type of `len' in mmap() declaration. */
+#undef MMAP_SIZE_T
+/* Define if <sys/mman.h> defines MAP_ANON and mmaping with MAP_ANON works. */
+#undef HAVE_MMAP_ANON
+/* Define if <sys/mman.h> defines MAP_ANONYMOUS and mmaping with MAP_ANONYMOUS
+   works. */
+#undef HAVE_MMAP_ANONYMOUS
+/* Define if mmaping of the special device /dev/zero works. */
+#undef HAVE_MMAP_DEVZERO
+/* Define if mmaping of the special device /dev/zero works,
+   but only on addresses < 2^29. */
+#undef HAVE_MMAP_DEVZERO_SUN4_29
+
+/* CL_MUNMAP */
+/* Define if you have the munmap() function. */
+#undef HAVE_MUNMAP
+
+/* CL_MSYNC */
+/* Define if you have the msync() function. */
+#undef HAVE_MSYNC
+
+/* CL_MPROTECT */
+/* Define if you have the mprotect() function. */
+#undef HAVE_MPROTECT
+/* Define if you have a working mprotect() function. */
+#undef HAVE_WORKING_MPROTECT
+/* Define as const if the declaration of mprotect() needs const. */
+#define MPROTECT_CONST
+
+/* CL_SHMGET */
+/* Define as the type of `size' in shmget() declaration. */
+#undef SHMGET_SIZE_T
+
+/* CL_SHMAT */
+/* Define as the return type of shmat(). */
+#undef RETSHMATTYPE
+/* Define as const if the declaration of shmat() needs const. */
+#define SHMAT_CONST
+
+/* CL_SHMDT */
+/* Define as the type of `addr' in shmdt() declaration. */
+#undef SHMDT_ADDR_T
+
+/* CL_SHMCTL */
+/* Define if the declaration of shmctl() needs dots. */
+#undef SHMCTL_DOTS
+
+/* CL_SHM */
+/* Define if you have <sys/shm.h> and <sys/ipc.h> and shared memory works. */
+#undef HAVE_SHM
+/* Define if you also have <sys/sysmacros.h>. */
+#undef HAVE_SYS_SYSMACROS_H
+
+/* CL_SHM_RMID */
+/* Define if attaching removed (but alive!) shared memory segments works. */
+#undef SHM_RMID_VALID
+
+/* CL_DYNLOAD */
+/* Define if you have the dlopen() function. */
+#undef HAVE_DLOPEN
+/* Define as const if the declaration of dlerror() needs const. */
+#define DLERROR_CONST
+
+
+/* OS services */
+
+/* CL_FILECHARSET */
+/* Define as an expression in ch
+   which is true if ch is a valid character in filenames. */
+#undef VALID_FILENAME_CHAR
+
+
+/* compiler characteristics */
+
+/* CL_BUILTIN_STRLEN */
+/* Define if __builtin_strlen() is compiled inline (not a call to strlen()). */
+#undef HAVE_BUILTIN_STRLEN
+
+/* CL_BUILTIN_STRCMP */
+/* Define if __builtin_strcmp() is compiled inline (not a call to strcmp()). */
+#undef HAVE_BUILTIN_STRCMP
+
+/* CL_CHAR_UNSIGNED */
+#ifndef __CHAR_UNSIGNED__
+#undef __CHAR_UNSIGNED__
+#endif
+
+/* CL_MACHINE */
+/* see machine.h */
+

@@ -1,0 +1,66 @@
+HOST = i486-linux
+CPU = i386
+GCC = gcc
+GCCFLAGS = -O2 -fomit-frame-pointer -DHAVE_LONGLONG -DREENTRANT
+LN = ln -s
+RM = rm -f
+SED = sed
+ROFF_MAN = groff -Tascii -mandoc
+
+all : vacall-i386.S vacall-i386-msvc.c vacall-m68k.s vacall-mips.s vacall-mips64.s vacall-sparc.S vacall-alpha.s vacall-hppa.s vacall-arm.s vacall-rs6000.s vacall-m88k.s vacall-convex.s \
+      vacall_r.h.msvc config.h.msvc
+
+vacall-i386.S : vacall-i386.c vacall_r.h.in
+	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -D__i386__ -S vacall-i386.c -o vacall-i386.s
+	(echo '#include "asmi386.h"' ; sed -e 's/_\([v_][A-Za-z_:]*\)/C(\1)/' -e '/\.align.*,0x90$$/d' -e '/^#APP$$/d' -e '/^#NO_APP$$/d' vacall-i386.s) > vacall-i386.S
+	$(RM) vacall-i386.s
+
+vacall-i386-msvc.c : vacall-i386.S asmi386.sh
+	(echo '#ifdef _MSC_VER' ; echo '#include "vacall_r.h"' ; echo '#endif' ; ./asmi386.sh < vacall-i386.S) > vacall-i386-msvc.c
+
+vacall-m68k.s : vacall-m68k.c vacall_r.h.in
+	$(GCC) -V 2.6.3 -b m68k-sun $(GCCFLAGS) -D__m68k__ -S vacall-m68k.c -o vacall-m68k.s
+
+vacall-mips.s : vacall-mips.c vacall_r.h.in
+	$(GCC) -V 2.6.3 -b mips-sgi $(GCCFLAGS) -D__mips__ -fno-omit-frame-pointer -S vacall-mips.c -o vacall-mips.s
+
+vacall-mips64.s : vacall-mips64.c vacall_r.h.in
+	$(GCC) -V 2.6.3 -b mips-sgi -mips3 -mlong64 $(GCCFLAGS) -U__mips__ -D__mips64__ -S vacall-mips64.c -o vacall-mips64-temp.s
+	grep -v '_compiled' < vacall-mips64-temp.s | $(SED) -e 's/\([^x0-9]\)208/\1144/g' -e 's/\([^x0-9]\)200/\1136/g' > vacall-mips64.s
+	$(RM) vacall-mips64-temp.s
+
+vacall-sparc.S : vacall-sparc.c vacall_r.h.in
+	$(GCC) -V 2.6.3 -b sparc-sun $(GCCFLAGS) -D__sparc__ -S vacall-sparc.c -o vacall-sparc.s
+	(cat underscore.h ; sed -e 's/_\([v_][A-Za-z_:]*\)/C(\1)/' vacall-sparc.s) > vacall-sparc.S
+	$(RM) vacall-sparc.s
+
+vacall-alpha.s : vacall-alpha.c vacall_r.h.in
+	$(GCC) -V 2.7.2 -b alpha-dec-osf $(GCCFLAGS) -D__alpha__ -S vacall-alpha.c -o vacall-alpha-temp.s
+	$(SED) -e 's/\.rdata/\.data/g' < vacall-alpha-temp.s > vacall-alpha.s
+	$(RM) vacall-alpha-temp.s
+
+vacall-hppa.s : vacall-hppa.c vacall_r.h.in
+	$(GCC) -V 2.6.3 -b hppa1.0-hpux $(GCCFLAGS) -D__hppa__ -S vacall-hppa.c -o vacall-hppa.s
+
+vacall-arm.s : vacall-arm.c vacall_r.h.in
+	$(GCC) -V 2.6.3 -b arm-acorn-riscix $(GCCFLAGS) -D__arm__ -S vacall-arm.c -o vacall-arm.s
+
+vacall-rs6000.s : vacall-rs6000.c vacall_r.h.in
+	$(GCC) -V 2.6.3 -b rs6000 $(GCCFLAGS) -D__rs6000__ -S vacall-rs6000.c -o vacall-rs6000.s
+
+vacall-m88k.s : vacall-m88k.c vacall_r.h.in
+	$(GCC) -V 2.6.3 -b m88k-dgux $(GCCFLAGS) -D__m88k__ -S vacall-m88k.c -o vacall-m88k.s
+
+vacall-convex.s : vacall-convex.c vacall_r.h.in
+	$(GCC) -V 2.6.3 -b convex-c2 $(GCCFLAGS) -D__convex__ -S vacall-convex.c -o vacall-convex.s
+
+vacall_r.man : vacall_r.3
+	$(ROFF_MAN) vacall_r.3 > vacall_r.man
+
+vacall_r.h.msvc : vacall_r.h.in
+	sed -e 's,^#undef __i386__$$,#define __i386__ 1,' -e 's,^#undef __SMALL_STRUCT_RETURN__$$,#define __SMALL_STRUCT_RETURN__ 1,' < vacall_r.h.in > vacall_r.h.msvc
+
+config.h.msvc : config.h.in
+	sed -e 's,^#undef RETABORTTYPE$$,#define RETABORTTYPE void,' < config.h.in > config.h.msvc
+
+

@@ -1,0 +1,89 @@
+# Makefile for avcall
+
+#### Start of system configuration section. ####
+
+HOST = i386-pc-win32-msvc
+CPU = i386
+
+# Directories used by "make":
+srcdir = .
+
+# Directories used by "make install":
+prefix = /usr/local
+local_prefix = /usr/local
+exec_prefix = $(prefix)
+libdir = $(exec_prefix)/lib
+includedir = $(prefix)/include
+mandir = $(exec_prefix)/man
+
+# Programs used by "make":
+CC = cl
+CFLAGS = -O1
+CPP = cl -E
+INCLUDES = -I. -I$(srcdir)
+AR = lib
+AR_FLAGS = /out:
+MV = mv
+LN = cp
+RM = del
+
+# Programs used by "make install":
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+
+#### End of system configuration section. ####
+
+SHELL = /bin/sh
+
+OBJECTS = avcall.obj structcpy.obj
+
+all : $(OBJECTS) avcall.lib avcall.h $(srcdir)/avcall.3 $(srcdir)/avcall.html
+
+avcall.h : avcall.h.msvc
+	$(RM) avcall.h
+	$(LN) avcall.h.msvc avcall.h
+
+avcall.obj : avcall-$(CPU).obj
+	$(RM) avcall.obj
+	$(LN) avcall-$(CPU).obj avcall.obj
+
+avcall-i386.obj : $(srcdir)/avcall-i386-msvc.c
+	$(RM) avcall-i386.obj
+	$(CC) -c $(srcdir)/avcall-i386-msvc.c /Foavcall-i386.obj
+
+structcpy.obj : $(srcdir)/structcpy.c
+	$(CC) $(CFLAGS) -c $(srcdir)/structcpy.c
+
+avcall.lib : $(OBJECTS)
+	$(RM) avcall.lib
+	$(AR) $(AR_FLAGS)avcall.lib $(OBJECTS)
+
+tests.obj : $(srcdir)/tests.c avcall.h
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/tests.c
+
+tests.s : $(srcdir)/tests.c avcall.h
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/tests.c /FAs /Fatests.s
+
+tests.exe : tests.obj $(OBJECTS)
+	$(CC) $(CFLAGS) tests.obj $(OBJECTS) /Fetests.exe
+
+check : all tests.exe
+	tests.exe > tests.out
+	uniq -u < tests.out > tests.output.$(HOST)
+# You have to check by hand that tests.output.$(HOST) is empty.
+
+mostlyclean : clean
+
+clean : force
+	$(RM) *.obj *.lib core
+	$(RM) avcall-i386.s
+	$(RM) tests.obj tests.s tests.exe tests.out
+
+distclean : clean
+	$(RM) config.status config.log config.cache Makefile avcall.h tests.output.*
+
+maintainer-clean : distclean
+
+force :
+

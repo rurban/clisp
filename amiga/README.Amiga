@@ -1,0 +1,255 @@
+Short: Common Lisp, release 1996-05-30
+Requires: OS 2.04 or newer
+Author: haible@ma2s2.mathematik.uni-karlsruhe.de, Joerg.Hoehle@gmd.de
+Uploader: Joerg.Hoehle@gmd.de
+
+Dear lisper,
+
+This archive contains an Amiga version of CLISP as of 30th May 1996. Please
+see the files README (general description, installation), clisp.man (command
+line switches, tooltypes, explanation of files) and impnotes.txt
+(differences between CLISP and the Common Lisp reference, extensions, ARexx
+interface documentation). See also CHANGES.LOG if you are not a new user.
+Aminet archive names have been shortened to fit the 20 characters limit.
+
+Which version to choose
+-----------------------
+
+There may be four distinct binary versions of CLISP. These will be referred
+as *-high, *-low, *-00 and *-wide. Depending on your machine, you'll not be
+able to run all of them on one machine.
+
+o The *-high version:
+
+  + has been compiled for 68020 and higher, won't run on 68000 CPUs. It
+    doesn't use the floating point coprocessor.
+
+  + is able to deal with addresses from 0 to 0x07FFFFFF, thus working on most
+    A3000 and A4000 machines. GigaMem uses addresses between 0x20000000 and
+    0x60000000. VMM uses adresses at 0x40000000. CLISP cannot run with
+    that.
+
+  * checks the memory it gets, reverting to MEMF_24BITDMA, like *-low.
+
+o The *-low Version:
+
+  + has been compiled with a 68000 in mind. It can only deal with a 16MB
+    address space ranging from 0 to 0x00FFFFFF. It clears the upper 8 bits of
+    a 32 bit address before putting it on the bus and won't forget to check
+    the memory it gets from the system.
+
+  * checks whether AllocMem(MEMF_ANY) returns memory in the above range. If
+    not, and if the CPU is not a 68000, it uses MEMF_24BITDMA (MEMF_CHIP on
+    pre-2.0 machines) to ensure that it does not get memory outside the 16MB
+    address range. DMA-able memory is a bit too hard a requirement, but there
+    are no other flags.
+
+  + can be made to run on a A3000 or A4000 by patching the executable to load
+    the code and data hunks into CHIP memory (24BITDMA would suffice with
+    >=2.0, but one can't say that easily in the load hunk structure). The
+    supplied ratom.rexx ARexx script can do this for you, but you really
+    don't want to run CLISP out of CHIP memory now that there is the *-high
+    version.
+
+o The *-00 version:
+
+  + resembles the *-low version but has been compiled for a 68000 only. It
+    doesn't need to clear the upper 8 bits, leading to faster execution on
+    these machines (I measured 8% when compiling AFFI1.LSP, not that much).
+
+  + removing german and french language support would make the executable
+    size 14% smaller but not the image without new .fas files, so I
+    refrained from doing so and maintained .fas file compatibility among all
+    versions.
+
+o The *-wide version:
+
+  + has been compiled for 68020 and higher, won't run on 68000 CPUs. It
+    doesn't use the floating point coprocessor.
+
+  + is able to deal with any address and works fine with virtual
+    memory (VMM) or configurations where memory is located above
+    0x08000000 (e.g. CSA-Derringer 030). This has been achived at the
+    cost of using 64-bit integers. This makes the executable and
+    memory files very large and run-time longer (I measured a 40%
+    increase in execution time compared to *-high).
+
+o The Lisp-part of CLISP is in the CLisp-*-Part2 archive, e.g. the compiler
+  source can be found there. The archive also contains the compiled Lisp
+  files (with the .fas extension), enabling you to easily build your own
+  lispinit.mem file. You can generate own lispinit.mem file by executing
+  lisp.run -x (LOAD"init.fas")(SAVEINITMEM) in a shell, or call (SAVEINITMEM)
+  directly when in your Lisp world.
+
+o The complete CLISP source can be found in the clispsrc-<date>.tar.gz
+  archive (see file ANNOUNCE). You need to have GNU-zip (gzip) and tar (or
+  GNUtar) to be able to unpack it. I rearchived it for Aminet distribution
+  into CLispsrc-<date>.lha.
+
+
+Installation
+------------
+
+See README.
+
+
+Notes
+-----
+
+o If you start (REXX-LOOP), the only exit is the exit-loop.cl ARexx
+  script. I'd like comments and ideas for improvements of the ARexx
+  interface. See also impnotes.txt.
+
+o CLISP always allocates its own stack (in private memory) and should
+  not cause MungWall or Enforcer hits. This stack allocation feature
+  may cause compatibility issues with future Amigas.
+
+o The lisp.run executable contains symbolic information. Symbolic information
+  will help you report bugs (if you find any, CLISP has been very stable).
+
+o Hints for your config.lsp:
+(defparameter *editor* "memacs")        ; Micro-Emacs editor
+(defparameter *editor* "ced -keepio")   ; Cygnus ED (right?)
+
+
+Changes: (_part_ of CHANGES.LOG in the source tree)
+
+User visible changes
+--------------------
+
+* REMOVE-METHOD didn't work.
+  Thanks to Roger Kehr <kehr@iti.informatik.th-darmstadt.de>
+  and Bruno Haible for the fix.
+
+* Fixed a bug in the compiler: A (MULTIPLE-VALUE-SETQ vars valform)
+  or (MULTIPLE-VALUE-BIND vars valform ...) form was miscompiled if
+  valform is known to produce a single value.
+  Thanks to Bruno Haible and Paul Graham <pg@das.harvard.edu>.
+
+* RENAME-FILE now does *not* result in an error if the destination
+  file already exists (unless the system call results in an error message).
+
+* PROBE-FILE and TRUENAME will not issue error messages if given
+  directories.
+
+* X3J13 vote <72> is implemented: all standard Common Lisp data objects
+  other than symbols and lists are self-evaluating.
+  Thanks to Pierpaolo Bernardi.
+
+* X3J13 vote <40> is partially implemented: New macro WITH-STANDARD-IO-SYNTAX.
+  Thanks to Pierpaolo Bernardi.
+
+* Some FORMAT fixes:
+  + X3J13 vote <81> is implemented: The FORMAT ~:^ directive is more useful.
+    Warning: Old style "~:^" directives need to be converted to "~#:^".
+  + X3J13 vote <82> is implemented: The FORMAT ~D, ~B, ~O, ~X, ~R directives
+    accept an optional comma-interval parameter.
+  + X3J13 vote <84> is implemented: FORMAT ~C outputs characters with no bits
+    as if by WRITE-CHAR.
+  + Handling of ~^ within the FORMAT ~? directive.
+
+* New function FINALIZE. (FINALIZE object function) has the effect that
+  function will be called when object is being garbage collected.
+
+* The initial value of *PACKAGE* can be specified by a command line option.
+
+* Fixed a bug in the compiler which caused LOAD-TIME-VALUE forms to be
+  evaluated at compile time.
+
+* Amiga version: SCREEN package is implemented. Thanks to Jörg Höhle.
+
+* Fixed a CLOS bug which caused (DEFCLASS FOO (STANDARD-OBJECT) ()) and
+  (DEFINE-CONDITION FOO (CONDITION) ()) to signal errors.
+
+* The DEFCONSTANT warning about redefinition of a constant is also inhibited
+  if the constant's new and old values are the same string (in the sense of
+  EQUAL). Thanks to Marcus Daniels.
+
+* X3J13 vote <64> is implemented: New macro DESTRUCTURING-BIND.
+
+* New function UNCOMPILE. (UNCOMPILE function-name) undoes the effect of
+  (COMPILE function-name) if the function's definition had been entered
+  in interpreted form.
+
+* (LISP-IMPLEMENTATION-VERSION) returns a more precise version string.
+
+* X3J13 votes <115> and <114> are implemented: an elaborate LOOP macro.
+  New macro LOOP-FINISH.
+  Warning: The scoping rules for the iteration variables are hairy. If a
+  FOR/AS initialisation form refers to an iteration variable of a subsequent
+  FOR/AS clause, the effects are implementation dependent!
+
+* X3J13 vote <79> is implemented: New constants
+  LEAST-POSITIVE-NORMALIZED-SHORT-FLOAT,
+  LEAST-NEGATIVE-NORMALIZED-SHORT-FLOAT,
+  LEAST-POSITIVE-NORMALIZED-SINGLE-FLOAT,
+  LEAST-NEGATIVE-NORMALIZED-SINGLE-FLOAT,
+  LEAST-POSITIVE-NORMALIZED-DOUBLE-FLOAT,
+  LEAST-NEGATIVE-NORMALIZED-DOUBLE-FLOAT,
+  LEAST-POSITIVE-NORMALIZED-LONG-FLOAT,
+  LEAST-NEGATIVE-NORMALIZED-LONG-FLOAT.
+
+* Fixed a bug in the debugger which caused the BACKTRACE commands to print
+  garbage if the current user interface language was not english.
+
+* French support is now complete. Thanks to Jörg Höhle.
+
+* The user interface language (english, german or french) can now be chosen
+  at startup time through a command line option. The constant *LANGUAGE* has
+  been removed, and its value has been removed from *FEATURES*. New macros
+  ENGLISH, DEUTSCH, FRANCAIS and LANGUAGE-CASE.
+
+* New functions READ-CHAR-SEQUENCE, WRITE-CHAR-SEQUENCE, READ-BYTE-SEQUENCE,
+  WRITE-BYTE-SEQUENCE which perform fast block I/O.
+
+* Errors of type FLOATING-POINT-UNDERFLOW are inhibited in floating point
+  computations (and zero is returned instead) during execution of the new
+  macro WITHOUT-FLOATING-POINT-UNDERFLOW.
+
+* PROBE-FILE doesn't report an error any more if an intermediate directory
+  in the path doesn't exist. NIL is returned instead.
+
+* The function INTERACTIVE-STREAM-P knows that if the terminal stream is
+  referring to a regular file (via input redirection) it is not interactive.
+
+* There is a user programmable kind of streams, called generic streams.
+  New functions MAKE-GENERIC-STREAM, GENERIC-STREAM-CONTROLLER,
+  GENERIC-STREAM-P, GENERIC-STREAM-READ-CHAR, GENERIC-STREAM-READ-BYTE,
+  GENERIC-STREAM-LISTEN, GENERIC-STREAM-WRITE-CHAR, GENERIC-STREAM-WRITE-BYTE,
+  GENERIC-STREAM-WRITE-STRING, GENERIC-STREAM-CLEAR-INPUT,
+  GENERIC-STREAM-CLEAR-OUTPUT, GENERIC-STREAM-FINISH-OUTPUT,
+  GENERIC-STREAM-FORCE-OUTPUT, GENERIC-STREAM-CLOSE.
+  See impnotes.txt for details. Thanks to Marcus Daniels and Don Cohen.
+
+* Fixed a bug in the terminal stream: If several consecutive READ-LINE
+  operations on the terminal stream were performed without any text
+  containing newlines being output between them, the prompt finally got
+  duplicated and then became longer and longer.
+
+Installation
+------------
+
+* All non-Unix versions: Setting the local time zone should now be much
+  easier. 122 time zone names are supported.
+
+Other modifications
+-------------------
+
+* Speed up compiled calls to FORMAT with literal control string by use of
+  FORMATTER.
+
+* When a memory image is loaded, the terminal stream from the previous
+  session is closed.
+
+* Copyright clarification.
+
+* Miscellaneous documentation updates.
+
+
+Enjoy and send me all sorts of comments, bug reports and suggestions. Please
+mention your (LISP-IMPLEMENTATION-VERSION) and system (especially memory
+location) configuration when doing so.
+
+      Jörg Höhle.
+Joerg.Hoehle@gmd.de
+

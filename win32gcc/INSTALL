@@ -1,0 +1,17 @@
+Installation on Win32 (WinNT, Win95) using the mingw32 development environment
+==============================================================================
+using gcc and native Win32 system calls
+=======================================
+
+This is experimental! I wasn't able to build CLISP with mingw32 on WinNT 3.51.
+setjmp()/longjmp() crash the program, no workaround known. This kind of bug
+is probably the consequence of the mingw32's architecture.
+
+1. Get Mingw32 from ftp://ftp.deninc.com/pub/egcs/mingw32/releases/.
+   Install it, set the environment variables mentioned in mingw32.bat.
+
+2. (Optional.)
+   Get Cygwin32 CDK from ftp://ftp.cygnus.com/pub/gnu-win32/latest/.
+   Install only bash.exe and cygwin32.dll in mingw32's bin\ directory.
+   Also create a directory \tmp\.
+

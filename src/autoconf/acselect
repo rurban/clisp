@@ -1,0 +1,34 @@
+#!/bin/sh
+# Copy selected macros out of an aclocal.m4 file.
+# Usage: acselect macro-name ... < aclocal.m4 > smaller-aclocal.m4
+# Bruno Haible 21.3.1995
+#
+tmpdir=${TMPDIR-/tmp}/acselect$$
+mkdir $tmpdir
+cd $tmpdir
+csplit -f xx -n 4 - '/^dnl$/+1' '{*}' > /dev/null
+cd ..
+for file in $tmpdir/* ; do
+  macname=`grep '^AC_DEFUN(' $file | sed 's/^AC_DEFUN(\([^,]*\),.*$/\1/g'`
+  # echo "$macname" 1>&2
+  if test -n "$macname"; then
+    macname_illegal=`echo "$macname" | sed 's,[a-zA-Z0-9_],,g'`
+    if test -n "$macname_illegal"; then
+      echo "Invalid macro name $macname" 1>&2
+    else
+      keep_file=no
+      for word # in "$@"
+      do
+        if test "$word" = "$macname"; then
+          keep_file=yes
+          break
+        fi
+      done
+      if test $keep_file = no; then
+        rm $file
+      fi
+    fi
+  fi
+done
+cat $tmpdir/*
+rm -r $tmpdir
