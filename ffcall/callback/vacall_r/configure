@@ -19443,14 +19443,11 @@ _ACEOF
   *no) ;;
 esac
 
-echo "$as_me:$LINENO: checking for long long type" >&5
-echo $ECHO_N "checking for long long type... $ECHO_C" >&6
-if test "${cl_cv_c_longlong+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
 
-if test "$cross_compiling" = yes; then
-  cl_cv_c_longlong="guessing no"
+  echo "$as_me:$LINENO: checking for long long" >&5
+echo $ECHO_N "checking for long long... $ECHO_C" >&6
+if test "${ac_cv_type_long_long+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -19458,55 +19455,57 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-int main()
+long long ll = 1LL; int i = 63;
+int
+main ()
 {
-/* long longs don't work right with gcc-2.7.2 on m68k */
-/* long longs don't work right with gcc-2.7.2 on rs6000: avcall/tests.c gets
-   miscompiled. */
-#if defined(__m68k__) || (defined(_IBMR2) || defined(__powerpc))
-#if defined(__GNUC__) && (__GNUC__ == 2) && (__GNUC_MINOR__ <= 7)
-  exit(1);
-#endif
-#endif
-  { long x = 944938507; long y = 737962842; long z = 162359677;
-    exit(!(((long long) x)*((long long) y)>>32 == z));
-  }
+long long llmax = (long long) -1;
+     return ll << i | ll >> i | llmax / ll | llmax % ll;
+  ;
+  return 0;
 }
 _ACEOF
-rm -f conftest$ac_exeext
+rm -f conftest.$ac_objext conftest$ac_exeext
 if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  cl_cv_c_longlong=yes
+  ac_cv_type_long_long=yes
 else
-  echo "$as_me: program exited with status $ac_status" >&5
-echo "$as_me: failed program was:" >&5
+  echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-( exit $ac_status )
-cl_cv_c_longlong=no
+ac_cv_type_long_long=no
 fi
-rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
 fi
+echo "$as_me:$LINENO: result: $ac_cv_type_long_long" >&5
+echo "${ECHO_T}$ac_cv_type_long_long" >&6
+  if test $ac_cv_type_long_long = yes; then
 
-fi
-echo "$as_me:$LINENO: result: $cl_cv_c_longlong" >&5
-echo "${ECHO_T}$cl_cv_c_longlong" >&6
-case "$cl_cv_c_longlong" in
-  *yes)
 cat >>confdefs.h <<\_ACEOF
-#define HAVE_LONGLONG
+#define HAVE_LONG_LONG 1
 _ACEOF
- ;;
-  *no) ;;
-esac
+
+  fi
 
 
 echo "$as_me:$LINENO: checking whether char is unsigned" >&5
