@@ -292,7 +292,7 @@ and allow interactive handling of <code>ASSERT</code> and friends.</dd>
 <dd>ANSI CL compliant: comply with the ANSI CL specification
 even where <code>clisp</code> has been traditionally different.
 It sets the symbol macro <code>*ansi*</code> to <code>t</code>.
-See <a href="impnotes.html#ansi">"Maximum ANSI CL compliance"</a>,
+See <a href="impnotes.html#ansi">"Maximum ANSI CL compliance"</a>
 for details.<p/></dd>
 
 <dt id="opt-traditional"><strong><code>-traditional</code></strong></dt>
@@ -484,6 +484,10 @@ EOF (Ctrl-\e)
   <li>If you are in the "filename position" (inside a string
    after <code>#P</code>), the completion is done across file names,
    <a href="http://www.gnu.org/software/bash/">bash</a>-style.</li>
+  <li>If you have not typed anything yet, you will get a help message,
+   as if by the
+   <a href="impnotes.html#debugger-main-deb-step"><code>Help</code></a>
+   command.</li>
   <li>If you have not started typing the next symbol (i.e., you are at
    a whitespace), the current function or macro is
    <a href="CLHSROOT/Body/fun_describe.html"
