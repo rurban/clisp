@@ -379,6 +379,7 @@
   #define MALLOC_ADDRESS_RANGE 0
   #define SHLIB_ADDRESS_RANGE 0
   #define STACK_ADDRESS_RANGE ~0UL
+  #define ICONV_CONST
 #endif
 
 
