@@ -1,3 +1,9 @@
+2004-01-04  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (run-files, run-some-tests): new functions
+	(*run-test-tester*, *run-test-ignore-errors*): new variables
+	(run-test): tester and ignore-errors default to them
+
 2004-01-03  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (do-test, do-errcheck): fixed an off-by-one

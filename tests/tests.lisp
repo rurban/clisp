@@ -95,8 +95,12 @@
                                my-result)))))))
     (values total-count error-count)))
 
+(defvar *run-test-tester* #'do-test)
+(defvar *run-test-ignore-errors* t)
+
 (defun run-test (testname
-                 &optional (tester #'do-test) (ignore-errors t)
+                 &optional (tester *run-test-tester*)
+                           (ignore-errors *run-test-ignore-errors*)
                  &aux (logname (merge-extension "erg" testname))
                       error-count total-count)
   (with-open-file (s (merge-extension "tst" testname) :direction :input)
@@ -117,6 +121,24 @@
     `(multiple-value-bind (,tot ,err) (progn ,@body)
        (incf ,error-count ,err)
        (incf ,total-count ,tot))))
+
+(defun run-files (files)
+  (let ((error-count 0) (total-count 0))
+    (dolist (file files)
+      (with-accumulating-errors (error-count total-count)
+        (run-test file)))
+    (format
+     t "~&~s: finished ~:d file~:p (~:d error~:p out of ~:d test~:p)~%~S~%"
+     'run-files (length files) error-count total-count files)
+    (values error-count total-count)))
+
+(defun run-some-tests (&optional (dirlist '("./")))
+  (let ((files (mapcan (lambda (dir)
+                         (directory (make-pathname :name :wild :type "tst"
+                                                   :defaults dir)))
+                       dirlist)))
+    (if files (run-files files)
+        (warn "no TST files in directories ~S" dirlist))))
 
 (defun run-all-tests (&optional (disable-risky t))
   (let ((error-count 0) (total-count 0)
