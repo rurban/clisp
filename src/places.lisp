@@ -211,7 +211,8 @@
       (system::parse-body body t env)
     (if (null body-rest) (setq body-rest '(NIL)))
     (let ((name (make-symbol (string-concat "SETF-" (symbol-name accessfn)))))
-      (multiple-value-bind (newlambdalist envvar) (remove-env-arg lambdalist name)
+      (multiple-value-bind (newlambdalist envvar)
+          (remove-env-arg lambdalist name)
         (let ((SYSTEM::%ARG-COUNT 0)
               (SYSTEM::%MIN-ARGS 0)
               (SYSTEM::%RESTP nil)
@@ -430,14 +431,9 @@
                  (VALUES ,@(mapcar #'(lambda (storevar) `(CAR ,storevar)) sv))
                  ,@(devalue-form
                      (sublis (mapcar #'(lambda (storevar)
-                                         (cons storevar `(CDR ,storevar))
-                                       )
-                                     sv
-                             )
-                             se
-                   ) )
-           ) ) )
-) ) ) ) )
+                                         (cons storevar `(CDR ,storevar)))
+                                     sv)
+                             se))))))))))
 ;----------------------------------------------------------------------------
 (defmacro psetf (&whole form &rest args &environment env)
   (labels ((recurse (args)
@@ -764,18 +760,16 @@
       `,storeform
 ) ) )
 ;;;----------------------------------------------------------------------------
-#| ; siehe oben:
-(defun SYSTEM::%SET-DOCUMENTATION (symbol doctype value)
+#| ; see above:
+ (defun SYSTEM::%SET-DOCUMENTATION (symbol doctype value)
   (unless (function-name-p symbol)
     (error-of-type 'error
       (TEXT "first argument ~S is illegal, not a symbol")
-      symbol
-  ) )
+      symbol))
   (setq symbol (get-funname-symbol symbol))
   (if (null value)
     (progn (remf (get symbol 'SYSTEM::DOCUMENTATION-STRINGS) doctype) nil)
-    (setf (getf (get symbol 'SYSTEM::DOCUMENTATION-STRINGS) doctype) value)
-) )
+    (setf (getf (get symbol 'SYSTEM::DOCUMENTATION-STRINGS) doctype) value)))
 |#
 (defsetf documentation SYSTEM::%SET-DOCUMENTATION)
 ;;;----------------------------------------------------------------------------
