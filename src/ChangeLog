@@ -1,5 +1,13 @@
 1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Remove support for K&R Sparc cc.
+        * makemake.in: If TSYS = sun4 and not compiling with GNU C, assume
+          SunPRO C. Drop dependencies and rules for cc_sparc.il.
+        * cc_sparc.il: Remove file.
+        * FILES.1: Don't mention cc_sparc.il.
+
+1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * autoconf/aclocal.m4 (CL_WORDS_LITTLEENDIAN): Test for `__sparc__',
           because gcc-2.95 on SparcLinux defines only `__sparc__', not `sparc'.
         * lispbibl.d: Likewise.
