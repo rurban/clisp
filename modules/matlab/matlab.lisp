@@ -275,15 +275,40 @@
 (def-call-out mxGetEps (:return-type double-float) (:arguments))
 
 ;; double *mxGetPr(const mxArray *array_ptr);
-(c-lines "double mx_aref (const mxArray *array_ptr, int i, int j, int n) { return mxGetPr(array_ptr)[i+n*j]; }~%")
-(def-call-out mx-aref (:return-type double-float) (:name "mx_aref")
+(def-call-out mxGetPr (:return-type (c-pointer double-float))
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; double *mxGetPi(const mxArray *array_ptr);
+(def-call-out mxGetPi (:return-type (c-pointer double-float))
+  (:arguments (array_ptr (c-pointer mxArray))))
+;; void mxSetPr(mxArray *array_ptr, double *pr);
+(def-call-out mxSetPr (:return-type nil)
+  (:arguments (array_ptr (c-pointer mxArray))
+              (data (c-pointer double-float))))
+;; void mxSetPi(mxArray *array_ptr, double *pi);
+(def-call-out mxSetPi (:return-type nil)
+  (:arguments (array_ptr (c-pointer mxArray))
+              (data (c-pointer double-float))))
+;; get/set an individial array element
+;; real
+(c-lines "double mx_aref_r (const mxArray *array_ptr, int i, int j, int n) { return mxGetPr(array_ptr)[i+n*j]; }~%")
+(def-call-out mx-aref-r (:return-type double-float) (:name "mx_aref_r")
   (:arguments (array_ptr (c-pointer mxArray))
               (i int) (j int) (n int)))
-(c-lines "void set_mx_aref (const mxArray *array_ptr, int i, int j, int n, double val) { mxGetPr(array_ptr)[i+n*j] = val; }~%")
-(ffi:def-call-out set_mx_aref (:return-type nil)
+(c-lines "void set_mx_aref_r (const mxArray *array_ptr, int i, int j, int n, double val) { mxGetPr(array_ptr)[i+n*j] = val; }~%")
+(ffi:def-call-out set_mx_aref_r (:return-type nil)
   (:arguments (array_ptr (c-pointer mxArray)) (i int) (j int) (n int)
               (val double-float)))
-(defsetf mx-aref set_mx_aref)
+(defsetf mx-aref-r set_mx_aref_r)
+;; imaginary
+(c-lines "double mx_aref_i (const mxArray *array_ptr, int i, int j, int n) { return mxGetPr(array_ptr)[i+n*j]; }~%")
+(def-call-out mx-aref-i (:return-type double-float) (:name "mx_aref_i")
+  (:arguments (array_ptr (c-pointer mxArray))
+              (i int) (j int) (n int)))
+(c-lines "void set_mx_aref_i (const mxArray *array_ptr, int i, int j, int n, double val) { mxGetPr(array_ptr)[i+n*j] = val; }~%")
+(ffi:def-call-out set_mx_aref_i (:return-type nil)
+  (:arguments (array_ptr (c-pointer mxArray)) (i int) (j int) (n int)
+              (val double-float)))
+(defsetf mx-aref-i set_mx_aref_i)
 ;; void *mxGetData(const mxArray *array_ptr);
 (def-call-out mxGetData (:return-type c-pointer)
   (:arguments (array_ptr (c-pointer mxArray))))
