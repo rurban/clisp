@@ -2350,13 +2350,6 @@ local void wr_ch_pphelp (const object* stream_, object ch) {
 }
 
 # WRITE-CHAR-ARRAY - Pseudo-Function for Pretty-Printer-Auxiliary-Streams:
-local void wr_ch_array_pphel_ (const object* stream_, const object* chararray_,
-                               uintL start, uintL len) {
-  var object ssstring = Car(TheStream(*stream_)->strm_pphelp_strings); # Semi-Simple-String
-  ssstring = ssstring_append_extend(ssstring,*chararray_,start,len);
-  if (wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len)) # update Line-Position
-    TheStream(*stream_)->strm_pphelp_modus = T; # After NL: Mode := multi-liner
-}
 local void wr_ch_array_pphelp (const object* stream_, const object* chararray_,
                                uintL start, uintL len) {
   var bool filling = !nullp(Symbol_value(S(print_pretty_fill)));
@@ -2376,17 +2369,27 @@ local void wr_ch_array_pphelp (const object* stream_, const object* chararray_,
       if (filling && (chareq(ch,ascii(' ')) || chareq(ch,ascii('\t')))) {
         # printf("%d=SPC",end);
         end++; # include the space
-        nl_type = S(Kfill) ; break;
+        nl_type = S(Kfill);
+        break;
       }
       end++;
     }
     # printf("/%d]",end);
-    if (beg != end) wr_ch_array_pphel_(stream_,chararray_,beg,end-beg);
-    if (end == start+len) break;
-    if (nullp(nl_type)) TheStream(*stream_)->strm_pphelp_modus = T;
+    if (beg != end) {
+      var uintL count = end-beg;
+      var object ssstring = Car(TheStream(*stream_)->strm_pphelp_strings); # Semi-Simple-String
+      ssstring = ssstring_append_extend(ssstring,*chararray_,beg,count);
+      if (wr_ss_lpos(*stream_,&TheSstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],count)) # update Line-Position
+        TheStream(*stream_)->strm_pphelp_modus = T; # After NL: Mode := multi-liner
+    }
+    if (end == start+len)
+      break;
+    if (nullp(nl_type))
+      TheStream(*stream_)->strm_pphelp_modus = T;
     cons_ssstring(stream_,nl_type);
     beg = end;
-    if (nullp(nl_type)) beg++; # skip the newline
+    if (nullp(nl_type))
+      beg++; # skip the newline
   }
   # printf("\n");
 }
