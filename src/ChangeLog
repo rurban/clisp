@@ -40,6 +40,11 @@
 
 2004-09-06  Jörg Höhle  <hoehle@users.sourceforge.net>
 
+	* win32.d, win32aux.d (abort) [WIN32_NATIVE]: use nonreturning
+	function declaration. BTW, win32aux.d redefines abort()
+
+2004-09-06  Jörg Höhle  <hoehle@users.sourceforge.net>
+
 	* foreign.d (find_name) [WIN32_NATIVE]: ensure end_system_call()
 	takes place in all execution paths.
 
