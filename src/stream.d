@@ -14432,6 +14432,10 @@ LISPFUNN(write_n_bytes,4) {
   # define strm_socket_port strm_field1 # port, a fixnum >=0
   # define strm_socket_host strm_field2 # host, NIL or a string
 
+#define SocketChannel(stream)                                              \
+ TheSocket(ChannelStream_buffered(stream) ? BufferedStream_channel(stream) \
+           : ChannelStream_ichannel(stream))
+
 # Low-level functions for buffered socket streams.
 
 #if defined(UNIX_BEOS) || defined(WIN32_NATIVE)
@@ -14619,7 +14623,7 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL) {
         /*FALLTHROUGH*/
       case strmtype_socket:
         if (TheStream(stream)->strmflags & strmflags_open_B) {
-          sock = TheSocket(TheStream(stream)->strm_ichannel);
+          sock = SocketChannel(stream);
           port = 0; goto doit;
         }
         break;
@@ -14833,8 +14837,10 @@ local SOCKET socket_handle (object obj, bool check_open) {
   if (socket_server_p(obj)) {
     if (check_open) test_socket_server(obj,true);
     return TheSocket(TheSocketServer(obj)->socket_handle);
-  } else
-    return TheSocket(TheStream(test_socket_stream(obj,true))->strm_ichannel);
+  } else {
+    obj = test_socket_stream(obj,check_open);
+    return SocketChannel(obj);
+  }
 }
 
 # set the appropriate fd_sets for the socket,
@@ -14964,7 +14970,7 @@ local void publish_host_data (host_data_fetcher* func) {
   var bool resolve_p = (eq(NIL,STACK_0) || eq(unbound,STACK_0));
   skipSTACK(1);
   var object stream = test_socket_stream(popSTACK(),true);
-  var SOCKET sk = TheSocket(TheStream(stream)->strm_ichannel);
+  var SOCKET sk = SocketChannel(stream);
   var host_data hd;
 
     begin_system_call();
@@ -15000,7 +15006,7 @@ LISPFUN(socket_stream_local,1,1,norest,nokey,0,NIL) {
 # (SOCKET-STREAM-HANDLE socket-stream)
 LISPFUNN(socket_stream_handle,1) {
   var object stream = test_socket_stream(STACK_0,true);
-  value1 = fixnum(TheSocket(TheStream(stream)->strm_ichannel));
+  value1 = fixnum(SocketChannel(stream));
   skipSTACK(1);
   mv_count=1;
 }
