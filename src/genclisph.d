@@ -255,12 +255,16 @@ int main(int argc, char* argv[])
   printf("#endif\n");
   printf("#define CONCAT_(xxx,yyy)  xxx##yyy\n");
   printf("#define CONCAT3_(aaa,bbb,ccc)  aaa##bbb##ccc\n");
-/* printf("#define CONCAT4_(aaa,bbb,ccc,ddd)  aaa##bbb##ccc##ddd\n");
- printf("#define CONCAT5_(aaa,bbb,ccc,ddd,eee)  aaa##bbb##ccc##ddd##eee\n"); */
+#if notused
+  printf("#define CONCAT4_(aaa,bbb,ccc,ddd)  aaa##bbb##ccc##ddd\n");
+  printf("#define CONCAT5_(aaa,bbb,ccc,ddd,eee)  aaa##bbb##ccc##ddd##eee\n");
+#endif
   printf("#define CONCAT(xxx,yyy)  CONCAT_(xxx,yyy)\n");
   printf("#define CONCAT3(aaa,bbb,ccc)  CONCAT3_(aaa,bbb,ccc)\n");
-/* printf("#define CONCAT4(aaa,bbb,ccc,ddd)  CONCAT4_(aaa,bbb,ccc,ddd)\n");
- printf("#define CONCAT5(aaa,bbb,ccc,ddd,eee)  CONCAT5_(aaa,bbb,ccc,ddd,eee)\n"); */
+#if notused
+  printf("#define CONCAT4(aaa,bbb,ccc,ddd)  CONCAT4_(aaa,bbb,ccc,ddd)\n");
+  printf("#define CONCAT5(aaa,bbb,ccc,ddd,eee)  CONCAT5_(aaa,bbb,ccc,ddd,eee)\n");
+#endif
   printf("#define STRING(token) #token\n");
   printf("#define STRINGIFY(token) STRING(token)\n");
 #if defined(GNU) && !defined(__APPLE_CC__)
@@ -347,7 +351,9 @@ int main(int argc, char* argv[])
   printf("#define pointerplus(pointer,offset)  ((UBYTE*)(pointer)+(offset))\n");
 #endif
   printf("#define bit(n)  (1%s<<(n))\n",Lsuffix);
-  /* printf("#define bitm(n)  (2%s<<((n)-1))\n",Lsuffix); */
+#if notused
+  printf("#define bitm(n)  (2%s<<((n)-1))\n",Lsuffix);
+#endif
 #if !defined(SPARC)
   printf("#define bit_test(x,n)  ((x) & bit(n))\n");
 #else
@@ -358,11 +364,13 @@ int main(int argc, char* argv[])
  #endif
 #endif
   printf("#define minus_bit(n)  (-1%s<<(n))\n",Lsuffix);
-/* printf("#define minus_bitm(n)  (-2%s<<((n)-1))\n",Lsuffix);
- printf("#define floor(a_from_floor,b_from_floor)  ((a_from_floor) / (b_from_floor))\n");
- printf("#define ceiling(a_from_ceiling,b_from_ceiling)  (((a_from_ceiling) + (b_from_ceiling) - 1) / (b_from_ceiling))\n");
- printf("#define round_down(a_from_round,b_from_round)  (floor(a_from_round,b_from_round)*(b_from_round))\n");
- printf("#define round_up(a_from_round,b_from_round)  (ceiling(a_from_round,b_from_round)*(b_from_round))\n"); */
+#if notused
+  printf("#define minus_bitm(n)  (-2%s<<((n)-1))\n",Lsuffix);
+  printf("#define floor(a_from_floor,b_from_floor)  ((a_from_floor) / (b_from_floor))\n");
+  printf("#define ceiling(a_from_ceiling,b_from_ceiling)  (((a_from_ceiling) + (b_from_ceiling) - 1) / (b_from_ceiling))\n");
+  printf("#define round_down(a_from_round,b_from_round)  (floor(a_from_round,b_from_round)*(b_from_round))\n");
+  printf("#define round_up(a_from_round,b_from_round)  (ceiling(a_from_round,b_from_round)*(b_from_round))\n");
+#endif
  #if defined(GNU)
    #ifdef DECALPHA
      printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype arrayvar[(arraysize)+1]\n");
@@ -403,31 +411,42 @@ int main(int argc, char* argv[])
   }
   sprintf(buf,"sint%d",intBsize); emit_typedef(buf,"sintB");
   sprintf(buf,"uint%d",intBsize); emit_typedef(buf,"uintB");
-  /* sprintf(buf,"sint%d",intWsize); emit_typedef(buf,"sintW"); */
+#if notused
+  sprintf(buf,"sint%d",intWsize); emit_typedef(buf,"sintW");
+#endif
   sprintf(buf,"uint%d",intWsize); emit_typedef(buf,"uintW");
   sprintf(buf,"sint%d",intLsize); emit_typedef(buf,"sintL");
   sprintf(buf,"uint%d",intLsize); emit_typedef(buf,"uintL");
-/*#ifdef intQsize
+#if notused
+  #ifdef intQsize
   sprintf(buf,"sint%d",intQsize); emit_typedef(buf,"sintQ");
   sprintf(buf,"uint%d",intQsize); emit_typedef(buf,"uintQ");
   #else
   emit_typedef("struct { sintL hi; uintL lo; }","sintL2");
   emit_typedef("struct { uintL hi; uintL lo; }","uintL2");
-  #endif */
+  #endif
+#endif
   sprintf(buf,"sint%d",pointer_bitsize); emit_typedef(buf,"sintP");
   sprintf(buf,"uint%d",pointer_bitsize); emit_typedef(buf,"uintP");
-  /* sprintf(buf,"sint%d",intBWsize); emit_typedef(buf,"sintBW");
-     sprintf(buf,"uint%d",intBWsize); emit_typedef(buf,"uintBW");
-     sprintf(buf,"sint%d",intWLsize); emit_typedef(buf,"sintWL"); */
+#if notused
+  sprintf(buf,"sint%d",intBWsize); emit_typedef(buf,"sintBW");
+  sprintf(buf,"uint%d",intBWsize); emit_typedef(buf,"uintBW");
+  sprintf(buf,"sint%d",intWLsize); emit_typedef(buf,"sintWL");
+#endif
   sprintf(buf,"uint%d",intWLsize); emit_typedef(buf,"uintWL");
-  /* sprintf(buf,"sint%d",intBWLsize); emit_typedef(buf,"sintBWL"); */
+#if notused
+  sprintf(buf,"sint%d",intBWLsize); emit_typedef(buf,"sintBWL");
+#endif
   sprintf(buf,"uint%d",intBWLsize); emit_typedef(buf,"uintBWL");
   printf("#define uintC uintWL\n");
-  /* printf("#define sintC sintWL\n");
-     sprintf(buf,"sint%d",intDsize); emit_typedef(buf,"sintD"); */
+#if notused
+  printf("#define sintC sintWL\n");
+  sprintf(buf,"sint%d",intDsize); emit_typedef(buf,"sintD");
+#endif
   sprintf(buf,"uint%d",intDsize); emit_typedef(buf,"uintD");
   printf("#include <stdlib.h>\n");
-/* #ifdef WIDE_HARD
+#if notused
+ #ifdef WIDE_HARD
    printf("#define WIDE_HARD\n");
  #endif
  #ifdef WIDE_SOFT
@@ -438,7 +457,8 @@ int main(int argc, char* argv[])
  #endif
  #ifdef WIDE
    printf("#define WIDE\n");
- #endif */
+ #endif
+#endif
   var const char* attribute_aligned_object = "";
 #if defined(WIDE_AUXI) || defined(OBJECT_STRUCT) || defined(WIDE_STRUCT)
  #if defined(WIDE) && !defined(WIDE_HARD)
@@ -532,26 +552,32 @@ int main(int argc, char* argv[])
   printf("#define as_oint(expr)  (oint)(expr)\n");
   printf("#define as_object(o)  (gcv_object_t)(o)\n");
 #endif
-/* printf1("#define addressbus_mask  %x\n",(oint)addressbus_mask);
- printf("#define oint_type_shift  %d\n",oint_type_shift);
- printf("#define oint_type_len  %d\n",oint_type_len);
- printf1("#define oint_type_mask  %x\n",(oint)oint_type_mask);
- printf("#define oint_addr_shift  %d\n",oint_addr_shift);
- printf("#define oint_addr_len  %d\n",oint_addr_len);
- printf1("#define oint_addr_mask  %x\n",(oint)oint_addr_mask);
- printf("#define oint_data_shift  %d\n",oint_data_shift);
- printf("#define oint_data_len  %d\n",oint_data_len);
- printf1("#define oint_data_mask  %x\n",(oint)oint_data_mask);
- printf("#define addr_shift  %d\n",addr_shift); */
+#if notused
+  printf1("#define addressbus_mask  %x\n",(oint)addressbus_mask);
+  printf("#define oint_type_shift  %d\n",oint_type_shift);
+  printf("#define oint_type_len  %d\n",oint_type_len);
+  printf1("#define oint_type_mask  %x\n",(oint)oint_type_mask);
+  printf("#define oint_addr_shift  %d\n",oint_addr_shift);
+  printf("#define oint_addr_len  %d\n",oint_addr_len);
+  printf1("#define oint_addr_mask  %x\n",(oint)oint_addr_mask);
+  printf("#define oint_data_shift  %d\n",oint_data_shift);
+  printf("#define oint_data_len  %d\n",oint_data_len);
+  printf1("#define oint_data_mask  %x\n",(oint)oint_data_mask);
+  printf("#define addr_shift  %d\n",addr_shift);
+#endif
   sprintf(buf,"uint%d",oint_type_len); emit_typedef(buf,"tint");
   sprintf(buf,"uint%d",oint_addr_len); emit_typedef(buf,"aint");
-  /* sprintf(buf,"sint%d",oint_addr_len); emit_typedef(buf,"saint"); */
+#if notused
+  sprintf(buf,"sint%d",oint_addr_len); emit_typedef(buf,"saint");
+#endif
 #ifdef DEBUG_GCSAFETY
   printf("extern uintL alloccount;\n");
 #else
   emit_typedef("gcv_object_t","object");
 #endif
-  /* printf1("#define tint_type_mask  %x\n",(tint)tint_type_mask); */
+#if notused
+  printf1("#define tint_type_mask  %x\n",(tint)tint_type_mask);
+#endif
 #if !(defined(WIDE_SOFT) || defined(WIDE_AUXI) || defined(OBJECT_STRUCT))
   printf("#define objectplus(obj,offset)  ((object)pointerplus(obj,offset))\n");
 #elif defined(WIDE_AUXI)
@@ -560,13 +586,17 @@ int main(int argc, char* argv[])
   printf("#define objectplus(obj,offset)  as_object(as_oint(obj)+(soint)(offset))\n");
 #endif
 #if !(defined(WIDE_SOFT) || defined(WIDE_AUXI))
-  /* printf("#define wbit  bit\n");
-     printf("#define wbitm  bitm\n"); */
+#if notused
+  printf("#define wbit  bit\n");
+  printf("#define wbitm  bitm\n");
+#endif
   printf("#define wbit_test  bit_test\n");
   printf("#define minus_wbit  minus_bit\n");
 #else
   printf("#define wbit(n)  (1LL<<(n))\n");
-  /* printf("#define wbitm(n)  (2LL<<((n)-1))\n"); */
+#if notused
+  printf("#define wbitm(n)  (2LL<<((n)-1))\n");
+#endif
   printf("#define wbit_test(x,n)  ((x) & wbit(n))\n");
   printf("#define minus_wbit(n)  (-1LL<<(n))\n");
 #endif
@@ -606,15 +636,17 @@ int main(int argc, char* argv[])
   printf("#define mtypecode(expr)  typecode(expr)\n");
  #endif
 #endif
-/* #if defined(WIDE) && defined(WIDE_STRUCT)
-     printf("#define untype(expr)  ((expr).u.both.addr)\n");
-   #elif !(defined(SPARC) && (oint_addr_len+oint_addr_shift<32))
-     printf2("#define untype(expr)  ((aint)(as_oint(expr) >> %d) & %x)\n",
-             oint_addr_shift,(oint)(oint_addr_mask >> oint_addr_shift));
-   #else
-     printf("#define untype(expr)  ((aint)((as_oint(expr) << %d) >> %d))\n",
-            32-oint_addr_len-oint_addr_shift,32-oint_addr_len);
-   #endif */
+#if notused
+ #if defined(WIDE) && defined(WIDE_STRUCT)
+  printf("#define untype(expr)  ((expr).u.both.addr)\n");
+ #elif !(defined(SPARC) && (oint_addr_len+oint_addr_shift<32))
+  printf2("#define untype(expr)  ((aint)(as_oint(expr) >> %d) & %x)\n",
+          oint_addr_shift,(oint)(oint_addr_mask >> oint_addr_shift));
+ #else
+  printf("#define untype(expr)  ((aint)((as_oint(expr) << %d) >> %d))\n",
+         32-oint_addr_len-oint_addr_shift,32-oint_addr_len);
+ #endif
+#endif
 #if defined(WIDE) && defined(WIDE_STRUCT)
  #if BIG_ENDIAN_P==WIDE_ENDIANNESS
   printf("#define type_untype_object(type,address)  ((object){{(tint)(type),(aint)(address)}");
@@ -737,28 +769,30 @@ int main(int argc, char* argv[])
 #else
   printf("#define XRECORD_HEADER  VAROBJECT_HEADER\n");
 #endif
-/* sprintf(buf,"struct { XRECORD_HEADER gcv_object_t recdata[unspecified]%s; }",attribute_aligned_object);
-   emit_typedef(buf,"xrecord_");
-   emit_typedef("xrecord_ *","Xrecord");
-*/
+#if notused
+  sprintf(buf,"struct { XRECORD_HEADER gcv_object_t recdata[unspecified]%s; }",attribute_aligned_object);
+  emit_typedef(buf,"xrecord_");
+  emit_typedef("xrecord_ *","Xrecord");
+#endif
   sprintf(buf,"struct { gcv_object_t cdr%s; gcv_object_t car%s; }",attribute_aligned_object,attribute_aligned_object);
   emit_typedef(buf,"cons_");
   emit_typedef("cons_ *","Cons");
-/* #ifdef SPVW_MIXED
-     sprintf(buf,"struct { XRECORD_HEADER gcv_object_t rt_num%s; gcv_object_t rt_den%s; }",attribute_aligned_object,attribute_aligned_object);
-   #else
-     sprintf(buf,"struct { gcv_object_t rt_num%s; gcv_object_t rt_den%s; }",attribute_aligned_object,attribute_aligned_object);
-   #endif
-   emit_typedef(buf,"ratio_");
-   emit_typedef("ratio_ *","Ratio");
-   #ifdef SPVW_MIXED
-     sprintf(buf,"struct { XRECORD_HEADER gcv_object_t c_real%s; gcv_object_t c_imag%s; }",attribute_aligned_object,attribute_aligned_object);
-   #else
-     sprintf(buf,"struct { gcv_object_t c_real%s; gcv_object_t c_imag%s; }",attribute_aligned_object,attribute_aligned_object);
-   #endif
-   emit_typedef(buf,"complex_");
-   emit_typedef("complex_ *","Complex");
-*/
+#if notused
+  #ifdef SPVW_MIXED
+    sprintf(buf,"struct { XRECORD_HEADER gcv_object_t rt_num%s; gcv_object_t rt_den%s; }",attribute_aligned_object,attribute_aligned_object);
+  #else
+    sprintf(buf,"struct { gcv_object_t rt_num%s; gcv_object_t rt_den%s; }",attribute_aligned_object,attribute_aligned_object);
+  #endif
+  emit_typedef(buf,"ratio_");
+  emit_typedef("ratio_ *","Ratio");
+  #ifdef SPVW_MIXED
+    sprintf(buf,"struct { XRECORD_HEADER gcv_object_t c_real%s; gcv_object_t c_imag%s; }",attribute_aligned_object,attribute_aligned_object);
+  #else
+    sprintf(buf,"struct { gcv_object_t c_real%s; gcv_object_t c_imag%s; }",attribute_aligned_object,attribute_aligned_object);
+  #endif
+  emit_typedef(buf,"complex_");
+  emit_typedef("complex_ *","Complex");
+#endif
   sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t symvalue%s; gcv_object_t symfunction%s; gcv_object_t proplist%s; gcv_object_t pname%s; gcv_object_t homepackage%s; }",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
   emit_typedef(buf,"symbol_");
   emit_typedef("symbol_ *","Symbol");
@@ -793,7 +827,9 @@ int main(int argc, char* argv[])
 #else
   printf("#define posfixnum_to_L(obj)  ((uintL)((as_oint(obj) << %d) >> %d))\n",32-oint_data_len-oint_data_shift,32-oint_data_len);
 #endif
-  /* printf1("#define negfixnum_to_L(obj)  (posfixnum_to_L(obj) | %x)\n",(uintL)(-bitm(oint_data_len))); */
+#if notused
+  printf1("#define negfixnum_to_L(obj)  (posfixnum_to_L(obj) | %x)\n",(uintL)(-bitm(oint_data_len)));
+#endif
 #if (oint_data_len>=intLsize)
   printf("#define fixnum_to_L(obj)  (sintL)posfixnum_to_L(obj)\n");
 #elif (sign_bit_o == oint_data_len+oint_data_shift)
@@ -833,9 +869,10 @@ int main(int argc, char* argv[])
  #endif
 #endif
   emit_typedef("union { dfloat eksplicit; }","dfloatjanus");
-  /* emit_typedef("struct { LRECORD_HEADER }","sarray_");
-     emit_typedef("sarray_ *","Sarray");
-  */
+#if notused
+  emit_typedef("struct { LRECORD_HEADER }","sarray_");
+  emit_typedef("sarray_ *","Sarray");
+#endif
   emit_typedef("struct { LRECORD_HEADER uint8  data[unspecified]; }","sbvector_");
   emit_typedef("sbvector_ *","Sbvector");
 #ifdef TYPECODES
@@ -876,10 +913,10 @@ int main(int argc, char* argv[])
    if (TB1+1 != TB2) printf("+((atype)&%d)",bit(TB1+1)-bit(TB2));
    printf(")\n");
   #endif
-  /*
+#if notused
   sprintf(buf,"struct { XRECORD_HEADER gcv_object_t pack_external_symbols%s; gcv_object_t pack_internal_symbols%s; gcv_object_t pack_shadowing_symbols%s; gcv_object_t pack_use_list%s; gcv_object_t pack_used_by_list%s; gcv_object_t pack_name%s; gcv_object_t pack_nicknames%s; } *",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
   emit_typedef(buf,"Package");
-  */
+#endif
   emit_typedef("Srecord","Structure");
   printf("#define structure_types   recdata[0]\n");
   sprintf(buf,"struct { SRECORD_HEADER gcv_object_t inst_class_version%s; gcv_object_t other[unspecified]%s; } *",attribute_aligned_object,attribute_aligned_object);
@@ -944,22 +981,30 @@ int main(int argc, char* argv[])
   #define printf_type_pointable(type)  printf("((void*)(aint)as_oint(obj))");
  #endif
   printf("#define TheCons(obj)  ((Cons)("); printf_type_pointable(cons_type); printf("))\n");
-  /*   printf("#define TheRatio(obj)  ((Ratio)("); printf_type_pointable(ratio_type|bit(sign_bit_t)); printf("))\n");
-   printf("#define TheComplex(obj)  ((Complex)("); printf_type_pointable(complex_type); printf("))\n"); */
+#if notused
+  printf("#define TheRatio(obj)  ((Ratio)("); printf_type_pointable(ratio_type|bit(sign_bit_t)); printf("))\n");
+  printf("#define TheComplex(obj)  ((Complex)("); printf_type_pointable(complex_type); printf("))\n");
+#endif
   printf("#define TheSymbol(obj)  ((Symbol)("); printf_type_pointable(symbol_type); printf("))\n");
   printf("#define TheBignum(obj)  ((Bignum)("); printf_type_pointable(bignum_type|bit(sign_bit_t)); printf("))\n");
-/*   printf("#define TheSarray(obj)  ((Sarray)("); printf_type_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type); printf("))\n"); */
+#if notused
+  printf("#define TheSarray(obj)  ((Sarray)("); printf_type_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type); printf("))\n");
+#endif
   printf("#define TheSbvector(obj)  ((Sbvector)("); printf_type_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type); printf("))\n");
   printf("#define TheSstring(obj)  ((Sstring)("); printf_type_pointable(sstring_type); printf("))\n");
   printf("#define TheSvector(obj)  ((Svector)("); printf_type_pointable(svector_type); printf("))\n");
   printf("#define TheRecord(obj)  ((Record)("); printf_type_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type); printf("))\n");
   printf("#define TheSrecord(obj)  ((Srecord)("); printf_type_pointable(closure_type|structure_type|orecord_type|instance_type); printf("))\n");
-  /* printf("#define TheXrecord(obj)  ((Xrecord)("); printf_type_pointable(stream_type|orecord_type); printf("))\n");
-     printf("#define ThePackage(obj)  ((Package)("); printf_type_pointable(orecord_type); printf("))\n"); */
+#if notused
+  printf("#define TheXrecord(obj)  ((Xrecord)("); printf_type_pointable(stream_type|orecord_type); printf("))\n");
+  printf("#define ThePackage(obj)  ((Package)("); printf_type_pointable(orecord_type); printf("))\n");
+#endif
   printf("#define TheStructure(obj)  ((Structure)("); printf_type_pointable(structure_type); printf("))\n");
   printf("#define TheInstance(obj)  ((Instance)("); printf_type_pointable(instance_type); printf("))\n");
   printf("#define TheSubr(obj)  ((Subr)("); printf_type_pointable(subr_type); printf("))\n");
-  /* printf("#define TheMachine(obj)  ((void*)("); printf_type_pointable(machine_type); printf("))\n"); */
+#if notused
+  printf("#define TheMachine(obj)  ((void*)("); printf_type_pointable(machine_type); printf("))\n");
+#endif
 #else
  #if defined(DEBUG_GCSAFETY)
   printf("static inline aint cgci_pointable (object obj) { return obj.one_o; }\n");
@@ -978,22 +1023,30 @@ int main(int argc, char* argv[])
   printf("#define ngci_pointable(obj)  as_oint(obj)\n");
  #endif
   printf1("#define TheCons(obj)  ((Cons)(ngci_pointable(obj)-%d))\n",cons_bias);
-  /* printf1("#define TheRatio(obj)  ((Ratio)(ngci_pointable(obj)-%d))\n",varobject_bias);
-     printf1("#define TheComplex(obj)  ((Complex)(ngci_pointable(obj)-%d))\n",varobject_bias); */
+#if notused
+  printf1("#define TheRatio(obj)  ((Ratio)(ngci_pointable(obj)-%d))\n",varobject_bias);
+  printf1("#define TheComplex(obj)  ((Complex)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#endif
   printf1("#define TheSymbol(obj)  ((Symbol)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf1("#define TheBignum(obj)  ((Bignum)(ngci_pointable(obj)-%d))\n",varobject_bias);
-  /* printf1("#define TheSarray(obj)  ((Sarray)(ngci_pointable(obj)-%d))\n",varobject_bias); */
+#if notused
+  printf1("#define TheSarray(obj)  ((Sarray)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#endif
   printf1("#define TheSbvector(obj)  ((Sbvector)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf1("#define TheSstring(obj)  ((Sstring)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf1("#define TheSvector(obj)  ((Svector)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf1("#define TheRecord(obj)  ((Record)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf1("#define TheSrecord(obj)  ((Srecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
-  /* printf1("#define TheXrecord(obj)  ((Xrecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
-     printf1("#define ThePackage(obj)  ((Package)(ngci_pointable(obj)-%d))\n",varobject_bias); */
+#if notused
+  printf1("#define TheXrecord(obj)  ((Xrecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
+  printf1("#define ThePackage(obj)  ((Package)(ngci_pointable(obj)-%d))\n",varobject_bias);
+#endif
   printf1("#define TheStructure(obj)  ((Structure)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf1("#define TheInstance(obj)  ((Instance)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf1("#define TheSubr(obj)  ((Subr)(cgci_pointable(obj)-%d))\n",subr_bias);
-  /* printf1("#define TheMachine(obj)  ((void*)(cgci_pointable(obj)-%d))\n",machine_bias); */
+#if notused
+  printf1("#define TheMachine(obj)  ((void*)(cgci_pointable(obj)-%d))\n",machine_bias);
+#endif
 #endif
   printf("#define Car(obj)  (TheCons(obj)->car)\n");
   printf("#define Cdr(obj)  (TheCons(obj)->cdr)\n");
@@ -1066,15 +1119,17 @@ int main(int argc, char* argv[])
 #else
   printf("#define builtin_stream_p(obj) (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Stream);
 #endif
-/* #ifdef TYPECODES
-   #ifdef WIDE_STRUCT
-     printf("#define numberp(obj)  (typecode(obj) & bit(%d))\n",number_bit_t);
-   #else
-     printf("#define numberp(obj)  (wbit_test(as_oint(obj),%d))\n",number_bit_o);
-   #endif
+#if notused
+#ifdef TYPECODES
+ #ifdef WIDE_STRUCT
+  printf("#define numberp(obj)  (typecode(obj) & bit(%d))\n",number_bit_t);
  #else
-   printf2("#define immediate_number_p(obj)  ((as_oint(obj) & %d) == %d)\n",(4 << imm_type_shift) | immediate_bias,(fixnum_type&sfloat_type));
- #endif */
+  printf("#define numberp(obj)  (wbit_test(as_oint(obj),%d))\n",number_bit_o);
+ #endif
+#else
+ printf2("#define immediate_number_p(obj)  ((as_oint(obj) & %d) == %d)\n",(4 << imm_type_shift) | immediate_bias,(fixnum_type&sfloat_type));
+#endif
+#endif
 #ifdef TYPECODES
   printf2("#define vectorp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)sbvector_type,(tint)(vector_type-sbvector_type));
 #else
@@ -1134,7 +1189,9 @@ int main(int argc, char* argv[])
 #else
   printf("#define structurep(obj)  (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Structure);
 #endif
-/* printf("#define packagep(obj)  (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Package); */
+#if notused
+  printf("#define packagep(obj)  (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Package);
+#endif
 #ifdef TYPECODES
   printf("#define charp(obj)  (typecode(obj)==%d)\n",(tint)char_type);
 #else
@@ -1165,41 +1222,45 @@ int main(int argc, char* argv[])
 #else
   printf1("#define posbignump(obj)  (varobjectp(obj) && (Record_type(obj) == %d) && ((Record_flags(obj) & bit(7)) == 0))\n",Rectype_Bignum);
 #endif
-/* #ifdef TYPECODES
-   printf2("#define ratiop(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)ratio_type);
- #else
-   printf1("#define ratiop(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Ratio);
- #endif
- #ifdef TYPECODES
-   printf2("#define floatp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)((sfloat_type|ffloat_type|dfloat_type|lfloat_type|bit(sign_bit_t)) & ~(sfloat_type&ffloat_type&dfloat_type&lfloat_type)),(tint)(sfloat_type&ffloat_type&dfloat_type&lfloat_type));
- #else
-   printf4("#define floatp(obj)  (((as_oint(obj) & %d) == %d) || (varobjectp(obj) && ((uintB)(Record_type(obj)-%d) <= %d)))\n",(6 << imm_type_shift) | immediate_bias,sfloat_type,Rectype_Lfloat,Rectype_Ffloat-Rectype_Lfloat);
- #endif
- #ifdef TYPECODES
-   printf2("#define short_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)sfloat_type);
- #else
-   printf2("#define short_float_p(obj)  ((as_oint(obj) & &d) == %d)\n",(6 << imm_type_shift) | immediate_bias,sfloat_type);
- #endif */
- #ifdef TYPECODES
-   printf2("#define single_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)ffloat_type);
- #else
-   printf1("#define single_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Ffloat);
- #endif
- #ifdef TYPECODES
-   printf2("#define double_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)dfloat_type);
- #else
-   printf1("#define double_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Dfloat);
- #endif
-/* #ifdef TYPECODES
-   printf2("#define long_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)lfloat_type);
- #else
-   printf1("#define long_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Lfloat);
- #endif
- #ifdef TYPECODES
-   printf1("#define complexp(obj)  (typecode(obj) == %d)\n",(tint)complex_type);
- #else
-   printf1("#define complexp(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Complex);
- #endif */
+#if notused
+#ifdef TYPECODES
+  printf2("#define ratiop(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)ratio_type);
+#else
+  printf1("#define ratiop(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Ratio);
+#endif
+#ifdef TYPECODES
+  printf2("#define floatp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)((sfloat_type|ffloat_type|dfloat_type|lfloat_type|bit(sign_bit_t)) & ~(sfloat_type&ffloat_type&dfloat_type&lfloat_type)),(tint)(sfloat_type&ffloat_type&dfloat_type&lfloat_type));
+#else
+  printf4("#define floatp(obj)  (((as_oint(obj) & %d) == %d) || (varobjectp(obj) && ((uintB)(Record_type(obj)-%d) <= %d)))\n",(6 << imm_type_shift) | immediate_bias,sfloat_type,Rectype_Lfloat,Rectype_Ffloat-Rectype_Lfloat);
+#endif
+#ifdef TYPECODES
+  printf2("#define short_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)sfloat_type);
+#else
+  printf2("#define short_float_p(obj)  ((as_oint(obj) & &d) == %d)\n",(6 << imm_type_shift) | immediate_bias,sfloat_type);
+#endif
+#endif
+#ifdef TYPECODES
+  printf2("#define single_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)ffloat_type);
+#else
+  printf1("#define single_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Ffloat);
+#endif
+#ifdef TYPECODES
+  printf2("#define double_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)dfloat_type);
+#else
+  printf1("#define double_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Dfloat);
+#endif
+#if notused
+#ifdef TYPECODES
+  printf2("#define long_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)lfloat_type);
+#else
+  printf1("#define long_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Lfloat);
+#endif
+#ifdef TYPECODES
+  printf1("#define complexp(obj)  (typecode(obj) == %d)\n",(tint)complex_type);
+#else
+  printf1("#define complexp(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Complex);
+#endif
+#endif
 #ifdef TYPECODES
  #ifdef WIDE_STRUCT
   printf("#define positivep(obj)  ((typecode(obj) & bit(%d)) == 0)\n",sign_bit_t);
@@ -1357,7 +1418,8 @@ int main(int argc, char* argv[])
   printf("#define begin_system_call()  begin_call()\n");
   printf("#define end_system_call()  end_call()\n");
 #endif
-/* printf("#define check_STACK()  if (STACK_overflow()) STACK_ueber()\n");
+#if notused
+  printf("#define check_STACK()  if (STACK_overflow()) STACK_ueber()\n");
  #ifdef STACK_DOWN
    printf("#define STACK_overflow()  ( (aint)STACK < (aint)STACK_bound )\n");
    printf("#define get_space_on_STACK(n)  if ( (aint)STACK < (aint)STACK_bound + (aint)(n) ) STACK_ueber()\n");
@@ -1366,7 +1428,8 @@ int main(int argc, char* argv[])
    printf("#define get_space_on_STACK(n)  if ( (aint)STACK + (aint)(n) > (aint)STACK_bound ) STACK_ueber()\n");
  #endif
  printf("extern void* STACK_bound;\n");
- printf("nonreturning_function(extern, STACK_ueber, (void));\n"); */
+ printf("nonreturning_function(extern, STACK_ueber, (void));\n");
+#endif
   printf("nonreturning_function(extern, fehler_notreached, (const char * file, uintL line));\n");
 #ifndef LANGUAGE_STATIC
  #ifndef GNU_GETTEXT
@@ -1377,7 +1440,9 @@ int main(int argc, char* argv[])
  #endif
 #endif
   printf("extern object allocate_cons (void);\n");
-  /* printf("extern object make_symbol (object string);\n"); */
+#if notused
+  printf("extern object make_symbol (object string);\n");
+#endif
   printf("extern object allocate_vector (uintL len);\n");
   printf("#define Atype_32Bit %d\n",Atype_32Bit);
   printf("#define Atype_8Bit %d\n",Atype_8Bit);
@@ -1399,13 +1464,15 @@ int main(int argc, char* argv[])
 #else
   printf("extern uintL asciz_length (const char * asciz);\n");
 #endif
-/* #ifdef asciz_length
-   printf("#define asciz_equal(a1,a2)  (__builtin_strcmp(a1,a2)==0)\n");
- #else
-   printf("extern bool asciz_equal (const char * asciz1, const char * asciz2);\n");
- #endif
- emit_typedef_f("Values %s(void)","subr_norest_function_t");
- emit_typedef_f("Values %s(uintC argcount, object* rest_args_pointer)","subr_rest_function_t"); */
+#if notused
+#ifdef asciz_length
+  printf("#define asciz_equal(a1,a2)  (__builtin_strcmp(a1,a2)==0)\n");
+#else
+  printf("extern bool asciz_equal (const char * asciz1, const char * asciz2);\n");
+#endif
+  emit_typedef_f("Values %s(void)","subr_norest_function_t");
+  emit_typedef_f("Values %s(uintC argcount, object* rest_args_pointer)","subr_rest_function_t");
+#endif
   printf("extern struct subr_tab_ {\n");
   #undef LISPFUN
   #define LISPFUN(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
@@ -1453,7 +1520,9 @@ int main(int argc, char* argv[])
  #endif
 #else
   printf1("#define symbol_tab_addr ((struct symbol_tab_ *)type_zero_oint(%d))\n",(tint)symbol_type);
-  /* printf("#define symbol_tab  (*symbol_tab_addr)\n"); */
+#if notused
+  printf("#define symbol_tab  (*symbol_tab_addr)\n");
+#endif
   printf("#define S_help_(name)  (as_object((oint)(&symbol_tab_addr->name)))\n");
 #endif
   printf("#define NIL  S(nil)\n");
@@ -1523,7 +1592,9 @@ int main(int argc, char* argv[])
 #endif
   printf("#define skipSTACK(n)  (STACK skipSTACKop (sintP)(n))\n");
 
-  /* printf("#define mv_limit %d\n",mv_limit); */
+#if notused
+  printf("#define mv_limit %d\n",mv_limit);
+#endif
 #if !defined(mv_count_register)
   printf("extern uintC mv_count;\n");
 #else
@@ -1539,7 +1610,9 @@ int main(int argc, char* argv[])
   printf("register object value1 __asm__(\"%s\");\n",value1_register);
   printf("#endif\n");
 #endif
-  /* printf("nonreturning_function(extern, fehler_mv_zuviel, (object caller));\n"); */
+#if notused
+  printf("nonreturning_function(extern, fehler_mv_zuviel, (object caller));\n");
+#endif
   printf("struct backtrace_t {\n  struct backtrace_t* bt_next;\n  gcv_object_t bt_caller;\n  gcv_object_t *bt_stack;\n  int bt_num_arg;\n};\n");
   emit_typedef("struct backtrace_t *","p_backtrace_t");
   printf("#define subr_self  back_trace->bt_caller\n");
@@ -1560,16 +1633,18 @@ int main(int argc, char* argv[])
   printf("#define VALUES3(A,B,C) do{ value1 = (A); value2 = (B); value3 = (C); mv_count = 3;}while(0)\n");
   printf("#define VALUES_IF(C) do{ value1 = (C) ? T : NIL; mv_count = 1; }while(0)\n");
   printf("#define args_end_pointer  STACK\n");
-/* printf("#define set_args_end_pointer(new_args_end_pointer)  STACK = (new_args_end_pointer)\n");
- #ifdef STACK_DOWN
-   printf("#define NEXT(argpointer)  (*(--(argpointer)))\n");
-   printf("#define BEFORE(argpointer)  (*((argpointer)++))\n");
- #else
-   printf("#define NEXT(argpointer)  (*((argpointer)++))\n");
-   printf("#define BEFORE(argpointer)  (*(--(argpointer)))\n");
- #endif
- printf("#define Next(pointer)  (*(STACKpointable(pointer) STACKop -1))\n");
- printf("#define Before(pointer)  (*(STACKpointable(pointer) STACKop 0))\n"); */
+#if notused
+  printf("#define set_args_end_pointer(new_args_end_pointer)  STACK = (new_args_end_pointer)\n");
+  #ifdef STACK_DOWN
+    printf("#define NEXT(argpointer)  (*(--(argpointer)))\n");
+    printf("#define BEFORE(argpointer)  (*((argpointer)++))\n");
+  #else
+    printf("#define NEXT(argpointer)  (*((argpointer)++))\n");
+    printf("#define BEFORE(argpointer)  (*(--(argpointer)))\n");
+  #endif
+  printf("#define Next(pointer)  (*(STACKpointable(pointer) STACKop -1))\n");
+  printf("#define Before(pointer)  (*(STACKpointable(pointer) STACKop 0))\n");
+#endif
 #ifdef HAVE_SAVED_REGISTERS
   printf1("#define CALLBACK_frame_info  %d\n",CALLBACK_frame_info);
 #endif
@@ -1594,9 +1669,13 @@ int main(int argc, char* argv[])
  #endif
   printf("#define finish_frame(frametype)  (STACK_(-1) = framebottomword(frametype##_frame_info,top_of_frame,STACK STACKop -1), skipSTACK(-1))\n");
 #endif
-  /* printf("extern Values apply (object fun, uintC args_on_stack, object other_args);\n"); */
+#if notused
+  printf("extern Values apply (object fun, uintC args_on_stack, object other_args);\n");
+#endif
   printf("extern Values funcall (object fun, uintC argcount);\n");
-  /* printf("extern Values eval (object form);\n"); */
+#if notused
+  printf("extern Values eval (object form);\n");
+#endif
   printf("#define LISPFUNN(name,req_anz)  LISPFUN(name,sec,req_anz,0,norest,nokey,0,NIL)\n");
   printf("#define LISPFUN_B(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  extern Values C_##name subr_##rest_flag##_function_args\n");
   printf("#define subr_norest_function_args  (void)\n");
@@ -1724,11 +1803,13 @@ int main(int argc, char* argv[])
 
   printf("#define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))\n");
   printf("extern object vectorof (uintC len);\n");
-/* printf("extern object allocate_bit_vector_0 (uintL len);\n");
- printf("extern chart up_case (chart ch);\n");
- printf("extern chart down_case (chart ch);\n");
- printf("extern chart* unpack_string (object string, uintL* len);\n");
- printf("extern object make_list (uintL len);\n"); */
+#if notused
+  printf("extern object allocate_bit_vector_0 (uintL len);\n");
+  printf("extern chart up_case (chart ch);\n");
+  printf("extern chart down_case (chart ch);\n");
+  printf("extern chart* unpack_string (object string, uintL* len);\n");
+  printf("extern object make_list (uintL len);\n");
+#endif
   printf("extern object listof (uintC len);\n");
   printf("extern object nreverse (object list);\n");
   printf("extern object deleteq (object list, object obj);\n");
@@ -1738,16 +1819,18 @@ int main(int argc, char* argv[])
   printf("nonreturning_function(extern, OS_error, (void));\n");
   printf("nonreturning_function(extern, OS_file_error, (object pathname));\n");
   printf("nonreturning_function(extern, OS_filestream_error, (object stream));\n");
-/* printf("nonreturning_function(extern, fehler_list, (object obj));\n");
- printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");
- printf("nonreturning_function(extern, fehler_vector, (object obj));\n");
- printf("extern object check_char_replacement (object obj);\n");
- printf("static inline object check_char (object obj) {"
-         " if (!charp(obj))"
-           " obj = check_char_replacement(obj);"
-         " return obj;"
-       " }\n");
- printf("nonreturning_function(extern, fehler_sstring, (object obj));\n"); */
+#if notused
+  printf("nonreturning_function(extern, fehler_list, (object obj));\n");
+  printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");
+  printf("nonreturning_function(extern, fehler_vector, (object obj));\n");
+  printf("extern object check_char_replacement (object obj);\n");
+  printf("static inline object check_char (object obj) {"
+          " if (!charp(obj))"
+            " obj = check_char_replacement(obj);"
+          " return obj;"
+        " }\n");
+  printf("nonreturning_function(extern, fehler_sstring, (object obj));\n");
+#endif
   printf("nonreturning_function(extern, fehler_string_integer, (object obj));\n");
   printf("nonreturning_function(extern, fehler_proper_list, (object caller, object obj));\n");
   printf("nonreturning_function(extern, fehler_key_odd, (uintC argcount, object caller));\n");
@@ -1894,10 +1977,12 @@ int main(int argc, char* argv[])
   printf("extern object addr_to_string (short type, char *addr);\n");
   printf("extern struct hostent* resolve_host (object arg);\n");
   printf("#define strm_buffered_bufflen %d\n",strm_buffered_bufflen);
-/* printf("extern bool eql (object obj1, object obj2);\n");
- printf("extern bool equal (object obj1, object obj2);\n");
- printf("extern bool equalp (object obj1, object obj2);\n");
- printf("extern object get (object symbol, object key);\n"); */
+#if notused
+  printf("extern bool eql (object obj1, object obj2);\n");
+  printf("extern bool equal (object obj1, object obj2);\n");
+  printf("extern bool equalp (object obj1, object obj2);\n");
+  printf("extern object get (object symbol, object key);\n");
+#endif
   printf("extern object L_to_I (sint32 wert);\n");
 #if (intLsize<=oint_data_len)
   printf("#define UL_to_I(wert)  fixnum((uintL)(wert))\n");
@@ -1973,10 +2058,12 @@ int main(int argc, char* argv[])
   printf("#define I_to_ulong  I_to_uint64\n");
   printf("#define I_to_slong  I_to_sint64\n");
 #endif
-/* printf("extern object I_1_plus_I (object x);\n");
- printf("extern object I_minus1_plus_I (object x);\n");
- printf("extern object I_I_plus_I (object x, object y);\n");
- printf("extern object I_I_minus_I (object x, object y);\n"); */
+#if notused
+  printf("extern object I_1_plus_I (object x);\n");
+  printf("extern object I_minus1_plus_I (object x);\n");
+  printf("extern object I_I_plus_I (object x, object y);\n");
+  printf("extern object I_I_minus_I (object x, object y);\n");
+#endif
   printf("extern object c_float_to_FF (const ffloatjanus* val_);\n");
   printf("extern void FF_to_c_float (object obj, ffloatjanus* val_);\n");
   printf("extern object c_double_to_DF (const dfloatjanus* val_);\n");
