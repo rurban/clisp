@@ -76,29 +76,39 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
   ;; This uses gdb.
   (unless (stringp address) (setq address (format nil "~A" address)))
   (let ((tempfilename (format nil "/tmp/gdbcomm~D" pid))
-        (outfilename (format nil "/tmp/gdbdis~D" pid)))
+        (outfilename (format nil "/tmp/gdbdis~D" pid))
+        :: On Windows older than Windows XP, we cannot use gdb on the live
+        ;; process, due to a limitation of the Win32 API.
+        ;; See http://sources.redhat.com/ml/cygwin/2003-06/msg00933.html
+        (use-live-process (and #+(or WIN32 CYGWIN) nil)))
     (with-open-file (f tempfilename :direction :output)
       ;; inhibit pausing after every 23 lines
       ;; (remove this if your gdb doesn't understand it)
       (format f "set height 100000~%")
       ;; inhibit line breaking (because we filter the lines later)
       (format f "set width 1000~%")
-      ;; attach to the lisp.run process
-      (format f "attach ~D~%" pid)
+      (when use-live-process
+        ;; attach to the lisp.run process
+        (format f "attach ~D~%" pid))
       (if (digit-char-p (char address 0))
           ;; disassemble at numerical address
           (format f "disassemble ~A~%" address)
           ;; disassemble at symbolic address (the "disassemble" command
           ;; does not always work for symbolic arguments)
           (format f "x/10000i ~A~%" address))
-      ;; let lisp.run continue
-      (format f "detach~%")
+      (when use-live-process
+        ;; let lisp.run continue
+        (format f "detach~%"))
       ;; quit the debugger
       (format f "quit~%"))
     ;; Run gdb, capture only the lines beginning with 0x.
     ;; Let lisp.run continue (in case the debugger did not detach properly)
-    (shell (format nil "~A -n -batch -x ~A ~A < /dev/null | grep '^0' > ~A ; kill -CONT ~D"
-                   "gdb" tempfilename program-name outfilename pid))
+    (shell
+      (if use-live-process
+        (format nil "~A -n -batch -x ~A ~A < /dev/null | grep '^0' > ~A ; kill -CONT ~D"
+                "gdb" tempfilename program-name outfilename pid)
+        (format nil "~A -n -batch -x ~A ~A < /dev/null | grep '^0' > ~A"
+                "gdb" tempfilename program-name outfilename)))
     (delete-file tempfilename)
     ;; Now let the user view the listing.
     (if (or (string= (getenv "TERM") "dumb")

@@ -1,3 +1,8 @@
+2004-04-16  Bruno Haible  <bruno@clisp.org>
+
+	* disassem.lisp (disassemble-machine-code): On Cygwin, don't use the
+	live process.
+
 2004-04-16  Sam Steingold  <sds@gnu.org>
 
 	* io.d (write_string_up): (WRITE-STRING #A(nil (0))) must return
