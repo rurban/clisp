@@ -5802,11 +5802,10 @@ LISPFUNN(pathname_match_p,2)
     var boolean logical;
     {
       # muster mit O(directory_default) vergleichen:
-      if (eq(Car(muster),S(Krelative)) && nullp(Cdr(muster)) && mconsp(*subst)) {
+      if (eq(Car(muster),S(Krelative)) && nullp(Cdr(muster))
+          && mconsp(*subst) && mconsp(Car(*subst))) {
         var object list = Car(*subst); *subst = Cdr(*subst);
-        if (consp(list)
-            && (eq(Car(list),S(Kabsolute)) || eq(Car(list),S(Krelative)))
-           )
+        if (eq(Car(list),S(Kabsolute)) || eq(Car(list),S(Krelative)))
           return copy_list(list);
         else
           return nullobj;
