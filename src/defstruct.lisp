@@ -297,7 +297,10 @@
   (mapcap
     #'(lambda (slot)
         (if (ds-slot-name slot)
-          (let ((accessorname (concat-pnames concname (ds-slot-name slot)))
+          (let ((accessorname
+                 (if concname
+                     (concat-pnames concname (ds-slot-name slot))
+                     (ds-slot-name slot)))
                 (offset (ds-slot-offset slot))
                 (slottype (ds-slot-type slot)))
             ;; This makes the macroexpansion depend on the current state
@@ -332,7 +335,10 @@
   (mapcap
     #'(lambda (slot)
         (if (and (ds-slot-name slot) (not (ds-slot-readonly slot)))
-          (let ((accessorname (concat-pnames concname (ds-slot-name slot)))
+          (let ((accessorname
+                 (if concname
+                     (concat-pnames concname (ds-slot-name slot))
+                     (ds-slot-name slot)))
                 (offset (ds-slot-offset slot))
                 (slottype (ds-slot-type slot)))
             ;; This makes the macroexpansion depend on the current state
@@ -416,8 +422,7 @@
         (if (keywordp (car option))
           (case (first option)
             (:CONC-NAME
-               (setq conc-name-option (or (second option) ""))
-            )
+             (setq conc-name-option (second option)))
             (:CONSTRUCTOR
                (if (atom (cdr option))
                  ; Default-Keyword-Constructor
@@ -484,7 +489,7 @@
           (TEXT "~S ~S: not a ~S option: ~S")
           'defstruct name 'defstruct option
     ) ) )
-    ; conc-name-option ist entweder T oder "" oder das :CONC-NAME-Argument.
+    ;; conc-name-option is either T or NIL or the :CONC-NAME argument.
     ; constructor-option-list ist eine Liste aller :CONSTRUCTOR-Argumente,
     ;   jeweils in der Form  symbol  oder  (symbol arglist . ...).
     ; copier-option ist entweder T oder das :COPIER-Argument.
