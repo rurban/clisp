@@ -1,5 +1,10 @@
 2004-11-02  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (quit): when running as a script, *STANDARD-OUTPUT*,
+	*ERROR-OUTPUT* and *TERMINAL-IO* must be finished separately
+
+2004-11-02  Sam Steingold  <sds@gnu.org>
+
 	Modules now have an exit function.
 	* foreign1.lisp (ffi-module): new slot FINALIZE
 	(*c-finalize*): new symbol macro
