@@ -205,7 +205,7 @@ nil
     (block foo
       (handler-bind
           ((error #'(lambda (c)
-                      (declare (ignore c))
+                      (princ-error c)
                       (return-from foo 23))))
         (values 42 17))))
 (42 17)
@@ -215,7 +215,7 @@ nil
     (block foo
       (handler-bind
           ((error #'(lambda (c)
-                      (declare (ignore c))
+                      (princ-error c)
                       (return-from foo (values 23 17)))))
         (error "Foo"))))
 (23 17)
@@ -225,7 +225,7 @@ nil
  (block foo
    (handler-bind
        ((type-error #'(lambda (c)
-                        (declare (ignore c))
+                        (princ-error c)
                         (return-from foo 23))))
      (error "Foo"))))
 nil
@@ -235,7 +235,7 @@ nil
   (handler-bind
       (((or type-error error)
         #'(lambda (c)
-            (declare (ignore c))
+            (princ-error c)
             (return-from foo 23))))
     (error "Foo")))
 23
@@ -247,7 +247,7 @@ nil
      (handler-bind
          ((error
            #'(lambda (c)
-               (declare (ignore c))
+               (princ-error c)
                (if first-time
                    (progn
                      (setq first-time nil)
@@ -262,12 +262,12 @@ nil
     (handler-bind
         ((error
           #'(lambda (c)
-              (declare (ignore c))
+              (princ-error c)
               (return-from foo 23))))
       (handler-bind
           ((error
             #'(lambda (c)
-                (declare (ignore c))
+                (princ-error c)
                 (if first-time
                     (progn
                       (setq first-time nil)
@@ -281,11 +281,9 @@ nil
  (block foo
    (handler-bind
        ((error
-         #'(lambda (c) (declare (ignore c)) nil))
+         #'(lambda (c) (princ-error c) nil))
         (error
-         #'(lambda (c)
-             (declare (ignore c))
-             (return-from foo 23))))
+         #'(lambda (c) (princ-error c) (return-from foo 23))))
      (error "Foo"))))
 23
 
@@ -294,11 +292,11 @@ nil
   (handler-bind
       ((type-error
         #'(lambda (c)
-            (declare (ignore c))
+            (princ-error c)
             (return-from foo 42)))
        (error
         #'(lambda (c)
-            (declare (ignore c))
+            (princ-error c)
             (return-from foo 23))))
     (error "Foo")))
 23
@@ -307,12 +305,12 @@ nil
 (block foo
   (handler-bind
       ((error #'(lambda (c)
-                  (declare (ignore c))
+                  (princ-error c)
                   (return-from foo 23))))
     (block bar
       (handler-bind
           ((error #'(lambda (c)
-                      (declare (ignore c))
+                      (princ-error c)
                       (return-from foo 42))))
         (return-from bar)))
     (error "Foo")))
@@ -406,7 +404,7 @@ NIL
 (macrolet ((%m (&rest args) (cons 'error args)))
   (handler-bind ((error #'(lambda (c2)
                             (invoke-restart (find-restart 'foo c2)))))
-    (handler-bind ((error #'(lambda (c) (declare (ignore c)) (error "blah"))))
+    (handler-bind ((error #'(lambda (c) (princ-error c) (error "blah"))))
       (restart-case (restart-case (%m "boo!")
                       (foo () 'bad))
         (foo () 'good)))))
@@ -415,7 +413,7 @@ good
 (symbol-macrolet ((%s (error "boo!")))
   (handler-bind ((error #'(lambda (c2)
                             (invoke-restart (find-restart 'foo c2)))))
-    (handler-bind ((error #'(lambda (c) (declare (ignore c)) (error "blah"))))
+    (handler-bind ((error #'(lambda (c) (princ-error c) (error "blah"))))
       (restart-case (restart-case %s
                       (foo () 'bad))
         (foo () 'good)))))
@@ -427,7 +425,7 @@ good
     (handler-bind ((error #'(lambda (c2)
                               (invoke-restart (find-restart 'foo c2)))))
       (handler-bind ((error #'(lambda (c)
-                                (declare (ignore c)) (error "blah"))))
+                                (princ-error c) (error "blah"))))
         (restart-case (restart-case (%m "boo!")
                         (foo () 'bad))
           (foo () 'good))))))
@@ -439,7 +437,7 @@ good
     (handler-bind ((error #'(lambda (c2)
                               (invoke-restart (find-restart 'foo c2)))))
       (handler-bind ((error #'(lambda (c)
-                                (declare (ignore c)) (error "blah"))))
+                                (princ-error c) (error "blah"))))
         (restart-case (with-restarts ((foo () 'bad))
                         (%m "boo!"))
           (foo () 'good))))))
@@ -462,7 +460,7 @@ good
 
 (restart-case
     (invoke-restart 'foo)
-  (foo () :test (lambda (c) (declare (ignore c)) nil) 'bad)
+  (foo () :test (lambda (c) (princ-error c) nil) 'bad)
   (foo () 'good))
 good
 
@@ -713,7 +711,7 @@ T
 
 (progn (makunbound 'bar)
 (handler-bind ((unbound-variable
-                (lambda (c) (declare (ignore c)) (store-value 41))))
+                (lambda (c) (princ-error c) (store-value 41))))
   (1+ bar)))
 42
 
@@ -723,7 +721,7 @@ bar 41
  (defclass zot () (zot-foo))
  (setq bar (make-instance 'zot))
  (handler-bind ((unbound-slot
-                 (lambda (c) (declare (ignore c)) (store-value 41))))
+                 (lambda (c) (princ-error c) (store-value 41))))
    (1+ (slot-value bar 'zot-foo))))
 42
 
