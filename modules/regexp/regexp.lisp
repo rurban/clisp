@@ -185,10 +185,10 @@ extern void mregfree (regex_t *preg);
   (when (validp compiled-pattern)
     (mregfree compiled-pattern)))
 
-(defun regexp-compile (pattern &optional case-insensitive)
+(defun regexp-compile (pattern &optional (case-sensitive t))
   (let (errcode compiled-pattern)
     (assert (zerop (setf (values errcode compiled-pattern)
-                         (mregcomp pattern (if case-insensitive REG_ICASE 0))))
+                         (mregcomp pattern (if case-sensitive 0 REG_ICASE))))
             (pattern)
             "~s: ~a" 'regexp-compile (mregerror errcode compiled-pattern))
     ;; Arrange that when compiled-pattern is garbage-collected,
@@ -235,8 +235,8 @@ extern void mregfree (regex_t *preg);
 
 ;; The following implementation of MATCH compiles the pattern
 ;; once for every search.
-(defun match-once (pattern string &key (start 0) (end nil) (case-insensitive nil))
-  (regexp-exec (regexp-compile pattern case-insensitive)
+(defun match-once (pattern string &key (start 0) (end nil) (case-sensitive t))
+  (regexp-exec (regexp-compile pattern case-sensitive)
                string :start start :end end))
 
 ;; The following implementation of MATCH compiles the pattern
@@ -258,15 +258,15 @@ extern void mregfree (regex_t *preg);
   ; cddr = compiled pattern, case insensitive.
 )
 
-(defun %match (patternbox string &key (start 0) (end nil) (case-insensitive nil))
+(defun %match (patternbox string &key (start 0) (end nil) (case-sensitive t))
   ;; Compile the pattern, if not already done.
   (let ((compiled-pattern
-          (if case-insensitive (cddr patternbox) (cadr patternbox))))
+          (if case-sensitive (cadr patternbox) (cddr patternbox))))
     (unless (and compiled-pattern (validp compiled-pattern))
-      (setq compiled-pattern (regexp-compile (car patternbox) case-insensitive))
-      (if case-insensitive
-        (setf (cddr patternbox) compiled-pattern)
-        (setf (cadr patternbox) compiled-pattern)))
+      (setq compiled-pattern (regexp-compile (car patternbox) case-sensitive))
+      (if case-sensitive
+        (setf (cadr patternbox) compiled-pattern)
+        (setf (cddr patternbox) compiled-pattern)))
     (regexp-exec compiled-pattern string :start start :end end)))
 
 ; Convert a match (of type regmatch_t) to a substring.
@@ -291,12 +291,12 @@ extern void mregfree (regex_t *preg);
          string)
     qstring))
 
-(defun regexp-split (pattern string &key (start 0) end case-insensitive)
+(defun regexp-split (pattern string &key (start 0) end (case-sensitive t))
   "Split the STRING by the regexp PATTERN."
   (loop
     :with compiled =
             (if (stringp pattern)
-              (regexp-compile pattern case-insensitive)
+              (regexp-compile pattern case-sensitive)
               pattern)
     :for match = (regexp-exec compiled string :start start :end end)
     :collect
@@ -307,14 +307,14 @@ extern void mregfree (regex_t *preg);
     :while match
     :do (setq start (match-end match))))
 
-(defmacro with-loop-split ((var stream pattern &optional case-insensitive)
+(defmacro with-loop-split ((var stream pattern &optional (case-sensitive t))
                            &body forms)
   "Read from STREAM one line at a time, binding VAR to the split line."
   (let ((compiled-pattern (gensym "WLS-")) (line (gensym "WLS-")))
     `(loop
        :with ,compiled-pattern =
          (if (stringp ,pattern)
-           (regexp-compile ,pattern ,case-insensitive)
+           (regexp-compile ,pattern ,case-sensitive)
            ,pattern)
        :and ,var
        :for ,line = (read-line ,stream nil nil)
