@@ -1,3 +1,10 @@
+2001-06-14  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (stream_char_p): new macro
+	(socket-status): go through `listen_char()' for
+	character streams only
+	Reported by Lennart Staflin.
+
 2001-06-11  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (compile-file-pathname-helper): thweak the
