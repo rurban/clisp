@@ -98,6 +98,10 @@ User visible changes
   non-negative integer to EXT:EXIT.
   See <http://clisp.cons.org/impnotes.html#quit> for details.
 
+* New macros FFI:WITH-C-VAR and FFI:WITH-FOREIGN-OBJECT allow
+  allocating C data on the stack.
+  See <http://clisp.cons.org/impnotes.html#foreign-stack> for details.
+
 * Russian translations of the user interface messages have been added.
   Thanks to Arseny Slobodjuck <ampy@ich.dvo.ru>.
 
