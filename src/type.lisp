@@ -44,7 +44,8 @@
       cc)))
 
 ;;; TYPEP, CLTL S. 72, S. 42-51
-(defun typep (x y &aux f) ; x = Objekt, y = Typ
+(defun typep (x y &optional env &aux f) ; x = Objekt, y = Typ
+  (declare (ignore env))
   (setq y (expand-deftype y))
   (cond
     ((symbolp y)
@@ -899,7 +900,7 @@
                 type))))
          #-UNICODE 'CHARACTER)
         (t (typespec-error 'subtypep type))))
-(defun subtypep (type1 type2)
+(defun subtypep (type1 type2 &optional env)
   (macrolet ((yes () '(return-from subtypep (values t t)))
              (no () '(return-from subtypep (values nil t)))
              (unknown () '(return-from subtypep (values nil nil))))
@@ -911,9 +912,9 @@
     (setq type2 (canonicalize-type type2))
     ;; canonicalize-type: T ==> (AND),  NIL ==> (OR)
     (when (or (equal '(OR) type1) (equal '(AND) type2)) (yes))
-    (when (equal '(OR) type2) (no))
     (when (equal type1 type2) (yes)) ; (subtypep type type) always true
                                      ; equal on MEMBER and EQL is forbidden!!??
+    (when (equal '(OR) type2) (no))
     (when (consp type1)
       (cond ;; über SATISFIES-Typen kann man nichts aussagen
             ;((and (eq (first type1) 'SATISFIES) (eql (length type1) 2))
@@ -922,8 +923,7 @@
             ;; MEMBER: alle Elemente müssen vom Typ type2 sein
             ((eq (first type1) 'MEMBER)
              (dolist (x (rest type1) (yes))
-               (unless (typep x type2) (return (no)))
-            ))
+               (unless (typep x type2 env) (return (no)))))
             ;; NOT: (subtypep `(NOT ,type1) `(NOT ,type2)) ist äquivalent
             ;; zu (subtypep type2 type1), sonst ist Entscheidung schwierig
             ((and (eq (first type1) 'NOT) (eql (length type1) 2))
