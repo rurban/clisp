@@ -1778,8 +1778,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <variablelist>
 <varlistentry><term><filename>makevars</filename></term>
- <listitem><para>some <command>/bin/sh</command> commands, setting
-  the variables
+ <listitem><para>some &sh; commands, setting the variables
 <variablelist><varlistentry><term><envar>CC</envar></term>
        <listitem><simpara>the &c-lang; compiler
    </simpara></listitem></varlistentry>
@@ -1827,11 +1826,10 @@ containing:</para>
 
 <variablelist>
 <varlistentry><term><command>link.sh</command></term>
- <listitem><simpara>some <command>/bin/sh</command> commands, which
-  prepare the directory before linking, and set the variables
-  <envar>NEW_FILES</envar>, <envar>NEW_LIBS</envar>,
-  <envar>NEW_MODULES</envar>, <envar>TO_LOAD</envar> and optionally
-  <envar>TO_PRELOAD</envar></simpara></listitem></varlistentry>
+ <listitem><simpara>some &sh; commands, which prepare the directory
+  before linking, and set the variables <envar>NEW_FILES</envar>,
+  <envar>NEW_LIBS</envar>, <envar>NEW_MODULES</envar>, <envar>TO_LOAD</envar>
+  and optionally <envar>TO_PRELOAD</envar></simpara></listitem></varlistentry>
 <varlistentry><term>and any other files</term>
  <listitem><simpara>needed by <command>link.sh</command>
  </simpara></listitem></varlistentry>
@@ -1987,7 +1985,7 @@ containing:</para>
    Expressions</ulink> matching, compiling, executing.
   </simpara></listitem></varlistentry>
  <varlistentry><term><ulink url="wildcard.html">wildcard</ulink></term>
-  <listitem><simpara>Shell globbing</simpara></listitem></varlistentry>
+  <listitem><simpara>Shell (&sh;;) globbing</simpara></listitem></varlistentry>
 </variablelist>
 
 &regexp;
@@ -3849,10 +3847,13 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 <para><itemizedlist><listitem><simpara>The script should contain Lisp
    forms, except in the <literal>#!</literal> line.</simpara></listitem>
   <listitem><simpara>The file is loaded normally, through the function
-   &load;.</simpara></listitem>
+   &load; (in particular, the name of the script file, which
+   is <envar>$0</envar> in &sh;, can be found in &load-truename-var; and
+   &load-pathname-var;).</simpara></listitem>
   <listitem><simpara>Before it is loaded, the variable &args; is bound
    to a list of strings, representing the arguments given to the Lisp
-   script.</simpara></listitem>
+   script (i.e., <envar>$1</envar> in &sh; becomes <literal
+   role="sexp">(&car; &args;)</literal> etc).</simpara></listitem>
   <listitem><simpara>&standard-input-var; and &standard-output-var; are
    bound, as usual, to the Unix standard input and output.
    &error-output-var; is bound to the Unix error output.</simpara></listitem>
@@ -3930,8 +3931,8 @@ input will be available.</para></formalpara>
  these lines into <filename>/etc/rc.d/rc.local</filename>):
 
 <screen>
-bash# echo ":CLISP:E::fas::/usr/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
-bash# echo ":CLISP:E::lisp::/usr/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
+bash# echo ":CLISP:E::fas::/usr/local/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
+bash# echo ":CLISP:E::lisp::/usr/local/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
 </screen></para>
 
 <para>Then you can do the following:
@@ -4106,12 +4107,10 @@ bash$
      <variablelist>
       <varlistentry><term>Platform dependent: &unix; platforms only.</term>
       <listitem><simpara>The shell the command is passed to is the value
-       of the &env-var; <envar>SHELL</envar>, which normally
-       is <filename>/bin/sh</filename>.
+       of the &env-var; <envar>SHELL</envar>, which normally is &sh;.
        The command should be a <quote>simple command</quote>;
        a <quote>command list</quote> should be enclosed in "{
-       ... ; }" (for <filename>/bin/sh</filename>) or "( ... )" (for
-       <filename>/bin/csh</filename>).
+       ... ; }" (for &sh;) or "( ... )" (for <filename>/bin/csh</filename>).
      </simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
     </listitem></varlistentry>
