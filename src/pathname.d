@@ -4525,7 +4525,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         # (MERGE-PATHNAMES pathname defaults [nil] :wild #'make-pathname)
         pushSTACK(pathname); pushSTACK(defaults);
         #ifdef LOGICAL_PATHNAMES
-        if (logpathnamep(pathname) && stringp(defaults)
+        if (logpathnamep(pathname) && stringp(defaults) &&
             looks_logical_p(defaults))
           STACK_0 = parse_as_logical(STACK_0); # defaults
         #endif
