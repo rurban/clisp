@@ -1,5 +1,10 @@
 2004-03-08  Bruno Haible  <bruno@clisp.org>
 
+	* unix.d (NO_BLOCK_DECL, START_NO_BLOCK, END_NO_BLOCK): Prefer the
+	SysV way over the old FIONBIO way. Needed for Linux/x86_64.
+
+2004-03-08  Bruno Haible  <bruno@clisp.org>
+
 	* lfloat.d (LF_LF_mal_LF): Fix the second underflow condition.
 
 2004-02-28  Bruno Haible  <bruno@clisp.org>
