@@ -432,7 +432,7 @@ LISPFUNN(registry,2)
       switch (type) {
         case REG_SZ: {
           var char* buf = (char*)alloca(size);
-          err = RegQueryValueEx(key,namez,NULL,&type, buf,&size);
+          err = RegQueryValueEx(key,namez,NULL,&type, (BYTE*)buf,&size);
           if (!(err == ERROR_SUCCESS)) { SetLastError(err); OS_error(); }
           err = RegCloseKey(key);
           if (!(err == ERROR_SUCCESS)) { SetLastError(err); OS_error(); }
