@@ -3743,6 +3743,7 @@ local void update_library (object acons, uintL version) {
     ASSERT(eq(TheFaddress(fa)->fa_base,lib_addr));
     TheFaddress(fa)->fa_offset = (sintP)object_handle(acons,fn,false) -
       (sintP)lib_handle;
+    lib_list = Cdr(lib_list);
   }
  #endif
 }
