@@ -1173,6 +1173,9 @@ FILES='lisp.a'
 if test -z "$with_nounicode"; then
   XCFLAGS="$XCFLAGS -DUNICODE"
 fi
+if test -n "${with_threads}"; then
+  XCFLAGS="$XCFLAGS -DMULTITHREAD -D${with_threads}"
+fi
 
 # the type of library naming
 if [ ${HOS} = "win32" -a ${HSYS} != "win32gcc" ]; then

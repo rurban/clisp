@@ -32,9 +32,18 @@ options: The following options are recognized:
                                in case config.guess guesses wrong)
          --with-PACKAGE        use PACKAGE
          --without-PACKAGE     do not use PACKAGE
+           PACKAGEs available (the default is the opposite of the following):
+          --with-export-syscalls  export some UNIX syscalls to Lisp
+          --with-dir-key          dir-key access (win32 registry, LDAP, Gnome)
+          --without-dynamic-ffi   do not support Foreign Function Interface
+          --without-unicode       no UNICODE support: character=8bit
+          --with-threads=FLAVOR   support multiple threads in one CLISP image
+                 via OS threads [highly experimental - use at your own risk]
+                 FLAVORs = POSIX_THREADS POSIXOLD_THREADS SOLARIS_THREADS
+                           C_THREADS WIN32_THREADS
          --with-module=MODULE  build with add-on MODULE
-         --with-export-syscalls export some UNIX syscalls to Lisp
-         --with-dir-key        dir-key access (win32 registry, LDAP, Gnome)
+                               this requires dynamic FFI and will turn it on
+                               if the FFI checks pass
          --hyperspec=URL       the path to the Common Lisp HyperSpec
            (the default is http://www.lisp.org/HyperSpec/
             or the value of the environment variable CLHSROOT, if set).
