@@ -1952,6 +1952,15 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
       #endif
       pushSTACK(allocate_pathname());
       # Stackaufbau: ..., Datenvektor, Pathname.
+      #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+        #define slashp(c)  (chareq(c,ascii('\\')) || chareq(c,ascii('/')))
+      #endif
+      #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
+        #define slashp(c)  chareq(c,ascii('/'))
+      #endif
+      #ifdef PATHNAME_RISCOS
+        #define slashp(c)  chareq(c,ascii('.'))
+      #endif
       #if HAS_HOST
         # Host-Specification parsen:
         {
@@ -2001,14 +2010,14 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               goto hostspec_ok;
             #elif defined(PATHNAME_WIN32)
-              # Look for \\, then a sequence of characters.
+              # Look for a slash, then a sequence of characters.
               if (z.count==0) goto no_hostspec;
               ch = TheSstring(STACK_1)->data[z.index];
-              if (!chareq(ch,ascii('\\'))) goto no_hostspec;
+              if (!slashp(ch)) goto no_hostspec;
               z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               if (z.count==0) goto no_hostspec;
               ch = TheSstring(STACK_1)->data[z.index];
-              if (!chareq(ch,ascii('\\'))) goto no_hostspec;
+              if (!slashp(ch)) goto no_hostspec;
               z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               loop {
                 if (z.count==0)
@@ -2184,15 +2193,6 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
       # Stackaufbau: ..., Datenvektor, Pathname, (last (pathname-directory Pathname)).
       # Subdirectories parsen:
       # Trennzeichen zwischen subdirs ist unter MSDOS sowohl '\' als auch '/':
-      #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-        #define slashp(c)  (chareq(c,ascii('\\')) || chareq(c,ascii('/')))
-      #endif
-      #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
-        #define slashp(c)  chareq(c,ascii('/'))
-      #endif
-      #ifdef PATHNAME_RISCOS
-        #define slashp(c)  chareq(c,ascii('.'))
-      #endif
       {
         #if defined(USER_HOMEDIR) && defined(PATHNAME_UNIX)
           # Falls sofort ein '~' kommt, wird bis zum nächsten '/' oder Stringende
@@ -8766,7 +8766,7 @@ LISPFUN(open,1,0,norest,key,6,\
   # kann GC auslösen
   local object pathname_add_subdir (void);
   local object pathname_add_subdir()
-    {
+{
       # Pathname kopieren und dessen Directory gemäß
       # (append x (list y)) = (nreverse (cons y (reverse x))) verlängern:
       var object pathname = copy_pathname(STACK_1);
