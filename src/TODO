@@ -5,6 +5,7 @@ MUST-FIX BEFORE NEXT RELEASE
 ============================
 
 Restore interpretation of command-line options.
+        [sds: what does this mean?]
 
 Modules on 64-bit platforms:
 <http://article.gmane.org/gmane.lisp.clisp.devel:13255>
