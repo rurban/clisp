@@ -1,3 +1,32 @@
+2004-07-01  Sam Steingold  <sds@gnu.org>
+
+	keys and values can also be STRING and (INTEGER 0)
+	* modules/berkeley-db/bdb.c (SYSCALL1): new macro (with clean-up)
+	(BDB:ENV-CLOSE, BDB:DB-CLOSE, BDB:DB-DEL, BDB:DB-PUT)
+	(BDB:DB-KEY-RANGE, BDB:CURSOR-CLOSE, BDB:CURSOR-PUT): use it
+	(BDB:ENV-SET-OPTIONS): DATA_DIR can be a list
+	(BDB:ENV-GET-OPTIONS, BDB:DB-GET-OPTIONS): return all as a plist,
+	not as multiple values
+	(dbt_o_t): new typedef
+	(check_dbt_type, check_dbt_object, free_dbt): new functions
+	(fill_dbt): also return the type of the object
+	(dbt_to_object): accept the object type as the second argument
+	(BDB:DB-GET): accept :TYPE keyword argument
+	(BDB:DB-OPEN): do not call physical_namestring() on strings
+	because then it is resolved by Berkeley-DB relative to data_dirs
+	(BDB:DB-SET-OPTIONS, BDB:DB-GET-OPTIONS): accept :RE_LEN
+	(DEFINE_DB_GETTER): new macro
+	(db_get_lorder, db_get_pagesize): use it
+	(db_get_re_len): new function
+	(BDB:CURSOR-GET): return KEY and VAL with specified type
+	(BDB:TXN-BEGIN): finalize TXN with BDB::TXN-DISCARD
+	(BDB:TXN-COMMIT, BDB:TXN-DISCARD, BDB:TXN-ABORT): invalidate TXN
+	* modules/berkeley-db/dbi.lisp (with-cursor): new macro
+	(with-open-db): must use BDB:DB-CREATE and then BDB:DB-OPEN
+	(close): added a TXN method
+	* genclisph.d (ceiling, wbit): enabled
+	(allocate_bignum): added
+
 2004-06-30  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (main): reset `argv_for' to `for_exec' after processing
