@@ -75,9 +75,6 @@ EOP
 #        mips
 #        amiga     (Amiga 500/1000/2000 microcomputers)
 #        acorn     (Acorn Archimedes running RiscOS)
-#        dos       (PC or compatible running DOS, using EMX)
-#        dosdjgpp  (PC or compatible running DOS, using DJGPP)
-#        doswatcom (PC or compatible running DOS, using WATCOM)
 #        os2       (PC or compatible running OS/2 2.0)
 #  and COMPILER is one of
 #        gcc       (GNU C under the name gcc)
@@ -93,9 +90,6 @@ EOP
 #   makemake amiga gcc > make.amiga/makefile
 #   makemake acorn ansi > make.acorn.cc/makefile
 #   makemake acorn gcc > make.acorn.gcc/makefile
-#   makemake dos gcc > make.dos/makefile
-#   makemake dosdjgpp gcc > make.dosdjgpp/makefile
-#   makemake doswatcom wcl386 > make.doswatcom/makefile
 #   makemake os2 gcc > make.os2/makefile
 #   makemake win32gcc gcc > make.win32gcc/makefile
 #   makemake --with-dynamic-ffi win32msvc msvc4 > make.win32msvc/makefile.msvc4
@@ -341,19 +335,15 @@ case $# in
      fi
      TSYS=$1
      COMPILER=$2
-     # TSYS should be master or sun3 or sun4 or i[3456]86 or mips or vax or amiga or acorn or dos or dosdjgpp or doswatcom or os2 or win32gcc or win32msvc or win32bc.
+     # TSYS should be master or sun3 or sun4 or i[3456]86 or mips or vax or amiga or acorn or os2 or win32gcc or win32msvc or win32bc.
      # COMPILER should be gcc or ansi or cc
-     if [ $TSYS = amiga -o $TSYS = acorn -o $TSYS = dos -o $TSYS = os2 ] ; then
+     if [ $TSYS = amiga -o $TSYS = acorn -o $TSYS = os2 ] ; then
        TOS=$TSYS
      else
-       if [ $TSYS = dosdjgpp -o $TSYS = doswatcom ] ; then
-         TOS='dos'
+       if [ $TSYS = win32gcc -o $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+         TOS='win32'
        else
-         if [ $TSYS = win32gcc -o $TSYS = win32msvc -o $TSYS = win32bc ] ; then
-           TOS='win32'
-         else
-           TOS='unix'
-         fi
+         TOS='unix'
        fi
      fi
      TSYSOS=$TSYS
@@ -366,19 +356,7 @@ case $# in
        HSYS="$TSYS"
        HSYSOS="$TSYSOS"
      fi
-     if [ $TSYS = doswatcom -o $TSYS = win32msvc -o $TSYS = win32bc ] ; then
-       if [ $TSYS = doswatcom ] ; then
-         CC=$COMPILER # should be wcl386
-         CC_GCC=false
-         # CFLAGS='-d2 -ox -j -w4' # full debug info, optimize, char signed!, many warnings
-         CFLAGS='-3r -oxet -j -zq -w0 -zp4' # Blake McBride prefers these settings
-         CLFLAGS=''
-         CPP="${CC} -p -zq" # preprocess, quietly
-         CC_ANSI=true
-         CC_NEED_CCPAUX=false
-         AS_UNDERSCORE=false
-         CC_NEED_DEEMA=true
-       fi
+     if [ $TSYS = win32msvc -o $TSYS = win32bc ] ; then
        if [ $TSYS = win32msvc ] ; then
          CC='cl'
          CC_GCC=false
@@ -496,7 +474,7 @@ TESTSDIR=suite
 # Main host OS dependencies:
 
 # HEXE = extension for executable files on host
-if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+if [ $HOS = os2 -o $HOS = win32 ] ; then
   HEXE='.exe'
 else
   HEXE=''
@@ -551,7 +529,7 @@ if [ $HOS = acorn ] ; then
 else
   NEXT='/'
 fi
-if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+if [ $HOS = os2 -o $HOS = win32 ] ; then
   # Replace '/' with '\':
   PARENT_=`echol $PARENT | sed -e 's,/,\\\\,g'`
   NEXT_=`echol $NEXT | sed -e 's,/,\\\\,g'`
@@ -571,7 +549,7 @@ fi
 
 UTILDIR="${SRCTOPDIR}utils${NEXT}"
 DOCDIR="${SRCTOPDIR}doc${NEXT}"
-if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+if [ $HOS = os2 -o $HOS = win32 ] ; then
   # Replace '/' with '\':
   SRCTOPDIR_=`echol $SRCTOPDIR | sed -e 's,/,\\\\,g'`
   UTILDIR_=`echol $UTILDIR | sed -e 's,/,\\\\,g'`
@@ -590,7 +568,7 @@ else
   UTILDIR_M="$UTILDIR_"
   DOCDIR_M="$DOCDIR_"
 fi
-if [ $CROSS = false ] && [ $HSYS = doswatcom -o $HSYS = win32msvc -o $HSYS = win32bc ] ; then
+if [ $CROSS = false ] && [ $HSYS = win32msvc -o $HSYS = win32bc ] ; then
   NEXT_CC="$NEXT_"
   UTILDIR_CC="$UTILDIR_"
 else
@@ -610,7 +588,7 @@ else
 fi
 
 # RM = command for deleting files
-if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+if [ $HOS = os2 -o $HOS = win32 ] ; then
   RM='del'
 else
   if [ $HOS = acorn ] ; then
@@ -621,7 +599,7 @@ else
 fi
 
 # CP = command for copying files
-if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+if [ $HOS = os2 -o $HOS = win32 ] ; then
   CP='copy'
 else
   if [ $HOS = acorn ] ; then
@@ -631,7 +609,7 @@ else
 fi
 
 # LN_S = command for copying read-only files
-if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+if [ $HOS = os2 -o $HOS = win32 ] ; then
   LN_S='copy'
 else
   if [ $HOS = acorn ] ; then
@@ -646,7 +624,7 @@ if [ "$LN" = hln ] ; then
 fi
 
 # MV = command for renaming files
-if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+if [ $HOS = os2 -o $HOS = win32 ] ; then
   MV='ren'
 else
   if [ $HOS = acorn ] ; then
@@ -657,7 +635,7 @@ else
 fi
 
 # CAT = command for typing files to stdout
-if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+if [ $HOS = os2 -o $HOS = win32 ] ; then
   CAT='type'
 else
   CAT='cat'
@@ -698,13 +676,10 @@ fi
 if [ $TSYS = master -o $TOS = acorn ] ; then
   OS_INCLUDES=$OS_INCLUDES' acorn'
 fi
-if [ $TSYS = master -o $TOS = dos -o $TOS = os2 ] ; then
+if [ $TSYS = master -o $TOS = os2 ] ; then
   OS_INCLUDES=$OS_INCLUDES' msdos'
-  if [ $TSYS = dos -o $TSYS = os2 ] ; then
+  if [ $TSYS = os2 ] ; then
     LIBS=$LIBS' -ltermcap'
-  fi
-  if [ $TSYS = dosdjgpp ] ; then
-    LIBS=$LIBS' -lpc'
   fi
 fi
 SYSLIBS=''
@@ -730,7 +705,7 @@ if [ $TSYS = master -o $TOS = unix -o $TOS = win32 ] ; then
 fi
 
 if [ $CROSS = true ] ; then
-  if [ $TOS = dos -o $TOS = os2 ] ; then
+  if [ $TOS = os2 ] ; then
     # CHSCONVERT='$(HOME)/cc/convert-to-ibmpc'
     # CHSCONVERT='/usr/local/utils/cv-to-ibmpc'
     # CHSCONVERT='recode latin1:ibmpc | crlf-to-nl'
@@ -740,7 +715,7 @@ fi
 
 # TEXE = extension for executable files on target
 # LEXE = extension for executable file LISP on target
-if [ $TOS = dos -o $TOS = os2 -o $TOS = win32 ] ; then
+if [ $TOS = os2 -o $TOS = win32 ] ; then
   TEXE='.exe'
   LEXE='.exe'
 else
@@ -754,7 +729,7 @@ fi
 fi
 
 # TOBJ = extension for compiled modules on target
-if [ $TSYS = doswatcom -o $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+if [ $TSYS = win32msvc -o $TSYS = win32bc ] ; then
   TOBJ='.obj'
 else
   TOBJ='.o'
@@ -783,7 +758,7 @@ fi
 if [ "$host_cpu" = mips64 ] ; then
   cpu=mips64
 fi
-if [ "$host_cpu" = i386 -o "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cpu" = i686 -o $TSYS = i386 -o $TSYS = i486 -o $TSYS = i586 -o $TSYS = i686 -o $TSYS = dos -o $TSYS = dosdjgpp -o $TSYS = os2 -o $TOS = win32 ] ; then
+if [ "$host_cpu" = i386 -o "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cpu" = i686 -o $TSYS = i386 -o $TSYS = i486 -o $TSYS = i586 -o $TSYS = i686 -o $TSYS = os2 -o $TOS = win32 ] ; then
   cpu=i386
 fi
 case "$host_cpu" in hppa*)
@@ -800,17 +775,10 @@ fi
 
 # Main compiler dependencies:
 
-# INCLUDEDIR = option that specifies another include file directory
-if [ $TSYS = doswatcom ] ; then
-  INCLUDEDIR='-i='
-else
-  INCLUDEDIR='-I'
-fi
-
 if [ $XCC_GCC = true ] ; then
 
   XCFLAGS='-W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type '
-  if [ $HOS = dos -o $HOS = os2 ] ; then
+  if [ $HOS = os2 ] ; then
     # DOS has a very limited command line length
     XCFLAGS=''
   fi
@@ -947,7 +915,7 @@ else
       XCC_SUNPRO=true
     fi
   fi
-  if [ $TSYS = doswatcom -o $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+  if [ $TSYS = win32msvc -o $TSYS = win32bc ] ; then
     XCFLAGS="$CFLAGS"
   else
     if [ $TSYS = sun4 -a -n "$XCC_SUNPRO" ] ; then
@@ -1087,10 +1055,6 @@ if [ "$DEBUGGING" = debug ] ; then
   fi
 fi
 
-if [ $TSYS = os2 ] ; then
-  XCFLAGS=$XCFLAGS' -DOS2'
-fi
-
 if [ $HSYS = acorn ] ; then
   CLFLAGS=$CLFLAGS' -LUnix:o.Unixlib'
 fi
@@ -1199,7 +1163,7 @@ fi
 TERMINAL='generic'
 READLINELIB=''
 XCL_READLINELIB=''
-if [ $TOS = unix -o $TOS = dos -a $TSYS != doswatcom -o $TOS = os2 ] ; then
+if [ $TOS = unix -o $TOS = os2 ] ; then
   if test -n "$with_noreadline"; then
     XCFLAGS=$XCFLAGS' -DNO_READLINE'
   else
@@ -1232,7 +1196,7 @@ fi
 USE_GETTEXT=''
 GETTEXTLIB=''
 XCL_GETTEXTLIB=''
-if [ $TOS = unix ] || [ $TOS = dos -a $TSYS != dosdjgpp -a $TSYS != doswatcom ] || [ $TOS = os2 ] ; then
+if [ $TOS = unix ] || [ $TOS = os2 ] ; then
   if test -n "$with_nogettext"; then
     XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
   else
@@ -1338,7 +1302,7 @@ fi
 if [ $TSYS = master -o -n "$with_dynamic_ffi" ] ; then
   CPARTS=$CPARTS' foreign'
 fi
-if [ $TSYS = master -o $TOS = unix -o $TSYS = dos -o $TSYS = os2 -o $TSYS = acorn ] ; then
+if [ $TSYS = master -o $TOS = unix -o $TSYS = os2 -o $TSYS = acorn ] ; then
   CPARTS=$CPARTS' unixaux'
 fi
 if [ $TSYS = master -o $TOS = win32 ] ; then
@@ -1415,10 +1379,7 @@ ERROR_INCLUDES=''
 if [ $TSYS = master -o $TSYS = amiga ] ; then
   ERROR_INCLUDES=$ERROR_INCLUDES' erramiga'
 fi
-if [ $TSYS = master -o $TSYS = dosdjgpp ] ; then
-  ERROR_INCLUDES=$ERROR_INCLUDES' errdjgpp'
-fi
-if [ $TSYS = master -o $TOS = unix -o $TSYS = dos -o $TSYS = doswatcom -o $TSYS = os2 -o $TOS = acorn ] ; then
+if [ $TSYS = master -o $TOS = unix -o $TSYS = os2 -o $TOS = acorn ] ; then
   ERROR_INCLUDES=$ERROR_INCLUDES' errunix'
 fi
 if [ $TSYS = master -o $TOS = win32 ] ; then
@@ -1714,13 +1675,10 @@ fi
 # if [ $TSYS = sun4 -a "$CC" = cc ] ; then
 #   echol "INLINE = /usr/lib/inline"
 # fi
-if [ $HSYS = doswatcom ] ; then
-  echol "DISASM = wdisasm -au -s" # -au: Intel/Unix syntax, -s: include source
-fi
-if [ $HSYS = dos -o $HSYS = dosdjgpp -o $HSYS = os2 ] ; then
+if [ $HSYS = os2 ] ; then
   echol "LD = ld"
 fi
-if [ $HSYS = dos -o $HSYS = os2 ] ; then
+if [ $HSYS = os2 ] ; then
   # Putting emx.exe allows one to get away with less installation problems.
   # Putting emxl.exe causes rsx.exe to be used if running under Windows.
   echol 'EMX = c:\emx\bin\emxl.exe'
@@ -1740,27 +1698,11 @@ fi
 # echotab_to_HEXE command source target
 # outputs a `make' statement that executes "command source" and creates
 # target${HEXE}.
-if [ $HSYS != dosdjgpp -a $HSYS != doswatcom -a $HSYS != win32msvc -a $HSYS != win32bc ] ; then
+if [ $HSYS != win32msvc -a $HSYS != win32bc ] ; then
   echotab_to_HEXE () {
   echotab "$1 $2 -o $3${HEXE}"
   }
 else
-  if [ $HSYS = dosdjgpp ] ; then
-    # echol "COFF2EXE = coff2exe"
-    # would work too, but then all the programs would depend on the environment
-    # variable GO32 and the existence of go32.exe. We prefer to do it this way:
-    echol "COFF2EXE = copy /b c:\djgpp\bin\go32.exe +"
-    echotab_to_HEXE () {
-    echotab "$1 $2 -o $3"
-    echotab "\$(COFF2EXE) $3 $3${HEXE}"
-    echotab "\$(RM) $3"
-    }
-  fi
-  if [ $HSYS = doswatcom ] ; then
-    echotab_to_HEXE () {
-    echotab "$1 $2 -fo=$3${HEXE}"
-    }
-  fi
   if [ $HSYS = win32msvc ] ; then
     echotab_to_HEXE () {
     echotab "$1 $2 /Fe$3${HEXE}"
@@ -2103,8 +2045,8 @@ for util in $UTILS ; do
   fi
   if [ $util = cv_lt_pc ] ; then
     # Only used when $CROSS = true
-    echol "${util}${HEXE} : ${SRCTOPDIR}dos/${util}.c"
-    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${SRCTOPDIR}dos/${util}.c" "${util}"
+    echol "${util}${HEXE} : ${SRCTOPDIR}os2/${util}.c"
+    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${SRCTOPDIR}os2/${util}.c" "${util}"
     echol
   fi
   if [ $util = comment5 ] ; then
@@ -2335,12 +2277,12 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   flags=$XCFLAGS
   if [ $f = stream -o $f = noreadline ] ; then
     if [ $TERMINAL = readline ] ; then
-      flags=$flags" ${INCLUDEDIR}${SRCDIR}${READLINEDIR}"
+      flags=$flags" -I${SRCDIR}${READLINEDIR}"
     fi
   fi
   if [ $f = foreign ] ; then
     if [ $HOS = win32 ] ; then
-      flags=$flags" ${INCLUDEDIR}${SRCTOPDIR}ffcall"
+      flags=$flags" -I${SRCTOPDIR}ffcall"
     fi
   fi
   if [ $f = modules ] ; then
@@ -2388,15 +2330,9 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
       echol
     fi
   else
-    if [ $HSYS = doswatcom ] ; then
-      echol "${f}.s : ${f}${TOBJ}"
-      echotab "\$(DISASM) ${f}${TOBJ} -l=${f}.s"
-      echol
-    else
-      echol "${f}.s : ${f}.c${dependsc}"
-      echotab "${XCC} ${flags2} -S ${f}.c"
-      echol
-    fi
+    echol "${f}.s : ${f}.c${dependsc}"
+    echotab "${XCC} ${flags2} -S ${f}.c"
+    echol
     echol "${f}${TOBJ} : ${f}.c${dependsc}"
     echotab "${XCC} ${flags2} -c ${f}.c"
     echol
@@ -2622,7 +2558,7 @@ else
 fi
 
 echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB} ${XCL_SIGSEGVLIB}${SYSLIBS} ${XCL_DATA}"
-if [ $HOS != dos -a $HOS != os2 -a $HOS != win32 ] ; then
+if [ $HOS != os2 -a $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.
     LIBGCC_DIR='`'"${XCC} -print-libgcc-file-name"' | sed -e '"'"'s,[^/]*$$,,'"'"'`'
@@ -2652,44 +2588,13 @@ else
     fi
   else
     # DOS has a very limited command line length
-    if [ $HSYS = doswatcom ] ; then
-      echotab "\$(RM) lisp${LEXE}"
-      if [ $HSYS = doswatcom ] ; then
-        echotab "${XCC} ${XCFLAGS} -fe=lisp${LEXE} -fd=wcclink.lnk" # generate linker commands
-        echotab "wlink @wcclink.lnk @wcclink.in" # execute linker commands
-      fi
-      echotab "\$(RM) wcclink.lnk"
-    else
-      # XCLFLAGS=$XCLFLAGS' -s' # strip, geht unter emx0.8f nicht mehr
-      echotab "\$(RM) lisp"
-      echotab "\$(RM) lisp${LEXE}"
-      if [ $TOS = dos ] ; then
-        # Keine überlangen ${XCFLAGS} in die Link-Kommandozeile nehmen.
-        echotab "${XCC} -o lisp @gcclink.in ${XCLFLAGS} ${LIBS}"
-      else
-        echotab "${XCC} ${XCFLAGS} -o lisp @gcclink.in ${XCLFLAGS} ${LIBS}"
-      fi
-      if [ $HSYS = dosdjgpp ] ; then
-        echotab "strip lisp"
-        echotab "\$(COFF2EXE) lisp lisp${HEXE}"
-      else
-        if [ $TSYS = dos ] ; then
-          # Nicht strippen, sonst meckert der emxbind.
-          # echotab "strip lisp"
-          # emx-Option -p hält das untere Megabyte frei, damit EXECUTE geht.
-          #   Bei lisp_1mb.exe nutzen wir dagegen soviel RAM wie möglich.
-          # emx-Option -C0 bewirkt, dass malloc() bei fehlendem Speicher und
-          #   Plattenplatz NULL liefert, statt es später auf einen Programm-Ausstieg
-          #   wegen "Out of swap space" ankommen zu lassen.
-          echotab "emxbind -q \$(EMX) lisp lisp${LEXE} -p -C0"
-          echotab "emxbind -q \$(EMX) lisp lisp_1mb${LEXE} -C0"
-        else
-          echotab "emxbind -q \$(EMX) lisp lisp${LEXE} -p"
-          # Strippen darf man wegen -lvideo erst hinterher.
-          echotab "emxbind -s lisp${LEXE}"
-        fi
-      fi
-    fi
+    # XCLFLAGS=$XCLFLAGS' -s' # strip, geht unter emx0.8f nicht mehr
+    echotab "\$(RM) lisp"
+    echotab "\$(RM) lisp${LEXE}"
+    echotab "${XCC} ${XCFLAGS} -o lisp @gcclink.in ${XCLFLAGS} ${LIBS}"
+    echotab "emxbind -q \$(EMX) lisp lisp${LEXE} -p"
+    # Strippen darf man wegen -lvideo erst hinterher.
+    echotab "emxbind -s lisp${LEXE}"
   fi
   echol
 fi
@@ -2706,7 +2611,7 @@ fi
 if [ $TOS = acorn ] ; then
   CONFIG=cfgacorn
 fi
-if [ $TOS = dos -o $TOS = os2 ] ; then
+if [ $TOS = os2 ] ; then
   CONFIG=cfgdos
 fi
 if [ $TOS = win32 ] ; then
@@ -2749,7 +2654,7 @@ if [ $CROSS = false ] ; then
   if [ $HOS != unix ] ; then
     echotab "-\$(RM) $interpreted.mem"
   fi
-  if [ $HOS != dos -a $HOS != os2 ] ; then
+  if [ $HOS != os2 ] ; then
     echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc"' -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"'
   else
     echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc < interpreted.in"
@@ -2785,7 +2690,7 @@ if [ $CROSS = false ] ; then
   if [ $HOS != unix ] ; then
     echotab "-\$(RM) $interpreted.mem"
   fi
-  if [ $HOS != dos -a $HOS != os2 ] ; then
+  if [ $HOS != os2 ] ; then
     echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc"' -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"'
   else
     echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc < interpreted.in"
@@ -2801,7 +2706,7 @@ if [ $CROSS = false ] ; then
   if [ $HOS != unix ] ; then
     echotab "-\$(RM) lispinit.mem"
   fi
-  if [ $HOS != dos -a $HOS != os2 ] ; then
+  if [ $HOS != os2 ] ; then
     echotab "${HERE}lisp${LEXE}$localeflags -Efile ISO-8859-1 -norc"' -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"'
   else
     echotab "${HERE}lisp${LEXE}$localeflags -Efile ISO-8859-1 -norc < lispinit.in"
@@ -2834,7 +2739,7 @@ if [ $CROSS = false ] ; then
     echotab 'echo "Test passed."'
     echol
   else
-    if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+    if [ $HOS = os2 -o $HOS = win32 ] ; then
       echotab "comp *.fas ${TESTDIR}"
       echotab "REM The test passed if no differences were found."
       echol
@@ -3031,10 +2936,10 @@ for f in $TXT_FILES ; do
   fi
   line="${HERE}$txt"
   if [ $f = clisp.1 ] ; then
-    if [ $HOS != dos -a $HOS != os2 -a $HOS != win32 -a $HOS != acorn ] ; then
+    if [ $HOS != os2 -a $HOS != win32 -a $HOS != acorn ] ; then
       line=$line" | \$(GREP) -v '^ *\$\$'"
     else
-      if [ $HOS = dos -o $HOS = os2 ] ; then
+      if [ $HOS = os2 ] ; then
         # DOS command line args may not contain spaces. grep.in contains "^ *$"
         line=$line" | \$(GREP) -v -f grep.in"
       fi
@@ -3249,7 +3154,7 @@ if [ $CROSS = false ] ; then
     echol
     echol
   fi
-  if [ $HOS = dos -o $HOS = os2 ] ; then
+  if [ $HOS = os2 ] ; then
     echol "install : install-bin"
     echodummyrule install
     echol
@@ -3266,12 +3171,7 @@ if [ $CROSS = false ] ; then
     echotab "\$(INSTALL_PROGRAM) lisp${LEXE} \$(install_root)\$(lisplibdir)\lisp${LEXE}"
     echotab "\$(INSTALL_DATA) lispinit.mem \$(install_root)\$(lisplibdir)\lispinit.mem"
     echotab "-mkdir \$(install_root)\$(bindir)"
-    if [ $HOS = dos ] ; then
-      echotab "echo \$(lisplibdir)\lisp${LEXE} -M \$(lisplibdir)\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > \$(install_root)\$(bindir)\clisp.bat"
-    fi
-    if [ $HOS = os2 ] ; then
-      echotab "echo \$(lisplibdir)\lisp${LEXE} -M \$(lisplibdir)\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > \$(install_root)\$(bindir)\clisp.cmd"
-    fi
+    echotab "echo \$(lisplibdir)\lisp${LEXE} -M \$(lisplibdir)\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > \$(install_root)\$(bindir)\clisp.cmd"
     echol
     echol "uninstall : uninstall-bin"
     echodummyrule uninstall
@@ -3281,12 +3181,7 @@ if [ $CROSS = false ] ; then
     echotab "\$(RM) \$(install_root)\$(lisplibdir)/clhs.txt"
     echotab "\$(RM) \$(install_root)\$(lisplibdir)/lisp${LEXE}"
     echotab "\$(RM) \$(install_root)\$(lisplibdir)/lispinit.mem"
-    if [ $HOS = dos ] ; then
-      echotab "\$(RM) \$(install_root)\$(bindir)/clisp.bat"
-    fi
-    if [ $HOS = os2 ] ; then
-      echotab "\$(RM) \$(install_root)\$(bindir)/clisp.cmd"
-    fi
+    echotab "\$(RM) \$(install_root)\$(bindir)/clisp.cmd"
     echol
   fi
 fi

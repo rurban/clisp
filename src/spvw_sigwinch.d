@@ -44,7 +44,7 @@
         if (/* (lines > 0) && */ (columns > 0))
           goto OK;
         #endif
-        #if !(defined(NO_TERMCAP_NCURSES) || defined(WATCOM))
+        #if !defined(NO_TERMCAP_NCURSES)
         # Nun probieren wir's über termcap:
         {
           var const char* term_name = getenv("TERM");

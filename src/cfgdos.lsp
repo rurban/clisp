@@ -24,8 +24,7 @@
 ;; DEUTSCH: Das temporäre File, das LISP beim Editieren anlegt:
 ;; FRANCAIS: Fichier temporaire créé par LISP pour l'édition :
 (defun editor-tempfile ()
-  #+DOS "LISPTEMP.LSP"
-  #+OS/2 "lisptemp.lsp"
+  "lisptemp.lsp"
 )
 
 ;; ENGLISH: (edit-file file) edits a file.
@@ -35,8 +34,7 @@
   ; The function EXECUTE apparently crashes on batch files. Work around.
   (let ((editor (editor-name))
         (filename (namestring file t)))
-    (if #-OS/2 (string= (pathname-type editor) "BAT")
-        #+OS/2 (string-equal (pathname-type editor) "cmd")
+    (if (string-equal (pathname-type editor) "cmd")
       (shell (format nil "~A ~A" editor filename))
       (execute editor filename)
 ) ) )

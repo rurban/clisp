@@ -1677,8 +1677,7 @@ interpreter compiler
 )
 
 ; zeigt ein Directory an.
-(defun dir (&optional (pathnames #+(or DOS) '("*.*\\" "*.*")
-                                 #+(or AMIGA UNIX OS/2 WIN32) '("*/" "*")
+(defun dir (&optional (pathnames #+(or AMIGA UNIX OS/2 WIN32) '("*/" "*")
                                  #+ACORN-RISCOS '("*." "*" "*.*")
            )          )
   (flet ((onedir (pathname)
@@ -1721,7 +1720,7 @@ interpreter compiler
     (dolist (dir (cons '#""
                        ; Wenn filename ".." enthält, zählt *load-paths* nicht
                        ; (um Errors wegen ".../../foo" z.B. auf DOS zu vermeiden):
-                       (if (member #+(or DOS AMIGA ACORN-RISCOS) :PARENT
+                       (if (member #+(or AMIGA ACORN-RISCOS) :PARENT
                                    #+(or UNIX OS/2 WIN32) ".."
                                    (pathname-directory filename)
                                    :test #'equal

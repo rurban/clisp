@@ -1,5 +1,5 @@
 # Error-Handling für CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 # Marcus Daniels 8.4.1994
 
 #include "lispbibl.c"
@@ -317,13 +317,9 @@
 #include "erramiga.c"
 #endif
 
-#ifdef DJUNIX
-#include "errdjgpp.c"
-#endif
-
-#if defined(UNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+#if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
 #include "errunix.c"
-#endif # UNIX || EMUNIX || WATCOM || RISCOS
+#endif # UNIX || EMUNIX || RISCOS
 
 #ifdef WIN32_NATIVE
 #include "errwin32.c"

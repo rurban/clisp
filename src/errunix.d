@@ -10,7 +10,7 @@
   # Fehlermeldung übernehmen wir, die Übersetzungen machen wir selbst.
   # Französische Fehlermeldungen von Tristan <marc@david.saclay.cea.fr>.
 
-  #if !(defined(UNIX) || defined(EMUNIX) || defined(WATCOM)) # Konflikt mit unix.d bzw. msdos.d bzw. <stdlib.h> vermeiden
+  #if !(defined(UNIX) || defined(EMUNIX)) # Konflikt mit unix.d bzw. msdos.d bzw. <stdlib.h> vermeiden
     extern int sys_nerr; # Anzahl der Betriebssystem-Fehlermeldungen
     extern char* sys_errlist[]; # Betriebssystem-Fehlermeldungen
   #endif

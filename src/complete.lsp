@@ -10,7 +10,7 @@
 ; Output: eine Liste von Simple-Strings. Leer, falls keine sinnvolle Vervoll-
 ; ständigung. Sonst CDR = Liste aller sinnvollen Vervollständigungen, CAR =
 ; sofortige Ersetzung.
-#+(or UNIX DOS OS/2)
+#+(or UNIX OS/2)
 (defun completion (string start end)
   ; quotiert vervollständigen?
   (let ((start1 start) (quoted nil))

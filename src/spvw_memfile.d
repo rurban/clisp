@@ -720,7 +720,7 @@
       var Handle handle = Open(filename,MODE_OLDFILE);
       if (handle==Handle_NULL) goto abbruch1;
       #endif
-      #if defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM)
+      #ifdef EMUNIX
       var int handle = open(filename,O_RDONLY);
       if (handle<0) goto abbruch1;
       setmode(handle,O_BINARY);
@@ -756,7 +756,7 @@
         begin_system_call(); CLOSE(handle); end_system_call();
       }
       #endif
-      #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+      #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
       if (!(handle<0)) {
         begin_system_call(); CLOSE(handle); end_system_call();
       }
@@ -1385,7 +1385,7 @@
           mem.memfile_still_being_read = FALSE;
         #else
           begin_system_call();
-          #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+          #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
           if ( CLOSE(handle) <0) goto abbruch1;
           #elif defined(AMIGAOS)
           # Never close handles twice
@@ -1495,7 +1495,7 @@
       #ifdef AMIGAOS
       begin_system_call(); CLOSE(handle); end_system_call();
       #endif
-      #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+      #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
       begin_system_call(); CLOSE(handle); end_system_call();
       #endif
       #ifdef WIN32_NATIVE

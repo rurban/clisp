@@ -50,11 +50,11 @@
              (when qchar (vector-push-extend qchar qstring))
              qstring
          ) )
-         #+(or DOS OS/2)
+         #+OS/2
          (shell-simple-quote (string)
            string
          )
-         #+(or DOS OS/2)
+         #+OS/2
          (shell-quote (string) ; surround a string by double quotes
            ; I have tested Turbo C compiled programs and EMX compiled programs.
            ; 1. Special characters (space, tab, <, >, ...) lose their effect if
@@ -141,7 +141,7 @@
     (case input
       ((:TERMINAL :STREAM) )
       (t (if (eq input 'NIL)
-           (setq input #+UNIX "/dev/null" #+(or DOS OS/2 WIN32) "nul")
+           (setq input #+UNIX "/dev/null" #+(or OS/2 WIN32) "nul")
            (setq input (xstring input))
          )
          (setq command (string-concat command " < " (shell-quote input)))
@@ -150,7 +150,7 @@
     (case output
       ((:TERMINAL :STREAM) )
       (t (if (eq output 'NIL)
-           (setq output #+UNIX "/dev/null" #+(or DOS OS/2 WIN32) "nul"
+           (setq output #+UNIX "/dev/null" #+(or OS/2 WIN32) "nul"
                  if-output-exists ':OVERWRITE
            )
            (progn

@@ -1,5 +1,5 @@
 # Haupt-Include-File für CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 # Marcus Daniels 11.11.1994
 
 
@@ -62,10 +62,7 @@
 # IBM-PC/386   beliebig           LINUX (freies UNIX)           GNU           unix, linux, i386, __GNUC__
 # IBM-PC/386   beliebig           386BSD 0.1 (UNIX BSD 4.2)     GNU           unix, __386BSD__, i386, __GNUC__
 # IBM-PC/386   beliebig           NetBSD 0.9 (UNIX BSD 4.3)     GNU           unix, __NetBSD__, i386, __GNUC__
-# IBM-PC/386   beliebig           DJUNIX (UNIXlike auf MSDOS)   GNU           unix, i386, [__MSDOS__,] __GNUC__, __GO32__; __GO32__ muss man evtl. selbst definieren!
-# IBM-PC/386   beliebig           EMX 0.9c (UNIXlike auf MSDOS) GNU           [unix,] i386, __GNUC__, __EMX__
-# IBM-PC/386   beliebig           EMX 0.9c (UNIXlike auf OS/2)  GNU           [unix,] i386, __GNUC__, __EMX__, OS2; OS2 muss man selbst definieren!
-# IBM-PC/386   beliebig           MSDOS                         WATCOM        MSDOS, __386__, M_I386, __WATCOMC__, __FLAT__
+# IBM-PC/386   beliebig           EMX 0.9c (UNIXlike auf OS/2)  GNU           [unix,] i386, __GNUC__, __EMX__
 # IBM-PC/386   beliebig           Cygwin32 auf WinNT/Win95      GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, _X86_, i386, __GNUC__
 # IBM-PC/386   beliebig           Mingw32 auf WinNT/Win95       GNU           _WIN32, __WINNT__, __MINGW32__, _X86_, i386, __GNUC__
 # IBM-PC/386   beliebig           WinNT/Win95                   MSVC4.0,5.0   _WIN32, _M_IX86, _MSC_VER
@@ -80,7 +77,7 @@
 #   (und evtl. gcc-cpp, ccpaux).
 
 
-# diese Maschine: AMIGA oder ACORN oder DOSPC oder WIN32 oder GENERIC_UNIX
+# diese Maschine: AMIGA oder ACORN oder OS2 oder WIN32 oder GENERIC_UNIX
 #if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__)) && !defined(unix)
   #define unix
 #endif
@@ -91,14 +88,14 @@
 #if (defined(arm) || defined(__arm)) && (defined(riscos) || defined(__riscos))
   #define ACORN
 #endif
-#if (defined(i386) && defined(__EMX__)) || defined(__GO32__) || (defined(__386__) && defined(__WATCOMC__) && defined(MSDOS))
-  #define DOSPC
+#if defined(i386) && defined(__EMX__)
+  #define OS2
 #endif
 #if (defined(_WIN32) && (defined(_MSC_VER) || defined(__MINGW32__))) || (defined(__WIN32__) && defined(__BORLANDC__))
   #undef WIN32  # wg. __MINGW32__
   #define WIN32
 #endif
-#if !(defined(AMIGA) || defined(ACORN) || defined(DOSPC) || defined(WIN32))
+#if !(defined(AMIGA) || defined(ACORN) || defined(OS2) || defined(WIN32))
   #if defined(unix)
     #define GENERIC_UNIX
   #else
@@ -106,7 +103,7 @@
   #endif
 #endif
 # Zusätzliche Spezifikation der Maschine:
-#ifdef DOSPC
+#ifdef OS2
   #define PC386 # IBMPC-Kompatibler mit 80386/80486-Prozessor
 #endif
 #ifdef GENERIC_UNIX
@@ -149,7 +146,7 @@
     #define MC680Y0
   #endif
 #endif
-#ifdef DOSPC
+#ifdef OS2
   #define I80386
 #endif
 #if 0
@@ -219,12 +216,7 @@
 #endif
 #ifdef WIN32
   # Windows NT, Windows 95
-  #if 1
-    #define WIN32_NATIVE  # native NT API, no DOS calls
-  #endif
-  #if 0
-    #define WIN32_DOS  # native NT API plus DOS calls, runs in DOS box only
-  #endif
+  #define WIN32_NATIVE  # native NT API, no DOS calls
 #endif
 #ifdef GENERIC_UNIX
   #define UNIX
@@ -317,21 +309,11 @@
     #define UNIX_CYGWIN32  # Cygwin32 (UNIXlike auf WinNT/Win95)
   #endif
 #endif
-#ifdef DOSPC
-  #undef MSDOS  # wg. WATCOM
+#ifdef OS2
   #define MSDOS
   #ifdef __EMX__
-    #define EMUNIX  # UNIX-Emulation auf MSDOS/OS2-Basis von Eberhard Mattes
-    #ifdef OS2
-      #define EMUNIX_PORTABEL # ob wir eine zwischen MSDOS und OS2 portable Version machen
-    #endif
+    #define EMUNIX  # UNIX-Emulation auf OS2-Basis von Eberhard Mattes
     # Nur noch emx >= 0.9c wird unterstützt.
-  #endif
-  #ifdef __GO32__
-    #define DJUNIX  # UNIX-Emulation auf MSDOS-Basis von D.J. Delorie
-  #endif
-  #ifdef __WATCOMC__
-    #define WATCOM  # Bibliotheksfunktionen von WATCOM C
   #endif
 #endif
 
@@ -340,15 +322,15 @@
 #if defined(UNIX)
   #include "unixconf.h"  # von configure erzeugte Konfiguration
   #include "intparam.h"  # von machine erzeugte Integertyp-Charakteristika
-#elif defined(AMIGA) || defined(ACORN) || defined(DOSPC) || defined(WIN32)
+#elif defined(AMIGA) || defined(ACORN) || defined(OS2) || defined(WIN32)
   #define char_bitsize 8
   #define short_bitsize 16
-  #if defined(ACORN) || defined(DOSPC) || defined(WIN32)
+  #if defined(ACORN) || defined(OS2) || defined(WIN32)
     #define int_bitsize 32
   #else
     #define int_bitsize 0 # wird nicht benötigt
   #endif
-  #if defined(AMIGA) || defined(ACORN) || defined(DOSPC) || (defined(WIN32) && defined(I80386))
+  #if defined(AMIGA) || defined(ACORN) || defined(OS2) || (defined(WIN32) && defined(I80386))
     #define long_bitsize 32
   #elif (defined(WIN32) && defined(DECALPHA))
     #define long_bitsize 64
@@ -361,7 +343,7 @@
       #endif
     #endif
   #endif
-  #if defined(AMIGA) || defined(ACORN) || defined(DOSPC) || (defined(WIN32) && defined(I80386))
+  #if defined(AMIGA) || defined(ACORN) || defined(OS2) || (defined(WIN32) && defined(I80386))
     #define pointer_bitsize 32
   #elif (defined(WIN32) && defined(DECALPHA))
     #define pointer_bitsize 64
@@ -418,7 +400,7 @@
   #undef ISOLATIN_CHS
   #define NEXTSTEP_CHS  # NeXTstep, siehe nextstep.chs
 #endif
-#ifdef DOSPC
+#ifdef OS2
   #define IBMPC_CHS  # IBM PC, siehe ibmpc.chs
 #endif
 #if !(defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS) || defined(NEXTSTEP_CHS) || defined(IBMPC_CHS))
@@ -1024,7 +1006,7 @@
     #endif
   #elif defined(_AIX)
     #pragma alloca /* AIX requires this to be the first thing in the file. */
-  #elif defined(WATCOM) || defined(BORLAND)
+  #elif defined(BORLAND)
     #include <malloc.h> # definiert 'alloca' als Macro
   #elif !defined(NO_ALLOCA)
     extern_C void* alloca (int size); # siehe MALLOC(3V)
@@ -1099,7 +1081,6 @@
   #define signean_minus  -1 # -1
 
 # Nullpointer
-  #undef NULL  # wg. WATCOM
   #ifdef __cplusplus
     #define NULL  0
   #else
@@ -1222,7 +1203,7 @@
 
 # An alloca() replacement, used for DYNAMIC_ARRAY and SAVE_NUM_STACK.
 # See spvw_alloca.d.
-#if !((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(WATCOM) || defined(BORLAND) || defined(MICROSOFT))
+#if !((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT))
   #define NEED_MALLOCA
   #include <stdlib.h>
   extern void* malloca (size_t size);
@@ -1248,7 +1229,7 @@
       #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
         arrayeltype arrayvar[(arraysize)+1]
     #endif
-  #elif (defined(UNIX) && (defined(HAVE_ALLOCA_H) || defined(_AIX) || !defined(NO_ALLOCA))) || defined(WATCOM) || defined(BORLAND) || defined(MICROSOFT) || defined(RISCOS)
+  #elif (defined(UNIX) && (defined(HAVE_ALLOCA_H) || defined(_AIX) || !defined(NO_ALLOCA))) || defined(BORLAND) || defined(MICROSOFT) || defined(RISCOS)
     # Platz im Maschinenstack reservieren.
     # { var uintL* my_array = (uintL*)alloca(n*sizeof(uintL)); ... }
     #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
@@ -1692,7 +1673,7 @@
 
 #endif # RISCOS
 
-#if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(WIN32)
+#if defined(UNIX) || defined(EMUNIX) || defined(WIN32)
 
 #ifdef UNIX
 #include "unix.c"
@@ -1715,18 +1696,9 @@
   extern uintB interrupt_pending;
   #define interruptp(statement)  if (interrupt_pending) { statement; }
  #endif
- #if defined(DJUNIX)
-  # DJUNIX kennt keine Signale, nicht mal Ctrl-C.
-  # Hat auch kein alarm() oder ualarm().
-  #define interruptp(statement)  if (_go32_was_ctrl_break_hit()) { statement; }
- #endif
- #if defined(WATCOM)
-  # WATCOM hat kein alarm() oder ualarm().
-  #define interruptp(statement)  FALSE
- #endif
 # wird verwendet von EVAL, IO, SPVW, STREAM
 
-#endif # UNIX || DJUNIX || EMUNIX || WATCOM || WIN32
+#endif # UNIX || EMUNIX || WIN32
 
 #if defined(UNIX) || defined(WIN32_NATIVE)
   # Support for fault handling.
@@ -1748,7 +1720,7 @@
     nonreturning_function(extern, OS_error, (void));
   # wird verwendet von SPVW, STREAM, PATHNAME
 #endif
-#if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+#if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
   # Behandlung von UNIX-Fehlern
   # OS_error();
   # > int errno: Fehlercode
@@ -1765,7 +1737,7 @@
   # > WSAGetLastError(): Fehlercode
     nonreturning_function(extern, SOCK_error, (void));
 #endif
-#if defined(UNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+#if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
   # Initialisierung der Fehlertabelle:
     extern int init_errormsg_table (void);
 #else
@@ -1836,8 +1808,7 @@
 # Bei Erweiterung: STREAM, USER1.LSP erweitern.
 
 # Ob wir die GNU Readline-Library für *TERMINAL-IO* benutzen:
-  #if ((defined(UNIX) && !defined(NEXTAPP)) || (defined(MSDOS) && !defined(WATCOM))) && !defined(__cplusplus) && !defined(NO_READLINE)
-    # Auf WATCOM ist die Readline-Library noch nicht portiert.
+  #if ((defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS)) && !defined(__cplusplus) && !defined(NO_READLINE)
     # Mit einem C++-Compiler ist die Readline-Library nicht compilierbar.
     #define GNU_READLINE
   #endif
@@ -1850,9 +1821,9 @@
 # Bei Erweiterung: STREAM erweitern (viel Arbeit!).
 
 # Ob es Pipe-Streams gibt:
-  #if defined(UNIX) || defined(EMUNIX_PORTABEL) || defined(WIN32_NATIVE)
+  #if defined(UNIX) || defined(EMUNIX) || defined(WIN32_NATIVE)
     #define PIPES
-    #if defined(UNIX) || defined(EMUNIX_PORTABEL) || defined(WIN32_NATIVE)
+    #if defined(UNIX) || defined(EMUNIX) || defined(WIN32_NATIVE)
       #define PIPES2  # bidirektionale Pipes
     #endif
   #endif
@@ -2012,14 +1983,14 @@
 # Bei Erweiterung: TIME erweitern.
 
 # Ob das Betriebssystem Virtual Memory zur Verfügung stellt.
-  #if defined(UNIX) || defined(EMUNIX) || defined(DJUNIX) || defined(WIN32)
+  #if defined(UNIX) || defined(EMUNIX) || defined(WIN32)
     #define VIRTUAL_MEMORY
   #endif
 # Bei Erweiterung: nichts zu tun.
 
 # Ob das Betriebssystem Unterbrechungen (Ctrl-C o.ä.) als Signal auszuliefern
 # in der Lage ist:
-  #if defined(UNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+  #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
     #define HAVE_SIGNALS
   #endif
 # Ob wir auf asynchrone Signale auch reagieren können:
@@ -2037,11 +2008,7 @@
     #define PATHNAME_AMIGAOS
   #endif
   #ifdef MSDOS
-   #ifdef OS2
     #define PATHNAME_OS2
-   #else
-    #define PATHNAME_MSDOS
-   #endif
   #endif
   #ifdef RISCOS
     #define PATHNAME_RISCOS
@@ -2053,7 +2020,7 @@
     #define PATHNAME_WIN32
   #endif
 # Die Komponenten von Pathnames:
-  #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+  #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
     #define HAS_HOST      0
     #define HAS_DEVICE    1
     #define HAS_VERSION   0
@@ -2070,9 +2037,6 @@
     #define FLIP_NAME_TYPE # Name und Type zum Betriebssystem hin vertauschen
   #endif
 # Handhabung der File "Extension" (pathname-type):
-  #if defined(PATHNAME_MSDOS)
-    #define PATHNAME_EXT83  # Name und Type getrennt, Abschneiden nach 8 bzw. 3 Zeichen
-  #endif
   #if defined(PATHNAME_RISCOS)
     #define PATHNAME_EXT  # Name und Type getrennt, aber keine Längenbegrenzung
   #endif
@@ -2100,7 +2064,7 @@
 # Bei Veränderung: Nichts weiter zu tun.
 
 # Ob subr_tab statisch zu initialisieren versucht wird.
-  #if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !defined(WATCOM)
+  #if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT))
     #define INIT_SUBR_TAB
   #endif
 # NB: Das muss definiert sein, damit externe Module funktionieren.
@@ -2109,15 +2073,14 @@
 # Ob symbol_tab statisch zu initialisieren versucht wird.
 # (Es macht die Initialisierung einfacher, aber bei GNU-C auf einem Amiga
 # reicht der Platz zum Compilieren von SPVWTABS nicht.
-# WATCOM stürzt ab mit "Abnormal program termination: Page fault".
 # EMX 0.9c (gcc-2.7.2.1) meldet "Virtual memory exhausted".)
-  #if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(AMIGA) || defined(WATCOM) || defined(EMUNIX))
+  #if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(AMIGA) || defined(EMUNIX))
     #define INIT_SYMBOL_TAB
   #endif
 # Bei Veränderung: Nichts weiter zu tun.
 
 # Ob object_tab statisch zu initialisieren versucht wird.
-  #if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !defined(WATCOM)
+  #if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT))
     #define INIT_OBJECT_TAB
   #endif
 # Bei Veränderung: Nichts weiter zu tun.
@@ -3261,9 +3224,7 @@ Ratio and Complex (only if SPVW_MIXED).
 #               möglich
 # SPVW_PURE   : Jeder Speicherblock/jede Speicherseite enthält nur Objekte
 #               ein und desselben Typs
-#if defined(WATCOM) || defined(MAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
-  # Auf der DOSe mit dem WATCOM-Extender steht nur endlich viel Speicher
-  # zur Verfügung.
+#if defined(MAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
   # Multimapping einzelner Pages ist noch nicht implementiert.??
   # Singlemapping einzelner Pages ist noch nicht implementiert.??
   # Verwendet man mmap() als malloc()-Ersatz, braucht man keine einzelnen Pages.
@@ -4144,7 +4105,7 @@ typedef sstring_ *  Sstring;
 #define Sstring_length(obj)  sstring_length(TheSstring(obj))
 
 # Simple-String with only one byte per character (a.k.a. "small simple string")
-#if !defined(TYPECODES) && defined(UNICODE) && ((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(WATCOM) || defined(BORLAND) || defined(MICROSOFT))
+#if !defined(TYPECODES) && defined(UNICODE) && ((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT))
 #define HAVE_SMALL_SSTRING
 typedef struct {
   LRECORD_HEADER # Selbstpointer für GC, Länge in Characters
@@ -6742,14 +6703,6 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
       #    die Registerinhalte, wenn durch ein 'save' in einem Unterprogramm
       #    ein 'register window overflow trap' ausgelöst wird).
     #endif
-  #elif defined(WATCOM) && defined(I80386) && !defined(NO_ASM)
-    # Zugriff auf ein Register %esp
-    #define SP  getSP
-    extern_C void* getSP (void);
-    extern_C void setSP (void* adresse);
-    #pragma aux  getSP =  0x89 0xe0 /* mov %esp,%eax */  parm value [eax] modify nomemory;
-    #pragma aux  setSP =  0x89 0xc4 /* mov %eax,%esp */  parm caller [eax] modify nomemory [esp];
-    #define FAST_SP
   #elif defined(MICROSOFT) && defined(I80386) && !defined(NO_ASM)
     # Zugriff auf ein Register %esp
     #define SP  getSP
@@ -6876,7 +6829,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 #if defined(AMIGAOS)
   #define STACK_DOWN # STACK wächst nach unten
 #endif
-#if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS) || defined(WIN32) || defined(HYPERSTONE)
+#if defined(UNIX) || defined(EMUNIX) || defined(RISCOS) || defined(WIN32) || defined(HYPERSTONE)
   #define STACK_UP # STACK wächst nach oben
 #endif
 #if (defined(STACK_DOWN) && defined(STACK_UP)) || (!defined(STACK_DOWN) && !defined(STACK_UP))
@@ -10895,7 +10848,7 @@ typedef struct {
     (asciz_out_s("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_filestream_error)(stream))
 #endif
 
-#if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+#if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
   # Ausgabe eines Fehlers, direkt übers Betriebssystem
   # errno_out(errorcode);
   # > int errorcode: Fehlercode
