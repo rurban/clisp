@@ -1729,8 +1729,8 @@ LISPSYM(warn_on_floating_point_rational_contagion,"*WARN-ON-FLOATING-POINT-RATIO
 LISPSYM(floating_point_rational_contagion_ansi,"*FLOATING-POINT-RATIONAL-CONTAGION-ANSI*",custom)
 LISPSYM(phase_ansi,"*PHASE-ANSI*",custom)
 LISPSYM(loop_ansi,"*LOOP-ANSI*",custom)
-LISPSYM(defun_accept_spelalist,"*DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST*",custom)
-LISPSYM(spelalist_to_ordinary,"SPECIALIZED-LAMBDA-LIST-TO-ORDINARY",system)
+LISPSYM(defun_accept_specialized_lambda_list,"*DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST*",custom)
+LISPSYM(specialized_lambda_list_to_ordinary,"SPECIALIZED-LAMBDA-LIST-TO-ORDINARY",system)
 LISPSYM(pi,"PI",lisp) /* variable in LISPARIT */
 LISPSYM(number,"NUMBER",lisp) /* type for LISPARIT */
 LISPSYM(real,"REAL",lisp) /* type for LISPARIT */
