@@ -4957,7 +4957,7 @@ typedef struct {
 typedef struct {
   LRECORD_HEADER
   gcv_object_t wkvt_cdr;          # active weak-kvts form a chained list
-  gcv_object_t wkvt_type;       /* :KEY :VALUE or :BOTH */
+  gcv_object_t wkvt_type;       /* :KEY :VALUE :EITHER or :BOTH */
   gcv_object_t data[unspecified]; # elements
 } weakkvt_t;
 typedef weakkvt_t* WeakKVT;
@@ -8378,7 +8378,7 @@ extern object allocate_weakpointer (object obj);
 # UP: allocates a WeakKVT of the given length
 # allocate_weakkvt(len,type)
 # > len:    the length of the data vector
-# > type:   ???
+# > type:   :KEY or :VALUE or :EITHER or :BOTH
 # < result: a fresh weak key-value table
 # can trigger GC
 extern object allocate_weakkvt (uintL len, object type);

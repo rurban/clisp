@@ -93,11 +93,11 @@ global object allocate_vector (uintL len) {
   #undef SETTFL
 }
 
-# allocate and init the weak kvtable
-# > len:    the length of the data vector
-# > type:   ???
-# < result: a fresh weak key-value table
-# can trigger GC
+/* allocate and init the weak kvtable
+ > len:    the length of the data vector
+ > type:   :KEY or :VALUE or :EITHER or :BOTH
+ < result: a fresh weak key-value table
+ can trigger GC */
 local inline object allocate_weakkvt_low (uintL len, object type) {
   var uintL need = size_svector(len+weakkvt_non_data);
  #ifdef TYPECODES
