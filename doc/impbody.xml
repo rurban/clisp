@@ -3630,14 +3630,12 @@ functions are provided:
 
 <section id="stream-buffer"><title>Functions
   <firstterm><function>EXT:MAKE-BUFFERED-INPUT-STREAM</function>
-   <indexterm id="stream-buffer-i" significance="preferred">
-    <primary id="stream-buffer-i-i">
-     <function>EXT:MAKE-BUFFERED-INPUT-STREAM</function>
+   <indexterm significance="preferred">
+    <primary><function>MAKE-BUFFERED-INPUT-STREAM</function>
   </primary></indexterm></firstterm> and
   <firstterm><function>EXT:MAKE-BUFFERED-OUTPUT-STREAM</function>
-   <indexterm id="stream-buffer-o" significance="preferred">
-    <primary id="stream-buffer-o-i">
-     <function>EXT:MAKE-BUFFERED-OUTPUT-STREAM</function>
+   <indexterm significance="preferred">
+    <primary><function>MAKE-BUFFERED-OUTPUT-STREAM</function>
  </primary></indexterm></firstterm></title>
 
 <para><code>(EXT:MAKE-BUFFERED-OUTPUT-STREAM &func-r;)</code>
