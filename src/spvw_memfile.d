@@ -439,6 +439,7 @@
         #define update_fs_function(obj)  rheader.fscount++;
         update_conses();
         update_varobjects();
+        update_weakpointers();
         #undef update_fs_function
         #undef update_fp_invalid
         #undef update_ht_invalid
@@ -466,6 +467,7 @@
         #define update_fs_function(obj)  *fsbufptr++ = (obj);
         update_conses();
         update_varobjects();
+        update_weakpointers();
         #undef update_fs_function
         #undef update_fp_invalid
         #undef update_ht_invalid
@@ -1231,6 +1233,8 @@
          #endif
          # Durchlaufen durch alle LISP-Objekte und aktualisieren:
            #define update  loadmem_update
+           # Update weak-pointers:
+             update_weakpointers();
            # Programmkonstanten aktualisieren:
              update_tables();
            #ifdef SINGLEMAP_MEMORY_RELOCATE

@@ -1,5 +1,34 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Implement weak-pointers.
+        * lispbibl.d (Rectype_Weakpointer): New enum value.
+          (Weakpointer): New type.
+          (weakpointer_length, weakpointer_xlength): New macros.
+          (TheWeakpointer, weakpointerp, allocate_weakpointer): New macros.
+        * constobj.d (O(all_weakpointers)): New variable.
+          (O(all_finalizers), O(pending_finalizers)): Initial value 0, not NIL.
+        * spvw.d (init_object_tab_1): Initialize O(all_weakpointers),
+          O(all_finalizers), O(pending_finalizers) to 0.
+        * spvw_update.d (update_weakpointers, update_weakpointers_mod): New
+          macros.
+        * spvw_garcol.d (gar_col_normal): Walk O(all_weakpointers).
+          O(all_finalizers) and O(pending_finalizers) end with 0, not NIL.
+          Call update_weakpointers_mod.
+          (gar_col_done): O(pending_finalizers) ends with 0, not NIL.
+          (gar_col_compact, move_conses): Call update_weakpointers_mod.
+        * spvw_memfile.d (savemem, loadmem): Call update_weakpointers.
+        * record.d (MAKE-WEAK-POINTER, WEAK-POINTER-P, WEAK-POINTER-VALUE):
+          New functions.
+        * io.d (pr_orecord): Treat Rectype_Weakpointer.
+        * predtype.d (TYPE-OF, CLOS:CLASS-OF): Treat Rectype_Weakpointer.
+          (enum_hs_weakpointer): New enum value.
+          (heap_statistics_mapper): Treat Rectype_Weakpointer.
+        * compiler.lsp (subr-info): Add make-weak-pointer, weak-pointer-p,
+          weak-pointer-value.
+        * user2.lsp (describe): Treat WEAK-POINTER.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (gcinvariant_object_p) [TYPECODES]: New macro.
         * record.d (FINALIZE): No need to allocate a finalizer for an
           eternally alive object.

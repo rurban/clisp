@@ -1484,6 +1484,8 @@ LISPFUNN(type_of,1)
               case Rectype_Ffunction: # Foreign-Function
                 value1 = S(foreign_function); break;
               #endif
+              case Rectype_Weakpointer: # Weak-Pointer
+                value1 = S(weak_pointer); break;
               case Rectype_Finalizer: # Finalisierer (sollte nicht vorkommen)
                 value1 = S(finalizer); break;
               #ifdef SOCKET_STREAMS
@@ -1691,6 +1693,7 @@ LISPFUNN(class_of,1)
               case Rectype_Faddress: # Foreign-Adresse -> <t>
               case Rectype_Fvariable: # Foreign-Variable -> <t>
               #endif
+              case Rectype_Weakpointer: # Weak-Pointer -> <t>
               case Rectype_Finalizer: # Finalisierer -> <t>
               #ifdef SOCKET_STREAMS
               case Rectype_Socket_Server: # Socket-Server -> <t>
@@ -2193,6 +2196,7 @@ enum { # The values of this enumeration are 0,1,2,...
   enum_hs_foreign_variable,
   enum_hs_foreign_function,
   #endif
+  enum_hs_weakpointer,
   enum_hs_finalizer,
   #ifdef SOCKET_STREAMS
   enum_hs_socket_server,
@@ -2451,6 +2455,8 @@ local void heap_statistics_mapper(arg,obj,bytelen)
               case Rectype_Ffunction: # Foreign-Function
                 pighole = &locals->builtins[(int)enum_hs_foreign_function]; break;
               #endif
+              case Rectype_Weakpointer: # Weak-Pointer
+                pighole = &locals->builtins[(int)enum_hs_weakpointer]; break;
               case Rectype_Finalizer: # Finalisierer
                 pighole = &locals->builtins[(int)enum_hs_finalizer]; break;
               #ifdef SOCKET_STREAMS

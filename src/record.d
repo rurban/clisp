@@ -536,6 +536,52 @@ LISPFUNN(symbol_macro_expand,1)
   }
 
 # ==============================================================================
+# Weak-Pointer:
+
+LISPFUNN(make_weak_pointer,1)
+# (MAKE-WEAK-POINTER value) returns a fresh weak pointer referring to value.
+  { var object wp = allocate_weakpointer();
+    var object obj = popSTACK();
+    TheWeakpointer(wp)->wp_value = obj;
+    if (gcinvariant_object_p(obj))
+      { TheWeakpointer(wp)->wp_cdr = Fixnum_0; } # a GC-invariant dummy
+      else
+      { TheWeakpointer(wp)->wp_cdr = O(all_weakpointers);
+        O(all_weakpointers) = wp;
+      }
+    value1 = wp; mv_count=1;
+  }
+
+LISPFUNN(weak_pointer_p,1)
+# (WEAK-POINTER-P object) returns true if the object is of type WEAK-POINTER.
+  { var object obj = popSTACK();
+    value1 = (weakpointerp(obj) ? T : NIL); mv_count=1;
+  }
+
+LISPFUNN(weak_pointer_value,1)
+# (WEAK-POINTER-VALUE weak-pointer) returns two values: The original value and
+# T, if the value has not yet been garbage collected, else NIL and NIL.
+  { var object wp = popSTACK();
+    if (!weakpointerp(wp))
+      { pushSTACK(wp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(S(weak_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(wp);
+        pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+        fehler(type_error,
+               DEUTSCH ? "~: ~ ist kein Weak-Pointer." :
+               ENGLISH ? "~: ~ is not a weak pointer" :
+               FRANCAIS ? "~ : ~ n'est pas de type WEAK-POINTER." :
+               ""
+              );
+      }
+    if (eq(TheWeakpointer(wp)->wp_cdr,unbound))
+      { value1 = NIL; value2 = NIL; }
+      else
+      { value1 = TheWeakpointer(wp)->wp_value; value2 = T; }
+    mv_count=2;
+  }
+
+# ==============================================================================
 # Finalisierer:
 
 LISPFUN(finalize,2,1,norest,nokey,0,NIL)

@@ -8586,6 +8586,35 @@ LISPFUNN(print_structure,2)
               LEVEL_END;
             }}break;
           #endif
+          case Rectype_Weakpointer:
+            # #<WEAK-POINTER value> or #<BROKEN WEAK-POINTER>
+            { if (test_value(S(print_readably))) { fehler_print_readably(obj); }
+              if (!eq(TheWeakpointer(obj)->wp_cdr,unbound))
+                { LEVEL_CHECK;
+                  pushSTACK(TheWeakpointer(obj)->wp_value); # value retten
+                 {var object* value_ = &STACK_0; # und merken, wo es sitzt
+                  write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
+                  INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
+                  JUSTIFY_START;
+                  write_sstring_case(stream_,O(printstring_weakpointer)); # "WEAK-POINTER"
+                  {var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
+                   var uintL length = 0; # bisherige Länge := 0
+                   # auf Erreichen von *PRINT-LENGTH* prüfen:
+                   if (length >= length_limit) goto weakpointer_end;
+                   JUSTIFY_SPACE; # Space ausgeben
+                   prin_object(stream_,*value_); # output value
+                   length++; # bisherige Länge erhöhen
+                  }
+                  weakpointer_end:
+                  JUSTIFY_END_ENG;
+                  INDENT_END;
+                  write_ascii_char(stream_,'>');
+                  skipSTACK(1);
+                  LEVEL_END;
+                }}
+                else
+                { write_sstring_case(stream_,O(printstring_broken_weakpointer)); }
+            } break;
           case Rectype_Finalizer:
             # #<FINALIZER>
             { if (test_value(S(print_readably))) { fehler_print_readably(obj); }

@@ -64,10 +64,12 @@
   #endif
 
 # zu SPVW.D:
+  # chained list of all active weak-pointers:
+  LISPOBJ(all_weakpointers,"0")
   # Liste aller Finalisierer:
-  LISPOBJ(all_finalizers,"NIL")
+  LISPOBJ(all_finalizers,"0")
   # Während der GC: die Liste der nach der GC zu bearbeitenden Finalisierer:
-  LISPOBJ(pending_finalizers,"NIL")
+  LISPOBJ(pending_finalizers,"0")
 # zu CHARSTRG.D:
   # Bei Änderung der Character-Namen außer CONSTOBJ.D auch
   # CHARSTRG.D, FORMAT.LSP, IMPNOTES.TXT anpassen!
@@ -307,6 +309,7 @@
   LISPOBJ(hs_foreign_variable,"FOREIGN-VARIABLE")
   LISPOBJ(hs_foreign_function,"FOREIGN-FUNCTION")
   #endif
+  LISPOBJ(hs_weakpointer,"WEAK-POINTER")
   LISPOBJ(hs_finalizer,"FINALIZER")
   #ifdef SOCKET_STREAMS
   LISPOBJ(hs_socket_server,"SOCKET-SERVER")
@@ -822,6 +825,8 @@
   LISPOBJ_S(printstring_fvariable,"FOREIGN-VARIABLE")
   LISPOBJ_S(printstring_ffunction,"FOREIGN-FUNCTION")
   #endif
+  LISPOBJ_S(printstring_weakpointer,"WEAK-POINTER")
+  LISPOBJ_S(printstring_broken_weakpointer,"#<BROKEN WEAK-POINTER>")
   LISPOBJ_S(printstring_finalizer,"#<FINALIZER>")
   #ifdef SOCKET_STREAMS
   LISPOBJ_S(printstring_socket_server,"SOCKET-SERVER")
