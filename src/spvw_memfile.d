@@ -84,6 +84,9 @@
     #endif
     0;
 
+# Maximum length of (machine-instance) return value:
+  #define DUMPHOST_LEN  (64+45+3)  # 64 for host name, 45 for IPv6 address
+
 # Format:
 # ein Header:
   typedef struct {
@@ -117,7 +120,7 @@
     uintC _heapcount;
     #endif
     uintL _dumptime;
-    char _dumphost[MAXHOSTNAMELEN+1];
+    char _dumphost[DUMPHOST_LEN+1];
   } memdump_header;
   # dann die Modulnamen,
   # dann fsubr_tab, pseudofun_tab, symbol_tab,
@@ -211,13 +214,11 @@
       funcall(L(get_universal_time),0);
       var uintL universal_time = I_to_UL(value1);
       funcall(L(machine_instance),0);
-      var char hostname[MAXHOSTNAMELEN+1];
-      if (nullp(value1))
-        hostname[0] = '\0';
-      else {
-        with_string_0(value1,O(misc_encoding),host,{
-          strncpy(hostname,host,MAXHOSTNAMELEN);
-          hostname[MAXHOSTNAMELEN] = '\0';
+      var char hostname[DUMPHOST_LEN+1];
+      memset(hostname,'\0',DUMPHOST_LEN+1);
+      if (!nullp(value1)) {
+        with_string_0(value1,Symbol_value(S(utf_8)),host,{
+          strncpy(hostname,host,DUMPHOST_LEN);
         });
       }
       # Erst eine GC ausführen:
@@ -286,8 +287,7 @@
       header._heapcount = heapcount;
       #endif
       header._dumptime = universal_time;
-      memset(&header._dumphost[0],'\0',MAXHOSTNAMELEN+1);
-      strncpy(header._dumphost,hostname,MAXHOSTNAMELEN);
+      memcpy(&header._dumphost[0],&hostname[0],DUMPHOST_LEN+1);
       WRITE(&header,sizeof(header));
       # Modulnamen rausschreiben:
       {
@@ -790,6 +790,7 @@
   local void loadmem_from_handle(handle)
     var Handle handle;
     {
+      var memdump_header header;
       {
         #if (defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))
           #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
@@ -813,7 +814,6 @@
        begin_read:
         set_file_offset(0);
         # Grundinformation lesen:
-        var memdump_header header;
         READ(&header,sizeof(header));
         if (!(header._magic == memdump_magic)) {
           #ifdef UNIX
@@ -1461,20 +1461,6 @@
         #endif
         FREE_DYNAMIC_ARRAY(old_modules);
         begin_system_call(); free(offset_subrs); end_system_call();
-        {
-          # char memdumptime[4+1+2+1+2 +1+ 2+1+2+1+2+1]; # YYYY-MM-DD HH:MM:SS
-          # sprintf(memdumptime,"%04d-%02d-%02d %02d:%02d:%02d",
-          #         posfixnum_to_L(header._dumptime.Jahr),
-          #         posfixnum_to_L(header._dumptime.Monat),
-          #         posfixnum_to_L(header._dumptime.Tag),
-          #         posfixnum_to_L(header._dumptime.Stunden),
-          #         posfixnum_to_L(header._dumptime.Minuten),
-          #         posfixnum_to_L(header._dumptime.Sekunden));
-          char memdumptime[10+1];
-          sprintf(memdumptime,"%u",header._dumptime);
-          O(memory_image_timestamp) = ascii_to_string(memdumptime);
-        }
-        O(memory_image_host) = ascii_to_string(header._dumphost);
       }
       # offene Files für geschlossen erklären:
       closed_all_files();
@@ -1505,6 +1491,21 @@
       CHECK_GC_CONSISTENCY();
       CHECK_GC_UNMARKED(); CHECK_NULLOBJ(); CHECK_GC_CACHE(); CHECK_GC_GENERATIONAL(); SAVE_GC_DATA();
       CHECK_PACK_CONSISTENCY();
+      # Retrieve misc. data from header. (Can trigger GC!)
+      {
+        # char memdumptime[4+1+2+1+2 +1+ 2+1+2+1+2+1]; # YYYY-MM-DD HH:MM:SS
+        # sprintf(memdumptime,"%04d-%02d-%02d %02d:%02d:%02d",
+        #         posfixnum_to_L(header._dumptime.Jahr),
+        #         posfixnum_to_L(header._dumptime.Monat),
+        #         posfixnum_to_L(header._dumptime.Tag),
+        #         posfixnum_to_L(header._dumptime.Stunden),
+        #         posfixnum_to_L(header._dumptime.Minuten),
+        #         posfixnum_to_L(header._dumptime.Sekunden));
+        char memdumptime[10+1];
+        sprintf(memdumptime,"%u",header._dumptime);
+        O(memory_image_timestamp) = ascii_to_string(memdumptime);
+      }
+      O(memory_image_host) = asciz_to_string(header._dumphost,Symbol_value(S(utf_8)));
       return;
      abbruch1:
       {
