@@ -1469,7 +1469,7 @@ local void init_object_tab (void) {
     });
   }
   /* initialize software_type */
-  O(software_type) = ascii_to_string(built_flags());
+  O(software_type) = built_flags();
   # build toplevel-declaration-environment
   Car(O(top_decl_env)) = O(declaration_types);
   # Initialize compiled closures.

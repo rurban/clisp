@@ -1,3 +1,11 @@
+2005-02-05  Sam Steingold  <sds@gnu.org>
+
+	free the mallocs!
+	* built.d (built_flags): return an object,
+	use alloca() instead of malloc()
+	* lispbibl.d (built_flags): updated the prototype
+	* spvw.d (init_object_tab): updated the built_flags() invocation
+
 2005-02-04  Bruno Haible  <bruno@clisp.org>
 
 	* built.d (built_flags): Append libsigsegv version if known.
