@@ -2277,7 +2277,7 @@ LISPFUNN(make_string_push_stream,1) {
     if (!(stringp(arg) && array_has_fill_pointer_p(arg))) {
       pushSTACK(arg);                              # TYPE-ERROR slot DATUM
       pushSTACK(O(type_string_with_fill_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(S(with_output_to_string));
+      pushSTACK(arg); pushSTACK(S(with_output_to_string));
       fehler(type_error,
              GETTEXT("~: argument ~ should be a string with fill pointer"));
     }
