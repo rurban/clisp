@@ -2121,10 +2121,12 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                     }
                   # Directory aus dem Pathname userhomedir kopieren:
                   # (copy-list dir) = (nreconc (reverse dir) nil),
-                  # dabei dessen letztes Cons merken.
+                  # danach dessen letztes Cons merken.
                   userhomedir = reverse(ThePathname(userhomedir)->pathname_directory);
-                  STACK_0 = userhomedir; userhomedir = nreconc(userhomedir,NIL);
+                  userhomedir = nreconc(userhomedir,NIL);
                   ThePathname(STACK_1)->pathname_directory = userhomedir;
+                  while (mconsp(Cdr(userhomedir))) { userhomedir = Cdr(userhomedir); }
+                  STACK_0 = userhomedir;
                   # username-Characters übergehen:
                   z.index += charcount; z.FNindex = fixnum_inc(z.FNindex,charcount); z.count -= charcount;
                   # Falls der String zu Ende ist: fertig,
@@ -2172,10 +2174,12 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                   }
                   # Directory aus dem Pathname envval_dir kopieren:
                   # (copy-list dir) = (nreconc (reverse dir) nil),
-                  # dabei dessen letztes Cons merken.
+                  # danach dessen letztes Cons merken.
                   envval_dir = reverse(ThePathname(envval_dir)->pathname_directory);
-                  STACK_0 = envval_dir; envval_dir = nreconc(envval_dir,NIL);
+                  envval_dir = nreconc(envval_dir,NIL);
                   ThePathname(STACK_1)->pathname_directory = envval_dir;
+                  while (mconsp(Cdr(envval_dir))) { envval_dir = Cdr(envval_dir); }
+                  STACK_0 = envval_dir;
                   # envvar-Characters übergehen:
                   z.index += charcount; z.FNindex = fixnum_inc(z.FNindex,charcount); z.count -= charcount;
                   # Falls der String zu Ende ist: fertig,
