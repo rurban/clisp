@@ -286,9 +286,9 @@ and initializes
  and <code>*compile-verbose*</code> to <code>nil</code>.
  <code>-v</code> sets variables <code>*load-print*</code>
  and <code>*compile-print*</code> to <code>t</code>.
+ Note that these settings persist into the read-eval-print loop.
  Repeated <code>-q</code> and <code>-v</code> cancel each other, i.e.,
- <code>-q -q -v -v -v</code> is equivalent to <code>-v</code>.
- Note that these settings persists into the read-eval-print loop.</dd>
+ <code>-q -q -v -v -v</code> is equivalent to <code>-v</code>.</dd>
 
 <dt id="opt-interactive-debug"><code>-interactive-debug</code></dt>
 <dd>Override the batch mode imposed by
