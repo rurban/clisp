@@ -745,6 +745,7 @@ typedef struct nls_table {
         const char* charset;
         const unsigned char* const* page_uni2charset;
         const unsigned short* charset2uni;
+        int is_ascii_extension;
 } nls_table;
 
 static const unsigned char nopage[256] = {
@@ -918,8 +919,10 @@ static const nls_table * const nls_tables[] = {
 
 global uintL nls_mblen (object encoding, const uintB* src, const uintB* srcend);
 global void nls_mbstowcs (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+global void nls_asciiext_mbstowcs (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
 global uintL nls_wcslen (object encoding, const chart* src, const chart* srcend);
 global void nls_wcstombs (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+global void nls_asciiext_wcstombs (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
 
 # Bytes to characters.
 
@@ -973,6 +976,39 @@ global void nls_mbstowcs(encoding,srcp,srcend,destp,destend)
         fehler_nls_invalid(encoding,b);
   }   }
 
+# Same thing, specially optimized for ASCII extensions.
+global void nls_asciiext_mbstowcs(encoding,srcp,srcend,destp,destend)
+  var object encoding;
+  var const uintB* *srcp;
+  var const uintB* srcend;
+  var chart* *destp;
+  var chart* destend;
+  { var const uintB* src = *srcp;
+    var chart* dest = *destp;
+    var uintL count = destend-dest;
+    if (count > srcend-src) { count = srcend-src; }
+    if (count > 0)
+      { var const nls_table* table = (const nls_table*) ThePseudofun(TheEncoding(encoding)->enc_table);
+        var const unsigned short* cvtable = table->charset2uni;
+        var uintB b;
+        dotimespL(count,count,
+          { b = *src++;
+           {var cint ch;
+            if (b < 0x80)
+              { ch = b; } # avoid memory reference (big speedup!)
+              else
+              { ch = cvtable[b];
+                if (ch == 0xFFFD) goto bad;
+              }
+            *dest++ = as_chart(ch);
+          }});
+        *srcp = src;
+        *destp = dest;
+        return;
+       bad:
+        fehler_nls_invalid(encoding,b);
+  }   }
+
 # Characters to bytes.
 
 global uintL nls_wcslen(encoding,src,srcend)
@@ -999,6 +1035,39 @@ global void nls_wcstombs(encoding,srcp,srcend,destp,destend)
           { ch = *src++;
            {var uintB b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF];
             if (b == 0 && !chareq(ch,ascii(0))) goto bad;
+            *dest++ = b;
+          }});
+        *srcp = src;
+        *destp = dest;
+        return;
+       bad:
+        fehler_unencodable(encoding,ch);
+  }   }
+
+# Same thing, specially optimized for ASCII extensions.
+global void nls_asciiext_wcstombs(encoding,srcp,srcend,destp,destend)
+  var object encoding;
+  var const chart* *srcp;
+  var const chart* srcend;
+  var uintB* *destp;
+  var uintB* destend;
+  { var const chart* src = *srcp;
+    var uintB* dest = *destp;
+    var uintL count = srcend-src;
+    if (count > destend-dest) { count = destend-dest; }
+    if (count > 0)
+      { var const nls_table* table = (const nls_table*) ThePseudofun(TheEncoding(encoding)->enc_table);
+        var const unsigned char* const* cvtable = table->page_uni2charset;
+        var chart ch;
+        dotimespL(count,count,
+          { ch = *src++;
+           {var uintB b;
+            if (as_cint(ch) < 0x80)
+              { b = (uintB)as_cint(ch); } # avoid memory reference (big speedup!)
+              else
+              { b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF];
+                if (b == 0) goto bad;
+              }
             *dest++ = b;
           }});
         *srcp = src;
@@ -1079,9 +1148,15 @@ global void nls_wcstombs(encoding,srcp,srcend,destp,destend)
             TheEncoding(encoding)->enc_eol = S(Kunix);
             TheEncoding(encoding)->enc_charset = symbol;
             TheEncoding(encoding)->enc_mblen    = P(nls_mblen);
-            TheEncoding(encoding)->enc_mbstowcs = P(nls_mbstowcs);
+            TheEncoding(encoding)->enc_mbstowcs = ((*ptr)->is_ascii_extension
+                                                   ? P(nls_asciiext_mbstowcs)
+                                                   : P(nls_mbstowcs)
+                                                  );
             TheEncoding(encoding)->enc_wcslen   = P(nls_wcslen);
-            TheEncoding(encoding)->enc_wcstombs = P(nls_wcstombs);
+            TheEncoding(encoding)->enc_wcstombs = ((*ptr)->is_ascii_extension
+                                                   ? P(nls_asciiext_wcstombs)
+                                                   : P(nls_wcstombs)
+                                                  );
             TheEncoding(encoding)->enc_table    = P(**ptr);
             TheEncoding(encoding)->min_bytes_per_char = 1;
             TheEncoding(encoding)->max_bytes_per_char = 1;

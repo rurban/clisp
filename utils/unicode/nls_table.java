@@ -133,7 +133,16 @@ public class nls_table {
       stream.println("struct nls_table nls_"+charsetname.replace('-','_')+"_table = {");
       stream.println("  \""+charsetname+"\",");
       stream.println("  uni2charset,");
-      stream.println("  charset2uni");
+      stream.println("  charset2uni,");
+      {
+        boolean is_ascii_extension = true;
+        for (int i = 0; i < 128; i++)
+          if (charset[i] != i) {
+            is_ascii_extension = false;
+            break;
+          }
+        stream.println("  "+(is_ascii_extension?"1":"0"));
+      }
       stream.println("};");
       stream.println();
       stream.println("#undef uni2charset");
