@@ -32,6 +32,7 @@ options: The following options are recognized:
                                in case config.guess guesses wrong)
          --with-PACKAGE        use PACKAGE
          --without-PACKAGE     do not use PACKAGE
+         --with-module=MODULE  build with add-on MODULE
 Example:
          configure --build built-with-gcc
          su bin
