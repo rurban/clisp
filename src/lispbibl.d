@@ -1992,8 +1992,9 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 # When changed: do nothing
 
 # Whether we try to initialize subr_tab statically.
-# (g++ 3.3 doesn't accept compound expressions as initializers.)
-#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3) && defined(DEBUG_GCSAFETY))
+# (g++ 3.3 doesn't accept compound expressions as initializers: PR#12615.
+# g++ 3.4 similarly: PR#15180.)
+#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4) && defined(DEBUG_GCSAFETY))
   #define INIT_SUBR_TAB
 #endif
 # NB: This has to be defined so external modules can work.
@@ -2003,15 +2004,17 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 # (Make initialization easier, but there is not enough space for the
 # compilation of SPVWTABS on some systems.
 # EMX 0.9c (gcc-2.7.2.1) says "Virtual memory exhausted".
-# g++ 3.3 doesn't accept compound expressions as initializers.)
-#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3) && defined(DEBUG_GCSAFETY))
+# g++ 3.3 doesn't accept compound expressions as initializers: PR#12615.
+# g++ 3.4 similarly: PR#15180.)
+#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4) && defined(DEBUG_GCSAFETY))
   #define INIT_SYMBOL_TAB
 #endif
 # When changed: nothing to do
 
 # Whether we try to initialize object_tab statically.
-# (g++ 3.3 doesn't accept compound expressions as initializers.)
-#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3) && defined(DEBUG_GCSAFETY))
+# (g++ 3.3 doesn't accept compound expressions as initializers: PR#12615.
+# g++ 3.4 similarly: PR#15180.)
+#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4) && defined(DEBUG_GCSAFETY))
   #define INIT_OBJECT_TAB
 #endif
 # When changed: do nothing
