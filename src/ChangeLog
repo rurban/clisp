@@ -2,6 +2,7 @@
 
 	* m4/rusage.m4 (CL_RUSAGE): use time(2) instead of a constant
 	loop: the Moore's law has caught up with this constant already
+	* m4/rlimit.m4 (CL_RLIMIT): check getrlimit() too
 
 2003-04-20  Sam Steingold  <sds@gnu.org>
 

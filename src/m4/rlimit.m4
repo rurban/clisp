@@ -11,6 +11,7 @@ AC_PREREQ(2.13)
 
 AC_DEFUN([CL_RLIMIT],
 [AC_CHECK_FUNCS(setrlimit)dnl
+AC_CHECK_FUNCS(getrlimit)dnl
 if test $ac_cv_func_setrlimit = yes; then
 CL_PROTO([getrlimit], [
 CL_PROTO_TRY([
