@@ -172,10 +172,10 @@
     <varlistentry><term><constant>:LK_MAX_LOCKERS</constant></term>
      <listitem><simpara>maximum number of lockers
        (&DBE_get_lk_max_lockers;)</simpara></listitem></varlistentry>
-    <varlistentry><term><constant>:lk_max_locks</constant></term>
+    <varlistentry><term><constant>:LK_MAX_LOCKS</constant></term>
      <listitem><simpara>maximum number of locks
        (&DBE_get_lk_max_locks;)</simpara></listitem></varlistentry>
-    <varlistentry><term><constant>:lk_max_objects</constant></term>
+    <varlistentry><term><constant>:LK_MAX_OBJECTS</constant></term>
      <listitem><simpara>maximum number of lock objects
        (&DBE_get_lk_max_objects;)</simpara></listitem></varlistentry>
     <varlistentry><term><constant>:TAS_SPINS</constant></term>
@@ -616,6 +616,48 @@ Memory Pool Files
 </section>
 
 
+<section id="bdb-replication"><title>Replication</title>
+ <simpara>not implemented yet, patches are welcome</simpara>
+<!--
+ DB_ENV->set_rep_transport	Configure replication transport
+ DB_ENV->rep_elect	Hold a replication election
+ DB_ENV->set_rep_limit	Limit data sent in response to a single message
+ DB_ENV->rep_process_message	Process a replication message
+ DB_ENV->rep_start	Configure an environment for replication
+ DB_ENV->rep_stat	Replication statistics
+  -->
+<!--variablelist>
+<varlistentry><term><code>()</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+</variablelist-->
+</section>
+
+
+<section id="bdb-sequences"><title>Sequences</title>
+ <simpara>not implemented yet, patches are welcome</simpara>
+<!--
+Sequences and Related Methods	Description
+db_sequence_create	Create a sequence handle
+DB_SEQUENCE->close	Close a sequence
+DB_SEQUENCE->get	Get the next sequence element(s)
+DB_SEQUENCE->get_dbp	Return a handle for the underlying sequence database
+DB_SEQUENCE->get_key	Return the key for a sequence
+DB_SEQUENCE->init_value	Set the initial value of a sequence
+DB_SEQUENCE->open	Open a sequence
+DB_SEQUENCE->remove	Remove a sequence
+DB_SEQUENCE->stat	Return sequence statistics
+Sequences Configuration
+DB_SEQUENCE->set_cachesize	Set the cache size of a sequence
+DB_SEQUENCE->set_flags	Set the flags for a sequence
+DB_SEQUENCE->set_range	Set the range for a sequence
+  -->
+<!--variablelist>
+<varlistentry><term><code>()</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+</variablelist-->
+</section>
+
+
 <section id="bdb-transaction"><title>Transaction Subsystem</title>
 
 <variablelist>
@@ -657,22 +699,5 @@ Memory Pool Files
  <listitem><simpara>Transaction subsystem statistics (&DBE_txn_stat;).
 </simpara></listitem></varlistentry>
 </variablelist></section>
-
-
-<section id="bdb-replication"><title>Replication</title>
- <simpara>not implemented yet, patches are welcome</simpara>
-<!--
- DB_ENV->set_rep_transport	Configure replication transport
- DB_ENV->rep_elect	Hold a replication election
- DB_ENV->set_rep_limit	Limit data sent in response to a single message
- DB_ENV->rep_process_message	Process a replication message
- DB_ENV->rep_start	Configure an environment for replication
- DB_ENV->rep_stat	Replication statistics
-  -->
-<!--variablelist>
-<varlistentry><term><code>()</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
-</variablelist-->
-</section>
 
 </section>
