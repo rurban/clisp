@@ -64,12 +64,12 @@
   (t ENGLISH))
 (deflocalized print-condition-format ENGLISH
   (formatter "Condition of type ~S."))
-(clos:defmethod clos:print-object ((object condition) stream)
+(clos:defmethod clos:print-object ((condition condition) stream)
   (if (or *print-escape* *print-readably*)
     (clos:call-next-method)
     (progn
       (format stream (localized 'print-condition-format) (type-of condition))
-      object)))
+      condition)))
 ; Entry-points used by other parts of CLISP.
 (defun print-condition (condition stream)
   (let ((*print-escape* nil)
