@@ -954,8 +954,8 @@ letters:
   </row>
  <row><entry><literal
          role="sexp">(MAKE-VECTOR1&amp;PUSH &n-r;)</literal></entry>
-      <entry>Create a simple-vector used for closed-up variables.</entry>
-      <entry>&v-r; := new simple-vector of size &n-r;+1.
+      <entry>Create a &simple-vector-t; used for closed-up variables.</entry>
+      <entry>&v-r; := new &simple-vector-t; of size &n-r;+1.
              &svref;(&v-r;,0) := &value1;.
              *--&STACK; := &v-r;.
              values undefined</entry></row>
@@ -1190,36 +1190,36 @@ letters:
  <row><entry><literal role="sexp">(TAGBODY-OPEN &n-r;
              <replaceable>label&sub-1;</replaceable> ...
              <replaceable>label&sub-n;</replaceable>)</literal></entry>
-      <entry>Create a tagbody frame.</entry>
+      <entry>Create a &tagbody; frame.</entry>
       <entry>Fetch &consts;[&n-r;], this is a &simple-vector-t; with
              &m-r; elements, then decode &m-r; label operands.
              Create a &tagbody; frame, &STACK; -= 3+&m-r;, &SP; -= 1+&jbs;.
-             The third object in the tagbody frame is
+             The third object in the &tagbody; frame is
              &cons;(&consts;[&n-r;],frame-pointer) (the &tbc-r;)
              Upon a &go; to tag &lab-r; of this frame, execution
              will continue at
               <replaceable>label<subscript>l</subscript></replaceable>.
              values undefined</entry></row>
  <row><entry><literal role="sexp">(TAGBODY-CLOSE-NIL)</literal></entry>
-      <entry>Dissolve a tagbody frame, and load &nil; into values.</entry>
-      <entry>Dissolve the tagbody frame at &STACK;,
+      <entry>Dissolve a &tagbody; frame, and load &nil; into values.</entry>
+      <entry>Dissolve the &tagbody; frame at &STACK;,
              &STACK; += 3+&m-r;, &SP; += 1+&jbs;.
              Mark the &tbc-r; as invalid.
              &value1; := &nil;, &mv-count; := 1.</entry></row>
  <row><entry><literal role="sexp">(TAGBODY-CLOSE)</literal></entry>
-      <entry>Dissolve a tagbody frame.</entry>
-      <entry>Dissolve the tagbody frame at &STACK;,
+      <entry>Dissolve a &tagbody; frame.</entry>
+      <entry>Dissolve the &tagbody; frame at &STACK;,
              &STACK; += 3+&m-r;, &SP; += 1+&jbs;.
              Mark the &tbc-r; as invalid.</entry></row>
  <row><entry><literal role="sexp">(GO &n-r; &lab-r;)</literal></entry>
-      <entry>Jump into a tagbody whose &tbc-r; is given.</entry>
+      <entry>Jump into a &tagbody; whose &tbc-r; is given.</entry>
       <entry>&tbc-r; := &consts;[&n-r;].
              If &cdr;(&tbc-r;) = &disabled;, &signal; an &error-t;.
              Else &cdr;(&tbc-r;) is a frame-pointer. Unwind the stack up
              to this frame, pass it the number &lab-r;.</entry></row>
  <row><entry><literal
          role="sexp">(GO-I &k1-r; &k2-r; &n-r; &lab-r;)</literal></entry>
-      <entry>Jump into a tagbody whose &tbc-r; is indirectly
+      <entry>Jump into a &tagbody; whose &tbc-r; is indirectly
              accessible.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &tbc-r; := *(*(&SP;+&k-r;)+&n-r;).
