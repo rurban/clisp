@@ -35,9 +35,9 @@ DSOURCES = \
  lisparit aridecl arilev0 arilev1 arilev1c arilev1e arilev1i intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread rational sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran \
  rexx affi \
  foreign \
- unixaux win32aux acornaux acornsig
+ unixaux win32aux acornaux acornsig amigaaux
 
-LSPSOURCES = init defseq backquot defmacro macros1 macros2 defs1 timezone places floatpri type defstruc format savemem trace compiler disassem defs2 loop clos conditio gstream xcharin keyboard screen runprog query reploop dribble complete describe room edit macros3 foreign1 affi1 rexx1 defs3
+LSPSOURCES = init defseq backquot defmacro macros1 macros2 defs1 timezone places floatpri type defstruc format savemem trace compiler disassem defs2 loop clos conditio gstream xcharin keyboard screen amigasock runprog query reploop dribble complete describe room edit macros3 foreign1 affi1 rexx1 defs3
 
 SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lsp,$(LSPSOURCES))
 
