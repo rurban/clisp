@@ -1,13 +1,14 @@
 # CLISP Implementation Notes generation
-# (c) 2000-2003 Sam Steingold
+# (c) 2000-2004 Sam Steingold
 
 DTDVER=4.2
-IMPNOTES=impnotes.dsl cl-ent.xml clhs-ent.xml impbody.xml impent.xml	\
+IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml			\
 	impext.xml impissue.xml impbyte.xml unix-ent.xml		\
 	../modules/dirkey/dirkey.xml ../modules/syscalls/syscalls.xml	\
 	../modules/regexp/regexp.xml ../modules/netica/netica.xml \
 	../modules/berkeley-db/berkeley-db.xml ../modules/pcre/pcre.xml \
 	../modules/oracle/oracle.xml ../modules/fastcgi/fastcgi.xml
+OLINK=tdb-man.xml tdb-pile.xml tdb-chunk.xml olink-pile.xml olink-chunk.xml
 RM=/bin/rm -f
 # DOC=$(shell pwd)
 
@@ -34,9 +35,11 @@ XALAN=$(JAVAXML)/xalan-j_2_0_0
 SAXON=$(JAVAXML)/saxon
 CLASSPATH=$(XALAN)/bin/xerces.jar$(SEP)$(XALAN)/bin/xalan.jar$(SEP)$(SAXON)/saxon.jar
 
-TEXI2HTML=texi2html
+# chose one:
+#TEXI2HTML=texi2html -monolithic -verbose $< -out_file $@
+TEXI2HTML=makeinfo --verbose --no-split --no-headers --html $< -o $@
 
-DIST=cvs2.cons.org:/home/ftp/pub/lisp/clisp/snapshots
+#DIST=cvs2.cons.org:/home/ftp/pub/lisp/clisp/snapshots
 
 # this is the original DTD
 # when processing with a tool which can get the DTD from the net,
@@ -53,34 +56,74 @@ DTD=http://www.oasis-open.org/docbook/xml/$(DTDVER)/docbookx.dtd
 # http://openjade.sourceforge.net/
 # http://www.jclark.com/jade/
 
-all: check impnotes.html regexp.html wildcard.html
+FILLIN=sed -e 's,@DTD@,$(DTD),' \
+	    -e 's,@DTDVER@,$(DTDVER),' \
+	    -e 's,@VERSION@,'`cat ../src/VERSION`',' \
+	    -e 's,@TODAY@,'`date +"%Y-%m-%d"`','
+
+SGML_UNCOMMENT=-e 's/^ *<!-- *//' -e 's/ *--> *$$//' \
+		-e 's/ *--> *<!-- */\n/g' \
+		-e 's/ *<!-- */\n/g' -e 's/ *--> */\n/g'
+
+all:  impnotes.html regexp.html wildcard.html _clisp.html _clisp.1 # check
+
+MAKE_TDB=xsltproc --stringparam collect.xref.targets "only" \
+	--stringparam targets.filename
+
+# the tail+2 hack removes DOCTYPE from the database
+# it should be removed as soon as the XHTML stylesheets are fixed
+tdb-man.xml: clisp.xml
+	$(MAKE_TDB) "$@" pile.xsl $<
+	tail +2 $@ > tmp; mv -f tmp $@
+
+tdb-pile.xml: impnotes.xml $(IMPNOTES)
+	$(MAKE_TDB) "$@" pile.xsl $<
+	tail +2 $@ > tmp; mv -f tmp $@
+
+tdb-chunk.xml: impnotes.xml $(IMPNOTES)
+	$(MAKE_TDB) "$@" chunk.xsl $<
+	tail +2 $@ > tmp; mv -f tmp $@
+
+clisp.xml: clisp.xml.in ../src/VERSION Makefile
+	$(RM) $@
+	$(FILLIN) $< > $@
+
+XMLOUT=xsltproc --timing --stringparam target.database.document
+
+clisp.html: clisp.xml common.xsl pile.xsl tdb-pile.xml olink-pile.xml
+	$(XMLOUT) "olink-pile.xml" --stringparam current.docid "man" \
+		-o $@ pile.xsl $<
+
+_clisp.html: clisp.html
+	sed $(SGML_UNCOMMENT) $< > $@
+
+clisp.1: clisp.xml common.xsl man.xsl tdb-pile.xml olink-pile.xml
+	$(XMLOUT) "olink-pile.xml" --stringparam current.docid "man" \
+		-o $@ man.xsl $<
+
+_clisp.1: clisp.1
+	sed $(SGML_UNCOMMENT) $< > $@
 
 impnotes.xml: impnotes.xml.in $(IMPNOTES) ../src/VERSION Makefile
 	$(RM) $@
-	sed -e 's,@DTD@,$(DTD),' \
-	    -e 's,@DTDVER@,$(DTDVER),' \
-	    -e 's,@VERSION@,'`cat ../src/VERSION`',' \
-	    -e 's,@TODAY@,'`date +"%Y-%m-%d"`',' $< > $@
+	$(FILLIN) $< > $@
 
-check: impnotes.xml $(IMPNOTES)
-	$(NSGMLS) -s -wxml -c$(XMLSOC) $<
+check: impnotes.xml $(IMPNOTES) clisp.xml
+	$(NSGMLS) -s -wxml -c$(XMLSOC) impnotes.xml
+	$(NSGMLS) -s -wxml -c$(XMLSOC) clisp.xml
+	xmllint --noout --valid --postvalid --timing --noent clisp.xml
+	xmllint --noout --valid --postvalid --timing --noent impnotes.xml
 
 impnotes.texi: impnotes.xml $(IMPNOTES)
 	time docbook2texi $<
 
-impnotes.html: impnotes.xml $(IMPNOTES) # tidy.conf
-	time docbook2html --dsl impnotes.dsl -u $<
-#	$(JAVA) -classpath "$(CLASSPATH)" com.icl.saxon.StyleSheet \
-#		-t -dt -o $@ $< $(XMLHOME)/docbook.xsl/xhtml/docbook.xsl \
-#		process.source.toc=1 html.stylesheet=impnotes.css
-#	$(JAVA) -classpath "$(CLASSPATH)" \
-#		org.apache.xalan.xslt.Process \
-#		-diag -edump -in $< -out $@ \
-#		-xsl "file://$(XMLHOME)/docbook.xsl/xhtml/docbook.xsl"
+impnotes.html: impnotes.xml $(IMPNOTES) common.xsl pile.xsl $(OLINK)
+	$(XMLOUT) "olink-pile.xml" --stringparam current.docid "impnotes" \
+		-o $@ pile.xsl $<
 #	cp impnotes.html impnotes-saved.html
 #	tidy -config tidy.conf -f tidy.err impnotes.html || true
-	egrep -Hn 'NAME="[A-Z0-9]*"' $@ || true
-	(test -n "$(DIST)" && scp -p impnotes.html $(DIST) && \
+#	egrep -Hn 'NAME="[A-Z0-9]*"' $@ || true
+	(test -n "$(DIST)" && scp -p impnotes.html $(DIST)/impnotes/ && \
 	 test -d "../build/" && cd ../build && make clisp.html && \
 	 make clisp.1 && scp -p clisp.1 clisp.html $(DIST)) || true
 
@@ -88,11 +131,20 @@ impnotes.pdf: impnotes.xml $(IMPNOTES)
 	time docbook2pdf $<
 	$(RM) impnotes.out
 
-html: impnotes.xml $(IMPNOTES)
-	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../gnu/clisp/impnotes $@; fi
+html: impnotes.xml $(IMPNOTES) common.xsl chunk.xsl pile.xsl clisp.xml $(OLINK)
+	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../sf/www/impnotes $@; fi
 	cd html && sed 's/^/ln -vfs /' .symlinks | sh -
-	time docbook2html --dsl impnotes.dsl -o $@ $<
-	egrep -Hnr 'NAME="[A-Z0-9]*"' $@ || true
+	$(XMLOUT) "olink-chunk.xml" --stringparam current.docid "impnotes" \
+		-o $@/ chunk.xsl $<
+	$(XMLOUT) "olink-chunk.xml" --stringparam current.docid "man" \
+		-o $@/clisp.html pile.xsl clisp.xml
+	sed $(SGML_UNCOMMENT) $@/clisp.html > _clisp-1.html
+	cd ../build; make clisp-1.html;
+	mv -f ../build/clisp-1.html $@/clisp.html
+	rm -f _clisp-1.html
+#	time xmlto xhtml -o $@/ -m chunk.xsl $<
+#	time docbook2html --dsl impnotes.dsl -o $@ $<
+#	egrep -Hnr 'NAME="[A-Z0-9]*"' $@ || true
 	(test -n "$(DIST)" && scp -p html/*.html $(DIST)/impnotes/;) || true
 
 up: impnotes.html html
@@ -100,13 +152,14 @@ up: impnotes.html html
 	scp -r html/* sf:/home/groups/c/cl/clisp/www/impnotes-new/
 
 regexp.html: ../modules/regexp/regexp.texinfo
-	$(TEXI2HTML) -monolithic -verbose $<
+	$(TEXI2HTML)
 
 wildcard.html: ../modules/wildcard/wildcard.texinfo
-	$(TEXI2HTML) -monolithic -verbose $<
+	$(TEXI2HTML)
 
 clean: force
-	$(RM) impnotes.xml impnotes.texi impnotes.html impnotes.pdf html
+	$(RM) impnotes.xml impnotes.texi impnotes.html impnotes.pdf html \
+		clisp.html clisp.1
 
 count: $(IMPNOTES)
 	wc $^

@@ -3098,8 +3098,7 @@ pointing to non-existent files and can take the following values:
   &pathname-t; that is being typed.
   See <ulink url="http://cnswww.cns.cwru.edu/~chet/readline/rluserman.html"
   >readline user manual</ulink> for general details and
-  <ulink url="clisp.html#completion">CLISP manual</ulink> for
-  &clisp;-specific extensions.
+  <olink targetdoc="man" targetptr="clisp"/> for &clisp;-specific extensions.
   The &readline; library is not used if standard input and standard
   output do not both refer to the same terminal.</simpara></listitem>
  </varlistentry></variablelist>
@@ -3949,6 +3948,7 @@ functions are provided:
 compiles a file to platform-independent bytecode.</para>
 
 <variablelist id="compile-file-arguments">
+ <title>Options for &compile-file;</title>
 <varlistentry><term><replaceable>input-file</replaceable></term>
  <listitem><simpara>should be a &path-des;.
  </simpara></listitem></varlistentry>
@@ -4605,7 +4605,7 @@ exhaust the available line length.</para></formalpara>
 <section id="clock"><title>Clock Time</title>
 
 <!-- #if !(defined(UNIX) || defined(WIN32)) -->
-<variablelist id="default-tz">
+<variablelist id="default-tz"><title>Default Time Zone</title>
 <varlistentry><term>Platform dependent: unknown platforms only.</term>
  <listitem><simpara>The variable <firstterm>&default-tz;</firstterm>
    contains the default time zone used by &encode-universal-time; and
