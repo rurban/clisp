@@ -232,7 +232,7 @@ NIL
 (GET-OUTPUT-STREAM-STRING A)
 #+XCL ""
 #-XCL "
-\"yyy\"
+\"yyy\" 
 \"zzz\" "
 
 (GET-OUTPUT-STREAM-STRING B)
