@@ -1,3 +1,12 @@
+2003-09-02  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	* pathname.d (init_launch_streamarg, make_launch_pipe):
+	now defined on UNIX || RISCOS || WIN32_NATIVE.
+	(interpret_launch_priority): new local helper function.
+	(LAUNCH): UNIX and Windows versions merged.
+	* constobj.d (type_priority): now keyword or fixnum.
+	* constsym.d: define LAUNCH keywords on systems where it builds.
+
 2003-09-01  Sam Steingold  <sds@gnu.org>
 
 	* error.d (check_fpointer) [FOREIGN]: moved here from foreign.d

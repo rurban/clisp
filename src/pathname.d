@@ -10581,249 +10581,7 @@ local int stringlist_to_asciizlist (object stringlist,
   return length;
 }
 
-extern void mkops_from_handles (Handle opipe, int process_id);
-extern void mkips_from_handles (Handle ipipe, int process_id);
-
 #ifdef WIN32_NATIVE
-
-/* /dev/null on NT/W95. */
-local Handle nullfile () {
-  var Handle result = NULL;
-  begin_system_call();
-  result = CreateFile("NUL", GENERIC_READ | GENERIC_WRITE,
-                    FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-                    OPEN_EXISTING, 0, NULL);
-  end_system_call();
-  return result;
-}
-
-/* obtaining pipe handle */
-local void mkpipe (Handle * hin, bool dupinp, Handle * hout, bool dupoutp) {
-  begin_system_call();
-  if (!CreatePipe(hin,hout,NULL,0)) { OS_error(); }
-  if (dupinp) {/* make it inheritable */
-    var Handle hin1 = handle_dup1(*hin);
-    if (!CloseHandle(*hin)) { OS_error(); }
-    *hin = hin1;
-  }
-  if (dupoutp) {
-    var Handle hout1 = handle_dup1(*hout);
-    if (!CloseHandle(*hout)) { OS_error(); }
-    *hout = hout1;
-  }
-  end_system_call();
-}
-
-/* (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error]
-     [:element-type] [:external-format] [:buffered] [:priority])
- Launches a program.
- :arguments : a list of strings
- :wait - nullp/not nullp - whether to wait for process to finish (default T)
- :input, :output, :error - i/o/e streams for process. basically file-streams,
-   pipe streams or terminal-streams.
-   see stream_lend_handle() in stream.d for full list of supported streams.
-   Can be NIL (/dev/null), :pipe (pipe streams are created) or :terminal.
- :element-type, :external-format, :buffered : parameters for created
-   pipe-stream if one or more of :input, :output, :error is :pipe.
- :priority : on windows : HIGH/LOW/NORMAL on UNIX : fixnum - see nice(2)
- returns: value1: if wait exit code, child PID otherwise
-          value2: NIL or created pipe-output-stream, input stream for child
-          value3: NIL or created pipe-input-stream, output stream for child
-          value4: NIL or created pipe-input-stream, error stream for child  */
-LISPFUN(launch,seclass_default,1,0,norest,key,9,
-        (kw(element_type),kw(external_format),kw(buffered),kw(arguments),
-         kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
-  STACK_9 = check_string(STACK_9); /* command_arg */
-  if (!boundp(STACK_5)) STACK_5 = NIL; /* arguments_arg */
-  else STACK_5 = check_list(STACK_5);
-  var bool wait_p = !nullp(STACK_4); /* default: do wait! */
-  var int handletype; /* TODO: check it */
-  var DWORD pry = NORMAL_PRIORITY_CLASS;
-  if (boundp(STACK_0)) {        /* priority_arg */
-    var object priority_arg = STACK_0;
-   restart_priority:
-    if (eq(priority_arg,S(Khigh))) pry = HIGH_PRIORITY_CLASS;
-    else if (eq(priority_arg,S(Klow))) pry = IDLE_PRIORITY_CLASS;
-    else if (!eq(priority_arg,S(Knormal))) {
-      pushSTACK(NIL);              /* no PLACE */
-      pushSTACK(priority_arg);     /* TYPE-ERROR slot DATUM */
-      pushSTACK(O(type_priority)); /* TYPE-ERROR slot EXPECTED-TYPE */
-      pushSTACK(priority_arg);
-      pushSTACK(S(Kpriority));
-      pushSTACK(TheSubr(subr_self)->name);
-      check_value(type_error,GETTEXT("~: illegal ~ argument ~"));
-      priority_arg = value1;
-      goto restart_priority;
-    }
-  }
-  /* duplicate one /dev/null handle for all 3 possible destinations and close
-     it need to duplicate the handle to make it inheritable */
-  var Handle hnull = NULL;/* not INVALID_HANDLE_VALUE for easy checking */
-  var Handle hinput = NULL;
-  var Handle hparent_out = NULL; /* in case of pipe, handle and indicator */
-  /* STACK_3 == input_stream_arg */
-  if (boundp(STACK_3) && eq(STACK_3,S(Kterminal)) || !boundp(STACK_3))
-    hinput = handle_dup1(stdin_handle);
-  else if (nullp(STACK_3)) {
-    if (!hnull) hnull = nullfile();
-    hinput = handle_dup1(hnull);
-  } else if (eq(STACK_3,S(Kpipe))) {
-    /* make an input pipe for child */
-    mkpipe(&hinput,true,&hparent_out,false);
-    wait_p = false; /* TODO: error when wait_p */
-  } else hinput = handle_dup1(stream_lend_handle(STACK_3,true,&handletype));
-  if (hinput == INVALID_HANDLE_VALUE
-      || hparent_out == INVALID_HANDLE_VALUE) OS_error();
-
-  var Handle houtput = NULL;
-  var Handle hparent_in = NULL;
-  /* STACK_2 == output_stream_arg */
-  if (boundp(STACK_2) && eq(STACK_2,S(Kterminal)) || !boundp(STACK_2))
-    houtput = handle_dup1(stdout_handle);
-  else if (nullp(STACK_2)) {
-    if (!hnull) hnull = nullfile();
-    houtput = handle_dup1(hnull);
-  } else if (eq(STACK_2,S(Kpipe))) {
-    /* make an output pipe for child */
-    mkpipe(&hparent_in,false,&houtput,true);
-    wait_p = false; /* TODO: error when wait_p */
-  } else houtput = handle_dup1(stream_lend_handle(STACK_2,false,&handletype));
-  if (houtput == INVALID_HANDLE_VALUE
-      || hparent_in == INVALID_HANDLE_VALUE) OS_error();
-
-  var Handle herror = NULL;
-  var Handle hparent_errin = NULL;
-  /* STACK_1 == error_stream_arg */
-  if (boundp(STACK_1) && eq(STACK_1,S(Kterminal)) || !boundp(STACK_1))
-    herror = handle_dup1(stderr_handle);
-  else if (nullp(STACK_1)) {
-    if (!hnull) hnull = nullfile();
-    herror = handle_dup1(hnull);
-  } else if (eq(STACK_1,S(Kpipe))) {
-    /* make an output pipe for child */
-    mkpipe(&hparent_errin,false,&herror,true);
-    wait_p = false; /* TODO: error when wait_p */
-  } else herror = handle_dup1(stream_lend_handle(STACK_1,false,&handletype));
-  if (herror == INVALID_HANDLE_VALUE
-      || hparent_errin == INVALID_HANDLE_VALUE) OS_error();
-
-  if (hnull && hnull != INVALID_HANDLE_VALUE) {
-    begin_system_call();
-    var bool closedp = CloseHandle(hnull);
-    end_system_call();
-    if (!closedp) OS_error();
-  }
-
-  var HANDLE prochandle;
-  var object cmdlist_cons = allocate_cons();
-  Car(cmdlist_cons) = STACK_9; /* command_arg */
-  Cdr(cmdlist_cons) = STACK_5; /* arguments_arg */
-  pushSTACK(cmdlist_cons);
-  var int command_len =
-    stringlist_to_asciizlist(STACK_0,&O(misc_encoding),NULL);
-  /* STACK: cmdlist, ascizcmdlist */
-  var DYNAMIC_ARRAY(command_data,char,command_len*2);
-  /* command_len is multiplied by 2 for quoting sake */
-  var int command_pos = 0;
-  while (!nullp(STACK_0)) {
-    if (command_pos > 0) command_data[command_pos++] = ' ';
-    command_pos += shell_quote(command_data+command_pos,
-                               TheAsciz(Car(STACK_0)));
-    ASSERT(command_pos < command_len*2);
-    STACK_0 = Cdr(STACK_0);
-  }
-  skipSTACK(2);
-  /* STACK: -- */
-
-  /* Start new process. */
-  var PROCESS_INFORMATION pinfo;
-  var STARTUPINFO sinfo;
-  sinfo.cb = sizeof(STARTUPINFO);
-  sinfo.lpReserved = NULL;
-  sinfo.lpDesktop = NULL;
-  sinfo.lpTitle = NULL;
-  sinfo.cbReserved2 = 0;
-  sinfo.lpReserved2 = NULL;
-  sinfo.dwFlags = STARTF_USESTDHANDLES;
-  sinfo.hStdInput = hinput;
-  sinfo.hStdOutput = houtput;
-  sinfo.hStdError = herror;
-  begin_system_call();
-  if (!CreateProcess(NULL, command_data, NULL, NULL, true, pry,
-                     NULL, NULL, &sinfo, &pinfo))
-    { end_system_call(); OS_error(); }
-  if (pinfo.hThread /* zero for 16 bit programs in NT */
-       && !CloseHandle(pinfo.hThread))
-    { end_system_call(); OS_error(); }
-  prochandle = pinfo.hProcess;
-  FREE_DYNAMIC_ARRAY(command_data);
-  var DWORD exitcode = 0;
-  if (wait_p) {
-    /* Wait until it terminates, get its exit status code. */
-    switch (WaitForSingleObject(prochandle,INFINITE)) {
-      case WAIT_FAILED:
-        end_system_call(); OS_error();
-      case WAIT_OBJECT_0:
-        break;
-      default: NOTREACHED;
-    }
-    if (!GetExitCodeProcess(prochandle,&exitcode))
-      { end_system_call(); OS_error(); }
-  }
-
-  /* make pipe-streams */
-  /* child's input stream, pipe-output from our side */
-  if (hparent_out) {
-    pushSTACK(STACK_7);     /* encoding */
-    pushSTACK(STACK_(8+1)); /* element-type */
-    pushSTACK(STACK_(6+2)); /* buffered */
-    mkops_from_handles(hparent_out,pinfo.dwProcessId); /* pufff */
-    /* stack has been cleaned by callee */
-    STACK_(3+1) = STACK_0;/* replace :pipe with PIPE-OUTPUT-STREAM */
-    skipSTACK(1);
-  }
-
-  /* child's output stream, pipe-input from our side
-     double analysis of buffered, eltype,encoding
-     drawback: slow; advantage: simple iface with stream.d */
-  if (hparent_in) {
-    pushSTACK(STACK_7);     /* encoding */
-    pushSTACK(STACK_(8+1)); /* element-type */
-    pushSTACK(STACK_(6+2)); /* buffered */
-    mkips_from_handles(hparent_in,pinfo.dwProcessId);
-    STACK_(2+1) = STACK_0;
-    skipSTACK(1);
-  }
-
-  /* child's error stream, pipe-input from our side */
-  if (hparent_errin) {
-    pushSTACK(STACK_7);     /* encoding */
-    pushSTACK(STACK_(8+1)); /* element-type */
-    pushSTACK(STACK_(6+2)); /* buffered */
-    mkips_from_handles(hparent_errin,pinfo.dwProcessId);
-    STACK_(1+1) = STACK_0;
-    skipSTACK(1);
-  }
-
-  /* we can safely close handle of a running process - no problem */
-  if (!CloseHandle(prochandle)) { end_system_call(); OS_error(); }
-
-  /* so with our copy of the child's handles */
-  if (hinput!=stdin_handle && !CloseHandle(hinput))
-    { end_system_call(); OS_error(); }
-  if (houtput!=stdout_handle && !CloseHandle(houtput))
-    { end_system_call(); OS_error(); }
-  if (houtput!=stderr_handle && !CloseHandle(herror))
-    { end_system_call(); OS_error(); }
-
-  end_system_call();
-  value1 = wait_p ? fixnum(exitcode) : fixnum(pinfo.dwProcessId);
-  value2 = hparent_out   ? (object)STACK_3 : NIL; /* INPUT */
-  value3 = hparent_in    ? (object)STACK_2 : NIL; /* OUTPUT */
-  value4 = hparent_errin ? (object)STACK_1 : NIL; /* ERROR */
-  mv_count = 4;
-  skipSTACK(10);
-}
 
 /* (SHELL-EXECUTE verb filename parameters defaultdir)
    ShellExecute wrapper
@@ -10900,11 +10658,16 @@ LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
 
 #endif
 
+#if defined(UNIX) || defined(RISCOS) || defined (WIN32_NATIVE)
+
+extern void mkops_from_handles (Handle opipe, int process_id);
+extern void mkips_from_handles (Handle ipipe, int process_id);
+
 #if defined(UNIX) || defined(RISCOS)
 
 /* /dev/null handle. */
-local int nullfile () {
-  var Handle result = (Handle)-1;
+local Handle nullfile () {
+  var Handle result = INVALID_HANDLE_VALUE;
   begin_system_call();
   result = open("/dev/null",O_RDWR);
   end_system_call();
@@ -10912,7 +10675,7 @@ local int nullfile () {
 }
 
 /* obtaining a pipe handle */
-local void mkpipe (Handle * hin, Handle * hout) {
+local void mkpipe (Handle * hin, bool dummy1, Handle * hout, bool dummy2) {
   var int handles[2];
   begin_system_call();
   if (pipe(handles)) OS_error();
@@ -10920,6 +10683,38 @@ local void mkpipe (Handle * hin, Handle * hout) {
   *hin = (Handle) handles[0];
   *hout = (Handle) handles[1];
 }
+
+#elif defined(WIN32_NATIVE)
+
+/* /dev/null on NT/W95. */
+local Handle nullfile () {
+  var Handle result = NULL;
+  begin_system_call();
+  result = CreateFile("NUL", GENERIC_READ | GENERIC_WRITE,
+                    FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                    OPEN_EXISTING, 0, NULL);
+  end_system_call();
+  return result;
+}
+
+/* obtaining pipe handle */
+local void mkpipe (Handle * hin, bool dupinp, Handle * hout, bool dupoutp) {
+  begin_system_call();
+  if (!CreatePipe(hin,hout,NULL,0)) { OS_error(); }
+  if (dupinp) {/* make it inheritable */
+    var Handle hin1 = handle_dup1(*hin);
+    if (!CloseHandle(*hin)) { OS_error(); }
+    *hin = hin1;
+  }
+  if (dupoutp) {
+    var Handle hout1 = handle_dup1(*hout);
+    if (!CloseHandle(*hout)) { OS_error(); }
+    *hout = hout1;
+  }
+  end_system_call();
+}
+
+#endif
 
 local bool init_launch_streamarg (int istack, bool child_inputp,
   Handle stdhandle, Handle * h, Handle * ph, Handle * hnull, bool * wait_p)
@@ -10935,10 +10730,10 @@ local bool init_launch_streamarg (int istack, bool child_inputp,
     *h = handle_dup1(*hnull);
   } else if (eq(STACK_(istack),S(Kpipe))) {
     if (child_inputp)
-    /* make an input pipe for child */
-      mkpipe(h,ph);
+    /* make an input pipe for child, ph = parent's handle */
+      mkpipe(h,true,ph,false);
     /* make an output pipe for child */
-      else mkpipe(ph,h);
+      else mkpipe(ph,false,h,true);
     if (HNULLP(*ph) || HNULLP(*h)) return false;
     *wait_p = false; /* TODO: error when wait_p */
   } else {
@@ -10958,19 +10753,67 @@ local void make_launch_pipe (int istack, bool parent_inputp,
     pushSTACK(STACK_(8+1)); /* element-type */
     pushSTACK(STACK_(6+2)); /* buffered */
     (parent_inputp?mkips_from_handles:mkops_from_handles)
-      (hparent_pipe,childpid);
+      (hparent_pipe,childpid); /* pufff */
     /* stack has been cleaned by callee */
     STACK_(istack+1) = STACK_0;/* replace :pipe with PIPE-x-STREAM */
     skipSTACK(1);
   }
 }
 
+#if defined(UNIX) || defined(RISCOS)
+#define NORMAL_PRIORITY_CLASS 0
+#define HIGH_PRIORITY_CLASS -10
+#define IDLE_PRIORITY_CLASS  10
+#define CloseHandle(h) (close(h)==0)
+#endif
+/* paranoidal close */
+#define ParaClose(h) if (!CloseHandle(h)) { end_system_call(); OS_error(); }
+
+local sintL interpret_launch_priority () {
+  var sintL pry = NORMAL_PRIORITY_CLASS;
+  if (!boundp(STACK_0)) return NORMAL_PRIORITY_CLASS;
+  var object priority_arg = STACK_0;
+ restart_priority:
+  if (eq(priority_arg,S(Khigh))) return HIGH_PRIORITY_CLASS;
+  else if (eq(priority_arg,S(Klow))) return IDLE_PRIORITY_CLASS;
+  else if (eq(priority_arg,S(Knormal))) return NORMAL_PRIORITY_CLASS;
+  else if (integerp(STACK_0)) return I_to_L(STACK_0);
+  pushSTACK(NIL);              /* no PLACE */
+  pushSTACK(priority_arg);     /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_priority)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(priority_arg);
+  pushSTACK(S(Kpriority));
+  pushSTACK(TheSubr(subr_self)->name);
+  check_value(type_error,GETTEXT("~: illegal ~ argument ~"));
+  priority_arg = value1;
+  goto restart_priority;
+}
+
+/* (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error]
+     [:element-type] [:external-format] [:buffered] [:priority])
+ Launches a program.
+ :arguments : a list of strings (*MISC-ENCODING* is used)
+ :wait - nullp/not nullp - whether to wait for process to finish (default T)
+ :input, :output, :error - i/o/e streams for process. basically file-streams,
+   pipe streams or terminal-streams.
+   see stream_lend_handle() in stream.d for full list of supported streams.
+   Can be NIL (/dev/null), :pipe (pipe streams are created) or :terminal.
+ :element-type, :external-format, :buffered : parameters for created
+   pipe-stream if one or more of :input, :output, :error is :pipe.
+ :priority : :HIGH/:LOW/:NORMAL or fixnum
+   on UNIX - see nice(2)
+   on Windows - see CreateProcess dwCreationFlags parm.
+ returns: value1: if wait exit code, child PID otherwise
+          value2: NIL or created pipe-output-stream, input stream for child
+          value3: NIL or created pipe-input-stream, output stream for child
+          value4: NIL or created pipe-input-stream, error stream for child  */
 LISPFUN(launch,seclass_default,1,0,norest,key,9,
         (kw(element_type),kw(external_format),kw(buffered),kw(arguments),
          kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
   STACK_9 = check_string(STACK_9); /* command_arg */
-  var long priority = boundp(STACK_0) ? (integerp(STACK_0) ? I_to_L(STACK_0)
-                       : (fehler_posfixnum(STACK_0), 0)) : 0;
+  if (!boundp(STACK_5)) STACK_5 = NIL; /* arguments_arg */
+  else STACK_5 = check_list(STACK_5);
+  var long priority = interpret_launch_priority();/* from STACK_0 */
   var bool wait_p = !nullp(STACK_4); /* default: do wait! */
   var Handle hnull = INVALID_HANDLE_VALUE;
   var Handle hinput;
@@ -10982,39 +10825,43 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   /* STACK_2 == output_stream_arg */
   if (!init_launch_streamarg(2, false, stdout_handle, &houtput, &hparent_in,
                         &hnull,&wait_p)) {
-    if (!HNULLP(hinput) && hinput!=stdin_handle) close(hinput);
-    if (!HNULLP(hparent_out)) close(hparent_out);
+    begin_system_call();
+    if (!HNULLP(hinput) && hinput!=stdin_handle) ParaClose(hinput);
+    if (!HNULLP(hparent_out)) ParaClose(hparent_out);
+    end_system_call();
     OS_error();
   }
   var Handle herror, hparent_errin;
   /* STACK_1 == error_stream_arg */
   if (!init_launch_streamarg(1, false, stderr_handle, &herror, &hparent_errin,
                         &hnull,&wait_p)) {
-    if (!HNULLP(hinput) && hinput!=stdin_handle) close(hinput);
-    if (!HNULLP(hparent_out)) close(hparent_out);
-    if (!HNULLP(houtput) && houtput != stdout_handle) close(houtput);
-    if (!HNULLP(hparent_in)) close(hparent_in);
+    begin_system_call();
+    if (!HNULLP(hinput) && hinput!=stdin_handle) ParaClose(hinput);
+    if (!HNULLP(hparent_out)) ParaClose(hparent_out);
+    if (!HNULLP(houtput) && houtput != stdout_handle) ParaClose(houtput);
+    if (!HNULLP(hparent_in)) ParaClose(hparent_in);
+    end_system_call();
     OS_error();
   }
-  if (!HNULLP(hnull)) close(hnull);
-  var int exit_code = 0;
-  pushSTACK(allocate_cons());
-  Car(STACK_0) = string_to_asciz(STACK_(9+1)/*command_arg*/,
-                                 O(pathname_encoding));
-  var uintL command_arg_len = Sbvector_length(Car(STACK_0));
-  var uintL argbuf_len = 0, arglist_count = 0;
-  { /* argument list */
-    var object arg_arg = STACK_(5+1);
-    if (boundp(arg_arg))
-      arg_arg = check_list(STACK_(5+1));
-    if (!nullp(arg_arg))
-      argbuf_len = command_arg_len + 1 +
-        stringlist_to_asciizlist(arg_arg,&O(misc_encoding),&arglist_count);
+  if (!HNULLP(hnull)) {
+    begin_system_call();
+    ParaClose(hnull);
+    end_system_call();
   }
-  /* STACK: (list asciiz-command), asciiz-arg-list */
-  Cdr(STACK_1) = STACK_0;
+  /* convert command and args to one asciiz string list */
+  pushSTACK(allocate_cons());
+  Car(STACK_0) = STACK_(9+1); /* command_arg */
+  Cdr(STACK_0) = STACK_(5+1); /* arguments_arg */
+  var uintL arglist_count = 0;
+  var uintL argbuf_len = 1 +
+    stringlist_to_asciizlist(STACK_0,&O(misc_encoding),&arglist_count);
+  /* STACK: cmdlist, ascizcmdlist */
+  STACK_1 = STACK_0;
   skipSTACK(1);
-  /* STACK: (cons asciiz-command asciiz-arg-list) */
+  /* STACK: ascizcmdlist */
+  var int exit_code = 0;
+  var int child_id = 0;
+#if defined(UNIX) || defined(RISCOS)
   var DYNAMIC_ARRAY(argv,char*,1+(uintL)arglist_count+1);
   var DYNAMIC_ARRAY(argvdata,char,argbuf_len);
   var object curcons = STACK_0;
@@ -11032,10 +10879,10 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   /* STACK: -- */
   begin_system_call();
   begin_want_sigcld();
-  var int child = vfork();
-  if (child == 0) {/* What ?! I am the clone ?! */
-   /* TODO: close ALL unused opened handles since unclosed handles can
-      prevent childs to end up properly */
+  child_id = vfork();
+  if (child_id == 0) {/* What ?! I am the clone ?! */
+   /* TODO: close ALL unused opened handles since unclosed handles
+      (to previously opened pipes) can prevent childs to end up properly */
    #define CHILD_DUP(from,to)                                           \
     if (handle_dup(from,to) == (Handle)-1) {                            \
         fprintf(stderr,"clisp/child: cannot duplicate %d to %d: %s\n",  \
@@ -11062,37 +10909,95 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
     execvp(*argv,argv);
     fprintf(stderr,"clisp/child: execvp failed: %s\n",strerror(errno));
     _exit(-1);
-  } else if (child < 0) {
+  } else if (child_id < 0) {
     /* TODO: FIXME: no easy way to be aware of dup2 or exec failures */
     end_want_sigcld();
     end_system_call();
     OS_error();
   }
   if (wait_p) {
-    var int status = wait2(child);
+    var int status = wait2(child_id);
     exit_code = WEXITSTATUS(status);
   }
   end_want_sigcld();
+  /* close our copies of child's handles */
+  if (hinput!=stdin_handle) ParaClose(hinput);
+  if (houtput!=stdout_handle) ParaClose(houtput);
+  if (herror!=stderr_handle) ParaClose(herror);
   end_system_call();
   FREE_DYNAMIC_ARRAY(argv);
   FREE_DYNAMIC_ARRAY(argvdata);
+#else /* WIN32_NATIVE */
+  var DYNAMIC_ARRAY(command_data,char,argbuf_len*2);
+  /* argbuf_len is multiplied by 2 for quoting sake */
+  var int command_pos = 0;
+  while (!nullp(STACK_0)) {
+    if (command_pos > 0) command_data[command_pos++] = ' ';
+    command_pos += shell_quote(command_data+command_pos,
+                               TheAsciz(Car(STACK_0)));
+    ASSERT(command_pos < argbuf_len*2);
+    STACK_0 = Cdr(STACK_0);
+  }
+  skipSTACK(1);
+  /* STACK: -- */
 
+  /* Start new process. */
+  var HANDLE prochandle;
+  var PROCESS_INFORMATION pinfo;
+  var STARTUPINFO sinfo;
+  sinfo.cb = sizeof(STARTUPINFO);
+  sinfo.lpReserved = NULL;
+  sinfo.lpDesktop = NULL;
+  sinfo.lpTitle = NULL;
+  sinfo.cbReserved2 = 0;
+  sinfo.lpReserved2 = NULL;
+  sinfo.dwFlags = STARTF_USESTDHANDLES;
+  sinfo.hStdInput = hinput;
+  sinfo.hStdOutput = houtput;
+  sinfo.hStdError = herror;
+  begin_system_call();
+  if (!CreateProcess(NULL, command_data, NULL, NULL, true,
+                     (DWORD)priority & 0x1E0,
+                     NULL, NULL, &sinfo, &pinfo))
+    { end_system_call(); OS_error(); }
+  if (pinfo.hThread) /* zero for 16 bit programs in NT */
+    ParaClose(pinfo.hThread);
+  prochandle = pinfo.hProcess;
+  child_id = pinfo.dwProcessId;
+  FREE_DYNAMIC_ARRAY(command_data);
+  var DWORD exitcode = 0;
+  if (wait_p) {
+    /* Wait until it terminates, get its exit status code. */
+    switch (WaitForSingleObject(prochandle,INFINITE)) {
+      case WAIT_FAILED:
+        end_system_call(); OS_error();
+      case WAIT_OBJECT_0:
+        break;
+      default: NOTREACHED;
+    }
+    if (!GetExitCodeProcess(prochandle,&exit_code))
+      { end_system_call(); OS_error(); }
+  }
+  /* we can safely close handle of a running process - it doesn't
+     lead to process termination */
+  ParaClose(prochandle);
   /* close our copies of child's handles */
-  if (hinput!=stdin_handle) close(hinput);
-  if (houtput!=stdout_handle) close(houtput);
-  if (herror!=stderr_handle) close(herror);
-
+  if (hinput!=stdin_handle) ParaClose(hinput);
+  if (houtput!=stdout_handle) ParaClose(houtput);
+  if (herror!=stderr_handle) ParaClose(herror);
+  end_system_call();
+#endif
   /* make pipe-streams */
   /* child's input stream, pipe-output from our side */
-  make_launch_pipe (3, false, hparent_out, child);
+  make_launch_pipe (3, false, hparent_out, child_id);
   /* child's output stream, pipe-input from our side
      double analysis of buffered, eltype,encoding
      drawback: slow; advantage: simple iface with stream.d */
-  make_launch_pipe (2, true, hparent_in, child);
+  make_launch_pipe (2, true, hparent_in, child_id);
   /* child's error stream, pipe-input from our side */
-  make_launch_pipe (1, true, hparent_errin, child);
+  make_launch_pipe (1, true, hparent_errin, child_id);
 
-  value1 = wait_p ? sfixnum(exit_code) : fixnum(child);
+  value1 = wait_p ? sfixnum(exit_code) : fixnum(child_id);
   value2 = (!HNULLP(hparent_out))   ? (object)STACK_3 : NIL; /* INPUT */
   value3 = (!HNULLP(hparent_in))    ? (object)STACK_2 : NIL; /* OUTPUT */
   value4 = (!HNULLP(hparent_errin)) ? (object)STACK_1 : NIL; /* ERROR */
@@ -11100,6 +11005,15 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
 
   skipSTACK(10);
 }
+
+#if defined(UNIX) || defined(RISCOS)
+#undef NORMAL_PRIORITY_CLASS
+#undef HIGH_PRIORITY_CLASS
+#undef IDLE_PRIORITY_CLASS
+#undef CloseHandle
+#endif
+
+#undef ParaClose
 
 #endif
 
