@@ -580,7 +580,7 @@ FOO
 #+(or CMU SBCL) ERROR
 #-(or CLISP CMU SBCL) UNKNOWN
 
-;; The direct-subclasses list must be weak.
+;; The finalized-direct-subclasses list must be weak.
 #+clisp
 (flet ((weak-list-length (w)
          (if w (sys::%record-ref (sys::%record-ref w 0) 1) 0)))
@@ -590,17 +590,32 @@ FOO
     (defclass foo64b (foo64a) ())
     (let ((usymbol (gensym)))
       (eval `(defclass ,usymbol (foo64a) ()))
-      (setq old1-weakpointers-count (weak-list-length (clos::class-direct-subclasses (find-class 'foo64a))))
-      (setf (symbol-value usymbol) (1- (length (clos::list-all-subclasses (find-class 'foo64a)))))
-      (setq old2-weakpointers-count (weak-list-length (clos::class-direct-subclasses (find-class 'foo64a))))
+      (setq old1-weakpointers-count (weak-list-length (clos::class-finalized-direct-subclasses-table (find-class 'foo64a))))
+      (setf (symbol-value usymbol) (1- (length (clos::list-all-finalized-subclasses (find-class 'foo64a)))))
+      (setq old2-weakpointers-count (weak-list-length (clos::class-finalized-direct-subclasses-table (find-class 'foo64a))))
       (setq old-subclasses-count (symbol-value usymbol)))
     (gc)
-    (setq new-subclasses-count (1- (length (clos::list-all-subclasses (find-class 'foo64a)))))
-    (setq new-weakpointers-count (weak-list-length (clos::class-direct-subclasses (find-class 'foo64a))))
+    (setq new-subclasses-count (1- (length (clos::list-all-finalized-subclasses (find-class 'foo64a)))))
+    (setq new-weakpointers-count (weak-list-length (clos::class-finalized-direct-subclasses-table (find-class 'foo64a))))
     (list old1-weakpointers-count old-subclasses-count old2-weakpointers-count
           new-subclasses-count new-weakpointers-count)))
 #+clisp
 (2 2 2 1 1)
+
+;; The direct-subclasses list must be weak.
+#+clisp
+(let (old-weakpointers-count new-weakpointers-count)
+  (defclass foo64c () ())
+  (defclass foo64d (foo64c) ())
+  (let ((usymbol (gensym)))
+    (eval `(defclass ,usymbol (foo64c) ()))
+    (setq old-weakpointers-count (length (class-direct-subclasses (find-class 'foo64c))))
+    (setf (symbol-value usymbol) nil))
+  (gc)
+  (setq new-weakpointers-count (length (class-direct-subclasses (find-class 'foo64c))))
+  (list old-weakpointers-count new-weakpointers-count))
+#+clisp
+(2 1)
 
 ;; change-class
 ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_change-class.html>
@@ -989,8 +1004,8 @@ x-y-position
 (2 NULL)
 
 
-;; The clos::list-direct-subclasses function lists only non-finalized direct
-;; subclasses.
+;; The clos::list-finalized-direct-subclasses function lists only finalized
+;; direct subclasses.
 #+CLISP
 (progn
   (defclass foo88b (foo88a) ((s :initarg :s)))
@@ -998,9 +1013,9 @@ x-y-position
   (defclass foo88a () ())
   ; Here foo88a is finalized, foo88b and foo88c are not.
   (list
-    (length (clos::list-direct-subclasses (find-class 'foo88a)))
-    (length (clos::list-direct-subclasses (find-class 'foo88b)))
-    (length (clos::list-direct-subclasses (find-class 'foo88c)))))
+    (length (clos::list-finalized-direct-subclasses (find-class 'foo88a)))
+    (length (clos::list-finalized-direct-subclasses (find-class 'foo88b)))
+    (length (clos::list-finalized-direct-subclasses (find-class 'foo88c)))))
 #+CLISP
 (0 0 0)
 #+CLISP
@@ -1011,14 +1026,15 @@ x-y-position
   (let ((x (make-instance 'foo89b :s 5)))
     ; Here foo89a and foo89b are finalized, foo89c is not.
     (list
-      (length (clos::list-direct-subclasses (find-class 'foo89a)))
-      (length (clos::list-direct-subclasses (find-class 'foo89b)))
-      (length (clos::list-direct-subclasses (find-class 'foo89c))))))
+      (length (clos::list-finalized-direct-subclasses (find-class 'foo89a)))
+      (length (clos::list-finalized-direct-subclasses (find-class 'foo89b)))
+      (length (clos::list-finalized-direct-subclasses (find-class 'foo89c))))))
 #+CLISP
 (1 0 0)
 
-;; The clos::list-direct-subclasses function must notice when a finalized
-;; direct subclass is redefined in such a way that it is no longer a subclass.
+;; The clos::list-finalized-direct-subclasses function must notice when a
+;; finalized direct subclass is redefined in such a way that it is no longer
+;; a subclass.
 #+CLISP
 (progn
   (defclass foo90b (foo90a) ((s :initarg :s)))
@@ -1029,14 +1045,15 @@ x-y-position
     (defclass foo90b () (s))
     ; Now foo90b is no longer direct subclass of foo90a.
     (list
-      (length (clos::list-direct-subclasses (find-class 'foo90a)))
-      (length (clos::list-direct-subclasses (find-class 'foo90b)))
-      (length (clos::list-direct-subclasses (find-class 'foo90c))))))
+      (length (clos::list-finalized-direct-subclasses (find-class 'foo90a)))
+      (length (clos::list-finalized-direct-subclasses (find-class 'foo90b)))
+      (length (clos::list-finalized-direct-subclasses (find-class 'foo90c))))))
 #+CLISP
 (0 0 0)
 
-;; The clos::list-direct-subclasses function must notice when a finalized
-;; direct subclass is redefined in such a way that it is no longer finalized.
+;; The clos::list-finalized-direct-subclasses function must notice when a
+;; finalized direct subclass is redefined in such a way that it is no longer
+;; finalized.
 #+CLISP
 (progn
   (defclass foo91a () ())
@@ -1044,9 +1061,9 @@ x-y-position
   (defclass foo91c (foo91b) ())
   (defclass foo91b (foo91a foo91other) ())
   (list
-    (length (clos::list-direct-subclasses (find-class 'foo91a)))
-    (length (clos::list-direct-subclasses (find-class 'foo91b)))
-    (length (clos::list-direct-subclasses (find-class 'foo91c)))))
+    (length (clos::list-finalized-direct-subclasses (find-class 'foo91a)))
+    (length (clos::list-finalized-direct-subclasses (find-class 'foo91b)))
+    (length (clos::list-finalized-direct-subclasses (find-class 'foo91c)))))
 #+CLISP
 (0 0 0)
 
