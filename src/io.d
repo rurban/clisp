@@ -842,7 +842,7 @@ LISPFUNN(set_readtable_case,2)
  found: /* found in table */
   var object readtable = check_readtable(popSTACK()); /* readtable */
   TheReadtable(readtable)->readtable_case = fixnum(rtcase);
-  VALUES1((&O(rtcase_0))[rtcase]);
+  VALUES1(*ptr);
 }
 
 # =============================================================================
