@@ -1,8 +1,11 @@
+# French messages for CLISP
+# Copyright (C) 1992-2000 Bruno Haible, Jörg Höhle
+# Bruno Haible <haible@clisp.cons.org>, 2000.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2004-03-14 12:10:55 EST\n"
+"POT-Creation-Date: 2004-03-17 15:20:59 EST\n"
 "PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -10,6 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
+#: spvw.d:487
 msgid ""
 "\n"
 "*** - Program stack overflow. RESET"
@@ -17,6 +21,7 @@ msgstr ""
 "\n"
 "*** - Débordement de pile de programme : RAZ"
 
+#: spvw.d:498
 msgid ""
 "\n"
 "*** - Lisp stack overflow. RESET"
@@ -24,22 +29,27 @@ msgstr ""
 "\n"
 "*** - Débordement de pile Lisp : RAZ"
 
+#: spvw.d:695
 #, fuzzy
 msgid "Unknown FSUBR signature: %d %d %d\n"
 msgstr "Type d'argument inconnu pour SUBR\n"
 
+#: spvw.d:803
 #, fuzzy
 msgid "Unknown SUBR signature: %d %d %d %d"
 msgstr "Type d'argument inconnu pour SUBR\n"
 
+#: spvw.d:1479
 msgid "module `%s' requires package %s.\n"
 msgstr "Pas de module «%s» sans le paquetage %s.\n"
 
+#: spvw.d:1518
 msgid ""
 "is an ANSI Common Lisp.\n"
 "Usage:  "
 msgstr ""
 
+#: spvw.d:1520
 msgid ""
 " [options] [lispfile [argument ...]]\n"
 " When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
@@ -47,139 +57,183 @@ msgid ""
 " read-eval-print loop is entered.\n"
 msgstr ""
 
+#: spvw.d:1524
 msgid "Informative output:\n"
 msgstr ""
 
+#: spvw.d:1525
 msgid " -h, --help    - print this help and exit\n"
 msgstr ""
 
+#: spvw.d:1526
 msgid " --version     - print the version information\n"
 msgstr ""
 
+#: spvw.d:1527
 msgid " --license     - print the licensing information\n"
 msgstr ""
 
+#: spvw.d:1528
 msgid "Memory image selection:\n"
 msgstr ""
 
+#: spvw.d:1529
 msgid " -B lisplibdir - set the installation directory\n"
 msgstr ""
 
+#: spvw.d:1531
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr ""
 
+#: spvw.d:1533
 msgid " -M memfile    - use this memory image\n"
 msgstr ""
 
+#: spvw.d:1534
 msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
+#: spvw.d:1536
 msgid " -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
+#: spvw.d:1539
 msgid " -t tmpdir     - temporary directory for memmap\n"
 msgstr ""
 
+#: spvw.d:1541
 msgid "Internationalization:\n"
 msgstr ""
 
+#: spvw.d:1542
 msgid " -L language   - set user language\n"
 msgstr ""
 
+#: spvw.d:1543
 msgid " -N nlsdir     - NLS catalog directory\n"
 msgstr ""
 
+#: spvw.d:1544
 msgid " -Edomain encoding - set encoding\n"
 msgstr ""
 
+#: spvw.d:1545
 msgid "Interoperability:\n"
 msgstr ""
 
+#: spvw.d:1546
 msgid ""
 " -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
 "     and *LOAD-PRINT*/*COMPILE-PRINT*\n"
 msgstr ""
 
+#: spvw.d:1549
 msgid " -w            - wait for a keypress after program termination\n"
 msgstr ""
 
+#: spvw.d:1550
 msgid " -I            - be ILISP-friendly\n"
 msgstr ""
 
+#: spvw.d:1551
 msgid "Startup actions:\n"
 msgstr ""
 
+#: spvw.d:1552
 msgid " -ansi         - more ANSI CL compliance\n"
 msgstr ""
 
+#: spvw.d:1553
 msgid " -traditional  - traditional (undoes -ansi)\n"
 msgstr ""
 
+#: spvw.d:1554
 msgid " -p package    - start in the package\n"
 msgstr ""
 
+#: spvw.d:1555
 msgid " -C            - set *LOAD-COMPILING* to T\n"
 msgstr ""
 
+#: spvw.d:1556
 msgid " -norc         - do not load the user ~/.clisprc file\n"
 msgstr ""
 
+#: spvw.d:1557
 msgid " -i file       - load initfile (can be repeated)\n"
 msgstr ""
 
+#: spvw.d:1558
 msgid "Actions:\n"
 msgstr ""
 
+#: spvw.d:1559
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 msgstr ""
 
+#: spvw.d:1560
 msgid " -x expressions - execute the expressions, then exit\n"
 msgstr ""
 
+#: spvw.d:1561
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
 msgstr ""
 
+#: spvw.d:1562
 msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr ""
 
+#: spvw.d:1563
 msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
 msgstr ""
 
+#: spvw.d:1564
 msgid " -repl              - enter the interactive read-eval-print loop when done\n"
 msgstr ""
 
+#: spvw.d:1565
 msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr ""
 
+#: spvw.d:1871
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
 msgstr "syntaxe pour %s: nnnnnnn ou nnnnKB ou nMB\n"
 
+#: spvw.d:1875
 msgid "%s out of range\n"
 msgstr "%s n'est pas entre les bornes\n"
 
+#: spvw.d:1888
 msgid "memory size"
 msgstr "taille mémoire"
 
+#: spvw.d:1899
 msgid "stack size"
 msgstr "taille de pile"
 
+#: spvw.d:2025
 msgid "CLISP: -a is deprecated, use -ansi\n"
 msgstr ""
 
+#: spvw.d:2271
 msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
 msgstr "La valeur de malloc() = %x n'est pas compatible avec le codage des types.\n"
 
+#: spvw.d:2277
 msgid "Only %d bytes available.\n"
 msgstr "Seuls %d octets libres.\n"
 
+#: spvw.d:2520
 msgid "Could not determine the end of the SP stack!\n"
 msgstr "Impossible de savoir où se termine la pile SP!\n"
 
+#: spvw.d:2995
 #, fuzzy
 msgid "%s: Not enough memory for Lisp.\n"
 msgstr "Il n'y a pas assez de mémoire pour LISP.\n"
 
+#: spvw_alloca.d:47
 msgid ""
 "\n"
 "*** - Virtual memory exhausted. RESET"
@@ -187,6 +241,7 @@ msgstr ""
 "\n"
 "*** - La mémoire virtuelle est épuisée : RAZ"
 
+#: spvw_alloca.d:49
 msgid ""
 "\n"
 "*** - Memory exhausted. RESET"
@@ -194,84 +249,107 @@ msgstr ""
 "\n"
 "*** - La mémoire est épuisée : RAZ"
 
+#: spvw_mmap.d:66 spvw_mmap.d:196 spvw_mmap.d:355 spvw_multimap.d:160
 #, fuzzy
 msgid "Cannot map memory to address 0x%x .\n"
 msgstr "Ne peux pas placer de la mémoire à l'adresse 0x%x ."
 
+#: spvw_mmap.d:169
 msgid "Cannot reserve address range at 0x%x ."
 msgstr "Ne peux pas réserver les adresses à partir de 0x%x ."
 
+#: spvw_mmap.d:179
 msgid "Cannot reserve address range 0x%x-0x%x ."
 msgstr "Ne peux pas réserver les adresses 0x%x-0x%x ."
 
+#: spvw_mmap.d:224
 msgid "CreateFileMapping() failed."
 msgstr "CreateFileMapping() a échoué."
 
+#: spvw_mmap.d:232
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
 msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x) a échoué."
 
+#: spvw_mmap.d:238
 msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x.\n"
 msgstr "MapViewOfFileEx() rend 0x%x au lieu de 0x%x.\n"
 
+#: spvw_mmap.d:252
 msgid "VirtualFree() failed."
 msgstr "VirtualFree() a échoué."
 
+#: spvw_mmap.d:265
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect() a échoué."
 
+#: spvw_mmap.d:335 spvw_multimap.d:114 spvw_multimap.d:189
 #, fuzzy
 msgid "Cannot open <%s>."
 msgstr "Ne peux pas ouvrir %s ."
 
+#: spvw_multimap.d:138
 #, fuzzy
 msgid "msync(0x%x,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) - erreur."
 
+#: spvw_multimap.d:198
 #, fuzzy
 msgid "Cannot delete <%s>."
 msgstr "Ne peux pas effacer %s ."
 
+#: spvw_multimap.d:216
 #, fuzzy
 msgid "** WARNING: ** Too little free disk space for <%s>.\n"
 msgstr "** AVERTISSEMENT : ** Trop peu de place disque restante sur %s .\n"
 
+#: spvw_multimap.d:217
 #, fuzzy
 msgid "Please restart LISP with less memory (option -m).\n"
 msgstr "Prière de relancer LISP avec moins de mémoire (option -m).\n"
 
+#: spvw_multimap.d:225
 #, fuzzy
 msgid "Cannot make <%s> long enough."
 msgstr "Ne peux pas agrandir %s ."
 
+#: spvw_multimap.d:239
 #, fuzzy
 msgid "Cannot fill <%s>."
 msgstr "Ne peux pas remplir %s ."
 
+#: spvw_multimap.d:252 spvw_multimap.d:286
 #, fuzzy
 msgid "Cannot close <%s>."
 msgstr "Ne peux pas fermer %s ."
 
+#: spvw_multimap.d:324
 msgid "Recompile your operating system with SYSV IPC support.\n"
 msgstr "Recompilez votre système opérationnel tel qu'il comprenne IPC SYSV.\n"
 
+#: spvw_multimap.d:336
 #, fuzzy
 msgid "Cannot allocate private shared memory segment of size %d."
 msgstr "Ne peux pas allouer de segment privé de mémoire partagée."
 
+#: spvw_multimap.d:353
 msgid "Cannot map shared memory to address 0x%x."
 msgstr "Ne peux pas placer de la mémoire partagée à l'adresse 0x%x."
 
+#: spvw_multimap.d:371 spvw_multimap.d:377
 #, fuzzy
 msgid "%s: Cannot fill shared memory."
 msgstr "Ne peux pas remplir la mémoire partagée."
 
+#: spvw_multimap.d:390
 msgid "Cannot remove shared memory segment."
 msgstr "Ne peux pas retirer un segment de mémoire partagée."
 
+#: spvw_fault.d:458
 #, fuzzy
 msgid "mprotect(0x%x,%d,%d) failed."
 msgstr "mprotect() ne fonctionne pas."
 
+#: spvw_sigsegv.d:29
 msgid ""
 "\n"
 "SIGSEGV cannot be cured. Fault address = 0x%x.\n"
@@ -279,13 +357,16 @@ msgstr ""
 "\n"
 "SIGSEGV ne peut être relevé. Adresse fautive = 0x%x.\n"
 
+#: spvw_sigsegv.d:63
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
 msgstr "Scénario Apollo 13 : Réparation de débordement de pile a échoué. Au prochain débordement de pile, ça cassera!!!\n"
 
+#: spvw_garcol.d:2225
 #, fuzzy
 msgid "munmap() failed."
 msgstr "munmap() ne fonctionne pas."
 
+#: spvw_allocate.d:49
 msgid ""
 "\n"
 "*** - No more room for LISP objects: RESET"
@@ -293,1631 +374,399 @@ msgstr ""
 "\n"
 "*** - Il n'y a plus de place pour des objets LISP : RAZ"
 
+#: spvw_allocate.d:248 spvw_allocate.d:311 spvw_allocate.d:391
 msgid "Trying to make room through a GC...\n"
 msgstr "Essayons de faire de la place par un GC...\n"
 
+#: spvw_memfile.d:777
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'\n"
 msgstr "Erreur système pendant le chargement du fichier d'initialisation `%s'.\n"
 
+#: spvw_memfile.d:1244
 #, fuzzy
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "Ne peux placer le fichier d'initialisation en mémoire."
 
+#: spvw_memfile.d:1510
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "Erreur système pendant le chargement du fichier d'initialisation `%s'.\n"
 
+#: spvw_memfile.d:1515
 #, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
 msgstr "Le fichier d'initialisation ne provient pas de cette version de LISP.\n"
 
+#: spvw_memfile.d:1518
 #, fuzzy
 msgid "%s: not enough memory for initialization\n"
 msgstr "Il n'y a pas assez de mémoire pour l'initialisation.\n"
 
+#: errunix.d:56
 msgid "Invalid multibyte or wide character"
 msgstr "caractère multi-octet invalide"
 
+#: errunix.d:63
 msgid "Operation not permitted"
 msgstr "Opération non autorisée"
 
+#: errunix.d:69
 msgid "No such file or directory"
 msgstr "Fichier ou répertoire non existant"
 
+#: errunix.d:75
 msgid "No such process"
 msgstr "Processus inexistant"
 
+#: errunix.d:81
 msgid "Interrupted system call"
 msgstr "Appel système interrompu"
 
+#: errunix.d:87
 msgid "I/O error"
 msgstr "Erreur E/S"
 
+#: errunix.d:93
 msgid "No such device or address"
 msgstr "Périphérique ou adresse inexistant"
 
+#: errunix.d:99
 msgid "Arg list too long"
 msgstr "Liste d'arguments trop longue"
 
+#: errunix.d:105
 msgid "Exec format error"
 msgstr "Programme non exécutable"
 
+#: errunix.d:111
 msgid "Bad file number"
 msgstr "Descripteur de fichier non alloué"
 
+#: errunix.d:117
 msgid "No child processes"
 msgstr "Pas de processus fils"
 
+#: errunix.d:123
 msgid "No more processes"
 msgstr "Essayez encore"
 
+#: errunix.d:129
 msgid "Not enough memory"
 msgstr "Pas assez de mémoire"
 
+#: errunix.d:135
 msgid "Permission denied"
 msgstr "Permission refusée"
 
+#: errunix.d:141
 msgid "Bad address"
 msgstr "Mauvaise adresse"
 
+#: errunix.d:147
 msgid "Block device required"
 msgstr "Périphérique bloc requis"
 
+#: errunix.d:153
 msgid "Device busy"
 msgstr "Périphérique occupé"
 
+#: errunix.d:159
 msgid "File exists"
 msgstr "Le fichier existe déjà"
 
+#: errunix.d:165
 msgid "Cross-device link"
 msgstr "Lien entre périphériques différents"
 
+#: errunix.d:171
 msgid "No such device"
 msgstr "Périphérique inexistant"
 
+#: errunix.d:177
 msgid "Not a directory"
 msgstr "N'est pas un répertoire"
 
+#: errunix.d:183
 msgid "Is a directory"
 msgstr "Est un répertoire"
 
+#: errunix.d:189
 msgid "Invalid argument"
 msgstr "Paramètre illicite"
 
+#: errunix.d:195
 msgid "File table overflow"
 msgstr "Dépassement de la table des fichiers"
 
+#: errunix.d:201
 msgid "Too many open files"
 msgstr "Trop de fichiers ouverts"
 
+#: errunix.d:207
 msgid "Inappropriate ioctl for device"
 msgstr "Périphérique ne comprend pas ce ioctl"
 
+#: errunix.d:213
 msgid "Text file busy"
 msgstr "Fichier code occupé"
 
+#: errunix.d:219
 msgid "File too large"
 msgstr "Fichier trop grand"
 
+#: errunix.d:225
 msgid "No space left on device"
 msgstr "Plus d'espace libre sur le périphérique"
 
+#: errunix.d:231
 msgid "Illegal seek"
 msgstr "seek illégal"
 
+#: errunix.d:237
 msgid "Read-only file system"
 msgstr "Système de fichiers en lecture seulement"
 
+#: errunix.d:243
 msgid "Too many links"
 msgstr "Trop de liens"
 
+#: errunix.d:249
 msgid "Broken pipe, child process terminated or socket closed"
 msgstr "Rupture du tuyau, processus fils terminé ou socket déconnecté"
 
+#: errunix.d:259
 msgid "Argument out of domain"
 msgstr "Argument mathématique en dehors du domaine de définition de la fonction"
 
+#: errunix.d:265
 msgid "Result too large"
 msgstr "Résultat mathématique non représentable"
 
+#: errunix.d:272
 msgid "Operation would block"
 msgstr "L'opération devrait bloquer"
 
+#: errunix.d:278
 msgid "Operation now in progress"
 msgstr "Opération maintenant en cours"
 
+#: errunix.d:284
 msgid "Operation already in progress"
 msgstr "Opération déjà en cours"
 
+#: errunix.d:291
 msgid "Too many levels of symbolic links"
 msgstr "Trop de liens symboliques rencontrés"
 
+#: errunix.d:297
 msgid "File name too long"
 msgstr "Nom du fichier trop long"
 
+#: errunix.d:303
 msgid "Directory not empty"
 msgstr "Répertoire non vide"
 
+#: errunix.d:310
 msgid "Stale NFS file handle"
 msgstr "Fichier NFS perdu"
 
+#: errunix.d:316
 msgid "Too many levels of remote in path"
 msgstr "Mount éloigné ne marche pas"
 
+#: errunix.d:323
 msgid "Socket operation on non-socket"
 msgstr "Opération de type socket sur un fichier non-socket"
 
+#: errunix.d:329
 msgid "Destination address required"
 msgstr "Adresse de destination obligatoire"
 
+#: errunix.d:335
 msgid "Message too long"
 msgstr "Message trop long"
 
+#: errunix.d:341
 msgid "Protocol wrong type for socket"
 msgstr "Mauvais type de protocole pour un socket"
 
+#: errunix.d:347
 msgid "Option not supported by protocol"
 msgstr "Protocole non disponible"
 
+#: errunix.d:353
 msgid "Protocol not supported"
 msgstr "Protocole non supporté"
 
+#: errunix.d:359
 msgid "Socket type not supported"
 msgstr "Type de socket non supporté"
 
+#: errunix.d:365
 msgid "Operation not supported on socket"
 msgstr "Opération non supportée sur socket"
 
+#: errunix.d:371
 msgid "Protocol family not supported"
 msgstr "Famille de protocoles non supportée"
 
+#: errunix.d:377
 msgid "Address family not supported by protocol family"
 msgstr "Famille d'adresses non supportée par le protocole"
 
+#: errunix.d:383
 msgid "Address already in use"
 msgstr "Adresse déjà utilisée"
 
+#: errunix.d:389
 msgid "Cannot assign requested address"
 msgstr "Ne peut pas assigner l'adresse demandée"
 
+#: errunix.d:395
 msgid "Network is down"
 msgstr "Le réseau est éteint"
 
+#: errunix.d:401
 msgid "Network is unreachable"
 msgstr "Le réseau ne peut être atteint"
 
+#: errunix.d:407
 msgid "Network dropped connection on reset"
 msgstr "Le réseau a rompu la connection à cause d'une remise à zéro"
 
+#: errunix.d:413
 msgid "Software caused connection abort"
 msgstr "Echec de connection à cause du logiciel"
 
+#: errunix.d:419
 msgid "Connection reset by peer"
 msgstr "Connection remise à zéro par le correspondant"
 
+#: errunix.d:425
 msgid "No buffer space available"
 msgstr "Pas d'espace disponible pour un buffer"
 
+#: errunix.d:431
 msgid "Socket is already connected"
 msgstr "Le socket est déjà connecté"
 
+#: errunix.d:437
 msgid "Socket is not connected"
 msgstr "Le socket n'est pas connecté"
 
+#: errunix.d:443
 msgid "Cannot send after socket shutdown"
 msgstr "Impossibilité d'envoyer après un arrêt de socket"
 
+#: errunix.d:449
 msgid "Too many references: cannot splice"
 msgstr ""
 
+#: errunix.d:455
 msgid "Connection timed out"
 msgstr "Durée écoulée pour la connection"
 
+#: errunix.d:461
 msgid "Connection refused"
 msgstr "Connection refusée"
 
+#: errunix.d:466
 msgid "Remote peer released connection"
 msgstr "L'hôte a fermé la connection"
 
+#: errunix.d:471
 msgid "Host is down"
 msgstr "L'hôte est éteint"
 
+#: errunix.d:477
 msgid "Host is unreachable"
 msgstr "Aucune route pour cet hôte"
 
+#: errunix.d:482
 msgid "Networking error"
 msgstr "Erreur de réseau"
 
+#: errunix.d:488
 msgid "Too many processes"
 msgstr "Trop de processus"
 
+#: errunix.d:494
 msgid "Too many users"
 msgstr "Trop d'utilisateurs"
 
+#: errunix.d:500
 msgid "Disk quota exceeded"
 msgstr "Ration d'espace est épuisée"
 
+#: errunix.d:507
 msgid "Not a stream device"
 msgstr "Pas un STREAM"
 
+#: errunix.d:513
 msgid "Timer expired"
 msgstr "Timer de STREAM écoulé"
 
+#: errunix.d:519
 msgid "Out of stream resources"
 msgstr "Plus de place pour un STREAM"
 
+#: errunix.d:525
 msgid "No message of desired type"
 msgstr "Pas de messages du type désigné"
 
+#: errunix.d:531
 msgid "Not a data message"
 msgstr "Reçu message de type inconnu"
 
+#: errunix.d:538
 msgid "Identifier removed"
 msgstr "Identificateur supprimé"
 
+#: errunix.d:545
 msgid "Resource deadlock would occur"
 msgstr "Blocage mutuel de la ressource "
 
+#: errunix.d:551
 msgid "No record locks available"
 msgstr "Pas de verrou disponible"
 
+#: errunix.d:558
 msgid "Machine is not on the network"
 msgstr "La machine n'est pas sur le réseau"
 
+#: errunix.d:564 errunix.d:570
 msgid "Object is remote"
 msgstr "Objet à distance"
 
+#: errunix.d:576
 msgid "Link has been severed"
 msgstr "Le lien a été coupé"
 
+#: errunix.d:582
 msgid "Advertise error"
 msgstr "Erreur d'annonce"
 
+#: errunix.d:588
 msgid "Srmount error"
 msgstr "Erreur srmount"
 
+#: errunix.d:594
 msgid "Communication error on send"
 msgstr "Erreur de communication lors d'un envoi"
 
+#: errunix.d:600
 msgid "Protocol error"
 msgstr "Erreur de protocole"
 
+#: errunix.d:606
 msgid "Multihop attempted"
 msgstr "Tentative de sauts multiples"
 
+#: errunix.d:618
 msgid "Remote address changed"
 msgstr "Adresse à distance changée"
 
+#: errunix.d:625
 msgid "Function not implemented"
 msgstr "Fonction non implémentée"
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-#, fuzzy
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-#, fuzzy
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-

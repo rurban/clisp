@@ -1,10 +1,18 @@
+# Russian messages for CLISP
+# Copyright (C) 1998 Free Software Foundation, Inc.
+# Eduard Haritonov <hed@iis.nsk.su>, 1998.
+# Arseny Slobodjuck <ampy@ich.dvo.ru>, 2002 - 2004.
 #
+# Также принимали участие в переводе:
 #
+# Городняя Лидия Васильевна <gorod@lidia.iis.nsk.su>
+# Дмитрий Иванов          <divanov@aha.ru>
+# Sam Steingold               <sds@gnu.org>
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.33\n"
-"POT-Creation-Date: 2004-03-14 12:10:55 EST\n"
+"POT-Creation-Date: 2004-03-17 15:20:59 EST\n"
 "PO-Revision-Date: 1998-09-02 19:50+0600\n"
 "Last-Translator: Arseny Slobodjuck <ampy@ich.dvo.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -12,6 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=koi8-r\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
+#: spvw.d:487
 msgid ""
 "\n"
 "*** - Program stack overflow. RESET"
@@ -19,6 +28,7 @@ msgstr ""
 "\n"
 "*** - Переполнение программного стека. СБРОС"
 
+#: spvw.d:498
 msgid ""
 "\n"
 "*** - Lisp stack overflow. RESET"
@@ -26,15 +36,19 @@ msgstr ""
 "\n"
 "*** - Переполнение стека Лиспа. СБРОС"
 
+#: spvw.d:695
 msgid "Unknown FSUBR signature: %d %d %d\n"
 msgstr "Неизвестная сигнатура FSUBR: %d %d %d\n"
 
+#: spvw.d:803
 msgid "Unknown SUBR signature: %d %d %d %d"
 msgstr "Неизвестная сигнатура SUBR: %d %d %d %d"
 
+#: spvw.d:1479
 msgid "module `%s' requires package %s.\n"
 msgstr "модуль `%s' требует пакета %s.\n"
 
+#: spvw.d:1518
 msgid ""
 "is an ANSI Common Lisp.\n"
 "Usage:  "
@@ -42,6 +56,7 @@ msgstr ""
 " - реализация ANSI Common Lisp.\n"
 "Использование:  "
 
+#: spvw.d:1520
 msgid ""
 " [options] [lispfile [argument ...]]\n"
 " When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
@@ -53,48 +68,63 @@ msgstr ""
 " принимает значения списка аргументов. Если файл не задан, происходит\n"
 " вход в интерактивный режим `чтение-выполнение-печать'.\n"
 
+#: spvw.d:1524
 msgid "Informative output:\n"
 msgstr "Информативный вывод:\n"
 
+#: spvw.d:1525
 msgid " -h, --help    - print this help and exit\n"
 msgstr " -h, --help    - вывод этой справки и выход\n"
 
+#: spvw.d:1526
 msgid " --version     - print the version information\n"
 msgstr " --version     - вывод информации о версии программы\n"
 
+#: spvw.d:1527
 msgid " --license     - print the licensing information\n"
 msgstr " --license     - вывод информации о лицензии\n"
 
+#: spvw.d:1528
 msgid "Memory image selection:\n"
 msgstr "Выбор файла с образом памяти:\n"
 
+#: spvw.d:1529
 msgid " -B lisplibdir - set the installation directory\n"
 msgstr " -B библ-дир   - задать директорию установки\n"
 
+#: spvw.d:1531
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr " -K линк-набор - задать исполнимый файл и образ памяти\n"
 
+#: spvw.d:1533
 msgid " -M memfile    - use this memory image\n"
 msgstr " -M образ      - использовать файл образа памяти\n"
 
+#: spvw.d:1534
 msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr " -m размер     - размер памяти (xxxxxxxB или xxxxKB или xMB)\n"
 
+#: spvw.d:1536
 msgid " -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr " -s размер     - размер стека (xxxxxxxB или xxxxKB или xMB)\n"
 
+#: spvw.d:1539
 msgid " -t tmpdir     - temporary directory for memmap\n"
 msgstr " -t врем-дир   - временная директория для memmap\n"
 
+#: spvw.d:1541
 msgid "Internationalization:\n"
 msgstr "Интернационализация:\n"
 
+#: spvw.d:1542
 msgid " -L language   - set user language\n"
 msgstr " -L язык       - задать язык\n"
 
+#: spvw.d:1543
 msgid " -N nlsdir     - NLS catalog directory\n"
 msgstr " -N nlsdir     - задать каталог с NLS\n"
 
+#: spvw.d:1544
 msgid " -Edomain encoding - set encoding\n"
 msgstr ""
 " -Eтиппотока кодировка - задавать кодировки для различных типов потоков.\n"
@@ -102,9 +132,11 @@ msgstr ""
 "           Осн. кодировки: koi8-r, koi8-ru, koi8-u, CP866, CP1251,\n"
 "           ISO-8859-5. См. impnotes.\n"
 
+#: spvw.d:1545
 msgid "Interoperability:\n"
 msgstr "Взаимодействие:\n"
 
+#: spvw.d:1546
 msgid ""
 " -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
@@ -114,84 +146,111 @@ msgstr ""
 "     приветствие, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
 "     и *LOAD-PRINT*/*COMPILE-PRINT*\n"
 
+#: spvw.d:1549
 msgid " -w            - wait for a keypress after program termination\n"
 msgstr " -w            - ожидать нажатия клавиши после работы\n"
 
+#: spvw.d:1550
 msgid " -I            - be ILISP-friendly\n"
 msgstr " -I            - дружить с ILISP\n"
 
+#: spvw.d:1551
 msgid "Startup actions:\n"
 msgstr "Загрузка:\n"
 
+#: spvw.d:1552
 msgid " -ansi         - more ANSI CL compliance\n"
 msgstr " -ansi         - большее соответствие стандарту ANSI CL\n"
 
+#: spvw.d:1553
 msgid " -traditional  - traditional (undoes -ansi)\n"
 msgstr " -traditional  - традиционные установки clisp (отменяет -ansi)\n"
 
+#: spvw.d:1554
 msgid " -p package    - start in the package\n"
 msgstr " -p пакет      - запускаться в пакете\n"
 
+#: spvw.d:1555
 msgid " -C            - set *LOAD-COMPILING* to T\n"
 msgstr " -C            - установить *LOAD_COMPILING* в T\n"
 
+#: spvw.d:1556
 msgid " -norc         - do not load the user ~/.clisprc file\n"
 msgstr " -norc         - не грузить ~/.clisprc\n"
 
+#: spvw.d:1557
 msgid " -i file       - load initfile (can be repeated)\n"
 msgstr " -i файл       - загрузить файл инициализации (можно повторять)\n"
 
+#: spvw.d:1558
 msgid "Actions:\n"
 msgstr "Действия:\n"
 
+#: spvw.d:1559
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 msgstr " -c [-l] лисп-файл [-o вых-файл] - компилировать лисп-файл\n"
 
+#: spvw.d:1560
 msgid " -x expressions - execute the expressions, then exit\n"
 msgstr " -x выражения  - выполнить выражения и завершить работу\n"
 
+#: spvw.d:1561
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
 msgstr " лисп-файл [аргумент1 ...] - загрузить лисп файл и завершить работу\n"
 
+#: spvw.d:1562
 msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr "Эти действия поместят CLISP в пакетный режим, если не задан\n"
 
+#: spvw.d:1563
 msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
 msgstr " -interactive-debug - интерактивное взаимодействие в случае ошибок\n"
 
+#: spvw.d:1564
 msgid " -repl              - enter the interactive read-eval-print loop when done\n"
 msgstr " -repl             - по окончании войти в интерактивный цикл чтение-выполнение-печать.\n"
 
+#: spvw.d:1565
 msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr "По умолчанию - интерактивный цикл чтение-выполнение-печать.\n"
 
+#: spvw.d:1871
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
 msgstr "Синтаксис для %s: nnnnnnn, или nnnnKB, или nMB\n"
 
+#: spvw.d:1875
 msgid "%s out of range\n"
 msgstr "%s вне диапазона\n"
 
+#: spvw.d:1888
 msgid "memory size"
 msgstr "размер памяти"
 
+#: spvw.d:1899
 msgid "stack size"
 msgstr "размер стека"
 
+#: spvw.d:2025
 msgid "CLISP: -a is deprecated, use -ansi\n"
 msgstr "CLISP: опция -a устарела, используйте -ansi\n"
 
+#: spvw.d:2271
 msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
 msgstr "Значение функции malloc() = %x не совместимо с typecode.\n"
 
+#: spvw.d:2277
 msgid "Only %d bytes available.\n"
 msgstr "Только %d байтов доступно.\n"
 
+#: spvw.d:2520
 msgid "Could not determine the end of the SP stack!\n"
 msgstr "Невозможно определить конец стека SP !\n"
 
+#: spvw.d:2995
 msgid "%s: Not enough memory for Lisp.\n"
 msgstr "%s: Не достаточно памяти для Лиспa.\n"
 
+#: spvw_alloca.d:47
 msgid ""
 "\n"
 "*** - Virtual memory exhausted. RESET"
@@ -199,6 +258,7 @@ msgstr ""
 "\n"
 "*** - Исчерпана виртуальная память. СБРОС"
 
+#: spvw_alloca.d:49
 msgid ""
 "\n"
 "*** - Memory exhausted. RESET"
@@ -206,72 +266,95 @@ msgstr ""
 "\n"
 "*** - Исчерпана память. СБРОС"
 
+#: spvw_mmap.d:66 spvw_mmap.d:196 spvw_mmap.d:355 spvw_multimap.d:160
 msgid "Cannot map memory to address 0x%x .\n"
 msgstr "Невозможно проецировать память на адрес 0x%x .\n"
 
+#: spvw_mmap.d:169
 msgid "Cannot reserve address range at 0x%x ."
 msgstr "Невозможно зарезервировать адресный диапазон в 0x%x ."
 
+#: spvw_mmap.d:179
 msgid "Cannot reserve address range 0x%x-0x%x ."
 msgstr "Невозможно зарезервировать адресный диапазон 0x%x-0x%x ."
 
+#: spvw_mmap.d:224
 msgid "CreateFileMapping() failed."
 msgstr "CreateFileMapping(): ошибка."
 
+#: spvw_mmap.d:232
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
 msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x): ошибка."
 
+#: spvw_mmap.d:238
 msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x.\n"
 msgstr "MapViewOfFileEx() вернула 0x%x вместо 0x%x.\n"
 
+#: spvw_mmap.d:252
 msgid "VirtualFree() failed."
 msgstr "VirtualFree(): ошибка."
 
+#: spvw_mmap.d:265
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect(): ошибка."
 
+#: spvw_mmap.d:335 spvw_multimap.d:114 spvw_multimap.d:189
 msgid "Cannot open <%s>."
 msgstr "Невозможно открыть <%s>."
 
+#: spvw_multimap.d:138
 msgid "msync(0x%x,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) завершился неудачно."
 
+#: spvw_multimap.d:198
 msgid "Cannot delete <%s>."
 msgstr "Невозможно удалить <%s>."
 
+#: spvw_multimap.d:216
 msgid "** WARNING: ** Too little free disk space for <%s>.\n"
 msgstr "** ПРЕДУПРЕЖДЕНИЕ: ** Слишком мало свободного места на диске для <%s>.\n"
 
+#: spvw_multimap.d:217
 msgid "Please restart LISP with less memory (option -m).\n"
 msgstr "Пожалуйста, перезапустите LISP с меньшим количеством памяти (параметр -m).\n"
 
+#: spvw_multimap.d:225
 msgid "Cannot make <%s> long enough."
 msgstr "Невозможно сделать <%s> достаточно длинным."
 
+#: spvw_multimap.d:239
 msgid "Cannot fill <%s>."
 msgstr "Невозможно заполнить <%s>."
 
+#: spvw_multimap.d:252 spvw_multimap.d:286
 msgid "Cannot close <%s>."
 msgstr "Невозможно закрыть <%s>."
 
+#: spvw_multimap.d:324
 msgid "Recompile your operating system with SYSV IPC support.\n"
 msgstr "Перекомпилируйте вашу операционную систему с поддержкой SYSV IPC.\n"
 
+#: spvw_multimap.d:336
 msgid "Cannot allocate private shared memory segment of size %d."
 msgstr "Невозможно разместить сегмент частной разделяемой (private shared) памяти размером %d."
 
+#: spvw_multimap.d:353
 msgid "Cannot map shared memory to address 0x%x."
 msgstr "Невозможно проецировать общую память на адрес 0x%x."
 
+#: spvw_multimap.d:371 spvw_multimap.d:377
 msgid "%s: Cannot fill shared memory."
 msgstr "%s: Невозможно заполнить общую память."
 
+#: spvw_multimap.d:390
 msgid "Cannot remove shared memory segment."
 msgstr "Невозможно удалить сегмент общей памяти."
 
+#: spvw_fault.d:458
 msgid "mprotect(0x%x,%d,%d) failed."
 msgstr "mprotect(0x%x,%d,%d): ошибка."
 
+#: spvw_sigsegv.d:29
 msgid ""
 "\n"
 "SIGSEGV cannot be cured. Fault address = 0x%x.\n"
@@ -279,12 +362,15 @@ msgstr ""
 "\n"
 "SIGSEGV не удается исправить. Ошибочный адрес = 0x%x.\n"
 
+#: spvw_sigsegv.d:63
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
 msgstr "Сценарий Аполло-13: Обработка переполнения стека закончилась неудачей. Следующее переполнение стека приведет к разрушению!!!\n"
 
+#: spvw_garcol.d:2225
 msgid "munmap() failed."
 msgstr "munmap(): ошибка."
 
+#: spvw_allocate.d:49
 msgid ""
 "\n"
 "*** - No more room for LISP objects: RESET"
@@ -292,1485 +378,394 @@ msgstr ""
 "\n"
 "*** - Нет места для объектов Лиспа: СБРОС"
 
+#: spvw_allocate.d:248 spvw_allocate.d:311 spvw_allocate.d:391
 msgid "Trying to make room through a GC...\n"
 msgstr "Освобождаем память - вызываем GC...\n"
 
+#: spvw_memfile.d:777
 msgid "%s: operating system error during load of initialization file `%s'\n"
 msgstr "%s: ошибка операционной системы во время загрузки файла инициализации `%s'\n"
 
+#: spvw_memfile.d:1244
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "%s: Невозможно разместить файл инициализации `%s' в памяти."
 
+#: spvw_memfile.d:1510
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "%s: ошибка операционной системы во время загрузки файла инициализации `%s'"
 
+#: spvw_memfile.d:1515
 msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
 msgstr "%s: файл инициализации `%s' был создан не этой версией CLISP\n"
 
+#: spvw_memfile.d:1518
 msgid "%s: not enough memory for initialization\n"
 msgstr "%s: недостаточно памяти для инициализации\n"
 
+#: errunix.d:56
 msgid "Invalid multibyte or wide character"
 msgstr "Неверный многобайтный или широкий характер"
 
+#: errunix.d:63
 msgid "Operation not permitted"
 msgstr "Операция не разрешена"
 
+#: errunix.d:69
 msgid "No such file or directory"
 msgstr "Нет такого файла или каталога"
 
+#: errunix.d:75
 msgid "No such process"
 msgstr "Нет такого процесса"
 
+#: errunix.d:81
 msgid "Interrupted system call"
 msgstr "Прерванный системный вызов"
 
+#: errunix.d:87
 msgid "I/O error"
 msgstr "Ошибка ввода/вывода"
 
+#: errunix.d:93
 msgid "No such device or address"
 msgstr "Нет такого устройства или адреса"
 
+#: errunix.d:99
 msgid "Arg list too long"
 msgstr "Список аргументов слишком длинный"
 
+#: errunix.d:105
 msgid "Exec format error"
 msgstr "Ошибка формата программного файла"
 
+#: errunix.d:111
 msgid "Bad file number"
 msgstr "Неверный номер файла"
 
+#: errunix.d:117
 msgid "No child processes"
 msgstr "Нет порожденных процессов"
 
+#: errunix.d:123
 msgid "No more processes"
 msgstr "Не осталось ни одного процесса"
 
+#: errunix.d:129
 msgid "Not enough memory"
 msgstr "Недостаточно памяти"
 
+#: errunix.d:135
 msgid "Permission denied"
 msgstr "Доступ запрещён"
 
+#: errunix.d:141
 msgid "Bad address"
 msgstr "Неверный адрес"
 
+#: errunix.d:147
 msgid "Block device required"
 msgstr "Требуется блочное устройство"
 
+#: errunix.d:153
 msgid "Device busy"
 msgstr "Устройство занято"
 
+#: errunix.d:159
 msgid "File exists"
 msgstr "Файл/каталог существует"
 
+#: errunix.d:165
 msgid "Cross-device link"
 msgstr "Ссылка между устройствами"
 
+#: errunix.d:171
 msgid "No such device"
 msgstr "Нет такого устройства"
 
+#: errunix.d:177
 msgid "Not a directory"
 msgstr "Не каталог"
 
+#: errunix.d:183
 msgid "Is a directory"
 msgstr "Является каталогом"
 
+#: errunix.d:189
 msgid "Invalid argument"
 msgstr "Неправильный аргумент"
 
+#: errunix.d:195
 msgid "File table overflow"
 msgstr "Переполнение таблицы файлов"
 
+#: errunix.d:201
 msgid "Too many open files"
 msgstr "Слишком много открытых файлов"
 
+#: errunix.d:207
 msgid "Inappropriate ioctl for device"
 msgstr "Неподходящий ioctl для устройства"
 
+#: errunix.d:213
 msgid "Text file busy"
 msgstr "Текстовый файл занят"
 
+#: errunix.d:219
 msgid "File too large"
 msgstr "Файл слишком большой"
 
+#: errunix.d:225
 msgid "No space left on device"
 msgstr "Не осталось свободного места на устройстве"
 
+#: errunix.d:231
 msgid "Illegal seek"
 msgstr "Некорректный seek"
 
+#: errunix.d:237
 msgid "Read-only file system"
 msgstr "Файловая система с доступом `только на чтение'"
 
+#: errunix.d:243
 msgid "Too many links"
 msgstr "Слишком много ссылок"
 
+#: errunix.d:249
 msgid "Broken pipe, child process terminated or socket closed"
 msgstr "Сломаный конвейер (pipe), выполнение дочернего процесса прервано или закрыт сокет"
 
+#: errunix.d:259
 msgid "Argument out of domain"
 msgstr "Аргумент вне области определения"
 
+#: errunix.d:265
 msgid "Result too large"
 msgstr "Результат слишком большой"
 
+#: errunix.d:272
 msgid "Operation would block"
 msgstr "Операция будет блокировать"
 
+#: errunix.d:278
 msgid "Operation now in progress"
 msgstr "Операция выполняется"
 
+#: errunix.d:284
 msgid "Operation already in progress"
 msgstr "Операция уже выполняется"
 
+#: errunix.d:291
 msgid "Too many levels of symbolic links"
 msgstr "Слишком много уровней символьных ссылок"
 
+#: errunix.d:297
 msgid "File name too long"
 msgstr "Имя файла слишком длинное"
 
+#: errunix.d:303
 msgid "Directory not empty"
 msgstr "Каталог не пуст"
 
+#: errunix.d:310
 msgid "Stale NFS file handle"
 msgstr "Отработанный номер файла NFS"
 
+#: errunix.d:316
 msgid "Too many levels of remote in path"
 msgstr "Слишком много уровней удаленности в пути"
 
+#: errunix.d:323
 msgid "Socket operation on non-socket"
 msgstr "Операция применена не к сокету"
 
+#: errunix.d:329
 msgid "Destination address required"
 msgstr "Требуется адрес назначения"
 
+#: errunix.d:335
 msgid "Message too long"
 msgstr "Сообщение слишком длинное"
 
+#: errunix.d:341
 msgid "Protocol wrong type for socket"
 msgstr "Протокол неверного типа для сокета"
 
+#: errunix.d:347
 msgid "Option not supported by protocol"
 msgstr "Возможность не поддерживается протоколом"
 
+#: errunix.d:353
 msgid "Protocol not supported"
 msgstr "Протокол не поддерживается"
 
+#: errunix.d:359
 msgid "Socket type not supported"
 msgstr "Тип сокета не поддерживается"
 
+#: errunix.d:365
 msgid "Operation not supported on socket"
 msgstr "Операция не поддерживается на сокете"
 
+#: errunix.d:371
 msgid "Protocol family not supported"
 msgstr "Семейство протоколов не поддерживается"
 
+#: errunix.d:377
 msgid "Address family not supported by protocol family"
 msgstr "Семейство адресов не поддерживается семейством протоколов"
 
+#: errunix.d:383
 msgid "Address already in use"
 msgstr "Адрес уже используется"
 
+#: errunix.d:389
 msgid "Cannot assign requested address"
 msgstr "Невозможно присвоить требуемый адрес"
 
+#: errunix.d:395
 msgid "Network is down"
 msgstr "Сеть сломалась (down)"
 
+#: errunix.d:401
 msgid "Network is unreachable"
 msgstr "Сеть недостижима"
 
+#: errunix.d:407
 msgid "Network dropped connection on reset"
 msgstr "Сеть потеряла связи при сбросе"
 
+#: errunix.d:413
 msgid "Software caused connection abort"
 msgstr "Программа вызвала прерывание связи"
 
+#: errunix.d:419
 msgid "Connection reset by peer"
 msgstr "Сброс слишком медленной связи"
 
+#: errunix.d:425
 msgid "No buffer space available"
 msgstr "Нет свободного места в буфере"
 
+#: errunix.d:431
 msgid "Socket is already connected"
 msgstr "Сокет уже подключен"
 
+#: errunix.d:437
 msgid "Socket is not connected"
 msgstr "Сокет не подключен"
 
+#: errunix.d:443
 msgid "Cannot send after socket shutdown"
 msgstr "Невозможно послать данные после отключения сокета"
 
+#: errunix.d:449
 msgid "Too many references: cannot splice"
 msgstr "Слишком много ссылок: невозможно склеить"
 
+#: errunix.d:455
 msgid "Connection timed out"
 msgstr "Время связи истекло"
 
+#: errunix.d:461
 msgid "Connection refused"
 msgstr "В связи отказано"
 
+#: errunix.d:466
 msgid "Remote peer released connection"
 msgstr "Удаленный компьютер освободил соединение"
 
+#: errunix.d:471
 msgid "Host is down"
 msgstr "Сервер выключен"
 
+#: errunix.d:477
 msgid "Host is unreachable"
 msgstr "Сервер недоступен по сети"
 
+#: errunix.d:482
 msgid "Networking error"
 msgstr "Сетевая ошибка"
 
+#: errunix.d:488
 msgid "Too many processes"
 msgstr "Слишком много процессов"
 
+#: errunix.d:494
 msgid "Too many users"
 msgstr "Слишком много пользователей"
 
+#: errunix.d:500
 msgid "Disk quota exceeded"
 msgstr "Превышена квота диска"
 
+#: errunix.d:507
 msgid "Not a stream device"
 msgstr "Не поточное устройство"
 
+#: errunix.d:513
 msgid "Timer expired"
 msgstr "Таймер закончил отсчет"
 
+#: errunix.d:519
 msgid "Out of stream resources"
 msgstr "Ресурсы потока истекли"
 
+#: errunix.d:525
 msgid "No message of desired type"
 msgstr "Нет сообщений желаемого типа"
 
+#: errunix.d:531
 msgid "Not a data message"
 msgstr "Не сообщение с данными"
 
+#: errunix.d:538
 msgid "Identifier removed"
 msgstr "Идентификатор удален"
 
+#: errunix.d:545
 msgid "Resource deadlock would occur"
 msgstr "Коллизия блокировки (deadlock) ресурсов"
 
+#: errunix.d:551
 msgid "No record locks available"
 msgstr "Нет доступных блокировок записи (record locks)"
 
+#: errunix.d:558
 msgid "Machine is not on the network"
 msgstr "Машина не в сети"
 
+#: errunix.d:564 errunix.d:570
 msgid "Object is remote"
 msgstr "Объект является удаленным (remote)"
 
+#: errunix.d:576
 msgid "Link has been severed"
 msgstr "Связь разорвана"
 
+#: errunix.d:582
 msgid "Advertise error"
 msgstr "Ошибка объявления (advertise)"
 
+#: errunix.d:588
 msgid "Srmount error"
 msgstr "Ошибка srmount"
 
+#: errunix.d:594
 msgid "Communication error on send"
 msgstr "Ошибка обмена при передаче"
 
+#: errunix.d:600
 msgid "Protocol error"
 msgstr "Ошибка протокола"
 
+#: errunix.d:606
 msgid "Multihop attempted"
 msgstr "Попытка multihop"
 
+#: errunix.d:618
 msgid "Remote address changed"
 msgstr "Удаленный (remote) адрес изменен"
 
+#: errunix.d:625
 msgid "Function not implemented"
 msgstr "Функция не реализована"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
