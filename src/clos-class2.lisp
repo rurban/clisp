@@ -35,6 +35,8 @@
   all-superclasses         ; hash table of all superclasses (incl. the class itself)
   precedence-list          ; ordered list of all superclasses (with the class itself first),
                            ; or NIL while the class is waiting to be finalized
+  direct-slots             ; list of all freshly added slots (as direct-slot-definition instances)
+  slots                    ; list of all slots (as effective-slot-definitions)
   (slot-location-table empty-ht) ; hash table slotname -> location of the slot
   documentation)           ; string or NIL
 
@@ -44,7 +46,6 @@
                           (:conc-name "CLASS-"))
   subclass-of-stablehash-p ; true if <standard-stablehash> or <structure-stablehash>
                            ; is among the superclasses
-  slots                    ; list of all slots (as effective-slot-definitions)
   default-initargs         ; default-initargs (as alist initarg -> (form function))
   valid-initargs           ; list of valid initargs
   instance-size)           ; number of slots of the direct instances + 1
@@ -54,7 +55,6 @@
 
 (defstruct (standard-class (:inherit slotted-class) (:conc-name "CLASS-"))
   current-version          ; most recent class-version, points back to this class
-  direct-slots             ; list of all freshly added slots (as direct-slot-definition instances)
   direct-default-initargs  ; freshly added default-initargs (as alist initarg -> (form function))
   direct-accessors         ; automatically generated accessor methods (as plist)
   fixed-slot-locations     ; flag whether to guarantee same slot locations in all subclasses
@@ -1213,6 +1213,8 @@
         (std-compute-cpl class direct-superclasses))
   (setf (class-all-superclasses class)
         (std-compute-superclasses (class-precedence-list class)))
+  (setf (class-direct-slots class) '())
+  (setf (class-slots class) '())
   class)
 
 ;; --------------- Creation of an instance of <structure-class> ---------------
@@ -1221,18 +1223,21 @@
     (metaclass &rest args
                &key name (direct-superclasses '())
                     ;; The following keys come from ENSURE-CLASS.
-                    (direct-slots '()) (direct-default-initargs '())
-                    (documentation nil)
+                    ((:direct-slots direct-slots-as-lists) '())
+                    (direct-default-initargs '()) (documentation nil)
                     ;; The following keys come from DEFINE-STRUCTURE-CLASS.
-                    names (slots '()) (size 1)
+                    names
+                    ((direct-slots direct-slots-as-metaobjects) '())
+                    (slots '()) (size 1)
                &allow-other-keys)
   ;; metaclass = <structure-class>
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'make-instance later.
   ;; But note a subtle difference: This definition here sets unspecified class
   ;; slots to NIL; make-instance doesn't do this.
-  (declare (ignore direct-superclasses direct-slots direct-default-initargs
-                   names slots size documentation))
+  (declare (ignore direct-superclasses direct-slots-as-lists
+                   direct-default-initargs documentation
+                   names direct-slots-as-metaobjects slots size))
   (let ((class (make-structure-class :classname name :metaclass metaclass)))
     (apply #'initialize-instance-structure-class class args)))
 
@@ -1240,10 +1245,12 @@
     (class &rest args
            &key name (direct-superclasses '())
                 ;; The following keys come from ENSURE-CLASS.
-                (direct-slots '()) (direct-default-initargs '())
-                (documentation nil)
+                ((:direct-slots direct-slots-as-lists) '())
+                (direct-default-initargs '()) (documentation nil)
                 ;; The following keys come from DEFINE-STRUCTURE-CLASS.
-                names (slots '()) (size 1)
+                names
+                ((direct-slots direct-slots-as-metaobjects) '())
+                (slots '()) (size 1)
            &allow-other-keys)
   ;; metaclass <= <structure-class>
   (when *classes-finished*
@@ -1265,6 +1272,7 @@
         (std-compute-superclasses (class-precedence-list class)))
   (setf (class-subclass-of-stablehash-p class)
         (std-compute-subclass-of-stablehash-p class))
+  (setf (class-direct-slots class) direct-slots-as-metaobjects)
   ;; When called via ENSURE-CLASS, we have to do inheritance of slots.
   (unless names
     (setq names
@@ -1286,13 +1294,15 @@
   (setf (class-slots class) slots)
   ;; When called via ENSURE-CLASS,
   ;; we may have to treat additional direct slots.
-  (when direct-slots
-    (let* ((more-slots (std-compute-slots class (convert-direct-slots class direct-slots)))
+  (when direct-slots-as-lists
+    (let* ((more-direct-slots (convert-direct-slots class direct-slots-as-lists))
+           (more-slots (std-compute-slots class more-direct-slots))
            (shared-index (std-layout-slots class more-slots)))
       (when (plusp shared-index)
         (error-of-type 'error
           (TEXT "(~S ~S): metaclass ~S does not support shared slots")
           'DEFCLASS name 'STRUCTURE-CLASS))
+      (setf (class-direct-slots class) (append (class-direct-slots class) more-direct-slots))
       (setf (class-slots class) (append (class-slots class) more-slots))))
   (setf (class-default-initargs class)
         (remove-duplicates
@@ -1319,13 +1329,15 @@
       (let* ((names (svref descr 0))
              (all-slots (svref descr 4))
              (slots (remove-if-not #'slot-definition-initargs ; means #'sys::ds-real-slot-p
-                                   all-slots)))
+                                   all-slots))
+             (direct-slots (svref descr 5)))
         (setf (find-class name)
               (make-instance-structure-class <structure-class>
                 :name name
                 :direct-superclasses
                   (if (cdr names) (list (find-class (second names))) '())
                 :names names
+                'direct-slots direct-slots
                 :slots slots
                 :size (if all-slots
                         (1+ (slot-definition-location (car (last all-slots))))
