@@ -3,6 +3,8 @@
 	fallout of 2002-07-09 parse-namestring patch in ANSI mode
 	* pathname.d (test_default_pathname): treat NIL as unbound,
 	permitting (parse-namestring "foo" nil nil ...) again
+	* compiler.lisp (compile-file-pathname-helper): do not pass
+	NIL as the :DEFAULTS to MAKE-PATHNAME
 
 2002-07-15  Sam Steingold  <sds@gnu.org>
 
