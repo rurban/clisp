@@ -659,8 +659,7 @@ for-value   NIL or T
 
 ;; error message function
 (defun compiler-error (caller &optional where)
-  (error (TEXT "Compiler bug!! Occurred in ~A~@[ at ~A~].")
-         caller where))
+  (error (TEXT "Compiler bug!! Occurred in ~A~@[ at ~A~].") caller where))
 
 
 ;;;;****                      STACK   MANAGEMENT
@@ -926,7 +925,7 @@ for-value   NIL or T
 (defun fenv-search (f &optional (fenv *fenv*))
   (loop
     (when (null fenv) (return-from fenv-search 'NIL))
-    (unless (simple-vector-p fenv) (compiler-error 'fenv-search))
+    (unless (simple-vector-p fenv) (compiler-error 'fenv-search fenv))
     (do ((l (1- (length fenv)))
          (i 0 (+ i 2)))
         ((= i l) (setq fenv (svref fenv i)))
@@ -1171,7 +1170,7 @@ for-value   NIL or T
                      (if (var-specialp val) 'SPECIAL (values T val))
                      (if (eq val specdecl) 'SPECIAL
                          (values 'LOCAL venv (1+ i)))))))))
-          (t (compiler-error 'venv-search)))))
+          (t (compiler-error 'venv-search venv)))))
 
 ;; (venv-search-macro v) searches in *venv* for a Variable with the Symbol v.
 ;; result:
@@ -2010,7 +2009,7 @@ for-value   NIL or T
 ;; This table must contain all Special-Forms:
 (do-all-symbols (sym)
   (when (and (special-operator-p sym) (not (gethash sym c-form-table)))
-    (compiler-error 'c-form-table)))
+    (compiler-error 'c-form-table sym)))
 
 ;; expand (recursively) the compiler macro form
 (defun expand-compiler-macro (form)
@@ -2092,7 +2091,7 @@ for-value   NIL or T
                     (LOCAL  ; local function (found in *fenv*)
                      ; (c-form `(FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
                      (c-LOCAL-FUNCTION-CALL fun f3 (cdr *form*)))
-                    (t (compiler-error 'c-form))))))
+                    (t (compiler-error 'c-form f1))))))
             (if (lambda-form-p fun)
               (c-form `(FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
               #| not: (c-LAMBDA-FUNCTION-CALL fun (cdr *form*)) |#
@@ -2934,7 +2933,8 @@ for-value   NIL or T
                                (LIST* (case n
                                         (1 '((VALUES1)) )
                                         (t `((LIST* ,(1- n))) )))
-                               (t (compiler-error 'c-GLOBAL-FUNCTION-CALL))))))
+                               (t (compiler-error 'c-GLOBAL-FUNCTION-CALL
+                                                  fun))))))
                        (make-anode
                          :type `(PRIMOP ,fun)
                          :sub-anodes (remove-if-not #'anode-p codelist)
@@ -4886,7 +4886,7 @@ for-value   NIL or T
                  :sub-anodes (list anode)
                  :seclass '(T . T)
                  :code `(,anode (RETURN-FROM ,(new-const a))))))
-            (t (compiler-error 'c-RETURN-FROM))))))
+            (t (compiler-error 'c-RETURN-FROM a))))))
 
 ) ; macrolet
 
@@ -5008,7 +5008,7 @@ for-value   NIL or T
                :sub-anodes '()
                :seclass '(T . T)
                :code `((GO ,(new-const a) ,b))))
-            (t (compiler-error 'c-GO))))))
+            (t (compiler-error 'c-GO a))))))
 
 ;; compile (FUNCTION funname)
 (defun c-FUNCTION ()
@@ -5054,7 +5054,7 @@ for-value   NIL or T
             (t (if (and (null f1) m)
                  (c-error (TEXT "~S is not a function. It is a locally defined macro.")
                           name)
-                 (compiler-error 'c-FUNCTION))))))
+                 (compiler-error 'c-FUNCTION name))))))
       (let ((funname (car (last *form*))))
         (if (lambda-form-p funname)
           (let* ((*no-code* (or *no-code* (null *for-value*)))
@@ -5864,7 +5864,7 @@ for-value   NIL or T
                         auxvar auxinit)
       (analyze-lambdalist (pop lambdabody))
     (when (or keyflag keyword keyvar keyinit keysvar allow-other-keys)
-      (compiler-error 'c-FUNCALL-INLINE))
+      (compiler-error 'c-FUNCALL-INLINE funform))
     (let ((r (length reqvar)) ; number of required-arguments
           (s (length optvar)) ; number of optional arguments
           (|t| (length arglist))) ; number of specified arguments
@@ -8070,7 +8070,7 @@ Optimizations that might apply after this one are retried.
 (defun optimize-label (label &optional (index (get label 'code-part))
                                        (code (aref *code-parts* index))
                                        (lastc (last code)))
-  (unless (eq label (cdr lastc)) (compiler-error 'optimize-label))
+  (unless (eq label (cdr lastc)) (compiler-error 'optimize-label label))
   (when label
     ;; label is a Label, it starts the Code
     ;; code = (aref *code-parts* index), and lastc = (last code).
@@ -8143,78 +8143,78 @@ Optimizations that might apply after this one are retried.
            (let ((true-label (second item))
                  (false-label (third item)))
              (unless (or (eq label true-label) (eq label false-label))
-               (macrolet ((err () `(compiler-error 'optimize-short)))
-                 ;; simplifly JMPCASE1-references to label:
-                 (let ((modified-indices '())) ; Indices of modified code-parts
-                   (dolist (refindex (symbol-value label))
-                     (when (integerp refindex)
-                       (let* ((refcode (aref *code-parts* refindex))
-                              (ref (car refcode)))
-                         (case (first ref)
-                           (JMP
-                            ;; (JMP label) -->
-                            ;; (JMPCASE/... true-label false-label)
-                            (setf (car refcode) item)
-                            ;; new references to true-label and false-label:
-                            (push refindex (symbol-value true-label))
-                            (push refindex (symbol-value false-label))
-                            (push refindex modified-indices))
-                           ((JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
-                            ;; (JMPCASE/... label1 label2)
-                            (let (;; TRUE-case: where to jump
-                                  (label1 (second ref))
-                                  ;; FALSE-case: where to jump
-                                  (label2 (third ref))
-                                  ;; TRUE-case: with (VALUES1) ?
-                                  (1-true (eq (first ref) 'JMPCASE1-TRUE))
-                                  ;; FALSE-case: with (VALUES1) ?
-                                  (1-false (eq (first ref) 'JMPCASE1-FALSE)))
-                              (when (eq label label1)
-                                ;; the (JMPCASE/... label ...) is simplified
-                                ;; to (JMPCASE/... true-label ...).
-                                (setq label1 true-label)
-                                ;; new reference to true-label:
-                                (push refindex (symbol-value true-label))
-                                (push refindex modified-indices)
-                                (when (eq (first item) 'JMPCASE1-TRUE)
-                                  (setq 1-true t)))
-                              (when (eq label label2)
-                                ;; the (JMPCASE/... ... label) is simplified
-                                ;; to (JMPCASE/... ... false-label).
-                                (setq label2 false-label)
-                                ;; new reference to false-label:
-                                (push refindex (symbol-value false-label))
-                                (push refindex modified-indices)
-                                (when (eq (first item) 'JMPCASE1-FALSE)
-                                  (setq 1-false t)))
-                              (unless (eq (get label1 'for-value) 'ALL)
-                                (setq 1-true nil))
-                              (unless (eq (get label2 'for-value) 'ALL)
-                                (setq 1-false nil))
-                              (when (and 1-true 1-false)
-                                (push '(VALUES1) (cdr refcode))
-                                (setq 1-true nil 1-false nil))
-                              (setf (car refcode)
-                                    `(,(cond (1-true 'JMPCASE1-TRUE)
-                                             (1-false 'JMPCASE1-FALSE)
-                                             (t 'JMPCASE))
-                                      ,label1
-                                      ,label2))))
-                           (JMPHASH (err)))) ; JMPHASH has undefined values
-                       ;; later:
-                       ;; (setf (symbol-value label)
-                       ;;       (delete refindex (symbol-value label)))
-                       ))
-                   (setf (symbol-value label)
-                          (delete-if #'integerp (symbol-value label)))
-                   ;; more optimization feasible because of reduced references:
-                   (optimize-label label)
-                   ;; poss. further optimization in changed code-parts:
-                   (dolist (refindex modified-indices)
-                     (simplify (aref *code-parts* refindex))
-                     (optimize-value refindex)
-                     (optimize-jmpcase refindex
-                                       (aref *code-parts* refindex)))))))))))
+               ;; simplifly JMPCASE1-references to label:
+               (let ((modified-indices '())) ; Indices of modified code-parts
+                 (dolist (refindex (symbol-value label))
+                   (when (integerp refindex)
+                     (let* ((refcode (aref *code-parts* refindex))
+                            (ref (car refcode)))
+                       (case (first ref)
+                         (JMP
+                          ;; (JMP label) -->
+                          ;; (JMPCASE/... true-label false-label)
+                          (setf (car refcode) item)
+                          ;; new references to true-label and false-label:
+                          (push refindex (symbol-value true-label))
+                          (push refindex (symbol-value false-label))
+                          (push refindex modified-indices))
+                         ((JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
+                          ;; (JMPCASE/... label1 label2)
+                          (let (;; TRUE-case: where to jump
+                                (label1 (second ref))
+                                ;; FALSE-case: where to jump
+                                (label2 (third ref))
+                                ;; TRUE-case: with (VALUES1) ?
+                                (1-true (eq (first ref) 'JMPCASE1-TRUE))
+                                ;; FALSE-case: with (VALUES1) ?
+                                (1-false (eq (first ref) 'JMPCASE1-FALSE)))
+                            (when (eq label label1)
+                              ;; the (JMPCASE/... label ...) is simplified
+                              ;; to (JMPCASE/... true-label ...).
+                              (setq label1 true-label)
+                              ;; new reference to true-label:
+                              (push refindex (symbol-value true-label))
+                              (push refindex modified-indices)
+                              (when (eq (first item) 'JMPCASE1-TRUE)
+                                (setq 1-true t)))
+                            (when (eq label label2)
+                              ;; the (JMPCASE/... ... label) is simplified
+                              ;; to (JMPCASE/... ... false-label).
+                              (setq label2 false-label)
+                              ;; new reference to false-label:
+                              (push refindex (symbol-value false-label))
+                              (push refindex modified-indices)
+                              (when (eq (first item) 'JMPCASE1-FALSE)
+                                (setq 1-false t)))
+                            (unless (eq (get label1 'for-value) 'ALL)
+                              (setq 1-true nil))
+                            (unless (eq (get label2 'for-value) 'ALL)
+                              (setq 1-false nil))
+                            (when (and 1-true 1-false)
+                              (push '(VALUES1) (cdr refcode))
+                              (setq 1-true nil 1-false nil))
+                            (setf (car refcode)
+                                  `(,(cond (1-true 'JMPCASE1-TRUE)
+                                           (1-false 'JMPCASE1-FALSE)
+                                           (t 'JMPCASE))
+                                     ,label1
+                                     ,label2))))
+                         (JMPHASH ; JMPHASH has undefined values
+                          (compiler-error 'optimize-short label))))
+                     ;; later:
+                     ;; (setf (symbol-value label)
+                     ;;       (delete refindex (symbol-value label)))
+                     ))
+                 (setf (symbol-value label)
+                       (delete-if #'integerp (symbol-value label)))
+                 ;; more optimization feasible because of reduced references:
+                 (optimize-label label)
+                 ;; poss. further optimization in changed code-parts:
+                 (dolist (refindex modified-indices)
+                   (simplify (aref *code-parts* refindex))
+                   (optimize-value refindex)
+                   (optimize-jmpcase refindex
+                                     (aref *code-parts* refindex))))))))))
     ;; further "short" code-parts, at most 2 instructions long:
     (when (and (or (eq code lastc) (eq (cdr code) lastc))
                (not (eq (first (car code)) 'JMPHASH))
@@ -8246,76 +8246,75 @@ Optimizations that might apply after this one are retried.
 ;; TRUE      surely A0 /= NIL,
 ;; NIL       can say nothing.
 (defun get-boolean-value (code)
-  (macrolet ((err () `(compiler-error 'get-boolean-value)))
-    (let ((invert nil)) ; if the boolean value is inverted from here to the end
-      ((lambda (value)
-         (if invert
-           (case value (TRUE 'FALSE) (FALSE 'TRUE) (t NIL))
-           value))
-       (block value
-         (loop ; traverse code-list
-           (when (atom code) (return))
-           (case (first (car code))
-             ((NIL VALUES0 TAGBODY-CLOSE-NIL) ; produce value NIL
-              (return-from value 'FALSE)) ; thus we can terminate the loop
-             ((T CONS LIST LIST*) ; produce value /= NIL
-              ;; (LIST n) and (LIST* n) because of n>0.
+  (let ((invert nil)) ; if the boolean value is inverted from here to the end
+    ((lambda (value)
+       (if invert
+         (case value (TRUE 'FALSE) (FALSE 'TRUE) (t NIL))
+         value))
+     (block value
+       (loop ; traverse code-list
+         (when (atom code) (return))
+         (case (first (car code))
+           ((NIL VALUES0 TAGBODY-CLOSE-NIL) ; produce value NIL
+            (return-from value 'FALSE)) ; thus we can terminate the loop
+           ((T CONS LIST LIST*) ; produce value /= NIL
+            ;; (LIST n) and (LIST* n) because of n>0.
+            (return-from value 'TRUE)) ; thus we can terminate the loop
+           (CONST
+            (unless (and (cddr (car code))
+                         (eq (const-horizon (third (car code))) ':form))
+              ;; (CONST n) produces value /= NIL, because the value
+              ;; is already known at Compile-Time and the constant
+              ;; NIL in make-const-code has already been treated.
               (return-from value 'TRUE)) ; thus we can terminate the loop
-             (CONST
-              (unless (and (cddr (car code))
-                           (eq (const-horizon (third (car code))) ':form))
-                ;; (CONST n) produces value /= NIL, because the value
-                ;; is already known at Compile-Time and the constant
-                ;; NIL in make-const-code has already been treated.
-                (return-from value 'TRUE)) ; thus we can terminate the loop
-              (return-from value nil))
-             (NOT (setq invert (not invert))) ; invert the boolean value later
-             ((UNBIND1 SKIP SKIPI SKIPSP STORE STOREI STOREV STOREC STOREIC
-               SETVALUE VALUES1 BLOCK-CLOSE TAGBODY-CLOSE CATCH-CLOSE
-               UNWIND-PROTECT-CLEANUP)
-              ;; no modification of the first value ->
-              ;; continue in the code-list
-              )
-             (t (return-from value nil)))
-           (setq code (cdr code)))
-         (when code
-           ;; code is the start-label.
-           ;; Inspect all jumps to the Label code:
-           (let ((so-far nil))
-             ;; = FALSE, if all jumps so far bring along FALSE,
-             ;; = TRUE,  if all jumps so far bring along TRUE,
-             ;; = NIL at the beginning.
-             ;; If a jump brings along an unknown boolean value,
-             ;; the loop can be left instantly.
-             (flet ((new (value)
-                      (cond ((null so-far) (setq so-far value))
-                            ((not (eq value so-far))
-                             (return-from value nil)))))
-               (dolist (ref (symbol-value code))
-                 (if (integerp ref)
-                   (let ((refcode (first (aref *code-parts* ref)))) ; the jump hither
-                     ;; this cannot be a leaving-jump with undefined values.
-                     (case (first refcode)
-                       (JMP
-                        (if (third refcode)
-                          ;; value known before the jump
-                          (new (third refcode))
-                          ;; value unknown before the jump
-                          (return-from value nil)))
-                       ((JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
-                        (when (eq code (second refcode)) (new 'TRUE))
-                        (when (eq code (third refcode)) (new 'FALSE)))
-                       (t ;; JMPHASH has undefined values, and the
-                          ;; other leaving-jumps contain no Labels.
-                        (err))))
-                   (case (first ref)
-                     ((JMPIFBOUNDP BLOCK-OPEN CATCH-OPEN)
-                      (return-from value nil)) ; can say nothing
-                     (t ;; There are undefined values at the Labels in
-                        ;; TAGBODY-OPEN, JSR, UNWIND-PROTECT-OPEN,
-                        ;; UNWIND-PROTECT-CLOSE.
-                      (err))))))))
-         nil))))) ; Default: can say nothing
+            (return-from value nil))
+           (NOT (setq invert (not invert))) ; invert the boolean value later
+           ((UNBIND1 SKIP SKIPI SKIPSP STORE STOREI STOREV STOREC STOREIC
+             SETVALUE VALUES1 BLOCK-CLOSE TAGBODY-CLOSE CATCH-CLOSE
+             UNWIND-PROTECT-CLEANUP)
+            ;; no modification of the first value ->
+            ;; continue in the code-list
+            )
+           (t (return-from value nil)))
+         (setq code (cdr code)))
+       (when code
+         ;; code is the start-label.
+         ;; Inspect all jumps to the Label code:
+         (let ((so-far nil))
+           ;; = FALSE, if all jumps so far bring along FALSE,
+           ;; = TRUE,  if all jumps so far bring along TRUE,
+           ;; = NIL at the beginning.
+           ;; If a jump brings along an unknown boolean value,
+           ;; the loop can be left instantly.
+           (flet ((new (value)
+                    (cond ((null so-far) (setq so-far value))
+                          ((not (eq value so-far))
+                           (return-from value nil)))))
+             (dolist (ref (symbol-value code))
+               (if (integerp ref)
+                 (let ((refcode (first (aref *code-parts* ref)))) ; the jump hither
+                   ;; this cannot be a leaving-jump with undefined values.
+                   (case (first refcode)
+                     (JMP
+                      (if (third refcode)
+                        ;; value known before the jump
+                        (new (third refcode))
+                        ;; value unknown before the jump
+                        (return-from value nil)))
+                     ((JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
+                      (when (eq code (second refcode)) (new 'TRUE))
+                      (when (eq code (third refcode)) (new 'FALSE)))
+                     (t ;; JMPHASH has undefined values, and the
+                        ;; other leaving-jumps contain no Labels.
+                      (compiler-error 'get-boolean-value refcode))))
+                 (case (first ref)
+                   ((JMPIFBOUNDP BLOCK-OPEN CATCH-OPEN)
+                    (return-from value nil)) ; can say nothing
+                   (t ;; There are undefined values at the Labels in
+                      ;; TAGBODY-OPEN, JSR, UNWIND-PROTECT-OPEN,
+                      ;; UNWIND-PROTECT-CLOSE.
+                    (compiler-error 'get-boolean-value ref))))))))
+       nil)))) ; Default: can say nothing
 
 (defun optimize-jmpcase (index code)
   (when (eq (first (car code)) 'JMPCASE)
@@ -8848,7 +8847,7 @@ This step determines, how many SP-Entries the function needs at most.
     (macrolet ((check-depth (wanted-depth)
                  ;; checks, if depth equals the depth wanted-depth
                  `(unless (equal depth ,wanted-depth)
-                    (compiler-error 'SP-depth))))
+                    (compiler-error 'SP-depth (cons depth ,wanted-depth)))))
       (loop
         ;; middle traverses the code-list, from the current position
         ;; to the next leaving-jump, and counts the depth.
@@ -9396,8 +9395,7 @@ freshly rebuilt as list of bytes.
       (if (atom item)
         (setf (symbol-value item) PC)
         (let ((instr-code (gethash (first item) instruction-codes)))
-          (unless instr-code (compiler-error 'assemble-LAP
-                                             "ILLEGAL INSTRUCTION"))
+          (unless instr-code (compiler-error 'assemble-LAP item))
           (let ((instr-class (second (svref instruction-table instr-code)))
                 (instr-length 1))
             (if (and (eq instr-class 'K)
