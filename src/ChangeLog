@@ -3,6 +3,8 @@
 	* array.d (ADJUST-ARRAY): fixed a GC-safety bug
 	* eval.d (funcall_iclosure): fixed 2 GC-safety bugs
 	* record.d (update_instance): fixed 3 GC-safety bugs
+	(keyword_test): fixed last patch
+	* control.d (KEYWORD-TEST): ditto
 
 2003-04-26  Sam Steingold  <sds@gnu.org>
 
