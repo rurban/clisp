@@ -97,7 +97,7 @@ extern void sigsegv_leave_handler (void);
 /*
  * The type of a context passed to a stack overflow handler.
  */
-#if defined(__linux__) && (defined(i386) || defined(__i386) || defined(m68k) || defined(__m68k) || defined(mips) || defined(__mips) || defined(sparc) || defined(__sparc) || defined(alpha) || defined(__alpha) || defined(arm) || defined(__arm)) /* Linux */
+#if defined(__linux__) && (defined(i386) || defined(__i386) || defined(m68k) || defined(__m68k) || defined(mips) || defined(__mips) || defined(sparc) || defined(__sparc) || defined(alpha) || defined(__alpha) || defined(arm) || defined(__arm) || defined(__arm__)) /* Linux */
 typedef struct sigcontext * stackoverflow_context_t;
 #elif defined(sun) && defined(__svr4__) && (defined(sparc) || (defined(i386) || defined(__i386))) /* SunOS 5 */
 #include <ucontext.h>
