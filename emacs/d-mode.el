@@ -72,7 +72,9 @@ The point should be on the prototype and the definition should follow."
   (save-excursion
     (beginning-of-line)
     (when (search-forward "# " (line-end-position) t)
-      (replace-match "/* ") (end-of-line) (insert " */"))))
+      (replace-match "/* ") (end-of-line)
+      (if (/= ?\\ (char-before)) (insert " */")
+        (forward-char -1) (just-one-space) (insert "*/ ")))))
 
 (defun d-mode-convert-block-comment ()
   "Comvert the current comment block from # to /**/"
