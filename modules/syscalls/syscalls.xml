@@ -69,14 +69,14 @@
         For other file types, the use of this field is unspecified.
      </simpara></listitem></varlistentry>
      <varlistentry><term><structfield>atime</structfield></term>
-      <listitem><simpara>Time of last access (as the number of seconds
-        since 1900-01-01).</simpara></listitem></varlistentry>
+      <listitem><simpara>&uni-time; of last access.
+     </simpara></listitem></varlistentry>
      <varlistentry><term><structfield>mtime</structfield></term>
-      <listitem><simpara>Time of last data modification (as the number of
-        seconds since 1900-01-01).</simpara></listitem></varlistentry>
+      <listitem><simpara>&uni-time; of last data modification.
+     </simpara></listitem></varlistentry>
      <varlistentry><term><structfield>ctime</structfield></term>
-      <listitem><simpara>Time of last status change (as the number of
-        seconds since 1900-01-01).</simpara></listitem></varlistentry>
+      <listitem><simpara>&uni-time; of last status change.
+     </simpara></listitem></varlistentry>
      <varlistentry><term><structfield>blksize</structfield></term>
       <listitem><simpara>A file system-specific preferred I/O block size
         for this object.  In some file system types, this may vary from
