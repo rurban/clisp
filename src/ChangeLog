@@ -1,3 +1,10 @@
+2002-07-20  Sam Steingold  <sds@gnu.org>
+
+	* m4/readline.m4 (CL_READLINE): check for the name of the file
+	completion function and CONST modifier of its first argument
+	* unixconf.h.in (READLINE_CONST, READLINE_FILE_COMPLETE): undef
+	* stream.d: use them
+
 2002-07-19  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (main): more begin/end_system_call

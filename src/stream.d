@@ -9222,8 +9222,7 @@ global char** lisp_completion (char* text, int start, int end) {
       var uintL charcount = Sstring_length(m);
       var const chart* ptr1;
       unpack_sstring_alloca(m,charcount,0, ptr1=);
-      # (CATCH 'SYS::CONVERSION-FAILURE ...)
-      {
+      { /* (CATCH 'SYS::CONVERSION-FAILURE ...) */
         var object* top_of_frame = STACK;
         pushSTACK(S(conversion_failure));
         var sp_jmp_buf returner;
@@ -9665,9 +9664,9 @@ local bool clear_input_terminal2 (object stream) {
 #define TERMINAL_LINEBUFFERED  true
 #define TERMINAL_OUTBUFFERED   true
 
-extern_C char *filename_completion_function (const char *, int);
+extern_C char *READLINE_FILE_COMPLETE (READLINE_CONST char *, int);
 local bool want_filename_completion;
-local char** lisp_completion_matches (const char* text, int start, int end) {
+local char** lisp_completion_matches (READLINE_CONST char* text, int start, int end) {
   # text[0..end-start-1] = the_line[start..end-1]
   if (((start>=2)
        && (rl_line_buffer[start-2]=='#')
@@ -9686,9 +9685,9 @@ local char** lisp_completion_matches (const char* text, int start, int end) {
 
 # If the function above returns NULL (no Matches), the following
 # function is called until it returns NULL on its part.
-local char* lisp_completion_more (const char* text, int state) {
+local char* lisp_completion_more (READLINE_CONST char* text, int state) {
   if (want_filename_completion)
-    return filename_completion_function(text,state);
+    return READLINE_FILE_COMPLETE(text,state);
   else
     return NULL;
 }
