@@ -1,5 +1,10 @@
 2003-04-21  Sam Steingold  <sds@gnu.org>
 
+	* io.d (ANSI-PATHNAME-READER): understand Allegro CL #P(...)
+	syntax which is equivalent to our #S(PATHNAME ...) syntax
+
+2003-04-21  Sam Steingold  <sds@gnu.org>
+
 	EQUALP on HASH-TABLEs now correctly descends the structure
 	* predtype.d (hash_table_equalp): new function
 	(equalp): use it to compare hash-tables
