@@ -39,18 +39,18 @@ DSOURCES = \
     intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt \
     intprint intread rational sfloat ffloat dfloat lfloat flo_konv flo_rest \
     realelem realrand realtran compelem comptran \
- rexx affi \
+ affi \
  foreign \
  unixaux win32aux
 
 LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 \
-              timezone places floatprint type defstruct format \
+              timezone places floatprint type defstruct format international \
               savemem trace cmacros compiler defs2 loop clos \
               disassem condition threads gstream xcharin keyboard \
               screen beossock runprog query reploop dribble complete \
               describe room edit macros3 clhs inspect gray \
-              foreign1 german french spanish dutch \
-              affi1 rexx1
+              threads foreign1 german french spanish dutch \
+              deprecated affi1
 
 SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lisp,$(LISPSOURCES))
 

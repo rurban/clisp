@@ -1,3 +1,8 @@
+2004-03-09  Bruno Haible  <bruno@clisp.org>
+
+	* po/Makefile.devel (DSOURCES): Remove rexx.
+	(LISPSOURCES): Add international, threads, deprecated. Remove rexx1.
+
 2004-03-09  Sam Steingold  <sds@gnu.org>
 
 	* format.lisp (format-logical-block, formatter): do not signal an
