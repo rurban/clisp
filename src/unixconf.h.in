@@ -181,8 +181,6 @@
 #define STRLEN_CONST
 
 /* CL_MEMSET */
-/* Define if you have the memset() function. */
-#undef HAVE_MEMSET
 /* Define as the return type of memset(). */
 #undef RETMEMSETTYPE
 
