@@ -43,10 +43,13 @@
                                    ((direct-slots direct-slots-as-metaobjects) '())
                                    ((names names) nil)
                                    ((kconstructor kconstructor) nil)
+                                   ((boa-constructors boa-constructors) nil)
+                                   ((copier copier) nil)
                                    ((slots slots) '()) ((size size) 1))
   (declare (ignore name direct-superclasses direct-slots
                    direct-default-initargs documentation generic-accessors
-                   direct-slots-as-metaobjects names kconstructor slots size))
+                   direct-slots-as-metaobjects names kconstructor
+                   boa-constructors copier slots size))
   (apply #'shared-initialize-<structure-class> class situation args))
 
 ;;; ===========================================================================
