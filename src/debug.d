@@ -179,10 +179,10 @@
       dynamic_bind(S(read_suppress),NIL); # *READ-SUPPRESS* = NIL
       var object obj = stream_read(inputstream_,NIL,NIL); # read object (recursive-p=NIL, whitespace-p=NIL)
       dynamic_unbind(); # S(read_suppress)
-      dynamic_unbind(); # S(key_bindings)
       #if !defined(TERMINAL_USES_KEYBOARD)
       if (!ls_avail_p(status)) dynamic_unbind(); # S(terminal_read_stream)
       #endif
+      dynamic_unbind(); # S(key_bindings)
       if (!eq(obj,eof_value)) { # EOF test (after whitespace)
         pushSTACK(obj);
         pushSTACK(STACK_(4+1)); pushSTACK(STACK_(0+1+1)); funcall(L(terminal_raw),2);
