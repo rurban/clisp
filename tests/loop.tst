@@ -329,6 +329,7 @@ February 17
       return (format nil "~A ~A ~A" a b c))
 "0.0 0.0 0.0"
 
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-8-1.html>
 (let ((numbers-list '(3 2 4 6 1 7 8)) (results nil))
   (cons
     (with-output-to-string (*standard-output*)
@@ -360,6 +361,33 @@ February 17
         return it)
 4
 
+;; Find a number in a list.
+(loop for i in '(1 2 3 4 5 6)
+  when (and (> i 3) i)
+  return it)
+4
+
+;; The above example is similar to the following one.
+(loop for i in '(1 2 3 4 5 6)
+  thereis (and (> i 3) i))
+4
+
+;; Nest conditional clauses.
+(let ((list '(0 3.0 apple 4 5 9.8 orange banana)))
+  (loop for i in list
+    when (numberp i)
+     when (floatp i)
+      collect i into float-numbers
+     else                                  ; Not (floatp i)
+      collect i into other-numbers
+    else                                    ; Not (numberp i)
+     when (symbolp i)
+      collect i into symbol-list
+     else                                  ; Not (symbolp i)
+      do (error "found a funny value in list ~S, value ~S~%" list i)
+    finally (return (list float-numbers other-numbers symbol-list))))
+((3.0 9.8) (0 4 5) (APPLE ORANGE BANANA))
+
 (LET ((IT 'Z)) (LOOP FOR X IN '(A NIL B C D) IF X COLLECT IT END COLLECT IT))
 (A Z Z B Z C Z D Z)
 
@@ -371,6 +399,8 @@ February 17
       thereis (and (> i 3) i))
 4
 
+;; Without the END preposition, the last AND would apply to the
+;; inner IF rather than the outer one.
 (with-output-to-string (*standard-output*)
   (loop for x from 0 to 3
         do (print x)
@@ -799,6 +829,28 @@ nil
   :initially (assert (zerop x)) :initially (assert (= 2 w))
   :until (>= w 100) :collect w)
 (2 6 15 38)
+
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-8.html>
+(let ((i 0))                    ; no loop keywords are used
+  (loop (incf i) (if (= i 3) (return i))))
+3
+
+(let ((i 0)(j 0))
+  (tagbody
+    (loop (incf j 3) (incf i) (if (= i 3) (go exit)))
+   exit)
+  j)
+9
+
+(loop for x from 1 to 10
+  for y = nil then x
+  collect (list x y))
+((1 NIL) (2 2) (3 3) (4 4) (5 5) (6 6) (7 7) (8 8) (9 9) (10 10))
+
+(loop for x from 1 to 10
+  and y = nil then x
+  collect (list x y))
+((1 NIL) (2 1) (3 2) (4 3) (5 4) (6 5) (7 6) (8 7) (9 8) (10 9))
 
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
