@@ -893,7 +893,7 @@ is the same as
 </section>
 
 <section id="cond-dict"><title>The Conditions Dictionary
-   <ulink url="&clhs;/Body/sec_the_condi_s_dictionary.html">[CLHS-9.2.]</ulink></title>
+   <ulink url="&clhs;/Body/sec_the_condi_s_dictionary.html">[CLHS-9.2]</ulink></title>
 
 <formalpara><title>&restart-case;</title>
 <para>In &restart-case; clauses the argument list can also be specified
@@ -1037,7 +1037,7 @@ all packages in &sys-pack-list;.</para></formalpara>
 </section>
 
 <section id="pack-dict"><title>The Packages Dictionary
-   <ulink url="&clhs;/Body/sec_the_packa_s_dictionary.html">[CLHS-11.2.]</ulink></title>
+   <ulink url="&clhs;/Body/sec_the_packa_s_dictionary.html">[CLHS-11.2]</ulink></title>
 
 <section id="make-pack"><title>Function &make-package;</title>
 
@@ -1947,7 +1947,7 @@ and the international alphabetic characters from the character set:
 
 </section>
 
-<section id="char-platform-dep"><title>platform-dependent characters</title>
+<section id="char-platform-dep"><title>Platform-Dependent Characters</title>
 
 <para>The characters that are not graphic chars and the space character
  have names:</para>
@@ -2296,7 +2296,7 @@ and the international alphabetic characters from the character set:
    <ulink url="&clhs;/Body/chap-17.html">[CLHS-17]</ulink></title>
 
 <section id="seq-dict"><title>The Sequences Dictionary
-   <ulink url="&clhs;/Body/sec_the_seque_s_dictionary.html">[CLHS-17.3.]</ulink></title>
+   <ulink url="&clhs;/Body/sec_the_seque_s_dictionary.html">[CLHS-17.3]</ulink></title>
 
 <section id="seq-macro-ext"><title>Additional Macros</title>
 
@@ -2377,7 +2377,7 @@ and &end-k;:</para>
    <ulink url="&clhs;/Body/chap-18.html">[CLHS-18]</ulink></title>
 
 <section id="hash-dict"><title>The Hash Tables Dictionary
-   <ulink url="&clhs;/Body/sec_the_hash__s_dictionary.html">[CLHS-18.2.]</ulink></title>
+   <ulink url="&clhs;/Body/sec_the_hash__s_dictionary.html">[CLHS-18.2]</ulink></title>
 
 <section id="make-hash"><title>Function &make-hash-table;</title>
 
@@ -3758,7 +3758,7 @@ is not a defined logical host yet, we proceed as follows:
 </section>
 
 <section id="stream-dict"><title>The Streams Dictionary
-   <ulink url="&clhs;/Body/sec_the_streams_dictionary.html">[CLHS-21.2.]</ulink></title>
+   <ulink url="&clhs;/Body/sec_the_streams_dictionary.html">[CLHS-21.2]</ulink></title>
 
 <section id="stream-eltype"><title>Function &stream-element-type;</title>
 
