@@ -1,3 +1,8 @@
+2004-04-16  Sam Steingold  <sds@gnu.org>
+
+	* comptran.d (R_R_asinh_R_R): fixed the floating point type of the
+	return value
+
 2004-04-07  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (src/autoconf/aclocal.m4): aclocal 1.8 forbids
