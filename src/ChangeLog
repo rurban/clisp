@@ -1,5 +1,11 @@
 1999-01-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in (lisplibdir): Change to $(libdir)/clisp.
+        * _distmakefile (lisplibdir): Likewise.
+        * clisp.spec: Change installation directory.
+
+1999-01-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         When getwd and getcwd both exist, prefer getcwd.
         * aclocal.m4 (CL_GETWD): Remove macro.
           (CL_GETCWD): First, check for getcwd.

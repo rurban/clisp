@@ -17,7 +17,7 @@ exec_prefix = $(prefix)
 bindir = $(exec_prefix)/bin
 mandir = $(exec_prefix)/man
 libdir = $(exec_prefix)/lib
-lisplibdir = $(libdir)/lisp
+lisplibdir = $(libdir)/clisp
 #ifdef GNU_GETTEXT
 # If you have $(exec_prefix) different from $(prefix), and indend to use
 # different versions of CLISP on different architectures, replace the
