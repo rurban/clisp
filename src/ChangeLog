@@ -1,5 +1,10 @@
 2004-08-20  Sam Steingold  <sds@gnu.org>
 
+	* configure.in: added "sysre" option to optionally disable
+	the use of system-wide regexp library
+
+2004-08-20  Sam Steingold  <sds@gnu.org>
+
 	ported RAWSOCK to win32
 	* modules/rawsock/configure.in: check for <winsock2.h>,
 	<ws2tcpip.h> and ws2_32
