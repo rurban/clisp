@@ -24,7 +24,7 @@
 <!ENTITY hyperspec-bib
   "<biblioentry id='CLHS'>
    <abbrev>CLHS</abbrev>
-   <title><ulink url='&clhs;/FrontMatter'>Common Lisp HyperSpec</ulink></title>
+   <title><ulink url='&clhs;/FrontMatter/'>Common Lisp HyperSpec</ulink></title>
   </biblioentry>">
 
 <!ENTITY cltl1 "<citation>CLtL1</citation>">
