@@ -1539,11 +1539,11 @@ LISPFUN(mapcon,seclass_default,2,0,rest,nokey,0,NIL)
   MAPCAN_MAPCON_BODY(Identity,set_last_inplace)
 
 LISPFUN(mapcap,seclass_default,2,0,rest,nokey,0,NIL)
-/* (EXT:MAPCAN fun list {list}) */
+/* (EXT:MAPCAP fun list {list}) */
   MAPCAN_MAPCON_BODY(Car,set_last_copy)
 
 LISPFUN(maplap,seclass_default,2,0,rest,nokey,0,NIL)
-/* (EXT:MAPCAN fun list {list}) */
+/* (EXT:MAPLAP fun list {list}) */
   MAPCAN_MAPCON_BODY(Identity,set_last_copy)
 
 LISPSPECFORM(tagbody, 0,0,body)
