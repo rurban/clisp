@@ -4351,7 +4351,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <listitem><simpara>if &hw; = PC (clone) with a 386/486/586/686/786 CPU
 </simpara></listitem></varlistentry>
 <varlistentry><term>&unix-k;</term>
- <listitem><simpara>if &os; = Unix (in this case the &hw; is irrelevant!)
+ <listitem><simpara>if &os; = &unix; (in this case the &hw; is irrelevant!)
 </simpara></listitem></varlistentry>
 <varlistentry><term><constant>:CYGWIN</constant></term>
  <listitem><simpara>if &clisp; is using the &cygwin; &unix;
@@ -4428,7 +4428,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  call that binds that variable.</para>
 
 <para>There is a current "stack mode" which defines in how much
- detail the stack is shown by the stack related debugger commands.</para>
+ detail the stack is shown by the stack-related debugger commands.</para>
 
 <table id="debugger-deb-step-1" frame="all">
  <title>Commands common to the debugger and the stepper</title>
@@ -4593,9 +4593,9 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <listitem><simpara>&disassemble; can disassemble to machine code,
    provided that &gnu; &gdb; is present.
    In that case the argument may be a
-   <classname>EXT:SYSTEM-FUNCTION</classname>, a
-   &foreign-function;, a special operator indicator,
-   a symbol denoting one of these, a number, or a string.
+   <classname>EXT:SYSTEM-FUNCTION</classname>, a &foreign-function;, a
+   special operator handler, a &symbol-t; denoting one of these, an
+   &integer-t; (address), or a &string-t;.
 </simpara></listitem></varlistentry>
 </variablelist>
 </section>
@@ -4714,20 +4714,20 @@ exhaust the available line length.</para></formalpara>
    &inspect; in &clisp;</title>
  <varlistentry><term><constant>:tty</constant></term>
   <listitem><simpara>The interaction is conducted via the &terminal-io-var;
-   stream.  Please use the <userinput>:h</userinput> command to get the
-   list of all available commands.</simpara></listitem></varlistentry>
+    stream.  Please use the <userinput>:h</userinput> command to get the
+    list of all available commands.</simpara></listitem></varlistentry>
  <varlistentry><term><constant>:http</constant></term>
   <listitem><simpara>A window in your Web browser (specified by the
-   &browser-k; keyword argument) is opened and it is controlled by
-   &clisp; via a &socket-stream;, using the &http; protocol.
-   You should be able to use all the standard browser features.</simpara>
+    &browser-k; keyword argument) is opened and it is controlled by
+    &clisp; via a &socket-stream;, using the &http; protocol.
+    You should be able to use all the standard browser features.</simpara>
    <simpara>Since &clisp; is not multitasking at this time, you will not
-   be able to do anything else during an &inspect; session.  Please click on
-   the <userinput>quit</userinput> link to terminate the session.</simpara>
+    be able to do anything else during an &inspect; session.  Please click on
+    the <userinput>quit</userinput> link to terminate the session.</simpara>
    <simpara>Please be aware though, that once you terminate an &inspect;
-   session, all links in all &inspect; windows in your browser will become
-   obsolete and using them in a new &inspect; session will result in
-   unpredictable behavior.</simpara></listitem></varlistentry>
+    session, all links in all &inspect; windows in your browser will become
+    obsolete and using them in a new &inspect; session will result in
+    unpredictable behavior.</simpara></listitem></varlistentry>
 </variablelist>
 </section>
 
