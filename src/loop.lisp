@@ -253,7 +253,7 @@
            (if (eq (loop-keywordp form) 'it)
              (if *last-it*
                (progn (setq *used-it* t) *last-it*)
-               (loop-syntax-error 'it))
+               form)
              form)))
        (parse-var-typespec () ;; parse var [typespec]
          ;; return the variable pattern and the list of declspecs
@@ -520,6 +520,7 @@
                              `(WHEN ,form (RETURN-FROM ,block-name 'NIL)))
                            (THEREIS
                              (let ((dummy (gensym)))
+                               (push 'NIL results)
                                `(BLOCK ,dummy
                                   (RETURN-FROM ,block-name
                                     (OR ,form (RETURN-FROM ,dummy NIL)))))))
