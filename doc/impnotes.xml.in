@@ -52,8 +52,8 @@
   <surname>Steingold</surname></author>
  <authorblurb><para>Bugs in both these notes and &clisp; itself should
    be reported to the mailing list &clisp-list;.</para></authorblurb>
- <copyright><year>1992-2003</year><holder>Bruno Haible</holder></copyright>
- <copyright><year>1998-2003</year><holder>Sam Steingold</holder></copyright>
+ <copyright><year>1992-2004</year><holder>Bruno Haible</holder></copyright>
+ <copyright><year>1998-2004</year><holder>Sam Steingold</holder></copyright>
 
  <legalnotice id="legalese">
   <para>These notes are covered by the &gnu; &gfdl;:</para>
