@@ -96,6 +96,8 @@ User visible changes
 
 * Fixed a bug in compiling duplicate keyword arguments.
 
+* Fixed the (destructuring-bind (&key (x x)) ...) bug.
+
 * Wide-mode -W backward compatibility option is now gone
   (defunct since 1998-09-09).  This permits colons in memory image file
   names (necessary on Cygwin).

@@ -248,3 +248,17 @@ test-key
 
 x
 3
+
+(destructuring-bind ((a &optional (b 'bee)) one two three)
+    `((alpha) 1 2 3)
+  (list a b three two one))
+(ALPHA BEE 3 2 1)
+
+(defmacro m (&key (x x)) `,x)
+m
+
+(m)
+3
+
+(destructuring-bind (&key (x x)) nil x)
+3
