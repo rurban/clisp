@@ -741,6 +741,7 @@ case "$host_cpu" in
   hppa*) cpu=hppa ;;
   arm*)  cpu=arm  ;;
   x86_64) cpu=x86_64 ;;
+  ia64)   cpu=ia64 ;;
 esac
 # Probably obsolete.
 # case $TSYS in 9000/7* | 9000/8* | hp7*)
@@ -819,6 +820,9 @@ if [ $XCC_GCC = true ] ; then
       fi
     elif [ "$cpu" = x86_64 ] ; then
       # gcc-3.2.2 produces incorrect code when -O2 is used.
+      XCFLAGS=$XCFLAGS' -O'
+    elif [ "$cpu" = ia64 ] ; then
+      # gcc-2.96 produces incorrect code when -O2 is used.
       XCFLAGS=$XCFLAGS' -O'
     else
       XCFLAGS=$XCFLAGS' -O2'
@@ -2252,6 +2256,10 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     dependsc=$dependsc' modules.h'
   fi
   flags2=$flags
+  if [ $f = eval -a "$cpu" = ia64 -a $XCC_GCC = true ] ; then
+    # gcc-2.96 on Linux/ia64 miscompiles eval.d when -O is used.
+    flags2=$flags2' -O0'
+  fi
   if [ $f = genclisph -a $XCC_GCC = true ] ; then
     flags2=$flags2' -O0' # no need to optimize this
   fi
