@@ -691,89 +691,95 @@
                                                 'loop plural (symbol-name preposition))))
                                        (t (loop-syntax-error plural)))
                                      (pop body-rest)
-                                     (case (next-kw)
-                                       ((IN OF))
-                                       (t (loop-syntax-error preposition)))
-                                     (pop body-rest)
-                                     (let ((form (parse-form preposition)))
-                                       (case preposition
-                                         ((HASH-KEY HASH-KEYS HASH-VALUE HASH-VALUES)
-                                          (let ((other-pattern nil))
-                                            (when (parse-kw-p 'using)
-                                              (unless (and (consp body-rest)
-                                                           (consp (car body-rest))
-                                                           (consp (cdar body-rest))
-                                                           (null (cddar body-rest))
-                                                           (case (loop-keywordp (caar body-rest))
-                                                             ((HASH-KEY HASH-KEYS)
-                                                              (case preposition
-                                                                ((HASH-VALUE HASH-VALUES) t) (t nil)))
-                                                             ((HASH-VALUE HASH-VALUES)
-                                                              (case preposition
-                                                                ((HASH-KEY HASH-KEYS) t) (t nil)))))
-                                                (loop-syntax-error 'using))
-                                              (setq other-pattern (second (pop body-rest))))
-                                            (let ((state-var (gensym))
-                                                  (nextp-var (gensym))
-                                                  (nextkey-var (gensym))
-                                                  (nextvalue-var (gensym)))
-                                              (multiple-value-bind (nextmain-var nextother-var)
+                                     (case preposition
+                                       ((HASH-KEY HASH-KEYS HASH-VALUE HASH-VALUES)
+                                        (let ((other-pattern nil)
+                                              (form
+                                               (case (next-kw)
+                                                 ((IN OF) (pop body-rest)
+                                                  (parse-form preposition))
+                                                 (t (loop-syntax-error
+                                                      preposition)))))
+                                          (when (parse-kw-p 'using)
+                                            (unless (and (consp body-rest)
+                                                         (consp (car body-rest))
+                                                         (consp (cdar body-rest))
+                                                         (null (cddar body-rest))
+                                                         (case (loop-keywordp (caar body-rest))
+                                                           ((HASH-KEY HASH-KEYS)
+                                                            (case preposition
+                                                              ((HASH-VALUE HASH-VALUES) t) (t nil)))
+                                                           ((HASH-VALUE HASH-VALUES)
+                                                            (case preposition
+                                                              ((HASH-KEY HASH-KEYS) t) (t nil)))))
+                                              (loop-syntax-error 'using))
+                                            (setq other-pattern (second (pop body-rest))))
+                                          (let ((state-var (gensym))
+                                                (nextp-var (gensym))
+                                                (nextkey-var (gensym))
+                                                (nextvalue-var (gensym)))
+                                            (multiple-value-bind (nextmain-var nextother-var)
                                                 (case preposition
                                                   ((HASH-KEY HASH-KEYS) (values nextkey-var nextvalue-var))
                                                   ((HASH-VALUE HASH-VALUES) (values nextvalue-var nextkey-var)))
-                                                (push `(,state-var (SYS::HASH-TABLE-ITERATOR ,form)) bindings)
-                                                (note-initialization
-                                                  (make-loop-init
-                                                    :specform 'MULTIPLE-VALUE-BIND
-                                                    :bindings `((,nextp-var ,nextkey-var ,nextvalue-var)
-                                                                (SYS::HASH-TABLE-ITERATE ,state-var))
-                                                    :declspecs (unless other-pattern `((IGNORE ,nextother-var)))
-                                                    :endtest-forms `((UNLESS ,nextp-var (LOOP-FINISH)))
-                                                    :everytime t
-                                                    :requires-stepbefore seen-endtest))
-                                                (note-initialization
-                                                  (make-loop-init
-                                                    :specform 'LET
-                                                    :bindings (destructure pattern nextmain-var)
-                                                    :declspecs new-declspecs
-                                                    :everytime t
-                                                    :requires-stepbefore seen-endtest))
-                                                (when other-pattern
-                                                  (note-initialization
-                                                    (make-loop-init
-                                                      :specform 'LET
-                                                      :bindings (destructure other-pattern nextother-var)
-                                                      :declspecs nil
-                                                      :everytime t
-                                                      :requires-stepbefore seen-endtest)))))))
-                                         ((SYMBOL SYMBOLS PRESENT-SYMBOL PRESENT-SYMBOLS
-                                           INTERNAL-SYMBOL INTERNAL-SYMBOLS EXTERNAL-SYMBOL EXTERNAL-SYMBOLS)
-                                          (let ((flags (case preposition
-                                                         ((SYMBOL SYMBOLS) '(:internal :external :inherited))
-                                                         ((PRESENT-SYMBOL PRESENT-SYMBOLS) '(:internal :external))
-                                                         ((INTERNAL-SYMBOL INTERNAL-SYMBOLS) '(:internal))
-                                                         ((EXTERNAL-SYMBOL EXTERNAL-SYMBOLS) '(:external))))
-                                                (state-var (gensym))
-                                                (nextp-var (gensym))
-                                                (nextsym-var (gensym)))
-                                            (push `(,state-var (SYS::PACKAGE-ITERATOR ,form ',flags))
-                                                  bindings)
-                                            (note-initialization
-                                              (make-loop-init
+                                              (push `(,state-var (SYS::HASH-TABLE-ITERATOR ,form)) bindings)
+                                              (note-initialization
+                                               (make-loop-init
                                                 :specform 'MULTIPLE-VALUE-BIND
-                                                :bindings `((,nextp-var ,nextsym-var)
-                                                            (SYS::PACKAGE-ITERATE ,state-var))
-                                                :declspecs nil
+                                                :bindings `((,nextp-var ,nextkey-var ,nextvalue-var)
+                                                            (SYS::HASH-TABLE-ITERATE ,state-var))
+                                                :declspecs (unless other-pattern `((IGNORE ,nextother-var)))
                                                 :endtest-forms `((UNLESS ,nextp-var (LOOP-FINISH)))
                                                 :everytime t
                                                 :requires-stepbefore seen-endtest))
-                                            (note-initialization
-                                              (make-loop-init
+                                              (note-initialization
+                                               (make-loop-init
                                                 :specform 'LET
-                                                :bindings (destructure pattern nextsym-var)
+                                                :bindings (destructure pattern nextmain-var)
                                                 :declspecs new-declspecs
                                                 :everytime t
-                                                :requires-stepbefore seen-endtest)))))))))
+                                                :requires-stepbefore seen-endtest))
+                                              (when other-pattern
+                                                (note-initialization
+                                                 (make-loop-init
+                                                  :specform 'LET
+                                                  :bindings (destructure other-pattern nextother-var)
+                                                  :declspecs nil
+                                                  :everytime t
+                                                  :requires-stepbefore seen-endtest)))))))
+                                       ((SYMBOL SYMBOLS PRESENT-SYMBOL PRESENT-SYMBOLS
+                                         INTERNAL-SYMBOL INTERNAL-SYMBOLS EXTERNAL-SYMBOL EXTERNAL-SYMBOLS)
+                                        (let ((flags (case preposition
+                                                       ((SYMBOL SYMBOLS) '(:internal :external :inherited))
+                                                       ((PRESENT-SYMBOL PRESENT-SYMBOLS) '(:internal :external))
+                                                       ((INTERNAL-SYMBOL INTERNAL-SYMBOLS) '(:internal))
+                                                       ((EXTERNAL-SYMBOL EXTERNAL-SYMBOLS) '(:external))))
+                                              (state-var (gensym))
+                                              (nextp-var (gensym))
+                                              (nextsym-var (gensym))
+                                              (form
+                                               (case (next-kw)
+                                                 ((IN OF) (pop body-rest)
+                                                  (parse-form preposition))
+                                                 (t '*package*))))
+                                          (push `(,state-var (SYS::PACKAGE-ITERATOR ,form ',flags))
+                                                bindings)
+                                          (note-initialization
+                                           (make-loop-init
+                                            :specform 'MULTIPLE-VALUE-BIND
+                                            :bindings `((,nextp-var ,nextsym-var)
+                                                        (SYS::PACKAGE-ITERATE ,state-var))
+                                            :declspecs nil
+                                            :endtest-forms `((UNLESS ,nextp-var (LOOP-FINISH)))
+                                            :everytime t
+                                            :requires-stepbefore seen-endtest))
+                                          (note-initialization
+                                           (make-loop-init
+                                            :specform 'LET
+                                            :bindings (destructure pattern nextsym-var)
+                                            :declspecs new-declspecs
+                                            :everytime t
+                                            :requires-stepbefore seen-endtest))))))))
                                 (t
                                  (unless (symbolp pattern) (loop-syntax-error kw))
                                  ;; ANSI CL 6.1.2.1.1 implies that the

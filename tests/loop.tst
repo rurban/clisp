@@ -740,6 +740,7 @@ nil
 T
 
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-7-1.html>
+;; package defaults to *package*
 (unwind-protect
      (let ((*package* (make-package "LOOP-TEST-PACKAGE-1")))
        ;; For effect, intern some symbols
@@ -747,8 +748,7 @@ T
        (export (intern "THIS"))
        (set-exclusive-or
         '("THIS" "IS" "A" "TEST")
-        (loop for x being each present-symbol of *package*
-          collect x)
+        (loop for x being each present-symbol collect x)
         :test #'string=))
   (delete-package "LOOP-TEST-PACKAGE-1"))
 nil
