@@ -330,10 +330,20 @@ ERROR
 cl-user::y
 2
 
-;; shadowing-import -- zunaechst ohne geerbte symbole!!
-
 (and (in-package "CL-USER") (package-name *package*))
 "COMMON-LISP-USER"
+
+;; http://www.lisp.org/HyperSpec/Issues/iss194-writeup.html
+(let ((tmp-sym (make-symbol "FOO"))
+      (old-sym (find-symbol "FOO" "CL-USER")))
+  (when old-sym (unintern old-sym "CL-USER"))
+  (list (import tmp-sym "CL-USER")
+        (package-name (symbol-package tmp-sym))
+        (unintern tmp-sym "CL-USER")
+        (find-symbol "FOO" "CL-USER")))
+(T "COMMON-LISP-USER" T NIL)
+
+;; shadowing-import -- zunaechst ohne geerbte symbole!!
 
 (setf d 4 e 5 f 6 y 111 x 222)
 222
