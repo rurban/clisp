@@ -110,6 +110,25 @@ popdef([AC_CHECKING])dnl
 popdef([AC_MSG_CHECKING])dnl
 ])dnl
 dnl
+AC_DEFUN(CL_CC_GCC,
+[AC_REQUIRE([AC_PROG_CPP])
+AC_CACHE_CHECK(whether using GNU C, cl_cv_prog_cc_gcc, [
+AC_EGREP_CPP(yes,[#ifdef __GNUC__
+  yes
+#endif
+], cl_cv_prog_cc_gcc=yes, cl_cv_prog_cc_gcc=no)
+])
+if test $cl_cv_prog_cc_gcc = yes; then
+  CC_GCC=true
+  GCC_X_NONE='-x none'
+else
+  CC_GCC=false
+  GCC_X_NONE=''
+fi
+AC_SUBST(CC_GCC)dnl
+AC_SUBST(GCC_X_NONE)dnl
+])dnl
+dnl
 AC_DEFUN(CL_AS_UNDERSCORE,
 [AC_CACHE_CHECK(for underscore in external names, cl_cv_prog_as_underscore, [
 cat > conftest.c <<EOF
