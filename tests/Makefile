@@ -1,13 +1,18 @@
-OS=$(shell uname);
-ifneq (,$(filter CYGWIN%,$(OS)))
-BD=../src/
-EXE=$(BD)lisp.exe
-else
+#  the ifneq/else/endif requires GNU Make
+#  and is only necessary for CYGWIN
+#  which cannot accomodate a separate build directory
+# OS=$(shell uname);
+# ifneq (,$(filter CYGWIN%,$(OS)))
+# BD=../src/
+# EXE=$(BD)lisp.exe
+# else
 BD=../build/
 EXE=$(BD)lisp.run
-endif
+# endif
+
 LISP=$(EXE) -norc -q -B $(BD) -M $(BD)lispinit.mem
-# LISP = clisp
+
+# LISP = clisp -norc
 
 RM = rm -f
 
