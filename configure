@@ -483,6 +483,7 @@ EOF
 else
 
   cd $ABS_DIRNAME
+  echo "./makemake $makemake_args > Makefile"
   ./makemake $makemake_args > Makefile
   if [ -n "${edit_config}" ]; then
     make config.lisp;
