@@ -1298,6 +1298,9 @@
         # *FEATURES* initialisieren:
         { var const char * features_initstring =
             "(:CLISP :ANSI-CL :COMMON-LISP :LISP=CL :INTERPRETER"
+            #ifdef MULTITHREAD
+              " :MT"
+            #endif
             #ifdef SOCKET_STREAMS
               " :SOCKETS"
             #endif
