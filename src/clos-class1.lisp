@@ -71,7 +71,10 @@
       ($slots              ; list of all slots (as effective-slot-definition
                            ; instances)
         :type list)
-      ($slot-location-table ; hash table slotname -> location of the slot
+      ($slot-location-table ; hash table slotname -> descriptor
+                           ; where the descriptor is either
+                           ; - the location of the slot (a fixnum or cons), or
+                           ; - its effective slot definition
         :type hash-table
         :initform empty-ht)
       ($direct-default-initargs ; freshly added default-initargs

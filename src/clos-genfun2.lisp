@@ -269,6 +269,13 @@
 (defvar |#'update-instance-for-redefined-class| nil)
 (defvar |#'update-instance-for-different-class| nil)
 (defvar |#'shared-initialize| nil)
+
+;; Optimization of SLOT-VALUE and its brothers.
+(defvar |#'slot-value-using-class| nil)
+(defvar |#'(setf slot-value-using-class)| nil)
+(defvar |#'slot-boundp-using-class| nil)
+(defvar |#'slot-makunbound-using-class| nil)
+
 (defvar *gf-warn-on-replacing-method* t)
 
 ;; More general notification.
@@ -358,6 +365,10 @@
   (setf (std-gf-effective-method-cache gf) '())
   (finalize-fast-gf gf)
   ;; Step 4: Update the dependents.
+  (cond ((eq gf |#'slot-value-using-class|) (note-svuc-change method))
+        ((eq gf |#'(setf slot-value-using-class)|) (note-ssvuc-change method))
+        ((eq gf |#'slot-boundp-using-class|) (note-sbuc-change method))
+        ((eq gf |#'slot-makunbound-using-class|) (note-smuc-change method)))
   (funcall (if *classes-finished*
              #'map-dependents
              #'map-dependents-<generic-function>)
@@ -398,6 +409,10 @@
       (setf (std-gf-effective-method-cache gf) '())
       (finalize-fast-gf gf)
       ;; Step 4: Update the dependents.
+      (cond ((eq gf |#'slot-value-using-class|) (note-svuc-change method))
+            ((eq gf |#'(setf slot-value-using-class)|) (note-ssvuc-change method))
+            ((eq gf |#'slot-boundp-using-class|) (note-sbuc-change method))
+            ((eq gf |#'slot-makunbound-using-class|) (note-smuc-change method)))
       (funcall (if *classes-finished*
                  #'map-dependents
                  #'map-dependents-<generic-function>)

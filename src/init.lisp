@@ -454,6 +454,8 @@
           slot-definition-location
           direct-slot-definition-class effective-slot-definition-class
           ;; MOP for slot access
+          slot-value-using-class slot-boundp-using-class
+          slot-makunbound-using-class
           standard-instance-access funcallable-standard-instance-access
           ;; MOP for classes
           class built-in-class structure-class standard-class

@@ -5573,6 +5573,10 @@ typedef struct {
   gcv_object_t slotdef_inheritable_doc    _attribute_aligned_object_;
   # from here on only for class ⊆ <effective-slot-definition>
   gcv_object_t slotdef_location           _attribute_aligned_object_;
+  gcv_object_t slotdef_efm_svuc           _attribute_aligned_object_;
+  gcv_object_t slotdef_efm_ssvuc          _attribute_aligned_object_;
+  gcv_object_t slotdef_efm_sbuc           _attribute_aligned_object_;
+  gcv_object_t slotdef_efm_smuc           _attribute_aligned_object_;
 } *  SlotDefinition;
 
 # CLOS-Classes (= instances of <class>), see clos-class1.lisp
