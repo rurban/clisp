@@ -347,7 +347,7 @@ if test -n "$do_config"; then
   ( cd modules
     for d in *
     do
-      if [ -d "$d" ] ; then
+      if [ -d "$d" -a '!' "$d" = CVS ] ; then
         ../src/lndir "$d" "$ABS_DIRNAME/$d"
       fi
     done
