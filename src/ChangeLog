@@ -1,5 +1,9 @@
 2001-04-23  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (linkkit): rm-r it before creating links
+
+2001-04-23  Sam Steingold  <sds@gnu.org>
+
 	* affi1.lisp: use DEFPACKAGE to define package AFFI
 
 2001-04-22  Sam Steingold  <sds@gnu.org>
