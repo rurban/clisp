@@ -16005,7 +16005,7 @@ LISPFUNN(listen_byte,1)
         if (!posfixnump(STACK_0))
           fehler_posfixnum(STACK_0);
         *index_ = posfixnum_to_L(popSTACK());
-        STACK_0 = iarray_displace_check(vector,*count_,index_);
+        STACK_0 = array_displace_check(vector,*count_,index_);
       }
     }
 
