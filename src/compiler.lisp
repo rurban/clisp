@@ -1480,12 +1480,12 @@ for-value   NIL or T
 
 ;; Note that a tag of a tagbody is used by an inner fnode.
 (defun note-far-used-tagbody (tagbody+tag)
-  (let ((tagbody (car tagbody+tag)))
-    (if (eq (tagbody-fnode tagbody) *func*)
-      (push tagbody+tag (tagbody-used-far tagbody))
-      (progn
-        (push tagbody+tag (fnode-Tags *func*))
-        (pushnew tagbody (fnode-Tagbodys *func*))))))
+  (do* ((tagbody (car tagbody+tag)) (tb-fn (tagbody-fnode tagbody))
+        (fnode *func* (fnode-enclosing fnode)))
+       ((eq tb-fn fnode)
+        (pushnew tagbody+tag (tagbody-used-far tagbody)))
+    (pushnew tagbody+tag (fnode-Tags fnode))
+    (pushnew tagbody (fnode-Tagbodys fnode))))
 
 (defun propagate-far-used (fnode)
   ;; Propagate dependencies of fnode to the enclosing *func*.
@@ -4937,13 +4937,14 @@ for-value   NIL or T
               #+CLISP-DEBUG (push anodei anodelist)
               (seclass-or-f seclass anodei)
               (push anodei codelist)))))
-      (if (> (length (tagbody-used-far tagbody)) 0)
-         (let ((used-tags (make-array (length taglist) :fill-pointer 0)))
+      (if (tagbody-used-far tagbody)
+        (let ((used-tags (make-array (length taglist) :fill-pointer 0)))
           ;; Collect the used tags and assign indices.
           (dolist (tagbody+tag (tagbody-used-far tagbody))
             (let* ((tag (cdr tagbody+tag))
                    (index (or (position tag used-tags :test #'eql)
-                              (vector-push tag used-tags))))
+                              (vector-push tag used-tags)
+                              (compiler-error 'c-TAGBODY tag))))
               (setf (cdr tagbody+tag) index)))
           (setf (tagbody-used-far tagbody) nil)
           (let* ((l (length used-tags))
