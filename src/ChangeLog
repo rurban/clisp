@@ -4,6 +4,7 @@
 	instead of O(LF_digits), when y is actually a long float
 	* comptran.d (N_N_log_N): fixed a typo in the last patch
 	(N_cis_N): (sin a) may be 0
+	* lisparit.d (EXP): pass a real as the 3rd arg of N_exp_N
 
 2002-10-04  Sam Steingold  <sds@gnu.org>
 
