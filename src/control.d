@@ -177,23 +177,28 @@ LISPFUNN(symbol_function,1)
     value1 = val; mv_count=1;
   }
 
-LISPFUNN(fdefinition,1)
 # (FDEFINITION funname), CLTL2 S. 120
-  {
-    var object funname = popSTACK();
-    var object symbol = funname;
-    if (!funnamep(symbol))
-      fehler_symbol(symbol);
-    if (!symbolp(symbol)) {
-      symbol = get(Car(Cdr(symbol)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
-      if (!symbolp(symbol)) # sollte (uninterniertes) Symbol sein
-        fehler_undef_function(S(fdefinition),funname); # sonst undefiniert
-    }
-    var object val = Symbol_function(symbol);
-    if (eq(val,unbound))
-      fehler_undef_function(S(fdefinition),funname);
-    value1 = val; mv_count=1;
+LISPFUNN(fdefinition,1) {
+  var object funname = popSTACK();
+  var object result = funname;
+  if (!funnamep(funname))
+    fehler_symbol(funname);
+  if (!symbolp(funname)) { # (SETF symbol)
+    result = get(Car(Cdr(funname)),S(setf_function)); # function
+    if (symbolp(result)) goto symbol;
+    if (functionp(result)) goto done;
+    result = get(Car(Cdr(funname)),S(setf_expander)); # macro
+    if (symbolp(result)) goto symbol;
+    if (!eq(result,unbound)) goto done; # a function, a symbol or a list
+    fehler_undef_function(S(fdefinition),funname);
   }
+ symbol:
+  result = Symbol_function(result);
+  if (eq(result,unbound))
+    fehler_undef_function(S(fdefinition),funname);
+ done:
+  value1 = result; mv_count=1;
+}
 
 LISPFUNN(boundp,1)
 # (BOUNDP symbol), CLTL S. 90
