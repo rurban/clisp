@@ -27,7 +27,7 @@ GROFF = nroff -man
 EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj  \
         --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build  \
         --exclude .cvsignore --exclude \*~ --exclude .\#\* --exclude html \
-	--exclude TAGS --exclude \*.elc
+	--exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
 
 # GNU tar together with GNU gzip. Good performance.
 #PACK = tar
