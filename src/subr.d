@@ -729,6 +729,9 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL)
 #if defined(UNIX) || defined(WIN32_NATIVE) || defined(RISCOS)
 LISPFUN(launch,seclass_default,1,0,norest,key,6,(kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority)))
 #endif
+#ifdef WIN32_NATIVE
+LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL)
+#endif
 LISPFUNN(savemem,1)
 #ifdef DYNAMIC_MODULES
 LISPFUNN(dynload_modules,2)

@@ -1,5 +1,17 @@
 2003-05-24  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
+	Concerning the CLHS/Win32 issue.
+	* pathname.d (shell_quote): removed source_end parameter.
+	(stringlist_to_asciizlist) [WIN32_NATIVE]: new function.
+	(LAUNCH) [WIN32_NATIVE,UNIX/RISCOS]: use it.
+	(SHELL-EXECUTE): new function - a wrapper for ShellExecute.
+	Shell means GUI shell, not the command.com.
+	* constsym.d: declared SHELL-EXECUTE in EXT.
+	* subr.d: ditto.
+	* clhs.lisp (browse-url) [WIN32]: start default browser by default.
+
+2003-05-24  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
 	* spvw_sigsegv.d (stackoverflow_handler): fixed MSVC compilation.
 
 2003-05-22  Bruno Haible  <bruno@clisp.org>

@@ -640,6 +640,9 @@ LISPSYM(shell,"SHELL",ext)
 #if defined(UNIX) || defined(WIN32_NATIVE) || defined(RISCOS)
 LISPSYM(launch,"LAUNCH",ext)
 #endif
+#if defined(WIN32_NATIVE)
+LISPSYM(shell_execute,"SHELL-EXECUTE",ext)
+#endif
 LISPSYM(savemem,"SAVEMEM",system)
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 LISPSYM(device_prefix,"*DEVICE-PREFIX*",custom)
