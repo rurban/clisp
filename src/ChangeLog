@@ -1,3 +1,10 @@
+1998-10-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d (make_keyboard_stream): Recognize the End key sequence
+          sent by the Linux console even when it is lacking from the termcap
+          entry. (The "kH" termcap entry apparently got lost during the
+          termcap -> terminfo/ncurses switch.)
+
 1998-09-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * stream.d (make_keyboard_stream): Recognize the XF86-3.3.2 xterm's
