@@ -1,3 +1,19 @@
+2002-02-21  Sam Steingold  <sds@gnu.org>
+
+	minor code cleanups
+	* debug.d (read_form): use cint_white_p()
+	* pathname.d (SHELL): use fehler_string()
+	* package.d (MAKE-SYMBOL): ditto
+	(package_lookup_ext, package_lookup_int, package_lookup): new macros
+	(inherited_lookup, find_external_symbol, find_symbol)
+	(shadowing_import, shadow, unintern, import, use_package_aux)
+	(FIND-ALL-SYMBOLS): use them
+	(prepare_query_user): new function
+	(query_user, export, use_package, correct_packname): use it
+	(UNINTERN): use fehler_symbol()
+	* predtype.d (FIND-CLASS): ditto
+	* lisparit.d (!): use fehler_posfixnum()
+
 2002-02-21  Stefan Kain  <stefan.kain@freenet.de>
 
 	* package.d: translated all comments
