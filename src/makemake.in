@@ -1281,6 +1281,7 @@ fi
 if [ -n "${with_threads}" -a "${with_threads}" != "0" ]; then
   CPARTS=$CPARTS' zthread'
 fi
+CPARTS=$CPARTS' built'
 
 EVERY_INCLUDES='lispbibl fsubr subr pseudofun constsym constobj '$OS_INCLUDES
 
@@ -2236,7 +2237,6 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   fi
   if [ $f = spvw ] ; then
     depends=$depends''$SPVW_INCLUDES' sort subrkw spvw_calendar'
-    dependsc=${dependsc}' cflags.h'
   fi
   if [ $f = eval ] ; then
     depends=$depends' bytecode'
@@ -2275,6 +2275,9 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   fi
   if [ $f = pathname -a ${TOS} = win32 ]; then
     dependsc=$dependsc' w32shell.c'
+  fi
+  if [ $f = built ] ; then
+    dependsc=${dependsc}' cflags.h'
   fi
   flags="$XCPPFLAGS $XCFLAGS"
   if [ $f = foreign ] ; then
