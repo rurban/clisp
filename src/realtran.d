@@ -1159,9 +1159,16 @@ local void R_cosh_sinh_R_R (object x, bool start_p, object* end_p)
       skipSTACK(1);
       return;
     } else { /* e<=0 */
-      if (R_zerop(x)
-          || (e <= (sintL)(1-F_float_digits(x))>>1)) { /* e <= (1-d)/2 <==> e <= -ceiling((d-1)/2) ? */
-        pushSTACK(x); pushSTACK(x); STACK_1 = I_F_float_F(Fixnum_1,x); return;
+      if (R_zerop(x) /* e <= (1-d)/2 <==> e <= -ceiling((d-1)/2) ? */
+          || (e <= (sintL)(1-F_float_digits(x))>>1)) {
+        if (start_p) x = F_extend_F(x);
+        pushSTACK(x); pushSTACK(x);
+        if (end_p != NULL) {
+          STACK_1 = RA_R_float_F(Fixnum_1,*end_p); /* cosh=1 */
+          STACK_0 = F_R_float_F(STACK_0,*end_p); /* sinh=x */
+        } else
+          STACK_1 = I_F_float_F(Fixnum_1,x);
+        return;
       }
       pushSTACK(x);
       { var object temp = (start_p ? F_extend_F(x) : x);
