@@ -1,3 +1,7 @@
+2002-05-21  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCFLAGS) [GCC]: no optimization with GCC-3.1
+
 2002-05-20  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (wr_ch_array_pphel_): Remove function.
