@@ -2844,11 +2844,16 @@ if [ $CROSS = false ] ; then
   if [ $HOS = unix ] ; then
     # replace GENSYMs with a string
     SEDRE='s/\(#Y([-a-zA-Z:]\{1,\}\)[0-9]\{2,\}\(-*[0-9]*\)/\1<GENSYM>\2/g';
+    FAIL=' || (echo "Test failed." ; exit 1)';
     for f in $LPARTS ; do
-      echotab "sed '${SEDRE}' ${f}.fas > ${f}.fas1";
-      echotab "sed '${SEDRE}' ${TESTDIR}/${f}.fas > ${TESTDIR}/${f}.fas1";
-      echotab "cmp -s ${f}.fas1 ${TESTDIR}/${f}.fas1"' || (echo "Test failed." ; exit 1)'
-      echotab "${RM} ${f}.fas1 ${TESTDIR}/${f}.fas1";
+      # add the lisp files with GENSYMS in FLET here
+      if [ ${f} = "threads" ]; then
+        echotab "sed '${SEDRE}' ${f}.fas > ${f}.fas1";
+        echotab "sed '${SEDRE}' ${TESTDIR}/${f}.fas > ${TESTDIR}/${f}.fas1";
+        echotab "cmp -s ${f}.fas1 ${TESTDIR}/${f}.fas1 ${FAIL}";
+        echotab "${RM} ${f}.fas1 ${TESTDIR}/${f}.fas1";
+      else echotab "cmp -s ${f}.fas ${TESTDIR}/${f}.fas ${FAIL}";
+      fi
     done
     echotab 'echo "Test passed."'
     echol
