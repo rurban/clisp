@@ -4248,7 +4248,7 @@ meaningfully read in:
   <tr> <td valign=top> <code>#&lt;ADD-ON-SYSTEM-FUNCTION
        <var>name</var>&gt;</code>
        <td> other function written in C
-  <tr> <td valign=top> <code>#&lt;SPECIAL-OPERATOR-P
+  <tr> <td valign=top> <code>#&lt;SPECIAL-OPERATOR
        <var>name</var>&gt;</code>
        <td> special operator handler
   <tr> <td valign=top> <code>#&lt;COMPILED-CLOSURE <var>name</var>&gt;</code>
@@ -4812,14 +4812,14 @@ its interpreted form.
 <p>In all these forms you can access
 <table>
   <tr><td>the function itself
-   <td>as <code><strong>*trace-function*</strong></code>,
+   <td>as <code><strong>lisp:*trace-function*</strong></code>,
   <tr><td>the arguments to the function
-   <td>as <code><strong>*trace-args*</strong></code>,
+   <td>as <code><strong>lisp:*trace-args*</strong></code>,
   <tr><td>the function/macro call as form
-   <td>as <code><strong>*trace-form*</strong></code>,
+   <td>as <code><strong>lisp:*trace-form*</strong></code>,
   <tr><td>after return from the function: the list of return values from
     the function call
-   <td>as <code><strong>*trace-values*</strong></code>,
+   <td>as <code><strong>lisp:*trace-values*</strong></code>,
   </table>
 and you can leave the function call with specified values by using
 <code>return</code>.
@@ -6288,8 +6288,9 @@ platform-independent command line options:
  <dt><strong>-norc</strong>
   <dd>Do not load the user run control file on startup.  Normally, CLISP
   executes <pre><code>(load (merge-pathnames
-              (make-pathname :name #+(unix amiga) ".clisprc"
-                                   #+win32 "_clisprc" #+dos "_CLISPRC")
+              (make-pathname :name #+(or UNIX AMIGA) ".clisprc"
+                                   #+(or OS/2 WIN32 ACORN-RISCOS) "_clisprc"
+                                   #+DOS "_CLISPRC")
               (user-homedir-pathname)))</code></pre>
   before entering the <a href="CLHSROOT/Body/sec_25-1-1.html">
   read-eval-print loop</a>.
