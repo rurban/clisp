@@ -54,7 +54,7 @@ Related packages:
   Recommended:
 
       src/readline/      a modified GNU readline library,
-                         gdb-4.14 based
+                         gdb-4.15 based
       FTP: /pub/lisp/clisp/source/clispsrc-readline.tar.gz
 
   Optional:
