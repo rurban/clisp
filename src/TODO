@@ -6,7 +6,7 @@ MUST-FIX BEFORE NEXT RELEASE
 
 Contagion warnings emitted by many floating-point operations.
 Even though the warnings are off by default now,
-the user who enables them will will report bug
+the user who enables them will report bug
 <http://sourceforge.net/tracker/index.php?func=detail&aid=945469&group_id=1355&atid=101355>
 
 Passing --with-...-prefix=... configure argument to modules/.../configure
@@ -15,10 +15,6 @@ Passing --with-...-prefix=... configure argument to modules/.../configure
 Modules on 64-bit platforms:
 <http://article.gmane.org/gmane.lisp.clisp.devel:13255>
 <http://sourceforge.net/tracker/index.php?func=detail&aid=981623&group_id=1355&atid=101355>
-
-Modern packages and modules:
-<http://article.gmane.org/gmane.lisp.clisp.devel:13335>
-<http://article.gmane.org/gmane.lisp.clisp.devel:13336>
 
 
 MUST-FIX BEFORE RELEASE 2.35
