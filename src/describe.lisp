@@ -428,8 +428,9 @@ to print the corresponding values, or T for all of them.")
       #+FFI
       (FOREIGN-FUNCTION
        (format stream (ENGLISH "a foreign function."))
-       (multiple-value-bind (req opt rest-p key-p keywords other-keys-p)
+       (multiple-value-bind (name req opt rest-p key-p keywords other-keys-p)
            (sys::function-signature obj)
+         (declare (ignore name))
          (sys::describe-signature stream req opt rest-p key-p keywords
                                   other-keys-p)))
       (COMPILED-FUNCTION ; SUBR
@@ -498,65 +499,7 @@ to print the corresponding values, or T for all of them.")
 ;;-----------------------------------------------------------------------------
 ;; auxiliary functions for DESCRIBE of FUNCTION
 
-; Liefert die Signatur eines funktionalen Objekts, als Werte:
-; 1. req-anz
-; 2. opt-anz
-; 3. rest-p
-; 4. key-p
-; 5. keyword-list
-; 6. allow-other-keys-p
-(defun function-signature (obj)
-  (if (sys::closurep obj)
-    (if (compiled-function-p obj)
-      ; compilierte Closure
-      (multiple-value-bind (req-anz opt-anz rest-p key-p keyword-list allow-other-keys-p)
-          (sys::signature obj) ; siehe compiler.lisp
-        (values req-anz opt-anz rest-p key-p keyword-list allow-other-keys-p)
-      )
-      ; interpretierte Closure
-      (let ((clos_keywords (sys::%record-ref obj 16)))
-        (values (sys::%record-ref obj 12) ; req_anz
-                (sys::%record-ref obj 13) ; opt_anz
-                (sys::%record-ref obj 19) ; rest_flag
-                (not (numberp clos_keywords))
-                (if (not (numberp clos_keywords)) (copy-list clos_keywords))
-                (sys::%record-ref obj 18) ; allow_flag
-      ) )
-    )
-    (cond #+FFI
-          ((eq (type-of obj) 'FOREIGN-FUNCTION)
-           (values (sys::foreign-function-signature obj) 0 nil nil nil nil)
-          )
-          (t
-           (multiple-value-bind (name req-anz opt-anz rest-p keywords allow-other-keys)
-               (sys::subr-info obj)
-             (if name
-               (values req-anz opt-anz rest-p keywords keywords allow-other-keys)
-               (error (ENGLISH "~S: ~S is not a function.")
-                      'function-signature obj
-               )
-) ) )     )) )
-
-(defun signature-to-list (req-anz opt-anz rest-p keyword-p keywords
-                          allow-other-keys)
-  (let ((args '()) (count -1))
-      (dotimes (i req-anz)
-      (push (intern (format nil "ARG~D" (incf count)) :sys) args))
-      (when (plusp opt-anz)
-        (push '&OPTIONAL args)
-        (dotimes (i opt-anz)
-        (push (intern (format nil "ARG~D" (incf count)) :sys) args)))
-      (when rest-p
-        (push '&REST args)
-      (push 'other-args args))
-      (when keyword-p
-        (push '&KEY args)
-      (dolist (kw keywords) (push kw args))
-      (when allow-other-keys (push '&ALLOW-OTHER-KEYS args)))
-    (nreverse args)))
-
-(defun arglist (func)
-  (multiple-value-call #'signature-to-list (function-signature func)))
+(defun arglist (func) (sig-to-list (get-signature func)))
 
 (defun describe-signature (s req-anz opt-anz rest-p keyword-p keywords
                            allow-other-keys)
