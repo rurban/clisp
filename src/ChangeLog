@@ -1,5 +1,11 @@
 2004-07-30  Bruno Haible  <bruno@clisp.org>
 
+	* clos-genfun2.lisp (compute-applicable-methods-effective-method):
+	Check the return value from compute-applicable-methods-using-classes or
+	compute-applicable-methods.
+
+2004-07-30  Bruno Haible  <bruno@clisp.org>
+
 	* clos-genfun2.lisp (shared-initialize-<standard-generic-function>):
 	Clear the cache also when unknown user-defined arguments are passed.
 	(install-dispatch): Check the return value from
