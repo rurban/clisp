@@ -686,7 +686,7 @@
         (error-of-type 'source-program-error
           :form whole-form
           :detail predicate-option
-          (TEXT "~S ~S: There is no :PREDICATE on unnamed structures.")
+          (TEXT "~S ~S: There is no :PREDICATE for unnamed structures.")
           'defstruct name)))
     ;; predicate-option is
     ;;   if named-option=T: either NIL or the name of the type-test-predicate,
