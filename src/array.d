@@ -365,7 +365,7 @@ nonreturning_function(local, fehler_subscript_anz,
   fehler(error,GETTEXT("~S: got ~S subscripts, but ~S has rank ~S"));
 }
 
-/* error: bas subscript values
+/* error: bad subscript values
  > argcount: number of subscripts
  > STACK_(argcount): array
  > STACK_(argcount-1),...,STACK_(0): subscripts */

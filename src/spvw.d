@@ -308,10 +308,10 @@ local int exitcode;
   global handler_args_t handler_args;
 
   # As only whole regions of handlers are deactivated and activated again,
-  # we treat the handlers on deactivation apartly, but we maintain
+  # we treat the handlers on deactivation separately, but we maintain
   # a list of the STACK-regions, in which the handlers are deactivated.
   global stack_range_t* inactive_handlers = NULL;
-  # A handler counts as inactiv if and only if:
+  # A handler counts as inactive if and only if:
   # low_limit <= handler < high_limit
   # is true for one of the regions listed in inactive_handlers:
 

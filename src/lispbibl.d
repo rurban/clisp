@@ -876,7 +876,7 @@
 # foo(arg1,...,argn,) as equivalent to foo(arg1,...,argn), which will
 # yield an error. _EMA_ stands for "empty macro argument".
 # It will be inserted by CC_NEED_DEEMA,
-# each time bewteen comma and closing parentheses.
+# each time between comma and closing parentheses.
 # It is also needed when potentially empty arguments
 # are returned to other macros
 
@@ -2794,7 +2794,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
       #undef typecode
       #define typecode(expr)  ((expr).u.both.type)
     #endif
-    # Furthermre you can do accesses in memory without shift:
+    # Furthermore you can do accesses in memory without shift:
     #if !defined(WIDE) && (((oint_type_shift==24) && BIG_ENDIAN_P) || ((oint_type_shift==0) && !BIG_ENDIAN_P))
       #define mtypecode(expr)  (*(tint*)&(expr))
       #define fast_mtypecode

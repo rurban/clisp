@@ -21,7 +21,7 @@ DEFUN(USER::QUEENS, n)
    */
   var object arg = popSTACK(); /* clean up STACK at the same time */
   /*
-   * If arg is an integer > 0, <= 100, ist must be a nonnegative fixnum.
+   * If arg is an integer > 0, <= 100, it must be a nonnegative fixnum.
    * We do the argument check in two steps: 1. check whether arg is a
    * nonnegative fixnum. 2. Extract its value. 3. Check its value.
    */
