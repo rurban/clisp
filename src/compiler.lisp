@@ -4451,20 +4451,27 @@ der Docstring (oder NIL).
     (pushnew symbol *known-special-vars* :test #'eq)
     (when (c-constantp initial-value-form)
       (push (cons symbol (c-constant-value initial-value-form))
-            *constant-special-vars*
-) ) ) )
+            *constant-special-vars*))))
 
 ;; DEFUN when compiling
 (defun c-DEFUN (symbol signature &optional lambdabody)
   (when *compiling* ; c-DEFUN kann auch vom Expander aus aufgerufen werden!
     (when *compiling-from-file*
       (let ((kf (assoc symbol *known-functions* :test #'equal)))
-        ;; generic functions are checked by `std-add-method' in clos.lisp
-        ;; but only at load time, not compile time, so limiting the check to
-        ;; (and (fboundp symbol)
-        ;;      (not (clos::generic-function-p (fdefinition symbol))))
-        ;; is wrong
-        (when kf
+        (when (and kf (equal (current-function) symbol))
+          ;; the check (equal (current-function) symbol) cuts off
+          ;; `defmethod' forms, which can appear many times in the
+          ;; same file.  we could have made a special effort, like this:
+          ;;  (let ((def (and (fboundp symbol) (fdefinition symbol))))
+          ;;    (if (clos::generic-function-p def)
+          ;;        (clos::check-signature-congruence
+          ;;         def symbol (clos::gf-signature def) signature)))
+          ;; but it would be a waste of time since the signature
+          ;; congruence check will be done at load time anyway and
+          ;; - the above check catches only separate `defmethod' forms,
+          ;;   but misses `:method's in `defgeneric' forms
+          ;; - the above check works only for already defined generic
+          ;;   functions but not for generic functions defined in this file
           (c-warn (ENGLISH "Function ~s~% was already defined~a~:[~% with the signature~%~s~% it is being re-defined with a new signature~%~s~;~2*~]")
                   symbol (c-source-point-location (second kf))
                   (equalp signature (cddr kf))
