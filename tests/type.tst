@@ -468,3 +468,16 @@ otherwise
 
 (subtypep (type-of 123) 'unsigned-byte) t
 (subtypep (type-of 12345678901234567890) 'unsigned-byte) t
+
+(defstruct (foo (:type list)) a b)
+foo
+(make-foo :a 123)
+(123 NIL)
+
+(defstruct (foo (:type list) :named) a nil b)
+foo
+(let* ((y (make-foo :a 123))
+       (z (copy-foo y)))
+  (setf (foo-nil z) 321)
+  (list y z))
+((FOO 123 NIL NIL) (FOO 123 321 NIL))

@@ -1,5 +1,12 @@
 2004-02-13  Sam Steingold  <sds@gnu.org>
 
+	* defstruct.lisp (defstruct): allow slots named NIL by using
+	DS-SLOT-VAR to check that the slot does not refer to the
+	structure name
+	* io.d (pr_structure_default): ditto
+
+2004-02-13  Sam Steingold  <sds@gnu.org>
+
 	due to the rule 1 in
 	<http://www.lisp.org/HyperSpec/Body/fun_type-of.html>,
 	we must have (TYPEP X Y) ==> (SUBTYPEP (TYPE-OF X) Y)

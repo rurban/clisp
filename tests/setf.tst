@@ -223,11 +223,13 @@ brown
 (gethash 'color a)
 brown
 
-(defstruct schiff masse)
+(defstruct schiff masse nil zot)
 schiff
 
-(progn (setf s1 (make-schiff)) nil)
-nil
+(setf s1 (make-schiff :nil 123))
+#S(SCHIFF :MASSE NIL :NIL 123 :ZOT NIL)
+
+(schiff-nil s1)  123
 
 (documentation s1 'type)
 nil
