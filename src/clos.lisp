@@ -736,25 +736,29 @@
 ;; try to finalize the class, return the finalized class object on success
 ;; or nil when the class could not yet be finalized;
 ;; when force-p is non-nil, signal an error when finalization is impossible
-(defvar *finalizing-now* nil) ; the stack of classed being finalized now
+(defvar *finalizing-now* nil) ; the stack of classes being finalized now
 (defun class-finalize (class &optional force-p)
   (when (or (class-p class) (setq class (find-class class force-p)))
-    (if (class-precedence-list class) class
+    (if (class-precedence-list class)
+      class
       (do ((*finalizing-now*
             (if (memq class *finalizing-now*)
               (error-of-type 'sys::source-program-error
                 (TEXT "~S: class definition circularity: ~S depends on itself")
                 'defclass class)
               (cons class *finalizing-now*)))
-           (cds (class-direct-superclasses class) (cdr cds)) (ready t))
+           (cds (class-direct-superclasses class) (cdr cds))
+           (ready t))
           ((or (not ready) (endp cds))
-           ;; if FORCE-P was non-NIL, then READY is T, otherwise
-           ;; an error has been signaled already
+           ;; If FORCE-P was non-NIL, then READY is T, otherwise
+           ;; an error has been signaled already.
            (when ready
-             ;; BUILT-IN-CLASS and STRUCTURE-CLASS are already finalized
+             ;; Instances of BUILT-IN-CLASS and STRUCTURE-CLASS are already
+             ;; finalized when they are constructed.
              (finalize-instance-standard-class class)))
         (let ((fin (class-finalize (car cds) force-p)))
           (if fin (setf (car cds) fin) (setq ready nil)))))))
+
 (defun ensure-class (name &rest all-keys
                           &key (metaclass <standard-class>)
                                (direct-superclasses '())
@@ -3794,15 +3798,19 @@ in the generic function instance."
     (apply #'shared-initialize instance added-slots initargs)))
 
 ;;; classs prototype (MOP)
+
 (defgeneric class-prototype (class)
   (:method ((class standard-class))
     (or (class-proto class)
         (setf (class-proto class) (clos::%allocate-instance class))))
   (:method ((name symbol)) (class-prototype (find-class name))))
+
 ;;; class finalization (MOP)
+
 (defgeneric class-finalized-p (class)
   (:method ((class standard-class)) (not (null (class-precedence-list class))))
   (:method ((name symbol)) (class-finalized-p (find-class name))))
+
 (defgeneric finalize-inheritance (class)
   (:method ((class standard-class)) (class-finalize class t))
   (:method ((name symbol)) (finalize-inheritance (find-class name))))
