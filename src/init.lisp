@@ -367,6 +367,7 @@
    shared-initialize
    make-load-form make-load-form-saving-slots
    change-class update-instance-for-different-class
+   update-instance-for-redefined-class make-instances-obsolete
    ;; names of classes:
    class standard-class structure-class built-in-class
    standard-object structure-object

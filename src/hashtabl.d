@@ -1783,6 +1783,8 @@ LISPFUN(class_tuple_gethash,seclass_default,2,0,rest,nokey,0,NIL) {
 # (equal X Y) implies (= (sxhash X) (sxhash Y)).
 # > obj: an object
 # < result: hashcode, a 32-bit-number
+/* can trigger GC
+   -- if the argument was a CLOS instance that had to be updated */
 local uint32 sxhash (object obj);
 # auxiliary functions for known type:
 # atom -> fall differentiation by type
@@ -1922,6 +1924,7 @@ local uint32 sxhash_atom (object obj) {
     case_instance: # instance
       # utilize only the class
       instance_un_realloc(obj);
+      check_instance(obj);
       return sxhash(TheInstance(obj)->inst_class) + 0x61EFA249;
     case_char: # character
       # take EQ-hashcode (for characters EQUAL == EQL == EQ)
@@ -2015,7 +2018,7 @@ local uint32 sxhash (object obj) {
   }
 }
 
-LISPFUNNR(sxhash,1)
+LISPFUNN(sxhash,1)
 { /* (SXHASH object), CLTL p. 285 */
   var uint32 sx = sxhash(popSTACK());
   # ANSI CL (SXHASH doc):
