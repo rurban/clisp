@@ -41,7 +41,7 @@ options:
        --with-module=bindings/linuxlibc5
        --with-module=bindings/linuxlibc6
        --with-module=bindings/amigaos
-       --export-syscalls       export some UNIX system calls to Lisp
+       --with-export-syscalls  export some UNIX system calls to Lisp
 debug: Specify this if you expect that you will need to debug the sources.
 Example:
        ./makemake --with-readline --with-dynamic-ffi > Makefile
@@ -199,10 +199,6 @@ while test -z "$endofargs"; do
       eval "with_no`echol $package|sed s/-/_/g`=1"
       shift
       ;;
-    -export-syscalls | --export-syscalls)
-     export_syscalls="yes";
-     shift
-     ;;
     -srcdir* | --srcdir*)
       srcdir=`echol "$1" | sed 's/-*srcdir=*//'`
       shift
@@ -1150,7 +1146,7 @@ if test -n "$with_unicode"; then
   XCFLAGS="$XCFLAGS -DUNICODE"
 fi
 
-if test -n "$export_syscalls"; then
+if test -n "$with_export_syscalls"; then
   XCFLAGS="$XCFLAGS -DEXPORT_SYSCALLS";
 fi
 
