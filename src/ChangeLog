@@ -1,3 +1,9 @@
+2003-01-28  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	* src/m4/as-underscore.m4, ffcall/m4/as-underscore.m4
+	(CL_AS_UNDERSCORE) [__cplusplus]: declare test function
+	as extern "C".
+
 2003-01-24  Sam Steingold  <sds@gnu.org>
 
 	READ-BYTE-ARRAY now accepts :NO-HANG keyword argument
