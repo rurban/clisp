@@ -1,5 +1,12 @@
 1998-05-19  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
+        * error.d (fehler_proper_list): New function.
+        * lispbibl.d (fehler_proper_list): Declare it.
+        * list.d (endp): Call it.
+        * lispbibl.d (list_to_mv): Check for proper list.
+
+1998-05-19  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
         * stream.d (fehler_input_stream, fehler_output_stream): New functions.
           (test_input_stream, test_output_stream, test_input_stream_args,
           test_output_stream_args): New macros.
