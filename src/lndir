@@ -32,11 +32,9 @@ else
   test -n "$srcfile_dirname" || srcfile_dirname='/'
   srcfile_basename=`echo "$1" | sed -e 's,^.*/,,'`
   srcfile_absdirname=`cd "$srcfile_dirname"; pwd`
-  if ln -s "$srcfile_absdirname/$srcfile_basename" "$2" 2>/dev/null; then
-    :
-  else
-    $CP "$1" "$2"
-  fi
+  ln -s "$srcfile_absdirname/$srcfile_basename" "$2" 2>/dev/null ||
+    ln "$srcfile_absdirname/$srcfile_basename" "$2" 2>/dev/null ||
+    cp -p "$srcfile_absdirname/$srcfile_basename" "$2"
 fi
 }
 

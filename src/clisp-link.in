@@ -14,16 +14,14 @@ exit 1
 }
 
 link () {
-# Make a link from $1 to $2. Try symbolic link, file copying.
+# Make a link from $1 to $2. Try symbolic link, hard link, file copying.
 dirname=`echo "$1" | sed -e 's,/[^/]*$,,'`
 test -n "$dirname" || dirname='/'
 basename=`echo "$1" | sed -e 's,^.*/,,'`
 absolute_dirname=`cd "$dirname" ; /bin/pwd`
-if ln -s "$absolute_dirname"/"$basename" "$2"; then
-  :
-else
-  cp "$1" "$2"
-fi
+ln -s "$absolute_dirname"/"$basename" "$2" 2>/dev/null ||
+  ln "$1" "$2" 2>/dev/null ||
+  cp -p "$1" "$2"
 }
 
 echotab () {
@@ -124,7 +122,7 @@ case "$1" in
               *)  relative_file=`echo "$moduledir"/ | sed -e 's,[^/][^/]*/*/,../,g'`"$file" ;;
             esac ;;
       esac
-      ln -s "$relative_file" "$moduledir"/"$filename" || ln "$file" "$moduledir"/"$filename"
+      ln -s "$relative_file" "$moduledir"/"$filename" || ln "$file" "$moduledir"/"$filename" || cp -p "$file" "$moduledir"/"$filename"
       files_c="$files_c"' '"$filename"
       files_o="$files_o"' '`echo "$filename" | sed -e 's,\.c$,,'`.o
     done

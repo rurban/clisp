@@ -27,7 +27,6 @@ AR = ar
 AR_FLAGS = rc
 RANLIB = @RANLIB@
 MV = mv
-LN = ln
 RM = rm -f
 
 # Programs used by "make install":
