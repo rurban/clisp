@@ -1,3 +1,10 @@
+2004-06-08  Bruno Haible  <bruno@clisp.org>
+
+	* clos-methcomb2.lisp (short-form-method-combination-expander):
+	Remove useless typecase.
+	(long-form-method-combination-expander): Likewise. The user-defined
+	DEFINE-METHOD-COMBINATION body must return a form.
+
 2004-05-29  Bruno Haible  <bruno@clisp.org>
 
 	Change the metaclass of CLASS from STRUCTURE-CLASS to STANDARD-CLASS.
