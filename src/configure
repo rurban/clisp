@@ -6269,8 +6269,8 @@ _ACEOF
 
   fi
   if test "$cl_cv_lib_sigsegv" = yes; then
-    echo "$as_me:$LINENO: checking how to link with libiconv" >&5
-echo $ECHO_N "checking how to link with libiconv... $ECHO_C" >&6
+    echo "$as_me:$LINENO: checking how to link with libsigsegv" >&5
+echo $ECHO_N "checking how to link with libsigsegv... $ECHO_C" >&6
     echo "$as_me:$LINENO: result: $LIBSIGSEGV" >&5
 echo "${ECHO_T}$LIBSIGSEGV" >&6
   else
