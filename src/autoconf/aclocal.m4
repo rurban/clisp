@@ -947,11 +947,6 @@ AC_DEFUN(CL_STDLIB_H,
 AC_CHECK_HEADERS(stdlib.h)]
 )dnl
 dnl
-AC_DEFUN(CL_STDDEF_H,
-[AC_BEFORE([$0], [CL_ABORT])
-AC_CHECK_HEADERS(stddef.h)]
-)dnl
-dnl
 AC_DEFUN(CL_OFFSETOF,
 [CL_COMPILE_CHECK([offsetof in stddef.h], cl_cv_offsetof,
 [#include <stddef.h>], [#ifndef offsetof
