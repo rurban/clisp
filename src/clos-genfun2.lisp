@@ -403,7 +403,7 @@
       ;; Step 1: Remove method from the set.
       (setf (std-gf-methods gf) (remove old-method (std-gf-methods gf))
             (std-method-generic-function old-method) nil
-            (std-method-from-defgeneric old-method) nil)
+            (method-from-defgeneric old-method) nil)
       ;; Step 2: Call remove-direct-method for each specializer.
       (dolist (specializer (method-specializers method))
         (remove-direct-method specializer method))
@@ -505,7 +505,7 @@
     ;; we can just as well remove the methods directly.
     (setf (std-gf-methods gf)
           (remove-if #'(lambda (method)
-                         (when (std-method-from-defgeneric method)
+                         (when (method-from-defgeneric method)
                            (setf (std-method-generic-function method) nil)
                            t))
                      (std-gf-methods gf))))
