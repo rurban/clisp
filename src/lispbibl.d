@@ -11601,6 +11601,13 @@ nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));
 nonreturning_function(extern, fehler_vector, (object obj));
 # is used by ARRAY
 
+/* error-message, if an object is not an environment.
+ fehler_environment(obj);
+ > subr_self: caller (a SUBR)
+ > obj: non-vector */
+nonreturning_function(global, fehler_environment, (object obj));
+/* used by EVAL, CONTROL */
+
 # Error message, if an argument isn't a Fixnum >=0:
 # fehler_posfixnum(obj);
 # > obj: the faulty argument
