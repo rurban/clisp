@@ -720,10 +720,14 @@ undefined, add -Dn_long='unsigned long' to the CFLAGS in the Makefile.
 
 On Apple PowerPC running MacOS X Server:
 
-The /bin/sh shell has at least two bugs which make it unusable for the
-configuration scripts. As a workaround, you have to set the environment
-variable CONFIG_SHELL to "/bin/bash", and start "$CONFIG_SHELL ./configure ..."
-instead of "./configure ...".
+You can get C development tools from either
+Fink - <http://fink.sourceforge.net> (Free Software ported to Darwin)
+or Apple - <http://developer.apple.com/tools>.
+
+The standard "/bin/sh" shell has at least two bugs which make it
+unusable for the configuration scripts.  As a workaround, you have to
+set the environment variable CONFIG_SHELL to "/bin/bash", and start
+"$CONFIG_SHELL ./configure ..." instead of "./configure ...".
 
 The default stack size limit is 512 KB, which is too small for bootstrapping
 CLISP. Even 1 MB is too small. Try "ulimit -S -s 8192" before starting "make"
@@ -731,6 +735,9 @@ or "limit stacksize 8192" is you are using a CSH-derivative.
 
 Remove all optimization options ("-O", "-O2") from the CC and CFLAGS variables
 in the Makefile. Apple's cc crashes when compiling eval.d with optimization.
+You will also need to set the envoronment variable CC:
+bash: export CC="cc -traditional-cpp -I/sw/include -L/sw/lib"
+csh:  setenv CC "cc -traditional-cpp -I/sw/include -L/sw/lib"
 
 FFI does not work yet, you will have to ignore the "avcall-*.h" errors
 in ./configure.
