@@ -1,5 +1,10 @@
 2004-06-05  Bruno Haible  <bruno@clisp.org>
 
+	* clos-method1.lisp (initialize-instance-<standard-accessor-method>):
+	Check the slot-definition argument.
+
+2004-06-05  Bruno Haible  <bruno@clisp.org>
+
 	* clos-method1.lisp (standard-method): Add documentation slot.
 	(initialize-instance-<standard-method>): Accept :documentation
 	argument.
