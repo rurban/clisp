@@ -594,6 +594,11 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
      active transaction currently in progress with the old handle?  It
      probably should.  */
   if ( db->stmt ) {
+	/* Note - freeing the statement handle recursively frees its
+	   children "define" handles, and since we may have kept around
+	   copies of those handles, we need to clear out our copies
+	   first. */
+	free_columns(db);
     OCIHandleFree(db->stmt, OCI_HTYPE_STMT);
     db->stmt = 0;
   }
@@ -902,7 +907,7 @@ static void append_oci_error(char *errbuf, OCIError * err)
   char buf[50000];
 
   /* If Oracle message begins with this, it means we cannot locate
-     error messages.  Probably issue with HOME */
+     error messages.  Probably issue with ORACLE_HOME */
     
   /* Hack: this is highly language dependent */
   char * leading = "Error while trying to retrieve text for error";
@@ -917,15 +922,15 @@ static void append_oci_error(char *errbuf, OCIError * err)
   /* See if having trouble getting error text */
   if ( 0 == strncmp(buf, leading, strlen(leading)) ) {
     char reason[1000];
-    char * home = getenv("HOME");
+    char * home = getenv("ORACLE_HOME");
     if ( ! home )
-      strcpy(reason, "HOME is not set.");
+      strcpy(reason, "ORACLE_HOME is not set.");
     else if ( ! *home )
-      strcpy(reason, "HOME is set to the empty string.");
+      strcpy(reason, "ORACLE_HOME is set to the empty string.");
     else 
-      sprintf(reason, "HOME value '%s' is possibly not valid.", home);
+      sprintf(reason, "ORACLE_HOME value '%s' is possibly not valid.", home);
 
-    strcat(errbuf, "Cannot get Oracle error message text.  Check HOME environment variable.\n");
+    strcat(errbuf, "Cannot get Oracle error message text.  Check ORACLE_HOME environment variable.\n");
     strcat(errbuf, reason);
   }
 
