@@ -5886,7 +5886,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
 # < mv_count/mv_space: values
 # changes STACK, can trigger GC
   # Syntax of local labels in GNU-C assembler-statements:
-  #if defined(GNU) && !defined(NO_ASM)
+  #if (defined(GNU) || defined(INTEL)) && !defined(NO_ASM)
     # LD(x) defines Label with number x
     # LR(x,f) references label with number x forwards
     # LR(x,b) references label with number x backwards
@@ -6122,7 +6122,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
                 : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "ccr" ); \
             }
         #endif
-        #if defined(GNU) && defined(I80386) && !defined(NO_ASM)
+        #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
           #if 0
             # In earlier times, the GNU assembler assembled
             # "testb %edx,%edx" as "testb %dl,%dl". This made possible to
@@ -6277,7 +6277,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
                 : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "ccr" ); \
             }
         #endif
-        #if defined(GNU) && defined(I80386) && !defined(NO_ASM)
+        #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
           #undef S_operand
           #define S_operand(where)  \
             __asm__(                   \

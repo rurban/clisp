@@ -8,7 +8,7 @@
 #if HAVE_DD
   #define D_D_mal2adic_D(a,b)  lowD(muluD((uintD)(a),(uintD)(b)))
 #else
-  #ifdef GNU
+  #if defined(GNU) || defined(INTEL)
     #define D_D_mal2adic_D(a,b)  \
       ({ var uintD __erg;              \
          muluD((a),(b), _EMA_,__erg=); \

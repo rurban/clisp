@@ -1,3 +1,23 @@
+2001-11-11  Bruno Haible  <haible@clisp.cons.org>
+
+	Support for Intel icc on Linux/i386.
+	* autoconf/aclocal.m4 (CL_STRLEN): When checking for the return type,
+	prefer size_t over int. Avoids icc warning.
+	* lispbibl.d (INTEL): New macro.
+	(NULL): Don't define if INTEL. Avoids icc warning.
+	(ASM_get_SP_register, SP, setSP): Use same asm based statement
+	expression when using Intel icc as when using gcc.
+	* genclisph.d (main): Likewise.
+	* arilev0.d (mulu16) [I80386]: Likewise.
+	(mulu32) [I80386]: Likewise.
+	(divu_3216_1616) [I80386]: Likewise.
+	(divu_6432_3232) [I80386]: Likewise.
+	* eval.d (LD, LR, U_operand, S_operand): Likewise.
+	* int2adic.d (D_D_mal2adic_D): Likewise.
+	* intlog.d (integerlength16, integerlength32, ord2_32): Likewise.
+	* ari80386.d (mulu32_): Don't define when using Intel icc.
+	(divu_6432_3232_): Likewise.
+
 2001-11-14  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (init_streamvars): when stdin (resp. stdout) is not a

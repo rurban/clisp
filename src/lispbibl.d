@@ -61,7 +61,8 @@
 # Sequent      Sequent            PTX V4.1.3                    GNU           unix, i386, _SEQUENT_, __svr4__, __GNUC__
 # Convex C2    Convex             ConvexOS 10.1                 GNU           __convex__, __GNUC__
 # IBM RS/6000  IBM                AIX 3.2                       GNU           _AIX, _AIX32, _IBMR2, __CHAR_UNSIGNED__, __GNUC__
-# IBM-PC/386   any                LINUX (freies UNIX)           GNU           unix, linux, i386, __GNUC__
+# IBM-PC/386   any                LINUX (free UNIX)             GNU           unix, linux, i386, __GNUC__
+# IBM-PC/386   any                LINUX (free UNIX)             Intel 5.0     __unix__, __linux__, __INTEL_COMPILER, __ICC, __USLC__
 # IBM-PC/386   any                386BSD 0.1 (UNIX BSD 4.2)     GNU           unix, __386BSD__, i386, __GNUC__
 # IBM-PC/386   any                NetBSD 0.9 (UNIX BSD 4.3)     GNU           unix, __NetBSD__, i386, __GNUC__
 # IBM-PC/386   any                EMX 0.9c (UNIXlike on OS/2)   GNU           [unix,] i386, __GNUC__, __EMX__
@@ -455,6 +456,9 @@
 #endif
 #if defined(__BORLANDC__)
   #define BORLAND
+#endif
+#if defined(__INTEL_COMPILER)
+  #define INTEL
 #endif
 
 
@@ -1150,7 +1154,7 @@ typedef signed int  signean;
 # Null pointers
 #ifdef __cplusplus
   #define NULL  0
-#else
+#elif !defined(INTEL)
   #define NULL  ((void*) 0L)
 #endif
 
@@ -3018,7 +3022,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 
 # Determine whether a type isn't changed by the GC
 # (ie. if it's not a pointer):
-  #if 0 && defined(GNU)
+  #if 0 && (defined(GNU) || defined(INTEL))
     #define gcinvariant_type_p(type)  \
       ({var bool _erg;                         \
         switch (type)                          \
@@ -6842,7 +6846,7 @@ All other long words on the LISP-Stack are LISP-objects.
     #define SP_register "15"
   #endif
 #endif
-#if defined(GNU) && !defined(NO_ASM)
+#if (defined(GNU) || defined(INTEL)) && !defined(NO_ASM)
   # Assembler-instruction that copies the SP-register into a variable.
   #ifdef MC680X0
     #ifdef __REGISTER_PREFIX__ # GNU C Version >= 2.4 has %/ and __REGISTER_PREFIX__
@@ -6898,7 +6902,7 @@ All other long words on the LISP-Stack are LISP-objects.
   #define setSP(adresse)  \
     ({ __asm__ __volatile__ ("movel %0,"REGISTER_PREFIX"sp" : : "g" ((aint)(adresse)) : "sp" ); })
   #define FAST_SP
-#elif defined(GNU) && defined(I80386) && !defined(NO_ASM)
+#elif (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
   # Access to a register-"variable" %esp
   #define SP()  \
     ({var aint __SP;                                           \
