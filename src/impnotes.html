@@ -2530,8 +2530,9 @@ returning them. <CODE>(dir)</CODE> shows the contents of the current directory.
 </DL>
 <CODE>(cd <VAR>pathname</VAR>)</CODE> sets it, <CODE>(cd)</CODE> returns it.
 <P>
-<CODE>(<STRONG>default-directory</STRONG>)</CODE> is equivalent to <CODE>(cd)</CODE>, <CODE>(setf (default-directory) <VAR>pathname</VAR>)</CODE>
-is equivalent to <CODE>(cd <VAR>pathname</VAR>)</CODE>.
+<CODE>(<STRONG>default-directory</STRONG>)</CODE> is equivalent to <CODE>(cd)</CODE>.
+<CODE>(setf (default-directory) <VAR>pathname</VAR>)</CODE> is equivalent to <CODE>(cd <VAR>pathname</VAR>)</CODE>, except for
+the return value.
 <P>
 <CODE>(<STRONG>make-dir</STRONG> <VAR>directory-pathname</VAR>)</CODE> creates a new subdirectory.
 <P>

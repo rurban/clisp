@@ -1906,8 +1906,9 @@ returning them. (DIR) shows the contents of the current directory.
 #endif
 (CD pathname) sets it, (CD) returns it.
 
-(DEFAULT-DIRECTORY) is equivalent to (CD), (SETF (DEFAULT-DIRECTORY) pathname)
-is equivalent to (CD pathname).
+(DEFAULT-DIRECTORY) is equivalent to (CD).
+(SETF (DEFAULT-DIRECTORY) pathname) is equivalent to (CD pathname), except for
+the return value.
 
 (MAKE-DIR directory-pathname) creates a new subdirectory.
 
