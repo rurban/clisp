@@ -1,6 +1,8 @@
 2005-03-07  Sam Steingold  <sds@gnu.org>
 
 	* m4/regexp.m4 (CL_REGEXP): added AC_ARG_WITH and some more tests
+	* modules/regexp/configure.in: AC_ARG_WITH is in CL_REGEXP now
+	the option is renamed to included-regexp from sysre
 
 2005-03-07  Sam Steingold  <sds@gnu.org>
 
