@@ -1709,12 +1709,12 @@ global object get_closure (object lambdabody, object name, bool blockp,
     STACK_0 = closure;
     /* stack layout: closure. */
     closure_ = &STACK_0; /* Pointer to the Closure in the STACK */
-    if (!nullpSv(defun_accept_spelalist)
-        && functionp(Symbol_function(S(spelalist_to_ordinary)))) {
+    if (!nullpSv(defun_accept_specialized_lambda_list)
+        && functionp(Symbol_function(S(specialized_lambda_list_to_ordinary)))) {
       /* convert lambda list to ordinary */
       pushSTACK(declarations); /* save */
       pushSTACK(lambdalist); pushSTACK(S(function));
-      funcall(S(spelalist_to_ordinary),2);
+      funcall(S(specialized_lambda_list_to_ordinary),2);
       lambdalist = value1;       /* new ordinary lambda list */
       declarations = popSTACK(); /* restore */
       if (!nullp(value2))        /* merge in declarations */
