@@ -17432,7 +17432,7 @@ local object check_open_file_stream (object obj) {
 /* for syscall module */
 global object open_file_stream_handle (object stream, Handle *fd) {
   stream = check_open_file_stream(stream);
-  *fd = TheHandle(TheStream(stream)->strm_ochannel);
+  *fd = ChannelStream_ihandle(stream);
   return stream;
 }
 

@@ -1,5 +1,9 @@
 2003-07-31  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (open_file_stream_handle): use ChannelStream_ihandle()
+
+2003-07-31  Sam Steingold  <sds@gnu.org>
+
 	these days *.h files contain good prototypes - do not duplicate them
 	* foreign1.lisp (*output-c-functions*, *output-c-variables*):
 	new variables, default to NIL
