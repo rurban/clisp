@@ -10203,13 +10203,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL) {
     value1 = (ergebnis ? T : NIL); mv_count=1;
   } else {
     # execute single command:
-    if (!stringp(command)) {
-      pushSTACK(command);   # TYPE-ERROR slot DATUM
-      pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(command);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~: the command should be a string, not ~"));
-    }
+    if (!stringp(command)) fehler_string(command);
     with_string_0(command,O(misc_encoding),command_asciz, {
       # execute command:
       run_time_stop();
@@ -10247,13 +10241,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL) {
   var object command = popSTACK();
   if (eq(command,unbound))
     command = O(command_shell);
-  if (!stringp(command)) {
-    pushSTACK(command);   # TYPE-ERROR slot DATUM
-    pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(command);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: the command should be a string, not ~"));
-  }
+  if (!stringp(command)) fehler_string(command);
   var HANDLE prochandle;
   with_string_0(command,O(misc_encoding),command_asciz, {
     # Start new process.
@@ -10301,15 +10289,9 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL) {
   } else {
    #if defined(MSDOS) || defined(RISCOS)
     # the command has to be passed already split into single parts at
-    # the white spaces to the DOS-commando-interpreter. The function
+    # the white spaces to the DOS command-interpreter. The function
     # system() does this job for us, fortunately.
-    if (!stringp(command)) {
-      pushSTACK(command);   # TYPE-ERROR slot DATUM
-      pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(command);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~: the command should be a string, not ~"));
-    }
+    if (!stringp(command)) fehler_string(command);
     with_string_0(command,O(misc_encoding),command_asciz, {
       begin_system_call();
       # call program:
