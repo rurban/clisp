@@ -354,16 +354,22 @@ LISPFUNNR(make_code_vector,1) {
   fehler(type_error,GETTEXT("~ is not a valid code-vector byte"));
 }
 
-/* parse the seclass object (NIL or CONS) to a seclass_t */
+/* parse the seclass object (NIL or SECLASS, see compiler.lisp)
+   into a seclass_t */
 local seclass_t parse_seclass (object sec, object closure)
 {
   if (nullp(sec)) return seclass_foldable;
-  if (!consp(sec) || !consp(Cdr(sec)) || !consp(Cdr(Cdr(sec)))) {
+  if (!consp(sec)) {
+   bad_seclass:
     pushSTACK(closure); pushSTACK(sec);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: invalid side-effect class ~ for function ~"));
   }
-  var object modifies = Car(Cdr(sec));
+  var object modifies = Cdr(sec);
+  if (consp(modifies)) {
+    if (!consp(Cdr(modifies))) goto bad_seclass;
+    modifies = Car(modifies);
+  }
   return (nullp(Car(sec))
           ? (nullp(modifies) ? seclass_no_se : seclass_write)
           : (nullp(modifies) ? seclass_read : seclass_default));
