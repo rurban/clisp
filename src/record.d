@@ -99,16 +99,6 @@ nonreturning_function(local, fehler_record_length, (void)) {
   fehler(type_error,GETTEXT("~: length ~ is illegal, should be of type ~"));
 }
 
-# UP: find OBJ in LIS
-local inline bool obj_in_list (const object obj, const object lis) {
-  var object l = lis;
-  while (consp(l)) {
-    if (eq(Car(l),obj)) return true;
-    l = Cdr(l);
-  }
-  return false;
-}
-
 # ===========================================================================
 # Structures:
 
@@ -144,7 +134,7 @@ local object* structure_up (void) {
   }
   var object structure = STACK_1;
   # check if type occurs in namelist = (name_1 ... name_i-1 name_i) :
-  if (obj_in_list(STACK_2,TheStructure(structure)->structure_types))
+  if (!nullp(memq(STACK_2,TheStructure(structure)->structure_types)))
     goto yes;
   # type did not occur -> Error:
   goto fehler_bad_structure;
@@ -246,7 +236,7 @@ LISPFUNN(structure_type_p,2) {
     var object namelist = TheStructure(popSTACK())->structure_types;
     var object type = popSTACK();
     # test, if type occurs in namelist = (name_1 ... name_i-1 name_i) :
-    if (obj_in_list(type,namelist))
+    if (!nullp(memq(type,namelist)))
       goto yes;
   }
  no: # type did not occur:
@@ -935,7 +925,7 @@ local void keyword_test (object caller, object* rest_args_pointer,
     var uintC count;
     dotimespC(count,argcount, {
       var object key = NEXT(ptr);
-      if (obj_in_list(key,valid_keywords))
+      if (!nullp(memq(key,valid_keywords)))
         goto kw_found;
       # not found
       pushSTACK(key); # KEYWORD-ERROR slot DATUM
@@ -966,7 +956,7 @@ local inline object* slot_in_arglist (const object slot, uintC argcount,
   var uintC count;
   dotimespC(count,argcount, {
     var object initarg = NEXT(ptr);
-    if (obj_in_list(initarg,l))
+    if (!nullp(memq(initarg,l)))
       return ptr;
     NEXT(ptr);
   });
@@ -1032,7 +1022,7 @@ LISPFUN(pshared_initialize,2,0,rest,nokey,0,NIL) {
           if (eq(slotnames,T))
             goto eval_init;
           var object slotname = TheSvector(slot)->data[0]; # (slotdef-name slot)
-          if (obj_in_list(slotname,slotnames))
+          if (!nullp(memq(slotname,slotnames)))
             goto eval_init;
           goto slot_done;
         }

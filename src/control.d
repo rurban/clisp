@@ -2243,23 +2243,16 @@ LISPFUNN(proclaim,1)
         if (!symbolp(symbol))
           fehler_symbol(symbol);
         # (PUSHNEW symbol (cdr declaration-types)) :
-        {
-          var object list = Cdr(O(declaration_types));
-          while (consp(list)) {
-            if (eq(Car(list),symbol))
-              goto not_adjoin;
-            list = Cdr(list);
+        if (nullp(memq(symbol,Cdr(O(declaration_types))))) {
+          pushSTACK(declspec); pushSTACK(symbol);
+          {
+            var object new_cons = allocate_cons();
+            var object list = O(declaration_types);
+            Car(new_cons) = popSTACK(); Cdr(new_cons) = Cdr(list);
+            Cdr(list) = new_cons;
+            declspec = popSTACK();
           }
         }
-        pushSTACK(declspec); pushSTACK(symbol);
-        {
-          var object new_cons = allocate_cons();
-          var object list = O(declaration_types);
-          Car(new_cons) = popSTACK(); Cdr(new_cons) = Cdr(list);
-          Cdr(list) = new_cons;
-          declspec = popSTACK();
-        }
-       not_adjoin: ;
       }
     } elif (eq(decltype,S(inline)) || eq(decltype,S(notinline))) { # INLINE, NOTINLINE
       pushSTACK(decltype);
@@ -2569,12 +2562,8 @@ LISPFUNN(keyword_test,2)
       var object arglistr = arglist;
       while (consp(arglistr)) {
         var object key = Car(arglistr);
-        var object kwlistr = STACK_0;
-        while (consp(kwlistr)) {
-          if (eq(Car(kwlistr),key))
-            goto found;
-          kwlistr = Cdr(kwlistr);
-        }
+        if (!nullp(memq(key,STACK_0)))
+          goto found;
         # nicht gefunden
         pushSTACK(key); # Wert für Slot DATUM von KEYWORD-ERROR
         pushSTACK(key);

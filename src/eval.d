@@ -1288,14 +1288,9 @@ global Values eval_noenv (object form) {
         var object declspecs = env;
         while (consp(declspecs)) { # loop over all declspecs from env
           var object declspec = Car(declspecs);
-          if (eq(Car(declspec),S(declaration))) { # Declaration (DECLARATION ...) ?
-            var object list = Cdr(declspec); # yes -> loop through remaining list
-            while (consp(list)) {
-              if (eq(Car(list),decltype)) # list element = decltype ?
-                goto beachten;
-              list = Cdr(list);
-            }
-          }
+          if (eq(Car(declspec),S(declaration)) # (DECLARATION ...) ?
+              && !nullp(memq(decltype,Cdr(declspec))))
+            goto beachten;
           declspecs = Cdr(declspecs);
         }
       }

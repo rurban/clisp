@@ -3883,13 +3883,8 @@ LISPFUNN(syntax_error_reader,3) { # reads #) and #whitespace
 local uintWL interpret_feature (object expr) {
   check_SP();
   if (symbolp(expr)) { # expr Symbol, search in *FEATURES*:
-    var object list = Symbol_value(S(features)); # value of *FEATURES*
-    while (consp(list)) {
-      if (eq(Car(list),expr))
-        goto ja;
-      list = Cdr(list);
-    }
-    goto nein;
+    if (nullp(memq(expr,Symbol_value(S(features))))) goto nein;
+    else goto ja;
   } else if (consp(expr) && symbolp(Car(expr))) {
     var object opname = Symbol_name(Car(expr));
     var uintWL and_or_flag;
