@@ -163,12 +163,13 @@ local function (LABEL/FLET) calls waste heap (COPY-CLOSURE).
 
 
 LAUNCH/RUN-PROGRAM:
-CLISP has now 5 built-ins for launching external executables:
-SHELL, EXECUTE, MAKE-PIPE-*-STREAM, RUN-PROGRAM, LAUNCH.
-We need to have just _one_ or two such built-in, with many more options,
+CLISP has now 6 built-ins for launching external executables:
+SHELL, EXECUTE, MAKE-PIPE-*-STREAM, LAUNCH.
+We need to have just _one_ such built-in, with many more options,
 like CMUCL's RUN-PROGRAM
 <http://common-lisp.net/project/cmucl/doc/cmu-user/extensions.html#toc46>
 We now have LAUNCH which is a good start.  More work is needed.
+[bruno]:
 A possible outcome is just two facilities:
   1) A type PROCESS, which describes the result of an asynchronous launch,
      and a function which returns a process. (Similar to the Java API. The
@@ -179,6 +180,14 @@ A possible outcome is just two facilities:
 SHELL, EXECUTE, MAKE-PIPE-*-STREAM can then become shorthands for facility #2.
 Of course, facility #2 should be based on facility #1, otherwise porting and
 testing becomes twice as time consuming.
+[sds]: (1) is an overkill, (2) is not needed if (1) is simplified:
+ when :WAIT is T (synchronous launch), the return value is the exit code.
+ when :WAIT is NIL (asynchronous), the return values are streams, and
+      the number and type of the return values is determined by the
+      :INPUT and :OUTPUT arguments.
+   This is Lisp, not C or Java, and the return type can depend on arguments!
+ (this, of course, can be implemented via several internal functions
+ which even use a _C_ struct clisp_process, but the user does not need that)
 
 
 MAYBE
