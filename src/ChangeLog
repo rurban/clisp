@@ -30,6 +30,7 @@
 	* spvw_allocate.d: Use ANSI C prototypes. Indentation & braces.
 	* spvw_circ.d: Use ANSI C prototypes. Indentation & braces.
 	* spvw_memfile.d: Indentation & braces.
+	* sort.d: Use ANSI C prototypes. Indentation & braces.
 	* eval.d: ANSI C prototypes. Drop &!. Indentation & braces.
 	* control.d: Drop &!.
 	* pathname.d: Whitespace changes.
