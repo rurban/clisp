@@ -43,7 +43,7 @@ contains the number of elements of the object. The number of bytes is
 given by the function <function>objsize()</function>.</para>
 
 <para>&clisp; objects which contain exactly 2 &clisp; objects
-(i.e. &cons-class;es, &complex-class; numbers, &ratio-class;s) are
+(i.e. &cons-t;es, &complex-t; numbers, &ratio-t;s) are
 stored in a separate area and occupy 2 words each.
 All other &clisp; objects have "varying length" (more precisely,
 not a fixed length) and include a word for garbage collection purposes
@@ -248,8 +248,8 @@ all the &c-lang; variables of type <type>object</type>
 <emphasis>MUST BE ASSUMED TO BECOME GARBAGE</emphasis>.
 (Except for <type>object</type>s that are known to be unmovable,
  e.g. immediate data or <type>Subr</type>s.)
-Pointers inside &clisp; data (e.g. to the characters of a &string-class;
-or to the elements of a &simple-vector-type;) become
+Pointers inside &clisp; data (e.g. to the characters of a &string-t;
+or to the elements of a &simple-vector-t;) become
 <emphasis>INVALID</emphasis> as well.</para>
 
 <para>The workaround is usually to allocate all the needed &clisp; data
@@ -266,7 +266,7 @@ or the address of a &c-lang; function in a shared library satisfies the
 same requirements.</para>
 
 <para>If another pointer is to be viewed as a &clisp; object, it is best
-to box it, e.g. in a &simple-bit-vector-type; or in an
+to box it, e.g. in a &simple-bit-vector-t; or in an
 <type>Fpointer</type> (using <function>allocate_fpointer()</function>.)</para>
 
 </section>
@@ -394,9 +394,9 @@ vector does not need to be scanned for pointers).</para>
    This field is immutable.</simpara></listitem></varlistentry>
  <varlistentry><term>&codevec;</term>
   <listitem><simpara>This is the byte vector. It is a
-   &simple-bit-vector-type; (because that's the simplest type in &clisp;
+   &simple-bit-vector-t; (because that's the simplest type in &clisp;
    which contains immediate data -- note that <literal
-   role="type">(&simple-array-type; (&unsigned-byte-type; 8))</literal>
+   role="type">(&simple-array-t; (&unsigned-byte-t; 8))</literal>
    is more complex than this).
    This field is immutable.</simpara></listitem></varlistentry>
  <varlistentry><term>&consts;[]</term>
@@ -421,7 +421,7 @@ generic function's dispatch code is installed, the &codevec; and
  <varlistentry><term>&venv-const;*</term>
   <listitem><simpara>At most one object, representing the closed-up
    variables, representing the variables of the lexical environment in
-   which this function was defined.  It is a &simple-vector-type;, which
+   which this function was defined.  It is a &simple-vector-t;, which
    looks like this: <literal role="sexp">#(<replaceable>next</replaceable>
    <replaceable>value&sub-1;</replaceable> ...
    <replaceable>value&sub-n;</replaceable>)</literal>
@@ -429,22 +429,22 @@ generic function's dispatch code is installed, the &codevec; and
    <replaceable>value&sub-n;</replaceable>
    are the values of the closed-up variables, and
    <replaceable>next</replaceable> is either &nil; or a
-   &simple-vector-type; having the same structure.
+   &simple-vector-t; having the same structure.
   </simpara></listitem></varlistentry>
  <varlistentry><term>&block-const;*</term>
   <listitem><simpara>Objects representing closed-up &block; tags,
    representing the &block; tags of the lexical environment in which
-   this function was defined.  Each is a &cons-class; containing in the
+   this function was defined.  Each is a &cons-t; containing in the
    &cdr; part: either a frame pointer to the block frame, or &disabled;.
    The &car; is the block's name, only for error message purposes.
   </simpara></listitem></varlistentry>
  <varlistentry><term>&tagbody-const;*</term>
   <listitem><simpara>Objects representing closed-up &tagbody; tags,
    representing the &tagbody; tags of the lexical environment in which
-   this function was defined.  Each is a &cons-class; containing in the
+   this function was defined.  Each is a &cons-t; containing in the
    &cdr; part: either a frame pointer to the &tagbody; frame, or
    &disabled; if the &tagbody; has already been left.  The &car; is a
-   &simple-vector-type; containing the names of the &tagbody; tags, only
+   &simple-vector-t; containing the names of the &tagbody; tags, only
    for the error message purposes.
   </simpara></listitem></varlistentry>
  <varlistentry><term>&keyword-const;*</term>
@@ -804,7 +804,7 @@ letters:
       <entry>Table-driven jump, depending on &value1;.</entry>
       <entry>Lookup &value1; in the hash table &consts;[&n-r;].
              (The hash table's test is either &eq; or &eql;.)
-             If found, the hash table value is a signed &fixnum-type;,
+             If found, the hash table value is a signed &fixnum-t;,
              jump to it: PC := PC + value.  Else jump to &lab-r;.
              values undefined</entry></row>
  <row><entry><literal role="sexp">(JMPHASHV &n-r; &lab-r;)</literal></entry>
@@ -812,7 +812,7 @@ letters:
              inside a generic function.</entry>
       <entry>Lookup &value1; in the hash table &svref;(&consts;[0],&n-r;).
              (The hash table's test is either &eq; or &eql;.)
-             If found, the hash table value is a signed &fixnum-type;,
+             If found, the hash table value is a signed &fixnum-t;,
              jump to it: PC := PC + value.  Else jump to &lab-r;.
              values undefined</entry></row>
  <row><entry><literal role="sexp">(JSR &lab-r;)</literal></entry>
@@ -1080,7 +1080,7 @@ letters:
              <replaceable>label&sub-1;</replaceable> ...
              <replaceable>label&sub-n;</replaceable>)</literal></entry>
       <entry>Create a tagbody frame.</entry>
-      <entry>Fetch &consts;[&n-r;], this is a &simple-vector-type; with
+      <entry>Fetch &consts;[&n-r;], this is a &simple-vector-t; with
              &m-r; elements, then decode &m-r; label operands.
              Create a &tagbody; frame, &STACK; -= 3+&m-r;, &SP; -= 1+&jbs;.
              The third object in the tagbody frame is

@@ -317,8 +317,8 @@ localized.</para>
 <section id="encodings-intro"><title>Introduction</title>
 
 <para>An <emphasis>encoding</emphasis> describes the correspondence
- between &character-class;s and raw bytes during input/output via
- &stream-class;s with &stream-element-type; &character-class;.</para>
+ between &character-t;s and raw bytes during input/output via
+ &stream-t;s with &stream-element-type; &character-t;.</para>
 
 <para>An &encoding; is an object composed of the following facets:
 <variablelist>
@@ -1019,7 +1019,7 @@ N. Gray to X3J13.</para>
 <variablelist><title>Defined classes</title>
  <varlistentry id="fu-st"><term>&fu-st;</term>
   <listitem><simpara>This is a superclass of all user-defined streams.
-   It is a subclass of &stream-class; and of &standard-object-class;.
+   It is a subclass of &stream-t; and of &standard-object-t;.
    Its metaclass is &standard-class;.</simpara></listitem></varlistentry>
  <varlistentry id="fu-st-in"><term>&fu-st-in;</term>
   <listitem><simpara>This is a superclass of all user-defined input streams.
@@ -1035,12 +1035,12 @@ N. Gray to X3J13.</para>
    it a subclass of &fu-st-out;.</simpara></listitem></varlistentry>
  <varlistentry id="fu-st-char"><term>&fu-st-char;</term>
   <listitem><simpara>This is a superclass of all user-defined streams
-   whose &stream-element-type; is &character-class;.  It is a subclass of
+   whose &stream-element-type; is &character-t;.  It is a subclass of
    &fu-st;.  It defines a method on &stream-element-type; that returns
-   &character-class;.</simpara></listitem></varlistentry>
+   &character-t;.</simpara></listitem></varlistentry>
  <varlistentry id="fu-st-bin"><term>&fu-st-bin;</term>
   <listitem><simpara>This is a superclass of all user-defined streams
-   whose &stream-element-type; is a subtype of &integer-class;.  It is a
+   whose &stream-element-type; is a subtype of &integer-t;.  It is a
    subclass of &fu-st;.  When you define a subclass of &fu-st-bin;,
    you have to provide a method on &stream-element-type;.
   </simpara></listitem></varlistentry>
@@ -1066,8 +1066,8 @@ N. Gray to X3J13.</para>
  <varlistentry><term><literal role="sexp">(&stream-element-type;
     &stream-r;)</literal></term>
   <listitem><simpara>Returns the stream's element type, normally a
-   subtype of &character-class; or &integer-class;.</simpara>
-  <simpara>The method for &fu-st-char; returns &character-class;.
+   subtype of &character-t; or &integer-t;.</simpara>
+  <simpara>The method for &fu-st-char; returns &character-t;.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">((&setf; &stream-element-type;)
     <replaceable>new-element-type</replaceable> &stream-r;)</literal></term>
@@ -1269,7 +1269,7 @@ N. Gray to X3J13.</para>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns &t; if &st-rb; would return immediately with an
-   &integer-class; result.  Returns &eof-k; if the &eos; is already
+   &integer-t; result.  Returns &eof-k; if the &eos; is already
    known to be reached.  If &st-rb;'s value is not available
    immediately, returns &nil; instead of waiting.</simpara>
    &need-defmethod;<simpara>This function is a &clisp; extension (see
@@ -1288,7 +1288,7 @@ N. Gray to X3J13.</para>
                  &stream-r;)</literal></term>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
-   Returns an &integer-class; or &eof-k;, like &st-rb;, if that would
+   Returns an &integer-t; or &eof-k;, like &st-rb;, if that would
    return immediately.  If &st-rb;'s value is not available immediately,
    returns &nil; instead of waiting.</simpara>
    <simpara>The default method calls &st-rb; if &st-rbla; returns true;
@@ -2320,26 +2320,26 @@ classes.</para>
  equivalent</entry><entry>Comment</entry></row></thead><tbody>
 <row><entry>&nil;</entry><entry>&nil;</entry><entry><type>void</type></entry>
    <entry/><entry>as a result type only</entry></row>
-<row><entry>&boolean-type;</entry><entry>&boolean-type;</entry>
+<row><entry>&boolean-t;</entry><entry>&boolean-t;</entry>
    <entry><type>int</type></entry><entry><type>BOOLEAN</type></entry></row>
-<row><entry>&character-class;</entry><entry>&character-class;</entry>
+<row><entry>&character-t;</entry><entry>&character-t;</entry>
    <entry><type>char</type></entry>
    <entry><type>SHORT CHARACTER</type></entry></row>
-<row><entry><type>char</type></entry><entry>&integer-class;</entry>
+<row><entry><type>char</type></entry><entry>&integer-t;</entry>
    <entry><type>signed char</type></entry></row>
-<row><entry><type>uchar</type></entry><entry>&integer-class;</entry>
+<row><entry><type>uchar</type></entry><entry>&integer-t;</entry>
    <entry><type>unsigned char</type></entry></row>
-<row><entry><type>short</type></entry><entry>&integer-class;</entry>
+<row><entry><type>short</type></entry><entry>&integer-t;</entry>
    <entry><type>short</type></entry></row>
-<row><entry><type>ushort</type></entry><entry>&integer-class;</entry>
+<row><entry><type>ushort</type></entry><entry>&integer-t;</entry>
    <entry><type>unsigned short</type></entry></row>
-<row><entry><type>int</type></entry><entry>&integer-class;</entry>
+<row><entry><type>int</type></entry><entry>&integer-t;</entry>
    <entry><type>int</type></entry></row>
-<row><entry><type>uint</type></entry><entry>&integer-class;</entry>
+<row><entry><type>uint</type></entry><entry>&integer-t;</entry>
    <entry><type>unsigned int</type></entry></row>
-<row><entry><type>long</type></entry><entry>&integer-class;</entry>
+<row><entry><type>long</type></entry><entry>&integer-t;</entry>
    <entry><type>long</type></entry></row>
-<row><entry><type>ulong</type></entry><entry>&integer-class;</entry>
+<row><entry><type>ulong</type></entry><entry>&integer-t;</entry>
    <entry><type>unsigned long</type></entry></row>
 <row><entry><type>uint8</type></entry><entry>&unsigned-byte-8;</entry>
    <entry><type>uint8</type></entry><entry><type>BYTE</type></entry></row>
@@ -2356,16 +2356,16 @@ classes.</para>
 <row><entry><type>sint32</type></entry><entry>&signed-byte-32;</entry>
    <entry><type>sint32</type></entry><entry><type>INTEGER</type></entry></row>
 <row><entry><type>uint64</type></entry>
-   <entry><literal role="sexp">(&unsigned-byte-type; 64)</literal></entry>
+   <entry><literal role="sexp">(&unsigned-byte-t; 64)</literal></entry>
    <entry><type>uint64</type></entry><entry><type>LONG CARDINAL</type></entry>
    <entry>does not work on all platforms</entry></row>
 <row><entry><type>sint64</type></entry>
-   <entry><literal role="sexp">(&signed-byte-type; 64)</literal></entry>
+   <entry><literal role="sexp">(&signed-byte-t; 64)</literal></entry>
    <entry><type>sint64</type></entry><entry><type>LONG INTEGER</type></entry>
    <entry>does not work on all platforms</entry></row>
-<row><entry>&single-float-type;</entry><entry>&single-float-type;</entry>
+<row><entry>&single-float-t;</entry><entry>&single-float-t;</entry>
    <entry><type>float</type></entry></row>
-<row><entry>&double-float-type;</entry><entry>&double-float-type;</entry>
+<row><entry>&double-float-t;</entry><entry>&double-float-t;</entry>
    <entry><type>double</type></entry></row>
 </tbody></tgroup></table></listitem></varlistentry>
 
@@ -2390,8 +2390,8 @@ classes.</para>
  <replaceable>ident&sub-1;</replaceable>; ...;
  <replaceable>c-type&sub-n;</replaceable>
  <replaceable>ident&sub-n;</replaceable>; }</type>.
- Its Lisp equivalent is: if &class-r; is &vector-class;, a
- &simple-vector-type;; if &class-r; is &list-class;, a list; if
+ Its Lisp equivalent is: if &class-r; is &vector-t;, a
+ &simple-vector-t;; if &class-r; is &list-t;, a list; if
  &class-r; is a symbol naming a structure or &clos; class, an instance
  of this class, with slots of names <replaceable>ident&sub-1;</replaceable>,
  ... ,<replaceable>ident&sub-n;</replaceable>.
@@ -3063,11 +3063,11 @@ offset for structure references) and returns the given type.</para>
 
 <para><function>mem-write</function> writes an arbitrary
 address. <function>mem-write-vector</function> copies the content of a
-Lisp &string-class; or &unsigned-byte-vec; into memory.</para>
+Lisp &string-t; or &unsigned-byte-vec; into memory.</para>
 
 <para><function>nzero-pointer-p</function> tests for
 non-&c-NULL; pointers in all recognized representations
-(&null-class;, &unsigned-byte-type; and &foreign-pointer;).</para>
+(&null-t;, &unsigned-byte-t; and &foreign-pointer;).</para>
 
 </section>
 
@@ -3119,22 +3119,22 @@ classes.</para>
   <entry><type>short</type></entry><entry/></row>
 <row><entry><type>-1</type></entry><entry>&signed-byte-8;</entry>
   <entry><type>signed char</type></entry><entry/></row>
-<row><entry><type>0</type></entry><entry>&boolean-type;</entry>
+<row><entry><type>0</type></entry><entry>&boolean-t;</entry>
   <entry><type>BOOL</type></entry>
   <entry>as a result type for functions only</entry></row>
 <row><entry><type>*</type></entry><entry>opaque</entry>
   <entry><type>void*</type></entry><entry/></row>
 <row><entry>&external-k;</entry><entry>opaque</entry>
   <entry><type>void*</type></entry><entry/></row>
-<row><entry>&string-class;</entry>
-  <entry>&string-class; or &vector-class;</entry>
+<row><entry>&string-t;</entry>
+  <entry>&string-t; or &vector-t;</entry>
   <entry><type>char*</type></entry><entry/></row>
 <row><entry>&io-k;</entry>
-  <entry>&string-class; or &vector-class;</entry>
+  <entry>&string-t; or &vector-t;</entry>
   <entry><type>char*</type></entry><entry/></row>
 </tbody></tgroup></table>
 
-<para>Objects of type &string-class; are copied and passed
+<para>Objects of type &string-t; are copied and passed
 &c-NULL;-terminated on the execution stack.  On return, a Lisp string is
 allocated and filled from the address returned (unless &c-NULL;).
 Functions with &io-k; parameters are passed the address of the Lisp
@@ -3142,9 +3142,9 @@ string or unsigned byte vector. These are not &c-NULL;-terminated!
 This is useful for functions like like &read; which
 do not need an array at a constant address longer than the dynamic
 extent of the call (it is dangerous to define callback functions with
-&io-k; (or &string-class;) type parameters).
-Arguments of type &integer-class; and &foreign-pointer; are always
-acceptable where a &string-class; or &io-k; type is specified.</para>
+&io-k; (or &string-t;) type parameters).
+Arguments of type &integer-t; and &foreign-pointer; are always
+acceptable where a &string-t; or &io-k; type is specified.</para>
 
 <!-- #ifdef UNICODE -->
 <para>See also &foreign-enc;.</para>
@@ -3182,7 +3182,7 @@ function result type and yields either &t; or &nil;. The difference
 between <function>*</function> and &external-k; is the following:
 <function>*</function> uses integers, &external-k; uses
 &foreign-pointer; as function result-type (except from &nil; for a
-&c-NULL; pointer) and refuses objects of type &string-class; or
+&c-NULL; pointer) and refuses objects of type &string-t; or
 &unsigned-byte-vec; as input.  Thus &external-k; provides some security
 on the input and the ability to use &finalize; for resource-tracking on
 the output side.</para>
@@ -3227,7 +3227,7 @@ signed or unsigned integers (&affi-pac; types <type>-4</type>,
 <type>-2</type>, <type>-1</type>, <type>1</type>, <type>2</type>,
 <type>4</type>), a pointer (<type>*</type>), a &c-NULL;-terminated
 string (<type>string</type>) or, if the type argument is of type
-&string-class; or &unsigned-byte-vec;, it can fill this vector.
+&string-t; or &unsigned-byte-vec;, it can fill this vector.
 &external-k; is not an acceptable type as no object can be created by
 using <function>affi:mem-read</function>.</para>
 
@@ -3241,7 +3241,7 @@ type <type>-4</type>, <type>-2</type>, <type>-1</type>, <type>1</type>,
 <para><literal role="sexp">(affi:mem-write-vector
 <replaceable>address</replaceable> <replaceable>vector</replaceable>
 [<replaceable>offset</replaceable>])</literal> can write memory from the
-given vector (of type &string-class; or &unsigned-byte-vec;).</para>
+given vector (of type &string-t; or &unsigned-byte-vec;).</para>
 
 </section>
 
@@ -3297,7 +3297,7 @@ the usual symbol headaches when using foreign functions calls within
 macros.  Luckily, even if the high-level interface (or its
 implementation in <filename>affi1.lisp</filename>) were to change, the
 low-level part (<filename>affi.d</filename>) should remain untouched as
-all it knows are &integer-class;s and &foreign-pointer;s, no &symbol-class;s.
+all it knows are &integer-t;s and &foreign-pointer;s, no &symbol-t;s.
 The difficulty is just to get the library base value at run-time.
 Feel free to suggest enhancements to this facility!</para>
 
@@ -3468,7 +3468,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   <listitem><simpara>This function creates a socket, binds a port to the
    socket, and then listens for connect attempts.  The server exists to
    watch for client connect attempts.  The optional argument is either a
-   port (positive &fixnum-type;) or a &socket-stream; (from whose peer the
+   port (positive &fixnum-t;) or a &socket-stream; (from whose peer the
    connections will be made).
   </simpara></listitem></varlistentry>
  <varlistentry id="sose-close"><term><literal role="sexp">(&sose-close;
@@ -3638,8 +3638,8 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
       role="sexp">(<function>posix:file-stat</function> &path-r;
       &optional-amp; <replaceable>link-p</replaceable>)</literal></term>
  <listitem><simpara>Return the stat struct.  &path-r; can
-   be a &stream-class;, a &pathname-class;, a &string-class; or a
-   &number-class; (on a &unix; system, meaning file descriptor).  The
+   be a &stream-t;, a &pathname-t;, a &string-t; or a
+   &number-t; (on a &unix; system, meaning file descriptor).  The
    first slot of the struct returned is the string or the number on which
    &stat;/&fstat;/&lstat;
    was called.  The other 13 slots are numbers, members of the stat
@@ -4207,7 +4207,7 @@ future).</para>
    &dkey-r; &path-r; &key-amp; (&direction-k; &input-k;)
    &if-does-not-exist;</literal></term>
   <listitem><simpara>Open the directory key under &dkey-r;, which should
-   be either an open directory key or a valid &dk-type;.
+   be either an open directory key or a valid &dk-t;.
    The meaning of the &direction-k; and &if-does-not-exist; keyword
    arguments is the same as for &open;.
   </simpara></listitem></varlistentry>
@@ -4224,13 +4224,13 @@ future).</para>
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp"
    >(<function>LDAP:DIR-KEY-TYPE</function> &dkey-r;)</literal></term>
-  <listitem><simpara>Return the &dk-type; of the directory key
+  <listitem><simpara>Return the &dk-t; of the directory key
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
    role="sexp">(<function>LDAP:DIR-KEY-PATH</function>
                 &dkey-r;)</literal></term>
   <listitem><simpara>Return the path of this directory key, which is the
-   &path-r; argument of &dkey-open; if &dkey-r; was a &dk-type; or the
+   &path-r; argument of &dkey-open; if &dkey-r; was a &dk-t; or the
    concatenation of the &path-r; argument and the
    <function>ldap:dir-key-path</function> of &dkey-r;.
    </simpara></listitem></varlistentry>

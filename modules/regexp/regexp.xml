@@ -67,9 +67,9 @@ info pages.</para>
  <listitem><simpara>Extracts the substring of &string-r; corresponding
   to the given pair of start and end indices of &match-r;.
   The result is shared with &string-r;.
-  If you want a freshly consed &string-class;, use &copy-seq; or
+  If you want a freshly consed &string-t;, use &copy-seq; or
   <literal role="sexp">(&coerce; (&re-match-string; ...)
-  '&simple-string-type;)</literal>.
+  '&simple-string-t;)</literal>.
  </simpara></listitem></varlistentry>
 
 <varlistentry id="re-regexp-quote"><term><literal
