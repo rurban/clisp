@@ -1,5 +1,16 @@
 2002-07-15  Sam Steingold  <sds@gnu.org>
 
+	fixed bug [ 581646 ]: REQUIRE uses STRING-EQUAL
+	since CLISP in ANSI mode does not coerce symbols to pathnames,
+	this also fixes a bug introduced on 2002-07-09 which precluded
+	symbols as module names
+	* defs1.lisp (module-name): new function
+	(provide, require): use it to convert module name to a string
+	* compiler (c-PROVIDE, c-REQUIRE): ditto
+	(require, c-REQUIRE): use STRING= instead of STRING-EQUAL
+
+2002-07-15  Sam Steingold  <sds@gnu.org>
+
 	* _distmakefile (clisp): new target for installing locally
 
 2002-07-13  Sam Steingold  <sds@gnu.org>

@@ -4294,12 +4294,13 @@ for-value   NIL or T
 
 ;; auxiliary function: PROVIDE on file-compilation, cf. function PROVIDE
 (defun c-PROVIDE (module-name)
-  (pushnew (string module-name) *compiled-modules* :test #'string=))
+  (pushnew (module-name module-name) *compiled-modules* :test #'string=))
 
 ;; auxiliary function: REQUIRE on file-compilation, cf. function REQUIRE
-(defun c-REQUIRE (module-name &optional (pathname nil p-given))
-  (unless (member (string module-name) *compiled-modules* :test #'string-equal)
-    (unless p-given (setq pathname (pathname module-name)))
+(defun c-REQUIRE (module-name &optional (pathname nil p-given)
+                  &aux (mod-name (module-name module-name)))
+  (unless (member mod-name *compiled-modules* :test #'string=)
+    (unless p-given (setq pathname (pathname mod-name)))
     (flet ((load-lib (file)
              (let* ((*load-paths*
                      (cons (make-pathname :name nil :type nil
