@@ -1,5 +1,10 @@
 2004-10-03  Bruno Haible  <bruno@clisp.org>
 
+	* utils/modprep.lisp (print-tables-1): Don't export the ..._table_size
+	variables.
+
+2004-10-03  Bruno Haible  <bruno@clisp.org>
+
 	* utils/modprep.lisp (print-tables-1): Declare 'index' as
 	'unsigned int', not 'int'. Avoids gcc warnings.
 	* modules/syscalls/calls.c (POSIX::LIMITS): Declare pos as
