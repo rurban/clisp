@@ -3687,6 +3687,29 @@ disabled at once upon close by sharing their &foreign-pointer; using
     T))
 </programlisting></para></example>
 
+<example id="ex-dffi-float"><title>Float point array computations.</title>
+<para>Save this code into <filename>sum.c</filename>:
+<programlisting language="C">
+double sum (int len, double *vec) {
+  int i;
+  double s=0;
+  for (i=0; i&lt;len; i++) s+= vec[i];
+  return s;
+}
+</programlisting>
+and compile it with
+<screen>$ gcc -shared -o libsum.so sum.c</screen>
+Now you can sum doubles:
+<programlisting language="lisp">
+(&def-call-out; sum (:name "sum") (:library "libsum.so") (:language :stdc)
+  (:return-type double-float)
+  (:arguments (len int) (vec (&c-array-ptr; double-float))))
+(sum 3 #(1d0 2d0 3d0))
+<computeroutput>6d0</computeroutput>
+</programlisting>
+</para>
+</example>
+
 <section id="dffi-ex-more"><title>More examples</title>
 
 <para>You can find more information and examples of the &clisp;
