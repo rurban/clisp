@@ -264,13 +264,15 @@ LISPFUNN(get_env,1)
   mv_count=1;
 }
 
-local char * cat_env_var(char * buffer,const char * name,uintL namelen,
-                         const char * value,uintL valuelen) {
+# Creates a string concatenating an environment variable and its value.
+# Like sprintf(buffer, "%s=%s", name, value);
+local char * cat_env_var (char * buffer, const char * name, uintL namelen,
+                          const char * value, uintL valuelen) {
   memcpy(buffer,name,namelen);
   if (value != NULL) {
     buffer[namelen] = '=';
     memcpy(buffer+namelen+1,value,valuelen);
-    buffer[namelen+valuelen+1] = 0;
+    buffer[namelen+1+valuelen] = 0;
   } else
     buffer[namelen] = 0;
   return buffer;

@@ -559,8 +559,8 @@ LISPFUNN(dkey_search_iterator,3)
   skipSTACK(3);
 }
 
-local void init_iteration_node (object state,object subkey,
-                                object *new_path,object *failed_p)
+local void init_iteration_node (object state, object subkey,
+                                object *new_path, object *failed_p)
 # open HANDLE to point to DKEY\\PATH
 # compute KEY_S, ATT_S and DAT_S
 # return the full current path (itst_current)
