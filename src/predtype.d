@@ -920,11 +920,11 @@ local bool hash_table_equalp (object ht1, object ht2)
   /* have to traverse keys */
   var uintL index = posfixnum_to_L(TheHashtable(ht1)->ht_maxcount);
   var gcv_object_t* KVptr = ht_kvt_data(ht1);
-  for (; index ; KVptr += 2, index--)
+  for (; index ; KVptr += 3, index--)
     if (!eq(KVptr[0],unbound) && !equalp(KVptr[1],gethash(KVptr[0],ht2)))
       return false;
   for (index = posfixnum_to_L(TheHashtable(ht2)->ht_maxcount),
-         KVptr = ht_kvt_data(ht2); index; KVptr += 2, index--)
+         KVptr = ht_kvt_data(ht2); index; KVptr += 3, index--)
     if (!eq(KVptr[0],unbound) && !equalp(KVptr[1],gethash(KVptr[0],ht1)))
       return false;
   return true;
@@ -1688,6 +1688,11 @@ LISPFUNNR(type_of,1)
         case Rectype_WeakAlist_Either:
         case Rectype_WeakAlist_Both: /* Weak-Alist */
           value1 = S(internal_weak_alist); break;
+        case Rectype_WeakHashedAlist_Key:
+        case Rectype_WeakHashedAlist_Value:
+        case Rectype_WeakHashedAlist_Either:
+        case Rectype_WeakHashedAlist_Both: /* Weak-Hashed-Alist */
+          value1 = S(internal_weak_hashed_alist); break;
         default: goto unknown;
       }
       break;
@@ -1960,6 +1965,10 @@ LISPFUNNR(class_of,1)
         case Rectype_WeakAlist_Value: /* Weak-Alist -> <t> */
         case Rectype_WeakAlist_Either: /* Weak-Alist -> <t> */
         case Rectype_WeakAlist_Both: /* Weak-Alist -> <t> */
+        case Rectype_WeakHashedAlist_Key: /* Weak-Hashed-Alist -> <t> */
+        case Rectype_WeakHashedAlist_Value: /* Weak-Hashed-Alist -> <t> */
+        case Rectype_WeakHashedAlist_Either: /* Weak-Hashed-Alist -> <t> */
+        case Rectype_WeakHashedAlist_Both: /* Weak-Hashed-Alist -> <t> */
           value1 = O(class_t); break;
         default: goto unknown;
       }
@@ -2576,6 +2585,7 @@ enum { /* The values of this enumeration are 0,1,2,...
   enum_hs_weak_and_mapping,
   enum_hs_weak_or_mapping,
   enum_hs_internal_weak_alist,
+  enum_hs_internal_weak_hashed_alist,
   enum_hs_system_function,
   enum_hs_bignum,
   enum_hs_ratio,
@@ -2932,6 +2942,11 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
         case Rectype_WeakAlist_Either:
         case Rectype_WeakAlist_Both: /* Weak-Alist */
           pighole = &locals->builtins[(int)enum_hs_internal_weak_alist]; break;
+        case Rectype_WeakHashedAlist_Key:
+        case Rectype_WeakHashedAlist_Value:
+        case Rectype_WeakHashedAlist_Either:
+        case Rectype_WeakHashedAlist_Both: /* Weak-Hashed-Alist */
+          pighole = &locals->builtins[(int)enum_hs_internal_weak_hashed_alist]; break;
         default:
           pighole = &locals->builtins[(int)enum_hs_t]; break;
       }

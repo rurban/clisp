@@ -588,17 +588,17 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           case Rectype_WeakAlist_Value:
           case Rectype_WeakAlist_Either:
           case Rectype_WeakAlist_Both:
+          case Rectype_WeakHashedAlist_Key:
+          case Rectype_WeakHashedAlist_Value:
+          case Rectype_WeakHashedAlist_Either:
+          case Rectype_WeakHashedAlist_Both:
             {
-              var uintL count = (Lrecord_length(obj)-2)/2;
-              if (count > 0) {
-                var gcv_object_t* ptr = &TheWeakAlist(obj)->wal_data[0];
-                if (SP_overflow()) # check SP-depth
-                  longjmp(env->abbruch_context,true); # abort
-                dotimespC(count,count, {
-                  get_circ_mark(*ptr++,env); # mark key (recursive)
-                  get_circ_mark(*ptr++,env); # mark value (recursive)
-                });
-              }
+              var uintL count = Lrecord_length(obj)-1; # don't mark wp_cdr
+              # mark count>0 components, starting from recdata[1]
+              var gcv_object_t* ptr = &TheLrecord(obj)->recdata[1];
+              if (SP_overflow()) # check SP-depth
+                longjmp(env->abbruch_context,true); # abort
+              dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # mark components (recursive)
             }
             goto m_end;
           default: break;
@@ -949,17 +949,17 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           case Rectype_WeakAlist_Value:
           case Rectype_WeakAlist_Either:
           case Rectype_WeakAlist_Both:
+          case Rectype_WeakHashedAlist_Key:
+          case Rectype_WeakHashedAlist_Value:
+          case Rectype_WeakHashedAlist_Either:
+          case Rectype_WeakHashedAlist_Both:
             {
-              var uintL count = (Lrecord_length(obj)-2)/2;
-              if (count > 0) {
-                var gcv_object_t* ptr = &TheWeakAlist(obj)->wal_data[0];
-                if (SP_overflow()) # check SP-depth
-                  longjmp(env->abbruch_context,true); # abort
-                dotimespC(count,count, {
-                  get_circ_mark(*ptr++,env); # mark key (recursive)
-                  get_circ_mark(*ptr++,env); # mark value (recursive)
-                });
-              }
+              var uintL count = Lrecord_length(obj)-1; # don't mark wp_cdr
+              # mark count>0 components, starting from recdata[1]
+              var gcv_object_t* ptr = &TheLrecord(obj)->recdata[1];
+              if (SP_overflow()) # check SP-depth
+                longjmp(env->abbruch_context,true); # abort
+              dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # mark components (recursive)
             }
             goto m_end;
           default: break;
@@ -1186,15 +1186,14 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           case Rectype_WeakAlist_Value:
           case Rectype_WeakAlist_Either:
           case Rectype_WeakAlist_Both:
+          case Rectype_WeakHashedAlist_Key:
+          case Rectype_WeakHashedAlist_Value:
+          case Rectype_WeakHashedAlist_Either:
+          case Rectype_WeakHashedAlist_Both:
             {
-              var uintL count = (Lrecord_length(obj)-2)/2;
-              if (count > 0) {
-                var gcv_object_t* ptr = &TheWeakAlist(obj)->wal_data[0];
-                dotimespC(count,count, {
-                  get_circ_unmark(*ptr++,env); # mark key (recursive)
-                  get_circ_unmark(*ptr++,env); # mark value (recursive)
-                });
-              }
+              var uintL count = Lrecord_length(obj)-1;
+              var gcv_object_t* ptr = &TheLrecord(obj)->recdata[1];
+              dotimespC(count,count, { get_circ_unmark(*ptr++,env); } ); # unmark components (recursive)
             }
             goto u_end;
           default: break;

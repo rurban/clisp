@@ -297,7 +297,11 @@ local void gc_mark (object obj)
         case Rectype_WeakAlist_Key:
         case Rectype_WeakAlist_Value:
         case Rectype_WeakAlist_Either:
-        case Rectype_WeakAlist_Both: /* Lrecord */
+        case Rectype_WeakAlist_Both:
+        case Rectype_WeakHashedAlist_Key:
+        case Rectype_WeakHashedAlist_Value:
+        case Rectype_WeakHashedAlist_Either:
+        case Rectype_WeakHashedAlist_Both: /* Lrecord */
           down_lrecord();
         default: /* Srecord/Xrecord */
           down_sxrecord();
