@@ -19,35 +19,35 @@ RM = rm -f
 SHELL = /bin/sh
 
 all : force
-	cd @subdir@; $(MAKE) all
+	cd @subdir@; $(MAKE) -r all
 
 install : force
-	cd @subdir@; $(MAKE) install
+	cd @subdir@; $(MAKE) -r install
 
 installdirs : force
-	cd @subdir@; $(MAKE) installdirs
+	cd @subdir@; $(MAKE) -r installdirs
 
 uninstall : force
-	cd @subdir@; $(MAKE) uninstall
+	cd @subdir@; $(MAKE) -r uninstall
 
 minicheck : force
-	cd @subdir@; $(MAKE) minicheck
+	cd @subdir@; $(MAKE) -r minicheck
 
 check : force
-	cd @subdir@; $(MAKE) check
+	cd @subdir@; $(MAKE) -r check
 
 mostlyclean : force
-	cd @subdir@; $(MAKE) mostlyclean
+	cd @subdir@; $(MAKE) -r mostlyclean
 
 clean : force
-	cd @subdir@; $(MAKE) clean
+	cd @subdir@; $(MAKE) -r clean
 
 distclean : force
-	cd @subdir@; if test -f Makefile; then $(MAKE) distclean; fi
+	cd @subdir@; if test -f Makefile; then $(MAKE) -r distclean; fi
 	$(RM) config.status config.log config.cache Makefile
 
 maintainer-clean : force
-	cd @subdir@; if test -f Makefile; then $(MAKE) maintainer-clean; fi
+	cd @subdir@; if test -f Makefile; then $(MAKE) -r maintainer-clean; fi
 	$(RM) config.status config.log config.cache Makefile
 
 force :
