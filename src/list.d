@@ -449,17 +449,9 @@ LISPFUN(tree_equal,2,0,norest,key,2, (kw(test),kw(test_not)) )
   local boolean endp(obj)
     var object obj;
     { if (consp(obj)) return FALSE;
-      else if (nullp(obj)) return TRUE;
-           else { pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-                  pushSTACK(S(list)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-                  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-                  fehler(type_error,
-                         DEUTSCH ? "~: Eine echte Liste darf nicht mit ~ aufhören." :
-                         ENGLISH ? "~: A true list must not end with ~" :
-                         FRANCAIS ? "~ : Une vraie liste ne peut pas se terminer en ~." :
-                         ""
-                        );
-    }           }
+      elif (nullp(obj)) return TRUE;
+      else { fehler_proper_list(obj); }
+    }
 
 LISPFUNN(endp,1) # (ENDP object), CLTL S. 264
   { value1 = endp(popSTACK()) ? T : NIL;
