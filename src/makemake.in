@@ -1,3 +1,4 @@
+#!/bin/sh
 # -*- coding: utf-8; mode: shell-script -*-
 # Creation of the Makefile used for compiling CLISP
 # Bruno Haible 2.9.1991, 14.7.1992, 13.9.1992, 12.10.1992, 27.11.1992
@@ -311,7 +312,7 @@ case $# in
      fi
      case "$HSYSOS" in
        # Canonicalize cygwin32/nt and cygwin32/95 to plain cygwin32.
-       cygwin32*) HSYSOS=cygwin32 ;;
+       cygwin*) HSYSOS=cygwin32 ;;
      esac
      HOS='unix'
      TSYS="$HSYS"
@@ -2507,20 +2508,15 @@ done
 
 if [ $HOS = unix ] ; then
   echol "lisp.a : \$(OBJECTS)"
-  if [ "$HSYSOS" = cygwin32 ] ; then
-    # "ld -r" doesn't work right on Cygwin32 v18.
-    echotab "\$(AR) rcv lisp.a \$(OBJECTS)"
+  echotab "ld -r -o lisp.o \$(OBJECTS)"
+  echotab "chmod a-x lisp.o"
+  if test -z "$LIBGCC"; then
+    echotab "\$(AR) rcv lisp.a lisp.o"
   else
-    echotab "ld -r -o lisp.o \$(OBJECTS)"
-    echotab "chmod a-x lisp.o"
-    if test -z "$LIBGCC"; then
-      echotab "\$(AR) rcv lisp.a lisp.o"
-    else
-      # Test for libgcc.a because NeXT cc does not have it.
-      echotab "if test -f \$(LIBGCC) ; then mkdir libgcc ; (cd libgcc ; \$(AR) xv \$(LIBGCC)) ; \$(AR) rcv lisp.a lisp.o libgcc/*.o* ; \$(RM) -r libgcc ; else \$(AR) rcv lisp.a lisp.o ; fi"
-    fi
-    echotab "\$(RM) lisp.o"
+    # Test for libgcc.a because NeXT cc does not have it.
+    echotab "if test -f \$(LIBGCC) ; then mkdir libgcc ; (cd libgcc ; \$(AR) xv \$(LIBGCC)) ; \$(AR) rcv lisp.a lisp.o libgcc/*.o* ; \$(RM) -r libgcc ; else \$(AR) rcv lisp.a lisp.o ; fi"
   fi
+  echotab "\$(RM) lisp.o"
   echotab "\$(RANLIB) lisp.a"
   echol
   echol "libnoreadline.a : noreadline.o"
@@ -2704,6 +2700,9 @@ for f in $LPARTS ; do
     if [ $TOS = unix ] ; then
       echotab "chmod +w ${f}.lisp"
       echotab "echo '(setq *clhs-root-default* \"${hyperspec}/\")' >> ${f}.lisp"
+      if [ ${TSYSOS} = cygwin32 ]; then
+        echotab "echo '(setq *device-prefix* \""`(cd c:; pwd | sed 's,^/\([a-z]*\)/.*,\1,')`"\")' >> ${f}.lisp"
+      fi
     fi
     echol
   else
@@ -2945,13 +2944,7 @@ echol
 for f in clisp-link ; do
   echol "${f} : ${SRCDIR}${f}.in"
   XCC_CREATESHARED_=`echo "$XCC_CREATESHARED" | sed -e 's,\\$,$$,g'`
-  if [ "$TSYSOS" = cygwin32 ] ; then
-    # Cygwin32 doesn't mark real executables as being executables,
-    # so replace "test -x " with "test -r ".
-    echotab "sed -e 's%@with_dynamic_modules@%$with_dynamic_modules%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' -e 's, -x \"\\\$\$, -r \"\$\$,g' < ${SRCDIR}${f}.in > ${f}"
-  else
-    echotab "sed -e 's%@with_dynamic_modules@%$with_dynamic_modules%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' < ${SRCDIR}${f}.in > ${f}"
-  fi
+  echotab "sed -e 's%@with_dynamic_modules@%$with_dynamic_modules%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' < ${SRCDIR}${f}.in > ${f}"
   echotab "chmod a+x ${f}"
   echol
 done

@@ -628,11 +628,13 @@ LISPSYM(execute,"EXECUTE",ext)
 #ifdef HAVE_SHELL
 #ifdef WIN32_NATIVE
 LISPSYM(shell_name,"SHELL-NAME",system)
-LISPSYM(device_prefix,"*DEVICE-PREFIX*",custom)
 #endif
 LISPSYM(shell,"SHELL",ext)
 #endif
 LISPSYM(savemem,"SAVEMEM",system)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+LISPSYM(device_prefix,"*DEVICE-PREFIX*",custom)
+#endif
 #ifdef DYNAMIC_MODULES
 LISPSYM(dynload_modules,"DYNLOAD-MODULES",system)
 #endif
