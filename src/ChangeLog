@@ -2,7 +2,7 @@
 
 	added functionp macro predicate
 	* lispbibl.d (functionp): define
-	* record.d (MAKE-FUNCTION-MACRO, %COPY-GENERIC-FUNCTION): use it
+	* record.d (MAKE-FUNCTION-MACRO, MAKE-MACRO): use it
 
 2001-09-23  Sam Steingold  <sds@gnu.org>
 
