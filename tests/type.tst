@@ -355,3 +355,12 @@ NIL
 
 (subtypep 'unsigned-byte 'integer) t
 (subtypep 'signed-byte 'integer) t
+
+(type-of (coerce '(1 2 3 4) '(simple-array (unsigned-byte 8))))
+(SIMPLE-ARRAY (UNSIGNED-BYTE 8) (4))
+
+(type-of (coerce '(1 2 3 4) '(simple-array *)))
+(SIMPLE-VECTOR 4)
+
+(type-of (coerce '(1 2 3 4) '(simple-array * (4))))
+(SIMPLE-VECTOR 4)
