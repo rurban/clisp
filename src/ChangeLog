@@ -1,5 +1,11 @@
 2001-10-23  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #474216
+	* misc.d (LISP-IMPLEMENTATION-VERSION): do not try to convert
+	O(lisp_implementation_version_built_string) when month is not found
+
+2001-10-23  Sam Steingold  <sds@gnu.org>
+
 	* clisp-link.sh (LIBS): quote commas
 	Suggested by Johannes Groedem <johs@bzzzt.fix.no>
 
