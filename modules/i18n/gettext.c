@@ -241,6 +241,30 @@ DEFUN(I18N:SET-LOCALE, &optional category locale)
   skipSTACK(2);
 }
 
+#if defined(WIN32_NATIVE)
+/* call GetLocaleInfo.
+ res is a malloc'ed area of size res_size
+ it may be increased as a result of calling this function */
+# define GET_LOCALE_INFO_BUF_SIZE 256
+static void get_locale_info (int what, char**res, int *res_size) {
+  int val;
+  begin_system_call();
+  val = GetLocaleInfo(LOCALE_SYSTEM_DEFAULT,what|LOCALE_USE_CP_ACP,
+                      *res,*res_size);
+  end_system_call();
+  if (val == 0) OS_error();
+  if (val > *res_size) {
+    *res = my_realloc(*res,val);
+    if (*res == NULL) OS_error();
+    *res_size = val;
+    begin_system_call();
+    GetLocaleInfo(LOCALE_SYSTEM_DEFAULT,what|LOCALE_USE_CP_ACP,
+                  *res,*res_size);
+    end_system_call();
+  }
+}
+#endif
+
 #if defined(HAVE_LOCALECONV)
 static void thousands_sep_to_STACK (char* sep1000) {
   int ii;
@@ -319,55 +343,41 @@ DEFUN(I18N:LOCALE-CONV,)
   funcall(`I18N::MK-LOCALE-CONV`,24);
 }
 #elif defined(WIN32_NATIVE)
-# define GET_LOCALE_INFO_BUF_SIZE 256
-static void get_locale_info (int what, char**res, int *res_size) {
-  int val = GetLocaleInfo(LOCALE_SYSTEM_DEFAULT,what|LOCALE_USE_CP_ACP,
-                          *res,*res_size);
-  if (val == 0) OS_error();
-  if (val > *res_size) {
-    *res = realloc(*res,val);
-    if (*res == NULL) OS_error();
-    *res_size = val;
-    GetLocaleInfo(LOCALE_SYSTEM_DEFAULT,what|LOCALE_USE_CP_ACP,
-                  *res,*res_size);
-  }
+static int my_atoi (char *res) {
+  int val;
+  begin_system_call(); val = atoi(res); end_system_call();
+  return val;
 }
 static void thousands_sep_to_STACK (int what, char** gres, int* res_size) {
   /* "1;2;3" ==> #(1 2 3) */
-  int start = 0, end = 0, count = 0, ret, limit;
+  int start = 0, end = 0, count = 0, limit;
   char *res;
-  begin_system_call();
   get_locale_info(what,gres,res_size);
-  end_system_call();
   res = *gres; limit = *res_size;
   while (res[end] && (end < limit)) {
     while (res[end] && (res[end] != ';') && (end < limit)) end++;
-    begin_system_call(); ret = atoi(res+start); end_system_call();
-    pushSTACK(fixnum(ret)); count++;
+    pushSTACK(fixnum(my_atoi(res+start))); count++;
     if (!res[end]) break;
     start = ++end;
   }
   value1 = vectorof(count); pushSTACK(value1);
 }
 static void locale_string_to_STACK (int what, char**res, int* res_size) {
-  begin_system_call(); get_locale_info(what,res,res_size);
-  end_system_call(); pushSTACK(asciz_to_string(*res,Symbol_value(S(utf_8))));
+  get_locale_info(what,res,res_size);
+  pushSTACK(asciz_to_string(*res,Symbol_value(S(utf_8))));
 }
 static void locale_int_to_STACK (int what, char**res, int* res_size) {
-  int val;
-  begin_system_call(); get_locale_info(what,res,res_size);
-  val = atoi(*res); end_system_call(); pushSTACK(fixnum(val));
+  get_locale_info(what,res,res_size);
+  pushSTACK(fixnum(my_atoi(*res)));
 }
 static void locale_bool_to_STACK (int what, char**res, int* res_size) {
-  int val;
-  begin_system_call(); get_locale_info(what,res,res_size);
-  val = atoi(*res); end_system_call(); pushSTACK(val ? T : NIL);
+  get_locale_info(what,res,res_size);
+  pushSTACK(my_atoi(*res) ? T : NIL);
 }
 DEFUN(I18N:LOCALE-CONV,)
 { /* call GetLocaleInfo(3) */
   int res_size = GET_LOCALE_INFO_BUF_SIZE;
-  char *res;
-  begin_system_call(); res = malloc(res_size); end_system_call();
+  char *res = my_malloc(res_size);
   locale_string_to_STACK(LOCALE_SDECIMAL,&res,&res_size);
   locale_string_to_STACK(LOCALE_STHOUSAND,&res,&res_size);
   thousands_sep_to_STACK(LOCALE_SGROUPING,&res,&res_size);
@@ -393,7 +403,7 @@ DEFUN(I18N:LOCALE-CONV,)
   pushSTACK(S(Kunspecific));
   pushSTACK(S(Kunspecific));
   funcall(`I18N::MK-LOCALE-CONV`,24);
-  free(res);
+  begin_system_call(); free(res); end_system_call();
 }
 #endif
 
@@ -454,40 +464,36 @@ DEFCHECKER(check_nl_item,CODESET                                        \
            LOCALE_SSHORTDATE LOCALE_SSORTNAME LOCALE_STHOUSAND          \
            LOCALE_STIME LOCALE_STIMEFORMAT LOCALE_SYEARMONTH)
 #if defined(HAVE_NL_LANGINFO)
-# define get_lang_info(what)  res = nl_langinfo(what)
+# define get_lang_info(what)                                            \
+  begin_system_call(); res = nl_langinfo(what); end_system_call()
 # define res_to_obj() (res ? asciz_to_string(res,Symbol_value(S(utf_8))) : NIL)
 # define DECLARE_RES  char* res
 # define FINISH_RES
 #elif defined(WIN32_NATIVE)
 # define get_lang_info(what)  get_locale_info(what,&res,&res_size)
 # define res_to_obj() (asciz_to_string(res,Symbol_value(S(utf_8))))
-# define DECLARE_RES  int res_size=GET_LOCALE_INFO_BUF_SIZE; char *res=malloc(res_size)
-# define FINISH_RES   free(res)
+# define DECLARE_RES  int res_size=GET_LOCALE_INFO_BUF_SIZE; char *res=my_malloc(res_size)
+# define FINISH_RES   begin_system_call(); free(res); end_system_call()
 #endif
 DEFUNR(I18N:LANGUAGE-INFORMATION,&optional item)
 { /* call nl_langinfo(3) or GetLocaleInfo() */
-  gcv_object_t *what = &STACK_0;
-  if (missingp(*what)) {        /* everything */
+  object what = popSTACK();
+  if (missingp(what)) {         /* everything */
     int pos = 0;
+    DECLARE_RES;
     for (; pos < check_nl_item_table_size; pos++) {
-      DECLARE_RES;
-      begin_system_call();
       get_lang_info(check_nl_item_table[pos].c_const);
-      end_system_call();
       pushSTACK(*check_nl_item_table[pos].l_const);
       pushSTACK(res_to_obj());
-      FINISH_RES;
     }
+    FINISH_RES;
     VALUES1(listof(2*check_nl_item_table_size));
   } else {
-    int item = check_nl_item(*what);
+    int item = check_nl_item(what);
     DECLARE_RES;
-    begin_system_call();
     get_lang_info(item);
-    end_system_call();
     VALUES1(res_to_obj());
     FINISH_RES;
   }
-  skipSTACK(1);
 }
 #endif
