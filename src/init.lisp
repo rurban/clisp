@@ -222,45 +222,39 @@
 
 ;; preliminary, no expansion at GET_CLOSURE:
 (sys::%putd '%expand-lambdabody-main
-  (function %expand-lambdabody-main
-    (lambda (lambdabody venv fenv)
-      (declare (source nil) (ignore venv fenv))
-      lambdabody)))
+  (function %expand-lambdabody-main (lambda (lambdabody venv fenv)
+    (declare (source nil) (ignore venv fenv))
+    lambdabody)))
 
 ;; preliminary, defun is to be expanded trivially:
 (sys::%putd 'defun
   (sys::make-macro
-    (function defun
-      (lambda (form env)
-        (declare (ignore env))
-        #|
-        (let ((name (cadr form))
-              (lambdalist (caddr form))
-              (body (cdddr form)))
-          `(SYS::%PUTD ',name (FUNCTION ,name (LAMBDA ,lambdalist ,@body)))
-        )
-        |#
-        (let ((name (cadr form)))
-          (list 'sys::%putd (list 'quote name)
-                (list 'function name (cons 'lambda (cddr form)))))))))
+    (function defun (lambda (form env)
+      (declare (ignore env))
+      #| (let ((name (cadr form))
+               (lambdalist (caddr form))
+               (body (cdddr form)))
+           `(SYS::%PUTD ',name (FUNCTION ,name (LAMBDA ,lambdalist ,@body))))
+      |#
+      (let ((name (cadr form)))
+        (list 'sys::%putd (list 'quote name)
+              (list 'function name (cons 'lambda (cddr form)))))))))
 
 )
 
 (sys::%putd 'in-package
   (sys::make-macro
-    (function in-package
-      (lambda (form env)
-        (declare (ignore env))
-        (let ((package-name (string (cadr form))))
-          (list 'EVAL-WHEN '(COMPILE LOAD EVAL)
-                (list 'SETQ 'COMMON-LISP::*PACKAGE*
-                      (list 'SYS::%FIND-PACKAGE package-name))))))))
+    (function in-package (lambda (form env)
+      (declare (ignore env))
+      (let ((package-name (string (cadr form))))
+        (list 'EVAL-WHEN '(COMPILE LOAD EVAL)
+              (list 'SETQ 'COMMON-LISP::*PACKAGE*
+                    (list 'SYS::%FIND-PACKAGE package-name))))))))
 
 ;; this is yet another temporary definition
 (sys::%putd 'cerror
-  (function cerror
-    (lambda (&rest args)
-      (fresh-line) (princ "cerror: ") (prin1 args) (terpri))))
+  (function cerror (lambda (&rest args)
+    (fresh-line) (princ "cerror: ") (prin1 args) (terpri))))
 
 ;; the following is a temporary hack
 (sys::%putd 'format
@@ -389,107 +383,101 @@
 (use-package '("COMMON-LISP" "EXT") "CL-USER")
 
 (sys::%putd 'sys::fbound-string
-  (function sys::fbound-string
-    (lambda (sym)
-      (cond ((special-operator-p sym) (TEXT "special operator"))
-            ((macro-function sym)     (TEXT "macro"))
-            ((fboundp sym)            (TEXT "function"))))))
+  (function sys::fbound-string (lambda (sym)
+    (cond ((special-operator-p sym) (TEXT "special operator"))
+          ((macro-function sym)     (TEXT "macro"))
+          ((fboundp sym)            (TEXT "function"))))))
 
 (proclaim '(special *documentation*))
 (setq *documentation* (make-hash-table :test 'eq :size 1000)) ; :weak :key
 (sys::%putd 'sys::%set-documentation
-  (function sys::%set-documentation
-    (lambda (symbol doctype value)
-      #| ;; cannot use due to bootstrapping
+  (function sys::%set-documentation (lambda (symbol doctype value)
+    #| ;; cannot use due to bootstrapping
       (if value (setf (getf (gethash symbol *documentation*) doctype) value)
         (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
           (when (and found-p (remf rec doctype) (null rec))
             (remhash symbol *documentation*)))))|#
-      (if value
-        (let ((rec (sys::%putf (gethash symbol *documentation*)
-                               doctype value)))
-          (when rec (sys::puthash symbol *documentation* rec)))
-        (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
-          (when found-p
-            (setq rec (sys::%remf rec doctype))
-            (cond ((null rec) (remhash symbol *documentation*))
-                  ((atom rec) (sys::puthash symbol *documentation* rec))))))
-      value)))
+    (if value
+      (let ((rec (sys::%putf (gethash symbol *documentation*)
+                             doctype value)))
+        (when rec (sys::puthash symbol *documentation* rec)))
+      (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
+        (when found-p
+          (setq rec (sys::%remf rec doctype))
+          (cond ((null rec) (remhash symbol *documentation*))
+                ((atom rec) (sys::puthash symbol *documentation* rec))))))
+    value)))
 
 (proclaim '(special *load-truename*))
 (setq *load-truename* nil)
 
 (sys::%putd 'sys::check-redefinition
-  (function sys::check-redefinition
-    (lambda (symbol caller what)
-      (let ((cur-file (if compiler::*compiling*
-                          *compile-file-truename* *load-truename*))
-            ;; distinguish between undefined and defined at top-level
-            (old-file (getf (gethash symbol *documentation*) 'sys::file)))
-        (unless (or (equalp old-file cur-file)
-                    (and (pathnamep old-file) (pathnamep cur-file)
-                         (equal (pathname-name old-file)
-                                (pathname-name cur-file))))
-          (sys::check-package-lock
-           caller
-           (cond ((atom symbol) (symbol-package symbol))
-                 ((function-name-p symbol) (symbol-package (second symbol)))
-                 ((mapcar #'(lambda (obj) ; handle (setf NAME) and (eql NAME)
-                              (let ((oo (if (atom obj) obj (second obj))))
-                                (when (symbolp oo)
-                                  (symbol-package oo))))
-                          symbol)))
-           symbol)
-          (when what ; when not yet defined, `what' is NIL
-            (warn (TEXT "~a: redefining ~a ~s in ~a, was defined in ~a")
-                  caller what symbol (or cur-file "top-level")
-                  (or old-file "top-level")))
-          (when cur-file
-            (system::%set-documentation symbol 'sys::file cur-file)))))))
+  (function sys::check-redefinition (lambda (symbol caller what)
+    (let ((cur-file (if compiler::*compiling*
+                        *compile-file-truename* *load-truename*))
+          ;; distinguish between undefined and defined at top-level
+          (old-file (getf (gethash symbol *documentation*) 'sys::file)))
+      (unless (or (equalp old-file cur-file)
+                  (and (pathnamep old-file) (pathnamep cur-file)
+                       (equal (pathname-name old-file)
+                              (pathname-name cur-file))))
+        (sys::check-package-lock
+         caller
+         (cond ((atom symbol) (symbol-package symbol))
+               ((function-name-p symbol) (symbol-package (second symbol)))
+               ((mapcar #'(lambda (obj) ; handle (setf NAME) and (eql NAME)
+                            (let ((oo (if (atom obj) obj (second obj))))
+                              (when (symbolp oo)
+                                (symbol-package oo))))
+                        symbol)))
+         symbol)
+        (when what ; when not yet defined, `what' is NIL
+          (warn (TEXT "~a: redefining ~a ~s in ~a, was defined in ~a")
+                caller what symbol (or cur-file "top-level")
+                (or old-file "top-level")))
+        (when cur-file
+          (system::%set-documentation symbol 'sys::file cur-file)))))))
 
 (sys::%putd 'sys::remove-old-definitions
-  (function sys::remove-old-definitions
-    (lambda (symbol) ; removes the old function-definitions of a symbol
-      (if (special-operator-p symbol)
-        (error-of-type 'error
-          (TEXT "~S is a special operator and may not be redefined.")
-          symbol))
-      (sys::check-redefinition symbol "DEFUN/DEFMACRO"
-                               (sys::fbound-string symbol))
-      (fmakunbound symbol) ; discard function & macro definition
-      ;; Property sys::definition is not discarded, because it is
-      ;; soon reset, anyway.
-      (remprop symbol 'sys::macro) ; discard macro definition
-      (remprop symbol 'sys::defstruct-reader) ; discard DEFSTRUCT information
-      (sys::%set-documentation symbol 'FUNCTION nil)
-      (when (get symbol 'sys::inline-expansion)
-        (sys::%put symbol 'sys::inline-expansion t))
-      (when (get symbol 'sys::traced-definition) ; discard Trace
-        (warn (TEXT "DEFUN/DEFMACRO: redefining ~S; it was traced!")
-              symbol)
-        (untrace2 symbol)))))
+  (function sys::remove-old-definitions (lambda (symbol)
+    ;; removes the old function-definitions of a symbol
+    (if (special-operator-p symbol)
+      (error-of-type 'error
+        (TEXT "~S is a special operator and may not be redefined.")
+        symbol))
+    (sys::check-redefinition symbol "DEFUN/DEFMACRO"
+                             (sys::fbound-string symbol))
+    (fmakunbound symbol) ; discard function & macro definition
+    ;; Property sys::definition is not discarded, because it is
+    ;; soon reset, anyway.
+    (remprop symbol 'sys::macro) ; discard macro definition
+    (remprop symbol 'sys::defstruct-reader) ; discard DEFSTRUCT information
+    (sys::%set-documentation symbol 'FUNCTION nil)
+    (when (get symbol 'sys::inline-expansion)
+      (sys::%put symbol 'sys::inline-expansion t))
+    (when (get symbol 'sys::traced-definition) ; discard Trace
+      (warn (TEXT "DEFUN/DEFMACRO: redefining ~S; it was traced!")
+            symbol)
+      (untrace2 symbol)))))
 
 ;; THE-ENVIRONMENT as in SCHEME
 (sys::%putd '%the-environment
-  (function %the-environment
-    (lambda (form env)
-      (declare (ignore form))
-      (sys::svstore env 0 (svref (svref env 0) 2)) ; nuke *evalhook* binding
-      env)))
+  (function %the-environment (lambda (form env)
+    (declare (ignore form))
+    (sys::svstore env 0 (svref (svref env 0) 2)) ; nuke *evalhook* binding
+    env)))
 (sys::%putd '%uncompilable
-  (function %uncompilable
-    (lambda (form)
-      (error-of-type 'source-program-error
-        (TEXT "~S is impossible in compiled code")
-        form))))
+  (function %uncompilable (lambda (form)
+    (error-of-type 'source-program-error
+      (TEXT "~S is impossible in compiled code")
+      form))))
 (sys::%putd 'the-environment
   (sys::make-macro
-    (function the-environment
-      (lambda (form env)
-        (declare (ignore form env))
-        '(progn
-           (eval-when ((not eval)) (%uncompilable 'the-environment))
-           (let ((*evalhook* #'%the-environment)) 0))))))
+    (function the-environment (lambda (form env)
+      (declare (ignore form env))
+      '(progn
+        (eval-when ((not eval)) (%uncompilable 'the-environment))
+        (let ((*evalhook* #'%the-environment)) 0))))))
 ;; The toplevel environment
 (proclaim '(special *toplevel-environment*))
 (setq *toplevel-environment* (eval '(the-environment)))
@@ -1396,34 +1384,31 @@
     t))
 
 (sys::%putd 'check-symbol
-  (function check-symbol
-    (lambda (caller object)
-      (unless (symbolp object)
-        (error-of-type 'source-program-error
-          (TEXT "~S: ~S is not a symbol.")
-          caller object)))))
+  (function check-symbol (lambda (caller object)
+    (unless (symbolp object)
+      (error-of-type 'source-program-error
+        (TEXT "~S: ~S is not a symbol.")
+        caller object)))))
 
 (sys::%putd 'defun              ; preliminary:
   (sys::make-macro
-    (function defun
-      (lambda (form env)
-        (unless (and (consp (cdr form)) (consp (cddr form)))
+    (function defun (lambda (form env)
+      (unless (and (consp (cdr form)) (consp (cddr form)))
+        (error-of-type 'source-program-error
+          (TEXT "~S: missing function name and/or parameter list")
+          'defun))
+      (let ((name (cadr form))
+            (lambdalist (caddr form))
+            (body (cdddr form)))
+        (check-symbol 'defun name)
+        (when (special-operator-p name)
           (error-of-type 'source-program-error
-            (TEXT "~S: missing function name and/or parameter list")
-            'defun))
-        (let ((name (cadr form))
-              (lambdalist (caddr form))
-              (body (cdddr form)))
-          (check-symbol 'defun name)
-          (when (special-operator-p name)
-            (error-of-type 'source-program-error
-              (TEXT "~S: special operator ~S cannot be redefined.")
-              'defun name))
-          (multiple-value-bind (body-rest declarations docstring)
-                               (sys::parse-body body t env)
-            (declare (ignore docstring))
-            #|
-            `(PROGN
+            (TEXT "~S: special operator ~S cannot be redefined.")
+            'defun name))
+        (multiple-value-bind (body-rest declarations docstring)
+            (sys::parse-body body t env)
+          (declare (ignore docstring))
+          #| `(PROGN
                (SYS::%PUT ',name 'SYS::DEFINITION
                  (CONS ',form (THE-ENVIRONMENT)))
                (SYS::%PUTD ',name
@@ -1431,42 +1416,39 @@
                    (LAMBDA ,lambdalist
                      (DECLARE (SYS::IN-DEFUN ,name) ,@declarations)
                      (BLOCK ,name ,@body-rest))))
-               ',name)
-            |#
-            (list 'progn
-              (list 'sys::%put (list 'quote name) ''sys::definition
-                    (list 'cons (list 'quote form) '(the-environment)))
-              (list 'sys::%putd (list 'quote name)
-                (list 'FUNCTION name
-                  (list 'LAMBDA lambdalist
-                        (list* 'DECLARE (list 'SYS::IN-DEFUN name)
-                               declarations)
-                        (list* 'BLOCK name body-rest))))
-              (list 'quote name))))))))
+               ',name) |#
+          (list 'progn
+                (list 'sys::%put (list 'quote name) ''sys::definition
+                      (list 'cons (list 'quote form) '(the-environment)))
+                (list 'sys::%putd (list 'quote name)
+                      (list 'FUNCTION name
+                            (list 'LAMBDA lambdalist
+                                  (list* 'DECLARE (list 'SYS::IN-DEFUN name)
+                                         declarations)
+                                  (list* 'BLOCK name body-rest))))
+                (list 'quote name))))))))
 
 (sys::%putd 'do               ; preliminary definition of the macro DO
   (sys::make-macro
-    (function do
-      (lambda (form env)
-        (let ((varclauselist (second form))
-              (exitclause (third form))
-              (body (cdddr form)))
-          (when (atom exitclause)
-            (error-of-type 'source-program-error
-              (TEXT "exit clause in ~S must be a list")
-              'do))
-          (let ((bindlist nil)
-                (reinitlist nil)
-                (bodytag (gensym))
-                (exittag (gensym)))
-            (multiple-value-bind (body-rest declarations)
-                                 (sys::parse-body body nil env)
-              (block do
-                (tagbody 1
-                  (when (atom varclauselist)
-                    (return-from do
-                      #|
-                      `(block nil
+    (function do (lambda (form env)
+      (let ((varclauselist (second form))
+            (exitclause (third form))
+            (body (cdddr form)))
+        (when (atom exitclause)
+          (error-of-type 'source-program-error
+            (TEXT "exit clause in ~S must be a list")
+            'do))
+        (let ((bindlist nil)
+              (reinitlist nil)
+              (bodytag (gensym))
+              (exittag (gensym)))
+          (multiple-value-bind (body-rest declarations)
+              (sys::parse-body body nil env)
+            (block do
+              (tagbody 1
+                (when (atom varclauselist)
+                  (return-from do
+                    #| `(block nil
                          (let ,(nreverse bindlist)
                            (declare ,@declarations)
                            (tagbody
@@ -1476,65 +1458,61 @@
                              (psetq ,@(nreverse reinitlist))
                              ,exittag
                              (or ,(first exitclause) (go ,bodytag))
-                             (return-from nil (progn ,@(rest exitclause)))
-                       ) ) )
-                      |#
-                      (list 'block 'nil
-                        (list 'let (nreverse bindlist)
-                          (cons 'declare declarations)
-                          (list* 'tagbody
-                            (list 'go exittag)
-                            bodytag
-                            (append body-rest
-                              (list
-                                (cons 'psetq (nreverse reinitlist))
-                                exittag
-                                (list 'or (first exitclause) (list 'go bodytag))
-                                (list 'return-from 'nil
-                                  (cons 'progn (rest exitclause))))))))))
-                  (let ((varclause (first varclauselist)))
-                       (setq varclauselist (rest varclauselist))
-                       (cond ((atom varclause)
-                              (setq bindlist
-                                    (cons varclause bindlist)))
-                             ((atom (cdr varclause))
-                              (setq bindlist
-                                    (cons (first varclause) bindlist)))
-                             ((atom (cddr varclause))
-                              (setq bindlist
-                                    (cons varclause bindlist)))
-                             (t (setq bindlist
-                                      (cons (list (first varclause)
-                                                  (second varclause))
-                                            bindlist))
-                                (setq reinitlist
-                                      (list* (third varclause)
-                                             (first varclause)
-                                             reinitlist)))))
-                   (go 1))))))))))
+                             (return-from nil (progn ,@(rest exitclause))))))
+                    |#
+                    (list 'block 'nil
+                      (list 'let (nreverse bindlist)
+                        (cons 'declare declarations)
+                        (list* 'tagbody
+                          (list 'go exittag)
+                          bodytag
+                          (append body-rest
+                            (list
+                              (cons 'psetq (nreverse reinitlist))
+                              exittag
+                              (list 'or (first exitclause) (list 'go bodytag))
+                              (list 'return-from 'nil
+                                (cons 'progn (rest exitclause))))))))))
+                (let ((varclause (first varclauselist)))
+                  (setq varclauselist (rest varclauselist))
+                  (cond ((atom varclause)
+                         (setq bindlist
+                               (cons varclause bindlist)))
+                        ((atom (cdr varclause))
+                         (setq bindlist
+                               (cons (first varclause) bindlist)))
+                        ((atom (cddr varclause))
+                         (setq bindlist
+                               (cons varclause bindlist)))
+                        (t (setq bindlist
+                                 (cons (list (first varclause)
+                                             (second varclause))
+                                       bindlist))
+                           (setq reinitlist
+                                 (list* (third varclause)
+                                        (first varclause)
+                                        reinitlist)))))
+                (go 1))))))))))
 
 (sys::%putd 'dotimes       ; preliminary Definition of the Macro DOTIMES
   (sys::make-macro
-    (function dotimes
-      (lambda (form env)
-        (let ((var (first (second form)))
-              (countform (second (second form)))
-              (resultform (third (second form)))
-              (body (cddr form)))
-          (multiple-value-bind (body-rest declarations)
-                               (sys::parse-body body nil env)
-            (let ((g (gensym)))
-              #|
-              `(DO ((,var 0 (1+ ,var))
-                    (,g ,countform))
-                   ((>= ,var ,g) ,resultform)
-                 (declare ,@declarations)
-                 ,@body-rest)
-              |#
-              (list* 'do (list (list var '0 (list '1+ var)) (list g countform))
-                         (list (list '>= var g) resultform)
-                     (cons 'declare declarations)
-                     body-rest))))))))
+    (function dotimes (lambda (form env)
+      (let ((var (first (second form)))
+            (countform (second (second form)))
+            (resultform (third (second form)))
+            (body (cddr form)))
+        (multiple-value-bind (body-rest declarations)
+            (sys::parse-body body nil env)
+          (let ((g (gensym)))
+            #| `(DO ((,var 0 (1+ ,var))
+                     (,g ,countform))
+                    ((>= ,var ,g) ,resultform)
+                  (declare ,@declarations)
+                  ,@body-rest) |#
+            (list* 'do (list (list var '0 (list '1+ var)) (list g countform))
+                   (list (list '>= var g) resultform)
+                   (cons 'declare declarations)
+                   body-rest))))))))
 
 (VALUES) )
 
@@ -1578,23 +1556,22 @@
 
 (sys::%putd 'defmacro
   (sys::make-macro
-    (function defmacro
-      (lambda (form &optional env)
-        (declare (ignore env))
-        (multiple-value-bind (expansion name lambdalist docstring)
-                             (sys::make-macro-expansion (cdr form))
-          (declare (ignore lambdalist))
-          `(LET ()
-             (EVAL-WHEN (COMPILE LOAD EVAL)
-               (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
-               ,@(if docstring
-                   `((SYSTEM::%SET-DOCUMENTATION ',name 'FUNCTION ',docstring))
-                   '())
-               (SYSTEM::%PUTD ',name (SYSTEM::MAKE-MACRO ,expansion)))
-             (EVAL-WHEN (EVAL)
-               (SYSTEM::%PUT ',name 'SYSTEM::DEFINITION
-                 (CONS ',form (THE-ENVIRONMENT))))
-             ',name))))))
+    (function defmacro (lambda (form &optional env)
+      (declare (ignore env))
+      (multiple-value-bind (expansion name lambdalist docstring)
+          (sys::make-macro-expansion (cdr form))
+        (declare (ignore lambdalist))
+        `(LET ()
+           (EVAL-WHEN (COMPILE LOAD EVAL)
+             (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
+             ,@(if docstring
+                 `((SYSTEM::%SET-DOCUMENTATION ',name 'FUNCTION ',docstring))
+                 '())
+             (SYSTEM::%PUTD ',name (SYSTEM::MAKE-MACRO ,expansion)))
+           (EVAL-WHEN (EVAL)
+             (SYSTEM::%PUT ',name 'SYSTEM::DEFINITION
+                           (CONS ',form (THE-ENVIRONMENT))))
+           ',name))))))
 
 #-compiler
 (defmacro COMPILER::EVAL-WHEN-COMPILE (&body body) ; preliminary
@@ -1602,91 +1579,89 @@
 
 ;; Mapping funname -> symbol
 (sys::%putd 'get-funname-symbol
-  (function get-funname-symbol
-    (lambda (funname)
-      (if (atom funname)
-        funname
-        (get-setf-symbol (second funname))))))
+  (function get-funname-symbol (lambda (funname)
+    (if (atom funname)
+      funname
+      (get-setf-symbol (second funname))))))
 (sys::%putd 'defun
   (sys::make-macro
-    (function defun
-      (lambda (form env)
-        (if (atom (cdr form))
-          (error-of-type 'source-program-error
-            (TEXT "~S: cannot define a function from that: ~S")
-            'defun (cdr form)))
-        (unless (function-name-p (cadr form))
-          (error-of-type 'source-program-error
-            (TEXT "~S: the name of a function must be a symbol, not ~S")
-            'defun (cadr form)))
-        (if (atom (cddr form))
-          (error-of-type 'source-program-error
-            (TEXT "~S: function ~S is missing a lambda list")
-            'defun (cadr form)))
-        (let ((name (cadr form))
-              (lambdalist (caddr form))
-              (body (cdddr form)))
-          (multiple-value-bind (body-rest declarations docstring)
-              (sys::parse-body body t env)
-            (let ((symbolform
-                   (if (atom name)
-                       `',name
-                       `(LOAD-TIME-VALUE (GET-SETF-SYMBOL ',(second name)))))
-                  (lambdabody
-                   `(,lambdalist (DECLARE (SYS::IN-DEFUN ,name)
-                                  ,@declarations)
-                     (BLOCK ,(function-block-name name) ,@body-rest))))
-              `(LET ()
-                 (SYSTEM::REMOVE-OLD-DEFINITIONS ,symbolform)
-                 ,@(if ; Is name declared inline?
-                    (if (and compiler::*compiling*
-                             compiler::*compiling-from-file*)
-                      (member name compiler::*inline-functions* :test #'equal)
-                      (eq (get (get-funname-symbol name) 'inlinable) 'inline))
-                    ;; Is the lexical environment the top-level environment?
-                    ;; If yes, save the lambdabody for inline compilation.
-                    (if compiler::*compiling*
-                      (if (and (null compiler::*venv*)
-                               (null compiler::*fenv*)
-                               (null compiler::*benv*)
-                               (null compiler::*genv*)
-                               (eql compiler::*denv* *toplevel-denv*))
-                        `((COMPILER::EVAL-WHEN-COMPILE
-                           (COMPILER::C-DEFUN
-                            ',name (lambda-list-to-signature ',lambdalist)
-                            ',lambdabody))
-                          (EVAL-WHEN (LOAD)
-                            (SYSTEM::%PUT ,symbolform 'SYSTEM::INLINE-EXPANSION
-                                          ',lambdabody)))
-                        `((COMPILER::EVAL-WHEN-COMPILE
-                           (COMPILER::C-DEFUN
-                            ',name (lambda-list-to-signature ',lambdalist)))))
-                      (if (and (null (svref env 0))  ; venv
-                               (null (svref env 1))) ; fenv
-                          `((EVAL-WHEN (EVAL)
-                            (LET ((%ENV (THE-ENVIRONMENT)))
-                              (IF (AND (NULL (SVREF %ENV 0)) ; venv
-                                       (NULL (SVREF %ENV 1)) ; fenv
-                                       (NULL (SVREF %ENV 2)) ; benv
-                                       (NULL (SVREF %ENV 3)) ; genv
-                                       (EQL (SVREF %ENV 4) *TOPLEVEL-DENV*)) ; denv
-                                (SYSTEM::%PUT ,symbolform
-                                              'SYSTEM::INLINE-EXPANSION
-                                              ',lambdabody)))))
-                        '()))
-                    `((COMPILER::EVAL-WHEN-COMPILE
-                       (COMPILER::C-DEFUN
-                        ',name (lambda-list-to-signature ',lambdalist)))))
-                ,@(if docstring
-                    `((SYSTEM::%SET-DOCUMENTATION ,symbolform
-                       'FUNCTION ',docstring))
-                     '())
-                 (SYSTEM::%PUTD ,symbolform
-                   (FUNCTION ,name (LAMBDA ,@lambdabody)))
-                 (EVAL-WHEN (EVAL)
-                   (SYSTEM::%PUT ,symbolform 'SYSTEM::DEFINITION
-                     (CONS ',form (THE-ENVIRONMENT))))
-                 ',name))))))))
+    (function defun (lambda (form env)
+      (if (atom (cdr form))
+        (error-of-type 'source-program-error
+          (TEXT "~S: cannot define a function from that: ~S")
+          'defun (cdr form)))
+      (unless (function-name-p (cadr form))
+        (error-of-type 'source-program-error
+          (TEXT "~S: the name of a function must be a symbol, not ~S")
+          'defun (cadr form)))
+      (if (atom (cddr form))
+        (error-of-type 'source-program-error
+          (TEXT "~S: function ~S is missing a lambda list")
+          'defun (cadr form)))
+      (let ((name (cadr form))
+            (lambdalist (caddr form))
+            (body (cdddr form)))
+        (multiple-value-bind (body-rest declarations docstring)
+            (sys::parse-body body t env)
+          (let ((symbolform
+                 (if (atom name)
+                   `',name
+                   `(LOAD-TIME-VALUE (GET-SETF-SYMBOL ',(second name)))))
+                (lambdabody `(,lambdalist
+                              (DECLARE (SYS::IN-DEFUN ,name) ,@declarations)
+                              (BLOCK ,(function-block-name name)
+                                ,@body-rest))))
+            `(LET ()
+               (SYSTEM::REMOVE-OLD-DEFINITIONS ,symbolform)
+               ,@(if ; Is name declared inline?
+                  (if (and compiler::*compiling*
+                           compiler::*compiling-from-file*)
+                    (member name compiler::*inline-functions* :test #'equal)
+                    (eq (get (get-funname-symbol name) 'inlinable) 'inline))
+                  ;; Is the lexical environment the top-level environment?
+                  ;; If yes, save the lambdabody for inline compilation.
+                  (if compiler::*compiling*
+                    (if (and (null compiler::*venv*)
+                             (null compiler::*fenv*)
+                             (null compiler::*benv*)
+                             (null compiler::*genv*)
+                             (eql compiler::*denv* *toplevel-denv*))
+                      `((COMPILER::EVAL-WHEN-COMPILE
+                         (COMPILER::C-DEFUN
+                          ',name (lambda-list-to-signature ',lambdalist)
+                          ',lambdabody))
+                        (EVAL-WHEN (LOAD)
+                          (SYSTEM::%PUT ,symbolform 'SYSTEM::INLINE-EXPANSION
+                                        ',lambdabody)))
+                      `((COMPILER::EVAL-WHEN-COMPILE
+                         (COMPILER::C-DEFUN
+                          ',name (lambda-list-to-signature ',lambdalist)))))
+                    (if (and (null (svref env 0))  ; venv
+                             (null (svref env 1))) ; fenv
+                       `((EVAL-WHEN (EVAL)
+                           (LET ((%ENV (THE-ENVIRONMENT)))
+                             (IF (AND (NULL (SVREF %ENV 0)) ; venv
+                                      (NULL (SVREF %ENV 1)) ; fenv
+                                      (NULL (SVREF %ENV 2)) ; benv
+                                      (NULL (SVREF %ENV 3)) ; genv
+                                      (EQL (SVREF %ENV 4) *TOPLEVEL-DENV*)) ; denv
+                               (SYSTEM::%PUT ,symbolform
+                                             'SYSTEM::INLINE-EXPANSION
+                                             ',lambdabody)))))
+                       '()))
+                  `((COMPILER::EVAL-WHEN-COMPILE
+                     (COMPILER::C-DEFUN
+                      ',name (lambda-list-to-signature ',lambdalist)))))
+               ,@(if docstring
+                   `((SYSTEM::%SET-DOCUMENTATION ,symbolform
+                                                 'FUNCTION ',docstring))
+                   '())
+               (SYSTEM::%PUTD ,symbolform
+                              (FUNCTION ,name (LAMBDA ,@lambdabody)))
+               (EVAL-WHEN (EVAL)
+                 (SYSTEM::%PUT ,symbolform 'SYSTEM::DEFINITION
+                               (CONS ',form (THE-ENVIRONMENT))))
+               ',name))))))))
 
 (VALUES) )
 
