@@ -11,6 +11,16 @@
 
 2004-04-22  Sam Steingold  <sds@gnu.org>
 
+	rawsock now compiles on cygwin
+	* rawsock/rawsock.c (my_check_type): replaces my_type_error()
+	(my_check_argument, check_struct, check_struct_data): new function
+	(check_buffer_arg): return object
+	(RESIZE-BUFFER, SOCKADDR-FAMILY): new lisp functions
+	(SOCKET, RECVFROM, SENDTO): accept all POSIX arguments
+	* rawsock/sock.lisp (sockaddr, msghdr, cmsghdr, linger): new structs
+
+2004-04-22  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (check_fpointer, check_fpointer_replacement): moved
 	to a later place so that clisp.h will be compilable
 
