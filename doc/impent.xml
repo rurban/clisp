@@ -66,6 +66,7 @@
 <!ENTITY print-function-k "<constant>:PRINT-FUNCTION</constant>">
 <!ENTITY ro-k "<constant>:READ-ONLY</constant>">
 <!ENTITY relative-k "<constant>:RELATIVE</constant>">
+<!ENTITY ret-type-k "<constant>:RETURN-TYPE</constant>">
 <!ENTITY root-k "<constant>:ROOT</constant>">
 <!ENTITY start-k "<constant>:START</constant>">
 <!ENTITY stdc-k "<constant>:STDC</constant>">
@@ -343,6 +344,7 @@
 <!ENTITY sub-1 "<subscript>1</subscript>">
 <!ENTITY sub-2 "<subscript>2</subscript>">
 <!ENTITY sub-n "<subscript>n</subscript>">
+<!ENTITY arg-r "<replaceable>argument</replaceable>">
 <!ENTITY b-r "<replaceable>b</replaceable>">
 <!ENTITY base-r "<replaceable>base</replaceable>">
 <!ENTITY bc-r "<replaceable>block-cons</replaceable>">
