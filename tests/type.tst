@@ -684,3 +684,25 @@ nil
 #+CLISP (t t)
 #+CLISP (multiple-value-list (subtypep '(cons t (cons t (cons t (cons t (cons t (cons (eql foo73) null)))))) 'foo74))
 #+CLISP (nil t)
+
+(progn
+  (defstruct (foo129a (:type list))
+    slot1
+    (slot2 t)
+    (slot3 (floor pi))
+    (slot4 44))
+  (defstruct (foo129b (:type list) (:include foo129a (slot4 -44)))
+    slot5
+    (slot6 t)
+    (slot7 (floor (* pi pi)))
+    (slot8 88))
+  (let ((a (make-foo129b)))
+    (list (foo129b-slot1 a)
+          (foo129b-slot2 a)
+          (foo129b-slot3 a)
+          (foo129b-slot4 a)
+          (foo129b-slot5 a)
+          (foo129b-slot6 a)
+          (foo129b-slot7 a)
+          (foo129b-slot8 a))))
+(nil t 3 -44 nil t 9 88)
