@@ -23,6 +23,9 @@
 ;;; ============================================================
 (defun syslog (severity facility format &rest args)
   (%syslog severity facility (apply #'format nil format args)))
+;; A compiler macro here is better than a simple (declaim (inline syslog))
+;; because when the format string is a string literal, the inliner doesn't
+;; produce optimal results.
 (define-compiler-macro syslog (severity facility format &rest args)
   `(%syslog ,severity ,facility (format nil ,format ,@args)))
 ;;; ============================================================
