@@ -618,9 +618,9 @@ global void* my_malloc (size_t size)
   global long jmpl_value;
 #endif
 
-#ifndef SP
+#ifdef NEED_OWN_GETSP
 # determine (an approximation) of the SP-stackpointer.
-global void* SP (void) {
+global void* getSP (void) {
   var long dummy;
   return &dummy;
 }
