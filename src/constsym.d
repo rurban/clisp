@@ -1193,6 +1193,8 @@ LISPSYM(Kmerge,"MERGE",keyword)
 LISPSYM(Kdirection,"DIRECTION",keyword)
 LISPSYM(Kif_exists,"IF-EXISTS",keyword)
 LISPSYM(Kif_does_not_exist,"IF-DOES-NOT-EXIST",keyword)
+LISPSYM(Kkeep,"KEEP",keyword)   /* DIRECTORY :IF-DOES-NOT-EXIST argument */
+LISPSYM(Kdiscard,"DISCARD",keyword) /* DIRECTORY :IF-DOES-NOT-EXIST argument */
 LISPSYM(Kexternal_format,"EXTERNAL-FORMAT",keyword)
 LISPSYM(Kbuffered,"BUFFERED",keyword)
 LISPSYM(Kfull,"FULL",keyword)

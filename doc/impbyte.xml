@@ -1170,7 +1170,7 @@ letters:
  <row><entry><literal role="sexp">(RETURN-FROM &n-r;)</literal></entry>
       <entry>Leave a &block; whose &bc-r; is given.</entry>
       <entry>&bc-r; := &consts;[&n-r;].
-             If &cdr;(&bc-r;) = &disabled;, signal an error.
+             If &cdr;(&bc-r;) = &disabled;, &signal; an &error-t;.
              Else &cdr;(&bc-r;) is a frame-pointer.
              Unwind the stack up to this frame, pass it values.</entry></row>
  <row><entry><literal
@@ -1178,7 +1178,7 @@ letters:
       <entry>Leave a &block; whose &bc-r; is indirectly accessible.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &bc-r; := *(*(&SP;+&k-r;)+&n-r;).
-             If &cdr;(&bc-r;) = &disabled;, signal an error.
+             If &cdr;(&bc-r;) = &disabled;, &signal; an &error-t;.
              Else &cdr;(&bc-r;) is a frame-pointer.
              Unwind the stack up to this frame, pass it values.</entry></row>
 </tbody></tgroup></table>
@@ -1216,7 +1216,7 @@ letters:
  <row><entry><literal role="sexp">(GO &n-r; &lab-r;)</literal></entry>
       <entry>Jump into a tagbody whose &tbc-r; is given.</entry>
       <entry>&tbc-r; := &consts;[&n-r;].
-             If &cdr;(&tbc-r;) = &disabled;, signal an error.
+             If &cdr;(&tbc-r;) = &disabled;, &signal; an &error-t;.
              Else &cdr;(&tbc-r;) is a frame-pointer. Unwind the stack up
              to this frame, pass it the number &lab-r;.</entry></row>
  <row><entry><literal
@@ -1225,7 +1225,7 @@ letters:
              accessible.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &tbc-r; := *(*(&SP;+&k-r;)+&n-r;).
-             If &cdr;(&tbc-r;) = &disabled;, signal an error.
+             If &cdr;(&tbc-r;) = &disabled;, &signal; an &error-t;.
              Else &cdr;(&tbc-r;) is a frame-pointer. Unwind the stack up
              to this frame, pass it the number &lab-r;.</entry></row>
 </tbody></tgroup></table>
@@ -1306,13 +1306,13 @@ letters:
  <row><entry><literal role="sexp">(HANDLER-OPEN &n-r;)</literal></entry>
       <entry>Create a handler frame.</entry>
       <entry>Create a handler frame, using &consts;[&n-r;] which
-             contains the condition types, the corresponding labels and
+             contains the &condition-t; types, the corresponding labels and
              the current &SP; depth (= function entry &SP; - current &SP;).
              </entry></row>
  <row><entry><literal role="sexp">(HANDLER-BEGIN&amp;PUSH)</literal></entry>
       <entry>Start a handler.</entry>
       <entry>Restore the same &SP; state as after the HANDLER-OPEN.
-             &value1; := the condition that was passed to the handler,
+             &value1; := the &condition-t; that was passed to the handler,
              &mv-count; := 1.
              *--&STACK; := &value1;.</entry></row>
 </tbody></tgroup></table>

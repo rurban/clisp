@@ -372,11 +372,9 @@
   LISPOBJ(lisp_implementation_version_string,"NIL") # cache
   LISPOBJ(memory_image_timestamp,"NIL") # the dump date of the current image
   LISPOBJ(memory_image_host,"NIL") # the host on which this image was dumped
-  # The date of the last change of the bytecode interpreter
-  # or the arglist of any built-in function in FUNTAB
-  /* FIXME/TODO: when you will be modifying this the next time:
-     [2002-09-03]: add :TRUNAMEP arg to DIRECTORY */
-  LISPOBJ(version,"(20021002)")
+  /* The date of the last change of the bytecode interpreter
+     or the arglist of any built-in function in FUNTAB */
+  LISPOBJ(version,"(20021010)")
   #ifdef MACHINE_KNOWN
     LISPOBJ(machine_type_string,"NIL")
     LISPOBJ(machine_version_string,"NIL")
@@ -451,6 +449,7 @@
   LISPOBJ(type_direction,"(MEMBER :INPUT :INPUT-IMMUTABLE :OUTPUT :IO :PROBE)")
   LISPOBJ(type_if_exists,"(MEMBER :ERROR :NEW-VERSION :RENAME :RENAME-AND-DELETE :OVERWRITE :APPEND :SUPERSEDE NIL)")
   LISPOBJ(type_if_does_not_exist,"(MEMBER :ERROR :CREATE NIL)")
+  LISPOBJ(type_directory_not_exist,"(MEMBER :DISCARD :ERROR :KEEP)")
   LISPOBJ(type_external_format,"(OR (MEMBER :DEFAULT) EXT::ENCODING (MEMBER :UNIX :MAC :DOS))")
   LISPOBJ(type_pathname_field_key,"(MEMBER :HOST :DEVICE :DIRECTORY :NAME :TYPE :VERSION NIL)")
  #ifdef EXPORT_SYSCALLS

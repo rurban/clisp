@@ -27,7 +27,8 @@
   <ulink url="&clhs;/Body/sec_1-4-2.html">[CLHS-1.4.2]</ulink></title>
 
 <para>Safety settings are ignored; therefore where the standard uses the
- phrase <quote>should signal an error</quote>, an &error; is signaled.</para>
+ phrase <quote>should signal an error</quote>,
+ an &error-t; is &signal;ed.</para>
 
 </section>
 
@@ -290,10 +291,11 @@ executes a compiled version of form.</para>
  This function will always return &t; for global special
  variables and constants.
  Note that this function will not work in compiled code as you expect:
- when call with &nil; &env-r;, it will be called at run time and check
- for globally special variables, but when &env-r; is &t;, it will be
- called at <emphasis>compile time</emphasis> and the value will be used
- as a constant in the code.</para></formalpara>
+ when called with &nil; &env-r;, it will be called at <emphasis>run
+  time</emphasis> and check for globally special variables,
+ but when &env-r; is &t;, it will be called at <emphasis>compile
+  time</emphasis> and the value will be used as a constant in the
+ code.</para></formalpara>
 
 </section>
 
@@ -324,13 +326,13 @@ executes a compiled version of form.</para>
   <ulink url="&clhs;/Body/sec_4-2-3.html">[CLHS-4.2.3]</ulink></title>
 
 <para>The general form of the &complex-t; type specifier is <literal
- role="sexp">(&complex-t; <replaceable>type-of-real-part</replaceable>
+ role="type">(&complex-t; <replaceable>type-of-real-part</replaceable>
  <replaceable>type-of-imaginary-part</replaceable>)</literal>.  The type
- specifier <literal role="sexp">(&complex-t; &type-r;)</literal> is
- equivalent to <literal role="sexp">(&complex-t; &type-r;
+ specifier <literal role="type">(&complex-t; &type-r;)</literal> is
+ equivalent to <literal role="type">(&complex-t; &type-r;
  &type-r;)</literal>.</para>
 
-<para>The &ansi-cl; type specifier <literal role="sexp">(&real-t;
+<para>The &ansi-cl; type specifier <literal role="type">(&real-t;
  <replaceable>low</replaceable> <replaceable>high</replaceable>)</literal>
  denotes the real numbers between <replaceable>low</replaceable> and
  <replaceable>high</replaceable>.</para>
@@ -450,14 +452,12 @@ executes a compiled version of form.</para>
  no primary method on that generic function is applicable.</para>
 
 <para><emphasis
- role="strong"><function>clos:generic-flet</function></emphasis> and
- <emphasis
- role="strong"><function>clos:generic-labels</function></emphasis> are
- implemented as macros, not as special operators.  They are not imported
- into the packages &clu-pac; and &cl-pac; because of the &ansi-cl; issue
- <ulink
- url="&clhs;/Issues/iss181.html">GENERIC-FLET-POORLY-DESIGNED:DELETE</ulink>.
- </para>
+  role="strong"><function>CLOS:GENERIC-FLET</function></emphasis> and
+ <emphasis role="strong" ><function>CLOS:GENERIC-LABELS</function></emphasis>
+ are implemented as macros, not as special operators.
+ They are not imported into the packages &clu-pac; and &cl-pac; because
+ of the &ansi-cl; issue <ulink url="&clhs;/Issues/iss181.html"
+ >GENERIC-FLET-POORLY-DESIGNED:DELETE</ulink>.</para>
 
 <para>The function &ensure-generic-function; is not implemented.</para>
 
@@ -681,10 +681,10 @@ is the same as
  <function>EXT:GET-SETF-METHOD-MULTIPLE-VALUE</function>.  If this is
  done, even local macros will be interpreted as places correctly.</para>
 
-<para>Attempts to modify read-only data will signal an error.  Program
- text and quoted constants loaded from files are considered read-only
- data.  This check is only performed for strings, not for conses, other
- kinds of arrays, and user-defined data types.</para>
+<para>Attempts to modify read-only data will &signal; an &error-t;.
+ Program text and quoted constants loaded from files are considered
+ read-only data.  This check is only performed for strings, not for
+ conses, other kinds of arrays, and user-defined data types.</para>
 
 <para>See also the &letf; and &letf-star; macros.</para>
 
@@ -901,7 +901,7 @@ is the same as
 <para>The macro <function>EXT:WITH-RESTARTS</function> is like
  &restart-case;, except that the forms are specified after the restart
  clauses instead of before them, and the restarts created are not
- implicitly associated to any condition.
+ implicitly associated to any &condition-t;.
  <literal role="sexp">(<function>EXT:WITH-RESTARTS</function>
  ({<varname>restart-clause</varname>}*) {&form-r;}*)</literal> is
  therefore equivalent to <literal role="sexp">(&restart-case; (&progn;
@@ -912,8 +912,8 @@ is the same as
    <ulink url="&clhs;/Body/sec_9-1-3-1-3.html">[CLHS-9.1.3.1.3]</ulink></title>
 
 <para>The error message prefix for the first line is "*** - ". There is
- no prefix for subsequent error lines. The aesthetics of condition
- reports containing an object, which requires newlines when pretty
+ no prefix for subsequent error lines. The aesthetics of &condition-t;
+ reports containing an object which requires newlines when pretty
  printing is enabled, is undefined.</para>
 
 </section>
@@ -939,12 +939,13 @@ is the same as
 
 <formalpara><title>Function &compute-restarts;</title>
 <para>&compute-restarts; and &find-restart; behave as specified in
- &ansi-cl;: If the optional condition argument is non-&nil;, only
- restarts associated with that condition and restarts associated to no
- condition at all are considered.  Therefore the effect of associating a
- restart to a condition is not to activate it, but to hide it from other
- conditions.  This makes the syntax dependent implicit association
- performed by &restart-case; nearly obsolete.</para></formalpara>
+ &ansi-cl;: If the optional <replaceable>condition</replaceable>
+ argument is non-&nil;, only restarts associated with that condition and
+ restarts associated with no condition at all are considered.
+ Therefore the effect of associating a restart to a condition is not to
+ activate it, but to hide it from other conditions.
+ This makes the syntax dependent implicit association performed by
+ &restart-case; nearly obsolete.</para></formalpara>
 
 </section>
 </chapter>
@@ -1106,7 +1107,7 @@ performance considerations.
  re-exports all external symbols from
  <replaceable>FROM-PACK</replaceable> also from
  <replaceable>TO-PACK</replaceable>, provided it already uses
- <replaceable>FROM-PACK</replaceable>; and signals an error otherwise.
+ <replaceable>FROM-PACK</replaceable>; and &signal;s an &error-t; otherwise.
 </para></section>
 
 </section>
@@ -1338,8 +1339,8 @@ performance considerations.
 <formalpara><title>Function &upgraded-complex-part-type;</title>
 <para>When the argument is not a
  <ulink url="&clhs;/Body/glo_r.html#recognizable_subtype">recognizable
- subtype</ulink> or &real-t;, &upgraded-complex-part-type; signals an
- &error;, otherwise it returns &real-t;, since a &complex-t; number in
+ subtype</ulink> or &real-t;, &upgraded-complex-part-type; &signal;s an
+ &error-t;, otherwise it returns &real-t;, since a &complex-t; number in
  &clisp; can always have &realpart; and &imagpart; of any type.
 </para></formalpara>
 
@@ -1353,7 +1354,7 @@ performance considerations.
 <para>The macro <literal role="sexp">(&no-underflow;
  {&form-r;}*)</literal> executes the &form-r;s, with errors of type
  &floating-point-underflow-t; inhibited.  Floating point operations
- will silently return zero instead of signalling an error of type
+ will silently return zero instead of &signal;ling an &error-t; of type
  &floating-point-underflow-t;.</para></formalpara>
 
 <section id="int-func-ext"><title>Additional Integer Functions</title>
@@ -1366,8 +1367,8 @@ performance considerations.
 <formalpara><title>Function <function>EXT:EXQUO</function></title>
 <para><literal role="sexp">(<function>EXT:EXQUO</function> &x-r;
  &y-r;)</literal> returns the integer quotient <varname>x/y</varname> of
- two integers &x-r;,&y-r;, and signals an error when the quotient is not
- integer.  (This is more efficient than &slash;.)</para></formalpara>
+ two integers &x-r;,&y-r;, and &signal;s an &error-t; when the quotient
+ is not integer.  (This is more efficient than &slash;.)</para></formalpara>
 
 <formalpara><title>Function <function>EXT:XGCD</function></title>
 <para><literal role="sexp">(<function>EXT:XGCD</function>
@@ -1391,8 +1392,8 @@ performance considerations.
  value.</para></formalpara>
 
 <formalpara><title>Function &log;</title>
-<para><literal role="sexp">(&log; &number-r; &base-r;)</literal> signals
- an error if <literal>&base-r; = 1</literal>.</para></formalpara>
+<para><literal role="sexp">(&log; &number-r; &base-r;)</literal> &signal;s
+ an &error-t; if <literal>&base-r; = 1</literal>.</para></formalpara>
 
 <formalpara><title>Constant &pi;</title>
 <para>The value of &pi; is a &long-float-t; with the precision given
@@ -1479,12 +1480,12 @@ performance considerations.
 
 <section id="float-invalid-op">
   <title>Condition &floating-point-invalid-operation-t;</title>
-<para>This condition is never signaled by &clisp;.</para>
+<para>This &condition-t; is never &signal;ed by &clisp;.</para>
 </section>
 
 <section id="float-inexact">
   <title>Condition &floating-point-inexact-t;</title>
-<para>This condition is never signaled by &clisp;.</para>
+<para>This &condition-t; is never &signal;ed by &clisp;.</para>
 </section>
 </section>
 </chapter>
@@ -3581,8 +3582,7 @@ is not a defined logical host yet, we proceed as follows:
 
 <formalpara><title>Function &probe-file;</title>
 <para>&probe-file; cannot be used to check whether a directory exists.
- Use the function &probe-dir; or the function &directory; for this
- purpose.</para></formalpara>
+ Use functions &probe-dir; or &directory; for this.</para></formalpara>
 
 <formalpara><title>Function &file-author;</title>
 <para>&file-author; always returns &nil;, because the operating systems
@@ -3597,13 +3597,13 @@ is not a defined logical host yet, we proceed as follows:
 <formalpara id="probe-dir"><title>Function &probe-dir;</title>
 <para><literal role="sexp">(&probe-dir; &path-r;)</literal> tests
  whether &path-r; exists and is a directory.
- It will, unlike &probe-file; or &truename;, not signal an error if the
- parent directory of &path-r; does not exist.</para></formalpara>
+ It will, unlike &probe-file; or &truename;, not &signal; an &error-t;
+ if the parent directory of &path-r; does not exist.</para></formalpara>
 
 <section id="dir"><title>Function &directory;</title>
 
-<para><literal role="sexp">(&directory; &optional-amp; &path-r;
- &key-amp; :full :circle)</literal> can run in two modes:
+<para><literal role="sexp">(&directory; &optional-amp; &path-r; &key-amp;
+  :FULL :CIRCLE &if-does-not-exist;)</literal> can run in two modes:
 <itemizedlist>
  <listitem><simpara>If &path-r; contains no name or type component, a
   list of all matching directories is produced.
@@ -3613,7 +3613,7 @@ is not a defined logical host yet, we proceed as follows:
  <listitem><simpara>Otherwise a list of all matching files is returned.
   E.g., <literal role="sexp">(&directory; "/etc/*")</literal> lists all
   regular files in the directory <filename>#P"/etc/"</filename>.
-  If the <constant>:full</constant> argument is non-&nil;,
+  If the <constant>:FULL</constant> argument is non-&nil;,
   additional information is returned: for each matching file you get a
   list of at least four elements <literal
   role="sexp">(<replaceable>file-pathname</replaceable>
@@ -3634,11 +3634,29 @@ use <literal role="sexp">(&nconc; (&directory; "**/")
 <!-- #ifdef UNIX -->
 <variablelist>
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
-<listitem><simpara>If the <constant>:circle</constant> argument is
+<listitem><simpara>If the <constant>:CIRCLE</constant> argument is
  non-&nil;, the function avoids endless loops that may result from
  symbolic links.</simpara></listitem></varlistentry>
 </variablelist>
 <!-- #endif -->
+
+The argument &if-does-not-exist; controls the treatment of links
+pointing to non-existent files and can take the following values:
+<variablelist>
+<varlistentry><term><constant>:DISCARD</constant> (default)</term>
+ <listitem><simpara>discard the bad directory entries
+</simpara></listitem></varlistentry>
+<varlistentry><term>&error-k;</term>
+ <listitem><simpara>&signal; an &error-t; on bad directory entries
+   (this corresponds to the default behavior of &directory; in &cmucl;)
+</simpara></listitem></varlistentry>
+<varlistentry><term><constant>:KEEP</constant></term>
+ <listitem><simpara>keep bad directory entries in the returned list
+   (this roughly corresponds to the <literal role="sexp">(&directory;
+    ... <constant>:TRUNAMEP</constant> &nil;)</literal> call in &cmucl;)
+</simpara></listitem></varlistentry>
+</variablelist>
+
 </para>
 
 <formalpara><title>Function <function>EXT:DIR</function></title>
@@ -4019,7 +4037,7 @@ functions are provided:
  i/o, and when you read into a &sequence-t; that can hold both (e.g.,
  &list-t; or &simple-vector-t;) you cannot determine which kind of
  input to use.  In such situation &read-sequence; and &write-sequence;
- signal an &error;, while &rd-ch-seq;, &rd-by-seq;, &wr-ch-seq; and
+ &signal; an &error-t;, while &rd-ch-seq;, &rd-by-seq;, &wr-ch-seq; and
  &wr-by-seq; work just fine.</para></formalpara>
 
 </section>
@@ -4683,11 +4701,11 @@ effects when being loaded, this is important as well.
    &fasl-file; with a different <link linkend="bytecode">bytecode</link>
    version from the one supported by this &clisp; version.
    The possible actions are <constant>:DELETE</constant> to delete the
-   &fasl-file; and &error-k; to signal an &error;.
+   &fasl-file; and &error-k; to &signal; an &error-t;.
    The default action is to &warn; and <link linkend="load-paths">look
    for another matching file</link>.
    If no file can be loaded and &if-does-not-exist; is non-&nil;,
-   an &error; is signaled.
+   an &error-t; is &signal;ed.
    The default is <emphasis
    role="strong"><varname>CUSTOM:*LOAD-OBSOLETE-ACTION*</varname></emphasis>,
    which is initially &nil;.</simpara></listitem></varlistentry>

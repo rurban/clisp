@@ -21,6 +21,11 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#so-opt> for details.
   Suggested by Dave Richards <dave@synergy.org>.
 
+* DIRECTORY now accepts a new keyword argument :IF-DOES-NOT-EXIST which
+  controls treatment of links pointing to non-existent files.
+  It defaults to :DISCARD which is fully backward compatible.
+  See <http://clisp.cons.org/impnotes.html#dir> for details.
+
 * Fixed a bug in PEEK-CHAR with non-NIL peek-type on ECHO-STREAMS.
 
 
