@@ -7429,6 +7429,80 @@ this order.)
 </ol>
 <!-- #endif -->
 
+<h4>Modules included in the distribution.</h4>
+
+<p>The following modules come with the distribution of
+<code>CLISP</code>:
+<dl>
+ <dt><strong>bindings</strong>
+  <dd>Call the operating system functions from <code>CLISP</code>.  The
+   following platforms are supported:
+   <ul>
+    <li>AmigaOS
+    <li>Linux/libc5
+    <li>Linux/libc6
+   </ul>
+ <dt><strong>CLX</strong>
+  <dd>Call Xlib functions from <code>CLISP</code>.  Two implementations
+   are supplied:
+   <ul>
+    <li>mit-clx, from MIT <!-- ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z -->
+    <li>new-clx, by <a href="http://www.uni-karlsruhe.de/~unk6/">Gilbert
+    Baumann</a> <em><a
+    href="mailto:unk6@rz.uni-karlsruhe.de">unk6@rz.uni-karlsruhe.de</a></em>.
+   </ul>
+ <dt><strong>postgresql632</strong>, <strong>postgresql642</strong>
+  <dd>Access <a href="http://www.PostgreSQL.org/">PostgreSQL</a> from
+   <code>CLISP</code>.
+ <dt><strong>queens</strong>
+  <dd>Compute the number of solutions to the n-queens problem on a n*n
+   checkboard.
+ <dt><a name="regexp"><strong>regexp</strong></a>
+  <dd>The POSIX Regular Expressions matching, compiling, executing.
+
+   <p>The following code computes the number of people who use
+   a particular shell:
+<pre>
+<code>(use-package :regexp)
+(let ((h (make-hash-table :test #'equal :size 10)) (n 0))
+  (with-open-file (f "/etc/passwd")
+    (with-loop-split (s f ":")
+      (let ((sh (seventh s)))
+        (if (gethash sh h)
+            (incf (gethash sh h))
+            (setf (gethash sh h) 1)))))
+  (with-hash-table-iterator (i h)
+    (loop (multiple-value-bind (r k v) (i)
+            (unless r (return))
+            (format t "[~d] ~s~30t== ~5:d~%" (incf n) k v)))))</code></pre>
+
+  <p>The same is done by the following Perl:
+<pre>
+<code>#!/usr/local/bin/perl -w
+
+use diagnostics;
+use strict;
+
+my $IN = $ARGV[0];
+open(INF,"&lt; $IN") || die "$0: cannot read file [$IN]: $!\n;";
+my %hash;
+while (&lt;INF&gt;) {
+  chop;
+  my @all = split($ARGV[1]);
+  my $shell = ($#all &gt;= 6 ? $all[6] : "");
+  if ($hash{$shell}) { $hash{$shell} ++; }
+  else { $hash{$shell} = 1; }
+}
+my $ii = 0;
+for my $kk (keys(%hash)) {
+  print "[",++$ii,"] \"",$kk,"\"  --> ",$hash{$kk},"\n";
+}</code></pre>
+
+ <dt><strong>wildcard</strong>
+  <dd>Shell globbing
+</dl>
+
+
 <!-- #ifdef DYNAMIC_FFI -->
 <a name="dffi"></a><h3>Extensions-2.3. The Foreign Function Call Facility</h3>
 
@@ -9355,3 +9429,6 @@ at startup.
 
 </body>
 </html>
+<!-- Local variables:
+ compile-command: "weblint -d container-whitespace,empty-container _impnotes.html"
+ end: -->
