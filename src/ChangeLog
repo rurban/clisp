@@ -1,3 +1,9 @@
+2002-12-17  Sam Steingold  <sds@gnu.org>
+
+	* charstrg.d (DIGIT-CHAR-P): correctly identify MYANMAR,
+	ETHIOPIC, KHMER, and MONGOLIAN digits
+	* uni_upcase.c, uni_downcase.c, uni_attribute.c: regenerated
+
 2002-12-17  Bruno Haible  <bruno@clisp.org>
 
 	* utils/unicode/UnicodeDataFull.txt: Renamed from
