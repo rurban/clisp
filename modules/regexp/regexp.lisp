@@ -12,6 +12,7 @@
 
 (in-package "REGEXP")
 (push "REGEXP" ext:*system-package-list*)
+(pushnew :regexp *features*)
 
 (defstruct (match (:constructor make-match-boa (start end))
                   (:constructor ))

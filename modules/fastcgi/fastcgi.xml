@@ -14,6 +14,9 @@ overhead and allowing for caching of data structures and other resources.  This
 is the same approach used is in other languages (e.g., <ulink
 url="http://perl.apache.org">mod_perl</ulink> for Perl).  </simpara>
 
+<simpara>When this module is present, &features-var; contains the
+ symbol <constant>:FASTCGI</constant>.</simpara>
+
 <section id="fcgi-overview"><title>Overview of &fastcgi-link;</title>
 
 <para>
