@@ -1,5 +1,13 @@
 2001-10-08  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #462982: support ipv6 on i386 (cygwin32, mingw32, msvc)
+	* win32.d (HAVE_IPV6): define
+	(ws2tcpip.h, winsock2.h): include
+	* socket.d (in6_addr): define to in_addr6
+	(ipv6_ntop): the s6_addr array is directly in struct in6_addr
+
+2001-10-08  Sam Steingold  <sds@gnu.org>
+
 	* savemem.lisp (saveinitmem): default image type is .mem
 
 2001-10-05  Sam Steingold  <sds@gnu.org>
