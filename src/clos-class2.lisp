@@ -968,16 +968,18 @@
     (when descr
       (let* ((names (svref descr 0))
              (all-slots (svref descr 3))
-             (slots (remove-if-not #'sys::ds-slot-name all-slots)))
+             (slots (remove-if-not #'sys::ds-slot-initargs ; means #'sys::ds-real-slot-p
+                                   all-slots)))
         (setf (find-class name)
-              (make-instance-structure-class
-               <structure-class> :name name
-               :direct-superclasses
-               (if (cdr names) (list (find-class (second names))) '())
-               :names names :slots slots
-               :size (if all-slots
-                         (1+ (sys::ds-slot-offset (car (last all-slots))))
-                         1)))))))
+              (make-instance-structure-class <structure-class>
+                :name name
+                :direct-superclasses
+                  (if (cdr names) (list (find-class (second names))) '())
+                :names names
+                :slots slots
+                :size (if all-slots
+                        (1+ (sys::ds-slot-offset (car (last all-slots))))
+                        1)))))))
 
 ;; ---------------------------------------------------------------------------
 
@@ -990,10 +992,10 @@
   (setq <structure-class> (make-structure-class)) ; Dummy, so that (setf find-class) works
   (setq <structure-object> <t>)
   (setq <structure-object>
-        (make-instance-structure-class
-         <structure-class> :name 'structure-object
-         :direct-superclasses '()
-         :names (svref (get 'structure-object 'sys::defstruct-description) 0)))
+        (make-instance-structure-class <structure-class>
+          :name 'structure-object
+          :direct-superclasses '()
+          :names (svref (get 'structure-object 'sys::defstruct-description) 0)))
   (setf (find-class 'structure-object) <structure-object>)
   (setq <class> (define-structure-class 'class))
   (let ((<slotted-class> (define-structure-class 'slotted-class)))
@@ -1041,8 +1043,8 @@
     (sys::%record-ref (allocate-std-instance <standard-object> 3) 2)))
 
 
-;;; install built-in-classes
-;; table 28-1, CLtL2 p. 783
+;;; Install built-in classes:
+;; See CLtL2 p. 783 table 28-1, ANSI CL 4.3.7.
 (macrolet ((def (&rest classes &aux (new (car (last classes))))
              (let ((name (intern (string-trim "<>" (symbol-name new)))))
                `(setf (find-class ',name)
@@ -1089,7 +1091,7 @@
   (def                     <rational> <integer>)
 )
 
-;; continue bootstrapping
+;; Continue bootstrapping.
 (%defclos
   ;; distinctive mark for CLASS-P
   (svref (get 'class 'sys::defstruct-description) 0)
@@ -1102,8 +1104,8 @@
           <concatenated-stream> <two-way-stream> <echo-stream> <string-stream>
           <string> <symbol> <t> <vector>))
 
-;;; intersection of two built-in-classes:
-;; deviations from the single-inheritance are only
+;;; Intersection of two built-in-classes:
+;; Deviations from the single-inheritance are only
 ;; (AND <sequence> <array>) = <vector> and (AND <list> <symbol>) = <null>.
 (defun bc-p (class)
   (or (built-in-class-p class)
