@@ -1,3 +1,8 @@
+2004-11-29  Bruno Haible  <bruno@clisp.org>
+
+	* describe.lisp (describe-stream): New class.
+	(describe): Use it instead of fill-stream.
+
 2004-12-07  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (same_handle_p): Parenthesize the TIME_EQ arguments.
