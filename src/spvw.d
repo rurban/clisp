@@ -687,7 +687,7 @@ local fsubr_argtype_t fsubr_argtype (uintW req_anz, uintW opt_anz,
 
 local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
                                    subr_rest_t rest_flag, subr_key_t key_flag,
-                                   subr_initdata_t *sid)
+                                   const subr_initdata_t *sid)
 { /* conversion of the argument types of a FSUBR into a code: */
   switch (key_flag) {
     case subr_nokey:
@@ -804,7 +804,7 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
 local inline void module_set_argtypes (module_t *module)
 { /* set artype for all SUBRs in the module */
   var subr_t* stab_ptr = module->stab; /* traverse subr_tab */
-  var subr_initdata_t *stab_init_ptr = module->stab_initdata;
+  var const subr_initdata_t *stab_init_ptr = module->stab_initdata;
   var uintC count = *module->stab_size;
   do { SUBR_SET_ARGTYPE(stab_ptr,stab_init_ptr);
     stab_ptr++; stab_init_ptr++;
