@@ -97,14 +97,14 @@ AC_DEFUN([AC_LIBTOOL_SETUP],
 AC_REQUIRE([AC_ENABLE_SHARED])dnl
 AC_REQUIRE([AC_ENABLE_STATIC])dnl
 AC_REQUIRE([AC_ENABLE_FAST_INSTALL])dnl
-AC_REQUIRE([AC_CANONICAL_HOST])dnl
+AC_REQUIRE([CL_CANONICAL_HOST])dnl
 AC_REQUIRE([AC_CANONICAL_BUILD])dnl
 AC_REQUIRE([AC_PROG_CC])dnl
 AC_REQUIRE([AC_PROG_LD])dnl
 AC_REQUIRE([AC_PROG_LD_RELOAD_FLAG])dnl
 AC_REQUIRE([AC_PROG_NM])dnl
 
-AC_REQUIRE([AC_PROG_LN_S])dnl
+AC_REQUIRE([CL_PROG_LN_S])dnl
 AC_REQUIRE([AC_DEPLIBS_CHECK_METHOD])dnl
 # Autoconf 2.13's AC_OBJEXT and AC_EXEEXT macros only works for C compilers!
 AC_REQUIRE([AC_OBJEXT])dnl
@@ -1971,7 +1971,7 @@ AC_DEFUN([AC_PROG_LD],
     [with_gnu_ld=no])
 AC_REQUIRE([LT_AC_PROG_SED])dnl
 AC_REQUIRE([AC_PROG_CC])dnl
-AC_REQUIRE([AC_CANONICAL_HOST])dnl
+AC_REQUIRE([CL_CANONICAL_HOST])dnl
 AC_REQUIRE([AC_CANONICAL_BUILD])dnl
 ac_prog=ld
 if test "$GCC" = yes; then
@@ -2319,7 +2319,7 @@ NM="$lt_cv_path_NM"
 # -------------
 # check for math library
 AC_DEFUN([AC_CHECK_LIBM],
-[AC_REQUIRE([AC_CANONICAL_HOST])dnl
+[AC_REQUIRE([CL_CANONICAL_HOST])dnl
 LIBM=
 case $host in
 *-*-beos* | *-*-cygwin* | *-*-pw32* | *-*-darwin*)
@@ -4335,7 +4335,7 @@ fi
 # AC_LIBTOOL_SYS_GLOBAL_SYMBOL_PIPE
 # ---------------------------------
 AC_DEFUN([AC_LIBTOOL_SYS_GLOBAL_SYMBOL_PIPE],
-[AC_REQUIRE([AC_CANONICAL_HOST])
+[AC_REQUIRE([CL_CANONICAL_HOST])
 AC_REQUIRE([AC_PROG_NM])
 AC_REQUIRE([AC_OBJEXT])
 # Check for command to grab the raw symbol name followed by C symbol from nm.
