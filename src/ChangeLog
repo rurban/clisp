@@ -1,3 +1,21 @@
+2004-06-10  Bruno Haible  <bruno@clisp.org>
+
+	More DEFINE-METHOD-COMBINATION error checking.
+	* clos-methcomb2.lisp (specializers-agree-p, same-specializers-p):
+	New functions, from clos-genfun3.lisp.
+	(call-method-duplicates-error): New function.
+	(effective-method-code-bricks): Add a duplicates argument.
+	(build-effective-method-function-form): Likewise.
+	(compute-effective-method-as-function-form): Support a :DUPLICATES
+	effective-method option.
+	(long-form-method-combination-expander): Convert the long-expander's
+	second value into a :DUPLICATES effective-method option.
+	(long-form-method-combination-collect-duplicates): New function.
+	(compute-method-partition-lambdas): Generate code to check for
+	duplicates.
+	* clos-genfun3.lisp (specializers-agree-p, same-specializers-p): Moved
+	to clos-methcomb2.lisp.
+
 2004-05-29  Bruno Haible  <bruno@clisp.org>
 
 	Move the definition of accessor methods from DEFCLASS to ENSURE-CLASS.
