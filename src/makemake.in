@@ -2453,7 +2453,7 @@ if [ -n "$with_dynamic_ffi" ] ; then
   for f in avcall callback; do
     if [ $HOS = unix ] ; then
       echol "$f.h lib$f.a :"
-      echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) minicheck && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
+      echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) check && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
       echol
     fi
     if [ $HOS = win32 ] ; then
