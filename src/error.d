@@ -960,20 +960,28 @@ nonreturning_function(global, fehler_function, (object obj)) {
   fehler(type_error,GETTEXT("~: ~ is not a ~"));
 }
 
-/* signal a type-error when the argument is not a function name */
-nonreturning_function(global, fehler_funname_type,
-                      (object caller, object obj)) {
-  pushSTACK(obj);                         /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_designator_function)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(caller);
-  fehler(type_error,GETTEXT("~: ~ is not a function name"));
-}
-
-/* signal a source-program-error when the argument is not a function name */
-nonreturning_function(global, fehler_funname_source,
-                      (object caller, object obj)) {
-  pushSTACK(obj); pushSTACK(caller);
-  fehler(source_program_error,GETTEXT("~: ~ is not a function name"));
+/* signal a type-error or source-program-error
+ when the argument is not a function name
+ can trigger GC */
+global object check_funname (condition_t errtype,object caller, object obj) {
+  pushSTACK(caller); /* save */
+  while (!funnamep(obj)) {
+    caller = STACK_0;
+    pushSTACK(NIL); /* PLACE */
+    switch (errtype) {
+      case type_error:
+        pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
+        pushSTACK(O(type_designator_function)); /* slot EXPECTED-TYPE */
+        break;
+      case source_program_error: break;
+      default: NOTREACHED;
+    }
+    pushSTACK(obj); pushSTACK(caller);
+    check_value(errtype,GETTEXT("~: ~ is not a function name"));
+    obj = value1;
+  }
+  skipSTACK(1); /* drop caller */
+  return obj;
 }
 
 /* error-message, if an argument is a lambda-expression instead of a function:

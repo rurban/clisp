@@ -43,17 +43,15 @@
 
 (defun compiler-macro-function (name &optional environment)
   (declare (ignore environment))
-  (cond ((symbolp name) (get name 'compiler-macro))
-        ((function-name-p name) ; (setf name)
-         (get (second name) 'compiler-macro-setf))
-        (t (error-function-name 'compiler-macro-function name))))
+  (setq name (check-function-name 'compiler-macro-function name))
+  (if (symbolp name) (get name 'compiler-macro)
+      (get (second name) 'compiler-macro-setf)))
 
 (defun (setf compiler-macro-function) (newf name &optional environment)
   (declare (ignore environment))
-  (cond ((symbolp name) (setf (get name 'compiler-macro) newf))
-        ((function-name-p name) ; (setf name)
-         (setf (get (second name) 'compiler-macro-setf) newf))
-        (t (error-function-name '(setf compiler-macro-function) name))))
+  (setq name (check-function-name '(setf compiler-macro-function) name))
+  (if (symbolp name) (setf (get name 'compiler-macro) newf)
+      (setf (get (second name) 'compiler-macro-setf) newf)))
 
 ;; (proclaim '(inline function-form-funform simple-function-form-p))
 
