@@ -1,3 +1,14 @@
+2001-07-24  Sam Steingold  <sds@gnu.org>
+
+	Tweak the MAKE-LOAD-FORM patch
+	* loadform.lisp: new file; moved `make-load-form',
+	`make-load-form-saving-slots' and `make-init-form' here
+	* init.lisp: load "loadform"
+	* makemake.in (LPARTS): added "loadform"
+	* clos.lisp (make-load-form, make-load-form-saving-slots): gone
+	* compiler.lisp (*load-forms*): new variable
+	(compile-file): bind it
+
 2001-07-18  Arseny Slobodjuck <ampy@crosswinds.net>
 	    Sam Steingold  <sds@gnu.org>
 

@@ -319,6 +319,8 @@
 (defvar *package-tasks* nil)
 ;; The data accumulated by the FFI.
 (defvar *ffi-module* nil)
+;; The load forms generated so far (by `make-load-form').
+(defvar *load-forms* nil)
 
 #|
 The compiler's target is the virtual machine described in bytecode.html.
@@ -12599,6 +12601,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
               )                   ) ; ein Stream oder NIL
               (*coutput-stream* nil) ; ein Stream oder vorerst NIL
               (*ffi-module* nil) ; vorerst NIL
+              (*load-forms* (make-hash-table :test 'eq))
               (compilation-successful nil))
           (when *fasoutput-stream* (sys::allow-read-eval *fasoutput-stream* t))
           (when *liboutput-stream* (sys::allow-read-eval *liboutput-stream* t))

@@ -1950,19 +1950,7 @@ space safety compilation-speed debug declaration dynamic-extent compile
 
 (LOAD "condition") ;; Conditions
 
-;; this should be in clos.lisp, but it uses `handler-bind'
-;; so there is no good place for this function
-(defun clos::make-init-form (object)
-  (handler-bind ((error #'(lambda (err)
-                            (declare (ignore err))
-                            (return-from clos::make-init-form nil))))
-    (multiple-value-bind (cre-form ini-form) (make-load-form object)
-      (if ini-form
-          (let ((var (gensym "INIT-")))
-            `(let ((,var ,cre-form))
-              ,(nsubst var object ini-form)
-              ,var))
-          cre-form))))
+(load "loadform")               ; `make-load-form'
 
 ;; At this point the core Common Lisp is complete.
 
