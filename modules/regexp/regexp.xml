@@ -51,14 +51,10 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
   </programlisting></example>
 </para></listitem></varlistentry>
 
-<varlistentry id="re-match-start"><term><literal
-    role="sexp">(&re-match-start; &match-r;)</literal></term>
- <listitem><simpara>Extracts the start index of &match-r;; &setf;-able.
- </simpara></listitem></varlistentry>
-
-<varlistentry id="re-match-end"><term><literal
-    role="sexp">(&re-match-end; &match-r;)</literal></term>
- <listitem><simpara>Extracts the end index of &match-r;; &setf;-able.
+<varlistentry id="re-match-access">
+ <term><literal role="sexp">(&re-match-start; &match-r;)</literal></term>
+ <term><literal role="sexp">(&re-match-end; &match-r;)</literal></term>
+ <listitem><simpara>Return the start and end the &match-r;; &setf;-able.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="re-match-string"><term><literal
