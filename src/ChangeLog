@@ -1,3 +1,8 @@
+2004-06-07  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp (open-for-load): Use uppercase ~S in format strings so that
+	the warnings can be shown during bootstrap.
+
 2004-05-09  Bruno Haible  <bruno@clisp.org>
 
 	* hashtabl.d (hash_prepare_store): Fix bug introduced on 2003-05-13:
