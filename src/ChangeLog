@@ -1,7 +1,7 @@
 2004-11-01  Sam Steingold  <sds@gnu.org>
 
-	* modules/rawsock/configure.in: check for poll() with CL_POLL
-	instead of AC_CHECK_FUNCS()
+	* modules/rawsock/configure.in: check for select() with CL_SELECT;
+	check for poll() with CL_POLL instead of AC_CHECK_FUNCS()
 
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
