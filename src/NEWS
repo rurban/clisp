@@ -192,11 +192,6 @@ User visible changes
   Thanks to Yuji Minejima <ggb01164@nifty.ne.jp> and his ANSI compliance
   suite, which helped detect some of these deficiencies.
 
-* ANSI CL compliance help:
-  + PRINT-OBJECT warns if it encounters a method which produces an incorrect
-    return value.
-    See <http://clisp.cons.org/impnotes.html#print-object> for details.
-
 * TRANSLATE-PATHNAME and TRANSLATE-LOGICAL-PATHNAME accept a new keyword
   argument :ABSOLUTE which makes them convert their return values to
   absolute pathnames.
