@@ -107,6 +107,10 @@ tests.s : $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
 tests.exe : tests.obj callback.lib
 	$(CC) $(CFLAGS) tests.obj callback.lib /Fetests.exe
 
+uniq-u.exe : $(srcdir)/uniq-u.c
+	$(CC) $(CFLAGS) $(srcdir)/uniq-u.c -Feuniq-u.exe
+	$(RM) uniq-u.obj
+
 check1 : all test1.exe
 	test1.exe
 
@@ -114,18 +118,18 @@ check2 : all test1.exe test2.exe
 	test1.exe
 	test2.exe
 
-check : all test1.exe test2.exe tests.exe
+check : all test1.exe test2.exe tests.exe uniq-u.exe
 	test1.exe
 	test2.exe
 	tests.exe > tests.out
-	uniq -u < tests.out > tests.output.$(HOST)
+	uniq-u < tests.out > tests.output.$(HOST)
 
 mostlyclean : clean
 
 clean : force
 	$(RM) $(OBJECTS) vacall_r\vacall-i386.obj callback.lib core
 	$(RM) test1.obj test1.exe test2.obj test2.exe
-	$(RM) tests.obj tests.s tests.exe tests.out
+	$(RM) tests.obj tests.s tests.exe uniq-u.exe tests.out
 
 distclean : clean
 	$(RM) config.status config.log config.cache Makefile vacall_r\vacall_r.h vacall_r\config.h trampoline_r\config.h trampoline_r\trampoline_r.h vacall_r.h trampoline_r.h tests.output.*

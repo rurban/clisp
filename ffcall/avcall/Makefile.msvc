@@ -68,9 +68,13 @@ tests.s : $(srcdir)/tests.c avcall.h
 tests.exe : tests.obj avcall.lib
 	$(CC) $(CFLAGS) tests.obj avcall.lib /Fetests.exe
 
-check : all tests.exe
+uniq-u.exe : $(srcdir)/uniq-u.c
+	$(CC) $(CFLAGS) $(srcdir)/uniq-u.c -Feuniq-u.exe
+	$(RM) uniq-u.obj
+
+check : all tests.exe uniq-u.exe
 	tests.exe > tests.out
-	uniq -u < tests.out > tests.output.$(HOST)
+	uniq-u < tests.out > tests.output.$(HOST)
 # You have to check by hand that tests.output.$(HOST) is empty.
 
 mostlyclean : clean
@@ -78,7 +82,7 @@ mostlyclean : clean
 clean : force
 	$(RM) *.obj *.lib core
 	$(RM) avcall-i386.s
-	$(RM) tests.obj tests.s tests.exe tests.out
+	$(RM) tests.obj tests.s tests.exe uniq-u.exe tests.out
 
 distclean : clean
 	$(RM) config.status config.log config.cache Makefile avcall.h tests.output.*
