@@ -1,3 +1,9 @@
+2003-02-14  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (do-test, do-errcheck): return the number of errors
+	(run-test): print some sugar, return error count
+	(run-all-tests): print some sugar
+
 2003-02-13  Sam Steingold  <sds@gnu.org>
 
 	* iofkts.tst, path.tst, streams.tst, strings.tst: added tests for
