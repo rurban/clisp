@@ -1513,7 +1513,7 @@ local void gc_markphase (void)
   #else
     #error "Unbekannter Wert von 'varobject_alignment'!"
   #endif
-  #if defined(GNU) && !defined(__cplusplus) # better for optimization
+  #if defined(GNU) && (__GNUC__ < 3) && !defined(__cplusplus) # better for optimization
     #ifdef fast_dotimesL
       #define move_aligned_p1_p2(count)  \
         dotimespL(count,count/varobject_alignment, *((uintV*)p2)++ = *((uintV*)p1)++; )
