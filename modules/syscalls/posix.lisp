@@ -7,7 +7,7 @@
   (:import-from "SYS" sys::process-id)
   (:export
    #:resolve-host-ipaddr #:bogomips
-   #:stream-lock #:duplicate-handle #:copy-file
+   #:stream-lock #:with-stream-lock #:duplicate-handle #:copy-file
    #:hostent #:hostent-name #:hostent-aliases #:hostent-addr-list
    #:hostent-addrtype #:file-owner #:physical-memory
    #+(or :win32 :cygwin) #:file-properties
@@ -20,6 +20,11 @@
 (pushnew :syscalls *features*)
 (in-package "POSIX")
 
+;;; ============================================================
+(defmacro with-stream-lock ((stream &rest options) &body body)
+  "Lock the stream, execute the body, unlock the stream."
+  `(unwind-protect (progn (stream-lock ,stream t ,@options) ,@body)
+     (stream-lock ,stream nil ,@options)))
 ;;; ============================================================
 (defun syslog (severity facility format &rest args)
   (%syslog severity facility (apply #'format nil format args)))
