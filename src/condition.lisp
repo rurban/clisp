@@ -1179,8 +1179,7 @@
                              (format stream (report-no-new-value-string)))
                    :interactive #'assert-restart-no-prompts
                    :invoke-function
-                     (lambda (val)
-                       (declare (ignore val))
+                     (lambda ()
                        (return-from check-value (values nil 0))))))
           (when place
             (list (make-restart
