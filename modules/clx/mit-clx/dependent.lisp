@@ -543,13 +543,15 @@
 
 ;;; CONDITIONAL-STORE:
 
-;; This should use GET-SETF-METHOD to avoid evaluating subforms multiple times.
-;; It doesn't because CLtL doesn't pass the environment to GET-SETF-METHOD.
-(defmacro conditional-store (place old-value new-value)
-  `(without-interrupts
-    (cond ((eq ,place ,old-value)
-           (setf ,place ,new-value)
-           t))))
+(defmacro conditional-store (place old-value new-value &environment env)
+  (multiple-value-bind (vars vals store-vars writer-form reader-form)
+      (get-setf-expansion place env)
+    `(without-interrupts
+       (let ,(mapcar #'list vars vals)
+         (cond ((eq ,reader-form ,old-value)
+                (let ((,(first store-vars) ,new-value) ,@(rest store-vars))
+                  ,writer-form)
+                t))))))
 
 ;;;----------------------------------------------------------------------------
 ;;; IO Error Recovery
