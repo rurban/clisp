@@ -108,9 +108,6 @@
 )
 (1 11 21 31 41)
 
-(loop for i from 1 by 2 upto 10 collect i)
-(1 3 5 7 9)
-
 (loop for char across (the simple-string "Hello")
       collect char
 )
@@ -806,6 +803,14 @@ nil
 
 (loop repeat 4 for x = (+ 1 1) collect x)
 (2 2 2 2)
+
+;;; Tests from ANSI CL section 6.1.2.1.1.
+
+(let ((x 1)) (loop for i from x by (incf x) to 10 collect i))
+(1 3 5 7 9)
+
+(let ((x 1)) (loop for i by (incf x) from x to 10 collect i))
+(2 4 6 8 10)
 
 ;; Clean up.
 (progn (delete-package "LOOP-TEST") t)
