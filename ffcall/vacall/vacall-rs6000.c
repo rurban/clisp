@@ -78,11 +78,13 @@ vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
   list.farg[5] = farg6;
   list.farg[6] = farg7;
   list.farg[7] = farg8;
+#if defined(_AIX)
   list.farg[8] = farg9;
   list.farg[9] = farg10;
   list.farg[10] = farg11;
   list.farg[11] = farg12;
   list.farg[12] = farg13;
+#endif
   /* Prepare the va_alist. */
   list.flags = 0;
 #if defined(_AIX)

@@ -130,6 +130,9 @@ vacall-m88k.lo : $(srcdir)/vacall-m88k.s
 vacall-convex.lo : $(srcdir)/vacall-convex.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-convex.s
 
+vacall-ia64.lo : $(srcdir)/vacall-ia64.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-ia64.s
+
 misc.lo : $(srcdir)/misc.c vacall_r.h config.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/misc.c
 
