@@ -261,6 +261,11 @@
 (defvar |#'shared-initialize| nil)
 (defvar *gf-warn-on-replacing-method* t)
 
+;; More general notification.
+(defun map-dependents-<generic-function> (gf function)
+  (dolist (dependent (gf-listeners gf))
+    (funcall function dependent)))
+
 ;; CLtL2 28.1.6.3., ANSI CL 7.6.3.
 ;; Agreement on Parameter Specializers and Qualifiers
 (defun methods-agree-p (method1 method2)
@@ -342,11 +347,12 @@
   (setf (std-gf-effective-method-cache gf) '())
   (finalize-fast-gf gf)
   ;; Step 4: Update the dependents.
-  #|
-  (map-dependents gf
+  (funcall (if *classes-finished*
+             #'map-dependents
+             #'map-dependents-<generic-function>)
+    gf
     #'(lambda (dependent)
         (update-dependent gf dependent 'add-method method)))
-  |#
   ;; It's not worth updating the seclass of a generic function, since 1. in
   ;; most cases, it can signal a NO-APPLICABLE-METHOD error and thus has
   ;; *seclass-dirty*, 2. the compiler must assume that the seclass doesn't
@@ -380,11 +386,12 @@
       (setf (std-gf-effective-method-cache gf) '())
       (finalize-fast-gf gf)
       ;; Step 4: Update the dependents.
-      #|
-      (map-dependents gf
-         #'(lambda (dependent)
-             (update-dependent gf dependent 'remove-method method)))
-      |#))
+      (funcall (if *classes-finished*
+                 #'map-dependents
+                 #'map-dependents-<generic-function>)
+        gf
+        #'(lambda (dependent)
+            (update-dependent gf dependent 'remove-method method)))))
   gf)
 
 ;; Find a method in a generic function.
@@ -480,6 +487,10 @@
     ;; When invoked from DEFGENERIC: Install the defgeneric-originated
     ;; methods.
     (dolist (method methods) (std-add-method gf method)))
+  ;; Notification of listeners:
+  (map-dependents gf
+    #'(lambda (dependent)
+        (apply #'update-dependent gf dependent args)))
   gf)
 
 (defun make-instance-<standard-generic-function> (class &rest args

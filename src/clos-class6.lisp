@@ -172,6 +172,14 @@
   (setf (sys::%record-ref class *<class>-documentation-location*) new-value))
 
 ;; Not in MOP.
+(defun class-listeners (class)
+  (accessor-typecheck class 'class 'class-listeners)
+  (sys::%record-ref class *<class>-listeners-location*))
+(defun (setf class-listeners) (new-value class)
+  (accessor-typecheck class 'class '(setf class-listeners))
+  (setf (sys::%record-ref class *<class>-listeners-location*) new-value))
+
+;; Not in MOP.
 (defun class-initialized (class)
   (accessor-typecheck class 'class 'class-initialized)
   (sys::%record-ref class *<class>-initialized-location*))

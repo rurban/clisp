@@ -5586,6 +5586,7 @@ typedef struct {
   gcv_object_t direct_default_initargs  _attribute_aligned_object_;
   gcv_object_t default_initargs         _attribute_aligned_object_;
   gcv_object_t documentation            _attribute_aligned_object_; # string or NIL
+  gcv_object_t listeners                _attribute_aligned_object_; # list of objects to be notified upon a change
   gcv_object_t initialized              _attribute_aligned_object_; # set to true when the class is initialized
   # from here on only for metaclass ⊆ <standard-class> or metaclass ⊆ <funcallable-standard-class> or metaclass ⊆ <structure-class>
   gcv_object_t subclass_of_stablehash_p _attribute_aligned_object_; /* true if <standard-stablehash> or <structure-stablehash> is among the superclasses */

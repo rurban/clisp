@@ -1,3 +1,33 @@
+2004-07-29  Bruno Haible  <bruno@clisp.org>
+
+	Implement the dependents protocol.
+	* lispbibl.d (Class): Add field 'listeners'.
+	* init.lisp: Export add-dependent, remove-dependent, map-dependents,
+	update-dependent.
+	* clos-package.lisp: Export add-dependent, remove-dependent,
+	map-dependents, update-dependent.
+	* clos-class1.lisp (class): Add slot 'listeners'.
+	(*<...class>-...-location*): Update.
+	(*<...class>-instance-size*): Increment.
+	(class-listeners, (setf class-listeners)): New functions.
+	(shared-initialize-<class>): Initialize the listeners.
+	* clos-class3.lisp (reinitialize-instance-<class>): Invoke
+	map-dependents.
+	(map-dependents-<class>): New function.
+	* clos-class6.lisp (class-listeners, (setf class-listeners)): New
+	functions.
+	* clos-genfun1.lisp (*<funcallable-standard-class>-instance-size*):
+	Increment.
+	(generic-function): Add slot 'listeners'.
+	(shared-initialize-<generic-function>): Initialize the listeners.
+	* clos-genfun2.lisp (map-dependents-<generic-function>): New function.
+	(std-add-method, std-remove-method,
+	reinitialize-instance-<generic-function>): Invoke map-dependents.
+	* clos-dependent.lisp: New file.
+	* clos.lisp: Load it.
+	* makemake.in (LPARTS): Add clos-dependent.
+	* po/Makefile.devel (LISPSOURCES): Add clos-dependent.
+
 2004-09-09  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/win32/win32.lisp, modules/bindings/glibc/linux.lisp:
