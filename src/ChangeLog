@@ -1,3 +1,7 @@
+2000-10-22  Bruno Haible  <haible@clisp.cons.org>
+
+        * spvw.d (print_banner): Don't use non-ASCII argument of gettext.
+
 2000-10-09  Bruno Haible  <haible@clisp.cons.org>
 
         CPU recognition on OpenBSD.
