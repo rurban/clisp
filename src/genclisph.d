@@ -6,9 +6,11 @@
 
 #include "lispbibl.c"
 
-# Ausgabe von Strings mit eingebetteten Zahlen, wie printf().
-# Nur dass die Zahlen auch vom Typ `unsigned long long' sein können.
-# Wir vermeiden es, <stdarg.h> oder <varargs.h> vorauszusetzen.
+/*
+ * Print numbers as strings, like with printf().
+ * Only numbers of type `unsigned long long' need work.
+ * We avoid presuming <stdarg.h> or <varargs.h>.
+ */
 
 typedef struct {
   char base; /* 'd' for decimal, 'x' for hexadecimal */
