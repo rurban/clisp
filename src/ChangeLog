@@ -3,7 +3,8 @@
 	* modules/berkeley-db/bdb.c (ENV-GET-OPTIONS): accept :DB_XIDDATASIZE
 	(check_byte_vector): new function
 	(fill_dbt): use it
-	(TXN-CHECKPOINT, TXN-PREPARE, TXN-RECOVER): new functions
+	(TXN-CHECKPOINT, TXN-PREPARE, TXN-RECOVER, TXN-SET-TIMEOUT):
+	new functions
 
 2004-06-23  Sam Steingold  <sds@gnu.org>
 
