@@ -2389,7 +2389,7 @@ if test "${cl_cv_c_struct_return_static+set}" = set; then
 else
 
 save_CFLAGS="$CFLAGS"
-CFLAGS=""
+test $CC_GCC = true && CFLAGS="$CFLAGS -O0"
 if test "$cross_compiling" = yes; then
   cl_cv_c_struct_return_static="guessing no"
 else
