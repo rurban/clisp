@@ -1,13 +1,13 @@
-Installation on Win32 (WinNT, Win95) using the MSVC4.0 or MSVC5.0 development
-=============================================================================
-environment, using native system calls
-======================================
+Installation on Win32 (WinNT, Win95) using the MSVC4.0 or MSVC5.0 or MSVC6.0
+============================================================================
+development environment, using native system calls
+==================================================
 
 1. On a Unix NFS server, unpack the source.
 
 2. On a Win32 NFS client, start a console with a shell (ksh for example).
-   Make sure that the MSVC4.0 or MSVC5.0 utilities ("cl" etc.) are found in
-   PATH.
+   Make sure that the MSVC4.0 or MSVC5.0 or MSVC6.0 utilities ("cl" etc.)
+   are found in PATH.
 
         cd utils
         cd gcc-cccp
@@ -19,11 +19,22 @@ environment, using native system calls
         nmake -f Makefile.msvc check
         cd ..
 
+        cd sigsegv
+        nmake -f Makefile.msvc check
+        cd ..
+
    Copy the appropriate makefile to src/makefile:
 
+     for MSVC4.0:
+
         cp win32msvc/makefile.msvc4 src/makefile
-   or
+
+     for MSVC5.0 or MSVC6.0:
+
         cp win32msvc/makefile.msvc5 src/makefile
+
+   If you are using MSVC6.0, edit Microsoft's <winnt.h> include file and
+   replace `unused' with `__unused' in macro `DECLARE_HANDLE'.
 
    Modify the value of MSVCDIR in src/makefile to match your site. Then
 
