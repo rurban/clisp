@@ -1,7 +1,7 @@
 /* Foreign language interface for CLISP
  * Marcus Daniels 8.4.1994
  * Bruno Haible 1995-2005
- * Sam Steingold 2000-2004
+ * Sam Steingold 2000-2005
  */
 
 #include "lispbibl.c"
@@ -3916,18 +3916,6 @@ local object dlerror_string (void)
 #endif
 
 /* FIXME: COMMENT! */
-/* open the library == dlopen() */
-local inline void * libopen (char* libname, uintL version)
-{
- #if defined(WIN32_NATIVE)
-  return (void*)LoadLibrary(libname);
- #else
-  /* FIXME: On UNIX_DARWIN, need to search for the library in /usr/lib */
-  return dlopen(libname,RTLD_NOW);
- #endif
-}
-
-/* FIXME: COMMENT! */
 /* Open a library with the given name and version
  can trigger GC */
 local maygc void * open_library (gcv_object_t* name, uintL version)
@@ -3958,7 +3946,7 @@ local maygc void * open_library (gcv_object_t* name, uintL version)
   }
   with_string_0(*name = check_string(*name),O(misc_encoding),libname, {
     begin_system_call();
-    handle = libopen(libname,version);
+    handle = libopen(libname);
     end_system_call();
   });
   if (handle == NULL) {
@@ -3997,67 +3985,6 @@ local void close_library (object fp) {
 local void* libc_handle;
 #endif
 
-#if defined(WIN32_NATIVE)
-/* #include <psapi.h> */
-/* support older woe32 incarnations:
-   fEnumProcessModules is 1 until the first call,
-   it is NULL if this woe32 does not have EnumProcessModules(),
-   and it points to EnumProcessModules() when it is present */
-typedef BOOL (WINAPI * EnumProcessModules_t)
-  (HANDLE hProcess,HMODULE* lphModule,DWORD cb,LPDWORD lpcbNeeded);
-static EnumProcessModules_t fEnumProcessModules = (EnumProcessModules_t)1;
-#endif
-
-/* FIXME: BETTER COMMENT! */
-/* find the name in the library handle  ==  dlsym()*/
-local inline void* find_name (void *handle, char *name)
-{
-  var void *ret = NULL;
-  begin_system_call();
- #if defined(UNIX_FREEBSD) && !defined(RTLD_DEFAULT)
-  /* FreeBSD 4.0 doesn't support RTLD_DEFAULT, so we simulate it by
-     searching the executable and the libc. */
-  if (handle == NULL) {
-    /* Search the executable. */
-    ret = dlsym(NULL,name);
-    if (ret == NULL) {
-      /* Search the libc. */
-      if (libc_handle == NULL)
-        libc_handle = dlopen("libc.so",RTLD_LAZY);
-      if (libc_handle != NULL)
-        ret = dlsym(libc_handle,name);
-    }
-  } else
-    ret = dlsym(handle,name);
- #elif defined(WIN32_NATIVE)
-  if (handle == NULL) { /* RTLD_DEFAULT -- search all modules */
-    HANDLE cur_proc;
-    HMODULE *modules;
-    DWORD needed, i;
-    if ((EnumProcessModules_t)1 == fEnumProcessModules) {
-      /* first call: try to load EnumProcessModules */
-      HMODULE psapi = LoadLibrary("psapi.dll");
-      if (psapi == NULL) fEnumProcessModules = NULL;
-      else fEnumProcessModules =
-        (EnumProcessModules_t)GetProcAddress(psapi,"EnumProcessModules");
-    }
-    if (NULL != fEnumProcessModules) {
-      cur_proc = GetCurrentProcess();
-      if (!fEnumProcessModules(cur_proc,NULL,0,&needed)) OS_error();
-      modules = (HMODULE*)alloca(needed);
-      if (!fEnumProcessModules(cur_proc,modules,needed,&needed)) OS_error();
-      for (i=0; i < needed/sizeof(HMODULE); i++)
-        if ((ret = (void*)GetProcAddress(modules[i],name)))
-          break;
-    } else ret = NULL;
-  } else ret = (void*)GetProcAddress((HMODULE)handle,name);
- #else
-  ret = dlsym(handle,name);
- #endif
-  end_system_call();
-  return ret;
-}
-
 /* FIXME: BETTER COMMENT! */
 /* return the handle of the object (string) in the library (name fpointer ...)
  can trigger GC */
@@ -4067,7 +3994,9 @@ local /*maygc*/ void* object_handle (object library, gcv_object_t *name,
   var void * address;
  object_handle_restart:
   with_string_0(*name,O(foreign_encoding),namez, {
+    begin_system_call();
     address = find_name(TheFpointer(Car(Cdr(library)))->fp_pointer, namez);
+    end_system_call();
   });
   if (address == NULL) {
     pushSTACK(library);

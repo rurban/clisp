@@ -9648,7 +9648,10 @@ extern struct object_tab_ {
 
 # ###################### MODBIBL for MODULES.D ############################ #
 
-#if defined(DYNAMIC_MODULES) && !defined(HAVE_DYNLOAD)
+#if defined(DYNAMIC_MODULES) && !defined(HAVE_DYNLOAD) && !defined(WIN32_NATIVE)
+  /* if you want DYNAMIC_MODULES to work on a non-WIN32_NATIVE platform
+     which does not HAVE_DYNLOAD (e.g., via ltdl), you will need to
+     implement libopen() and find_name() in spvw.d for your platform */
   #error "Dynamic modules require dynamic loading!"
 #endif
 
@@ -9692,10 +9695,29 @@ typedef struct module_t {
   extern module_t modules[]; # 1+module_count entries, then an empty entry
 #endif
 
-#ifdef HAVE_DYNLOAD
-# Attaches a shared library to this process' memory, and attempts to load
-# a number of clisp modules from it.
-  extern void dynload_modules (const char * library, uintC modcount, const char * const * modnames);
+#if defined(HAVE_DYNLOAD) || defined(WIN32_NATIVE)
+/* open the dynamic library
+ libname is the name of the library
+ returns a handle suitable for find_name()
+ calls dlopen() or LoadLibrary() */
+extern void * libopen (const char* libname);
+/* used by FOREIGN and spvw.d:dynload_modules() */
+
+/* find the name in the dynamic library handle
+ calls dlsym() or GetProcAddress()
+ handle is an object returned by libopen()
+        or NULL, which means emulate RTLD_DEFAULT on UNIX_FREEBSD
+        and WIN32_NATIVE by searching through all libraries
+ name is the name of the function (or variable) in the library */
+extern void* find_name (void *handle, const char *name);
+/* used by FOREIGN and spvw.d:dynload_modules() */
+#endif
+
+#if defined(DYNAMIC_MODULES)
+/* Attaches a shared library to this process' memory, and attempts to load
+   a number of clisp modules from it. */
+extern void dynload_modules (const char * library, uintC modcount,
+                             const char * const * modnames);
 #endif
 
 /* find the module with the given name */
