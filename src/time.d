@@ -28,7 +28,7 @@
    Internal time =
      1/100 sec since session start */
 #endif
-#if defined(TIME_UNIX_TIMES) || defined(TIME_RISCOS)
+#ifdef TIME_UNIX_TIMES
   /* Two small bugs:
    - Wrap-around of internal_time_t after many days.
    - LISP clock may be up to 1 sec behind the true clock.
@@ -63,7 +63,7 @@
   /* (The unit is 1/100 sec, a 32 bit counter therefore suffices for
    497d 2h 27m 52.96s, and no LISP session runs for 1.3 years.) */
 #endif
-#if defined(TIME_UNIX_TIMES) || defined(TIME_RISCOS)
+#ifdef TIME_UNIX_TIMES
   /* (The unit is ca. 1/60 sec or 1/100 sec, a 32 bit counter therefore
    suffices for a long while.) */
 #endif
@@ -123,21 +123,6 @@ local uintL get_time(void)
 {
   var struct tms buffer;
   return (uintL)times(&buffer);
-}
- #endif
- #ifdef TIME_RISCOS
-/* < uintL result: current value of the CLK_TCK Hz counter */
-global uintL get_time(void);
-  #include <sys/os.h>
-global uintL get_time()
-{
-  var int regs[10];
-  var os_error * err;
-  begin_system_call();
-  err = os_swi(0x42,regs);
-  if (err) { __seterr(err); OS_error(); }
-  end_system_call();
-  return (uintL)(regs[0]);
 }
  #endif
 
@@ -465,7 +450,7 @@ global void convert_time (const struct DateStamp * datestamp,
   }
 }
 #endif
-#if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
+#if defined(UNIX) || defined(MSDOS)
 /* UP: Wandelt das System-Zeitformat in Decoded-Time um.
  convert_time(&time,&timepoint);
  > time_t time: in system time format
@@ -552,7 +537,7 @@ global object convert_time_to_universal (const struct DateStamp * datestamp)
   return encode_universal_time(&timepoint);
 }
 #endif
-#if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
+#if defined(UNIX) || defined(MSDOS)
 /* UP: convert the system time format into lisp universal time.
  convert_time_to_universal(&time)
  > time_t time: in system time format
@@ -560,7 +545,7 @@ global object convert_time_to_universal (const struct DateStamp * datestamp)
  can trigger GC */
 global object convert_time_to_universal (const time_t* time)
 {
- #if defined(MSDOS) || defined(RISCOS)
+ #ifdef MSDOS
   var decoded_time_t timepoint;
   convert_time(time,&timepoint);
   /* Have to go through ENCODE-UNIVERSAL-TIME because we must take the
@@ -748,7 +733,7 @@ global void init_time (void)
       convert_time(&real_time.time,&timepoint); /* in Decoded-Time umwandeln */
     }
    #endif
-   #if defined(UNIX) || defined(RISCOS) /* TIME_UNIX_TIMES || TIME_RISCOS */
+   #ifdef UNIX /* TIME_UNIX_TIMES */
     {
       var time_t real_time;
       begin_system_call();
@@ -836,7 +821,7 @@ LISPFUN(default_time_zone,seclass_default,0,1,norest,nokey,0,NIL)
 
 #ifdef SLEEP_1
 LISPFUNN(sleep,1)
-#if defined(TIME_MSDOS) || defined(RISCOS)
+#ifdef TIME_MSDOS
 { /* (SYSTEM::%SLEEP delay) wartet delay/200 bzw. delay/100 Sekunden.
  Argument delay muss ein Integer >=0, <2^32 (TIME_MSDOS: sogar <2^31) sein. */
   var uintL delay = I_to_UL(popSTACK()); /* Pausenlänge */
@@ -992,7 +977,7 @@ LISPFUNNR(time,0)
      jeweils in 100stel Sekunden,
      jeweils (ldb (byte 16 16) time) und (ldb (byte 16 0) time).
    #endif
-   #if defined(TIME_UNIX_TIMES) || defined(TIME_RISCOS)
+   #ifdef TIME_UNIX_TIMES
      jeweils in CLK_TCK-stel Sekunden,
      jeweils (ldb (byte 16 16) time) und (ldb (byte 16 0) time).
    #endif

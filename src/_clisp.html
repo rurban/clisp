@@ -357,7 +357,7 @@ This results in slower loading, but faster execution.<p/></dd>
 startup (this happens after the <a href="#opt-load-comp"><code>-C</code></a>
 option is processed).
 The file loaded is
-#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
+#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
 <code>_clisprc.lisp</code> or <code>_clisprc.fas</code> in the home directory
 <code>(user-homedir-pathname)</code>,
 #endif
@@ -493,9 +493,9 @@ Each line of <var>optionfile</var> is treated as a separate argument to
 <dt><code>(exit)</code> or <code>(quit)</code> or <code>(bye)</code></dt>
 <dd>to <a href="impnotes.html#quit">quit</a> <code>clisp</code>.<p/></dd>
 
-#if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
+#if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS)
 <dt>
-#if (defined(UNIX) && !defined(UNIX_CYGWIN32)) || defined(RISCOS)
+#if defined(UNIX) && !defined(UNIX_CYGWIN32)
 EOF (Ctrl-D)
 #endif
 #if defined(MSDOS) || defined(UNIX_CYGWIN32)
@@ -552,9 +552,6 @@ EOF (Ctrl-\e)
 #endif
 #if defined(AMIGAOS)
 <code>lisp.run</code>
-#endif
-#if defined(RISCOS)
-<code>lisp</code>
 #endif
 </dt><dd>main executable (runtime)<p/></dd>
 

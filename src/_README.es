@@ -103,9 +103,6 @@ o
 #ifdef OS2
       lisp.exe           programa principal
 #endif
-#ifdef RISCOS
-      lisp               programa principal
-#endif
       lispinit.mem       imagen de memoria necesaria para la inicialización
 #ifdef GNU_GETTEXT
       locale/*/LC_MESSAGES/clisp.mo  <<<localized messages databases>>>
@@ -139,10 +136,6 @@ o
       emx.dll            librería de enlazamiento dinámico de OS/2 que contiene emx
       emxlibc.dll        librería de enlazamiento dinámico de OS/2 que contiene emx libc
       termcap.dat        base de datos del terminal
-#endif
-#ifdef RISCOS
-      !Run               fichero de ejecución para CLISP
-      !Sprites           icono de CLISP
 #endif
       README             este texto
       SUMMARY            pequeña descripción de CLISP
@@ -195,16 +188,6 @@ enteros de 64 bits y se ejecuta sobre cualquier memoria en un
 procesador 68020 o superior: sobre A4000 con VMM. El esfuerzo
 adicional para el tratamiento de números enteros de 64 bits hace que
 CLISP-WIDE sea más lento que CLISP-HIGH.
-
-#endif
-#ifdef RISCOS
-
-Requisitos Hardware:
---------------------
-
-Esta versión de CLISP requiere un PC Acorn Archimedes o Acorn RISC
-con, al menos, 4 MB de Ram y RISC OS 3.0 o superior. Más adelante se
-explica como crear una versión de CLISP que se ejecute con solo 2 MB.
 
 #endif
 #if defined(SINGLEMAP_MEMORY) && (defined(UNIX_LINUX) || !defined(HAVE_MMAP_ANON))
@@ -297,11 +280,6 @@ Luego ejecute
 #ifdef UNIX
          base/lisp.run -M base/lispinit.mem
 #endif
-#ifdef RISCOS
-         lisp -M mem.lispinit
-
-o haga doble click sobre el directorio !Clisp.
-#endif
 
 Cuando aparezca el inductor de comandos
 
@@ -309,13 +287,6 @@ Cuando aparezca el inductor de comandos
 
 teclee
 
-#ifdef RISCOS
-        (cd "<clisp$path>.")
-
-para asegurarse de que el directorio !Clisp es el que está actualmente
-seleccionado. Luego
-
-#endif
 #if defined(UNIX) || defined(WIN32)
       (without-package-lock ()
         (compile-file "src/config.lisp")
@@ -352,10 +323,8 @@ El resto se hace simplemente con
 En vez de esto, puede hacerlo usted mismo, paso por paso:
 
 #endif
-#ifndef RISCOS
 Luego cree un directorio, y ponga en él el ejecutable con la imagen de
 memoria.
-#endif
 #ifdef UNIX
 Le recomiendo /usr/local/lib/lisp :
 
@@ -436,25 +405,6 @@ Por ejemplo,
    ARGS=-M lispinit.mem
 
 #endif
-#ifdef RISCOS
-
-¿Corto de memoria?
-------------------
-
-Si sólo dispone de 2 MB de RAM, puede crear un CLISP "desmontado" que
-requiere menos memoria, pero que no dispondrá de algunas partes
-definidas en CLtL2, dpANS-LOOP, CLOS, Condiciones y flujos genéricos:
-Reemplace DEFS2.FAS, LOOP.FAS, CLOS.FAS, CONDITIO.FAS, DEFS3.FAS,
-GSTREAM.FAS por ficheros vacíos y ejecute:
-
-   lisp
-   > (load "init.fas")
-   > (saveinitmem)
-   > (exit)
-
-Esto sobreescribirá el fichero LISPINIT.MEM por otro más pequeño.
-
-#endif
 
 Cuando encuentre problemas:
 ---------------------------
@@ -490,9 +440,6 @@ Cuando los problemas sean mayor, por ejemplo "guru"s, por favor
 #endif
 #ifdef OS2
 Cuando los problemas sean mayor, por ejemplo "register dumps", por favor
-#endif
-#ifdef RISCOS
-Cuando los problemas sean mayores, por ejemplo, "stack dumps", por favor
 #endif
 envíe una descripción del error y una descripción de cómo reproducir
 el error a los autores o al "mantenedor". Por favor, acompañe su mensaje
@@ -564,15 +511,6 @@ Migración a Amiga por:
         Jörg Höhle
 
 Email: Joerg.Hoehle@gmd.de
-#endif
-#ifdef RISCOS
-
-Migración a Acorn RISC OS por:
-------------------------------
-
-        Peter Burwood
-
-Email: clisp@arcangel.dircon.co.uk
 #endif
 
 "Mantenedor":

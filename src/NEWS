@@ -9,6 +9,11 @@ User visible changes
   make APROPOS more flexible in search and output.
   See <http://clisp.cons.org/impnotes.html#apropos> for details.
 
+Portability
+-----------
+
+* Remove Acorn RISCOS support.
+
 
 2.32 (2003-12-29)
 =================
