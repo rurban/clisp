@@ -32,7 +32,11 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
                                   (mapcar #'find-class specializers)))
         (sys::disassemble-closure object)))
   (:method ((object symbol) &rest opts)
-    (apply #'disassemble (orig-fundef object) opts))
+    (apply #'disassemble
+           (if (sys::symbol-macro-expand object)
+               (coerce `(lambda () ,object) 'function)
+               (orig-fundef object))
+           opts))
   (:method ((object cons) &rest opts)
     (apply #'disassemble
            (if (function-name-p object)
