@@ -1,5 +1,11 @@
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
+	* foreign.d (convert_to_foreign): When converting to
+	(C-ARRAY CHARACTER ...), (C-ARRAY-MAX CHARACTER ...),
+	(C-ARRAY-PTR CHARACTER), accept a non-string array of ASCII characters.
+
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
 	New function EXT:ELASTIC-NEWLINE.
 	* lispbibl.d (Stream): Add fields strm_wr_ch_npnl,
 	strm_wr_ch_array_npnl.
