@@ -10016,7 +10016,8 @@ re-enters the corresponding top-level loop.
   #ifndef MULTITHREAD
     #define value1  mv_space[0]
   #else
-    # The first value mv_space[0] is moved to the beginning of struct thread_t:
+    /* The first value mv_space[0] is moved to the beginning of struct
+       clisp_thread_t: */
     #define value1  (current_thread()->_value1)
     #define VALUE1_EXTRA # and thus has to be treated extra every time...
   #endif
@@ -14328,13 +14329,13 @@ extern object decimal_string (object x);
       gcv_environment_t _aktenv;
       # The values of per-thread symbols:
       object _symvalues[unspecified];
-  } thread_t;
+  } clisp_thread_t;
   #define thread_size(nsymvalues)  \
-    (offsetofa(thread_t,_symvalues)+nsymvalues*sizeof(gcv_object_t))
+    (offsetofa(clisp_thread_t,_symvalues)+nsymvalues*sizeof(gcv_object_t))
   #define thread_objects_offset(nsymvalues)  \
-    (offsetof(thread_t,_lthread))
+    (offsetof(clisp_thread_t,_lthread))
   #define thread_objects_anz(nsymvalues)  \
-    ((offsetofa(thread_t,_symvalues)-offsetof(thread_t,_lthread))/sizeof(gcv_object_t)+(nsymvalues))
+    ((offsetofa(clisp_thread_t,_symvalues)-offsetof(clisp_thread_t,_lthread))/sizeof(gcv_object_t)+(nsymvalues))
 
 # Size of a single thread's stack region. Must be a power of 2.
   #define THREAD_SP_SHIFT  22  # 4 MB should be sufficient, and leaves room
@@ -14360,21 +14361,21 @@ extern object decimal_string (object x);
   #ifdef SP_DOWN
     #ifndef MORRIS_GC
       #define sp_to_thread(sp)  \
-        (thread_t*)((aint)(sp) & minus_bit(THREAD_SP_SHIFT))
+        (clisp_thread_t*)((aint)(sp) & minus_bit(THREAD_SP_SHIFT))
     #else
       # Morris GC doesn't like the backpointers to have garcol_bit set.
       #define sp_to_thread(sp)  \
-        (thread_t*)((aint)(sp) & (minus_bit(THREAD_SP_SHIFT) & ~wbit(garcol_bit_o)))
+        (clisp_thread_t*)((aint)(sp) & (minus_bit(THREAD_SP_SHIFT) & ~wbit(garcol_bit_o)))
     #endif
   #endif
   #ifdef SP_UP
     #define sp_to_thread(sp)  \
-      (thread_t*)(((aint)(sp) | (bit(THREAD_SP_SHIFT)-1)) - 0x1FFFF)
+      (clisp_thread_t*)(((aint)(sp) | (bit(THREAD_SP_SHIFT)-1)) - 0x1FFFF)
   #endif
 /* Returns a pointer to the current thread structure. */
-  typedef thread_t* current_thread_function_t (void);
+  typedef clisp_thread_t* current_thread_function_t (void);
   local inline const current_thread_function_t current_thread;
-  local inline thread_t* current_thread (void)
+  local inline clisp_thread_t* current_thread (void)
   { return sp_to_thread(roughly_SP()); }
 
 #endif

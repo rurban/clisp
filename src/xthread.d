@@ -167,7 +167,7 @@ typedef pthread_key_t     xthread_key_t;
 #include <thread.h>
 #include <synch.h>
 
-typedef thread_t          xthread_t;
+typedef clisp_thread_t    xthread_t;
 typedef cond_t            xcondition_t;
 typedef mutex_t           xmutex_t;
 typedef thread_key_t      xthread_key_t;
