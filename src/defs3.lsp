@@ -171,7 +171,7 @@ print-object reinitialize-instance remove-method shared-initialize slot-boundp
 slot-exists-p slot-makunbound slot-missing slot-unbound slot-value
 signal make-condition compute-restarts restart-name find-restart invoke-restart
 invoke-restart-interactively abort continue muffle-warning store-value
-use-value invoke-debugger simple-condition-format-string
+use-value invoke-debugger simple-condition-format-control
 simple-condition-format-arguments type-error-datum type-error-expected-type
 package-error-package print-not-readable-object stream-error-stream
 file-error-pathname cell-error-name unbound-slot-instance

@@ -90,6 +90,10 @@ User visible changes
 * New functions READ-INTEGER, WRITE-INTEGER which can be used to do binary I/O
   on streams with element-type (UNSIGNED-BYTE 8).
 
+* Conforming with ANSI CL, SIMPLE-CONDITION now has the initarg
+  :FORMAT-CONTROL instead of :FORMAT-STRING. New function
+  SIMPLE-CONDITION-FORMAT-CONTROL.
+
 * Conforming with ANSI CL, FILE-LENGTH and FILE-POSITION, when called on
   an unbuffered file stream, now return NIL instead of signalling an error.
 
