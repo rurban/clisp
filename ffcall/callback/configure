@@ -1046,6 +1046,37 @@ fi
 echo "$ac_t""$cl_cv_host_mips64" 1>&6
 if test $cl_cv_host_mips64 = yes; then
   host_cpu=mips64
+else
+  echo $ac_n "checking for MIPS with n32 ABI""... $ac_c" 1>&6
+echo "configure:1052: checking for MIPS with n32 ABI" >&5
+if eval "test \"`echo '$''{'cl_cv_host_mipsn32'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  
+cat > conftest.$ac_ext <<EOF
+#line 1058 "configure"
+#include "confdefs.h"
+#if __mips >= 3
+  yes
+#endif
+
+EOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  egrep "yes" >/dev/null 2>&1; then
+  rm -rf conftest*
+  cl_cv_host_mipsn32=yes
+else
+  rm -rf conftest*
+  cl_cv_host_mipsn32=no
+fi
+rm -f conftest*
+
+
+fi
+echo "$ac_t""$cl_cv_host_mipsn32" 1>&6
+if test $cl_cv_host_mipsn32 = yes; then
+  host_cpu=mipsn32
+fi
 fi
 fi
 cat >> confdefs.h <<EOF

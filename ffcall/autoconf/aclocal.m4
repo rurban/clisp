@@ -241,7 +241,7 @@ AC_SUBST(host_vendor)dnl
 AC_SUBST(host_os)dnl
 ])dnl
 dnl
-AC_DEFUN(CL_CANONICAL_HOST_CPU,
+AC_DEFUN(CL_CANONICAL_HOST_CPU_FOR_FFCALL,
 [AC_REQUIRE([CL_CANONICAL_HOST])AC_REQUIRE([AC_PROG_CC])
 if test "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cpu" = i686; then
   host_cpu=i386
@@ -268,6 +268,20 @@ AC_EGREP_CPP(yes,
 ])
 if test $cl_cv_host_mips64 = yes; then
   host_cpu=mips64
+else
+  AC_CACHE_CHECK([for MIPS with n32 ABI], cl_cv_host_mipsn32, [
+dnl Strictly speaking, the MIPS ABI (-32 or -n32) is independent from the CPU
+dnl identification (-mips[12] or -mips[34]). But -n32 is commonly used together
+dnl with -mips3, and it's easier to test the CPU identification.
+AC_EGREP_CPP(yes,
+[#if __mips >= 3
+  yes
+#endif
+], cl_cv_host_mipsn32=yes, cl_cv_host_mipsn32=no)
+])
+if test $cl_cv_host_mipsn32 = yes; then
+  host_cpu=mipsn32
+fi
 fi
 fi
 dnl was AC_DEFINE_UNQUOTED(__${host_cpu}__) but KAI C++ 3.2d doesn't like this
