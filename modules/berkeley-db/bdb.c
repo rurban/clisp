@@ -259,8 +259,6 @@ DEFUN(BDB:ENV-REMOVE, dbe &key :HOME :FORCE :USE_ENVIRON :USE_ENVIRON_ROOT)
  DB_ENV->set_feedback	Set feedback callback
  DB_ENV->set_paniccall	Set panic callback
  DB_ENV->set_rpc_server	Establish an RPC server connection [See ENV-CREATE]
- DB_ENV->set_shm_key	Set system memory shared segment ID
- DB_ENV->set_tas_spins	Set the number of test-and-set spins
 */
 
 static void set_flags (object arg, u_int32_t *flag_on, u_int32_t *flag_off,
@@ -272,7 +270,8 @@ static void set_verbose (DB_ENV *dbe, object arg, u_int32_t flag) {
   if (boundp(arg)) SYSCALL(dbe->set_verbose,(dbe,flag,!nullp(arg)));
 }
 
-DEFUN(BDB:ENV-SET-OPTIONS, dbe &key :TX_TIMESTAMP :TX_MAX :DATA_DIR :TMP_DIR \
+DEFUN(BDB:ENV-SET-OPTIONS, dbe &key                                     \
+      :SHM_KEY :TAS_SPINS :TX_TIMESTAMP :TX_MAX :DATA_DIR :TMP_DIR      \
       :AUTO_COMMIT :CDB_ALLDB :DIRECT_DB :DIRECT_LOG :NOLOCKING         \
       :NOMMAP :NOPANIC :OVERWRITE :PANIC_ENVIRONMENT :REGION_INIT       \
       :TXN_NOSYNC :TXN_WRITE_NOSYNC :YIELDCPU                           \
@@ -322,14 +321,28 @@ DEFUN(BDB:ENV-SET-OPTIONS, dbe &key :TX_TIMESTAMP :TX_MAX :DATA_DIR :TMP_DIR \
                   { SYSCALL(dbe->set_data_dir,(dbe,data_dir)); });
   } else skipSTACK(1);
   /* TX_MAX */
-  if (!missingp(STACK_0))
-    SYSCALL(dbe->set_tx_max,(dbe,posfixnum_to_L(check_posfixnum(STACK_0))));
+  if (!missingp(STACK_0)) {
+    u_int32_t tx_max = posfixnum_to_L(check_posfixnum(STACK_0));
+    SYSCALL(dbe->set_tx_max,(dbe,tx_max));
+  }
   skipSTACK(1);
   /* TX_TIMESTAMP */
   if (!missingp(STACK_0)) {
     time_t timestamp;
     convert_time_from_universal(STACK_0,&timestamp);
     SYSCALL(dbe->set_tx_timestamp,(dbe,&timestamp));
+  }
+  skipSTACK(1);
+  /* TAS_SPINS */
+  if (!missingp(STACK_0)) {
+    u_int32_t tas_spins = posfixnum_to_L(check_posfixnum(STACK_0));
+    SYSCALL(dbe->set_tas_spins,(dbe,tas_spins));
+  }
+  skipSTACK(1);
+  /* SHM_KEY */
+  if (!missingp(STACK_0)) {
+    long shm_key = posfixnum_to_L(check_posfixnum(STACK_0));
+    SYSCALL(dbe->set_shm_key,(dbe,shm_key));
   }
   skipSTACK(1);
   VALUES0; skipSTACK(1);        /* skip dbe */
@@ -440,6 +453,18 @@ static object env_get_flags (DB_ENV *dbe) {
   if (flags & DB_AUTO_COMMIT) { pushSTACK(`:AUTO_COMMIT`); count++; }
   return listof(count);
 }
+/* get test-and-set spin count */
+static object env_get_tas_spins (DB_ENV *dbe) {
+  u_int32_t tas_spins;
+  SYSCALL(dbe->get_tas_spins,(dbe,&tas_spins));
+  return fixnum(tas_spins);
+}
+/* get shm_key */
+static object env_get_shm_key (DB_ENV *dbe) {
+  long shm_key;
+  SYSCALL(dbe->get_shm_key,(dbe,&shm_key));
+  return fixnum(shm_key);
+}
 DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
   object what = popSTACK();
   /* dbe may be NULL only for DB_XIDDATASIZE */
@@ -452,9 +477,11 @@ DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
     pushSTACK(env_get_tx_max(dbe));       /* TX_MAX */
     pushSTACK(env_get_tmp_dir(dbe));      /* TMP_DIR */
     value1 = env_get_data_dirs(dbe); pushSTACK(value1); /* DATA_DIR */
+    pushSTACK(env_get_tas_spins(dbe));
+    pushSTACK(env_get_shm_key(dbe));
     pushSTACK(env_get_home_dir(dbe));
     value1 = env_get_open_flags(dbe); pushSTACK(value1);
-    funcall(L(values),8);
+    funcall(L(values),10);
   } else if (eq(what,S(Kverbose))) {
     VALUES1(env_get_verbose(dbe));
   } else if (eq(what,`:FLAGS`)) {
@@ -535,6 +562,10 @@ DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
     VALUES1(env_get_data_dirs(dbe));
   } else if (eq(what,`:TMP_DIR`)) {
     VALUES1(env_get_tmp_dir(dbe));
+  } else if (eq(what,`:TAS_SPINS`)) {
+    VALUES1(env_get_tas_spins(dbe));
+  } else if (eq(what,`:SHM_KEY`)) {
+    VALUES1(env_get_shm_key(dbe));
   } else if (eq(what,`:DB_XIDDATASIZE`)) {
     VALUES1(fixnum(DB_XIDDATASIZE));
   } else if (eq(what,`:HOME`)) {
