@@ -13827,32 +13827,14 @@ LISPFUNN(make_printer_stream,0)
 
   #define UnbufferedPipeStream_input_init(stream)  UnbufferedHandleStream_input_init(stream)
 
-LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
-        (kw(element_type),kw(external_format),kw(buffered)) )
-# (MAKE-PIPE-INPUT-STREAM command [:element-type] [:external-format] [:buffered])
-# ruft eine Shell auf, die command ausführt, wobei deren Standard-Output
-# in unsere Pipe hinein geht.
-  { var object command;
-    var decoded_eltype eltype;
-    var signean buffered;
-    # command überprüfen:
-    pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
-    STACK_3 = value1;
-    # Check and canonicalize the :BUFFERED argument:
-    buffered = test_buffered_arg(STACK_0); # default is NIL
-    # Check and canonicalize the :ELEMENT-TYPE argument:
-    test_eltype_arg(&STACK_2,&eltype);
-    STACK_2 = canon_eltype(&eltype);
-    if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
-    # Check and canonicalize the :EXTERNAL-FORMAT argument:
-    STACK_1 = test_external_format_arg(STACK_1);
-    # Now create the pipe.
-    command = string_to_asciz(STACK_3,O(misc_encoding)); # command als ASCIZ-String
-   {var int child;
+local inline void create_input_pipe (const char* command);
+local inline void create_input_pipe(command)
+  var const char* command;
+  { var int child;
     #ifdef EMUNIX
     var int handles[2];
     { begin_system_call();
-     {var FILE* f = popen(TheAsciz(command),"r");
+     {var FILE* f = popen(command,"r");
       if (f==NULL) { OS_error(); }
       child = f->_pid;
       handles[0] = fileno(f);
@@ -13863,9 +13845,9 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
     var int handles[2]; # zwei Handles für die Pipe
     { # Als Shell nehmen wir immer die Kommando-Shell.
       # command in den Stack kopieren:
-      var uintL command_length = Sbvector_length(command)/8;
+      var uintL command_length = asciz_length(command)+1;
       var DYNAMIC_ARRAY(command_data,char,command_length);
-      { var const char* ptr1 = TheAsciz(command);
+      { var const char* ptr1 = command;
         var char* ptr2 = &command_data[0];
         dotimespL(command_length,command_length, { *ptr2++ = *ptr1++; } );
       }
@@ -13937,7 +13919,7 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
       var PROCESS_INFORMATION pinfo;
       stdinput = GetStdHandle(STD_INPUT_HANDLE);
       if (stdinput == INVALID_HANDLE_VALUE) { OS_error(); }
-      if (!MyCreateProcess(TheAsciz(command),stdinput,child_write_handle,&pinfo))
+      if (!MyCreateProcess(command,stdinput,child_write_handle,&pinfo))
         { OS_error(); }
       # Close our copy of the child's handle, so that the OS knows
       # that we won't write on it.
@@ -13952,6 +13934,30 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
     pushSTACK(STACK_(1+1));
     pushSTACK(STACK_(2+2));
     pushSTACK(allocate_handle(handles[0]));
+  }
+
+LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
+        (kw(element_type),kw(external_format),kw(buffered)) )
+# (MAKE-PIPE-INPUT-STREAM command [:element-type] [:external-format] [:buffered])
+# ruft eine Shell auf, die command ausführt, wobei deren Standard-Output
+# in unsere Pipe hinein geht.
+  { var decoded_eltype eltype;
+    var signean buffered;
+    # command überprüfen:
+    pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
+    STACK_3 = value1;
+    # Check and canonicalize the :BUFFERED argument:
+    buffered = test_buffered_arg(STACK_0); # default is NIL
+    # Check and canonicalize the :ELEMENT-TYPE argument:
+    test_eltype_arg(&STACK_2,&eltype);
+    STACK_2 = canon_eltype(&eltype);
+    if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
+    # Check and canonicalize the :EXTERNAL-FORMAT argument:
+    STACK_1 = test_external_format_arg(STACK_1);
+    # Now create the pipe.
+    with_string_0(STACK_3,O(misc_encoding),command_asciz,
+      { create_input_pipe(command_asciz); }
+      );
     # Stream allozieren:
     { var object stream;
       if (!eq(STACK_(0+4),T)) # (buffered <= 0) ?
@@ -13966,7 +13972,7 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
       skipSTACK(4);
       value1 = stream; mv_count=1; # stream als Wert
-  }}}
+  } }
 
 
 # Pipe-Output-Stream
@@ -14049,32 +14055,14 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
       UnbufferedStreamLow_clear_output(stream) = &low_clear_output_unbuffered_pipe;   \
     }
 
-LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
-        (kw(element_type),kw(external_format),kw(buffered)) )
-# (MAKE-PIPE-OUTPUT-STREAM command [:element-type] [:external-format] [:buffered])
-# ruft eine Shell auf, die command ausführt, wobei unsere Pipe in deren
-# Standard-Input hinein geht.
-  { var object command;
-    var decoded_eltype eltype;
-    var signean buffered;
-    # command überprüfen:
-    pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
-    STACK_3 = value1;
-    # Check and canonicalize the :BUFFERED argument:
-    buffered = test_buffered_arg(STACK_0); # default is NIL
-    # Check and canonicalize the :ELEMENT-TYPE argument:
-    test_eltype_arg(&STACK_2,&eltype);
-    STACK_2 = canon_eltype(&eltype);
-    if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
-    # Check and canonicalize the :EXTERNAL-FORMAT argument:
-    STACK_1 = test_external_format_arg(STACK_1);
-    # Now create the pipe.
-    command = string_to_asciz(STACK_3,O(misc_encoding)); # command als ASCIZ-String
-   {var int child;
+local inline void create_output_pipe (const char* command);
+local inline void create_output_pipe(command)
+  var const char* command;
+  { var int child;
     #ifdef EMUNIX
     var int handles[2];
     { begin_system_call();
-     {var FILE* f = popen(TheAsciz(command),"w");
+     {var FILE* f = popen(command,"w");
       if (f==NULL) { OS_error(); }
       child = f->_pid;
       handles[1] = fileno(f);
@@ -14085,9 +14073,9 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
     var int handles[2]; # zwei Handles für die Pipe
     { # Als Shell nehmen wir immer die Kommando-Shell.
       # command in den Stack kopieren:
-      var uintL command_length = Sbvector_length(command)/8;
+      var uintL command_length = asciz_length(command)+1;
       var DYNAMIC_ARRAY(command_data,char,command_length);
-      { var const char* ptr1 = TheAsciz(command);
+      { var const char* ptr1 = command;
         var char* ptr2 = &command_data[0];
         dotimespL(command_length,command_length, { *ptr2++ = *ptr1++; } );
       }
@@ -14158,7 +14146,7 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
       var PROCESS_INFORMATION pinfo;
       stdoutput = GetStdHandle(STD_OUTPUT_HANDLE);
       if (stdoutput == INVALID_HANDLE_VALUE) { OS_error(); }
-      if (!MyCreateProcess(TheAsciz(command),child_read_handle,stdoutput,&pinfo))
+      if (!MyCreateProcess(command,child_read_handle,stdoutput,&pinfo))
         { OS_error(); }
       # Close our copy of the child's handle, so that the OS knows
       # that we won't read from it.
@@ -14173,6 +14161,30 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
     pushSTACK(STACK_(1+1));
     pushSTACK(STACK_(2+2));
     pushSTACK(allocate_handle(handles[1]));
+  }
+
+LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
+        (kw(element_type),kw(external_format),kw(buffered)) )
+# (MAKE-PIPE-OUTPUT-STREAM command [:element-type] [:external-format] [:buffered])
+# ruft eine Shell auf, die command ausführt, wobei unsere Pipe in deren
+# Standard-Input hinein geht.
+  { var decoded_eltype eltype;
+    var signean buffered;
+    # command überprüfen:
+    pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
+    STACK_3 = value1;
+    # Check and canonicalize the :BUFFERED argument:
+    buffered = test_buffered_arg(STACK_0); # default is NIL
+    # Check and canonicalize the :ELEMENT-TYPE argument:
+    test_eltype_arg(&STACK_2,&eltype);
+    STACK_2 = canon_eltype(&eltype);
+    if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
+    # Check and canonicalize the :EXTERNAL-FORMAT argument:
+    STACK_1 = test_external_format_arg(STACK_1);
+    # Now create the pipe.
+    with_string_0(STACK_3,O(misc_encoding),command_asciz,
+      { create_output_pipe(command_asciz); }
+      );
     # Stream allozieren:
     { var object stream;
       if (!eq(STACK_(0+4),T)) # (buffered <= 0) ?
@@ -14187,36 +14199,17 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
       skipSTACK(4);
       value1 = stream; mv_count=1; # stream als Wert
-  }}}
+  } }
 
 #ifdef PIPES2
 
 # Bidirektionale Pipes
 # ====================
 
-LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
-        (kw(element_type),kw(external_format),kw(buffered)) )
-# (MAKE-PIPE-IO-STREAM command [:element-type] [:external-format] [:buffered])
-# ruft eine Shell auf, die command ausführt, wobei der Output unserer Pipe
-# in deren Standard-Input hinein und deren Standard-Output wiederum in
-# unsere Pipe hinein geht.
-  { var object command;
-    var decoded_eltype eltype;
-    var signean buffered;
-    # command überprüfen:
-    pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
-    STACK_3 = value1;
-    # Check and canonicalize the :BUFFERED argument:
-    buffered = test_buffered_arg(STACK_0); # default is NIL
-    # Check and canonicalize the :ELEMENT-TYPE argument:
-    test_eltype_arg(&STACK_2,&eltype);
-    STACK_2 = canon_eltype(&eltype);
-    if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
-    # Check and canonicalize the :EXTERNAL-FORMAT argument:
-    STACK_1 = test_external_format_arg(STACK_1);
-    # Now create the pipe.
-    command = string_to_asciz(STACK_3,O(misc_encoding)); # command als ASCIZ-String
-   {var int child;
+local inline void create_io_pipe (const char* command);
+local inline void create_io_pipe(command)
+  var const char* command;
+  { var int child;
     #ifdef EMUNIX
     var int in_handles[2];
     var int out_handles[2];
@@ -14224,7 +14217,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       var FILE* f_in;
       var FILE* f_out;
       begin_system_call();
-      if (popenrw(TheAsciz(command),&f_in,&f_out) <0) { OS_error(); }
+      if (popenrw(command,&f_in,&f_out) <0) { OS_error(); }
       child = f_in->_pid; # = f_out->_pid;
       in_handles[0] = fileno(f_in);
       out_handles[1] = fileno(f_out);
@@ -14235,9 +14228,9 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
     var int out_handles[2]; # zwei Handles für die Pipe zum Output-Stream
     { # Als Shell nehmen wir immer die Kommando-Shell.
       # command in den Stack kopieren:
-      var uintL command_length = Sbvector_length(command)/8;
+      var uintL command_length = asciz_length(command)+1;
       var DYNAMIC_ARRAY(command_data,char,command_length);
-      { var const char* ptr1 = TheAsciz(command);
+      { var const char* ptr1 = command;
         var char* ptr2 = &command_data[0];
         dotimespL(command_length,command_length, { *ptr2++ = *ptr1++; } );
       }
@@ -14341,7 +14334,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
         { OS_error(); }
       if (!CloseHandle(out_handles[0])) { OS_error(); }
      {var PROCESS_INFORMATION pinfo;
-      if (!MyCreateProcess(TheAsciz(command),child_read_handle,child_write_handle,&pinfo))
+      if (!MyCreateProcess(command,child_read_handle,child_write_handle,&pinfo))
         { OS_error(); }
       # Close our copies of the child's handles, so that the OS knows
       # that we won't use them.
@@ -14356,6 +14349,31 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
     pushSTACK(UL_to_I(child));
     pushSTACK(allocate_handle(in_handles[0]));
     pushSTACK(allocate_handle(out_handles[1]));
+  }
+
+LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
+        (kw(element_type),kw(external_format),kw(buffered)) )
+# (MAKE-PIPE-IO-STREAM command [:element-type] [:external-format] [:buffered])
+# ruft eine Shell auf, die command ausführt, wobei der Output unserer Pipe
+# in deren Standard-Input hinein und deren Standard-Output wiederum in
+# unsere Pipe hinein geht.
+  { var decoded_eltype eltype;
+    var signean buffered;
+    # command überprüfen:
+    pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
+    STACK_3 = value1;
+    # Check and canonicalize the :BUFFERED argument:
+    buffered = test_buffered_arg(STACK_0); # default is NIL
+    # Check and canonicalize the :ELEMENT-TYPE argument:
+    test_eltype_arg(&STACK_2,&eltype);
+    STACK_2 = canon_eltype(&eltype);
+    if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
+    # Check and canonicalize the :EXTERNAL-FORMAT argument:
+    STACK_1 = test_external_format_arg(STACK_1);
+    # Now create the pipe.
+    with_string_0(STACK_3,O(misc_encoding),command_asciz,
+      { create_io_pipe(command_asciz); }
+      );
     # Input-Stream allozieren:
     { pushSTACK(STACK_(1+3)); # encoding
       pushSTACK(STACK_(2+3+1)); # eltype
@@ -14400,7 +14418,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
     STACK_2 = make_twoway_stream(STACK_1,STACK_0);
     funcall(L(values),3);
     skipSTACK(4);
-  }}
+  }
 
 #endif # PIPES2
 
