@@ -3041,8 +3041,8 @@ is not a defined logical host yet, we proceed as follows:
 
 <section id="absolute-pathname"><title>Function &absolute-pathname;</title>
 <para><literal role="sexp">(&absolute-pathname; &path-r;)</literal>
- converts the &path-r; to a physical pathname, verifies that is has no
- wildcards, and then - if its directory component is not absolute -
+ converts the &path-r; to a physical pathname, then - if its directory
+ component is not absolute -
  converts it to an absolute pathname, by merging in the current process'
  directory. This is like &truename;, except that it does not verify that
  a file named by the &path-r; exists, not even that its directory
