@@ -2106,7 +2106,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   <listitem><simpara>Compute the number of solutions to the n-queens
     problem on a n*n checkboard (a toy example for the users to
     explore).</simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="dirkey">dirkey</link></term>
+ <varlistentry><term><link linkend="dir-key">dirkey</link></term>
   <listitem><simpara>Directory Access</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="regexp">regexp</link></term>
   <listitem><simpara>The <ulink url="regexp.html">POSIX Regular
