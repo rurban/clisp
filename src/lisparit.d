@@ -1004,10 +1004,14 @@ LISPFUN(log,1,1,norest,nokey,0,NIL)
     var object arg = STACK_1;
     check_number(arg);
     if (!boundp(base)) {
-      # LOG mit einem Argument
-      VALUES1(N_log_N(arg,true,&STACK_1));
+      /* LOG with one argument */
+      if (complexp(arg))
+        STACK_0 = R_R_contagion_R(TheComplex(arg)->c_real,
+                                  TheComplex(arg)->c_imag);
+      else STACK_0 = STACK_1;
+      VALUES1(N_log_N(arg,true,&STACK_0));
     } else {
-      # LOG mit zwei Argumenten
+      /* LOG with two arguments */
       check_number(base);
       VALUES1(N_N_log_N(arg,base));
     }
