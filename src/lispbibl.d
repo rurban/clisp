@@ -11526,11 +11526,11 @@ typedef struct stringarg {
   uintL len;     # :end - :start
 } stringarg;
 extern object test_string_limits_ro (stringarg* arg);
-# is used by STREAM, PATHNAME, IO
+/* is used by STREAM, PATHNAME, IO, ENCODING */
 
 /* UP: checks a string/symbol/character-argument
  > obj: argument
- < ergebnis: argument as string
+ < result: argument as string
  can trigger GC */
 extern object test_stringsymchar_arg (object obj);
 /* used by PACKAGE */
