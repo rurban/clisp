@@ -1,3 +1,8 @@
+2004-12-06  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (progv): do not modify the source code:
+	when symlist contains bad symbols, copy it
+
 2004-12-06  Arseny Slobodyuk  <ampy@ich.dvo.ru>
 
 	IPropertyStorage interface on WIN32_NATIVE.

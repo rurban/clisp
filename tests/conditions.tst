@@ -466,11 +466,11 @@ good
   (foo () 'good))
 good
 
+(defun princ-error (c) (format t "[~A]: ~A~%" (type-of c) c)) princ-error
+
 ;; restarts
 (defmacro check-use-value (fun good bad &key (type 'type-error) (test 'eql))
-  `(handler-bind ((,type (lambda (c)
-                           (princ c) (terpri)
-                           (use-value ',good))))
+  `(handler-bind ((,type (lambda (c) (princ-error c) (use-value ',good))))
      (,test (,fun ',good) (,fun ',bad))))
 check-use-value
 
@@ -498,33 +498,33 @@ check-use-value
 (check-use-value array-has-fill-pointer-p #2A((a b) (c d)) 1) t
 
 (let ((bs (make-broadcast-stream)))
-  (handler-bind ((type-error (lambda (c) (princ c) (terpri) (use-value bs))))
+  (handler-bind ((type-error (lambda (c) (princ-error c) (use-value bs))))
     (broadcast-stream-streams 10)))
 NIL
 
-(handler-bind ((error (lambda (c) (princ c) (terpri) (use-value #\#))))
+(handler-bind ((error (lambda (c) (princ-error c) (use-value #\#))))
   (eq (get-dispatch-macro-character #\a #\()
       (get-dispatch-macro-character #\# #\()))
 T
 
 (with-output-to-string (o)
-  (handler-bind ((type-error (lambda (c) (princ c) (terpri) (use-value o))))
+  (handler-bind ((type-error (lambda (c) (princ-error c) (use-value o))))
     (princ "no error!" 123)))
 "no error!"
 
-(handler-bind ((type-error (lambda (c) (princ c) (terpri) (use-value 16))))
+(handler-bind ((type-error (lambda (c) (princ-error c) (use-value 16))))
   (parse-integer "ABC" :radix 'lambda))
 2748
 
 (with-input-from-string (s "bazonk")
-  (handler-bind ((type-error (lambda (c) (princ c) (terpri) (use-value s))))
+  (handler-bind ((type-error (lambda (c) (princ-error c) (use-value s))))
     (list (read-char 123) (read-char 1) (read-char 'read-char))))
 (#\b #\a #\z)
 
 (handler-bind
     ((type-error
       (lambda (c)
-        (princ c) (terpri)
+        (princ-error c)
         (use-value
          (case (type-error-datum c)
            (1 *readtable*)
@@ -536,7 +536,7 @@ T
 (handler-bind
     ((type-error
       (lambda (c)
-        (princ c) (terpri)
+        (princ-error c)
         (use-value
          (case (type-error-datum c)
            (1 #\#)
@@ -545,17 +545,14 @@ T
   (nth-value 1 (get-macro-character 1 2)))
 T
 
-(handler-bind ((type-error
-                (lambda (c)
-                  (princ c) (terpri)
-                  (use-value 7))))
+(handler-bind ((type-error (lambda (c) (princ-error c) (use-value 7))))
   (list (digit-char-p #\3 300)
         (digit-char-p #\8 'digit-char-p)))
 (3 NIL)
 
 (handler-bind ((type-error
                 (lambda (c)
-                  (princ c) (terpri)
+                  (princ-error c)
                   (use-value (char (type-error-datum c) 0)))))
   (list (char= "abc" "a")
         (char-equal "ABC" "a")))
@@ -563,13 +560,13 @@ T
 
 (handler-bind ((type-error
                 (lambda (c)
-                  (princ c) (terpri)
+                  (princ-error c)
                   (use-value (string (type-error-datum c))))))
   (ext:string-concat "foo-" 'bar "-baz"))
 "foo-BAR-baz"
 
 (handler-bind ((undefined-function
-                (lambda (c) (princ c) (terpri)
+                (lambda (c) (princ-error c)
                         (store-value
                          (lambda (new-car pair)
                            (setf (car pair) new-car))))))
@@ -580,22 +577,21 @@ T
 (fmakunbound '(setf zz)) (setf zz)
 
 (handler-bind ((undefined-function
-                (lambda (c) (princ c) (terpri) (store-value #'car))))
+                (lambda (c) (princ-error c) (store-value #'car))))
   (zz '(1 . 2)))
 1
 (fmakunbound 'zz) zz
 
 (defun use-value-read (c)
-  (princ (type-of c)) (terpri)
-  (princ c) (terpri)
+  (princ-error c)
   (use-value (read-from-string
               (etypecase c
-                (source-program-error (source-program-error-form c))
+                (sys::source-program-error (sys::source-program-error-form c))
                 (type-error (type-error-datum c))
                 (cell-error (cell-error-name c))))))
 use-value-read
 
-(handler-bind ((error (lambda (c) (princ c) (terpri) (use-value '+))))
+(handler-bind ((error (lambda (c) (princ-error c) (use-value '+))))
   (eval '(function "+")))
 #.#'+
 
@@ -608,22 +604,28 @@ use-value-read
   (progv '("foo") '(123) foo))
 123
 
-(handler-bind ((program-error (lambda (c) (princ c) (terpri) (use-value 'zz))))
+(handler-bind ((program-error (lambda (c) (princ-error c) (use-value 'zz))))
   (progv '(:const-var) '(123) zz))
 123
+
+(let ((form '(progv '("foo" :const) '(123 321) (+ foo zz))))
+  (handler-bind ((type-error #'use-value-read)
+                 (program-error (lambda (c) (princ-error c) (use-value 'zz))))
+    (list (eval form) form)))
+(444 (progv '("foo" :const) '(123 321) (+ foo zz)))
 
 (handler-bind ((type-error #'use-value-read))
   (multiple-value-setq (a "foo") (values 123 321))
   (list foo a))
 (321 123)
 
-(handler-bind ((program-error (lambda (c) (princ c) (terpri) (use-value 'zz))))
+(handler-bind ((program-error (lambda (c) (princ-error c) (use-value 'zz))))
   (setq :const-var 125)
   zz)
 125
 
 (handler-bind ((program-error
-                (lambda (c) (princ c) (terpri) (use-value '(zz 48)))))
+                (lambda (c) (princ-error c) (use-value '(zz 48)))))
   (let (("foo" 32)) zz))
 48
 
@@ -635,8 +637,7 @@ use-value-read
 ;;   that's what normal EVAL in the interpreter would do) or should be
 ;;   evaluated to lookup (symbol-value 'zz) - since that's what the compiler
 ;;   would make from the code.
-(handler-bind ((program-error
-                (lambda (c) (princ c) (terpri) (use-value 'zz))))
+(handler-bind ((program-error (lambda (c) (princ-error c) (use-value 'zz))))
   (let ((:const-var 64)) zz))
 64
 
@@ -695,8 +696,8 @@ use-value-read
 (flet ((mht (tr) (make-hash-table :rehash-threshold tr)))
   (check-use-value mht 5d-1 bazonk :test equalp)) t
 
-(handler-bind ((program-error (lambda (c) (princ c) (terpri) (use-value '1+)))
-               (type-error (lambda (c) (princ c) (terpri) (use-value '1-))))
+(handler-bind ((program-error (lambda (c) (princ-error c) (use-value '1+)))
+               (type-error (lambda (c) (princ-error c) (use-value '1-))))
   (list (eval '(1 10)) (funcall 1 100) (apply 1 '(1000))))
 (11 99 999)
 
@@ -759,33 +760,33 @@ nil
   (export (list s13 s23) p3)
   (export (list s14 s24) p4)
   (handler-bind ((package-error
-                  (lambda (c) (princ c) (terpri) (invoke-restart :pack-3))))
+                  (lambda (c) (princ-error c) (invoke-restart :pack-3))))
     (use-package (list p2 p3 p4) p1))
   (assert (null (set-exclusive-or (list p2 p3 p4) (package-use-list p1))))
   (assert (eq (find-symbol "SYM-1" p1) s13))
   (assert (eq (find-symbol "SYM-2" p1) s23))
   (handler-bind ((package-error
-                  (lambda (c) (princ c) (terpri) (invoke-restart 'import))))
+                  (lambda (c) (princ-error c) (invoke-restart 'import))))
     (export s15 p1))
   (assert (eq (find-symbol "SYM-1" p1) s15))
   (handler-bind ((package-error
-                  (lambda (c) (princ c) (terpri) (invoke-restart :pack-2))))
+                  (lambda (c) (princ-error c) (invoke-restart :pack-2))))
     (export foo2 p2))
   (assert (eq (find-symbol "FOO" p1) foo2))
   (assert (null (set-exclusive-or (list bar1 bar2 bar3 bar4)
                                   (find-all-symbols bar-name))))
   (handler-bind ((package-error
-                  (lambda (c) (princ c) (terpri) (invoke-restart :pack-1))))
+                  (lambda (c) (princ-error c) (invoke-restart :pack-1))))
     (export bar2 p2))
   (assert (eq (find-symbol bar-name p1) bar1))
   (export bar3 p3)
   (export bar4 p4)
   (handler-bind ((package-error
-                  (lambda (c) (princ c) (terpri) (invoke-restart :pack-4))))
+                  (lambda (c) (princ-error c) (invoke-restart :pack-4))))
     (unintern bar1 p1))
   (assert (eq (find-symbol bar-name p1) bar4))
   (delete-package p5)
-  (handler-bind ((package-error (lambda (c) (princ c) (terpri) (continue c))))
+  (handler-bind ((package-error (lambda (c) (princ-error c) (continue c))))
     (delete-package p2) (delete-package p3) (delete-package p4))
   (delete-package p1))
 T
@@ -793,22 +794,18 @@ T
 (let ((p1 (make-package "PACK" :use nil)) p2 p3 p4
       (bar-name (symbol-name (gensym "BAR-"))))
   (handler-bind ((package-error
-                  (lambda (c) (princ c) (terpri) (invoke-restart 'continue))))
+                  (lambda (c) (princ-error c) (invoke-restart 'continue))))
     (assert (eq p1 (make-package "PACK"))))
   (handler-bind ((package-error
-                  (lambda (c)
-                    (princ c) (terpri)
-                    (invoke-restart 'read "KCAP"))))
+                  (lambda (c) (princ-error c) (invoke-restart 'read "KCAP"))))
     (setq p2 (make-package "PACK")))
   (assert (string= "KCAP" (package-name p2)))
   (handler-bind ((package-error
-                  (lambda (c) (princ c) (terpri) (invoke-restart 'continue))))
+                  (lambda (c) (princ-error c) (invoke-restart 'continue))))
     (setq p3 (make-package "FOO" :nicknames (list "CL" bar-name "KCAP"))))
   (assert (equal (list bar-name) (package-nicknames p3)))
   (handler-bind ((package-error
-                  (lambda (c)
-                    (princ c) (terpri)
-                    (invoke-restart 'read "ZOT"))))
+                  (lambda (c) (princ-error c) (invoke-restart 'read "ZOT"))))
     (setq p4 (make-package "QUUX" :nicknames (list "CL" bar-name "KCAP"))))
   (assert (equal (list "ZOT") (package-nicknames p4)))
   (delete-package p1) (delete-package p2)
