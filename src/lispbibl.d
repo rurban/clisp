@@ -7255,6 +7255,11 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # > line: Zeilennummer
   nonreturning_function(extern, fehler_notreached, (const char * file, uintL line));
 # wird von allen Modulen verwendet
+nonreturning_function(extern, fehler_not_R, (object obj));
+
+# Signal an error on non-real argument
+# defined and used in lisparit.d
+# also used in io.d (pprint_indent)
 
 # Sprache, in der mit dem Benutzer kommuniziert wird:
 #ifdef LANGUAGE_STATIC

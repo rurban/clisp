@@ -10,9 +10,18 @@ User visible changes
 * ANSI CL functions MAKE-LOAD-FORM and MAKE-LOAD-FORM-SAVING-SLOTS
   are implemented.
 
-* ANSI CL variable *PRINT-LINES* is implemented.
+* ANSI CL pretty printer (chapter 22.2) is implemented.
+  In particular,
+    variables     *PRINT-LINES*, *PRINT-MISER-WIDTH*, *PRINT-PPRINT-DISPATCH*,
+    macro         PPRINT-LOGICAL-BLOCK,
+    local macros  PPRINT-EXIT-IF-LIST-EXHAUSTED, PPRINT-POP
+    and functions PPRINT-DISPATCH, COPY-PPRINT-DISPATCH, SET-PPRINT-DISPATCH,
+                  PPRINT-FILL, PPRINT-LINEAR, PPRINT-TABULAR, PPRINT-TAB,
+                  PPRINT-NEWLINE, PPRINT-INDENT
+  are implemented.  See the impnotes for details.
 
-* The functions WRITE and WRITE-TO-STRING take the :LINES keyword argument.
+* The functions WRITE and WRITE-TO-STRING now accept :LINES, :MISER-WIDTH
+  and :PRINT-PPRINT-DISPATCH keyword arguments.
   This change requires recompilation of all .fas files.
 
 * Support Cygwin's "/cygdrive/drive/path" pathname symtax on Win32.
@@ -41,6 +50,9 @@ User visible changes
 
 * Optimize away local functions that are not used
   (much less consing in CLOS).
+
+* When build with readline, CLISP allows multi-line form editing.
+  Use M-p and M-n to move between virtual lines.
 
 * Fixed handling of circular structs and pointers to functions in the FFI.
 

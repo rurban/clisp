@@ -363,18 +363,15 @@
 # Fehlermeldung, wenn keine reelle Zahl kommt.
 # > obj: Objekt, keine reelle Zahl
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_not_R, (object obj));
-  local void fehler_not_R(obj)
-    var object obj;
-    {
-      pushSTACK(obj); # TYPE-ERROR slot DATUM
-      pushSTACK(S(real)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("argument to ~ should be a real number: ~")
-            );
-    }
+nonreturning_function(extern, fehler_not_R, (object obj));
+global void fehler_not_R(object obj) {
+  pushSTACK(obj);     # TYPE-ERROR slot DATUM
+  pushSTACK(S(real)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,
+         GETTEXT("argument to ~ should be a real number: ~"));
+}
 
 # Fehlermeldung, wenn keine Floating-Point-Zahl kommt.
 # > obj: Objekt, keine Floating-Point-Zahl

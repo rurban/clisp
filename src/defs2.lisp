@@ -358,8 +358,8 @@
            (*PRINT-LENGTH*              NIL)
            (*PRINT-LEVEL*               NIL)
            (*PRINT-LINES*               NIL)
-          ;(*PRINT-MISER-WIDTH*         NIL) ; XP variable not present in CLISP
-          ;(*PRINT-PPRINT-DISPATCH*     NIL) ; XP variable not present in CLISP
+           (*PRINT-MISER-WIDTH*         NIL)
+           (*PRINT-PPRINT-DISPATCH*     NIL)
            (*PRINT-PRETTY*              NIL)
            (*PRINT-RADIX*               NIL)
            (*PRINT-READABLY*            T)
@@ -385,24 +385,19 @@
 (defmacro with-hash-table-iterator ((macroname hashtable) &body body)
   (unless (symbolp macroname)
     (error (ENGLISH "~S: macro name should be a symbol, not ~S")
-           'with-hash-table-iterator macroname
-  ) )
+           'with-hash-table-iterator macroname))
   (let ((var (gensym)))
     `(LET ((,var (SYS::HASH-TABLE-ITERATOR ,hashtable)))
        (MACROLET ((,macroname () '(SYS::HASH-TABLE-ITERATE ,var) ))
-         ,@body
-     ) )
-) )
+         ,@body))))
 
 ;; ----------------------------------------------------------------------------
 
 ;; ANSI-CL
 
-(defmacro lambda (&whole whole
-                  lambdalist &body body)
+(defmacro lambda (&whole whole lambdalist &body body)
   (declare (ignore lambdalist body))
-  `(FUNCTION ,whole)
-)
+  `(FUNCTION ,whole))
 
 ;; ----------------------------------------------------------------------------
 

@@ -206,6 +206,8 @@
                            (#\G . FORMAT-GENERAL-FLOAT)
                            (#\$ . FORMAT-DOLLARS-FLOAT)
                            (#\% . FORMAT-TERPRI)
+                           (#\_ . FORMAT-PPRINT-NEWLINE)
+                           (#\I . FORMAT-PPRINT-INDENT)
                            (#\& . FORMAT-FRESH-LINE)      (#\Newline . #\Newline)
                            (#\| . FORMAT-PAGE)
                            (#\~ . FORMAT-TILDE)
@@ -355,7 +357,7 @@
   (apply #'error-of-type 'error errorstring arguments)
 )
 
-;-------------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 
 (defun format (destination control-string &rest arguments)
   (unless (or (stringp control-string) (functionp control-string))
@@ -1468,6 +1470,18 @@
   (dotimes (i count) (terpri stream))
 )
 
+(defun format-pprint-newline (stream colon-modifier atsign-modifier)
+  (pprint-newline (if colon-modifier
+                      (if atsign-modifier :mandatory :fill)
+                      (if atsign-modifier :miser :linear))
+                  stream))
+
+(defun format-pprint-indent (stream colon-modifier atsign-modifier
+                             &optional (count t))
+  (declare (ignore atsign-modifier))
+  (if (null count) (setq count 1))
+  (pprint-indent (if colon-modifier :current :block) count stream))
+
 ; ~&, CLTL S.397, CLtL2 S. 596
 (defun format-fresh-line (stream colon-modifier atsign-modifier
                           &optional (count 1))
@@ -1492,29 +1506,34 @@
   (dotimes (i count) (write-char #\~ stream))
 )
 
+(defun current-indent ()
+  (if (boundp 'sys::*prin-level*)
+      (* sys::*prin-level* sys::*print-indent-lists*)
+      (progn (warn "~s: ~s unbound" 'current-indent 'sys::*prin-level*)
+             0)))
+
 ; ~T, CLTL S.398-399, CLtL2 S. 597-598
 (defun format-tabulate (stream colon-modifier atsign-modifier
                         &optional (colnum 1) (colinc 1))
-  (declare (ignore colon-modifier))
   (if (null colnum) (setq colnum 1))
   (if (null colinc) (setq colinc 1))
-  (let* ((new-colnum (max colnum 0))
+  (let* ((new-colnum (+ (max colnum 0)
+                        (if colon-modifier (current-indent) 0)))
          (new-colinc (max colinc 1)) ; >0
-         (pos (sys::line-position stream))) ; aktuelle Position, Fixnum >=0 oder NIL
+         (pos (sys::line-position stream))) ; actual position, fixnum>=0 or NIL
     (if atsign-modifier
       (format-padding
-        (if pos (+ new-colnum (mod (- (+ pos new-colnum)) new-colinc)) new-colnum)
-        #\Space stream
-      )
+        (if pos
+            (+ new-colnum (mod (- (+ pos new-colnum)) new-colinc))
+            new-colnum)
+        #\Space stream)
       (if pos
         (if (< pos new-colnum)
           (format-padding (- new-colnum pos) #\Space stream)
           (unless (zerop colinc)
             (format-padding (+ colinc (mod (- new-colnum pos) (- colinc)))
-                            #\Space stream
-        ) ) )
-        (format-padding 2 #\Space stream)
-) ) ) )
+                            #\Space stream)))
+        (format-padding 2 #\Space stream)))))
 
 ; ~*, CLTL S.399, CLtL2 S. 598
 (defun format-goto (stream colon-modifier atsign-modifier &optional (index nil))
@@ -2718,9 +2737,8 @@
   (unless (stringp control-string)
     (error-of-type 'type-error
       :datum control-string :expected-type 'string
-      (ENGLISH "The control-string must be a string, not ~S")
-      control-string
-  ) )
+      (ENGLISH "~S: The control-string must be a string, not ~S")
+      'formatter control-string))
   ; evtl. noch control-string zu einem Simple-String machen ??
   (or
     (catch 'formatter-hairy
@@ -2748,5 +2766,4 @@
     `(FORMATTER-HAIRY ,(coerce control-string 'simple-string))
 ) )
 
-;-------------------------------------------------------------------------------
-
+;;; ---------------------------------------------------------------------------

@@ -360,6 +360,10 @@ LISPSYM(write,"WRITE",lisp)
 LISPSYM(prin1,"PRIN1",lisp)
 LISPSYM(print,"PRINT",lisp)
 LISPSYM(pprint,"PPRINT",lisp)
+LISPSYM(pprint_dispatch,"PPRINT-DISPATCH",lisp) # used in io.d
+LISPSYM(pprint_indent,"PPRINT-INDENT",lisp)
+LISPSYM(pprint_newline,"PPRINT-NEWLINE",lisp)
+LISPSYM(ppprint_logical_block,"%PPRINT-LOGICAL-BLOCK",system)
 LISPSYM(princ,"PRINC",lisp)
 LISPSYM(write_to_string,"WRITE-TO-STRING",lisp)
 LISPSYM(prin1_to_string,"PRIN1-TO-STRING",lisp)
@@ -1100,6 +1104,14 @@ LISPSYM(Kcase,"CASE",keyword)
 LISPSYM(Klevel,"LEVEL",keyword)
 LISPSYM(Klength,"LENGTH",keyword)
 LISPSYM(Klines,"LINES",keyword)
+LISPSYM(Kmiser_width,"MISER-WIDTH",keyword)
+LISPSYM(Kpprint_dispatch,"PPRINT-DISPATCH",keyword)
+LISPSYM(Klinear,"LINEAR",keyword)       # PPRINT-NEWLINE
+LISPSYM(Kfill,"FILL",keyword)           # PPRINT-NEWLINE
+LISPSYM(Kmiser,"MISER",keyword)         # PPRINT-NEWLINE
+LISPSYM(Kmandatory,"MANDATORY",keyword) # PPRINT-NEWLINE
+LISPSYM(Kblock,"BLOCK",keyword)     # PPRINT-INDENT
+LISPSYM(Kcurrent,"CURRENT",keyword) # PPRINT-INDENT & PATHNAME_RISCOS
 LISPSYM(Kgensym,"GENSYM",keyword)
 LISPSYM(Kescape,"ESCAPE",keyword)
 LISPSYM(Kbase,"BASE",keyword)
@@ -1341,7 +1353,6 @@ LISPSYM(Kparent,"PARENT",keyword) # als Pathname-Komponente in PATHNAME
 #ifdef PATHNAME_RISCOS
 LISPSYM(Kroot,"ROOT",keyword) # als Pathname-Komponente in PATHNAME
 LISPSYM(Khome,"HOME",keyword) # als Pathname-Komponente in PATHNAME
-LISPSYM(Kcurrent,"CURRENT",keyword) # als Pathname-Komponente in PATHNAME
 LISPSYM(Klibrary,"LIBRARY",keyword) # als Pathname-Komponente in PATHNAME
 LISPSYM(Kprevious,"PREVIOUS",keyword) # als Pathname-Komponente in PATHNAME
 #endif
@@ -1373,56 +1384,61 @@ LISPSYM(integer,"INTEGER",lisp) # als Typ in STREAM
 LISPSYM(hash_table,"HASH-TABLE",lisp) # als Typ in IO, PREDTYPE
 LISPSYM(random_state,"RANDOM-STATE",lisp) # als Typ in IO, PREDTYPE
 LISPSYM(reader_error,"READER-ERROR",lisp) # als Typ für IO
-LISPSYM(read_base,"*READ-BASE*",lisp) # als Variable in IO
-LISPSYM(read_suppress,"*READ-SUPPRESS*",lisp) # als Variable in IO
-LISPSYM(read_eval,"*READ-EVAL*",lisp) # als Variable in IO
-LISPSYM(readtablestern,"*READTABLE*",lisp) # als Variable in IO
-LISPSYM(features,"*FEATURES*",lisp) # als Variable in IO
-LISPSYM(read_preserve_whitespace,"*READ-PRESERVE-WHITESPACE*",system) # als Variable in IO
-LISPSYM(read_line_number,"*READ-LINE-NUMBER*",system) # als Variable in IO
-LISPSYM(read_recursive_p,"*READ-RECURSIVE-P*",system) # als Variable in IO
-LISPSYM(read_reference_table,"*READ-REFERENCE-TABLE*",system) # als Variable in IO
-LISPSYM(backquote_level,"*BACKQUOTE-LEVEL*",system) # als Variable in IO
+LISPSYM(read_base,"*READ-BASE*",lisp) # IO variable
+LISPSYM(read_suppress,"*READ-SUPPRESS*",lisp) # IO variable
+LISPSYM(read_eval,"*READ-EVAL*",lisp) # IO variable
+LISPSYM(readtablestern,"*READTABLE*",lisp) # IO variable
+LISPSYM(features,"*FEATURES*",lisp) # IO variable
+LISPSYM(read_preserve_whitespace,"*READ-PRESERVE-WHITESPACE*",system) # IO variable
+LISPSYM(read_line_number,"*READ-LINE-NUMBER*",system) # IO variable
+LISPSYM(read_recursive_p,"*READ-RECURSIVE-P*",system) # IO variable
+LISPSYM(read_reference_table,"*READ-REFERENCE-TABLE*",system) # IO variable
+LISPSYM(backquote_level,"*BACKQUOTE-LEVEL*",system) # IO variable
 LISPSYM(backquote_reader,"`-READER",system) # als Funktion für IO
 LISPSYM(comma_reader,",-READER",system) # als Funktion für IO
-LISPSYM(compiling,"*COMPILING*",system) # als Variable in IO
+LISPSYM(compiling,"*COMPILING*",system) # IO variable
 LISPSYM(make_init_form,"MAKE-INIT-FORM",clos) # a function for io.d
 LISPSYM(make_byte,"MAKE-BYTE",system) # als Funktion für IO
 LISPSYM(Kupcase,"UPCASE",keyword) # als *PRINT-CASE* - Wert in IO
 LISPSYM(Kdowncase,"DOWNCASE",keyword) # als *PRINT-CASE* - Wert in IO
 LISPSYM(Kcapitalize,"CAPITALIZE",keyword) # als *PRINT-CASE* - Wert in IO
                                         # Must be in the same order as in io.d!
-LISPSYM(print_case,"*PRINT-CASE*",lisp) # als Variable in IO ----------+
-LISPSYM(print_level,"*PRINT-LEVEL*",lisp) # als Variable in IO         |
-LISPSYM(print_length,"*PRINT-LENGTH*",lisp) # als Variable in IO       |
-LISPSYM(print_gensym,"*PRINT-GENSYM*",lisp) # als Variable in IO       |
-LISPSYM(print_escape,"*PRINT-ESCAPE*",lisp) # als Variable in IO       |
-LISPSYM(print_radix,"*PRINT-RADIX*",lisp) # als Variable in IO         |
-LISPSYM(print_base,"*PRINT-BASE*",lisp) # als Variable in IO           |
-LISPSYM(print_array,"*PRINT-ARRAY*",lisp) # als Variable in IO         |
-LISPSYM(print_circle,"*PRINT-CIRCLE*",lisp) # als Variable in IO       |
-LISPSYM(print_pretty,"*PRINT-PRETTY*",lisp) # als Variable in IO       |
-LISPSYM(print_closure,"*PRINT-CLOSURE*",custom) # als Variable in IO   |
-LISPSYM(print_readably,"*PRINT-READABLY*",lisp) # als Variable in IO   |
-LISPSYM(print_lines,"*PRINT-LINES*",lisp) # als Variable in IO         |
-LISPSYM(print_right_margin,"*PRINT-RIGHT-MARGIN*",lisp) # -------------+
-LISPSYM(print_rpars,"*PRINT-RPARS*",custom) # als Variable in IO
-LISPSYM(print_indent_lists,"*PRINT-INDENT-LISTS*",custom) # als Variable in IO
-LISPSYM(print_circle_table,"*PRINT-CIRCLE-TABLE*",system) # als Variable in IO
-LISPSYM(prin_level,"*PRIN-LEVEL*",system) # als Variable in IO
-LISPSYM(prin_lines,"*PRIN-LINES*",system) # als Variable in IO
-LISPSYM(prin_bqlevel,"*PRIN-BQLEVEL*",system) # als Variable in IO
-LISPSYM(prin_stream,"*PRIN-STREAM*",system) # als Variable in IO
-LISPSYM(prin_linelength,"*PRIN-LINELENGTH*",system) # als Variable in IO
-LISPSYM(prin_l1,"*PRIN-L1*",system) # als Variable in IO
-LISPSYM(prin_lm,"*PRIN-LM*",system) # als Variable in IO
-LISPSYM(prin_rpar,"*PRIN-RPAR*",system) # als Variable in IO
-LISPSYM(prin_traillength,"*PRIN-TRAILLENGTH*",system) # als Variable in IO
-LISPSYM(prin_prev_traillength,"*PRIN-PREV-TRAILLENGTH*",system) # als Variable in IO
-LISPSYM(prin_jblocks,"*PRIN-JBLOCKS*",system) # als Variable in IO
-LISPSYM(prin_jbstrings,"*PRIN-JBSTRINGS*",system) # als Variable in IO
-LISPSYM(prin_jbmodus,"*PRIN-JBMODUS*",system) # als Variable in IO
-LISPSYM(prin_jblpos,"*PRIN-JBLPOS*",system) # als Variable in IO
+LISPSYM(print_case,"*PRINT-CASE*",lisp) # IO variable ----------------------+
+LISPSYM(print_level,"*PRINT-LEVEL*",lisp) # IO variable                     |
+LISPSYM(print_length,"*PRINT-LENGTH*",lisp) # IO variable                   |
+LISPSYM(print_gensym,"*PRINT-GENSYM*",lisp) # IO variable                   |
+LISPSYM(print_escape,"*PRINT-ESCAPE*",lisp) # IO variable                   |
+LISPSYM(print_radix,"*PRINT-RADIX*",lisp) # IO variable                     |
+LISPSYM(print_base,"*PRINT-BASE*",lisp) # IO variable                       |
+LISPSYM(print_array,"*PRINT-ARRAY*",lisp) # IO variable                     |
+LISPSYM(print_circle,"*PRINT-CIRCLE*",lisp) # IO variable                   |
+LISPSYM(print_pretty,"*PRINT-PRETTY*",lisp) # IO variable                   |
+LISPSYM(print_closure,"*PRINT-CLOSURE*",custom) # IO variable               |
+LISPSYM(print_readably,"*PRINT-READABLY*",lisp) # IO variable               |
+LISPSYM(print_lines,"*PRINT-LINES*",lisp) # IO variable                     |
+LISPSYM(print_miser_width,"*PRINT-MISER-WIDTH*",lisp) # IO variable         |
+LISPSYM(print_pprint_dispatch,"*PRINT-PPRINT-DISPATCH*",lisp) # IO variable |
+LISPSYM(print_right_margin,"*PRINT-RIGHT-MARGIN*",lisp) # ------------------+
+LISPSYM(print_rpars,"*PRINT-RPARS*",custom) # IO variable
+LISPSYM(print_indent_lists,"*PRINT-INDENT-LISTS*",custom) # IO variable
+LISPSYM(print_circle_table,"*PRINT-CIRCLE-TABLE*",system) # IO variable
+LISPSYM(prin_level,"*PRIN-LEVEL*",system) # IO variable
+LISPSYM(prin_lines,"*PRIN-LINES*",system) # IO variable
+LISPSYM(prin_line_prefix,"*PRIN-LINE-PREFIX*",system) # IO variable
+LISPSYM(prin_miserp,"*PRIN-MISERP*",system) # IO variable
+LISPSYM(prin_pprinter,"*PRIN-PPRINTER*",system) # IO variable
+LISPSYM(prin_bqlevel,"*PRIN-BQLEVEL*",system) # IO variable
+LISPSYM(prin_stream,"*PRIN-STREAM*",system) # IO variable
+LISPSYM(prin_linelength,"*PRIN-LINELENGTH*",system) # IO variable
+LISPSYM(prin_l1,"*PRIN-L1*",system) # IO variable
+LISPSYM(prin_lm,"*PRIN-LM*",system) # IO variable
+LISPSYM(prin_rpar,"*PRIN-RPAR*",system) # IO variable
+LISPSYM(prin_traillength,"*PRIN-TRAILLENGTH*",system) # IO variable
+LISPSYM(prin_prev_traillength,"*PRIN-PREV-TRAILLENGTH*",system) # IO variable
+LISPSYM(prin_jblocks,"*PRIN-JBLOCKS*",system) # IO variable
+LISPSYM(prin_jbstrings,"*PRIN-JBSTRINGS*",system) # IO variable
+LISPSYM(prin_jbmodus,"*PRIN-JBMODUS*",system) # IO variable
+LISPSYM(prin_jblpos,"*PRIN-JBLPOS*",system) # IO variable
 LISPSYM(terminal_read_open_object,"*TERMINAL-READ-OPEN-OBJECT*",system) # IO
 LISPSYM(terminal_read_stream,"*TERMINAL-READ-STERAM*",system) # IO
 LISPSYM(backquote,"BACKQUOTE",system) # als Marker in IO

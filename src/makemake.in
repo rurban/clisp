@@ -1501,7 +1501,7 @@ LPARTS=$LPARTS' timezone places floatprint type defstruct format international'
 LPARTS=$LPARTS' savemem trace cmacros compiler defs2 loop clos'
 LPARTS=$LPARTS' disassem condition loadform threads gstream xcharin keyboard'
 LPARTS=$LPARTS' screen beossock runprog query reploop dribble complete'
-LPARTS=$LPARTS' describe room edit macros3 clhs inspect gray'
+LPARTS=$LPARTS' pprint describe room edit macros3 clhs inspect gray'
 if [ $TSYS = master -o -n "$with_dynamic_ffi" ] ; then
   LPARTS=$LPARTS' foreign1'
 fi

@@ -35,16 +35,10 @@
 
 (common-lisp:in-package "EXT")
 (export
- '(current-time with-gensyms with-http-output with-html-output)
+ '(current-time with-http-output with-html-output)
  "EXT")
 
 (in-package "SYSTEM")
-
-(defmacro with-gensyms (syms &body body)
-  "Bind symbols to gensyms.  First sym is a string - `gensym' prefix.
-Inspired by Paul Graham, <On Lisp>, p. 145."
-  `(let (,@(mapcar (lambda (sy) `(,sy (gensym ,(car syms)))) (cdr syms)))
-    ,@body))
 
 (defun current-time (&optional (out t))
   "Print the current time to the stream (defaults to T)."
