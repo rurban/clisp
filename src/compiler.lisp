@@ -9498,6 +9498,10 @@ freshly rebuilt as list of bytes.
   (cond ((< n 128) 1) ; 7 Bit in 1 Byte
         ((< n 32768) 2) ; 15 Bit in 2 Bytes
         (t 6))) ; else 6 Bytes
+(defun signed-operand-length (n)
+  (cond ((<= -64 n 63) 1) ; 7 Bits in 1 Byte
+        ((<= -16384 n 16383) 2) ; 15 Bits in 2 Bytes
+        (t 6))) ; else 32 Bits in 6 Bytes
 ;; assembles a Code-List and returns the Bytecode-List:
 (defun assemble-LAP (code-list)
   ; first sub-step:
@@ -9563,43 +9567,55 @@ freshly rebuilt as list of bytes.
             (incf PC instr-length)
             (setf (car code-listr)
               (list* instr-class instr-length instr-code (cdr item))))))))
-  ;; further sub-steps:
-  (do ((modified t) (PC 0 0))
-      ((not modified)       ; no more changes -> all jump-lengths are optimal
-       #|PC is now the length of the future bytecode vector|#)
-    (setq modified nil)
-    (dolist (item code-list)
-      (if (atom item)
-        (setf (symbol-value item) PC)
-        (progn
-          (incf PC (cadr item))
-          (when (memq (car item) '(L NL BL NNL NBL NHL NLX))
-            (let ((itemargs (cdddr item)))
-              (dolist (x (case (car item)
-                           (L itemargs)
-                           ((NL BL NLX) (cdr itemargs))
-                           ((NNL NBL NHL) (cddr itemargs))))
-                (incf PC (car x))
-                (let* ((new-dist (- (symbol-value (cdr x)) PC))
-                       (new-jump-length
-                        (cond ((<= -64 new-dist 63) 1) ; 7 Bits/1 Byte
-                              ((<= -16384 new-dist 16383) 2) ; 15 Bits/2 Bytes
-                              (t 6)))
-                       (jump-length-diff (- new-jump-length (car x))))
-                  ;; synchronize the so far assumed jump-length and
-                  ;; the newly calculated one:
-                  ;; The big problem is that if we permit both increase and
-                  ;; decrease of jump-length, we may never terminate, but we
-                  ;; cannot write a 0 jump into 2 bytes, so we must must
-                  ;; reduce the jump length when it is 0.
-                  ;; There is no infinite loop here because reducing jump
-                  ;; length for a 0 jump cannot make any other jump 0!
-                  (when (or (plusp jump-length-diff)
-                            (and (zerop new-dist)
-                                 (= -1 jump-length-diff)))
-                    (setq modified t)
-                    (incf PC jump-length-diff)
-                    (setf (car x) new-jump-length))))))))))
+  ;; Further sub-steps.
+  ;; Here we stretch the code by making the jump lengths longer, as needed.
+  (loop
+    ;; When there were are more changes in this step, the jump lengths are
+    ;; optimal.
+    (unless
+      (let ((modified nil) (oldPC 0) (PC 0))
+        (dolist (item code-list)
+          (if (atom item)
+            (progn
+              (setf (symbol-value item) PC)
+              (setf (get item 'seen) t))
+            (progn
+              (incf oldPC (cadr item))
+              (incf PC (cadr item))
+              (when (memq (car item) '(L NL BL NNL NBL NHL NLX))
+                (let ((itemargs (cdddr item)))
+                  (dolist (x (case (car item)
+                               (L itemargs)
+                               ((NL BL NLX) (cdr itemargs))
+                               ((NNL NBL NHL) (cddr itemargs))))
+                    (incf oldPC (car x))
+                    (incf PC (car x))
+                    (let* ((targetlabel (cdr x))
+                           (targetPC
+                             (if (get targetlabel 'seen)
+                               ; backward jump: targetlabel already updated
+                               (symbol-value targetlabel)
+                               ; forward jump: use minimal estimate
+                               (+ (symbol-value targetlabel) (- PC oldPC))))
+                           (new-dist (- targetPC PC))
+                           (new-jump-length (signed-operand-length new-dist))
+                           (jump-length-diff (- new-jump-length (car x))))
+                      ;; Synchronize the so far assumed jump-length and
+                      ;; the newly calculated one.
+                      ;; We have started with jumps of length 1 in the first
+                      ;; sub-step, therefore the jump-lengths can increase.
+                      ;; They cannot decrease.
+                      (when (minusp jump-length-diff)
+                        (compiler-error 'assemble-LAP "STRETCH < 0"))
+                      (when (plusp jump-length-diff)
+                        (setq modified t)
+                        (incf PC jump-length-diff)
+                        (setf (car x) new-jump-length)))))))))
+        (dolist (item code-list)
+          (when (atom item)
+            (remprop item 'seen)))
+        modified)
+      (return)))
   ;; last sub-step:
   (let ((byte-list '()) (PC 0))
     (flet ((new-byte (n) (push n byte-list)))
@@ -9611,11 +9627,11 @@ freshly rebuilt as list of bytes.
              (label-operand (x)
                (incf PC (car x))
                (let ((dist (- (symbol-value (cdr x)) PC)))
-                 (when (and (zerop dist) (= 2 (car x)))
-                   (compiler-error 'assemble-LAP "ZERO JUMP"))
                  (case (car x)
                    (1 (new-byte (ldb (byte 7 0) dist)))
-                   (2 (new-byte (+ 128 (ldb (byte 7 8) dist)))
+                   (2 (when (zerop dist)
+                        (compiler-error 'assemble-LAP "ZERO JUMP"))
+                      (new-byte (+ 128 (ldb (byte 7 8) dist)))
                       (new-byte (ldb (byte 8 0) dist)))
                    (6 (new-byte 128) (new-byte 0)
                       (new-byte (ldb (byte 8 24) dist))
