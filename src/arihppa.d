@@ -48,8 +48,8 @@ mulu32_         .PROC
                 .CODE
                 .EXPORT length32
 /* returns integer-size (>=1, <=32) of the argument /=0. */
-		.label length32
-		.PROC
+                .label length32
+                .PROC
                 .CALLINFO
                 .ENTRY          /* input in %arg0, output in %ret0 */
                 /* y = 1; */
@@ -73,6 +73,8 @@ mulu32_         .PROC
                 /* if (x & (bit(31-0)*(bit(1)-1)) != 0) */
                 EXTRU,=         %arg0,0,1,%r0
                 ADDI            1,%ret0,%ret0        /* y = y+1; */
+                BV              0(%r2)               /* Return */
+                NOP
                 .EXIT
                 .PROCEND
 
