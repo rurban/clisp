@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host lenin as the output of the command:
+# This file was created on host winsteingoldlap as the output of the command:
 # ./makemake --with-dynamic-ffi win32msvc msvc5 debug
 
 # -------------- Start of configurable section --------------------
@@ -1348,16 +1348,16 @@ encoding.obj : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c const
 	$(MV) encoding.i.obj encoding.obj
 	$(RM) encoding.i.c
 
-pathname.i : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h w32shell.c
+pathname.i : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h execname.c w32shell.c
 	$(CPP) $(CPPFLAGS) $(CFLAGS) pathname.c > pathname.i
 
-pathname.s : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h w32shell.c
+pathname.s : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h execname.c w32shell.c
 	$(CPP) $(CPPFLAGS) $(CFLAGS) pathname.c > pathname.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c pathname.i.c /FAs /Fapathname.s
 	$(RM) pathname.i.obj
 	$(RM) pathname.i.c
 
-pathname.obj : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h w32shell.c
+pathname.obj : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h execname.c w32shell.c
 	$(CPP) $(CPPFLAGS) $(CFLAGS) pathname.c > pathname.i.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c pathname.i.c
 	$(RM) pathname.obj
@@ -2850,7 +2850,7 @@ makevars : Makefile
 	(echo 'CC='"'"'$(CC)'"'" ; echo 'CPPFLAGS='"'"'$(CPPFLAGS)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a avcall.lib callback.lib '"'") > makevars
 
 clisp-link : clisp-link.in
-	sed -e 's%%@with_dynamic_modules@%%no%%' -e 's%%@createsharedlib@%%%%' -e 's%%@LEXE@%%.exe%%' -e 's%%@DLL@%%.dll%%'< clisp-link.in > clisp-link
+	sed -e 's%%@with_dynamic_modules@%%no%%' -e 's%%@createsharedlib@%%%%' -e 's%%@LEXE@%%.exe%%' -e 's%%@SHREXT@%%.dll%%'< clisp-link.in > clisp-link
 	chmod a+x clisp-link
 
 boot : modular lispinit.mem
@@ -2859,7 +2859,7 @@ boot : modular lispinit.mem
 anymodule $(BASE_MODULES) $(MODULES) : lisp.exe lispinit.mem force modprep.fas clisp.h
 	test -d $@ || lndir ..\modules/$@ $@
 	if test -f $@/configure -a '!' -f $@/config.status ; then cd $@ ; ( cache=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'`config.cache; if test -f $${cache} ; then . $${cache}; if test "$${ac_cv_env_CC_set}" = set; then CC="$${ac_cv_env_CC_value}"; export CC; fi; ./configure --cache-file=$${cache} $(MODULE_CONFIGURE_FLAGS); else ./configure $(MODULE_CONFIGURE_FLAGS); fi ) ; fi
-	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}lispbibl.c $${dots}fsubr.c $${dots}subr.c $${dots}pseudofun.c $${dots}constsym.c $${dots}constobj.c $${dots}win32.c $${dots}xthread.c $${dots}stdbool.h $${dots}stdint.h $${dots}libcharset.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
+	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/$$,,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}/lispbibl.c $${dots}/fsubr.c $${dots}/subr.c $${dots}/pseudofun.c $${dots}/constsym.c $${dots}/constobj.c $${dots}/win32.c $${dots}/xthread.c $${dots}/stdbool.h $${dots}/stdint.h $${dots}/libcharset.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
 
 base : modular boot $(BASE_MODULES)
 	$(RMRF) base
@@ -3003,8 +3003,8 @@ clispres.o : clisp.rc
 clisp.rc : clisp.ico
 	echo "MAINICON ICON \"clisp.ico\"" > clisp.rc
 
-clisp : clisp.c clispres.o w32shell.c
-	builddir="`pwd`"; $(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DLISPLIBDIR='"'$$builddir'"' -DLOCALEDIR='"'$$builddir/locale'"' clisp.c clispres.o $(LIBS) -o clisp
+clisp : clisp.c clispres.o w32shell.c execname.c
+	builddir="`pwd`"; $(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DLISPLIBDIR=NULL -DLOCALEDIR=NULL clisp.c clispres.o $(LIBS) -o clisp
 
 # Distribution, to be executed on a Unix host or using Cygwin.
 distrib : install.lisp install.bat clisp.man clisp.html force
@@ -3015,7 +3015,7 @@ distrib : install.lisp install.bat clisp.man clisp.html force
 	  if test -f $$f ; then cp -p $$f $$distdir/$$f ; else cp -p `echo $$f | tr '[A-Z]' '[a-z]'` $$distdir/$$f ; fi ; \
 	done ; \
 	distfile=clisp-$$version-msvc-win32.zip ; \
-	for f in lisp.exe lispinit.mem install.bat ; do \
+	for f in lisp.exe lispinit.mem install.bat clisp.exe ; do \
 	  cp -p $$f $$distdir/$$f ; \
 	done ; \
 	mkdir $$distdir/data ; \
