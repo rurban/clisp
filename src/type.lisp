@@ -755,7 +755,8 @@
   #+UNICODE
   ;; this should use min_bytes_per_char for cache, not the hash table
   (let ((name (ext:encoding-charset encoding))
-        (table #.(make-hash-table :test #'equal
+        (table #.(make-hash-table :key-type '(or string symbol) :value-type 'fixnum
+                                  :test #'equal
                                   :initial-contents '(("UTF-7" . 1))))
         (tester #.(make-string 2 :initial-element (code-char 0))))
     (or (gethash name table)

@@ -116,7 +116,8 @@
   (let ((heap-stat-2 (heap-statistics)))
     ;; Now we have all the statistics, and are free to do any kind
     ;; of allocations.
-    (let ((ht (make-hash-table :test #'eq)))
+    (let ((ht (make-hash-table :key-type 't :value-type '(cons cons cons)
+                               :test #'eq)))
       ;; For each type, (gethash type ht) contains a cons
       ;;   (heap-stat-record . gc-stat-record),
       ;; where both records are conses (n-instances . n-bytes).

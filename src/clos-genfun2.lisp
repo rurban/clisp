@@ -214,7 +214,9 @@
     (finalize-fast-gf gf)
     gf))
 
-(let ((prototype-table (make-hash-table :test #'equal)))
+(let ((prototype-table
+        (make-hash-table :key-type '(cons fixnum boolean) :value-type '(simple-array (unsigned-byte 8) (*))
+                         :test #'equal)))
   (defun finalize-fast-gf (gf)
     (let* ((signature (gf-signature gf))
            (reqanz (sig-req-num signature))
@@ -340,6 +342,7 @@
                   (let ((tuple-var (gensym)))
                     (setq ht-init
                           `(MAKE-HASH-TABLE
+                             ; :KEY-TYPE '(CONS ... CLASS ...) :VALUE-TYPE 'FUNCTION
                              :TEST (FUNCTION ,(if (eql n 1) 'EQ 'EQUAL)))
                           ht-key-binding
                           `((,tuple-var
@@ -377,6 +380,7 @@
                         (reverse class-of-exprs)
                         ht-init
                         `(MAKE-HASH-TABLE
+                           ; :KEY-TYPE '(CONS ... CLASS ...) :VALUE-TYPE 'FUNCTION
                            :TEST (FUNCTION ,(if (eql n 1) 'EQ 'EQUAL)))
                         em-expr
                         (if (eql n 1) ; whatever is faster

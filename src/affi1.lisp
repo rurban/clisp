@@ -113,7 +113,8 @@ be a string, which must be the name of a known library."
 ;; function is associated with its library and call information in a cons
 ;; pair: <function> -> ( <library> . <call information> )
 
-(defvar *library-functions* (make-hash-table :test 'eq))
+(defvar *library-functions*
+  (make-hash-table :key-type 'symbol :value-type 'cons :test 'eq))
 
 (defun import-or-loose (symbol)
   (let ((new (find-symbol (symbol-name symbol))))
