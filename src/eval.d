@@ -3289,7 +3289,7 @@ LISPFUNN(subr_info,1)
         }
       # FSUBR selbst aufrufen:
       subr_self = fun;
-      (*(fsubr_function*)TheMachine(TheFsubr(fun)->function))();
+      (*(fsubr_function*)(TheFsubr(fun)->function))();
      #if STACKCHECKS
       if (!(STACK == STACKbefore)) # STACK so wie vorher?
         { abort(); } # nein -> ab in den Debugger

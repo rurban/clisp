@@ -5455,6 +5455,8 @@ local uintC generation;
               { aktualisiere_ht_invalid((Hashtable)ptr); } # ja -> für Reorganisation vormerken \
             elif (aktualisiere_fpointer_invalid && (record_type((Record)ptr) == Rectype_Fpointer)) # Foreign-Pointer ? \
               { aktualisiere_fp_invalid((Record)ptr); } # ja -> evtl. ungültig machen \
+            elif (aktualisiere_fsubr_function && (record_type((Record)ptr) == Rectype_Fsubr)) # Fsubr ? \
+              { aktualisiere_fs_function((Fsubr)ptr); } # ja -> evtl. Adresse updaten \
            {var uintC count = (record_type((Record)ptr) < rectype_limit ? srecord_length((Srecord)ptr) : xrecord_length((Xrecord)ptr)); \
             if (!(count==0))                                                          \
               { var object* p = &((Record)ptr)->recdata[0];                           \
@@ -6684,11 +6686,15 @@ local uintC generation;
                       { ptr = (aint)pointer_was_object(*(object*)ptr); }        \
               }   }
             #define aktualisiere_fpointer_invalid  FALSE
+            #define aktualisiere_fsubr_function FALSE
             #define aktualisiere_ht_invalid  mark_ht_invalid
             #define aktualisiere_fp_invalid  mark_fp_invalid
+            #define aktualisiere_fs_function(ptr)
             aktualisiere_varobjects();
+            #undef aktualisiere_fs_function
             #undef aktualisiere_fp_invalid
             #undef aktualisiere_ht_invalid
+            #undef aktualisiere_fsubr_function
             #undef aktualisiere_fpointer_invalid
             #undef aktualisiere_page
           #ifdef GENERATIONAL_GC
@@ -7209,11 +7215,15 @@ local uintC generation;
                     aktualisierer(typecode_at(ptr) & ~bit(garcol_bit_t)); # und weiterrücken \
               }   }
             #define aktualisiere_fpointer_invalid  FALSE
+            #define aktualisiere_fsubr_function FALSE
             #define aktualisiere_ht_invalid  mark_ht_invalid
             #define aktualisiere_fp_invalid  mark_fp_invalid
+            #define aktualisiere_fs_function(ptr)
             aktualisiere_varobjects();
+            #undef aktualisiere_fs_function
             #undef aktualisiere_fp_invalid
             #undef aktualisiere_ht_invalid
+            #undef aktualisiere_fsubr_function
             #undef aktualisiere_fpointer_invalid
             #undef aktualisiere_page
       # Durchführung der Verschiebungen in den nicht ganz geleerten Pages:
@@ -7407,11 +7417,15 @@ local uintC generation;
           # Pointer in den Objekten variabler Länge aktualisieren:
             #define aktualisiere_page  aktualisiere_page_normal
             #define aktualisiere_fpointer_invalid  FALSE
+            #define aktualisiere_fsubr_function  FALSE
             #define aktualisiere_ht_invalid  mark_ht_invalid
             #define aktualisiere_fp_invalid  mark_fp_invalid
+            #define aktualisiere_fs_function(ptr)
             aktualisiere_varobjects();
+            #undef aktualisiere_fs_function
             #undef aktualisiere_fp_invalid
             #undef aktualisiere_ht_invalid
+            #undef aktualisiere_fsubr_function
             #undef aktualisiere_fpointer_invalid
             #undef aktualisiere_page
         # Macro aktualisiere jetzt unnötig:
@@ -11287,7 +11301,7 @@ local uintC generation;
             var object obj = allocate_fsubr();
             TheFsubr(obj)->name = sym;
             TheFsubr(obj)->argtype = fixnum((uintW)fsubr_argtype(ptr2->req_anz,ptr2->opt_anz,(fsubr_body_t)(ptr2->body_flag)));
-            TheFsubr(obj)->function = make_machine(*ptr1);
+            TheFsubr(obj)->function = (void*)(*ptr1);
             Symbol_function(sym) = obj;
             ptr1++; ptr2++;
           });
@@ -13266,12 +13280,14 @@ local uintC generation;
     # Schließlich die Adressen aller von loadmem_aktualisiere() zu
     # aktualisierenden Objekte innerhalb der Heaps, die Adressen der
     # mit mark_ht_invalid() zu markierenden Hashtabellen, die Adressen
-    # der mit mark_fp_invalid() zu markierenden Foreign-Pointer.
+    # der mit mark_fp_invalid() zu markierenden Foreign-Pointer, die
+    # Adressen der mit loadmem_aktualisiere_fsubr() zu relozierenden Fsubrs.
     # Zuvor deren Anzahlen.
     # (Das ist redundant, reduziert aber die Startup-Zeiten.)
     typedef struct { uintL reloccount;
                      uintL htcount;
                      uintL fpcount;
+                     uintL fscount;
                    }
             memdump_reloc_header;
   #endif
@@ -13518,6 +13534,7 @@ local uintC generation;
         rheader.reloccount = 0;
         rheader.htcount = 0;
         rheader.fpcount = 0;
+        rheader.fscount = 0;
         #if !defined(GENERATIONAL_GC)
         #define aktualisiere_conspage  aktualisiere_conspage_normal
         #define aktualisiere_page  aktualisiere_page_normal
@@ -13546,6 +13563,7 @@ local uintC generation;
         #else
         #define aktualisiere_fpointer_invalid  FALSE
         #endif
+        #define aktualisiere_fsubr_function  TRUE
         #define aktualisiere(objptr)  \
           { switch (mtypecode(*(object*)objptr))                          \
               { case_system:                                              \
@@ -13558,17 +13576,21 @@ local uintC generation;
           }   }
         #define aktualisiere_ht_invalid(obj)  rheader.htcount++;
         #define aktualisiere_fp_invalid(obj)  rheader.fpcount++;
+        #define aktualisiere_fs_function(obj)  rheader.fscount++;
         aktualisiere_conses();
         aktualisiere_varobjects();
+        #undef aktualisiere_fs_function
         #undef aktualisiere_fp_invalid
         #undef aktualisiere_ht_invalid
         #undef aktualisiere
        {var DYNAMIC_ARRAY(relocbuf,object*,rheader.reloccount);
        {var DYNAMIC_ARRAY(htbuf,Hashtable,rheader.htcount);
        {var DYNAMIC_ARRAY(fpbuf,Record,rheader.fpcount);
+       {var DYNAMIC_ARRAY(fsbuf,Fsubr,rheader.fscount);
        {var object** relocbufptr = &relocbuf[0];
         var Hashtable* htbufptr = &htbuf[0];
         var Record* fpbufptr = &fpbuf[0];
+        var Fsubr* fsbufptr = &fsbuf[0];
         #define aktualisiere(objptr)  \
           { switch (mtypecode(*(object*)objptr))                          \
               { case_system:                                              \
@@ -13581,11 +13603,14 @@ local uintC generation;
           }   }
         #define aktualisiere_ht_invalid(obj)  *htbufptr++ = (obj);
         #define aktualisiere_fp_invalid(obj)  *fpbufptr++ = (obj);
+        #define aktualisiere_fs_function(obj)  *fsbufptr++ = (obj);
         aktualisiere_conses();
         aktualisiere_varobjects();
+        #undef aktualisiere_fs_function
         #undef aktualisiere_fp_invalid
         #undef aktualisiere_ht_invalid
         #undef aktualisiere
+        #undef aktualisiere_fsubr_function
         #undef aktualisiere_fpointer_invalid
         #undef aktualisiere_page
         #undef aktualisiere_conspage
@@ -13593,6 +13618,8 @@ local uintC generation;
         WRITE(&relocbuf[0],rheader.reloccount*sizeof(object*));
         WRITE(&htbuf[0],rheader.htcount*sizeof(Hashtable));
         WRITE(&fpbuf[0],rheader.fpcount*sizeof(Record));
+        WRITE(&fsbuf[0],rheader.fscount*sizeof(Fsubr));
+       }FREE_DYNAMIC_ARRAY(fsbuf);
        }FREE_DYNAMIC_ARRAY(fpbuf);
        }FREE_DYNAMIC_ARRAY(htbuf);
        }FREE_DYNAMIC_ARRAY(relocbuf);
@@ -13748,30 +13775,21 @@ local uintC generation;
               { *objptr = disabled; }
             break;
           #endif
-          case_machine: # Pseudo-Funktion/Fsubr-Funktion oder sonstiger Maschinenpointer
-            # Umsetzung old_fsubr_tab -> fsubr_tab, old_pseudofun_tab -> pseudofun_tab :
+          case_machine: # Pseudo-Funktion oder sonstiger Maschinenpointer
+            # Umsetzung old_pseudofun_tab -> pseudofun_tab :
             {
               #if (machine_type==0)
               var void* addr = (void*)ThePseudofun(*objptr);
               #else # muß zum Vergleichen die Typinfo wegnehmen
               var void* addr = (void*)upointer(*objptr);
               #endif
-              { var uintC i = fsubr_anz;
-                var fsubr_* ptr = &((fsubr_*)(&old_fsubr_tab))[fsubr_anz];
-                until (i==0)
-                  { i--;
-                    if ((void*) *--ptr == addr)
-                      { # Fsubr-Funktion
-                        *objptr = make_machine(((const fsubr_ *)(&fsubr_tab))[i]);
-                        break;
-              }   }   }
               { var uintC i = pseudofun_anz;
                 var Pseudofun* ptr = &((Pseudofun*)(&old_pseudofun_tab))[pseudofun_anz];
                 until (i==0)
                   { i--;
                     if ((void*) *--ptr == addr)
                       { # Pseudo-Funktion
-                        *objptr = make_machine(((Pseudofun*)(&pseudofun_tab))[i]);
+                        *objptr = make_machine_code(((Pseudofun*)(&pseudofun_tab))[i]);
                         break;
               }   }   }
               # sonstiger Maschinenpointer
@@ -13788,6 +13806,18 @@ local uintC generation;
             break;
           default: /*NOTREACHED*/ abort();
     }   }
+  local void loadmem_aktualisiere_fsubr (Fsubr fsubrptr);
+  local void loadmem_aktualisiere_fsubr(fsubrptr)
+    var Fsubr fsubrptr;
+    { var void* addr = fsubrptr->function;
+      var uintC i = fsubr_anz;
+      var fsubr_* p = &((fsubr_*)(&old_fsubr_tab))[fsubr_anz];
+      until (i==0)
+        { i--;
+          if ((void*) *--p == addr)
+            { fsubrptr->function = ((const fsubr_ *)(&fsubr_tab))[i];
+              break;
+    }   }   }
   local void loadmem(filename)
     char* filename;
     { # File zum Lesen öffnen:
@@ -14358,11 +14388,15 @@ local uintC generation;
                #else
                  #define aktualisiere_fpointer_invalid  FALSE
                #endif
+               #define aktualisiere_fsubr_function  TRUE
                #define aktualisiere_ht_invalid  mark_ht_invalid
                #define aktualisiere_fp_invalid  mark_fp_invalid
+               #define aktualisiere_fs_function  loadmem_aktualisiere_fsubr
                aktualisiere_varobjects();
+               #undef aktualisiere_fs_function
                #undef aktualisiere_fp_invalid
                #undef aktualisiere_ht_invalid
+               #undef aktualisiere_fsubr_function
                #undef aktualisiere_fpointer_invalid
                #undef aktualisiere_page
            }
@@ -14405,6 +14439,15 @@ local uintC generation;
                    dotimespL(count,rheader.fpcount,
                      { var Record ptr = *fpbufptr++; mark_fp_invalid(ptr); });
                    FREE_DYNAMIC_ARRAY(fpbuf);
+                 }}
+               if (rheader.fscount > 0)
+                 { var DYNAMIC_ARRAY(fsbuf,Fsubr,rheader.fscount);
+                  {var Fsubr* fsbufptr = &fsbuf[0];
+                   var uintL count;
+                   READ(&fsbuf[0],rheader.fscount*sizeof(Fsubr));
+                   dotimespL(count,rheader.fscount,
+                     { var Fsubr fsubrptr = *fsbufptr++; loadmem_aktualisiere_fsubr(fsubrptr); });
+                   FREE_DYNAMIC_ARRAY(fsbuf);
                  }}
            } }
            #endif

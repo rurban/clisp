@@ -391,7 +391,7 @@ LISPFUNN(code_address_of,1)
     elif (subrp(obj)) # SUBR -> seine Adresse
       { value1 = ulong_to_I((aint)(TheSubr(obj)->function)); }
     elif (fsubrp(obj)) # FSUBR -> seine Adresse
-      { value1 = ulong_to_I((aint)TheMachine(TheFsubr(obj)->function)); }
+      { value1 = ulong_to_I((aint)(TheFsubr(obj)->function)); }
     #ifdef DYNAMIC_FFI
     elif (ffunctionp(obj))
       { value1 = ulong_to_I((uintP)Faddress_value(TheFfunction(obj)->ff_address)); }
