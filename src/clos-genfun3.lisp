@@ -233,7 +233,7 @@
                                                      '()))))
                          ; gf-lambdalist's signature is
                          ; (make-signature :req-num req-num :opt-num opt-num :rest-p rest-p).
-                         (make-fast-gf <standard-generic-function> funname gf-lambdalist (subseq m-lambdalist 0 req-num) <standard-method>))))))
+                         (make-fast-gf <standard-generic-function> funname gf-lambdalist (subseq m-lambdalist 0 req-num) <standard-method> '()))))))
          (method
            (if (listp method-or-initargs)
              (apply #'make-method-instance (std-gf-default-method-class gf)
@@ -263,7 +263,7 @@
 ;; funname: function name, symbol or (SETF symbol)
 ;; lambdalist: lambdalist of the generic function
 ;; options: (option*)
-;; --> generic-function-class-form, signature, argument-precedence-order, method combination, method-class-form, method-forms, docstring
+;; --> generic-function-class-form, signature, argument-precedence-order, method combination, method-class-form, declspecs, docstring, method-forms
 (defun analyze-defgeneric (caller whole-form funname lambdalist options)
   (setq funname (sys::check-function-name funname caller))
   ;; Parse the lambdalist:
@@ -274,6 +274,7 @@
         (method-combination 'STANDARD)
         (method-classes nil)
         (argorders nil)
+        (declares nil)
         (docstrings nil))
     (dolist (option options)
       (unless (listp option)
@@ -284,13 +285,27 @@
           caller funname 'defgeneric option))
       (case (first option)
         (DECLARE
-         ;; The declaration is being ignored.
-         ;; The compiler will ignore it in any case.
-         (unless (every
-                   #'(lambda (x) (and (consp x) (eq (first x) 'OPTIMIZE)))
-                   (rest option))
-           (warn (TEXT "~S ~S: Only ~S declarations are permitted: ~S")
-                 caller funname 'optimize option)))
+         ;; The DEFGENERIC description in ANSI CL is inconsistent. According to
+         ;; the BNF syntax, multiple DECLARE options cannot be passed in a
+         ;; single DEFGENERIC forms. However, it also says explicitly "The
+         ;; declare option may be specified more than once..."
+         #|
+         (when declares
+           (error-of-type 'ext:source-program-error
+             :form whole-form
+             :detail options
+             (TEXT "~S ~S: ~S may only be specified once.")
+             caller funname 'declare))
+         |#
+         (check-gf-declspecs (rest option) 'declare
+           #'(lambda (errorstring &rest arguments)
+               (error (TEXT "~S ~S: ~A")
+                      caller funname
+                      (apply #'format nil errorstring arguments))))
+         (setq declares
+               (if declares
+                 `(DECLARE ,@(append (rest declares) (rest option)))
+                 option)))
         (:ARGUMENT-PRECEDENCE-ORDER
          (when argorders
            (error-of-type 'ext:source-program-error
@@ -386,13 +401,15 @@
                 argument-precedence-order
                 method-combination
                 method-class-form
+                ;; list of declspecs
+                (cdr declares)
+                ;; docstring or nil
+                (car docstrings)
                 ;; list of the method-forms
                 (mapcar #'(lambda (method-initargs-forms)
                             `(MAKE-METHOD-INSTANCE ,method-class-form
                                ,@method-initargs-forms))
-                  (nreverse method-forms))
-                ;; docstring or nil
-                (car docstrings))))))
+                  (nreverse method-forms)))))))
 
 ;; Parse a DEFGENERIC lambdalist:
 ;; lambdalist --> reqnum, req-vars, optnum, restp, keyp, keywords, allowp
@@ -422,7 +439,7 @@
 
 (defmacro defgeneric (&whole whole-form
                       funname lambda-list &rest options)
-  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combo method-class-form method-forms docstring)
+  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combo method-class-form declspecs docstring method-forms)
       (analyze-defgeneric 'defgeneric whole-form funname lambda-list options)
     `(LET ()
        (DECLARE (SYS::IN-DEFUN ,funname))
@@ -437,26 +454,27 @@
                                         ',(second funname))))))
              `((SYSTEM::%SET-DOCUMENTATION ,symbolform 'FUNCTION
                                            ',docstring))))
-       (DO-DEFGENERIC ',funname ,generic-function-class-form ',lambda-list ',signature ',argument-precedence-order ',method-combo ,method-class-form
+       (DO-DEFGENERIC ',funname ,generic-function-class-form ',lambda-list ',signature ',argument-precedence-order ',method-combo ,method-class-form ',declspecs
                       ,@method-forms))))
 
 (defun ensure-generic-function (function-name &key argument-precedence-order
-                                declare documentation environment
+                                declare declarations documentation environment
                                 generic-function-class lambda-list
                                 method-class method-combination)
   (declare (ignore environment))
-  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combo method-class-form)
+  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combo method-class-form declspecs docstring method-forms)
       (analyze-defgeneric
        'defgeneric nil function-name lambda-list
-       `(,@(if declare `(:declare ,declare))
-         ,@(if documentation `(:documentation ,documentation))
+       `(,@(if (or declare declarations) `((declare ,@(append declare declarations))))
+         ,@(if documentation `((:documentation ,documentation)))
          ,@(if argument-precedence-order
-               `(:argument-precedence-order ,argument-precedence-order))
+               `((:argument-precedence-order ,argument-precedence-order)))
          ,@(if generic-function-class
-               `(:generic-function-class
+              `((:generic-function-class
                  ,(if (class-p generic-function-class)
                       (class-name generic-function-class)
-                      generic-function-class)))
-         ,@(if method-combination `(:method-combination ,method-combination))
-         ,@(if method-class `(:method-class ,method-class))))
-    (do-defgeneric function-name (eval generic-function-class-form) lambda-list signature argument-precedence-order method-combo (eval method-class-form))))
+                      generic-function-class))))
+         ,@(if method-combination `((:method-combination ,method-combination)))
+         ,@(if method-class `((:method-class ,method-class)))))
+    (declare (ignore declspecs docstring method-forms))
+    (do-defgeneric function-name (eval generic-function-class-form) lambda-list signature argument-precedence-order method-combo (eval method-class-form) (append declare declarations))))

@@ -3761,3 +3761,16 @@ T
   (list (foo112 10) (foo112 3.0) (my-myslot #'foo112)
         (eq (sys::%record-ref #'foo112 0) (clos::class-current-version (find-class 'my-gf-class)))))
 (100 27.0 17 T)
+
+;; Check that ensure-generic-function supports both :DECLARE (ANSI CL)
+;; and :DECLARATIONS (MOP).
+
+(progn
+  (ensure-generic-function 'foo113 :declare '((optimize (speed 3))))
+  (generic-function-declarations #'foo113))
+((OPTIMIZE (SPEED 3)))
+
+(progn
+  (ensure-generic-function 'foo114 :declarations '((optimize (speed 3))))
+  (generic-function-declarations #'foo114))
+((OPTIMIZE (SPEED 3)))

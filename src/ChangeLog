@@ -1,3 +1,25 @@
+2004-06-23  Bruno Haible  <bruno@clisp.org>
+
+	Implement the :declarations, :declare option.
+	* clos-genfun2.lisp (check-gf-declspecs): New function.
+	(shared-initialize-<standard-generic-function>): Accept option :declare
+	as well.
+	(initialize-instance-<standard-generic-function>): Likewise.
+	(make-instance-<standard-generic-function>): Likewise.
+	(%make-gf, make-fast-gf): Add declspecs argument.
+	(compute-discriminating-function-<standard-generic-function>): Use the
+	generic-function's declspecs for optimizing the dispatch code.
+	* clos-genfun3.lisp (do-defmethod): Update.
+	(analyze-defgeneric): Check the DECLARE option using check-gf-declspecs
+	and return the declspecs as an additional value.
+	(defgeneric): Pass the declspecs to do-defgeneric.
+	(ensure-generic-function): Superficially fix completely broken code.
+	* clos-genfun4.lisp (make-generic-function, do-defgeneric): Accept
+	additional declspecs argument.
+	(make-generic-function-form): Update.
+	* clos-genfun5.lisp (shared-initialize@standard-generic-function):
+	Accept option :declare as well.
+
 2004-08-25  Bruno Haible  <bruno@clisp.org>
 
 	* m4/libtool.m4: Upgrade to libtool-1.5.6.
