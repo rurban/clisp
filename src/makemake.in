@@ -185,25 +185,30 @@ while test -z "$endofargs"; do
       MODULES="$MODULES "`echol "$1"|sed 's/-*with-module=//'`
       shift
       ;;
+    -without-* | --without-* | -with-no-* | --with-no-*)
+      package=`echol "$1"|sed 's/-*with(out|-no)-//' `
+      # Delete all the valid chars; see if any are left.
+      if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
+        echol "makemake: $package: invalid package name" >&2; exit 1
+      fi
+      eval "with_`echol $package|sed s/-/_/g`=0"
+      shift
+      ;;
     -with-* | --with-*)
       package=`echol "$1"|sed 's/-*with-//'`
       packopt=`echol "${package}"|sed 's/.*=//'`
-      if test -z "${packopt}"; then packopt=1; fi
+      if test -z "${packopt}"; then packopt=1;
+      elif [ "${packopt}" = "on" ];  then packopt=1;
+      elif [ "${packopt}" = "off" ]; then packopt=0;
+      elif [ "${packopt}" = "yes" ]; then packopt=1;
+      elif [ "${packopt}" = "no" ];  then packopt=0;
+      fi
       package=`echol "${package}"|sed 's/=.*//'`
       # Delete all the valid chars; see if any are left.
       if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
         echol "makemake: $package: invalid package name" >&2; exit 1
       fi
       eval "with_`echol $package|sed s/-/_/g`=${packopt}"
-      shift
-      ;;
-    -without-* | --without-*)
-      package=`echol "$1"|sed 's/-*without-//'`
-      # Delete all the valid chars; see if any are left.
-      if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
-        echol "makemake: $package: invalid package name" >&2; exit 1
-      fi
-      eval "with_no`echol $package|sed s/-/_/g`=1"
       shift
       ;;
     -srcdir* | --srcdir*)
@@ -1182,10 +1187,10 @@ fi
 
 FILES='lisp.a'
 
-if test -z "$with_nounicode"; then
+if [ "${with_unicode}" != "0" ]; then
   XCFLAGS="$XCFLAGS -DUNICODE"
 fi
-if test -n "${with_threads}"; then
+if [ -n "${with_threads}" -a "${with_threads}" != "0" ]; then
   XCFLAGS="$XCFLAGS -DMULTITHREAD -D${with_threads}"
 fi
 
@@ -1228,7 +1233,7 @@ TERMINAL='generic'
 READLINELIB=''
 XCL_READLINELIB=''
 if [ $TOS = unix -o $TOS = os2 ] ; then
-  if test -n "$with_noreadline"; then
+  if [ "${with_readline}" = "0" ]; then
     XCFLAGS=$XCFLAGS' -DNO_READLINE'
   else
     TERMINAL='readline'
@@ -1272,7 +1277,7 @@ if [ -n "$USE_TERMCAP" ] ; then
   fi
   LIBS=$XCL_TERMCAPLIB' '$LIBS
 fi
-if test -n "$with_no_termcap_ncurses" ; then
+if [ "${with_termcap_ncurses}" = "0" ] ; then
   XCFLAGS=$XCFLAGS' -DNO_TERMCAP_NCURSES'
 fi
 
@@ -1294,7 +1299,7 @@ USE_GETTEXT=''
 GETTEXTLIB=''
 XCL_GETTEXTLIB=''
 if [ $TOS = unix ] || [ $TOS = os2 ] ; then
-  if test -n "$with_nogettext"; then
+  if [ "${with_gettext}" = "0" ]; then
     XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
   else
     USE_GETTEXT=yes
@@ -1403,12 +1408,12 @@ fi
 SPVW_INCLUDES=' spvw_module spvw_debug spvw_alloca spvw_mmap spvw_multimap spvw_singlemap spvw_page spvw_heap spvw_global spvw_gcstat spvw_space spvw_mark spvw_objsize spvw_update spvw_fault spvw_sigsegv spvw_sigcld spvw_sigpipe spvw_sigint spvw_sigwinch spvw_garcol spvw_genera1 spvw_genera2 spvw_genera3 spvw_allocate spvw_typealloc spvw_circ spvw_walk spvw_ctype spvw_language spvw_memfile'
 
 UNICODE_INCLUDES=''
-if [ -z "$with_nounicode" ] ; then
+if [ "${with_unicode}" != "0" ] ; then
   UNICODE_INCLUDES=$UNICODE_INCLUDES' uni_upcase uni_downcase uni_attribute uninames'
 fi
 
 NLS_INCLUDES=''
-if [ -z "$with_nounicode" ] ; then
+if [ "${with_unicode}" != "0" ] ; then
   NLS_INCLUDES=$NLS_INCLUDES' nls_ascii'
   NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_1 nls_iso8859_2 nls_iso8859_3'
   NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_4 nls_iso8859_5 nls_iso8859_6'
@@ -1543,7 +1548,7 @@ if [ -n "$with_dir_key" ]; then
   LPARTS=$LPARTS' dirkey1';
 fi
 LPARTS=$LPARTS' german'
-if [ -z "$with_nounicode" ] ; then
+if [ "$with_unicode" != "0" ] ; then
   LPARTS=$LPARTS' french spanish'
 fi
 LPARTS=$LPARTS' dutch deprecated config'
