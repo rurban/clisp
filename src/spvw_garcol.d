@@ -141,10 +141,10 @@ local void gc_markphase (void)
  #endif
   for_all_constobjs( gc_mark(*objptr); ); /* object_tab */
   for_all_threadobjs( gc_mark(*objptr); ); /* threads */
-  /* The callers in back_trace must all be already marked:
-     they refer to subrs and closures that are curently being
+  /* The callers in back_trace are mostly already marked:
+     they refer to subrs and closures that are currently being
      called and therefore cannot possibly be garbage-collected.
-     But better safe than sorry, so we mark them here again: */
+     But a few remain unmarked, so make sure all are really marked: */
   for_all_back_traces({
     for (; bt; bt = bt->bt_next)
       gc_mark(bt->bt_caller);

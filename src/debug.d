@@ -449,7 +449,7 @@ global void driver (void)
 {
   var p_backtrace_t bt_save = back_trace;
   var struct backtrace_t bt_here;
-  bt_here.bt_next = NULL;
+  bt_here.bt_next = back_trace;
   bt_here.bt_caller = L(driver);
   bt_here.bt_stack = STACK;
   bt_here.bt_num_arg = -1;
@@ -493,7 +493,7 @@ global void break_driver (bool continuable_p) {
   } else {
     var p_backtrace_t bt_save = back_trace;
     var struct backtrace_t bt_here;
-    bt_here.bt_next = NULL;
+    bt_here.bt_next = back_trace;
     bt_here.bt_caller = S(break_driver);
     bt_here.bt_stack = STACK;
     bt_here.bt_num_arg = -1;

@@ -1,3 +1,13 @@
+2004-10-10  Bruno Haible  <bruno@clisp.org>
+
+	Fix GC crash after a GC was triggered while a break loop was active.
+	* lispbibl.d (bt_beyond_stack_p, with_saved_back_trace): Correctly
+	parenthesize argument expressions.
+	* debug.d (driver, break_driver): Initialize bt_next to back_trace,
+	not NULL. Otherwise the bt_caller fields are not updated during GCs,
+	and after the function is left the next GC crashes. Fixes bug
+	introduced on 2002-11-15.
+
 2004-10-09  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class3.lisp (reinitialize-instance-<class>): Don't force a
