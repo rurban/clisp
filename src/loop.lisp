@@ -643,10 +643,9 @@
                                        (step-function-var nil))
                                    (when (parse-kw-p 'by)
                                      (setq step-function-form (parse-form 'by))
-                                     (let ((funform (function-form-funform
-                                                     step-function-form)))
-                                       (unless (and funform (symbolp funform))
-                                         (setq step-function-var (gensym)))))
+                                     (unless (and (function-form-p step-function-form)
+                                                  (function-name-p (second step-function-form)))
+                                       (setq step-function-var (gensym))))
                                    (let ((var (if (and pattern (symbolp pattern)
                                                        (eq preposition 'ON))
                                                   pattern (gensym))))

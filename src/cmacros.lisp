@@ -53,18 +53,16 @@
   (if (symbolp name) (setf (get name 'compiler-macro) newf)
       (setf (get (second name) 'compiler-macro-setf) newf)))
 
-;; (proclaim '(inline function-form-funform simple-function-form-p))
+;; (proclaim '(inline function-form-p simple-function-form-p))
 
-;; check whether the form is (FUNCTION fun-form) and return the fun-form
-(defun function-form-funform (form)
+;; Test whether the form is (FUNCTION ...).
+(defun function-form-p (form)
   (and (consp form) (eq (car form) 'FUNCTION)
-       (consp (cdr form)) (null (cddr form))
-       (second form)))
+       (consp (cdr form)) (null (cddr form))))
 
-;; check whether the form is #'symbol
+;; Test whether the form is #'symbol or #'(SETF symbol).
 (defun simple-function-form-p (form)
-  (let ((ff (function-form-funform form)))
-    (and ff (function-name-p ff))))
+  (and (function-form-p form) (function-name-p (second form))))
 
 ;; (funcall (function foo) ...) ==> (foo ...)
 (defun strip-funcall-form (form)

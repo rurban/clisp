@@ -1,3 +1,14 @@
+2004-09-17  Bruno Haible  <bruno@clisp.org>
+
+	Treat (FUNCTION NIL) correctly.
+	* cmacros.lisp (function-form-funform): Remove function.
+	(function-form-p): New function.
+	(simple-function-form-p): Update.
+	* compiler.lisp (inline-callable-function-lambda-p,
+	inline-callable-function-p): Update.
+	* loop.lisp (expand-loop): Update. Optimize #'(setf foo) the same way
+	as #'foo.
+
 2004-09-20  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (PARSE-NAMESTRING): fix second return value for
