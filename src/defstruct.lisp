@@ -7,16 +7,17 @@
 
 #| Explanation of the appearing data types:
 
+   For structure types (but not for structure classes!):
+
    (get name 'DEFSTRUCT-DESCRIPTION) =
      #(type size keyword-constructor slotlist defaultfun0 defaultfun1 ...)
 
    type (if the type of the whole structure is meant):
-      = T                      storage as a normal structure
       = LIST                   storage as list
       = VECTOR                 storage as (simple-)vector
       = (VECTOR element-type)  storage as vector with element-type
 
-   size is the structure size / list length / vector length.
+   size is the list length / vector length.
 
    keyword-constructor = NIL or the name of the keyword-constructor
 
@@ -55,8 +56,10 @@
                             In both cases, after some processing: a gensym
                             referring to a binding.
 
-   if type = T, the Structure-Name occupies the slot 0, but is not mentioned
-     in the slotlist, because there is nothing to do for its initialization.
+   For structure classes, i.e. if type = T, all this information is contained
+   in the CLOS class (get name 'CLOS::CLOSCLASS). In this case, all slots are
+   real slots: the names list is stored in the first memory word already by
+   ALLOCATE-INSTANCE, without need for corresponding effective-slot-definition.
 |#
 
 (defun make-ds-slot (name initargs offset initer initff type readonly)
@@ -966,21 +969,29 @@
        (LET ()
          (LET ,(append namesbinding (mapcar #'list slotdefaultvars slotdefaultfuns))
            ,@constructor-forms
-           (%PUT ',name 'DEFSTRUCT-DESCRIPTION
-                 (VECTOR ',type-option ,size ',keyword-constructor
-                         (LIST
-                           ,@(mapcar #'(lambda (slot)
-                                         (clos::make-load-form-<structure-effective-slot-definition>
-                                           slot
-                                           (let ((i (position slot slotdefaultslots)))
-                                             (if i (nth i slotdefaultvars) nil))))
-                                     slotlist))
-                         ,@slotdefaultvars))
+           ,(if (eq type-option 'T)
+              `(REMPROP ',name 'DEFSTRUCT-DESCRIPTION)
+              `(%PUT ',name 'DEFSTRUCT-DESCRIPTION
+                     (VECTOR ',type-option ,size ',keyword-constructor
+                             (LIST
+                               ,@(mapcar #'(lambda (slot)
+                                             (clos::make-load-form-<structure-effective-slot-definition>
+                                               slot
+                                               (let ((i (position slot slotdefaultslots)))
+                                                 (if i (nth i slotdefaultvars) nil))))
+                                         slotlist))
+                             ,@slotdefaultvars)))
            ,(if (eq type-option 'T)
               `(CLOS::DEFINE-STRUCTURE-CLASS ',name
                  ,namesform
-                 (SVREF (GET ',name 'DEFSTRUCT-DESCRIPTION) 2)
-                 (SVREF (GET ',name 'DEFSTRUCT-DESCRIPTION) 3)
+                 ',keyword-constructor
+                 (LIST
+                   ,@(mapcar #'(lambda (slot)
+                                 (clos::make-load-form-<structure-effective-slot-definition>
+                                   slot
+                                   (let ((i (position slot slotdefaultslots)))
+                                     (if i (nth i slotdefaultvars) nil))))
+                             slotlist))
                  (LIST
                    ,@(mapcan #'(lambda (directslot)
                                  (if directslot
