@@ -1,5 +1,10 @@
 2005-02-13  Bruno Haible  <bruno@clisp.org>
 
+	* utils/modprep.lisp (print-tables-1): For DEFCHECKER, don't do a
+	unbound to 0 conversion and a 0 to NIL conversion.
+
+2005-02-13  Bruno Haible  <bruno@clisp.org>
+
 	* i18n/gettext.c (I18N:GETTEXT): Let the category argument default
 	to LC_MESSAGES.
 	(I18N:NGETTEXT): Likewise. Small optimizations.
