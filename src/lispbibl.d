@@ -68,6 +68,7 @@
 # IBM-PC/386   any                LINUX (free UNIX)             Intel 5.0     __unix__, __linux__, __INTEL_COMPILER, __ICC, __USLC__
 # IBM-PC/386   any                386BSD 0.1 (UNIX BSD 4.2)     GNU           unix, __386BSD__, i386, __GNUC__
 # IBM-PC/386   any                NetBSD 0.9 (UNIX BSD 4.3)     GNU           unix, __NetBSD__, i386, __GNUC__
+# IBM-PC/386   any                FreeBSD 4.0 (UNIX BSD 4.4)    GNU           unix, __FreeBSD__, i386, __GNUC__
 # IBM-PC/386   any                EMX 0.9c (UNIXlike on OS/2)   GNU           [unix,] i386, __GNUC__, __EMX__
 # IBM-PC/386   any                Cygwin32 on WinNT/Win95       GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, _X86_, i386, __GNUC__
 # IBM-PC/386   any                Mingw32 on WinNT/Win95        GNU           _WIN32, __WINNT__, __MINGW32__, _X86_, i386, __GNUC__
@@ -408,6 +409,9 @@
 #if defined(UNIX_MACOSX) && defined(HAVE_MSYNC)
   #define UNIX_DARWIN  # MacOS X, a.k.a. Darwin
 #endif
+#if (__GLIBC__ >= 2)
+  #define UNIX_GNU # glibc2 (may be UNIX_LINUX, UNIX_HURD or UNIX_FREEBSD)
+#endif
 
 
 # Choose the character set:
@@ -621,7 +625,7 @@
 
 # Flags for the system's include files.
 #ifdef MULTITHREAD
-  #if defined(UNIX_LINUX) || defined(UNIX_SUNOS5)
+  #if defined(UNIX_GNU) || defined(UNIX_SUNOS5)
     #define _REENTRANT
   #endif
 #endif
@@ -647,7 +651,7 @@
 
 # Global register declarations.
 # They must occur before any system include files define any inline function,
-# which is the case on UNIX_DGUX and UNIX_LINUX.
+# which is the case on UNIX_DGUX and UNIX_GNU.
 #if defined(GNU) && !defined(__cplusplus) && !defined(MULTITHREAD) && (SAFETY < 2)
   # Overview of use of registers in gcc terminology:
   # fixed: mentioned in FIXED_REGISTERS
@@ -1251,7 +1255,7 @@ typedef signed int  signean;
 
 # non-local exits
 #include <setjmp.h>
-#if defined(UNIX) && defined(HAVE__JMP) && !defined(UNIX_LINUX) && !defined(UNIX_HURD) && !defined(UNIX_BEOS)
+#if defined(UNIX) && defined(HAVE__JMP) && !defined(UNIX_LINUX) && !defined(UNIX_GNU) && !defined(UNIX_BEOS)
   # The following routines are more efficient (don't use with signal-masks):
   #undef setjmp
   #undef longjmp
@@ -2928,7 +2932,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
       #define MULTIMAP_MEMORY_VIA_SHM
   #endif
 
-  #if defined(UNIX_LINUX) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_FILE)
+  #if (defined(UNIX_LINUX) || defined(UNIX_FREEBSD)) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_FILE)
      # Access to Lisp-objects is done through memory-mapping: Each
      # memory page can be accessed at several addresses.
       #define MULTIMAP_MEMORY
@@ -2963,7 +2967,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 
 
 # Flavor of the garbage collection: normal or generational.
-#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || (defined(MULTIMAP_MEMORY) && defined(UNIX_LINUX))) && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) && !defined(UNIX_IRIX) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
+#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || (defined(MULTIMAP_MEMORY) && (defined(UNIX_LINUX) || defined(UNIX_FREEBSD)))) && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) && !defined(UNIX_IRIX) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
   # "generational garbage collection" has some requirements.
   # With Linux, it will only work with 1.1.52, and higher, which will be checked in makemake.
   # On IRIX 6, it worked in the past, but leads to core dumps now. Reason unknown. FIXME!
@@ -7301,7 +7305,7 @@ typedef SPint sp_jmp_buf[jmpbufsize];
   #define end_setjmp_call()
   #define begin_longjmp_call()
   #define end_longjmp_call()
-#elif (defined(I80386) && defined(UNIX_LINUX))
+#elif defined(I80386) && (defined(UNIX_LINUX) || defined(UNIX_GNU))
   # Disassembly of setjmp() shows, that the STACK-register %ebx
   # isn't used arbitrarily.
   #define begin_setjmp_call()
