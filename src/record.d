@@ -818,13 +818,17 @@ local Values do_allocate_instance (object clas) {
      is (class-names class) a cons? */
   if (matomp(TheClass(clas)->current_version)) {
     /* <standard-class>. */
-    pushSTACK(clas); /* save for ALLOCATE-STD-INSTANCE */
-    if (nullp(TheClass(clas)->precedence_list)) { /* finalize */
-      pushSTACK(clas); pushSTACK(T);
-      funcall(S(finalize_class),2);
+    if (nullp(TheClass(clas)->precedence_list)) {
+      /* Call (CLOS:FINALIZE-INHERITANCE class). */
+      pushSTACK(clas); /* save clas */
+      pushSTACK(clas); funcall(S(finalize_inheritance),1);
+      clas = popSTACK(); /* restore clas */
+      /* The class must be finalized now, otherwise FINALIZE-INHERITANCE has
+         not done its job. */
+      ASSERT(!nullp(TheClass(clas)->precedence_list));
     }
     /* (CLOS::ALLOCATE-STD-INSTANCE class (class-instance-size class)) */
-    pushSTACK(TheClass(clas)->instance_size);
+    pushSTACK(clas); pushSTACK(TheClass(clas)->instance_size);
     C_allocate_std_instance();
   } else {
     /* <structure-class>. */
@@ -1479,10 +1483,13 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
   /* stack layout: class, argcount Initarg/Value-pairs. */
   { /* add default-initargs: */
     var object clas = Before(rest_args_pointer);
-    if (nullp(TheClass(clas)->precedence_list)) { /* finalize */
-      pushSTACK(clas); pushSTACK(T);
-      funcall(S(finalize_class),2);
+    if (nullp(TheClass(clas)->precedence_list)) {
+      /* Call (CLOS:FINALIZE-INHERITANCE class). */
+      pushSTACK(clas); funcall(S(finalize_inheritance),1);
       clas = Before(rest_args_pointer);
+      /* The class must be finalized now, otherwise FINALIZE-INHERITANCE has
+         not done its job. */
+      ASSERT(!nullp(TheClass(clas)->precedence_list));
     }
     var object l = TheClass(clas)->default_initargs;
     while (consp(l)) {
