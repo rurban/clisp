@@ -668,6 +668,9 @@ if [ $TSYS = master -o $TOS = win32 ] ; then
     fi
   fi
 fi
+if [ $TSYS = master -o $TOS = unix -o $TOS = win32 ] ; then
+  OS_INCLUDES=$OS_INCLUDES' xthread'
+fi
 
 if [ $CROSS = true ] ; then
   if [ $TOS = dos -o $TOS = os2 ] ; then

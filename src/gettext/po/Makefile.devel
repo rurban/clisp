@@ -23,7 +23,7 @@ OTHER_LINGUAS = es
 
 LINGUAS = $(PREDEF_LINGUAS) $(OTHER_LINGUAS)
 
-DSOURCES = lispbibl fsubr subr pseudofun constsym constobj constpack avl sort subrkw bytecode unix amiga amiga2 acorn msdos win32 spvw spvwtabf spvwtabs spvwtabo eval control pathname stream socket io array hashtabl list package record sequence charstrg debug error erramiga errdjgpp errunix errwin32 misc time predtype symbol lisparit aridecl arilev0 arilev1 arilev1c arilev1e arilev1i intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread rational sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran rexx affi graph foreign unixaux win32aux acornaux acornsig
+DSOURCES = lispbibl fsubr subr pseudofun constsym constobj constpack avl sort subrkw bytecode unix amiga amiga2 acorn msdos win32 xthread spvw spvwtabf spvwtabs spvwtabo eval control pathname stream socket io array hashtabl list package record sequence charstrg debug error erramiga errdjgpp errunix errwin32 misc time predtype symbol lisparit aridecl arilev0 arilev1 arilev1c arilev1e arilev1i intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread rational sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran rexx affi graph foreign unixaux win32aux acornaux acornsig
 
 LSPSOURCES = init defseq backquot defmacro macros1 macros2 defs1 timezone places floatpri type defstruc format user1 user2 trace macros3 compiler disassem defs2 loop clos conditio defs3 gstream foreign1 screen rexx1 affi1 editor
 
