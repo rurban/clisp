@@ -27,9 +27,6 @@ document interpreted
          debug the base linking set with the interpreted memory image
 end
 
-# usually we are debugging the base set
-base
-
 define zout
   output object_out($arg0)
   echo \n
