@@ -1,5 +1,14 @@
 2004-10-14  Bruno Haible  <bruno@clisp.org>
 
+	Access the structure type's keyword-constructor from the class.
+	* io.d (structure_reader): Lookup the keyword-constructor both in
+	the class and in the defstruct-description.
+	(some_printable_slots): Remove function.
+	(pr_structure_default): Lookup the keyword-constructor in the class.
+	No need to skip slots without initargs.
+	* foreign1.lisp (c-struct-constructor): Lookup the keyword-constructor
+	in the class.
+
 	* clos-class1.lisp (structure-class): Add slot kconstructor.
 	(*<structure-class>-kconstructor-location*): New constant.
 	(class-kconstructor, (setf class-kconstructor)): New functions.
