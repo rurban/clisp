@@ -196,7 +196,7 @@ while test -z "$endofargs"; do
       ;;
     -with-* | --with-*)
       package=`echol "$1"|sed 's/-*with-//'`
-      packopt=`echol "${package}" | sed -n -e 's/^.*=\(.*\)$/\1/'`
+      packopt=`echol "${package}" | sed -e 's/^.*=\(.*\)$/\1/'`
       if test -z "${packopt}"; then packopt=1;
       elif [ "${packopt}" = "on" ];  then packopt=1;
       elif [ "${packopt}" = "off" ]; then packopt=0;
