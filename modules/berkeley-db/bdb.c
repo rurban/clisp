@@ -258,19 +258,36 @@ static void time_stamp (FILE* out, char* prefix) {
   fputs("\n",out);
 }
 
-#define CLOSE_ERRFILE(o)     do {                               \
-    FILE *errfile;                                              \
-    begin_system_call(); o->get_errfile(o,&errfile);            \
-    if (errfile && (errfile != stdout) && (errfile != stderr))  \
-      { time_stamp(errfile,"closed"); fclose(errfile); }        \
-    end_system_call();                                          \
-  } while(0)
+/* some DB parameters (errfile, errpfx) are actually kept in DB.dbenv field.
+ http://groups.google.com/groups?&selm=adecb6f.0408050624.5ed0a11e@posting.google.com
+ therefore, instead of calling db->get_errfile(db,...) we call
+ db->dbenv(get_errfile(db->dbenv,...).
+ note that DB-CLOSE should close these parameters
+ only if it is a standalone DB! */
+static void close_errfile (DB_ENV *dbe) {
+  FILE *errfile;
+  begin_system_call();
+  dbe->get_errfile(dbe,&errfile);
+  if (errfile && (errfile != stdout) && (errfile != stderr)) {
+    time_stamp(errfile,"closed");
+    fclose(errfile);
+  }
+  end_system_call();
+}
+static void close_errpfx (DB_ENV *dbe) {
+  char *errpfx;
+  begin_system_call();
+  dbe->get_errpfx(dbe,&errpfx);
+  if (errpfx) free(errpfx);
+  end_system_call();
+}
 DEFUN(BDB:DBE-CLOSE, dbe)
 { /* close DB environment */
   DB_ENV *dbe = bdb_handle(STACK_0,`BDB::DBE`,BH_INVALIDATE);
   if (dbe) {
     funcall(`BDB::KILL-HANDLE`,1);
-    CLOSE_ERRFILE(dbe);
+    close_errfile(dbe);
+    close_errpfx(dbe);
     SYSCALL(dbe->close,(dbe,0));
     VALUES1(T);
   } else { skipSTACK(1); VALUES1(NIL); }
@@ -345,7 +362,6 @@ DEFUN(BDB:DBE-REMOVE, dbe &key :HOME :FORCE :USE_ENVIRON :USE_ENVIRON_ROOT)
  DB_ENV->set_app_dispatch	Configure application recovery interface
  DB_ENV->set_alloc	Set local space allocation functions
  DB_ENV->set_errcall	Set error message callback
- DB_ENV->set_errpfx	Set error message prefix
  DB_ENV->set_feedback	Set feedback callback
  DB_ENV->set_paniccall	Set panic callback
 */
@@ -362,30 +378,48 @@ static FILE* my_fopen (object path) {
     });
   return ret;
 }
-/* removes ERRFILE from STACK */
-#define RESET_ERRFILE(o)     do {                                       \
-    if (boundp(STACK_0)) {                                              \
-      CLOSE_ERRFILE(o);                                                 \
-      if (nullp(STACK_0)) {                                             \
-        begin_system_call(); o->set_errfile(o,NULL); end_system_call(); \
-      } else {                                                          \
-        FILE *errfile = my_fopen(STACK_0);                              \
-        begin_system_call(); o->set_errfile(o,errfile); end_system_call(); \
-      }                                                                 \
-    }                                                                   \
-    skipSTACK(1);                                                       \
-  } while(0)
-/* define an errfle FD extractor */
-#define ERRFILE_FD_EXTRACTOR(name,type)         \
-  static object name (type z) {                 \
-    FILE* errfile;                              \
-    int fd = -1;                                \
-    begin_system_call();                        \
-    z->get_errfile(z,&errfile);                 \
-    if (errfile) fd = fileno(errfile);          \
-    end_system_call();                          \
-    return fd >= 0 ? fixnum(fd) : NIL;          \
+/* set :ERRFILE to STACK_0
+ can trigger GC */
+static void reset_errfile (DB_ENV *dbe) {
+  close_errfile(dbe);
+  if (nullp(STACK_0)) {
+    begin_system_call(); dbe->set_errfile(dbe,NULL); end_system_call();
+  } else {
+    FILE *errfile = my_fopen(STACK_0);
+    begin_system_call(); dbe->set_errfile(dbe,errfile); end_system_call();
   }
+}
+/* extract errfile */
+static object dbe_get_errfile (DB_ENV *dbe) {
+  FILE* errfile;
+  int fd = -1;
+  begin_system_call();
+  dbe->get_errfile(dbe,&errfile);
+  if (errfile) fd = fileno(errfile);
+  end_system_call();
+  return fd >= 0 ? fixnum(fd) : NIL;
+}
+/* set :ERRPFX to STACK_0 */
+static void reset_errpfx (DB_ENV *dbe) {
+  close_errpfx(dbe);
+  if (nullp(STACK_0)) {
+    begin_system_call(); dbe->set_errpfx(dbe,NULL); end_system_call();
+  } else
+    with_string_0(check_string(STACK_0),GLO(misc_encoding), prefix, {
+        char *errpfx = malloc(prefix_bytelen+1);
+        strcpy(errpfx,prefix);
+        begin_system_call(); dbe->set_errpfx(dbe,errpfx); end_system_call();
+      });
+}
+/* extract errfile
+ can trigger GC */
+static object dbe_get_errpfx (DB_ENV *dbe) {
+  char* errpfx = NULL;
+  begin_system_call();
+  dbe->get_errpfx(dbe,&errpfx);
+  end_system_call();
+  return errpfx ? asciz_to_string(errpfx,GLO(misc_encoding)) : NIL;
+}
 /* define a flag checker */
 #define FLAG_EXTRACTOR(name,type)                       \
   static int name (type z) {                            \
@@ -406,7 +440,7 @@ DEFCHECKER(check_lk_detect,DB_LOCK_DEFAULT DB_LOCK_EXPIRE DB_LOCK_MAXLOCKS \
            DB_LOCK_MINLOCKS DB_LOCK_MINWRITE DB_LOCK_OLDEST DB_LOCK_RANDOM \
            DB_LOCK_YOUNGEST)
 DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
-      :ERRFILE :PASSWORD :ENCRYPT :LOCK_TIMEOUT :TXN_TIMEOUT :TIMEOUT   \
+      :ERRFILE :ERRPFX :PASSWORD :ENCRYPT :LOCK_TIMEOUT :TXN_TIMEOUT :TIMEOUT \
       :SHM_KEY :TAS_SPINS :TX_TIMESTAMP :TX_MAX :DATA_DIR :TMP_DIR      \
       :LG_BSIZE :LG_DIR :LG_MAX :LG_REGIONMAX                           \
       :LK_CONFLICTS :LK_DETECT :LK_MAX_LOCKERS :LK_MAX_LOCKS :LK_MAX_OBJECTS \
@@ -416,7 +450,7 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       :VERB_CHKPOINT :VERB_DEADLOCK :VERB_RECOVERY :VERB_REPLICATION    \
       :VERB_WAITSFOR :VERBOSE)
 { /* set many options */
-  DB_ENV *dbe = bdb_handle(STACK_(40),`BDB::DBE`,BH_VALID);
+  DB_ENV *dbe = bdb_handle(STACK_(41),`BDB::DBE`,BH_VALID);
   { /* verbose */
     object verbosep = popSTACK(); /* :VERBOSE - all */
     set_verbose(dbe,verbosep,DB_VERB_WAITSFOR);
@@ -538,7 +572,10 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
   if (!missingp(STACK_1))       /* PASSWORD */
     dbe_set_encryption(dbe,&STACK_0,&STACK_1);
   skipSTACK(2);
-  RESET_ERRFILE(dbe);           /* ERRFILE */
+  if (!missingp(STACK_0)) reset_errpfx(dbe);
+  skipSTACK(1);
+  if (!missingp(STACK_0)) reset_errfile(dbe);
+  skipSTACK(1);
   VALUES0; skipSTACK(1);        /* skip dbe */
 #undef DBE_SET
 #undef DBE_SET1
@@ -697,7 +734,6 @@ static object dbe_get_lk_conflicts (DB_ENV *dbe) {
   }
   return value1;
 }
-ERRFILE_FD_EXTRACTOR(dbe_get_errfile,DB_ENV*)
 FLAG_EXTRACTOR(dbe_get_flags_num,DB_ENV*)
 DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
   object what = STACK_0;
@@ -719,6 +755,7 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     pushSTACK(value1); count++;
     pushSTACK(`:TAS_SPINS`); pushSTACK(dbe_get_tas_spins(dbe)); count++;
     pushSTACK(`:SHM_KEY`); pushSTACK(dbe_get_shm_key(dbe)); count++;
+    pushSTACK(`:ERRPFX`); pushSTACK(dbe_get_errpfx(dbe)); count++;
     pushSTACK(`:ERRFILE`); pushSTACK(dbe_get_errfile(dbe)); count++;
     pushSTACK(`:TIMEOUT`); value1 = dbe_get_timeouts(dbe);
     pushSTACK(value1); count++;
@@ -827,6 +864,8 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
       case 0: VALUES1(NIL);
       default: NOTREACHED;
     }
+  } else if (eq(what,`:ERRPFX`)) {
+    VALUES1(dbe_get_errpfx(dbe));
   } else if (eq(what,`:ERRFILE`)) {
     VALUES1(dbe_get_errfile(dbe));
   } else if (eq(what,`:DB_XIDDATASIZE`)) {
@@ -874,7 +913,10 @@ DEFUN(BDB:DB-CLOSE, db &key :NOSYNC)
   if (db) {
     bool orphan_p = nullp(Parents(STACK_1));
     pushSTACK(STACK_1); funcall(`BDB::KILL-HANDLE`,1);
-    if (orphan_p) CLOSE_ERRFILE(db);
+    if (orphan_p) {
+      close_errfile(db->dbenv);
+      close_errpfx(db->dbenv);
+    }
     SYSCALL(db->close,(db,flags));
     VALUES1(T);
   } else VALUES1(NIL);
@@ -1464,13 +1506,13 @@ static object db_get_flags_list (DB *db) {
   return listof(count);
 }
 
-DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :PASSWORD :ENCRYPTION      \
+DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :ERRPFX :PASSWORD :ENCRYPTION \
       :NCACHE :CACHESIZE :CACHE :LORDER :PAGESIZE :BT_MINKEY :H_FFACTOR \
       :H_NELEM :Q_EXTENTSIZE :RE_DELIM :RE_LEN :RE_PAD :RE_SOURCE       \
       :CHKSUM :ENCRYPT :TXN_NOT_DURABLE :DUP :DUPSORT :RECNUM         \
       :REVSPLITOFF :RENUMBER :SNAPSHOT)
 { /* set database options */
-  DB *db = bdb_handle(STACK_(25),`BDB::DB`,BH_VALID);
+  DB *db = bdb_handle(STACK_(26),`BDB::DB`,BH_VALID);
   { /* flags */
     u_int32_t flags_on = 0, flags_off = 0;
     set_flags(popSTACK(),&flags_on,&flags_off,DB_SNAPSHOT);
@@ -1566,7 +1608,10 @@ DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :PASSWORD :ENCRYPTION      \
   if (!missingp(STACK_1))       /* PASSWORD */
     db_set_encryption(db,&STACK_0,&STACK_1);
   skipSTACK(2);
-  RESET_ERRFILE(db);            /* ERRFILE */
+  if (!missingp(STACK_0)) reset_errpfx(db->dbenv);
+  skipSTACK(1);
+  if (!missingp(STACK_0)) reset_errfile(db->dbenv);
+  skipSTACK(1);
   VALUES0; skipSTACK(1);        /* skip db */
 }
 
@@ -1615,7 +1660,6 @@ DEFINE_DB_GETTER2(get_re_len,u_int32_t,UL_to_I(value))
 DEFINE_DB_GETTER2(get_re_pad,int,L_to_I(value))
 DEFINE_DB_GETTER2(get_re_source,const char*,
                   value ? asciz_to_string(value,GLO(pathname_encoding)) : NIL)
-ERRFILE_FD_EXTRACTOR(db_get_errfile,DB*)
 FLAG_EXTRACTOR(db_get_flags_num,DB*)
 DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
 { /* retrieve database options */
@@ -1627,7 +1671,8 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     pushSTACK(`:CACHE`); db_get_cache(db,false);
     pushSTACK(value1); pushSTACK(value2); value1 = listof(2);
     pushSTACK(value1); count++;
-    pushSTACK(`:ERRFILE`); pushSTACK(db_get_errfile(db)); count++;
+    pushSTACK(`:ERRPFX`); pushSTACK(dbe_get_errpfx(db->dbenv)); count++;
+    pushSTACK(`:ERRFILE`); pushSTACK(dbe_get_errfile(db->dbenv)); count++;
     pushSTACK(`:FLAGS`); value1 = db_get_flags_list(db);
     pushSTACK(value1); count++;
     pushSTACK(`:LORDER`); pushSTACK(db_get_lorder(db)); count++;
@@ -1652,7 +1697,9 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
       default: NOTREACHED;
     }
   } else if (eq(what,`:ERRFILE`)) {
-    VALUES1(db_get_errfile(db));
+    VALUES1(dbe_get_errfile(db->dbenv));
+  } else if (eq(what,`:ERRPFX`)) {
+    VALUES1(dbe_get_errpfx(db->dbenv));
   } else if (eq(what,`:PAGESIZE`)) {
     VALUES1(db_get_pagesize(db));
   } else if (eq(what,`:BT_MINKEY`)) {

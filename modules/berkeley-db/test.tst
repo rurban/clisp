@@ -70,9 +70,11 @@ nil
 
 (defvar *dbe* (print (bdb:dbe-create))) *dbe*
 
-(bdb:dbe-set-options *dbe* :errfile "bdb-errors" :verbose t
+(bdb:dbe-set-options *dbe* :errfile "bdb-errors" :errpfx "zot" :verbose t
                      :data_dir "bdb-data/")
 NIL
+
+(bdb:dbe-get-options *dbe* :errpfx) "zot"
 
 (bdb:dbe-open *dbe* :home "bdb-home/" :create t
               :init_mpool t :init_txn t :init_lock t :init_log t)
