@@ -2816,10 +2816,12 @@ if [ $CROSS = false ] ; then
   echodummyrule check
   echol
 
-  echol "# check the sources: subr.d, fsubr.d, subrkw.d and"
-  echol "# all the LISPFUNs must add up"
+  echol "# check the sources:"
+  echol "# 1. subr.d, fsubr.d, subrkw.d and all the LISPFUNs must add up"
+  echol "# 2. no variables of type gcv_object_t - only pointers to it"
   echol "check-sources : # lisp${LEXE} lispinit.mem"
   echotab "\$(RUN) -M lispinit.mem -C -i ${SRCDIR}check-lispfun.lisp -x '(check-lisp-defs \"${SRCDIR}\")'"
+  echotab "egrep ' var gcv_object_t *[^* ]' *.d"
   echol
 
   echol "# Test: recompile \$(LISPFILES) and compare their contents."
