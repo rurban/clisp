@@ -8,7 +8,7 @@
 (in-package "SYSTEM")
 
 (defun deprecate (symbol superseded &optional (def (fdefinition superseded)))
-  (export symbol "EXT")
+  (export symbol (symbol-package symbol))
   (sys::%putd symbol def)
   (setf (get symbol 'deprecated) superseded)
   #+compiler
@@ -40,3 +40,7 @@ Use ~s instead"
 
 (deprecate 'ext::get-setf-method-multiple-value 'get-setf-expansion)
 (deprecate 'ext::define-setf-method 'define-setf-expander)
+
+;; ------------------------------------------------------
+;; not needed bacause null pointer is now returned as NIL
+(deprecate 'ffi::foreign-address-null 'null)

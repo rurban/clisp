@@ -176,6 +176,10 @@ User visible changes
     allows you to specify the dynamic library which contains the object.
     See <http://clisp.cons.org/impnotes.html#def-call-out> and
     <http://clisp.cons.org/impnotes.html#def-c-var>.
+  + Introduced a bit of polymorphism: FFI:C-POINTER can be NIL and will
+    be treated as NULL; NULL return value of type FFI:C-POINTER is
+    returned as NIL.
+    See <http://clisp.cons.org/impnotes.html#c-pointer>.
 
 * FFI does not output extern variable and function declarations unless
   you set FFI:*OUTPUT-C-VARIABLES* and/or FFI:*OUTPUT-C-FUNCTIONS* to T.
@@ -186,6 +190,8 @@ User visible changes
   use extended regular expressions.
   In particular, REGEXP:REGEXP-COMPILE now accepts keyword and not
   optional arguments (this is not backwards compatible).
+  When the system library provides a regexp implementation,
+  it is used instead of the GNU regexp distributed with CLISP.
   See <http://clisp.cons.org/impnotes.html#regexp> for details.
 
 * The BACKQUOTE reader has been reimplemented from scratch by
