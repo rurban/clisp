@@ -16,6 +16,7 @@
            (make-array (or *print-right-margin* sys::*prin-linelength*)
                        :element-type 'character :fill-pointer 0
                        :adjustable t))
+   (inside-sexp :initform nil :type boolean)
    ;; the indentation level variable or number:
    (indent-var :initarg :indent :initform 0 :type (or symbol integer))
    (pending-space :initform nil :type boolean)
@@ -30,8 +31,10 @@
 ;; flush the buffer and print a newline (when NEWLINE-P is non-NIL)
 (defun fill-stream-flush-buffer (stream newline-p)
   (with-slots (target-stream buffer pending-indent current-indent indent-var
-               pending-space)
+               pending-space inside-sexp)
       stream
+    (when (zerop (length buffer)) ; nothing to flush!
+      (return-from fill-stream-flush-buffer))
     (flet ((newline ()          ; terpri
              (setq current-indent
                    (if (symbolp indent-var)
@@ -43,27 +46,33 @@
       (let ((pos (line-pos stream)))
         (when (and pos
                    (<= (or *print-right-margin* sys::*prin-linelength*) pos))
-          (newline)))
-      (cond (pending-indent      ; do the indent
-             (sys::write-spaces pending-indent target-stream)
-             (setq pending-indent nil))
-            (pending-space
-             (write-char #\Space target-stream)))
+          (unless (find #\newline buffer) ; can happen only inside sexp
+            (newline))
+          (when inside-sexp ; just finished an S-expression
+            (setq newline-p t))))
+      (unless (and newline-p inside-sexp) ; S-expression on its own line(s)
+        (cond (pending-indent      ; do the indent
+               (sys::write-spaces pending-indent target-stream)
+               (setq pending-indent nil))
+              (pending-space
+               (write-char #\Space target-stream))))
       (setq pending-space nil)
       (write-char-sequence buffer target-stream)
       (setf (fill-pointer buffer) 0)
       (when newline-p (newline)))))
 (progn
 (defmethod stream-write-char ((stream fill-stream) ch)
-  (with-slots #1=(buffer pending-space) stream
+  (with-slots #1=(buffer pending-space inside-sexp) stream
     #2=
-    (case ch
-      (#\Newline (fill-stream-flush-buffer stream t))
-      ((#\Space #\Tab)
-       (when (plusp (length buffer))
-         (fill-stream-flush-buffer stream nil))
-       (setq pending-space t))
-      (t (vector-push-extend ch buffer)))))
+    (if inside-sexp
+        (vector-push-extend ch buffer)
+        (case ch
+          (#\Newline (fill-stream-flush-buffer stream t))
+          ((#\Space #\Tab)
+           (when (plusp (length buffer))
+             (fill-stream-flush-buffer stream nil))
+           (setq pending-space t))
+          (t (vector-push-extend ch buffer))))))
 (defmethod stream-write-char-sequence ((stream fill-stream) sequence
                                        &optional (start 0) (end nil))
   (with-slots #1# stream
@@ -95,3 +104,18 @@
        (DECLARE (READ-ONLY ,stream-var) ,@declarations)
        (UNWIND-PROTECT (PROGN ,@(or body-rest '(NIL)))
          (FORCE-OUTPUT ,stream-var)))))
+
+;;; for format, see `format-s-expression'
+(eval-when (compile load eval)
+  (fmakunbound 'stream-start-s-expression)
+  (fmakunbound 'stream-end-s-expression))
+(defgeneric stream-start-s-expression (stream)
+  (:method ((stream t)) (declare (ignore stream)))
+  (:method ((stream fill-stream))
+    (fill-stream-flush-buffer stream nil)
+    (setf (slot-value stream 'inside-sexp) t)))
+(defgeneric stream-end-s-expression (stream)
+  (:method ((stream t)) (declare (ignore stream)))
+  (:method ((stream fill-stream))
+    (fill-stream-flush-buffer stream nil)
+    (setf (slot-value stream 'inside-sexp) nil)))

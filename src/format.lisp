@@ -1112,10 +1112,15 @@
       (princ-to-string arg)
       stream)))
 
+;; preliminary, see fill-out.lisp
+(defun stream-start-s-expression (stream) (declare (ignore stream)))
+(defun stream-end-s-expression (stream) (declare (ignore stream)))
+
 ;; ~S, CLTL p.388, CLtL2 p. 584
 (defformat-simple format-s-expression (stream colon-modifier atsign-modifier
                   (mincol 0) (colinc 1) (minpad 0) (padchar #\Space))
                   (arg)
+  (stream-start-s-expression stream)
   (if (and (zerop mincol) (zerop minpad))
     (if (and colon-modifier (null arg))
       (write-string "()" stream)
@@ -1123,7 +1128,8 @@
     (format-padded-string mincol colinc minpad padchar
       atsign-modifier ; =: padleftflag
       (if (and colon-modifier (null arg)) "()" (prin1-to-string arg))
-      stream)))
+      stream))
+  (stream-end-s-expression stream))
 
 ;; ~W
 (defformat-simple format-write (stream colon-modifier atsign-modifier

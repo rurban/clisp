@@ -1,3 +1,13 @@
+2004-09-26  Sam Steingold  <sds@gnu.org>
+
+	FILL-STREAM no longer flattens all space inside S-expressions
+	* fill-out.lisp (fill-stream): new slot INSIDE-SEXP
+	(fill-stream-flush-buffer, stream-write-char): when INSIDE-SEXP,
+	do not indent
+	(stream-start-s-expression, stream-end-s-expression): new generic
+	functions with methods for FILL-STREAM
+	* format.lisp (format-s-expression): call them
+
 2004-09-23  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (DEFAULT_VERSION): since all pathnames returned by
