@@ -830,7 +830,7 @@ local inline void module_set_argtypes (module_t *module)
       fehler_code_alignment((uintP)(void*)(ptr),symbol)
 nonreturning_function(local, fehler_code_alignment,
                       (uintP address, object symbol)) {
-  fprintf(stderr,"C_CODE_ALIGNMENT is wrong. &%s = 0x%x.\n",
+  fprintf(stderr,"C_CODE_ALIGNMENT is wrong. &%s = 0x%lx.\n",
           TheAsciz(string_to_asciz(Symbol_name(symbol),O(terminal_encoding))),
           address);
  #if (__GNUC__ >= 3)
@@ -2419,7 +2419,7 @@ local inline int init_memory (const struct argv_initparams *p) {
       begin_system_call();
       memblock = (aint)malloc(1);
       end_system_call();
-      fprintf(stderr,GETTEXTL("Return value of malloc() = %x is not compatible with type code distribution."),
+      fprintf(stderr,GETTEXTL("Return value of malloc() = %lx is not compatible with type code distribution."),
               memblock);
       fputs("\n",stderr);
       return -1;
