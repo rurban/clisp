@@ -4,7 +4,7 @@
 SHELL = /bin/sh
 MAKE = make
 
-all : autoconf/aclocal.m4 configures avcall/avcall.h.msvc avcall/avcall-i386-msvc.c vacall/config.h.msvc vacall/vacall.h.msvc vacall/vacall-i386-msvc.c trampoline/config.h.msvc
+all : autoconf/aclocal.m4 configures avcall/avcall.h.msvc avcall/avcall-i386-msvc.c vacall/config.h.msvc vacall/vacall.h.msvc vacall/vacall-i386-msvc.c trampoline/config.h.msvc callback/vacall_r/config.h.msvc callback/vacall_r/vacall_r.h.msvc callback/vacall_r/vacall-i386-msvc.c
 
 CONFIGURES = configure avcall/configure vacall/configure trampoline/configure callback/configure callback/vacall_r/configure callback/trampoline_r/configure
 CONFIGURES_IN = configure.in avcall/configure.in vacall/configure.in trampoline/configure.in callback/configure.in callback/vacall_r/configure.in callback/trampoline_r/configure.in
@@ -61,6 +61,15 @@ vacall/vacall-i386-msvc.c : vacall/vacall-i386.S vacall/asmi386.sh
 
 trampoline/config.h.msvc : trampoline/config.h.in
 	cd trampoline ; $(MAKE) -f Makefile.devel config.h.msvc
+
+callback/vacall_r/config.h.msvc : callback/vacall_r/config.h.in
+	cd callback ; $(MAKE) -f Makefile.devel vacall_r/config.h.msvc
+
+callback/vacall_r/vacall_r.h.msvc : callback/vacall_r/vacall_r.h.in
+	cd callback ; $(MAKE) -f Makefile.devel vacall_r/vacall_r.h.msvc
+
+callback/vacall_r/vacall-i386-msvc.c : callback/vacall_r/vacall-i386.S callback/vacall_r/asmi386.sh
+	cd callback ; $(MAKE) -f Makefile.devel vacall_r/vacall-i386-msvc.c
 
 COMPILERS="cc -O" "gcc -freg-struct-return" "gcc -fpcc-struct-return"
 
