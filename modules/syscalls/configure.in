@@ -23,7 +23,7 @@ fi
 AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/vfs.h sys/types.h)
 
 AC_MSG_NOTICE([ * System Calls (Functions)])
-AC_CHECK_FUNCS(clock fcntl gethostent getrusage getrlimit sysconf uname)
+AC_CHECK_FUNCS(clock confstr fcntl gethostent getrusage getrlimit sysconf uname)
 AC_CHECK_FUNCS(getlogin getpwent getpwnam getpwuid getuid)
 AC_CHECK_FUNCS(fchmod fchown fstat link lstat stat symlink utimes)
 AC_CHECK_FUNCS(erf erfc lgamma lgamma_r)

@@ -1,3 +1,8 @@
+2004-01-19  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/posix.lisp, modules/syscalls/calls.c (confstr):
+	new exported system call
+
 2004-01-18  Bruno Haible  <bruno@clisp.org>
 
 	* loadform.lisp (missing-load-form): New type.

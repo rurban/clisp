@@ -284,6 +284,122 @@ DEFUN(POSIX::SYSCONF,)
 }
 #endif /* HAVE_SYSCONF */
 
+#if defined(HAVE_CONFSTR)
+DEFUN(POSIX::CONFSTR,)
+{ /* Lisp interface to confstr(3c) */
+  size_t res;
+  char* buf[BUFSIZ];
+
+#define CS_S(cmd) \
+  begin_system_call(); res = confstr(cmd,buf,BUFSIZ); end_system_call(); \
+  if (res == 0) pushSTACK(T);                                           \
+  else if (res <= BUFSIZ) pushSTACK(asciz_to_string(buf,GLO(misc_encoding))); \
+  else {                                                                \
+    begin_system_call();                                                \
+    { char *tmp = alloca(res);                                          \
+      confstr(cmd,tmp,res);                                             \
+      end_system_call();                                                \
+      pushSTACK(asciz_to_string(tmp,GLO(misc_encoding)));               \
+    }}
+
+#if defined(_CS_PATH)
+  CS_S(_CS_PATH);
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(_CS_POSIX_V6_ILP32_OFF32_CFLAGS)
+  CS_S(_CS_POSIX_V6_ILP32_OFF32_CFLAGS);
+#elif defined(_CS_XBS5_ILP32_OFF32_CFLAGS)
+  CS_S(_CS_XBS5_ILP32_OFF32_CFLAGS);
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(_CS_POSIX_V6_ILP32_OFF32_LDFLAGS)
+  CS_S(_CS_POSIX_V6_ILP32_OFF32_LDFLAGS);
+#elif defined(_CS_XBS5_ILP32_OFF32_LDFLAGS)
+  CS_S(_CS_XBS5_ILP32_OFF32_LDFLAGS);
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(_CS_POSIX_V6_ILP32_OFF32_LIBS)
+  CS_S(_CS_POSIX_V6_ILP32_OFF32_LIBS);
+#elif defined(_CS_XBS5_ILP32_OFF32_LIBS)
+  CS_S(_CS_XBS5_ILP32_OFF32_LIBS);
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(_CS_POSIX_V6_ILP32_OFFBIG_CFLAGS)
+  CS_S(_CS_POSIX_V6_ILP32_OFFBIG_CFLAGS);
+#elif defined(_CS_XBS5_ILP32_OFFBIG_CFLAGS)
+  CS_S(_CS_XBS5_ILP32_OFFBIG_CFLAGS);
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(_CS_POSIX_V6_ILP32_OFFBIG_LDFLAGS)
+  CS_S(_CS_POSIX_V6_ILP32_OFFBIG_LDFLAGS);
+#elif defined(_CS_XBS5_ILP32_OFFBIG_LDFLAGS)
+  CS_S(_CS_XBS5_ILP32_OFFBIG_LDFLAGS);
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(_CS_POSIX_V6_ILP32_OFFBIG_LIBS)
+  CS_S(_CS_POSIX_V6_ILP32_OFFBIG_LIBS);
+#elif defined(_CS_XBS5_ILP32_OFFBIG_LIBS)
+  CS_S(_CS_XBS5_ILP32_OFFBIG_LIBS);
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(_CS_POSIX_V6_LP64_OFF64_CFLAGS)
+  CS_S(_CS_POSIX_V6_LP64_OFF64_CFLAGS);
+#elif defined(_CS_XBS5_LP64_OFF64_CFLAGS)
+  CS_S(_CS_XBS5_LP64_OFF64_CFLAGS);
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(_CS_POSIX_V6_LP64_OFF64_LDFLAGS)
+  CS_S(_CS_POSIX_V6_LP64_OFF64_LDFLAGS);
+#elif defined(_CS_XBS5_LP64_OFF64_LDFLAGS)
+  CS_S(_CS_XBS5_LP64_OFF64_LDFLAGS);
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(_CS_POSIX_V6_LP64_OFF64_LIBS)
+  CS_S(_CS_POSIX_V6_LP64_OFF64_LIBS);
+#elif defined(_CS_XBS5_LP64_OFF64_LIBS)
+  CS_S(_CS_XBS5_LP64_OFF64_LIBS);
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(_CS_POSIX_V6_LPBIG_OFFBIG_CFLAGS)
+  CS_S(_CS_POSIX_V6_LPBIG_OFFBIG_CFLAGS);
+#elif defined(_CS_XBS5_LPBIG_OFFBIG_CFLAGS)
+  CS_S(_CS_XBS5_LPBIG_OFFBIG_CFLAGS);
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(_CS_POSIX_V6_LPBIG_OFFBIG_LDFLAGS)
+  CS_S(_CS_POSIX_V6_LPBIG_OFFBIG_LDFLAGS);
+#elif defined(_CS_XBS5_LPBIG_OFFBIG_LDFLAGS)
+  CS_S(_CS_XBS5_LPBIG_OFFBIG_LDFLAGS);
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(_CS_POSIX_V6_LPBIG_OFFBIG_LIBS)
+  CS_S(_CS_POSIX_V6_LPBIG_OFFBIG_LIBS);
+#elif defined(_CS_XBS5_LPBIG_OFFBIG_LIBS)
+  CS_S(_CS_XBS5_LPBIG_OFFBIG_LIBS);
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(_CS_POSIX_V6_WIDTH_RESTRICTED_ENVS)
+  CS_S(_CS_POSIX_V6_WIDTH_RESTRICTED_ENVS);
+#else
+  pushSTACK(NIL);
+#endif
+  funcall(`POSIX::MAKE-CONFSTR`,14);
+}
+#endif /* HAVE_CONFSTR */
+
 #if defined(HAVE_SYS_RESOURCE_H)
 # include <sys/resource.h>
 #endif

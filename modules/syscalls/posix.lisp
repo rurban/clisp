@@ -137,6 +137,42 @@
 (setf (documentation 'sysconf 'function)
       "Return an instance of the SYSCONF structure.
 NIL - no such key; T - sysconf(3c) returned -1.")
+
+(export
+ '(confstr confstr-path confstr-ilp32-off32-cflags confstr-ilp32-off32-ldflags
+   confstr-ilp32-off32-libs confstr-ilp32-offbig-cflags
+   confstr-ilp32-offbig-ldflags confstr-ilp32-offbig-libs
+   confstr-lp64-off64-cflags confstr-lp64-off64-ldflags
+   confstr-lp64-off64-libs confstr-lpbig-offbig-cflags
+   confstr-lpbig-offbig-ldflags confstr-lpbig-offbig-libs
+   confstr-width-restricted-envs))
+(defstruct (confstr (:constructor
+                     make-confstr (path ilp32-off32-cflags ilp32-off32-ldflags
+                                   ilp32-off32-libs ilp32-offbig-cflags
+                                   ilp32-offbig-ldflags ilp32-offbig-libs
+                                   lp64-off64-cflags lp64-off64-ldflags
+                                   lp64-off64-libs lpbig-offbig-cflags
+                                   lpbig-offbig-ldflags lpbig-offbig-libs
+                                   width-restricted-envs)))
+  "see confstr(3c) for details"
+  (path nil :type (or boolean string) :read-only t)
+  (ilp32-off32-cflags nil :type (or boolean string) :read-only t)
+  (ilp32-off32-ldflags nil :type (or boolean string) :read-only t)
+  (ilp32-off32-libs nil :type (or boolean string) :read-only t)
+  (ilp32-offbig-cflags nil :type (or boolean string) :read-only t)
+  (ilp32-offbig-ldflags nil :type (or boolean string) :read-only t)
+  (ilp32-offbig-libs nil :type (or boolean string) :read-only t)
+  (lp64-off64-cflags nil :type (or boolean string) :read-only t)
+  (lp64-off64-ldflags nil :type (or boolean string) :read-only t)
+  (lp64-off64-libs nil :type (or boolean string) :read-only t)
+  (lpbig-offbig-cflags nil :type (or boolean string) :read-only t)
+  (lpbig-offbig-ldflags nil :type (or boolean string) :read-only t)
+  (lpbig-offbig-libs nil :type (or boolean string) :read-only t)
+  (width-restricted-envs nil :type (or boolean string) :read-only t))
+
+(setf (documentation 'confstr 'function)
+      "Return an instance of the CONFSTR structure.
+NIL - no such key; T - the parameter is not set.")
 )
 ;;; ============================================================
 #+unix (progn
