@@ -366,16 +366,16 @@ executes a compiled version of form.</para>
   &echo-stream-t;, &string-stream-t;</simpara></listitem>
  <listitem><simpara>&package-t;, &hash-table-t;, &readtable-t;, &pathname-t;,
   &logical-pathname-t;, &random-state-t;, &byte-t;</simpara></listitem>
- <listitem><simpara><classname>special-operator</classname>,
-  <classname>load-time-eval</classname>, &symbol-macro;, &encoding;,
-  &foreign-pointer;, <classname>foreign-address</classname>,
-  <classname>foreign-variable</classname>,
-  <classname>foreign-function</classname></simpara></listitem>
+ <listitem><simpara><classname>SPECIAL-OPERATOR</classname>,
+  <classname>LOAD-TIME-EVAL</classname>, &symbol-macro;, &encoding;,
+  &foreign-pointer;, <classname>FOREIGN-ADDRESS</classname>,
+  <classname>FOREIGN-VARIABLE</classname>,
+  <classname>FOREIGN-FUNCTION</classname></simpara></listitem>
  <listitem><simpara>&weak-pointer;,
-          <link linkend="reader"><classname>read-label</classname></link>,
-          <link linkend="reader"><classname>frame-pointer</classname></link>,
-      <classname>system-internal</classname></simpara></listitem>
- <listitem><simpara><classname>address</classname> (should not
+          <link linkend="reader"><classname>READ-LABEL</classname></link>,
+          <link linkend="reader"><classname>FRAME-POINTER</classname></link>,
+      <classname>SYSTEM-INTERNAL</classname></simpara></listitem>
+ <listitem><simpara><classname>ADDRESS</classname> (should not
   occur)</simpara></listitem>
  <listitem><simpara>any other symbol (structure types or &clos;
   classes)</simpara></listitem>
@@ -1949,7 +1949,7 @@ are simple characters.</para>
              <entry>17 * 2<superscript>16</superscript> = 1114112</entry></row>
 </tbody></tgroup></table>
 
-<para>The types <classname>ext:string-char</classname> and
+<para>The types <classname>EXT:STRING-CHAR</classname> and
  &base-char-t; are equivalent to &character-t;.</para>
 
 <para>The graphic characters have been described above.</para>
@@ -4003,8 +4003,8 @@ functions are provided:
 
 <formalpara id="builk-io-rationale"><title>Rationale</title>
 <para>The rationale for &rd-ch-seq;, &rd-by-seq;, &wr-ch-seq; and
- &wr-by-seq; is that some &stream-r;s support both character and binary
- i/o, and when you read into a &sequence-r; that can hold both (e.g.,
+ &wr-by-seq; is that some &stream-t;s support both character and binary
+ i/o, and when you read into a &sequence-t; that can hold both (e.g.,
  &list-t; or &simple-vector-t;) you cannot determine which kind of
  input to use.  In such situation &read-sequence; and &write-sequence;
  signal an &error;, while &rd-ch-seq;, &rd-by-seq;, &wr-ch-seq; and
@@ -4012,8 +4012,58 @@ functions are provided:
 
 </section>
 
-<!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY
-!= 0)) -->
+<section id="non-block-io"><title>Non-Blocking Input and Output</title>
+
+<para>In addition to the standard functions &listen; and
+ &read-char-no-hang;, &clisp; provides the following functionality
+ facilitating non-blocking input and output, both binary and character.</para>
+
+<variablelist>
+ <varlistentry id="rcwhp"><term><literal
+  role="sexp">(&rcwhp; &stream-r;)</literal></term>
+  <listitem><simpara>&rcwhp; queries the stream's input status.
+  It returns &nil; if &read-char; and &peek-char; with a
+  <replaceable>peek-type</replaceable> of &nil; will return immediately.
+  Otherwise it returns &t;.  (In the latter case the standard
+  &listen; function would return &nil;.)</simpara>
+  <simpara>Note the difference with <literal role="sexp">(&not;
+  (&listen; &stream-r;))</literal>: When the &eos; is reached, &listen;
+  returns &nil;, whereas &rcwhp; returns &nil;.</simpara>
+  <simpara>Note also that &rcwhp; is not a good way to test for &eos;:
+  If &rcwhp; returns &t;, this does not mean that the &stream-r; will
+  deliver more characters.  It only means that it is not known at this
+  moment whether the &stream-r; is already at &eos;, or will deliver
+  more characters.</simpara></listitem></varlistentry>
+ <varlistentry id="rbla"><term><literal
+    role="sexp">(&rbla; &stream-r;)</literal></term>
+  <listitem><simpara>To be called only if &stream-r;'s
+   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
+   Returns &t; if &read-byte; would return immediately with an
+   &integer-t; result.
+   Returns &eof-k; if the &eos; is already known to be reached.
+   If &read-byte;'s value is not available immediately, returns &nil;
+   instead of waiting.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+  role="sexp">(<function>EXT:READ-BYTE-WILL-HANG-P</function>
+              &stream-r;)</literal></term>
+  <listitem><simpara>To be called only if &stream-r;'s
+   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
+   Returns &nil; if &read-byte; will return immediately.
+   Otherwise it returns true.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+    role="sexp">(<function>EXT:READ-BYTE-NO-HANG</function>
+                 &stream-r; &optional-amp; &eof-ep; &eof-v;)</literal></term>
+  <listitem><simpara>To be called only if &stream-r;'s
+   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
+   Returns an &integer-t; or does &eos; handling, like &read-byte;,
+   if that would return immediately.
+   If &read-byte;'s value is not available immediately, returns &nil;
+   instead of waiting.</simpara></listitem></varlistentry>
+</variablelist>
+
+</section>
+
+<!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY!= 0)) -->
 <section id="file-pos"><title>Function &file-position;</title>
 
 <variablelist>
@@ -4039,13 +4089,13 @@ functions are provided:
  <varlistentry id="eltype"><term>&eltype;</term>
   <listitem><simpara>types equivalent to &character-t; or
     &unsigned-byte-n;, &signed-byte-n;; if the stream is to be
-    unbuffered, &n-r; must be a multiple of 8.</simpara>
+    un&buffered;, &n-r; must be a multiple of 8.</simpara>
    <simpara>If &n-r; is not a multiple of 8, &clisp; will use the
     specified number of bits for i/o, and write the file length
     (as a number of &n-r;-bit bytes) in the preamble.</simpara>
    <simpara>This is done to ensure the input/output consistency.
     Suppose you open a file with &eltype; of <literal
-    role="sexp">(&unsigned-byte-t; 3)</literal> and write 7 bytes
+    role="type">(&unsigned-byte-t; 3)</literal> and write 7 bytes
     (i.e., 21 bit) there.
     The underlying OS can do input/output only in whole 8-bit bytes.
     Thus the OS will report the size of the file as 3 (8-bit) bytes.
@@ -4433,59 +4483,6 @@ functions are provided:
 
 </section>
 
-<section id="listen"><title>Functions &listen;, &read-char-no-hang;</title>
-
-<variablelist>
- <varlistentry id="rcwhp"><term><literal
-  role="sexp">(&rcwhp; &stream-r;)</literal></term>
-  <listitem><simpara>&rcwhp; queries the stream's input status.
-  It returns &nil; if &read-char; and &peek-char; with a
-  <replaceable>peek-type</replaceable> of &nil; will return immediately.
-  Otherwise it returns &t;.  (In the latter case the standard
-  &listen; function would return &nil;.)</simpara>
-  <simpara>Note the difference with <literal role="sexp">(&not;
-  (&listen; &stream-r;))</literal>: When the &eos; is reached, &listen;
-  returns &nil;, whereas &rcwhp; returns &nil;.</simpara>
-  <simpara>Note also that &rcwhp; is not a good mean to test for &eos;:
-  If &rcwhp; returns &t;, this does not mean that the &stream-r; will
-  deliver more characters.  It only means that it is not known at this
-  moment whether the &stream-r; is already at &eos;, or will deliver
-  more characters.</simpara></listitem></varlistentry>
-</variablelist>
-
-</section>
-
-<section id="read-byte"><title>Function &read-byte;</title>
-
-<variablelist>
- <varlistentry id="rbla"><term><literal
-    role="sexp">(&rbla; &stream-r;)</literal></term>
-  <listitem><simpara>To be called only if &stream-r;'s
-   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
-   Returns &t; if &read-byte; would return immediately with an
-   &integer-t; result.
-   Returns &eof-k; if the &eos; is already known to be reached.
-   If &read-byte;'s value is not available immediately, returns &nil;
-   instead of waiting.</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-  role="sexp">(<function>EXT:READ-BYTE-WILL-HANG-P</function>
-              &stream-r;)</literal></term>
-  <listitem><simpara>To be called only if &stream-r;'s
-   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
-   Returns &nil; if &read-byte; will return immediately.
-   Otherwise it returns true.</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>EXT:READ-BYTE-NO-HANG</function>
-                 &stream-r; &optional-amp; &eof-ep; &eof-v;)</literal></term>
-  <listitem><simpara>To be called only if &stream-r;'s
-   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
-   Returns an &integer-t; or does &eos; handling, like &read-byte;,
-   if that would return immediately.
-   If &read-byte;'s value is not available immediately, returns &nil;
-   instead of waiting.</simpara></listitem></varlistentry>
-</variablelist>
-
-</section>
 </chapter>
 
 
@@ -4997,8 +4994,8 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><simpara>&disassemble; can disassemble to machine code,
  provided that &gnu; gdb is present.  In that case the argument may be a
- <classname>system-function</classname>, a
- <classname>foreign-function</classname>, a special operator indicator,
+ <classname>SYSTEM-FUNCTION</classname>, a
+ <classname>FOREIGN-FUNCTION</classname>, a special operator indicator,
  a symbol denoting one of these, a number, or a string.
  </simpara></listitem></varlistentry>
 </variablelist>
