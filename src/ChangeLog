@@ -1,3 +1,7 @@
+2001-06-02  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (LPARTS): added dirkey
+
 2001-06-01  Sam Steingold  <sds@gnu.org>
 
 	* screen.lisp: use DEFPACKAGE instead of USE-PACKAGE since this
