@@ -4472,16 +4472,17 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  Special forms such as &let;, &let-star;, &unwind-protect; and &catch;
  produce special kinds of stack frames.</para>
 
-<para>In a break loop there is a current stack frame, which is initially
- the most recent stack frame but can be moved using the debugger commands
+<para>In a break loop there is a <firstterm>current stack
+ frame</firstterm>, which is initially the most recent stack frame but
+ can be moved using the debugger commands
  <command>Up</command> and <command>Down</command>.</para>
 
-<para>Evaluation of forms in a break loop occurs &not-e; in the
- &lex-env; of the current stack frame but in the &dyn-env; of the
- debugger's caller.  This means that to inspect or modify a &lex-var;
- all you have to do is to move to the current stack frame just below the
- frame that corresponds to the form or the function call that binds that
- variable.</para>
+<para>Evaluation of forms in a break loop occurs in the &lex-env; of the
+ current stack frame and <emphasis>at the same time</emphasis> in the
+ &dyn-env; of the debugger's caller.  This means that to inspect or
+ modify a &lex-var; all you have to do is to move the current stack
+ frame to be just below the frame that corresponds to the form or the
+ function call that binds that variable.</para>
 
 <para>There is a current "stack mode" which defines in how much
  detail the stack is shown by the stack-related debugger commands.</para>
