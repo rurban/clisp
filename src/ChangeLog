@@ -1,3 +1,10 @@
+2002-03-17  Sam Steingold  <sds@gnu.org>
+
+	* describe.lisp (describe-stream-flush-buffer): use
+	WRITE-CHAR-SEQUENCE instead of WRITE-SEQUENCE for the benefit of
+	dribbling when the output streams are reset so that it is not
+	clear that they are character streams
+
 2002-03-16  Joerg-Cyril Hoehle  <Joerg-Cyril.Hoehle@t-systems.com>
 
 	* describe.lisp (describe-object): FOREIGN-POINTER is present

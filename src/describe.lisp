@@ -95,7 +95,7 @@ to print the corresponding values, or T for all of them.")
       (when pending-indent      ; do the indent
         (sys::write-spaces pending-indent target-stream)
         (setq pending-indent nil))
-      (write-sequence buffer target-stream)
+      (write-char-sequence buffer target-stream)
       (setf (fill-pointer buffer) 0)
       (when newline-p (newline)))))
 (clos:defmethod stream-write-char ((stream describe-stream) ch)
