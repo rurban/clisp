@@ -1,3 +1,12 @@
+2003-07-02  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	* pathname.d (directory_namestring_parts) [WIN32_NATIVE,
+	PATHNAME_UNIX]: include host parts.
+	(whole_namestring): do not call host_namestring_parts when
+	directory_namestring_parts includes it.
+	(assure_dir_exists) [WIN32_NATIVE]: fixed bugs.
+	(assure_dir_exists) [PATHNAME_UNIX]: do not insert host parts.
+
 2003-07-01  Sam Steingold  <sds@gnu.org>
 
 	* describe.lisp (describe1): better whitespace for documentation
