@@ -1,5 +1,21 @@
 1999-06-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * io.d (READ-CHAR-STATUS): Remove function.
+          (READ-CHAR-WILL-HANG-P): New function.
+        * stream.d (listen_generic): Call GENERIC-STREAM-READ-CHAR-WILL-HANG-P
+          instead of GENERIC-STREAM-READ-CHAR-STATUS.
+          (stream_listen): Call STREAM-READ-CHAR-WILL-HANG-P instead of
+          STREAM-READ-CHAR-STATUS.
+        * gstream.lsp (stream-read-char-status): Remove function.
+          (stream-read-char-will-hang-p): New function.
+          (generic-stream-read-char-status): Remove function.
+          (generic-stream-read-char-will-hang-p): New function.
+        * screen.lsp (generic-stream-read-char-status@screen-controller):
+          Remove method.
+          (generic-stream-read-char-will-hang-p@screen-controller): New method.
+
+1999-06-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * describe.lsp (apropos-list, *apropos-do-more*, apropos): Move.
 
 1999-06-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>

@@ -4101,18 +4101,14 @@ controller and some number of arguments.
        <a href="CLHSROOT/Body/convar_nil.html">
        <code>nil</code></a> at end of file.
        Takes one argument, the controller object.
-  <dt><a name="generic-stream-read-char-status"></a>
-      <code>(<strong>lisp:generic-stream-read-char-status</strong>
+  <dt><a name="generic-stream-read-char-will-hang-p"></a>
+      <code>(<strong>lisp:generic-stream-read-char-will-hang-p</strong>
              <var>controller</var>)</code>
   <dd> This generic function is used to query the stream's input status.
-    The possible return values are the same as for the
-    <a href="#read-char-status"><code>lisp:read-char-status</code></a>
-    function.
-    <dl compact>
-      <dt><code>:eof</code>             <dd>means EOF
-      <dt><code>:input-available</code> <dd>means a character (or byte) pending
-      <dt><code>:wait</code>            <dd>means no input available
-    </dl>
+    It returns <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+    if <code>lisp:generic-stream-read-char</code> and
+    <code>lisp:generic-stream-peek-char</code> will certainly return
+    immediately. Otherwise it returns true.
   <dt><code>(<strong>lisp:generic-stream-write-char</strong>
              <var>controller</var> <var>ch</var>)</code>
     <dd> First argument is the controller object.
@@ -4710,21 +4706,28 @@ alternative to the use of <code>readtable-case</code> is the use of the
     read-char-no-hang</a></h4>
 
 <dl>
-  <dt> <a name="read-char-status"></a>
-    <code>(<strong>lisp:read-char-status</strong> <var>stream</var>)</code>
-  <dd> <code>lisp:read-char-status</code> is a variant of the standard
-    <a href="CLHSROOT/Body/fun_listen.html">
-    <code>listen</code></a> function, which returns more detailed information
-    about the stream's input status. The return value is one of:
-    <dl compact>
-      <dt><code>:eof</code>             <dd>means EOF
-      <dt><code>:input-available</code> <dd>means a character (or byte) pending
-      <dt><code>:wait</code>            <dd>means no input available
-    </dl>
-    <p> The return values are the same as for the
-    <code><a href="#generic-stream-read-char-status">generic-stream-read-char-status</a></code>
-    method, so this function is a good fit to define some generic streams
-    based upon other CLISP streams.
+  <dt> <code>(<strong>lisp:read-char-will-hang-p</strong>
+              <var>stream</var>)</code>
+  <dd> <code>lisp:read-char-will-hang-p</code> queries the stream's input
+    status. It returns
+    <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> if
+    <a href="CLHSROOT/Body/fun_read-char.html"><code>read-char</code></a> and
+    <a href="CLHSROOT/Body/fun_peek-char.html"><code>peek-char</code></a> with
+    a peek-type of <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+    will return immediately. Otherwise it returns true.
+    <p>
+    Note the difference with the standard
+    <a href="CLHSROOT/Body/fun_listen.html"><code>listen</code></a> function:
+    When the end-of-stream is reached, <code>listen</code> returns
+    <code>nil</code>, whereas <code>lisp:read-char-will-hang-p</code> returns
+    true.
+    <p>
+    Note also that <code>lisp:read-char-will-hang-p</code> is not a good mean
+    to test for end-of-stream: If <code>lisp:read-char-will-hang-p</code>
+    returns <code>t</code>, this does not mean that the stream will deliver
+    more characters. It only means that it is not known at this moment
+    whether the stream is already at end-of-stream, or will deliver more
+    characters.
 </dl>
 
 <h2><a name="system"></a><a href="CLHSROOT/Body/chap-24.html">
