@@ -221,7 +221,7 @@ nonreturning_function(local, fehler_64bit, (object fvd)) {
                 fvd1 = TheSvector(fvd1)->data[1];
                 fvd2 = TheSvector(fvd2)->data[1];
                 goto recurse;
-              } elif ((len == 4) && eq(obj,S(c_function))) {
+              } else if ((len == 4) && eq(obj,S(c_function))) {
                 if (!equal_fvd(TheSvector(fvd1)->data[1],TheSvector(fvd2)->data[1]))
                   goto no;
                 if (!equal_argfvds(TheSvector(fvd1)->data[2],TheSvector(fvd2)->data[2]))
@@ -438,9 +438,8 @@ local object convert_function_to_foreign (object fun, object resulttype,
                     if (eq(alist2,alist)) {
                       alist2 = alist1 = Cdr(alist2);
                       shifthash(O(foreign_callin_table),fun,alist2);
-                    } else {
+                    } else
                       Cdr(alist1) = alist2 = Cdr(alist2);
-                    }
                   } else {
                     alist1 = alist2; alist2 = Cdr(alist2);
                   }
@@ -552,31 +551,32 @@ local void foreign_layout(fvd)
       if (eq(fvd,S(nil))) {
         data_size = 0; data_alignment = 1;
         data_splittable = true; return;
-      } elif (eq(fvd,S(boolean))) {
+      } else if (eq(fvd,S(boolean))) {
         data_size = sizeof(int); data_alignment = alignof(int);
         data_splittable = true; return;
-      } elif (eq(fvd,S(character))) {
-        data_size = sizeof(unsigned char); data_alignment = alignof(unsigned char);
+      } else if (eq(fvd,S(character))) {
+        data_size = sizeof(unsigned char);
+        data_alignment = alignof(unsigned char);
         data_splittable = true; return;
-      } elif (eq(fvd,S(char)) || eq(fvd,S(sint8))) {
+      } else if (eq(fvd,S(char)) || eq(fvd,S(sint8))) {
         data_size = sizeof(sint8); data_alignment = alignof(sint8);
         data_splittable = true; return;
-      } elif (eq(fvd,S(uchar)) || eq(fvd,S(uint8))) {
+      } else if (eq(fvd,S(uchar)) || eq(fvd,S(uint8))) {
         data_size = sizeof(uint8); data_alignment = alignof(uint8);
         data_splittable = true; return;
-      } elif (eq(fvd,S(short)) || eq(fvd,S(sint16))) {
+      } else if (eq(fvd,S(short)) || eq(fvd,S(sint16))) {
         data_size = sizeof(sint16); data_alignment = alignof(sint16);
         data_splittable = true; return;
-      } elif (eq(fvd,S(ushort)) || eq(fvd,S(uint16))) {
+      } else if (eq(fvd,S(ushort)) || eq(fvd,S(uint16))) {
         data_size = sizeof(uint16); data_alignment = alignof(uint16);
         data_splittable = true; return;
-      } elif (eq(fvd,S(sint32))) {
+      } else if (eq(fvd,S(sint32))) {
         data_size = sizeof(sint32); data_alignment = alignof(sint32);
         data_splittable = true; return;
-      } elif (eq(fvd,S(uint32))) {
+      } else if (eq(fvd,S(uint32))) {
         data_size = sizeof(uint32); data_alignment = alignof(uint32);
         data_splittable = true; return;
-      } elif (eq(fvd,S(sint64))) {
+      } else if (eq(fvd,S(sint64))) {
         #ifdef HAVE_LONGLONG
         data_size = sizeof(sint64); data_alignment = alignof(sint64);
         data_splittable = (long_bitsize<64 ? av_word_splittable_2(uint32,uint32) : av_word_splittable_1(uint64)); # always true
@@ -585,41 +585,44 @@ local void foreign_layout(fvd)
         data_splittable = av_word_splittable_2(uint32,uint32); # always true
         #endif
         return;
-      } elif (eq(fvd,S(uint64))) {
+      } else if (eq(fvd,S(uint64))) {
         #ifdef HAVE_LONGLONG
         data_size = sizeof(uint64); data_alignment = alignof(uint64);
         data_splittable = (long_bitsize<64 ? av_word_splittable_2(uint32,uint32) : av_word_splittable_1(uint64)); # always true
         #else
-        data_size = sizeof(struct_uint64); data_alignment = alignof(struct_uint64);
+        data_size = sizeof(struct_uint64);
+        data_alignment = alignof(struct_uint64);
         data_splittable = av_word_splittable_2(uint32,uint32); # always true
         #endif
         return;
-      } elif (eq(fvd,S(int))) {
+      } else if (eq(fvd,S(int))) {
         data_size = sizeof(int); data_alignment = alignof(int);
         data_splittable = true; return;
-      } elif (eq(fvd,S(uint))) {
-        data_size = sizeof(unsigned int); data_alignment = alignof(unsigned int);
+      } else if (eq(fvd,S(uint))) {
+        data_size = sizeof(unsigned int);
+        data_alignment = alignof(unsigned int);
         data_splittable = true; return;
-      } elif (eq(fvd,S(long))) {
+      } else if (eq(fvd,S(long))) {
         data_size = sizeof(long); data_alignment = alignof(long);
         data_splittable = true; return;
-      } elif (eq(fvd,S(ulong))) {
-        data_size = sizeof(unsigned long); data_alignment = alignof(unsigned long);
+      } else if (eq(fvd,S(ulong))) {
+        data_size = sizeof(unsigned long);
+        data_alignment = alignof(unsigned long);
         data_splittable = true; return;
-      } elif (eq(fvd,S(single_float))) {
+      } else if (eq(fvd,S(single_float))) {
         data_size = sizeof(float); data_alignment = alignof(float);
         data_splittable = (sizeof(float) <= sizeof(long)); return;
-      } elif (eq(fvd,S(double_float))) {
+      } else if (eq(fvd,S(double_float))) {
         data_size = sizeof(double); data_alignment = alignof(double);
         data_splittable = (sizeof(double) <= sizeof(long)); return;
-      } elif (eq(fvd,S(c_pointer))) {
+      } else if (eq(fvd,S(c_pointer))) {
         data_size = sizeof(void*); data_alignment = alignof(void*);
         data_splittable = true; return;
-      } elif (eq(fvd,S(c_string))) {
+      } else if (eq(fvd,S(c_string))) {
         data_size = sizeof(char*); data_alignment = alignof(char*);
         data_splittable = true; return;
       }
-    } elif (simple_vector_p(fvd)) {
+    } else if (simple_vector_p(fvd)) {
       var uintL fvdlen = Svector_length(fvd);
       if (fvdlen > 0) {
         var object fvdtype = TheSvector(fvd)->data[0];
@@ -645,7 +648,7 @@ local void foreign_layout(fvd)
           data_size = cumul_size; data_alignment = cumul_alignment;
           data_splittable = cumul_splittable;
           return;
-        } elif (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
+        } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
           var uintL cumul_size = 0;
           var uintL cumul_alignment = struct_alignment;
           var bool cumul_splittable = false;
@@ -666,7 +669,8 @@ local void foreign_layout(fvd)
           data_size = cumul_size; data_alignment = cumul_alignment;
           data_splittable = cumul_splittable;
           return;
-        } elif ((eq(fvdtype,S(c_array)) && (fvdlen > 1)) || (eq(fvdtype,S(c_array_max)) && (fvdlen == 3))) {
+        } else if ((eq(fvdtype,S(c_array)) && (fvdlen > 1))
+                   || (eq(fvdtype,S(c_array_max)) && (fvdlen == 3))) {
           var uintL i;
           foreign_layout(TheSvector(fvd)->data[1]);
           for (i = 2; i < fvdlen; i++) {
@@ -677,10 +681,11 @@ local void foreign_layout(fvd)
           }
           data_splittable = (data_size <= sizeof(long));
           return;
-        } elif (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
+        } else if (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
           data_size = sizeof(void*); data_alignment = alignof(void*);
           data_splittable = true; return;
-        } elif ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null)) || eq(fvdtype,S(c_array_ptr))) && (fvdlen == 2)) {
+        } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null))
+                    || eq(fvdtype,S(c_array_ptr))) && (fvdlen == 2)) {
           data_size = sizeof(void*); data_alignment = alignof(void*);
           data_splittable = true; return;
         }
@@ -716,13 +721,11 @@ local void blockzero(ptr,size)
     if (size > 0) {
       if ((size % sizeof(long)) || ((uintP)ptr % sizeof(long))) {
         var char* p = (char*)ptr;
-        do {
-          *p++ = 0;
+        do { *p++ = 0;
         } while (--size > 0);
       } else {
         var long* p = (long*)ptr;
-        do {
-          *p++ = 0;
+        do { *p++ = 0;
         } while ((size -= sizeof(long)) > 0);
       }
     }
@@ -736,16 +739,12 @@ local bool blockzerop(ptr,size)
   {
     if ((size % sizeof(long)) || ((uintP)ptr % sizeof(long))) {
       var const char* p = (const char*)ptr;
-      do {
-        if (!(*p++ == 0))
-          return false;
+      do { if (*p++ != 0) return false;
       } while (--size > 0);
       return true;
     } else {
       var const long* p = (const long*)ptr;
-      do {
-        if (!(*p++ == 0))
-          return false;
+      do { if (*p++ != 0) return false;
       } while ((size -= sizeof(long)) > 0);
       return true;
     }
@@ -767,32 +766,32 @@ global object convert_from_foreign (object fvd, const void* data);
         if (eq(eltype,S(character))) {
           pushSTACK(S(Kelement_type)); pushSTACK(S(character));
           argcount += 2;
-        } elif (eq(eltype,S(uint8))) {
+        } else if (eq(eltype,S(uint8))) {
           pushSTACK(S(Kelement_type)); pushSTACK(O(type_uint8));
           argcount += 2;
         }
         #if 0
-        elif (eq(eltype,S(sint8))) {
+        else if (eq(eltype,S(sint8))) {
           pushSTACK(S(Kelement_type)); pushSTACK(O(type_sint8));
           argcount += 2;
         }
         #endif
-        elif (eq(eltype,S(uint16))) {
+        else if (eq(eltype,S(uint16))) {
           pushSTACK(S(Kelement_type)); pushSTACK(O(type_uint16));
           argcount += 2;
         }
         #if 0
-        elif (eq(eltype,S(sint16))) {
+        else if (eq(eltype,S(sint16))) {
           pushSTACK(S(Kelement_type)); pushSTACK(O(type_sint16));
           argcount += 2;
         }
         #endif
-        elif (eq(eltype,S(uint32))) {
+        else if (eq(eltype,S(uint32))) {
           pushSTACK(S(Kelement_type)); pushSTACK(O(type_uint32));
           argcount += 2;
         }
         #if 0
-        elif (eq(eltype,S(sint32))) {
+        else if (eq(eltype,S(sint32))) {
           pushSTACK(S(Kelement_type)); pushSTACK(O(type_sint32));
           argcount += 2;
         }
@@ -830,7 +829,7 @@ global object convert_from_foreign (object fvd, const void* data);
           dotimespL(size,size, { *ptr2++ = as_chart(*ptr1++); } );
           #endif
         }
-      } elif (eq(eltype,S(uint8))) {
+      } else if (eq(eltype,S(uint8))) {
         if (size > 0) {
           var const uint8* ptr1 = (const uint8*)data;
           var uint8* ptr2 = (uint8*)&TheSbvector(array)->data[0];
@@ -838,7 +837,7 @@ global object convert_from_foreign (object fvd, const void* data);
         }
       }
       #if 0
-      elif (eq(eltype,S(sint8))) {
+      else if (eq(eltype,S(sint8))) {
         if (size > 0) {
           var const sint8* ptr1 = (const sint8*)data;
           var sint8* ptr2 = (sint8*)&TheSbvector(array)->data[0];
@@ -846,7 +845,7 @@ global object convert_from_foreign (object fvd, const void* data);
         }
       }
       #endif
-      elif (eq(eltype,S(uint16))) {
+      else if (eq(eltype,S(uint16))) {
         if (size > 0) {
           var const uint16* ptr1 = (const uint16*)data;
           var uint16* ptr2 = (uint16*)&TheSbvector(array)->data[0];
@@ -854,7 +853,7 @@ global object convert_from_foreign (object fvd, const void* data);
         }
       }
       #if 0
-      elif (eq(eltype,S(sint16))) {
+      else if (eq(eltype,S(sint16))) {
         if (size > 0) {
           var const sint16* ptr1 = (const sint16*)data;
           var sint16* ptr2 = (sint16*)&TheSbvector(array)->data[0];
@@ -862,7 +861,7 @@ global object convert_from_foreign (object fvd, const void* data);
         }
       }
       #endif
-      elif (eq(eltype,S(uint32))) {
+      else if (eq(eltype,S(uint32))) {
         if (size > 0) {
           var const uint32* ptr1 = (const uint32*)data;
           var uint32* ptr2 = (uint32*)&TheSbvector(array)->data[0];
@@ -870,7 +869,7 @@ global object convert_from_foreign (object fvd, const void* data);
         }
       }
       #if 0
-      elif (eq(eltype,S(sint32))) {
+      else if (eq(eltype,S(sint32))) {
         if (size > 0) {
           var const sint32* ptr1 = (const sint32*)data;
           var sint32* ptr2 = (sint32*)&TheSbvector(array)->data[0];
@@ -899,10 +898,10 @@ global object convert_from_foreign(fvd,data)
         # If we are presented the empty type, we take it as "ignore"
         # and return NIL.
         return NIL;
-      elif (eq(fvd,S(boolean))) {
+      else if (eq(fvd,S(boolean))) {
         var const int* pdata = (const int*)data;
         return (*pdata ? T : NIL);
-      } elif (eq(fvd,S(character))) {
+      } else if (eq(fvd,S(character))) {
         var const uintB* pdata = (const unsigned char *)data;
         var chart ch;
         #ifdef UNICODE
@@ -917,25 +916,25 @@ global object convert_from_foreign(fvd,data)
         ch = as_chart(*pdata);
         #endif
         return code_char(ch);
-      } elif (eq(fvd,S(char)) || eq(fvd,S(sint8))) {
+      } else if (eq(fvd,S(char)) || eq(fvd,S(sint8))) {
         var const sint8* pdata = (const sint8*)data;
         return sint8_to_I(*pdata);
-      } elif (eq(fvd,S(uchar)) || eq(fvd,S(uint8))) {
+      } else if (eq(fvd,S(uchar)) || eq(fvd,S(uint8))) {
         var const uint8* pdata = (const uint8*)data;
         return uint8_to_I(*pdata);
-      } elif (eq(fvd,S(short)) || eq(fvd,S(sint16))) {
+      } else if (eq(fvd,S(short)) || eq(fvd,S(sint16))) {
         var const sint16* pdata = (const sint16*)data;
         return sint16_to_I(*pdata);
-      } elif (eq(fvd,S(ushort)) || eq(fvd,S(uint16))) {
+      } else if (eq(fvd,S(ushort)) || eq(fvd,S(uint16))) {
         var const uint16* pdata = (const uint16*)data;
         return uint16_to_I(*pdata);
-      } elif (eq(fvd,S(sint32))) {
+      } else if (eq(fvd,S(sint32))) {
         var const sint32* pdata = (const sint32*)data;
         return sint32_to_I(*pdata);
-      } elif (eq(fvd,S(uint32))) {
+      } else if (eq(fvd,S(uint32))) {
         var const uint32* pdata = (const uint32*)data;
         return uint32_to_I(*pdata);
-      } elif (eq(fvd,S(sint64))) {
+      } else if (eq(fvd,S(sint64))) {
         var const struct_sint64* pdata = (const struct_sint64*)data;
         #ifdef HAVE_LONGLONG
         var sint64 val;
@@ -948,7 +947,7 @@ global object convert_from_foreign(fvd,data)
         #else
         return L2_to_I(pdata->hi,pdata->lo);
         #endif
-      } elif (eq(fvd,S(uint64))) {
+      } else if (eq(fvd,S(uint64))) {
         var const struct_uint64* pdata = (const struct_uint64*)data;
         #ifdef HAVE_LONGLONG
         var uint64 val;
@@ -961,34 +960,34 @@ global object convert_from_foreign(fvd,data)
         #else
         return UL2_to_I(pdata->hi,pdata->lo);
         #endif
-      } elif (eq(fvd,S(int))) {
+      } else if (eq(fvd,S(int))) {
         var const int* pdata = (const int*)data;
         return sint_to_I(*pdata);
-      } elif (eq(fvd,S(uint))) {
+      } else if (eq(fvd,S(uint))) {
         var const unsigned int * pdata = (const unsigned int *)data;
         return uint_to_I(*pdata);
-      } elif (eq(fvd,S(long))) {
+      } else if (eq(fvd,S(long))) {
         var const long* pdata = (const long*)data;
         return slong_to_I(*pdata);
-      } elif (eq(fvd,S(ulong))) {
+      } else if (eq(fvd,S(ulong))) {
         var const unsigned long * pdata = (const unsigned long *)data;
         return ulong_to_I(*pdata);
-      } elif (eq(fvd,S(single_float))) {
+      } else if (eq(fvd,S(single_float))) {
         var const ffloatjanus* pdata = (const ffloatjanus*) data;
         return c_float_to_FF(pdata);
-      } elif (eq(fvd,S(double_float))) {
+      } else if (eq(fvd,S(double_float))) {
         var const dfloatjanus* pdata = (const dfloatjanus*) data;
         return c_double_to_DF(pdata);
-      } elif (eq(fvd,S(c_pointer))) {
+      } else if (eq(fvd,S(c_pointer))) {
         return make_faddress(O(fp_zero),(uintP)(*(void* const *) data));
-      } elif (eq(fvd,S(c_string))) {
+      } else if (eq(fvd,S(c_string))) {
         var const char * asciz = *(const char * const *) data;
         if (asciz == NULL)
           return NIL;
         else
           return asciz_to_string(asciz,O(foreign_encoding));
       }
-    } elif (simple_vector_p(fvd)) {
+    } else if (simple_vector_p(fvd)) {
       var uintL fvdlen = Svector_length(fvd);
       if (fvdlen > 0) {
         var object fvdtype = TheSvector(fvd)->data[0];
@@ -1019,10 +1018,10 @@ global object convert_from_foreign(fvd,data)
           }
           skipSTACK(1);
           return value1;
-        } elif (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
+        } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
           # Use the union's first component.
           return convert_from_foreign(fvdlen > 2 ? (object)TheSvector(fvd)->data[2] : NIL, data);
-        } elif (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
+        } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
           pushSTACK(fvd);
           # Allocate the resulting array: (MAKE-ARRAY dims :element-type ...)
           var object dims = Cdr(Cdr((coerce_sequence(fvd,S(list),true),value1)));
@@ -1066,7 +1065,7 @@ global object convert_from_foreign(fvd,data)
           }
           skipSTACK(1);
           return array;
-        } elif (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
+        } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
           var object eltype = TheSvector(fvd)->data[1];
           var uintL eltype_size = (foreign_layout(eltype), data_size);
           if (eltype_size == 0) fehler_eltype_zero_size(fvd);
@@ -1105,21 +1104,22 @@ global object convert_from_foreign(fvd,data)
           }
           skipSTACK(1);
           return array;
-        } elif (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
+        } else if (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
           if (*(void* const*)data == NULL)
             return NIL;
           else
             return convert_function_from_foreign(*(void* const*)data,
                                                  TheSvector(fvd)->data[1],
                                                  TheSvector(fvd)->data[2],
-                                                 TheSvector(fvd)->data[3]
-                                                );
-        } elif ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null))) && (fvdlen == 2)) {
+                                                 TheSvector(fvd)->data[3]);
+        } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null)))
+                   && (fvdlen == 2)) {
           if (*(void* const*)data == NULL)
             return NIL;
           else
-            return convert_from_foreign(TheSvector(fvd)->data[1], *(void* const*)data);
-        } elif (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
+            return convert_from_foreign(TheSvector(fvd)->data[1],
+                                        *(void* const*)data);
+        } else if (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
           if (*(void* const*)data == NULL)
             return NIL;
           else {
@@ -1168,7 +1168,7 @@ local bool foreign_with_pointers_p(fvd)
       if (eq(fvd,S(c_string)))
         return true;
       return false;
-    } elif (simple_vector_p(fvd)) {
+    } else if (simple_vector_p(fvd)) {
       var uintL fvdlen = Svector_length(fvd);
       if (fvdlen > 0) {
         var object fvdtype = TheSvector(fvd)->data[0];
@@ -1178,18 +1178,20 @@ local bool foreign_with_pointers_p(fvd)
             if (foreign_with_pointers_p(TheSvector(fvd)->data[i]))
               return true;
           return false;
-        } elif (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
+        } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
           # Use the union's first component.
           return foreign_with_pointers_p(fvdlen > 2 ? (object)TheSvector(fvd)->data[2] : NIL);
-        } elif ((eq(fvdtype,S(c_array)) && (fvdlen > 1)) || (eq(fvdtype,S(c_array_max)) && (fvdlen == 3))) {
+        } else if ((eq(fvdtype,S(c_array)) && (fvdlen > 1))
+                   || (eq(fvdtype,S(c_array_max)) && (fvdlen == 3))) {
           var uintL i;
           for (i = 2; i < fvdlen; i++)
             if (eq(TheSvector(fvd)->data[i],Fixnum_0))
               return false;
           return foreign_with_pointers_p(TheSvector(fvd)->data[1]);
-        } elif (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
+        } else if (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
           return true;
-        } elif ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null)) || eq(fvdtype,S(c_array_ptr))) && (fvdlen == 2)) {
+        } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null))
+                    || eq(fvdtype,S(c_array_ptr))) && (fvdlen == 2)) {
           return true;
         }
       }
@@ -1222,7 +1224,7 @@ local void walk_foreign_pointers(fvd,data)
         (*walk_foreign_post_hook)(fvd,(void**)data);
         return;
       }
-    } elif (simple_vector_p(fvd)) {
+    } else if (simple_vector_p(fvd)) {
       var uintL fvdlen = Svector_length(fvd);
       if (fvdlen > 0) {
         var object fvdtype = TheSvector(fvd)->data[0];
@@ -1245,12 +1247,12 @@ local void walk_foreign_pointers(fvd,data)
             walk_foreign_pointers(fvdi,pdata);
           }
           return;
-        } elif (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
+        } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
           # Use the union's first component.
           if (fvdlen > 2)
             walk_foreign_pointers(TheSvector(fvd)->data[2],data);
           return;
-        } elif (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
+        } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
           var object eltype = TheSvector(fvd)->data[1];
           var uintL eltype_size = (foreign_layout(eltype), data_size);
           var uintL size = 1;
@@ -1260,7 +1262,7 @@ local void walk_foreign_pointers(fvd,data)
               var object dim = TheSvector(fvd)->data[i];
               if (!uint32_p(dim))
                 fehler_foreign_type(fvd);
-              size = size * I_to_uint32(dim);
+              size *= I_to_uint32(dim);
             }
           }
           {
@@ -1272,7 +1274,7 @@ local void walk_foreign_pointers(fvd,data)
             }
           }
           return;
-        } elif (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
+        } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
           var object eltype = TheSvector(fvd)->data[1];
           var uintL eltype_size = (foreign_layout(eltype), data_size);
           if (eltype_size == 0) fehler_eltype_zero_size(fvd);
@@ -1287,7 +1289,7 @@ local void walk_foreign_pointers(fvd,data)
             }
           }
           return;
-        } elif (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
+        } else if (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
           if (walk_foreign_null_terminates) {
             # NULL pointers stop the recursion
             if (*(void**)data == NULL)
@@ -1295,7 +1297,8 @@ local void walk_foreign_pointers(fvd,data)
           }
           (*walk_foreign_function_hook)(fvd,(void**)data);
           return;
-        } elif ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null))) && (fvdlen == 2)) {
+        } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null)))
+                   && (fvdlen == 2)) {
           if (walk_foreign_null_terminates || eq(fvdtype,S(c_ptr_null))) {
             # NULL pointers stop the recursion
             if (*(void**)data == NULL)
@@ -1306,7 +1309,7 @@ local void walk_foreign_pointers(fvd,data)
           walk_foreign_pointers(fvd,*(void**)data);
           (*walk_foreign_post_hook)(fvd,(void**)data);
           return;
-        } elif (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
+        } else if (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
           if (walk_foreign_null_terminates) {
             # NULL pointers stop the recursion
             if (*(void**)data == NULL)
@@ -1396,7 +1399,7 @@ local void walk_lisp_pointers(fvd,obj)
         (*walk_lisp_post_hook)(fvd,obj);
         return;
       }
-    } elif (simple_vector_p(fvd)) {
+    } else if (simple_vector_p(fvd)) {
       var uintL fvdlen = Svector_length(fvd);
       if (fvdlen > 0) {
         var object fvdtype = TheSvector(fvd)->data[0];
@@ -1408,7 +1411,7 @@ local void walk_lisp_pointers(fvd,obj)
           if (eq(constructor,L(vector))) {
             if (!(simple_vector_p(obj) && (Svector_length(obj)==fvdlen-3)))
               goto bad_obj;
-          } elif (eq(constructor,L(list))) {
+          } else if (eq(constructor,L(list))) {
           } else {
             if (!(structurep(obj) || instancep(obj)))
               goto bad_obj;
@@ -1424,7 +1427,7 @@ local void walk_lisp_pointers(fvd,obj)
             var object obji;
             if (eq(STACK_3,L(vector))) {
               obji = TheSvector(STACK_0)->data[i-3];
-            } elif (eq(STACK_3,L(list))) {
+            } else if (eq(STACK_3,L(list))) {
               obji = STACK_0;
               if (atomp(obji)) goto bad_obj;
               STACK_0 = Cdr(obji); obji = Car(obji);
@@ -1446,12 +1449,12 @@ local void walk_lisp_pointers(fvd,obj)
           }
           skipSTACK(4);
           return;
-        } elif (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
+        } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
           # Use the union's first component.
           if (fvdlen > 2)
             walk_lisp_pointers(TheSvector(fvd)->data[2],obj);
           return;
-        } elif (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
+        } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
           var object eltype = TheSvector(fvd)->data[1];
           var uintL size = 1;
           foreign_layout(eltype);
@@ -1461,7 +1464,7 @@ local void walk_lisp_pointers(fvd,obj)
               var object dim = TheSvector(fvd)->data[i];
               if (!uint32_p(dim))
                 fehler_foreign_type(fvd);
-              size = size * I_to_uint32(dim);
+              size *= I_to_uint32(dim);
             }
           }
           if (!(arrayp(obj) && array_total_size(obj)==size))
@@ -1478,7 +1481,7 @@ local void walk_lisp_pointers(fvd,obj)
           }
           skipSTACK(2);
           return;
-        } elif (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
+        } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
           var object eltype = TheSvector(fvd)->data[1];
           var uintL maxdim = I_to_UL(TheSvector(fvd)->data[2]);
           foreign_layout(eltype);
@@ -1499,10 +1502,11 @@ local void walk_lisp_pointers(fvd,obj)
           }
           skipSTACK(2);
           return;
-        } elif (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
+        } else if (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
           (*walk_lisp_function_hook)(fvd,obj);
           return;
-        } elif ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null))) && (fvdlen == 2)) {
+        } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null)))
+                   && (fvdlen == 2)) {
           if (walk_lisp_nil_terminates || eq(fvdtype,S(c_ptr_null))) {
             # NIL pointers stop the recursion
             if (nullp(obj))
@@ -1514,7 +1518,7 @@ local void walk_lisp_pointers(fvd,obj)
           fvd = popSTACK();
           (*walk_lisp_post_hook)(fvd,obj);
           return;
-        } elif (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
+        } else if (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
           if (walk_lisp_nil_terminates) {
             # NIL pointers stop the recursion
             if (nullp(obj))
@@ -1606,16 +1610,16 @@ local void convert_to_foreign(fvd,obj,data)
       if (eq(fvd,S(nil)))
         # If we are presented the empty type, we take it as "ignore".
         return;
-      elif (eq(fvd,S(boolean))) {
+      else if (eq(fvd,S(boolean))) {
         var int* pdata = (int*)data;
         if (nullp(obj))
           *pdata = 0;
-        elif (eq(obj,T))
+        else if (eq(obj,T))
           *pdata = 1;
         else
           goto bad_obj;
         return;
-      } elif (eq(fvd,S(character))) {
+      } else if (eq(fvd,S(character))) {
         var uintB* pdata = (unsigned char *)data;
         if (!charp(obj)) goto bad_obj;
         var chart ch = char_code(obj);
@@ -1626,39 +1630,39 @@ local void convert_to_foreign(fvd,obj,data)
         *pdata = as_cint(ch);
         #endif
         return;
-      } elif (eq(fvd,S(char)) || eq(fvd,S(sint8))) {
+      } else if (eq(fvd,S(char)) || eq(fvd,S(sint8))) {
         var sint8* pdata = (sint8*)data;
         if (!sint8_p(obj)) goto bad_obj;
         *pdata = I_to_sint8(obj);
         return;
-      } elif (eq(fvd,S(uchar)) || eq(fvd,S(uint8))) {
+      } else if (eq(fvd,S(uchar)) || eq(fvd,S(uint8))) {
         var uint8* pdata = (uint8*)data;
         if (!uint8_p(obj)) goto bad_obj;
         *pdata = I_to_uint8(obj);
         return;
-      } elif (eq(fvd,S(short)) || eq(fvd,S(sint16))) {
+      } else if (eq(fvd,S(short)) || eq(fvd,S(sint16))) {
         var sint16* pdata = (sint16*)data;
         if (!sint16_p(obj)) goto bad_obj;
         *pdata = I_to_sint16(obj);
         return;
-      } elif (eq(fvd,S(ushort)) || eq(fvd,S(uint16))) {
+      } else if (eq(fvd,S(ushort)) || eq(fvd,S(uint16))) {
         var uint16* pdata = (uint16*)data;
         if (!uint16_p(obj)) goto bad_obj;
         *pdata = I_to_uint16(obj);
         return;
-      } elif (eq(fvd,S(sint32))) {
+      } else if (eq(fvd,S(sint32))) {
         var sint32* pdata = (sint32*)data;
         if (!sint32_p(obj)) goto bad_obj;
         *pdata = I_to_sint32(obj);
         return;
-      } elif (eq(fvd,S(uint32))) {
+      } else if (eq(fvd,S(uint32))) {
         var uint32* pdata = (uint32*)data;
         if (!uint32_p(obj)) goto bad_obj;
         *pdata = I_to_uint32(obj);
         return;
       }
       #ifdef HAVE_LONGLONG
-      elif (eq(fvd,S(sint64))) {
+      else if (eq(fvd,S(sint64))) {
         var struct_sint64* pdata = (struct_sint64*)data;
         if (!sint64_p(obj)) goto bad_obj;
         var sint64 val = I_to_sint64(obj);
@@ -1668,7 +1672,7 @@ local void convert_to_foreign(fvd,obj,data)
         *pdata = val;
         #endif
         return;
-      } elif (eq(fvd,S(uint64))) {
+      } else if (eq(fvd,S(uint64))) {
         var struct_uint64* pdata = (struct_uint64*)data;
         if (!uint64_p(obj)) goto bad_obj;
         var uint64 val = I_to_uint64(obj);
@@ -1680,45 +1684,45 @@ local void convert_to_foreign(fvd,obj,data)
         return;
       }
       #else
-      elif (eq(fvd,S(sint64)) || eq(fvd,S(uint64))) {
+      else if (eq(fvd,S(sint64)) || eq(fvd,S(uint64))) {
         fehler_64bit(fvd);
       }
       #endif
-      elif (eq(fvd,S(int))) {
+      else if (eq(fvd,S(int))) {
         var int* pdata = (int*)data;
         if (!sint_p(obj)) goto bad_obj;
         *pdata = I_to_sint(obj);
         return;
-      } elif (eq(fvd,S(uint))) {
+      } else if (eq(fvd,S(uint))) {
         var unsigned int * pdata = (unsigned int *)data;
         if (!uint_p(obj)) goto bad_obj;
         *pdata = I_to_uint(obj);
         return;
-      } elif (eq(fvd,S(long))) {
+      } else if (eq(fvd,S(long))) {
         var long* pdata = (long*)data;
         if (!slong_p(obj)) goto bad_obj;
         *pdata = I_to_slong(obj);
         return;
-      } elif (eq(fvd,S(ulong))) {
+      } else if (eq(fvd,S(ulong))) {
         var unsigned long * pdata = (unsigned long *)data;
         if (!ulong_p(obj)) goto bad_obj;
         *pdata = I_to_ulong(obj);
         return;
-      } elif (eq(fvd,S(single_float))) {
+      } else if (eq(fvd,S(single_float))) {
         var ffloatjanus* pdata = (ffloatjanus*) data;
         if (!single_float_p(obj)) goto bad_obj;
         FF_to_c_float(obj,pdata);
         return;
-      } elif (eq(fvd,S(double_float))) {
+      } else if (eq(fvd,S(double_float))) {
         var dfloatjanus* pdata = (dfloatjanus*) data;
         if (!double_float_p(obj)) goto bad_obj;
         DF_to_c_double(obj,pdata);
         return;
-      } elif (eq(fvd,S(c_pointer))) {
+      } else if (eq(fvd,S(c_pointer))) {
         if (!faddressp(obj)) goto bad_obj;
         *(void**)data = Faddress_value(obj);
         return;
-      } elif (eq(fvd,S(c_string))) {
+      } else if (eq(fvd,S(c_string))) {
         if (nullp(obj)) {
           *(char**)data = NULL;
           return;
@@ -1736,7 +1740,7 @@ local void convert_to_foreign(fvd,obj,data)
         *(char**)data = asciz;
         return;
       }
-    } elif (simple_vector_p(fvd)) {
+    } else if (simple_vector_p(fvd)) {
       var uintL fvdlen = Svector_length(fvd);
       if (fvdlen > 0) {
         var object fvdtype = TheSvector(fvd)->data[0];
@@ -1748,7 +1752,7 @@ local void convert_to_foreign(fvd,obj,data)
           if (eq(constructor,L(vector))) {
             if (!(simple_vector_p(obj) && (Svector_length(obj)==fvdlen-3)))
               goto bad_obj;
-          } elif (eq(constructor,L(list))) {
+          } else if (eq(constructor,L(list))) {
           } else {
             if (!(structurep(obj) || instancep(obj)))
               goto bad_obj;
@@ -1764,7 +1768,7 @@ local void convert_to_foreign(fvd,obj,data)
             var object obji;
             if (eq(STACK_3,L(vector))) {
               obji = TheSvector(STACK_0)->data[i-3];
-            } elif (eq(STACK_3,L(list))) {
+            } else if (eq(STACK_3,L(list))) {
               obji = STACK_0;
               if (atomp(obji)) goto bad_obj;
               STACK_0 = Cdr(obji); obji = Car(obji);
@@ -1787,11 +1791,11 @@ local void convert_to_foreign(fvd,obj,data)
           }
           skipSTACK(4);
           return;
-        } elif (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
+        } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
           # Use the union's first component.
           convert_to_foreign(fvdlen > 2 ? (object)TheSvector(fvd)->data[2] : NIL,obj,data);
           return;
-        } elif (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
+        } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
           var object eltype = TheSvector(fvd)->data[1];
           var uintL eltype_size = (foreign_layout(eltype), data_size);
           var uintL size = 1;
@@ -1801,7 +1805,7 @@ local void convert_to_foreign(fvd,obj,data)
               var object dim = TheSvector(fvd)->data[i];
               if (!uint32_p(dim))
                 fehler_foreign_type(fvd);
-              size = size * I_to_uint32(dim);
+              size *= I_to_uint32(dim);
             }
           }
           if (!(arrayp(obj) && array_total_size(obj)==size))
@@ -1814,7 +1818,7 @@ local void convert_to_foreign(fvd,obj,data)
             unpack_sstring_alloca(string,len,offset, ptr1=);
             ASSERT(cslen(O(foreign_encoding),ptr1,len) == len);
             cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
-          } elif (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
+          } else if (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
             if (size > 0) {
               var uintL index = 0;
               obj = array_displace_check(obj,size,&index);
@@ -1823,7 +1827,7 @@ local void convert_to_foreign(fvd,obj,data)
               var uintL count;
               dotimespL(count,size, { *ptr2++ = *ptr1++; } );
             }
-          } elif (eq(eltype,S(uint16)) && bit_vector_p(Atype_16Bit,obj)) {
+          } else if (eq(eltype,S(uint16)) && bit_vector_p(Atype_16Bit,obj)) {
             if (size > 0) {
               var uintL index = 0;
               obj = array_displace_check(obj,size,&index);
@@ -1832,7 +1836,7 @@ local void convert_to_foreign(fvd,obj,data)
               var uintL count;
               dotimespL(count,size, { *ptr2++ = *ptr1++; } );
             }
-          } elif (eq(eltype,S(uint32)) && bit_vector_p(Atype_32Bit,obj)) {
+          } else if (eq(eltype,S(uint32)) && bit_vector_p(Atype_32Bit,obj)) {
             if (size > 0) {
               var uintL index = 0;
               obj = array_displace_check(obj,size,&index);
@@ -1857,7 +1861,7 @@ local void convert_to_foreign(fvd,obj,data)
             skipSTACK(2);
           }
           return;
-        } elif (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
+        } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
           var object eltype = TheSvector(fvd)->data[1];
           var uintL eltype_size = (foreign_layout(eltype), data_size);
           var uintL maxdim = I_to_UL(TheSvector(fvd)->data[2]);
@@ -1876,7 +1880,7 @@ local void convert_to_foreign(fvd,obj,data)
             cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
             if (len < maxdim)
               ((uintB*)data)[len] = '\0';
-          } elif (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
+          } else if (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
             var uint8* ptr2 = (uint8*)data;
             if (len > 0) {
               var uintL index = 0;
@@ -1887,7 +1891,7 @@ local void convert_to_foreign(fvd,obj,data)
             }
             if (len < maxdim)
               *ptr2 = 0;
-          } elif (eq(eltype,S(uint16)) && bit_vector_p(Atype_16Bit,obj)) {
+          } else if (eq(eltype,S(uint16)) && bit_vector_p(Atype_16Bit,obj)) {
             var uint16* ptr2 = (uint16*)data;
             if (len > 0) {
               var uintL index = 0;
@@ -1898,7 +1902,7 @@ local void convert_to_foreign(fvd,obj,data)
             }
             if (len < maxdim)
               *ptr2 = 0;
-          } elif (eq(eltype,S(uint32)) && bit_vector_p(Atype_32Bit,obj)) {
+          } else if (eq(eltype,S(uint32)) && bit_vector_p(Atype_32Bit,obj)) {
             var uint32* ptr2 = (uint32*)data;
             if (len > 0) {
               var uintL index = 0;
@@ -1927,7 +1931,7 @@ local void convert_to_foreign(fvd,obj,data)
             skipSTACK(2);
           }
           return;
-        } elif (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
+        } else if (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
           if (nullp(obj)) {
             *(void**)data = NULL;
           } else {
@@ -1940,7 +1944,8 @@ local void convert_to_foreign(fvd,obj,data)
             *(void**)data = Faddress_value(TheFfunction(ffun)->ff_address);
           }
           return;
-        } elif ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null))) && (fvdlen == 2)) {
+        } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null)))
+                   && (fvdlen == 2)) {
           if (nullp(obj) && eq(fvdtype,S(c_ptr_null))) {
             *(void**)data = NULL;
             return;
@@ -1951,7 +1956,7 @@ local void convert_to_foreign(fvd,obj,data)
           *(void**)data = p;
           convert_to_foreign(fvd,obj,p);
           return;
-        } elif (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
+        } else if (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
           if (nullp(obj)) {
             *(void**)data = NULL;
             return;
@@ -2092,7 +2097,7 @@ LISPFUNN(lookup_foreign_variable,2)
       TheFvariable(fvar)->fv_type = fvd;
     }
     # Subsequent LOOKUP-FOREIGN-VARIABLE calls only compare the type.
-    elif (!equal_fvd(TheFvariable(fvar)->fv_type,fvd)) {
+    else if (!equal_fvd(TheFvariable(fvar)->fv_type,fvd)) {
       if (!equalp_fvd(TheFvariable(fvar)->fv_type,fvd)) {
         dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
         pushSTACK(fvd);
@@ -2615,43 +2620,44 @@ LISPFUNN(lookup_foreign_function,2)
       if (symbolp(result_fvd)) {
         if (eq(result_fvd,S(nil))) {
           av_start_void(*alist,address);
-        } elif (eq(result_fvd,S(char)) || eq(result_fvd,S(sint8))) {
+        } else if (eq(result_fvd,S(char)) || eq(result_fvd,S(sint8))) {
           if (flags & ff_lang_ansi_c) {
             av_start_schar(*alist,address,result_address);
           } else { # `signed char' promotes to `int'
             av_start_int(*alist,address,result_address);
           }
-        } elif (eq(result_fvd,S(uchar)) || eq(result_fvd,S(uint8)) || eq(result_fvd,S(character))) {
+        } else if (eq(result_fvd,S(uchar)) || eq(result_fvd,S(uint8))
+                   || eq(result_fvd,S(character))) {
           if (flags & ff_lang_ansi_c) {
             av_start_uchar(*alist,address,result_address);
           } else { # `unsigned char' promotes to `unsigned int'
             av_start_uint(*alist,address,result_address);
           }
-        } elif (eq(result_fvd,S(short)) || eq(result_fvd,S(sint16))) {
+        } else if (eq(result_fvd,S(short)) || eq(result_fvd,S(sint16))) {
           if (flags & ff_lang_ansi_c) {
             av_start_short(*alist,address,result_address);
           } else { # `short' promotes to `int'
             av_start_int(*alist,address,result_address);
           }
-        } elif (eq(result_fvd,S(ushort)) || eq(result_fvd,S(uint16))) {
+        } else if (eq(result_fvd,S(ushort)) || eq(result_fvd,S(uint16))) {
           if (flags & ff_lang_ansi_c) {
             av_start_ushort(*alist,address,result_address);
           } else { # `unsigned short' promotes to `unsigned int'
             av_start_uint(*alist,address,result_address);
           }
-        } elif (eq(result_fvd,S(boolean)) || eq(result_fvd,S(int))
+        } else if (eq(result_fvd,S(boolean)) || eq(result_fvd,S(int))
                 #if (int_bitsize==32)
                 || eq(result_fvd,S(sint32))
                 #endif
                ) {
           av_start_int(*alist,address,result_address);
-        } elif (eq(result_fvd,S(uint))
+        } else if (eq(result_fvd,S(uint))
                 #if (int_bitsize==32)
                 || eq(result_fvd,S(uint32))
                 #endif
                ) {
           av_start_uint(*alist,address,result_address);
-        } elif (eq(result_fvd,S(long))
+        } else if (eq(result_fvd,S(long))
                 #if (int_bitsize<32) && (long_bitsize==32)
                 || eq(result_fvd,S(sint32))
                 #endif
@@ -2660,7 +2666,7 @@ LISPFUNN(lookup_foreign_function,2)
                 #endif
                ) {
           av_start_long(*alist,address,result_address);
-        } elif (eq(result_fvd,S(ulong))
+        } else if (eq(result_fvd,S(ulong))
                 #if (int_bitsize<32) && (long_bitsize==32)
                 || eq(result_fvd,S(uint32))
                 #endif
@@ -2671,34 +2677,35 @@ LISPFUNN(lookup_foreign_function,2)
           av_start_ulong(*alist,address,result_address);
         }
         #if (long_bitsize<64)
-        elif (eq(result_fvd,S(sint64))) {
+        else if (eq(result_fvd,S(sint64))) {
           av_start_struct(*alist,address,struct_sint64,av_word_splittable_2(uint32,uint32),result_address);
-        } elif (eq(result_fvd,S(uint64))) {
+        } else if (eq(result_fvd,S(uint64))) {
           av_start_struct(*alist,address,struct_uint64,av_word_splittable_2(uint32,uint32),result_address);
         }
         #endif
-        elif (eq(result_fvd,S(single_float))) {
+        else if (eq(result_fvd,S(single_float))) {
           if (flags & ff_lang_ansi_c) {
             av_start_float(*alist,address,result_address);
           } else { # `float' promotes to `double'
             av_start_double(*alist,address,result_address);
           }
-        } elif (eq(result_fvd,S(double_float))) {
+        } else if (eq(result_fvd,S(double_float))) {
           av_start_double(*alist,address,result_address);
-        } elif (eq(result_fvd,S(c_pointer)) || eq(result_fvd,S(c_string))) {
+        } else if (eq(result_fvd,S(c_pointer)) || eq(result_fvd,S(c_string))) {
           av_start_ptr(*alist,address,void*,result_address);
         } else {
           fehler_foreign_type(result_fvd);
         }
-      } elif (simple_vector_p(result_fvd)) {
+      } else if (simple_vector_p(result_fvd)) {
         var object result_fvdtype = TheSvector(result_fvd)->data[0];
         if (eq(result_fvdtype,S(c_struct)) || eq(result_fvdtype,S(c_union))
             || eq(result_fvdtype,S(c_array)) || eq(result_fvdtype,S(c_array_max))
            ) {
           _av_start_struct(*alist,address,result_size,result_splittable,result_address);
-        } elif (eq(result_fvdtype,S(c_function))
-                || eq(result_fvdtype,S(c_ptr)) || eq(result_fvdtype,S(c_ptr_null)) || eq(result_fvdtype,S(c_array_ptr))
-               ) {
+        } else if (eq(result_fvdtype,S(c_function))
+                   || eq(result_fvdtype,S(c_ptr))
+                   || eq(result_fvdtype,S(c_ptr_null))
+                   || eq(result_fvdtype,S(c_array_ptr))) {
           av_start_ptr(*alist,address,void*,result_address);
         } else {
           fehler_foreign_type(result_fvd);
@@ -2726,43 +2733,44 @@ LISPFUNN(lookup_foreign_function,2)
     {
       if (symbolp(arg_fvd)) {
         if (eq(arg_fvd,S(nil))) {
-        } elif (eq(arg_fvd,S(char)) || eq(arg_fvd,S(sint8))) {
+        } else if (eq(arg_fvd,S(char)) || eq(arg_fvd,S(sint8))) {
           if (flags & ff_lang_ansi_c) {
             av_schar(*alist,*(sint8*)arg_address);
           } else { # `signed char' promotes to `int'
             av_int(*alist,*(sint8*)arg_address);
           }
-        } elif (eq(arg_fvd,S(uchar)) || eq(arg_fvd,S(uint8)) || eq(arg_fvd,S(character))) {
+        } else if (eq(arg_fvd,S(uchar)) || eq(arg_fvd,S(uint8))
+                   || eq(arg_fvd,S(character))) {
           if (flags & ff_lang_ansi_c) {
             av_uchar(*alist,*(uint8*)arg_address);
           } else { # `unsigned char' promotes to `unsigned int'
             av_uint(*alist,*(uint8*)arg_address);
           }
-        } elif (eq(arg_fvd,S(short)) || eq(arg_fvd,S(sint16))) {
+        } else if (eq(arg_fvd,S(short)) || eq(arg_fvd,S(sint16))) {
           if (flags & ff_lang_ansi_c) {
             av_short(*alist,*(sint16*)arg_address);
           } else { # `short' promotes to `int'
             av_int(*alist,*(sint16*)arg_address);
           }
-        } elif (eq(arg_fvd,S(ushort)) || eq(arg_fvd,S(uint16))) {
+        } else if (eq(arg_fvd,S(ushort)) || eq(arg_fvd,S(uint16))) {
           if (flags & ff_lang_ansi_c) {
             av_ushort(*alist,*(uint16*)arg_address);
           } else { # `unsigned short' promotes to `unsigned int'
             av_uint(*alist,*(uint16*)arg_address);
           }
-        } elif (eq(arg_fvd,S(boolean)) || eq(arg_fvd,S(int))
+        } else if (eq(arg_fvd,S(boolean)) || eq(arg_fvd,S(int))
                 #if (int_bitsize==32)
                 || eq(arg_fvd,S(sint32))
                 #endif
                ) {
           av_int(*alist,*(int*)arg_address);
-        } elif (eq(arg_fvd,S(uint))
+        } else if (eq(arg_fvd,S(uint))
                 #if (int_bitsize==32)
                 || eq(arg_fvd,S(uint32))
                 #endif
                ) {
           av_uint(*alist,*(unsigned int *)arg_address);
-        } elif (eq(arg_fvd,S(long))
+        } else if (eq(arg_fvd,S(long))
                 #if (int_bitsize<32) && (long_bitsize==32)
                 || eq(arg_fvd,S(sint32))
                 #endif
@@ -2771,7 +2779,7 @@ LISPFUNN(lookup_foreign_function,2)
                 #endif
                ) {
           av_long(*alist,*(long*)arg_address);
-        } elif (eq(arg_fvd,S(ulong))
+        } else if (eq(arg_fvd,S(ulong))
                 #if (int_bitsize<32) && (long_bitsize==32)
                 || eq(arg_fvd,S(uint32))
                 #endif
@@ -2782,36 +2790,37 @@ LISPFUNN(lookup_foreign_function,2)
           av_ulong(*alist,*(unsigned long *)arg_address);
         }
         #if (long_bitsize<64)
-        elif (eq(arg_fvd,S(sint64))) {
+        else if (eq(arg_fvd,S(sint64))) {
           av_struct(*alist,struct_sint64,*(struct_sint64*)arg_address);
-        } elif (eq(arg_fvd,S(uint64))) {
+        } else if (eq(arg_fvd,S(uint64))) {
           av_struct(*alist,struct_uint64,*(struct_uint64*)arg_address);
         }
         #endif
-        elif (eq(arg_fvd,S(single_float))) {
+        else if (eq(arg_fvd,S(single_float))) {
           if (flags & ff_lang_ansi_c) {
             av_float(*alist,*(float*)arg_address);
           } else { # `float' promotes to `double'
             av_double(*alist,*(float*)arg_address);
           }
-        } elif (eq(arg_fvd,S(double_float))) {
+        } else if (eq(arg_fvd,S(double_float))) {
           av_double(*alist,*(double*)arg_address);
-        } elif (eq(arg_fvd,S(c_pointer))) {
+        } else if (eq(arg_fvd,S(c_pointer))) {
           av_ptr(*alist,void*,*(void**)arg_address);
-        } elif (eq(arg_fvd,S(c_string))) {
+        } else if (eq(arg_fvd,S(c_string))) {
           av_ptr(*alist,char*,*(char**)arg_address);
         } else {
           fehler_foreign_type(arg_fvd);
         }
-      } elif (simple_vector_p(arg_fvd)) {
+      } else if (simple_vector_p(arg_fvd)) {
         var object arg_fvdtype = TheSvector(arg_fvd)->data[0];
         if (eq(arg_fvdtype,S(c_struct)) || eq(arg_fvdtype,S(c_union))
             || eq(arg_fvdtype,S(c_array)) || eq(arg_fvdtype,S(c_array_max))
            ) {
           _av_struct(*alist,arg_size,arg_alignment,arg_address);
-        } elif (eq(arg_fvdtype,S(c_function))
-                || eq(arg_fvdtype,S(c_ptr)) || eq(arg_fvdtype,S(c_ptr_null)) || eq(arg_fvdtype,S(c_array_ptr))
-               ) {
+        } else if (eq(arg_fvdtype,S(c_function))
+                   || eq(arg_fvdtype,S(c_ptr))
+                   || eq(arg_fvdtype,S(c_ptr_null))
+                   || eq(arg_fvdtype,S(c_array_ptr))) {
           av_ptr(*alist,void*,*(void**)arg_address);
         } else {
           fehler_foreign_type(arg_fvd);
@@ -3057,90 +3066,92 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
       if (symbolp(result_fvd)) {
         if (eq(result_fvd,S(nil))) {
           va_start_void(alist);
-        } elif (eq(result_fvd,S(char)) || eq(result_fvd,S(sint8))) {
+        } else if (eq(result_fvd,S(char)) || eq(result_fvd,S(sint8))) {
           if (flags & ff_lang_ansi_c) {
             va_start_schar(alist);
           } else { # `signed char' promotes to `int'
             va_start_int(alist);
           }
-        } elif (eq(result_fvd,S(uchar)) || eq(result_fvd,S(uint8)) || eq(result_fvd,S(character))) {
+        } else if (eq(result_fvd,S(uchar)) || eq(result_fvd,S(uint8))
+                   || eq(result_fvd,S(character))) {
           if (flags & ff_lang_ansi_c) {
             va_start_uchar(alist);
           } else { # `unsigned char' promotes to `unsigned int'
             va_start_uint(alist);
           }
-        } elif (eq(result_fvd,S(short)) || eq(result_fvd,S(sint16))) {
+        } else if (eq(result_fvd,S(short)) || eq(result_fvd,S(sint16))) {
           if (flags & ff_lang_ansi_c) {
             va_start_short(alist);
           } else { # `short' promotes to `int'
             va_start_int(alist);
           }
-        } elif (eq(result_fvd,S(ushort)) || eq(result_fvd,S(uint16))) {
+        } else if (eq(result_fvd,S(ushort)) || eq(result_fvd,S(uint16))) {
           if (flags & ff_lang_ansi_c) {
             va_start_ushort(alist);
           } else { # `unsigned short' promotes to `unsigned int'
             va_start_uint(alist);
           }
-        } elif (eq(result_fvd,S(boolean)) || eq(result_fvd,S(int))
+        } else if (eq(result_fvd,S(boolean)) || eq(result_fvd,S(int))
                 #if (int_bitsize==32)
-                || eq(result_fvd,S(sint32))
+                   || eq(result_fvd,S(sint32))
                 #endif
                ) {
           va_start_int(alist);
-        } elif (eq(result_fvd,S(uint))
+        } else if (eq(result_fvd,S(uint))
                 #if (int_bitsize==32)
-                || eq(result_fvd,S(uint32))
+                   || eq(result_fvd,S(uint32))
                 #endif
                ) {
           va_start_uint(alist);
-        } elif (eq(result_fvd,S(long))
+        } else if (eq(result_fvd,S(long))
                 #if (int_bitsize<32) && (long_bitsize==32)
-                || eq(result_fvd,S(sint32))
+                   || eq(result_fvd,S(sint32))
                 #endif
                 #if (long_bitsize==64)
-                || eq(result_fvd,S(sint64))
+                   || eq(result_fvd,S(sint64))
                 #endif
                ) {
           va_start_long(alist);
-        } elif (eq(result_fvd,S(ulong))
+        } else if (eq(result_fvd,S(ulong))
                 #if (int_bitsize<32) && (long_bitsize==32)
-                || eq(result_fvd,S(uint32))
+                   || eq(result_fvd,S(uint32))
                 #endif
                 #if (long_bitsize==64)
-                || eq(result_fvd,S(uint64))
+                   || eq(result_fvd,S(uint64))
                 #endif
                ) {
           va_start_ulong(alist);
         }
         #if (long_bitsize<64)
-        elif (eq(result_fvd,S(sint64))) {
+        else if (eq(result_fvd,S(sint64))) {
           va_start_struct(alist,struct_sint64,va_word_splittable_2(uint32,uint32));
-        } elif (eq(result_fvd,S(uint64))) {
+        } else if (eq(result_fvd,S(uint64))) {
           va_start_struct(alist,struct_uint64,va_word_splittable_2(uint32,uint32));
         }
         #endif
-        elif (eq(result_fvd,S(single_float))) {
+        else if (eq(result_fvd,S(single_float))) {
           if (flags & ff_lang_ansi_c) {
             va_start_float(alist);
           } else { # `float' promotes to `double'
             va_start_double(alist);
           }
-        } elif (eq(result_fvd,S(double_float))) {
+        } else if (eq(result_fvd,S(double_float))) {
           va_start_double(alist);
-        } elif (eq(result_fvd,S(c_pointer)) || eq(result_fvd,S(c_string))) {
+        } else if (eq(result_fvd,S(c_pointer)) || eq(result_fvd,S(c_string))) {
           va_start_ptr(alist,void*);
         } else {
           fehler_foreign_type(result_fvd);
         }
-      } elif (simple_vector_p(result_fvd)) {
+      } else if (simple_vector_p(result_fvd)) {
         var object result_fvdtype = TheSvector(result_fvd)->data[0];
         if (eq(result_fvdtype,S(c_struct)) || eq(result_fvdtype,S(c_union))
             || eq(result_fvdtype,S(c_array)) || eq(result_fvdtype,S(c_array_max))
            ) {
           _va_start_struct(alist,result_size,result_alignment,result_splittable);
-        } elif (eq(result_fvdtype,S(c_function))
-                || eq(result_fvdtype,S(c_ptr)) || eq(result_fvdtype,S(c_ptr_null)) || eq(result_fvdtype,S(c_array_ptr))
-               ) {
+        } else if (eq(result_fvdtype,S(c_function))
+                   || eq(result_fvdtype,S(c_ptr))
+                   || eq(result_fvdtype,S(c_ptr_null))
+                   || eq(result_fvdtype,S(c_array_ptr))) {
           va_start_ptr(alist,void*);
         } else {
           fehler_foreign_type(result_fvd);
@@ -3164,7 +3175,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
       if (symbolp(arg_fvd)) {
         if (eq(arg_fvd,S(nil))) {
           return NULL;
-        } elif (eq(arg_fvd,S(char)) || eq(arg_fvd,S(sint8))) {
+        } else if (eq(arg_fvd,S(char)) || eq(arg_fvd,S(sint8))) {
           alist->tmp._schar =
             (flags & ff_lang_ansi_c
              ? va_arg_schar(alist)
@@ -3172,7 +3183,8 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
                va_arg_int(alist)
             );
           return &alist->tmp._schar;
-        } elif (eq(arg_fvd,S(uchar)) || eq(arg_fvd,S(uint8)) || eq(arg_fvd,S(character))) {
+        } else if (eq(arg_fvd,S(uchar)) || eq(arg_fvd,S(uint8))
+                   || eq(arg_fvd,S(character))) {
           alist->tmp._uchar =
             (flags & ff_lang_ansi_c
              ? va_arg_uchar(alist)
@@ -3180,7 +3192,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
                va_arg_uint(alist)
             );
           return &alist->tmp._uchar;
-        } elif (eq(arg_fvd,S(short)) || eq(arg_fvd,S(sint16))) {
+        } else if (eq(arg_fvd,S(short)) || eq(arg_fvd,S(sint16))) {
           alist->tmp._short =
             (flags & ff_lang_ansi_c
              ? va_arg_short(alist)
@@ -3188,7 +3200,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
                va_arg_int(alist)
             );
           return &alist->tmp._short;
-        } elif (eq(arg_fvd,S(ushort)) || eq(arg_fvd,S(uint16))) {
+        } else if (eq(arg_fvd,S(ushort)) || eq(arg_fvd,S(uint16))) {
           alist->tmp._ushort =
             (flags & ff_lang_ansi_c
              ? va_arg_ushort(alist)
@@ -3196,21 +3208,21 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
                va_arg_uint(alist)
             );
           return &alist->tmp._ushort;
-        } elif (eq(arg_fvd,S(boolean)) || eq(arg_fvd,S(int))
+        } else if (eq(arg_fvd,S(boolean)) || eq(arg_fvd,S(int))
                 #if (int_bitsize==32)
                 || eq(arg_fvd,S(sint32))
                 #endif
                ) {
           alist->tmp._int = va_arg_int(alist);
           return &alist->tmp._int;
-        } elif (eq(arg_fvd,S(uint))
+        } else if (eq(arg_fvd,S(uint))
                 #if (int_bitsize==32)
                 || eq(arg_fvd,S(uint32))
                 #endif
                ) {
           alist->tmp._uint = va_arg_uint(alist);
           return &alist->tmp._uint;
-        } elif (eq(arg_fvd,S(long))
+        } else if (eq(arg_fvd,S(long))
                 #if (int_bitsize<32) && (long_bitsize==32)
                 || eq(arg_fvd,S(sint32))
                 #endif
@@ -3220,7 +3232,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
                ) {
           alist->tmp._long = va_arg_long(alist);
           return &alist->tmp._long;
-        } elif (eq(arg_fvd,S(ulong))
+        } else if (eq(arg_fvd,S(ulong))
                 #if (int_bitsize<32) && (long_bitsize==32)
                 || eq(arg_fvd,S(uint32))
                 #endif
@@ -3232,30 +3244,29 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
           return &alist->tmp._ulong;
         }
         #if (long_bitsize<64)
-        elif (eq(arg_fvd,S(sint64))) {
+        else if (eq(arg_fvd,S(sint64))) {
           return &va_arg_struct(alist,struct_sint64);
-        } elif (eq(arg_fvd,S(uint64))) {
+        } else if (eq(arg_fvd,S(uint64))) {
           return &va_arg_struct(alist,struct_uint64);
         }
         #endif
-        elif (eq(arg_fvd,S(single_float))) {
+        else if (eq(arg_fvd,S(single_float))) {
           alist->tmp._float =
             (flags & ff_lang_ansi_c
              ? va_arg_float(alist)
              : # `float' promotes to `double'
-               va_arg_double(alist)
-            );
+               va_arg_double(alist));
           return &alist->tmp._float;
-        } elif (eq(arg_fvd,S(double_float))) {
+        } else if (eq(arg_fvd,S(double_float))) {
           alist->tmp._double = va_arg_double(alist);
           return &alist->tmp._double;
-        } elif (eq(arg_fvd,S(c_pointer)) || eq(arg_fvd,S(c_string))) {
+        } else if (eq(arg_fvd,S(c_pointer)) || eq(arg_fvd,S(c_string))) {
           alist->tmp._ptr = va_arg_ptr(alist,void*);
           return &alist->tmp._ptr;
         } else {
           fehler_foreign_type(arg_fvd);
         }
-      } elif (simple_vector_p(arg_fvd)) {
+      } else if (simple_vector_p(arg_fvd)) {
         var object arg_fvdtype = TheSvector(arg_fvd)->data[0];
         if (eq(arg_fvdtype,S(c_struct)) || eq(arg_fvdtype,S(c_union))
             || eq(arg_fvdtype,S(c_array)) || eq(arg_fvdtype,S(c_array_max))
@@ -3264,9 +3275,10 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
           var uintL arg_size = data_size;
           var uintL arg_alignment = data_alignment;
           return _va_arg_struct(alist,arg_size,arg_alignment);
-        } elif (eq(arg_fvdtype,S(c_function))
-                || eq(arg_fvdtype,S(c_ptr)) || eq(arg_fvdtype,S(c_ptr_null)) || eq(arg_fvdtype,S(c_array_ptr))
-               ) {
+        } else if (eq(arg_fvdtype,S(c_function))
+                   || eq(arg_fvdtype,S(c_ptr))
+                   || eq(arg_fvdtype,S(c_ptr_null))
+                   || eq(arg_fvdtype,S(c_array_ptr))) {
           alist->tmp._ptr = va_arg_ptr(alist,void*);
           return &alist->tmp._ptr;
         } else {
@@ -3291,97 +3303,98 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
       if (symbolp(result_fvd)) {
         if (eq(result_fvd,S(nil))) {
           va_return_void(alist);
-        } elif (eq(result_fvd,S(char)) || eq(result_fvd,S(sint8))) {
+        } else if (eq(result_fvd,S(char)) || eq(result_fvd,S(sint8))) {
           if (flags & ff_lang_ansi_c) {
             va_return_schar(alist,*(sint8*)result_address);
           } else { # `signed char' promotes to `int'
             va_return_int(alist,*(sint8*)result_address);
           }
-        } elif (eq(result_fvd,S(uchar)) || eq(result_fvd,S(uint8)) || eq(result_fvd,S(character))) {
+        } else if (eq(result_fvd,S(uchar)) || eq(result_fvd,S(uint8))
+                   || eq(result_fvd,S(character))) {
           if (flags & ff_lang_ansi_c) {
             va_return_uchar(alist,*(uint8*)result_address);
           } else { # `unsigned char' promotes to `unsigned int'
             va_return_uint(alist,*(uint8*)result_address);
           }
-        } elif (eq(result_fvd,S(short)) || eq(result_fvd,S(sint16))) {
+        } else if (eq(result_fvd,S(short)) || eq(result_fvd,S(sint16))) {
           if (flags & ff_lang_ansi_c) {
             va_return_short(alist,*(sint16*)result_address);
           } else { # `short' promotes to `int'
             va_return_int(alist,*(sint16*)result_address);
           }
-        } elif (eq(result_fvd,S(ushort)) || eq(result_fvd,S(uint16))) {
+        } else if (eq(result_fvd,S(ushort)) || eq(result_fvd,S(uint16))) {
           if (flags & ff_lang_ansi_c) {
             va_return_ushort(alist,*(uint16*)result_address);
           } else { # `unsigned short' promotes to `unsigned int'
             va_return_uint(alist,*(uint16*)result_address);
           }
-        } elif (eq(result_fvd,S(boolean)) || eq(result_fvd,S(int))
+        } else if (eq(result_fvd,S(boolean)) || eq(result_fvd,S(int))
                 #if (int_bitsize==32)
-                || eq(result_fvd,S(sint32))
+                   || eq(result_fvd,S(sint32))
                 #endif
                ) {
           va_return_int(alist,*(int*)result_address);
-        } elif (eq(result_fvd,S(uint))
+        } else if (eq(result_fvd,S(uint))
                 #if (int_bitsize==32)
-                || eq(result_fvd,S(uint32))
+                   || eq(result_fvd,S(uint32))
                 #endif
                ) {
           va_return_uint(alist,*(unsigned int *)result_address);
-        } elif (eq(result_fvd,S(long))
+        } else if (eq(result_fvd,S(long))
                 #if (int_bitsize<32) && (long_bitsize==32)
-                || eq(result_fvd,S(sint32))
+                   || eq(result_fvd,S(sint32))
                 #endif
                 #if (long_bitsize==64)
-                || eq(result_fvd,S(sint64))
+                   || eq(result_fvd,S(sint64))
                 #endif
                ) {
           va_return_long(alist,*(long*)result_address);
-        } elif (eq(result_fvd,S(ulong))
+        } else if (eq(result_fvd,S(ulong))
                 #if (int_bitsize<32) && (long_bitsize==32)
-                || eq(result_fvd,S(uint32))
+                   || eq(result_fvd,S(uint32))
                 #endif
                 #if (long_bitsize==64)
-                || eq(result_fvd,S(uint64))
+                   || eq(result_fvd,S(uint64))
                 #endif
                ) {
           va_return_ulong(alist,*(unsigned long *)result_address);
         }
         #if (long_bitsize<64)
-        elif (eq(result_fvd,S(sint64))) {
+        else if (eq(result_fvd,S(sint64))) {
           va_return_struct(alist,struct_sint64,*(struct_sint64*)result_address);
-        } elif (eq(result_fvd,S(uint64))) {
+        } else if (eq(result_fvd,S(uint64))) {
           va_return_struct(alist,struct_uint64,*(struct_uint64*)result_address);
         }
         #endif
-        elif (eq(result_fvd,S(single_float))) {
+        else if (eq(result_fvd,S(single_float))) {
           if (flags & ff_lang_ansi_c) {
             va_return_float(alist,*(float*)result_address);
           } else { # `float' promotes to `double'
             va_return_double(alist,*(float*)result_address);
           }
-        } elif (eq(result_fvd,S(double_float))) {
+        } else if (eq(result_fvd,S(double_float))) {
           va_return_double(alist,*(double*)result_address);
-        } elif (eq(result_fvd,S(c_pointer)) || eq(result_fvd,S(c_string))) {
+        } else if (eq(result_fvd,S(c_pointer)) || eq(result_fvd,S(c_string))) {
           va_return_ptr(alist,void*,*(void**)result_address);
         } else {
           fehler_foreign_type(result_fvd);
         }
-      } elif (simple_vector_p(result_fvd)) {
+      } else if (simple_vector_p(result_fvd)) {
         var object result_fvdtype = TheSvector(result_fvd)->data[0];
-        if (eq(result_fvdtype,S(c_struct)) || eq(result_fvdtype,S(c_union))
-            || eq(result_fvdtype,S(c_array)) || eq(result_fvdtype,S(c_array_max))
-           ) {
+        if (eq(result_fvdtype,S(c_struct))
+            || eq(result_fvdtype,S(c_union))
+            || eq(result_fvdtype,S(c_array))
+            || eq(result_fvdtype,S(c_array_max))) {
           _va_return_struct(alist,result_size,result_alignment,result_address);
-        } elif (eq(result_fvdtype,S(c_function))
-                || eq(result_fvdtype,S(c_ptr)) || eq(result_fvdtype,S(c_ptr_null)) || eq(result_fvdtype,S(c_array_ptr))
-               ) {
+        } else if (eq(result_fvdtype,S(c_function))
+                   || eq(result_fvdtype,S(c_ptr))
+                   || eq(result_fvdtype,S(c_ptr_null))
+                   || eq(result_fvdtype,S(c_array_ptr))) {
           va_return_ptr(alist,void*,*(void**)result_address);
-        } else {
+        } else
           fehler_foreign_type(result_fvd);
-        }
-      } else {
+      } else
         fehler_foreign_type(result_fvd);
-      }
     }
 
 # This is the CALL-IN function called by the trampolines.
