@@ -2871,11 +2871,7 @@ echol
 if [ $CROSS = false ] ; then
 
   echol "# Perform self-tests."
-  if [ $HOS = unix ] ; then
-    echol "check : test testsuite"
-  else
-    echol "check : test"
-  fi
+  echol "check : test testsuite"
   echodummyrule check
   echol
 
@@ -2954,25 +2950,21 @@ if [ $CROSS = false ] ; then
 
   echol
 
-  if [ $HOS = unix ] ; then
-
-    if [ -n "$USE_GETTEXT" ] ; then
+  if [ -n "$USE_GETTEXT" ] ; then
       localeflags=' -B `pwd` -N `pwd`/locale'
-    else
+  else
       localeflags=' -B `pwd`'
-    fi
-    echol "testsuite : ${TESTSDIR} lisp${LEXE} lispinit.mem"
-    echotab "LISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags -Efile UTF-8 -norc\"; export LISP; cd ${TESTSDIR}; \$(MAKE) LISP=\"\$\$LISP\""
-    echol
-    echol "${TESTSDIR} :"
-    echotab "-mkdir ${TESTSDIR}"
-    echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR}tests/Makefile ."
-    echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR}tests/*.lisp ."
-    echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR}tests/*.tst ."
-    echol
-    echol
-
   fi
+  echol "testsuite : ${TESTSDIR} lisp${LEXE} lispinit.mem"
+  echotab "LISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags -Efile UTF-8 -norc\"; export LISP; cd ${TESTSDIR}; \$(MAKE) LISP=\"\$\$LISP\""
+  echol
+  echol "${TESTSDIR} :"
+  echotab "-mkdir ${TESTSDIR}"
+  echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR}tests/Makefile ."
+  echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR}tests/*.lisp ."
+  echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR}tests/*.tst ."
+  echol
+  echol
 
 fi
 
