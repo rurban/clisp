@@ -30,10 +30,15 @@
 (defvar *browser* nil
   "The default browser - a key in `*browsers*' or a list of strings.")
 
-(defun read-from-file (file &key (out *standard-output*) (package "KEYWORD"))
+(defun read-from-file (file &key (out *standard-output*) (package "KEYWORD")
+                       repeat)
   "Read an object from a file.
 The keyword argument KEYWORD specifies the package to read in.
-The keyword argument OUT specifies the output for log messages."
+The keyword argument OUT specifies the output for log messages.
+The keyword argument REPEAT specifies how many objects to read:
+ If NIL (default), read once and return the object read;
+ if a number, read that many times and return a list of objects read,
+ if T, read until end of file and return a list of objects read"
   (let ((beg-real (get-internal-real-time)))
     (prog1 (with-open-file (str file :direction :input)
              (when out
@@ -42,7 +47,11 @@ The keyword argument OUT specifies the output for log messages."
                (force-output (if (eq out t) *standard-output* out)))
              (with-standard-io-syntax
                (let ((*package* (find-package package)))
-                 (read str))))
+                 (cond ((null repeat) (read str))
+                       ((numberp repeat)
+                        (loop :repeat repeat :collect (read str)))
+                       (t (loop :for obj = (read str nil str)
+                            :until (eq obj str) :collect obj))))))
       (when out
         (format out "done [~,2f sec]~%"
                 (/ (- (get-internal-real-time) beg-real)
