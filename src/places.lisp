@@ -22,17 +22,8 @@
       (progn
         (when (get symbol 'SYSTEM::SETF-EXPANDER)
           (warn (TEXT "The function (~S ~S) is hidden by a SETF expander.")
-                'setf symbol
-        ) )
-        (setf (get symbol 'SYSTEM::SETF-FUNCTION) (setf-symbol symbol))
-) )   )
-;;;----------------------------------------------------------------------------
-;; Mapping funname -> symbol
-(defun get-funname-symbol (funname)
-  (if (atom funname)
-    funname
-    (get-setf-symbol (second funname))
-) )
+                'setf symbol))
+        (setf (get symbol 'SYSTEM::SETF-FUNCTION) (setf-symbol symbol)))))
 ;;;----------------------------------------------------------------------------
 ;; Returns 5 values:
 ;;   SM1  vr  variables to bind

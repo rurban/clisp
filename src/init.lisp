@@ -1559,6 +1559,13 @@
 (defmacro COMPILER::EVAL-WHEN-COMPILE (&body body) ; preliminary
   `(eval-when (compile) ,@body))
 
+;; Mapping funname -> symbol
+(sys::%putd 'get-funname-symbol
+  (function get-funname-symbol
+    (lambda (funname)
+      (if (atom funname)
+        funname
+        (get-setf-symbol (second funname))))))
 (sys::%putd 'defun
   (sys::make-macro
     (function defun
