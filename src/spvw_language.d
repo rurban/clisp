@@ -15,15 +15,16 @@
   # language.
     global const char * clgettext (const char * msgid);
 
-  # Returns the translation of obj according to the current interface
-  # language. obj must be a string. A string is returned.
-    global object localized_string (object obj);
-
-  # Returns the translated value of obj. obj is translated, then
-  # READ-FROM-STRING is applied to the result.
-    global object localized_object (object obj);
-
 #endif
+
+# Returns the translation of string according to the current interface
+# language. A string is returned.
+global object CLSTEXT (const char*);
+
+# Returns the translated value of obj. obj is translated, then
+# READ-FROM-STRING is applied to the result.
+global object CLOTEXT (const char*);
+
 
 # ------------------------------ Implementation -------------------------------
 
@@ -65,7 +66,7 @@ local bool init_language_from (const char* langname) {
   }
   if (asciz_equal(langname,"FRANCAIS") || asciz_equal(langname,"francais")
      #ifndef ASCII_CHS
-      || asciz_equal(langname,"FRAN\307AIS") || asciz_equal(langname,"FRAN\303\207AIS") # FRAN�AIS
+      || asciz_equal(langname,"FRAN\307AIS") || asciz_equal(langname,"FRAN\303\207AIS") # FRANÇAIS
       || asciz_equal(langname,"fran\347ais") || asciz_equal(langname,"fran\303\247ais") # français
      #endif
       || asciz_equal(langname,"FRENCH") || asciz_equal(langname,"french")) {
@@ -259,34 +260,25 @@ global void init_language (const char* argv_language,
       return translated_msg;
     }
 
-  # FIXME: Don't hardwire ISO-8859-1. The catalog's character set is
-  # given by the "Content-Type:" line in the meta information.
-
-  global object localized_string (object obj);
-  global object localized_string(obj)
-    var object obj;
-    {
-      ASSERT(stringp(obj));
-      with_string_0(obj,Symbol_value(S(ascii)),asciz, {
-        obj = asciz_to_string(clgettext(asciz),Symbol_value(S(utf_8)));
-      });
-      return obj;
-    }
-
-  global object localized_object (object obj);
-  global object localized_object(obj)
-    var object obj;
-    {
-      ASSERT(stringp(obj));
-      with_string_0(obj,Symbol_value(S(ascii)),asciz, {
-        obj = asciz_to_string(clgettext(asciz),Symbol_value(S(utf_8)));
-      });
-      dynamic_bind(S(packagestern),O(default_package)); # *PACKAGE* binden
-      pushSTACK(obj); funcall(L(read_from_string),1); # READ-FROM-STRING ausführen
-      dynamic_unbind();
-      return value1;
-    }
-
- #endif
+  #endif
 
 #endif
+
+# FIXME: Don't hardwire ISO-8859-1. The catalog's character set is
+# given by the "Content-Type:" line in the meta information.
+# in anticipation of this fix, CLSTEXT is a function, not a macro
+
+global object CLSTEXT (const char* asciz) {
+ #ifdef GNU_GETTEXT
+  return asciz_to_string(clgettext(asciz),Symbol_value(S(utf_8)));
+ #else
+  return ascii_to_string(asciz);
+ #endif
+}
+
+global object CLOTEXT (const char* asciz) {
+  dynamic_bind(S(packagestern),O(default_package)); # bind *PACKAGE*
+  pushSTACK(CLSTEXT(asciz)); funcall(L(read_from_string),1);
+  dynamic_unbind();
+  return value1;
+}

@@ -1,16 +1,12 @@
-# This is the developer's makefile, not the user's makefile.
+# This is the developer's -*- Makefile -*-, not the user's makefile.
 # Don't use it unless you know exactly what you do!
 
-# This Makefile needs GNU make.
+# This Makefile needs GNU make and GNU msgfmt (from the GNU gettext package).
 
 SHELL = /bin/sh
-RM = rm -f
+RM = rm -rf
 
-# My reason for writing "gmsgfmt" (although GNU gettext installs it as
-# "msgfmt") is to force an error if Solaris msgfmt would be used. Either
-# this, or one should put a comment in the Makefile.devel saying
-# "This Makefile needs GNU make and GNU msgfmt (from the GNU gettext package)."
-GMSGFMT = gmsgfmt --statistics
+GMSGFMT = msgfmt --statistics
 
 all : tmp pot gmo
 
@@ -131,6 +127,6 @@ $(GMOFILES) : %.gmo : %.po
 
 
 clean :
-	$(RM) *.pox *.new.po
+	$(RM) *.pox *.new.po tmp
 
 force :

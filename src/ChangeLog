@@ -1,5 +1,26 @@
 2002-02-25  Sam Steingold  <sds@gnu.org>
 
+	Moved language-dependent constants out of constobj.d
+	* constobj.d (LISPOBJ_L, LISPOBJ_LS): removed
+	* lispbibl.d (CLSTEXT, CLOTEXT): added
+	(OGETTEXT, OL, OLS, localized_string, localized_object): removed
+	(GNU_GETTEXT): do not define unless UNICODE is defined too
+	* spvw_language.d (CLSTEXT, CLOTEXT): added
+	(localized_string, localized_object): removed
+	* debug.d, error.d, flo_rest.d, misc.d, package.d, pathname.d
+	* realelem.d, spvw.d: use CLSTEXT() instead of OLS()
+	and CLOTEXT() instead of OL()
+	* misc.d, spvw_memfile.d (software_version_string): removed the
+	cache (language-dependent)
+	* i18n.d (TEXT): use CLSTEXT() instead of localized_string()
+	* gettext/po/clisp-xgettext: accomodate these changes: search for
+	CLSTEXT and CLOTEXT in *.d and for TEXT inin *.lisp
+	* gettext/po/Makefile.devel (GMSGFMT): set to msgfmt, since GNU
+	gettext does not install gmsgfmt, and require GNU gettext
+	(clean): remove tmp
+
+2002-02-25  Sam Steingold  <sds@gnu.org>
+
 	* clhs.lisp (clhs): unlock COMMON-LISP before reading clhs-file
 	(read-from-file): added PACKAGE keyword argument
 

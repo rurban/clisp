@@ -1499,9 +1499,6 @@
         # Cache von (LISP-IMPLEMENTATION-VERSION) löschen
         # (hängt von (SYS::CURRENT-LANGUAGE) ab):
         O(lisp_implementation_version_string) = NIL;
-        #if defined(GNU)
-        O(software_version_string) = NIL;
-        #endif
       #endif
       CHECK_AVL_CONSISTENCY();
       CHECK_GC_CONSISTENCY();

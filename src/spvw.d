@@ -2944,20 +2944,19 @@ local void print_banner ()
     if (quit_retry==0)
       { quit_retry++; # If this fails, do not retry it. For robustness.
         funcall(L(fresh_line),0); # (FRESH-LINE [*standard-output*])
-        if (!argv_quiet)
-          { # (WRITE-LINE "Bye." [*standard-output*]) :
-            pushSTACK(OLS(bye_string)); funcall(L(write_line),1);
-          }
+        if (!argv_quiet) {
+          pushSTACK(CLSTEXT("Bye.")); funcall(L(write_line),1);
+        }
         pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B)); # Stream *ERROR-OUTPUT*
         funcall(L(fresh_line),1); # (FRESH-LINE *error-output*)
       }
     # Then wait for a keypress:
-    if (argv_wait_keypress)
-      { argv_wait_keypress = false; # If this fails, do not retry it. For robustness.
-        # (WRITE-LINE "Press a key." [*standard-output*]) :
-        pushSTACK(OLS(keypress_string)); funcall(L(write_line),1);
-        funcall(S(wait_keypress),0); # (SYS::WAIT-KEYPRESS)
-      }
+    if (argv_wait_keypress) {
+      argv_wait_keypress = false; # If this fails, do not retry it (robustness)
+      pushSTACK(CLSTEXT("Press a key to terminate..."));
+      funcall(L(write_line),1);
+      funcall(S(wait_keypress),0); # (SYS::WAIT-KEYPRESS)
+    }
     close_all_files(); # alle Files schließen
     #ifdef DYNAMIC_FFI
     exit_ffi(); # FFI herunterfahren

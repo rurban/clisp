@@ -177,7 +177,7 @@
     pushSTACK(symbol);                                                  \
     pushSTACK(symbol);                                                  \
     pushSTACK(Symbol_value(symbol));                                    \
-    STACK_3 = OLS(default_float_format_warnung_string);                 \
+    STACK_3 = CLSTEXT("The variable ~S had an illegal value." NLstring "~S has been reset to ~S.");                 \
     funcall(S(warn),4);                                                 \
     restore_statement;                                                  \
     { FF_statement; }                                                   \

@@ -529,10 +529,6 @@
   #define NO_FAST_DISPATCH
 #endif
 
-
-# Name of the compiler: see constobj.d: software_version_string
-
-
 # We don't support pre-ANSI-C compilers any more.
 #if !defined(ANSI)
   #error "An ANSI C or C++ compiler is required to compile CLISP!"
@@ -7297,7 +7293,7 @@ nonreturning_function(extern, fehler_not_R, (object obj));
 # Language that's used to communicate with the user:
 #ifdef LANGUAGE_STATIC
   #if ENGLISH
-    #define GETTEXT(english)  english
+    #define GETTEXT(english)   english
     #define GETTEXTL(english)  english
   #endif
 #else
@@ -7323,31 +7319,26 @@ nonreturning_function(extern, fehler_not_R, (object obj));
     # GETTEXT and GETTEXTL are special tags recognized by clisp-xgettext. We
     # choose English because it's the only language understood by all CLISP
     # developers.
-    #define GETTEXT clgettext
+    #define GETTEXT  clgettext
     #define GETTEXTL clgettextl
-
-    # Fetch the message translations of a string.
-    # localized_string(obj)
-    # > obj: String
-    # < result: String
-    # can trigger GC
-    extern object localized_string (object obj);
-
-    # Fetch the "translation" of a Lisp object.
-    # localized_object(obj)
-    # > obj: String
-    # can trigger GC
-    extern object localized_object (object obj);
   #endif
-#endif
-# a message which is made a Lisp Object
-# can trigger GC
-#define OGETTEXT(asciz) asciz_to_string(GETTEXT(asciz),Symbol_value(S(utf_8)))
-# used by all modules
-#ifndef LANGUAGE_STATIC
-# init the language and the locale
+
+  # init the language and the locale
   extern void init_language (const char*, const char*);
 #endif
+# Fetch the message translations of a string: "CL String getTEXT"
+# CLSTEXT(string)
+# > obj: C string
+# < result: String
+# can trigger GC
+extern object CLSTEXT (const char*);
+
+# Fetch the "translation" of a Lisp object: "CL Object getTEXT"
+# CLOTEXT(string)
+# > obj: String
+# can trigger GC
+extern object CLOTEXT (const char*);
+
 
 # Prints a constant ASCIZ-String, directly through the operating-system:
 # asciz_out(string);
@@ -8285,22 +8276,6 @@ extern struct object_tab_ {
 
 # Abbreviation for other LISP-object with a given Name:
 #define O(name)  (object_tab.name)
-
-# Shorthand for a LISP-object with a given name that depends on language:
-# OLS(name)  if they're LISP-Strings, defined with LISPOBJ_LS,
-# OL(name)   if they're other LISP-objects, of LISPOBJ_L.
-# can trigger GC
-#ifndef GNU_GETTEXT
-  #ifdef LANGUAGE_STATIC
-    #define OL(name)  O(name)
-  #else
-    #define OL(name)  ((&O(name))[language])
-  #endif
-  #define OLS(name)  OL(name)
-#else # GNU_GETTEXT
-  #define OLS(name)  localized_string(O(name))
-  #define OL(name)  localized_object(O(name))
-#endif
 
 #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
 # handle_fault_range(PROT_READ,start,end) makes an address range readable.
