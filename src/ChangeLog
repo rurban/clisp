@@ -1,3 +1,33 @@
+2004-07-11  Bruno Haible  <bruno@clisp.org>
+
+	* clos-genfun2.lisp (|#'allocate-instance|, |#'initialize-instance|,
+	|#'reinitialize-instance|, |#'update-instance-for-redefined-class|,
+	|#'update-instance-for-different-class|, |#'shared-initialize|,
+	*gf-warn-on-replacing-method*): New variables, moved here from
+	clos-genfun3.lisp.
+	(methods-agree-p, gf-lambdalist-from-first-method, std-add-method,
+	std-remove-method, std-find-method): New functions, moved here from
+	clos-genfun3.lisp.
+	(initialize-instance-<standard-generic-function>): Remove function.
+	(initialize-instance-<generic-function>): New function, extracted from
+	ensure-generic-function-using-class-<t>.
+	(reinitialize-instance-<generic-function>): New function, extracted
+	from ensure-generic-function-using-class-<t>.
+	(make-instance-<standard-generic-function>): Update.
+	* clos-genfun3.lisp (|#'allocate-instance|, |#'initialize-instance|,
+	|#'reinitialize-instance|, |#'update-instance-for-redefined-class|,
+	|#'update-instance-for-different-class|, |#'shared-initialize|,
+	*gf-warn-on-replacing-method*): Move to clos-genfun2.lisp.
+	(methods-agree-p, gf-lambdalist-from-first-method, std-add-method,
+	std-remove-method, std-find-method): Move to clos-genfun2.lisp.
+	(ensure-generic-function-using-class-<t>): For redefinition, use
+	reinitialize-instance. For first definition, rely on
+	initialize-instance to install the initial methods.
+	* clos-genfun4.lisp (initialize-instance@generic-function,
+	reinitialize-instance@generic-function): New methods.
+	* clos-genfun5.lisp (initialize-instance-<standard-generic-function>):
+	Remove function.
+
 2004-09-03  Sam Steingold  <sds@gnu.org>
 
 	restored support for older versions of woe32
