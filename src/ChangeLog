@@ -1,5 +1,9 @@
 2002-10-12  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (DELETE-FILE): delete the argument, not its TRUENAME
+
+2002-10-12  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (DIRECTORY): accept new :IF-DOES-NOT-EXIST argument
 	(dir_search_if_none_t, dir_search_param_t): new typedefs
 	(directory_search): accept a second dir_search_param_t argument

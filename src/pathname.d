@@ -7839,27 +7839,27 @@ LISPFUNN(delete_file,1) {
     pathname = coerce_pathname(pathname); # turn into a pathname
   }
   # pathname is now a pathname.
-  var object namestring = true_namestring(pathname,true,true);
+  check_no_wildcards(pathname); /* with wildcards -> error */
+  pathname = use_default_dir(pathname); /* insert default-directory */
+  check_noname(pathname);
+  pushSTACK(pathname); pushSTACK(pathname);
+  var object namestring = assure_dir_exists(false,true);
   if (eq(namestring,nullobj)) {
     # path to the file does not exist ==> return NIL
     skipSTACK(1); VALUES1(NIL); return;
   }
   check_delete_open(STACK_0);
-  # delete file:
- #ifdef FILE_EXISTS_TRIVIAL
-  if (!file_exists(namestring)) { # file does not exist -> value NIL
-    skipSTACK(1); VALUES1(NIL); return;
-  }
- #endif
+  /* delete the original filename - not the truename */
+  namestring = whole_namestring(STACK_1);
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     if (!delete_file_if_exists(namestring_asciz)) {
       # file does not exist -> value NIL
-      FREE_DYNAMIC_ARRAY(namestring_asciz); skipSTACK(1);
+      FREE_DYNAMIC_ARRAY(namestring_asciz); skipSTACK(2);
       VALUES1(NIL); return;
     }
   });
   # file existed, was deleted -> pathname (/=NIL) as value
-  VALUES1(popSTACK());
+  VALUES1(STACK_1); skipSTACK(2);
 }
 
 # error-message because of renaming attempt of an opened file
