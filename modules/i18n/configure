@@ -1303,8 +1303,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
           ac_config_headers="$ac_config_headers config.h"
 
 
-{ echo "$as_me:$LINENO:  * I18N (locale):" >&5
-echo "$as_me:  * I18N (locale):" >&6;}
+{ echo "$as_me:$LINENO:  * I18N (Headers)" >&5
+echo "$as_me:  * I18N (Headers)" >&6;}
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -2652,6 +2652,9 @@ _ACEOF
 
 fi
 
+
+{ echo "$as_me:$LINENO:  * I18N (locale):" >&5
+echo "$as_me:  * I18N (locale):" >&6;}
 # On IRIX 5.3, sys/types and inttypes.h are conflicting.
 
 
