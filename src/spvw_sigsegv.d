@@ -102,6 +102,15 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
     if (scp) { setSTACK(STACK = (object*)(scp->sc_regs[9])); }
    #endif
   #endif
+  #ifdef UNIX_FREEBSD
+    # stackoverflow_context_t is actually `struct sigcontext *'.
+   #ifdef I80386
+    if (scp) { setSTACK(STACK = (object*)(scp->sc_ebx)); }
+   #endif
+   #ifdef DECALPHA
+    if (scp) { setSTACK(STACK = (object*)(scp->sc_regs[9])); }
+   #endif
+  #endif
   }
  #endif
   SP_ueber();
