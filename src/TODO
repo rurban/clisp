@@ -6,6 +6,10 @@ MUST-FIX BEFORE NEXT RELEASE
 
 read_form loses pasted multi-line input on MacOS X.
 
+Readline interface problem:
+[2]> (macroexü
+*** - AREF: Index 9 für "(macroexü" ist zu groß.
+
 Restore interpretation of command-line options.
         [sds: what does this mean?]
 
@@ -68,6 +72,10 @@ URGENT PROBLEMS
 ===============
 
 Should handle these soon.
+
+
+Global error handler; command-line option that has the effect of wrapping
+an EXIT-ON-ERROR around every evaluated form.
 
 
 Embeddability: additional API in spvw.d; global error handler; example.
