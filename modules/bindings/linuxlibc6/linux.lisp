@@ -1126,7 +1126,7 @@
 (def-call-out read-helper
     (:arguments (fd int) (buf c-pointer) (nbytes size_t) (partial-p boolean))
   (:return-type ssize_t) (:name "read_helper"))
-(defmacro read (fd buf nbytes) `(read-helper fd buf nbytes t))
+(defmacro read (fd buf nbytes) `(read-helper ,fd ,buf ,nbytes t))
 (def-call-out write (:arguments (fd int) (buf c-pointer) (nbytes size_t))
   (:return-type ssize_t) (:name "full_write"))
 
