@@ -1,3 +1,8 @@
+2001-10-04  Sam Steingold  <sds@gnu.org>
+
+	* type.lisp (clos-class): new function
+	(typep, canonicalize-type, type-expand): use it
+
 2001-10-03  Sam Steingold  <sds@gnu.org>
 
 	limit DEFTYPE depth

@@ -37,6 +37,12 @@
 
 ;; ============================================================================
 
+;; return the CLOS class named by TYPESPEC or NIL
+(defun clos-class (typespec)
+  (let ((cc (get typespec 'CLOS::CLOSCLASS)))
+    (when (and cc (clos::class-p cc) (eq (clos:class-name cc) typespec))
+      cc)))
+
 ;;; TYPEP, CLTL S. 72, S. 42-51
 (defun typep (x y &aux f) ; x = Objekt, y = Typ
   (setq y (expand-deftype y))
@@ -45,12 +51,7 @@
        (cond ((setq f (get y 'TYPE-SYMBOL)) (funcall f x))
              ((setq f (get y 'TYPE-LIST)) (funcall f x))
              ((get y 'DEFSTRUCT-DESCRIPTION) (%STRUCTURE-TYPE-P y x))
-             ((and (setf f (get y 'CLOS::CLOSCLASS))
-                   (clos::class-p f)
-                   (eq (clos:class-name f) y)
-              )
-              (clos::subclassp (clos:class-of x) f)
-             )
+             ((setf f (clos-class y)) (clos::subclassp (clos:class-of x) f))
              (t (typespec-error 'typep y))
     )  )
     ((and (consp y) (symbolp (first y)))
@@ -754,14 +755,10 @@
              CONCATENATED-STREAM TWO-WAY-STREAM ECHO-STREAM STRING-STREAM)
             ;; We treat STREAM and subclasses like CLOS classes, so that
             ;; (subtypep 'FUNDAMENTAL-STREAM 'STREAM) can return T.
-            (let ((f (get type 'CLOS::CLOSCLASS)))
-              (if (and f (clos::class-p f) (eq (clos:class-name f) type))
-                  f
-                  type)))
+            (or (clos-class type) type))
            (t
-            (let ((f (get type 'CLOS::CLOSCLASS)))
-              (if (and f (clos::class-p f) (not (clos::built-in-class-p f))
-                       (eq (clos:class-name f) type))
+            (let ((f (clos-class type)))
+              (if (and f (not (clos::built-in-class-p f)))
                   f
                   type)))))
         ((and (consp type) (symbolp (first type)))
@@ -1428,9 +1425,7 @@ referring to circular lists.
              (cond ((or (get typespec 'TYPE-SYMBOL) (get typespec 'TYPE-LIST))
                     (values typespec nil))
                    ((or (get typespec 'DEFSTRUCT-DESCRIPTION)
-                        (and (setq f (get typespec 'CLOS::CLOSCLASS))
-                             (clos::class-p f)
-                             (eq (clos:class-name f) typespec)))
+                        (clos-class typespec))
                     (values typespec nil))
                    (t (typespec-error 'type-expand typespec))))
             ((and (consp typespec) (symbolp (first typespec)))
