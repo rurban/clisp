@@ -12133,10 +12133,11 @@ extern object stream_fd (object stream);
   extern boolean stream_isbuffered (object stream);
 # wird verwendet von IO
 
-# UP: Returns the line current number of a stream.
+# UP: Returns the current line number of a stream.
 # stream_line_number(stream)
 # > stream: a stream
 # < result: an integer or NIL
+# can trigger GC
   extern object stream_line_number (object stream);
 # wird verwendet von IO
 
