@@ -350,7 +350,7 @@ T
 
 (eq (class-of (make-array nil)) (find-class 'array))  T
 (eq (class-of (make-array nil :element-type nil)) (find-class 'array)) T
-(eq (class-of (make-array 10 :element-type nil)) (find-class 'vector)) T
+(eq (class-of (make-array 10 :element-type nil)) (find-class 'string)) T
 
 (typep "abc" (find-class 't))
 T

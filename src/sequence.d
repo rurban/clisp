@@ -245,7 +245,17 @@ local object get_seq_type (object seq) {
   if (listp(seq)) name = S(list); # Typ LIST
   else if (vectorp(seq)) {
     switch (Array_type(seq)) {
-      case Array_type_sstring: case Array_type_string:
+      case Array_type_string:
+        switch (Iarray_flags(seq) & arrayflags_atype_mask) {
+          case Atype_NIL: /* type (VECTOR NIL) */
+            name = Fixnum_0; break;
+          case Atype_Char: /* type STRING */
+            name = S(string); break;
+          default:
+            NOTREACHED;
+        }
+        break;
+      case Array_type_sstring:
         name = S(string); break; # Typ STRING
       case Array_type_sbvector: case Array_type_bvector:
         name = S(bit_vector); break; # Typ BIT-VECTOR
@@ -261,17 +271,7 @@ local object get_seq_type (object seq) {
       case Array_type_b16vector:
       case Array_type_b32vector: # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
         name = fixnum(bit(bNvector_atype(seq))); break;
-      case Array_type_vector:
-        switch (Iarray_flags(seq) & arrayflags_atype_mask) {
-          case Atype_NIL: /* type (VECTOR NIL) */
-            name = Fixnum_0; break;
-          case Atype_T: /* type [GENERAL-]VECTOR */
-            name = S(vector); break;
-          default:
-            NOTREACHED;
-        }
-        break;
-      case Array_type_svector:
+      case Array_type_vector: case Array_type_svector:
         name = S(vector); break; # Typ [GENERAL-]VECTOR
       default:
         NOTREACHED;
@@ -4338,6 +4338,7 @@ LISPFUN(read_char_sequence,seclass_default,2,0,norest,key,2,
       }
       var uintL index = 0;
       STACK_0 = array_displace_check(STACK_4,end,&index);
+      if (simple_nilarray_p(STACK_0)) fehler_nilarray_store();
       check_sstring_mutable(STACK_0);
       var uintL result = read_char_array(&STACK_3,&STACK_0,index+start,end-start);
       VALUES1(fixnum(start+result));
@@ -4387,6 +4388,7 @@ LISPFUN(write_char_sequence,seclass_default,2,0,norest,key,2,
       if (len > 0) {
         var uintL index = 0;
         STACK_0 = array_displace_check(STACK_4,end,&index);
+        if (simple_nilarray_p(STACK_0)) fehler_nilarray_retrieve();
         write_char_array(&STACK_3,&STACK_0,index+start,len);
       }
     } else {

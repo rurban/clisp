@@ -994,8 +994,8 @@ typedef struct {
 #define semicolonp(c)  (chareq(c,ascii(';')))
 #define lslashp(c)     semicolonp(c)
 
-/* copy LEN characters in string ORIG starting at ORIG_OFFSET to string DEST,
-   starting at DEST_OFFSET, up-casing all characters */
+/* Copy LEN characters in string ORIG starting at ORIG_OFFSET to string DEST,
+   starting at DEST_OFFSET, up-casing all characters. LEN is > 0. */
 local void copy_upcase (object dest, uintL dest_offset,
                         object orig, uintL orig_offset, uintL len) {
   sstring_un_realloc(orig);
@@ -1373,13 +1373,15 @@ local void split_name_type (uintL skip) {
   var uintL length = Sstring_length(string);
   /* Search for the last dot: */
   var uintL index = length;
-  SstringDispatch(string,X, {
-    var const cintX* ptr = &((SstringX)TheVarobject(string))->data[index];
-    while (index > skip) {
-      if (*--ptr == '.') goto punkt;
-      index--;
-    }
-  });
+  if (index > skip) {
+    SstringDispatch(string,X, {
+      var const cintX* ptr = &((SstringX)TheVarobject(string))->data[index];
+      do {
+        if (*--ptr == '.') goto punkt;
+        index--;
+      } while (index > skip);
+    });
+  }
   /* no dot found -> Type := NIL */
   pushSTACK(NIL);
   goto name_type_ok;
@@ -1492,7 +1494,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
       if (!nullpSv(parse_namestring_ansi)) {
         /* Coerce string to be a normal-simple-string. */
         #ifdef HAVE_SMALL_SSTRING
-        SstringCase(string,{ Z_SUB(z,string); },{ Z_SUB(z,string); },{});
+        SstringCase(string,{ Z_SUB(z,string); },{ Z_SUB(z,string); },{},{ Z_SUB(z,string); });
         #endif
         var zustand tmp = z;
         var object host = parse_logical_host_prefix(&tmp,string);
@@ -1523,7 +1525,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
     }
     /* Coerce string to be a normal-simple-string. */
     #ifdef HAVE_SMALL_SSTRING
-    SstringCase(string,{ Z_SUB(z,string); },{ Z_SUB(z,string); },{});
+    SstringCase(string,{ Z_SUB(z,string); },{ Z_SUB(z,string); },{},{ Z_SUB(z,string); });
     #endif
     pushSTACK(string);
   }
@@ -1662,15 +1664,17 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
         var object userhomedir; /* Pathname of the User-Homedir */
         /* search next '/' : */
         var uintL charcount = 0;
-        SstringDispatch(STACK_2,X, {
-          var const cintX* charptr =
-            &((SstringX)TheVarobject(STACK_2))->data[z.index];
-          var uintL count;
-          dotimesL(count,z.count, {
-            if (*charptr++ == '/') break;
-            charcount++;
+        if (z.count > 0) {
+          SstringDispatch(STACK_2,X, {
+            var const cintX* charptr =
+              &((SstringX)TheVarobject(STACK_2))->data[z.index];
+            var uintL count;
+            dotimespL(count,z.count, {
+              if (*charptr++ == '/') break;
+              charcount++;
+            });
           });
-        });
+        }
         /* Username has charcount characters */
         if (charcount==0) {
           userhomedir = O(user_homedir); /* only '~' -> User-Homedir */

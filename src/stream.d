@@ -9342,6 +9342,8 @@ local void wr_ch_array_terminal3 (const gcv_object_t* stream_,
                                TheS32string(*chararray_)->data[index]);
           index++;
         });
+      },{
+        NOTREACHED;
       });
     }
   }
@@ -15417,8 +15419,10 @@ global bool read_line (const gcv_object_t* stream_, const gcv_object_t* buffer_)
     var uintL len;
     var uintL offset;
     var object srcstring = unpack_string_ro(value1,&len,&offset);
-    if (len > 0)
+    if (len > 0) {
+      if (simple_nilarray_p(srcstring)) fehler_nilarray_retrieve();
       ssstring_append_extend(*buffer_,srcstring,offset,len);
+    }
     return eofp;
   }
 }

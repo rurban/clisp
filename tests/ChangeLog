@@ -1,3 +1,8 @@
+2004-03-07  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Change expected result of (class-of #A(NIL (10)) to
+	<string>, instead of <vector>.
+
 2004-03-19  Sam Steingold  <sds@gnu.org>
 
 	* iofkts.tst (object-out): test CLOS/PPRINT-LOGICAL-BLOCK

@@ -50,7 +50,8 @@ local void string_out (FILE* out, object str) {
   var uintL len;
   var uintL offset;
   var object string = unpack_string_ro(str,&len,&offset);
-  var const chart* srcptr = &TheSnstring(string)->data[offset];
+  var const chart* srcptr;
+  unpack_sstring_alloca(string,len,offset, srcptr=);
   var DYNAMIC_ARRAY(buffer,uintB,len+1);
   var uintB* destptr = buffer;
   while (len--) *destptr++ = as_cint(*srcptr++);
