@@ -1,3 +1,8 @@
+2005-01-02  Bruno Haible  <bruno@clisp.org>
+
+	* condition.lisp (maybe-continue): Remove function.
+	(muffle-cerror, appease-cerror): Inline maybe-continue.
+
 2005-01-20  Sam Steingold  <sds@gnu.org>
 
 	* control.d (activate_bindings): new function (extracted from LET)
@@ -7,28 +12,28 @@
 
 	* control.d (LET, LET*, MULTIPLE-VALUE-BIND): simplified control flow
 
-2004-01-20  Bruno Haible  <bruno@clisp.org>
+2005-01-20  Bruno Haible  <bruno@clisp.org>
 
 	* eval.d (symbol_env_search): Fix definition of binds_sym_p.
 
-2004-01-20  Bruno Haible  <bruno@clisp.org>
+2005-01-20  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (listen_handle): Use 'var'.
 
-2004-01-20  Bruno Haible  <bruno@clisp.org>
+2005-01-20  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (cflags.h.stamp): Use $(MV), not $(CP).
 
-2004-01-20  Bruno Haible  <bruno@clisp.org>
+2005-01-20  Bruno Haible  <bruno@clisp.org>
 
 	* io.d (structure_reader): Accept also strings and characters as slot
 	names, and use test_stringsymchar_arg for converting them to a string.
 
-2004-01-20  Bruno Haible  <bruno@clisp.org>
+2005-01-20  Bruno Haible  <bruno@clisp.org>
 
 	* charstrg.d (test_stringsymchar_arg): Remove redundant code.
 
-2004-01-20  Bruno Haible  <bruno@clisp.org>
+2005-01-20  Bruno Haible  <bruno@clisp.org>
 
 	* utils/clispload.lsp (*expected-failures*): Update.
 
