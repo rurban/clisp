@@ -1,3 +1,10 @@
+2003-10-25  Bruno Haible  <bruno@clisp.org>
+
+	Restore the behaviour of "make init" and "make allc".
+	* makemake.in (init): Don't depend on modprep.fas.
+	(clean3): Clean modprep.fas here...
+	(clean5): ... not here.
+
 2003-10-24  Bruno Haible  <bruno@clisp.org>
 
 	* spvw_debug.d (nobject_out1): Make it compile when TYPECODES are used.
