@@ -61,6 +61,8 @@
 
 (netica:save-net "asia" *net*)
 
+(netica:net-info *net*)
+
 ;; termination
 (netica:DeleteNet_bn *net*)
 (netica:close-netica)
