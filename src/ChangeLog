@@ -1,3 +1,7 @@
+2003-08-11  Sam Steingold  <sds@gnu.org>
+
+	* calls.c (STREAM-LOCK): added begin_system_call()/end_system_call()
+
 2003-08-10  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	* pathname.d (nullfile): new local function.

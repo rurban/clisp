@@ -63,6 +63,10 @@ DEFVAR(pathname_encoding, (funcall(L(pathname_encoding),0),value1));
 #endif
 
 #if defined(HAVE_FCNTL) || defined(WIN32_NATIVE)
+/* we use posix fcntl() on unix and win32 LockFileEx() on win32.
+   since cygwin supports fcntl(), we use it there, but another option
+   would be to use cygwin get_osfhandle() + win32 LockFileEx(),
+   see <http://article.gmane.org/gmane.os.cygwin/35175> */
 #if defined(HAVE_FCNTL_H)
 # include <fcntl.h>
 #endif
@@ -88,15 +92,21 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 #endif
   if (posfixnump(STACK_5)) fd = (Handle)posfixnum_to_L(STACK_5);
   else stream = open_file_stream_handle(STACK_5,&fd);
-  if (missingp(STACK_0)) { /* use file size */
-    if (posfixnump(STACK_0)) { /* no stream give, use OS to get file size */
+  if (missingp(STACK_0)) { /* no :LENGTH => use file size */
+    if (posfixnump(STACK_0)) { /* no stream given, use OS to get file size */
 #    if defined(WIN32_NATIVE)
       LARGE_INTEGER size;
-      if (!GetFileSizeEx(fd,&size)) goto error;
+      begin_system_call();
+      failed_p = (!GetFileSizeEx(fd,&size));
+      end_system_call();
+      if (failed_p) goto error;
       length = size.LowPart;
-#    elif defined(HAVE_FLOCK)
+#    elif defined(HAVE_FSTAT)
       struct stat st;
-      if (-1 == fstat(fd,&st)) goto error;
+      begin_system_call();
+      failed_p = (-1 == fstat(fd,&st));
+      end_system_call();
+      if (failed_p) goto error;
       length = st.st_size;
 #    else
       length = 0;
@@ -121,8 +131,7 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
     failed_p = lock_p = false; /* failed to lock, :BLOCK NIL */
 #endif
   end_system_call();
-     error:
-  if (failed_p) {
+  if (failed_p) { error:
     if (eq(stream,nullobj)) OS_error();
     else OS_filestream_error(stream);
   }
