@@ -138,8 +138,6 @@
              form
   )     )  )
 )
-;; backward compatibility
-(sys::%putd 'get-setf-method-multiple-value #'get-setf-expansion)
 ;;;----------------------------------------------------------------------------
 (defun get-setf-method (form &optional (env (vector nil nil)))
   (multiple-value-bind (vars vals stores store-form access-form)

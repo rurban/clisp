@@ -827,8 +827,3 @@
 ; - more argument list for these two format strings,
 ; and which may return only if the first argument is /= NIL.
 (defvar *error-handler* nil)
-
-;; Backward compatibility
-
-(sys::%putd 'special-form-p #'special-operator-p)
-
