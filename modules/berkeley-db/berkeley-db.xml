@@ -62,7 +62,7 @@
  <listitem><para>Retrieve some environment options.
    <variablelist><title>Values of <replaceable>what</replaceable></title>
     <varlistentry><term>missing</term><term>&nil;</term>
-     <listitem><simpara>all options as multiple values
+     <listitem><simpara>all options as a &list-t;
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:TX_TIMESTAMP</constant></term>
      <listitem><simpara>Recover to the time specified by timestamp
@@ -238,15 +238,17 @@
  -->
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:DB-SET-OPTIONS db &key-amp;
-      ERRFILE PASSWORD ENCRYPT NCACHE CACHESIZE)</literal></term>
+      ERRFILE PASSWORD ENCRYPT NCACHE CACHESIZE PAGESIZE RE_LEN LORDER)
+ </literal></term>
  <listitem><simpara>Call &DB_set_errfile;, &DB_set_encrypt;,
-   &DB_set_cachesize;.</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:ENV-GET-OPTIONS dbe
+   &DB_set_cachesize;, &DB_set_re_len;, &DB_set_pagesize;, &DB_set_lorder;.
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-GET-OPTIONS db
    &optional-amp; what)</literal></term>
- <listitem><para>Retrieve some environment options.
+ <listitem><para>Retrieve some database options.
    <variablelist><title>Values of <replaceable>what</replaceable></title>
     <varlistentry><term>missing</term><term>&nil;</term>
-     <listitem><simpara>all options as multiple values
+     <listitem><simpara>all options as a &list-t;
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:FLAGS</constant></term>
      <listitem><simpara>all flags (&DBE_get_flags;).
@@ -267,7 +269,16 @@
      <listitem><simpara>encryption flags (&DBE_get_encrypt_flags;).
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:ERRFILE</constant></term>
-     <listitem><simpara>&file-des; or &nil; (&DBE_get_errfile;).
+     <listitem><simpara>&file-des; or &nil; (&DB_get_errfile;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:PAGESIZE</constant></term>
+     <listitem><simpara>database page size (&DB_get_pagesize;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:CACHESIZE</constant></term>
+     <listitem><simpara>database cache size (&DB_get_cachesize;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:LORDER</constant></term>
+     <listitem><simpara>database byte orderb (&DB_get_lorder;).
     </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 </variablelist>

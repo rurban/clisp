@@ -374,11 +374,11 @@ int main(int argc, char* argv[])
   printf("#define minus_bit(n)  (-1%s<<(n))\n",Lsuffix);
 #if notused
   printf("#define minus_bitm(n)  (-2%s<<((n)-1))\n",Lsuffix);
+#endif
   printf("#define floor(a_from_floor,b_from_floor)  ((a_from_floor) / (b_from_floor))\n");
   printf("#define ceiling(a_from_ceiling,b_from_ceiling)  (((a_from_ceiling) + (b_from_ceiling) - 1) / (b_from_ceiling))\n");
   printf("#define round_down(a_from_round,b_from_round)  (floor(a_from_round,b_from_round)*(b_from_round))\n");
   printf("#define round_up(a_from_round,b_from_round)  (ceiling(a_from_round,b_from_round)*(b_from_round))\n");
-#endif
  #if defined(GNU)
    #ifdef DECALPHA
      printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype arrayvar[(arraysize)+1]\n");
@@ -597,8 +597,8 @@ int main(int argc, char* argv[])
   printf("#define objectplus(obj,offset)  as_object(as_oint(obj)+(soint)(offset))\n");
 #endif
 #if !(defined(WIDE_SOFT) || defined(WIDE_AUXI))
-#if notused
   printf("#define wbit  bit\n");
+#if notused
   printf("#define wbitm  bitm\n");
 #endif
   printf("#define wbit_test  bit_test\n");
@@ -1853,6 +1853,7 @@ int main(int argc, char* argv[])
 
   printf("#define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))\n");
   printf("extern object vectorof (uintC len);\n");
+  printf("extern object allocate_bignum (uintC len, sintB sign);\n");
 #if notused
   printf("extern object allocate_bit_vector_0 (uintL len);\n");
   printf("extern chart up_case (chart ch);\n");
