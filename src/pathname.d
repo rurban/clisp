@@ -1155,7 +1155,8 @@ local object parse_logical_host_prefix (zustand* zp, object string) {
          ".." or :back         ==> :up
          ... x "foo" :up y ... ==> ... x y ...
          ... x  ""/"."   y ... ==> ... x y ...
-         :absolute :up   y ... ==> :absolute y ...
+         :absolute :up         ==> error
+         :wild-inferiors :up   ==> error
  can trigger GC */
 local object simplify_directory (object dir) {
   if (!consp(dir)) return dir;
@@ -1201,21 +1202,35 @@ local object simplify_directory (object dir) {
     var object curr = dir;
     while (consp(curr) && consp(Cdr(curr))) {
       var object next = Cdr(curr);
-      if (consp(Cdr(next))
-          && !eq(Car(next),S(Kup)) && !eq(Car(next),S(Kwild_inferiors))
-          && eq(Car(Cdr(next)),S(Kup))) {
-        changed_p = true;
-        Cdr(curr) = Cdr(Cdr(next)); /* collapse "foo/../" */
+      var object here = Car(next);
+      var object next_next = Cdr(next);
+      if (consp(next_next)) {
+        var object next_here = Car(next_next);
+        /* :BACK has been converted to :UP */
+        if (!eq(here,S(Kup)) && eq(next_here,S(Kup))) {
+          if (eq(here,S(Kwild_inferiors)) || eq(here,S(Kabsolute))) {
+            goto error_absolute_up;
+          } else {
+            Cdr(curr) = Cdr(next_next); /* collapse ( "foo" :UP ) */
+            changed_p = true;
+          }
+        } else
+          curr = next;
       } else
         curr = next;
     }
   } while (changed_p);
-  if (eq(Car(dir),S(Kabsolute))) { /* drop initial :up after :absolute */
-    while (consp(Cdr(dir)) && eq(Car(Cdr(dir)),S(Kup)))
-      Cdr(dir) = Cdr(Cdr(dir));
-  }
+  if (eq(Car(dir),S(Kabsolute)) && consp(Cdr(dir)))
+    if (eq(Car(Cdr(dir)),S(Kup)))
+      goto error_absolute_up;
   DOUT("simplify_directory:> ",dir);
   return dir;
+ error_absolute_up:
+  /* <http://www.lisp.org/HyperSpec/Body/sec_19-2-2-4-3.html> */
+  pushSTACK(O(empty_string)); /* FILE-ERROR slot PATHNAME */
+  pushSTACK(dir); pushSTACK(S(Kdirectory));
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(file_error,GETTEXT("~S: illegal ~S argument ~S"));
 }
 
 /* Parses a logical pathname.
