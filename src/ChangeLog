@@ -1,3 +1,8 @@
+2004-01-29  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 874859 ]: incorrect stack cleanup
+	* compiler.lisp (simplify): fixed a typo in SKIPSP+SKIPI=>SKIPI
+
 2004-01-27  Sam Steingold  <sds@gnu.org>
 
 	* modules/fastcgi/fastcgi.lisp: add :FASTCGI to *FEATURES*
