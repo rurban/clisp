@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -67,7 +67,12 @@ AC_DEFINE(INET_ADDR_SUFFIX,[.s_addr],[Define as .s_addr if the return type of in
 else
 AC_DEFINE(INET_ADDR_SUFFIX,[])
 fi
-AC_CHECK_HEADERS(netinet/tcp.h)dnl
+AC_CHECK_HEADERS(netinet/tcp.h,,,
+dnl AIX 4 requires <netinet/in.h> to be included before <netinet/tcp.h>.
+[[#if HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+]])
 CL_PROTO([setsockopt], [
 for z in 'int' 'unsigned int' 'size_t'; do
 for y in 'char*' 'void*'; do
