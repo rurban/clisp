@@ -5502,7 +5502,7 @@ typedef struct {
     # Because of space requirements, I have to put strmflags and strmtype
     # into a fixnum in recdata[0].
     #if !((oint_addr_len+oint_addr_shift>=24) && (8>=oint_addr_shift))
-      #error "No room for stream flags -- re-accomodate Stream-Flags!!"
+      #error "No room for stream flags -- re-accommodate Stream-Flags!!"
     #endif
     XRECORD_HEADER
     #if defined(WIDE) && BIG_ENDIAN_P
