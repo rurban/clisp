@@ -1929,9 +1929,6 @@ AC_DEFINE(HAVE_PERROR_DECL)
 fi
 ])dnl
 dnl
-AC_DEFUN(CL_STRERROR,
-[AC_CHECK_FUNCS(strerror)])dnl
-dnl
 AC_DEFUN(CL_SYS_ERRLIST,
 [changequote(,)dnl
 brackets='[]'
@@ -2717,10 +2714,6 @@ CL_PROTO_CONST([
 AC_DEFINE_UNQUOTED(UNLINK_CONST,$cl_cv_proto_unlink_arg1)
 ])dnl
 dnl
-AC_DEFUN(CL_FSYNC,
-[AC_CHECK_FUNCS(fsync)]
-)dnl
-dnl
 AC_DEFUN(CL_IOCTL,
 [AC_REQUIRE([CL_TERM])dnl
 AC_REQUIRE([CL_OPENFLAGS])dnl
@@ -2948,10 +2941,6 @@ AC_CHECK_FUNCS(poll)dnl
 fi
 ])dnl
 dnl
-AC_DEFUN(CL_UALARM,
-[AC_CHECK_FUNCS(ualarm)]
-)dnl
-dnl
 AC_DEFUN(CL_SETITIMER,
 [AC_CHECK_FUNCS(setitimer)dnl
 if test $ac_cv_func_setitimer = yes; then
@@ -2968,10 +2957,6 @@ CL_PROTO_CONST([
 AC_DEFINE_UNQUOTED(SETITIMER_CONST,$cl_cv_proto_setitimer_arg2)
 fi
 ])dnl
-dnl
-AC_DEFUN(CL_USLEEP,
-[AC_CHECK_FUNCS(usleep)]
-)dnl
 dnl
 AC_DEFUN(CL_LOCALTIME,
 [CL_PROTO([localtime], [
