@@ -314,7 +314,7 @@ AS-STRING
 
 ;; Check that defclass supports user-defined slot options.
 (progn
-  (defclass option-slot-definition (standard-direct-slot-definition)
+  (defclass option-slot-definition (clos:standard-direct-slot-definition)
     ((option :accessor sl-option :initarg :my-option)))
   (defclass option-slot-class (standard-class)
     ())
@@ -350,7 +350,7 @@ AS-STRING
 ;; Check that after a class redefinition, new user-defined direct slots
 ;; have replaced the old direct slots.
 (progn
-  (defclass extended-slot-definition (standard-direct-slot-definition)
+  (defclass extended-slot-definition (clos:standard-direct-slot-definition)
     ((option1 :initarg :option1)
      (option2 :initarg :option2)))
   (defclass extended-slot-class (standard-class)
