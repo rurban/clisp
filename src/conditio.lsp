@@ -12,8 +12,8 @@ floating-point-underflow floating-point-inexact
 floating-point-invalid-operation
 cell-error unbound-variable undefined-function unbound-slot
 type-error package-error print-not-readable parse-error stream-error
-end-of-file reader-error file-error storage-condition warning style-warning
-simple-condition simple-error simple-type-error os-error simple-warning
+end-of-file reader-error file-error os-error storage-condition warning
+style-warning simple-condition simple-error simple-type-error simple-warning
 ;; macros:
 define-condition handler-bind ignore-errors handler-case
 with-condition-restarts restart-bind restart-case with-restarts
@@ -361,7 +361,9 @@ muffle-cerrors appease-cerrors exit-on-error
       (($pathname :initarg :pathname :reader file-error-pathname))
     )
 
+    ; general OS errors
     (define-condition os-error (error) ())
+    ; CLISP specific
 
   ; "Virtual memory exhausted"
   (define-condition storage-condition (serious-condition) ())

@@ -1,5 +1,9 @@
 1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * conditio.lsp (export): Mention `os-error' right after `file-error'.
+
+1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * init.lsp (export): Mention `with-package-iterator' right after
           `do-all-symbols', because that's where it is located in CLtL2.
         * defs3.lsp (export): Likewise.
