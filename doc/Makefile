@@ -10,8 +10,8 @@ RM=/bin/rm -f
 
 ifneq (,$(filter Windows%,$(OS)))
 XMLHOME=c:/doc/xml
-NSGMLS=/cygdrive/c/gnu/sp/bin/nsgmls.exe
-XMLSOC=c:/gnu/sp/pubtext/xml.soc
+NSGMLS=d:/gnu/sp/bin/nsgmls.exe
+XMLSOC=d:/gnu/sp/pubtext/xml.soc
 JAVAXML=c:/java
 JAVA=/cygdrive/c/java/jdk1.3/bin/java.exe
 SEP=;
