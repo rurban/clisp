@@ -4,6 +4,36 @@
 
 (in-package "SYSTEM")
 
+;; a legitimate option is to keep the `compiler-macro' definition of the
+;; symbol in a global hash-table instead of the `symbol-plist'.
+;; the reason is that
+;; * this performance issue is related only to compilation speed,
+;;   not execution speed
+;; * the plists are actually quite short:
+;; (let ((al nil)
+;;       (acc (compose length symbol-plist)))
+;;   (do-all-symbols (sy) (push sy al))
+;;   (delete-duplicates al :test #'eq)
+;;   (format t "~&none:~10t ~5:d~%" (count-if #'zerop al :key acc))
+;;   (multiple-value-bind (de me le) (standard-deviation al :key acc)
+;;     (format t "std dev:~10t ~5f~%mean:~10t ~5f~%length:~10t ~5:d~%"
+;;             de me le))
+;;   (top-bottom-ui al 5 nil nil :key acc))
+;; none:      4,206
+;; std dev:   1.874
+;; mean:      .6492
+;; length:    5,089
+;; Top/Bottom: list: 5,089 records.
+;; Top (5):
+;;   1: hostent-addrtype    ==> 10
+;;   2: hostent-aliases     ==> 10
+;;   3: hostent-addr-list   ==> 10
+;;   4: hostent-name        ==> 10
+;;   5: dir-key-info-type   ==> 10
+;; also, compiler macros are probably not used often anyway.
+;; At any rate, if someone will want to switch to a global hash-table,
+;; one needs to change only the following two functions.
+
 (defun compiler-macro-function (name &optional environment)
   (declare (ignore environment))
   (cond ((symbolp name) (get name 'compiler-macro))
