@@ -1,5 +1,20 @@
 1999-05-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Make modules.o part of every linking set, including `base'.
+        * makemake.in (lisp.a): Don't include modules.o.
+          (modular): Depend on modules.o.
+          (base): Link over modules.o.
+          (distmakefile): Add modules.o to the BASE_LIBS and BASE_FILES
+          substitution.
+          (distrib): Link over modules.o into $(TOPDIR)/base.
+        * clisp-link.in (add-module-set): Check that the linking set contains
+          a file `modules.o'.
+          (add-module-sets): Likewise. When no new modules, copy modules.o
+          in any case.
+          (run): Check that the linking set contains a file `modules.o'.
+
+1999-05-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in (distmakefile): Don't set $wlibs, not needed any more.
 
 1999-05-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
