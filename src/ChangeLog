@@ -1,5 +1,16 @@
 2002-03-06  Sam Steingold  <sds@gnu.org>
 
+	POSIX:STREAM-LOCK - file stream locking interface based on flock(2)
+	* stream.d (STREAM-LOCK): implemented
+	* subr.d, subrkw.d (stream_lock): declared
+	* constsym.d (stream_lock, Kshared): added
+	* configure.in (HAVE_FLOCK): check for flock(2)
+	(HAVE_SYS_WAIT_H): check for <sys/file.h> (flock(2) is declared there)
+	* unixconf.h.in (HAVE_FLOCK, HAVE_SYS_WAIT_H): added the #undef's
+	* posix.lisp (STREAM-LOCK) [:unix]: export
+
+2002-03-06  Sam Steingold  <sds@gnu.org>
+
 	infrastructure tweaks
 	* makemake.in (XCFLAGS): handle --with-threads=FLAVOR by
 	adding "-DMULTITHREAD -Dflavor"

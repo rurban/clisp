@@ -5,6 +5,7 @@
 
 (export
  '(resolve-host-ipaddr bogomips
+   stream-lock
    hostent hostent-name hostent-aliases hostent-addr-list hostent-addrtype
    erf erfc j0 j1 jn y0 y1 yn gamma lgamma))
 

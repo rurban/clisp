@@ -183,3 +183,7 @@ s(ensure_directories_exist)
 v(2, (kw(direction),kw(if_does_not_exist)))
 s(dir_key_open)
 #endif
+#if defined(EXPORT_SYSCALLS) && defined(HAVE_FLOCK)
+v(2, (kw(shared),kw(block)))
+s(stream_lock)
+#endif
