@@ -359,6 +359,10 @@ LISPFUNNR(make_code_vector,1) {
 local seclass_t parse_seclass (object sec, object closure)
 {
   if (nullp(sec)) return seclass_foldable;
+  /* the correct check for the new (USES MODIFIES USES-BINDINGS) format is just
+       (!consp(sec) || !consp(Cdr(sec)) || !consp(Cdr(Cdr(sec))))
+     we have to support the old (USES . MODIFIES) format
+     to avoid bumping FAS file version */
   if (!consp(sec)) {
    bad_seclass:
     pushSTACK(closure); pushSTACK(sec);
@@ -366,7 +370,7 @@ local seclass_t parse_seclass (object sec, object closure)
     fehler(error,GETTEXT("~: invalid side-effect class ~ for function ~"));
   }
   var object modifies = Cdr(sec);
-  if (consp(modifies)) {
+  if (consp(modifies)) {        /* new format! */
     if (!consp(Cdr(modifies))) goto bad_seclass;
     modifies = Car(modifies);
   }
