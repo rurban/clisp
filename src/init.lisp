@@ -285,7 +285,7 @@
    base-char-code-limit char-font-limit char-bits-limit char-control-bit
    char-meta-bit char-super-bit char-hyper-bit string-char-p
    long-float-digits package-lock hash-table-weak-p weak-key-value-table
-   the-environment arglist getenv special-variable-p
+   the-environment arglist getenv special-variable-p list-length-dotted
    *driver* *break-driver* *args* *keyboard-input* clhs-root shell execute
    ;; declarations
    constant-inline constant-notinline
