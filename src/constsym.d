@@ -817,6 +817,12 @@ LISPSYM(string_stream_p,"STRING-STREAM-P",system)
 LISPSYM(make_buffered_input_stream,"MAKE-BUFFERED-INPUT-STREAM",ext)
 LISPSYM(buffered_input_stream_index,"BUFFERED-INPUT-STREAM-INDEX",system)
 LISPSYM(make_buffered_output_stream,"MAKE-BUFFERED-OUTPUT-STREAM",ext)
+#ifdef GENERIC_STREAMS
+LISPSYM(generic_stream_controller,"GENERIC-STREAM-CONTROLLER",gstream)
+LISPSYM(make_generic_stream,"MAKE-GENERIC-STREAM",gstream)
+LISPSYM(generic_stream_p,"GENERIC-STREAM-P",gstream)
+#endif
+LISPSYM(file_stream_p,"FILE-STREAM-P",system)
 #ifdef KEYBOARD
 LISPSYM(make_keyboard_stream,"MAKE-KEYBOARD-STREAM",system)
 #endif
@@ -836,7 +842,6 @@ LISPSYM(highlight_off,"HIGHLIGHT-OFF",screen)
 LISPSYM(window_cursor_on,"WINDOW-CURSOR-ON",screen)
 LISPSYM(window_cursor_off,"WINDOW-CURSOR-OFF",screen)
 #endif
-LISPSYM(file_stream_p,"FILE-STREAM-P",system)
 #ifdef PRINTER_AMIGAOS
 LISPSYM(make_printer_stream,"MAKE-PRINTER-STREAM",system)
 #endif
@@ -1299,9 +1304,6 @@ LISPSYM(stream_force_output,"STREAM-FORCE-OUTPUT",gray)
 LISPSYM(stream_clear_output,"STREAM-CLEAR-OUTPUT",gray)
 LISPSYM(stream_line_column,"STREAM-LINE-COLUMN",gray)
 #ifdef GENERIC_STREAMS
-LISPSYM(generic_stream_controller,"GENERIC-STREAM-CONTROLLER",gstream)
-LISPSYM(make_generic_stream,"MAKE-GENERIC-STREAM",gstream)
-LISPSYM(generic_stream_p,"GENERIC-STREAM-P",gstream)
 LISPSYM(generic_stream_rdch,"GENERIC-STREAM-READ-CHAR",gstream)
 LISPSYM(generic_stream_pkch,"GENERIC-STREAM-PEEK-CHAR",gstream)
 LISPSYM(generic_stream_read_char_will_hang_p,"GENERIC-STREAM-READ-CHAR-WILL-HANG-P",gstream)
