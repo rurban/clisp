@@ -1,3 +1,12 @@
+2004-04-13  Bruno Haible  <bruno@clisp.org>
+
+	Make the pointers to the direct subclasses weak.
+	* clos-class2.lisp (finalize-instance-standard-class): Use
+	add-direct-subclass.
+	(map-direct-subclasses, add-direct-subclass, remove-direct-subclass):
+	New functions.
+	(list-direct-subclasses): Use map-direct-subclasses.
+
 2004-04-28  Bruno Haible  <bruno@clisp.org>
 
 	Simplify handling of weak pointers.
