@@ -2195,6 +2195,12 @@ global int main (argc_t argc, char* argv[]) {
  #if defined(MULTIMAP_MEMORY) || defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
   init_map_pagesize();
  #endif
+ #if defined(LINUX_NOEXEC_HEAPCODES) && defined(HAVE_MMAP_ANON)
+  # On machines on which the address space extends up to 0xFFFFFFFF, disable the
+  # address range 0xC0000000..0xDFFFFFFF, so that we can use it for immediate
+  # objects.
+  mmap((void*)0xC0000000,0x20000000,PROT_NONE,MAP_ANON|MAP_PRIVATE|MAP_FIXED,-1,0);
+ #endif
  #ifdef SPVW_PURE
   init_mem_heaptypes();
   init_objsize_table();

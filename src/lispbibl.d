@@ -2367,15 +2367,16 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #endif # STANDARD_HEAPCODES
     #ifdef LINUX_NOEXEC_HEAPCODES
       # The Linux/32-bit case. Assumes 1. that the virtual memory addresses end
-      # at 0xC0000000, 2. that the compiler and linker can enforce an 8-byte
-      # alignment of symbol_tab and subr_tab.
+      # at 0xC0000000, or at least that we can put a black hole on the range
+      # 0xC0000000..0xDFFFFFFF, 2. that the compiler and linker can enforce an
+      # 8-byte alignment of symbol_tab and subr_tab.
       # Only bit 0 or 1 can be used as GC-bit.
       #define oint_type_shift 0
       #define oint_type_len 32
-      #define oint_type_mask 0xC000003FUL
-      #define oint_data_shift 6
+      #define oint_type_mask 0xE000001FUL
+      #define oint_data_shift 5
       #define oint_data_len 24
-      #define oint_data_mask 0x3FFFFFC0UL
+      #define oint_data_mask 0x1FFFFFE0UL
       #define garcol_bit_o 0
     #endif # LINUX_NOEXEC_HEAPCODES
     #define oint_addr_shift 0
@@ -3117,7 +3118,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
       #define subr_bias       varobject_bias
 
     # Immediate objects have a second type field.
-      #define imm_type_shift  2  # could also be 3
+      #define imm_type_shift  2  # could also be 3, if oint_data_shift == 6
 
     # The types of immediate objects.
       #define fixnum_type      ((0 << imm_type_shift) + immediate_bias)
@@ -3158,7 +3159,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
     # Test for immediate object.
     # immediate_object_p(obj)
       #define immediate_object_p(obj)  \
-        ((0xC0000003 & ~as_oint(obj)) == 0x00000003)
+        ((as_oint(obj) & 0xE0000003) == (immediate_bias & 0xE0000003))
 
     # Test for gc-invariant object. (This includes immediate, machine.)
     # gcinvariant_object_p(obj)
@@ -6677,7 +6678,8 @@ typedef enum {
   #endif
   #ifdef LINUX_NOEXEC_HEAPCODES
     #define machinep(obj)  \
-      ((as_oint(obj) & 3) == machine_bias && as_oint(obj) < 0xC0000000)
+      ((as_oint(obj) & 3) == machine_bias            \
+       && (as_oint(obj) & 0xE0000000) != 0xC0000000)
   #endif
 
   # Test for Read-Label
