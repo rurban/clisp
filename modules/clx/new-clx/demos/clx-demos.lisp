@@ -35,7 +35,9 @@ Return 3 values: host, server, screen."
 
 (eval-when (compile)
   (compile-file (merge-pathnames "qix" *compile-file-pathname*))
-  (compile-file (merge-pathnames "sokoban" *compile-file-pathname*)))
+  (when (find-package "XPM")
+    (compile-file (merge-pathnames "sokoban" *compile-file-pathname*))))
 
 (load (merge-pathnames "qix" *load-pathname*))
-(load (merge-pathnames "sokoban" *load-pathname*))
+(when (find-package "XPM")
+  (load (merge-pathnames "sokoban" *load-pathname*)))
