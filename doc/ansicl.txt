@@ -210,7 +210,7 @@
 ; JUN90-TRIVIAL-ISSUES:14                                    yes
 ; JUN90-TRIVIAL-ISSUES:24                                    yes
 ; JUN90-TRIVIAL-ISSUES:25                                    yes
-; JUN90-TRIVIAL-ISSUES:27                                    no
+; JUN90-TRIVIAL-ISSUES:27                                    yes for THE, no for APPLY (spec not clear)
 ; KEYWORD-ARGUMENT-NAME-PACKAGE:ANY                          no
 ; LAST-N                                                     yes
 ; LCM-NO-ARGUMENTS:1                                         yes
