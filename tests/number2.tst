@@ -213,3 +213,13 @@ check-sqrt
    (list x x))
   :collect (list x eps eps2))
 NIL
+
+;; based on pfd's gcl suite
+(loop :for func :in '(exp log sin asin cos acos tan atan cosh acosh sinh asinh
+                      tanh atanh)
+  :nconc (loop :for type :in '(short-float single-float double-float long-float)
+           :nconc (loop :for x = (- (random (coerce 20 type)) 10)
+                    :for r = (funcall func x) :repeat 1000
+                    :unless (or (typep r type) (typep r `(complex ,type)))
+                    :collect (list x r func type))))
+NIL
