@@ -82,20 +82,24 @@
 ;;; 29.4.5. Defining Conditions
 ;;; <http://www.lisp.org/HyperSpec/Body/sec_9-1-2.html>
 ;; DEFINE-CONDITION, CLtL2 p. 898
-(defmacro define-condition (name parent-types slot-specs &rest options)
+(defmacro define-condition (&whole whole-form
+                            name parent-types slot-specs &rest options)
   (unless (symbolp name)
     (error-of-type 'source-program-error
-      :form name
+      :form whole-form
+      :detail name
       (TEXT "~S: the name of a condition must be a symbol, not ~S")
       'define-condition name))
   (unless (and (listp parent-types) (every #'symbolp parent-types))
     (error-of-type 'source-program-error
-      :form parent-types
+      :form whole-form
+      :detail parent-types
       (TEXT "~S: the parent-type list must be a list of symbols, not ~S")
       'define-condition parent-types))
   (unless (listp slot-specs)
     (error-of-type 'source-program-error
-      :form slot-specs
+      :form whole-form
+      :detail slot-specs
       (TEXT "~S: the slot description list must be a list, not ~S")
       'define-condition slot-specs))
   (let ((default-initargs-option nil)
@@ -110,16 +114,19 @@
                  (:DOCUMENTATION (setq docstring-option option))
                  (:REPORT (setq report-function (rest option)))
                  (T (error-of-type 'source-program-error
-                      :form (first option)
+                      :form whole-form
+                      :detail (first option)
                       (TEXT "~S ~S: unknown option ~S")
                       'define-condition name (first option)))))
               (t
                (error-of-type 'source-program-error
-                 :form option
+                 :form whole-form
+                 :detail option
                  (TEXT "~S ~S: invalid syntax in ~S option: ~S")
                  'define-condition name 'define-condition option)))
         (error-of-type 'source-program-error
-          :form option
+          :form whole-form
+          :detail option
           (TEXT "~S ~S: not a ~S option: ~S")
           'define-condition name 'define-condition option)))
     (let ((defclass-form
@@ -576,7 +583,8 @@
          ,@body))))
 
 ;; HANDLER-CASE, CLtL2 p. 895
-(defmacro handler-case (form &rest clauses)
+(defmacro handler-case (&whole whole-form
+                        form &rest clauses)
   ;; split off the :NO-ERROR clause and
   ;; add a GO tag to the other clauses (type varlist . body)
   (let ((no-error-clause nil) ; the :no-error clause, if found
@@ -588,7 +596,8 @@
           (unless (and (consp clause) (consp (cdr clause))
                        (listp (second clause)))
             (error-of-type 'source-program-error
-              :form clause
+              :form whole-form
+              :detail clause
               (TEXT "~S: illegal syntax of clause ~S")
               'handler-case clause))
           (when (eq (first clause) ':no-error)
@@ -600,7 +609,8 @@
           (let ((varlist (second clause))) ; known to be a list
             (unless (null (cdr varlist))
               (error-of-type 'source-program-error
-                :form varlist
+                :form whole-form
+                :detail varlist
                 (TEXT "~S: too many variables ~S in clause ~S")
                 'handler-case varlist clause)))
           (push (cons (gensym) clause) extended-clauses))))
@@ -829,11 +839,13 @@
 ;; and it is supposed to work.
 
 ;; RESTART-BIND, CLtL2 p. 909
-(defmacro restart-bind (restart-specs &body body)
+(defmacro restart-bind (&whole whole-form
+                        restart-specs &body body)
   (setq body `(PROGN ,@body))
   (unless (listp restart-specs)
     (error-of-type 'source-program-error
-      :form restart-specs
+      :form whole-form
+      :detail restart-specs
       (TEXT "~S: not a list: ~S")
       'restart-bind restart-specs))
   (if restart-specs
@@ -843,7 +855,8 @@
                            (unless (and (listp spec) (consp (cdr spec))
                                         (symbolp (first spec)))
                              (error-of-type 'source-program-error
-                               :form spec
+                               :form whole-form
+                               :detail spec
                                (TEXT "~S: invalid restart specification ~S")
                                'restart-bind spec))
                            (apply #'(lambda (name function
@@ -854,7 +867,8 @@
                                         ;; CLtL2 p. 906: "It is an error if an unnamed restart is used
                                         ;; and no report information is provided."
                                         (error-of-type 'source-program-error
-                                          :form spec
+                                          :form whole-form
+                                          :detail spec
                                           (TEXT "~S: unnamed restarts require ~S to be specified: ~S")
                                           'restart-bind ':REPORT-FUNCTION spec))
                                       (make-restart-form
