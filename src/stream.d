@@ -15101,6 +15101,25 @@ local int previous_line_virtual (int count, int key) {
 }
 #endif
 
+# init *STANDARD-INPUT* & *STANDARD-OUTPUT* from *TERMINAL-IO*
+# can trigger GC
+#define init_standard_io(direction)                                     \
+  local object init_standard_##direction (object syn_str) {             \
+    var object tio_s = Symbol_value(S(terminal_io));                    \
+    define_variable(S(standard_##direction),                            \
+                    (stream_twoway_p(tio_s)                             \
+                     && !terminal_stream_p                              \
+                           (TheStream(tio_s)->strm_twoway_##direction)) \
+                    ? TheStream(tio_s)->strm_twoway_##direction         \
+                    : !nullp(syn_str) ? syn_str                         \
+                    : make_synonym_stream(S(terminal_io)));             \
+    return Symbol_value(S(standard_##direction));                       \
+  }
+
+init_standard_io(input)
+init_standard_io(output)
+#undef init_standard_io
+
 # UP: Initializes the Stream-Variables.
 # init_streamvars(unixyp);
 # > unixyp: Flag, if *error-output* shall be initialized
@@ -15124,25 +15143,16 @@ global void init_streamvars (bool unixyp) {
   end_call();
   #endif
   {
-    var object tio_stream = make_terminal_io();
-    define_variable(S(terminal_io),tio_stream);  # *TERMINAL-IO*
+    var object stream = make_terminal_io();
+    define_variable(S(terminal_io),stream);  # *TERMINAL-IO*
+  }
+  {
     var object stream = make_synonym_stream(S(terminal_io));
     define_variable(S(query_io),stream);         # *QUERY-IO*
     define_variable(S(debug_io),stream);         # *DEBUG-IO*
     define_variable(S(trace_output),stream);     # *TRACE-OUTPUT*
-    if (stream_twoway_p(tio_stream)) {
-      var object in_s = TheStream(tio_stream)->strm_twoway_input;
-      var object outs = TheStream(tio_stream)->strm_twoway_output;
-      if (terminal_stream_p(in_s)) # *STANDARD-INPUT*
-        define_variable(S(standard_input),stream); # synonym stream
-      else define_variable(S(standard_input),in_s); # real stream
-      if (terminal_stream_p(outs)) # *STANDARD-OUTPUT*
-        define_variable(S(standard_output),stream); # synonym stream
-      else define_variable(S(standard_output),outs); # real stream
-    } else { # tio_stream is a terminal stream
-      define_variable(S(standard_input),stream);  # *STANDARD-INPUT*
-      define_variable(S(standard_output),stream); # *STANDARD-OUTPUT*
-    }
+    init_standard_input(stream);                 # *STANDARD-INPUT*
+    init_standard_output(stream);                # *STANDARD-OUTPUT*
     #ifdef UNIX
     if (unixyp) {
       # Use another Stream for *ERROR-OUTPUT* . The file-name
@@ -15153,13 +15163,15 @@ global void init_streamvars (bool unixyp) {
       pushSTACK(S(character));
       pushSTACK(allocate_handle(2));
       var decoded_el_t eltype = { eltype_ch, 0 };
-      stream = make_unbuffered_stream(strmtype_file,DIRECTION_OUTPUT,&eltype,false);
+      stream = make_unbuffered_stream(strmtype_file,DIRECTION_OUTPUT,
+                                      &eltype,false);
       UnbufferedHandleStream_output_init(stream);
       ChannelStreamLow_close(stream) = &low_close_handle;
       TheStream(stream)->strm_file_name =
         TheStream(stream)->strm_file_truename = popSTACK();
-    }
+    } else
     #endif
+      stream = Symbol_value(S(standard_output));
     define_variable(S(error_output),stream);     # *ERROR-OUTPUT*
   }
   #ifdef KEYBOARD
@@ -15197,12 +15209,15 @@ local void fehler_value_stream (object sym) {
     # became full.)
     stream = make_terminal_stream();
   } else if (eq(sym,S(query_io)) || eq(sym,S(debug_io))
-             || eq(sym,S(standard_input)) || eq(sym,S(standard_output))
              || eq(sym,S(error_output)) || eq(sym,S(trace_output))) {
     # Synonym-Stream to *TERMINAL-IO* as Default
-    # cf. init_streamvars(): there we do some magic for *STANDARD-INPUT*,
-    # *STANDARD-OUTPUT* and *ERROR-OUTPUT*, here we do NOT
     stream = make_synonym_stream(S(terminal_io));
+  } else if (eq(sym,S(standard_input))) {
+    stream = init_standard_input(NIL);
+  } else if (eq(sym,S(standard_output))) {
+    stream = init_standard_output(NIL);
+  # } else if (eq(sym,S(error_output))) {
+  #   stream = init_error_output(NIL);
   } else {
     # other Symbol, not fixable -> instant error-message:
     pushSTACK(Symbol_value(sym)); # TYPE-ERROR slot DATUM
@@ -16752,19 +16767,8 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL) {
   if (!(read_byte_array(&STACK_5,&STACK_0,0,bytesize) == bytesize))
     goto eof;
   bitbuffer = STACK_0;
-  if (endianness) { # Byte-Swap the data.
-    var uintL count = floor(bytesize,2);
-    if (count > 0) {
-      var uintB* ptr1 = &TheSbvector(bitbuffer)->data[0];
-      var uintB* ptr2 = &TheSbvector(bitbuffer)->data[bytesize-1];
-      dotimespL(count,count, {
-        var uintB x1 = *ptr1;
-        var uintB x2 = *ptr2;
-        *ptr1 = x2; *ptr2 = x1;
-        ptr1++; ptr2--;
-      });
-    }
-  }
+  if (endianness) # Byte-Swap the data.
+    elt_nreverse(bitbuffer,0,bytesize);
   { # The data is now in little-endian order. Convert it to an integer.
     var object result;
     switch (eltype.kind) {
@@ -16812,20 +16816,8 @@ LISPFUN(read_float,2,3,norest,nokey,0,NIL) {
   if (!(read_byte_array(&STACK_5,&STACK_0,0,bytesize) == bytesize))
     goto eof;
   bitbuffer = STACK_0;
-  if (BIG_ENDIAN_P ? !endianness : endianness) {
-    # Byte-Swap the data.
-    var uintL count = floor(bytesize,2);
-    if (count > 0) {
-      var uintB* ptr1 = &TheSbvector(bitbuffer)->data[0];
-      var uintB* ptr2 = &TheSbvector(bitbuffer)->data[bytesize-1];
-      dotimespL(count,count, {
-        var uintB x1 = *ptr1;
-        var uintB x2 = *ptr2;
-        *ptr1 = x2; *ptr2 = x1;
-        ptr1++; ptr2--;
-      });
-    }
-  }
+  if (BIG_ENDIAN_P ? !endianness : endianness) # Byte-Swap the data.
+    elt_nreverse(bitbuffer,0,bytesize);
   # The data is now in machine-dependent order. Convert it to a float.
   switch (bytesize) {
     case sizeof(ffloatjanus):
@@ -16909,19 +16901,8 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL) {
     default: NOTREACHED;
   }
   # The data is now in little-endian order.
-  if (endianness) { # Byte-Swap the data.
-    var uintL count = floor(bytesize,2);
-    if (count > 0) {
-      var uintB* ptr1 = &TheSbvector(bitbuffer)->data[0];
-      var uintB* ptr2 = &TheSbvector(bitbuffer)->data[bytesize-1];
-      dotimespL(count,count, {
-        var uintB x1 = *ptr1;
-        var uintB x2 = *ptr2;
-        *ptr1 = x2; *ptr2 = x1;
-        ptr1++; ptr2--;
-      });
-    }
-  }
+  if (endianness) # Byte-Swap the data.
+    elt_nreverse(bitbuffer,0,bytesize);
   # Write the data.
   write_byte_array(&STACK_3,&STACK_0,0,bytesize);
   FREE_DYNAMIC_BIT_VECTOR(STACK_0);
@@ -16991,20 +16972,8 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL) {
     default: NOTREACHED;
   }
   # The data is now in machine-dependent order.
-  if (BIG_ENDIAN_P ? !endianness : endianness) {
-    # Byte-Swap the data.
-    var uintL count = floor(bytesize,2);
-    if (count > 0) {
-      var uintB* ptr1 = &TheSbvector(bitbuffer)->data[0];
-      var uintB* ptr2 = &TheSbvector(bitbuffer)->data[bytesize-1];
-      dotimespL(count,count, {
-        var uintB x1 = *ptr1;
-        var uintB x2 = *ptr2;
-        *ptr1 = x2; *ptr2 = x1;
-        ptr1++; ptr2--;
-      });
-    }
-  }
+  if (BIG_ENDIAN_P ? !endianness : endianness) # Byte-Swap the data.
+    elt_nreverse(bitbuffer,0,bytesize);
   # Write the data.
   write_byte_array(&STACK_3,&STACK_0,0,bytesize);
   FREE_DYNAMIC_BIT_VECTOR(STACK_0);
