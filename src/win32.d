@@ -98,6 +98,11 @@
   extern char* getenv (const char* name);
 # used by pathname.d, misc.d
 
+# Locale definition function
+  #include <locale.h>
+  extern_C char *setlocale( int category, const char *locale );
+# used by spvw_ctype.d
+
 # Character set conversion
   # extern BOOL CharToOem (LPCTSTR Str, LPSTR Dst);
   # extern BOOL OemToChar (LPCTSTR Str, LPSTR Dst);
@@ -190,6 +195,13 @@
   #define SEEK_SET  FILE_BEGIN
   #define SEEK_CUR  FILE_CURRENT
   #define SEEK_END  FILE_END
+  # Winsock constants -> Berkeley sockets constants
+  #ifndef EINPROGRESS
+  #define EINPROGRESS WSAEINPROGRESS
+  #endif
+  #ifndef ETIMEDOUT
+  #define ETIMEDOUT WSAETIMEDOUT
+  #endif
   # Early/late error print function. The problem of early/late errors is complex
   # this is simple kind of temporary solution
   extern void earlylate_asciz_error (const char * description, bool fatal_p);
