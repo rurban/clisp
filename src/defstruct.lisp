@@ -702,9 +702,14 @@
             'defstruct name subname type-option))
         (setq slotlist
           (nreverse
-            (mapcar #'copy-<structure-effective-slot-definition> (svref incl-desc 3))))
+            (mapcar #'copy-<structure-effective-slot-definition>
+                    (if incl-class
+                      (clos::class-slots incl-class)
+                      (svref incl-desc 3)))))
         ;; slotlist is the reversed list of the inherited slots.
-        (setq include-skip (svref incl-desc 1))
+        (setq include-skip (if incl-class
+                             (clos::class-instance-size incl-class)
+                             (svref incl-desc 1)))
         (when slotlist
           (assert (> include-skip (clos::slot-definition-location (first slotlist)))))
         ;; include-skip >=0 is the number of slots that are already consumend
