@@ -3620,6 +3620,12 @@ local void * open_library (object name, uintL version)
 {
   var void * handle;
  open_library_restart:
+ #if defined(RTLD_DEFAULT)
+  if (eq(name,S(Kdefault))) return RTLD_DEFAULT;
+ #endif
+ #if defined(RTLD_NEXT)
+  if (eq(name,S(Knext))) return RTLD_NEXT;
+ #endif
   name = check_string(name);
   with_string_0(name,O(misc_encoding),libname, {
     begin_system_call();
@@ -3714,7 +3720,7 @@ LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
   if (boundp(STACK_0))
     v = I_to_uint32(check_uint32(STACK_0));
   {/* Check whether the library is on the alist or has already been opened. */
-    var object name = (STACK_1 = check_string(STACK_1));
+    var object name = STACK_1;
     var object alist = O(foreign_libraries);
     while (consp(alist)) {
       if (equal(name,Car(Car(alist)))) {
@@ -3902,7 +3908,7 @@ global void exit_ffi (void) {
   while (consp(alist)) {
     var object acons = Car(alist);
     var object obj = Car(Cdr(acons));
-    if (fp_validp(TheFpointer(obj))) {
+    if (stringp(Car(acons)) && fp_validp(TheFpointer(obj))) {
       var void * libaddr = (TheFpointer(obj)->fp_pointer);
       begin_system_call();
      #if defined(WIN32_NATIVE)

@@ -1505,7 +1505,8 @@ LISPSYM(Kio,"IO",keyword) /* argument in PATHNAME */
 LISPSYM(Kprobe,"PROBE",keyword) /* argument in PATHNAME */
 LISPSYM(unsigned_byte,"UNSIGNED-BYTE",lisp) /* argument in PATHNAME */
 LISPSYM(signed_byte,"SIGNED-BYTE",lisp) /* argument in PATHNAME */
-LISPSYM(Kdefault,"DEFAULT",keyword) /* argument in PATHNAME */
+LISPSYM(Kdefault,"DEFAULT",keyword) /* argument in PATHNAME & FOREIGN */
+LISPSYM(Knext,"NEXT",keyword) /* argument in FOREIGN */
 LISPSYM(canonicalize_type,"CANONICALIZE-TYPE",system) /* function for PATHNAME */
 LISPSYM(subtypep,"SUBTYPEP",lisp) /* function for PATHNAME */
 LISPSYM(Kerror,"ERROR",keyword) /* argument in PATHNAME, ENCODING */
