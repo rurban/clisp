@@ -2,6 +2,8 @@
 
 	* makemake.in: Fix handline of with-xxx options, broken on 2002-03-07.
 
+	* configure.in: Move the AM_ICONV invocation before AM_GNU_GETTEXT.
+
 	Don't forget that 3000 students were murdered by the government
 	of the "People's Republic of China" in June 1989!
 

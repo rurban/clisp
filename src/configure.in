@@ -75,6 +75,8 @@ CL_CANONICAL_HOST_CPU
 dnl
 dnl           check for add-ons
 dnl
+dnl DEFS HAVE_ICONV, ICONV_CONST, set variable LIBICONV
+AM_ICONV
 dnl USE_NLS CPPFLAGS LIBINTL
 AM_GNU_GETTEXT([external], [need-ngettext])
 dnl
@@ -304,8 +306,6 @@ dnl DEFS SHM_RMID_VALID
 CL_SHM_RMID
 dnl DEFS HAVE_DLOPEN, DLERROR_CONST, set variable LIBDL
 CL_DYNLOAD
-dnl DEFS HAVE_ICONV, ICONV_CONST, set variable LIBICONV
-AM_ICONV
 dnl
 dnl           checks for libraries
 dnl
