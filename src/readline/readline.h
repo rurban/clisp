@@ -292,6 +292,7 @@ extern int rl_forced_update_display _PROTO((void));
 extern int rl_clear_message _PROTO((void));
 extern int rl_reset_line_state _PROTO((void));
 extern int rl_on_new_line _PROTO((void));
+extern int rl_on_new_line_with_prompt _PROTO((void));
 
 #if (defined (__STDC__) || defined(__cplusplus)) && defined (USE_VARARGS) && defined (PREFER_STDARG)
 extern int rl_message (const char *, ...);
@@ -591,6 +592,10 @@ extern FILE *rl_outstream;
 /* If non-zero, then this is the address of a function to call just
    before readline_internal () prints the first prompt. */
 extern Function *rl_startup_hook;
+
+/* If non-zero, indicates that the caller of readline() has already
+   output the prompt. */
+extern int rl_already_prompted;
 
 /* The address of a function to call periodically while Readline is
    awaiting character input, or NULL, for no event handling. */

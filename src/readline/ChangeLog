@@ -1,3 +1,14 @@
+1998-10-10  Bruno Haible  <linuix.math.u-bordeaux.fr>
+
+        * readline.h, readline.c (rl_already_prompted): New variable.
+          Some applications have output the prompt themselves. readline
+          needs to know about the prompt (for cursor movement) but must
+          not output the prompt in the first run.
+        * readline.h, display.c (rl_on_new_line_with_prompt): New function.
+        * readline.c (readline_internal_setup): Call it.
+        * display.c (rl_redisplay): Don't access prompt_this_line[-2],
+          the prompt may be shorter than this.
+
 1998-10-07  Bruno Haible  <linuix.math.u-bordeaux.fr>
 
         * readline.c (rl_present_p): Add constant flag. A replacement
