@@ -46,6 +46,9 @@ Embeddability: additional API in spvw.d; global error handler; example.
 <https://sourceforge.net/tracker/index.php?func=detail&aid=423264&group_id=1355&atid=351355>
 
 
+Update PARI module: there is no global precision variable anymore.
+
+
 Review all macros and tighten the runtime interface of the macros.
   check-redefinition
 
