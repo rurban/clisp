@@ -28,6 +28,9 @@
            (search-forward "(") (forward-char -1)
            (let ((beg (scan-sexps (point) -1)))
              (buffer-substring-no-properties beg (scan-sexps beg 1))))
+          ((looking-at "#define ")
+           (let ((end (scan-sexps (point) 2)))
+             (buffer-substring-no-properties (scan-sexps end -1) end)))
           ((looking-at "nonreturning_function")
            (search-forward "(") (search-forward "(") (forward-char -1)
            (let ((beg (scan-sexps (point) -1)))
@@ -37,7 +40,7 @@
   "A valid value for `beginning-of-defun-function' for `d-mode'."
   (re-search-backward
    (eval-when-compile
-    (concat "^" (regexp-opt '("LISPFUN" "local " "global "
+    (concat "^" (regexp-opt '("LISPFUN" "local " "global " "#define "
                               "nonreturning_function") t)))
    nil 1))                      ; move to the limit
 
