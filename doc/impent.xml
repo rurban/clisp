@@ -98,6 +98,7 @@
 <!ENTITY affi-pac "<link linkend='affi'><quote>AFFI</quote></link>">
 <!ENTITY screen-pac "<link linkend='screen'><quote>SCREEN</quote></link>">
 <!ENTITY regexp-pac "<link linkend='regexp'><quote>REGEXP</quote></link>">
+<!ENTITY sys-pac "<link linkend='sys-pac'><quote>SYSTEM</quote></link>">
 <!-- * redefines the entity in cl-ent.xml * -->
 <!ENTITY clu-pac "<link linkend='clupack'><quote>COMMON-LISP-USER</quote></link>">
 
