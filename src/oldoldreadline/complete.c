@@ -34,7 +34,7 @@ extern char *xrealloc RL((char *pointer, int bytes));
 #include <unistd.h> /* for access() */
 #endif
 
-#ifndef __GO32__
+#ifndef MINIMAL
 /* These next are for filename completion.  Perhaps this belongs
    in a different place. */
 #include <pwd.h> /* declares getpwent(), setpwent(), endpwent() */
@@ -42,7 +42,7 @@ extern struct passwd * getpwent RL((void));
 #ifdef __CYGWIN32__
 #define setpwent() endpwent()
 #endif
-#endif /* __GO32__ */
+#endif /* MINIMAL */
 
 #include <sys/stat.h> /* for stat() */
 
@@ -922,9 +922,9 @@ username_completion_function (text, state)
      char *text;
      int state;
 {
-#if defined (__GO32__)
+#if defined (MINIMAL)
   return (char *)NULL;
-#else /* !__GO32__ */
+#else /* !MINIMAL */
   static char *username = (char *)NULL;
   static struct passwd *entry;
   static int namelen, first_char, first_char_loc;
@@ -973,7 +973,7 @@ username_completion_function (text, state)
 
       return (value);
     }
-#endif /* !__GO32__ */
+#endif /* !MINIMAL */
 }
 
 /* **************************************************************** */
@@ -1091,6 +1091,9 @@ filename_completion_function (text, state)
      int state;
      char *text;
 {
+#ifdef WIN32
+  return (char *)NULL;
+#else /* !WIN32 */
   static DIR *directory;
   static char *filename = (char *)NULL;
   static char *dirname = (char *)NULL;
@@ -1231,6 +1234,7 @@ filename_completion_function (text, state)
 	}
       return (temp);
     }
+#endif /* !WIN32 */
 }
 
 /* A function for simple tilde expansion. */

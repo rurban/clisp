@@ -30,7 +30,7 @@ extern char *xrealloc RL((char *pointer, int bytes));
 #include <sys/types.h>
 #include <stdio.h>
 
-#ifndef __GO32__
+#ifndef MINIMAL
 /* From a termcap library: */
 extern int tgetent RL((char* bp, char* name));
 extern int tgetnum RL((char* id));
@@ -409,6 +409,7 @@ update_line (old, new, current_line)
   /* Insert (diff (len (old), len (new)) ch. */
   if (lendiff > 0)
     {
+#if !defined(MINIMAL) || defined(__GO32__)
       if (terminal_can_insert)
 	{
 	  /* Sometimes it is cheaper to print the characters rather than
@@ -441,6 +442,7 @@ update_line (old, new, current_line)
 	    }
 	}
       else
+#endif
 	{		/* cannot insert chars, write to EOL */
 	  _rl_output_some_chars (nfd, (ne - nfd));
 	  _rl_last_c_pos += (ne - nfd);
@@ -448,6 +450,7 @@ update_line (old, new, current_line)
     }
   else				/* Delete characters from line. */
     {
+#if !defined(MINIMAL) || defined(__GO32__)
       /* If possible and inexpensive to use terminal deletion, then do so. */
       if (term_dc && (2 * (ne - nfd)) >= (-lendiff))
 	{
@@ -463,6 +466,7 @@ update_line (old, new, current_line)
 	}
       /* Otherwise, print over the existing material. */
       else
+#endif
 	{
 	  _rl_output_some_chars (nfd, (ne - nfd));
 	  _rl_last_c_pos += (ne - nfd);
@@ -546,7 +550,7 @@ _rl_move_cursor_relative (new, data)
      of moving backwards. */
   if ((new + 1 < _rl_last_c_pos - new) || (term_xn && _rl_last_c_pos == screenwidth))
     {
-#ifdef __MSDOS__
+#if defined(__MSDOS__) || defined(WIN32)
       putc('\r', rl_outstream);
 #else
       tputs (term_cr, 1, _rl_output_character_function);
@@ -594,14 +598,14 @@ _rl_move_vert (to)
   if (_rl_last_v_pos == to || to > screenheight)
     return;
 
-#if defined (__GO32__)
+#if defined (MINIMAL)
   {
     int row, col;
 
     ScreenGetCursor (&row, &col);
     ScreenSetCursor ((row + to - _rl_last_v_pos), col);
   }
-#else /* !__GO32__ */
+#else /* !MINIMAL */
 
   if ((delta = to - _rl_last_v_pos) > 0)
     {
@@ -616,7 +620,7 @@ _rl_move_vert (to)
 	for (i = 0; i < -delta; i++)
 	  tputs (term_up, 1, _rl_output_character_function);
     }
-#endif /* !__GO32__ */
+#endif /* !MINIMAL */
   _rl_last_v_pos = to;		/* Now TO is here */
 }
 
@@ -744,13 +748,13 @@ static void
 clear_to_eol (count)
      int count;
 {
-#if !defined (__GO32__)
+#if !defined (MINIMAL)
   if (term_clreol)
     {
       tputs (term_clreol, 1, _rl_output_character_function);
     }
   else
-#endif /* !__GO32__ */
+#endif /* !MINIMAL */
     {
       register int i;
 
@@ -763,6 +767,8 @@ clear_to_eol (count)
       backspace (count);
     }
 }
+
+#if !defined(MINIMAL) || defined(__GO32__)
 
 /* Insert COUNT characters from STRING to the output stream. */
 static void
@@ -849,3 +855,5 @@ delete_chars (count)
     }
 #endif /* !__GO32__ */
 }
+
+#endif /* !defined(MINIMAL) || defined(__GO32__) */
