@@ -32,15 +32,16 @@ Common Lisp is a high-level, all-purpose programming language.
 CLISP is a Common Lisp implementation by Bruno Haible of Karlsruhe
 University and Michael Stoll of Munich University, both in Germany.
 It mostly supports the Lisp described in "Common LISP: The Language
-(2nd edition)" and the ANSI Common Lisp standard.  It runs on
-microcomputers (DOS, OS/2, Windows NT, Windows 95, Amiga 500-4000,
-Acorn RISC PC) as well as on Unix workstations (Linux, SVR4, Sun4,
-DEC Alpha OSF, HP-UX, NeXTstep, SGI, AIX, Sun3 and others) and needs
-only 2 MB of RAM.  It is free software and may be distributed under the
-terms of GNU GPL.  The user interface comes in German, English, French
-and Spanish. CLISP includes an interpreter, a compiler, a large subset
-of CLOS, a foreign language interface and a socket interface.  An X11
-interface is available through CLX and Garnet.
+(2nd edition)" and the ANSI Common Lisp standard.
+It runs on microcomputers (DOS, OS/2, Windows NT, Windows 95, Amiga
+500-4000, Acorn RISC PC) as well as on Unix workstations (Linux, SVR4,
+Sun4, DEC Alpha OSF, HP-UX, NeXTstep, SGI, AIX, Sun3 and others) and
+needs only 2 MB of RAM.
+It is free software and may be distributed under the terms of GNU GPL.
+The user interface comes in German, English, French and Spanish.
+CLISP includes an interpreter, a compiler, a large subset of CLOS, a
+foreign language interface and a socket interface.
+An X11 interface is available through CLX and Garnet.
 
 Sources and selected binaries are available by anonymous ftp from
 <ftp://ftp2.cons.org/pub/lisp/clisp>.
