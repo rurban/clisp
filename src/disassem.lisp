@@ -31,7 +31,7 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
         (sys::disassemble-closure object)))
   (:method ((object symbol) &rest opts)
     (apply #'disassemble
-           (if (sys::symbol-macro-expand object)
+           (if (ext:symbol-macro-expand object)
                (coerce `(lambda () ,object) 'function)
                (orig-fundef object))
            opts))
