@@ -1,3 +1,7 @@
+1999-05-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * Makefile.in (install-lib): New target.
+
 1999-05-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * Makefile.in (install): Make sure the directories $(prefix) and

@@ -2519,7 +2519,7 @@ fi
 for f in sigsegv; do
   if [ $HOS = unix ] ; then
     echol "$f.h lib$f.a :"
-    echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) check && \$(MAKE) install libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
+    echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) check && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
     echol
   fi
   if [ $HOS = win32 ] ; then
@@ -3399,7 +3399,18 @@ clean0 : force
 # without changing the bytecode format and the tables in
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
-	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a libsigsegv.* lisp${LEXE} clisp-link makevars ${TESTDIR}${NEXT}* ${TESTSDIR}${NEXT}*
+	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ${TESTDIR}${NEXT}* ${TESTSDIR}${NEXT}*
+!!
+if [ $HOS = win32 ] ; then
+cat <<!!
+	-\$(RM) sigsegv.lib
+!!
+else
+cat <<!!
+	-\$(RM) libsigsegv.*
+!!
+fi
+cat <<!!
 	-rmdir ${TESTDIR}
 	-rmdir ${TESTSDIR}
 	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.html impnotes.html clisp.c distmakefile \$(TXTFILES) clreadline.3 clreadline.man clreadline.html clreadline.dvi readline.dvi
