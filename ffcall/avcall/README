@@ -45,7 +45,7 @@ Files in this package:
 
         configure       configuration script
         configure.in    autoconf-2.12 source for the configuration script
-        ../autoconf/*   auxiliary configuration scripts
+        ../build-aux/*  auxiliary build scripts
         Makefile.in     Makefile master
         config.h.in     config.h master
 
