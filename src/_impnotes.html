@@ -18,7 +18,7 @@
     to make a symlink for "CLHSROOT" in the current directory.
   * "Whatever is written by a human, is supposed to be read by a human".
     Keep your lines under 79 characters and remember that some people will
-    be reading this document with "< HS >" replaced with a long URL.
+    be reading this document with "CLHSROOT" replaced with a long URL.
   * Literal symbols are written in <code>...</code> font, in lowercase.
   * All tags are written in lowercase (which is more readable for a human).
   * At the definition point of a symbol, this symbol is written as
@@ -79,13 +79,13 @@ indexed in parallel to CLHS.
 <blockquote>
 <cite> Guy L. Steele Jr.: Common Lisp - The Language (1st ed.).<br>
        Digital Press 1984, 465 pages.<br>
-       (&#34;CLtL1&#34; for short)
+       ("CLtL1" for short)
 </cite></blockquote>
 and
 <blockquote>
 <cite> Guy L. Steele Jr.: Common Lisp - The Language (2nd ed.).<br>
        Digital Press 1990, 1032 pages.<br>
-       (&#34;CLtL2&#34; for short)
+       ("CLtL2" for short)
 </cite>
        <a href="http://www.cs.cmu.edu/afs/cs.cmu.edu/project/ai-repository/ai/html/cltl/cltl2.html">available on-line</a>
 </blockquote>
@@ -322,9 +322,9 @@ The class precedence lists of the system classes
 <h3><a href="CLHSROOT/Body/sec_2-3-4.html">
     2.3.4 Symbols as Tokens</a></h3>
 
-<p>A &#34;reserved token&#34;, i.e. a token that has potential number
-syntax but cannot be interpreted as a number, is interpreted as symbol
-when being read.
+<p>A &#34;reserved <a href="CLHSROOT/Body/glo_t.html#token">token</a>&#34;,
+i.e. a token that has potential number syntax but cannot be interpreted
+as a number, is interpreted as symbol when being read.
 
 <p>When creating a symbol from a token, no character attributes are removed.
 
@@ -608,9 +608,9 @@ original <var>typespec</var> was a user-defined type.
     4.3 Classes</a></h3>
 
 <p>The CLOS symbols are exported from the package
-<code>&#34;CLOS&#34;</code> and thus normally visible in all user
+<code>"CLOS"</code> and thus normally visible in all user
 packages. If you don't want them (for example, if you want to use PCL
-instead of CLOS), do <code>(unuse-package &#34;CLOS&#34;)</code>.
+instead of CLOS), do <code>(unuse-package "CLOS")</code>.
 
 <h4>Deviations from ANSI CL:</h4>
 
@@ -1004,17 +1004,17 @@ removes the symbol macro definition.
 non-toplevel positions. As an example, consider the old (CLtL1)
 definition of <code>gensym</code>:
 
-<pre><code>(let ((gensym-prefix &#34;G&#34;)
+<pre><code>(let ((gensym-prefix "G")
       (gensym-count 1))
   (defun gensym (&amp;optional (x nil s))
     (when s
       (cond ((stringp x) (setq gensym-prefix x))
             ((integerp x)
              (if (minusp x)
-               (error &#34;~S: index ~S is negative&#34; 'gensym x)
+               (error "~S: index ~S is negative" 'gensym x)
                (setq gensym-count x)
             ))
-            (t (error &#34;~S: argument ~S of wrong type&#34; 'gensym x))
+            (t (error "~S: argument ~S of wrong type" 'gensym x))
     ) )
     (prog1
       (make-symbol
@@ -1347,9 +1347,9 @@ dependent implicit association performed by
 
 <p>The ANSI CL packages
 <ul>
- <li> <code>COMMON-LISP</code> with nickname <code>&#34;CL&#34;</code> and
+ <li> <code>COMMON-LISP</code> with nickname <code>"CL"</code> and
  <li> <code>COMMON-LISP-USER</code> with nickname
- <code>&#34;CL-USER&#34;</code>
+ <code>"CL-USER"</code>
 </ul>
 
 <p>are implemented. The package <code>COMMON-LISP</code> exports only
@@ -1399,9 +1399,9 @@ symbols causes undefined behaviour.
 
 <p>For <a href="CLHSROOT/Body/fun_make-package.html">
 <code>common-lisp:make-package</code></a>, the default value of the
-<code>:use</code> argument is <code>(&#34;COMMON-LISP&#34;)</code>.
+<code>:use</code> argument is <code>("COMMON-LISP")</code>.
 For <code>lisp:make-package</code>, the default value of the
-<code>:use</code> argument is <code>(&#34;LISP&#34; &#34;CLOS&#34;)</code>.
+<code>:use</code> argument is <code>("LISP" "CLOS")</code>.
 
 <p><a href="CLHSROOT/Body/fun_make-package.html">
 <code>make-package</code></a> and
@@ -1607,7 +1607,7 @@ type <code>floating-point-underflow</code>.
 <p>Complex numbers can have a real part and an imaginary part of different
 types. For example, <code>(sqrt -9.0)</code> evaluates to the number
 <code>#C(0 3.0)</code>, which has a real part of exactly 0, not only 0.0
-(which would mean &#34;approximately 0&#34;).
+(which would mean "approximately 0").
 
 <p>The type specifier for this is <code>(complex integer
 single-float)</code>, and <code>(complex <var>type-of-real-part</var>
@@ -2439,9 +2439,9 @@ points into void space.  This is not checked at the time
 
 <p>String comparison is based on the function
 <code>char&lt;=</code>. Therefore diphtongs do not obey the usual
-national rules. Example: <code>&#34;o&#34;</code> &lt;
-<code>&#34;oe&#34;</code> &lt; <code>&#34;z&#34;</code> &lt;
-<code>&#34;&ouml;&#34;</code>.
+national rules. Example: <code>"o"</code> &lt;
+<code>"oe"</code> &lt; <code>"z"</code> &lt;
+<code>"&ouml;"</code>.
 
 <h2><a name="sequences"></a><a href="CLHSROOT/Body/chap-17.html">
     Chapter 17: Sequences</a></h2>
@@ -2618,20 +2618,37 @@ vary between operating systems.
 <dd>
 Pathname components:
 <dl>
-<dt><code>host</code>          <dd>always <code>nil</code>
-<dt><code>device</code>        <dd><code>nil</code> or <code>:wild</code> or <code>&#34;A&#34;</code>|...|<code>&#34;Z&#34;</code>
-<dt><code>directory</code>     <dd><code>(<var>startpoint</var> . <var>subdirs</var>)</code> where
-               <br><var>startpoint</var> = <code>:relative</code> | <code>:absolute</code>
-               <br><var>subdirs</var> = <code>()</code> | <code>(<var>subdir</var> . <var>subdirs</var>)</code>
-               <br><var>subdir</var> = <code>:current</code> (means <code>&#34;.&#34;</code>) or
-               <br><var>subdir</var> = <code>:parent</code> (means <code>&#34;..&#34;</code>) or
-               <br><var>subdir</var> = <code>:wild-inferiors</code> (means <code>&#34;...&#34;</code>, all subdirectories) or
-               <br><var>subdir</var> = <code>(<var>name</var> . <var>type</var>)</code>
-                <br><var>name</var> = <code>:wild</code> or a simple string with 8 characters maximum
-                <br><var>type</var> = <code>:wild</code> or a simple string with 3 characters maximum
-<dt><code>name</code>          <dd><code>nil</code> or <code>:wild</code> or a simple string with 8 characters maximum
-<dt><code>type</code>          <dd><code>nil</code> or <code>:wild</code> or a simple string with 3 characters maximum
-<dt><code>version</code>       <dd>always <code>nil</code> (may also be specified as <code>:wild</code> or <code>:newest</code>)
+<dt><code>host</code> <dd>always <code>nil</code>
+<dt><code>device</code>
+ <dd><code>nil</code> or <code>:wild</code> or
+    <code>"A"</code>|...|<code>"Z"</code>
+<dt><code>directory</code>
+ <dd><code>(<var>startpoint</var> . <var>subdirs</var>)</code> where
+            <br><var>startpoint</var> = <code>:relative</code> |
+                <code>:absolute</code>
+            <br><var>subdirs</var> = <code>()</code> |
+                <code>(<var>subdir</var> . <var>subdirs</var>)</code>
+            <br><var>subdir</var> = <code>:current</code> (means
+                <code>"."</code>) or
+            <br><var>subdir</var> = <code>:parent</code> (means
+                <code>".."</code>) or
+            <br><var>subdir</var> = <code>:wild-inferiors</code> (means
+                <code>"..."</code>, all subdirectories) or
+            <br><var>subdir</var> = <code>(<var>name</var>
+                . <var>type</var>)</code>
+            <br><var>name</var> = <code>:wild</code> or a simple string
+                with 8 characters maximum
+            <br><var>type</var> = <code>:wild</code> or a simple string
+                with 3 characters maximum
+<dt><code>name</code>
+ <dd><code>nil</code> or <code>:wild</code> or a simple string with 8
+ characters maximum
+<dt><code>type</code>
+ <dd><code>nil</code> or <code>:wild</code> or a simple string with 3
+ characters maximum
+<dt><code>version</code>
+ <dd>always <code>nil</code> (may also be specified as
+ <code>:wild</code> or <code>:newest</code>)
 </dl>
 
 <p>When a pathname is to be fully specified (no wildcards), that means
@@ -2670,11 +2687,11 @@ for DOS calls.
    <br><var>subdirs</var> = <code>()</code> |
        <code>(<var>subdir</var> . <var>subdirs</var>)</code>
    <br><var>subdir</var> = <code>:wild-inferiors</code>
-    (means <code>&#34;**&#34;</code> or <code>&#34;...&#34;</code>,
+    (means <code>"**"</code> or <code>"..."</code>,
     all subdirectories) or
    <br><var>subdir</var> = <code>:parent</code>
-    (means <code>&#34;/&#34;</code> instead of
-    <code>&#34;subdir/&#34;</code>) or
+    (means <code>"/"</code> instead of
+    <code>"subdir/"</code>) or
    <br><var>subdir</var> = simple string, may contain wildcard
     characters <code>?</code> and <code>*</code>
   <dt><code>name</code>
@@ -2744,38 +2761,38 @@ wildcard characters are allowed in the strings, and <var>name</var> =
 <tr><td><code>'c:foo'</code>
     <td>'C'
     <td>device-&gt;<code>foo</code>
-    <td><code>&#34;c&#34; (:absolute &#34;foo&#34;)</code>
+    <td><code>"c" (:absolute "foo")</code>
 <tr><td><code>'c:foo/'</code>
     <td>'C'
     <td>device-&gt;<code>foo</code>
-    <td><code>&#34;c&#34; (:absolute &#34;foo&#34;)</code>
+    <td><code>"c" (:absolute "foo")</code>
 <tr><td><code>'c:foo/bar'</code>
     <td>'C'
     <td>device-&gt;<code>foo</code>-&gt;<code>bar</code>
-    <td><code>&#34;c&#34; (:absolute &#34;foo&#34; &#34;bar&#34;)</code>
+    <td><code>"c" (:absolute "foo" "bar")</code>
 <tr><td><code>'c:/foo'</code>
     <td>'C'
     <td>device-&gt;up-&gt;<code>foo</code>
-    <td><code>&#34;c&#34; (:absolute :parent &#34;foo&#34;)</code>
+    <td><code>"c" (:absolute :parent "foo")</code>
 <tr><td><code>'c:'</code>
     <td>'C'
     <td>device
-    <td><code>&#34;c&#34; (:absolute)</code>
+    <td><code>"c" (:absolute)</code>
 <tr><td><code>':foo'</code>
     <td>current
     <td>device-&gt;root-&gt;<code>foo</code>
-    <td><code>nil (:absolute &#34;foo&#34;)</code>
+    <td><code>nil (:absolute "foo")</code>
 <tr><td><code>'foo'</code>
     <td>current <td>device-&gt;<code>foo</code>
-    <td><code>nil (:relative &#34;foo&#34;)</code>
+    <td><code>nil (:relative "foo")</code>
 <tr><td><code>'/foo'</code>
     <td>current <td>device-&gt;up-&gt;<code>foo</code>
-    <td><code>nil (:relative :parent &#34;foo&#34;)</code>
+    <td><code>nil (:relative :parent "foo")</code>
 <tr><td><code>'//foo/bar'</code>
     <td>current
     <td>device-&gt;up-&gt;up-&gt;<code>foo</code>-&gt;<code>bar</code>
     <td><code>nil (:relative :parent :parent
-                   &#34;foo&#34; &#34;bar&#34;)</code>
+                   "foo" "bar")</code>
 <tr><td><code>''</code>
     <td>current <td>device
     <td><code>nil (:relative)</code>
@@ -2811,7 +2828,7 @@ Pathname components:
   <br><var>subdirs</var> = <code>()</code> |
              <code>(<var>subdir</var> . <var>subdirs</var>)</code>
   <br><var>subdir</var> = <code>:wild-inferiors</code>
-      (means <code>&#34;**&#34;</code> or <code>&#34;...&#34;</code>,
+      (means <code>"**"</code> or <code>"..."</code>,
       all subdirectories) or
   <br><var>subdir</var> = simple string, may contain wildcard characters
       <code>?</code> and <code>*</code>
@@ -2865,14 +2882,14 @@ Pathname components:
  <dd>always <code>nil</code>
 <dt><code>device</code>
  <dd><code>nil</code> or <code>:wild</code>
- or <code>&#34;A&#34;</code>|...|<code>&#34;Z&#34;</code>
+ or <code>"A"</code>|...|<code>"Z"</code>
 <dt><code>directory</code>
  <dd><code>(<var>startpoint</var> . <var>subdirs</var>)</code> where
   <br><var>startpoint</var> = <code>:relative</code> | <code>:absolute</code>
   <br><var>subdirs</var> = <code>()</code> |
       <code>(<var>subdir</var> . <var>subdirs</var>)</code>
   <br><var>subdir</var> = <code>:wild-inferiors</code> (
-      means <code>&#34;**&#34;</code> or <code>&#34;...&#34;</code>, all
+      means <code>"**"</code> or <code>"..."</code>, all
       subdirectories) or
   <br><var>subdir</var> = simple string, may contain wildcard characters
       <code>?</code> and <code>*</code>
@@ -2934,7 +2951,7 @@ characters, <code>'?'</code> matches any one character.
 result from <code>parse-namestring</code>. To get a pathname whose type
 contains a dot or whose name contains a dot and whose type is
 <code>nil</code>, <code>make-pathname</code> must be used.  Example:
-<code>(make-pathname :name &#34;.profile&#34;)</code>.
+<code>(make-pathname :name ".profile")</code>.
 </dl>
 <!-- #endif -->
 
@@ -3071,13 +3088,13 @@ File$Path and Run$Path.
 
 <p>NOTE: Path variables are not implemented in this version of CLISP. A
 workaround for this is to use &#34;&lt;Foo$Path&gt;&#34; instead of
-&#34;Foo:&#34; until they are made available.
+"Foo:" until they are made available.
 
  <p><dt><a name="pathnames-externally-acorn">
      from Lisp-string notation to internal representation</a>
 
- <dd><em>No</em> swapping. &#34;foo.lsp&#34; means file type
-&#34;lsp&#34; and file name &#34;foo&#34;. This is pseudo-BNF:
+ <dd><em>No</em> swapping. "foo.lsp" means file type
+"lsp" and file name "foo". This is pseudo-BNF:
 <dl>
 <dt>legal character ::= <dd>any ISO latin-1 graphic character &gt;= ' ' except
                     '.' ':' '*' '#' '$' '&amp;' '@' '^' '%' '\' '?'
@@ -3121,46 +3138,46 @@ Examples:
 <table border=1>
   <tr><th>String <th>Hostname <th>Device  <th>Directory <th>Name <th>Type
   <tr><td><code>-net-$.SystemMesg</code>
-      <td><code>&#34;net&#34;</code>
+      <td><code>"net"</code>
       <td><code>nil</code>
       <td><code>(:absolute :root)</code>
-      <td><code>&#34;SystemMesg&#34;</code>
+      <td><code>"SystemMesg"</code>
       <td><code>nil</code>
   <tr><td><code>net#MJHardy::disc1.mike</code>
-      <td><code>&#34;net#MJHardy&#34;</code>
-      <td><code>&#34;disc1&#34;</code>
+      <td><code>"net#MJHardy"</code>
+      <td><code>"disc1"</code>
       <td><code>(:absolute :root)</code>
-      <td><code>&#34;mike&#34;</code>
+      <td><code>"mike"</code>
       <td><code>nil</code>
   <tr><td><code>#MJHardy::disc1.mike</code>
-      <td><code>&#34;#MJHardy&#34;</code>
-      <td><code>&#34;disc1&#34;</code>
+      <td><code>"#MJHardy"</code>
+      <td><code>"disc1"</code>
       <td><code>(:absolute :root)</code>
-      <td><code>&#34;mike&#34;</code>
+      <td><code>"mike"</code>
       <td><code>nil</code>
   <tr><td><code>-net#MJHardy-:disc1.mike</code>
-      <td><code>&#34;net#MJHardy&#34;</code>
-      <td><code>&#34;disc1&#34;</code>
+      <td><code>"net#MJHardy"</code>
+      <td><code>"disc1"</code>
       <td><code>(:absolute :root)</code>
-      <td><code>&#34;mike&#34;</code>
+      <td><code>"mike"</code>
       <td><code>nil</code>
   <tr><td><code>-#MJHardy-:disc1.mike</code>
-      <td><code>&#34;#MJHardy&#34;</code>
-      <td><code>&#34;disc1&#34;</code>
+      <td><code>"#MJHardy"</code>
+      <td><code>"disc1"</code>
       <td><code>(:absolute :root)</code>
-      <td><code>&#34;mike&#34;</code>
+      <td><code>"mike"</code>
       <td><code>nil</code>
   <tr><td><code>@.foo</code>
       <td><code>nil</code>
       <td><code>nil</code>
       <td><code>(:absolute :current)</code>
-      <td><code>&#34;foo&#34;</code>
+      <td><code>"foo"</code>
       <td><code>nil</code>
   <tr><td><code>foo</code>
       <td><code>nil</code>
       <td><code>nil</code>
       <td><code>(:relative)</code>
-      <td><code>&#34;foo&#34;</code>
+      <td><code>"foo"</code>
       <td><code>nil</code>
   <tr><td><code>^.</code>
       <td><code>nil</code>
@@ -3178,18 +3195,18 @@ Examples:
       <td><code>nil</code>
       <td><code>nil</code>
       <td><code>(:relative)</code>
-      <td><code>&#34;foo&#34;</code>
-      <td><code>&#34;bar&#34;</code>
+      <td><code>"foo"</code>
+      <td><code>"bar"</code>
   <tr><td><code>foo.bar.baz</code>
       <td><code>nil</code>
       <td><code>nil</code>
-      <td><code>(:relative &#34;foo&#34;)</code>
-      <td><code>&#34;bar&#34;</code>
-      <td><code>&#34;baz&#34;</code>
+      <td><code>(:relative "foo")</code>
+      <td><code>"bar"</code>
+      <td><code>"baz"</code>
   <tr><td><code>foo.bar.</code>
       <td><code>nil</code>
       <td><code>nil</code>
-      <td><code>(:relative &#34;foo&#34; &#34;bar&#34;)</code>
+      <td><code>(:relative "foo" "bar")</code>
       <td><code>nil</code>
       <td><code>nil</code>
   <tr><td><code>foo.@.</code>
@@ -3202,101 +3219,101 @@ Examples:
 
 <p><table border=1>
   <tr><th>Hostname <th>Device <th>Directory <th>Name <th>Type <th>RISCOS String
-  <tr><td><code>&#34;net&#34;</code>
-      <td><code>&#34;disc1&#34;</code>
+  <tr><td><code>"net"</code>
+      <td><code>"disc1"</code>
       <td><code>(:absolute :root)</code>
-      <td><code>&#34;foo&#34;</code>
+      <td><code>"foo"</code>
       <td><code>nil</code>
-      <td><code>&#34;net::disc1.$.foo&#34;</code>
-  <tr><td><code>&#34;net#MJ&#34;</code>
-      <td><code>&#34;disc1&#34;</code>
-      <td><code>(:absolute :root &#34;foo&#34;)</code>
-      <td><code>&#34;bar&#34;</code>
-      <td><code>&#34;baz&#34;</code>
-      <td><code>&#34;net#MJ::disc1.$.foo.baz.bar&#34;</code>
-  <tr><td><code>&#34;adfs&#34;</code>
-      <td><code>&#34;4&#34;</code>
-      <td><code>(:absolute :root &#34;foo&#34; &#34;bar&#34;)</code>
+      <td><code>"net::disc1.$.foo"</code>
+  <tr><td><code>"net#MJ"</code>
+      <td><code>"disc1"</code>
+      <td><code>(:absolute :root "foo")</code>
+      <td><code>"bar"</code>
+      <td><code>"baz"</code>
+      <td><code>"net#MJ::disc1.$.foo.baz.bar"</code>
+  <tr><td><code>"adfs"</code>
+      <td><code>"4"</code>
+      <td><code>(:absolute :root "foo" "bar")</code>
       <td><code>nil</code>
       <td><code>nil</code>
-      <td><code>&#34;adfs::4.$.foo.bar&#34;</code>
+      <td><code>"adfs::4.$.foo.bar"</code>
   <tr><td><code>nil</code>
-      <td><code>&#34;disc1&#34;</code>
-      <td><code>(:absolute :root &#34;foo&#34;)</code>
-      <td><code>&#34;bar&#34;</code>
+      <td><code>"disc1"</code>
+      <td><code>(:absolute :root "foo")</code>
+      <td><code>"bar"</code>
       <td><code>nil</code>
-      <td><code>&#34;:disc1.$.foo.bar&#34;</code>
+      <td><code>":disc1.$.foo.bar"</code>
   <tr><td><code>nil</code>
-      <td><code>&#34;disc1&#34;</code>
+      <td><code>"disc1"</code>
       <td><code>(:absolute :current)</code>
       <td><code>nil</code>
       <td><code>nil</code>
       <td>illegal here
   <tr><td><code>nil</code>
-      <td><code>&#34;disc1&#34;</code>
+      <td><code>"disc1"</code>
       <td><code>(:relative)</code>
       <td><code>nil</code>
       <td><code>nil</code>
-      <td><code>&#34;:disc1.&#34;</code>
+      <td><code>":disc1."</code>
   <tr><td><code>nil</code>
-      <td><code>&#34;disc1&#34;</code>
+      <td><code>"disc1"</code>
       <td><code>nil</code>
       <td><code>nil</code>
       <td><code>nil</code>
-      <td><code>&#34;:disc1.&#34;</code>
+      <td><code>":disc1."</code>
   <tr><td><code>nil</code>
       <td><code>nil</code>
       <td><code>(:absolute :root)</code>
-      <td><code>&#34;foo&#34;</code>
+      <td><code>"foo"</code>
       <td><code>nil</code>
-      <td><code>&#34;$.foo&#34;</code>
+      <td><code>"$.foo"</code>
   <tr><td><code>nil</code>
       <td><code>nil</code>
       <td><code>(:absolute :current)</code>
-      <td><code>&#34;foo&#34;</code>
+      <td><code>"foo"</code>
       <td><code>nil</code>
-      <td><code>&#34;@.foo&#34;</code>
+      <td><code>"@.foo"</code>
   <tr><td><code>nil</code>
       <td><code>nil</code>
       <td><code>(:relative)</code>
-      <td><code>&#34;foo&#34;</code>
-      <td><code>&#34;bar&#34;</code>
-      <td><code>&#34;bar.foo&#34;</code>
+      <td><code>"foo"</code>
+      <td><code>"bar"</code>
+      <td><code>"bar.foo"</code>
   <tr><td><code>nil</code>
       <td><code>nil</code>
-      <td><code>(:relative &#34;foo&#34;)</code>
-      <td><code>&#34;bar&#34;</code>
-      <td><code>&#34;baz&#34;</code>
-      <td><code>&#34;foo.baz.bar&#34;</code>
+      <td><code>(:relative "foo")</code>
+      <td><code>"bar"</code>
+      <td><code>"baz"</code>
+      <td><code>"foo.baz.bar"</code>
   <tr><td><code>nil</code>
       <td><code>nil</code>
       <td><code>(:absolute :library)</code>
-      <td><code>&#34;bar&#34;</code>
+      <td><code>"bar"</code>
       <td><code>nil</code>
-      <td><code>&#34;%.bar&#34;</code>
+      <td><code>"%.bar"</code>
   <tr><td><code>nil</code>
       <td><code>nil</code>
-      <td><code>(:absolute :library &#34;foo&#34;)</code>
-      <td><code>&#34;bar&#34;</code>
+      <td><code>(:absolute :library "foo")</code>
+      <td><code>"bar"</code>
       <td><code>nil</code>
-      <td><code>&#34;%.foo.bar&#34;</code>
+      <td><code>"%.foo.bar"</code>
   <tr><td><code>nil</code>
       <td><code>nil</code>
       <td><code>(:relative)</code>
-      <td><code>&#34;foo&#34;</code>
-      <td><code>&#34;bar&#34;</code>
-      <td><code>&#34;bar.foo&#34;</code>
+      <td><code>"foo"</code>
+      <td><code>"bar"</code>
+      <td><code>"bar.foo"</code>
   <tr><td><code>nil</code>
       <td><code>nil</code>
-      <td><code>(:relative &#34;foo&#34;)</code>
-      <td><code>&#34;bar&#34;</code>
+      <td><code>(:relative "foo")</code>
+      <td><code>"bar"</code>
       <td><code>nil</code>
-      <td><code>&#34;foo.bar&#34;</code>
+      <td><code>"foo.bar"</code>
   <tr><td><code>nil</code>
       <td><code>nil</code>
-      <td><code>(:relative &#34;foo&#34;)</code>
+      <td><code>(:relative "foo")</code>
       <td><code>nil</code>
-      <td><code>&#34;bar&#34;</code>
+      <td><code>"bar"</code>
       <td>illegal here
 </table>
 
@@ -3304,24 +3321,24 @@ Examples:
 
 <pre><code>
   (append
-    (if (null hostname) &#34;&#34; (append hostname &#34;:&#34;))
-    (if (null device) &#34;&#34; (append &#34;:&#34; device &#34;.&#34;))
+    (if (null hostname) "" (append hostname ":"))
+    (if (null device) "" (append ":" device "."))
     (case (pop directory)
       (:absolute (case (pop directory)
-                         (:root &#34;$.&#34;)
+                         (:root "$.")
                          (:home &#34;&amp;.&#34;)
-                         (:current &#34;@.&#34;)
-                         (:library &#34;%.&#34;)
-                         (:previous &#34;\\.&#34;)
+                         (:current "@.")
+                         (:library "%.")
+                         (:previous "\\.")
       )          )
-      (:relative &#34;&#34;)
+      (:relative "")
     )
-    (mapcar (lambda (subdir) (append subdir &#34;.&#34;)) directory)
+    (mapcar (lambda (subdir) (append subdir ".")) directory)
     (if (null name)
-      (if (null type) &#34;&#34; (error &#34;type with name illegal here&#34;))
+      (if (null type) "" (error "type with name illegal here"))
       (if (null type)
         name
-        (append type &#34;.&#34; name)
+        (append type "." name)
   ) ) )
 </code></pre>
 
@@ -3370,8 +3387,8 @@ result from <a href="CLHSROOT/Body/fun_parse-namestring.html">
 <code>parse-namestring</code></a>. To get a pathname whose type
 is <code>nil</code>, <a href="CLHSROOT/Body/fun_make-pathname.html">
 <code>make-pathname</code></a> must be used.  Example:
-<code>(make-pathname :directory &#34;!Clisp.&#34; :name
-&#34;README&#34;)</code>.
+<code>(make-pathname :directory "!Clisp." :name
+"README")</code>.
 </dl>
 </dl>
 <!-- #endif -->
@@ -3463,7 +3480,7 @@ The function <a href="CLHSROOT/Body/fun_user-homedir-pathname.html">
 If you really need that function, you might define it like this:
 <pre><code>  (defun user-homedir-pathname (&amp;optional host)
     (declare (ignore host))
-    (or (system::getenv &#34;HOME&#34;) &#34;\\&#34;)
+    (or (system::getenv "HOME") "\\")
   )
 </code></pre>
 <!-- #endif -->
@@ -4095,14 +4112,14 @@ permits mixed character/binary output to a stream.
 <p>An additional variable
 <code><strong>lisp:*print-closure*</strong></code> controls whether
 compiled and interpreted functions (closures) are output in detailed
-form. If <code>*print-closure*</code> non-<code>nil</code>, compiled
-closures are output in <code>#Y</code> syntax the reader
-understands. <code>*print-closure*</code> is initially set to
+form.  If <code>*print-closure*</code> is non-<code>nil</code>, compiled
+closures are output in <code>#Y</code> syntax which the reader
+understands.  <code>*print-closure*</code> is initially set to
 <code>nil</code>.
 
 <p>An additional variable
 <code><strong>lisp:*print-rpars*</strong></code> controls the output of
-right (closing) parentheses. If <code>*print-rpars*</code>
+the right (closing) parentheses. If <code>*print-rpars*</code> is
 non-<code>nil</code>, closing parentheses which don't fit onto the same
 line as the the corresponding opening parenthesis are output just below
 their corresponding opening parenthesis, in the same column.
@@ -4192,7 +4209,7 @@ stream with element type <code>character</code>.
 <a href="CLHSROOT/Body/sec_22-3-4-2.html"><code>~S</code></a>,
 but avoids binding of <a href="CLHSROOT/Body/var_stprint-escapest.html">
 <code>*print-escape*</code></a>. <code>(format <var>stream</var>
-&#34;~W&#34; <var>object</var>)</code> is equivalent to <code>(write
+"~W" <var>object</var>)</code> is equivalent to <code>(write
 <var>object</var> :stream <var>stream</var>)</code>.
 
 <p>The <a href="CLHSROOT/Body/fun_format.html">
@@ -4236,20 +4253,23 @@ can determine the current column of any stream.
 
 <a name="pathprint"></a><h3>pathnames</h3>
 
-<p>Pathnames are printed as follows: If <code>*print-escape*</code> is
-<code>nil</code>, only the namestring is printed; otherwise it is
-printed with <code>#P&#34;&#34;</code> syntax, as per ANSI CL Issue
-<a href="CLHSROOT/Issues/iss276.html">
+<p>Pathnames are printed as follows: If
+<a href="CLHSROOT/Body/var_stprint-escapest.html">
+<code>*print-escape*</code></a> is <code>nil</code>, only the namestring
+is printed; otherwise it is printed with <code>#P""</code> syntax, as
+per ANSI CL Issue <a href="CLHSROOT/Issues/iss276.html">
 PRINT-READABLY-BEHAVIOR:CLARIFY</a>.  But, if
-<code>*print-readably*</code> is true, we are in trouble as
-<code>#P&#34;&#34;</code> is ambiguous (which is verboten when
-<code>*print-readably*</code> is true), while being mandated by the
+<a href="CLHSROOT/Body/var_stprint-readablyst.html">
+<code>*print-readably*</code></a> is true, we are in trouble as
+<code>#P""</code> is ambiguous (which is verboten when
+<a href="CLHSROOT/Body/var_stprint-readablyst.html">
+<code>*print-readably*</code></a> is true), while being mandated by the
 ANSI CL standard.  Therefore, in this case, we print it like this
 
-<pre><code>#-CLISP #P&#34;...&#34; #+CLISP #S(PATHNAME ...)</code></pre>
+<pre><code>#-CLISP #P"" #+CLISP #S(PATHNAME ...)</code></pre>
 
 <p>when the variable <a href="#ansi"><code>lisp:*ansi*</code></a> is not
-set, otherwise the <code>#P&#34;&#34;</code> notation is used as per <a
+set, otherwise the <code>#P""</code> notation is used as per <a
 href="CLHSROOT/Body/sec_1-5-1-4.html">1.5.1.4.1 Resolution of Apparent
 Conflicts in Exceptional Situations</a>.
 
@@ -4345,12 +4365,12 @@ meaningfully read in:
             <br><em>(Platform dependent: UNIX, Win32 platforms only.)</em>
 <!-- #endif -->
   <tr> <td valign=top> <code>#&lt;UNBOUND&gt;</code>
-       <td> &#34;value&#34; of a symbol without value, &#34;value&#34;
+       <td> "value" of a symbol without value, "value"
             of an unsupplied optional or keyword argument
   <tr> <td valign=top> <code>#&lt;SPECIAL REFERENCE&gt;</code>
        <td> environment marker for variables declared <code>special</code>
   <tr> <td valign=top> <code>#&lt;DOT&gt;</code>
-       <td> internal <code>read</code> result for &#34;.&#34;
+       <td> internal <code>read</code> result for "."
   <tr> <td valign=top> <code>#&lt;END OF FILE&gt;</code>
        <td> internal <code>read</code> result, when the end of file
             is reached
@@ -4365,28 +4385,27 @@ meaningfully read in:
 <a name="chario"></a><h3>characters</h3>
 
 <p><code>#\</code> allows inputting characters of arbitrary code:
-<code>#\Code231</code> yields the character <code>(code-char
-231.)</code>.
+<code>#\Code231</code> yields the character
+<code>(<a href="CLHSROOT/Body/fun_code-char.html">code-char</a> 231.)</code>.
 
 <h3>Additional read dispatch macros</h3>
 
 <ul>
 <li><code>#Y</code> is used to read compiled functions and to set the
      current input stream's encoding.
-<li><code>#&#34;</code> is used to read pathnames:
-     <code>#&#34;test.lsp&#34;</code> is the value of
-     <code>(pathname &#34;test.lsp&#34;)</code>
+<li><code>#""</code> is used to read pathnames: <code>#"test.lsp"</code>
+     is the value of <code>(pathname "test.lsp")</code>
 <dl>
 <!-- #if defined(MSDOS) -->
 <dt><em>Platform dependent: DOS, OS/2, Win32 platforms only.</em>
 <dd> As in all strings, backslashes must be written twice here:
-     <code>#&#34;A:\\programs\\test.lsp&#34;</code>
+     <code>#"A:\\programs\\test.lsp"</code>
 <!-- #endif -->
 
 <!-- #ifdef RISCOS -->
 <dt><em>Platform dependent: Acorn platforms only.</em>
 <dd> As in all strings, backslashes must be written twice here:
-     <code>#&#34;\\.test.lsp&#34;</code>
+     <code>#"\\.test.lsp"</code>
 <!-- #endif -->
 </dl>
 </ul>
@@ -4398,8 +4417,13 @@ meaningfully read in:
 is <code>:invert</code>, it applies to the package name and the symbol
 name of a symbol separately (not to the entire token at once).  An
 alternative to the use of <code>readtable-case</code> is the use of the
-<code>:case-sensitive</code> option to <code>make-package</code>,
-<code>in-package</code> and <code>defpackage</code>.
+<code>:case-sensitive</code> option to
+<a href="CLHSROOT/Body/fun_make-package.html">
+<code>make-package</code></a>,
+<a href="CLHSROOT/Body/mac_in-package.html">
+<code>in-package</code></a> and
+<a href="CLHSROOT/Body/mac_defpackage.html">
+<code>defpackage</code></a>.
 
 <h3><a href="CLHSROOT/Body/fun_read-sequence.html">
     read-sequence</a></h3>
@@ -4663,7 +4687,7 @@ the specified or current directory - by <code>load</code>,
 <a href="CLHSROOT/Body/mac_step.html">
 <code>step</code></a>.  Debugger and stepper execute subordinate <a
 href="CLHSROOT/Body/sec_25-1-1.html">read-eval-print loops</a> (called
-&#34;break loops&#34;) which are analogous to the main <a
+"break loops") which are analogous to the main <a
 href="CLHSROOT/Body/sec_25-1-1.html">read-eval-print loop</a> except for
 the prompt and the set of available commands. Commands must be typed
 literally, without surrounding quotes or white space.
@@ -4705,7 +4729,7 @@ variable all you have to do is to move to the current stack frame just
 below the frame that corresponds to the form or the function call that
 binds that variable.
 
-<p>There is a current &#34;stack mode&#34; which defines in how much
+<p>There is a current "stack mode" which defines in how much
 detail the stack is shown by the stack related debugger commands.
 
 <p>Commands common to the debugger and the stepper:
@@ -5812,7 +5836,7 @@ specified by the vote.
 <p>The function <code>(<strong>saveinitmem</strong> [<var>filename</var>
 [:quiet] [:init-function]])</code> saves the running CLISP's memory to a
 file. The <var>filename</var> defaults to
-<code>&#34;lispinit.mem&#34;</code>.  If the <code>:quiet</code>
+<code>"lispinit.mem"</code>.  If the <code>:quiet</code>
 argument is not <code>nil</code>, the startup banner and the good-bye
 message will be suppressed. The <code>:init-function</code> argument
 specifies a function that will be executed at startup of the saved
@@ -6217,19 +6241,18 @@ object is being garbage collected, <code>(funcall <var>function</var>
 
 <p>Calling <code>(finalize <var>object</var> <var>function</var>
 <var>guardian</var>)</code> has a similar effect, but only as long as
-the &#34;guardian&#34; has not been garbage collected: When
+the "guardian" has not been garbage collected: When
 <var>object</var> is being garbage collected, <code>(funcall
 <var>function</var> <var>object</var> <var>guardian</var>)</code> will
 be executed.  If the guardian is garbage collected before
 <var>object</var> is, nothing happens.
 
-<p>Note: The time when &#34;<var>object</var> is being garbage
+<p>Note: The time when &#34;the <var>object</var> is being garbage
 collected&#34; is not defined deterministically. (Actually, it possibly
 never occurs.) It denotes a moment at which no references to
 <var>object</var> exist from other Lisp objects. When the
 <var>function</var> is called, <var>object</var> (and possibly
-<var>guardian</var>) enter the &#34;arena of live Lisp objects&#34;
-again.
+<var>guardian</var>) enter the "arena of live Lisp objects" again.
 
 <p>No finalization request will be executed more than once.
 
@@ -6367,13 +6390,14 @@ platform-independent command line options:
     <ul>
      <li>ANSI CL compliant <a href="#pathprint"><code>pathname</code>
       printing</a>.
-     <li>ANSI CL compliant <a href="#pathmerge">
-      <code>merge-pathnames</code></a>.
      <li>Fixnums cannot be <a href="CLHSROOT/Body/fun_coerce.html">
       <code>coerce</code></a>d to characters (because a fixnum is not a
       <a href="CLHSROOT/Body/glo_c.html#character_designator">character
       designator</a> in ANSI CL.)
     </ul>
+   <li>Set <a
+   href="#pathmerge"><code>lisp:*merge-pathnames-ansi*</code></a>
+   to <code>t</code>.
    <li>Set <a
    href="#flocont"><code>lisp:*floating-point-contagion-ansi*</code></a>
    to <code>t</code>.
@@ -6401,7 +6425,7 @@ platform-independent command line options:
 
 <dl>
  <dt><code>(<strong>screen:make-window</strong>)</code>
- <dd>returns a &#34;window stream&#34;. As long as this stream is open,
+ <dd>returns a "window stream". As long as this stream is open,
   the terminal is in cbreak/noecho mode.  <a
   href="CLHSROOT/Body/var_stterminal-iost.html">
   <code>*terminal-io*</code></a> shouldn't be used for input or output
@@ -6485,7 +6509,7 @@ example).  It is invoked through <code>clisp-link</code>.
 
 <p>A module is a piece of external code which defines extra Lisp
 objects, symbols and functions. A module name must consist of the
-characters A-Z,a-z,_,0-9. The module name <code>&#34;clisp&#34;</code>
+characters A-Z,a-z,_,0-9. The module name <code>"clisp"</code>
 is reserved. Normally a module name is derived from the corresponding
 file name.
 
@@ -6536,7 +6560,7 @@ by the environment variable <code>CLISP_LINKKIT</code>.
 </dl>
 
 <p>Note that in <code>link.sh</code> the module set directory is
-referred to as <code>&#34;$modulename&#34;/</code>.
+referred to as <code>"$modulename"/</code>.
 <dl>
 <dt>The <code>NEW_FILES</code> variable <dd>shall contain a
   space-separated list of files that belong to the module set and will
@@ -6599,9 +6623,9 @@ this order.)
 <pre><code>   $ clisp-link create-module-set linux /<var>somewhere</var>/bindings/linux.c
 </code></pre>
    Modify the newly created <code>linux/link.sh</code> to add &#34;<code>-lm</code>&#34; to the libraries:
-<pre><code>   NEW_LIBS=&#34;$file_list&#34;
+<pre><code>   NEW_LIBS="$file_list"
    --&gt;
-   NEW_LIBS=&#34;$file_list -lm&#34;
+   NEW_LIBS="$file_list -lm"
 </code></pre>
    Modify the newly created <code>linux/link.sh</code> to load <code>linux.fas</code> before saving
    the memory image:
@@ -6617,7 +6641,7 @@ this order.)
 </code></pre>
 <li>Run and try it:
 <pre><code>   $ base+linux/lisp.run -M base+linux/lispinit.mem
-   &gt; (linux::stat &#34;/tmp&#34;)
+   &gt; (linux::stat "/tmp")
 </code></pre>
 </ol>
 <!-- #endif -->
@@ -6634,7 +6658,7 @@ the C compiler and may be linked together with <code>lisp.a</code>.
 <p>All symbols relating to the foreign function interface are exported
 from the package FFI. To use them,
 <code>(<a href="CLHSROOT/Body/fun_use-package.html">use-package</a>
-       &#34;FFI&#34;)</code>.
+       "FFI")</code>.
 
 <p>Special FFI forms may appear anywhere in the Lisp file.
 
@@ -7016,9 +7040,9 @@ a <code>NULL</code> pointer...) and deprecated.
 <h4>Operations on foreign places</h4>
 
 <p>A foreign variable <var>name</var> defined by <code>def-c-var</code>
-defines a &#34;place&#34;, i.e.  a form which can also be used as
+defines a "place", i.e.  a form which can also be used as
 argument to <a href="CLHSROOT/Body/mac_setfcm_psetf.html">
-<code>setf</code></a>. (An &#34;lvalue&#34; in C terminology.)
+<code>setf</code></a>. (An "lvalue" in C terminology.)
 The following operations are available on foreign places:
 
 <p><code>(<strong>element</strong> <var>place</var>
@@ -7077,9 +7101,9 @@ language.  There are <em>named foreign functions</em> (imported via
 <em>anonymous foreign functions</em>; they arise through conversion of
 function pointers.
 
-<p>A <em>&#34;call-out&#34;</em> function is a foreign function called
+<p>A <em>"call-out"</em> function is a foreign function called
 from Lisp: control flow temporarily leaves Lisp.  A
-<em>&#34;call-in&#34;</em> function is a Lisp function called from the
+<em>"call-in"</em> function is a Lisp function called from the
 foreign language: control flow temporary enters Lisp.
 
 <p><code>(<strong>def-call-out</strong> <var>name</var>
@@ -7354,7 +7378,7 @@ Sample call from within Lisp:
 </code></pre>
 Ex. 4: Another example for calling an external function:
 <p>
-Suppose the following is defined in a file <code>&#34;cfun.c&#34;</code>:
+Suppose the following is defined in a file <code>"cfun.c"</code>:
 <pre>
 <code>       struct cfunr { int x; char *s; };
        struct cfunr * cfun (i,s,r,a)
@@ -7365,22 +7389,22 @@ Suppose the following is defined in a file <code>&#34;cfun.c&#34;</code>:
        {
            int j;
            struct cfunr * r2;
-           printf(&#34;i = %d\n&#34;, i);
-           printf(&#34;s = %s\n&#34;, s);
+           printf("i = %d\n", i);
+           printf("s = %s\n", s);
            printf(&#34;r-&gt;x = %d\n&#34;, r-&gt;x);
            printf(&#34;r-&gt;s = %s\n&#34;, r-&gt;s);
-           for (j = 0; j &lt; 10; j++) printf(&#34;a[%d] = %d.\n&#34;, j, a[j]);
+           for (j = 0; j &lt; 10; j++) printf("a[%d] = %d.\n", j, a[j]);
            r2 = (struct cfunr *) malloc (sizeof (struct cfunr));
            r2-&gt;x = i+5;
-           r2-&gt;s = &#34;A C string&#34;;
+           r2-&gt;s = "A C string";
            return r2;
        }
 </code></pre>
-It is possible to call this function from Lisp using the file <code>&#34;callcfun.lsp&#34;</code>
-(don't call it <code>&#34;cfun.lsp&#34;</code> - <code>compile-file</code> would overwrite <code>&#34;cfun.c&#34;</code>) whose
+It is possible to call this function from Lisp using the file <code>"callcfun.lsp"</code>
+(don't call it <code>"cfun.lsp"</code> - <code>compile-file</code> would overwrite <code>"cfun.c"</code>) whose
 contents is:
 <pre>
-<code>       (in-package &#34;TEST-C-CALL&#34; :use '(&#34;LISP&#34; &#34;FFI&#34;))
+<code>       (in-package "TEST-C-CALL" :use '("LISP" "FFI"))
        (def-c-struct cfunr (x int) (s c-string))
        (def-c-call-out cfun (:arguments (i int)
                                         (s c-string)
@@ -7390,7 +7414,7 @@ contents is:
                             (:return-type (c-ptr cfunr))
        )
        (defun call-cfun ()
-         (cfun 5 &#34;A Lisp string&#34; (make-cfunr :x 10 :s &#34;Another Lisp string&#34;)
+         (cfun 5 "A Lisp string" (make-cfunr :x 10 :s "Another Lisp string")
                '#(0 1 2 3 4 5 6 7 8 9)
        ) )
 </code></pre>
@@ -7420,7 +7444,7 @@ Use the module facility:
        a[7] = 7.
        a[8] = 8.
        a[9] = 9.
-       #S(TEST-C-CALL::CFUNR :X 10 :S &#34;A C string&#34;)
+       #S(TEST-C-CALL::CFUNR :X 10 :S "A C string")
        &gt;
        $ rm -r base+cfun
 </code></pre>
@@ -7439,7 +7463,7 @@ static data.
 <p>Ex. 5: To sort an array of double-floats using the Lisp function
 <code>sort</code> instead of the C library function
 <code>qsort()</code>, one can use the following interface code
-<code>&#34;sort1.c&#34;</code>. The main problem is to pass a
+<code>"sort1.c"</code>. The main problem is to pass a
 variable-sized array.
 
 <pre>
@@ -7455,9 +7479,9 @@ variable-sized array.
            free(sorted_array);
        }
 </code></pre>
-This is accompanied by <code>&#34;sort2.lsp&#34;</code>:
+This is accompanied by <code>"sort2.lsp"</code>:
 <pre>
-<code>       (use-package &#34;FFI&#34;)
+<code>       (use-package "FFI")
        (def-call-in lispsort_begin (:arguments (n int))
                                    (:return-type nil)
                                    (:language :stdc)
@@ -7478,10 +7502,10 @@ This is accompanied by <code>&#34;sort2.lsp&#34;</code>:
          (sort v #'&lt;)
        )
 </code></pre>
-To test this, use the following test file <code>&#34;sorttest.lsp&#34;</code>:
+To test this, use the following test file <code>"sorttest.lsp"</code>:
 <pre>
 <code>       (def-call-out sort10
-                     (:name &#34;lispsort_double&#34;)
+                     (:name "lispsort_double")
                      (:language :stdc)
                      (:arguments (n int)
                                  (array (c-ptr (c-array double-float 10))
@@ -7516,7 +7540,7 @@ Now try
 
 <p>All symbols relating to the simple foreign function interface are
 exported from the package <code>AFFI</code>. To use them,
-<code>(use-package &#34;AFFI&#34;)</code>.
+<code>(use-package "AFFI")</code>.
 
 <h4>Design issues</h4>
 
@@ -7628,11 +7652,11 @@ function is referenced, because the library base symbol must be known.
 base symbol.  Therefore it must have been preceeded with
 <code>declare-library-base</code>. The call returns <code>nil</code> on
 failure. <code>open-library</code> calls nest. Every successful call
-must be matched by
-<code>close-library</code>. <code>with-open-library</code> does this for
-you and also allows you to specify the library by name, provided that
-its base has been declared. It is recommended to use this macro and to
-reference the library by name.
+must be matched by <code>close-library</code>.
+<code>with-open-library</code> does this for you and also allows you to
+specify the library by name, provided that its base has been
+declared. It is recommended to use this macro and to reference the
+library by name.
 
 <p>CLISP will not close libraries for you at program exit. [A previous
 version did so but now AFFI is a module and there are no module exit
@@ -7769,7 +7793,7 @@ type <code>string</code> or unsigned byte vector).
 
 <p><code>require-library-functions</code> will <code>require</code> a
 file of name derived from thelibrary name and with type
-<code>&#34;affi&#34;</code>. It may be used to import all names into
+<code>"affi"</code>. It may be used to import all names into
 the current package or only a given subset identified by string names,
 using the <code>:import</code> keword (recommended use). Some definition
 files for standard Amiga libraries are provided. See example 1 below.
@@ -7781,7 +7805,7 @@ are. See example 4 below.
 
 <p>The file <code>read-fd.lsp</code> defines the function
 <code>make-partial-fd-file</code> with which the provided
-<code>&#34;.affi&#34;</code> files have been prepared from the
+<code>".affi"</code> files have been prepared from the
 original Amiga FD files (located in the directory
 <code>FD:</code>). They must still be edited as the function cannot know
 whether a function accepts a <code>*</code>, <code>:io</code>,
@@ -7793,9 +7817,10 @@ of integer arguments (<code>-4</code>, <code>-2</code>, <code>-1</code>,
 
 <h4>Hints</h4>
 
-<p>By using appropriate <code>eval-when</code> forms for
-<code>declare-library-base</code>
-and <code>require-library-functions</code> and not using
+<p>By using appropriate <a href="CLHSROOT/Body/speope_eval-when.html">
+<code>eval-when</code></a> forms for
+<code>declare-library-base</code> and
+<code>require-library-functions</code> and not using
 <code>flibcall</code>, it is possible to write code that only loads
 library function definition files at compile-time. See example 1 below.
 
@@ -7823,19 +7848,19 @@ this facility!
 
 <p>1. Using a predefined library function file
 <pre>
-<code>(use-package &#34;AFFI&#34;)
+<code>(use-package "AFFI")
 
 ;; SysBase is the conventional name for exec.library
 ;; It is only enforced by the file loaded by REQUIRE-LIBRARY-FUNCTIONS
 (eval-when (compile eval load)
-  (declare-library-base :SysBase &#34;exec.library&#34;)) ;keyword avoids name conflicts
+  (declare-library-base :SysBase "exec.library")) ;keyword avoids name conflicts
 
 ;; using only MLIBCALL allows not to load definitions at load-time
 (eval-when (compile eval)
-  (require-library-functions &#34;exec.library&#34;
-    :import '(&#34;FindTask&#34;)))
+  (require-library-functions "exec.library"
+    :import '("FindTask")))
 
-(with-open-library (&#34;exec.library&#34;)
+(with-open-library ("exec.library")
   (print (mlibcall FindTask 0)))
 </code></pre>
 This file can be used in interpreted and compiled mode. Compiled, it will
@@ -7844,16 +7869,16 @@ have inlined the library function calls.
 
 2. Using flibcall
 <pre>
-<code>(use-package &#34;AFFI&#34;)
+<code>(use-package "AFFI")
 
 (eval-when (compile eval load)
-  (declare-library-base :SysBase &#34;exec.library&#34;)) ;keyword avoids name conflicts
+  (declare-library-base :SysBase "exec.library")) ;keyword avoids name conflicts
 
 ;; The load situation permits the use of flibcall
 (eval-when (eval compile load)
-  (require-library-functions &#34;exec.library&#34;))
+  (require-library-functions "exec.library"))
 
-(unless (open-library 'SysBase) (error &#34;No library for SysBase&#34;))
+(unless (open-library 'SysBase) (error "No library for SysBase"))
 (flibcall (if t 'FindTask 'Debug) 0)
 (close-library 'SysBase)
 </code></pre>
@@ -7861,10 +7886,10 @@ have inlined the library function calls.
 
 3. Be fully dynamic, defining library bases ourselves
 <pre>
-<code>(use-package &#34;AFFI&#34;)
+<code>(use-package "AFFI")
 
 (eval-when (compile eval load)
-  (defvar mylib (declare-library-base :foobase &#34;foo.library&#34;)))
+  (defvar mylib (declare-library-base :foobase "foo.library")))
 (eval-when (eval compile load)          ;eval allows mlibcall, load flibcall
   (defflibfun 'foo1 mylib -30 '#xA '* 'string)
   (defflibfun 'foo2 mylib -36 '#x21 0 * 4))
@@ -7878,12 +7903,12 @@ have inlined the library function calls.
 4. Some sample function definitions
 <pre>
 <code>(defflibfun 'FindTask 'SysBase -294 #xA '* 'string)
-(declare-library-function FindTask &#34;exec.library&#34;
+(declare-library-function FindTask "exec.library"
   (:offset -294)
   (:return-type *)
   (:arguments
    (name   string   :A1)))
-(declare-library-function NameFromLock &#34;dos.library&#34;
+(declare-library-function NameFromLock "dos.library"
   (:offset -402)
   (:return-type 0)
   (:arguments
@@ -7908,9 +7933,9 @@ have inlined the library function calls.
 
 <p>CLISP comes with a small yet extensible and powerful ARexx interface.
 
-<p><code>(rexx-do-command &#34;return address()&#34; :string t :result
+<p><code>(rexx-do-command "return address()" :string t :result
 t)</code> <br>tells you the name of the CLISP ARexx port. The default
-extension for CLISP ARexx scripts is <code>&#34;cl&#34;</code>.
+extension for CLISP ARexx scripts is <code>"cl"</code>.
 
 <p><code>(REXX-DO-COMMAND <var>command</var> &amp;key :string :result
 :token :io :host)</code> <br> -&gt; <code>(RC &amp;optional
@@ -7936,8 +7961,8 @@ call. The first element in the vector is the function name, the others
 are the up to 15 arguments.
 
 <p>Messages may be sent to an arbitrary ARexx host, special cases are
-<code>nil</code> (meaning <code>&#34;REXX&#34;</code>, the default)
-and <code>t</code> (<code>&#34;AREXX&#34;</code> for asynchronouns
+<code>nil</code> (meaning <code>"REXX"</code>, the default)
+and <code>t</code> (<code>"AREXX"</code> for asynchronouns
 execution).
 
 <p>ARexx server mode: Like Ispell, Csh and SKsh, you can run it in
@@ -8153,8 +8178,8 @@ input will be available.
   <dd>The shell the command is passed to is the value of the environment
    variable <code>SHELL</code>, which normally is
    <code>/bin/sh</code>. The command should be a ``simple command''; a
-   ``command list'' should be enclosed in &#34;{ ... ; }&#34; (for
-   <code>/bin/sh</code>) or &#34;( ... )&#34; (for
+   ``command list'' should be enclosed in "{ ... ; }" (for
+   <code>/bin/sh</code>) or "( ... )" (for
    <code>/bin/csh</code>).
  </dl>
 <!-- #endif -->
@@ -8208,7 +8233,7 @@ keeping your standard console window clean from error messages) you can use
 <pre>
 <code>  (setq *error-output*
     (setq *debug-io*
-      (open &#34;CON:0/0/500/300/CLISP-Debugger/AUTO/CLOSE&#34; :direction :io)
+      (open "CON:0/0/500/300/CLISP-Debugger/AUTO/CLOSE" :direction :io)
   ) )
 </code></pre>
 at startup.
