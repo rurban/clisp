@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-09\n"
-"POT-Creation-Date: 2001-03-16 01:24:00 CET\n"
+"POT-Creation-Date: 2001-07-16 18:42:48 EDT\n"
 "PO-Revision-Date: 2000-06-13 22:37:09 CEST\n"
 "Last-Translator: Automatically generated <haible@honolulu>\n"
 "Language-Team: English <en@li.org>\n"
@@ -54,14 +54,14 @@ msgstr ""
 msgid "Informative output:\n"
 msgstr "Informative output:\n"
 
-msgid " -h, --help  - print this help and exit\n"
-msgstr " -h, --help  - print this help and exit\n"
+msgid " -h, --help    - print this help and exit\n"
+msgstr " -h, --help    - print this help and exit\n"
 
-msgid " --version   - print the version information\n"
-msgstr " --version   - print the version information\n"
+msgid " --version     - print the version information\n"
+msgstr " --version     - print the version information\n"
 
-msgid " --license   - print the licensing information\n"
-msgstr " --license   - print the licensing information\n"
+msgid " --license     - print the licensing information\n"
+msgstr " --license     - print the licensing information\n"
 
 msgid "Memory image selection:\n"
 msgstr "Memory image selection:\n"
@@ -72,26 +72,26 @@ msgstr " -B lisplibdir - set the installation directory\n"
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr " -K linkingset - use this executable and memory image\n"
 
-msgid " -M memfile  - use this memory image\n"
-msgstr " -M memfile  - use this memory image\n"
+msgid " -M memfile    - use this memory image\n"
+msgstr " -M memfile    - use this memory image\n"
 
-msgid " -m size     - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
-msgstr " -m size     - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgstr " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 
-msgid " -s size     - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
-msgstr " -s size     - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgid " -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgstr " -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
 
-msgid " -t tmpdir   - temporary directory for memmap\n"
-msgstr " -t tmpdir   - temporary directory for memmap\n"
+msgid " -t tmpdir     - temporary directory for memmap\n"
+msgstr " -t tmpdir     - temporary directory for memmap\n"
 
 msgid "Internationalization:\n"
 msgstr "Internationalization:\n"
 
-msgid " -L language - set user language\n"
-msgstr " -L language - set user language\n"
+msgid " -L language   - set user language\n"
+msgstr " -L language   - set user language\n"
 
-msgid " -N nlsdir   - NLS catalog directory\n"
-msgstr " -N nlsdir   - NLS catalog directory\n"
+msgid " -N nlsdir     - NLS catalog directory\n"
+msgstr " -N nlsdir     - NLS catalog directory\n"
 
 msgid " -Edomain encoding - set encoding\n"
 msgstr " -Edomain encoding - set encoding\n"
@@ -102,29 +102,32 @@ msgstr "Interoperability:\n"
 msgid " -q, --quiet, --silent - do not print the banner\n"
 msgstr " -q, --quiet, --silent - do not print the banner\n"
 
-msgid " -w          - wait for keypress after program termination\n"
-msgstr " -w          - wait for keypress after program termination\n"
+msgid " -w            - wait for keypress after program termination\n"
+msgstr " -w            - wait for keypress after program termination\n"
 
-msgid " -I          - be ILISP-friendly\n"
-msgstr " -I          - be ILISP-friendly\n"
+msgid " -I            - be ILISP-friendly\n"
+msgstr " -I            - be ILISP-friendly\n"
 
 msgid "Startup actions:\n"
 msgstr "Startup actions:\n"
 
-msgid " -a          - more ANSI CL compliance\n"
-msgstr " -a          - more ANSI CL compliance\n"
+msgid " -ansi         - more ANSI CL compliance\n"
+msgstr " -ansi         - more ANSI CL compliance\n"
 
-msgid " -p package  - start in the package\n"
-msgstr " -p package  - start in the package\n"
+msgid " -traditional  - traditional (undoes -ansi)\n"
+msgstr " -traditional  - traditional (undoes -ansi)\n"
 
-msgid " -C          - set *LOAD-COMPILING* to T\n"
-msgstr " -C          - set *LOAD-COMPILING* to T\n"
+msgid " -p package    - start in the package\n"
+msgstr " -p package    - start in the package\n"
 
-msgid " -norc       - do not load the user ~/.clisprc file\n"
-msgstr " -norc       - do not load the user ~/.clisprc file\n"
+msgid " -C            - set *LOAD-COMPILING* to T\n"
+msgstr " -C            - set *LOAD-COMPILING* to T\n"
 
-msgid " -i file     - load initfile (can be repeated)\n"
-msgstr " -i file     - load initfile (can be repeated)\n"
+msgid " -norc         - do not load the user ~/.clisprc file\n"
+msgstr " -norc         - do not load the user ~/.clisprc file\n"
+
+msgid " -i file       - load initfile (can be repeated)\n"
+msgstr " -i file       - load initfile (can be repeated)\n"
 
 msgid "Actions:\n"
 msgstr "Actions:\n"
@@ -152,6 +155,9 @@ msgstr "memory size"
 
 msgid "stack size"
 msgstr "stack size"
+
+msgid "CLISP: -a is deprecated, use -ansi\n"
+msgstr "CLISP: -a is deprecated, use -ansi\n"
 
 msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
 msgstr "Return value of malloc() = %x is not compatible with type code distribution.\n"
@@ -583,12 +589,6 @@ msgstr "Not supported under MS-DOS"
 
 msgid "This version of CLISP runs only in low address memory.\n"
 msgstr "This version of CLISP runs only in low address memory.\n"
-
-
-
-
-
-
 
 
 
