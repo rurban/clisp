@@ -27,7 +27,7 @@
      DEBUG_BYTECODE
  Flags that may be set through CFLAGS, in order to override the defaults:
    Object representation (on 32-bit platforms only):
-     TYPECODES, NO_TYPECODES, WIDE
+     TYPECODES, HEAPCODES, WIDE
    Advanced memory management:
      NO_SINGLEMAP, NO_TRIVIALMAP, NO_MULTIMAP_FILE, NO_MULTIMAP_SHM,
      NO_MORRIS_GC, NO_GENERATIONAL_GC
@@ -1644,27 +1644,27 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
    compiler has 64-bit numbers (in software or hardware).
    You will also need to choose it, if there would not be enough space
    for the type-bits in a 32-bit pointer.
- Model NO_TYPECODES stands for sizeof(oint) = sizeof(aint), and only minimal
+ Model HEAPCODES stands for sizeof(oint) = sizeof(aint), and only minimal
    type information is stored in a pointer. All heap allocated objects
    (except conses) must contain the complete type and a length field in the
    first word. The heap gets somewhat bigger by this, and type tests require
    more memory accesses on average, but this model is portable even to
    systems whose memory map looks like Swiss Cheese. */
 
-#if defined(WIDE_SOFT) && defined(NO_TYPECODES)
-  #error "WIDE_SOFT and NO_TYPECODES make no sense together, no need for WIDE_SOFT"
+#if defined(WIDE_SOFT) && defined(HEAPCODES)
+  #error "WIDE_SOFT and HEAPCODES make no sense together, no need for WIDE_SOFT"
 #endif
 
-#if !(defined(TYPECODES) || defined(NO_TYPECODES))
+#if !(defined(TYPECODES) || defined(HEAPCODES))
   # Choose typecodes on 64-bit machines (because there's enough room for type
   # bits), but not on 32-bit machines (because a 16 MB limit is ridiculous
   # today), except if the CPU cannot address more than 16 MB anyway.
-  # NO_TYPECODES will normally not work if alignof(subr_t) = alignof(long) < 4,
+  # HEAPCODES will normally not work if alignof(subr_t) = alignof(long) < 4,
   # but with egcs-1.1 or newer we can force alignof(subr_t) = 4.
   #if defined(WIDE_HARD) || defined(WIDE_SOFT) || defined(MC68000) || ((alignment_long < 4) && !defined(GNU))
     #define TYPECODES
   #else
-    #define NO_TYPECODES
+    #define HEAPCODES
   #endif
 #endif
 
@@ -2076,7 +2076,7 @@ immediate types, a couple of data bits, or, for heap allocated types,
 a pointer to memory. There are many models of mixing type and pointer.
 In the standard model, 6 to 8 bits (the word's high bits) are used for the
 type. In the WIDE_HARD and WIDE_SOFT models, type and pointer are each 32
-bits. In the NO_TYPECODES model, there are only 2 to 6 bits.
+bits. In the HEAPCODES model, there are only 2 to 6 bits.
 
 One bit (normally bit 31) is used as mark bit by the garbage collector.
 Outside of GC, it is always cleared. (Except for the get_circularities and
@@ -2558,9 +2558,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #define oint_addr_len 24
   #define oint_addr_mask 0x00FFFFFFUL
 #elif 0
-  #error "TYPECODES not supported any more on this platform. Use -DNO_TYPECODES."
+  #error "TYPECODES not supported any more on this platform. Use -DHEAPCODES."
 #else
-  #error "TYPECODES maybe not supported any more on this platform. Try defining TRY_TYPECODES_1 or TRY_TYPECODES_2, or use -DNO_TYPECODES."
+  #error "TYPECODES maybe not supported any more on this platform. Try defining TRY_TYPECODES_1 or TRY_TYPECODES_2, or use -DHEAPCODES."
 #endif
 
 # Generally we use all of the space of an address for the data of Fixnums etc.
@@ -5500,7 +5500,7 @@ typedef struct {
     uintW key_anz;          # number of keyword parameter
     uintW seclass; /* side-effect class */
   } subr_t
-    #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
+    #if defined(HEAPCODES) && (alignment_long < 4) && defined(GNU)
       # Force all Subrs to be allocated with a 4-byte alignment. GC needs this.
       __attribute__ ((aligned (4)))
     #endif

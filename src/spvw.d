@@ -851,12 +851,12 @@ nonreturning_function(local, fehler_code_alignment,
 # during the first part of the initialization phase:
 # initialize subr_tab:
 local void init_subr_tab_1 (void) {
- #if defined(NO_TYPECODES)
+ #if defined(HEAPCODES)
   # lispbibl.d normally takes care of this, using a gcc __attribute__.
   # But __attribute__((aligned(4))) is ignored for some GCC targets,
   # so we check it here for safety.
   if (alignof(subr_t) < 4) {
-    fprintf(stderr,"Alignment of SUBRs is %d. NO_TYPECODES requires it to be at least 4.\nRecompile CLISP with -DNO_TYPECODES.\n",alignof(subr_t));
+    fprintf(stderr,"Alignment of SUBRs is %d. HEAPCODES requires it to be at least 4.\nRecompile CLISP with -DHEAPCODES.\n",alignof(subr_t));
     abort();
   }
  #endif
