@@ -2735,28 +2735,41 @@ for-value   NIL or T
         (if pack (intern new-name pack) (make-symbol new-name))))))
 
 ;; (C-COMMENT controlstring . args)
-;; issue additional information of the compiler (via FORMAT).
+;; issue additional information from the compiler (via FORMAT).
 (defun c-comment (cstring &rest args)
   (let ((dest (if *compile-verbose* *c-error-output* *c-listing-output*)))
     (when dest (apply #'format dest cstring args))))
 
+(defstruct c-source-point
+  (lineno1 *compile-file-lineno1*)
+  (lineno2 *compile-file-lineno2*)
+  (file *compile-file-truename*))
+#+CLISP (remprop 'c-source-point 'sys::defstruct-description)
+
 ;; (C-SOURCE-LOCATION)
 ;; returns a description of the location in the source.
 (defun c-source-location (&optional (lineno1 *compile-file-lineno1*)
-                          (lineno2 *compile-file-lineno2*))
-  (if (and *compiling-from-file* lineno1 lineno2)
-      (format nil (if (= lineno1 lineno2)
-                      (ENGLISH " in line ~D")
-                      (ENGLISH " in lines ~D..~D"))
-              lineno1 lineno2)
+                          (lineno2 *compile-file-lineno2*)
+                          (file *compile-file-truename*))
+  (if (and file lineno1 lineno2)
+      (string-concat
+       ;; the first check is: "are we in the same file"?
+       ;; we check for `*compile-file-pathname*' too since
+       ;; `match-known-unknown-functions' binds `*compile-file-truename*'
+       ;; (to pass the right value to this function!)
+       (format nil (if (and *compile-file-pathname*
+                            (equalp file *compile-file-truename*))
+                       "" (format nil (ENGLISH " in file ~S") file)))
+       (format nil (if (= lineno1 lineno2)
+                       (ENGLISH " in line ~D")
+                       (ENGLISH " in lines ~D..~D"))
+               lineno1 lineno2))
       ""))
 
-;; memorize the location
-(defun c-source-point (&optional (lineno1 *compile-file-lineno1*)
-                       (lineno2 *compile-file-lineno2*))
-  (cons lineno1 lineno2))
 (defun c-source-point-location (point)
-  (c-source-location (car point) (cdr point)))
+  (c-source-location (c-source-point-lineno1 point)
+                     (c-source-point-lineno2 point)
+                     (c-source-point-file point)))
 
 (defun current-function ()
   (and (boundp '*func*) (fnode-p *func*) (fnode-name *func*)))
@@ -3501,8 +3514,9 @@ for-value   NIL or T
   (let ((n (length args))
         (reqopt (+ req opt)))
     (unless (and (or applyargs (<= req n)) (or rest-p key-p (<= n reqopt)))
-      (c-warn (ENGLISH "~S called with ~S~:[~; or more~] arguments, but it requires ~
-                        ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] argument~:p.")
+      (c-warn (ENGLISH "~S was called with ~S~:[~; or more~] arguments, ~
+                        but it requires ~:[~:[from ~S to ~S~;~S~]~;~
+                        at least ~*~S~] argument~:p.")
               fun n applyargs
               (or rest-p key-p) (eql req reqopt) req reqopt)
       (return-from test-argument-syntax 'NIL))
@@ -4191,8 +4205,8 @@ for-value   NIL or T
     (if *compiling-from-file*
       (let ((kf (assoc name *known-functions* :test #'equal))
             (uf (if (listp args)
-                    (list* name (c-source-point) args apply-args)
-                    (list name (c-source-point)))))
+                    (list* name (make-c-source-point) args apply-args)
+                    (list name (make-c-source-point)))))
         (if kf
           (match-known-unknown-functions uf kf)
           (push uf *unknown-functions*)))
@@ -4270,7 +4284,7 @@ for-value   NIL or T
                   (equalp signature (cddr kf))
                   (sig-to-list (cddr kf))
                   (sig-to-list signature))))
-      (pushnew (list* symbol (c-source-point) signature)
+      (pushnew (list* symbol (make-c-source-point) signature)
                *known-functions* :test #'equal :key #'car)
       (when lambdabody
         ;; lambdabody given ==> function definition is in the
@@ -11168,11 +11182,12 @@ The function make-closure is required.
 ;;; this function should be suitable as a :test argument
 ;;; for `set-difference'
 (defun match-known-unknown-functions (uf kf)
-  ;; uf: (function source-point arglist . apply-arglist)
-  ;; kf: (function source-point signature)
+  ;; uf: (function c-source-point arglist . apply-arglist)
+  ;; kf: (function c-source-point signature)
   (when (equal (car uf) (car kf))
-    (let ((*compile-file-lineno1* (car (second uf)))
-          (*compile-file-lineno2* (cdr (second uf)))
+    (let ((*compile-file-lineno1* (c-source-point-lineno1 (second uf)))
+          (*compile-file-lineno2* (c-source-point-lineno2 (second uf)))
+          (*compile-file-truename* (c-source-point-file (second uf)))
           (known-sig (cddr kf)))
       (unless (or (null (cddr uf)) ; nothing to test
                   (test-argument-syntax (caddr uf) (cdddr uf) (car uf)
