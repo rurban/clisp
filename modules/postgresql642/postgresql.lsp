@@ -6,7 +6,7 @@
   (:nicknames "POSTGRES" "POSTGRESQL")
   (:use))
 
-;; This requires linking with NEW_LIBS='linux.o -lm'.
+;; This requires linking with NEW_LIBS='postgresql.o -lpq'.
 
 (lisp:in-package "LISP")
 
@@ -95,11 +95,23 @@
 
 (in-package "SQL")
 
-;;; /usr/include/pgsql/libpq-fe.h
+;;; The include files are found in /usr/include/pgsql/
+;;;                             or /usr/lib/pgsql/include/
 
-(c-lines "#include <stdio.h>~%")
+;;; ================= <libpq-fe.h> =================
+
+;;; ----------------- <postgres_ext.h> -----------------
 
 (def-c-type Oid uint)
+
+(eval-when (load compile eval)
+  (defconstant NAMEDATALEN 32)
+  (defconstant OIDNAMELEN 36))
+
+;;; ----------------- <libpq/pqcomm.h> -----------------
+;;; contains only uninteresting low-level stuff
+
+;;; ----------------- <pgsql/libpq-fe.h> -----------------
 
 (def-c-enum ConnStatusType CONNECTION_OK CONNECTION_BAD)
 
@@ -116,18 +128,25 @@
 (def-c-type PGconn c-pointer) ; components unknown
 (def-c-type PGresult c-pointer) ; components unknown
 
-(eval-when (load compile eval)
-  (defconstant NAMEDATALEN 32)
-  (defconstant OIDNAMELEN 36))
-(def-c-struct pgNotify
-  (result (c-array char #.NAMEDATALEN))
+#|
+(def-c-struct PGresAttDesc
+  (name c-string)
+  (adtid Oid)
+  (adtsize short))
+(def-c-struct PGresAttValue
+  (len int)
+  (value c-pointer))
+|#
+
+(def-c-struct PGnotify
+  (result (c-array character #.NAMEDATALEN))
   (be_pid int))
 
 (def-c-type PQnoticeProcessor
     (c-function (:arguments (p1 c-pointer) (message c-string))
                 (:return-type c-pointer)))
 
-(def-c-type pqbool character)
+(def-c-type pqbool char)
 
 (def-c-struct PQprintOpt
   (header pqbool)
