@@ -146,7 +146,7 @@
 <!ENTITY i18n-pac "<link linkend='i18n'><quote role='package'>I18N</quote></link>">
 <!ENTITY ldap-pac "<link linkend='dir-key'><quote role='package'>LDAP</quote></link>">
 <!ENTITY posix-pac "<link linkend='syscalls'><quote role='package'>POSIX</quote></link>">
-<!ENTITY regexp-pac "<link linkend='regexp'><quote role='package'>REGEXP</quote></link>">
+<!ENTITY regexp-pac "<link linkend='regexp-mod'><quote role='package'>REGEXP</quote></link>">
 <!ENTITY screen-pac "<link linkend='screen'><quote role='package'>SCREEN</quote></link>">
 <!ENTITY socket-pac "<link linkend='socket'><quote role='package'>SOCKET</quote></link>">
 <!ENTITY sys-pac "<link linkend='sys-pac'><quote role='package'>SYSTEM</quote></link>">
