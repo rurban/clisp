@@ -337,7 +337,7 @@ ERROR
 (with-c-var (x '(c-array-max character 32) "") x)
 ""
 
-(progn (setq fm (allocate-deep 'c-string "abc" :read-only t)) (type-of fm))
+(type-of (setq fm (allocate-deep 'c-string "abc" :read-only t)))
 FOREIGN-VARIABLE
 
 (foreign-value fm)
@@ -532,5 +532,35 @@ MAKE-FOREIGN-STRING
       (:arguments) (:return-type ffi:c-string) (:language :stdc))
   (stringp (command-line)))
 #+win32 T
+
+(list
+ (def-call-out c-malloc (:arguments (l long))
+   (:name "malloc") (:language :stdc) (:return-type c-pointer)
+   (:library #+(and unix (not cygwin)) "c" #+(or win32 cygwin) "MSVCRT"))
+ (def-call-out c-free (:arguments (p c-pointer))
+   (:name "free") (:language :stdc) (:return-type nil)
+   (:library #+(and unix (not cygwin)) "c" #+(or win32 cygwin) "MSVCRT")))
+(c-malloc c-free)
+
+;; this is ugly and inefficient; if you find yourself doing this,
+;; you probably want to do it in C
+(let ((m (c-malloc 4)) ret)
+  (unwind-protect
+       (with-c-var (v '(c-ptr (c-array uint8 4)))
+         (setf (cast v 'c-pointer) m)
+         (with-c-var (i '(c-ptr uint32))
+           (setf (cast i 'c-pointer) m)
+           (setq i 0)
+           (push v ret)
+           (setq i (1- (ash 1 32)))
+           (push v ret)
+           (setq v #A((unsigned-byte 8) (4) (1 2 3 4)))
+           ;; I depends on endianness!
+           (assert (or (= i (+ (ash 4 24) (ash 3 16) (ash 2 8) 1))
+                       (= i (+ (ash 1 24) (ash 2 16) (ash 3 8) 4)))))
+         (nreverse ret))
+    (c-free m)))
+(#A((unsigned-byte 8) (4) (0 0 0 0))
+ #A((unsigned-byte 8) (4) (255 255 255 255)))
 
 (progn (in-package "USER") (delete-package "FTEST") T) T
