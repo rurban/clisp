@@ -276,7 +276,7 @@ executes a compiled version of form.</para>
 <para>Note that the situations <constant>LOAD</constant> and
  <constant>COMPILE</constant> are deprecated by the spec,
  and they are <emphasis>not</emphasis> equivalent to the new
- standard situations <constant>:LOAD-TOLEVEL</constant>
+ standard situations <constant>:LOAD-TOPLEVEL</constant>
  and <constant>:COMPILE-TOPLEVEL</constant>.</para>
 
 </section>
