@@ -1,5 +1,5 @@
 # Liste aller zusätzlichen dem C-Programm bekannten Packages
-# Bruno Haible 14.9.1997
+# Bruno Haible 1990-1999
 
 # Der Macro LISPPACK deklariert eine LISP-Package.
 # LISPPACK(abbrev,packname)

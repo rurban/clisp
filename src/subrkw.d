@@ -1,5 +1,5 @@
 # Liste aller SUBRs mit Keywords
-# Bruno Haible 14.9.1997
+# Bruno Haible 1990-1999
 
 v(7, (kw(adjustable),kw(element_type),kw(initial_element),
       kw(initial_contents),kw(fill_pointer),

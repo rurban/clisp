@@ -1,6 +1,6 @@
 # Ausgabe aller Definitionen aus lispbibl.d, die an externe Module
 # exportiert werden.
-# Bruno Haible 17.9.1997
+# Bruno Haible 1994-1999
 
 #include "lispbibl.c"
 

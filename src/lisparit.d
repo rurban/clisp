@@ -1,5 +1,5 @@
 # Arithmetik für CLISP
-# Bruno Haible 17.6.1997
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 

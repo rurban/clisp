@@ -1,5 +1,5 @@
 # Liste aller dem C-Programm bekannten Objekte ("Programmkonstanten")
-# Bruno Haible 15.9.1997
+# Bruno Haible 1990-1999
 
 # Die Symbole sind bereits speziell abgehandelt.
 # Es wird eine Tabelle aller sonstigen dem C-Programm bekannten Objekte

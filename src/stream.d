@@ -1,5 +1,5 @@
 # Streams für CLISP
-# Bruno Haible 6.12.1997
+# Bruno Haible 1990-1999
 # Generic Streams: Marcus Daniels 8.4.1994
 
 #include "lispbibl.c"

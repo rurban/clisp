@@ -1,5 +1,5 @@
 # Hilfsfunktionen für CLISP auf UNIX
-# Bruno Haible 3.9.1997
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 

@@ -1,6 +1,6 @@
 # Aus der Speicherverwaltung ausgelagert:
 # Tabelle aller festen Objekte
-# Bruno Haible 10.7.1994
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 

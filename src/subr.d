@@ -1,5 +1,5 @@
 # Liste aller SUBRs
-# Bruno Haible 23.9.1997
+# Bruno Haible 1990-1999
 
 # Eine C-compilierte LISP-Funktion wird definiert durch eine Deklaration
 #   LISPFUN(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)
