@@ -1,0 +1,27 @@
+# This is the developer's makefile, not the user's makefile.
+# Don't use it unless you know exactly what you do!
+
+SHELL = /bin/sh
+MAKE = make
+
+all : autoconf/aclocal.m4 configures
+
+CONFIGURES = configure
+CONFIGURES_IN = configure.in
+
+CLISP_DIR = ..
+ACLOCAL = $(CLISP_DIR)/src/autoconf/aclocal.m4
+ACSELECT = $(CLISP_DIR)/src/autoconf/acselect
+
+autoconf/aclocal.m4 : $(ACLOCAL)
+	$(ACSELECT) `cat $(CONFIGURES_IN) | grep '^[A-Z][A-Z]_' | sed 's,[^A-Z_].*$$,,g' | sort | uniq` < $(ACLOCAL) > autoconf/aclocal.m4
+
+configures : $(CONFIGURES)
+
+AUTOCONF_FILES = autoconf/aclocal.m4 autoconf/acgeneral.m4 autoconf/acspecific.m4
+
+configure : configure.in $(AUTOCONF_FILES)
+	autoconf/autoconf -m autoconf
+
+force :
+

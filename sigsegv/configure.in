@@ -1,0 +1,74 @@
+dnl  AUTOCONF configuration for SIGSEGV
+dnl  Bruno Haible 18.7.1998
+dnl
+AC_INIT(handler.c)
+AC_CONFIG_HEADER(config.h)
+dnl
+dnl           checks for programs
+dnl
+AC_PROG_CC
+                      dnl sets variable CC
+AC_PROG_CPP
+                      dnl sets variable CPP
+dnl
+dnl           checks for UNIX variants that set DEFS
+dnl
+AC_AIX
+                      dnl DEFS _ALL_SOURCE
+AC_ISC_POSIX
+                      dnl DEFS _POSIX_SOURCE, LIBS
+AC_MINIX
+                      dnl DEFS _POSIX_SOURCE, _POSIX_1_SOURCE, _MINIX
+CL_CC_WORKS
+                      dnl final CC check
+dnl
+dnl           checks for programs
+dnl
+CL_PROG_RANLIB
+                      dnl sets variable RANLIB
+CL_PROG_INSTALL
+                      dnl sets variables INSTALL, INSTALL_DATA, INSTALL_PROGRAM
+dnl
+dnl           checks for header files
+dnl
+CL_OPENFLAGS
+                      dnl DEFS OPEN_NEEDS_SYS_FILE_H if sys/file.h is needed for the open() flags
+dnl
+dnl           checks for functions and declarations
+dnl
+CL_MEMSET
+                      dnl DEFS HAVE_MEMSET, RETMEMSETTYPE
+CL_MALLOC
+                      dnl DEFS RETMALLOCTYPE, MALLOC_SIZE_T
+CL_TYPE_SIGNAL
+                      dnl DEFS RETSIGTYPE, SIGTYPE_DOTS
+CL_SIGNALBLOCK
+                      dnl DEFS SIGNALBLOCK_POSIX, SIGNALBLOCK_SYSV, SIGNALBLOCK_BSD
+CL_SIGNAL_REINSTALL
+                      dnl DEFS SIGNAL_NEED_REINSTALL
+CL_SIGNAL_UNBLOCK
+                      dnl DEFS SIGNAL_NEED_UNBLOCK
+CL_SIGNAL_BLOCK_OTHERS
+                      dnl DEFS SIGNAL_NEED_UNBLOCK_OTHERS
+CL_SIGACTION
+                      dnl DEFS HAVE_SIGACTION
+CL_SIGACTION_REINSTALL
+                      dnl DEFS SIGACTION_NEED_REINSTALL
+CL_SIGACTION_UNBLOCK
+                      dnl DEFS SIGACTION_NEED_UNBLOCK
+CL_SIGINTERRUPT
+                      dnl DEFS HAVE_SIGINTERRUPT, HAVE_SIGVEC
+CL_GETPAGESIZE
+                      dnl DEFS HAVE_GETPAGESIZE, RETGETPAGESIZETYPE
+CL_VADVISE
+                      dnl DEFS HAVE_VADVISE
+CL_MACH_VM
+                      dnl DEFS HAVE_MACH_VM
+CL_MMAP
+                      dnl DEFS HAVE_MMAP, RETMMAPTYPE, MMAP_ADDR_T, MMAP_SIZE_T, HAVE_MMAP_ANON, HAVE_MMAP_ANONYMOUS, HAVE_MMAP_DEVZERO, HAVE_MMAP_DEVZERO_SUN4_29
+CL_MPROTECT
+                      dnl DEFS HAVE_MPROTECT, HAVE_WORKING_MPROTECT, MPROTECT_CONST
+dnl
+dnl
+dnl
+AC_OUTPUT(Makefile)

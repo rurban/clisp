@@ -1,0 +1,76 @@
+# Makefile for sigsegv
+
+#### Start of system configuration section. ####
+
+# Directories used by "make":
+srcdir = .
+
+# Directories used by "make install":
+prefix = /usr/local
+local_prefix = /usr/local
+exec_prefix = $(prefix)
+libdir = $(exec_prefix)/lib
+includedir = $(prefix)/include
+mandir = $(exec_prefix)/man
+
+# Programs used by "make":
+CC = cl
+CFLAGS = -O1
+CPP = cl -E
+INCLUDES = -I. -I$(srcdir)
+AR = lib
+AR_FLAGS = /out:
+MV = mv
+LN = cp
+RM = del
+
+# Programs used by "make install":
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+
+#### End of system configuration section. ####
+
+SHELL = /bin/sh
+
+OBJECTS = handler.obj dispatcher.obj
+
+all : sigsegv.lib
+
+handler.obj : $(srcdir)/handler.c $(srcdir)/sigsegv.h
+	$(CC) $(CFLAGS) -c $(srcdir)/handler.c
+
+dispatcher.obj : $(srcdir)/dispatcher.c $(srcdir)/sigsegv.h
+	$(CC) $(CFLAGS) -c $(srcdir)/dispatcher.c
+
+sigsegv.lib : $(OBJECTS)
+	$(RM) sigsegv.lib
+	$(AR) $(AR_FLAGS)sigsegv.lib $(OBJECTS)
+
+test1.exe : $(srcdir)/test1.c $(srcdir)/sigsegv.h sigsegv.lib
+	$(CC) $(CFLAGS) $(srcdir)/test1.c sigsegv.lib /Fetest1
+
+test2.exe : $(srcdir)/test2.c $(srcdir)/sigsegv.h sigsegv.lib
+	$(CC) $(CFLAGS) $(srcdir)/test2.c sigsegv.lib /Fetest2
+
+test3.exe : $(srcdir)/test3.c $(srcdir)/sigsegv.h sigsegv.lib
+	$(CC) $(CFLAGS) $(srcdir)/test3.c sigsegv.lib /Fetest3
+
+check : all test1.exe test2.exe test3.exe
+	test1.exe
+	test2.exe
+	test3.exe
+
+mostlyclean : clean
+
+clean : force
+	$(RM) *.obj *.lib core
+	$(RM) test1.exe test2.exe test3.exe
+
+distclean : clean
+	$(RM) config.status config.log config.cache Makefile config.h
+
+maintainer-clean : distclean
+
+force :
+
