@@ -257,28 +257,28 @@ T
 (unintern 'z)
 T
 
-user::x
+cl-user::x
 1
 
-(eval (read-from-string "user:x"))
+(eval (read-from-string "cl-user:x"))
 ERROR
 
 x
 error
 
-(eq 'x 'user::x)
+(eq 'x 'cl-user::x)
 NIL
 
 (unintern 'x)
 T
 
-(export '(user::x user::y) (find-package 'user))
+(export '(cl-user::x cl-user::y) (find-package 'cl-user))
 T
 
-user::x
+cl-user::x
 1
 
-user:x
+cl-user:x
 1
 
 x
@@ -287,19 +287,19 @@ error
 (unintern 'x)
 T
 
-(import 'user:x (find-package 'editor))
+(import 'cl-user:x (find-package 'editor))
 T
 
 x
 1
 
-(eq 'x 'user::x)
+(eq 'x 'cl-user::x)
 t
 
-(eq 'x 'user:x)
+(eq 'x 'cl-user:x)
 t
 
-(eq 'editor::x 'user::x)
+(eq 'editor::x 'cl-user::x)
 t
 
 ;; unexport
@@ -316,10 +316,10 @@ T
 y
 ERROR
 
-(eval (read-from-string "user:y"))
+(eval (read-from-string "cl-user:y"))
 ERROR
 
-user::y
+cl-user::y
 2
 
 ;; shadowing-import -- zunaechst ohne geerbte symbole!!
@@ -330,10 +330,11 @@ user::y
 (setf d 4 e 5 f 6 y 111 x 222)
 222
 
-(export '(user::a user::b user::c user::y user::x) (find-package 'user))
+(export '(cl-user::a cl-user::b cl-user::c cl-user::y cl-user::x)
+        (find-package 'cl-user))
 T
 
-(import '(user::a user::b user::c user::y) (find-package 'editor))
+(import '(cl-user::a cl-user::b cl-user::c cl-user::y) (find-package 'editor))
 ERROR
 
 (and (make-package 'shadow-test) (in-package "SHADOW-TEST") t)
@@ -342,13 +343,14 @@ T
 (setf x 'shadow-test)
 shadow-test
 
-(shadowing-import '(user::d user::e user::f user::x)(find-package 'shadow-test))
+(shadowing-import '(cl-user::d cl-user::e cl-user::f cl-user::x)
+                  (find-package 'shadow-test))
 T
 
 x
 222
 
-(eq user::x x)
+(eq cl-user::x x)
 T
 
 ; shadow
@@ -359,16 +361,16 @@ t
 (setf e 'shadow-test-e)
 shadow-test-e
 
-(eq 'e 'user::e)
+(eq 'e 'cl-user::e)
 #+XCL nil #-XCL t
 
 e
 shadow-test-e
 
-(eval (read-from-string "user:e"))
+(eval (read-from-string "cl-user:e"))
 error
 
-user::e
+cl-user::e
 #+XCL 5 #-XCL shadow-test-e
 
 ; use-package | unuse-package
@@ -376,25 +378,25 @@ user::e
 (and (make-package 'use-test) (in-package "USE-TEST") t)
 t
 
-(use-package '(user))
+(use-package '(cl-user))
 T
 
-user::d
+cl-user::d
 4
 
-(eval (read-from-string "user:d"))
+(eval (read-from-string "cl-user:d"))
 #+XCL 4 #-XCL ERROR
 
 d
 ERROR
 
-(unuse-package 'user)
+(unuse-package 'cl-user)
 T
 
-user::d
+cl-user::d
 4
 
-(eval (read-from-string "user:d"))
+(eval (read-from-string "cl-user:d"))
 ERROR
 
 d
@@ -460,13 +462,13 @@ c
 CL:T
 
 ; find-all-symbols fehlerhaft
-(and (member 'user::x (setf s (find-all-symbols 'x)))T)
+(and (member 'cl-user::x (setf s (find-all-symbols 'x)))T)
 T
 
 (eval (read-from-string "(and (member 'editor:x s) t)"))
 #+XCL T #-XCL ERROR
 
-(and (member 'user::x (setf s1 (find-all-symbols 'x)))T)
+(and (member 'cl-user::x (setf s1 (find-all-symbols 'x)))T)
 T
 
 (set-difference s s1)
@@ -480,10 +482,10 @@ nil                              ;Ende Kommentar
 )
 nil
 
-(do-symbols (s (find-package 'user))(push (symbol-name s) sym))
+(do-symbols (s (find-package 'cl-user))(push (symbol-name s) sym))
 nil
 
-(do-external-symbols (s (find-package 'user))(push (symbol-name s) esym))
+(do-external-symbols (s (find-package 'cl-user))(push (symbol-name s) esym))
 nil
 
 (do-all-symbols (s)(push (symbol-name s) asym))
