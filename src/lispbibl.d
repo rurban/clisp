@@ -7851,7 +7851,7 @@ extern object object_out (object obj);
    obj=object_out(obj))
 /* print the object to a C stream - not all objects can be handled yet!
  non-consing, STACK non-modifying */
-extern void nobject_out (FILE* out, object obj);
+extern object nobject_out (FILE* out, object obj);
 # used for debugging purposes
 
 # After allocating memory for an object, add the type infos.
@@ -9452,7 +9452,6 @@ re-enters the corresponding top-level loop.
   #define STACKop      +
   #define cmpSTACKop   <
   #define STACKblock_(type,n)  (((type*)STACK)[(sintP)(n)])
-  #define STACK_diff(s1,s2)   ((s2)-(s1))
 #endif
 #ifdef STACK_UP
   #define STACK_(n)  (STACK[-1-(sintP)(n)])
@@ -9461,7 +9460,6 @@ re-enters the corresponding top-level loop.
   #define STACKop      -
   #define cmpSTACKop   >
   #define STACKblock_(type,n)  (((type*)STACK)[-1-(sintP)(n)])
-  #define STACK_diff(s1,s2)   ((s1)-(s2))
 #endif
 #define pushSTACK(obj)  (STACK_(-1) = (obj), STACK skipSTACKop -1)
   # Almost equivalent with *--STACK = obj  resp.  *STACK++ = obj  , but

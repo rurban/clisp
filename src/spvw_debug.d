@@ -49,7 +49,7 @@ local void string_out (FILE* out, object str, object encoding) {
 #endif
 
 /* non-consing, STACK non-modifying */
-global void nobject_out (FILE* out, object obj) {
+global object nobject_out (FILE* out, object obj) {
   if (out == NULL) out = stdout;
   if (stringp(obj)) {
     fputc('"',out);
@@ -167,6 +167,7 @@ global void nobject_out (FILE* out, object obj) {
             varobject_type(TheVarobject(obj)),ThePointer(obj));
   else fprintf(out,"#<huh?! address=%u>",ThePointer(obj));
   fflush(out);
+  return obj;
 }
 
 /* use (struct backtrace_t*) and not p_backtrace_t
@@ -189,8 +190,9 @@ local uintL back_trace_out (FILE* out, const struct backtrace_t *bt) {
       fprintf(out," %d args",bt->bt_num_arg);
     if (bt->bt_next)
       fprintf(out," delta: STACK=%d; SP=%d",
-              STACK_diff(bt->bt_stack,bt->bt_next->bt_stack),
-              -STACK_diff(bt,bt->bt_next));
+              STACK_item_count(bt->bt_stack,bt->bt_next->bt_stack),
+              /* SP and STACK go in the opposite directions: */
+              STACK_item_count(bt->bt_next,bt));
     fputc('\n',out);
     if (bt == bt->bt_next) {
       fprintf(out,"*** error: circularity detected!\n");
