@@ -51,8 +51,8 @@ FFIILLEESS
                aammiiggaa..dd        include file for Amiga/AmigaOS ver-
                               sion
 
-               aammiiggaa22..dd       second     include     file     for
-                              Amiga/AmigaOS version
+               aammiiggaa22..dd       second  include file for Amiga/Ami-
+                              gaOS version
 
                mmssddooss..dd        include file  for  MS-DOS  or  OS/2
                               based versions
@@ -61,7 +61,7 @@ FFIILLEESS
 
 
 
-                         19 January 1999                        1
+                           17 July 1999                         1
 
 
 
@@ -127,7 +127,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
 
-                         19 January 1999                        2
+                           17 July 1999                         2
 
 
 
@@ -193,7 +193,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
 
-                         19 January 1999                        3
+                           17 July 1999                         3
 
 
 
@@ -259,7 +259,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
 
-                         19 January 1999                        4
+                           17 July 1999                         4
 
 
 
@@ -310,28 +310,34 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
                aarriissppaarrcc..dd          written in SPARC assembler
 
+               aarriissppaarrcc6644..dd        written in 64-bit SPARC assem-
+                                   bler
+
                aarrii8800338866..dd          written in i386/i486 assembler
 
                aarriimmiippss..dd           written in MIPS assembler
 
+               aarriimmiippss6644..dd         written  in 64-bit MIPS assem-
+                                   bler
+
                aarriihhppppaa..dd           written in HPPA-1.0 assembler
 
-               aarriivvaaxxuunniixx..dd        written in VAX assembler, Unix
-                                   assembler syntax
-
-               aarriiaarrmm..dd            written in ARM assembler
 
 
 
-
-
-                         19 January 1999                        5
+                           17 July 1999                         5
 
 
 
 
 
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
+
+
+               aarriivvaaxxuunniixx..dd        written in VAX assembler, Unix
+                                   assembler syntax
+
+               aarriiaarrmm..dd            written in ARM assembler
 
 
            External  routines  for  accessing the stack, written
@@ -342,6 +348,9 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
                ssppssppaarrcc..dd           written in SPARC assembler
 
+               ssppssppaarrcc6644..dd         written in 64-bit SPARC assem-
+                                   bler
+
                sspp8800338866..dd           written in i386/i486 assembler
 
                ssppmmiippss..dd            written in MIPS assembler
@@ -349,10 +358,6 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
        Other assembly language stuff:
-
-           cccc__ssppaarrcc..iill
-                  lisp  stack  access in SPARC assembler, for use
-                  with Sun's cc
 
            aassmmii338866..sshh
                   converts i386 assembler from MIT  syntax  to  a
@@ -382,16 +387,11 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            mmaaccrrooss11..llsspp
                   the most important macros
 
-           mmaaccrrooss22..llsspp
-                  some other macros
-
-           ddeeffss11..llsspp
-                  miscellaneous definitions
 
 
 
 
-                         19 January 1999                        6
+                           17 July 1999                         6
 
 
 
@@ -399,6 +399,12 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
+
+           mmaaccrrooss22..llsspp
+                  some other macros
+
+           ddeeffss11..llsspp
+                  miscellaneous definitions
 
            ttiimmeezzoonnee..llsspp
                   site-dependent  definition of time zone, except
@@ -448,16 +454,10 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
                   ccffggaaccoorrnn..llsspp   for Acorn, using RiscOS
 
-           ccoommppiilleerr..llsspp
-                  compiles lisp code to bytecode
-
-           ddiissaasssseemm..llsspp
-                  disassembles machine code
 
 
 
-
-                         19 January 1999                        7
+                           17 July 1999                         7
 
 
 
@@ -465,6 +465,12 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
+
+           ccoommppiilleerr..llsspp
+                  compiles lisp code to bytecode
+
+           ddiissaasssseemm..llsspp
+                  disassembles machine code
 
            ddeeffss22..llsspp
                   miscellaneous CLtL2 compatible definitions
@@ -515,15 +521,9 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            CCHHAANNGGEESS..LLOOGG
                   lists the changes to the source
 
-           NNEEWWSS   lists the user visible changes
-
-           __RREEAADDMMEE
-                  master for the distribution's README
 
 
-
-
-                         19 January 1999                        8
+                           17 July 1999                         8
 
 
 
@@ -531,6 +531,11 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
+
+           NNEEWWSS   lists the user visible changes
+
+           __RREEAADDMMEE
+                  master for the distribution's README
 
            __RREEAADDMMEE..eenn, __RREEAADDMMEE..ddee, __RREEAADDMMEE..eess
                   translations of ___R_E_A_D_M_E
@@ -580,16 +585,11 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                   _a_u_t_o_c_o_n_f's driver macros.  Part  of  GNU  auto-
                   conf-2.13
 
-           aauuttooccoonnff//aaccggeenneerraall..mm44
-                  _a_u_t_o_c_o_n_f's   general  feature  testing  macros.
-                  Part of GNU autoconf-2.13
-
-           aauuttooccoonnff//aaccssppeecciiffiicc..mm44
-                  macros that test for  some  standard  features.
 
 
 
-                         19 January 1999                        9
+
+                           17 July 1999                         9
 
 
 
@@ -598,6 +598,12 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
+           aauuttooccoonnff//aaccggeenneerraall..mm44
+                  _a_u_t_o_c_o_n_f's   general  feature  testing  macros.
+                  Part of GNU autoconf-2.13
+
+           aauuttooccoonnff//aaccssppeecciiffiicc..mm44
+                  macros that test for  some  standard  features.
                   Part of GNU autoconf-2.13
 
            aauuttooccoonnff//aaccllooccaall..mm44
@@ -649,12 +655,6 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
 
-
-
-
-
-
-
-                         19 January 1999                       10
+                           17 July 1999                        10
 
 

@@ -1175,13 +1175,13 @@ s.control : c.control c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constob
 o.control : c.control c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
 	$(CC) $(CFLAGS) -c c.control
 
-i.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_koi8_r c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep
+i.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_koi8_r c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep
 	$(CPP) $(CFLAGS) c.encoding > i.encoding
 
-s.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_koi8_r c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep
+s.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_koi8_r c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep
 	$(CC) $(CFLAGS) -S c.encoding
 
-o.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_koi8_r c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep
+o.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_koi8_r c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep
 	$(CC) $(CFLAGS) -c c.encoding
 
 i.pathname : c.pathname c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
@@ -1408,132 +1408,132 @@ lsp.config : lsp.cfgacorn
 
 mem.interpre : lisp $(LSPFILES)
 	-$(RM) mem.interpre
-	/@.lisp -m 750KW -B . -norc -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"
+	/@.lisp -m 750KW -B . -Efile ISO-8859-1 -norc -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"
 	$(MV) mem.lispimag mem.interpre
 
 fas.init : lsp.init lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c init.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c init.lsp
 
 fas.defseq : lsp.defseq lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c defseq.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c defseq.lsp
 
 fas.backquot : lsp.backquot lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c backquot.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c backquot.lsp
 
 fas.defmacro : lsp.defmacro lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c defmacro.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c defmacro.lsp
 
 fas.macros1 : lsp.macros1 lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c macros1.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c macros1.lsp
 
 fas.macros2 : lsp.macros2 lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c macros2.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c macros2.lsp
 
 fas.defs1 : lsp.defs1 lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c defs1.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c defs1.lsp
 
 fas.timezone : lsp.timezone lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c timezone.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c timezone.lsp
 
 fas.places : lsp.places lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c places.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c places.lsp
 
 fas.floatpri : lsp.floatpri lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c floatpri.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c floatpri.lsp
 
 fas.type : lsp.type lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c type.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c type.lsp
 
 fas.defstruc : lsp.defstruc lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c defstruc.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c defstruc.lsp
 
 fas.format : lsp.format lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c format.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c format.lsp
 
 fas.savemem : lsp.savemem lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c savemem.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c savemem.lsp
 
 fas.trace : lsp.trace lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c trace.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c trace.lsp
 
 fas.compiler : lsp.compiler lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c compiler.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c compiler.lsp
 
 fas.disassem : lsp.disassem lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c disassem.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c disassem.lsp
 
 fas.defs2 : lsp.defs2 lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c defs2.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c defs2.lsp
 
 fas.loop : lsp.loop lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c loop.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c loop.lsp
 
 fas.clos : lsp.clos lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c clos.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c clos.lsp
 
 fas.conditio : lsp.conditio lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c conditio.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c conditio.lsp
 
 fas.gstream : lsp.gstream lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c gstream.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c gstream.lsp
 
 fas.xcharin : lsp.xcharin lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c xcharin.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c xcharin.lsp
 
 fas.keyboard : lsp.keyboard lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c keyboard.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c keyboard.lsp
 
 fas.screen : lsp.screen lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c screen.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c screen.lsp
 
 fas.runprog : lsp.runprog lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c runprog.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c runprog.lsp
 
 fas.query : lsp.query lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c query.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c query.lsp
 
 fas.reploop : lsp.reploop lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c reploop.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c reploop.lsp
 
 fas.dribble : lsp.dribble lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c dribble.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c dribble.lsp
 
 fas.complete : lsp.complete lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c complete.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c complete.lsp
 
 fas.describe : lsp.describe lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c describe.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c describe.lsp
 
 fas.room : lsp.room lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c room.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c room.lsp
 
 fas.edit : lsp.edit lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c edit.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c edit.lsp
 
 fas.macros3 : lsp.macros3 lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c macros3.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c macros3.lsp
 
 fas.foreign1 : lsp.foreign1 lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c foreign1.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c foreign1.lsp
 
 fas.defs3 : lsp.defs3 lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c defs3.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c defs3.lsp
 
 fas.german : lsp.german lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c german.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c german.lsp
 
 fas.french : lsp.french lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c french.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c french.lsp
 
 fas.spanish : lsp.spanish lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c spanish.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c spanish.lsp
 
 fas.config : lsp.config lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -norc -q -c config.lsp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c config.lsp
 
 mem.halfcomp : lisp $(LSPFILES) fas.compiler
 	-$(RM) mem.interpre
-	/@.lisp -m 750KW -B . -norc -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"
+	/@.lisp -m 750KW -B . -Efile ISO-8859-1 -norc -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"
 	$(MV) mem.lispimag mem.interpre
 	$(TOUCH) mem.interpre
 	$(TOUCH) fas.compiler
@@ -1541,7 +1541,7 @@ mem.halfcomp : lisp $(LSPFILES) fas.compiler
 
 mem.lispinit : lisp $(FASFILES)
 	-$(RM) mem.lispinit
-	/@.lisp -B . -norc -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"
+	/@.lisp -B . -Efile ISO-8859-1 -norc -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"
 	$(MV) mem.lispimag mem.lispinit
 
 
@@ -1677,127 +1677,127 @@ stage.lsp.config : lsp.config
 	$(LN) lsp.config stage
 
 stage.fas.init : stage.lsp.init lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.init.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.init.lsp
 
 stage.fas.defseq : stage.lsp.defseq lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.defseq.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.defseq.lsp
 
 stage.fas.backquot : stage.lsp.backquot lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.backquot.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.backquot.lsp
 
 stage.fas.defmacro : stage.lsp.defmacro lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.defmacro.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.defmacro.lsp
 
 stage.fas.macros1 : stage.lsp.macros1 lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.macros1.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.macros1.lsp
 
 stage.fas.macros2 : stage.lsp.macros2 lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.macros2.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.macros2.lsp
 
 stage.fas.defs1 : stage.lsp.defs1 lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.defs1.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.defs1.lsp
 
 stage.fas.timezone : stage.lsp.timezone lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.timezone.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.timezone.lsp
 
 stage.fas.places : stage.lsp.places lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.places.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.places.lsp
 
 stage.fas.floatpri : stage.lsp.floatpri lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.floatpri.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.floatpri.lsp
 
 stage.fas.type : stage.lsp.type lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.type.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.type.lsp
 
 stage.fas.defstruc : stage.lsp.defstruc lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.defstruc.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.defstruc.lsp
 
 stage.fas.format : stage.lsp.format lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.format.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.format.lsp
 
 stage.fas.savemem : stage.lsp.savemem lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.savemem.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.savemem.lsp
 
 stage.fas.trace : stage.lsp.trace lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.trace.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.trace.lsp
 
 stage.fas.compiler : stage.lsp.compiler lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.compiler.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.compiler.lsp
 
 stage.fas.disassem : stage.lsp.disassem lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.disassem.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.disassem.lsp
 
 stage.fas.defs2 : stage.lsp.defs2 lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.defs2.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.defs2.lsp
 
 stage.fas.loop : stage.lsp.loop lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.loop.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.loop.lsp
 
 stage.fas.clos : stage.lsp.clos lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.clos.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.clos.lsp
 
 stage.fas.conditio : stage.lsp.conditio lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.conditio.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.conditio.lsp
 
 stage.fas.gstream : stage.lsp.gstream lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.gstream.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.gstream.lsp
 
 stage.fas.xcharin : stage.lsp.xcharin lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.xcharin.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.xcharin.lsp
 
 stage.fas.keyboard : stage.lsp.keyboard lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.keyboard.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.keyboard.lsp
 
 stage.fas.screen : stage.lsp.screen lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.screen.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.screen.lsp
 
 stage.fas.runprog : stage.lsp.runprog lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.runprog.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.runprog.lsp
 
 stage.fas.query : stage.lsp.query lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.query.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.query.lsp
 
 stage.fas.reploop : stage.lsp.reploop lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.reploop.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.reploop.lsp
 
 stage.fas.dribble : stage.lsp.dribble lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.dribble.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.dribble.lsp
 
 stage.fas.complete : stage.lsp.complete lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.complete.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.complete.lsp
 
 stage.fas.describe : stage.lsp.describe lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.describe.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.describe.lsp
 
 stage.fas.room : stage.lsp.room lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.room.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.room.lsp
 
 stage.fas.edit : stage.lsp.edit lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.edit.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.edit.lsp
 
 stage.fas.macros3 : stage.lsp.macros3 lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.macros3.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.macros3.lsp
 
 stage.fas.foreign1 : stage.lsp.foreign1 lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.foreign1.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.foreign1.lsp
 
 stage.fas.defs3 : stage.lsp.defs3 lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.defs3.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.defs3.lsp
 
 stage.fas.german : stage.lsp.german lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.german.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.german.lsp
 
 stage.fas.french : stage.lsp.french lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.french.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.french.lsp
 
 stage.fas.spanish : stage.lsp.spanish lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.spanish.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.spanish.lsp
 
 stage.fas.config : stage.lsp.config lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -norc -q -c stage.config.lsp
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.config.lsp
 
 mem.lispinit2 : lisp $(TESTFASFILES)
-	/@.lisp -B . -norc -x "(cd \"stage.\") (load \"init.fas\") (cd \"^.\") (sys::%saveinitmem) (exit)"
+	/@.lisp -B . -Efile ISO-8859-1 -norc -x "(cd \"stage.\") (load \"init.fas\") (cd \"^.\") (sys::%saveinitmem) (exit)"
 	-$(RM) mem.lispinit2
 	$(MV) mem.lispimag mem.lispinit2
 
