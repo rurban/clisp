@@ -1,7 +1,7 @@
 2001-06-27  Sam Steingold  <sds@gnu.org>
 
-	command-oriented-history
-	* constobj.d (*TERMINAL-READ-OPEN-OBJECT*): added
+	command-oriented-history-1
+	* constsym.d (*TERMINAL-READ-OPEN-OBJECT*): added
 	* spvw.d (*TERMINAL-READ-OPEN-OBJECT*): define
 	* lispbibl.d (terminal_stream_p): declare
 	* stream.d (terminal_stream_p): define
