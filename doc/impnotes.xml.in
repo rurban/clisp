@@ -100,8 +100,8 @@
 </preface>
 
 <toc>
-<tocpart><tocentry><ulink url="&clhs;/FrontMatter/Chapter-Index.html">CLHS
-   Chapters</ulink></tocentry>
+<tocpart><tocentry linkend="clhs-chapters">Chapters of the &hyperspec;
+  <ulink url="&clhs;/FrontMatter/Chapter-Index.html">[CLHS]</ulink></tocentry>
  <tocentry linkend="intro">Introduction
    <ulink url="&clhs;/Body/chap-1.html">[CLHS-1]</ulink></tocentry>
  <tocentry linkend="syntax">Syntax
@@ -160,8 +160,12 @@
    <ulink url="&clhs;/Issues/Issues-Categorized.html">[CLHS-ic]</ulink></tocentry>
 </tocpart>
 
-<tocpart><tocentry linkend="extensions"></tocentry>
+<!--
+<tocpart><tocentry linkend="bytecode">Bytecode Specification</tocentry>
+</tocpart>
+-->
 
+<tocpart><tocentry linkend="extensions">Extensions</tocentry>
  <tocchap><tocentry linkend="p-indep">
    [Platform-independent Extensions]</tocentry>
    <tocentry linkend="image">[Saving an Image]</tocentry>
@@ -193,9 +197,13 @@
 </tocpart>
 </toc>
 
+<part id="clhs-chapters"><title>&hyperspec; Chapters</title>
+
 &imp-body;
 
 &imp-issues;
+
+</part>
 
 &imp-ext;
 
