@@ -148,16 +148,15 @@
               var object key = Car(Car(alist));
               var uintL len = Sstring_length(key);
               # check whether the line starts with the key and a whitespace
-              # BUG: if len > input_len, overrun of line, may crash!
-              if (string_eqcomp_ci(line,0,key,0,len)) {
+              if ((len <= input_len) && string_eqcomp_ci(line,0,key,0,len)) {
                 if (len == input_len) goto found;
                 # now len < input_len
                 var cint ch;
                 SstringDispatch(line,
                  { ch = as_cint(TheSstring(line)->data[len]); },
                  { ch = as_cint(as_chart(TheSmallSstring(line)->data[len])); });
-                if (ch == '\t' || ch == '\n' || ch == ' '
-                    || ch == '\r' || ch == '\f' || ch == '\v') {
+                if (ch == '\t' || ch == '\n' || ch == ' ' ||
+                    ch == '\r' || ch == '\f' || ch == '\v') {
                  found:
                   funcall(Cdr(Car(alist)),0); # call the appropriate function
                   dynamic_unbind(); # S(key_bindings)
