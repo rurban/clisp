@@ -29,6 +29,10 @@ User visible changes
 
 * Readline is now used properly on Cygwin/X11.
 
+* Command line interface: the initial verbosity level is controlled
+  by the pair of mutually cancelling options -q/-v.
+  See <http://clisp.cons.org/clisp.html#opt-verbose> for details.
+
 
 2.31 (2003-09-01)
 =================

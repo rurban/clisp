@@ -64,9 +64,11 @@
   [ <a href="#opt-locale"><code>-N</code> <var>localedir</var></a> ]
   [ <a href="#opt-enc"><code>-E</code><var>domain</var>
        <var>encoding</var></a> ]
-  [ <a href="#opt-quiet"><code>-q</code></a> |
-    <a href="#opt-quiet"><code>--quiet</code></a> |
-    <a href="#opt-quiet"><code>--silent</code></a> ]
+  [ <a href="#opt-verbose"><code>-q</code></a> |
+    <a href="#opt-verbose"><code>--quiet</code></a> |
+    <a href="#opt-verbose"><code>--silent</code></a> |
+    <a href="#opt-verbose"><code>-v</code></a> |
+    <a href="#opt-verbose"><code>--verbose</code></a> ]
   [ <a href="#opt-interactive-debug"><code>-interactive-debug</code></a> ]
   [ <a href="#opt-repl"><code>-repl</code></a> ]
   [ <a href="#opt-wait"><code>-w</code></a> ]
@@ -75,9 +77,6 @@
   [ <a href="#opt-traditional"><code>-traditional</code></a> ]
   [ <a href="#opt-pack"><code>-p</code> <var>packagename</var></a> ]
   [ <a href="#opt-load-comp"><code>-C</code></a> ]
-  [ <a href="#opt-verbose"><code>-v</code></a> |
-    <a href="#opt-verbose"><code>-verbose</code></a> |
-    <a href="#opt-verbose"><code>--verbose</code></a> ]
   [ <a href="#opt-norc"><code>-norc</code></a> ]
   [ <a href="#opt-init"><code>-i</code> <var>initfile</var> ...</a> ]
   [ <a href="#opt-compile"><code>-c</code></a>
@@ -264,18 +263,32 @@ which depends on the environment variables <code>LC_ALL</code>,
  or <a href="impnotes.html#image">init-function</a>
  to set them on startup.<p/></dd>
 
-<dt id="opt-quiet"><strong><code>-q</code></strong>,
+<dt id="opt-verbose"><strong><code>-q</code></strong>,
     <strong><code>--quiet</code></strong>,
-    <strong><code>--silent</code></strong></dt>
-<dd>Quiet: <code>clisp</code> displays no banner at startup and no
- good-bye message when quitting.
- Additional <code>-q</code> sets variables
+    <strong><code>--silent</code></strong>,
+    <strong><code>-v</code></strong>,
+    <strong><code>--verbose</code></strong></dt>
+<dd>Change verbosity level: by default, <code>clisp</code>
+displays a banner at startup and a good-bye message when quitting,
+and initializes
  <a href="CLHSROOT/Body/var_stload-pr_ad-verbosest.html"
     ><code>*load-verbose*</code></a> and
  <a href="CLHSROOT/Body/var_stcompile_le-verbosest.html"
     ><code>*compile-verbose*</code></a>
- to <code>nil</code>.
-Note that this setting persists into the read-eval-print loop.<p/></dd>
+ to <code>t</code>, and
+ <a href="CLHSROOT/Body/var_stload-pr_ad-verbosest.html"
+    ><code>*load-print*</code></a> and
+ <a href="CLHSROOT/Body/var_stcompile_le-verbosest.html"
+    ><code>*compile-print*</code></a>
+ to <code>nil</code>, as per the ANSI CL standard.
+ The first <code>-q</code> removes the banner and the good-bye message,
+ the second sets variables <code>*load-verbose*</code>
+ and <code>*compile-verbose*</code> to <code>nil</code>.
+ <code>-v</code> sets variables <code>*load-print*</code>
+ and <code>*compile-print*</code> to <code>t</code>.
+ Repeated <code>-q</code> and <code>-v</code> cancel each other, i.e.,
+ <code>-q -q -v -v -v</code> is equivalent to <code>-v</code>.
+ Note that these settings persists into the read-eval-print loop.</dd>
 
 <dt id="opt-interactive-debug"><code>-interactive-debug</code></dt>
 <dd>Override the batch mode imposed by
@@ -338,19 +351,6 @@ The default is the package which was active when the image was
 will be set to <code>t</code>.
 Code being <code>load</code>ed will then be compiled on the fly.
 This results in slower loading, but faster execution.<p/></dd>
-
-<dt id="opt-verbose"><strong><code>-v</code></strong>,
- <strong><code>-verbose</code></strong>,
- <strong><code>--verbose</code></strong></dt>
-<dd>Verbose loading (with <a href="#opt-init"><code>-i</code></a>)
- and compiling (with <a href="#opt-compile"><code>-c</code></a>);
- this sets variables
- <a href="CLHSROOT/Body/var_stload-pr_ad-verbosest.html"
-    ><code>*load-print*</code></a> and
- <a href="CLHSROOT/Body/var_stcompile_le-verbosest.html"
-    ><code>*compile-print*</code></a>
- to <code>t</code>.
- Note that this setting persists into the read-eval-print loop.</dd>
 
 <dt id="opt-norc"><strong><code>-norc</code></strong></dt>
 <dd>Normally <code>clisp</code> loads a user run control (RC) file on
