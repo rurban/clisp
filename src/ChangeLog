@@ -1,3 +1,8 @@
+2004-10-09  Bruno Haible  <bruno@clisp.org>
+
+	* clos-slots2.lisp (slot-unbound): Restore the error message that was
+	thrown away on 2003-05-01.
+
 2004-10-08  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	Usable control of sharing of FFI pointer validity (aka extent)
