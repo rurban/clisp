@@ -259,21 +259,35 @@ LISPFUN(digit_char,seclass_foldable,1,1,norest,nokey,0,NIL)
 LISPFUNNF(char_int,1)
 LISPFUNNF(int_char,1)
 LISPFUNNF(char_name,1)
+LISPFUNNF(char_invertcase,1)
+LISPFUNNR(string_invertcase,1)
 LISPFUNNR(char,2)
 LISPFUNNR(schar,2)
 LISPFUNN(store_char,3)
 LISPFUNN(store_schar,3)
 LISPFUN(string_gleich,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
+LISPFUN(cs_string_gleich,seclass_read,2,0,norest,key,4,
+        (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(string_ungleich,seclass_read,2,0,norest,key,4,
+        (kw(start1),kw(end1),kw(start2),kw(end2)) )
+LISPFUN(cs_string_ungleich,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(string_kleiner,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
+LISPFUN(cs_string_kleiner,seclass_read,2,0,norest,key,4,
+        (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(string_groesser,seclass_read,2,0,norest,key,4,
+        (kw(start1),kw(end1),kw(start2),kw(end2)) )
+LISPFUN(cs_string_groesser,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(string_klgleich,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
+LISPFUN(cs_string_klgleich,seclass_read,2,0,norest,key,4,
+        (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(string_grgleich,seclass_read,2,0,norest,key,4,
+        (kw(start1),kw(end1),kw(start2),kw(end2)) )
+LISPFUN(cs_string_grgleich,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(string_equal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
@@ -293,7 +307,7 @@ LISPFUN(search_string_equal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
         (kw(initial_element),kw(element_type)) )
-LISPFUNNR(string_both_trim,3)
+LISPFUNNR(string_both_trim,4)
 LISPFUN(string_width,seclass_default,1,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(nstring_upcase,seclass_default,1,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(string_upcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
@@ -304,6 +318,7 @@ LISPFUN(nstring_capitalize,seclass_default,1,0,norest,key,2,
         (kw(start),kw(end)) )
 LISPFUN(string_capitalize,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUNNR(string,1)
+LISPFUNNR(cs_string,1)
 LISPFUNNR(name_char,1)
 LISPFUN(substring,seclass_read,2,1,norest,nokey,0,NIL)
 LISPFUN(string_concat,seclass_read,0,0,rest,nokey,0,NIL)
@@ -696,6 +711,7 @@ LISPFUNNR(package_shadowing_symbols,1)
 LISPFUNNR(package_lock,1)
 LISPFUNNR(package_shortest_name,1)
 LISPFUNNR(package_case_sensitive_p,1)
+LISPFUNNR(package_case_inverted_p,1)
 LISPFUNNR(package_documentation,1)
 LISPFUNN(set_package_documentation,2)
 LISPFUNN(set_package_lock,2)
@@ -703,7 +719,9 @@ LISPFUNN(symbol_value_lock,1)
 LISPFUNN(check_package_lock,3)
 LISPFUNNR(list_all_packages,0)
 LISPFUN(intern,seclass_default,1,1,norest,nokey,0,NIL)
+LISPFUN(cs_intern,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUN(find_symbol,seclass_read,1,1,norest,nokey,0,NIL)
+LISPFUN(cs_find_symbol,seclass_read,1,1,norest,nokey,0,NIL)
 LISPFUN(unintern,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUN(export,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUN(unexport,seclass_default,1,1,norest,nokey,0,NIL)
@@ -711,14 +729,18 @@ LISPFUNN(re_export,2)
 LISPFUN(import,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUN(shadowing_import,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUN(shadow,seclass_default,1,1,norest,nokey,0,NIL)
+LISPFUN(cs_shadow,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUN(use_package,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUN(unuse_package,seclass_default,1,1,norest,nokey,0,NIL)
-LISPFUN(make_package,seclass_default,1,0,norest,key,3,
-        (kw(nicknames),kw(use),kw(case_sensitive)) )
-LISPFUN(pin_package,seclass_default,1,0,norest,key,3,
-        (kw(nicknames),kw(use),kw(case_sensitive)) )
+LISPFUN(make_package,seclass_default,1,0,norest,key,4,
+        (kw(nicknames),kw(use),kw(case_sensitive),kw(case_inverted)) )
+LISPFUN(cs_make_package,seclass_default,1,0,norest,key,4,
+        (kw(nicknames),kw(use),kw(case_sensitive),kw(case_inverted)) )
+LISPFUN(pin_package,seclass_default,1,0,norest,key,4,
+        (kw(nicknames),kw(use),kw(case_sensitive),kw(case_inverted)) )
 LISPFUNN(delete_package,1)
 LISPFUNNR(find_all_symbols,1)
+LISPFUNNR(cs_find_all_symbols,1)
 LISPFUNN(map_symbols,2)
 LISPFUNN(map_external_symbols,2)
 LISPFUNN(map_all_symbols,1)
@@ -1191,6 +1213,7 @@ LISPFUNN(remprop,2)
 LISPFUNNR(symbol_package,1)
 LISPFUNNR(symbol_plist,1)
 LISPFUN(symbol_name,seclass_no_se,1,0,norest,nokey,0,NIL)
+LISPFUNNR(cs_symbol_name,1)
 LISPFUNNR(keywordp,1)
 LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
 /* ---------- LISPARIT ---------- */

@@ -1,3 +1,7 @@
+2004-12-12  Bruno Haible  <bruno@clisp.org>
+
+	* characters.tst: Add test of sys::char-invertcase.
+
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
 	* eval20.tst: Add more constantp tests.

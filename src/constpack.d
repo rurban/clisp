@@ -1,5 +1,5 @@
 # Liste aller zusätzlichen dem C-Programm bekannten Packages
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2004
 
 # Der Macro LISPPACK deklariert eine LISP-Package.
 # LISPPACK(abbrev,packname)
@@ -12,7 +12,7 @@
 
 # Expander für die Konstruktion der Liste O(all_packages):
   #define LISPPACK_B(abbrev,packname)  \
-    make_package(ascii_to_string(packname),NIL,false);
+    make_package(ascii_to_string(packname),NIL,false,false);
 
 # Welcher Expander benutzt wird, muss vom Hauptfile aus eingestellt werden.
 

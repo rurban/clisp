@@ -119,7 +119,9 @@
          (xstring (object)
            (if (pathnamep object)
              (namestring (absolute-pathname object))
-             (string object))))
+             (if (symbolp object)
+               (princ-to-string object)
+               (string object)))))
   #+WIN32
   (defun execute (programfile &rest arguments)
     (shell

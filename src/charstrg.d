@@ -2025,6 +2025,144 @@ LISPFUNNF(char_name,1)
 }
 
 
+/* Support for case-inverted packages. */
+
+/* Converts a character to opposite case.
+ invert_case(ch)
+ > ch: a character
+ < result: a character, either ch or up_case(ch) or down_case(ch)
+ Note that always invert_case(invert_case(ch)) == ch. */
+global chart invert_case (chart ch) {
+  var chart up = up_case(ch);
+  if (!chareq(ch,up))
+    return up;
+  var chart down = down_case(ch);
+  if (!chareq(ch,down))
+    return down;
+  return ch;
+}
+
+/* (SYS::CHAR-INVERTCASE char) */
+LISPFUNNF(char_invertcase,1)
+{
+  var object arg = check_char(popSTACK());
+  VALUES1(code_char(invert_case(char_code(arg))));
+}
+
+/* UP: compares two strings of equal length for equality modulo case-invert
+ > string1,offset1: here are the addressed characters in string1
+ > string2,offset2: here are the addressed characters in string2
+ > len: number of addressed characters in String1 and in String2, > 0
+ < result: true if equal, else false. */
+local bool string_eqcomp_inverted (object string1, uintL offset1, object string2,
+                                   uintL offset2, uintL len) {
+  SstringDispatch(string1,X1, {
+    var const cintX1* charptr1 = &((SstringX1)TheVarobject(string1))->data[offset1];
+    SstringDispatch(string2,X2, {
+      var const cintX2* charptr2 = &((SstringX2)TheVarobject(string2))->data[offset2];
+      do {
+        if (!chareq(invert_case(as_chart(*charptr1++)),as_chart(*charptr2++)))
+          goto no;
+      } while (--len);
+    });
+  });
+  return true;
+ no: return false;
+}
+
+/* UP: compares two strings for equality modulo case-invert
+ string_gleich_inverted(string1,string2)
+ > string1: string
+ > string2: simple-string
+ < result: /=0, if equal modulo case-invert */
+global bool string_gleich_inverted (object string1, object string2) {
+  var uintL len1;
+  var uintL offset1;
+  string1 = unpack_string_ro(string1,&len1,&offset1);
+  sstring_un_realloc(string2);
+  if (len1 != Sstring_length(string2))
+    return false;
+  /* Now both strings have exactly len1 characters. Compare them. */
+  if (len1 > 0)
+    return string_eqcomp_inverted(string1,offset1,string2,0,len1);
+  return true;
+}
+
+/* UP: converts a string piece to opposite case, uppercase characters to
+ lowercase and lowercase characters to uppercase.
+ nstring_invertcase(dv,offset,len);
+ > object dv: the character storage vector
+ > uintL offset: index of first affected character
+ > uintL len: number of affected characters
+ can trigger GC */
+local maygc void nstring_invertcase (object dv, uintL offset, uintL len) {
+  restart_it:
+  if (len > 0)
+    SstringCase(dv,{
+      do {
+        var chart ch = invert_case(as_chart(TheS8string(dv)->data[offset]));
+        if (as_cint(ch) < cint8_limit) {
+          TheS8string(dv)->data[offset] = as_cint(ch);
+          offset++;
+          len--;
+        } else {
+          dv = sstring_store(dv,offset,ch);
+          offset++;
+          len--;
+          if (sstring_reallocatedp(TheSstring(dv))) { /* has it been reallocated? */
+            dv = TheSistring(dv)->data;
+            goto restart_it;
+          }
+        }
+      } while (len > 0);
+    },{
+      do {
+        var chart ch = invert_case(as_chart(TheS16string(dv)->data[offset]));
+        if (as_cint(ch) < cint16_limit) {
+          TheS16string(dv)->data[offset] = as_cint(ch);
+          offset++;
+          len--;
+        } else {
+          dv = sstring_store(dv,offset,ch);
+          offset++;
+          len--;
+          if (sstring_reallocatedp(TheSstring(dv))) { /* has it been reallocated? */
+            dv = TheSistring(dv)->data;
+            goto restart_it;
+          }
+        }
+      } while (len > 0);
+    },{
+      var cint32* charptr = &TheS32string(dv)->data[offset];
+      do { *charptr = as_cint(invert_case(as_chart(*charptr))); charptr++;
+      } while (--len);
+    },{
+      fehler_nilarray_retrieve();
+    });
+}
+
+/* UP: converts a string to opposite case
+ string_invertcase(string)
+ > string: string
+ < result: new normal-simple-string
+ can trigger GC */
+global maygc object string_invertcase (object string) {
+  string = copy_string_normal(string); /* copy and turn into a normal-simple-string */
+  pushSTACK(string);
+  nstring_invertcase(string,0,Sstring_length(string)); /* convert */
+  string = popSTACK();
+  DBGREALLOC(string);
+  return string;
+}
+
+/* (SYS::STRING-INVERTCASE string) */
+LISPFUNNR(string_invertcase,1)
+{
+  var object arg = check_string(popSTACK());
+  VALUES1(string_invertcase(arg));
+}
+
+
 /* error, if index-argument is not an integer. */
 nonreturning_function(local, fehler_int, (object kw, object obj)) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
@@ -2309,15 +2447,19 @@ local maygc object test_string_limits_rw (stringarg* arg) {
 }
 
 /* UP: checks a string/symbol/character-argument
+ test_stringsymchar_arg(obj,invert)
  > obj: argument
- < ergebnis: argument as string
+ > invert: whether to implicitly case-invert a symbol's printname
+ < result: argument as string
  can trigger GC */
-global maygc object test_stringsymchar_arg (object obj) {
+global maygc object test_stringsymchar_arg (object obj, bool invert) {
  restart_stringsymchar:
   if (stringp(obj)) /* string: return unchanged */
     return obj;
-  if (symbolp(obj)) /* symbol: user print name */
-    return TheSymbol(obj)->pname;
+  if (symbolp(obj)) { /* symbol: use print name */
+    obj = TheSymbol(obj)->pname;
+    return (invert ? string_invertcase(obj) : obj);
+  }
   if (charp(obj)) { /* character: turn it into a one-element string: */
     var object new_string = allocate_string(1);
     TheSnstring(new_string)->data[0] = char_code(obj);
@@ -2336,23 +2478,24 @@ global maygc object test_stringsymchar_arg (object obj) {
 }
 
 /* UP: checks the limits for 1 string/symbol-argument and copies it
- test_1_stringsym_limits(&string,&len)
+ test_1_stringsym_limits(invert,&string,&len)
  > STACK_2: string/symbol-argument
  > STACK_1: optional :start-argument
  > STACK_0: optional :end-argument
+ > invert: whether to implicitly case-invert a symbol's printname
  < object string: copy of the string
  < uintL offset: index of first affected character
  < uintL len: number of affected characters
  increases STACK by 3
  can trigger GC */
-local maygc void test_1_stringsym_limits (object* string_, uintL* offset_,
-                                          uintL* len_) {
+local maygc void test_1_stringsym_limits (bool invert, object* string_,
+                                          uintL* offset_, uintL* len_) {
   var object string;
   var uintL len;
   var uintL start;
   var uintL end;
   /* check string/symbol-argument: */
-  string = test_stringsymchar_arg(STACK_2);
+  string = test_stringsymchar_arg(STACK_2,invert);
   len = vector_length(string);
   /* now, len is the length (<2^oint_data_len).
      check :START-argument:
@@ -2377,24 +2520,25 @@ local maygc void test_1_stringsym_limits (object* string_, uintL* offset_,
 }
 
 /* UP: checks the limits for 2 string/symbol-arguments
- test_2_stringsym_limits(&arg1,&arg2)
+ test_2_stringsym_limits(invert,&arg1,&arg2)
  > STACK_5: string/symbol-argument1
  > STACK_4: string/symbol-argument2
  > STACK_3: optional :start1-argument
  > STACK_2: optional :end1-argument
  > STACK_1: optional :start2-argument
  > STACK_0: optional :end2-argument
+ > invert: whether to implicitly case-invert a symbol's printname
  < stringarg arg1: description of argument1
  < stringarg arg2: description of argument2
  increases STACK by 6 */
-local void test_2_stringsym_limits (stringarg* arg1, stringarg* arg2) {
+local void test_2_stringsym_limits (bool invert, stringarg* arg1, stringarg* arg2) {
   var uintL len1;
   var uintL len2;
   { /* check string/symbol-argument1: */
-    var object string1 = test_stringsymchar_arg(STACK_5);
+    var object string1 = test_stringsymchar_arg(STACK_5,invert);
     pushSTACK(string1); /* save string1 */
     /* check string/symbol-argument2: */
-    var object string2 = test_stringsymchar_arg(STACK_(4+1));
+    var object string2 = test_stringsymchar_arg(STACK_(4+1),invert);
     arg2->string = unpack_string_ro(string2,&len2,&arg2->offset);
     /* now, len2 is the length (<2^oint_data_len) of string2. */
     string1 = popSTACK(); /* restore string1 */
@@ -2598,13 +2742,14 @@ local signean string_comp (stringarg* arg1, const stringarg* arg2) {
   });
 }
 
+/* (STRING= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 300 */
 LISPFUN(string_gleich,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-{ /* (STRING= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 300 */
+{
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
-  test_2_stringsym_limits(&arg1,&arg2);
+  test_2_stringsym_limits(false,&arg1,&arg2);
   /* compare: */
   VALUES_IF((arg1.len==arg2.len)
             && ((arg1.len==0)
@@ -2613,57 +2758,138 @@ LISPFUN(string_gleich,seclass_read,2,0,norest,key,4,
                                  arg1.len)));
 }
 
-LISPFUN(string_ungleich,seclass_read,2,0,norest,key,4,
+/* (CS-COMMON-LISP:STRING= string1 string2 :start1 :end1 :start2 :end2) */
+LISPFUN(cs_string_gleich,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-{ /* (STRING/= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
+{
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
-  test_2_stringsym_limits(&arg1,&arg2);
+  test_2_stringsym_limits(true,&arg1,&arg2);
+  /* compare: */
+  VALUES_IF((arg1.len==arg2.len)
+            && ((arg1.len==0)
+                || string_eqcomp(arg1.string,arg1.offset+arg1.index,
+                                 arg2.string,arg2.offset+arg2.index,
+                                 arg1.len)));
+}
+
+/* (STRING/= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
+LISPFUN(string_ungleich,seclass_read,2,0,norest,key,4,
+        (kw(start1),kw(end1),kw(start2),kw(end2)) )
+{
+  var stringarg arg1;
+  var stringarg arg2;
+  /* check arguments: */
+  test_2_stringsym_limits(false,&arg1,&arg2);
   /* compare: */
   VALUES1(string_comp(&arg1,&arg2)==0 ? NIL : fixnum(arg1.index));
 }
 
-LISPFUN(string_kleiner,seclass_read,2,0,norest,key,4,
+/* (CS-COMMON-LISP:STRING/= string1 string2 :start1 :end1 :start2 :end2) */
+LISPFUN(cs_string_ungleich,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-{ /* (STRING< string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
+{
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
-  test_2_stringsym_limits(&arg1,&arg2);
+  test_2_stringsym_limits(true,&arg1,&arg2);
+  /* compare: */
+  VALUES1(string_comp(&arg1,&arg2)==0 ? NIL : fixnum(arg1.index));
+}
+
+/* (STRING< string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
+LISPFUN(string_kleiner,seclass_read,2,0,norest,key,4,
+        (kw(start1),kw(end1),kw(start2),kw(end2)) )
+{
+  var stringarg arg1;
+  var stringarg arg2;
+  /* check arguments: */
+  test_2_stringsym_limits(false,&arg1,&arg2);
   /* compare: */
   VALUES1(string_comp(&arg1,&arg2)<0 ? fixnum(arg1.index) : NIL);
 }
 
-LISPFUN(string_groesser,seclass_read,2,0,norest,key,4,
+/* (CS-COMMON-LISP:STRING< string1 string2 :start1 :end1 :start2 :end2) */
+LISPFUN(cs_string_kleiner,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-{ /* (STRING> string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
+{
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
-  test_2_stringsym_limits(&arg1,&arg2);
+  test_2_stringsym_limits(true,&arg1,&arg2);
+  /* compare: */
+  VALUES1(string_comp(&arg1,&arg2)<0 ? fixnum(arg1.index) : NIL);
+}
+
+/* (STRING> string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
+LISPFUN(string_groesser,seclass_read,2,0,norest,key,4,
+        (kw(start1),kw(end1),kw(start2),kw(end2)) )
+{
+  var stringarg arg1;
+  var stringarg arg2;
+  /* check arguments: */
+  test_2_stringsym_limits(false,&arg1,&arg2);
   /* compare: */
   VALUES1(string_comp(&arg1,&arg2)>0 ? fixnum(arg1.index) : NIL);
 }
 
-LISPFUN(string_klgleich,seclass_read,2,0,norest,key,4,
+/* (CS-COMMON-LISP:STRING> string1 string2 :start1 :end1 :start2 :end2) */
+LISPFUN(cs_string_groesser,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-{ /* (STRING<= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
+{
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
-  test_2_stringsym_limits(&arg1,&arg2);
+  test_2_stringsym_limits(true,&arg1,&arg2);
+  /* compare: */
+  VALUES1(string_comp(&arg1,&arg2)>0 ? fixnum(arg1.index) : NIL);
+}
+
+/* (STRING<= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
+LISPFUN(string_klgleich,seclass_read,2,0,norest,key,4,
+        (kw(start1),kw(end1),kw(start2),kw(end2)) )
+{
+  var stringarg arg1;
+  var stringarg arg2;
+  /* check arguments: */
+  test_2_stringsym_limits(false,&arg1,&arg2);
   /* compare: */
   VALUES1(string_comp(&arg1,&arg2)<=0 ? fixnum(arg1.index) : NIL);
 }
 
-LISPFUN(string_grgleich,seclass_read,2,0,norest,key,4,
+/* (CS-COMMON-LISP:STRING<= string1 string2 :start1 :end1 :start2 :end2) */
+LISPFUN(cs_string_klgleich,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-{ /* (STRING>= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
+{
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
-  test_2_stringsym_limits(&arg1,&arg2);
+  test_2_stringsym_limits(true,&arg1,&arg2);
+  /* compare: */
+  VALUES1(string_comp(&arg1,&arg2)<=0 ? fixnum(arg1.index) : NIL);
+}
+
+/* (STRING>= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
+LISPFUN(string_grgleich,seclass_read,2,0,norest,key,4,
+        (kw(start1),kw(end1),kw(start2),kw(end2)) )
+{
+  var stringarg arg1;
+  var stringarg arg2;
+  /* check arguments: */
+  test_2_stringsym_limits(false,&arg1,&arg2);
+  /* compare: */
+  VALUES1(string_comp(&arg1,&arg2)>=0 ? fixnum(arg1.index) : NIL);
+}
+
+/* (CS-COMMON-LISP:STRING>= string1 string2 :start1 :end1 :start2 :end2) */
+LISPFUN(cs_string_grgleich,seclass_read,2,0,norest,key,4,
+        (kw(start1),kw(end1),kw(start2),kw(end2)) )
+{
+  var stringarg arg1;
+  var stringarg arg2;
+  /* check arguments: */
+  test_2_stringsym_limits(true,&arg1,&arg2);
   /* compare: */
   VALUES1(string_comp(&arg1,&arg2)>=0 ? fixnum(arg1.index) : NIL);
 }
@@ -2822,13 +3048,14 @@ local signean string_comp_ci (stringarg* arg1, const stringarg* arg2)
   });
 }
 
+/* (STRING-EQUAL string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
 LISPFUN(string_equal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-{ /* (STRING-EQUAL string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
+{
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
-  test_2_stringsym_limits(&arg1,&arg2);
+  test_2_stringsym_limits(false,&arg1,&arg2);
   /* compare: */
   VALUES_IF((arg1.len==arg2.len)
             && ((arg1.len==0)
@@ -2837,61 +3064,66 @@ LISPFUN(string_equal,seclass_read,2,0,norest,key,4,
                                     arg1.len)));
 }
 
+/* (STRING-NOT-EQUAL string1 string2 :start1 :end1 :start2 :end2),
+   CLTL p. 302 */
 LISPFUN(string_not_equal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-{ /* (STRING-NOT-EQUAL string1 string2 :start1 :end1 :start2 :end2),
-     CLTL p. 302 */
+{
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
-  test_2_stringsym_limits(&arg1,&arg2);
+  test_2_stringsym_limits(false,&arg1,&arg2);
   /* compare: */
   VALUES1(string_comp_ci(&arg1,&arg2)==0 ? NIL : fixnum(arg1.index));
 }
 
+/* (STRING-LESSP string1 string2 :start1 :end1 :start2 :end2), CLTL p. 302 */
 LISPFUN(string_lessp,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-{ /* (STRING-LESSP string1 string2 :start1 :end1 :start2 :end2), CLTL p. 302 */
+{
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
-  test_2_stringsym_limits(&arg1,&arg2);
+  test_2_stringsym_limits(false,&arg1,&arg2);
   /* compare: */
   VALUES1(string_comp_ci(&arg1,&arg2)<0 ? fixnum(arg1.index) : NIL);
 }
 
+/* (STRING-GREATERP string1 string2 :start1 :end1 :start2 :end2),
+   CLTL p. 302 */
 LISPFUN(string_greaterp,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-{ /* (STRING-GREATERP string1 string2 :start1 :end1 :start2 :end2),
-     CLTL p. 302 */
+{
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
-  test_2_stringsym_limits(&arg1,&arg2);
+  test_2_stringsym_limits(false,&arg1,&arg2);
   /* compare: */
   VALUES1(string_comp_ci(&arg1,&arg2)>0 ? fixnum(arg1.index) : NIL);
 }
 
+/* (STRING-NOT-GREATERP string1 string2 :start1 :end1 :start2 :end2),
+   CLTL p. 302 */
 LISPFUN(string_not_greaterp,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-{ /* (STRING-NOT-GREATERP string1 string2 :start1 :end1 :start2 :end2),
-     CLTL p. 302 */
+{
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
-  test_2_stringsym_limits(&arg1,&arg2);
+  test_2_stringsym_limits(false,&arg1,&arg2);
   /* compare: */
   VALUES1(string_comp_ci(&arg1,&arg2)<=0 ? fixnum(arg1.index) : NIL);
 }
 
+/* (STRING-NOT-LESSP string1 string2 :start1 :end1 :start2 :end2),
+   CLTL p. 302 */
 LISPFUN(string_not_lessp,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-{ /* (STRING-NOT-LESSP string1 string2 :start1 :end1 :start2 :end2),
-     CLTL p. 302 */
+{
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
-  test_2_stringsym_limits(&arg1,&arg2);
+  test_2_stringsym_limits(false,&arg1,&arg2);
   /* compare: */
   VALUES1(string_comp_ci(&arg1,&arg2)>=0 ? fixnum(arg1.index) : NIL);
 }
@@ -2941,7 +3173,7 @@ LISPFUN(search_string_gleich,seclass_read,2,0,norest,key,4,
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
-  test_2_stringsym_limits(&arg1,&arg2);
+  test_2_stringsym_limits(false,&arg1,&arg2);
   /* search string1 in string2: */
   VALUES1(string_search(&arg1,&arg2,&string_eqcomp));
 }
@@ -2953,7 +3185,7 @@ LISPFUN(search_string_equal,seclass_read,2,0,norest,key,4,
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
-  test_2_stringsym_limits(&arg1,&arg2);
+  test_2_stringsym_limits(false,&arg1,&arg2);
   /* search string1 in string2: */
   VALUES1(string_search(&arg1,&arg2,&string_eqcomp_ci));
 }
@@ -3035,8 +3267,8 @@ LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
   VALUES1(new_string); skipSTACK(3);
 }
 
-LISPFUNNR(string_both_trim,3)
-/* (SYS::STRING-BOTH-TRIM character-bag-left character-bag-right string)
+LISPFUNNR(string_both_trim,4)
+/* (SYS::STRING-BOTH-TRIM character-bag-left character-bag-right string invertp)
  basic function for
  STRING-TRIM, STRING-LEFT-TRIM, STRING-RIGHT-TRIM, CLTL p. 302
  method:
@@ -3052,7 +3284,8 @@ LISPFUNNR(string_both_trim,3)
            (return (if (and (= i 0) (= j l)) string
                        (substring string i j)))))))) */
 {
-  var object string = test_stringsymchar_arg(popSTACK()); /* convert argument into string */
+  var object invertp = popSTACK();
+  var object string = test_stringsymchar_arg(popSTACK(),!nullp(invertp)); /* convert argument into string */
   pushSTACK(string); /* and back into stack again */
   pushSTACK(fixnum(vector_length(string))); /* length as fixnum into the stack */
   pushSTACK(Fixnum_0); /* i := 0 */
@@ -3176,7 +3409,7 @@ LISPFUN(string_upcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
   var object string;
   var uintL offset;
   var uintL len;
-  test_1_stringsym_limits(&string,&offset,&len);
+  test_1_stringsym_limits(false,&string,&offset,&len);
   pushSTACK(string);
   nstring_upcase(string,offset,len);
   string = popSTACK();
@@ -3251,7 +3484,7 @@ LISPFUN(string_downcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
   var object string;
   var uintL offset;
   var uintL len;
-  test_1_stringsym_limits(&string,&offset,&len);
+  test_1_stringsym_limits(false,&string,&offset,&len);
   pushSTACK(string);
   nstring_downcase(string,offset,len);
   string = popSTACK();
@@ -3373,7 +3606,7 @@ LISPFUN(string_capitalize,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
   var object string;
   var uintL offset;
   var uintL len;
-  test_1_stringsym_limits(&string,&offset,&len);
+  test_1_stringsym_limits(false,&string,&offset,&len);
   pushSTACK(string);
   nstring_capitalize(string,offset,len);
   string = popSTACK();
@@ -3381,15 +3614,23 @@ LISPFUN(string_capitalize,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
   VALUES1(string);
 }
 
+/* (STRING object), CLTL p. 304 */
 LISPFUNNR(string,1)
-{ /* (STRING object), CLTL p. 304 */
-  VALUES1(test_stringsymchar_arg(popSTACK()));
+{
+  VALUES1(test_stringsymchar_arg(popSTACK(),false));
 }
 
+/* (CS-COMMON-LISP:STRING object) */
+LISPFUNNR(cs_string,1)
+{
+  VALUES1(test_stringsymchar_arg(popSTACK(),true));
+}
+
+/* (NAME-CHAR name), CLTL p. 243 */
 LISPFUNNR(name_char,1)
-{ /* (NAME-CHAR name), CLTL p. 243 */
-  /* convert argument into a string, search character with this name: */
-  VALUES1(name_char(test_stringsymchar_arg(popSTACK())));
+{ /* Convert argument into a string. (Case is not significant here.)
+     Then search a character with this name: */
+  VALUES1(name_char(test_stringsymchar_arg(popSTACK(),false)));
 }
 
 /* UP: Returns a substring of a simple-string.
@@ -3434,7 +3675,8 @@ LISPFUN(substring,seclass_read,2,1,norest,nokey,0,NIL)
   var uintL start;
   var uintL end;
   /* check string/symbol-argument: */
-  string = test_stringsymchar_arg(STACK_2);
+  /* FIXME: This does the wrong thing in a case-sensitive package. */
+  string = test_stringsymchar_arg(STACK_2,false);
   len = vector_length(string);
   /* now, len is the length (<2^oint_data_len).
      check :START-argument:

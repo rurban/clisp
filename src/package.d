@@ -37,10 +37,11 @@ local maygc object make_symtab (uintL size) {
 }
 
 /* UP: Calculates the hashcode of a string. This is a 24-bit-number.
- string_hashcode(string)
- > string: a string.
+ string_hashcode(string,invert)
+ > string: a string
+ > invert: whether to implicitly case-invert the string
  < result: the hashcode of the string */
-local uint32 string_hashcode (object string) {
+local uint32 string_hashcode (object string, bool invert) {
   var uintL len;
   var uintL offset;
   string = unpack_string_ro(string,&len,&offset);
@@ -57,7 +58,8 @@ local uint32 string_hashcode (object string) {
         /* rotate hashcode by 5 bits to the left: */
         hashcode = hashcode << 5; hashcode = hashcode + (hashcode >> 24);
         /* 'add' next byte via XOR: */
-        hashcode = hashcode ^ (uint32)(*charptr++);
+        var cintX c = *charptr++;
+        hashcode = hashcode ^ (uint32)(invert ? as_cint(invert_case(as_chart(c))) : c);
       });
     });
   }
@@ -97,7 +99,7 @@ local maygc object new_cons (void) {
  can trigger GC */
 local maygc void newinsert (object sym, uintL size) {
   var uintL index = /* Index = Hashcode mod size */
-    string_hashcode(Symbol_name(sym)) % size;
+    string_hashcode(Symbol_name(sym),false) % size;
   /* entry in the newtable */
   var object entry = TheSvector(STACK_1)->data[index];
   if ((!nullp(entry)) || nullp(sym)) {
@@ -207,21 +209,23 @@ local object rehash_symtab (object symtab) {
   return symtab;
 }
 
-/* UP: Searches a symbol with given printnamen in the symbol-table.
- symtab_lookup(string,symtab,&sym)
+/* UP: Searches a symbol with given print-name in the symbol-table.
+ symtab_lookup(string,invert,symtab,&sym)
  > string: string
+ > invert: whether to implicitly case-invert the string
  > symtab: symbol-table
  < result: true if found, false if not found.
  if found:
    < sym: the symbol from the symbol-table, that has the given printname */
-local bool symtab_lookup (object string, object symtab, object* sym_) {
+local bool symtab_lookup (object string, bool invert, object symtab, object* sym_) {
   var uintL index = /* Index = Hashcode mod size */
-    string_hashcode(string) % posfixnum_to_L(Symtab_size(symtab));
+    string_hashcode(string,invert) % posfixnum_to_L(Symtab_size(symtab));
   /* entry in the table */
   var object entry = TheSvector(Symtab_table(symtab))->data[index];
   if (!listp(entry)) { /* entry is a single symbol */
     /* first string and printname of the found symbol are equal ? */
-    if (string_gleich(string,Symbol_name(entry))) {
+    if ((invert ? string_gleich_inverted : string_gleich)
+        (string,Symbol_name(entry))) {
       if (sym_) { *sym_ = entry; }
       return true;
     } else {
@@ -230,7 +234,8 @@ local bool symtab_lookup (object string, object symtab, object* sym_) {
   } else { /* entry is a symbol-list */
     while (consp(entry)) {
       /* first string and printname of the symbol are equal ? */
-      if (string_gleich(string,Symbol_name(Car(entry))))
+      if ((invert ? string_gleich_inverted : string_gleich)
+          (string,Symbol_name(Car(entry))))
         goto found;
       entry = Cdr(entry);
     }
@@ -248,7 +253,7 @@ local bool symtab_lookup (object string, object symtab, object* sym_) {
  < result: true, if found */
 local bool symtab_find (object sym, object symtab) {
   var uintL index = /* Index = Hashcode mod size */
-    string_hashcode(Symbol_name(sym)) % posfixnum_to_L(Symtab_size(symtab));
+    string_hashcode(Symbol_name(sym),false) % posfixnum_to_L(Symtab_size(symtab));
   /* entry in the table */
   var object entry = TheSvector(Symtab_table(symtab))->data[index];
   if (!listp(entry)) { /* entry is a single symbol */
@@ -283,7 +288,7 @@ local maygc object symtab_insert (object sym, object symtab) {
   }
   /* then insert the symbol: */
   var uintL index = /* Index = Hashcode mod size */
-    string_hashcode(Symbol_name(sym)) % posfixnum_to_L(Symtab_size(symtab));
+    string_hashcode(Symbol_name(sym),false) % posfixnum_to_L(Symtab_size(symtab));
   /* entry in the table */
   var object entry = TheSvector(Symtab_table(symtab))->data[index];
   if (!nullp(entry) || nullp(sym)) {
@@ -317,7 +322,7 @@ local maygc object symtab_insert (object sym, object symtab) {
  > symtab: symboltable */
 local void symtab_delete (object sym, object symtab) {
   var uintL index = /* Index = Hashcode mod size */
-    string_hashcode(Symbol_name(sym)) % posfixnum_to_L(Symtab_size(symtab));
+    string_hashcode(Symbol_name(sym),false) % posfixnum_to_L(Symtab_size(symtab));
   var gcv_object_t* entryptr = &TheSvector(Symtab_table(symtab))->data[index];
   var object entry = *entryptr; /* entry in the table */
   if (!listp(entry)) { /* entry is a single symbol */
@@ -349,22 +354,23 @@ local void symtab_delete (object sym, object symtab) {
 }
 
 /* lookup the STRING among the EXTernal (resp. INTernal) symbols of PACK */
-#define package_lookup_ext(string,pack,res_)                            \
-  symtab_lookup(string,ThePackage(pack)->pack_external_symbols,res_)
-#define package_lookup_int(string,pack,res_)                            \
-  symtab_lookup(string,ThePackage(pack)->pack_internal_symbols,res_)
+#define package_lookup_ext(string,invert,pack,res_)                         \
+  symtab_lookup(string,invert,ThePackage(pack)->pack_external_symbols,res_)
+#define package_lookup_int(string,invert,pack,res_)                         \
+  symtab_lookup(string,invert,ThePackage(pack)->pack_internal_symbols,res_)
 
-/* Check whether there is an inherited symbol with the given name.
- inherited_lookup(string,pack,symb)
+/* Test whether there is an inherited symbol with the given name.
+ inherited_lookup(string,invert,pack,&sym)
  Return true if string is found in (package-use-list pack).
- STRING is a Lisp string object
- PACK is a Lisp package object
+ > string: a Lisp string object
+ > invert: whether to implicitly case-invert the string
+ > pack: is a Lisp package object
  The symbol found is returned in *SYM_ (if SYM_ is not NULL). */
-local bool inherited_lookup (object string, object pack, object* sym_) {
+local bool inherited_lookup (object string, bool invert, object pack, object* sym_) {
   var object packlistr = ThePackage(pack)->pack_use_list;
   while (consp(packlistr)) {
     var object usedpack = Car(packlistr);
-    if (package_lookup_ext(string,usedpack,sym_))
+    if (package_lookup_ext(string,invert,usedpack,sym_))
       return true;
     packlistr = Cdr(packlistr);
   }
@@ -437,10 +443,11 @@ local void ensure_pack_shortest_name (object pack) {
  > name: name (an immutable simple-string)
  > nicknames: nicknames (a list of immutable simple-strings)
  > case_sensitive_p: flag, if case-sensitive
+ > case_inverted_p: flag, if case-inverted
  < result: new package
  can trigger GC */
 local maygc object make_package (object name, object nicknames,
-                                 bool case_sensitive_p) {
+                                 bool case_sensitive_p, bool case_inverted_p) {
   set_break_sem_2();
   pushSTACK(nicknames); pushSTACK(name); /* save nicknames and names */
   /* create table for external symbols: */
@@ -451,6 +458,7 @@ local maygc object make_package (object name, object nicknames,
   var object pack = allocate_package();
   /* and fill: */
   if (case_sensitive_p) { mark_pack_casesensitive(pack); }
+  if (case_inverted_p) { mark_pack_caseinverted(pack); }
   ThePackage(pack)->pack_internal_symbols = popSTACK();
   ThePackage(pack)->pack_external_symbols = popSTACK();
   ThePackage(pack)->pack_shadowing_symbols = NIL;
@@ -473,17 +481,19 @@ local maygc object make_package (object name, object nicknames,
 
 /* UP: Searches a symbol of given printname in the shadowing-list
  of a package.
- shadowing_lookup(string,pack,&sym)
+ shadowing_lookup(string,invert,pack,&sym)
  > string: string
+ > invert: whether to implicitly case-invert the string
  > pack: package
  < result: true, if found.
  < sym: the symbol from the shadowing-list, that has the given printname
         (if found) */
-local bool shadowing_lookup (object string, object pack, object* sym_) {
+local bool shadowing_lookup (object string, bool invert, object pack, object* sym_) {
   var object list = ThePackage(pack)->pack_shadowing_symbols;
   /* traverse shadowing-list: */
   while (consp(list)) {
-    if (string_gleich(string,Symbol_name(Car(list))))
+    if ((invert ? string_gleich_inverted : string_gleich)
+        (string,Symbol_name(Car(list))))
       goto found;
     list = Cdr(list);
   }
@@ -519,15 +529,17 @@ local maygc void shadowing_insert (const gcv_object_t* sym_, const gcv_object_t*
 
 /* UP: Removes a symbol of given name from the shadowing-list
  of a package.
- shadowing_delete(string,pack)
+ shadowing_delete(string,invert,pack)
  > string: string
+ > invert: whether to implicitly case-invert the string
  > pack: package */
-local void shadowing_delete (object string, object pack) {
+local void shadowing_delete (object string, bool invert, object pack) {
   var gcv_object_t* listptr = &ThePackage(pack)->pack_shadowing_symbols;
   var object list = *listptr;
   /* list = *listptr traverses the shadowing-list */
   while (consp(list)) {
-    if (string_gleich(string,Symbol_name(Car(list))))
+    if ((invert ? string_gleich_inverted : string_gleich)
+        (string,Symbol_name(Car(list))))
       goto found;
     listptr = &Cdr(list); list = *listptr;
   }
@@ -561,7 +573,7 @@ global bool accessiblep (object sym, object pack) {
      none found -> search sym among the inherited symbols. */
   var object shadowingsym;
   /* First, search in the shadowing-list of pack: */
-  if (shadowing_lookup(Symbol_name(sym),pack,&shadowingsym)) {
+  if (shadowing_lookup(Symbol_name(sym),false,pack,&shadowingsym)) {
     /* shadowingsym = symbol, found in the shadowing-list */
     return (eq(shadowingsym,sym)); /* compare with sym */
   } else { /* no symbol of equal name in the shadowing-list */
@@ -593,14 +605,15 @@ global bool externalp (object sym, object pack) {
   return symtab_find(sym,ThePackage(pack)->pack_external_symbols);
 }
 
-/* UP: searches an external symbol of given printname in a package.
- find_external_symbol(string,pack,&sym)
+/* UP: locates an external symbol with a given printname in a package.
+ find_external_symbol(string,invert,pack,&sym)
  > string: string
+ > invert: whether to implicitly case-invert the string
  > pack: package
- < result: true, if an external symbol of this printname is found in pack.
+ < result: true, if an external symbol with that printname has been found in pack.
  < sym: this symbol, if found. */
-global bool find_external_symbol (object string, object pack, object* sym_) {
-  return package_lookup_ext(string,pack,sym_);
+global bool find_external_symbol (object string, bool invert, object pack, object* sym_) {
+  return package_lookup_ext(string,invert,pack,sym_);
 }
 
 /* UP: searches a package of given name or nickname
@@ -633,8 +646,9 @@ global object find_package (object string) {
 }
 
 /* UP: Searches a symbol of given printname in a package.
- find_symbol(string,pack,&sym)
+ find_symbol(string,invert,pack,&sym)
  > string: string
+ > invert: whether to implicitly case-invert the string
  > pack: package
  < sym: symbol, if found; else NIL
  < result:   0, if not found
@@ -642,9 +656,9 @@ global object find_package (object string) {
              2, if inherited via use-list
              3, if available as internal symbol
          + (-4, if available in the shadowing-list) */
-local sintBWL find_symbol (object string, object pack, object* sym_) {
+local sintBWL find_symbol (object string, bool invert, object pack, object* sym_) {
   /* First search in the shadowing-list of pack: */
-  if (shadowing_lookup(string,pack,sym_)) {
+  if (shadowing_lookup(string,invert,pack,sym_)) {
     /* *sym_ = symbol, found in the shadowing-list */
     /* Search for it among the internal symbols: */
     if (symtab_find(*sym_,ThePackage(pack)->pack_internal_symbols))
@@ -657,13 +671,13 @@ local sintBWL find_symbol (object string, object pack, object* sym_) {
     fehler(serious_condition,GETTEXT("~S inconsistent: symbol ~S is a shadowing symbol but not present"));
   } else { /* symbol not yet found */
     /* search among the internal symbols: */
-    if (package_lookup_int(string,pack,sym_))
+    if (package_lookup_int(string,invert,pack,sym_))
       return 3; /* found among the internal symbols */
     /* search among the external symbols: */
-    if (package_lookup_ext(string,pack,sym_))
+    if (package_lookup_ext(string,invert,pack,sym_))
       return 1; /* found among the external symbols */
     /* search among the external packages from the use-list: */
-    if (inherited_lookup(string,pack,sym_))
+    if (inherited_lookup(string,invert,pack,sym_))
       return 2; /* found among the inherited symbols */
     /* not found */
     *sym_ = NIL; return 0;
@@ -721,26 +735,31 @@ local maygc void make_present (object sym, object pack) {
   }
 }
 
-/* UP: Interns a symbol of given printname in a package.
- intern(string,pack,&sym)
+/* UP: Interns a symbol with a given printname in a package.
+ intern(string,invert,pack,&sym)
  > string: string
+ > invert: whether to implicitly case-invert the string
  > pack: package
  < sym: symbol
- < result:   0, if not found, but newly created
-             1, if available as external symbol
-             2, if inherited via use-list
-             3, if available as internal symbol
+ < result: 0, if not found, but newly created
+           1, if available as external symbol
+           2, if inherited via use-list
+           3, if available as internal symbol
  can trigger GC */
-global maygc uintBWL intern (object string, object pack, object* sym_) {
+global maygc uintBWL intern (object string, bool invert, object pack, object* sym_) {
   {
-    var sintBWL ergebnis = find_symbol(string,pack,sym_); /* search */
+    var sintBWL ergebnis = find_symbol(string,invert,pack,sym_); /* search */
     if (!(ergebnis==0))
       return ergebnis & 3; /* found -> finished */
   }
   pushSTACK(pack); /* save package */
-  pushSTACK(coerce_imm_ss(string)); /* string --> immutable simple-string */
+  pushSTACK(string);
   check_pack_lock(S(intern),STACK_1 /*pack*/,STACK_0 /*string*/);
-  var object sym = make_symbol(popSTACK()); /* (make-symbol string) */
+  string = popSTACK();
+  if (invert)
+    string = string_invertcase(string);
+  string = coerce_imm_ss(string); /* string --> immutable simple-string */
+  var object sym = make_symbol(string); /* (make-symbol string) */
   pack = popSTACK();
   /* enter this new symbol into the package: */
   set_break_sem_2(); /* protect against breaks */
@@ -759,7 +778,7 @@ global maygc uintBWL intern (object string, object pack, object* sym_) {
  can trigger GC */
 global maygc object intern_keyword (object string) {
   var object sym;
-  intern(string,O(keyword_package),&sym);
+  intern(string,false,O(keyword_package),&sym);
   return sym;
 }
 
@@ -767,9 +786,9 @@ global maygc object intern_keyword (object string) {
  external symbols of the package PACK
  tab, if supplied, is the assignment that will set the table in which the
  STRINNG was found */
-#define package_lookup(string,pack,res_,tab)                                 \
-  (symtab_lookup(string,tab ThePackage(pack)->pack_internal_symbols,res_) || \
-   symtab_lookup(string,tab ThePackage(pack)->pack_external_symbols,res_))
+#define package_lookup(string,invert,pack,res_,tab)  \
+  (symtab_lookup(string,invert,tab ThePackage(pack)->pack_internal_symbols,res_) || \
+   symtab_lookup(string,invert,tab ThePackage(pack)->pack_external_symbols,res_))
 
 /* UP: Imports a symbol into a package and turns it into a shadowing-symbol.
  Possibly another present symbol in this package
@@ -791,7 +810,7 @@ local maygc void shadowing_import (const gcv_object_t* sym_, const gcv_object_t*
     var object tab_found;
     var object string = Symbol_name(sym);
     pushSTACK(string); /* save string */
-    if (package_lookup(string,pack,&othersym,tab_found=)) {
+    if (package_lookup(string,false,pack,&othersym,tab_found=)) {
       /* a symbol othersym of the same name was
          already present in the package */
       if (!eq(othersym,sym)) { /* was it the to be imported symbol itself? */
@@ -810,7 +829,7 @@ local maygc void shadowing_import (const gcv_object_t* sym_, const gcv_object_t*
     }
   }
   /* symbol must be added to the shadowing-list of the package. */
-  shadowing_delete(popSTACK(),*pack_); /* remove string from */
+  shadowing_delete(popSTACK(),false,*pack_); /* remove string from */
   /* the shadowing-list */
   shadowing_insert(sym_,pack_); /* add symbol to the shadowing-list */
   clr_break_sem_2(); /* allow breaks */
@@ -819,25 +838,29 @@ local maygc void shadowing_import (const gcv_object_t* sym_, const gcv_object_t*
 /* UP: Shadows in a package all symbols accessible from other packages
  of give name by one symbol present in this package
  of the same name.
- shadow(&sym,&pack)
+ shadow(&sym,invert,&pack)
  > sym: symbol or string (in STACK)
+ > invert: whether to implicitly case-invert the string
  > pack: package (in STACK)
  < pack: package, EQ to the old
  can trigger GC */
-local maygc void shadow (const gcv_object_t* sym_, const gcv_object_t* pack_) {
+local maygc void do_shadow (const gcv_object_t* sym_, bool invert, const gcv_object_t* pack_) {
   check_pack_lock(S(shadow),*pack_,*sym_);
   set_break_sem_2(); /* protect against breaks */
   /* Search an internal or external symbol of the same name: */
   var object string = /* only the name of the symbol counts. */
-    test_stringsymchar_arg(*sym_);
+    test_stringsymchar_arg(*sym_,invert);
   var object pack = *pack_;
   pushSTACK(NIL); /* make room for othersym */
   pushSTACK(string); /* save string */
   var object othersym;
-  if (package_lookup(string,pack,&othersym,)) {
+  if (package_lookup(string,invert,pack,&othersym,)) {
     STACK_1 = othersym;
   } else {
     /* not found -> create new symbol of the same name: */
+    if (invert)
+      string = string_invertcase(string);
+    string = coerce_imm_ss(string); /* string --> immutable simple-string */
     var object othersym = make_symbol(string); /* new symbol */
     STACK_1 = othersym;
     make_present(othersym,*pack_); /* enter into the package */
@@ -847,11 +870,17 @@ local maygc void shadow (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   /* stack-layout: othersym, string
      In the package, now symbol othersym of the same name is present.
      remove string from the shadowing-list */
-  shadowing_delete(popSTACK(),*pack_);
+  shadowing_delete(popSTACK(),invert,*pack_);
   /* therefore add othersym to the shadowing-list */
   shadowing_insert(&STACK_0,pack_);
   skipSTACK(1); /* forget othersym */
   clr_break_sem_2(); /* allow breaks */
+}
+local maygc void shadow (const gcv_object_t* sym_, const gcv_object_t* pack_) {
+  do_shadow(sym_,false,pack_);
+}
+local maygc void cs_shadow (const gcv_object_t* sym_, const gcv_object_t* pack_) {
+  do_shadow(sym_,true,pack_);
 }
 
 /* UP: Removes a symbol from the set of present symbols of a package
@@ -884,7 +913,7 @@ local maygc object unintern (const gcv_object_t* sym_, const gcv_object_t* pack_
         pack = Car(STACK_0); /* package from the use-list */
         STACK_0 = Cdr(STACK_0);
         /* search inherited symbol of the same name: */
-        if (package_lookup_ext(Symbol_name(*sym_),pack,&othersym)) {
+        if (package_lookup_ext(Symbol_name(*sym_),false,pack,&othersym)) {
           /* check that othersym is not in the option-list yet */
           var object temp = STACK_1;
           while (mconsp(temp)) {
@@ -947,7 +976,7 @@ local maygc object unintern (const gcv_object_t* sym_, const gcv_object_t* pack_
         if (eq(Symbol_package(sym),pack))
           Symbol_package(sym) = NIL;
         /* discard symbol from shadowing-list: */
-        shadowing_delete(Symbol_name(sym),pack);
+        shadowing_delete(Symbol_name(sym),false,pack);
       }
       if (!nullp(STACK_0))
         /* in case of a conflict: import selected symbol: */
@@ -1014,7 +1043,7 @@ global maygc void import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   var object othersymtab;
   /* search symbol of the same name among the internal
      and the external symbols: */
-  if (package_lookup(string,pack,&othersym,othersymtab=)) {
+  if (package_lookup(string,false,pack,&othersym,othersymtab=)) {
     /* othersym = symbol of the same name, found in othersymtab */
     if (eq(othersym,sym)) /* the same symbol -> nothing to do */
       return;
@@ -1026,7 +1055,7 @@ global maygc void import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
     pushSTACK(othersym);
     pushSTACK(othersymtab);
     /* first calculate inherited-flag: */
-    var bool inheritedp = inherited_lookup(string,pack,NULL);
+    var bool inheritedp = inherited_lookup(string,false,pack,NULL);
     /* stack-layout: symbol-name, othersym, othersymtab. */
     /* raise Continuable Error: */
     if (query_intern_conflict(*pack_,*sym_,othersym,inheritedp ? 1 : 0)) {
@@ -1044,7 +1073,7 @@ global maygc void import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
     /* insert sym in pack: */
     make_present(*sym_,pack);
     /* remove symbols of the same name from the shadowing-list of pack: */
-    shadowing_delete(STACK_2,*pack_);
+    shadowing_delete(STACK_2,false,*pack_);
     /* if inherited-flag, turn sym in pack into a shadowing-symbol: */
     if (inheritedp)
       shadowing_insert(sym_,pack_);
@@ -1055,7 +1084,7 @@ global maygc void import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
        Search a symbol of the same name, that is inherited (there is
        at most one, according to the consistency rules 6 and 5): */
     var object otherusedsym;
-    if (!inherited_lookup(string,pack,&otherusedsym)
+    if (!inherited_lookup(string,false,pack,&otherusedsym)
         || eq(otherusedsym,sym)) {
       /* insert sym simply in pack: */
       set_break_sem_2();
@@ -1178,7 +1207,7 @@ global maygc void export (const gcv_object_t* sym_, const gcv_object_t* pack_) {
     var object usingpack = Car(STACK_0); /* USE-ing package */
     STACK_0 = Cdr(STACK_0);
     var object othersym;
-    if (find_symbol(Symbol_name(*sym_),usingpack,&othersym) > 0)
+    if (find_symbol(Symbol_name(*sym_),false,usingpack,&othersym) > 0)
       /* othersym is a symbol of the same name in usingpack */
       if (!eq(othersym,*sym_)) {
         var gcv_object_t *othersym_, *usingpack_;
@@ -1529,7 +1558,7 @@ local maygc void use_package_aux (void* data, object sym) {
   pushSTACK(NIL); /* new conflict (still empty) */
   { /* test, if a symbol of the same name is already accessible in pack: */
     var object othersym;
-    var sintBWL code = find_symbol(string,*(localptr STACKop 2),&othersym);
+    var sintBWL code = find_symbol(string,false,*(localptr STACKop 2),&othersym);
     if (code < 0) {
       /* Eponymous symbol in the shadowing-list impedes conflict. */
       skipSTACK(2); goto ok;
@@ -1559,7 +1588,7 @@ local maygc void use_package_aux (void* data, object sym) {
       var object pack_to_use = Car(packlistr);
       packlistr = Cdr(packlistr);
       var object othersym;
-      if (package_lookup_ext(STACK_1,pack_to_use,&othersym)) {
+      if (package_lookup_ext(STACK_1,false,pack_to_use,&othersym)) {
         /* othersym has the printname = string and is
            external in pack_to_use.
            push (pack_to_use . othersym) on conflict: */
@@ -1709,7 +1738,7 @@ local maygc object test_package_arg (object obj) {
     goto restart_package_arg;
   }
   if (symbolp(obj)) { /* symbol -> string */
-    obj = Symbol_name(obj); goto string; /* use print name */
+    obj = Symbol_name(obj); goto string; /* use print name, no case-invert */
   }
   if (charp(obj)) { /* character -> string */
     var object new_string = allocate_string(1);
@@ -1735,7 +1764,7 @@ LISPFUNNR(find_package,1) { /* (FIND-PACKAGE name), CLTL p. 183 */
   var object pack = popSTACK();
   if (packagep(pack)) VALUES1(pack);
   else {
-    var object name = test_stringsymchar_arg(pack);
+    var object name = test_stringsymchar_arg(pack,false);
     VALUES1(find_package(name)); /* search package */
   }
 }
@@ -1768,36 +1797,36 @@ LISPFUNNR(package_nicknames,1)
 
 /* UP: checks name and nicknames -
  arguments of RENAME-PACKAGE and MAKE-PACKAGE.
- Tests, if STACK_3 is a name, and turns it into a immutable simple-string.
- Tests, if STACK_2 is a name or a list of names, and turns it
+ Tests, if STACK_4 is a name, and turns it into a immutable simple-string.
+ Tests, if STACK_3 is a name or a list of names, and turns it
  into a new list of immutable simple-strings.
  > subr-self: caller (a SUBR)
  can trigger GC */
 local maygc void test_names_args (void) {
   /* check name for string and turn it into a simple-string: */
-  STACK_3 = coerce_imm_ss(test_stringsymchar_arg(STACK_3));
+  STACK_4 = coerce_imm_ss(test_stringsymchar_arg(STACK_4,false));
   { /* convert nickname-argument into a list: */
-    var object nicknames = STACK_2;
+    var object nicknames = STACK_3;
     if (!boundp(nicknames)) {
-      STACK_2 = NIL; /* no nicknames specified -> default NIL */
+      STACK_3 = NIL; /* no nicknames specified -> default NIL */
     } else {
       if (!listp(nicknames)) {
         /* nicknames not a list -> turn it into a one-element list: */
         nicknames = allocate_cons();
-        Car(nicknames) = STACK_2;
-        STACK_2 = nicknames;
+        Car(nicknames) = STACK_3;
+        STACK_3 = nicknames;
       }
     }
   }
   { /* check nickname(s) for string, turn into simple-strings
      and build a new nicknamelist: */
     pushSTACK(NIL); /* new nicknamelist := NIL */
-    while (mconsp(STACK_3)) {
+    while (mconsp(STACK_4)) {
       {
-        var object nickname = Car(STACK_3); /* next nickname */
-        STACK_3 = Cdr(STACK_3);
+        var object nickname = Car(STACK_4); /* next nickname */
+        STACK_4 = Cdr(STACK_4);
         /* as simple-string */
-        nickname = coerce_imm_ss(test_stringsymchar_arg(nickname));
+        nickname = coerce_imm_ss(test_stringsymchar_arg(nickname,false));
         /* cons in front of the new nicknamelist: */
         pushSTACK(nickname);
       }
@@ -1807,7 +1836,7 @@ local maygc void test_names_args (void) {
       STACK_0 = new_cons;
     }
     var object nicknames = popSTACK();
-    STACK_2 = nicknames; /* new nicknamelist replaces the old */
+    STACK_3 = nicknames; /* new nicknamelist replaces the old */
   }
 }
 
@@ -1819,9 +1848,9 @@ LISPFUN(rename_package,seclass_default,2,1,norest,nokey,0,NIL) {
   /* check name and nicknames:
      name is a package designator here (but not in make-package!) */
   if (packagep(STACK_1)) STACK_1 = ThePackage(STACK_1)->pack_name;
-  pushSTACK(NIL); pushSTACK(NIL); /* dummies on the stack */
+  pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL); /* dummies on the stack */
   test_names_args();
-  skipSTACK(2);
+  skipSTACK(3);
   var object pack = STACK_2;
   { /* test, if a package-name-conflict arises: */
     var object name = STACK_1;
@@ -1873,10 +1902,18 @@ LISPFUNNR(package_shadowing_symbols,1)
   VALUES1(copy_list(ThePackage(pack)->pack_shadowing_symbols));
 }
 
+/* (EXT:PACKAGE-CASE-SENSITIVE-P package) */
 LISPFUNNR(package_case_sensitive_p,1)
-{ /* (EXT:PACKAGE-CASE-SENSITIVE-P package) */
+{
   var object pack = test_package_arg(popSTACK());
   VALUES_IF(pack_casesensitivep(pack));
+}
+
+/* (EXT:PACKAGE-CASE-INVERTED-P package) */
+LISPFUNNR(package_case_inverted_p,1)
+{
+  var object pack = test_package_arg(popSTACK());
+  VALUES_IF(pack_caseinvertedp(pack));
 }
 
 /* (SYS::PACKAGE-DOCUMENTATION package) */
@@ -2008,34 +2045,56 @@ local object intern_result (uintBWL code) {
   }
 }
 
-/* (INTERN string [package]), CLTL p. 184 */
-LISPFUN(intern,seclass_default,1,1,norest,nokey,0,NIL) {
+/* (INTERN string [package]) and its case-inverted variant */
+local maygc Values do_intern (bool invert) {
   test_intern_args(); /* test arguments */
   var object pack = popSTACK();
   var object string = popSTACK();
  #if !defined(VALUE1_EXTRA)
-  var uintBWL code = intern(string,pack,&value1); /* symbol to value1 */
+  var uintBWL code = intern(string,invert,pack,&value1); /* symbol to value1 */
  #else
   var object value;
-  var uintBWL code = intern(string,pack,&value); /* Symbol to value */
+  var uintBWL code = intern(string,invert,pack,&value); /* Symbol to value */
   value1 = value;
  #endif
   value2 = intern_result(code); mv_count=2; /* two values */
 }
 
-LISPFUN(find_symbol,seclass_read,1,1,norest,nokey,0,NIL)
-{ /* (FIND-SYMBOL string [package]), CLTL p. 185 */
+/* (INTERN string [package]), CLTL p. 184 */
+LISPFUN(intern,seclass_default,1,1,norest,nokey,0,NIL) {
+  do_intern(false);
+}
+
+/* (CS-COMMON-LISP:INTERN string [package]) */
+LISPFUN(cs_intern,seclass_default,1,1,norest,nokey,0,NIL) {
+  do_intern(true);
+}
+
+/* (FIND-SYMBOL string [package]) and its case-inverted variant */
+local maygc Values do_find_symbol (bool invert) {
   test_intern_args(); /* test arguments */
   var object pack = popSTACK();
   var object string = popSTACK();
  #if !defined(VALUE1_EXTRA)
-  var uintBWL code = find_symbol(string,pack,&value1) & 3; /* symbol to value1 */
+  var uintBWL code = find_symbol(string,invert,pack,&value1) & 3; /* symbol to value1 */
  #else
   var object value;
-  var uintBWL code = find_symbol(string,pack,&value) & 3; /* symbol to value */
+  var uintBWL code = find_symbol(string,invert,pack,&value) & 3; /* symbol to value */
   value1 = value;
  #endif
   value2 = intern_result(code); mv_count=2; /* two values */
+}
+
+/* (FIND-SYMBOL string [package]), CLTL p. 185 */
+LISPFUN(find_symbol,seclass_read,1,1,norest,nokey,0,NIL)
+{
+  do_find_symbol(false);
+}
+
+/* (CS-COMMON-LISP:FIND-SYMBOL string [package]) */
+LISPFUN(cs_find_symbol,seclass_read,1,1,norest,nokey,0,NIL)
+{
+  do_find_symbol(true);
 }
 
 /* (UNINTERN symbol [package]), CLTL p. 185 */
@@ -2069,12 +2128,13 @@ local maygc Values apply_symbols (sym_pack_function_t* fun) {
     /* test for symbol: */
     if (symbolp(symarg))
       goto ok;
-    if ((fun == &shadow) && (stringp(symarg) || charp(symarg)))
+    if ((fun == &shadow || fun == &cs_shadow)
+        && (stringp(symarg) || charp(symarg)))
       goto ok;
     /* test for symbol-list: */
     while (consp(symarg)) { /* symarg loops over STACK_1 */
       if (!(symbolp(Car(symarg))
-            || ((fun == &shadow)
+            || ((fun == &shadow || fun == &cs_shadow)
                 && (stringp(Car(symarg)) || charp(Car(symarg))))))
         goto not_ok;
       symarg = Cdr(symarg);
@@ -2141,6 +2201,11 @@ LISPFUN(shadowing_import,seclass_default,1,1,norest,nokey,0,NIL) {
 /* (SHADOW symbols [package]), CLTL p. 186 */
 LISPFUN(shadow,seclass_default,1,1,norest,nokey,0,NIL) {
   return_Values apply_symbols(&shadow);
+}
+
+/* (CS-COMMON-LISP:SHADOW symbols [package]) */
+LISPFUN(cs_shadow,seclass_default,1,1,norest,nokey,0,NIL) {
+  return_Values apply_symbols(&cs_shadow);
 }
 
 /* UP: Preparation of the arguments of USE-PACKAGE and UNUSE-PACKAGE.
@@ -2222,113 +2287,134 @@ local maygc object correct_packname (object name, bool nickname_p) {
     tmp = listof(2); STACK_3 = tmp; /* options list */
     correctable_error(package_error,GETTEXT("~S: a package with name ~S already exists."));
     if (nullp(value1)) return NIL; /* continue */
-    name = test_stringsymchar_arg(value1);
+    name = test_stringsymchar_arg(value1,false);
   }
   return coerce_imm_ss(name);
 }
 
 /* UP for MAKE-PACKAGE and %IN-PACKAGE:
  Builds a new package and returns it as value.
- > STACK_3: name-argument
- > STACK_2: nicknames-argument
- > STACK_1: uselist-argument
- > STACK_0: case-sensitive-argument
- removed the 4 STACK elements
+ > STACK_4: name-argument
+ > STACK_3: nicknames-argument
+ > STACK_2: uselist-argument
+ > STACK_1: case-sensitive-argument
+ > STACK_0: case-inverted-argument
+ removes the 5 STACK elements
  can trigger GC */
-local maygc void in_make_package (void) {
+local maygc void in_make_package (bool case_inverted) {
   /* transform name into simple-string and
      nicknames into a new simple-string-list: */
   test_names_args();
-  var object new_name = correct_packname(STACK_3,false);
+  var object new_name = correct_packname(STACK_4,false);
   if (nullp(new_name)) {     /* CONTINUE: re-use the existing package */
-    VALUES1(find_package(STACK_3));
-    skipSTACK(4);
+    VALUES1(find_package(STACK_4));
+    skipSTACK(5);
     return;
   } else                     /* corrected: replace */
-    STACK_3 = new_name;
+    STACK_4 = new_name;
   /* check nicknames and maybe adjust: */
-  pushSTACK(STACK_2);
+  pushSTACK(STACK_3);
   while (mconsp(STACK_0)) {
     var object correct_nick = correct_packname(Car(STACK_0),true);
     Car(STACK_0) = correct_nick;
     STACK_0 = Cdr(STACK_0);
   }
   skipSTACK(1);
-  STACK_2 = deleteq(STACK_2,NIL);
+  STACK_3 = deleteq(STACK_3,NIL);
   /* (DELETE-DUPLICATES NICKNAMES :TEST (FUNCTION STRING=)) */
-  pushSTACK(STACK_2); pushSTACK(S(Ktest)); pushSTACK(L(string_gleich));
+  pushSTACK(STACK_3); pushSTACK(S(Ktest)); pushSTACK(L(string_gleich));
   funcall(L(delete_duplicates),3);
-  STACK_2 = value1;
+  STACK_3 = value1;
   /* create package: */
-  STACK_3 = make_package(STACK_3,STACK_2,!missingp(STACK_0));
-  /* stack-layout: pack, nicknames, uselist, case-sensitive. */
+  STACK_4 = make_package(STACK_4,STACK_3,
+                         boundp(STACK_1) ? !nullp(STACK_1) : case_inverted,
+                         boundp(STACK_0) ? !nullp(STACK_0) : case_inverted);
+  /* stack-layout: pack, nicknames, uselist, case-sensitive, case-inverted. */
   /* use default value for use-argument: */
-  if (!boundp(STACK_1)) STACK_1 = O(use_default);
+  if (!boundp(STACK_2))
+    STACK_2 = O(use_default);
   /* execute (USE-PACKAGE uselist newpackage) : */
-  pushSTACK(STACK_1); /* uselist */
-  pushSTACK(STACK_4); /* package */
+  pushSTACK(STACK_2); /* uselist */
+  pushSTACK(STACK_(4+1)); /* package */
   funcall(L(use_package),2);
-  skipSTACK(3);
+  skipSTACK(4);
   VALUES1(popSTACK()); /* package as value */
 }
 
 /* (MAKE-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]
-                      [:CASE-SENSITIVE sensitivep]),
+                      [:CASE-SENSITIVE sensitivep] [:CASE-INVERTED invertedp]),
  CLTL p. 183 */
-LISPFUN(make_package,seclass_default,1,0,norest,key,3,
-        (kw(nicknames),kw(use),kw(case_sensitive)) ) {
-  in_make_package();
+LISPFUN(make_package,seclass_default,1,0,norest,key,4,
+        (kw(nicknames),kw(use),kw(case_sensitive),kw(case_inverted)) ) {
+  in_make_package(false);
+}
+
+/* (CS-COMMON-LISP:MAKE-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]
+                                     [:CASE-SENSITIVE sensitivep] [:CASE-INVERTED invertedp]) */
+LISPFUN(cs_make_package,seclass_default,1,0,norest,key,4,
+        (kw(nicknames),kw(use),kw(case_sensitive),kw(case_inverted)) ) {
+  in_make_package(true);
 }
 
 /* (SYSTEM::%IN-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]
-                             [:CASE-SENSITIVE sensitivep])
+                             [:CASE-SENSITIVE sensitivep] [:CASE-INVERTED invertedp])
  is like (IN-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]), CLTL p. 183,
  except that *PACKAGE* is not modified. */
-LISPFUN(pin_package,seclass_default,1,0,norest,key,3,
-        (kw(nicknames),kw(use),kw(case_sensitive)) ) {
+LISPFUN(pin_package,seclass_default,1,0,norest,key,4,
+        (kw(nicknames),kw(use),kw(case_sensitive),kw(case_inverted)) ) {
   /* check name and turn into string: */
-  var object name = test_stringsymchar_arg(STACK_3);
-  STACK_3 = name;
+  var object name = test_stringsymchar_arg(STACK_4,false);
+  STACK_4 = name;
   /* find package with this name: */
   var object pack = find_package(name);
   if (nullp(pack)) { /* package not found, must create a new one */
-    in_make_package();
+    in_make_package(false);
   } else { /* package found */
-    STACK_3 = pack; /* save pack */
-    /* stack-layout: pack, nicknames, uselist, case-sensitive. */
+    STACK_4 = pack; /* save pack */
+    /* stack-layout: pack, nicknames, uselist, case-sensitive, case-inverted. */
     /* check the case-sensitivity: */
-    if (boundp(STACK_0)) {
-      if (!(pack_casesensitivep(pack) == !nullp(STACK_0))) {
+    if (boundp(STACK_1)) {
+      if (!(!pack_casesensitivep(pack) == nullp(STACK_1))) {
         pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
         pushSTACK(pack);
         fehler(package_error,
                GETTEXT("Cannot change the case sensitiveness of ~S."));
       }
     }
+    /* check the case-inverted: */
+    if (boundp(STACK_0)) {
+      if (!(!pack_caseinvertedp(pack) == nullp(STACK_0))) {
+        pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
+        pushSTACK(pack);
+        fehler(package_error,
+               GETTEXT("Cannot change the case inversion of ~S."));
+      }
+    }
     /* adjust the nicknames: */
-    if (boundp(STACK_2)) {
+    if (boundp(STACK_3)) {
       /* install nicknames with RENAME-PACKAGE: */
       pushSTACK(pack); /* pack */
       pushSTACK(ThePackage(pack)->pack_name); /* (package-name pack) */
-      pushSTACK(STACK_(2+2)); /* nicknames */
+      pushSTACK(STACK_(3+2)); /* nicknames */
       /* (RENAME-PACKAGE pack (package-name pack) nicknames) */
       funcall(L(rename_package),3);
     }
     /* adjust the use-list: */
-    if (boundp(STACK_1)) {
+    if (boundp(STACK_2)) {
       /* extend use-list with USE-PACKAGE
          and shorten with UNUSE-PACKAGE: */
-      STACK_0 = STACK_3; /* pack as 2. argument for USE-PACKAGE */
+      STACK_1 = STACK_2; /* use-list as 1. argument for USE-PACKAGE */
+      STACK_0 = STACK_4; /* pack as 2. argument for USE-PACKAGE */
       prepare_use_package(); /* check arguments STACK_1, STACK_0 */
-      /* stack-layout: pack, nicknames, new use-list, pack. */
+      /* stack-layout: pack, nicknames, -, new use-list, pack. */
       { /* execute USE-PACKAGE (with copied use-list): */
         var object temp = reverse(STACK_1);
-        use_package(temp,STACK_3);
+        use_package(temp,STACK_4);
       }
       /* All packages, that are still listed in the use-list of pack,
          but which do not occur in the uselist located in STACK_1,
          are removed with unuse_1package: */
-      pack = STACK_3;
+      pack = STACK_4;
       { /* traverse use-list of pack */
         STACK_0 = ThePackage(pack)->pack_use_list;
         while (mconsp(STACK_0)) {
@@ -2336,13 +2422,13 @@ LISPFUN(pin_package,seclass_default,1,0,norest,key,3,
           /* search in uselist: */
           if (nullp(memq(qpack,STACK_1)))
             /* not found in uselist */
-            unuse_1package(STACK_3,qpack);
+            unuse_1package(STACK_4,qpack);
           STACK_0 = Cdr(STACK_0);
         }
       }
     }
     /* the use-list is adjusted correctly. */
-    skipSTACK(3); /* forget uselist, nicknames etc. */
+    skipSTACK(4); /* forget uselist, nicknames etc. */
     VALUES1(popSTACK());
   }
 }
@@ -2377,7 +2463,7 @@ LISPFUNN(delete_package,1) {
     }
     pack = found;
   } else if (symbolp(pack)) { /* symbol -> string */
-    pack = Symbol_name(pack); goto string; /* use printname */
+    pack = Symbol_name(pack); goto string; /* use printname, no case-invert */
   } else if (charp(pack)) { /* character -> string */
     var object new_string = allocate_string(1);
     TheSnstring(new_string)->data[0] = char_code(pack);
@@ -2432,16 +2518,16 @@ local maygc void delete_package_aux (void* data, object sym) {
   pushSTACK(sym); unintern(&STACK_0,localptr); skipSTACK(1);
 }
 
-LISPFUNNR(find_all_symbols,1)
-{ /* (FIND-ALL-SYMBOLS name), CLTL p. 187 */
-  STACK_0 = test_stringsymchar_arg(STACK_0); /* name as string */
+/* (FIND-ALL-SYMBOLS name) and its case-inverted variant */
+local maygc Values do_find_all_symbols (bool invert) {
+  STACK_0 = test_stringsymchar_arg(STACK_0,invert); /* name as string */
   pushSTACK(NIL); /* (so far empty) symbol-list */
   pushSTACK(O(all_packages)); /* traverse list of all packages */
   while (mconsp(STACK_0)) {
     var object pack = Car(STACK_0); /* next package */
     /* search in its internal and external symbols: */
     var object sym;
-    if (package_lookup(STACK_2,pack,&sym,)) {
+    if (package_lookup(STACK_2,invert,pack,&sym,)) {
       /* found: symbol sym is present in package pack,
          cons with (pushnew sym STACK_1 :test #'eq) on the symbol-list:
          Search, if the found symbol sym occurs in STACK_1: */
@@ -2460,6 +2546,18 @@ LISPFUNNR(find_all_symbols,1)
   skipSTACK(1);
   VALUES1(popSTACK()); /* symbol-list as value */
   skipSTACK(1);
+}
+
+/* (FIND-ALL-SYMBOLS name), CLTL p. 187 */
+LISPFUNNR(find_all_symbols,1)
+{
+  do_find_all_symbols(false);
+}
+
+/* (CS-COMMON-LISP:FIND-ALL-SYMBOLS name) */
+LISPFUNNR(cs_find_all_symbols,1)
+{
+  do_find_all_symbols(true);
 }
 
 local one_sym_function_t map_symbols_aux;
@@ -2497,7 +2595,7 @@ local maygc void map_symbols_aux (void* data, object sym) {
      symbol of the same name is located in the
      shadowing-list of pack. */
   var object shadowingsym;
-  if (!(shadowing_lookup(Symbol_name(sym),*(localptr STACKop 0),&shadowingsym)
+  if (!(shadowing_lookup(Symbol_name(sym),false,*(localptr STACKop 0),&shadowingsym)
         && !eq(shadowingsym,sym))) {
     pushSTACK(sym); funcall(*(localptr STACKop 1),1);
   } else {
@@ -2624,7 +2722,7 @@ LISPFUNN(package_iterate,1) {
           {
             var object shadowingsym;
             if (!(eq(Car(TheSvector(state)->data[5]),S(Kinherited))
-                  && (shadowing_lookup(Symbol_name(value2),
+                  && (shadowing_lookup(Symbol_name(value2),false,
                                        TheSvector(state)->data[4],
                                        &shadowingsym)
                       || symtab_find(value2,
@@ -2695,33 +2793,45 @@ LISPFUNN(package_iterate,1) {
  init_packages();
  can trigger GC */
 global maygc void init_packages (void) {
-  pushSTACK(coerce_imm_ss(ascii_to_string("COMMON-LISP")));
-  pushSTACK(coerce_imm_ss(ascii_to_string("LISP")));
-  pushSTACK(coerce_imm_ss(ascii_to_string("CL")));
-  pushSTACK(coerce_imm_ss(ascii_to_string("COMMON-LISP-USER")));
-  pushSTACK(coerce_imm_ss(ascii_to_string("CL-USER")));
-  pushSTACK(coerce_imm_ss(ascii_to_string("USER")));
-  pushSTACK(coerce_imm_ss(ascii_to_string("SYSTEM")));
-  pushSTACK(coerce_imm_ss(ascii_to_string("COMPILER")));
-  pushSTACK(coerce_imm_ss(ascii_to_string("SYS")));
-  pushSTACK(coerce_imm_ss(ascii_to_string("KEYWORD")));
-  pushSTACK(coerce_imm_ss(ascii_to_string("CHARSET")));
   O(all_packages) = NIL; /* ALL_PACKAGES := NIL */
+  { /* #<PACKAGE CS-COMMON-LISP-USER>: */
+    pushSTACK(coerce_imm_ss(ascii_to_string("CS-COMMON-LISP-USER")));
+    pushSTACK(coerce_imm_ss(ascii_to_string("CS-CL-USER")));
+    var object nicks = listof(1); /* ("CS-CL-USER") */
+    make_package(popSTACK(),nicks,true,true); /* "CS-COMMON-LISP-USER" */
+  }
+  { /* #<PACKAGE CS-COMMON-LISP>: */
+    pushSTACK(coerce_imm_ss(ascii_to_string("CS-COMMON-LISP")));
+    pushSTACK(coerce_imm_ss(ascii_to_string("CS-CL")));
+    var object nicks = listof(1); /* ("CS-CL") */
+    make_package(popSTACK(),nicks,true,true); /* "CS-COMMON-LISP" */
+  }
   /* #<PACKAGE CHARSET>: */
-  O(charset_package) = make_package(popSTACK(),NIL,false); /* "CHARSET",() */
+  pushSTACK(coerce_imm_ss(ascii_to_string("CHARSET")));
+  O(charset_package) = make_package(popSTACK(),NIL,false,false); /* "CHARSET",() */
   /* #<PACKAGE KEYWORD>: */
-  O(keyword_package) = make_package(popSTACK(),NIL,false); /* "KEYWORD" */
+  pushSTACK(coerce_imm_ss(ascii_to_string("KEYWORD")));
+  O(keyword_package) = make_package(popSTACK(),NIL,false,false); /* "KEYWORD" */
   { /* #<PACKAGE SYSTEM>: */
+    pushSTACK(coerce_imm_ss(ascii_to_string("SYSTEM")));
+    pushSTACK(coerce_imm_ss(ascii_to_string("COMPILER")));
+    pushSTACK(coerce_imm_ss(ascii_to_string("SYS")));
     var object nicks = listof(2); /* ("COMPILER" "SYS") */
-    make_package(popSTACK(),nicks,false); /* "SYSTEM" */
+    make_package(popSTACK(),nicks,false,false); /* "SYSTEM" */
   }
-  { /* #<package COMMON-LISP-USER> */
-    var object nicks = listof(2); /* ("CL-USER","USER") */
-    make_package(popSTACK(),nicks,false); /* "COMMON-LISP-USER" */
+  { /* #<PACKAGE COMMON-LISP-USER>: */
+    pushSTACK(coerce_imm_ss(ascii_to_string("COMMON-LISP-USER")));
+    pushSTACK(coerce_imm_ss(ascii_to_string("CL-USER")));
+    pushSTACK(coerce_imm_ss(ascii_to_string("USER")));
+    var object nicks = listof(2); /* ("CL-USER" "USER") */
+    make_package(popSTACK(),nicks,false,false); /* "COMMON-LISP-USER" */
   }
-  { /* #<PACKAGE LISP>: */
+  { /* #<PACKAGE COMMON-LISP>: */
+    pushSTACK(coerce_imm_ss(ascii_to_string("COMMON-LISP")));
+    pushSTACK(coerce_imm_ss(ascii_to_string("LISP")));
+    pushSTACK(coerce_imm_ss(ascii_to_string("CL")));
     var object nicks = listof(2); /* ("LISP" "CL") */
-    O(default_package) = make_package(popSTACK(),nicks,false); /* "COMMON-LISP" */
+    O(default_package) = make_package(popSTACK(),nicks,false,false); /* "COMMON-LISP" */
   }
   /* Created all basic packages.
      Now append all further packages to the end of O(all_packages). */

@@ -674,3 +674,11 @@ NIL
   :collect (list i x :digit (digit-char-p x) :alpha (alpha-char-p x)
                  :alphanumericp (alphanumericp x)))
 nil
+
+;; Check that sys::char-invertcase is an involution
+(locally (declare (compile))
+  (loop :for i :from 0 :below char-code-limit
+        :for x = (code-char i)
+        :unless (eq (sys::char-invertcase (sys::char-invertcase x)) x)
+        :collect x))
+NIL

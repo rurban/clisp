@@ -436,13 +436,19 @@
 ;;; functions for strings (Chapter 18)
 
 (defun string-trim (character-bag string)
-  (sys::string-both-trim character-bag character-bag string))
+  (sys::string-both-trim character-bag character-bag string nil))
+(defun cs-cl::string-trim (character-bag string)
+  (sys::string-both-trim character-bag character-bag string t))
 
 (defun string-left-trim (character-bag string)
-  (sys::string-both-trim character-bag nil string))
+  (sys::string-both-trim character-bag nil string nil))
+(defun cs-cl::string-left-trim (character-bag string)
+  (sys::string-both-trim character-bag nil string t))
 
 (defun string-right-trim (character-bag string)
-  (sys::string-both-trim nil character-bag string))
+  (sys::string-both-trim nil character-bag string nil))
+(defun cs-cl::string-right-trim (character-bag string)
+  (sys::string-both-trim nil character-bag string t))
 
 
 ;;; functions for pathnames (Chapter 23.1.5)
