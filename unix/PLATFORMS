@@ -726,7 +726,8 @@ variable CONFIG_SHELL to "/bin/bash", and start "$CONFIG_SHELL ./configure ..."
 instead of "./configure ...".
 
 The default stack size limit is 512 KB, which is too small for bootstrapping
-CLISP. Even 1 MB is too small. Try "ulimit -S -s 8192" before starting "make".
+CLISP. Even 1 MB is too small. Try "ulimit -S -s 8192" before starting "make"
+or "limit stacksize 8192" is you are using a CSH-derivative.
 
 Remove all optimization options ("-O", "-O2") from the CC and CFLAGS variables
 in the Makefile. Apple's cc crashes when compiling eval.d with optimization.
