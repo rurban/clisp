@@ -807,10 +807,10 @@
 	(modules/regexp/configure): Likewise.
 	(modules/clx/new-clx/configure): Likewise.
 	(utils/hln/configure): Likewise.
-	* unixconf.h.in (return_void, *_CONST, CONNECT_ADDRLEN_T): Use #undef
-	instead of #define, to work around an autoconf bug.
-	(DIRENT, SYSNDIR, SYSDIR, NDIR): Remove comments after #undef, to work
-	an autoconf-2.52 bug.
+	* unixconf.h.in (return_void, *_CONST, CONNECT_ADDRLEN_T): Use
+	#undef instead of #define, to work around an autoconf bug.
+	(DIRENT, SYSNDIR, SYSDIR, NDIR): Remove comments after #undef, to
+	work around an autoconf-2.52 bug.
 	* configure: Pass --cache-file=config.cache to the main configure, to
 	force a cache file. Needed for grepping cl_cv_prog_cc_cplusplus and
 	also for speed. Don't pass --cache-file=../config.cache to gettext's
