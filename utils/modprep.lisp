@@ -89,9 +89,12 @@ return the line number, else NIL."
     :do (loop :for len = (length in)
           :while (and (/= 0 len) (char= #\\ (aref in (1- len))))
           :do (setf (aref in (1- len)) #\Space ; remove #\\
-                    in (sys::string-concat in (read-line stream nil nil)))
+                    in (ext:string-concat in (read-line stream nil nil)))
           (incf lineno))
-    :do (setq lineno (or (decode-line-directive in) lineno))
+    :do (let ((n (decode-line-directive in)))
+          (when (and n (/= n lineno))
+            ;; (warn "fixed line number: ~S --> ~S" lineno n)
+            (setq lineno n)))
     :collect (make-line :number lineno :contents in)))
 
 (defun vector-starts-with (v0 v1)
@@ -122,7 +125,7 @@ return the line number, else NIL."
 (defun sharp-else ()
   (let* ((top (aref *if-stack* (1- (length *if-stack*))))
          (pos (1- (length top))))
-    (setf (aref top pos) (sys::string-concat "!(" (aref top pos) ")"))
+    (setf (aref top pos) (ext:string-concat "!(" (aref top pos) ")"))
     top))
 (defun sharp-elif (condition)
   (vector-push-extend condition (sharp-else)))
@@ -147,8 +150,8 @@ The vector is freshly constructed, but the strings are shared"
     (case directive
       ;; FIXME: what about a comment starting on a CPP line?!
       (:|if| (string-rest line pos))
-      (:|ifndef| (sys::string-concat "!defined(" (string-rest line pos) ")"))
-      (:|ifdef| (sys::string-concat "defined(" (string-rest line pos) ")")))))
+      (:|ifndef| (ext:string-concat "!defined(" (string-rest line pos) ")"))
+      (:|ifdef| (ext:string-concat "defined(" (string-rest line pos) ")")))))
 
 (defun else-p (line) (eq :|else| (decode-directive line)))
 
@@ -299,7 +302,7 @@ The vector is freshly constructed, but the strings are shared"
           (seen-key
            (push (init-to-objdef (if (char= (aref line pos1) #\:)
                                      (subseq line pos1 pos2)
-                                     (sys::string-concat
+                                     (ext:string-concat
                                       ":" (subseq line pos1 pos2))))
                  keys))
           (seen-opt (incf opt))
@@ -380,7 +383,7 @@ The vector is freshly constructed, but the strings are shared"
 
 (defun new-fundef (name pack)
   (let ((fd (make-fundef :pack pack :name name :tag
-                         (init-to-tag (sys::string-concat pack ":" name)
+                         (init-to-tag (ext:string-concat pack ":" name)
                                       #'tag-to-fundef "subr_"))))
     (unless (every #'upper-case-p pack)
       (warn "~S:~D: fixed package case: ~S" *input-file* *lineno* pack)
@@ -464,7 +467,7 @@ and turn it into  DEFUN(funname,lambdalist,signature)."
       (multiple-value-setq (sig cc)
         (parse-signature fname line :start (1+ comma) :end end))
       (let* ((rest (subseq line end))
-             (all (sys::string-concat
+             (all (ext:string-concat
                    (subseq line 0 end) ","
                    (fundef-lispfun (funname-to-fundef fname sig) sig)
                    (or cc "") rest)))
@@ -567,7 +570,7 @@ Also return status: NIL for parsing until the end and
                              (incf ii)
                              (error "~S:~D: bad SUBR reference in ~S at ~D"
                                     *input-file* *lineno* line ii))
-                         (setq line (sys::string-concat
+                         (setq line (ext:string-concat
                                      (subseq line 0 (1- subst-start))
                                      "F(" tag ")" (subseq line (1+ ii)))
                                end (+ end tlen (- subst-start ii) 3 -1)
@@ -577,7 +580,7 @@ Also return status: NIL for parsing until the end and
                               (def (init-to-objdef id))
                               (tag (objdef-tag def))
                               (tlen (1- (length tag))))
-                         (setq line (sys::string-concat
+                         (setq line (ext:string-concat
                                      (subseq line 0 subst-start)
                                      "O(" tag ")" (subseq line (1+ ii)))
                                end (+ end tlen (- subst-start ii) 3)
@@ -620,8 +623,7 @@ commas and parentheses."
                      :init (subseq line (next-non-blank line (1+ comma)) end))
        *varinits*)
       ;; return value from defvar-p: DEFVAR(varname)
-      (sys::string-concat (subseq line 0 comma)
-                          (subseq line end)))))
+      (ext:string-concat (subseq line 0 comma) (subseq line end)))))
 
 (defun parse (&optional *lines*)
   "Parse the entire input"
@@ -641,7 +643,7 @@ commas and parentheses."
             (lexical-analysis line :start (1+ end) :in-comment in-comment))
       (setq in-comment (eql status #\;))
       (when (and *must-close-next-defun* *in-defun* (= *brace-depth* 0))
-        (setq line (sys::string-concat line "}")
+        (setq line (ext:string-concat line "}")
               *must-close-next-defun* nil *in-defun* nil))
       (when (and *init-2-name* (search *init-2-name* line))
         (setq *init-2-name* nil)) ; module defines its own init2
@@ -694,10 +696,10 @@ commas and parentheses."
 (defun print-tables-1 (out)
   "Output the tables just after the DEFMODULE line"
   (let ((object-tab-initdata
-         (sys::string-concat "module__" *module-name* "__object_tab_initdata"))
+         (ext:string-concat "module__" *module-name* "__object_tab_initdata"))
         (object-tab
-         (sys::string-concat "module__" *module-name* "__object_tab"))
-        (subr-tab (sys::string-concat "module__" *module-name* "__subr_tab")))
+         (ext:string-concat "module__" *module-name* "__object_tab"))
+        (subr-tab (ext:string-concat "module__" *module-name* "__subr_tab")))
     (newline out) (format out "#define O(varname) ~a._##varname" object-tab)
     (newline out)
     (format out "#define F(varname) subr_tab_ptr_as_object(&(~a._##varname))"
@@ -744,9 +746,9 @@ commas and parentheses."
 (defun print-tables-2 (out)
   "Output the tables at the end of the file"
   (let ((subr-tab-initdata
-         (sys::string-concat "module__" *module-name* "__subr_tab_initdata"))
+         (ext:string-concat "module__" *module-name* "__subr_tab_initdata"))
         (subr-tab
-         (sys::string-concat "module__" *module-name* "__subr_tab")))
+         (ext:string-concat "module__" *module-name* "__subr_tab")))
     (newline out) (newline out)
     (format out "struct ~A_t ~A = {" subr-tab subr-tab) (newline out)
     (loop :for fd :across *fundefs* :do
@@ -803,7 +805,7 @@ commas and parentheses."
   (print-tables-2 out))
 
 (defun mod-file (input)
-  (make-pathname :name (sys::string-concat (pathname-name input) ".m")
+  (make-pathname :name (ext:string-concat (pathname-name input) ".m")
                  :defaults input))
 
 (defun modprep (*input-file* &optional (output (mod-file *input-file*)))
