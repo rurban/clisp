@@ -7,10 +7,13 @@
 
 	* realelem.d (F_R_float_F, RA_R_float_F): use Lfloat_length(y)
 	instead of O(LF_digits), when y is actually a long float
+	(C_R_float_C, N_N_float_N): do not modify the first argument
 	* realtran.d (R_cosh_sinh_R_R): handle start_p/end_p for x=0 too
 	* comptran.d (N_N_log_N): fixed a typo in the last patch
 	(N_cis_N): (sin a) may be 0
 	(N_exp_N): handle contagion properly
+	(N_log_N): do not modify the complex argument
+	(N_N_expt_N, N_tan_N, N_tanh_N): fixed C_R_float_C/N_N_float_N calls
 	* lisparit.d (EXP): pass a real as the 3rd arg of N_exp_N
 	(LOG): pass a real as the 3rd arg of N_log_N
 
