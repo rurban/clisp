@@ -1,3 +1,6 @@
+/* -*- C -*-
+ * CLISP configuration for UNIX systems
+ */
 /* Bruno Haible 1992-2001 */
 
 #define UNIXCONF
@@ -650,7 +653,7 @@
    iconv_open, iconv, iconv_close functions. */
 #undef HAVE_ICONV
 /* Define as const if the declaration of iconv() needs const. */
-#undef ICONV_CONST
+#define ICONV_CONST
 
 
 /* OS services */
