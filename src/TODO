@@ -108,6 +108,24 @@ Review all macros and tighten the runtime interface of the macros.
 (format nil "~G" 1d23) => "099999999999999990000000.0    "
 
 
+contagion warnings: engineering vs portability
+<http://sourceforge.net/mailarchive/message.php?msg_id=10935288>
+<http://article.gmane.org/gmane.lisp.clisp.devel:13758>
+*warn-on-floating-point-contagion*              engineering warning
+      the user is doing something mathematically unsound
+*warn-on-floating-point-rational-contagion*     "portability" warning
+      we don't like the standard requirement
+since our ANSI mode makes these portability concerns non-existent,
+logically, either this variable should be removed,
+or every *...-ansi* variable should have a corresponding *warn-...* variable
+   (e.g., warn on (pathname "foo:bar") and (print #\space))
+or there should be a single variable *enable-portability-warnings*
+the last option is best: simple and inobtrusive.
+(setq *ansi* t) should also disable *enable-portability-warnings*.
+initially, *warn-on-floating-point-contagion* and *enable-portability-warnings*
+should be T.
+
+
 Cannot remove symbolic links to directories
 with either DELETE-FILE or DELETE-DIR.
 <http://article.gmane.org/gmane.lisp.clisp.devel:13452>
