@@ -61,10 +61,9 @@
     (std-method-specializers method)))
 
 ;; MOP p. 82
-(let ((*allow-making-generic* t))
-  (defgeneric method-generic-function (method)
-    (:method ((method standard-method))
-      (std-method-generic-function method))))
+(defgeneric method-generic-function (method)
+  (:method ((method standard-method))
+    (std-method-generic-function method)))
 
 (defgeneric function-keywords (method)
   (:method ((method standard-method))
