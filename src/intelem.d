@@ -1640,7 +1640,7 @@ local object DS_to_I (const uintD* MSDptr, uintC len)
  > obj: an Integer
  < MSDptr/len/LSDptr: Normalized Digit sequence */
 #define I_to_NDS_nocopy(obj, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung) \
-  do { var uintD CONCAT(I_to_NDS_room_,__LINE__)[FN_maxlength];         \
+  var uintD CONCAT(I_to_NDS_room_,__LINE__)[FN_maxlength]; do {         \
     var object obj_from_I_to_NDS_nocopy = (obj);                        \
     if (I_fixnump(obj_from_I_to_NDS_nocopy))                            \
       FN_to_NDS_nocopy_(obj_from_I_to_NDS_nocopy,CONCAT(I_to_NDS_room_,__LINE__),_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung); \
