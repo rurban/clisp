@@ -1058,9 +1058,9 @@ commas and parentheses."
   (with-open-file (out output :direction :output :if-exists :supersede
                        #+UNICODE :external-format #+UNICODE charset:utf-8)
     (output-all out *input-file* *lines*)
-    (format t "~&~S: wrote ~S (~:D byte~:P)~&"
+    (format t "~&~S: wrote ~A (~:D byte~:P)~&"
             'modprep output (file-length out))))
 
-(time (modprep (first *args*) (or (second *args*) (mod-file (first *args*)))))
+(modprep (first *args*) (or (second *args*) (mod-file (first *args*))))
 
 ;;; file modprep.lisp ends here
