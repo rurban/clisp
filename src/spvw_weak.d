@@ -134,6 +134,17 @@ local uintL max_watchset_count (object obj) {
       var uintL n = (Lrecord_length(obj)-2) / 2;
       return 2*n;
     }
+    case Rectype_WeakHashedAlist_Key:
+    case Rectype_WeakHashedAlist_Value: {
+      var uintL n = (Lrecord_length(obj)-4) / 3;
+      return n;
+    }
+    case Rectype_WeakHashedAlist_Either:
+      return 0;
+    case Rectype_WeakHashedAlist_Both: {
+      var uintL n = (Lrecord_length(obj)-4) / 3;
+      return 2*n;
+    }
     default: abort();
   }
 }
@@ -216,6 +227,31 @@ local markwatch_t* get_watchset (object obj, markwatch_t* accumulator) {
       for (i = 0; i < n; i++) {
         add_watchable(&accumulator,obj,i,TheWeakAlist(obj)->wal_data[2*i+0]);
         add_watchable(&accumulator,obj,i,TheWeakAlist(obj)->wal_data[2*i+1]);
+      }
+      break;
+    }
+    case Rectype_WeakHashedAlist_Key: {
+      var uintL n = (Lrecord_length(obj)-4) / 3;
+      var uintL i;
+      for (i = 0; i < n; i++)
+        add_watchable(&accumulator,obj,i,TheWeakHashedAlist(obj)->whal_data[3*i+0]);
+      break;
+    }
+    case Rectype_WeakHashedAlist_Value: {
+      var uintL n = (Lrecord_length(obj)-4) / 3;
+      var uintL i;
+      for (i = 0; i < n; i++)
+        add_watchable(&accumulator,obj,i,TheWeakHashedAlist(obj)->whal_data[3*i+1]);
+      break;
+    }
+    case Rectype_WeakHashedAlist_Either:
+      break;
+    case Rectype_WeakHashedAlist_Both: {
+      var uintL n = (Lrecord_length(obj)-4) / 3;
+      var uintL i;
+      for (i = 0; i < n; i++) {
+        add_watchable(&accumulator,obj,i,TheWeakHashedAlist(obj)->whal_data[3*i+0]);
+        add_watchable(&accumulator,obj,i,TheWeakHashedAlist(obj)->whal_data[3*i+1]);
       }
       break;
     }
@@ -361,6 +397,79 @@ local void propagate_through_weak (object obj, uintL index) {
         i = index;
         var object key = TheWeakAlist(obj)->wal_data[2*i+0];
         var object value = TheWeakAlist(obj)->wal_data[2*i+1];
+        if (!eq(key,unbound) && !eq(value,unbound)) {
+          var bool key_alive = (gcinvariant_object_p(key) || alive(key));
+          var bool value_alive = (gcinvariant_object_p(value) || alive(value));
+          if (key_alive && !value_alive)
+            gc_mark_with_watchset(value);
+          if (!key_alive && value_alive)
+            gc_mark_with_watchset(key);
+        }
+      }
+      break;
+    }
+    case Rectype_WeakHashedAlist_Key: {
+      var uintL n = (Lrecord_length(obj)-4) / 3;
+      var uintL i;
+      if (index == (uintL)~(uintL)0) {
+        gc_mark_with_watchset(TheWeakHashedAlist(obj)->whal_itable);
+        for (i = 0; i < n; i++) {
+          var object key = TheWeakHashedAlist(obj)->whal_data[3*i+0];
+          if (!eq(key,unbound) && (gcinvariant_object_p(key) || alive(key)))
+            gc_mark_with_watchset(TheWeakHashedAlist(obj)->whal_data[3*i+1]);
+        }
+      } else {
+        i = index;
+        var object key = TheWeakHashedAlist(obj)->whal_data[3*i+0];
+        if (!eq(key,unbound) && (gcinvariant_object_p(key) || alive(key)))
+          gc_mark_with_watchset(TheWeakHashedAlist(obj)->whal_data[3*i+1]);
+      }
+      break;
+    }
+    case Rectype_WeakHashedAlist_Value: {
+      var uintL n = (Lrecord_length(obj)-4) / 3;
+      var uintL i;
+      if (index == (uintL)~(uintL)0) {
+        gc_mark_with_watchset(TheWeakHashedAlist(obj)->whal_itable);
+        for (i = 0; i < n; i++) {
+          var object value = TheWeakHashedAlist(obj)->whal_data[3*i+1];
+          if (!eq(value,unbound) && (gcinvariant_object_p(value) || alive(value)))
+            gc_mark_with_watchset(TheWeakHashedAlist(obj)->whal_data[3*i+0]);
+        }
+      } else {
+        i = index;
+        var object value = TheWeakHashedAlist(obj)->whal_data[3*i+1];
+        if (!eq(value,unbound) && (gcinvariant_object_p(value) || alive(value)))
+          gc_mark_with_watchset(TheWeakHashedAlist(obj)->whal_data[3*i+0]);
+      }
+      break;
+    }
+    case Rectype_WeakHashedAlist_Either:
+      if (index == (uintL)~(uintL)0) {
+        gc_mark_with_watchset(TheWeakHashedAlist(obj)->whal_itable);
+      }
+      break;
+    case Rectype_WeakHashedAlist_Both: {
+      var uintL n = (Lrecord_length(obj)-4) / 3;
+      var uintL i;
+      if (index == (uintL)~(uintL)0) {
+        gc_mark_with_watchset(TheWeakHashedAlist(obj)->whal_itable);
+        for (i = 0; i < n; i++) {
+          var object key = TheWeakHashedAlist(obj)->whal_data[3*i+0];
+          var object value = TheWeakHashedAlist(obj)->whal_data[3*i+1];
+          if (!eq(key,unbound) && !eq(value,unbound)) {
+            var bool key_alive = (gcinvariant_object_p(key) || alive(key));
+            var bool value_alive = (gcinvariant_object_p(value) || alive(value));
+            if (key_alive && !value_alive)
+              gc_mark_with_watchset(value);
+            if (!key_alive && value_alive)
+              gc_mark_with_watchset(key);
+          }
+        }
+      } else {
+        i = index;
+        var object key = TheWeakHashedAlist(obj)->whal_data[3*i+0];
+        var object value = TheWeakHashedAlist(obj)->whal_data[3*i+1];
         if (!eq(key,unbound) && !eq(value,unbound)) {
           var bool key_alive = (gcinvariant_object_p(key) || alive(key));
           var bool value_alive = (gcinvariant_object_p(value) || alive(value));
@@ -583,6 +692,124 @@ local bool weak_clean_dead (object obj) {
       }
       return keep;
     }
+    case Rectype_WeakHashedAlist_Key: {
+      var uintL n = (Lrecord_length(obj)-4) / 3;
+      {
+        var object itable = TheWeakHashedAlist(obj)->whal_itable;
+        if (!eq(itable,unbound) && !alive(itable))
+          abort();
+      }
+      if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_freelist))
+        abort();
+      var bool keep = false;
+      var uintL i;
+      for (i = 0; i < n; i++) {
+        var object key = TheWeakHashedAlist(obj)->whal_data[3*i+0];
+        if (eq(key,unbound))
+          ;
+        else if (gcinvariant_object_p(key) || alive(key))
+          keep = true;
+        else {
+          TheWeakHashedAlist(obj)->whal_data[3*i+0] = unbound;
+          TheWeakHashedAlist(obj)->whal_data[3*i+1] = unbound;
+          TheWeakHashedAlist(obj)->whal_count = fixnum_inc(TheWeakHashedAlist(obj)->whal_count,-1);
+        }
+        if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_data[3*i+2]))
+          abort();
+      }
+      return keep;
+    }
+    case Rectype_WeakHashedAlist_Value: {
+      var uintL n = (Lrecord_length(obj)-4) / 3;
+      {
+        var object itable = TheWeakHashedAlist(obj)->whal_itable;
+        if (!eq(itable,unbound) && !alive(itable))
+          abort();
+      }
+      if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_freelist))
+        abort();
+      var bool keep = false;
+      var uintL i;
+      for (i = 0; i < n; i++) {
+        var object value = TheWeakHashedAlist(obj)->whal_data[3*i+1];
+        if (eq(value,unbound))
+          ;
+        else if (gcinvariant_object_p(value) || alive(value))
+          keep = true;
+        else {
+          TheWeakHashedAlist(obj)->whal_data[3*i+0] = unbound;
+          TheWeakHashedAlist(obj)->whal_data[3*i+1] = unbound;
+          TheWeakHashedAlist(obj)->whal_count = fixnum_inc(TheWeakHashedAlist(obj)->whal_count,-1);
+        }
+        if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_data[3*i+2]))
+          abort();
+      }
+      return keep;
+    }
+    case Rectype_WeakHashedAlist_Either: {
+      var uintL n = (Lrecord_length(obj)-4) / 3;
+      {
+        var object itable = TheWeakHashedAlist(obj)->whal_itable;
+        if (!eq(itable,unbound) && !alive(itable))
+          abort();
+      }
+      if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_freelist))
+        abort();
+      var bool keep = false;
+      var uintL i;
+      for (i = 0; i < n; i++) {
+        var object key = TheWeakHashedAlist(obj)->whal_data[3*i+0];
+        var object value = TheWeakHashedAlist(obj)->whal_data[3*i+1];
+        if (eq(key,unbound) && eq(value,unbound))
+          ;
+        else if ((!eq(key,unbound) && (gcinvariant_object_p(key) || alive(key)))
+                 && (!eq(value,unbound) && (gcinvariant_object_p(value) || alive(value))))
+          # both alive
+          keep = true;
+        else {
+          TheWeakHashedAlist(obj)->whal_data[3*i+0] = unbound;
+          TheWeakHashedAlist(obj)->whal_data[3*i+1] = unbound;
+          TheWeakHashedAlist(obj)->whal_count = fixnum_inc(TheWeakHashedAlist(obj)->whal_count,-1);
+        }
+        if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_data[3*i+2]))
+          abort();
+      }
+      return keep;
+    }
+    case Rectype_WeakHashedAlist_Both: {
+      var uintL n = (Lrecord_length(obj)-4) / 3;
+      {
+        var object itable = TheWeakHashedAlist(obj)->whal_itable;
+        if (!eq(itable,unbound) && !alive(itable))
+          abort();
+      }
+      if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_freelist))
+        abort();
+      var bool keep = false;
+      var uintL i;
+      for (i = 0; i < n; i++) {
+        var object key = TheWeakHashedAlist(obj)->whal_data[3*i+0];
+        var object value = TheWeakHashedAlist(obj)->whal_data[3*i+1];
+        if (eq(key,unbound) && eq(value,unbound))
+          ;
+        else {
+          bool key_alive = (!eq(key,unbound) && (gcinvariant_object_p(key) || alive(key)));
+          bool value_alive = (!eq(value,unbound) && (gcinvariant_object_p(value) || alive(value)));
+          if (key_alive || value_alive) {
+            # key or value alive; the other one must be kept alive too.
+            if (!(key_alive && value_alive)) abort();
+            keep = true;
+          } else {
+            TheWeakHashedAlist(obj)->whal_data[3*i+0] = unbound;
+            TheWeakHashedAlist(obj)->whal_data[3*i+1] = unbound;
+            TheWeakHashedAlist(obj)->whal_count = fixnum_inc(TheWeakHashedAlist(obj)->whal_count,-1);
+          }
+        }
+        if (!gcinvariant_object_p(TheWeakHashedAlist(obj)->whal_data[3*i+2]))
+          abort();
+      }
+      return keep;
+    }
     default: abort();
   }
 }
@@ -708,6 +935,10 @@ local bool weak_must_activate (object obj) {
     case Rectype_WeakAlist_Value:
     case Rectype_WeakAlist_Either:
     case Rectype_WeakAlist_Both:
+    case Rectype_WeakHashedAlist_Key:
+    case Rectype_WeakHashedAlist_Value:
+    case Rectype_WeakHashedAlist_Either:
+    case Rectype_WeakHashedAlist_Both:
       return true;
     default: abort();
   }

@@ -1,3 +1,45 @@
+2004-05-09  Bruno Haible  <bruno@clisp.org>
+
+	Merge ht_kvtable and ht_ntable. For weak hash tables, use
+	WeakHashedAlist instead of WeakAlist.
+	* lispbibl.d (Rectype_WeakHashedAlist_Key,
+	Rectype_WeakHashedAlist_Value, Rectype_WeakHashedAlist_Either,
+	Rectype_WeakHashedAlist_Both): New enum items.
+	(Hashtable): Remove ht_ntable field.
+	(hashtable_length): Decrement.
+	(kvtable_data): Update.
+	(WeakHashedAlist): New type.
+	(TheWeakHashedAlist): New macro.
+	(Lrecord_nonweak_length): Update.
+	(map_hashtable, map_hashtable_nogc): Update.
+	* spvw_gcmark.d (gc_mark): Handle Rectype_WeakHashedAlist_*.
+	* spvw_weak.d (max_watchset_count, get_watchset,
+	propagate_through_weak, weak_clean_dead, weak_must_activate): Handle
+	Rectype_WeakHashedAlist_*.
+	* spvw_circ.d (get_circ_mark, get_circ_unmark): Handle
+	Rectype_WeakHashedAlist_*.
+	* spvw_debug.d (nobject_out1): Update.
+	* hashtabl.d (HT_GOOD_P): Remove ht_ntable check.
+	(rehash, hash_lookup_builtin, hash_lookup_user): Use KVptr+2 instead of
+	Nptr.
+	(hash_store): Likewise.
+	(hash_table_weak_type): ht_kvtable is now a Rectype_WeakHashedAlist_*.
+	(allocate_kvt): Allocate a vector with 3*maxcount entries, or a
+	WeakHashedAlist.
+	(prepare_resize): Don't allocate an ntable any more.
+	(resize): Fill extended kvtable instead of ntable.
+	(clrhash, MAPHASH, HASH-TABLE-COUNT): Update.
+	(SYS::HASH-TABLE-ITERATE): Update.
+	(SYS::%SET-HASH-TABLE-WEAK-P): Update.
+	(CLASS-TUPLE-GETHASH): Use KVptr+2 instead of the ntable.
+	* io.d (pr_kvtable): Update.
+	(pr_orecord): Update hashtable handling. Add Rectype_WeakHashedAlist_*
+	handling.
+	* predtype.d (hash_table_equalp): Update.
+	(TYPE-OF, CLASS-OF): Handle Rectype_WeakHashedAlist_*.
+	(enum_hs_internal_weak_hashed_alist): New enum item.
+	(heap_statistics_mapper): Handle Rectype_WeakHashedAlist_*.
+
 2004-06-01  Sam Steingold  <sds@gnu.org>
 
 	more errors are recoverable

@@ -1662,6 +1662,7 @@ LISPSYM(weak_or_relation,"WEAK-OR-RELATION",ext) /* type in PREDTYPE */
 LISPSYM(weak_and_mapping,"WEAK-AND-MAPPING",ext) /* type in PREDTYPE */
 LISPSYM(weak_or_mapping,"WEAK-OR-MAPPING",ext) /* type in PREDTYPE */
 LISPSYM(internal_weak_alist,"INTERNAL-WEAK-ALIST",system) /* type in PREDTYPE */
+LISPSYM(internal_weak_hashed_alist,"INTERNAL-WEAK-HASHED-ALIST",system) /* type in PREDTYPE */
 LISPSYM(compiled_function,"COMPILED-FUNCTION",lisp) /* type in PREDTYPE */
 LISPSYM(frame_pointer,"FRAME-POINTER",system) /* type in PREDTYPE */
 LISPSYM(read_label,"READ-LABEL",system) /* type in PREDTYPE */
