@@ -4,6 +4,9 @@
         * test2.c (barrier): New function.
           (main): Call it at the right moment.
 
+        * Makefile.in (SEDPREPARE1, SEDCOMMAND2): Don't use # as literal.
+          Only GNU make understands \#, other `make's don't.
+
 1999-05-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Support for catching stack overflow on Unix, using sigaltstack().
