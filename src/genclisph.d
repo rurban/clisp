@@ -2258,6 +2258,7 @@ int main(int argc, char* argv[])
            "}\n");
   #endif
   printf("extern void* my_malloc (size_t size);\n");
+  printf("extern void* my_realloc (void *ptr, size_t size);\n");
   printf("#define unused %s\n",STRINGIFY(unused));
   printf("enum { seclass_foldable, seclass_no_se, seclass_read, seclass_write, seclass_default};\n");
   /* avoid some stupid warnings */
