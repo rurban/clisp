@@ -942,7 +942,13 @@
       (unless (null results)
         (push `(RETURN-FROM ,block-name ,@results) finally-code))
       ; Initialisierungen abarbeiten und optimieren:
-      (let ((initializations1 nil))
+      (let ((initializations1
+             (unless (zerop (length *helpvars*))
+               ;; `*helpvars*' must be bound first thing
+               (list (make-loop-init
+                      :specform 'LET
+                      :bindings
+                      (map 'list #'(lambda (var) `(,var NIL)) *helpvars*))))))
         ; `depends-preceding' backpropagation:
         (let ((later-depend nil))
           (dolist (initialization initializations)
@@ -1008,13 +1014,11 @@
            (make-loop-init
             :specform 'LET
             :bindings
-            `(,@(map 'list #'(lambda (var) `(,var NIL)) *helpvars*)
-                ,@(mapcar #'(lambda (var) (check-accu-var var) `(,var NIL))
-                          (delete-duplicates accu-vars-nil))
-                ,@(mapcar #'(lambda (var) (check-accu-var (car var)) var)
-                          (delete-duplicates accu-vars-0 :key #'car)))
-            :declspecs
-            (nreverse accu-declarations))
+            `(,@(mapcar #'(lambda (var) (check-accu-var var) `(,var NIL))
+                        (delete-duplicates accu-vars-nil))
+              ,@(mapcar #'(lambda (var) (check-accu-var (car var)) var)
+                        (delete-duplicates accu-vars-0 :key #'car)))
+            :declspecs (nreverse accu-declarations))
            initializations1))
         ;; Remove the NIL placeholders in stepafter-code.
         (setq stepafter-code (delete 'NIL stepafter-code))

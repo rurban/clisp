@@ -858,6 +858,13 @@ nil
   finally (return (+ x y z)))
 41
 
+(cdr (multiple-value-list
+      (compile nil
+               (lambda (x)
+                 (loop :with (a . b) = x :repeat 10
+                   :finally (pprint (list a b)))))))
+(NIL NIL)
+
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
 ;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)

@@ -1,5 +1,10 @@
 2004-02-19  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 898561 ]: LOOP compilation warnings
+	* loop.lisp (expand-loop): bind *helpvars* first thing
+
+2004-02-19  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (PATHNAME-DEVICE): return :UNSPECIFIC for
 	LOGICAL-PATHNAMEs per
 	<http://www.lisp.org/HyperSpec/Body/sec_19-3-2-1.html>
