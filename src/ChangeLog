@@ -1,3 +1,10 @@
+2004-11-12  Sam Steingold  <sds@gnu.org>
+
+	* m4/connect.m4 (CL_CONNECT): check whether connect() exists
+	before attempting to determine its prototype - needed for mingw32
+	* m4/tcpconn.m4 (CL_TCPCONN): check inet_addr() and setsockopt()
+	before prototype checks - for mingw32
+
 2004-11-07  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class5.lisp (update-instance-for-different-class@generic-function):
