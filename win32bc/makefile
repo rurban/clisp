@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host david as the output of the command:
+# This file was created on host SSTEINGOLD as the output of the command:
 # ./makemake --with-dir-key win32bc bcc32i
 
 # -------------- Start of configurable section --------------------
@@ -411,6 +411,7 @@ query.lisp \
 reploop.lisp \
 dribble.lisp \
 complete.lisp \
+pprint.lisp \
 describe.lisp \
 room.lisp \
 edit.lisp \
@@ -461,6 +462,7 @@ query.fas \
 reploop.fas \
 dribble.fas \
 complete.fas \
+pprint.fas \
 describe.fas \
 room.fas \
 edit.fas \
@@ -516,6 +518,7 @@ stage\query.lisp \
 stage\reploop.lisp \
 stage\dribble.lisp \
 stage\complete.lisp \
+stage\pprint.lisp \
 stage\describe.lisp \
 stage\room.lisp \
 stage\edit.lisp \
@@ -566,6 +569,7 @@ stage\query.fas \
 stage\reploop.fas \
 stage\dribble.fas \
 stage\complete.fas \
+stage\pprint.fas \
 stage\describe.fas \
 stage\room.fas \
 stage\edit.fas \
@@ -588,6 +592,7 @@ makemake : makemake.in
 
 Makefile : makemake
 	./makemake --with-dir-key win32bc bcc32i > Makefile.tmp
+	$(MV) Makefile Makefile~
 	$(MV) Makefile.tmp Makefile
 
 init : ../utils/gcc-cccp/cccp.exe comment5.exe ansidecl.exe varbrace.exe txt2c.exe ccmp2c.exe modprep.exe $(DFILES) modules.h
@@ -2026,6 +2031,9 @@ dribble.fas : dribble.lisp lisp.exe halfcompiled.mem
 complete.fas : complete.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c complete.lisp
 
+pprint.fas : pprint.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1000KW -M halfcompiled.mem -q -c pprint.lisp
+
 describe.fas : describe.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c describe.lisp
 
@@ -2192,6 +2200,9 @@ stage\dribble.lisp : dribble.lisp
 stage\complete.lisp : complete.lisp
 	$(LN_S) complete.lisp stage
 
+stage\pprint.lisp : pprint.lisp
+	$(LN_S) pprint.lisp stage
+
 stage\describe.lisp : describe.lisp
 	$(LN_S) describe.lisp stage
 
@@ -2338,6 +2349,9 @@ stage\dribble.fas : stage\dribble.lisp lisp.exe stage\testinit.mem
 
 stage\complete.fas : stage\complete.lisp lisp.exe stage\testinit.mem
 	$(RUN) -M stage\testinit.mem -q -c stage/complete.lisp
+
+stage\pprint.fas : stage\pprint.lisp lisp.exe stage\testinit.mem
+	$(RUN) -M stage\testinit.mem -q -c stage/pprint.lisp
 
 stage\describe.fas : stage\describe.lisp lisp.exe stage\testinit.mem
 	$(RUN) -M stage\testinit.mem -q -c stage/describe.lisp
