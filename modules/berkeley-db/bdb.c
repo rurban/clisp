@@ -8,7 +8,7 @@
 #include "clisp.h"
 
 #ifndef FOREIGN
-#error "Berkeley-DB requires CLISP FOREIGN CPP macro"
+# error "Berkeley-DB requires CLISP FOREIGN CPP macro"
 #endif
 
 #include "config.h"
@@ -68,12 +68,33 @@ DEFUN(BDB:DB-VERSION,)
   mv_count = 4;
 }
 
+static char *error_message = NULL;
+void error_callback (const char *errpfx, char *msg) {
+  int offset = errpfx ? strlen(errpfx)+2 : 0;
+  if (error_message) NOTREACHED;
+  error_message = my_malloc(offset + strlen(msg));
+  if (errpfx) strcpy(error_message,errpfx);
+  strcpy(error_message+offset,msg);
+}
+void error_message_reset (void) {
+  if (error_message) { free(error_message); error_message=NULL; }
+}
 nonreturning_function(static, error_bdb, (int status, char *caller)) {
   end_system_call();
-  pushSTACK(asciz_to_string(db_strerror(status),GLO(misc_encoding)));
-  pushSTACK(asciz_to_string(caller,GLO(misc_encoding)));
+  pushSTACK(`BDB::BDB-ERROR`);  /* error type */
+  pushSTACK(`:ERRNO`); pushSTACK(fixnum(status));
+  if (error_message)
+    pushSTACK(`"~S (~S): ~S: ~S"`);
+  else pushSTACK(`"~S (~S): ~S"`);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,"~S (~S): ~S");
+  pushSTACK(asciz_to_string(caller,GLO(misc_encoding)));
+  pushSTACK(asciz_to_string(db_strerror(status),GLO(misc_encoding)));
+  if (error_message) {
+    pushSTACK(asciz_to_string(error_message,GLO(misc_encoding)));
+    free(error_message); error_message = NULL;
+    funcall(L(error_of_type),8);
+  } else funcall(L(error_of_type),7);
+  NOTREACHED;
 }
 #define SYSCALL(caller,args)     do {                           \
     int db_error_code;                                          \
@@ -177,6 +198,8 @@ DEFUN(BDB:ENV-CREATE,&key :PASSWORD :ENCRYPT    \
   if (!missingp(STACK_4))       /* :PASSWD */
     env_set_encryption(dbe,&STACK_3,&STACK_4);
   skipSTACK(5);
+  /* set error callback */
+  begin_system_call(); dbe->set_errcall(dbe,&error_callback); end_system_call();
   wrap_finalize(dbe,&`BDB::MKENV`,&``BDB::ENV-CLOSE``);
 }
 
@@ -329,7 +352,7 @@ DEFUN(BDB:ENV-SET-OPTIONS, dbe &key                                     \
       :VERB_CHKPOINT :VERB_DEADLOCK :VERB_RECOVERY :VERB_REPLICATION    \
       :VERB_WAITSFOR :VERBOSE)
 { /* set many options */
-  DB_ENV *dbe = object_handle(STACK_(23),`BDB::ENV`,false);
+  DB_ENV *dbe = object_handle(STACK_(30),`BDB::ENV`,false);
   { /* verbose */
     object verbosep = popSTACK(); /* :VERBOSE - all */
     set_verbose(dbe,verbosep,DB_VERB_WAITSFOR);
@@ -463,7 +486,7 @@ static object env_get_home_dir (DB_ENV *dbe) {
   begin_system_call();
   status = dbe->get_home(dbe,&home);
   end_system_call();
-  if (status) return T;
+  if (status) { error_message_reset(); return T; }
   if (home == NULL) return NIL;
   return asciz_to_string(home,GLO(pathname_encoding));
 }
@@ -475,7 +498,7 @@ static object env_get_open_flags (DB_ENV *dbe) {
   begin_system_call();
   status = dbe->get_open_flags(dbe,&flags);
   end_system_call();
-  if (status) return T;
+  if (status) { error_message_reset(); return T; }
   if (flags & DB_JOINENV) { pushSTACK(`:JOINENV`); count++; }
   if (flags & DB_INIT_CDB) { pushSTACK(`:INIT_CDB`); count++; }
   if (flags & DB_INIT_LOCK) { pushSTACK(`:INIT_LOCK`); count++; }
@@ -670,6 +693,11 @@ DEFUN(BDB:DB-CREATE, dbe &key :XA)
   DB_ENV *dbe = object_handle(STACK_1,`BDB::ENV`,true);
   DB *db;
   SYSCALL(db_create,(&db,dbe,flags));
+  if (!dbe){                    /* set error callback */
+    begin_system_call();
+    db->set_errcall(db,&error_callback);
+    end_system_call();
+  }
   skipSTACK(2);
   wrap_finalize(db,&`BDB::MKDB`,&``BDB::DB-CLOSE``);
 }
@@ -778,8 +806,8 @@ DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO_COMMIT :DIRTY_READ :MULTIPLE :RMW \
   if (status) {
     if (no_error) {
       switch (status) {
-        case DB_NOTFOUND: VALUES1(`:NOTFOUND`); return;
-        case DB_KEYEMPTY: VALUES1(`:KEYEMPTY`); return;
+        case DB_NOTFOUND: VALUES1(`:NOTFOUND`); error_message_reset(); return;
+        case DB_KEYEMPTY: VALUES1(`:KEYEMPTY`); error_message_reset(); return;
       }
     }
     error_bdb(status,"db->get");
@@ -1317,8 +1345,8 @@ DEFUN(BDB:CURSOR-GET, cursor key data action &key :DIRTY_READ :MULTIPLE :ERROR)
   if (status) {
     if (no_error) {
       switch (status) {
-        case DB_NOTFOUND: VALUES1(`:NOTFOUND`); return;
-        case DB_KEYEMPTY: VALUES1(`:KEYEMPTY`); return;
+        case DB_NOTFOUND: VALUES1(`:NOTFOUND`); error_message_reset(); return;
+        case DB_KEYEMPTY: VALUES1(`:KEYEMPTY`); error_message_reset(); return;
       }
     }
     error_bdb(status,"cursor->c_get");

@@ -1,3 +1,14 @@
+2004-06-27  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/dbi.lisp (bdb-error): new condition
+	* modules/berkeley-db/bdb.c (*error_message): new static variable
+	(error_callback, error_message_reset): new functions
+	(error_bdb): signal BDB-ERROR, not ERROR; use error_message
+	(BDB:ENV-CREATE, BDB:DB-CREATE): set error callback to error_callback()
+	(BDB:ENV-SET-OPTIONS): fixed STACK access
+	(env_get_home_dir, env_get_open_flags, BDB:DB-GET, BDB:CURSOR-GET):
+	call error_message_reset()
+
 2004-06-26  Arseny Slobodjuk  <ampy@ich.dvo.ru>
 
 	Fixed handling of relative shortcuts on mingw.

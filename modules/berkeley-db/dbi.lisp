@@ -17,6 +17,7 @@
            "TXN-BEGIN" "TXN-ABORT" "TXN-COMMIT" "TXN-DISCARD" "TXN-ID"
            "TXN-CHECKPOINT" "TXN-PREPARE" "TXN-RECOVER" "TXN-SET-TIMEOUT"
            "TXN-STAT"
+           "BDB-ERROR" "BDB-ERROR-NUMBER"
            "WITH-OPEN-DB"))
 
 (setf (package-lock "EXT") nil)
@@ -171,18 +172,20 @@
   (cursor-close cu))
 )
 
+(define-condition bdb-error (simple-error)
+  (($errno :initarg :errno :reader bdb-error-number)))
 
 #+(or)
 (progn ;; sample
  (bdb:db-version)
  (setq dbe (bdb:env-create))
+ (bdb:env-set-options dbe :errfile "bdb-errors" :verbose t
+                      :data_dir "d:/sds/work/eeld/Test BDBs/35_teth_db/")
  (bdb:env-get-options dbe)
- (bdb:env-set-options dbe :data_dir "/cygdrive/d/sds/work/eeld/Test BDBs/"
-                      :verbose t)
- (bdb:env-open dbe :home "/cygdrive/d/sds/work/eeld/Test BDBs/")
- (bdb:env-close dbe)
+ (bdb:env-open dbe :home "berkeley-db/" :create t :init_mpool t)
 
- (setq db (bdb:db-create nil))
+ (setq db (bdb:db-create dbe))
+ (bdb:db-open db "admin.db" :rdonly t)
  (bdb:db-open db "d:/sds/work/eeld/Test BDBs/35_teth_db/admin.db" :rdonly t)
  (bdb:db-open db "d:/sds/work/eeld/Test BDBs/35_teth_db/index.db" :rdonly t)
  (bdb:db-get-options db)
@@ -197,6 +200,8 @@
                  (ext:convert-string-from-bytes val charset:utf-8))))
  (bdb:db-get db (ext:convert-string-to-bytes "foo" *misc-encoding*) :error nil)
 
+ (bdb:env-set-options dbe :errfile nil)
+ (bdb:env-close dbe)
  (bdb:db-close db)
  (bdb:cursor-close cu)
 )
