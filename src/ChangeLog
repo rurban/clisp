@@ -1,3 +1,9 @@
+1999-07-26  Jörg Höhle  <hoehle@tzd.telekom.de>
+
+        * screen.lsp (generic-stream-read-char-will-hang-p,
+           generic-stream-clear-input): Define the methods on
+          keyboard-controller, not screen-controller.
+
 1999-07-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * Version 1999-07-22 released.
