@@ -15,6 +15,9 @@
     or "file:/usr/doc/lisp/HyperSpec" by sed during installation. In order
     to view this file without sed-processing it, it is sufficient to make
     a symlink for CLHSROOT is the current directory.
+  * "Whatever is written by a human, is supposed to be read by a human".
+    Keep your lines under 79 characters and remember that some people will
+    be reading this document with "CLHSROOT" replaced with a long URL.
   * Literal symbols are written in <code>...</code> font, in lowercase.
   * At the definition point of a symbol, this symbol is written in
     <strong>...</strong> face.
@@ -356,7 +359,7 @@ Reader macros are also defined for the following:
 <table>
   <tr><td><code>#,</code> <td>load-time evaluation
   <tr><td><code>#Y</code> <td>function objects and file encoding
-  <tr><td><code>#"</code> <td>pathname
+  <tr><td><code>#&#34;</code> <td>pathname
 </table>
 
 <h2><a name="eval"></a><a href="CLHSROOT/Body/chap-3.html">
@@ -487,8 +490,7 @@ the singleton set {<var>object</var>}.
 
 <p>The ANSI type specifier
 <code>(<a href="CLHSROOT/Body/syscla_real.html">real</a> <var>low</var> <var>high</var>)</code>
-denotes the real numbers
-between <var>low</var> and <var>high</var>.
+denotes the real numbers between <var>low</var> and <var>high</var>.
 
 <p><a href="CLHSROOT/Body/mac_deftype.html">
 <code>deftype</code></a> lambda lists are subject to destructuring
@@ -800,21 +802,30 @@ only the following are instances of
   <li><a href="CLHSROOT/Body/syscla_symbol.html"><code>symbol</code></a>,
       <a href="CLHSROOT/Body/syscla_null.html"><code>null</code></a>,
   <li><a href="CLHSROOT/Body/syscla_function.html"><code>function</code></a>,
-      <a href="CLHSROOT/Body/syscla_generic-function.html"><code>generic-function</code></a>,
-      <a href="CLHSROOT/Body/syscla_standa_ric-function.html"><code>standard-generic-function</code></a>,
+      <a href="CLHSROOT/Body/syscla_generic-function.html">
+         <code>generic-function</code></a>,
+      <a href="CLHSROOT/Body/syscla_standa_ric-function.html">
+         <code>standard-generic-function</code></a>,
   <li><a href="CLHSROOT/Body/syscla_hash-table.html"><code>hash-table</code></a>,
   <li><a href="CLHSROOT/Body/syscla_package.html"><code>package</code></a>,
   <li><a href="CLHSROOT/Body/syscla_pathname.html"><code>pathname</code></a>,
-      <a href="CLHSROOT/Body/syscla_logical-pathname.html"><code>logical-pathname</code></a>,
-  <li><a href="CLHSROOT/Body/syscla_random-state.html"><code>random-state</code></a>,
+      <a href="CLHSROOT/Body/syscla_logical-pathname.html">
+         <code>logical-pathname</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_random-state.html">
+         <code>random-state</code></a>,
   <li><a href="CLHSROOT/Body/syscla_readtable.html"><code>readtable</code></a>,
   <li><a href="CLHSROOT/Body/syscla_stream.html"><code>stream</code></a>,
-      <a href="CLHSROOT/Body/syscla_synonym-stream.html"><code>synonym-stream</code></a>,
-      <a href="CLHSROOT/Body/syscla_broadcast-stream.html"><code>broadcast-stream</code></a>,
-      <a href="CLHSROOT/Body/syscla_concatenated-stream.html"><code>concatenated-stream</code></a>,
-      <a href="CLHSROOT/Body/syscla_two-way-stream.html"><code>two-way-stream</code></a>,
+      <a href="CLHSROOT/Body/syscla_synonym-stream.html">
+         <code>synonym-stream</code></a>,
+      <a href="CLHSROOT/Body/syscla_broadcast-stream.html">
+         <code>broadcast-stream</code></a>,
+      <a href="CLHSROOT/Body/syscla_concatenated-stream.html">
+         <code>concatenated-stream</code></a>,
+      <a href="CLHSROOT/Body/syscla_two-way-stream.html">
+         <code>two-way-stream</code></a>,
       <a href="CLHSROOT/Body/syscla_echo-stream.html"><code>echo-stream</code></a>,
-      <a href="CLHSROOT/Body/syscla_string-stream.html"><code>string-stream</code></a>,
+      <a href="CLHSROOT/Body/syscla_string-stream.html">
+         <code>string-stream</code></a>,
       <a href="CLHSROOT/Body/syscla_file-stream.html"><code>file-stream</code></a>.
 </ul>
 
@@ -822,12 +833,11 @@ only the following are instances of
     4.3.2 Defining Classes</a></h3>
 
 <p><a href="CLHSROOT/Body/mac_defclass.html"><code>defclass</code></a>
-supports the <code>:metaclass</code> option.
-Possible values are
-<a href="CLHSROOT/Body/syscla_standard-class.html"><code>standard-class</code></a>
-(the default) and
-<a href="CLHSROOT/Body/syscla_structure-class.html"><code>structure-class</code></a>
-(which creates structure classes, like
+supports the <code>:metaclass</code> option.  Possible values are
+<a href="CLHSROOT/Body/syscla_standard-class.html">
+<code>standard-class</code></a> (the default) and
+<a href="CLHSROOT/Body/syscla_structure-class.html">
+<code>structure-class</code></a> (which creates structure classes, like
 <a href="CLHSROOT/Body/mac_defstruct.html"><code>defstruct</code></a> does).
 
 <h3><a href="CLHSROOT/Body/sec_4-3-6.html">
@@ -841,9 +851,8 @@ implemented.
 <h3><a href="CLHSROOT/Body/sec_4-3-7.html">
     4.3.7 Integrating Types and Classes</a></h3>
 
-<p>The class
-<a href="CLHSROOT/Body/syscla_method-combination.html"><code>method-combination</code></a>
-is not implemented.
+<p>The class <a href="CLHSROOT/Body/syscla_method-combination.html">
+<code>method-combination</code></a> is not implemented.
 
 <h2><a name="data"></a><a href="CLHSROOT/Body/chap-5.html">
     Chapter 5: Data and Control Flow</a></h2>
@@ -1483,9 +1492,8 @@ doing side-effects on them or on their symbols causes undefined behaviour.
 <h4><a href="CLHSROOT/Body/fun_make-package.html">
     <code>make-package</code></a></h4>
 
-<p>For
-<a href="CLHSROOT/Body/fun_make-package.html"><code>common-lisp:make-package</code></a>,
-the default value of the
+<p>For <a href="CLHSROOT/Body/fun_make-package.html">
+<code>common-lisp:make-package</code></a>, the default value of the
 <code>:use</code> argument is <code>(&#34;COMMON-LISP&#34;)</code>.
 For <code>lisp:make-package</code>, the default value of the
 <code>:use</code> argument is <code>(&#34;LISP&#34; &#34;CLOS&#34;)</code>.
