@@ -1768,7 +1768,7 @@ blank here cannot be represented in this character set).
   &char-code-header;<tbody>
  <row><entry><keysym>#\Space</keysym></entry>
               <entry><keycode>#x20</keycode></entry></row>
- <row><entry><keysym>#\Newline</keysym></entry>
+ <row><entry>&nl-c;</entry>
               <entry><keycode>#x0A</keycode></entry></row>
 </tbody></tgroup></table>
 
@@ -1783,7 +1783,7 @@ blank here cannot be represented in this character set).
               <entry><keycode>#x0A</keycode></entry></row>
  <row><entry><keysym>#\Page</keysym></entry>
               <entry><keycode>#x0C</keycode></entry></row>
- <row><entry><keysym>#\Return</keysym></entry>
+ <row><entry>&ret-c;</entry>
               <entry><keycode>#x0D</keycode></entry></row>
 </tbody></tgroup></table>
 
@@ -1807,7 +1807,7 @@ blank here cannot be represented in this character set).
 </tbody></tgroup></table>
 <!-- #endif -->
 
-<para><keysym>#\Newline</keysym> is the &line-term;.</para>
+<para>&nl-c; is the &line-term;.</para>
 
 
 <table frame="all"><title>Additional Named Characters</title>
@@ -2008,19 +2008,19 @@ are simple characters.</para>
 <variablelist>
 <varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
    platforms only.</term>
-<listitem><simpara>When writing to a file, <keysym>#\Newline</keysym> is
- converted to <keycode>CR</keycode>/<keycode>LF</keycode>.  (This is the
- usual convention on DOS.)  For example,
- <keysym>#\Return</keysym>+<keysym>#\Newline</keysym> is written as
+<listitem><simpara>When writing to a file, &nl-c; is converted to
+ <keycode>CR</keycode>/<keycode>LF</keycode>.
+ (This is the usual convention on DOS.)
+ For example, &ret-c;+&nl-c; is written as
  <keycode>CR</keycode>/<keycode>CR</keycode>/<keycode>LF</keycode>.
 </simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
 <para>When reading from a file,
- <keycode>CR</keycode>/<keycode>LF</keycode> is converted to
- <keysym>#\Newline</keysym> (the usual convention on DOS), and
+ <keycode>CR</keycode>/<keycode>LF</keycode> is converted to &nl-c;
+ (the usual convention on DOS), and
  <keycode>CR</keycode> not followed by <keycode>LF</keycode> is
- converted to <keysym>#\Newline</keysym> as well (the usual conversion
+ converted to &nl-c; as well (the usual conversion
  on MacOS, also used by some programs on Win32).</para>
 
 </section>
@@ -2063,7 +2063,7 @@ are simple characters.</para>
 
 <para>The graphic characters have been described above.</para>
 
-<para>The standard characters are <keysym>#\Newline</keysym> and the
+<para>The standard characters are &nl-c; and the
  graphic characters with a code between 32 and 126 (inclusive).</para>
 
 <para>The alphabetic characters are these characters:
@@ -2130,7 +2130,7 @@ and the international alphabetic characters from the character set:
           <entry><keysym>#\Tab</keysym></entry>
           <entry><keysym>#\Ht</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0A)</literal></entry>
-          <entry><keysym>#\Newline</keysym></entry>
+          <entry>&nl-c;</entry>
           <entry><keysym>#\Linefeed</keysym></entry>
           <entry><keysym>#\Lf</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0B)</literal></entry>
@@ -2139,7 +2139,7 @@ and the international alphabetic characters from the character set:
           <entry><keysym>#\Page</keysym></entry>
           <entry><keysym>#\Ff</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0D)</literal></entry>
-          <entry><keysym>#\Return</keysym></entry>
+          <entry>&ret-c;</entry>
           <entry><keysym>#\Cr</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0E)</literal></entry>
           <entry><keysym>#\So</keysym></entry></row>
@@ -2202,14 +2202,14 @@ and the international alphabetic characters from the character set:
  <row><entry><literal role="sexp">(&code-char; #x09)</literal></entry>
           <entry><keysym>#\Tab</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0A)</literal></entry>
-          <entry><keysym>#\Newline</keysym></entry>
+          <entry>&nl-c;</entry>
           <entry><keysym>#\Linefeed</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0B)</literal></entry>
           <entry><keysym>#\Code11</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0C)</literal></entry>
           <entry><keysym>#\Page</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0D)</literal></entry>
-          <entry><keysym>#\Return</keysym></entry></row>
+          <entry>&ret-c;</entry></row>
  <row><entry><literal role="sexp">(&code-char; #x1A)</literal></entry>
           <entry><keysym>#\Code26</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x1B)</literal></entry>
@@ -2249,7 +2249,7 @@ and the international alphabetic characters from the character set:
           <entry><keysym>#\Tab</keysym></entry>
           <entry><keysym>#\Ht</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0A)</literal></entry>
-          <entry><keysym>#\Newline</keysym></entry>
+          <entry>&nl-c;</entry>
           <entry><keysym>#\Nl</keysym></entry>
           <entry><keysym>#\Linefeed</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0B)</literal></entry>
@@ -2258,7 +2258,7 @@ and the international alphabetic characters from the character set:
           <entry><keysym>#\Page</keysym></entry>
           <entry><keysym>#\Np</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0D)</literal></entry>
-          <entry><keysym>#\Return</keysym></entry>
+          <entry>&ret-c;</entry>
           <entry><keysym>#\Cr</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0E)</literal></entry>
           <entry><keysym>#\So</keysym></entry></row>
@@ -4285,9 +4285,9 @@ functions are provided:</para>
  <varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
     platforms only.</term>
 <listitem><simpara>&file-position; works on any buffered file stream.
-  When a <keysym>#\Newline</keysym> is output to (respectively input
+  When a &nl-c; is output to (respectively input
   from) a file stream, its file position is increased by 2 since
-  <keysym>#\Newline</keysym> is encoded as
+  &nl-c; is encoded as
   <keycode>CR</keycode>/<keycode>LF</keycode> in the file.
 </simpara></listitem></varlistentry></variablelist>
 </section>
@@ -4386,8 +4386,8 @@ functions are provided:</para>
  When &ppr-first-newline; is non-&nil;,
  and the current line already has some characters on it,
  and the next object will be printed on several lines,
- and it does not start with a <keysym>#\Newline</keysym>,
- then a <keysym>#\Newline</keysym> is printed before the object.
+ and it does not start with a &nl-c;,
+ then a &nl-c; is printed before the object.
  &ppr-first-newline; has no effect if &print-pretty-var; is &nil;.
  &ppr-first-newline; is initially set to &t;.</para></formalpara>
 
