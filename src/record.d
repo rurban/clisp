@@ -91,9 +91,9 @@ nonreturning_function(local, fehler_record_length, (void)) {
   /* STACK_0 = length, TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(O(type_posint16)); /* type */
-  pushSTACK(STACK_2); pushSTACK(S(length)); /* length */
+  pushSTACK(STACK_2); /* length */
   pushSTACK(TheSubr(subr_self)->name); /* function name */
-  fehler(type_error,GETTEXT("~: ~ ~ should be of type ~"));
+  fehler(type_error,GETTEXT("~: length ~ should be of type ~"));
 }
 
 /* ===========================================================================
@@ -765,9 +765,9 @@ local inline object class_of (object obj) {
 nonreturning_function(local, fehler_keine_klasse, (object obj)) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(S(class)); /* CLOS:CLASS, TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(S(class)); pushSTACK(obj);
+  pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name); /* function name */
-  fehler(type_error,GETTEXT("~: ~ is not a ~"));
+  fehler(type_error,GETTEXT("~: ~ is not a class"));
 }
 
 /* (CLOS::ALLOCATE-STD-INSTANCE class n) returns a CLOS-instance of length n,

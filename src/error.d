@@ -747,8 +747,8 @@ global object check_fpointer (object obj, bool restart_p) {
 nonreturning_function(global, fehler_list, (object obj)) {
   pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
   pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(S(list)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a ~"));
+  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: ~ is not a list"));
 }
 /* ditto - recoverable
  can trigger GC */
@@ -757,8 +757,8 @@ global object check_list (object obj) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
     pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(list)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a list"));
     obj = value1;
   }
   return obj;
@@ -788,8 +788,8 @@ global object check_symbol (object sy) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(sy);        /* TYPE-ERROR slot DATUM */
     pushSTACK(S(symbol)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(symbol)); pushSTACK(sy); pushSTACK(caller);
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    pushSTACK(sy); pushSTACK(caller);
+    check_value(type_error,GETTEXT("~: ~ is not a symbol"));
     sy = value1;
   }
   return sy;
@@ -851,8 +851,8 @@ nonreturning_function(global, fehler_kein_svector, (object caller, object obj))
 nonreturning_function(global, fehler_vector, (object obj)) {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
   pushSTACK(S(vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(S(vector)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a ~"));
+  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: ~ is not a vector"));
 }
 
 /* error-message, if an object is not an environment.
@@ -896,9 +896,9 @@ global object check_integer (object obj) {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
     pushSTACK(S(integer));      /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(integer)); pushSTACK(obj);
+    pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    check_value(type_error,GETTEXT("~: ~ is not an integer"));
     obj = value1;
   }
   return obj;
@@ -908,9 +908,9 @@ global object check_pos_integer (object obj) {
     pushSTACK(NIL);                /* no PLACE */
     pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(integer)); pushSTACK(obj);
+    pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a non-negative ~"));
+    check_value(type_error,GETTEXT("~: ~ is not a non-negative integer"));
     obj = value1;
   }
   return obj;
@@ -922,9 +922,9 @@ global object check_pos_integer (object obj) {
 nonreturning_function(global, fehler_char, (object obj)) {
   pushSTACK(obj);          /* TYPE-ERROR slot DATUM */
   pushSTACK(S(character)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(S(character)); pushSTACK(obj);
+  pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ is not a ~"));
+  fehler(type_error,GETTEXT("~: argument ~ is not a character"));
 }
 /* can trigger GC */
 global object check_char (object obj) {
@@ -932,9 +932,9 @@ global object check_char (object obj) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);          /* TYPE-ERROR slot DATUM */
     pushSTACK(S(character)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(character)); pushSTACK(obj);
+    pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: argument ~ is not a ~"));
+    check_value(type_error,GETTEXT("~: argument ~ is not a character"));
     obj = value1;
   }
   return obj;
@@ -947,8 +947,8 @@ global object check_string (object obj) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
     pushSTACK(S(string)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(string)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: argument ~ is not a ~"));
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: argument ~ is not a string"));
     obj = value1;
   }
   return obj;
@@ -1000,8 +1000,8 @@ nonreturning_function(global, fehler_stringsize, (uintL size)) {
 nonreturning_function(global, fehler_stream, (object obj)) {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
   pushSTACK(S(stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(S(stream)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ is not a ~"));
+  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: argument ~ is not a stream"));
 }
 
 /* error-message, if an argument is not a Stream of required stream type:
@@ -1094,9 +1094,9 @@ nonreturning_function(global, fehler_key_odd, (uintC argcount, object caller))
 nonreturning_function(global, fehler_key_notkw, (object kw, object caller)) {
   pushSTACK(kw); /* KEYWORD-ERROR slot DATUM */
   pushSTACK(S(symbol)); /* KEYWORD-ERROR slot EXPECTED-TYPE */
-  pushSTACK(S(symbol)); pushSTACK(kw); pushSTACK(S(LLkey)); pushSTACK(caller);
+  pushSTACK(kw); pushSTACK(S(LLkey)); pushSTACK(caller);
   fehler(keyword_error,
-         GETTEXT("~: ~ marker ~ is not a ~"));
+         GETTEXT("~: ~ marker ~ is not a symbol"));
 }
 
 /* error-message for flawed keyword
@@ -1131,9 +1131,9 @@ global object check_function (object obj) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
     pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(function)); pushSTACK(obj);
+    pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    check_value(type_error,GETTEXT("~: ~ is not a function"));
     if (symbolp(value1))
       obj = Symbol_function(value1);
     else if (funnamep(value1)) {

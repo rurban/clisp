@@ -80,8 +80,8 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
   (unless (realp priority)
     (error-of-type 'type-error
       :datum priority :expected-type 'real
-      (TEXT "~S: priority must be a ~S, not ~S")
-      'set-pprint-dispatch 'real priority))
+      (TEXT "~S: priority must be a real number, not ~S")
+      'set-pprint-dispatch priority))
   (let ((rec (member type-specifier (cdr table) :test #'equal :key #'car)))
     (if rec
         (if function
@@ -131,18 +131,18 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
       (when (and ,pre (not (stringp ,pre)))
         (error-of-type 'type-error
           :datum ,pre :expected-type 'string
-          (TEXT "~S: ~S must be a ~S, not ~S")
-          'pprint-logical-block :prefix 'string ,pre))
+          (TEXT "~S: ~S must be a string, not ~S")
+          'pprint-logical-block :prefix ,pre))
       (when (and ,suf (not (stringp ,suf)))
         (error-of-type 'type-error
           :datum ,suf :expected-type 'string
-          (TEXT "~S: ~S must be a ~S, not ~S")
-          'pprint-logical-block :suffix 'string ,suf))
+          (TEXT "~S: ~S must be a string, not ~S")
+          'pprint-logical-block :suffix ,suf))
       (when (and *prin-line-prefix* (not (stringp *prin-line-prefix*)))
         (error-of-type 'type-error
           :datum *prin-line-prefix* :expected-type 'string
-          (TEXT "~S: ~S must be a ~S, not ~S")
-          'pprint-logical-block :prefix 'string *prin-line-prefix*))
+          (TEXT "~S: ~S must be a string, not ~S")
+          'pprint-logical-block :prefix *prin-line-prefix*))
       (%pprint-logical-block
        (lambda (,out obj)
          (declare (ignorable obj))

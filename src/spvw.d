@@ -1516,7 +1516,9 @@ local void init_other_modules_2 (void) {
 # print usage and exit
 nonreturning_function (local, usage, (int exit_code)) {
   printf(PACKAGE_NAME " (" PACKAGE_BUGREPORT ") ");
-  printf(GETTEXTL("is an ANSI Common Lisp.\nUsage:  "));
+  printf(GETTEXTL("is an ANSI Common Lisp."));
+  printf("\n");
+  printf(GETTEXTL("Usage:  "));
   printf(program_name);
   printf(GETTEXTL(" [options] [lispfile [argument ...]]\n"
                   " When `lispfile' is given, it is loaded and `*ARGS*' is set\n"

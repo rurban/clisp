@@ -1264,7 +1264,7 @@
                   (or (= 2 (length obj))
                       (bad last-p stream (TEXT "~s: compiled file ~s has a corrupt version marker ~s")))
                   (or (equal (system::version) (eval (second obj)))
-                      (bad last-p stream (TEXT "~s: compiled file ~s has an older version marker"))))))
+                      (bad last-p stream (TEXT "~s: compiled file ~s was created by an older CLISP version and needs to be recompiled"))))))
     (setq filename (pathname filename) path filename stream (my-open path))
     (tagbody proceed
       (when (and stream
@@ -1337,9 +1337,15 @@
       (fresh-line)
       (write-string ";;")
       (write-string indent)
-      (write-string (TEXT "Loading file "))
-      (princ filename)
-      (write-string " ..."))
+      (let* ((msg (TEXT "Loading file ~A ..."))
+             ; We cannot use FORMAT here (bootstrapping constraint).
+             (pos (sys::search-string-equal "~A" msg)))
+        (if pos
+          (progn
+            (write-string (substring msg 0 pos))
+            (princ filename)
+            (write-string (substring msg (+ pos 2))))
+          (write-string msg))))
     (when *load-compiling* (compiler::c-reset-globals))
     (sys::allow-read-eval input-stream t)
     ;; see `with-compilation-unit' -- `:compiling' sets a compilation unit
@@ -1372,8 +1378,15 @@
       (fresh-line)
       (write-string ";;")
       (write-string indent)
-      (write-string (TEXT "Loaded file "))
-      (princ filename))
+      (let* ((msg (TEXT "Loaded file ~A"))
+             ; We cannot use FORMAT here (bootstrapping constraint).
+             (pos (sys::search-string-equal "~A" msg)))
+        (if pos
+          (progn
+            (write-string (substring msg 0 pos))
+            (princ filename)
+            (write-string (substring msg (+ pos 2))))
+          (write-string msg))))
     t))
 
 (sys::%putd 'check-symbol

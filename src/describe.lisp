@@ -442,11 +442,9 @@ to print the corresponding values, or T for all of them.")
         (format stream (TEXT " (a string)"))
         #+UNICODE
         (multiple-value-bind (bits ro-p realloc) (sys::string-info obj)
-          (write-string (TEXT " (a ") stream)
-          (when ro-p (write-string (TEXT "immutable ") stream))
-          (when realloc (write-string (TEXT "reallocated ") stream))
-          (format stream (TEXT "~A string)")
-                         (case bits (8 "ISO-8859-1") (16 "UCS-2") (32 "UCS-4")))))
+          (format stream (TEXT " (a~:[~;n immutable~] ~:[~;reallocated ~]~A string)")
+                  ro-p realloc
+                  (case bits (8 "ISO-8859-1") (16 "UCS-2") (32 "UCS-4")))))
       (format stream (TEXT "."))))
   (:method ((obj generic-function) (stream stream))
     (format stream (TEXT "a generic function."))
@@ -544,15 +542,13 @@ to print the corresponding values, or T for all of them.")
 
 (defun arglist (func) (sig-to-list (get-signature func)))
 
-(defun describe-signature (s req-anz opt-anz rest-p keyword-p keywords
+(defun describe-signature (stream req-anz opt-anz rest-p keyword-p keywords
                            allow-other-keys)
-  (when s
-    (format s (TEXT "~%Argument list: ")))
-  (prog1
-      (format s "(~{~A~^ ~})"
-              (signature-to-list req-anz opt-anz rest-p keyword-p keywords
-                                 allow-other-keys))
-    (when s (format s "."))))
+  (terpri stream)
+  (format stream (TEXT "Argument list: ~A.")
+          (format nil "(~{~A~^ ~})"
+                  (signature-to-list req-anz opt-anz rest-p keyword-p keywords
+                                     allow-other-keys))))
 
 ;;-----------------------------------------------------------------------------
 ;; auxiliary functions for CLISP metadata

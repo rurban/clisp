@@ -2988,7 +2988,7 @@ LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
       pushSTACK(S(character)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(S(character)); pushSTACK(initial_element);
       pushSTACK(S(Kinitial_element)); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~: ~ ~ should be of type ~"));
+      fehler(type_error,GETTEXT("~: ~ argument ~ should be of type ~"));
     } else {
       var chart ch = char_code(initial_element);
      #ifdef HAVE_SMALL_SSTRING
