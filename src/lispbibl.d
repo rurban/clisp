@@ -10414,14 +10414,15 @@ extern void unwind (void);
 nonreturning_function(extern, reset, (void));
 # is used by SPVW, CONTROL
 
-# UP: binds the symbols of the list symlist dynamically
-# to the values of the list vallist.
-# progv(symlist,vallist);
-# > symlist, vallist: two lists
-# Exactly one variable-bindings-frame is created.
-# modifies STACK
+/* UP: binds the symbols of the list symlist dynamically
+ to the values of the list vallist.
+ progv(symlist,vallist);
+ > symlist, vallist: two lists
+ Exactly one variable-bindings-frame is created.
+ modifies STACK
+ can trigger GC */
 extern void progv (object symlist, object vallist);
-# is used by CONTROL
+/* used by CONTROL, EVAL */
 
 # UP: Unwinds the dynamic nesting on the STACK until the frame
 # (exclusively), to which upto points, and jumps to it.
@@ -10718,13 +10719,6 @@ extern object coerce_function (object obj);
 # > name: Block-name
 nonreturning_function(extern, fehler_block_left, (object name));
 # is used by EVAL
-
-# Error message for undefined function.
-# fehler_undef_function(caller,symbol);
-# > caller: caller (a Symbol)
-# > symbol: Symbol or (SETF symbol)
-nonreturning_function(extern, fehler_undef_function, (object caller, object symbol));
-# is used by PREDTYPE
 
 /* convert the numeric side-effect class as stored in subr_t or cclosure_t
  to the object - CONS or NIL - as used in compiler.lisp and for #Y i/o */
@@ -12108,19 +12102,23 @@ nonreturning_function(extern, fehler_list, (object obj));
 nonreturning_function(extern, fehler_proper_list, (object caller, object obj));
 # is used by LIST
 
-# Error message, if an object isn't a symbol.
-# fehler_kein_symbol(caller,obj);
-# > caller: caller (a symbol)
-# > obj: non-symbol
-nonreturning_function(extern, fehler_kein_symbol, (object caller, object obj));
-# is used by EVAL, CONTROL
+/* UP: check whether the argument is a symbol and return it
+ can trigger GC */
+extern object check_symbol (object sy);
+/* used by CONTROL, EVAL, I18N, RECORD, STREAM, SYMBOL */
 
 /* UP: signal an error if OBJ is not a non-constant symbol and
  return OBJ otherwise
- > caller: the caller (function name)
  > obj: a potential symbol
+ > caller: a symbol
  < obj: a non-constant symbol */
-global object test_symbol_non_constant (object caller, object obj);
+global object check_symbol_non_constant (object obj, object caller);
+/* used by EVAL, CONTROL */
+
+/* UP: signal an error if a non-symbol was declared special
+ returns the symbol
+ can trigger GC */
+global object check_symbol_special (object obj, object caller);
 /* used by EVAL, CONTROL */
 
 # Error message, if an object isn't a Simple-Vector.
@@ -12233,11 +12231,19 @@ nonreturning_function(global, fehler_key_notkw, (object key, object caller));
 nonreturning_function(global, fehler_key_badkw,
                       (object fun, object key, object val, object kwlist));
 
-# Error message, if an argument isn't a function:
-# fehler_function(obj);
-# obj: the faulty argument
-nonreturning_function(extern, fehler_function, (object obj));
-# is used by RECORD
+/* error-message, if an argument isn't a function:
+ check_function(obj);
+ obj: the faulty argument */
+extern object check_function (object obj);
+/* used by RECORD, EVAL, SEQUENCE, SYMBOL */
+
+/* error if funname does not have a function definition
+ > funname: symbol or (setf symbol)
+ > caller: symbol
+ < a function object
+ can trigger GC */
+global object check_fdefinition (object funname, object caller);
+/* used by CONTROL */
 
 /* Report an error when the argument is not an encoding:
  > obj: the (possibly) bad argument
@@ -12935,11 +12941,6 @@ extern object Symbol_function_checked (object symbol);
 # < value: corresponding value from the property list of 'symbol', or unbound.
 extern object get (object symbol, object key);
 # is used by IO, CONTROL, EVAL, PREDTYPE, SEQUENCE
-
-/* UP: check whether the argument is a symbol and return it
- can trigger GC */
-extern object check_symbol (object sy);
-/* used by CONTROL, EVAL, I18N, RECORD, STREAM, SYMBOL */
 
 # ##################### ARITBIBL for LISTARIT.D ############################ #
 
