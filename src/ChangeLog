@@ -15,6 +15,11 @@
 
 2004-11-23  Bruno Haible  <bruno@clisp.org>
 
+	* package.d (rehash_symtab): If the vector length supports 32 bits, use
+	2^32-1 as maximum size, not 2^24-1.
+
+2004-11-23  Bruno Haible  <bruno@clisp.org>
+
 	* clhs.lisp (browse-url): On MacOS X, use the system's browser by
 	default.
 	Suggested by Pascal Costanza <pc@p-cos.net>.

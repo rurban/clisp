@@ -127,11 +127,22 @@ local object rehash_symtab (object symtab) {
   var object size; /* new size (as Fixnum) */
   pushSTACK(Symtab_table(symtab)); /* oldtable = old table-vector */
   pushSTACK(NIL); /* free-conses := NIL */
+ #ifdef TYPECODES /* Svector_length is limited to max. 2^32-1 */
+  /* new size = min(floor(oldsize*1.6),2^32-1) */
+  { /* multiply oldsize (>0, <2^32) with 1.6*2^31, then divide by 2^31 : */
+    var uint32 prod_hi;
+    var uint32 prod_lo;
+    mulu32(oldsize,3435973888UL, prod_hi=,prod_lo=);
+    newsize =
+      (prod_hi < (1UL<<31) ? (prod_hi << 1) | (prod_lo >> 31) : (1UL<<31)-1 );
+  }
+ #else /* Svector_length is limited to max. 2^24-1 */
   /* new size = min(floor(oldsize*1.6),2^24-1) */
   { /* multiply oldsize (>0, <2^24) with 1.6*2^7, then divide by 2^7 : */
     var uint32 prod = oldsize * 205UL;
     newsize = (prod < (1UL<<31) ? prod>>7 : (1UL<<24)-1 );
   } /* newsize is now >= oldsize > 0 and < 2^24 */
+ #endif
   /* make newsize odd by rounding off: */
   newsize = (newsize - 1) | 1 ;
   /* calculate size: */
