@@ -689,7 +689,7 @@ following information:</para>
    all the error messages, as well as detailed instructions on how to
    reproduce them.</simpara></listitem></orderedlist>
 
-<para>Known bugs, some of which may be platform-dependent, include</para>
+<para>Known bugs, some of which may be platform-dependent, include:</para>
 
 <itemizedlist>
 <!-- #ifdef SPVW_MIXED_BLOCKS -->
