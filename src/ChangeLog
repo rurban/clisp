@@ -1,5 +1,10 @@
 2004-02-16  Sam Steingold  <sds@gnu.org>
 
+	* defs2.lisp (write-sequence): make sure to return only one value
+	when writing bytes - for consistency and ANSI compliance
+
+2004-02-16  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (nil_vector_p, nil_vector_0_p): new macros
 	* error.d (check_string): use them
 	* predtype.d (equal, equalp): handle nilvector properly:
