@@ -1579,6 +1579,32 @@ expands to
 </programlisting>
 </para></formalpara>
 
+<formalpara id="remove-plist">
+     <title>Function <function>EXT:REMOVE-PLIST</function></title>
+<para>Similar to &remove; and &remf;, this function removes some
+ properties from a property list.  It is non-destructve and thus can be
+ used on &rest-amp; arguments to remove some keyword parameters, e.g.,
+<programlisting>
+ (defmacro with-foo ((&key-amp; foo1 foo2) &body-amp; body)
+   `(... ,foo1 ... ,foo2 ... ,@body))
+ (defmacro with-foo-bar ((&rest-amp; opts &key bar1 bar2
+                          &allow-other-keys-amp;)
+                         &body-amp; body)
+   `(with-foo (,@(remove-plist opts :bar1 :bar2)
+      ... ,bar1 ... ,bar2 ... ,@body)))
+ (defun foo-bar ()
+   (with-foo-bar (:bar1 1 :foo2 2) ...))
+</programlisting>
+here <function>WITH-FOO</function> does not receive the
+<literal>:BAR1 1</literal> argument from <function>FOO-BAR</function>.
+</para></formalpara>
+
+<formalpara id="html-http-output">
+     <title>Macros <function>EXT:WITH-HTML-OUTPUT</function> and
+                   <function>EXT:WITH-HTTP-OUTPUT</function></title>
+<para>Defined in <file>inspect.lisp</file>, these macros are useful for
+ the rudimentary &http; server defined there.</para></formalpara>
+
 </section>
 
 <section id="customize">

@@ -478,6 +478,18 @@
                   `(PROGN (SETQ ,(first SM3) ,new-plist) ,SM4)))
            ,removed-p)))))
 ;;;----------------------------------------------------------------------------
+(export 'ext::remove-plist "EXT")
+(defun remove-plist (plist &rest keys)
+  "Remove the keys from the plist.
+Useful for re-using the &REST arg after removing some options."
+  (do (copy rest)
+      ((null (setq rest (nth-value 2 (get-properties plist keys))))
+       (nreconc copy plist))
+    (do () ((eq plist rest))
+      (push (pop plist) copy)
+      (push (pop plist) copy))
+    (setq plist (cddr plist))))
+;;;----------------------------------------------------------------------------
 (defmacro rotatef (&rest args &environment env)
   (when (null args) (return-from rotatef NIL))
   (when (null (cdr args)) (return-from rotatef `(PROGN ,(car args) NIL)))
