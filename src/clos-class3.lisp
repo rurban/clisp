@@ -1171,7 +1171,7 @@
                       'standard-effective-slot-definition slot))))
           ((structure-class-p class)
            (dolist (slot slots)
-             (unless (typep slot <structure-effective-slot-definition>)
+             (unless (typep-class slot <structure-effective-slot-definition>)
                (error (TEXT "Wrong ~S result for class ~S: list element is not a ~S: ~S")
                       'compute-slots (class-name class)
                       'structure-effective-slot-definition slot)))))
