@@ -1798,7 +1798,7 @@ fas.config : lisp.config lisp mem.halfcomp
 	$(RUN) -m 1000KW -M mem.halfcomp -q -c config.lisp
 
 mem.halfcomp : lisp $(LISPFILES) fas.compiler
-	-$(RM) mem.interpre
+	-$(RM) mem.halfcomp
 	$(RUN) -m 750KW -x "(load \"init.lisp\") (sys::%saveinitmem) (exit)"
 	$(MV) mem.lispimag mem.halfcomp
 
@@ -1955,8 +1955,7 @@ stage.lisp.config : lisp.config
 	$(LN_S) lisp.config stage
 
 stage.testinit.mem: mem.lispinit
-	$(RUN) -M mem.lispinit -x "(setq *gensym-counter* (- `$(RUN) -q -M mem.halfcomp -x '*gensym-counter*'` 16)) (sys::%saveinitmem) (exit)"
-	$(MV) mem.lispimag stage.mem.testinit
+	$(CP) mem.lispinit stage.mem.testinit
 
 stage.fas.init : stage.lisp.init lisp stage.mem.testinit
 	$(RUN) -M stage.mem.testinit -q -c stage.init.lisp
